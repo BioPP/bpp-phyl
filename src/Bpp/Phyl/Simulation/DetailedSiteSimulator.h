@@ -64,13 +64,13 @@ class SiteSimulationResult
     mutable std::map<int, size_t> indexes_;
     size_t currentIndex_;
     std::vector<MutationPath> paths_;
-    std::vector<int> ancestralStates_;
+    std::vector<size_t> ancestralStates_;
     const Tree* tree_;
     std::vector<int> leavesId_;
     const Alphabet* alphabet_;
     
   public:
-    SiteSimulationResult(const Tree* tree, const Alphabet* alphabet, int ancestralState) :
+    SiteSimulationResult(const Tree* tree, const Alphabet* alphabet, size_t ancestralState) :
       indexes_        (),
       currentIndex_   (0),
       paths_          (),
@@ -122,9 +122,9 @@ class SiteSimulationResult
       ancestralStates_.push_back(path.getFinalState());
     }
 
-    virtual int getAncestralState(size_t i)    const { return ancestralStates_[i]; }
+    virtual size_t getAncestralState(size_t i) const { return ancestralStates_[i]; }
 
-    virtual int getAncestralState(int nodeId) const { return ancestralStates_[1 + indexes_[nodeId]]; }
+    virtual size_t getAncestralState(int nodeId) const { return ancestralStates_[1 + indexes_[nodeId]]; }
 
     virtual const MutationPath& getMutationPath(size_t i) const { return paths_[i]; }
 
@@ -156,10 +156,10 @@ class SiteSimulationResult
     /**
      * @return The states at the leaves.
      */
-    virtual std::vector<int> getFinalStates() const
+    virtual std::vector<size_t> getFinalStates() const
     {
       size_t n = leavesId_.size(); 
-      std::vector<int> states(n);
+      std::vector<size_t> states(n);
       for (size_t i = 0; i < n; i++)
       {
         states[i] = ancestralStates_[1 + indexes_[leavesId_[i]]];
@@ -170,7 +170,14 @@ class SiteSimulationResult
     /**
      * @return The site corresponding to this simulation.
      */
-    virtual Site* getSite() const { return new Site(getFinalStates(), alphabet_); }
+    virtual Site* getSite(const SubstitutionModel& model) const {
+      std::vector<size_t> mstates = getFinalStates();
+      std::vector<int> astates(mstates.size());
+      for (size_t i = 0; i < mstates.size(); ++i) {
+        astates[i] = model.getAlphabetChar(mstates[i]);
+      }
+      return new Site(astates, alphabet_);
+    }
 
     /**
      * @return A vector with the leaves names.
@@ -203,8 +210,8 @@ class RASiteSimulationResult:
     double rate_;
     
   public:
-    RASiteSimulationResult(const Tree* tree, const Alphabet * alphabet, int ancestralState, double rate):
-      SiteSimulationResult(tree, alphabet, ancestralState),
+    RASiteSimulationResult(const Tree* tree, const Alphabet * alphabet, size_t ancestralStateIndex, double rate):
+      SiteSimulationResult(tree, alphabet, ancestralStateIndex),
       rate_(rate) {}
 
     virtual ~RASiteSimulationResult() {}
@@ -237,10 +244,10 @@ class DetailedSiteSimulator:
      * @return A SiteSimulationResult object with all ancestral
      * states for all nodes and branches.
      */
-    virtual SiteSimulationResult* dSimulate() const = 0;
-    virtual SiteSimulationResult* dSimulate(int ancestralState) const = 0;
-    virtual SiteSimulationResult* dSimulate(int ancestralState, double rate) const = 0;
-    virtual SiteSimulationResult* dSimulate(double rate) const = 0;
+    virtual SiteSimulationResult* dSimulateSite() const = 0;
+    virtual SiteSimulationResult* dSimulateSite(size_t ancestralStateIndex) const = 0;
+    virtual SiteSimulationResult* dSimulateSite(size_t ancestralStateIndex, double rate) const = 0;
+    virtual SiteSimulationResult* dSimulateSite(double rate) const = 0;
     
 };
 

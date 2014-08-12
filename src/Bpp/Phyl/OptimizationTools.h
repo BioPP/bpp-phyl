@@ -567,7 +567,7 @@ public:
   static unsigned int optimizeTreeScale(
     TreeLikelihood* tl,
     double tolerance = 0.000001,
-    int tlEvalMax = 1000000,
+    unsigned int tlEvalMax = 1000000,
     OutputStream* messageHandler = ApplicationTools::message,
     OutputStream* profiler       = ApplicationTools::message,
     unsigned int verbose = 1)

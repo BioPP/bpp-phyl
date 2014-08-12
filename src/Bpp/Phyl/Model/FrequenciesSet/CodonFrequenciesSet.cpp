@@ -275,10 +275,10 @@ void FullPerAACodonFrequenciesSet::updateFrequencies()
 
   for (size_t i = 0; i < size; i++)
   {
-    std::vector<int> vc = pgc_->getSynonymous(static_cast<int>(i));
+    std::vector<int> vc = pgc_->getSynonymous(pgc_->getTargetAlphabet()->getIntCodeAt(i));
     for (size_t j = 0; j < vc.size(); j++)
     {
-      getFreq_(vc[j]) = double(vc.size()) * (ppfs_->getFrequencies())[i] * vS_[i].prob(j);
+      getFreq_(pgc_->getSourceAlphabet()->getStateIndex(vc[j])) = static_cast<double>(vc.size()) * (ppfs_->getFrequencies())[i] * vS_[i].prob(j);
     }
   }
   normalize();
@@ -287,7 +287,7 @@ void FullPerAACodonFrequenciesSet::updateFrequencies()
 void FullPerAACodonFrequenciesSet::setFrequencies(const vector<double>& frequencies)
 {
   if (frequencies.size() != getAlphabet()->getSize())
-    throw DimensionException("FullParAAFrequenciesSet::setFrequencies", frequencies.size(), getAlphabet()->getSize());
+    throw DimensionException("FullPerAAFrequenciesSet::setFrequencies", frequencies.size(), getAlphabet()->getSize());
 
   size_t size = pgc_->getTargetAlphabet()->getSize();
 
@@ -297,18 +297,19 @@ void FullPerAACodonFrequenciesSet::setFrequencies(const vector<double>& frequenc
   {
     vector<double> vp;
     double s = 0;
-    std::vector<int> vc = pgc_->getSynonymous(static_cast<int>(i));
+    std::vector<int> vc = pgc_->getSynonymous(pgc_->getTargetAlphabet()->getIntCodeAt(i));
     for (size_t j = 0; j < vc.size(); j++)
     {
-      vp.push_back(frequencies[vc[j]]);
-      s += frequencies[vc[j]];
+      size_t index = pgc_->getSourceAlphabet()->getStateIndex(vc[j]);
+      vp.push_back(frequencies[index]);
+      s += frequencies[index];
     }
     vp /= s;
     vS_[i].setFrequencies(vp);
     matchParametersValues(vS_[i].getParameters());
 
-    S += s/double(vc.size());
-    vaa.push_back(s/double(vc.size()));
+    S += s / static_cast<double>(vc.size());
+    vaa.push_back(s / static_cast<double>(vc.size()));
   }
 
   vaa /= S; // to avoid counting of stop codons
@@ -401,9 +402,9 @@ CodonFromIndependentFrequenciesSet::CodonFromIndependentFrequenciesSet(
   {
     size_t pow = 1;
     int nspcod = vspcod[ispcod];
-    for (int ph = 0; ph < 3; ph++)
+    for (size_t ph = 0; ph < 3; ph++)
     {
-      size_t nspcod0 = nspcod - pow * getAlphabet()->getNPosition(nspcod, 2 - ph);
+      size_t nspcod0 = static_cast<size_t>(nspcod) - pow * static_cast<size_t>(getAlphabet()->getNPosition(nspcod, 2 - ph));
       for (size_t dec = 0; dec < 4; dec++)
       {
         size_t vois = nspcod0 + pow * dec;
@@ -463,14 +464,14 @@ void CodonFromIndependentFrequenciesSet::updateFrequencies()
       double sneifreq = 0;
       for (size_t vn = 0; vn < vneigh.size(); vn++)
       {
-        sneifreq += pow(getFreq_(vneigh[vn]), mgmtStopFreq_);
+        sneifreq += pow(getFreq_(static_cast<size_t>(vneigh[vn])), mgmtStopFreq_);
       }
-      double x = getFreq_(stNb) / sneifreq;
+      double x = getFreq_(static_cast<size_t>(stNb)) / sneifreq;
       for (size_t vn = 0; vn < vneigh.size(); vn++)
       {
-        f[vneigh[vn]] += pow(getFreq_(vneigh[vn]), mgmtStopFreq_) * x;
+        f[vneigh[vn]] += pow(getFreq_(static_cast<size_t>(vneigh[vn])), mgmtStopFreq_) * x;
       }
-      getFreq_(stNb) = 0;
+      getFreq_(static_cast<size_t>(stNb)) = 0;
       mStopNeigh_it++;
     }
 
@@ -522,7 +523,7 @@ CodonFromUniqueFrequenciesSet::CodonFromUniqueFrequenciesSet(
     int nspcod = vspcod[ispcod];
     for (int ph = 0; ph < 3; ph++)
     {
-      size_t nspcod0 = nspcod - pow * getAlphabet()->getNPosition(nspcod, 2 - ph);
+      size_t nspcod0 = static_cast<size_t>(nspcod) - pow * static_cast<size_t>(getAlphabet()->getNPosition(nspcod, static_cast<unsigned int>(2 - ph)));
       for (size_t dec = 0; dec < 4; dec++)
       {
         size_t vois = nspcod0 + pow * dec;
@@ -584,14 +585,14 @@ void CodonFromUniqueFrequenciesSet::updateFrequencies()
       double sneifreq = 0;
       for (size_t vn = 0; vn < vneigh.size(); vn++)
       {
-        sneifreq += pow(getFreq_(vneigh[vn]), mgmtStopFreq_);
+        sneifreq += pow(getFreq_(static_cast<size_t>(vneigh[vn])), mgmtStopFreq_);
       }
-      double x = getFreq_(stNb) / sneifreq;
+      double x = getFreq_(static_cast<size_t>(stNb)) / sneifreq;
       for (size_t vn = 0; vn < vneigh.size(); vn++)
       {
-        f[vneigh[vn]] += pow(getFreq_(vneigh[vn]), mgmtStopFreq_) * x;
+        f[vneigh[vn]] += pow(getFreq_(static_cast<size_t>(vneigh[vn])), mgmtStopFreq_) * x;
       }
-      getFreq_(stNb) = 0;
+      getFreq_(static_cast<size_t>(stNb)) = 0;
       mStopNeigh_it++;
     }
 
@@ -634,7 +635,7 @@ FrequenciesSet* CodonFrequenciesSet::getFrequenciesSetForCodons(short option, co
     codonFreqs = new CodonFromIndependentFrequenciesSet(gCode, v_AFS, "F3X4", mgmtStopFreq);
   }
   else if (option == F61)
-    codonFreqs = new FullCodonFrequenciesSet(gCode, "F61");
+    codonFreqs = new FullCodonFrequenciesSet(gCode, false, "F61");
   else
     throw Exception("FrequenciesSet::getFrequencySetForCodons(). Unvalid codon frequency set argument.");
 

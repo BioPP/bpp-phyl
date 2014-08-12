@@ -1343,7 +1343,7 @@ vector< vector<double> > SubstitutionMappingTools::getCountsPerBranch(
     for (size_t i = 0; !error && i < nbSites; ++i) {
       double s = 0;
       for (size_t t = 0; t < nbTypes; ++t) {
-        tmp[t] = (*mapping)(ids[k], i, t);
+        tmp[t] = (*mapping)(mapping->getNodeIndex(ids[k]), i, t);
         error = isnan(tmp[t]);
         if (error)
           goto ERROR;
@@ -1411,7 +1411,7 @@ vector< vector<double> > SubstitutionMappingTools::getCountsPerBranch(
     for (size_t i = 0; !error && i < nbSites; ++i) {
       double s = 0;
       for (size_t t = 0; t < nbTypes; ++t) {
-        tmp[t] = (*mapping)(ids[k], i, t);
+        tmp[t] = (*mapping)(mapping->getNodeIndex(ids[k]), i, t);
         error = isnan(tmp[t]);
         if (error)
           goto ERROR;
@@ -1463,17 +1463,18 @@ vector< vector<double> > SubstitutionMappingTools::getNormalizationsPerBranch(
   size_t nbTypes = reg.getNumberOfSubstitutionTypes();
   size_t nbStates = nullModel->getAlphabet()->getSize();
   size_t nbSites = drtl.getNumberOfSites();
+  vector<int> supportedStates = nullModel->getAlphabetChars();
   
   // compute the AlphabetIndex for each substitutionType
   vector<UserAlphabetIndex1 > usai(nbTypes, UserAlphabetIndex1(nullModel->getAlphabet()));
 
   for (size_t i=0; i<nbStates; i++)
     for (size_t j=0; j<nbStates; j++)
-      if (i!=j)
+      if (i != j)
       {
-        size_t nbt=reg.getType((int)i,(int)j);
+        size_t nbt=reg.getType(i, j);
         if (nbt!=0)
-          usai[nbt-1].setIndex((int)i,usai[nbt-1].getIndex((int)i)+nullModel->Qij((int)i,(int)j)); 
+          usai[nbt-1].setIndex(supportedStates[i],usai[nbt-1].getIndex(supportedStates[i])+nullModel->Qij(i,j)); 
       }
   
   // compute the normalization for each substitutionType
@@ -1529,14 +1530,15 @@ vector< vector<double> > SubstitutionMappingTools::getNormalizationsPerBranch(
   for (size_t nbm=0; nbm<nbModels; nbm++)
   {
     const SubstitutionModel* modn=nullModelSet->getModel(nbm);
+    vector<int> supportedStates = modn->getAlphabetChars();
     
     for (size_t i=0; i<nbStates; i++)
       for (size_t j=0; j<nbStates; j++)
         if (i!=j)
         {
-          size_t nbt=reg.getType((int)i,(int)j);
+          size_t nbt=reg.getType(i, j);
           if (nbt!=0)
-            usai[nbm][nbt-1].setIndex((int)i,usai[nbm][nbt-1].getIndex((int)i)+modn->Qij((int)i,(int)j)); 
+            usai[nbm][nbt-1].setIndex(supportedStates[i],usai[nbm][nbt-1].getIndex(supportedStates[i])+modn->Qij(i,j)); 
         }
   }
 
@@ -1560,7 +1562,7 @@ vector< vector<double> > SubstitutionMappingTools::getNormalizationsPerBranch(
       {
         double s = 0;
         for (size_t i = 0; i < nbSites; ++i) {
-          double tmp = (*mapping)(mids[k],i);
+          double tmp = (*mapping)(mapping->getNodeIndex(mids[k]),i);
           if (isnan(tmp))
           {
             if (verbose)
@@ -1687,7 +1689,7 @@ vector< vector<double> > SubstitutionMappingTools::getRelativeCountsPerBranch(
       //Compute frequencies for types:
       vector<double> freqsTypes(creg->getNumberOfCategories());
       for (size_t i = 0; i < freqs.size(); ++i) {
-        size_t c = creg->getCategory(static_cast<int>(i));
+        size_t c = creg->getCategory(i);
         freqsTypes[c - 1] += freqs[i];
       }
       
@@ -1708,7 +1710,6 @@ vector< vector<double> > SubstitutionMappingTools::getRelativeCountsPerBranch(
 
 /**************************************************************************************************/
 
-
 void SubstitutionMappingTools::outputTotalCountsPerBranchPerSite(
                                                      string& filename,
                                                      DRTreeLikelihood& drtl,
@@ -1725,14 +1726,9 @@ void SubstitutionMappingTools::outputTotalCountsPerBranchPerSite(
   size_t nbSites = smap->getNumberOfSites();
   size_t nbBr = ids.size();
 
-  vector<int> sdi(nbBr);  //reverse of ids
+  vector<size_t> sdi(nbBr);  //reverse of ids
   for (size_t i = 0; i < nbBr; ++i) {
-    for (size_t j = 0; j < nbBr; ++j) {
-      if (ids[j] == static_cast<int>(i)) {
-        sdi[i] = static_cast<int>(j);
-        break;
-      }
-    }
+    sdi[i] = smap->getNodeIndex(ids[i]);
   }
 
   file << "sites";
@@ -1781,7 +1777,7 @@ void SubstitutionMappingTools::outputIndividualCountsPerBranchPerSite(
     for (size_t j = 0; j < nbSites; ++j) {
       file << j;
       for (size_t k = 0; k < nbBr; ++k) {
-        file << "\t" << (*smap)(ids[k], j, i);
+        file << "\t" << (*smap)(smap->getNodeIndex(ids[k]), j, i);
       }
       file << endl;
     }

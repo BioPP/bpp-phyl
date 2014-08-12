@@ -97,13 +97,13 @@ public:
   clone() const { return new Coala(*this); }
 
 public:
-  string getName() const {return "Coala"; }
-  string getExch() const {return exch_; }
+  std::string getName() const {return "Coala"; }
+  std::string getExch() const {return exch_; }
   void setFreqFromData(const SequenceContainer& data, double pseudoCount = 0);
-  string getEmpiricalMatrixFile() const { return file_; }
+  std::string getEmpiricalMatrixFile() const { return file_; }
 
 protected:
-  void readFromFile(string& file);
+  void readFromFile(std::string& file);
   void computeEquilibriumFrequencies();
   void updateMatrices();
 };

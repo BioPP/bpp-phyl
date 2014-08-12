@@ -57,7 +57,7 @@ using namespace std;
 
 ProbabilisticRewardMapping* RewardMappingTools::computeRewardVectors(
   const DRTreeLikelihood& drtl,
-  const vector<int>& ids,
+  const vector<int>& nodeIds,
   Reward& reward,
   bool verbose) throw (Exception)
 {
@@ -106,16 +106,17 @@ ProbabilisticRewardMapping* RewardMappingTools::computeRewardVectors(
   // Compute the reward for each class and each branch in the tree:
   if (verbose) ApplicationTools::displayTask("Compute joint node-pairs likelihood", true);
   
-  for (size_t l = 0; l < ids.size(); l++)
+  for (size_t l = 0; l < nbNodes; ++l)
   {
     //For each node,
-    const Node* currentNode = nodes[ids[l]];
+    const Node* currentNode = nodes[l];
+    if (nodeIds.size() > 0 && !VectorTools::contains(nodeIds, currentNode->getId())) continue;
 
     const Node* father = currentNode->getFather();
 
     double d = currentNode->getDistanceToFather();
  
-    if (verbose) ApplicationTools::displayGauge(ids[l], nbNodes-1, '>');
+    if (verbose) ApplicationTools::displayGauge(l, nbNodes - 1);
     Vdouble rewardsForCurrentNode(nbDistinctSites);
 
     // Now we've got to compute likelihoods in a smart manner... ;)
@@ -325,13 +326,13 @@ ProbabilisticRewardMapping* RewardMappingTools::computeRewardVectors(
     
     //Now we just have to copy the substitutions into the result vector:
     for (size_t i = 0; i < nbSites; ++i)
-      (*rewards)(ids[l], i) = rewardsForCurrentNode[(* rootPatternLinks)[i]] / Lr[(* rootPatternLinks)[i]];
+      (*rewards)(l, i) = rewardsForCurrentNode[(* rootPatternLinks)[i]] / Lr[(* rootPatternLinks)[i]];
   }
   if (verbose)
-    {
-      if (ApplicationTools::message) *ApplicationTools::message << " ";
-      ApplicationTools::displayTaskDone();
-    }
+  {
+    if (ApplicationTools::message) *ApplicationTools::message << " ";
+    ApplicationTools::displayTaskDone();
+  }
   return rewards;
 }
 

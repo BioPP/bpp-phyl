@@ -57,12 +57,12 @@ IntervalConstraint FrequenciesSet::FREQUENCE_CONSTRAINT_SMALL(NumConstants::SMAL
 
 void AbstractFrequenciesSet::setFrequenciesFromMap(const map<int, double>& frequencies)
 {
-  size_t s = getAlphabet()->getSize();
+  size_t s = alphabet_->getSize();
   vector<double> freq(s);
   double x = 0;
   for (size_t i = 0; i < s; i++)
   {
-    map<int, double>::const_iterator it = frequencies.find(static_cast<int>(i));
+    map<int, double>::const_iterator it = frequencies.find(alphabet_->getIntCodeAt(i));
     if (it != frequencies.end())
       freq[i] = it->second;
     else
@@ -74,6 +74,15 @@ void AbstractFrequenciesSet::setFrequenciesFromMap(const map<int, double>& frequ
     freq[i] /= x;
   }
   setFrequencies(freq);
+}
+
+const std::map<int, double> AbstractFrequenciesSet::getFrequenciesAsMap() const {
+  map<int, double> fmap;
+  size_t s = alphabet_->getSize();
+  for (size_t i = 0; i < s; i++) {
+    fmap[alphabet_->getIntCodeAt(i)] = freq_[i];
+  }
+  return fmap;
 }
 
 // ////////////////////////////

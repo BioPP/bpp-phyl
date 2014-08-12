@@ -67,8 +67,8 @@ namespace bpp
 class SimData
 {
   public:
-    int state;
-    std::vector<int> states;
+    size_t state;
+    std::vector<size_t> states;
     VVVdouble cumpxy;
     const SubstitutionModel* model;
 
@@ -96,48 +96,49 @@ class NonHomogeneousSequenceSimulator:
   public DetailedSiteSimulator,
   public virtual SequenceSimulator
 {
-	private:
-		const SubstitutionModelSet* modelSet_;
-		const Alphabet            * alphabet_;
-		const DiscreteDistribution* rate_;
-		const Tree                * templateTree_;
-		mutable TreeTemplate<SNode> tree_;
+  private:
+    const SubstitutionModelSet* modelSet_;
+    const Alphabet            * alphabet_;
+    std::vector<int>            supportedStates_;
+    const DiscreteDistribution* rate_;
+    const Tree                * templateTree_;
+    mutable TreeTemplate<SNode> tree_;
     bool ownModelSet_;
-	
-		/**
-		 * @brief This stores once for all all leaves in a given order.
-		 * This order will be used during site creation.
-		 */
+  
+    /**
+     * @brief This stores once for all all leaves in a given order.
+     * This order will be used during site creation.
+     */
     std::vector<SNode*> leaves_;
-	
+  
     std::vector<std::string> seqNames_;
 
-		size_t nbNodes_;
-		size_t nbClasses_;
-		size_t nbStates_;
+    size_t nbNodes_;
+    size_t nbClasses_;
+    size_t nbStates_;
 
     bool continuousRates_;
-	
-		/**
-		 * @name Stores intermediate results.
+  
+    /**
+     * @name Stores intermediate results.
      *
      * @{
-		 */
+     */
 
-	public:		
-		NonHomogeneousSequenceSimulator(
-			const SubstitutionModelSet* modelSet,
-			const DiscreteDistribution* rate,
-			const Tree* tree
-		) throw (Exception);
+  public:    
+    NonHomogeneousSequenceSimulator(
+      const SubstitutionModelSet* modelSet,
+      const DiscreteDistribution* rate,
+      const Tree* tree
+    ) throw (Exception);
 
     NonHomogeneousSequenceSimulator(
-			const SubstitutionModel* model,
-			const DiscreteDistribution* rate,
-			const Tree* tree
-		);
-			
-		virtual ~NonHomogeneousSequenceSimulator()
+      const SubstitutionModel* model,
+      const DiscreteDistribution* rate,
+      const Tree* tree
+    );
+      
+    virtual ~NonHomogeneousSequenceSimulator()
     {
       if (ownModelSet_ && modelSet_) delete modelSet_;
     }
@@ -145,6 +146,7 @@ class NonHomogeneousSequenceSimulator:
     NonHomogeneousSequenceSimulator(const NonHomogeneousSequenceSimulator& nhss) :
       modelSet_       (nhss.modelSet_),
       alphabet_       (nhss.alphabet_),
+      supportedStates_(nhss.supportedStates_),
       rate_           (nhss.rate_),
       templateTree_   (nhss.templateTree_),
       tree_           (nhss.tree_),
@@ -161,6 +163,7 @@ class NonHomogeneousSequenceSimulator:
     {
       modelSet_        = nhss.modelSet_;
       alphabet_        = nhss.alphabet_;
+      supportedStates_ = nhss.supportedStates_;
       rate_            = nhss.rate_;
       templateTree_    = nhss.templateTree_;
       tree_            = nhss.tree_;
@@ -189,81 +192,83 @@ class NonHomogeneousSequenceSimulator:
      */
     void init();
 
-	public:
-	
-		/**
-		 * @name The SiteSimulator interface
-		 *
-		 * @{
-		 */
-		Site* simulate() const;
-		Site* simulate(int ancestralState) const;
-		Site* simulate(int ancestralState, double rate) const;
-		Site* simulate(double rate) const;
-    std::vector<std::string> getSequencesNames() const { return seqNames_; }
-		/** @} */
-    
-		/**
-		 * @name The PreciseSiteSimulator interface.
-		 *
-		 * @{
-		 */
-    RASiteSimulationResult* dSimulate() const;
-    
-    RASiteSimulationResult* dSimulate(int ancestralState) const;
-    
-    RASiteSimulationResult* dSimulate(int ancestralState, double rate) const;
+  public:
+  
+    /**
+     * @name The SiteSimulator interface
+     *
+     * @{
+     */
+    Site* simulateSite() const;
 
-    RASiteSimulationResult* dSimulate(double rate) const;
-		/** @} */
+    Site* simulateSite(size_t ancestralStateIndex) const;
+
+    Site* simulateSite(size_t ancestralStateIndex, double rate) const;
+    
+    Site* simulateSite(double rate) const;
+
+    std::vector<std::string> getSequencesNames() const { return seqNames_; }
+    /** @} */
+    
+    /**
+     * @name The DetailedSiteSimulator interface.
+     *
+     * @{
+     */
+    RASiteSimulationResult* dSimulateSite() const;
+    
+    RASiteSimulationResult* dSimulateSite(size_t ancestralStateIndex) const;
+    
+    RASiteSimulationResult* dSimulateSite(size_t ancestralStateIndex, double rate) const;
+    
+    RASiteSimulationResult* dSimulateSite(double rate) const;
+    /** @} */
 
     /**
-		 * @name The SequenceSimulator interface
-		 *
-		 * @{
-		 */
-		SiteContainer* simulate(size_t numberOfSites) const;
-		/** @} */
+     * @name The SequenceSimulator interface
+     *
+     * @{
+     */
+    SiteContainer* simulate(size_t numberOfSites) const;
+    /** @} */
     
-		/**
-		 * @name SiteSimulator and SequenceSimulator interface
-		 *
-		 * @{
-		 */
-		const Alphabet* getAlphabet() const { return alphabet_; }
-		/** @} */
+    /**
+     * @name SiteSimulator and SequenceSimulator interface
+     *
+     * @{
+     */
+    const Alphabet* getAlphabet() const { return alphabet_; }
+    /** @} */
 
     /**
      * @name Functions with rate classes instead of absolute rates.
      *
      * @{
      */
-		virtual Site* simulate(int ancestralState, size_t rateClass) const;
-    virtual	RASiteSimulationResult* dSimulate(int ancestralState, size_t rateClass) const;
+    virtual Site* simulateSite(size_t ancestralStateIndex, size_t rateClass) const;
+    virtual RASiteSimulationResult* dSimulateSite(size_t ancestralStateIndex, size_t rateClass) const;
     /** @} */
-	
-		/**
-		 * @brief Get the mutation process associated to this instance.
-		 *
-		 * @return The MutationProcess object associated to this instance.
-		 */
-		const SubstitutionModelSet* getSubstitutionModelSet() const { return modelSet_; }
-		
-	
-		
-		/**
-		 * @brief Get the rate distribution associated to this instance.
-		 *
-		 * @return The DiscreteDistribution object associated to this instance.
-		 */
-		const DiscreteDistribution* getRateDistribution() const { return rate_; }
+  
+    /**
+     * @brief Get the mutation process associated to this instance.
+     *
+     * @return The MutationProcess object associated to this instance.
+     */
+    const SubstitutionModelSet* getSubstitutionModelSet() const { return modelSet_; }
+    
+    /**
+     * @brief Get the rate distribution associated to this instance.
+     *
+     * @return The DiscreteDistribution object associated to this instance.
+     */
+    const DiscreteDistribution* getRateDistribution() const { return rate_; }
 
-		/**
-		 * @brief Get the tree associated to this instance.
-		 *
-		 * @return The Tree object associated to this instance.
-		 */
-		const Tree* getTree() const { return templateTree_; }
+    /**
+     * @brief Get the tree associated to this instance.
+     *
+     * @return The Tree object associated to this instance.
+     */
+    const Tree* getTree() const { return templateTree_; }
 
     /**
      * @brief Enable the use of continuous rates instead of discrete rates.
@@ -273,35 +278,41 @@ class NonHomogeneousSequenceSimulator:
      * @param yn Tell if we should use continuous rates.
      */
     void enableContinuousRates(bool yn) { continuousRates_ = yn; }
-	
-	protected:
-		
-		/**
-		 * @brief Evolve from an initial state along a branch, knowing the evolutionary rate class.
-		 *
-		 * This method is fast since all pijt have been computed in the constructor of the class.
+  
+  protected:
+    
+    /**
+     * @brief Evolve from an initial state along a branch, knowing the evolutionary rate class.
+     *
+     * This method is fast since all pijt have been computed in the constructor of the class.
      * This method is used for the implementation of the SiteSimulator interface.
-		 */
-		int evolve(const SNode * node, int initialState, size_t rateClass) const;
-		
-		/**
-		 * @brief Evolve from an initial state along a branch, knowing the evolutionary rate.
-		 *
-		 * This method is slower than the previous one since exponential terms must be computed.
+     */
+    size_t evolve(const SNode* node, size_t initialStateIndex, size_t rateClass) const;
+    
+    /**
+     * @brief Evolve from an initial state along a branch, knowing the evolutionary rate.
+     *
+     * This method is slower than the previous one since exponential terms must be computed.
      * This method is used for the implementation of the SiteSimulator interface.
-		 */
-		int evolve(const SNode * node, int initialState, double rate) const;
-		
+     */
+    size_t evolve(const SNode* node, size_t initialStateIndex, double rate) const;
+    
     /**
      * @brief The same as the evolve(initialState, rateClass) function, but for several sites at a time.
      *
      * This method is used for the implementation of the SequenceSimulator interface.
      */
-		void multipleEvolve(const SNode* node, const Vint& initialState, const std::vector<size_t>& rateClasses, Vint& finalStates) const;
-		SiteContainer* multipleEvolve(const Vint& initialStates, const std::vector<size_t>& rateClasses) const;
-		
-    void dEvolve(int initialState, double rate, RASiteSimulationResult& rassr) const;
-		
+    void multipleEvolve(
+        const SNode* node,
+        const std::vector<size_t>& initialStateIndices,
+        const std::vector<size_t>& rateClasses,
+        std::vector<size_t>& finalStates) const;
+    SiteContainer* multipleEvolve(
+        const std::vector<size_t>& initialStates,
+        const std::vector<size_t>& rateClasses) const;
+    
+    void dEvolve(size_t initialState, double rate, RASiteSimulationResult& rassr) const;
+    
     /**
      * @name The 'Internal' methods.
      *
@@ -315,16 +326,16 @@ class NonHomogeneousSequenceSimulator:
     /**
      * This method uses the states_ variable for saving ancestral states.
      */
-		void evolveInternal(SNode* node, double rate) const;
+    void evolveInternal(SNode* node, double rate) const;
     /**
      * This method uses the multipleStates_ variable for saving ancestral states.
      */
- 		void multipleEvolveInternal(SNode* node, const std::vector<size_t>& rateClasses) const;
+     void multipleEvolveInternal(SNode* node, const std::vector<size_t>& rateClasses) const;
 
     /**
      * This method uses the states_ variable for saving ancestral states.
      */
-		void dEvolveInternal(SNode * node, double rate, RASiteSimulationResult & rassr) const;
+    void dEvolveInternal(SNode * node, double rate, RASiteSimulationResult & rassr) const;
     /** @} */
 
 };

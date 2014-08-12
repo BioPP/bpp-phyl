@@ -159,15 +159,15 @@ Matrix<double>* DecompositionReward::getAllRewards(double length) const
 
 /******************************************************************************/
 
-double DecompositionReward::getReward(int initialState, int finalState, double length) const
+double DecompositionReward::getReward(size_t initialState, size_t finalState, double length) const
 {
   if (length < 0)
     throw Exception("DecompositionReward::getRewards. Negative branch length: " + TextTools::toString(length) + ".");
   if (length != currentLength_)
-    {
-      computeRewards_(length);
-      currentLength_ = length;
-    }
+  {
+    computeRewards_(length);
+    currentLength_ = length;
+  }
   return rewards_(initialState, finalState);
 }
 

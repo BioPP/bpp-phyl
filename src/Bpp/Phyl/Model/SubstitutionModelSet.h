@@ -410,6 +410,23 @@ public:
   const Alphabet* getAlphabet() const { return alphabet_; }
 
   /**
+   * @return The supported states of the model set, as a vector of int codes.
+   *
+   * @see Alphabet
+   */
+  virtual const std::vector<int>& getAlphabetChars() const {
+    return getModel(0)->getAlphabetChars();
+  }
+
+  virtual int getAlphabetChar(size_t i) const {
+    return getModel(0)->getAlphabetChar(i);
+  }
+
+  virtual std::vector<size_t> getModelStates(int i) const {
+    return getModel(0)->getModelStates(i);
+  }
+
+  /**
    * @brief Check if the model set is fully specified for a given tree.
    *
    * This include:

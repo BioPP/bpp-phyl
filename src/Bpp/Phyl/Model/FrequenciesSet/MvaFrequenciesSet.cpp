@@ -126,7 +126,7 @@ void MvaFrequenciesSet::updateFrequencies() throw (Exception)
   if (norm == true)
   {
     double s = VectorTools::sum(getFrequencies());
-    for (int i = 0; i < 20; i++)
+    for (size_t i = 0; i < 20; ++i)
     {
       getFreq_(i) = getFreq_(i) / s;
     }

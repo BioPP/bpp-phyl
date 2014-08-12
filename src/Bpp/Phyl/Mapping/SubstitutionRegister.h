@@ -46,10 +46,14 @@
 #include <Bpp/Text/StringTokenizer.h>
 
 // From bpp-seq:
-#include <Bpp/Seq/Alphabet/Alphabet.h>
 #include <Bpp/Seq/Alphabet/NucleicAlphabet.h>
 #include <Bpp/Seq/Alphabet/CodonAlphabet.h>
 #include <Bpp/Seq/GeneticCode/GeneticCode.h>
+
+// From bpp-phyl:
+#include <Bpp/Phyl/Model/SubstitutionModel.h>
+#include <Bpp/Phyl/Model/Nucleotide/NucleotideSubstitutionModel.h>
+#include <Bpp/Phyl/Model/Codon/CodonSubstitutionModel.h>
 
 // From the STL:
 #include <vector>
@@ -61,7 +65,8 @@ namespace bpp
 /**
  * @brief The SubstitutionRegister interface.
  *
- * Substitution registers are simple classes that define categories of substitutions, and assign them an index.
+ * Substitution registers are simple classes that define categories of substitutions, and assign an index to them.
+ * Substitution registers are defined according to a given substitution model.
  *
  * @author Julien Dutheil
  */
@@ -83,31 +88,24 @@ namespace bpp
     virtual const Alphabet* getAlphabet() const = 0;
 
     /**
+     * @return The substitution model associated to this instance.
+     */
+    virtual const SubstitutionModel* getSubstitutionModel() const = 0;
+
+    /**
      * @return The number of substitution types supported by this class.
      */
     virtual size_t getNumberOfSubstitutionTypes() const = 0;
 
     /**
-     * @brief Get the substitution type far a given pair of states.
+     * @brief Get the substitution type far a given pair of model states.
      *
      * @param fromState Initial state (should be a state supported by the specified alphabet).
      * @param toState   Final state (should be a state supported by the specified alphabet).
      * @return The index of the corresponding substitution type, ranging from 0 to 'getNumberOfSubstitutionTypes' + 1,
      * as non-substitution (that is when fromState == toState) will always return 0.
      */
-    virtual size_t getType(int fromState, int toState) const = 0;
-
-    /**
-     * @brief Get the substitution type far a given pair of states.
-     *
-     * @param from Index of the initial state
-     * @param to   Index of the final state
-     * @return The index of the corresponding substitution type, ranging from 0 to 'getNumberOfSubstitutionTypes' + 1,
-     * as non-substitution (that is when fromState == toState) will always return 0.
-     */
-    virtual size_t getType(size_t from, size_t to) const {
-      return getType(static_cast<int>(from), static_cast<int>(to)); //jdutheil on 22/07/14: we should use StateMap instead!
-    }
+    virtual size_t getType(size_t fromState, size_t toState) const = 0;
 
     /**
      * @brief Get the name of a given substitution type.
@@ -125,27 +123,30 @@ namespace bpp
     public virtual SubstitutionRegister
   {
   protected:
-    const Alphabet* alphabet_;
+    const SubstitutionModel* model_;
 
   public:
-    AbstractSubstitutionRegister(const Alphabet* alphabet) :
-      alphabet_(alphabet)
+    AbstractSubstitutionRegister(const SubstitutionModel* model) :
+      model_(model)
     {}
 
     AbstractSubstitutionRegister(const AbstractSubstitutionRegister& asr) :
-      alphabet_(asr.alphabet_)
+      model_(asr.model_)
     {}
 
     AbstractSubstitutionRegister& operator=(const AbstractSubstitutionRegister& asr)
     {
-      alphabet_ = asr.alphabet_;
+      model_ = asr.model_;
       return *this;
     }
 
     virtual ~AbstractSubstitutionRegister() {}
 
   public:
-    const Alphabet* getAlphabet() const { return alphabet_; }
+    const SubstitutionModel* getSubstitutionModel() const { return model_; }
+
+    const Alphabet* getAlphabet() const { return model_->getAlphabet(); }
+
   };
 
 /**
@@ -166,13 +167,13 @@ namespace bpp
 
   public:
     /**
-     * @brief Build a new substitution register with categories. This class is mean to be inherited.
+     * @brief Build a new substitution register with categories. This class is meant to be inherited.
      *
-     * @param alphabet The input alphabet.
+     * @param model The model defining the states.
      * @param within Specifies if within categories substitutions should be counted as well.
      */
-    CategorySubstitutionRegister(const Alphabet* alphabet, bool within = false) :
-      AbstractSubstitutionRegister(alphabet),
+    CategorySubstitutionRegister(const SubstitutionModel* model, bool within = false) :
+      AbstractSubstitutionRegister(model),
       within_(within),
       nbCategories_(0),
       categories_(),
@@ -200,14 +201,14 @@ namespace bpp
       // Now creates categories:
       categories_.clear();
       categoryNames_.resize(nbCategories_);
-      std::vector<int> types = alphabet_->getSupportedInts();
+      std::vector<int> types = model_->getAlphabetChars();
       for (size_t i = 0; i < types.size(); ++i)
       {
         typename std::map<int, T>::const_iterator it = categories.find(types[i]);
         if (it != categories.end())
         {
           categories_[types[i]] = cats[it->second];
-          categoryNames_[cats[it->second] - 1] += alphabet_->intToChar(types[i]);
+          categoryNames_[cats[it->second] - 1] += model_->getAlphabet()->intToChar(types[i]);
         }
         else
         {
@@ -246,11 +247,10 @@ namespace bpp
     }
 
   public:
-    virtual size_t getCategory(int state) const
+    virtual size_t getCategory(size_t state) const
     {
-      if (!alphabet_->isIntInAlphabet(state))
-        throw Exception("CategorySubstitutionRegister::getCategory(). State is not supported by alphabet.");
-      return categories_[state];
+      int alphabetState = model_->getAlphabetChar(state);
+      return categories_[alphabetState];
     }
 
     virtual size_t getCategoryFrom(size_t type) const
@@ -294,10 +294,10 @@ namespace bpp
 
     size_t getNumberOfSubstitutionTypes() const { return nbCategories_ * (nbCategories_ - 1) + (within_ ? nbCategories_ : 0); }
 
-    virtual size_t getType(int fromState, int toState) const
+    virtual size_t getType(size_t fromState, size_t toState) const
     {
-      size_t fromCat = categories_[fromState];
-      size_t toCat   = categories_[toState];
+      size_t fromCat = categories_[model_->getAlphabetChar(fromState)];
+      size_t toCat   = categories_[model_->getAlphabetChar(toState)];
       if (fromCat > 0 && toCat > 0)
         return index_[fromCat - 1][toCat - 1];
       else
@@ -322,8 +322,8 @@ namespace bpp
     public AbstractSubstitutionRegister
   {
   public:
-    TotalSubstitutionRegister(const Alphabet* alphabet) :
-      AbstractSubstitutionRegister(alphabet)
+    TotalSubstitutionRegister(const SubstitutionModel* model) :
+      AbstractSubstitutionRegister(model)
     {}
 
     TotalSubstitutionRegister* clone() const { return new TotalSubstitutionRegister(*this); }
@@ -331,7 +331,7 @@ namespace bpp
   public:
     size_t getNumberOfSubstitutionTypes() const { return 1; }
 
-    size_t getType(int fromState, int toState) const
+    size_t getType(size_t fromState, size_t toState) const
     {
       return fromState == toState ? 0 : 1;
     }
@@ -357,7 +357,6 @@ namespace bpp
    * @brief Completion of a given substitution register to consider
    * all substitutions. The new substitutions are considered in an
    * additional type.
-   *
    */
   class CompleteSubstitutionRegister :
     public AbstractSubstitutionRegister
@@ -369,14 +368,14 @@ namespace bpp
     
   public:
     CompleteSubstitutionRegister(const SubstitutionRegister& reg) :
-      AbstractSubstitutionRegister(reg.getAlphabet()),
+      AbstractSubstitutionRegister(reg.getSubstitutionModel()),
       preg_(reg.clone()), isRegComplete_(true)
     {
-      size_t size=reg.getAlphabet()->getSize();
-      for (int i=0; i< (int)size; i++)
-        for (int j=0; j< (int)size; j++)
-          if ((i!=j) && reg.getType(i,j)==0){
-            isRegComplete_=false;
+      size_t size = reg.getAlphabet()->getSize();
+      for (size_t i = 0; i < size; i++)
+        for (size_t j = 0; j < size; j++)
+          if ((i != j) && reg.getType(i, j) == 0) {
+            isRegComplete_ = false;
             return;
           }
     }
@@ -392,15 +391,15 @@ namespace bpp
     CompleteSubstitutionRegister& operator=(const CompleteSubstitutionRegister& csr)
     {
       AbstractSubstitutionRegister::operator=(csr);
-      preg_=csr.preg_->clone();
-      isRegComplete_=csr.isRegComplete_;
+      preg_ = csr.preg_->clone();
+      isRegComplete_ = csr.isRegComplete_;
       return *this;
     }
     
     ~CompleteSubstitutionRegister() {
       if (preg_)
         delete preg_;
-      preg_=0;
+      preg_ = 0;
     }
     
   public:
@@ -408,10 +407,10 @@ namespace bpp
       return preg_->getNumberOfSubstitutionTypes()+(isRegComplete_?0:1);
     }
 
-    size_t getType(int fromState, int toState) const
+    size_t getType(size_t fromState, size_t toState) const
     {
-      size_t t=preg_->getType(fromState,toState);
-      if (t==0)
+      size_t t = preg_->getType(fromState, toState);
+      if (t == 0)
         return getNumberOfSubstitutionTypes();
       else
         return t;
@@ -443,11 +442,11 @@ namespace bpp
     public CategorySubstitutionRegister
   {
   public:
-    ComprehensiveSubstitutionRegister(const Alphabet* alphabet, bool within = false) :
-      CategorySubstitutionRegister(alphabet, within)
+    ComprehensiveSubstitutionRegister(const SubstitutionModel* model, bool within = false) :
+      CategorySubstitutionRegister(model, within)
     {
       std::map<int, int> categories;
-      for (int i = 0; i < static_cast<int>(alphabet->getSize()); ++i)
+      for (int i = 0; i < static_cast<int>(model->getAlphabet()->getSize()); ++i)
       {
         categories[i] = i;
       }
@@ -490,22 +489,22 @@ namespace bpp
     std::map<size_t, std::map<size_t, std::vector<size_t> > > types_;
 
   public:
-    GeneralSubstitutionRegister(const Alphabet* alphabet) :
-      AbstractSubstitutionRegister(alphabet),
-      size_(alphabet->getSize()),
-      matrix_(size_,size_),
+    GeneralSubstitutionRegister(const SubstitutionModel* model) :
+      AbstractSubstitutionRegister(model),
+      size_(model->getNumberOfStates()),
+      matrix_(size_, size_),
       types_()
     {}
 
-    GeneralSubstitutionRegister(const Alphabet* alphabet, const RowMatrix<size_t>& matrix) :
-      AbstractSubstitutionRegister(alphabet),
-      size_(alphabet->getSize()),
+    GeneralSubstitutionRegister(const SubstitutionModel* model, const RowMatrix<size_t>& matrix) :
+      AbstractSubstitutionRegister(model),
+      size_(model->getNumberOfStates()),
       matrix_(matrix),
       types_()
     {
-      if (matrix_.getNumberOfRows()!=size_)
+      if (matrix_.getNumberOfRows() != size_)
         throw DimensionException("GeneralSubstitutionRegister", size_, matrix_.getNumberOfRows());
-      if (matrix_.getNumberOfColumns()!=size_)
+      if (matrix_.getNumberOfColumns() != size_)
         throw DimensionException("GeneralSubstitutionRegister", size_, matrix_.getNumberOfColumns());
       updateTypes_();
     }
@@ -520,9 +519,9 @@ namespace bpp
     GeneralSubstitutionRegister& operator=(const GeneralSubstitutionRegister& gsr)
     {
       AbstractSubstitutionRegister::operator=(gsr);
-      size_=gsr.size_;
-      matrix_=gsr.matrix_;
-      types_=gsr.types_;
+      size_   = gsr.size_;
+      matrix_ = gsr.matrix_;
+      types_  = gsr.types_;
       return *this;
     }
 
@@ -530,24 +529,22 @@ namespace bpp
 
     virtual ~GeneralSubstitutionRegister() {}
 
-    size_t getType(int i, int j) const
+    size_t getType(size_t i, size_t j) const
     {
-      return matrix_(static_cast<size_t>(i), static_cast<size_t>(j));
+      return matrix_(i, j);
     }
 
     size_t getNumberOfSubstitutionTypes() const
     {
-      return (types_.find(0)==types_.end() ? types_.size() : types_.size()-1) ;
+      return (types_.find(0) == types_.end() ? types_.size() : types_.size() - 1) ;
     }
   
     /**
-     *@brief names of the types are their number.
-     *
+     * @brief names of the types are their number.
      */
-  
     std::string getTypeName(size_t type) const
     {
-      if (types_.find(type)!=types_.end())
+      if (types_.find(type) != types_.end())
         return TextTools::toString(type);
 
       throw Exception("Bad type number " + TextTools::toString(type) + " in GeneralSubstitutionRegister::getTypeName.");
@@ -572,14 +569,14 @@ namespace bpp
     std::map<size_t, std::string> categoryNames_;
 
   public : 
-    SelectedSubstitutionRegister (const Alphabet* alphabet, std::string selectedSubstitutions) : 
-      GeneralSubstitutionRegister(alphabet),
+    SelectedSubstitutionRegister (const SubstitutionModel* model, std::string selectedSubstitutions) : 
+      GeneralSubstitutionRegister(model),
       categoryNames_()
     {
 
       selectedSubstitutions.erase(std::remove(selectedSubstitutions.begin(), selectedSubstitutions.end(), ' '), selectedSubstitutions.end());
       /** 
-       *  This constructor creates an empty square matrix (nrow = ncol
+       *  @brief This constructor creates an empty square matrix (nrow = ncol
        *  = length of alphabet) and takes a string with specific
        *  syntax to mark a substitutions with a certain index
        *  depending on the string entered.
@@ -588,33 +585,31 @@ namespace bpp
        *  The name, if entered, is entered at the start of a string
        *  and followed by ";". Substitutions are delimited by ",", and
        *  each substitution is defined with a "->" symbol.
-       *
        */
-
-      size_t typeSubs=0;
-      int coord1=0;
-      int coord2=0;
-      std::string codon1="";
-      std::string codon2="";
+      size_t typeSubs = 0;
+      size_t coord1 = 0;
+      size_t coord2 = 0;
+      std::string codon1 = "";
+      std::string codon2 = "";
       StringTokenizer subsGroup(selectedSubstitutions, "()");
-      while(subsGroup.hasMoreToken())
+      while (subsGroup.hasMoreToken())
       {
         typeSubs++;
         StringTokenizer namesSubs(subsGroup.nextToken(), ":");
-        if(namesSubs.numberOfRemainingTokens()==2){
-          categoryNames_[typeSubs]=namesSubs.nextToken();
-        }else if(namesSubs.numberOfRemainingTokens()==1){
-          categoryNames_[typeSubs]=TextTools::toString(typeSubs);
+        if (namesSubs.numberOfRemainingTokens() == 2) {
+          categoryNames_[typeSubs] = namesSubs.nextToken();
+        } else if (namesSubs.numberOfRemainingTokens() == 1) {
+          categoryNames_[typeSubs] = TextTools::toString(typeSubs);
         }
         StringTokenizer substitutions(namesSubs.nextToken(), ",");
-        while(substitutions.hasMoreToken())
+        while (substitutions.hasMoreToken())
         {
           StringTokenizer coordinates(substitutions.nextToken(), "->");
-          codon1=coordinates.nextToken();
-          codon2=coordinates.nextToken();
-          coord1=this->alphabet_->charToInt(codon1);
-          coord2=this->alphabet_->charToInt(codon2);
-          this->matrix_(coord1, coord2)=typeSubs;
+          codon1 = coordinates.nextToken();
+          codon2 = coordinates.nextToken();
+          coord1 = model_->getAlphabet()->getStateIndex(codon1);
+          coord2 = model_->getAlphabet()->getStateIndex(codon2);
+          this->matrix_(coord1, coord2) = typeSubs;
         }
       }
       updateTypes_();
@@ -626,7 +621,7 @@ namespace bpp
 
     std::string getTypeName(size_t type) const
     {
-      if (types_.find(type)!=types_.end())
+      if (types_.find(type)!= types_.end())
         return TextTools::toString(categoryNames_.find(type)->second);
 
       throw Exception("Bad type number " + TextTools::toString(type) + " in GeneralSubstitutionRegister::getTypeName.");
@@ -647,27 +642,29 @@ namespace bpp
     std::map<std::string, size_t> categoryCorrespondance_;
 
   public :
-    AAInteriorSubstitutionRegister (const Alphabet* alphabet, const GeneticCode* CodAA) : 
-      GeneralSubstitutionRegister(alphabet),
+    AAInteriorSubstitutionRegister(const CodonSubstitutionModel* model) : 
+      GeneralSubstitutionRegister(model),
       categoryCorrespondance_()
     {
       size_t categoryIndex = 1;
-      for (int i=0; i<static_cast<int>(alphabet->getSize()); i++)	
+      for (size_t i = 0; i < model->getAlphabet()->getSize(); ++i)	
       {
-        for (int j=i+1; j<static_cast<int>(alphabet->getSize()); j++)
+        int state1 = model->getAlphabet()->getStateAt(i).getNum();
+        for (size_t j = i + 1; j < model->getAlphabet()->getSize(); ++j)
         {
-          if (!(CodAA->isStop(i))&&!(CodAA->isStop(j)))
+          int state2 = model->getAlphabet()->getStateAt(j).getNum();
+          if (!(model->getGeneticCode()->isStop(state1))&&!(model->getGeneticCode()->isStop(state2)))
           {	
-            if (CodAA->translate(i) == CodAA->translate(j))
+            if (model->getGeneticCode()->translate(state1) == model->getGeneticCode()->translate(state2))
             {
-              std::string aminoAcid=CodAA->getTargetAlphabet()->intToChar(CodAA->translate(i));
+              std::string aminoAcid=model->getGeneticCode()->getTargetAlphabet()->intToChar(model->getGeneticCode()->translate(state1));
               if (categoryCorrespondance_.find(aminoAcid) == categoryCorrespondance_.end())
               {
                 categoryCorrespondance_[aminoAcid]=categoryIndex; 
                 categoryIndex++; 	
               }
-              this->matrix_(i,j) = categoryCorrespondance_[aminoAcid];
-              this->matrix_(j,i) = categoryCorrespondance_[aminoAcid];
+              matrix_(i,j) = categoryCorrespondance_[aminoAcid];
+              matrix_(j,i) = categoryCorrespondance_[aminoAcid];
             }
           }
         }
@@ -706,21 +703,23 @@ namespace bpp
     std::map<std::string, size_t> categoryCorrespondance_;
 
   public :
-    AAExteriorSubstitutionRegister (const Alphabet* alphabet, const GeneticCode* CodAA) : 
-      GeneralSubstitutionRegister(alphabet),
+    AAExteriorSubstitutionRegister (const CodonSubstitutionModel* model) : 
+      GeneralSubstitutionRegister(model),
       categoryCorrespondance_()
     {
       size_t categoryIndex = 1;
-      for (int i=0; i<static_cast<int>(alphabet->getSize()); i++)	
+      for (size_t i=0; i<model->getAlphabet()->getSize(); ++i)	
       {
-        for (int j=i+1; j<static_cast<int>(alphabet->getSize()); j++)
+        int state1 = model->getAlphabet()->getStateAt(i).getNum();
+        for (size_t j=i+1; j<model->getAlphabet()->getSize(); ++j)
         {
-          if (!(CodAA->isStop(i))&&!(CodAA->isStop(j)))
+          int state2 = model->getAlphabet()->getStateAt(j).getNum();
+          if (!(model->getGeneticCode()->isStop(state1))&&!(model->getGeneticCode()->isStop(state2)))
           {	
-            if (CodAA->translate(i) != CodAA->translate(j))
+            if (model->getGeneticCode()->translate(state1) != model->getGeneticCode()->translate(state2))
             {
-              std::string aminoAcid1=CodAA->getTargetAlphabet()->intToChar(CodAA->translate(i));
-              std::string aminoAcid2=CodAA->getTargetAlphabet()->intToChar(CodAA->translate(j));
+              std::string aminoAcid1=model->getGeneticCode()->getTargetAlphabet()->intToChar(model->getGeneticCode()->translate(state1));
+              std::string aminoAcid2=model->getGeneticCode()->getTargetAlphabet()->intToChar(model->getGeneticCode()->translate(state2));
               bool AA1IsNotInGroup=((categoryCorrespondance_.find(aminoAcid1+"->"+aminoAcid2) == categoryCorrespondance_.end()));
               bool AA2IsNotInGroup=((categoryCorrespondance_.find(aminoAcid2+"->"+aminoAcid1) == categoryCorrespondance_.end()));
               if (AA1IsNotInGroup)
@@ -771,8 +770,8 @@ namespace bpp
     public CategorySubstitutionRegister
   {
   public:
-    GCSubstitutionRegister(const NucleicAlphabet* alphabet, bool within = false) :
-      CategorySubstitutionRegister(alphabet, within)
+    GCSubstitutionRegister(const NucleotideSubstitutionModel* model, bool within = false) :
+      CategorySubstitutionRegister(model, within)
     {
       std::map<int, int> categories;
       categories[0] = 1;
@@ -797,8 +796,8 @@ namespace bpp
     public AbstractSubstitutionRegister
   {
   public:
-    TsTvSubstitutionRegister(const NucleicAlphabet* alphabet) :
-      AbstractSubstitutionRegister(alphabet)
+    TsTvSubstitutionRegister(const NucleotideSubstitutionModel* model) :
+      AbstractSubstitutionRegister(model)
     {}
 
     TsTvSubstitutionRegister* clone() const { return new TsTvSubstitutionRegister(*this); }
@@ -806,14 +805,16 @@ namespace bpp
   public:
     size_t getNumberOfSubstitutionTypes() const { return 2; }
 
-    size_t getType(int fromState, int toState) const
+    size_t getType(size_t fromState, size_t toState) const
     {
-      if (fromState == toState)
+      int x = model_->getAlphabetChar(fromState);
+      int y = model_->getAlphabetChar(toState);
+      if (x == y)
         return 0;  // nothing happens
-      if ((fromState == 0 && toState == 2)
-          || (fromState == 2 && toState == 0)
-          || (fromState == 1 && toState == 3)
-          || (fromState == 3 && toState == 1))
+      if ((x == 0 && y == 2)
+       || (x == 2 && y == 0)
+       || (x == 1 && y == 3)
+       || (x == 3 && y == 1))
         return 1;  // This is a transition
       return 2; // This is a transversion
     }
@@ -855,9 +856,9 @@ namespace bpp
     bool countMultiple_;
 
   public:
-    DnDsSubstitutionRegister(const GeneticCode* gc, bool countMultiple = false) :
-      AbstractSubstitutionRegister(gc->getSourceAlphabet()),
-      code_(gc),
+    DnDsSubstitutionRegister(const CodonSubstitutionModel* model, bool countMultiple = false) :
+      AbstractSubstitutionRegister(model),
+      code_(model->getGeneticCode()),
       countMultiple_(countMultiple)
     {}
 
@@ -880,26 +881,28 @@ namespace bpp
   public:
     size_t getNumberOfSubstitutionTypes() const { return 2; }
 
-    size_t getType(int fromState, int toState) const
+    size_t getType(size_t fromState, size_t toState) const
     {
-      const CodonAlphabet* cAlpha = dynamic_cast<const CodonAlphabet*>(alphabet_);
-      if (code_->isStop(fromState) || code_->isStop(toState))
+      int x = model_->getAlphabetChar(fromState);
+      int y = model_->getAlphabetChar(toState);
+      const CodonAlphabet* cAlpha = dynamic_cast<const CodonAlphabet*>(model_->getAlphabet());
+      if (code_->isStop(x) || code_->isStop(y))
         return 0;
-      if (fromState == toState)
+      if (x == y)
         return 0;  // nothing happens
       if (!countMultiple_)
       {
         size_t countPos = 0;
-        if (cAlpha->getFirstPosition(fromState) != cAlpha->getFirstPosition(toState))
+        if (cAlpha->getFirstPosition(x) != cAlpha->getFirstPosition(y))
           countPos++;
-        if (cAlpha->getSecondPosition(fromState) != cAlpha->getSecondPosition(toState))
+        if (cAlpha->getSecondPosition(x) != cAlpha->getSecondPosition(y))
           countPos++;
-        if (cAlpha->getThirdPosition(fromState) != cAlpha->getThirdPosition(toState))
+        if (cAlpha->getThirdPosition(x) != cAlpha->getThirdPosition(y))
           countPos++;
         if (countPos > 1)
           return 0;
       }
-      return code_->areSynonymous(fromState, toState) ? 1 : 2;
+      return code_->areSynonymous(x, y) ? 1 : 2;
     }
 
     std::string getTypeName (size_t type) const
@@ -943,11 +946,11 @@ namespace bpp
     const GeneticCode* code_;
 
   public:
-    GCSynonymousSubstitutionRegister(const GeneticCode* gc, bool within = false) :
-      CategorySubstitutionRegister(gc->getSourceAlphabet(), within),
-      code_(gc)
+    GCSynonymousSubstitutionRegister(const CodonSubstitutionModel* model, bool within = false) :
+      CategorySubstitutionRegister(model, within),
+      code_(model->getGeneticCode())
     {
-      const CodonAlphabet* pCA = dynamic_cast<const CodonAlphabet*>(gc->getSourceAlphabet());
+      const CodonAlphabet* pCA = dynamic_cast<const CodonAlphabet*>(code_->getSourceAlphabet());
 
       std::map<int, int> categories;
       for (int i = 0; i < static_cast<int>(pCA->getSize()); i++)
@@ -985,20 +988,22 @@ namespace bpp
   public:
     size_t getNumberOfSubstitutionTypes() const { return 2; }
 
-    size_t getType(int fromState, int toState) const
+    size_t getType(size_t fromState, size_t toState) const
     {
+      int x = model_->getAlphabetChar(fromState);
+      int y = model_->getAlphabetChar(toState);
       const CodonAlphabet* pCA = dynamic_cast<const CodonAlphabet*>(code_->getSourceAlphabet());
-      if (code_->isStop(fromState) || code_->isStop(toState) || !code_->areSynonymous(fromState, toState))
+      if (code_->isStop(x) || code_->isStop( y) || !code_->areSynonymous(x, y))
         return 0;
 
       // only substitutions between 3rd positions
 
-      if ((pCA->getFirstPosition(fromState) != pCA->getFirstPosition(toState)) ||
-          (pCA->getSecondPosition(fromState) != pCA->getSecondPosition(toState)))
+      if ((pCA->getFirstPosition(x) != pCA->getFirstPosition(y)) ||
+          (pCA->getSecondPosition(x) != pCA->getSecondPosition(y)))
         return 0;
 
-      size_t fromCat = categories_[fromState];
-      size_t toCat   = categories_[toState];
+      size_t fromCat = categories_[x];
+      size_t toCat   = categories_[y];
 
       if (fromCat > 0 && toCat > 0)
         return index_[fromCat - 1][toCat - 1];

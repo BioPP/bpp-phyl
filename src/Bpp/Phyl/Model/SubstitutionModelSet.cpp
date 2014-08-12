@@ -120,12 +120,12 @@ std::vector<int> SubstitutionModelSet::getNodesWithParameter(const std::string& 
     
   vector<string> nalias=getAlias(name);
   size_t p=name.rfind("_");
-  vector<int> inode= getNodesWithModel(TextTools::toInt(name.substr(p+1,string::npos))-1);
+  vector<int> inode = getNodesWithModel(TextTools::to<size_t>(name.substr(p+1,string::npos)) - 1);
   
   for (size_t i = 0; i < nalias.size(); i++)
     {
       p=nalias[i].rfind("_");
-      vector<int> ni=getNodesWithModel(TextTools::toInt(nalias[i].substr(p+1,string::npos))-1);
+      vector<int> ni = getNodesWithModel(TextTools::to<size_t>(nalias[i].substr(p+1,string::npos))-1);
       inode.insert(inode.end(),ni.begin(),ni.end());
     }
   

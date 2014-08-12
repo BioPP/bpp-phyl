@@ -73,18 +73,18 @@ namespace bpp
      * using the double-recursive likelihood computation.
      *
      * @param drtl              A DRTreeLikelihood object.
-     * @param ids               The Ids of the nodes the reward vectors
-     *                                are computed on.
+     * @param nodeIds           The Ids of the nodes the reward vectors
+     *                          are computed on.
      * @param reward            The Reward to use.
      * @param verbose           Print info to screen.
      * @return A vector of reward vectors (one for each site).
      * @throw Exception If the likelihood object is not initialized.
      */
     static ProbabilisticRewardMapping* computeRewardVectors(
-                                                            const DRTreeLikelihood& drtl,
-                                                            const std::vector<int>& ids,
-                                                            Reward& reward,
-                                                            bool verbose = true) throw (Exception);
+        const DRTreeLikelihood& drtl,
+        const std::vector<int>& nodeIds,
+        Reward& reward,
+        bool verbose = true) throw (Exception);
 		
     
     /**

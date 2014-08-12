@@ -298,7 +298,7 @@ Node* TreeTemplateTools::parenthesisToNode(const string& description, bool boots
     {
       StringTokenizer st(name, "_", true, true);
       ostringstream realName;
-      for (int i = 0; i < static_cast<int>(st.numberOfRemainingTokens()) - 1; i++)
+      for (size_t i = 0; i < st.numberOfRemainingTokens() - 1; ++i)
       {
         if (i != 0)
         {
@@ -593,12 +593,12 @@ TreeTemplate<Node>* TreeTemplateTools::getRandomTree(vector<string>& leavesNames
   while (nodes.size() > (rooted ? 2 : 3))
   {
     // Select random nodes:
-    int pos1 = RandomTools::giveIntRandomNumberBetweenZeroAndEntry(static_cast<int>(nodes.size()));
+    size_t pos1 = RandomTools::giveIntRandomNumberBetweenZeroAndEntry<size_t>(nodes.size());
     Node* node1 = nodes[pos1];
-    nodes.erase(nodes.begin() + pos1);
-    int pos2 = RandomTools::giveIntRandomNumberBetweenZeroAndEntry(static_cast<int>(nodes.size()));
+    nodes.erase(nodes.begin() + static_cast<ptrdiff_t>(pos1));
+    size_t pos2 = RandomTools::giveIntRandomNumberBetweenZeroAndEntry<size_t>(nodes.size());
     Node* node2 = nodes[pos2];
-    nodes.erase(nodes.begin() + pos2);
+    nodes.erase(nodes.begin() + static_cast<ptrdiff_t>(pos2));
     // Add new node:
     Node* parent = new Node();
     parent->addSon(node1);

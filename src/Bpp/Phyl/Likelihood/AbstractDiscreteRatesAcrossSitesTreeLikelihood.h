@@ -54,18 +54,18 @@ namespace bpp
  * This object may be shared by several instances of the class.
  */
 class AbstractDiscreteRatesAcrossSitesTreeLikelihood:
-	public AbstractTreeLikelihood,
-	public virtual DiscreteRatesAcrossSitesTreeLikelihood
+  public AbstractTreeLikelihood,
+  public virtual DiscreteRatesAcrossSitesTreeLikelihood
 {
-	protected:
-		DiscreteDistribution* rateDistribution_;
-		
-	public:
-		AbstractDiscreteRatesAcrossSitesTreeLikelihood(
-			DiscreteDistribution* rDist,
-			bool verbose = true
-		)	throw (Exception);
-		
+  protected:
+    DiscreteDistribution* rateDistribution_;
+    
+  public:
+    AbstractDiscreteRatesAcrossSitesTreeLikelihood(
+      DiscreteDistribution* rDist,
+      bool verbose = true
+    )  throw (Exception);
+    
     AbstractDiscreteRatesAcrossSitesTreeLikelihood(
         const AbstractDiscreteRatesAcrossSitesTreeLikelihood& tl) :
       AbstractTreeLikelihood(tl),
@@ -80,44 +80,44 @@ class AbstractDiscreteRatesAcrossSitesTreeLikelihood:
       return *this;
     }
 
-		virtual ~AbstractDiscreteRatesAcrossSitesTreeLikelihood() {}
-		
-	public:
-		
-		/**
-		 * @name The TreeLikelihood interface.
-		 *
-		 * Other methods are implemented in the AbstractTreeLikelihood class.
-		 *
-		 * @{
-		 */
-		double getLikelihoodForASiteForAState (size_t site, int state) const;
-		double getLogLikelihoodForASiteForAState(size_t site, int state) const;
-		ParameterList getDerivableParameters() const;
-		ParameterList getNonDerivableParameters() const;
+    virtual ~AbstractDiscreteRatesAcrossSitesTreeLikelihood() {}
+    
+  public:
+    
+    /**
+     * @name The TreeLikelihood interface.
+     *
+     * Other methods are implemented in the AbstractTreeLikelihood class.
+     *
+     * @{
+     */
+    double getLikelihoodForASiteForAState (size_t site, int state) const;
+    double getLogLikelihoodForASiteForAState(size_t site, int state) const;
+    ParameterList getDerivableParameters() const;
+    ParameterList getNonDerivableParameters() const;
     VVdouble getTransitionProbabilities(int nodeId, size_t siteIndex) const;
-	 		/** @} */
+    /** @} */
 
-		/**
-		 * @name The DiscreteRatesAcrossSites interface implementation:
-		 *
-		 * @{
-		 */
-		const DiscreteDistribution* getRateDistribution() const { return rateDistribution_; }
-		      DiscreteDistribution* getRateDistribution()       { return rateDistribution_; }
-		size_t getNumberOfClasses() const { return rateDistribution_->getNumberOfCategories(); } 
-		ParameterList getRateDistributionParameters() const;
-		VVdouble getLikelihoodForEachSiteForEachRateClass() const;
-		VVdouble getLogLikelihoodForEachSiteForEachRateClass() const;
-		VVVdouble getLikelihoodForEachSiteForEachRateClassForEachState() const;
-		VVVdouble getLogLikelihoodForEachSiteForEachRateClassForEachState() const;
-		VVdouble getPosteriorProbabilitiesOfEachRate() const;
-		Vdouble getRateWithMaxPostProbOfEachSite() const;
+    /**
+     * @name The DiscreteRatesAcrossSites interface implementation:
+     *
+     * @{
+     */
+    const DiscreteDistribution* getRateDistribution() const { return rateDistribution_; }
+          DiscreteDistribution* getRateDistribution()       { return rateDistribution_; }
+    size_t getNumberOfClasses() const { return rateDistribution_->getNumberOfCategories(); } 
+    ParameterList getRateDistributionParameters() const;
+    VVdouble getLikelihoodForEachSiteForEachRateClass() const;
+    VVdouble getLogLikelihoodForEachSiteForEachRateClass() const;
+    VVVdouble getLikelihoodForEachSiteForEachRateClassForEachState() const;
+    VVVdouble getLogLikelihoodForEachSiteForEachRateClassForEachState() const;
+    VVdouble getPosteriorProbabilitiesOfEachRate() const;
+    Vdouble getRateWithMaxPostProbOfEachSite() const;
     std::vector<size_t> getRateClassWithMaxPostProbOfEachSite() const;
-		Vdouble getPosteriorRateOfEachSite() const;
-		/** @} */
+    Vdouble getPosteriorRateOfEachSite() const;
+    /** @} */
 
-		/**
+    /**
      * @name Generic tools to deal with likelihood arrays
      *
      * @{
@@ -135,7 +135,7 @@ class AbstractDiscreteRatesAcrossSitesTreeLikelihood:
      * 
      * @param likelihoodArray the likelihood array.
      */
-		static void displayLikelihoodArray(const VVVdouble & likelihoodArray);
+    static void displayLikelihoodArray(const VVVdouble & likelihoodArray);
 
     /** @} */
     

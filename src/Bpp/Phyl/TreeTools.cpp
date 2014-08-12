@@ -982,7 +982,7 @@ BipartitionList* TreeTools::bipartitionOccurrences(const vector<Tree*>& vecTr, v
   {
     if (bipScore[i - 1] == 0)
     {
-      bipScore.erase(bipScore.begin() + i - 1);
+      bipScore.erase(bipScore.begin() + static_cast<ptrdiff_t>(i - 1));
       mergedBipL->deleteBipartition(i - 1);
     }
   }

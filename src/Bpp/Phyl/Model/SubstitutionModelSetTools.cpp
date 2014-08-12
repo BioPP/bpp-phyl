@@ -178,7 +178,7 @@ SubstitutionModelSet* SubstitutionModelSetTools::createNonHomogeneousModelSet(
     }
   }
 
-  ids.erase(ids.begin() + pos);
+  ids.erase(ids.begin() + static_cast<ptrdiff_t>(pos));
   for (i = 0; i < ids.size(); i++)
   {
     modelSet->addModel(dynamic_cast<SubstitutionModel*>(model->clone()), vector<int>(1, ids[i]));

@@ -79,10 +79,8 @@ void DecompositionSubstitutionCount::fillBMatrices_()
 {
   vector<int> supportedStates = model_->getAlphabetChars();
   for (size_t j = 0; j < nbStates_; ++j) {
-    int fromState = supportedStates[j];
     for (size_t k = 0; k < nbStates_; ++k) {
-      int toState = supportedStates[k];
-      size_t i = register_->getType(fromState, toState);
+      size_t i = register_->getType(j, k);
       if (i > 0 && k != j) {
         //jdutheil on 25/07/14: I think this is incorrect, weights should only come at the end.
         //bMatrices_[i - 1](j, k) = model_->Qij(j, k) * (weights_ ? weights_->getIndex(fromState, toState) : 1);
@@ -211,7 +209,7 @@ Matrix<double>* DecompositionSubstitutionCount::getAllNumbersOfSubstitutions(dou
 
 /******************************************************************************/
 
-double DecompositionSubstitutionCount::getNumberOfSubstitutions(int initialState, int finalState, double length, size_t type) const
+double DecompositionSubstitutionCount::getNumberOfSubstitutions(size_t initialState, size_t finalState, double length, size_t type) const
 {
   if (length < 0)
     throw Exception("DecompositionSubstitutionCount::getNumbersOfSubstitutions. Negative branch length: " + TextTools::toString(length) + ".");
@@ -225,7 +223,7 @@ double DecompositionSubstitutionCount::getNumberOfSubstitutions(int initialState
 
 /******************************************************************************/
 
-std::vector<double> DecompositionSubstitutionCount::getNumberOfSubstitutionsForEachType(int initialState, int finalState, double length) const
+std::vector<double> DecompositionSubstitutionCount::getNumberOfSubstitutionsForEachType(size_t initialState, size_t finalState, double length) const
 {
   if (length < 0)
     throw Exception("DecompositionSubstitutionCount::getNumbersOfSubstitutions. Negative branch length: " + TextTools::toString(length) + ".");
@@ -235,7 +233,7 @@ std::vector<double> DecompositionSubstitutionCount::getNumberOfSubstitutionsForE
     currentLength_ = length;
   }
   std::vector<double> v(getNumberOfSubstitutionTypes());
-  for (unsigned int t = 0; t < getNumberOfSubstitutionTypes(); ++t) {
+  for (size_t t = 0; t < getNumberOfSubstitutionTypes(); ++t) {
     v[t] = counts_[t](initialState, finalState);
   }
   return v;

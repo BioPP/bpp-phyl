@@ -94,12 +94,12 @@ void YpR::updateMatrices(double CgT, double cGA,
 
   // Generator:
   const Alphabet* alph = _pmodel->getAlphabet();
-  std::vector<int> l(4);
+  std::vector<size_t> l(4);
 
-  l[0] = alph->charToInt("A");
-  l[1] = alph->charToInt("G");
-  l[2] = alph->charToInt("C");
-  l[3] = alph->charToInt("T");
+  l[0] = alph->getStateIndex("A");
+  l[1] = alph->getStateIndex("G");
+  l[2] = alph->getStateIndex("C");
+  l[3] = alph->getStateIndex("T");
 
   unsigned int i,j,i1,i2,i3,j1,j2,j3;
 
@@ -345,23 +345,21 @@ throw (Exception)
   if (alph->getAlphabetType() != "DNA alphabet")
     throw Exception("Need a DNA model");
 
-  std::vector<int> l(4);
+  std::vector<size_t> l(4);
 
-  l[0] = alph->charToInt("A");
-  l[1] = alph->charToInt("G");
-  l[2] = alph->charToInt("C");
-  l[3] = alph->charToInt("T");
+  l[0] = alph->getStateIndex("A");
+  l[1] = alph->getStateIndex("G");
+  l[2] = alph->getStateIndex("C");
+  l[3] = alph->getStateIndex("T");
 
   // Check that the model is good for YpR
 
-  int i;
-
-  for (i = 0; i < 2; i++)
+  for (size_t i = 0; i < 2; ++i)
   {
     if (pm->Qij(l[2],l[i]) != pm->Qij(l[3],l[i]))
       throw Exception("Not R/Y Model " + pm->getName());
   }
-  for (i = 2; i < 4; i++)
+  for (size_t i = 2; i < 4; ++i)
   {
     if (pm->Qij(l[0],l[i]) != pm->Qij(l[1],l[i]))
       throw Exception("Not R/Y Model " + pm->getName());

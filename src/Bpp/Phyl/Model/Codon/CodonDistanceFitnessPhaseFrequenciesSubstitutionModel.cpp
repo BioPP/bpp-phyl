@@ -112,7 +112,7 @@ void CodonDistanceFitnessPhaseFrequenciesSubstitutionModel::setNamespace(const s
 void CodonDistanceFitnessPhaseFrequenciesSubstitutionModel::setFreq(map<int,double>& frequencies)
 {
   AbstractCodonPhaseFrequenciesSubstitutionModel::setFreq(frequencies);
-  Vdouble freq1=AbstractCodonPhaseFrequenciesSubstitutionModel::getFrequenciesSet()->getFrequencies();
+  map<int, double> freq1 = AbstractCodonPhaseFrequenciesSubstitutionModel::getFrequenciesSet()->getFrequenciesAsMap();
 
   map<int, double> freq2;
   double s=0;
@@ -120,12 +120,12 @@ void CodonDistanceFitnessPhaseFrequenciesSubstitutionModel::setFreq(map<int,doub
 
   for (it=frequencies.begin();it!=frequencies.end();it++)
   {
-    freq2[it->first]=(freq1[it->first]!=0?it->second/freq1[it->first]:0);
-    s+=freq2[it->first];
+    freq2[it->first]=(freq1[it->first] != 0 ? it->second/freq1[it->first] : 0);
+    s += freq2[it->first];
   }
   
-  for (it=freq2.begin();it!=freq2.end();it++)
-    freq2[it->first]/=s;
+  for (it = freq2.begin(); it != freq2.end(); it++)
+    freq2[it->first] /= s;
 
   AbstractCodonFitnessSubstitutionModel::setFreq(freq2);
 

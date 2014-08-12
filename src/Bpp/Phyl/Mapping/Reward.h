@@ -124,7 +124,7 @@ namespace bpp
      * @return The reward of the function on a branch of specified length and
      * according to initial and final states.
      */
-    virtual double getReward(int initialState, int finalState, double length) const = 0;
+    virtual double getReward(size_t initialState, size_t finalState, double length) const = 0;
 		
     /**
      * @brief Get the rewards on a branch, for each initial and final

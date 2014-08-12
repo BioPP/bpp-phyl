@@ -141,9 +141,9 @@ bool MixedSubstitutionModelSet::complete()
       int j(0), k(0);
       while (j < vs)
       {
-        while ((k < snd) && (nd[k] < j))
+        while ((k < snd) && (nd[static_cast<size_t>(k)] < j))
           k++;
-        if ((k >= snd) || (nd[k] > j))
+        if ((k >= snd) || (nd[static_cast<size_t>(k)] > j))
           an.push_back(j);
         j++;
       }
@@ -164,7 +164,7 @@ void MixedSubstitutionModelSet::addToHyperNode(size_t nM, const Vint& vnS, int n
   if (nM >= getNumberOfModels())
     throw IndexOutOfBoundsException("MixedSubstitutionModelSet::addToHyperNode. Bad Mixed Model number", nM, 0, getNumberOfModels());
 
-  vpHyperNodes_[nH]->addToModel(nM, vnS);
+  vpHyperNodes_[static_cast<size_t>(nH)]->addToModel(nM, vnS);
 }
 
 bool MixedSubstitutionModelSet::hasExclusivePaths() const
@@ -224,7 +224,7 @@ void MixedSubstitutionModelSet::computeHyperNodesProbabilities()
     double fprob = 0;
     for (size_t i = 0; i < fnd.size(); i++)
     {
-      fprob += pfSM->getNProbability(fnd[i]);
+      fprob += pfSM->getNProbability(static_cast<size_t>(fnd[i]));
     }
     h.setProbability(fprob);
   }
@@ -243,13 +243,13 @@ void MixedSubstitutionModelSet::computeHyperNodesProbabilities()
         double prob = 0;
         for (size_t j = 0; j < fnd.size(); j++)
         {
-          prob += pfSM->getNProbability(fnd[j]);
+          prob += pfSM->getNProbability(static_cast<size_t>(fnd[j]));
         }
 
         // sets the real probabilities
         for (size_t j = 0; j < fnd.size(); j++)
         {
-          pfSM->setNProbability(fnd[j], h.getProbability() * pfSM->getNProbability(fnd[j]) / prob);
+          pfSM->setNProbability(static_cast<size_t>(fnd[j]), h.getProbability() * pfSM->getNProbability(static_cast<size_t>(fnd[j])) / prob);
         }
       }
 
@@ -265,7 +265,7 @@ void MixedSubstitutionModelSet::computeHyperNodesProbabilities()
         const MixedSubstitutionModelSet::HyperNode::Node& fnd = h.getNode(iM);
         for (size_t j = 0; j < fnd.size(); j++)
         {
-          pfSM->setNProbability(fnd[j], pfSM->getNProbability(fnd[j]) / h.getProbability());
+          pfSM->setNProbability(static_cast<size_t>(fnd[j]), pfSM->getNProbability(static_cast<size_t>(fnd[j])) / h.getProbability());
         }
       }
     }
@@ -287,7 +287,7 @@ double MixedSubstitutionModelSet::getHyperNodeProbability(const HyperNode& hn) c
 
       for (size_t i = 0; i < fnd.size(); i++)
       {
-        x += pfSM->getNProbability(fnd[i]);
+        x += pfSM->getNProbability(static_cast<size_t>(fnd[i]));
       }
 
       fprob *= x;
@@ -358,9 +358,9 @@ void MixedSubstitutionModelSet::HyperNode::setModel(size_t nM, const Vint& vnS)
 
 bool MixedSubstitutionModelSet::HyperNode::isComplete() const
 {
-  int k;
-  int vUs = (int)vUnused_.size();
-  for (int i = 0; i < (int)vNumbers_.size(); i++)
+  size_t k;
+  size_t vUs = vUnused_.size();
+  for (size_t i = 0; i < vNumbers_.size(); ++i)
   {
     for (k = 0; k < vUs; k++)
     {

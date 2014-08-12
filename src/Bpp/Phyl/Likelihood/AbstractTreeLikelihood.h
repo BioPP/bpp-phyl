@@ -67,8 +67,8 @@ namespace bpp
  * It also adds an abstract method for recursive computations.
  */
 class AbstractTreeLikelihood :
-	public virtual TreeLikelihood,
-	public AbstractParametrizable
+  public virtual TreeLikelihood,
+  public AbstractParametrizable
 {
   public:
     /**
@@ -221,15 +221,15 @@ class AbstractTreeLikelihood :
 
 
 
-	protected:
-		const SiteContainer* data_;
-		mutable TreeTemplate<Node>* tree_;
-		bool computeFirstOrderDerivatives_;
-		bool computeSecondOrderDerivatives_;
+  protected:
+    const SiteContainer* data_;
+    mutable TreeTemplate<Node>* tree_;
+    bool computeFirstOrderDerivatives_;
+    bool computeSecondOrderDerivatives_;
     bool initialized_;
 
-	public:
-		AbstractTreeLikelihood():
+  public:
+    AbstractTreeLikelihood():
       AbstractParametrizable(""),
       data_(0),
       tree_(0),
@@ -269,50 +269,49 @@ class AbstractTreeLikelihood :
      *
      * This destructor is empty.
      */
-		virtual ~AbstractTreeLikelihood()
+    virtual ~AbstractTreeLikelihood()
     {
       if (data_) delete data_;
       if (tree_) delete tree_;
     }
-	
-	public:
-		/**
-		 * @name The TreeLikelihood interface.
-		 *
-		 * @{
-		 */
-		const SiteContainer* getData() const { return data_; }
-		const Alphabet* getAlphabet() const { return data_->getAlphabet(); }	
-		Vdouble getLikelihoodForEachSite()                 const;
-		Vdouble getLogLikelihoodForEachSite()              const;
-		VVdouble getLikelihoodForEachSiteForEachState()    const;
-		VVdouble getLogLikelihoodForEachSiteForEachState() const;
-		size_t getNumberOfSites() const { return data_->getNumberOfSites(); }
-		size_t getNumberOfStates() const { return data_->getAlphabet()->getSize(); }
-		const Tree& getTree() const { return *tree_; }
-		void enableDerivatives(bool yn) { computeFirstOrderDerivatives_ = computeSecondOrderDerivatives_ = yn; }
-		void enableFirstOrderDerivatives(bool yn) { computeFirstOrderDerivatives_ = yn; }
-		void enableSecondOrderDerivatives(bool yn) { computeFirstOrderDerivatives_ = computeSecondOrderDerivatives_ = yn; }
-		bool enableFirstOrderDerivatives() const { return computeFirstOrderDerivatives_; }
-		bool enableSecondOrderDerivatives() const { return computeSecondOrderDerivatives_; }
+  
+  public:
+    /**
+     * @name The TreeLikelihood interface.
+     *
+     * @{
+     */
+    const SiteContainer* getData() const { return data_; }
+    const Alphabet* getAlphabet() const { return data_->getAlphabet(); }  
+    Vdouble getLikelihoodForEachSite()                 const;
+    Vdouble getLogLikelihoodForEachSite()              const;
+    VVdouble getLikelihoodForEachSiteForEachState()    const;
+    VVdouble getLogLikelihoodForEachSiteForEachState() const;
+    size_t getNumberOfSites() const { return data_->getNumberOfSites(); }
+    const Tree& getTree() const { return *tree_; }
+    void enableDerivatives(bool yn) { computeFirstOrderDerivatives_ = computeSecondOrderDerivatives_ = yn; }
+    void enableFirstOrderDerivatives(bool yn) { computeFirstOrderDerivatives_ = yn; }
+    void enableSecondOrderDerivatives(bool yn) { computeFirstOrderDerivatives_ = computeSecondOrderDerivatives_ = yn; }
+    bool enableFirstOrderDerivatives() const { return computeFirstOrderDerivatives_; }
+    bool enableSecondOrderDerivatives() const { return computeSecondOrderDerivatives_; }
     bool isInitialized() const { return initialized_; }
     void initialize() throw (Exception) { initialized_ = true; }
-		/** @} */
+    /** @} */
 
-//	protected:
-//		
-//		/**
-//		 * @brief Recompute pxy_, dpxy_ and d2pxy_ arrays, and derivatives if needed.
-//		 *
-//		 * This method is called when some parameter has changed.
-//		 *
-//		 * @param params The parameters that changed.
-//		 */
-//		virtual void fireParameterChanged(const ParameterList & params) = 0;
-		
+//  protected:
+//    
+//    /**
+//     * @brief Recompute pxy_, dpxy_ and d2pxy_ arrays, and derivatives if needed.
+//     *
+//     * This method is called when some parameter has changed.
+//     *
+//     * @param params The parameters that changed.
+//     */
+//    virtual void fireParameterChanged(const ParameterList & params) = 0;
+    
 };
 
 } //end of namespace bpp.
 
-#endif	//_ABSTRACTTREELIKELIHOOD_H_
+#endif  //_ABSTRACTTREELIKELIHOOD_H_
 

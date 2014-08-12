@@ -64,8 +64,8 @@ class SequenceSimulator:
 #endif
   
   public:
-    virtual SiteContainer * simulate(size_t numberOfSites) const = 0;
-    virtual const Alphabet * getAlphabet() const = 0;  
+    virtual SiteContainer* simulate(size_t numberOfSites) const = 0;
+    virtual const Alphabet* getAlphabet() const = 0;  
 };
 
 } //end of namespace bpp.
