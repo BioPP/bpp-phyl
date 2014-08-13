@@ -40,9 +40,10 @@ knowledge of the CeCILL license and that you accept its terms.
 #ifndef _SEQUENCESIMULATOR_H_
 #define _SEQUENCESIMULATOR_H_
 
+// From bpp-core:
 #include <Bpp/Clonable.h>
 
-// From SeqLib:
+// From bpp-seq:
 #include <Bpp/Seq/Container/SiteContainer.h>
 
 namespace bpp
@@ -60,7 +61,7 @@ class SequenceSimulator:
     virtual ~SequenceSimulator() {}
 
 #ifndef NO_VIRTUAL_COV
-    SequenceSimulator * clone() const = 0;
+    SequenceSimulator* clone() const = 0;
 #endif
   
   public:

@@ -192,8 +192,8 @@ namespace bpp
      * not be the same as a substitution (an alphabet state change).
      */
     static ProbabilisticSubstitutionMapping* computeOneJumpProbabilityVectors(
-                                                                              const DRTreeLikelihood& drtl,
-                                                                              bool verbose = true) throw (Exception)
+        const DRTreeLikelihood& drtl,
+        bool verbose = true) throw (Exception)
     {
       OneJumpSubstitutionCount ojsm(0);
       return computeSubstitutionVectors(drtl, drtl.getTree().getNodesId(), ojsm, 0);

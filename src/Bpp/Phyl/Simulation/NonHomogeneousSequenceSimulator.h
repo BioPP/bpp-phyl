@@ -250,9 +250,9 @@ class NonHomogeneousSequenceSimulator:
     /** @} */
   
     /**
-     * @brief Get the mutation process associated to this instance.
+     * @brief Get the substitution model associated to this instance.
      *
-     * @return The MutationProcess object associated to this instance.
+     * @return The substitution model associated to this instance.
      */
     const SubstitutionModelSet* getSubstitutionModelSet() const { return modelSet_; }
     
