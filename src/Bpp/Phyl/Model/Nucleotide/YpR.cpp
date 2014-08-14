@@ -53,7 +53,7 @@ using namespace bpp;
 
 YpR::YpR(const RNY* alph, SubstitutionModel* const pm, const std::string& prefix) :
   AbstractParameterAliasable(prefix),
-  AbstractSubstitutionModel(alph,prefix),
+  AbstractSubstitutionModel(alph, prefix),
   _pmodel(pm->clone()),
   _nestedPrefix(pm->getNamespace())
 {
@@ -101,64 +101,64 @@ void YpR::updateMatrices(double CgT, double cGA,
   l[2] = alph->getStateIndex("C");
   l[3] = alph->getStateIndex("T");
 
-  unsigned int i,j,i1,i2,i3,j1,j2,j3;
+  unsigned int i, j, i1, i2, i3, j1, j2, j3;
 
   std::vector<double> a(4);  // a[A], a[G], a[C], a[T]
   std::vector<double> b(4);  // b[A], b[G], b[C], b[T]
 
   for (i = 0; i < 2; i++)
   {
-    a[i] = _pmodel->Qij(l[1 - i],l[i]);
-    b[i] = _pmodel->Qij(l[3 - i],l[i]);
-    a[i + 2] = _pmodel->Qij(l[3 - i],l[i + 2]);
-    b[i + 2] = _pmodel->Qij(l[1 - i],l[i + 2]);
+    a[i] = _pmodel->Qij(l[1 - i], l[i]);
+    b[i] = _pmodel->Qij(l[3 - i], l[i]);
+    a[i + 2] = _pmodel->Qij(l[3 - i], l[i + 2]);
+    b[i + 2] = _pmodel->Qij(l[1 - i], l[i + 2]);
   }
 
   // M_1
-  RowMatrix<double> M1(3,3);
+  RowMatrix<double> M1(3, 3);
 
-  M1(0,0) = 0;
-  M1(0,1) = b[2];
-  M1(0,2) = b[3];
-  M1(1,0) = b[0] + b[1];
-  M1(1,1) = 0;
-  M1(1,2) = a[3];
-  M1(2,0) = b[0] + b[1];
-  M1(2,1) = a[2];
-  M1(2,2) = 0;
+  M1(0, 0) = 0;
+  M1(0, 1) = b[2];
+  M1(0, 2) = b[3];
+  M1(1, 0) = b[0] + b[1];
+  M1(1, 1) = 0;
+  M1(1, 2) = a[3];
+  M1(2, 0) = b[0] + b[1];
+  M1(2, 1) = a[2];
+  M1(2, 2) = 0;
 
   // M_2
-  RowMatrix<double> M2(4,4);
+  RowMatrix<double> M2(4, 4);
 
-  M2(0,0) = 0;
-  M2(0,1) = a[1];
-  M2(0,2) = b[2];
-  M2(0,3) = b[3];
-  M2(1,0) = a[0];
-  M2(1,1) = 0;
-  M2(1,2) = b[2];
-  M2(1,3) = b[3];
-  M2(2,0) = b[0];
-  M2(2,1) = b[1];
-  M2(2,2) = 0;
-  M2(2,3) = a[3];
-  M2(3,0) = b[0];
-  M2(3,1) = b[1];
-  M2(3,2) = a[2];
-  M2(3,3) = 0;
+  M2(0, 0) = 0;
+  M2(0, 1) = a[1];
+  M2(0, 2) = b[2];
+  M2(0, 3) = b[3];
+  M2(1, 0) = a[0];
+  M2(1, 1) = 0;
+  M2(1, 2) = b[2];
+  M2(1, 3) = b[3];
+  M2(2, 0) = b[0];
+  M2(2, 1) = b[1];
+  M2(2, 2) = 0;
+  M2(2, 3) = a[3];
+  M2(3, 0) = b[0];
+  M2(3, 1) = b[1];
+  M2(3, 2) = a[2];
+  M2(3, 3) = 0;
 
   // M_3
-  RowMatrix<double> M3(3,3);
+  RowMatrix<double> M3(3, 3);
 
-  M3(0,0) = 0;
-  M3(0,1) = a[1];
-  M3(0,2) = b[2] + b[3];
-  M3(1,0) = a[0];
-  M3(1,1) = 0;
-  M3(1,2) = b[2] + b[3];
-  M3(2,0) = b[0];
-  M3(2,1) = b[1];
-  M3(2,2) = 0;
+  M3(0, 0) = 0;
+  M3(0, 1) = a[1];
+  M3(0, 2) = b[2] + b[3];
+  M3(1, 0) = a[0];
+  M3(1, 1) = 0;
+  M3(1, 2) = b[2] + b[3];
+  M3(2, 0) = b[0];
+  M3(2, 1) = b[1];
+  M3(2, 2) = 0;
 
 
   for (i1 = 0; i1 < 3; i1++)
@@ -176,13 +176,13 @@ void YpR::updateMatrices(double CgT, double cGA,
             {
               j = 12 * j1 + 3 * j2 + j3;
               if ((i1 == j1) && (i2 == j2))
-                generator_(i,j) = M3(i3,j3);
+                generator_(i, j) = M3(i3, j3);
               else if ((i1 == j1) && (i3 == j3))
-                generator_(i,j) = M2(i2,j2);
+                generator_(i, j) = M2(i2, j2);
               else if ((i2 == j2) && (i3 == j3))
-                generator_(i,j) = M1(i1,j1);
+                generator_(i, j) = M1(i1, j1);
               else
-                generator_(i,j) = 0;
+                generator_(i, j) = 0;
             }
           }
         }
@@ -194,29 +194,29 @@ void YpR::updateMatrices(double CgT, double cGA,
 
   for (i3 = 0; i3 < 3; i3++)
   {
-    generator_(15 + i3,12 + i3) += cGA * a[0]; // CG -> CA
-    generator_(12 * i3 + 7,12 * i3 + 6) += cGA * a[0];
+    generator_(15 + i3, 12 + i3) += cGA * a[0]; // CG -> CA
+    generator_(12 * i3 + 7, 12 * i3 + 6) += cGA * a[0];
 
-    generator_(15 + i3,27 + i3) += CgT * a[3]; // CG -> TG
-    generator_(12 * i3 + 7,12 * i3 + 10) += CgT * a[3];
+    generator_(15 + i3, 27 + i3) += CgT * a[3]; // CG -> TG
+    generator_(12 * i3 + 7, 12 * i3 + 10) += CgT * a[3];
 
-    generator_(27 + i3,24 + i3) += tGA * a[0]; // TG -> TA
-    generator_(12 * i3 + 10,12 * i3 + 9) += tGA * a[0];
+    generator_(27 + i3, 24 + i3) += tGA * a[0]; // TG -> TA
+    generator_(12 * i3 + 10, 12 * i3 + 9) += tGA * a[0];
 
-    generator_(27 + i3,15 + i3) += TgC * a[2]; // TG -> CG
-    generator_(12 * i3 + 10,12 * i3 + 7) += TgC * a[2];
+    generator_(27 + i3, 15 + i3) += TgC * a[2]; // TG -> CG
+    generator_(12 * i3 + 10, 12 * i3 + 7) += TgC * a[2];
 
-    generator_(12 + i3,24 + i3) += CaT * a[3]; // CA -> TA
-    generator_(12 * i3 + 6,12 * i3 + 9) += CaT * a[3];
+    generator_(12 + i3, 24 + i3) += CaT * a[3]; // CA -> TA
+    generator_(12 * i3 + 6, 12 * i3 + 9) += CaT * a[3];
 
-    generator_(12 + i3,15 + i3) += cAG * a[1]; // CA -> CG
-    generator_(12 * i3 + 6,12 * i3 + 7) += cAG * a[1];
+    generator_(12 + i3, 15 + i3) += cAG * a[1]; // CA -> CG
+    generator_(12 * i3 + 6, 12 * i3 + 7) += cAG * a[1];
 
-    generator_(24 + i3,27 + i3) += tAC * a[1]; // TA -> TG
-    generator_(12 * i3 + 9,12 * i3 + 10) += tAC * a[1];
+    generator_(24 + i3, 27 + i3) += tAC * a[1]; // TA -> TG
+    generator_(12 * i3 + 9, 12 * i3 + 10) += tAC * a[1];
 
-    generator_(24 + i3,12 + i3) += TaC * a[2]; // TA -> CA
-    generator_(12 * i3 + 9,12 * i3 + 6) += TaC * a[2];
+    generator_(24 + i3, 12 + i3) += TaC * a[2]; // TA -> CA
+    generator_(12 * i3 + 9, 12 * i3 + 6) += TaC * a[2];
   }
 
   double x;
@@ -227,9 +227,9 @@ void YpR::updateMatrices(double CgT, double cGA,
     for (j = 0; j < 36; j++)
     {
       if (j != i)
-        x += generator_(i,j);
+        x += generator_(i, j);
     }
-    generator_(i,i) = -x;
+    generator_(i, i) = -x;
   }
 
   // calcul spectral
@@ -240,62 +240,75 @@ void YpR::updateMatrices(double CgT, double cGA,
 
   rightEigenVectors_ = ev.getV();
 
-   try {
-     MatrixTools::inv(rightEigenVectors_,leftEigenVectors_);
+  try
+  {
+    MatrixTools::inv(rightEigenVectors_, leftEigenVectors_);
 
-     isNonSingular_=true;
-     isDiagonalizable_=true;
-     for (i=0; i<size_; i++)
-       if (abs(iEigenValues_[i])> NumConstants::TINY()){
-         isDiagonalizable_=false;
-       }
+    isNonSingular_ = true;
+    isDiagonalizable_ = true;
+    for (i = 0; i < size_; i++)
+    {
+      if (abs(iEigenValues_[i]) > NumConstants::TINY())
+      {
+        isDiagonalizable_ = false;
+      }
+    }
 
-     // frequence stationnaire
-    
-     x = 0;
-     j = 0;
-     while (j < 36){
-       if (abs(eigenValues_[j]) < NumConstants::SMALL() &&
-           abs(iEigenValues_[j]) < NumConstants::SMALL()) {
-         eigenValues_[j]=0; //to avoid approximation problems in the future
-         for (i = 0; i < 36; i++)
-           {
-             freq_[i] = leftEigenVectors_(j,i);
-             x += freq_[i];
-           }
-         break;
-       }
-       j++;
-     }
-     for (i = 0; i < 36; i++)
-       freq_[i] /= x;
-   }
-   catch (ZeroDivisionException& e){
-     ApplicationTools::displayMessage("Singularity during  diagonalization. Taylor series used instead.");
-     isNonSingular_=false;
-     isDiagonalizable_=false;
+    // frequence stationnaire
 
-     if (vPowGen_.size()==0)
-       vPowGen_.resize(30);
+    x = 0;
+    j = 0;
+    while (j < 36)
+    {
+      if (abs(eigenValues_[j]) < NumConstants::SMALL() &&
+          abs(iEigenValues_[j]) < NumConstants::SMALL())
+      {
+        eigenValues_[j] = 0; // to avoid approximation problems in the future
+        for (i = 0; i < 36; i++)
+        {
+          freq_[i] = leftEigenVectors_(j, i);
+          x += freq_[i];
+        }
+        break;
+      }
+      j++;
+    }
+    for (i = 0; i < 36; i++)
+    {
+      freq_[i] /= x;
+    }
+  }
+  catch (ZeroDivisionException& e)
+  {
+    ApplicationTools::displayMessage("Singularity during  diagonalization. Taylor series used instead.");
+    isNonSingular_ = false;
+    isDiagonalizable_ = false;
 
-     double min=generator_(0,0);
-     for (i = 1; i < 36; i++)
-       if (min>generator_(i,i))
-         min=generator_(i,i);
-     
-     MatrixTools::scale(generator_,-1/min);
-     
-     MatrixTools::getId(36,tmpMat_);    // to compute the equilibrium frequency  (Q+Id)^256
-     
-     MatrixTools::add(tmpMat_,generator_);
-     MatrixTools::pow(tmpMat_,256,vPowGen_[0]);
-     
-     for (i=0;i<36;i++)
-       freq_[i]=vPowGen_[0](0,i);
-     
-     MatrixTools::getId(36,vPowGen_[0]);
-   }
-  
+    if (vPowGen_.size() == 0)
+      vPowGen_.resize(30);
+
+    double min = generator_(0, 0);
+    for (i = 1; i < 36; i++)
+    {
+      if (min > generator_(i, i))
+        min = generator_(i, i);
+    }
+
+    MatrixTools::scale(generator_, -1 / min);
+
+    MatrixTools::getId(36, tmpMat_);    // to compute the equilibrium frequency  (Q+Id)^256
+
+    MatrixTools::add(tmpMat_, generator_);
+    MatrixTools::pow(tmpMat_, 256, vPowGen_[0]);
+
+    for (i = 0; i < 36; i++)
+    {
+      freq_[i] = vPowGen_[0](0, i);
+    }
+
+    MatrixTools::getId(36, vPowGen_[0]);
+  }
+
   // mise a l'echelle
 
   x = 0;
@@ -311,28 +324,32 @@ void YpR::updateMatrices(double CgT, double cGA,
           if (j2 != i2)
           {
             j = 12 * i1 + 3 * j2 + i3;
-            x += freq_[i] * generator_(i,j);
+            x += freq_[i] * generator_(i, j);
           }
         }
       }
     }
   }
 
-  MatrixTools::scale(generator_,1 / x);
+  MatrixTools::scale(generator_, 1 / x);
 
   if (!isNonSingular_)
-    MatrixTools::Taylor(generator_,30,vPowGen_);
+    MatrixTools::Taylor(generator_, 30, vPowGen_);
 
-  for (i = 0; i < 36; i++){
+  for (i = 0; i < 36; i++)
+  {
     eigenValues_[i] /= x;
     iEigenValues_[i] /= x;
   }
 
   // and the exchangeability_
-  for ( i = 0; i < size_; i++)
-    for ( j = 0; j < size_; j++)
-      exchangeability_(i,j) = generator_(i,j) / freq_[j];
-
+  for (i = 0; i < size_; i++)
+  {
+    for (j = 0; j < size_; j++)
+    {
+      exchangeability_(i, j) = generator_(i, j) / freq_[j];
+    }
+  }
 }
 
 void YpR::check_model(SubstitutionModel* const pm) const
@@ -356,19 +373,19 @@ throw (Exception)
 
   for (size_t i = 0; i < 2; ++i)
   {
-    if (pm->Qij(l[2],l[i]) != pm->Qij(l[3],l[i]))
+    if (pm->Qij(l[2], l[i]) != pm->Qij(l[3], l[i]))
       throw Exception("Not R/Y Model " + pm->getName());
   }
   for (size_t i = 2; i < 4; ++i)
   {
-    if (pm->Qij(l[0],l[i]) != pm->Qij(l[1],l[i]))
+    if (pm->Qij(l[0], l[i]) != pm->Qij(l[1], l[i]))
       throw Exception("Not R/Y Model " + pm->getName());
   }
 }
 
 void YpR::setNamespace(const std::string& prefix)
 {
-   AbstractSubstitutionModel::setNamespace(prefix);
+  AbstractSubstitutionModel::setNamespace(prefix);
   // We also need to update the namespace of the nested model:
   _pmodel->setNamespace(prefix + _nestedPrefix);
 }
@@ -382,7 +399,8 @@ void YpR::setNamespace(const std::string& prefix)
 YpR_Sym::YpR_Sym(const RNY* alph,
                  SubstitutionModel* const pm,
                  double CgT, double TgC,
-                 double CaT, double TaC) : AbstractParameterAliasable("YpR_Sym."), YpR(alph, pm,"YpR_Sym.")
+                 double CaT, double TaC) : AbstractParameterAliasable("YpR_Sym."),
+  YpR(alph, pm, "YpR_Sym.")
 {
   addParameter_(new Parameter("YpR_Sym.rCgT", CgT, &Parameter::R_PLUS));
   addParameter_(new Parameter("YpR_Sym.rTgC", TgC, &Parameter::R_PLUS));
@@ -394,15 +412,16 @@ YpR_Sym::YpR_Sym(const RNY* alph,
 
 void YpR_Sym::updateMatrices()
 {
-   double rCgT = getParameterValue("rCgT");
-   double rTgC = getParameterValue("rTgC");
-   double rCaT = getParameterValue("rCaT");
-   double rTaC = getParameterValue("rTaC");
+  double rCgT = getParameterValue("rCgT");
+  double rTgC = getParameterValue("rTgC");
+  double rCaT = getParameterValue("rCaT");
+  double rTaC = getParameterValue("rTaC");
 
-   YpR::updateMatrices(rCgT, rCgT, rTgC, rTgC, rCaT, rCaT, rTaC, rTaC);
+  YpR::updateMatrices(rCgT, rCgT, rTgC, rTgC, rCaT, rCaT, rTaC, rTaC);
 }
 
-YpR_Sym::YpR_Sym(const YpR_Sym& ypr) : AbstractParameterAliasable(ypr), YpR(ypr,"YpR_Sym.")
+YpR_Sym::YpR_Sym(const YpR_Sym& ypr) : AbstractParameterAliasable(ypr),
+  YpR(ypr, "YpR_Sym.")
 {}
 
 /******************************************************************************/
@@ -423,7 +442,8 @@ YpR_Gen::YpR_Gen(const RNY* alph,
                  double CgT, double cGA,
                  double TgC, double tGA,
                  double CaT, double cAG,
-                 double TaC, double tAG) : AbstractParameterAliasable("YpR_Gen."), YpR(alph, pm,"YpR_Gen.")
+                 double TaC, double tAG) : AbstractParameterAliasable("YpR_Gen."),
+  YpR(alph, pm, "YpR_Gen.")
 {
   addParameter_(new Parameter("YpR_Gen.rCgT", CgT, &Parameter::R_PLUS));
   addParameter_(new Parameter("YpR_Gen.rcGA", cGA, &Parameter::R_PLUS));
@@ -439,19 +459,20 @@ YpR_Gen::YpR_Gen(const RNY* alph,
 
 void YpR_Gen::updateMatrices()
 {
-   double rCgT = getParameterValue("rCgT");
-   double rcGA = getParameterValue("rcGA");
-   double rTgC = getParameterValue("rTgC");
-   double rtGA = getParameterValue("rtGA");
-   double rCaT = getParameterValue("rCaT");
-   double rcAG = getParameterValue("rcAG");
-   double rTaC = getParameterValue("rTaC");
-   double rtAG = getParameterValue("rtAG");
+  double rCgT = getParameterValue("rCgT");
+  double rcGA = getParameterValue("rcGA");
+  double rTgC = getParameterValue("rTgC");
+  double rtGA = getParameterValue("rtGA");
+  double rCaT = getParameterValue("rCaT");
+  double rcAG = getParameterValue("rcAG");
+  double rTaC = getParameterValue("rTaC");
+  double rtAG = getParameterValue("rtAG");
 
-   YpR::updateMatrices(rCgT, rcGA, rTgC, rtGA, rCaT, rcAG, rTaC, rtAG);
+  YpR::updateMatrices(rCgT, rcGA, rTgC, rtGA, rCaT, rcAG, rTaC, rtAG);
 }
 
-YpR_Gen::YpR_Gen(const YpR_Gen& ypr) : AbstractParameterAliasable(ypr), YpR(ypr,"YpR_Gen.")
+YpR_Gen::YpR_Gen(const YpR_Gen& ypr) : AbstractParameterAliasable(ypr),
+  YpR(ypr, "YpR_Gen.")
 {
   updateMatrices();
 }
@@ -462,5 +483,3 @@ std::string YpR_Gen::getName() const
 {
   return "YpR_Gen";
 }
-
-
