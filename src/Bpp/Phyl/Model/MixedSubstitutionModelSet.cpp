@@ -364,7 +364,7 @@ bool MixedSubstitutionModelSet::HyperNode::isComplete() const
   {
     for (k = 0; k < vUs; k++)
     {
-      if (vUnused_[k] == i)
+      if (vUnused_[k] == static_cast<int>(i))
         break;
     }
     if ((k == vUs) && vNumbers_[i].size() == 0)

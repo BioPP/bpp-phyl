@@ -394,7 +394,7 @@ size_t NonHomogeneousSequenceSimulator::evolve(const SNode* node, size_t initial
   double rand = RandomTools::giveRandomNumberBetweenZeroAndEntry(1.);
   double l = rate * node->getDistanceToFather();
   const SubstitutionModel* model = node->getInfos().model;
-  for (size_t y = 0; y < static_cast<int>(nbStates_); y++)
+  for (size_t y = 0; y < nbStates_; y++)
   {
     cumpxy += model->Pij_t(initialStateIndex, y, l);
     if (rand < cumpxy) return y;

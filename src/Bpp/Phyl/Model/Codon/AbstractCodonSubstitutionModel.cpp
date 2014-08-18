@@ -142,9 +142,9 @@ AbstractCodonSubstitutionModel::AbstractCodonSubstitutionModel(
   if (hasParametrizedRates_)
   {
     // relative rates
-    for (size_t i = 0; i < 2; ++i)
+    for (int i = 0; i < 2; ++i)
     {
-      addParameter_(new Parameter(st + "relrate" + TextTools::toString(i + 1), 1.0 / (3 - i), &Parameter::PROP_CONSTRAINT_EX));
+      addParameter_(new Parameter(st + "relrate" + TextTools::toString(i + 1), 1.0 / (3.0 - i), &Parameter::PROP_CONSTRAINT_EX));
     }
   }
 }
