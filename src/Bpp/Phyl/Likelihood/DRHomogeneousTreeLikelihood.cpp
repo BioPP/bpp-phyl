@@ -291,10 +291,10 @@ throw (Exception)
 void DRHomogeneousTreeLikelihood::computeTreeDLikelihoodAtNode(const Node* node)
 {
   const Node* father = node->getFather();
-  VVVdouble* _likelihoods_father_node = &likelihoodData_->getLikelihoodArray(father->getId(), node->getId());
-  Vdouble* _dLikelihoods_node = &likelihoodData_->getDLikelihoodArray(node->getId());
-  VVVdouble*  pxy__node = &pxy_[node->getId()];
-  VVVdouble* dpxy__node = &dpxy_[node->getId()];
+  VVVdouble* likelihoods_father_node = &likelihoodData_->getLikelihoodArray(father->getId(), node->getId());
+  Vdouble* dLikelihoods_node = &likelihoodData_->getDLikelihoodArray(node->getId());
+  VVVdouble*  pxy_node = &pxy_[node->getId()];
+  VVVdouble* dpxy_node = &dpxy_[node->getId()];
   VVVdouble larray;
   computeLikelihoodAtNode_(father, larray);
   Vdouble* rootLikelihoodsSR = &likelihoodData_->getRootRateSiteLikelihoodArray();
@@ -303,27 +303,27 @@ void DRHomogeneousTreeLikelihood::computeTreeDLikelihoodAtNode(const Node* node)
 
   for (size_t i = 0; i < nbDistinctSites_; i++)
   {
-    VVdouble* _likelihoods_father_node_i = &(*_likelihoods_father_node)[i];
+    VVdouble* likelihoods_father_node_i = &(*likelihoods_father_node)[i];
     VVdouble* larray_i = &larray[i];
     dLi = 0;
     for (size_t c = 0; c < nbClasses_; c++)
     {
-      Vdouble* _likelihoods_father_node_i_c = &(*_likelihoods_father_node_i)[c];
+      Vdouble* likelihoods_father_node_i_c = &(*likelihoods_father_node_i)[c];
       Vdouble* larray_i_c = &(*larray_i)[c];
-      VVdouble*  pxy__node_c = &(*pxy__node)[c];
-      VVdouble* dpxy__node_c = &(*dpxy__node)[c];
+      VVdouble*  pxy_node_c = &(*pxy_node)[c];
+      VVdouble* dpxy_node_c = &(*dpxy_node)[c];
       dLic = 0;
       for (size_t x = 0; x < nbStates_; x++)
       {
         numerator = 0;
         denominator = 0;
-        Vdouble*  pxy__node_c_x = &(*pxy__node_c)[x];
-        Vdouble* dpxy__node_c_x = &(*dpxy__node_c)[x];
+        Vdouble*  pxy_node_c_x = &(*pxy_node_c)[x];
+        Vdouble* dpxy_node_c_x = &(*dpxy_node_c)[x];
         dLicx = 0;
         for (size_t y = 0; y < nbStates_; y++)
         {
-          numerator   += (*dpxy__node_c_x)[y] * (*_likelihoods_father_node_i_c)[y];
-          denominator += (*pxy__node_c_x)[y] * (*_likelihoods_father_node_i_c)[y];
+          numerator   += (*dpxy_node_c_x)[y] * (*likelihoods_father_node_i_c)[y];
+          denominator += (*pxy_node_c_x)[y] * (*likelihoods_father_node_i_c)[y];
         }
         dLicx = denominator == 0. ? 0. : (*larray_i_c)[x] * numerator / denominator;
         // cout << i << "\t" << c << "\t" << x << "\t" << (*larray_i_c)[x] << "\t" << numerator << "\t" << denominator << endl;
@@ -331,7 +331,7 @@ void DRHomogeneousTreeLikelihood::computeTreeDLikelihoodAtNode(const Node* node)
       }
       dLi += rateDistribution_->getProbability(c) * dLic;
     }
-    (*_dLikelihoods_node)[i] = dLi / (*rootLikelihoodsSR)[i];
+    (*dLikelihoods_node)[i] = dLi / (*rootLikelihoodsSR)[i];
     // cout << dLi << "\t" << (*rootLikelihoodsSR)[i] << endl;
   }
 }
@@ -385,10 +385,10 @@ throw (Exception)
 void DRHomogeneousTreeLikelihood::computeTreeD2LikelihoodAtNode(const Node* node)
 {
   const Node* father = node->getFather();
-  VVVdouble* _likelihoods_father_node = &likelihoodData_->getLikelihoodArray(father->getId(), node->getId());
-  Vdouble* _d2Likelihoods_node = &likelihoodData_->getD2LikelihoodArray(node->getId());
-  VVVdouble*   pxy__node = &pxy_[node->getId()];
-  VVVdouble* d2pxy__node = &d2pxy_[node->getId()];
+  VVVdouble* likelihoods_father_node = &likelihoodData_->getLikelihoodArray(father->getId(), node->getId());
+  Vdouble* d2Likelihoods_node = &likelihoodData_->getD2LikelihoodArray(node->getId());
+  VVVdouble*   pxy_node = &pxy_[node->getId()];
+  VVVdouble* d2pxy_node = &d2pxy_[node->getId()];
   VVVdouble larray;
   computeLikelihoodAtNode_(father, larray);
   Vdouble* rootLikelihoodsSR = &likelihoodData_->getRootRateSiteLikelihoodArray();
@@ -397,34 +397,34 @@ void DRHomogeneousTreeLikelihood::computeTreeD2LikelihoodAtNode(const Node* node
 
   for (size_t i = 0; i < nbDistinctSites_; i++)
   {
-    VVdouble* _likelihoods_father_node_i = &(*_likelihoods_father_node)[i];
+    VVdouble* likelihoods_father_node_i = &(*likelihoods_father_node)[i];
     VVdouble* larray_i = &larray[i];
     d2Li = 0;
     for (size_t c = 0; c < nbClasses_; c++)
     {
-      Vdouble* _likelihoods_father_node_i_c = &(*_likelihoods_father_node_i)[c];
+      Vdouble* likelihoods_father_node_i_c = &(*likelihoods_father_node_i)[c];
       Vdouble* larray_i_c = &(*larray_i)[c];
-      VVdouble*   pxy__node_c = &(*pxy__node)[c];
-      VVdouble* d2pxy__node_c = &(*d2pxy__node)[c];
+      VVdouble*   pxy_node_c = &(*pxy_node)[c];
+      VVdouble* d2pxy_node_c = &(*d2pxy_node)[c];
       d2Lic = 0;
       for (size_t x = 0; x < nbStates_; x++)
       {
         numerator = 0;
         denominator = 0;
-        Vdouble*   pxy__node_c_x = &(*pxy__node_c)[x];
-        Vdouble* d2pxy__node_c_x = &(*d2pxy__node_c)[x];
+        Vdouble*   pxy_node_c_x = &(*pxy_node_c)[x];
+        Vdouble* d2pxy_node_c_x = &(*d2pxy_node_c)[x];
         d2Licx = 0;
         for (size_t y = 0; y < nbStates_; y++)
         {
-          numerator   += (*d2pxy__node_c_x)[y] * (*_likelihoods_father_node_i_c)[y];
-          denominator += (*pxy__node_c_x)[y] * (*_likelihoods_father_node_i_c)[y];
+          numerator   += (*d2pxy_node_c_x)[y] * (*likelihoods_father_node_i_c)[y];
+          denominator += (*pxy_node_c_x)[y] * (*likelihoods_father_node_i_c)[y];
         }
         d2Licx = denominator == 0. ? 0. : (*larray_i_c)[x] * numerator / denominator;
         d2Lic += d2Licx;
       }
       d2Li += rateDistribution_->getProbability(c) * d2Lic;
     }
-    (*_d2Likelihoods_node)[i] = d2Li / (*rootLikelihoodsSR)[i];
+    (*d2Likelihoods_node)[i] = d2Li / (*rootLikelihoodsSR)[i];
   }
 }
 
