@@ -6,7 +6,7 @@
 //
 
 /*
-   Copyright or © or Copr. CNRS, (November 16, 2004)
+   Copyright or © or Copr. Bio++ Development Team, (November 16, 2004)
 
    This software is a computer program whose purpose is to provide classes
    for phylogenetic data analysis.
@@ -140,7 +140,7 @@ TwoTreeLikelihood::TwoTreeLikelihood(const TwoTreeLikelihood& lik) :
   leafLikelihoods1_  (lik.leafLikelihoods1_),
   leafLikelihoods2_  (lik.leafLikelihoods2_),
   minimumBrLen_      (lik.minimumBrLen_),
-  brLenConstraint_   (dynamic_cast<Constraint*>(brLenConstraint_->clone())),
+  brLenConstraint_   (dynamic_cast<Constraint*>(lik.brLenConstraint_->clone())),
   brLen_             (lik.brLen_)
 {}
 
@@ -264,14 +264,14 @@ double TwoTreeLikelihood::getLogLikelihoodForASiteForARateClass(size_t site, siz
 
 double TwoTreeLikelihood::getLikelihoodForASiteForARateClassForAState(size_t site, size_t rateClass, int state) const
 {
-  return rootLikelihoods_[rootPatternLinks_[site]][rateClass][state];
+  return rootLikelihoods_[rootPatternLinks_[site]][rateClass][static_cast<size_t>(state)];
 }
 
 /******************************************************************************/
 
 double TwoTreeLikelihood::getLogLikelihoodForASiteForARateClassForAState(size_t site, size_t rateClass, int state) const
 {
-  return log(rootLikelihoods_[rootPatternLinks_[site]][rateClass][state]);
+  return log(rootLikelihoods_[rootPatternLinks_[site]][rateClass][static_cast<size_t>(state)]);
 }
 
 /******************************************************************************/
@@ -655,8 +655,8 @@ void DistanceEstimation::computeMatrix() throw (NullPointerException)
   vector<string> names = sites_->getSequencesNames();
   if (dist_ != 0) delete dist_;
   dist_ = new DistanceMatrix(names);
-  optimizer_->setVerbose(static_cast<size_t>(max(static_cast<int>(verbose_) - 2, 0)));
-  for (size_t i = 0; i < n; i++)
+  optimizer_->setVerbose(static_cast<unsigned int>(max(static_cast<int>(verbose_) - 2, 0)));
+  for (size_t i = 0; i < n; ++i)
   {
     (*dist_)(i, i) = 0;
     if (verbose_ == 1)

@@ -45,10 +45,11 @@
 using namespace bpp;
 
 /******************************************************************************/
-int AbstractMutationProcess::mutate(int state) const
+
+size_t AbstractMutationProcess::mutate(size_t state) const
 {
   double alea = RandomTools::giveRandomNumberBetweenZeroAndEntry(1.0);
-  for (unsigned int j = 0; j < size_; j++)
+  for (size_t j = 0; j < size_; j++)
   {
     if (alea < repartition_[state][j]) return j;
   }
@@ -56,13 +57,14 @@ int AbstractMutationProcess::mutate(int state) const
 }
 
 /******************************************************************************/
-int AbstractMutationProcess::mutate(int state, unsigned int n) const
+
+size_t AbstractMutationProcess::mutate(size_t state, unsigned int n) const
 {
-  int s = state;
+  size_t s = state;
   for (unsigned int k = 0; k < n; k++)
   {
     double alea = RandomTools::giveRandomNumberBetweenZeroAndEntry(1.0);
-    for (unsigned int j = 1; j < size_ + 1; j++)
+    for (size_t j = 1; j < size_ + 1; j++)
     {
       if (alea < repartition_[s][j])
       {
@@ -75,16 +77,18 @@ int AbstractMutationProcess::mutate(int state, unsigned int n) const
 }
 
 /******************************************************************************/
-double AbstractMutationProcess::getTimeBeforeNextMutationEvent(int state) const
+
+double AbstractMutationProcess::getTimeBeforeNextMutationEvent(size_t state) const
 {
-  return RandomTools::randExponential(-1./model_->Qij(state, state));
+  return RandomTools::randExponential(-1. / model_->Qij(state, state));
 }
 
 /******************************************************************************/
-int AbstractMutationProcess::evolve(int initialState, double time) const
+
+size_t AbstractMutationProcess::evolve(size_t initialState, double time) const
 {
   double t = 0;
-  int currentState = initialState;
+  size_t currentState = initialState;
   t += getTimeBeforeNextMutationEvent(currentState);
   while (t < time)
   {
@@ -95,11 +99,12 @@ int AbstractMutationProcess::evolve(int initialState, double time) const
 }
 
 /******************************************************************************/
-MutationPath AbstractMutationProcess::detailedEvolve(int initialState, double time) const
+
+MutationPath AbstractMutationProcess::detailedEvolve(size_t initialState, double time) const
 {
   MutationPath mp(model_->getAlphabet(), initialState, time);
   double t = 0;
-  int currentState = initialState;
+  size_t currentState = initialState;
   t += getTimeBeforeNextMutationEvent(currentState);
   while (t < time)
   {
@@ -121,16 +126,16 @@ SimpleMutationProcess::SimpleMutationProcess(const SubstitutionModel* model) :
 
   // We will now initiate each of these probability vector.
   RowMatrix<double> Q = model->getGenerator();
-  for (unsigned int i = 0; i < size_; i++)
+  for (size_t i = 0; i < size_; i++)
   {
     repartition_[i] = Vdouble(size_);
     double cum = 0;
     double sum_Q = 0;
-    for (unsigned int j = 0; j < size_; j++)
+    for (size_t j = 0; j < size_; j++)
     {
       if (j != i) sum_Q += Q(i, j);
     }
-    for (unsigned int j = 0; j < size_; j++)
+    for (size_t j = 0; j < size_; j++)
     {
       if (j != i)
       {
@@ -148,17 +153,18 @@ SimpleMutationProcess::SimpleMutationProcess(const SubstitutionModel* model) :
 SimpleMutationProcess::~SimpleMutationProcess() {}
 
 /******************************************************************************/
-int SimpleMutationProcess::evolve(int initialState, double time) const
+
+size_t SimpleMutationProcess::evolve(size_t initialState, double time) const
 {
   // Compute all cumulative pijt:
   Vdouble pijt(size_);
   pijt[0] = model_->Pij_t(initialState, 0, time);
-  for (unsigned int i = 1; i < size_; i++)
+  for (size_t i = 1; i < size_; i++)
   {
     pijt[i] = pijt[i - 1] + model_->Pij_t(initialState, i, time);
   }
   double rand = RandomTools::giveRandomNumberBetweenZeroAndEntry(1);
-  for (unsigned int i = 0; i < size_; i++)
+  for (size_t i = 0; i < size_; i++)
   {
     if (rand < pijt[i]) return i;
   }
@@ -167,7 +173,7 @@ int SimpleMutationProcess::evolve(int initialState, double time) const
 
 /******************************************************************************/
 
-SelfMutationProcess::SelfMutationProcess(int alphabetSize) :
+SelfMutationProcess::SelfMutationProcess(size_t alphabetSize) :
   AbstractMutationProcess(0)
 {
   size_ = alphabetSize;

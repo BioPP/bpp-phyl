@@ -66,7 +66,7 @@ int main() {
   for (size_t j = 0; j < ids.size() - 1; ++j) //ignore root, the last id
     counts[ids[j]].resize(4, 4);
   for (unsigned int i = 0; i < n; ++i) {
-    RASiteSimulationResult* result = simulator.dSimulate();
+    RASiteSimulationResult* result = simulator.dSimulateSite();
     for (size_t j = 0; j < ids.size() - 1; ++j) { //ignore root, the last id
       result->getMutationPath(ids[j]).getEventCounts(counts[ids[j]]);
     }

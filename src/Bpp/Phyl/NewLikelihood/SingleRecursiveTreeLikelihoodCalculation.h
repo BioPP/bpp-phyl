@@ -190,10 +190,6 @@ public:
 
   double getLikelihoodForASiteForAClassForAState(size_t site, size_t classIndex, int state) const;
 
-  double getDLogLikelihoodForASite(size_t site) const;
-
-  double getD2LogLikelihoodForASite(size_t site) const;
-
   double getDLikelihoodForASite(size_t site) const;
 
   double getD2LikelihoodForASite(size_t site) const;

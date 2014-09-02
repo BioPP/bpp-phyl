@@ -446,31 +446,26 @@ namespace bpp
      *
      **/
 
-    void multiplyPartialLikelihoods(VVVdouble* likelihoods_node, const std::vector<const VVVdouble*>& vLikelihoods_sons, int nodeId, const std::vector<const std::vector<size_t>* >& vPatterns) const
+    void multiplyPartialLikelihoods(VVVdouble* likelihoods_node, const VVVdouble* likelihoods_son, int nodeId, int sonId, unsigned char DX) const
     {
-      computingTree_->multiplyPartialLikelihoods(likelihoods_node, vLikelihoods_sons, nodeId, vPatterns);
+      computingTree_->multiplyPartialLikelihoods(likelihoods_node, likelihoods_son, nodeId, sonId, DX);
+    }
+
+    void multiplyPartialLikelihoods(VVVdouble* likelihoods_node, const VVVdouble* likelihoods_son, int nodeId, int sonId, const std::vector<size_t>& patterns, unsigned char DX) const
+    {
+      computingTree_->multiplyPartialLikelihoods(likelihoods_node, likelihoods_son, nodeId, sonId, patterns, DX);
+    }
+
+    void multiplyPartialLikelihoods(VVVdouble* likelihoods_node, const std::vector<const VVVdouble*>& vLikelihoods_sons, int nodeId, unsigned char DX) const
+    {
+      computingTree_->multiplyPartialLikelihoods(likelihoods_node, vLikelihoods_sons, nodeId, DX);
+    }
+
+    void multiplyPartialLikelihoods(VVVdouble* likelihoods_node, const std::vector<const VVVdouble*>& vLikelihoods_sons, int nodeId, const std::vector<const std::vector<size_t>* >& vPatterns, unsigned char DX) const
+    {
+      computingTree_->multiplyPartialLikelihoods(likelihoods_node, vLikelihoods_sons, nodeId, vPatterns, DX);
     }
     
-    void multiplyPartialLikelihoods(VVVdouble* likelihoods_node, const std::vector<const VVVdouble*>& vLikelihoods_sons, int nodeId) const
-    {
-      computingTree_->multiplyPartialLikelihoods(likelihoods_node, vLikelihoods_sons, nodeId);
-    }
-
-    void multiplyPartialLikelihoods(VVVdouble* likelihoods_node, const VVVdouble* likelihoods_son, int nodeId, int sonId) const
-    {
-      computingTree_->multiplyPartialLikelihoods(likelihoods_node, likelihoods_son, nodeId, sonId);
-    }
-
-    void multiplyPartialDXLikelihoods(int brId, VVVdouble* dXLikelihoods_node, const std::vector<const VVVdouble*>& vLikelihoods_sons, int nodeId, const std::vector<const std::vector<size_t>* >& vPatterns, unsigned char DX) const
-    {
-      computingTree_->multiplyPartialDXLikelihoods(brId, dXLikelihoods_node, vLikelihoods_sons, nodeId, vPatterns, DX);
-    }
-
-    void computeDXLogLikelihoods(VVdouble* dXLogLikelihoods_node, const VVVdouble* likelihoods_father_node, const VVVdouble* likelihoods_father, int nodeId, unsigned char DX) const
-    {
-      computingTree_->computeDXLogLikelihoods(dXLogLikelihoods_node, likelihoods_father_node, likelihoods_father, nodeId, DX);
-    }
-
     friend class SubstitutionProcessCollection;
     
   };

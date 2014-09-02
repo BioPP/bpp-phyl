@@ -137,7 +137,6 @@ double MixturePhyloLikelihood::getD2LogLikelihoodForASite(size_t site) const
   return VectorTools::logSumExp(vD2,simplex_.getFrequencies());
 }
 
-
 /******************************************************************************/
 
 double MixturePhyloLikelihood::getDLogLikelihood() const
@@ -163,15 +162,15 @@ double MixturePhyloLikelihood::getD2LogLikelihood() const
   // Derivative of the sum is the sum of derivatives:
   vector<double> la(nbSites_);
   for (size_t i = 0; i < nbSites_; ++i)
-    {
-      la[i] = getD2LogLikelihoodForASite(i);
-    }
+  {
+    la[i] = getD2LogLikelihoodForASite(i);
+  }
   sort(la.begin(), la.end());
   double ll = 0;
   for (size_t i = nbSites_; i > 0; i--)
-    {
-      ll += la[i - 1];
-    }
+  {
+    ll += la[i - 1];
+  }
   return ll;
 }
 
@@ -215,9 +214,9 @@ VVdouble MixturePhyloLikelihood::getPosteriorProbabilitiesForEachSiteForEachProc
 void MixturePhyloLikelihood::computeD2LogLikelihood_(const std::string& variable) const
 {
   for (size_t i = 0; i < vpTreelik_.size(); i++)
-    {
-      vpTreelik_[i]->computeTreeD2LogLikelihood(variable);
-    }
+  {
+    vpTreelik_[i]->computeTreeD2LogLikelihood(variable);
+  }
 }
 
 /******************************************************************************/
@@ -225,9 +224,9 @@ void MixturePhyloLikelihood::computeD2LogLikelihood_(const std::string& variable
 void MixturePhyloLikelihood::computeDLogLikelihood_(const std::string& variable) const
 {
   for (size_t i = 0; i < vpTreelik_.size(); i++)
-    {
-      vpTreelik_[i]->computeTreeDLogLikelihood(variable);
-    }
+  {
+    vpTreelik_[i]->computeTreeDLogLikelihood(variable);
+  }
 }
 
 /******************************************************************************/

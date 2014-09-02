@@ -188,7 +188,7 @@ void T92::updateMatrices()
 
 /******************************************************************************/
 
-double T92::Pij_t(int i, int j, double d) const
+double T92::Pij_t(size_t i, size_t j, double d) const
 {
   l_ = rate_ * r_ * d;
   exp1_ = exp(-l_);
@@ -242,7 +242,7 @@ double T92::Pij_t(int i, int j, double d) const
 
 /******************************************************************************/
 
-double T92::dPij_dt(int i, int j, double d) const
+double T92::dPij_dt(size_t i, size_t j, double d) const
 {
   l_ = rate_ * r_ * d;
   exp1_ = exp(-l_);
@@ -296,7 +296,7 @@ double T92::dPij_dt(int i, int j, double d) const
 
 /******************************************************************************/
 
-double T92::d2Pij_dt2(int i, int j, double d) const
+double T92::d2Pij_dt2(size_t i, size_t j, double d) const
 {
   double k2_ = k_ * k_;
   l_ = rate_ * r_ * d;

@@ -161,9 +161,10 @@ public:
    *
    * Consider using the HKY85 model for instance if you want to set frequencies as parameters.
    *
-   * @param data Useless parameter.
+   * @param data Unused parameter.
+   * @param pseudoCount Unused parameter.
    */
-  void setFreqFromData(const SequenceContainer& data) {}
+  void setFreqFromData(const SequenceContainer& data, double pseudoCount = 0) {}
 
 protected:
   /**

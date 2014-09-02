@@ -50,8 +50,6 @@
 #include <Bpp/Seq/Container/SequenceContainer.h>
 
 
-using namespace std;
-
 namespace bpp
 {
 /**
@@ -65,20 +63,19 @@ namespace bpp
  * well as on the root, where frequencies are optimized with a MVAprotein object (See the ProteinFrequenciesSet class).
  * @param exch The exchangeability matrix. The matrices currently available are DSO78, JTT92, WAG01 or LG08. A user-defined matrix can be specified with the 'file' argument.
  */
-
 class CoalaCore
 {
 protected:
   bool init_;
   size_t nbrOfAxes_;
-  string exch_;
+  std::string exch_;
   RowMatrix<double> P_;
   RowMatrix<double> R_;
-  vector<double> colWeights_;
-  map<string, string> paramValues_;
+  std::vector<double> colWeights_;
+  std::map<std::string, std::string> paramValues_;
 
 public:
-  CoalaCore(size_t nbAxes = 0, const string& exch = "LG08");
+  CoalaCore(size_t nbAxes = 0, const std::string& exch = "LG08");
 
   virtual ~CoalaCore() {}
 
@@ -88,13 +85,13 @@ public:
   size_t getNbrOfAxes() const { return nbrOfAxes_; }
   const RowMatrix<double>& getTppalAxesMatrix() const { return P_; }
   const RowMatrix<double>& getRowCoordinates() const { return R_; }
-  const vector<double>& getColumnWeights() const { return colWeights_; }
-  void setParamValues(const map<string, string>& valuesSettings) { paramValues_ = valuesSettings; }
+  const std::vector<double>& getColumnWeights() const { return colWeights_; }
+  void setParamValues(const std::map<std::string, std::string>& valuesSettings) { paramValues_ = valuesSettings; }
 
 protected:
   ParameterList computeCOA(const SequenceContainer& data, bool param = true);
   
-  vector<double> prodMatrixVector(RowMatrix<double>& P, vector<double>& V);
+  std::vector<double> prodMatrixVector(RowMatrix<double>& P, std::vector<double>& V);
 };
 
 } // end of namespace bpp.

@@ -142,7 +142,7 @@ void K80::updateMatrices()
 	
 /******************************************************************************/
 
-double K80::Pij_t(int i, int j, double d) const
+double K80::Pij_t(size_t i, size_t j, double d) const
 {
   l_ = rate_ * r_ * d;
   exp1_ = exp(-l_);
@@ -191,7 +191,7 @@ double K80::Pij_t(int i, int j, double d) const
 
 /******************************************************************************/
 
-double K80::dPij_dt(int i, int j, double d) const
+double K80::dPij_dt(size_t i, size_t j, double d) const
 {
   l_ = rate_ * r_ * d;
   exp1_ = exp(-l_);
@@ -240,7 +240,7 @@ double K80::dPij_dt(int i, int j, double d) const
 
 /******************************************************************************/
 
-double K80::d2Pij_dt2(int i, int j, double d) const
+double K80::d2Pij_dt2(size_t i, size_t j, double d) const
 {
   double k_2 = k_ * k_;
   double r_2 = rate_ * rate_ * r_ * r_;

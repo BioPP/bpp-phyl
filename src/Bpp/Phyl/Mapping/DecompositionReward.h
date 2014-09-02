@@ -112,7 +112,7 @@ public:
   DecompositionReward* clone() const { return new DecompositionReward(*this); }
 
 public:
-  double getReward(int initialState, int finalState, double length) const;
+  double getReward(size_t initialState, size_t finalState, double length) const;
 
   Matrix<double>* getAllRewards(double length) const;
     

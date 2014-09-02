@@ -576,7 +576,7 @@ SubstitutionModel* BppOSubstitutionModelFormat::read(
         model.reset(new LG10_EX_EHO(alpha));	
       else if (modelName == "LGL08_CAT")
       {
-        unsigned int nbCat = TextTools::toInt(args["nbCat"]);
+        unsigned int nbCat = TextTools::to<unsigned int>(args["nbCat"]);
         model.reset(new LGL08_CAT(alpha, nbCat));
       }
       else if (modelName == "Empirical")
@@ -600,7 +600,7 @@ SubstitutionModel* BppOSubstitutionModelFormat::read(
         if (TextTools::isEmpty(nbrOfParametersPerBranch))
           throw Exception("'nbrAxes' argument missing to define the number of axis of the Correspondence Analysis.");
         //Now we create the Coala model:
-        model.reset(new Coala(alpha, *nestedModel, TextTools::toInt(nbrOfParametersPerBranch)));
+        model.reset(new Coala(alpha, *nestedModel, TextTools::to<unsigned int>(nbrOfParametersPerBranch)));
         model->setFreqFromData(*data);
       }
 
@@ -1318,7 +1318,7 @@ void BppOSubstitutionModelFormat::initialize_(
 
       string rf = initFreqs.substr(6);
       StringTokenizer strtok(rf.substr(1, rf.length() - 2), ",");
-      unsigned int i = 0;
+      int i = 0;
       while (strtok.hasMoreToken())
         frequencies[i++] = TextTools::toDouble(strtok.nextToken());
       model.setFreq(frequencies);

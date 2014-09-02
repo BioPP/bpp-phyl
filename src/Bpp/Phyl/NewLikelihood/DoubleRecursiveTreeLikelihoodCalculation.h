@@ -79,8 +79,8 @@ private:
 
     // booleans to say if the Dlikelihoods are null
   
-    bool nullDLogLikelihood_;
-    bool nullD2LogLikelihood_;
+    bool nullDLikelihood_;
+    bool nullD2Likelihood_;
 
 
     // Node being currently derivated
@@ -182,9 +182,9 @@ private:
 
     double getLikelihoodForASiteForAClassForAState(size_t site, size_t modelClass, int state) const;
  
-    double getDLogLikelihoodForASite(size_t site) const;
+    double getDLikelihoodForASite(size_t site) const;
 
-    double getD2LogLikelihoodForASite(size_t site) const;
+    double getD2LikelihoodForASite(size_t site) const;
 
     void computeTreeLikelihood();
 
@@ -193,7 +193,7 @@ private:
     void computeTreeD2LogLikelihood(const std::string& variable);
 
   private:
-    void computeLikelihoodAtNode_(const Node* node, VVVdouble& likelihoodArray) const;
+    void computeLikelihoodAtNode_(const Node* node, VVVdouble& likelihoodArray, const Node* sonNode =0 ) const;
   
     /**
      * Initialize the arrays corresponding to each son node for the
@@ -214,10 +214,10 @@ private:
 
     //void computeRootLikelihood();
 
-    void computeTreeDLogLikelihoodAtNode(const Node* node);
+    void computeTreeDLikelihoodAtNode(const Node* node);
 //    void computeTreeDLikelihoods();
     
-    void computeTreeD2LogLikelihoodAtNode(const Node* node);
+    void computeTreeD2LikelihoodAtNode(const Node* node);
     //  void computeTreeD2Likelihoods();
 
 //    void resetLikelihoodArrays(const Node* node);

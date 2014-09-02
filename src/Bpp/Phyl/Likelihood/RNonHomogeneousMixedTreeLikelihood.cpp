@@ -150,7 +150,7 @@ void RNonHomogeneousMixedTreeLikelihood::init(bool usePatterns)
   vector<int> vn;
   size_t nbmodels = modelSet_->getNumberOfModels();
 
-  const SiteContainer* pdata=getData();
+  const SiteContainer* pdata = getData();
   
   const Tree& tree = getTree();
   
@@ -213,8 +213,8 @@ void RNonHomogeneousMixedTreeLikelihood::init(bool usePatterns)
       size_t ttmodels = 1;
       for (vector<int>::iterator it = vExpMod.begin(); it != vExpMod.end(); it++)
       {
-        mapmodels[*it] = static_cast<int>(hyperNode_.getNode(*it).size());
-        ttmodels *= mapmodels[*it];
+        mapmodels[*it] = static_cast<int>(hyperNode_.getNode(static_cast<size_t>(*it)).size());
+        ttmodels *= static_cast<size_t>(mapmodels[*it]);
       }
 
       for (size_t i = 0; i < ttmodels; i++)
@@ -226,7 +226,7 @@ void RNonHomogeneousMixedTreeLikelihood::init(bool usePatterns)
         {
           if ((hyperNode_.getNode(j).size() >= 1) && find(vExpMod.begin(), vExpMod.end(), static_cast<int>(j)) != vExpMod.end())
           {
-            hn.setModel(j, Vint(1, hyperNode_.getNode(j)[s % mapmodels[static_cast<int>(j)]]));
+            hn.setModel(j, Vint(1, hyperNode_.getNode(j)[static_cast<size_t>(s % mapmodels[static_cast<int>(j)])]));
             s /= mapmodels[static_cast<int>(j)];
           }
         }
@@ -726,22 +726,22 @@ void RNonHomogeneousMixedTreeLikelihood::computeTransitionProbabilitiesForNode(c
   vector<const SubstitutionModel*> vModel;
   vector<double> vProba;
   
-  const MixedSubstitutionModelSet::HyperNode::Node& nd=hyperNode_.getNode(modelnum);
+  const MixedSubstitutionModelSet::HyperNode::Node& nd = hyperNode_.getNode(modelnum);
   if (nd.size() == 0) {
     vModel.push_back(model);
     vProba.push_back(1);
   }
   else {
     const MixedSubstitutionModel* mmodel = dynamic_cast<const MixedSubstitutionModel*>(model);
-    double x=0;
-    for (size_t i=0;i<nd.size();i++){
-      vModel.push_back(mmodel->getNModel(nd[i]));
-      vProba.push_back(mmodel->getNProbability(nd[i]));
-      x+=vProba[i];
+    double x = 0;
+    for (size_t i = 0; i < nd.size(); ++i){
+      vModel.push_back(mmodel->getNModel(static_cast<size_t>(nd[i])));
+      vProba.push_back(mmodel->getNProbability(static_cast<size_t>(nd[i])));
+      x += vProba[i];
     }
-    if (x!=0)
-      for (size_t i=0;i<nd.size();i++)
-        vProba[i]/=x;
+    if (x != 0)
+      for (size_t i = 0; i < nd.size(); ++i)
+        vProba[i] /= x;
   }
 
   double l = node->getDistanceToFather();

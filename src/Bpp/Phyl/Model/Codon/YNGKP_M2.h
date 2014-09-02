@@ -79,18 +79,16 @@ class YNGKP_M2:
 private:
   std::auto_ptr<MixtureOfASubstitutionModel> pmixmodel_;
 
-  /*
-   *@brief indexes of 2 codons between which the substitution is
+  /**
+   * @brief indexes of 2 codons between which the substitution is
    * synonymous, to set a basis to the homogeneization of the rates.
-   *
    */
-
-  int synfrom_, synto_;
+  size_t synfrom_, synto_;
   
 public:
   YNGKP_M2(const GeneticCode* gc, FrequenciesSet* codonFreqs);
 
-  ~YNGKP_M2();
+  virtual ~YNGKP_M2();
   
   YNGKP_M2* clone() const { return new YNGKP_M2(*this); }
 

@@ -5,7 +5,7 @@
 //
 
 /*
-  Copyright or © or Copr. CNRS, (November 16, 2004)
+  Copyright or © or Copr. Bio++ Development Team, (November 16, 2004)
 
   This software is a computer program whose purpose is to provide classes
   for phylogenetic data analysis.
@@ -189,9 +189,9 @@ namespace bpp
     clone() const { return new JCprot(*this); }
 
   public:
-    double Pij_t    (int i, int j, double d) const;
-    double dPij_dt  (int i, int j, double d) const;
-    double d2Pij_dt2(int i, int j, double d) const;
+    double Pij_t    (size_t i, size_t j, double d) const;
+    double dPij_dt  (size_t i, size_t j, double d) const;
+    double d2Pij_dt2(size_t i, size_t j, double d) const;
     const Matrix<double>& getPij_t    (double d) const;
     const Matrix<double>& getdPij_dt  (double d) const;
     const Matrix<double>& getd2Pij_dt2(double d) const;
@@ -221,7 +221,7 @@ namespace bpp
 
     const FrequenciesSet* getFrequenciesSet() const { return freqSet_; }
 
-    void setFreqFromData(const SequenceContainer& data);
+    void setFreqFromData(const SequenceContainer& data, double pseudoCount = 0);
 
   protected:
     /**

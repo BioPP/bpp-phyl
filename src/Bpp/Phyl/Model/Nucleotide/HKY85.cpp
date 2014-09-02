@@ -192,7 +192,7 @@ void HKY85::updateMatrices()
 	
 /******************************************************************************/
 
-double HKY85::Pij_t(int i, int j, double d) const
+double HKY85::Pij_t(size_t i, size_t j, double d) const
 {
   l_     = rate_ * r_ * d;
   exp1_  = exp(-l_);
@@ -243,7 +243,7 @@ double HKY85::Pij_t(int i, int j, double d) const
 
 /******************************************************************************/
 
-double HKY85::dPij_dt(int i, int j, double d) const
+double HKY85::dPij_dt(size_t i, size_t j, double d) const
 {
   l_     = rate_ * r_ * d;
   exp1_  = exp(-l_);
@@ -294,7 +294,7 @@ double HKY85::dPij_dt(int i, int j, double d) const
 
 /******************************************************************************/
 
-double HKY85::d2Pij_dt2(int i, int j, double d) const
+double HKY85::d2Pij_dt2(size_t i, size_t j, double d) const
 {
   double r_2 = rate_ * rate_ * r_ * r_;
   l_ = rate_ * r_ * d;

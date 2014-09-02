@@ -44,7 +44,7 @@ knowledge of the CeCILL license and that you accept its terms.
 #include "../AbstractSubstitutionModel.h"
 #include "../FrequenciesSet/ProteinFrequenciesSet.h"
 
-// From SeqLib:
+// From bpp-seq:
 #include <Bpp/Seq/Alphabet/ProteicAlphabet.h>
 
 namespace bpp
@@ -140,7 +140,7 @@ class JTT92 :
 
     const FrequenciesSet* getFrequenciesSet() const { return freqSet_; }
 
-    void setFreqFromData(const SequenceContainer& data);
+    void setFreqFromData(const SequenceContainer& data, double pseudoCount = 0);
 
 };
 

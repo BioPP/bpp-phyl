@@ -59,19 +59,19 @@ namespace bpp
 class OneJumpSubstitutionCount:
   public AbstractSubstitutionCount
 {
-	private:
-		const SubstitutionModel* model_;
-		mutable RowMatrix<double> tmp_;
-	
-	public:
-		OneJumpSubstitutionCount(const SubstitutionModel* model) :
-      AbstractSubstitutionCount(new TotalSubstitutionRegister(model->getAlphabet())),
+  private:
+    const SubstitutionModel* model_;
+    mutable RowMatrix<double> tmp_;
+  
+  public:
+    OneJumpSubstitutionCount(const SubstitutionModel* model) :
+      AbstractSubstitutionCount(new TotalSubstitutionRegister(model)),
       model_(model), tmp_() {}
-		
+    
     OneJumpSubstitutionCount(const OneJumpSubstitutionCount& ojsc) :
       AbstractSubstitutionCount(ojsc),
       model_(ojsc.model_), tmp_(ojsc.tmp_) {}
-				
+        
     OneJumpSubstitutionCount& operator=(const OneJumpSubstitutionCount& ojsc)
     {
       AbstractSubstitutionCount::operator=(ojsc),
@@ -79,13 +79,13 @@ class OneJumpSubstitutionCount:
       tmp_      = ojsc.tmp_;
       return *this;
     }
-				
-		virtual ~OneJumpSubstitutionCount() {}
-		
+        
+    virtual ~OneJumpSubstitutionCount() {}
+    
     virtual OneJumpSubstitutionCount* clone() const { return new OneJumpSubstitutionCount(*this); }
 
-	public:
-		double getNumberOfSubstitutions(int initialState, int finalState, double length, size_t type = 1) const
+  public:
+    double getNumberOfSubstitutions(size_t initialState, size_t finalState, double length, size_t type = 1) const
     {
       if (finalState != initialState) return 1.;
       else return 1. - model_->Pij_t(initialState, finalState, length);
@@ -93,7 +93,7 @@ class OneJumpSubstitutionCount:
 
     Matrix<double>* getAllNumbersOfSubstitutions(double length, size_t type = 1) const;
     
-    std::vector<double> getNumberOfSubstitutionsForEachType(int initialState, int finalState, double length) const
+    std::vector<double> getNumberOfSubstitutionsForEachType(size_t initialState, size_t finalState, double length) const
     {
       std::vector<double> v(0);
       v[0] = getNumberOfSubstitutions(initialState, finalState, length, 0);

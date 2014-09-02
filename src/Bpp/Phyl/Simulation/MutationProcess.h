@@ -55,44 +55,44 @@ namespace bpp
  */
 class MutationPath
 {
-	private:
+  private:
 
     const Alphabet* alphabet_;
 
-		/**
-		 * @brief The states taken, without intiial state.
-		 */
-    std::vector<int> states_;
+    /**
+     * @brief The states taken, without initial state.
+     */
+    std::vector<size_t> states_;
 
-		/**
-		 * @brief Times between states.
-		 * The first element in array is the time between the initial state and the first state in states_.
-		 */
+    /**
+     * @brief Times between states.
+     * The first element in array is the time between the initial state and the first state in states_.
+     */
     std::vector<double> times_;
-		
-		/**
-		 * @brief The initial state.
-		 */
-		int initialState_;
+    
+    /**
+     * @brief The initial state.
+     */
+    size_t initialState_;
 
-		/**
-		 * @brief Total time of evolution.
-		 * Typically, this is a branch length.
-		 */
-		double totalTime_;
+    /**
+     * @brief Total time of evolution.
+     * Typically, this is a branch length.
+     */
+    double totalTime_;
 
-	public:
+  public:
 
-		/**
-		 * @brief Builds a new MutationPath object with initial state 'initialState' and total time 'time'.
-		 *
+    /**
+     * @brief Builds a new MutationPath object with initial state 'initialState' and total time 'time'.
+     *
      * @param alphabet     The alphabet associated to the states in this path.
-		 * @param initialState The initial state.
-		 * @param time         The total time of evolution.
-		 */
-		MutationPath(const Alphabet* alphabet, int initialState, double time) :
+     * @param initialState The initial state.
+     * @param time         The total time of evolution.
+     */
+    MutationPath(const Alphabet* alphabet, size_t initialState, double time) :
       alphabet_(alphabet), states_(), times_(), initialState_(initialState), totalTime_(time) {};
-		
+    
     MutationPath(const MutationPath& path) :
       alphabet_(path.alphabet_), states_(path.states_), times_(path.times_), initialState_(path.initialState_), totalTime_(path.totalTime_) {};
 
@@ -105,46 +105,46 @@ class MutationPath
       return *this;
     }
 
-		virtual ~MutationPath() {};
+    virtual ~MutationPath() {};
 
-	public:
-	
+  public:
+  
     /**
      * @return A pointer toward the alphabet associated to this path.
      */
     const Alphabet* getAlphabet() const { return alphabet_; }
-		
+    
     /**
-		 * @brief Add a new mutation event.
-		 *
-		 * @param state The new state after mutation event.
-		 * @param time  The time between this mutation and previous mutation (or initial state).
-		 */
-		void addEvent(int state, double time) {
-			states_.push_back(state);
-			times_.push_back(time);
-		}
+     * @brief Add a new mutation event.
+     *
+     * @param state The new state after mutation event.
+     * @param time  The time between this mutation and previous mutation (or initial state).
+     */
+    void addEvent(size_t state, double time) {
+      states_.push_back(state);
+      times_.push_back(time);
+    }
 
-		/**
-		 * @brief Retrieve the initial state.
-		 *
-		 * @return The initial state of this path.
-		 */
-		int getInitialState() const { return initialState_; }
+    /**
+     * @brief Retrieve the initial state.
+     *
+     * @return The initial state of this path.
+     */
+    size_t getInitialState() const { return initialState_; }
 
-		/**
-		 * @brief Retrieve the total time of evolution.
-		 *
-		 * @return The total time of evolution.
-		 */
-		double getTotalTime() const { return totalTime_; }
-		
-		/**
-		 * @brief Retrieve the number of substitution events.
-		 *
-		 * @return The number of substitution events, i.e. the number of states (without initial state).
-		 */
-		size_t getNumberOfEvents() const { return states_.size(); }
+    /**
+     * @brief Retrieve the total time of evolution.
+     *
+     * @return The total time of evolution.
+     */
+    double getTotalTime() const { return totalTime_; }
+    
+    /**
+     * @brief Retrieve the number of substitution events.
+     *
+     * @return The number of substitution events, i.e. the number of states (without initial state).
+     */
+    size_t getNumberOfEvents() const { return states_.size(); }
 
     /**
      * @brief Retrieve the number of substitution events per type of substitution.
@@ -156,9 +156,9 @@ class MutationPath
       if (counts.getNumberOfRows()    != alphabet_->getSize()
        || counts.getNumberOfColumns() != alphabet_->getSize())
         throw Exception("MutationPath::getEventCounts. Incorrect input matrix, does not match alphabet size.");
-      int currentState = initialState_;
+      size_t currentState = initialState_;
       for (size_t i = 0; i < states_.size(); ++i) {
-        int newState = states_[i];
+        size_t newState = states_[i];
         counts(currentState, newState)++;
         currentState = newState;
       }
@@ -174,24 +174,24 @@ class MutationPath
     void getEventCounts(std::vector<Scalar>& counts, const SubstitutionRegister& reg) const {
       if (counts.size() != reg.getNumberOfSubstitutionTypes())
         throw Exception("MutationPath::getEventCounts. Incorrect input vector, does not match alphabet size.");
-      int currentState = initialState_;
+      size_t currentState = initialState_;
       for (size_t i = 0; i < states_.size(); ++i) {
-        int newState = states_[i];
+        size_t newState = states_[i];
         size_t type = reg.getType(currentState, newState);
         if (type > 0) counts[type - 1]++;
         currentState = newState;
       }
     }
 
-		/**
-		 * @brief Retrieve the final state of this path.
-		 *
-		 * @return The initial state if no mutation occured, otherwise sends the state after last mutation event.
-		 */
-		int getFinalState() const {
-			if (states_.size() == 0) return initialState_;
-			else return states_[states_.size() - 1];
-		}
+    /**
+     * @brief Retrieve the final state of this path.
+     *
+     * @return The initial state if no mutation occured, otherwise sends the state after last mutation event.
+     */
+    size_t getFinalState() const {
+      if (states_.size() == 0) return initialState_;
+      else return states_[states_.size() - 1];
+    }
 };
 
 /**
@@ -203,62 +203,62 @@ class MutationPath
  */
 class MutationProcess
 {
-	public:
-		MutationProcess() {};
-		virtual ~MutationProcess() {};
-	
-	public:
-		
+  public:
+    MutationProcess() {};
+    virtual ~MutationProcess() {};
+  
+  public:
+    
     /**
      * @brief Mutate a character in state i.
-		 *
-		 * @param state The current state of the character.
+     *
+     * @param state The current state of the character.
      */
-    virtual int mutate(int state) const = 0;
+    virtual size_t mutate(size_t state) const = 0;
 
     /**
      * @brief Mutate a character in state i n times.
      * 
-		 * @param state The current state of the character.
-		 * @param n The number of mutations to perform.
+     * @param state The current state of the character.
+     * @param n The number of mutations to perform.
      */
-    virtual int mutate(int state, unsigned int n) const = 0;
-	
-		/**
-		 * @brief Get the time before next mutation event.
-		 *
-		 * @param state The actual state of the chain;
-		 * @return A random time before next mutation event.
-		 */
-		virtual double getTimeBeforeNextMutationEvent(int state) const = 0;
-		
-		/**
-		 * @brief Simulation a character evolution during a specified time
-		 * according to the given substitution model and send the final state.
-		 *
-		 * @param initialState The state before beginning evolution.
-		 * @param time         The time during which evolution must occure.
-		 * @return The resulting state after evolution is completed.
-		 */
-		virtual int evolve(int initialState, double time) const = 0;
-	
-		/**
-		 * @brief Simulation a character evolution during a specified time
-		 * according to the given substitution model and send the total path
-		 * with all intermediate states and times between mutation events.
-		 *
-		 * @param initialState The state before beginning evolution.
-		 * @param time         The time during which evolution must occure.
-		 * @return The resulting mutation path.
-		 */
-		virtual MutationPath detailedEvolve(int initialState, double time) const = 0;
+    virtual size_t mutate(size_t state, unsigned int n) const = 0;
+  
+    /**
+     * @brief Get the time before next mutation event.
+     *
+     * @param state The actual state of the chain;
+     * @return A random time before next mutation event.
+     */
+    virtual double getTimeBeforeNextMutationEvent(size_t state) const = 0;
+    
+    /**
+     * @brief Simulation a character evolution during a specified time
+     * according to the given substitution model and send the final state.
+     *
+     * @param initialState The state before beginning evolution.
+     * @param time         The time during which evolution must occure.
+     * @return The resulting state after evolution is completed.
+     */
+    virtual size_t evolve(size_t initialState, double time) const = 0;
+  
+    /**
+     * @brief Simulation a character evolution during a specified time
+     * according to the given substitution model and send the total path
+     * with all intermediate states and times between mutation events.
+     *
+     * @param initialState The state before beginning evolution.
+     * @param time         The time during which evolution must occure.
+     * @return The resulting mutation path.
+     */
+    virtual MutationPath detailedEvolve(size_t initialState, double time) const = 0;
 
-		/**
-		 * @brief Get the substitution model associated to the mutation process.
-		 *
-		 * @return The SubstitutionModel associated to this instance.
-		 */
-		virtual const SubstitutionModel* getSubstitutionModel() const = 0;
+    /**
+     * @brief Get the substitution model associated to the mutation process.
+     *
+     * @return The SubstitutionModel associated to this instance.
+     */
+    virtual const SubstitutionModel* getSubstitutionModel() const = 0;
 };
 
 /**
@@ -277,28 +277,28 @@ class MutationProcess
 class AbstractMutationProcess :
   public virtual MutationProcess
 {
-	protected:
-		
-		/**
-		 * @brief The substitution model to use:
-		 */
-		const SubstitutionModel* model_;
-	
-		/**
-		 * @brief The number of states allowed for the character to mutate.
-		 */
+  protected:
+    
+    /**
+     * @brief The substitution model to use:
+     */
+    const SubstitutionModel* model_;
+  
+    /**
+     * @brief The number of states allowed for the character to mutate.
+     */
     size_t size_;
-	
-		/**
-		 * @brief The repartition function for states probabilities.
-		 *
-		 * repartition_[i][j] = probability that, being in state i at time t,
-		 * we'll be in state <= j at time t+1.
-		 */
+  
+    /**
+     * @brief The repartition function for states probabilities.
+     *
+     * repartition_[i][j] = probability that, being in state i at time t,
+     * we'll be in state <= j at time t+1.
+     */
     VVdouble repartition_;
-	
-	public:
-		AbstractMutationProcess(const SubstitutionModel* model) :
+  
+  public:
+    AbstractMutationProcess(const SubstitutionModel* model) :
       model_(model), size_(), repartition_()
     {}
 
@@ -314,15 +314,15 @@ class AbstractMutationProcess :
       return *this;
     }
 
-		virtual ~AbstractMutationProcess() {}
-	
-	public:
-    int mutate(int state) const;
-    int mutate(int state, unsigned int n) const;
-		double getTimeBeforeNextMutationEvent(int state) const;
-		int evolve(int initialState, double time) const;
-		MutationPath detailedEvolve(int initialState, double time) const;
-		const SubstitutionModel* getSubstitutionModel() const { return model_; }
+    virtual ~AbstractMutationProcess() {}
+  
+  public:
+    size_t mutate(size_t state) const;
+    size_t mutate(size_t state, unsigned int n) const;
+    double getTimeBeforeNextMutationEvent(size_t state) const;
+    size_t evolve(size_t initialState, double time) const;
+    MutationPath detailedEvolve(size_t initialState, double time) const;
+    const SubstitutionModel* getSubstitutionModel() const { return model_; }
 };
 
 /**
@@ -340,25 +340,25 @@ class AbstractMutationProcess :
  */
 class SimpleMutationProcess : public AbstractMutationProcess
 {
-	public: // Constructor and destructor:
-		
-		/**
-		 * @brief Build a new SimpleMutationProcess object.
-		 *
-		 * @param model The substitution model to use.
-		 */
-  	SimpleMutationProcess(const SubstitutionModel* model);
-	
-		virtual ~SimpleMutationProcess();
+  public: // Constructor and destructor:
+    
+    /**
+     * @brief Build a new SimpleMutationProcess object.
+     *
+     * @param model The substitution model to use.
+     */
+    SimpleMutationProcess(const SubstitutionModel* model);
+  
+    virtual ~SimpleMutationProcess();
 
     /**
      * @brief Method redefinition for better performance.
      *
-		 * @param initialState The state before beginning evolution.
-		 * @param time         The time during which evolution must occure.
-		 * @return The resulting state after evolution is completed.
-		 */
-		int evolve(int initialState, double time) const;
+     * @param initialState The state before beginning evolution.
+     * @param time         The time during which evolution must occure.
+     * @return The resulting state after evolution is completed.
+     */
+    size_t evolve(size_t initialState, double time) const;
 };
 
 /**
@@ -367,13 +367,13 @@ class SimpleMutationProcess : public AbstractMutationProcess
  */
 class SelfMutationProcess : public AbstractMutationProcess
 {
-  	public:
-  		SelfMutationProcess(int alphabetSize);
-	
-			virtual ~SelfMutationProcess();
+    public:
+      SelfMutationProcess(size_t alphabetSize);
+  
+      virtual ~SelfMutationProcess();
 };
 
 } //end of namespace bpp.
 
-#endif	//_MUTATIONPROCESS_H_
+#endif  //_MUTATIONPROCESS_H_
 

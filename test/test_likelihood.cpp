@@ -58,7 +58,7 @@ using namespace bpp;
 using namespace newlik;
 using namespace std;
 
-void fitModelH(SubstitutionModel* model, DiscreteDistribution* rdist, const Tree& tree, const SiteContainer& sites,
+void fitModelHSR(SubstitutionModel* model, DiscreteDistribution* rdist, const Tree& tree, const SiteContainer& sites,
     double initialValue, double finalValue) {
   ApplicationTools::startTimer();
   unsigned int n = 50000;
@@ -129,14 +129,32 @@ void fitModelH(SubstitutionModel* model, DiscreteDistribution* rdist, const Tree
   newTl.getParameters().printParameters(cout);
 }
 
+void fitModelHDR(SubstitutionModel* model, DiscreteDistribution* rdist, const Tree& tree, const SiteContainer& sites,
+    double initialValue, double finalValue) {
+  DRHomogeneousTreeLikelihood tl(tree, sites, model, rdist);
+  tl.initialize();
+  ApplicationTools::displayResult("Test model", model->getName());
+  cout << setprecision(20) << tl.getValue() << endl;
+  ApplicationTools::displayResult("* initial likelihood", tl.getValue());
+  if (abs(tl.getValue() - initialValue) > 0.001)
+    throw Exception("Incorrect initial value.");
+  OptimizationTools::optimizeTreeScale(&tl);
+  ApplicationTools::displayResult("* likelihood after tree scale", tl.getValue());
+  OptimizationTools::optimizeNumericalParameters2(&tl, tl.getParameters(), 0, 0.000001, 10000, 0, 0);
+  cout << setprecision(20) << tl.getValue() << endl;
+  ApplicationTools::displayResult("* likelihood after full optimization", tl.getValue());
+  if (abs(tl.getValue() - finalValue) > 0.001)
+    throw Exception("Incorrect final value.");
+}
+
 int main() {
-  TreeTemplate<Node>* tree = TreeTemplateTools::parenthesisToTree("(A:0.5,((B:0.8,C:0.4):1.2,D:0.01):0.2);");
-  tree->unroot();
+  auto_ptr<TreeTemplate<Node> > tree(TreeTemplateTools::parenthesisToTree("((A:0.01, B:0.02):0.03,C:0.01,D:0.1);"));
   vector<string> seqNames= tree->getLeavesNames();
   vector<int> ids = tree->getNodesId();
   //-------------
 
   const NucleicAlphabet* alphabet = &AlphabetTools::DNA_ALPHABET;
+
   SubstitutionModel* model = new T92(alphabet, 3.);
   DiscreteDistribution* rdist = new GammaDiscreteRateDistribution(3, 0.1);
 
@@ -146,17 +164,38 @@ int main() {
   sites.addSequence(BasicSequence("C", "CGTCAGACATGCCGGGAATTTGCTGAAAAGGAGCTGGTTCCCATTGCAGCCCAGGTAGACAAGGAGCATC", alphabet));
   sites.addSequence(BasicSequence("D", "CTCCAGACATGCCGGGACTTTACCGAGAAGGAGTTGTTTTCCATTGCAGCCCAGGTGGATAAGGAACATC", alphabet));
 
+  auto_ptr<SubstitutionModel> model(new T92(alphabet, 3.));
+  auto_ptr<DiscreteDistribution> rdist(new GammaDiscreteRateDistribution(4, 1.0));
   try {
-    fitModelH(model, rdist, *tree, sites, 205.77281110217668925, 185.37205627448278733027);
+    cout << "Testing Single Tree Traversal likelihood class..." << endl;
+    fitModelHSR(model.get(), rdist.get(), *tree, sites, 85.030942031997312824, 65.72293577214308868406);
   } catch (Exception& ex) {
     cerr << ex.what() << endl;
     return 1;
   }  
 
-  //-------------
-  delete tree;
-  delete model;
-  delete rdist;
+  model.reset(new T92(alphabet, 3.));
+  rdist.reset(new GammaDiscreteRateDistribution(4, 1.0));
+  try {
+    cout << "Testing Double Tree Traversal likelihood class..." << endl;
+    fitModelHDR(model.get(), rdist.get(), *tree, sites, 85.030942031997312824, 65.72293577214308868406);
+  } catch (Exception& ex) {
+    cerr << ex.what() << endl;
+    return 1;
+  }  
+
+  //Let's compare the derivatives:
+  RHomogeneousTreeLikelihood tlsr(*tree, sites, model.get(), rdist.get());
+  tlsr.initialize();
+  DRHomogeneousTreeLikelihood tldr(*tree, sites, model.get(), rdist.get());
+  tldr.initialize();
+  vector<string> params = tlsr.getBranchLengthsParameters().getParameterNames();
+  for (vector<string>::iterator it = params.begin(); it != params.end(); ++it) {
+    double d1sr = tlsr.getFirstOrderDerivative(*it);
+    double d1dr = tldr.getFirstOrderDerivative(*it);
+    cout << *it << "\t" << d1sr << "\t" << d1dr << endl;
+    if (abs(d1sr - d1dr) > 0.000001) return 1;
+  }
 
   return 0;
 }

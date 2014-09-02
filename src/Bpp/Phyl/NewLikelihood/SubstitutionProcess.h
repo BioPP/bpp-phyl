@@ -184,15 +184,13 @@ public:
    *
    **/
   
-  virtual void multiplyPartialLikelihoods(VVVdouble* likelihoods_node, const std::vector<const VVVdouble*>& vLikelihoods_sons, int nodeId, const std::vector<const std::vector<size_t>* >& vPatterns) const = 0;
+  virtual void multiplyPartialLikelihoods(VVVdouble* likelihoods_node, const std::vector<const VVVdouble*>& vLikelihoods_sons, int nodeId, unsigned char DX) const = 0;
 
-  virtual void multiplyPartialLikelihoods(VVVdouble* likelihoods_node, const std::vector<const VVVdouble*>& vLikelihoods_sons, int nodeId) const = 0;
+  virtual void multiplyPartialLikelihoods(VVVdouble* likelihoods_node, const std::vector<const VVVdouble*>& vLikelihoods_sons, int nodeId, const std::vector<const std::vector<size_t>* >& vPatterns, unsigned char DX) const = 0;
 
-  virtual void multiplyPartialLikelihoods(VVVdouble* likelihoods_node, const VVVdouble* likelihoods_son, int nodeId, int sonId) const = 0;
+  virtual void multiplyPartialLikelihoods(VVVdouble* likelihoods_node, const VVVdouble* likelihoods_son, int nodeId, int sonId, unsigned char DX) const = 0;
 
-  virtual void multiplyPartialDXLikelihoods(int brId, VVVdouble* dXLikelihoods_node, const std::vector<const VVVdouble*>& vLikelihoods_sons, int nodeId, const std::vector<const std::vector<size_t>* >& vPatterns, unsigned char DX) const = 0;
-
-  virtual void computeDXLogLikelihoods(VVdouble* dXLogLikelihoods_node, const VVVdouble* likelihoods_father_node, const VVVdouble* likelihoods_father, int nodeId, unsigned char DX) const = 0;
+  virtual void multiplyPartialLikelihoods(VVVdouble* likelihoods_node, const VVVdouble* likelihoods_son, int nodeId, int sonId, const std::vector<size_t>& patterns, unsigned char DX) const = 0;
 
 };
 

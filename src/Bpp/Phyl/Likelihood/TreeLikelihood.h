@@ -299,12 +299,20 @@ class TreeLikelihood:
     virtual size_t getNumberOfSites() const = 0;
 
     /**
-     * @brief Get the number of states in the alphabet associated to the dataset.
-     *
-     * @return the number of states in the alphabet associated to the dataset.
+     * @return the number of model states of the underlying Markov chain.
      */    
     virtual size_t getNumberOfStates() const = 0;
     
+    /**
+     * @return the alphabet state corresponding to the given model state.
+     */    
+    virtual int getAlphabetChar(size_t i) const = 0;
+  
+    /**
+     * @return the alphabet states corresponding to all model states.
+     */    
+    virtual const std::vector<int>& getAlphabetChars() const = 0;
+  
     /**
      * @brief Get the alphabet associated to the dataset.
      *

@@ -373,7 +373,7 @@ void AbstractSubstitutionModel::setFreqFromData(const SequenceContainer& data, d
 
   for (int i = 0; i < static_cast<int>(size_); i++)
   {
-    t += counts[i] + pseudoCount;
+    t += (counts[i] + pseudoCount);
   }
   for (int i = 0; i < static_cast<int>(size_); i++)
   {

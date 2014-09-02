@@ -73,8 +73,8 @@ int main() {
   //DiscreteDistribution* rdist = new GammaDiscreteDistribution(4, 0.4, 0.4);
   DiscreteDistribution* rdist = new ConstantDistribution(1.0);
   HomogeneousSequenceSimulator simulator(model, rdist, tree);
-  TotalSubstitutionRegister* totReg = new TotalSubstitutionRegister(alphabet);
-  ComprehensiveSubstitutionRegister* detReg = new ComprehensiveSubstitutionRegister(alphabet);
+  TotalSubstitutionRegister* totReg = new TotalSubstitutionRegister(model);
+  ComprehensiveSubstitutionRegister* detReg = new ComprehensiveSubstitutionRegister(model);
 
   unsigned int n = 20000;
   vector< vector<double> > realMap(n);
@@ -83,7 +83,7 @@ int main() {
   VectorSiteContainer sites(tree->getLeavesNames(), alphabet);
   for (unsigned int i = 0; i < n; ++i) {
     ApplicationTools::displayGauge(i, n-1, '=');
-    auto_ptr<RASiteSimulationResult> result(simulator.dSimulate());
+    auto_ptr<RASiteSimulationResult> result(simulator.dSimulateSite());
     realMap[i].resize(ids.size());
     realMapTotal[i].resize(ids.size());
     realMapDetailed[i].resize(ids.size());
@@ -102,8 +102,8 @@ int main() {
         return 1;
       }
     }
-    auto_ptr<Site> site(result->getSite());
-    site->setPosition(i);
+    auto_ptr<Site> site(result->getSite(*model));
+    site->setPosition(static_cast<int>(i));
     sites.addSite(*site, false);
   }
   ApplicationTools::displayTaskDone();
@@ -125,7 +125,7 @@ int main() {
     SubstitutionMappingTools::computeSubstitutionVectors(drhtl, ids, *sCountAna);
 
   //Simple:
-  SubstitutionCount* sCountTot = new NaiveSubstitutionCount(totReg);
+  SubstitutionCount* sCountTot = new NaiveSubstitutionCount(model, totReg);
   m = sCountTot->getAllNumbersOfSubstitutions(0.001,1);
   cout << "Simple total count:" << endl;
   MatrixTools::print(*m);
@@ -133,7 +133,7 @@ int main() {
   ProbabilisticSubstitutionMapping* probMapTot = 
     SubstitutionMappingTools::computeSubstitutionVectors(drhtl, ids, *sCountTot);
 
-  SubstitutionCount* sCountDet = new NaiveSubstitutionCount(detReg);
+  SubstitutionCount* sCountDet = new NaiveSubstitutionCount(model, detReg);
   m = sCountDet->getAllNumbersOfSubstitutions(0.001,1);
   cout << "Detailed count, type 1:" << endl;
   MatrixTools::print(*m);

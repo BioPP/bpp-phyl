@@ -66,7 +66,7 @@ public:
    * Unit length (in bits) of arrays of bits. Must be a multiple of CHAR_BIT*sizeof(int).
    * Default value is 64.
    */
-  static size_t LWORD;
+  static int LWORD;
 
 public:
   BipartitionTools() {}

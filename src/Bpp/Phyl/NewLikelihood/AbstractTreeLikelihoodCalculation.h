@@ -115,9 +115,24 @@ public:
   double getLogLikelihood() const;
 
   double getDLogLikelihood() const;
+
+  virtual double getDLikelihoodForASite(size_t site) const = 0;
   
+  double getDLogLikelihoodForASite(size_t site) const
+  {
+    // d(f(g(x)))/dx = dg(x)/dx . df(g(x))/dg :
+    return getDLikelihoodForASite(site) / getLikelihoodForASite(site);
+  }
+
   double getD2LogLikelihood() const;
+
+  virtual double getD2LikelihoodForASite(size_t site) const = 0;
   
+  double getD2LogLikelihoodForASite(size_t site) const
+  {
+    return getD2LikelihoodForASite(site) / getLikelihoodForASite(site)
+      - pow( getDLikelihoodForASite(site) / getLikelihoodForASite(site), 2);
+  }
 
   /**
    * @brief Print the likelihood array to terminal (debugging tool).

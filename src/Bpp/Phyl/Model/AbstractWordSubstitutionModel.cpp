@@ -377,7 +377,7 @@ void AbstractWordSubstitutionModel::updateMatrices()
 
     if (nbStop != 0)
     {
-      int gi = 0, gj = 0;
+      size_t gi = 0, gj = 0;
 
       RowMatrix<double> gk;
 

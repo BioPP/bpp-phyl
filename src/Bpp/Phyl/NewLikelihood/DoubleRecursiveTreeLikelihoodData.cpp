@@ -205,8 +205,8 @@ void DoubleRecursiveTreeLikelihoodData::initLikelihoods_(const Node* node, const
   }
 
   // Initialize d and d2 likelihoods:
-  VVdouble* dLikelihoods_node = &nodeData->getDLogLikelihoodArray();
-  VVdouble* d2Likelihoods_node = &nodeData->getD2LogLikelihoodArray();
+  VVdouble* dLikelihoods_node = &nodeData->getDLikelihoodArray();
+  VVdouble* d2Likelihoods_node = &nodeData->getD2LikelihoodArray();
   dLikelihoods_node->resize(nbClasses_);
   d2Likelihoods_node->resize(nbClasses_);
   for (size_t c = 0; c < nbClasses_; c++)
@@ -259,8 +259,8 @@ void DoubleRecursiveTreeLikelihoodData::reInit(const Node* node) throw (Exceptio
   }
 
 
-  VVdouble* dArray=&nodeData->getDLogLikelihoodArray();
-  VVdouble* d2Array=&nodeData->getD2LogLikelihoodArray();
+  VVdouble* dArray=&nodeData->getDLikelihoodArray();
+  VVdouble* d2Array=&nodeData->getD2LikelihoodArray();
   
   dArray->resize(nbClasses_);
   d2Array->resize(nbClasses_);

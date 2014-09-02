@@ -140,7 +140,7 @@ namespace bpp
        * We call this the <i>dLikelihood array</i> for each node.
        */
 
-      mutable VVdouble nodeDLogLikelihoods_;
+      mutable VVdouble nodeDLikelihoods_;
   
       /**
        * @brief This contains all likelihood second order derivatives values used for computation.
@@ -153,30 +153,30 @@ namespace bpp
        * We call this the <i>d2Likelihood array</i> for each node.
        */
 
-      mutable VVdouble nodeD2LogLikelihoods_;
+      mutable VVdouble nodeD2Likelihoods_;
     
       int nodeId_;
 
     public:
       DoubleRecursiveTreeLikelihoodNodeData() :
         nodeLikelihoods_(),
-        nodeDLogLikelihoods_(),
-        nodeD2LogLikelihoods_(),
+        nodeDLikelihoods_(),
+        nodeD2Likelihoods_(),
         nodeId_(-1)
       {}
     
       DoubleRecursiveTreeLikelihoodNodeData(const DoubleRecursiveTreeLikelihoodNodeData& data) :
         nodeLikelihoods_(data.nodeLikelihoods_),
-        nodeDLogLikelihoods_(data.nodeDLogLikelihoods_),
-        nodeD2LogLikelihoods_(data.nodeD2LogLikelihoods_),
+        nodeDLikelihoods_(data.nodeDLikelihoods_),
+        nodeD2Likelihoods_(data.nodeD2Likelihoods_),
         nodeId_(data.nodeId_)
       {}
     
       DoubleRecursiveTreeLikelihoodNodeData& operator=(const DoubleRecursiveTreeLikelihoodNodeData& data)
       {
         nodeLikelihoods_   = data.nodeLikelihoods_;
-        nodeDLogLikelihoods_  = data.nodeDLogLikelihoods_;
-        nodeD2LogLikelihoods_ = data.nodeD2LogLikelihoods_;
+        nodeDLikelihoods_  = data.nodeDLikelihoods_;
+        nodeD2Likelihoods_ = data.nodeD2Likelihoods_;
         nodeId_            = data.nodeId_;
         return *this;
       }
@@ -209,17 +209,17 @@ namespace bpp
         return nodeLikelihoods_[neighborId];
       }
       
-      VVdouble& getDLogLikelihoodArray() { return nodeDLogLikelihoods_; }
-      const VVdouble& getDLogLikelihoodArray() const { return nodeDLogLikelihoods_; }
+      VVdouble& getDLikelihoodArray() { return nodeDLikelihoods_; }
+      const VVdouble& getDLikelihoodArray() const { return nodeDLikelihoods_; }
 
-      VVdouble& getD2LogLikelihoodArray() { return nodeD2LogLikelihoods_; }
-      const VVdouble& getD2LogLikelihoodArray() const { return nodeD2LogLikelihoods_; }
+      VVdouble& getD2LikelihoodArray() { return nodeD2Likelihoods_; }
+      const VVdouble& getD2LikelihoodArray() const { return nodeD2Likelihoods_; }
 
       void eraseNeighborArrays()
       {
         nodeLikelihoods_.erase(nodeLikelihoods_.begin(), nodeLikelihoods_.end());
-        nodeDLogLikelihoods_.erase(nodeDLogLikelihoods_.begin(), nodeDLogLikelihoods_.end());
-        nodeD2LogLikelihoods_.erase(nodeD2LogLikelihoods_.begin(), nodeD2LogLikelihoods_.end());
+        nodeDLikelihoods_.erase(nodeDLikelihoods_.begin(), nodeDLikelihoods_.end());
+        nodeD2Likelihoods_.erase(nodeD2Likelihoods_.begin(), nodeD2Likelihoods_.end());
       }
 
       /*
@@ -411,24 +411,24 @@ namespace bpp
         return nodeData_[parentId].getLikelihoodArrayForNeighbor(neighborId);
       }
     
-      VVdouble& getDLogLikelihoodArray(int nodeId)
+      VVdouble& getDLikelihoodArray(int nodeId)
       {
-        return nodeData_[nodeId].getDLogLikelihoodArray();
+        return nodeData_[nodeId].getDLikelihoodArray();
       }
     
-      const VVdouble& getDLogLikelihoodArray(int nodeId) const
+      const VVdouble& getDLikelihoodArray(int nodeId) const
       {
-        return nodeData_[nodeId].getDLogLikelihoodArray();
+        return nodeData_[nodeId].getDLikelihoodArray();
       }
       
-      VVdouble& getD2LogLikelihoodArray(int nodeId)
+      VVdouble& getD2LikelihoodArray(int nodeId)
       {
-        return nodeData_[nodeId].getD2LogLikelihoodArray();
+        return nodeData_[nodeId].getD2LikelihoodArray();
       }
 
-      const VVdouble& getD2LogLikelihoodArray(int nodeId) const
+      const VVdouble& getD2LikelihoodArray(int nodeId) const
       {
-        return nodeData_[nodeId].getD2LogLikelihoodArray();
+        return nodeData_[nodeId].getD2LikelihoodArray();
       }
 
       VVdouble& getLeafLikelihoods(int nodeId)

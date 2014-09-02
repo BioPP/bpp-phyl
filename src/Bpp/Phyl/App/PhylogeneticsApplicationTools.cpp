@@ -3015,14 +3015,14 @@ SubstitutionCount* PhylogeneticsApplicationTools::getSubstitutionCount(
 
   if (nijtOption == "Laplace")
   {
-    int trunc = ApplicationTools::getIntParameter("trunc", nijtParams, 10, suffix, true, warn + 1);
+    size_t trunc = ApplicationTools::getParameter<size_t>("trunc", nijtParams, 10, suffix, true, warn + 1);
     substitutionCount = new LaplaceSubstitutionCount(model, trunc);
   }
   else if (nijtOption == "Uniformization")
   {
     string weightOption = ApplicationTools::getStringParameter("weight", nijtParams, "None", "", true, warn + 1);
     AlphabetIndex2* weights = SequenceApplicationTools::getAlphabetIndex2(alphabet, weightOption, "Substitution weight scheme:");
-    substitutionCount = new UniformizationSubstitutionCount(model, new TotalSubstitutionRegister(alphabet), weights);
+    substitutionCount = new UniformizationSubstitutionCount(model, new TotalSubstitutionRegister(model), weights);
   }
   else if (nijtOption == "Decomposition")
   {
@@ -3030,7 +3030,7 @@ SubstitutionCount* PhylogeneticsApplicationTools::getSubstitutionCount(
     AlphabetIndex2* weights = SequenceApplicationTools::getAlphabetIndex2(alphabet, weightOption, "Substitution weight scheme:");
     const ReversibleSubstitutionModel* revModel = dynamic_cast<const ReversibleSubstitutionModel*>(model);
     if (revModel)
-      substitutionCount = new DecompositionSubstitutionCount(revModel, new TotalSubstitutionRegister(alphabet), weights);
+      substitutionCount = new DecompositionSubstitutionCount(revModel, new TotalSubstitutionRegister(model), weights);
     else
       throw Exception("Decomposition method can only be used with reversible substitution models.");
   }
@@ -3038,15 +3038,15 @@ SubstitutionCount* PhylogeneticsApplicationTools::getSubstitutionCount(
   {
     string weightOption = ApplicationTools::getStringParameter("weight", nijtParams, "None", "", true, warn + 1);
     AlphabetIndex2* weights = SequenceApplicationTools::getAlphabetIndex2(alphabet, weightOption, "Substitution weight scheme:");
-    substitutionCount = new NaiveSubstitutionCount(new TotalSubstitutionRegister(alphabet), false, weights);
+    substitutionCount = new NaiveSubstitutionCount(model, new TotalSubstitutionRegister(model), false, weights);
   }
   else if (nijtOption == "Label")
   {
-    substitutionCount = reinterpret_cast<SubstitutionCount*>(new LabelSubstitutionCount(alphabet));
+    substitutionCount = new LabelSubstitutionCount(model);
   }
   else if (nijtOption == "ProbOneJump")
   {
-    substitutionCount = reinterpret_cast<SubstitutionCount*>(new OneJumpSubstitutionCount(model));
+    substitutionCount = new OneJumpSubstitutionCount(model);
   }
   else
   {

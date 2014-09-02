@@ -80,12 +80,14 @@ int main() {
   OutputStream* messenger = new StlOutputStream(new ofstream("messages.txt", ios::out));
 
   //Check fast simulation first:
-  
+ 
+  cout << "Fast check:" << endl;
+ 
   //Generate data set:
   VectorSiteContainer sites(seqNames, alphabet);
   for (unsigned int i = 0; i < n; ++i) {
-    auto_ptr<Site> site(simulator.simulate());
-    site->setPosition(i);
+    auto_ptr<Site> site(simulator.simulateSite());
+    site->setPosition(static_cast<int>(i));
     sites.addSite(*site, false);
   }
 
@@ -109,12 +111,14 @@ int main() {
 
   //Now try detailed simulations:
 
+  cout << "Detailed check:" << endl;
+  
   //Generate data set:
   VectorSiteContainer sites2(seqNames, alphabet);
   for (unsigned int i = 0; i < n; ++i) {
-    RASiteSimulationResult* result = simulator.dSimulate();
-    auto_ptr<Site> site(result->getSite());
-    site->setPosition(i);
+    RASiteSimulationResult* result = simulator.dSimulateSite();
+    auto_ptr<Site> site(result->getSite(*simulator.getSubstitutionModelSet()->getModel(0)));
+    site->setPosition(static_cast<int>(i));
     sites2.addSite(*site, false);
     delete result;
   }

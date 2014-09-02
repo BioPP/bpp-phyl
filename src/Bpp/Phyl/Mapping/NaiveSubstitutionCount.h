@@ -67,37 +67,44 @@ namespace bpp
   {
   private:
     bool allowSelf_;
+    std::vector<int> supportedChars_;
 
   public:
     /**
      * @brief Build a new simple substitution count.
      *
+     * @param model The substitution model for which this substitution count is parametrized.
+     *              The model is not used in the calculation, only for specifying the modeled states.
      * @param reg A pointer toward a substitution register object which discribes the type of substitutions to map.
      * @param allowSelf Tells if "self" mutations, from X to X should be counted together with the ones of type X to Y where X and Y are in the same category, if relevent.
      * The default is "no", to be consistent with other types of substitution counts which account for multiple substitutions, in which case it does not make sense to count "X to X".
      * @param weights the weights of the counts
      */
-    NaiveSubstitutionCount(SubstitutionRegister* reg, bool allowSelf = false, const AlphabetIndex2* weights = 0) :
+    NaiveSubstitutionCount(const SubstitutionModel* model, SubstitutionRegister* reg, bool allowSelf = false, const AlphabetIndex2* weights = 0) :
       AbstractSubstitutionCount(reg),
       AbstractWeightedSubstitutionCount(weights, true),
-      allowSelf_(allowSelf) {}				
+      allowSelf_(allowSelf),
+      supportedChars_(model->getAlphabetChars()) {}				
 		
     virtual ~NaiveSubstitutionCount() {}
 	
     NaiveSubstitutionCount* clone() const { return new NaiveSubstitutionCount(*this); }
 
   public:
-    double getNumberOfSubstitutions(int initialState, int finalState, double length, size_t type = 1) const
+    double getNumberOfSubstitutions(size_t initialState, size_t finalState, double length, size_t type = 1) const
     {
       if (initialState == finalState && !allowSelf_)
         return 0;
-      else
-        return (register_->getType(initialState, finalState) == type ? (weights_ ? weights_->getIndex(initialState, finalState) : 1.) : 0.);
+      else {
+        int alphabetState1 = supportedChars_[initialState]; 
+        int alphabetState2 = supportedChars_[finalState]; 
+        return (register_->getType(initialState, finalState) == type ? (weights_ ? weights_->getIndex(alphabetState1, alphabetState2) : 1.) : 0.);
+      }
     }
 
     Matrix<double>* getAllNumbersOfSubstitutions(double length, size_t type = 1) const;
     
-    std::vector<double> getNumberOfSubstitutionsForEachType(int initialState, int finalState, double length) const
+    std::vector<double> getNumberOfSubstitutionsForEachType(size_t initialState, size_t finalState, double length) const
     {
       std::vector<double> v(getNumberOfSubstitutionTypes());
       for (size_t t = 1; t <= getNumberOfSubstitutionTypes(); ++t) {
@@ -106,7 +113,10 @@ namespace bpp
       return v;
     }
     
-    void setSubstitutionModel(const SubstitutionModel* model) {}
+    void setSubstitutionModel(const SubstitutionModel* model)
+    {
+      supportedChars_ = model->getAlphabetChars();
+    }
 
   private:
     void substitutionRegisterHasChanged() {}
@@ -126,16 +136,17 @@ namespace bpp
   {
   private:
     LinearMatrix<double> label_;
+    std::vector<int> supportedChars_;
     
   public:
-    LabelSubstitutionCount(const Alphabet* alphabet);
+    LabelSubstitutionCount(const SubstitutionModel* model);
 
     virtual ~LabelSubstitutionCount() {}
 
     LabelSubstitutionCount* clone() const { return new LabelSubstitutionCount(*this); }
 			
   public:
-    double getNumberOfSubstitutions(int initialState, int finalState, double length, size_t type = 1) const
+    double getNumberOfSubstitutions(size_t initialState, size_t finalState, double length, size_t type = 1) const
     {
       return label_(initialState, finalState);
     }
@@ -145,14 +156,17 @@ namespace bpp
       return dynamic_cast<Matrix<double>*>(label_.clone());
     }
     
-    std::vector<double> getNumberOfSubstitutionsForEachType(int initialState, int finalState, double length) const
+    std::vector<double> getNumberOfSubstitutionsForEachType(size_t initialState, size_t finalState, double length) const
     {
       std::vector<double> v(1);
       v[0] = label_(initialState, finalState);
       return v;
     }
 
-    void setSubstitutionModel(const SubstitutionModel* model) {}
+    void setSubstitutionModel(const SubstitutionModel* model)
+    {
+      supportedChars_ = model->getAlphabetChars();
+    }
 
     void setSubstitutionRegister(SubstitutionRegister* reg) throw (Exception) {
       throw Exception("OneJumpSubstitutionCount::setSubstitutionRegister. This SubstitutionsCount only works with a TotalSubstitutionRegister.");

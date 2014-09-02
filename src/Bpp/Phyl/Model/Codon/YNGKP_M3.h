@@ -79,13 +79,12 @@ class YNGKP_M3:
 private:
   std::auto_ptr<MixtureOfASubstitutionModel> pmixmodel_;
 
-  /*
-   *@brief indexes of 2 codons between which the substitution is
+  /**
+   * @brief indexes of 2 codons between which the substitution is
    * synonymous, to set a basis to the homogeneization of the rates.
    *
    */
-
-  int synfrom_, synto_;
+  size_t synfrom_, synto_;
   
 public:
   YNGKP_M3(const GeneticCode* gc, FrequenciesSet* codonFreqs, unsigned int nclass = 3);
