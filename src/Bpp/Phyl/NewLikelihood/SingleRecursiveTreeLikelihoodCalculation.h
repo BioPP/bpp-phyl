@@ -193,7 +193,7 @@ public:
   double getDLikelihoodForASite(size_t site) const;
 
   double getD2LikelihoodForASite(size_t site) const;
-  
+
   void computeTreeLikelihood();
 
   void computeTreeDLogLikelihood(const std::string& variable);

@@ -53,8 +53,6 @@ double AbstractTreeLikelihoodCalculation::getLogLikelihood() const
     la[i] = log(getLikelihoodForASite(i));
   }
 
-  cerr << "LL " << la[0] << endl;
-  
   sort(la.begin(), la.end());
   double ll = 0;
   for (size_t i = nbSites_; i > 0; i--)
@@ -74,7 +72,6 @@ double AbstractTreeLikelihoodCalculation::getDLogLikelihood() const
   {
     dla[i] = getDLogLikelihoodForASite(i);
   }
-  cerr << "LDL " << dla[0] << endl;
   
   sort(dla.begin(), dla.end());
   double dl = 0;
@@ -82,6 +79,7 @@ double AbstractTreeLikelihoodCalculation::getDLogLikelihood() const
   {
     dl += dla[i - 1];
   }
+
   return dl;
 }
 
@@ -95,6 +93,7 @@ double AbstractTreeLikelihoodCalculation::getD2LogLikelihood() const
   {
     dl += getD2LogLikelihoodForASite(i);
   }
+
   return dl;
 }
 

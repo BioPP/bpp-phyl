@@ -164,6 +164,7 @@ double DRHomogeneousTreeLikelihood::getLikelihood() const
   {
     l *= std::pow((*lik)[i], (int)(*w)[i]);
   }
+
   return l;
 }
 
@@ -179,6 +180,9 @@ double DRHomogeneousTreeLikelihood::getLogLikelihood() const
   {
     la[i] = (*w)[i] * log((*lik)[i]);
   }
+
+  cerr << "ll " << (*w)[0] << " " << log((*lik)[0]) << endl;
+  
   sort(la.begin(), la.end());
   for (size_t i = nbDistinctSites_; i > 0; i--)
   {
@@ -296,6 +300,9 @@ void DRHomogeneousTreeLikelihood::computeTreeDLikelihoodAtNode(const Node* node)
   VVVdouble* dpxy_node = &dpxy_[node->getId()];
   VVVdouble larray;
   computeLikelihoodAtNode_(father, larray, node);
+
+  cerr << "lar " << node->getId() << " " << larray[0][0][0] << endl;
+  
   Vdouble* rootLikelihoodsSR = &likelihoodData_->getRootRateSiteLikelihoodArray();
 
   double dLi, dLic, dLicx;
@@ -324,6 +331,12 @@ void DRHomogeneousTreeLikelihood::computeTreeDLikelihoodAtNode(const Node* node)
       }
       dLi += rateDistribution_->getProbability(c) * dLic;
     }
+
+    if (i==0){
+      cerr << "dLi " << dLi << (*rootLikelihoodsSR)[i] << endl;
+      
+    }
+    
     (*dLikelihoods_node)[i] = dLi / (*rootLikelihoodsSR)[i];
     // cout << dLi << "\t" << (*rootLikelihoodsSR)[i] << endl;
   }
@@ -369,6 +382,10 @@ throw (Exception)
   {
     d += (*w)[i] * (*dLikelihoods_branch)[i];
   }
+
+  cerr << "ldl " << variable << " " << (*w)[0] << " " << (*dLikelihoods_branch)[0] << endl;
+
+
   return -d;
 }
 

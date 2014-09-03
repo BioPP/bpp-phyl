@@ -127,12 +127,13 @@ public:
   double getD2LogLikelihood() const;
 
   virtual double getD2LikelihoodForASite(size_t site) const = 0;
-  
+
   double getD2LogLikelihoodForASite(size_t site) const
   {
     return getD2LikelihoodForASite(site) / getLikelihoodForASite(site)
       - pow( getDLikelihoodForASite(site) / getLikelihoodForASite(site), 2);
   }
+
 
   /**
    * @brief Print the likelihood array to terminal (debugging tool).

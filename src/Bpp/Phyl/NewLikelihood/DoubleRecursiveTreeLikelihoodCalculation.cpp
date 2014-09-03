@@ -227,8 +227,6 @@ void DoubleRecursiveTreeLikelihoodCalculation::computeTreeLikelihood()
 
 void DoubleRecursiveTreeLikelihoodCalculation::computeSubtreeLikelihoodPostfix_(const Node* node)
 {
-//  if(node->isLeaf()) return;
-// cout << node->getId() << "\t" << (node->hasName()?node->getName():"") << endl;
   if (node->getNumberOfSons() == 0)
     return;
 
@@ -359,7 +357,7 @@ void DoubleRecursiveTreeLikelihoodCalculation::computeSubtreeLikelihoodPrefix_(c
       if (father->hasFather())
       {
         const Node* fatherFather = father->getFather();
-        process_->multiplyPartialLikelihoods(likelihoods_node_father, &(*likelihoods_father)[fatherFather->getId()], node->getId(), father->getId(), ComputingNode::D0);
+        process_->multiplyPartialLikelihoods(likelihoods_node_father, &(*likelihoods_father)[fatherFather->getId()], father->getId(), ComputingNode::D0);
       }
     }
 
@@ -532,7 +530,7 @@ void DoubleRecursiveTreeLikelihoodCalculation::computeLikelihoodAtNode_(const No
   {
     const Node* father = node->getFather();
 
-    process_->multiplyPartialLikelihoods(&likelihoodArray, &(*likelihoods_node)[father->getId()], node->getId(), node->getId(), ComputingNode::D0);
+    process_->multiplyPartialLikelihoods(&likelihoodArray, &(*likelihoods_node)[father->getId()], node->getId(), ComputingNode::D0);
   }
   else
   {
@@ -566,15 +564,12 @@ void DoubleRecursiveTreeLikelihoodCalculation::computeTreeDLikelihoodAtNode(cons
 
   VVVdouble larray;
   computeLikelihoodAtNode_(father, larray, node);
-  
-  process_->multiplyPartialLikelihoods(&larray, likelihoods_father_node, node->getId(), node->getId(), ComputingNode::D1);
 
-  VVdouble* rootLikelihoodsS  = &likelihoodData_->getRootStateLikelihoodArray();
-  
+  process_->multiplyPartialLikelihoods(&larray, likelihoods_father_node, node->getId(), ComputingNode::D1);
+
   for (size_t c = 0; c < nbClasses_; c++)
   {
     VVdouble* larray_c = &larray[c];
-    Vdouble* rootLikelihoodsS_c=&(*rootLikelihoodsS)[c];
     Vdouble* dLikelihoods_node_c=&(*dLikelihoods_node)[c];
 
     for (size_t i = 0; i < nbDistinctSites_; i++)
@@ -584,7 +579,6 @@ void DoubleRecursiveTreeLikelihoodCalculation::computeTreeDLikelihoodAtNode(cons
       (*dLikelihoods_node_c_i) = 0;
       for (size_t x = 0; x < nbStates_; x++)
         (*dLikelihoods_node_c_i) += (*larray_c_i)[x];
-      (*dLikelihoods_node_c_i) /= (*rootLikelihoodsS_c)[i];
     }
   }
 }
@@ -625,8 +619,7 @@ double DoubleRecursiveTreeLikelihoodCalculation::getDLikelihoodForASite(size_t s
   {
     dl += (*ldla)[c][posR] * process_->getProbabilityForModel(c);
   }
-  return dl;   // ???  was -dl ?????
-
+  return  dl;
 }
 
 /******************************************************************************
@@ -644,13 +637,11 @@ void DoubleRecursiveTreeLikelihoodCalculation::computeTreeD2LikelihoodAtNode(con
   
   computeLikelihoodAtNode_(father, larray, node);
 
-  process_->multiplyPartialLikelihoods(&larray, likelihoods_father_node, node->getId(), node->getId(), ComputingNode::D2);
-  VVdouble* rootLikelihoodsS  = &likelihoodData_->getRootStateLikelihoodArray();
+  process_->multiplyPartialLikelihoods(&larray, likelihoods_father_node, node->getId(), ComputingNode::D2);
 
   for (size_t c = 0; c < nbClasses_; c++)
   {
     VVdouble* larray_c = &larray[c];
-    Vdouble* rootLikelihoodsS_c=&(*rootLikelihoodsS)[c];
     Vdouble* d2Likelihoods_node_c=&(*d2Likelihoods_node)[c];
 
     for (size_t i = 0; i < nbDistinctSites_; i++)
@@ -660,7 +651,6 @@ void DoubleRecursiveTreeLikelihoodCalculation::computeTreeD2LikelihoodAtNode(con
       (*d2Likelihoods_node_c_i) = 0;
       for (size_t x = 0; x < nbStates_; x++)
         (*d2Likelihoods_node_c_i) += (*larray_c_i)[x];
-      (*d2Likelihoods_node_c_i) /= (*rootLikelihoodsS_c)[i];
     }
   }
 }
@@ -700,7 +690,7 @@ double DoubleRecursiveTreeLikelihoodCalculation::getD2LikelihoodForASite(size_t 
   {
     d2l += (*ldla)[c][posR] * process_->getProbabilityForModel(c);
   }
-  return d2l; //  ??? was -d2l ???
+  return d2l;
 }
 
 /******************************************************************************/

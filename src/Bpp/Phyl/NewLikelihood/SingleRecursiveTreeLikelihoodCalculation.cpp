@@ -526,7 +526,7 @@ void SingleRecursiveTreeLikelihoodCalculation::computeTreeDLogLikelihood(const s
 
   process_->multiplyPartialLikelihoods(dLikelihoods_father, vLikArr, father->getId(), vPatt, ComputingNode::D0);
 
-  process_->multiplyPartialLikelihoods(dLikelihoods_father, &(likelihoodData_->getLikelihoodArray(brId)), father->getId(), brId, *vPatt[nBrId], ComputingNode::D1);
+  process_->multiplyPartialLikelihoods(dLikelihoods_father, &(likelihoodData_->getLikelihoodArray(brId)), brId, *vPatt[nBrId], ComputingNode::D1);
   
   // Now we go down the tree toward the root node:
   computeDownSubtreeDLikelihood_(father);
@@ -903,7 +903,7 @@ void SingleRecursiveTreeLikelihoodCalculation::computeTreeD2LogLikelihood(const 
 
   process_->multiplyPartialLikelihoods(d2Likelihoods_father, vLikArr, father->getId(), vPatt, ComputingNode::D0);
 
-  process_->multiplyPartialLikelihoods(d2Likelihoods_father, &(likelihoodData_->getLikelihoodArray(brId)), father->getId(), brId, *vPatt[nBrId], ComputingNode::D2);
+  process_->multiplyPartialLikelihoods(d2Likelihoods_father, &(likelihoodData_->getLikelihoodArray(brId)), brId, *vPatt[nBrId], ComputingNode::D2);
   
   // Now we go down the tree toward the root node:
   computeDownSubtreeD2Likelihood_(father);

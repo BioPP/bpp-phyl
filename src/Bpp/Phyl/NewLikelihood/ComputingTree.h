@@ -221,15 +221,13 @@ namespace bpp
      * of this node [in, out].
      * @param likelihoods_son  the partial likelihood of
      * the used son.
-     * @param nodeId the Id of the node which partial likelihood is
-     * computed.
      * @param sonId the used Computing son Id.
      * @param DX tells which matrix should be used as used for
      * transition factors, either D0 for transition probabilities, D1
      * for their first derivate, D2 for their second.
      **/
 
-    void multiplyPartialLikelihoods(VVVdouble* likelihoods_node, const VVVdouble* likelihoods_son, int nodeId, int sonId, unsigned char DX) const
+    void multiplyPartialLikelihoods(VVVdouble* likelihoods_node, const VVVdouble* likelihoods_son, int sonId, unsigned char DX) const
     {
       for (size_t c = 0; c < vTree_.size(); ++c)
       {
@@ -237,7 +235,7 @@ namespace bpp
 
         const VVdouble* likelihoods_sons_c = &(*likelihoods_son)[c];
 
-        vTree_[c]->getNode(nodeId)->multiplyPartialLikelihoods(likelihoods_node_c, likelihoods_sons_c, vTree_[c]->getNode(sonId), DX);
+        vTree_[c]->getNode(sonId)->multiplyPartialLikelihoods(likelihoods_node_c, likelihoods_sons_c, DX);
       }
     }
 
@@ -249,8 +247,6 @@ namespace bpp
      * of this node [in, out].
      * @param likelihoods_son  the partial likelihood of
      * the used son.
-     * @param nodeId the Id of the node which partial likelihood is
-     * computed.
      * @param sonId the used Computing son Id.
      * @param patterns the corresponding positions from this node to
      * the son.
@@ -259,7 +255,7 @@ namespace bpp
      * for their first derivate, D2 for their second.
      **/
 
-    void multiplyPartialLikelihoods(VVVdouble* likelihoods_node, const VVVdouble* likelihoods_son, int nodeId, int sonId, const std::vector<size_t>& patterns, unsigned char DX) const
+    void multiplyPartialLikelihoods(VVVdouble* likelihoods_node, const VVVdouble* likelihoods_son, int sonId, const std::vector<size_t>& patterns, unsigned char DX) const
     {
       for (size_t c = 0; c < vTree_.size(); ++c)
       {
@@ -267,7 +263,7 @@ namespace bpp
 
         const VVdouble* likelihoods_sons_c = &(*likelihoods_son)[c];
 
-        vTree_[c]->getNode(nodeId)->multiplyPartialLikelihoods(likelihoods_node_c, likelihoods_sons_c, vTree_[c]->getNode(sonId), patterns, DX);
+        vTree_[c]->getNode(sonId)->multiplyPartialLikelihoods(likelihoods_node_c, likelihoods_sons_c, patterns, DX);
       }
     }
 

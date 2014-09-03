@@ -141,14 +141,14 @@ public:
    *
    **/
 
-  void multiplyPartialLikelihoods(VVVdouble* likelihoods_node, const VVVdouble* likelihoods_son, int nodeId, int sonId, unsigned char DX) const
+  void multiplyPartialLikelihoods(VVVdouble* likelihoods_node, const VVVdouble* likelihoods_son, int sonId, unsigned char DX) const
   {
-    getComputingTree().multiplyPartialLikelihoods(likelihoods_node, likelihoods_son, nodeId, sonId, DX);
+    getComputingTree().multiplyPartialLikelihoods(likelihoods_node, likelihoods_son, sonId, DX);
   }
 
-  void multiplyPartialLikelihoods(VVVdouble* likelihoods_node, const VVVdouble* likelihoods_son, int nodeId, int sonId, const std::vector<size_t>& patterns, unsigned char DX) const
+  void multiplyPartialLikelihoods(VVVdouble* likelihoods_node, const VVVdouble* likelihoods_son, int sonId, const std::vector<size_t>& patterns, unsigned char DX) const
   {
-    getComputingTree().multiplyPartialLikelihoods(likelihoods_node, likelihoods_son, nodeId, sonId, patterns, DX);
+    getComputingTree().multiplyPartialLikelihoods(likelihoods_node, likelihoods_son, sonId, patterns, DX);
   }
   
   void multiplyPartialLikelihoods(VVVdouble* likelihoods_node, const std::vector<const VVVdouble*>& vLikelihoods_sons, int nodeId, unsigned char DX) const

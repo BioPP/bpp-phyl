@@ -230,7 +230,7 @@ throw (Exception)
  *                           Second Order Derivatives                         *
  ******************************************************************************/
 
-  double SinglePhyloLikelihood::getSecondOrderDerivative(const string& variable) const
+double SinglePhyloLikelihood::getSecondOrderDerivative(const string& variable) const
 throw (Exception)
 {
   if (!hasParameter(variable))

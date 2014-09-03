@@ -345,7 +345,7 @@ namespace bpp
     
     /**
      *@brief multiplies its partial likelihood using the partial
-     * likelihoods of the sons.
+     * likelihoods of some sons.
      *
      * @param likelihoods_node a pointer to the partial likelihood
      * of this node [in, out].
@@ -381,49 +381,46 @@ namespace bpp
 
 
     /**
-     *@brief multiplies the partial likelihood using the partial
-     * likelihoods of a son.
+     *@brief multiplies the partial likelihood using its own partial
+     * likelihood.
      *
-     * @param likelihoods_node a pointer to the partial likelihood
-     * of this node [in, out].
-     * @param likelihoods_son  the partial likelihood of
-     * the used son.
-     * @param son the used Computing son.
+     * @param likelihoods a pointer to the partial likelihood updated
+     * [in, out].
+     * @param likelihoods_self  the partial likelihood of
+     * the ComputingNode.
      * @param DX tells which matrix should be used as used for
      * transition factors, either D0 for transition probabilities, D1
      * for their first derivate, D2 for their second.
      **/
 
-    void multiplyPartialLikelihoods(VVdouble* likelihoods_node, const VVdouble* likelihoods_son, const ComputingNode* son, unsigned char DX)
+    void multiplyPartialLikelihoods(VVdouble* likelihoods, const VVdouble* likelihoods_self, unsigned char DX)
     {
-      size_t nbSites=likelihoods_node->size();
+      size_t nbSites=likelihoods->size();
         
       for (size_t i = 0; i < nbSites; i++)
-        son->multiplyLikelihoodsAtASite(&(*likelihoods_node)[i], &(*likelihoods_son)[i],DX);
+        multiplyLikelihoodsAtASite(&(*likelihoods)[i], &(*likelihoods_self)[i],DX);
     }
 
     /**
-     *@brief multiplies the partial likelihood using the partial
-     * likelihoods of a son.
+     *@brief multiplies the partial likelihood using its own partial
+     * likelihoods and a pattern of corresponding positions.
      *
-     * @param likelihoods_node a pointer to the partial likelihood
-     * of this node [in, out].
-     * @param likelihoods_son  the partial likelihood of
-     * the used son.
-     * @param son the used Computing son.
-     * @param patterns the corresponding positions from this node to
-     * the son.
+     * @param likelihoods a pointer to the partial likelihood
+     * updated [in, out].
+     * @param likelihoods_self  the partial likelihood of
+     * the ComputingNode.
+     * @param patterns the corresponding positions.
      * @param DX tells which matrix should be used as used for
      * transition factors, either D0 for transition probabilities, D1
      * for their first derivate, D2 for their second.
      **/
 
-    void multiplyPartialLikelihoods(VVdouble* likelihoods_node, const VVdouble* likelihoods_son, const ComputingNode* son, const std::vector<size_t>& patterns, unsigned char DX)
+    void multiplyPartialLikelihoods(VVdouble* likelihoods, const VVdouble* likelihoods_self, const std::vector<size_t>& patterns, unsigned char DX)
     {
-      size_t nbSites=likelihoods_node->size();
+      size_t nbSites=likelihoods->size();
         
       for (size_t i = 0; i < nbSites; i++)
-        son->multiplyLikelihoodsAtASite(&(*likelihoods_node)[i], &(*likelihoods_son)[patterns[i]],DX);
+        multiplyLikelihoodsAtASite(&(*likelihoods)[i], &(*likelihoods_self)[patterns[i]],DX);
     }
     
   };
