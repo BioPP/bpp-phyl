@@ -158,9 +158,9 @@ const Matrix<double>& AbstractSubstitutionModel::getPij_t(double t) const
         {
           s = std::sin(iEigenValues_[i] * l);
           c = std::cos(iEigenValues_[i] * l);
-          vdia[i] *= c;
           vup[i] = vdia[i] * s;
           vlo[i] = -vup[i];
+          vdia[i] *= c;
           vdia[i + 1] = vdia[i]; // trick to avoid computation
           i++;
         }
