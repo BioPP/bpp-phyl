@@ -1101,7 +1101,7 @@ Tree* TreeTools::MRP(const vector<Tree*>& vecTr)
 
 /******************************************************************************/
 
-void TreeTools::computeBootstrapValues(Tree& tree, const vector<Tree*>& vecTr, bool verbose)
+void TreeTools::computeBootstrapValues(Tree& tree, const vector<Tree*>& vecTr, bool verbose, int format)
 {
   vector<int> index;
   BipartitionList bpTree(tree, true, &index);
@@ -1118,7 +1118,7 @@ void TreeTools::computeBootstrapValues(Tree& tree, const vector<Tree*>& vecTr, b
     {
       if (BipartitionTools::areIdentical(bpTree, i, *bpList, j))
       {
-        bootstrapValues[i] = (double) occurences[j] * 100. / (double) vecTr.size();
+        bootstrapValues[i] = format >= 0 ? round(static_cast<double>(occurences[j]) * pow(10, 2 + format) / static_cast<double>(vecTr.size())) / pow(10, format) : static_cast<double>(occurences[j]);
         break;
       }
     }

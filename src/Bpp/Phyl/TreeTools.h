@@ -668,11 +668,13 @@ class TreeTools
     /**
      * @brief Compute bootstrap values.
      *
-     * @param tree Input tree. the BOOTSTRAP banch property of the tree will be modified if it already exists.
-     * @param vecTr A list of trees to compare to 'tree'.
+     * @param tree    Input tree. the BOOTSTRAP banch property of the tree will be modified if it already exists.
+     * @param vecTr   A list of trees to compare to 'tree'.
      * @param verbose Tell if a progress bar should be displayed.
+     * @param format  If null or positive, bootstrap values are reported as percentage, with the given number of decimal digits.
+     *                If negative, bootstrap calues are the raw number of tree occurrences.
      */
-    static void computeBootstrapValues(Tree& tree, const std::vector<Tree*>& vecTr, bool verbose = true);
+    static void computeBootstrapValues(Tree& tree, const std::vector<Tree*>& vecTr, bool verbose = true, int format = 0);
 	
     /**
      * @brief Determine the mid-point position of the root along the branch that already contains the root. Consequently, the topology of the rooted tree remains identical.
