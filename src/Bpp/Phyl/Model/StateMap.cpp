@@ -44,7 +44,7 @@ using namespace bpp;
 CanonicalStateMap::CanonicalStateMap(const Alphabet* alphabet, bool includeGaps):
   AbstractStateMap(alphabet)
 {
-  for (unsigned int i = 0; i < alphabet->getSize(); ++i) {
+  for (int i = 0; i < static_cast<int>(alphabet->getSize()); ++i) {
     states_.push_back(i);
   }
   if (includeGaps)

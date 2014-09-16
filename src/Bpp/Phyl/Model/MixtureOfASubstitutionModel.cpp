@@ -265,7 +265,7 @@ void MixtureOfASubstitutionModel::updateMatrices()
 
     for (j = 0; j < modelsContainer_.size(); j++)
     {
-      vd.push_back(1 / getNModel(j)->Qij(from_, to_));
+      vd.push_back(1 / getNModel(j)->Qij(static_cast<size_t>(from_), static_cast<size_t>(to_)));
     }
 
     setVRates(vd);
@@ -291,7 +291,7 @@ Vint MixtureOfASubstitutionModel::getSubmodelNumbers(string& desc) const
     string::size_type index = param.rfind("_");
     if (index == string::npos)
       throw Exception("MixtureOfASubstitutionModel::getSubmodelNumbers parameter description should contain a number" + param);
-    msubn[param.substr(0, index)] = TextTools::toInt(param.substr(index + 1, 4)) - 1;
+    msubn[param.substr(0, index)] = TextTools::to<size_t>(param.substr(index + 1, 4)) - 1;
   }
 
   Vint submodnb;

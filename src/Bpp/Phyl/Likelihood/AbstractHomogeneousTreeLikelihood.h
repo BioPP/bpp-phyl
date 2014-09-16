@@ -84,32 +84,32 @@ class AbstractHomogeneousTreeLikelihood:
     };
 
 
-	protected:
-		SubstitutionModel* model_;
-		ParameterList brLenParameters_;
-		
-		mutable std::map<int, VVVdouble> pxy_;
+  protected:
+    SubstitutionModel* model_;
+    ParameterList brLenParameters_;
+    
+    mutable std::map<int, VVVdouble> pxy_;
 
-		mutable std::map<int, VVVdouble> dpxy_;
+    mutable std::map<int, VVVdouble> dpxy_;
 
-		mutable std::map<int, VVVdouble> d2pxy_;
+    mutable std::map<int, VVVdouble> d2pxy_;
 
     std::vector<double> rootFreqs_;
-				
-		/**
-		 * @brief Pointer toward all nodes in the tree.
+        
+    /**
+     * @brief Pointer toward all nodes in the tree.
      *
      * The position in the array is the number used in the parameter name.
      * This may be different from the node id, unless you used the resetNodeId method on the input tree.
- 		 */
+      */
     std::vector<Node*> nodes_;
 
-		//some values we'll need:
-		size_t nbSites_,         //the number of sites in the container
-                 nbDistinctSites_, //the number of distinct sites
-		             nbClasses_,       //the number of rate classes
-		             nbStates_,        //the number of states in the alphabet
-		             nbNodes_;         //the number of nodes in the tree
+    //some values we'll need:
+    size_t nbSites_,         //the number of sites in the container
+           nbDistinctSites_, //the number of distinct sites
+           nbClasses_,       //the number of rate classes
+           nbStates_,        //the number of states in the alphabet
+           nbNodes_;         //the number of nodes in the tree
 
     bool verbose_;
 
@@ -117,13 +117,13 @@ class AbstractHomogeneousTreeLikelihood:
     double maximumBrLen_;
     std::auto_ptr<Constraint> brLenConstraint_;
 
-	public:
-		AbstractHomogeneousTreeLikelihood(
-			const Tree& tree,
-			SubstitutionModel* model,
-			DiscreteDistribution* rDist,
+  public:
+    AbstractHomogeneousTreeLikelihood(
+      const Tree& tree,
+      SubstitutionModel* model,
+      DiscreteDistribution* rDist,
       bool checkRooted = true,
-			bool verbose = true)
+      bool verbose = true)
       throw (Exception);
 
     /**
@@ -140,34 +140,40 @@ class AbstractHomogeneousTreeLikelihood:
      */
     AbstractHomogeneousTreeLikelihood& operator=(const AbstractHomogeneousTreeLikelihood& lik);
  
-		virtual ~AbstractHomogeneousTreeLikelihood() {}
-		
-	private:
+    virtual ~AbstractHomogeneousTreeLikelihood() {}
+    
+  private:
 
     /**
      * @brief Method called by constructor.
      */
     void init_(const Tree& tree,
-			SubstitutionModel* model,
-			DiscreteDistribution* rDist,
+      SubstitutionModel* model,
+      DiscreteDistribution* rDist,
       bool checkRooted,
-			bool verbose) throw (Exception);
+      bool verbose) throw (Exception);
 
-	public:
-		
-		/**
-		 * @name The TreeLikelihood interface.
-		 *
-		 * Other methods are implemented in the AbstractTreeLikelihood class.
-		 *
-		 * @{
-		 */
+  public:
+    
+    /**
+     * @name The TreeLikelihood interface.
+     *
+     * Other methods are implemented in the AbstractTreeLikelihood class.
+     *
+     * @{
+     */
+    size_t getNumberOfStates() const { return model_->getNumberOfStates(); } 
+    
+    const std::vector<int>& getAlphabetChars() const { return model_->getAlphabetChars(); } 
+    
+    int getAlphabetChar(size_t i) const { return model_->getAlphabetChar(i); } 
+    
     void initialize() throw(Exception);
-		
+    
     ParameterList getBranchLengthsParameters() const;
-		
+    
     ParameterList getSubstitutionModelParameters() const;
-		
+    
     ParameterList getRateDistributionParameters() const
     {
       return AbstractDiscreteRatesAcrossSitesTreeLikelihood::getRateDistributionParameters();
@@ -189,38 +195,38 @@ class AbstractHomogeneousTreeLikelihood:
    
     /** @} */
 
-		/**
-		 * @name The HomogeneousTreeLikelihood interface.
-		 *
-		 * Other methods are implemented in the AbstractTreeLikelihood class.
-		 *
-		 * @{
-		 */
-		const SubstitutionModel* getSubstitutionModel() const { return model_; }
-		const SubstitutionModel* getSubstitutionModel(int nodeId, size_t siteIndex) const throw (NodeNotFoundException) { return model_; }
-		
-		SubstitutionModel* getSubstitutionModel() { return model_; }
-		SubstitutionModel* getSubstitutionModel(int nodeId, size_t siteIndex) throw (NodeNotFoundException) { return model_; }
-		
+    /**
+     * @name The HomogeneousTreeLikelihood interface.
+     *
+     * Other methods are implemented in the AbstractTreeLikelihood class.
+     *
+     * @{
+     */
+    const SubstitutionModel* getSubstitutionModel() const { return model_; }
+    const SubstitutionModel* getSubstitutionModel(int nodeId, size_t siteIndex) const throw (NodeNotFoundException) { return model_; }
+    
+    SubstitutionModel* getSubstitutionModel() { return model_; }
+    SubstitutionModel* getSubstitutionModel(int nodeId, size_t siteIndex) throw (NodeNotFoundException) { return model_; }
+    
     void setSubstitutionModel(SubstitutionModel* model) throw (Exception);
     /** @} */
-		
-	public: //Specific methods:
+    
+  public: //Specific methods:
 
-		/**
-		 * @brief This builds the <i>parameters</i> list from all parametrizable objects,
-		 * <i>i.e.</i> substitution model, rate distribution and tree.
-		 */
-		virtual void initParameters();
+    /**
+     * @brief This builds the <i>parameters</i> list from all parametrizable objects,
+     * <i>i.e.</i> substitution model, rate distribution and tree.
+     */
+    virtual void initParameters();
 
-		/**
-		 * @brief All parameters are stored in a parameter list.
-		 * This function apply these parameters to the substitution model,
-		 * to the rate distribution and to the branch lengths.
-		 */
-		virtual void applyParameters() throw (Exception);	
+    /**
+     * @brief All parameters are stored in a parameter list.
+     * This function apply these parameters to the substitution model,
+     * to the rate distribution and to the branch lengths.
+     */
+    virtual void applyParameters() throw (Exception);  
 
-		virtual void initBranchLengthsParameters();
+    virtual void initBranchLengthsParameters();
 
     virtual void setMinimumBranchLength(double minimum) throw (Exception)
     {

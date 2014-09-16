@@ -91,17 +91,20 @@ namespace bpp
     NaiveSubstitutionCount* clone() const { return new NaiveSubstitutionCount(*this); }
 
   public:
-    double getNumberOfSubstitutions(int initialState, int finalState, double length, size_t type = 1) const
+    double getNumberOfSubstitutions(size_t initialState, size_t finalState, double length, size_t type = 1) const
     {
       if (initialState == finalState && !allowSelf_)
         return 0;
-      else
-        return (register_->getType(initialState, finalState) == type ? (weights_ ? weights_->getIndex(initialState, finalState) : 1.) : 0.);
+      else {
+        int alphabetState1 = supportedChars_[initialState]; 
+        int alphabetState2 = supportedChars_[finalState]; 
+        return (register_->getType(initialState, finalState) == type ? (weights_ ? weights_->getIndex(alphabetState1, alphabetState2) : 1.) : 0.);
+      }
     }
 
     Matrix<double>* getAllNumbersOfSubstitutions(double length, size_t type = 1) const;
     
-    std::vector<double> getNumberOfSubstitutionsForEachType(int initialState, int finalState, double length) const
+    std::vector<double> getNumberOfSubstitutionsForEachType(size_t initialState, size_t finalState, double length) const
     {
       std::vector<double> v(getNumberOfSubstitutionTypes());
       for (size_t t = 1; t <= getNumberOfSubstitutionTypes(); ++t) {
@@ -143,9 +146,9 @@ namespace bpp
     LabelSubstitutionCount* clone() const { return new LabelSubstitutionCount(*this); }
 			
   public:
-    double getNumberOfSubstitutions(int initialState, int finalState, double length, size_t type = 1) const
+    double getNumberOfSubstitutions(size_t initialState, size_t finalState, double length, size_t type = 1) const
     {
-      return label_(static_cast<size_t>(initialState), static_cast<size_t>(finalState));
+      return label_(initialState, finalState);
     }
 
     Matrix<double>* getAllNumbersOfSubstitutions(double length, size_t type = 1) const
@@ -153,13 +156,10 @@ namespace bpp
       return dynamic_cast<Matrix<double>*>(label_.clone());
     }
     
-    std::vector<double> getNumberOfSubstitutionsForEachType(int initialState, int finalState, double length) const
+    std::vector<double> getNumberOfSubstitutionsForEachType(size_t initialState, size_t finalState, double length) const
     {
       std::vector<double> v(1);
-      v[0] = label_(
-          VectorTools::which(supportedChars_, initialState),
-          VectorTools::which(supportedChars_, finalState)
-          );
+      v[0] = label_(initialState, finalState);
       return v;
     }
 

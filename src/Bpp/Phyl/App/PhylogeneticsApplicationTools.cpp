@@ -735,7 +735,7 @@ throw (Exception)
     double tolerance = ApplicationTools::getDoubleParameter("optimization.scale_first.tolerance", params, .0001, suffix, suffixIsOptional, warn + 1);
     if (verbose)
       ApplicationTools::displayResult("Scaling tolerance", TextTools::toString(tolerance));
-    int nbEvalMax = ApplicationTools::getIntParameter("optimization.scale_first.max_number_f_eval", params, 1000000, suffix, suffixIsOptional, warn + 1);
+    unsigned int nbEvalMax = ApplicationTools::getParameter<unsigned int>("optimization.scale_first.max_number_f_eval", params, 1000000, suffix, suffixIsOptional, warn + 1);
     if (verbose)
       ApplicationTools::displayResult("Scaling max # f eval", TextTools::toString(nbEvalMax));
     OptimizationTools::optimizeTreeScale(
@@ -1506,14 +1506,14 @@ SubstitutionCount* PhylogeneticsApplicationTools::getSubstitutionCount(
 
   if (nijtOption == "Laplace")
   {
-    int trunc = ApplicationTools::getIntParameter("trunc", nijtParams, 10, suffix, true, warn + 1);
+    size_t trunc = ApplicationTools::getParameter<size_t>("trunc", nijtParams, 10, suffix, true, warn + 1);
     substitutionCount = new LaplaceSubstitutionCount(model, trunc);
   }
   else if (nijtOption == "Uniformization")
   {
     string weightOption = ApplicationTools::getStringParameter("weight", nijtParams, "None", "", true, warn + 1);
     AlphabetIndex2* weights = SequenceApplicationTools::getAlphabetIndex2(alphabet, weightOption, "Substitution weight scheme:");
-    substitutionCount = new UniformizationSubstitutionCount(model, new TotalSubstitutionRegister(alphabet), weights);
+    substitutionCount = new UniformizationSubstitutionCount(model, new TotalSubstitutionRegister(model), weights);
   }
   else if (nijtOption == "Decomposition")
   {
@@ -1521,7 +1521,7 @@ SubstitutionCount* PhylogeneticsApplicationTools::getSubstitutionCount(
     AlphabetIndex2* weights = SequenceApplicationTools::getAlphabetIndex2(alphabet, weightOption, "Substitution weight scheme:");
     const ReversibleSubstitutionModel* revModel = dynamic_cast<const ReversibleSubstitutionModel*>(model);
     if (revModel)
-      substitutionCount = new DecompositionSubstitutionCount(revModel, new TotalSubstitutionRegister(alphabet), weights);
+      substitutionCount = new DecompositionSubstitutionCount(revModel, new TotalSubstitutionRegister(model), weights);
     else
       throw Exception("Decomposition method can only be used with reversible substitution models.");
   }
@@ -1529,7 +1529,7 @@ SubstitutionCount* PhylogeneticsApplicationTools::getSubstitutionCount(
   {
     string weightOption = ApplicationTools::getStringParameter("weight", nijtParams, "None", "", true, warn + 1);
     AlphabetIndex2* weights = SequenceApplicationTools::getAlphabetIndex2(alphabet, weightOption, "Substitution weight scheme:");
-    substitutionCount = new NaiveSubstitutionCount(model, new TotalSubstitutionRegister(alphabet), false, weights);
+    substitutionCount = new NaiveSubstitutionCount(model, new TotalSubstitutionRegister(model), false, weights);
   }
   else if (nijtOption == "Label")
   {

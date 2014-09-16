@@ -49,7 +49,7 @@ Matrix<double>* NaiveSubstitutionCount::getAllNumbersOfSubstitutions(double leng
   {
     for (size_t j = 0; j < n; ++j)
     {
-      (*mat)(i, j) = (register_->getType(supportedChars_[i], supportedChars_[j]) == type ? (weights_ ? weights_->getIndex(supportedChars_[i], supportedChars_[j]) : 1.) : 0.);
+      (*mat)(i, j) = (register_->getType(i, j) == type ? (weights_ ? weights_->getIndex(supportedChars_[i], supportedChars_[j]) : 1.) : 0.);
     }
   }
   return mat;
@@ -57,7 +57,7 @@ Matrix<double>* NaiveSubstitutionCount::getAllNumbersOfSubstitutions(double leng
 
 LabelSubstitutionCount::LabelSubstitutionCount(const SubstitutionModel* model) :
   AbstractSubstitutionCount(
-      new TotalSubstitutionRegister(model->getAlphabet())),
+      new TotalSubstitutionRegister(model)),
   label_(model->getNumberOfStates(), model->getNumberOfStates()),
   supportedChars_(model->getAlphabetChars())
 {

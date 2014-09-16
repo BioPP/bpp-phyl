@@ -212,7 +212,7 @@ class DRHomogeneousTreeLikelihood:
     }
       
   protected:
-    virtual void computeLikelihoodAtNode_(const Node* node, VVVdouble& likelihoodArray) const;
+    virtual void computeLikelihoodAtNode_(const Node* node, VVVdouble& likelihoodArray, const Node* sonNode = 0) const;
   
     /**
      * Initialize the arrays corresponding to each son node for the node passed as argument.

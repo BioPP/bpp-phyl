@@ -92,17 +92,17 @@ void LaplaceSubstitutionCount::computeCounts(double length) const
 
 /******************************************************************************/
 
-double LaplaceSubstitutionCount::getNumberOfSubstitutions(int initialState, int finalState, double length, size_t type) const
+double LaplaceSubstitutionCount::getNumberOfSubstitutions(size_t initialState, size_t finalState, double length, size_t type) const
 {
   if (length == currentLength_)
-    return m_(static_cast<size_t>(initialState), static_cast<size_t>(finalState));
+    return m_(initialState, finalState);
   if (length < 0.000001)
     return initialState == finalState ? 0. : 1.;  // Limit case!
   // Else we need to recompute M:
   computeCounts(length);
 
   currentLength_ = length;
-  return m_(static_cast<size_t>(initialState), static_cast<size_t>(finalState));
+  return m_(initialState, finalState);
 }
 
 /******************************************************************************/

@@ -51,6 +51,8 @@ namespace bpp
 {
 /**
  * @brief Parametrize a set of state frequencies.
+ *
+ * Frequencies are ordered according to alphabet states.
  */
 class FrequenciesSet :
   public virtual Parametrizable
@@ -69,7 +71,12 @@ public:
   /**
    * @return The frequencies values of the set.
    */
-  virtual const std::vector<double>& getFrequencies() const = 0;
+  virtual const std::vector<double> getFrequencies() const = 0;
+
+  /**
+   * @return The frequencies values of the set.
+   */
+  virtual const std::map<int, double> getFrequenciesAsMap() const = 0;
 
   /**
    * @brief Set the parameters in order to match a given set of frequencies.
@@ -149,7 +156,9 @@ public:
 public:
   const Alphabet* getAlphabet() const { return alphabet_; }
 
-  const std::vector<double>& getFrequencies() const { return freq_; }
+  const std::vector<double> getFrequencies() const { return freq_; }
+  
+  const std::map<int, double> getFrequenciesAsMap() const;
 
   void setFrequenciesFromMap(const std::map<int, double>& frequencies);
 
@@ -164,11 +173,7 @@ public:
       x += freq_[i];
     freq_ /= x;
   }
-  
-  // virtual void setNamespace(std::string& Namespace) {
-  //   AbstractParametrizable::setNamespace(Namespace);
-  // }
-  
+   
 protected:
   std::vector<double>& getFrequencies_() { return freq_; }
   double& getFreq_(size_t i) { return freq_[i]; }

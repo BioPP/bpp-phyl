@@ -121,7 +121,7 @@ throw (ParameterException)
 unsigned int OptimizationTools::optimizeTreeScale(
   TreeLikelihood* tl,
   double tolerance,
-  int tlEvalMax,
+  unsigned int tlEvalMax,
   OutputStream* messageHandler,
   OutputStream* profiler,
   unsigned int verbose)
@@ -245,7 +245,7 @@ throw (Exception)
     ApplicationTools::displayMessage("\n");
 
   // We're done.
-  int nb = poptimizer->getNumberOfEvaluations();
+  unsigned int nb = poptimizer->getNumberOfEvaluations();
   delete poptimizer;
   return nb;
 }
@@ -299,7 +299,7 @@ throw (Exception)
   {
     fnum.reset(new TwoPointsNumericalDerivative(f));
     fnum->setInterval(0.0000001);
-    optimizer.reset(new ConjugateGradientMultiDimensions(reinterpret_cast<DerivableFirstOrder*>(fnum.get()))); // Removes strict-aliasing warning with gcc 4.4
+    optimizer.reset(new ConjugateGradientMultiDimensions(fnum.get()));
   }
   else if (optMethodDeriv == OPTIMIZATION_NEWTON)
   {

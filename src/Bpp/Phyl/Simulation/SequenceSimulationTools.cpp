@@ -51,7 +51,7 @@ SiteContainer* SequenceSimulationTools::simulateSites(const SiteSimulator& simul
   vector<const Site*> vs(numberOfSites);
   for (size_t i = 0; i < numberOfSites; i++)
   {
-    Site* s = simulator.simulate(rates[i]);
+    Site* s = simulator.simulateSite(rates[i]);
     s->setPosition(static_cast<int>(i));
     vs[i] = s;
   }
@@ -66,7 +66,7 @@ SiteContainer* SequenceSimulationTools::simulateSites(const SiteSimulator& simul
   return sites;
 }
 
-SiteContainer* SequenceSimulationTools::simulateSites(const SiteSimulator& simulator, const vector<double>& rates, const vector<int>& states)
+SiteContainer* SequenceSimulationTools::simulateSites(const SiteSimulator& simulator, const vector<double>& rates, const vector<size_t>& states)
 throw (Exception)
 {
   size_t numberOfSites = rates.size();
@@ -75,7 +75,7 @@ throw (Exception)
   vector<const Site*> vs(numberOfSites);
   for (size_t i = 0; i < numberOfSites; i++)
   {
-    Site* s = simulator.simulate(states[i], rates[i]);
+    Site* s = simulator.simulateSite(states[i], rates[i]);
     s->setPosition(static_cast<int>(i));
     vs[i] = s;
   }
@@ -90,14 +90,14 @@ throw (Exception)
   return sites;
 }
 
-SiteContainer* SequenceSimulationTools::simulateSites(const SiteSimulator& simulator, const vector<int>& states)
+SiteContainer* SequenceSimulationTools::simulateSites(const SiteSimulator& simulator, const vector<size_t>& states)
 throw (Exception)
 {
   size_t numberOfSites = states.size();
   vector<const Site*> vs(numberOfSites);
   for (size_t i = 0; i < numberOfSites; i++)
   {
-    Site* s = simulator.simulate(states[i]);
+    Site* s = simulator.simulateSite(states[i]);
     s->setPosition(static_cast<int>(i));
     vs[i] = s;
   }

@@ -982,7 +982,7 @@ BipartitionList* TreeTools::bipartitionOccurrences(const vector<Tree*>& vecTr, v
   {
     if (bipScore[i - 1] == 0)
     {
-      bipScore.erase(bipScore.begin() + i - 1);
+      bipScore.erase(bipScore.begin() + static_cast<ptrdiff_t>(i - 1));
       mergedBipL->deleteBipartition(i - 1);
     }
   }
@@ -1101,7 +1101,7 @@ Tree* TreeTools::MRP(const vector<Tree*>& vecTr)
 
 /******************************************************************************/
 
-void TreeTools::computeBootstrapValues(Tree& tree, const vector<Tree*>& vecTr, bool verbose)
+void TreeTools::computeBootstrapValues(Tree& tree, const vector<Tree*>& vecTr, bool verbose, int format)
 {
   vector<int> index;
   BipartitionList bpTree(tree, true, &index);
@@ -1118,7 +1118,7 @@ void TreeTools::computeBootstrapValues(Tree& tree, const vector<Tree*>& vecTr, b
     {
       if (BipartitionTools::areIdentical(bpTree, i, *bpList, j))
       {
-        bootstrapValues[i] = (double) occurences[j] * 100. / (double) vecTr.size();
+        bootstrapValues[i] = format >= 0 ? round(static_cast<double>(occurences[j]) * pow(10, 2 + format) / static_cast<double>(vecTr.size())) / pow(10, format) : static_cast<double>(occurences[j]);
         break;
       }
     }

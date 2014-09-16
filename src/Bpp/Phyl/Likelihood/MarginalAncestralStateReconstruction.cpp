@@ -53,12 +53,12 @@ vector<size_t> MarginalAncestralStateReconstruction::getAncestralStatesForNode(i
   if (likelihood_->getTree().isLeaf(nodeId))
   {
     VVdouble larray = likelihood_->getLikelihoodData()->getLeafLikelihoods(nodeId);
-    for (size_t i = 0; i < nbDistinctSites_; i++)
+    for (size_t i = 0; i < nbDistinctSites_; ++i)
     {
       Vdouble* probs_i = &probs[i];
       probs_i->resize(nbStates_);
       size_t j = VectorTools::whichMax(larray[i]);
-      ancestors[i] = static_cast<int>(j);
+      ancestors[i] = j;
       (*probs_i)[j] = 1.;
     }
   }
@@ -89,7 +89,7 @@ vector<size_t> MarginalAncestralStateReconstruction::getAncestralStatesForNode(i
           cumProb += (*probs_i)[j];
           if (r <= cumProb)
           {
-            ancestors[i] = static_cast<int>(j);
+            ancestors[i] = j;
             break;
           }
         }

@@ -51,8 +51,8 @@ using namespace std;
 YNGKP_M3::YNGKP_M3(const GeneticCode* gc, FrequenciesSet* codonFreqs, unsigned int nbOmega) :
   AbstractBiblioMixedSubstitutionModel("YNGKP_M3."),
   pmixmodel_(0),
-  synfrom_(-1),
-  synto_(-1)
+  synfrom_(),
+  synto_()
 {
   if (nbOmega < 1)
     throw Exception("At least one omega is necessary in the YNGKP_M3 model");
@@ -76,33 +76,35 @@ YNGKP_M3::YNGKP_M3(const GeneticCode* gc, FrequenciesSet* codonFreqs, unsigned i
   map<string, DiscreteDistribution*> mpdd;
   mpdd["omega"] = psdd;
 
-  pmixmodel_.reset(new MixtureOfASubstitutionModel(gc->getSourceAlphabet(), new YN98(gc, codonFreqs), mpdd));
+  YN98* yn98 = new YN98(gc, codonFreqs);
+  pmixmodel_.reset(new MixtureOfASubstitutionModel(gc->getSourceAlphabet(), yn98, mpdd));
   delete psdd;
+  vector<int> supportedChars = yn98->getAlphabetChars();
 
   // mapping the parameters
 
   ParameterList pl = pmixmodel_->getParameters();
-  for (size_t i = 0; i < pl.size(); i++)
+  for (size_t i = 0; i < pl.size(); ++i)
   {
     lParPmodel_.addParameter(Parameter(pl[i]));
   }
 
   vector<std::string> v = dynamic_cast<YN98*>(pmixmodel_->getNModel(0))->getFrequenciesSet()->getParameters().getParameterNames();
-  for (size_t i = 0; i < v.size(); i++)
+  for (size_t i = 0; i < v.size(); ++i)
   {
     mapParNamesFromPmodel_[v[i]] = getParameterNameWithoutNamespace("YNGKP_M3." + v[i].substr(5));
   }
 
   mapParNamesFromPmodel_["YN98.kappa"] = "kappa";
 
-  for (unsigned int i = 1; i < nbOmega; i++)
+  for (size_t i = 1; i < nbOmega; ++i)
   {
     mapParNamesFromPmodel_["YN98.omega_Simple.theta" + TextTools::toString(i)] = "theta" + TextTools::toString(i);
   }
 
 
   mapParNamesFromPmodel_["YN98.omega_Simple.V1"] = "omega0";
-  for (unsigned int i = 1; i < nbOmega; i++)
+  for (size_t i = 1; i < nbOmega; ++i)
   {
     mapParNamesFromPmodel_["YN98.omega_Simple.V" + TextTools::toString(i + 1)] = "delta" + TextTools::toString(i);
   }
@@ -118,17 +120,17 @@ YNGKP_M3::YNGKP_M3(const GeneticCode* gc, FrequenciesSet* codonFreqs, unsigned i
                               pmixmodel_->getParameter(st).hasConstraint() ? pmixmodel_->getParameter(st).getConstraint()->clone() : 0, true));
   }
 
-  for (unsigned int i = 1; i < nbOmega; i++)
+  for (size_t i = 1; i < nbOmega; ++i)
   {
     addParameter_(new Parameter("YNGKP_M3.delta" + TextTools::toString(i), 0.5, new IntervalConstraint(NumConstants::MILLI(), 999, true, true, NumConstants::MILLI()), true));
   }
 
   // look for synonymous codons
-  for (synfrom_ = 1; synfrom_ < (int)gc->getSourceAlphabet()->getSize(); synfrom_++)
+  for (synfrom_ = 1; synfrom_ < supportedChars.size(); synfrom_++)
   {
     for (synto_ = 0; synto_ < synfrom_; synto_++)
     {
-      if ((gc->areSynonymous(synfrom_, synto_))
+      if (gc->areSynonymous(supportedChars[synfrom_], supportedChars[synto_])
           && (pmixmodel_->getNModel(0)->Qij(synfrom_, synto_) != 0)
           && (pmixmodel_->getNModel(1)->Qij(synfrom_, synto_) != 0))
         break;
@@ -137,7 +139,7 @@ YNGKP_M3::YNGKP_M3(const GeneticCode* gc, FrequenciesSet* codonFreqs, unsigned i
       break;
   }
 
-  if (synto_ == (int)gc->getSourceAlphabet()->getSize())
+  if (synto_ == supportedChars.size())
     throw Exception("Impossible to find synonymous codons");
 
   // update Matrices
@@ -171,7 +173,7 @@ void YNGKP_M3::updateMatrices()
     {
       if (lParPmodel_[i].getName()[18] == 'V')
       {
-        unsigned int ind = TextTools::toInt(lParPmodel_[i].getName().substr(19));
+        size_t ind = TextTools::to<size_t>(lParPmodel_[i].getName().substr(19));
         double x = getParameterValue("omega0");
         for (unsigned j = 1; j < ind; j++)
         {

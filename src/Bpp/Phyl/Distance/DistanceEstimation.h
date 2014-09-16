@@ -137,6 +137,12 @@ class TwoTreeLikelihood:
      *
      * @{
      */
+    size_t getNumberOfStates() const { return model_->getNumberOfStates(); } 
+    
+    const std::vector<int>& getAlphabetChars() const { return model_->getAlphabetChars(); } 
+    
+    int getAlphabetChar(size_t i) const { return model_->getAlphabetChar(i); } 
+    
     TreeLikelihoodData* getLikelihoodData() throw (NotImplementedException)
     {
       throw NotImplementedException("TwoTreeLikelihood::getLikelihoodData.");

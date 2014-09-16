@@ -98,12 +98,11 @@ AbstractCodonSubstitutionModel::AbstractCodonSubstitutionModel(
   hasParametrizedRates_(paramRates),
   gCode_(gCode)
 {
-  int i;
   enableEigenDecomposition(1);
 
   if ((pmod1 == pmod2) || (pmod2 == pmod3) || (pmod1 == pmod3))
   {
-    for (i = 0; i < 3; i++)
+    for (size_t i = 0; i < 3; ++i)
     {
       VSubMod_.push_back(pmod1);
       VnestedPrefix_.push_back(pmod1->getNamespace());
@@ -135,7 +134,7 @@ AbstractCodonSubstitutionModel::AbstractCodonSubstitutionModel(
   }
 
   Vrate_.resize(3);
-  for (i = 0; i < 3; i++)
+  for (size_t i = 0; i < 3; ++i)
   {
     Vrate_[i] = 1.0 / 3;
   }
@@ -143,9 +142,9 @@ AbstractCodonSubstitutionModel::AbstractCodonSubstitutionModel(
   if (hasParametrizedRates_)
   {
     // relative rates
-    for (i = 0; i < 2; i++)
+    for (int i = 0; i < 2; ++i)
     {
-      addParameter_(new Parameter(st + "relrate" + TextTools::toString(i + 1), 1.0 / (3 - i), &Parameter::PROP_CONSTRAINT_EX));
+      addParameter_(new Parameter(st + "relrate" + TextTools::toString(i + 1), 1.0 / (3.0 - i), &Parameter::PROP_CONSTRAINT_EX));
     }
   }
 }

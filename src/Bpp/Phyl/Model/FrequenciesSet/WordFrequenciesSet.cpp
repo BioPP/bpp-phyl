@@ -193,8 +193,7 @@ void WordFromIndependentFrequenciesSet::setFrequencies(const vector<double>& fre
   if (fabs(1. - sum) > 0.000001)
     throw Exception("WordFromIndependentFrequenciesSet::setFrequencies. Frequencies must equal 1 (sum = " + TextTools::toString(sum) + ").");
 
-  size_t d, i, j, s, l = vFreq_.size();
-  int k;
+  size_t d, i, j, k, s, l = vFreq_.size();
   vector<double> freq;
 
   d = size;
@@ -207,7 +206,7 @@ void WordFromIndependentFrequenciesSet::setFrequencies(const vector<double>& fre
     {
       freq[j] = 0;
     }
-    for (k = 0; k < (int)size; k++)
+    for (k = 0; k < size; k++)
     {
       freq[(k / d) % s] += frequencies[k];
     }
@@ -313,7 +312,7 @@ void WordFromUniqueFrequenciesSet::updateFrequencies()
 {
   size_t s = getAlphabet()->getSize();
   vector<double> f;
-  int letsi = pFreq_->getAlphabet()->getSize();
+  size_t letsi = pFreq_->getAlphabet()->getSize();
 
   size_t i, p, i2;
 
@@ -344,8 +343,7 @@ void WordFromUniqueFrequenciesSet::setFrequencies(const vector<double>& frequenc
   if (fabs(1. - sum) > 0.000001)
     throw Exception("WordFromUniqueFrequenciesSet::setFrequencies. Frequencies must equal 1 (sum = " + TextTools::toString(sum) + ").");
 
-  size_t d, i, j;
-  int k;
+  size_t d, i, j, k;
   vector<double> freq;
 
   size_t letsi = pFreq_->getAlphabet()->getSize();
@@ -360,7 +358,7 @@ void WordFromUniqueFrequenciesSet::setFrequencies(const vector<double>& frequenc
   for (i = 0; i < length_; i++)
   {
     d /= letsi;
-    for (k = 0; k < (int)size; k++)
+    for (k = 0; k < size; k++)
     {
       freq[(k / d) % letsi] += frequencies[k];
     }

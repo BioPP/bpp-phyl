@@ -72,7 +72,7 @@ int main() {
 
   CodonAlphabet* alphabet = new CodonAlphabet(&AlphabetTools::DNA_ALPHABET);
   GeneticCode* gc = new StandardGeneticCode(&AlphabetTools::DNA_ALPHABET);
-  SubstitutionModel* model = new YN98(gc, CodonFrequenciesSet::getFrequenciesSetForCodons(CodonFrequenciesSet::F0, gc));
+  CodonSubstitutionModel* model = new YN98(gc, CodonFrequenciesSet::getFrequenciesSetForCodons(CodonFrequenciesSet::F0, gc));
   //SubstitutionModel* model = new CodonRateSubstitutionModel(
   //      gc,
   //      new JCnuc(dynamic_cast<CodonAlphabet*>(alphabet)->getNucleicAlphabet()));
@@ -80,8 +80,8 @@ int main() {
   MatrixTools::printForR(model->getGenerator(), "g");
   DiscreteDistribution* rdist = new ConstantDistribution(1.0);
   HomogeneousSequenceSimulator simulator(model, rdist, tree);
-  TotalSubstitutionRegister* totReg = new TotalSubstitutionRegister(alphabet);
-  DnDsSubstitutionRegister* dndsReg = new DnDsSubstitutionRegister(gc);
+  TotalSubstitutionRegister* totReg = new TotalSubstitutionRegister(model);
+  DnDsSubstitutionRegister* dndsReg = new DnDsSubstitutionRegister(model);
 
   unsigned int n = 20000;
   vector< vector<double> > realMap(n);
@@ -90,7 +90,7 @@ int main() {
   VectorSiteContainer sites(tree->getLeavesNames(), alphabet);
   for (unsigned int i = 0; i < n; ++i) {
     ApplicationTools::displayGauge(i, n-1, '=');
-    RASiteSimulationResult* result = simulator.dSimulate();
+    RASiteSimulationResult* result = simulator.dSimulateSite();
     realMap[i].resize(ids.size());
     realMapTotal[i].resize(ids.size());
     realMapDnDs[i].resize(ids.size());
@@ -109,8 +109,8 @@ int main() {
       //  return 1;
       //}
     }
-    auto_ptr<Site> site(result->getSite());
-    site->setPosition(i);
+    auto_ptr<Site> site(result->getSite(*model));
+    site->setPosition(static_cast<int>(i));
     sites.addSite(*site, false);
     delete result;
   }

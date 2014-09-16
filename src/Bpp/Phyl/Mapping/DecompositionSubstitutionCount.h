@@ -107,12 +107,12 @@ class DecompositionSubstitutionCount:
 		
     DecompositionSubstitutionCount* clone() const { return new DecompositionSubstitutionCount(*this); }
 
-	public:
-		double getNumberOfSubstitutions(int initialState, int finalState, double length, size_t type = 1) const;
+  public:
+    double getNumberOfSubstitutions(size_t initialState, size_t finalState, double length, size_t type = 1) const;
 
     Matrix<double>* getAllNumbersOfSubstitutions(double length, size_t type = 1) const;
     
-    std::vector<double> getNumberOfSubstitutionsForEachType(int initialState, int finalState, double length) const;
+    std::vector<double> getNumberOfSubstitutionsForEachType(size_t initialState, size_t finalState, double length) const;
    
     /**
      * @brief Set the substitution model.

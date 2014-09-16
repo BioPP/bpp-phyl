@@ -82,18 +82,18 @@ ParameterList CoalaCore::computeCOA(const SequenceContainer& data, bool param)
   vector<string> names = data.getSequencesNames();
   vector< map<int, double> > freqs(names.size()); // One map per sequence
   // Each map is filled with the corresponding frequencies, which are then normalized.
-  for (size_t i = 0; i < names.size(); i++)
+  for (size_t i = 0; i < names.size(); ++i)
   {
     Sequence* seq = new BasicSequence(data.getSequence(names[i]));
     SymbolListTools::changeGapsToUnknownCharacters(*seq);
     SequenceTools::getFrequencies(*seq, freqs.at(i));
     // Unknown characters are now ignored:
     double t = 0;
-    for (unsigned int k = 0; k < 20; k++)
+    for (int k = 0; k < 20; ++k)
     {
       t += freqs.at(i)[k];
     }
-    for (unsigned int k = 0; k < 20; k++)
+    for (int k = 0; k < 20; k++)
     {
       freqs.at(i)[k] /= t;
     }
@@ -105,11 +105,11 @@ ParameterList CoalaCore::computeCOA(const SequenceContainer& data, bool param)
   for (size_t i = 0; i < freqs.size(); i++)
   {
     bool normalize = false;
-    for (int j = 0; j < 20; j++)
+    for (size_t j = 0; j < 20; j++)
     {
-      if (freqs[i].find(j) != freqs[i].end())
+      map<int, double>::iterator it = freqs[i].find(static_cast<int>(j));
+      if (it != freqs[i].end())
       {
-        map<int, double>::iterator it = freqs[i].find(j);
         freqMatrix(i, j) = (*it).second;
       }
       else
@@ -121,11 +121,11 @@ ParameterList CoalaCore::computeCOA(const SequenceContainer& data, bool param)
     if (normalize)
     {
       double sum = 0;
-      for (unsigned int k = 0; k < 20; k++)
+      for (size_t k = 0; k < 20; k++)
       {
         sum += freqMatrix(i, k);
       }
-      for (unsigned int l = 0; l < 20; l++)
+      for (size_t l = 0; l < 20; l++)
       {
         freqMatrix(i, l) = freqMatrix(i, l) / sum;
       }

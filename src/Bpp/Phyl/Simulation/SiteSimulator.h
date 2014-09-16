@@ -40,7 +40,7 @@ knowledge of the CeCILL license and that you accept its terms.
 #ifndef _SITESIMULATOR_H_
 #define _SITESIMULATOR_H_
 
-// From SeqLib:
+// From bpp-seq:
 #include <Bpp/Seq/Site.h>
 
 namespace bpp
@@ -59,12 +59,12 @@ class SiteSimulator
     virtual ~SiteSimulator() {}
     
   public:
-    virtual Site * simulate() const = 0;
-    virtual Site * simulate(int ancestralState) const = 0;
-    virtual Site * simulate(int ancestralState, double rate) const = 0;
-    virtual Site * simulate(double rate) const = 0;
+    virtual Site* simulateSite() const = 0;
+    virtual Site* simulateSite(size_t ancestralStateIndex) const = 0;
+    virtual Site* simulateSite(size_t ancestralStateIndex, double rate) const = 0;
+    virtual Site* simulateSite(double rate) const = 0;
     virtual std::vector<std::string> getSequencesNames() const = 0;
-    virtual const Alphabet * getAlphabet() const = 0;
+    virtual const Alphabet* getAlphabet() const = 0;
 };
 
 } //end of namespace bpp.

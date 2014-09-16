@@ -304,7 +304,7 @@ void MixtureOfSubstitutionModels::setVRates(const Vdouble& vd)
 
 Vint MixtureOfSubstitutionModels::getSubmodelNumbers(string& desc) const
 {
-  unsigned int i;
+  size_t i;
   for (i = 0; i < getNumberOfModels(); i++)
   {
     if (getNModel(i)->getName() == desc)
@@ -314,7 +314,7 @@ Vint MixtureOfSubstitutionModels::getSubmodelNumbers(string& desc) const
     throw Exception("MixtureOfSubstitutionModels::getSubmodelNumbers model description do not match " + desc);
 
   Vint submodnb;
-  submodnb.push_back(i);
+  submodnb.push_back(static_cast<int>(i));
 
   return submodnb;
 }

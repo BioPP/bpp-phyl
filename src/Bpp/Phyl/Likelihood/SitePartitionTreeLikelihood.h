@@ -5,7 +5,7 @@
 //
 
 /*
-Copyright or © or Copr. CNRS, (November 16, 2004)
+Copyright or © or Copr. Bio++ Development Team, (November 16, 2004)
 
 This software is a computer program whose purpose is to provide classes
 for phylogenetic data analysis.
@@ -51,23 +51,23 @@ namespace bpp
  *
  * These models allow the distinct sites of an alignment to have a different model.
  * The substitution model is however assumed to be the same along the tree.
- * suche models are hence homogeneous in time.
+ * Such models are hence homogeneous in time.
  */
 class SitePartitionHomogeneousTreeLikelihood :
-	public virtual TreeLikelihood
+  public virtual TreeLikelihood
 {
-	public:
+  public:
 #ifndef NO_VIRTUAL_COV
     SitePartitionHomogeneousTreeLikelihood* clone() const = 0;
 #endif
 
   public:
-    const SubstitutionModel* getSubstitutionModel(int nodeId, unsigned int siteIndex) const throw (NodeNotFoundException)
+    const SubstitutionModel* getSubstitutionModel(int nodeId, size_t siteIndex) const throw (NodeNotFoundException)
     {
       return getSubstitutionModelForSite(siteIndex);
     }
 
-    SubstitutionModel* getSubstitutionModel(int nodeId, unsigned int siteIndex) throw (NodeNotFoundException)
+    SubstitutionModel* getSubstitutionModel(int nodeId, size_t siteIndex) throw (NodeNotFoundException)
     {
       return getSubstitutionModelForSite(siteIndex);
     }
@@ -78,7 +78,7 @@ class SitePartitionHomogeneousTreeLikelihood :
      * @param siteIndex The position in the alignment.
      * @return A pointer toward the corresponding model.
      */
-    virtual const SubstitutionModel* getSubstitutionModelForSite(int siteIndex) const = 0;
+    virtual const SubstitutionModel* getSubstitutionModelForSite(size_t siteIndex) const = 0;
 
     /**
      * @brief Get the substitution model associated to a given node.
@@ -86,11 +86,11 @@ class SitePartitionHomogeneousTreeLikelihood :
      * @param siteIndex The position in the alignment.
      * @return A pointer toward the corresponding model.
      */
-    virtual SubstitutionModel* getSubstitutionModelForSite(unsigned int siteIndex) = 0;
+    virtual SubstitutionModel* getSubstitutionModelForSite(size_t siteIndex) = 0;
 
 };
 
 } //end of namespace bpp.
 
-#endif	//_SITEPARTITIONTREELIKELIHOOD_H_
+#endif  //_SITEPARTITIONTREELIKELIHOOD_H_
 
