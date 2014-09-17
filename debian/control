@@ -5,7 +5,7 @@ Maintainer: Loic Dachary <loic@dachary.org>
 Uploaders: Julien Dutheil <julien.dutheil@univ-montp2.fr>
 Build-Depends: debhelper (>= 5), cmake (>= 2.6),
   libbpp-seq-dev (>= 2.1.0)
-Standards-Version: 3.9.1
+Standards-Version: 3.9.4
 
 Package: libbpp-phyl-dev
 Section: libdevel
