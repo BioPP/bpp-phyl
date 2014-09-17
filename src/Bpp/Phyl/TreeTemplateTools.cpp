@@ -653,14 +653,12 @@ vector<Node*> TreeTemplateTools::getPathBetweenAnyTwoNodes(Node& node1, Node& no
     pos1--; pos2--;
   }
 
-  cout << "PM1\t" << pathMatrix1.size() << "\t" << pos1 << endl;
-  cout << "PM2\t" << pathMatrix2.size() << "\t" << pos2 << endl;
   path.insert(path.end(), pathMatrix1.begin(), pathMatrix1.begin() + static_cast<ptrdiff_t>(pos1 + 1));
   if (includeAncestor && commonAnc)
     path.push_back(commonAnc); // pushing once the Node that was common to both.
                                // note: if node1 or node2 is the common ancestor, then commonAnc is null
                                // and will be added as node1 or node2, respectively, even if includeAncestor is false.
-  path.insert(path.end(), pathMatrix2.rbegin(), pathMatrix2.rend() - static_cast<ptrdiff_t>(pos2));
+  path.insert(path.end(), pathMatrix2.rbegin() + static_cast<ptrdiff_t>(pathMatrix2.size() - pos2), pathMatrix2.rend());
   return path;
 }
 
@@ -706,7 +704,7 @@ vector<const Node*> TreeTemplateTools::getPathBetweenAnyTwoNodes(const Node& nod
     path.push_back(commonAnc); // pushing once the Node that was common to both.
                                // note: if node1 or node2 is the common ancestor, then commonAnc is null
                                // and will be added as node1 or node2, respectively, even if includeAncestor is false.
-  path.insert(path.end(), pathMatrix2.rbegin(), pathMatrix2.rend() - static_cast<ptrdiff_t>(pos2));
+  path.insert(path.end(), pathMatrix2.rbegin() + static_cast<ptrdiff_t>(pathMatrix2.size() - pos2), pathMatrix2.rend());
   return path;
 }
 

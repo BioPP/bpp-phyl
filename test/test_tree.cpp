@@ -248,7 +248,7 @@ int main() {
   Node* node2 = tree->getNode(Leaves_select[1]);
   Node* node3 = tree->getNode(Leaves_select[2]);
 
-  vector<Node*> vecNode = TreeTemplateTools::getPathBetweenAnyTwoNodes(*node1, *node2, false);
+  vector<Node*> vecNode = TreeTemplateTools::getPathBetweenAnyTwoNodes(*node1, *node2, true);
   cout << "Id node1 " << node1->getId() << endl;
   cout << "Id node2 " << node2->getId() << endl;
   cout << "Ids of path:" << endl;
@@ -256,7 +256,7 @@ int main() {
     cout << vecNode[i]->getId() << endl;
   }
 
-  vecNode = TreeTemplateTools::getPathBetweenAnyTwoNodes(*node1, *node3, false);
+  vecNode = TreeTemplateTools::getPathBetweenAnyTwoNodes(*node1, *node3, true);
   cout << "Id node1 " << node1->getId() << endl;
   cout << "Id node3 " << node3->getId() << endl;
   cout << "Ids of path: " << endl;
