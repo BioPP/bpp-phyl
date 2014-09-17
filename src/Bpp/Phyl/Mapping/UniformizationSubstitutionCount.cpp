@@ -244,7 +244,7 @@ void UniformizationSubstitutionCount::setSubstitutionModel(const SubstitutionMod
   }
 
   if (miu_>10000)
-    throw Exception("UniformizationSubstitutionCount::setSubstitutionModel The maximum diagonal values of generator is above 10000. Abort, chose another mapping method").
+    throw Exception("UniformizationSubstitutionCount::setSubstitutionModel The maximum diagonal values of generator is above 10000. Abort, chose another mapping method.");
 
   //Recompute counts:
   computeCounts_(currentLength_);
