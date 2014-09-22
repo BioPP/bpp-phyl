@@ -282,6 +282,7 @@ public:
    * @param reg               the Substitution Register
    * @param threshold         value above which counts are considered saturated
    *                                        (default: -1 means no threshold).
+   * @param verbose           Display progress messages.
    * @return A vector of substitutions vectors (one per branch per type).
    */
   static std::vector< std::vector<double> > getCountsPerBranch(
@@ -310,6 +311,7 @@ public:
    * @param ids               The numbers of the nodes of the tree
    * @param nullModel         The model on which the SubstitutionCount is built
    * @param reg               the Substitution Register
+   * @param verbose           Display progress messages.
    * @return A vector of normalization vectors (one per branch per type).
    */
   static std::vector< std::vector<double> > getNormalizationsPerBranch(
@@ -329,6 +331,7 @@ public:
    * @param ids               The numbers of the nodes of the tree
    * @param nullModelSet      The model on which the SubstitutionCount is built
    * @param reg               the Substitution Register
+   * @param verbose           Display progress messages.
    * @return A vector of normalization vectors (one per branch per type).
    */
   static std::vector< std::vector<double> > getNormalizationsPerBranch(
@@ -347,9 +350,8 @@ public:
    * @param model             The model on which the SubstitutionCount is built
    * @param nullModel         The null model used for normalization.
    * @param reg               the Substitution Register
-   *
+   * @param verbose           Display progress messages.
    */
-
   static std::vector< std::vector<double> >  getNormalizedCountsPerBranch(
     DRTreeLikelihood& drtl,
     const std::vector<int>& ids,
@@ -366,9 +368,8 @@ public:
    * @param modelSet          The model set on which the SubstitutionCount is built
    * @param nullModelSet      The null model set used for normalization.
    * @param reg               the Substitution Register
-   *
+   * @param verbose           Display progress messages.
    */
-
   static std::vector< std::vector<double> > getNormalizedCountsPerBranch(
     DRTreeLikelihood& drtl,
     const std::vector<int>& ids,

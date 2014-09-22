@@ -264,7 +264,5 @@ int main() {
     cout << vecNode[i]->getId() << endl;
   }
   
-
-
   return 0;
 }
