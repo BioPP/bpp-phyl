@@ -90,7 +90,7 @@ const std::map<int, double> AbstractFrequenciesSet::getFrequenciesAsMap() const 
 
 FullFrequenciesSet::FullFrequenciesSet(const Alphabet* alphabet, bool allowNullFreqs, unsigned short method, const string& name) :
   AbstractFrequenciesSet(alphabet->getSize(), alphabet, "Full.", name),
-  sFreq_(alphabet->getSize(), method, false, "Full.")
+  sFreq_(alphabet->getSize(), method, allowNullFreqs, "Full.")
 {
   vector<double> vd;
   double r=1. / static_cast<double>(alphabet->getSize());
@@ -105,7 +105,7 @@ FullFrequenciesSet::FullFrequenciesSet(const Alphabet* alphabet, bool allowNullF
 
 FullFrequenciesSet::FullFrequenciesSet(const Alphabet* alphabet, const vector<double>& initFreqs, bool allowNullFreqs, unsigned short method, const string& name) :
   AbstractFrequenciesSet(alphabet->getSize(), alphabet, "Full.", name),
-  sFreq_(alphabet->getSize(), method, false, "Full.")
+  sFreq_(alphabet->getSize(), method, allowNullFreqs, "Full.")
 {
   sFreq_.setFrequencies(initFreqs);
   addParameters_(sFreq_.getParameters());

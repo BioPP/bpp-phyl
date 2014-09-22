@@ -40,148 +40,122 @@
 #include "CodonFrequenciesSet.h"
 #include "NucleotideFrequenciesSet.h"
 
+#include <Bpp/Numeric/Prob/Simplex.h>
+
 using namespace bpp;
 using namespace std;
 
 // ////////////////////////////
 // FullCodonFrequenciesSet
 
-FullCodonFrequenciesSet::FullCodonFrequenciesSet(const GeneticCode* gCode, bool allowNullFreqs, const string& name) :
+FullCodonFrequenciesSet::FullCodonFrequenciesSet(const GeneticCode* gCode, bool allowNullFreqs, unsigned short method, const string& name) :
   AbstractFrequenciesSet(
       gCode->getSourceAlphabet()->getSize(),
       gCode->getSourceAlphabet(),
       "Full.",
       name),
-  pgc_(gCode)
+  pgc_(gCode),
+  sFreq_(gCode->getSourceAlphabet()->getSize()  - gCode->getNumberOfStopCodons(), method, allowNullFreqs, "Full.")
 {
-  size_t size = gCode->getSourceAlphabet()->getSize() - gCode->getNumberOfStopCodons();
-  size_t j = 0;
+  vector<double> vd;
+  double r=1. / static_cast<double>(sFreq_.dimension());
 
-  for (size_t i = 0; i < gCode->getSourceAlphabet()->getSize() - 1; i++)
-  {
-    if (gCode->isStop(static_cast<int>(i)))
-    {
-      getFreq_(i) = 0;
-    }
-    else
-    {
-      addParameter_(new Parameter(
-                      "Full.theta" + TextTools::toString(i + 1),
-                      1. / static_cast<double>(size - j),
-                      allowNullFreqs ?
-                      &Parameter::PROP_CONSTRAINT_IN :
-                      &FrequenciesSet::FREQUENCE_CONSTRAINT_MILLI));
-      getFreq_(i) = 1. / static_cast<double>(size);
-      j++;
-    }
-  }
-  size_t i = gCode->getSourceAlphabet()->getSize() - 1;
-  getFreq_(i) = (gCode->isStop(static_cast<int>(i))) ? 0 : 1. / static_cast<double>(size);
+  for (size_t i = 0; i < sFreq_.dimension(); i++)
+    vd.push_back(r);
+
+  sFreq_.setFrequencies(vd);
+  addParameters_(sFreq_.getParameters());
+  updateFreq_();
 }
-
 
 FullCodonFrequenciesSet::FullCodonFrequenciesSet(
     const GeneticCode* gCode,
     const vector<double>& initFreqs,
     bool allowNullFreqs,
+    unsigned short method,
     const string& name) :
   AbstractFrequenciesSet(gCode->getSourceAlphabet()->getSize(), gCode->getSourceAlphabet(), "Full.", name),
-  pgc_(gCode)
+  pgc_(gCode),
+  sFreq_(gCode->getSourceAlphabet()->getSize()  - gCode->getNumberOfStopCodons(), method, allowNullFreqs, "Full.")
 {
-  if (initFreqs.size() != gCode->getSourceAlphabet()->getSize())
+  if (initFreqs.size() != getAlphabet()->getSize())
     throw Exception("FullCodonFrequenciesSet(constructor). There must be " + TextTools::toString(gCode->getSourceAlphabet()->getSize()) + " frequencies.");
-  double sum = 0.0;
 
-  for (size_t i = 0; i < initFreqs.size(); i++)
-  {
+  double sum=0;
+  for (size_t i = 0; i < getAlphabet()->getSize(); i++)
+    if (!pgc_->isStop(static_cast<int>(i)))
+      sum+=initFreqs[i];
+
+  vector<double> vd;
+  for (size_t i = 0; i < getAlphabet()->getSize(); i++)
     if (!gCode->isStop(static_cast<int>(i)))
-    {
-      sum += initFreqs[i];
-    }
-  }
+      vd.push_back(initFreqs[i]/sum);
 
-  double y = 1;
-  for (size_t i = 0; i < gCode->getSourceAlphabet()->getSize() - 1; i++)
-  {
-    if (gCode->isStop(static_cast<int>(i)))
-    {
-      getFreq_(i) = 0;
-    }
-    else
-    {
-      addParameter_(new Parameter(
-                      "Full.theta" + TextTools::toString(i + 1),
-                      initFreqs[i] / sum / y,
-                      allowNullFreqs ?
-                      &Parameter::PROP_CONSTRAINT_IN :
-                      &FrequenciesSet::FREQUENCE_CONSTRAINT_MILLI));
-      getFreq_(i) = initFreqs[i] / sum;
-      y -= initFreqs[i] / sum;
-    }
-  }
-  size_t i = gCode->getSourceAlphabet()->getSize() - 1;
-  getFreq_(i) = (gCode->isStop(static_cast<int>(i))) ? 0 : initFreqs[i] / sum;
+  sFreq_.setFrequencies(vd);
+  addParameters_(sFreq_.getParameters());
+  updateFreq_();
 }
 
 FullCodonFrequenciesSet::FullCodonFrequenciesSet(const FullCodonFrequenciesSet& fcfs):
   AbstractFrequenciesSet(fcfs),
-  pgc_(fcfs.pgc_)
+  pgc_(fcfs.pgc_),
+  sFreq_(fcfs.sFreq_)
 {}
 
 FullCodonFrequenciesSet& FullCodonFrequenciesSet::operator=(const FullCodonFrequenciesSet& fcfs) {
   AbstractFrequenciesSet::operator=(fcfs);
   pgc_ = fcfs.pgc_;
+  sFreq_ = fcfs.sFreq_;
+  
   return *this;
+}
+
+void FullCodonFrequenciesSet::setNamespace(const std::string& nameSpace)
+{
+  sFreq_.setNamespace(nameSpace);
+  AbstractFrequenciesSet::setNamespace(nameSpace);
 }
 
 void FullCodonFrequenciesSet::setFrequencies(const vector<double>& frequencies)
 {
   if (frequencies.size() != getAlphabet()->getSize())
     throw DimensionException("FullFrequenciesSet::setFrequencies", frequencies.size(), getAlphabet()->getSize());
-  const CodonAlphabet* alphabet = getAlphabet();
 
-  double sum = 0.0;
-  size_t i;
-  for (i = 0; i < frequencies.size(); i++)
-  {
-    if (!(pgc_->isStop(static_cast<int>(i))))
-      sum += frequencies[i];
-  }
+  double sum=0;
+  for (size_t i = 0; i < getAlphabet()->getSize(); i++)
+    if (!pgc_->isStop(static_cast<int>(i)))
+      sum+=frequencies[i];
+  
+  vector<double> vd;
+  for (size_t i = 0; i < getAlphabet()->getSize(); i++)
+    if (!pgc_->isStop(static_cast<int>(i)))
+      vd.push_back(frequencies[i]/sum);
 
-  double y = 1;
-  for (i = 0; i < alphabet->getSize() - 1; i++)
-  {
-    if (pgc_->isStop(static_cast<int>(i)))
-    {
-      getFreq_(i) = 0;
-    }
-    else
-    {
-      getParameter_("theta" + TextTools::toString(i + 1)).setValue(frequencies[i] / sum / y);
-      y -= frequencies[i] / sum;
-      getFreq_(i) = frequencies[i] / sum;
-    }
-  }
-  i = alphabet->getSize() - 1;
-  getFreq_(i) = (pgc_->isStop(static_cast<int>(i))) ? 0 : frequencies[i] / sum;
+  sFreq_.setFrequencies(vd);
+  setParametersValues(sFreq_.getParameters()); 
+  updateFreq_();  
 }
 
 void FullCodonFrequenciesSet::fireParameterChanged(const ParameterList& parameters)
 {
-  const CodonAlphabet* alphabet = getAlphabet();
-  double y = 1;
-  size_t i;
-  for (i = 0; i < alphabet->getSize() - 1; i++)
-  {
-    if (!(pgc_->isStop(static_cast<int>(i))))
-    {
-      getFreq_(i) = getParameter_("theta" + TextTools::toString(i + 1)).getValue() * y;
-      y *= 1 - getParameter_("theta" + TextTools::toString(i + 1)).getValue();
-    }
-  }
+  sFreq_.matchParametersValues(parameters);
+  updateFreq_();
+}
 
-  i = alphabet->getSize() - 1;
-  getFreq_(i) = (pgc_->isStop(static_cast<int>(i))) ? 0 : y;
+void FullCodonFrequenciesSet::updateFreq_()
+{
+  size_t nbstop=0;
+  
+  for (size_t j = 0; j < getAlphabet()->getSize(); j++)
+  {
+    if (pgc_->isStop(static_cast<int>(j)))
+    {
+      getFreq_(j) = 0;
+      nbstop++;
+    }
+    else
+      getFreq_(j)=sFreq_.prob(j-nbstop);
+  }
 }
 
 
@@ -618,7 +592,7 @@ void CodonFromUniqueFrequenciesSet::updateFrequencies()
 
 /*********************************************************************/
 
-FrequenciesSet* CodonFrequenciesSet::getFrequenciesSetForCodons(short option, const GeneticCode* gCode, const string& mgmtStopFreq)
+FrequenciesSet* CodonFrequenciesSet::getFrequenciesSetForCodons(short option, const GeneticCode* gCode, const string& mgmtStopFreq, unsigned short method)
 {
   FrequenciesSet* codonFreqs;
 
@@ -635,7 +609,7 @@ FrequenciesSet* CodonFrequenciesSet::getFrequenciesSetForCodons(short option, co
     codonFreqs = new CodonFromIndependentFrequenciesSet(gCode, v_AFS, "F3X4", mgmtStopFreq);
   }
   else if (option == F61)
-    codonFreqs = new FullCodonFrequenciesSet(gCode, false, "F61");
+    codonFreqs = new FullCodonFrequenciesSet(gCode, false, method, "F61");
   else
     throw Exception("FrequenciesSet::getFrequencySetForCodons(). Unvalid codon frequency set argument.");
 

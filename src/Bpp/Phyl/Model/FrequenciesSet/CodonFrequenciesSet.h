@@ -87,9 +87,12 @@ namespace bpp
      *  - quadratic (default): each stop frequency is distributed to the
      *     neighbour codons (ie 1 substitution away), in proportion to
      *     the square of each target codon frequency.
+     * @param method The parametrization used for F61. Default method
+     * is 1 (ie global ratio).
      *
+     * @see Simplex
      */
-    static FrequenciesSet* getFrequenciesSetForCodons(short option, const GeneticCode* gCode, const std::string& mgmtStopFreq = "quadratic");
+    static FrequenciesSet* getFrequenciesSetForCodons(short option, const GeneticCode* gCode, const std::string& mgmtStopFreq = "quadratic", unsigned short method = 1);
     
     static const short F0;
     static const short F1X4;
@@ -112,14 +115,22 @@ namespace bpp
   protected:
     const GeneticCode* pgc_;
 
+  private:
+    /**
+     * @brief Simplex to handle the probabilities and the parameters.
+     *
+     */
+  
+    Simplex sFreq_;
+  
   public:
 
     /**
      * @brief Construction with uniform frequencies on the letters of
      * the alphabet. The stop codon frequencies are null.
      */
-    FullCodonFrequenciesSet(const GeneticCode* gCode, bool allowNullFreqs = false, const std::string& name = "Full");
-    FullCodonFrequenciesSet(const GeneticCode* gCode, const std::vector<double>& initFreqs, bool allowNullFreqs = false, const std::string& name = "Full");
+    FullCodonFrequenciesSet(const GeneticCode* gCode, bool allowNullFreqs = false, unsigned short method = 1, const std::string& name = "Full");
+    FullCodonFrequenciesSet(const GeneticCode* gCode, const std::vector<double>& initFreqs, bool allowNullFreqs = false, unsigned short method = 1, const std::string& name = "Full");
     
     FullCodonFrequenciesSet(const FullCodonFrequenciesSet& fcfs);
     FullCodonFrequenciesSet& operator=(const FullCodonFrequenciesSet& fcfs);
@@ -148,8 +159,18 @@ namespace bpp
     }
 #endif
 
+    void setNamespace(const std::string& nameSpace);
+
+    unsigned short getMethod() const
+    {
+      return sFreq_.getMethod();
+    }
+    
   protected:
     void fireParameterChanged(const ParameterList& parameters);
+
+    void updateFreq_();
+    
   };
 
 
