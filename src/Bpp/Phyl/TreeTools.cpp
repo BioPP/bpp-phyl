@@ -55,7 +55,7 @@
 #include <Bpp/Numeric/Prob/ConstantDistribution.h>
 #include <Bpp/Numeric/Matrix/MatrixTools.h>
 
-// From SeqLib:
+// From bpp-seq:
 #include <Bpp/Seq/Alphabet/DNA.h>
 #include <Bpp/Seq/Container/VectorSiteContainer.h>
 
@@ -1118,7 +1118,7 @@ void TreeTools::computeBootstrapValues(Tree& tree, const vector<Tree*>& vecTr, b
     {
       if (BipartitionTools::areIdentical(bpTree, i, *bpList, j))
       {
-        bootstrapValues[i] = format >= 0 ? round(static_cast<double>(occurences[j]) * pow(10, 2 + format) / static_cast<double>(vecTr.size())) / pow(10, format) : static_cast<double>(occurences[j]);
+        bootstrapValues[i] = format >= 0 ? round(static_cast<double>(occurences[j]) * pow(10., 2 + format) / static_cast<double>(vecTr.size())) / pow(10., format) : static_cast<double>(occurences[j]);
         break;
       }
     }

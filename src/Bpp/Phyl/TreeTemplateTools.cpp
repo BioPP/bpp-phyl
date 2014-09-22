@@ -646,7 +646,7 @@ vector<Node*> TreeTemplateTools::getPathBetweenAnyTwoNodes(Node& node1, Node& no
   if (pathMatrix1[pos1] != pathMatrix2[pos2])
     throw Exception("TreeTemplateTools::getPathBetweenAnyTwoNodes(). The two nodes do not have any ancestor in common / do not belong to the same tree.");
 
-  Node* commonAnc;
+  Node* commonAnc = 0;
   while (pathMatrix1[pos1] == pathMatrix2[pos2] && pos1 > 0 && pos2 > 0)
   {
     commonAnc = pathMatrix1[pos1];
@@ -692,7 +692,7 @@ vector<const Node*> TreeTemplateTools::getPathBetweenAnyTwoNodes(const Node& nod
   if (pathMatrix1[pos1] != pathMatrix2[pos2])
     throw Exception("TreeTemplateTools::getPathBetweenAnyTwoNodes(). The two nodes do not have any ancestor in common / do not belong to the same tree.");
 
-  const Node* commonAnc;
+  const Node* commonAnc = 0;
   while (pathMatrix1[pos1] == pathMatrix2[pos2] && pos1 > 0 && pos2 > 0)
   {
     commonAnc = pathMatrix1[pos1];
