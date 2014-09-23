@@ -646,21 +646,34 @@ vector<Node*> TreeTemplateTools::getPathBetweenAnyTwoNodes(Node& node1, Node& no
   if (pathMatrix1[pos1] != pathMatrix2[pos2])
     throw Exception("TreeTemplateTools::getPathBetweenAnyTwoNodes(). The two nodes do not have any ancestor in common / do not belong to the same tree.");
 
-  Node* commonAnc = 0;
-  while (pathMatrix1[pos1] == pathMatrix2[pos2] && pos1 > 0 && pos2 > 0)
-  {
-    commonAnc = pathMatrix1[pos1];
-    pos1--; pos2--;
-  }
+  if (pos1 == 0 && pos2 == 0) {
+    //Node 1 and 2 are the root node!
+    path.push_back(pathMatrix1[0]);
+  } else if (pos1 == 0) {
+    //Node 1 is the root node
+    //Note: we need to use push_back here as the insert method does not work with reverse iterators.
+    for (size_t i = pathMatrix2.size(); i > 0; --i)
+      path.push_back(pathMatrix2[i-1]);
+  } else if (pos2 == 0) {
+    //Node 2 is the root node
+    path.insert(path.end(), pathMatrix1.begin(), pathMatrix1.end());
+  } else {
+    Node* commonAnc = 0;
+    while (pathMatrix1[pos1] == pathMatrix2[pos2] && pos1 > 0 && pos2 > 0)
+    {
+      commonAnc = pathMatrix1[pos1];
+      pos1--; pos2--;
+    }
 
-  path.insert(path.end(), pathMatrix1.begin(), pathMatrix1.begin() + static_cast<ptrdiff_t>(pos1 + 1));
-  if (includeAncestor && commonAnc)
-    path.push_back(commonAnc); // pushing once the Node that was common to both.
-                               // note: if node1 or node2 is the common ancestor, then commonAnc is null
-                               // and will be added as node1 or node2, respectively, even if includeAncestor is false.
-  //Note: we need to use push_back here as the insert method does not work with reverse iterators.
-  for (size_t i = pos2; i > 0; --i)
-    path.push_back(pathMatrix2[i-1]);
+    path.insert(path.end(), pathMatrix1.begin(), pathMatrix1.begin() + static_cast<ptrdiff_t>(pos1 + 1));
+    if (includeAncestor && commonAnc)
+      path.push_back(commonAnc); // pushing once the Node that was common to both.
+                                 // note: if node1 or node2 is the common ancestor, then commonAnc is null
+                                 // and will be added as node1 or node2, respectively, even if includeAncestor is false.
+    //Note: we need to use push_back here as the insert method does not work with reverse iterators.
+    for (size_t i = pos2 + 1; i > 0; --i)
+      path.push_back(pathMatrix2[i-1]);
+  }
   return path;
 }
 
@@ -694,21 +707,34 @@ vector<const Node*> TreeTemplateTools::getPathBetweenAnyTwoNodes(const Node& nod
   if (pathMatrix1[pos1] != pathMatrix2[pos2])
     throw Exception("TreeTemplateTools::getPathBetweenAnyTwoNodes(). The two nodes do not have any ancestor in common / do not belong to the same tree.");
 
-  const Node* commonAnc = 0;
-  while (pathMatrix1[pos1] == pathMatrix2[pos2] && pos1 > 0 && pos2 > 0)
-  {
-    commonAnc = pathMatrix1[pos1];
-    pos1--; pos2--;
-  }
+  if (pos1 == 0 && pos2 == 0) {
+    //Node 1 and 2 are the root node!
+    path.push_back(pathMatrix1[0]);
+  } else if (pos1 == 0) {
+    //Node 1 is the root node
+    //Note: we need to use push_back here as the insert method does not work with reverse iterators.
+    for (size_t i = pathMatrix2.size(); i > 0; --i)
+      path.push_back(pathMatrix2[i-1]);
+  } else if (pos2 == 0) {
+    //Node 2 is the root node
+    path.insert(path.end(), pathMatrix1.begin(), pathMatrix1.end());
+  } else {
+    const Node* commonAnc = 0;
+    while (pathMatrix1[pos1] == pathMatrix2[pos2] && pos1 > 0 && pos2 > 0)
+    {
+      commonAnc = pathMatrix1[pos1];
+      pos1--; pos2--;
+    }
 
-  path.insert(path.end(), pathMatrix1.begin(), pathMatrix1.begin() + static_cast<ptrdiff_t>(pos1 + 1));
-  if (includeAncestor && commonAnc)
-    path.push_back(commonAnc); // pushing once the Node that was common to both.
-                               // note: if node1 or node2 is the common ancestor, then commonAnc is null
-                               // and will be added as node1 or node2, respectively, even if includeAncestor is false.
-  //Note: we need to use push_back here as the insert method does not work with reverse iterators.
-  for (size_t i = pos2; i > 0; --i)
-    path.push_back(pathMatrix2[i-1]);
+    path.insert(path.end(), pathMatrix1.begin(), pathMatrix1.begin() + static_cast<ptrdiff_t>(pos1 + 1));
+    if (includeAncestor && commonAnc)
+      path.push_back(commonAnc); // pushing once the Node that was common to both.
+                                 // note: if node1 or node2 is the common ancestor, then commonAnc is null
+                                 // and will be added as node1 or node2, respectively, even if includeAncestor is false.
+    //Note: we need to use push_back here as the insert method does not work with reverse iterators.
+    for (size_t i = pos2 + 1; i > 0; --i)
+      path.push_back(pathMatrix2[i-1]);
+  }
   return path;
 }
 
