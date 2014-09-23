@@ -658,7 +658,9 @@ vector<Node*> TreeTemplateTools::getPathBetweenAnyTwoNodes(Node& node1, Node& no
     path.push_back(commonAnc); // pushing once the Node that was common to both.
                                // note: if node1 or node2 is the common ancestor, then commonAnc is null
                                // and will be added as node1 or node2, respectively, even if includeAncestor is false.
-  path.insert(path.end(), pathMatrix2.rbegin() + static_cast<ptrdiff_t>(pathMatrix2.size() - pos2), pathMatrix2.rend());
+  //Note: we need to use push_back here as the insert method does not work with reverse iterators.
+  for (size_t i = pos2; i > 0; --i)
+    path.push_back(pathMatrix2[i-1]);
   return path;
 }
 
@@ -704,7 +706,9 @@ vector<const Node*> TreeTemplateTools::getPathBetweenAnyTwoNodes(const Node& nod
     path.push_back(commonAnc); // pushing once the Node that was common to both.
                                // note: if node1 or node2 is the common ancestor, then commonAnc is null
                                // and will be added as node1 or node2, respectively, even if includeAncestor is false.
-  path.insert(path.end(), pathMatrix2.rbegin() + static_cast<ptrdiff_t>(pathMatrix2.size() - pos2), pathMatrix2.rend());
+  //Note: we need to use push_back here as the insert method does not work with reverse iterators.
+  for (size_t i = pos2; i > 0; --i)
+    path.push_back(pathMatrix2[i-1]);
   return path;
 }
 
