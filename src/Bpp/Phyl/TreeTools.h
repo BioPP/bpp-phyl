@@ -564,6 +564,16 @@ class TreeTools
     static VectorSiteContainer* MRPEncode(const std::vector<Tree*>& vecTr);
 
     /**
+     * @brief Creates a sequence data set corresponding to the Matrix Representation of the input multilabel trees
+     *
+     * @author Nicolas Galtier and Bastien Boussau
+     * Trees can have distinct sets of elements - missing data will be represented as 'N'.
+     * The output alignment (DNA sequences including only A, C and N)) is ready for maximum parsimony analysis
+     * according to the MRP supertree method.
+     */
+    static VectorSiteContainer* MRPEncodeMultilabel(const std::vector<Tree*>& vecTr);
+
+    /**
      * @brief Tells whether two trees have the same unrooted topology
      *
      * @author Nicolas Galtier
@@ -683,6 +693,20 @@ class TreeTools
      * @param tree The rooted tree for which the root has to be moved to its mid-point position, along the branch where it already stands.
      */    
     static void constrainedMidPointRooting(Tree& tree);
+    
+    /**
+     * @brief Matrix Representation Parsimony supertree method for multilabel trees
+     *
+     * This implementation of the MRP method takes a BIONJ tree (Jukes-Cantor distances)
+     * as the starting tree and optimizes the parsimony score using only NNI (in a
+     * PHYML-like way).
+     *
+     * @author Nicolas Galtier slightly modified by Bastien Boussau
+     * @param vecTr A vector of trees.
+     * @return The MRP super tree.
+     */
+    static Tree* MRPMultilabel(const std::vector<Tree*>& vecTr);
+
 	
     /**
      * @name Some properties.

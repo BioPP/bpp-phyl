@@ -818,6 +818,26 @@ VectorSiteContainer* TreeTools::MRPEncode(const vector<Tree*>& vecTr)
 
 /******************************************************************************/
 
+VectorSiteContainer* TreeTools::MRPEncodeMultilabel(const vector<Tree*>& vecTr)
+{
+    vector<BipartitionList*> vecBipL;
+    for (size_t i = 0; i < vecTr.size(); i++)
+    {
+        vecBipL.push_back(new BipartitionList(*vecTr[i]));
+    }
+    
+    VectorSiteContainer* cont = BipartitionTools::MRPEncodeMultilabel(vecBipL);
+    
+    for (size_t i = 0; i < vecTr.size(); i++)
+    {
+        delete vecBipL[i];
+    }
+    
+    return cont;
+}
+
+/******************************************************************************/
+
 bool TreeTools::haveSameTopology(const Tree& tr1, const Tree& tr2)
 {
   size_t jj, nbbip;
@@ -1261,4 +1281,34 @@ TreeTools::Moments_ TreeTools::statFromNode_(Tree& tree, int rootId)
 
   return m;
 }
+
+/******************************************************************************/
+
+Tree* TreeTools::MRPMultilabel(const vector<Tree*>& vecTr)
+{
+    // matrix representation
+    VectorSiteContainer* sites = TreeTools::MRPEncode(vecTr);
+    
+    // starting bioNJ tree
+    const DNA* alphabet = dynamic_cast<const DNA*>(sites->getAlphabet());
+    JCnuc* jc = new JCnuc(alphabet);
+    ConstantDistribution* constRate = new ConstantDistribution(1.);
+    DistanceEstimation distFunc(jc, constRate, sites, 0, true);
+    BioNJ bionjTreeBuilder(false, false);
+    bionjTreeBuilder.setDistanceMatrix(*(distFunc.getMatrix()));
+    bionjTreeBuilder.computeTree();
+    if (ApplicationTools::message)
+        ApplicationTools::message->endLine();
+    TreeTemplate<Node>* startTree = new TreeTemplate<Node>(*bionjTreeBuilder.getTree());
+    
+    // MP optimization
+    DRTreeParsimonyScore* MPScore = new DRTreeParsimonyScore(*startTree, *sites, false);
+    MPScore = OptimizationTools::optimizeTreeNNI(MPScore, 0);
+    delete startTree;
+    Tree* retTree = new TreeTemplate<Node>(MPScore->getTree());
+    delete MPScore;
+    
+    return retTree;
+}
+
 
