@@ -64,7 +64,7 @@ DecompositionReward::DecompositionReward(const SubstitutionModel* model, Alphabe
   if (model->getAlphabet()->getAlphabetType() != alphIndex_->getAlphabet()->getAlphabetType())
     throw Exception("DecompositionReward (constructor): alphabets do not match between alphabet index and model.");
   if (!dynamic_cast<const ReversibleSubstitutionModel*>(model))
-    throw Exception("DecompositionReward::DecompositionReward. Only works with reversible models for now.");
+    throw Exception("DecompositionReward::DecompositionReward. Only works with declared reversible models for now.");
 
   //Initialize the B matrice. This is done once for all,
   //unless the number of states changes:
@@ -77,9 +77,9 @@ DecompositionReward::DecompositionReward(const SubstitutionModel* model, Alphabe
 
 void DecompositionReward::computeBMatrice_()
 {
-  int n = static_cast<int>(nbStates_); //Note jdutheil 20/01/13: shoudl be generalized in case sattes are not 0:n !
-  for (int j = 0; j < n; ++j) 
-    bMatrice_(j, j) = getAlphabetIndex()->getIndex(j);
+  vector<int> supportedStates = model_->getAlphabetChars();
+  for (size_t j = 0; j < nbStates_; ++j) 
+    bMatrice_(j, j) = getAlphabetIndex()->getIndex(supportedStates[j]);
 }
 
 void DecompositionReward::computeEigen_()
@@ -159,15 +159,15 @@ Matrix<double>* DecompositionReward::getAllRewards(double length) const
 
 /******************************************************************************/
 
-double DecompositionReward::getReward(int initialState, int finalState, double length) const
+double DecompositionReward::getReward(size_t initialState, size_t finalState, double length) const
 {
   if (length < 0)
     throw Exception("DecompositionReward::getRewards. Negative branch length: " + TextTools::toString(length) + ".");
   if (length != currentLength_)
-    {
-      computeRewards_(length);
-      currentLength_ = length;
-    }
+  {
+    computeRewards_(length);
+    currentLength_ = length;
+  }
   return rewards_(initialState, finalState);
 }
 

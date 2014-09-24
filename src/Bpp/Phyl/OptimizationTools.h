@@ -84,7 +84,7 @@ class NaNListener: public OptimizationListener
     void optimizationInitializationPerformed(const OptimizationEvent &event) {}
     void optimizationStepPerformed(const OptimizationEvent &event) throw (Exception)
     {
-      if (isnan(optimizer_->getFunction()->getValue()))
+      if (std::isnan(optimizer_->getFunction()->getValue()))
       {
          cerr << "Oups... something abnormal happened!" << endl;
          function_->getParameters().printParameters(cerr);
@@ -567,7 +567,7 @@ public:
   static unsigned int optimizeTreeScale(
     TreeLikelihood* tl,
     double tolerance = 0.000001,
-    int tlEvalMax = 1000000,
+    unsigned int tlEvalMax = 1000000,
     OutputStream* messageHandler = ApplicationTools::message,
     OutputStream* profiler       = ApplicationTools::message,
     unsigned int verbose = 1)
@@ -618,7 +618,7 @@ public:
     bool optimizeNumFirst        = true,
     double tolBefore             = 100,
     double tolDuring             = 100,
-    int tlEvalMax                = 1000000,
+    unsigned int tlEvalMax       = 1000000,
     unsigned int numStep         = 1,
     OutputStream* messageHandler = ApplicationTools::message,
     OutputStream* profiler       = ApplicationTools::message,
@@ -673,7 +673,7 @@ public:
     bool optimizeNumFirst        = true,
     double tolBefore             = 100,
     double tolDuring             = 100,
-    int tlEvalMax                = 1000000,
+    unsigned int tlEvalMax       = 1000000,
     unsigned int numStep         = 1,
     OutputStream* messageHandler = ApplicationTools::message,
     OutputStream* profiler       = ApplicationTools::message,

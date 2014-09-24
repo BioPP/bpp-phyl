@@ -65,9 +65,9 @@ void JCnuc::updateMatrices()
   freq_[0] = freq_[1] = freq_[2] = freq_[3] = 1. / 4.;
 
   // Generator and exchangeabilities:
-  for (int i = 0; i < 4; i++)
+  for (size_t i = 0; i < 4; ++i)
   {
-    for (int j = 0; j < 4; j++)
+    for (size_t j = 0; j < 4; ++j)
     {
       generator_(i, j) = (i == j) ? -1. : 1. / 3.;
       exchangeability_(i, j) = generator_(i, j) * 4.;

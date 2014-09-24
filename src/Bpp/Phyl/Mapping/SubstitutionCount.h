@@ -129,7 +129,7 @@ namespace bpp
      * @return The number of substitutions on a branch of specified length and
      * according to initial and final states.
      */
-    virtual double getNumberOfSubstitutions(int initialState, int finalState, double length, size_t type) const = 0;
+    virtual double getNumberOfSubstitutions(size_t initialState, size_t finalState, double length, size_t type) const = 0;
 		
     /**
      * @brief Get the numbers of susbstitutions on a branch, for each initial and final states, and given the branch length.
@@ -148,7 +148,7 @@ namespace bpp
      * @param length       The length of the branch.
      * @return A matrix with all numbers of substitutions for each initial and final states.
      */
-    virtual std::vector<double> getNumberOfSubstitutionsForEachType(int initialState, int finalState, double length) const = 0;
+    virtual std::vector<double> getNumberOfSubstitutionsForEachType(size_t initialState, size_t finalState, double length) const = 0;
 
     /**
      * @brief Set the substitution model associated with this count, if relevent.
@@ -167,7 +167,7 @@ namespace bpp
     public virtual SubstitutionCount
   {
   protected:
-    SubstitutionRegister* register_;
+    std::auto_ptr<SubstitutionRegister> register_;
 
   public:
     AbstractSubstitutionCount(SubstitutionRegister* reg):
@@ -175,40 +175,37 @@ namespace bpp
     {}
 
     AbstractSubstitutionCount(const AbstractSubstitutionCount& asc):
-      register_(dynamic_cast<SubstitutionRegister*>(register_->clone()))
+      register_(asc.register_.get() ? asc.register_->clone() : 0)
     {}
 
     AbstractSubstitutionCount& operator=(const AbstractSubstitutionCount& asc) {
-      if (register_)
-        delete register_;
-      register_ = dynamic_cast<SubstitutionRegister*>(register_->clone());
+      if (asc.register_.get())
+        register_.reset(asc.register_->clone());
+      else
+        register_.reset();
       return *this;
     }
 
-    ~AbstractSubstitutionCount() {
-      if (register_)
-        delete register_;
-    }
+    ~AbstractSubstitutionCount() {}
 
   public:
-    bool hasSubstitutionRegister() const { return (register_ != 0); }
+    bool hasSubstitutionRegister() const { return (register_.get() != 0); }
 
-    /*
-     *@brief attribution of a SubstitutionRegister
+    /**
+     * @brief attribution of a SubstitutionRegister
      *
-     *@param reg pointer to a SubstitutionRegister
+     * @param reg pointer to a SubstitutionRegister
      *
      */
     
     void setSubstitutionRegister(SubstitutionRegister* reg) {
-      if (register_) delete register_;
-      register_ = reg;
+      register_.reset(reg);
       substitutionRegisterHasChanged();
     }
 
-    const SubstitutionRegister* getSubstitutionRegister() const { return register_; }
+    const SubstitutionRegister* getSubstitutionRegister() const { return register_.get(); }
     
-    SubstitutionRegister* getSubstitutionRegister() { return register_; }
+    SubstitutionRegister* getSubstitutionRegister() { return register_.get(); }
 
   protected:
     virtual void substitutionRegisterHasChanged() = 0;

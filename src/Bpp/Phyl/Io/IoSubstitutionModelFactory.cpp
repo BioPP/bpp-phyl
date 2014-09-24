@@ -5,7 +5,7 @@
 //
 
 /*
-Copyright or © or Copr. CNRS, (November 17, 2004)
+Copyright or © or Copr. Bio++ Development Team, (November 17, 2004)
 
 This software is a computer program whose purpose is to provide classes
 for sequences analysis.
@@ -45,13 +45,13 @@ const std::string IOSubstitutionModelFactory::BPPO_FORMAT = "Bpp0";
 
 ISubstitutionModel* IOSubstitutionModelFactory::createReader(const std::string& format) throw (Exception)
 {
-  if (format == BPPO_FORMAT) return new BppOSubstitutionModelFormat(BppOSubstitutionModelFormat::ALL, true, true, true, true);
+  if (format == BPPO_FORMAT) return new BppOSubstitutionModelFormat(BppOSubstitutionModelFormat::ALL, true, true, true, true, 0);
   else throw Exception("Format " + format + " is not supported for input.");
 }
   
 OSubstitutionModel* IOSubstitutionModelFactory::createWriter(const std::string& format) throw (Exception)
 {
-  if(format == BPPO_FORMAT) return new BppOSubstitutionModelFormat(BppOSubstitutionModelFormat::ALL, true, true, true, true);
+  if(format == BPPO_FORMAT) return new BppOSubstitutionModelFormat(BppOSubstitutionModelFormat::ALL, true, true, true, true, 0);
   else throw Exception("Format " + format + " is not supported for output.");
 }
 

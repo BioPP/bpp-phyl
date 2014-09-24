@@ -118,7 +118,7 @@ BipartitionList::BipartitionList(const Tree& tr, bool sorted, std::vector<int>* 
   if (sorted)
     std::sort(elements_.begin(), elements_.end());
 
-  size_t lword  = BipartitionTools::LWORD;
+  size_t lword  = static_cast<size_t>(BipartitionTools::LWORD);
   size_t nbword = (elements_.size() + lword - 1) / lword;
   size_t nbint  = nbword * lword / (CHAR_BIT * sizeof(int));
 
@@ -156,7 +156,7 @@ BipartitionList::BipartitionList(
   elements_(elements),
   sorted_()
 {
-  size_t lword  = BipartitionTools::LWORD;
+  size_t lword  = static_cast<size_t>(BipartitionTools::LWORD);
   size_t nbword = (elements.size() + lword - 1) / lword;
   size_t nbint  = nbword * lword / (CHAR_BIT * sizeof(int));
 
@@ -184,7 +184,7 @@ BipartitionList::BipartitionList(const BipartitionList& bipL) :
   elements_(bipL.elements_),
   sorted_(bipL.sorted_)
 {
-  size_t lword  = BipartitionTools::LWORD;
+  size_t lword  = static_cast<size_t>(BipartitionTools::LWORD);
   size_t nbword = (bipL.getNumberOfElements() + lword - 1) / lword;
   size_t nbint  = nbword * lword / (CHAR_BIT * sizeof(int));
 
@@ -204,7 +204,7 @@ BipartitionList::BipartitionList(const BipartitionList& bipL) :
 
 BipartitionList& BipartitionList::operator=(const BipartitionList& bipL)
 {
-  size_t lword  = BipartitionTools::LWORD;
+  size_t lword  = static_cast<size_t>(BipartitionTools::LWORD);
   size_t nbword = (bipL.getNumberOfElements() + lword - 1) / lword;
   size_t nbint  = nbword * lword / (CHAR_BIT * sizeof(int));
 
@@ -296,7 +296,7 @@ void BipartitionList::addBipartition(map<string, bool>& bipart, bool checkElemen
   if (checkElements && !BipartitionList::haveSameElementsThan(bipart))
     throw Exception("Distinct bipartition element sets");
 
-  size_t lword  = BipartitionTools::LWORD;
+  size_t lword  = static_cast<size_t>(BipartitionTools::LWORD);
   size_t nbword = (elements_.size() + lword - 1) / lword;
   size_t nbint  = nbword * lword / (CHAR_BIT * sizeof(int));
   bitBipartitionList_.push_back(new int[nbint]);
@@ -323,7 +323,7 @@ void BipartitionList::deleteBipartition(size_t i) throw (Exception)
     throw Exception("Bipartition index exceeds BipartitionList size");
 
   delete[] bitBipartitionList_[i];
-  bitBipartitionList_.erase(bitBipartitionList_.begin() + i);
+  bitBipartitionList_.erase(bitBipartitionList_.begin() + static_cast<ptrdiff_t>(i));
 }
 
 /******************************************************************************/
@@ -494,7 +494,7 @@ void BipartitionList::sortElements()
 
   nbbip = bitBipartitionList_.size();
   bitBipartitionList_.resize(2 * nbbip);
-  size_t lword  = BipartitionTools::LWORD;
+  size_t lword  = static_cast<size_t>(BipartitionTools::LWORD);
   size_t nbword = (elements_.size() + lword - 1) / lword;
   size_t nbint  = nbword * lword / (CHAR_BIT * sizeof(int));
 
@@ -519,7 +519,7 @@ void BipartitionList::sortElements()
     delete[] bitBipartitionList_[j];
   }
 
-  bitBipartitionList_.erase(bitBipartitionList_.begin(), bitBipartitionList_.begin() + nbbip);
+  bitBipartitionList_.erase(bitBipartitionList_.begin(), bitBipartitionList_.begin() + static_cast<ptrdiff_t>(nbbip));
   sorted_ = true;
 }
 
@@ -606,7 +606,7 @@ void BipartitionList::flip(size_t k) throw (Exception)
 {
   if (k >= bitBipartitionList_.size())
     throw Exception("Bipartition index exceeds BipartitionList size");
-  size_t lword = BipartitionTools::LWORD;
+  size_t lword = static_cast<size_t>(BipartitionTools::LWORD);
   size_t nbword = (elements_.size() + lword - 1) / lword;
   size_t nbint = nbword * lword / (CHAR_BIT * sizeof(int));
   int* flipbip = new int[nbint];
@@ -676,7 +676,7 @@ TreeTemplate<Node>* BipartitionList::toTree() const throw (Exception)
     alive.push_back(true);
   }
   vecNd.resize(sortedBipL->getNumberOfBipartitions() + 1);
-  lword  = BipartitionTools::LWORD;
+  lword  = static_cast<size_t>(BipartitionTools::LWORD);
   nbword = (elements_.size() + lword - 1) / lword;
   nbint  = nbword * lword / (CHAR_BIT * sizeof(int));
   bip    = new int[1]; bip[0] = 0;

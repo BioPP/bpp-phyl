@@ -95,40 +95,44 @@ namespace bpp
      *
      * See the Bio++ Program Suite manual for a description of available options.
      *
-     * @param params  The attribute map where options may be found.
-     * @param prefix  A prefix to be applied to each attribute name.
-     * @param suffix  A suffix to be applied to each attribute name.
+     * @param params           The attribute map where options may be found.
+     * @param prefix           A prefix to be applied to each attribute name.
+     * @param suffix           A suffix to be applied to each attribute name.
      * @param suffixIsOptional Tell if the suffix is absolutely required.
-     * @param verbose Print some info to the 'message' output stream.
+     * @param verbose          Print some info to the 'message' output stream.
+     * @param warn             Set the warning level (0: always display warnings, >0 display warnings on demand).
      * @return A new Tree object according to the specified options.
      * @throw Exception if an error occured.
      */
     static Tree* getTree(
-                         std::map<std::string, std::string>& params,
-                         const std::string& prefix = "input.",
-                         const std::string& suffix = "",
-                         bool suffixIsOptional = true,
-                         bool verbose = true) throw (Exception);
+        std::map<std::string, std::string>& params,
+        const std::string& prefix = "input.",
+        const std::string& suffix = "",
+        bool suffixIsOptional = true,
+        bool verbose = true,
+        int warn = 1) throw (Exception);
  
     /**
      * @brief Build a list ofTree objects according to options.
      *
      * See the Bio++ Program Suite manual for a description of available options.
      *
-     * @param params  The attribute map where options may be found.
-     * @param prefix  A prefix to be applied to each attribute name.
-     * @param suffix  A suffix to be applied to each attribute name.
+     * @param params           The attribute map where options may be found.
+     * @param prefix           A prefix to be applied to each attribute name.
+     * @param suffix           A suffix to be applied to each attribute name.
      * @param suffixIsOptional Tell if the suffix is absolutely required.
-     * @param verbose Print some info to the 'message' output stream.
+     * @param verbose          Print some info to the 'message' output stream.
+     * @param warn             Set the warning level (0: always display warnings, >0 display warnings on demand).
      * @return A new vector of Tree objects according to the specified options.
      * @throw Exception if an error occured.
      */
     static std::vector<Tree*> getTrees(
-                                       std::map<std::string, std::string>& params,
-                                       const std::string& prefix = "input.",
-                                       const std::string& suffix = "",
-                                       bool suffixIsOptional = true,
-                                       bool verbose = true) throw (Exception);
+        std::map<std::string, std::string>& params,
+        const std::string& prefix = "input.",
+        const std::string& suffix = "",
+        bool suffixIsOptional = true,
+        bool verbose = true,
+        int warn = 1) throw (Exception);
   
     /**
      * @brief Build a SubstitutionModel object according to options.
@@ -137,16 +141,17 @@ namespace bpp
      * (see the Bio++ Progam Suite manual for a detailed description of this syntax). The
      * function also parses the parameter values and set them accordingly.
      *
-     * @param alphabet The alphabet to use in the model.
-     * @param gCode    The genetic code to use (only for codon models, otherwise can be set to 0).
-     *                 If set to NULL and a codon model is requested, an Exception will be thrown.
-     * @param data     A pointer toward the SiteContainer for which the substitution model is designed.
-     *                 The alphabet associated to the data must be of the same type as the one specified for the model.
-     *                 May be equal to NULL, but in this case use_observed_freq option will be unavailable.
-     * @param params   The attribute map where options may be found.
-     * @param suffix   A suffix to be applied to each attribute name.
+     * @param alphabet         The alphabet to use in the model.
+     * @param gCode            The genetic code to use (only for codon models, otherwise can be set to 0).
+     *                         If set to NULL and a codon model is requested, an Exception will be thrown.
+     * @param data             A pointer toward the SiteContainer for which the substitution model is designed.
+     *                         The alphabet associated to the data must be of the same type as the one specified for the model.
+     *                         May be equal to NULL, but in this case use_observed_freq option will be unavailable.
+     * @param params           The attribute map where options may be found.
+     * @param suffix           A suffix to be applied to each attribute name.
      * @param suffixIsOptional Tell if the suffix is absolutely required.
-     * @param verbose Print some info to the 'message' output stream.
+     * @param verbose          Print some info to the 'message' output stream.
+     * @param warn             Set the warning level (0: always display warnings, >0 display warnings on demand).
      * @return A new SubstitutionModel object according to options specified.
      * @throw Exception if an error occured.
      */
@@ -157,7 +162,8 @@ namespace bpp
         std::map<std::string, std::string>& params,
         const std::string& suffix = "",
         bool suffixIsOptional = true,
-        bool verbose = true) throw (Exception);
+        bool verbose = true,
+        int warn = 1) throw (Exception);
   
 
     /**
@@ -193,18 +199,19 @@ namespace bpp
     /**
      * @brief Get A FrequenciesSet object for root frequencies (NH models) according to options.
      *
-     * @param alphabet The alpabet to use.
-     * @param gCode    The genetic code to use (only for codon alphabets, otherwise can be set to 0).
-     *                 If set to NULL and a codon frequencies set is requested, an Exception will be thrown.
-     * @param data      A pointer toward the SiteContainer for which the substitution model is designed.
-     *                  The alphabet associated to the data must be of the same type as the one specified for the model.
-     *                  May be equal to NULL, but in this cas use_observed_freq option will be unavailable.
-     * @param params    The attribute map where options may be found.
-     * @param rateFreqs A vector of rate catégories frequencies in case of a Markov Modulated Markov Model.
-     *                  Ignored if a vector with size 0 is passed.
-     * @param suffix    A suffix to be applied to each attribute name.
+     * @param alphabet         The alpabet to use.
+     * @param gCode            The genetic code to use (only for codon alphabets, otherwise can be set to 0).
+     *                         If set to NULL and a codon frequencies set is requested, an Exception will be thrown.
+     * @param data             A pointer toward the SiteContainer for which the substitution model is designed.
+     *                         The alphabet associated to the data must be of the same type as the one specified for the model.
+     *                         May be equal to NULL, but in this cas use_observed_freq option will be unavailable.
+     * @param params           The attribute map where options may be found.
+     * @param rateFreqs        A vector of rate catégories frequencies in case of a Markov Modulated Markov Model.
+     *                         Ignored if a vector with size 0 is passed.
+     * @param suffix           A suffix to be applied to each attribute name.
      * @param suffixIsOptional Tell if the suffix is absolutely required.
-     * @param verbose   Print some info to the 'message' output stream.
+     * @param verbose          Print some info to the 'message' output stream.
+     * @param warn             Set the warning level (0: always display warnings, >0 display warnings on demand).
      * @return A new FrequenciesSet object according to options specified.
      * @throw Exception if an error occured.
      */
@@ -216,22 +223,24 @@ namespace bpp
         const std::vector<double>& rateFreqs,
         const std::string& suffix = "",
         bool suffixIsOptional = true,
-        bool verbose = true) throw (Exception);
+        bool verbose = true,
+        int warn = 1) throw (Exception);
 
     /**
      * @brief Get A FrequenciesSet object according to options.
      *
-     * @param alphabet The alpabet to use.
-     * @param gCode    The genetic code to use (only for codon alphabets, otherwise can be set to 0).
-     *                 If set to NULL and a codon frequencies set is requested, an Exception will be thrown.
-     * @param freqDescription A string in the keyval syntaxe describing the frequency set to use.:if expand("%") == ""|browse confirm w|else|confirm w|endif
+     * @param alphabet         The alpabet to use.
+     * @param gCode            The genetic code to use (only for codon alphabets, otherwise can be set to 0).
+     *                         If set to NULL and a codon frequencies set is requested, an Exception will be thrown.
+     * @param freqDescription  A string in the keyval syntaxe describing the frequency set to use.:if expand("%") == ""|browse confirm w|else|confirm w|endif
      * 
-     * @param data      A pointer toward the SiteContainer for which the substitution model is designed.
-     *                  The alphabet associated to the data must be of the same type as the one specified for the model.
-     *                  May be equal to NULL, but in this cas use_observed_freq option will be unavailable.
-     * @param rateFreqs A vector of rate catégories frequencies in case of a Markov Modulated Markov Model.
-     *                  Ignored if a vector with size 0 is passed.
-     * @param verbose   Print some info to the 'message' output stream.
+     * @param data             A pointer toward the SiteContainer for which the substitution model is designed.
+     *                         The alphabet associated to the data must be of the same type as the one specified for the model.
+     *                         May be equal to NULL, but in this cas use_observed_freq option will be unavailable.
+     * @param rateFreqs        A vector of rate catégories frequencies in case of a Markov Modulated Markov Model.
+     *                         Ignored if a vector with size 0 is passed.
+     * @param verbose          Print some info to the 'message' output stream.
+     * @param warn             Set the warning level (0: always display warnings, >0 display warnings on demand).
      * @return A new FrequenciesSet object according to options specified.
      * @throw Exception if an error occured.
      */
@@ -241,7 +250,8 @@ namespace bpp
         const std::string& freqDescription,
         const SiteContainer* data, 
         const std::vector<double>& rateFreqs,
-        bool verbose = true)
+        bool verbose = true,
+        int warn = 1)
       throw (Exception);
 
     /**
@@ -257,9 +267,10 @@ namespace bpp
          std::map<std::string, std::string>& params,
          const std::string& suffix = "",
          bool suffixIsOptional = true,
-         bool verbose = true);    
+         bool verbose = true,
+         int warn = 1);    
 
-     /**
+    /**
      * @brief Sets a SubstitutionModelSet object according to options.
      *
      * This model set is meant to be used with non-homogeneous substitution models of sequence evolution.
@@ -299,17 +310,18 @@ namespace bpp
      * @endcode
      * but will require more memory and use more CPU, since some calculations will be performed twice.
      *
-     * @param modelSet The modified SubstitutionModelSet object according to options specified.
-     * @param alphabet The alpabet to use in all models.
-     * @param gCode    The genetic code to use (only for codon models, otherwise can be set to 0).
-     *                 If set to NULL and a codon model is requested, an Exception will be thrown.
-     * @param data     A pointer toward the SiteContainer for which the substitution model is designed.
-     *                  The alphabet associated to the data must be of the same type as the one specified for the model.
-     *                 May be equal to NULL, but in this cas use_observed_freq option will be unavailable.
-     * @param params   The attribute map where options may be found.
-     * @param suffix   A suffix to be applied to each attribute name.
+     * @param modelSet         The modified SubstitutionModelSet object according to options specified.
+     * @param alphabet         The alpabet to use in all models.
+     * @param gcode            The genetic code to use (only for codon models, otherwise can be set to 0).
+     *                         If set to NULL and a codon model is requested, an Exception will be thrown.
+     * @param data             A pointer toward the SiteContainer for which the substitution model is designed.
+     *                         The alphabet associated to the data must be of the same type as the one specified for the model.
+     *                         May be equal to NULL, but in this cas use_observed_freq option will be unavailable.
+     * @param params           The attribute map where options may be found.
+     * @param suffix           A suffix to be applied to each attribute name.
      * @param suffixIsOptional Tell if the suffix is absolutely required.
-     * @param verbose Print some info to the 'message' output stream.
+     * @param verbose          Print some info to the 'message' output stream.
+     * @param warn             Set the warning level (0: always display warnings, >0 display warnings on demand).
      * @throw Exception if an error occured.
      */
     static void setSubstitutionModelSet(
@@ -320,7 +332,8 @@ namespace bpp
         std::map<std::string, std::string>& params,
         const std::string& suffix = "",
         bool suffixIsOptional = true,
-        bool verbose = true);
+        bool verbose = true,
+        int warn = 1);
     
     /**
      * @brief Complete a MixedSubstitutionModelSet object according to
@@ -373,15 +386,16 @@ namespace bpp
      * See MixedSubstitutionModelSet description for further
      * information.
      *
-     * @param mixedModelSet The modified MixedSubstitutionModelSet object according to options specified.
-     * @param alphabet The alpabet to use in all models.
-     * @param data     A pointer toward the SiteContainer for which the substitution model is designed.
-     *                  The alphabet associated to the data must be of the same type as the one specified for the model.
-     *                 May be equal to NULL, but in this cas use_observed_freq option will be unavailable.
-     * @param params   The attribute map where options may be found.
-     * @param suffix   A suffix to be applied to each attribute name.
+     * @param mixedModelSet    The modified MixedSubstitutionModelSet object according to options specified.
+     * @param alphabet         The alpabet to use in all models.
+     * @param data             A pointer toward the SiteContainer for which the substitution model is designed.
+     *                         The alphabet associated to the data must be of the same type as the one specified for the model.
+     *                         May be equal to NULL, but in this cas use_observed_freq option will be unavailable.
+     * @param params           The attribute map where options may be found.
+     * @param suffix           A suffix to be applied to each attribute name.
      * @param suffixIsOptional Tell if the suffix is absolutely required.
-     * @param verbose Print some info to the 'message' output stream.
+     * @param verbose          Print some info to the 'message' output stream.
+     * @param warn             Set the warning level (0: always display warnings, >0 display warnings on demand).
      * @throw Exception if an error occured.
      */
     static void completeMixedSubstitutionModelSet(
@@ -391,7 +405,8 @@ namespace bpp
         std::map<std::string, std::string>& params,
         const std::string& suffix = "",
         bool suffixIsOptional = true,
-        bool verbose = true);
+        bool verbose = true,
+        int warn = 1);
 
     /**
      * @brief Build a multi-dimension distribution as a
@@ -408,7 +423,6 @@ namespace bpp
      * @return A new MultipleDiscreteDistribution object according to options specified.
      * @throw Exception if an error occured.
      */
-    
     static MultipleDiscreteDistribution* getMultipleDistributionDefaultInstance(
         const std::string& distDescription,
         std::map<std::string, std::string>& unparsedParameterValues,
@@ -438,36 +452,6 @@ namespace bpp
     /**
      * @brief Optimize parameters according to options.
      *
-     * Options used are:
-     * - optimization = Tell if optimization must be performed.
-     * - optimization.message_handler = [std, file_path]
-     *   A path to a specific path (existing will be overwritten) or std for use
-     *   of the standard output.
-     * - optimization.profiler = [std, file_path], idem for the profiling (history
-     *   of all functions evaluations).
-     * - optimization.max_number_f_eval = The maximum number of function evaluation.
-     * - optimization.tolerance = The tolerance parameter (when to stop the optimization).
-     * - optimization.scale_first = Tell if we must scale the tree first.
-     * - optimization.ignore_parameter = A coma-separated list of parameter
-     *   names to ignore in the optimizing process.
-     * - optimization.method = [DB|fullD] Algorithm to use: Derivatives+Brent or full derivatives, with numerical derivatives when required.
-     * - optimization.method.derivatives = [gradient|newton] Use Conjugate Grandient or Newton-Rhaphson algorithm.
-     * - optimization.final = [none|simplex|powell] Perform a downhill simplex or a Powell multidimensions optimization
-     * - optimization.topology = Tell if we must optimize tree topology. Toplogy estimation uses the DB algorithm with Newton-Raphson during estimation.
-     *   The previous options will be used only for final estimation of numerical parameters.
-     * Options depending on other options:
-     * - If optimization.scale_first is set to true:
-     *   - optimization.scale_first.tolerance = The tolerance of the scaling alogrithm.
-     *   - optimization.scale_first.max_number_f_eval = the maximum number of function evaluations
-     *     for the scaling algorithm.
-     * - optimization.method_DB.nstep = number of progressive steps to use in DB algorithm.
-     * - optimization.topology.algorithm = [nni] algorithm to use (for now, only Nearest Neighbor Interchanges (NNI) are implemented). 
-     * - optimization.topology.algorithm_nni.method = [fast,better,phyml]
-     * - optimization.topology.nstep = Estimate numerical parameters every 'n' NNI rounds.
-     * - optimization.topology.numfirst = Tell if numerical parameters must be estimated prior to topology search.
-     * - optimization.topology.tolerance.before = Numerical parameters estimation prior to topology search.
-     * - optimization.topology.tolerance.during = Numerical parameters estimation during topology search.
-     *
      * @param tl               The TreeLikelihood function to optimize.
      * @param parameters       The initial list of parameters to optimize.
      *                         Use tl->getIndependentParameters() in order to estimate all parameters.
@@ -475,6 +459,7 @@ namespace bpp
      * @param suffix           A suffix to be applied to each attribute name.
      * @param suffixIsOptional Tell if the suffix is absolutely required.
      * @param verbose          Print some info to the 'message' output stream.
+     * @param warn             Set the warning level (0: always display warnings, >0 display warnings on demand).
      * @throw Exception        Any exception that may happen during the optimization process.
      * @return A pointer toward the final likelihood object.
      * This pointer may be the same as passed in argument (tl), but in some cases the algorithm
@@ -490,27 +475,12 @@ namespace bpp
         std::map<std::string, std::string>& params,
         const std::string& suffix = "",
         bool suffixIsOptional = true,
-        bool verbose = true)
+        bool verbose = true,
+        int warn = 1)
       throw (Exception);
     
     /**
      * @brief Optimize parameters according to options, with a molecular clock.
-     *
-     * Options used are:
-     * - optimization = Tell if optimization must be performed.
-     * - optimization.message_handler = [std, file_path]
-     *   A path to a specific path (existing will be overwritten) or std for use
-     *   of the standard output.
-     * - optimization.profiler = [std, file_path], idem for the profiling (history
-     *   of all functions evaluations).
-     * - optimization.max_number_f_eval = The maximum number of function evaluation.
-     * - optimization.tolerance = The tolerance parameter (when to stop the optimization).
-     * - optimization.ignore_parameter = A coma-separated list of parameter
-     *   names to ignore in the optimizing process.
-     * - optimization.method = [DB|fullD] Algorithm to use: Derivatives+Brent or full derivatives, with numerical derivatives when required.
-     * - optimization.method.derivatives = [gradient|newton] Use Conjugate Grandient or Newton-Rhaphson algorithm.
-     * - optimization.final = [none|simplex|powell] Perform a downhill simplex or a Powell multidimensions optimization
-     * - optimization.method_DB.nstep = number of progressive steps to use in DB algorithm.
      *
      * @param tl               The ClockTreeLikelihood function to optimize.
      * @param parameters       The initial list of parameters to optimize.
@@ -519,6 +489,7 @@ namespace bpp
      * @param suffix           A suffix to be applied to each attribute name.
      * @param suffixIsOptional Tell if the suffix is absolutely required.
      * @param verbose          Print some info to the 'message' output stream.
+     * @param warn             Set the warning level (0: always display warnings, >0 display warnings on demand).
      * @throw Exception        Any exception that may happen during the optimization process.
      */
     static void optimizeParameters(
@@ -527,7 +498,8 @@ namespace bpp
         std::map<std::string, std::string>& params,
         const std::string& suffix = "",
         bool suffixIsOptional = true,
-        bool verbose = true)
+        bool verbose = true,
+        int warn = 1)
       throw (Exception);
     
     /**
@@ -547,12 +519,17 @@ namespace bpp
      * @param model The model to use.
      * @param params The attribute map where options may be found.
      * @param suffix Optional suffix for command name.
+     * @param verbose          Print some info to the 'message' output stream.
+     * @param warn Set the warning level (0: always display warnings, >0 display warnings on demand).
+     * @return A SubstitutionCount object.
      */
     static SubstitutionCount* getSubstitutionCount(
         const Alphabet* alphabet,
         const SubstitutionModel* model,
         map<string, string>& params,
-        string suffix = "");
+        string suffix = "",
+        bool verbose = true,
+        int warn = 1);
    
     /**
      * @brief Write a tree according to options.
@@ -567,6 +544,7 @@ namespace bpp
      * @param verbose Print some info to the 'message' output stream.
      * @param checkOnly If this parameter is set to true, then all options are
      * checked and error messages sent, but no file is written.
+     * @param warn             Set the warning level (0: always display warnings, >0 display warnings on demand).
      * @throw Exception if an error occured.
      */
     static void writeTree(
@@ -576,21 +554,23 @@ namespace bpp
         const std::string& suffix = "",
         bool suffixIsOptional = true,
         bool verbose = true,
-        bool checkOnly = false) throw (Exception);
+        bool checkOnly = false,
+        int warn = 1) throw (Exception);
     
     /**
      * @brief Write a tree according to options.
      *
      * See the Bio++ Program Suite manual for a descriptio of all available options.
      *
-     * @param trees   The trees to write.
-     * @param params  The attribute map where options may be found.
-     * @param prefix  A prefix to be applied to each attribute name.
-     * @param suffix  A suffix to be applied to each attribute name.
+     * @param trees            The trees to write.
+     * @param params           The attribute map where options may be found.
+     * @param prefix           A prefix to be applied to each attribute name.
+     * @param suffix           A suffix to be applied to each attribute name.
      * @param suffixIsOptional Tell if the suffix is absolutely required.
-     * @param verbose Print some info to the 'message' output stream.
-     * @param checkOnly If this parameter is set to true, then all options are
-     * checked and error messages sent, but no file is written.
+     * @param verbose          Print some info to the 'message' output stream.
+     * @param checkOnly        If this parameter is set to true, then all options are
+     *                         checked and error messages sent, but no file is written.
+     * @param warn             Set the warning level (0: always display warnings, >0 display warnings on demand).
      * @throw Exception if an error occured.
      */
     static void writeTrees(
@@ -600,7 +580,8 @@ namespace bpp
         const std::string& suffix = "",
         bool suffixIsOptional = true,
         bool verbose = true,
-        bool checkOnly = false) throw (Exception);
+        bool checkOnly = false,
+        int warn = 1) throw (Exception);
 
 
     
@@ -609,8 +590,9 @@ namespace bpp
      *
      * @param model The model to serialize.
      * @param out   The stream where to print.
+     * @param warn  Set the warning level (0: always display warnings, >0 display warnings on demand).
      */
-    static void printParameters(const SubstitutionModel* model, OutputStream& out);
+    static void printParameters(const SubstitutionModel* model, OutputStream& out,int warn = 1);
 
 
 
@@ -619,8 +601,9 @@ namespace bpp
      *
      * @param modelSet The model set to serialize.
      * @param out      The stream where to print.
+     * @param warn  Set the warning level (0: always display warnings, >0 display warnings on demand).
      */
-    static void printParameters(const SubstitutionModelSet* modelSet, OutputStream& out);
+    static void printParameters(const SubstitutionModelSet* modelSet, OutputStream& out, int warn = 1);
 
 
 

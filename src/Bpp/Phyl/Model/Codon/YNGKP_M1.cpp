@@ -51,8 +51,8 @@ using namespace std;
 YNGKP_M1::YNGKP_M1(const GeneticCode* gc, FrequenciesSet* codonFreqs) :
   AbstractBiblioMixedSubstitutionModel("YNGKP_M1."),
   pmixmodel_(0),
-  synfrom_(-1),
-  synto_(-1)
+  synfrom_(),
+  synto_()
 {
   // build the submodel
 
@@ -65,8 +65,10 @@ YNGKP_M1::YNGKP_M1(const GeneticCode* gc, FrequenciesSet* codonFreqs) :
   map<string, DiscreteDistribution*> mpdd;
   mpdd["omega"] = psdd;
 
-  pmixmodel_.reset(new MixtureOfASubstitutionModel(gc->getSourceAlphabet(), new YN98(gc, codonFreqs), mpdd));
+  YN98* yn98 = new YN98(gc, codonFreqs);
+  pmixmodel_.reset(new MixtureOfASubstitutionModel(gc->getSourceAlphabet(), yn98, mpdd));
   delete psdd;
+  vector<int> supportedChars = yn98->getAlphabetChars();
 
   // map the parameters
 
@@ -99,20 +101,20 @@ YNGKP_M1::YNGKP_M1(const GeneticCode* gc, FrequenciesSet* codonFreqs) :
   addParameter_(new Parameter("YNGKP_M1.omega", 0.5, new IntervalConstraint(NumConstants::MILLI(), 1, true, false, NumConstants::MILLI()), true));
 
   // look for synonymous codons
-  for (synfrom_ = 1; synfrom_ < static_cast<int>(gc->getSourceAlphabet()->getSize()); synfrom_++)
+  for (synfrom_ = 1; synfrom_ < supportedChars.size(); ++synfrom_)
   {
-    for (synto_ = 0; synto_ < synfrom_; synto_++)
+    for (synto_ = 0; synto_ < synfrom_; ++synto_)
     {
-      if ((gc->areSynonymous(synfrom_, synto_))
-          && (pmixmodel_->getNModel(0)->Qij(synfrom_, synto_) != 0)
-          && (pmixmodel_->getNModel(1)->Qij(synfrom_, synto_) != 0))
+      if (gc->areSynonymous(supportedChars[synfrom_], supportedChars[synto_])
+        && (pmixmodel_->getNModel(0)->Qij(synfrom_, synto_) != 0)
+        && (pmixmodel_->getNModel(1)->Qij(synfrom_, synto_) != 0))
         break;
     }
     if (synto_ < synfrom_)
       break;
   }
 
-  if (synto_ == static_cast<int>(gc->getSourceAlphabet()->getSize()))
+  if (synto_ == supportedChars.size())
     throw Exception("Impossible to find synonymous codons");
 
   // update matrice

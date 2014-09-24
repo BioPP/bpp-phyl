@@ -42,7 +42,7 @@ knowledge of the CeCILL license and that you accept its terms.
 
 #include "SubstitutionCount.h"
 
-// From SeqLib:
+// From bpp-seq:
 #include <Bpp/Seq/Alphabet/Alphabet.h>
 #include <Bpp/Seq/AlphabetIndex/AlphabetIndex2.h>
 
@@ -67,16 +67,15 @@ class WeightedSubstitutionCount:
 class AbstractWeightedSubstitutionCount:
   public virtual WeightedSubstitutionCount
 {
-	protected:
-		const AlphabetIndex2* weights_;
-		bool ownWeights_;
+  protected:
+    const AlphabetIndex2* weights_;
+    bool ownWeights_;
 	
-	public:
-		AbstractWeightedSubstitutionCount(const AlphabetIndex2* weights, bool ownWeights) :
+  public:
+    AbstractWeightedSubstitutionCount(const AlphabetIndex2* weights, bool ownWeights) :
       weights_(weights),
       ownWeights_(ownWeights)
-    {
-    }
+    {}
 
     AbstractWeightedSubstitutionCount(const AbstractWeightedSubstitutionCount& index) :
       weights_(index.weights_),
@@ -95,11 +94,11 @@ class AbstractWeightedSubstitutionCount:
       return *this;
     }
 		
-		virtual ~AbstractWeightedSubstitutionCount()
+    virtual ~AbstractWeightedSubstitutionCount()
     {
-			if (ownWeights_)
+      if (ownWeights_)
         delete weights_;
-		}
+    }
 		
   public:
     void setWeights(const AlphabetIndex2* weights, bool ownWeights);

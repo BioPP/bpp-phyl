@@ -45,7 +45,6 @@
 using namespace bpp;
 
 #include <Bpp/Numeric/Matrix/MatrixTools.h>
-#include "../Parameters/Kappa.h"
 
 using namespace std;
 
@@ -57,7 +56,7 @@ AbstractParameterAliasable("K80."),
   AbstractReversibleSubstitutionModel(alpha, "K80."),
   kappa_(kappa), r_(), l_(), k_(), exp1_(), exp2_(), p_(size_, size_)
 {
-  addParameter_(new Kappa(alpha, getNamespace() + "kappa", kappa));
+  addParameter_(new Parameter("K80.kappa", kappa, &Parameter::R_PLUS_STAR));
   updateMatrices();
 }
 
@@ -143,7 +142,7 @@ void K80::updateMatrices()
 	
 /******************************************************************************/
 
-double K80::Pij_t(int i, int j, double d) const
+double K80::Pij_t(size_t i, size_t j, double d) const
 {
   l_ = rate_ * r_ * d;
   exp1_ = exp(-l_);
@@ -192,7 +191,7 @@ double K80::Pij_t(int i, int j, double d) const
 
 /******************************************************************************/
 
-double K80::dPij_dt(int i, int j, double d) const
+double K80::dPij_dt(size_t i, size_t j, double d) const
 {
   l_ = rate_ * r_ * d;
   exp1_ = exp(-l_);
@@ -241,7 +240,7 @@ double K80::dPij_dt(int i, int j, double d) const
 
 /******************************************************************************/
 
-double K80::d2Pij_dt2(int i, int j, double d) const
+double K80::d2Pij_dt2(size_t i, size_t j, double d) const
 {
   double k_2 = k_ * k_;
   double r_2 = rate_ * rate_ * r_ * r_;

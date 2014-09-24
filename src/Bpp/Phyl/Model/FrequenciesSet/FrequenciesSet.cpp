@@ -57,12 +57,12 @@ IntervalConstraint FrequenciesSet::FREQUENCE_CONSTRAINT_SMALL(NumConstants::SMAL
 
 void AbstractFrequenciesSet::setFrequenciesFromMap(const map<int, double>& frequencies)
 {
-  size_t s = getAlphabet()->getSize();
+  size_t s = alphabet_->getSize();
   vector<double> freq(s);
   double x = 0;
   for (size_t i = 0; i < s; i++)
   {
-    map<int, double>::const_iterator it = frequencies.find(static_cast<int>(i));
+    map<int, double>::const_iterator it = frequencies.find(alphabet_->getIntCodeAt(i));
     if (it != frequencies.end())
       freq[i] = it->second;
     else
@@ -76,12 +76,21 @@ void AbstractFrequenciesSet::setFrequenciesFromMap(const map<int, double>& frequ
   setFrequencies(freq);
 }
 
+const std::map<int, double> AbstractFrequenciesSet::getFrequenciesAsMap() const {
+  map<int, double> fmap;
+  size_t s = alphabet_->getSize();
+  for (size_t i = 0; i < s; i++) {
+    fmap[alphabet_->getIntCodeAt(i)] = freq_[i];
+  }
+  return fmap;
+}
+
 // ////////////////////////////
 // FullFrequenciesSet
 
 FullFrequenciesSet::FullFrequenciesSet(const Alphabet* alphabet, bool allowNullFreqs, unsigned short method, const string& name) :
   AbstractFrequenciesSet(alphabet->getSize(), alphabet, "Full.", name),
-  sFreq_(alphabet->getSize(), method, false, "Full.")
+  sFreq_(alphabet->getSize(), method, allowNullFreqs, "Full.")
 {
   vector<double> vd;
   double r=1. / static_cast<double>(alphabet->getSize());
@@ -96,7 +105,7 @@ FullFrequenciesSet::FullFrequenciesSet(const Alphabet* alphabet, bool allowNullF
 
 FullFrequenciesSet::FullFrequenciesSet(const Alphabet* alphabet, const vector<double>& initFreqs, bool allowNullFreqs, unsigned short method, const string& name) :
   AbstractFrequenciesSet(alphabet->getSize(), alphabet, "Full.", name),
-  sFreq_(alphabet->getSize(), method, false, "Full.")
+  sFreq_(alphabet->getSize(), method, allowNullFreqs, "Full.")
 {
   sFreq_.setFrequencies(initFreqs);
   addParameters_(sFreq_.getParameters());

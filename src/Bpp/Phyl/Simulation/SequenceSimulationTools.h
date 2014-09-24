@@ -5,7 +5,7 @@
 //
 
 /*
-Copyright or © or Copr. CNRS, (November 16, 2004)
+Copyright or © or Copr. Bio++ Development Team, (November 16, 2004)
 
 This software is a computer program whose purpose is to provide classes
 for phylogenetic data analysis.
@@ -56,45 +56,57 @@ namespace bpp
  */
 class SequenceSimulationTools
 {
-	public:
-		SequenceSimulationTools() {}
-		~SequenceSimulationTools() {}
+  public:
+    SequenceSimulationTools() {}
+    ~SequenceSimulationTools() {}
 
-	public:
-		
-		/**
-		 * @brief Simulate a set of sites knowing their rate.
-		 *
-		 * This method is rather slow.
-		 * consider using a discrete rate distribution and a SequenceSimulator,
-		 * which is realy faster.
-		 * This method should be used only for continuous rate distribution, or
-		 * as estimated from posterior rates for instance.
-		 *
-		 * @see SequenceSimulator
-		 * @param simulator A SiteSimulator object to use to simulate sites.
-		 * @param rates     the rates to use, one for each site to simulate.
-		 * @return          A container with all simulated sites.
-		 */
-		static SiteContainer * simulateSites(const SiteSimulator & simulator, const std::vector<double> & rates);
+  public:
+    
+    /**
+     * @brief Simulate a set of sites knowing their rate.
+     *
+     * This method is rather slow.
+     * consider using a discrete rate distribution and a SequenceSimulator,
+     * which is realy faster.
+     * This method should be used only for continuous rate distribution, or
+     * as estimated from posterior rates for instance.
+     *
+     * @see SequenceSimulator
+     * @param simulator A SiteSimulator object to use to simulate sites.
+     * @param rates     the rates to use, one for each site to simulate.
+     * @return          A container with all simulated sites.
+     */
+    static SiteContainer* simulateSites(const SiteSimulator& simulator, const std::vector<double>& rates);
 
-		/**
-		 * @brief Simulate a set of sites knowing their rate and ancestral state.
-		 *
-		 * This method is rather slow.
-		 * consider using a discrete rate distribution and a SequenceSimulator,
-		 * which is realy faster.
-		 * This method should be used only for continuous rate distribution, or
-		 * as estimated from posterior rates for instance.
-		 *
-		 * @see SequenceSimulator
-		 * @param simulator A SiteSimulator object to use to simulate sites.
-		 * @param rates     the rates to use, one for each site to simulate.
-		 * @param states    the ancestral states to use, one for each site to simulate.
-		 * @return          A container with all simulated sites.
-		 */
-		static SiteContainer * simulateSites(const SiteSimulator & simulator, const std::vector<double> & rates, const std::vector<int> & states)
-			throw (Exception);
+    /**
+     * @brief Simulate a set of sites knowing their rate and ancestral state.
+     *
+     * This method is rather slow.
+     * consider using a discrete rate distribution and a SequenceSimulator,
+     * which is realy faster.
+     * This method should be used only for continuous rate distribution, or
+     * as estimated from posterior rates for instance.
+     *
+     * @see SequenceSimulator
+     * @param simulator A SiteSimulator object to use to simulate sites.
+     * @param rates     the rates to use, one for each site to simulate.
+     * @param states    the ancestral states to use, one for each site to simulate.
+     * @return          A container with all simulated sites.
+     */
+    static SiteContainer* simulateSites(const SiteSimulator& simulator, const std::vector<double>& rates, const std::vector<size_t>& states)
+      throw (Exception);
+
+    /**
+     * @brief Simulate a set of sites knowing ancestral state.
+     *
+     * @see SequenceSimulator
+     * @param simulator A SiteSimulator object to use to simulate sites.
+     * @param states    the ancestral states to use, one for each site to simulate.
+     * @return          A container with all simulated sites.
+     */
+    static SiteContainer* simulateSites(const SiteSimulator& simulator, const std::vector<size_t>& states)
+      throw (Exception);
+
 };
 
 } //end of namespace bpp.

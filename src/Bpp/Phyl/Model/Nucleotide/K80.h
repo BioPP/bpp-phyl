@@ -5,7 +5,7 @@
 //
 
 /*
-  Copyright or © or Copr. CNRS, (November 16, 2004)
+  Copyright or © or Copr. Bio++ Development Team, (November 16, 2004)
 
   This software is a computer program whose purpose is to provide classes
   for phylogenetic data analysis.
@@ -44,7 +44,7 @@
 #include "NucleotideSubstitutionModel.h"
 #include "../AbstractSubstitutionModel.h"
 
-// From SeqLib:
+// From bpp-seq:
 #include <Bpp/Seq/Alphabet/NucleicAlphabet.h>
 
 namespace bpp
@@ -169,12 +169,12 @@ namespace bpp
     clone() const { return new K80(*this); }
 
   public:
-    double Pij_t    (int i, int j, double d) const;
-    double dPij_dt  (int i, int j, double d) const;
-    double d2Pij_dt2(int i, int j, double d) const;
-    const Matrix<double> & getPij_t    (double d) const;
-    const Matrix<double> & getdPij_dt  (double d) const;
-    const Matrix<double> & getd2Pij_dt2(double d) const;
+    double Pij_t    (size_t i, size_t j, double d) const;
+    double dPij_dt  (size_t i, size_t j, double d) const;
+    double d2Pij_dt2(size_t i, size_t j, double d) const;
+    const Matrix<double>& getPij_t    (double d) const;
+    const Matrix<double>& getdPij_dt  (double d) const;
+    const Matrix<double>& getd2Pij_dt2(double d) const;
 
     std::string getName() const { return "K80"; }
 	   
@@ -183,9 +183,10 @@ namespace bpp
      *
      * Consider using the HKY85 model for instance if you want to set frequencies as parameters.
      *
-     * @param data Useless parameter.
+     * @param data Unused parameter.
+     * @param pseudoCount Unused parameter.
      */
-    void setFreqFromData(const SequenceContainer & data) {}
+    void setFreqFromData(const SequenceContainer& data, double pseudoCount = 0) {}
 	
   protected:
     void updateMatrices();

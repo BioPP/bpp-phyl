@@ -107,9 +107,9 @@ void NNITopologySearch::searchFast() throw (Exception)
     {
       // !!! must not reach i==0 because of size_t
       if (!(nodesSub[i - 1]->hasFather()))
-        nodesSub.erase(nodesSub.begin() + i - 1);  // Remove root node.
+        nodesSub.erase(nodesSub.begin() + static_cast<ptrdiff_t>(i - 1));  // Remove root node.
       else if (!(nodesSub[i - 1]->getFather()->hasFather()))
-        nodesSub.erase(nodesSub.begin() + i - 1);  // Remove son of root node.
+        nodesSub.erase(nodesSub.begin() + static_cast<ptrdiff_t>(i - 1));  // Remove son of root node.
     }
 
     // Test all NNIs:
@@ -161,9 +161,9 @@ void NNITopologySearch::searchBetter() throw (Exception)
     for (size_t i = nodesSub.size(); i > 0; i--)
     { // !!! must not reach i==0 because of size_t
       if (!(nodesSub[i - 1]->hasFather()))
-        nodesSub.erase(nodesSub.begin() + i - 1);  // Remove root node.
+        nodesSub.erase(nodesSub.begin() + static_cast<ptrdiff_t>(i - 1));  // Remove root node.
       else if (!(nodesSub[i - 1]->getFather()->hasFather()))
-        nodesSub.erase(nodesSub.begin() + i - 1);  // Remove son of root node.
+        nodesSub.erase(nodesSub.begin() + static_cast<ptrdiff_t>(i - 1));  // Remove son of root node.
     }
 
     // Test all NNIs:
@@ -225,9 +225,9 @@ void NNITopologySearch::searchPhyML() throw (Exception)
     {
       // !!! must not reach i==0 because of size_t
       if (!(nodesSub[i - 1]->hasFather()))
-        nodesSub.erase(nodesSub.begin() + i - 1);  // Remove root node.
+        nodesSub.erase(nodesSub.begin() + static_cast<ptrdiff_t>(i - 1));  // Remove root node.
       else if (!(nodesSub[i - 1]->getFather()->hasFather()))
-        nodesSub.erase(nodesSub.begin() + i - 1);  // Remove son of root node.
+        nodesSub.erase(nodesSub.begin() + static_cast<ptrdiff_t>(i - 1));  // Remove son of root node.
     }
 
     // Test all NNIs:
@@ -262,9 +262,9 @@ void NNITopologySearch::searchPhyML() throw (Exception)
             // These are incompatible NNIs. We only keep the best:
             if (diff < improvement[j - 1])
             { // Erase previous node
-              improvingNodes.erase(improvingNodes.begin() + j - 1);
-              improving.erase(improving.begin() + j - 1);
-              improvement.erase(improvement.begin() + j - 1);
+              improvingNodes.erase(improvingNodes.begin() + static_cast<ptrdiff_t>(j - 1));
+              improving.erase(improving.begin() + static_cast<ptrdiff_t>(j - 1));
+              improvement.erase(improvement.begin() + static_cast<ptrdiff_t>(j - 1));
             } // Otherwise forget about this NNI.
             else
             {
@@ -285,9 +285,9 @@ void NNITopologySearch::searchPhyML() throw (Exception)
           }
           if (pos < improvement.size())
           {
-            improvingNodes.insert(improvingNodes.begin() + pos, node);
-            improving.insert(improving.begin() + pos, node->getId());
-            improvement.insert(improvement.begin() + pos, diff);
+            improvingNodes.insert(improvingNodes.begin() + static_cast<ptrdiff_t>(pos), node);
+            improving.insert(improving.begin() + static_cast<ptrdiff_t>(pos), node->getId());
+            improvement.insert(improvement.begin() + static_cast<ptrdiff_t>(pos), diff);
           }
           else
           {
@@ -348,8 +348,8 @@ void NNITopologySearch::searchPhyML() throw (Exception)
             throw Exception("NNITopologySearch::searchPhyML. Error, no improving NNI!\n This may be due to a change in parameters between testNNI and doNNI. Check your code!");
           }
           size_t n = (size_t)ceil((double)improving.size() / 2.);
-          improving.erase(improving.begin() + n, improving.end());
-          improvement.erase(improvement.begin() + n, improvement.end());
+          improving.erase(improving.begin() + static_cast<ptrdiff_t>(n), improving.end());
+          improvement.erase(improvement.begin() + static_cast<ptrdiff_t>(n), improvement.end());
         }
         else
         {

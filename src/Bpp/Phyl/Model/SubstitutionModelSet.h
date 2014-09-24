@@ -326,12 +326,7 @@ public:
    * Copy the model first if you don't want it to be lost!
    * @param nodesId the set of nodes in the tree that points toward this model.
    * This will override any previous affectation.
-   * @param newParams The names of the parameters that have to be added to the global list.
-   * These parameters will only be affected to this susbstitution model.
-   * You can use the setParameterToModel function to assign this parameter to an additional model, and the
-   * unsetParameterToModel to remove the relationship with this model for instance.
-   * Parameters not specified in newParams will be ignored, unless you manually assign them to another parameter with
-   * setParameterToModel.
+   *
    * @throw Exception in case of error:
    * <ul>
    * <li>if the new model does not match the alphabet<li>
@@ -342,12 +337,16 @@ public:
   void addModel(SubstitutionModel* model, const std::vector<int>& nodesId);//, const std::vector<std::string>& newParams) throw (Exception);
 
   /**
-   * @brief Remove a model from the set, and all corresponding parameters.
+   * @brief Replace a model in the set, and all corresponding
+   * parameters. The replaced model deleted.
    *
    * @param modelIndex The index of the model in the set.
+   * @param model the new model. This model will be owned by the Set.
+   *
    * @throw Exception if a parameter becomes orphan because of the removal.
    */
-  void removeModel(size_t modelIndex) throw (Exception);
+
+  void replaceModel(size_t modelIndex, SubstitutionModel* model) throw (Exception);
 
   void listModelNames(std::ostream& out = std::cout) const;
 
@@ -409,6 +408,23 @@ public:
   ParameterList getModelParameters(size_t modelIndex) const;
 
   const Alphabet* getAlphabet() const { return alphabet_; }
+
+  /**
+   * @return The supported states of the model set, as a vector of int codes.
+   *
+   * @see Alphabet
+   */
+  virtual const std::vector<int>& getAlphabetChars() const {
+    return getModel(0)->getAlphabetChars();
+  }
+
+  virtual int getAlphabetChar(size_t i) const {
+    return getModel(0)->getAlphabetChar(i);
+  }
+
+  virtual std::vector<size_t> getModelStates(int i) const {
+    return getModel(0)->getModelStates(i);
+  }
 
   /**
    * @brief Check if the model set is fully specified for a given tree.

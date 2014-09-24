@@ -377,7 +377,7 @@ void AbstractWordSubstitutionModel::updateMatrices()
 
     if (nbStop != 0)
     {
-      int gi = 0, gj = 0;
+      size_t gi = 0, gj = 0;
 
       RowMatrix<double> gk;
 
@@ -462,23 +462,18 @@ void AbstractWordSubstitutionModel::updateMatrices()
           isDiagonalizable_ = false;
       }
 
-
       // is it singular?
 
       // looking for the 0 eigenvector for which the non-stop right
       // eigen vector elements are equal.
       //
-      // there is a tolerance for numerical problems
-      //
 
-      size_t nulleigen = 0;
-      double val;
-      double seuil = 1;
-
-      isNonSingular_ = false;
-      while (!isNonSingular_)
+      if (isDiagonalizable_)
       {
-        nulleigen = 0;
+        size_t nulleigen = 0;
+        double val;
+
+        isNonSingular_ = false;
         while (nulleigen < salph - nbStop)
         {
           if ((abs(eigenValues_[nulleigen]) < NumConstants::SMALL()) && (abs(iEigenValues_[nulleigen]) < NumConstants::SMALL()))
@@ -486,19 +481,19 @@ void AbstractWordSubstitutionModel::updateMatrices()
             i = 0;
             while (vnull[i])
               i++;
-
+            
             val = rightEigenVectors_(i, nulleigen);
             i++;
             while (i < salph)
             {
               if (!vnull[i])
               {
-                if (abs(rightEigenVectors_(i, nulleigen) - val) > seuil * NumConstants::SMALL())
+                if (abs(rightEigenVectors_(i, nulleigen) - val) > NumConstants::SMALL())
                   break;
               }
               i++;
             }
-
+            
             if (i < salph)
               nulleigen++;
             else
@@ -510,44 +505,31 @@ void AbstractWordSubstitutionModel::updateMatrices()
           else
             nulleigen++;
         }
-        if (seuil > 100)
+        
+        if (isNonSingular_)
         {
-          ApplicationTools::displayWarning("!!! Equilibrium frequency of the model " + getName() + " has a precision less than " ""  + TextTools::toString(seuil * NumConstants::SMALL()) + ". There may be some computing issues.");
-          ApplicationTools::displayWarning("!!! Taylor series used instead");
-          break;
-        }
-        else
-          seuil *= 10;
-      }
-
-      if (isNonSingular_)
-      {
-        eigenValues_[nulleigen] = 0; // to avoid approximation errors on long long branches
-        iEigenValues_[nulleigen] = 0; // to avoid approximation errors on long long branches
-
-        for (i = 0; i < salph; i++)
-        {
-          freq_[i] = leftEigenVectors_(nulleigen, i);
-        }
-
-        x = 0;
-        for (i = 0; i < salph; i++)
-        {
-          x += freq_[i];
-        }
-
-        for (i = 0; i < salph; i++)
-        {
+          eigenValues_[nulleigen] = 0; // to avoid approximation errors on long long branches
+          iEigenValues_[nulleigen] = 0; // to avoid approximation errors on long long branches
+          
+          for (i = 0; i < salph; i++)
+            freq_[i] = leftEigenVectors_(nulleigen, i);
+          
+          x = 0;
+          for (i = 0; i < salph; i++)
+            x += freq_[i];
+          
+          for (i = 0; i < salph; i++)
           freq_[i] /= x;
         }
-      }
-      else
-      {
-        ApplicationTools::displayMessage("Unable to find eigenvector for eigenvalue 1. Taylor series used instead.");
-        isDiagonalizable_ = false;
+      
+        else
+        {
+          ApplicationTools::displayMessage("Unable to find eigenvector for eigenvalue 1. Taylor series used instead.");
+          isDiagonalizable_ = false;
+        }
       }
     }
-
+    
     // if rightEigenVectors_ is singular
     catch (ZeroDivisionException& e)
     {
@@ -586,9 +568,7 @@ void AbstractWordSubstitutionModel::updateMatrices()
 
     x = 0;
     for (i = 0; i < salph; i++)
-    {
       x += freq_[i] * generator_(i, i);
-    }
 
     MatrixTools::scale(generator_, -1. / x);
     for (i = 0; i < salph; i++)
@@ -604,12 +584,9 @@ void AbstractWordSubstitutionModel::updateMatrices()
   // compute the exchangeability_
 
   for (i = 0; i < size_; i++)
-  {
     for (j = 0; j < size_; j++)
-    {
       exchangeability_(i, j) = generator_(i, j) / freq_[j];
-    }
-  }
+
 }
 
 void AbstractWordSubstitutionModel::setFreq(std::map<int, double>& freqs)

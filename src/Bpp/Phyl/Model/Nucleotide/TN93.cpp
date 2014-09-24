@@ -5,7 +5,7 @@
 //
 
 /*
-Copyright or © or Copr. Bio++ Developement Team, (November 16, 2004)
+Copyright or © or Copr. Bio++ Development Team, (November 16, 2004)
 
 This software is a computer program whose purpose is to provide classes
 for phylogenetic data analysis.
@@ -43,7 +43,7 @@ knowledge of the CeCILL license and that you accept its terms.
 #include <Bpp/Numeric/Matrix/MatrixTools.h>
 #include <Bpp/Numeric/Matrix/EigenValue.h>
 
-// From SeqLib:
+// From bpp-seq:
 #include <Bpp/Seq/Container/SequenceContainerTools.h>
 
 // From the STL:
@@ -164,7 +164,7 @@ void TN93::updateMatrices()
 	
 /******************************************************************************/
 
-double TN93::Pij_t(int i, int j, double d) const
+double TN93::Pij_t(size_t i, size_t j, double d) const
 {
   l_ = rate_ * r_ * d;
 	exp1_ = exp(-l_);
@@ -215,7 +215,7 @@ double TN93::Pij_t(int i, int j, double d) const
 
 /******************************************************************************/
 
-double TN93::dPij_dt(int i, int j, double d) const
+double TN93::dPij_dt(size_t i, size_t j, double d) const
 {
   l_ = rate_ * r_ * d;
 	exp1_ = exp(-l_);
@@ -266,7 +266,7 @@ double TN93::dPij_dt(int i, int j, double d) const
 
 /******************************************************************************/
 
-double TN93::d2Pij_dt2(int i, int j, double d) const
+double TN93::d2Pij_dt2(size_t i, size_t j, double d) const
 {
   double r_2 = rate_ * rate_ * r_ * r_;
   l_ = rate_ * r_ * d;

@@ -137,6 +137,12 @@ class TwoTreeLikelihood:
      *
      * @{
      */
+    size_t getNumberOfStates() const { return model_->getNumberOfStates(); } 
+    
+    const std::vector<int>& getAlphabetChars() const { return model_->getAlphabetChars(); } 
+    
+    int getAlphabetChar(size_t i) const { return model_->getAlphabetChar(i); } 
+    
     TreeLikelihoodData* getLikelihoodData() throw (NotImplementedException)
     {
       throw NotImplementedException("TwoTreeLikelihood::getLikelihoodData.");
@@ -389,7 +395,7 @@ class DistanceEstimation:
       sites_(distanceEstimation.sites_),
       dist_(0),
       optimizer_(dynamic_cast<Optimizer *>(distanceEstimation.optimizer_->clone())),
-      defaultOptimizer_(dynamic_cast<MetaOptimizer *>(defaultOptimizer_->clone())),
+      defaultOptimizer_(dynamic_cast<MetaOptimizer *>(distanceEstimation.defaultOptimizer_->clone())),
       verbose_(distanceEstimation.verbose_),
       parameters_(distanceEstimation.parameters_)
     {

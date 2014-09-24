@@ -326,7 +326,7 @@ public:
     {
       size_t i = RandomTools::giveIntRandomNumberBetweenZeroAndEntry(n);
       dropLeaf(tree, names[i]);
-      names.erase(names.begin() + i);
+      names.erase(names.begin() + static_cast<ptrdiff_t>(i));
     }
   }
 
@@ -1179,14 +1179,20 @@ public:
    *
    * ~
    *
+   * If force_branch_root==true, then the function will always root the tree on a branch.
+   * To do so, in cases where the root is placed on a node, a new node new_root is created between the root and its nearest child.
+   * If force_branch_root==false, it may be placed on a node.
+   *
+   *
    * @param tree
-   * @param criterion The criterion upon which to reroot. Legal values : "variance"
+   * @param criterion The criterion upon which to reroot. Legal values : TreeTemplateTools::MIDROOT_VARIANCE
    *   to minimize root-leaf distance variance (molecular clock assumption) or
-   *   "sum of squares" to minimize the sum of root-leaf distance squares.
+   *   TreeTemplateTools::MIDROOT_SUM_OF_SQUARES to minimize the sum of root-leaf distance squares.
+   * @param forceBranchRoot If true, the root must be placed on a branch, otherwise it may also be placed on a node. 
    *
    * @author Nicolas Rochette
    */
-  static void midRoot(TreeTemplate<Node>& tree, const std::string& criterion);
+  static void midRoot(TreeTemplate<Node>& tree, short criterion, bool forceBranchRoot);
 
   /**
    * @brief Get the caracteristic radius of a tree (average distance to the root minimizing the sum of squared distances).
@@ -1208,7 +1214,7 @@ public:
    *
    * @param subtree   The node defining the subtree where nodes should be collapsed.
    * @param threshold The minimum value for which a node is considered to be confident.
-   * @param property  The branch property to be considered as a confidence value (bootstrap vlaues by default).
+   * @param property  The branch property to be considered as a confidence value (bootstrap values by default).
    */
   static void unresolveUncertainNodes(Node& subtree, double threshold, const std::string& property = TreeTools::BOOTSTRAP);
 
@@ -1247,7 +1253,7 @@ private:
    * @param node The root of the subtree
    * @return A Moments_ structure
    */
-  static Moments_ getSubtreeMoments (const Node* node);
+  static Moments_ getSubtreeMoments_(const Node* node);
 
   /**
    * @brief Find, in the branches of a subtree, the root that minimizes a criterion over the tree.
@@ -1257,13 +1263,17 @@ private:
    * computes the best root position, possibly updates the bestRoot parameter, then recurses.
    *
    * @param tree The tree to which the subtree belongs. (The root is moved.)
-   * @param criterion The criterion to minimize. Legal values are "variance" and "sum of squares".
+   * @param criterion The criterion to minimize. Legal values are TreeTemplateTools::MIDROOT_VARIANCE and TreeTemplateTools::MIDROOT_SUM_OF_SQUARES.
    * @param node The root of the subtree.
    * @param bestRoot The object storing the best root found, if it is better than the initial one, or otherwise left unchanged.
    *
    * @author Nicolas Rochette, Manolo Gouy
    */
-  static void getBestRootInSubtree (bpp::TreeTemplate<bpp::Node>& tree, const std::string& criterion,  bpp::Node* node, std::pair<bpp::Node*, std::map<std::string, double> >& bestRoot);
+  static void getBestRootInSubtree_(bpp::TreeTemplate<bpp::Node>& tree, short criterion,  bpp::Node* node, std::pair<bpp::Node*, std::map<std::string, double> >& bestRoot);
+
+public:
+  static const short MIDROOT_VARIANCE;
+  static const short MIDROOT_SUM_OF_SQUARES;
 };
 } // end of namespace bpp.
 

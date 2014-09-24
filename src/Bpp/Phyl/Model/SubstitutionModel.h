@@ -378,6 +378,7 @@ public:
    * @brief Get the number of states.
    *
    * For most models, this equals the size of the alphabet.
+   * @see getAlphabetChars for the list of supported states.
    *
    * @return The number of different states in the model.
    */
@@ -409,14 +410,13 @@ public:
   virtual double getScale() const = 0;
 
   /**
-   * @brief Set the rate of the generator, defined as the scalar
-   * product of diagonal elements of the generator and the frequencies
-   * vector.
+   * 
+   * @brief Multiplies the current generator by the given scale.
    *
-   * When the generator is normalized, scale=1. Otherwise each element
-   * is multiplied such that the correct scale is set.
+   * @param scale the scale by which the generator is multiplied.
    *
    */
+
   virtual void setScale(double scale) = 0;
 
   /**

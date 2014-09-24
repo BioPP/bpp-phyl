@@ -111,7 +111,7 @@ class AbstractAgglomerativeDistanceMethod:
     }
 
 	public:
-		virtual void setDistanceMatrix(const DistanceMatrix& matrix);
+		virtual void setDistanceMatrix(const DistanceMatrix& matrix) throw (Exception);
 
     /**
      * @brief Get the computed tree, if there is one.

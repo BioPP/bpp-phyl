@@ -5,36 +5,36 @@
 //
 
 /*
-Copyright or © or Copr. Bio++ Development Team, (November 16, 2004)
+  Copyright or © or Copr. Bio++ Development Team, (November 16, 2004)
 
-This software is a computer program whose purpose is to provide classes
-for phylogenetic data analysis.
+  This software is a computer program whose purpose is to provide classes
+  for phylogenetic data analysis.
 
-This software is governed by the CeCILL  license under French law and
-abiding by the rules of distribution of free software.  You can  use, 
-modify and/ or redistribute the software under the terms of the CeCILL
-license as circulated by CEA, CNRS and INRIA at the following URL
-"http://www.cecill.info". 
+  This software is governed by the CeCILL  license under French law and
+  abiding by the rules of distribution of free software.  You can  use, 
+  modify and/ or redistribute the software under the terms of the CeCILL
+  license as circulated by CEA, CNRS and INRIA at the following URL
+  "http://www.cecill.info". 
 
-As a counterpart to the access to the source code and  rights to copy,
-modify and redistribute granted by the license, users are provided only
-with a limited warranty  and the software's author,  the holder of the
-economic rights,  and the successive licensors  have only  limited
-liability. 
+  As a counterpart to the access to the source code and  rights to copy,
+  modify and redistribute granted by the license, users are provided only
+  with a limited warranty  and the software's author,  the holder of the
+  economic rights,  and the successive licensors  have only  limited
+  liability. 
 
-In this respect, the user's attention is drawn to the risks associated
-with loading,  using,  modifying and/or developing or reproducing the
-software by the user in light of its specific status of free software,
-that may mean  that it is complicated to manipulate,  and  that  also
-therefore means  that it is reserved for developers  and  experienced
-professionals having in-depth computer knowledge. Users are therefore
-encouraged to load and test the software's suitability as regards their
-requirements in conditions enabling the security of their systems and/or 
-data to be ensured and,  more generally, to use and operate it in the 
-same conditions as regards security. 
+  In this respect, the user's attention is drawn to the risks associated
+  with loading,  using,  modifying and/or developing or reproducing the
+  software by the user in light of its specific status of free software,
+  that may mean  that it is complicated to manipulate,  and  that  also
+  therefore means  that it is reserved for developers  and  experienced
+  professionals having in-depth computer knowledge. Users are therefore
+  encouraged to load and test the software's suitability as regards their
+  requirements in conditions enabling the security of their systems and/or 
+  data to be ensured and,  more generally, to use and operate it in the 
+  same conditions as regards security. 
 
-The fact that you are presently reading this means that you have had
-knowledge of the CeCILL license and that you accept its terms.
+  The fact that you are presently reading this means that you have had
+  knowledge of the CeCILL license and that you accept its terms.
 */
 
 #ifndef _RE08_H_
@@ -93,11 +93,11 @@ namespace bpp
  * Reference:
  * - Rivas E and Eddy SR (2008), _Probabilistic Phylogenetic Inference with Insertions and Deletions_, 4(9):e1000172, in _PLoS Computational Biology_. 
  */
-class RE08:
-  public AbstractReversibleSubstitutionModel
-{
+  class RE08:
+    public AbstractReversibleSubstitutionModel
+  {
   private:
-    ReversibleSubstitutionModel* simpleModel_;
+    std::auto_ptr<ReversibleSubstitutionModel> simpleModel_;
     RowMatrix<double> simpleGenerator_;
     RowMatrix<double> simpleExchangeabilities_;
     mutable double exp_;
@@ -106,7 +106,7 @@ class RE08:
     double mu_;
     std::string nestedPrefix_;
 
-	public:
+  public:
     /**
      * @brief Build a new Rivas & Eddy model from a standard substitution model.
      * 
@@ -118,7 +118,7 @@ class RE08:
      * @param lambda Insertion rate.
      * @param mu     Deletion rate.
      */
-		RE08(ReversibleSubstitutionModel* simpleModel, double lambda = 0, double mu = 0);
+    RE08(ReversibleSubstitutionModel* simpleModel, double lambda = 0, double mu = 0);
 
     RE08(const RE08& model):
       AbstractParameterAliasable(model),
@@ -139,7 +139,7 @@ class RE08:
       AbstractParameterAliasable::operator=(model);
       AbstractSubstitutionModel::operator=(model);
       AbstractReversibleSubstitutionModel::operator=(model);
-      simpleModel_             = dynamic_cast<ReversibleSubstitutionModel*>(model.simpleModel_->clone());
+      simpleModel_.reset(dynamic_cast<ReversibleSubstitutionModel*>(model.simpleModel_->clone()));
       simpleGenerator_         = model.simpleGenerator_;
       simpleExchangeabilities_ = model.simpleExchangeabilities_;
       exp_                     = model.exp_;
@@ -150,18 +150,18 @@ class RE08:
       return *this;
     }
 
-		virtual ~RE08() { delete simpleModel_; }
+    virtual ~RE08() {}
 
     RE08* clone() const { return new RE08(*this); }
 
   public:
 	
-		double Pij_t    (size_t i, size_t j, double d) const;
-		double dPij_dt  (size_t i, size_t j, double d) const;
-		double d2Pij_dt2(size_t i, size_t j, double d) const;
-		const Matrix<double>& getPij_t    (double d) const;
-		const Matrix<double>& getdPij_dt  (double d) const;
-		const Matrix<double>& getd2Pij_dt2(double d) const;
+    double Pij_t    (size_t i, size_t j, double d) const;
+    double dPij_dt  (size_t i, size_t j, double d) const;
+    double d2Pij_dt2(size_t i, size_t j, double d) const;
+    const Matrix<double>& getPij_t    (double d) const;
+    const Matrix<double>& getdPij_dt  (double d) const;
+    const Matrix<double>& getd2Pij_dt2(double d) const;
 
     std::string getName() const { return "RE08"; }
 
@@ -169,8 +169,12 @@ class RE08:
      * @brief This method is forwarded to the simple model.
      *
      * @param data The data to be passed to the simple model (gaps will be ignored).
+     * @param pseudoCount A (typically small) value to add to each count to avoid 0 estimates.
      */
-    void setFreqFromData(const SequenceContainer& data) {}
+    void setFreqFromData(const SequenceContainer& data, double pseudoCount = 0)
+    {
+      simpleModel_->setFreqFromData(data, pseudoCount);
+    }
 	
     void fireParameterChanged(const ParameterList& parameters)
     {
@@ -187,12 +191,12 @@ class RE08:
   
     void setNamespace(const std::string& prefix);
 
-    const SubstitutionModel* getNestedModel() const { return simpleModel_; }
+    const SubstitutionModel* getNestedModel() const { return simpleModel_.get(); }
 
   protected:
 
-		void updateMatrices();
-};
+    void updateMatrices();
+  };
 
 } //end of namespace bpp.
 

@@ -120,12 +120,12 @@ std::vector<int> SubstitutionModelSet::getNodesWithParameter(const std::string& 
     
   vector<string> nalias=getAlias(name);
   size_t p=name.rfind("_");
-  vector<int> inode= getNodesWithModel(TextTools::toInt(name.substr(p+1,string::npos))-1);
+  vector<int> inode = getNodesWithModel(TextTools::to<size_t>(name.substr(p+1,string::npos)) - 1);
   
   for (size_t i = 0; i < nalias.size(); i++)
     {
       p=nalias[i].rfind("_");
-      vector<int> ni=getNodesWithModel(TextTools::toInt(nalias[i].substr(p+1,string::npos))-1);
+      vector<int> ni = getNodesWithModel(TextTools::to<size_t>(nalias[i].substr(p+1,string::npos))-1);
       inode.insert(inode.end(),ni.begin(),ni.end());
     }
   
@@ -166,11 +166,13 @@ void SubstitutionModelSet::addModel(SubstitutionModel* model, const std::vector<
     }
 }
 
-void SubstitutionModelSet::removeModel(size_t modelIndex) throw (Exception)
+void SubstitutionModelSet::replaceModel(size_t modelIndex, SubstitutionModel* model) throw (Exception)
 {
-  modelSet_.erase(modelSet_.begin() + modelIndex);
+  delete modelSet_[modelIndex];
+  modelSet_[modelIndex]=model;
   
-  // Erase all parameter references to this model and translate other indices...
+  
+  // Erase all parameter references to this model
 
   ParameterList pl=getNodeParameters();
 
@@ -179,7 +181,6 @@ void SubstitutionModelSet::removeModel(size_t modelIndex) throw (Exception)
       string pn=pl[i-1].getName();
 
       size_t pu=pn.rfind("_");
-
       int nm=TextTools::toInt(pn.substr(pu+1,string::npos));
       if (nm==(int)modelIndex+1){
         vector<string> alpn=getAlias(pn);
@@ -195,7 +196,23 @@ void SubstitutionModelSet::removeModel(size_t modelIndex) throw (Exception)
       }
     }
 
+  // Associate new parameters
+  string pname;
+
+  vector<string> nplm=model->getParameters().getParameterNames();
+  
+  for (size_t i  = 0; i < nplm.size(); i++)
+  {
+    pname = nplm[i];
+    Parameter* p = new Parameter(model->getParameters().getParameter(pname)); // We work with namespaces here, so model->getParameter(pname) does not work.
+    p->setName(pname + "_" + TextTools::toString(modelIndex+1));
+    addParameter_(p);
+  }
+
+  // update modelParameters_
+
   modelParameters_[modelIndex].reset();
+  modelParameters_[modelIndex]=*model->getParameters().clone();
 }
 
 void SubstitutionModelSet::listModelNames(std::ostream& out) const

@@ -87,6 +87,7 @@ namespace bpp
  */
 class YN98 :
     public AbstractBiblioSubstitutionModel,
+    public virtual CodonSubstitutionModel,
     public virtual ReversibleSubstitutionModel
 {
 private:
@@ -107,6 +108,10 @@ public:
   std::string getName() const { return "YN98"; }
 
   const SubstitutionModel& getModel() const { return *pmodel_.get(); }
+
+  const GeneticCode* getGeneticCode() const { return pmodel_->getGeneticCode(); }
+  
+  double getCodonsMulRate(size_t i, size_t j) const { return pmodel_->getCodonsMulRate(i, j); }
 
 private:
   SubstitutionModel& getModel() { return *pmodel_.get(); }

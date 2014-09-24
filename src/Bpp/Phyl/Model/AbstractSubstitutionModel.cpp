@@ -158,9 +158,9 @@ const Matrix<double>& AbstractSubstitutionModel::getPij_t(double t) const
         {
           s = std::sin(iEigenValues_[i] * l);
           c = std::cos(iEigenValues_[i] * l);
-          vdia[i] *= c;
           vup[i] = vdia[i] * s;
           vlo[i] = -vup[i];
+          vdia[i] *= c;
           vdia[i + 1] = vdia[i]; // trick to avoid computation
           i++;
         }
@@ -199,7 +199,7 @@ const Matrix<double>& AbstractSubstitutionModel::getPij_t(double t) const
       m--;
     }
   }
-  //MatrixTools::print(pijt_);
+//  MatrixTools::print(pijt_);
   return pijt_;
 }
 
@@ -373,7 +373,7 @@ void AbstractSubstitutionModel::setFreqFromData(const SequenceContainer& data, d
 
   for (int i = 0; i < static_cast<int>(size_); i++)
   {
-    t += counts[i] + pseudoCount;
+    t += (counts[i] + pseudoCount);
   }
   for (int i = 0; i < static_cast<int>(size_); i++)
   {

@@ -222,35 +222,37 @@ void RN95::updateMatrices()
 
   // Need formula
 
-  try
+  if (enableEigenDecomposition())
   {
-    MatrixTools::inv(rightEigenVectors_, leftEigenVectors_);
-    isNonSingular_ = true;
-    isDiagonalizable_ = true;
-    for (size_t i = 0; i < size_ && isDiagonalizable_; i++)
+    try
     {
-      if (abs(iEigenValues_[i]) > NumConstants::TINY())
-        isDiagonalizable_ = false;
+      MatrixTools::inv(rightEigenVectors_, leftEigenVectors_);
+      isNonSingular_ = true;
+      isDiagonalizable_ = true;
+      for (size_t i = 0; i < size_ && isDiagonalizable_; i++)
+      {
+        if (abs(iEigenValues_[i]) > NumConstants::TINY())
+          isDiagonalizable_ = false;
+      }
     }
+    catch (ZeroDivisionException& e)
+    {
+      ApplicationTools::displayMessage("Singularity during diagonalization of RN95. Taylor series used instead.");
+      
+      isNonSingular_ = false;
+      isDiagonalizable_ = false;
+      MatrixTools::Taylor(generator_, 30, vPowGen_);
+    }
+    
+    // and the exchangeability_
+    for (unsigned int i = 0; i < size_; i++)
+      for (unsigned int j = 0; j < size_; j++)
+        exchangeability_(i,j) = generator_(i,j) / freq_[j];
   }
-  catch (ZeroDivisionException& e)
-  {
-    ApplicationTools::displayMessage("Singularity during  diagonalization. Taylor series used instead.");
-
-    isNonSingular_ = false;
-    isDiagonalizable_ = false;
-    MatrixTools::Taylor(generator_, 30, vPowGen_);
-  }
-
-  // and the exchangeability_
-  for (unsigned int i = 0; i < size_; i++)
-    for (unsigned int j = 0; j < size_; j++)
-      exchangeability_(i,j) = generator_(i,j) / freq_[j];
-
 }
 
 /******************************************************************************/
-double RN95::Pij_t(int i, int j, double d) const
+double RN95::Pij_t(size_t i, size_t j, double d) const
 {
   l_ = rate_ * r_ * d;
   exp1_ = exp(-c1_ * l_);
@@ -306,7 +308,7 @@ double RN95::Pij_t(int i, int j, double d) const
 }
 
 /******************************************************************************/
-double RN95::dPij_dt(int i, int j, double d) const
+double RN95::dPij_dt(size_t i, size_t j, double d) const
 {
   l_ = rate_ * r_ * d;
   exp1_ = -c1_* rate_* r_* exp(-c1_ * l_);
@@ -362,7 +364,7 @@ double RN95::dPij_dt(int i, int j, double d) const
 }
 
 /******************************************************************************/
-double RN95::d2Pij_dt2(int i, int j, double d) const
+double RN95::d2Pij_dt2(size_t i, size_t j, double d) const
 {
   l_ = rate_ * r_ * d;
   exp1_ = c1_ * rate_ * r_ * c1_ * rate_ * r_ * exp(-c1_ * l_);

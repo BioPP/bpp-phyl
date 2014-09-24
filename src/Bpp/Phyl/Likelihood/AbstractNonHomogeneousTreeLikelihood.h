@@ -115,10 +115,10 @@ class AbstractNonHomogeneousTreeLikelihood:
  
     //some values we'll need:
     size_t nbSites_,         //the number of sites in the container
-                 nbDistinctSites_, //the number of distinct sites
-                 nbClasses_,       //the number of rate classes
-                 nbStates_,        //the number of states in the alphabet
-                 nbNodes_;         //the number of nodes in the tree
+           nbDistinctSites_, //the number of distinct sites
+           nbClasses_,       //the number of rate classes
+           nbStates_,        //the number of states in the alphabet
+           nbNodes_;         //the number of nodes in the tree
 
     bool verbose_;
 
@@ -174,6 +174,12 @@ class AbstractNonHomogeneousTreeLikelihood:
      *
      * @{
      */
+    size_t getNumberOfStates() const { return modelSet_->getNumberOfStates(); } 
+    
+    const std::vector<int>& getAlphabetChars() const { return modelSet_->getAlphabetChars(); } 
+    
+    int getAlphabetChar(size_t i) const { return modelSet_->getAlphabetChar(i); } 
+    
     void initialize() throw(Exception);
     
     ParameterList getBranchLengthsParameters() const;

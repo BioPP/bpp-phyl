@@ -102,7 +102,7 @@ public:
    * from three pointers to AbstractSubstitutionModels. NEW
    * AbstractSubstitutionModels are copied from the given ones.
    *
-   * @param palph pointer to a GeneticCode
+   * @param gCode pointer to a GeneticCode
    * @param pmod1, pmod2, pmod3 are pointers to the
    *   NucleotideSubstitutionModel to use in the three positions.
    *   All the models must be different objects to avoid redundant
