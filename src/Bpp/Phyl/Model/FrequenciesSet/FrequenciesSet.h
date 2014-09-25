@@ -41,11 +41,16 @@
 #ifndef _FREQUENCIESSET_H_
 #define _FREQUENCIESSET_H_
 
+#include "../StateMap.h"
+
+// From bpp-core:
 #include <Bpp/Numeric/Parametrizable.h>
 #include <Bpp/Numeric/AbstractParametrizable.h>
-#include <Bpp/Seq/Alphabet/Alphabet.h>
 #include <Bpp/Numeric/VectorTools.h>
 #include <Bpp/Numeric/Prob/Simplex.h>
+
+// From bpp-seq:
+#include <Bpp/Seq/Alphabet/Alphabet.h>
 
 namespace bpp
 {
@@ -67,6 +72,11 @@ public:
    * @return The alphabet associated to this set.
    */
   virtual const Alphabet* getAlphabet() const = 0;
+
+  /**
+   * @return The mapping of model states with alphabet states.
+   */
+  virtual const StateMap& getStateMap() const = 0;
 
   /**
    * @return The frequencies values of the set.
@@ -119,14 +129,16 @@ class AbstractFrequenciesSet :
 {
 private:
   const Alphabet* alphabet_;
+  std::auto_ptr<StateMap> stateMap_;
   std::vector<double> freq_;
   std::string name_;
 
 public:
-  AbstractFrequenciesSet(size_t n, const Alphabet* alphabet, const std::string& prefix, const std::string& name) :
+  AbstractFrequenciesSet(StateMap* stateMap, const std::string& prefix, const std::string& name) :
     AbstractParametrizable(prefix),
-    alphabet_(alphabet),
-    freq_(n),
+    alphabet_(stateMap->getAlphabet()),
+    stateMap_(stateMap),
+    freq_(stateMap->getNumberOfModelStates()),
     name_(name)
   {}
 
@@ -140,6 +152,7 @@ public:
   AbstractFrequenciesSet(const AbstractFrequenciesSet& af) :
     AbstractParametrizable(af),
     alphabet_(af.alphabet_),
+    stateMap_(af.stateMap_->clone()),
     freq_(af.freq_),
     name_(af.name_)
   {}
@@ -148,6 +161,7 @@ public:
   {
     AbstractParametrizable::operator=(af);
     alphabet_ = af.alphabet_;
+    stateMap_.reset(af.stateMap_->clone());
     freq_ = af.freq_;
     name_ = af.name_;
     return *this;
@@ -155,6 +169,8 @@ public:
 
 public:
   const Alphabet* getAlphabet() const { return alphabet_; }
+
+  const StateMap& getStateMap() const { return *stateMap_; }
 
   const std::vector<double> getFrequencies() const { return freq_; }
   
@@ -199,18 +215,16 @@ class FullFrequenciesSet :
 private:
   /**
    * @brief Simplex to handle the probabilities and the parameters.
-   *
    */
-  
   Simplex sFreq_;
   
 public:
   /**
-   * @brief Construction with uniform frequencies on the letters of
+   * @brief Construction with uniform frequencies on the states of
    * the alphabet.
    */
-  FullFrequenciesSet(const Alphabet* alphabet, bool allowNullFreqs = false, unsigned short method = 1, const std::string& name = "Full.");
-  FullFrequenciesSet(const Alphabet* alphabet, const std::vector<double>& initFreqs, bool allowNullFreqs = false, unsigned short method = 1, const std::string& name = "Full.");
+  FullFrequenciesSet(StateMap* stateMap, bool allowNullFreqs = false, unsigned short method = 1, const std::string& name = "Full.");
+  FullFrequenciesSet(StateMap* stateMap, const std::vector<double>& initFreqs, bool allowNullFreqs = false, unsigned short method = 1, const std::string& name = "Full.");
 
   FullFrequenciesSet* clone() const { return new FullFrequenciesSet(*this); }
 
@@ -292,24 +306,22 @@ class FixedFrequenciesSet :
 public:
 
   /**
-   * @brief Construction with uniform frequencies on the letters of
-   * the alphabet.
+   * @brief Construction with user-defined frequencies on the states of the model.
    *
-   * @param alphabet The alphabet for wich this frequencies set should be build.
-   * @param initFreqs The frequencies to use. The vector will determine the number of frequencies.
+   * @param stateMap The model states for which frequencies should be built.
+   * @param initFreqs The frequencies to use. The size of the vector should match the number of model states.
    * @param name The name of the set.
+   * @throw Exception In case the number of frequencies does not match the number of model states.
    */
-  FixedFrequenciesSet(const Alphabet* alphabet, const std::vector<double>& initFreqs, const std::string& name = "Fixed");
+  FixedFrequenciesSet(StateMap* stateMap, const std::vector<double>& initFreqs, const std::string& name = "Fixed") throw (Exception);
 
   /**
-   * @brief Construction with uniform frequencies on the letters of
-   * the alphabet.
+   * @brief Construction with uniform frequencies on the states of the model.
    *
-   * @param alphabet The alphabet for wich this frequencies set should be build.
-   * @param nFreqs The number of frequencies.
+   * @param stateMap The model states for which frequencies should be built.
    * @param name The name of the set.
    */
-  FixedFrequenciesSet(const Alphabet* alphabet, size_t nFreqs, const std::string& name = "Fixed");
+  FixedFrequenciesSet(StateMap* stateMap, const std::string& name = "Fixed");
 
   FixedFrequenciesSet* clone() const { return new FixedFrequenciesSet(*this); }
 

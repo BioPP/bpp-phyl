@@ -59,7 +59,7 @@ throw (Exception) :
   nbStates_(0)
 {
   statesMap_ = new CanonicalStateMap(alphabet_, includeGaps);
-  nbStates_  = statesMap_->getNumberOfStates();
+  nbStates_  = statesMap_->getNumberOfModelStates();
   init_(data, verbose);
 }
 
@@ -74,7 +74,7 @@ throw (Exception) :
   data_(0),
   alphabet_(data.getAlphabet()),
   statesMap_(statesMap),
-  nbStates_(statesMap->getNumberOfStates())
+  nbStates_(statesMap->getNumberOfModelStates())
 {
   init_(data, verbose);
 }

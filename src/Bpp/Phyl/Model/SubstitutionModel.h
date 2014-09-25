@@ -40,10 +40,10 @@
 #ifndef _SUBSTITUTIONMODEL_H_
 #define _SUBSTITUTIONMODEL_H_
 
-#include <cstdlib>
-#include <map>
-#include <string>
+#include "FrequenciesSet/FrequenciesSet.h"
+#include "StateMap.h"
 
+// From bpp-core:
 #include <Bpp/Exceptions.h>
 #include <Bpp/Numeric/Parameter.h>
 #include <Bpp/Numeric/ParameterList.h>
@@ -51,10 +51,14 @@
 #include <Bpp/Numeric/VectorTools.h>
 #include <Bpp/Numeric/Matrix/Matrix.h>
 
-//From Seqlib:
+// From bpp-seq:
 #include <Bpp/Seq/Alphabet/Alphabet.h>
 #include <Bpp/Seq/Container/SequenceContainer.h>
-#include "FrequenciesSet/FrequenciesSet.h"
+
+// From the STL:
+#include <cstdlib>
+#include <map>
+#include <string>
 
 namespace bpp
 {
@@ -212,30 +216,44 @@ public:
   virtual std::string getName() const = 0;
 
   /**
-   * @return The supported states of the model, as a vector of int codes.
+   * @return The alphabet states of each state of the model, as a vector of int codes.
    *
    * @see Alphabet
    */
-  virtual const std::vector<int>& getAlphabetChars() const = 0;
+  virtual const std::vector<int>& getAlphabetStates() const = 0;
 
   /**
-   * @brief Get the char in the alphabet corresponding to a given state in the model.
-   *
-   * In most cases, this method will return i.
-   * @param i The index of the state.
-   * @return The corresponding state in the alphabet.
-   * @see MarkovModulatedSubstitutionModel
-   * @see getStates()
+   * @return The mapping of model states with alphabet states.
    */
-  virtual int getAlphabetChar(size_t i) const = 0;
+  virtual const StateMap& getStateMap() const = 0;
 
   /**
-   * @brief Get the state in the model corresponding to a particular char in the alphabet.
+   * @brief Get the state in the model corresponding to a particular state in the alphabet.
    *
-   * @param i The alphabet char to check.
+   * @param code The alphabet state to check.
    * @return A vector of indices of model states.
    */
-  virtual std::vector<size_t> getModelStates(int i) const = 0;
+  virtual std::vector<size_t> getModelStates(int code) const = 0;
+
+  /**
+   * @brief Get the state in the model corresponding to a particular state in the alphabet.
+   *
+   * @param code The alphabet state to check.
+   * @return A vector of indices of model states.
+   */
+  virtual std::vector<size_t> getModelStates(const std::string& code) const = 0;
+
+  /**
+   * @param index The model state.
+   * @return The corresponding alphabet state as character code.
+   */
+  virtual int getAlphabetStateAsInt(size_t index) const = 0;
+  
+  /**
+   * @param index The model state.
+   * @return The corresponding alphabet state as character code.
+   */
+  virtual std::string getAlphabetStateAsChar(size_t index) const = 0;
 
   /**
    * @return Equilibrium frequency associated to character i.
@@ -457,9 +475,7 @@ public:
   /**
    * @brief If the model owns a FrequenciesSet, returns a pointer to
    * it, otherwise return 0.
-   *
    */
-
   virtual const FrequenciesSet* getFrequenciesSet() const {return NULL;}
 };
 

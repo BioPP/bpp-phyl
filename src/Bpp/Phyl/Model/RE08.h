@@ -122,7 +122,7 @@ namespace bpp
 
     RE08(const RE08& model):
       AbstractParameterAliasable(model),
-      AbstractSubstitutionModel(model),
+      //AbstractSubstitutionModel(model),
       AbstractReversibleSubstitutionModel(model),
       simpleModel_(dynamic_cast<ReversibleSubstitutionModel*>(model.simpleModel_->clone())),
       simpleGenerator_(model.simpleGenerator_),

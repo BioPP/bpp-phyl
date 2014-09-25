@@ -51,3 +51,23 @@ CanonicalStateMap::CanonicalStateMap(const Alphabet* alphabet, bool includeGaps)
     states_.push_back(alphabet->getGapCharacterCode());
 }
 
+CanonicalStateMap::CanonicalStateMap(const StateMap& sm, bool includeGaps):
+  AbstractStateMap(sm.getAlphabet())
+{
+  for (size_t i = 0; i < sm.getNumberOfModelStates(); ++i) {
+    states_.push_back(sm.getAlphabetStateAsInt(i));
+  }
+  if (includeGaps)
+    states_.push_back(sm.getAlphabet()->getGapCharacterCode());
+}
+
+MarkovModulatedStateMap::MarkovModulatedStateMap(const StateMap& unitMap, unsigned int nbClasses):
+  AbstractStateMap(unitMap.getAlphabet())
+{
+  for (unsigned int j = 0; j < nbClasses; ++j) {
+    for (size_t i = 0; i < unitMap.getNumberOfModelStates(); ++i) {
+      states_.push_back(unitMap.getAlphabetStateAsInt(i));
+    }
+  }
+}
+

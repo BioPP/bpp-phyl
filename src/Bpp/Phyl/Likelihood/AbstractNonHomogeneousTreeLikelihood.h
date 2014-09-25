@@ -176,10 +176,12 @@ class AbstractNonHomogeneousTreeLikelihood:
      */
     size_t getNumberOfStates() const { return modelSet_->getNumberOfStates(); } 
     
-    const std::vector<int>& getAlphabetChars() const { return modelSet_->getAlphabetChars(); } 
+    const std::vector<int>& getAlphabetStates() const { return modelSet_->getAlphabetStates(); } 
     
-    int getAlphabetChar(size_t i) const { return modelSet_->getAlphabetChar(i); } 
-    
+    int getAlphabetStateAsInt(size_t i) const { return modelSet_->getAlphabetStateAsInt(i); }
+  
+    std::string getAlphabetStateAsChar(size_t i) const { return modelSet_->getAlphabetStateAsChar(i); }
+     
     void initialize() throw(Exception);
     
     ParameterList getBranchLengthsParameters() const;

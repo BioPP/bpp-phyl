@@ -69,14 +69,14 @@ class GCFrequenciesSet :
 {
 public:
   GCFrequenciesSet(const NucleicAlphabet* alphabet) :
-    AbstractFrequenciesSet(4, alphabet, "GC.", "GC")
+    AbstractFrequenciesSet(new CanonicalStateMap(alphabet, false), "GC.", "GC")
   {
     addParameter_(new Parameter("GC.theta", 0.5, &Parameter::PROP_CONSTRAINT_IN));
     getFreq_(0) = getFreq_(1) = getFreq_(2) = getFreq_(3) = 0.25;
   }
 
   GCFrequenciesSet(const NucleicAlphabet* alphabet, double theta) :
-    AbstractFrequenciesSet(4, alphabet, "GC.", "GC")
+    AbstractFrequenciesSet(new CanonicalStateMap(alphabet, false), "GC.", "GC")
   {
     addParameter_(new Parameter("GC.theta", theta, &Parameter::PROP_CONSTRAINT_IN));
     getFreq_(0) = getFreq_(3) = (1. - theta) / 2.;
@@ -124,9 +124,7 @@ protected:
  * \f]
  *
  * with \f$\pi_x\f$ the frequency of nucleotide \f$x\f$.
- *
  */
-  
 class FullNucleotideFrequenciesSet :
   public virtual NucleotideFrequenciesSet,
   public AbstractFrequenciesSet
@@ -169,14 +167,14 @@ class FixedNucleotideFrequenciesSet :
 {
 public:
   FixedNucleotideFrequenciesSet(const NucleicAlphabet* alphabet, const std::vector<double>& initFreqs, const std::string& name = "Fixed") :
-    FixedFrequenciesSet(alphabet, initFreqs, name) {}
+    FixedFrequenciesSet(new CanonicalStateMap(alphabet, false), initFreqs, name) {}
 
   /**
    * @brief Construction with uniform frequencies on the letters of
    * the alphabet.
    */
   FixedNucleotideFrequenciesSet(const NucleicAlphabet* alphabet, const std::string& name = "Fixed") :
-    FixedFrequenciesSet(alphabet, alphabet->getSize(), name) {}
+    FixedFrequenciesSet(new CanonicalStateMap(alphabet, false), name) {}
 
 #ifndef NO_VIRTUAL_COV
   FixedNucleotideFrequenciesSet*

@@ -77,7 +77,7 @@ DecompositionReward::DecompositionReward(const SubstitutionModel* model, Alphabe
 
 void DecompositionReward::computeBMatrice_()
 {
-  vector<int> supportedStates = model_->getAlphabetChars();
+  vector<int> supportedStates = model_->getAlphabetStates();
   for (size_t j = 0; j < nbStates_; ++j) 
     bMatrice_(j, j) = getAlphabetIndex()->getIndex(supportedStates[j]);
 }

@@ -5,7 +5,7 @@
 //
 
 /*
-   Copyright or © or Copr. CNRS, (November 16, 2004)
+   Copyright or © or Copr. Bio++ Development Team, (November 16, 2004)
    This software is a computer program whose purpose is to provide classes
    for phylogenetic data analysis.
 
@@ -37,8 +37,7 @@
  */
 
 #include "AbstractCodonPhaseFrequenciesSubstitutionModel.h"
-
-// #include <Bpp/Seq/Alphabet/AlphabetTools.h>
+#include "../FrequenciesSet/NucleotideFrequenciesSet.h"
 
 using namespace bpp;
 
@@ -58,25 +57,23 @@ AbstractCodonPhaseFrequenciesSubstitutionModel::AbstractCodonPhaseFrequenciesSub
   if (!pCFS)
     throw Exception("Bad type for equilibrium frequencies " + pfreq->getName());
 
-  if ((dynamic_cast<CodonFromUniqueFrequenciesSet*>(pCFS))
-   || (dynamic_cast<CodonFromIndependentFrequenciesSet*>(pCFS) != NULL))
+  if (dynamic_cast<CodonFromUniqueFrequenciesSet*>(pCFS)
+   || dynamic_cast<CodonFromIndependentFrequenciesSet*>(pCFS))
     posfreqset_ = dynamic_cast<WordFrequenciesSet*>(pfreq)->clone();
   else
   {
     vector<FrequenciesSet*> vFS;
-    if (dynamic_cast<FixedCodonFrequenciesSet*>(pCFS))
+    if (dynamic_cast<FixedCodonFrequenciesSet*>(pCFS)) {
       for (unsigned int i = 0; i < 3; i++)
       {
-        vFS.push_back(new FixedFrequenciesSet(
-              pCFS->getAlphabet()->getNucleicAlphabet(),
-              pCFS->getAlphabet()->getNucleicAlphabet()->getSize()));
+        vFS.push_back(new FixedNucleotideFrequenciesSet(pCFS->getAlphabet()->getNucleicAlphabet()));
       }
-    else
+    } else {
       for (unsigned int i = 0; i < 3; i++)
       {
-        vFS.push_back(new FullFrequenciesSet(pCFS->getAlphabet()->getNucleicAlphabet()));
+        vFS.push_back(new FullNucleotideFrequenciesSet(pCFS->getAlphabet()->getNucleicAlphabet()));
       }
-
+    }
     posfreqset_ = new CodonFromIndependentFrequenciesSet(
         pCFS->getGeneticCode(),
         vFS, "");

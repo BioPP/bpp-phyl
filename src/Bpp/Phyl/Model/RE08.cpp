@@ -49,8 +49,7 @@ using namespace std;
 
 RE08::RE08(ReversibleSubstitutionModel* simpleModel, double lambda, double mu) :
   AbstractParameterAliasable("RE08."),
-  AbstractSubstitutionModel(simpleModel->getAlphabet(), "RE08."),
-  AbstractReversibleSubstitutionModel(simpleModel->getAlphabet(), "RE08."),
+  AbstractReversibleSubstitutionModel(simpleModel->getAlphabet(), new CanonicalStateMap(simpleModel->getStateMap(), true), "RE08."),
   simpleModel_(simpleModel),
   simpleGenerator_(),
   simpleExchangeabilities_(),
@@ -64,7 +63,6 @@ RE08::RE08(ReversibleSubstitutionModel* simpleModel, double lambda, double mu) :
   //We need to overrired this from the AbstractSubstitutionModel constructor,
   //since the number of states in the model is no longer equal to the size of the alphabet.
   size_ = simpleModel->getNumberOfStates() + 1;
-  chars_.insert(chars_.begin(), -1);
   generator_.resize(size_, size_);
   exchangeability_.resize(size_, size_);
   freq_.resize(size_);

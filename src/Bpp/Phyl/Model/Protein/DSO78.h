@@ -90,7 +90,7 @@ namespace bpp
 
     DSO78(const DSO78& model) :
       AbstractParameterAliasable(model),
-      AbstractSubstitutionModel(model),
+      //AbstractSubstitutionModel(model),
       AbstractReversibleSubstitutionModel(model),
       freqSet_(dynamic_cast<ProteinFrequenciesSet *>(model.freqSet_->clone()))
     {}

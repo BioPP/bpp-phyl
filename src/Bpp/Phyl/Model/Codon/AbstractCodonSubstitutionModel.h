@@ -71,7 +71,7 @@ namespace bpp
  */
 class AbstractCodonSubstitutionModel :
   public virtual CodonSubstitutionModel,
-  public virtual AbstractWordSubstitutionModel
+  public AbstractWordSubstitutionModel
 {
 private:
   /**
@@ -127,7 +127,6 @@ public:
 
   AbstractCodonSubstitutionModel(const AbstractCodonSubstitutionModel& model) :
     AbstractParameterAliasable(model),
-    AbstractSubstitutionModel(model),
     AbstractWordSubstitutionModel(model),
     hasParametrizedRates_(model.hasParametrizedRates_),
     gCode_(model.gCode_)

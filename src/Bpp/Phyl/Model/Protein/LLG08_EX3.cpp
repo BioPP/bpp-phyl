@@ -103,8 +103,7 @@ LLG08_EX3::~LLG08_EX3() {}
 
 LLG08_EX3::EmbeddedModel::EmbeddedModel(const ProteicAlphabet* alpha, string name) :
   AbstractParameterAliasable(name),
-  AbstractSubstitutionModel(alpha, name),
-  AbstractReversibleSubstitutionModel(alpha, name),
+  AbstractReversibleSubstitutionModel(alpha, new CanonicalStateMap(alpha, false), name),
   proportion_(1),
   name_(name)
 {

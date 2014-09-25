@@ -174,7 +174,7 @@ class SiteSimulationResult
       std::vector<size_t> mstates = getFinalStates();
       std::vector<int> astates(mstates.size());
       for (size_t i = 0; i < mstates.size(); ++i) {
-        astates[i] = model.getAlphabetChar(mstates[i]);
+        astates[i] = model.getAlphabetStateAsInt(mstates[i]);
       }
       return new Site(astates, alphabet_);
     }

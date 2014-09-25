@@ -60,7 +60,7 @@ NonHomogeneousSequenceSimulator::NonHomogeneousSequenceSimulator(
   const Tree* tree) throw (Exception) :
   modelSet_(modelSet),
   alphabet_(modelSet_->getAlphabet()),
-  supportedStates_(modelSet_->getAlphabetChars()),
+  supportedStates_(modelSet_->getAlphabetStates()),
   rate_(rate),
   templateTree_(tree),
   tree_(*tree),
@@ -85,7 +85,7 @@ NonHomogeneousSequenceSimulator::NonHomogeneousSequenceSimulator(
   const Tree* tree) :
   modelSet_(0),
   alphabet_(model->getAlphabet()),
-  supportedStates_(model->getAlphabetChars()),
+  supportedStates_(model->getAlphabetStates()),
   rate_(rate),
   templateTree_(tree),
   tree_(*tree),
@@ -97,7 +97,7 @@ NonHomogeneousSequenceSimulator::NonHomogeneousSequenceSimulator(
   nbStates_(model->getNumberOfStates()),
   continuousRates_(false)
 {
-  FixedFrequenciesSet* fSet = new FixedFrequenciesSet(model->getAlphabet(), model->getFrequencies());
+  FixedFrequenciesSet* fSet = new FixedFrequenciesSet(model->getStateMap().clone(), model->getFrequencies());
   fSet->setNamespace("anc.");
   modelSet_ = SubstitutionModelSetTools::createHomogeneousModelSet(dynamic_cast<SubstitutionModel*>(model->clone()), fSet, templateTree_);
   init();
@@ -199,7 +199,7 @@ Site* NonHomogeneousSequenceSimulator::simulateSite(size_t ancestralStateIndex, 
   Vint site(leaves_.size());
   for (size_t i = 0; i < leaves_.size(); ++i)
   {
-    site[i] = leaves_[i]->getInfos().model->getAlphabetChar(leaves_[i]->getInfos().state);
+    site[i] = leaves_[i]->getInfos().model->getAlphabetStateAsInt(leaves_[i]->getInfos().state);
   }
   return new Site(site, alphabet_);
 }
@@ -219,7 +219,7 @@ Site* NonHomogeneousSequenceSimulator::simulateSite(size_t ancestralStateIndex, 
   Vint site(leaves_.size());
   for (size_t i = 0; i < leaves_.size(); i++)
   {
-    site[i] = leaves_[i]->getInfos().model->getAlphabetChar(leaves_[i]->getInfos().state);
+    site[i] = leaves_[i]->getInfos().model->getAlphabetStateAsInt(leaves_[i]->getInfos().state);
   }
   return new Site(site, alphabet_);
 }
@@ -503,7 +503,7 @@ SiteContainer* NonHomogeneousSequenceSimulator::multipleEvolve(
     model = leaves_[i]->getInfos().model;
     for (size_t j = 0; j < nbSites; j++)
     {
-      content[j] = model->getAlphabetChar(states[j]);
+      content[j] = model->getAlphabetStateAsInt(states[j]);
     }
     sites->addSequence(BasicSequence(leaves_[i]->getName(), content, alphabet_), false);
   }

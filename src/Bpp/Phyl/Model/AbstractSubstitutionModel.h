@@ -45,6 +45,8 @@
 #include <Bpp/Numeric/AbstractParameterAliasable.h>
 #include <Bpp/Numeric/VectorTools.h>
 
+#include <memory>
+
 namespace bpp
 {
 /**
@@ -84,6 +86,11 @@ protected:
   const Alphabet* alphabet_;
 
   /**
+   * @brief The map of model states with alphabet states.
+   */
+  std::auto_ptr<StateMap> stateMap_;
+
+  /**
    * @brief The size of the generator, i.e. the number of states.
    */
   size_t size_;
@@ -92,14 +99,8 @@ protected:
    * @brief The rate of the model (default: 1). The generator (and all
    * its vectorial components) is independent of the rate, since it
    * should be normalized.
-   */
-  
+   */ 
   double rate_;
-
-  /**
-   * @brief The list of supported chars.
-   */
-  std::vector<int> chars_;
 
   /**
    * @brief The generator matrix \f$Q\f$ of the model.
@@ -109,7 +110,6 @@ protected:
   /**
    * @brief The vector \f$\pi_e\f$ of equilibrium frequencies.
    */
-
   Vdouble freq_;
 
   /**
@@ -157,39 +157,34 @@ protected:
   /**
    * @brief boolean value for non-singularity of rightEigenVectors_
    */
-  
   bool isNonSingular_;
 
   /**
    * @brief The \f$U\f$ matrix made of left eigen vectors (by row) if
    * rightEigenVectors_ is non-singular.
    */
-  
   RowMatrix<double> leftEigenVectors_;
 
   /**
    * @brief vector of the powers of generator_ for Taylor development (if
    * rightEigenVectors_ is singular).
    */
-
   std::vector< RowMatrix<double> > vPowGen_;
 
   /**
    * @brief For computational issues
-   *
    */
-
   mutable RowMatrix<double> tmpMat_;
   
 public:
-  AbstractSubstitutionModel(const Alphabet* alpha, const std::string& prefix);
+  AbstractSubstitutionModel(const Alphabet* alpha, StateMap* stateMap, const std::string& prefix);
 
   AbstractSubstitutionModel(const AbstractSubstitutionModel& model) :
     AbstractParameterAliasable(model),
     alphabet_(model.alphabet_),
+    stateMap_(model.stateMap_->clone()),
     size_(model.size_),
     rate_(model.rate_),
-    chars_(model.chars_),
     generator_(model.generator_),
     freq_(model.freq_),
     exchangeability_(model.exchangeability_),
@@ -211,9 +206,9 @@ public:
   {
     AbstractParameterAliasable::operator=(model);
     alphabet_          = model.alphabet_;
+    stateMap_.reset(model.stateMap_->clone());
     size_              = model.size_;
     rate_              = model.rate_;
-    chars_             = model.chars_;
     generator_         = model.generator_;
     freq_              = model.freq_;
     exchangeability_   = model.exchangeability_;
@@ -241,11 +236,17 @@ public:
 public:
   const Alphabet* getAlphabet() const { return alphabet_; }
 
-  const std::vector<int>& getAlphabetChars() const { return chars_; }
+  const StateMap& getStateMap() const { return *stateMap_; }
 
-  int getAlphabetChar(size_t i) const { return chars_[i]; }
+  const std::vector<int>& getAlphabetStates() const { return stateMap_->getAlphabetStates(); }
 
-  std::vector<size_t> getModelStates(int i) const { return VectorTools::whichAll(chars_, i); }
+  std::string getAlphabetStateAsChar(size_t index) const { return stateMap_->getAlphabetStateAsChar(index); }
+
+  int getAlphabetStateAsInt(size_t index) const { return stateMap_->getAlphabetStateAsInt(index); }
+
+  std::vector<size_t> getModelStates(int code) const { return stateMap_->getModelStates(code); }
+  
+  std::vector<size_t> getModelStates(const std::string& code) const { return stateMap_->getModelStates(code); }
 
   virtual const Vdouble& getFrequencies() const { return freq_; }
 
@@ -369,13 +370,13 @@ public:
  */
   
 class AbstractReversibleSubstitutionModel :
-  public virtual AbstractSubstitutionModel,
+  public AbstractSubstitutionModel,
   public virtual ReversibleSubstitutionModel
 {
 public:
-  AbstractReversibleSubstitutionModel(const Alphabet* alpha, const std::string& prefix) :
+  AbstractReversibleSubstitutionModel(const Alphabet* alpha, StateMap* stateMap, const std::string& prefix) :
     AbstractParameterAliasable(prefix),
-    AbstractSubstitutionModel(alpha, prefix)
+    AbstractSubstitutionModel(alpha, stateMap, prefix)
   {
     isDiagonalizable_ = true;
     isNonSingular_    = true;

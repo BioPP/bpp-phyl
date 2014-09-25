@@ -59,8 +59,7 @@ TripletSubstitutionModel::TripletSubstitutionModel(
     const CodonAlphabet* palph,
     NucleotideSubstitutionModel* pmod) :
   AbstractParameterAliasable("Triplet."),
-  AbstractSubstitutionModel(palph, "Triplet."),
-  WordSubstitutionModel(palph, "Triplet.")
+  WordSubstitutionModel(palph, new CanonicalStateMap(palph, false), "Triplet.")
 {
   unsigned int i;
   addParameters_(pmod->getParameters());
@@ -88,8 +87,7 @@ TripletSubstitutionModel::TripletSubstitutionModel(
     NucleotideSubstitutionModel* pmod2,
     NucleotideSubstitutionModel* pmod3) :
   AbstractParameterAliasable("Triplet."),
-  AbstractSubstitutionModel(palph, "Triplet."),
-  WordSubstitutionModel(palph, "Triplet.")
+  WordSubstitutionModel(palph, new CanonicalStateMap(palph, false), "Triplet.")
 {
   string st = "Triplet.";
 

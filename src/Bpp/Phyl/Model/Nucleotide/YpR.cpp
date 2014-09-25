@@ -53,29 +53,29 @@ using namespace bpp;
 
 YpR::YpR(const RNY* alph, SubstitutionModel* const pm, const std::string& prefix) :
   AbstractParameterAliasable(prefix),
-  AbstractSubstitutionModel(alph, prefix),
-  _pmodel(pm->clone()),
+  AbstractSubstitutionModel(alph, new CanonicalStateMap(alph, false), prefix),
+  pmodel_(pm->clone()),
   _nestedPrefix(pm->getNamespace())
 {
-  _pmodel->setNamespace(prefix + _nestedPrefix);
-  _pmodel->enableEigenDecomposition(0);
-  addParameters_(_pmodel->getParameters());
+  pmodel_->setNamespace(prefix + _nestedPrefix);
+  pmodel_->enableEigenDecomposition(0);
+  addParameters_(pmodel_->getParameters());
 }
 
 YpR::YpR(const YpR& ypr, const std::string& prefix) :
   AbstractParameterAliasable(ypr),
   AbstractSubstitutionModel(ypr),
-  _pmodel(ypr._pmodel->clone()),
+  pmodel_(ypr.pmodel_->clone()),
   _nestedPrefix(ypr.getNestedPrefix())
 
 {
-  _pmodel->setNamespace(prefix + _nestedPrefix);
+  pmodel_->setNamespace(prefix + _nestedPrefix);
 }
 
 YpR::YpR(const YpR& ypr) :
   AbstractParameterAliasable(ypr),
   AbstractSubstitutionModel(ypr),
-  _pmodel(ypr._pmodel->clone()),
+  pmodel_(ypr.pmodel_->clone()),
   _nestedPrefix(ypr.getNestedPrefix())
 {}
 
@@ -90,10 +90,10 @@ void YpR::updateMatrices(double CgT, double cGA,
                          double CaT, double cAG,
                          double TaC, double tAC)
 {
-  //  check_model(_pmodel);
+  //  check_model(pmodel_);
 
   // Generator:
-  const Alphabet* alph = _pmodel->getAlphabet();
+  const Alphabet* alph = pmodel_->getAlphabet();
   std::vector<size_t> l(4);
 
   l[0] = alph->getStateIndex("A");
@@ -108,10 +108,10 @@ void YpR::updateMatrices(double CgT, double cGA,
 
   for (i = 0; i < 2; i++)
   {
-    a[i] = _pmodel->Qij(l[1 - i], l[i]);
-    b[i] = _pmodel->Qij(l[3 - i], l[i]);
-    a[i + 2] = _pmodel->Qij(l[3 - i], l[i + 2]);
-    b[i + 2] = _pmodel->Qij(l[1 - i], l[i + 2]);
+    a[i] = pmodel_->Qij(l[1 - i], l[i]);
+    b[i] = pmodel_->Qij(l[3 - i], l[i]);
+    a[i + 2] = pmodel_->Qij(l[3 - i], l[i + 2]);
+    b[i + 2] = pmodel_->Qij(l[1 - i], l[i + 2]);
   }
 
   // M_1
@@ -387,7 +387,7 @@ void YpR::setNamespace(const std::string& prefix)
 {
   AbstractSubstitutionModel::setNamespace(prefix);
   // We also need to update the namespace of the nested model:
-  _pmodel->setNamespace(prefix + _nestedPrefix);
+  pmodel_->setNamespace(prefix + _nestedPrefix);
 }
 
 // ///////////////////////////////////////////////

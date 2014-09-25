@@ -5,7 +5,7 @@
 //
 
 /*
-  Copyright or © or Copr. CNRS, (November 16, 2004)
+  Copyright or © or Copr. Bio++ Development Team, (November 16, 2004)
 
   This software is a computer program whose purpose is to provide classes
   for phylogenetic data analysis.
@@ -86,13 +86,9 @@ namespace bpp
      * @param s2    Second rate parameter.
      * @param normalizeRateChanges Tell if the rate transition matrix should be normalized.
      */
-    TS98(ReversibleSubstitutionModel * model, double s1 = 1., double s2 = 1., bool normalizeRateChanges = false):
-      MarkovModulatedSubstitutionModel(model, normalizeRateChanges, "TS98.")
+    TS98(ReversibleSubstitutionModel* model, double s1 = 1., double s2 = 1., bool normalizeRateChanges = false):
+      MarkovModulatedSubstitutionModel(model, 2, normalizeRateChanges, "TS98.")
     {
-      nbRates_ = 2;
-      ratesExchangeability_.resize(2, 2);
-      rates_.resize(2, 2);
-      ratesFreq_.resize(2);
       addParameter_(new Parameter("TS98.s1", s1, &Parameter::R_PLUS_STAR));
       addParameter_(new Parameter("TS98.s2", s2, &Parameter::R_PLUS_STAR));
       updateRatesModel();

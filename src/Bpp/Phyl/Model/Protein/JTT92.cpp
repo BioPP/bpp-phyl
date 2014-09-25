@@ -52,8 +52,7 @@ using namespace std;
 
 JTT92::JTT92(const ProteicAlphabet* alpha) :
   AbstractParameterAliasable("JTT92."),
-  AbstractSubstitutionModel(alpha, "JTT92."),
-  AbstractReversibleSubstitutionModel(alpha, "JTT92."),
+  AbstractReversibleSubstitutionModel(alpha, new CanonicalStateMap(alpha, false), "JTT92."),
   freqSet_(0)
 {
   #include "__JTT92ExchangeabilityCode"
@@ -64,8 +63,7 @@ JTT92::JTT92(const ProteicAlphabet* alpha) :
 
 JTT92::JTT92(const ProteicAlphabet* alpha, ProteinFrequenciesSet* freqSet, bool initFreqs) :
   AbstractParameterAliasable("JTT92+F."),
-  AbstractSubstitutionModel(alpha, "JTT92+F."),
-  AbstractReversibleSubstitutionModel(alpha, "JTT92+F."),
+  AbstractReversibleSubstitutionModel(alpha, new CanonicalStateMap(alpha, false), "JTT92+F."),
   freqSet_(freqSet)
 {
   #include "__JTT92ExchangeabilityCode"

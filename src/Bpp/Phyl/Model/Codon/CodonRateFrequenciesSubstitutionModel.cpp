@@ -49,8 +49,6 @@ CodonRateFrequenciesSubstitutionModel::CodonRateFrequenciesSubstitutionModel(
     NucleotideSubstitutionModel* pmod,
     FrequenciesSet* pfreq) :
   AbstractParameterAliasable("CodonRateFreq."),
-  AbstractSubstitutionModel(gCode->getSourceAlphabet(), "CodonRateFreq."),
-  AbstractWordSubstitutionModel(gCode->getSourceAlphabet(), "CodonRateFreq."),
   AbstractCodonSubstitutionModel(gCode, pmod, "CodonRateFreq.", true),
   AbstractCodonFrequenciesSubstitutionModel(pfreq, "CodonRateFreq.")
 {
@@ -64,8 +62,6 @@ CodonRateFrequenciesSubstitutionModel::CodonRateFrequenciesSubstitutionModel(
     NucleotideSubstitutionModel* pmod3,
     FrequenciesSet* pfreq) :
   AbstractParameterAliasable("CodonRateFreq."),
-  AbstractSubstitutionModel(gCode->getSourceAlphabet(), "CodonRateFreq."),
-  AbstractWordSubstitutionModel(gCode->getSourceAlphabet(), "CodonRateFreq."),
   AbstractCodonSubstitutionModel(gCode, pmod1, pmod2, pmod3, "CodonRateFreq.", true),
   AbstractCodonFrequenciesSubstitutionModel(pfreq, "CodonRateFreq.")
 {

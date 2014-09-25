@@ -89,7 +89,7 @@ DRTreeParsimonyData& DRTreeParsimonyData::operator=(const DRTreeParsimonyData& d
 /******************************************************************************/
 void DRTreeParsimonyData::init(const SiteContainer& sites, const StateMap& stateMap) throw (Exception)
 {
-  nbStates_         = stateMap.getNumberOfStates();
+  nbStates_         = stateMap.getNumberOfModelStates();
   nbSites_          = sites.getNumberOfSites();
   SitePatterns pattern(&sites);
   shrunkData_       = pattern.getSites();
@@ -138,9 +138,9 @@ void DRTreeParsimonyData::init(const Node* node, const SiteContainer& sites, con
         // otherwise value set to 0:
         int state = seq->getValue(i);
         vector<int> states = alphabet->getAlias(state);
-        for (unsigned int j = 0; j < states.size(); j++)
+        for (size_t j = 0; j < states.size(); j++)
         {
-          if (stateMap.stateAsInt(s) == states[j])
+          if (stateMap.getAlphabetStateAsInt(s) == states[j])
             (*leafData_bitsets_i)[s].flip();
         }
       }

@@ -49,8 +49,6 @@ CodonDistanceSubstitutionModel::CodonDistanceSubstitutionModel(
     NucleotideSubstitutionModel* pmod,
     const AlphabetIndex2* pdist) :
   AbstractParameterAliasable("CodonDist."),
-  AbstractSubstitutionModel(gCode->getSourceAlphabet(), "CodonDist."),
-  AbstractWordSubstitutionModel(gCode->getSourceAlphabet(), "CodonDist."),
   AbstractCodonSubstitutionModel(gCode, pmod, "CodonDist."),
   AbstractCodonDistanceSubstitutionModel(pdist, "CodonDist.")
 {
@@ -64,8 +62,6 @@ CodonDistanceSubstitutionModel::CodonDistanceSubstitutionModel(
     NucleotideSubstitutionModel* pmod3,
     const AlphabetIndex2* pdist) :
   AbstractParameterAliasable("CodonDist."),
-  AbstractSubstitutionModel(gCode->getSourceAlphabet(), "CodonDist."),
-  AbstractWordSubstitutionModel(gCode->getSourceAlphabet(), "CodonDist."),
   AbstractCodonSubstitutionModel(gCode, pmod1, pmod2, pmod3, "CodonDist."),
   AbstractCodonDistanceSubstitutionModel(pdist, "CodonDist.")
 {

@@ -62,7 +62,7 @@ public:
 
 /**
  * @brief Protein FrequenciesSet using 19 independent parameters to
- * modelize the 20 frequencies.
+ * model the 20 frequencies.
  *
  * The parameters are called @f$ \theta_{i \in 1..19} @f$, and are
  * initialized so that all frequencies are equal to 0.005. The
@@ -70,18 +70,16 @@ public:
  * method is 1 (ie global ratio).
  *
  * @see Simplex
- *
- **/
-  
+ */
 class FullProteinFrequenciesSet :
   public virtual ProteinFrequenciesSet,
   public FullFrequenciesSet
 {
 public:
   FullProteinFrequenciesSet(const ProteicAlphabet* alphabet, bool allowNullFreqs = false, unsigned short method = 1, const std::string& name = "Full") :
-    FullFrequenciesSet(alphabet, allowNullFreqs, method, name) {}
+    FullFrequenciesSet(new CanonicalStateMap(alphabet, false), allowNullFreqs, method, name) {}
   FullProteinFrequenciesSet(const ProteicAlphabet* alphabet, const std::vector<double>& initFreqs, bool allowNullFreqs = false, unsigned short method = 1, const std::string& name = "Full") :
-    FullFrequenciesSet(alphabet, initFreqs, allowNullFreqs, method, name) {}
+    FullFrequenciesSet(new CanonicalStateMap(alphabet, false), initFreqs, allowNullFreqs, method, name) {}
 
 #ifndef NO_VIRTUAL_COV
   FullProteinFrequenciesSet*
@@ -110,14 +108,14 @@ class FixedProteinFrequenciesSet :
 {
 public:
   FixedProteinFrequenciesSet(const ProteicAlphabet* alphabet, const std::vector<double>& initFreqs, const std::string& name = "Fixed") :
-    FixedFrequenciesSet(alphabet, initFreqs, name) {}
+    FixedFrequenciesSet(new CanonicalStateMap(alphabet, false), initFreqs, name) {}
 
   /**
    * @brief Construction with uniform frequencies on the letters of
    * the alphabet.
    */
   FixedProteinFrequenciesSet(const ProteicAlphabet* alphabet, const std::string& name = "Fixed") :
-    FixedFrequenciesSet(alphabet, alphabet->getSize(), name) {}
+    FixedFrequenciesSet(new CanonicalStateMap(alphabet, false), name) {}
 
 #ifndef NO_VIRTUAL_COV
   FixedProteinFrequenciesSet*

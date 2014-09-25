@@ -102,8 +102,7 @@ LGL08_CAT::~LGL08_CAT() {}
 
 LGL08_CAT::EmbeddedModel::EmbeddedModel(const ProteicAlphabet* alpha, string name, unsigned int nbCat) :
   AbstractParameterAliasable(name),
-  AbstractSubstitutionModel(alpha, name),
-  AbstractReversibleSubstitutionModel(alpha, name),
+  AbstractReversibleSubstitutionModel(alpha, new CanonicalStateMap(alpha, false), name),
   proportion_(1),
   name_(name)
 {

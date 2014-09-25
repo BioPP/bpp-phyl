@@ -109,7 +109,7 @@ FrequenciesSet* BppOFrequenciesSetFormat::read(const Alphabet* alphabet, const s
     }
     else
     {
-      pFS.reset(new FixedFrequenciesSet(alphabet, alphabet->getSize()));
+      pFS.reset(new FixedFrequenciesSet(new CanonicalStateMap(alphabet, false)));
     }
   }
   else if (freqName == "Full")
@@ -149,7 +149,8 @@ FrequenciesSet* BppOFrequenciesSetFormat::read(const Alphabet* alphabet, const s
     }
     else
     {
-      pFS.reset(new FullFrequenciesSet(alphabet, false, method));
+      //NB: jdutheil 25/09/14 => gap models will not be supported before we add the appropriate option!
+      pFS.reset(new FullFrequenciesSet(new CanonicalStateMap(alphabet, false), false, method));
     }
   }
   else if (freqName == "GC")

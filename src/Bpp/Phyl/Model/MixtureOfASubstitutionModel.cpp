@@ -39,9 +39,7 @@
 #include "MixtureOfASubstitutionModel.h"
 
 #include <Bpp/Numeric/NumConstants.h>
-
 #include <Bpp/Numeric/Prob/ConstantDistribution.h>
-
 #include <Bpp/Exceptions.h>
 
 #include <string>
@@ -57,7 +55,7 @@ MixtureOfASubstitutionModel::MixtureOfASubstitutionModel(
   int ffrom,
   int tto) throw (Exception) :
   AbstractParameterAliasable(model->getNamespace()),
-  AbstractMixedSubstitutionModel(alpha, model->getNamespace()),
+  AbstractMixedSubstitutionModel(alpha, model->getStateMap().clone(), model->getNamespace()),
   distributionMap_(),
   from_(ffrom),
   to_(tto)
@@ -185,7 +183,7 @@ MixtureOfASubstitutionModel::~MixtureOfASubstitutionModel()
 
 const DiscreteDistribution* MixtureOfASubstitutionModel::getDistribution(std::string& parName) const
 {
-  if (distributionMap_.find(parName)!=distributionMap_.end())
+  if (distributionMap_.find(parName) != distributionMap_.end())
     return distributionMap_.find(parName)->second;
   else
     return NULL;
@@ -298,8 +296,8 @@ Vint MixtureOfASubstitutionModel::getSubmodelNumbers(string& desc) const
   size_t i, j, l;
   string s;
 
-  bool nameok=false;
-  
+  bool nameok = false;
+
   for (i = 0; i < modelsContainer_.size(); i++)
   {
     j = i;
@@ -308,12 +306,13 @@ Vint MixtureOfASubstitutionModel::getSubmodelNumbers(string& desc) const
       s = it->first;
       l = j % it->second->getNumberOfCategories();
 
-      if (msubn.find(s) != msubn.end()){
+      if (msubn.find(s) != msubn.end())
+      {
         nameok = true;
         if (msubn[s] != l)
           break;
       }
-      
+
       j = j / it->second->getNumberOfCategories();
     }
     if (nameok && it == distributionMap_.end())
@@ -322,4 +321,3 @@ Vint MixtureOfASubstitutionModel::getSubmodelNumbers(string& desc) const
 
   return submodnb;
 }
-

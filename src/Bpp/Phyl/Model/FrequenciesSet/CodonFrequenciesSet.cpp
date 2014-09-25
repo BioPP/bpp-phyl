@@ -39,7 +39,9 @@
 
 #include "CodonFrequenciesSet.h"
 #include "NucleotideFrequenciesSet.h"
+#include "../StateMap.h"
 
+// From bpp-core:
 #include <Bpp/Numeric/Prob/Simplex.h>
 
 using namespace bpp;
@@ -50,8 +52,7 @@ using namespace std;
 
 FullCodonFrequenciesSet::FullCodonFrequenciesSet(const GeneticCode* gCode, bool allowNullFreqs, unsigned short method, const string& name) :
   AbstractFrequenciesSet(
-      gCode->getSourceAlphabet()->getSize(),
-      gCode->getSourceAlphabet(),
+      new CanonicalStateMap(gCode->getSourceAlphabet(), false),
       "Full.",
       name),
   pgc_(gCode),
@@ -74,7 +75,7 @@ FullCodonFrequenciesSet::FullCodonFrequenciesSet(
     bool allowNullFreqs,
     unsigned short method,
     const string& name) :
-  AbstractFrequenciesSet(gCode->getSourceAlphabet()->getSize(), gCode->getSourceAlphabet(), "Full.", name),
+  AbstractFrequenciesSet(new CanonicalStateMap(gCode->getSourceAlphabet(), false), "Full.", name),
   pgc_(gCode),
   sFreq_(gCode->getSourceAlphabet()->getSize()  - gCode->getNumberOfStopCodons(), method, allowNullFreqs, "Full.")
 {
@@ -166,7 +167,7 @@ FullPerAACodonFrequenciesSet::FullPerAACodonFrequenciesSet(
     const GeneticCode* gencode,
     ProteinFrequenciesSet* ppfs,
     unsigned short method) :
-  AbstractFrequenciesSet(gencode->getSourceAlphabet()->getSize(), gencode->getSourceAlphabet(), "FullPerAA.", "FullPerAA"),
+  AbstractFrequenciesSet(new CanonicalStateMap(gencode->getSourceAlphabet(), false), "FullPerAA.", "FullPerAA"),
   pgc_(gencode),
   ppfs_(ppfs),
   vS_()
@@ -191,7 +192,7 @@ FullPerAACodonFrequenciesSet::FullPerAACodonFrequenciesSet(
 }
 
 FullPerAACodonFrequenciesSet::FullPerAACodonFrequenciesSet(const GeneticCode* gencode, unsigned short method) :
-  AbstractFrequenciesSet(gencode->getSourceAlphabet()->getSize(), gencode->getSourceAlphabet(), "FullPerAA.", "FullPerAA"),
+  AbstractFrequenciesSet(new CanonicalStateMap(gencode->getSourceAlphabet(), false), "FullPerAA.", "FullPerAA"),
   pgc_(gencode),
   ppfs_(new FixedProteinFrequenciesSet(dynamic_cast<const ProteicAlphabet*>(gencode->getTargetAlphabet()), "FullPerAA.")),
   vS_()
@@ -312,14 +313,14 @@ FixedCodonFrequenciesSet::FixedCodonFrequenciesSet(
     const GeneticCode* gCode,
     const vector<double>& initFreqs,
     const string& name) :
-  AbstractFrequenciesSet(gCode->getSourceAlphabet()->getSize(), gCode->getSourceAlphabet(), "Fixed.", name),
+  AbstractFrequenciesSet(new CanonicalStateMap(gCode->getSourceAlphabet(), false), "Fixed.", name),
   pgc_(gCode)
 {
   setFrequencies(initFreqs);
 }
 
 FixedCodonFrequenciesSet::FixedCodonFrequenciesSet(const GeneticCode* gCode, const string& name) :
-  AbstractFrequenciesSet(gCode->getSourceAlphabet()->getSize(), gCode->getSourceAlphabet(), "Fixed.", name),
+  AbstractFrequenciesSet(new CanonicalStateMap(gCode->getSourceAlphabet(), false), "Fixed.", name),
   pgc_(gCode)
 {
   size_t size = gCode->getSourceAlphabet()->getSize() - gCode->getNumberOfStopCodons();

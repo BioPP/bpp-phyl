@@ -102,7 +102,7 @@ namespace bpp
 
     UserProteinSubstitutionModel(const UserProteinSubstitutionModel& model) :
       AbstractParameterAliasable(model),
-      AbstractSubstitutionModel(model),
+      //AbstractSubstitutionModel(model),
       AbstractReversibleSubstitutionModel(model),
       path_(model.path_),
       freqSet_(dynamic_cast<ProteinFrequenciesSet*>(model.freqSet_->clone()))

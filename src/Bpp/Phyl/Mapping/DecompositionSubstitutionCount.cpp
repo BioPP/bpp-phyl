@@ -77,7 +77,7 @@ DecompositionSubstitutionCount::DecompositionSubstitutionCount(const ReversibleS
 
 void DecompositionSubstitutionCount::fillBMatrices_()
 {
-  vector<int> supportedStates = model_->getAlphabetChars();
+  vector<int> supportedStates = model_->getAlphabetStates();
   for (size_t j = 0; j < nbStates_; ++j) {
     for (size_t k = 0; k < nbStates_; ++k) {
       size_t i = register_->getType(j, k);
@@ -160,7 +160,7 @@ void DecompositionSubstitutionCount::computeCounts_(double length) const
     MatrixTools::mult(tmp2, vInv_, counts_[i]);
 	}
   // Now we must divide by pijt and account for putative weights:
-  vector<int> supportedStates = model_->getAlphabetChars();
+  vector<int> supportedStates = model_->getAlphabetStates();
   RowMatrix<double> P = model_->getPij_t(length);
   for (size_t i = 0; i < register_->getNumberOfSubstitutionTypes(); i++) {
     for (size_t j = 0; j < nbStates_; j++) {

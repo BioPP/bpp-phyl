@@ -96,7 +96,7 @@ protected:
   size_t getSizeFromVector(const std::vector<FrequenciesSet*>& freqVector);
   
 public:
-  AbstractWordFrequenciesSet(size_t size, const Alphabet* palph, const std::string& prefix = "", const std::string& name="");
+  AbstractWordFrequenciesSet(StateMap* stateMap, const std::string& prefix = "", const std::string& name="");
 
 #ifndef NO_VIRTUAL_COV
   AbstractWordFrequenciesSet*

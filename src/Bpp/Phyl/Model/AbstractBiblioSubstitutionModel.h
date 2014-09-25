@@ -91,11 +91,17 @@ public:
    * @{
    */
 
-  const std::vector<int>& getAlphabetChars() const { return getModel().getAlphabetChars(); }
+  const std::vector<int>& getAlphabetStates() const { return getModel().getAlphabetStates(); }
 
-  int getAlphabetChar(size_t i) const { return getModel().getAlphabetChar(i); }
+  const StateMap& getStateMap() const { return getModel().getStateMap(); }
 
-  std::vector<size_t> getModelStates(int i) const { return getModel().getModelStates(i); }
+  int getAlphabetStateAsInt(size_t i) const { return getModel().getAlphabetStateAsInt(i); }
+  
+  std::string getAlphabetStateAsChar(size_t i) const { return getModel().getAlphabetStateAsChar(i); }
+
+  std::vector<size_t> getModelStates(int code) const { return getModel().getModelStates(code); }
+  
+  std::vector<size_t> getModelStates(const std::string& code) const { return getModel().getModelStates(code); }
 
   virtual double freq(size_t i) const { return getModel().freq(i); }
 

@@ -56,8 +56,7 @@ using namespace std;
 
 T92::T92(const NucleicAlphabet* alpha, double kappa, double theta) :
   AbstractParameterAliasable("T92."),
-  AbstractSubstitutionModel(alpha, "T92."),
-  AbstractReversibleSubstitutionModel(alpha, "T92."),
+  AbstractReversibleSubstitutionModel(alpha, new CanonicalStateMap(alpha, false), "T92."),
   kappa_(kappa),
   theta_(theta),
   k_(),

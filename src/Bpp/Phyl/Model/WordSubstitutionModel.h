@@ -84,9 +84,9 @@ public:
    *   the models must be different objects to avoid parameters
    *   redundancy, otherwise only the first model is used. The used models
    *   are owned by the instance.
-   * @param st the Namespace.
+   * @param prefix the Namespace.
    */
-  WordSubstitutionModel(const std::vector<SubstitutionModel*>& modelVector, const std::string& st = "");
+  WordSubstitutionModel(const std::vector<SubstitutionModel*>& modelVector, const std::string& prefix = "");
 
   /**
    * @brief Build a new WordSubstitutionModel object from a
@@ -96,20 +96,20 @@ public:
    * @param pmodel pointer to the substitution model to use in all the
    *  positions. It is owned by the instance.
    * @param num The number of models involved.
-   * @param st the Namespace.
+   * @param prefix the Namespace.
    */
-  WordSubstitutionModel(SubstitutionModel* pmodel, unsigned int num, const std::string& st = "");
+  WordSubstitutionModel(SubstitutionModel* pmodel, unsigned int num, const std::string& prefix = "");
 
   virtual ~WordSubstitutionModel() {}
 
   WordSubstitutionModel* clone() const { return new WordSubstitutionModel(*this); }
 
 protected:
+  
   /**
-   *@brief Constructor for the derived classes only
+   * @brief Constructor for the derived classes only
    */
-
-  WordSubstitutionModel(const Alphabet* alph, const std::string& = "");
+  WordSubstitutionModel(const Alphabet* alph, StateMap* stateMap, const std::string& prefix = "");
 
   virtual void updateMatrices();
   virtual void completeMatrices();

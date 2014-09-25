@@ -124,7 +124,7 @@ class YpR :
   public AbstractSubstitutionModel
 {
 protected:
-  SubstitutionModel*  _pmodel;
+  SubstitutionModel* pmodel_;
 
   // Check that the model is good for YpR
   void check_model(SubstitutionModel* const) const
@@ -149,16 +149,16 @@ protected:
     AbstractParameterAliasable::operator=(ypr);
     AbstractSubstitutionModel::operator=(ypr);
     _nestedPrefix = ypr._nestedPrefix;
-    _pmodel = ypr._pmodel->clone();
+    pmodel_ = ypr.pmodel_->clone();
     return *this;
   }
 
 public:
   virtual ~YpR()
   {
-    if (_pmodel)
-      delete _pmodel;
-    _pmodel = 0;
+    if (pmodel_)
+      delete pmodel_;
+    pmodel_ = 0;
   }
 
 protected:
@@ -173,7 +173,7 @@ protected:
 public:
   //  virtual std::string getName() const;
 
-  const SubstitutionModel* getNestedModel() const {return _pmodel;}
+  const SubstitutionModel* getNestedModel() const {return pmodel_;}
   
   size_t getNumberOfStates() const { return 36; }
 
@@ -184,7 +184,7 @@ public:
   void fireParameterChanged(const ParameterList& parameters)
   {
     AbstractSubstitutionModel::fireParameterChanged(parameters);
-   _pmodel->matchParametersValues(parameters);
+   pmodel_->matchParametersValues(parameters);
    updateMatrices();
   }
 };

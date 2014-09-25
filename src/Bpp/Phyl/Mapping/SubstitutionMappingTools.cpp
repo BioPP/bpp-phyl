@@ -1571,7 +1571,7 @@ vector< vector<double> > SubstitutionMappingTools::getNormalizationsPerBranch(
   size_t nbTypes = reg.getNumberOfSubstitutionTypes();
   size_t nbStates = nullModel->getAlphabet()->getSize();
   size_t nbSites = drtl.getNumberOfSites();
-  vector<int> supportedStates = nullModel->getAlphabetChars();
+  vector<int> supportedStates = nullModel->getAlphabetStates();
 
   // compute the AlphabetIndex for each substitutionType
   vector<UserAlphabetIndex1 > usai(nbTypes, UserAlphabetIndex1(nullModel->getAlphabet()));
@@ -1646,7 +1646,7 @@ vector< vector<double> > SubstitutionMappingTools::getNormalizationsPerBranch(
   for (size_t nbm = 0; nbm < nbModels; nbm++)
   {
     const SubstitutionModel* modn = nullModelSet->getModel(nbm);
-    vector<int> supportedStates = modn->getAlphabetChars();
+    vector<int> supportedStates = modn->getAlphabetStates();
 
     for (size_t i = 0; i < nbStates; i++)
     {

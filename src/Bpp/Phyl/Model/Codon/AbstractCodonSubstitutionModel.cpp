@@ -47,11 +47,10 @@ using namespace std;
 AbstractCodonSubstitutionModel::AbstractCodonSubstitutionModel(
   const GeneticCode* gCode,
   NucleotideSubstitutionModel* pmod,
-  const std::string& st,
+  const std::string& prefix,
   bool paramRates) :
-  AbstractParameterAliasable(st),
-  AbstractSubstitutionModel(gCode->getSourceAlphabet(), st),
-  AbstractWordSubstitutionModel(gCode->getSourceAlphabet(), st),
+  AbstractParameterAliasable(prefix),
+  AbstractWordSubstitutionModel(gCode->getSourceAlphabet(), new CanonicalStateMap(gCode->getSourceAlphabet(), false), prefix),
   hasParametrizedRates_(paramRates),
   gCode_(gCode)
 {
@@ -64,7 +63,7 @@ AbstractCodonSubstitutionModel::AbstractCodonSubstitutionModel(
     VnestedPrefix_.push_back(pmod->getNamespace());
   }
 
-  pmod->setNamespace(st + "123_" + VnestedPrefix_[0]);
+  pmod->setNamespace(prefix + "123_" + VnestedPrefix_[0]);
   pmod->enableEigenDecomposition(0);
   addParameters_(pmod->getParameters());
 
@@ -80,7 +79,7 @@ AbstractCodonSubstitutionModel::AbstractCodonSubstitutionModel(
     // relative rates
     for (i = 0; i < 2; i++)
     {
-      addParameter_(new Parameter(st + "relrate" + TextTools::toString(i + 1), 1.0 / static_cast<double>(3 - i), &Parameter::PROP_CONSTRAINT_EX));
+      addParameter_(new Parameter(prefix + "relrate" + TextTools::toString(i + 1), 1.0 / static_cast<double>(3 - i), &Parameter::PROP_CONSTRAINT_EX));
     }
   }
 }
@@ -90,11 +89,10 @@ AbstractCodonSubstitutionModel::AbstractCodonSubstitutionModel(
   NucleotideSubstitutionModel* pmod1,
   NucleotideSubstitutionModel* pmod2,
   NucleotideSubstitutionModel* pmod3,
-  const std::string& st,
+  const std::string& prefix,
   bool paramRates) :
-  AbstractParameterAliasable(st),
-  AbstractSubstitutionModel(gCode->getSourceAlphabet(), st),
-  AbstractWordSubstitutionModel(gCode->getSourceAlphabet(), st),
+  AbstractParameterAliasable(prefix),
+  AbstractWordSubstitutionModel(gCode->getSourceAlphabet(), new CanonicalStateMap(gCode->getSourceAlphabet(), false), prefix),
   hasParametrizedRates_(paramRates),
   gCode_(gCode)
 {
@@ -108,7 +106,7 @@ AbstractCodonSubstitutionModel::AbstractCodonSubstitutionModel(
       VnestedPrefix_.push_back(pmod1->getNamespace());
     }
 
-    pmod1->setNamespace(st + "123_" + VnestedPrefix_[0]);
+    pmod1->setNamespace(prefix + "123_" + VnestedPrefix_[0]);
     pmod1->enableEigenDecomposition(0);
     addParameters_(pmod1->getParameters());
   }
@@ -116,19 +114,19 @@ AbstractCodonSubstitutionModel::AbstractCodonSubstitutionModel(
   {
     VSubMod_.push_back(pmod1);
     VnestedPrefix_.push_back(pmod1->getNamespace());
-    VSubMod_[0]->setNamespace(st + "1_" + VnestedPrefix_[0]);
+    VSubMod_[0]->setNamespace(prefix + "1_" + VnestedPrefix_[0]);
     VSubMod_[0]->enableEigenDecomposition(0);
     addParameters_(pmod1->getParameters());
 
     VSubMod_.push_back(pmod2);
     VnestedPrefix_.push_back(pmod2->getNamespace());
-    VSubMod_[1]->setNamespace(st + "2_" + VnestedPrefix_[1]);
+    VSubMod_[1]->setNamespace(prefix + "2_" + VnestedPrefix_[1]);
     VSubMod_[1]->enableEigenDecomposition(0);
     addParameters_(pmod2->getParameters());
 
     VSubMod_.push_back(pmod3);
     VnestedPrefix_.push_back(pmod3->getNamespace());
-    VSubMod_[2]->setNamespace(st + "3_" + VnestedPrefix_[2]);
+    VSubMod_[2]->setNamespace(prefix + "3_" + VnestedPrefix_[2]);
     VSubMod_[2]->enableEigenDecomposition(0);
     addParameters_(pmod3->getParameters());
   }
@@ -144,7 +142,7 @@ AbstractCodonSubstitutionModel::AbstractCodonSubstitutionModel(
     // relative rates
     for (int i = 0; i < 2; ++i)
     {
-      addParameter_(new Parameter(st + "relrate" + TextTools::toString(i + 1), 1.0 / (3.0 - i), &Parameter::PROP_CONSTRAINT_EX));
+      addParameter_(new Parameter(prefix + "relrate" + TextTools::toString(i + 1), 1.0 / (3.0 - i), &Parameter::PROP_CONSTRAINT_EX));
     }
   }
 }
