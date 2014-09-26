@@ -184,15 +184,16 @@ FullPerAACodonFrequenciesSet::FullPerAACodonFrequenciesSet(
   vS_()
 {
   const ProteicAlphabet* ppa = dynamic_cast<const ProteicAlphabet*>(pgc_->getTargetAlphabet());
-
-  for (size_t i = 0; i < ppa->getSize(); i++)
+  const StateMap& aaStates = ppfs_->getStateMap();
+  for (size_t i = 0; i < aaStates.getNumberOfModelStates(); ++i)
   {
-    vector<int> vc = pgc_->getSynonymous(static_cast<int>(i));
+    int aa = aaStates.getAlphabetStateAsInt(i);
+    vector<int> vc = pgc_->getSynonymous(aa);
     vS_.push_back(Simplex(vc.size(), method, 0, ""));
 
     Simplex& si = vS_[i];
 
-    si.setNamespace("FullPerAA." + ppa->getAbbr(static_cast<int>(i)) + "_");
+    si.setNamespace("FullPerAA." + ppa->getAbbr(aa) + "_");
     addParameters_(si.getParameters());
   }
 
@@ -209,14 +210,15 @@ FullPerAACodonFrequenciesSet::FullPerAACodonFrequenciesSet(const GeneticCode* ge
   vS_()
 {
   const ProteicAlphabet* ppa = dynamic_cast<const ProteicAlphabet*>(pgc_->getTargetAlphabet());
-
-  for (size_t i = 0; i < ppa->getSize(); i++)
+  const StateMap& aaStates = ppfs_->getStateMap();
+  for (size_t i = 0; i < aaStates.getNumberOfModelStates(); ++i)
   {
-    vector<int> vc = pgc_->getSynonymous(static_cast<int>(i));
+    int aa = aaStates.getAlphabetStateAsInt(i);
+    vector<int> vc = pgc_->getSynonymous(aa);
     vS_.push_back(Simplex(vc.size(), method, 0, ""));
 
     Simplex& si = vS_[i];
-    si.setNamespace("FullPerAA." + ppa->getAbbr(static_cast<int>(i)) + "_");
+    si.setNamespace("FullPerAA." + ppa->getAbbr(aa) + "_");
     addParameters_(si.getParameters());
   }
 
@@ -257,14 +259,16 @@ void FullPerAACodonFrequenciesSet::fireParameterChanged(const ParameterList& par
 
 void FullPerAACodonFrequenciesSet::updateFrequencies()
 {
-  size_t size = pgc_->getTargetAlphabet()->getSize();
-
-  for (size_t i = 0; i < size; i++)
+  const StateMap& aaStates = ppfs_->getStateMap();
+  for (size_t i = 0; i < aaStates.getNumberOfModelStates(); ++i)
   {
-    std::vector<int> vc = pgc_->getSynonymous(pgc_->getTargetAlphabet()->getIntCodeAt(i));
+    int aa = aaStates.getAlphabetStateAsInt(i);
+    std::vector<int> vc = pgc_->getSynonymous(aa);
     for (size_t j = 0; j < vc.size(); j++)
     {
-      getFreq_(pgc_->getSourceAlphabet()->getStateIndex(vc[j])) = static_cast<double>(vc.size()) * (ppfs_->getFrequencies())[i] * vS_[i].prob(j);
+      //NB: only one alphabet state per model state here, as it is a CodonFreqSet.
+      getFreq_(getStateMap().getModelStates(vc[j])[0]) =
+        static_cast<double>(vc.size()) * ppfs_->getFrequencies()[i] * vS_[i].prob(j);
     }
   }
   normalize();
