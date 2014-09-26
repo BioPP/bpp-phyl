@@ -84,9 +84,9 @@ public:
   virtual const std::vector<double> getFrequencies() const = 0;
 
   /**
-   * @return The frequencies values of the set.
+   * @return The frequencies of each alphabet states according to this model.
    */
-  virtual const std::map<int, double> getFrequenciesAsMap() const = 0;
+  virtual const std::map<int, double> getAlphabetStatesFrequencies() const = 0;
 
   /**
    * @brief Set the parameters in order to match a given set of frequencies.
@@ -104,13 +104,12 @@ public:
    *
    * @param frequencies The set of frequencies to match.
    */
-  virtual void setFrequenciesFromMap(const std::map<int, double>& frequencies) = 0;
+  virtual void setFrequenciesFromAlphabetStatesFrequencies(const std::map<int, double>& frequencies) = 0;
 
   virtual std::string getName() const = 0;
 
   /**
-   * @return The number of frequencies in the set. In most cases this will correspond to the size of the alphabet,
-   * but it needs not be.
+   * @return The number of frequencies in the set. This is equivalent to getStateMap().getNumberOfModelStates().
    */
   virtual size_t getNumberOfFrequencies() const = 0;
 
@@ -174,9 +173,18 @@ public:
 
   const std::vector<double> getFrequencies() const { return freq_; }
   
-  const std::map<int, double> getFrequenciesAsMap() const;
+  const std::map<int, double> getAlphabetStatesFrequencies() const;
 
-  void setFrequenciesFromMap(const std::map<int, double>& frequencies);
+  /**
+   * @brief Set the Frequencies from the one of the map which keys
+   *  match with a letter of the Alphabet.
+   *  The frequencies are normalized so that the matching values sum 1.
+   *
+   * In this implementation, all model states with the same alphabet state are given the same frequency.
+   * 
+   * @param frequencies The set of frequencies to match.
+   */
+  void setFrequenciesFromAlphabetStatesFrequencies(const std::map<int, double>& frequencies);
 
   size_t getNumberOfFrequencies() const { return freq_.size(); }
 

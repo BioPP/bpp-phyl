@@ -631,7 +631,7 @@ void BppOFrequenciesSetFormat::initialize_(FrequenciesSet& freqSet, const SiteCo
       map<int, double> freqs;
       SequenceContainerTools::getFrequencies(*data, freqs, psc);
 
-      freqSet.setFrequenciesFromMap(freqs);
+      freqSet.setFrequenciesFromAlphabetStatesFrequencies(freqs);
     }
     else if (init.substr(0, 6) == "values")
     {

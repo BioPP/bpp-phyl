@@ -101,7 +101,7 @@ void AbstractCodonPhaseFrequenciesSubstitutionModel::fireParameterChanged(const 
 
 void AbstractCodonPhaseFrequenciesSubstitutionModel::setFreq(map<int, double>& frequencies)
 {
-  posfreqset_->setFrequenciesFromMap(frequencies);
+  posfreqset_->setFrequenciesFromAlphabetStatesFrequencies(frequencies);
   matchParametersValues(posfreqset_->getParameters());
 }
 

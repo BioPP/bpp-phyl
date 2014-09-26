@@ -108,7 +108,7 @@ void CodonDistanceFitnessPhaseFrequenciesSubstitutionModel::setNamespace(const s
 void CodonDistanceFitnessPhaseFrequenciesSubstitutionModel::setFreq(map<int,double>& frequencies)
 {
   AbstractCodonPhaseFrequenciesSubstitutionModel::setFreq(frequencies);
-  map<int, double> freq1 = AbstractCodonPhaseFrequenciesSubstitutionModel::getFrequenciesSet()->getFrequenciesAsMap();
+  map<int, double> freq1 = AbstractCodonPhaseFrequenciesSubstitutionModel::getFrequenciesSet()->getAlphabetStatesFrequencies();
 
   map<int, double> freq2;
   double s=0;

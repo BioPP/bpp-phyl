@@ -55,32 +55,32 @@ IntervalConstraint FrequenciesSet::FREQUENCE_CONSTRAINT_SMALL(NumConstants::SMAL
 // AbstractFrequenciesSet
 
 
-void AbstractFrequenciesSet::setFrequenciesFromMap(const map<int, double>& frequencies)
+void AbstractFrequenciesSet::setFrequenciesFromAlphabetStatesFrequencies(const map<int, double>& frequencies)
 {
-  size_t s = alphabet_->getSize();
+  size_t s = stateMap_->getNumberOfModelStates();
   vector<double> freq(s);
   double x = 0;
-  for (size_t i = 0; i < s; i++)
+  for (size_t i = 0; i < s; ++i)
   {
-    map<int, double>::const_iterator it = frequencies.find(alphabet_->getIntCodeAt(i));
+    map<int, double>::const_iterator it = frequencies.find(stateMap_->getAlphabetStateAsInt(i));
     if (it != frequencies.end())
       freq[i] = it->second;
     else
       freq[i] = 0;
     x += freq[i];
   }
-  for (size_t i = 0; i < s; i++)
+  for (size_t i = 0; i < s; ++i)
   {
     freq[i] /= x;
   }
   setFrequencies(freq);
 }
 
-const std::map<int, double> AbstractFrequenciesSet::getFrequenciesAsMap() const {
+const std::map<int, double> AbstractFrequenciesSet::getAlphabetStatesFrequencies() const
+{
   map<int, double> fmap;
-  size_t s = alphabet_->getSize();
-  for (size_t i = 0; i < s; i++) {
-    fmap[alphabet_->getIntCodeAt(i)] = freq_[i];
+  for (size_t i = 0; i < stateMap_->getNumberOfModelStates(); ++i) {
+    fmap[stateMap_->getAlphabetStateAsInt(i)] += freq_[i];
   }
   return fmap;
 }
