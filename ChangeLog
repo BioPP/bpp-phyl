@@ -1,4 +1,13 @@
-22/09/14 -*- Version 2.2.0 -*-
+28/09/14 -*- Version 2.2.0 -*-
+
+26/09/14 Julien Dutheil
+* Likelihood classes now use the ModelState class to like alphabet and model states.
+
+17/09/14 Julien Dutheil
+* Bugs #55 and #89 fixed.
+
+28/08/14 Julien Dutheil
+* Improved derivatives in DRTreeLikelihood classes.
 
 25/07/13 Julien Dutheil
 * Added method in TreeTemplateTools to unresolve all nodes below a certain confidence threshold.

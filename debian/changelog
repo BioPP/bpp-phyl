@@ -3,7 +3,7 @@ libbpp-phyl (2.2.0-1) unstable; urgency=low
   * Bugs fixed + code improvements
   * More efficient DR likelihood derivatives.
 
- -- Julien Dutheil <julien.dutheil@univ-montp2.fr>  Mon, 22 Sep 2014 14:00:00 +0100
+ -- Julien Dutheil <julien.dutheil@univ-montp2.fr>  Mon, 28 Sep 2014 14:00:00 +0100
 
 libbpp-phyl (2.1.0-1) unstable; urgency=low
 
