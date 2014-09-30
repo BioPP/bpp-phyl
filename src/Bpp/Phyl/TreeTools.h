@@ -576,8 +576,9 @@ class TreeTools
     /**
      * @brief Tells whether two trees have the same unrooted topology
      *
-     * @author Nicolas Galtier
      * Note that the location of the root, if any, is ignored.
+     *
+     * @author Nicolas Galtier
      */
     static bool haveSameTopology(const Tree& tr1, const Tree& tr2);
 
