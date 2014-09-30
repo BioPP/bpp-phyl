@@ -58,12 +58,10 @@ using namespace std;
 
 WordSubstitutionModel::WordSubstitutionModel(
   const std::vector<SubstitutionModel*>& modelVector,
-  const std::string& st) :
-  AbstractParameterAliasable((st == "") ? "Word." : st),
-  AbstractSubstitutionModel(AbstractWordSubstitutionModel::extractAlph(modelVector),
-                            (st == "") ? "Word." : st),
+  const std::string& prefix) :
+  AbstractParameterAliasable((prefix == "") ? "Word." : prefix),
   AbstractWordSubstitutionModel(modelVector,
-                                (st == "") ? "Word." : st)
+                                (prefix == "") ? "Word." : prefix)
 {
   size_t i, nbmod = VSubMod_.size();
 
@@ -78,24 +76,20 @@ WordSubstitutionModel::WordSubstitutionModel(
 
 WordSubstitutionModel::WordSubstitutionModel(
   const Alphabet* alph,
-  const std::string& st) :
-  AbstractParameterAliasable((st == "") ? "Word." : st),
-  AbstractSubstitutionModel(alph,
-                            (st == "") ? "Word." : st),
-  AbstractWordSubstitutionModel(alph,
-                                (st == "") ? "Word." : st)
+  StateMap* stateMap,
+  const std::string& prefix) :
+  AbstractParameterAliasable((prefix == "") ? "Word." : prefix),
+  AbstractWordSubstitutionModel(alph, stateMap, (prefix == "") ? "Word." : prefix)
 {}
 
 WordSubstitutionModel::WordSubstitutionModel(
   SubstitutionModel* pmodel,
   unsigned int num,
-  const std::string& st) :
-  AbstractParameterAliasable((st == "") ? "Word." : st),
-  AbstractSubstitutionModel(pmodel->getAlphabet(),
-                            (st == "") ? "Word." : st),
+  const std::string& prefix) :
+  AbstractParameterAliasable((prefix == "") ? "Word." : prefix),
   AbstractWordSubstitutionModel(pmodel,
                                 num,
-                                (st == "") ? "Word." : st)
+                                (prefix == "") ? "Word." : prefix)
 {
   size_t i;
 

@@ -71,31 +71,39 @@ namespace bpp
       /**
        * @return The number of states supported by the model.
        */
-      virtual size_t getNumberOfStates() const = 0;
+      virtual size_t getNumberOfModelStates() const = 0;
+
+      /**
+       * @return A vector with the corresponding alphabet states for each model state.
+       * the size of the vector is the number of model states, not the number of supported alphabet states,
+       * as distinct model states can correspond to a single alphabet state.
+       */
+      virtual const std::vector<int>& getAlphabetStates() const = 0;
 
       /**
        * @param index The model state.
-       * @return The corresponding alphabet character as int code.
+       * @return The corresponding alphabet state as character code.
        */
-      virtual int stateAsInt(size_t index) const = 0;
+      virtual std::string getAlphabetStateAsChar(size_t index) const = 0;
 
       /**
        * @param index The model state.
-       * @return The corresponding alphabet character as character code.
+       * @return The corresponding alphabet state as int code.
        */
-      virtual std::string stateAsChar(size_t index) const = 0;
+      virtual int getAlphabetStateAsInt(size_t index) const = 0;
 
       /**
-       * @param code The int code of the character to check.
-       * @return The corresponding model state, is any.
+       * @param code The character code of the alphabet state to check.
+       * @return The corresponding model states, is any.
        */
-      virtual size_t whichState(int code) const = 0;
+      virtual std::vector<size_t> getModelStates(const std::string& code) const = 0;
+
+      /**
+       * @param code The int code of the alphabet state to check.
+       * @return The corresponding model states, is any.
+       */
+      virtual std::vector<size_t> getModelStates(int code) const = 0;
       
-      /**
-       * @param code The character code of the character to check.
-       * @return The corresponding model state, is any.
-       */
-      virtual size_t whichState(const std::string& code) const = 0;
   };
 
   /**
@@ -131,16 +139,15 @@ namespace bpp
 
     public:
       virtual const Alphabet* getAlphabet() const { return alphabet_; }
-      virtual size_t getNumberOfStates() const { return states_.size(); }
-      virtual int stateAsInt(size_t index) const { return states_[index]; }
-      virtual std::string stateAsChar(size_t index) const { return alphabet_->intToChar(states_[index]); }
-      virtual size_t whichState(int code) const throw (Exception) {
-        try { return VectorTools::which(states_, code); }
-        catch (ElementNotFoundException<int>& ex) { throw Exception("AbstractStateMap::whichState. Unsupported alphabet char: " + TextTools::toString(code)); }
+      virtual size_t getNumberOfModelStates() const { return states_.size(); }
+      virtual const std::vector<int>& getAlphabetStates() const { return states_; }
+      virtual int getAlphabetStateAsInt(size_t index) const { return states_[index]; }
+      virtual std::string getAlphabetStateAsChar(size_t index) const { return alphabet_->intToChar(states_[index]); }
+      virtual std::vector<size_t> getModelStates(int code) const {
+        return VectorTools::whichAll(states_, code);
       }
-      virtual size_t whichState(const std::string& code) const throw (Exception) {
-        try { return VectorTools::which(states_, alphabet_->charToInt(code)); }
-        catch (ElementNotFoundException<int>& ex) { throw Exception("AbstractStateMap::whichState. Unsupported alphabet char: " + TextTools::toString(code)); }
+      virtual std::vector<size_t> getModelStates(const std::string& code) const {
+        return VectorTools::whichAll(states_, alphabet_->charToInt(code));
       }
 
   };
@@ -156,7 +163,31 @@ namespace bpp
   {
     public:
       CanonicalStateMap(const Alphabet* alphabet, bool includeGaps);
+
+      /**
+       * @brief this contructors takes an existing StateMap and adds one model states for gaps.
+       * If the original StateMap alread had a state for gaps, a new one will be appended.
+       */
+      CanonicalStateMap(const StateMap& sm, bool includeGaps);
+
       virtual CanonicalStateMap* clone() const { return new CanonicalStateMap(*this); }
+
+  };
+
+
+  
+  /**
+   * @brief This class implements a state map for Markov modulated models.
+   *
+   * For nucleotides with two classes, the underlying states are for instance:
+   * A (0), C (1), G (2), T/U (3), A (4), C (5), G (6), T/U (7).
+   */
+  class MarkovModulatedStateMap:
+    public AbstractStateMap
+  {
+    public:
+      MarkovModulatedStateMap(const StateMap& unitMap, unsigned int nbClasses);
+      virtual MarkovModulatedStateMap* clone() const { return new MarkovModulatedStateMap(*this); }
 
   };
 

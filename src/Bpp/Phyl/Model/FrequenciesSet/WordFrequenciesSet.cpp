@@ -58,8 +58,8 @@ size_t AbstractWordFrequenciesSet::getSizeFromVector(const std::vector<Frequenci
   return s;
 }
 
-AbstractWordFrequenciesSet::AbstractWordFrequenciesSet(size_t size, const Alphabet* palph, const string& prefix, const string& name) :
-  AbstractFrequenciesSet(size, palph, prefix, name)
+AbstractWordFrequenciesSet::AbstractWordFrequenciesSet(StateMap* stateMap, const string& prefix, const string& name) :
+  AbstractFrequenciesSet(stateMap, prefix, name)
 {}
 
 size_t AbstractWordFrequenciesSet::getLength() const
@@ -75,10 +75,10 @@ AbstractWordFrequenciesSet::~AbstractWordFrequenciesSet()
 
 
 WordFromIndependentFrequenciesSet::WordFromIndependentFrequenciesSet(
-                                                                     const WordAlphabet* pWA,
-                                                                     const std::vector<FrequenciesSet*>& freqVector,
-                                                                     const string& prefix, const string& name) :
-  AbstractWordFrequenciesSet(pWA->getSize(), pWA, prefix, name),
+    const WordAlphabet* pWA,
+    const std::vector<FrequenciesSet*>& freqVector,
+    const string& prefix, const string& name) :
+  AbstractWordFrequenciesSet(new CanonicalStateMap(pWA, false), prefix, name),
   vFreq_(),
   vNestedPrefix_()
 {
@@ -250,11 +250,12 @@ std::string WordFromIndependentFrequenciesSet::getDescription() const
 // // WordFromUniqueFrequenciesSet
 
 
-WordFromUniqueFrequenciesSet::WordFromUniqueFrequenciesSet(const WordAlphabet* pWA,
-                                                           FrequenciesSet* pabsfreq,
-                                                           const string& prefix,
-                                                           const string& name) :
-  AbstractWordFrequenciesSet(pWA->getSize(), pWA, prefix, name),
+WordFromUniqueFrequenciesSet::WordFromUniqueFrequenciesSet(
+    const WordAlphabet* pWA,
+    FrequenciesSet* pabsfreq,
+    const string& prefix,
+    const string& name) :
+  AbstractWordFrequenciesSet(new CanonicalStateMap(pWA, false), prefix, name),
   pFreq_(pabsfreq),
   NestedPrefix_(pabsfreq->getNamespace()),
   length_(pWA->getLength())

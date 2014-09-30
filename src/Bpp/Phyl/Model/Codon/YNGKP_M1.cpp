@@ -68,7 +68,7 @@ YNGKP_M1::YNGKP_M1(const GeneticCode* gc, FrequenciesSet* codonFreqs) :
   YN98* yn98 = new YN98(gc, codonFreqs);
   pmixmodel_.reset(new MixtureOfASubstitutionModel(gc->getSourceAlphabet(), yn98, mpdd));
   delete psdd;
-  vector<int> supportedChars = yn98->getAlphabetChars();
+  vector<int> supportedChars = yn98->getAlphabetStates();
 
   // map the parameters
 

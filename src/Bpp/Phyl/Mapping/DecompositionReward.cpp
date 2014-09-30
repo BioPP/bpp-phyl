@@ -64,7 +64,7 @@ DecompositionReward::DecompositionReward(const SubstitutionModel* model, Alphabe
   if (model->getAlphabet()->getAlphabetType() != alphIndex_->getAlphabet()->getAlphabetType())
     throw Exception("DecompositionReward (constructor): alphabets do not match between alphabet index and model.");
   if (!dynamic_cast<const ReversibleSubstitutionModel*>(model))
-    throw Exception("DecompositionReward::DecompositionReward. Only works with reversible models for now.");
+    throw Exception("DecompositionReward::DecompositionReward. Only works with declared reversible models for now.");
 
   //Initialize the B matrice. This is done once for all,
   //unless the number of states changes:
@@ -77,7 +77,7 @@ DecompositionReward::DecompositionReward(const SubstitutionModel* model, Alphabe
 
 void DecompositionReward::computeBMatrice_()
 {
-  vector<int> supportedStates = model_->getAlphabetChars();
+  vector<int> supportedStates = model_->getAlphabetStates();
   for (size_t j = 0; j < nbStates_; ++j) 
     bMatrice_(j, j) = getAlphabetIndex()->getIndex(supportedStates[j]);
 }

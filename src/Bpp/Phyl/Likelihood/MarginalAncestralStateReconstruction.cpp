@@ -125,7 +125,7 @@ Sequence* MarginalAncestralStateReconstruction::getAncestralSequenceForNode(int 
     probs->resize(nbSites_);
     for (size_t i = 0; i < nbSites_; i++)
     {
-      allStates[i] = model->getAlphabetChar(states[(*rootPatternLinks)[i]]);
+      allStates[i] = model->getAlphabetStateAsInt(states[(*rootPatternLinks)[i]]);
       (*probs)[i] = patternedProbs[(*rootPatternLinks)[i]];
     }
   }
@@ -134,7 +134,7 @@ Sequence* MarginalAncestralStateReconstruction::getAncestralSequenceForNode(int 
     states = getAncestralStatesForNode(nodeId, patternedProbs, sample);
     for (size_t i = 0; i < nbSites_; i++)
     {
-      allStates[i] = model->getAlphabetChar(states[(*rootPatternLinks)[i]]);
+      allStates[i] = model->getAlphabetStateAsInt(states[(*rootPatternLinks)[i]]);
     }
   }
   return new BasicSequence(name, allStates, alphabet_);

@@ -52,8 +52,7 @@ using namespace std;
 
 LG08::LG08(const ProteicAlphabet* alpha) :
   AbstractParameterAliasable("LG08."),
-  AbstractSubstitutionModel(alpha, "LG08."),
-  AbstractReversibleSubstitutionModel(alpha, "LG08."),
+  AbstractReversibleSubstitutionModel(alpha, new CanonicalStateMap(alpha, false), "LG08."),
   freqSet_(0)
 {
   #include "__LG08ExchangeabilityCode"
@@ -64,8 +63,7 @@ LG08::LG08(const ProteicAlphabet* alpha) :
 
 LG08::LG08(const ProteicAlphabet* alpha, ProteinFrequenciesSet* freqSet, bool initFreqs) :
   AbstractParameterAliasable("LG08+F."),
-  AbstractSubstitutionModel(alpha, "LG08+F."),
-  AbstractReversibleSubstitutionModel(alpha, "LG08+F."),
+  AbstractReversibleSubstitutionModel(alpha, new CanonicalStateMap(alpha, false), "LG08+F."),
   freqSet_(freqSet)
 {
   #include "__LG08ExchangeabilityCode"

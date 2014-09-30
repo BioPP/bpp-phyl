@@ -49,8 +49,6 @@ CodonDistanceFitnessPhaseFrequenciesSubstitutionModel::CodonDistanceFitnessPhase
     FrequenciesSet* pfreq,
     const AlphabetIndex2* pdist) :
   AbstractParameterAliasable("CodonDistFitPhasFreq."),
-  AbstractSubstitutionModel(gCode->getSourceAlphabet(), "CodonDistFitPhasFreq."),
-  AbstractWordSubstitutionModel(gCode->getSourceAlphabet(), "CodonDistFitPhasFreq."),
   AbstractCodonSubstitutionModel(gCode, pmod, "CodonDistFitPhasFreq."),
   AbstractCodonDistanceSubstitutionModel(pdist, "CodonDistFitPhasFreq."),
   AbstractCodonPhaseFrequenciesSubstitutionModel(pfreq, "CodonDistFitPhasFreq."),
@@ -68,8 +66,6 @@ CodonDistanceFitnessPhaseFrequenciesSubstitutionModel::CodonDistanceFitnessPhase
     FrequenciesSet* pfreq,
     const AlphabetIndex2* pdist) :
   AbstractParameterAliasable("CodonDistFitPhasFreq."),
-  AbstractSubstitutionModel(gCode->getSourceAlphabet(), "CodonDistFitPhasFreq."),
-  AbstractWordSubstitutionModel(gCode->getSourceAlphabet(), "CodonDistFitPhasFreq."),
   AbstractCodonSubstitutionModel(gCode, pmod1, pmod2, pmod3, "CodonDistFitPhasFreq."),
   AbstractCodonDistanceSubstitutionModel(pdist, "CodonDistFitPhasFreq."),
   AbstractCodonPhaseFrequenciesSubstitutionModel(pfreq, "CodonDistFitPhasFreq."),
@@ -112,7 +108,7 @@ void CodonDistanceFitnessPhaseFrequenciesSubstitutionModel::setNamespace(const s
 void CodonDistanceFitnessPhaseFrequenciesSubstitutionModel::setFreq(map<int,double>& frequencies)
 {
   AbstractCodonPhaseFrequenciesSubstitutionModel::setFreq(frequencies);
-  map<int, double> freq1 = AbstractCodonPhaseFrequenciesSubstitutionModel::getFrequenciesSet()->getFrequenciesAsMap();
+  map<int, double> freq1 = AbstractCodonPhaseFrequenciesSubstitutionModel::getFrequenciesSet()->getAlphabetStatesFrequencies();
 
   map<int, double> freq2;
   double s=0;

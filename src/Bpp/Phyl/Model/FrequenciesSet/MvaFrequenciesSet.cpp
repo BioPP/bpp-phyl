@@ -38,19 +38,13 @@
  */
 #include "MvaFrequenciesSet.h"
 
-// #include "../Protein.all"
-
-// #include <Bpp/Numeric/NumConstants.h>
-// #include <Bpp/Numeric/VectorTools.h>
-// #include <Bpp/Numeric/Matrix/MatrixTools.h>
-
 using namespace bpp;
 
 #include <cmath>
 using namespace std;
 
 MvaFrequenciesSet::MvaFrequenciesSet(const ProteicAlphabet* alpha) :
-  AbstractFrequenciesSet(20, alpha, "MVA.", "MVAprotein"),
+  AbstractFrequenciesSet(new CanonicalStateMap(alpha, false), "MVA.", "MVAprotein"),
   tPpalAxes_(),
   rowCoords_(),
   nbrOfAxes_(0),

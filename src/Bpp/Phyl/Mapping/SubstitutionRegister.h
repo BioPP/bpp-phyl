@@ -199,7 +199,7 @@ protected:
     // Now creates categories:
     categories_.clear();
     categoryNames_.resize(nbCategories_);
-    std::vector<int> types = model_->getAlphabetChars();
+    std::vector<int> types = model_->getAlphabetStates();
     for (size_t i = 0; i < types.size(); ++i)
     {
       typename std::map<int, T>::const_iterator it = categories.find(types[i]);
@@ -247,7 +247,7 @@ protected:
 public:
   virtual size_t getCategory(size_t state) const
   {
-    int alphabetState = model_->getAlphabetChar(state);
+    int alphabetState = model_->getAlphabetStateAsInt(state);
     return categories_[alphabetState];
   }
 
@@ -294,8 +294,8 @@ public:
 
   virtual size_t getType(size_t fromState, size_t toState) const
   {
-    size_t fromCat = categories_[model_->getAlphabetChar(fromState)];
-    size_t toCat   = categories_[model_->getAlphabetChar(toState)];
+    size_t fromCat = categories_[model_->getAlphabetStateAsInt(fromState)];
+    size_t toCat   = categories_[model_->getAlphabetStateAsInt(toState)];
     if (fromCat > 0 && toCat > 0)
       return index_[fromCat - 1][toCat - 1];
     else
@@ -818,8 +818,8 @@ public:
 
   size_t getType(size_t fromState, size_t toState) const
   {
-    int x = model_->getAlphabetChar(fromState);
-    int y = model_->getAlphabetChar(toState);
+    int x = model_->getAlphabetStateAsInt(fromState);
+    int y = model_->getAlphabetStateAsInt(toState);
     if (x == y)
       return 0;                     // nothing happens
     if ((x == 0 && y == 2)
@@ -894,8 +894,8 @@ public:
 
   size_t getType(size_t fromState, size_t toState) const
   {
-    int x = model_->getAlphabetChar(fromState);
-    int y = model_->getAlphabetChar(toState);
+    int x = model_->getAlphabetStateAsInt(fromState);
+    int y = model_->getAlphabetStateAsInt(toState);
     const CodonAlphabet* cAlpha = dynamic_cast<const CodonAlphabet*>(model_->getAlphabet());
     if (code_->isStop(x) || code_->isStop(y))
       return 0;
@@ -1001,8 +1001,8 @@ public:
 
   size_t getType(size_t fromState, size_t toState) const
   {
-    int x = model_->getAlphabetChar(fromState);
-    int y = model_->getAlphabetChar(toState);
+    int x = model_->getAlphabetStateAsInt(fromState);
+    int y = model_->getAlphabetStateAsInt(toState);
     const CodonAlphabet* pCA = dynamic_cast<const CodonAlphabet*>(code_->getSourceAlphabet());
     if (code_->isStop(x) || code_->isStop( y) || !code_->areSynonymous(x, y))
       return 0;

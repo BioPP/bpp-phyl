@@ -164,6 +164,16 @@ public:
    * according to the MRP supertree method.
    */
   static VectorSiteContainer* MRPEncode(const std::vector<BipartitionList*>& vecBipartL) throw (Exception);
+    
+    /**
+     * @brief Create a sequence data set corresponding to the Matrix Representation of the input BipartitionList objects and accomodates multilabel trees
+     *
+     * The input BipartitionList objects can have distinct sets of elements - missing data will be represented as 'N'.
+     * The output alignment (DNA sequences including only A, C and N)) is ready for maximum parsimony analysis
+     * according to the MRP supertree method.
+     */
+    static VectorSiteContainer* MRPEncodeMultilabel(                                                                     const std::vector<BipartitionList*>& vecBipartL) throw (Exception);
+
 };
 } // end of namespace bpp.
 

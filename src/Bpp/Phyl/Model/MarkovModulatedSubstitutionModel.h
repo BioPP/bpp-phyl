@@ -79,6 +79,7 @@ namespace bpp
 
   protected:
     ReversibleSubstitutionModel* model_;
+    MarkovModulatedStateMap stateMap_;
     size_t nbStates_; //Number of states in model
     size_t nbRates_; //Number of rate classes
 
@@ -94,11 +95,6 @@ namespace bpp
     /**@}*/
     RowMatrix<double> ratesGenerator_;       //All rates transitions
     
-    /**
-     * @brief The list of supported chars.
-     */
-    std::vector<int> chars_;
-
     /**
      * @brief The generator matrix \f$Q\f$ of the model.
      */
@@ -156,15 +152,17 @@ namespace bpp
      * @brief Build a new MarkovModulatedSubstitutionModel object.
      *
      * @param model The substitution model to use. Can be of any alphabet type, and will be owned by this instance.
+     * @param nbRates The number of rate classes
      * @param normalizeRateChanges Tells if the branch lengths must be computed in terms of rate and state
+     * NB: In most cases, this parameter should be set to false.
      * @param prefix The parameter namespace to be forwarded to the AbstractParametrizable constructor.
      * changes instead of state change only.
-     * NB: In most cases, this parameter should be set to false.
      */
-    MarkovModulatedSubstitutionModel(ReversibleSubstitutionModel* model, bool normalizeRateChanges, const std::string& prefix) :
+    MarkovModulatedSubstitutionModel(ReversibleSubstitutionModel* model, unsigned int nbRates, bool normalizeRateChanges, const std::string& prefix) :
       AbstractParameterAliasable(prefix),
-      model_(model), nbStates_(model->getNumberOfStates()), nbRates_(0), rates_(), ratesExchangeability_(),
-      ratesFreq_(), ratesGenerator_(), chars_(), generator_(), exchangeability_(),
+      model_(model), stateMap_(model->getStateMap(), nbRates), nbStates_(model->getNumberOfStates()),
+      nbRates_(nbRates), rates_(nbRates, nbRates), ratesExchangeability_(nbRates, nbRates),
+      ratesFreq_(nbRates), ratesGenerator_(nbRates, nbRates), generator_(), exchangeability_(),
       leftEigenVectors_(), rightEigenVectors_(), eigenValues_(), iEigenValues_(), eigenDecompose_(true), 
       pijt_(), dpijt_(), d2pijt_(), freq_(),
       normalizeRateChanges_(normalizeRateChanges),
@@ -191,6 +189,18 @@ namespace bpp
     const Alphabet* getAlphabet() const { return model_->getAlphabet(); }
 
     size_t getNumberOfStates() const { return nbStates_ * nbRates_; }
+
+    const StateMap& getStateMap() const { return stateMap_; }
+
+    const std::vector<int>& getAlphabetStates() const { return stateMap_.getAlphabetStates(); }
+
+    std::string getAlphabetStateAsChar(size_t index) const { return stateMap_.getAlphabetStateAsChar(index); }
+
+    int getAlphabetStateAsInt(size_t index) const { return stateMap_.getAlphabetStateAsInt(index); }
+
+    std::vector<size_t> getModelStates(int code) const { return stateMap_.getModelStates(code); }
+  
+    std::vector<size_t> getModelStates(const std::string& code) const { return stateMap_.getModelStates(code); }
 
     const Vdouble& getFrequencies() const { return freq_; }
     
@@ -227,25 +237,6 @@ namespace bpp
       updateMatrices();
     }
 
-    const std::vector<int>& getAlphabetChars() const
-    {
-      return chars_;
-    }
-
-    int getAlphabetChar(size_t i) const
-    {
-      return chars_[i]; 
-    }
-   
-    std::vector<size_t> getModelStates(int i) const
-    {
-      std::vector<size_t> states(nbRates_ * nbStates_);
-      std::vector<size_t> nestedStates = model_->getModelStates(i);
-      for(size_t j = 0; j < nbRates_; j++)
-        for(size_t k = 0; k < nestedStates.size(); k++)
-          states.push_back(j * nbRates_ + states[k]);
-      return states;
-    }
 
     const ReversibleSubstitutionModel* getNestedModel() const { return model_; }
 

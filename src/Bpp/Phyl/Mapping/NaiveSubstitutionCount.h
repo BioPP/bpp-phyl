@@ -84,7 +84,7 @@ namespace bpp
       AbstractSubstitutionCount(reg),
       AbstractWeightedSubstitutionCount(weights, true),
       allowSelf_(allowSelf),
-      supportedChars_(model->getAlphabetChars()) {}				
+      supportedChars_(model->getAlphabetStates()) {}				
 		
     virtual ~NaiveSubstitutionCount() {}
 	
@@ -115,7 +115,7 @@ namespace bpp
     
     void setSubstitutionModel(const SubstitutionModel* model)
     {
-      supportedChars_ = model->getAlphabetChars();
+      supportedChars_ = model->getAlphabetStates();
     }
 
   private:
@@ -165,7 +165,7 @@ namespace bpp
 
     void setSubstitutionModel(const SubstitutionModel* model)
     {
-      supportedChars_ = model->getAlphabetChars();
+      supportedChars_ = model->getAlphabetStates();
     }
 
     void setSubstitutionRegister(SubstitutionRegister* reg) throw (Exception) {

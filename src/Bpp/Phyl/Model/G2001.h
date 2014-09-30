@@ -79,13 +79,10 @@ public:
    * @param normalizeRateChanges Tell if the rate transition matrix should be normalized.
    */
   G2001(ReversibleSubstitutionModel* model, DiscreteDistribution* rDist, double nu = 1., bool normalizeRateChanges = false) :
-    MarkovModulatedSubstitutionModel(model, normalizeRateChanges, "G01."),
+    MarkovModulatedSubstitutionModel(model, static_cast<unsigned int>(rDist->getNumberOfCategories()), normalizeRateChanges, "G01."),
     rDist_(rDist),
     nestedRatePrefix_("rdist_" + rDist->getNamespace())
   {
-    nbRates_ = rDist_->getNumberOfCategories();
-    ratesExchangeability_.resize(nbRates_, nbRates_);
-    rates_.resize(nbRates_, nbRates_);
     ratesFreq_ = std::vector<double>(nbRates_, 1. / static_cast<double>(nbRates_));
     rDist_->setNamespace(getNamespace() + nestedRatePrefix_);
     addParameters_(rDist_->getIndependentParameters());

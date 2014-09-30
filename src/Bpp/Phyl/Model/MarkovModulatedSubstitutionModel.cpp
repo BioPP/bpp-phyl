@@ -52,13 +52,13 @@ MarkovModulatedSubstitutionModel::MarkovModulatedSubstitutionModel(
   const MarkovModulatedSubstitutionModel& model) :
   AbstractParameterAliasable(model),
   model_               (dynamic_cast<ReversibleSubstitutionModel*>(model.model_->clone())),
+  stateMap_            (model.stateMap_),
   nbStates_            (model.nbStates_),
   nbRates_             (model.nbRates_),
   rates_               (model.rates_),
   ratesExchangeability_(model.ratesExchangeability_),
   ratesFreq_           (model.ratesFreq_),
   ratesGenerator_      (model.ratesGenerator_),
-  chars_               (model.chars_),
   generator_           (model.generator_),
   exchangeability_     (model.exchangeability_),
   leftEigenVectors_    (model.leftEigenVectors_),
@@ -79,13 +79,13 @@ MarkovModulatedSubstitutionModel& MarkovModulatedSubstitutionModel::operator=(
 {
   AbstractParametrizable::operator=(model);
   model_                = dynamic_cast<ReversibleSubstitutionModel*>(model.model_->clone());
+  stateMap_             = model.stateMap_;
   nbStates_             = model.nbStates_;
   nbRates_              = model.nbRates_;
   rates_                = model.rates_;
   ratesExchangeability_ = model.ratesExchangeability_;
   ratesFreq_            = model.ratesFreq_;
   ratesGenerator_       = model.ratesGenerator_;
-  chars_                = model.chars_;
   generator_            = model.generator_;
   exchangeability_      = model.exchangeability_;
   leftEigenVectors_     = model.leftEigenVectors_;
@@ -109,7 +109,6 @@ void MarkovModulatedSubstitutionModel::updateMatrices()
   // ratesGenerator_ and rates_ must be initialized!
   nbStates_        = model_->getNumberOfStates();
   nbRates_         = rates_.getNumberOfColumns();
-  chars_           = VectorTools::rep(model_->getAlphabetChars(), nbRates_);
   RowMatrix<double> Tmp1, Tmp2;
   MatrixTools::diag(ratesFreq_, Tmp1);
   MatrixTools::mult(ratesExchangeability_, Tmp1, ratesGenerator_);
@@ -210,7 +209,7 @@ double MarkovModulatedSubstitutionModel::getInitValue(size_t i, int state) const
   vector<int> states = model_->getAlphabet()->getAlias(state);
   for (size_t j = 0; j < states.size(); j++)
   {
-    if (getAlphabetChar(i) == states[j])
+    if (getAlphabetStateAsInt(i) == states[j])
       return 1.;
   }
   return 0.;

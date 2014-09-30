@@ -74,6 +74,10 @@ UniformizationSubstitutionCount::UniformizationSubstitutionCount(const Substitut
     if (diagQ > miu_)
       miu_ = diagQ;
   }
+  
+  if (miu_>10000)
+    throw Exception("UniformizationSubstitutionCount::UniformizationSubstitutionCount The maximum diagonal values of generator is above 10000. Abort, chose another mapping method");
+      
 }        
 
 /******************************************************************************/
@@ -153,7 +157,7 @@ void UniformizationSubstitutionCount::computeCounts_(double length) const
   }
 
   // Now we must divide by pijt and account for putative weights:
-  vector<int> supportedStates = model_->getAlphabetChars();
+  vector<int> supportedStates = model_->getAlphabetStates();
   RowMatrix<double> P = model_->getPij_t(length);
   for (size_t i = 0; i < register_->getNumberOfSubstitutionTypes(); i++) {
     for (size_t j = 0; j < nbStates_; j++) {
@@ -238,6 +242,9 @@ void UniformizationSubstitutionCount::setSubstitutionModel(const SubstitutionMod
     if (diagQ > miu_)
       miu_ = diagQ;
   }
+
+  if (miu_>10000)
+    throw Exception("UniformizationSubstitutionCount::setSubstitutionModel The maximum diagonal values of generator is above 10000. Abort, chose another mapping method.");
 
   //Recompute counts:
   computeCounts_(currentLength_);

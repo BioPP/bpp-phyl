@@ -55,32 +55,32 @@ IntervalConstraint FrequenciesSet::FREQUENCE_CONSTRAINT_SMALL(NumConstants::SMAL
 // AbstractFrequenciesSet
 
 
-void AbstractFrequenciesSet::setFrequenciesFromMap(const map<int, double>& frequencies)
+void AbstractFrequenciesSet::setFrequenciesFromAlphabetStatesFrequencies(const map<int, double>& frequencies)
 {
-  size_t s = alphabet_->getSize();
+  size_t s = stateMap_->getNumberOfModelStates();
   vector<double> freq(s);
   double x = 0;
-  for (size_t i = 0; i < s; i++)
+  for (size_t i = 0; i < s; ++i)
   {
-    map<int, double>::const_iterator it = frequencies.find(alphabet_->getIntCodeAt(i));
+    map<int, double>::const_iterator it = frequencies.find(stateMap_->getAlphabetStateAsInt(i));
     if (it != frequencies.end())
       freq[i] = it->second;
     else
       freq[i] = 0;
     x += freq[i];
   }
-  for (size_t i = 0; i < s; i++)
+  for (size_t i = 0; i < s; ++i)
   {
     freq[i] /= x;
   }
   setFrequencies(freq);
 }
 
-const std::map<int, double> AbstractFrequenciesSet::getFrequenciesAsMap() const {
+const std::map<int, double> AbstractFrequenciesSet::getAlphabetStatesFrequencies() const
+{
   map<int, double> fmap;
-  size_t s = alphabet_->getSize();
-  for (size_t i = 0; i < s; i++) {
-    fmap[alphabet_->getIntCodeAt(i)] = freq_[i];
+  for (size_t i = 0; i < stateMap_->getNumberOfModelStates(); ++i) {
+    fmap[stateMap_->getAlphabetStateAsInt(i)] += freq_[i];
   }
   return fmap;
 }
@@ -88,14 +88,14 @@ const std::map<int, double> AbstractFrequenciesSet::getFrequenciesAsMap() const 
 // ////////////////////////////
 // FullFrequenciesSet
 
-FullFrequenciesSet::FullFrequenciesSet(const Alphabet* alphabet, bool allowNullFreqs, unsigned short method, const string& name) :
-  AbstractFrequenciesSet(alphabet->getSize(), alphabet, "Full.", name),
-  sFreq_(alphabet->getSize(), method, false, "Full.")
+FullFrequenciesSet::FullFrequenciesSet(StateMap* stateMap, bool allowNullFreqs, unsigned short method, const string& name) :
+  AbstractFrequenciesSet(stateMap, "Full.", name),
+  sFreq_(stateMap->getNumberOfModelStates(), method, allowNullFreqs, "Full.")
 {
   vector<double> vd;
-  double r=1. / static_cast<double>(alphabet->getSize());
+  double r = 1. / static_cast<double>(stateMap->getNumberOfModelStates());
 
-  for (size_t i = 0; i < alphabet->getSize(); i++)
+  for (size_t i = 0; i < stateMap->getNumberOfModelStates(); i++)
     vd.push_back(r);
 
   sFreq_.setFrequencies(vd);
@@ -103,9 +103,9 @@ FullFrequenciesSet::FullFrequenciesSet(const Alphabet* alphabet, bool allowNullF
   updateFreq_();
 }
 
-FullFrequenciesSet::FullFrequenciesSet(const Alphabet* alphabet, const vector<double>& initFreqs, bool allowNullFreqs, unsigned short method, const string& name) :
-  AbstractFrequenciesSet(alphabet->getSize(), alphabet, "Full.", name),
-  sFreq_(alphabet->getSize(), method, false, "Full.")
+FullFrequenciesSet::FullFrequenciesSet(StateMap* stateMap, const vector<double>& initFreqs, bool allowNullFreqs, unsigned short method, const string& name) :
+  AbstractFrequenciesSet(stateMap, "Full.", name),
+  sFreq_(stateMap->getNumberOfModelStates(), method, allowNullFreqs, "Full.")
 {
   sFreq_.setFrequencies(initFreqs);
   addParameters_(sFreq_.getParameters());
@@ -142,19 +142,21 @@ void FullFrequenciesSet::updateFreq_()
 // ///////////////////////////////////////////
 // / FixedFrequenciesSet
 
-FixedFrequenciesSet::FixedFrequenciesSet(const Alphabet* alphabet, const vector<double>& initFreqs, const string& name) :
-  AbstractFrequenciesSet(initFreqs.size(), alphabet, "Fixed.", name)
+FixedFrequenciesSet::FixedFrequenciesSet(StateMap* stateMap, const vector<double>& initFreqs, const string& name) throw (Exception) :
+  AbstractFrequenciesSet(stateMap, "Fixed.", name)
 {
+  if (stateMap->getNumberOfModelStates() != initFreqs.size())
+    throw Exception("FixedFrequenciesSet::constructor. size of init vector does not match the number of states in the model.");
   setFrequencies(initFreqs);
 }
 
-FixedFrequenciesSet::FixedFrequenciesSet(const Alphabet* alphabet, size_t nFreqs, const string& name) :
-  AbstractFrequenciesSet(nFreqs, alphabet, "Fixed.", name)
+FixedFrequenciesSet::FixedFrequenciesSet(StateMap* stateMap, const string& name) :
+  AbstractFrequenciesSet(stateMap, "Fixed.", name)
 {
-  size_t size = nFreqs;
-  for (size_t i = 0; i < nFreqs; ++i)
+  size_t n = stateMap->getNumberOfModelStates();
+  for (size_t i = 0; i < n; ++i)
   {
-    getFreq_(i) = 1. / static_cast<double>(size);
+    getFreq_(i) = 1. / static_cast<double>(n);
   }
 }
 
@@ -173,7 +175,7 @@ void FixedFrequenciesSet::setFrequencies(const vector<double>& frequencies)
 }
 
 MarkovModulatedFrequenciesSet::MarkovModulatedFrequenciesSet(FrequenciesSet* freqSet, const std::vector<double>& rateFreqs) :
-  AbstractFrequenciesSet(freqSet->getAlphabet()->getSize() * rateFreqs.size(), freqSet->getAlphabet(), "MarkovModulated.", "MarkovModulated." + freqSet->getName()),
+  AbstractFrequenciesSet(new MarkovModulatedStateMap(freqSet->getStateMap(), static_cast<unsigned int>(rateFreqs.size())), "MarkovModulated.", "MarkovModulated." + freqSet->getName()),
   freqSet_(freqSet),
   rateFreqs_(rateFreqs)
 {

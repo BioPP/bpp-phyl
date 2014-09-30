@@ -5,7 +5,7 @@
 //
 
 /*
-  Copyright or © or Copr. CNRS, (November 16, 2004)
+  Copyright or © or Copr. Bio++ Development Team, (November 16, 2004)
   This software is a computer program whose purpose is to provide
   classes for phylogenetic data analysis.
 
@@ -51,7 +51,7 @@ using namespace bpp;
 
 gBGC::gBGC(const NucleicAlphabet* alph, NucleotideSubstitutionModel* const pm, double gamma) :
   AbstractParameterAliasable("gBGC."),
-  AbstractSubstitutionModel(alph,"gBGC."),
+  AbstractSubstitutionModel(alph, new CanonicalStateMap(alph, false), "gBGC."),
   model_(pm),
   nestedPrefix_(pm->getNamespace()),
   gamma_(gamma)

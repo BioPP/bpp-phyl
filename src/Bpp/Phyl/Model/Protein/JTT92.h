@@ -90,7 +90,7 @@ class JTT92 :
 
     JTT92(const JTT92& model) :
       AbstractParameterAliasable(model),
-      AbstractSubstitutionModel(model),
+      //AbstractSubstitutionModel(model),
       AbstractReversibleSubstitutionModel(model),
       freqSet_(dynamic_cast<ProteinFrequenciesSet *>(model.freqSet_->clone()))
     {}

@@ -160,7 +160,7 @@ namespace bpp
 
     JCprot(const JCprot& model) :
       AbstractParameterAliasable(model),
-      AbstractSubstitutionModel(model),
+      //AbstractSubstitutionModel(model),
       AbstractReversibleSubstitutionModel(model),
       exp_(model.exp_),
       p_(model.p_),

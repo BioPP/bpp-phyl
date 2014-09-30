@@ -108,7 +108,7 @@ FrequenciesSet* BppOFrequenciesSetFormat::read(const Alphabet* alphabet, const s
     }
     else
     {
-      pFS.reset(new FixedFrequenciesSet(alphabet, alphabet->getSize()));
+      pFS.reset(new FixedFrequenciesSet(new CanonicalStateMap(alphabet, false)));
     }
   }
   else if (freqName == "Full")
@@ -148,7 +148,8 @@ FrequenciesSet* BppOFrequenciesSetFormat::read(const Alphabet* alphabet, const s
     }
     else
     {
-      pFS.reset(new FullFrequenciesSet(alphabet, false, method));
+      //NB: jdutheil 25/09/14 => gap models will not be supported before we add the appropriate option!
+      pFS.reset(new FullFrequenciesSet(new CanonicalStateMap(alphabet, false), false, method));
     }
   }
   else if (freqName == "GC")
@@ -435,8 +436,17 @@ FrequenciesSet* BppOFrequenciesSetFormat::read(const Alphabet* alphabet, const s
     {
       opt = CodonFrequenciesSet::F61;
     }
-    if (opt != -1)
-      pFS.reset(CodonFrequenciesSet::getFrequenciesSetForCodons(opt, geneticCode_, mgmtStopCodon));
+    if (opt != -1){
+      unsigned short method=1;
+      if (args.find("method") != args.end()){
+        if (args["method"]=="local")
+          method=2;
+        else
+          if (args["method"]=="binary")
+            method=3;
+      }      
+      pFS.reset(CodonFrequenciesSet::getFrequenciesSetForCodons(opt, geneticCode_, mgmtStopCodon, method));
+    }
     else
       throw Exception("Unknown frequency option: " + freqName);
   }
@@ -571,7 +581,8 @@ void BppOFrequenciesSetFormat::write(const FrequenciesSet* pfreqset,
         }
       }
     }
-      
+
+    
     for (size_t i = 0; i < pl.size(); i++)
     {
       if (find(writtenNames.begin(), writtenNames.end(), pl[i].getName()) == writtenNames.end())
@@ -583,6 +594,17 @@ void BppOFrequenciesSetFormat::write(const FrequenciesSet* pfreqset,
         string pname = pfreqset->getParameterNameWithoutNamespace(pl[i].getName());
         (out << pname << "=").enableScientificNotation(false) << pl[i].getValue();
         writtenNames.push_back(pl[i].getName());
+      }
+    }
+    const FullCodonFrequenciesSet* pF=dynamic_cast<const FullCodonFrequenciesSet*>(pfreqset);
+    if (pF != NULL)
+    {
+      unsigned short meth=pF->getMethod();
+      if (meth>1){
+        if (flag)
+          out << ",";
+        out << "method=" << ((meth==2)?"local":"binary");
+        flag=true;
       }
     }
   }
@@ -608,7 +630,7 @@ void BppOFrequenciesSetFormat::initialize_(FrequenciesSet& freqSet, const SiteCo
       map<int, double> freqs;
       SequenceContainerTools::getFrequencies(*data, freqs, psc);
 
-      freqSet.setFrequenciesFromMap(freqs);
+      freqSet.setFrequenciesFromAlphabetStatesFrequencies(freqs);
     }
     else if (init.substr(0, 6) == "values")
     {

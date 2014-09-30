@@ -1571,7 +1571,7 @@ vector< vector<double> > SubstitutionMappingTools::getNormalizationsPerBranch(
   size_t nbTypes = reg.getNumberOfSubstitutionTypes();
   size_t nbStates = nullModel->getAlphabet()->getSize();
   size_t nbSites = drtl.getNumberOfSites();
-  vector<int> supportedStates = nullModel->getAlphabetChars();
+  vector<int> supportedStates = nullModel->getAlphabetStates();
 
   // compute the AlphabetIndex for each substitutionType
   vector<UserAlphabetIndex1 > usai(nbTypes, UserAlphabetIndex1(nullModel->getAlphabet()));
@@ -1641,27 +1641,6 @@ vector< vector<double> > SubstitutionMappingTools::getNormalizationsPerBranch(
   size_t nbModels = nullModelSet->getNumberOfModels();
 
   // compute the AlphabetIndex for each substitutionType
-  vector<vector<UserAlphabetIndex1 > > usai(nbModels, vector<UserAlphabetIndex1>(nbTypes, UserAlphabetIndex1(nullModelSet->getAlphabet())));
-
-  for (size_t nbm = 0; nbm < nbModels; nbm++)
-  {
-    const SubstitutionModel* modn = nullModelSet->getModel(nbm);
-    vector<int> supportedStates = modn->getAlphabetChars();
-
-    for (size_t i = 0; i < nbStates; i++)
-    {
-      for (size_t j = 0; j < nbStates; j++)
-      {
-        if (i != j)
-        {
-          size_t nbt = reg.getType(i, j);
-          if (nbt != 0)
-            usai[nbm][nbt - 1].setIndex(supportedStates[i], usai[nbm][nbt - 1].getIndex(supportedStates[i]) + modn->Qij(i, j));
-        }
-      }
-    }
-  }
-
   // compute the normalization for each substitutionType
   vector< vector<double> > rewards(ids.size());
 
@@ -1670,37 +1649,62 @@ vector< vector<double> > SubstitutionMappingTools::getNormalizationsPerBranch(
     rewards[k].resize(nbTypes);
   }
 
-  for (size_t nbt = 0; nbt < nbTypes; nbt++)
+  vector<UserAlphabetIndex1 >  usai(nbTypes, UserAlphabetIndex1(nullModelSet->getAlphabet()));
+
+  for (size_t nbm = 0; nbm < nbModels; nbm++)
   {
-    for (size_t nbm = 0; nbm < nbModels; nbm++)
+    vector<int> mids = VectorTools::vectorIntersection(ids, nullModelSet->getNodesWithModel(nbm));
+    
+    if (mids.size()>0)
     {
-      vector<int> mids = VectorTools::vectorIntersection(ids, nullModelSet->getNodesWithModel(nbm));
+      const SubstitutionModel* modn = nullModelSet->getModel(nbm);
+      vector<int> supportedStates = modn->getAlphabetStates();
 
-      auto_ptr<Reward> reward(new DecompositionReward(nullModelSet->getModel(nbm), &usai[nbm][nbt]));
+      for (size_t nbt = 0; nbt < nbTypes; nbt++)
+        for (size_t i = 0; i < nbStates; i++)
+          usai[nbt].setIndex(supportedStates[i], 0);
 
-      auto_ptr<ProbabilisticRewardMapping> mapping(RewardMappingTools::computeRewardVectors(drtl, mids, *reward, false));
-
-      for (size_t k = 0; k < mids.size(); k++)
+      for (size_t i = 0; i < nbStates; i++)
       {
-        double s = 0;
-        for (size_t i = 0; i < nbSites; ++i)
+        for (size_t j = 0; j < nbStates; j++)
         {
-          double tmp = (*mapping)(mapping->getNodeIndex(mids[k]), i);
-          if (isnan(tmp))
+          if (i != j)
           {
-            if (verbose)
-              ApplicationTools::displayWarning("On branch " + TextTools::toString(mids[k]) + ", reward for type " + reg.getTypeName(nbt + 1) + " could not be computed.");
-            s = 0;
-            break;
+            size_t nbt = reg.getType(i, j);
+            if (nbt != 0)
+              usai[nbt - 1].setIndex(supportedStates[i], usai[nbt - 1].getIndex(supportedStates[i]) + modn->Qij(i, j));
           }
-          else
-            s += tmp;
         }
-
-        rewards[VectorTools::which(ids, mids[k])][nbt] = s;
       }
-      reward.release();
-      mapping.release();
+
+      for (size_t nbt = 0; nbt < nbTypes; nbt++)
+      {
+        auto_ptr<Reward> reward(new DecompositionReward(nullModelSet->getModel(nbm), &usai[nbt]));
+        
+        auto_ptr<ProbabilisticRewardMapping> mapping(RewardMappingTools::computeRewardVectors(drtl, mids, *reward, false));
+        
+        for (size_t k = 0; k < mids.size(); k++)
+        {
+          double s = 0;
+          for (size_t i = 0; i < nbSites; ++i)
+          {
+            double tmp = (*mapping)(mapping->getNodeIndex(mids[k]), i);
+            if (isnan(tmp))
+            {
+              if (verbose)
+                ApplicationTools::displayWarning("On branch " + TextTools::toString(mids[k]) + ", reward for type " + reg.getTypeName(nbt + 1) + " could not be computed.");
+              s = 0;
+              break;
+            }
+            else
+              s += tmp;
+          }
+          
+          rewards[VectorTools::which(ids, mids[k])][nbt] = s;
+        }
+        reward.release();
+        mapping.release();
+      }
     }
   }
 

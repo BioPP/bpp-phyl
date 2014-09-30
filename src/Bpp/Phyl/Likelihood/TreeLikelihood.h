@@ -306,12 +306,17 @@ class TreeLikelihood:
     /**
      * @return the alphabet state corresponding to the given model state.
      */    
-    virtual int getAlphabetChar(size_t i) const = 0;
+    virtual int getAlphabetStateAsInt(size_t i) const = 0;
   
+    /**
+     * @return the alphabet state corresponding to the given model state.
+     */    
+    virtual std::string getAlphabetStateAsChar(size_t i) const = 0;
+ 
     /**
      * @return the alphabet states corresponding to all model states.
      */    
-    virtual const std::vector<int>& getAlphabetChars() const = 0;
+    virtual const std::vector<int>& getAlphabetStates() const = 0;
   
     /**
      * @brief Get the alphabet associated to the dataset.

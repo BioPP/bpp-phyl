@@ -59,15 +59,17 @@ using namespace std;
 
 /******************************************************************************/
 
+//TODO: jdutheil on 24/09/14: we should define a class "vector of models", insuring they share the same alphabet and StateMap for instance.
+//This is the only way to avoid a segfault in case the user provides a vector of models of length 0.
 AbstractWordSubstitutionModel::AbstractWordSubstitutionModel(
   const std::vector<SubstitutionModel*>& modelVector,
-  const std::string& st) :
-  AbstractParameterAliasable(st),
-  AbstractSubstitutionModel(AbstractWordSubstitutionModel::extractAlph(modelVector), st),
+  const std::string& prefix) :
+  AbstractParameterAliasable(prefix),
+  AbstractSubstitutionModel(AbstractWordSubstitutionModel::extractAlph(modelVector), modelVector[0]->getStateMap().clone(), prefix),
   new_alphabet_ (true),
   VSubMod_      (),
   VnestedPrefix_(),
-  Vrate_         (modelVector.size())
+  Vrate_        (modelVector.size())
 {
   enableEigenDecomposition(false);
   size_t i, j;
@@ -99,7 +101,7 @@ AbstractWordSubstitutionModel::AbstractWordSubstitutionModel(
     {
       VSubMod_.push_back(modelVector[i]);
       VnestedPrefix_.push_back(modelVector[i]->getNamespace());
-      VSubMod_[i]->setNamespace(st + TextTools::toString(i + 1) + "_" + VnestedPrefix_[i]);
+      VSubMod_[i]->setNamespace(prefix + TextTools::toString(i + 1) + "_" + VnestedPrefix_[i]);
       addParameters_(VSubMod_[i]->getParameters());
     }
   }
@@ -112,7 +114,7 @@ AbstractWordSubstitutionModel::AbstractWordSubstitutionModel(
       VnestedPrefix_.push_back(modelVector[0]->getNamespace());
       t += TextTools::toString(i + 1);
     }
-    VSubMod_[0]->setNamespace(st + t + "_" + VnestedPrefix_[0]);
+    VSubMod_[0]->setNamespace(prefix + t + "_" + VnestedPrefix_[0]);
     addParameters_(VSubMod_[0]->getParameters());
   }
 
@@ -124,9 +126,10 @@ AbstractWordSubstitutionModel::AbstractWordSubstitutionModel(
 
 AbstractWordSubstitutionModel::AbstractWordSubstitutionModel(
   const Alphabet* alph,
-  const std::string& st) :
-  AbstractParameterAliasable(st),
-  AbstractSubstitutionModel(alph, st),
+  StateMap* stateMap,
+  const std::string& prefix) :
+  AbstractParameterAliasable(prefix),
+  AbstractSubstitutionModel(alph, stateMap, prefix),
   new_alphabet_ (false),
   VSubMod_      (),
   VnestedPrefix_(),
@@ -138,9 +141,9 @@ AbstractWordSubstitutionModel::AbstractWordSubstitutionModel(
 AbstractWordSubstitutionModel::AbstractWordSubstitutionModel(
   SubstitutionModel* pmodel,
   unsigned int num,
-  const std::string& st) :
-  AbstractParameterAliasable(st),
-  AbstractSubstitutionModel(new WordAlphabet(pmodel->getAlphabet(), num), st),
+  const std::string& prefix) :
+  AbstractParameterAliasable(prefix),
+  AbstractSubstitutionModel(new WordAlphabet(pmodel->getAlphabet(), num), pmodel->getStateMap().clone(), prefix),
   new_alphabet_ (true),
   VSubMod_      (),
   VnestedPrefix_(),
@@ -158,7 +161,7 @@ AbstractWordSubstitutionModel::AbstractWordSubstitutionModel(
     t += TextTools::toString(i + 1);
   }
 
-  pmodel->setNamespace(st + t + "_" + VnestedPrefix_[0]);
+  pmodel->setNamespace(prefix + t + "_" + VnestedPrefix_[0]);
   addParameters_(pmodel->getParameters());
 }
 

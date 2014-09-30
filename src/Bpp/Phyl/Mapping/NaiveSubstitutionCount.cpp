@@ -59,7 +59,7 @@ LabelSubstitutionCount::LabelSubstitutionCount(const SubstitutionModel* model) :
   AbstractSubstitutionCount(
       new TotalSubstitutionRegister(model)),
   label_(model->getNumberOfStates(), model->getNumberOfStates()),
-  supportedChars_(model->getAlphabetChars())
+  supportedChars_(model->getAlphabetStates())
 {
   size_t n = supportedChars_.size();
   double count = 0;

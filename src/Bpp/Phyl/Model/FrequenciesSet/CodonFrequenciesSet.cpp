@@ -39,6 +39,10 @@
 
 #include "CodonFrequenciesSet.h"
 #include "NucleotideFrequenciesSet.h"
+#include "../StateMap.h"
+
+// From bpp-core:
+#include <Bpp/Numeric/Prob/Simplex.h>
 
 using namespace bpp;
 using namespace std;
@@ -46,142 +50,124 @@ using namespace std;
 // ////////////////////////////
 // FullCodonFrequenciesSet
 
-FullCodonFrequenciesSet::FullCodonFrequenciesSet(const GeneticCode* gCode, bool allowNullFreqs, const string& name) :
+FullCodonFrequenciesSet::FullCodonFrequenciesSet(const GeneticCode* gCode, bool allowNullFreqs, unsigned short method, const string& name) :
   AbstractFrequenciesSet(
-      gCode->getSourceAlphabet()->getSize(),
-      gCode->getSourceAlphabet(),
-      "Full.",
-      name),
-  pgc_(gCode)
+    new CanonicalStateMap(gCode->getSourceAlphabet(), false),
+    "Full.",
+    name),
+  pgc_(gCode),
+  sFreq_(gCode->getSourceAlphabet()->getSize()  - gCode->getNumberOfStopCodons(), method, allowNullFreqs, "Full.")
 {
-  size_t size = gCode->getSourceAlphabet()->getSize() - gCode->getNumberOfStopCodons();
-  size_t j = 0;
+  vector<double> vd;
+  double r = 1. / static_cast<double>(sFreq_.dimension());
 
-  for (size_t i = 0; i < gCode->getSourceAlphabet()->getSize() - 1; i++)
+  for (size_t i = 0; i < sFreq_.dimension(); i++)
   {
-    if (gCode->isStop(static_cast<int>(i)))
-    {
-      getFreq_(i) = 0;
-    }
-    else
-    {
-      addParameter_(new Parameter(
-                      "Full.theta" + TextTools::toString(i + 1),
-                      1. / static_cast<double>(size - j),
-                      allowNullFreqs ?
-                      &Parameter::PROP_CONSTRAINT_IN :
-                      &FrequenciesSet::FREQUENCE_CONSTRAINT_MILLI));
-      getFreq_(i) = 1. / static_cast<double>(size);
-      j++;
-    }
+    vd.push_back(r);
   }
-  size_t i = gCode->getSourceAlphabet()->getSize() - 1;
-  getFreq_(i) = (gCode->isStop(static_cast<int>(i))) ? 0 : 1. / static_cast<double>(size);
-}
 
+  sFreq_.setFrequencies(vd);
+  addParameters_(sFreq_.getParameters());
+  updateFreq_();
+}
 
 FullCodonFrequenciesSet::FullCodonFrequenciesSet(
-    const GeneticCode* gCode,
-    const vector<double>& initFreqs,
-    bool allowNullFreqs,
-    const string& name) :
-  AbstractFrequenciesSet(gCode->getSourceAlphabet()->getSize(), gCode->getSourceAlphabet(), "Full.", name),
-  pgc_(gCode)
+  const GeneticCode* gCode,
+  const vector<double>& initFreqs,
+  bool allowNullFreqs,
+  unsigned short method,
+  const string& name) :
+  AbstractFrequenciesSet(new CanonicalStateMap(gCode->getSourceAlphabet(), false), "Full.", name),
+  pgc_(gCode),
+  sFreq_(gCode->getSourceAlphabet()->getSize() - gCode->getNumberOfStopCodons(), method, allowNullFreqs, "Full.")
 {
-  if (initFreqs.size() != gCode->getSourceAlphabet()->getSize())
+  if (initFreqs.size() != getAlphabet()->getSize())
     throw Exception("FullCodonFrequenciesSet(constructor). There must be " + TextTools::toString(gCode->getSourceAlphabet()->getSize()) + " frequencies.");
-  double sum = 0.0;
 
-  for (size_t i = 0; i < initFreqs.size(); i++)
+  double sum = 0;
+  for (size_t i = 0; i < getAlphabet()->getSize(); i++)
+  {
+    if (!pgc_->isStop(static_cast<int>(i)))
+      sum += initFreqs[i];
+  }
+
+  vector<double> vd;
+  for (size_t i = 0; i < getAlphabet()->getSize(); i++)
   {
     if (!gCode->isStop(static_cast<int>(i)))
-    {
-      sum += initFreqs[i];
-    }
+      vd.push_back(initFreqs[i] / sum);
   }
 
-  double y = 1;
-  for (size_t i = 0; i < gCode->getSourceAlphabet()->getSize() - 1; i++)
-  {
-    if (gCode->isStop(static_cast<int>(i)))
-    {
-      getFreq_(i) = 0;
-    }
-    else
-    {
-      addParameter_(new Parameter(
-                      "Full.theta" + TextTools::toString(i + 1),
-                      initFreqs[i] / sum / y,
-                      allowNullFreqs ?
-                      &Parameter::PROP_CONSTRAINT_IN :
-                      &FrequenciesSet::FREQUENCE_CONSTRAINT_MILLI));
-      getFreq_(i) = initFreqs[i] / sum;
-      y -= initFreqs[i] / sum;
-    }
-  }
-  size_t i = gCode->getSourceAlphabet()->getSize() - 1;
-  getFreq_(i) = (gCode->isStop(static_cast<int>(i))) ? 0 : initFreqs[i] / sum;
+  sFreq_.setFrequencies(vd);
+  addParameters_(sFreq_.getParameters());
+  updateFreq_();
 }
 
-FullCodonFrequenciesSet::FullCodonFrequenciesSet(const FullCodonFrequenciesSet& fcfs):
+FullCodonFrequenciesSet::FullCodonFrequenciesSet(const FullCodonFrequenciesSet& fcfs) :
   AbstractFrequenciesSet(fcfs),
-  pgc_(fcfs.pgc_)
+  pgc_(fcfs.pgc_),
+  sFreq_(fcfs.sFreq_)
 {}
 
-FullCodonFrequenciesSet& FullCodonFrequenciesSet::operator=(const FullCodonFrequenciesSet& fcfs) {
+FullCodonFrequenciesSet& FullCodonFrequenciesSet::operator=(const FullCodonFrequenciesSet& fcfs)
+{
   AbstractFrequenciesSet::operator=(fcfs);
   pgc_ = fcfs.pgc_;
+  sFreq_ = fcfs.sFreq_;
+
   return *this;
+}
+
+void FullCodonFrequenciesSet::setNamespace(const std::string& nameSpace)
+{
+  sFreq_.setNamespace(nameSpace);
+  AbstractFrequenciesSet::setNamespace(nameSpace);
 }
 
 void FullCodonFrequenciesSet::setFrequencies(const vector<double>& frequencies)
 {
   if (frequencies.size() != getAlphabet()->getSize())
     throw DimensionException("FullFrequenciesSet::setFrequencies", frequencies.size(), getAlphabet()->getSize());
-  const CodonAlphabet* alphabet = getAlphabet();
 
-  double sum = 0.0;
-  size_t i;
-  for (i = 0; i < frequencies.size(); i++)
+  double sum = 0;
+  for (size_t i = 0; i < getAlphabet()->getSize(); i++)
   {
-    if (!(pgc_->isStop(static_cast<int>(i))))
+    if (!pgc_->isStop(static_cast<int>(i)))
       sum += frequencies[i];
   }
 
-  double y = 1;
-  for (i = 0; i < alphabet->getSize() - 1; i++)
+  vector<double> vd;
+  for (size_t i = 0; i < getAlphabet()->getSize(); i++)
   {
-    if (pgc_->isStop(static_cast<int>(i)))
-    {
-      getFreq_(i) = 0;
-    }
-    else
-    {
-      getParameter_("theta" + TextTools::toString(i + 1)).setValue(frequencies[i] / sum / y);
-      y -= frequencies[i] / sum;
-      getFreq_(i) = frequencies[i] / sum;
-    }
+    if (!pgc_->isStop(static_cast<int>(i)))
+      vd.push_back(frequencies[i] / sum);
   }
-  i = alphabet->getSize() - 1;
-  getFreq_(i) = (pgc_->isStop(static_cast<int>(i))) ? 0 : frequencies[i] / sum;
+
+  sFreq_.setFrequencies(vd);
+  setParametersValues(sFreq_.getParameters());
+  updateFreq_();
 }
 
 void FullCodonFrequenciesSet::fireParameterChanged(const ParameterList& parameters)
 {
-  const CodonAlphabet* alphabet = getAlphabet();
-  double y = 1;
-  size_t i;
-  for (i = 0; i < alphabet->getSize() - 1; i++)
-  {
-    if (!(pgc_->isStop(static_cast<int>(i))))
-    {
-      getFreq_(i) = getParameter_("theta" + TextTools::toString(i + 1)).getValue() * y;
-      y *= 1 - getParameter_("theta" + TextTools::toString(i + 1)).getValue();
-    }
-  }
+  sFreq_.matchParametersValues(parameters);
+  updateFreq_();
+}
 
-  i = alphabet->getSize() - 1;
-  getFreq_(i) = (pgc_->isStop(static_cast<int>(i))) ? 0 : y;
+void FullCodonFrequenciesSet::updateFreq_()
+{
+  size_t nbstop = 0;
+
+  for (size_t j = 0; j < getAlphabet()->getSize(); j++)
+  {
+    if (pgc_->isStop(static_cast<int>(j)))
+    {
+      getFreq_(j) = 0;
+      nbstop++;
+    }
+    else
+      getFreq_(j) = sFreq_.prob(j - nbstop);
+  }
 }
 
 
@@ -189,24 +175,25 @@ void FullCodonFrequenciesSet::fireParameterChanged(const ParameterList& paramete
 // FullPerAACodonFrequenciesSet
 
 FullPerAACodonFrequenciesSet::FullPerAACodonFrequenciesSet(
-    const GeneticCode* gencode,
-    ProteinFrequenciesSet* ppfs,
-    unsigned short method) :
-  AbstractFrequenciesSet(gencode->getSourceAlphabet()->getSize(), gencode->getSourceAlphabet(), "FullPerAA.", "FullPerAA"),
+  const GeneticCode* gencode,
+  ProteinFrequenciesSet* ppfs,
+  unsigned short method) :
+  AbstractFrequenciesSet(new CanonicalStateMap(gencode->getSourceAlphabet(), false), "FullPerAA.", "FullPerAA"),
   pgc_(gencode),
   ppfs_(ppfs),
   vS_()
 {
   const ProteicAlphabet* ppa = dynamic_cast<const ProteicAlphabet*>(pgc_->getTargetAlphabet());
-
-  for (size_t i = 0; i < ppa->getSize(); i++)
+  const StateMap& aaStates = ppfs_->getStateMap();
+  for (size_t i = 0; i < aaStates.getNumberOfModelStates(); ++i)
   {
-    vector<int> vc = pgc_->getSynonymous(static_cast<int>(i));
+    int aa = aaStates.getAlphabetStateAsInt(i);
+    vector<int> vc = pgc_->getSynonymous(aa);
     vS_.push_back(Simplex(vc.size(), method, 0, ""));
 
     Simplex& si = vS_[i];
 
-    si.setNamespace("FullPerAA." + ppa->getAbbr(static_cast<int>(i)) + "_");
+    si.setNamespace("FullPerAA." + ppa->getAbbr(aa) + "_");
     addParameters_(si.getParameters());
   }
 
@@ -217,20 +204,21 @@ FullPerAACodonFrequenciesSet::FullPerAACodonFrequenciesSet(
 }
 
 FullPerAACodonFrequenciesSet::FullPerAACodonFrequenciesSet(const GeneticCode* gencode, unsigned short method) :
-  AbstractFrequenciesSet(gencode->getSourceAlphabet()->getSize(), gencode->getSourceAlphabet(), "FullPerAA.", "FullPerAA"),
+  AbstractFrequenciesSet(new CanonicalStateMap(gencode->getSourceAlphabet(), false), "FullPerAA.", "FullPerAA"),
   pgc_(gencode),
   ppfs_(new FixedProteinFrequenciesSet(dynamic_cast<const ProteicAlphabet*>(gencode->getTargetAlphabet()), "FullPerAA.")),
   vS_()
 {
   const ProteicAlphabet* ppa = dynamic_cast<const ProteicAlphabet*>(pgc_->getTargetAlphabet());
-
-  for (size_t i = 0; i < ppa->getSize(); i++)
+  const StateMap& aaStates = ppfs_->getStateMap();
+  for (size_t i = 0; i < aaStates.getNumberOfModelStates(); ++i)
   {
-    vector<int> vc = pgc_->getSynonymous(static_cast<int>(i));
+    int aa = aaStates.getAlphabetStateAsInt(i);
+    vector<int> vc = pgc_->getSynonymous(aa);
     vS_.push_back(Simplex(vc.size(), method, 0, ""));
 
     Simplex& si = vS_[i];
-    si.setNamespace("FullPerAA." + ppa->getAbbr(static_cast<int>(i)) + "_");
+    si.setNamespace("FullPerAA." + ppa->getAbbr(aa) + "_");
     addParameters_(si.getParameters());
   }
 
@@ -271,14 +259,16 @@ void FullPerAACodonFrequenciesSet::fireParameterChanged(const ParameterList& par
 
 void FullPerAACodonFrequenciesSet::updateFrequencies()
 {
-  size_t size = pgc_->getTargetAlphabet()->getSize();
-
-  for (size_t i = 0; i < size; i++)
+  const StateMap& aaStates = ppfs_->getStateMap();
+  for (size_t i = 0; i < aaStates.getNumberOfModelStates(); ++i)
   {
-    std::vector<int> vc = pgc_->getSynonymous(pgc_->getTargetAlphabet()->getIntCodeAt(i));
+    int aa = aaStates.getAlphabetStateAsInt(i);
+    std::vector<int> vc = pgc_->getSynonymous(aa);
     for (size_t j = 0; j < vc.size(); j++)
     {
-      getFreq_(pgc_->getSourceAlphabet()->getStateIndex(vc[j])) = static_cast<double>(vc.size()) * (ppfs_->getFrequencies())[i] * vS_[i].prob(j);
+      //NB: only one alphabet state per model state here, as it is a CodonFreqSet.
+      getFreq_(getStateMap().getModelStates(vc[j])[0]) =
+        static_cast<double>(vc.size()) * ppfs_->getFrequencies()[i] * vS_[i].prob(j);
     }
   }
   normalize();
@@ -335,17 +325,17 @@ void FullPerAACodonFrequenciesSet::setNamespace(const std::string& prefix)
 // / FixedCodonFrequenciesSet
 
 FixedCodonFrequenciesSet::FixedCodonFrequenciesSet(
-    const GeneticCode* gCode,
-    const vector<double>& initFreqs,
-    const string& name) :
-  AbstractFrequenciesSet(gCode->getSourceAlphabet()->getSize(), gCode->getSourceAlphabet(), "Fixed.", name),
+  const GeneticCode* gCode,
+  const vector<double>& initFreqs,
+  const string& name) :
+  AbstractFrequenciesSet(new CanonicalStateMap(gCode->getSourceAlphabet(), false), "Fixed.", name),
   pgc_(gCode)
 {
   setFrequencies(initFreqs);
 }
 
 FixedCodonFrequenciesSet::FixedCodonFrequenciesSet(const GeneticCode* gCode, const string& name) :
-  AbstractFrequenciesSet(gCode->getSourceAlphabet()->getSize(), gCode->getSourceAlphabet(), "Fixed.", name),
+  AbstractFrequenciesSet(new CanonicalStateMap(gCode->getSourceAlphabet(), false), "Fixed.", name),
   pgc_(gCode)
 {
   size_t size = gCode->getSourceAlphabet()->getSize() - gCode->getNumberOfStopCodons();
@@ -394,7 +384,7 @@ CodonFromIndependentFrequenciesSet::CodonFromIndependentFrequenciesSet(
     mgmtStopFreq_ = 0;
   else if (mgmtStopFreq == "linear")
     mgmtStopFreq_ = 1;
-  
+
   // fill the map of the stop codons
 
   vector<int> vspcod = gCode->getStopCodonsAsInt();
@@ -484,14 +474,18 @@ void CodonFromIndependentFrequenciesSet::updateFrequencies()
   {
     double sum = 0.;
     for (size_t i = 0; i < s; i++)
+    {
       if (!pgc_->isStop(static_cast<int>(i)))
-    sum += getFreq_(i);
- 
+        sum += getFreq_(i);
+    }
+
     for (size_t i = 0; i < s; i++)
+    {
       if (pgc_->isStop(static_cast<int>(i)))
         getFreq_(i) = 0;
       else
         getFreq_(i) /= sum;
+    }
   }
 }
 
@@ -500,10 +494,10 @@ void CodonFromIndependentFrequenciesSet::updateFrequencies()
 
 
 CodonFromUniqueFrequenciesSet::CodonFromUniqueFrequenciesSet(
-    const GeneticCode* gCode,
-    FrequenciesSet* pfreq,
-    const string& name,
-    const string& mgmtStopFreq) :
+  const GeneticCode* gCode,
+  FrequenciesSet* pfreq,
+  const string& name,
+  const string& mgmtStopFreq) :
   WordFromUniqueFrequenciesSet(gCode->getSourceAlphabet(), pfreq, "", name),
   mStopNeigh_(),
   mgmtStopFreq_(2),
@@ -513,7 +507,7 @@ CodonFromUniqueFrequenciesSet::CodonFromUniqueFrequenciesSet(
     mgmtStopFreq_ = 0;
   else if (mgmtStopFreq == "linear")
     mgmtStopFreq_ = 1;
-  
+
   // fill the map of the stop codons
 
   vector<int> vspcod = gCode->getStopCodonsAsInt();
@@ -567,7 +561,7 @@ void CodonFromUniqueFrequenciesSet::updateFrequencies()
 
   size_t s = getAlphabet()->getSize();
 
-  if (mgmtStopFreq_!=0)
+  if (mgmtStopFreq_ != 0)
   {
     // The frequencies of the stop codons are distributed to all
     // neighbour non-stop codons
@@ -605,20 +599,24 @@ void CodonFromUniqueFrequenciesSet::updateFrequencies()
   {
     double sum = 0.;
     for (size_t i = 0; i < s; i++)
+    {
       if (!pgc_->isStop(static_cast<int>(i)))
         sum += getFreq_(i);
- 
+    }
+
     for (unsigned int i = 0; i < s; i++)
+    {
       if (pgc_->isStop(static_cast<int>(i)))
         getFreq_(i) = 0;
       else
         getFreq_(i) /= sum;
+    }
   }
 }
 
 /*********************************************************************/
 
-FrequenciesSet* CodonFrequenciesSet::getFrequenciesSetForCodons(short option, const GeneticCode* gCode, const string& mgmtStopFreq)
+FrequenciesSet* CodonFrequenciesSet::getFrequenciesSetForCodons(short option, const GeneticCode* gCode, const string& mgmtStopFreq, unsigned short method)
 {
   FrequenciesSet* codonFreqs;
 
@@ -635,7 +633,7 @@ FrequenciesSet* CodonFrequenciesSet::getFrequenciesSetForCodons(short option, co
     codonFreqs = new CodonFromIndependentFrequenciesSet(gCode, v_AFS, "F3X4", mgmtStopFreq);
   }
   else if (option == F61)
-    codonFreqs = new FullCodonFrequenciesSet(gCode, false, "F61");
+    codonFreqs = new FullCodonFrequenciesSet(gCode, false, method, "F61");
   else
     throw Exception("FrequenciesSet::getFrequencySetForCodons(). Unvalid codon frequency set argument.");
 
@@ -650,4 +648,3 @@ const short CodonFrequenciesSet::F3X4 = 2;
 const short CodonFrequenciesSet::F61  = 3;
 
 /******************************************************************************/
-

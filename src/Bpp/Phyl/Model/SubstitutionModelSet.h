@@ -414,16 +414,36 @@ public:
    *
    * @see Alphabet
    */
-  virtual const std::vector<int>& getAlphabetChars() const {
-    return getModel(0)->getAlphabetChars();
+  virtual const std::vector<int>& getAlphabetStates() const {
+    return getModel(0)->getAlphabetStates();
   }
 
-  virtual int getAlphabetChar(size_t i) const {
-    return getModel(0)->getAlphabetChar(i);
+  virtual const StateMap& getStateMap() const {
+    return getModel(0)->getStateMap();
   }
 
-  virtual std::vector<size_t> getModelStates(int i) const {
-    return getModel(0)->getModelStates(i);
+  virtual std::vector<size_t> getModelStates(int code) const {
+    return getModel(0)->getModelStates(code);
+  }
+
+  virtual std::vector<size_t> getModelStates(const std::string& code) const {
+    return getModel(0)->getModelStates(code);
+  }
+
+  /**
+   * @param index The model state.
+   * @return The corresponding alphabet state as character code.
+   */
+  virtual int getAlphabetStateAsInt(size_t index) const {
+    return getModel(0)->getAlphabetStateAsInt(index);
+  }
+  
+  /**
+   * @param index The model state.
+   * @return The corresponding alphabet state as character code.
+   */
+  virtual std::string getAlphabetStateAsChar(size_t index) const {
+    return getModel(0)->getAlphabetStateAsChar(index);
   }
 
   /**

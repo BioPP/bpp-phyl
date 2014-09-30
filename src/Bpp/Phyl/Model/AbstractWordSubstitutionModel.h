@@ -73,11 +73,11 @@ namespace bpp
  *
  */
 class AbstractWordSubstitutionModel :
-    public virtual AbstractSubstitutionModel
+    public AbstractSubstitutionModel
 {
 private:
   /**
-   * @ brief boolean flag to check if a specific WordAlphabet has been built
+   * @brief boolean flag to check if a specific WordAlphabet has been built
    */
   bool new_alphabet_;
 
@@ -109,11 +109,11 @@ public:
    *   the models must be different objects to avoid parameters
    *   redundancy, otherwise only the first model is used. The used models
    *   are owned by the instance.
-   * @param st the Namespace.
+   * @param prefix the Namespace.
    */
   AbstractWordSubstitutionModel(
     const std::vector<SubstitutionModel*>& modelVector,
-    const std::string& st);
+    const std::string& prefix);
 
   /**
    * @brief Build a new AbstractWordSubstitutionModel object from a
@@ -123,12 +123,12 @@ public:
    * @param pmodel A pointer to the substitution model to use in all
    * the positions. It will be owned by the instance.
    * @param num The number of models involved.
-   * @param st the Namespace.
+   * @param prefix the Namespace.
    */
   AbstractWordSubstitutionModel(
     SubstitutionModel* pmodel,
     unsigned int num,
-    const std::string& st);
+    const std::string& prefix);
 
   AbstractWordSubstitutionModel(const AbstractWordSubstitutionModel&);
 
@@ -140,9 +140,9 @@ public:
 
 protected:
   /**
-   *@brief Constructor for the derived classes only
+   * @brief Constructor for the derived classes only
    */
-  AbstractWordSubstitutionModel(const Alphabet* alph, const std::string&);
+  AbstractWordSubstitutionModel(const Alphabet* alph, StateMap* stateMap, const std::string& prefix);
 
 public:
   virtual size_t getNumberOfStates() const;
@@ -153,8 +153,8 @@ public:
    */
   
   const SubstitutionModel* getNModel(size_t i) const {
-    if (i< VSubMod_.size())
-        return dynamic_cast<const SubstitutionModel*>(VSubMod_[i]);
+    if (i < VSubMod_.size())
+      return dynamic_cast<const SubstitutionModel*>(VSubMod_[i]);
     else
       return 0;
   }

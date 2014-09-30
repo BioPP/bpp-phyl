@@ -106,18 +106,19 @@ class MixtureOfASubstitutionModel :
 private:
   std::map<std::string, DiscreteDistribution*> distributionMap_;
   int from_, to_;
-  
+
 public:
-  MixtureOfASubstitutionModel(const Alphabet* alpha,
-                              SubstitutionModel* model,
-                              std::map<std::string, DiscreteDistribution*> parametersDistributionsList,
-                              int ffrom=-1, int tto=-1) throw(Exception);
+  MixtureOfASubstitutionModel(
+      const Alphabet* alpha,
+      SubstitutionModel* model,
+      std::map<std::string, DiscreteDistribution*> parametersDistributionsList,
+      int ffrom = -1, int tto = -1) throw (Exception);
 
   MixtureOfASubstitutionModel(const MixtureOfASubstitutionModel&);
-  
+
   MixtureOfASubstitutionModel& operator=(const MixtureOfASubstitutionModel&);
 
-  ~MixtureOfASubstitutionModel();
+  virtual ~MixtureOfASubstitutionModel();
 
   MixtureOfASubstitutionModel* clone() const { return new MixtureOfASubstitutionModel(*this); }
 
@@ -127,14 +128,14 @@ public:
   void updateMatrices();
 
   /*
-   *@brief Returns the vector of numbers of the submodels in the
-   *mixture that match a description of the parameters numbers.
+     *@brief Returns the vector of numbers of the submodels in the
+     *mixture that match a description of the parameters numbers.
    *
-   *@param desc is the description of the class indexes of the mixed
-   *parameters. Syntax is like: kappa_1,gamma_3,delta_2
+   **@param desc is the description of the class indexes of the mixed
+   **parameters. Syntax is like: kappa_1,gamma_3,delta_2
    *
    */
-  
+
   Vint getSubmodelNumbers(std::string& desc) const;
 
   /**
@@ -144,7 +145,7 @@ public:
    *
    */
 
-  void setFreq(std::map<int,double>&);
+  void setFreq(std::map<int, double>&);
 
   /**
    * @brief returns the DiscreteDistribution associated with a given
@@ -155,14 +156,13 @@ public:
   const DiscreteDistribution* getDistribution(std::string& parName) const;
 
   /**
-   *@brief Numbers of the states between which the substitution rates
-   *of all the submodels must be equal. If they are set to -1, this
-   *constraint does not exist among the submodels.
+     *@brief Numbers of the states between which the substitution rates
+     *of all the submodels must be equal. If they are set to -1, this
+     *constraint does not exist among the submodels.
    *
    */
-  
-  int from() const { return from_;}
-  int to() const { return to_;}
+  int from() const { return from_; }
+  int to() const { return to_; }
 };
 } // end of namespace bpp.
 

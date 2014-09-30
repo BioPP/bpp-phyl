@@ -53,12 +53,12 @@ using namespace std;
 
 /******************************************************************************/
 
-AbstractSubstitutionModel::AbstractSubstitutionModel(const Alphabet* alpha, const std::string& prefix) :
+AbstractSubstitutionModel::AbstractSubstitutionModel(const Alphabet* alpha, StateMap* stateMap, const std::string& prefix) :
   AbstractParameterAliasable(prefix),
   alphabet_(alpha),
+  stateMap_(stateMap),
   size_(alpha->getSize()),
   rate_(1),
-  chars_(size_),
   generator_(size_, size_),
   freq_(size_),
   exchangeability_(size_, size_),
@@ -78,7 +78,6 @@ AbstractSubstitutionModel::AbstractSubstitutionModel(const Alphabet* alpha, cons
   for (size_t i = 0; i < size_; i++)
   {
     freq_[i] = 1.0 / static_cast<double>(size_);
-    chars_[i] = static_cast<int>(i);
   }
 }
 
@@ -158,9 +157,9 @@ const Matrix<double>& AbstractSubstitutionModel::getPij_t(double t) const
         {
           s = std::sin(iEigenValues_[i] * l);
           c = std::cos(iEigenValues_[i] * l);
-          vdia[i] *= c;
           vup[i] = vdia[i] * s;
           vlo[i] = -vup[i];
+          vdia[i] *= c;
           vdia[i + 1] = vdia[i]; // trick to avoid computation
           i++;
         }
@@ -356,7 +355,7 @@ double AbstractSubstitutionModel::getInitValue(size_t i, int state) const throw 
   vector<int> states = alphabet_->getAlias(state);
   for (size_t j = 0; j < states.size(); j++)
   {
-    if (getAlphabetChar(i) == states[j])
+    if (getAlphabetStateAsInt(i) == states[j])
       return 1.;
   }
   return 0.;

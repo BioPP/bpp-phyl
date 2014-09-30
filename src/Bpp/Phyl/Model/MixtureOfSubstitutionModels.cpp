@@ -4,7 +4,7 @@
 // Date: mardi 14 septembre 2010, à 20h 43
 //
 /*
-   Copyright or © or Copr. CNRS, (November 16, 2004)
+   Copyright or © or Copr. Bio++ Development Team, (November 16, 2004)
 
    This software is a computer program whose purpose is to provide classes
    for phylogenetic data analysis.
@@ -46,20 +46,21 @@
 using namespace bpp;
 using namespace std;
 
-MixtureOfSubstitutionModels::MixtureOfSubstitutionModels(const Alphabet* alpha,
-                                                         vector<SubstitutionModel*> vpModel_) :
+MixtureOfSubstitutionModels::MixtureOfSubstitutionModels(
+  const Alphabet* alpha,
+  vector<SubstitutionModel*> vpModel) :
   AbstractParameterAliasable("Mixture."),
-  AbstractMixedSubstitutionModel(alpha, "Mixture.")
+  AbstractMixedSubstitutionModel(alpha, vpModel[0]->getStateMap().clone(), "Mixture.")
 {
-  size_t i, nbmod = vpModel_.size();
+  size_t i, nbmod = vpModel.size();
 
   for (i = 0; i < nbmod; i++)
   {
-    if (!vpModel_[i])
+    if (!vpModel[i])
       throw Exception("Empty model number " + TextTools::toString(i) + " in MixtureOfSubstitutionModels constructor");
     for (size_t j = i + 1; j < nbmod; j++)
     {
-      if (vpModel_[i] == vpModel_[j])
+      if (vpModel[i] == vpModel[j])
         throw Exception("Same model at positions " + TextTools::toString(i) + " and " +
                         TextTools::toString(j) + " in MixtureOfSubstitutionModels constructor");
     }
@@ -69,7 +70,7 @@ MixtureOfSubstitutionModels::MixtureOfSubstitutionModels(const Alphabet* alpha,
 
   for (i = 0; i < nbmod; i++)
   {
-    modelsContainer_.push_back(vpModel_[i]);
+    modelsContainer_.push_back(vpModel[i]);
     vProbas_.push_back(1.0 / static_cast<double>(nbmod));
     vRates_.push_back(1.0);
   }
@@ -87,34 +88,35 @@ MixtureOfSubstitutionModels::MixtureOfSubstitutionModels(const Alphabet* alpha,
 
   for (i = 0; i < nbmod; i++)
   {
-    modelsContainer_[i]->setNamespace("Mixture." + TextTools::toString(i + 1) + "_" + vpModel_[i]->getNamespace());
-    addParameters_(vpModel_[i]->getParameters());
+    modelsContainer_[i]->setNamespace("Mixture." + TextTools::toString(i + 1) + "_" + vpModel[i]->getNamespace());
+    addParameters_(vpModel[i]->getParameters());
   }
 
   for (i = 0; i < nbmod; i++)
   {
-    vpModel_[i]->addRateParameter();
+    vpModel[i]->addRateParameter();
   }
 
   updateMatrices();
 }
 
-MixtureOfSubstitutionModels::MixtureOfSubstitutionModels(const Alphabet* alpha,
-                                                         vector<SubstitutionModel*> vpModel_,
-                                                         Vdouble& vproba,
-                                                         Vdouble& vrate) :
+MixtureOfSubstitutionModels::MixtureOfSubstitutionModels(
+    const Alphabet* alpha,
+    vector<SubstitutionModel*> vpModel,
+    Vdouble& vproba,
+    Vdouble& vrate) :
   AbstractParameterAliasable("Mixture."),
-  AbstractMixedSubstitutionModel(alpha, "Mixture.")
+  AbstractMixedSubstitutionModel(alpha, vpModel[0]->getStateMap().clone(), "Mixture.")
 {
-  size_t i, nbmod = vpModel_.size();
+  size_t i, nbmod = vpModel.size();
 
   for (i = 0; i < nbmod; i++)
   {
-    if (!vpModel_[i])
+    if (!vpModel[i])
       throw Exception("Empty model number " + TextTools::toString(i) + " in MixtureOfSubstitutionModels constructor");
     for (size_t j = i + 1; j < nbmod; j++)
     {
-      if (vpModel_[i] == vpModel_[j])
+      if (vpModel[i] == vpModel[j])
         throw Exception("Same model at positions " + TextTools::toString(i) + " and " +
                         TextTools::toString(j) + " in MixtureOfSubstitutionModels constructor");
     }
@@ -143,7 +145,7 @@ MixtureOfSubstitutionModels::MixtureOfSubstitutionModels(const Alphabet* alpha,
 
   for (i = 0; i < nbmod; i++)
   {
-    modelsContainer_.push_back(vpModel_[i]);
+    modelsContainer_.push_back(vpModel[i]);
   }
 
   // rates & probas
@@ -172,13 +174,13 @@ MixtureOfSubstitutionModels::MixtureOfSubstitutionModels(const Alphabet* alpha,
 
   for (i = 0; i < nbmod; i++)
   {
-    modelsContainer_[i]->setNamespace("Mixture." + TextTools::toString(i + 1) + "_" + vpModel_[i]->getNamespace());
-    addParameters_(vpModel_[i]->getParameters());
+    modelsContainer_[i]->setNamespace("Mixture." + TextTools::toString(i + 1) + "_" + vpModel[i]->getNamespace());
+    addParameters_(vpModel[i]->getParameters());
   }
 
   for (i = 0; i < nbmod; i++)
   {
-    vpModel_[i]->addRateParameter();
+    vpModel[i]->addRateParameter();
   }
 
   updateMatrices();
