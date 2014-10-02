@@ -251,7 +251,7 @@ TreeTemplateTools::Element TreeTemplateTools::getElement(const string& elt) thro
 /******************************************************************************/
 
 
-Node* TreeTemplateTools::parenthesisToNode(const string& description, bool bootstrap, const string& propertyName, bool withId)
+Node* TreeTemplateTools::parenthesisToNode(const string& description, unsigned int& nodeCounter, bool bootstrap, const string& propertyName, bool withId, bool verbose)
 {
   // cout << "NODE: " << description << endl;
   Element elt = getElement(description);
@@ -320,27 +320,35 @@ Node* TreeTemplateTools::parenthesisToNode(const string& description, bool boots
     for (size_t i = 0; i < elements.size(); i++)
     {
       // cout << "NODE: SUBNODE: " << i << ", " << elements[i] << endl;
-      Node* son = parenthesisToNode(elements[i], bootstrap, propertyName, withId);
+      Node* son = parenthesisToNode(elements[i], nodeCounter, bootstrap, propertyName, withId, verbose);
       node->addSon(son);
     }
   }
+  nodeCounter++;
+  if (verbose)
+    ApplicationTools::displayUnlimitedGauge(nodeCounter);
   return node;
 }
 
 /******************************************************************************/
 
-TreeTemplate<Node>* TreeTemplateTools::parenthesisToTree(const string& description, bool bootstrap, const string& propertyName, bool withId) throw (Exception)
+TreeTemplate<Node>* TreeTemplateTools::parenthesisToTree(const string& description, bool bootstrap, const string& propertyName, bool withId, bool verbose) throw (Exception)
 {
   string::size_type semi = description.rfind(';');
   if (semi == string::npos)
     throw Exception("TreeTemplateTools::parenthesisToTree(). Bad format: no semi-colon found.");
   string content = description.substr(0, semi);
-  Node* node = parenthesisToNode(content, bootstrap, propertyName, withId);
+  unsigned int nodeCounter = 0;
+  Node* node = parenthesisToNode(content, nodeCounter, bootstrap, propertyName, withId, verbose);
   TreeTemplate<Node>* tree = new TreeTemplate<Node>();
   tree->setRootNode(node);
   if (!withId)
   {
     tree->resetNodesId();
+  }
+  if (verbose) {
+    (*ApplicationTools::message) << " nodes loaded.";
+    ApplicationTools::message->endLine();
   }
   return tree;
 }

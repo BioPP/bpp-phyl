@@ -956,13 +956,15 @@ public:
    * a subtree.
    *
    * @param description the string to parse;
+   * @param nodeCounter [Output] Count all created nodes.
    * @param bootstrap Tell is real bootstrap values are expected. If so, a property with name TreeTools::BOOTSTRAP will be created and stored at the corresponding node.
    * The property value will be of type Number<double>. Otherwise, an object of type String will be created and stored with the property name propertyName.
    * @param propertyName The name of the property to store. Only used if bootstrap = false.
    * @param withId Tells if node ids have been stored in the tree. If set at "true", no bootstrap or property values can be read. Node ids are positioned as bootstrap values for internal nodes, and are concatenated to leaf names after a "_" sign.
+   * @param verbose Tell if some information should be displayed, like progress bars for large trees.
    * @return A pointer toward a dynamically created subtree.
    */
-  static Node* parenthesisToNode(const std::string& description, bool bootstrap = true, const std::string& propertyName = TreeTools::BOOTSTRAP, bool withId = false);
+  static Node* parenthesisToNode(const std::string& description, unsigned int& nodeCounter, bool bootstrap = true, const std::string& propertyName = TreeTools::BOOTSTRAP, bool withId = false, bool verbose = true);
 
   /**
    * @brief Parse a string in the parenthesis format and convert it to
@@ -973,10 +975,11 @@ public:
    * The property value will be of type Number<double>. Otherwise, an object of type String will be created and stored with the property name propertyName.
    * @param propertyName The name of the property to store. Only used if bootstrap = false.
    * @param withId Tells if node ids have been stored in the tree. If set at "true", no bootstrap or property values can be read. Node ids are positioned as bootstrap values for internal nodes, and are concatenated to leaf names after a "_" sign.
+   * @param verbose Tell if some information should be displayed, like progress bars for large trees.
    * @return A pointer toward a dynamically created tree.
    * @throw Exception in case of bad format.
    */
-  static TreeTemplate<Node>* parenthesisToTree(const std::string& description, bool bootstrap = true, const std::string& propertyName = TreeTools::BOOTSTRAP, bool withId = false) throw (Exception);
+  static TreeTemplate<Node>* parenthesisToTree(const std::string& description, bool bootstrap = true, const std::string& propertyName = TreeTools::BOOTSTRAP, bool withId = false, bool verbose = true) throw (Exception);
 
   /**
    * @brief Get the parenthesis description of a subtree.
