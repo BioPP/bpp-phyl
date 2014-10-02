@@ -279,30 +279,34 @@ void FullPerAACodonFrequenciesSet::setFrequencies(const vector<double>& frequenc
   if (frequencies.size() != getAlphabet()->getSize())
     throw DimensionException("FullPerAAFrequenciesSet::setFrequencies", frequencies.size(), getAlphabet()->getSize());
 
-  size_t size = pgc_->getTargetAlphabet()->getSize();
-
-  vector<double> vaa;
-  double S = 0;
-  for (size_t i = 0; i < size; i++)
+  double bigS = 0;
+  Vdouble vaa;
+  
+  const StateMap& aaStates = ppfs_->getStateMap();
+  for (size_t i = 0; i < aaStates.getNumberOfModelStates(); ++i)
   {
-    vector<double> vp;
+    int aa = aaStates.getAlphabetStateAsInt(i);
+    std::vector<int> vc = pgc_->getSynonymous(aa);
+    Vdouble vp;
     double s = 0;
-    std::vector<int> vc = pgc_->getSynonymous(pgc_->getTargetAlphabet()->getIntCodeAt(i));
+    
     for (size_t j = 0; j < vc.size(); j++)
     {
       size_t index = pgc_->getSourceAlphabet()->getStateIndex(vc[j]);
-      vp.push_back(frequencies[index]);
-      s += frequencies[index];
+      vp.push_back(frequencies[index-1]);
+      s += frequencies[index-1];
     }
+      
     vp /= s;
     vS_[i].setFrequencies(vp);
+
     matchParametersValues(vS_[i].getParameters());
 
-    S += s / static_cast<double>(vc.size());
+    bigS += s / static_cast<double>(vc.size());
     vaa.push_back(s / static_cast<double>(vc.size()));
   }
 
-  vaa /= S; // to avoid counting of stop codons
+  vaa /= bigS; // to avoid counting of stop codons
   ppfs_->setFrequencies(vaa);
   matchParametersValues(ppfs_->getParameters());
   updateFrequencies();
