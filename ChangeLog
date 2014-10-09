@@ -1,3 +1,9 @@
+09/10/14 Julien Dutheil
+* Fixed bug #90: setRootNode now reset father node pointer.
+
+02/10/14 Julien Dutheil
+* Added progress bar in tree parsing (for large trees).
+
 22/09/14 -*- Version 2.2.0 -*-
 
 25/07/13 Julien Dutheil

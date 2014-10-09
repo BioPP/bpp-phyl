@@ -398,7 +398,7 @@ public:
    *
    * @{
    */
-  virtual void setRootNode(N* root) { root_ = root; }
+  virtual void setRootNode(N* root) { root_ = root; root_->removeFather(); }
 
   virtual N* getRootNode() { return root_; }
 
