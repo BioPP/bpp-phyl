@@ -188,32 +188,45 @@ map<size_t, DiscreteDistribution*> PhylogeneticsApplicationTools::getRateDistrib
 
   paramDist.insert(params.begin(), params.end());
 
+  
   vector<string> vratesName=ApplicationTools::matchingParameters("rate_distribution*", paramDist);
 
-  vector<size_t> vratesNum;
+  BppORateDistributionFormat bIO(true);
+  map<size_t, DiscreteDistribution*> mDist;
+
+  
   for (size_t i=0; i< vratesName.size(); i++)
   {
     size_t poseq=vratesName[i].find("=");
-    vratesNum.push_back((size_t)TextTools::toInt(vratesName[i].substr(17,poseq-17)));
-  }
-
-  BppORateDistributionFormat bIO(true);
-
-  map<size_t, DiscreteDistribution*> mDist;
-  
-  for (size_t i=0; i<vratesNum.size(); i++)
-  {
-    string distDescription = ApplicationTools::getStringParameter("rate_distribution"+TextTools::toString(vratesNum[i]), paramDist, "", suffix, suffixIsOptional);
-
+    size_t num = 0;
+    string suff = vratesName[i].substr(17,poseq-17);
+    bool flag=0;
+    
+    
+    if (TextTools::isDecimalInteger(suff,'$'))
+      num=static_cast<size_t>(TextTools::toInt(suff));
+    else{
+      flag=1;
+      num=0;
+    }
+    
+    string distDescription = ApplicationTools::getStringParameter(vratesName[i], paramDist, "", suffix, suffixIsOptional);
+    
     auto_ptr<DiscreteDistribution> rDist(bIO.read(distDescription, true));
     
     if (verbose)
       {
-        ApplicationTools::displayResult("Rate distribution " + TextTools::toString(vratesNum[i]), rDist->getName());
+        ApplicationTools::displayResult("Rate distribution " + (flag?"":TextTools::toString(num)), rDist->getName());
         ApplicationTools::displayResult("Number of classes", TextTools::toString(rDist->getNumberOfCategories()));
       }
     
-    mDist[vratesNum[i]]=rDist.release();    
+    mDist[num]=rDist.release();    
+  }
+
+  if (mDist.size()==0){    
+    string distDescription = ApplicationTools::getStringParameter("rate_distribution", paramDist, "Constant()", suffix, suffixIsOptional);
+    auto_ptr<DiscreteDistribution> rDist(bIO.read(distDescription, true));
+    mDist[0]=rDist.release();    
   }
   
   return mDist;
@@ -222,7 +235,7 @@ map<size_t, DiscreteDistribution*> PhylogeneticsApplicationTools::getRateDistrib
 std::map<size_t, FrequenciesSet*> PhylogeneticsApplicationTools::getRootFrequenciesSets(
         const Alphabet* alphabet,
         const GeneticCode* gCode,
-        const SiteContainer* data,
+        const vector<SiteContainer*>& vData,
         std::map<std::string, std::string>& params,
         const std::string& suffix,
         bool suffixIsOptional,
@@ -262,7 +275,7 @@ std::map<size_t, FrequenciesSet*> PhylogeneticsApplicationTools::getRootFrequenc
   {
     string freqDescription = ApplicationTools::getStringParameter("root_freq"+TextTools::toString(rfNum[i]), paramRF, "", suffix, suffixIsOptional, warn);
 
-    auto_ptr<FrequenciesSet> rFS(bIO.read(alphabet, freqDescription, data, true));
+    auto_ptr<FrequenciesSet> rFS(bIO.read(alphabet, freqDescription, vData[0], true));
 
     if (verbose)
     {
@@ -284,7 +297,7 @@ std::map<size_t, FrequenciesSet*> PhylogeneticsApplicationTools::getRootFrequenc
 map<size_t, SubstitutionModel*> PhylogeneticsApplicationTools::getSubstitutionModels(
      const Alphabet* alphabet,
      const GeneticCode* gCode,
-     const SiteContainer* data,
+     const vector<SiteContainer*>& vData,
      map<string, string>& params,
      map<string, string>& unparsedParams,
      const string& suffix,
@@ -323,7 +336,7 @@ map<size_t, SubstitutionModel*> PhylogeneticsApplicationTools::getSubstitutionMo
     {
       string modelDescription = ApplicationTools::getStringParameter("model"+TextTools::toString(modelsNum[i]), paramModel, "", suffix, suffixIsOptional, warn);
 
-      auto_ptr<SubstitutionModel> model(bIO.read(alphabet, modelDescription, data, false));
+      auto_ptr<SubstitutionModel> model(bIO.read(alphabet, modelDescription, vData[0], false));
       map<string, string> tmpUnparsedParameterValues(bIO.getUnparsedArguments());
       
       map<string, string>::iterator it;
@@ -530,11 +543,31 @@ FrequenciesSet* PhylogeneticsApplicationTools::getFrequenciesSet(
 
 /******************************************************************************/
 
+// PhyloLikelihood* PhylogeneticsApplicationTools::getPhyloLikelihood((
+//   const Alphabet* alphabet,
+//   const GeneticCode* gCode,
+//   const vector<SiteContainer*>& vData,
+//   const vector<Tree*> vTree, 
+//   map<string, string>& params,
+//   const string& suffix,
+//   bool suffixIsOptional,
+//   bool verbose,
+//   int warn)
+// {
+//   PhyloLikelihood* pL=0;
+
+  
+/******************************************************/
+/**** SUBSTITUTION PROCESS   **************************/
+/******************************************************/
+
+/******************************************************************************/
+
 SubstitutionProcess* PhylogeneticsApplicationTools::getSubstitutionProcess(
   const Alphabet* alphabet,
   const GeneticCode* gCode,
-  const SiteContainer* data,
-  const vector<Tree*> vTree, 
+  const vector<SiteContainer*>& vData,
+  const vector<Tree*>& vTree, 
   map<string, string>& params,
   const string& suffix,
   bool suffixIsOptional,
@@ -571,7 +604,7 @@ SubstitutionProcess* PhylogeneticsApplicationTools::getSubstitutionProcess(
   {
     // Homogeneous & stationary models
   
-    auto_ptr<SubstitutionModel> tmp(getSubstitutionModel(alphabet, gCode, data, params, unparsedParams));
+    auto_ptr<SubstitutionModel> tmp(getSubstitutionModel(alphabet, gCode, vData[0], params, unparsedParams));
 
     if (tmp->getNumberOfStates() >= 2 * tmp->getAlphabet()->getSize() || (rDist->getName()=="Constant"))// first test is for Markov-modulated Markov model!
       SP = new SimpleSubstitutionProcess(tmp.release(), pTree.release(), true);
@@ -585,7 +618,7 @@ SubstitutionProcess* PhylogeneticsApplicationTools::getSubstitutionProcess(
     string fName=(nhOpt=="one_per_branch"?"model":"model1");
     
     tmpDesc = ApplicationTools::getStringParameter(fName, params, "", suffix, suffixIsOptional, warn);
-    auto_ptr<SubstitutionModel> tmp(bIO.read(alphabet, tmpDesc, data, true));
+    auto_ptr<SubstitutionModel> tmp(bIO.read(alphabet, tmpDesc, vData[0], true));
     
 
     
@@ -618,7 +651,7 @@ SubstitutionProcess* PhylogeneticsApplicationTools::getSubstitutionProcess(
           throw Exception("The MVAprotein frequencies set at the root can only be used if a Coala model is used on branches.");
       }
       else
-        rootFrequencies.reset(getRootFrequenciesSet(alphabet, gCode, data, params, rateFreqs, suffix, suffixIsOptional, warn));
+        rootFrequencies.reset(getRootFrequenciesSet(alphabet, gCode, vData[0], params, rateFreqs, suffix, suffixIsOptional, warn));
     
       stationarity = !rootFrequencies.get();
     }
@@ -671,7 +704,7 @@ SubstitutionProcess* PhylogeneticsApplicationTools::getSubstitutionProcess(
         string modelDesc;
         modelDesc = ApplicationTools::getStringParameter(prefix, params, "", suffix, suffixIsOptional, warn);
         
-        auto_ptr<SubstitutionModel> model(bIO.read(alphabet, modelDesc, data, true));
+        auto_ptr<SubstitutionModel> model(bIO.read(alphabet, modelDesc, vData[0], true));
         map<string, string> tmpUnparsedParameterValues(bIO.getUnparsedArguments());
 
         map<string, string>::iterator it;
@@ -868,9 +901,13 @@ void PhylogeneticsApplicationTools::addSubstitutionProcessCollectionMember(
 SubstitutionProcessCollection* PhylogeneticsApplicationTools::getSubstitutionProcessCollection(
        const Alphabet* alphabet,
        const GeneticCode* gCode,
-       const SiteContainer* data,
-       const vector<Tree*> vTree, 
+       const vector<SiteContainer*>& vData,
+       const vector<Tree*>& vTree,
+       const map<size_t, SubstitutionModel*>& mMod,
+       const map<size_t, FrequenciesSet*>& mRootFreq,
+       const map<size_t, DiscreteDistribution*>& mDist,
        map<string, string>& params,
+       map<string, string>& unparsedParams,
        const string& suffix,
        bool suffixIsOptional,
        bool verbose,
@@ -897,12 +934,10 @@ SubstitutionProcessCollection* PhylogeneticsApplicationTools::getSubstitutionPro
   /////////////////////////
   // Rates
   
-  map<size_t, DiscreteDistribution*> mDist=getRateDistributions(params);
-
   if (mDist.size()==0)
     throw Exception("Missing rate distribution in construction of SubstitutionProcessCollection.");
   
-  map<size_t, DiscreteDistribution*>::iterator itd;
+  map<size_t, DiscreteDistribution*>::const_iterator itd;
   
   for (itd=mDist.begin();itd!=mDist.end(); itd++)
     SPC->addDistribution(itd->second, itd->first);
@@ -910,27 +945,21 @@ SubstitutionProcessCollection* PhylogeneticsApplicationTools::getSubstitutionPro
   //////////////////////////
   // Models
 
-  map<string, string> unparsedParams;
-
-  map<size_t, SubstitutionModel*> mModel=getSubstitutionModels(alphabet, gCode, data, params, unparsedParams, suffix, suffixIsOptional);
-
-  if (mModel.size()==0)
+  if (mMod.size()==0)
     throw Exception("Missing model in construction of SubstitutionProcessCollection.");
   
-  map<size_t, SubstitutionModel*>::iterator itm;
+  map<size_t, SubstitutionModel*>::const_iterator itm;
   
-  for (itm=mModel.begin();itm!=mModel.end(); itm++)
+  for (itm=mMod.begin();itm!=mMod.end(); itm++)
     SPC->addModel(itm->second, itm->first);
 
 
   /////////////////////////////
   // Root Frequencies
 
-  map<size_t, FrequenciesSet*> mFreq=getRootFrequenciesSets(alphabet, gCode, data, params, suffix, suffixIsOptional);
-
-  map<size_t, FrequenciesSet*>::iterator itr;
+  map<size_t, FrequenciesSet*>::const_iterator itr;
   
-  for (itr=mFreq.begin();itr!=mFreq.end(); itr++)
+  for (itr=mRootFreq.begin();itr!=mRootFreq.end(); itr++)
     SPC->addFrequencies(itr->second, itr->first);
 
   
