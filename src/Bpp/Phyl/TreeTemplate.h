@@ -473,7 +473,6 @@ public:
     if (root_ == newRoot) return;
     if (isRooted()) unroot();
     std::vector<Node*> path = TreeTemplateTools::getPathBetweenAnyTwoNodes(*root_, *newRoot);
-
     for (size_t i = 0; i < path.size() - 1; i++)
     {
       // pathMatrix[i] -> _father = pathMatrix[i + 1];
@@ -484,7 +483,10 @@ public:
       // pathMatrix[i+1] -> _sons.push_back(pathMatrix[i + 1] -> getFather());
       // pathMatrix[i+1] -> _father = 0;
       path[i]->removeSon(path[i + 1]);
-      if (path[i + 1]->hasDistanceToFather()) path[i]->setDistanceToFather(path[i + 1]->getDistanceToFather());
+	//std::cout << " dist to father "<< path[i]->getDistanceToFather() << std::endl;
+      if (path[i + 1]->hasDistanceToFather())  { 
+	path[i]->setDistanceToFather(path[i + 1]->getDistanceToFather());
+	}
       else path[i]->deleteDistanceToFather();
       path[i + 1]->addSon(path[i]);
 
@@ -495,7 +497,8 @@ public:
       }
       path[i + 1]->deleteBranchProperties();
     }
-    newRoot->deleteDistanceToFather();
+
+   // newRoot->deleteDistanceToFather();
     newRoot->deleteBranchProperties();
     root_ = newRoot;
   }
