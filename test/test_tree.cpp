@@ -67,7 +67,7 @@ int main() {
   
     //Convert tree to string and read it again:
     string newick = TreeTemplateTools::treeToParenthesis(*tree);
-    TreeTemplate<Node>* tree3 = TreeTemplateTools::parenthesisToTree(newick);
+    TreeTemplate<Node>* tree3 = TreeTemplateTools::parenthesisToTree(newick, true, TreeTools::BOOTSTRAP, false, false);
     if (!tree->hasSameTopologyAs(*tree3))
       return 1; //Error!!!
     //cout << "Third test passed." << endl;
@@ -154,7 +154,7 @@ int main() {
   try {
     Tree* tmp = tReader.read("test/");
     cerr << "Arg, reading on directory should fail!" << endl;
-    if (tmp != NULL) {
+    if (tmp) {
       cerr << "Output of read on directory is not NULL!" << endl;
     }
     return 1;

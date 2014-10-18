@@ -5,7 +5,7 @@
 //
 
 /*
-Copyright or © or Copr. CNRS, (November 16, 2004)
+Copyright or © or Copr. Bio++ Development Team, (November 16, 2004)
 
 This software is a computer program whose purpose is to provide classes
 for phylogenetic data analysis.
@@ -91,6 +91,7 @@ class Newick:
     bool writeId_;
     bool useBootstrap_;
     std::string bootstrapPropertyName_;
+    bool verbose_;
 	
 	public:
 		
@@ -101,12 +102,14 @@ class Newick:
 		 * 
 		 * @param allowComments Tell if comments between [] are allowed in file.
 		 * @param writeId       If true, nodes ids will be written in place of bootstrap values.
+     * @param verbose       If some info should be displayed, such as progress bar etc.
 		 */
-		Newick(bool allowComments = false, bool writeId = false):
+		Newick(bool allowComments = false, bool writeId = false, bool verbose = false):
       allowComments_(allowComments),
       writeId_(writeId),
       useBootstrap_(true),
-      bootstrapPropertyName_(TreeTools::BOOTSTRAP) {}
+      bootstrapPropertyName_(TreeTools::BOOTSTRAP),
+      verbose_(verbose) {}
 
 		virtual ~Newick() {}
 	
