@@ -475,19 +475,11 @@ public:
     std::vector<Node*> path = TreeTemplateTools::getPathBetweenAnyTwoNodes(*root_, *newRoot);
     for (size_t i = 0; i < path.size() - 1; i++)
     {
-      // pathMatrix[i] -> _father = pathMatrix[i + 1];
-      // pathMatrix[i] -> setDistanceToFather(pathMatrix[i + 1] -> getDistanceToFather());
-      // typename vector<Node *>::iterator vec_iter;
-      // vec_iter = remove(pathMatrix[i] -> _sons.begin(), pathMatrix[i] -> _sons.end(), pathMatrix[i + 1]);
-      // pathMatrix[i] -> _sons.erase(vec_iter, pathMatrix[i] -> _sons.end()); // pg 1170, primer.
-      // pathMatrix[i+1] -> _sons.push_back(pathMatrix[i + 1] -> getFather());
-      // pathMatrix[i+1] -> _father = 0;
-      path[i]->removeSon(path[i + 1]);
-	//std::cout << " dist to father "<< path[i]->getDistanceToFather() << std::endl;
       if (path[i + 1]->hasDistanceToFather())  { 
-	path[i]->setDistanceToFather(path[i + 1]->getDistanceToFather());
-	}
+	      path[i]->setDistanceToFather(path[i + 1]->getDistanceToFather());
+	    }
       else path[i]->deleteDistanceToFather();
+      path[i]->removeSon(path[i + 1]);
       path[i + 1]->addSon(path[i]);
 
       std::vector<std::string> names = path[i + 1]->getBranchPropertyNames();
@@ -498,7 +490,7 @@ public:
       path[i + 1]->deleteBranchProperties();
     }
 
-   // newRoot->deleteDistanceToFather();
+    newRoot->deleteDistanceToFather();
     newRoot->deleteBranchProperties();
     root_ = newRoot;
   }
