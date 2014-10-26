@@ -163,13 +163,13 @@ ProbabilisticSubstitutionMapping* SubstitutionMappingTools::computeSubstitutionV
         const VVVdouble* likelihoodsFather_son = &drtl.getLikelihoodData()->getLikelihoodArray(father->getId(), currentSon->getId());
 
         // Now iterate over all site partitions:
-        auto_ptr<TreeLikelihood::ConstBranchModelIterator> mit(drtl.getNewBranchModelIterator(currentSon->getId()));
+        unique_ptr<TreeLikelihood::ConstBranchModelIterator> mit(drtl.getNewBranchModelIterator(currentSon->getId()));
         VVVdouble pxy;
         bool first;
         while (mit->hasNext())
         {
           TreeLikelihood::ConstBranchModelDescription* bmd = mit->next();
-          auto_ptr<TreeLikelihood::SiteIterator> sit(bmd->getNewSiteIterator());
+          unique_ptr<TreeLikelihood::SiteIterator> sit(bmd->getNewSiteIterator());
           first = true;
           while (sit->hasNext())
           {
@@ -207,13 +207,13 @@ ProbabilisticSubstitutionMapping* SubstitutionMappingTools::computeSubstitutionV
       const Node* currentSon = father->getFather();
       const VVVdouble* likelihoodsFather_son = &drtl.getLikelihoodData()->getLikelihoodArray(father->getId(), currentSon->getId());
       // Now iterate over all site partitions:
-      auto_ptr<TreeLikelihood::ConstBranchModelIterator> mit(drtl.getNewBranchModelIterator(father->getId()));
+      unique_ptr<TreeLikelihood::ConstBranchModelIterator> mit(drtl.getNewBranchModelIterator(father->getId()));
       VVVdouble pxy;
       bool first;
       while (mit->hasNext())
       {
         TreeLikelihood::ConstBranchModelDescription* bmd = mit->next();
-        auto_ptr<TreeLikelihood::SiteIterator> sit(bmd->getNewSiteIterator());
+        unique_ptr<TreeLikelihood::SiteIterator> sit(bmd->getNewSiteIterator());
         first = true;
         while (sit->hasNext())
         {
@@ -270,7 +270,7 @@ ProbabilisticSubstitutionMapping* SubstitutionMappingTools::computeSubstitutionV
 
     // Iterate over all site partitions:
     const VVVdouble* likelihoodsFather_node = &(drtl.getLikelihoodData()->getLikelihoodArray(father->getId(), currentNode->getId()));
-    auto_ptr<TreeLikelihood::ConstBranchModelIterator> mit(drtl.getNewBranchModelIterator(currentNode->getId()));
+    unique_ptr<TreeLikelihood::ConstBranchModelIterator> mit(drtl.getNewBranchModelIterator(currentNode->getId()));
     VVVdouble pxy;
     bool first;
     while (mit->hasNext())
@@ -303,7 +303,7 @@ ProbabilisticSubstitutionMapping* SubstitutionMappingTools::computeSubstitutionV
       }
 
       // Now loop over sites:
-      auto_ptr<TreeLikelihood::SiteIterator> sit(bmd->getNewSiteIterator());
+      unique_ptr<TreeLikelihood::SiteIterator> sit(bmd->getNewSiteIterator());
       first = true;
       while (sit->hasNext())
       {
@@ -474,13 +474,13 @@ ProbabilisticSubstitutionMapping* SubstitutionMappingTools::computeSubstitutionV
         const VVVdouble* likelihoodsFather_son = &drtl.getLikelihoodData()->getLikelihoodArray(father->getId(), currentSon->getId());
 
         // Now iterate over all site partitions:
-        auto_ptr<TreeLikelihood::ConstBranchModelIterator> mit(drtl.getNewBranchModelIterator(currentSon->getId()));
+        unique_ptr<TreeLikelihood::ConstBranchModelIterator> mit(drtl.getNewBranchModelIterator(currentSon->getId()));
         VVVdouble pxy;
         bool first;
         while (mit->hasNext())
         {
           TreeLikelihood::ConstBranchModelDescription* bmd = mit->next();
-          auto_ptr<TreeLikelihood::SiteIterator> sit(bmd->getNewSiteIterator());
+          unique_ptr<TreeLikelihood::SiteIterator> sit(bmd->getNewSiteIterator());
           first = true;
           while (sit->hasNext())
           {
@@ -518,13 +518,13 @@ ProbabilisticSubstitutionMapping* SubstitutionMappingTools::computeSubstitutionV
       const Node* currentSon = father->getFather();
       const VVVdouble* likelihoodsFather_son = &drtl.getLikelihoodData()->getLikelihoodArray(father->getId(), currentSon->getId());
       // Now iterate over all site partitions:
-      auto_ptr<TreeLikelihood::ConstBranchModelIterator> mit(drtl.getNewBranchModelIterator(father->getId()));
+      unique_ptr<TreeLikelihood::ConstBranchModelIterator> mit(drtl.getNewBranchModelIterator(father->getId()));
       VVVdouble pxy;
       bool first;
       while (mit->hasNext())
       {
         TreeLikelihood::ConstBranchModelDescription* bmd = mit->next();
-        auto_ptr<TreeLikelihood::SiteIterator> sit(bmd->getNewSiteIterator());
+        unique_ptr<TreeLikelihood::SiteIterator> sit(bmd->getNewSiteIterator());
         first = true;
         while (sit->hasNext())
         {
@@ -581,7 +581,7 @@ ProbabilisticSubstitutionMapping* SubstitutionMappingTools::computeSubstitutionV
 
     // Iterate over all site partitions:
     const VVVdouble* likelihoodsFather_node = &(drtl.getLikelihoodData()->getLikelihoodArray(father->getId(), currentNode->getId()));
-    auto_ptr<TreeLikelihood::ConstBranchModelIterator> mit(drtl.getNewBranchModelIterator(currentNode->getId()));
+    unique_ptr<TreeLikelihood::ConstBranchModelIterator> mit(drtl.getNewBranchModelIterator(currentNode->getId()));
     VVVdouble pxy;
     bool first;
     while (mit->hasNext())
@@ -615,7 +615,7 @@ ProbabilisticSubstitutionMapping* SubstitutionMappingTools::computeSubstitutionV
       }
 
       // Now loop over sites:
-      auto_ptr<TreeLikelihood::SiteIterator> sit(bmd->getNewSiteIterator());
+      unique_ptr<TreeLikelihood::SiteIterator> sit(bmd->getNewSiteIterator());
       first = true;
       while (sit->hasNext())
       {
@@ -763,13 +763,13 @@ ProbabilisticSubstitutionMapping* SubstitutionMappingTools::computeSubstitutionV
         const VVVdouble* likelihoodsFather_son = &drtl.getLikelihoodData()->getLikelihoodArray(father->getId(), currentSon->getId());
 
         // Now iterate over all site partitions:
-        auto_ptr<TreeLikelihood::ConstBranchModelIterator> mit(drtl.getNewBranchModelIterator(currentSon->getId()));
+        unique_ptr<TreeLikelihood::ConstBranchModelIterator> mit(drtl.getNewBranchModelIterator(currentSon->getId()));
         VVVdouble pxy;
         bool first;
         while (mit->hasNext())
         {
           TreeLikelihood::ConstBranchModelDescription* bmd = mit->next();
-          auto_ptr<TreeLikelihood::SiteIterator> sit(bmd->getNewSiteIterator());
+          unique_ptr<TreeLikelihood::SiteIterator> sit(bmd->getNewSiteIterator());
           first = true;
           while (sit->hasNext())
           {
@@ -807,13 +807,13 @@ ProbabilisticSubstitutionMapping* SubstitutionMappingTools::computeSubstitutionV
       const Node* currentSon = father->getFather();
       const VVVdouble* likelihoodsFather_son = &drtl.getLikelihoodData()->getLikelihoodArray(father->getId(), currentSon->getId());
       // Now iterate over all site partitions:
-      auto_ptr<TreeLikelihood::ConstBranchModelIterator> mit(drtl.getNewBranchModelIterator(father->getId()));
+      unique_ptr<TreeLikelihood::ConstBranchModelIterator> mit(drtl.getNewBranchModelIterator(father->getId()));
       VVVdouble pxy;
       bool first;
       while (mit->hasNext())
       {
         TreeLikelihood::ConstBranchModelDescription* bmd = mit->next();
-        auto_ptr<TreeLikelihood::SiteIterator> sit(bmd->getNewSiteIterator());
+        unique_ptr<TreeLikelihood::SiteIterator> sit(bmd->getNewSiteIterator());
         first = true;
         while (sit->hasNext())
         {
@@ -869,7 +869,7 @@ ProbabilisticSubstitutionMapping* SubstitutionMappingTools::computeSubstitutionV
 
     // Iterate over all site partitions:
     const VVVdouble* likelihoodsFather_node = &drtl.getLikelihoodData()->getLikelihoodArray(father->getId(), currentNode->getId());
-    auto_ptr<TreeLikelihood::ConstBranchModelIterator> mit(drtl.getNewBranchModelIterator(currentNode->getId()));
+    unique_ptr<TreeLikelihood::ConstBranchModelIterator> mit(drtl.getNewBranchModelIterator(currentNode->getId()));
     VVVdouble pxy;
     bool first;
     while (mit->hasNext())
@@ -902,7 +902,7 @@ ProbabilisticSubstitutionMapping* SubstitutionMappingTools::computeSubstitutionV
       }
 
       // Now loop over sites:
-      auto_ptr<TreeLikelihood::SiteIterator> sit(bmd->getNewSiteIterator());
+      unique_ptr<TreeLikelihood::SiteIterator> sit(bmd->getNewSiteIterator());
       first = true;
       while (sit->hasNext())
       {
@@ -1049,7 +1049,7 @@ ProbabilisticSubstitutionMapping* SubstitutionMappingTools::computeSubstitutionV
     // Then, we deal with the node of interest.
     // ('y' is the state at 'node' and 'x' the state at 'father'.)
     // Iterate over all site partitions:
-    auto_ptr<TreeLikelihood::ConstBranchModelIterator> mit(drtl.getNewBranchModelIterator(currentNode->getId()));
+    unique_ptr<TreeLikelihood::ConstBranchModelIterator> mit(drtl.getNewBranchModelIterator(currentNode->getId()));
     while (mit->hasNext())
     {
       TreeLikelihood::ConstBranchModelDescription* bmd = mit->next();
@@ -1071,7 +1071,7 @@ ProbabilisticSubstitutionMapping* SubstitutionMappingTools::computeSubstitutionV
         delete nxy;
       }
       // Now loop over sites:
-      auto_ptr<TreeLikelihood::SiteIterator> sit(bmd->getNewSiteIterator());
+      unique_ptr<TreeLikelihood::SiteIterator> sit(bmd->getNewSiteIterator());
       while (sit->hasNext())
       {
         size_t i = sit->next();
@@ -1171,7 +1171,7 @@ ProbabilisticSubstitutionMapping* SubstitutionMappingTools::computeSubstitutionV
     VVVdouble probsFather = DRTreeLikelihoodTools::getPosteriorProbabilitiesForEachStateForEachRate(drtl, father->getId());
 
     // Iterate over all site partitions:
-    auto_ptr<TreeLikelihood::ConstBranchModelIterator> mit(drtl.getNewBranchModelIterator(currentNode->getId()));
+    unique_ptr<TreeLikelihood::ConstBranchModelIterator> mit(drtl.getNewBranchModelIterator(currentNode->getId()));
     while (mit->hasNext())
     {
       TreeLikelihood::ConstBranchModelDescription* bmd = mit->next();
@@ -1202,7 +1202,7 @@ ProbabilisticSubstitutionMapping* SubstitutionMappingTools::computeSubstitutionV
       }
 
       // Now loop over sites:
-      auto_ptr<TreeLikelihood::SiteIterator> sit(bmd->getNewSiteIterator());
+      unique_ptr<TreeLikelihood::SiteIterator> sit(bmd->getNewSiteIterator());
       while (sit->hasNext())
       {
         size_t i = sit->next();
@@ -1407,9 +1407,9 @@ vector< vector<double> > SubstitutionMappingTools::getCountsPerBranch(
 {
   SubstitutionRegister* reg2 = reg.clone();
 
-  auto_ptr<SubstitutionCount> count(new UniformizationSubstitutionCount(model, reg2));
+  unique_ptr<SubstitutionCount> count(new UniformizationSubstitutionCount(model, reg2));
 
-  auto_ptr<ProbabilisticSubstitutionMapping> mapping(SubstitutionMappingTools::computeSubstitutionVectors(drtl, ids, *count, false));
+  unique_ptr<ProbabilisticSubstitutionMapping> mapping(SubstitutionMappingTools::computeSubstitutionVectors(drtl, ids, *count, false));
 
   vector< vector<double> > counts(ids.size());
   size_t nbSites = mapping->getNumberOfSites();
@@ -1427,7 +1427,7 @@ vector< vector<double> > SubstitutionMappingTools::getCountsPerBranch(
       for (size_t t = 0; t < nbTypes; ++t)
       {
         tmp[t] = (*mapping)(mapping->getNodeIndex(ids[k]), i, t);
-        error = isnan(tmp[t]);
+        error = std::isnan(tmp[t]);
         if (error)
           goto ERROR;
         s += tmp[t];
@@ -1489,9 +1489,9 @@ vector< vector<double> > SubstitutionMappingTools::getCountsPerBranch(
 {
   SubstitutionRegister* reg2 = reg.clone();
 
-  auto_ptr<SubstitutionCount> count(new UniformizationSubstitutionCount(modelSet.getModel(0), reg2));
+  unique_ptr<SubstitutionCount> count(new UniformizationSubstitutionCount(modelSet.getModel(0), reg2));
 
-  auto_ptr<ProbabilisticSubstitutionMapping> mapping(SubstitutionMappingTools::computeSubstitutionVectors(drtl, modelSet, ids, *count, false));
+  unique_ptr<ProbabilisticSubstitutionMapping> mapping(SubstitutionMappingTools::computeSubstitutionVectors(drtl, modelSet, ids, *count, false));
 
   vector< vector<double> > counts(ids.size());
   size_t nbSites = mapping->getNumberOfSites();
@@ -1509,7 +1509,7 @@ vector< vector<double> > SubstitutionMappingTools::getCountsPerBranch(
       for (size_t t = 0; t < nbTypes; ++t)
       {
         tmp[t] = (*mapping)(mapping->getNodeIndex(ids[k]), i, t);
-        error = isnan(tmp[t]);
+        error = std::isnan(tmp[t]);
         if (error)
           goto ERROR;
         s += tmp[t];
@@ -1599,9 +1599,9 @@ vector< vector<double> > SubstitutionMappingTools::getNormalizationsPerBranch(
 
   for (size_t nbt = 0; nbt < nbTypes; nbt++)
   {
-    auto_ptr<Reward> reward(new DecompositionReward(nullModel, &usai[nbt]));
+    unique_ptr<Reward> reward(new DecompositionReward(nullModel, &usai[nbt]));
 
-    auto_ptr<ProbabilisticRewardMapping> mapping(RewardMappingTools::computeRewardVectors(drtl, ids, *reward, false));
+    unique_ptr<ProbabilisticRewardMapping> mapping(RewardMappingTools::computeRewardVectors(drtl, ids, *reward, false));
 
     for (size_t k = 0; k < ids.size(); ++k)
     {
@@ -1609,7 +1609,7 @@ vector< vector<double> > SubstitutionMappingTools::getNormalizationsPerBranch(
       for (size_t i = 0; i < nbSites; ++i)
       {
         double tmp = (*mapping)(k, i);
-        if (isnan(tmp))
+        if (std::isnan(tmp))
         {
           if (verbose)
             ApplicationTools::displayWarning("On branch " + TextTools::toString(ids[k]) + ", reward for type " + reg.getTypeName(nbt + 1) + " could not be computed.");
@@ -1679,9 +1679,9 @@ vector< vector<double> > SubstitutionMappingTools::getNormalizationsPerBranch(
 
       for (size_t nbt = 0; nbt < nbTypes; nbt++)
       {
-        auto_ptr<Reward> reward(new DecompositionReward(nullModelSet->getModel(nbm), &usai[nbt]));
+        unique_ptr<Reward> reward(new DecompositionReward(nullModelSet->getModel(nbm), &usai[nbt]));
         
-        auto_ptr<ProbabilisticRewardMapping> mapping(RewardMappingTools::computeRewardVectors(drtl, mids, *reward, false));
+        unique_ptr<ProbabilisticRewardMapping> mapping(RewardMappingTools::computeRewardVectors(drtl, mids, *reward, false));
         
         for (size_t k = 0; k < mids.size(); k++)
         {
@@ -1689,7 +1689,7 @@ vector< vector<double> > SubstitutionMappingTools::getNormalizationsPerBranch(
           for (size_t i = 0; i < nbSites; ++i)
           {
             double tmp = (*mapping)(mapping->getNodeIndex(mids[k]), i);
-            if (isnan(tmp))
+            if (std::isnan(tmp))
             {
               if (verbose)
                 ApplicationTools::displayWarning("On branch " + TextTools::toString(mids[k]) + ", reward for type " + reg.getTypeName(nbt + 1) + " could not be computed.");
@@ -1859,8 +1859,8 @@ void SubstitutionMappingTools::outputTotalCountsPerBranchPerSite(
   SubstitutionModel* model,
   const SubstitutionRegister& reg)
 {
-  auto_ptr<SubstitutionCount> count(new UniformizationSubstitutionCount(model, reg.clone()));
-  auto_ptr<ProbabilisticSubstitutionMapping> smap(SubstitutionMappingTools::computeSubstitutionVectors(drtl, ids, *count, false));
+  unique_ptr<SubstitutionCount> count(new UniformizationSubstitutionCount(model, reg.clone()));
+  unique_ptr<ProbabilisticSubstitutionMapping> smap(SubstitutionMappingTools::computeSubstitutionVectors(drtl, ids, *count, false));
 
   ofstream file;
   file.open(filename.c_str());
@@ -1903,8 +1903,8 @@ void SubstitutionMappingTools::outputIndividualCountsPerBranchPerSite(
   SubstitutionModel* model,
   const SubstitutionRegister& reg)
 {
-  auto_ptr<SubstitutionCount> count(new UniformizationSubstitutionCount(model, reg.clone()));
-  auto_ptr<ProbabilisticSubstitutionMapping> smap(SubstitutionMappingTools::computeSubstitutionVectors(drtl, ids, *count, false));
+  unique_ptr<SubstitutionCount> count(new UniformizationSubstitutionCount(model, reg.clone()));
+  unique_ptr<ProbabilisticSubstitutionMapping> smap(SubstitutionMappingTools::computeSubstitutionVectors(drtl, ids, *count, false));
 
   ofstream file;
 

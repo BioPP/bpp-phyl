@@ -326,7 +326,7 @@ FrequenciesSet* PhylogeneticsApplicationTools::getFrequenciesSet(
       throw Exception("PhylogeneticsApplicationTools::getFrequenciesSet(): a GeneticCode instance is required for instanciating a codon frequencies set.");
     bIO.setGeneticCode(gCode);
   }
-  auto_ptr<FrequenciesSet> pFS(bIO.read(alphabet, freqDescription, data, true));
+  unique_ptr<FrequenciesSet> pFS(bIO.read(alphabet, freqDescription, data, true));
   
   // /////// To be changed for input normalization
   if (rateFreqs.size() > 0)
@@ -425,7 +425,7 @@ void PhylogeneticsApplicationTools::setSubstitutionModelSet(
   else
     tmpDesc = ApplicationTools::getStringParameter("model1", params, "JC69", suffix, suffixIsOptional, warn);
 
-  auto_ptr<SubstitutionModel> tmp(bIO.read(alphabet, tmpDesc, data, false));
+  unique_ptr<SubstitutionModel> tmp(bIO.read(alphabet, tmpDesc, data, false));
   //  map<string, string> tmpUnparsedParameterValues(bIO.getUnparsedArguments());
 
   if (tmp->getNumberOfStates() != alphabet->getSize())
@@ -476,7 +476,7 @@ void PhylogeneticsApplicationTools::setSubstitutionModelSet(
     else
       modelDesc = ApplicationTools::getStringParameter(prefix, params, "JC69", suffix, suffixIsOptional, warn);
 
-    auto_ptr<SubstitutionModel> model(bIO.read(alphabet, modelDesc, data, false));
+    unique_ptr<SubstitutionModel> model(bIO.read(alphabet, modelDesc, data, false));
     map<string, string> unparsedParameterValues(bIO.getUnparsedArguments());
 
     map<string, string> sharedParameters;
@@ -671,7 +671,7 @@ DiscreteDistribution* PhylogeneticsApplicationTools::getRateDistribution(
   KeyvalTools::parseProcedure(distDescription, distName, args);
 
   BppORateDistributionFormat bIO(true);
-  auto_ptr<DiscreteDistribution> rDist(bIO.read(distDescription, true));
+  unique_ptr<DiscreteDistribution> rDist(bIO.read(distDescription, true));
 
   if (verbose)
   {
@@ -1215,7 +1215,7 @@ throw (Exception)
     ApplicationTools::displayResult("Algorithm used for derivable parameters", order);
 
   // Backing up or restoring?
-  auto_ptr<BackupListener> backupListener;
+  unique_ptr<BackupListener> backupListener;
   string backupFile = ApplicationTools::getAFilePath("optimization.backup.file", params, false, false, suffix, suffixIsOptional, "none", warn + 1);
   if (backupFile != "none")
   {

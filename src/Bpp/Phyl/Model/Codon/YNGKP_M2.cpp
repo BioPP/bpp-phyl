@@ -50,7 +50,7 @@ using namespace std;
 
 YNGKP_M2::YNGKP_M2(const GeneticCode* gc, FrequenciesSet* codonFreqs) :
   AbstractBiblioMixedSubstitutionModel("YNGKP_M2."),
-  pmixmodel_(0),
+  pmixmodel_(),
   synfrom_(),
   synto_()
 {

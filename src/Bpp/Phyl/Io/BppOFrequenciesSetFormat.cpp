@@ -79,7 +79,7 @@ FrequenciesSet* BppOFrequenciesSetFormat::read(const Alphabet* alphabet, const s
   string freqName;
   map<string, string> args;
   KeyvalTools::parseProcedure(freqDescription, freqName, args);
-  auto_ptr<FrequenciesSet> pFS;
+  unique_ptr<FrequenciesSet> pFS;
 
   if (freqName == "Fixed")
   {
@@ -186,7 +186,7 @@ FrequenciesSet* BppOFrequenciesSetFormat::read(const Alphabet* alphabet, const s
       }
 
       BppOFrequenciesSetFormat nestedReader(alphabetCode_, false, warningLevel_);
-      auto_ptr<FrequenciesSet> pFS2(nestedReader.read(pWA->getNAlphabet(0), sAFS, data, false));
+      unique_ptr<FrequenciesSet> pFS2(nestedReader.read(pWA->getNAlphabet(0), sAFS, data, false));
       map<string, string> unparsedParameterValuesNested(nestedReader.getUnparsedArguments());
       for (map<string, string>::iterator it = unparsedParameterValuesNested.begin(); it != unparsedParameterValuesNested.end(); it++)
       {
@@ -243,7 +243,7 @@ FrequenciesSet* BppOFrequenciesSetFormat::read(const Alphabet* alphabet, const s
       string sAFS = args["frequency"];
 
       BppOFrequenciesSetFormat nestedReader(alphabetCode_, false, warningLevel_);
-      auto_ptr<FrequenciesSet> pFS2(nestedReader.read(pWA->getNAlphabet(0), sAFS, data, false));
+      unique_ptr<FrequenciesSet> pFS2(nestedReader.read(pWA->getNAlphabet(0), sAFS, data, false));
       map<string, string> unparsedParameterValuesNested(nestedReader.getUnparsedArguments());
 
       for (map<string, string>::iterator it = unparsedParameterValuesNested.begin(); it != unparsedParameterValuesNested.end(); it++)
@@ -314,7 +314,7 @@ FrequenciesSet* BppOFrequenciesSetFormat::read(const Alphabet* alphabet, const s
     {
       string sPFS = args["protein_frequencies"];
       BppOFrequenciesSetFormat nestedReader(alphabetCode_, false, warningLevel_);
-      auto_ptr<ProteinFrequenciesSet> pPFS(dynamic_cast<ProteinFrequenciesSet*>(nestedReader.read(pPA, sPFS, data, false)));
+      unique_ptr<ProteinFrequenciesSet> pPFS(dynamic_cast<ProteinFrequenciesSet*>(nestedReader.read(pPA, sPFS, data, false)));
       map<string, string> unparsedParameterValuesNested(nestedReader.getUnparsedArguments());
 
       for (map<string, string>::iterator it = unparsedParameterValuesNested.begin(); it != unparsedParameterValuesNested.end(); it++)
@@ -362,7 +362,7 @@ FrequenciesSet* BppOFrequenciesSetFormat::read(const Alphabet* alphabet, const s
           string sAFS = args["frequency"];
 
           BppOFrequenciesSetFormat nestedReader(alphabetCode_, false, warningLevel_);
-          auto_ptr<FrequenciesSet> pFS2(nestedReader.read(pWA->getNAlphabet(0), sAFS, data, false));
+          unique_ptr<FrequenciesSet> pFS2(nestedReader.read(pWA->getNAlphabet(0), sAFS, data, false));
           if (pFS2->getName()!="Full")
             throw Exception("BppOFrequenciesSetFormat::read. The frequency option in F1X4 can only be Full");
             

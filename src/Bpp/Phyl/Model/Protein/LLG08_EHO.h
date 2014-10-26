@@ -96,7 +96,7 @@ public:
   };
 
 private:
-  auto_ptr<MixtureOfSubstitutionModels> pmixmodel_;
+  unique_ptr<MixtureOfSubstitutionModels> pmixmodel_;
 
 public:
   /**

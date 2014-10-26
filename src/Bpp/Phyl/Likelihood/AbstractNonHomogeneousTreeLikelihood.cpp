@@ -79,7 +79,7 @@ AbstractNonHomogeneousTreeLikelihood::AbstractNonHomogeneousTreeLikelihood(
   verbose_(),
   minimumBrLen_(),
   maximumBrLen_(),
-  brLenConstraint_(0),
+  brLenConstraint_(),
   reparametrizeRoot_(reparametrizeRoot),
   root1_(),
   root2_()

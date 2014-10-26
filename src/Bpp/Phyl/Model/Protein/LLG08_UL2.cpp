@@ -49,7 +49,7 @@ using namespace std;
 
 LLG08_UL2::LLG08_UL2(const ProteicAlphabet* alpha) :
   AbstractBiblioMixedSubstitutionModel("LLG08_UL2."),
-  pmixmodel_(0)
+  pmixmodel_()
 {
   // build the submodel
 
