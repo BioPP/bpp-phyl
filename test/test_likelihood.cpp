@@ -88,7 +88,7 @@ void fitModelHDR(SubstitutionModel* model, DiscreteDistribution* rdist, const Tr
 }
 
 int main() {
-  auto_ptr<TreeTemplate<Node> > tree(TreeTemplateTools::parenthesisToTree("((A:0.01, B:0.02):0.03,C:0.01,D:0.1);"));
+  unique_ptr<TreeTemplate<Node> > tree(TreeTemplateTools::parenthesisToTree("((A:0.01, B:0.02):0.03,C:0.01,D:0.1);"));
   vector<string> seqNames= tree->getLeavesNames();
   vector<int> ids = tree->getNodesId();
   //-------------
@@ -101,8 +101,8 @@ int main() {
   sites.addSequence(BasicSequence("C", "CTCTGGATGTGCACGTG", alphabet));
   sites.addSequence(BasicSequence("D", "AAATGGCGGTGCGCCTA", alphabet));
 
-  auto_ptr<SubstitutionModel> model(new T92(alphabet, 3.));
-  auto_ptr<DiscreteDistribution> rdist(new GammaDiscreteRateDistribution(4, 1.0));
+  unique_ptr<SubstitutionModel> model(new T92(alphabet, 3.));
+  unique_ptr<DiscreteDistribution> rdist(new GammaDiscreteRateDistribution(4, 1.0));
   try {
     cout << "Testing Single Tree Traversal likelihood class..." << endl;
     fitModelHSR(model.get(), rdist.get(), *tree, sites, 85.030942031997312824, 65.72293577214308868406);

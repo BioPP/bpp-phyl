@@ -52,21 +52,21 @@ using namespace bpp;
 using namespace std;
 
 double testBowker(const NonHomogeneousSequenceSimulator& sim, size_t seqlen) {
-  auto_ptr<SiteContainer> sites(sim.simulate(seqlen));
-  auto_ptr<BowkerTest> bTest(SequenceTools::bowkerTest(sites->getSequence(0), sites->getSequence(1)));
+  unique_ptr<SiteContainer> sites(sim.simulate(seqlen));
+  unique_ptr<BowkerTest> bTest(SequenceTools::bowkerTest(sites->getSequence(0), sites->getSequence(1)));
   return bTest->getPValue();
 }
 
 int main() {
-  auto_ptr< TreeTemplate<Node> > tree(TreeTemplateTools::parenthesisToTree("(A:0.02, B:0.02);"));
+  unique_ptr< TreeTemplate<Node> > tree(TreeTemplateTools::parenthesisToTree("(A:0.02, B:0.02);"));
 
   //First test homogeneous model:
   cout << "..:: Testing with homogeneous model ::.." << endl;
-  auto_ptr<NucleicAlphabet> alphabet(new DNA());
+  unique_ptr<NucleicAlphabet> alphabet(new DNA());
   SubstitutionModel* model = new T92(alphabet.get(), 3., 0.65);
   FrequenciesSet* rootFreqs = new GCFrequenciesSet(alphabet.get(), 0.65);
-  auto_ptr<DiscreteDistribution> rdist(new ConstantRateDistribution());
-  auto_ptr<SubstitutionModelSet> modelSetH(SubstitutionModelSetTools::createHomogeneousModelSet(model, rootFreqs, tree.get()));
+  unique_ptr<DiscreteDistribution> rdist(new ConstantRateDistribution());
+  unique_ptr<SubstitutionModelSet> modelSetH(SubstitutionModelSetTools::createHomogeneousModelSet(model, rootFreqs, tree.get()));
   NonHomogeneousSequenceSimulator simulatorH(modelSetH.get(), rdist.get(), tree.get());
 
   unsigned int nsim = 10000;
@@ -90,7 +90,7 @@ int main() {
   cout << "..:: Testing with homogeneous, non-stationary model ::.." << endl;
   model = new T92(alphabet.get(), 3., 0.65);
   rootFreqs = new GCFrequenciesSet(alphabet.get(), 0.4);
-  auto_ptr<SubstitutionModelSet> modelSetHNS(SubstitutionModelSetTools::createHomogeneousModelSet(model, rootFreqs, tree.get()));
+  unique_ptr<SubstitutionModelSet> modelSetHNS(SubstitutionModelSetTools::createHomogeneousModelSet(model, rootFreqs, tree.get()));
   NonHomogeneousSequenceSimulator simulatorHNS(modelSetHNS.get(), rdist.get(), tree.get());
 
   count05 = 0;
@@ -113,7 +113,7 @@ int main() {
   rootFreqs = new GCFrequenciesSet(alphabet.get(), 0.65);
   std::vector<std::string> globalParameterNames;
   globalParameterNames.push_back("T92.kappa");
-  auto_ptr<SubstitutionModelSet> modelSetNHGC(SubstitutionModelSetTools::createNonHomogeneousModelSet(model, rootFreqs, tree.get(), globalParameterNames));
+  unique_ptr<SubstitutionModelSet> modelSetNHGC(SubstitutionModelSetTools::createNonHomogeneousModelSet(model, rootFreqs, tree.get(), globalParameterNames));
   modelSetNHGC->setParameterValue("T92.theta_1", 0.3);
   modelSetNHGC->setParameterValue("T92.theta_2", 0.8);
   NonHomogeneousSequenceSimulator simulatorNHGC(modelSetNHGC.get(), rdist.get(), tree.get());
@@ -138,7 +138,7 @@ int main() {
   rootFreqs = new GCFrequenciesSet(alphabet.get(), 0.5);
   globalParameterNames.clear();
   globalParameterNames.push_back("T92.theta");
-  auto_ptr<SubstitutionModelSet> modelSetNHTsTv(SubstitutionModelSetTools::createNonHomogeneousModelSet(model, rootFreqs, tree.get(), globalParameterNames));
+  unique_ptr<SubstitutionModelSet> modelSetNHTsTv(SubstitutionModelSetTools::createNonHomogeneousModelSet(model, rootFreqs, tree.get(), globalParameterNames));
   modelSetNHTsTv->setParameterValue("T92.kappa_1", 2);
   modelSetNHTsTv->setParameterValue("T92.kappa_2", 7);
   NonHomogeneousSequenceSimulator simulatorNHTsTv(modelSetNHTsTv.get(), rdist.get(), tree.get());
