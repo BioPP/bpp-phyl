@@ -86,7 +86,7 @@ int main() {
   //Generate data set:
   VectorSiteContainer sites(seqNames, alphabet);
   for (unsigned int i = 0; i < n; ++i) {
-    auto_ptr<Site> site(simulator.simulateSite());
+    unique_ptr<Site> site(simulator.simulateSite());
     site->setPosition(static_cast<int>(i));
     sites.addSite(*site, false);
   }
@@ -117,7 +117,7 @@ int main() {
   VectorSiteContainer sites2(seqNames, alphabet);
   for (unsigned int i = 0; i < n; ++i) {
     RASiteSimulationResult* result = simulator.dSimulateSite();
-    auto_ptr<Site> site(result->getSite(*simulator.getSubstitutionModelSet()->getModel(0)));
+    unique_ptr<Site> site(result->getSite(*simulator.getSubstitutionModelSet()->getModel(0)));
     site->setPosition(static_cast<int>(i));
     sites2.addSite(*site, false);
     delete result;
