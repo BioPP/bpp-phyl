@@ -304,7 +304,7 @@ void AbstractHomogeneousTreeLikelihood::applyParameters() throw (Exception)
 
 /******************************************************************************/
 
-void AbstractHomogeneousTreeLikelihood::initBranchLengthsParameters()
+void AbstractHomogeneousTreeLikelihood::initBranchLengthsParameters(bool verbose)
 {
   brLenParameters_.reset();
   for (unsigned int i = 0; i < nbNodes_; i++)
@@ -312,7 +312,8 @@ void AbstractHomogeneousTreeLikelihood::initBranchLengthsParameters()
     double d = minimumBrLen_;
     if (!nodes_[i]->hasDistanceToFather())
     {
-      ApplicationTools::displayWarning("Missing branch length " + TextTools::toString(i) + ". Value is set to " + TextTools::toString(minimumBrLen_));
+      if (verbose)
+        ApplicationTools::displayWarning("Missing branch length " + TextTools::toString(i) + ". Value is set to " + TextTools::toString(minimumBrLen_));
       nodes_[i]->setDistanceToFather(minimumBrLen_);
     }
     else
@@ -320,13 +321,15 @@ void AbstractHomogeneousTreeLikelihood::initBranchLengthsParameters()
       d = nodes_[i]->getDistanceToFather();
       if (d < minimumBrLen_)
       {
-        ApplicationTools::displayWarning("Branch length " + TextTools::toString(i) + " is too small: " + TextTools::toString(d) + ". Value is set to " + TextTools::toString(minimumBrLen_));
+        if (verbose)
+          ApplicationTools::displayWarning("Branch length " + TextTools::toString(i) + " is too small: " + TextTools::toString(d) + ". Value is set to " + TextTools::toString(minimumBrLen_));
         nodes_[i]->setDistanceToFather(minimumBrLen_);
         d = minimumBrLen_;
       }
       if (d > maximumBrLen_)
       {
-        ApplicationTools::displayWarning("Branch length " + TextTools::toString(i) + " is too big: " + TextTools::toString(d) + ". Value is set to " + TextTools::toString(maximumBrLen_));
+        if (verbose)
+          ApplicationTools::displayWarning("Branch length " + TextTools::toString(i) + " is too big: " + TextTools::toString(d) + ". Value is set to " + TextTools::toString(maximumBrLen_));
         nodes_[i]->setDistanceToFather(maximumBrLen_);
         d = maximumBrLen_;
       }

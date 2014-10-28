@@ -316,7 +316,7 @@ RNonHomogeneousMixedTreeLikelihood::~RNonHomogeneousMixedTreeLikelihood()
   if (main_)
     initParameters();
   else {
-    initBranchLengthsParameters();
+    initBranchLengthsParameters(false);
     includeParameters_(brLenParameters_);
   }
 
