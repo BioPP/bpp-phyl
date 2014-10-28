@@ -67,7 +67,7 @@ int main() {
   
     //Convert tree to string and read it again:
     string newick = TreeTemplateTools::treeToParenthesis(*tree);
-    TreeTemplate<Node>* tree3 = TreeTemplateTools::parenthesisToTree(newick);
+    TreeTemplate<Node>* tree3 = TreeTemplateTools::parenthesisToTree(newick, true, TreeTools::BOOTSTRAP, false, false);
     if (!tree->hasSameTopologyAs(*tree3))
       return 1; //Error!!!
     //cout << "Third test passed." << endl;
@@ -154,11 +154,11 @@ int main() {
   try {
     Tree* tmp = tReader.read("test/");
     cerr << "Arg, reading on directory should fail!" << endl;
-    if (tmp != NULL) {
+    if (tmp) {
       cerr << "Output of read on directory is not NULL!" << endl;
     }
     return 1;
-  } catch(Exception& ex) {
+  } catch (Exception& ex) {
     cout << "Ok, reading on directory throws exception!" << endl;
   }
 
@@ -237,32 +237,6 @@ int main() {
   }
   cout << TreeTemplateTools::treeToParenthesis(*weird6) << endl;
   delete weird6;
-
-  // Test TreeTools functions:
-  
-  //getPathBetweenAnyTwoNodes()...
-  TreeTemplate <Node>* tree = TreeTemplateTools::parenthesisToTree ("(A:0.1, (B :0.2, C:0.4):0.1);" );
-  vector <int> Leaves_select = tree->getLeavesId();
-
-  Node* node1 = tree->getNode(Leaves_select[0]);
-  Node* node2 = tree->getNode(Leaves_select[1]);
-  Node* node3 = tree->getNode(Leaves_select[2]);
-
-  vector<Node*> vecNode = TreeTemplateTools::getPathBetweenAnyTwoNodes(*node1, *node2, true);
-  cout << "Id node1 " << node1->getId() << endl;
-  cout << "Id node2 " << node2->getId() << endl;
-  cout << "Ids of path:" << endl;
-  for (size_t i = 0; i < vecNode.size(); i++){
-    cout << vecNode[i]->getId() << endl;
-  }
-
-  vecNode = TreeTemplateTools::getPathBetweenAnyTwoNodes(*node1, *node3, true);
-  cout << "Id node1 " << node1->getId() << endl;
-  cout << "Id node3 " << node3->getId() << endl;
-  cout << "Ids of path: " << endl;
-  for (size_t i = 0; i < vecNode.size(); i++){
-    cout << vecNode[i]->getId() << endl;
-  }
-  
+ 
   return 0;
 }

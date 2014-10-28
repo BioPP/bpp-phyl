@@ -28,6 +28,14 @@ ADD_EXECUTABLE(test_tree test_tree.cpp)
 TARGET_LINK_LIBRARIES(test_tree ${LIBS})
 ADD_TEST(test_tree "test_tree")
 
+ADD_EXECUTABLE(test_tree_rootat test_tree_rootat.cpp)
+TARGET_LINK_LIBRARIES(test_tree_rootat ${LIBS})
+ADD_TEST(test_tree_rootat "test_tree_rootat")
+
+ADD_EXECUTABLE(test_tree_getpath test_tree_getpath.cpp)
+TARGET_LINK_LIBRARIES(test_tree_getpath ${LIBS})
+ADD_TEST(test_tree_getpath "test_tree_getpath")
+
 ADD_EXECUTABLE(test_models test_models.cpp)
 TARGET_LINK_LIBRARIES(test_models ${LIBS})
 ADD_TEST(test_models "test_models")
