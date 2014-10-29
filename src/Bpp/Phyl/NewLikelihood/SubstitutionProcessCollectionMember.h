@@ -81,8 +81,15 @@ namespace bpp
      *
      */
   
-    const SubstitutionProcessCollection* pSubProColl_;
+    SubstitutionProcessCollection* pSubProColl_;
 
+    /**
+     * @brief The number of the process in the collection
+     *
+     **/
+
+    size_t nProc_;
+    
   private:
 
     /**
@@ -133,11 +140,12 @@ namespace bpp
      * Stationarity is assumed.
      *
      * @param pSubProColl the SubstitutionProcessCollection.
+     * @param nProc Number of the process in the collection
      * @param nTree Number of the tree
      * @param nDist Number of the Discrete Distribution
      */
   
-    SubstitutionProcessCollectionMember(const SubstitutionProcessCollection* pSubProColl, size_t nTree, size_t nDist);
+    SubstitutionProcessCollectionMember( SubstitutionProcessCollection* pSubProColl, size_t nProc, size_t nTree, size_t nDist);
 
     /**
      * @brief Resets all the information contained in this object.
@@ -178,6 +186,24 @@ namespace bpp
 
     const Alphabet* getAlphabet() const;
 
+    /**
+     * @brief set the number of the process in the collection
+     */
+
+    void setNProcess(size_t nProc)
+    {
+      nProc_=nProc;
+    }
+    
+    /**
+     * @return the number of the process in the collection
+     */
+
+    size_t getNProcess() const
+    {
+      return nProc_;
+    }
+    
     /**
      * @return The current number of distinct substitution models in this set.
      */
@@ -264,7 +290,7 @@ namespace bpp
     const size_t getDistributionNumber() const { return nDist_;}
     
     /*
-     * @brief Set the ro Frequencies Set
+     * @brief Set the root Frequencies Set
      * @param freqIndex the index of the frequencies in the collection.
      *
      */
@@ -285,6 +311,8 @@ namespace bpp
      *
      */
    
+    bool matchParametersValues(const ParameterList& parameters) throw (bpp::ConstraintException);
+
     void fireParameterChanged(const ParameterList& parameters)
     {
       computingTree_->matchParametersValues(parameters);
@@ -367,6 +395,19 @@ namespace bpp
     const SubstitutionModel& getSubstitutionModel(int nodeId, size_t classIndex) const;
 
     /**
+     * @brief Get the  parameters.
+     *
+     **/
+
+    // const ParameterList& getIndependentParameters() const
+    // {
+    //   return getSubstitutionProcessParameters();
+    // }
+    
+    ParameterList getSubstitutionProcessParameters() const;
+ 
+
+    /**
      * @brief Get the parameters of the substitution models.
      *
      **/
@@ -379,6 +420,20 @@ namespace bpp
      **/
 
     ParameterList getRateDistributionParameters() const;
+
+    /**
+     * @brief Get the parameters of the tree.
+     *
+     **/
+
+    ParameterList getBranchLengthsParameters() const;
+
+    /**
+     * @brief Get the parameters of the root frequencies set.
+     *
+     **/
+
+    ParameterList getRootFrequenciesParameters() const;
 
     /**
      * @brief Get the transition probabilities corresponding to a certain branch, site pattern, and model class.

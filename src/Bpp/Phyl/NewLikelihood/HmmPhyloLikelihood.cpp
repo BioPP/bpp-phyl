@@ -55,10 +55,10 @@ HmmPhyloLikelihood::HmmPhyloLikelihood(
   char recursivity,
   bool verbose,
   bool patterns) :
-  MultiPhyloLikelihood(processColl, recursivity, verbose, patterns),
+  MultiProcessPhyloLikelihood(processColl, recursivity, verbose, patterns),
   Hmm_(0)
 {
-  HmmProcessAlphabet* hpa=new HmmProcessAlphabet(processColl_.get());
+  HmmProcessAlphabet* hpa=new HmmProcessAlphabet(processColl_);
 
   HmmTransitionMatrix* hptm=new FullHmmTransitionMatrix(hpa);
 
@@ -75,12 +75,13 @@ HmmPhyloLikelihood::HmmPhyloLikelihood(
   const SiteContainer& data,
   SubstitutionProcessCollection* processColl,
   char recursivity,
+  size_t nData,
   bool verbose,
   bool patterns) :
-  MultiPhyloLikelihood(data, processColl, recursivity, verbose, patterns),
+  MultiProcessPhyloLikelihood(data, processColl, recursivity, nData, verbose, patterns),
   Hmm_(0)
 {
-  HmmProcessAlphabet* hpa=new HmmProcessAlphabet(processColl_.get());
+  HmmProcessAlphabet* hpa=new HmmProcessAlphabet(processColl_);
 
   HmmTransitionMatrix* hptm=new FullHmmTransitionMatrix(hpa);
 
@@ -97,7 +98,7 @@ HmmPhyloLikelihood::HmmPhyloLikelihood(
 
 void HmmPhyloLikelihood::fireParameterChanged(const ParameterList& parameters)
 {
-  MultiPhyloLikelihood::fireParameterChanged(parameters);
+  MultiProcessPhyloLikelihood::fireParameterChanged(parameters);
 
   Hmm_->matchParametersValues(parameters);
   

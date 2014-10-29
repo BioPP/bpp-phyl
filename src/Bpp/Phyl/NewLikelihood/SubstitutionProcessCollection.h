@@ -156,10 +156,10 @@ private:
   std::map<size_t, std::vector<size_t> > mTreeToSubPro_;
   
   /*
-   * A vector of SubstitutionProcessCollectionMember
+   * A map of SubstitutionProcessCollectionMember
    */
 
-  std::vector<SubstitutionProcessCollectionMember*> vSubProcess_;
+  std::map<size_t, SubstitutionProcessCollectionMember*> mSubProcess_;
 
 public:
   /**
@@ -179,7 +179,7 @@ public:
     mDistToSubPro_(),
     treeColl_(),
     mTreeToSubPro_(),
-    vSubProcess_()
+    mSubProcess_()
   {
   }
 
@@ -270,7 +270,7 @@ public:
    * @return the got SubstitutionModel*. 
    */
   
-  SubstitutionModel* getModel(int modelIndex)
+  SubstitutionModel* getModel(size_t modelIndex)
   {
     return (dynamic_cast<SubstitutionModel*>(modelColl_[modelIndex]));
   }
@@ -357,6 +357,19 @@ public:
     return treeColl_.keys();
   }
 
+  std::vector<const TreeTemplate<Node>* > getTrees() const;
+    
+  std::vector<size_t> getSubstitutionProcessNumbers() const
+  {
+    std::vector<size_t> vn;
+    
+    std::map<size_t, SubstitutionProcessCollectionMember*>::const_iterator it;
+    for (it = mSubProcess_.begin(); it != mSubProcess_.end(); it++)
+      vn.push_back(it->first);
+
+    return vn;
+  }
+
   bool hasModelNumber(size_t n) const
   {
     return modelColl_.hasObject(n);
@@ -377,6 +390,10 @@ public:
     return treeColl_.hasObject(n);
   }
 
+  bool hasSubstitutionProcessNumber(size_t n) const 
+  {
+    return (mSubProcess_.find(n)!=mSubProcess_.end());
+  }
 
   /**
    * @brief To be called when a parameter has changed. This will call
@@ -388,8 +405,9 @@ public:
   void fireParameterChanged(const ParameterList& parameters);
 
   /*
-   * Method to build a SubstitutionModelSet.
+   * @brief Method to add a SubstitutionProcess.
    *
+   * @param nProc the number of the Substitution process
    * @param mModBr a map associating numbers of models (from the collection) and numbers of branches
    * @param nTree the number of a Tree (from the collection)
    * @param nRate the number of a Distribution Rate (from the collection)
@@ -399,11 +417,12 @@ public:
    *
    */
 
-  void addSubstitutionProcess(std::map<size_t, std::vector<int> > mModBr, size_t nTree, size_t nRate, size_t nFreq);
+  void addSubstitutionProcess(size_t nProc, std::map<size_t, std::vector<int> > mModBr, size_t nTree, size_t nRate, size_t nFreq);
 
   /*
-   * Method to build a stationary SubstitutionModelSet.
+   * @brief Method to add a SubstitutionProcess.
    *
+   * @param nProc the number of the Substitution process
    * @param mModBr a map associating numbers of models (from the collection) and numbers of branches
    * @param nTree the number of a Tree (from the collection)
    * @param nRate the number of a Distribution Rate (from the collection)
@@ -412,7 +431,7 @@ public:
    *
    */
 
-  void addSubstitutionProcess(std::map<size_t, std::vector<int> > mModBr, size_t nTree, size_t nRate);
+  void addSubstitutionProcess(size_t nProc, std::map<size_t, std::vector<int> > mModBr, size_t nTree, size_t nRate);
 
 
   /*
@@ -420,11 +439,19 @@ public:
    *
    */
 
-  size_t getNumberOfSubstitutionProcess() const { return vSubProcess_.size(); }
+  size_t getNumberOfSubstitutionProcess() const { return mSubProcess_.size(); }
 
-  SubstitutionProcess* getSubstitutionProcess(size_t  i);
+  SubstitutionProcess* getSubstitutionProcess(size_t  i)
+  {
+    return dynamic_cast<SubstitutionProcess*>(mSubProcess_[i]);
+  }
 
-  const SubstitutionProcess* getSubstitutionProcess(size_t  i) const;
+  const SubstitutionProcess* getSubstitutionProcess(size_t i) const
+  {
+    std::map<size_t, SubstitutionProcessCollectionMember*>::const_iterator it(mSubProcess_.find(i));
+    
+    return dynamic_cast<const SubstitutionProcess*>(it->second);
+  }
 
   /*
    * @brief Methods to retrieve parameters
@@ -442,6 +469,11 @@ public:
     return treeColl_.getParameters();
   }
 
+  ParameterList getTreeParameters(size_t nTree) const
+  {
+    return treeColl_.getParametersForObject(nTree);
+  }
+  
   bool hasBranchLengthsParameter(const std::string& name) const;
   
   /**
@@ -450,6 +482,8 @@ public:
    * @return A ParameterList.
    */
   
+  ParameterList getSubstitutionProcessParameters(size_t nProc) const;
+
   ParameterList getSubstitutionProcessParameters() const;
 
   /**
@@ -458,10 +492,16 @@ public:
    * @return A ParameterList.
    */
   
+  ParameterList getSubstitutionModelParameters(size_t nMod) const
+  {
+    return modelColl_.getParametersForObject(nMod);
+  }
+
   ParameterList getSubstitutionModelParameters() const
   {
     return modelColl_.getParameters();
   }
+  
 
   /**
    * @brief Get the Non-derivable parameters
@@ -477,6 +517,11 @@ public:
    * @return A ParameterList.
    */
   
+  ParameterList getRateDistributionParameters(size_t nRate) const
+  {
+    return distColl_.getParametersForObject(nRate);
+  }
+
   ParameterList getRateDistributionParameters() const
   {
     return distColl_.getParameters();
@@ -488,11 +533,16 @@ public:
    * @return A ParameterList.
    */
   
+  ParameterList getRootFrequenciesParameters(size_t nFreq) const
+  {
+    return freqColl_.getParametersForObject(nFreq);
+  }
+
   ParameterList getRootFrequenciesParameters() const
   {
     return freqColl_.getParameters();
   }
-      
+  
 
 };
 } // end of namespace bpp.

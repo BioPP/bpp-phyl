@@ -57,7 +57,7 @@
 #include <Bpp/Numeric/Function/Optimizer.h>
 
 #include "../NewLikelihood/SubstitutionProcess.h"
-#include "../NewLikelihood/PhyloLikelihood.h"
+#include "../NewLikelihood/SingleDataPhyloLikelihood.h"
 #include "../NewLikelihood/SubstitutionProcessCollection.h"
 #include "../NewLikelihood/SubstitutionProcessCollectionMember.h"
 
@@ -189,7 +189,41 @@ namespace bpp
         bool suffixIsOptional = true,
         bool verbose = true,
         int warn = 1) throw (Exception);
-  
+
+
+    /**
+     * @brief Build a map of SubstitutionProcess objects according to options.
+     *
+     * Creates a new substitution model object according to model description syntax
+     * (see the Bio++ Progam Suite manual for a detailed description of this syntax). The
+     * function also parses the parameter values and set them accordingly.
+     *
+     * @param alphabet         The alphabet to use in the model.
+     * @param gCode            The genetic code to use (only for codon models, otherwise can be set to 0).
+     *                         If set to NULL and a codon model is requested, an Exception will be thrown.
+     * @param data             A pointer toward the SiteContainer for which the substitution model is designed.
+     *                         The alphabet associated to the data must be of the same type as the one specified for the model.
+     *                         May be equal to NULL, but in this case use_observed_freq option will be unavailable.
+     * @param params           The attribute map where options may be found.
+     * @param suffix           A suffix to be applied to each attribute name.
+     * @param suffixIsOptional Tell if the suffix is absolutely required.
+     * @param verbose          Print some info to the 'message' output stream.
+     * @param warn             Set the warning level (0: always display warnings, >0 display warnings on demand).
+     * @return A new SubstitutionModel object according to options specified.
+     * @throw Exception if an error occured.
+     */
+    
+    static std::map<size_t, SubstitutionProcess*> getSubstitutionProcesses(
+      const Alphabet* alphabet,
+      const GeneticCode* gCode,
+      const vector<SiteContainer*>& vData, 
+      std::map<std::string, std::string>& params,
+      std::map<std::string, std::string>& unparsedparams,
+      const std::string& suffix = "",
+      bool suffixIsOptional = true,
+      bool verbose = true,
+      int warn = 1) throw (Exception);
+
 
     /**
      * @brief Set parameter initial values of a given model in a set according to options.
@@ -212,6 +246,7 @@ namespace bpp
      * @param verbose Print some info to the 'message' output stream.
      * @throw Exception if an error occured.
      */
+
     static void setSubstitutionModelParametersInitialValuesWithAliases(
                                                                        SubstitutionModel& model,
                                                                        std::map<std::string, std::string>& unparsedParameterValues,
@@ -468,10 +503,21 @@ namespace bpp
       
     static void addSubstitutionProcessCollectionMember(
         SubstitutionProcessCollection* SubProColl, 
+        size_t procNum,
         map<string, string>& params,
-        const string& suffix = "",
         bool verbose = true,
         int warn = 1);
+
+
+    static std::map<size_t, newlik::PhyloLikelihood*> getPhyloLikelihoods(SubstitutionProcessCollection& SPC,
+      const vector<SiteContainer*>& vData,
+      map<string, string>& params,
+      map<string, string>& unparsedParams,
+      const string& suffix = "",
+      bool suffixIsOptional = true,
+      bool verbose = true,
+      int warn = 1) throw (Exception);
+    
 
     /**
      * @brief Complete a MixedSubstitutionModelSet object according to
@@ -793,6 +839,8 @@ namespace bpp
     
     static void printAnalysisInformation(const newlik::PhyloLikelihood* phylolike, OutputStream& out, int warn = 1);
 
+    static void printAnalysisInformation(const newlik::SingleDataPhyloLikelihood* phylolike, OutputStream& out, int warn = 1);
+
     /**
      * @brief Output a SubstitutionProcessCollection description to a file.
      *
@@ -808,10 +856,14 @@ namespace bpp
      *
      * @param phylolike The PhyloLikelihood collection to serialize.
      * @param out       The stream where to print.
+     * @param nPhylo    The number of the process
      * @param warn  Set the warning level (0: always display warnings, >0 display warnings on demand).
      */
 
     static void printParameters(const newlik::PhyloLikelihood* phylolike, OutputStream& out, int warn = 1);
+    
+
+    static void printParameters(const newlik::SingleDataPhyloLikelihood* phylolike, OutputStream& out, size_t nPhylo = 1, int warn = 1);
 
     /**
      * @brief Output a DiscreteDistribution description to a file.

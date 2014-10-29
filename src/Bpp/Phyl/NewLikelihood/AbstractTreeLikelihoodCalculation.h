@@ -75,7 +75,8 @@ public:
     nbClasses_(process->getNumberOfClasses()),
     initialized_(false),
     verbose_(verbose)
-  {}
+  {
+  }
   
   AbstractTreeLikelihoodCalculation(const AbstractTreeLikelihoodCalculation& tlc):
     process_(tlc.process_),

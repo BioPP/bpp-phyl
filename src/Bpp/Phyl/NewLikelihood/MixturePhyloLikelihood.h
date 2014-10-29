@@ -41,7 +41,7 @@
 #define _MIXTUREPHYLOLIKELIHOOD_H_
 
 
-#include "MultiPhyloLikelihood.h"
+#include "MultiProcessPhyloLikelihood.h"
 
 #include <Bpp/Numeric/Prob/Simplex.h>
 
@@ -60,11 +60,11 @@ namespace newlik
  * the SinglePhyloLikelihoods, ponderated with parametrized probabilities
  * (through a Simplex).
  *
- * @see MultiPhyloLikelihood
+ * @see MultiProcessPhyloLikelihood
  */
 
 class MixturePhyloLikelihood :
-  public MultiPhyloLikelihood
+  public MultiProcessPhyloLikelihood
 {
 private:
   Simplex simplex_;
@@ -80,16 +80,17 @@ public:
     const SiteContainer& data,
     SubstitutionProcessCollection* processColl,
     char recursivity,
+    size_t nData = 0,
     bool verbose = true,
     bool patterns = true);
 
   MixturePhyloLikelihood(const MixturePhyloLikelihood& mlc) :
-    MultiPhyloLikelihood(mlc),
+    MultiProcessPhyloLikelihood(mlc),
     simplex_(mlc.simplex_) {}
 
   MixturePhyloLikelihood& operator=(const MixturePhyloLikelihood& mlc)
   {
-    MultiPhyloLikelihood::operator=(mlc);
+    MultiProcessPhyloLikelihood::operator=(mlc);
     simplex_ = mlc.simplex_;
     return *this;
   }

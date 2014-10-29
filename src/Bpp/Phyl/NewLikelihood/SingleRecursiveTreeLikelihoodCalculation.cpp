@@ -133,8 +133,11 @@ void SingleRecursiveTreeLikelihoodCalculation::setData(const SiteContainer& site
 {
   // try
   // {
-    const TreeTemplate<Node>& tt = dynamic_cast<const TreeTemplate<Node>&>(process_->getTree());
-    data_.reset(PatternTools::getSequenceSubset(sites, *tt.getRootNode()));
+
+  const TreeTemplate<Node>& tt = dynamic_cast<const TreeTemplate<Node>&>(process_->getTree());
+
+  data_.reset(PatternTools::getSequenceSubset(sites, *tt.getRootNode()));
+
   // }
   //     catch (std::bad_cast)
   // {

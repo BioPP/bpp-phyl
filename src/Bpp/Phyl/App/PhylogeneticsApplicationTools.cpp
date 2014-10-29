@@ -57,7 +57,7 @@
 #include "../Io/BppOFrequenciesSetFormat.h"
 #include "../Io/BppORateDistributionFormat.h"
 
-#include "../NewLikelihood/SinglePhyloLikelihood.h"
+#include "../NewLikelihood/SingleProcessPhyloLikelihood.h"
 #include "../NewLikelihood/MixturePhyloLikelihood.h"
 #include "../NewLikelihood/AutoCorrelationPhyloLikelihood.h"
 #include "../NewLikelihood/HmmPhyloLikelihood.h"
@@ -66,6 +66,10 @@
 #include "../NewLikelihood/SimpleSubstitutionProcess.h"
 #include "../NewLikelihood/SubstitutionProcessCollection.h"
 #include "../NewLikelihood/RateAcrossSitesSubstitutionProcess.h"
+#include "../NewLikelihood/SingleRecursiveTreeLikelihoodCalculation.h"
+#include "../NewLikelihood/DoubleRecursiveTreeLikelihoodCalculation.h"
+#include "../NewLikelihood/SingleDataPhyloLikelihood.h"
+#include "../NewLikelihood/MultiDataPhyloLikelihood.h"
 
 // From bpp-core
 #include <Bpp/Io/BppODiscreteDistributionFormat.h>
@@ -77,6 +81,7 @@
 #include <Bpp/Text/KeyvalTools.h>
 #include <Bpp/Numeric/AutoParameter.h>
 #include <Bpp/Numeric/DataTable.h>
+#include <Bpp/Numeric/Hmm/FullHmmTransitionMatrix.h>
 #include <Bpp/Numeric/Prob/DirichletDiscreteDistribution.h>
 #include <Bpp/Numeric/Function/DownhillSimplexMethod.h>
 #include <Bpp/Numeric/Function/PowellMultiDimensions.h>
@@ -291,6 +296,7 @@ std::map<size_t, FrequenciesSet*> PhylogeneticsApplicationTools::getRootFrequenc
 /*************************************************************/
 /******* MODELS **********************************************/
 /*************************************************************/
+
 
 /******************************************************************************/
 
@@ -537,31 +543,11 @@ FrequenciesSet* PhylogeneticsApplicationTools::getFrequenciesSet(
   return pFS.release();
 }
 
-/******************************************************/
-/**** SUBSTITUTION PROCESS   **************************/
-/******************************************************/
 
-/******************************************************************************/
-
-// PhyloLikelihood* PhylogeneticsApplicationTools::getPhyloLikelihood((
-//   const Alphabet* alphabet,
-//   const GeneticCode* gCode,
-//   const vector<SiteContainer*>& vData,
-//   const vector<Tree*> vTree, 
-//   map<string, string>& params,
-//   const string& suffix,
-//   bool suffixIsOptional,
-//   bool verbose,
-//   int warn)
-// {
-//   PhyloLikelihood* pL=0;
-
-  
 /******************************************************/
-/**** SUBSTITUTION PROCESS   **************************/
+/********** SUBSTITUTION PROCESS   ********************/
 /******************************************************/
 
-/******************************************************************************/
 
 SubstitutionProcess* PhylogeneticsApplicationTools::getSubstitutionProcess(
   const Alphabet* alphabet,
@@ -747,20 +733,19 @@ SubstitutionProcess* PhylogeneticsApplicationTools::getSubstitutionProcess(
   return SP;
 }
 
-
 /******************************************************************************/
 
 void PhylogeneticsApplicationTools::addSubstitutionProcessCollectionMember(
           SubstitutionProcessCollection* SubProColl, 
+          size_t procNum,
           map<string, string>& params,
-          const string& suffix,
           bool verbose,
           int warn)
 {
   string procName = "";
   map<string, string> args;
 
-  string procDesc = ApplicationTools::getStringParameter("process", params, "Homogeneous", suffix, warn);
+  string procDesc = ApplicationTools::getStringParameter("process", params, "Homogeneous", TextTools::toString(procNum), warn);
 
   KeyvalTools::parseProcedure(procDesc, procName, args);
   
@@ -851,9 +836,9 @@ void PhylogeneticsApplicationTools::addSubstitutionProcessCollectionMember(
     }
 
     if (stationarity)
-      SubProColl->addSubstitutionProcess(mModBr, numTree, numRate);
+      SubProColl->addSubstitutionProcess(procNum, mModBr, numTree, numRate);
     else
-      SubProColl->addSubstitutionProcess(mModBr, numTree, numRate, numFreq);
+      SubProColl->addSubstitutionProcess(procNum, mModBr, numTree, numRate, numFreq);
   }
   
   else if ((procName=="Nonhomogeneous") ||  (procName=="NonHomogeneous"))
@@ -868,7 +853,7 @@ void PhylogeneticsApplicationTools::addSubstitutionProcessCollectionMember(
       if (mModBr.find(numModel)!=mModBr.end())
         throw BadIntegerException("PhylogeneticsApplicationTools::addSubstitutionProcessCollectionMember : model number seen twice.", (int)numModel);
 
-      vector<int> nodesId = ApplicationTools::getVectorParameter<int>("model"+TextTools::toString(indModel)  + ".nodes_id", args, ',', ':', "0", suffix, true, warn);
+      vector<int> nodesId = ApplicationTools::getVectorParameter<int>("model"+TextTools::toString(indModel)  + ".nodes_id", args, ',', ':', "0", "", true, warn);
 
       mModBr[numModel]=nodesId;
       
@@ -887,9 +872,9 @@ void PhylogeneticsApplicationTools::addSubstitutionProcessCollectionMember(
     }
     
     if (stationarity)
-      SubProColl->addSubstitutionProcess(mModBr, numTree, numRate);
+      SubProColl->addSubstitutionProcess(procNum, mModBr, numTree, numRate);
     else
-      SubProColl->addSubstitutionProcess(mModBr, numTree, numRate, numFreq);
+      SubProColl->addSubstitutionProcess(procNum, mModBr, numTree, numRate, numFreq);
   }
     
 }
@@ -966,17 +951,42 @@ SubstitutionProcessCollection* PhylogeneticsApplicationTools::getSubstitutionPro
   ////////////////////////////////
   // Now processes
 
+
   size_t indProc=1;
 
   while (params.find("process"+TextTools::toString(indProc))!=params.end())
   {
-    addSubstitutionProcessCollectionMember(SPC, params, TextTools::toString(indProc));
+    addSubstitutionProcessCollectionMember(SPC, indProc, params, indProc);
 
     indProc++;
   }
 
   if (indProc==1)
     throw Exception("Missing process in construction of SubstitutionProcessCollection.");
+
+  // string ProcessFilePath = ApplicationTools::getAFilePath("processes.file", params, false, false, suffix, suffixIsOptional);
+
+  // map<string, string> paramProcess;
+  
+  // if (ProcessFilePath!="none")
+  //   paramModel=AttributesTools::getAttributesMapFromFile(ProcessFilePath,"=");
+
+  // paramProcess.insert(params.begin(), params.end());
+
+  // vector<string> processName=ApplicationTools::matchingParameters("process*", paramProcess);
+
+  // vector<size_t> processNum;
+  // for (size_t i=0; i< processName.size(); i++)
+  // {
+  //   size_t poseq=processName[i].find("=");
+  //   processNum.push_back((size_t)TextTools::toInt(processName[i].substr(7,poseq-7)));
+  // }
+
+  // if (processNum.size()==0)
+  //   throw Exception("Missing process in construction of SubstitutionProcessCollection.");
+
+  // for (size_t i=0; i<processNum.size(); i++)
+  //   addSubstitutionProcessCollectionMember(SPC, params, processNum[i]);
 
 
   ///////////////////////////
@@ -1002,6 +1012,179 @@ SubstitutionProcessCollection* PhylogeneticsApplicationTools::getSubstitutionPro
   SPC->aliasParameters(unparsedParams, verbose);
 
   return SPC;
+}
+
+/******************************************************************************/
+
+map<size_t, PhyloLikelihood*> PhylogeneticsApplicationTools::getPhyloLikelihoods(
+  SubstitutionProcessCollection& SPC,
+  const vector<SiteContainer*>& vData,
+  map<string, string>& params,
+  map<string, string>& unparsedParams,
+  const string& suffix,
+  bool suffixIsOptional,
+  bool verbose,
+  int warn) throw (Exception)
+{
+  map<string, string> paramPhyl;
+  
+  paramPhyl.insert(params.begin(), params.end());
+
+  vector<string> phylosName=ApplicationTools::matchingParameters("phylo*", paramPhyl);
+
+  vector<size_t> phylosNum;
+  for (size_t i=0; i< phylosName.size(); i++)
+  {
+    size_t poseq=phylosName[i].find("=");
+    phylosNum.push_back((size_t)TextTools::toInt(phylosName[i].substr(5,poseq-5)));
+  }
+
+  map<size_t, PhyloLikelihood*> mPhylo;
+  
+  for (size_t mPi=0; mPi< phylosNum.size(); mPi++)
+  {
+    PhyloLikelihood* nPL;
+    
+    string phyloName = "";
+    map<string, string> args;
+
+    string phyloDesc = ApplicationTools::getStringParameter("phylo", params, "Single", TextTools::toString(phylosNum[mPi]), warn);
+
+    KeyvalTools::parseProcedure(phyloDesc, phyloName, args);
+
+    // Data
+
+    size_t nData;
+    
+    if (args.find("data")==args.end())
+      nData=1;
+    else
+      nData=(size_t)TextTools::toInt(args["data"]);
+
+    if (nData<1 || nData>vData.size())
+      throw BadIntegerException("PhylogeneticsApplicationTools::getPhyloLikelihoods. Data number is wrong:",(int)nData);
+    
+    // Process
+
+    std::vector<size_t> vproc;
+    
+    if (args.find("process")==args.end())
+      vproc.push_back(1);
+    else
+      vproc=ApplicationTools::getVectorParameter<size_t>("process", args, ',', "");
+    
+    for (size_t i = 0; i < vproc.size(); i++)
+      if (! SPC.hasSubstitutionProcessNumber(vproc[i]))    
+        throw BadIntegerException("PhylogeneticsApplicationTools::getPhyloLikelihoods. Unknown process number:",(int)vproc[i]);
+
+    if (vproc.size()==0)
+      throw Exception("PhylogeneticsApplicationTools::getPhyloLikelihoods. A process number is compulsory.");
+    
+    // Recursion
+
+    char recursion = 'S';
+
+    if (args.find("recursion")==args.end() && args["recursion"]=="double")
+      recursion = 'D';
+
+    // Compression
+
+    char compression = 'R';
+
+    if (args.find("compression")!=args.end() && args["compression"]=="simple")
+      compression = 'S';
+    
+    //////////////////
+    /// models
+
+    if (phyloName=="Single")
+    {
+      TreeLikelihoodCalculation* tlcomp;
+
+      if (recursion=='S')
+      {
+        if (dynamic_cast<const MixedSubstitutionModel*>(&SPC.getSubstitutionProcess(vproc[0])->getSubstitutionModel(0,0)))
+          throw Exception("Simple recursion process with mixed models is not implemented yet.");
+        else 
+          tlcomp = new SingleRecursiveTreeLikelihoodCalculation(*vData[nData-1], SPC.getSubstitutionProcess(vproc[0]), true, compression=='R');
+      }
+      else
+      {
+        if (dynamic_cast<const MixedSubstitutionModel*>(&SPC.getSubstitutionProcess(vproc[0])->getSubstitutionModel(0,0)))
+          throw Exception("Double recursion process with mixed models is not implemented yet.");
+        else 
+          tlcomp = new DoubleRecursiveTreeLikelihoodCalculation(*vData[nData-1], SPC.getSubstitutionProcess(vproc[0]), true);
+      }
+      
+      nPL = new SingleProcessPhyloLikelihood(SPC.getSubstitutionProcess(vproc[0]), tlcomp, nData);
+      
+    }
+    else if (phyloName=="Mixture")
+    {
+      MixturePhyloLikelihood* pMP = new MixturePhyloLikelihood(*vData[nData-1], &SPC, recursion,  nData, true, compression=='R');
+
+      size_t nbP = pMP->getCollection()->getNumberOfSubstitutionProcess();
+      
+      std::vector<double> vprob=ApplicationTools::getVectorParameter<double>("probas", args, ',', "("+VectorTools::paste(std::vector<double>(nbP,1./(double)nbP))+")");
+      if (vprob.size()!=1)
+      {
+        if (vprob.size()!=pMP->getCollection()->getNumberOfSubstitutionProcess())
+          throw BadSizeException("Wrong size of probas description in Mixture", vprob.size(), pMP->getCollection()->getNumberOfSubstitutionProcess());
+        Simplex si(vprob);
+        pMP->setSubProcessProb(si);
+      }
+      
+      nPL=pMP;
+      
+    }
+    else if (phyloName=="HMM")
+    {
+      HmmPhyloLikelihood* pMP = new HmmPhyloLikelihood(*vData[nData-1], &SPC, recursion,  nData, true, compression=='R');
+      
+      size_t nbP = pMP->getCollection()->getNumberOfSubstitutionProcess();
+      
+      string vs="("+VectorTools::paste(std::vector<double>(nbP,1./(double)nbP),",")+")";
+      string vvs="(";
+      for (size_t i=0;i<nbP;i++)
+        vvs+=(i==0?"":",")+vs;
+      vvs+=")";
+      
+      RowMatrix<double> mat=ApplicationTools::getMatrixParameter<double>("probas", args, ',', vvs);
+            
+      FullHmmTransitionMatrix fhtm(pMP->getHmmTransitionMatrix().getHmmStateAlphabet(), pMP->getNamespace());
+      fhtm.setTransitionProbabilities(mat);
+      
+      pMP->matchParametersValues(fhtm.getParameters());
+      
+      nPL=pMP;
+        
+    }
+    else if (phyloName=="AutoCorr")
+    {
+      AutoCorrelationPhyloLikelihood* pMP = new AutoCorrelationPhyloLikelihood(*vData[nData-1], &SPC, recursion, nData, true, compression=='R');
+            
+      size_t nbP = pMP->getCollection()->getNumberOfSubstitutionProcess();
+            
+      string vs="("+VectorTools::paste(std::vector<double>(nbP,1./(double)nbP),",")+")";
+            
+      vector<double> v=ApplicationTools::getVectorParameter<double>("probas", args, ',', vs);
+            
+      ParameterList pl;
+            
+      for (size_t i=0;i<v.size();i++)
+        pl.addParameter(Parameter("lambda"+TextTools::toString(i+1),v[i]));
+            
+            
+      pMP->matchParametersValues(pl);
+      nPL=pMP;
+    }
+    else
+      throw Exception("Unknown Phylogeny description : "+ phyloName);
+
+    mPhylo[phylosNum[mPi]]=nPL;
+  }
+
+  return mPhylo;
 }
 
 
@@ -1185,7 +1368,9 @@ void PhylogeneticsApplicationTools::setSubstitutionModelSet(
       modelSet.aliasParameters(p1, p2);
     }
 }
+
 /******************************************************************************/
+
 void PhylogeneticsApplicationTools::completeMixedSubstitutionModelSet(
   MixedSubstitutionModelSet& mixedModelSet,
   const Alphabet* alphabet,
@@ -2406,6 +2591,11 @@ void PhylogeneticsApplicationTools::checkEstimatedParameters(const ParameterList
   }
 }
 
+
+/******************************************************************************/
+
+/******************************************************************************/
+/**************** Output ************************************/
 /******************************************************************************/
 
 void PhylogeneticsApplicationTools::writeTree(
@@ -2502,9 +2692,11 @@ void PhylogeneticsApplicationTools::writeTrees(
   delete treeWriter;
   if (verbose)
     ApplicationTools::displayResult("Wrote trees to file ", file);
+
 }
 
-/******************************************************************************/
+
+
 
 void PhylogeneticsApplicationTools::printParameters(const SubstitutionModel* model, OutputStream& out, int warn)
 {
@@ -2713,11 +2905,11 @@ void PhylogeneticsApplicationTools::printParameters(const SubstitutionProcessCol
   // processes
   out.endLine();
 
-  size_t procN=collection->getNumberOfSubstitutionProcess();
+  vector<size_t> vprocN=collection->getSubstitutionProcessNumbers();
 
-  for (size_t i=0;i<procN;i++)
+  for (size_t i=0;i<vprocN.size();i++)
   {
-    const SubstitutionProcessCollectionMember* spcm=dynamic_cast<const SubstitutionProcessCollectionMember*>(collection->getSubstitutionProcess(i));
+    const SubstitutionProcessCollectionMember* spcm=dynamic_cast<const SubstitutionProcessCollectionMember*>(collection->getSubstitutionProcess(vprocN[i]));
     
     out << "process" << i+1 << "=";
       
@@ -2763,56 +2955,60 @@ void PhylogeneticsApplicationTools::printParameters(const SubstitutionProcessCol
   
 }
 
+
 void PhylogeneticsApplicationTools::printParameters(const PhyloLikelihood* phylolike, OutputStream& out, int warn)
 {
   out << "# Log likelihood = ";
   out.setPrecision(20) << (-phylolike->getValue());
   out.endLine();
-  out << "# Number of sites = ";
-  out.setPrecision(20) << phylolike->getNumberOfSites();
-  out.endLine();
-  out.endLine();
-  out << "# Substitution model parameters:";
-  out.endLine();
 
-  if (dynamic_cast<const MultiPhyloLikelihood*>(phylolike)!=NULL)
+  if (dynamic_cast<const SingleDataPhyloLikelihood*>(phylolike)!=NULL)
+    printParameters(dynamic_cast<const SingleDataPhyloLikelihood*>(phylolike), out, 1, warn);
+  else
   {
+    const MultiDataPhyloLikelihood* mDP=dynamic_cast<const MultiDataPhyloLikelihood*>(phylolike);
+    for (size_t nSD=0; nSD< mDP->getNumberOfSingleDataPhyloLikelihoods(); nSD++)
+      printParameters(mDP->getSingleDataPhylolikelihood(nSD), out, nSD+1, warn);
+  }
+}
+
+    
+  
+void PhylogeneticsApplicationTools::printParameters(const SingleDataPhyloLikelihood* phylolike, OutputStream& out, size_t nPhylo, int warn)
+{
+  if (dynamic_cast<const MultiProcessPhyloLikelihood*>(phylolike)!=NULL)
+  {
+    const MultiProcessPhyloLikelihood* pMP=dynamic_cast<const MultiProcessPhyloLikelihood*>(phylolike);
+    
+    PhylogeneticsApplicationTools::printParameters(pMP->getCollection(), out, warn);
+    out.endLine();
+    out << "phylo" << TextTools::toString(nPhylo) << "=";
+    
     if (dynamic_cast<const MixturePhyloLikelihood*>(phylolike)!=NULL)
     {
       const MixturePhyloLikelihood* pM=dynamic_cast<const MixturePhyloLikelihood*>(phylolike);
-    
-      PhylogeneticsApplicationTools::printParameters(pM->getCollection(), out, warn);
-    
-      out.endLine();
-      out << "collection=Mixture(probas=(" << pM->getSubProcessProb(0);
+      
+      out << "Mixture(probas=(" << pM->getSubProcessProb(0);
     
       for (size_t i=1; i< pM->getCollection()->getNumberOfSubstitutionProcess(); i++)
         out << "," << pM->getSubProcessProb(i);
     
-      out << "))";
-      out.endLine();
+      out << ")";
     }
     else if (dynamic_cast<const HmmPhyloLikelihood*>(phylolike)!=NULL)
     {
       const HmmPhyloLikelihood* pM=dynamic_cast<const HmmPhyloLikelihood*>(phylolike);
-      
-      PhylogeneticsApplicationTools::printParameters(pM->getCollection(), out, warn);
-      out.endLine();
-      out << "collection=HMM(probas=";
+      out << "HMM(probas=";
 
       const Matrix<double>& tMt = pM->getHmmTransitionMatrix().getPij();
       MatrixTools::print(tMt, out);
 
-      out << ")";
-      out.endLine();
     }
     else if (dynamic_cast<const AutoCorrelationPhyloLikelihood*>(phylolike)!=NULL)
     {
       const AutoCorrelationPhyloLikelihood* pM=dynamic_cast<const AutoCorrelationPhyloLikelihood*>(phylolike);
       
-      PhylogeneticsApplicationTools::printParameters(pM->getCollection(), out, warn);
-      out.endLine();
-      out << "collection=AutoCorr(probas=(";
+      out << "AutoCorr(probas=(";
 
       Vdouble vP;
       for (unsigned int i=0;i<pM->getCollection()->getNumberOfSubstitutionProcess();i++)
@@ -2820,23 +3016,57 @@ void PhylogeneticsApplicationTools::printParameters(const PhyloLikelihood* phylo
 
       out << VectorTools::paste(vP, ",");
 
-      out << "))";
-      out.endLine();
+      out << "),";
     }
+
+    out << "process=(";
+    std::vector<size_t> vPN=pMP->getCollection()->getSubstitutionProcessNumbers();
+
+    out << VectorTools::paste(vPN, ",");
+
+    out << "),data=" << pMP->getNData() << ")";
+    
+    out.endLine();
   }
   else
   {
-    const SinglePhyloLikelihood* pS=dynamic_cast<const SinglePhyloLikelihood*>(phylolike);
+    const SingleProcessPhyloLikelihood* pS=dynamic_cast<const SingleProcessPhyloLikelihood*>(phylolike);
     
-    PhylogeneticsApplicationTools::printParameters(&pS->getSubstitutionProcess(), out, warn);
+    const SubstitutionProcess* ppS=&pS->getSubstitutionProcess();
+
+    if (dynamic_cast<const SubstitutionProcessCollectionMember*>(ppS)!=NULL){
+
+      const SubstitutionProcessCollectionMember* SPCM =dynamic_cast<const SubstitutionProcessCollectionMember*>(ppS);
+      
+      out << "phylo" << TextTools::toString(nPhylo) << "=Single(";
+      out << "process=" << TextTools::toString(SPCM->getNProcess()) << ", ";
+      out << "data=" << TextTools::toString(pS->getNData()) << ")";
+      out.endLine();
+    }
+    else
+      PhylogeneticsApplicationTools::printParameters(ppS, out, warn);
   }
 }
 
+
 void PhylogeneticsApplicationTools::printAnalysisInformation(const PhyloLikelihood* phylolike, OutputStream& out, int warn)
 {
-  if (dynamic_cast<const SinglePhyloLikelihood*>(phylolike) != NULL)
+  if (dynamic_cast<const SingleDataPhyloLikelihood*>(phylolike)!=NULL)
+    printAnalysisInformation(dynamic_cast<const SingleDataPhyloLikelihood*>(phylolike), out, warn);
+  else
   {
-    const SinglePhyloLikelihood* pSPL = dynamic_cast<const SinglePhyloLikelihood*>(phylolike);
+    const MultiDataPhyloLikelihood* mDP=dynamic_cast<const MultiDataPhyloLikelihood*>(phylolike);
+    for (size_t nSD=0; nSD< mDP->getNumberOfSingleDataPhyloLikelihoods(); nSD++)
+      printAnalysisInformation(mDP->getSingleDataPhylolikelihood(nSD), out, warn);
+  }
+}
+
+
+void PhylogeneticsApplicationTools::printAnalysisInformation(const SingleDataPhyloLikelihood* phylolike, OutputStream& out, int warn)
+{
+  if (dynamic_cast<const SingleProcessPhyloLikelihood*>(phylolike) != NULL)
+  {
+    const SingleProcessPhyloLikelihood* pSPL = dynamic_cast<const SingleProcessPhyloLikelihood*>(phylolike);
     const SubstitutionProcess* pSP = &pSPL->getSubstitutionProcess();
 
     vector<string> colNames;
@@ -2899,9 +3129,9 @@ void PhylogeneticsApplicationTools::printAnalysisInformation(const PhyloLikeliho
     DataTable::write(*infos, out, "\t");
     delete infos;
   }
-  else if (dynamic_cast<const MultiPhyloLikelihood*>(phylolike) != NULL)
-  {
-    const MultiPhyloLikelihood* pMPL = dynamic_cast<const MultiPhyloLikelihood*>(phylolike);
+  else if (dynamic_cast<const MultiProcessPhyloLikelihood*>(phylolike) != NULL)
+  { 
+    const MultiProcessPhyloLikelihood* pMPL = dynamic_cast<const MultiProcessPhyloLikelihood*>(phylolike);
 
     vector<string> colNames;
     colNames.push_back("Sites");

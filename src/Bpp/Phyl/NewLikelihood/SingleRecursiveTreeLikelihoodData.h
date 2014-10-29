@@ -167,7 +167,8 @@ namespace bpp
         AbstractTreeLikelihoodData(),
         nodeData_(), patternLinks_(), shrunkData_(0), nbSites_(0), nbStates_(0),
         nbClasses_(nbClasses), nbDistinctSites_(0), usePatterns_(usePatterns)
-      {}
+      {
+      }
 
       SingleRecursiveTreeLikelihoodData(const SingleRecursiveTreeLikelihoodData& data):
       AbstractTreeLikelihoodData(data),

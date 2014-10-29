@@ -41,7 +41,7 @@
 #define _HMMPHYLOLIKELIHOOD_H_
 
 
-#include "MultiPhyloLikelihood.h"
+#include "MultiProcessPhyloLikelihood.h"
 
 //#include "HmmPhyloTransitionMatrix.h"
 
@@ -71,7 +71,7 @@ namespace newlik
 
   
 class HmmPhyloLikelihood :
-    public MultiPhyloLikelihood
+    public MultiProcessPhyloLikelihood
 {
 private:
   std::auto_ptr<LogsumHmmLikelihood> Hmm_;
@@ -87,16 +87,17 @@ public:
     const SiteContainer& data,
     SubstitutionProcessCollection* processColl,
     char recursivity,
+    size_t nData = 1,
     bool verbose = true,
     bool patterns = true);
 
   HmmPhyloLikelihood(const HmmPhyloLikelihood& mlc) :
-    MultiPhyloLikelihood(mlc),
+    MultiProcessPhyloLikelihood(mlc),
     Hmm_(std::auto_ptr<LogsumHmmLikelihood>(mlc.Hmm_->clone())) {}
 
   HmmPhyloLikelihood& operator=(const HmmPhyloLikelihood& mlc)
   {
-    MultiPhyloLikelihood::operator=(mlc);
+    MultiProcessPhyloLikelihood::operator=(mlc);
     Hmm_ = std::auto_ptr<LogsumHmmLikelihood>(mlc.Hmm_->clone());
     return *this;
   }

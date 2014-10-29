@@ -79,38 +79,9 @@ namespace bpp
        */
       
       /**
-       * @brief Set the dataset for which the likelihood must be evaluated.
-       *
-       * @param sites The data set to use.
-       */
-      virtual void setData(const SiteContainer& sites) = 0;
-    
-      /**
-       * @brief Get the dataset for which the likelihood must be evaluated.
-       *
-       * @return A pointer toward the site container where the sequences are stored.
-       */
-      virtual const SiteContainer* getData() const = 0;
-
-      /**
        * @return 'true' is the likelihood function has been initialized.
        */
       virtual bool isInitialized() const = 0;
-
-      /**
-       * @brief Get the number of sites in the dataset.
-       *
-       * @return the number of sites in the dataset.
-       */
-      virtual size_t getNumberOfSites() const = 0;
-
-      /**
-       * @brief Get the alphabet associated to the dataset.
-       *
-       * @return the alphabet associated to the dataset.
-       */    
-      virtual const Alphabet* getAlphabet() const = 0;
- 
     
       /**
        * @}
@@ -130,26 +101,6 @@ namespace bpp
       virtual double getLogLikelihood() const = 0;
  
       /**
-       * @brief Get the likelihood for a site.
-       *
-       * @param site The site index to analyse.
-       * @return The likelihood for site <i>site</i>.
-       */
-      virtual double getLikelihoodForASite(size_t site) const = 0;
-
-      /**
-       * @brief Get the log likelihood for a site.
-       *
-       * @param site The site index to analyse.
-       * @return The log likelihood for site <i>site</i>.
-       */
-      
-      virtual double getLogLikelihoodForASite(size_t site) const
-      {
-        return log(getLikelihoodForASite(site));
-      }
-
-      /**
        * @brief Get the derivates of the LogLikelihood.
        *
        */
@@ -158,13 +109,6 @@ namespace bpp
 
       virtual double getD2LogLikelihood() const = 0;
   
-      /**
-       * @brief Get the likelihood for each site.
-       *
-       * @return A vector with all likelihoods for each site.
-       */
-      virtual Vdouble getLikelihoodForEachSite() const = 0;
-
       /** @} */
 
       /**
@@ -187,7 +131,7 @@ namespace bpp
        * @return A ParameterList.
        */
 
-      virtual ParameterList getSubstitutionProcessParameters() const = 0;
+//      virtual ParameterList getSubstitutionProcessParameters() const = 0;
 
       /**
        * @brief Get the parameters associated to substitution model(s).

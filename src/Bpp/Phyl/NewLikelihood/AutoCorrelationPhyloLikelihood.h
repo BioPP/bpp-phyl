@@ -41,7 +41,7 @@
 #define _AUTOCORRELATIONPHYLOLIKELIHOOD_H_
 
 
-#include "MultiPhyloLikelihood.h"
+#include "MultiProcessPhyloLikelihood.h"
 
 // From SeqLib:
 #include <Bpp/Seq/Container/SiteContainer.h>
@@ -69,7 +69,7 @@ namespace newlik
 
   
 class AutoCorrelationPhyloLikelihood :
-    public MultiPhyloLikelihood
+    public MultiProcessPhyloLikelihood
 {
 private:
   std::auto_ptr<LogsumHmmLikelihood> Hmm_;
@@ -85,16 +85,17 @@ public:
     const SiteContainer& data,
     SubstitutionProcessCollection* processColl,
     char recursivity,
+    size_t nData = 0,
     bool verbose = true,
     bool patterns = true);
 
   AutoCorrelationPhyloLikelihood(const AutoCorrelationPhyloLikelihood& mlc) :
-    MultiPhyloLikelihood(mlc),
+    MultiProcessPhyloLikelihood(mlc),
     Hmm_(std::auto_ptr<LogsumHmmLikelihood>(mlc.Hmm_->clone())) {}
 
   AutoCorrelationPhyloLikelihood& operator=(const AutoCorrelationPhyloLikelihood& mlc)
   {
-    MultiPhyloLikelihood::operator=(mlc);
+    MultiProcessPhyloLikelihood::operator=(mlc);
     Hmm_ = std::auto_ptr<LogsumHmmLikelihood>(mlc.Hmm_->clone());
     return *this;
   }

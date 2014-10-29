@@ -52,11 +52,10 @@ SET(CPP_FILES
   Bpp/Phyl/Likelihood/PairedSiteLikelihoods.cpp
   Bpp/Phyl/Likelihood/GlobalClockTreeLikelihoodFunctionWrapper.cpp
   Bpp/Phyl/NewLikelihood/AbstractSubstitutionProcess.cpp
-  Bpp/Phyl/NewLikelihood/SinglePhyloLikelihood.cpp
-  Bpp/Phyl/NewLikelihood/MultiPhyloLikelihood.cpp
+  Bpp/Phyl/NewLikelihood/SingleProcessPhyloLikelihood.cpp
+  Bpp/Phyl/NewLikelihood/MultiProcessPhyloLikelihood.cpp
+  Bpp/Phyl/NewLikelihood/SumOfDataPhyloLikelihood.cpp
   Bpp/Phyl/NewLikelihood/MixturePhyloLikelihood.cpp
-  # Bpp/Phyl/NewLikelihood/DRTreeLikelihood.cpp
-  # Bpp/Phyl/NewLikelihood/DRTreeLikelihoodData.cpp
   Bpp/Phyl/NewLikelihood/NonHomogeneousSubstitutionProcess.cpp
   Bpp/Phyl/NewLikelihood/ParametrizableTree.cpp
   Bpp/Phyl/NewLikelihood/RateAcrossSitesSubstitutionProcess.cpp
@@ -239,8 +238,6 @@ SET(H_FILES
   Bpp/Phyl/Likelihood/GlobalClockTreeLikelihoodFunctionWrapper.h
   Bpp/Phyl/NewLikelihood/AbstractSubstitutionProcess.h
   Bpp/Phyl/NewLikelihood/AbstractTreeLikelihoodData.h
-  # Bpp/Phyl/NewLikelihood/DRTreeLikelihoodData.h
-  # Bpp/Phyl/NewLikelihood/DRTreeLikelihood.h
   Bpp/Phyl/NewLikelihood/ModelIterator.h
   Bpp/Phyl/NewLikelihood/NonHomogeneousSubstitutionProcess.h
   Bpp/Phyl/NewLikelihood/ParametrizableTree.h
@@ -259,15 +256,18 @@ SET(H_FILES
   Bpp/Phyl/NewLikelihood/SubstitutionProcessCollectionMember.cpp
   Bpp/Phyl/NewLikelihood/SubstitutionProcess.h
   Bpp/Phyl/NewLikelihood/TreeLikelihoodData.h
-  Bpp/Phyl/NewLikelihood/SinglePhyloLikelihood.h
+  Bpp/Phyl/NewLikelihood/SingleProcessPhyloLikelihood.h
   Bpp/Phyl/NewLikelihood/SingleRecursivePhyloLikelihood.h
   Bpp/Phyl/NewLikelihood/PhyloLikelihood.h
-  Bpp/Phyl/NewLikelihood/MultiPhyloLikelihood.h
+  Bpp/Phyl/NewLikelihood/SingleDataPhyloLikelihood.h
+  Bpp/Phyl/NewLikelihood/MultiDataPhyloLikelihood.h
+  Bpp/Phyl/NewLikelihood/MultiProcessPhyloLikelihood.h
   Bpp/Phyl/NewLikelihood/MixturePhyloLikelihood.h
   Bpp/Phyl/NewLikelihood/HmmPhyloEmissionProbabilities.h
   Bpp/Phyl/NewLikelihood/HmmPhyloLikelihood.h
   Bpp/Phyl/NewLikelihood/AutoCorrelationPhyloLikelihood.h
   Bpp/Phyl/NewLikelihood/HmmProcessAlphabet.h
+  Bpp/Phyl/NewLikelihood/SumOfDataPhyloLikelihood.h
   Bpp/Phyl/Mapping/LaplaceSubstitutionCount.h
   Bpp/Phyl/Mapping/WeightedSubstitutionCount.h
   Bpp/Phyl/Mapping/OneJumpSubstitutionCount.h

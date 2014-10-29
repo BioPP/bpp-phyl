@@ -47,9 +47,10 @@
 using namespace bpp;
 using namespace std;
 
-SubstitutionProcessCollectionMember::SubstitutionProcessCollectionMember(const SubstitutionProcessCollection* pSubProColl, size_t nTree, size_t nDist) :
+SubstitutionProcessCollectionMember::SubstitutionProcessCollectionMember( SubstitutionProcessCollection* pSubProColl, size_t nProc, size_t nTree, size_t nDist) :
   AbstractParameterAliasable(""),
   pSubProColl_(pSubProColl),
+  nProc_(nProc),
   nodeToModel_(),
   modelToNodes_(),
   nTree_(nTree),
@@ -58,12 +59,15 @@ SubstitutionProcessCollectionMember::SubstitutionProcessCollectionMember(const S
   nRoot_(0),
   computingTree_(new ComputingTree(pSubProColl_, nTree_, nDist_))
 {
+  addParameters_(pSubProColl_->getTreeParameters(nTree_));
+  addParameters_(pSubProColl_->getRateDistributionParameters(nDist_));
 }
 
 
 SubstitutionProcessCollectionMember::SubstitutionProcessCollectionMember(const SubstitutionProcessCollectionMember& set) :
   AbstractParameterAliasable(set),
   pSubProColl_(set.pSubProColl_),
+  nProc_(set.nProc_),
   nodeToModel_(set.nodeToModel_),
   modelToNodes_(set.modelToNodes_),
   nTree_(set.nTree_),
@@ -78,6 +82,8 @@ SubstitutionProcessCollectionMember& SubstitutionProcessCollectionMember::operat
 {
   AbstractParameterAliasable::operator=(set);
   pSubProColl_ = set.pSubProColl_;
+  nProc_ = set.nProc_;
+  
   nodeToModel_ = set.nodeToModel_;
   modelToNodes_ = set.modelToNodes_;
   nTree_ = set.nTree_;
@@ -103,12 +109,17 @@ void SubstitutionProcessCollectionMember::clear()
 
 inline const Alphabet* SubstitutionProcessCollectionMember::getAlphabet() const
 {
-  return pSubProColl_->getModel(modelToNodes_.begin()->first)->getAlphabet();
+  return (pSubProColl_->getModel(modelToNodes_.begin()->first))->getAlphabet();
 }
 
 inline const SubstitutionModel* SubstitutionProcessCollectionMember::getModel(size_t i) const
 {
   return pSubProColl_->getModel(i);
+}
+
+inline bool SubstitutionProcessCollectionMember::matchParametersValues(const ParameterList& parameters) throw (bpp::ConstraintException)
+{
+  return pSubProColl_->matchParametersValues(parameters);
 }
 
 std::vector<size_t> SubstitutionProcessCollectionMember::getModelNumbers() const
@@ -126,9 +137,35 @@ inline const DiscreteDistribution* SubstitutionProcessCollectionMember::getDistr
   return pSubProColl_->getDistribution(nDist_);
 }
 
+ParameterList SubstitutionProcessCollectionMember::getSubstitutionProcessParameters() const
+{
+  ParameterList pl=getRateDistributionParameters();
+  pl.addParameters(getSubstitutionModelParameters());
+  pl.addParameters(getBranchLengthsParameters());
+  pl.addParameters(getRootFrequenciesParameters());
+  
+  return pl;
+}
+
+  
 ParameterList SubstitutionProcessCollectionMember::getRateDistributionParameters() const
 {
-  return pSubProColl_->getDistribution(nDist_)->getIndependentParameters();
+  return pSubProColl_->getRateDistributionParameters(nDist_);
+}
+
+ParameterList SubstitutionProcessCollectionMember::getBranchLengthsParameters() const
+{
+  return pSubProColl_->getTreeParameters(nTree_);
+}
+
+ParameterList SubstitutionProcessCollectionMember::getRootFrequenciesParameters() const
+{
+  ParameterList pl;
+
+  if (!stationarity_)
+    pl.addParameters(pSubProColl_->getRootFrequenciesParameters(nRoot_));
+
+  return pl;
 }
 
 
@@ -139,17 +176,7 @@ ParameterList SubstitutionProcessCollectionMember::getSubstitutionModelParameter
   // Then we update all models in the set:
   std::map<size_t, std::vector<int> >::const_iterator it;
   for (it= modelToNodes_.begin(); it != modelToNodes_.end() ; it++)
-  {
-    const SubstitutionModel* model=pSubProColl_->getModel(it->first);
-    ParameterList plm=model->getIndependentParameters();
-    
-    for (size_t np = 0 ; np < plm.size() ; np++)
-        {
-          Parameter p(plm[np]);
-          p.setName(p.getName()+"_"+TextTools::toString(it->first));
-          pl.addParameter(p);
-        }
-    }
+    pl.includeParameters(pSubProColl_->getSubstitutionModelParameters(it->first));
 
   return pl;
 }
@@ -214,6 +241,8 @@ void SubstitutionProcessCollectionMember::addModel(size_t numModel, const std::v
     }
 
   computingTree_->addModel(nmod, nodesId);
+
+  includeParameters_(pSubProColl_->getSubstitutionModelParameters(numModel));
 }
 
 
@@ -231,6 +260,7 @@ void SubstitutionProcessCollectionMember::setRootFrequencies(size_t numFreq)
   
   stationarity_=false;
   nRoot_=numFreq;
+  includeParameters_(pSubProColl_->getRootFrequenciesParameters(nRoot_));
 }
 
 bool SubstitutionProcessCollectionMember::checkOrphanNodes(bool throwEx) const

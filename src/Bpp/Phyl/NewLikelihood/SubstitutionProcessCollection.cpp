@@ -60,10 +60,12 @@ SubstitutionProcessCollection::SubstitutionProcessCollection(const SubstitutionP
   mDistToSubPro_(set.mDistToSubPro_),
   treeColl_(set.treeColl_),
   mTreeToSubPro_(set.mTreeToSubPro_),
-  vSubProcess_()
+  mSubProcess_()
 {
-  for (size_t i=0;i<set.vSubProcess_.size(); i++)
-    vSubProcess_.push_back(dynamic_cast<SubstitutionProcessCollectionMember*>(set.vSubProcess_[i]->clone()));
+  map<size_t, SubstitutionProcessCollectionMember*>::const_iterator it;
+  
+  for (it = set.mSubProcess_.begin(); it != set.mSubProcess_.end(); it++)
+    mSubProcess_[it->first]=dynamic_cast<SubstitutionProcessCollectionMember*>(it->second->clone());
 }
 
 SubstitutionProcessCollection& SubstitutionProcessCollection::operator=(const SubstitutionProcessCollection& set)
@@ -80,8 +82,11 @@ SubstitutionProcessCollection& SubstitutionProcessCollection::operator=(const Su
   mVConstDist_=set.mVConstDist_;
   treeColl_=set.treeColl_;
   mTreeToSubPro_=set.mTreeToSubPro_;
-  for (size_t i=0;i<set.vSubProcess_.size(); i++)
-    vSubProcess_.push_back(dynamic_cast<SubstitutionProcessCollectionMember*>(set.vSubProcess_[i]->clone()));
+
+  map<size_t, SubstitutionProcessCollectionMember*>::const_iterator it;
+  
+  for (it = set.mSubProcess_.begin(); it != set.mSubProcess_.end(); it++)
+    mSubProcess_[it->first]=dynamic_cast<SubstitutionProcessCollectionMember*>(it->second->clone());
 
   return *this;
 }
@@ -99,10 +104,13 @@ void SubstitutionProcessCollection::clear()
   mVConstDist_.clear();
   treeColl_.clear();
   mTreeToSubPro_.clear();
-  for (size_t i=0;i<vSubProcess_.size(); i++)
-    delete vSubProcess_[i];
 
-  vSubProcess_.clear();
+  map<size_t, SubstitutionProcessCollectionMember*>::const_iterator it;
+  
+  for (it = mSubProcess_.begin(); it != mSubProcess_.end(); it++)
+    delete it->second;
+
+  mSubProcess_.clear();
 }
 
 void SubstitutionProcessCollection::addParametrizable(Parametrizable* parametrizable, size_t parametrizableIndex, bool withParameters)
@@ -110,34 +118,46 @@ void SubstitutionProcessCollection::addParametrizable(Parametrizable* parametriz
   ParameterList pl;
   if (dynamic_cast<SubstitutionModel*>(parametrizable)){
     modelColl_.addObject(dynamic_cast<SubstitutionModel*>(parametrizable), parametrizableIndex);
-    pl=modelColl_[parametrizableIndex]->getIndependentParameters();
+    pl=modelColl_.getParametersForObject(parametrizableIndex);
   }
   else
     if (dynamic_cast<FrequenciesSet*>(parametrizable)){
       freqColl_.addObject(dynamic_cast<FrequenciesSet*>(parametrizable), parametrizableIndex);
-      pl=freqColl_[parametrizableIndex]->getParameters();
+      pl=freqColl_.getParametersForObject(parametrizableIndex);
     }
     else
       if (dynamic_cast<DiscreteDistribution*>(parametrizable)){
         distColl_.addObject(dynamic_cast<DiscreteDistribution*>(parametrizable), parametrizableIndex);
-        pl=distColl_[parametrizableIndex]->getIndependentParameters();
+        pl=distColl_.getParametersForObject(parametrizableIndex);
       }
       else
         if (dynamic_cast<ParametrizableTree*>(parametrizable)){
           treeColl_.addObject(dynamic_cast<ParametrizableTree*>(parametrizable), parametrizableIndex);
-          pl=treeColl_[parametrizableIndex]->getParameters();
+          pl=treeColl_.getParametersForObject(parametrizableIndex);
         }
 
         else
           throw Exception("Unknown parametrizable object in SubstitutionProcessCollection::addParametrizable.");
 
   if (withParameters){
-    for (size_t i=0; i<pl.size();i++)
-      pl[i].setName(pl[i].getName()+"_"+TextTools::toString(parametrizableIndex));
-  
+    // for (size_t i=0; i<pl.size();i++)
+    //   pl[i].setName(pl[i].getName()+"_"+TextTools::toString(parametrizableIndex));
+    
     addParameters_(pl);
   }
 }
+
+std::vector<const TreeTemplate<Node>* > SubstitutionProcessCollection::getTrees() const
+{ 
+  std::vector<size_t> vTn=getTreeNumbers();
+  std::vector<const TreeTemplate<Node>* > vT;
+
+  for (size_t i=0; i<vTn.size(); i++)
+    vT.push_back(&(getTree(vTn[i])->getTree()));
+  
+  return vT;
+}
+
 
 ParameterList SubstitutionProcessCollection::getNonDerivableParameters() const
 {
@@ -162,15 +182,16 @@ void SubstitutionProcessCollection::fireParameterChanged(const ParameterList& pa
   {
     const vector<size_t>& vs=mModelToSubPro_[vM[i]];
     for (size_t j=0; j<vs.size(); j++)
-      vSubProcess_[vs[j]]->changedModel(vM[i]);
+      mSubProcess_[vs[j]]->changedModel(vM[i]);
   }
 
   freqColl_.matchParametersValues(gAP);
   
 
-  vector<bool> toFire(vSubProcess_.size(), false);
-
+  // map of the SubProcess to be fired
   
+  map<size_t, bool> toFire;
+
   distColl_.clearChanged();
   distColl_.matchParametersValues(gAP);
   const vector<size_t>& vD=distColl_.hasChanged();
@@ -210,14 +231,19 @@ void SubstitutionProcessCollection::fireParameterChanged(const ParameterList& pa
 
   // send the message to subprocesses
 
-  for (size_t j=0; j<toFire.size();j++)
-    vSubProcess_[j]->fireParameterChanged(gAP);
+  map<size_t, bool>::const_iterator it;
+  
+  for (it=toFire.begin(); it != toFire.end(); it++)
+    mSubProcess_[it->first]->fireParameterChanged(gAP);
   
 }
 
 
-void SubstitutionProcessCollection::addSubstitutionProcess(std::map<size_t, std::vector<int> > mModBr, size_t nTree, size_t nRate, size_t nFreq)
+void SubstitutionProcessCollection::addSubstitutionProcess(size_t nProc, std::map<size_t, std::vector<int> > mModBr, size_t nTree, size_t nRate, size_t nFreq)
 {
+  if (mSubProcess_.find(nProc)!=mSubProcess_.end())
+    throw BadIntegerException("Already assigned substitution process",(int)nProc);
+  
   if (!freqColl_.hasObject(nFreq))
     throw BadIntegerException("Wrong Root Frequencies Set number",(int)nFreq);
   if (!treeColl_.hasObject(nTree))
@@ -225,45 +251,48 @@ void SubstitutionProcessCollection::addSubstitutionProcess(std::map<size_t, std:
   if (!distColl_.hasObject(nRate))
     throw BadIntegerException("Wrong Rate distribution number",(int)nRate);
 
-  SubstitutionProcessCollectionMember* nSMS=new SubstitutionProcessCollectionMember(this, nTree, nRate);
-  nSMS->setRootFrequencies(nFreq);
+  SubstitutionProcessCollectionMember* pSMS=new SubstitutionProcessCollectionMember(this, nProc, nTree, nRate);
+  pSMS->setRootFrequencies(nFreq);
 
   std::map<size_t, std::vector<int> >::iterator it;
   for (it=mModBr.begin(); it!=mModBr.end(); it++){
-    nSMS->addModel(it->first, it->second);
-    mModelToSubPro_[it->first].push_back(vSubProcess_.size());
+    pSMS->addModel(it->first, it->second);
+    mModelToSubPro_[it->first].push_back(nProc);
   }
   
-  nSMS->isFullySetUp();
+  pSMS->isFullySetUp();
 
-  mTreeToSubPro_[nTree].push_back(vSubProcess_.size());
-  mDistToSubPro_[nRate].push_back(vSubProcess_.size());
-  mFreqToSubPro_[nFreq].push_back(vSubProcess_.size());
+  mTreeToSubPro_[nTree].push_back(nProc);
+  mDistToSubPro_[nRate].push_back(nProc);
+  mFreqToSubPro_[nFreq].push_back(nProc);
   
-  vSubProcess_.push_back(nSMS);
+  mSubProcess_[nProc]=pSMS;
 }
 
-void SubstitutionProcessCollection::addSubstitutionProcess(std::map<size_t, std::vector<int> > mModBr, size_t nTree, size_t nRate)
+void SubstitutionProcessCollection::addSubstitutionProcess(size_t nProc, std::map<size_t, std::vector<int> > mModBr, size_t nTree, size_t nRate)
 {
+  if (mSubProcess_.find(nProc)!=mSubProcess_.end())
+    throw BadIntegerException("Already assigned substitution process",(int)nProc);
+
   if (!treeColl_.hasObject(nTree))
     throw BadIntegerException("Wrong Tree number",(int)nTree);
   if (!distColl_.hasObject(nRate))
     throw BadIntegerException("Wrong Rate distribution number",(int)nRate);
 
-  SubstitutionProcessCollectionMember* nSMS=new SubstitutionProcessCollectionMember(this, nTree, nRate);
+  SubstitutionProcessCollectionMember* pSMS=new SubstitutionProcessCollectionMember(this, nProc, nTree, nRate);
 
   std::map<size_t, std::vector<int> >::iterator it;
   for (it=mModBr.begin(); it!=mModBr.end(); it++){
-    nSMS->addModel(it->first, it->second);
-    mModelToSubPro_[it->first].push_back(vSubProcess_.size());
+    pSMS->addModel(it->first, it->second);
+    mModelToSubPro_[it->first].push_back(nProc);
   }
 
-  nSMS->isFullySetUp();
+  pSMS->isFullySetUp();
   
-  mTreeToSubPro_[nTree].push_back(vSubProcess_.size());
-  mDistToSubPro_[nRate].push_back(vSubProcess_.size());
+  mTreeToSubPro_[nTree].push_back(nProc);
+  mDistToSubPro_[nRate].push_back(nProc);
   
-  vSubProcess_.push_back(nSMS);
+  mSubProcess_[nProc]=pSMS;
 }
 
 bool SubstitutionProcessCollection::hasBranchLengthsParameter(const std::string& name) const
@@ -274,19 +303,11 @@ bool SubstitutionProcessCollection::hasBranchLengthsParameter(const std::string&
 ParameterList SubstitutionProcessCollection::getSubstitutionProcessParameters() const
 {
   ParameterList pl=modelColl_.getParameters();
-
+  pl.addParameters(treeColl_.getParameters());
   pl.addParameters(freqColl_.getParameters());
   pl.addParameters(distColl_.getParameters());
 
   return pl;
 }
 
-SubstitutionProcess* SubstitutionProcessCollection::getSubstitutionProcess(size_t  i)
-{
-  return dynamic_cast<SubstitutionProcess*>(vSubProcess_[i]);
-}
 
-const SubstitutionProcess* SubstitutionProcessCollection::getSubstitutionProcess(size_t  i) const
-{
-  return dynamic_cast<const SubstitutionProcess*>(vSubProcess_[i]);
-}

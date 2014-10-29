@@ -1,5 +1,5 @@
 //
-// File: SinglePhyloLikelihood.cpp
+// File: SingleProcessPhyloLikelihood.cpp
 // Created by: Julien Dutheil
 // Created on: Fri Oct 17 17:57:21 2003
 //
@@ -37,7 +37,7 @@
    knowledge of the CeCILL license and that you accept its terms.
  */
 
-#include "SinglePhyloLikelihood.h"
+#include "SingleProcessPhyloLikelihood.h"
 
 using namespace std;
 using namespace bpp;
@@ -45,23 +45,22 @@ using namespace newlik;
 
 /******************************************************************************/
 
-SinglePhyloLikelihood::SinglePhyloLikelihood(
+SingleProcessPhyloLikelihood::SingleProcessPhyloLikelihood(
   SubstitutionProcess* process,
   TreeLikelihoodCalculation* tlComp,
-  bool verbose) :
-  AbstractParametrizable(""),
+  size_t nData) :
+  AbstractSingleDataPhyloLikelihood("", nData),
   tlComp_(tlComp),
   process_(process),
   computeFirstOrderDerivatives_(true),
   computeSecondOrderDerivatives_(true),
-  minusLogLik_(1),
-  verbose_(verbose)
+  minusLogLik_(1)
 {
-  if (tlComp->getSubstitutionProcess() != process_.get())
-    throw Exception("SinglePhyloLikelihood::SinglePhyloLikelihood Error :  given process must be the same as the one of TreeLikelihoodCalculation");
+  if (tlComp->getSubstitutionProcess() != process_)
+    throw Exception("SingleProcessPhyloLikelihood::SingleProcessPhyloLikelihood Error :  given process must be the same as the one of TreeLikelihoodCalculation");
   
   // initialize parameters:
-  addParameters_(process_->getIndependentParameters());
+  addParameters_(process_->getParameters());
 
   tlComp_->computeTreeLikelihood();
   minusLogLik_ = - tlComp_->getLogLikelihood();
@@ -69,7 +68,7 @@ SinglePhyloLikelihood::SinglePhyloLikelihood(
 
 /******************************************************************************/
 
-void SinglePhyloLikelihood::setParameters(const ParameterList& parameters)
+void SingleProcessPhyloLikelihood::setParameters(const ParameterList& parameters)
 throw (ParameterNotFoundException, ConstraintException)
 {
   setParametersValues(parameters);
@@ -77,7 +76,7 @@ throw (ParameterNotFoundException, ConstraintException)
 
 /******************************************************************************/
 
-void SinglePhyloLikelihood::fireParameterChanged(const ParameterList& params)
+void SingleProcessPhyloLikelihood::fireParameterChanged(const ParameterList& params)
 {
   process_->matchParametersValues(params);
 
@@ -90,7 +89,7 @@ void SinglePhyloLikelihood::fireParameterChanged(const ParameterList& params)
 
 /******************************************************************************/
 
-Vdouble SinglePhyloLikelihood::getLikelihoodForEachSite() const
+Vdouble SingleProcessPhyloLikelihood::getLikelihoodForEachSite() const
 {
   Vdouble l(getNumberOfSites());
   for (size_t i = 0; i < l.size(); ++i)
@@ -102,7 +101,7 @@ Vdouble SinglePhyloLikelihood::getLikelihoodForEachSite() const
 
 /******************************************************************************/
 
-VVdouble SinglePhyloLikelihood::getLikelihoodForEachSiteForEachState() const
+VVdouble SingleProcessPhyloLikelihood::getLikelihoodForEachSiteForEachState() const
 {
   VVdouble l(getNumberOfSites());
   for (size_t i = 0; i < l.size(); ++i)
@@ -119,7 +118,7 @@ VVdouble SinglePhyloLikelihood::getLikelihoodForEachSiteForEachState() const
 
 /******************************************************************************/
 
-VVdouble SinglePhyloLikelihood::getLikelihoodForEachSiteForEachClass() const
+VVdouble SingleProcessPhyloLikelihood::getLikelihoodForEachSiteForEachClass() const
 {
   VVdouble l(getNumberOfSites());
   for (size_t i = 0; i < l.size(); ++i)
@@ -136,7 +135,7 @@ VVdouble SinglePhyloLikelihood::getLikelihoodForEachSiteForEachClass() const
 
 /******************************************************************************/
 
-VVVdouble SinglePhyloLikelihood::getLikelihoodForEachSiteForEachClassForEachState() const
+VVVdouble SingleProcessPhyloLikelihood::getLikelihoodForEachSiteForEachClassForEachState() const
 {
   VVVdouble l(getNumberOfSites());
   for (size_t i = 0; i < l.size(); ++i)
@@ -158,7 +157,7 @@ VVVdouble SinglePhyloLikelihood::getLikelihoodForEachSiteForEachClassForEachStat
 
 /******************************************************************************/
 
-ParameterList SinglePhyloLikelihood::getNonDerivableParameters() const
+ParameterList SingleProcessPhyloLikelihood::getNonDerivableParameters() const
 {
   ParameterList pl = getSubstitutionModelParameters();
   pl.addParameters(getRootFrequenciesParameters());
@@ -168,7 +167,7 @@ ParameterList SinglePhyloLikelihood::getNonDerivableParameters() const
 
 /******************************************************************************/
 
-VVdouble SinglePhyloLikelihood::getPosteriorProbabilitiesOfEachClass() const
+VVdouble SingleProcessPhyloLikelihood::getPosteriorProbabilitiesOfEachClass() const
 {
   size_t nbSites   = getNumberOfSites();
   size_t nbClasses = getNumberOfClasses();
@@ -186,7 +185,7 @@ VVdouble SinglePhyloLikelihood::getPosteriorProbabilitiesOfEachClass() const
 
 /******************************************************************************/
 
-vector<size_t> SinglePhyloLikelihood::getClassWithMaxPostProbOfEachSite() const
+vector<size_t> SingleProcessPhyloLikelihood::getClassWithMaxPostProbOfEachSite() const
 {
   size_t nbSites = getNumberOfSites();
   VVdouble l = getLikelihoodForEachSiteForEachClass();
@@ -200,11 +199,11 @@ vector<size_t> SinglePhyloLikelihood::getClassWithMaxPostProbOfEachSite() const
 
 /******************************************************************************/
 
-double SinglePhyloLikelihood::getValue() const
+double SingleProcessPhyloLikelihood::getValue() const
 throw (Exception)
 {
   if (!isInitialized())
-    throw Exception("SinglePhyloLikelihood::getValue(). Instance is not initialized.");
+    throw Exception("SingleProcessPhyloLikelihood::getValue(). Instance is not initialized.");
   return minusLogLik_;
 }
 
@@ -212,11 +211,11 @@ throw (Exception)
  *                           First Order Derivatives                          *
  ******************************************************************************/
 
-double SinglePhyloLikelihood::getFirstOrderDerivative(const string& variable) const
+double SingleProcessPhyloLikelihood::getFirstOrderDerivative(const string& variable) const
 throw (Exception)
 {
   if (!hasParameter(variable))
-    throw ParameterNotFoundException("SinglePhyloLikelihood::getFirstOrderDerivative().", variable);
+    throw ParameterNotFoundException("SingleProcessPhyloLikelihood::getFirstOrderDerivative().", variable);
   if (!process_->hasDerivableParameter(variable))
   {
     throw Exception("Non derivable parameter: " + variable);
@@ -230,11 +229,11 @@ throw (Exception)
  *                           Second Order Derivatives                         *
  ******************************************************************************/
 
-double SinglePhyloLikelihood::getSecondOrderDerivative(const string& variable) const
+double SingleProcessPhyloLikelihood::getSecondOrderDerivative(const string& variable) const
 throw (Exception)
 {
   if (!hasParameter(variable))
-    throw ParameterNotFoundException("SinglePhyloLikelihood::getSecondOrderDerivative().", variable);
+    throw ParameterNotFoundException("SingleProcessPhyloLikelihood::getSecondOrderDerivative().", variable);
   if (!process_->hasDerivableParameter(variable))
   {
     throw Exception("Non derivable parameter: " + variable);

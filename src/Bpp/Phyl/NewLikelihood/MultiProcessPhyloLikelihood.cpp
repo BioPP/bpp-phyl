@@ -1,5 +1,5 @@
 //
-// File: MultiPhyloLikelihood.cpp
+// File: MultiProcessPhyloLikelihood.cpp
 // Created by: Laurent Guéguen
 // Created on: vendredi 12 juillet 2013, à 00h 32
 //
@@ -37,7 +37,7 @@
    knowledge of the CeCILL license and that you accept its terms.
  */
 
-#include "MultiPhyloLikelihood.h"
+#include "MultiProcessPhyloLikelihood.h"
 
 #include "SingleRecursiveTreeLikelihoodCalculation.h"
 #include "DoubleRecursiveTreeLikelihoodCalculation.h"
@@ -48,13 +48,12 @@ using namespace newlik;
 
 /******************************************************************************/
 
-MultiPhyloLikelihood::MultiPhyloLikelihood(
+MultiProcessPhyloLikelihood::MultiProcessPhyloLikelihood(
   SubstitutionProcessCollection* processColl,
   char recursivity,
   bool verbose,
   bool patterns) :
-  AbstractParametrizable(""),
-  data_(0),
+  AbstractSingleDataPhyloLikelihood(""),
   processColl_(processColl),
   recursivity_('S'),
   computeFirstOrderDerivatives_(true),
@@ -70,36 +69,37 @@ MultiPhyloLikelihood::MultiPhyloLikelihood(
   
   addParameters_(processColl_->getIndependentParameters());
 
-  size_t nbP = processColl_->getNumberOfSubstitutionProcess();
+  vector<size_t> vnbP = processColl_->getSubstitutionProcessNumbers();
+  
 
   if (recursivity_=='S')
-    for (size_t i = 0; i < nbP; i++)
+    for (size_t i = 0; i < vnbP.size(); i++)
     {
       SingleRecursiveTreeLikelihoodCalculation* rt = new SingleRecursiveTreeLikelihoodCalculation(
-        processColl_->getSubstitutionProcess(i), patterns, i == 0);
+        processColl_->getSubstitutionProcess(vnbP[i]), patterns, i == 0);
       vpTreelik_.push_back(rt);
     }
   else if (recursivity_=='D')
-    for (size_t i = 0; i < nbP; i++)
+    for (size_t i = 0; i < vnbP.size(); i++)
     {
       DoubleRecursiveTreeLikelihoodCalculation* rt = new DoubleRecursiveTreeLikelihoodCalculation(
-        processColl_->getSubstitutionProcess(i), i == 0);
+        processColl_->getSubstitutionProcess(vnbP[i]), i == 0);
       vpTreelik_.push_back(rt);
     }
-  else throw(Exception("MultiPhyloLikelihood::MultiPhyloLikelihood: unknown recursivity : " + recursivity_));
+  else throw(Exception("MultiProcessPhyloLikelihood::MultiProcessPhyloLikelihood: unknown recursivity : " + recursivity_));
   
 }
 
 /******************************************************************************/
 
-MultiPhyloLikelihood::MultiPhyloLikelihood(
+MultiProcessPhyloLikelihood::MultiProcessPhyloLikelihood(
   const SiteContainer& data,
   SubstitutionProcessCollection* processColl,
   char recursivity,
+  size_t nData,
   bool verbose,
   bool patterns) :
-  AbstractParametrizable(""),
-  data_(&data),
+  AbstractSingleDataPhyloLikelihood("", nData),
   processColl_(processColl),
   recursivity_('S'),
   computeFirstOrderDerivatives_(true),
@@ -114,36 +114,36 @@ MultiPhyloLikelihood::MultiPhyloLikelihood(
   // initialize parameters:
   addParameters_(processColl_->getIndependentParameters());
 
-  size_t nbP = processColl_->getNumberOfSubstitutionProcess();
+  vector<size_t> vnbP = processColl_->getSubstitutionProcessNumbers();
 
   if (recursivity_=='S')
-    for (size_t i = 0; i < nbP; i++)
+    for (size_t i = 0; i < vnbP.size(); i++)
     {
-      SingleRecursiveTreeLikelihoodCalculation* rt = new SingleRecursiveTreeLikelihoodCalculation(*data_->clone(),
-        processColl_->getSubstitutionProcess(i), patterns, i == 0);
+      SingleRecursiveTreeLikelihoodCalculation* rt = new SingleRecursiveTreeLikelihoodCalculation(data, processColl_->getSubstitutionProcess(vnbP[i]), patterns, i == 0);
       vpTreelik_.push_back(rt);
     }
   else if (recursivity_=='D')
-    for (size_t i = 0; i < nbP; i++)
+    for (size_t i = 0; i < vnbP.size(); i++)
     {
-      DoubleRecursiveTreeLikelihoodCalculation* rt = new DoubleRecursiveTreeLikelihoodCalculation(*data_->clone(),
-        processColl_->getSubstitutionProcess(i), i == 0);
+      DoubleRecursiveTreeLikelihoodCalculation* rt = new DoubleRecursiveTreeLikelihoodCalculation(data, processColl_->getSubstitutionProcess(vnbP[i]), i == 0);
       vpTreelik_.push_back(rt);
     }
-  else throw(Exception("MultiPhyloLikelihood::MultiPhyloLikelihood: unknown recursivity : " + recursivity_));
-  
-  setData(data);
+  else throw(Exception("MultiProcessPhyloLikelihood::MultiProcessPhyloLikelihood: unknown recursivity : " + recursivity_));
+
+  setData(data, nData);
 }
 
 /******************************************************************************/
 
-void MultiPhyloLikelihood::setData(const SiteContainer& sites)
+void MultiProcessPhyloLikelihood::setData(const SiteContainer& sites, size_t nData)
 {
   for (size_t i = 0; i < vpTreelik_.size(); i++)
   {
     vpTreelik_[i]->setData(sites);
   }
 
+  setNData(nData);
+  
   nbSites_ = sites.getNumberOfSites();
   nbStates_ = sites.getAlphabet()->getSize();
 
@@ -152,7 +152,7 @@ void MultiPhyloLikelihood::setData(const SiteContainer& sites)
 
 /******************************************************************************/
 
-void MultiPhyloLikelihood::fireParameterChanged(const ParameterList& parameters)
+void MultiProcessPhyloLikelihood::fireParameterChanged(const ParameterList& parameters)
 {
   processColl_->matchParametersValues(parameters);
 
@@ -163,45 +163,35 @@ void MultiPhyloLikelihood::fireParameterChanged(const ParameterList& parameters)
 
 /******************************************************************************/
 
-ParameterList MultiPhyloLikelihood::getSubstitutionProcessParameters() const
+ParameterList MultiProcessPhyloLikelihood::getSubstitutionProcessParameters() const
 {
   return processColl_->getSubstitutionProcessParameters();
+
 }
 
-ParameterList MultiPhyloLikelihood::getSubstitutionModelParameters() const
+ParameterList MultiProcessPhyloLikelihood::getSubstitutionModelParameters() const
 {
   return processColl_->getSubstitutionModelParameters();
 }
 
-ParameterList MultiPhyloLikelihood::getRateDistributionParameters() const
+ParameterList MultiProcessPhyloLikelihood::getRateDistributionParameters() const
 {
   return processColl_->getRateDistributionParameters();
 }
 
-ParameterList MultiPhyloLikelihood::getRootFrequenciesParameters() const
+ParameterList MultiProcessPhyloLikelihood::getRootFrequenciesParameters() const
 {
   return processColl_->getRootFrequenciesParameters();
 }
 
-ParameterList MultiPhyloLikelihood::getBranchLengthsParameters() const
+ParameterList MultiProcessPhyloLikelihood::getBranchLengthsParameters() const
 {
   return processColl_->getBranchLengthsParameters();
 }
 
-std::vector<const TreeTemplate<Node>* > MultiPhyloLikelihood::getTrees() const
-{
-  std::vector<const TreeTemplate<Node>* > vT;
-  size_t i=1;
-  while (processColl_->hasTreeNumber(i)){
-    vT.push_back(&(processColl_->getTree(i)->getTree()));
-    i++;
-  }
-  return vT;
-}
-
 /******************************************************************************/
 
-Vdouble MultiPhyloLikelihood::getLikelihoodForEachSite() const
+Vdouble MultiProcessPhyloLikelihood::getLikelihoodForEachSite() const
 {
   Vdouble l(getNumberOfSites());
   for (unsigned int i = 0; i < l.size(); ++i)
@@ -213,7 +203,7 @@ Vdouble MultiPhyloLikelihood::getLikelihoodForEachSite() const
 
 /******************************************************************************/
 
-VVdouble MultiPhyloLikelihood::getLikelihoodForEachSiteForEachProcess() const
+VVdouble MultiProcessPhyloLikelihood::getLikelihoodForEachSiteForEachProcess() const
 {
   VVdouble l(getNumberOfSites());
   for (size_t i = 0; i < l.size(); ++i)
@@ -231,7 +221,7 @@ VVdouble MultiPhyloLikelihood::getLikelihoodForEachSiteForEachProcess() const
 /******************************************************************************/
 
 
-void MultiPhyloLikelihood::setParameters(const ParameterList& parameters)
+void MultiProcessPhyloLikelihood::setParameters(const ParameterList& parameters)
 throw (ParameterNotFoundException, ConstraintException)
 {
   setParametersValues(parameters);
@@ -239,21 +229,21 @@ throw (ParameterNotFoundException, ConstraintException)
 
 /******************************************************************************/
 
-double MultiPhyloLikelihood::getValue() const
+double MultiProcessPhyloLikelihood::getValue() const
 throw (Exception)
 {
   if (!isInitialized())
-    throw Exception("MultiPhyloLikelihood::getValue(). Instance is not initialized.");
+    throw Exception("MultiProcessPhyloLikelihood::getValue(). Instance is not initialized.");
   return minusLogLik_;
 }
 
 /******************************************************************************/
 
-double MultiPhyloLikelihood::getFirstOrderDerivative(const string& variable) const
+double MultiProcessPhyloLikelihood::getFirstOrderDerivative(const string& variable) const
 throw (Exception)
 {
   if (!hasParameter(variable))
-    throw ParameterNotFoundException("MultiPhyloLikelihood::getFirstOrderDerivative().", variable);
+    throw ParameterNotFoundException("MultiProcessPhyloLikelihood::getFirstOrderDerivative().", variable);
   if (!processColl_->hasBranchLengthsParameter(variable))
   {
     throw Exception("Derivatives are only implemented for branch length parameters.");
@@ -264,11 +254,11 @@ throw (Exception)
 
 /******************************************************************************/
 
-double MultiPhyloLikelihood::getSecondOrderDerivative(const string& variable) const
+double MultiProcessPhyloLikelihood::getSecondOrderDerivative(const string& variable) const
 throw (Exception)
 {
   if (!hasParameter(variable))
-    throw ParameterNotFoundException("MultiPhyloLikelihood::getSecondOrderDerivative().", variable);
+    throw ParameterNotFoundException("MultiProcessPhyloLikelihood::getSecondOrderDerivative().", variable);
   if (!processColl_->hasBranchLengthsParameter(variable))
   {
     throw Exception("Derivatives are only implemented for branch length parameters.");
@@ -279,7 +269,7 @@ throw (Exception)
 
 /******************************************************************************/
 
-void MultiPhyloLikelihood::computeDLogLikelihoodForAProcess(std::string& variable, size_t p) const
+void MultiProcessPhyloLikelihood::computeDLogLikelihoodForAProcess(std::string& variable, size_t p) const
 {
   size_t i=0;
   
@@ -315,7 +305,7 @@ void MultiPhyloLikelihood::computeDLogLikelihoodForAProcess(std::string& variabl
 
 /************************************************************/
 
-void MultiPhyloLikelihood::computeD2LogLikelihoodForAProcess(std::string& variable, size_t p) const
+void MultiProcessPhyloLikelihood::computeD2LogLikelihoodForAProcess(std::string& variable, size_t p) const
 {
   size_t i=0;
   

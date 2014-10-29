@@ -40,11 +40,13 @@ knowledge of the CeCILL license and that you accept its terms.
 #include "HmmPhyloEmissionProbabilities.h"
 
 using namespace bpp;
+using namespace newlik;
+
 using namespace std;
 
 
 HmmPhyloEmissionProbabilities::HmmPhyloEmissionProbabilities(const HmmProcessAlphabet* alphabet,
-                                                             const newlik::MultiPhyloLikelihood* multiPL) :
+                                                             const newlik::MultiProcessPhyloLikelihood* multiPL) :
   AbstractParametrizable(""),
   procAlph_(alphabet),
   multiPL_(multiPL),

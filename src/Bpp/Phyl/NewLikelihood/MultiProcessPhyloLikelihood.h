@@ -1,5 +1,5 @@
 //
-// File: MultiPhyloLikelihood.h
+// File: MultiProcessPhyloLikelihood.h
 // Created by: Laurent Guéguen
 // Created on: jeudi 11 juillet 2013, à 21h 51
 //
@@ -40,8 +40,8 @@
 #ifndef _MULTIPHYLOLIKELIHOOD_H_
 #define _MULTIPHYLOLIKELIHOOD_H_
 
-#include "PhyloLikelihood.h"
-#include "SinglePhyloLikelihood.h"
+#include "SingleDataPhyloLikelihood.h"
+#include "SingleProcessPhyloLikelihood.h"
 #include "SubstitutionProcessCollection.h"
 #include "../Tree/Tree.h"
 #include "../Tree/TreeTemplate.h"
@@ -64,13 +64,11 @@ namespace newlik
  * likelihood of the data set, as well as a collection of SubstitutionProcess.
  * It implements the Function interface and manages the parameters of all substitution processes.
  */
-class MultiPhyloLikelihood :
-  public virtual PhyloLikelihood,
-  public AbstractParametrizable
+class MultiProcessPhyloLikelihood :
+  public AbstractSingleDataPhyloLikelihood
 {
 protected:
-  std::auto_ptr<const SiteContainer> data_;
-  std::auto_ptr<SubstitutionProcessCollection> processColl_;
+  SubstitutionProcessCollection* processColl_;
 
   /**
    * @brief recursivity of the tree likelihood computations
@@ -95,22 +93,22 @@ protected:
   std::vector<TreeLikelihoodCalculation*> vpTreelik_;
 
 public:
-  MultiPhyloLikelihood(SubstitutionProcessCollection* processColl,
+  MultiProcessPhyloLikelihood(SubstitutionProcessCollection* processColl,
                        char recursivity,
                        bool verbose = true,
                        bool patterns = true);
 
-  MultiPhyloLikelihood(
+  MultiProcessPhyloLikelihood(
     const SiteContainer& data,
     SubstitutionProcessCollection* processColl,
     char recursivity,
+    size_t nData = 0,
     bool verbose = true,
     bool patterns = true);
 
-  MultiPhyloLikelihood(const MultiPhyloLikelihood& lik) :
-    AbstractParametrizable(lik),
-    data_(0),
-    processColl_(0),
+  MultiProcessPhyloLikelihood(const MultiProcessPhyloLikelihood& lik) :
+    AbstractSingleDataPhyloLikelihood(lik),
+    processColl_(lik.processColl_),
     recursivity_(lik.recursivity_),
     computeFirstOrderDerivatives_(lik.computeFirstOrderDerivatives_),
     computeSecondOrderDerivatives_(lik.computeSecondOrderDerivatives_),
@@ -121,27 +119,17 @@ public:
     minusLogLik_(lik.minusLogLik_),
     vpTreelik_()
   {
-    if (lik.data_.get())
-      data_.reset(lik.data_->clone());
-    if (lik.processColl_.get())
-      processColl_.reset(lik.processColl_->clone());
     for (size_t i = 0; i < lik.vpTreelik_.size(); i++)
     {
       vpTreelik_.push_back(lik.vpTreelik_[i]->clone());
     }
   }
 
-  MultiPhyloLikelihood& operator=(const MultiPhyloLikelihood& lik)
+  MultiProcessPhyloLikelihood& operator=(const MultiProcessPhyloLikelihood& lik)
   {
-    AbstractParametrizable::operator=(lik);
-    if (lik.data_.get())
-      data_.reset(lik.data_->clone());
-    else
-      data_.reset();
-    if (lik.processColl_.get())
-      processColl_.reset(lik.processColl_->clone());
-    else
-      processColl_.reset();
+    AbstractSingleDataPhyloLikelihood::operator=(lik);
+
+    processColl_=lik.processColl_;
 
     recursivity_ = lik.recursivity_;
     computeFirstOrderDerivatives_  = lik.computeFirstOrderDerivatives_;
@@ -173,7 +161,7 @@ public:
    * @brief Abstract class destructor
    *
    */
-  virtual ~MultiPhyloLikelihood()
+  virtual ~MultiProcessPhyloLikelihood()
   {
     for (size_t i = 0; i < vpTreelik_.size(); i++)
     {
@@ -189,9 +177,9 @@ public:
    *
    * @{
    */
-  const SiteContainer* getData() const { return data_.get(); }
+  const SiteContainer* getData() const { return vpTreelik_[0]->getData(); }
 
-  const Alphabet* getAlphabet() const { return data_->getAlphabet(); }
+  const Alphabet* getAlphabet() const { return vpTreelik_[0]->getAlphabet(); }
 
   virtual double getLogLikelihood() const = 0;
 
@@ -211,7 +199,7 @@ public:
    *
    */
 
-  const SubstitutionProcessCollection* getCollection() const { return processColl_.get(); }
+  const SubstitutionProcessCollection* getCollection() const { return processColl_; }
 
 protected:
   virtual void computeDLogLikelihood_(const std::string& variable) const = 0;
@@ -287,10 +275,10 @@ public:
    *
    * @param sites The data set to use.
    */
-  void setData(const SiteContainer& sites);
+  void setData(const SiteContainer& sites, size_t nData = 0);
 
-  size_t getNumberOfSites() const { return data_->getNumberOfSites(); }
-  size_t getNumberOfStates() const { return data_->getAlphabet()->getSize(); }
+  size_t getNumberOfSites() const { return vpTreelik_[0]->getNumberOfSites(); }
+  size_t getNumberOfStates() const { return vpTreelik_[0]->getAlphabet()->getSize(); }
 
   size_t getNumberOfSubstitutionProcess() const { return getCollection()->getNumberOfSubstitutionProcess();}
 
@@ -312,8 +300,6 @@ public:
 
   ParameterList getBranchLengthsParameters() const;
 
-  std::vector<const TreeTemplate<Node>* > getTrees() const;
-    
   //    ParameterList getTransitionProbabilitiesParameters() const { return process_->getTransitionProbabilitiesParameters(); }
   // TODO: this has to be modified to deal with special cases...
 

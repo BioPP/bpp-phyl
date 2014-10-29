@@ -52,7 +52,7 @@ MixturePhyloLikelihood::MixturePhyloLikelihood(
   char recursivity,
   bool verbose,
   bool patterns) :
-  MultiPhyloLikelihood(processColl, recursivity, verbose, patterns),
+  MultiProcessPhyloLikelihood(processColl, recursivity, verbose, patterns),
   simplex_(processColl_->getNumberOfSubstitutionProcess(), 1)
 {
   // initialize parameters:
@@ -63,9 +63,10 @@ MixturePhyloLikelihood::MixturePhyloLikelihood(
   const SiteContainer& data,
   SubstitutionProcessCollection* processColl,
   char recursivity,
+  size_t nData,
   bool verbose,
   bool patterns) :
-  MultiPhyloLikelihood(data, processColl, recursivity, verbose, patterns),
+  MultiProcessPhyloLikelihood(data, processColl, recursivity, nData, verbose, patterns),
   simplex_(processColl_->getNumberOfSubstitutionProcess(), 1)
 {
   // initialize parameters:
@@ -81,7 +82,7 @@ void MixturePhyloLikelihood::setSubProcessProb(const Simplex& si)
 
 void MixturePhyloLikelihood::fireParameterChanged(const ParameterList& parameters)
 {
-  MultiPhyloLikelihood::fireParameterChanged(parameters);
+  MultiProcessPhyloLikelihood::fireParameterChanged(parameters);
   simplex_.matchParametersValues(parameters);
   
   minusLogLik_ = -getLogLikelihood();
