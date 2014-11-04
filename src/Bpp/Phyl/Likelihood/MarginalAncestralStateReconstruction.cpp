@@ -147,16 +147,16 @@ void MarginalAncestralStateReconstruction::recursiveMarginalAncestralStates(
 {
   if (node->isLeaf())
   {
-    vector<int> content = data.getContent(node->getName());
+    const Sequence& seq = data.getSequence(node->getName());
     vector<size_t>* v = &ancestors[node->getId()];
-    v->resize(content.size());
+    v->resize(seq.size());
     // This is a tricky way to store the real sequence as an ancestral one...
     // In case of Markov Modulated models, we consider that the real sequences
     // Are all in the first category.
     const SubstitutionModel* model = likelihood_->getSubstitutionModel(tree_.getNodesId()[0], 0); // We assume all nodes have a model with the same number of states.
-    for (size_t i = 0; i < content.size(); i++)
+    for (size_t i = 0; i < seq.size(); i++)
     {
-      (*v)[i] = model->getModelStates(content[i])[0];
+      (*v)[i] = model->getModelStates(seq[i])[0];
     }
   }
   else
