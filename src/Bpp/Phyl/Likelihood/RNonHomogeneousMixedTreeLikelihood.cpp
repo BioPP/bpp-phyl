@@ -316,8 +316,8 @@ RNonHomogeneousMixedTreeLikelihood::~RNonHomogeneousMixedTreeLikelihood()
   if (main_)
     initParameters();
   else {
-    initBranchLengthsParameters();
-    addParameters_(brLenParameters_);
+    initBranchLengthsParameters(false);
+    includeParameters_(brLenParameters_);
   }
 
   map<int, vector<RNonHomogeneousMixedTreeLikelihood*> >::iterator it;

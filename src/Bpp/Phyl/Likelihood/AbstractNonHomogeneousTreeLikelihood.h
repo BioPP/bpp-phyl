@@ -253,7 +253,7 @@ class AbstractNonHomogeneousTreeLikelihood:
      */
     virtual void applyParameters() throw (Exception);  
 
-    virtual void initBranchLengthsParameters();
+    virtual void initBranchLengthsParameters(bool verbose = true);
 
     virtual void setMinimumBranchLength(double minimum) throw (Exception)
     {

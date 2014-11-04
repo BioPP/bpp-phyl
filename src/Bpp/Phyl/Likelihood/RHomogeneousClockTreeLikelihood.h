@@ -138,7 +138,7 @@ class RHomogeneousClockTreeLikelihood:
      */
     void applyParameters() throw (Exception);
     void fireParameterChanged(const ParameterList& params);
-    void initBranchLengthsParameters();
+    void initBranchLengthsParameters(bool verbose = true);
     ParameterList getDerivableParameters() const throw (Exception);
     ParameterList getNonDerivableParameters() const throw (Exception);
     double getFirstOrderDerivative(const std::string& variable) const throw (Exception);

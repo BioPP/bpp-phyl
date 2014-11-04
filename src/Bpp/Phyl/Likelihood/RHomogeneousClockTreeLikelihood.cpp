@@ -118,7 +118,7 @@ void RHomogeneousClockTreeLikelihood::fireParameterChanged(const ParameterList& 
 
 /******************************************************************************/
 
-void RHomogeneousClockTreeLikelihood::initBranchLengthsParameters()
+void RHomogeneousClockTreeLikelihood::initBranchLengthsParameters(bool verbose)
 {
   //Check branch lengths first:
   for(unsigned int i = 0; i < nbNodes_; i++)
@@ -126,7 +126,8 @@ void RHomogeneousClockTreeLikelihood::initBranchLengthsParameters()
     double d = minimumBrLen_;
     if(!nodes_[i]->hasDistanceToFather())
     {
-      ApplicationTools::displayWarning("Missing branch length " + TextTools::toString(i) + ". Value is set to " + TextTools::toString(minimumBrLen_));
+      if (verbose)
+        ApplicationTools::displayWarning("Missing branch length " + TextTools::toString(i) + ". Value is set to " + TextTools::toString(minimumBrLen_));
       nodes_[i]->setDistanceToFather(minimumBrLen_);
     }
     else
@@ -134,7 +135,8 @@ void RHomogeneousClockTreeLikelihood::initBranchLengthsParameters()
       d = nodes_[i]->getDistanceToFather();
       if (d < minimumBrLen_)
       {
-        ApplicationTools::displayWarning("Branch length " + TextTools::toString(i) + " is too small: " + TextTools::toString(d) + ". Value is set to " + TextTools::toString(minimumBrLen_));
+        if (verbose)
+          ApplicationTools::displayWarning("Branch length " + TextTools::toString(i) + " is too small: " + TextTools::toString(d) + ". Value is set to " + TextTools::toString(minimumBrLen_));
         nodes_[i]->setDistanceToFather(minimumBrLen_);
       }
     }
