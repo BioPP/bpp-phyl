@@ -356,7 +356,11 @@ namespace bpp
   
     bool isCompatibleWith(const SiteContainer& data) const;
 
-    bool hasDerivableParameter(const std::string& name) const { return false;}
+    bool hasDerivableParameter(const std::string& name) const
+    {
+      return hasBranchLengthParameter(name);
+    }
+    
 
     /**
      * @brief Get the number of states associated to this model set.
@@ -395,19 +399,6 @@ namespace bpp
     const SubstitutionModel& getSubstitutionModel(int nodeId, size_t classIndex) const;
 
     /**
-     * @brief Get the  parameters.
-     *
-     **/
-
-    // const ParameterList& getIndependentParameters() const
-    // {
-    //   return getSubstitutionProcessParameters();
-    // }
-    
-    ParameterList getSubstitutionProcessParameters() const;
- 
-
-    /**
      * @brief Get the parameters of the substitution models.
      *
      **/
@@ -426,7 +417,9 @@ namespace bpp
      *
      **/
 
-    ParameterList getBranchLengthsParameters() const;
+    ParameterList getBranchLengthParameters() const;
+
+    bool hasBranchLengthParameter(const std::string& name) const;
 
     /**
      * @brief Get the parameters of the root frequencies set.

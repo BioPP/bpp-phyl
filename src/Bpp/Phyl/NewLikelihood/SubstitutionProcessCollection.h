@@ -464,17 +464,17 @@ public:
    * @return A ParameterList with all branch lengths.
    */
   
-  ParameterList getBranchLengthsParameters() const
+  ParameterList getBranchLengthParameters() const
   {
     return treeColl_.getParameters();
   }
 
-  ParameterList getTreeParameters(size_t nTree) const
+  ParameterList getBranchLengthParameters(size_t nTree) const
   {
     return treeColl_.getParametersForObject(nTree);
   }
   
-  bool hasBranchLengthsParameter(const std::string& name) const;
+  bool hasBranchLengthParameter(const std::string& name) const;
   
   /**
    * @brief Get the parameters associated to substitution process(es).
@@ -482,7 +482,7 @@ public:
    * @return A ParameterList.
    */
   
-  ParameterList getSubstitutionProcessParameters(size_t nProc) const;
+//  ParameterList getSubstitutionProcessParameters(size_t nProc) const;
 
   ParameterList getSubstitutionProcessParameters() const;
 

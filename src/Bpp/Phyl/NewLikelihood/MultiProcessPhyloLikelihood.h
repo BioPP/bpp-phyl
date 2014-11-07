@@ -298,7 +298,7 @@ public:
 
   ParameterList getRootFrequenciesParameters() const;
 
-  ParameterList getBranchLengthsParameters() const;
+  ParameterList getBranchLengthParameters() const;
 
   //    ParameterList getTransitionProbabilitiesParameters() const { return process_->getTransitionProbabilitiesParameters(); }
   // TODO: this has to be modified to deal with special cases...

@@ -102,7 +102,7 @@ public:
 public:
   void fireParameterChanged(const ParameterList& parameters);
 
-  ParameterList getDerivableParameters() const { return getBranchLengthsParameters();
+  ParameterList getDerivableParameters() const { return getBranchLengthParameters();
   }
 
   ParameterList getNonDerivableParameters() const;

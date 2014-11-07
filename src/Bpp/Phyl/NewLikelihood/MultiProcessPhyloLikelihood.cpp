@@ -184,9 +184,9 @@ ParameterList MultiProcessPhyloLikelihood::getRootFrequenciesParameters() const
   return processColl_->getRootFrequenciesParameters();
 }
 
-ParameterList MultiProcessPhyloLikelihood::getBranchLengthsParameters() const
+ParameterList MultiProcessPhyloLikelihood::getBranchLengthParameters() const
 {
-  return processColl_->getBranchLengthsParameters();
+  return processColl_->getBranchLengthParameters();
 }
 
 /******************************************************************************/
@@ -244,7 +244,7 @@ throw (Exception)
 {
   if (!hasParameter(variable))
     throw ParameterNotFoundException("MultiProcessPhyloLikelihood::getFirstOrderDerivative().", variable);
-  if (!processColl_->hasBranchLengthsParameter(variable))
+  if (!processColl_->hasBranchLengthParameter(variable))
   {
     throw Exception("Derivatives are only implemented for branch length parameters.");
   }
@@ -259,7 +259,7 @@ throw (Exception)
 {
   if (!hasParameter(variable))
     throw ParameterNotFoundException("MultiProcessPhyloLikelihood::getSecondOrderDerivative().", variable);
-  if (!processColl_->hasBranchLengthsParameter(variable))
+  if (!processColl_->hasBranchLengthParameter(variable))
   {
     throw Exception("Derivatives are only implemented for branch length parameters.");
   }

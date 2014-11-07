@@ -145,24 +145,15 @@ double SumOfDataPhyloLikelihood::getSecondOrderDerivative(const std::string& var
   return x;
 }
 
-ParameterList SumOfDataPhyloLikelihood::getBranchLengthsParameters() const
+ParameterList SumOfDataPhyloLikelihood::getBranchLengthParameters() const
 {
   ParameterList pl;
   for (size_t i = 0; i < numberOfSDP_; i++)
-    pl.includeParameters(vSDP_[i]->getBranchLengthsParameters());
+    pl.includeParameters(vSDP_[i]->getBranchLengthParameters());
 
   return pl;
 }
       
-// ParameterList SumOfDataPhyloLikelihood::getSubstitutionProcessParameters() const
-// {
-//   ParameterList pl;
-//   for (size_t i = 0; i < numberOfSDP_; i++)
-//     pl.includeParameters(vSDP_[i]->getSubstitutionProcessParameters());
-  
-//   return pl;
-// }
-
 ParameterList SumOfDataPhyloLikelihood::getSubstitutionModelParameters() const
 {
   ParameterList pl;
@@ -176,7 +167,7 @@ ParameterList SumOfDataPhyloLikelihood::getRateDistributionParameters() const
 {
   ParameterList pl;
   for (size_t i = 0; i < numberOfSDP_; i++)
-    pl.includeParameters(vSDP_[i]->getSubstitutionModelParameters());
+    pl.includeParameters(vSDP_[i]->getRateDistributionParameters());
 
   return pl;
 }

@@ -303,37 +303,29 @@ namespace bpp
        * @return A ParameterList with all branch lengths.
        */
 
-      ParameterList getBranchLengthsParameters() const;
+      ParameterList getBranchLengthParameters() const;
       
-      // /**
-      //  * @brief Get the parameters associated to substitution process(s).
-      //  *
-      //  * @return A ParameterList.
-      //  */
-
-      // ParameterList getSubstitutionProcessParameters() const;
-      
-      // /**
-      //  * @brief Get the parameters associated to substitution model(s).
-      //  *
-      //  * @return A ParameterList.
-      //  */
+      /**
+      * @brief Get the parameters associated to substitution model(s).
+      * 
+      * @return A ParameterList.
+      */
 
       ParameterList getSubstitutionModelParameters() const;
 
-      // /**
-      //  * @brief Get the parameters associated to the rate distribution(s).
-      //  *
-      //  * @return A ParameterList.
-      //  */
+      /**
+       * @brief Get the parameters associated to the rate distribution(s).
+       *
+       * @return A ParameterList.
+       */
 
       ParameterList getRateDistributionParameters() const;
 
-      // /**
-      //  * @brief Get the parameters associated to the root frequencies(s).
-      //  *
-      //  * @return A ParameterList.
-      //  */
+      /**
+       * @brief Get the parameters associated to the root frequencies(s).
+       *
+       * @return A ParameterList.
+       */
 
       ParameterList getRootFrequenciesParameters() const;
 

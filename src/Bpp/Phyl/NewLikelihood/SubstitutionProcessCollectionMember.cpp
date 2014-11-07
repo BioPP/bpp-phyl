@@ -59,7 +59,7 @@ SubstitutionProcessCollectionMember::SubstitutionProcessCollectionMember( Substi
   nRoot_(0),
   computingTree_(new ComputingTree(pSubProColl_, nTree_, nDist_))
 {
-  addParameters_(pSubProColl_->getTreeParameters(nTree_));
+  addParameters_(pSubProColl_->getBranchLengthParameters(nTree_));
   addParameters_(pSubProColl_->getRateDistributionParameters(nDist_));
 }
 
@@ -137,25 +137,19 @@ inline const DiscreteDistribution* SubstitutionProcessCollectionMember::getDistr
   return pSubProColl_->getDistribution(nDist_);
 }
 
-ParameterList SubstitutionProcessCollectionMember::getSubstitutionProcessParameters() const
-{
-  ParameterList pl=getRateDistributionParameters();
-  pl.addParameters(getSubstitutionModelParameters());
-  pl.addParameters(getBranchLengthsParameters());
-  pl.addParameters(getRootFrequenciesParameters());
-  
-  return pl;
-}
-
-  
 ParameterList SubstitutionProcessCollectionMember::getRateDistributionParameters() const
 {
   return pSubProColl_->getRateDistributionParameters(nDist_);
 }
 
-ParameterList SubstitutionProcessCollectionMember::getBranchLengthsParameters() const
+ParameterList SubstitutionProcessCollectionMember::getBranchLengthParameters() const
 {
-  return pSubProColl_->getTreeParameters(nTree_);
+  return pSubProColl_->getBranchLengthParameters(nTree_);
+}
+
+inline bool SubstitutionProcessCollectionMember::hasBranchLengthParameter(const std::string& name) const
+{
+  return pSubProColl_->hasBranchLengthParameter(name);
 }
 
 ParameterList SubstitutionProcessCollectionMember::getRootFrequenciesParameters() const

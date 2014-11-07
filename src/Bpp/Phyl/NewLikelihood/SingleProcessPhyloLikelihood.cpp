@@ -162,6 +162,7 @@ ParameterList SingleProcessPhyloLikelihood::getNonDerivableParameters() const
   ParameterList pl = getSubstitutionModelParameters();
   pl.addParameters(getRootFrequenciesParameters());
   pl.addParameters(getRateDistributionParameters());
+
   return pl;
 }
 
@@ -215,7 +216,8 @@ double SingleProcessPhyloLikelihood::getFirstOrderDerivative(const string& varia
 throw (Exception)
 {
   if (!hasParameter(variable))
-    throw ParameterNotFoundException("SingleProcessPhyloLikelihood::getFirstOrderDerivative().", variable);
+    return 0;
+  
   if (!process_->hasDerivableParameter(variable))
   {
     throw Exception("Non derivable parameter: " + variable);
@@ -233,7 +235,8 @@ double SingleProcessPhyloLikelihood::getSecondOrderDerivative(const string& vari
 throw (Exception)
 {
   if (!hasParameter(variable))
-    throw ParameterNotFoundException("SingleProcessPhyloLikelihood::getSecondOrderDerivative().", variable);
+    return 0;
+  
   if (!process_->hasDerivableParameter(variable))
   {
     throw Exception("Non derivable parameter: " + variable);

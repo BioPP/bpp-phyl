@@ -100,11 +100,19 @@ public:
    */
   virtual const SubstitutionModel& getSubstitutionModel(int nodeId, size_t classIndex) const = 0;
 
+  /**
+   * @brief Methods to retrieve the parameters of specific objects.
+   *
+   */
+  
   virtual ParameterList getSubstitutionModelParameters() const = 0;
 
   virtual ParameterList getRateDistributionParameters() const = 0;
 
-  
+  virtual ParameterList getRootFrequenciesParameters() const = 0;
+
+  virtual ParameterList getBranchLengthParameters() const = 0;
+
   /**
    * @brief Get the transition probabilities corresponding to a certain branch, site pattern, and model class.
    *

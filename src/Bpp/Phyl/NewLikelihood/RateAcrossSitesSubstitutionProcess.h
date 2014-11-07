@@ -89,10 +89,6 @@ public:
              rDist_->getIndependentParameters().hasParameter(name));
   }
   
-  ParameterList getRateDistributionParameters() const {
-    return rDist_->getIndependentParameters();
-  }
-  
   bool isCompatibleWith(const SiteContainer& data) const {
     return data.getAlphabet()->getAlphabetType() == model_->getAlphabet()->getAlphabetType();
   }
@@ -107,20 +103,38 @@ public:
     return *rDist_;
   }
 
-  const Matrix<double>& getGenerator(int nodeId, size_t classIndex) const {
+  const Matrix<double>& getGenerator(int nodeId, size_t classIndex) const
+  {
     return model_->getGenerator();
   }
 
-  ParameterList getSubstitutionModelParameters() const {
+  ParameterList getSubstitutionModelParameters() const
+  {
     return model_->getIndependentParameters();
   }
 
+  ParameterList getRateDistributionParameters() const
+  {
+    return rDist_->getIndependentParameters();
+  }
+
+  ParameterList getRootFrequenciesParameters() const
+  {
+    return ParameterList();
+  }
+
+  ParameterList getBranchLengthParameters() const
+  {
+    return getParametrizableTree().getParameters();
+  }
+  
   const FrequenciesSet* getRootFrequenciesSet() const
   {
     return 0;
   }
   
-  const std::vector<double>& getRootFrequencies() const {
+  const std::vector<double>& getRootFrequencies() const
+  {
     return model_->getFrequencies();
   }
   

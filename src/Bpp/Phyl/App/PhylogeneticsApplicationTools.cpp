@@ -2039,7 +2039,7 @@ throw (Exception)
       string param = st.nextToken();
       if (param == "BrLen")
       {
-        vector<string> vs = lik->getBranchLengthsParameters().getParameterNames();
+        vector<string> vs = lik->getBranchLengthParameters().getParameterNames();
         parametersToEstimate.deleteParameters(vs);
         if (verbose)
           ApplicationTools::displayResult("Parameter ignored", string("Branch lengths"));
@@ -2108,7 +2108,7 @@ throw (Exception)
       vector<string> parNames2;
       
       if (param == "BrLen")
-        parNames2  = lik->getBranchLengthsParameters().getParameterNames();
+        parNames2  = lik->getBranchLengthParameters().getParameterNames();
       else if (param == "Ancient")
         parNames2 = lik->getRootFrequenciesParameters().getParameterNames();
       else if (param == "Model")

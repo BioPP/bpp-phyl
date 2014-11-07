@@ -172,15 +172,16 @@ namespace bpp
        */
       const Tree& getTree() const { return process_->getTree(); }
 
-      // ParameterList getSubstitutionProcessParameters() const { return process_->getIndependentParameters(); }
-
       const SubstitutionProcess& getSubstitutionProcess() const { return *process_; }
 
-      ParameterList getBranchLengthsParameters() const { return process_->getParametrizableTree().getParameters(); }
+      ParameterList getBranchLengthParameters() const
+      {
+        return process_->getBranchLengthParameters();
+      }
 
       ParameterList getRootFrequenciesParameters() const
       {
-        return process_->getRootFrequenciesSet() ? process_->getRootFrequenciesSet()->getParameters() : ParameterList();
+        return process_->getRootFrequenciesParameters();
       }
 
       ParameterList getRateDistributionParameters() const
@@ -262,7 +263,9 @@ namespace bpp
 
       //    ParameterList getTransitionProbabilitiesParameters() const { return process_->getTransitionProbabilitiesParameters(); }
       // TODO: this has to be modified to deal with special cases...
-      ParameterList getDerivableParameters() const { return getBranchLengthsParameters(); }
+      ParameterList getDerivableParameters() const {
+        return getBranchLengthParameters();
+      }
 
       ParameterList getNonDerivableParameters() const;
 

@@ -139,12 +139,8 @@ void SubstitutionProcessCollection::addParametrizable(Parametrizable* parametriz
         else
           throw Exception("Unknown parametrizable object in SubstitutionProcessCollection::addParametrizable.");
 
-  if (withParameters){
-    // for (size_t i=0; i<pl.size();i++)
-    //   pl[i].setName(pl[i].getName()+"_"+TextTools::toString(parametrizableIndex));
-    
+  if (withParameters)
     addParameters_(pl);
-  }
 }
 
 std::vector<const TreeTemplate<Node>* > SubstitutionProcessCollection::getTrees() const
@@ -295,7 +291,7 @@ void SubstitutionProcessCollection::addSubstitutionProcess(size_t nProc, std::ma
   mSubProcess_[nProc]=pSMS;
 }
 
-bool SubstitutionProcessCollection::hasBranchLengthsParameter(const std::string& name) const
+bool SubstitutionProcessCollection::hasBranchLengthParameter(const std::string& name) const
 {
   return treeColl_.hasParameter(name);
 }

@@ -106,6 +106,14 @@ public:
     return ParameterList();
   }
 
+  ParameterList getRootFrequenciesParameters() const {
+    return ParameterList();
+  }
+
+  ParameterList getBranchLengthParameters() const {
+    return getParametrizableTree().getParameters();
+  }
+  
   const std::vector<double>& getRootFrequencies() const {
     return model_->getFrequencies();
   }

@@ -290,11 +290,11 @@ throw (Exception)
   AbstractNumericalDerivative* fnum = new ThreePointsNumericalDerivative(f);
 
   if (optMethodDeriv == OPTIMIZATION_GRADIENT)
-    desc->addOptimizer("Branch length parameters", new ConjugateGradientMultiDimensions(f), lik->getBranchLengthsParameters().getParameterNames(), 2, MetaOptimizerInfos::IT_TYPE_FULL);
+    desc->addOptimizer("Branch length parameters", new ConjugateGradientMultiDimensions(f), lik->getBranchLengthParameters().getParameterNames(), 2, MetaOptimizerInfos::IT_TYPE_FULL);
   else if (optMethodDeriv == OPTIMIZATION_NEWTON)
-    desc->addOptimizer("Branch length parameters", new PseudoNewtonOptimizer(f), lik->getBranchLengthsParameters().getParameterNames(), 2, MetaOptimizerInfos::IT_TYPE_FULL);
+    desc->addOptimizer("Branch length parameters", new PseudoNewtonOptimizer(f), lik->getBranchLengthParameters().getParameterNames(), 2, MetaOptimizerInfos::IT_TYPE_FULL);
   else if (optMethodDeriv == OPTIMIZATION_BFGS)
-    desc->addOptimizer("Branch length parameters", new BfgsMultiDimensions(f), lik->getBranchLengthsParameters().getParameterNames(), 2, MetaOptimizerInfos::IT_TYPE_FULL);
+    desc->addOptimizer("Branch length parameters", new BfgsMultiDimensions(f), lik->getBranchLengthParameters().getParameterNames(), 2, MetaOptimizerInfos::IT_TYPE_FULL);
   else
     throw Exception("OptimizationTools::optimizeNumericalParameters. Unknown optimization method: " + optMethodDeriv);
 
@@ -422,6 +422,7 @@ throw (Exception)
 
   // Numerical derivatives:
   ParameterList tmp = tl->getNonDerivableParameters();
+  
   if (useClock)
     tmp.addParameters(fclock->getHeightParameters());
   fnum->setParametersToDerivate(tmp.getParameterNames());

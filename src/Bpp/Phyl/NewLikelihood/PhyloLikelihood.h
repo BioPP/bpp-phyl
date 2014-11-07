@@ -123,16 +123,8 @@ namespace bpp
        * @return A ParameterList with all branch lengths.
        */
 
-      virtual ParameterList getBranchLengthsParameters() const = 0;
+      virtual ParameterList getBranchLengthParameters() const = 0;
     
-      /**
-       * @brief Get the parameters associated to substitution process(s).
-       *
-       * @return A ParameterList.
-       */
-
-//      virtual ParameterList getSubstitutionProcessParameters() const = 0;
-
       /**
        * @brief Get the parameters associated to substitution model(s).
        *

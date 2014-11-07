@@ -420,6 +420,10 @@ namespace bpp
         return rootFrequencies_->getParameters();
     }
 
+    ParameterList getBranchLengthParameters() const
+    {
+      return getParametrizableTree().getParameters();
+    }
 
     /**
      * @brief Get the parameters attached to the rate distribution.

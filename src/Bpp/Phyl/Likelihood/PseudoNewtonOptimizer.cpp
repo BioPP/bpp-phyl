@@ -104,9 +104,9 @@ double PseudoNewtonOptimizer::doStep() throw (Exception)
 
   for (size_t i = 0; i < n_; i++)
   {
-    double  firstOrderDerivative = getFunction()->getFirstOrderDerivative(params_[i]);
+    double firstOrderDerivative = getFunction()->getFirstOrderDerivative(params_[i]);
     double secondOrderDerivative = getFunction()->getSecondOrderDerivative(params_[i]);
-
+    
     if (secondOrderDerivative == 0)
     {
       movements[i] = 0;
