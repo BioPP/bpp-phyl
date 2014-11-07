@@ -346,7 +346,7 @@ void AbstractNonHomogeneousTreeLikelihood::applyParameters() throw (Exception)
 
 /******************************************************************************/
 
-void AbstractNonHomogeneousTreeLikelihood::initBranchLengthsParameters()
+void AbstractNonHomogeneousTreeLikelihood::initBranchLengthsParameters(bool verbose)
 {
   brLenParameters_.reset();
   double l1 = 0, l2 = 0;
@@ -355,7 +355,8 @@ void AbstractNonHomogeneousTreeLikelihood::initBranchLengthsParameters()
       double d = minimumBrLen_;
       if (!nodes_[i]->hasDistanceToFather())
         {
-          ApplicationTools::displayWarning("Missing branch length " + TextTools::toString(i) + ". Value is set to " + TextTools::toString(minimumBrLen_));
+          if (verbose)
+            ApplicationTools::displayWarning("Missing branch length " + TextTools::toString(i) + ". Value is set to " + TextTools::toString(minimumBrLen_));
           nodes_[i]->setDistanceToFather(minimumBrLen_);
         }
       else
@@ -363,13 +364,15 @@ void AbstractNonHomogeneousTreeLikelihood::initBranchLengthsParameters()
           d = nodes_[i]->getDistanceToFather();
           if (d < minimumBrLen_)
             {
-              ApplicationTools::displayWarning("Branch length " + TextTools::toString(i) + " is too small: " + TextTools::toString(d) + ". Value is set to " + TextTools::toString(minimumBrLen_));
+              if (verbose)
+                ApplicationTools::displayWarning("Branch length " + TextTools::toString(i) + " is too small: " + TextTools::toString(d) + ". Value is set to " + TextTools::toString(minimumBrLen_));
               nodes_[i]->setDistanceToFather(minimumBrLen_);
               d = minimumBrLen_;
             }
           if (d > maximumBrLen_)
             {
-              ApplicationTools::displayWarning("Branch length " + TextTools::toString(i) + " is too big: " + TextTools::toString(d) + ". Value is set to " + TextTools::toString(maximumBrLen_));
+              if (verbose)
+                ApplicationTools::displayWarning("Branch length " + TextTools::toString(i) + " is too big: " + TextTools::toString(d) + ". Value is set to " + TextTools::toString(maximumBrLen_));
               nodes_[i]->setDistanceToFather(maximumBrLen_);
               d = maximumBrLen_;
             }

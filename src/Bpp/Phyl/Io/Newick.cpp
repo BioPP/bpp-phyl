@@ -93,7 +93,7 @@ Newick::read(istream& in) const throw (Exception)
   if (allowComments_) description = TextTools::removeSubstrings(description, '[', ']');
   if (TextTools::isEmpty(description))
     throw IOException("Newick::read: no tree was found!");
-  return TreeTemplateTools::parenthesisToTree(description, useBootstrap_, bootstrapPropertyName_);
+  return TreeTemplateTools::parenthesisToTree(description, useBootstrap_, bootstrapPropertyName_, false, verbose_);
 }
 
 /******************************************************************************/
@@ -147,7 +147,7 @@ void Newick::read(istream& in, vector<Tree*>& trees) const throw (Exception)
     {
       description += temp.substr(0, index + 1);
       if (allowComments_) description = TextTools::removeSubstrings(description, '[', ']');
-      trees.push_back(TreeTemplateTools::parenthesisToTree(description, useBootstrap_, bootstrapPropertyName_));
+      trees.push_back(TreeTemplateTools::parenthesisToTree(description, useBootstrap_, bootstrapPropertyName_, false, verbose_));
       description = temp.substr(index + 1);
     }
     else description += temp;

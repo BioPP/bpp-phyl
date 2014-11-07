@@ -639,7 +639,7 @@ public:
    * @param node The node defining the subtree to check.
    * @return The number of leaves.
    */
-  static size_t getNumberOfLeaves(const Node& node);
+  static unsigned int getNumberOfLeaves(const Node& node);
 
   /**
    * @brief Get the number of nodes of a subtree defined by a particular node.
@@ -647,7 +647,7 @@ public:
    * @param node The node defining the subtree to check.
    * @return The number of nodes.
    */
-  static size_t getNumberOfNodes(const Node& node);
+  static unsigned int getNumberOfNodes(const Node& node);
 
   /**
    * @brief Get the leaves names of a subtree defined by a particular node.
