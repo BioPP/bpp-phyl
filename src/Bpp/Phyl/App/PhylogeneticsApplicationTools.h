@@ -138,7 +138,17 @@ namespace bpp
         bool suffixIsOptional = true,
         bool verbose = true,
         int warn = 1) throw (Exception);
-  
+
+    static map<size_t, Tree*> getTrees(
+      map<string, string>& params,
+      const vector<SiteContainer*>& vSeq,
+      const std::string& prefix = "input.",
+      const std::string& suffix = "",
+      bool suffixIsOptional = true,
+      bool verbose = true,
+      int warn = 1) throw (Exception);
+    
+
     /**
      * @brief Build a SubstitutionModel object according to options.
      *
@@ -490,7 +500,7 @@ namespace bpp
         const Alphabet* alphabet,
         const GeneticCode* gCode,
         const vector<SiteContainer*>& vData,
-        const vector<Tree*>& vTree,
+        const map<size_t, Tree*>& mTree,
         const map<size_t, SubstitutionModel*>& mMod,
         const map<size_t, FrequenciesSet*>& mRootFreq,
         const map<size_t, DiscreteDistribution*>& mDist,

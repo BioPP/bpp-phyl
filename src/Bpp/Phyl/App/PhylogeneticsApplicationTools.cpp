@@ -178,6 +178,224 @@ vector<Tree*> PhylogeneticsApplicationTools::getTrees(
 
 /******************************************************************************/
 
+map<size_t, Tree*> PhylogeneticsApplicationTools::getTrees(
+  map<string, string>& params,
+  const vector<SiteContainer*>& vSeq,
+  const string& prefix,
+  const string& suffix,
+  bool suffixIsOptional,
+  bool verbose,
+  int warn) throw (Exception)
+{
+  vector<string> vTreesName=ApplicationTools::matchingParameters(prefix+"tree*", params);
+
+  map<size_t, Tree*> mTree;
+
+  for (size_t nT=0; nT < vTreesName.size(); nT++)
+  {
+    size_t poseq=vTreesName[nT].find("=");
+    size_t num = 0;
+    size_t len = (prefix+"tree").size();
+    
+    string suff = vTreesName[nT].substr(len,poseq-len);
+    bool flag=0;
+    size_t nbTree = 1;
+
+    if (TextTools::isDecimalInteger(suff,'$'))
+      num=static_cast<size_t>(TextTools::toInt(suff));
+    else{
+      flag=1;
+      num=1;
+    }
+    
+    string treeDesc = ApplicationTools::getStringParameter(vTreesName[nT], params, "", suffix, suffixIsOptional);
+
+    string treeName;
+    
+    map<string, string> args;
+    
+    KeyvalTools::parseProcedure(treeDesc, treeName, args);
+
+    if (treeName=="user")
+    {
+      string format;
+      
+      if (args.find("format")!=args.end())
+        format = args["format"];
+      else
+      {
+        format="Newick";
+        ApplicationTools::displayWarning("Warning, " + vTreesName[nT] + " format set to Newick");
+      }
+
+      string treeFilePath = ApplicationTools::getAFilePath("file", args, true, true, suffix, suffixIsOptional, "none", warn);
+
+      IMultiTree* treeReader;
+      if (format == "Newick")
+        treeReader = new Newick(true);
+      else if (format == "Nexus")
+        treeReader = new NexusIOTree();
+      else if (format == "NHX")
+        treeReader = new Nhx();
+      else
+        throw Exception("Unknow format for tree reading: " + format);
+
+      vector<Tree*> trees;
+      treeReader->read(treeFilePath, trees);
+      delete treeReader;
+
+      if (verbose)
+      {
+        ApplicationTools::displayResult("Tree " + (flag?"":TextTools::toString(num)) + " file", treeFilePath);
+        ApplicationTools::displayResult("Number of trees in file", trees.size());
+      }
+
+      if (flag)
+      {
+        nbTree=trees.size();
+
+        for (size_t i2=0; i2<trees.size(); i2++)
+        {
+          if (mTree.find(i2+1)!=mTree.end())
+            throw Exception("Error : Tree " + TextTools::toString(i2+1) + " already assigned.");
+          mTree[i2+1]=trees[i2];
+        }
+      }
+      else
+      {
+        if (trees.size()>1)
+          throw Exception("Error : Several trees for description of " + vTreesName[nT] + ".");
+
+        if (trees.size()==1)
+          mTree[num]=trees[0];
+      }
+    }
+    else if (treeName=="random")
+    {
+      size_t seqNum;
+      
+      if (args.find("sequence")==args.end()){
+        ApplicationTools::displayWarning("Random tree set from set of aligned sequences 1");
+        seqNum=1;
+      }
+      else
+        seqNum=(size_t)TextTools::toInt(args["sequence"]);
+
+      if (seqNum>vSeq.size() || seqNum<=0)
+        throw Exception("Error : Wrong number of set of aligned sequences " + TextTools::toString(seqNum));
+        
+      vector<string> names = vSeq[seqNum-1]->getSequencesNames();
+      Tree* tree = TreeTemplateTools::getRandomTree(names);
+      tree->setBranchLengths(1.);
+
+      mTree[num]=tree;
+    }
+
+    ////////////
+    // Setting branch lengths?
+    string initBrLenMethod = ApplicationTools::getStringParameter("init.brlen.method", args, "Input", "", true, 1);
+    string cmdName;
+    map<string, string> cmdArgs;
+    
+    KeyvalTools::parseProcedure(initBrLenMethod, cmdName, cmdArgs);
+
+    if (cmdName == "Input")
+    {
+      // Is the root has to be moved to the midpoint position along the branch that contains it ? If no, do nothing!
+      string midPointRootBrLengths = ApplicationTools::getStringParameter("midPointRootBrLengths", cmdArgs, "no", "", true, 2);
+      if (midPointRootBrLengths == "yes")
+      {
+        if (flag)
+        {
+          for (size_t i=0; i<nbTree; i++)
+            TreeTools::constrainedMidPointRooting(*mTree[i+1]);
+        }
+        else
+          TreeTools::constrainedMidPointRooting(*mTree[num]);
+      }
+    }
+    else if (cmdName == "Equal")
+    {
+      double value = ApplicationTools::getDoubleParameter("value", cmdArgs, 0.1, "", true, 2);
+      if (value <= 0)
+        throw Exception("Value for branch length must be superior to 0");
+      ApplicationTools::displayResult("Branch lengths set to", value);
+      if (flag)
+      {
+        for (size_t i=0; i<nbTree; i++)
+          mTree[i+1]->setBranchLengths(value);
+      }
+      else
+        mTree[num]->setBranchLengths(value);
+    }
+    else if (cmdName == "Clock")
+    {
+      if (flag)
+      {
+        for (size_t i=0; i<nbTree; i++)
+          TreeTools::convertToClockTree(*mTree[i+1], mTree[i+1]->getRootId(), true);
+      }
+      else
+        TreeTools::convertToClockTree(*mTree[num], mTree[num]->getRootId(), true);
+    }
+    else if (cmdName == "Grafen")
+    {
+      string grafenHeight = ApplicationTools::getStringParameter("height", cmdArgs, "input", "", true, 2);
+      double h;
+      if (flag)
+      {
+        for (size_t i=0; i<nbTree; i++)
+        {
+          Tree* tree=mTree[i+1];
+          if (grafenHeight == "input")
+          {
+            h = TreeTools::getHeight(*tree, tree->getRootId());
+          }
+          else
+          {
+            h = TextTools::toDouble(grafenHeight);
+            if (h <= 0) throw Exception("Height must be positive in Grafen's method.");
+          }
+          ApplicationTools::displayResult("Total height", TextTools::toString(h));
+
+          double rho = ApplicationTools::getDoubleParameter("rho", cmdArgs, 1., "", true, 2);
+          ApplicationTools::displayResult("Grafen's rho", rho);
+          TreeTools::computeBranchLengthsGrafen(*tree, rho);
+          double nh = TreeTools::getHeight(*tree, tree->getRootId());
+          tree->scaleTree(h / nh);
+        }
+      }
+      else
+      {
+        Tree* tree=mTree[num];
+        if (grafenHeight == "input")
+        {
+          h = TreeTools::getHeight(*tree, tree->getRootId());
+        }
+        else
+        {
+          h = TextTools::toDouble(grafenHeight);
+          if (h <= 0) throw Exception("Height must be positive in Grafen's method.");
+        }
+        ApplicationTools::displayResult("Total height", TextTools::toString(h));
+
+        double rho = ApplicationTools::getDoubleParameter("rho", cmdArgs, 1., "", true, 2);
+        ApplicationTools::displayResult("Grafen's rho", rho);
+        TreeTools::computeBranchLengthsGrafen(*tree, rho);
+        double nh = TreeTools::getHeight(*tree, tree->getRootId());
+        tree->scaleTree(h / nh);
+      }
+    }
+    else
+      throw Exception("Method '" + initBrLenMethod + "' unknown for computing branch lengths.");
+    ApplicationTools::displayResult("Branch lengths", cmdName);
+  }
+  
+  return mTree;
+}
+
+/******************************************************************************/
+
 map<size_t, DiscreteDistribution*> PhylogeneticsApplicationTools::getRateDistributions(
       map<string, string>& params,
       const string& suffix,
@@ -193,7 +411,6 @@ map<size_t, DiscreteDistribution*> PhylogeneticsApplicationTools::getRateDistrib
 
   paramDist.insert(params.begin(), params.end());
 
-  
   vector<string> vratesName=ApplicationTools::matchingParameters("rate_distribution*", paramDist);
 
   BppORateDistributionFormat bIO(true);
@@ -257,7 +474,6 @@ std::map<size_t, FrequenciesSet*> PhylogeneticsApplicationTools::getRootFrequenc
     paramRF=AttributesTools::getAttributesMapFromFile(RootFilePath,"=");
 
   paramRF.insert(params.begin(), params.end());
-
   
   vector<string> vrfName=ApplicationTools::matchingParameters("root_freq*", paramRF);
 
@@ -887,7 +1103,7 @@ SubstitutionProcessCollection* PhylogeneticsApplicationTools::getSubstitutionPro
        const Alphabet* alphabet,
        const GeneticCode* gCode,
        const vector<SiteContainer*>& vData,
-       const vector<Tree*>& vTree,
+       const map<size_t, Tree*>& mTree,
        const map<size_t, SubstitutionModel*>& mMod,
        const map<size_t, FrequenciesSet*>& mRootFreq,
        const map<size_t, DiscreteDistribution*>& mDist,
@@ -905,16 +1121,13 @@ SubstitutionProcessCollection* PhylogeneticsApplicationTools::getSubstitutionPro
   /////////////////////////
   // Trees
   
-  vector<ParametrizableTree*> vpTree;
-  
-  for (size_t i=0; i<vTree.size(); i++)
-    vpTree.push_back(new ParametrizableTree(*(vTree[i])));
-
-  if (vpTree.size()==0)
+  if (mTree.size()==0)
     throw Exception("Missing tree in construction of SubstitutionProcessCollection.");
   
-  for (size_t i=1;i<=vpTree.size(); i++)
-    SPC->addTree(vpTree[i-1], i);
+  map<size_t, Tree*>::const_iterator itt;
+  
+  for (itt=mTree.begin(); itt!=mTree.end(); itt++)
+    SPC->addTree(new ParametrizableTree(*(itt->second)), itt->first);
 
   /////////////////////////
   // Rates
