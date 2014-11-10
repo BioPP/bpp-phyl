@@ -652,7 +652,7 @@ SubstitutionModel* BppOSubstitutionModelFormat::read(
         (pval.find("(") != string::npos))
       continue;
     bool found = false;
-    for (unsigned int j = 0; j < pl.size() && !found; j++)
+    for (size_t j = 0; j < pl.size() && !found; j++)
     {
       pname2 = model->getParameterNameWithoutNamespace(pl[j].getName());
 
