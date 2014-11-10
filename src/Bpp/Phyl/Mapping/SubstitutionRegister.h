@@ -897,7 +897,10 @@ public:
     int x = model_->getAlphabetStateAsInt(fromState);
     int y = model_->getAlphabetStateAsInt(toState);
     const CodonAlphabet* cAlpha = dynamic_cast<const CodonAlphabet*>(model_->getAlphabet());
-    if (code_->isStop(x) || code_->isStop(y))
+    if (code_->getSourceAlphabet()->isGap(x)
+     || code_->getSourceAlphabet()->isGap(y)
+     || code_->isStop(x)
+     || code_->isStop(y))
       return 0;
     if (x == y)
       return 0;                     // nothing happens

@@ -118,7 +118,7 @@ namespace bpp
      * @param lambda Insertion rate.
      * @param mu     Deletion rate.
      */
-    RE08(ReversibleSubstitutionModel* simpleModel, double lambda = 0, double mu = 0);
+    RE08(ReversibleSubstitutionModel* simpleModel, double lambda = 0.1, double mu = 0.1);
 
     RE08(const RE08& model):
       AbstractParameterAliasable(model),
