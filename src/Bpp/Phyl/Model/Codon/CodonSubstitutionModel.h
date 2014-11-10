@@ -80,6 +80,24 @@ namespace bpp
     virtual double getCodonsMulRate(size_t, size_t) const = 0;
   };
   
+  
+  /**
+   * @brief Abstract class for reversible codon models
+   * @author Julien Dutheil
+   */
+  class CodonReversibleSubstitutionModel:
+    public virtual CodonSubstitutionModel,
+    public virtual ReversibleSubstitutionModel 
+  {
+  public:
+    CodonReversibleSubstitutionModel() {}
+    virtual ~CodonReversibleSubstitutionModel() {}
+
+#ifndef NO_VIRTUAL_COV
+    virtual CodonReversibleSubstitutionModel* clone() const = 0;
+#endif
+  };
+
 } // end of namespace bpp.
 
 #endif

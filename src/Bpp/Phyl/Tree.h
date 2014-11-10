@@ -56,7 +56,7 @@
  * @section tree Tree data storage and manipulation
  *
  * @par
- * The Bio++ Phylogenetics Library (PhylLib) provides classes and methods for phylogenetics and molecular evolution.
+ * The Bio++ Phylogenetics Library (bpp-phyl) provides classes and methods for phylogenetics and molecular evolution.
  * The bpp::Tree interface provides general methods to store and manipulate phylogenetic trees.
  * Several utilitary methods can also be found in the bpp::TreeTools static class.
  * The only implementation for now of the bpp::Tree interface is the bpp::TreeTemplate class.

@@ -42,7 +42,7 @@
 
 #include "../SubstitutionModel.h"
 
-// From SeqLib:
+// From bpp-seq:
 #include <Bpp/Seq/Alphabet/NucleicAlphabet.h>
 
 namespace bpp
@@ -66,6 +66,27 @@ namespace bpp
 
   public:
     virtual size_t getNumberOfStates() const { return 4; }
+
+  };
+
+
+  
+/**
+ * @brief Specialisation interface for rversible nucleotide substitution model.
+ */
+  class NucleotideReversibleSubstitutionModel :
+    public virtual NucleotideSubstitutionModel,
+    public virtual ReversibleSubstitutionModel
+  {
+  public:
+    virtual ~NucleotideReversibleSubstitutionModel() {}
+
+#ifndef NO_VIRTUAL_COV
+    NucleotideReversibleSubstitutionModel*
+#else
+    Clonable*
+#endif
+    clone() const = 0;
 
   };
 

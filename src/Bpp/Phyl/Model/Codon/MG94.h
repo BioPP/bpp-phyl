@@ -74,11 +74,9 @@ namespace bpp
  * Reference:
  * - Muse S.V. and Gaut B.S. (1994), Molecular_ Biology And Evolution_ 11(5) 715--724.
  */
-
-
 class MG94 :
     public AbstractBiblioSubstitutionModel,
-    virtual public ReversibleSubstitutionModel
+    virtual public CodonReversibleSubstitutionModel
 {
 private:
   std::auto_ptr<CodonDistancePhaseFrequenciesSubstitutionModel> pmodel_;
@@ -103,6 +101,10 @@ public:
   std::string getName() const { return "MG94"; }
 
   const SubstitutionModel& getModel() const { return *pmodel_.get(); }
+
+  const GeneticCode* getGeneticCode() const { return pmodel_->getGeneticCode(); }
+  
+  double getCodonsMulRate(size_t i, size_t j) const { return pmodel_->getCodonsMulRate(i, j); }
 
 private:
   SubstitutionModel& getModel() { return *pmodel_.get(); }
