@@ -322,6 +322,8 @@ SubstitutionModel* BppOSubstitutionModelFormat::read(
     if (verbose_)
       ApplicationTools::displayResult("Gap model", modelName);
     BppOSubstitutionModelFormat nestedReader(ALL, allowCovarions_, false, false, verbose_, warningLevel_);
+    if (geneticCode_)
+      nestedReader.setGeneticCode(geneticCode_);
     auto_ptr<ReversibleSubstitutionModel> nestedModel(dynamic_cast<ReversibleSubstitutionModel*>(nestedReader.read(alphabet, nestedModelDescription, data, false)));
     map<string, string> unparsedParameterValuesNested(nestedReader.getUnparsedArguments());
 
@@ -351,6 +353,8 @@ SubstitutionModel* BppOSubstitutionModelFormat::read(
     if (verbose_)
       ApplicationTools::displayResult("Covarion model", modelName);
     BppOSubstitutionModelFormat nestedReader(ALL, false, allowMixed_, allowGaps_, false, warningLevel_);
+    if (geneticCode_)
+      nestedReader.setGeneticCode(geneticCode_);
     auto_ptr<ReversibleSubstitutionModel> nestedModel(dynamic_cast<ReversibleSubstitutionModel*>(nestedReader.read(alphabet, nestedModelDescription, data, false)));
     map<string, string> unparsedParameterValuesNested(nestedReader.getUnparsedArguments());
 
@@ -383,6 +387,8 @@ SubstitutionModel* BppOSubstitutionModelFormat::read(
     if (verbose_)
       ApplicationTools::displayResult("Covarion model", modelName);
     BppOSubstitutionModelFormat nestedReader(ALL, false, allowMixed_, allowGaps_, verbose_, warningLevel_);
+    if (geneticCode_)
+      nestedReader.setGeneticCode(geneticCode_);
     auto_ptr<ReversibleSubstitutionModel> nestedModel(dynamic_cast<ReversibleSubstitutionModel*>(nestedReader.read(alphabet, nestedModelDescription, data, false)));
     map<string, string> unparsedParameterValuesNestedModel(nestedReader.getUnparsedArguments());
     BppORateDistributionFormat rateReader(false);

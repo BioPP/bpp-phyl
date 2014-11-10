@@ -1,3 +1,6 @@
+10/11/14 Julien Dutheil
+* Fixed bug #92: RE08+codon works again.
+
 09/10/14 Julien Dutheil
 * Fixed bug #90: setRootNode now reset father node pointer.
 
