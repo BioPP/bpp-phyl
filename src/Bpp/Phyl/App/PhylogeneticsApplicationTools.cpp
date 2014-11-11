@@ -180,7 +180,7 @@ vector<Tree*> PhylogeneticsApplicationTools::getTrees(
 
 map<size_t, Tree*> PhylogeneticsApplicationTools::getTrees(
   map<string, string>& params,
-  const vector<SiteContainer*>& vSeq,
+  const map<size_t, SiteContainer*>& mSeq,
   const string& prefix,
   const string& suffix,
   bool suffixIsOptional,
@@ -257,7 +257,11 @@ map<size_t, Tree*> PhylogeneticsApplicationTools::getTrees(
         for (size_t i2=0; i2<trees.size(); i2++)
         {
           if (mTree.find(i2+1)!=mTree.end())
-            throw Exception("Error : Tree " + TextTools::toString(i2+1) + " already assigned.");
+          {
+            ApplicationTools::displayWarning("Tree " + TextTools::toString(i2+1) + " already assigned, replaced by new one.");
+            delete mTree[i2+1];
+          }
+          
           mTree[i2+1]=trees[i2];
         }
       }
@@ -267,7 +271,14 @@ map<size_t, Tree*> PhylogeneticsApplicationTools::getTrees(
           throw Exception("Error : Several trees for description of " + vTreesName[nT] + ".");
 
         if (trees.size()==1)
+        {
+          if (mTree.find(num)!=mTree.end())
+          {
+            ApplicationTools::displayWarning("Tree " + TextTools::toString(num) + " already assigned, replaced by new one.");
+            delete mTree[num];
+          }
           mTree[num]=trees[0];
+        }
       }
     }
     else if (treeName=="random")
@@ -281,13 +292,19 @@ map<size_t, Tree*> PhylogeneticsApplicationTools::getTrees(
       else
         seqNum=(size_t)TextTools::toInt(args["sequence"]);
 
-      if (seqNum>vSeq.size() || seqNum<=0)
+      
+      if (mSeq.find(seqNum)==mSeq.end())
         throw Exception("Error : Wrong number of set of aligned sequences " + TextTools::toString(seqNum));
         
-      vector<string> names = vSeq[seqNum-1]->getSequencesNames();
+      vector<string> names = mSeq.find(seqNum)->second->getSequencesNames();
       Tree* tree = TreeTemplateTools::getRandomTree(names);
       tree->setBranchLengths(1.);
 
+      if (mTree.find(num)!=mTree.end())
+      {
+        ApplicationTools::displayWarning("Tree " + TextTools::toString(num) + " already assigned, replaced by new one.");
+        delete mTree[num];
+      }
       mTree[num]=tree;
     }
 
@@ -457,7 +474,7 @@ map<size_t, DiscreteDistribution*> PhylogeneticsApplicationTools::getRateDistrib
 std::map<size_t, FrequenciesSet*> PhylogeneticsApplicationTools::getRootFrequenciesSets(
         const Alphabet* alphabet,
         const GeneticCode* gCode,
-        const vector<SiteContainer*>& vData,
+        const map<size_t, SiteContainer*>& mData,
         std::map<std::string, std::string>& params,
         const std::string& suffix,
         bool suffixIsOptional,
@@ -496,11 +513,25 @@ std::map<size_t, FrequenciesSet*> PhylogeneticsApplicationTools::getRootFrequenc
   {
     string freqDescription = ApplicationTools::getStringParameter("root_freq"+TextTools::toString(rfNum[i]), paramRF, "", suffix, suffixIsOptional, warn);
 
-    auto_ptr<FrequenciesSet> rFS(bIO.read(alphabet, freqDescription, vData[0], true));
+    map<string, string> args;
+    string freqName;
+    
+    KeyvalTools::parseProcedure(freqDescription, freqName, args);
+
+    const SiteContainer* pData=0;
+    
+    size_t nData=0;
+    
+    if (args.find("data")!=args.end())
+      nData=(size_t)TextTools::toInt(args["data"]);
+
+    auto_ptr<FrequenciesSet> rFS(bIO.read(alphabet, freqDescription, mData.find(nData)->second, true));
 
     if (verbose)
     {
       ApplicationTools::displayResult("Root Frequencies Set " + TextTools::toString(rfNum[i]), rFS->getName());
+      if (pData)
+        ApplicationTools::displayResult("Data used ", TextTools::toString("data"));
     }
     
     mFS[rfNum[i]]=rFS.release();
@@ -519,7 +550,7 @@ std::map<size_t, FrequenciesSet*> PhylogeneticsApplicationTools::getRootFrequenc
 map<size_t, SubstitutionModel*> PhylogeneticsApplicationTools::getSubstitutionModels(
      const Alphabet* alphabet,
      const GeneticCode* gCode,
-     const vector<SiteContainer*>& vData,
+     const map<size_t, SiteContainer*>& mData,
      map<string, string>& params,
      map<string, string>& unparsedParams,
      const string& suffix,
@@ -558,7 +589,18 @@ map<size_t, SubstitutionModel*> PhylogeneticsApplicationTools::getSubstitutionMo
     {
       string modelDescription = ApplicationTools::getStringParameter("model"+TextTools::toString(modelsNum[i]), paramModel, "", suffix, suffixIsOptional, warn);
 
-      auto_ptr<SubstitutionModel> model(bIO.read(alphabet, modelDescription, vData[0], false));
+      map<string, string> args;
+      string modelName;
+    
+      KeyvalTools::parseProcedure(modelDescription, modelName, args);
+
+      size_t nData=0;
+    
+      if (args.find("data")!=args.end())
+        nData=(size_t)TextTools::toInt(args["data"]);
+
+      auto_ptr<SubstitutionModel> model(bIO.read(alphabet, modelDescription, mData.find(nData)->second, false));
+      
       map<string, string> tmpUnparsedParameterValues(bIO.getUnparsedArguments());
       
       map<string, string>::iterator it;
@@ -768,7 +810,7 @@ FrequenciesSet* PhylogeneticsApplicationTools::getFrequenciesSet(
 SubstitutionProcess* PhylogeneticsApplicationTools::getSubstitutionProcess(
   const Alphabet* alphabet,
   const GeneticCode* gCode,
-  const vector<SiteContainer*>& vData,
+  const SiteContainer* pData,
   const vector<Tree*>& vTree, 
   map<string, string>& params,
   const string& suffix,
@@ -806,7 +848,7 @@ SubstitutionProcess* PhylogeneticsApplicationTools::getSubstitutionProcess(
   {
     // Homogeneous & stationary models
   
-    auto_ptr<SubstitutionModel> tmp(getSubstitutionModel(alphabet, gCode, vData[0], params, unparsedParams));
+    auto_ptr<SubstitutionModel> tmp(getSubstitutionModel(alphabet, gCode, pData, params, unparsedParams));
 
     if (tmp->getNumberOfStates() >= 2 * tmp->getAlphabet()->getSize() || (rDist->getName()=="Constant"))// first test is for Markov-modulated Markov model!
       SP = new SimpleSubstitutionProcess(tmp.release(), pTree.release(), true);
@@ -820,7 +862,7 @@ SubstitutionProcess* PhylogeneticsApplicationTools::getSubstitutionProcess(
     string fName=(nhOpt=="one_per_branch"?"model":"model1");
     
     tmpDesc = ApplicationTools::getStringParameter(fName, params, "", suffix, suffixIsOptional, warn);
-    auto_ptr<SubstitutionModel> tmp(bIO.read(alphabet, tmpDesc, vData[0], true));
+    auto_ptr<SubstitutionModel> tmp(bIO.read(alphabet, tmpDesc, pData, true));
     
 
     
@@ -853,7 +895,7 @@ SubstitutionProcess* PhylogeneticsApplicationTools::getSubstitutionProcess(
           throw Exception("The MVAprotein frequencies set at the root can only be used if a Coala model is used on branches.");
       }
       else
-        rootFrequencies.reset(getRootFrequenciesSet(alphabet, gCode, vData[0], params, rateFreqs, suffix, suffixIsOptional, warn));
+        rootFrequencies.reset(getRootFrequenciesSet(alphabet, gCode, pData, params, rateFreqs, suffix, suffixIsOptional, warn));
     
       stationarity = !rootFrequencies.get();
     }
@@ -906,7 +948,7 @@ SubstitutionProcess* PhylogeneticsApplicationTools::getSubstitutionProcess(
         string modelDesc;
         modelDesc = ApplicationTools::getStringParameter(prefix, params, "", suffix, suffixIsOptional, warn);
         
-        auto_ptr<SubstitutionModel> model(bIO.read(alphabet, modelDesc, vData[0], true));
+        auto_ptr<SubstitutionModel> model(bIO.read(alphabet, modelDesc, pData, true));
         map<string, string> tmpUnparsedParameterValues(bIO.getUnparsedArguments());
 
         map<string, string>::iterator it;
@@ -1102,7 +1144,6 @@ void PhylogeneticsApplicationTools::addSubstitutionProcessCollectionMember(
 SubstitutionProcessCollection* PhylogeneticsApplicationTools::getSubstitutionProcessCollection(
        const Alphabet* alphabet,
        const GeneticCode* gCode,
-       const vector<SiteContainer*>& vData,
        const map<size_t, Tree*>& mTree,
        const map<size_t, SubstitutionModel*>& mMod,
        const map<size_t, FrequenciesSet*>& mRootFreq,
@@ -1231,7 +1272,7 @@ SubstitutionProcessCollection* PhylogeneticsApplicationTools::getSubstitutionPro
 
 map<size_t, PhyloLikelihood*> PhylogeneticsApplicationTools::getPhyloLikelihoods(
   SubstitutionProcessCollection& SPC,
-  const vector<SiteContainer*>& vData,
+  const map<size_t, SiteContainer*>& mData,
   map<string, string>& params,
   map<string, string>& unparsedParams,
   const string& suffix,
@@ -1274,8 +1315,14 @@ map<size_t, PhyloLikelihood*> PhylogeneticsApplicationTools::getPhyloLikelihoods
     else
       nData=(size_t)TextTools::toInt(args["data"]);
 
-    if (nData<1 || nData>vData.size())
+    if (mData.find(nData)==mData.end())
       throw BadIntegerException("PhylogeneticsApplicationTools::getPhyloLikelihoods. Data number is wrong:",(int)nData);
+
+    
+    const VectorSiteContainer* data= dynamic_cast<const VectorSiteContainer*>(mData.find(nData)->second);
+
+    if (!data)
+      throw Exception("PhylogeneticsApplicationTools::getPhyloLikelihoods. Data " + TextTools::toString(nData) + " does not match with aligned sequences");
     
     // Process
 
@@ -1319,14 +1366,14 @@ map<size_t, PhyloLikelihood*> PhylogeneticsApplicationTools::getPhyloLikelihoods
         if (dynamic_cast<const MixedSubstitutionModel*>(&SPC.getSubstitutionProcess(vproc[0])->getSubstitutionModel(0,0)))
           throw Exception("Simple recursion process with mixed models is not implemented yet.");
         else 
-          tlcomp = new SingleRecursiveTreeLikelihoodCalculation(*vData[nData-1], SPC.getSubstitutionProcess(vproc[0]), true, compression=='R');
+          tlcomp = new SingleRecursiveTreeLikelihoodCalculation(*data, SPC.getSubstitutionProcess(vproc[0]), true, compression=='R');
       }
       else
       {
         if (dynamic_cast<const MixedSubstitutionModel*>(&SPC.getSubstitutionProcess(vproc[0])->getSubstitutionModel(0,0)))
           throw Exception("Double recursion process with mixed models is not implemented yet.");
         else 
-          tlcomp = new DoubleRecursiveTreeLikelihoodCalculation(*vData[nData-1], SPC.getSubstitutionProcess(vproc[0]), true);
+          tlcomp = new DoubleRecursiveTreeLikelihoodCalculation(*data, SPC.getSubstitutionProcess(vproc[0]), true);
       }
       
       nPL = new SingleProcessPhyloLikelihood(SPC.getSubstitutionProcess(vproc[0]), tlcomp, nData);
@@ -1334,7 +1381,7 @@ map<size_t, PhyloLikelihood*> PhylogeneticsApplicationTools::getPhyloLikelihoods
     }
     else if (phyloName=="Mixture")
     {
-      MixturePhyloLikelihood* pMP = new MixturePhyloLikelihood(*vData[nData-1], &SPC, recursion,  nData, true, compression=='R');
+      MixturePhyloLikelihood* pMP = new MixturePhyloLikelihood(*data, &SPC, recursion,  nData, true, compression=='R');
 
       size_t nbP = pMP->getCollection()->getNumberOfSubstitutionProcess();
       
@@ -1352,7 +1399,7 @@ map<size_t, PhyloLikelihood*> PhylogeneticsApplicationTools::getPhyloLikelihoods
     }
     else if (phyloName=="HMM")
     {
-      HmmPhyloLikelihood* pMP = new HmmPhyloLikelihood(*vData[nData-1], &SPC, recursion,  nData, true, compression=='R');
+      HmmPhyloLikelihood* pMP = new HmmPhyloLikelihood(*data, &SPC, recursion,  nData, true, compression=='R');
       
       size_t nbP = pMP->getCollection()->getNumberOfSubstitutionProcess();
       
@@ -1374,7 +1421,7 @@ map<size_t, PhyloLikelihood*> PhylogeneticsApplicationTools::getPhyloLikelihoods
     }
     else if (phyloName=="AutoCorr")
     {
-      AutoCorrelationPhyloLikelihood* pMP = new AutoCorrelationPhyloLikelihood(*vData[nData-1], &SPC, recursion, nData, true, compression=='R');
+      AutoCorrelationPhyloLikelihood* pMP = new AutoCorrelationPhyloLikelihood(*data, &SPC, recursion, nData, true, compression=='R');
             
       size_t nbP = pMP->getCollection()->getNumberOfSubstitutionProcess();
             
@@ -3164,6 +3211,7 @@ void PhylogeneticsApplicationTools::printParameters(const SubstitutionProcessCol
       out << ", root_freq=" << spcm->getRootFrequenciesNumber();
     out << ")";
     out.endLine();
+    out.endLine();
   }
   
 }
@@ -3174,6 +3222,7 @@ void PhylogeneticsApplicationTools::printParameters(const PhyloLikelihood* phylo
   out << "# Log likelihood = ";
   out.setPrecision(20) << (-phylolike->getValue());
   out.endLine();
+  out.endLine();
 
   if (dynamic_cast<const SingleDataPhyloLikelihood*>(phylolike)!=NULL)
     printParameters(dynamic_cast<const SingleDataPhyloLikelihood*>(phylolike), out, 1, warn);
@@ -3181,7 +3230,10 @@ void PhylogeneticsApplicationTools::printParameters(const PhyloLikelihood* phylo
   {
     const MultiDataPhyloLikelihood* mDP=dynamic_cast<const MultiDataPhyloLikelihood*>(phylolike);
     for (size_t nSD=0; nSD< mDP->getNumberOfSingleDataPhyloLikelihoods(); nSD++)
+    {
       printParameters(mDP->getSingleDataPhylolikelihood(nSD), out, nSD+1, warn);
+      out.endLine();
+    }
   }
 }
 
@@ -3193,8 +3245,6 @@ void PhylogeneticsApplicationTools::printParameters(const SingleDataPhyloLikelih
   {
     const MultiProcessPhyloLikelihood* pMP=dynamic_cast<const MultiProcessPhyloLikelihood*>(phylolike);
     
-    PhylogeneticsApplicationTools::printParameters(pMP->getCollection(), out, warn);
-    out.endLine();
     out << "phylo" << TextTools::toString(nPhylo) << "=";
     
     if (dynamic_cast<const MixturePhyloLikelihood*>(phylolike)!=NULL)

@@ -141,7 +141,7 @@ namespace bpp
 
     static map<size_t, Tree*> getTrees(
       map<string, string>& params,
-      const vector<SiteContainer*>& vSeq,
+      const std::map<size_t, SiteContainer*>& mSeq,
       const std::string& prefix = "input.",
       const std::string& suffix = "",
       bool suffixIsOptional = true,
@@ -185,14 +185,14 @@ namespace bpp
   
 
     /*
-     * @brief The same as before, btu with several models.
+     * @brief The same as before, but with several models.
      *
      */
     
     static std::map<size_t, SubstitutionModel*> getSubstitutionModels(
         const Alphabet* alphabet,
         const GeneticCode* gCode,
-        const vector<SiteContainer*>& vData, 
+        const std::map<size_t, SiteContainer*>& mData, 
         std::map<std::string, std::string>& params,
         std::map<std::string, std::string>& unparsedparams,
         const std::string& suffix = "",
@@ -226,7 +226,7 @@ namespace bpp
     static std::map<size_t, SubstitutionProcess*> getSubstitutionProcesses(
       const Alphabet* alphabet,
       const GeneticCode* gCode,
-      const vector<SiteContainer*>& vData, 
+      const std::map<size_t, SiteContainer*>& mData, 
       std::map<std::string, std::string>& params,
       std::map<std::string, std::string>& unparsedparams,
       const std::string& suffix = "",
@@ -305,7 +305,7 @@ namespace bpp
     static std::map<size_t, FrequenciesSet*> getRootFrequenciesSets(
                                                  const Alphabet* alphabet,
                                                  const GeneticCode* gCode,
-                                                 const vector<SiteContainer*>& vData, 
+                                                 const std::map<size_t, SiteContainer*>& mData, 
                                                  std::map<std::string, std::string>& params,
                                                  const std::string& suffix = "",
                                                  bool suffixIsOptional = true,
@@ -488,7 +488,7 @@ namespace bpp
     static SubstitutionProcess* getSubstitutionProcess(
         const Alphabet* alphabet,
         const GeneticCode* gCode,
-        const vector<SiteContainer*>& vData, 
+        const SiteContainer* pData, 
         const vector<Tree*>& vTree, 
         std::map<std::string, std::string>& params,
         const std::string& suffix = "",
@@ -499,7 +499,6 @@ namespace bpp
     static SubstitutionProcessCollection* getSubstitutionProcessCollection(
         const Alphabet* alphabet,
         const GeneticCode* gCode,
-        const vector<SiteContainer*>& vData,
         const map<size_t, Tree*>& mTree,
         const map<size_t, SubstitutionModel*>& mMod,
         const map<size_t, FrequenciesSet*>& mRootFreq,
@@ -519,8 +518,9 @@ namespace bpp
         int warn = 1);
 
 
-    static std::map<size_t, newlik::PhyloLikelihood*> getPhyloLikelihoods(SubstitutionProcessCollection& SPC,
-      const vector<SiteContainer*>& vData,
+    static std::map<size_t, newlik::PhyloLikelihood*> getPhyloLikelihoods(
+      SubstitutionProcessCollection& SPC,
+      const map<size_t, SiteContainer*>& mData,
       map<string, string>& params,
       map<string, string>& unparsedParams,
       const string& suffix = "",
