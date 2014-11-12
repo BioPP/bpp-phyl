@@ -1393,9 +1393,10 @@ map<size_t, PhyloLikelihood*> PhylogeneticsApplicationTools::getPhyloLikelihoods
         Simplex si(vprob);
         pMP->setSubProcessProb(si);
       }
-      
+
+      pMP->setNamespace("phylo"+TextTools::toString(phylosNum[mPi])+".");
+
       nPL=pMP;
-      
     }
     else if (phyloName=="HMM")
     {
@@ -1416,8 +1417,9 @@ map<size_t, PhyloLikelihood*> PhylogeneticsApplicationTools::getPhyloLikelihoods
       
       pMP->matchParametersValues(fhtm.getParameters());
       
+      pMP->setNamespace("phylo"+TextTools::toString(phylosNum[mPi])+".");
+
       nPL=pMP;
-        
     }
     else if (phyloName=="AutoCorr")
     {
@@ -1434,13 +1436,16 @@ map<size_t, PhyloLikelihood*> PhylogeneticsApplicationTools::getPhyloLikelihoods
       for (size_t i=0;i<v.size();i++)
         pl.addParameter(Parameter("lambda"+TextTools::toString(i+1),v[i]));
             
-            
       pMP->matchParametersValues(pl);
+
+      pMP->setNamespace("phylo"+TextTools::toString(phylosNum[mPi])+".");
+      
       nPL=pMP;
     }
     else
       throw Exception("Unknown Phylogeny description : "+ phyloName);
 
+    
     mPhylo[phylosNum[mPi]]=nPL;
   }
 

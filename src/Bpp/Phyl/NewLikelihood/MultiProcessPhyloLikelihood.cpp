@@ -166,7 +166,6 @@ void MultiProcessPhyloLikelihood::fireParameterChanged(const ParameterList& para
 ParameterList MultiProcessPhyloLikelihood::getSubstitutionProcessParameters() const
 {
   return processColl_->getSubstitutionProcessParameters();
-
 }
 
 ParameterList MultiProcessPhyloLikelihood::getSubstitutionModelParameters() const

@@ -80,6 +80,16 @@ void MixturePhyloLikelihood::setSubProcessProb(const Simplex& si)
   matchParametersValues(simplex_.getParameters());
 }
 
+void MixturePhyloLikelihood::setNamespace(const std::string& nameSpace)
+{
+  deleteParameters_(simplex_.getParameters().getParameterNames());
+
+  simplex_.setNamespace(nameSpace);
+
+  addParameters_(simplex_.getParameters());
+}
+
+
 void MixturePhyloLikelihood::fireParameterChanged(const ParameterList& parameters)
 {
   MultiProcessPhyloLikelihood::fireParameterChanged(parameters);

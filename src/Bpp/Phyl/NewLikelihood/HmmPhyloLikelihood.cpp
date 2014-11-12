@@ -96,6 +96,17 @@ HmmPhyloLikelihood::HmmPhyloLikelihood(
   minusLogLik_ = -getLogLikelihood();
 }
 
+void HmmPhyloLikelihood::setNamespace(const std::string& nameSpace)
+{
+  deleteParameters_(Hmm_->getHmmTransitionMatrix().getParameters().getParameterNames());
+  deleteParameters_(Hmm_->getHmmStateAlphabet().getParameters().getParameterNames());
+
+  Hmm_->setNamespace(nameSpace);
+
+  addParameters_(Hmm_->getHmmTransitionMatrix().getParameters());
+  addParameters_(Hmm_->getHmmStateAlphabet().getParameters());
+}
+
 void HmmPhyloLikelihood::fireParameterChanged(const ParameterList& parameters)
 {
   MultiProcessPhyloLikelihood::fireParameterChanged(parameters);

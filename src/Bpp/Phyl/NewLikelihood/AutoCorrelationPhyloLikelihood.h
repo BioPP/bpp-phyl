@@ -105,6 +105,8 @@ public:
   AutoCorrelationPhyloLikelihood* clone() const { return new AutoCorrelationPhyloLikelihood(*this); }
 
 public:
+  void setNamespace(const std::string& nameSpace);
+
   void fireParameterChanged(const ParameterList& parameters);
 
   ParameterList getDerivableParameters() const { return getBranchLengthParameters(); }

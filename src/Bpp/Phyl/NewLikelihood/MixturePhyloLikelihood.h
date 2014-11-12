@@ -100,6 +100,8 @@ public:
   MixturePhyloLikelihood* clone() const { return new MixturePhyloLikelihood(*this); }
 
 public:
+  void setNamespace(const std::string& nameSpace);
+
   void fireParameterChanged(const ParameterList& parameters);
 
   ParameterList getDerivableParameters() const { return getBranchLengthParameters();
