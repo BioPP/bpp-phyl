@@ -329,7 +329,34 @@ SubstitutionModel* BppOSubstitutionModelFormat::read(
     map<string, string> unparsedParameterValuesNested(nestedReader.getUnparsedArguments());
 
     // Now we create the RE08 substitution model:
-    model.reset(new RE08(nestedModel.release()));
+    if (AlphabetTools::isNucleicAlphabet(alphabet))
+    {
+      if (!(alphabetCode_ & NUCLEOTIDE))
+        throw Exception("BppOSubstitutionModelFormat::read. Nucleic alphabet not supported.");
+      model.reset(new RE08Nucleotide(dynamic_cast<NucleotideReversibleSubstitutionModel*>(nestedModel.release())));
+      if (!model.get())
+        throw Exception("BppOSubstitutionModelFormat::read(). Invalid submodel, must be 'reversible' and 'nucleotide'.");
+    }
+    else if (AlphabetTools::isProteicAlphabet(alphabet))
+    {
+      if (!(alphabetCode_ & PROTEIN))
+        throw Exception("BppOSubstitutionModelFormat::read. Protein alphabet not supported.");
+      model.reset(new RE08Protein(dynamic_cast<ProteinReversibleSubstitutionModel*>(nestedModel.release())));
+      if (!model.get())
+        throw Exception("BppOSubstitutionModelFormat::read(). Invalid submodel, must be 'reversible' and 'protein'.");
+    }
+    else if (AlphabetTools::isCodonAlphabet(alphabet))
+    {
+      if (!(alphabetCode_ & CODON))
+        throw Exception("BppOSubstitutionModelFormat::read. Codon alphabet not supported.");
+      model.reset(new RE08Codon(dynamic_cast<CodonReversibleSubstitutionModel*>(nestedModel.release())));
+      if (!model.get())
+        throw Exception("BppOSubstitutionModelFormat::read(). Invalid submodel, must be 'reversible' and 'codon'.");
+    }
+    else
+    {
+      model.reset(new RE08(nestedModel.release()));
+    }
 
     // Then we update the parameter set:
     for (map<string, string>::iterator it = unparsedParameterValuesNested.begin(); it != unparsedParameterValuesNested.end(); it++)

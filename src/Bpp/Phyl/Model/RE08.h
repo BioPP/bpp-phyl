@@ -42,6 +42,9 @@
 
 #include "SubstitutionModel.h"
 #include "AbstractSubstitutionModel.h"
+#include "Nucleotide/NucleotideSubstitutionModel.h"
+#include "Protein/ProteinSubstitutionModel.h"
+#include "Codon/CodonSubstitutionModel.h"
 
 namespace bpp
 {
@@ -191,12 +194,131 @@ namespace bpp
   
     void setNamespace(const std::string& prefix);
 
-    const SubstitutionModel* getNestedModel() const { return simpleModel_.get(); }
+    const ReversibleSubstitutionModel* getNestedModel() const { return simpleModel_.get(); }
 
   protected:
 
     void updateMatrices();
   };
+
+ 
+  
+  /**
+   * @brief This is a wrapper class of RE08 for nucleotide substitution models.
+   */
+  class RE08Nucleotide:
+    public RE08,
+    public virtual NucleotideSubstitutionModel
+  {
+  public:
+    /**
+     * @brief Build a new Rivas & Eddy model from a nuclotide substitution model.
+     * 
+     * The alphabet and number of states for the extended model will be derived from the simple one.
+     *
+     * @param nuclotideModel The simple model to use to build the extended one.
+     * THE RE08 class will own the simple one, meaning that it will be destroyed together with the RE08 instance, and cloned when cloning the RE08 instance.
+     * To prevent the original simple model to be destroyed, you should make a copy of it before creating the RE08 instance.
+     * @param lambda Insertion rate.
+     * @param mu     Deletion rate.
+     */
+    RE08Nucleotide(NucleotideReversibleSubstitutionModel* nucleotideModel, double lambda = 0.1, double mu = 0.1):
+      AbstractParameterAliasable("RE08."),
+      RE08(nucleotideModel, lambda, mu) {};
+
+    virtual ~RE08Nucleotide() {}
+
+    RE08Nucleotide* clone() const { return new RE08Nucleotide(*this); }
+
+  public:
+    const NucleotideReversibleSubstitutionModel* getNestedModel() const {
+      return dynamic_cast<const NucleotideReversibleSubstitutionModel*>(RE08::getNestedModel());
+    }
+    
+    size_t getNumberOfStates() const { return RE08::getNumberOfStates(); }
+
+  };
+ 
+  /**
+   * @brief This is a wrapper class of RE08 for protein substitution models.
+   */
+  class RE08Protein:
+    public RE08,
+    public virtual ProteinSubstitutionModel
+  {
+  public:
+    /**
+     * @brief Build a new Rivas & Eddy model from a protein substitution model.
+     * 
+     * The alphabet and number of states for the extended model will be derived from the simple one.
+     *
+     * @param proteinModel The simple model to use to build the extended one.
+     * THE RE08 class will own the simple one, meaning that it will be destroyed together with the RE08 instance, and cloned when cloning the RE08 instance.
+     * To prevent the original simple model to be destroyed, you should make a copy of it before creating the RE08 instance.
+     * @param lambda Insertion rate.
+     * @param mu     Deletion rate.
+     */
+    RE08Protein(ProteinReversibleSubstitutionModel* proteinModel, double lambda = 0.1, double mu = 0.1):
+      AbstractParameterAliasable("RE08."),
+      RE08(proteinModel, lambda, mu) {};
+
+    virtual ~RE08Protein() {}
+
+    RE08Protein* clone() const { return new RE08Protein(*this); }
+
+  public:
+    const ProteinReversibleSubstitutionModel* getNestedModel() const {
+      return dynamic_cast<const ProteinReversibleSubstitutionModel*>(RE08::getNestedModel());
+    }
+
+    size_t getNumberOfStates() const { return RE08::getNumberOfStates(); }
+  };
+
+
+
+  /**
+   * @brief This is a wrapper class of RE08 for codon substitution models.
+   */
+  class RE08Codon:
+    public RE08,
+    public virtual CodonSubstitutionModel
+  {
+  public:
+    /**
+     * @brief Build a new Rivas & Eddy model from a codon substitution model.
+     * 
+     * The alphabet and number of states for the extended model will be derived from the simple one.
+     *
+     * @param codonModel The simple model to use to build the extended one.
+     * THE RE08 class will own the simple one, meaning that it will be destroyed together with the RE08 instance, and cloned when cloning the RE08 instance.
+     * To prevent the original simple model to be destroyed, you should make a copy of it before creating the RE08 instance.
+     * @param lambda Insertion rate.
+     * @param mu     Deletion rate.
+     */
+    RE08Codon(CodonReversibleSubstitutionModel* codonModel, double lambda = 0.1, double mu = 0.1):
+      AbstractParameterAliasable("RE08."),
+      RE08(codonModel, lambda, mu) {};
+
+    virtual ~RE08Codon() {}
+
+    RE08Codon* clone() const { return new RE08Codon(*this); }
+
+  public:
+    const CodonReversibleSubstitutionModel* getNestedModel() const {
+      return dynamic_cast<const CodonReversibleSubstitutionModel*>(RE08::getNestedModel());
+    }
+
+    const GeneticCode* getGeneticCode () const {
+      return getNestedModel()->getGeneticCode();
+    }
+
+    double	getCodonsMulRate (size_t i, size_t j) const { 
+      return getNestedModel()->getCodonsMulRate(i, j);
+    }
+
+    size_t getNumberOfStates() const { return RE08::getNumberOfStates(); }
+  };
+
 
 } //end of namespace bpp.
 

@@ -42,7 +42,7 @@ knowledge of the CeCILL license and that you accept its terms.
 
 #include "../SubstitutionModel.h"
 
-// From SeqLib:
+// From bpp-seq:
 #include <Bpp/Seq/Alphabet/ProteicAlphabet.h>
 
 namespace bpp
@@ -68,6 +68,28 @@ class ProteinSubstitutionModel:
     size_t getNumberOfStates() const { return 20; };
 
 };
+
+
+
+/**
+ * @brief Specialized interface for protein reversible substitution model.
+ */
+class ProteinReversibleSubstitutionModel:
+  public virtual ProteinSubstitutionModel,
+  public virtual ReversibleSubstitutionModel
+{
+	public:
+		virtual ~ProteinReversibleSubstitutionModel() {}
+
+#ifndef NO_VIRTUAL_COV
+    ProteinReversibleSubstitutionModel*
+#else
+    Clonable*
+#endif
+    clone() const = 0;
+		
+};
+
 
 } //end of namespace bpp.
 

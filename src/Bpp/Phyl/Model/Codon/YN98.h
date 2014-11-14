@@ -87,8 +87,7 @@ namespace bpp
  */
 class YN98 :
     public AbstractBiblioSubstitutionModel,
-    public virtual CodonSubstitutionModel,
-    public virtual ReversibleSubstitutionModel
+    public virtual CodonReversibleSubstitutionModel
 {
 private:
   std::auto_ptr<CodonDistanceFrequenciesSubstitutionModel> pmodel_;
