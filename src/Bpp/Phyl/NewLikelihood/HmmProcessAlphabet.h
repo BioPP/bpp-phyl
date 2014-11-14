@@ -62,21 +62,32 @@ namespace bpp {
   {
   private:
     const SubstitutionProcessCollection* processColl_;
+
+    /*
+     * @brief the vector of the substitution process numbers.
+     *
+     */
+    
+    std::vector<size_t> nProc_;
     
   public:
-    HmmProcessAlphabet(const SubstitutionProcessCollection* pSub) :
+    HmmProcessAlphabet(const SubstitutionProcessCollection* pSub, std::vector<size_t> nProc) :
       AbstractParametrizable(""),
-      processColl_(pSub)
+      processColl_(pSub),
+      nProc_(nProc)
     {
     }
 
     HmmProcessAlphabet(const HmmProcessAlphabet& hpa) :
       AbstractParametrizable(hpa),
-      processColl_(hpa.processColl_) {};
+      processColl_(hpa.processColl_),
+      nProc_(hpa.nProc_)
+    {};
 
     HmmProcessAlphabet& operator=(const HmmProcessAlphabet& hpa){
       AbstractParametrizable::operator=(*this);
       processColl_=hpa.processColl_;
+      nProc_=hpa.nProc_;
         
       return *this;
     }
@@ -95,12 +106,12 @@ namespace bpp {
 
     const Clonable& getState(size_t stateIndex) const throw (HmmBadStateException)
     {
-      return *processColl_->getSubstitutionProcess(stateIndex);
+      return *processColl_->getSubstitutionProcess(nProc_[stateIndex]);
     }
       
     size_t getNumberOfStates() const
     {
-      return processColl_->getNumberOfSubstitutionProcess();
+      return nProc_.size();
     }
 
     /**

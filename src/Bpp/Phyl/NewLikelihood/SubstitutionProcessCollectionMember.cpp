@@ -162,6 +162,20 @@ ParameterList SubstitutionProcessCollectionMember::getRootFrequenciesParameters(
   return pl;
 }
 
+ParameterList SubstitutionProcessCollectionMember::getDerivableParameters() const
+{
+  return pSubProColl_->getBranchLengthParameters(nTree_);
+}
+
+ParameterList SubstitutionProcessCollectionMember::getNonDerivableParameters() const
+{
+  ParameterList pl=getSubstitutionModelParameters();
+  pl.includeParameters(getRootFrequenciesParameters());
+  pl.includeParameters(getRateDistributionParameters());
+
+  return pl;
+}
+
 
 ParameterList SubstitutionProcessCollectionMember::getSubstitutionModelParameters() const
 {

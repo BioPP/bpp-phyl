@@ -113,6 +113,10 @@ public:
 
   virtual ParameterList getBranchLengthParameters() const = 0;
 
+  virtual ParameterList getDerivableParameters() const = 0;
+
+  virtual ParameterList getNonDerivableParameters() const = 0;
+
   /**
    * @brief Get the transition probabilities corresponding to a certain branch, site pattern, and model class.
    *

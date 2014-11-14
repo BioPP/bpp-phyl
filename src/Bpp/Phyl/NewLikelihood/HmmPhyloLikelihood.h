@@ -79,6 +79,7 @@ private:
 public:
   HmmPhyloLikelihood(
     SubstitutionProcessCollection* processColl,
+    std::vector<size_t>& nProc,
     char recursivity,
     bool verbose = true,
     bool patterns = true);
@@ -86,6 +87,7 @@ public:
   HmmPhyloLikelihood(
     const SiteContainer& data,
     SubstitutionProcessCollection* processColl,
+    std::vector<size_t>& nProc,
     char recursivity,
     size_t nData = 1,
     bool verbose = true,

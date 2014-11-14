@@ -99,6 +99,14 @@ protected:
 
 
 public:
+
+  ParameterList getDerivableParameters() const
+  {
+    return getBranchLengthParameters();
+  }
+  
+  ParameterList getNonDerivableParameters() const;
+
   void fireParameterChanged(const ParameterList& pl);
 
   /**

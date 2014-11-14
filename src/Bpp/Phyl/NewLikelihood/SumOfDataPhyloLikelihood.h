@@ -62,8 +62,7 @@ namespace bpp
       public AbstractParametrizable    
     {
     protected:
-      std::vector<AbstractSingleDataPhyloLikelihood*>  vSDP_;
-      size_t numberOfSDP_;
+      std::map<size_t, AbstractSingleDataPhyloLikelihood*>  mSDP_;
       bool computeFirstOrderDerivatives_;
       bool computeSecondOrderDerivatives_;
       mutable double minusLogLik_;
@@ -73,13 +72,13 @@ namespace bpp
 
 
       /*
-       * @brief Build from a vector of SingleDataPhyloLikelihood.
+       * @brief Build from a map of AbstractSingleDataPhyloLikelihood.
        *
-       * BEWARE : Will own the SingleDataPhyloLikelihood objects.
+       * BEWARE : Will own the AbstractSingleDataPhyloLikelihood objects.
        *
        */
       
-      SumOfDataPhyloLikelihood(std::vector<SingleDataPhyloLikelihood*> vSDP);
+      SumOfDataPhyloLikelihood(std::map<size_t, SingleDataPhyloLikelihood*>& mSDP);
 
       ~SumOfDataPhyloLikelihood();
 
@@ -104,12 +103,14 @@ namespace bpp
       /**
        * @brief Set the dataset for which the likelihood must be evaluated.
        *
+       * @param nPhyl The number of the Likelihood.
        * @param sites The data set to use.
        */
 
-      void setData(size_t i, const SiteContainer* sites)
+      void setData(size_t nPhyl, const SiteContainer* sites)
       {
-        vSDP_[i]->setData(*sites);
+        if (mSDP_.find(nPhyl)!=mSDP_.end())
+          mSDP_[nPhyl]->setData(*sites);
       }
       
     
@@ -119,16 +120,15 @@ namespace bpp
        * @return A pointer toward the site container where the sequences are stored.
        */
 
-      const SiteContainer* getData(size_t i) const
+      const SiteContainer* getData(size_t nPhyl) const
       {
-        return vSDP_[i]->getData();
+        if (mSDP_.find(nPhyl)!=mSDP_.end())
+          return mSDP_.find(nPhyl)->second->getData();
+        else
+          return 0;
       }
       
-
-      size_t getNumberOfSingleDataPhyloLikelihoods() const
-      {
-        return numberOfSDP_;
-      }
+      std::vector<size_t> getNumbersOfSingleDataPhyloLikelihoods() const;
       
       /**
        * @}
@@ -142,23 +142,31 @@ namespace bpp
        */
 
       /*
-       * Adds a SingleDataPhyloLikelihood if it is an
+       * @brief Adds a SingleDataPhyloLikelihood if it is an
        * AbstractSingleDataPhyloLikelihood object.
        *
        * Gets ownership of the SingleDataPhyloLikelihood object.
        *
+       * @param nPhyl the number of the phylolikelihood object.
+       * @param SDP a pointer to the phylolikelihood object.
        */
       
-      void addSingleDataPhylolikelihood(SingleDataPhyloLikelihood* SDP);
+      void addSingleDataPhylolikelihood(size_t nPhyl, SingleDataPhyloLikelihood* SDP);
 
-      const SingleDataPhyloLikelihood* getSingleDataPhylolikelihood(size_t i) const
+      const SingleDataPhyloLikelihood* getSingleDataPhylolikelihood(size_t nPhyl) const
       {
-        return vSDP_[i];
+        if (mSDP_.find(nPhyl)!=mSDP_.end())
+          return mSDP_.find(nPhyl)->second;
+        else
+          return 0;
       }
       
-      SingleDataPhyloLikelihood* getSingleDataPhylolikelihood(size_t i)
+      SingleDataPhyloLikelihood* getSingleDataPhylolikelihood(size_t nPhyl)
       {
-        return vSDP_[i];
+        if (mSDP_.find(nPhyl)!=mSDP_.end())
+          return mSDP_.find(nPhyl)->second;
+        else
+          return 0;
       }
 
       /**
@@ -180,8 +188,10 @@ namespace bpp
       
       bool isInitialized() const 
       {
-        for (size_t i = 0; i < numberOfSDP_; i++)
-          if (! vSDP_[i]->isInitialized())
+        std::map<size_t, AbstractSingleDataPhyloLikelihood*>::const_iterator it;
+        
+        for (it=mSDP_.begin(); it != mSDP_.end(); it++)
+          if (! it->second->isInitialized())
             return false;
         return true;
       }
@@ -200,8 +210,8 @@ namespace bpp
       double getLogLikelihood() const
       {
         double x=0;
-        for (size_t i = 0; i < numberOfSDP_; i++)
-          x += vSDP_[i]->getLogLikelihood();
+        for (std::map<size_t, AbstractSingleDataPhyloLikelihood*>::const_iterator it=mSDP_.begin(); it != mSDP_.end(); it++)
+          x += it->second->getLogLikelihood();
         
         minusLogLik_=-x;
         
@@ -213,8 +223,8 @@ namespace bpp
         if (!isInitialized())
           throw Exception("SingleProcessPhyloLikelihood::getValue(). Instance is not initialized.");
         minusLogLik_=0;
-        for (size_t i = 0; i < numberOfSDP_; i++)
-          minusLogLik_ += vSDP_[i]->getValue();
+        for (std::map<size_t, AbstractSingleDataPhyloLikelihood*>::const_iterator it=mSDP_.begin(); it != mSDP_.end(); it++)
+          minusLogLik_ += it->second->getValue();
         
         return minusLogLik_;
       }
@@ -227,8 +237,8 @@ namespace bpp
       double getDLogLikelihood() const
       {
         double x=0;
-        for (size_t i = 0; i < numberOfSDP_; i++)
-          x+= vSDP_[i]->getDLogLikelihood();
+        for (std::map<size_t, AbstractSingleDataPhyloLikelihood*>::const_iterator it=mSDP_.begin(); it != mSDP_.end(); it++)
+          x += it->second->getDLogLikelihood();
         return x;
       }
 
@@ -236,8 +246,8 @@ namespace bpp
       double getD2LogLikelihood() const
       {
         double x=0;
-        for (size_t i = 0; i < numberOfSDP_; i++)
-          x+= vSDP_[i]->getD2LogLikelihood();
+        for (std::map<size_t, AbstractSingleDataPhyloLikelihood*>::const_iterator it=mSDP_.begin(); it != mSDP_.end(); it++)
+          x += it->second->getD2LogLikelihood();
         return x;
       }
 
@@ -284,8 +294,8 @@ namespace bpp
       
       void fireParameterChanged(const ParameterList& params)
       {
-        for (size_t i = 0; i < numberOfSDP_; i++)
-          vSDP_[i]->matchParametersValues(params);
+        for (std::map<size_t, AbstractSingleDataPhyloLikelihood*>::iterator it=mSDP_.begin(); it != mSDP_.end(); it++)
+          it->second->matchParametersValues(params);
         
         getValue();
       }

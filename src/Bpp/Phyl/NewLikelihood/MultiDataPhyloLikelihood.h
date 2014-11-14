@@ -107,9 +107,9 @@ namespace bpp
        * @{
        */
 
-      virtual void addSingleDataPhylolikelihood(SingleDataPhyloLikelihood*) = 0;
+      virtual void addSingleDataPhylolikelihood(size_t, SingleDataPhyloLikelihood*) = 0;
 
-      virtual size_t getNumberOfSingleDataPhyloLikelihoods() const =0;
+      virtual std::vector<size_t> getNumbersOfSingleDataPhyloLikelihoods() const =0;
 
       virtual const SingleDataPhyloLikelihood* getSingleDataPhylolikelihood(size_t) const = 0;
 

@@ -143,18 +143,6 @@ void SubstitutionProcessCollection::addParametrizable(Parametrizable* parametriz
     addParameters_(pl);
 }
 
-std::vector<const TreeTemplate<Node>* > SubstitutionProcessCollection::getTrees() const
-{ 
-  std::vector<size_t> vTn=getTreeNumbers();
-  std::vector<const TreeTemplate<Node>* > vT;
-
-  for (size_t i=0; i<vTn.size(); i++)
-    vT.push_back(&(getTree(vTn[i])->getTree()));
-  
-  return vT;
-}
-
-
 ParameterList SubstitutionProcessCollection::getNonDerivableParameters() const
 {
   ParameterList pl=distColl_.getIndependentParameters();
@@ -305,5 +293,6 @@ ParameterList SubstitutionProcessCollection::getSubstitutionProcessParameters() 
 
   return pl;
 }
+
 
 

@@ -357,8 +357,6 @@ public:
     return treeColl_.keys();
   }
 
-  std::vector<const TreeTemplate<Node>* > getTrees() const;
-    
   std::vector<size_t> getSubstitutionProcessNumbers() const
   {
     std::vector<size_t> vn;
@@ -482,7 +480,14 @@ public:
    * @return A ParameterList.
    */
   
-//  ParameterList getSubstitutionProcessParameters(size_t nProc) const;
+  ParameterList getSubstitutionProcessParameters(size_t nProc) const
+  {
+    if (mSubProcess_.find(nProc)!=mSubProcess_.end())
+      return mSubProcess_.find(nProc)->second->getParameters();
+    else
+      return ParameterList();
+    
+  }
 
   ParameterList getSubstitutionProcessParameters() const;
 

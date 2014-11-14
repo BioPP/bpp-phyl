@@ -110,12 +110,12 @@ namespace bpp
      * @throw Exception if an error occured.
      */
     static Tree* getTree(
-        std::map<std::string, std::string>& params,
-        const std::string& prefix = "input.",
-        const std::string& suffix = "",
-        bool suffixIsOptional = true,
-        bool verbose = true,
-        int warn = 1) throw (Exception);
+      std::map<std::string, std::string>& params,
+      const std::string& prefix = "input.",
+      const std::string& suffix = "",
+      bool suffixIsOptional = true,
+      bool verbose = true,
+      int warn = 1) throw (Exception);
  
     /**
      * @brief Build a list ofTree objects according to options.
@@ -132,12 +132,12 @@ namespace bpp
      * @throw Exception if an error occured.
      */
     static std::vector<Tree*> getTrees(
-        std::map<std::string, std::string>& params,
-        const std::string& prefix = "input.",
-        const std::string& suffix = "",
-        bool suffixIsOptional = true,
-        bool verbose = true,
-        int warn = 1) throw (Exception);
+      std::map<std::string, std::string>& params,
+      const std::string& prefix = "input.",
+      const std::string& suffix = "",
+      bool suffixIsOptional = true,
+      bool verbose = true,
+      int warn = 1) throw (Exception);
 
     static map<size_t, Tree*> getTrees(
       map<string, string>& params,
@@ -172,15 +172,15 @@ namespace bpp
      */
     
     static SubstitutionModel* getSubstitutionModel(
-        const Alphabet* alphabet,
-        const GeneticCode* gCode,
-        const SiteContainer* data, 
-        std::map<std::string, std::string>& params,
-        std::map<std::string, std::string>& unparsedparams,
-        const std::string& suffix = "",
-        bool suffixIsOptional = true,
-        bool verbose = true,
-        int warn = 1) throw (Exception);
+      const Alphabet* alphabet,
+      const GeneticCode* gCode,
+      const SiteContainer* data, 
+      std::map<std::string, std::string>& params,
+      std::map<std::string, std::string>& unparsedparams,
+      const std::string& suffix = "",
+      bool suffixIsOptional = true,
+      bool verbose = true,
+      int warn = 1) throw (Exception);
   
   
 
@@ -190,15 +190,15 @@ namespace bpp
      */
     
     static std::map<size_t, SubstitutionModel*> getSubstitutionModels(
-        const Alphabet* alphabet,
-        const GeneticCode* gCode,
-        const std::map<size_t, SiteContainer*>& mData, 
-        std::map<std::string, std::string>& params,
-        std::map<std::string, std::string>& unparsedparams,
-        const std::string& suffix = "",
-        bool suffixIsOptional = true,
-        bool verbose = true,
-        int warn = 1) throw (Exception);
+      const Alphabet* alphabet,
+      const GeneticCode* gCode,
+      const std::map<size_t, SiteContainer*>& mData, 
+      std::map<std::string, std::string>& params,
+      std::map<std::string, std::string>& unparsedparams,
+      const std::string& suffix = "",
+      bool suffixIsOptional = true,
+      bool verbose = true,
+      int warn = 1) throw (Exception);
 
 
     /**
@@ -258,13 +258,13 @@ namespace bpp
      */
 
     static void setSubstitutionModelParametersInitialValuesWithAliases(
-                                                                       SubstitutionModel& model,
-                                                                       std::map<std::string, std::string>& unparsedParameterValues,
-                                                                       size_t modelNumber,
-                                                                       const SiteContainer* data,
-                                                                       std::map<std::string, double>& existingParams,
-                                                                       std::map<std::string, std::string>& sharedParams,
-                                                                       bool verbose) throw (Exception);
+      SubstitutionModel& model,
+      std::map<std::string, std::string>& unparsedParameterValues,
+      size_t modelNumber,
+      const SiteContainer* data,
+      std::map<std::string, double>& existingParams,
+      std::map<std::string, std::string>& sharedParams,
+      bool verbose) throw (Exception);
 
     /**
      * @brief Get A FrequenciesSet object for root frequencies (NH models) according to options.
@@ -286,15 +286,15 @@ namespace bpp
      * @throw Exception if an error occured.
      */
     static FrequenciesSet* getRootFrequenciesSet(
-        const Alphabet* alphabet,
-        const GeneticCode* gCode,
-        const SiteContainer* data, 
-        std::map<std::string, std::string>& params,
-        const std::vector<double>& rateFreqs,
-        const std::string& suffix = "",
-        bool suffixIsOptional = true,
-        bool verbose = true,
-        int warn = 1) throw (Exception);
+      const Alphabet* alphabet,
+      const GeneticCode* gCode,
+      const SiteContainer* data, 
+      std::map<std::string, std::string>& params,
+      const std::vector<double>& rateFreqs,
+      const std::string& suffix = "",
+      bool suffixIsOptional = true,
+      bool verbose = true,
+      int warn = 1) throw (Exception);
 
 
     /*
@@ -303,14 +303,14 @@ namespace bpp
      */
 
     static std::map<size_t, FrequenciesSet*> getRootFrequenciesSets(
-                                                 const Alphabet* alphabet,
-                                                 const GeneticCode* gCode,
-                                                 const std::map<size_t, SiteContainer*>& mData, 
-                                                 std::map<std::string, std::string>& params,
-                                                 const std::string& suffix = "",
-                                                 bool suffixIsOptional = true,
-                                                 bool verbose = true,
-                                                 int warn = 1) throw (Exception);
+      const Alphabet* alphabet,
+      const GeneticCode* gCode,
+      const std::map<size_t, SiteContainer*>& mData, 
+      std::map<std::string, std::string>& params,
+      const std::string& suffix = "",
+      bool suffixIsOptional = true,
+      bool verbose = true,
+      int warn = 1) throw (Exception);
 
     /**
      * @brief Get A FrequenciesSet object according to options.
@@ -331,13 +331,13 @@ namespace bpp
      * @throw Exception if an error occured.
      */
     static FrequenciesSet* getFrequenciesSet(
-        const Alphabet* alphabet,
-        const GeneticCode* gCode,
-        const std::string& freqDescription,
-        const SiteContainer* data, 
-        const std::vector<double>& rateFreqs,
-        bool verbose = true,
-        int warn = 1)
+      const Alphabet* alphabet,
+      const GeneticCode* gCode,
+      const std::string& freqDescription,
+      const SiteContainer* data, 
+      const std::vector<double>& rateFreqs,
+      bool verbose = true,
+      int warn = 1)
       throw (Exception);
 
     /**
@@ -347,15 +347,15 @@ namespace bpp
      * methods.
      */
     
-     static SubstitutionModelSet* getSubstitutionModelSet(
-         const Alphabet* alphabet,
-         const GeneticCode* gcode,
-         const SiteContainer* data, 
-         std::map<std::string, std::string>& params,
-         const std::string& suffix = "",
-         bool suffixIsOptional = true,
-         bool verbose = true,
-         int warn = 1);    
+    static SubstitutionModelSet* getSubstitutionModelSet(
+      const Alphabet* alphabet,
+      const GeneticCode* gcode,
+      const SiteContainer* data, 
+      std::map<std::string, std::string>& params,
+      const std::string& suffix = "",
+      bool suffixIsOptional = true,
+      bool verbose = true,
+      int warn = 1);    
 
     /**
      * @brief Sets a SubstitutionModelSet object according to options.
@@ -412,15 +412,15 @@ namespace bpp
      * @throw Exception if an error occured.
      */
     static void setSubstitutionModelSet(
-        SubstitutionModelSet& modelSet,
-        const Alphabet* alphabet,
-        const GeneticCode* gcode,
-        const SiteContainer* data, 
-        std::map<std::string, std::string>& params,
-        const std::string& suffix = "",
-        bool suffixIsOptional = true,
-        bool verbose = true,
-        int warn = 1);
+      SubstitutionModelSet& modelSet,
+      const Alphabet* alphabet,
+      const GeneticCode* gcode,
+      const SiteContainer* data, 
+      std::map<std::string, std::string>& params,
+      const std::string& suffix = "",
+      bool suffixIsOptional = true,
+      bool verbose = true,
+      int warn = 1);
     
     /**
      * @brief Sets a SubstitutionProcess object according to options.
@@ -486,36 +486,36 @@ namespace bpp
      */
     
     static SubstitutionProcess* getSubstitutionProcess(
-        const Alphabet* alphabet,
-        const GeneticCode* gCode,
-        const SiteContainer* pData, 
-        const vector<Tree*>& vTree, 
-        std::map<std::string, std::string>& params,
-        const std::string& suffix = "",
-        bool suffixIsOptional = true,
-        bool verbose = true,
-        int warn = 1);
+      const Alphabet* alphabet,
+      const GeneticCode* gCode,
+      const SiteContainer* pData, 
+      const vector<Tree*>& vTree, 
+      std::map<std::string, std::string>& params,
+      const std::string& suffix = "",
+      bool suffixIsOptional = true,
+      bool verbose = true,
+      int warn = 1);
     
     static SubstitutionProcessCollection* getSubstitutionProcessCollection(
-        const Alphabet* alphabet,
-        const GeneticCode* gCode,
-        const map<size_t, Tree*>& mTree,
-        const map<size_t, SubstitutionModel*>& mMod,
-        const map<size_t, FrequenciesSet*>& mRootFreq,
-        const map<size_t, DiscreteDistribution*>& mDist,
-        map<string, string>& params,
-        map<string, string>& unparsedparams,
-        const string& suffix = "",
-        bool suffixIsOptional  = true,
-        bool verbose = true,
-        int warn = 1);
+      const Alphabet* alphabet,
+      const GeneticCode* gCode,
+      const map<size_t, Tree*>& mTree,
+      const map<size_t, SubstitutionModel*>& mMod,
+      const map<size_t, FrequenciesSet*>& mRootFreq,
+      const map<size_t, DiscreteDistribution*>& mDist,
+      map<string, string>& params,
+      map<string, string>& unparsedparams,
+      const string& suffix = "",
+      bool suffixIsOptional  = true,
+      bool verbose = true,
+      int warn = 1);
       
     static void addSubstitutionProcessCollectionMember(
-        SubstitutionProcessCollection* SubProColl, 
-        size_t procNum,
-        map<string, string>& params,
-        bool verbose = true,
-        int warn = 1);
+      SubstitutionProcessCollection* SubProColl, 
+      size_t procNum,
+      map<string, string>& params,
+      bool verbose = true,
+      int warn = 1);
 
 
     static std::map<size_t, newlik::PhyloLikelihood*> getPhyloLikelihoods(
@@ -593,14 +593,14 @@ namespace bpp
      * @throw Exception if an error occured.
      */
     static void completeMixedSubstitutionModelSet(
-        MixedSubstitutionModelSet& mixedModelSet,
-        const Alphabet* alphabet,
-        const SiteContainer* data, 
-        std::map<std::string, std::string>& params,
-        const std::string& suffix = "",
-        bool suffixIsOptional = true,
-        bool verbose = true,
-        int warn = 1);
+      MixedSubstitutionModelSet& mixedModelSet,
+      const Alphabet* alphabet,
+      const SiteContainer* data, 
+      std::map<std::string, std::string>& params,
+      const std::string& suffix = "",
+      bool suffixIsOptional = true,
+      bool verbose = true,
+      int warn = 1);
 
     /**
      * @brief Build a multi-dimension distribution as a
@@ -618,9 +618,9 @@ namespace bpp
      * @throw Exception if an error occured.
      */
     static MultipleDiscreteDistribution* getMultipleDistributionDefaultInstance(
-        const std::string& distDescription,
-        std::map<std::string, std::string>& unparsedParameterValues,
-        bool verbose = true);
+      const std::string& distDescription,
+      std::map<std::string, std::string>& unparsedParameterValues,
+      bool verbose = true);
 
     /**
      * @brief Build a DiscreteDistribution object according to options.
@@ -637,10 +637,10 @@ namespace bpp
      * @throw Exception if an error occured.
      */
     static DiscreteDistribution* getRateDistribution(
-        std::map<std::string, std::string>& params,
-        const std::string& suffix = "",
-        bool suffixIsOptional = true,
-        bool verbose = true)
+      std::map<std::string, std::string>& params,
+      const std::string& suffix = "",
+      bool suffixIsOptional = true,
+      bool verbose = true)
       throw (Exception);
 
     /**
@@ -676,22 +676,22 @@ namespace bpp
      * @endcode
      */
     static TreeLikelihood* optimizeParameters(
-        TreeLikelihood* tl,
-        const ParameterList& parameters,
-        std::map<std::string, std::string>& params,
-        const std::string& suffix = "",
-        bool suffixIsOptional = true,
-        bool verbose = true,
-        int warn = 1)
+      TreeLikelihood* tl,
+      const ParameterList& parameters,
+      std::map<std::string, std::string>& params,
+      const std::string& suffix = "",
+      bool suffixIsOptional = true,
+      bool verbose = true,
+      int warn = 1)
       throw (Exception);
     
     static newlik::PhyloLikelihood* optimizeParameters(
-        newlik::PhyloLikelihood* lik,
-        const ParameterList& parameters,
-        std::map<std::string, std::string>& params,
-        const std::string& suffix = "",
-        bool suffixIsOptional = true,
-        bool verbose = true,
+      newlik::PhyloLikelihood* lik,
+      const ParameterList& parameters,
+      std::map<std::string, std::string>& params,
+      const std::string& suffix = "",
+      bool suffixIsOptional = true,
+      bool verbose = true,
       int warn = 1)
       throw (Exception);
     
@@ -709,13 +709,13 @@ namespace bpp
      * @throw Exception        Any exception that may happen during the optimization process.
      */
     static void optimizeParameters(
-        DiscreteRatesAcrossSitesClockTreeLikelihood* tl,
-        const ParameterList& parameters,
-        std::map<std::string, std::string>& params,
-        const std::string& suffix = "",
-        bool suffixIsOptional = true,
-        bool verbose = true,
-        int warn = 1)
+      DiscreteRatesAcrossSitesClockTreeLikelihood* tl,
+      const ParameterList& parameters,
+      std::map<std::string, std::string>& params,
+      const std::string& suffix = "",
+      bool suffixIsOptional = true,
+      bool verbose = true,
+      int warn = 1)
       throw (Exception);
     
     /**
@@ -740,12 +740,12 @@ namespace bpp
      * @return A SubstitutionCount object.
      */
     static SubstitutionCount* getSubstitutionCount(
-        const Alphabet* alphabet,
-        const SubstitutionModel* model,
-        map<string, string>& params,
-        string suffix = "",
-        bool verbose = true,
-        int warn = 1);
+      const Alphabet* alphabet,
+      const SubstitutionModel* model,
+      map<string, string>& params,
+      string suffix = "",
+      bool verbose = true,
+      int warn = 1);
    
     /**
      * @brief Write a tree according to options.
@@ -764,14 +764,14 @@ namespace bpp
      * @throw Exception if an error occured.
      */
     static void writeTree(
-        const TreeTemplate<Node>& tree,
-        std::map<std::string, std::string>& params,
-        const std::string& prefix = "output.",
-        const std::string& suffix = "",
-        bool suffixIsOptional = true,
-        bool verbose = true,
-        bool checkOnly = false,
-        int warn = 1) throw (Exception);
+      const TreeTemplate<Node>& tree,
+      std::map<std::string, std::string>& params,
+      const std::string& prefix = "output.",
+      const std::string& suffix = "",
+      bool suffixIsOptional = true,
+      bool verbose = true,
+      bool checkOnly = false,
+      int warn = 1) throw (Exception);
     
     /**
      * @brief Write a tree according to options.
@@ -790,25 +790,34 @@ namespace bpp
      * @throw Exception if an error occured.
      */
     static void writeTrees(
-        const std::vector<const Tree*>& trees,
-        std::map<std::string, std::string>& params,
-        const std::string& prefix = "output.",
-        const std::string& suffix = "",
-        bool suffixIsOptional = true,
-        bool verbose = true,
-        bool checkOnly = false,
-        int warn = 1) throw (Exception);
+      const std::vector<const Tree*>& trees,
+      std::map<std::string, std::string>& params,
+      const std::string& prefix = "output.",
+      const std::string& suffix = "",
+      bool suffixIsOptional = true,
+      bool verbose = true,
+      bool checkOnly = false,
+      int warn = 1) throw (Exception);
 
     static void writeTrees(
-        const std::vector<const TreeTemplate<Node>* >& trees,
-        std::map<std::string, std::string>& params,
-        const std::string& prefix = "output.",
-        const std::string& suffix = "",
-        bool suffixIsOptional = true,
-        bool verbose = true,
-        bool checkOnly = false,
-        int warn = 1) throw (Exception);
+      const std::vector<const TreeTemplate<Node>* >& trees,
+      std::map<std::string, std::string>& params,
+      const std::string& prefix = "output.",
+      const std::string& suffix = "",
+      bool suffixIsOptional = true,
+      bool verbose = true,
+      bool checkOnly = false,
+      int warn = 1) throw (Exception);
 
+    static void writeTrees(
+      const SubstitutionProcessCollection& spc,
+      std::map<std::string, std::string>& params,
+      const std::string& prefix = "output.",
+      const std::string& suffix = "",
+      bool suffixIsOptional = true,
+      bool verbose = true,
+      bool checkOnly = false,
+      int warn = 1) throw (Exception);
 
     
     /**

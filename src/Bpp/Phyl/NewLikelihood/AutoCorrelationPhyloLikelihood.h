@@ -77,6 +77,7 @@ private:
 public:
   AutoCorrelationPhyloLikelihood(
     SubstitutionProcessCollection* processColl,
+    std::vector<size_t>& nProc,
     char recursivity,
     bool verbose = true,
     bool patterns = true);
@@ -84,6 +85,7 @@ public:
   AutoCorrelationPhyloLikelihood(
     const SiteContainer& data,
     SubstitutionProcessCollection* processColl,
+    std::vector<size_t>& nProc,
     char recursivity,
     size_t nData = 0,
     bool verbose = true,

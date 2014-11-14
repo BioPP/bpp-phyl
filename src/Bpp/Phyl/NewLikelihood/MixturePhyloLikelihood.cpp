@@ -49,11 +49,12 @@ using namespace newlik;
 
 MixturePhyloLikelihood::MixturePhyloLikelihood(
   SubstitutionProcessCollection* processColl,
+  std::vector<size_t>& nProc,
   char recursivity,
   bool verbose,
   bool patterns) :
-  MultiProcessPhyloLikelihood(processColl, recursivity, verbose, patterns),
-  simplex_(processColl_->getNumberOfSubstitutionProcess(), 1)
+  MultiProcessPhyloLikelihood(processColl, nProc, recursivity, verbose, patterns),
+  simplex_(nProc.size(), 1)
 {
   // initialize parameters:
   addParameters_(simplex_.getIndependentParameters());
@@ -62,12 +63,13 @@ MixturePhyloLikelihood::MixturePhyloLikelihood(
 MixturePhyloLikelihood::MixturePhyloLikelihood(
   const SiteContainer& data,
   SubstitutionProcessCollection* processColl,
+  std::vector<size_t>& nProc,
   char recursivity,
   size_t nData,
   bool verbose,
   bool patterns) :
-  MultiProcessPhyloLikelihood(data, processColl, recursivity, nData, verbose, patterns),
-  simplex_(processColl_->getNumberOfSubstitutionProcess(), 1)
+  MultiProcessPhyloLikelihood(data, processColl, nProc, recursivity, nData, verbose, patterns),
+  simplex_(nProc.size(), 1)
 {
   // initialize parameters:
   addParameters_(simplex_.getParameters());
@@ -100,7 +102,7 @@ void MixturePhyloLikelihood::fireParameterChanged(const ParameterList& parameter
 
 ParameterList MixturePhyloLikelihood::getNonDerivableParameters() const
 {
-  ParameterList pl = processColl_->getNonDerivableParameters();
+  ParameterList pl = MultiProcessPhyloLikelihood::getNonDerivableParameters();
   pl.addParameters(simplex_.getParameters());
   
   return pl;

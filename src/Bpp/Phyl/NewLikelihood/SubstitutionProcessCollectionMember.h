@@ -428,6 +428,11 @@ namespace bpp
 
     ParameterList getRootFrequenciesParameters() const;
 
+    ParameterList getDerivableParameters() const;
+
+    ParameterList getNonDerivableParameters() const;
+
+
     /**
      * @brief Get the transition probabilities corresponding to a certain branch, site pattern, and model class.
      *

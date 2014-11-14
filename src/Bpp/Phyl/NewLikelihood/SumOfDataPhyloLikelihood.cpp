@@ -45,75 +45,73 @@ using namespace std;
 
 SumOfDataPhyloLikelihood::SumOfDataPhyloLikelihood() :
   AbstractParametrizable(""),  
-  vSDP_(),
-  numberOfSDP_(0),
+  mSDP_(),
   computeFirstOrderDerivatives_(true),
   computeSecondOrderDerivatives_(true),
   minusLogLik_(0)
 {
 }
 
-SumOfDataPhyloLikelihood::SumOfDataPhyloLikelihood(std::vector<SingleDataPhyloLikelihood*> vSDP) :
+SumOfDataPhyloLikelihood::SumOfDataPhyloLikelihood(std::map<size_t, SingleDataPhyloLikelihood*>& mSDP) :
   AbstractParametrizable(""),  
-  vSDP_(),
-  numberOfSDP_(0),
+  mSDP_(),
   computeFirstOrderDerivatives_(true),
   computeSecondOrderDerivatives_(true),
   minusLogLik_(0)
 {
-  for (size_t i = 0; i < vSDP.size(); i++)
+  for (std::map<size_t, SingleDataPhyloLikelihood*>::const_iterator it=mSDP.begin(); it != mSDP.end(); it++)
   {
-    addSingleDataPhylolikelihood(vSDP[i]);
-    includeParameters_(vSDP[i]->getParameters());
+    addSingleDataPhylolikelihood(it->first, it->second);
+    includeParameters_(mSDP_[it->first]->getParameters());
   }
   
 }
 
 SumOfDataPhyloLikelihood::~SumOfDataPhyloLikelihood()
 {
-  for (size_t i = 0; i < numberOfSDP_; i++)
-    delete vSDP_[i];
+  for (std::map<size_t, AbstractSingleDataPhyloLikelihood*>::iterator it=mSDP_.begin(); it != mSDP_.end(); it++)
+    delete it->second;
 }
 
 SumOfDataPhyloLikelihood::SumOfDataPhyloLikelihood(const SumOfDataPhyloLikelihood& sd) :
   AbstractParametrizable(sd),
-  vSDP_(),
-  numberOfSDP_(0),
+  mSDP_(),
   computeFirstOrderDerivatives_(sd.computeFirstOrderDerivatives_),
   computeSecondOrderDerivatives_(sd.computeSecondOrderDerivatives_),
   minusLogLik_(sd.minusLogLik_)
 {
-  for (size_t i = 0; i < sd.numberOfSDP_; i++)
-    addSingleDataPhylolikelihood(sd.vSDP_[i]->clone());
+  for (std::map<size_t, AbstractSingleDataPhyloLikelihood*>::const_iterator it=sd.mSDP_.begin(); it != sd.mSDP_.end(); it++)
+    addSingleDataPhylolikelihood(it->first, it->second->clone());
 }
 
 SumOfDataPhyloLikelihood& SumOfDataPhyloLikelihood::operator=(const SumOfDataPhyloLikelihood& sd)
 {
   AbstractParametrizable::operator=(sd);
 
-  for (size_t i = 0; i < numberOfSDP_; i++)
-    delete vSDP_[i];
+  for (std::map<size_t, AbstractSingleDataPhyloLikelihood*>::iterator it=mSDP_.begin(); it != mSDP_.end(); it++)
+    delete it->second;
   
-  numberOfSDP_=0;
   computeFirstOrderDerivatives_=sd.computeFirstOrderDerivatives_;
   computeSecondOrderDerivatives_=sd.computeSecondOrderDerivatives_;
 
   minusLogLik_=sd.minusLogLik_;
   
-  for (size_t i = 0; i < sd.numberOfSDP_; i++)
-    addSingleDataPhylolikelihood(sd.vSDP_[i]->clone());
+  for (std::map<size_t, AbstractSingleDataPhyloLikelihood*>::const_iterator it=sd.mSDP_.begin(); it != sd.mSDP_.end(); it++)
+    addSingleDataPhylolikelihood(it->first, it->second->clone());
   
   return *this;
 }
 
 
-void SumOfDataPhyloLikelihood::addSingleDataPhylolikelihood(SingleDataPhyloLikelihood* SDP)
+void SumOfDataPhyloLikelihood::addSingleDataPhylolikelihood(size_t nPhyl, SingleDataPhyloLikelihood* SDP)
 {
+  if (mSDP_.find(nPhyl)!=mSDP_.end())
+    throw Exception("SumOfDataPhyloLikelihood::addSingleDataPhylolikelihood: map number already used : " + TextTools::toString(nPhyl));
+  
   if (dynamic_cast<AbstractSingleDataPhyloLikelihood*>(SDP)!=NULL){
-    vSDP_.push_back(dynamic_cast<AbstractSingleDataPhyloLikelihood*>(SDP));
-    numberOfSDP_++;
+    mSDP_[nPhyl]=dynamic_cast<AbstractSingleDataPhyloLikelihood*>(SDP);
     includeParameters_(SDP->getParameters());
-  }
+  } 
 }
 
 
@@ -121,16 +119,16 @@ void SumOfDataPhyloLikelihood::setParameters(const ParameterList& parameters) th
 {
   AbstractParametrizable::setParametersValues(parameters);
   
-  for (size_t i = 0; i < numberOfSDP_; i++)
-    vSDP_[i]->setParameters(parameters);
+  for (std::map<size_t, AbstractSingleDataPhyloLikelihood*>::iterator it=mSDP_.begin(); it != mSDP_.end(); it++)
+    it->second->setParameters(parameters);
 }
 
 double SumOfDataPhyloLikelihood::getFirstOrderDerivative(const std::string& variable) const throw (Exception)
 {
   double x=0;
-  for (size_t i = 0; i < numberOfSDP_; i++) 
-    if (vSDP_[i]->hasParameter(variable))
-      x+=vSDP_[i]->getFirstOrderDerivative(variable);
+  for (std::map<size_t, AbstractSingleDataPhyloLikelihood*>::const_iterator it=mSDP_.begin(); it != mSDP_.end(); it++)
+    if (it->second->hasParameter(variable))
+      x+=it->second->getFirstOrderDerivative(variable);
   
   return x;
 }
@@ -138,18 +136,28 @@ double SumOfDataPhyloLikelihood::getFirstOrderDerivative(const std::string& vari
 double SumOfDataPhyloLikelihood::getSecondOrderDerivative(const std::string& variable) const throw (Exception)
 {
   double x=0;
-  for (size_t i = 0; i < numberOfSDP_; i++)
-    if (vSDP_[i]->hasParameter(variable))
-      x+=vSDP_[i]->getSecondOrderDerivative(variable);
-
+  for (std::map<size_t, AbstractSingleDataPhyloLikelihood*>::const_iterator it=mSDP_.begin(); it != mSDP_.end(); it++)
+    if (it->second->hasParameter(variable))
+      x+=it->second->getSecondOrderDerivative(variable);
+  
   return x;
 }
+
+std::vector<size_t> SumOfDataPhyloLikelihood::getNumbersOfSingleDataPhyloLikelihoods() const
+{
+  vector<size_t> vNum;
+  for (std::map<size_t, AbstractSingleDataPhyloLikelihood*>::const_iterator it=mSDP_.begin(); it != mSDP_.end(); it++)
+    vNum.push_back(it->first);
+
+  return vNum;
+}
+
 
 ParameterList SumOfDataPhyloLikelihood::getBranchLengthParameters() const
 {
   ParameterList pl;
-  for (size_t i = 0; i < numberOfSDP_; i++)
-    pl.includeParameters(vSDP_[i]->getBranchLengthParameters());
+  for (std::map<size_t, AbstractSingleDataPhyloLikelihood*>::const_iterator it=mSDP_.begin(); it != mSDP_.end(); it++)
+    pl.includeParameters(it->second->getBranchLengthParameters());
 
   return pl;
 }
@@ -157,8 +165,8 @@ ParameterList SumOfDataPhyloLikelihood::getBranchLengthParameters() const
 ParameterList SumOfDataPhyloLikelihood::getSubstitutionModelParameters() const
 {
   ParameterList pl;
-  for (size_t i = 0; i < numberOfSDP_; i++)
-    pl.includeParameters(vSDP_[i]->getSubstitutionModelParameters());
+  for (std::map<size_t, AbstractSingleDataPhyloLikelihood*>::const_iterator it=mSDP_.begin(); it != mSDP_.end(); it++)
+    pl.includeParameters(it->second->getSubstitutionModelParameters());
 
   return pl;
 }
@@ -166,8 +174,8 @@ ParameterList SumOfDataPhyloLikelihood::getSubstitutionModelParameters() const
 ParameterList SumOfDataPhyloLikelihood::getRateDistributionParameters() const
 {
   ParameterList pl;
-  for (size_t i = 0; i < numberOfSDP_; i++)
-    pl.includeParameters(vSDP_[i]->getRateDistributionParameters());
+  for (std::map<size_t, AbstractSingleDataPhyloLikelihood*>::const_iterator it=mSDP_.begin(); it != mSDP_.end(); it++)
+    pl.includeParameters(it->second->getRateDistributionParameters());
 
   return pl;
 }
@@ -175,8 +183,8 @@ ParameterList SumOfDataPhyloLikelihood::getRateDistributionParameters() const
 ParameterList SumOfDataPhyloLikelihood::getRootFrequenciesParameters() const
 {
   ParameterList pl;
-  for (size_t i = 0; i < numberOfSDP_; i++)
-    pl.includeParameters(vSDP_[i]->getRootFrequenciesParameters());
+  for (std::map<size_t, AbstractSingleDataPhyloLikelihood*>::const_iterator it=mSDP_.begin(); it != mSDP_.end(); it++)
+    pl.includeParameters(it->second->getRootFrequenciesParameters());
 
   return pl;
 }
@@ -184,8 +192,8 @@ ParameterList SumOfDataPhyloLikelihood::getRootFrequenciesParameters() const
 ParameterList SumOfDataPhyloLikelihood::getDerivableParameters() const
 {
   ParameterList pl;
-  for (size_t i = 0; i < numberOfSDP_; i++)
-    pl.includeParameters(vSDP_[i]->getDerivableParameters());
+  for (std::map<size_t, AbstractSingleDataPhyloLikelihood*>::const_iterator it=mSDP_.begin(); it != mSDP_.end(); it++)
+    pl.includeParameters(it->second->getDerivableParameters());
   
   return pl;
 }
@@ -193,15 +201,15 @@ ParameterList SumOfDataPhyloLikelihood::getDerivableParameters() const
 ParameterList SumOfDataPhyloLikelihood::getNonDerivableParameters() const
 {
   ParameterList pl;
-  for (size_t i = 0; i < numberOfSDP_; i++)
-    pl.includeParameters(vSDP_[i]->getNonDerivableParameters());
+  for (std::map<size_t, AbstractSingleDataPhyloLikelihood*>::const_iterator it=mSDP_.begin(); it != mSDP_.end(); it++)
+    pl.includeParameters(it->second->getNonDerivableParameters());
   
   return pl;
 }
 
 void SumOfDataPhyloLikelihood::enableDerivatives(bool yn)
 {
-  for (size_t i = 0; i < numberOfSDP_; i++)
-    vSDP_[i]->enableDerivatives(yn);
+  for (std::map<size_t, AbstractSingleDataPhyloLikelihood*>::iterator it=mSDP_.begin(); it != mSDP_.end(); it++)
+    it->second->enableDerivatives(yn);
 }
 

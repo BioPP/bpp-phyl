@@ -70,6 +70,13 @@ class MultiProcessPhyloLikelihood :
 protected:
   SubstitutionProcessCollection* processColl_;
 
+  /*
+   * @brief the vector of the substitution process numbers.
+   *
+   */
+    
+  std::vector<size_t> nProc_;
+
   /**
    * @brief recursivity of the tree likelihood computations
    *
@@ -93,14 +100,17 @@ protected:
   std::vector<TreeLikelihoodCalculation*> vpTreelik_;
 
 public:
-  MultiProcessPhyloLikelihood(SubstitutionProcessCollection* processColl,
-                       char recursivity,
-                       bool verbose = true,
-                       bool patterns = true);
+  MultiProcessPhyloLikelihood(
+    SubstitutionProcessCollection* processColl,
+    std::vector<size_t> nProc,
+    char recursivity,
+    bool verbose = true,
+    bool patterns = true);
 
   MultiProcessPhyloLikelihood(
     const SiteContainer& data,
     SubstitutionProcessCollection* processColl,
+    std::vector<size_t> nProc,
     char recursivity,
     size_t nData = 0,
     bool verbose = true,
@@ -109,6 +119,7 @@ public:
   MultiProcessPhyloLikelihood(const MultiProcessPhyloLikelihood& lik) :
     AbstractSingleDataPhyloLikelihood(lik),
     processColl_(lik.processColl_),
+    nProc_(lik.nProc_),
     recursivity_(lik.recursivity_),
     computeFirstOrderDerivatives_(lik.computeFirstOrderDerivatives_),
     computeSecondOrderDerivatives_(lik.computeSecondOrderDerivatives_),
@@ -130,6 +141,7 @@ public:
     AbstractSingleDataPhyloLikelihood::operator=(lik);
 
     processColl_=lik.processColl_;
+    nProc_=lik.nProc_;
 
     recursivity_ = lik.recursivity_;
     computeFirstOrderDerivatives_  = lik.computeFirstOrderDerivatives_;
@@ -222,47 +234,65 @@ public:
   virtual double getLikelihoodForASite(size_t site) const = 0;
 
   /**
-   * @brief Get the first order derivate of the likelihood for a site. 
-   *
-   * This derivate should have been first computed through
-   * getFirstOrderDerivative function.
+   * @brief Get the likelihood for a site for a process.
    *
    * @param site The site index to analyse.
-   * @return The first order derivate likelihood for site <i>site</i>.
+   * @param p the process index in the given order.
+   * @return The likelihood for site <i>site</i>.
    */
-
-//  virtual double getDLogLikelihoodForASite(size_t site) const = 0;
-
-  /**
-   * @brief Get the second order derivate of the likelihood for a site. 
-   *
-   * This derivate should have been first computed through
-   * getSecondOrderDerivative function.
-   *
-   * @param site The site index to analyse.
-   * @return The second order derivate likelihood for site <i>site</i>.
-   */
-
-  //virtual double getD2LogLikelihoodForASite(size_t site) const = 0;
 
   
-  double getLikelihoodForASiteForAProcess(size_t i, size_t p) const
+  double getLikelihoodForASiteForAProcess(size_t site, size_t p) const
   {
-    return vpTreelik_[p]->getLikelihoodForASite(i);
+    return vpTreelik_[p]->getLikelihoodForASite(site);
   }
+
+  /**
+   * @brief Compute the first derivative of the likelihood for a process.
+   *
+   * @param variable the name of the variable.
+   * @param p the process index in the given order.
+   * @return The likelihood for site <i>site</i>.
+   */
 
   void computeDLogLikelihoodForAProcess(std::string& variable, size_t p) const;
 
-  void computeD2LogLikelihoodForAProcess(std::string& variable, size_t p) const;
+  /**
+   * @brief Get the first derivative of the likelihood for a site for
+   * a process.
+   *
+   * @param site The site index to analyse.
+   * @param p the process index in the given order.
+   * @return The likelihood for site <i>site</i>.
+   */
 
-  double getDLogLikelihoodForASiteForAProcess(size_t i, size_t p) const
+  double getDLogLikelihoodForASiteForAProcess(size_t site, size_t p) const
   {
-    return vpTreelik_[p]->getDLogLikelihoodForASite(i);
+    return vpTreelik_[p]->getDLogLikelihoodForASite(site);
   }
 
-  double getD2LogLikelihoodForASiteForAProcess(size_t i, size_t p) const
+  /**
+   * @brief Compute the second derivative of the likelihood for a process.
+   *
+   * @param variable the name of the variable.
+   * @param p the process index in the given order.
+   * @return The likelihood for site <i>site</i>.
+   */
+  
+  void computeD2LogLikelihoodForAProcess(std::string& variable, size_t p) const;
+
+  /**
+   * @brief Get the second derivative of the likelihood for a site for
+   * a process.
+   *
+   * @param site The site index to analyse.
+   * @param p the process index in the given order.
+   * @return The likelihood for site <i>site</i>.
+   */
+
+  double getD2LogLikelihoodForASiteForAProcess(size_t site, size_t p) const
   {
-    return vpTreelik_[p]->getD2LogLikelihoodForASite(i);
+    return vpTreelik_[p]->getD2LogLikelihoodForASite(site);
   }
 
   VVdouble getLikelihoodForEachSiteForEachProcess() const;
@@ -275,12 +305,23 @@ public:
    *
    * @param sites The data set to use.
    */
+  
   void setData(const SiteContainer& sites, size_t nData = 0);
 
   size_t getNumberOfSites() const { return vpTreelik_[0]->getNumberOfSites(); }
+
   size_t getNumberOfStates() const { return vpTreelik_[0]->getAlphabet()->getSize(); }
 
-  size_t getNumberOfSubstitutionProcess() const { return getCollection()->getNumberOfSubstitutionProcess();}
+  /**
+   * @brief Return the number of process used for computation.
+   */
+  
+  size_t getNumberOfSubstitutionProcess() const { return vpTreelik_.size(); }
+
+  const std::vector<size_t> getSubstitutionProcessNumbers() const
+  {
+    return nProc_;
+  }  
 
   void enableDerivatives(bool yn) { computeFirstOrderDerivatives_ = computeSecondOrderDerivatives_ = yn; }
   void enableFirstOrderDerivatives(bool yn) { computeFirstOrderDerivatives_ = yn; }
@@ -300,10 +341,18 @@ public:
 
   ParameterList getBranchLengthParameters() const;
 
+  virtual ParameterList getDerivableParameters() const
+  {
+    return getBranchLengthParameters();
+  }
+
+  virtual ParameterList getNonDerivableParameters() const;
+  
+
   //    ParameterList getTransitionProbabilitiesParameters() const { return process_->getTransitionProbabilitiesParameters(); }
   // TODO: this has to be modified to deal with special cases...
 
-  void fireParameterChanged(const ParameterList& parameters);
+  virtual void fireParameterChanged(const ParameterList& parameters);
 
   void setParameters(const ParameterList& parameters)   throw (ParameterNotFoundException, ConstraintException);
 

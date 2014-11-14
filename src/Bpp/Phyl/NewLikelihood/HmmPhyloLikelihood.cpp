@@ -52,13 +52,14 @@ using namespace newlik;
 
 HmmPhyloLikelihood::HmmPhyloLikelihood(
   SubstitutionProcessCollection* processColl,
+  std::vector<size_t>& nProc,
   char recursivity,
   bool verbose,
   bool patterns) :
-  MultiProcessPhyloLikelihood(processColl, recursivity, verbose, patterns),
+  MultiProcessPhyloLikelihood(processColl, nProc, recursivity, verbose, patterns),
   Hmm_(0)
 {
-  HmmProcessAlphabet* hpa=new HmmProcessAlphabet(processColl_);
+  HmmProcessAlphabet* hpa=new HmmProcessAlphabet(processColl_, nProc);
 
   HmmTransitionMatrix* hptm=new FullHmmTransitionMatrix(hpa);
 
@@ -74,14 +75,15 @@ HmmPhyloLikelihood::HmmPhyloLikelihood(
 HmmPhyloLikelihood::HmmPhyloLikelihood(
   const SiteContainer& data,
   SubstitutionProcessCollection* processColl,
+  std::vector<size_t>& nProc,
   char recursivity,
   size_t nData,
   bool verbose,
   bool patterns) :
-  MultiProcessPhyloLikelihood(data, processColl, recursivity, nData, verbose, patterns),
+  MultiProcessPhyloLikelihood(data, processColl, nProc, recursivity, nData, verbose, patterns),
   Hmm_(0)
 {
-  HmmProcessAlphabet* hpa=new HmmProcessAlphabet(processColl_);
+  HmmProcessAlphabet* hpa=new HmmProcessAlphabet(processColl_, nProc);
 
   HmmTransitionMatrix* hptm=new FullHmmTransitionMatrix(hpa);
 
@@ -118,7 +120,7 @@ void HmmPhyloLikelihood::fireParameterChanged(const ParameterList& parameters)
 
 ParameterList HmmPhyloLikelihood::getNonDerivableParameters() const
 {
-  ParameterList pl = processColl_->getNonDerivableParameters();
+  ParameterList pl = MultiProcessPhyloLikelihood::getNonDerivableParameters();
   pl.addParameters(Hmm_->getHmmTransitionMatrix().getParameters());
   pl.addParameters(Hmm_->getHmmStateAlphabet().getParameters());
 

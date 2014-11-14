@@ -72,6 +72,7 @@ private:
 public:
   MixturePhyloLikelihood(
     SubstitutionProcessCollection* processColl,
+    std::vector<size_t>& nProc,
     char recursivity,
     bool verbose = true,
     bool patterns = true);
@@ -79,6 +80,7 @@ public:
   MixturePhyloLikelihood(
     const SiteContainer& data,
     SubstitutionProcessCollection* processColl,
+    std::vector<size_t>& nProc,
     char recursivity,
     size_t nData = 0,
     bool verbose = true,
@@ -109,6 +111,12 @@ public:
 
   ParameterList getNonDerivableParameters() const;
 
+  /**
+   * @brief return the probability of a  subprocess
+   *
+   * @param i the index of the subprocess
+   */
+  
   double getSubProcessProb(size_t i) const
   {
     return simplex_.prob(i);

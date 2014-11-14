@@ -76,6 +76,15 @@ size_t AbstractSubstitutionProcess::getModelIndex_(int nodeId, size_t modelClass
   return i * nbClasses_ + modelClass;
 }
 
+ParameterList AbstractSubstitutionProcess::getNonDerivableParameters() const
+{
+  ParameterList pl=getSubstitutionModelParameters();
+  pl.includeParameters(getRootFrequenciesParameters());
+  pl.includeParameters(getRateDistributionParameters());
+
+  return pl;
+}
+
 void AbstractSubstitutionProcess::fireParameterChanged(const ParameterList& pl)
 {
   AbstractParameterAliasable::fireParameterChanged(pl);
