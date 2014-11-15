@@ -285,16 +285,16 @@ map<size_t, Tree*> PhylogeneticsApplicationTools::getTrees(
     {
       size_t seqNum;
       
-      if (args.find("sequence")==args.end()){
-        ApplicationTools::displayWarning("Random tree set from set of aligned sequences 1");
+      if (args.find("data")==args.end()){
+        ApplicationTools::displayWarning("Random tree set from data 1");
         seqNum=1;
       }
       else
-        seqNum=(size_t)TextTools::toInt(args["sequence"]);
+        seqNum=(size_t)TextTools::toInt(args["data"]);
 
       
       if (mSeq.find(seqNum)==mSeq.end())
-        throw Exception("Error : Wrong number of set of aligned sequences " + TextTools::toString(seqNum));
+        throw Exception("Error : Wrong number of data " + TextTools::toString(seqNum));
         
       vector<string> names = mSeq.find(seqNum)->second->getSequencesNames();
       Tree* tree = TreeTemplateTools::getRandomTree(names);
@@ -1134,7 +1134,62 @@ void PhylogeneticsApplicationTools::addSubstitutionProcessCollectionMember(
     else
       SubProColl->addSubstitutionProcess(procNum, mModBr, numTree, numRate, numFreq);
   }
+  else if (procName=="OnePerBranch")
+  {
+    if (args.find("model")==args.end())
+      throw Exception("PhylogeneticsApplicationTools::addSubstitutionProcessCollectionMember. A model number is compulsory.");
+
+    size_t numModel=(size_t)ApplicationTools::getIntParameter("model", args, 1, "", true, warn);
+
+    if (! SubProColl->hasModelNumber(numModel))
+      throw BadIntegerException("PhylogeneticsApplicationTools::addSubstitutionProcessCollectionMember : unknown model number", (int)numModel);
+
+
+    throw Exception("OnePerBranch option not implemented yet. Ask developpers to do it");
     
+    // size_t nNodes=SubProColl->getTree(numTree)->getNumberOfBranches();
+
+    // vector<int> vNodes;
+    // for (int i=0; i<(int)nNodes; i++)
+    //   vNodes.push_back(i);
+
+    // map<size_t, vector<int> > mModBr;
+    // mModBr[numModel]=vNodes;
+
+    // size_t indModel=1;
+    // map<size_t, vector<int> > mModBr;
+
+    // while (args.find("model"+TextTools::toString(indModel))!=args.end())
+    // {
+    //   size_t numModel=(size_t)ApplicationTools::getIntParameter("model"+TextTools::toString(indModel), args, 1, "", true, warn);
+
+    //   if (mModBr.find(numModel)!=mModBr.end())
+    //     throw BadIntegerException("PhylogeneticsApplicationTools::addSubstitutionProcessCollectionMember : model number seen twice.", (int)numModel);
+
+    //   vector<int> nodesId = ApplicationTools::getVectorParameter<int>("model"+TextTools::toString(indModel)  + ".nodes_id", args, ',', ':', "0", "", true, warn);
+
+    //   mModBr[numModel]=nodesId;
+      
+    //   indModel++;
+    // }
+
+    // if (verbose){
+    //   ApplicationTools::displayMessage("Nonhomogeneous process : ");
+    //   map<size_t, vector<int> >::const_iterator it;
+    //   for (it=mModBr.begin(); it!=mModBr.end(); it++)
+    //     ApplicationTools::displayResult (" Model number" + TextTools::toString(it->first) + " associated to", TextTools::toString(it->second.size()) + " node(s).");
+    //   ApplicationTools::displayResult (" Tree number",TextTools::toString(numTree));
+    //   ApplicationTools::displayResult (" Rate number",TextTools::toString(numRate));
+    //   if (!stationarity)
+    //     ApplicationTools::displayResult (" Root frequencies number",TextTools::toString(numFreq));
+    // }
+    
+    // if (stationarity)
+    //   SubProColl->addSubstitutionProcess(procNum, mModBr, numTree, numRate);
+    // else
+    //   SubProColl->addSubstitutionProcess(procNum, mModBr, numTree, numRate, numFreq);
+  }
+  
 }
 
 
@@ -1205,18 +1260,27 @@ SubstitutionProcessCollection* PhylogeneticsApplicationTools::getSubstitutionPro
   ////////////////////////////////
   // Now processes
 
+  vector<string> vProcName=ApplicationTools::matchingParameters("process*", params);
 
-  size_t indProc=1;
-
-  while (params.find("process"+TextTools::toString(indProc))!=params.end())
-  {
-    addSubstitutionProcessCollectionMember(SPC, indProc, params, indProc);
-
-    indProc++;
-  }
-
-  if (indProc==1)
+  if (vProcName.size()==0)
     throw Exception("Missing process in construction of SubstitutionProcessCollection.");
+
+  for (size_t nT=0; nT < vProcName.size(); nT++)
+  {
+    size_t poseq=vProcName[nT].find("=");
+    size_t num;
+    size_t len = 7;
+    
+    string suff = vProcName[nT].substr(len,poseq-len);
+
+    if (TextTools::isDecimalInteger(suff,'$'))
+      num=static_cast<size_t>(TextTools::toInt(suff));
+    else
+      num=1;
+    
+    addSubstitutionProcessCollectionMember(SPC, num, params, num);
+  }
+  
 
   // string ProcessFilePath = ApplicationTools::getAFilePath("processes.file", params, false, false, suffix, suffixIsOptional);
 
@@ -3172,7 +3236,7 @@ void PhylogeneticsApplicationTools::printParameters(const SubstitutionProcessCol
   {
     const SubstitutionProcessCollectionMember* spcm=dynamic_cast<const SubstitutionProcessCollectionMember*>(collection->getSubstitutionProcess(vprocN[i]));
     
-    out << "process" << i+1 << "=";
+    out << "process" << vprocN[i] << "=";
       
     if (spcm->getNumberOfModels()==1)
       out << "Homogeneous(model=" << spcm->getModelNumbers()[0];
