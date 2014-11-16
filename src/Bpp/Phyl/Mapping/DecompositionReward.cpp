@@ -183,7 +183,7 @@ void DecompositionReward::setSubstitutionModel(const SubstitutionModel* model)
   if (model->getAlphabet()->getAlphabetType() != alphIndex_->getAlphabet()->getAlphabetType())
     throw Exception("DecompositionReward::setSubstitutionModel: alphabets do not match between alphabet index and model.");
   model_ = rModel;
-  unsigned int n = model->getAlphabet()->getSize();
+  size_t n = model->getNumberOfStates();
   if (n != nbStates_) {
     nbStates_ = n;
     resetStates_();
