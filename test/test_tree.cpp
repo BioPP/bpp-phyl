@@ -98,30 +98,42 @@ int main() {
   cout << TreeTemplateTools::treeToParenthesis(*tree7) << endl;
   delete tree7;
 
-  istringstream iss8("((A,B)aa,C)2;");
-  tReader.enableExtendedBootstrapProperty("ESS");
+  istringstream iss8("((A:1,B:2)80:3,C:4)2:5;");
   TreeTemplate<Node>* tree8 = tReader.read(iss8);
   cout << TreeTemplateTools::treeToParenthesis(*tree8) << endl;
   vector<int> ids = tree8->getNodesId();
   for (size_t i = 0; i < ids.size(); ++i) {
     cout << "Node " << ids[i] << ":" << endl;
-    vector<string> nodePpt = tree8->getNode(ids[i])->getNodePropertyNames();
-    for (size_t j = 0; j < nodePpt.size(); ++j)
-      if (tree8->getNode(ids[i])->hasNodeProperty(nodePpt[j]))
-        cout << "N: " << nodePpt[j] << "=" << dynamic_cast<BppString*>(tree8->getNode(ids[i])->getNodeProperty(nodePpt[j]))->toSTL() << endl;
+    if (tree8->getNode(ids[i])->hasBranchProperty(TreeTools::BOOTSTRAP))
+      cout << "N: BOOTSTRAP=" << dynamic_cast<Number<double>*>(tree8->getNode(ids[i])->getBranchProperty(TreeTools::BOOTSTRAP))->getValue() << endl;
     vector<string> branchPpt = tree8->getNode(ids[i])->getBranchPropertyNames();
-    for (size_t j = 0; j < branchPpt.size(); ++j)
-      if (tree8->getNode(ids[i])->hasBranchProperty(branchPpt[j]))
-        cout << "B: " << branchPpt[j] << "=" << dynamic_cast<BppString*>(tree8->getNode(ids[i])->getBranchProperty(branchPpt[j]))->toSTL() << endl;
   }
   delete tree8;
 
+  istringstream iss9("((A,B)aa,C)2;");
+  tReader.enableExtendedBootstrapProperty("ESS");
+  TreeTemplate<Node>* tree9 = tReader.read(iss9);
+  cout << TreeTemplateTools::treeToParenthesis(*tree9) << endl;
+  ids = tree9->getNodesId();
+  for (size_t i = 0; i < ids.size(); ++i) {
+    cout << "Node " << ids[i] << ":" << endl;
+    vector<string> nodePpt = tree9->getNode(ids[i])->getNodePropertyNames();
+    for (size_t j = 0; j < nodePpt.size(); ++j)
+      if (tree9->getNode(ids[i])->hasNodeProperty(nodePpt[j]))
+        cout << "N: " << nodePpt[j] << "=" << dynamic_cast<BppString*>(tree9->getNode(ids[i])->getNodeProperty(nodePpt[j]))->toSTL() << endl;
+    vector<string> branchPpt = tree9->getNode(ids[i])->getBranchPropertyNames();
+    for (size_t j = 0; j < branchPpt.size(); ++j)
+      if (tree9->getNode(ids[i])->hasBranchProperty(branchPpt[j]))
+        cout << "B: " << branchPpt[j] << "=" << dynamic_cast<BppString*>(tree9->getNode(ids[i])->getBranchProperty(branchPpt[j]))->toSTL() << endl;
+  }
+  delete tree9;
+
   //Test file parsing:
-  TreeTemplate<Node>* tree9 = TreeTemplateTools::getRandomTree(leaves, true);
+  TreeTemplate<Node>* tree10 = TreeTemplateTools::getRandomTree(leaves, true);
   Newick tWriter;
-  tWriter.write(*tree9, "tmp_tree.dnd");
+  tWriter.write(*tree10, "tmp_tree.dnd");
   Tree* test = tReader.read("tmp_tree.dnd");
-  if (!TreeTools::haveSameTopology(*tree9, *test))
+  if (!TreeTools::haveSameTopology(*tree10, *test))
     return 1;
   cout << "Newick I/O ok." << endl;
 
