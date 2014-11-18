@@ -228,7 +228,7 @@ void UniformizationSubstitutionCount::setSubstitutionModel(const SubstitutionMod
     throw Exception("UniformizationSubstitutionCount::setSubstitutionModel: alphabets do not match between register and model.");
 
   model_ = model;
-  unsigned int n = model->getAlphabet()->getSize();
+  size_t n = model->getNumberOfStates();
   if (n != nbStates_) {
     nbStates_ = n;
     //Re-initialize all B matrices according to substitution register.
@@ -237,14 +237,14 @@ void UniformizationSubstitutionCount::setSubstitutionModel(const SubstitutionMod
   fillBMatrices_();
   
   miu_ = 0;
-  for (unsigned int i = 0; i < nbStates_; ++i) {
+  for (size_t i = 0; i < nbStates_; ++i) {
     double diagQ = abs(model_->Qij(i, i));
     if (diagQ > miu_)
       miu_ = diagQ;
   }
 
-  if (miu_>10000)
-    throw Exception("UniformizationSubstitutionCount::setSubstitutionModel The maximum diagonal values of generator is above 10000. Abort, chose another mapping method.");
+  if (miu_ > 10000)
+    throw Exception("UniformizationSubstitutionCount::setSubstitutionModel(). The maximum diagonal values of generator is above 10000. Abort, chose another mapping method.");
 
   //Recompute counts:
   computeCounts_(currentLength_);
