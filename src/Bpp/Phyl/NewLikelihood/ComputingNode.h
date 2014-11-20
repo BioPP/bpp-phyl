@@ -65,7 +65,7 @@ namespace bpp
    */
   
   class ComputingNode:
-    virtual public Node,
+    public Node,
     public AbstractParametrizable
   {
   public:
