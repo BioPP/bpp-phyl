@@ -597,6 +597,7 @@ void BppOFrequenciesSetFormat::write(const FrequenciesSet* pfreqset,
         writtenNames.push_back(pl[i].getName());
       }
     }
+    
     const FullCodonFrequenciesSet* pF=dynamic_cast<const FullCodonFrequenciesSet*>(pfreqset);
     if (pF != NULL)
     {
@@ -608,6 +609,13 @@ void BppOFrequenciesSetFormat::write(const FrequenciesSet* pfreqset,
         flag=true;
       }
     }
+
+    const CodonFromUniqueFrequenciesSet* pCFU = dynamic_cast<const CodonFromUniqueFrequenciesSet*>(pfreqset);
+    if (pCFU != NULL)
+      out << ", mgmtStopCodons=" << pCFU->getMgmtStopCodon();
+    const CodonFromIndependentFrequenciesSet* pCFI = dynamic_cast<const CodonFromIndependentFrequenciesSet*>(pfreqset);
+    if (pCFI != NULL)
+      out << ", mgmtStopCodons=" << pCFI->getMgmtStopCodon();
   }
   
   out << ")";
