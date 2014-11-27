@@ -43,6 +43,11 @@
 #include <Bpp/Numeric/NumConstants.h>
 #include <Bpp/Numeric/Prob/Simplex.h>
 
+// From bpp-phyl
+#include "../SubstitutionModel.h"
+#include "../AbstractBiblioSubstitutionModel.h"
+
+
 using namespace bpp;
 
 #include <cmath>
@@ -184,3 +189,53 @@ MarkovModulatedFrequenciesSet::MarkovModulatedFrequenciesSet(FrequenciesSet* fre
   setFrequencies_(VectorTools::kroneckerMult(rateFreqs, freqSet_->getFrequencies()));
 }
 
+
+FromModelFrequenciesSet::FromModelFrequenciesSet(const FromModelFrequenciesSet& fmfs):
+  AbstractFrequenciesSet(fmfs),
+  model_(fmfs.model_->clone())
+{}
+
+FromModelFrequenciesSet& FromModelFrequenciesSet::operator=(const FromModelFrequenciesSet& fmfs) 
+{
+  AbstractFrequenciesSet::operator=(fmfs);
+  model_ = fmfs.model_->clone();
+  return *this;
+}
+
+FromModelFrequenciesSet::~FromModelFrequenciesSet()
+{
+  delete model_;
+}
+
+FromModelFrequenciesSet::FromModelFrequenciesSet(SubstitutionModel* model) :
+  AbstractFrequenciesSet(model->getStateMap().clone(), "FromModel.", "FromModel"),
+  model_(model)
+{
+  model_->setNamespace("FromModel."+model_->getNamespace());
+  addParameters_(model_->getParameters());
+  setFrequencies_(model_->getFrequencies());
+}
+
+
+void FromModelFrequenciesSet::setNamespace(std::string& name)
+{
+  AbstractParametrizable::setNamespace(name);
+  model_->setNamespace(name);
+}
+
+
+void FromModelFrequenciesSet::setFrequencies(const std::vector<double>& frequencies)
+{
+  std::map<int, double> freq;
+  for (size_t i = 0; i < getNumberOfFrequencies(); ++i) {
+    freq[getStateMap().getAlphabetStateAsInt(i)] += frequencies[i];
+  }
+  model_->setFreq(freq);
+  matchParametersValues(model_->getParameters());
+}
+
+void FromModelFrequenciesSet::fireParameterChanged(const ParameterList& pl)
+{
+  model_->matchParametersValues(pl);
+  setFrequencies_(model_->getFrequencies());
+}
