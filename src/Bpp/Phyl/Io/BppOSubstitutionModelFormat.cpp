@@ -1228,7 +1228,7 @@ void BppOSubstitutionModelFormat::write(const SubstitutionModel& model,
     out << "frequencies=";
 
     BppOFrequenciesSetFormat bIOFreq(alphabetCode_, false, warningLevel_);
-    bIOFreq.write(pfs, out, writtenNames);
+    bIOFreq.write(pfs, out, globalAliases, writtenNames);
     comma = true;
   }
 
@@ -1242,14 +1242,14 @@ void BppOSubstitutionModelFormat::write(const SubstitutionModel& model,
     out << "fitness=";
 
     BppOFrequenciesSetFormat bIOFreq(alphabetCode_, false, warningLevel_);
-    bIOFreq.write(pCF->getFitness(), out, writtenNames);
+    bIOFreq.write(pCF->getFitness(), out, globalAliases, writtenNames);
     comma = true;
   }
 
   // and the other parameters
 
   BppOParametrizableFormat bIO;
-  
+
   bIO.write(&model, out, globalAliases, model.getIndependentParameters().getParameterNames(), writtenNames, true, comma);
   out << ")";
 }
@@ -1395,7 +1395,6 @@ void BppOSubstitutionModelFormat::initialize_(
     catch (Exception& e) {}
   }
   
-
   model.matchParametersValues(pl);
 }
 

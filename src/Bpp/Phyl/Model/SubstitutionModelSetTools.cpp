@@ -82,6 +82,7 @@ SubstitutionModelSet* SubstitutionModelSetTools::createNonHomogeneousModelSet(
   SubstitutionModel* model,
   FrequenciesSet* rootFreqs,
   const Tree* tree,
+  const std::map<std::string, std::string>& aliasFreqNames,
   const vector<string>& globalParameterNames
   ) throw (AlphabetException, Exception)
 {
@@ -90,51 +91,26 @@ SubstitutionModelSet* SubstitutionModelSetTools::createNonHomogeneousModelSet(
     throw AlphabetMismatchException("SubstitutionModelSetTools::createNonHomogeneousModelSet()", model->getAlphabet(), rootFreqs->getAlphabet());
   ParameterList globalParameters, branchParameters;
   globalParameters = model->getParameters();
-
-  vector<string> globalParameterNames2; // vector of the complete names of global parameters
-
+  
+  vector<string> modelParamNames=globalParameters.getParameterNames();
+  
+  vector<string> globalParameterNames2;
+  
   // First get correct parameter names
-  size_t i, j;
 
-  for (i = 0; i < globalParameterNames.size(); i++)
+  for (size_t i = 0; i < globalParameterNames.size(); i++)
   {
-    if (globalParameterNames[i].find("*") != string::npos)
-    {
-      for (j = 0; j < globalParameters.size(); j++)
-      {
-        StringTokenizer stj(globalParameterNames[i], "*", true, false);
-        size_t pos1, pos2;
-        string parn = globalParameters[j].getName();
-        bool flag(true);
-        string g = stj.nextToken();
-        pos1 = parn.find(g);
-        if (pos1 != 0)
-          flag = false;
-        pos1 += g.length();
-        while (flag && stj.hasMoreToken())
-        {
-          g = stj.nextToken();
-          pos2 = parn.find(g, pos1);
-          if (pos2 == string::npos)
-          {
-            flag = false;
-            break;
-          }
-          pos1 = pos2 + g.length();
-        }
-        if (flag &&
-            ((g.length() == 0) || (pos1 == parn.length()) || (parn.rfind(g) == parn.length() - g.length())))
-          globalParameterNames2.push_back(parn);
-      }
-    }
-    else if (!globalParameters.hasParameter(globalParameterNames[i]))
+    vector<string> complName=ApplicationTools::matchingParameters(globalParameterNames[i], modelParamNames);
+
+    if (complName.size()==0)
       throw Exception("SubstitutionModelSetTools::createNonHomogeneousModelSet. Parameter '" + globalParameterNames[i] + "' is not valid.");
     else
-      globalParameterNames2.push_back(globalParameterNames[i]);
+      for (size_t j=0; j<complName.size(); j++)
+        globalParameterNames2.push_back(complName[j]);
   }
 
   // remove non global parameters
-  for (i = globalParameters.size(); i > 0; i--)
+  for (size_t i = globalParameters.size(); i > 0; i--)
   {
     if (find(globalParameterNames2.begin(), globalParameterNames2.end(), globalParameters[i - 1].getName()) == globalParameterNames2.end())
     {
@@ -150,7 +126,7 @@ SubstitutionModelSet* SubstitutionModelSetTools::createNonHomogeneousModelSet(
   {
     modelSet = new MixedSubstitutionModelSet(model->getAlphabet());
     // Remove the "relproba" parameters from the branch parameters and put them in the global parameters, for the hypernodes
-    for (i = branchParameters.size(); i > 0; i--)
+    for (size_t i = branchParameters.size(); i > 0; i--)
     {
       if (branchParameters[i - 1].getName().find("relproba") != string::npos)
       {
@@ -164,12 +140,12 @@ SubstitutionModelSet* SubstitutionModelSetTools::createNonHomogeneousModelSet(
 
   if (rootFreqs)
     modelSet->setRootFrequencies(rootFreqs);
-
+  
   // We assign a copy of this model to all nodes in the tree (excepted root node), and link all parameters with it.
   vector<int> ids = tree->getNodesId();
   int rootId = tree->getRootId();
   size_t pos = 0;
-  for (i = 0; i < ids.size(); i++)
+  for (size_t i = 0; i < ids.size(); i++)
   {
     if (ids[i] == rootId)
     {
@@ -179,19 +155,28 @@ SubstitutionModelSet* SubstitutionModelSetTools::createNonHomogeneousModelSet(
   }
 
   ids.erase(ids.begin() + static_cast<ptrdiff_t>(pos));
-  for (i = 0; i < ids.size(); i++)
+  for (size_t i = 0; i < ids.size(); i++)
   {
     modelSet->addModel(dynamic_cast<SubstitutionModel*>(model->clone()), vector<int>(1, ids[i]));
   }
 
   // Now alias all global parameters on all nodes:
-  for (i=0; i < globalParameters.size(); i++)
+  for (size_t i=0; i < globalParameters.size(); i++)
     {
       string pname=globalParameters[i].getName();
 
       for (size_t nn = 1; nn < ids.size(); nn++)
         modelSet->aliasParameters(pname+"_1",pname+"_"+TextTools::toString(nn+1));
     }
+
+  // and alias on the root
+  std::map<std::string, std::string>::const_iterator it;
+
+  for (it=aliasFreqNames.begin(); it!=aliasFreqNames.end(); it++)
+  {
+    if (globalParameters.hasParameter(it->second));
+        modelSet->aliasParameters(it->second+"_1",it->first);
+  }
   
   // Defines the hypernodes if mixed
   if (mixed)
@@ -200,10 +185,10 @@ SubstitutionModelSet* SubstitutionModelSetTools::createNonHomogeneousModelSet(
     MixedSubstitutionModel* pMSM = dynamic_cast<MixedSubstitutionModel*>(model);
 
     size_t nbm = pMSM->getNumberOfModels();
-    for (i = 0; i < nbm; i++)
+    for (size_t i = 0; i < nbm; i++)
     {
       pMSMS->addEmptyHyperNode();
-      for (j = 0; j < ids.size(); j++)
+      for (size_t j = 0; j < ids.size(); j++)
       {
         pMSMS->addToHyperNode(j, vector<int>(1, static_cast<int>(i)));
       }

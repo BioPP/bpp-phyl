@@ -192,7 +192,6 @@ namespace bpp
                                                                        std::map<std::string, std::string>& unparsedParameterValues,
                                                                        size_t modelNumber,
                                                                        const SiteContainer* data,
-                                                                       std::map<std::string, double>& existingParams,
                                                                        std::map<std::string, std::string>& sharedParams,
                                                                        bool verbose) throw (Exception);
 
@@ -220,6 +219,7 @@ namespace bpp
         const GeneticCode* gCode,
         const SiteContainer* data, 
         std::map<std::string, std::string>& params,
+        std::map<std::string, std::string>& sharedparams,
         const std::vector<double>& rateFreqs,
         const std::string& suffix = "",
         bool suffixIsOptional = true,
@@ -249,6 +249,7 @@ namespace bpp
         const GeneticCode* gCode,
         const std::string& freqDescription,
         const SiteContainer* data, 
+        std::map<std::string, std::string>& sharedparams,
         const std::vector<double>& rateFreqs,
         bool verbose = true,
         int warn = 1)

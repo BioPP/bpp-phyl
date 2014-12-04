@@ -196,7 +196,6 @@ void PhylogeneticsApplicationTools::setSubstitutionModelParametersInitialValuesW
   std::map<std::string, std::string>& unparsedParameterValues,
   size_t modelNumber,
   const SiteContainer* data,
-  std::map<std::string, double>& existingParams,
   std::map<std::string, std::string>& sharedParams,
   bool verbose) throw (Exception)
 {
@@ -230,7 +229,6 @@ void PhylogeneticsApplicationTools::setSubstitutionModelParametersInitialValuesW
       throw Exception("Unknown initFreqs argument");
   }
 
-
   
   ParameterList pl = model.getIndependentParameters();
   for (size_t i = 0; i < pl.size(); ++i)
@@ -248,29 +246,24 @@ void PhylogeneticsApplicationTools::setSubstitutionModelParametersInitialValuesW
     bool test1 = (initFreqs == "");
     bool test2 = (model.getParameterNameWithoutNamespace(pName).substr(posp + 1, 5) != "theta");
     bool test3 = (unparsedParameterValues.find(pName) != unparsedParameterValues.end());
+
     if (test1 || test2 || test3)
     {
       if (!test1 && !test2 && test3)
         ApplicationTools::displayWarning("Warning, initFreqs argument is set and a value is set for parameter " + pName);
+      
       value = ApplicationTools::getStringParameter(pName, unparsedParameterValues, TextTools::toString(pl[i].getValue()));
-      if (value.rfind("_")!=string::npos)
-      {
-        if (existingParams.find(value) != existingParams.end())
-          {
-            pl[i].setValue(existingParams[value]);
-            sharedParams[pl[i].getName()+"_"+TextTools::toString(modelNumber)]=value;
-          }
-        else
-          throw Exception("Error, unknown parameter " + value);
-      }
-      else
-        pl[i].setValue(TextTools::toDouble(value));
-    }
 
-    existingParams[pName+"_"+TextTools::toString(modelNumber)] = pl[i].getValue();
-    
-    if (verbose)
-      ApplicationTools::displayResult("Parameter found", pName + +"_"+TextTools::toString(modelNumber) + "=" + TextTools::toString(pl[i].getValue()));
+      try { 
+        pl[i].setValue(TextTools::toDouble(value));
+        if (verbose)
+          ApplicationTools::displayResult("Parameter found", pName + +"_"+TextTools::toString(modelNumber) + "=" + TextTools::toString(pl[i].getValue()));
+      }
+      catch (Exception& e)
+      { 
+        sharedParams[pl[i].getName()+"_"+TextTools::toString(modelNumber)]=value;
+      }
+    }
   }
   
   model.matchParametersValues(pl);
@@ -288,6 +281,7 @@ FrequenciesSet* PhylogeneticsApplicationTools::getRootFrequenciesSet(
   const GeneticCode* gCode,
   const SiteContainer* data,
   std::map<std::string, std::string>& params,
+  std::map<std::string, std::string>& sharedparams,
   const std::vector<double>& rateFreqs,
   const std::string& suffix,
   bool suffixIsOptional,
@@ -301,7 +295,15 @@ FrequenciesSet* PhylogeneticsApplicationTools::getRootFrequenciesSet(
   }
   else
   {
-    FrequenciesSet* freq = getFrequenciesSet(alphabet, gCode, freqDescription, data, rateFreqs, verbose, warn + 1);
+    map<string, string> unparams;
+    
+    FrequenciesSet* freq = getFrequenciesSet(alphabet, gCode, freqDescription, data, unparams, rateFreqs, verbose, warn + 1);
+    freq->setNamespace("root."+freq->getNamespace());
+
+    map<string, string>::iterator it;
+    for (it=unparams.begin(); it!=unparams.end(); it++)
+      sharedparams["root."+it->first]=it->second;
+
     if (verbose)
       ApplicationTools::displayResult("Root frequencies ", freq->getName());
     return freq;
@@ -315,6 +317,7 @@ FrequenciesSet* PhylogeneticsApplicationTools::getFrequenciesSet(
   const GeneticCode* gCode,
   const std::string& freqDescription,
   const SiteContainer* data,
+  std::map<std::string, std::string>& sharedparams,
   const std::vector<double>& rateFreqs,
   bool verbose,
   int warn) throw (Exception)
@@ -327,6 +330,10 @@ FrequenciesSet* PhylogeneticsApplicationTools::getFrequenciesSet(
     bIO.setGeneticCode(gCode);
   }
   auto_ptr<FrequenciesSet> pFS(bIO.read(alphabet, freqDescription, data, true));
+
+  std::map<std::string, std::string> unparsedparam=bIO.getUnparsedArguments();
+  
+  sharedparams.insert(unparsedparam.begin(),unparsedparam.end());
   
   // /////// To be changed for input normalization
   if (rateFreqs.size() > 0)
@@ -426,8 +433,7 @@ void PhylogeneticsApplicationTools::setSubstitutionModelSet(
     tmpDesc = ApplicationTools::getStringParameter("model1", params, "JC69", suffix, suffixIsOptional, warn);
 
   auto_ptr<SubstitutionModel> tmp(bIO.read(alphabet, tmpDesc, data, false));
-  //  map<string, string> tmpUnparsedParameterValues(bIO.getUnparsedArguments());
-
+  
   if (tmp->getNumberOfStates() != alphabet->getSize())
   {
     // Markov-Modulated Markov Model...
@@ -438,11 +444,13 @@ void PhylogeneticsApplicationTools::setSubstitutionModelSet(
   // ////////////////////////////////////
   // Deal with root frequencies
 
+  map<string, string> unparsedParameters;
+
   bool stationarity = ApplicationTools::getBooleanParameter("nonhomogeneous.stationarity", params, false, "", true, warn);
   FrequenciesSet* rootFrequencies = 0;
   if (!stationarity)
   {
-    rootFrequencies = getRootFrequenciesSet(alphabet, gCode, data, params, rateFreqs, suffix, suffixIsOptional, verbose);
+    rootFrequencies = getRootFrequenciesSet(alphabet, gCode, data, params, unparsedParameters, rateFreqs, suffix, suffixIsOptional, verbose);
     stationarity = !rootFrequencies;
     string freqDescription = ApplicationTools::getStringParameter("nonhomogeneous.root_freq", params, "", suffix, suffixIsOptional, warn);
     if (freqDescription.substr(0, 10) == "MVAprotein")
@@ -453,17 +461,17 @@ void PhylogeneticsApplicationTools::setSubstitutionModelSet(
         throw Exception("The MVAprotein frequencies set at the root can only be used if a Coala model is used on branches.");
     }
   }
+  
   ApplicationTools::displayBooleanResult("Stationarity assumed", stationarity);
 
   if (!stationarity)
     modelSet.setRootFrequencies(rootFrequencies);
 
+  
   // //////////////////////////////////////
   // Now parse all models:
 
   bIO.setVerbose(true);
-  
-  map<string, double> existingParameters;
 
   for (size_t i = 0; i < nbModels; i++)
   {
@@ -477,30 +485,26 @@ void PhylogeneticsApplicationTools::setSubstitutionModelSet(
       modelDesc = ApplicationTools::getStringParameter(prefix, params, "JC69", suffix, suffixIsOptional, warn);
 
     auto_ptr<SubstitutionModel> model(bIO.read(alphabet, modelDesc, data, false));
-    map<string, string> unparsedParameterValues(bIO.getUnparsedArguments());
 
+    map<string, string> unparsedModelParameters=bIO.getUnparsedArguments();
     map<string, string> sharedParameters;
+
     setSubstitutionModelParametersInitialValuesWithAliases(
       *model,
-      unparsedParameterValues, i+1, data,
-      existingParameters, sharedParameters,
+      unparsedModelParameters, i+1, data,
+      sharedParameters,
       verbose);
+    
+    unparsedParameters.insert(sharedParameters.begin(), sharedParameters.end());
 
     vector<int> nodesId = ApplicationTools::getVectorParameter<int>(prefix + ".nodes_id", params, ',', ':', TextTools::toString(i), suffix, suffixIsOptional, warn);
 
     if (verbose)
       ApplicationTools::displayResult("Model" + TextTools::toString(i + 1) + " is associated to", TextTools::toString(nodesId.size()) + " node(s).");
 
-    modelSet.addModel(model.get(), nodesId);
-
-    // Now set shared parameters:
-    map<string, string>::const_iterator it;
-    for (it=sharedParameters.begin(); it!=sharedParameters.end(); it++)
-      modelSet.aliasParameters(it->second, it->first);
-    
-    model.release();
+    modelSet.addModel(model.release(), nodesId);
   }
-  
+    
   // Finally check parameter aliasing:
   string aliasDesc = ApplicationTools::getStringParameter("nonhomogeneous.alias", params, "", suffix, suffixIsOptional, warn);
   StringTokenizer st(aliasDesc, ",");
@@ -509,12 +513,13 @@ void PhylogeneticsApplicationTools::setSubstitutionModelSet(
     string alias = st.nextToken();
     string::size_type index = alias.find("->");
     if (index == string::npos)
-      throw Exception("PhylogeneticsApplicationTools::getSubstitutionModelSet. Bad alias syntax, should contain `->' symbol: " + alias);
-    string p1 = alias.substr(0, index);
-    string p2 = alias.substr(index + 2);
-    ApplicationTools::displayResult("Parameter alias found", p1 + "->" + p2);
-    modelSet.aliasParameters(p1, p2);
+      throw Exception("PhylogeneticsApplicationTools::setSubstitutionModelSet. Bad alias syntax, should contain `->' symbol: " + alias);
+    unparsedParameters[alias.substr(0, index)]=alias.substr(index + 2);
   }
+
+  // alias unparsedParameters
+
+  modelSet.aliasParameters(unparsedParameters,verbose);
 }
 
 /******************************************************************************/
@@ -1436,10 +1441,10 @@ void PhylogeneticsApplicationTools::printParameters(const SubstitutionModelSet* 
     const SubstitutionModel* model = modelSet->getModel(i);
 
     // First get the aliases for this model:
-    map<string, string> aliases;
 
     ParameterList pl=model->getParameters();
 
+    map<string, string> aliases;
     for (size_t np = 0 ; np< pl.size() ; np++)
       {
         string nfrom = modelSet->getFrom(pl[np].getName() + "_" + TextTools::toString(i + 1));
@@ -1451,7 +1456,6 @@ void PhylogeneticsApplicationTools::printParameters(const SubstitutionModelSet* 
     writtenNames.clear();
     out.endLine() << "model" << (i + 1) << "=";
     BppOSubstitutionModelFormat bIOsm(BppOSubstitutionModelFormat::ALL, true, true, true, false, warn);
-    map<string, string>::iterator it;
     bIOsm.write(*model, out, aliases, writtenNames);
     out.endLine();
     vector<int> ids = modelSet->getNodesWithModel(i);
@@ -1463,13 +1467,27 @@ void PhylogeneticsApplicationTools::printParameters(const SubstitutionModelSet* 
     out.endLine();
   }
 
+  // First get the aliases for this frequencies set
+
+  const FrequenciesSet* pFS = modelSet->getRootFrequenciesSet();
+  
+  ParameterList plf=pFS->getParameters();
+
+  map<string, string> aliases;
+  for (size_t np = 0 ; np< plf.size() ; np++)
+  {
+    string nfrom = modelSet->getFrom(plf[np].getName());
+    if (nfrom != "")
+      aliases[plf[np].getName()] = nfrom;
+  }
+  
   // Root frequencies:
   out.endLine();
   (out << "# Root frequencies:").endLine();
   out << "nonhomogeneous.root_freq=";
 
   BppOFrequenciesSetFormat bIO(BppOFrequenciesSetFormat::ALL, false, warn);
-  bIO.write(modelSet->getRootFrequenciesSet(), out, writtenNames);
+  bIO.write(pFS, out, aliases, writtenNames);
 }
 
 /******************************************************************************/

@@ -250,13 +250,13 @@ public:
    */
   const SubstitutionModel* getModel(size_t i) const throw (IndexOutOfBoundsException)
   {
-    if (i > modelSet_.size()) throw IndexOutOfBoundsException("SubstitutionModelSet::getNumberOfModels().", 0, modelSet_.size() - 1, i);
+    if (i >= modelSet_.size()) throw IndexOutOfBoundsException("SubstitutionModelSet::getNumberOfModels().", 0, modelSet_.size() - 1, i);
     return modelSet_[i];
   }
 
   SubstitutionModel* getModel(size_t i) throw (IndexOutOfBoundsException)
   {
-    if (i > modelSet_.size()) throw IndexOutOfBoundsException("SubstitutionModelSet::getNumberOfModels().", 0, modelSet_.size() - 1, i);
+    if (i >= modelSet_.size()) throw IndexOutOfBoundsException("SubstitutionModelSet::getNumberOfModels().", 0, modelSet_.size() - 1, i);
     return modelSet_[i];
   }
 

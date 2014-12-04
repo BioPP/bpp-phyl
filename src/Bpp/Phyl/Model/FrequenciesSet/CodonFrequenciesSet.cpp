@@ -150,6 +150,8 @@ void FullCodonFrequenciesSet::setFrequencies(const vector<double>& frequencies)
 
 void FullCodonFrequenciesSet::fireParameterChanged(const ParameterList& parameters)
 {
+  AbstractFrequenciesSet::fireParameterChanged(parameters);
+  
   sFreq_.matchParametersValues(parameters);
   updateFreq_();
 }
@@ -248,6 +250,8 @@ FullPerAACodonFrequenciesSet& FullPerAACodonFrequenciesSet::operator=(const Full
 
 void FullPerAACodonFrequenciesSet::fireParameterChanged(const ParameterList& parameters)
 {
+  AbstractFrequenciesSet::fireParameterChanged(parameters);
+
   if (dynamic_cast<AbstractFrequenciesSet*>(ppfs_.get()))
     (dynamic_cast<AbstractFrequenciesSet*>(ppfs_.get()))->matchParametersValues(parameters);
   for (size_t i = 0; i < vS_.size(); i++)

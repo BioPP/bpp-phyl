@@ -127,6 +127,7 @@ public:
   void write(
       const FrequenciesSet* pfreqset,
       OutputStream& out,
+      std::map<std::string, std::string>& globalAliases,
       std::vector<std::string>& writtenNames) const;
 
 private:

@@ -142,6 +142,7 @@ WordFromIndependentFrequenciesSet& WordFromIndependentFrequenciesSet::operator=(
 
 void WordFromIndependentFrequenciesSet::fireParameterChanged(const ParameterList& pl)
 {
+  AbstractFrequenciesSet::fireParameterChanged(pl);
   size_t l = vFreq_.size();
 
   bool f = 0;
@@ -305,6 +306,7 @@ WordFromUniqueFrequenciesSet::~WordFromUniqueFrequenciesSet()
 
 void WordFromUniqueFrequenciesSet::fireParameterChanged(const ParameterList& pl)
 {
+  AbstractFrequenciesSet::fireParameterChanged(pl);
   if (pFreq_->matchParametersValues(pl))
     updateFrequencies();
 }

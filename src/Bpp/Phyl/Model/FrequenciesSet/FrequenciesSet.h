@@ -44,8 +44,8 @@
 #include "../StateMap.h"
 
 // From bpp-core:
-#include <Bpp/Numeric/Parametrizable.h>
-#include <Bpp/Numeric/AbstractParametrizable.h>
+#include <Bpp/Numeric/ParameterAliasable.h>
+#include <Bpp/Numeric/AbstractParameterAliasable.h>
 #include <Bpp/Numeric/VectorTools.h>
 #include <Bpp/Numeric/Prob/Simplex.h>
 
@@ -63,7 +63,7 @@ namespace bpp
   class SubstitutionModel;
   
   class FrequenciesSet :
-    public virtual Parametrizable
+    public virtual ParameterAliasable
   {
   public:
 #ifndef NO_VIRTUAL_COV
@@ -127,7 +127,7 @@ namespace bpp
 
   class AbstractFrequenciesSet :
     public virtual FrequenciesSet,
-    public AbstractParametrizable
+    public AbstractParameterAliasable
   {
   private:
     const Alphabet* alphabet_;
@@ -137,7 +137,7 @@ namespace bpp
 
   public:
     AbstractFrequenciesSet(StateMap* stateMap, const std::string& prefix, const std::string& name) :
-      AbstractParametrizable(prefix),
+      AbstractParameterAliasable(prefix),
       alphabet_(stateMap->getAlphabet()),
       stateMap_(stateMap),
       freq_(stateMap->getNumberOfModelStates()),
@@ -152,7 +152,7 @@ namespace bpp
     clone() const = 0;
 
     AbstractFrequenciesSet(const AbstractFrequenciesSet& af) :
-      AbstractParametrizable(af),
+      AbstractParameterAliasable(af),
       alphabet_(af.alphabet_),
       stateMap_(af.stateMap_->clone()),
       freq_(af.freq_),
@@ -161,7 +161,7 @@ namespace bpp
 
     AbstractFrequenciesSet& operator=(const AbstractFrequenciesSet& af)
     {
-      AbstractParametrizable::operator=(af);
+      AbstractParameterAliasable::operator=(af);
       alphabet_ = af.alphabet_;
       stateMap_.reset(af.stateMap_->clone());
       freq_ = af.freq_;
@@ -200,7 +200,12 @@ namespace bpp
         x += freq_[i];
       freq_ /= x;
     }
-   
+
+    virtual void fireParameterChanged(const ParameterList& parameters)
+    {
+      AbstractParameterAliasable::fireParameterChanged(parameters);
+    }
+
   protected:
     std::vector<double>& getFrequencies_() { return freq_; }
     double& getFreq_(size_t i) { return freq_[i]; }
@@ -289,7 +294,7 @@ namespace bpp
 
     void fireParameterChanged(const ParameterList& pl);
 
-    void setNamespace(std::string& name);
+    void setNamespace(const std::string& name);
     
   };
 
@@ -338,6 +343,7 @@ namespace bpp
 
     void fireParameterChanged(const ParameterList& pl)
     {
+      AbstractFrequenciesSet::fireParameterChanged(pl);
       freqSet_->matchParametersValues(pl);
       setFrequencies_(VectorTools::kroneckerMult(rateFreqs_, freqSet_->getFrequencies()));
     }

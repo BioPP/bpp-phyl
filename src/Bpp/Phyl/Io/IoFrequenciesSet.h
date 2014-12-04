@@ -114,11 +114,14 @@ namespace bpp
      *
      * @param pfreqset A pointer towards a frequencies set object;
      * @param out The output stream;
+     * @param globalAliases parameters linked to global alias. The
+     * output will be "name=alias_name";
      * @param writtenNames is the vector of the written
      * parameters so far [in, out];
      */
     virtual void write(const FrequenciesSet* pfreqset,
                        OutputStream& out,
+                       std::map<std::string, std::string>& globalAliases,
                        std::vector<std::string>& writtenNames) const = 0;
   };
 

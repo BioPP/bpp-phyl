@@ -47,6 +47,7 @@
 
 //From bpp-core:
 #include <Bpp/Io/FileTools.h>
+#include <Bpp/Io/BppOParametrizableFormat.h>
 #include <Bpp/Text/TextTools.h>
 #include <Bpp/Text/StringTokenizer.h>
 #include <Bpp/Text/KeyvalTools.h>
@@ -484,6 +485,7 @@ FrequenciesSet* BppOFrequenciesSetFormat::read(const Alphabet* alphabet, const s
   else
     throw Exception("Unknown frequency option: " + freqName);
 
+  // Update parameter args:
   vector<string> pnames = pFS->getParameters().getParameterNames();
 
   string pref = pFS->getNamespace();
@@ -492,6 +494,42 @@ FrequenciesSet* BppOFrequenciesSetFormat::read(const Alphabet* alphabet, const s
     string name = pFS->getParameterNameWithoutNamespace(pnames[i]);
     if (args.find(name) != args.end())
       unparsedArguments_[pref + name] = args[name];
+  }
+
+  // Now look if some parameters are aliased:
+  ParameterList pl = pFS->getIndependentParameters();
+  string pname, pval, pname2;
+  for (size_t i = 0; i < pl.size(); i++)
+  {
+    pname = pFS->getParameterNameWithoutNamespace(pl[i].getName());
+
+    if (args.find(pname) == args.end())
+      continue;
+    pval = args[pname];
+
+    if (((pval.rfind("_") != string::npos) && (TextTools::isDecimalInteger(pval.substr(pval.rfind("_")+1,string::npos)))) ||
+        (pval.find("(") != string::npos))
+      continue;
+    bool found = false;
+    for (size_t j = 0; j < pl.size() && !found; j++)
+    {
+      pname2 = pFS->getParameterNameWithoutNamespace(pl[j].getName());
+
+      // if (j == i || args.find(pname2) == args.end()) continue; Julien 03/03/2010: This extra condition prevents complicated (nested) models to work properly...
+      if (j == i)
+        continue;
+      if (pval == pname2)
+      {
+        // This is an alias...
+        // NB: this may throw an exception if uncorrect! We leave it as is for now :s
+        pFS->aliasParameters(pname2, pname);
+        if (verbose_)
+          ApplicationTools::displayResult("Parameter alias found", pname + "->" + pname2);
+        found = true;
+      }
+    }
+    // if (!TextTools::isDecimalNumber(pval) && !found)
+    //   throw Exception("Incorrect parameter syntax: parameter " + pval + " was not found and can't be used as a value for parameter " + pname + ".");
   }
 
   // Forward arguments:
@@ -518,6 +556,7 @@ FrequenciesSet* BppOFrequenciesSetFormat::read(const Alphabet* alphabet, const s
 
 void BppOFrequenciesSetFormat::write(const FrequenciesSet* pfreqset,
                                      OutputStream& out,
+                                     std::map<std::string, std::string>& globalAliases,
                                      std::vector<std::string>& writtenNames) const
 {
   if (!pfreqset)
@@ -526,6 +565,7 @@ void BppOFrequenciesSetFormat::write(const FrequenciesSet* pfreqset,
     return;
   }
   ParameterList pl = pfreqset->getParameters();
+
   int p = out.getPrecision();
   out.setPrecision(12);
   bool comma(false);
@@ -558,7 +598,7 @@ void BppOFrequenciesSetFormat::write(const FrequenciesSet* pfreqset,
       if (i != 0)
         out << ", ";
       out << "frequency" << i + 1 << "=";
-      write(&pWFI->getFrequenciesSetForLetter(i), out, writtenNames);
+      write(&pWFI->getFrequenciesSetForLetter(i), out, globalAliases, writtenNames);
     }
       comma = true;
   }
@@ -571,7 +611,7 @@ void BppOFrequenciesSetFormat::write(const FrequenciesSet* pfreqset,
       if (i != 0)
         out << ", ";
       out << "frequency=";
-      write(&pWFU->getFrequenciesSetForLetter(i), out, writtenNames);
+      write(&pWFU->getFrequenciesSetForLetter(i), out, globalAliases, writtenNames);
     }
     comma = true;
   }
@@ -586,7 +626,6 @@ void BppOFrequenciesSetFormat::write(const FrequenciesSet* pfreqset,
     out << "model=";
     
     BppOSubstitutionModelFormat bIO(BppOSubstitutionModelFormat::ALL, true, true, true, false, 0);
-    map<string, string> globalAliases;
 
     bIO.write(*(pFMFS->getModel()), out, globalAliases, writtenNames);
     comma = true;
@@ -600,7 +639,7 @@ void BppOFrequenciesSetFormat::write(const FrequenciesSet* pfreqset,
     const ProteinFrequenciesSet* ppfs=pFPA->getProteinFrequenciesSet();
     out << "protein_frequencies=";
     
-    write(ppfs, out, writtenNames);
+    write(ppfs, out, globalAliases, writtenNames);
     
     comma = true;
     
@@ -664,19 +703,10 @@ void BppOFrequenciesSetFormat::write(const FrequenciesSet* pfreqset,
   }
 
 // All remaining parameters
-  for (size_t i = 0; i < pl.size(); i++)
-  {
-    if (find(writtenNames.begin(), writtenNames.end(), pl[i].getName()) == writtenNames.end())
-    {
-      if (comma)
-        out << ",";
-      else
-        comma = true;
-      string pname = pfreqset->getParameterNameWithoutNamespace(pl[i].getName());
-      (out << pname << "=").enableScientificNotation(false) << pl[i].getValue();
-      writtenNames.push_back(pl[i].getName());
-    }
-  }
+  const BppOParametrizableFormat* bIO = new BppOParametrizableFormat();
+  
+  bIO->write(pfreqset, out, globalAliases, pl.getParameterNames(), writtenNames, true, comma);
+  delete bIO;
   
   out << ")";
   out.setPrecision(p);
@@ -722,7 +752,7 @@ void BppOFrequenciesSetFormat::initialize_(FrequenciesSet& freqSet, const SiteCo
   else
   {
     // Explicit initialization of each parameter
-    ParameterList pl = freqSet.getParameters();
+    ParameterList pl = freqSet.getIndependentParameters();
       
     for (size_t i = 0; i < pl.size(); ++i)
     {
@@ -735,12 +765,21 @@ void BppOFrequenciesSetFormat::initialize_(FrequenciesSet& freqSet, const SiteCo
     for (size_t i = 0; i < pl.size(); ++i)
     {
       const string pName = pl[i].getName();
-      double value = ApplicationTools::getDoubleParameter(pName, unparsedArguments_, pl[i].getValue(), "", true, warningLevel_);
+      
+      try {
+        double value = ApplicationTools::getDoubleParameter(pName, unparsedArguments_, pl[i].getValue(), "", true, warningLevel_);
 
-      pl[i].setValue(value);
-      if (verbose_)
-        ApplicationTools::displayResult("Parameter found", pName + "=" + TextTools::toString(pl[i].getValue()));
+        pl[i].setValue(value);
+
+        if (unparsedArguments_.find(pName) != unparsedArguments_.end())
+          unparsedArguments_.erase(unparsedArguments_.find(pName));
+
+        if (verbose_)
+          ApplicationTools::displayResult("Parameter found", pName + "=" + TextTools::toString(pl[i].getValue()));
+      }
+      catch (Exception& e) {}
     }
+    
     freqSet.matchParametersValues(pl);
   }
 }
