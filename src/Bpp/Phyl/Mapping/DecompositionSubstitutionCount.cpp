@@ -251,7 +251,7 @@ void DecompositionSubstitutionCount::setSubstitutionModel(const SubstitutionMode
   if (model->getAlphabet()->getAlphabetType() != register_->getAlphabet()->getAlphabetType())
     throw Exception("DecompositionSubstitutionCount::setSubstitutionModel: alphabets do not match between register and model.");
   model_ = rModel;
-  unsigned int n = model->getAlphabet()->getSize();
+  size_t n = model->getNumberOfStates();
   if (n != nbStates_) {
     nbStates_ = n;
     resetStates_();

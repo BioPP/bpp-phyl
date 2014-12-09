@@ -41,7 +41,6 @@
 #define _ABSTRACTBIBLIOSUBSTITUTIONMODEL_H_
 
 #include "SubstitutionModel.h"
-#include "AbstractSubstitutionModel.h"
 
 #include <Bpp/Numeric/AbstractParameterAliasable.h>
 
@@ -182,6 +181,8 @@ public:
     }
   }
 
+  void setNamespace(const std::string& name);
+  
 protected:
   virtual void updateMatrices();
   virtual SubstitutionModel& getModel() = 0;

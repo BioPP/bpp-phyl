@@ -1576,6 +1576,10 @@ vector< vector<double> > SubstitutionMappingTools::getNormalizationsPerBranch(
   // compute the AlphabetIndex for each substitutionType
   vector<UserAlphabetIndex1 > usai(nbTypes, UserAlphabetIndex1(nullModel->getAlphabet()));
 
+  for (size_t nbt = 0; nbt < nbTypes; nbt++)
+    for (size_t i = 0; i < nbStates; i++)
+      usai[nbt].setIndex(supportedStates[i], 0);
+
   for (size_t i = 0; i < nbStates; i++)
   {
     for (size_t j = 0; j < nbStates; j++)

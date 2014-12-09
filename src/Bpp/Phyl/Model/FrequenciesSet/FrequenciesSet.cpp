@@ -43,6 +43,11 @@
 #include <Bpp/Numeric/NumConstants.h>
 #include <Bpp/Numeric/Prob/Simplex.h>
 
+// From bpp-phyl
+#include "../SubstitutionModel.h"
+#include "../AbstractBiblioSubstitutionModel.h"
+
+
 using namespace bpp;
 
 #include <cmath>
@@ -114,7 +119,6 @@ FullFrequenciesSet::FullFrequenciesSet(StateMap* stateMap, const vector<double>&
 
 void FullFrequenciesSet::setFrequencies(const vector<double>& frequencies) 
 {
-  
   sFreq_.setFrequencies(frequencies);
   setParametersValues(sFreq_.getParameters()); 
 
@@ -129,6 +133,7 @@ void FullFrequenciesSet::setNamespace(const std::string& nameSpace)
 
 void FullFrequenciesSet::fireParameterChanged(const ParameterList& parameters)
 {
+  AbstractFrequenciesSet::fireParameterChanged(parameters);
   sFreq_.matchParametersValues(parameters);
   updateFreq_();
 }
@@ -184,3 +189,59 @@ MarkovModulatedFrequenciesSet::MarkovModulatedFrequenciesSet(FrequenciesSet* fre
   setFrequencies_(VectorTools::kroneckerMult(rateFreqs, freqSet_->getFrequencies()));
 }
 
+
+
+//////////////////////////////////
+/// From Model
+
+
+FromModelFrequenciesSet::FromModelFrequenciesSet(const FromModelFrequenciesSet& fmfs):
+  AbstractFrequenciesSet(fmfs),
+  model_(fmfs.model_->clone())
+{}
+
+FromModelFrequenciesSet& FromModelFrequenciesSet::operator=(const FromModelFrequenciesSet& fmfs) 
+{
+  AbstractFrequenciesSet::operator=(fmfs);
+  model_ = fmfs.model_->clone();
+  return *this;
+}
+
+FromModelFrequenciesSet::~FromModelFrequenciesSet()
+{
+  delete model_;
+}
+
+FromModelFrequenciesSet::FromModelFrequenciesSet(SubstitutionModel* model) :
+  AbstractFrequenciesSet(model->getStateMap().clone(), "FromModel."+(model?model->getNamespace():""), "FromModel"),
+  model_(model)
+{
+  model_->setNamespace(getNamespace());
+  addParameters_(model_->getParameters());
+  setFrequencies_(model_->getFrequencies());
+}
+
+
+void FromModelFrequenciesSet::setNamespace(const std::string& name)
+{
+  AbstractParameterAliasable::setNamespace(name);
+  model_->setNamespace(name);
+}
+
+
+void FromModelFrequenciesSet::setFrequencies(const std::vector<double>& frequencies)
+{
+  std::map<int, double> freq;
+  for (size_t i = 0; i < getNumberOfFrequencies(); ++i) {
+    freq[getStateMap().getAlphabetStateAsInt(i)] += frequencies[i];
+  }
+  model_->setFreq(freq);
+  matchParametersValues(model_->getParameters());
+}
+
+void FromModelFrequenciesSet::fireParameterChanged(const ParameterList& pl)
+{
+  AbstractFrequenciesSet::fireParameterChanged(pl);
+  model_->matchParametersValues(pl);
+  setFrequencies_(model_->getFrequencies());
+}

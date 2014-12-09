@@ -75,7 +75,7 @@ void AbstractBiblioSubstitutionModel::updateMatrices()
       lParPmodel_[i].setValue(getParameter(getParameterNameWithoutNamespace(mapParNamesFromPmodel_[lParPmodel_[i].getName()])).getValue());
     }
   }
-
+  
   getModel().matchParametersValues(lParPmodel_);
 }
 
@@ -89,6 +89,29 @@ void AbstractBiblioSubstitutionModel::addRateParameter()
   lParPmodel_.reset();
   lParPmodel_.addParameters(getModel().getParameters());
 }
+
+/******************************************************************************/
+
+void AbstractBiblioSubstitutionModel::setNamespace(const std::string& name)
+{
+  AbstractParameterAliasable::setNamespace(name);
+
+  std::map<std::string, std::string>::const_iterator it;
+
+  std::map<std::string, std::string> mapParNamesFromPmodel_new;
+
+  for (it=mapParNamesFromPmodel_.begin(); it!=mapParNamesFromPmodel_.end(); it++)
+    mapParNamesFromPmodel_new[name+getModel().getParameterNameWithoutNamespace(it->first)]=it->second;
+  
+  mapParNamesFromPmodel_.clear();
+  mapParNamesFromPmodel_=mapParNamesFromPmodel_new;
+
+  getModel().setNamespace(name);
+
+  lParPmodel_.reset();
+  lParPmodel_.addParameters(getModel().getParameters());
+}
+
 
 /******************************************************************************/
 

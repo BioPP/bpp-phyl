@@ -73,7 +73,6 @@ public:
 	
 	MvaFrequenciesSet& operator=(const MvaFrequenciesSet& mfs)
 	{
-		//			AbstractParametrizable::operator=(af);
 		AbstractFrequenciesSet::operator=(mfs);
 		tPpalAxes_ = mfs.tPpalAxes_;
 		rowCoords_ = mfs.rowCoords_;

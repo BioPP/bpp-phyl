@@ -262,7 +262,6 @@ namespace bpp
       std::map<std::string, std::string>& unparsedParameterValues,
       size_t modelNumber,
       const SiteContainer* data,
-      std::map<std::string, double>& existingParams,
       std::map<std::string, std::string>& sharedParams,
       bool verbose) throw (Exception);
 
@@ -290,12 +289,12 @@ namespace bpp
       const GeneticCode* gCode,
       const SiteContainer* data, 
       std::map<std::string, std::string>& params,
+      std::map<std::string, std::string>& sharedparams,
       const std::vector<double>& rateFreqs,
       const std::string& suffix = "",
       bool suffixIsOptional = true,
       bool verbose = true,
       int warn = 1) throw (Exception);
-
 
     /*
      * @brief The same, but with several FrequenciesSet.
@@ -307,6 +306,7 @@ namespace bpp
       const GeneticCode* gCode,
       const std::map<size_t, SiteContainer*>& mData, 
       std::map<std::string, std::string>& params,
+      std::map<std::string, std::string>& sharedparams,
       const std::string& suffix = "",
       bool suffixIsOptional = true,
       bool verbose = true,
@@ -331,13 +331,14 @@ namespace bpp
      * @throw Exception if an error occured.
      */
     static FrequenciesSet* getFrequenciesSet(
-      const Alphabet* alphabet,
-      const GeneticCode* gCode,
-      const std::string& freqDescription,
-      const SiteContainer* data, 
-      const std::vector<double>& rateFreqs,
-      bool verbose = true,
-      int warn = 1)
+        const Alphabet* alphabet,
+        const GeneticCode* gCode,
+        const std::string& freqDescription,
+        const SiteContainer* data, 
+        std::map<std::string, std::string>& sharedparams,
+        const std::vector<double>& rateFreqs,
+        bool verbose = true,
+        int warn = 1)
       throw (Exception);
 
     /**
