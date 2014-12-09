@@ -703,7 +703,7 @@ void BppOFrequenciesSetFormat::write(const FrequenciesSet* pfreqset,
 
 // All remaining parameters
   const BppOParametrizableFormat* bIO = new BppOParametrizableFormat();
-  
+
   bIO->write(pfreqset, out, globalAliases, pl.getParameterNames(), writtenNames, true, comma);
   delete bIO;
   

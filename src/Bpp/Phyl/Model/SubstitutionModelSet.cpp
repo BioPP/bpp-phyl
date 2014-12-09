@@ -305,9 +305,13 @@ bool SubstitutionModelSet::hasMixedSubstitutionModel() const
 {
   for (size_t i = 0; i < getNumberOfModels(); i++)
     {
+      cerr << i << " " << getModel(i) << endl;
+      
       if (dynamic_cast<const MixedSubstitutionModel*>(getModel(i)) != NULL)
         return true;
     }
+  cerr << "fa" << endl;
+  
   return false;
 }
 

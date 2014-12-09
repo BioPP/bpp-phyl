@@ -330,6 +330,7 @@ namespace bpp
      * @return A new FrequenciesSet object according to options specified.
      * @throw Exception if an error occured.
      */
+
     static FrequenciesSet* getFrequenciesSet(
         const Alphabet* alphabet,
         const GeneticCode* gCode,
