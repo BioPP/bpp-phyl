@@ -748,6 +748,9 @@ void BppOFrequenciesSetFormat::initialize_(FrequenciesSet& freqSet, const SiteCo
     }
     else
       throw Exception("Unknown init argument");
+
+    unparsedArguments_.erase(unparsedArguments_.find("init"));
+    unparsedArguments_.erase(unparsedArguments_.find("initFreqs"));    
   }
   else
   {
