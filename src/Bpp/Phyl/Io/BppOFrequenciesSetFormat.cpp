@@ -747,39 +747,40 @@ void BppOFrequenciesSetFormat::initialize_(FrequenciesSet& freqSet, const SiteCo
     }
     else
       throw Exception("Unknown init argument");
+
+    unparsedArguments_.erase("init");
+    unparsedArguments_.erase("initFreqs");
   }
-  else
+
+  // Explicit initialization of each parameter
+  ParameterList pl = freqSet.getIndependentParameters();
+      
+  for (size_t i = 0; i < pl.size(); ++i)
   {
-    // Explicit initialization of each parameter
-    ParameterList pl = freqSet.getIndependentParameters();
-      
-    for (size_t i = 0; i < pl.size(); ++i)
-    {
-      AutoParameter ap(pl[i]);
-      if (verbose_)
-        ap.setMessageHandler(ApplicationTools::warning);
-      pl.setParameter(i, ap);
-    }
-
-    for (size_t i = 0; i < pl.size(); ++i)
-    {
-      const string pName = pl[i].getName();
-      
-      try {
-        double value = ApplicationTools::getDoubleParameter(pName, unparsedArguments_, pl[i].getValue(), "", true, warningLevel_);
-
-        pl[i].setValue(value);
-
-        if (unparsedArguments_.find(pName) != unparsedArguments_.end())
-          unparsedArguments_.erase(unparsedArguments_.find(pName));
-
-        if (verbose_)
-          ApplicationTools::displayResult("Parameter found", pName + "=" + TextTools::toString(pl[i].getValue()));
-      }
-      catch (Exception& e) {}
-    }
-    
-    freqSet.matchParametersValues(pl);
+    AutoParameter ap(pl[i]);
+    if (verbose_)
+      ap.setMessageHandler(ApplicationTools::warning);
+    pl.setParameter(i, ap);
   }
+
+  for (size_t i = 0; i < pl.size(); ++i)
+  {
+    const string pName = pl[i].getName();
+    
+    try {
+      double value = ApplicationTools::getDoubleParameter(pName, unparsedArguments_, pl[i].getValue(), "", true, warningLevel_);
+      
+      pl[i].setValue(value);
+      
+      if (unparsedArguments_.find(pName) != unparsedArguments_.end())
+        unparsedArguments_.erase(unparsedArguments_.find(pName));
+      
+      if (verbose_)
+        ApplicationTools::displayResult("Parameter found", pName + "=" + TextTools::toString(pl[i].getValue()));
+    }
+    catch (Exception& e) {}
+  }
+  
+  freqSet.matchParametersValues(pl);
 }
 
