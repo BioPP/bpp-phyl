@@ -130,6 +130,7 @@ SET(CPP_FILES
   Bpp/Phyl/Model/Codon/YNGKP_M3.cpp
   Bpp/Phyl/Model/Codon/YNGKP_M7.cpp
   Bpp/Phyl/Model/Codon/YNGKP_M8.cpp
+  Bpp/Phyl/Model/Codon/YNGKP_M9.cpp
   Bpp/Phyl/Model/FrequenciesSet/FrequenciesSet.cpp
   Bpp/Phyl/Model/FrequenciesSet/NucleotideFrequenciesSet.cpp
   Bpp/Phyl/Model/FrequenciesSet/MvaFrequenciesSet.cpp
@@ -306,6 +307,7 @@ SET(H_FILES
   Bpp/Phyl/Model/Codon/YNGKP_M3.h
   Bpp/Phyl/Model/Codon/YNGKP_M7.h
   Bpp/Phyl/Model/Codon/YNGKP_M8.h
+  Bpp/Phyl/Model/Codon/YNGKP_M9.h
   Bpp/Phyl/Model/FrequenciesSet/FrequenciesSet.h
   Bpp/Phyl/Model/FrequenciesSet/NucleotideFrequenciesSet.h
   Bpp/Phyl/Model/FrequenciesSet/WordFrequenciesSet.h
