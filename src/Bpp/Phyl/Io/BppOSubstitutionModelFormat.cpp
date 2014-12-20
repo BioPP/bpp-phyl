@@ -53,6 +53,7 @@
 #include "../Model/Codon/YNGKP_M7.h"
 #include "../Model/Codon/YNGKP_M8.h"
 #include "../Model/Codon/YNGKP_M9.h"
+#include "../Model/Codon/YNGKP_M10.h"
 #include "../Model/Codon/YN98.h"
 #include "../Model/Codon/TripletSubstitutionModel.h"
 #include "../Model/Codon/CodonRateSubstitutionModel.h"
@@ -221,7 +222,7 @@ SubstitutionModel* BppOSubstitutionModelFormat::read(
       else if (modelName == "YNGKP_M8")
         model.reset(new YNGKP_M8(geneticCode_, codonFreqs.release(), nbClasses));
     }
-    else if (modelName == "YNGKP_M9")
+    else if (modelName == "YNGKP_M9" || modelName == "YNGKP_M10")
     {
       if (args.find("nbeta") == args.end())
         throw Exception("Missing argument 'nbeta' (number of classes of beta distribution) in " + modelName + " distribution");
@@ -232,7 +233,10 @@ SubstitutionModel* BppOSubstitutionModelFormat::read(
       if (verbose_)
         ApplicationTools::displayResult("Number of classes in model", nbBeta + nbGamma);
 
-      model.reset(new YNGKP_M9(geneticCode_, codonFreqs.release(), nbBeta, nbGamma));
+      if (modelName == "YNGKP_M9")
+        model.reset(new YNGKP_M9(geneticCode_, codonFreqs.release(), nbBeta, nbGamma));
+      else
+        model.reset(new YNGKP_M10(geneticCode_, codonFreqs.release(), nbBeta, nbGamma));
     }
     else
       throw Exception("Unknown Codon model: " + modelName);
@@ -1290,32 +1294,16 @@ void BppOSubstitutionModelFormat::write(const SubstitutionModel& model,
     comma=true;
   }
 
-  // if ((modelName == "YNGKP_M7") || modelName == "YNGKP_M8")
-  // {
-  //   if (args.find("n") == args.end())
-  //     throw Exception("Missing argument 'n' (number of classes) in " + modelName + " distribution");
-  //   unsigned int nbClasses = TextTools::to<unsigned int>(args["n"]);
-  //   if (verbose_)
-  //     ApplicationTools::displayResult("Number of classes in model", nbClasses);
-
-  //   if (modelName == "YNGKP_M7")
-  //     model.reset(new YNGKP_M7(geneticCode_, codonFreqs.release(), nbClasses));
-  //   else if (modelName == "YNGKP_M8")
-  //     model.reset(new YNGKP_M8(geneticCode_, codonFreqs.release(), nbClasses));
-  // }
-  // else if (modelName == "YNGKP_M9")
-  // {
-  //   if (args.find("nbeta") == args.end())
-  //     throw Exception("Missing argument 'nbeta' (number of classes of beta distribution) in " + modelName + " distribution");
-  //   unsigned int nbBeta = TextTools::to<unsigned int>(args["nbeta"]);
-  //   if (args.find("ngamma") == args.end())
-  //     throw Exception("Missing argument 'ngamma' (number of classes of gamma distribution) in " + modelName + " distribution");
-  //   unsigned int nbGamma = TextTools::to<unsigned int>(args["ngamma"]);
-  //   if (verbose_)
-  //     ApplicationTools::displayResult("Number of classes in model", nbBeta + nbGamma);
-
-  // and the other parameters
-
+  const YNGKP_M10* pM10 = dynamic_cast<const YNGKP_M10*>(&model);
+  if (pM10)
+  {
+    if (comma)
+      out << ",";
+    out << "nbeta=" << pM10->getNBeta() << ",ngamma=" << pM10->getNGamma();
+    
+    comma=true;
+  }
+  
   BppOParametrizableFormat bIO;
 
   bIO.write(&model, out, globalAliases, model.getIndependentParameters().getParameterNames(), writtenNames, true, comma);
