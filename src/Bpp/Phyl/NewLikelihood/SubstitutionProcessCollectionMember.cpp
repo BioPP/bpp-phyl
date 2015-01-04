@@ -366,7 +366,13 @@ inline double SubstitutionProcessCollectionMember::getInitValue(size_t i, int st
 
 inline double SubstitutionProcessCollectionMember::getProbabilityForModel(size_t classIndex) const {
   if (classIndex >= getDistribution()->getNumberOfCategories())
-    throw IndexOutOfBoundsException("NonHomogeneousSubstitutionProcess::getProbabilityForModel.", classIndex, 0, getDistribution()->getNumberOfCategories());
+    throw IndexOutOfBoundsException("SubstitutionProcessCollectionMember::getProbabilityForModel.", classIndex, 0, getDistribution()->getNumberOfCategories());
   return getDistribution()->getProbability(classIndex);
+}
+
+inline double SubstitutionProcessCollectionMember::getRateForModel(size_t classIndex) const {
+  if (classIndex >= getDistribution()->getNumberOfCategories())
+    throw IndexOutOfBoundsException("SubstitutionProcessCollectionMember::getRateForModel.", classIndex, 0, getDistribution()->getNumberOfCategories());
+  return getDistribution()->getCategory(classIndex);
 }
 

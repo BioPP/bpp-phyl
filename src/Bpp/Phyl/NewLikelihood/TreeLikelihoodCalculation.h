@@ -95,7 +95,8 @@ public:
    * @return The size of the data set for which this object is initialized.
    * @throw TreeLikelihoodCalculationNotInitializedException If this instance was not initialized.
    */
-  virtual size_t getNumberOfSites() const throw (TreeLikelihoodCalculationNotInitializedException) = 0;
+  
+  virtual size_t getNumberOfSites() const = 0;
 
   /**
    * @brief Get the pattern index for a given site position in the original data.

@@ -287,19 +287,12 @@ namespace bpp
 
       mutable Vdouble   rootLikelihoodsSC_;
 
-      std::auto_ptr<SiteContainer> shrunkData_;
-      size_t nbSites_; 
-      size_t nbStates_;
-      size_t nbClasses_;
-      size_t nbDistinctSites_; 
-
       const TreeTemplate<Node>* tree_;
 
     public:
       DoubleRecursiveTreeLikelihoodData(size_t nbClasses) :
-        AbstractTreeLikelihoodData(),
-        nodeData_(), leafData_(), rootLikelihoods_(), rootLikelihoodsS_(), rootLikelihoodsSC_(), shrunkData_(0), nbSites_(0), nbStates_(0),
-        nbClasses_(nbClasses), nbDistinctSites_(0), tree_(0)
+        AbstractTreeLikelihoodData(nbClasses),
+        nodeData_(), leafData_(), rootLikelihoods_(), rootLikelihoodsS_(), rootLikelihoodsSC_(), tree_(0)
       {}
 
       DoubleRecursiveTreeLikelihoodData(const DoubleRecursiveTreeLikelihoodData& data):
@@ -308,12 +301,8 @@ namespace bpp
         rootLikelihoods_(data.rootLikelihoods_),
         rootLikelihoodsS_(data.rootLikelihoodsS_),
         rootLikelihoodsSC_(data.rootLikelihoodsSC_),
-        shrunkData_(0),
-        nbSites_(data.nbSites_), nbStates_(data.nbStates_),
-        nbClasses_(data.nbClasses_), nbDistinctSites_(data.nbDistinctSites_), tree_(data.tree_)
+        tree_(data.tree_)
       {
-        if (data.shrunkData_.get())
-          shrunkData_.reset(dynamic_cast<SiteContainer*>(data.shrunkData_->clone()));
       }
 
       DoubleRecursiveTreeLikelihoodData& operator=(const DoubleRecursiveTreeLikelihoodData & data)
@@ -324,14 +313,6 @@ namespace bpp
         rootLikelihoods_   = data.rootLikelihoods_;
         rootLikelihoodsS_  = data.rootLikelihoodsS_;
         rootLikelihoodsSC_ = data.rootLikelihoodsSC_;
-        nbSites_           = data.nbSites_;
-        nbStates_          = data.nbStates_;
-        nbClasses_         = data.nbClasses_;
-        nbDistinctSites_   = data.nbDistinctSites_;
-        if (data.shrunkData_.get())
-          shrunkData_.reset(dynamic_cast<SiteContainer*>(data.shrunkData_->clone()));
-        else
-          shrunkData_.reset();
         tree_              = data.tree_;
         
         return *this;
@@ -451,11 +432,6 @@ namespace bpp
       Vdouble& getRootStateClassLikelihoodArray() { return rootLikelihoodsSC_; }
       const Vdouble& getRootStateClassLikelihoodArray() const { return rootLikelihoodsSC_; }
 
-      size_t getNumberOfDistinctSites() const { return nbDistinctSites_; }
-      size_t getNumberOfSites() const { return nbSites_; }
-      size_t getNumberOfStates() const { return nbStates_; }
-      size_t getNumberOfClasses() const { return nbClasses_; }
-    
       /**
        * @brief Resize and initialize all likelihood arrays according to the given data set and substitution process.
        *
@@ -476,7 +452,6 @@ namespace bpp
       void reInit() throw (Exception);
     
       void reInit(const Node* node) throw (Exception);
-
 
     protected:
     

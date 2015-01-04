@@ -72,6 +72,7 @@ SET(CPP_FILES
   Bpp/Phyl/NewLikelihood/HmmPhyloEmissionProbabilities.cpp
   Bpp/Phyl/NewLikelihood/HmmPhyloLikelihood.cpp
   Bpp/Phyl/NewLikelihood/AutoCorrelationPhyloLikelihood.cpp
+  Bpp/Phyl/NewLikelihood/MarginalAncestralReconstruction.cpp
   Bpp/Phyl/Mapping/SubstitutionRegister.cpp
   Bpp/Phyl/Mapping/LaplaceSubstitutionCount.cpp
   Bpp/Phyl/Mapping/OneJumpSubstitutionCount.cpp
@@ -268,6 +269,7 @@ SET(H_FILES
   Bpp/Phyl/NewLikelihood/AutoCorrelationPhyloLikelihood.h
   Bpp/Phyl/NewLikelihood/HmmProcessAlphabet.h
   Bpp/Phyl/NewLikelihood/SumOfDataPhyloLikelihood.h
+  Bpp/Phyl/NewLikelihood/MarginalAncestralReconstruction.h
   Bpp/Phyl/Mapping/LaplaceSubstitutionCount.h
   Bpp/Phyl/Mapping/WeightedSubstitutionCount.h
   Bpp/Phyl/Mapping/OneJumpSubstitutionCount.h

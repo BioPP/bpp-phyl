@@ -128,6 +128,12 @@ public:
     return 1;
   }
 
+  double getRateForModel(size_t classIndex) const {
+    if (classIndex != 0)
+      throw IndexOutOfBoundsException("SimpleSubstitutionProcess::getRateForModel.", classIndex, 0, 1);
+    return 1;
+  }
+
   const ComputingTree& getComputingTree() const
   {
     return *computingTree_.get();

@@ -156,12 +156,6 @@ public:
     return data_->getAlphabet();
   }
 
-  size_t getNumberOfSites() const throw (TreeLikelihoodCalculationNotInitializedException) {
-    if (!initialized_)
-      throw new TreeLikelihoodCalculationNotInitializedException("SingleRecursiveTreeLikelihoodCalculation::getNumberOfSites().");
-    return data_->getNumberOfSites();
-  }
-
   bool isInitialized() const { return initialized_; }
 
   void setData(const SiteContainer& sites) throw (Exception);

@@ -255,7 +255,7 @@ void SingleRecursiveTreeLikelihoodCalculation::computeSubtreeLikelihood_(const N
     vLikArr.push_back(&likelihoodData_->getLikelihoodArray(son->getId()));
   }
 
-  process_->multiplyPartialLikelihoods(likelihoods_node, vLikArr, node->getId(), vPatt, ComputingNode::D0);
+  process_->multiplyUpwardPartialLikelihoods(likelihoods_node, vLikArr, node->getId(), vPatt, ComputingNode::D0);
 }
 
 
@@ -527,9 +527,9 @@ void SingleRecursiveTreeLikelihoodCalculation::computeTreeDLogLikelihood(const s
     
   }
 
-  process_->multiplyPartialLikelihoods(dLikelihoods_father, vLikArr, father->getId(), vPatt, ComputingNode::D0);
+  process_->multiplyUpwardPartialLikelihoods(dLikelihoods_father, vLikArr, father->getId(), vPatt, ComputingNode::D0);
 
-  process_->multiplyPartialLikelihoods(dLikelihoods_father, &(likelihoodData_->getLikelihoodArray(brId)), brId, *vPatt[nBrId], ComputingNode::D1);
+  process_->multiplyUpwardPartialLikelihoods(dLikelihoods_father, &(likelihoodData_->getLikelihoodArray(brId)), brId, *vPatt[nBrId], ComputingNode::D1);
   
   // Now we go down the tree toward the root node:
   computeDownSubtreeDLikelihood_(father);
@@ -570,7 +570,7 @@ void SingleRecursiveTreeLikelihoodCalculation::computeDownSubtreeDLikelihood_(co
       vLikArr.push_back(&likelihoodData_->getLikelihoodArray(Sid));
   }
 
-  process_->multiplyPartialLikelihoods(dLikelihoods_father, vLikArr, father->getId(), vPatt, ComputingNode::D0);
+  process_->multiplyUpwardPartialLikelihoods(dLikelihoods_father, vLikArr, father->getId(), vPatt, ComputingNode::D0);
      
   // Next step: move toward grand father...
   computeDownSubtreeDLikelihood_(father);
@@ -904,9 +904,9 @@ void SingleRecursiveTreeLikelihoodCalculation::computeTreeD2LogLikelihood(const 
     
   }
 
-  process_->multiplyPartialLikelihoods(d2Likelihoods_father, vLikArr, father->getId(), vPatt, ComputingNode::D0);
+  process_->multiplyUpwardPartialLikelihoods(d2Likelihoods_father, vLikArr, father->getId(), vPatt, ComputingNode::D0);
 
-  process_->multiplyPartialLikelihoods(d2Likelihoods_father, &(likelihoodData_->getLikelihoodArray(brId)), brId, *vPatt[nBrId], ComputingNode::D2);
+  process_->multiplyUpwardPartialLikelihoods(d2Likelihoods_father, &(likelihoodData_->getLikelihoodArray(brId)), brId, *vPatt[nBrId], ComputingNode::D2);
   
   // Now we go down the tree toward the root node:
   computeDownSubtreeD2Likelihood_(father);
@@ -945,7 +945,7 @@ void SingleRecursiveTreeLikelihoodCalculation::computeDownSubtreeD2Likelihood_(c
       vLikArr.push_back(&likelihoodData_->getLikelihoodArray(Sid));
   }
   
-  process_->multiplyPartialLikelihoods(d2Likelihoods_father, vLikArr, father->getId(), vPatt, ComputingNode::D0);
+  process_->multiplyUpwardPartialLikelihoods(d2Likelihoods_father, vLikArr, father->getId(), vPatt, ComputingNode::D0);
  
   // Next step: move toward grand father...
   computeDownSubtreeD2Likelihood_(father);

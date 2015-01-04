@@ -227,7 +227,7 @@ namespace bpp
      * for their first derivate, D2 for their second.
      **/
 
-    void multiplyPartialLikelihoods(VVVdouble* likelihoods_node, const VVVdouble* likelihoods_son, int sonId, unsigned char DX) const
+    void multiplyUpwardPartialLikelihoods(VVVdouble* likelihoods_node, const VVVdouble* likelihoods_son, int sonId, unsigned char DX) const
     {
       for (size_t c = 0; c < vTree_.size(); ++c)
       {
@@ -235,7 +235,33 @@ namespace bpp
 
         const VVdouble* likelihoods_sons_c = &(*likelihoods_son)[c];
 
-        vTree_[c]->getNode(sonId)->multiplyPartialLikelihoods(likelihoods_node_c, likelihoods_sons_c, DX);
+        vTree_[c]->getNode(sonId)->multiplyUpwardPartialLikelihoods(likelihoods_node_c, likelihoods_sons_c, DX);
+      }
+    }
+
+    /**
+     *@brief multiplies the partial likelihood using the partial
+     * likelihoods of a father.
+     *
+     * @param likelihoods_node a pointer to the partial likelihood
+     * of this node [in, out].
+     * @param likelihoods_father the partial likelihood of
+     * the father.
+     * @param nodeId the used Computing node Id.
+     * @param DX tells which matrix should be used as used for
+     * transition factors, either D0 for transition probabilities, D1
+     * for their first derivate, D2 for their second.
+     **/
+
+    void multiplyDownwardPartialLikelihoods(VVVdouble* likelihoods_node, const VVVdouble* likelihoods_father, int nodeId, unsigned char DX) const
+    {
+      for (size_t c = 0; c < vTree_.size(); ++c)
+      {
+        VVdouble* likelihoods_node_c = &(*likelihoods_node)[c];
+
+        const VVdouble* likelihoods_fathers_c = &(*likelihoods_father)[c];
+
+        vTree_[c]->getNode(nodeId)->multiplyDownwardPartialLikelihoods(likelihoods_node_c, likelihoods_fathers_c, DX);
       }
     }
 
@@ -255,7 +281,7 @@ namespace bpp
      * for their first derivate, D2 for their second.
      **/
 
-    void multiplyPartialLikelihoods(VVVdouble* likelihoods_node, const VVVdouble* likelihoods_son, int sonId, const std::vector<size_t>& patterns, unsigned char DX) const
+    void multiplyUpwardPartialLikelihoods(VVVdouble* likelihoods_node, const VVVdouble* likelihoods_son, int sonId, const std::vector<size_t>& patterns, unsigned char DX) const
     {
       for (size_t c = 0; c < vTree_.size(); ++c)
       {
@@ -263,7 +289,7 @@ namespace bpp
 
         const VVdouble* likelihoods_sons_c = &(*likelihoods_son)[c];
 
-        vTree_[c]->getNode(sonId)->multiplyPartialLikelihoods(likelihoods_node_c, likelihoods_sons_c, patterns, DX);
+        vTree_[c]->getNode(sonId)->multiplyUpwardPartialLikelihoods(likelihoods_node_c, likelihoods_sons_c, patterns, DX);
       }
     }
 
@@ -284,7 +310,7 @@ namespace bpp
      **/
 
     
-    void multiplyPartialLikelihoods(VVVdouble* likelihoods_node, const std::vector<const VVVdouble*>& vLikelihoods_sons, int nodeId, unsigned char DX) const
+    void multiplyUpwardPartialLikelihoods(VVVdouble* likelihoods_node, const std::vector<const VVVdouble*>& vLikelihoods_sons, int nodeId, unsigned char DX) const
     {
       size_t nbSons=vLikelihoods_sons.size();
       for (size_t c = 0; c < vTree_.size(); ++c)
@@ -295,7 +321,7 @@ namespace bpp
         for (size_t i=0;i<nbSons;i++)
           vLikelihoods_sons_c.push_back((vLikelihoods_sons[i]!=0)?&(*vLikelihoods_sons[i])[c]:0);
 
-        vTree_[c]->getNode(nodeId)->multiplyPartialLikelihoods(likelihoods_node_c, vLikelihoods_sons_c, DX);
+        vTree_[c]->getNode(nodeId)->multiplyUpwardPartialLikelihoods(likelihoods_node_c, vLikelihoods_sons_c, DX);
       }
     }
 
@@ -317,7 +343,7 @@ namespace bpp
      **/
     
     
-    void multiplyPartialLikelihoods(VVVdouble* likelihoods_node, const std::vector<const VVVdouble*>& vLikelihoods_sons, int nodeId, const std::vector<const std::vector<size_t>* >& vPatterns, unsigned char DX) const
+    void multiplyUpwardPartialLikelihoods(VVVdouble* likelihoods_node, const std::vector<const VVVdouble*>& vLikelihoods_sons, int nodeId, const std::vector<const std::vector<size_t>* >& vPatterns, unsigned char DX) const
     {
       size_t nbSons=vLikelihoods_sons.size();
       for (size_t c = 0; c < vTree_.size(); ++c)
@@ -328,7 +354,7 @@ namespace bpp
         for (size_t i=0;i<nbSons;i++)
           vLikelihoods_sons_c.push_back((vLikelihoods_sons[i]!=0)?&(*vLikelihoods_sons[i])[c]:0);
 
-        vTree_[c]->getNode(nodeId)->multiplyPartialLikelihoods(likelihoods_node_c, vLikelihoods_sons_c, vPatterns, DX);
+        vTree_[c]->getNode(nodeId)->multiplyUpwardPartialLikelihoods(likelihoods_node_c, vLikelihoods_sons_c, vPatterns, DX);
       }
     }
 

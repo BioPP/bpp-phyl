@@ -1421,7 +1421,7 @@ map<size_t, PhyloLikelihood*> PhylogeneticsApplicationTools::getPhyloLikelihoods
 
     char recursion = 'S';
 
-    if (args.find("recursion")==args.end() && args["recursion"]=="double")
+    if (args.find("recursion")!=args.end() && args["recursion"]=="double")
       recursion = 'D';
 
     // Compression

@@ -122,4 +122,111 @@ void AbstractTreeLikelihoodCalculation::displayLikelihoodArray(const VVVdouble& 
 }
 
 /******************************************************************************/
+/******************************************************************************/
+
+
+void AbstractTreeLikelihoodCalculation::getAncestralFrequencies(
+  std::map<int, std::vector<double> >& frequencies,
+  bool alsoForLeaves)
+{
+  size_t n = getNumberOfDistinctSites();
+  size_t ns = getNumberOfStates();
+  double sumw = 0, w;
+  map<int, vector<double> > siteFrequencies;
+  for (size_t i = 0; i < n; ++i)
+  {
+    w = getLikelihoodData()->getWeight(i);
+    sumw += w;
+  }
+
+  for (size_t i = 0; i < n; ++i)
+  {
+    w = getLikelihoodData()->getWeight(i);
+    getAncestralFrequencies(i, siteFrequencies, alsoForLeaves);
+    //Initialization
+    if (i == 0)
+    {
+      frequencies = siteFrequencies; //Initialize all nodes ids.
+      //Now reset to 0:
+      for (map<int, vector<double> >::iterator it = frequencies.begin(); it != frequencies.end(); it++)
+        VectorTools::fill(it->second, 0.);
+    }
+    map<int, vector<double> >::iterator it = frequencies.begin();
+    map<int, vector<double> >::iterator itSite = siteFrequencies.begin();
+    for (size_t j = 0; j < frequencies.size(); ++j)
+    {
+      for (size_t k = 0; k < ns; ++k)
+        it->second[k] += itSite->second[k] * w / sumw;
+      it++;
+      itSite++;
+    }
+  }
+}
+
+/******************************************************************************/
+
+void AbstractTreeLikelihoodCalculation::getAncestralFrequencies(
+  size_t site,
+  std::map<int, std::vector<double> >& frequencies,
+  bool alsoForLeaves)
+{
+  int currentId = getSubstitutionProcess()->getTree().getRootId();
+  const vector<double>& currentFreqs = getSubstitutionProcess()->getRootFrequencies();
+  size_t nbClasses = getNumberOfClasses();
+
+  std::vector<std::map<int, std::vector<double> > > vmfreqcl;
+
+  for (size_t nclass=0; nclass<nbClasses; nclass++)
+  {
+    std::map<int, std::vector<double> > mfreqcl;
+    getAncestralFrequencies_(getSiteIndex(site), nclass, currentId, currentFreqs, mfreqcl, alsoForLeaves);
+    vmfreqcl.push_back(mfreqcl);
+  }
+
+  frequencies.clear();
+  frequencies.insert(vmfreqcl[0].begin(), vmfreqcl[0].end());
+
+  for (size_t nclass=1; nclass<nbClasses; nclass++)
+  {
+    std::map<int, std::vector<double> >& mfreqcl=vmfreqcl[nclass];
+    double prob=getSubstitutionProcess()->getProbabilityForModel(nclass);
+    
+    for (std::map<int, std::vector<double> >::const_iterator it=mfreqcl.begin(); it!= mfreqcl.end(); it++)
+      frequencies[it->first]+=it->second * prob;
+  }
+  
+}
+
+/******************************************************************************/
+
+void AbstractTreeLikelihoodCalculation::getAncestralFrequencies_(
+  size_t siteIndex,
+  size_t classIndex,
+  int parentId,
+  const std::vector<double>& ancestralFrequencies,
+  std::map<int,std::vector<double> >& frequencies,
+  bool alsoForLeaves)
+{
+  if (!getSubstitutionProcess()->getTree().isLeaf(parentId) || alsoForLeaves)
+    frequencies[parentId] = ancestralFrequencies;
+
+  vector<int> sonsId = getSubstitutionProcess()->getTree().getSonsId(parentId);
+  for (size_t i = 0; i < sonsId.size(); i++)
+  {
+    vector<double> sonFrequencies(getNumberOfStates());
+    const bpp::Matrix<double>& pijt = getSubstitutionProcess()->getTransitionProbabilities(sonsId[i], classIndex);
+    for (size_t j = 0; j < getNumberOfStates(); j++)
+    {
+      double x = 0;
+      for (size_t k = 0; k < getNumberOfStates(); k++)
+      {
+        x += pijt(k,j) * ancestralFrequencies[k];
+      }
+      sonFrequencies[j] = x;
+    }
+    getAncestralFrequencies_(siteIndex, classIndex, sonsId[i], sonFrequencies, frequencies, alsoForLeaves);
+  }
+}
+
+
 

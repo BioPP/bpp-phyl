@@ -148,6 +148,12 @@ public:
     return rDist_->getProbability(classIndex);
   }
 
+  double getRateForModel(size_t classIndex) const {
+    if (classIndex >= rDist_->getNumberOfCategories())
+      throw IndexOutOfBoundsException("RateAcrossSitesSubstitutionProcess::getRateForModel.", classIndex, 0, rDist_->getNumberOfCategories());
+    return rDist_->getCategory(classIndex);
+  }
+
   const ComputingTree& getComputingTree() const
   {
     return *computingTree_.get();

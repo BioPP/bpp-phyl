@@ -94,21 +94,43 @@ namespace bpp
 
       const Alphabet* alphabet_;
 
+      std::auto_ptr<SiteContainer> shrunkData_;
+      size_t nbSites_; 
+      size_t nbStates_;
+      size_t nbClasses_;
+      size_t nbDistinctSites_; 
+
     public:
-      AbstractTreeLikelihoodData():
-        rootPatternLinks_(), rootWeights_(), alphabet_(0) {}
+      AbstractTreeLikelihoodData(size_t nbClasses) :
+        rootPatternLinks_(), rootWeights_(), alphabet_(0),
+        shrunkData_(0), nbSites_(0), nbStates_(0),
+        nbClasses_(nbClasses), nbDistinctSites_(0) {}
 
       AbstractTreeLikelihoodData(const AbstractTreeLikelihoodData& atd) :
         rootPatternLinks_(atd.rootPatternLinks_),
         rootWeights_(atd.rootWeights_),
-        alphabet_(atd.alphabet_)
-      {}
+        alphabet_(atd.alphabet_),
+        shrunkData_(0),
+        nbSites_(atd.nbSites_), nbStates_(atd.nbStates_),
+        nbClasses_(atd.nbClasses_), nbDistinctSites_(atd.nbDistinctSites_)
+      {
+        if (atd.shrunkData_.get())
+          shrunkData_.reset(dynamic_cast<SiteContainer*>(atd.shrunkData_->clone()));
+      }
 
       AbstractTreeLikelihoodData& operator=(const AbstractTreeLikelihoodData& atd)
       {
         rootPatternLinks_ = atd.rootPatternLinks_;
         rootWeights_      = atd.rootWeights_;
         alphabet_         = atd.alphabet_;
+        nbSites_          = atd.nbSites_;
+        nbStates_         = atd.nbStates_;
+        nbClasses_        = atd.nbClasses_;
+        nbDistinctSites_  = atd.nbDistinctSites_;
+        if (atd.shrunkData_.get())
+          shrunkData_.reset(dynamic_cast<SiteContainer*>(atd.shrunkData_->clone()));
+        else
+          shrunkData_.reset();
         return *this;
       }
 
@@ -117,15 +139,19 @@ namespace bpp
 
     public:
       std::vector<size_t>& getRootArrayPositions() { return rootPatternLinks_; }
+      
       const std::vector<size_t>& getRootArrayPositions() const { return rootPatternLinks_; }
+
       size_t getRootArrayPosition(size_t site) const
       {
         return rootPatternLinks_[site];
       }
+
       unsigned int getWeight(size_t pos) const
       {
         return rootWeights_[pos];
       }
+
       const std::vector<unsigned int>& getWeights() const
       { 
         return rootWeights_;
@@ -133,6 +159,14 @@ namespace bpp
 
       const Alphabet* getAlphabet() const { return alphabet_; }
 
+      size_t getNumberOfDistinctSites() const { return nbDistinctSites_; }
+      size_t getNumberOfSites() const { return nbSites_; }
+      size_t getNumberOfStates() const { return nbStates_; }
+      size_t getNumberOfClasses() const { return nbClasses_; }
+
+      const SiteContainer* getShrunkData() const {
+        return shrunkData_.get();
+      }
     };
 
   } //end of namespace newlik.

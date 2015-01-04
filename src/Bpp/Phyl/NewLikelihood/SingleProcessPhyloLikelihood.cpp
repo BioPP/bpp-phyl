@@ -174,6 +174,7 @@ VVdouble SingleProcessPhyloLikelihood::getPosteriorProbabilitiesOfEachClass() co
   size_t nbClasses = getNumberOfClasses();
   VVdouble pb = getLikelihoodForEachSiteForEachClass();
   Vdouble l = getLikelihoodForEachSite();
+
   for (size_t i = 0; i < nbSites; ++i)
   {
     for (size_t j = 0; j < nbClasses; ++j)
@@ -196,6 +197,26 @@ vector<size_t> SingleProcessPhyloLikelihood::getClassWithMaxPostProbOfEachSite()
     classes[i] = VectorTools::whichMax<double>(l[i]);
   }
   return classes;
+}
+
+
+/******************************************************************************/
+
+Vdouble SingleProcessPhyloLikelihood::getPosteriorRateOfEachSite() const
+{
+  size_t nbSites   = getNumberOfSites();
+  size_t nbClasses = getNumberOfClasses();
+  VVdouble pb = getLikelihoodForEachSiteForEachClass();
+  Vdouble l  = getLikelihoodForEachSite();
+  Vdouble rates(nbSites, 0.);
+  for (size_t i = 0; i < nbSites; i++)
+  {
+    for (size_t j = 0; j < nbClasses; j++)
+    {
+      rates[i] += (pb[i][j] / l[i]) * process_->getProbabilityForModel(j) *  process_->getProbabilityForModel(j);
+    }
+  }
+  return rates;
 }
 
 /******************************************************************************/

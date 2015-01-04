@@ -149,12 +149,6 @@ private:
       return data_->getAlphabet();
     }
 
-    size_t getNumberOfSites() const throw (TreeLikelihoodCalculationNotInitializedException) {
-      if (!initialized_)
-        throw new TreeLikelihoodCalculationNotInitializedException("DoubleRecursiveTreeLikelihoodCalculation::getNumberOfSites().");
-      return data_->getNumberOfSites();
-    }
-
     bool isInitialized() const { return initialized_; }
 
     void setData(const SiteContainer& sites) throw (Exception);
@@ -192,8 +186,22 @@ private:
 
     void computeTreeD2LogLikelihood(const std::string& variable);
 
+    /**
+     *@brief Compute the conditional Likelihood Array at a given node.
+     *
+     *@param node the given node
+     *@param likelihoodArray the class/site/state array storing the
+     *       likelihoods
+     *@param sonNode in case the computing is called by a son, the
+     *       Node of this son (which partial likelihood is not
+     *       included in the computation); default : 0 (which means
+     *       all sons are considered).
+     *
+     */
+    
+    void computeLikelihoodAtNode(const Node* node, VVVdouble& likelihoodArray, const Node* sonNode =0 ) const;
+
   private:
-    void computeLikelihoodAtNode_(const Node* node, VVVdouble& likelihoodArray, const Node* sonNode =0 ) const;
   
     /**
      * Initialize the arrays corresponding to each son node for the
@@ -212,15 +220,10 @@ private:
 
     void computeSubtreeLikelihoodPrefix_(const Node* node); //Recursive method.
 
-    //void computeRootLikelihood();
-
     void computeTreeDLikelihoodAtNode(const Node* node);
-//    void computeTreeDLikelihoods();
     
     void computeTreeD2LikelihoodAtNode(const Node* node);
-    //  void computeTreeD2Likelihoods();
 
-//    void resetLikelihoodArrays(const Node* node);
     void computeRootLikelihood();
   
     /**
@@ -230,7 +233,38 @@ private:
      */
     virtual void displayLikelihood(const Node* node);
 
-};
+  public:
+    
+    /**
+     * @brief Compute the posterior probabilities for each state and
+     * each class of each distinct site.
+     *
+     * @param nodeId The id of the node at which probabilities must be
+     * computed.
+     * @return A 3-dimensional array, with probabilities for each
+     * site, each rate and each state.
+     */
+    
+    VVVdouble getPosteriorProbabilitiesForEachStateForEachClass(int nodeId);
+
+    /**
+     * @brief Compute the posterior probabilities for each state for a
+     * given node.
+     *
+     * This method calls the
+     * getPosteriorProbabilitiesForEachStateForEachClass function and
+     * average the probabilities over all sites and classes,
+     * resulting in a one-dimensionnal frequency array, with one
+     * frequency per model state.
+     *
+     * @param nodeId The id of the node at which probabilities must be
+     * computed.
+     * @return vector of double with state frequencies for the given
+     * node.
+     */
+
+    Vdouble getPosteriorStateFrequencies(int nodeId);
+  };
 
 } //end of namespace newlik.
 } //end of namespace bpp.

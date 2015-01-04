@@ -127,7 +127,12 @@ namespace bpp
         tlComp_->setData(sites); //This automatically calls computeTreeLikelihood().
         minusLogLik_ = - tlComp_->getLogLikelihood();
       }
-  
+
+      /**
+       * @brief return a pointer to the compressed data. 
+       *
+       */
+      
       const SiteContainer* getData() const {
         return tlComp_->getData();
       }
@@ -244,6 +249,13 @@ namespace bpp
       void computeD2LogLikelihood_(const std::string& variable) const;
 
     public:
+
+      /**
+       * @return The underlying likelihood computation structure.
+       */
+      
+      TreeLikelihoodCalculation* getLikelihoodCalculation() { return tlComp_.get(); }
+
       /**
        * @return The underlying likelihood data structure.
        */
@@ -314,19 +326,9 @@ namespace bpp
        * <code>V[i][j][k} =</code> likelihood of site i and model class j and state k.
        */
       VVVdouble getLikelihoodForEachSiteForEachClassForEachState() const;
-
+      
       /** @} */
-
-      /**
-       * @brief Get the posterior model class (the one with maximum posterior
-       * probability) for each site.
-       *
-       * @return A vector with all model classes indexes.
-       */
-      std::vector<size_t> getClassWithMaxPostProbOfEachSite() const;
-
-      VVdouble getPosteriorProbabilitiesOfEachClass() const;
-
+      
       /**
        * @brief Get the index (used for inner computations) of a given site (original alignment column).
        *
@@ -336,28 +338,23 @@ namespace bpp
       size_t getSiteIndex(size_t site) const throw (IndexOutOfBoundsException) {
         return tlComp_->getSiteIndex(site);
       }
-
+      
       /**
-       * @name Iterators
-       * @{
+       * Utilities
+       *
        */
-      // TODO jdutheil on 21/04/13: need to account for model classes!
-      // virtual ConstBranchModelIterator* getNewBranchModelIterator(int nodeId) const = 0;
-
-      // jdutheil on 21/04/13: I think we will drop this type of iterator, which were never used before and are difficult to implement in the new framework...
-      // virtual ConstSiteModelIterator* getNewSiteModelIterator(size_t siteIndex) const = 0;
-
-      // 19/07/13 jdutheil: copied for AbstractTreeLikelihood:
-
-      // TODO jdutheil on 08.04.13 we drop model iterators for now
-      // ConstBranchModelIterator* getNewBranchModelIterator(int nodeId) const {
-      //  return new ConstNoPartitionBranchModelIterator(model_.get(), sitePartition_->getNumberOfPatternsForPartition(0));
-      // }
-
-      // ConstSiteModelIterator* getNewSiteModelIterator(size_t siteIndex) const {
-      //  return new ConstHomogeneousSiteModelIterator(*pTree_, model_.get());
-      // }
-
+      
+      VVdouble getPosteriorProbabilitiesOfEachClass() const;
+      
+      /**
+       * @brief Get the posterior model class (the one with maximum posterior
+       * probability) for each site.
+       *
+       * @return A vector with all model classes indexes.
+       */
+      std::vector<size_t> getClassWithMaxPostProbOfEachSite() const;
+      
+      Vdouble getPosteriorRateOfEachSite() const;
 
       /* @} */
 

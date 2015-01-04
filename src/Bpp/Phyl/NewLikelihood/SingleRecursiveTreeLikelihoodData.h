@@ -155,18 +155,13 @@ namespace bpp
        * of the likelihoods array.
        */
       mutable std::map<int, std::map<int, std::vector<size_t> > > patternLinks_;
-      std::auto_ptr<SiteContainer> shrunkData_;
-      size_t nbSites_; 
-      size_t nbStates_;
-      size_t nbClasses_;
-      size_t nbDistinctSites_; 
+
       bool usePatterns_;
 
     public:
       SingleRecursiveTreeLikelihoodData(size_t nbClasses, bool usePatterns = true) :
-        AbstractTreeLikelihoodData(),
-        nodeData_(), patternLinks_(), shrunkData_(0), nbSites_(0), nbStates_(0),
-        nbClasses_(nbClasses), nbDistinctSites_(0), usePatterns_(usePatterns)
+        AbstractTreeLikelihoodData(nbClasses),
+        nodeData_(), patternLinks_(), usePatterns_(usePatterns)
       {
       }
 
@@ -174,13 +169,8 @@ namespace bpp
       AbstractTreeLikelihoodData(data),
       nodeData_(data.nodeData_),
       patternLinks_(data.patternLinks_),
-      shrunkData_(0),
-      nbSites_(data.nbSites_), nbStates_(data.nbStates_),
-      nbClasses_(data.nbClasses_), nbDistinctSites_(data.nbDistinctSites_),
       usePatterns_(data.usePatterns_)
       {
-        if (data.shrunkData_.get())
-          shrunkData_.reset(dynamic_cast<SiteContainer*>(data.shrunkData_->clone()));
       }
 
       SingleRecursiveTreeLikelihoodData& operator=(const SingleRecursiveTreeLikelihoodData & data)
@@ -188,14 +178,6 @@ namespace bpp
         AbstractTreeLikelihoodData::operator=(data);
         nodeData_          = data.nodeData_;
         patternLinks_      = data.patternLinks_;
-        nbSites_           = data.nbSites_;
-        nbStates_          = data.nbStates_;
-        nbClasses_         = data.nbClasses_;
-        nbDistinctSites_   = data.nbDistinctSites_;
-        if (data.shrunkData_.get())
-          shrunkData_.reset(dynamic_cast<SiteContainer*>(data.shrunkData_->clone()));
-        else
-          shrunkData_.reset();
         usePatterns_       = data.usePatterns_;
         return *this;
       }
@@ -250,11 +232,6 @@ namespace bpp
         return nodeData_[nodeId].getD2LikelihoodArray();
       }
 
-      size_t getNumberOfDistinctSites() const { return nbDistinctSites_; }
-      size_t getNumberOfSites() const { return nbSites_; }
-      size_t getNumberOfStates() const { return nbStates_; }
-      size_t getNumberOfClasses() const { return nbClasses_; }
-    
       void initLikelihoods(const SiteContainer& sites, const SubstitutionProcess& process) throw (Exception);
 
     protected:
@@ -291,6 +268,7 @@ namespace bpp
        * @param process   The substitution process to use.
        * @return The shrunk sub-dataset + indices for the subtree defined by <i>node</i>.
        */
+
       virtual SitePatterns* initLikelihoodsWithPatterns_(const Node* node, const SiteContainer& sequences, const SubstitutionProcess& process) throw (Exception);
   
     };

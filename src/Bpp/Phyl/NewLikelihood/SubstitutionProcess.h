@@ -184,6 +184,13 @@ public:
   virtual double getProbabilityForModel(size_t classIndex) const = 0;
 
   /**
+   * @return The substitution rate associated to the given model class.
+   *
+   * @param classIndex The model class index.
+   */
+  virtual double getRateForModel(size_t classIndex) const = 0;
+
+  /**
    * @brief Tell if the transition probabilities have changed after the last call to setParameters().
    * @return True if transition probabilities have changed.
    */
@@ -196,13 +203,15 @@ public:
    *
    **/
   
-  virtual void multiplyPartialLikelihoods(VVVdouble* likelihoods_node, const VVVdouble* likelihoods_son, int sonId, unsigned char DX) const = 0;
+  virtual void multiplyUpwardPartialLikelihoods(VVVdouble* likelihoods_node, const VVVdouble* likelihoods_son, int sonId, unsigned char DX) const = 0;
 
-  virtual void multiplyPartialLikelihoods(VVVdouble* likelihoods_node, const VVVdouble* likelihoods_son, int sonId, const std::vector<size_t>& patterns, unsigned char DX) const = 0;
+  virtual void multiplyDownwardPartialLikelihoods(VVVdouble* likelihoods_node, const VVVdouble* likelihoods_father, int sonId, unsigned char DX) const = 0;
 
-  virtual void multiplyPartialLikelihoods(VVVdouble* likelihoods_node, const std::vector<const VVVdouble*>& vLikelihoods_sons, int nodeId, unsigned char DX) const = 0;
+  virtual void multiplyUpwardPartialLikelihoods(VVVdouble* likelihoods_node, const VVVdouble* likelihoods_son, int sonId, const std::vector<size_t>& patterns, unsigned char DX) const = 0;
 
-  virtual void multiplyPartialLikelihoods(VVVdouble* likelihoods_node, const std::vector<const VVVdouble*>& vLikelihoods_sons, int nodeId, const std::vector<const std::vector<size_t>* >& vPatterns, unsigned char DX) const = 0;
+  virtual void multiplyUpwardPartialLikelihoods(VVVdouble* likelihoods_node, const std::vector<const VVVdouble*>& vLikelihoods_sons, int nodeId, unsigned char DX) const = 0;
+
+  virtual void multiplyUpwardPartialLikelihoods(VVVdouble* likelihoods_node, const std::vector<const VVVdouble*>& vLikelihoods_sons, int nodeId, const std::vector<const std::vector<size_t>* >& vPatterns, unsigned char DX) const = 0;
 
 };
 
