@@ -81,7 +81,9 @@ int main() {
   SubstitutionModel* model = new T92(alphabet, 3.);
   std::vector<std::string> globalParameterNames;
   globalParameterNames.push_back("T92.kappa");
-  SubstitutionModelSet* modelSet = SubstitutionModelSetTools::createNonHomogeneousModelSet(model, rootFreqs, tree, globalParameterNames);
+  map<string, string> alias;
+
+  SubstitutionModelSet* modelSet = SubstitutionModelSetTools::createNonHomogeneousModelSet(model, rootFreqs, tree, alias, globalParameterNames);
   //DiscreteDistribution* rdist = new ConstantDistribution(1.0, true);
   //Very difficult to optimize on small datasets:
   DiscreteDistribution* rdist = new GammaDiscreteRateDistribution(4, 1.0);

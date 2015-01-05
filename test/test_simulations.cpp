@@ -64,7 +64,9 @@ int main() {
   FrequenciesSet* rootFreqs = new GCFrequenciesSet(alphabet);
   std::vector<std::string> globalParameterNames;
   globalParameterNames.push_back("T92.kappa");
-  SubstitutionModelSet* modelSet = SubstitutionModelSetTools::createNonHomogeneousModelSet(model, rootFreqs, tree, globalParameterNames);
+  map<string, string> alias;
+
+  SubstitutionModelSet* modelSet = SubstitutionModelSetTools::createNonHomogeneousModelSet(model, rootFreqs, tree, alias, globalParameterNames);
   DiscreteDistribution* rdist = new ConstantRateDistribution();
   vector<double> thetas;
   for (unsigned int i = 0; i < modelSet->getNumberOfModels(); ++i) {
