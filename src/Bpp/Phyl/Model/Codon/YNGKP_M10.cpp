@@ -66,7 +66,7 @@ YNGKP_M10::YNGKP_M10(const GeneticCode* gc, FrequenciesSet* codonFreqs, unsigned
   // build the submodel
 
   BetaDiscreteDistribution* pbdd = new BetaDiscreteDistribution(nbBeta, 2, 2);
-  GammaDiscreteDistribution* pgdd = new GammaDiscreteDistribution(nbGamma, 1, 1, false, 1);
+  GammaDiscreteDistribution* pgdd = new GammaDiscreteDistribution(nbGamma, 1, 1, 0.05, 0.05, false, 1);
 
   vector<DiscreteDistribution*> v_distr;
   v_distr.push_back(pbdd); v_distr.push_back(pgdd);
