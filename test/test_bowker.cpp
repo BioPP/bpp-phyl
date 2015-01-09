@@ -113,7 +113,9 @@ int main() {
   rootFreqs = new GCFrequenciesSet(alphabet.get(), 0.65);
   std::vector<std::string> globalParameterNames;
   globalParameterNames.push_back("T92.kappa");
-  auto_ptr<SubstitutionModelSet> modelSetNHGC(SubstitutionModelSetTools::createNonHomogeneousModelSet(model, rootFreqs, tree.get(), globalParameterNames));
+  map<string, string> alias;
+  
+  auto_ptr<SubstitutionModelSet> modelSetNHGC(SubstitutionModelSetTools::createNonHomogeneousModelSet(model, rootFreqs, tree.get(), alias, globalParameterNames));
   modelSetNHGC->setParameterValue("T92.theta_1", 0.3);
   modelSetNHGC->setParameterValue("T92.theta_2", 0.8);
   NonHomogeneousSequenceSimulator simulatorNHGC(modelSetNHGC.get(), rdist.get(), tree.get());
@@ -138,7 +140,7 @@ int main() {
   rootFreqs = new GCFrequenciesSet(alphabet.get(), 0.5);
   globalParameterNames.clear();
   globalParameterNames.push_back("T92.theta");
-  auto_ptr<SubstitutionModelSet> modelSetNHTsTv(SubstitutionModelSetTools::createNonHomogeneousModelSet(model, rootFreqs, tree.get(), globalParameterNames));
+  auto_ptr<SubstitutionModelSet> modelSetNHTsTv(SubstitutionModelSetTools::createNonHomogeneousModelSet(model, rootFreqs, tree.get(), alias, globalParameterNames));
   modelSetNHTsTv->setParameterValue("T92.kappa_1", 2);
   modelSetNHTsTv->setParameterValue("T92.kappa_2", 7);
   NonHomogeneousSequenceSimulator simulatorNHTsTv(modelSetNHTsTv.get(), rdist.get(), tree.get());

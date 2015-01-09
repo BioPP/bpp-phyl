@@ -174,7 +174,6 @@ void SubstitutionModelSet::replaceModel(size_t modelIndex, SubstitutionModel* mo
   delete modelSet_[modelIndex];
   modelSet_[modelIndex]=model;
   
-  
   // Erase all parameter references to this model
 
   ParameterList pl=getNodeParameters();
@@ -182,9 +181,10 @@ void SubstitutionModelSet::replaceModel(size_t modelIndex, SubstitutionModel* mo
   for (size_t i = pl.size(); i>0; i--)
     {
       string pn=pl[i-1].getName();
-
+      
       size_t pu=pn.rfind("_");
       int nm=TextTools::toInt(pn.substr(pu+1,string::npos));
+
       if (nm==(int)modelIndex+1){
         vector<string> alpn=getAlias(pn);
         for (unsigned j=0; j<alpn.size(); j++)
@@ -195,7 +195,7 @@ void SubstitutionModelSet::replaceModel(size_t modelIndex, SubstitutionModel* mo
             {
               continue;
             }
-        deleteParameter_(i-1);
+        deleteParameter_(pn);
       }
     }
 

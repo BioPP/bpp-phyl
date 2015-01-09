@@ -66,8 +66,12 @@ YNGKP_M1::YNGKP_M1(const GeneticCode* gc, FrequenciesSet* codonFreqs) :
   mpdd["omega"] = psdd;
 
   YN98* yn98 = new YN98(gc, codonFreqs);
+  yn98->setNamespace("YNGKP_M1.");
   pmixmodel_.reset(new MixtureOfASubstitutionModel(gc->getSourceAlphabet(), yn98, mpdd));
   delete psdd;
+
+  pmixmodel_->setNamespace("YNGKP_M1.");
+
   vector<int> supportedChars = yn98->getAlphabetStates();
 
   // map the parameters
@@ -78,12 +82,12 @@ YNGKP_M1::YNGKP_M1(const GeneticCode* gc, FrequenciesSet* codonFreqs) :
 
   for (size_t i = 0; i < v.size(); i++)
   {
-    mapParNamesFromPmodel_[v[i]] = v[i].substr(5);
+    mapParNamesFromPmodel_[v[i]] = getParameterNameWithoutNamespace(v[i]);
   }
 
-  mapParNamesFromPmodel_["YN98.kappa"] = "kappa";
-  mapParNamesFromPmodel_["YN98.omega_Simple.V1"] = "omega";
-  mapParNamesFromPmodel_["YN98.omega_Simple.theta1"] = "p0";
+  mapParNamesFromPmodel_["YNGKP_M1.kappa"] = "kappa";
+  mapParNamesFromPmodel_["YNGKP_M1.omega_Simple.V1"] = "omega";
+  mapParNamesFromPmodel_["YNGKP_M1.omega_Simple.theta1"] = "p0";
 
   // specific parameters
 
