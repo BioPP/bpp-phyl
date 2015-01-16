@@ -295,13 +295,28 @@ public:
    *
    * This updates the matrices consequently.
    */
+
   virtual void fireParameterChanged(const ParameterList& parameters)
   {
     AbstractParameterAliasable::fireParameterChanged(parameters);
-    if ((parameters.size()!=1) || (parameters[0].getName()!=getNamespace()+"rate"))
-      updateMatrices();
+    
+    if (parameters.hasParameter(getNamespace()+"rate"))
+    {
+      rate_=parameters.getParameterValue(getNamespace()+"rate");
+      
+      if (parameters.size()!=1)
+        updateMatrices();
+    }
+    else
+      updateMatrices();      
   }
 
+  /**
+   * @brief add a "rate" parameter to the model, that handles the
+   * overall rate of the process.
+   *
+   */
+  
   void addRateParameter();
 
 protected:
@@ -335,10 +350,16 @@ public:
   
   void setScale(double scale);
 
+  /*
+   * @brief The rate of the substitution process.
+   *
+   * @param scale the scale by which the generator is multiplied.
+   *
+   */
+  
   virtual double getRate() const;
 
   virtual void setRate(double rate);
-
 
   friend class AbstractBiblioSubstitutionModel;
 
