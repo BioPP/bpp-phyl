@@ -730,6 +730,12 @@ SubstitutionModel* BppOSubstitutionModelFormat::read(
   if (args.find("initFreqs.observedPseudoCount") != args.end())
     unparsedArguments_[pref + "initFreqs.observedPseudoCount"] = args["initFreqs.observedPseudoCount"];
 
+  if (args.find("rate") != args.end())
+  {
+    model->addRateParameter();
+    unparsedArguments_[pref+"rate"] = args["rate"];
+  }
+  
   if (parseArguments)
     initialize_(*model, data);
 
@@ -997,6 +1003,7 @@ SubstitutionModel* BppOSubstitutionModelFormat::readWord_(const Alphabet* alphab
                       pai2.release()));
     }
   }
+
   return model.release();
 }
 

@@ -92,11 +92,6 @@ MixtureOfSubstitutionModels::MixtureOfSubstitutionModels(
     addParameters_(vpModel[i]->getParameters());
   }
 
-  for (i = 0; i < nbmod; i++)
-  {
-    vpModel[i]->addRateParameter();
-  }
-
   updateMatrices();
 }
 
@@ -178,11 +173,6 @@ MixtureOfSubstitutionModels::MixtureOfSubstitutionModels(
     addParameters_(vpModel[i]->getParameters());
   }
 
-  for (i = 0; i < nbmod; i++)
-  {
-    vpModel[i]->addRateParameter();
-  }
-
   updateMatrices();
 }
 
@@ -258,7 +248,7 @@ void MixtureOfSubstitutionModels::updateMatrices()
 
   for (i = 0; i < nbmod; i++)
   {
-    modelsContainer_[i]->setRate(vRates_[i]);
+    modelsContainer_[i]->setRate(rate_ * vRates_[i]);
     modelsContainer_[i]->matchParametersValues(getParameters());
   }
 

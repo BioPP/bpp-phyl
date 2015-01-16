@@ -176,9 +176,15 @@ public:
   virtual void fireParameterChanged(const ParameterList& parameters)
   {
     AbstractParameterAliasable::fireParameterChanged(parameters);
-    if (parameters.size() > 1 || (parameters.size() == 1 && parameters[0].getName() != getNamespace() + "rate")) {
-      updateMatrices();
+    
+    if (parameters.hasParameter(getNamespace()+"rate"))
+    {
+      getModel().setRate(parameters.getParameterValue(getNamespace()+"rate"));
+      if (parameters.size()!=1)
+        updateMatrices();
     }
+    else
+      updateMatrices();      
   }
 
   void setNamespace(const std::string& name);
