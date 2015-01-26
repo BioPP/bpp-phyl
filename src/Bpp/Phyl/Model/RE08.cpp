@@ -285,7 +285,7 @@ const Matrix<double>& RE08::getd2Pij_dt2(double d) const
     p_(size_ - 1, j) = - (lambda_ + mu_) * (lambda_ + mu_) * freq_[j] * exp(-(lambda_ + mu_) * d);
   }
   p_(size_ - 1, size_ - 1) = f * (lambda_ + mu_) * (lambda_ + mu_) * exp(-(lambda_ + mu_) * d);
-  for(size_t i = 0; i < size_ - 1; i++)
+  for (size_t i = 0; i < size_ - 1; i++)
   {  
     p_(i, size_ - 1) = - (lambda_ + mu_) * (lambda_ + mu_) * freq_[size_ - 1] * exp(-(lambda_ + mu_) * d);
   }
