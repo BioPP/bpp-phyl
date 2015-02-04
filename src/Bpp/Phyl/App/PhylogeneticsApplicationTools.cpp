@@ -1364,7 +1364,7 @@ void PhylogeneticsApplicationTools::writeTree(
   int warn) throw (Exception)
 {
   string format = ApplicationTools::getStringParameter(prefix + "tree.format", params, "Newick", suffix, suffixIsOptional, warn);
-  string file = ApplicationTools::getAFilePath(prefix + "tree.file", params, true, false, suffix, suffixIsOptional, "none", warn);
+  string file = ApplicationTools::getAFilePath(prefix + "tree.file", params, false, false, suffix, suffixIsOptional, "none", warn);
   OTree* treeWriter;
   if (format == "Newick")
     treeWriter = new Newick();
@@ -1374,7 +1374,7 @@ void PhylogeneticsApplicationTools::writeTree(
     treeWriter = new Nhx(false);
   else
     throw Exception("Unknown format for tree writing: " + format);
-  if (!checkOnly)
+  if (!checkOnly && file != "none")
     treeWriter->write(tree, file, true);
   delete treeWriter;
   if (verbose)

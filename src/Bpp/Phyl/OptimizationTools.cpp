@@ -709,6 +709,18 @@ TreeTemplate<Node>* OptimizationTools::buildDistanceTree(
       ApplicationTools::displayTaskDone();
 
     // Compute tree:
+    if (matrix->size() == 2) {
+      //Special case, there is only one possible tree:
+      Node* n1 = new Node(0);
+      Node* n2 = new Node(1, matrix->getName(0));
+      n2->setDistanceToFather((*matrix)(0,0) / 2.);
+      Node* n3 = new Node(2, matrix->getName(1));
+      n3->setDistanceToFather((*matrix)(0,0) / 2.);
+      n1->addSon(n2);
+      n1->addSon(n3);
+      tree = new TreeTemplate<Node>(n1);
+      break;
+    }
     if (verbose > 0)
       ApplicationTools::displayTask("Building tree");
     reconstructionMethod.setDistanceMatrix(*matrix);
