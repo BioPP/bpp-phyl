@@ -117,7 +117,7 @@ void BinarySubstitutionModel::updateMatrices()
 
 double BinarySubstitutionModel::Pij_t(size_t i, size_t j, double d) const
 {
-  exp_ = exp(-lambda_ * d);
+  exp_ = exp(-lambda_ * rate_ * d);
 
   switch (i)
   {
@@ -143,7 +143,7 @@ double BinarySubstitutionModel::Pij_t(size_t i, size_t j, double d) const
 
 double BinarySubstitutionModel::dPij_dt(size_t i, size_t j, double d) const
 {
-  exp_ = exp(-lambda_ * d);
+  exp_ = rate_ * exp(-lambda_ * rate_ * d);
 
   switch (i)
   {
@@ -169,7 +169,7 @@ double BinarySubstitutionModel::dPij_dt(size_t i, size_t j, double d) const
 
 double BinarySubstitutionModel::d2Pij_dt2(size_t i, size_t j, double d) const
 {
-  exp_ = exp(-lambda_ * d);
+  exp_ = rate_ * rate_ * exp(-lambda_ * rate_ * d);
 
   switch (i)
   {
@@ -195,7 +195,7 @@ double BinarySubstitutionModel::d2Pij_dt2(size_t i, size_t j, double d) const
 
 const Matrix<double>& BinarySubstitutionModel::getPij_t(double d) const
 {
-  exp_ = exp(-lambda_ * d);
+  exp_ = exp(-lambda_ * rate_ * d);
 
   p_(0,0) = (1 + kappa_ * exp_) / (kappa_ + 1);
   p_(0,1) = kappa_ / (kappa_ + 1) * (1 - exp_);
@@ -208,7 +208,7 @@ const Matrix<double>& BinarySubstitutionModel::getPij_t(double d) const
 
 const Matrix<double>& BinarySubstitutionModel::getdPij_dt(double d) const
 {
-  exp_ = exp(-lambda_ * d);
+  exp_ = rate_ * exp(-lambda_ * rate_ * d);
 
   p_(0,0) = -(kappa_ + 1) / 2 * exp_;
   p_(0,1) = (kappa_ + 1) / 2 * exp_;
@@ -221,7 +221,7 @@ const Matrix<double>& BinarySubstitutionModel::getdPij_dt(double d) const
 
 const Matrix<double>& BinarySubstitutionModel::getd2Pij_dt2(double d) const
 {
-  exp_ = exp(-lambda_ * d);
+  exp_ = rate_ * rate_ * exp(-lambda_ * rate_ * d);
 
   p_(0,0) = lambda_ * (kappa_ + 1) / 2 * exp_;
   p_(0,1) = -lambda_ * (kappa_ + 1) / 2 * exp_;
