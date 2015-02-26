@@ -748,9 +748,9 @@ public:
    */
   static bool haveSameOrderedTopology(const Node& n1, const Node& n2);
 
-  static std::vector<Node*> getPathBetweenAnyTwoNodes(Node& node1, Node& node2, bool includeAncestor = true);
+  static std::vector<Node*> getPathBetweenAnyTwoNodes(Node& node1, Node& node2, bool includeAncestor = true, bool includeAncestorAtEndOfPath = true);
 
-  static std::vector<const Node*> getPathBetweenAnyTwoNodes(const Node& node1, const Node& node2, bool includeAncestor = true);
+  static std::vector<const Node*> getPathBetweenAnyTwoNodes(const Node& node1, const Node& node2, bool includeAncestor = true, bool includeAncestorAtEndOfPath = true);
 
   /**
    * @brief Recursively clone a subtree structure.
@@ -761,6 +761,7 @@ public:
    * @param node The basal node of the subtree.
    * @return The basal node of the new copy.
    */
+
   template<class N>
   static N* cloneSubtree(const Node& node)
   {
