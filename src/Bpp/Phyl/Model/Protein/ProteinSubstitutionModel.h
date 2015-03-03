@@ -41,6 +41,7 @@ knowledge of the CeCILL license and that you accept its terms.
 #define _PROTEINSUBSTITUTIONMODEL_H_
 
 #include "../SubstitutionModel.h"
+#include "../AbstractSubstitutionModel.h"
 
 // From bpp-seq:
 #include <Bpp/Seq/Alphabet/ProteicAlphabet.h>
@@ -54,19 +55,15 @@ namespace bpp
 class ProteinSubstitutionModel:
   public virtual SubstitutionModel
 {
-	public:
-		virtual ~ProteinSubstitutionModel() {}
+  public:
+    virtual ~ProteinSubstitutionModel() {}
 
-#ifndef NO_VIRTUAL_COV
-    ProteinSubstitutionModel*
-#else
-    Clonable*
-#endif
-    clone() const = 0;
-		
+    ProteinSubstitutionModel* clone() const = 0;
+    
   public:
     size_t getNumberOfStates() const { return 20; };
 
+    const ProteicAlphabet* getAlphabet() const = 0;
 };
 
 
@@ -78,20 +75,64 @@ class ProteinReversibleSubstitutionModel:
   public virtual ProteinSubstitutionModel,
   public virtual ReversibleSubstitutionModel
 {
-	public:
-		virtual ~ProteinReversibleSubstitutionModel() {}
+  public:
+    virtual ~ProteinReversibleSubstitutionModel() {}
 
-#ifndef NO_VIRTUAL_COV
-    ProteinReversibleSubstitutionModel*
-#else
-    Clonable*
-#endif
-    clone() const = 0;
-		
+    ProteinReversibleSubstitutionModel* clone() const = 0;
+    
 };
+
+
+/**
+ * @brief Specialisation abstract class for protein substitution model.
+ */
+  class AbstractProteinSubstitutionModel :
+    public AbstractSubstitutionModel,
+    public virtual ProteinSubstitutionModel
+  {
+  public:
+    AbstractProteinSubstitutionModel(const ProteicAlphabet* alpha, StateMap* stateMap, const std::string& prefix):
+      AbstractSubstitutionModel(alpha, stateMap, prefix) {}
+
+    virtual ~AbstractProteinSubstitutionModel() {}
+    
+    AbstractProteinSubstitutionModel* clone() const = 0;
+
+  public:
+    
+    const ProteicAlphabet* getAlphabet() const {
+      return dynamic_cast<const ProteicAlphabet*>(alphabet_);
+    }
+    
+  };
+
+/**
+ * @brief Specialisation abstract class for reversible protein substitution model.
+ */
+  class AbstractReversibleProteinSubstitutionModel :
+    public AbstractReversibleSubstitutionModel,
+    public virtual ProteinSubstitutionModel
+  {
+  public:
+    AbstractReversibleProteinSubstitutionModel(const ProteicAlphabet* alpha, StateMap* stateMap, const std::string& prefix):
+      AbstractReversibleSubstitutionModel(alpha, stateMap, prefix) {}
+
+    virtual ~AbstractReversibleProteinSubstitutionModel() {}
+    
+    AbstractReversibleProteinSubstitutionModel* clone() const = 0;
+    
+  public:
+    const ProteicAlphabet* getAlphabet() const {
+      return dynamic_cast<const ProteicAlphabet*>(alphabet_);
+    }
+
+  };
+
+
+
 
 
 } //end of namespace bpp.
 
-#endif	//_PROTEINSUBSTITUTIONMODEL_H_
+#endif  //_PROTEINSUBSTITUTIONMODEL_H_
 

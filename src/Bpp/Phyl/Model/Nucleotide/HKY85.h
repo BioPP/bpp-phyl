@@ -177,39 +177,33 @@ namespace bpp
  * - Hasegawa M, Kishino H and Yano T (1985), Molecular_ Biology And Evolution_ 22(2) 160-74. 
  */
 class HKY85:
-  public virtual NucleotideSubstitutionModel,
-  public AbstractReversibleSubstitutionModel
+  public AbstractReversibleNucleotideSubstitutionModel
 {
-	private:
-		double kappa_, k1_, k2_, r_, piA_, piC_, piG_, piT_, piY_, piR_, theta_, theta1_, theta2_;
+  private:
+    double kappa_, k1_, k2_, r_, piA_, piC_, piG_, piT_, piY_, piR_, theta_, theta1_, theta2_;
     mutable double exp1_, exp21_, exp22_, l_;
     mutable RowMatrix<double> p_;
 
-	public:
-		HKY85(
-			const NucleicAlphabet * alpha,
-			double kappa = 1.,
-			double piA = 0.25,
-			double piC = 0.25,
-			double piG = 0.25,
-			double piT = 0.25);
-	
-		virtual ~HKY85() {}
+  public:
+    HKY85(
+      const NucleicAlphabet * alpha,
+      double kappa = 1.,
+      double piA = 0.25,
+      double piC = 0.25,
+      double piG = 0.25,
+      double piT = 0.25);
+  
+    virtual ~HKY85() {}
 
-#ifndef NO_VIRTUAL_COV
-    HKY85*
-#else
-    Clonable*
-#endif
-    clone() const { return new HKY85(*this); }
+    HKY85* clone() const { return new HKY85(*this); }
 
   public:
-		double Pij_t    (size_t i, size_t j, double d) const;
-		double dPij_dt  (size_t i, size_t j, double d) const;
-		double d2Pij_dt2(size_t i, size_t j, double d) const;
-		const Matrix<double> & getPij_t    (double d) const;
-		const Matrix<double> & getdPij_dt  (double d) const;
-		const Matrix<double> & getd2Pij_dt2(double d) const;
+    double Pij_t    (size_t i, size_t j, double d) const;
+    double dPij_dt  (size_t i, size_t j, double d) const;
+    double d2Pij_dt2(size_t i, size_t j, double d) const;
+    const Matrix<double> & getPij_t    (double d) const;
+    const Matrix<double> & getdPij_dt  (double d) const;
+    const Matrix<double> & getd2Pij_dt2(double d) const;
 
     std::string getName() const { return "HKY85"; }
 
@@ -217,11 +211,11 @@ class HKY85:
    * @brief This method is redefined to actualize the corresponding parameters piA, piT, piG and piC too.
    */
   void setFreq(std::map<int, double>& freqs);
-	
+  
   void updateMatrices();
 };
 
 } //end of namespace bpp.
 
-#endif	//_HKY85_H_
+#endif  //_HKY85_H_
 

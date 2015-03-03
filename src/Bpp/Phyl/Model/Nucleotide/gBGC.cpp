@@ -51,7 +51,7 @@ using namespace bpp;
 
 gBGC::gBGC(const NucleicAlphabet* alph, NucleotideSubstitutionModel* const pm, double gamma) :
   AbstractParameterAliasable("gBGC."),
-  AbstractSubstitutionModel(alph, new CanonicalStateMap(alph, false), "gBGC."),
+  AbstractNucleotideSubstitutionModel(alph, new CanonicalStateMap(alph, false), "gBGC."),
   model_(pm),
   nestedPrefix_(pm->getNamespace()),
   gamma_(gamma)
@@ -66,7 +66,7 @@ gBGC::gBGC(const NucleicAlphabet* alph, NucleotideSubstitutionModel* const pm, d
 
 gBGC::gBGC(const gBGC& gbgc) :
   AbstractParameterAliasable(gbgc),
-  AbstractSubstitutionModel(gbgc),
+  AbstractNucleotideSubstitutionModel(gbgc),
   model_(gbgc.model_->clone()),
   nestedPrefix_(gbgc.nestedPrefix_),
   gamma_(gbgc.gamma_)

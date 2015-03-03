@@ -76,8 +76,7 @@ class LLG08_EX2 :
 {
 public:
   class EmbeddedModel :
-    public virtual ProteinSubstitutionModel,
-    public AbstractReversibleSubstitutionModel
+    public AbstractReversibleProteinSubstitutionModel
   {
 private:
     double proportion_;
@@ -85,7 +84,7 @@ private:
 
 public:
     EmbeddedModel(const ProteicAlphabet* alpha, string name);
-    ~EmbeddedModel(){}
+    virtual ~EmbeddedModel(){}
     EmbeddedModel* clone() const { return new EmbeddedModel(*this); }
     string getName() const { return name_;}
     double getProportion() const { return proportion_;}
@@ -104,7 +103,7 @@ public:
 
   LLG08_EX2(const ProteicAlphabet* alpha);
 
-  ~LLG08_EX2();
+  virtual ~LLG08_EX2();
 
   LLG08_EX2* clone() const { return new LLG08_EX2(*this); }
 

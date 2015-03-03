@@ -76,8 +76,7 @@ class LGL08_CAT :
 {
 public:
   class EmbeddedModel :
-    public virtual ProteinSubstitutionModel,
-    public AbstractReversibleSubstitutionModel
+    public AbstractReversibleProteinSubstitutionModel
   {
 private:
     double proportion_;
@@ -85,7 +84,7 @@ private:
 
 public:
     EmbeddedModel(const ProteicAlphabet* alpha, string name, unsigned int nbCat = 10);
-    ~EmbeddedModel(){}
+    virtual ~EmbeddedModel(){}
     EmbeddedModel* clone() const { return new EmbeddedModel(*this); }
     string getName() const { return name_;}
     double getProportion() const { return proportion_;}

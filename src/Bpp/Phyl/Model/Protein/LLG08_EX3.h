@@ -81,8 +81,7 @@ class LLG08_EX3 :
 {
 public:
   class EmbeddedModel :
-    public virtual ProteinSubstitutionModel,
-    public AbstractReversibleSubstitutionModel
+    public AbstractReversibleProteinSubstitutionModel
   {
 private:
     double proportion_;

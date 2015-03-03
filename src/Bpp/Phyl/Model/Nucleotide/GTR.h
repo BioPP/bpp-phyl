@@ -136,8 +136,7 @@ namespace bpp
  * - Rodriguez F (1990, Journal_ Of Theoretical Biology_ 142(4) 485-501.
  */
 class GTR:
-  public virtual NucleotideSubstitutionModel,
-  public AbstractReversibleSubstitutionModel
+  public AbstractReversibleNucleotideSubstitutionModel
 {
   protected:
     double a_, b_, c_, d_, e_, piA_, piC_, piG_, piT_, theta_, theta1_, theta2_, p_;
@@ -157,12 +156,7 @@ class GTR:
   
     virtual ~GTR() {}
 
-#ifndef NO_VIRTUAL_COV
-    GTR*
-#else
-    Clonable*
-#endif
-    clone() const { return new GTR(*this); }
+    GTR* clone() const { return new GTR(*this); }
 
   public:
     std::string getName() const { return "GTR"; }

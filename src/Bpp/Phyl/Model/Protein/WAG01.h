@@ -67,10 +67,8 @@ namespace bpp
    * maximum likelihood approach. Molecular Biology and Evolution 18:691-699.
    *
    */
-
   class WAG01 :
-    public virtual ProteinSubstitutionModel,
-    public AbstractReversibleSubstitutionModel
+    public AbstractReversibleProteinSubstitutionModel
   {
   private:
     ProteinFrequenciesSet* freqSet_;
@@ -95,16 +93,14 @@ namespace bpp
 
     WAG01(const WAG01& model) :
       AbstractParameterAliasable(model),
-      //AbstractSubstitutionModel(model),
-      AbstractReversibleSubstitutionModel(model),
+      AbstractReversibleProteinSubstitutionModel(model),
       freqSet_(dynamic_cast<ProteinFrequenciesSet *>(model.freqSet_->clone()))
     {}
 
     WAG01& operator=(const WAG01& model)
     {
       AbstractParameterAliasable::operator=(model);
-      AbstractSubstitutionModel::operator=(model);
-      AbstractReversibleSubstitutionModel::operator=(model);
+      AbstractReversibleProteinSubstitutionModel::operator=(model);
       if (freqSet_) delete freqSet_;
       freqSet_ = dynamic_cast<ProteinFrequenciesSet *>(model.freqSet_->clone());
       return *this;
@@ -112,12 +108,7 @@ namespace bpp
 
     virtual ~WAG01() { delete freqSet_; }
 
-#ifndef NO_VIRTUAL_COV
-    WAG01*
-#else
-    Clonable*
-#endif
-    clone() const { return new WAG01(*this); }
+    WAG01* clone() const { return new WAG01(*this); }
 
   public:
     std::string getName() const 

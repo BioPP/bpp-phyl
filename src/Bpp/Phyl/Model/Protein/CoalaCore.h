@@ -5,7 +5,7 @@
 //
 
 /*
-   Copyright or � or Copr. Bio++ Development Team, (November 16, 2004)
+   Copyright or (C) or Copr. Bio++ Development Team, (November 16, 2004)
    PCA
    This software is a computer program whose purpose is to provide classes
    for phylogenetic data analysis.
@@ -41,11 +41,11 @@
 #ifndef _COALACORE_H_
 #define _COALACORE_H_
 
-// From Core:
+// From bpp-core:
 #include <Bpp/Numeric/Matrix/Matrix.h>
-
 #include <Bpp/Numeric/ParameterList.h>
-// From SeqLib:
+
+// From bpp-seq:
 #include <Bpp/Seq/Alphabet/ProteicAlphabet.h>
 #include <Bpp/Seq/Container/SequenceContainer.h>
 

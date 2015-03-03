@@ -64,19 +64,18 @@ namespace bpp
  * - Kosiol C and Goldman N (2005), _Molecular Biology And Evolution_ 22(2) 193-9. 
  */
 class JTT92 :
-  public virtual ProteinSubstitutionModel,
-  public AbstractReversibleSubstitutionModel
+  public AbstractReversibleProteinSubstitutionModel
 {
   private:
     ProteinFrequenciesSet* freqSet_;
 
-	public:
+  public:
     /**
      * @brief Build a simple JTT92 model, with original equilibrium frequencies.
      *
      * @param alpha A proteic alphabet.
      */
-		JTT92(const ProteicAlphabet* alpha);
+    JTT92(const ProteicAlphabet* alpha);
 
     /**
      * @brief Build a JTT92 model with special equilibrium frequencies.
@@ -86,38 +85,31 @@ class JTT92 :
      * @param initFreqs Tell if the frequency set should be initialized with the original JTT92 values.
      * Otherwise, the values of the set will be used.
      */
-		JTT92(const ProteicAlphabet* alpha, ProteinFrequenciesSet* freqSet, bool initFreqs=false);
+    JTT92(const ProteicAlphabet* alpha, ProteinFrequenciesSet* freqSet, bool initFreqs=false);
 
     JTT92(const JTT92& model) :
       AbstractParameterAliasable(model),
-      //AbstractSubstitutionModel(model),
-      AbstractReversibleSubstitutionModel(model),
+      AbstractReversibleProteinSubstitutionModel(model),
       freqSet_(dynamic_cast<ProteinFrequenciesSet *>(model.freqSet_->clone()))
     {}
 
     JTT92& operator=(const JTT92& model)
     {
       AbstractParameterAliasable::operator=(model);
-      AbstractSubstitutionModel::operator=(model);
-      AbstractReversibleSubstitutionModel::operator=(model);
+      AbstractReversibleProteinSubstitutionModel::operator=(model);
       if (freqSet_) delete freqSet_;
       freqSet_ = dynamic_cast<ProteinFrequenciesSet *>(model.freqSet_->clone());
       return *this;
     }
 
-		virtual ~JTT92() { delete freqSet_; }
+    virtual ~JTT92() { delete freqSet_; }
 
-#ifndef NO_VIRTUAL_COV
-    JTT92*
-#else
-    Clonable*
-#endif
-    clone() const { return new JTT92(*this); }
+    JTT92* clone() const { return new JTT92(*this); }
 
-	public:
+  public:
     std::string getName() const 
     { 
-      if (freqSet_->getNamespace().find("JTT92+F.")!=std::string::npos)
+      if (freqSet_->getNamespace().find("JTT92+F.") != std::string::npos)
         return "JTT92+F"; 
       else 
         return "JTT92"; 
@@ -146,5 +138,5 @@ class JTT92 :
 
 } //end of namespace bpp.
 
-#endif	//_JTT92_H_
+#endif  //_JTT92_H_
 

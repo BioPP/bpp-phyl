@@ -71,14 +71,12 @@ namespace bpp
  *
  * Le S.Q., Gascuel O. (2010) Syst. Biol. 59(3):277–287
  */
-
 class LG10_EX_EHO :
   public AbstractBiblioMixedSubstitutionModel
 {
 public:
   class EmbeddedModel :
-    public virtual ProteinSubstitutionModel,
-    public AbstractReversibleSubstitutionModel
+    public AbstractReversibleProteinSubstitutionModel
   {
 private:
     double proportion_;
@@ -86,7 +84,7 @@ private:
 
 public:
     EmbeddedModel(const ProteicAlphabet* alpha, string name);
-    ~EmbeddedModel(){}
+    virtual ~EmbeddedModel() {}
     EmbeddedModel* clone() const { return new EmbeddedModel(*this); }
     string getName() const { return name_;}
     double getProportion() const { return proportion_;}

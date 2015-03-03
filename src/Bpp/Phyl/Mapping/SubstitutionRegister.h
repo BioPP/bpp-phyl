@@ -42,6 +42,7 @@
 
 #include "../Model/SubstitutionModel.h"
 #include "../Model/Nucleotide/NucleotideSubstitutionModel.h"
+#include "../Model/Protein/ProteinSubstitutionModel.h"
 #include "../Model/Codon/CodonSubstitutionModel.h"
 
 // From bpp-core:
@@ -51,6 +52,7 @@
 
 // From bpp-seq:
 #include <Bpp/Seq/Alphabet/NucleicAlphabet.h>
+#include <Bpp/Seq/Alphabet/ProteicAlphabet.h>
 #include <Bpp/Seq/Alphabet/CodonAlphabet.h>
 #include <Bpp/Seq/GeneticCode/GeneticCode.h>
 
@@ -952,7 +954,6 @@ public:
  * Multiple substitutions are forbidden.
  *
  */
-
 class GCSynonymousSubstitutionRegister :
   public CategorySubstitutionRegister
 {
@@ -1045,6 +1046,163 @@ public:
     }
   }
 };
+
+/**
+ * @brief Count conservative and radical amino-acid substitutions.
+ *
+ * Categories are defined as in Sainudiin et al (2005).
+ * - 1 a conservative (C) substitution
+ * - 2 a radical (R) substitution
+ *
+ * @author Jonathan Romiguier, Emeric Figuet, Julien Dutheil
+ */
+class KrKcSubstitutionRegister :
+  public AbstractSubstitutionRegister
+{
+private:
+  std::vector< std::vector<bool> > types_;
+
+public:
+  KrKcSubstitutionRegister(const ProteinSubstitutionModel* model) :
+    AbstractSubstitutionRegister(model),
+    types_(20)
+  {
+    const ProteicAlphabet* alphabet = model->getAlphabet();
+    for (size_t i = 0; i < 20; ++i) {
+      types_[i].resize(20);
+      for (size_t j = 0; j < 20; ++j) {
+        types_[i][j] = false;
+      }
+    }
+
+    types_[alphabet->getStateIndex(0)][alphabet->getStateIndex(7)] = true;
+    types_[alphabet->getStateIndex(0)][alphabet->getStateIndex(14)] = true;
+    types_[alphabet->getStateIndex(0)][alphabet->getStateIndex(19)] = true;
+    types_[alphabet->getStateIndex(7)][alphabet->getStateIndex(0)] = true;
+    types_[alphabet->getStateIndex(7)][alphabet->getStateIndex(14)] = true;
+    types_[alphabet->getStateIndex(7)][alphabet->getStateIndex(19)] = true;
+    types_[alphabet->getStateIndex(14)][alphabet->getStateIndex(0)] = true;
+    types_[alphabet->getStateIndex(14)][alphabet->getStateIndex(7)] = true;
+    types_[alphabet->getStateIndex(14)][alphabet->getStateIndex(19)] = true;
+    types_[alphabet->getStateIndex(19)][alphabet->getStateIndex(0)] = true;
+    types_[alphabet->getStateIndex(19)][alphabet->getStateIndex(7)] = true;
+    types_[alphabet->getStateIndex(19)][alphabet->getStateIndex(14)] = true;
+    
+    types_[alphabet->getStateIndex(1)][alphabet->getStateIndex(5)] = true;
+    types_[alphabet->getStateIndex(1)][alphabet->getStateIndex(6)] = true;
+    types_[alphabet->getStateIndex(1)][alphabet->getStateIndex(8)] = true;
+    types_[alphabet->getStateIndex(1)][alphabet->getStateIndex(11)] = true;
+    types_[alphabet->getStateIndex(1)][alphabet->getStateIndex(17)] = true;
+    types_[alphabet->getStateIndex(1)][alphabet->getStateIndex(18)] = true;
+    types_[alphabet->getStateIndex(5)][alphabet->getStateIndex(6)] = true;
+    types_[alphabet->getStateIndex(5)][alphabet->getStateIndex(8)] = true;
+    types_[alphabet->getStateIndex(5)][alphabet->getStateIndex(11)] = true;
+    types_[alphabet->getStateIndex(5)][alphabet->getStateIndex(1)] = true;
+    types_[alphabet->getStateIndex(5)][alphabet->getStateIndex(17)] = true;
+    types_[alphabet->getStateIndex(5)][alphabet->getStateIndex(18)] = true;
+    types_[alphabet->getStateIndex(6)][alphabet->getStateIndex(8)] = true;
+    types_[alphabet->getStateIndex(6)][alphabet->getStateIndex(11)] = true;
+    types_[alphabet->getStateIndex(6)][alphabet->getStateIndex(5)] = true;
+    types_[alphabet->getStateIndex(6)][alphabet->getStateIndex(1)] = true;
+    types_[alphabet->getStateIndex(6)][alphabet->getStateIndex(17)] = true;
+    types_[alphabet->getStateIndex(6)][alphabet->getStateIndex(18)] = true;
+    types_[alphabet->getStateIndex(8)][alphabet->getStateIndex(6)] = true;
+    types_[alphabet->getStateIndex(8)][alphabet->getStateIndex(11)] = true;
+    types_[alphabet->getStateIndex(8)][alphabet->getStateIndex(5)] = true;
+    types_[alphabet->getStateIndex(8)][alphabet->getStateIndex(1)] = true;
+    types_[alphabet->getStateIndex(8)][alphabet->getStateIndex(17)] = true;
+    types_[alphabet->getStateIndex(8)][alphabet->getStateIndex(18)] = true;
+    types_[alphabet->getStateIndex(11)][alphabet->getStateIndex(1)] = true;
+    types_[alphabet->getStateIndex(11)][alphabet->getStateIndex(5)] = true;
+    types_[alphabet->getStateIndex(11)][alphabet->getStateIndex(6)] = true;
+    types_[alphabet->getStateIndex(11)][alphabet->getStateIndex(8)] = true;
+    types_[alphabet->getStateIndex(11)][alphabet->getStateIndex(17)] = true;
+    types_[alphabet->getStateIndex(11)][alphabet->getStateIndex(18)] = true;
+    types_[alphabet->getStateIndex(17)][alphabet->getStateIndex(1)] = true;
+    types_[alphabet->getStateIndex(17)][alphabet->getStateIndex(5)] = true;
+    types_[alphabet->getStateIndex(17)][alphabet->getStateIndex(6)] = true;
+    types_[alphabet->getStateIndex(17)][alphabet->getStateIndex(8)] = true;
+    types_[alphabet->getStateIndex(17)][alphabet->getStateIndex(11)] = true;
+    types_[alphabet->getStateIndex(17)][alphabet->getStateIndex(18)] = true;
+    types_[alphabet->getStateIndex(18)][alphabet->getStateIndex(1)] = true;
+    types_[alphabet->getStateIndex(18)][alphabet->getStateIndex(6)] = true;
+    types_[alphabet->getStateIndex(18)][alphabet->getStateIndex(8)] = true;
+    types_[alphabet->getStateIndex(18)][alphabet->getStateIndex(11)] = true;
+    types_[alphabet->getStateIndex(18)][alphabet->getStateIndex(5)] = true;
+    types_[alphabet->getStateIndex(18)][alphabet->getStateIndex(17)] = true;
+    
+    types_[alphabet->getStateIndex(2)][alphabet->getStateIndex(3)] = true;
+    types_[alphabet->getStateIndex(2)][alphabet->getStateIndex(4)] = true;
+    types_[alphabet->getStateIndex(2)][alphabet->getStateIndex(15)] = true;
+    types_[alphabet->getStateIndex(2)][alphabet->getStateIndex(16)] = true;
+    types_[alphabet->getStateIndex(3)][alphabet->getStateIndex(2)] = true;
+    types_[alphabet->getStateIndex(3)][alphabet->getStateIndex(4)] = true;
+    types_[alphabet->getStateIndex(3)][alphabet->getStateIndex(15)] = true;
+    types_[alphabet->getStateIndex(3)][alphabet->getStateIndex(16)] = true;
+    types_[alphabet->getStateIndex(4)][alphabet->getStateIndex(2)] = true;
+    types_[alphabet->getStateIndex(4)][alphabet->getStateIndex(3)] = true;
+    types_[alphabet->getStateIndex(4)][alphabet->getStateIndex(15)] = true;
+    types_[alphabet->getStateIndex(4)][alphabet->getStateIndex(16)] = true;
+    types_[alphabet->getStateIndex(15)][alphabet->getStateIndex(2)] = true;
+    types_[alphabet->getStateIndex(15)][alphabet->getStateIndex(3)] = true;
+    types_[alphabet->getStateIndex(15)][alphabet->getStateIndex(4)] = true;
+    types_[alphabet->getStateIndex(15)][alphabet->getStateIndex(16)] = true;
+    types_[alphabet->getStateIndex(16)][alphabet->getStateIndex(2)] = true;
+    types_[alphabet->getStateIndex(16)][alphabet->getStateIndex(3)] = true;
+    types_[alphabet->getStateIndex(16)][alphabet->getStateIndex(4)] = true;
+    types_[alphabet->getStateIndex(16)][alphabet->getStateIndex(15)] = true;
+    
+    types_[alphabet->getStateIndex(9)][alphabet->getStateIndex(10)] = true;
+    types_[alphabet->getStateIndex(9)][alphabet->getStateIndex(12)] = true;
+    types_[alphabet->getStateIndex(9)][alphabet->getStateIndex(13)] = true;
+    types_[alphabet->getStateIndex(10)][alphabet->getStateIndex(9)] = true;
+    types_[alphabet->getStateIndex(10)][alphabet->getStateIndex(12)] = true;
+    types_[alphabet->getStateIndex(10)][alphabet->getStateIndex(13)] = true;
+    types_[alphabet->getStateIndex(12)][alphabet->getStateIndex(9)] = true;
+    types_[alphabet->getStateIndex(12)][alphabet->getStateIndex(10)] = true;
+    types_[alphabet->getStateIndex(12)][alphabet->getStateIndex(13)] = true;
+    types_[alphabet->getStateIndex(13)][alphabet->getStateIndex(9)] = true;
+    types_[alphabet->getStateIndex(13)][alphabet->getStateIndex(10)] = true;
+    types_[alphabet->getStateIndex(13)][alphabet->getStateIndex(12)] = true;
+  }
+
+  KrKcSubstitutionRegister* clone() const { return new KrKcSubstitutionRegister(*this); }
+
+public:
+  size_t getNumberOfSubstitutionTypes() const { return 2; }
+
+  size_t getType(size_t fromState, size_t toState) const
+  {
+    if (fromState == toState)
+      return 0;  // nothing happens
+    int x = model_->getAlphabetStateAsInt(fromState);
+    int y = model_->getAlphabetStateAsInt(toState);
+    return types_[model_->getAlphabet()->getStateIndex(x)][model_->getAlphabet()->getStateIndex(y)] ? 1 : 2;
+  }
+
+  std::string getTypeName(size_t type) const
+  {
+    if (type == 0)
+    {
+      return "no substitution";
+    }
+    else if (type == 1)
+    {
+      return "conservative";
+    }
+    else if (type == 2)
+    {
+      return "radical";
+    }
+    else
+    {
+      throw Exception("KrKcSubstitutionRegister::getTypeName. Bad substitution type.");
+    }
+  }
+};
+
+
+
 } // end of namespace bpp.
 
 #endif // _SUBSTITUTIONREGISTER_H_

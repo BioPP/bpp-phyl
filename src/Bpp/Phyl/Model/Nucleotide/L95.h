@@ -91,8 +91,7 @@ namespace bpp
  * - Lobry J R (1995), Journal_ Of Molecular Evolution_ 40 326-330.
  */
 class L95:
-  public virtual NucleotideSubstitutionModel,
-  public AbstractSubstitutionModel
+  public AbstractNucleotideSubstitutionModel
 {
 private:
   double alpha_, beta_, gamma_, kappa_, theta_;
@@ -108,12 +107,7 @@ public:
   
   virtual ~L95() {}
   
-#ifndef NO_VIRTUAL_COV
-  L95*
-#else
-  Clonable*
-#endif
-  clone() const { return new L95(*this); }
+  L95* clone() const { return new L95(*this); }
   
 public:
   std::string getName() const { return "L95"; }

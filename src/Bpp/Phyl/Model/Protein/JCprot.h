@@ -132,8 +132,7 @@ namespace bpp
    * - Jukes TH and Cantor CR (1969), Evolution_ of proteins molecules_, 121-123, in Mammalian_ protein metabolism_. 
    */
   class JCprot:
-    public virtual ProteinSubstitutionModel,
-    public AbstractReversibleSubstitutionModel
+    public AbstractReversibleProteinSubstitutionModel
   {
   private:
     mutable double exp_;
@@ -160,8 +159,7 @@ namespace bpp
 
     JCprot(const JCprot& model) :
       AbstractParameterAliasable(model),
-      //AbstractSubstitutionModel(model),
-      AbstractReversibleSubstitutionModel(model),
+      AbstractReversibleProteinSubstitutionModel(model),
       exp_(model.exp_),
       p_(model.p_),
       freqSet_(dynamic_cast<ProteinFrequenciesSet*>(model.freqSet_->clone()))
@@ -170,8 +168,7 @@ namespace bpp
     JCprot& operator=(const JCprot& model)
     {
       AbstractParameterAliasable::operator=(model);
-      AbstractSubstitutionModel::operator=(model);
-      AbstractReversibleSubstitutionModel::operator=(model);
+      AbstractReversibleProteinSubstitutionModel::operator=(model);
       exp_ = model.exp_;
       p_   = model.p_;
       if (freqSet_) delete freqSet_;
@@ -181,12 +178,7 @@ namespace bpp
 
     virtual ~JCprot() { delete freqSet_; }
 	
-#ifndef NO_VIRTUAL_COV
-    JCprot*
-#else
-    Clonable*
-#endif
-    clone() const { return new JCprot(*this); }
+    JCprot* clone() const { return new JCprot(*this); }
 
   public:
     double Pij_t    (size_t i, size_t j, double d) const;

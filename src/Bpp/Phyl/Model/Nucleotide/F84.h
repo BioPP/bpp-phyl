@@ -41,11 +41,10 @@ knowledge of the CeCILL license and that you accept its terms.
 #define _F84_H_
 
 #include "NucleotideSubstitutionModel.h"
-#include "../AbstractSubstitutionModel.h"
 
 #include <Bpp/Numeric/Constraints.h>
 
-// From SeqLib:
+// From bpp-seq:
 #include <Bpp/Seq/Alphabet/NucleicAlphabet.h>
 
 namespace bpp
@@ -176,8 +175,7 @@ namespace bpp
  * - Felsenstein (1984), Phylip version 2.6. 
  */
 class F84:
-  public virtual NucleotideSubstitutionModel,
-  public AbstractReversibleSubstitutionModel
+  public AbstractReversibleNucleotideSubstitutionModel
 {
   private:
     double kappa_, piA_, piC_, piG_, piT_, piY_, piR_, r_, k1_, k2_, theta_, theta1_, theta2_;
@@ -195,12 +193,7 @@ class F84:
   
     virtual ~F84() {}
 
-#ifndef NO_VIRTUAL_COV
-    F84*
-#else
-    Clonable*
-#endif
-    clone() const { return new F84(*this); }
+    F84* clone() const { return new F84(*this); }
 
   public:
 

@@ -172,10 +172,10 @@ SubstitutionModelSet* SubstitutionModelSetTools::createNonHomogeneousModelSet(
   // and alias on the root
   std::map<std::string, std::string>::const_iterator it;
 
-  for (it=aliasFreqNames.begin(); it!=aliasFreqNames.end(); it++)
+  for (it = aliasFreqNames.begin(); it != aliasFreqNames.end(); it++)
   {
-    if (globalParameters.hasParameter(it->second));
-        modelSet->aliasParameters(it->second+"_1",it->first);
+    if (globalParameters.hasParameter(it->second))
+      modelSet->aliasParameters(it->second + "_1",it->first);
   }
   
   // Defines the hypernodes if mixed

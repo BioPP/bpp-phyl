@@ -49,7 +49,7 @@ using namespace std;
 
 WAG01::WAG01(const ProteicAlphabet* alpha) :
   AbstractParameterAliasable("WAG01."),
-  AbstractReversibleSubstitutionModel(alpha, new CanonicalStateMap(alpha, false), "WAG01."),
+  AbstractReversibleProteinSubstitutionModel(alpha, new CanonicalStateMap(alpha, false), "WAG01."),
   freqSet_(0)
 {
   #include "__WAG01ExchangeabilityCode"
@@ -60,7 +60,7 @@ WAG01::WAG01(const ProteicAlphabet* alpha) :
 
 WAG01::WAG01(const ProteicAlphabet* alpha, ProteinFrequenciesSet* freqSet, bool initFreqs) :
   AbstractParameterAliasable("WAG01+F."),
-  AbstractReversibleSubstitutionModel(alpha, new CanonicalStateMap(alpha, false), "WAG01+F."),
+  AbstractReversibleProteinSubstitutionModel(alpha, new CanonicalStateMap(alpha, false), "WAG01+F."),
   freqSet_(freqSet)
 {
   #include "__WAG01ExchangeabilityCode"
