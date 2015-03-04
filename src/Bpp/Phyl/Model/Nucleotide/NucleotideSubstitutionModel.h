@@ -96,6 +96,7 @@ namespace bpp
   {
   public:
     AbstractNucleotideSubstitutionModel(const NucleicAlphabet* alpha, StateMap* stateMap, const std::string& prefix):
+      AbstractParameterAliasable(prefix),
       AbstractSubstitutionModel(alpha, stateMap, prefix) {}
 
     virtual ~AbstractNucleotideSubstitutionModel() {}
@@ -119,6 +120,7 @@ namespace bpp
   {
   public:
     AbstractReversibleNucleotideSubstitutionModel(const NucleicAlphabet* alpha, StateMap* stateMap, const std::string& prefix):
+      AbstractParameterAliasable(prefix),
       AbstractReversibleSubstitutionModel(alpha, stateMap, prefix) {}
 
     virtual ~AbstractReversibleNucleotideSubstitutionModel() {}

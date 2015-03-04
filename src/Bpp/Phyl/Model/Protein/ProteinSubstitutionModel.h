@@ -92,6 +92,7 @@ class ProteinReversibleSubstitutionModel:
   {
   public:
     AbstractProteinSubstitutionModel(const ProteicAlphabet* alpha, StateMap* stateMap, const std::string& prefix):
+      AbstractParameterAliasable(prefix),
       AbstractSubstitutionModel(alpha, stateMap, prefix) {}
 
     virtual ~AbstractProteinSubstitutionModel() {}
@@ -115,6 +116,7 @@ class ProteinReversibleSubstitutionModel:
   {
   public:
     AbstractReversibleProteinSubstitutionModel(const ProteicAlphabet* alpha, StateMap* stateMap, const std::string& prefix):
+      AbstractParameterAliasable(prefix),
       AbstractReversibleSubstitutionModel(alpha, stateMap, prefix) {}
 
     virtual ~AbstractReversibleProteinSubstitutionModel() {}
