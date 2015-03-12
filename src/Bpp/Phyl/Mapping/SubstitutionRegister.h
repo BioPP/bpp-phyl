@@ -1067,7 +1067,6 @@ public:
     AbstractSubstitutionRegister(model),
     types_(20)
   {
-    const ProteicAlphabet* alphabet = model->getAlphabet();
     for (size_t i = 0; i < 20; ++i) {
       types_[i].resize(20);
       for (size_t j = 0; j < 20; ++j) {
@@ -1075,95 +1074,95 @@ public:
       }
     }
 
-    types_[alphabet->getStateIndex(0)][alphabet->getStateIndex(7)] = true;
-    types_[alphabet->getStateIndex(0)][alphabet->getStateIndex(14)] = true;
-    types_[alphabet->getStateIndex(0)][alphabet->getStateIndex(19)] = true;
-    types_[alphabet->getStateIndex(7)][alphabet->getStateIndex(0)] = true;
-    types_[alphabet->getStateIndex(7)][alphabet->getStateIndex(14)] = true;
-    types_[alphabet->getStateIndex(7)][alphabet->getStateIndex(19)] = true;
-    types_[alphabet->getStateIndex(14)][alphabet->getStateIndex(0)] = true;
-    types_[alphabet->getStateIndex(14)][alphabet->getStateIndex(7)] = true;
-    types_[alphabet->getStateIndex(14)][alphabet->getStateIndex(19)] = true;
-    types_[alphabet->getStateIndex(19)][alphabet->getStateIndex(0)] = true;
-    types_[alphabet->getStateIndex(19)][alphabet->getStateIndex(7)] = true;
-    types_[alphabet->getStateIndex(19)][alphabet->getStateIndex(14)] = true;
+    types_[0][7] = true;
+    types_[0][14] = true;
+    types_[0][19] = true;
+    types_[7][0] = true;
+    types_[7][14] = true;
+    types_[7][19] = true;
+    types_[14][0] = true;
+    types_[14][7] = true;
+    types_[14][19] = true;
+    types_[19][0] = true;
+    types_[19][7] = true;
+    types_[19][14] = true;
     
-    types_[alphabet->getStateIndex(1)][alphabet->getStateIndex(5)] = true;
-    types_[alphabet->getStateIndex(1)][alphabet->getStateIndex(6)] = true;
-    types_[alphabet->getStateIndex(1)][alphabet->getStateIndex(8)] = true;
-    types_[alphabet->getStateIndex(1)][alphabet->getStateIndex(11)] = true;
-    types_[alphabet->getStateIndex(1)][alphabet->getStateIndex(17)] = true;
-    types_[alphabet->getStateIndex(1)][alphabet->getStateIndex(18)] = true;
-    types_[alphabet->getStateIndex(5)][alphabet->getStateIndex(6)] = true;
-    types_[alphabet->getStateIndex(5)][alphabet->getStateIndex(8)] = true;
-    types_[alphabet->getStateIndex(5)][alphabet->getStateIndex(11)] = true;
-    types_[alphabet->getStateIndex(5)][alphabet->getStateIndex(1)] = true;
-    types_[alphabet->getStateIndex(5)][alphabet->getStateIndex(17)] = true;
-    types_[alphabet->getStateIndex(5)][alphabet->getStateIndex(18)] = true;
-    types_[alphabet->getStateIndex(6)][alphabet->getStateIndex(8)] = true;
-    types_[alphabet->getStateIndex(6)][alphabet->getStateIndex(11)] = true;
-    types_[alphabet->getStateIndex(6)][alphabet->getStateIndex(5)] = true;
-    types_[alphabet->getStateIndex(6)][alphabet->getStateIndex(1)] = true;
-    types_[alphabet->getStateIndex(6)][alphabet->getStateIndex(17)] = true;
-    types_[alphabet->getStateIndex(6)][alphabet->getStateIndex(18)] = true;
-    types_[alphabet->getStateIndex(8)][alphabet->getStateIndex(6)] = true;
-    types_[alphabet->getStateIndex(8)][alphabet->getStateIndex(11)] = true;
-    types_[alphabet->getStateIndex(8)][alphabet->getStateIndex(5)] = true;
-    types_[alphabet->getStateIndex(8)][alphabet->getStateIndex(1)] = true;
-    types_[alphabet->getStateIndex(8)][alphabet->getStateIndex(17)] = true;
-    types_[alphabet->getStateIndex(8)][alphabet->getStateIndex(18)] = true;
-    types_[alphabet->getStateIndex(11)][alphabet->getStateIndex(1)] = true;
-    types_[alphabet->getStateIndex(11)][alphabet->getStateIndex(5)] = true;
-    types_[alphabet->getStateIndex(11)][alphabet->getStateIndex(6)] = true;
-    types_[alphabet->getStateIndex(11)][alphabet->getStateIndex(8)] = true;
-    types_[alphabet->getStateIndex(11)][alphabet->getStateIndex(17)] = true;
-    types_[alphabet->getStateIndex(11)][alphabet->getStateIndex(18)] = true;
-    types_[alphabet->getStateIndex(17)][alphabet->getStateIndex(1)] = true;
-    types_[alphabet->getStateIndex(17)][alphabet->getStateIndex(5)] = true;
-    types_[alphabet->getStateIndex(17)][alphabet->getStateIndex(6)] = true;
-    types_[alphabet->getStateIndex(17)][alphabet->getStateIndex(8)] = true;
-    types_[alphabet->getStateIndex(17)][alphabet->getStateIndex(11)] = true;
-    types_[alphabet->getStateIndex(17)][alphabet->getStateIndex(18)] = true;
-    types_[alphabet->getStateIndex(18)][alphabet->getStateIndex(1)] = true;
-    types_[alphabet->getStateIndex(18)][alphabet->getStateIndex(6)] = true;
-    types_[alphabet->getStateIndex(18)][alphabet->getStateIndex(8)] = true;
-    types_[alphabet->getStateIndex(18)][alphabet->getStateIndex(11)] = true;
-    types_[alphabet->getStateIndex(18)][alphabet->getStateIndex(5)] = true;
-    types_[alphabet->getStateIndex(18)][alphabet->getStateIndex(17)] = true;
+    types_[1][5] = true;
+    types_[1][6] = true;
+    types_[1][8] = true;
+    types_[1][11] = true;
+    types_[1][17] = true;
+    types_[1][18] = true;
+    types_[5][6] = true;
+    types_[5][8] = true;
+    types_[5][11] = true;
+    types_[5][1] = true;
+    types_[5][17] = true;
+    types_[5][18] = true;
+    types_[6][8] = true;
+    types_[6][11] = true;
+    types_[6][5] = true;
+    types_[6][1] = true;
+    types_[6][17] = true;
+    types_[6][18] = true;
+    types_[8][6] = true;
+    types_[8][11] = true;
+    types_[8][5] = true;
+    types_[8][1] = true;
+    types_[8][17] = true;
+    types_[8][18] = true;
+    types_[11][1] = true;
+    types_[11][5] = true;
+    types_[11][6] = true;
+    types_[11][8] = true;
+    types_[11][17] = true;
+    types_[11][18] = true;
+    types_[17][1] = true;
+    types_[17][5] = true;
+    types_[17][6] = true;
+    types_[17][8] = true;
+    types_[17][11] = true;
+    types_[17][18] = true;
+    types_[18][1] = true;
+    types_[18][6] = true;
+    types_[18][8] = true;
+    types_[18][11] = true;
+    types_[18][5] = true;
+    types_[18][17] = true;
     
-    types_[alphabet->getStateIndex(2)][alphabet->getStateIndex(3)] = true;
-    types_[alphabet->getStateIndex(2)][alphabet->getStateIndex(4)] = true;
-    types_[alphabet->getStateIndex(2)][alphabet->getStateIndex(15)] = true;
-    types_[alphabet->getStateIndex(2)][alphabet->getStateIndex(16)] = true;
-    types_[alphabet->getStateIndex(3)][alphabet->getStateIndex(2)] = true;
-    types_[alphabet->getStateIndex(3)][alphabet->getStateIndex(4)] = true;
-    types_[alphabet->getStateIndex(3)][alphabet->getStateIndex(15)] = true;
-    types_[alphabet->getStateIndex(3)][alphabet->getStateIndex(16)] = true;
-    types_[alphabet->getStateIndex(4)][alphabet->getStateIndex(2)] = true;
-    types_[alphabet->getStateIndex(4)][alphabet->getStateIndex(3)] = true;
-    types_[alphabet->getStateIndex(4)][alphabet->getStateIndex(15)] = true;
-    types_[alphabet->getStateIndex(4)][alphabet->getStateIndex(16)] = true;
-    types_[alphabet->getStateIndex(15)][alphabet->getStateIndex(2)] = true;
-    types_[alphabet->getStateIndex(15)][alphabet->getStateIndex(3)] = true;
-    types_[alphabet->getStateIndex(15)][alphabet->getStateIndex(4)] = true;
-    types_[alphabet->getStateIndex(15)][alphabet->getStateIndex(16)] = true;
-    types_[alphabet->getStateIndex(16)][alphabet->getStateIndex(2)] = true;
-    types_[alphabet->getStateIndex(16)][alphabet->getStateIndex(3)] = true;
-    types_[alphabet->getStateIndex(16)][alphabet->getStateIndex(4)] = true;
-    types_[alphabet->getStateIndex(16)][alphabet->getStateIndex(15)] = true;
+    types_[2][3] = true;
+    types_[2][4] = true;
+    types_[2][15] = true;
+    types_[2][16] = true;
+    types_[3][2] = true;
+    types_[3][4] = true;
+    types_[3][15] = true;
+    types_[3][16] = true;
+    types_[4][2] = true;
+    types_[4][3] = true;
+    types_[4][15] = true;
+    types_[4][16] = true;
+    types_[15][2] = true;
+    types_[15][3] = true;
+    types_[15][4] = true;
+    types_[15][16] = true;
+    types_[16][2] = true;
+    types_[16][3] = true;
+    types_[16][4] = true;
+    types_[16][15] = true;
     
-    types_[alphabet->getStateIndex(9)][alphabet->getStateIndex(10)] = true;
-    types_[alphabet->getStateIndex(9)][alphabet->getStateIndex(12)] = true;
-    types_[alphabet->getStateIndex(9)][alphabet->getStateIndex(13)] = true;
-    types_[alphabet->getStateIndex(10)][alphabet->getStateIndex(9)] = true;
-    types_[alphabet->getStateIndex(10)][alphabet->getStateIndex(12)] = true;
-    types_[alphabet->getStateIndex(10)][alphabet->getStateIndex(13)] = true;
-    types_[alphabet->getStateIndex(12)][alphabet->getStateIndex(9)] = true;
-    types_[alphabet->getStateIndex(12)][alphabet->getStateIndex(10)] = true;
-    types_[alphabet->getStateIndex(12)][alphabet->getStateIndex(13)] = true;
-    types_[alphabet->getStateIndex(13)][alphabet->getStateIndex(9)] = true;
-    types_[alphabet->getStateIndex(13)][alphabet->getStateIndex(10)] = true;
-    types_[alphabet->getStateIndex(13)][alphabet->getStateIndex(12)] = true;
+    types_[9][10] = true;
+    types_[9][12] = true;
+    types_[9][13] = true;
+    types_[10][9] = true;
+    types_[10][12] = true;
+    types_[10][13] = true;
+    types_[12][9] = true;
+    types_[12][10] = true;
+    types_[12][13] = true;
+    types_[13][9] = true;
+    types_[13][10] = true;
+    types_[13][12] = true;
   }
 
   KrKcSubstitutionRegister* clone() const { return new KrKcSubstitutionRegister(*this); }
@@ -1177,7 +1176,7 @@ public:
       return 0;  // nothing happens
     int x = model_->getAlphabetStateAsInt(fromState);
     int y = model_->getAlphabetStateAsInt(toState);
-    return types_[model_->getAlphabet()->getStateIndex(x)][model_->getAlphabet()->getStateIndex(y)] ? 1 : 2;
+    return types_[static_cast<size_t>(x)][static_cast<size_t>(y)] ? 1 : 2;
   }
 
   std::string getTypeName(size_t type) const
