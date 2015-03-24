@@ -73,8 +73,7 @@ namespace bpp
  */
 
   class gBGC :
-    public virtual NucleotideSubstitutionModel,
-    public AbstractSubstitutionModel
+    public AbstractNucleotideSubstitutionModel
   {
   private:
     std::auto_ptr<NucleotideSubstitutionModel>  model_;
@@ -88,25 +87,19 @@ namespace bpp
     double gamma_;
   
   public:
-    /*
+    /**
      * @brief Build a new gBGC substitution model.
      *
      */
-
     gBGC(const NucleicAlphabet*, NucleotideSubstitutionModel* const, double gamma=0);
 
     gBGC(const gBGC&);
 
     gBGC& operator=(const gBGC& gbgc);
 
-#ifndef NOVIRTUAL_COV_
-    gBGC*
-#else
-    Clonable*
-#endif
-    clone() const { return new gBGC(*this); }
+    gBGC* clone() const { return new gBGC(*this); }
 
-    ~gBGC()  {}
+    virtual ~gBGC() {}
 
   public:
     std::string getName() const;

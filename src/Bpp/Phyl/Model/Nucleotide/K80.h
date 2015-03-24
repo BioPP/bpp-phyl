@@ -148,8 +148,7 @@ namespace bpp
    * - Kimura M (1980), Journal_ Of Molecular Evolution_ 16(2) 111-20. 
    */
   class K80:
-    public virtual NucleotideSubstitutionModel,
-    public AbstractReversibleSubstitutionModel
+    public AbstractReversibleNucleotideSubstitutionModel
   {
   private:
     double kappa_, r_;
@@ -161,12 +160,7 @@ namespace bpp
 
     virtual ~K80() {}
 
-#ifndef NO_VIRTUAL_COV
-    K80*
-#else
-    Clonable*
-#endif
-    clone() const { return new K80(*this); }
+    K80* clone() const { return new K80(*this); }
 
   public:
     double Pij_t    (size_t i, size_t j, double d) const;

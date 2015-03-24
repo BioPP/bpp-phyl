@@ -42,6 +42,7 @@
 
 #include "../Model/SubstitutionModel.h"
 #include "../Model/Nucleotide/NucleotideSubstitutionModel.h"
+#include "../Model/Protein/ProteinSubstitutionModel.h"
 #include "../Model/Codon/CodonSubstitutionModel.h"
 
 // From bpp-core:
@@ -51,6 +52,7 @@
 
 // From bpp-seq:
 #include <Bpp/Seq/Alphabet/NucleicAlphabet.h>
+#include <Bpp/Seq/Alphabet/ProteicAlphabet.h>
 #include <Bpp/Seq/Alphabet/CodonAlphabet.h>
 #include <Bpp/Seq/GeneticCode/GeneticCode.h>
 
@@ -952,7 +954,6 @@ public:
  * Multiple substitutions are forbidden.
  *
  */
-
 class GCSynonymousSubstitutionRegister :
   public CategorySubstitutionRegister
 {
@@ -1045,6 +1046,162 @@ public:
     }
   }
 };
+
+/**
+ * @brief Count conservative and radical amino-acid substitutions.
+ *
+ * Categories are defined as in Sainudiin et al (2005).
+ * - 1 a conservative (C) substitution
+ * - 2 a radical (R) substitution
+ *
+ * @author Jonathan Romiguier, Emeric Figuet, Julien Dutheil
+ */
+class KrKcSubstitutionRegister :
+  public AbstractSubstitutionRegister
+{
+private:
+  std::vector< std::vector<bool> > types_;
+
+public:
+  KrKcSubstitutionRegister(const ProteinSubstitutionModel* model) :
+    AbstractSubstitutionRegister(model),
+    types_(20)
+  {
+    for (size_t i = 0; i < 20; ++i) {
+      types_[i].resize(20);
+      for (size_t j = 0; j < 20; ++j) {
+        types_[i][j] = false;
+      }
+    }
+
+    types_[0][7] = true;
+    types_[0][14] = true;
+    types_[0][19] = true;
+    types_[7][0] = true;
+    types_[7][14] = true;
+    types_[7][19] = true;
+    types_[14][0] = true;
+    types_[14][7] = true;
+    types_[14][19] = true;
+    types_[19][0] = true;
+    types_[19][7] = true;
+    types_[19][14] = true;
+    
+    types_[1][5] = true;
+    types_[1][6] = true;
+    types_[1][8] = true;
+    types_[1][11] = true;
+    types_[1][17] = true;
+    types_[1][18] = true;
+    types_[5][6] = true;
+    types_[5][8] = true;
+    types_[5][11] = true;
+    types_[5][1] = true;
+    types_[5][17] = true;
+    types_[5][18] = true;
+    types_[6][8] = true;
+    types_[6][11] = true;
+    types_[6][5] = true;
+    types_[6][1] = true;
+    types_[6][17] = true;
+    types_[6][18] = true;
+    types_[8][6] = true;
+    types_[8][11] = true;
+    types_[8][5] = true;
+    types_[8][1] = true;
+    types_[8][17] = true;
+    types_[8][18] = true;
+    types_[11][1] = true;
+    types_[11][5] = true;
+    types_[11][6] = true;
+    types_[11][8] = true;
+    types_[11][17] = true;
+    types_[11][18] = true;
+    types_[17][1] = true;
+    types_[17][5] = true;
+    types_[17][6] = true;
+    types_[17][8] = true;
+    types_[17][11] = true;
+    types_[17][18] = true;
+    types_[18][1] = true;
+    types_[18][6] = true;
+    types_[18][8] = true;
+    types_[18][11] = true;
+    types_[18][5] = true;
+    types_[18][17] = true;
+    
+    types_[2][3] = true;
+    types_[2][4] = true;
+    types_[2][15] = true;
+    types_[2][16] = true;
+    types_[3][2] = true;
+    types_[3][4] = true;
+    types_[3][15] = true;
+    types_[3][16] = true;
+    types_[4][2] = true;
+    types_[4][3] = true;
+    types_[4][15] = true;
+    types_[4][16] = true;
+    types_[15][2] = true;
+    types_[15][3] = true;
+    types_[15][4] = true;
+    types_[15][16] = true;
+    types_[16][2] = true;
+    types_[16][3] = true;
+    types_[16][4] = true;
+    types_[16][15] = true;
+    
+    types_[9][10] = true;
+    types_[9][12] = true;
+    types_[9][13] = true;
+    types_[10][9] = true;
+    types_[10][12] = true;
+    types_[10][13] = true;
+    types_[12][9] = true;
+    types_[12][10] = true;
+    types_[12][13] = true;
+    types_[13][9] = true;
+    types_[13][10] = true;
+    types_[13][12] = true;
+  }
+
+  KrKcSubstitutionRegister* clone() const { return new KrKcSubstitutionRegister(*this); }
+
+public:
+  size_t getNumberOfSubstitutionTypes() const { return 2; }
+
+  size_t getType(size_t fromState, size_t toState) const
+  {
+    if (fromState == toState)
+      return 0;  // nothing happens
+    int x = model_->getAlphabetStateAsInt(fromState);
+    int y = model_->getAlphabetStateAsInt(toState);
+    return types_[static_cast<size_t>(x)][static_cast<size_t>(y)] ? 1 : 2;
+  }
+
+  std::string getTypeName(size_t type) const
+  {
+    if (type == 0)
+    {
+      return "no substitution";
+    }
+    else if (type == 1)
+    {
+      return "conservative";
+    }
+    else if (type == 2)
+    {
+      return "radical";
+    }
+    else
+    {
+      throw Exception("KrKcSubstitutionRegister::getTypeName. Bad substitution type.");
+    }
+  }
+};
+
+
+
 } // end of namespace bpp.
 
 #endif // _SUBSTITUTIONREGISTER_H_

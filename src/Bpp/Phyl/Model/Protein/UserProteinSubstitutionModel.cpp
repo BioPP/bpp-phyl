@@ -62,7 +62,7 @@ using namespace std;
 UserProteinSubstitutionModel::UserProteinSubstitutionModel(
     const ProteicAlphabet* alpha, const std::string& path, const std::string& prefix) : 
   AbstractParameterAliasable(prefix),
-  AbstractReversibleSubstitutionModel(alpha, new CanonicalStateMap(alpha, false), prefix),
+  AbstractReversibleProteinSubstitutionModel(alpha, new CanonicalStateMap(alpha, false), prefix),
   path_(path),
   freqSet_(0)
 {
@@ -76,7 +76,7 @@ UserProteinSubstitutionModel::UserProteinSubstitutionModel(
     ProteinFrequenciesSet* freqSet, const std::string& prefix,
     bool initFreqs) : 
   AbstractParameterAliasable(prefix),
-  AbstractReversibleSubstitutionModel(alpha, new CanonicalStateMap(alpha, false), prefix),
+  AbstractReversibleProteinSubstitutionModel(alpha, new CanonicalStateMap(alpha, false), prefix),
   path_(path),
   freqSet_(freqSet)
 {

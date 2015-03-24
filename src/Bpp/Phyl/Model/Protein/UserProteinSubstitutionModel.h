@@ -62,8 +62,7 @@ namespace bpp
    * so that \f$\sum_i Q_{i,i} \times \pi_i = -1\f$.
    */
   class UserProteinSubstitutionModel:
-    public virtual ProteinSubstitutionModel,
-    public AbstractReversibleSubstitutionModel
+    public AbstractReversibleProteinSubstitutionModel
   {
   private:
     std::string path_;
@@ -102,8 +101,7 @@ namespace bpp
 
     UserProteinSubstitutionModel(const UserProteinSubstitutionModel& model) :
       AbstractParameterAliasable(model),
-      //AbstractSubstitutionModel(model),
-      AbstractReversibleSubstitutionModel(model),
+      AbstractReversibleProteinSubstitutionModel(model),
       path_(model.path_),
       freqSet_(dynamic_cast<ProteinFrequenciesSet*>(model.freqSet_->clone()))
     {}
@@ -111,8 +109,7 @@ namespace bpp
     UserProteinSubstitutionModel& operator=(const UserProteinSubstitutionModel& model)
     {
       AbstractParameterAliasable::operator=(model);
-      AbstractSubstitutionModel::operator=(model);
-      AbstractReversibleSubstitutionModel::operator=(model);
+      AbstractReversibleProteinSubstitutionModel::operator=(model);
       path_ = model.path_;
       freqSet_ = dynamic_cast<ProteinFrequenciesSet*>(model.freqSet_->clone());
       return *this;
@@ -120,12 +117,7 @@ namespace bpp
  
     virtual ~UserProteinSubstitutionModel() { delete freqSet_; }
 
-#ifndef NO_VIRTUAL_COV
-    UserProteinSubstitutionModel*
-#else
-    Clonable*
-#endif
-    clone() const { return new UserProteinSubstitutionModel(*this); }
+    UserProteinSubstitutionModel* clone() const { return new UserProteinSubstitutionModel(*this); }
       
   public:
     std::string getName() const;

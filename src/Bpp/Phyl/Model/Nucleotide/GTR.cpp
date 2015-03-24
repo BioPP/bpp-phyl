@@ -65,7 +65,7 @@ GTR::GTR(
     double piG,
     double piT) :
   AbstractParameterAliasable("GTR."),
-  AbstractReversibleSubstitutionModel(alpha, new CanonicalStateMap(alpha, false), "GTR."),
+  AbstractReversibleNucleotideSubstitutionModel(alpha, new CanonicalStateMap(alpha, false), "GTR."),
   a_(a), b_(b), c_(c), d_(d), e_(e), piA_(piA), piC_(piC), piG_(piG), piT_(piT), theta_(piG + piC), theta1_(piA / (1. - theta_)), theta2_(piG / theta_), p_()
 {
   addParameter_(new Parameter("GTR.a", a, &Parameter::R_PLUS_STAR));
@@ -73,12 +73,8 @@ GTR::GTR(
   addParameter_(new Parameter("GTR.c", c, &Parameter::R_PLUS_STAR));
   addParameter_(new Parameter("GTR.d", d, &Parameter::R_PLUS_STAR));
   addParameter_(new Parameter("GTR.e", e, &Parameter::R_PLUS_STAR));
-  //jdutheil on 07/02/11: is this still needed? If yes, we should also change it in all models in order to facilitate parameter aliasing...
-  //Parameter thetaP("GTR.theta", theta_ , new IncludingInterval(0.001, 0.999), true); //Avoid numerical errors close to the bounds.
   addParameter_(new Parameter("GTR.theta", theta_, &FrequenciesSet::FREQUENCE_CONSTRAINT_SMALL));
-  //Parameter theta1P("GTR.theta1", theta1_, new IncludingInterval(0.001, 0.999), true);
   addParameter_(new Parameter("GTR.theta1", theta1_, &FrequenciesSet::FREQUENCE_CONSTRAINT_SMALL));
-  //Parameter theta2P("GTR.theta2", theta2_, new IncludingInterval(0.001, 0.999), true);
   addParameter_(new Parameter("GTR.theta2", theta2_, &FrequenciesSet::FREQUENCE_CONSTRAINT_SMALL));
   updateMatrices();
 }

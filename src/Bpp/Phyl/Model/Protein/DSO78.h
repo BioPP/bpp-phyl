@@ -64,8 +64,7 @@ namespace bpp
    * - Kosiol C and Goldman N (2005), _Molecular Biology And Evolution_ 22(2) 193-9. 
    */
   class DSO78 :
-    public virtual ProteinSubstitutionModel,
-    public AbstractReversibleSubstitutionModel
+    public AbstractReversibleProteinSubstitutionModel
   {
   private:
     ProteinFrequenciesSet* freqSet_;
@@ -90,16 +89,14 @@ namespace bpp
 
     DSO78(const DSO78& model) :
       AbstractParameterAliasable(model),
-      //AbstractSubstitutionModel(model),
-      AbstractReversibleSubstitutionModel(model),
+      AbstractReversibleProteinSubstitutionModel(model),
       freqSet_(dynamic_cast<ProteinFrequenciesSet *>(model.freqSet_->clone()))
     {}
 
     DSO78& operator=(const DSO78& model)
     {
       AbstractParameterAliasable::operator=(model);
-      AbstractSubstitutionModel::operator=(model);
-      AbstractReversibleSubstitutionModel::operator=(model);
+      AbstractReversibleProteinSubstitutionModel::operator=(model);
       if (freqSet_) delete freqSet_;
       freqSet_ = dynamic_cast<ProteinFrequenciesSet *>(model.freqSet_->clone());
       return *this;
@@ -107,12 +104,7 @@ namespace bpp
 
     virtual ~DSO78() { delete freqSet_; }
 
-#ifndef NO_VIRTUAL_COV
-    DSO78*
-#else
-    Clonable*
-#endif
-    clone() const { return new DSO78(*this); }
+    DSO78* clone() const { return new DSO78(*this); }
     
   public:
     std::string getName() const 

@@ -157,8 +157,7 @@ namespace bpp
  * - Tamura K (1992), Molecular_ Biology And Evolution_ 9(5) 814-25.
  */
 class T92 :
-  public virtual NucleotideSubstitutionModel,
-  public AbstractReversibleSubstitutionModel
+  public AbstractReversibleNucleotideSubstitutionModel
 {
 private:
   double kappa_, theta_, k_, r_, piA_, piC_, piG_, piT_;
@@ -170,12 +169,7 @@ public:
 
   virtual ~T92() {}
 
-#ifndef NOVIRTUAL_COV_
-  T92*
-#else
-  Clonable*
-#endif
-  clone() const { return new T92(*this); }
+  T92* clone() const { return new T92(*this); }
 
 public:
   double Pij_t    (size_t i, size_t j, double d) const;

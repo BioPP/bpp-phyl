@@ -127,8 +127,7 @@ namespace bpp
  * - Jukes TH and Cantor CR (1969), Evolution_ of proteins molecules_, 121-123, in Mammalian_ protein metabolism_.
  */
 class JCnuc :
-  public virtual NucleotideSubstitutionModel,
-  public AbstractReversibleSubstitutionModel
+  public AbstractReversibleNucleotideSubstitutionModel
 {
 private:
   mutable double exp_;
@@ -139,12 +138,7 @@ public:
 
   virtual ~JCnuc() {}
 
-#ifndef NO_VIRTUAL_COV
-  JCnuc*
-#else
-  Clonable*
-#endif
-  clone() const { return new JCnuc(*this); }
+  JCnuc* clone() const { return new JCnuc(*this); }
 
 public:
   double Pij_t    (size_t i, size_t j, double d) const;

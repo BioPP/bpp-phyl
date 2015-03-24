@@ -108,8 +108,7 @@ namespace bpp
  */
 
 class RN95s :
-  public virtual NucleotideSubstitutionModel,
-  public AbstractSubstitutionModel
+  public AbstractNucleotideSubstitutionModel
 {
 private:
   double alpha_, beta_, gamma_, delta_;
@@ -130,12 +129,7 @@ public:
 
   virtual ~RN95s() {}
 
-#ifndef NO_VIRTUAL_COV
-  RN95s*
-#else
-  Clonable*
-#endif
-  clone() const { return new RN95s(*this); }
+  RN95s* clone() const { return new RN95s(*this); }
 
 public:
   double Pij_t    (size_t i, size_t j, double d) const;

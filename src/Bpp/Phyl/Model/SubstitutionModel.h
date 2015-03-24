@@ -434,7 +434,6 @@ public:
    * @param scale the scale by which the generator is multiplied.
    *
    */
-
   virtual void setScale(double scale) = 0;
 
   /**
@@ -446,7 +445,6 @@ public:
    * @brief Set the rate of the model (must be positive).
    * @param rate must be positive.
    */
-  
   virtual void setRate(double rate) = 0;
 
   virtual void addRateParameter() = 0;
@@ -498,9 +496,7 @@ public:
   ReversibleSubstitutionModel() {}
   virtual ~ReversibleSubstitutionModel() {}
 
-#ifndef NO_VIRTUAL_COV
   ReversibleSubstitutionModel* clone() const = 0;
-#endif
 };
 
 } //end of namespace bpp.

@@ -231,6 +231,7 @@ namespace bpp
     RE08Nucleotide* clone() const { return new RE08Nucleotide(*this); }
 
   public:
+    const NucleicAlphabet* getAlphabet() const { return dynamic_cast<const NucleicAlphabet*>(alphabet_); }
     const NucleotideReversibleSubstitutionModel* getNestedModel() const {
       return dynamic_cast<const NucleotideReversibleSubstitutionModel*>(RE08::getNestedModel());
     }
@@ -267,6 +268,7 @@ namespace bpp
     RE08Protein* clone() const { return new RE08Protein(*this); }
 
   public:
+    const ProteicAlphabet* getAlphabet() const { return dynamic_cast<const ProteicAlphabet*>(alphabet_); }
     const ProteinReversibleSubstitutionModel* getNestedModel() const {
       return dynamic_cast<const ProteinReversibleSubstitutionModel*>(RE08::getNestedModel());
     }
