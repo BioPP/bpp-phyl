@@ -80,8 +80,7 @@ class LLG08_UL3 :
 {
 public:
   class EmbeddedModel :
-    public virtual ProteinSubstitutionModel,
-    public AbstractReversibleSubstitutionModel
+    public AbstractReversibleProteinSubstitutionModel
   {
 private:
     double proportion_;
@@ -89,7 +88,7 @@ private:
 
 public:
     EmbeddedModel(const ProteicAlphabet* alpha, string name);
-    ~EmbeddedModel(){}
+    virtual ~EmbeddedModel(){}
     EmbeddedModel* clone() const { return new EmbeddedModel(*this); }
     string getName() const { return name_;}
     double getProportion() const { return proportion_;}

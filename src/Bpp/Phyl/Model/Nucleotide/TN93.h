@@ -128,44 +128,38 @@ namespace bpp
  * - Tamura N and Nei K (1993), Molecular_ Biology And Evolution_ 10(3) 512-26. 
  */
 class TN93 :
-  public virtual NucleotideSubstitutionModel,
-  public AbstractReversibleSubstitutionModel
+  public AbstractReversibleNucleotideSubstitutionModel
 {
-	private:
+  private:
     double kappa1_, kappa2_, piA_, piC_, piG_, piT_, piY_, piR_, r_, k1_, k2_, theta_, theta1_, theta2_;
     mutable double exp1_, exp21_, exp22_, l_;
     mutable RowMatrix<double> p_;
 
-	public:
-		TN93(
-			const NucleicAlphabet * alpha,
-			double kappa1 = 1.,
-			double kappa2 = 1.,
-			double piA = 0.25,
-			double piC = 0.25,
-			double piG = 0.25,
-			double piT = 0.25);
-	
-		virtual ~TN93() {}
+  public:
+    TN93(
+      const NucleicAlphabet * alpha,
+      double kappa1 = 1.,
+      double kappa2 = 1.,
+      double piA = 0.25,
+      double piC = 0.25,
+      double piG = 0.25,
+      double piT = 0.25);
+  
+    virtual ~TN93() {}
 
-#ifndef NO_VIRTUAL_COV
-    TN93*
-#else
-    Clonable*
-#endif
-    clone() const { return new TN93(*this); }
+    TN93* clone() const { return new TN93(*this); }
 
   public:
 
-		double Pij_t    (size_t i, size_t j, double d) const;
-		double dPij_dt  (size_t i, size_t j, double d) const;
-		double d2Pij_dt2(size_t i, size_t j, double d) const;
-		const Matrix<double>& getPij_t    (double d) const;
-		const Matrix<double>& getdPij_dt  (double d) const;
-		const Matrix<double>& getd2Pij_dt2(double d) const;
+    double Pij_t    (size_t i, size_t j, double d) const;
+    double dPij_dt  (size_t i, size_t j, double d) const;
+    double d2Pij_dt2(size_t i, size_t j, double d) const;
+    const Matrix<double>& getPij_t    (double d) const;
+    const Matrix<double>& getdPij_dt  (double d) const;
+    const Matrix<double>& getd2Pij_dt2(double d) const;
 
     std::string getName() const { return "TN93"; }
-	
+  
   /**
    * @brief This method is over-defined to actualize the corresponding parameters piA, piT, piG and piC too.
    */
@@ -177,5 +171,5 @@ class TN93 :
 
 } //end of namespace bpp.
 
-#endif	//_TN93_H_
+#endif  //_TN93_H_
 

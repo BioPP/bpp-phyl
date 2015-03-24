@@ -53,7 +53,7 @@ using namespace std;
 
 JCprot::JCprot(const ProteicAlphabet* alpha) :
   AbstractParameterAliasable("JC69."),
-  AbstractReversibleSubstitutionModel(alpha, new CanonicalStateMap(alpha, false), "JC69."),
+  AbstractReversibleProteinSubstitutionModel(alpha, new CanonicalStateMap(alpha, false), "JC69."),
   exp_(), p_(size_, size_), freqSet_(0)
 {
   freqSet_ = new FixedProteinFrequenciesSet(alpha, freq_);
@@ -62,7 +62,7 @@ JCprot::JCprot(const ProteicAlphabet* alpha) :
 
 JCprot::JCprot(const ProteicAlphabet* alpha, ProteinFrequenciesSet* freqSet, bool initFreqs) :
   AbstractParameterAliasable("JC69+F."),
-  AbstractReversibleSubstitutionModel(alpha, new CanonicalStateMap(alpha, false), "JC69+F."),
+  AbstractReversibleProteinSubstitutionModel(alpha, new CanonicalStateMap(alpha, false), "JC69+F."),
   exp_(), p_(size_, size_), freqSet_(freqSet)
 {
   freqSet_->setNamespace("JC69+F."+freqSet_->getNamespace());

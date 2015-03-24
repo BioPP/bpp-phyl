@@ -96,8 +96,7 @@ namespace bpp
  * - Yap VB, Speed TP (1995), Journal_ Of Molecular Evolution_ 58(1) 12-18
  */
   class SSR:
-    public virtual NucleotideSubstitutionModel,
-    public AbstractReversibleSubstitutionModel
+    public AbstractReversibleNucleotideSubstitutionModel
   {
   private:
     double beta_, gamma_, delta_, theta_, piA_, piC_, piG_, piT_;
@@ -111,12 +110,7 @@ namespace bpp
   
     virtual ~SSR() {}
   
-#ifndef NO_VIRTUAL_COV
-    SSR*
-#else
-    Clonable*
-#endif
-    clone() const { return new SSR(*this); }
+    SSR* clone() const { return new SSR(*this); }
   
   public:
     std::string getName() const { return "Strand Symmetric Reversible"; }

@@ -70,8 +70,7 @@ namespace bpp
  */
 
 class Coala :
-  public ProteinSubstitutionModel,
-  public AbstractReversibleSubstitutionModel,
+  public AbstractReversibleProteinSubstitutionModel,
   public CoalaCore
 {
 protected:
@@ -89,16 +88,11 @@ public:
 
   virtual ~Coala() {}
 
-#ifndef NO_VIRTUAL_COV
-  Coala*
-#else
-  Clonable*
-#endif
-  clone() const { return new Coala(*this); }
+  Coala* clone() const { return new Coala(*this); }
 
 public:
-  std::string getName() const {return "Coala"; }
-  std::string getExch() const {return exch_; }
+  std::string getName() const { return "Coala"; }
+  std::string getExch() const { return exch_; }
   void setFreqFromData(const SequenceContainer& data, double pseudoCount = 0);
   std::string getEmpiricalMatrixFile() const { return file_; }
 

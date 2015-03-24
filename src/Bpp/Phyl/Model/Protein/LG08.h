@@ -62,8 +62,7 @@ namespace bpp
    * - Le, Si Q. and Gascuel, O. (2008), _Molecular Biology And Evolution_ 25, 1307--1320. 
    */
   class LG08 :
-    public virtual ProteinSubstitutionModel,
-    public AbstractReversibleSubstitutionModel
+    public AbstractReversibleProteinSubstitutionModel
   {
   private:
     ProteinFrequenciesSet* freqSet_;
@@ -88,16 +87,14 @@ namespace bpp
 
     LG08(const LG08& model) :
       AbstractParameterAliasable(model),
-      //AbstractSubstitutionModel(model),
-      AbstractReversibleSubstitutionModel(model),
+      AbstractReversibleProteinSubstitutionModel(model),
       freqSet_(dynamic_cast<ProteinFrequenciesSet*>(model.freqSet_->clone()))
     {}
 
     LG08& operator=(const LG08& model)
     {
       AbstractParameterAliasable::operator=(model);
-      AbstractSubstitutionModel::operator=(model);
-      AbstractReversibleSubstitutionModel::operator=(model);
+      AbstractReversibleProteinSubstitutionModel::operator=(model);
       if (freqSet_) delete freqSet_;
       freqSet_ = dynamic_cast<ProteinFrequenciesSet*>(model.freqSet_->clone());
       return *this;
@@ -105,12 +102,7 @@ namespace bpp
 
     virtual ~LG08() { delete freqSet_; }
 
-#ifndef NO_VIRTUAL_COV
-    LG08*
-#else
-    Clonable*
-#endif
-    clone() const { return new LG08(*this); }
+    LG08* clone() const { return new LG08(*this); }
 
   public:
     std::string getName() const 

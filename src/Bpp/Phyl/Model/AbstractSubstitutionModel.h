@@ -118,7 +118,6 @@ protected:
    * reversible, this matrix is symetric.
    *
    */
-  
   RowMatrix<double> exchangeability_;
 
   /**
@@ -146,7 +145,6 @@ protected:
   /**
    * @brief boolean value for diagonalizability in R of the generator_
    */
-  
   bool isDiagonalizable_;
 
   /**
@@ -229,9 +227,7 @@ public:
   
   virtual ~AbstractSubstitutionModel() {}
 
-#ifndef NO_VIRTUAL_COV
   virtual AbstractSubstitutionModel* clone() const = 0;
-#endif
 
 public:
   const Alphabet* getAlphabet() const { return alphabet_; }
@@ -295,7 +291,6 @@ public:
    *
    * This updates the matrices consequently.
    */
-
   virtual void fireParameterChanged(const ParameterList& parameters)
   {
     AbstractParameterAliasable::fireParameterChanged(parameters);
@@ -316,7 +311,6 @@ public:
    * overall rate of the process.
    *
    */
-  
   void addRateParameter();
 
 protected:
@@ -335,28 +329,24 @@ protected:
    * The optional rate parameter is not taken into account in this
    * method to prevent unnecessary computation.
    */
-  
   virtual void updateMatrices();
 
 public:
   double getScale() const;
 
-  /*
+  /**
    * @brief Multiplies the current generator by the given scale.
    *
    * @param scale the scale by which the generator is multiplied.
    *
    */
-  
   void setScale(double scale);
 
-  /*
+  /**
    * @brief The rate of the substitution process.
    *
    * @param scale the scale by which the generator is multiplied.
-   *
    */
-  
   virtual double getRate() const;
 
   virtual void setRate(double rate);
@@ -389,7 +379,6 @@ public:
  * characters in the alphabet. Consider using the
  * MarkovModulatedSubstitutionModel for more complexe cases.
  */
-  
 class AbstractReversibleSubstitutionModel :
   public AbstractSubstitutionModel,
   public virtual ReversibleSubstitutionModel
@@ -405,9 +394,7 @@ public:
 
   virtual ~AbstractReversibleSubstitutionModel() {}
 
-#ifndef NO_VIRTUAL_COV
   virtual AbstractReversibleSubstitutionModel* clone() const = 0;
-#endif
 
 protected:
 

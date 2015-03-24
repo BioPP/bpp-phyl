@@ -107,7 +107,7 @@ LG10_EX_EHO::~LG10_EX_EHO()
 
 LG10_EX_EHO::EmbeddedModel::EmbeddedModel(const ProteicAlphabet* alpha, string name) :
   AbstractParameterAliasable(name),
-  AbstractReversibleSubstitutionModel(alpha, new CanonicalStateMap(alpha, false), name), 
+  AbstractReversibleProteinSubstitutionModel(alpha, new CanonicalStateMap(alpha, false), name), 
   proportion_(1), 
   name_(name)
 {

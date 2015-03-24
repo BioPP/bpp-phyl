@@ -41,6 +41,7 @@
 #define _NUCLEICSUBSTITUTIONMODEL_H_
 
 #include "../SubstitutionModel.h"
+#include "../AbstractSubstitutionModel.h"
 
 // From bpp-seq:
 #include <Bpp/Seq/Alphabet/NucleicAlphabet.h>
@@ -57,15 +58,12 @@ namespace bpp
   public:
     virtual ~NucleotideSubstitutionModel() {}
 
-#ifndef NO_VIRTUAL_COV
-    NucleotideSubstitutionModel*
-#else
-    Clonable*
-#endif
-    clone() const = 0;
+    NucleotideSubstitutionModel* clone() const = 0;
 
   public:
-    virtual size_t getNumberOfStates() const { return 4; }
+    size_t getNumberOfStates() const { return 4; }
+    
+    const NucleicAlphabet* getAlphabet() const = 0;
 
   };
 
@@ -81,14 +79,62 @@ namespace bpp
   public:
     virtual ~NucleotideReversibleSubstitutionModel() {}
 
-#ifndef NO_VIRTUAL_COV
-    NucleotideReversibleSubstitutionModel*
-#else
-    Clonable*
-#endif
-    clone() const = 0;
+    NucleotideReversibleSubstitutionModel* clone() const = 0;
+    
+    //size_t getNumberOfStates() const { return NucleotideSubstitutionModel::getNumberOfStates(); }
 
   };
+
+
+
+/**
+ * @brief Specialisation abstract class for nucleotide substitution model.
+ */
+  class AbstractNucleotideSubstitutionModel :
+    public AbstractSubstitutionModel,
+    public virtual NucleotideSubstitutionModel
+  {
+  public:
+    AbstractNucleotideSubstitutionModel(const NucleicAlphabet* alpha, StateMap* stateMap, const std::string& prefix):
+      AbstractParameterAliasable(prefix),
+      AbstractSubstitutionModel(alpha, stateMap, prefix) {}
+
+    virtual ~AbstractNucleotideSubstitutionModel() {}
+    
+    AbstractNucleotideSubstitutionModel* clone() const = 0;
+
+  public:
+    
+    const NucleicAlphabet* getAlphabet() const {
+      return dynamic_cast<const NucleicAlphabet*>(alphabet_);
+    }
+    
+  };
+
+/**
+ * @brief Specialisation abstract class for reversible nucleotide substitution model.
+ */
+  class AbstractReversibleNucleotideSubstitutionModel :
+    public AbstractReversibleSubstitutionModel,
+    public virtual NucleotideSubstitutionModel
+  {
+  public:
+    AbstractReversibleNucleotideSubstitutionModel(const NucleicAlphabet* alpha, StateMap* stateMap, const std::string& prefix):
+      AbstractParameterAliasable(prefix),
+      AbstractReversibleSubstitutionModel(alpha, stateMap, prefix) {}
+
+    virtual ~AbstractReversibleNucleotideSubstitutionModel() {}
+    
+    AbstractReversibleNucleotideSubstitutionModel* clone() const = 0;
+    
+  public:
+    const NucleicAlphabet* getAlphabet() const {
+      return dynamic_cast<const NucleicAlphabet*>(alphabet_);
+    }
+
+  };
+
+
 
 } //end of namespace bpp.
 

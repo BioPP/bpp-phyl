@@ -58,7 +58,7 @@ RN95s::RN95s(const NucleicAlphabet* alphabet,
              double gamma,
              double delta) :
   AbstractParameterAliasable("RN95s."),
-  AbstractSubstitutionModel(alphabet, new CanonicalStateMap(alphabet, false), "RN95s."),
+  AbstractNucleotideSubstitutionModel(alphabet, new CanonicalStateMap(alphabet, false), "RN95s."),
   alpha_(),
   beta_(),
   gamma_(),

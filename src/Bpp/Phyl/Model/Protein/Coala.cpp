@@ -68,8 +68,7 @@ Coala::Coala(
   unsigned int nbAxes,
   bool param) :
   AbstractParameterAliasable("Coala."),
-  ProteinSubstitutionModel(),
-  AbstractReversibleSubstitutionModel(alpha, new CanonicalStateMap(alpha, false), "Coala."),
+  AbstractReversibleProteinSubstitutionModel(alpha, new CanonicalStateMap(alpha, false), "Coala."),
   CoalaCore(nbAxes, model.getName()),
   init_(true),
   nbrOfAxes_(nbAxes),
