@@ -63,10 +63,10 @@ NonHomogeneousSubstitutionProcess::NonHomogeneousSubstitutionProcess(const NonHo
 
   // Duplicate all model objects:
   for (size_t i = 0; i < set.modelSet_.size(); i++)
-    {
-      modelSet_[i]=dynamic_cast<SubstitutionModel*>(set.modelSet_[i]->clone());
-      computingTree_->addModel(modelSet_[i],set.modelToNodes_[i]);
-    }
+  {
+    modelSet_[i]=dynamic_cast<SubstitutionModel*>(set.modelSet_[i]->clone());
+    computingTree_->addModel(modelSet_[i],set.modelToNodes_[i]);
+  }
 
   computingTree_->checkModelOnEachNode();
 }
@@ -253,7 +253,7 @@ void NonHomogeneousSubstitutionProcess::fireParameterChanged(const ParameterList
 }
 
 
-ParameterList NonHomogeneousSubstitutionProcess::getSubstitutionModelParameters() const
+ParameterList NonHomogeneousSubstitutionProcess::getSubstitutionModelParameters(bool independent) const
 {
   ParameterList pl;
   

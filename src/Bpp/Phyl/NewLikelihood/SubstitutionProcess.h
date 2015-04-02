@@ -105,13 +105,13 @@ public:
    *
    */
   
-  virtual ParameterList getSubstitutionModelParameters() const = 0;
+  virtual ParameterList getSubstitutionModelParameters(bool independent) const = 0;
 
-  virtual ParameterList getRateDistributionParameters() const = 0;
+  virtual ParameterList getRateDistributionParameters(bool independent) const = 0;
 
-  virtual ParameterList getRootFrequenciesParameters() const = 0;
+  virtual ParameterList getRootFrequenciesParameters(bool independent) const = 0;
 
-  virtual ParameterList getBranchLengthParameters() const = 0;
+  virtual ParameterList getBranchLengthParameters(bool independent) const = 0;
 
   virtual ParameterList getDerivableParameters() const = 0;
 

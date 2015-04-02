@@ -112,13 +112,13 @@ namespace bpp
       /** @} */
 
       /**
-       * @name Retrieve some particular parameters subsets.
+       * @name Retrieve some particular independent parameters subsets.
        *
        * @{
        */
     
       /**
-       * @brief Get the branch lengths parameters.
+       * @brief Get the independent branch lengths parameters.
        *
        * @return A ParameterList with all branch lengths.
        */
@@ -126,7 +126,7 @@ namespace bpp
       virtual ParameterList getBranchLengthParameters() const = 0;
     
       /**
-       * @brief Get the parameters associated to substitution model(s).
+       * @brief Get the independent parameters associated to substitution model(s).
        *
        * @return A ParameterList.
        */
@@ -134,7 +134,7 @@ namespace bpp
       virtual ParameterList getSubstitutionModelParameters() const = 0;
 
       /**
-       * @brief Get the parameters associated to the rate distribution(s).
+       * @brief Get the independent parameters associated to the rate distribution(s).
        *
        * @return A ParameterList.
        */
@@ -142,7 +142,7 @@ namespace bpp
       virtual ParameterList getRateDistributionParameters() const = 0;
 
       /**
-       * @brief Get the parameters associated to the root frequencies(s).
+       * @brief Get the independent parameters associated to the root frequencies(s).
        *
        * @return A ParameterList.
        */
@@ -150,7 +150,7 @@ namespace bpp
       virtual ParameterList getRootFrequenciesParameters() const = 0;
 
       /**
-       * @brief All derivable parameters.
+       * @brief All independent derivable parameters.
        *
        * Usually, this contains all branch lengths parameters.
        *
@@ -160,7 +160,7 @@ namespace bpp
       virtual ParameterList getDerivableParameters() const = 0;
 
       /**
-       * @brief All non derivable parameters.
+       * @brief All independent non derivable parameters.
        *
        * Usually, this contains all substitution model parameters and rate distribution.
        *

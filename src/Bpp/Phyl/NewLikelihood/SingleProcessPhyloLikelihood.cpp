@@ -59,8 +59,12 @@ SingleProcessPhyloLikelihood::SingleProcessPhyloLikelihood(
   if (tlComp->getSubstitutionProcess() != process_)
     throw Exception("SingleProcessPhyloLikelihood::SingleProcessPhyloLikelihood Error :  given process must be the same as the one of TreeLikelihoodCalculation");
   
-  // initialize parameters:
-  addParameters_(process_->getParameters());
+  // initialize INDEPENDENT parameters:
+
+  addParameters_(process_->getBranchLengthParameters(true));
+  addParameters_(process_->getSubstitutionModelParameters(true));
+  addParameters_(process_->getRateDistributionParameters(true));
+  addParameters_(process_->getRootFrequenciesParameters(true)); 
 
   tlComp_->computeTreeLikelihood();
   minusLogLik_ = - tlComp_->getLogLikelihood();

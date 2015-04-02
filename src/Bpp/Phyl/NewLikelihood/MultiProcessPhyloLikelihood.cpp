@@ -70,7 +70,7 @@ MultiProcessPhyloLikelihood::MultiProcessPhyloLikelihood(
   // initialize parameters:
 
   for (size_t i=0; i<nProc_.size(); i++)
-    includeParameters_(processColl_->getSubstitutionProcessParameters(nProc_[i]));
+    includeParameters_(processColl_->getSubstitutionProcessParameters(nProc_[i],true));
   
   if (recursivity_=='S')
     for (size_t i = 0; i < nProc_.size(); i++)
@@ -87,7 +87,7 @@ MultiProcessPhyloLikelihood::MultiProcessPhyloLikelihood(
       vpTreelik_.push_back(rt);
     }
   else throw(Exception("MultiProcessPhyloLikelihood::MultiProcessPhyloLikelihood: unknown recursivity : " + recursivity_));
-  
+
 }
 
 /******************************************************************************/
@@ -115,7 +115,7 @@ MultiProcessPhyloLikelihood::MultiProcessPhyloLikelihood(
 {
   // initialize parameters:
   for (size_t i=0; i<nProc_.size(); i++)
-    includeParameters_(processColl_->getSubstitutionProcessParameters(nProc_[i]));
+    includeParameters_(processColl_->getSubstitutionProcessParameters(nProc_[i],true));
 
   if (recursivity_=='S')
     for (size_t i = 0; i < nProc_.size(); i++)
@@ -132,6 +132,7 @@ MultiProcessPhyloLikelihood::MultiProcessPhyloLikelihood(
   else throw(Exception("MultiProcessPhyloLikelihood::MultiProcessPhyloLikelihood: unknown recursivity : " + recursivity_));
 
   setData(data, nData);
+
 }
 
 /******************************************************************************/
@@ -169,7 +170,7 @@ ParameterList MultiProcessPhyloLikelihood::getSubstitutionProcessParameters() co
   ParameterList pl;
   
   for (size_t i=0; i<nProc_.size(); i++)
-    pl.includeParameters(processColl_->getSubstitutionProcessParameters(nProc_[i]));
+    pl.includeParameters(processColl_->getSubstitutionProcessParameters(nProc_[i], true));
 
   return pl;
 }
@@ -179,7 +180,7 @@ ParameterList MultiProcessPhyloLikelihood::getSubstitutionModelParameters() cons
   ParameterList pl;
   
   for (size_t i=0; i<nProc_.size(); i++)
-    pl.includeParameters(processColl_->getSubstitutionProcess(nProc_[i])->getSubstitutionModelParameters());
+    pl.includeParameters(processColl_->getSubstitutionProcess(nProc_[i])->getSubstitutionModelParameters(true));
 
   return pl;
 }
@@ -189,7 +190,7 @@ ParameterList MultiProcessPhyloLikelihood::getRateDistributionParameters() const
   ParameterList pl;
   
   for (size_t i=0; i<nProc_.size(); i++)
-    pl.includeParameters(processColl_->getSubstitutionProcess(nProc_[i])->getRateDistributionParameters());
+    pl.includeParameters(processColl_->getSubstitutionProcess(nProc_[i])->getRateDistributionParameters(true));
 
   return pl;
 }
@@ -199,7 +200,7 @@ ParameterList MultiProcessPhyloLikelihood::getRootFrequenciesParameters() const
   ParameterList pl;
   
   for (size_t i=0; i<nProc_.size(); i++)
-    pl.includeParameters(processColl_->getSubstitutionProcess(nProc_[i])->getRootFrequenciesParameters());
+    pl.includeParameters(processColl_->getSubstitutionProcess(nProc_[i])->getRootFrequenciesParameters(true));
 
   return pl;
 }
@@ -209,7 +210,7 @@ ParameterList MultiProcessPhyloLikelihood::getBranchLengthParameters() const
   ParameterList pl;
   
   for (size_t i=0; i<nProc_.size(); i++)
-    pl.includeParameters(processColl_->getSubstitutionProcess(nProc_[i])->getBranchLengthParameters());
+    pl.includeParameters(processColl_->getSubstitutionProcess(nProc_[i])->getBranchLengthParameters(true));
 
   return pl;
 }

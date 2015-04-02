@@ -78,9 +78,9 @@ size_t AbstractSubstitutionProcess::getModelIndex_(int nodeId, size_t modelClass
 
 ParameterList AbstractSubstitutionProcess::getNonDerivableParameters() const
 {
-  ParameterList pl=getSubstitutionModelParameters();
-  pl.includeParameters(getRootFrequenciesParameters());
-  pl.includeParameters(getRateDistributionParameters());
+  ParameterList pl=getSubstitutionModelParameters(true);
+  pl.includeParameters(getRootFrequenciesParameters(true));
+  pl.includeParameters(getRateDistributionParameters(true));
 
   return pl;
 }

@@ -139,9 +139,29 @@ namespace bpp
       bool verbose = true,
       int warn = 1) throw (Exception);
 
+    /**
+     * @brief Build a list ofTree objects according to options.
+     *
+     * See the Bio++ Program Suite manual for a description of available options.
+     *
+     * @param params           The attribute map where options may be
+     * found.
+     * @param mSeq             A map of pointers of SiteContainers,
+     * necessary in case of random trees
+     * @param unparsedparams   A map of parameters (BrLen) that will
+     * be aliased after.
+     * @param prefix           A prefix to be applied to each attribute name.
+     * @param suffix           A suffix to be applied to each attribute name.
+     * @param suffixIsOptional Tell if the suffix is absolutely required.
+     * @param verbose          Print some info to the 'message' output stream.
+     * @param warn             Set the warning level (0: always display warnings, >0 display warnings on demand).
+     * @return A new vector of Tree objects according to the specified options.
+     * @throw Exception if an error occured.
+     */
     static map<size_t, Tree*> getTrees(
       map<string, string>& params,
       const std::map<size_t, SiteContainer*>& mSeq,
+      std::map<std::string, std::string>& unparsedparams,
       const std::string& prefix = "input.",
       const std::string& suffix = "",
       bool suffixIsOptional = true,
@@ -710,6 +730,7 @@ namespace bpp
      * tl = PhylogeneticsApplicationTools::optimizeParameters(tl, ...);
      * @endcode
      */
+    
     static TreeLikelihood* optimizeParameters(
       TreeLikelihood* tl,
       const ParameterList& parameters,

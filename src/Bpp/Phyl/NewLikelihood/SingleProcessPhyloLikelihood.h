@@ -181,22 +181,22 @@ namespace bpp
 
       ParameterList getBranchLengthParameters() const
       {
-        return process_->getBranchLengthParameters();
+        return process_->getBranchLengthParameters(true);
       }
 
       ParameterList getRootFrequenciesParameters() const
       {
-        return process_->getRootFrequenciesParameters();
+        return process_->getRootFrequenciesParameters(true);
       }
 
       ParameterList getRateDistributionParameters() const
       {
-        return process_->getRateDistributionParameters();
+        return process_->getRateDistributionParameters(true);
       }
 
       ParameterList getSubstitutionModelParameters() const
       {
-        return process_->getSubstitutionModelParameters();
+        return process_->getSubstitutionModelParameters(true);
       }
 
       /** @} */

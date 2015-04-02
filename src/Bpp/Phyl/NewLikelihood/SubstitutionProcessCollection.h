@@ -431,7 +431,6 @@ public:
 
   void addSubstitutionProcess(size_t nProc, std::map<size_t, std::vector<int> > mModBr, size_t nTree, size_t nRate);
 
-
   /*
    * @brief Methods to retrieve Substitution Process
    *
@@ -462,14 +461,24 @@ public:
    * @return A ParameterList with all branch lengths.
    */
   
-  ParameterList getBranchLengthParameters() const
+  ParameterList getBranchLengthParameters(bool independent) const
   {
-    return treeColl_.getParameters();
+    ParameterList pl=treeColl_.getParameters();
+
+    if (independent)
+      return pl.getCommonParametersWith(getIndependentParameters());
+    else
+      return pl;
   }
 
-  ParameterList getBranchLengthParameters(size_t nTree) const
+  ParameterList getBranchLengthParameters(size_t nTree, bool independent) const
   {
-    return treeColl_.getParametersForObject(nTree);
+    ParameterList pl=treeColl_.getParametersForObject(nTree);
+    
+    if (independent)
+      return pl.getCommonParametersWith(getIndependentParameters());
+    else
+      return pl;
   }
   
   bool hasBranchLengthParameter(const std::string& name) const;
@@ -480,13 +489,19 @@ public:
    * @return A ParameterList.
    */
   
-  ParameterList getSubstitutionProcessParameters(size_t nProc) const
+  ParameterList getSubstitutionProcessParameters(size_t nProc, bool independent) const
   {
+    ParameterList pl;
+    
     if (mSubProcess_.find(nProc)!=mSubProcess_.end())
-      return mSubProcess_.find(nProc)->second->getParameters();
+      pl=mSubProcess_.find(nProc)->second->getParameters();
     else
       return ParameterList();
     
+    if (independent)
+      return pl.getCommonParametersWith(getIndependentParameters());
+    else
+      return pl;
   }
 
   ParameterList getSubstitutionProcessParameters() const;
@@ -497,14 +512,24 @@ public:
    * @return A ParameterList.
    */
   
-  ParameterList getSubstitutionModelParameters(size_t nMod) const
+  ParameterList getSubstitutionModelParameters(size_t nMod, bool independent) const
   {
-    return modelColl_.getParametersForObject(nMod);
+    ParameterList pl=modelColl_.getParametersForObject(nMod);
+
+    if (independent)
+      return pl.getCommonParametersWith(getIndependentParameters());
+    else
+      return pl;
   }
 
-  ParameterList getSubstitutionModelParameters() const
+  ParameterList getSubstitutionModelParameters(bool independent) const
   {
-    return modelColl_.getParameters();
+    ParameterList pl=modelColl_.getParameters();
+
+    if (independent)
+      return pl.getCommonParametersWith(getIndependentParameters());
+    else
+      return pl;
   }
   
 
@@ -522,14 +547,24 @@ public:
    * @return A ParameterList.
    */
   
-  ParameterList getRateDistributionParameters(size_t nRate) const
+  ParameterList getRateDistributionParameters(size_t nRate, bool independent) const
   {
-    return distColl_.getParametersForObject(nRate);
+    ParameterList pl=distColl_.getParametersForObject(nRate);
+
+    if (independent)
+      return pl.getCommonParametersWith(getIndependentParameters());
+    else
+      return pl;
   }
 
-  ParameterList getRateDistributionParameters() const
+  ParameterList getRateDistributionParameters(bool independent) const
   {
-    return distColl_.getParameters();
+    ParameterList pl=distColl_.getParameters();
+
+    if (independent)
+      return pl.getCommonParametersWith(getIndependentParameters());
+    else
+      return pl;
   }
   
   /**
@@ -538,14 +573,24 @@ public:
    * @return A ParameterList.
    */
   
-  ParameterList getRootFrequenciesParameters(size_t nFreq) const
+  ParameterList getRootFrequenciesParameters(size_t nFreq, bool independent) const
   {
-    return freqColl_.getParametersForObject(nFreq);
+    ParameterList pl=freqColl_.getParametersForObject(nFreq);
+
+    if (independent)
+      return pl.getCommonParametersWith(getIndependentParameters());
+    else
+      return pl;
   }
 
-  ParameterList getRootFrequenciesParameters() const
+  ParameterList getRootFrequenciesParameters(bool independent) const
   {
-    return freqColl_.getParameters();
+    ParameterList pl=freqColl_.getParameters();
+
+    if (independent)
+      return pl.getCommonParametersWith(getIndependentParameters());
+    else
+      return pl;
   }
   
 

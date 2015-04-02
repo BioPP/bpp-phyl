@@ -403,21 +403,21 @@ namespace bpp
      *
      **/
      
-    ParameterList getSubstitutionModelParameters() const;
+    ParameterList getSubstitutionModelParameters(bool independent) const;
     
     /**
      * @brief Get the parameters of the rate distribution.
      *
      **/
 
-    ParameterList getRateDistributionParameters() const;
+    ParameterList getRateDistributionParameters(bool independent) const;
 
     /**
      * @brief Get the parameters of the tree.
      *
      **/
 
-    ParameterList getBranchLengthParameters() const;
+    ParameterList getBranchLengthParameters(bool independent) const;
 
     bool hasBranchLengthParameter(const std::string& name) const;
 
@@ -426,7 +426,7 @@ namespace bpp
      *
      **/
 
-    ParameterList getRootFrequenciesParameters() const;
+    ParameterList getRootFrequenciesParameters(bool independent) const;
 
     ParameterList getDerivableParameters() const;
 

@@ -102,7 +102,7 @@ public:
 
   ParameterList getDerivableParameters() const
   {
-    return getBranchLengthParameters();
+    return getBranchLengthParameters(true);
   }
   
   ParameterList getNonDerivableParameters() const;

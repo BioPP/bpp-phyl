@@ -108,22 +108,22 @@ public:
     return model_->getGenerator();
   }
 
-  ParameterList getSubstitutionModelParameters() const
+  ParameterList getSubstitutionModelParameters(bool independent) const
   {
-    return model_->getIndependentParameters();
+    return (independent?model_->getIndependentParameters():model_->getParameters());
   }
 
-  ParameterList getRateDistributionParameters() const
+  ParameterList getRateDistributionParameters(bool independent) const
   {
-    return rDist_->getIndependentParameters();
+    return (independent?rDist_->getIndependentParameters():rDist_->getParameters());
   }
 
-  ParameterList getRootFrequenciesParameters() const
+  ParameterList getRootFrequenciesParameters(bool independent) const
   {
     return ParameterList();
   }
 
-  ParameterList getBranchLengthParameters() const
+  ParameterList getBranchLengthParameters(bool independent) const
   {
     return getParametrizableTree().getParameters();
   }

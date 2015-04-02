@@ -98,19 +98,20 @@ public:
     return 0;
   }
   
-  ParameterList getSubstitutionModelParameters() const {
-    return model_->getIndependentParameters();
+  ParameterList getSubstitutionModelParameters(bool independent) const
+  {
+    return (independent?model_->getIndependentParameters():model_->getParameters());
   }
 
-  ParameterList getRateDistributionParameters() const {
+  ParameterList getRateDistributionParameters(bool independent) const {
     return ParameterList();
   }
 
-  ParameterList getRootFrequenciesParameters() const {
+  ParameterList getRootFrequenciesParameters(bool independent) const {
     return ParameterList();
   }
 
-  ParameterList getBranchLengthParameters() const {
+  ParameterList getBranchLengthParameters(bool independent) const {
     return getParametrizableTree().getParameters();
   }
   

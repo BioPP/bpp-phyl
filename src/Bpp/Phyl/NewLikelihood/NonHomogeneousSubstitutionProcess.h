@@ -412,7 +412,7 @@ namespace bpp
      * @return The parameters corresponding to the root frequencies.
      */
 
-    ParameterList getRootFrequenciesParameters() const
+    ParameterList getRootFrequenciesParameters(bool independent) const
     {
       if (stationarity_)
         return ParameterList();
@@ -420,7 +420,7 @@ namespace bpp
         return rootFrequencies_->getParameters();
     }
 
-    ParameterList getBranchLengthParameters() const
+    ParameterList getBranchLengthParameters(bool independent) const
     {
       return getParametrizableTree().getParameters();
     }
@@ -430,9 +430,9 @@ namespace bpp
      *
      */
      
-    ParameterList getRateDistributionParameters() const
+    ParameterList getRateDistributionParameters(bool independent) const
     {
-      return (rDist_.get()?rDist_->getIndependentParameters():ParameterList());
+      return (rDist_.get()?(independent?rDist_->getIndependentParameters():rDist_->getParameters()):ParameterList());
     }
 
     const DiscreteDistribution& getRateDistribution() const
@@ -441,11 +441,11 @@ namespace bpp
     }
 
     /**
-     * @brief Get the parameters corresponding to the models.
+     * @brief Get the INDEPENDENT parameters corresponding to the models.
      *
      */
 
-    ParameterList getSubstitutionModelParameters() const;
+    ParameterList getSubstitutionModelParameters(bool independent) const;
     
     /**
      * @brief Check if the model set is fully specified for a given tree.

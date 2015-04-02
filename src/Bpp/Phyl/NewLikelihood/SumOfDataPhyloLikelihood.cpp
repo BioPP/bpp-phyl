@@ -152,7 +152,6 @@ std::vector<size_t> SumOfDataPhyloLikelihood::getNumbersOfSingleDataPhyloLikelih
   return vNum;
 }
 
-
 ParameterList SumOfDataPhyloLikelihood::getBranchLengthParameters() const
 {
   ParameterList pl;

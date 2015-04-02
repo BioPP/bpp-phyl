@@ -300,7 +300,6 @@ namespace bpp
         getValue();
       }
       
-
       /**
        * @name Retrieve some particular parameters subsets.
        *

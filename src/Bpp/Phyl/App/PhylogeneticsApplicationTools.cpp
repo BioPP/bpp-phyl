@@ -181,6 +181,7 @@ vector<Tree*> PhylogeneticsApplicationTools::getTrees(
 map<size_t, Tree*> PhylogeneticsApplicationTools::getTrees(
   map<string, string>& params,
   const map<size_t, SiteContainer*>& mSeq,
+  map<string, string>& unparsedParams,
   const string& prefix,
   const string& suffix,
   bool suffixIsOptional,
@@ -307,6 +308,7 @@ map<size_t, Tree*> PhylogeneticsApplicationTools::getTrees(
       }
       mTree[num]=tree;
     }
+    
 
     ////////////
     // Setting branch lengths?
@@ -405,8 +407,30 @@ map<size_t, Tree*> PhylogeneticsApplicationTools::getTrees(
     }
     else
       throw Exception("Method '" + initBrLenMethod + "' unknown for computing branch lengths.");
+
+    ////////////// Setting branch lengths with aliases
+    
+    vector<string> vBrNb=ApplicationTools::matchingParameters("BrLen*", args);
+
+    for (size_t ib = 0; ib<vBrNb.size(); ib++)
+    {
+      string apeq=args[vBrNb[ib]];
+      string aveq=vBrNb[ib];
+
+      if (TextTools::isDecimalInteger(apeq))
+        mTree[num]->setDistanceToFather(TextTools::toInt(aveq.substr(5,string::npos)), TextTools::toDouble(apeq));
+      else{
+        size_t posun=apeq.find("_");
+        if (posun!=string::npos)
+          unparsedParams[aveq+"_"+TextTools::toString(num)]=apeq;
+        else
+          unparsedParams[aveq+"_"+TextTools::toString(num)]=apeq+"_"+TextTools::toString(num);
+      }
+    }
+    
     ApplicationTools::displayResult("Branch lengths", cmdName);
   }
+  
   
   return mTree;
 }
