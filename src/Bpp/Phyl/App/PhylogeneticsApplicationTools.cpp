@@ -3475,7 +3475,9 @@ void PhylogeneticsApplicationTools::printAnalysisInformation(const SingleDataPhy
       pDD = &dynamic_cast<const RateAcrossSitesSubstitutionProcess*>(pSP)->getRateDistribution();
     else if (dynamic_cast<const NonHomogeneousSubstitutionProcess*>(pSP) != NULL)
       pDD = &dynamic_cast<const NonHomogeneousSubstitutionProcess*>(pSP)->getRateDistribution();
-
+    else if (dynamic_cast<const SubstitutionProcessCollectionMember*>(pSP) != NULL)
+      pDD = dynamic_cast<const SubstitutionProcessCollectionMember*>(pSP)->getDistribution();
+    
     if (pDD != NULL) {
       nbR = pDD->getNumberOfCategories();
       
