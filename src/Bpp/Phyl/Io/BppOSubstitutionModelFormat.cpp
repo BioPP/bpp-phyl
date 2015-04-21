@@ -72,6 +72,7 @@
 #include "../Model/Nucleotide/GTR.h"
 #include "../Model/Nucleotide/RN95s.h"
 #include "../Model/Nucleotide/HKY85.h"
+#include "../Model/Nucleotide/F81.h"
 #include "../Model/Nucleotide/SSR.h"
 #include "../Model/Nucleotide/JCnuc.h"
 #include "../Model/Nucleotide/T92.h"
@@ -527,6 +528,14 @@ SubstitutionModel* BppOSubstitutionModelFormat::read(
         model.reset(new HKY85(alpha));
       }
 
+      // /////////////////////////////////
+      // / F81
+      // ///////////////////////////////
+
+      else if (modelName == "F81")
+      {
+        model.reset(new F81(alpha));
+      }
       // /////////////////////////////////
       // / F84
       // ///////////////////////////////
