@@ -89,7 +89,12 @@ public:
   {
     return *model_;
   }
- 
+
+  const DiscreteDistribution* getRateDistribution() const
+  {
+    return 0;
+  }
+  
   const Matrix<double>& getGenerator(int nodeId, size_t classIndex) const {
     return model_->getGenerator();
   }

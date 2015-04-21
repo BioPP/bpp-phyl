@@ -45,6 +45,7 @@
 
 //From bpp-core:
 #include <Bpp/Numeric/ParameterAliasable.h>
+#include <Bpp/Numeric/Prob/DiscreteDistribution.h>
 
 //From the STL:
 #include <memory>
@@ -93,12 +94,22 @@ public:
   virtual size_t getNumberOfStates() const = 0;
 
   /**
-   * @brief Get the substitution model corresponding to a certain branch, site pattern, and model class.
+   * @brief Get the substitution model corresponding to a certain
+   * branch, site pattern, and model class.
    *
    * @param nodeId The id of the node.
    * @param classIndex The model class index.
    */
+
   virtual const SubstitutionModel& getSubstitutionModel(int nodeId, size_t classIndex) const = 0;
+
+  /**
+   * @brief Get a pointer to the rate distribution (or null if there
+   * is no rate distribution).
+   *
+   */
+
+  virtual const DiscreteDistribution* getRateDistribution() const = 0;
 
   /**
    * @brief Methods to retrieve the parameters of specific objects.
@@ -118,15 +129,19 @@ public:
   virtual ParameterList getNonDerivableParameters() const = 0;
 
   /**
-   * @brief Get the transition probabilities corresponding to a certain branch, site pattern, and model class.
+   * @brief Get the transition probabilities corresponding to a
+   * certain branch, and model class.
    *
    * @param nodeId The id of the node.
    * @param classIndex The model class index.
    */
+  
   virtual const Matrix<double>& getTransitionProbabilities(int nodeId, size_t classIndex) const = 0;
  
   /**
-   * @brief Get the first order derivatives of the transition probabilities according to time, corresponding to a certain branch, site pattern, and model class.
+   * @brief Get the first order derivatives of the transition
+   * probabilities according to time, corresponding to a certain
+   * branch, and model class.
    *
    * @param nodeId The id of the node.
    * @param classIndex The model class index.
@@ -134,7 +149,9 @@ public:
   virtual const Matrix<double>& getTransitionProbabilitiesD1(int nodeId, size_t classIndex) const = 0;
  
   /**
-   * @brief Get the second order derivatives of the transition probabilities according to time, corresponding to a certain branch, site pattern, and model class.
+   * @brief Get the second order derivatives of the transition
+   * probabilities according to time, corresponding to a certain
+   * branch, and model class.
    *
    * @param nodeId The id of the node.
    * @param classIndex The model class index.
@@ -142,7 +159,8 @@ public:
   virtual const Matrix<double>& getTransitionProbabilitiesD2(int nodeId, size_t classIndex) const = 0;
  
   /**
-   * @brief Get the generator corresponding to a certain branch, site pattern, and model class.
+   * @brief Get the generator corresponding to a certain branch, and
+   * model class.
    *
    * @param nodeId The id of the node.
    * @param classIndex The model class index.
@@ -150,7 +168,8 @@ public:
   virtual const Matrix<double>& getGenerator(int nodeId, size_t classIndex) const = 0;
 
   /**
-   * @brief Get the values of the frequencies for each state in the alphabet at the root node.
+   * @brief Get the values of the frequencies for each state in the
+   * alphabet at the root node.
    *
    * For reversible models, these are the equilibrium frequencies.
    * For non-reversible models, these usually are distinct parameters.

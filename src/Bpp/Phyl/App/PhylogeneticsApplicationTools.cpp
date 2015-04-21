@@ -853,7 +853,7 @@ SubstitutionProcess* PhylogeneticsApplicationTools::getSubstitutionProcess(
   int warn)
 {
   SubstitutionProcess* SP=0;
-
+  
   map<string, string> unparsedParams;
 
   string nhOpt = ApplicationTools::getStringParameter("nonhomogeneous", params, "no", "", true, warn);
@@ -1071,7 +1071,7 @@ void PhylogeneticsApplicationTools::addSubstitutionProcessCollectionMember(
 
   if (pp!=string::npos){
     size_t numSRate=TextTools::toInt(sRate.substr(pp+1));
-    SubProColl->addDistribution(new ConstantDistribution(SubProColl->getDistribution(numRate)->getCategory(numSRate)),10000*(numRate+1)+numSRate);
+    SubProColl->addDistribution(new ConstantDistribution(SubProColl->getRateDistribution(numRate).getCategory(numSRate)),10000*(numRate+1)+numSRate);
 
     numRate=10000*(numRate+1)+numSRate;
   }
@@ -1105,7 +1105,7 @@ void PhylogeneticsApplicationTools::addSubstitutionProcessCollectionMember(
     if (! SubProColl->hasModelNumber(numModel))
       throw BadIntegerException("PhylogeneticsApplicationTools::addSubstitutionProcessCollectionMember : unknown model number", (int)numModel);
     
-    size_t nNodes=SubProColl->getTree(numTree)->getNumberOfBranches();
+    size_t nNodes=SubProColl->getTree(numTree).getNumberOfBranches();
 
     vector<int> vNodes;
     for (int i=0; i<(int)nNodes; i++)
@@ -1464,20 +1464,20 @@ map<size_t, PhyloLikelihood*> PhylogeneticsApplicationTools::getPhyloLikelihoods
 
       if (recursion=='S')
       {
-        if (dynamic_cast<const MixedSubstitutionModel*>(&SPC.getSubstitutionProcess(vproc[0])->getSubstitutionModel(0,0)))
+        if (dynamic_cast<const MixedSubstitutionModel*>(&SPC.getSubstitutionProcess(vproc[0]).getSubstitutionModel(0,0)))
           throw Exception("Simple recursion process with mixed models is not implemented yet.");
         else 
-          tlcomp = new SingleRecursiveTreeLikelihoodCalculation(*data, SPC.getSubstitutionProcess(vproc[0]), true, compression=='R');
+          tlcomp = new SingleRecursiveTreeLikelihoodCalculation(*data, &SPC.getSubstitutionProcess(vproc[0]), true, compression=='R');
       }
       else
       {
-        if (dynamic_cast<const MixedSubstitutionModel*>(&SPC.getSubstitutionProcess(vproc[0])->getSubstitutionModel(0,0)))
+        if (dynamic_cast<const MixedSubstitutionModel*>(&SPC.getSubstitutionProcess(vproc[0]).getSubstitutionModel(0,0)))
           throw Exception("Double recursion process with mixed models is not implemented yet.");
         else 
-          tlcomp = new DoubleRecursiveTreeLikelihoodCalculation(*data, SPC.getSubstitutionProcess(vproc[0]), true);
+          tlcomp = new DoubleRecursiveTreeLikelihoodCalculation(*data, &SPC.getSubstitutionProcess(vproc[0]), true);
       }
       
-      nPL = new SingleProcessPhyloLikelihood(SPC.getSubstitutionProcess(vproc[0]), tlcomp, nData);
+      nPL = new SingleProcessPhyloLikelihood(&SPC.getSubstitutionProcess(vproc[0]), tlcomp, nData);
       
     }
     else if (phyloName=="Mixture")
@@ -3052,7 +3052,7 @@ void PhylogeneticsApplicationTools::writeTrees(
     vector<size_t> vTN=spc.getTreeNumbers();
     
     for (size_t i=0; i< vTN.size(); i++)
-      treeWriter->write(spc.getTree(vTN[i])->getTree(), file+"_"+TextTools::toString(vTN[i]), true);
+      treeWriter->write(spc.getTree(vTN[i]).getTree(), file+"_"+TextTools::toString(vTN[i]), true);
     if (verbose)
       ApplicationTools::displayResult("Wrote trees to files : ", file+"_...");
   }
@@ -3103,7 +3103,7 @@ void PhylogeneticsApplicationTools::printParameters(const SubstitutionProcess* p
     
     out << "rate_distribution=";
     const BppORateDistributionFormat* bIOR = new BppORateDistributionFormat(true);
-    bIOR->write(pRA->getRateDistribution(), out, globalAliases, writtenNames);
+    bIOR->write(*pRA->getRateDistribution(), out, globalAliases, writtenNames);
     delete bIOR;
     out.endLine();
   }
@@ -3177,7 +3177,7 @@ void PhylogeneticsApplicationTools::printParameters(const SubstitutionProcess* p
     // Rate distribution
     
     map<string, string> aliases;
-    const DiscreteDistribution* pdd=&pNH->getRateDistribution();
+    const DiscreteDistribution* pdd=pNH->getRateDistribution();
     
     ParameterList pl=pdd->getParameters();
     for (size_t np = 0 ; np< pl.size() ; np++)
@@ -3204,12 +3204,12 @@ void PhylogeneticsApplicationTools::printParameters(const SubstitutionProcessCol
 
   for (size_t i = 0; i < modN.size(); i++)
   {
-    const SubstitutionModel* model =collection->getModel(modN[i]);
+    const SubstitutionModel& model =collection->getModel(modN[i]);
 
     // First get the aliases for this model:
     map<string, string> aliases;
     
-    ParameterList pl=model->getParameters();
+    ParameterList pl=model.getParameters();
     
     for (size_t np = 0 ; np< pl.size() ; np++)
     {
@@ -3223,7 +3223,7 @@ void PhylogeneticsApplicationTools::printParameters(const SubstitutionProcessCol
     out.endLine() << "model" << modN[i] << "=";
     BppOSubstitutionModelFormat bIOsm(BppOSubstitutionModelFormat::ALL, true, true, true, false, warn);
     map<string, string>::iterator it;
-    bIOsm.write(*model, out, aliases, writtenNames);
+    bIOsm.write(model, out, aliases, writtenNames);
     out.endLine();
   }
 
@@ -3232,7 +3232,7 @@ void PhylogeneticsApplicationTools::printParameters(const SubstitutionProcessCol
 
   for (size_t i = 0; i < rootFreqN.size(); i++)
     {
-      const FrequenciesSet* rootFreq =collection->getFrequencies(rootFreqN[i]);
+      const FrequenciesSet& rootFreq =collection->getFrequencies(rootFreqN[i]);
 
 
       // Now print it:
@@ -3242,7 +3242,7 @@ void PhylogeneticsApplicationTools::printParameters(const SubstitutionProcessCol
 
       map<string, string> aliases;
       
-      ParameterList pl=rootFreq->getParameters();
+      ParameterList pl=rootFreq.getParameters();
         
       for (size_t np = 0 ; np< pl.size() ; np++)
       {
@@ -3251,24 +3251,24 @@ void PhylogeneticsApplicationTools::printParameters(const SubstitutionProcessCol
           aliases[pl[np].getName()]=nfrom;
       }
 
-      bIOf.write(rootFreq, out, aliases, writtenNames);
+      bIOf.write(&rootFreq, out, aliases, writtenNames);
       out.endLine();
     }
 
   // Rate distribution
 
-  vector<size_t> distN=collection->getDistributionNumbers();
+  vector<size_t> distN=collection->getRateDistributionNumbers();
 
   for (size_t i = 0; i < distN.size(); i++)
   {
     if (distN[i]<10000)
     {
-      const DiscreteDistribution* dist =collection->getDistribution(distN[i]);
+      const DiscreteDistribution& dist =collection->getRateDistribution(distN[i]);
 
       // First get the aliases for this model:
       map<string, string> aliases;
     
-      ParameterList pl=dist->getParameters();
+      ParameterList pl=dist.getParameters();
     
       for (size_t np = 0 ; np< pl.size() ; np++)
       {
@@ -3282,7 +3282,7 @@ void PhylogeneticsApplicationTools::printParameters(const SubstitutionProcessCol
       out.endLine() << "rate_distribution" << modN[i] << "=";
       BppORateDistributionFormat bIOd(true);
       map<string, string>::iterator it;
-      bIOd.write(*dist, out, aliases, writtenNames);
+      bIOd.write(dist, out, aliases, writtenNames);
       out.endLine();
     }
   }
@@ -3295,16 +3295,16 @@ void PhylogeneticsApplicationTools::printParameters(const SubstitutionProcessCol
 
   for (size_t i=0;i<vprocN.size();i++)
   {
-    const SubstitutionProcessCollectionMember* spcm=dynamic_cast<const SubstitutionProcessCollectionMember*>(collection->getSubstitutionProcess(vprocN[i]));
+    const SubstitutionProcessCollectionMember& spcm=*dynamic_cast<const SubstitutionProcessCollectionMember*>(&collection->getSubstitutionProcess(vprocN[i]));
     
     out << "process" << vprocN[i] << "=";
       
-    if (spcm->getNumberOfModels()==1)
-      out << "Homogeneous(model=" << spcm->getModelNumbers()[0];
+    if (spcm.getNumberOfModels()==1)
+      out << "Homogeneous(model=" << spcm.getModelNumbers()[0];
     else
     {
       out << "Nonhomogeneous(";
-      vector<size_t> vMN=spcm->getModelNumbers();
+      vector<size_t> vMN=spcm.getModelNumbers();
       for (size_t j=0;j<vMN.size();j++)
       {
         if (j!=0)
@@ -3313,7 +3313,7 @@ void PhylogeneticsApplicationTools::printParameters(const SubstitutionProcessCol
         out << "model" << (j+1) << "=" << vMN[j];
         out << ",";
         
-        vector<int> ids = spcm->getNodesWithModel(vMN[j]);
+        vector<int> ids = spcm.getNodesWithModel(vMN[j]);
         out << "model" << (j+1) << ".nodes_id=(" << ids[0];
         for (size_t k = 1; k < ids.size(); ++k)
         {
@@ -3323,18 +3323,18 @@ void PhylogeneticsApplicationTools::printParameters(const SubstitutionProcessCol
       }
     }
 
-    out << ", tree=" << spcm->getTreeNumber();
+    out << ", tree=" << spcm.getTreeNumber();
     
     out << ", rate=";
-    size_t dN=spcm->getDistributionNumber();
+    size_t dN=spcm.getRateDistributionNumber();
 
     if (dN<10000)
       out<< dN;
     else
       out<< size_t(dN/10000-1) << "." << dN%10000;
       
-    if (spcm->getRootFrequenciesSet())
-      out << ", root_freq=" << spcm->getRootFrequenciesNumber();
+    if (spcm.getRootFrequenciesSet())
+      out << ", root_freq=" << spcm.getRootFrequenciesNumber();
     out << ")";
     out.endLine();
     out.endLine();
@@ -3468,15 +3468,8 @@ void PhylogeneticsApplicationTools::printAnalysisInformation(const SingleDataPhy
     colNames.push_back("is.constant");
     colNames.push_back("lnL");
 
-    const DiscreteDistribution* pDD = 0;
+    const DiscreteDistribution* pDD = pSP->getRateDistribution();
     size_t nbR = 0;
-    
-    if (dynamic_cast<const RateAcrossSitesSubstitutionProcess*>(pSP) != NULL)
-      pDD = &dynamic_cast<const RateAcrossSitesSubstitutionProcess*>(pSP)->getRateDistribution();
-    else if (dynamic_cast<const NonHomogeneousSubstitutionProcess*>(pSP) != NULL)
-      pDD = &dynamic_cast<const NonHomogeneousSubstitutionProcess*>(pSP)->getRateDistribution();
-    else if (dynamic_cast<const SubstitutionProcessCollectionMember*>(pSP) != NULL)
-      pDD = dynamic_cast<const SubstitutionProcessCollectionMember*>(pSP)->getDistribution();
     
     if (pDD != NULL) {
       nbR = pDD->getNumberOfCategories();

@@ -187,12 +187,12 @@ void SubstitutionProcessCollection::fireParameterChanged(const ParameterList& pa
       toFire[vs[j]]=true;
 
     if (mVConstDist_.find(vD[i])!=mVConstDist_.end()){
-      const DiscreteDistribution* pDD=getDistribution(vD[i]);
+      const DiscreteDistribution& dd=getRateDistribution(vD[i]);
       vector<size_t>& vv=mVConstDist_[vD[i]];
       
       for (size_t j=0;j<vv.size();j++){
-        gAP.addParameter(new Parameter("Constant.value_"+TextTools::toString(10000*(vD[i]+1)+vv[j]),pDD->getCategory(j)));
-        dynamic_cast<ConstantDistribution*>(distColl_[10000*(vD[i]+1)+vv[j]])->setParameterValue("value",pDD->getCategory(j));
+        gAP.addParameter(new Parameter("Constant.value_"+TextTools::toString(10000*(vD[i]+1)+vv[j]),dd.getCategory(j)));
+        dynamic_cast<ConstantDistribution*>(distColl_[10000*(vD[i]+1)+vv[j]])->setParameterValue("value",dd.getCategory(j));
         const vector<size_t>&  vs2=mDistToSubPro_[10000*(vD[i]+1)+vv[j]];
         for (size_t k=0; k<vs2.size(); k++)
           toFire[vs2[k]]=true;

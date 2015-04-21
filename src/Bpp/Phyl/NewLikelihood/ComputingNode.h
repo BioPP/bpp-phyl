@@ -45,7 +45,6 @@
 
 //From bpp-core:
 #include <Bpp/Numeric/Matrix/Matrix.h>
-#include <Bpp/Numeric/VectorTools.h>
 
 #include "../Tree/Node.h"
 #include "../Model/SubstitutionModel.h"

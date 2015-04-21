@@ -106,7 +106,7 @@ namespace bpp {
 
     const Clonable& getState(size_t stateIndex) const throw (HmmBadStateException)
     {
-      return *processColl_->getSubstitutionProcess(nProc_[stateIndex]);
+      return processColl_->getSubstitutionProcess(nProc_[stateIndex]);
     }
       
     size_t getNumberOfStates() const

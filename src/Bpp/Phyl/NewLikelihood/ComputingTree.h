@@ -43,7 +43,6 @@ knowledge of the CeCILL license and that you accept its terms.
 
 #include <Bpp/Numeric/Prob/DiscreteDistribution.h>
 
-#include "../Tree/Node.h"
 #include "../Tree/TreeTemplate.h"
 
 #include "ComputingNode.h"

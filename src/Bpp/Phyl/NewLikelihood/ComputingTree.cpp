@@ -102,8 +102,8 @@ ComputingTree::ComputingTree(const ParametrizableTree& ptree) :
 
 ComputingTree::ComputingTree(const SubstitutionProcessCollection* pSubProColl, size_t nTree, size_t nDist) :
   AbstractParametrizable(""),  
-  parTree_(pSubProColl->getTree(nTree)),
-  pDist_(pSubProColl->getDistribution(nDist)),
+  parTree_(&pSubProColl->getTree(nTree)),
+  pDist_(&pSubProColl->getRateDistribution(nDist)),
   vTree_(),
   isReadyToCompute_(false)
 {
@@ -123,14 +123,14 @@ ComputingTree::ComputingTree(const SubstitutionProcessCollection* pSubProColl, s
   }
   delete pTC;
 
-  ParameterList pl=pSubProColl->getTree(nTree)->getParameters();
+  ParameterList pl=pSubProColl->getTree(nTree).getParameters();
 
   for (size_t i=0; i<pl.size(); i++)
     pl[i].setName(pl[i].getName()+"_"+TextTools::toString(nTree));
 
   addParameters_(pl);
   
-  pl=pSubProColl->getDistribution(nDist)->getParameters();
+  pl=pSubProColl->getRateDistribution(nDist).getParameters();
 
   for (size_t i=0; i<pl.size(); i++)
     pl[i].setName(pl[i].getName()+"_"+TextTools::toString(nDist));

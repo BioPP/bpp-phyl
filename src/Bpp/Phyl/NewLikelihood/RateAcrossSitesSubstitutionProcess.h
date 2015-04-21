@@ -43,9 +43,7 @@
 #include "AbstractSubstitutionProcess.h"
 
 //From bpp-core:
-#include <Bpp/Numeric/ParameterAliasable.h>
 #include <Bpp/Numeric/AbstractParameterAliasable.h>
-#include <Bpp/Numeric/Prob/DiscreteDistribution.h>
 
 //From the stl:
 #include <memory>
@@ -98,9 +96,9 @@ public:
     return *model_;
   }
 
-  const DiscreteDistribution& getRateDistribution() const
+  const DiscreteDistribution* getRateDistribution() const
   {
-    return *rDist_;
+    return rDist_.get();
   }
 
   const Matrix<double>& getGenerator(int nodeId, size_t classIndex) const

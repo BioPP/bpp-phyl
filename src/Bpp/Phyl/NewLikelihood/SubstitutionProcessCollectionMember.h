@@ -43,19 +43,8 @@
 
 
 #include "SubstitutionProcess.h"
-#include "ComputingNode.h"
 
 #include "ComputingTree.h"
-
-#include <Bpp/Exceptions.h>
-
-// From Seqlib:
-#include <Bpp/Seq/Alphabet/Alphabet.h>
-
-//From bpp-core
-#include <Bpp/Numeric/Prob/DiscreteDistribution.h>
-#include <Bpp/Numeric/AbstractParameterAliasable.h>
-
 
 namespace bpp
 {
@@ -280,14 +269,14 @@ namespace bpp
     void addModel(size_t numModel, const std::vector<int>& nodesId);
 
     /**
-     * @brief Set the rate distribution
+     * @brief Get the rate distribution
      * @param numRate the number of  the rate in the collection.
      *
      **/
 
-    const DiscreteDistribution* getDistribution() const;
+    const DiscreteDistribution* getRateDistribution() const;
 
-    const size_t getDistributionNumber() const { return nDist_;}
+    const size_t getRateDistributionNumber() const { return nDist_;}
     
     /*
      * @brief Set the root Frequencies Set
@@ -434,7 +423,8 @@ namespace bpp
 
 
     /**
-     * @brief Get the transition probabilities corresponding to a certain branch, site pattern, and model class.
+     * @brief Get the transition probabilities corresponding to a
+     * certain branch, and model class.
      *
      * @param nodeId The id of the node.
      * @param classIndex The model class index.
@@ -445,7 +435,9 @@ namespace bpp
     }
  
     /**
-     * @brief Get the first order derivatives of the transition probabilities according to time, corresponding to a certain branch, site pattern, and model class.
+     * @brief Get the first order derivatives of the transition
+     * probabilities according to time, corresponding to a certain
+     * branch, and model class.
      *
      * @param nodeId The id of the node.
      * @param classIndex The model class index.
@@ -456,7 +448,9 @@ namespace bpp
     }
  
     /**
-     * @brief Get the second order derivatives of the transition probabilities according to time, corresponding to a certain branch, site pattern, and model class.
+     * @brief Get the second order derivatives of the transition
+     * probabilities according to time, corresponding to a certain
+     * branch, and model class.
      *
      * @param nodeId The id of the node.
      * @param classIndex The model class index.

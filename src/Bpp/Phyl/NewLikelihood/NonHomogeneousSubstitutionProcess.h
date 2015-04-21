@@ -45,15 +45,8 @@
 
 //From bpp-core:
 #include <Bpp/Exceptions.h>
-//#include <Bpp/Numeric/Random/RandomTools.h>
 #include <Bpp/Numeric/Matrix/Matrix.h>
-//#include <Bpp/Numeric/ParameterAliasable.h>
 #include <Bpp/Numeric/AbstractParameterAliasable.h>
-#include <Bpp/Numeric/Prob/DiscreteDistribution.h>
-
-// From Seqlib:
-// #include <Bpp/Seq/Alphabet/Alphabet.h>
-// #include <Bpp/Seq/Alphabet/NucleicAlphabet.h>
 
 // From the STL:
 #include <vector>
@@ -435,9 +428,9 @@ namespace bpp
       return (rDist_.get()?(independent?rDist_->getIndependentParameters():rDist_->getParameters()):ParameterList());
     }
 
-    const DiscreteDistribution& getRateDistribution() const
+    const DiscreteDistribution* getRateDistribution() const
     {
-      return *rDist_;
+      return rDist_.get();
     }
 
     /**

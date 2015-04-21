@@ -270,14 +270,14 @@ public:
    * @return the got SubstitutionModel*. 
    */
   
-  SubstitutionModel* getModel(size_t modelIndex)
+  SubstitutionModel& getModel(size_t modelIndex)
   {
-    return (dynamic_cast<SubstitutionModel*>(modelColl_[modelIndex]));
+    return *(dynamic_cast<SubstitutionModel*>(modelColl_[modelIndex]));
   }
 
-  const SubstitutionModel* getModel(size_t modelIndex) const
+  const SubstitutionModel& getModel(size_t modelIndex) const
   {
-    return (dynamic_cast<const SubstitutionModel*>(modelColl_[modelIndex]));
+    return *(dynamic_cast<const SubstitutionModel*>(modelColl_[modelIndex]));
   }
 
   /**
@@ -287,14 +287,14 @@ public:
    * @return the got FrequenciesSet*. 
    */
   
-  FrequenciesSet* getFrequencies(size_t frequenciesIndex)
+  FrequenciesSet& getFrequencies(size_t frequenciesIndex)
   {
-    return (dynamic_cast<FrequenciesSet*>(freqColl_[frequenciesIndex]));
+    return *(dynamic_cast<FrequenciesSet*>(freqColl_[frequenciesIndex]));
   }
 
-  const FrequenciesSet* getFrequencies(size_t frequenciesIndex) const
+  const FrequenciesSet& getFrequencies(size_t frequenciesIndex) const
   {
-    return (dynamic_cast<const FrequenciesSet*>(freqColl_[frequenciesIndex]));
+    return *(dynamic_cast<const FrequenciesSet*>(freqColl_[frequenciesIndex]));
   }
 
   /**
@@ -304,14 +304,14 @@ public:
    * @return the got DiscreteDistribution*. 
    */
   
-  DiscreteDistribution* getDistribution(size_t distributionIndex)
+  DiscreteDistribution& getRateDistribution(size_t distributionIndex)
   {
-    return (dynamic_cast<DiscreteDistribution*>(distColl_[distributionIndex]));
+    return *(dynamic_cast<DiscreteDistribution*>(distColl_[distributionIndex]));
   }
 
-  const DiscreteDistribution* getDistribution(size_t distributionIndex) const 
+  const DiscreteDistribution& getRateDistribution(size_t distributionIndex) const 
   {
-    return (dynamic_cast<const DiscreteDistribution*>(distColl_[distributionIndex]));
+    return *(dynamic_cast<const DiscreteDistribution*>(distColl_[distributionIndex]));
   }
 
   /**
@@ -321,14 +321,14 @@ public:
    * @return the got ParametrizableTree*. 
    */
   
-  ParametrizableTree* getTree(size_t treeIndex)
+  ParametrizableTree& getTree(size_t treeIndex)
   {
-    return (dynamic_cast<ParametrizableTree*>(treeColl_[treeIndex]));
+    return *(dynamic_cast<ParametrizableTree*>(treeColl_[treeIndex]));
   }
   
-  const ParametrizableTree* getTree(size_t treeIndex) const 
+  const ParametrizableTree& getTree(size_t treeIndex) const 
   {
-    return (dynamic_cast<const ParametrizableTree*>(treeColl_[treeIndex]));
+    return *(dynamic_cast<const ParametrizableTree*>(treeColl_[treeIndex]));
   }
   
 
@@ -347,7 +347,7 @@ public:
     return freqColl_.keys();
   }
 
-  std::vector<size_t> getDistributionNumbers() const 
+  std::vector<size_t> getRateDistributionNumbers() const 
   {
     return distColl_.keys();
   }
@@ -438,16 +438,16 @@ public:
 
   size_t getNumberOfSubstitutionProcess() const { return mSubProcess_.size(); }
 
-  SubstitutionProcess* getSubstitutionProcess(size_t  i)
+  SubstitutionProcess& getSubstitutionProcess(size_t  i)
   {
-    return dynamic_cast<SubstitutionProcess*>(mSubProcess_[i]);
+    return *dynamic_cast<SubstitutionProcess*>(mSubProcess_[i]);
   }
 
-  const SubstitutionProcess* getSubstitutionProcess(size_t i) const
+  const SubstitutionProcess& getSubstitutionProcess(size_t i) const
   {
     std::map<size_t, SubstitutionProcessCollectionMember*>::const_iterator it(mSubProcess_.find(i));
     
-    return dynamic_cast<const SubstitutionProcess*>(it->second);
+    return *dynamic_cast<const SubstitutionProcess*>(it->second);
   }
 
   /*
