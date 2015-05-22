@@ -51,62 +51,45 @@ using namespace newlik;
 /******************************************************************************/
 
 AutoCorrelationPhyloLikelihood::AutoCorrelationPhyloLikelihood(
-  SubstitutionProcessCollection* processColl,
-  std::vector<size_t>& nProc,
+  AutoCorrelationSequenceEvolution& processSeqEvol,
   char recursivity,
+  size_t nSeqEvol,
   bool verbose,
   bool patterns) :
-  MultiProcessPhyloLikelihood(processColl, nProc, recursivity, verbose, patterns),
+  MultiProcessPhyloLikelihood(processSeqEvol, recursivity, nSeqEvol, verbose, patterns),
   Hmm_(0)
 {
-  HmmProcessAlphabet* hpa=new HmmProcessAlphabet(processColl_, nProc);
-
-  HmmTransitionMatrix* hptm=new AutoCorrelationTransitionMatrix(hpa);
-
-  HmmPhyloEmissionProbabilities* hpep=new HmmPhyloEmissionProbabilities(hpa, this);
+  HmmPhyloEmissionProbabilities* hpep=new HmmPhyloEmissionProbabilities(&processSeqEvol.getHmmProcessAlphabet(), this);
     
-  Hmm_ = auto_ptr<LogsumHmmLikelihood>(new LogsumHmmLikelihood(hpa, hptm, hpep, ""));
-    
-  // initialize parameters:
-  addParameters_(Hmm_->getHmmTransitionMatrix().getParameters());
-  addParameters_(Hmm_->getHmmStateAlphabet().getParameters());
+  Hmm_ = auto_ptr<LogsumHmmLikelihood>(new LogsumHmmLikelihood(new HmmProcessAlphabet(processSeqEvol.getHmmProcessAlphabet()), new AutoCorrelationTransitionMatrix(processSeqEvol.getHmmTransitionMatrix()), hpep, ""));    
+
 }
 
 AutoCorrelationPhyloLikelihood::AutoCorrelationPhyloLikelihood(
   const SiteContainer& data,
-  SubstitutionProcessCollection* processColl,
-  std::vector<size_t>& nProc,
+  AutoCorrelationSequenceEvolution& processSeqEvol,
   char recursivity,
+  size_t nSeqEvol,
   size_t nData,
   bool verbose,
   bool patterns) :
-  MultiProcessPhyloLikelihood(data, processColl, nProc, recursivity, nData, verbose, patterns),
+  MultiProcessPhyloLikelihood(processSeqEvol, recursivity, nSeqEvol, verbose, patterns),
   Hmm_(0)
 {
-  HmmProcessAlphabet* hpa=new HmmProcessAlphabet(processColl_, nProc);
+  HmmPhyloEmissionProbabilities* hpep=new HmmPhyloEmissionProbabilities(&processSeqEvol.getHmmProcessAlphabet(), this);
+    
+  Hmm_ = auto_ptr<LogsumHmmLikelihood>(new LogsumHmmLikelihood(new HmmProcessAlphabet(processSeqEvol.getHmmProcessAlphabet()), new AutoCorrelationTransitionMatrix(processSeqEvol.getHmmTransitionMatrix()), hpep, ""));    
+    
+  // set Data
 
-  HmmTransitionMatrix* hptm=new AutoCorrelationTransitionMatrix(hpa);
-
-  HmmPhyloEmissionProbabilities* hpep=new HmmPhyloEmissionProbabilities(hpa, this);
-
-  Hmm_ = auto_ptr<LogsumHmmLikelihood>(new LogsumHmmLikelihood(hpa, hptm, hpep, ""));
-  // initialize parameters:
-
-  addParameters_(Hmm_->getHmmTransitionMatrix().getParameters());
-  addParameters_(Hmm_->getHmmStateAlphabet().getParameters());
-
-  minusLogLik_ = -getLogLikelihood();
+  setData(data, nData);
 }
+
 
 void AutoCorrelationPhyloLikelihood::setNamespace(const std::string& nameSpace)
 {
-  deleteParameters_(Hmm_->getHmmTransitionMatrix().getParameters().getParameterNames());
-  deleteParameters_(Hmm_->getHmmStateAlphabet().getParameters().getParameterNames());
-
+  MultiProcessPhyloLikelihood::setNamespace(nameSpace);
   Hmm_->setNamespace(nameSpace);
-
-  addParameters_(Hmm_->getHmmTransitionMatrix().getParameters());
-  addParameters_(Hmm_->getHmmStateAlphabet().getParameters());
 }
 
 
@@ -115,8 +98,6 @@ void AutoCorrelationPhyloLikelihood::fireParameterChanged(const ParameterList& p
   MultiProcessPhyloLikelihood::fireParameterChanged(parameters);
 
   Hmm_->matchParametersValues(parameters);
-  
-  minusLogLik_ = -Hmm_->getLogLikelihood();
 }
 
 ParameterList AutoCorrelationPhyloLikelihood::getNonDerivableParameters() const

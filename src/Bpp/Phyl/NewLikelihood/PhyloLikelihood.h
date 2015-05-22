@@ -41,13 +41,7 @@
 #define _PHYLOLIKELIHOOD_H_
 
 #include <Bpp/Numeric/ParameterList.h>
-#include <Bpp/Numeric/Parametrizable.h>
 #include <Bpp/Numeric/Function/Functions.h>
-#include <Bpp/Numeric/VectorTools.h>
-
-// From bpp-seq:
-#include <Bpp/Seq/Alphabet/Alphabet.h>
-#include <Bpp/Seq/Container/SiteContainer.h>
 
 namespace bpp
 {
@@ -77,6 +71,12 @@ namespace bpp
        *
        * @{
        */
+      
+      /**
+       * @return initialize the likelihood function.
+       */
+      
+      virtual void initialize() = 0;
       
       /**
        * @return 'true' is the likelihood function has been initialized.
@@ -123,31 +123,31 @@ namespace bpp
        * @return A ParameterList with all branch lengths.
        */
 
-      virtual ParameterList getBranchLengthParameters() const = 0;
+       virtual ParameterList getBranchLengthParameters() const = 0;
     
-      /**
-       * @brief Get the independent parameters associated to substitution model(s).
-       *
-       * @return A ParameterList.
-       */
+       /**
+        * @brief Get the independent parameters associated to substitution model(s).
+        *
+        * @return A ParameterList.
+        */
 
-      virtual ParameterList getSubstitutionModelParameters() const = 0;
+       virtual ParameterList getSubstitutionModelParameters() const = 0;
 
-      /**
-       * @brief Get the independent parameters associated to the rate distribution(s).
-       *
-       * @return A ParameterList.
-       */
+       /**
+        * @brief Get the independent parameters associated to the rate distribution(s).
+        *
+        * @return A ParameterList.
+        */
 
-      virtual ParameterList getRateDistributionParameters() const = 0;
+       virtual ParameterList getRateDistributionParameters() const = 0;
 
-      /**
-       * @brief Get the independent parameters associated to the root frequencies(s).
-       *
-       * @return A ParameterList.
-       */
+       /**
+        * @brief Get the independent parameters associated to the root frequencies(s).
+        *
+        * @return A ParameterList.
+        */
 
-      virtual ParameterList getRootFrequenciesParameters() const = 0;
+       virtual ParameterList getRootFrequenciesParameters() const = 0;
 
       /**
        * @brief All independent derivable parameters.
@@ -179,6 +179,112 @@ namespace bpp
        * @param yn Yes or no.
        */
       virtual void enableDerivatives(bool yn) = 0;
+
+    };
+
+
+    class AbstractPhyloLikelihood :
+      public virtual PhyloLikelihood
+    {
+    protected:
+      
+      /**
+       * @brief the value
+       *
+       **/
+      
+      mutable double minusLogLik_;
+
+      /**
+       * @brief sey if derivatives should be computed
+       *
+       */
+      
+      bool computeFirstOrderDerivatives_;
+      bool computeSecondOrderDerivatives_;
+
+      // say if the Likelihoods should be recomputed
+      
+      mutable bool computeLikelihoods_;
+
+      // say if initialized
+      
+      mutable bool initialized_;
+
+    public:
+      AbstractPhyloLikelihood() :
+        minusLogLik_(0),
+        computeFirstOrderDerivatives_(true),
+        computeSecondOrderDerivatives_(true),
+        computeLikelihoods_(true),
+        initialized_(false)
+      {
+      }
+
+      AbstractPhyloLikelihood(const AbstractPhyloLikelihood& asd) :
+        minusLogLik_(asd.minusLogLik_),
+        computeFirstOrderDerivatives_(asd.computeFirstOrderDerivatives_),
+        computeSecondOrderDerivatives_(asd.computeSecondOrderDerivatives_),
+        computeLikelihoods_(asd.computeLikelihoods_),
+        initialized_(asd.initialized_)
+      {
+      }
+      
+      AbstractPhyloLikelihood& operator=(const AbstractPhyloLikelihood& asd)
+      {
+        minusLogLik_                   = asd.minusLogLik_;
+        computeFirstOrderDerivatives_  = asd.computeFirstOrderDerivatives_;
+        computeSecondOrderDerivatives_ = asd.computeSecondOrderDerivatives_;
+
+        computeLikelihoods_ = asd.computeLikelihoods_;
+        initialized_ = asd.initialized_;
+        
+        return *this;
+      }
+
+      virtual ~AbstractPhyloLikelihood() {}
+
+      AbstractPhyloLikelihood* clone() const = 0;
+
+    public:
+      virtual void update()
+      {
+        computeLikelihoods_ = true;
+      }
+
+      virtual void initialize()
+      {
+        initialized_=true;
+      }
+
+    public:
+
+      // void setParameters(const ParameterList& parameters) throw (ParameterNotFoundException, ConstraintException)
+      // {
+      //   setParametersValues(parameters);
+      // }
+
+      virtual void enableDerivatives(bool yn) { computeFirstOrderDerivatives_ = computeSecondOrderDerivatives_ = yn; }
+      virtual void enableFirstOrderDerivatives(bool yn) { computeFirstOrderDerivatives_ = yn; }
+      virtual void enableSecondOrderDerivatives(bool yn) { computeFirstOrderDerivatives_ = computeSecondOrderDerivatives_ = yn; }
+      bool enableFirstOrderDerivatives() const { return computeFirstOrderDerivatives_; }
+      bool enableSecondOrderDerivatives() const { return computeSecondOrderDerivatives_; }
+
+      bool isInitialized() const { return initialized_; }
+
+      double getValue() const throw (Exception)
+      {
+        if (!isInitialized())
+          throw Exception("AbstractPhyloLikelihood::getValue(). Instance is not initialized.");
+        if (computeLikelihoods_)
+        {
+          minusLogLik_=-getLogLikelihood();
+          computeLikelihoods_=false;
+        }
+        
+        return minusLogLik_;
+      }
+
 
     };
 

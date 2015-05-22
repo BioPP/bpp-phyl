@@ -100,6 +100,11 @@ protected:
 
 public:
 
+  /**
+   * @brief get (Non)Derivable INDEPENDENT parameters
+   *
+   **/
+
   ParameterList getDerivableParameters() const
   {
     return getBranchLengthParameters(true);
@@ -107,6 +112,11 @@ public:
   
   ParameterList getNonDerivableParameters() const;
 
+  /**
+   * @brief AbsractParametrizable interface
+   *
+   **/
+  
   void fireParameterChanged(const ParameterList& pl);
 
   /**

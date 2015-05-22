@@ -48,64 +48,30 @@ using namespace newlik;
 /******************************************************************************/
 
 MixturePhyloLikelihood::MixturePhyloLikelihood(
-  SubstitutionProcessCollection* processColl,
-  std::vector<size_t>& nProc,
+  MixtureSequenceEvolution& processSeqEvol,
   char recursivity,
+  size_t nSeqEvol,
   bool verbose,
   bool patterns) :
-  MultiProcessPhyloLikelihood(processColl, nProc, recursivity, verbose, patterns),
-  simplex_(nProc.size(), 1)
+  MultiProcessPhyloLikelihood(processSeqEvol, recursivity, nSeqEvol, verbose, patterns),
+  mSeqEvol_(processSeqEvol)
 {
-  // initialize parameters:
-  addParameters_(simplex_.getIndependentParameters());
 }
+
+/******************************************************************************/
 
 MixturePhyloLikelihood::MixturePhyloLikelihood(
   const SiteContainer& data,
-  SubstitutionProcessCollection* processColl,
-  std::vector<size_t>& nProc,
+  MixtureSequenceEvolution& processSeqEvol,
   char recursivity,
+  size_t nSeqEvol,
   size_t nData,
   bool verbose,
   bool patterns) :
-  MultiProcessPhyloLikelihood(data, processColl, nProc, recursivity, nData, verbose, patterns),
-  simplex_(nProc.size(), 1)
+  MultiProcessPhyloLikelihood(processSeqEvol, recursivity, nSeqEvol, verbose, patterns),
+  mSeqEvol_(processSeqEvol)
 {
-  // initialize parameters:
-  addParameters_(simplex_.getParameters());
-  minusLogLik_ = -getLogLikelihood();
-}
-
-void MixturePhyloLikelihood::setSubProcessProb(const Simplex& si)
-{
-  simplex_.setFrequencies(si.getFrequencies());
-  matchParametersValues(simplex_.getParameters());
-}
-
-void MixturePhyloLikelihood::setNamespace(const std::string& nameSpace)
-{
-  deleteParameters_(simplex_.getParameters().getParameterNames());
-
-  simplex_.setNamespace(nameSpace);
-
-  addParameters_(simplex_.getParameters());
-}
-
-
-void MixturePhyloLikelihood::fireParameterChanged(const ParameterList& parameters)
-{
-  MultiProcessPhyloLikelihood::fireParameterChanged(parameters);
-  simplex_.matchParametersValues(parameters);
-  
-  minusLogLik_ = -getLogLikelihood();
-}
-
-ParameterList MixturePhyloLikelihood::getNonDerivableParameters() const
-{
-  ParameterList pl = MultiProcessPhyloLikelihood::getNonDerivableParameters();
-  pl.addParameters(simplex_.getParameters());
-  
-  return pl;
+  setData(data, nData);
 }
 
 /******************************************************************************/
@@ -135,7 +101,7 @@ double MixturePhyloLikelihood::getDLogLikelihoodForASite(size_t site) const
   for (size_t i = 0; i < vpTreelik_.size(); i++)
     vD.push_back(vpTreelik_[i]->getDLogLikelihoodForASite(site));
   
-  return VectorTools::logSumExp(vD,simplex_.getFrequencies());
+  return VectorTools::logSumExp(vD,mSeqEvol_.getSubProcessProbabilities());
 }
 
 /******************************************************************************/
@@ -147,7 +113,7 @@ double MixturePhyloLikelihood::getD2LogLikelihoodForASite(size_t site) const
   for (size_t i = 0; i < vpTreelik_.size(); i++)
     vD2.push_back(vpTreelik_[i]->getD2LogLikelihoodForASite(site));
   
-  return VectorTools::logSumExp(vD2,simplex_.getFrequencies());
+  return VectorTools::logSumExp(vD2,mSeqEvol_.getSubProcessProbabilities());
 }
 
 /******************************************************************************/
@@ -194,7 +160,7 @@ double MixturePhyloLikelihood::getLikelihoodForASite(size_t site) const
   double x = 0;
   for (size_t i = 0; i < vpTreelik_.size(); i++)
   {
-    x += vpTreelik_[i]->getLikelihoodForASite(site) * simplex_.prob(i);
+    x += vpTreelik_[i]->getLikelihoodForASite(site) * mSeqEvol_.getSubProcessProb(i);
   }
 
   return x;
@@ -205,13 +171,12 @@ double MixturePhyloLikelihood::getLikelihoodForASite(size_t site) const
 
 VVdouble MixturePhyloLikelihood::getPosteriorProbabilitiesForEachSiteForEachProcess() const
 {
-  size_t nbSites   = getNumberOfSites();
   size_t nbProcess = getNumberOfSubstitutionProcess();
 
   VVdouble pb = getLikelihoodForEachSiteForEachProcess();
   Vdouble l = getLikelihoodForEachSite();
 
-  for (size_t i = 0; i < nbSites; ++i)
+  for (size_t i = 0; i < nbSites_; ++i)
   {
     for (size_t j = 0; j < nbProcess; ++j)
     {

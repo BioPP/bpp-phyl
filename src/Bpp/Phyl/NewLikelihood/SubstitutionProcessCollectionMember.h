@@ -1,8 +1,7 @@
 //
 // File: SubstitutionProcessCollectionMember.h
-// Created by: Bastien Boussau
-//             Julien Dutheil
-// Created on: Tue Aug 21 2007
+// Created by: Laurent Guéguen
+// Created on: mercredi 13 mai 2015, à 22h 32
 //
 
 /*
@@ -54,6 +53,8 @@ namespace bpp
    * This object is a link between SubstitutionProcessCollection and
    * ComputingTree, and does not have any specific Parameter.
    *
+   * The parameters are the INDEPENDENT parameters of the objects of
+   * the Collection.
    */
 
   class SubstitutionProcessCollection;
@@ -78,7 +79,17 @@ namespace bpp
      **/
 
     size_t nProc_;
+
+  private:
+
+    /**
+     * @brief sets the parameters as the independent parameters on the
+     * objects
+     *
+     **/
     
+    void updateParameters();
+
   private:
 
     /**
@@ -149,12 +160,7 @@ namespace bpp
 
     virtual ~SubstitutionProcessCollectionMember() {}
 
-#ifndef NO_VIRTUAL_COV
-    SubstitutionProcessCollectionMember*
-#else
-    Clonable*
-#endif
-    clone() const { return new SubstitutionProcessCollectionMember(*this); }
+    SubstitutionProcessCollectionMember* clone() const { return new SubstitutionProcessCollectionMember(*this); }
 
   private:
 
@@ -175,15 +181,6 @@ namespace bpp
 
     const Alphabet* getAlphabet() const;
 
-    /**
-     * @brief set the number of the process in the collection
-     */
-
-    void setNProcess(size_t nProc)
-    {
-      nProc_=nProc;
-    }
-    
     /**
      * @return the number of the process in the collection
      */
@@ -296,12 +293,12 @@ namespace bpp
     const FrequenciesSet* getRootFrequenciesSet() const;
 
     /**
-     *  @brief void function for backward compatibilities. To be removed afterwards.
+     * @brief AbsractParametrizable interface
      *
-     */
-   
-    bool matchParametersValues(const ParameterList& parameters) throw (bpp::ConstraintException);
+     **/
 
+    bool matchParametersValues(const ParameterList& parameters) throw (bpp::ConstraintException);
+    
     void fireParameterChanged(const ParameterList& parameters)
     {
       computingTree_->matchParametersValues(parameters);
@@ -417,6 +414,11 @@ namespace bpp
 
     ParameterList getRootFrequenciesParameters(bool independent) const;
 
+    /**
+     * @brief get (Non)Derivable INDEPENDENT parameters
+     *
+     **/
+    
     ParameterList getDerivableParameters() const;
 
     ParameterList getNonDerivableParameters() const;

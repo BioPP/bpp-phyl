@@ -64,7 +64,7 @@ namespace bpp
     public virtual AncestralStateReconstruction
   {
   private:
-      const newlik::DoubleRecursiveTreeLikelihoodCalculation* likelihood_;
+      newlik::DoubleRecursiveTreeLikelihoodCalculation* likelihood_;
       TreeTemplate<Node> tree_;
       const Alphabet* alphabet_;
       size_t nbSites_;
@@ -75,7 +75,7 @@ namespace bpp
       std::vector<double> l_;
 		
     public:
-      MarginalAncestralReconstruction(const newlik::DoubleRecursiveTreeLikelihoodCalculation* drl) :
+      MarginalAncestralReconstruction(newlik::DoubleRecursiveTreeLikelihoodCalculation* drl) :
         likelihood_      (drl),
         tree_            (drl->getSubstitutionProcess()->getTree()),
         alphabet_        (drl->getAlphabet()),

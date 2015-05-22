@@ -1,7 +1,7 @@
 //
-// File: MixturePhyloLikelihood.h
+// File: PartitionPhyloLikelihood.h
 // Created by: Laurent Guéguen
-// Created on: jeudi 11 juillet 2013, à 14h 05
+// Created on: samedi 16 mai 2015, à 13h 34
 //
 
 /*
@@ -37,33 +37,38 @@
   knowledge of the CeCILL license and that you accept its terms.
 */
 
-#ifndef _MIXTUREPHYLOLIKELIHOOD_H_
-#define _MIXTUREPHYLOLIKELIHOOD_H_
+#ifndef _PARTITION_PHYLOLIKELIHOOD_H_
+#define _PARTITION_PHYLOLIKELIHOOD_H_
 
 
-#include "MultiProcessPhyloLikelihood.h"
-#include "MixtureSequenceEvolution.h"
+#include "SequencePhyloLikelihood.h"
+#include "PartitionSequenceEvolution.h"
+#include "SumOfDataPhyloLikelihood.h"
 
 // From SeqLib:
 #include <Bpp/Seq/Container/SiteContainer.h>
-
 
 namespace bpp
 {
   namespace newlik
   {
 /**
- * @brief Likelihood framework based on a mixture of simple likelihoods
+ * @brief Likelihood framework based on a partition of a sequence in
+ * simple likelihoods.
  *
- * The resulting likelihood is the mean value of
- * the SinglePhyloLikelihoods, ponderated with parametrized probabilities
- * (through a Simplex).
- *
- * @see MultiProcessPhyloLikelihood
+ * @see AbstractSequencePhyloLikelihood
  */
 
-    class MixturePhyloLikelihood :
-      public MultiProcessPhyloLikelihood
+    struct ProcPos
+    {
+      size_t nProc;
+      size_t pos;
+    };
+    
+      
+    class PartitionPhyloLikelihood :
+      public SequencePhyloLikelihood,
+      public SumOfDataPhyloLikelihood
     {
     private:
       /**
@@ -71,86 +76,111 @@ namespace bpp
        *
        */
 
-      MixtureSequenceEvolution& mSeqEvol_;
+      PartitionSequenceEvolution& mSeqEvol_;
+
+      /**
+       * vector of couples number of process, sites specific to
+       * this process.
+       *
+       */
+
+      std::vector<ProcPos> vProcPos_;
       
     public:
-      MixturePhyloLikelihood(
-        MixtureSequenceEvolution& processSeqEvol,
+      PartitionPhyloLikelihood(
+        PartitionSequenceEvolution& processSeqEvol,
         char recursivity,
         size_t nSeqEvol = 0,
         bool verbose = true,
         bool patterns = true);
 
-      MixturePhyloLikelihood(
+      PartitionPhyloLikelihood(
         const SiteContainer& data,
-        MixtureSequenceEvolution& processSeqEvol,
+        PartitionSequenceEvolution& processSeqEvol,
         char recursivity,
         size_t nSeqEvol = 0,
         size_t nData = 0,
         bool verbose = true,
         bool patterns = true);
 
-      MixturePhyloLikelihood(const MixturePhyloLikelihood& mlc) :
-        MultiProcessPhyloLikelihood(mlc),
-        mSeqEvol_(mlc.mSeqEvol_)
-      {}
-
-      MixturePhyloLikelihood& operator=(const MixturePhyloLikelihood& mlc)
+      PartitionPhyloLikelihood(const PartitionPhyloLikelihood& lik) :
+        SequencePhyloLikelihood(lik),
+        SumOfDataPhyloLikelihood(lik),
+        mSeqEvol_(lik.mSeqEvol_),
+        vProcPos_(lik.vProcPos_)
       {
-        MultiProcessPhyloLikelihood::operator=(mlc);
-        mSeqEvol_=mlc.mSeqEvol_;
+      }
+
+      PartitionPhyloLikelihood& operator=(const PartitionPhyloLikelihood& lik)
+      {
+        SequencePhyloLikelihood::operator=(lik);
+        SumOfDataPhyloLikelihood::operator=(lik);
         
+        mSeqEvol_=lik.mSeqEvol_;
+        vProcPos_=lik.vProcPos_;
+ 
         return *this;
       }
 
-      virtual ~MixturePhyloLikelihood() {}
-
-      MixturePhyloLikelihood* clone() const { return new MixturePhyloLikelihood(*this); }
-
-    public:
-      /**
-       * @brief return the probability of a  subprocess
-       *
-       * @param i the index of the subprocess
-       */
-  
-      double getSubProcessProb(size_t i) const
+      virtual ~PartitionPhyloLikelihood()
       {
-        return mSeqEvol_.getSubProcessProb(i);
       }
 
-     /**
+      PartitionPhyloLikelihood* clone() const { return new PartitionPhyloLikelihood(*this); }
+
+      /**
+       * @brief Set the dataset for which the likelihood must be evaluated.
+       *
+       * @param data The data set to use.
+       */
+  
+      void setData(const SiteContainer& data, size_t nData = 0);
+
+      /**
+       * @name The Likelihood interface.
+       *
+       * @{
+       */
+      
+      const Alphabet* getAlphabet() const {
+        return getSingleDataPhylolikelihood(vProcPos_[0].nProc)->getAlphabet();
+      }
+
+      const SiteContainer* getData() const
+      {
+        return SumOfDataPhyloLikelihood::getData((size_t)0);
+      }
+      
+      char getRecursivity() const 
+      {
+        return getSingleDataPhylolikelihood(vProcPos_[0].nProc)->getRecursivity();
+      }
+      
+      /**
+       *
+       * @}
+       */
+      
+      /**
        * @name The likelihood functions.
        *
        * @{
        */
 
-      double getLogLikelihood() const;
-
-      double getDLogLikelihood() const;
-  
-      double getD2LogLikelihood() const;
+      double getLikelihoodForASite(size_t site) const;
 
       double getDLogLikelihoodForASite(size_t site) const;
   
       double getD2LogLikelihoodForASite(size_t site) const;
   
-      double getLikelihoodForASite(size_t site) const;
-  
-      VVdouble getPosteriorProbabilitiesForEachSiteForEachProcess() const;
-
-    protected:
-  
-      void computeDLogLikelihood_(const std::string& variable) const;
-
-      void computeD2LogLikelihood_(const std::string& variable) const;
-
-      /*
+      /**
+       *
        * @}
        */
+      
     };
   } // end of namespace newlik.
 } // end of namespace bpp.
 
-#endif  // _MIXTURELIKELIHOODCOLLECTION_H_
+#endif  // _PARTITION_PHYLOLIKELIHOOD_H_
 

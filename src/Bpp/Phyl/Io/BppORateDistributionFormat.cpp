@@ -232,7 +232,7 @@ DiscreteDistribution* BppORateDistributionFormat::read(
   if (verbose_)
   {
     ApplicationTools::displayResult("Distribution", distName);
-    ApplicationTools::displayResult("Number of classes", TextTools::toString(rDist->getNumberOfCategories()));
+    ApplicationTools::displayResult("Number of classes", TextTools::toString((int)rDist->getNumberOfCategories()));
   }
 
   if (parseArguments)

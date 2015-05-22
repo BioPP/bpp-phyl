@@ -115,17 +115,24 @@ public:
   virtual bool isInitialized() const  = 0;
 
   /**
+   * @brief Tell that the likelihood should be recomputed.
+   *
+   * @return True if a data set is associated to this instance.
+   */
+  virtual void resetToCompute() = 0;
+
+  /**
    * @brief Initialize the object according to a data set.
    *
    * @param sites A sequence alignment to initialize the object with.
    */
-  virtual void setData(const SiteContainer& sites) throw (Exception) = 0;
+  virtual void setData(const SiteContainer& sites) = 0;
   
   /**
    * @return The data set used to initialize this object.
    * @throw TreeLikelihoodCalculationNotInitializedException In this instance was not initialized.
    */
-  virtual const SiteContainer* getData() const throw (TreeLikelihoodCalculationNotInitializedException) = 0;
+  virtual const SiteContainer* getData() const = 0;
 
   virtual TreeLikelihoodData* getLikelihoodData() = 0;
   
@@ -136,7 +143,7 @@ public:
    *
    * @return The log-likelihood for the data set.
    */
-  virtual double getLogLikelihood() const = 0;
+  virtual double getLogLikelihood() = 0;
   
   /**
    * @brief Get the likelihood for a site.
@@ -144,7 +151,7 @@ public:
    * @param site The site index to analyse.
    * @return The likelihood for site <i>site</i>.
    */
-  virtual double getLikelihoodForASite(size_t site) const = 0;
+  virtual double getLikelihoodForASite(size_t site) = 0;
 
   /**
    * @brief Get the likelihood for a site and for a state.
@@ -153,7 +160,7 @@ public:
    * @param state The state to consider.
    * @return The likelihood for site <i>site</i> and state <i>state</i>.
    */
-  virtual double getLikelihoodForASiteForAState(size_t site, int state) const = 0;
+  virtual double getLikelihoodForASiteForAState(size_t site, int state) = 0;
 
   /**
    * @brief Get the logarithm of the likelihood for a site knowing its model class.
@@ -162,7 +169,7 @@ public:
    * @param classIndex The model class index.
    * @return The likelihood for the specified site and model class.
    */
-  virtual double getLikelihoodForASiteForAClass(size_t site, size_t classIndex) const = 0;
+  virtual double getLikelihoodForASiteForAClass(size_t site, size_t classIndex) = 0;
 
   /**
    * @brief Get the likelihood for a site knowing its model class and its ancestral state.
@@ -172,7 +179,7 @@ public:
    * @param state      The ancestral state.
    * @return The likelihood for the specified site and model class and ancestral state..
    */
-  virtual double getLikelihoodForASiteForAClassForAState(size_t site, size_t classIndex, int state) const = 0;
+  virtual double getLikelihoodForASiteForAClassForAState(size_t site, size_t classIndex, int state) = 0;
 
   /**
    * @brief Get the derivate of log-likelihood for the data set.
@@ -183,7 +190,7 @@ public:
    * @return The derivate of log-likelihood for the data set.
    */
   
-  virtual double getDLogLikelihood() const = 0;
+  virtual double getDLogLikelihood() = 0;
   
   /**
    * @brief Get the second order derivate of log-likelihood for the data set.
@@ -193,7 +200,7 @@ public:
    *
    * @return The second order derivate of log-likelihood for the data set.
    */
-  virtual double getD2LogLikelihood() const = 0;
+  virtual double getD2LogLikelihood() = 0;
 
   /**
    * @brief Get the derivative of the loglikelihood for a site.
@@ -202,7 +209,7 @@ public:
    * @return The derivative of likelihood for site <i>site</i>.
    */
 
-  virtual double getDLogLikelihoodForASite(size_t site) const = 0;
+  virtual double getDLogLikelihoodForASite(size_t site) = 0;
   
   /**
    * @brief Get the second-order derivative of the loglikelihood for a site.
@@ -211,13 +218,16 @@ public:
    * @return The second-order derivative of likelihood for site <i>site</i>.
    */
 
-  virtual double getD2LogLikelihoodForASite(size_t site) const = 0;  
+  virtual double getD2LogLikelihoodForASite(size_t site) = 0;  
 
+protected:
   /**
    * @brief Initiate a likelihood computation.
    */
   virtual void computeTreeLikelihood() = 0;
-  
+
+  // To protect later
+public:
   /**
    * @brief Initiate a derivative log-likelihood computation.
    *

@@ -1,7 +1,7 @@
 //
-// File: MultiDataPhyloLikelihood.h
+// File: MultiPhyloLikelihood.h
 // Created by: Laurent Guéguen
-// Created on: jeudi 11 juillet 2013, à 14h 05
+// Created on: jeudi 14 mai 2015, à 20h 58
 //
 
 /*
@@ -37,14 +37,13 @@
   knowledge of the CeCILL license and that you accept its terms.
 */
 
-#ifndef _MULTI_DATA_PHYLOLIKELIHOOD_H_
-#define _MULTI_DATA_PHYLOLIKELIHOOD_H_
+#ifndef _MULTI_PHYLOLIKELIHOOD_H_
+#define _MULTI_PHYLOLIKELIHOOD_H_
 
 // From bpp-seq:
 #include <Bpp/Seq/Container/SiteContainer.h>
 
 #include "PhyloLikelihood.h"
-#include "SingleDataPhyloLikelihood.h"
 
 namespace bpp
 {
@@ -52,53 +51,23 @@ namespace bpp
   {
 
     /**
-     * @brief The MultiDataPhyloLikelihood interface, for phylogenetic likelihood.
+     * @brief The MultiPhyloLikelihood interface, for phylogenetic likelihood.
      *
      * This interface defines the common methods needed to compute a likelihood
-     * from a sequence alignement, usually involving one or more phylogenetic trees.
+     * from several "simple"  phylolikelihoods.
      */
     
-    class MultiDataPhyloLikelihood:
+    class MultiPhyloLikelihood:
       public virtual PhyloLikelihood
     {
     public:
-      MultiDataPhyloLikelihood() {}
-      virtual ~MultiDataPhyloLikelihood() {}
+      MultiPhyloLikelihood() {}
+      virtual ~MultiPhyloLikelihood() {}
 
-      virtual MultiDataPhyloLikelihood* clone() const = 0;
+      virtual MultiPhyloLikelihood* clone() const = 0;
       
 
     public:
-
-      /**
-       *
-       * @name The data functions
-       *
-       * @{
-       */
-      
-      /**
-       * @brief Set the dataset for which the likelihood must be evaluated.
-       *
-       * @param i the number of the SinglePhylolikelihood that use the data
-       * @param sites The data set to use.
-       */
-
-      virtual void setData(const SiteContainer& sites, size_t i) = 0;
-      
-    
-      /**
-       * @brief Get the dataset for which the likelihood must be evaluated.
-       *
-       *
-       * @return A pointer toward the site container where the sequences are stored.
-       */
-      
-      virtual const SiteContainer* getData(size_t i) const = 0;
-
-      /**
-       * @}
-       */
 
       /**
        *
@@ -107,13 +76,13 @@ namespace bpp
        * @{
        */
 
-      virtual void addSingleDataPhylolikelihood(size_t, SingleDataPhyloLikelihood*) = 0;
+      virtual void addPhylolikelihood(size_t, PhyloLikelihood*) = 0;
 
-      virtual std::vector<size_t> getNumbersOfSingleDataPhyloLikelihoods() const =0;
+      virtual std::vector<size_t> getNumbersOfPhyloLikelihoods() const =0;
 
-      virtual const SingleDataPhyloLikelihood* getSingleDataPhylolikelihood(size_t) const = 0;
+      virtual const PhyloLikelihood* getPhylolikelihood(size_t) const = 0;
 
-      virtual SingleDataPhyloLikelihood* getSingleDataPhylolikelihood(size_t) = 0;
+      virtual PhyloLikelihood* getPhylolikelihood(size_t) = 0;
       
       /**
        *
@@ -126,5 +95,5 @@ namespace bpp
   } //end of namespace newlik.
 } //end of namespace bpp.
 
-#endif  //_MULTI_DATA_PHYLOLIKELIHOOD_H_
+#endif  //_MULTI_PHYLOLIKELIHOOD_H_
 

@@ -5,46 +5,46 @@
 //
 
 /*
-   Copyright or © or Copr. Bio++ Development Team, (November 16, 2004)
+  Copyright or © or Copr. Bio++ Development Team, (November 16, 2004)
 
-   This software is a computer program whose purpose is to provide classes
-   for phylogenetic data analysis.
+  This software is a computer program whose purpose is to provide classes
+  for phylogenetic data analysis.
 
-   This software is governed by the CeCILL  license under French law and
-   abiding by the rules of distribution of free software.  You can  use,
-   modify and/ or redistribute the software under the terms of the CeCILL
-   license as circulated by CEA, CNRS and INRIA at the following URL
-   "http://www.cecill.info".
+  This software is governed by the CeCILL  license under French law and
+  abiding by the rules of distribution of free software.  You can  use,
+  modify and/ or redistribute the software under the terms of the CeCILL
+  license as circulated by CEA, CNRS and INRIA at the following URL
+  "http://www.cecill.info".
 
-   As a counterpart to the access to the source code and  rights to copy,
-   modify and redistribute granted by the license, users are provided only
-   with a limited warranty  and the software's author,  the holder of the
-   economic rights,  and the successive licensors  have only  limited
-   liability.
+  As a counterpart to the access to the source code and  rights to copy,
+  modify and redistribute granted by the license, users are provided only
+  with a limited warranty  and the software's author,  the holder of the
+  economic rights,  and the successive licensors  have only  limited
+  liability.
 
-   In this respect, the user's attention is drawn to the risks associated
-   with loading,  using,  modifying and/or developing or reproducing the
-   software by the user in light of its specific status of free software,
-   that may mean  that it is complicated to manipulate,  and  that  also
-   therefore means  that it is reserved for developers  and  experienced
-   professionals having in-depth computer knowledge. Users are therefore
-   encouraged to load and test the software's suitability as regards their
-   requirements in conditions enabling the security of their systems and/or
-   data to be ensured and,  more generally, to use and operate it in the
-   same conditions as regards security.
+  In this respect, the user's attention is drawn to the risks associated
+  with loading,  using,  modifying and/or developing or reproducing the
+  software by the user in light of its specific status of free software,
+  that may mean  that it is complicated to manipulate,  and  that  also
+  therefore means  that it is reserved for developers  and  experienced
+  professionals having in-depth computer knowledge. Users are therefore
+  encouraged to load and test the software's suitability as regards their
+  requirements in conditions enabling the security of their systems and/or
+  data to be ensured and,  more generally, to use and operate it in the
+  same conditions as regards security.
 
-   The fact that you are presently reading this means that you have had
-   knowledge of the CeCILL license and that you accept its terms.
- */
+  The fact that you are presently reading this means that you have had
+  knowledge of the CeCILL license and that you accept its terms.
+*/
 
-#ifndef _MULTIPHYLOLIKELIHOOD_H_
-#define _MULTIPHYLOLIKELIHOOD_H_
+#ifndef _MULTIPROCESSPHYLOLIKELIHOOD_H_
+#define _MULTIPROCESSPHYLOLIKELIHOOD_H_
 
-#include "SingleDataPhyloLikelihood.h"
-#include "SingleProcessPhyloLikelihood.h"
-#include "SubstitutionProcessCollection.h"
-#include "../Tree/Tree.h"
-#include "../Tree/TreeTemplate.h"
+#include "SequencePhyloLikelihood.h"
+#include "MultiProcessSequenceEvolution.h"
+
+#include "TreeLikelihoodCalculation.h"
+#include "SingleRecursiveTreeLikelihoodCalculation.h"
 
 #include <Bpp/Numeric/AbstractParametrizable.h>
 
@@ -55,332 +55,245 @@ using namespace std;
 
 namespace bpp
 {
-namespace newlik
-{
+  namespace newlik
+  {
 /**
  * @brief Partial implementation of the Likelihood interface for multiple processes.
  *
- * This class uses several TreeLikelihoodCalculation instances to compute a the global
- * likelihood of the data set, as well as a collection of SubstitutionProcess.
- * It implements the Function interface and manages the parameters of all substitution processes.
+ * This class uses several TreeLikelihoodCalculation instances to
+ * compute a the global likelihood of the data set, as well as a
+ * collection of SubstitutionProcess.
+ * It implements the Function interface and manages the parameters of
+ * all substitution processes.
  */
-class MultiProcessPhyloLikelihood :
-  public AbstractSingleDataPhyloLikelihood
-{
-protected:
-  SubstitutionProcessCollection* processColl_;
 
-  /*
-   * @brief the vector of the substitution process numbers.
-   *
-   */
-    
-  std::vector<size_t> nProc_;
-
-  /**
-   * @brief recursivity of the tree likelihood computations
-   *
-   * S for simple (default) or D for double (not implemented yet).
-   */
-  char recursivity_;
-  bool computeFirstOrderDerivatives_;
-  bool computeSecondOrderDerivatives_;
-  bool initialized_;
-  bool verbose_;
-  size_t nbSites_;
-  size_t nbStates_;
-
-  double minusLogLik_;
-
-  /**
-   * vector of pointers towards Treelikelihoods, used for the
-   * global likelihood.
-   */
-  
-  std::vector<TreeLikelihoodCalculation*> vpTreelik_;
-
-public:
-  MultiProcessPhyloLikelihood(
-    SubstitutionProcessCollection* processColl,
-    std::vector<size_t> nProc,
-    char recursivity,
-    bool verbose = true,
-    bool patterns = true);
-
-  MultiProcessPhyloLikelihood(
-    const SiteContainer& data,
-    SubstitutionProcessCollection* processColl,
-    std::vector<size_t> nProc,
-    char recursivity,
-    size_t nData = 0,
-    bool verbose = true,
-    bool patterns = true);
-
-  MultiProcessPhyloLikelihood(const MultiProcessPhyloLikelihood& lik) :
-    AbstractSingleDataPhyloLikelihood(lik),
-    processColl_(lik.processColl_),
-    nProc_(lik.nProc_),
-    recursivity_(lik.recursivity_),
-    computeFirstOrderDerivatives_(lik.computeFirstOrderDerivatives_),
-    computeSecondOrderDerivatives_(lik.computeSecondOrderDerivatives_),
-    initialized_(lik.initialized_),
-    verbose_(lik.verbose_),
-    nbSites_(lik.nbSites_),
-    nbStates_(lik.nbStates_),
-    minusLogLik_(lik.minusLogLik_),
-    vpTreelik_()
-  {
-    for (size_t i = 0; i < lik.vpTreelik_.size(); i++)
+    class MultiProcessPhyloLikelihood :
+      public AbstractSequencePhyloLikelihood
     {
-      vpTreelik_.push_back(lik.vpTreelik_[i]->clone());
-    }
-  }
+    private:
+      /**
+       * @brief to avoid the dynamic casts
+       *
+       */
 
-  MultiProcessPhyloLikelihood& operator=(const MultiProcessPhyloLikelihood& lik)
-  {
-    AbstractSingleDataPhyloLikelihood::operator=(lik);
+      MultiProcessSequenceEvolution& mSeqEvol_;
 
-    processColl_=lik.processColl_;
-    nProc_=lik.nProc_;
+    protected:
+      /**
+       * vector of pointers towards Treelikelihoods, used for the
+       * global likelihood.
+       */
+  
+      std::vector<TreeLikelihoodCalculation*> vpTreelik_;
 
-    recursivity_ = lik.recursivity_;
-    computeFirstOrderDerivatives_  = lik.computeFirstOrderDerivatives_;
-    computeSecondOrderDerivatives_ = lik.computeSecondOrderDerivatives_;
-    initialized_                   = lik.initialized_;
-    verbose_                       = lik.verbose_;
-    nbSites_                       = lik.nbSites_;
-    nbStates_                      = lik.nbStates_;
-    minusLogLik_                   = lik.minusLogLik_;
+    public:
+      MultiProcessPhyloLikelihood(
+        MultiProcessSequenceEvolution& processSeqEvol,
+        char recursivity,
+        size_t nSeqEvol = 0, 
+        bool verbose = true,
+        bool patterns = true);
 
+      MultiProcessPhyloLikelihood(const MultiProcessPhyloLikelihood& lik) :
+        AbstractSequencePhyloLikelihood(lik),
+        mSeqEvol_(lik.mSeqEvol_),
+        vpTreelik_()
+      {
+        for (size_t i = 0; i < lik.vpTreelik_.size(); i++)
+        {
+          vpTreelik_.push_back(lik.vpTreelik_[i]->clone());
+        }
+      }
 
-    for (size_t i = 0; i < vpTreelik_.size(); i++)
-    {
-      if (vpTreelik_[i])
-        delete vpTreelik_[i];
-    }
+      MultiProcessPhyloLikelihood& operator=(const MultiProcessPhyloLikelihood& lik)
+      {
+        AbstractSequencePhyloLikelihood::operator=(lik);
+        mSeqEvol_=lik.mSeqEvol_;
 
-    vpTreelik_.empty();
+        for (size_t i = 0; i < vpTreelik_.size(); i++)
+        {
+          if (vpTreelik_[i])
+            delete vpTreelik_[i];
+        }
 
-    for (size_t i = 0; i < lik.vpTreelik_.size(); i++)
-    {
-      vpTreelik_.push_back(lik.vpTreelik_[i]->clone());
-    }
+        vpTreelik_.empty();
 
-    return *this;
-  }
+        for (size_t i = 0; i < lik.vpTreelik_.size(); i++)
+        {
+          vpTreelik_.push_back(lik.vpTreelik_[i]->clone());
+        }
 
-  /**
-   * @brief Abstract class destructor
-   *
-   */
-  virtual ~MultiProcessPhyloLikelihood()
-  {
-    for (size_t i = 0; i < vpTreelik_.size(); i++)
-    {
-      if (vpTreelik_[i])
-        delete vpTreelik_[i];
-    }
-    vpTreelik_.empty();
-  }
+        return *this;
+      }
 
-public:
-  /**
-   * @name The Likelihood interface.
-   *
-   * @{
-   */
-  const SiteContainer* getData() const { return vpTreelik_[0]->getData(); }
+      /**
+       * @brief Abstract class destructor
+       *
+       */
+      virtual ~MultiProcessPhyloLikelihood()
+      {
+        for (size_t i = 0; i < vpTreelik_.size(); i++)
+        {
+          if (vpTreelik_[i])
+            delete vpTreelik_[i];
+        }
+        vpTreelik_.empty();
+      }
 
-  const Alphabet* getAlphabet() const { return vpTreelik_[0]->getAlphabet(); }
+    public:
+      /**
+       * @name The Likelihood interface.
+       *
+       * @{
+       */
 
-  virtual double getLogLikelihood() const = 0;
+      const SiteContainer* getData() const {
+        return vpTreelik_[0]->getData();
+      }
 
-  virtual Vdouble getLikelihoodForEachSite() const;
+      const Alphabet* getAlphabet() const {
+        return vpTreelik_[0]->getAlphabet();
+      }
 
-//  virtual double getDLogLikelihoodForASite(size_t site) const;
+      char getRecursivity() const 
+      {
+        if (dynamic_cast<const SingleRecursiveTreeLikelihoodCalculation*>(vpTreelik_[0]))
+          return 'S';
+        else
+          return 'D';
+      }
 
-//  virtual double getD2LogLikelihoodForASite(size_t site) const;
+      /*
+       * @}
+       */
+      
+    protected:
 
-  /*
-   * @}
-   */
+      virtual void fireParameterChanged(const ParameterList& parameters);
+      
+      virtual void computeDLogLikelihood_(const std::string& variable) const = 0;
+
+      virtual void computeD2LogLikelihood_(const std::string& variable) const = 0;
+
+    public:
+      /**
+       * @brief To be defined in inheriting classes.
+       *
+       */
+
+      /**
+       * @brief Get the likelihood for a site.
+       *
+       * @param site The site index to analyse.
+       * @return The likelihood for site <i>site</i>.
+       */
+
+      virtual double getLikelihoodForASite(size_t site) const = 0;
+
+      /**
+       * @brief Get the likelihood for a site for a process.
+       *
+       * @param site The site index to analyse.
+       * @param p the process index in the given order.
+       * @return The likelihood for site <i>site</i>.
+       */
 
   
-  /**
-   * @brief The collection
-   *
-   */
+      double getLikelihoodForASiteForAProcess(size_t site, size_t p) const
+      {
+        return vpTreelik_[p]->getLikelihoodForASite(site);
+      }
 
-  const SubstitutionProcessCollection* getCollection() const { return processColl_; }
+      /**
+       * @brief Compute the first derivative of the likelihood for a process.
+       *
+       * @param variable the name of the variable.
+       * @param p the process index in the given order.
+       * @return The likelihood for site <i>site</i>.
+       */
 
-protected:
-  virtual void computeDLogLikelihood_(const std::string& variable) const = 0;
+      void computeDLogLikelihoodForAProcess(std::string& variable, size_t p) const;
 
-  virtual void computeD2LogLikelihood_(const std::string& variable) const = 0;
+      /**
+       * @brief Get the first derivative of the likelihood for a site for
+       * a process.
+       *
+       * @param site The site index to analyse.
+       * @param p the process index in the given order.
+       * @return The likelihood for site <i>site</i>.
+       */
 
-public:
-  /**
-   * @brief To be defined in inheriting classes.
-   *
-   */
+      virtual double getDLogLikelihoodForASiteForAProcess(size_t site, size_t p) const
+      {
+        return vpTreelik_[p]->getDLogLikelihoodForASite(site);
+      }
 
-  /**
-   * @brief Get the likelihood for a site.
-   *
-   * @param site The site index to analyse.
-   * @return The likelihood for site <i>site</i>.
-   */
+      /**
+       * @brief Compute the second derivative of the likelihood for a process.
+       *
+       * @param variable the name of the variable.
+       * @param p the process index in the given order.
+       * @return The likelihood for site <i>site</i>.
+       */
+  
+      virtual void computeD2LogLikelihoodForAProcess(std::string& variable, size_t p) const;
 
-  virtual double getLikelihoodForASite(size_t site) const = 0;
+      /**
+       * @brief Get the second derivative of the likelihood for a site for
+       * a process.
+       *
+       * @param site The site index to analyse.
+       * @param p the process index in the given order.
+       * @return The likelihood for site <i>site</i>.
+       */
 
-  /**
-   * @brief Get the likelihood for a site for a process.
-   *
-   * @param site The site index to analyse.
-   * @param p the process index in the given order.
-   * @return The likelihood for site <i>site</i>.
-   */
+      double getD2LogLikelihoodForASiteForAProcess(size_t site, size_t p) const
+      {
+        return vpTreelik_[p]->getD2LogLikelihoodForASite(site);
+      }
+
+      VVdouble getLikelihoodForEachSiteForEachProcess() const;
+
+      virtual VVdouble getPosteriorProbabilitiesForEachSiteForEachProcess() const = 0;
 
   
-  double getLikelihoodForASiteForAProcess(size_t site, size_t p) const
-  {
-    return vpTreelik_[p]->getLikelihoodForASite(site);
+      /**
+       * @brief Set the dataset for which the likelihood must be evaluated.
+       *
+       * @param sites The data set to use.
+       */
+  
+      void setData(const SiteContainer& sites, size_t nData = 0);
+
+      /**
+       * @brief Return the number of process used for computation.
+       */
+  
+      size_t getNumberOfSubstitutionProcess() const { return vpTreelik_.size(); }
+      
+      /**
+       * @name DerivableFirstOrder interface.
+       *
+       * @{
+       */
+      double getFirstOrderDerivative(const std::string& variable) const throw (Exception);
+
+      /** @} */
+
+      /**
+       * @name DerivableSecondOrder interface.
+       *
+       * @{
+       */
+      double getSecondOrderDerivative(const std::string& variable) const throw (Exception);
+      double getSecondOrderDerivative(const std::string& variable1, const std::string& variable2) const throw (Exception) { return 0; } // Not implemented for now.
+
+      /** @} */
+
+      /** @} */
+    };
   }
-
-  /**
-   * @brief Compute the first derivative of the likelihood for a process.
-   *
-   * @param variable the name of the variable.
-   * @param p the process index in the given order.
-   * @return The likelihood for site <i>site</i>.
-   */
-
-  void computeDLogLikelihoodForAProcess(std::string& variable, size_t p) const;
-
-  /**
-   * @brief Get the first derivative of the likelihood for a site for
-   * a process.
-   *
-   * @param site The site index to analyse.
-   * @param p the process index in the given order.
-   * @return The likelihood for site <i>site</i>.
-   */
-
-  double getDLogLikelihoodForASiteForAProcess(size_t site, size_t p) const
-  {
-    return vpTreelik_[p]->getDLogLikelihoodForASite(site);
-  }
-
-  /**
-   * @brief Compute the second derivative of the likelihood for a process.
-   *
-   * @param variable the name of the variable.
-   * @param p the process index in the given order.
-   * @return The likelihood for site <i>site</i>.
-   */
-  
-  void computeD2LogLikelihoodForAProcess(std::string& variable, size_t p) const;
-
-  /**
-   * @brief Get the second derivative of the likelihood for a site for
-   * a process.
-   *
-   * @param site The site index to analyse.
-   * @param p the process index in the given order.
-   * @return The likelihood for site <i>site</i>.
-   */
-
-  double getD2LogLikelihoodForASiteForAProcess(size_t site, size_t p) const
-  {
-    return vpTreelik_[p]->getD2LogLikelihoodForASite(site);
-  }
-
-  VVdouble getLikelihoodForEachSiteForEachProcess() const;
-
-  virtual VVdouble getPosteriorProbabilitiesForEachSiteForEachProcess() const = 0;
-
-  
-  /**
-   * @brief Set the dataset for which the likelihood must be evaluated.
-   *
-   * @param sites The data set to use.
-   */
-  
-  void setData(const SiteContainer& sites, size_t nData = 0);
-
-  size_t getNumberOfSites() const { return vpTreelik_[0]->getNumberOfSites(); }
-
-  size_t getNumberOfStates() const { return vpTreelik_[0]->getAlphabet()->getSize(); }
-
-  /**
-   * @brief Return the number of process used for computation.
-   */
-  
-  size_t getNumberOfSubstitutionProcess() const { return vpTreelik_.size(); }
-
-  const std::vector<size_t> getSubstitutionProcessNumbers() const
-  {
-    return nProc_;
-  }  
-
-  void enableDerivatives(bool yn) { computeFirstOrderDerivatives_ = computeSecondOrderDerivatives_ = yn; }
-  void enableFirstOrderDerivatives(bool yn) { computeFirstOrderDerivatives_ = yn; }
-  void enableSecondOrderDerivatives(bool yn) { computeFirstOrderDerivatives_ = computeSecondOrderDerivatives_ = yn; }
-  bool enableFirstOrderDerivatives() const { return computeFirstOrderDerivatives_; }
-  bool enableSecondOrderDerivatives() const { return computeSecondOrderDerivatives_; }
-
-  bool isInitialized() const { return initialized_; }
-
-  ParameterList getSubstitutionProcessParameters() const;
-
-  ParameterList getSubstitutionModelParameters() const;
-
-  ParameterList getRateDistributionParameters() const;
-
-  ParameterList getRootFrequenciesParameters() const;
-
-  ParameterList getBranchLengthParameters() const;
-
-  virtual ParameterList getDerivableParameters() const
-  {
-    return getBranchLengthParameters();
-  }
-
-  virtual ParameterList getNonDerivableParameters() const;
-  
-
-  //    ParameterList getTransitionProbabilitiesParameters() const { return process_->getTransitionProbabilitiesParameters(); }
-  // TODO: this has to be modified to deal with special cases...
-
-  virtual void fireParameterChanged(const ParameterList& parameters);
-
-  void setParameters(const ParameterList& parameters)   throw (ParameterNotFoundException, ConstraintException);
-
-  double getValue() const throw (Exception);
-
-  /**
-   * @name DerivableFirstOrder interface.
-   *
-   * @{
-   */
-  double getFirstOrderDerivative(const std::string& variable) const throw (Exception);
-
-  /** @} */
-
-  /**
-   * @name DerivableSecondOrder interface.
-   *
-   * @{
-   */
-  double getSecondOrderDerivative(const std::string& variable) const throw (Exception);
-  double getSecondOrderDerivative(const std::string& variable1, const std::string& variable2) const throw (Exception) { return 0; } // Not implemented for now.
-
-  /** @} */
-
-  /** @} */
-};
-}
 } // end of namespace bpp.
 
-#endif  // _MULTIPHYLOLIKELIHOOD_H_
+#endif  // _MULTIPROCESSPHYLOLIKELIHOOD_H_
 

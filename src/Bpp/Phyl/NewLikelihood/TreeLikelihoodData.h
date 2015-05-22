@@ -43,6 +43,7 @@
 
 #include "../Tree/Node.h"
 #include "../Tree/TreeTemplate.h"
+#include "SubstitutionProcess.h"
 
 //From SeqLib:
 #include <Bpp/Seq/Alphabet/Alphabet.h>
@@ -177,6 +178,16 @@ namespace bpp
           }
         }
       }
+
+      /**
+       * @brief Resize and initialize all likelihood arrays according to the given data set and substitution process.
+       *
+       * @param sites The sequences to use as data.
+       * @param process The substitution process to use.
+       * @throw Exception if an error occures.
+       */
+
+      virtual void initLikelihoods(const SiteContainer& sites, const SubstitutionProcess& process) throw (Exception) = 0;
 
     };
 

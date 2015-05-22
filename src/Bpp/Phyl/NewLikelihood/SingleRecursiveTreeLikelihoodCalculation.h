@@ -6,37 +6,37 @@
 //
 
 /*
-   Copyright or © or Copr. Bio++ Development Team, (November 16, 2004)
+  Copyright or © or Copr. Bio++ Development Team, (November 16, 2004)
 
-   This software is a computer program whose purpose is to provide classes
-   for phylogenetic data analysis.
+  This software is a computer program whose purpose is to provide classes
+  for phylogenetic data analysis.
 
-   This software is governed by the CeCILL  license under French law and
-   abiding by the rules of distribution of free software.  You can  use,
-   modify and/ or redistribute the software under the terms of the CeCILL
-   license as circulated by CEA, CNRS and INRIA at the following URL
-   "http://www.cecill.info".
+  This software is governed by the CeCILL  license under French law and
+  abiding by the rules of distribution of free software.  You can  use,
+  modify and/ or redistribute the software under the terms of the CeCILL
+  license as circulated by CEA, CNRS and INRIA at the following URL
+  "http://www.cecill.info".
 
-   As a counterpart to the access to the source code and  rights to copy,
-   modify and redistribute granted by the license, users are provided only
-   with a limited warranty  and the software's author,  the holder of the
-   economic rights,  and the successive licensors  have only  limited
-   liability.
+  As a counterpart to the access to the source code and  rights to copy,
+  modify and redistribute granted by the license, users are provided only
+  with a limited warranty  and the software's author,  the holder of the
+  economic rights,  and the successive licensors  have only  limited
+  liability.
 
-   In this respect, the user's attention is drawn to the risks associated
-   with loading,  using,  modifying and/or developing or reproducing the
-   software by the user in light of its specific status of free software,
-   that may mean  that it is complicated to manipulate,  and  that  also
-   therefore means  that it is reserved for developers  and  experienced
-   professionals having in-depth computer knowledge. Users are therefore
-   encouraged to load and test the software's suitability as regards their
-   requirements in conditions enabling the security of their systems and/or
-   data to be ensured and,  more generally, to use and operate it in the
-   same conditions as regards security.
+  In this respect, the user's attention is drawn to the risks associated
+  with loading,  using,  modifying and/or developing or reproducing the
+  software by the user in light of its specific status of free software,
+  that may mean  that it is complicated to manipulate,  and  that  also
+  therefore means  that it is reserved for developers  and  experienced
+  professionals having in-depth computer knowledge. Users are therefore
+  encouraged to load and test the software's suitability as regards their
+  requirements in conditions enabling the security of their systems and/or
+  data to be ensured and,  more generally, to use and operate it in the
+  same conditions as regards security.
 
-   The fact that you are presently reading this means that you have had
-   knowledge of the CeCILL license and that you accept its terms.
- */
+  The fact that you are presently reading this means that you have had
+  knowledge of the CeCILL license and that you accept its terms.
+*/
 
 #ifndef _SINGLERECURSIVETREELIKELIHOODCALCULATION_H_
 #define _SINGLERECURSIVETREELIKELIHOODCALCULATION_H_
@@ -49,8 +49,8 @@
 
 namespace bpp
 {
-namespace newlik
-{
+  namespace newlik
+  {
 /**
  * @brief This class implements the single recursion likelihood computation for a tree.
  *
@@ -81,138 +81,115 @@ namespace newlik
  * depends on the position of the root. If the input tree is not rooted, it will be considered as a rooted tree
  * with a root multifurcation.
  */
-class SingleRecursiveTreeLikelihoodCalculation:
-  public AbstractTreeLikelihoodCalculation
-{
-private:
-  mutable std::auto_ptr<SingleRecursiveTreeLikelihoodData> likelihoodData_;
-  int root1_, root2_; // Needed only in case of reparametrization of branch length at root node.
-  // TODO: have to be initialized properly! We do not care of that for now. jdutheil on 11/12/12.
+    class SingleRecursiveTreeLikelihoodCalculation:
+      public AbstractTreeLikelihoodCalculation
+    {
+    private:
+      mutable std::auto_ptr<SingleRecursiveTreeLikelihoodData> likelihoodData_;
+      int root1_, root2_; // Needed only in case of reparametrization of branch length at root node.
+      // TODO: have to be initialized properly! We do not care of that for now. jdutheil on 11/12/12.
 
-  // booleans to say if the Dlikelihoods are null
+      // booleans to say if the Dlikelihoods are null
   
-  bool nullDLikelihood_;
-  bool nullD2Likelihood_;
+      bool nullDLikelihood_;
+      bool nullD2Likelihood_;
   
-public:
-  /**
-   * @brief Build a new Simple Recursive Tree Likelihood object without data.
-   *
-   * This constructor only initialize the parameters.
-   * To compute a likelihood, you will need to call the setData() and the computeTreeLikelihood() methods.
-   *
-   * @param process The substitution process to use.
-   * @param verbose Should I display some info?
-   * @param usePatterns Tell if recursive site compression should be performed.
-   * @throw Exception in an error occured.
-   */
-  SingleRecursiveTreeLikelihoodCalculation(
-    SubstitutionProcess* process,
-    bool verbose = true,
-    bool usePatterns = true)
-  throw (Exception);
+    public:
+      /**
+       * @brief Build a new Simple Recursive Tree Likelihood object without data.
+       *
+       * This constructor only initialize the parameters.
+       * To compute a likelihood, you will need to call the setData() and the computeTreeLikelihood() methods.
+       *
+       * @param process The substitution process to use.
+       * @param verbose Should I display some info?
+       * @param usePatterns Tell if recursive site compression should be performed.
+       * @throw Exception in an error occured.
+       */
+      SingleRecursiveTreeLikelihoodCalculation(
+        const SubstitutionProcess* process,
+        bool verbose = true,
+        bool usePatterns = true)
+        throw (Exception);
 
-  /**
-   * @brief Build a new Simple Recursive Tree Likelihood object and compute the corresponding likelihood.
-   *
-   * This constructor initializes all parameters, data, and likelihood arrays.
-   *
-   * @param data Sequences to use.
-   * @param process The substitution process to use.
-   * @param verbose Should I display some info?
-   * @param usePatterns Tell if recursive site compression should be performed.
-   * @throw Exception in an error occured.
-   */
-  SingleRecursiveTreeLikelihoodCalculation(
-    const SiteContainer& data,
-    SubstitutionProcess* process,
-    bool verbose = true,
-    bool usePatterns = true)
-  throw (Exception);
+      /**
+       * @brief Build a new Simple Recursive Tree Likelihood object and compute the corresponding likelihood.
+       *
+       * This constructor initializes all parameters, data, and likelihood arrays.
+       *
+       * @param data Sequences to use.
+       * @param process The substitution process to use.
+       * @param verbose Should I display some info?
+       * @param usePatterns Tell if recursive site compression should be performed.
+       * @throw Exception in an error occured.
+       */
+      SingleRecursiveTreeLikelihoodCalculation(
+        const SiteContainer& data,
+        const SubstitutionProcess* process,
+        bool verbose = true,
+        bool usePatterns = true)
+        throw (Exception);
 
-  /**
-   * @brief Copy constructor.
-   */ 
-  SingleRecursiveTreeLikelihoodCalculation(const SingleRecursiveTreeLikelihoodCalculation& lik);
+      /**
+       * @brief Copy constructor.
+       */ 
+      SingleRecursiveTreeLikelihoodCalculation(const SingleRecursiveTreeLikelihoodCalculation& lik);
 
-  SingleRecursiveTreeLikelihoodCalculation& operator=(const SingleRecursiveTreeLikelihoodCalculation& lik);
+      SingleRecursiveTreeLikelihoodCalculation& operator=(const SingleRecursiveTreeLikelihoodCalculation& lik);
 
-  virtual ~SingleRecursiveTreeLikelihoodCalculation() {} // smart pointers take care of everything.
+      virtual ~SingleRecursiveTreeLikelihoodCalculation() {} // smart pointers take care of everything.
 
-  SingleRecursiveTreeLikelihoodCalculation* clone() const { return new SingleRecursiveTreeLikelihoodCalculation(*this); }
+      SingleRecursiveTreeLikelihoodCalculation* clone() const { return new SingleRecursiveTreeLikelihoodCalculation(*this); }
 
-private:
-  /**
-   * @brief Method called by constructors.
-   */
-  void init_(bool usePatterns) throw (Exception);
+    private:
+      /**
+       * @brief Method called by constructors.
+       */
+      void init_(bool usePatterns) throw (Exception);
 
-public:
+    public:
 
-  const Alphabet* getAlphabet() const throw (TreeLikelihoodCalculationNotInitializedException)
-  {
-    if (!initialized_)
-      throw new TreeLikelihoodCalculationNotInitializedException("SingleRecursiveTreeLikelihoodCalculation::getAlphabet().");
-    return data_->getAlphabet();
-  }
+      SingleRecursiveTreeLikelihoodData* getLikelihoodData() { return likelihoodData_.get(); }
 
-  bool isInitialized() const { return initialized_; }
+      const SingleRecursiveTreeLikelihoodData* getLikelihoodData() const { return likelihoodData_.get(); }
 
-  void setData(const SiteContainer& sites) throw (Exception);
-  
-  const SiteContainer* getData() const throw (TreeLikelihoodCalculationNotInitializedException) {
-    if (!initialized_)
-      throw new TreeLikelihoodCalculationNotInitializedException("SingleRecursiveTreeLikelihoodCalculation::getData().");
-    return data_.get();
-  }
-  
-  size_t getSiteIndex(size_t site) const throw (TreeLikelihoodCalculationNotInitializedException, IndexOutOfBoundsException) {
-    if (!initialized_)
-      throw new TreeLikelihoodCalculationNotInitializedException("SingleRecursiveTreeLikelihoodCalculation::getSiteIndex().");
-    return likelihoodData_->getRootArrayPosition(site);
-  }
+      double getLikelihoodForASite(size_t site);
 
-  SingleRecursiveTreeLikelihoodData* getLikelihoodData() { return likelihoodData_.get(); }
+      double getLikelihoodForASiteForAState(size_t site, int state);
 
-  const SingleRecursiveTreeLikelihoodData* getLikelihoodData() const { return likelihoodData_.get(); }
+      double getLikelihoodForASiteForAClass(size_t site, size_t classIndex);
 
-  double getLikelihoodForASite(size_t site) const;
+      double getLikelihoodForASiteForAClassForAState(size_t site, size_t classIndex, int state);
 
-  double getLikelihoodForASiteForAState(size_t site, int state) const;
+      double getDLikelihoodForASite(size_t site);
 
-  double getLikelihoodForASiteForAClass(size_t site, size_t classIndex) const;
+      double getD2LikelihoodForASite(size_t site);
 
-  double getLikelihoodForASiteForAClassForAState(size_t site, size_t classIndex, int state) const;
+      void computeTreeDLogLikelihood(const std::string& variable);
 
-  double getDLikelihoodForASite(size_t site) const;
-
-  double getD2LikelihoodForASite(size_t site) const;
-
-  void computeTreeLikelihood();
-
-  void computeTreeDLogLikelihood(const std::string& variable);
-
-  void computeTreeD2LogLikelihood(const std::string& variable);
+      void computeTreeD2LogLikelihood(const std::string& variable);
  
-protected:
+    protected:
 
-  /**
-   * @brief Compute the likelihood for a subtree defined by the Tree::Node <i>node</i>.
-   *
-   * @param node The root of the subtree.
-   */
-  void computeSubtreeLikelihood_(const Node* node); // Recursive method.
-  void computeDownSubtreeDLikelihood_(const Node* node);
-  void computeDownSubtreeD2Likelihood_(const Node* node);
+      void computeTreeLikelihood();
 
-  /**
-   * @brief This method is mainly for debugging purpose.
-   *
-   * @param node The node at which likelihood values must be displayed.
-   */
-  void displayLikelihood(const Node* node);
-};
-} // end of namespace newlik.
+      /**
+       * @brief Compute the likelihood for a subtree defined by the Tree::Node <i>node</i>.
+       *
+       * @param node The root of the subtree.
+       */
+      void computeSubtreeLikelihood_(const Node* node); // Recursive method.
+      void computeDownSubtreeDLikelihood_(const Node* node);
+      void computeDownSubtreeD2Likelihood_(const Node* node);
+
+      /**
+       * @brief This method is mainly for debugging purpose.
+       *
+       * @param node The node at which likelihood values must be displayed.
+       */
+      void displayLikelihood(const Node* node);
+    };
+  } // end of namespace newlik.
 } // end of namespace bpp.
 
 #endif  // _SINGLERECURSIVETREELIKELIHOODCALCULATION_H_

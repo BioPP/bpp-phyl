@@ -44,27 +44,21 @@ using namespace newlik;
 using namespace std;
 
 SumOfDataPhyloLikelihood::SumOfDataPhyloLikelihood() :
+  AbstractPhyloLikelihood(),
   AbstractParametrizable(""),  
-  mSDP_(),
-  computeFirstOrderDerivatives_(true),
-  computeSecondOrderDerivatives_(true),
-  minusLogLik_(0)
+  mSDP_()
 {
 }
 
 SumOfDataPhyloLikelihood::SumOfDataPhyloLikelihood(std::map<size_t, SingleDataPhyloLikelihood*>& mSDP) :
   AbstractParametrizable(""),  
-  mSDP_(),
-  computeFirstOrderDerivatives_(true),
-  computeSecondOrderDerivatives_(true),
-  minusLogLik_(0)
+  mSDP_()
 {
   for (std::map<size_t, SingleDataPhyloLikelihood*>::const_iterator it=mSDP.begin(); it != mSDP.end(); it++)
   {
     addSingleDataPhylolikelihood(it->first, it->second);
     includeParameters_(mSDP_[it->first]->getParameters());
   }
-  
 }
 
 SumOfDataPhyloLikelihood::~SumOfDataPhyloLikelihood()
@@ -74,11 +68,9 @@ SumOfDataPhyloLikelihood::~SumOfDataPhyloLikelihood()
 }
 
 SumOfDataPhyloLikelihood::SumOfDataPhyloLikelihood(const SumOfDataPhyloLikelihood& sd) :
+  AbstractPhyloLikelihood(sd),
   AbstractParametrizable(sd),
-  mSDP_(),
-  computeFirstOrderDerivatives_(sd.computeFirstOrderDerivatives_),
-  computeSecondOrderDerivatives_(sd.computeSecondOrderDerivatives_),
-  minusLogLik_(sd.minusLogLik_)
+  mSDP_()
 {
   for (std::map<size_t, AbstractSingleDataPhyloLikelihood*>::const_iterator it=sd.mSDP_.begin(); it != sd.mSDP_.end(); it++)
     addSingleDataPhylolikelihood(it->first, it->second->clone());
@@ -86,15 +78,11 @@ SumOfDataPhyloLikelihood::SumOfDataPhyloLikelihood(const SumOfDataPhyloLikelihoo
 
 SumOfDataPhyloLikelihood& SumOfDataPhyloLikelihood::operator=(const SumOfDataPhyloLikelihood& sd)
 {
+  AbstractPhyloLikelihood::operator=(sd);
   AbstractParametrizable::operator=(sd);
 
   for (std::map<size_t, AbstractSingleDataPhyloLikelihood*>::iterator it=mSDP_.begin(); it != mSDP_.end(); it++)
     delete it->second;
-  
-  computeFirstOrderDerivatives_=sd.computeFirstOrderDerivatives_;
-  computeSecondOrderDerivatives_=sd.computeSecondOrderDerivatives_;
-
-  minusLogLik_=sd.minusLogLik_;
   
   for (std::map<size_t, AbstractSingleDataPhyloLikelihood*>::const_iterator it=sd.mSDP_.begin(); it != sd.mSDP_.end(); it++)
     addSingleDataPhylolikelihood(it->first, it->second->clone());
@@ -111,16 +99,15 @@ void SumOfDataPhyloLikelihood::addSingleDataPhylolikelihood(size_t nPhyl, Single
   if (dynamic_cast<AbstractSingleDataPhyloLikelihood*>(SDP)!=NULL){
     mSDP_[nPhyl]=dynamic_cast<AbstractSingleDataPhyloLikelihood*>(SDP);
     includeParameters_(SDP->getParameters());
-  } 
+  }
+
+  update();
 }
 
 
 void SumOfDataPhyloLikelihood::setParameters(const ParameterList& parameters) throw (ParameterNotFoundException, ConstraintException)
 {
-  AbstractParametrizable::setParametersValues(parameters);
-  
-  for (std::map<size_t, AbstractSingleDataPhyloLikelihood*>::iterator it=mSDP_.begin(); it != mSDP_.end(); it++)
-    it->second->setParameters(parameters);
+  setParametersValues(parameters);
 }
 
 double SumOfDataPhyloLikelihood::getFirstOrderDerivative(const std::string& variable) const throw (Exception)
@@ -208,7 +195,25 @@ ParameterList SumOfDataPhyloLikelihood::getNonDerivableParameters() const
 
 void SumOfDataPhyloLikelihood::enableDerivatives(bool yn)
 {
+  AbstractPhyloLikelihood::enableDerivatives(yn);
+  
   for (std::map<size_t, AbstractSingleDataPhyloLikelihood*>::iterator it=mSDP_.begin(); it != mSDP_.end(); it++)
     it->second->enableDerivatives(yn);
+}
+
+void SumOfDataPhyloLikelihood::enableFirstOrderDerivatives(bool yn)
+{
+  AbstractPhyloLikelihood::enableFirstOrderDerivatives(yn);
+  
+  for (std::map<size_t, AbstractSingleDataPhyloLikelihood*>::iterator it=mSDP_.begin(); it != mSDP_.end(); it++)
+    it->second->enableFirstOrderDerivatives(yn);
+}
+
+void SumOfDataPhyloLikelihood::enableSecondOrderDerivatives(bool yn)
+{
+  AbstractPhyloLikelihood::enableSecondOrderDerivatives(yn);
+  
+  for (std::map<size_t, AbstractSingleDataPhyloLikelihood*>::iterator it=mSDP_.begin(); it != mSDP_.end(); it++)
+    it->second->enableSecondOrderDerivatives(yn);
 }
 

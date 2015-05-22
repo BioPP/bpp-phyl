@@ -60,6 +60,7 @@
 #include "../NewLikelihood/SingleDataPhyloLikelihood.h"
 #include "../NewLikelihood/SubstitutionProcessCollection.h"
 #include "../NewLikelihood/SubstitutionProcessCollectionMember.h"
+#include "../NewLikelihood/SequenceEvolution.h"
 
 // From SeqLib:
 #include <Bpp/Seq/Container/SiteContainer.h>
@@ -68,6 +69,8 @@
 // From the STL:
 #include <string>
 #include <map>
+#include <memory>
+#include <vector>
 
 namespace bpp
 {
@@ -564,7 +567,8 @@ namespace bpp
       bool suffixIsOptional  = true,
       bool verbose = true,
       int warn = 1);
-      
+
+
     static void addSubstitutionProcessCollectionMember(
       SubstitutionProcessCollection* SubProColl, 
       size_t procNum,
@@ -573,9 +577,8 @@ namespace bpp
       int warn = 1);
 
 
-    static std::map<size_t, newlik::PhyloLikelihood*> getPhyloLikelihoods(
+    static std::map<size_t, SequenceEvolution*> getSequenceEvolutions(
       SubstitutionProcessCollection& SPC,
-      const map<size_t, SiteContainer*>& mData,
       map<string, string>& params,
       map<string, string>& unparsedParams,
       const string& suffix = "",
@@ -584,6 +587,16 @@ namespace bpp
       int warn = 1) throw (Exception);
     
 
+    static std::map<size_t, newlik::PhyloLikelihood*> getPhyloLikelihoods(
+      SubstitutionProcessCollection& SPC,
+      std::map<size_t, SequenceEvolution*>& mSeqEvol,
+      const std::map<size_t, SiteContainer*>& mData,
+      map<string, string>& params,
+      const string& suffix = "",
+      bool suffixIsOptional = true,
+      bool verbose = true,
+      int warn = 1) throw (Exception);
+    
     /**
      * @brief Complete a MixedSubstitutionModelSet object according to
      * options, given this model has already been filled through
@@ -929,7 +942,7 @@ namespace bpp
     /**
      * @brief Output a PhyloLikelihood description to a file.
      *
-     * @param phylolike The PhyloLikelihood collection to serialize.
+     * @param phylolike The PhyloLikelihood to serialize.
      * @param out       The stream where to print.
      * @param nPhylo    The number of the process
      * @param warn  Set the warning level (0: always display warnings, >0 display warnings on demand).
@@ -940,6 +953,17 @@ namespace bpp
 
     static void printParameters(const newlik::SingleDataPhyloLikelihood* phylolike, OutputStream& out, size_t nPhylo = 1, int warn = 1);
 
+    /**
+     * @brief Output a Sequence Evolution description to a file.
+     *
+     * @param phylolike The Sequence Evolution to serialize.
+     * @param out       The stream where to print.
+     * @param nEvol    The number of the evolution
+     * @param warn  Set the warning level (0: always display warnings, >0 display warnings on demand).
+     */
+
+    static void printParameters(const SequenceEvolution* evol, OutputStream& out, size_t nEvol = 1, int warn = 1);
+    
     /**
      * @brief Output a DiscreteDistribution description to a file.
      *

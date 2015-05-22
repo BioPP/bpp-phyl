@@ -1,7 +1,7 @@
 //
-// File: SingleProcessPhyloLikelihood.cpp
+// File: OneProcessSequencePhyloLikelihood.cpp
 // Created by: Julien Dutheil
-// Created on: Fri Oct 17 17:57:21 2003
+// Created on: mardi 28 avril 2015, à 13h 11
 //
 
 /*
@@ -37,7 +37,9 @@
    knowledge of the CeCILL license and that you accept its terms.
  */
 
-#include "SingleProcessPhyloLikelihood.h"
+#include "OneProcessSequencePhyloLikelihood.h"
+#include "SingleRecursiveTreeLikelihoodCalculation.h"
+#include "DoubleRecursiveTreeLikelihoodCalculation.h"
 
 using namespace std;
 using namespace bpp;
@@ -45,45 +47,70 @@ using namespace newlik;
 
 /******************************************************************************/
 
-SingleProcessPhyloLikelihood::SingleProcessPhyloLikelihood(
-  SubstitutionProcess* process,
-  TreeLikelihoodCalculation* tlComp,
-  size_t nProc,
-  size_t nData) :
-  AbstractPhyloLikelihood(),
-  AbstractSingleDataPhyloLikelihood(nData),
-  AbstractParametrizable(""),
-  tlComp_(tlComp),
-  process_(process),
-  nProc_(nProc)
+OneProcessSequencePhyloLikelihood::OneProcessSequencePhyloLikelihood(
+  OneProcessSequenceEvolution& evol,
+  char recursivity,
+  size_t nSeqEvol,
+  bool verbose,
+  bool patterns) :
+  AbstractSequencePhyloLikelihood(evol, nSeqEvol),
+  mSeqEvol_(evol),
+  tlComp_()
 {
-  if (tlComp->getSubstitutionProcess() != process_)
-    throw Exception("SingleProcessPhyloLikelihood::SingleProcessPhyloLikelihood Error :  given process must be the same as the one of TreeLikelihoodCalculation");
+  SubstitutionProcess& sp=evol.getSubstitutionProcess();
 
-  // initialize INDEPENDENT parameters:
-
-  addParameters_(process_->getBranchLengthParameters(true));
-  addParameters_(process_->getSubstitutionModelParameters(true));
-  addParameters_(process_->getRateDistributionParameters(true));
-  addParameters_(process_->getRootFrequenciesParameters(true)); 
+  if (recursivity=='S')
+    tlComp_ = std::auto_ptr<TreeLikelihoodCalculation>(new SingleRecursiveTreeLikelihoodCalculation(&sp, true, patterns));
+  else
+    if (recursivity=='D')
+      tlComp_ = std::auto_ptr<TreeLikelihoodCalculation>(new DoubleRecursiveTreeLikelihoodCalculation(&sp, true));
+    else throw(Exception("OneProcessPhyloLikelihood::OneProcessPhyloLikelihood: unknown recursivity : " + recursivity));
 
   tlComp_->resetToCompute();
-
 }
 
 /******************************************************************************/
 
-void SingleProcessPhyloLikelihood::fireParameterChanged(const ParameterList& params)
+OneProcessSequencePhyloLikelihood::OneProcessSequencePhyloLikelihood(
+  const SiteContainer& data,
+  OneProcessSequenceEvolution& evol,
+  char recursivity,
+  size_t nSeqEvol,
+  size_t nData,
+  bool verbose,
+  bool patterns) :
+  AbstractSequencePhyloLikelihood(evol, nSeqEvol),
+  mSeqEvol_(evol),
+  tlComp_()
 {
-  update();
+  SubstitutionProcess& sp=evol.getSubstitutionProcess();
+
+  if (recursivity=='S')
+    tlComp_ = std::auto_ptr<TreeLikelihoodCalculation>(new SingleRecursiveTreeLikelihoodCalculation(&sp, true, patterns));
+  else
+    if (recursivity=='D')
+      tlComp_ = std::auto_ptr<TreeLikelihoodCalculation>(new DoubleRecursiveTreeLikelihoodCalculation(&sp, true));
+    else throw(Exception("OneProcessPhyloLikelihood::OneProcessPhyloLikelihood: unknown recursivity : " + recursivity));
+
+  tlComp_->resetToCompute();
+
+  setData(data, nData);
+}
+
+
+
+/******************************************************************************/
+
+void OneProcessSequencePhyloLikelihood::fireParameterChanged(const ParameterList& params)
+{
+  AbstractSequencePhyloLikelihood::fireParameterChanged(params);
   
-  process_->matchParametersValues(params);
   tlComp_->resetToCompute();
 }
 
 /******************************************************************************/
 
-VVdouble SingleProcessPhyloLikelihood::getLikelihoodForEachSiteForEachState() const
+VVdouble OneProcessSequencePhyloLikelihood::getLikelihoodForEachSiteForEachState() const
 {
   VVdouble l(getNumberOfSites());
   for (size_t i = 0; i < l.size(); ++i)
@@ -100,7 +127,7 @@ VVdouble SingleProcessPhyloLikelihood::getLikelihoodForEachSiteForEachState() co
 
 /******************************************************************************/
 
-VVdouble SingleProcessPhyloLikelihood::getLikelihoodForEachSiteForEachClass() const
+VVdouble OneProcessSequencePhyloLikelihood::getLikelihoodForEachSiteForEachClass() const
 {
   VVdouble l(getNumberOfSites());
   for (size_t i = 0; i < l.size(); ++i)
@@ -117,7 +144,7 @@ VVdouble SingleProcessPhyloLikelihood::getLikelihoodForEachSiteForEachClass() co
 
 /******************************************************************************/
 
-VVVdouble SingleProcessPhyloLikelihood::getLikelihoodForEachSiteForEachClassForEachState() const
+VVVdouble OneProcessSequencePhyloLikelihood::getLikelihoodForEachSiteForEachClassForEachState() const
 {
   VVVdouble l(getNumberOfSites());
   for (size_t i = 0; i < l.size(); ++i)
@@ -139,18 +166,7 @@ VVVdouble SingleProcessPhyloLikelihood::getLikelihoodForEachSiteForEachClassForE
 
 /******************************************************************************/
 
-ParameterList SingleProcessPhyloLikelihood::getNonDerivableParameters() const
-{
-  ParameterList pl = getSubstitutionModelParameters();
-  pl.addParameters(getRootFrequenciesParameters());
-  pl.addParameters(getRateDistributionParameters());
-
-  return pl;
-}
-
-/******************************************************************************/
-
-VVdouble SingleProcessPhyloLikelihood::getPosteriorProbabilitiesOfEachClass() const
+VVdouble OneProcessSequencePhyloLikelihood::getPosteriorProbabilitiesOfEachClass() const
 {
   size_t nbSites   = getNumberOfSites();
   size_t nbClasses = getNumberOfClasses();
@@ -161,7 +177,7 @@ VVdouble SingleProcessPhyloLikelihood::getPosteriorProbabilitiesOfEachClass() co
   {
     for (size_t j = 0; j < nbClasses; ++j)
     {
-      pb[i][j] = pb[i][j] * process_->getProbabilityForModel(j) / l[i];
+      pb[i][j] = pb[i][j] * getSubstitutionProcess().getProbabilityForModel(j) / l[i];
     }
   }
   return pb;
@@ -169,7 +185,7 @@ VVdouble SingleProcessPhyloLikelihood::getPosteriorProbabilitiesOfEachClass() co
 
 /******************************************************************************/
 
-vector<size_t> SingleProcessPhyloLikelihood::getClassWithMaxPostProbOfEachSite() const
+vector<size_t> OneProcessSequencePhyloLikelihood::getClassWithMaxPostProbOfEachSite() const
 {
   size_t nbSites = getNumberOfSites();
   VVdouble l = getLikelihoodForEachSiteForEachClass();
@@ -184,7 +200,7 @@ vector<size_t> SingleProcessPhyloLikelihood::getClassWithMaxPostProbOfEachSite()
 
 /******************************************************************************/
 
-Vdouble SingleProcessPhyloLikelihood::getPosteriorRateOfEachSite() const
+Vdouble OneProcessSequencePhyloLikelihood::getPosteriorRateOfEachSite() const
 {
   size_t nbSites   = getNumberOfSites();
   size_t nbClasses = getNumberOfClasses();
@@ -195,7 +211,7 @@ Vdouble SingleProcessPhyloLikelihood::getPosteriorRateOfEachSite() const
   {
     for (size_t j = 0; j < nbClasses; j++)
     {
-      rates[i] += (pb[i][j] / l[i]) * process_->getProbabilityForModel(j) *  process_->getProbabilityForModel(j);
+      rates[i] += (pb[i][j] / l[i]) * getSubstitutionProcess().getProbabilityForModel(j) *  getSubstitutionProcess().getProbabilityForModel(j);
     }
   }
   return rates;
@@ -205,13 +221,13 @@ Vdouble SingleProcessPhyloLikelihood::getPosteriorRateOfEachSite() const
  *                           First Order Derivatives                          *
  ******************************************************************************/
 
-double SingleProcessPhyloLikelihood::getFirstOrderDerivative(const string& variable) const
+double OneProcessSequencePhyloLikelihood::getFirstOrderDerivative(const string& variable) const
 throw (Exception)
 {
   if (!hasParameter(variable))
     return 0;
-  
-  if (!process_->hasDerivableParameter(variable))
+
+  if (!hasDerivableParameter(variable))
   {
     throw Exception("Non derivable parameter: " + variable);
   }
@@ -224,13 +240,13 @@ throw (Exception)
  *                           Second Order Derivatives                         *
  ******************************************************************************/
 
-double SingleProcessPhyloLikelihood::getSecondOrderDerivative(const string& variable) const
+double OneProcessSequencePhyloLikelihood::getSecondOrderDerivative(const string& variable) const
 throw (Exception)
 {
   if (!hasParameter(variable))
     return 0;
   
-  if (!process_->hasDerivableParameter(variable))
+  if (!hasDerivableParameter(variable))
   {
     throw Exception("Non derivable parameter: " + variable);
   }

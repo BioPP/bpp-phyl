@@ -44,6 +44,10 @@
 #include <Bpp/Seq/Alphabet/Alphabet.h>
 #include <Bpp/Seq/Container/SiteContainer.h>
 
+// from bpp-core
+
+#include <Bpp/Numeric/AbstractParametrizable.h>
+
 #include "PhyloLikelihood.h"
 
 namespace bpp
@@ -57,14 +61,14 @@ namespace bpp
      * This interface defines the common methods needed to compute a likelihood
      * from a sequence alignement, usually involving one or more phylogenetic trees.
      */
-    class SingleDataPhyloLikelihood:
-      public virtual PhyloLikelihood
+    class SingleDataPhyloLikelihood :
+      virtual public PhyloLikelihood
     {
     public:
       SingleDataPhyloLikelihood() {}
       virtual ~SingleDataPhyloLikelihood() {}
 
-      SingleDataPhyloLikelihood* clone() const = 0;
+      virtual SingleDataPhyloLikelihood* clone() const = 0;
 
     public:
 
@@ -105,12 +109,24 @@ namespace bpp
       virtual size_t getNumberOfSites() const = 0;
 
       /**
+       * @brief Get the number the states.
+       *
+       */
+
+      virtual size_t getNumberOfStates() const = 0;
+
+      /**
        * @brief Get the alphabet associated to the dataset.
        *
        * @return the alphabet associated to the dataset.
        */    
       virtual const Alphabet* getAlphabet() const = 0;
  
+      /**
+       * @return the recurvisity used for the computations.
+       *
+       */    
+      virtual char getRecursivity() const = 0;
     
       /**
        * @}
@@ -131,10 +147,10 @@ namespace bpp
       virtual double getLikelihoodForASite(size_t site) const = 0;
 
       /**
-       * @brief Get the log likelihood for a site.
+       * @brief Get the log likelihood for a site, and its derivatives.
        *
        * @param site The site index to analyse.
-       * @return The log likelihood for site <i>site</i>.
+       * @return The (D)log likelihood for site <i>site</i>.
        */
       
       virtual double getLogLikelihoodForASite(size_t site) const
@@ -142,7 +158,11 @@ namespace bpp
         return log(getLikelihoodForASite(site));
       }
 
-      /**
+      virtual double getDLogLikelihoodForASite(size_t site) const = 0;
+
+      virtual double getD2LogLikelihoodForASite(size_t site) const = 0;
+
+/**
        * @brief Get the likelihood for each site.
        *
        * @return A vector with all likelihoods for each site.
@@ -154,10 +174,12 @@ namespace bpp
 
     
     class AbstractSingleDataPhyloLikelihood :
-      public virtual SingleDataPhyloLikelihood,
-      public AbstractParametrizable
+      public virtual SingleDataPhyloLikelihood
     {
     protected:
+
+      size_t nbSites_;
+      size_t nbStates_;
 
       /**
        * @brief Number of the concerned data.
@@ -165,26 +187,41 @@ namespace bpp
        **/
       
       size_t nData_;
-      
+
     public:
-      AbstractSingleDataPhyloLikelihood(std::string st, size_t nData = 0) :
-        AbstractParametrizable(st),
+      AbstractSingleDataPhyloLikelihood(size_t nData = 0) :
+        nbSites_(0),
+        nbStates_(0),
         nData_(nData)
       {}
 
       AbstractSingleDataPhyloLikelihood(const AbstractSingleDataPhyloLikelihood& asd) :
-        AbstractParametrizable(asd),
+        nbSites_(asd.nbSites_),
+        nbStates_(asd.nbStates_),
         nData_(asd.nData_)
       {
       }
       
+      virtual ~AbstractSingleDataPhyloLikelihood() {}
+
+      AbstractSingleDataPhyloLikelihood* clone() const = 0;
+      
       AbstractSingleDataPhyloLikelihood& operator=(const AbstractSingleDataPhyloLikelihood& asd)
       {
-        AbstractParametrizable::operator=(asd);
-
+        nbSites_=asd.nbSites_;
+        nbStates_=asd.nbStates_;
+        
         nData_=asd.nData_;
         
         return *this;
+      }
+
+      void setData(const SiteContainer& sites, size_t nData = 0)
+      {
+        nbSites_ = sites.getNumberOfSites();
+        nbStates_ = sites.getAlphabet()->getSize();
+        nData_=nData;
+        initialize();
       }
 
       size_t getNData() const
@@ -197,9 +234,52 @@ namespace bpp
         nData_=nData;
       }
 
-      virtual ~AbstractSingleDataPhyloLikelihood() {}
+      size_t getNumberOfSites() const { return nbSites_; }
 
-      AbstractSingleDataPhyloLikelihood* clone() const = 0;
+      size_t getNumberOfStates() const { return nbStates_; }
+
+      Vdouble getLikelihoodForEachSite() const
+      {
+        Vdouble l(getNumberOfSites());
+        for (unsigned int i = 0; i < l.size(); ++i)
+        {
+          l[i] = getLikelihoodForASite(i);
+        }
+        return l;
+      }
+      
+    };
+      
+    
+    class AbstractParametrizableSingleDataPhyloLikelihood :
+      public AbstractSingleDataPhyloLikelihood,
+      public AbstractParametrizable
+    {
+    public:
+      AbstractParametrizableSingleDataPhyloLikelihood(size_t nData = 0) :
+        AbstractSingleDataPhyloLikelihood(),
+        AbstractParametrizable("")
+      {}
+
+      AbstractParametrizableSingleDataPhyloLikelihood(const AbstractParametrizableSingleDataPhyloLikelihood& asd) :
+        AbstractSingleDataPhyloLikelihood(asd),
+        AbstractParametrizable(asd)
+      {
+      }
+      
+      virtual ~AbstractParametrizableSingleDataPhyloLikelihood() {}
+
+      AbstractParametrizableSingleDataPhyloLikelihood* clone() const = 0;
+      
+      AbstractParametrizableSingleDataPhyloLikelihood& operator=(const AbstractParametrizableSingleDataPhyloLikelihood& asd)
+      {
+        AbstractSingleDataPhyloLikelihood::operator=(*this);
+        AbstractParametrizable::operator=(*this);
+        
+        return *this;
+      }
+
+      
     };
       
   } //end of namespace newlik.

@@ -394,14 +394,35 @@ public:
   }
 
   /**
+   * @brief AbstractParameterAliasable functions, redirected towards
+   * the process members.
+   *
+   * @{
+   **/
+  
+
+  /**
    * @brief To be called when a parameter has changed. This will call
-   * fireParameterChanged on the collections.
+   * fireParameterChanged on the collections and the process members.
    *
    * @param parameters The modified parameters.
    */
   
   void fireParameterChanged(const ParameterList& parameters);
 
+  void setNamespace(const std::string& prefix);
+
+  void aliasParameters(const std::string& p1, const std::string& p2) throw (ParameterNotFoundException, Exception);
+
+  void unaliasParameters(const std::string& p1, const std::string& p2) throw (ParameterNotFoundException, Exception);
+
+  void aliasParameters(std::map<std::string, std::string>& unparsedParams, bool verbose) throw (ParameterNotFoundException, Exception);
+  
+
+  /**
+   * @}
+   **/
+  
   /*
    * @brief Method to add a SubstitutionProcess.
    *
@@ -450,6 +471,7 @@ public:
     return *dynamic_cast<const SubstitutionProcess*>(it->second);
   }
 
+  
   /*
    * @brief Methods to retrieve parameters
    *

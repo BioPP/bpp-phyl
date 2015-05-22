@@ -38,6 +38,7 @@
  */
 
 #include "AbstractTreeLikelihoodCalculation.h"
+#include "../PatternTools.h"
 
 using namespace bpp;
 using namespace std;
@@ -45,8 +46,44 @@ using namespace newlik;
 
 /******************************************************************************/
 
-double AbstractTreeLikelihoodCalculation::getLogLikelihood() const
+void AbstractTreeLikelihoodCalculation::setData(const SiteContainer& sites)
 {
+  const TreeTemplate<Node>& tt = dynamic_cast<const TreeTemplate<Node>&>(process_->getTree());
+
+  data_.reset(PatternTools::getSequenceSubset(sites, *tt.getRootNode()));
+
+  if (verbose_)
+    ApplicationTools::displayTask("Initializing data structure");
+  getLikelihoodData()->initLikelihoods(*data_, *process_);
+
+// We assume here that all models have the same number of states, and
+// that they have the same 'init' method, which is a reasonable
+// assumption as long as they share the same alphabet.
+
+  if (verbose_)
+    ApplicationTools::displayTaskDone();
+
+  nbSites_         = getLikelihoodData()->getNumberOfSites();
+  nbDistinctSites_ = getLikelihoodData()->getNumberOfDistinctSites();
+  nbStates_        = getLikelihoodData()->getNumberOfStates();
+
+  if (verbose_)
+    ApplicationTools::displayResult("Number of distinct sites", TextTools::toString(nbDistinctSites_));
+
+  initialized_ = true;
+  resetToCompute();
+}
+
+
+/******************************************************************************/
+
+double AbstractTreeLikelihoodCalculation::getLogLikelihood()
+{
+  if (computeLikelihoods_){
+    computeTreeLikelihood();
+    computeLikelihoods_=false;
+  }
+  
   vector<double> la(nbSites_);
   for (size_t i = 0; i < nbSites_; ++i)
   {
@@ -62,10 +99,46 @@ double AbstractTreeLikelihoodCalculation::getLogLikelihood() const
   return ll;
 }
 
+// /******************************************************************************/
+
+// void DoubleRecursiveTreeLikelihoodCalculation::setData(const SiteContainer& sites) throw (Exception)
+// {
+//   const TreeTemplate<Node>& tt = dynamic_cast<const TreeTemplate<Node>&>(process_->getTree());
+
+//   data_.reset(PatternTools::getSequenceSubset(sites, *tt.getRootNode()));
+//   if (verbose_)
+//     ApplicationTools::displayTask("Initializing data structure");
+//   likelihoodData_->initLikelihoods(*data_, *process_);
+// // We assume here that all models have the same number of states, and
+// // that they have the same 'init' method, which is a reasonable
+// // assumption as long as they share the same alphabet.
+
+//   if (verbose_)
+//     ApplicationTools::displayTaskDone();
+
+//   nbSites_         = likelihoodData_->getNumberOfSites();
+//   nbDistinctSites_ = likelihoodData_->getNumberOfDistinctSites();
+//   nbStates_        = likelihoodData_->getNumberOfStates();
+
+//   if (verbose_)
+//     ApplicationTools::displayResult("Number of distinct sites", TextTools::toString(nbDistinctSites_));
+
+//   initialized_ = true;
+//   compNId_ = -1;
+  
+//   //Recompute likelihood:
+//   computeTreeLikelihood();
+// }
+
 /******************************************************************************/
 
-double AbstractTreeLikelihoodCalculation::getDLogLikelihood() const
+double AbstractTreeLikelihoodCalculation::getDLogLikelihood()
 {
+  if (computeLikelihoodsD1_){
+    throw Exception("getDLogLikelihood() : DLogLikelihood not computed");
+    computeLikelihoodsD1_=false;
+  }
+
   // Derivative of the sum is the sum of derivatives:
   vector<double> dla(nbSites_);
   for (size_t i = 0; i < nbSites_; ++i)
@@ -85,8 +158,13 @@ double AbstractTreeLikelihoodCalculation::getDLogLikelihood() const
 
 /******************************************************************************/
 
-double AbstractTreeLikelihoodCalculation::getD2LogLikelihood() const
+double AbstractTreeLikelihoodCalculation::getD2LogLikelihood() 
 {
+  if (computeLikelihoodsD2_){
+    throw Exception("getD2LogLikelihood() : D2LogLikelihood not computed");
+    computeLikelihoodsD2_=false;
+  }
+  
   // Derivative of the sum is the sum of derivatives:
   double dl = 0;
   for (size_t i = 0; i < nbSites_; ++i)

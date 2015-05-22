@@ -58,6 +58,7 @@ namespace bpp
     protected:
       const SubstitutionProcess* process_;
       std::auto_ptr<const SiteContainer> data_;
+
       size_t nbSites_;
       size_t nbDistinctSites_;
       size_t nbStates_;
@@ -65,8 +66,14 @@ namespace bpp
       bool initialized_;
       bool verbose_;
 
+      // say if the Likelihoods should be recomputed
+      
+      bool computeLikelihoods_;
+      bool computeLikelihoodsD1_;
+      bool computeLikelihoodsD2_;
+      
     public:
-      AbstractTreeLikelihoodCalculation(SubstitutionProcess* process, bool verbose = true):
+      AbstractTreeLikelihoodCalculation(const SubstitutionProcess* process, bool verbose = true):
         process_(process),
         data_(0),
         nbSites_(0),
@@ -74,7 +81,10 @@ namespace bpp
         nbStates_(process->getNumberOfStates()),
         nbClasses_(process->getNumberOfClasses()),
         initialized_(false),
-        verbose_(verbose)
+        verbose_(verbose),
+        computeLikelihoods_(true),
+        computeLikelihoodsD1_(true),
+        computeLikelihoodsD2_(true)
       {
       }
   
@@ -86,7 +96,10 @@ namespace bpp
         nbStates_(tlc.nbStates_),
         nbClasses_(tlc.nbClasses_),
         initialized_(tlc.initialized_),
-        verbose_(tlc.verbose_)
+        verbose_(tlc.verbose_),
+        computeLikelihoods_(tlc.computeLikelihoods_),
+        computeLikelihoodsD1_(tlc.computeLikelihoodsD1_),
+        computeLikelihoodsD2_(tlc.computeLikelihoodsD2_)
       {
         if (tlc.data_.get()) data_.reset(tlc.data_->clone());
       }
@@ -102,6 +115,10 @@ namespace bpp
         nbClasses_                     = tlc.nbClasses_;
         initialized_                   = tlc.initialized_;
         verbose_                       = tlc.verbose_;
+        computeLikelihoods_            = tlc.computeLikelihoods_;
+        computeLikelihoodsD1_          = tlc.computeLikelihoodsD1_;
+        computeLikelihoodsD2_          = tlc.computeLikelihoodsD2_;
+        
         return *this;
       }
 
@@ -110,26 +127,54 @@ namespace bpp
     public:
 
       bool isInitialized() const { return initialized_; }
+
+      const Alphabet* getAlphabet() const throw (TreeLikelihoodCalculationNotInitializedException)
+      {
+        if (!initialized_)
+          throw new TreeLikelihoodCalculationNotInitializedException("DoubleRecursiveTreeLikelihoodCalculation::getAlphabet().");
+        return data_->getAlphabet();
+      }
+
+      size_t getSiteIndex(size_t site) const throw (TreeLikelihoodCalculationNotInitializedException, IndexOutOfBoundsException) {
+        if (!initialized_)
+          throw new TreeLikelihoodCalculationNotInitializedException("SingleRecursiveTreeLikelihoodCalculation::getSiteIndex().");
+        return getLikelihoodData()->getRootArrayPosition(site);
+      }
+
+      void setData(const SiteContainer& sites);
+
+      const SiteContainer* getData() const
+      {
+        if (!initialized_)
+          throw new TreeLikelihoodCalculationNotInitializedException("SingleRecursiveTreeLikelihoodCalculation::getData().");
+        return data_.get();
+      }
   
+      void resetToCompute() {
+        computeLikelihoods_=true;
+        computeLikelihoodsD1_=true;
+        computeLikelihoodsD2_=true;
+      }
+      
       const SubstitutionProcess* getSubstitutionProcess() const { return process_;}
 
-      double getLogLikelihood() const;
+      double getLogLikelihood();
 
-      double getDLogLikelihood() const;
+      double getDLogLikelihood();
 
-      virtual double getDLikelihoodForASite(size_t site) const = 0;
+      virtual double getDLikelihoodForASite(size_t site) = 0;
   
-      double getDLogLikelihoodForASite(size_t site) const
+      double getDLogLikelihoodForASite(size_t site)
       {
         // d(f(g(x)))/dx = dg(x)/dx . df(g(x))/dg :
         return getDLikelihoodForASite(site) / getLikelihoodForASite(site);
       }
 
-      double getD2LogLikelihood() const;
+      double getD2LogLikelihood();
 
-      virtual double getD2LikelihoodForASite(size_t site) const = 0;
+      virtual double getD2LikelihoodForASite(size_t site) = 0;
 
-      double getD2LogLikelihoodForASite(size_t site) const
+      double getD2LogLikelihoodForASite(size_t site)
       {
         return getD2LikelihoodForASite(site) / getLikelihoodForASite(site)
           - pow( getDLikelihoodForASite(site) / getLikelihoodForASite(site), 2);

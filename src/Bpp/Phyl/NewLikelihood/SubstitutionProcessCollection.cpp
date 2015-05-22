@@ -223,6 +223,45 @@ void SubstitutionProcessCollection::fireParameterChanged(const ParameterList& pa
 }
 
 
+void SubstitutionProcessCollection::setNamespace(const string& prefix)
+{
+  AbstractParameterAliasable::setNamespace(prefix);
+  for (std::map<size_t, SubstitutionProcessCollectionMember*>::iterator it=mSubProcess_.begin(); it != mSubProcess_.end(); it++)
+    it->second->setNamespace(prefix);
+}
+
+void SubstitutionProcessCollection::aliasParameters(const std::string& p1, const std::string& p2) throw (ParameterNotFoundException, Exception) 
+{
+  AbstractParameterAliasable::aliasParameters(p1, p2);
+  for (std::map<size_t, SubstitutionProcessCollectionMember*>::iterator it=mSubProcess_.begin(); it != mSubProcess_.end(); it++)
+    if (it->second->hasParameter(p2))
+    {
+      string p=p2;
+      it->second->deleteParameter_(p);
+    }
+}
+
+void SubstitutionProcessCollection::unaliasParameters(const std::string& p1, const std::string& p2) throw (ParameterNotFoundException, Exception) 
+{
+  AbstractParameterAliasable::unaliasParameters(p1, p2);
+  for (std::map<size_t, SubstitutionProcessCollectionMember*>::iterator it=mSubProcess_.begin(); it != mSubProcess_.end(); it++)
+    it->second->updateParameters();
+}
+
+void SubstitutionProcessCollection::aliasParameters(std::map<std::string, std::string>& unparsedParams, bool verbose) throw (ParameterNotFoundException, Exception) 
+{
+  AbstractParameterAliasable::aliasParameters(unparsedParams, verbose);
+  for (std::map<std::string, std::string>::iterator itp=unparsedParams.begin(); itp!=unparsedParams.end(); itp++)
+  {
+    string p2=itp->second;
+    
+    for (std::map<size_t, SubstitutionProcessCollectionMember*>::iterator it=mSubProcess_.begin(); it != mSubProcess_.end(); it++)
+      if (it->second->hasParameter(p2))
+        it->second->deleteParameter_(p2);
+  }
+}
+
+
 void SubstitutionProcessCollection::addSubstitutionProcess(size_t nProc, std::map<size_t, std::vector<int> > mModBr, size_t nTree, size_t nRate, size_t nFreq)
 {
   if (mSubProcess_.find(nProc)!=mSubProcess_.end())

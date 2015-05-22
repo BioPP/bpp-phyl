@@ -1,7 +1,7 @@
 //
-// File: SingleProcessPhyloLikelihood.h
-// Created by: Julien Dutheil
-// Created on: Fri Oct 17 17:36:44 2003
+// File: OneProcessSequencePhyloLikelihood.h
+// Created by: Laurent Guéguen
+// Created on: mardi 28 avril 2015, à 12h 17
 //
 
 /*
@@ -37,12 +37,11 @@
   knowledge of the CeCILL license and that you accept its terms.
 */
 
-#ifndef _SINGLEPROCESSPHYLOLIKELIHOOD_H_
-#define _SINGLEPROCESSPHYLOLIKELIHOOD_H_
+#ifndef _ONE_PROCESS_SEQUENCE_PHYLOLIKELIHOOD_H_
+#define _ONE_PROCESS_SEQUENCE_PHYLOLIKELIHOOD_H_
 
 #include "../Tree/Node.h"
 #include "../Tree/Tree.h"
-#include "../Model/SubstitutionModel.h"
 #include "TreeLikelihoodData.h"
 #include "ModelIterator.h"
 #include "SitePartition.h"
@@ -54,74 +53,80 @@
 
 // From bpp-seq:
 #include <Bpp/Seq/Alphabet/Alphabet.h>
+#include <Bpp/Seq/Container/SiteContainer.h>
 
-#include "SingleDataPhyloLikelihood.h"
-#include "TreeLikelihoodCalculation.h"
+#include "SequencePhyloLikelihood.h"
+#include "SubstitutionProcess.h"
+#include "OneProcessSequenceEvolution.h"
 #include "SingleRecursiveTreeLikelihoodCalculation.h"
-#include "PhyloLikelihood.h"
 
 namespace bpp
 {
   namespace newlik
   {
 /**
- * @brief The SingleProcessPhyloLikelihood class: phylogenetic likelihood computation with a single process.
+ * @brief The OneProcessSequencePhyloLikelihood class: phylogenetic likelihood computation with a single process.
  *
  * This class implements likelihood calculation with a single process/tree.
  * It uses a unique TreeLikelihoodCalculation instance, and implements the
  * Function interface, dealing with parameters from the associated SubstitutionProcess.
  */
 
-    class SingleProcessPhyloLikelihood :
-      public AbstractPhyloLikelihood,
-      public AbstractSingleDataPhyloLikelihood,
-      public AbstractParametrizable
-    { 
+    class OneProcessSequencePhyloLikelihood :
+      public AbstractSequencePhyloLikelihood
+    {
+    private:
+      /**
+       * @brief to avoid the dynamic casts
+       *
+       */
+
+      OneProcessSequenceEvolution& mSeqEvol_;
+
     protected:
       mutable std::auto_ptr<TreeLikelihoodCalculation> tlComp_;
-      SubstitutionProcess* process_;
-
-      /**
-       * @brief the Substitution Process number
-       *
-       **/
-
-      size_t nProc_;
 
     public:
-      SingleProcessPhyloLikelihood(SubstitutionProcess* process, TreeLikelihoodCalculation* tlComp, size_t nProc = 0, size_t nData = 0);
+      OneProcessSequencePhyloLikelihood(
+        OneProcessSequenceEvolution& evol,
+        char recursivity,
+        size_t nSeqEvol = 0,
+        bool verbose = true,
+        bool patterns = true);
 
-      SingleProcessPhyloLikelihood(const SingleProcessPhyloLikelihood& lik) :
-        AbstractPhyloLikelihood(lik),
-        AbstractSingleDataPhyloLikelihood(lik),
-        AbstractParametrizable(lik),
-        tlComp_(0),
-        process_(lik.process_),
-        nProc_(lik.nProc_)
+      OneProcessSequencePhyloLikelihood(
+        const SiteContainer& data,
+        OneProcessSequenceEvolution& evol,
+        char recursivity,
+        size_t nSeqEvol = 0,
+        size_t nData = 0,
+        bool verbose = true,
+        bool patterns = true);
+
+      OneProcessSequencePhyloLikelihood(const OneProcessSequencePhyloLikelihood& lik) :
+        AbstractSequencePhyloLikelihood(lik),
+        mSeqEvol_(lik.mSeqEvol_),
+        tlComp_(0)
       {
         if (lik.tlComp_.get()) tlComp_.reset(lik.tlComp_->clone());
       }
 
-      SingleProcessPhyloLikelihood& operator=(const SingleProcessPhyloLikelihood& lik)
+      OneProcessSequencePhyloLikelihood& operator=(const OneProcessSequencePhyloLikelihood& lik)
       {
-        AbstractPhyloLikelihood::operator=(*this);
+        AbstractSequencePhyloLikelihood::operator=(lik);
+        mSeqEvol_=lik.mSeqEvol_;
         
-        AbstractSingleDataPhyloLikelihood::operator=(lik);
+        if (lik.tlComp_.get())
+          tlComp_.reset(lik.tlComp_->clone());
+        else
+          tlComp_.reset();
 
-        AbstractParametrizable::operator=(lik);
-
-        if (lik.tlComp_.get()) tlComp_.reset(lik.tlComp_->clone());
-        else tlComp_.reset();
-
-        process_=lik.process_;
-        nProc_=lik.nProc_;
-    
         return *this;
       }
 
-      virtual ~SingleProcessPhyloLikelihood() {}
+      virtual ~OneProcessSequencePhyloLikelihood() {}
 
-      SingleProcessPhyloLikelihood* clone() const { return new SingleProcessPhyloLikelihood(*this); }
+      OneProcessSequencePhyloLikelihood* clone() const { return new OneProcessSequencePhyloLikelihood(*this); }
 
     public:
 
@@ -130,13 +135,11 @@ namespace bpp
        *
        * @{
        */
-      void setData(const SiteContainer& sites, size_t nData = 0)
+      void setData(const SiteContainer& sites, size_t nData = 0) throw (Exception)
       {
-        AbstractSingleDataPhyloLikelihood::setData(sites, nData);
-
-        update();
-                
-        tlComp_->setData(sites); //This automatically calls computeTreeLikelihood().
+        AbstractSequencePhyloLikelihood::setData(sites, nData);
+        tlComp_->setData(sites); //This automatically resetToCompute
+                                 //the calculation
       }
 
       /**
@@ -150,6 +153,14 @@ namespace bpp
 
       const Alphabet* getAlphabet() const {
         return tlComp_->getAlphabet();
+      }
+
+      char getRecursivity() const 
+      {
+        if (dynamic_cast<const SingleRecursiveTreeLikelihoodCalculation*>(tlComp_.get()))
+          return 'S';
+        else
+          return 'D';
       }
 
       /** @} */
@@ -172,43 +183,17 @@ namespace bpp
        *
        * @return The Number of model classes.
        */
-      size_t getNumberOfClasses() const { return process_->getNumberOfClasses(); }
+      
+      size_t getNumberOfClasses() const { return mSeqEvol_.getSubstitutionProcess().getNumberOfClasses(); }
 
       /**
        * @brief Get the tree (topology and branch lengths).
        *
-       * @return The tree of this SingleProcessPhyloLikelihood object.
+       * @return The tree of this OneProcessSequencePhyloLikelihood object.
        */
-      const Tree& getTree() const { return process_->getTree(); }
+      const Tree& getTree() const { return mSeqEvol_.getSubstitutionProcess().getTree(); }
 
-      const SubstitutionProcess& getSubstitutionProcess() const { return *process_; }
-
-      size_t getSubstitutionProcessNumber() const { return nProc_; }
-      
-      void setParameters(const ParameterList& parameters) throw (ParameterNotFoundException, ConstraintException)
-      {
-        setParametersValues(parameters);
-      }
-      
-      ParameterList getBranchLengthParameters() const
-      {
-        return process_->getBranchLengthParameters(true);
-      }
-
-      ParameterList getRootFrequenciesParameters() const
-      {
-        return process_->getRootFrequenciesParameters(true);
-      }
-
-      ParameterList getRateDistributionParameters() const
-      {
-        return process_->getRateDistributionParameters(true);
-      }
-
-      ParameterList getSubstitutionModelParameters() const
-      {
-        return process_->getSubstitutionModelParameters(true);
-      }
+      const SubstitutionProcess& getSubstitutionProcess() const { return mSeqEvol_.getSubstitutionProcess(); }
 
       /** @} */
 
@@ -224,9 +209,10 @@ namespace bpp
        * only these parameters are updated and the other remain constant (i.e.
        * equal to their last value).
        *
+       * @param parameters The parameter list to pass to the function.
        */
-      
-       /**
+
+      /**
        * @name DerivableFirstOrder interface.
        *
        * @{
@@ -244,25 +230,9 @@ namespace bpp
       /** @} */
 
 
-      void computeTreeLikelihood() {
-        tlComp_->resetToCompute();
-      }  
-
-      bool isInitialized() const {
-        return tlComp_->isInitialized();
-      }
-
-      char getRecursivity() const 
-      {
-        if (dynamic_cast<const SingleRecursiveTreeLikelihoodCalculation*>(tlComp_.get()))
-          return 'S';
-        else
-          return 'D';
-      }
-              
     protected:
       void fireParameterChanged(const ParameterList& params);
-  
+      
       void computeDLogLikelihood_(const std::string& variable) const;
 
       void computeD2LogLikelihood_(const std::string& variable) const;
@@ -284,14 +254,6 @@ namespace bpp
        * @return The underlying likelihood data structure.
        */
       virtual const TreeLikelihoodData* getLikelihoodData() const { return tlComp_->getLikelihoodData(); }
-
-      //    ParameterList getTransitionProbabilitiesParameters() const { return process_->getTransitionProbabilitiesParameters(); }
-      // TODO: this has to be modified to deal with special cases...
-      ParameterList getDerivableParameters() const {
-        return getBranchLengthParameters();
-      }
-
-      ParameterList getNonDerivableParameters() const;
 
       double getLogLikelihood() const {
         return tlComp_->getLogLikelihood();
@@ -365,6 +327,7 @@ namespace bpp
        *
        * @return A vector with all model classes indexes.
        */
+
       std::vector<size_t> getClassWithMaxPostProbOfEachSite() const;
       
       Vdouble getPosteriorRateOfEachSite() const;
@@ -375,5 +338,5 @@ namespace bpp
   } // end of namespace newlik.
 } // end of namespace bpp.
 
-#endif  // _SINGLEPROCESSPHYLOLIKELIHOOD_H_
+#endif  // _ONE_PROCESS_SEQUENCE_PHYLOLIKELIHOOD_H_
 

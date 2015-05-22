@@ -59,6 +59,7 @@ SubstitutionProcessCollectionMember::SubstitutionProcessCollectionMember( Substi
   nRoot_(0),
   computingTree_(new ComputingTree(pSubProColl_, nTree_, nDist_))
 {
+  updateParameters();
 }
 
 
@@ -158,6 +159,15 @@ ParameterList SubstitutionProcessCollectionMember::getRootFrequenciesParameters(
     return ParameterList();
 }
 
+void SubstitutionProcessCollectionMember::updateParameters()
+{
+  resetParameters_();
+  addParameters_(getSubstitutionModelParameters(true)); 
+  addParameters_(getRootFrequenciesParameters(true));
+  addParameters_(getRateDistributionParameters(true));
+  addParameters_(getBranchLengthParameters(true));
+}
+
 ParameterList SubstitutionProcessCollectionMember::getDerivableParameters() const
 {
   return pSubProColl_->getBranchLengthParameters(nTree_, true);
@@ -246,7 +256,7 @@ void SubstitutionProcessCollectionMember::addModel(size_t numModel, const std::v
 
   computingTree_->addModel(&nmod, nodesId);
 
-  includeParameters_(pSubProColl_->getSubstitutionModelParameters(numModel, false));
+  updateParameters();
 }
 
 
@@ -257,14 +267,15 @@ void SubstitutionProcessCollectionMember::setRootFrequencies(size_t numFreq)
     const SubstitutionModel& modi=pSubProColl_->getModel(modelToNodes_.begin()->first);
 
     if (freq.getAlphabet()->getAlphabetType() != modi.getAlphabet()->getAlphabetType())
-      throw Exception("SubstitutionProcessCollectionMember::addRootFrequencies. A Frequencies Set cannot be added to a Model Set if it does not have the same alphabet as the models.");
+      throw Exception("SubstitutionProcessCollectionMember::setRootFrequencies. A Frequencies Set cannot be added to a Model Set if it does not have the same alphabet as the models.");
     if (freq.getFrequencies().size() != modi.getNumberOfStates())
-      throw Exception("SubstitutionProcessCollectionMember::addRootFrequencies. A Frequencies Set cannot be added to a Model Set if it does not have the same number of states as the models.");
+      throw Exception("SubstitutionProcessCollectionMember::setRootFrequencies. A Frequencies Set cannot be added to a Model Set if it does not have the same number of states as the models.");
   }
   
   stationarity_=false;
   nRoot_=numFreq;
-  includeParameters_(pSubProColl_->getRootFrequenciesParameters(nRoot_, false));
+
+  updateParameters();
 }
 
 bool SubstitutionProcessCollectionMember::checkOrphanNodes(bool throwEx) const

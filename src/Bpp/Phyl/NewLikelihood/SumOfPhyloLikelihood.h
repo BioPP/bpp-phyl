@@ -1,7 +1,7 @@
 //
-// File: SumOfDataPhyloLikelihood.h
+// File: SumOfPhyloLikelihood.h
 // Created by: Laurent Guéguen
-// Created on: jeudi 11 juillet 2013, à 14h 05
+// Created on: jeudi 14 mai 2015, à 15h 42
 //
 
 /*
@@ -37,14 +37,12 @@
   knowledge of the CeCILL license and that you accept its terms.
 */
 
-#ifndef _SUMOFDATAPHYLOLIKELIHOOD_H_
-#define _SUMOFDATAPHYLOLIKELIHOOD_H_
+#ifndef _SUMOFPHYLOLIKELIHOOD_H_
+#define _SUMOFPHYLOLIKELIHOOD_H_
 
-// From bpp-seq:
-#include <Bpp/Seq/Alphabet/Alphabet.h>
-#include <Bpp/Seq/Container/SiteContainer.h>
 
-#include "MultiDataPhyloLikelihood.h"
+#include "PhyloLikelihood.h"
+#include "MultiPhyloLikelihood.h"
 
 namespace bpp
 {
@@ -52,107 +50,67 @@ namespace bpp
   {
 
     /**
-     * @brief The SumOfDataPhyloLikelihood class, for phylogenetic
+     * @brief The SumOfPhyloLikelihood class, for phylogenetic
      * likelihood on several independent data.
      *
      */
     
-    class SumOfDataPhyloLikelihood:
-      public virtual MultiDataPhyloLikelihood,
+    class SumOfPhyloLikelihood:
+      public virtual MultiPhyloLikelihood,
       public AbstractPhyloLikelihood,
-      public AbstractParametrizable    
+      public AbstractParametrizable
     {
     protected:
-      std::map<size_t, AbstractSingleDataPhyloLikelihood*>  mSDP_;
+      std::map<size_t, AbstractPhyloLikelihood*>  mSDP_;
       
     public:
-      SumOfDataPhyloLikelihood();
+      SumOfPhyloLikelihood();
+
 
       /*
-       * @brief Build from a map of AbstractSequencePhyloLikelihood.
+       * @brief Build from a map of AbstractPhyloLikelihood.
        *
-       * BEWARE : Will own the AbstractSequencePhyloLikelihood objects.
+       * BEWARE : Will own the AbstractPhyloLikelihood objects.
        *
        */
       
-      SumOfDataPhyloLikelihood(std::map<size_t, SingleDataPhyloLikelihood*>& mSDP);
+      SumOfPhyloLikelihood(std::map<size_t, PhyloLikelihood*>& mSDP);
 
-      ~SumOfDataPhyloLikelihood();
+      ~SumOfPhyloLikelihood();
 
-      SumOfDataPhyloLikelihood* clone() const
+      SumOfPhyloLikelihood* clone() const
       {
-        return new SumOfDataPhyloLikelihood(*this);
+        return new SumOfPhyloLikelihood(*this);
       }
 
-      SumOfDataPhyloLikelihood(const SumOfDataPhyloLikelihood& sd);
+      SumOfPhyloLikelihood(const SumOfPhyloLikelihood& sd);
         
-      SumOfDataPhyloLikelihood& operator=(const SumOfDataPhyloLikelihood& sd);
+      SumOfPhyloLikelihood& operator=(const SumOfPhyloLikelihood& sd);
 
     public:
 
-      /**
-       *
-       * @name The data functions
-        *
-       * @{
-       */
+      std::vector<size_t> getNumbersOfPhyloLikelihoods() const;
       
       /**
-       * @brief Set the dataset for which the likelihood must be evaluated.
        *
-       * @param nPhyl The number of the Likelihood.
-       * @param sites The data set to use.
-       */
-
-      void setData(const SiteContainer& sites, size_t nPhyl)
-      {
-        if (mSDP_.find(nPhyl)!=mSDP_.end())
-          mSDP_[nPhyl]->setData(sites);
-
-        update();
-      }
-      
-    
-      /**
-       * @brief Get the dataset for which the likelihood must be evaluated.
-       *
-       * @return A pointer toward the site container where the sequences are stored.
-       */
-
-      const SiteContainer* getData(size_t nPhyl) const
-      {
-        if (mSDP_.find(nPhyl)!=mSDP_.end())
-          return mSDP_.find(nPhyl)->second->getData();
-        else
-          return 0;
-      }
-      
-      std::vector<size_t> getNumbersOfSingleDataPhyloLikelihoods() const;
-      
-      /**
-       * @}
-       */
-
-      /**
-       *
-       * @name The single data Phylolikelihood storage.
+       * @name The Phylolikelihood storage.
        *
        * @{
        */
 
       /*
-       * @brief Adds a SingleDataPhyloLikelihood if it is an
-       * AbstractSingleDataPhyloLikelihood.
+       * @brief Adds a SequencePhyloLikelihood if it is an
+       * AbstractSequencePhyloLikelihood object.
        *
-       * Gets ownership of the SingleDataPhyloLikelihood object.
+       * Gets ownership of the SequencePhyloLikelihood object.
        *
        * @param nPhyl the number of the phylolikelihood object.
        * @param SDP a pointer to the phylolikelihood object.
        */
       
-      void addSingleDataPhylolikelihood(size_t nPhyl, SingleDataPhyloLikelihood* SDP);
+      void addPhylolikelihood(size_t nPhyl, PhyloLikelihood* SDP);
 
-      const SingleDataPhyloLikelihood* getSingleDataPhylolikelihood(size_t nPhyl) const
+      const AbstractPhyloLikelihood* getPhylolikelihood(size_t nPhyl) const
       {
         if (mSDP_.find(nPhyl)!=mSDP_.end())
           return mSDP_.find(nPhyl)->second;
@@ -160,7 +118,7 @@ namespace bpp
           return 0;
       }
       
-      SingleDataPhyloLikelihood* getSingleDataPhylolikelihood(size_t nPhyl)
+      AbstractPhyloLikelihood* getPhylolikelihood(size_t nPhyl)
       {
         if (mSDP_.find(nPhyl)!=mSDP_.end())
           return mSDP_.find(nPhyl)->second;
@@ -184,20 +142,21 @@ namespace bpp
       /**
        * @return 'true' is the likelihood function has been initialized.
        */
-
+      
       void initialize()
       {
         AbstractPhyloLikelihood::initialize();
         
-        std::map<size_t, AbstractSingleDataPhyloLikelihood*>::iterator it;
+        std::map<size_t, AbstractPhyloLikelihood*>::iterator it;
         
         for (it=mSDP_.begin(); it != mSDP_.end(); it++)
           it->second->initialize();
       }
         
+
       bool isInitialized() const 
       {
-        std::map<size_t, AbstractSingleDataPhyloLikelihood*>::const_iterator it;
+        std::map<size_t, AbstractPhyloLikelihood*>::const_iterator it;
         
         for (it=mSDP_.begin(); it != mSDP_.end(); it++)
           if (! it->second->isInitialized())
@@ -210,7 +169,6 @@ namespace bpp
       void enableFirstOrderDerivatives(bool yn);
       
       void enableSecondOrderDerivatives(bool yn);
-
 
       /**
        * @name The likelihood functions.
@@ -226,7 +184,7 @@ namespace bpp
       double getLogLikelihood() const
       {
         double x=0;
-        for (std::map<size_t, AbstractSingleDataPhyloLikelihood*>::const_iterator it=mSDP_.begin(); it != mSDP_.end(); it++)
+        for (std::map<size_t, AbstractPhyloLikelihood*>::const_iterator it=mSDP_.begin(); it != mSDP_.end(); it++)
           x += it->second->getLogLikelihood();
         
         return x;
@@ -240,7 +198,7 @@ namespace bpp
       double getDLogLikelihood() const
       {
         double x=0;
-        for (std::map<size_t, AbstractSingleDataPhyloLikelihood*>::const_iterator it=mSDP_.begin(); it != mSDP_.end(); it++)
+        for (std::map<size_t, AbstractPhyloLikelihood*>::const_iterator it=mSDP_.begin(); it != mSDP_.end(); it++)
           x += it->second->getDLogLikelihood();
         return x;
       }
@@ -249,7 +207,7 @@ namespace bpp
       double getD2LogLikelihood() const
       {
         double x=0;
-        for (std::map<size_t, AbstractSingleDataPhyloLikelihood*>::const_iterator it=mSDP_.begin(); it != mSDP_.end(); it++)
+        for (std::map<size_t, AbstractPhyloLikelihood*>::const_iterator it=mSDP_.begin(); it != mSDP_.end(); it++)
           x += it->second->getD2LogLikelihood();
         return x;
       }
@@ -291,14 +249,15 @@ namespace bpp
       double getSecondOrderDerivative(const std::string& variable) const throw (Exception);
 
       double getSecondOrderDerivative(const std::string& variable1, const std::string& variable2) const throw (Exception) { return 0; } // Not implemented for now.
+      /** @} */
 
     protected:
       
       void fireParameterChanged(const ParameterList& params)
       {
-        for (std::map<size_t, AbstractSingleDataPhyloLikelihood*>::iterator it=mSDP_.begin(); it != mSDP_.end(); it++)
+        for (std::map<size_t, AbstractPhyloLikelihood*>::iterator it=mSDP_.begin(); it != mSDP_.end(); it++)
           it->second->matchParametersValues(params);
-        
+
         update();
       }
       
@@ -362,11 +321,11 @@ namespace bpp
 
       /** @} */
 
-
+      
     };
 
   }; //end of namespace newlik.
 } //end of namespace bpp.
 
-#endif  //_MULTIDATAPHYLOLIKELIHOOD_H_
+#endif  //_SUMOFPHYLOLIKELIHOOD_H_
 

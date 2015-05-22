@@ -58,7 +58,7 @@ HmmPhyloEmissionProbabilities::HmmPhyloEmissionProbabilities(const HmmProcessAlp
   for (size_t i=0;i<emProb_.size();i++)
     emProb_[i].resize(multiPL_->getNumberOfSubstitutionProcess());
 
-  addParameters_(multiPL_->getSubstitutionProcessParameters());
+  addParameters_(multiPL_->getSequenceEvolution().getSubstitutionProcessParameters(true));
 }
 
 
