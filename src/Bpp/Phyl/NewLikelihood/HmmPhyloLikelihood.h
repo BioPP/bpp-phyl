@@ -56,8 +56,6 @@
 
 namespace bpp
 {
-  namespace newlik
-  {
 /**
  * @brief Likelihood framework based on a hmm of simple likelihoods
  *
@@ -190,7 +188,6 @@ namespace bpp
 
 
     };
-  } // end of namespace newlik.
 } // end of namespace bpp.
 
 #endif  // _HMMPHYLOLIKELIHOOD_H_

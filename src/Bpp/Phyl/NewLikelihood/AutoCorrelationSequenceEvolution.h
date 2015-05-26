@@ -51,8 +51,6 @@
 
 namespace bpp
 {
-  namespace newlik
-  {
 /**
  * @brief Sequence evolution framework based on an auto-correlation of
  * substitution processes.
@@ -118,7 +116,6 @@ namespace bpp
 
 
     };
-  } // end of namespace newlik.
 } // end of namespace bpp.
 
 #endif  // _AUTOCORRELATION_SEQUENCE_EVOLUTION_H_

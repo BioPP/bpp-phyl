@@ -51,8 +51,6 @@
 
 namespace bpp
 {
-  namespace newlik
-  {
 /**
  * @brief Sequence evolution framework based on a hmm
  *
@@ -117,7 +115,6 @@ namespace bpp
       }
 
     };
-  } // end of namespace newlik.
 } // end of namespace bpp.
 
 #endif  // _HMMPHYLOLIKELIHOOD_H_

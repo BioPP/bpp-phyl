@@ -64,7 +64,7 @@ namespace bpp
     public virtual AncestralStateReconstruction
   {
   private:
-      newlik::DoubleRecursiveTreeLikelihoodCalculation* likelihood_;
+      DoubleRecursiveTreeLikelihoodCalculation* likelihood_;
       TreeTemplate<Node> tree_;
       const Alphabet* alphabet_;
       size_t nbSites_;
@@ -75,7 +75,7 @@ namespace bpp
       std::vector<double> l_;
 		
     public:
-      MarginalAncestralReconstruction(newlik::DoubleRecursiveTreeLikelihoodCalculation* drl) :
+      MarginalAncestralReconstruction(DoubleRecursiveTreeLikelihoodCalculation* drl) :
         likelihood_      (drl),
         tree_            (drl->getSubstitutionProcess()->getTree()),
         alphabet_        (drl->getAlphabet()),
@@ -134,9 +134,14 @@ namespace bpp
        * Consider using the getAncestralSequenceForNode() method for a more
        * general output.
        *
-       * @param nodeId[in] The id of the node at which the states must be reconstructed.
-       * @param probs[out]  A vector to be filled with the probability for each state at each position (will be the same size as the returned vector for states).
-       * @param sample Tell if the sequence should be sample from the posterior distribution instead of taking the one with maximum probability.
+       * @param nodeId The id of the node at which the states must be
+       * reconstructed [in].
+       * @param probs  A vector to be filled with the probability for
+       * each state at each position (will be the same size as the
+       * returned vector for states) [out]. 
+       * @param sample Tell if the sequence should be sample from the
+       * posterior distribution instead of taking the one with maximum
+       * probability.
        * @return A vector of states indices.
        * @see getAncestralSequenceForNode
        */

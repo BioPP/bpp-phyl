@@ -678,7 +678,9 @@ public:
    * @param tree Input tree. the BOOTSTRAP banch property of the tree will be modified if it already exists.
    * @param vecTr A list of trees to compare to 'tree'.
    * @param verbose Tell if a progress bar should be displayed.
+   * @param format The output format of the tree.
    */
+  
   static void computeBootstrapValues(Tree& tree, const std::vector<Tree*>& vecTr, bool verbose = true, int format = 0);
 
   /**

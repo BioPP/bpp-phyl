@@ -62,8 +62,6 @@
 
 namespace bpp
 {
-  namespace newlik
-  {
 /**
  * @brief The SingleProcessPhyloLikelihood class: phylogenetic likelihood computation with a single process.
  *
@@ -278,12 +276,12 @@ namespace bpp
       /**
        * @return The underlying likelihood data structure.
        */
-      virtual TreeLikelihoodData* getLikelihoodData() { return tlComp_->getLikelihoodData(); }
+      virtual newlik::TreeLikelihoodData* getLikelihoodData() { return tlComp_->getLikelihoodData(); }
 
       /**
        * @return The underlying likelihood data structure.
        */
-      virtual const TreeLikelihoodData* getLikelihoodData() const { return tlComp_->getLikelihoodData(); }
+      virtual const newlik::TreeLikelihoodData* getLikelihoodData() const { return tlComp_->getLikelihoodData(); }
 
       //    ParameterList getTransitionProbabilitiesParameters() const { return process_->getTransitionProbabilitiesParameters(); }
       // TODO: this has to be modified to deal with special cases...
@@ -372,7 +370,6 @@ namespace bpp
       /* @} */
 
     };
-  } // end of namespace newlik.
 } // end of namespace bpp.
 
 #endif  // _SINGLEPROCESSPHYLOLIKELIHOOD_H_

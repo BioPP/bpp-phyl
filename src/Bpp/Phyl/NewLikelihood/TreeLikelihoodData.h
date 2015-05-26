@@ -155,7 +155,7 @@ namespace bpp
       virtual const std::vector<unsigned int>& getWeights() const = 0;
 
       /**
-       * @reset the given likelihoodArray boxes to 1.
+       * @brief reset the given likelihoodArray boxes to 1.
        */
 
       static void resetLikelihoodArray(VVVdouble& likelihoodArray)

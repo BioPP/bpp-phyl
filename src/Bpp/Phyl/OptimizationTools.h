@@ -352,7 +352,7 @@ public:
   throw (Exception);
 
   static unsigned int optimizeNumericalParameters(
-      newlik::PhyloLikelihood* lik,
+      PhyloLikelihood* lik,
       const ParameterList& parameters,
       OptimizationListener* listener    = 0,
       unsigned int nstep                = 1,
@@ -403,7 +403,7 @@ public:
   throw (Exception);
 
   static unsigned int optimizeNumericalParameters2(
-      newlik::PhyloLikelihood* lik,
+      PhyloLikelihood* lik,
       const ParameterList& parameters,
       OptimizationListener* listener     = 0,
       double tolerance                   = 0.000001,

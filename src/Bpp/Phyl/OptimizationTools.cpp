@@ -57,7 +57,6 @@
 #include <Bpp/Seq/Io/Fasta.h>
 
 using namespace bpp;
-using namespace bpp::newlik;
 using namespace std;
 
 /******************************************************************************/

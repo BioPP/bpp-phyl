@@ -50,8 +50,6 @@
 
 namespace bpp
 {
-  namespace newlik
-  {
 /**
  * @brief Likelihood framework based on a mixture of simple likelihoods
  *
@@ -142,7 +140,6 @@ namespace bpp
        * @}
        */
     };
-  } // end of namespace newlik.
 } // end of namespace bpp.
 
 #endif  // _MIXTURELIKELIHOODCOLLECTION_H_

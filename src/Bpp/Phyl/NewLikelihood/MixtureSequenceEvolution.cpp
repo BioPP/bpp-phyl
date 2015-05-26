@@ -39,11 +39,8 @@
 
 #include "MixtureSequenceEvolution.h"
 
-#include <Bpp/Numeric/VectorTools.h>
-
 using namespace std;
 using namespace bpp;
-using namespace newlik;
 
 /******************************************************************************/
 

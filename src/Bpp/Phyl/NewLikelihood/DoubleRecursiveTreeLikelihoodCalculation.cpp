@@ -312,7 +312,7 @@ void DoubleRecursiveTreeLikelihoodCalculation::computeSubtreeLikelihoodPrefix_(c
     VVVdouble* likelihoods_node_father = &(*likelihoods_node)[father->getId()];
     if (node->isLeaf())
     {
-      TreeLikelihoodData::resetLikelihoodArray(likelihoodData_->getLikelihoodArrays(node->getId())[father->getId()]);
+      newlik::TreeLikelihoodData::resetLikelihoodArray(likelihoodData_->getLikelihoodArrays(node->getId())[father->getId()]);
     }
 
     if (father->isLeaf())
@@ -416,7 +416,7 @@ void DoubleRecursiveTreeLikelihoodCalculation::computeRootLikelihood()
   }
   else
   {
-    TreeLikelihoodData::resetLikelihoodArray(*rootLikelihoods);
+    newlik::TreeLikelihoodData::resetLikelihoodArray(*rootLikelihoods);
   }
 
   map<int, VVVdouble>* likelihoods_root = &likelihoodData_->getLikelihoodArrays(root->getId());

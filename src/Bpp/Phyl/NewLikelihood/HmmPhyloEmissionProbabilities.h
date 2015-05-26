@@ -48,8 +48,6 @@ knowledge of the CeCILL license and that you accept its terms.
 
 namespace bpp
 {
-namespace newlik
-{
   
 /**
  * @brief Emission probabilities in the context of substitution
@@ -185,8 +183,6 @@ namespace newlik
     
   };
 
-} //end of namespace newlik.
-  
 } //end of namespace bpp.
 
 #endif //_HMMPHYLOEMISSIONPROBABILITIES_H_

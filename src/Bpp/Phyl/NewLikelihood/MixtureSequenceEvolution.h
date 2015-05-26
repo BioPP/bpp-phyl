@@ -47,8 +47,6 @@
 
 namespace bpp
 {
-  namespace newlik
-  {
 /**
  * @brief Sequence evolution framework based on a mixture of
  * substitution processes
@@ -114,7 +112,6 @@ namespace bpp
       void setSubProcessProb(const Simplex& si);
   
     };
-  } // end of namespace newlik.
 } // end of namespace bpp.
 
 #endif  // _MIXTURE_SEQUENCE_EVOLUTION_H_

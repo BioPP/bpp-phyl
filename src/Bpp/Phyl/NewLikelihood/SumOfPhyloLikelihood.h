@@ -46,8 +46,6 @@
 
 namespace bpp
 {
-  namespace newlik
-  {
 
     /**
      * @brief The SumOfPhyloLikelihood class, for phylogenetic
@@ -324,7 +322,6 @@ namespace bpp
       
     };
 
-  }; //end of namespace newlik.
 } //end of namespace bpp.
 
 #endif  //_SUMOFPHYLOLIKELIHOOD_H_

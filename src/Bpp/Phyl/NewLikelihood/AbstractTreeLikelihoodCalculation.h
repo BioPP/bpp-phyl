@@ -45,9 +45,6 @@
 
 namespace bpp
 {
-  namespace newlik
-  {
-
 /**
  * @brief Partial implementation of the TreeLikelihoodCalculation interface.
  */
@@ -241,6 +238,8 @@ namespace bpp
        *       likelihood object has no site partition, then the
        *       method will return the same result for all positions.
        *
+       * @param site the given site.
+       *
        * @param frequencies [out] A map where to store the results, as
        *       a vector of double (the size of which being equal to
        *       the number of states in the model), and with nodes id
@@ -273,7 +272,6 @@ namespace bpp
  
     };
 
-  } // end of namespace newlik.
 } // end of namespace bpp.
 
 #endif  // _ABSTRACTTREELIKELIHOODCALCULATION_H_

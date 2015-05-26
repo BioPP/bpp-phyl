@@ -42,7 +42,6 @@
 #include "ComputingNode.h"
 
 using namespace bpp;
-using namespace newlik;
 
 // From the STL:
 #include <iostream>
@@ -89,7 +88,7 @@ throw (Exception) :
 
 void SingleRecursiveTreeLikelihoodCalculation::init_(bool usePatterns) throw (Exception)
 {
-  likelihoodData_.reset(new SingleRecursiveTreeLikelihoodData(
+  likelihoodData_.reset(new newlik::SingleRecursiveTreeLikelihoodData(
                           process_->getNumberOfClasses(),
                           usePatterns));
 }
@@ -215,7 +214,7 @@ void SingleRecursiveTreeLikelihoodCalculation::computeSubtreeLikelihood_(const N
   size_t nbNodes  = node->getNumberOfSons();
 
   // Must reset the likelihood array first (i.e. set all of them to 1):
-  TreeLikelihoodData::resetLikelihoodArray(likelihoodData_->getLikelihoodArray(node->getId()));
+  newlik::TreeLikelihoodData::resetLikelihoodArray(likelihoodData_->getLikelihoodArray(node->getId()));
 
   VVVdouble* likelihoods_node = &likelihoodData_->getLikelihoodArray(node->getId());
 
@@ -479,7 +478,7 @@ void SingleRecursiveTreeLikelihoodCalculation::computeTreeDLogLikelihood(const s
 
   // Compute dLikelihoods array for the father node.
   // First initialize to 1:
-  TreeLikelihoodData::resetLikelihoodArray(likelihoodData_->getDLikelihoodArray(father->getId()));
+  newlik::TreeLikelihoodData::resetLikelihoodArray(likelihoodData_->getDLikelihoodArray(father->getId()));
 
   VVVdouble* dLikelihoods_father = &(likelihoodData_->getDLikelihoodArray(father->getId()));
   size_t nbNodes = father->getNumberOfSons();
@@ -524,7 +523,7 @@ void SingleRecursiveTreeLikelihoodCalculation::computeDownSubtreeDLikelihood_(co
 
   // Compute dLikelihoods array for the father node.
   // First initialize to 1:
-  TreeLikelihoodData::resetLikelihoodArray(likelihoodData_->getDLikelihoodArray(father->getId()));
+  newlik::TreeLikelihoodData::resetLikelihoodArray(likelihoodData_->getDLikelihoodArray(father->getId()));
 
   VVVdouble* dLikelihoods_father = &likelihoodData_->getDLikelihoodArray(father->getId());
 
@@ -860,7 +859,7 @@ void SingleRecursiveTreeLikelihoodCalculation::computeTreeD2LogLikelihood(const 
 
   // Compute dLikelihoods array for the father node.
   // First initialize to 1:
-  TreeLikelihoodData::resetLikelihoodArray(likelihoodData_->getD2LikelihoodArray(father->getId()));
+  newlik::TreeLikelihoodData::resetLikelihoodArray(likelihoodData_->getD2LikelihoodArray(father->getId()));
 
   VVVdouble* d2Likelihoods_father = &likelihoodData_->getD2LikelihoodArray(father->getId());
 
@@ -909,7 +908,7 @@ void SingleRecursiveTreeLikelihoodCalculation::computeDownSubtreeD2Likelihood_(c
 
   // Compute dLikelihoods array for the father node.
   // First initialize to 1:
-  TreeLikelihoodData::resetLikelihoodArray(likelihoodData_->getD2LikelihoodArray(father->getId()));
+  newlik::TreeLikelihoodData::resetLikelihoodArray(likelihoodData_->getD2LikelihoodArray(father->getId()));
 
   VVVdouble* d2Likelihoods_father = &likelihoodData_->getD2LikelihoodArray(father->getId());
 

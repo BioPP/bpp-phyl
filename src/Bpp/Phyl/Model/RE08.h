@@ -216,12 +216,15 @@ namespace bpp
      * 
      * The alphabet and number of states for the extended model will be derived from the simple one.
      *
-     * @param nuclotideModel The simple model to use to build the extended one.
+     * @param nucleotideModel The simple model to use to build the extended one.
      * THE RE08 class will own the simple one, meaning that it will be destroyed together with the RE08 instance, and cloned when cloning the RE08 instance.
-     * To prevent the original simple model to be destroyed, you should make a copy of it before creating the RE08 instance.
+     * To prevent the original simple model to be destroyed, you
+     * should make a copy of it before creating the RE08 instance.
+     *
      * @param lambda Insertion rate.
      * @param mu     Deletion rate.
      */
+
     RE08Nucleotide(NucleotideReversibleSubstitutionModel* nucleotideModel, double lambda = 0.1, double mu = 0.1):
       AbstractParameterAliasable("RE08."),
       RE08(nucleotideModel, lambda, mu) {};

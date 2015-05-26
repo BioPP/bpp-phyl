@@ -49,8 +49,6 @@
 
 namespace bpp
 {
-  namespace newlik
-  {
 /**
  * @brief This class implements the single recursion likelihood computation for a tree.
  *
@@ -85,7 +83,7 @@ namespace bpp
       public AbstractTreeLikelihoodCalculation
     {
     private:
-      mutable std::auto_ptr<SingleRecursiveTreeLikelihoodData> likelihoodData_;
+      mutable std::auto_ptr<newlik::SingleRecursiveTreeLikelihoodData> likelihoodData_;
       int root1_, root2_; // Needed only in case of reparametrization of branch length at root node.
       // TODO: have to be initialized properly! We do not care of that for now. jdutheil on 11/12/12.
 
@@ -149,9 +147,9 @@ namespace bpp
 
     public:
 
-      SingleRecursiveTreeLikelihoodData* getLikelihoodData() { return likelihoodData_.get(); }
+      newlik::SingleRecursiveTreeLikelihoodData* getLikelihoodData() { return likelihoodData_.get(); }
 
-      const SingleRecursiveTreeLikelihoodData* getLikelihoodData() const { return likelihoodData_.get(); }
+      const newlik::SingleRecursiveTreeLikelihoodData* getLikelihoodData() const { return likelihoodData_.get(); }
 
       double getLikelihoodForASite(size_t site);
 
@@ -189,7 +187,6 @@ namespace bpp
        */
       void displayLikelihood(const Node* node);
     };
-  } // end of namespace newlik.
 } // end of namespace bpp.
 
 #endif  // _SINGLERECURSIVETREELIKELIHOODCALCULATION_H_

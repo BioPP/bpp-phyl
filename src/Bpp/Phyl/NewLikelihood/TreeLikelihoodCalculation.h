@@ -49,9 +49,6 @@
 
 namespace bpp
 {
-namespace newlik
-{
-
 /**
  * @brief Exception thrown in case a TreeLikelihoodCalculation object was not properly initialized.
  */
@@ -134,9 +131,9 @@ public:
    */
   virtual const SiteContainer* getData() const = 0;
 
-  virtual TreeLikelihoodData* getLikelihoodData() = 0;
+  virtual newlik::TreeLikelihoodData* getLikelihoodData() = 0;
   
-  virtual const TreeLikelihoodData* getLikelihoodData() const = 0;
+  virtual const newlik::TreeLikelihoodData* getLikelihoodData() const = 0;
   
   /**
    * @brief Get the log-likelihood for the data set.
@@ -252,7 +249,6 @@ public:
 
 };
 
-} // end of namespace newlik.
 } // end of namespace bpp.
 
 #endif //_TREELIKELIHOODCALCULATION_H_

@@ -267,7 +267,6 @@ namespace bpp
 
     /**
      * @brief Get the rate distribution
-     * @param numRate the number of  the rate in the collection.
      *
      **/
 
@@ -312,7 +311,6 @@ namespace bpp
      * - that each model in the set is attributed to a node,
      * - all nodes ids in the set refer to an existing node in the tree.
      *
-     * @param tree The tree to check.
      * @param throwEx Tell if an exception have to be thrown in case of test not passed.
      */
 

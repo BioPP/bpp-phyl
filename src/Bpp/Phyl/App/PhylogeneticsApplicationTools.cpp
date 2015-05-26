@@ -185,14 +185,14 @@ vector<Tree*> PhylogeneticsApplicationTools::getTrees(
 
 /******************************************************************************/
 
-map<size_t, Tree*> PhylogeneticsApplicationTools::getTrees(
-  map<string, string>& params,
-  const map<size_t, SiteContainer*>& mSeq,
-  map<string, string>& unparsedParams,
-  const string& prefix,
-  const string& suffix,
-  bool suffixIsOptional,
-  bool verbose,
+std::map<size_t, Tree*> PhylogeneticsApplicationTools::getTrees(
+  std::map<std::string, std::string>& params,
+  const std::map<size_t, SiteContainer*>& mSeq,
+  std::map<std::string, std::string>& unparsedParams,
+  const std::string& prefix ,
+  const std::string& suffix ,
+  bool suffixIsOptional ,
+  bool verbose ,
   int warn) throw (Exception)
 {
   vector<string> vTreesName=ApplicationTools::matchingParameters(prefix+"tree*", params);

@@ -40,7 +40,6 @@
 #include "SumOfDataPhyloLikelihood.h"
 
 using namespace bpp;
-using namespace newlik;
 using namespace std;
 
 SumOfDataPhyloLikelihood::SumOfDataPhyloLikelihood() :

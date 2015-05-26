@@ -49,7 +49,6 @@
 
 using namespace bpp;
 using namespace std;
-using namespace newlik;
 
 /******************************************************************************/
 

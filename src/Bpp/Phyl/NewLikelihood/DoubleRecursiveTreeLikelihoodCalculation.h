@@ -49,8 +49,6 @@
 
 namespace bpp
 {
-  namespace newlik
-  {
 
 /**
  * @brief This class implements the likelihood computation for a tree
@@ -73,7 +71,7 @@ namespace bpp
       public AbstractTreeLikelihoodCalculation
     {
     private:
-      mutable std::auto_ptr<DoubleRecursiveTreeLikelihoodData> likelihoodData_;
+      mutable std::auto_ptr<newlik::DoubleRecursiveTreeLikelihoodData> likelihoodData_;
       int root1_, root2_; // Needed only in case of reparametrization of branch length at root node.
       // TODO: have to be initialized properly! We do not care of that for now. jdutheil on 11/12/12.
 
@@ -143,9 +141,9 @@ namespace bpp
     public:
       void setData(const SiteContainer& sites);
   
-      DoubleRecursiveTreeLikelihoodData* getLikelihoodData() { return likelihoodData_.get(); }
+      newlik::DoubleRecursiveTreeLikelihoodData* getLikelihoodData() { return likelihoodData_.get(); }
     
-      const DoubleRecursiveTreeLikelihoodData* getLikelihoodData() const { return likelihoodData_.get(); }
+      const newlik::DoubleRecursiveTreeLikelihoodData* getLikelihoodData() const { return likelihoodData_.get(); }
   
       double getLikelihoodForASite(size_t site);
 
@@ -246,7 +244,6 @@ namespace bpp
       Vdouble getPosteriorStateFrequencies(int nodeId);
     };
 
-  } //end of namespace newlik.
 } //end of namespace bpp.
 
 #endif  //_DOUBLERECURSIVETREELIKELIHOOD_H_

@@ -374,9 +374,8 @@ namespace bpp
     void setModelToNode(size_t modelIndex, int nodeNumber);
  
     /**
-     * @brief Remove a model from the set, and all corresponding parameters.
+     * @brief list all model names.
      *
-     * @param modelIndex The index of the model in the set.
      */
   
     void listModelNames(std::ostream& out = std::cout) const;

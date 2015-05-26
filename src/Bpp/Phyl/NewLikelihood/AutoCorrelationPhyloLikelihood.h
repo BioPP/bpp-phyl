@@ -55,8 +55,6 @@
 
 namespace bpp
 {
-  namespace newlik
-  {
 /**
  * @brief Likelihood framework based on an auto-correlation of simple likelihoods.
  *
@@ -188,7 +186,6 @@ namespace bpp
 
 
     };
-  } // end of namespace newlik.
 } // end of namespace bpp.
 
 #endif  // _AUTOCORRELATIONPHYLOLIKELIHOOD_H_

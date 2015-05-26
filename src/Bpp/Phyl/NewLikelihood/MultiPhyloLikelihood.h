@@ -47,8 +47,6 @@
 
 namespace bpp
 {
-  namespace newlik
-  {
 
     /**
      * @brief The MultiPhyloLikelihood interface, for phylogenetic likelihood.
@@ -92,7 +90,6 @@ namespace bpp
 
     };
 
-  } //end of namespace newlik.
 } //end of namespace bpp.
 
 #endif  //_MULTI_PHYLOLIKELIHOOD_H_

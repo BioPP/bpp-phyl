@@ -380,7 +380,7 @@ namespace bpp
     std::vector<std::string> seqNames_;
 
     /**
-     * @correspondance map of seqNames positions of the several trees.
+     * @brief correspondance map of seqNames positions of the several trees.
      * Reference is the tree of the first process of the map.
      *
      * mvPosNames[process id][i] is the position in the id_th tree

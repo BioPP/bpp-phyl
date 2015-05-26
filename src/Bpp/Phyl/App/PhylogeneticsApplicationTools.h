@@ -151,7 +151,7 @@ namespace bpp
      * found.
      * @param mSeq             A map of pointers of SiteContainers,
      * necessary in case of random trees
-     * @param unparsedparams   A map of parameters (BrLen) that will
+     * @param unparsedParams   A map of parameters (BrLen) that will
      * be aliased after.
      * @param prefix           A prefix to be applied to each attribute name.
      * @param suffix           A suffix to be applied to each attribute name.
@@ -161,10 +161,11 @@ namespace bpp
      * @return A new vector of Tree objects according to the specified options.
      * @throw Exception if an error occured.
      */
-    static map<size_t, Tree*> getTrees(
-      map<string, string>& params,
+    
+    static std::map<size_t, Tree*> getTrees(
+      std::map<std::string, std::string>& params,
       const std::map<size_t, SiteContainer*>& mSeq,
-      std::map<std::string, std::string>& unparsedparams,
+      std::map<std::string, std::string>& unparsedParams,
       const std::string& prefix = "input.",
       const std::string& suffix = "",
       bool suffixIsOptional = true,
@@ -185,7 +186,10 @@ namespace bpp
      * @param data             A pointer toward the SiteContainer for which the substitution model is designed.
      *                         The alphabet associated to the data must be of the same type as the one specified for the model.
      *                         May be equal to NULL, but in this case use_observed_freq option will be unavailable.
-     * @param params           The attribute map where options may be found.
+     * @param params           The attribute map where options may be
+     * found.
+     * @param unparsedparams   the map of the aliases between
+     * parameters names.
      * @param suffix           A suffix to be applied to each attribute name.
      * @param suffixIsOptional Tell if the suffix is absolutely required.
      * @param verbose          Print some info to the 'message' output stream.
@@ -234,10 +238,13 @@ namespace bpp
      * @param alphabet         The alphabet to use in the model.
      * @param gCode            The genetic code to use (only for codon models, otherwise can be set to 0).
      *                         If set to NULL and a codon model is requested, an Exception will be thrown.
-     * @param data             A pointer toward the SiteContainer for which the substitution model is designed.
-     *                         The alphabet associated to the data must be of the same type as the one specified for the model.
-     *                         May be equal to NULL, but in this case use_observed_freq option will be unavailable.
-     * @param params           The attribute map where options may be found.
+     * @param mData            A map of pointers toward the
+     * SiteContainers for which the substitution process wil be designed.
+     *                         The alphabet associated to the data
+     * must be of the same type as the one specified for the process. 
+     * @param  params           The attribute map where options may be
+     * found.
+     $ @param unparsedparams   Unparsed params waiting for aliasing.
      * @param suffix           A suffix to be applied to each attribute name.
      * @param suffixIsOptional Tell if the suffix is absolutely required.
      * @param verbose          Print some info to the 'message' output stream.
@@ -273,8 +280,6 @@ namespace bpp
      * @param data   A pointer toward the SiteContainer for which the substitution model is designed.
      *               The alphabet associated to the data must be of the same type as the one specified for the model.
      *               May be equal to NULL, but in this case use_observed_freq option will be unavailable.
-     * @param existingParams (in/out) A map with already existing value that have been found in previous calls, and may be recalled here.
-     *                       New parameters found here will be added.
      * @param sharedParams (out) remote parameters will be recorded here.
      * @param verbose Print some info to the 'message' output stream.
      * @throw Exception if an error occured.
@@ -297,7 +302,9 @@ namespace bpp
      * @param data             A pointer toward the SiteContainer for which the substitution model is designed.
      *                         The alphabet associated to the data must be of the same type as the one specified for the model.
      *                         May be equal to NULL, but in this cas use_observed_freq option will be unavailable.
-     * @param params           The attribute map where options may be found.
+     * @param params           The attribute map where options may be
+     * found.
+     * @param sharedparams     The attribute map of aliases (out).
      * @param rateFreqs        A vector of rate catégories frequencies in case of a Markov Modulated Markov Model.
      *                         Ignored if a vector with size 0 is passed.
      * @param suffix           A suffix to be applied to each attribute name.
@@ -307,6 +314,7 @@ namespace bpp
      * @return A new FrequenciesSet object according to options specified.
      * @throw Exception if an error occured.
      */
+    
     static FrequenciesSet* getRootFrequenciesSet(
       const Alphabet* alphabet,
       const GeneticCode* gCode,
@@ -525,10 +533,10 @@ namespace bpp
      * but will require more memory and use more CPU, since some
      * calculations will be performed twice.
      *
-     * @param subProcess The modified SubstitutionProcess object
-     *                   according to options specified.
      * @param alphabet The alpabet to use in all models.
-     * @param data A pointer toward the SiteContainer for which the
+     * @param gCode            The genetic code to use (only for codon alphabets, otherwise can be set to 0).
+     *                         If set to NULL and a codon frequencies set is requested, an Exception will be thrown.
+     * @param pData A pointer toward the SiteContainer for which the
      *             substitution process is designed.
      *
      *             The alphabet associated to the data must be of the
@@ -536,10 +544,12 @@ namespace bpp
      *             be equal to NULL, but in this cas use_observed_freq
      *             option will be unavailable.
      *
+     * @param vTree A vector of pointers of Trees, used to set processes.
      * @param params   The attribute map where options may be found.
      * @param suffix   A suffix to be applied to each attribute name.
      * @param suffixIsOptional Tell if the suffix is absolutely required.
      * @param verbose Print some info to the 'message' output stream.
+     * @param warn             Set the warning level (0: always display warnings, >0 display warnings on demand).
      * @throw Exception if an error occured.
      */
     
@@ -587,7 +597,7 @@ namespace bpp
       int warn = 1) throw (Exception);
     
 
-    static std::map<size_t, newlik::PhyloLikelihood*> getPhyloLikelihoods(
+    static std::map<size_t, PhyloLikelihood*> getPhyloLikelihoods(
       SubstitutionProcessCollection& SPC,
       std::map<size_t, SequenceEvolution*>& mSeqEvol,
       const std::map<size_t, SiteContainer*>& mData,
@@ -754,8 +764,8 @@ namespace bpp
       int warn = 1)
       throw (Exception);
     
-    static newlik::PhyloLikelihood* optimizeParameters(
-      newlik::PhyloLikelihood* lik,
+    static PhyloLikelihood* optimizeParameters(
+      PhyloLikelihood* lik,
       const ParameterList& parameters,
       std::map<std::string, std::string>& params,
       const std::string& suffix = "",
@@ -920,14 +930,14 @@ namespace bpp
     /**
      * @brief Output information on the computation to a file.
      *
-     * @param process The process to serialize.
+     * @param phylolike The phylolikelihood to serialize.
      * @param out      The stream where to print.
      * @param warn  Set the warning level (0: always display warnings, >0 display warnings on demand).
      */
     
-    static void printAnalysisInformation(const newlik::PhyloLikelihood* phylolike, OutputStream& out, int warn = 1);
+    static void printAnalysisInformation(const PhyloLikelihood* phylolike, OutputStream& out, int warn = 1);
 
-    static void printAnalysisInformation(const newlik::SingleDataPhyloLikelihood* phylolike, OutputStream& out, int warn = 1);
+    static void printAnalysisInformation(const SingleDataPhyloLikelihood* phylolike, OutputStream& out, int warn = 1);
 
     /**
      * @brief Output a SubstitutionProcessCollection description to a file.
@@ -944,19 +954,18 @@ namespace bpp
      *
      * @param phylolike The PhyloLikelihood to serialize.
      * @param out       The stream where to print.
-     * @param nPhylo    The number of the process
      * @param warn  Set the warning level (0: always display warnings, >0 display warnings on demand).
      */
 
-    static void printParameters(const newlik::PhyloLikelihood* phylolike, OutputStream& out, int warn = 1);
+    static void printParameters(const PhyloLikelihood* phylolike, OutputStream& out, int warn = 1);
     
 
-    static void printParameters(const newlik::SingleDataPhyloLikelihood* phylolike, OutputStream& out, size_t nPhylo = 1, int warn = 1);
+    static void printParameters(const SingleDataPhyloLikelihood* phylolike, OutputStream& out, size_t nPhylo = 1, int warn = 1);
 
     /**
      * @brief Output a Sequence Evolution description to a file.
      *
-     * @param phylolike The Sequence Evolution to serialize.
+     * @param evol The Sequence Evolution to serialize.
      * @param out       The stream where to print.
      * @param nEvol    The number of the evolution
      * @param warn  Set the warning level (0: always display warnings, >0 display warnings on demand).

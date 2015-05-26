@@ -53,8 +53,6 @@ using namespace std;
 
 namespace bpp
 {
-  namespace newlik
-  {
 /**
  * @brief Partial implementation of multiple processes of sequences.
  *
@@ -164,7 +162,6 @@ namespace bpp
       virtual bool isCompatibleWith(const SiteContainer& data) const;
 
     };
-  }
 } // end of namespace bpp.
 
 #endif  // _MULTI_PROCESS_SEQUENCE_EVOLUTION_H_

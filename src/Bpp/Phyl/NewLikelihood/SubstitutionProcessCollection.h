@@ -165,7 +165,6 @@ public:
   /**
    * @brief Create empty collections.
    *
-   * @param alpha The alphabet to use for this set.
    */
   
   SubstitutionProcessCollection():

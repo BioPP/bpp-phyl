@@ -55,8 +55,6 @@ using namespace std;
 
 namespace bpp
 {
-  namespace newlik
-  {
 /**
  * @brief Partial implementation of the Likelihood interface for multiple processes.
  *
@@ -263,6 +261,7 @@ namespace bpp
        * @brief Set the dataset for which the likelihood must be evaluated.
        *
        * @param sites The data set to use.
+       * @param nData the number of the data (optionnal, default 0).
        */
   
       void setData(const SiteContainer& sites, size_t nData = 0);
@@ -294,7 +293,6 @@ namespace bpp
 
       /** @} */
     };
-  }
 } // end of namespace bpp.
 
 #endif  // _MULTIPROCESSPHYLOLIKELIHOOD_H_

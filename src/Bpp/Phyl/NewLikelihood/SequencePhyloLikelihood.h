@@ -50,9 +50,6 @@
 
 namespace bpp
 {
-  namespace newlik
-  {
-
     class SequencePhyloLikelihood :
       public AbstractSingleDataPhyloLikelihood
     {
@@ -221,7 +218,6 @@ namespace bpp
 
     };
       
-  } //end of namespace newlik.
 } //end of namespace bpp.
 
 #endif  //_SEQUENCEPHYLOLIKELIHOOD_H_

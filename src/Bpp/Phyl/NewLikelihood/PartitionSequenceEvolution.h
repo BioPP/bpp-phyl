@@ -45,8 +45,6 @@
 
 namespace bpp
 {
-  namespace newlik
-  {
 /**
  * @brief Sequence evolution framework based on a mixture of
  * substitution processes
@@ -136,7 +134,6 @@ namespace bpp
       }
 
     };
-  } // end of namespace newlik.
 } // end of namespace bpp.
 
 #endif  // _PARTITION_SEQUENCE_EVOLUTION_H_

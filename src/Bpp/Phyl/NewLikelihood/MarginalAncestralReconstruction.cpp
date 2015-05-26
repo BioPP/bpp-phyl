@@ -43,7 +43,6 @@
 
 using namespace bpp;
 using namespace std;
-using namespace newlik;
 
 vector<size_t> MarginalAncestralReconstruction::getAncestralStatesForNode(int nodeId, VVdouble& probs, bool sample) const
 {
