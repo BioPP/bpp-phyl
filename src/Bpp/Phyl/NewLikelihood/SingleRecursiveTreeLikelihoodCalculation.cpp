@@ -140,6 +140,7 @@ double SingleRecursiveTreeLikelihoodCalculation::getLikelihoodForASite(size_t si
       l += (*lla)[c][posR][j] * process_->getProbabilityForModel(c) * process_->getRootFrequencies()[j];
     }
   }
+
   if (l < 0) l = 0; //May happen because of numerical errors.
   return l;
 }

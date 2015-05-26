@@ -61,18 +61,19 @@ knowledge of the CeCILL license and that you accept its terms.
 
 #include "../NewLikelihood/SubstitutionProcessCollection.h"
 #include "../NewLikelihood/SubstitutionProcess.h"
+#include "../NewLikelihood/SequenceEvolution.h"
 
 namespace bpp
 {
   
-class SimProcessData
-{
-  public:
+  class SimProcessData
+  {
+  private:
     size_t state;
     std::vector<size_t> states;
     VVVdouble cumpxy;
     const SubstitutionProcess* process_;
-
+    
   public:
     SimProcessData(): state(), states(), cumpxy(), process_(0) {}
     SimProcessData(const SimProcessData& sd): state(sd.state), states(sd.states), cumpxy(), process_(sd.process_) {}
@@ -84,9 +85,12 @@ class SimProcessData
       process_ = sd.process_;
       return *this;
     }
-};
 
-typedef NodeTemplate<SimProcessData> SPNode;
+    friend class SimpleSubstitutionProcessSequenceSimulator;
+    
+  };
+  
+  typedef NodeTemplate<SimProcessData> SPNode;
 
 /**
  * @brief Site and sequences simulation under a unique substitution process.
@@ -172,6 +176,7 @@ typedef NodeTemplate<SimProcessData> SPNode;
      */
     void init();
 
+    
   public:
   
     /**
@@ -350,16 +355,16 @@ typedef NodeTemplate<SimProcessData> SPNode;
   class SubstitutionProcessSequenceSimulator:
     public SequenceSimulator
   {
-  private:
+  protected:
     /**
-     * @brief the map of the process simulators.
+     * @brief the vector of the process simulators.
      *
      */
     
     std::map<size_t, SimpleSubstitutionProcessSequenceSimulator*> mProcess_;
 
     /**
-     * @brief The vector of the site specific process index in vProcess_;
+     * @brief The vector of the site specific process in mProcess_;
      * is mutable because can be changed for each simulation (for ex
      * in case of HMM).
      */
@@ -386,6 +391,8 @@ typedef NodeTemplate<SimProcessData> SPNode;
     
     
   public:
+    SubstitutionProcessSequenceSimulator(const SequenceEvolution& evol);
+
     SubstitutionProcessSequenceSimulator(const std::map<size_t, const SubstitutionProcess&>& mSP);
 
     SubstitutionProcessSequenceSimulator(const SubstitutionProcessCollection& spc);
@@ -404,9 +411,18 @@ typedef NodeTemplate<SimProcessData> SPNode;
         throw BadIntegerException("Out of range position for SubstitutionProcessSequenceSimulator", (int)pos);
       return *mProcess_[vMap_[pos]];
     }
+
+    /**
+     * @brief reset the set of processes.
+     *
+     */
     
+    virtual void resetSiteSimulators(size_t numberOfSites) const
+    {
+    }
+
     void setMap(std::vector<size_t> vMap);
-    
+
     SiteContainer* simulate(size_t numberOfSites) const;
 
     SiteContainer* simulate(const std::vector<double>& rates) const;

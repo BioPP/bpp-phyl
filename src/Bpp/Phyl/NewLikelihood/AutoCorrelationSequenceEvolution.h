@@ -101,11 +101,21 @@ namespace bpp
         return *autoCorrTransMat_.get();
       }
 
+      AutoCorrelationTransitionMatrix& getHmmTransitionMatrix()
+      {
+        return *autoCorrTransMat_.get();
+      }
+
       const HmmProcessAlphabet& getHmmProcessAlphabet() const
       {
         return *hmmAlph_.get();
       }
-  
+
+      HmmProcessAlphabet& getHmmProcessAlphabet()
+      {
+        return *hmmAlph_.get();
+      }
+
 
     };
   } // end of namespace newlik.

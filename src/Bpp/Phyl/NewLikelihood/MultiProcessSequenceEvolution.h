@@ -78,7 +78,8 @@ namespace bpp
     public:
       MultiProcessSequenceEvolution(
         SubstitutionProcessCollection* processColl,
-        std::vector<size_t> nProc);
+        std::vector<size_t> nProc,
+        const std::string& prefix = "");
 
       MultiProcessSequenceEvolution(const MultiProcessSequenceEvolution& lik) :
         AbstractParameterAliasable(lik),
@@ -115,7 +116,18 @@ namespace bpp
 
       size_t getNumberOfSubstitutionProcess() const { return nProc_.size(); }
 
-      const std::vector<size_t> getSubstitutionProcessNumbers() const
+      /**
+       * @brief Return the SubstitutionProcess of a given index
+       * position (in nProc_ vector).
+       *
+       */
+            
+      const SubstitutionProcess& getSubstitutionProcess(size_t number) const
+      {
+        return processColl_->getSubstitutionProcess(number);
+      }
+
+      std::vector<size_t> getSubstitutionProcessNumbers() const
       {
         return nProc_;
       }  

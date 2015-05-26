@@ -50,8 +50,8 @@ using namespace newlik;
 MixtureSequenceEvolution::MixtureSequenceEvolution(
   SubstitutionProcessCollection* processColl,
   std::vector<size_t>& nProc) :
-  MultiProcessSequenceEvolution(processColl, nProc),
-  simplex_(nProc.size(), 1)
+  MultiProcessSequenceEvolution(processColl, nProc, "Mixture."),
+  simplex_(nProc.size(), 1, false, "Mixture.")
 {
   // initialize parameters:
   addParameters_(simplex_.getIndependentParameters());

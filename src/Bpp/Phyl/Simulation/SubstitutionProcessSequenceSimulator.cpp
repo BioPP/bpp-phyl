@@ -561,7 +561,35 @@ void SimpleSubstitutionProcessSequenceSimulator::dEvolveInternal(SPNode* node, s
 
 
 /******************************************************************************/
+/******************************************************************************/
+/******************    SubstitutionProcessSequenceSimulator       *************/
+/******************************************************************************/
 
+
+SubstitutionProcessSequenceSimulator::SubstitutionProcessSequenceSimulator(const SequenceEvolution& evol) :
+  mProcess_(),
+  vMap_(),
+  seqNames_(),
+  mvPosNames_()
+{
+  vector<size_t> nProc=evol.getSubstitutionProcessNumbers();
+  
+  seqNames_=evol.getSubstitutionProcess(nProc[0]).getTree().getLeavesNames();
+
+  for (size_t i=0; i< nProc.size(); i++)
+  {
+    const SubstitutionProcess& sp=evol.getSubstitutionProcess(nProc[i]);
+    
+    mProcess_[nProc[i]]=new SimpleSubstitutionProcessSequenceSimulator(sp);
+
+    const vector<string>& seqNames2=sp.getTree().getLeavesNames();
+    mvPosNames_[nProc[i]].resize(seqNames_.size());
+
+    for (size_t j=0; j<seqNames_.size(); j++)
+      mvPosNames_[nProc[i]][j]=VectorTools::which(seqNames2,seqNames_[j]);
+  }
+}
+  
 SubstitutionProcessSequenceSimulator::SubstitutionProcessSequenceSimulator(const std::map<size_t, const SubstitutionProcess&>& mSP) :
   mProcess_(),
   vMap_(),
@@ -652,7 +680,7 @@ SubstitutionProcessSequenceSimulator::~SubstitutionProcessSequenceSimulator()
 void SubstitutionProcessSequenceSimulator::setMap(std::vector<size_t> vMap)
 {
   vMap_.clear();
-  
+
   for (size_t i=0; i<vMap.size(); i++)
     if (mProcess_.find(vMap[i])==mProcess_.end())
       throw Exception("SubstitutionProcessSequenceSimulator::setMap: unknown Process number" + TextTools::toString(vMap[i]));
@@ -660,12 +688,11 @@ void SubstitutionProcessSequenceSimulator::setMap(std::vector<size_t> vMap)
       vMap_.push_back(vMap[i]);
 }
 
-    
+
 SiteContainer* SubstitutionProcessSequenceSimulator::simulate(size_t numberOfSites) const
 {
-  if (numberOfSites>vMap_.size())
-    throw Exception("SubstitutionProcessSequenceSimulator::simulate some sites do not have attributed process");
-
+  resetSiteSimulators(numberOfSites);
+  
   VectorSiteContainer* sites = new VectorSiteContainer(seqNames_.size(), getAlphabet());
   sites->setSequencesNames(seqNames_);
 
@@ -688,6 +715,7 @@ SiteContainer* SubstitutionProcessSequenceSimulator::simulate(size_t numberOfSit
 SiteContainer* SubstitutionProcessSequenceSimulator::simulate(const vector<double>& rates) const
 {
   size_t numberOfSites=rates.size();
+  resetSiteSimulators(numberOfSites);
   
   if (numberOfSites>vMap_.size())
     throw Exception("SubstitutionProcessSequenceSimulator::simulate some sites do not have attributed process");
@@ -714,9 +742,7 @@ SiteContainer* SubstitutionProcessSequenceSimulator::simulate(const vector<doubl
 SiteContainer* SubstitutionProcessSequenceSimulator::simulate(const vector<size_t>& states) const
 {
   size_t numberOfSites=states.size();
-  
-  if (numberOfSites>vMap_.size())
-    throw Exception("SubstitutionProcessSequenceSimulator::simulate some sites do not have attributed process");
+  resetSiteSimulators(numberOfSites);
 
   VectorSiteContainer* sites = new VectorSiteContainer(seqNames_.size(), getAlphabet());
   sites->setSequencesNames(seqNames_);
@@ -743,8 +769,7 @@ SiteContainer* SubstitutionProcessSequenceSimulator::simulate(const vector<doubl
   if (states.size() != numberOfSites)
     throw Exception("SubstitutionProcessSequenceSimulator::simulate, 'rates' and 'states' must have the same length.");
 
-  if (numberOfSites>vMap_.size())
-    throw Exception("SubstitutionProcessSequenceSimulator::simulate, some sites do not have attributed process");
+  resetSiteSimulators(numberOfSites);
 
   VectorSiteContainer* sites = new VectorSiteContainer(seqNames_.size(), getAlphabet());
   sites->setSequencesNames(seqNames_);

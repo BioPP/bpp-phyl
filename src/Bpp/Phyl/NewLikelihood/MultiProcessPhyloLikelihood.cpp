@@ -49,9 +49,11 @@ using namespace newlik;
 /******************************************************************************/
 
 MultiProcessPhyloLikelihood::MultiProcessPhyloLikelihood(
+  const SiteContainer& data,
   MultiProcessSequenceEvolution& processSeqEvol,
   char recursivity,
   size_t nSeqEvol,
+  size_t nData,
   bool verbose,
   bool patterns) :
   AbstractSequencePhyloLikelihood(processSeqEvol, nSeqEvol),
@@ -80,6 +82,8 @@ MultiProcessPhyloLikelihood::MultiProcessPhyloLikelihood(
     }
   else throw(Exception("MultiProcessPhyloLikelihood::MultiProcessPhyloLikelihood: unknown recursivity : " + recursivity));
 
+  setData(data, nData);
+  
 }
 
 /******************************************************************************/

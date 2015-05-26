@@ -101,7 +101,17 @@ namespace bpp
         return *hmmTransMat_.get();
       }
 
+      FullHmmTransitionMatrix& getHmmTransitionMatrix()
+      {
+        return *hmmTransMat_.get();
+      }
+
       const HmmProcessAlphabet& getHmmProcessAlphabet() const
+      {
+        return *hmmAlph_.get();
+      }
+
+      HmmProcessAlphabet& getHmmProcessAlphabet()
       {
         return *hmmAlph_.get();
       }

@@ -47,8 +47,9 @@ using namespace newlik;
 
 MultiProcessSequenceEvolution::MultiProcessSequenceEvolution(
   SubstitutionProcessCollection* processColl,
-  vector<size_t> nProc) :
-  AbstractParameterAliasable(""),
+  vector<size_t> nProc,
+  const std::string& prefix) :
+  AbstractParameterAliasable(prefix),
   processColl_(processColl),
   nProc_(nProc)
 {

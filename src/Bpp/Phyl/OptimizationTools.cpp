@@ -466,7 +466,8 @@ throw (Exception)
 {
   DerivableSecondOrder* f = lik;
   ParameterList pl = parameters;
-  // Shall we use a molecular clock constraint on branch lengths?
+
+// Shall we use a molecular clock constraint on branch lengths?
   // auto_ptr<GlobalClockTreeLikelihoodFunctionWrapper> fclock;
   // if (useClock)
   //   {
@@ -516,6 +517,7 @@ throw (Exception)
     throw Exception("OptimizationTools::optimizeNumericalParameters2. Unknown optimization method: " + optMethodDeriv);
 
   // Numerical derivatives:
+
   ParameterList tmp = lik->getNonDerivableParameters();
 
   // if (useClock)

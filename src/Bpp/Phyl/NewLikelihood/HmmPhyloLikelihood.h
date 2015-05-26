@@ -43,6 +43,7 @@
 
 #include "MultiProcessPhyloLikelihood.h"
 #include "HmmSequenceEvolution.h"
+#include "HmmPhyloEmissionProbabilities.h"
 
 // From SeqLib:
 #include <Bpp/Seq/Container/SiteContainer.h>
@@ -72,16 +73,11 @@ namespace bpp
       public MultiProcessPhyloLikelihood
     {
     private:
+      std::auto_ptr<HmmPhyloEmissionProbabilities> Hpep_;
+      
       std::auto_ptr<LogsumHmmLikelihood> Hmm_;
   
     public:
-      HmmPhyloLikelihood(
-        HmmSequenceEvolution& processSeqEvol,
-        char recursivity,
-        size_t nSeqEvol = 0,
-        bool verbose = true,
-        bool patterns = true);
-
       HmmPhyloLikelihood(
         const SiteContainer& data,
         HmmSequenceEvolution& processSeqEvol,
@@ -93,11 +89,13 @@ namespace bpp
 
       HmmPhyloLikelihood(const HmmPhyloLikelihood& mlc) :
         MultiProcessPhyloLikelihood(mlc),
+        Hpep_(std::auto_ptr<HmmPhyloEmissionProbabilities>(mlc.Hpep_->clone())),
         Hmm_(std::auto_ptr<LogsumHmmLikelihood>(mlc.Hmm_->clone())) {}
 
       HmmPhyloLikelihood& operator=(const HmmPhyloLikelihood& mlc)
       {
         MultiProcessPhyloLikelihood::operator=(mlc);
+        Hpep_ = std::auto_ptr<HmmPhyloEmissionProbabilities>(mlc.Hpep_->clone());
         Hmm_ = std::auto_ptr<LogsumHmmLikelihood>(mlc.Hmm_->clone());
         return *this;
       }
@@ -111,8 +109,6 @@ namespace bpp
       void setNamespace(const std::string& nameSpace);
 
       void fireParameterChanged(const ParameterList& parameters);
-
-      ParameterList getNonDerivableParameters() const;
 
       /**
        * @name The likelihood functions.

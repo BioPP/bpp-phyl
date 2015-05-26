@@ -171,6 +171,7 @@ namespace newlik
     {
       if (!upToDate_)
         updateEmissionProbabilities_();
+
       return emProb_[pos];
     }
     

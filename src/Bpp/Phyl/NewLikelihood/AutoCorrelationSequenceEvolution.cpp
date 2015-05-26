@@ -48,13 +48,13 @@ using namespace newlik;
 AutoCorrelationSequenceEvolution::AutoCorrelationSequenceEvolution(
   SubstitutionProcessCollection* processColl,
   std::vector<size_t>& nProc) :
-  MultiProcessSequenceEvolution(processColl, nProc),
+  MultiProcessSequenceEvolution(processColl, nProc, "Autocorr."),
   hmmAlph_(),
   autoCorrTransMat_()
 {
   hmmAlph_=std::auto_ptr<HmmProcessAlphabet>(new HmmProcessAlphabet(processColl_, nProc));
 
-  autoCorrTransMat_=std::auto_ptr<AutoCorrelationTransitionMatrix>(new AutoCorrelationTransitionMatrix(hmmAlph_.get()));
+  autoCorrTransMat_=std::auto_ptr<AutoCorrelationTransitionMatrix>(new AutoCorrelationTransitionMatrix(hmmAlph_.get(),"Autocorr."));
 
   // initialize parameters:
   addParameters_(hmmAlph_->getParameters());

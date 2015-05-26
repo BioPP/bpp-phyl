@@ -50,13 +50,13 @@ using namespace newlik;
 HmmSequenceEvolution::HmmSequenceEvolution(
   SubstitutionProcessCollection* processColl,
   std::vector<size_t>& nProc) :
-  MultiProcessSequenceEvolution(processColl, nProc),
+  MultiProcessSequenceEvolution(processColl, nProc, "HMM."),
   hmmAlph_(),
   hmmTransMat_()
 {
   hmmAlph_=std::auto_ptr<HmmProcessAlphabet>(new HmmProcessAlphabet(processColl_, nProc));
   
-  hmmTransMat_=std::auto_ptr<FullHmmTransitionMatrix>(new FullHmmTransitionMatrix(hmmAlph_.get()));
+  hmmTransMat_=std::auto_ptr<FullHmmTransitionMatrix>(new FullHmmTransitionMatrix(hmmAlph_.get(), "HMM."));
 
   // initialize parameters:
   addParameters_(hmmAlph_->getParameters());
@@ -79,7 +79,6 @@ void HmmSequenceEvolution::setNamespace(const std::string& nameSpace)
 void HmmSequenceEvolution::fireParameterChanged(const ParameterList& parameters)
 {
   MultiProcessSequenceEvolution::fireParameterChanged(parameters);
-
   hmmAlph_->matchParametersValues(parameters);
   hmmTransMat_->matchParametersValues(parameters);
 }

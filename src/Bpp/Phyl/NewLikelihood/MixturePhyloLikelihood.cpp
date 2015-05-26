@@ -48,19 +48,6 @@ using namespace newlik;
 /******************************************************************************/
 
 MixturePhyloLikelihood::MixturePhyloLikelihood(
-  MixtureSequenceEvolution& processSeqEvol,
-  char recursivity,
-  size_t nSeqEvol,
-  bool verbose,
-  bool patterns) :
-  MultiProcessPhyloLikelihood(processSeqEvol, recursivity, nSeqEvol, verbose, patterns),
-  mSeqEvol_(processSeqEvol)
-{
-}
-
-/******************************************************************************/
-
-MixturePhyloLikelihood::MixturePhyloLikelihood(
   const SiteContainer& data,
   MixtureSequenceEvolution& processSeqEvol,
   char recursivity,
@@ -68,10 +55,9 @@ MixturePhyloLikelihood::MixturePhyloLikelihood(
   size_t nData,
   bool verbose,
   bool patterns) :
-  MultiProcessPhyloLikelihood(processSeqEvol, recursivity, nSeqEvol, verbose, patterns),
+  MultiProcessPhyloLikelihood(data, processSeqEvol, recursivity, nSeqEvol, nData, verbose, patterns),
   mSeqEvol_(processSeqEvol)
 {
-  setData(data, nData);
 }
 
 /******************************************************************************/

@@ -50,7 +50,7 @@ HmmPhyloEmissionProbabilities::HmmPhyloEmissionProbabilities(const HmmProcessAlp
   AbstractParametrizable(""),
   procAlph_(alphabet),
   multiPL_(multiPL),
-  emProb_(multiPL_->getNumberOfSites()),
+  emProb_(multiPL->getNumberOfSites()),
   dEmProb_(),
   d2EmProb_(),
   upToDate_(false)

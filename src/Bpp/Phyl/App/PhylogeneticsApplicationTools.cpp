@@ -1432,20 +1432,23 @@ map<size_t, SequenceEvolution*> PhylogeneticsApplicationTools::getSequenceEvolut
     }
     else
     {
-      std::vector<size_t> vproc;
-    
-      if (args.find("process")==args.end())
-        vproc.push_back(1);
-      else
-        vproc=ApplicationTools::getVectorParameter<size_t>("process", args, ',', "");
-    
+      size_t indProc=1;
+      vector<size_t> vproc;
+      
+      while (args.find("process"+TextTools::toString(indProc))!=args.end())
+      {
+        size_t numProc=(size_t)ApplicationTools::getIntParameter("process"+TextTools::toString(indProc), args, 1, "", true, warn);
+
+        vproc.push_back(numProc);
+        indProc++;
+      }
+      
+      if (vproc.size()==0)
+        throw Exception("PhylogeneticsApplicationTools::getEvolutions. A process number is compulsory.");
+
       for (size_t i = 0; i < vproc.size(); i++)
         if (! SPC.hasSubstitutionProcessNumber(vproc[i]))    
           throw BadIntegerException("PhylogeneticsApplicationTools::getEvolutions. Unknown process number:",(int)vproc[i]);
-
-      if (vproc.size()==0)
-        throw Exception("PhylogeneticsApplicationTools::getEvolutions. A process number is compulsory.");
-    
 
       if (evolName=="Partition")
       {
@@ -1473,7 +1476,7 @@ map<size_t, SequenceEvolution*> PhylogeneticsApplicationTools::getSequenceEvolut
         while (posProc.find(pos)!=posProc.end())
         {
           vMap.push_back(posProc[pos]);
-          pos++;
+          pos++;          
         }
       
         if (vMap.size()!=posProc.size())
@@ -2820,9 +2823,12 @@ throw (Exception)
       //   }
 
       parametersToEstimate.matchParametersValues(lik->getParameters());
+
       n = OptimizationTools::optimizeNumericalParameters2(
                                                           lik, parametersToEstimate,
                                                           backupListener.get(), tolerance, nbEvalMax, messageHandler, profiler, reparam, useClock, optVerbose, optMethodDeriv);
+
+      
     }
   else
     throw Exception("Unknown optimization method: " + optName);
@@ -3566,6 +3572,7 @@ void PhylogeneticsApplicationTools::printParameters(const SequenceEvolution* evo
   {
     const MultiProcessSequenceEvolution* pMP=dynamic_cast<const MultiProcessSequenceEvolution*>(evol);
 
+    
     if (dynamic_cast<const MixtureSequenceEvolution*>(evol)!=NULL)
     {
       const MixtureSequenceEvolution* pM=dynamic_cast<const MixtureSequenceEvolution*>(evol);
@@ -3575,7 +3582,7 @@ void PhylogeneticsApplicationTools::printParameters(const SequenceEvolution* evo
       for (size_t i=1; i< pM->getNumberOfSubstitutionProcess(); i++)
         out << "," << pM->getSubProcessProb(i);
       
-      out << ")";
+      out << "),";
     }
 
     else if (dynamic_cast<const HmmSequenceEvolution*>(evol)!=NULL)
@@ -3585,7 +3592,8 @@ void PhylogeneticsApplicationTools::printParameters(const SequenceEvolution* evo
       
       const Matrix<double>& tMt = pM->getHmmTransitionMatrix().getPij();
       MatrixTools::print(tMt, out);
-      
+
+      out << ",";
     }
     else if (dynamic_cast<const AutoCorrelationSequenceEvolution*>(evol)!=NULL)
     {
@@ -3629,12 +3637,15 @@ void PhylogeneticsApplicationTools::printParameters(const SequenceEvolution* evo
       }
     }
     
-    out << "process=(";
     std::vector<size_t> vPN=pMP->getSubstitutionProcessNumbers();
+
+    for (size_t i=0; i<vPN.size(); i++){
+      out << "process" << i+1 << "=" << vPN[i];
+      if (i!=vPN.size()-1)
+        out << ",";
+    }
     
-    out << VectorTools::paste(vPN, ",");
-    
-    out << "))";
+    out << ")";
   }
     
   out.endLine();

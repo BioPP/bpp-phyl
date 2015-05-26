@@ -110,6 +110,16 @@ namespace bpp
       return *subsProc_;
     }
 
+    std::vector<size_t> getSubstitutionProcessNumbers() const
+    {
+      return std::vector<size_t>(1,nProc_);
+    }
+        
+    const SubstitutionProcess& getSubstitutionProcess(size_t number) const
+    {
+      return *subsProc_;
+    }
+    
     void fireParameterChanged(const ParameterList& pl)
     {
       //Updates substitution process:

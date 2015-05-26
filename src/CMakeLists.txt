@@ -176,6 +176,7 @@ SET(CPP_FILES
   Bpp/Phyl/Simulation/MutationProcess.cpp
   Bpp/Phyl/Simulation/NonHomogeneousSequenceSimulator.cpp
   Bpp/Phyl/Simulation/SubstitutionProcessSequenceSimulator.cpp
+  Bpp/Phyl/Simulation/EvolutionSequenceSimulator.cpp
   Bpp/Phyl/Simulation/SequenceSimulationTools.cpp
   Bpp/Phyl/SitePatterns.cpp
   Bpp/Phyl/Tree/BipartitionList.cpp
@@ -414,6 +415,7 @@ SET(H_FILES
   Bpp/Phyl/Simulation/MutationProcess.h
   Bpp/Phyl/Simulation/NonHomogeneousSequenceSimulator.h
   Bpp/Phyl/Simulation/SubstitutionProcessSequenceSimulator.h
+  Bpp/Phyl/Simulation/EvolutionSequenceSimulator.h
   Bpp/Phyl/Simulation/SequenceSimulationTools.h
   Bpp/Phyl/Simulation/SequenceSimulator.h
   Bpp/Phyl/Simulation/SiteSimulator.h

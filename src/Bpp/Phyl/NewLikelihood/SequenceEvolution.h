@@ -41,6 +41,8 @@
 #define _SEQUENCE_EVOLUTION_H_
 
 
+#include "SubstitutionProcess.h"
+
 //From bpp-core:
 #include <Bpp/Numeric/ParameterAliasable.h>
 #include <Bpp/Numeric/AbstractParameterAliasable.h>
@@ -73,14 +75,14 @@ namespace bpp
     virtual SequenceEvolution* clone() const = 0;
 
   public:
-    // virtual size_t getNumberOfPositions() const = 0;
-
-    // virtual void setNumberOfPositions(size_t length) = 0;
-
     virtual bool isCompatibleWith(const SiteContainer& data) const = 0;
 
     virtual bool hasDerivableParameter(const std::string& name) const = 0;
 
+    virtual std::vector<size_t> getSubstitutionProcessNumbers() const = 0;
+    
+    virtual const SubstitutionProcess& getSubstitutionProcess(size_t number) const = 0;
+    
     /**
      * @brief Get the branch lengths parameters.
      *

@@ -51,21 +51,6 @@ using namespace newlik;
 /******************************************************************************/
 
 HmmPhyloLikelihood::HmmPhyloLikelihood(
-  HmmSequenceEvolution& processSeqEvol,
-  char recursivity,
-  size_t nSeqEvol,
-  bool verbose,
-  bool patterns) :
-  MultiProcessPhyloLikelihood(processSeqEvol, recursivity, verbose, patterns),
-  Hmm_(0)
-{
-  HmmPhyloEmissionProbabilities* hpep=new HmmPhyloEmissionProbabilities(&processSeqEvol.getHmmProcessAlphabet(), this);
-    
-  Hmm_ = auto_ptr<LogsumHmmLikelihood>(new LogsumHmmLikelihood(new HmmProcessAlphabet(processSeqEvol.getHmmProcessAlphabet()), new FullHmmTransitionMatrix(processSeqEvol.getHmmTransitionMatrix()), hpep, ""));    
-    
-}
-
-HmmPhyloLikelihood::HmmPhyloLikelihood(
   const SiteContainer& data,
   HmmSequenceEvolution& processSeqEvol,
   char recursivity,
@@ -73,16 +58,14 @@ HmmPhyloLikelihood::HmmPhyloLikelihood(
   size_t nData,
   bool verbose,
   bool patterns) :
-  MultiProcessPhyloLikelihood(processSeqEvol, recursivity, verbose, patterns),
+  MultiProcessPhyloLikelihood(data, processSeqEvol, recursivity, verbose, patterns, nData),
+  Hpep_(0),
   Hmm_(0)
 {
-  HmmPhyloEmissionProbabilities* hpep=new HmmPhyloEmissionProbabilities(&processSeqEvol.getHmmProcessAlphabet(), this);
-    
-  Hmm_ = auto_ptr<LogsumHmmLikelihood>(new LogsumHmmLikelihood(new HmmProcessAlphabet(processSeqEvol.getHmmProcessAlphabet()), new FullHmmTransitionMatrix(processSeqEvol.getHmmTransitionMatrix()), hpep, ""));    
+  Hpep_=std::auto_ptr<HmmPhyloEmissionProbabilities>(new HmmPhyloEmissionProbabilities(&processSeqEvol.getHmmProcessAlphabet(), this));
 
-  // set Data
+  Hmm_ = auto_ptr<LogsumHmmLikelihood>(new LogsumHmmLikelihood(&processSeqEvol.getHmmProcessAlphabet(), &processSeqEvol.getHmmTransitionMatrix(), Hpep_.get(), false));    
 
-  setData(data, nData);
 }
 
 void HmmPhyloLikelihood::setNamespace(const std::string& nameSpace)
@@ -94,16 +77,6 @@ void HmmPhyloLikelihood::setNamespace(const std::string& nameSpace)
 void HmmPhyloLikelihood::fireParameterChanged(const ParameterList& parameters)
 {
   MultiProcessPhyloLikelihood::fireParameterChanged(parameters);
-
   Hmm_->matchParametersValues(parameters);
-}
-
-ParameterList HmmPhyloLikelihood::getNonDerivableParameters() const
-{
-  ParameterList pl = MultiProcessPhyloLikelihood::getNonDerivableParameters();
-  pl.addParameters(Hmm_->getHmmTransitionMatrix().getParameters());
-  pl.addParameters(Hmm_->getHmmStateAlphabet().getParameters());
-
-  return pl;
 }
 
