@@ -79,10 +79,8 @@ void AbstractTreeLikelihoodCalculation::setData(const SiteContainer& sites)
 
 double AbstractTreeLikelihoodCalculation::getLogLikelihood()
 {
-  if (computeLikelihoods_){
+//  if (computeLikelihoods_)
     computeTreeLikelihood();
-    computeLikelihoods_=false;
-  }
   
   vector<double> la(nbSites_);
   for (size_t i = 0; i < nbSites_; ++i)
