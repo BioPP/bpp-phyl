@@ -119,7 +119,10 @@ ParameterList MultiProcessSequenceEvolution::getBranchLengthParameters(bool inde
 }
 
 ParameterList MultiProcessSequenceEvolution::getNonDerivableParameters() const
-{ 
+{
+  // patch, to be fixed properly later
+  return getIndependentParameters();
+
   ParameterList pl;
   
   for (size_t i=0; i<nProc_.size(); i++)

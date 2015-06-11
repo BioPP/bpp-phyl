@@ -130,6 +130,9 @@ VVdouble MultiProcessPhyloLikelihood::getLikelihoodForEachSiteForEachProcess() c
 double MultiProcessPhyloLikelihood::getFirstOrderDerivative(const string& variable) const
 throw (Exception)
 {
+  // patch, to be fixed properly later
+  throw Exception("Derivative is not implemented for " + variable + " parameter.");
+
   if (!hasParameter(variable))
     throw ParameterNotFoundException("MultiProcessPhyloLikelihood::getFirstOrderDerivative().", variable);
   if (!hasDerivableParameter(variable))
@@ -145,6 +148,9 @@ throw (Exception)
 double MultiProcessPhyloLikelihood::getSecondOrderDerivative(const string& variable) const
 throw (Exception)
 {
+  // patch, to be fixed properly later
+  throw Exception("Derivative is not implemented for " + variable + " parameter.");
+
   if (!hasParameter(variable))
     throw ParameterNotFoundException("MultiProcessPhyloLikelihood::getSecondOrderDerivative().", variable);
   if (!hasDerivableParameter(variable))

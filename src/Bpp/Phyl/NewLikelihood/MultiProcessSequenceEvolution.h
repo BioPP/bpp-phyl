@@ -144,6 +144,9 @@ namespace bpp
 
       virtual ParameterList getDerivableParameters() const
       {
+        // patch, to be fixed properly later
+        return ParameterList();
+
         return getBranchLengthParameters(true);
       }
 

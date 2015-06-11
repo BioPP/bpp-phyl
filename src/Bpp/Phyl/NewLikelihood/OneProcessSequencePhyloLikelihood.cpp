@@ -223,6 +223,9 @@ Vdouble OneProcessSequencePhyloLikelihood::getPosteriorRateOfEachSite() const
 double OneProcessSequencePhyloLikelihood::getFirstOrderDerivative(const string& variable) const
 throw (Exception)
 {
+  // patch, to be fixed properly later
+  throw Exception("Derivative is not implemented for " + variable + " parameter.");
+
   if (!hasParameter(variable))
     return 0;
 
@@ -242,6 +245,9 @@ throw (Exception)
 double OneProcessSequencePhyloLikelihood::getSecondOrderDerivative(const string& variable) const
 throw (Exception)
 {
+  // patch, to be fixed properly later
+  throw Exception("Derivative is not implemented for " + variable + " parameter.");
+
   if (!hasParameter(variable))
     return 0;
   

@@ -113,16 +113,22 @@ void SumOfPhyloLikelihood::setParameters(const ParameterList& parameters) throw 
 
 double SumOfPhyloLikelihood::getFirstOrderDerivative(const std::string& variable) const throw (Exception)
 {
+  // patch, to be fixed properly later
+  throw Exception("Derivative is not implemented for " + variable + " parameter.");
+  
   double x=0;
   for (std::map<size_t, AbstractPhyloLikelihood*>::const_iterator it=mSDP_.begin(); it != mSDP_.end(); it++)
     if (it->second->hasParameter(variable))
       x+=it->second->getFirstOrderDerivative(variable);
-  
+
   return x;
 }
 
 double SumOfPhyloLikelihood::getSecondOrderDerivative(const std::string& variable) const throw (Exception)
 {
+  // patch, to be fixed properly later
+  throw Exception("Derivative is not implemented for " + variable + " parameter.");
+
   double x=0;
   for (std::map<size_t, AbstractPhyloLikelihood*>::const_iterator it=mSDP_.begin(); it != mSDP_.end(); it++)
     if (it->second->hasParameter(variable))
@@ -178,15 +184,21 @@ ParameterList SumOfPhyloLikelihood::getRootFrequenciesParameters() const
 
 ParameterList SumOfPhyloLikelihood::getDerivableParameters() const
 {
+  // patch, to be fixed properly later
+  return ParameterList();
+
   ParameterList pl;
-  for (std::map<size_t, AbstractPhyloLikelihood*>::const_iterator it=mSDP_.begin(); it != mSDP_.end(); it++)
-    pl.includeParameters(it->second->getDerivableParameters());
+  // for (std::map<size_t, AbstractPhyloLikelihood*>::const_iterator it=mSDP_.begin(); it != mSDP_.end(); it++)
+  //   pl.includeParameters(it->second->getDerivableParameters());
   
   return pl;
 }
 
 ParameterList SumOfPhyloLikelihood::getNonDerivableParameters() const
 {
+  // patch, to be fixed properly later
+  return getParameters();
+
   ParameterList pl;
   for (std::map<size_t, AbstractPhyloLikelihood*>::const_iterator it=mSDP_.begin(); it != mSDP_.end(); it++)
     pl.includeParameters(it->second->getNonDerivableParameters());

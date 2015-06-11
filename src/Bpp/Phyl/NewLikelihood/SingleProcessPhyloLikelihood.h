@@ -286,6 +286,9 @@ namespace bpp
       //    ParameterList getTransitionProbabilitiesParameters() const { return process_->getTransitionProbabilitiesParameters(); }
       // TODO: this has to be modified to deal with special cases...
       ParameterList getDerivableParameters() const {
+        // patch, to be fixed properly later
+        return ParameterList();
+
         return getBranchLengthParameters();
       }
 

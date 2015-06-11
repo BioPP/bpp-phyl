@@ -74,6 +74,9 @@ SingleProcessPhyloLikelihood::SingleProcessPhyloLikelihood(
 
 void SingleProcessPhyloLikelihood::fireParameterChanged(const ParameterList& params)
 {
+
+  // Error, is not called if params not in the parameters, such as in
+  // case of total aliasing
   update();
   
   process_->matchParametersValues(params);
@@ -140,6 +143,9 @@ VVVdouble SingleProcessPhyloLikelihood::getLikelihoodForEachSiteForEachClassForE
 
 ParameterList SingleProcessPhyloLikelihood::getNonDerivableParameters() const
 {
+  // patch, to be fixed properly later
+  return getParameters();
+
   ParameterList pl = getSubstitutionModelParameters();
   pl.addParameters(getRootFrequenciesParameters());
   pl.addParameters(getRateDistributionParameters());
@@ -207,6 +213,9 @@ Vdouble SingleProcessPhyloLikelihood::getPosteriorRateOfEachSite() const
 double SingleProcessPhyloLikelihood::getFirstOrderDerivative(const string& variable) const
 throw (Exception)
 {
+  // patch, to be fixed properly later
+  throw Exception("Derivative is not implemented for " + variable + " parameter.");
+  
   if (!hasParameter(variable))
     return 0;
   
@@ -226,6 +235,9 @@ throw (Exception)
 double SingleProcessPhyloLikelihood::getSecondOrderDerivative(const string& variable) const
 throw (Exception)
 {
+  // patch, to be fixed properly later
+  throw Exception("Derivative is not implemented for " + variable + " parameter.");
+
   if (!hasParameter(variable))
     return 0;
   
