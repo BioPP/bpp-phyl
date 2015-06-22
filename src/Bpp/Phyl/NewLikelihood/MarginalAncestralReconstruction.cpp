@@ -82,9 +82,16 @@ vector<size_t> MarginalAncestralReconstruction::getAncestralStatesForNode(int no
         Vdouble* probs_i = &probs[i];
         for (size_t x = 0; x < nbStates_; x++)
         {
-          (*probs_i)[x] += (*larray_c_i)[x] * probC / l_[i];
+          (*probs_i)[x] += (*larray_c_i)[x] * probC;
         }
       }
+    }
+
+    for (size_t i = 0; i < nbDistinctSites_; i++)
+    {
+      Vdouble* probs_i = &probs[i];
+      double s=VectorTools::sum(*probs_i);
+      (*probs_i)/=s;
     }
     
     if (sample)
