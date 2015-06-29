@@ -41,8 +41,6 @@
 #define _ABSTRACTSUBSTITUTIONPROCESS_H_
 
 #include "SubstitutionProcess.h"
-#include "ComputingNode.h"
-
 #include "ComputingTree.h"
 
 //From the STL:
@@ -83,16 +81,6 @@ public:
   const ParametrizableTree& getParametrizableTree() const { return *pTree_; }
 
   size_t getNumberOfClasses() const { return nbClasses_; }
-
-  /**
-   * @brief A virtual method to retrieve the ComputingTree defined in
-   * inheriting classes.
-   *
-   */
-  
-  virtual const ComputingTree& getComputingTree() const = 0;
-
-  virtual ComputingTree& getComputingTree() = 0;
 
 protected:
   size_t getModelIndex_(int nodeId, size_t modelClass) const throw (NodeNotFoundException, IndexOutOfBoundsException);
@@ -183,7 +171,7 @@ public:
   {
     getComputingTree().multiplyUpwardPartialLikelihoods(likelihoods_node, vLikelihoods_sons, nodeId, vPatterns, DX);
   }
-    
+  
 };
   
 

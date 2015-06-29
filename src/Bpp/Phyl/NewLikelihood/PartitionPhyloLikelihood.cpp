@@ -39,7 +39,7 @@
 
 #include "PartitionPhyloLikelihood.h"
 #include "SingleProcessPhyloLikelihood.h"
-#include "SingleRecursiveTreeLikelihoodCalculation.h"
+#include "SingleRecursiveLikelihoodTreeCalculation.h"
 #include "DoubleRecursiveTreeLikelihoodCalculation.h"
 
 #include <Bpp/Seq/Container/SiteContainerTools.h>
@@ -70,16 +70,16 @@ PartitionPhyloLikelihood::PartitionPhyloLikelihood(
   
   for (std::map<size_t, std::vector<size_t> >::iterator it=mProcPos.begin(); it!=mProcPos.end(); it++)
   {
-    TreeLikelihoodCalculation* rt;
+    LikelihoodTreeCalculation* rt = 0;
 
     if (recursivity=='S')
-      rt = new SingleRecursiveTreeLikelihoodCalculation(
+      rt = new SingleRecursiveLikelihoodTreeCalculation(
         &processColl.getSubstitutionProcess(it->first),
         it==mProcPos.begin(), patterns);
-    else if (recursivity=='D')
-      rt = new DoubleRecursiveTreeLikelihoodCalculation(        
-        &processColl.getSubstitutionProcess(it->first),
-        it==mProcPos.begin());
+    // else if (recursivity=='D')
+    //   rt = new DoubleRecursiveTreeLikelihoodCalculation(        
+    //     &processColl.getSubstitutionProcess(it->first),
+    //     it==mProcPos.begin());
     else throw(Exception("PartitionPhyloLikelihood::PartitionPhyloLikelihood: unknown recursivity : " + recursivity));
 
     addSingleDataPhylolikelihood(it->first, new SingleProcessPhyloLikelihood(&processColl.getSubstitutionProcess(it->first), rt, it->first));
@@ -121,14 +121,14 @@ PartitionPhyloLikelihood::PartitionPhyloLikelihood(
   
   for (std::map<size_t, std::vector<size_t> >::iterator it=mProcPos.begin(); it!=mProcPos.end(); it++)
   {
-    TreeLikelihoodCalculation* rt;
+    LikelihoodTreeCalculation* rt=0;
     
     if (recursivity=='S')
-      rt = new SingleRecursiveTreeLikelihoodCalculation(
+      rt = new SingleRecursiveLikelihoodTreeCalculation(
         &processColl.getSubstitutionProcess(it->first), it==mProcPos.begin(), patterns);
-    else if (recursivity=='D')
-      rt = new DoubleRecursiveTreeLikelihoodCalculation(
-        &processColl.getSubstitutionProcess(it->first), it==mProcPos.begin());
+    // else if (recursivity=='D')
+    //   rt = new DoubleRecursiveTreeLikelihoodCalculation(
+    //     &processColl.getSubstitutionProcess(it->first), it==mProcPos.begin());
     else throw(Exception("PartitionPhyloLikelihood::PartitionPhyloLikelihood: unknown recursivity : " + recursivity));
 
     addSingleDataPhylolikelihood(it->first, new SingleProcessPhyloLikelihood(&processColl.getSubstitutionProcess(it->first), rt, it->first));

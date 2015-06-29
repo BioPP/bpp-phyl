@@ -495,6 +495,22 @@ namespace bpp
      *
      **/
 
+    /**
+     * @brief A virtual method to retrieve the ComputingTree defined in
+     * inheriting classes.
+     *
+     */
+  
+    const ComputingTree& getComputingTree() const
+    {
+      return *computingTree_.get();
+    }
+    
+    ComputingTree& getComputingTree()
+    {
+      return *computingTree_.get();
+    }
+
     void multiplyUpwardPartialLikelihoods(VVVdouble* likelihoods_node, const VVVdouble* likelihoods_son, int sonId, unsigned char DX) const
     {
       computingTree_->multiplyUpwardPartialLikelihoods(likelihoods_node, likelihoods_son, sonId, DX);

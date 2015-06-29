@@ -186,7 +186,7 @@ namespace bpp
 #else
       Clonable*
 #endif
-      clone() const
+       clone() const
       {
         return new DoubleRecursiveTreeLikelihoodNodeData(*this);
       }

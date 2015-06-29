@@ -73,7 +73,7 @@
 #include "../NewLikelihood/SimpleSubstitutionProcess.h"
 #include "../NewLikelihood/SubstitutionProcessCollection.h"
 #include "../NewLikelihood/RateAcrossSitesSubstitutionProcess.h"
-#include "../NewLikelihood/SingleRecursiveTreeLikelihoodCalculation.h"
+#include "../NewLikelihood/SingleRecursiveLikelihoodTreeCalculation.h"
 #include "../NewLikelihood/DoubleRecursiveTreeLikelihoodCalculation.h"
 #include "../NewLikelihood/SingleDataPhyloLikelihood.h"
 #include "../NewLikelihood/MultiPhyloLikelihood.h"
@@ -1640,12 +1640,12 @@ map<size_t, PhyloLikelihood*> PhylogeneticsApplicationTools::getPhyloLikelihoods
 
     if (SPC.hasSubstitutionProcessNumber(nProcess))
     {
-      TreeLikelihoodCalculation* tlc;
+      LikelihoodTreeCalculation* tlc=0;
 
       if (recursivity=='S')
-        tlc=new SingleRecursiveTreeLikelihoodCalculation(*data, &SPC.getSubstitutionProcess(nProcess), true, compression == 'R');
-      else
-        tlc=new DoubleRecursiveTreeLikelihoodCalculation(*data, &SPC.getSubstitutionProcess(nProcess), true);
+        tlc=new SingleRecursiveLikelihoodTreeCalculation(*data, &SPC.getSubstitutionProcess(nProcess), true, compression == 'R');
+      // else
+      //   tlc=new DoubleRecursiveTreeLikelihoodCalculation(*data, &SPC.getSubstitutionProcess(nProcess), true);
         
       nPL = new SingleProcessPhyloLikelihood(&SPC.getSubstitutionProcess(nProcess), tlc, nProcess, nData);
     }

@@ -46,7 +46,7 @@ using namespace bpp;
 
 SingleProcessPhyloLikelihood::SingleProcessPhyloLikelihood(
   SubstitutionProcess* process,
-  TreeLikelihoodCalculation* tlComp,
+  LikelihoodTreeCalculation* tlComp,
   size_t nProc,
   size_t nData) :
   AbstractPhyloLikelihood(),

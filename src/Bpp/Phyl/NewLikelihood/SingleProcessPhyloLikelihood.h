@@ -56,8 +56,8 @@
 #include <Bpp/Seq/Alphabet/Alphabet.h>
 
 #include "SingleDataPhyloLikelihood.h"
-#include "TreeLikelihoodCalculation.h"
-#include "SingleRecursiveTreeLikelihoodCalculation.h"
+#include "SingleRecursiveLikelihoodTreeCalculation.h"
+#include "LikelihoodTreeCalculation.h"
 #include "PhyloLikelihood.h"
 
 namespace bpp
@@ -76,7 +76,7 @@ namespace bpp
       public AbstractParametrizable
     { 
     protected:
-      mutable std::auto_ptr<TreeLikelihoodCalculation> tlComp_;
+      mutable std::auto_ptr<LikelihoodTreeCalculation> tlComp_;
       SubstitutionProcess* process_;
 
       /**
@@ -87,7 +87,7 @@ namespace bpp
       size_t nProc_;
 
     public:
-      SingleProcessPhyloLikelihood(SubstitutionProcess* process, TreeLikelihoodCalculation* tlComp, size_t nProc = 0, size_t nData = 0);
+      SingleProcessPhyloLikelihood(SubstitutionProcess* process, LikelihoodTreeCalculation* tlComp, size_t nProc = 0, size_t nData = 0);
 
       SingleProcessPhyloLikelihood(const SingleProcessPhyloLikelihood& lik) :
         AbstractPhyloLikelihood(lik),
@@ -252,7 +252,7 @@ namespace bpp
 
       char getRecursivity() const 
       {
-        if (dynamic_cast<const SingleRecursiveTreeLikelihoodCalculation*>(tlComp_.get()))
+        if (dynamic_cast<const SingleRecursiveLikelihoodTreeCalculation*>(tlComp_.get()))
           return 'S';
         else
           return 'D';
@@ -271,17 +271,17 @@ namespace bpp
        * @return The underlying likelihood computation structure.
        */
       
-      TreeLikelihoodCalculation* getLikelihoodCalculation() { return tlComp_.get(); }
+      LikelihoodTreeCalculation* getLikelihoodCalculation() { return tlComp_.get(); }
 
       /**
        * @return The underlying likelihood data structure.
        */
-      virtual newlik::TreeLikelihoodData* getLikelihoodData() { return tlComp_->getLikelihoodData(); }
+      virtual LikelihoodTree* getLikelihoodData() { return tlComp_->getLikelihoodData(); }
 
       /**
        * @return The underlying likelihood data structure.
        */
-      virtual const newlik::TreeLikelihoodData* getLikelihoodData() const { return tlComp_->getLikelihoodData(); }
+      virtual const LikelihoodTree* getLikelihoodData() const { return tlComp_->getLikelihoodData(); }
 
       //    ParameterList getTransitionProbabilitiesParameters() const { return process_->getTransitionProbabilitiesParameters(); }
       // TODO: this has to be modified to deal with special cases...

@@ -101,7 +101,7 @@ public:
     }
     for (size_t i = 0; i < node.getNumberOfSons(); i++)
     {
-      getLeaves<N>(*node.getSon(i), leaves);
+      getLeaves<N>(*dynamic_cast<N*>(node.getSon(i)), leaves);
     }
   }
 
@@ -355,7 +355,7 @@ public:
   {
     for (size_t i = 0; i < node.getNumberOfSons(); i++)
     {
-      getNodes<N>(*node.getSon(i), nodes);
+      getNodes<N>(*dynamic_cast<N*>(node.getSon(i)), nodes);
     }
     nodes.push_back(&node);
   }
@@ -442,7 +442,7 @@ public:
   {
     for (size_t i = 0; i < node.getNumberOfSons(); i++)
     {
-      getInnerNodes<N>(*node.getSon(i), nodes);
+      getInnerNodes<N>(*dynamic_cast<N*>(node.getSon(i)), nodes);
     }
     if (!node.isLeaf())
       nodes.push_back(&node);  // Do not add leaves!
@@ -502,7 +502,7 @@ public:
   {
     for (size_t i = 0; i < node.getNumberOfSons(); ++i)
     {
-      searchNodeWithId<N>(*node.getSon(i), id, nodes);
+      searchNodeWithId<N>(*dynamic_cast<N*>(node.getSon(i)), id, nodes);
     }
     if (node.getId() == id) nodes.push_back(&node);
   }
@@ -591,7 +591,7 @@ public:
   {
     for (size_t i = 0; i < node.getNumberOfSons(); i++)
     {
-      searchNodeWithName<N>(*node.getSon(i), name, nodes);
+      searchNodeWithName<N>(*dynamic_cast<N*>(node.getSon(i)), name, nodes);
     }
     if (node.hasName() && node.getName() == name) nodes.push_back(&node);
   }
@@ -788,7 +788,7 @@ public:
   {
     for (size_t i = 0; i < node->getNumberOfSons(); ++i)
     {
-      N* son = node->getSon(i);
+      N* son = dynamic_cast<N*>(node->getSon(i));
       deleteSubtree(son);
       delete son;
     }
