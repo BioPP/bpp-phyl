@@ -204,6 +204,14 @@ public:
   virtual double getProbabilityForModel(size_t classIndex) const = 0;
 
   /**
+   * @return The vector of the probabilities associated to the
+   * classes.
+   *
+   */
+  
+  virtual Vdouble getClassProbabilities() const = 0;
+
+  /**
    * @return The substitution rate associated to the given model class.
    *
    * @param classIndex The model class index.

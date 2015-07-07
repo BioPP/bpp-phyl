@@ -70,7 +70,7 @@ namespace bpp
       
     public:
       SequencePhyloLikelihood(SequenceEvolution& se, size_t nSE = 0, size_t nData = 0) :
-        AbstractSingleDataPhyloLikelihood(nData),
+        AbstractSingleDataPhyloLikelihood(0, 0, nData),
         seqEvol_(&se),
         nSeqEvol_(nSE)
       {

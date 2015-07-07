@@ -79,7 +79,6 @@ namespace bpp
       HmmPhyloLikelihood(
         const SiteContainer& data,
         HmmSequenceEvolution& processSeqEvol,
-        char recursivity,
         size_t nSeqEvol = 0,
         size_t nData = 0,
         bool verbose = true,

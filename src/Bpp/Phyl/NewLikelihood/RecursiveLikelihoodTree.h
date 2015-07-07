@@ -1,5 +1,5 @@
 //
-// File: SingleRecursiveLikelihoodTreeData.h
+// File: RecursiveLikelihoodTree.h
 // Created by: Julien Dutheil, Laurent Guéguen
 // Created on: Sat Dec 30 14:20 2006
 // From file HomogeneousLikelihoodTree.h
@@ -38,14 +38,14 @@
   knowledge of the CeCILL license and that you accept its terms.
 */
 
-#ifndef _SINGLE_RECURSIVE_LIKELIHOOD_TREE_H_
-#define _SINGLE_RECURSIVE_LIKELIHOOD_TREE_H_
+#ifndef _RECURSIVE_LIKELIHOOD_TREE_H_
+#define _RECURSIVE_LIKELIHOOD_TREE_H_
 
 #include "AbstractLikelihoodTree.h"
 #include "SubstitutionProcess.h"
 #include "../SitePatterns.h"
 #include "LikelihoodNode.h"
-#include "SingleRecursiveLikelihoodNode.h"
+#include "RecursiveLikelihoodNode.h"
 
 #include <Bpp/Numeric/VectorTools.h>
 
@@ -57,7 +57,7 @@ namespace bpp
 /**
  * @brief Likelihood data structure suporting simple recursion.
  */
-  class SingleRecursiveLikelihoodTree :
+  class RecursiveLikelihoodTree :
     public AbstractLikelihoodTree
   {
   private:
@@ -66,7 +66,7 @@ namespace bpp
      *
      */
     
-    std::vector<TreeTemplate<SingleRecursiveLikelihoodNode>* > vTree_;
+    std::vector<TreeTemplate<RecursiveLikelihoodNode>* > vTree_;
 
 
 /**
@@ -82,21 +82,30 @@ namespace bpp
  * of the likelihoods array.
  */
 
+    // TO DO: convert to a tree structure
+    
     mutable std::map<int, std::map<int, std::vector<size_t> > > patternLinks_;
 
     bool usePatterns_;
 
+    /*
+     * @brief check in the Above Likelihoods have been initialized
+     *
+     */
+    
+    bool initializedAboveLikelihoods_;
+
   public:
     
-    SingleRecursiveLikelihoodTree(const SubstitutionProcess& process, bool usePatterns = true);
+    RecursiveLikelihoodTree(const SubstitutionProcess& process, bool usePatterns);
 
-    SingleRecursiveLikelihoodTree(const SingleRecursiveLikelihoodTree& data);
+    RecursiveLikelihoodTree(const RecursiveLikelihoodTree& data);
     
-    SingleRecursiveLikelihoodTree& operator=(const SingleRecursiveLikelihoodTree & data);
+    RecursiveLikelihoodTree& operator=(const RecursiveLikelihoodTree & data);
 
-    virtual ~SingleRecursiveLikelihoodTree();
+    virtual ~RecursiveLikelihoodTree();
 
-    SingleRecursiveLikelihoodTree* clone() const { return new SingleRecursiveLikelihoodTree(*this); }
+    RecursiveLikelihoodTree* clone() const { return new RecursiveLikelihoodTree(*this); }
 
   public:
 
@@ -105,10 +114,15 @@ namespace bpp
      *
      */
     
-    TreeTemplate<SingleRecursiveLikelihoodNode>& operator[](size_t ntree) { return *vTree_[ntree];}
+    TreeTemplate<RecursiveLikelihoodNode>& operator[](size_t ntree) { return *vTree_[ntree];}
 
-    const TreeTemplate<SingleRecursiveLikelihoodNode>& operator[](size_t ntree) const { return *vTree_[ntree];}
+    const TreeTemplate<RecursiveLikelihoodNode>& operator[](size_t ntree) const { return *vTree_[ntree];}
 
+    /*
+     * @brief the Node Data
+     *
+     */
+    
     AbstractLikelihoodNode& getNodeData(int nodeId, size_t nClass)
     { 
       return *(*this)[nClass].getNode(nodeId);
@@ -119,61 +133,103 @@ namespace bpp
       return *(*this)[nClass].getNode(nodeId);
     }
 
-    size_t getArrayPosition(int parentId, int sonId, size_t currentPosition) const
-    {
-      return patternLinks_[parentId][sonId][currentPosition];
-    }
-    
-    size_t getRootArrayPosition(size_t currentPosition) const
-    {
-      return rootPatternLinks_[currentPosition];
-    }
-    
-    const std::vector<size_t>& getArrayPositions(int parentId, int sonId) const
-    {
-      return patternLinks_[parentId][sonId];
-    }
-    
-    std::vector<size_t>& getArrayPositions(int parentId, int sonId)
-    {
-      return patternLinks_[parentId][sonId];
+    AbstractLikelihoodNode& getRootData(size_t nClass)
+    { 
+      return *(*this)[nClass].getRootNode();
     }
 
-    size_t getArrayPosition(int parentId, int sonId, size_t currentPosition)
-    {
-      return patternLinks_[parentId][sonId][currentPosition];
+    const AbstractLikelihoodNode& getRootData(size_t nClass) const
+    { 
+      return *(*this)[nClass].getRootNode();
     }
 
-    VVdouble& getLikelihoodArray(int nodeId, size_t nClass)
+    /*
+     * @brief the recursive pattern relation between positions.
+     *
+     */
+    
+    bool usePatterns()
     {
-      return getNodeData(nodeId, nClass).getLikelihoodArray();
+      return usePatterns_;
     }
     
-    VVdouble& getDLikelihoodArray(int nodeId, size_t nClass)
+    void resetBelowLikelihoods(int nodeId, size_t nbSites, size_t nbStates, unsigned char DX) const
     {
-      return getNodeData(nodeId, nClass).getDLikelihoodArray();
-    }
-    
-    VVdouble& getD2LikelihoodArray(int nodeId, size_t nClass)
-    {
-      return getNodeData(nodeId, nClass).getD2LikelihoodArray();
+      for (size_t c = 0; c < vTree_.size(); ++c)
+        vTree_[c]->getNode(nodeId)->resetBelowLikelihoods(nbSites, nbStates, DX);
     }
 
+    void resetAboveLikelihoods(int nodeId, size_t nbSites, size_t nbStates) const
+    {
+      for (size_t c = 0; c < vTree_.size(); ++c)
+        vTree_[c]->getNode(nodeId)->resetAboveLikelihoods(nbSites, nbStates);
+    }
+
+    /*
+     * @brief reset the Above Likelihood arrays all the inner nodes:
+     * resize to nbSites_ X nbStates_ set to 1
+     *
+     */
+    
+    void resetInnerAboveLikelihoods();
+
+
+    bool isUp2dateBelow(int nodeId, unsigned char DX) const
+    {
+      for (size_t c = 0; c < vTree_.size(); ++c)
+        if (!vTree_[c]->getNode(nodeId)->isUp2dateBelow(DX))
+          return false;
+      
+      return true;
+    }
+
+    bool isUp2dateAbove(int nodeId) const
+    {
+      for (size_t c = 0; c < vTree_.size(); ++c)
+        if (!vTree_[c]->getNode(nodeId)->isUp2dateAbove())
+          return false;
+      
+      return true;
+    }
+
+    bool isAboveLikelihoodsInitialized() const
+    {
+      return initializedAboveLikelihoods_;
+    }
+    
+    /*
+     * @brief initialize the likelihoods from the data & the process.
+     *
+     */
+    
     void initLikelihoods(const SiteContainer& sites, const SubstitutionProcess& process) throw (Exception);
 
-    void computeUpwardPartialLikelihoods(const ComputingTree& lTree, int nodeId, unsigned char DX, Vint* vbr=NULL)
-    {
-      for (size_t c = 0; c < vTree_.size(); ++c)
-        dynamic_cast<SingleRecursiveLikelihoodNode*>(vTree_[c]->getNode(nodeId))->computeUpwardPartialLikelihoods(*lTree[c]->getNode(nodeId), DX, vbr);
-    }
+    /*
+     * @brief compute full likelihoods at a given node
+     *
+     */
     
-    void computeUpwardPartialLikelihoods(const ComputingTree& lTree, int nodeId, const std::vector<const std::vector<size_t>* >& vPatterns, unsigned char DX, Vint* vbr=NULL)
+    void computeLikelihoodsAtNode(const ComputingTree& lTree, int nodeId)
     {
       for (size_t c = 0; c < vTree_.size(); ++c)
-        dynamic_cast<SingleRecursiveLikelihoodNode*>(vTree_[c]->getNode(nodeId))->computeUpwardPartialLikelihoods(*lTree[c]->getNode(nodeId), vPatterns, DX, vbr);
+        vTree_[c]->getNode(nodeId)->computeLikelihoods(*(lTree[c]->getNode(nodeId)), ComputingNode::D0);
     }
 
-    protected:
+    /*
+     * @brief compute full DXlikelihoods. In case of derivation, brId
+     * is a pointer on a vector of ids of derivated branches.
+     *
+     */
+
+    void computeLikelihoods(const ComputingTree& lTree, unsigned char DX, Vint* brId = NULL)
+    {
+      int rId=lTree[0]->getRootId();
+      
+      for (size_t c = 0; c < vTree_.size(); ++c)
+        vTree_[c]->getNode(rId)->computeLikelihoods(*(lTree[c]->getNode(rId)), DX, brId);
+    }
+
+  protected:
     
     /**
      * @brief This method initializes the leaves according to a sequence file.
@@ -189,6 +245,7 @@ namespace bpp
      * @param sequences The data to be used for initialization.
      * @param process   The substitution process to use.
      */
+    
     virtual void initLikelihoodsWithoutPatterns_(const Node* node, const SiteContainer& sequences, const SubstitutionProcess& process) throw (Exception);
     
     /**
@@ -214,5 +271,5 @@ namespace bpp
   
 } //end of namespace bpp.
 
-#endif //_SINGLE_RECURSIVE_LIKELIHOOD_TREE_H_
+#endif //_RECURSIVE_LIKELIHOOD_TREE_H_
 

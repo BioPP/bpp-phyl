@@ -2,7 +2,6 @@
 // File: LikelihoodTree.h
 // Created by: Julien Dutheil, Laurent Guéguen
 // Created on: mardi 23 juin 2015, à 14h 16
-// From file AbstractTreeLikelihood.h
 //
 
 /*
@@ -54,18 +53,14 @@ namespace bpp
 {
 
 /**
- * @brief TreeLikelihood data structure.
- *
- * Stores all the inner computations:
- * - conditionnal likelihoods for each node,
- * - correspondance between sites in the dataset and array indices.
+ * @brief Interface LikelihoodTree data structure.
  *
  * The structure is initiated according to a tree topology, and 
- * data can be retrieved through node ids. The structure does not
- * store the original tree used for initialization.
+ * data can be retrieved through node ids.
  *
- * @see TreeLikelihoodNodeData
+ * @see LikelihoodNode
  */
+  
     class LikelihoodTree:
       public virtual Clonable
     {
@@ -79,7 +74,6 @@ namespace bpp
 
     public:
       virtual const Alphabet* getAlphabet() const = 0;
-      virtual size_t getArrayPosition(int parentId, int sonId, size_t currentPosition) const = 0;
       virtual size_t getRootArrayPosition(size_t site) const = 0;
       virtual std::vector<size_t>& getRootArrayPositions() = 0; 
 
@@ -129,18 +123,13 @@ namespace bpp
 
       /**
        * @brief Resize and initialize all likelihood arrays at a given
-       * node according to the given sizes.
+       * node according to the given sizes, for a given derivation
+       * class.
        *
        */
 
-      virtual void resetLikelihoods(int nodeId, size_t nbSites, size_t nbStates) = 0;
+      virtual void resetLikelihoods(int nodeId, size_t nbSites, size_t nbStates, unsigned char DX) = 0;
 
-      /**
-       * @brief Initialize all likelihood arrays at a given node.
-       *
-       */
-      
-      virtual void resetLikelihoods(int nodeId, unsigned char DX) = 0;
 
     };
 

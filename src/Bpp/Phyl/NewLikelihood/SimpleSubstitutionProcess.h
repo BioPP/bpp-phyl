@@ -134,6 +134,11 @@ public:
     return 1;
   }
 
+  Vdouble getClassProbabilities() const
+  {
+    return Vdouble(1,1);
+  }
+
   double getRateForModel(size_t classIndex) const {
     if (classIndex != 0)
       throw IndexOutOfBoundsException("SimpleSubstitutionProcess::getRateForModel.", classIndex, 0, 1);

@@ -41,7 +41,7 @@
 #define _MARGINALANCESTRALRECONSTRUCTION_H_
 
 #include "../AncestralStateReconstruction.h"
-#include "DoubleRecursiveTreeLikelihoodCalculation.h"
+#include "AbstractLikelihoodTreeCalculation.h"
 
 // From SeqLib:
 #include <Bpp/Seq/Alphabet/Alphabet.h>
@@ -64,27 +64,25 @@ namespace bpp
     public virtual AncestralStateReconstruction
   {
   private:
-      DoubleRecursiveTreeLikelihoodCalculation* likelihood_;
-      TreeTemplate<Node> tree_;
-      const Alphabet* alphabet_;
-      size_t nbSites_;
-      size_t nbDistinctSites_;
-      size_t nbClasses_;
-      size_t nbStates_;
-      std::vector<size_t> rootPatternLinks_;
-      std::vector<double> l_;
-		
-    public:
-      MarginalAncestralReconstruction(DoubleRecursiveTreeLikelihoodCalculation* drl) :
+    AbstractLikelihoodTreeCalculation* likelihood_;
+    TreeTemplate<Node> tree_;
+    const Alphabet* alphabet_;
+    size_t nbSites_;
+    size_t nbDistinctSites_;
+    size_t nbClasses_;
+    size_t nbStates_;
+    std::vector<size_t> rootPatternLinks_;
+    
+  public:
+      MarginalAncestralReconstruction(AbstractLikelihoodTreeCalculation* drl) :
         likelihood_      (drl),
         tree_            (drl->getSubstitutionProcess()->getTree()),
         alphabet_        (drl->getAlphabet()),
-        nbSites_         (drl->getLikelihoodData()->getNumberOfSites()),
-        nbDistinctSites_ (drl->getLikelihoodData()->getNumberOfDistinctSites()),
-        nbClasses_       (drl->getLikelihoodData()->getNumberOfClasses()),
-        nbStates_        (drl->getLikelihoodData()->getNumberOfStates()),
-        rootPatternLinks_(drl->getLikelihoodData()->getRootArrayPositions()),
-        l_               (drl->getLikelihoodData()->getRootStateClassLikelihoodArray())
+        nbSites_         (drl->getLikelihoodData().getNumberOfSites()),
+        nbDistinctSites_ (drl->getLikelihoodData().getNumberOfDistinctSites()),
+        nbClasses_       (drl->getLikelihoodData().getNumberOfClasses()),
+        nbStates_        (drl->getLikelihoodData().getNumberOfStates()),
+        rootPatternLinks_(drl->getLikelihoodData().getRootArrayPositions())
       {}
 
       MarginalAncestralReconstruction(const MarginalAncestralReconstruction& masr) :
@@ -95,8 +93,7 @@ namespace bpp
         nbDistinctSites_ (masr.nbDistinctSites_),
         nbClasses_       (masr.nbClasses_),
         nbStates_        (masr.nbStates_),
-        rootPatternLinks_(masr.rootPatternLinks_),
-        l_               (masr.l_)
+        rootPatternLinks_(masr.rootPatternLinks_)
       {}
 
       MarginalAncestralReconstruction& operator=(const MarginalAncestralReconstruction& masr)
@@ -109,24 +106,18 @@ namespace bpp
         nbClasses_        = masr.nbClasses_;
         nbStates_         = masr.nbStates_;
         rootPatternLinks_ = masr.rootPatternLinks_;
-        l_                = masr.l_;
         return *this;
       }
 
 
-#ifndef NO_VIRTUAL_COV
-      MarginalAncestralReconstruction*
-#else
-      Clonable*
-#endif
-      clone() const { return new MarginalAncestralReconstruction(*this); }
+      MarginalAncestralReconstruction* clone() const { return new MarginalAncestralReconstruction(*this); }
 
       virtual ~MarginalAncestralReconstruction() {}
 
     public:
 
       /**
-       * @brief Get ancestral states for a given node as a vector of int.
+       * @brief Get ancestral states  for a given node as a vector of int.
        *
        * The size of the vector is the number of distinct sites in the container
        * associated to the likelihood object.

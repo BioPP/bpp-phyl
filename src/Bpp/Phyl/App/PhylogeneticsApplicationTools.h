@@ -597,6 +597,13 @@ namespace bpp
       int warn = 1) throw (Exception);
     
 
+    /**
+     * @brief Build Phylogenies from parameters map.
+     *
+     * Default data compression is simple.
+     *
+     */
+    
     static std::map<size_t, PhyloLikelihood*> getPhyloLikelihoods(
       SubstitutionProcessCollection& SPC,
       std::map<size_t, SequenceEvolution*>& mSeqEvol,

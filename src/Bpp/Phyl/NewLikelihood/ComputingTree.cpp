@@ -251,14 +251,32 @@ void ComputingTree::fireParameterChanged(const ParameterList& pl)
   }
 }
 
-void ComputingTree::update(vector<int>& vId)
+void ComputingTree::update(vector<int>& vId, bool flag)
 {
   if (!isReadyToCompute_)
     throw Exception("ComputingTree::update : some nodes do not have a model.");
 
   for (size_t i=0; i<vTree_.size(); i++)
       for (size_t j=0; j<vId.size(); j++)
-        vTree_[i]->getNode(vId[j])->update();
+        vTree_[i]->getNode(vId[j])->update(flag);
+}
+
+void ComputingTree::update(int id, bool flag)
+{
+  if (!isReadyToCompute_)
+    throw Exception("ComputingTree::update : some nodes do not have a model.");
+
+  for (size_t i=0; i<vTree_.size(); i++)
+    vTree_[i]->getNode(id)->update(flag);
+}
+
+
+Vint ComputingTree::updatedNodes() const
+{
+  Vint lId;
+  vTree_[0]->getRootNode()->updatedSubTreeNodes(lId);
+
+  return lId;
 }
 
 void ComputingTree::updateAll()

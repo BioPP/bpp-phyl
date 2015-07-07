@@ -38,8 +38,8 @@
   knowledge of the CeCILL license and that you accept its terms.
 */
 
-#ifndef _ABSTRACT_RECURSIVE_LIKELIHOOD_NODE_H_
-#define _ABSTRACT_RECURSIVE_LIKELIHOOD_NODE_H_
+#ifndef _ABSTRACT_LIKELIHOOD_NODE_H_
+#define _ABSTRACT_LIKELIHOOD_NODE_H_
 
 #include "LikelihoodNode.h"
 #include "ComputingNode.h"
@@ -53,9 +53,9 @@ namespace bpp
 /**
  * @brief Basic Likelihood data structure for a node.
  * 
- * This class is for use with the AbstractTreeLikelihoodData class.
+ * This class is for use with the AbstractLikelihoodTree class.
  * 
- * Store all conditionnal likelihoods:
+ * Store all conditional likelihoods:
  * <pre>
  * x[i][s]
  *   |------> Site i
@@ -64,7 +64,7 @@ namespace bpp
  * We call this the <i>likelihood array</i> for each node.
  * In the same way, we store first and second order derivatives.
  *
- * @see AbstractTreeLikelihoodData
+ * @see AbstractLikelihoodTree
  */
   
   class AbstractLikelihoodNode :
@@ -73,41 +73,75 @@ namespace bpp
   protected:
 
     /*
-     * @brief likelihoods and derivatives
+     * @brief likelihoods.
+     *
+     * 
+     */
+    
+    VVdouble nodeLikelihoods_;
+    VVdouble nodeDLikelihoods_;
+    VVdouble nodeD2Likelihoods_;
+
+    /*
+     * @brief Check if likelihood arrays are up to date
      *
      */
     
-    mutable VVdouble nodeLikelihoods_;
-    mutable VVdouble nodeDLikelihoods_;
-    mutable VVdouble nodeD2Likelihoods_;
+    bool up2date_;
+    bool up2dateD_;
+    bool up2dateD2_;
 
+    /*
+     *@brief vector of pattern pointers from this towards sons (used
+     *       if patterns only!)
+     *
+     */
+
+    std::vector<const std::vector<size_t>* > vPatt_;
+    
   public:
     AbstractLikelihoodNode() :
       LikelihoodNode(),
       nodeLikelihoods_(),
       nodeDLikelihoods_(),
-      nodeD2Likelihoods_()
+      nodeD2Likelihoods_(),
+      up2date_(false),
+      up2dateD_(false),
+      up2dateD2_(false),
+      vPatt_()
     {}
     
     AbstractLikelihoodNode(const Node& np):
       LikelihoodNode(np),
       nodeLikelihoods_(),
       nodeDLikelihoods_(),
-      nodeD2Likelihoods_()
+      nodeD2Likelihoods_(),
+      up2date_(false),
+      up2dateD_(false),
+      up2dateD2_(false),
+      vPatt_()
     {}
 
     AbstractLikelihoodNode(int num, std::string st):
       LikelihoodNode(num, st),
       nodeLikelihoods_(),
       nodeDLikelihoods_(),
-      nodeD2Likelihoods_()
+      nodeD2Likelihoods_(),
+      up2date_(false),
+      up2dateD_(false),
+      up2dateD2_(false),
+      vPatt_()
     {}
 
     AbstractLikelihoodNode(const AbstractLikelihoodNode& data) :
       LikelihoodNode(data),
       nodeLikelihoods_(data.nodeLikelihoods_),
       nodeDLikelihoods_(data.nodeDLikelihoods_),
-      nodeD2Likelihoods_(data.nodeD2Likelihoods_)
+      nodeD2Likelihoods_(data.nodeD2Likelihoods_),
+      up2date_(data.up2date_),
+      up2dateD_(data.up2dateD_),
+      up2dateD2_(data.up2dateD2_),
+      vPatt_(data.vPatt_)
     {}
     
     AbstractLikelihoodNode& operator=(const AbstractLikelihoodNode& data)
@@ -115,8 +149,14 @@ namespace bpp
       LikelihoodNode::operator=(data);
       
       nodeLikelihoods_   = data.nodeLikelihoods_;
-      nodeDLikelihoods_  = data.nodeDLikelihoods_;
-      nodeD2Likelihoods_ = data.nodeD2Likelihoods_;
+      nodeDLikelihoods_   = data.nodeDLikelihoods_;
+      nodeD2Likelihoods_   = data.nodeD2Likelihoods_;
+ 
+      up2date_ = data.up2date_;
+      up2dateD_ = data.up2dateD_;
+      up2dateD2_ = data.up2dateD2_;
+
+      vPatt_ = data.vPatt_;
 
       return *this;
     }
@@ -127,70 +167,92 @@ namespace bpp
     }
 
   public:
-    VVdouble& getLikelihoodArray() { return nodeLikelihoods_; }
-    const VVdouble& getLikelihoodArray() const { return nodeLikelihoods_; }
-    
-    VVdouble& getDLikelihoodArray() { return nodeDLikelihoods_; }
-    const VVdouble& getDLikelihoodArray() const { return nodeDLikelihoods_; }
-    
-    VVdouble& getD2LikelihoodArray() { return nodeD2Likelihoods_; }
-    const VVdouble& getD2LikelihoodArray() const { return nodeD2Likelihoods_; }
 
-    virtual void resetLikelihoods(size_t nbSites, size_t nbStates)
+    /**
+     * @brief Several Likelihood Arrays
+     *
+     */
+    
+    VVdouble& getLikelihoodArray(unsigned char DX) {
+      switch(DX){
+      case ComputingNode::D0:
+        return nodeLikelihoods_;
+      case ComputingNode::D1:
+        return nodeDLikelihoods_;
+      case ComputingNode::D2:
+        return nodeD2Likelihoods_;
+      default:
+        throw Exception("Unknown derivative " + TextTools::toString(DX));
+      }
+    }
+    
+    const VVdouble& getLikelihoodArray(unsigned char DX) const {
+      switch(DX){
+      case ComputingNode::D0:
+        return nodeLikelihoods_;
+      case ComputingNode::D1:
+        return nodeDLikelihoods_;
+      case ComputingNode::D2:
+        return nodeD2Likelihoods_;
+      default:
+        throw Exception("Unknown derivative " + TextTools::toString(DX));
+      }
+    }
+    
+    bool isUp2date(unsigned char DX) const
     {
-      nodeLikelihoods_.resize(nbSites);
-      nodeDLikelihoods_.resize(nbSites);
-      nodeD2Likelihoods_.resize(nbSites);
-      
-      for (size_t i = 0; i < nbSites; i++)
+      switch(DX){
+      case ComputingNode::D0:
+        return up2date_;
+      case ComputingNode::D1:
+        return up2dateD_;
+      case ComputingNode::D2:
+        return up2dateD2_;
+      default:
+        return false;
+      }
+    }
+
+    void update(bool check, unsigned char DX)
+    {
+      if (!check)
       {
-        Vdouble* likelihoods_i = &(nodeLikelihoods_[i]);
-        Vdouble* dLikelihoods_i = &(nodeDLikelihoods_[i]);
-        Vdouble* d2Likelihoods_i = &(nodeD2Likelihoods_[i]);
-        likelihoods_i->resize(nbStates);
-        dLikelihoods_i->resize(nbStates);
-        d2Likelihoods_i->resize(nbStates);
-        for (size_t s = 0; s < nbStates; s++)
-        {
-          (*likelihoods_i)[s] = 1; // All likelihoods_ are initialized to 1.
-          (*dLikelihoods_i)[s] = 0; // All dLikelihoods_ are initialized to 0.
-          (*d2Likelihoods_i)[s] = 0; // All d2Likelihoods_ are initialized to 0.
+        switch(DX){
+        case ComputingNode::D0:
+          up2date_=false;
+        case ComputingNode::D1:
+          up2dateD_=false;
+        case ComputingNode::D2:
+          up2dateD2_=false;
+        }
+      }
+      else
+      {
+        switch(DX){
+        case ComputingNode::D0:
+          up2date_=true;
+          break;
+        case ComputingNode::D1:
+          up2dateD_=true;
+          break;
+        case ComputingNode::D2:
+          up2dateD2_=true;
+          break;
         }
       }
     }
-    
 
-    virtual void resetLikelihoods(unsigned char DX)
+    void resetLikelihoods(size_t nbSites, size_t nbStates, unsigned char DX)
     {
-      size_t nSites=nodeLikelihoods_.size();
-      size_t nbStates=nodeLikelihoods_[0].size();
+      VVdouble& array=getLikelihoodArray(DX);
+      array.resize(nbSites);
 
-      double init=(DX==ComputingNode::D0?1:0);
-      
-      VVdouble* array;
-      if (DX==ComputingNode::D0)
-        array=&nodeLikelihoods_;
-      else
-        if (DX==ComputingNode::D1)
-          array=&nodeDLikelihoods_;
-        else
-          if (DX==ComputingNode::D2)
-            array=&nodeD2Likelihoods_;
-          else
-            throw Exception("AbstractLikelihoodNode::resetLikelihoods: unknown function modifier " + TextTools::toString(DX));
-        
-      
-      for (size_t i = 0; i < nSites; i++)
-      {
-        Vdouble* array_i = &(*array)[i];
+      for (size_t i = 0; i < nbSites; i++)
+        (array)[i].resize(nbStates,0);
 
-        for (size_t s = 0; s < nbStates; s++)
-          (*array_i)[s] = init; 
-
-      }
+      update(false, DX);
     }
     
-
     double& operator()(size_t nSite, size_t nState)
     {
       return nodeLikelihoods_[nSite][nState];
@@ -206,20 +268,57 @@ namespace bpp
       return nodeLikelihoods_[nSite];
     }
 
-    virtual void computeUpwardPartialLikelihoods(const ComputingNode& lNode, unsigned char DX, Vint* vBrid= NULL)
+    /*
+     * @brief recursively set likelihood arrays down from the node.
+     *
+     */
+    
+    void resetInnerLikelihoods(size_t nbSites, size_t nbStates, unsigned char DX)
     {
-      resetLikelihoods(DX);
+      if (degree()>=2)
+        resetLikelihoods(nbSites, nbStates, DX);
+
+      size_t nbSons=getNumberOfSons();
+      for (size_t i=0;i<nbSons;i++)
+      {
+        static_cast<AbstractLikelihoodNode*>(getSon(i))->resetInnerLikelihoods(nbSites, nbStates, DX);
+      }
+
+      update(false, DX);
     }
 
-    virtual void computeUpwardPartialLikelihoods(const ComputingNode& lNode, const std::vector<const std::vector<size_t>* >& vPatterns, unsigned char DX, Vint* vBrid= NULL)
+    /*
+     * @brief recursively set patterns
+     *
+     */
+    
+    void setPatterns(const std::map<int, std::map<int, std::vector<size_t> > >& patterns)
     {
-      resetLikelihoods(DX);
+      const std::map<int, std::vector<size_t> >& patt=patterns.find(getId())->second;
+
+      size_t nbSons=getNumberOfSons();
+      for (size_t i=0;i<nbSons;i++)
+      {
+        static_cast<AbstractLikelihoodNode*>(getSon(i))->setPatterns(patterns);
+        vPatt_.push_back(&(patt.find(getSon(i)->getId())->second));
+      }
     }
 
+
+    /**
+     * @brief Compute the posterior probabilities for each state and
+     * each distinct site.
+     *
+     * @param vPP The 2-dimension site X state of the a posteriori
+     *        probabilities [out].
+     */
+    
+    void getPosteriorProbabilitiesForEachState(VVdouble& vPP) const;
+    
   };
 
   
 } //end of namespace bpp.
 
-#endif //_ABSTRACT_RECURSIVE_LIKELIHOOD_NODE_H_
+#endif //_ABSTRACT_LIKELIHOOD_NODE_H_
 

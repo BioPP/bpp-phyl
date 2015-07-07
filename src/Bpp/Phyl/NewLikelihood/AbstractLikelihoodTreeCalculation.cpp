@@ -53,7 +53,7 @@ void AbstractLikelihoodTreeCalculation::setData(const SiteContainer& sites)
 
   if (verbose_)
     ApplicationTools::displayTask("Initializing data structure");
-  getLikelihoodData()->initLikelihoods(*data_, *process_);
+  getLikelihoodData().initLikelihoods(*data_, *process_);
 
 // We assume here that all models have the same number of states, and
 // that they have the same 'init' method, which is a reasonable
@@ -62,15 +62,14 @@ void AbstractLikelihoodTreeCalculation::setData(const SiteContainer& sites)
   if (verbose_)
     ApplicationTools::displayTaskDone();
 
-  nbSites_         = getLikelihoodData()->getNumberOfSites();
-  nbDistinctSites_ = getLikelihoodData()->getNumberOfDistinctSites();
-  nbStates_        = getLikelihoodData()->getNumberOfStates();
+  nbSites_         = getLikelihoodData().getNumberOfSites();
+  nbDistinctSites_ = getLikelihoodData().getNumberOfDistinctSites();
+  nbStates_        = getLikelihoodData().getNumberOfStates();
 
   if (verbose_)
     ApplicationTools::displayResult("Number of distinct sites", TextTools::toString(nbDistinctSites_));
 
   initialized_ = true;
-  resetToCompute();
 }
 
 
@@ -78,8 +77,7 @@ void AbstractLikelihoodTreeCalculation::setData(const SiteContainer& sites)
 
 double AbstractLikelihoodTreeCalculation::getLogLikelihood()
 {
-//  if (computeLikelihoods_)
-    computeTreeLikelihood();
+  computeTreeLikelihood();
   
   vector<double> la(nbSites_);
   for (size_t i = 0; i < nbSites_; ++i)
@@ -93,49 +91,14 @@ double AbstractLikelihoodTreeCalculation::getLogLikelihood()
   {
     ll += la[i - 1];
   }
+  
   return ll;
 }
-
-// /******************************************************************************/
-
-// void DoubleRecursiveLikelihoodTreeCalculation::setData(const SiteContainer& sites) throw (Exception)
-// {
-//   const TreeTemplate<Node>& tt = dynamic_cast<const TreeTemplate<Node>&>(process_->getTree());
-
-//   data_.reset(PatternTools::getSequenceSubset(sites, *tt.getRootNode()));
-//   if (verbose_)
-//     ApplicationTools::displayTask("Initializing data structure");
-//   likelihoodData_->initLikelihoods(*data_, *process_);
-// // We assume here that all models have the same number of states, and
-// // that they have the same 'init' method, which is a reasonable
-// // assumption as long as they share the same alphabet.
-
-//   if (verbose_)
-//     ApplicationTools::displayTaskDone();
-
-//   nbSites_         = likelihoodData_->getNumberOfSites();
-//   nbDistinctSites_ = likelihoodData_->getNumberOfDistinctSites();
-//   nbStates_        = likelihoodData_->getNumberOfStates();
-
-//   if (verbose_)
-//     ApplicationTools::displayResult("Number of distinct sites", TextTools::toString(nbDistinctSites_));
-
-//   initialized_ = true;
-//   compNId_ = -1;
-  
-//   //Recompute likelihood:
-//   computeTreeLikelihood();
-// }
 
 /******************************************************************************/
 
 double AbstractLikelihoodTreeCalculation::getDLogLikelihood()
 {
-  if (computeLikelihoodsD1_){
-    throw Exception("getDLogLikelihood() : DLogLikelihood not computed");
-    computeLikelihoodsD1_=false;
-  }
-
   // Derivative of the sum is the sum of derivatives:
   vector<double> dla(nbSites_);
   for (size_t i = 0; i < nbSites_; ++i)
@@ -157,11 +120,6 @@ double AbstractLikelihoodTreeCalculation::getDLogLikelihood()
 
 double AbstractLikelihoodTreeCalculation::getD2LogLikelihood() 
 {
-  if (computeLikelihoodsD2_){
-    throw Exception("getD2LogLikelihood() : D2LogLikelihood not computed");
-    computeLikelihoodsD2_=false;
-  }
-  
   // Derivative of the sum is the sum of derivatives:
   double dl = 0;
   for (size_t i = 0; i < nbSites_; ++i)
@@ -210,13 +168,13 @@ void AbstractLikelihoodTreeCalculation::getAncestralFrequencies(
   map<int, vector<double> > siteFrequencies;
   for (size_t i = 0; i < n; ++i)
   {
-    w = getLikelihoodData()->getWeight(i);
+    w = getLikelihoodData().getWeight(i);
     sumw += w;
   }
 
   for (size_t i = 0; i < n; ++i)
   {
-    w = getLikelihoodData()->getWeight(i);
+    w = getLikelihoodData().getWeight(i);
     getAncestralFrequencies(i, siteFrequencies, alsoForLeaves);
     //Initialization
     if (i == 0)
@@ -245,7 +203,6 @@ void AbstractLikelihoodTreeCalculation::getAncestralFrequencies(
   std::map<int, std::vector<double> >& frequencies,
   bool alsoForLeaves)
 {
-  int currentId = getSubstitutionProcess()->getTree().getRootId();
   const vector<double>& currentFreqs = getSubstitutionProcess()->getRootFrequencies();
   size_t nbClasses = getNumberOfClasses();
 
@@ -253,11 +210,13 @@ void AbstractLikelihoodTreeCalculation::getAncestralFrequencies(
 
   for (size_t nclass=0; nclass<nbClasses; nclass++)
   {
+    int currentId = getLikelihoodData().getRootData(nclass).getId();
+    
     std::map<int, std::vector<double> > mfreqcl;
     getAncestralFrequencies_(getSiteIndex(site), nclass, currentId, currentFreqs, mfreqcl, alsoForLeaves);
     vmfreqcl.push_back(mfreqcl);
   }
-
+  
   frequencies.clear();
   frequencies.insert(vmfreqcl[0].begin(), vmfreqcl[0].end());
 
@@ -282,10 +241,12 @@ void AbstractLikelihoodTreeCalculation::getAncestralFrequencies_(
   std::map<int,std::vector<double> >& frequencies,
   bool alsoForLeaves)
 {
-  if (!getSubstitutionProcess()->getTree().isLeaf(parentId) || alsoForLeaves)
+  const AbstractLikelihoodNode& parentNode = getLikelihoodData().getNodeData(parentId, classIndex);
+  
+  if (!parentNode.isLeaf() || alsoForLeaves)
     frequencies[parentId] = ancestralFrequencies;
 
-  vector<int> sonsId = getSubstitutionProcess()->getTree().getSonsId(parentId);
+  vector<int> sonsId = parentNode.getSonsId();
   for (size_t i = 0; i < sonsId.size(); i++)
   {
     vector<double> sonFrequencies(getNumberOfStates());

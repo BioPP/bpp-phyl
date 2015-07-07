@@ -49,12 +49,11 @@ using namespace bpp;
 MixturePhyloLikelihood::MixturePhyloLikelihood(
   const SiteContainer& data,
   MixtureSequenceEvolution& processSeqEvol,
-  char recursivity,
   size_t nSeqEvol,
   size_t nData,
   bool verbose,
   bool patterns) :
-  MultiProcessPhyloLikelihood(data, processSeqEvol, recursivity, nSeqEvol, nData, verbose, patterns),
+  MultiProcessPhyloLikelihood(data, processSeqEvol, nSeqEvol, nData, verbose, patterns),
   mSeqEvol_(processSeqEvol)
 {
 }

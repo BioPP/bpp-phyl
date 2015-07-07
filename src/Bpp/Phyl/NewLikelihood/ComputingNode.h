@@ -67,9 +67,9 @@ namespace bpp
     public AbstractParametrizable
   {
   public:
-    static unsigned char D0;
-    static unsigned char D1;
-    static unsigned char D2;
+    static const unsigned char D0=0;
+    static const unsigned char D1=1;
+    static const unsigned char D2=2;
   private:
   
     const SubstitutionModel* model_;
@@ -123,6 +123,41 @@ namespace bpp
     {
       return model_;      
     }
+
+    /*
+     * @brief return if transition probabilities need to be
+     * recomputed.
+     *
+     */
+
+    bool isUp2dateTransitionProbabilities() const
+    {
+      return !computeProbabilities_;
+    }
+    
+
+    bool isUp2dateTransitionProbabilitiesD1() const
+    {
+      return !computeProbabilitiesD1_;
+    }
+
+    bool isUp2dateTransitionProbabilitiesD2() const
+    {
+      return !computeProbabilitiesD2_;
+    }
+
+    /*
+     * @brief append the vector of the nodes to be updated in the
+     * subtree below this node.
+     *
+     */
+    
+    void updatedSubTreeNodes(Vint& lId) const;
+
+    /*
+     * @brief compute transition probabilities.
+     *
+     */
     
     void computeTransitionProbabilities() const;
 
@@ -217,9 +252,10 @@ namespace bpp
     /**
      * @brief Sets the computeProbabilities to true on this node.
      *
+     * If flag = true (default), node has to be updated (false otherwise).
      */
     
-    void update();
+    void update(bool flag = true);
 
     /**
      * @brief Sets the computeProbabilities to true on this node and
@@ -405,6 +441,33 @@ namespace bpp
       }
     }
 
+    void setDownwardLikelihoodsAtASite(Vdouble* likelihoods_node, const Vdouble* likelihoods_father, unsigned char DX) const
+    {
+      double (ComputingNode::*gtP)(size_t,size_t) const = NULL;
+
+      if (DX==D0)
+        gtP=&ComputingNode::getTransitionProbability;
+      else
+        if (DX==D1)
+          gtP=&ComputingNode::getTransitionProbabilityD1;
+        else
+          if (DX==D2)
+            gtP=&ComputingNode::getTransitionProbabilityD2;
+          else
+            throw Exception("ComputingNode::multiplyDownwardLikelihoodsAtASite: unknown function modifier " + TextTools::toString(DX));
+        
+      for (size_t x = 0; x < nbStates_; x++)
+      {
+        // For each initial state,
+        double likelihood = 0;
+        for (size_t y = 0; y < nbStates_; y++)
+        {
+          likelihood += (*this.*gtP)(y, x) * (*likelihoods_father)[y];
+        }
+        (*likelihoods_node)[x] = likelihood;
+      }
+    }
+
     /**
      *@brief multiplies its partial likelihood using the partial
      * likelihoods of some sons.
@@ -534,30 +597,6 @@ namespace bpp
     }
 
     
-    static void multiplyPartialLikelihoods(VVdouble* likelihoods, const VVdouble* likelihoods_self, const std::vector<size_t>& patterns)
-    {
-      size_t nbSites=likelihoods->size();
-
-      for (size_t i = 0; i < nbSites; i++)
-        (*likelihoods)[i]*=(*likelihoods_self)[patterns[i]];
-    }
-
-    static void addPartialLikelihoods(VVdouble* likelihoods, const VVdouble* likelihoods_self, const std::vector<size_t>& patterns)
-    {
-      size_t nbSites=likelihoods->size();
-        
-      for (size_t i = 0; i < nbSites; i++)
-        (*likelihoods)[i]+=(*likelihoods_self)[patterns[i]];
-    }
-
-    static void setPartialLikelihoods(VVdouble* likelihoods, const VVdouble* likelihoods_self, const std::vector<size_t>& patterns)
-    {
-      size_t nbSites=likelihoods->size();
-        
-      for (size_t i = 0; i < nbSites; i++)
-        (*likelihoods)[i]=(*likelihoods_self)[patterns[i]];
-    }
-
     void addUpwardPartialLikelihoods(VVdouble* likelihoods, const VVdouble* likelihoods_self, const std::vector<size_t>& patterns, unsigned char DX) const
     {
       size_t nbSites=likelihoods->size();
@@ -592,7 +631,15 @@ namespace bpp
       size_t nbSites=likelihoods->size();
         
       for (size_t i = 0; i < nbSites; i++)
-        multiplyDownwardLikelihoodsAtASite(&(*likelihoods_self)[i], &(*likelihoods)[i],DX);
+        multiplyDownwardLikelihoodsAtASite(&(*likelihoods_self)[i], &(*likelihoods)[i], DX);
+    }
+
+    void setDownwardPartialLikelihoods(VVdouble* likelihoods_self, const VVdouble* likelihoods, unsigned char DX) const
+    {
+      size_t nbSites=likelihoods->size();
+        
+      for (size_t i = 0; i < nbSites; i++)
+        setDownwardLikelihoodsAtASite(&(*likelihoods_self)[i], &(*likelihoods)[i], DX);
     }
 
 

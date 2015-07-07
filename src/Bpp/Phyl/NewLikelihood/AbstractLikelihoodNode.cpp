@@ -1,7 +1,7 @@
 //
-// File: AutoCorrelationPhyloLikelihood.cpp
+// File: AbstractLikelihoodNode.cpp
 // Created by: Laurent Guéguen
-// Created on: lundi 23 septembre 2013, à 22h 56
+// Created on: mercredi 1 juillet 2015, à 16h 22
 //
 
 /*
@@ -37,46 +37,38 @@
    knowledge of the CeCILL license and that you accept its terms.
  */
 
-#include "AutoCorrelationPhyloLikelihood.h"
+#include "AbstractLikelihoodNode.h"
+#include "ComputingNode.h"
+#include "../PatternTools.h"
 
-#include "HmmPhyloEmissionProbabilities.h"
-
-#include <Bpp/Numeric/Hmm/LogsumHmmLikelihood.h>
-#include <Bpp/Numeric/Hmm/AutoCorrelationTransitionMatrix.h>
-
-using namespace std;
 using namespace bpp;
+using namespace std;
 
-/******************************************************************************/
 
-AutoCorrelationPhyloLikelihood::AutoCorrelationPhyloLikelihood(
-  const SiteContainer& data,
-  AutoCorrelationSequenceEvolution& processSeqEvol,
-  size_t nSeqEvol,
-  size_t nData,
-  bool verbose,
-  bool patterns) :
-  MultiProcessPhyloLikelihood(data, processSeqEvol, nSeqEvol, nData, verbose, patterns),
-  Hpep_(0),
-  Hmm_(0)
+void AbstractLikelihoodNode::getPosteriorProbabilitiesForEachState(VVdouble& vPP) const
 {
-  Hpep_=std::auto_ptr<HmmPhyloEmissionProbabilities>(new HmmPhyloEmissionProbabilities(&processSeqEvol.getHmmProcessAlphabet(), this));
+  size_t nSites=nodeLikelihoods_.size();
+  size_t nStates=nodeLikelihoods_[0].size();
 
-  Hmm_ = auto_ptr<LogsumHmmLikelihood>(new LogsumHmmLikelihood(&processSeqEvol.getHmmProcessAlphabet(), &processSeqEvol.getHmmTransitionMatrix(), Hpep_.get(), false));
+  vPP.resize(nSites);
+  
+  const VVdouble& larray = getLikelihoodArray(ComputingNode::D0);
+
+  for (size_t i = 0; i < nSites; i++)
+  {
+    const Vdouble * larray_i = & larray[i];
+    Vdouble * vPP_i = & vPP[i];
+    vPP_i->resize(nStates);
+        
+    double likelihood = 0;
+    for(size_t s = 0; s < nStates; s++)
+      likelihood += (* larray_i)[s];
+        
+    for(size_t s = 0; s < nStates; s++)
+    {
+      (* vPP_i)[s] = (* larray_i)[s] / likelihood;
+    }
+  }
 }
 
-void AutoCorrelationPhyloLikelihood::setNamespace(const std::string& nameSpace)
-{
-  MultiProcessPhyloLikelihood::setNamespace(nameSpace);
-  Hmm_->setNamespace(nameSpace);
-}
-
-
-void AutoCorrelationPhyloLikelihood::fireParameterChanged(const ParameterList& parameters)
-{
-  MultiProcessPhyloLikelihood::fireParameterChanged(parameters);
-
-  Hmm_->matchParametersValues(parameters);
-}
-
-
+    

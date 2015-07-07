@@ -38,8 +38,7 @@
  */
 
 #include "OneProcessSequencePhyloLikelihood.h"
-#include "SingleRecursiveTreeLikelihoodCalculation.h"
-#include "DoubleRecursiveTreeLikelihoodCalculation.h"
+#include "RecursiveLikelihoodTreeCalculation.h"
 
 using namespace std;
 using namespace bpp;
@@ -48,7 +47,6 @@ using namespace bpp;
 
 OneProcessSequencePhyloLikelihood::OneProcessSequencePhyloLikelihood(
   OneProcessSequenceEvolution& evol,
-  char recursivity,
   size_t nSeqEvol,
   bool verbose,
   bool patterns) :
@@ -58,14 +56,7 @@ OneProcessSequencePhyloLikelihood::OneProcessSequencePhyloLikelihood(
 {
   SubstitutionProcess& sp=evol.getSubstitutionProcess();
 
-  if (recursivity=='S')
-    tlComp_ = std::auto_ptr<TreeLikelihoodCalculation>(new SingleRecursiveTreeLikelihoodCalculation(&sp, true, patterns));
-  else
-    if (recursivity=='D')
-      tlComp_ = std::auto_ptr<TreeLikelihoodCalculation>(new DoubleRecursiveTreeLikelihoodCalculation(&sp, true));
-    else throw(Exception("OneProcessPhyloLikelihood::OneProcessPhyloLikelihood: unknown recursivity : " + recursivity));
-
-  tlComp_->resetToCompute();
+  tlComp_ = std::auto_ptr<LikelihoodTreeCalculation>(new RecursiveLikelihoodTreeCalculation(&sp, true, patterns));
 }
 
 /******************************************************************************/
@@ -73,7 +64,6 @@ OneProcessSequencePhyloLikelihood::OneProcessSequencePhyloLikelihood(
 OneProcessSequencePhyloLikelihood::OneProcessSequencePhyloLikelihood(
   const SiteContainer& data,
   OneProcessSequenceEvolution& evol,
-  char recursivity,
   size_t nSeqEvol,
   size_t nData,
   bool verbose,
@@ -84,27 +74,9 @@ OneProcessSequencePhyloLikelihood::OneProcessSequencePhyloLikelihood(
 {
   SubstitutionProcess& sp=evol.getSubstitutionProcess();
 
-  if (recursivity=='S')
-    tlComp_ = std::auto_ptr<TreeLikelihoodCalculation>(new SingleRecursiveTreeLikelihoodCalculation(&sp, true, patterns));
-  else
-    if (recursivity=='D')
-      tlComp_ = std::auto_ptr<TreeLikelihoodCalculation>(new DoubleRecursiveTreeLikelihoodCalculation(&sp, true));
-    else throw(Exception("OneProcessPhyloLikelihood::OneProcessPhyloLikelihood: unknown recursivity : " + recursivity));
-
-  tlComp_->resetToCompute();
+  tlComp_ = std::auto_ptr<LikelihoodTreeCalculation>(new RecursiveLikelihoodTreeCalculation(&sp, true, patterns));
 
   setData(data, nData);
-}
-
-
-
-/******************************************************************************/
-
-void OneProcessSequencePhyloLikelihood::fireParameterChanged(const ParameterList& params)
-{
-  AbstractSequencePhyloLikelihood::fireParameterChanged(params);
-  
-  tlComp_->resetToCompute();
 }
 
 /******************************************************************************/

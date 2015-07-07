@@ -112,13 +112,6 @@ public:
   virtual bool isInitialized() const  = 0;
 
   /**
-   * @brief Tell that the likelihood should be recomputed.
-   *
-   * @return True if a data set is associated to this instance.
-   */
-  virtual void resetToCompute() = 0;
-
-  /**
    * @brief Initialize the object according to a data set.
    *
    * @param sites A sequence alignment to initialize the object with.
@@ -131,9 +124,9 @@ public:
    */
   virtual const SiteContainer* getData() const = 0;
 
-  virtual LikelihoodTree* getLikelihoodData() = 0;
+  virtual LikelihoodTree& getLikelihoodData() = 0;
   
-  virtual const LikelihoodTree* getLikelihoodData() const = 0;
+  virtual const LikelihoodTree& getLikelihoodData() const = 0;
   
   /**
    * @brief Get the log-likelihood for the data set.
@@ -217,14 +210,15 @@ public:
 
   virtual double getD2LogLikelihoodForASite(size_t site) = 0;  
 
-protected:
   /**
    * @brief Perform a likelihood computation.
    */
   
   virtual void computeTreeLikelihood() = 0;
 
-  // To protect later
+  
+  virtual void computeLikelihoodsAtNode(int nodeId) = 0;
+
 public:
   /**
    * @brief Initiate a derivative log-likelihood computation.

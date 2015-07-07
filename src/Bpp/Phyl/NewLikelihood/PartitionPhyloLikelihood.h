@@ -87,7 +87,6 @@ namespace bpp
     public:
       PartitionPhyloLikelihood(
         PartitionSequenceEvolution& processSeqEvol,
-        char recursivity,
         size_t nSeqEvol = 0,
         bool verbose = true,
         bool patterns = true);
@@ -95,7 +94,6 @@ namespace bpp
       PartitionPhyloLikelihood(
         const SiteContainer& data,
         PartitionSequenceEvolution& processSeqEvol,
-        char recursivity,
         size_t nSeqEvol = 0,
         size_t nData = 0,
         bool verbose = true,

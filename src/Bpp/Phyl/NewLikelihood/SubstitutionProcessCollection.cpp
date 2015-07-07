@@ -157,22 +157,45 @@ ParameterList SubstitutionProcessCollection::getNonDerivableParameters() const
   
 void SubstitutionProcessCollection::fireParameterChanged(const ParameterList& parameters)
 {
+  // de-updates the roots
+  // perhaps to be changed later
+
+  for (map<size_t, SubstitutionProcessCollectionMember*>::iterator it=mSubProcess_.begin(); it!=mSubProcess_.end(); it++)
+    it->second->changedRoot(false);
+
   AbstractParameterAliasable::fireParameterChanged(parameters);
 
   ParameterList gAP=getAliasedParameters(parameters);
 
   gAP.addParameters(parameters);
 
+  modelColl_.clearChanged();
   modelColl_.matchParametersValues(gAP);
+
+  
   const vector<size_t>& vM=modelColl_.hasChanged();
   for (size_t i=0; i<vM.size(); i++)
   {
     const vector<size_t>& vs=mModelToSubPro_[vM[i]];
-    for (size_t j=0; j<vs.size(); j++)
+    for (size_t j=0; j<vs.size(); j++){
       mSubProcess_[vs[j]]->changedModel(vM[i]);
+      if (mSubProcess_[vs[j]]->isStationary())
+        mSubProcess_[vs[j]]->changedRoot();
+    }
   }
-
+  
+  freqColl_.clearChanged();
   freqColl_.matchParametersValues(gAP);
+
+  vector<size_t> keys=freqColl_.keys();
+
+  const vector<size_t> vMf=freqColl_.hasChanged();
+  for (size_t i=0; i<vMf.size(); i++)
+  {
+    const vector<size_t>& vs=mFreqToSubPro_[vMf[i]];
+    for (size_t j=0; j<vs.size(); j++)
+      mSubProcess_[vs[j]]->changedRoot();
+  }
   
 
   // map of the SubProcess to be fired

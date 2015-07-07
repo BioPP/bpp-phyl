@@ -75,7 +75,6 @@ namespace bpp
       MixturePhyloLikelihood(
         const SiteContainer& data,
         MixtureSequenceEvolution& processSeqEvol,
-        char recursivity,
         size_t nSeqEvol = 0,
         size_t nData = 0,
         bool verbose = true,

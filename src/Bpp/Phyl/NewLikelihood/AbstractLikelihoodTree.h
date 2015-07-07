@@ -52,13 +52,16 @@ namespace bpp
 {
 
 /**
- * @brief Tree Organization of Computing Nodes
+ * @brief Interface LikelihoodTree data structure.
  *
- * Stores computation tools for all nodes, for all classes.
+ * Stores all the inner computations:
+ * - conditional likelihoods for each node,
+ * - correspondance between sites in the dataset and array indices.
  *
- * This object has the parameters of the Tree and the rates
- * distribution, since it manages the ComputingNodes.
+ * The structure is initiated according to a tree topology, and 
+ * data can be retrieved through node ids.
  *
+ * @see LikelihoodNode
  */
 
   class AbstractLikelihoodTree :
@@ -89,6 +92,13 @@ namespace bpp
     size_t nbSites_; 
     size_t nbStates_;
     size_t nbClasses_;
+
+    /**
+     * @brief The probabilities of the classes.
+     */
+    
+    Vdouble vProbClass_;
+
     size_t nbDistinctSites_; 
 
   public:
@@ -117,37 +127,64 @@ namespace bpp
      *
      */
     
-    void resetLikelihoods(int nodeId, size_t nbSites, size_t nbStates)
+    void resetLikelihoods(int nodeId, size_t nbSites, size_t nbStates, unsigned char DX)
     {
       for (size_t i=0; i<nbClasses_; i++)
-        getNodeData(nodeId, i).resetLikelihoods(nbSites, nbStates);
+        getNodeData(nodeId, i).resetLikelihoods(nbSites, nbStates, DX);
     }
 
     /*
-     * @brief reset the Likelihood arrays:
-     *     set to 1 and 0
+     * @brief recursively reset Likelihoods on all the Inner nodes.
+     *
      */
-
-    void resetLikelihoods(int nodeId, unsigned char DX)
+    
+    void resetInnerLikelihoods(size_t nbSites, size_t nbStates, unsigned char DX)
     {
       for (size_t i=0; i<nbClasses_; i++)
-        getNodeData(nodeId, i).resetLikelihoods(DX);
+        getRootData(i).resetInnerLikelihoods(nbSites, nbStates, DX);
     }
 
-  public:
+    /*
+     * @brief recursively set patterns on all the nodes.
+     *
+     */
+    
+    void setPatterns(const std::map<int, std::map<int, std::vector<size_t> > >& patterns)
+    {
+      for (size_t i=0; i<nbClasses_; i++)
+        getRootData(i).setPatterns(patterns);
+    }
+    
+public:
+
+    /*
+     * @brief the relations between real position and shrunked data
+     * positions.
+     *
+     */
+     
     std::vector<size_t>& getRootArrayPositions() { return rootPatternLinks_; }
       
+    size_t getRootArrayPosition(size_t currentPosition) const
+    {
+      return rootPatternLinks_[currentPosition];
+    }
+    
     const std::vector<size_t>& getRootArrayPositions() const { return rootPatternLinks_; }
 
-    virtual AbstractLikelihoodNode& getNodeData(int nodeId, size_t nClass) = 0;
-
-    virtual const AbstractLikelihoodNode& getNodeData(int nodeId, size_t nClass) const = 0;
-    
-    size_t getRootArrayPosition(size_t site) const
-    {
-      return rootPatternLinks_[site];
+    const SiteContainer* getShrunkData() const {
+      return shrunkData_.get();
     }
 
+    size_t getNumberOfDistinctSites() const { return nbDistinctSites_; }
+
+    size_t getNumberOfSites() const { return nbSites_; }
+
+    /*
+     * @brief the weights of the positions of the shrunked data
+     *
+     */
+     
     unsigned int getWeight(size_t pos) const
     {
       return rootWeights_[pos];
@@ -158,28 +195,72 @@ namespace bpp
       return rootWeights_;
     }
 
+    /*
+     * @brief the alphabet.
+     *
+     */
+    
     const Alphabet* getAlphabet() const { return alphabet_; }
 
-    size_t getNumberOfDistinctSites() const { return nbDistinctSites_; }
-    size_t getNumberOfSites() const { return nbSites_; }
     size_t getNumberOfStates() const { return nbStates_; }
+
     size_t getNumberOfClasses() const { return nbClasses_; }
 
-    const SiteContainer* getShrunkData() const {
-      return shrunkData_.get();
+    /*
+     * @brief the Node Data
+     *
+     */
+
+    virtual AbstractLikelihoodNode& getNodeData(int nodeId, size_t nClass) = 0;
+
+    virtual const AbstractLikelihoodNode& getNodeData(int nodeId, size_t nClass) const = 0;
+
+    virtual AbstractLikelihoodNode& getRootData(size_t nClass) = 0;
+
+    virtual const AbstractLikelihoodNode& getRootData(size_t nClass) const = 0;
+
+    /*
+     * @brief the DXLikehoodArrays
+     *
+     */
+    
+    VVdouble& getLikelihoodArray(int nodeId, size_t nClass, unsigned char DX)
+    {
+      return getNodeData(nodeId, nClass).getLikelihoodArray(DX);
     }
 
-    void computeUpwardPartialLikelihoods(const ComputingTree& lTree, int nodeId, unsigned char DX, Vint* vbr=NULL)
-    {
-      for (size_t c = 0; c < nbClasses_; ++c)
-        getNodeData(nodeId, c).computeUpwardPartialLikelihoods(*lTree[c]->getNode(nodeId), DX, vbr);
-    }
+    /**
+     * @brief Compute the posterior probabilities for each state and
+     * each class of each distinct site.
+     *
+     * @param nodeId The id of the node at which probabilities must be
+     * computed.
+     *
+     * @return A 3-dimensional array, with, for each site, joint
+     * probabilities of all classes and all states (sum on each
+     * site=1).
+     *
+     */
     
-    void computeUpwardPartialLikelihoods(const ComputingTree& lTree, int nodeId, const std::vector<const std::vector<size_t>* >& vPatterns, unsigned char DX, Vint* vbr=NULL)
-    {
-      for (size_t c = 0; c < nbClasses_; ++c)
-        getNodeData(nodeId, c).computeUpwardPartialLikelihoods(*lTree[c]->getNode(nodeId), vPatterns, DX, vbr);
-    }
+    VVVdouble getPosteriorProbabilitiesForEachStateForEachClass(int nodeId);
+
+    /**
+     * @brief Compute the posterior probabilities for each state for a
+     * given node.
+     *
+     * This method calls the
+     * getPosteriorProbabilitiesForEachStateForEachClass function and
+     * average the probabilities over all sites and classes,
+     * resulting in a one-dimensionnal frequency array, with one
+     * frequency per model state.
+     *
+     * @param nodeId The id of the node at which probabilities must be
+     * computed.
+     * @return vector of double with state frequencies for the given
+     * node.
+     */
+    
+    Vdouble getPosteriorStateFrequencies(int nodeId);
 
   };
   

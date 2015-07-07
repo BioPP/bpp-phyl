@@ -1,5 +1,5 @@
 //
-// File: SingleRecursiveLikelihoodTree.cpp
+// File: RecursiveLikelihoodTree.cpp
 // Created by: Julien Dutheil
 // Created on: Sat Dec 30 14:20 2006
 // From file HomogeneousTreeLikelihood.cpp
@@ -38,7 +38,8 @@
    knowledge of the CeCILL license and that you accept its terms.
  */
 
-#include "SingleRecursiveLikelihoodTree.h"
+#include "RecursiveLikelihoodTree.h"
+#include "ComputingNode.h"
 #include "../PatternTools.h"
 
 // From bpp-seq:
@@ -55,39 +56,41 @@ using namespace std;
 
 
 /******************************************************************************/
-/*  SingleRecursiveLikelihoodTree                                         */
+/*  RecursiveLikelihoodTree                                         */
 /******************************************************************************/
 
-SingleRecursiveLikelihoodTree::SingleRecursiveLikelihoodTree(const SubstitutionProcess& process, bool usePatterns) :
+RecursiveLikelihoodTree::RecursiveLikelihoodTree(const SubstitutionProcess& process, bool usepatterns) :
   AbstractLikelihoodTree(process),
   vTree_(),
   patternLinks_(),
-  usePatterns_(usePatterns)
+  usePatterns_(usepatterns),
+  initializedAboveLikelihoods_(false)
 {
   TreeTemplate<Node> tree=process.getParametrizableTree().getTree();
 
-  SingleRecursiveLikelihoodNode* rCN= TreeTemplateTools::cloneSubtree<SingleRecursiveLikelihoodNode>(*tree.getRootNode());
+  RecursiveLikelihoodNode* rCN= TreeTemplateTools::cloneSubtree<RecursiveLikelihoodNode>(*tree.getRootNode());
   
-  TreeTemplate<SingleRecursiveLikelihoodNode>* pTC=new TreeTemplate<SingleRecursiveLikelihoodNode>(rCN);
+  TreeTemplate<RecursiveLikelihoodNode>* pTC=new TreeTemplate<RecursiveLikelihoodNode>(rCN);
 
   for (size_t i=0; i<nbClasses_; i++){
-    TreeTemplate<SingleRecursiveLikelihoodNode>* pTC2=pTC->clone();
+    TreeTemplate<RecursiveLikelihoodNode>* pTC2=pTC->clone();
     vTree_.push_back(pTC2);
   }
   delete pTC;
 }
 
-SingleRecursiveLikelihoodTree::SingleRecursiveLikelihoodTree(const SingleRecursiveLikelihoodTree& data):
+RecursiveLikelihoodTree::RecursiveLikelihoodTree(const RecursiveLikelihoodTree& data):
   AbstractLikelihoodTree(data),
   vTree_(),
   patternLinks_(data.patternLinks_),
-  usePatterns_(data.usePatterns_)
+  usePatterns_(data.usePatterns_),
+  initializedAboveLikelihoods_(data.initializedAboveLikelihoods_)
 {
   for (size_t i=0; i<data.vTree_.size(); i++)
     vTree_.push_back(data.vTree_[i]->clone());
 }
 
-SingleRecursiveLikelihoodTree& SingleRecursiveLikelihoodTree::operator=(const SingleRecursiveLikelihoodTree & data)
+RecursiveLikelihoodTree& RecursiveLikelihoodTree::operator=(const RecursiveLikelihoodTree & data)
 {
   AbstractLikelihoodTree::operator=(data);
 
@@ -96,10 +99,12 @@ SingleRecursiveLikelihoodTree& SingleRecursiveLikelihoodTree::operator=(const Si
   
   patternLinks_      = data.patternLinks_;
   usePatterns_       = data.usePatterns_;
+  initializedAboveLikelihoods_ = data.initializedAboveLikelihoods_;
+
   return *this;
 }
 
-SingleRecursiveLikelihoodTree::~SingleRecursiveLikelihoodTree()
+RecursiveLikelihoodTree::~RecursiveLikelihoodTree()
 {
   for (size_t i=0;i<vTree_.size();i++)
     TreeTemplateTools::deleteSubtree(vTree_[i]->getRootNode());
@@ -107,13 +112,13 @@ SingleRecursiveLikelihoodTree::~SingleRecursiveLikelihoodTree()
   vTree_.clear();
 }
 
-void SingleRecursiveLikelihoodTree::initLikelihoods(const SiteContainer& sites, const SubstitutionProcess& process)
+void RecursiveLikelihoodTree::initLikelihoods(const SiteContainer& sites, const SubstitutionProcess& process)
 throw (Exception)
 {
-  if (sites.getNumberOfSequences() == 1) throw Exception("SingleRecursiveLikelihoodTree::initLikelihoods. Only 1 sequence in data set.");
-  if (sites.getNumberOfSequences() == 0) throw Exception("SingleRecursiveLikelihoodTree::initLikelihoods. No sequence in data set.");
+  if (sites.getNumberOfSequences() == 1) throw Exception("RecursiveLikelihoodTree::initLikelihoods. Only 1 sequence in data set.");
+  if (sites.getNumberOfSequences() == 0) throw Exception("RecursiveLikelihoodTree::initLikelihoods. No sequence in data set.");
   if (!process.isCompatibleWith(sites))
-    throw Exception("SingleRecursiveLikelihoodTree::initLikelihoods. Data and model are not compatible.");
+    throw Exception("RecursiveLikelihoodTree::initLikelihoods. Data and model are not compatible.");
   alphabet_ = sites.getAlphabet();
   nbStates_ = process.getNumberOfStates();
   nbSites_  = sites.getNumberOfSites();
@@ -125,6 +130,8 @@ throw (Exception)
     rootWeights_      = patterns->getWeights();
     rootPatternLinks_ = patterns->getIndices();
     nbDistinctSites_  = shrunkData_->getNumberOfSites();
+
+    setPatterns(patternLinks_);
   }
   else
   {
@@ -133,17 +140,47 @@ throw (Exception)
     rootWeights_      = patterns->getWeights();
     rootPatternLinks_ = patterns->getIndices();
     nbDistinctSites_  = shrunkData_->getNumberOfSites();
-    initLikelihoodsWithoutPatterns_(process.getTree().getRootNode(), *shrunkData_, process);
+    initLikelihoodsWithoutPatterns_(process.getTree().getRootNode(), *shrunkData_, process);    
   }
 }
 
 /******************************************************************************/
 
-void SingleRecursiveLikelihoodTree::initLikelihoodsWithoutPatterns_(const Node* node, const SiteContainer& sequences, const SubstitutionProcess& process) throw (Exception)
+void RecursiveLikelihoodTree::initLikelihoodsWithoutPatterns_(const Node* node, const SiteContainer& sequences, const SubstitutionProcess& process) throw (Exception)
 {
+  int nId=node->getId();
+  
   // Initialize likelihood vector:
-  resetLikelihoods(node->getId(), nbDistinctSites_, nbStates_);
+  if (!node->isLeaf()){
+    if (!node->hasFather())
+    {
+      resetAboveLikelihoods(nId, nbDistinctSites_, nbStates_);      
+      resetLikelihoods(nId, nbDistinctSites_, nbStates_, ComputingNode::D0);
+    
+      resetLikelihoods(nId, nbDistinctSites_, nbStates_, ComputingNode::D1);
+      resetLikelihoods(nId, nbDistinctSites_, nbStates_, ComputingNode::D2);
+    }
+    
+    resetBelowLikelihoods(nId, nbDistinctSites_, nbStates_, ComputingNode::D0);
+    
+    resetBelowLikelihoods(nId, nbDistinctSites_, nbStates_, ComputingNode::D1);
+    resetBelowLikelihoods(nId, nbDistinctSites_, nbStates_, ComputingNode::D2);
 
+  }
+  else
+  {
+    resetBelowLikelihoods(node->getId(), nbDistinctSites_, nbStates_, ComputingNode::D0);
+    
+    resetBelowLikelihoods(node->getId(), nbDistinctSites_, nbStates_, ComputingNode::D1);
+    resetBelowLikelihoods(node->getId(), nbDistinctSites_, nbStates_, ComputingNode::D2);
+
+    resetLikelihoods(nId, nbDistinctSites_, nbStates_, ComputingNode::D0);
+    
+    resetLikelihoods(nId, nbDistinctSites_, nbStates_, ComputingNode::D1);
+    
+    resetLikelihoods(nId, nbDistinctSites_, nbStates_, ComputingNode::D2);
+  }
+  
   // Now initialize likelihood values and pointers:
 
   if (node->isLeaf())
@@ -155,12 +192,12 @@ void SingleRecursiveLikelihoodTree::initLikelihoodsWithoutPatterns_(const Node* 
     }
     catch (SequenceNotFoundException snfe)
     {
-      throw SequenceNotFoundException("SingleRecursiveLikelihoodTree::initTreelikelihoods. Leaf name in tree not found in site conainer: ", (node->getName()));
+      throw SequenceNotFoundException("RecursiveLikelihoodTree::initTreelikelihoods. Leaf name in tree not found in site conainer: ", (node->getName()));
     }
 
     for (size_t c = 0; c < nbClasses_; c++)
     {
-      LikelihoodNode& lNode= *vTree_[c]->getNode(node->getId());
+      LikelihoodNode& lNode= *vTree_[c]->getNode(nId);
       
       for (size_t i = 0; i < nbDistinctSites_; i++)
       {
@@ -179,7 +216,7 @@ void SingleRecursiveLikelihoodTree::initLikelihoodsWithoutPatterns_(const Node* 
   else
   {
     // 'node' is an internal node.
-    std::map<int, std::vector<size_t> >* patternLinks_node = &patternLinks_[node->getId()];
+    std::map<int, std::vector<size_t> >* patternLinks_node = &patternLinks_[nId];
     int nbSonNodes = static_cast<int>(node->getNumberOfSons());
     for (int l = 0; l < nbSonNodes; ++l)
     {
@@ -201,7 +238,7 @@ void SingleRecursiveLikelihoodTree::initLikelihoodsWithoutPatterns_(const Node* 
 
 /******************************************************************************/
 
-SitePatterns* SingleRecursiveLikelihoodTree::initLikelihoodsWithPatterns_(const Node* node, const SiteContainer& sequences, const SubstitutionProcess& process) throw (Exception)
+SitePatterns* RecursiveLikelihoodTree::initLikelihoodsWithPatterns_(const Node* node, const SiteContainer& sequences, const SubstitutionProcess& process) throw (Exception)
 {
   SiteContainer* tmp = PatternTools::getSequenceSubset(sequences, *node);
   auto_ptr<SitePatterns> patterns(new SitePatterns(tmp, true)); //Important: patterns own tmp, otherwise sizes will not be accessible outside this function.
@@ -209,9 +246,36 @@ SitePatterns* SingleRecursiveLikelihoodTree::initLikelihoodsWithPatterns_(const 
 
   size_t nbSites = subSequences->getNumberOfSites();
 
-  // Initialize likelihood vector:
-  resetLikelihoods(node->getId(), nbSites, nbStates_);
+  // Initialize likelihood vectors:
+  if (!node->isLeaf()){
+    if (!node->hasFather())
+    {
+      resetAboveLikelihoods(node->getId(), nbSites, nbStates_);      
+      resetLikelihoods(node->getId(), nbSites, nbStates_, ComputingNode::D0);
+      resetLikelihoods(node->getId(), nbSites, nbStates_, ComputingNode::D1);
+      resetLikelihoods(node->getId(), nbSites, nbStates_, ComputingNode::D2);
+    }
+    
+    resetBelowLikelihoods(node->getId(), nbSites, nbStates_, ComputingNode::D0);
+    
+    resetBelowLikelihoods(node->getId(), nbSites, nbStates_, ComputingNode::D1);
+    resetBelowLikelihoods(node->getId(), nbSites, nbStates_, ComputingNode::D2);
+  }
+  else
+  {
+    resetBelowLikelihoods(node->getId(), nbSites, nbStates_, ComputingNode::D0);
+    
+    resetBelowLikelihoods(node->getId(), nbSites, nbStates_, ComputingNode::D1);
+    resetBelowLikelihoods(node->getId(), nbSites, nbStates_, ComputingNode::D2);
+    resetLikelihoods(node->getId(), nbSites, nbStates_, ComputingNode::D0);
+    
+    resetLikelihoods(node->getId(), nbSites, nbStates_, ComputingNode::D1);
+    
+    resetLikelihoods(node->getId(), nbSites, nbStates_, ComputingNode::D2);
+  }
 
+    
+  
   // Now initialize likelihood values and pointers:
 
   if (node->isLeaf())
@@ -223,7 +287,7 @@ SitePatterns* SingleRecursiveLikelihoodTree::initLikelihoodsWithPatterns_(const 
     }
     catch (SequenceNotFoundException snfe)
     {
-      throw SequenceNotFoundException("SingleRecursiveLikelihoodTree::initTreelikelihoodsWithPatterns_. Leaf name in tree not found in site conainer: ", (node->getName()));
+      throw SequenceNotFoundException("RecursiveLikelihoodTree::initTreelikelihoodsWithPatterns_. Leaf name in tree not found in site conainer: ", (node->getName()));
     }
 
     for (size_t c = 0; c < nbClasses_; c++)
@@ -244,7 +308,6 @@ SitePatterns* SingleRecursiveLikelihoodTree::initLikelihoodsWithPatterns_(const 
         if (test < 0.000001) std::cerr << "WARNING!!! Likelihood will be 0 for this site " << TextTools::toString(i) << std::endl;
       }
     }
-
   }
   else
   {
@@ -264,6 +327,29 @@ SitePatterns* SingleRecursiveLikelihoodTree::initLikelihoodsWithPatterns_(const 
       auto_ptr<SitePatterns> subPatterns(initLikelihoodsWithPatterns_(son, *subSequences.get(), process));
       (*patternLinks_node_son) = subPatterns->getIndices();
     }
+
+    
   }
   return patterns.release();
 }
+
+
+/******************************************************************************/
+
+void RecursiveLikelihoodTree::resetInnerAboveLikelihoods() 
+{
+  // Initialize likelihood vector:
+  for (size_t i=0; i<nbClasses_; i++)
+  {
+    vector<RecursiveLikelihoodNode*> vNd=vTree_[i]->getNodes();
+
+    for (size_t  j=0; j<vNd.size(); j++)
+    {
+      if (vNd[j]->getId()!=vTree_[i]->getRootId())
+        vNd[j]->resetAboveLikelihoods(nbDistinctSites_, nbStates_);
+    }
+  }
+  
+  initializedAboveLikelihoods_ = true;
+}
+  

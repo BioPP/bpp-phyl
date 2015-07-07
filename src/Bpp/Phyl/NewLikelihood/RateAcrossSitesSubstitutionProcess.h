@@ -146,6 +146,16 @@ public:
     return rDist_->getProbability(classIndex);
   }
 
+  Vdouble getClassProbabilities() const
+  {
+    Vdouble vProb;
+
+    for (size_t i=0;i<rDist_->getNumberOfCategories(); i++)
+      vProb.push_back(rDist_->getProbability(i));
+
+    return vProb;
+  }
+
   double getRateForModel(size_t classIndex) const {
     if (classIndex >= rDist_->getNumberOfCategories())
       throw IndexOutOfBoundsException("RateAcrossSitesSubstitutionProcess::getRateForModel.", classIndex, 0, rDist_->getNumberOfCategories());

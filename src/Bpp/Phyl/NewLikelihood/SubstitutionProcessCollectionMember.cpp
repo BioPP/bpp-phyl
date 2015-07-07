@@ -383,6 +383,16 @@ inline double SubstitutionProcessCollectionMember::getProbabilityForModel(size_t
   return getRateDistribution()->getProbability(classIndex);
 }
 
+inline Vdouble SubstitutionProcessCollectionMember::getClassProbabilities() const
+{
+  Vdouble vProb;
+
+  for (size_t i=0;i<getRateDistribution()->getNumberOfCategories(); i++)
+    vProb.push_back(getRateDistribution()->getProbability(i));
+
+  return vProb;
+}
+
 inline double SubstitutionProcessCollectionMember::getRateForModel(size_t classIndex) const {
   if (classIndex >= getRateDistribution()->getNumberOfCategories())
     throw IndexOutOfBoundsException("SubstitutionProcessCollectionMember::getRateForModel.", classIndex, 0, getRateDistribution()->getNumberOfCategories());

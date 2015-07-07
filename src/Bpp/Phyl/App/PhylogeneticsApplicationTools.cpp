@@ -73,8 +73,7 @@
 #include "../NewLikelihood/SimpleSubstitutionProcess.h"
 #include "../NewLikelihood/SubstitutionProcessCollection.h"
 #include "../NewLikelihood/RateAcrossSitesSubstitutionProcess.h"
-#include "../NewLikelihood/SingleRecursiveLikelihoodTreeCalculation.h"
-#include "../NewLikelihood/DoubleRecursiveTreeLikelihoodCalculation.h"
+#include "../NewLikelihood/RecursiveLikelihoodTreeCalculation.h"
 #include "../NewLikelihood/SingleDataPhyloLikelihood.h"
 #include "../NewLikelihood/MultiPhyloLikelihood.h"
 
@@ -111,8 +110,6 @@ using namespace bpp;
 #include <vector>
 
 using namespace std;
-
-using namespace bpp::newlik;
 
 /*************************************************************/
 /*****************  TREES ************************************/
@@ -1619,33 +1616,18 @@ map<size_t, PhyloLikelihood*> PhylogeneticsApplicationTools::getPhyloLikelihoods
     else
       nProcess=(size_t)TextTools::toInt(args["process"]);
 
-    // Recursivity
-
-    char recursivity = 'S';
-
-    if (phyloName=="Single")
-      recursivity = 'S';
-    else
-      if (phyloName=="Double")
-        recursivity = 'D';
-      else
-        throw Exception("Unknown Phylogeny description : "+ phyloName);
-
     // Compression
 
-    char compression = 'R';
+    char compression = 'S';
 
-    if (args.find("compression")!=args.end() && args["compression"]=="simple")
-      compression = 'S';
+    if (args.find("compression")!=args.end() && args["compression"]=="recursive")
+      compression = 'R';
 
     if (SPC.hasSubstitutionProcessNumber(nProcess))
     {
       LikelihoodTreeCalculation* tlc=0;
 
-      if (recursivity=='S')
-        tlc=new SingleRecursiveLikelihoodTreeCalculation(*data, &SPC.getSubstitutionProcess(nProcess), true, compression == 'R');
-      // else
-      //   tlc=new DoubleRecursiveTreeLikelihoodCalculation(*data, &SPC.getSubstitutionProcess(nProcess), true);
+      tlc=new RecursiveLikelihoodTreeCalculation(*data, &SPC.getSubstitutionProcess(nProcess), true, compression == 'R');
         
       nPL = new SingleProcessPhyloLikelihood(&SPC.getSubstitutionProcess(nProcess), tlc, nProcess, nData);
     }
@@ -1661,34 +1643,34 @@ map<size_t, PhyloLikelihood*> PhylogeneticsApplicationTools::getPhyloLikelihoods
       OneProcessSequenceEvolution* opse=dynamic_cast<OneProcessSequenceEvolution*>(mSeqEvol[nProcess]);
       
       if (opse!=NULL)
-        nPL = new OneProcessSequencePhyloLikelihood(*data, *opse, recursivity, nProcess, nData, true, compression=='R');
+        nPL = new OneProcessSequencePhyloLikelihood(*data, *opse, nProcess, nData, true, compression=='R');
       else
       {
         MixtureSequenceEvolution* mse=dynamic_cast<MixtureSequenceEvolution*>(mSeqEvol[nProcess]);
         
         if (mse!=NULL)
-          nPL = new MixturePhyloLikelihood(*data, *mse, recursivity, nProcess, nData, true, compression=='R');
+          nPL = new MixturePhyloLikelihood(*data, *mse, nProcess, nData, true, compression=='R');
         
         else {
           
           HmmSequenceEvolution* hse =dynamic_cast<HmmSequenceEvolution*>(mSeqEvol[nProcess]);
           
           if (hse!=NULL)
-            nPL = new HmmPhyloLikelihood(*data, *hse, recursivity, nProcess, nData, true, compression=='R');
+            nPL = new HmmPhyloLikelihood(*data, *hse, nProcess, nData, true, compression=='R');
           
           else {
             
             AutoCorrelationSequenceEvolution* ase =dynamic_cast<AutoCorrelationSequenceEvolution*>(mSeqEvol[nProcess]);
             
             if (ase!=NULL)
-              nPL = new AutoCorrelationPhyloLikelihood(*data, *ase, recursivity, nProcess, nData, true, compression=='R');
+              nPL = new AutoCorrelationPhyloLikelihood(*data, *ase, nProcess, nData, true, compression=='R');
             
             else {
               
               PartitionSequenceEvolution* pse =dynamic_cast<PartitionSequenceEvolution*>(mSeqEvol[nProcess]);
 
               if (pse!=NULL)
-                nPL = new PartitionPhyloLikelihood(*data, *pse, recursivity, nProcess, nData, true, compression=='R');
+                nPL = new PartitionPhyloLikelihood(*data, *pse, nProcess, nData, true, compression=='R');
 
               else
                 throw Exception("PhylogeneticsApplicationTools::getPhyloLikelihoods : Unknown Sequence Evolution.");

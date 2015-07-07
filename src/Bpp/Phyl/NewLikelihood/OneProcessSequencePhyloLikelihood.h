@@ -42,7 +42,6 @@
 
 #include "../Tree/Node.h"
 #include "../Tree/Tree.h"
-#include "TreeLikelihoodData.h"
 #include "ModelIterator.h"
 #include "SitePartition.h"
 
@@ -58,16 +57,18 @@
 #include "SequencePhyloLikelihood.h"
 #include "SubstitutionProcess.h"
 #include "OneProcessSequenceEvolution.h"
-#include "SingleRecursiveTreeLikelihoodCalculation.h"
+#include "RecursiveLikelihoodTreeCalculation.h"
 
 namespace bpp
 {
 /**
- * @brief The OneProcessSequencePhyloLikelihood class: phylogenetic likelihood computation with a single process.
+ * @brief The OneProcessSequencePhyloLikelihood class: phylogenetic
+ * likelihood computation with a single process.
  *
- * This class implements likelihood calculation with a single process/tree.
- * It uses a unique TreeLikelihoodCalculation instance, and implements the
- * Function interface, dealing with parameters from the associated SubstitutionProcess.
+ * This class implements likelihood calculation with a single
+ * process/tree. It uses a unique LikelihoodTreeCalculation instance,
+ * and implements the Function interface, dealing with parameters from
+ * the associated SubstitutionProcess.
  */
 
     class OneProcessSequencePhyloLikelihood :
@@ -82,12 +83,11 @@ namespace bpp
       OneProcessSequenceEvolution& mSeqEvol_;
 
     protected:
-      mutable std::auto_ptr<TreeLikelihoodCalculation> tlComp_;
+      mutable std::auto_ptr<LikelihoodTreeCalculation> tlComp_;
 
     public:
       OneProcessSequencePhyloLikelihood(
         OneProcessSequenceEvolution& evol,
-        char recursivity,
         size_t nSeqEvol = 0,
         bool verbose = true,
         bool patterns = true);
@@ -95,7 +95,6 @@ namespace bpp
       OneProcessSequencePhyloLikelihood(
         const SiteContainer& data,
         OneProcessSequenceEvolution& evol,
-        char recursivity,
         size_t nSeqEvol = 0,
         size_t nData = 0,
         bool verbose = true,
@@ -136,8 +135,7 @@ namespace bpp
       void setData(const SiteContainer& sites, size_t nData = 0) throw (Exception)
       {
         AbstractSequencePhyloLikelihood::setData(sites, nData);
-        tlComp_->setData(sites); //This automatically resetToCompute
-                                 //the calculation
+        tlComp_->setData(sites); 
       }
 
       /**
@@ -155,10 +153,7 @@ namespace bpp
 
       char getRecursivity() const 
       {
-        if (dynamic_cast<const SingleRecursiveTreeLikelihoodCalculation*>(tlComp_.get()))
-          return 'S';
-        else
-          return 'D';
+        return 'S';
       }
 
       /** @} */
@@ -189,6 +184,7 @@ namespace bpp
        *
        * @return The tree of this OneProcessSequencePhyloLikelihood object.
        */
+      
       const Tree& getTree() const { return mSeqEvol_.getSubstitutionProcess().getTree(); }
 
       const SubstitutionProcess& getSubstitutionProcess() const { return mSeqEvol_.getSubstitutionProcess(); }
@@ -229,8 +225,6 @@ namespace bpp
 
 
     protected:
-      void fireParameterChanged(const ParameterList& params);
-      
       void computeDLogLikelihood_(const std::string& variable) const;
 
       void computeD2LogLikelihood_(const std::string& variable) const;
@@ -241,17 +235,18 @@ namespace bpp
        * @return The underlying likelihood computation structure.
        */
       
-      TreeLikelihoodCalculation* getLikelihoodCalculation() { return tlComp_.get(); }
+      LikelihoodTreeCalculation* getLikelihoodCalculation() { return tlComp_.get(); }
 
       /**
        * @return The underlying likelihood data structure.
        */
-      virtual newlik::TreeLikelihoodData* getLikelihoodData() { return tlComp_->getLikelihoodData(); }
+
+      LikelihoodTree& getLikelihoodData() { return tlComp_->getLikelihoodData(); }
 
       /**
        * @return The underlying likelihood data structure.
        */
-      virtual const newlik::TreeLikelihoodData* getLikelihoodData() const { return tlComp_->getLikelihoodData(); }
+      const LikelihoodTree& getLikelihoodData() const { return tlComp_->getLikelihoodData(); }
 
       double getLogLikelihood() const {
         return tlComp_->getLogLikelihood();

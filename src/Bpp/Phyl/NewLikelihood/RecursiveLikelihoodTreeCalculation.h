@@ -1,8 +1,8 @@
 //
-// File: SingleRecursiveTreeLikelihoodCalculation.h
-// Created by: Julien Dutheil
+// File: RecursiveLikelihoodTreeCalculation.h
+// Created by: Julien Dutheil, Laurent Guéguen
 // Created on: Tue May 15 14:30 2012
-// From file: RNonHomogeneousTreeLikelihood.h
+// From file: RNonHomogeneousLikelihoodTree.h
 //
 
 /*
@@ -38,11 +38,11 @@
   knowledge of the CeCILL license and that you accept its terms.
 */
 
-#ifndef _SINGLERECURSIVETREELIKELIHOODCALCULATION_H_
-#define _SINGLERECURSIVETREELIKELIHOODCALCULATION_H_
+#ifndef _RECURSIVE_LIKELIHOOD_TREE_CALCULATION_H_
+#define _RECURSIVE_LIKELIHOOD_TREE_CALCULATION_H_
 
-#include "AbstractTreeLikelihoodCalculation.h"
-#include "SingleRecursiveTreeLikelihoodData.h"
+#include "AbstractLikelihoodTreeCalculation.h"
+#include "RecursiveLikelihoodTree.h"
 
 #include <Bpp/Numeric/VectorTools.h>
 //#include <Bpp/Numeric/Prob/DiscreteDistribution.h>
@@ -52,7 +52,7 @@ namespace bpp
 /**
  * @brief This class implements the single recursion likelihood computation for a tree.
  *
- * This class uses an instance of the SingleRecursiveTreeLikelihoodData for conditionnal likelihood storage.
+ * This class uses an instance of the SingleRecursiveLikelihoodTree for conditionnal likelihood storage.
  *
  * This class can also use a simple or recursive site compression.
  * In the simple case, computations for identical sites are not duplicated.
@@ -63,7 +63,7 @@ namespace bpp
  * performing many times the same coputation.
  * The network between all patterns is defined by the _patternLinks double map, initialized in the
  * initLikelihoodsWithPatterns() method. This initialisation takes more time than the classic
- * initTreeLikelihood one, where all likelihoods for a given site <i>i</i> are at the <i>i</i> coordinate
+ * initLikelihoodTree one, where all likelihoods for a given site <i>i</i> are at the <i>i</i> coordinate
  * in the likelihood tensor, but is really faster when computing the likelihood (computeLikelihoods() method).
  * Hence, if you have to compute likelihood many times while holding the tree topology unchanged,
  * you should use patterns.
@@ -79,11 +79,11 @@ namespace bpp
  * depends on the position of the root. If the input tree is not rooted, it will be considered as a rooted tree
  * with a root multifurcation.
  */
-    class SingleRecursiveTreeLikelihoodCalculation:
-      public AbstractTreeLikelihoodCalculation
+    class RecursiveLikelihoodTreeCalculation:
+      public AbstractLikelihoodTreeCalculation
     {
     private:
-      mutable std::auto_ptr<newlik::SingleRecursiveTreeLikelihoodData> likelihoodData_;
+      mutable std::auto_ptr<RecursiveLikelihoodTree> likelihoodData_;
       int root1_, root2_; // Needed only in case of reparametrization of branch length at root node.
       // TODO: have to be initialized properly! We do not care of that for now. jdutheil on 11/12/12.
 
@@ -97,14 +97,14 @@ namespace bpp
        * @brief Build a new Simple Recursive Tree Likelihood object without data.
        *
        * This constructor only initialize the parameters.
-       * To compute a likelihood, you will need to call the setData() and the computeTreeLikelihood() methods.
+       * To compute a likelihood, you will need to call the setData() and the computeLikelihoodTree() methods.
        *
        * @param process The substitution process to use.
        * @param verbose Should I display some info?
        * @param usePatterns Tell if recursive site compression should be performed.
        * @throw Exception in an error occured.
        */
-      SingleRecursiveTreeLikelihoodCalculation(
+      RecursiveLikelihoodTreeCalculation(
         const SubstitutionProcess* process,
         bool verbose = true,
         bool usePatterns = true)
@@ -121,7 +121,7 @@ namespace bpp
        * @param usePatterns Tell if recursive site compression should be performed.
        * @throw Exception in an error occured.
        */
-      SingleRecursiveTreeLikelihoodCalculation(
+      RecursiveLikelihoodTreeCalculation(
         const SiteContainer& data,
         const SubstitutionProcess* process,
         bool verbose = true,
@@ -131,13 +131,13 @@ namespace bpp
       /**
        * @brief Copy constructor.
        */ 
-      SingleRecursiveTreeLikelihoodCalculation(const SingleRecursiveTreeLikelihoodCalculation& lik);
+      RecursiveLikelihoodTreeCalculation(const RecursiveLikelihoodTreeCalculation& lik);
 
-      SingleRecursiveTreeLikelihoodCalculation& operator=(const SingleRecursiveTreeLikelihoodCalculation& lik);
+      RecursiveLikelihoodTreeCalculation& operator=(const RecursiveLikelihoodTreeCalculation& lik);
 
-      virtual ~SingleRecursiveTreeLikelihoodCalculation() {} // smart pointers take care of everything.
+      virtual ~RecursiveLikelihoodTreeCalculation() {} // smart pointers take care of everything.
 
-      SingleRecursiveTreeLikelihoodCalculation* clone() const { return new SingleRecursiveTreeLikelihoodCalculation(*this); }
+      RecursiveLikelihoodTreeCalculation* clone() const { return new RecursiveLikelihoodTreeCalculation(*this); }
 
     private:
       /**
@@ -147,9 +147,16 @@ namespace bpp
 
     public:
 
-      newlik::SingleRecursiveTreeLikelihoodData* getLikelihoodData() { return likelihoodData_.get(); }
+      /**
+       * @brief Methods to retrieve full likelihood.
+       * !!! These methods do not check computation is up to date.
+       * Call ComputeTreeDXLikelihood for this.
+       *
+       */
+      
+      AbstractLikelihoodTree& getLikelihoodData() { return *likelihoodData_.get(); }
 
-      const newlik::SingleRecursiveTreeLikelihoodData* getLikelihoodData() const { return likelihoodData_.get(); }
+      const AbstractLikelihoodTree& getLikelihoodData() const { return *likelihoodData_.get(); }
 
       double getLikelihoodForASite(size_t site);
 
@@ -158,36 +165,50 @@ namespace bpp
       double getLikelihoodForASiteForAClass(size_t site, size_t classIndex);
 
       double getLikelihoodForASiteForAClassForAState(size_t site, size_t classIndex, int state);
-
+      
       double getDLikelihoodForASite(size_t site);
 
       double getD2LikelihoodForASite(size_t site);
 
+
+      /**
+       * @brief Compute derivatives
+       *
+       */
+       
       void computeTreeDLogLikelihood(const std::string& variable);
 
       void computeTreeD2LogLikelihood(const std::string& variable);
- 
-    protected:
 
       void computeTreeLikelihood();
 
       /**
-       * @brief Compute the likelihood for a subtree defined by the Tree::Node <i>node</i>.
+       *@brief Compute the Likelihood at a given node, using ONLY
+       *     downward recursion from the root, so upward recursion
+       *     should be up to date.
        *
-       * @param node The root of the subtree.
+       *@param node the given node
+       *
        */
-      void computeSubtreeLikelihood_(const Node* node); // Recursive method.
-      void computeDownSubtreeDLikelihood_(const Node* node);
-      void computeDownSubtreeD2Likelihood_(const Node* node);
+    
+      void computeLikelihoodsAtNode(int nodeId);
+
+    protected:
 
       /**
-       * @brief This method is mainly for debugging purpose.
+       * @brief check the ComputingNodes to update recursively the
+       * Likelihoods flags. If at least one ComputingNode has changed
+       * all Above Likelihood flags of the trees are set to false.
+       * Below DXLikelihood flags of the changed nodes are set to
+       * false, and all their ancestors.
        *
-       * @param node The node at which likelihood values must be displayed.
+       * @return if at least one ComputingNode has changed.
        */
-      void displayLikelihood(const Node* node);
+      
+      bool updateLikelihoodFlags_();
+      
     };
 } // end of namespace bpp.
 
-#endif  // _SINGLERECURSIVETREELIKELIHOODCALCULATION_H_
+#endif  // _RECURSIVE_LIKELIHOOD_TREE_CALCULATION_H_
 

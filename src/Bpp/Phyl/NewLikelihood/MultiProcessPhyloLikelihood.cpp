@@ -39,8 +39,7 @@
 
 #include "MultiProcessPhyloLikelihood.h"
 
-#include "SingleRecursiveTreeLikelihoodCalculation.h"
-#include "DoubleRecursiveTreeLikelihoodCalculation.h"
+#include "RecursiveLikelihoodTreeCalculation.h"
 
 using namespace std;
 using namespace bpp;
@@ -50,7 +49,6 @@ using namespace bpp;
 MultiProcessPhyloLikelihood::MultiProcessPhyloLikelihood(
   const SiteContainer& data,
   MultiProcessSequenceEvolution& processSeqEvol,
-  char recursivity,
   size_t nSeqEvol,
   size_t nData,
   bool verbose,
@@ -65,24 +63,14 @@ MultiProcessPhyloLikelihood::MultiProcessPhyloLikelihood(
 
   vector<size_t> nProc = processSeqEvol.getSubstitutionProcessNumbers();
   
-  if (recursivity=='S')
-    for (size_t i = 0; i < nProc.size(); i++)
-    {
-      SingleRecursiveTreeLikelihoodCalculation* rt = new SingleRecursiveTreeLikelihoodCalculation(
-        &processColl.getSubstitutionProcess(nProc[i]), i == 0, patterns);
-      vpTreelik_.push_back(rt);
-    }
-  else if (recursivity=='D')
-    for (size_t i = 0; i < nProc.size(); i++)
-    {
-      DoubleRecursiveTreeLikelihoodCalculation* rt = new DoubleRecursiveTreeLikelihoodCalculation(
-        &processColl.getSubstitutionProcess(nProc[i]), i == 0);
-      vpTreelik_.push_back(rt);
-    }
-  else throw(Exception("MultiProcessPhyloLikelihood::MultiProcessPhyloLikelihood: unknown recursivity : " + recursivity));
+  for (size_t i = 0; i < nProc.size(); i++)
+  {
+    RecursiveLikelihoodTreeCalculation* rt = new RecursiveLikelihoodTreeCalculation(
+      &processColl.getSubstitutionProcess(nProc[i]), i == 0, patterns);
+    vpTreelik_.push_back(rt);
+  }
 
   setData(data, nData);
-  
 }
 
 /******************************************************************************/
@@ -95,16 +83,6 @@ void MultiProcessPhyloLikelihood::setData(const SiteContainer& sites, size_t nDa
   {
     vpTreelik_[i]->setData(sites);
   }
-}
-
-/******************************************************************************/
-
-void MultiProcessPhyloLikelihood::fireParameterChanged(const ParameterList& parameters)
-{
-  AbstractSequencePhyloLikelihood::fireParameterChanged(parameters);
-
-  for (size_t i = 0; i < vpTreelik_.size(); i++)
-    vpTreelik_[i]->resetToCompute();
 }
 
 /******************************************************************************/

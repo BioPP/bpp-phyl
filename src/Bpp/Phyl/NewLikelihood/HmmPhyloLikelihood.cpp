@@ -52,12 +52,11 @@ using namespace bpp;
 HmmPhyloLikelihood::HmmPhyloLikelihood(
   const SiteContainer& data,
   HmmSequenceEvolution& processSeqEvol,
-  char recursivity,
   size_t nSeqEvol,
   size_t nData,
   bool verbose,
   bool patterns) :
-  MultiProcessPhyloLikelihood(data, processSeqEvol, recursivity, verbose, patterns, nData),
+  MultiProcessPhyloLikelihood(data, processSeqEvol, verbose, patterns, nData),
   Hpep_(0),
   Hmm_(0)
 {

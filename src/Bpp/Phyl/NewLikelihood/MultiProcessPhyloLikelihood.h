@@ -43,8 +43,7 @@
 #include "SequencePhyloLikelihood.h"
 #include "MultiProcessSequenceEvolution.h"
 
-#include "TreeLikelihoodCalculation.h"
-#include "SingleRecursiveTreeLikelihoodCalculation.h"
+#include "LikelihoodTreeCalculation.h"
 
 #include <Bpp/Numeric/AbstractParametrizable.h>
 
@@ -58,7 +57,7 @@ namespace bpp
 /**
  * @brief Partial implementation of the Likelihood interface for multiple processes.
  *
- * This class uses several TreeLikelihoodCalculation instances to
+ * This class uses several LikelihoodTreeCalculation instances to
  * compute a the global likelihood of the data set, as well as a
  * collection of SubstitutionProcess.
  * It implements the Function interface and manages the parameters of
@@ -82,13 +81,12 @@ namespace bpp
        * global likelihood.
        */
   
-      std::vector<TreeLikelihoodCalculation*> vpTreelik_;
+      std::vector<LikelihoodTreeCalculation*> vpTreelik_;
 
     public:
       MultiProcessPhyloLikelihood(
         const SiteContainer& data,
         MultiProcessSequenceEvolution& processSeqEvol,
-        char recursivity,
         size_t nSeqEvol = 0, 
         size_t nData = 0,
         bool verbose = true,
@@ -157,10 +155,7 @@ namespace bpp
 
       char getRecursivity() const 
       {
-        if (dynamic_cast<const SingleRecursiveTreeLikelihoodCalculation*>(vpTreelik_[0]))
-          return 'S';
-        else
-          return 'D';
+        return 'S';
       }
 
       /*
@@ -169,8 +164,6 @@ namespace bpp
       
     protected:
 
-      virtual void fireParameterChanged(const ParameterList& parameters);
-      
       virtual void computeDLogLikelihood_(const std::string& variable) const = 0;
 
       virtual void computeD2LogLikelihood_(const std::string& variable) const = 0;

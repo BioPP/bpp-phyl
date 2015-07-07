@@ -186,12 +186,13 @@ namespace bpp
       size_t nData_;
 
     public:
-      AbstractSingleDataPhyloLikelihood(size_t nData = 0) :
-        nbSites_(0),
-        nbStates_(0),
+      AbstractSingleDataPhyloLikelihood(size_t nbSites, size_t nbStates, size_t nData = 0) :
+        nbSites_(nbSites),
+        nbStates_(nbStates),
         nData_(nData)
       {}
 
+      
       AbstractSingleDataPhyloLikelihood(const AbstractSingleDataPhyloLikelihood& asd) :
         nbSites_(asd.nbSites_),
         nbStates_(asd.nbStates_),
@@ -254,7 +255,7 @@ namespace bpp
     {
     public:
       AbstractParametrizableSingleDataPhyloLikelihood(size_t nData = 0) :
-        AbstractSingleDataPhyloLikelihood(),
+        AbstractSingleDataPhyloLikelihood(0, 0, nData),
         AbstractParametrizable("")
       {}
 

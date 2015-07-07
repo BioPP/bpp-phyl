@@ -2,7 +2,6 @@
 // File: ComputingTree.h
 // Created by: Laurent Guéguen
 // Created on: Sat Dec 30 12:48 2006
-// From file AbstractTreeLikelihood.h
 //
 
 /*
@@ -196,9 +195,12 @@ namespace bpp
     /*
      * @brief Says to specific nodes to be ready for update
      *
+     * If flag = true (default), node has to be updated (false otherwise).
      */
 
-    void update(std::vector<int>& vId);
+    void update(std::vector<int>& vId, bool flag = true);
+
+    void update(int id, bool flag = true);
 
     /*
      * @brief Says to all nodes to be ready for update
@@ -206,6 +208,13 @@ namespace bpp
      */
     
     void updateAll();
+
+    /*
+     * @brief Returns the list of the updated Nodes ids, excluding the root.
+     *
+     */
+    
+    Vint updatedNodes() const;
 
     /**
      * @brief Methods for computing of the partial likelihoods.

@@ -81,18 +81,16 @@ namespace bpp
     
   public:
 
-    virtual VVdouble& getLikelihoodArray() = 0;
-    virtual const VVdouble& getLikelihoodArray() const = 0;
+    virtual VVdouble& getLikelihoodArray(unsigned char DX) = 0;
+    virtual const VVdouble& getLikelihoodArray(unsigned char DX) const = 0;
     
-    virtual VVdouble& getDLikelihoodArray() = 0;
-    virtual const VVdouble& getDLikelihoodArray() const = 0;
+    // virtual VVdouble& getDLikelihoodArray() = 0;
+    // virtual const VVdouble& getDLikelihoodArray() const = 0;
     
-    virtual VVdouble& getD2LikelihoodArray() = 0;
-    virtual const VVdouble& getD2LikelihoodArray() const = 0;
+    // virtual VVdouble& getD2LikelihoodArray() = 0;
+    // virtual const VVdouble& getD2LikelihoodArray() const = 0;
 
-    virtual void resetLikelihoods(size_t nbSites, size_t nbStates) = 0;
-
-    virtual void resetLikelihoods(unsigned char DX) = 0;
+    virtual void resetLikelihoods(size_t nbSites, size_t nbStates, unsigned char DX) = 0;
 
     virtual double& operator()(size_t nSite, size_t nState) = 0;
 

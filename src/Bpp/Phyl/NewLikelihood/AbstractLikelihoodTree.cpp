@@ -40,7 +40,7 @@ knowledge of the CeCILL license and that you accept its terms.
 #include "AbstractLikelihoodTree.h"
 
 #include "SubstitutionProcess.h"
-#include "SingleRecursiveLikelihoodNode.h"
+#include "RecursiveLikelihoodNode.h"
 
 #include <Bpp/Exceptions.h>
 
@@ -51,6 +51,7 @@ AbstractLikelihoodTree::AbstractLikelihoodTree(const SubstitutionProcess& proces
   rootPatternLinks_(), rootWeights_(), alphabet_(0),
   shrunkData_(0), nbSites_(0), nbStates_(0),
   nbClasses_(process.getNumberOfClasses()),
+  vProbClass_(process.getClassProbabilities()),
   nbDistinctSites_(0)
 {
 }
@@ -61,7 +62,9 @@ AbstractLikelihoodTree::AbstractLikelihoodTree(const AbstractLikelihoodTree& atd
   alphabet_(atd.alphabet_),
   shrunkData_(0),
   nbSites_(atd.nbSites_), nbStates_(atd.nbStates_),
-  nbClasses_(atd.nbClasses_), nbDistinctSites_(atd.nbDistinctSites_)
+  nbClasses_(atd.nbClasses_),
+  vProbClass_(atd.vProbClass_),
+  nbDistinctSites_(atd.nbDistinctSites_)
 {
   if (atd.shrunkData_.get())
     shrunkData_.reset(dynamic_cast<SiteContainer*>(atd.shrunkData_->clone()));
@@ -75,6 +78,8 @@ AbstractLikelihoodTree& AbstractLikelihoodTree::operator=(const AbstractLikeliho
   nbSites_          = atd.nbSites_;
   nbStates_         = atd.nbStates_;
   nbClasses_        = atd.nbClasses_;
+  vProbClass_       = atd.vProbClass_;
+  
   nbDistinctSites_  = atd.nbDistinctSites_;
   if (atd.shrunkData_.get())
     shrunkData_.reset(dynamic_cast<SiteContainer*>(atd.shrunkData_->clone()));
@@ -87,4 +92,50 @@ AbstractLikelihoodTree& AbstractLikelihoodTree::operator=(const AbstractLikeliho
 AbstractLikelihoodTree::~AbstractLikelihoodTree()
 {
 }
+
+
+/******************************************************************************/
+
+VVVdouble AbstractLikelihoodTree::getPosteriorProbabilitiesForEachStateForEachClass(int nodeId)
+{
+  VVVdouble vRes(nbClasses_);
+
+  for (size_t i=0; i<nbClasses_; i++)
+  {
+    getNodeData(nodeId, i).getPosteriorProbabilitiesForEachState(vRes[i]);
+    vRes[i]*=vProbClass_[i];
+  }
+  
+  return vRes;
+}
+
+/******************************************************************************/
+
+Vdouble AbstractLikelihoodTree::getPosteriorStateFrequencies(int nodeId)
+{
+  VVVdouble probs = getPosteriorProbabilitiesForEachStateForEachClass(nodeId);
+  Vdouble freqs(getNumberOfStates());
+  double sumw = 0, w;
+  
+  for (size_t j = 0; j < getNumberOfClasses(); j++)
+  {
+    for (size_t i = 0; i < getNumberOfDistinctSites(); i++)
+    {
+      w = getWeight(i);
+      sumw += w;
+      for (size_t k = 0; k < getNumberOfStates(); k++)
+      {
+        freqs[k] += probs[j][i][k] * w;
+      }
+    }
+  }
+
+  for (size_t k = 0; k < getNumberOfStates(); k++)
+  {
+    freqs[k] /= sumw;
+  }
+  return freqs;  
+}
+
+
 

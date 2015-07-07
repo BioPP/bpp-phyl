@@ -78,7 +78,6 @@ namespace bpp
       AutoCorrelationPhyloLikelihood(
         const SiteContainer& data,
         AutoCorrelationSequenceEvolution& processSeqEvol,
-        char recursivity,
         size_t nSeqEvol = 0,
         size_t nData = 0,
         bool verbose = true,

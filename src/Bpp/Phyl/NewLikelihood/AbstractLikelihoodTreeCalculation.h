@@ -42,6 +42,7 @@
 
 #include "LikelihoodTreeCalculation.h"
 #include "SubstitutionProcess.h"
+#include "AbstractLikelihoodTree.h"
 
 namespace bpp
 {
@@ -63,12 +64,6 @@ namespace bpp
       bool initialized_;
       bool verbose_;
 
-      // say if the Likelihoods should be recomputed
-      
-      bool computeLikelihoods_;
-      bool computeLikelihoodsD1_;
-      bool computeLikelihoodsD2_;
-      
     public:
       AbstractLikelihoodTreeCalculation(const SubstitutionProcess* process, bool verbose = true):
         process_(process),
@@ -78,10 +73,7 @@ namespace bpp
         nbStates_(process->getNumberOfStates()),
         nbClasses_(process->getNumberOfClasses()),
         initialized_(false),
-        verbose_(verbose),
-        computeLikelihoods_(true),
-        computeLikelihoodsD1_(true),
-        computeLikelihoodsD2_(true)
+        verbose_(verbose)
       {
       }
   
@@ -93,10 +85,7 @@ namespace bpp
         nbStates_(tlc.nbStates_),
         nbClasses_(tlc.nbClasses_),
         initialized_(tlc.initialized_),
-        verbose_(tlc.verbose_),
-        computeLikelihoods_(tlc.computeLikelihoods_),
-        computeLikelihoodsD1_(tlc.computeLikelihoodsD1_),
-        computeLikelihoodsD2_(tlc.computeLikelihoodsD2_)
+        verbose_(tlc.verbose_)
       {
         if (tlc.data_.get()) data_.reset(tlc.data_->clone());
       }
@@ -112,9 +101,6 @@ namespace bpp
         nbClasses_                     = tlc.nbClasses_;
         initialized_                   = tlc.initialized_;
         verbose_                       = tlc.verbose_;
-        computeLikelihoods_            = tlc.computeLikelihoods_;
-        computeLikelihoodsD1_          = tlc.computeLikelihoodsD1_;
-        computeLikelihoodsD2_          = tlc.computeLikelihoodsD2_;
         
         return *this;
       }
@@ -135,7 +121,7 @@ namespace bpp
       size_t getSiteIndex(size_t site) const throw (LikelihoodTreeCalculationNotInitializedException, IndexOutOfBoundsException) {
         if (!initialized_)
           throw new LikelihoodTreeCalculationNotInitializedException("SingleRecursiveLikelihoodTreeCalculation::getSiteIndex().");
-        return getLikelihoodData()->getRootArrayPosition(site);
+        return getLikelihoodData().getRootArrayPosition(site);
       }
 
       void setData(const SiteContainer& sites);
@@ -147,16 +133,26 @@ namespace bpp
         return data_.get();
       }
   
-      void resetToCompute() {
-        computeLikelihoods_=true;
-        computeLikelihoodsD1_=true;
-        computeLikelihoodsD2_=true;
-      }
-      
       const SubstitutionProcess* getSubstitutionProcess() const { return process_;}
 
       double getLogLikelihood();
 
+      /*
+       * @brief Retrieve the likelihood data.
+       *
+       */
+       
+      
+      AbstractLikelihoodTree& getLikelihoodData() = 0;
+
+      const AbstractLikelihoodTree& getLikelihoodData() const = 0;
+
+      
+      /*
+       * @brief get DXLikelihoods
+       *
+       */
+      
       double getDLogLikelihood();
 
       virtual double getDLikelihoodForASite(size_t site) = 0;
@@ -179,21 +175,22 @@ namespace bpp
 
 
       size_t getNumberOfDistinctSites() const {
-        return getLikelihoodData()->getNumberOfDistinctSites();
+        return getLikelihoodData().getNumberOfDistinctSites();
       }
 
       size_t getNumberOfSites() const {
-        return getLikelihoodData()->getNumberOfSites();
+        return getLikelihoodData().getNumberOfSites();
       }
       
       size_t getNumberOfStates() const {
-        return getLikelihoodData()->getNumberOfStates();
+        return getLikelihoodData().getNumberOfStates();
       }
 
       size_t getNumberOfClasses() const {
-        return getLikelihoodData()->getNumberOfClasses();
+        return getLikelihoodData().getNumberOfClasses();
       }
 
+      
       /**
        * @brief Print the likelihood array to terminal (debugging tool).
        *
@@ -207,6 +204,8 @@ namespace bpp
        *
        */
 
+    public:
+      
       /**
        * @brief Compute the expected ancestral frequencies of all
        * states at all (inner) nodes according to a Markov process

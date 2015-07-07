@@ -65,15 +65,11 @@ SET(CPP_FILES
   Bpp/Phyl/NewLikelihood/AutoCorrelationSequenceEvolution.cpp
   Bpp/Phyl/NewLikelihood/HmmPhyloEmissionProbabilities.cpp
   Bpp/Phyl/NewLikelihood/ParametrizableTree.cpp
-  Bpp/Phyl/NewLikelihood/SingleRecursiveTreeLikelihoodData.cpp
+  Bpp/Phyl/NewLikelihood/AbstractLikelihoodNode.cpp
   Bpp/Phyl/NewLikelihood/AbstractLikelihoodTree.cpp
-  Bpp/Phyl/NewLikelihood/SingleRecursiveLikelihoodTree.cpp
-  Bpp/Phyl/NewLikelihood/DoubleRecursiveTreeLikelihoodData.cpp
-  Bpp/Phyl/NewLikelihood/AbstractTreeLikelihoodCalculation.cpp
+  Bpp/Phyl/NewLikelihood/RecursiveLikelihoodTree.cpp
   Bpp/Phyl/NewLikelihood/AbstractLikelihoodTreeCalculation.cpp
-  Bpp/Phyl/NewLikelihood/SingleRecursiveTreeLikelihoodCalculation.cpp
-  Bpp/Phyl/NewLikelihood/SingleRecursiveLikelihoodTreeCalculation.cpp
-  Bpp/Phyl/NewLikelihood/DoubleRecursiveTreeLikelihoodCalculation.cpp
+  Bpp/Phyl/NewLikelihood/RecursiveLikelihoodTreeCalculation.cpp
   Bpp/Phyl/NewLikelihood/ComputingNode.cpp
   Bpp/Phyl/NewLikelihood/ComputingTree.cpp
   Bpp/Phyl/NewLikelihood/SingleProcessPhyloLikelihood.cpp
@@ -272,31 +268,22 @@ SET(H_FILES
   Bpp/Phyl/NewLikelihood/HmmSequenceEvolution.h
   Bpp/Phyl/NewLikelihood/AutoCorrelationSequenceEvolution.h
   Bpp/Phyl/NewLikelihood/ParametrizableTree.h
-  Bpp/Phyl/NewLikelihood/TreeLikelihoodData.h
-  Bpp/Phyl/NewLikelihood/AbstractTreeLikelihoodData.h
-  Bpp/Phyl/NewLikelihood/SingleRecursiveTreeLikelihoodData.h
-  Bpp/Phyl/NewLikelihood/SingleRecursiveLikelihoodTree.h
-  Bpp/Phyl/NewLikelihood/DoubleRecursiveTreeLikelihoodData.h 
-  Bpp/Phyl/NewLikelihood/TreeLikelihoodCalculation.h
-  Bpp/Phyl/NewLikelihood/AbstractTreeLikelihoodCalculation.h
-  Bpp/Phyl/NewLikelihood/LikelihoodTreeCalculation.h
-  Bpp/Phyl/NewLikelihood/AbstractLikelihoodTreeCalculation.h
-  Bpp/Phyl/NewLikelihood/SingleRecursiveTreeLikelihoodCalculation.h
-  Bpp/Phyl/NewLikelihood/SingleRecursiveLikelihoodTreeCalculation.h
-  Bpp/Phyl/NewLikelihood/DoubleRecursiveTreeLikelihoodCalculation.h
-  Bpp/Phyl/NewLikelihood/SitePartition.h
-  Bpp/Phyl/NewLikelihood/ComputingNode.h
   Bpp/Phyl/NewLikelihood/LikelihoodNode.h
   Bpp/Phyl/NewLikelihood/AbstractLikelihoodNode.h
-  Bpp/Phyl/NewLikelihood/SingleRecursiveLikelihoodNode.h
-  Bpp/Phyl/NewLikelihood/ComputingTree.h
   Bpp/Phyl/NewLikelihood/LikelihoodTree.h
   Bpp/Phyl/NewLikelihood/AbstractLikelihoodTree.h
+  Bpp/Phyl/NewLikelihood/RecursiveLikelihoodNode.h
+  Bpp/Phyl/NewLikelihood/RecursiveLikelihoodTree.h
+  Bpp/Phyl/NewLikelihood/LikelihoodTreeCalculation.h 
+  Bpp/Phyl/NewLikelihood/AbstractLikelihoodTreeCalculation.h
+  Bpp/Phyl/NewLikelihood/RecursiveLikelihoodTreeCalculation.h
+  Bpp/Phyl/NewLikelihood/SitePartition.h
+  Bpp/Phyl/NewLikelihood/ComputingNode.h
+  Bpp/Phyl/NewLikelihood/ComputingTree.h
   Bpp/Phyl/NewLikelihood/PhyloLikelihood.h
   Bpp/Phyl/NewLikelihood/AbstractSequencePhyloLikelihood.h
   Bpp/Phyl/NewLikelihood/OneProcessSequencePhyloLikelihood.h
   Bpp/Phyl/NewLikelihood/SingleProcessPhyloLikelihood.h
-  Bpp/Phyl/NewLikelihood/SingleRecursivePhyloLikelihood.h
   Bpp/Phyl/NewLikelihood/MultiSequencePhyloLikelihood.h
   Bpp/Phyl/NewLikelihood/MultiPhyloLikelihood.h
   Bpp/Phyl/NewLikelihood/MultiProcessPhyloLikelihood.h
