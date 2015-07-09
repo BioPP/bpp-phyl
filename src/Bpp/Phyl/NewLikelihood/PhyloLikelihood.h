@@ -274,7 +274,7 @@ namespace bpp
       {
         if (!isInitialized())
           throw Exception("AbstractPhyloLikelihood::getValue(). Instance is not initialized.");
-        if (computeLikelihoods_)
+//        if (computeLikelihoods_)
         {
           minusLogLik_=-getLogLikelihood();
           computeLikelihoods_=false;

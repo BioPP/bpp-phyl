@@ -1579,6 +1579,8 @@ map<size_t, PhyloLikelihood*> PhylogeneticsApplicationTools::getPhyloLikelihoods
 
   map<size_t, PhyloLikelihood*> mPhylo;
 
+  vector<size_t> usedProc;
+  
   for (size_t mPi=0; mPi< phylosNum.size(); mPi++)
   {
     PhyloLikelihood* nPL;
@@ -1616,13 +1618,24 @@ map<size_t, PhyloLikelihood*> PhylogeneticsApplicationTools::getPhyloLikelihoods
     else
       nProcess=(size_t)TextTools::toInt(args["process"]);
 
-    // Compression
+    // Check this process has not been used before
 
+    for (size_t i=0; i<usedProc.size(); i++)
+      if (usedProc[i]==nProcess)
+        throw Exception("PhylogeneticsApplicationTools::getPhyloLikelihoods : Process used twice. Ask developpers if want you this feature developped");
+
+    usedProc.push_back(nProcess);
+    
+    // Compression
+    
     char compression = 'S';
 
     if (args.find("compression")!=args.end() && args["compression"]=="recursive")
       compression = 'R';
 
+
+    // Construction
+    
     if (SPC.hasSubstitutionProcessNumber(nProcess))
     {
       LikelihoodTreeCalculation* tlc=0;

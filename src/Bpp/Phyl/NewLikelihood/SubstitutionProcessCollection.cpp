@@ -157,12 +157,6 @@ ParameterList SubstitutionProcessCollection::getNonDerivableParameters() const
   
 void SubstitutionProcessCollection::fireParameterChanged(const ParameterList& parameters)
 {
-  // de-updates the roots
-  // perhaps to be changed later
-
-  for (map<size_t, SubstitutionProcessCollectionMember*>::iterator it=mSubProcess_.begin(); it!=mSubProcess_.end(); it++)
-    it->second->changedRoot(false);
-
   AbstractParameterAliasable::fireParameterChanged(parameters);
 
   ParameterList gAP=getAliasedParameters(parameters);

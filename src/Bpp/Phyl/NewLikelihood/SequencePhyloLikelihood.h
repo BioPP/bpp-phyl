@@ -161,7 +161,6 @@ namespace bpp
       void setData(const SiteContainer& sites, size_t nData = 0)
       {
         AbstractSingleDataPhyloLikelihood::setData(sites, nData);
-
         update();
       }
       

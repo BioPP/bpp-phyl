@@ -44,10 +44,6 @@
 using namespace bpp;
 using namespace std;
 
-// const unsigned char ComputingNode::D0=0;
-// const unsigned char ComputingNode::D1=1;
-// const unsigned char ComputingNode::D2=2;
-
 ComputingNode::ComputingNode(const SubstitutionModel* model) :
   Node(),
   AbstractParametrizable(""),

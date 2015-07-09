@@ -591,6 +591,7 @@ namespace bpp
      
     void computeUpwardToFatherBelowLikelihoods(const ComputingNode& cNode, unsigned char DX, Vint* vBrid= NULL)
     {
+
       // First check below dependencies are up to date
       
       if (!isUp2dateBelow(ComputingNode::D0))

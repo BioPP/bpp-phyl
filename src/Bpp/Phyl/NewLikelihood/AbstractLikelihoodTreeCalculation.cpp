@@ -91,7 +91,7 @@ double AbstractLikelihoodTreeCalculation::getLogLikelihood()
   {
     ll += la[i - 1];
   }
-  
+
   return ll;
 }
 
