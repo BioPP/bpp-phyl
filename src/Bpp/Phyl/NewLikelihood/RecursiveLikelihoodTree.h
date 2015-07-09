@@ -165,6 +165,11 @@ namespace bpp
         vTree_[c]->getNode(nodeId)->resetAboveLikelihoods(nbSites, nbStates);
     }
 
+    void setAboveLikelihoods(int nodeId, const Vdouble& freq) {
+      for (size_t c = 0; c < vTree_.size(); ++c)
+        vTree_[c]->getNode(nodeId)->setAboveLikelihoods(freq);
+    }
+
     /*
      * @brief reset the Above Likelihood arrays all the inner nodes:
      * resize to nbSites_ X nbStates_ set to 1

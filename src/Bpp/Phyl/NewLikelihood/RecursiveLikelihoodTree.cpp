@@ -234,6 +234,9 @@ void RecursiveLikelihoodTree::initLikelihoodsWithoutPatterns_(const Node* node, 
       }
     }
   }
+
+  if (!node->hasFather())
+    setAboveLikelihoods(nId, process.getRootFrequencies());
 }
 
 /******************************************************************************/
