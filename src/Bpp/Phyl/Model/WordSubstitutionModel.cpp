@@ -57,11 +57,12 @@ using namespace std;
 /******************************************************************************/
 
 WordSubstitutionModel::WordSubstitutionModel(
-  const std::vector<SubstitutionModel*>& modelVector,
+  ModelList& modelList,
   const std::string& prefix) :
   AbstractParameterAliasable((prefix == "") ? "Word." : prefix),
-  AbstractWordSubstitutionModel(modelVector,
-                                (prefix == "") ? "Word." : prefix)
+  AbstractWordSubstitutionModel(
+      modelList,
+      (prefix == "") ? "Word." : prefix)
 {
   size_t i, nbmod = VSubMod_.size();
 

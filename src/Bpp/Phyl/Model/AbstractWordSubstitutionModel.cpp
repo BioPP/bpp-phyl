@@ -59,21 +59,22 @@ using namespace std;
 
 /******************************************************************************/
 
-//TODO: jdutheil on 24/09/14: we should define a class "vector of models", insuring they share the same alphabet and StateMap for instance.
-//This is the only way to avoid a segfault in case the user provides a vector of models of length 0.
 AbstractWordSubstitutionModel::AbstractWordSubstitutionModel(
-  const std::vector<SubstitutionModel*>& modelVector,
+  ModelList& modelList,
   const std::string& prefix) :
   AbstractParameterAliasable(prefix),
-  AbstractSubstitutionModel(AbstractWordSubstitutionModel::extractAlph(modelVector), modelVector[0]->getStateMap().clone(), prefix),
+  AbstractSubstitutionModel(
+      modelList.getWordAlphabet(),
+      new CanonicalStateMap(modelList.getWordAlphabet(), false),
+      prefix),
   new_alphabet_ (true),
   VSubMod_      (),
   VnestedPrefix_(),
-  Vrate_        (modelVector.size())
+  Vrate_        (modelList.size())
 {
   enableEigenDecomposition(false);
   size_t i, j;
-  size_t n = modelVector.size();
+  size_t n = modelList.size();
 
   // test whether two models are identical
 
@@ -82,7 +83,7 @@ AbstractWordSubstitutionModel::AbstractWordSubstitutionModel(
   j = 1;
   while (!flag && i < (n - 1))
   {
-    if (modelVector[i] == modelVector[j])
+    if (modelList.getModel(i) == modelList.getModel(j))
       flag = 1;
     else
     {
@@ -99,8 +100,8 @@ AbstractWordSubstitutionModel::AbstractWordSubstitutionModel(
   {
     for (i = 0; i < n; i++)
     {
-      VSubMod_.push_back(modelVector[i]);
-      VnestedPrefix_.push_back(modelVector[i]->getNamespace());
+      VSubMod_.push_back(modelList.getModel(i));
+      VnestedPrefix_.push_back(modelList.getModel(i)->getNamespace());
       VSubMod_[i]->setNamespace(prefix + TextTools::toString(i + 1) + "_" + VnestedPrefix_[i]);
       addParameters_(VSubMod_[i]->getParameters());
     }
@@ -110,8 +111,8 @@ AbstractWordSubstitutionModel::AbstractWordSubstitutionModel(
     string t = "";
     for (i = 0; i < n; i++)
     {
-      VSubMod_.push_back(modelVector[0]);
-      VnestedPrefix_.push_back(modelVector[0]->getNamespace());
+      VSubMod_.push_back(modelList.getModel(0));
+      VnestedPrefix_.push_back(modelList.getModel(0)->getNamespace());
       t += TextTools::toString(i + 1);
     }
     VSubMod_[0]->setNamespace(prefix + t + "_" + VnestedPrefix_[0]);
