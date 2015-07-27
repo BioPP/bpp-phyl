@@ -828,9 +828,12 @@ SubstitutionModel* BppOSubstitutionModelFormat::readWord_(const Alphabet* alphab
 
   if (modelName == "Word")
   {
-    model.reset((v_nestedModelDescription.size() != nbmodels)
-                ? new WordSubstitutionModel(v_pSM[0], nbmodels)
-                : new WordSubstitutionModel(v_pSM));
+    if (v_nestedModelDescription.size() != nbmodels) {
+      model.reset(new WordSubstitutionModel(v_pSM[0], nbmodels));
+    } else {
+      ModelList ml(v_pSM);
+      model.reset(new WordSubstitutionModel(ml));
+    }
   }
 
   // /////////////////////////////////

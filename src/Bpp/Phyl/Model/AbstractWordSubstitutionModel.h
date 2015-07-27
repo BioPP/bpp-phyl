@@ -42,11 +42,67 @@
 
 #include "AbstractSubstitutionModel.h"
 
+// From bpp-seq:
+#include <Bpp/Seq/Alphabet/WordAlphabet.h>
+
 // From the STL:
 #include <vector>
 
 namespace bpp
 {
+
+/**
+ * @brief A list of models, for building a WordSubstitutionModel
+ *
+ * Instance of ModelList contains a vector of pointers toward a substitution model which they do not own. Several methods are provided to build and check Alphabet and StateMaps.
+ *
+ * @author Julien Y. Dutheil.
+ */
+class ModelList
+{
+  protected:
+    std::vector<SubstitutionModel *> models_;
+    std::auto_ptr<WordAlphabet> wordAlphabet_;
+    WordAlphabet* pWordAlphabet_;
+
+  public:
+    /**
+     * @brief Create a ModelList from one template substitution model.
+     *
+     * @param models A vector of pointers toward substitution model objects.
+     */
+    ModelList(const std::vector<SubstitutionModel *>& models):
+      models_(models), wordAlphabet_(0), pWordAlphabet_(0)
+    {
+      std::vector<const Alphabet *> alphabets(models.size());
+      for (size_t i = 0; i < models.size(); ++i) {
+        alphabets[i] = models[i]->getAlphabet();
+      }
+      wordAlphabet_.reset(new WordAlphabet(alphabets));
+      pWordAlphabet_ = wordAlphabet_.get();
+    }
+ 
+  public:
+    size_t size() const { return models_.size(); }
+
+    const SubstitutionModel* getModel(size_t i) const {
+      return models_[i];
+    }
+
+    SubstitutionModel* getModel(size_t i) {
+      return models_[i];
+    }
+
+    const WordAlphabet* getWordAlphabet() {
+      if (wordAlphabet_.get()) //First call
+        return wordAlphabet_.release();
+      else //Other calls, this class does not own the pointer anymore.
+        return pWordAlphabet_; 
+    }    
+};
+
+
+
 /**
  * @brief Abstract Basal class for words of substitution models.
  * @author Laurent Guéguen
@@ -104,7 +160,7 @@ public:
    * @brief Build a new AbstractWordSubstitutionModel object from a
    * vector of pointers to SubstitutionModels.
    *
-   * @param modelVector the vector of substitution models to use, in
+   * @param modelList the list of substitution models to use, in
    *   the order of the positions in the words from left to right. All
    *   the models must be different objects to avoid parameters
    *   redundancy, otherwise only the first model is used. The used models
@@ -112,7 +168,7 @@ public:
    * @param prefix the Namespace.
    */
   AbstractWordSubstitutionModel(
-    const std::vector<SubstitutionModel*>& modelVector,
+    ModelList& modelList,
     const std::string& prefix);
 
   /**
