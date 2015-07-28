@@ -158,9 +158,6 @@ protected:
   std::vector<double> Vrate_;
 
 protected:
-  static Alphabet* extractAlph(const std::vector<SubstitutionModel*>& modelVector);
-
-protected:
   void updateMatrices();
 
   /**
