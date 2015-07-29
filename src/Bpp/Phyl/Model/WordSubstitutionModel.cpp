@@ -301,14 +301,8 @@ const RowMatrix<double>& WordSubstitutionModel::getd2Pij_dt2(double d) const
 
 string WordSubstitutionModel::getName() const
 {
-  size_t nbmod = VSubMod_.size();
-  string s = "WordSubstitutionModel model: " + VSubMod_[0]->getName();
-  for (size_t i = 1; i < nbmod - 1; i++)
-  {
-    s += " " + VSubMod_[i]->getName();
-  }
-
-  return s;
+  return "WordSubstitutionModel";
+  
 }
 
 
