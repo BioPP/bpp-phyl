@@ -240,20 +240,6 @@ size_t AbstractWordSubstitutionModel::getNumberOfStates() const
   return getAlphabet()->getSize();
 }
 
-Alphabet* AbstractWordSubstitutionModel::extractAlph(const vector<SubstitutionModel*>& modelVector)
-{
-  size_t i;
-
-  vector<const Alphabet*> vAlph;
-
-  for (i = 0; i < modelVector.size(); i++)
-  {
-    vAlph.push_back(modelVector[i]->getAlphabet());
-  }
-
-  return new WordAlphabet(vAlph);
-}
-
 void AbstractWordSubstitutionModel::setNamespace(const std::string& prefix)
 {
   AbstractSubstitutionModel::setNamespace(prefix);

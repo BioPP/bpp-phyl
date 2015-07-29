@@ -81,7 +81,21 @@ class ModelList
       wordAlphabet_.reset(new WordAlphabet(alphabets));
       pWordAlphabet_ = wordAlphabet_.get();
     }
+
+    ModelList(const ModelList& ml):
+      models_(ml.models_),
+      wordAlphabet_(ml.wordAlphabet_.get() ? ml.wordAlphabet_.get()->clone() : 0),
+      pWordAlphabet_(wordAlphabet_.get())
+    {}
  
+    ModelList& operator=(const ModelList& ml)
+    {
+      models_ = ml.models_;
+      wordAlphabet_.reset(ml.wordAlphabet_.get() ? ml.wordAlphabet_.get()->clone() : 0);
+      pWordAlphabet_ = wordAlphabet_.get();
+      return *this;
+    }
+
   public:
     size_t size() const { return models_.size(); }
 
@@ -142,9 +156,6 @@ protected:
   std::vector<std::string> VnestedPrefix_;
 
   std::vector<double> Vrate_;
-
-protected:
-  static Alphabet* extractAlph(const std::vector<SubstitutionModel*>& modelVector);
 
 protected:
   void updateMatrices();
