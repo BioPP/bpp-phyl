@@ -123,6 +123,7 @@ AbstractWordSubstitutionModel::AbstractWordSubstitutionModel(
   {
     Vrate_[i] = 1.0 / static_cast<double>(n);
   }
+
 }
 
 AbstractWordSubstitutionModel::AbstractWordSubstitutionModel(
@@ -284,51 +285,47 @@ void AbstractWordSubstitutionModel::updateMatrices()
 
   // Generator
 
-  if (enableEigenDecomposition())
+  size_t i, j, n, l, k, m;
+
+  vector<size_t> vsize;
+
+  for (k = 0; k < nbmod; k++)
   {
-    size_t i, j, n, l, k, m;
+    vsize.push_back(VSubMod_[k]->getNumberOfStates());
+  }
 
-    vector<size_t> vsize;
+  RowMatrix<double> gk, exch;
 
-    for (k = 0; k < nbmod; k++)
+  m = 1;
+  
+  for (k = nbmod; k > 0; k--)
+  {
+    gk = VSubMod_[k - 1]->getGenerator();
+    for (i = 0; i < vsize[k - 1]; i++)
     {
-      vsize.push_back(VSubMod_[k]->getNumberOfStates());
-    }
-
-    RowMatrix<double> gk, exch;
-
-    m = 1;
-
-    for (k = nbmod; k > 0; k--)
-    {
-      gk = VSubMod_[k - 1]->getGenerator();
-      for (i = 0; i < vsize[k - 1]; i++)
+      for (j = 0; j < vsize[k - 1]; j++)
       {
-        for (j = 0; j < vsize[k - 1]; j++)
+        if (i != j)
         {
-          if (i != j)
-          {
-            n = 0;
-            while (n < salph)
-            { // loop on prefix
-              for (l = 0; l < m; l++)
-              { // loop on suffix
-                generator_(n + i * m + l, n + j * m + l) = gk(i, j) * Vrate_[k - 1];
-              }
-              n += m * vsize[k - 1];
+          n = 0;
+          while (n < salph)
+          { // loop on prefix
+            for (l = 0; l < m; l++)
+            { // loop on suffix
+              generator_(n + i * m + l, n + j * m + l) = gk(i, j) * Vrate_[k - 1];
             }
+            n += m * vsize[k - 1];
           }
         }
       }
-      m *= vsize[k - 1];
     }
+    m *= vsize[k - 1];
   }
 
-  // modification of generator_ and freq_
+  // modification of generator_
 
-  completeMatrices();
+  this->completeMatrices();
 
-  size_t i, j;
   double x;
 
   for (i = 0; i < salph; i++)
@@ -346,7 +343,7 @@ void AbstractWordSubstitutionModel::updateMatrices()
   // enableEigenDecomposition
 
   // Eigen values:
-
+  
   if (enableEigenDecomposition())
   {
     for (i = 0; i < salph; i++)
@@ -368,8 +365,6 @@ void AbstractWordSubstitutionModel::updateMatrices()
     if (nbStop != 0)
     {
       size_t gi = 0, gj = 0;
-
-      RowMatrix<double> gk;
 
       gk.resize(salph - nbStop, salph - nbStop);
       for (i = 0; i < salph; i++)
@@ -570,13 +565,37 @@ void AbstractWordSubstitutionModel::updateMatrices()
     if (!isNonSingular_)
       MatrixTools::Taylor(generator_, 30, vPowGen_);
   }
+  else  // compute freq_ is no eigenDecomposition
+  {
+    for (j = 0; j < size_; j++)
+      freq_[j] = 1;
+  
+    m = 1;
+    for (k = nbmod; k > 0; k--)
+    {
+      SubstitutionModel* pSM = VSubMod_[k - 1];
+      for (j = 0; j < vsize[k - 1]; j++)
+      {
+        n = 0;
+        while (n < salph)
+        { // loop on prefix
+          for (l = 0; l < m; l++)
+          { // loop on suffix
+            freq_[n + j * m + l] *=  pSM->freq(j);
+          }
+          n += m * vsize[k - 1];
+        }
+      }
+      m *= vsize[k - 1];
+    }
+  }
+  
 
   // compute the exchangeability_
 
   for (i = 0; i < size_; i++)
     for (j = 0; j < size_; j++)
       exchangeability_(i, j) = generator_(i, j) / freq_[j];
-
 }
 
 void AbstractWordSubstitutionModel::setFreq(std::map<int, double>& freqs)
