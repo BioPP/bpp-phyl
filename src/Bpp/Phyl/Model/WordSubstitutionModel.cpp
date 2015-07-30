@@ -301,8 +301,7 @@ const RowMatrix<double>& WordSubstitutionModel::getd2Pij_dt2(double d) const
 
 string WordSubstitutionModel::getName() const
 {
-  return "WordSubstitutionModel";
-  
+  return "Word";
 }
 
 
