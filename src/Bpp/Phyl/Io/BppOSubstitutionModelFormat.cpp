@@ -61,7 +61,7 @@
 #include "../Model/Codon/CodonRateFrequenciesSubstitutionModel.h"
 #include "../Model/Codon/CodonDistanceFrequenciesSubstitutionModel.h"
 #include "../Model/Codon/CodonDistancePhaseFrequenciesSubstitutionModel.h"
-#include "../Model/Codon/CodonDistanceFitnessPhaseFrequenciesSubstitutionModel.h"
+#include "../Model/Codon/SENCA.h"
 #include "../Model/RE08.h"
 #include "../Model/TS98.h"
 #include "../Model/G2001.h"
@@ -154,7 +154,7 @@ SubstitutionModel* BppOSubstitutionModelFormat::read(
   // / WORDS and CODONS
   // ///////////////////////////////
 
-  else if ((modelName == "Word") || (modelName == "Triplet") || (modelName.substr(0, 5) == "Codon"))
+  else if ((modelName == "Word") || (modelName == "Triplet") || (modelName.substr(0, 5) == "Codon") || (modelName == "SENCA") )
     model.reset(readWord_(alphabet, modelDescription, data));
 
 
@@ -863,7 +863,7 @@ SubstitutionModel* BppOSubstitutionModelFormat::readWord_(const Alphabet* alphab
       throw Exception("BppOSubstitutionModelFormat::readWord_(). No genetic code specified! Consider using 'setGeneticCode'.");
 
     
-    if (modelName.find("Dist") != string::npos)
+    if ((modelName.find("Dist") != string::npos) || (modelName=="SENCA"))
       pai2.reset((args.find("aadistance") == args.end()) ? 0 : SequenceApplicationTools::getAlphabetIndex2(&AlphabetTools::PROTEIN_ALPHABET, args["aadistance"]));
     
 
@@ -972,7 +972,7 @@ SubstitutionModel* BppOSubstitutionModelFormat::readWord_(const Alphabet* alphab
                       pFS.release(),
                       pai2.release()));
     }
-    else if (modelName == "CodonDistFitPhasFreq")
+    else if (modelName == "SENCA")
     {
       if (args.find("fitness") == args.end())
         throw Exception("Missing fitness in model " + modelName + ".");
@@ -989,20 +989,18 @@ SubstitutionModel* BppOSubstitutionModelFormat::readWord_(const Alphabet* alphab
 
       if (v_nestedModelDescription.size() != 3)
       {
-        model.reset(new CodonDistanceFitnessPhaseFrequenciesSubstitutionModel(geneticCode_,
-                                                                              dynamic_cast<NucleotideSubstitutionModel*>(v_pSM[0]),
-                                                                              pFit.release(),
-                                                                              pFS.release(),
-                                                                              pai2.release()));
+        model.reset(new SENCA(geneticCode_,
+                              dynamic_cast<NucleotideSubstitutionModel*>(v_pSM[0]),
+                              pFit.release(),
+                              pai2.release()));
       }
       else
-        model.reset(new CodonDistanceFitnessPhaseFrequenciesSubstitutionModel(
+        model.reset(new SENCA(
                       geneticCode_,
                       dynamic_cast<NucleotideSubstitutionModel*>(v_pSM[0]),
                       dynamic_cast<NucleotideSubstitutionModel*>(v_pSM[1]),
                       dynamic_cast<NucleotideSubstitutionModel*>(v_pSM[2]),
                       pFit.release(),
-                      pFS.release(),
                       pai2.release()));
     }
   }
@@ -1260,9 +1258,9 @@ void BppOSubstitutionModelFormat::write(const SubstitutionModel& model,
     comma = true;
   }
 
-  // Specific case of CodonFitnessSubstitutionModel
+  // Specific case of SENCA
 
-  const CodonDistanceFitnessPhaseFrequenciesSubstitutionModel* pCF = dynamic_cast<const CodonDistanceFitnessPhaseFrequenciesSubstitutionModel*>(&model);
+  const SENCA* pCF = dynamic_cast<const SENCA*>(&model);
   if (pCF)
   {
     if (comma)

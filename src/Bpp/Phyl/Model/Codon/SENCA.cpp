@@ -1,5 +1,5 @@
 //
-// File: CodonDistanceFitnessPhaseFrequenciesSubstitutionModel.cpp
+// File: SENCA.cpp
 // Created by: Fanny Pouyet 
 // Created on: February 2012
 //
@@ -38,92 +38,86 @@
 */
 
 
-#include "CodonDistanceFitnessPhaseFrequenciesSubstitutionModel.h"
+#include "SENCA.h"
 using namespace bpp;
 using namespace std;
 
-CodonDistanceFitnessPhaseFrequenciesSubstitutionModel::CodonDistanceFitnessPhaseFrequenciesSubstitutionModel(
+SENCA::SENCA(
     const GeneticCode* gCode,
     NucleotideSubstitutionModel* pmod,
     FrequenciesSet* pfit,
-    FrequenciesSet* pfreq,
     const AlphabetIndex2* pdist) :
-  AbstractParameterAliasable("CodonDistFitPhasFreq."),
-  AbstractCodonSubstitutionModel(gCode, pmod, "CodonDistFitPhasFreq."),
-  AbstractCodonDistanceSubstitutionModel(pdist, "CodonDistFitPhasFreq."),
-  AbstractCodonPhaseFrequenciesSubstitutionModel(pfreq, "CodonDistFitPhasFreq."),
-  AbstractCodonFitnessSubstitutionModel(pfit, "CodonDistFitPhasFreq.")
+  AbstractParameterAliasable("SENCA."),
+  AbstractCodonSubstitutionModel(gCode, pmod, "SENCA."),
+  AbstractCodonDistanceSubstitutionModel(pdist, "SENCA."),
+  AbstractCodonFitnessSubstitutionModel(pfit, "SENCA.")
 {
   updateMatrices();
 }
 
-CodonDistanceFitnessPhaseFrequenciesSubstitutionModel::CodonDistanceFitnessPhaseFrequenciesSubstitutionModel(
+SENCA::SENCA(
     const GeneticCode* gCode,
     NucleotideSubstitutionModel* pmod1,
     NucleotideSubstitutionModel* pmod2,
     NucleotideSubstitutionModel* pmod3,
     FrequenciesSet* pfit,
-    FrequenciesSet* pfreq,
     const AlphabetIndex2* pdist) :
-  AbstractParameterAliasable("CodonDistFitPhasFreq."),
-  AbstractCodonSubstitutionModel(gCode, pmod1, pmod2, pmod3, "CodonDistFitPhasFreq."),
-  AbstractCodonDistanceSubstitutionModel(pdist, "CodonDistFitPhasFreq."),
-  AbstractCodonPhaseFrequenciesSubstitutionModel(pfreq, "CodonDistFitPhasFreq."),
-  AbstractCodonFitnessSubstitutionModel(pfit,"CodonDistFitPhasFreq.")
+  AbstractParameterAliasable("SENCA."),
+  AbstractCodonSubstitutionModel(gCode, pmod1, pmod2, pmod3, "SENCA."),
+  AbstractCodonDistanceSubstitutionModel(pdist, "SENCA."),
+  AbstractCodonFitnessSubstitutionModel(pfit,"SENCA.")
 {
   updateMatrices();
 }
 
-string CodonDistanceFitnessPhaseFrequenciesSubstitutionModel::getName() const
+string SENCA::getName() const
 {
-  return ("CodonDistFitPhasFreq");
+  return ("SENCA");
 }
 
-void CodonDistanceFitnessPhaseFrequenciesSubstitutionModel::fireParameterChanged(const ParameterList& parameters)
+void SENCA::fireParameterChanged(const ParameterList& parameters)
 {
   AbstractCodonDistanceSubstitutionModel::fireParameterChanged(parameters);
-  AbstractCodonPhaseFrequenciesSubstitutionModel::fireParameterChanged(parameters);
   AbstractCodonFitnessSubstitutionModel::fireParameterChanged(parameters);
 
   AbstractCodonSubstitutionModel::fireParameterChanged(parameters);
 }
 
-double CodonDistanceFitnessPhaseFrequenciesSubstitutionModel::getCodonsMulRate(size_t i, size_t j) const
+double SENCA::getCodonsMulRate(size_t i, size_t j) const
 {
   return AbstractCodonDistanceSubstitutionModel::getCodonsMulRate(i,j)
     * AbstractCodonSubstitutionModel::getCodonsMulRate(i,j)
-    * AbstractCodonPhaseFrequenciesSubstitutionModel::getCodonsMulRate(i,j)
     * AbstractCodonFitnessSubstitutionModel::getCodonsMulRate(i,j);
 }
 
-void CodonDistanceFitnessPhaseFrequenciesSubstitutionModel::setNamespace(const std::string& st)
+void SENCA::setNamespace(const std::string& st)
 {
   AbstractParameterAliasable::setNamespace(st);
   AbstractCodonSubstitutionModel::setNamespace(st);
   AbstractCodonDistanceSubstitutionModel::setNamespace(st);
-  AbstractCodonPhaseFrequenciesSubstitutionModel::setNamespace(st); 
   AbstractCodonFitnessSubstitutionModel::setNamespace(st);
 }
 
-void CodonDistanceFitnessPhaseFrequenciesSubstitutionModel::setFreq(map<int,double>& frequencies)
-{
-  AbstractCodonPhaseFrequenciesSubstitutionModel::setFreq(frequencies);
-  map<int, double> freq1 = AbstractCodonPhaseFrequenciesSubstitutionModel::getFrequenciesSet()->getAlphabetStatesFrequencies();
+void SENCA::setFreq(map<int,double>& frequencies)
+{ 
+   AbstractCodonSubstitutionModel::setFreq(frequencies);
+   const Vdouble& freq1 = AbstractCodonSubstitutionModel::getFrequencies();
+   const Alphabet* alphabet = getAlphabet();
 
-  map<int, double> freq2;
-  double s=0;
-  map<int, double>::iterator it;
+   map<int, double> freq2;
+   double s=0;
+   map<int, double>::iterator it;
 
-  for (it=frequencies.begin();it!=frequencies.end();it++)
-  {
-    freq2[it->first]=(freq1[it->first] != 0 ? it->second/freq1[it->first] : 0);
-    s += freq2[it->first];
-  }
+    for (it=frequencies.begin();it!=frequencies.end();it++)
+    {
+      freq2[it->first]=(freq1[alphabet->getStateIndex(it->first)-1] != 0 ? it->second/freq1[alphabet->getStateIndex(it->first)-1] : 0);
+      s += freq2[it->first];
+    }
   
-  for (it = freq2.begin(); it != freq2.end(); it++)
-    freq2[it->first] /= s;
+    for (it = freq2.begin(); it != freq2.end(); it++)
+      freq2[it->first] /= s;
 
-  AbstractCodonFitnessSubstitutionModel::setFreq(freq2);
+    AbstractCodonFitnessSubstitutionModel::setFreq(freq2);
 
   updateMatrices();
 }
