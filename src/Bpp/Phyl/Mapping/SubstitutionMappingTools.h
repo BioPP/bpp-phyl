@@ -236,8 +236,16 @@ public:
    * @param siteIndex The index of the substitution vector for which the counts should be computed.
    * @return A vector will all counts for all types of substitutions summed.
    */
-  static std::vector<double> computeTotalSubstitutionVectorForSite(const SubstitutionMapping& smap, size_t siteIndex);
+  static std::vector<double> computeTotalSubstitutionVectorForSitePerBranch(const SubstitutionMapping& smap, size_t siteIndex);
 
+  /**
+   * @brief Sum all type of substitutions for each type of a given position (specified by its index).
+   *
+   * @param smap The substitution map to use.
+   * @param siteIndex The index of the substitution vector for which the counts should be computed.
+   * @return A vector will all counts for all branches summed.
+   */
+  static std::vector<double> computeTotalSubstitutionVectorForSitePerType(const SubstitutionMapping& smap, size_t siteIndex);
 
   /**
    * @brief Compute the norm of a substitution vector for a given position (specified by its index).
@@ -251,7 +259,6 @@ public:
    * @return The norm of the substitution vector.
    */
   static double computeNormForSite(const SubstitutionMapping& smap, size_t siteIndex);
-
 
   /**
    * @brief Sum all substitutions for each type of a given branch (specified by its index).
@@ -393,7 +400,7 @@ public:
    *
    */
 
-  static std::vector< std::vector<double> >  getRelativeCountsPerBranch(
+  static std::vector< std::vector<double> > getRelativeCountsPerBranch(
     DRTreeLikelihood& drtl,
     const std::vector<int>& ids,
     SubstitutionModel* model,
@@ -402,8 +409,8 @@ public:
     double threshold = -1);
 
   /**
-   * @brief Output the sum of the counts par branch per site, in a
-   * file.
+   * @brief Output the sum over all types of the counts per branch per site,
+   * in a file.
    *
    * @param filename          The name of the output file
    * @param drtl              A DRTreeLikelihood object.
@@ -413,6 +420,24 @@ public:
    *
    */
   static void outputTotalCountsPerBranchPerSite(
+    std::string& filename,
+    DRTreeLikelihood& drtl,
+    const std::vector<int>& ids,
+    SubstitutionModel* model,
+    const SubstitutionRegister& reg);
+
+  /**
+   * @brief Output the sum over all branches of the counts per type per site,
+   * in a file.
+   *
+   * @param filename          The name of the output file
+   * @param drtl              A DRTreeLikelihood object.
+   * @param ids               The numbers of the nodes of the tree
+   * @param model             The model on which the SubstitutionCount is built
+   * @param reg               the Substitution Register
+   *
+   */
+  static void outputTotalCountsPerTypePerSite(
     std::string& filename,
     DRTreeLikelihood& drtl,
     const std::vector<int>& ids,

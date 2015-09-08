@@ -353,9 +353,10 @@ double AbstractSubstitutionModel::getInitValue(size_t i, int state) const throw 
   if (state < 0 || !alphabet_->isIntInAlphabet(state))
     throw BadIntException(state, "AbstractSubstitutionModel::getInitValue. Character " + alphabet_->intToChar(state) + " is not allowed in model.");
   vector<int> states = alphabet_->getAlias(state);
+
   for (size_t j = 0; j < states.size(); j++)
   {
-    if (getAlphabetStateAsInt(i) == states[j])
+     if (getAlphabetStateAsInt(i) == states[j])
       return 1.;
   }
   return 0.;

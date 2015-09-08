@@ -41,6 +41,8 @@
 #define _WORDSUBSTITUTIONMODEL_H_
 
 #include "AbstractWordSubstitutionModel.h"
+
+//From bpp-core
 #include <Bpp/Numeric/Matrix/Matrix.h>
 #include <Bpp/BppVector.h>
 
@@ -79,14 +81,14 @@ public:
    * @brief Build a new WordSubstitutionModel object from a
    * Vector of pointers to SubstitutionModels.
    *
-   * @param modelVector the Vector of substitution models to use, in
+   * @param modelList the list of substitution models to use, in
    *   the order of the positions in the words from left to right. All
    *   the models must be different objects to avoid parameters
    *   redundancy, otherwise only the first model is used. The used models
    *   are owned by the instance.
    * @param prefix the Namespace.
    */
-  WordSubstitutionModel(const std::vector<SubstitutionModel*>& modelVector, const std::string& prefix = "");
+  WordSubstitutionModel(ModelList& modelList, const std::string& prefix = "");
 
   /**
    * @brief Build a new WordSubstitutionModel object from a

@@ -48,6 +48,7 @@
 #include <Bpp/Seq/Container/VectorSiteContainer.h>
 
 using namespace bpp;
+using namespace std;
 
 /******************************************************************************/
 
@@ -154,7 +155,6 @@ void DRASRTreeLikelihoodData::initLikelihoods(const Node* node, const SiteContai
         {
           // Leaves likelihood are set to 1 if the char correspond to the site in the sequence,
           // otherwise value set to 0:
-          // cout << "i=" << i << "\tc=" << c << "\ts=" << s << endl;
           (*_likelihoods_node_i_c)[s] = model.getInitValue(s, state);
           test += (*_likelihoods_node_i_c)[s];
         }

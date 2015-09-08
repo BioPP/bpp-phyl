@@ -1329,7 +1329,7 @@ throw (IOException)
 
 /**************************************************************************************************/
 
-vector<double> SubstitutionMappingTools::computeTotalSubstitutionVectorForSite(const SubstitutionMapping& smap, size_t siteIndex)
+vector<double> SubstitutionMappingTools::computeTotalSubstitutionVectorForSitePerBranch(const SubstitutionMapping& smap, size_t siteIndex)
 {
   size_t nbBranches = smap.getNumberOfBranches();
   size_t nbTypes    = smap.getNumberOfSubstitutionTypes();
@@ -1340,6 +1340,24 @@ vector<double> SubstitutionMappingTools::computeTotalSubstitutionVectorForSite(c
     for (size_t t = 0; t < nbTypes; ++t)
     {
       v[l] += smap(l, siteIndex, t);
+    }
+  }
+  return v;
+}
+
+/**************************************************************************************************/
+
+vector<double> SubstitutionMappingTools::computeTotalSubstitutionVectorForSitePerType(const SubstitutionMapping& smap, size_t siteIndex)
+{
+  size_t nbBranches = smap.getNumberOfBranches();
+  size_t nbTypes    = smap.getNumberOfSubstitutionTypes();
+  Vdouble v(nbTypes);
+  for (size_t t = 0; t < nbTypes; ++t)
+  {
+    v[t] = 0;
+    for (size_t l = 0; l < nbBranches; ++l)
+    {
+      v[t] += smap(l, siteIndex, t);
     }
   }
   return v;
@@ -1397,6 +1415,7 @@ vector<double> SubstitutionMappingTools::computeSumForSite(const SubstitutionMap
 }
 
 /**************************************************************************************************/
+
 vector< vector<double> > SubstitutionMappingTools::getCountsPerBranch(
   DRTreeLikelihood& drtl,
   const vector<int>& ids,
@@ -1881,13 +1900,13 @@ void SubstitutionMappingTools::outputTotalCountsPerBranchPerSite(
   file << "sites";
   for (size_t i = 0; i < nbBr; ++i)
   {
-    file << "\t" << i;
+    file << "\t" << ids[i];
   }
   file << endl;
 
   for (size_t k = 0; k < nbSites; ++k)
   {
-    vector<double> countsf = SubstitutionMappingTools::computeTotalSubstitutionVectorForSite(*smap, k);
+    vector<double> countsf = SubstitutionMappingTools::computeTotalSubstitutionVectorForSitePerBranch(*smap, k);
     file << k;
     for (size_t i = 0; i < nbBr; ++i)
     {
@@ -1897,6 +1916,45 @@ void SubstitutionMappingTools::outputTotalCountsPerBranchPerSite(
   }
   file.close();
 }
+
+/**************************************************************************************************/
+
+void SubstitutionMappingTools::outputTotalCountsPerTypePerSite(
+  string& filename,
+  DRTreeLikelihood& drtl,
+  const vector<int>& ids,
+  SubstitutionModel* model,
+  const SubstitutionRegister& reg)
+{
+  auto_ptr<SubstitutionCount> count(new UniformizationSubstitutionCount(model, reg.clone()));
+  auto_ptr<ProbabilisticSubstitutionMapping> smap(SubstitutionMappingTools::computeSubstitutionVectors(drtl, ids, *count, false));
+
+  ofstream file;
+  file.open(filename.c_str());
+
+  size_t nbSites = smap->getNumberOfSites();
+  size_t nbTypes = smap->getNumberOfSubstitutionTypes();
+
+  file << "sites";
+  for (size_t i = 0; i < nbTypes; ++i)
+  {
+    file << "\t" << reg.getTypeName(i + 1);
+  }
+  file << endl;
+
+  for (size_t k = 0; k < nbSites; ++k)
+  {
+    vector<double> countsf = SubstitutionMappingTools::computeTotalSubstitutionVectorForSitePerType(*smap, k);
+    file << k;
+    for (size_t i = 0; i < nbTypes; ++i)
+    {
+      file << "\t" << countsf[i];
+    }
+    file << endl;
+  }
+  file.close();
+}
+
 
 /**************************************************************************************************/
 

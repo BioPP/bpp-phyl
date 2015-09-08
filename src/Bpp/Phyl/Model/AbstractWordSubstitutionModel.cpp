@@ -59,21 +59,22 @@ using namespace std;
 
 /******************************************************************************/
 
-//TODO: jdutheil on 24/09/14: we should define a class "vector of models", insuring they share the same alphabet and StateMap for instance.
-//This is the only way to avoid a segfault in case the user provides a vector of models of length 0.
 AbstractWordSubstitutionModel::AbstractWordSubstitutionModel(
-  const std::vector<SubstitutionModel*>& modelVector,
+  ModelList& modelList,
   const std::string& prefix) :
   AbstractParameterAliasable(prefix),
-  AbstractSubstitutionModel(AbstractWordSubstitutionModel::extractAlph(modelVector), modelVector[0]->getStateMap().clone(), prefix),
+  AbstractSubstitutionModel(
+      modelList.getWordAlphabet(),
+      new CanonicalStateMap(modelList.getWordAlphabet(), false),
+      prefix),
   new_alphabet_ (true),
   VSubMod_      (),
   VnestedPrefix_(),
-  Vrate_        (modelVector.size())
+  Vrate_        (modelList.size())
 {
   enableEigenDecomposition(false);
   size_t i, j;
-  size_t n = modelVector.size();
+  size_t n = modelList.size();
 
   // test whether two models are identical
 
@@ -82,7 +83,7 @@ AbstractWordSubstitutionModel::AbstractWordSubstitutionModel(
   j = 1;
   while (!flag && i < (n - 1))
   {
-    if (modelVector[i] == modelVector[j])
+    if (modelList.getModel(i) == modelList.getModel(j))
       flag = 1;
     else
     {
@@ -99,8 +100,8 @@ AbstractWordSubstitutionModel::AbstractWordSubstitutionModel(
   {
     for (i = 0; i < n; i++)
     {
-      VSubMod_.push_back(modelVector[i]);
-      VnestedPrefix_.push_back(modelVector[i]->getNamespace());
+      VSubMod_.push_back(modelList.getModel(i));
+      VnestedPrefix_.push_back(modelList.getModel(i)->getNamespace());
       VSubMod_[i]->setNamespace(prefix + TextTools::toString(i + 1) + "_" + VnestedPrefix_[i]);
       addParameters_(VSubMod_[i]->getParameters());
     }
@@ -110,8 +111,8 @@ AbstractWordSubstitutionModel::AbstractWordSubstitutionModel(
     string t = "";
     for (i = 0; i < n; i++)
     {
-      VSubMod_.push_back(modelVector[0]);
-      VnestedPrefix_.push_back(modelVector[0]->getNamespace());
+      VSubMod_.push_back(modelList.getModel(0));
+      VnestedPrefix_.push_back(modelList.getModel(0)->getNamespace());
       t += TextTools::toString(i + 1);
     }
     VSubMod_[0]->setNamespace(prefix + t + "_" + VnestedPrefix_[0]);
@@ -122,6 +123,7 @@ AbstractWordSubstitutionModel::AbstractWordSubstitutionModel(
   {
     Vrate_[i] = 1.0 / static_cast<double>(n);
   }
+
 }
 
 AbstractWordSubstitutionModel::AbstractWordSubstitutionModel(
@@ -239,20 +241,6 @@ size_t AbstractWordSubstitutionModel::getNumberOfStates() const
   return getAlphabet()->getSize();
 }
 
-Alphabet* AbstractWordSubstitutionModel::extractAlph(const vector<SubstitutionModel*>& modelVector)
-{
-  size_t i;
-
-  vector<const Alphabet*> vAlph;
-
-  for (i = 0; i < modelVector.size(); i++)
-  {
-    vAlph.push_back(modelVector[i]->getAlphabet());
-  }
-
-  return new WordAlphabet(vAlph);
-}
-
 void AbstractWordSubstitutionModel::setNamespace(const std::string& prefix)
 {
   AbstractSubstitutionModel::setNamespace(prefix);
@@ -297,51 +285,47 @@ void AbstractWordSubstitutionModel::updateMatrices()
 
   // Generator
 
-  if (enableEigenDecomposition())
+  size_t i, j, n, l, k, m;
+
+  vector<size_t> vsize;
+
+  for (k = 0; k < nbmod; k++)
   {
-    size_t i, j, n, l, k, m;
+    vsize.push_back(VSubMod_[k]->getNumberOfStates());
+  }
 
-    vector<size_t> vsize;
+  RowMatrix<double> gk, exch;
 
-    for (k = 0; k < nbmod; k++)
+  m = 1;
+  
+  for (k = nbmod; k > 0; k--)
+  {
+    gk = VSubMod_[k - 1]->getGenerator();
+    for (i = 0; i < vsize[k - 1]; i++)
     {
-      vsize.push_back(VSubMod_[k]->getNumberOfStates());
-    }
-
-    RowMatrix<double> gk, exch;
-
-    m = 1;
-
-    for (k = nbmod; k > 0; k--)
-    {
-      gk = VSubMod_[k - 1]->getGenerator();
-      for (i = 0; i < vsize[k - 1]; i++)
+      for (j = 0; j < vsize[k - 1]; j++)
       {
-        for (j = 0; j < vsize[k - 1]; j++)
+        if (i != j)
         {
-          if (i != j)
-          {
-            n = 0;
-            while (n < salph)
-            { // loop on prefix
-              for (l = 0; l < m; l++)
-              { // loop on suffix
-                generator_(n + i * m + l, n + j * m + l) = gk(i, j) * Vrate_[k - 1];
-              }
-              n += m * vsize[k - 1];
+          n = 0;
+          while (n < salph)
+          { // loop on prefix
+            for (l = 0; l < m; l++)
+            { // loop on suffix
+              generator_(n + i * m + l, n + j * m + l) = gk(i, j) * Vrate_[k - 1];
             }
+            n += m * vsize[k - 1];
           }
         }
       }
-      m *= vsize[k - 1];
     }
+    m *= vsize[k - 1];
   }
 
-  // modification of generator_ and freq_
+  // modification of generator_
 
-  completeMatrices();
+  this->completeMatrices();
 
-  size_t i, j;
   double x;
 
   for (i = 0; i < salph; i++)
@@ -359,7 +343,7 @@ void AbstractWordSubstitutionModel::updateMatrices()
   // enableEigenDecomposition
 
   // Eigen values:
-
+  
   if (enableEigenDecomposition())
   {
     for (i = 0; i < salph; i++)
@@ -381,8 +365,6 @@ void AbstractWordSubstitutionModel::updateMatrices()
     if (nbStop != 0)
     {
       size_t gi = 0, gj = 0;
-
-      RowMatrix<double> gk;
 
       gk.resize(salph - nbStop, salph - nbStop);
       for (i = 0; i < salph; i++)
@@ -583,13 +565,37 @@ void AbstractWordSubstitutionModel::updateMatrices()
     if (!isNonSingular_)
       MatrixTools::Taylor(generator_, 30, vPowGen_);
   }
+  else  // compute freq_ is no eigenDecomposition
+  {
+    for (j = 0; j < size_; j++)
+      freq_[j] = 1;
+  
+    m = 1;
+    for (k = nbmod; k > 0; k--)
+    {
+      SubstitutionModel* pSM = VSubMod_[k - 1];
+      for (j = 0; j < vsize[k - 1]; j++)
+      {
+        n = 0;
+        while (n < salph)
+        { // loop on prefix
+          for (l = 0; l < m; l++)
+          { // loop on suffix
+            freq_[n + j * m + l] *=  pSM->freq(j);
+          }
+          n += m * vsize[k - 1];
+        }
+      }
+      m *= vsize[k - 1];
+    }
+  }
+  
 
   // compute the exchangeability_
 
   for (i = 0; i < size_; i++)
     for (j = 0; j < size_; j++)
       exchangeability_(i, j) = generator_(i, j) / freq_[j];
-
 }
 
 void AbstractWordSubstitutionModel::setFreq(std::map<int, double>& freqs)

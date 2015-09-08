@@ -861,9 +861,8 @@ void RHomogeneousTreeLikelihood::computeSubtreeLikelihood(const Node* node)
           Vdouble* pxy__son_c_x = &(*pxy__son_c)[x];
           double likelihood = 0;
           for (size_t y = 0; y < nbStates_; y++)
-          {
             likelihood += (*pxy__son_c_x)[y] * (*_likelihoods_son_i_c)[y];
-          }
+          
           (*_likelihoods_node_i_c)[x] *= likelihood;
         }
       }

@@ -1,5 +1,5 @@
 //
-// File: CodonDistanceFitnessPhaseFrequenciesSubstitutionModel.h
+// File: SENCA.h
 // Created by: Fanny Pouyet 
 // Created on: mars 2012
 //
@@ -37,52 +37,37 @@
   knowledge of the CeCILL license and that you accept its terms.
 */
  
-#ifndef _CODONDISTANCEFITNESSPHASEFREQUENCIESSUBSTITUTIONMODEL_H_
-#define _CODONDISTANCEFITNESSPHASEFREQUENCIESSUBSTITUTIONMODEL_H_
+#ifndef _SENCA_H_
+#define _SENCA_H_
  
 #include "AbstractCodonFitnessSubstitutionModel.h"
 #include "AbstractCodonSubstitutionModel.h"
 #include "AbstractCodonDistanceSubstitutionModel.h"
-#include "AbstractCodonPhaseFrequenciesSubstitutionModel.h"
 
 namespace bpp
 {
   /**
-   * @brief Class for asynonymous and synonymous substitution models
+   * @brief Class for non-synonymous and synonymous substitution models
    * on codons with parameterized equilibrium frequencies and
    * nucleotidic basic models.
    *
    * @author Fanny Pouyet, Laurent Guéguen
    *
-   * This class should be used with models which equilibrium
-   * distribution is fixed, ans does not depend on the parameters.
-   * Otherwise there may be problems of identifiability of the
-   * parameters.
-   *
    * See description in AbstractCodonDistanceSubstitutionModel
-   * class, AbstractCodonPhaseFrequenciesSubstitutionModel class,
-   * AbstractCodonFitnessSubstitutionModel class.
+   * class, AbstractCodonFitnessSubstitutionModel class.
    *
    * Only substitutions with one letter changed are accepted. </p>
    *
-   * The additional parameter to CodonPhaseFrequenciesSubstitutionModel
-   * is the ratio of nonsynonymous over synonymous substitutions.
-   *
-   * If a distance @f$d@f$ between amino-acids is defined, the ratio between
-   * non-synonymous and synonymous substitutions rates is, if the codied
-   * amino-acids are @f$x@f$ and @f$y@f$, @f$\beta*\exp(-\alpha.d(x,y))@f$ with
-   * non-negative parameter \c "alpha" and positive parameter \c "beta".
-   *
-   * If such a distance is not defined, the ratio between
-   * non-synonymous and synonymous substitutions rates is
-   * @f$\beta@f$ with positive parameter \c "beta".
+   * The ratio between non-synonymous and synonymous substitutions 
+   * rates is @f$\beta@f$ with positive parameter \c "beta".
    *
    * The fitness of a codon is a value between 0 and 1 defining the
    * relative advantage of a codon, compared to others. If a codon
    * @f$i@f$ has a fitness @f$\phi_i@f$ and another one (@f$j@f$)
    * has a fitness @f$\phi_j@f$, the substitution rate from codon
    * @f$i@f$ to codon @f$j@f$ is multiplied by
-   * \f[-\frac{\log(\frac{\phi_i}{\phi_j})}{1-\frac{\phi_i}{\phi_j}}\f]
+   * \f[-\frac{ \log(\frac{\phi_i}{\phi_j})}{1-\frac{\phi_i}{\phi_j}}\f]
+   *
    * The set of fitnesses is implemented through a Codon
    * FrequenciesSet object. The parameters are named \c
    * "fit_NameOfTheParameterInTheFrequenciesSet".
@@ -90,34 +75,32 @@ namespace bpp
    * Reference:
    * -  Yang Z. and Nielsen R. (2008), _Molecular Biology and Evolution_ 25(3):568--579.
    */
-  class CodonDistanceFitnessPhaseFrequenciesSubstitutionModel :
+  
+  class SENCA :
     public virtual ReversibleSubstitutionModel,
     public AbstractCodonSubstitutionModel,
     public AbstractCodonDistanceSubstitutionModel,
-    public AbstractCodonPhaseFrequenciesSubstitutionModel,
     public AbstractCodonFitnessSubstitutionModel
   {
   public:
-    CodonDistanceFitnessPhaseFrequenciesSubstitutionModel(
+    SENCA(
         const GeneticCode* gCode,
         NucleotideSubstitutionModel* pmod,
         FrequenciesSet* pfit,
-        FrequenciesSet* pfreq,
         const AlphabetIndex2* pdist = 0);
-    CodonDistanceFitnessPhaseFrequenciesSubstitutionModel(
+    SENCA(
         const GeneticCode* gCode,
         NucleotideSubstitutionModel* pmod1,
         NucleotideSubstitutionModel* pmod2,
         NucleotideSubstitutionModel* pmod3,
         FrequenciesSet* pfit,
-        FrequenciesSet* pfreq,
         const AlphabetIndex2* pdist = 0);
 
-    virtual ~CodonDistanceFitnessPhaseFrequenciesSubstitutionModel() {}
+    virtual ~SENCA() {}
 
-    CodonDistanceFitnessPhaseFrequenciesSubstitutionModel* clone() const
+    SENCA* clone() const
     {
-      return new CodonDistanceFitnessPhaseFrequenciesSubstitutionModel(*this);
+      return new SENCA(*this);
     }
 
   public:
@@ -130,11 +113,11 @@ namespace bpp
     void setNamespace(const std::string&);
 
     /*
-     * @brief set the phasefrequencies and fitness of the model from
+     * @brief set the fitness of the model from
      * given frequencies, such that the equilibrium frequencies of the
      * model matches at best the given ones.
      * 
-     * Matching is done in two steps : first, phase frequencies are
+     * Matching is done in two steps : first, frequencies from nucleotide substitution model are
      * matched at best, then the resulting discrepancy (in terms of
      * ratios between the given one and the one computed by the pahse
      * frequencies) is given for matching to the fitness.
