@@ -3530,10 +3530,7 @@ void PhylogeneticsApplicationTools::printParameters(const SingleDataPhyloLikelih
 {
   out << "phylo" << TextTools::toString(nPhylo) << "=";
 
-  if (phylolike->getRecursivity()=='S')
-    out << "Single(";
-  else
-    out << "Double(";
+  out << "Single(";
   
   if (dynamic_cast<const SequencePhyloLikelihood*>(phylolike)!=NULL)
   {
@@ -3723,9 +3720,9 @@ void PhylogeneticsApplicationTools::printAnalysisInformation(const SingleDataPhy
     DataTable::write(*infos, out, "\t");
     delete infos;
   }
-  else if (dynamic_cast<const MultiProcessPhyloLikelihood*>(phylolike) != NULL)
+  else if (dynamic_cast<const MultiProcessSequencePhyloLikelihood*>(phylolike) != NULL)
   { 
-    const MultiProcessPhyloLikelihood* pMPL = dynamic_cast<const MultiProcessPhyloLikelihood*>(phylolike);
+    const MultiProcessSequencePhyloLikelihood* pMPL = dynamic_cast<const MultiProcessSequencePhyloLikelihood*>(phylolike);
 
     vector<string> colNames;
     colNames.push_back("Sites");

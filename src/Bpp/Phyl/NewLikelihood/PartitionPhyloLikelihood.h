@@ -43,7 +43,7 @@
 
 #include "SequencePhyloLikelihood.h"
 #include "PartitionSequenceEvolution.h"
-#include "SumOfDataPhyloLikelihood.h"
+#include "SumOfAlignedPhyloLikelihood.h"
 
 // From SeqLib:
 #include <Bpp/Seq/Container/SiteContainer.h>
@@ -64,9 +64,9 @@ namespace bpp
     };
     
       
-    class PartitionPhyloLikelihood :
-      public SequencePhyloLikelihood,
-      public SumOfDataPhyloLikelihood
+  class PartitionPhyloLikelihood :
+    public SequencePhyloLikelihood,
+    public SumOfAlignedPhyloLikelihood
     {
     private:
       /**
@@ -101,16 +101,16 @@ namespace bpp
 
       PartitionPhyloLikelihood(const PartitionPhyloLikelihood& lik) :
         SequencePhyloLikelihood(lik),
-        SumOfDataPhyloLikelihood(lik),
+        SumOfAlignedPhyloLikelihood(lik),
         mSeqEvol_(lik.mSeqEvol_),
         vProcPos_(lik.vProcPos_)
       {
       }
-
+      
       PartitionPhyloLikelihood& operator=(const PartitionPhyloLikelihood& lik)
       {
         SequencePhyloLikelihood::operator=(lik);
-        SumOfDataPhyloLikelihood::operator=(lik);
+        SumOfAlignedPhyloLikelihood::operator=(lik);
         
         mSeqEvol_=lik.mSeqEvol_;
         vProcPos_=lik.vProcPos_;
@@ -145,12 +145,17 @@ namespace bpp
 
       const SiteContainer* getData() const
       {
-        return SumOfDataPhyloLikelihood::getData((size_t)0);
+        return SumOfAlignedPhyloLikelihood::getData((size_t)0);
       }
-      
-      char getRecursivity() const 
+
+      size_t getNumberOfSites() const
       {
-        return getSingleDataPhylolikelihood(vProcPos_[0].nProc)->getRecursivity();
+        return SumOfAlignedPhyloLikelihood::getNumberOfSites();
+      }
+
+      Vdouble getLikelihoodForEachSite() const
+      {
+        return SumOfAlignedPhyloLikelihood::getLikelihoodForEachSite();
       }
       
       /**

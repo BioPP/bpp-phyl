@@ -54,7 +54,7 @@ PartitionPhyloLikelihood::PartitionPhyloLikelihood(
   bool verbose,
   bool patterns) :
   SequencePhyloLikelihood(processSeqEvol, nSeqEvol),
-  SumOfDataPhyloLikelihood(),
+  SumOfAlignedPhyloLikelihood(),
   mSeqEvol_(processSeqEvol),
   vProcPos_()
 {
@@ -93,7 +93,7 @@ PartitionPhyloLikelihood::PartitionPhyloLikelihood(
   bool verbose,
   bool patterns) :
   SequencePhyloLikelihood(processSeqEvol, nSeqEvol),
-  SumOfDataPhyloLikelihood(),
+  SumOfAlignedPhyloLikelihood(),
   mSeqEvol_(processSeqEvol),
   vProcPos_()
 {
@@ -142,7 +142,7 @@ void PartitionPhyloLikelihood::setData(const SiteContainer& data, size_t nData)
   {
     SiteContainer* st=SiteContainerTools::getSelectedSites(data, it->second);
 
-    SumOfDataPhyloLikelihood::setData(*st, it->first);
+    SumOfAlignedPhyloLikelihood::setData(*st, it->first);
   }
    
  }

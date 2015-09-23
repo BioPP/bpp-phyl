@@ -97,10 +97,10 @@ namespace bpp
        */
 
       /*
-       * @brief Adds a SequencePhyloLikelihood if it is an
-       * AbstractSequencePhyloLikelihood object.
+       * @brief Adds a PhyloLikelihood if it is an
+       * AbstractPhyloLikelihood object.
        *
-       * Gets ownership of the SequencePhyloLikelihood object.
+       * Gets ownership of the AbstractPhyloLikelihood object.
        *
        * @param nPhyl the number of the phylolikelihood object.
        * @param SDP a pointer to the phylolikelihood object.

@@ -51,7 +51,7 @@ namespace bpp
  * @brief Sequence evolution framework based on a mixture of
  * substitution processes
  *
- * @see MultiProcessPhyloLikelihood
+ * @see MultiProcessSequencePhyloLikelihood
  */
 
     class MixtureSequenceEvolution :

@@ -43,7 +43,7 @@
 // From bpp-seq:
 #include <Bpp/Seq/Container/SiteContainer.h>
 
-#include "PhyloLikelihood.h"
+#include "AlignedPhyloLikelihood.h"
 #include "SingleDataPhyloLikelihood.h"
 
 namespace bpp
@@ -56,7 +56,7 @@ namespace bpp
      */
     
     class MultiDataPhyloLikelihood:
-      public virtual PhyloLikelihood
+      public virtual AlignedPhyloLikelihood
     {
     public:
       MultiDataPhyloLikelihood() {}

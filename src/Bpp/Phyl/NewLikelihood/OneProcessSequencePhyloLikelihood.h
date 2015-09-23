@@ -151,11 +151,6 @@ namespace bpp
         return tlComp_->getAlphabet();
       }
 
-      char getRecursivity() const 
-      {
-        return 'S';
-      }
-
       /** @} */
 
       // TODO: need to acount for model classes

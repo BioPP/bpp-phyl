@@ -250,14 +250,6 @@ namespace bpp
         return tlComp_->isInitialized();
       }
 
-      char getRecursivity() const 
-      {
-        if (dynamic_cast<const RecursiveLikelihoodTreeCalculation*>(tlComp_.get()))
-          return 'S';
-        else
-          return 'D';
-      }
-              
     protected:
       void fireParameterChanged(const ParameterList& params);
   

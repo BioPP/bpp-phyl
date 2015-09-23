@@ -41,7 +41,7 @@
 #define _AUTOCORRELATIONPHYLOLIKELIHOOD_H_
 
 
-#include "MultiProcessPhyloLikelihood.h"
+#include "MultiProcessSequencePhyloLikelihood.h"
 #include "AutoCorrelationSequenceEvolution.h"
 #include "HmmPhyloEmissionProbabilities.h"
 
@@ -67,7 +67,7 @@ namespace bpp
 
   
     class AutoCorrelationPhyloLikelihood :
-      public MultiProcessPhyloLikelihood
+      public MultiProcessSequencePhyloLikelihood
     {
     private:
       std::auto_ptr<HmmPhyloEmissionProbabilities> Hpep_;
@@ -84,13 +84,13 @@ namespace bpp
         bool patterns = true);
 
       AutoCorrelationPhyloLikelihood(const AutoCorrelationPhyloLikelihood& mlc) :
-        MultiProcessPhyloLikelihood(mlc),
+        MultiProcessSequencePhyloLikelihood(mlc),
         Hpep_(std::auto_ptr<HmmPhyloEmissionProbabilities>(mlc.Hpep_->clone())),
         Hmm_(std::auto_ptr<LogsumHmmLikelihood>(mlc.Hmm_->clone())) {}
 
       AutoCorrelationPhyloLikelihood& operator=(const AutoCorrelationPhyloLikelihood& mlc)
       {
-        MultiProcessPhyloLikelihood::operator=(mlc);
+        MultiProcessSequencePhyloLikelihood::operator=(mlc);
         Hpep_ = std::auto_ptr<HmmPhyloEmissionProbabilities>(mlc.Hpep_->clone());
         Hmm_ = std::auto_ptr<LogsumHmmLikelihood>(mlc.Hmm_->clone());
         return *this;

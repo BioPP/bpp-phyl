@@ -41,7 +41,7 @@ knowledge of the CeCILL license and that you accept its terms.
 #define _HMMPHYLOEMISSIONPROBABILITIES_H_
 
 #include "HmmProcessAlphabet.h"
-#include "MultiProcessPhyloLikelihood.h"
+#include "MultiProcessSequencePhyloLikelihood.h"
 
 #include <Bpp/Numeric/Hmm/HmmEmissionProbabilities.h>
 #include <Bpp/Numeric/AbstractParametrizable.h>
@@ -62,7 +62,7 @@ namespace bpp
   private:
     const HmmProcessAlphabet* procAlph_;
     
-    const MultiProcessPhyloLikelihood* multiPL_;
+    const MultiProcessSequencePhyloLikelihood* multiPL_;
 
     mutable std::vector<std::vector<double> > emProb_;
 
@@ -76,7 +76,7 @@ namespace bpp
 
   public:
     HmmPhyloEmissionProbabilities(const HmmProcessAlphabet* alphabet,
-                                  const MultiProcessPhyloLikelihood* multiPL);
+                                  const MultiProcessSequencePhyloLikelihood* multiPL);
 
     HmmPhyloEmissionProbabilities(const HmmPhyloEmissionProbabilities& hEP) :
       AbstractParametrizable(hEP),

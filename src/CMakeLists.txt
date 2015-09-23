@@ -74,8 +74,8 @@ SET(CPP_FILES
   Bpp/Phyl/NewLikelihood/ComputingTree.cpp
   Bpp/Phyl/NewLikelihood/SingleProcessPhyloLikelihood.cpp
   Bpp/Phyl/NewLikelihood/OneProcessSequencePhyloLikelihood.cpp
-  Bpp/Phyl/NewLikelihood/MultiProcessPhyloLikelihood.cpp
-  Bpp/Phyl/NewLikelihood/SumOfDataPhyloLikelihood.cpp
+  Bpp/Phyl/NewLikelihood/MultiProcessSequencePhyloLikelihood.cpp
+  Bpp/Phyl/NewLikelihood/SumOfAlignedPhyloLikelihood.cpp
   Bpp/Phyl/NewLikelihood/SumOfPhyloLikelihood.cpp
   Bpp/Phyl/NewLikelihood/PartitionPhyloLikelihood.cpp
   Bpp/Phyl/NewLikelihood/MixturePhyloLikelihood.cpp
@@ -281,17 +281,19 @@ SET(H_FILES
   Bpp/Phyl/NewLikelihood/ComputingNode.h
   Bpp/Phyl/NewLikelihood/ComputingTree.h
   Bpp/Phyl/NewLikelihood/PhyloLikelihood.h
+  Bpp/Phyl/NewLikelihood/AlignedPhyloLikelihood.h
+  Bpp/Phyl/NewLikelihood/SingleDataPhyloLikelihood.h
   Bpp/Phyl/NewLikelihood/AbstractSequencePhyloLikelihood.h
   Bpp/Phyl/NewLikelihood/OneProcessSequencePhyloLikelihood.h
   Bpp/Phyl/NewLikelihood/SingleProcessPhyloLikelihood.h
   Bpp/Phyl/NewLikelihood/MultiSequencePhyloLikelihood.h
   Bpp/Phyl/NewLikelihood/MultiPhyloLikelihood.h
-  Bpp/Phyl/NewLikelihood/MultiProcessPhyloLikelihood.h
+  Bpp/Phyl/NewLikelihood/MultiProcessSequencePhyloLikelihood.h
   Bpp/Phyl/NewLikelihood/MixturePhyloLikelihood.h
   Bpp/Phyl/NewLikelihood/HmmPhyloLikelihood.h
   Bpp/Phyl/NewLikelihood/AutoCorrelationPhyloLikelihood.h
   Bpp/Phyl/NewLikelihood/HmmProcessAlphabet.h
-  Bpp/Phyl/NewLikelihood/SumOfDataPhyloLikelihood.h
+  Bpp/Phyl/NewLikelihood/SumOfAlignedPhyloLikelihood.h
   Bpp/Phyl/NewLikelihood/SumOfPhyloLikelihood.h
   Bpp/Phyl/NewLikelihood/PartitionPhyloLikelihood.h
   Bpp/Phyl/NewLikelihood/MarginalAncestralReconstruction.h

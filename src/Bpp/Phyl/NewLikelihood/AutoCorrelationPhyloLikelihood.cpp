@@ -56,7 +56,7 @@ AutoCorrelationPhyloLikelihood::AutoCorrelationPhyloLikelihood(
   size_t nData,
   bool verbose,
   bool patterns) :
-  MultiProcessPhyloLikelihood(data, processSeqEvol, nSeqEvol, nData, verbose, patterns),
+  MultiProcessSequencePhyloLikelihood(data, processSeqEvol, nSeqEvol, nData, verbose, patterns),
   Hpep_(0),
   Hmm_(0)
 {
@@ -67,14 +67,14 @@ AutoCorrelationPhyloLikelihood::AutoCorrelationPhyloLikelihood(
 
 void AutoCorrelationPhyloLikelihood::setNamespace(const std::string& nameSpace)
 {
-  MultiProcessPhyloLikelihood::setNamespace(nameSpace);
+  MultiProcessSequencePhyloLikelihood::setNamespace(nameSpace);
   Hmm_->setNamespace(nameSpace);
 }
 
 
 void AutoCorrelationPhyloLikelihood::fireParameterChanged(const ParameterList& parameters)
 {
-  MultiProcessPhyloLikelihood::fireParameterChanged(parameters);
+  MultiProcessSequencePhyloLikelihood::fireParameterChanged(parameters);
 
   Hmm_->matchParametersValues(parameters);
 }

@@ -41,7 +41,7 @@
 #define _MIXTUREPHYLOLIKELIHOOD_H_
 
 
-#include "MultiProcessPhyloLikelihood.h"
+#include "MultiProcessSequencePhyloLikelihood.h"
 #include "MixtureSequenceEvolution.h"
 
 // From SeqLib:
@@ -57,11 +57,11 @@ namespace bpp
  * the SinglePhyloLikelihoods, ponderated with parametrized probabilities
  * (through a Simplex).
  *
- * @see MultiProcessPhyloLikelihood
+ * @see MultiProcessSequencePhyloLikelihood
  */
 
     class MixturePhyloLikelihood :
-      public MultiProcessPhyloLikelihood
+      public MultiProcessSequencePhyloLikelihood
     {
     private:
       /**
@@ -81,13 +81,13 @@ namespace bpp
         bool patterns = true);
 
       MixturePhyloLikelihood(const MixturePhyloLikelihood& mlc) :
-        MultiProcessPhyloLikelihood(mlc),
+        MultiProcessSequencePhyloLikelihood(mlc),
         mSeqEvol_(mlc.mSeqEvol_)
       {}
 
       MixturePhyloLikelihood& operator=(const MixturePhyloLikelihood& mlc)
       {
-        MultiProcessPhyloLikelihood::operator=(mlc);
+        MultiProcessSequencePhyloLikelihood::operator=(mlc);
         mSeqEvol_=mlc.mSeqEvol_;
         
         return *this;

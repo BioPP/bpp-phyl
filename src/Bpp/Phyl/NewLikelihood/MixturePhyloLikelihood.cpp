@@ -53,7 +53,7 @@ MixturePhyloLikelihood::MixturePhyloLikelihood(
   size_t nData,
   bool verbose,
   bool patterns) :
-  MultiProcessPhyloLikelihood(data, processSeqEvol, nSeqEvol, nData, verbose, patterns),
+  MultiProcessSequencePhyloLikelihood(data, processSeqEvol, nSeqEvol, nData, verbose, patterns),
   mSeqEvol_(processSeqEvol)
 {
 }
