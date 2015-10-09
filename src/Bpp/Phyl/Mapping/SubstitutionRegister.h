@@ -658,12 +658,14 @@ public:
     categoryCorrespondance_()
   {
     size_t categoryIndex = 1;
-    for (size_t i = 0; i < model->getAlphabet()->getSize(); ++i)
+    for (size_t i = 1; i <= model->getAlphabet()->getSize(); ++i)
     {
       int state1 = model->getAlphabet()->getStateAt(i).getNum();
-      for (size_t j = i + 1; j < model->getAlphabet()->getSize(); ++j)
+      for (size_t j = i + 1; j <= model->getAlphabet()->getSize(); ++j)
       {
         int state2 = model->getAlphabet()->getStateAt(j).getNum();
+        std::cerr << state1 << " " << state2 << std::endl;
+        
         if (!(model->getGeneticCode()->isStop(state1)) && !(model->getGeneticCode()->isStop(state2)))
         {
           if (model->getGeneticCode()->translate(state1) == model->getGeneticCode()->translate(state2))
@@ -720,10 +722,10 @@ public:
     categoryCorrespondance_()
   {
     size_t categoryIndex = 1;
-    for (size_t i = 0; i < model->getAlphabet()->getSize(); ++i)
+    for (size_t i = 1; i <= model->getAlphabet()->getSize(); ++i)
     {
       int state1 = model->getAlphabet()->getStateAt(i).getNum();
-      for (size_t j = i + 1; j < model->getAlphabet()->getSize(); ++j)
+      for (size_t j = i + 1; j <= model->getAlphabet()->getSize(); ++j)
       {
         int state2 = model->getAlphabet()->getStateAt(j).getNum();
         if (!(model->getGeneticCode()->isStop(state1)) && !(model->getGeneticCode()->isStop(state2)))
