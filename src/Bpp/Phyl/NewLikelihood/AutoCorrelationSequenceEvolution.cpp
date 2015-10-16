@@ -83,12 +83,3 @@ void AutoCorrelationSequenceEvolution::fireParameterChanged(const ParameterList&
 }
 
 
-ParameterList AutoCorrelationSequenceEvolution::getNonDerivableParameters() const
-{
-  ParameterList pl = MultiProcessSequenceEvolution::getNonDerivableParameters();
-  pl.addParameters(hmmAlph_->getParameters());
-  pl.addParameters(autoCorrTransMat_->getParameters());
-
-  return pl;
-}
-

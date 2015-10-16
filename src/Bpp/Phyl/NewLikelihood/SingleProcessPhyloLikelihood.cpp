@@ -50,6 +50,7 @@ SingleProcessPhyloLikelihood::SingleProcessPhyloLikelihood(
   size_t nProc,
   size_t nData) :
   AbstractPhyloLikelihood(),
+  AbstractAlignedPhyloLikelihood(tlComp->getNumberOfSites()),
   AbstractSingleDataPhyloLikelihood(tlComp->getNumberOfSites(), process->getNumberOfStates(), nData),
   AbstractParametrizable(""),
   tlComp_(tlComp),
@@ -71,10 +72,7 @@ SingleProcessPhyloLikelihood::SingleProcessPhyloLikelihood(
 
 void SingleProcessPhyloLikelihood::fireParameterChanged(const ParameterList& params)
 {
-  // Error, is not called if params not in the parameters, such as in
-  // case of total aliasing
   update();
-  
   process_->matchParametersValues(params);
 }
 
@@ -206,44 +204,24 @@ Vdouble SingleProcessPhyloLikelihood::getPosteriorRateOfEachSite() const
  *                           First Order Derivatives                          *
  ******************************************************************************/
 
-double SingleProcessPhyloLikelihood::getFirstOrderDerivative(const string& variable) const
-throw (Exception)
+void SingleProcessPhyloLikelihood::computeDLogLikelihood_(const string& variable) const
 {
   // patch, to be fixed properly later
-  throw Exception("Derivative is not implemented for " + variable + " parameter.");
+  throw Exception("SingleProcessPhyloLikelihood::Derivative is not implemented for " + variable + " parameter.");
   
-  if (!hasParameter(variable))
-    return 0;
-  
-  if (!process_->hasDerivableParameter(variable))
-  {
-    throw Exception("Non derivable parameter: " + variable);
-  }
-
-  tlComp_->computeTreeDLogLikelihood(variable);
-  return - tlComp_->getDLogLikelihood();
+ tlComp_->computeTreeDLogLikelihood(variable);
 }
 
 /******************************************************************************
  *                           Second Order Derivatives                         *
  ******************************************************************************/
 
-double SingleProcessPhyloLikelihood::getSecondOrderDerivative(const string& variable) const
-throw (Exception)
+void SingleProcessPhyloLikelihood::computeD2LogLikelihood_(const string& variable) const
 {
   // patch, to be fixed properly later
   throw Exception("Derivative is not implemented for " + variable + " parameter.");
 
-  if (!hasParameter(variable))
-    return 0;
-  
-  if (!process_->hasDerivableParameter(variable))
-  {
-    throw Exception("Non derivable parameter: " + variable);
-  }
-
   tlComp_->computeTreeD2LogLikelihood(variable);
-  return - tlComp_->getD2LogLikelihood();
 }
 
 /******************************************************************************/

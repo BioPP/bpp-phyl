@@ -63,7 +63,7 @@ SET(CPP_FILES
   Bpp/Phyl/NewLikelihood/MixtureSequenceEvolution.cpp
   Bpp/Phyl/NewLikelihood/HmmSequenceEvolution.cpp
   Bpp/Phyl/NewLikelihood/AutoCorrelationSequenceEvolution.cpp
-  Bpp/Phyl/NewLikelihood/HmmPhyloEmissionProbabilities.cpp
+  Bpp/Phyl/NewLikelihood/HmmProcessEmissionProbabilities.cpp
   Bpp/Phyl/NewLikelihood/ParametrizableTree.cpp
   Bpp/Phyl/NewLikelihood/AbstractLikelihoodNode.cpp
   Bpp/Phyl/NewLikelihood/AbstractLikelihoodTree.cpp
@@ -75,12 +75,14 @@ SET(CPP_FILES
   Bpp/Phyl/NewLikelihood/SingleProcessPhyloLikelihood.cpp
   Bpp/Phyl/NewLikelihood/OneProcessSequencePhyloLikelihood.cpp
   Bpp/Phyl/NewLikelihood/MultiProcessSequencePhyloLikelihood.cpp
-  Bpp/Phyl/NewLikelihood/SumOfAlignedPhyloLikelihood.cpp
-  Bpp/Phyl/NewLikelihood/SumOfPhyloLikelihood.cpp
-  Bpp/Phyl/NewLikelihood/PartitionPhyloLikelihood.cpp
-  Bpp/Phyl/NewLikelihood/MixturePhyloLikelihood.cpp
-  Bpp/Phyl/NewLikelihood/HmmPhyloLikelihood.cpp
-  Bpp/Phyl/NewLikelihood/AutoCorrelationPhyloLikelihood.cpp
+  Bpp/Phyl/NewLikelihood/SetOfAbstractPhyloLikelihood.cpp
+  Bpp/Phyl/NewLikelihood/SetOfAlignedPhyloLikelihood.cpp
+  Bpp/Phyl/NewLikelihood/ProductOfPhyloLikelihood.cpp
+  Bpp/Phyl/NewLikelihood/ProductOfAlignedPhyloLikelihood.cpp
+  Bpp/Phyl/NewLikelihood/PartitionProcessPhyloLikelihood.cpp
+  Bpp/Phyl/NewLikelihood/MixtureProcessPhyloLikelihood.cpp
+  Bpp/Phyl/NewLikelihood/HmmProcessPhyloLikelihood.cpp
+  Bpp/Phyl/NewLikelihood/AutoCorrelationProcessPhyloLikelihood.cpp
   Bpp/Phyl/NewLikelihood/MarginalAncestralReconstruction.cpp
   Bpp/Phyl/Mapping/SubstitutionRegister.cpp
   Bpp/Phyl/Mapping/LaplaceSubstitutionCount.cpp
@@ -259,7 +261,7 @@ SET(H_FILES
   Bpp/Phyl/NewLikelihood/RateAcrossSitesSubstitutionProcess.h
   Bpp/Phyl/NewLikelihood/SubstitutionProcessCollection.h
   Bpp/Phyl/NewLikelihood/SubstitutionProcessCollectionMember.h
-  Bpp/Phyl/NewLikelihood/HmmPhyloEmissionProbabilities.h
+  Bpp/Phyl/NewLikelihood/HmmProcessEmissionProbabilities.h
   Bpp/Phyl/NewLikelihood/SequenceEvolution.h
   Bpp/Phyl/NewLikelihood/OneProcessSequenceEvolution.h
   Bpp/Phyl/NewLikelihood/MultiProcessSequenceEvolution.h
@@ -289,13 +291,16 @@ SET(H_FILES
   Bpp/Phyl/NewLikelihood/MultiSequencePhyloLikelihood.h
   Bpp/Phyl/NewLikelihood/MultiPhyloLikelihood.h
   Bpp/Phyl/NewLikelihood/MultiProcessSequencePhyloLikelihood.h
-  Bpp/Phyl/NewLikelihood/MixturePhyloLikelihood.h
-  Bpp/Phyl/NewLikelihood/HmmPhyloLikelihood.h
-  Bpp/Phyl/NewLikelihood/AutoCorrelationPhyloLikelihood.h
+  Bpp/Phyl/NewLikelihood/MixtureProcessPhyloLikelihood.h
+  Bpp/Phyl/NewLikelihood/HmmProcessPhyloLikelihood.h
+  Bpp/Phyl/NewLikelihood/AutoCorrelationProcessPhyloLikelihood.h
   Bpp/Phyl/NewLikelihood/HmmProcessAlphabet.h
-  Bpp/Phyl/NewLikelihood/SumOfAlignedPhyloLikelihood.h
-  Bpp/Phyl/NewLikelihood/SumOfPhyloLikelihood.h
-  Bpp/Phyl/NewLikelihood/PartitionPhyloLikelihood.h
+  Bpp/Phyl/NewLikelihood/PhyloLikelihoodContainer.h
+  Bpp/Phyl/NewLikelihood/SetOfAbstractPhyloLikelihood.h
+  Bpp/Phyl/NewLikelihood/SetOfAlignedPhyloLikelihood.h
+  Bpp/Phyl/NewLikelihood/ProductOfPhyloLikelihood.h
+  Bpp/Phyl/NewLikelihood/ProductOfAlignedPhyloLikelihood.h
+  Bpp/Phyl/NewLikelihood/PartitionProcessPhyloLikelihood.h
   Bpp/Phyl/NewLikelihood/MarginalAncestralReconstruction.h
   Bpp/Phyl/Mapping/LaplaceSubstitutionCount.h
   Bpp/Phyl/Mapping/WeightedSubstitutionCount.h

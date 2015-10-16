@@ -79,7 +79,7 @@ namespace bpp
 
     virtual bool hasDerivableParameter(const std::string& name) const = 0;
 
-    virtual std::vector<size_t> getSubstitutionProcessNumbers() const = 0;
+    virtual const std::vector<size_t>& getSubstitutionProcessNumbers() const = 0;
     
     virtual const SubstitutionProcess& getSubstitutionProcess(size_t number) const = 0;
     

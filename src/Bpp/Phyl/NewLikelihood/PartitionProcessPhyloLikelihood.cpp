@@ -1,5 +1,5 @@
 //
-// File: PartitionPhyloLikelihood.cpp
+// File: PartitionProcessPhyloLikelihood.cpp
 // Created by: Laurent Guéguen
 // Created on: samedi 16 mai 2015, à 13h 54
 //
@@ -37,9 +37,12 @@
    knowledge of the CeCILL license and that you accept its terms.
  */
 
-#include "PartitionPhyloLikelihood.h"
+#include "PartitionProcessPhyloLikelihood.h"
+
 #include "SingleProcessPhyloLikelihood.h"
 #include "RecursiveLikelihoodTreeCalculation.h"
+
+#include "PhyloLikelihoodContainer.h"
 
 #include <Bpp/Seq/Container/SiteContainerTools.h>
 
@@ -48,13 +51,15 @@ using namespace bpp;
 
 /******************************************************************************/
 
-PartitionPhyloLikelihood::PartitionPhyloLikelihood(
+PartitionProcessPhyloLikelihood::PartitionProcessPhyloLikelihood(
   PartitionSequenceEvolution& processSeqEvol,
   size_t nSeqEvol,
   bool verbose,
   bool patterns) :
+  AbstractPhyloLikelihood(),
+  AbstractAlignedPhyloLikelihood(0),
   SequencePhyloLikelihood(processSeqEvol, nSeqEvol),
-  SumOfAlignedPhyloLikelihood(),
+  ProductOfAlignedPhyloLikelihood(new PhyloLikelihoodContainer()),
   mSeqEvol_(processSeqEvol),
   vProcPos_()
 {
@@ -64,7 +69,7 @@ PartitionPhyloLikelihood::PartitionPhyloLikelihood(
 
   vProcPos_.resize(processSeqEvol.getNumberOfSites());
 
-  map<size_t, SingleProcessPhyloLikelihood*> mSP;
+  PhyloLikelihoodContainer* pC=getPhyloContainer();
   
   for (std::map<size_t, std::vector<size_t> >::iterator it=mProcPos.begin(); it!=mProcPos.end(); it++)
   {
@@ -72,33 +77,37 @@ PartitionPhyloLikelihood::PartitionPhyloLikelihood(
       &processColl.getSubstitutionProcess(it->first),
       it==mProcPos.begin(), patterns);
 
-    addSingleDataPhylolikelihood(it->first, new SingleProcessPhyloLikelihood(&processColl.getSubstitutionProcess(it->first), rt, it->first));
-    
+    pC->addPhyloLikelihood(it->first, new SingleProcessPhyloLikelihood(&processColl.getSubstitutionProcess(it->first), rt, it->first));
+
     for (size_t i = 0; i<it->second.size();i++)
     {
       vProcPos_[it->second[i]].nProc=it->first;
       vProcPos_[it->second[i]].pos=i;      
     }
   }
+
+  addAllPhyloLikelihoods();
 }
 
 
 /******************************************************************************/
 
-PartitionPhyloLikelihood::PartitionPhyloLikelihood(
+PartitionProcessPhyloLikelihood::PartitionProcessPhyloLikelihood(
   const SiteContainer& data,
   PartitionSequenceEvolution& processSeqEvol,
   size_t nSeqEvol,
   size_t nData,
   bool verbose,
   bool patterns) :
-  SequencePhyloLikelihood(processSeqEvol, nSeqEvol),
-  SumOfAlignedPhyloLikelihood(),
+  AbstractPhyloLikelihood(),
+  AbstractAlignedPhyloLikelihood(data.getNumberOfSites()),
+  SequencePhyloLikelihood(processSeqEvol, nSeqEvol, nData),
+  ProductOfAlignedPhyloLikelihood(new PhyloLikelihoodContainer()),
   mSeqEvol_(processSeqEvol),
   vProcPos_()
 {
   if (data.getNumberOfSites()!=processSeqEvol.getNumberOfSites())
-    throw BadIntegerException("PartitionPhyloLikelihood::PartitionPhyloLikelihood, data and sequence process lengths do not match.", (int)data.getNumberOfSites());
+    throw BadIntegerException("PartitionProcessPhyloLikelihood::PartitionProcessPhyloLikelihood, data and sequence process lengths do not match.", (int)data.getNumberOfSites());
 
   SubstitutionProcessCollection& processColl = processSeqEvol.getCollection();
 
@@ -106,33 +115,47 @@ PartitionPhyloLikelihood::PartitionPhyloLikelihood(
 
   vProcPos_.resize(processSeqEvol.getNumberOfSites());
 
-  map<size_t, SingleProcessPhyloLikelihood*> mSP;
-  
+  PhyloLikelihoodContainer* pC=getPhyloContainer();
+
   for (std::map<size_t, std::vector<size_t> >::iterator it=mProcPos.begin(); it!=mProcPos.end(); it++)
   {
     LikelihoodTreeCalculation* rt = new RecursiveLikelihoodTreeCalculation(
         &processColl.getSubstitutionProcess(it->first), it==mProcPos.begin(), patterns);
 
-    addSingleDataPhylolikelihood(it->first, new SingleProcessPhyloLikelihood(&processColl.getSubstitutionProcess(it->first), rt, it->first));
-    
-    
+    pC->addPhyloLikelihood(it->first, new SingleProcessPhyloLikelihood(&processColl.getSubstitutionProcess(it->first), rt, it->first));
+
     for (size_t i = 0; i<it->second.size();i++)
     {
       vProcPos_[it->second[i]].nProc=it->first;
       vProcPos_[it->second[i]].pos=i;      
     }
   }
-
+  addAllPhyloLikelihoods();
   
   setData(data, nData);
 }
 
 /******************************************************************************/
 
-void PartitionPhyloLikelihood::setData(const SiteContainer& data, size_t nData)
+void PartitionProcessPhyloLikelihood::addPhyloLikelihood(size_t nPhyl)
+{
+  const AbstractAlignedPhyloLikelihood* aPL=getAbstractPhyloLikelihood(nPhyl);
+  
+  if (aPL!=NULL)
+  {
+    nPhylo_.push_back(nPhyl);
+    includeParameters_(aPL->getParameters());
+  }
+
+  update();
+}
+
+/******************************************************************************/
+
+void PartitionProcessPhyloLikelihood::setData(const SiteContainer& data, size_t nData)
 {
   if (data.getNumberOfSites()!=mSeqEvol_.getNumberOfSites())
-    throw BadIntegerException("PartitionPhyloLikelihood::PartitionPhyloLikelihood, data and sequence process lengths do not match.", (int)data.getNumberOfSites());
+    throw BadIntegerException("PartitionProcessPhyloLikelihood::PartitionProcessPhyloLikelihood, data and sequence process lengths do not match.", (int)data.getNumberOfSites());
 
   SequencePhyloLikelihood::setData(data, nData);
 
@@ -142,28 +165,31 @@ void PartitionPhyloLikelihood::setData(const SiteContainer& data, size_t nData)
   {
     SiteContainer* st=SiteContainerTools::getSelectedSites(data, it->second);
 
-    SumOfAlignedPhyloLikelihood::setData(*st, it->first);
+    getPhyloContainer()->setData(*st, it->first);
+    
+    delete st;
   }
-   
- }
-
-/******************************************************************************/
-
-double PartitionPhyloLikelihood::getLikelihoodForASite(size_t site) const
-{
-  return getSingleDataPhylolikelihood(vProcPos_[site].nProc)->getLikelihoodForASite(vProcPos_[site].pos);
 }
 
 /******************************************************************************/
 
-double PartitionPhyloLikelihood::getDLogLikelihoodForASite(size_t site) const
+double PartitionProcessPhyloLikelihood::getLikelihoodForASite(size_t site) const
 {
-  return getSingleDataPhylolikelihood(vProcPos_[site].nProc)->getDLogLikelihoodForASite(vProcPos_[site].pos);
+  return getAbstractPhyloLikelihood(vProcPos_[site].nProc)->getLikelihoodForASite(vProcPos_[site].pos);
 }
 
 /******************************************************************************/
 
-double PartitionPhyloLikelihood::getD2LogLikelihoodForASite(size_t site) const
+double PartitionProcessPhyloLikelihood::getDLogLikelihoodForASite(size_t site) const
 {
-  return getSingleDataPhylolikelihood(vProcPos_[site].nProc)->getD2LogLikelihoodForASite(vProcPos_[site].pos);
+  return getAbstractPhyloLikelihood(vProcPos_[site].nProc)->getDLogLikelihoodForASite(vProcPos_[site].pos);
 }
+
+/******************************************************************************/
+
+double PartitionProcessPhyloLikelihood::getD2LogLikelihoodForASite(size_t site) const
+{
+  return getAbstractPhyloLikelihood(vProcPos_[site].nProc)->getD2LogLikelihoodForASite(vProcPos_[site].pos);
+}
+
+

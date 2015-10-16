@@ -1,7 +1,7 @@
 //
-// File: OneProcessSequenceEvolution.cpp
+// File: AutoCorrelationProcessPhyloLikelihood.cpp
 // Created by: Laurent Guéguen
-// Created on: mardi 28 avril 2015, à 11h 19
+// Created on: lundi 23 septembre 2013, à 22h 56
 //
 
 /*
@@ -37,39 +37,49 @@
    knowledge of the CeCILL license and that you accept its terms.
  */
 
-#include "OneProcessSequenceEvolution.h"
+#include "AutoCorrelationProcessPhyloLikelihood.h"
 
-using namespace bpp;
+#include "HmmProcessEmissionProbabilities.h"
+
+#include <Bpp/Numeric/Hmm/LogsumHmmLikelihood.h>
+#include <Bpp/Numeric/Hmm/AutoCorrelationTransitionMatrix.h>
+
 using namespace std;
+using namespace bpp;
 
-OneProcessSequenceEvolution::OneProcessSequenceEvolution(SubstitutionProcess& process, size_t nProc) :
-  AbstractParameterAliasable(""),
-  subsProc_(&process),
-  nProc_(nProc),
-  vProc_(std::vector<size_t>(1,nProc_))
+/******************************************************************************/
+
+AutoCorrelationProcessPhyloLikelihood::AutoCorrelationProcessPhyloLikelihood(
+  const SiteContainer& data,
+  AutoCorrelationSequenceEvolution& processSeqEvol,
+  size_t nSeqEvol,
+  size_t nData,
+  bool verbose,
+  bool patterns) :
+  AbstractPhyloLikelihood(),
+  AbstractAlignedPhyloLikelihood(data.getNumberOfSites()),
+  MultiProcessSequencePhyloLikelihood(data, processSeqEvol, nSeqEvol, nData, verbose, patterns),
+  Hpep_(0),
+  Hmm_(0)
 {
-  includeParameters_(process.getSubstitutionModelParameters(true));
-  includeParameters_(process.getRateDistributionParameters(true));
-  includeParameters_(process.getRootFrequenciesParameters(true));
-  includeParameters_(process.getBranchLengthParameters(true));
+  Hpep_=std::auto_ptr<HmmProcessEmissionProbabilities>(new HmmProcessEmissionProbabilities(&processSeqEvol.getHmmProcessAlphabet(), this));
+
+  Hmm_ = auto_ptr<LogsumHmmLikelihood>(new LogsumHmmLikelihood(&processSeqEvol.getHmmProcessAlphabet(), &processSeqEvol.getHmmTransitionMatrix(), Hpep_.get(), false));
 }
 
-OneProcessSequenceEvolution::OneProcessSequenceEvolution(const OneProcessSequenceEvolution& evol) :
-  AbstractParameterAliasable(evol),
-  subsProc_(evol.subsProc_),
-  nProc_(evol.nProc_),
-  vProc_(evol.vProc_)
+void AutoCorrelationProcessPhyloLikelihood::setNamespace(const std::string& nameSpace)
 {
+  MultiProcessSequencePhyloLikelihood::setNamespace(nameSpace);
+  Hmm_->setNamespace(nameSpace);
 }
 
-OneProcessSequenceEvolution& OneProcessSequenceEvolution::operator=(const OneProcessSequenceEvolution& evol)
+
+void AutoCorrelationProcessPhyloLikelihood::fireParameterChanged(const ParameterList& parameters)
 {
-  AbstractParameterAliasable::operator=(evol);
-  subsProc_=evol.subsProc_;
-  nProc_=evol.nProc_; 
-  vProc_=evol.vProc_;
-  
-  return *this;
+  MultiProcessSequencePhyloLikelihood::fireParameterChanged(parameters);
+  MultiProcessSequencePhyloLikelihood::computeLikelihood();
+
+  Hmm_->matchParametersValues(parameters);
 }
 
 

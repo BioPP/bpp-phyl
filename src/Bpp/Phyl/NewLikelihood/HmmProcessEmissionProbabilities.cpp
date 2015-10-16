@@ -37,12 +37,12 @@ The fact that you are presently reading this means that you have had
 knowledge of the CeCILL license and that you accept its terms.
 */
 
-#include "HmmPhyloEmissionProbabilities.h"
+#include "HmmProcessEmissionProbabilities.h"
 
 using namespace bpp;
 using namespace std;
 
-HmmPhyloEmissionProbabilities::HmmPhyloEmissionProbabilities(const HmmProcessAlphabet* alphabet,
+HmmProcessEmissionProbabilities::HmmProcessEmissionProbabilities(const HmmProcessAlphabet* alphabet,
                                                              const MultiProcessSequencePhyloLikelihood* multiPL) :
   AbstractParametrizable(""),
   procAlph_(alphabet),
@@ -59,19 +59,21 @@ HmmPhyloEmissionProbabilities::HmmPhyloEmissionProbabilities(const HmmProcessAlp
 }
 
 
-void HmmPhyloEmissionProbabilities::setHmmStateAlphabet(const HmmStateAlphabet* stateAlphabet) throw (HmmUnvalidAlphabetException)
+void HmmProcessEmissionProbabilities::setHmmStateAlphabet(const HmmStateAlphabet* stateAlphabet) throw (HmmUnvalidAlphabetException)
 {
   if (stateAlphabet==NULL)
-    throw HmmUnvalidAlphabetException("Null alphabet in HmmPhyloEmissionProbabilities::setHmmStateAlphabet");
+    throw HmmUnvalidAlphabetException("Null alphabet in HmmProcessEmissionProbabilities::setHmmStateAlphabet");
   if (dynamic_cast<const HmmProcessAlphabet*>(stateAlphabet)==NULL)
-    throw HmmUnvalidAlphabetException("Non Process alphabet in HmmPhyloEmissionProbabilities::setHmmStateAlphabet");
+    throw HmmUnvalidAlphabetException("Non Process alphabet in HmmProcessEmissionProbabilities::setHmmStateAlphabet");
   
   procAlph_=dynamic_cast<const HmmProcessAlphabet*>(stateAlphabet);
 }
 
 
-void HmmPhyloEmissionProbabilities::updateEmissionProbabilities_() const
+void HmmProcessEmissionProbabilities::updateEmissionProbabilities_() const
 {
+  multiPL_->computeLikelihood();
+  
   for (size_t i=0;i<emProb_.size();i++)
     for (size_t j=0;j<emProb_[j].size();j++)
       emProb_[i][j]= multiPL_->getLikelihoodForASiteForAProcess(i, j);
@@ -79,7 +81,7 @@ void HmmPhyloEmissionProbabilities::updateEmissionProbabilities_() const
   upToDate_=true;
 }
 
-void HmmPhyloEmissionProbabilities::computeDEmissionProbabilities(std::string& variable) const
+void HmmProcessEmissionProbabilities::computeDEmissionProbabilities(std::string& variable) const
 {
   for (size_t i=0;i<multiPL_->getNumberOfSubstitutionProcess();i++)
     multiPL_->computeDLogLikelihoodForAProcess(variable,i);
@@ -96,7 +98,7 @@ void HmmPhyloEmissionProbabilities::computeDEmissionProbabilities(std::string& v
       dEmProb_[i][j]= multiPL_->getDLogLikelihoodForASiteForAProcess(i, j) * multiPL_->getLikelihoodForASiteForAProcess(i, j);
 }
   
-void HmmPhyloEmissionProbabilities::computeD2EmissionProbabilities(std::string& variable) const
+void HmmProcessEmissionProbabilities::computeD2EmissionProbabilities(std::string& variable) const
 {
   for (size_t i=0;i<multiPL_->getNumberOfSubstitutionProcess();i++)
     multiPL_->computeD2LogLikelihoodForAProcess(variable,i);

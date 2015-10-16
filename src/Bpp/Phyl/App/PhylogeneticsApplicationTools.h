@@ -58,6 +58,7 @@
 
 #include "../NewLikelihood/SubstitutionProcess.h"
 #include "../NewLikelihood/SingleDataPhyloLikelihood.h"
+#include "../NewLikelihood/PhyloLikelihoodContainer.h"
 #include "../NewLikelihood/SubstitutionProcessCollection.h"
 #include "../NewLikelihood/SubstitutionProcessCollectionMember.h"
 #include "../NewLikelihood/SequenceEvolution.h"
@@ -598,13 +599,13 @@ namespace bpp
     
 
     /**
-     * @brief Build Phylogenies from parameters map.
+     * @brief Build a Phylogeny container from parameters map.
      *
      * Default data compression is simple.
      *
      */
     
-    static std::map<size_t, PhyloLikelihood*> getPhyloLikelihoods(
+    static PhyloLikelihoodContainer* getPhyloLikelihoodContainer(
       SubstitutionProcessCollection& SPC,
       std::map<size_t, SequenceEvolution*>& mSeqEvol,
       const std::map<size_t, SiteContainer*>& mData,

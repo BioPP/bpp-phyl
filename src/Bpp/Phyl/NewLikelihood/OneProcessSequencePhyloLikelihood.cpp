@@ -50,6 +50,8 @@ OneProcessSequencePhyloLikelihood::OneProcessSequencePhyloLikelihood(
   size_t nSeqEvol,
   bool verbose,
   bool patterns) :
+  AbstractPhyloLikelihood(),
+  AbstractAlignedPhyloLikelihood(0),
   AbstractSequencePhyloLikelihood(evol, nSeqEvol),
   mSeqEvol_(evol),
   tlComp_()
@@ -68,6 +70,8 @@ OneProcessSequencePhyloLikelihood::OneProcessSequencePhyloLikelihood(
   size_t nData,
   bool verbose,
   bool patterns) :
+  AbstractPhyloLikelihood(),
+  AbstractAlignedPhyloLikelihood(data.getNumberOfSites()),
   AbstractSequencePhyloLikelihood(evol, nSeqEvol),
   mSeqEvol_(evol),
   tlComp_()
@@ -83,6 +87,8 @@ OneProcessSequencePhyloLikelihood::OneProcessSequencePhyloLikelihood(
 
 VVdouble OneProcessSequencePhyloLikelihood::getLikelihoodForEachSiteForEachState() const
 {
+  computeLikelihood();
+
   VVdouble l(getNumberOfSites());
   for (size_t i = 0; i < l.size(); ++i)
   {
@@ -100,6 +106,8 @@ VVdouble OneProcessSequencePhyloLikelihood::getLikelihoodForEachSiteForEachState
 
 VVdouble OneProcessSequencePhyloLikelihood::getLikelihoodForEachSiteForEachClass() const
 {
+  computeLikelihood();
+
   VVdouble l(getNumberOfSites());
   for (size_t i = 0; i < l.size(); ++i)
   {
@@ -117,6 +125,8 @@ VVdouble OneProcessSequencePhyloLikelihood::getLikelihoodForEachSiteForEachClass
 
 VVVdouble OneProcessSequencePhyloLikelihood::getLikelihoodForEachSiteForEachClassForEachState() const
 {
+  computeLikelihood();
+
   VVVdouble l(getNumberOfSites());
   for (size_t i = 0; i < l.size(); ++i)
   {
@@ -139,6 +149,8 @@ VVVdouble OneProcessSequencePhyloLikelihood::getLikelihoodForEachSiteForEachClas
 
 VVdouble OneProcessSequencePhyloLikelihood::getPosteriorProbabilitiesOfEachClass() const
 {
+  computeLikelihood();
+
   size_t nbSites   = getNumberOfSites();
   size_t nbClasses = getNumberOfClasses();
   VVdouble pb = getLikelihoodForEachSiteForEachClass();
@@ -158,6 +170,8 @@ VVdouble OneProcessSequencePhyloLikelihood::getPosteriorProbabilitiesOfEachClass
 
 vector<size_t> OneProcessSequencePhyloLikelihood::getClassWithMaxPostProbOfEachSite() const
 {
+  computeLikelihood();
+
   size_t nbSites = getNumberOfSites();
   VVdouble l = getLikelihoodForEachSiteForEachClass();
   vector<size_t> classes(nbSites);
@@ -173,6 +187,8 @@ vector<size_t> OneProcessSequencePhyloLikelihood::getClassWithMaxPostProbOfEachS
 
 Vdouble OneProcessSequencePhyloLikelihood::getPosteriorRateOfEachSite() const
 {
+  computeLikelihood();
+
   size_t nbSites   = getNumberOfSites();
   size_t nbClasses = getNumberOfClasses();
   VVdouble pb = getLikelihoodForEachSiteForEachClass();
@@ -188,49 +204,22 @@ Vdouble OneProcessSequencePhyloLikelihood::getPosteriorRateOfEachSite() const
   return rates;
 }
 
-/******************************************************************************
- *                           First Order Derivatives                          *
- ******************************************************************************/
+/******************************************************************************/
 
-double OneProcessSequencePhyloLikelihood::getFirstOrderDerivative(const string& variable) const
-throw (Exception)
+void OneProcessSequencePhyloLikelihood::computeDLogLikelihood_(const string& variable) const
 {
   // patch, to be fixed properly later
   throw Exception("Derivative is not implemented for " + variable + " parameter.");
-
-  if (!hasParameter(variable))
-    return 0;
-
-  if (!hasDerivableParameter(variable))
-  {
-    throw Exception("Non derivable parameter: " + variable);
-  }
-
   tlComp_->computeTreeDLogLikelihood(variable);
-  return - tlComp_->getDLogLikelihood();
-}
-
-/******************************************************************************
- *                           Second Order Derivatives                         *
- ******************************************************************************/
-
-double OneProcessSequencePhyloLikelihood::getSecondOrderDerivative(const string& variable) const
-throw (Exception)
-{
-  // patch, to be fixed properly later
-  throw Exception("Derivative is not implemented for " + variable + " parameter.");
-
-  if (!hasParameter(variable))
-    return 0;
-  
-  if (!hasDerivableParameter(variable))
-  {
-    throw Exception("Non derivable parameter: " + variable);
-  }
-
-  tlComp_->computeTreeD2LogLikelihood(variable);
-  return - tlComp_->getD2LogLikelihood();
 }
 
 /******************************************************************************/
+
+void OneProcessSequencePhyloLikelihood::computeD2LogLikelihood_(const string& variable) const
+{
+  // patch, to be fixed properly later
+  throw Exception("Derivative is not implemented for " + variable + " parameter.");
+  tlComp_->computeTreeD2LogLikelihood(variable);
+}
+
 

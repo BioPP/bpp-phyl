@@ -1,5 +1,5 @@
 //
-// File: HmmPhyloLikelihood.cpp
+// File: HmmProcessPhyloLikelihood.cpp
 // Created by: Laurent Guéguen
 // Created on: lundi 23 septembre 2013, à 22h 56
 //
@@ -37,9 +37,9 @@
   knowledge of the CeCILL license and that you accept its terms.
 */
 
-#include "HmmPhyloLikelihood.h"
+#include "HmmProcessPhyloLikelihood.h"
 
-#include "HmmPhyloEmissionProbabilities.h"
+#include "HmmProcessEmissionProbabilities.h"
 
 #include <Bpp/Numeric/Hmm/LogsumHmmLikelihood.h>
 #include <Bpp/Numeric/Hmm/FullHmmTransitionMatrix.h>
@@ -49,30 +49,31 @@ using namespace bpp;
 
 /******************************************************************************/
 
-HmmPhyloLikelihood::HmmPhyloLikelihood(
+HmmProcessPhyloLikelihood::HmmProcessPhyloLikelihood(
   const SiteContainer& data,
   HmmSequenceEvolution& processSeqEvol,
   size_t nSeqEvol,
   size_t nData,
   bool verbose,
   bool patterns) :
+  AbstractPhyloLikelihood(),
+  AbstractAlignedPhyloLikelihood(data.getNumberOfSites()),
   MultiProcessSequencePhyloLikelihood(data, processSeqEvol, verbose, patterns, nData),
   Hpep_(0),
   Hmm_(0)
 {
-  Hpep_=std::auto_ptr<HmmPhyloEmissionProbabilities>(new HmmPhyloEmissionProbabilities(&processSeqEvol.getHmmProcessAlphabet(), this));
+  Hpep_=std::auto_ptr<HmmProcessEmissionProbabilities>(new HmmProcessEmissionProbabilities(&processSeqEvol.getHmmProcessAlphabet(), this));
 
   Hmm_ = auto_ptr<LogsumHmmLikelihood>(new LogsumHmmLikelihood(&processSeqEvol.getHmmProcessAlphabet(), &processSeqEvol.getHmmTransitionMatrix(), Hpep_.get(), false));    
-
 }
 
-void HmmPhyloLikelihood::setNamespace(const std::string& nameSpace)
+void HmmProcessPhyloLikelihood::setNamespace(const std::string& nameSpace)
 {
   MultiProcessSequencePhyloLikelihood::setNamespace(nameSpace);
   Hmm_->setNamespace(nameSpace);
 }
 
-void HmmPhyloLikelihood::fireParameterChanged(const ParameterList& parameters)
+void HmmProcessPhyloLikelihood::fireParameterChanged(const ParameterList& parameters)
 {
   MultiProcessSequencePhyloLikelihood::fireParameterChanged(parameters);
   Hmm_->matchParametersValues(parameters);

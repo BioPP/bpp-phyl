@@ -1,7 +1,7 @@
 //
-// File: AutoCorrelationPhyloLikelihood.cpp
+// File: SetOfAlignedPhyloLikelihood.cpp
 // Created by: Laurent Guéguen
-// Created on: lundi 23 septembre 2013, à 22h 56
+// Created on: mercredi 7 octobre 2015, à 14h 21
 //
 
 /*
@@ -37,46 +37,25 @@
    knowledge of the CeCILL license and that you accept its terms.
  */
 
-#include "AutoCorrelationPhyloLikelihood.h"
-
-#include "HmmPhyloEmissionProbabilities.h"
-
-#include <Bpp/Numeric/Hmm/LogsumHmmLikelihood.h>
-#include <Bpp/Numeric/Hmm/AutoCorrelationTransitionMatrix.h>
+#include "SetOfAlignedPhyloLikelihood.h"
 
 using namespace std;
 using namespace bpp;
 
+
 /******************************************************************************/
 
-AutoCorrelationPhyloLikelihood::AutoCorrelationPhyloLikelihood(
-  const SiteContainer& data,
-  AutoCorrelationSequenceEvolution& processSeqEvol,
-  size_t nSeqEvol,
-  size_t nData,
-  bool verbose,
-  bool patterns) :
-  MultiProcessSequencePhyloLikelihood(data, processSeqEvol, nSeqEvol, nData, verbose, patterns),
-  Hpep_(0),
-  Hmm_(0)
+void SetOfAlignedPhyloLikelihood::addPhyloLikelihood(size_t nPhyl)
 {
-  Hpep_=std::auto_ptr<HmmPhyloEmissionProbabilities>(new HmmPhyloEmissionProbabilities(&processSeqEvol.getHmmProcessAlphabet(), this));
+  const AbstractAlignedPhyloLikelihood* aPL=getAbstractPhyloLikelihood(nPhyl);
 
-  Hmm_ = auto_ptr<LogsumHmmLikelihood>(new LogsumHmmLikelihood(&processSeqEvol.getHmmProcessAlphabet(), &processSeqEvol.getHmmTransitionMatrix(), Hpep_.get(), false));
+  if (aPL!=NULL && (getNumberOfSites()==0 || aPL->getNumberOfSites()==getNumberOfSites()))
+  {
+    nPhylo_.push_back(nPhyl);
+    includeParameters_(aPL->getParameters());
+    
+    if (getNumberOfSites()==0)
+      setNumberOfSites(aPL->getNumberOfSites());
+  }
+  update();
 }
-
-void AutoCorrelationPhyloLikelihood::setNamespace(const std::string& nameSpace)
-{
-  MultiProcessSequencePhyloLikelihood::setNamespace(nameSpace);
-  Hmm_->setNamespace(nameSpace);
-}
-
-
-void AutoCorrelationPhyloLikelihood::fireParameterChanged(const ParameterList& parameters)
-{
-  MultiProcessSequencePhyloLikelihood::fireParameterChanged(parameters);
-
-  Hmm_->matchParametersValues(parameters);
-}
-
-

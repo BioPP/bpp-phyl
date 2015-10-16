@@ -1,5 +1,5 @@
 //
-// File: MixturePhyloLikelihood.h
+// File: MixtureProcessPhyloLikelihood.h
 // Created by: Laurent Guéguen
 // Created on: jeudi 11 juillet 2013, à 14h 05
 //
@@ -37,8 +37,8 @@
   knowledge of the CeCILL license and that you accept its terms.
 */
 
-#ifndef _MIXTUREPHYLOLIKELIHOOD_H_
-#define _MIXTUREPHYLOLIKELIHOOD_H_
+#ifndef _MIXTURE_PROCESS_PHYLOLIKELIHOOD_H_
+#define _MIXTURE_PROCESS_PHYLOLIKELIHOOD_H_
 
 
 #include "MultiProcessSequencePhyloLikelihood.h"
@@ -60,7 +60,7 @@ namespace bpp
  * @see MultiProcessSequencePhyloLikelihood
  */
 
-    class MixturePhyloLikelihood :
+    class MixtureProcessPhyloLikelihood :
       public MultiProcessSequencePhyloLikelihood
     {
     private:
@@ -72,7 +72,7 @@ namespace bpp
       MixtureSequenceEvolution& mSeqEvol_;
       
     public:
-      MixturePhyloLikelihood(
+      MixtureProcessPhyloLikelihood(
         const SiteContainer& data,
         MixtureSequenceEvolution& processSeqEvol,
         size_t nSeqEvol = 0,
@@ -80,12 +80,14 @@ namespace bpp
         bool verbose = true,
         bool patterns = true);
 
-      MixturePhyloLikelihood(const MixturePhyloLikelihood& mlc) :
+      MixtureProcessPhyloLikelihood(const MixtureProcessPhyloLikelihood& mlc) :
+        AbstractPhyloLikelihood(mlc),
+        AbstractAlignedPhyloLikelihood(mlc),
         MultiProcessSequencePhyloLikelihood(mlc),
         mSeqEvol_(mlc.mSeqEvol_)
       {}
 
-      MixturePhyloLikelihood& operator=(const MixturePhyloLikelihood& mlc)
+      MixtureProcessPhyloLikelihood& operator=(const MixtureProcessPhyloLikelihood& mlc)
       {
         MultiProcessSequencePhyloLikelihood::operator=(mlc);
         mSeqEvol_=mlc.mSeqEvol_;
@@ -93,9 +95,9 @@ namespace bpp
         return *this;
       }
 
-      virtual ~MixturePhyloLikelihood() {}
+      virtual ~MixtureProcessPhyloLikelihood() {}
 
-      MixturePhyloLikelihood* clone() const { return new MixturePhyloLikelihood(*this); }
+      MixtureProcessPhyloLikelihood* clone() const { return new MixtureProcessPhyloLikelihood(*this); }
 
     public:
       /**
@@ -141,5 +143,5 @@ namespace bpp
     };
 } // end of namespace bpp.
 
-#endif  // _MIXTURELIKELIHOODCOLLECTION_H_
+#endif  // _MIXTURE_PROCESS_PHYLOLIKELIHOOD_H_
 

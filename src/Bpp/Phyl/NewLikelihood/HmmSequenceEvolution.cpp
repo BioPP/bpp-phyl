@@ -82,12 +82,4 @@ void HmmSequenceEvolution::fireParameterChanged(const ParameterList& parameters)
   hmmTransMat_->matchParametersValues(parameters);
 }
 
-ParameterList HmmSequenceEvolution::getNonDerivableParameters() const
-{
-  ParameterList pl = MultiProcessSequenceEvolution::getNonDerivableParameters();
-  pl.addParameters(hmmAlph_->getParameters());
-  pl.addParameters(hmmTransMat_->getParameters());
-
-  return pl;
-}
 

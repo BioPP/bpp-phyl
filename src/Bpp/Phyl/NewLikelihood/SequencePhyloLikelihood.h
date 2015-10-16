@@ -70,22 +70,26 @@ namespace bpp
       
     public:
       SequencePhyloLikelihood(SequenceEvolution& se, size_t nSE = 0, size_t nData = 0) :
-        AbstractSingleDataPhyloLikelihood(0, 0, nData),
+        AbstractPhyloLikelihood(),
+        AbstractAlignedPhyloLikelihood(0),
+        AbstractSingleDataPhyloLikelihood(0, (se.getSubstitutionProcessNumbers().size()!=0)?se.getSubstitutionProcess(se.getSubstitutionProcessNumbers()[0]).getNumberOfStates():0, nData),
         seqEvol_(&se),
         nSeqEvol_(nSE)
       {
       }
 
       SequencePhyloLikelihood(const SequencePhyloLikelihood& asd) :
-        AbstractSingleDataPhyloLikelihood(asd),
-        seqEvol_(asd.seqEvol_),
-        nSeqEvol_(asd.nSeqEvol_)
+      AbstractPhyloLikelihood(asd),
+      AbstractAlignedPhyloLikelihood(asd),
+      AbstractSingleDataPhyloLikelihood(asd),
+      seqEvol_(asd.seqEvol_),
+      nSeqEvol_(asd.nSeqEvol_)
       {
       }
       
       SequencePhyloLikelihood& operator=(const SequencePhyloLikelihood& asd)
       {
-        AbstractSingleDataPhyloLikelihood::operator=(asd),
+        AbstractSingleDataPhyloLikelihood::operator=(asd);
 
         seqEvol_=asd.seqEvol_;
         nSeqEvol_=asd.nSeqEvol_;
@@ -113,17 +117,30 @@ namespace bpp
         return nSeqEvol_;
       }
 
+      /**
+       * @name the Likelihood interface
+       *
+       */
+      
+      const Alphabet* getAlphabet() const {
+        if (seqEvol_->getSubstitutionProcessNumbers().size()==0)
+          return NULL;
+        else 
+          return seqEvol_->getSubstitutionProcess(seqEvol_->getSubstitutionProcessNumbers()[0]).getSubstitutionModel(0,0).getAlphabet();
+      }
+
+
     };
 
     class AbstractSequencePhyloLikelihood :
       public SequencePhyloLikelihood,
-      public AbstractPhyloLikelihood,
       public AbstractParametrizable
     {
     public:
       AbstractSequencePhyloLikelihood(SequenceEvolution& se, size_t nSE = 0, size_t nData = 0) :
-        SequencePhyloLikelihood(se, nSE, nData),
         AbstractPhyloLikelihood(),
+        AbstractAlignedPhyloLikelihood(0),
+        SequencePhyloLikelihood(se, nSE, nData),
         AbstractParametrizable("")
       {
         // initialize INDEPENDENT parameters:
@@ -131,16 +148,17 @@ namespace bpp
       }
 
       AbstractSequencePhyloLikelihood(const AbstractSequencePhyloLikelihood& asd) :
-        SequencePhyloLikelihood(asd),
-        AbstractPhyloLikelihood(asd),
-        AbstractParametrizable(asd)
+      AbstractPhyloLikelihood(asd),
+      AbstractAlignedPhyloLikelihood(asd),
+      SequencePhyloLikelihood(asd),
+      AbstractParametrizable(asd)
       {
       }
       
       AbstractSequencePhyloLikelihood& operator=(const AbstractSequencePhyloLikelihood& asd)
       {
         SequencePhyloLikelihood::operator=(asd);
-        AbstractPhyloLikelihood::operator=(asd);
+
         AbstractParametrizable::operator=(asd);
         
         return *this;
@@ -156,17 +174,41 @@ namespace bpp
         update();
         seqEvol_->matchParametersValues(parameters);
       }
-      
+
     public:
+      double getFirstOrderDerivative(const std::string& variable) const throw (Exception)
+      {
+        if (!hasParameter(variable))
+          throw ParameterNotFoundException("AbstractPhyloLikelihood::getFirstOrderDerivative().", variable);
+        if (!hasDerivableParameter(variable))
+        {
+          throw Exception("AbstractPhyloLikelihood::Derivative is not implemented for " + variable + " parameter.");
+        }
+        
+        computeDLogLikelihood_(variable);
+        return -getDLogLikelihood();
+      }
+
+      double getSecondOrderDerivative(const std::string& variable) const throw (Exception)
+      {
+        if (!hasParameter(variable))
+          throw ParameterNotFoundException("AbstractPhyloLikelihood::getSecondOrderDerivative().", variable);
+        if (!hasDerivableParameter(variable))
+        {
+          throw Exception("Derivative is not implemented for " + variable + " parameter.");
+        }
+        
+        computeD2LogLikelihood_(variable);
+        return -getD2LogLikelihood();
+      }
+
+      double getSecondOrderDerivative(const std::string& variable1, const std::string& variable2) const throw (Exception) { return 0; } // Not implemented for now.
+
+
       void setData(const SiteContainer& sites, size_t nData = 0)
       {
         AbstractSingleDataPhyloLikelihood::setData(sites, nData);
         update();
-      }
-      
-      void setParameters(const ParameterList& parameters) throw (ParameterNotFoundException, ConstraintException)
-      {
-        setParametersValues(parameters);
       }
       
       void setNamespace(const std::string& nameSpace)

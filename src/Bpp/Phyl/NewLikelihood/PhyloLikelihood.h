@@ -92,12 +92,19 @@ namespace bpp
        */
 
       /**
+       * @brief compute the likelihood
+       *
+       */
+
+      virtual void computeLikelihood() const = 0;
+
+      /**
        * @brief Get the logarithm of the likelihood for the whole dataset.
        *
        * @return The logarithm of the likelihood of the dataset.
        */
       virtual double getLogLikelihood() const = 0;
- 
+      
       /**
        * @brief Get the derivates of the LogLikelihood.
        *
@@ -106,7 +113,12 @@ namespace bpp
       virtual double getDLogLikelihood() const = 0;
 
       virtual double getD2LogLikelihood() const = 0;
-  
+
+      virtual void computeDLogLikelihood_(const std::string& variable) const = 0;
+      
+      virtual void computeD2LogLikelihood_(const std::string& variable) const = 0;
+
+
       /** @} */
 
       /**
@@ -245,7 +257,12 @@ namespace bpp
       AbstractPhyloLikelihood* clone() const = 0;
 
     public:
-      virtual void update()
+      /**
+       * @brief Sets the computeLikelihoods_ to true.
+       *
+       */
+      
+      void update()
       {
         computeLikelihoods_ = true;
       }
@@ -257,10 +274,10 @@ namespace bpp
 
     public:
 
-      // void setParameters(const ParameterList& parameters) throw (ParameterNotFoundException, ConstraintException)
-      // {
-      //   setParametersValues(parameters);
-      // }
+      void setParameters(const ParameterList& parameters) throw (ParameterNotFoundException, ConstraintException)
+      {
+        setParametersValues(parameters);
+      }
 
       virtual void enableDerivatives(bool yn) { computeFirstOrderDerivatives_ = computeSecondOrderDerivatives_ = yn; }
       virtual void enableFirstOrderDerivatives(bool yn) { computeFirstOrderDerivatives_ = yn; }
@@ -270,15 +287,19 @@ namespace bpp
 
       bool isInitialized() const { return initialized_; }
 
+      /*
+       * @brief return the value, ie -loglikelihood
+       *
+       * !!! check on computeLikelihoods_ is not done here.
+       *
+       */
+      
       double getValue() const throw (Exception)
       {
         if (!isInitialized())
           throw Exception("AbstractPhyloLikelihood::getValue(). Instance is not initialized.");
-//        if (computeLikelihoods_)
-        {
-          minusLogLik_=-getLogLikelihood();
-          computeLikelihoods_=false;
-        }
+
+        minusLogLik_=-getLogLikelihood();
         
         return minusLogLik_;
       }

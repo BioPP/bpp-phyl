@@ -1,5 +1,5 @@
 //
-// File: AutoCorrelationPhyloLikelihood.h
+// File: HmmProcessPhyloLikelihood.h
 // Created by: Laurent Guéguen
 // Created on: lundi 23 septembre 2013, à 22h 56
 //
@@ -37,13 +37,13 @@
   knowledge of the CeCILL license and that you accept its terms.
 */
 
-#ifndef _AUTOCORRELATIONPHYLOLIKELIHOOD_H_
-#define _AUTOCORRELATIONPHYLOLIKELIHOOD_H_
+#ifndef _HMMPHYLOLIKELIHOOD_H_
+#define _HMMPHYLOLIKELIHOOD_H_
 
 
 #include "MultiProcessSequencePhyloLikelihood.h"
-#include "AutoCorrelationSequenceEvolution.h"
-#include "HmmPhyloEmissionProbabilities.h"
+#include "HmmSequenceEvolution.h"
+#include "HmmProcessEmissionProbabilities.h"
 
 // From SeqLib:
 #include <Bpp/Seq/Container/SiteContainer.h>
@@ -51,59 +51,74 @@
 // From Numeric
 #include <Bpp/Numeric/Hmm/HmmLikelihood.h>
 #include <Bpp/Numeric/Hmm/LogsumHmmLikelihood.h>
-#include <Bpp/Numeric/Hmm/AutoCorrelationTransitionMatrix.h>
+#include <Bpp/Numeric/Hmm/HmmTransitionMatrix.h>
+
 
 namespace bpp
 {
 /**
- * @brief Likelihood framework based on an auto-correlation of simple likelihoods.
+ * @brief Likelihood framework based on a hmm of simple likelihoods
  *
- * The resulting likelihood is the likelihood of the given
- * AutoCorrelation with the site emission probabilities proportional
- * to the computed likelihoods of the process.
+ * The resulting likelihood is the likelihood of the given Hmm with
+ * the site emission probabilities proportional to the computed
+ * likelihoods of the process.
  *
  *
  */
 
   
-    class AutoCorrelationPhyloLikelihood :
+    class HmmProcessPhyloLikelihood :
       public MultiProcessSequencePhyloLikelihood
     {
     private:
-      std::auto_ptr<HmmPhyloEmissionProbabilities> Hpep_;
-
-      std::auto_ptr<LogsumHmmLikelihood> Hmm_;
+      std::auto_ptr<HmmProcessEmissionProbabilities> Hpep_;
+      
+      mutable std::auto_ptr<LogsumHmmLikelihood> Hmm_;
   
     public:
-      AutoCorrelationPhyloLikelihood(
+      HmmProcessPhyloLikelihood(
         const SiteContainer& data,
-        AutoCorrelationSequenceEvolution& processSeqEvol,
+        HmmSequenceEvolution& processSeqEvol,
         size_t nSeqEvol = 0,
         size_t nData = 0,
         bool verbose = true,
         bool patterns = true);
 
-      AutoCorrelationPhyloLikelihood(const AutoCorrelationPhyloLikelihood& mlc) :
+      HmmProcessPhyloLikelihood(const HmmProcessPhyloLikelihood& mlc) :
+        AbstractPhyloLikelihood(),
+        AbstractAlignedPhyloLikelihood(mlc),
         MultiProcessSequencePhyloLikelihood(mlc),
-        Hpep_(std::auto_ptr<HmmPhyloEmissionProbabilities>(mlc.Hpep_->clone())),
+        Hpep_(std::auto_ptr<HmmProcessEmissionProbabilities>(mlc.Hpep_->clone())),
         Hmm_(std::auto_ptr<LogsumHmmLikelihood>(mlc.Hmm_->clone())) {}
 
-      AutoCorrelationPhyloLikelihood& operator=(const AutoCorrelationPhyloLikelihood& mlc)
+      HmmProcessPhyloLikelihood& operator=(const HmmProcessPhyloLikelihood& mlc)
       {
         MultiProcessSequencePhyloLikelihood::operator=(mlc);
-        Hpep_ = std::auto_ptr<HmmPhyloEmissionProbabilities>(mlc.Hpep_->clone());
+        Hpep_ = std::auto_ptr<HmmProcessEmissionProbabilities>(mlc.Hpep_->clone());
         Hmm_ = std::auto_ptr<LogsumHmmLikelihood>(mlc.Hmm_->clone());
         return *this;
       }
 
-      virtual ~AutoCorrelationPhyloLikelihood() {}
+      virtual ~HmmProcessPhyloLikelihood() {}
 
-      AutoCorrelationPhyloLikelihood* clone() const { return new AutoCorrelationPhyloLikelihood(*this); }
+      HmmProcessPhyloLikelihood* clone() const { return new HmmProcessPhyloLikelihood(*this); }
 
     public:
+
       void setNamespace(const std::string& nameSpace);
 
       void fireParameterChanged(const ParameterList& parameters);
+
+      void computeLikelihood() const
+      {
+        if (computeLikelihoods_)
+        {
+          MultiProcessSequencePhyloLikelihood::computeLikelihood();
+          Hmm_->computeLikelihood();
+
+          computeLikelihoods_=false;
+        }
+      }
 
       /**
        * @name The likelihood functions.
@@ -113,6 +128,8 @@ namespace bpp
 
       double getLogLikelihood() const
       {
+        computeLikelihood();
+ 
         return Hmm_->getLogLikelihood();  
       }
 
@@ -135,6 +152,8 @@ namespace bpp
 
       double getLikelihoodForASite(size_t site) const
       {
+        computeLikelihood();
+ 
         return Hmm_->getLikelihoodForASite(site);
       }
 
@@ -142,7 +161,7 @@ namespace bpp
       {
         return Hmm_->getDLogLikelihoodForASite(site);
       }
-      
+
       double getD2LogLikelihoodForASite(size_t site) const
       {
         return Hmm_->getD2LogLikelihoodForASite(site);
@@ -150,11 +169,15 @@ namespace bpp
 
       Vdouble getLikelihoodForEachSite() const
       {
+        computeLikelihood();
+ 
         return Hmm_->getLikelihoodForEachSite();
       }
 
       VVdouble getPosteriorProbabilitiesForEachSiteForEachProcess() const
       {
+        computeLikelihood();
+ 
         VVdouble pp;
         Hmm_->getHiddenStatesPosteriorProbabilities(pp, false);
         return pp;
@@ -187,5 +210,5 @@ namespace bpp
     };
 } // end of namespace bpp.
 
-#endif  // _AUTOCORRELATIONPHYLOLIKELIHOOD_H_
+#endif  // _HMMPHYLOLIKELIHOOD_H_
 

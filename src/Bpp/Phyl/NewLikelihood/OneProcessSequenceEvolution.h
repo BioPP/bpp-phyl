@@ -72,6 +72,13 @@ namespace bpp
      */
 
     size_t nProc_;
+
+    /*
+     * @brief not nice, for inheritance compatibility.
+     *
+     */
+    
+    std::vector<size_t> vProc_;
     
   public:
     OneProcessSequenceEvolution(SubstitutionProcess& process, size_t nProc = 0);
@@ -110,9 +117,9 @@ namespace bpp
       return *subsProc_;
     }
 
-    std::vector<size_t> getSubstitutionProcessNumbers() const
+    const std::vector<size_t>& getSubstitutionProcessNumbers() const
     {
-      return std::vector<size_t>(1,nProc_);
+      return vProc_;
     }
         
     const SubstitutionProcess& getSubstitutionProcess(size_t number) const

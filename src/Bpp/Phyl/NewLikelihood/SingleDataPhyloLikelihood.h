@@ -92,6 +92,7 @@ namespace bpp
      *
      * @return A pointer toward the site container where the sequences are stored.
      */
+
     virtual const SiteContainer* getData() const = 0;
     
     /**
@@ -122,8 +123,8 @@ namespace bpp
 
   
   class AbstractSingleDataPhyloLikelihood :
-    public virtual SingleDataPhyloLikelihood,
-    public AbstractAlignedPhyloLikelihood
+    public SingleDataPhyloLikelihood,
+    virtual public AbstractAlignedPhyloLikelihood
   {
   protected:
     size_t nbStates_;
@@ -164,7 +165,7 @@ namespace bpp
       return *this;
     }
     
-    void setData(const SiteContainer& sites, size_t nData = 0)
+    virtual void setData(const SiteContainer& sites, size_t nData = 0)
     {
       setNumberOfSites(sites.getNumberOfSites());
       nbStates_ = sites.getAlphabet()->getSize();
@@ -187,36 +188,36 @@ namespace bpp
   };
       
   
-  class AbstractParametrizableSingleDataPhyloLikelihood :
-    public AbstractSingleDataPhyloLikelihood,
-    public AbstractParametrizable
-  {
-  public:
-    AbstractParametrizableSingleDataPhyloLikelihood(size_t nData = 0) :
-      AbstractSingleDataPhyloLikelihood(0, 0, nData),
-      AbstractParametrizable("")
-    {}
+  // class AbstractParametrizableSingleDataPhyloLikelihood :
+  //   public AbstractSingleDataPhyloLikelihood,
+  //   public AbstractParametrizable
+  // {
+  // public:
+  //   AbstractParametrizableSingleDataPhyloLikelihood(size_t nData = 0) :
+  //     AbstractSingleDataPhyloLikelihood(0, 0, nData),
+  //     AbstractParametrizable("")
+  //   {}
 
-    AbstractParametrizableSingleDataPhyloLikelihood(const AbstractParametrizableSingleDataPhyloLikelihood& asd) :
-      AbstractSingleDataPhyloLikelihood(asd),
-      AbstractParametrizable(asd)
-    {
-    }
+  //   AbstractParametrizableSingleDataPhyloLikelihood(const AbstractParametrizableSingleDataPhyloLikelihood& asd) :
+  //     AbstractSingleDataPhyloLikelihood(asd),
+  //     AbstractParametrizable(asd)
+  //   {
+  //   }
     
-    virtual ~AbstractParametrizableSingleDataPhyloLikelihood() {}
+  //   virtual ~AbstractParametrizableSingleDataPhyloLikelihood() {}
     
-    AbstractParametrizableSingleDataPhyloLikelihood* clone() const = 0;
+  //   AbstractParametrizableSingleDataPhyloLikelihood* clone() const = 0;
     
-    AbstractParametrizableSingleDataPhyloLikelihood& operator=(const AbstractParametrizableSingleDataPhyloLikelihood& asd)
-    {
-      AbstractSingleDataPhyloLikelihood::operator=(*this);
-      AbstractParametrizable::operator=(*this);
+  //   AbstractParametrizableSingleDataPhyloLikelihood& operator=(const AbstractParametrizableSingleDataPhyloLikelihood& asd)
+  //   {
+  //     AbstractSingleDataPhyloLikelihood::operator=(*this);
+  //     AbstractParametrizable::operator=(*this);
       
-      return *this;
-    }
+  //     return *this;
+  //   }
     
     
-  };
+//  };
   
 } //end of namespace bpp.
 

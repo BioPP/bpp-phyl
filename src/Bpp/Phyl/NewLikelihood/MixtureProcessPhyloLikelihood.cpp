@@ -1,5 +1,5 @@
 //
-// File: MixturePhyloLikelihood.cpp
+// File: MixtureProcessPhyloLikelihood.cpp
 // Created by: Laurent Guéguen
 // Created on: vendredi 12 juillet 2013, à 14h 55
 //
@@ -37,7 +37,7 @@
    knowledge of the CeCILL license and that you accept its terms.
  */
 
-#include "MixturePhyloLikelihood.h"
+#include "MixtureProcessPhyloLikelihood.h"
 
 #include <Bpp/Numeric/VectorTools.h>
 
@@ -46,13 +46,15 @@ using namespace bpp;
 
 /******************************************************************************/
 
-MixturePhyloLikelihood::MixturePhyloLikelihood(
+MixtureProcessPhyloLikelihood::MixtureProcessPhyloLikelihood(
   const SiteContainer& data,
   MixtureSequenceEvolution& processSeqEvol,
   size_t nSeqEvol,
   size_t nData,
   bool verbose,
   bool patterns) :
+  AbstractPhyloLikelihood(),
+  AbstractAlignedPhyloLikelihood(data.getNumberOfSites()),
   MultiProcessSequencePhyloLikelihood(data, processSeqEvol, nSeqEvol, nData, verbose, patterns),
   mSeqEvol_(processSeqEvol)
 {
@@ -60,8 +62,10 @@ MixturePhyloLikelihood::MixturePhyloLikelihood(
 
 /******************************************************************************/
 
-double MixturePhyloLikelihood::getLogLikelihood() const
+double MixtureProcessPhyloLikelihood::getLogLikelihood() const
 {
+  computeLikelihood();
+
   vector<double> la(nbSites_);
   for (size_t i = 0; i < nbSites_; ++i)
     {
@@ -70,39 +74,39 @@ double MixturePhyloLikelihood::getLogLikelihood() const
   sort(la.begin(), la.end());
   double ll = 0;
   for (size_t i = nbSites_; i > 0; i--)
-    {
-      ll += la[i - 1];
-    }
+  {
+    ll += la[i - 1];
+  }
   return ll;
 }
 
 /******************************************************************************/
 
-double MixturePhyloLikelihood::getDLogLikelihoodForASite(size_t site) const
+double MixtureProcessPhyloLikelihood::getDLogLikelihoodForASite(size_t site) const
 {
   Vdouble vD;
-  
+
   for (size_t i = 0; i < vpTreelik_.size(); i++)
     vD.push_back(vpTreelik_[i]->getDLogLikelihoodForASite(site));
-  
+
   return VectorTools::logSumExp(vD,mSeqEvol_.getSubProcessProbabilities());
 }
 
 /******************************************************************************/
 
-double MixturePhyloLikelihood::getD2LogLikelihoodForASite(size_t site) const
+double MixtureProcessPhyloLikelihood::getD2LogLikelihoodForASite(size_t site) const
 {
   Vdouble vD2;
-  
+
   for (size_t i = 0; i < vpTreelik_.size(); i++)
     vD2.push_back(vpTreelik_[i]->getD2LogLikelihoodForASite(site));
-  
+
   return VectorTools::logSumExp(vD2,mSeqEvol_.getSubProcessProbabilities());
 }
 
 /******************************************************************************/
 
-double MixturePhyloLikelihood::getDLogLikelihood() const
+double MixtureProcessPhyloLikelihood::getDLogLikelihood() const
 {
   vector<double> la(nbSites_);
   for (size_t i = 0; i < nbSites_; ++i)
@@ -120,7 +124,7 @@ double MixturePhyloLikelihood::getDLogLikelihood() const
 
 /******************************************************************************/
 
-double MixturePhyloLikelihood::getD2LogLikelihood() const
+double MixtureProcessPhyloLikelihood::getD2LogLikelihood() const
 {
   // Derivative of the sum is the sum of derivatives:
   vector<double> la(nbSites_);
@@ -139,8 +143,10 @@ double MixturePhyloLikelihood::getD2LogLikelihood() const
 
 /******************************************************************************/
 
-double MixturePhyloLikelihood::getLikelihoodForASite(size_t site) const
+double MixtureProcessPhyloLikelihood::getLikelihoodForASite(size_t site) const
 {
+  computeLikelihood();
+
   double x = 0;
   for (size_t i = 0; i < vpTreelik_.size(); i++)
   {
@@ -153,8 +159,10 @@ double MixturePhyloLikelihood::getLikelihoodForASite(size_t site) const
 
 /******************************************************************************/
 
-VVdouble MixturePhyloLikelihood::getPosteriorProbabilitiesForEachSiteForEachProcess() const
+VVdouble MixtureProcessPhyloLikelihood::getPosteriorProbabilitiesForEachSiteForEachProcess() const
 {
+  computeLikelihood();
+
   size_t nbProcess = getNumberOfSubstitutionProcess();
 
   VVdouble pb = getLikelihoodForEachSiteForEachProcess();
@@ -173,7 +181,7 @@ VVdouble MixturePhyloLikelihood::getPosteriorProbabilitiesForEachSiteForEachProc
 
 /******************************************************************************/
 
-void MixturePhyloLikelihood::computeD2LogLikelihood_(const std::string& variable) const
+void MixtureProcessPhyloLikelihood::computeD2LogLikelihood_(const std::string& variable) const
 {
   for (size_t i = 0; i < vpTreelik_.size(); i++)
   {
@@ -183,7 +191,7 @@ void MixturePhyloLikelihood::computeD2LogLikelihood_(const std::string& variable
 
 /******************************************************************************/
 
-void MixturePhyloLikelihood::computeDLogLikelihood_(const std::string& variable) const
+void MixtureProcessPhyloLikelihood::computeDLogLikelihood_(const std::string& variable) const
 {
   for (size_t i = 0; i < vpTreelik_.size(); i++)
   {

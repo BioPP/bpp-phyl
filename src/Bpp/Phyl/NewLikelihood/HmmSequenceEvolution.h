@@ -92,8 +92,6 @@ namespace bpp
 
       void fireParameterChanged(const ParameterList& parameters);
 
-      ParameterList getNonDerivableParameters() const;
-
       const FullHmmTransitionMatrix& getHmmTransitionMatrix() const
       {
         return *hmmTransMat_.get();

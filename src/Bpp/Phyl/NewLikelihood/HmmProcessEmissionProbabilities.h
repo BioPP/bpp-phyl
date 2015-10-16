@@ -1,5 +1,5 @@
 //
-// File: HmmPhyloEmissionProbabilities.h
+// File: HmmProcessEmissionProbabilities.h
 // Created by: Laurent Guéguen
 // Created on: mardi 24 septembre 2013, à 10h 00
 //
@@ -37,8 +37,8 @@ The fact that you are presently reading this means that you have had
 knowledge of the CeCILL license and that you accept its terms.
 */
 
-#ifndef _HMMPHYLOEMISSIONPROBABILITIES_H_
-#define _HMMPHYLOEMISSIONPROBABILITIES_H_
+#ifndef _HMM_PROCESS_EMISSIONPROBABILITIES_H_
+#define _HMM_PROCESS_EMISSIONPROBABILITIES_H_
 
 #include "HmmProcessAlphabet.h"
 #include "MultiProcessSequencePhyloLikelihood.h"
@@ -55,7 +55,7 @@ namespace bpp
  *
  */
 
-  class HmmPhyloEmissionProbabilities:
+  class HmmProcessEmissionProbabilities:
     public virtual HmmEmissionProbabilities,
     public AbstractParametrizable
   {
@@ -75,10 +75,10 @@ namespace bpp
     void updateEmissionProbabilities_() const;
 
   public:
-    HmmPhyloEmissionProbabilities(const HmmProcessAlphabet* alphabet,
+    HmmProcessEmissionProbabilities(const HmmProcessAlphabet* alphabet,
                                   const MultiProcessSequencePhyloLikelihood* multiPL);
 
-    HmmPhyloEmissionProbabilities(const HmmPhyloEmissionProbabilities& hEP) :
+    HmmProcessEmissionProbabilities(const HmmProcessEmissionProbabilities& hEP) :
       AbstractParametrizable(hEP),
       procAlph_(hEP.procAlph_),
       multiPL_(hEP.multiPL_),
@@ -88,7 +88,7 @@ namespace bpp
       upToDate_(hEP.upToDate_)
     {}
 
-    HmmPhyloEmissionProbabilities& operator=(const HmmPhyloEmissionProbabilities& hEP)
+    HmmProcessEmissionProbabilities& operator=(const HmmProcessEmissionProbabilities& hEP)
     {
       AbstractParametrizable::operator=(hEP);
       procAlph_=hEP.procAlph_;
@@ -101,7 +101,7 @@ namespace bpp
       return *this;
     }
 
-    HmmPhyloEmissionProbabilities* clone() const { return new HmmPhyloEmissionProbabilities(*this);}
+    HmmProcessEmissionProbabilities* clone() const { return new HmmProcessEmissionProbabilities(*this);}
 
     const HmmStateAlphabet* getHmmStateAlphabet() const
     {
@@ -185,5 +185,5 @@ namespace bpp
 
 } //end of namespace bpp.
 
-#endif //_HMMPHYLOEMISSIONPROBABILITIES_H_
+#endif //_HMM_PROCESS_EMISSIONPROBABILITIES_H_
 

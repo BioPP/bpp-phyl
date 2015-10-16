@@ -47,7 +47,9 @@
 namespace bpp
 {
 /**
- * @brief Partial implementation of the LikelihoodTreeCalculation interface.
+ * @brief Partial implementation of the LikelihoodTreeCalculation
+ * interface.
+ *
  */
     class AbstractLikelihoodTreeCalculation:
       public virtual LikelihoodTreeCalculation
@@ -135,8 +137,24 @@ namespace bpp
   
       const SubstitutionProcess* getSubstitutionProcess() const { return process_;}
 
-      double getLogLikelihood();
 
+      size_t getNumberOfDistinctSites() const {
+        return getLikelihoodData().getNumberOfDistinctSites();
+      }
+
+      size_t getNumberOfSites() const {
+        return getLikelihoodData().getNumberOfSites();
+      }
+      
+      size_t getNumberOfStates() const {
+        return getLikelihoodData().getNumberOfStates();
+      }
+
+      size_t getNumberOfClasses() const {
+        return getLikelihoodData().getNumberOfClasses();
+      }
+
+      
       /*
        * @brief Retrieve the likelihood data.
        *
@@ -151,8 +169,14 @@ namespace bpp
       /*
        * @brief get DXLikelihoods
        *
+       * !!!! These methods do not check that computations are up to
+       * date.
+       *
+       *
        */
       
+      double getLogLikelihood();
+
       double getDLogLikelihood();
 
       virtual double getDLikelihoodForASite(size_t site) = 0;
@@ -173,24 +197,6 @@ namespace bpp
           - pow( getDLikelihoodForASite(site) / getLikelihoodForASite(site), 2);
       }
 
-
-      size_t getNumberOfDistinctSites() const {
-        return getLikelihoodData().getNumberOfDistinctSites();
-      }
-
-      size_t getNumberOfSites() const {
-        return getLikelihoodData().getNumberOfSites();
-      }
-      
-      size_t getNumberOfStates() const {
-        return getLikelihoodData().getNumberOfStates();
-      }
-
-      size_t getNumberOfClasses() const {
-        return getLikelihoodData().getNumberOfClasses();
-      }
-
-      
       /**
        * @brief Print the likelihood array to terminal (debugging tool).
        *

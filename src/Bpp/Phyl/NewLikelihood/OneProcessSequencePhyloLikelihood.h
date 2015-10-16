@@ -101,9 +101,11 @@ namespace bpp
         bool patterns = true);
 
       OneProcessSequencePhyloLikelihood(const OneProcessSequencePhyloLikelihood& lik) :
-        AbstractSequencePhyloLikelihood(lik),
-        mSeqEvol_(lik.mSeqEvol_),
-        tlComp_(0)
+      AbstractPhyloLikelihood(lik),
+      AbstractAlignedPhyloLikelihood(lik),
+      AbstractSequencePhyloLikelihood(lik),
+      mSeqEvol_(lik.mSeqEvol_),
+      tlComp_(0)
       {
         if (lik.tlComp_.get()) tlComp_.reset(lik.tlComp_->clone());
       }
@@ -187,38 +189,6 @@ namespace bpp
       /** @} */
 
 
-      /**
-       * @brief Implements the Function interface.
-       *
-       * Update the parameter list and call the applyParameters() method.
-       * Then compute the likelihoods at each node (computeLikelihood() method)
-       * and call the getLogLikelihood() method.
-       *
-       * If a subset of the whole parameter list is passed to the function,
-       * only these parameters are updated and the other remain constant (i.e.
-       * equal to their last value).
-       *
-       * @param parameters The parameter list to pass to the function.
-       */
-
-      /**
-       * @name DerivableFirstOrder interface.
-       *
-       * @{
-       */
-      double getFirstOrderDerivative(const std::string& variable) const throw (Exception);
-      /** @} */
-
-      /**
-       * @name DerivableSecondOrder interface.
-       *
-       * @{
-       */
-      double getSecondOrderDerivative(const std::string& variable) const throw (Exception);
-      double getSecondOrderDerivative(const std::string& variable1, const std::string& variable2) const throw (Exception) { return 0; } // Not implemented for now.
-      /** @} */
-
-
     protected:
       void computeDLogLikelihood_(const std::string& variable) const;
 
@@ -243,7 +213,20 @@ namespace bpp
        */
       const LikelihoodTree& getLikelihoodData() const { return tlComp_->getLikelihoodData(); }
 
+    public:
+
+      void computeLikelihood() const
+      {
+        if (computeLikelihoods_)
+        {
+          tlComp_->computeTreeLikelihood();
+          computeLikelihoods_=false;
+        }
+      }
+      
       double getLogLikelihood() const {
+        computeLikelihood();
+        
         return tlComp_->getLogLikelihood();
       }
 
@@ -256,6 +239,8 @@ namespace bpp
       }
 
       double getLikelihoodForASite(size_t siteIndex) const {
+        computeLikelihood();
+
         return tlComp_->getLikelihoodForASite(siteIndex);
       }
 
@@ -288,6 +273,7 @@ namespace bpp
        * @return A three-dimension vector with all likelihoods:
        * <code>V[i][j][k} =</code> likelihood of site i and model class j and state k.
        */
+
       VVVdouble getLikelihoodForEachSiteForEachClassForEachState() const;
       
       /** @} */

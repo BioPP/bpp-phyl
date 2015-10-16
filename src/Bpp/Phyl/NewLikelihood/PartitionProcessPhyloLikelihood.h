@@ -1,5 +1,5 @@
 //
-// File: PartitionPhyloLikelihood.h
+// File: PartitionProcessPhyloLikelihood.h
 // Created by: Laurent Guéguen
 // Created on: samedi 16 mai 2015, à 13h 34
 //
@@ -37,13 +37,13 @@
   knowledge of the CeCILL license and that you accept its terms.
 */
 
-#ifndef _PARTITION_PHYLOLIKELIHOOD_H_
-#define _PARTITION_PHYLOLIKELIHOOD_H_
+#ifndef _PARTITION_PROCESS_PHYLOLIKELIHOOD_H_
+#define _PARTITION_PROCESS_PHYLOLIKELIHOOD_H_
 
 
 #include "SequencePhyloLikelihood.h"
 #include "PartitionSequenceEvolution.h"
-#include "SumOfAlignedPhyloLikelihood.h"
+#include "ProductOfAlignedPhyloLikelihood.h"
 
 // From SeqLib:
 #include <Bpp/Seq/Container/SiteContainer.h>
@@ -64,9 +64,9 @@ namespace bpp
     };
     
       
-  class PartitionPhyloLikelihood :
+  class PartitionProcessPhyloLikelihood :
     public SequencePhyloLikelihood,
-    public SumOfAlignedPhyloLikelihood
+    public ProductOfAlignedPhyloLikelihood
     {
     private:
       /**
@@ -77,7 +77,7 @@ namespace bpp
       PartitionSequenceEvolution& mSeqEvol_;
 
       /**
-       * vector of couples number of process, sites specific to
+       * vector of couples <number of process, site> specific to
        * this process.
        *
        */
@@ -85,13 +85,13 @@ namespace bpp
       std::vector<ProcPos> vProcPos_;
       
     public:
-      PartitionPhyloLikelihood(
+      PartitionProcessPhyloLikelihood(
         PartitionSequenceEvolution& processSeqEvol,
         size_t nSeqEvol = 0,
         bool verbose = true,
         bool patterns = true);
 
-      PartitionPhyloLikelihood(
+      PartitionProcessPhyloLikelihood(
         const SiteContainer& data,
         PartitionSequenceEvolution& processSeqEvol,
         size_t nSeqEvol = 0,
@@ -99,18 +99,20 @@ namespace bpp
         bool verbose = true,
         bool patterns = true);
 
-      PartitionPhyloLikelihood(const PartitionPhyloLikelihood& lik) :
-        SequencePhyloLikelihood(lik),
-        SumOfAlignedPhyloLikelihood(lik),
-        mSeqEvol_(lik.mSeqEvol_),
-        vProcPos_(lik.vProcPos_)
+      PartitionProcessPhyloLikelihood(const PartitionProcessPhyloLikelihood& lik) :
+      AbstractPhyloLikelihood(lik),
+      AbstractAlignedPhyloLikelihood(lik),
+      SequencePhyloLikelihood(lik),
+      ProductOfAlignedPhyloLikelihood(lik),
+      mSeqEvol_(lik.mSeqEvol_),
+      vProcPos_(lik.vProcPos_)
       {
       }
       
-      PartitionPhyloLikelihood& operator=(const PartitionPhyloLikelihood& lik)
+      PartitionProcessPhyloLikelihood& operator=(const PartitionProcessPhyloLikelihood& lik)
       {
         SequencePhyloLikelihood::operator=(lik);
-        SumOfAlignedPhyloLikelihood::operator=(lik);
+        ProductOfAlignedPhyloLikelihood::operator=(lik);
         
         mSeqEvol_=lik.mSeqEvol_;
         vProcPos_=lik.vProcPos_;
@@ -118,11 +120,12 @@ namespace bpp
         return *this;
       }
 
-      virtual ~PartitionPhyloLikelihood()
+      virtual ~PartitionProcessPhyloLikelihood()
       {
+        delete getPhyloContainer();
       }
 
-      PartitionPhyloLikelihood* clone() const { return new PartitionPhyloLikelihood(*this); }
+      PartitionProcessPhyloLikelihood* clone() const { return new PartitionProcessPhyloLikelihood(*this); }
 
       /**
        * @brief Set the dataset for which the likelihood must be evaluated.
@@ -134,28 +137,31 @@ namespace bpp
       void setData(const SiteContainer& data, size_t nData = 0);
 
       /**
+       * @brief add aligned phylolikelihood without length constraint
+       *
+       */
+      
+      void addPhyloLikelihood(size_t nPhyl);
+      
+      /**
        * @name The Likelihood interface.
        *
        * @{
        */
       
-      const Alphabet* getAlphabet() const {
-        return getSingleDataPhylolikelihood(vProcPos_[0].nProc)->getAlphabet();
-      }
-
       const SiteContainer* getData() const
       {
-        return SumOfAlignedPhyloLikelihood::getData((size_t)0);
+        return getPhyloContainer()->getData(getPhyloContainer()->getNumbersOfPhyloLikelihoods()[0]);
       }
 
       size_t getNumberOfSites() const
       {
-        return SumOfAlignedPhyloLikelihood::getNumberOfSites();
+        return ProductOfAlignedPhyloLikelihood::getNumberOfSites();
       }
 
       Vdouble getLikelihoodForEachSite() const
       {
-        return SumOfAlignedPhyloLikelihood::getLikelihoodForEachSite();
+        return ProductOfAlignedPhyloLikelihood::getLikelihoodForEachSite();
       }
       
       /**
@@ -169,6 +175,15 @@ namespace bpp
        * @{
        */
 
+      void computeLikelihood() const
+      {
+        if (computeLikelihoods_)
+        {
+          ProductOfAlignedPhyloLikelihood::computeLikelihood();
+          computeLikelihoods_=false;
+        }
+      }
+      
       double getLikelihoodForASite(size_t site) const;
 
       double getDLogLikelihoodForASite(size_t site) const;
@@ -183,5 +198,5 @@ namespace bpp
     };
 } // end of namespace bpp.
 
-#endif  // _PARTITION_PHYLOLIKELIHOOD_H_
+#endif  // _PARTITION_PROCESS_PHYLOLIKELIHOOD_H_
 

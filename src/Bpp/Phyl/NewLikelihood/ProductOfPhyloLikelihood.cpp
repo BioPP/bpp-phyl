@@ -1,7 +1,7 @@
 //
-// File: MultiPhyloLikelihood.h
+// File: ProductOfPhyloLikelihood.cpp
 // Created by: Laurent Guéguen
-// Created on: jeudi 14 mai 2015, à 20h 58
+// Created on: jeudi 14 mai 2015, à 17h 07
 //
 
 /*
@@ -37,60 +37,32 @@
   knowledge of the CeCILL license and that you accept its terms.
 */
 
-#ifndef _MULTI_PHYLOLIKELIHOOD_H_
-#define _MULTI_PHYLOLIKELIHOOD_H_
+#include "ProductOfPhyloLikelihood.h"
 
-// From bpp-seq:
-#include <Bpp/Seq/Container/SiteContainer.h>
+using namespace bpp;
+using namespace std;
 
-#include "PhyloLikelihood.h"
-
-namespace bpp
+ProductOfPhyloLikelihood::ProductOfPhyloLikelihood(PhyloLikelihoodContainer* pC) :
+  AbstractPhyloLikelihood(),
+  SetOfAbstractPhyloLikelihood(pC)
 {
+}
 
-    /**
-     * @brief The MultiPhyloLikelihood interface, for phylogenetic likelihood.
-     *
-     * This interface defines the common methods needed to compute a likelihood
-     * from several "simple"  phylolikelihoods.
-     */
-    
-    class MultiPhyloLikelihood:
-      public virtual PhyloLikelihood
-    {
-    public:
-      MultiPhyloLikelihood() {}
-      virtual ~MultiPhyloLikelihood() {}
 
-      virtual MultiPhyloLikelihood* clone() const = 0;
-      
+ProductOfPhyloLikelihood::ProductOfPhyloLikelihood(const ProductOfPhyloLikelihood& sd) :
+  AbstractPhyloLikelihood(sd),
+  SetOfAbstractPhyloLikelihood(sd)
+{
+}
 
-    public:
+ProductOfPhyloLikelihood& ProductOfPhyloLikelihood::operator=(const ProductOfPhyloLikelihood& sd)
+{
+  SetOfAbstractPhyloLikelihood::operator=(sd);
 
-      /**
-       *
-       * @name The single data Phylolikelihood storage.
-       *
-       * @{
-       */
+  return *this;
+}
 
-      virtual void addPhylolikelihood(size_t, PhyloLikelihood*) = 0;
 
-      virtual std::vector<size_t> getNumbersOfPhyloLikelihoods() const =0;
 
-      virtual const PhyloLikelihood* getPhylolikelihood(size_t) const = 0;
 
-      virtual PhyloLikelihood* getPhylolikelihood(size_t) = 0;
-      
-      /**
-       *
-       * @}
-       *
-       */
-
-    };
-
-} //end of namespace bpp.
-
-#endif  //_MULTI_PHYLOLIKELIHOOD_H_
 

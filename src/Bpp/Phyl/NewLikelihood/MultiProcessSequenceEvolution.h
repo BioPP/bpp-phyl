@@ -125,7 +125,7 @@ namespace bpp
         return processColl_->getSubstitutionProcess(number);
       }
 
-      std::vector<size_t> getSubstitutionProcessNumbers() const
+      const std::vector<size_t>& getSubstitutionProcessNumbers() const
       {
         return nProc_;
       }  

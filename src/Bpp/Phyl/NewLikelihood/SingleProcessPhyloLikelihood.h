@@ -71,7 +71,6 @@ namespace bpp
  */
 
     class SingleProcessPhyloLikelihood :
-      public AbstractPhyloLikelihood,
       public AbstractSingleDataPhyloLikelihood,
       public AbstractParametrizable
     { 
@@ -90,20 +89,19 @@ namespace bpp
       SingleProcessPhyloLikelihood(SubstitutionProcess* process, LikelihoodTreeCalculation* tlComp, size_t nProc = 0, size_t nData = 0);
 
       SingleProcessPhyloLikelihood(const SingleProcessPhyloLikelihood& lik) :
-        AbstractPhyloLikelihood(lik),
-        AbstractSingleDataPhyloLikelihood(lik),
-        AbstractParametrizable(lik),
-        tlComp_(0),
-        process_(lik.process_),
-        nProc_(lik.nProc_)
+      AbstractPhyloLikelihood(lik),
+      AbstractAlignedPhyloLikelihood(lik),
+      AbstractSingleDataPhyloLikelihood(lik),
+      AbstractParametrizable(lik),
+      tlComp_(0),
+      process_(lik.process_),
+      nProc_(lik.nProc_)
       {
         if (lik.tlComp_.get()) tlComp_.reset(lik.tlComp_->clone());
       }
 
       SingleProcessPhyloLikelihood& operator=(const SingleProcessPhyloLikelihood& lik)
       {
-        AbstractPhyloLikelihood::operator=(*this);
-        
         AbstractSingleDataPhyloLikelihood::operator=(lik);
 
         AbstractParametrizable::operator=(lik);
@@ -134,7 +132,7 @@ namespace bpp
 
         update();
                 
-        tlComp_->setData(sites); 
+        tlComp_->setData(sites);
       }
 
       /**
@@ -183,9 +181,9 @@ namespace bpp
 
       size_t getSubstitutionProcessNumber() const { return nProc_; }
       
-      void setParameters(const ParameterList& parameters) throw (ParameterNotFoundException, ConstraintException)
+      bool hasDerivableParameter(const std::string& name) const
       {
-        setParametersValues(parameters);
+        return process_->hasDerivableParameter(name);
       }
       
       ParameterList getBranchLengthParameters() const
@@ -224,27 +222,12 @@ namespace bpp
        *
        */
       
-       /**
-       * @name DerivableFirstOrder interface.
-       *
-       * @{
-       */
-      double getFirstOrderDerivative(const std::string& variable) const throw (Exception);
-      /** @} */
-
-      /**
-       * @name DerivableSecondOrder interface.
-       *
-       * @{
-       */
-      double getSecondOrderDerivative(const std::string& variable) const throw (Exception);
-      double getSecondOrderDerivative(const std::string& variable1, const std::string& variable2) const throw (Exception) { return 0; } // Not implemented for now.
-      /** @} */
-
-
-      void computeTreeLikelihood() {
-        tlComp_->computeTreeLikelihood();
-      }  
+      void computeLikelihood() const
+      {
+        if (computeLikelihoods_)
+          tlComp_->computeTreeLikelihood();
+        computeLikelihoods_=false;
+      }
 
       bool isInitialized() const {
         return tlComp_->isInitialized();
@@ -258,6 +241,33 @@ namespace bpp
       void computeD2LogLikelihood_(const std::string& variable) const;
 
     public:
+
+      double getFirstOrderDerivative(const std::string& variable) const throw (Exception)
+      {
+        if (!hasParameter(variable))
+          throw ParameterNotFoundException("AbstractPhyloLikelihood::getFirstOrderDerivative().", variable);
+        if (!hasDerivableParameter(variable))
+        {
+          throw Exception("AbstractPhyloLikelihood::Derivative is not implemented for " + variable + " parameter.");
+        }
+        
+        computeDLogLikelihood_(variable);
+        return -getDLogLikelihood();
+      }
+
+      double getSecondOrderDerivative(const std::string& variable) const throw (Exception)
+      {
+        if (!hasParameter(variable))
+          throw ParameterNotFoundException("AbstractPhyloLikelihood::getSecondOrderDerivative().", variable);
+        if (!hasDerivableParameter(variable))
+        {
+          throw Exception("Derivative is not implemented for " + variable + " parameter.");
+        }
+        computeD2LogLikelihood_(variable);
+        return -getD2LogLikelihood();
+      }
+
+      double getSecondOrderDerivative(const std::string& variable1, const std::string& variable2) const throw (Exception) { return 0; } // Not implemented for now.
 
       /**
        * @return The underlying likelihood computation structure.
@@ -286,19 +296,25 @@ namespace bpp
 
       ParameterList getNonDerivableParameters() const;
 
-      double getLogLikelihood() const {
+      double getLogLikelihood() const
+      {
+        computeLikelihood();
         return tlComp_->getLogLikelihood();
       }
 
-      double getDLogLikelihood() const {
+      double getDLogLikelihood() const
+      {
         return tlComp_->getDLogLikelihood();
       }
 
-      double getD2LogLikelihood() const {
+      double getD2LogLikelihood() const
+      {
         return tlComp_->getD2LogLikelihood();
       }
 
-      double getLikelihoodForASite(size_t siteIndex) const {
+      double getLikelihoodForASite(size_t siteIndex) const
+      {
+        computeLikelihood();
         return tlComp_->getLikelihoodForASite(siteIndex);
       }
 
