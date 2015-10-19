@@ -39,7 +39,7 @@
 
 #include "HmmProcessPhyloLikelihood.h"
 
-#include "HmmProcessEmissionProbabilities.h"
+#include "../HmmProcessEmissionProbabilities.h"
 
 #include <Bpp/Numeric/Hmm/LogsumHmmLikelihood.h>
 #include <Bpp/Numeric/Hmm/FullHmmTransitionMatrix.h>

@@ -42,7 +42,7 @@
 
 
 #include "MultiProcessSequencePhyloLikelihood.h"
-#include "MixtureSequenceEvolution.h"
+#include "../MixtureSequenceEvolution.h"
 
 // From SeqLib:
 #include <Bpp/Seq/Container/SiteContainer.h>

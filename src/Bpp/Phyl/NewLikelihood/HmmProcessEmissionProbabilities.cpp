@@ -43,7 +43,7 @@ using namespace bpp;
 using namespace std;
 
 HmmProcessEmissionProbabilities::HmmProcessEmissionProbabilities(const HmmProcessAlphabet* alphabet,
-                                                             const MultiProcessSequencePhyloLikelihood* multiPL) :
+                                                                 const MultiProcessSequencePhyloLikelihood* multiPL) :
   AbstractParametrizable(""),
   procAlph_(alphabet),
   multiPL_(multiPL),

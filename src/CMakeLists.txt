@@ -72,17 +72,17 @@ SET(CPP_FILES
   Bpp/Phyl/NewLikelihood/RecursiveLikelihoodTreeCalculation.cpp
   Bpp/Phyl/NewLikelihood/ComputingNode.cpp
   Bpp/Phyl/NewLikelihood/ComputingTree.cpp
-  Bpp/Phyl/NewLikelihood/SingleProcessPhyloLikelihood.cpp
-  Bpp/Phyl/NewLikelihood/OneProcessSequencePhyloLikelihood.cpp
-  Bpp/Phyl/NewLikelihood/MultiProcessSequencePhyloLikelihood.cpp
-  Bpp/Phyl/NewLikelihood/SetOfAbstractPhyloLikelihood.cpp
-  Bpp/Phyl/NewLikelihood/SetOfAlignedPhyloLikelihood.cpp
-  Bpp/Phyl/NewLikelihood/ProductOfPhyloLikelihood.cpp
-  Bpp/Phyl/NewLikelihood/ProductOfAlignedPhyloLikelihood.cpp
-  Bpp/Phyl/NewLikelihood/PartitionProcessPhyloLikelihood.cpp
-  Bpp/Phyl/NewLikelihood/MixtureProcessPhyloLikelihood.cpp
-  Bpp/Phyl/NewLikelihood/HmmProcessPhyloLikelihood.cpp
-  Bpp/Phyl/NewLikelihood/AutoCorrelationProcessPhyloLikelihood.cpp
+  Bpp/Phyl/NewLikelihood/PhyloLikelihoods/SingleProcessPhyloLikelihood.cpp
+  Bpp/Phyl/NewLikelihood/PhyloLikelihoods/OneProcessSequencePhyloLikelihood.cpp
+  Bpp/Phyl/NewLikelihood/PhyloLikelihoods/MultiProcessSequencePhyloLikelihood.cpp
+  Bpp/Phyl/NewLikelihood/PhyloLikelihoods/SetOfAbstractPhyloLikelihood.cpp
+  Bpp/Phyl/NewLikelihood/PhyloLikelihoods/SetOfAlignedPhyloLikelihood.cpp
+  Bpp/Phyl/NewLikelihood/PhyloLikelihoods/ProductOfPhyloLikelihood.cpp
+  Bpp/Phyl/NewLikelihood/PhyloLikelihoods/ProductOfAlignedPhyloLikelihood.cpp
+  Bpp/Phyl/NewLikelihood/PhyloLikelihoods/PartitionProcessPhyloLikelihood.cpp
+  Bpp/Phyl/NewLikelihood/PhyloLikelihoods/MixtureProcessPhyloLikelihood.cpp
+  Bpp/Phyl/NewLikelihood/PhyloLikelihoods/HmmProcessPhyloLikelihood.cpp
+  Bpp/Phyl/NewLikelihood/PhyloLikelihoods/AutoCorrelationProcessPhyloLikelihood.cpp
   Bpp/Phyl/NewLikelihood/MarginalAncestralReconstruction.cpp
   Bpp/Phyl/Mapping/SubstitutionRegister.cpp
   Bpp/Phyl/Mapping/LaplaceSubstitutionCount.cpp
@@ -282,25 +282,25 @@ SET(H_FILES
   Bpp/Phyl/NewLikelihood/SitePartition.h
   Bpp/Phyl/NewLikelihood/ComputingNode.h
   Bpp/Phyl/NewLikelihood/ComputingTree.h
-  Bpp/Phyl/NewLikelihood/PhyloLikelihood.h
-  Bpp/Phyl/NewLikelihood/AlignedPhyloLikelihood.h
-  Bpp/Phyl/NewLikelihood/SingleDataPhyloLikelihood.h
-  Bpp/Phyl/NewLikelihood/AbstractSequencePhyloLikelihood.h
-  Bpp/Phyl/NewLikelihood/OneProcessSequencePhyloLikelihood.h
-  Bpp/Phyl/NewLikelihood/SingleProcessPhyloLikelihood.h
-  Bpp/Phyl/NewLikelihood/MultiSequencePhyloLikelihood.h
-  Bpp/Phyl/NewLikelihood/MultiPhyloLikelihood.h
-  Bpp/Phyl/NewLikelihood/MultiProcessSequencePhyloLikelihood.h
-  Bpp/Phyl/NewLikelihood/MixtureProcessPhyloLikelihood.h
-  Bpp/Phyl/NewLikelihood/HmmProcessPhyloLikelihood.h
-  Bpp/Phyl/NewLikelihood/AutoCorrelationProcessPhyloLikelihood.h
-  Bpp/Phyl/NewLikelihood/HmmProcessAlphabet.h
-  Bpp/Phyl/NewLikelihood/PhyloLikelihoodContainer.h
-  Bpp/Phyl/NewLikelihood/SetOfAbstractPhyloLikelihood.h
-  Bpp/Phyl/NewLikelihood/SetOfAlignedPhyloLikelihood.h
-  Bpp/Phyl/NewLikelihood/ProductOfPhyloLikelihood.h
-  Bpp/Phyl/NewLikelihood/ProductOfAlignedPhyloLikelihood.h
-  Bpp/Phyl/NewLikelihood/PartitionProcessPhyloLikelihood.h
+  Bpp/Phyl/NewLikelihood/PhyloLikelihoods/PhyloLikelihood.h
+  Bpp/Phyl/NewLikelihood/PhyloLikelihoods/AlignedPhyloLikelihood.h
+  Bpp/Phyl/NewLikelihood/PhyloLikelihoods/SingleDataPhyloLikelihood.h
+  Bpp/Phyl/NewLikelihood/PhyloLikelihoods/AbstractSequencePhyloLikelihood.h
+  Bpp/Phyl/NewLikelihood/PhyloLikelihoods/OneProcessSequencePhyloLikelihood.h
+  Bpp/Phyl/NewLikelihood/PhyloLikelihoods/SingleProcessPhyloLikelihood.h
+  Bpp/Phyl/NewLikelihood/PhyloLikelihoods/MultiSequencePhyloLikelihood.h
+  Bpp/Phyl/NewLikelihood/PhyloLikelihoods/MultiPhyloLikelihood.h
+  Bpp/Phyl/NewLikelihood/PhyloLikelihoods/MultiProcessSequencePhyloLikelihood.h
+  Bpp/Phyl/NewLikelihood/PhyloLikelihoods/MixtureProcessPhyloLikelihood.h
+  Bpp/Phyl/NewLikelihood/PhyloLikelihoods/HmmProcessPhyloLikelihood.h
+  Bpp/Phyl/NewLikelihood/PhyloLikelihoods/AutoCorrelationProcessPhyloLikelihood.h
+  Bpp/Phyl/NewLikelihood/PhyloLikelihoods/HmmProcessAlphabet.h
+  Bpp/Phyl/NewLikelihood/PhyloLikelihoods/PhyloLikelihoodContainer.h
+  Bpp/Phyl/NewLikelihood/PhyloLikelihoods/SetOfAbstractPhyloLikelihood.h
+  Bpp/Phyl/NewLikelihood/PhyloLikelihoods/SetOfAlignedPhyloLikelihood.h
+  Bpp/Phyl/NewLikelihood/PhyloLikelihoods/ProductOfPhyloLikelihood.h
+  Bpp/Phyl/NewLikelihood/PhyloLikelihoods/ProductOfAlignedPhyloLikelihood.h
+  Bpp/Phyl/NewLikelihood/PhyloLikelihoods/PartitionProcessPhyloLikelihood.h
   Bpp/Phyl/NewLikelihood/MarginalAncestralReconstruction.h
   Bpp/Phyl/Mapping/LaplaceSubstitutionCount.h
   Bpp/Phyl/Mapping/WeightedSubstitutionCount.h

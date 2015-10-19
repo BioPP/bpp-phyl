@@ -46,7 +46,7 @@
 
 #include "PhyloLikelihood.h"
 #include "SingleDataPhyloLikelihood.h"
-#include "SequenceEvolution.h"
+#include "../SequenceEvolution.h"
 
 namespace bpp
 {

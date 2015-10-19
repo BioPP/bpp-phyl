@@ -49,7 +49,7 @@
 #include "Distance/DistanceEstimation.h"
 #include "Distance/DistanceMethod.h"
 
-#include "NewLikelihood/PhyloLikelihood.h"
+#include "NewLikelihood/PhyloLikelihoods/PhyloLikelihood.h"
 
 #include <Bpp/Io/OutputStream.h>
 #include <Bpp/App/ApplicationTools.h>

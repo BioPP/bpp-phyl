@@ -38,7 +38,7 @@
  */
 
 #include "OneProcessSequencePhyloLikelihood.h"
-#include "RecursiveLikelihoodTreeCalculation.h"
+#include "../RecursiveLikelihoodTreeCalculation.h"
 
 using namespace std;
 using namespace bpp;

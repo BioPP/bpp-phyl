@@ -40,7 +40,7 @@
 #include "PartitionProcessPhyloLikelihood.h"
 
 #include "SingleProcessPhyloLikelihood.h"
-#include "RecursiveLikelihoodTreeCalculation.h"
+#include "../RecursiveLikelihoodTreeCalculation.h"
 
 #include "PhyloLikelihoodContainer.h"
 

@@ -41,9 +41,9 @@
 #define _MULTIPROCESSSEQUENCEPHYLOLIKELIHOOD_H_
 
 #include "SequencePhyloLikelihood.h"
-#include "MultiProcessSequenceEvolution.h"
+#include "../MultiProcessSequenceEvolution.h"
 
-#include "LikelihoodTreeCalculation.h"
+#include "../LikelihoodTreeCalculation.h"
 
 #include <Bpp/Numeric/AbstractParametrizable.h>
 

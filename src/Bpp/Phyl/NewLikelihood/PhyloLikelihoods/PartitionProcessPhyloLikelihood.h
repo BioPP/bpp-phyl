@@ -42,8 +42,8 @@
 
 
 #include "SequencePhyloLikelihood.h"
-#include "PartitionSequenceEvolution.h"
 #include "ProductOfAlignedPhyloLikelihood.h"
+#include "../PartitionSequenceEvolution.h"
 
 // From SeqLib:
 #include <Bpp/Seq/Container/SiteContainer.h>

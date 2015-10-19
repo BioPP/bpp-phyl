@@ -56,11 +56,11 @@
 #include <Bpp/Numeric/Prob/MultipleDiscreteDistribution.h>
 #include <Bpp/Numeric/Function/Optimizer.h>
 
-#include "../NewLikelihood/SubstitutionProcess.h"
-#include "../NewLikelihood/SingleDataPhyloLikelihood.h"
-#include "../NewLikelihood/PhyloLikelihoodContainer.h"
+#include "../NewLikelihood/PhyloLikelihoods/SingleDataPhyloLikelihood.h"
+#include "../NewLikelihood/PhyloLikelihoods/PhyloLikelihoodContainer.h"
 #include "../NewLikelihood/SubstitutionProcessCollection.h"
 #include "../NewLikelihood/SubstitutionProcessCollectionMember.h"
+#include "../NewLikelihood/SubstitutionProcess.h"
 #include "../NewLikelihood/SequenceEvolution.h"
 
 // From SeqLib:

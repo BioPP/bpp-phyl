@@ -42,8 +42,8 @@
 
 
 #include "MultiProcessSequencePhyloLikelihood.h"
-#include "HmmSequenceEvolution.h"
-#include "HmmProcessEmissionProbabilities.h"
+#include "../HmmSequenceEvolution.h"
+#include "../HmmProcessEmissionProbabilities.h"
 
 // From SeqLib:
 #include <Bpp/Seq/Container/SiteContainer.h>
