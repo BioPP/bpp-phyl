@@ -55,7 +55,8 @@ ComputingNode::ComputingNode(const SubstitutionModel* model) :
   probabilitiesD2_(),
   computeProbabilities_(true),
   computeProbabilitiesD1_(true),
-  computeProbabilitiesD2_(true)
+  computeProbabilitiesD2_(true),
+  vLogStates_(model->getNumberOfStates())
 {
   addParameter_(new Parameter("scale", 1, &Parameter::R_PLUS_STAR));
 }
@@ -71,7 +72,8 @@ ComputingNode::ComputingNode(int num, string st):
   probabilitiesD2_(),
   computeProbabilities_(true),
   computeProbabilitiesD1_(true),
-  computeProbabilitiesD2_(true)
+  computeProbabilitiesD2_(true),
+  vLogStates_()
 {
   addParameter_(new Parameter("scale", 1, &Parameter::R_PLUS_STAR));
 }
@@ -87,7 +89,8 @@ ComputingNode::ComputingNode():
   probabilitiesD2_(),
   computeProbabilities_(true),
   computeProbabilitiesD1_(true),
-  computeProbabilitiesD2_(true)
+  computeProbabilitiesD2_(true),
+  vLogStates_()
 {
   addParameter_(new Parameter("scale", 1, &Parameter::R_PLUS_STAR));
 }
@@ -103,7 +106,8 @@ ComputingNode::ComputingNode(const Node& cn) :
   probabilitiesD2_(),
   computeProbabilities_(true),
   computeProbabilitiesD1_(true),
-  computeProbabilitiesD2_(true)
+  computeProbabilitiesD2_(true),
+  vLogStates_()
 {
   addParameter_(new Parameter("scale", 1, &Parameter::R_PLUS_STAR));
 }
@@ -119,7 +123,8 @@ ComputingNode::ComputingNode(const ComputingNode& cn) :
   probabilitiesD2_(cn.probabilitiesD2_),
   computeProbabilities_(cn.computeProbabilities_),
   computeProbabilitiesD1_(cn.computeProbabilitiesD1_),
-  computeProbabilitiesD2_(cn.computeProbabilitiesD2_)
+  computeProbabilitiesD2_(cn.computeProbabilitiesD2_),
+  vLogStates_(cn.vLogStates_)
 {
 }
 
@@ -138,6 +143,7 @@ ComputingNode& ComputingNode::operator=(const ComputingNode& cn)
   computeProbabilities_=cn.computeProbabilities_;
   computeProbabilitiesD1_=cn.computeProbabilitiesD1_;
   computeProbabilitiesD2_=cn.computeProbabilitiesD2_;
+  vLogStates_=cn.vLogStates_;
 
   return *this;
 }
@@ -152,6 +158,7 @@ void ComputingNode::setSubstitutionModel(const SubstitutionModel* pSM)
   computeProbabilities_=true;
   computeProbabilitiesD1_=true;
   computeProbabilitiesD2_=true;
+  vLogStates_.resize(nbStates_);
 }
 
 void ComputingNode::fireParameterChanged(const ParameterList& pl)

@@ -187,38 +187,6 @@ namespace bpp
     
   };
       
-  
-  // class AbstractParametrizableSingleDataPhyloLikelihood :
-  //   public AbstractSingleDataPhyloLikelihood,
-  //   public AbstractParametrizable
-  // {
-  // public:
-  //   AbstractParametrizableSingleDataPhyloLikelihood(size_t nData = 0) :
-  //     AbstractSingleDataPhyloLikelihood(0, 0, nData),
-  //     AbstractParametrizable("")
-  //   {}
-
-  //   AbstractParametrizableSingleDataPhyloLikelihood(const AbstractParametrizableSingleDataPhyloLikelihood& asd) :
-  //     AbstractSingleDataPhyloLikelihood(asd),
-  //     AbstractParametrizable(asd)
-  //   {
-  //   }
-    
-  //   virtual ~AbstractParametrizableSingleDataPhyloLikelihood() {}
-    
-  //   AbstractParametrizableSingleDataPhyloLikelihood* clone() const = 0;
-    
-  //   AbstractParametrizableSingleDataPhyloLikelihood& operator=(const AbstractParametrizableSingleDataPhyloLikelihood& asd)
-  //   {
-  //     AbstractSingleDataPhyloLikelihood::operator=(*this);
-  //     AbstractParametrizable::operator=(*this);
-      
-  //     return *this;
-  //   }
-    
-    
-//  };
-  
 } //end of namespace bpp.
 
 #endif  //_SINGLEDATAPHYLOLIKELIHOOD_H_

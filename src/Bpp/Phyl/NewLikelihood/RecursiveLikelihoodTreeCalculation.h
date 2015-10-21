@@ -87,11 +87,6 @@ namespace bpp
       int root1_, root2_; // Needed only in case of reparametrization of branch length at root node.
       // TODO: have to be initialized properly! We do not care of that for now. jdutheil on 11/12/12.
 
-      // booleans to say if the Dlikelihoods are null
-  
-      bool nullDLikelihood_;
-      bool nullD2Likelihood_;
-  
     public:
       /**
        * @brief Build a new Simple Recursive Tree Likelihood object without data.
@@ -157,19 +152,6 @@ namespace bpp
       AbstractLikelihoodTree& getLikelihoodData() { return *likelihoodData_.get(); }
 
       const AbstractLikelihoodTree& getLikelihoodData() const { return *likelihoodData_.get(); }
-
-      double getLikelihoodForASite(size_t site);
-
-      double getLikelihoodForASiteForAState(size_t site, int state);
-
-      double getLikelihoodForASiteForAClass(size_t site, size_t classIndex);
-
-      double getLikelihoodForASiteForAClassForAState(size_t site, size_t classIndex, int state);
-      
-      double getDLikelihoodForASite(size_t site);
-
-      double getD2LikelihoodForASite(size_t site);
-
 
       /**
        * @brief Compute derivatives

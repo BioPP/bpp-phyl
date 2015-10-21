@@ -59,16 +59,51 @@ void AbstractLikelihoodNode::getPosteriorProbabilitiesForEachState(VVdouble& vPP
     const Vdouble * larray_i = & larray[i];
     Vdouble * vPP_i = & vPP[i];
     vPP_i->resize(nStates);
-        
-    double likelihood = 0;
-    for(size_t s = 0; s < nStates; s++)
-      likelihood += (* larray_i)[s];
-        
-    for(size_t s = 0; s < nStates; s++)
+    
+    double likelihood;
+    if (usesLog())
     {
-      (* vPP_i)[s] = (* larray_i)[s] / likelihood;
+      likelihood=VectorTools::logSumExp(* larray_i);
+
+      for(size_t s = 0; s < nStates; s++)
+        (* vPP_i)[s] = exp((* larray_i)[s] - likelihood);
+    }
+    else
+    {
+      likelihood=VectorTools::sum((* larray_i));
+      
+      for(size_t s = 0; s < nStates; s++)
+        (* vPP_i)[s] = (* larray_i)[s] / likelihood;
     }
   }
 }
+
+void AbstractLikelihoodNode::setUseLog(bool useLog)
+{
+  if (useLog==usesLog())
+    return;
+
+  size_t nSites=nodeLikelihoods_.size();
+  size_t nStates=nodeLikelihoods_[0].size();
+
+  if (useLog)
+  {
+    for (size_t i = 0; i < nSites; i++)
+    {
+      Vdouble* nodeLikelihoods_i_ = &(nodeLikelihoods_[i]);
+      for(size_t s = 0; s < nStates; s++)
+        (*nodeLikelihoods_i_)[s]=log((*nodeLikelihoods_i_)[s]);
+    }
+  }
+  for (size_t i = 0; i < nSites; i++)
+  {
+    Vdouble* nodeLikelihoods_i_ = &(nodeLikelihoods_[i]);
+    for(size_t s = 0; s < nStates; s++)
+      (*nodeLikelihoods_i_)[s]=exp((*nodeLikelihoods_i_)[s]);
+  }
+  
+  usesLog_=useLog;
+}
+
 
     

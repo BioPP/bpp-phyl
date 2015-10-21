@@ -127,12 +127,20 @@ public:
   virtual LikelihoodTree& getLikelihoodData() = 0;
   
   virtual const LikelihoodTree& getLikelihoodData() const = 0;
+
+  /**
+   * @return if log-likelihood is used at root in a given class
+   *
+   */
   
+  virtual bool usesLogAtRoot(size_t nClass) const = 0;
+
   /**
    * @brief Get the log-likelihood for the data set.
    *
    * @return The log-likelihood for the data set.
    */
+
   virtual double getLogLikelihood() = 0;
   
   /**
@@ -141,7 +149,15 @@ public:
    * @param site The site index to analyse.
    * @return The likelihood for site <i>site</i>.
    */
+
   virtual double getLikelihoodForASite(size_t site) = 0;
+      
+  virtual double getLogLikelihoodForASite(size_t site) = 0;
+  
+  double getDLikelihoodForASite(size_t site);
+
+  double getD2LikelihoodForASite(size_t site);
+
 
   /**
    * @brief Get the likelihood for a site and for a state.
@@ -150,7 +166,10 @@ public:
    * @param state The state to consider.
    * @return The likelihood for site <i>site</i> and state <i>state</i>.
    */
+
   virtual double getLikelihoodForASiteForAState(size_t site, int state) = 0;
+
+  virtual double getLogLikelihoodForASiteForAState(size_t site, int state) = 0;
 
   /**
    * @brief Get the logarithm of the likelihood for a site knowing its model class.
@@ -161,6 +180,8 @@ public:
    */
   virtual double getLikelihoodForASiteForAClass(size_t site, size_t classIndex) = 0;
 
+  virtual double getLogLikelihoodForASiteForAClass(size_t site, size_t classIndex) = 0;
+
   /**
    * @brief Get the likelihood for a site knowing its model class and its ancestral state.
    *
@@ -169,8 +190,11 @@ public:
    * @param state      The ancestral state.
    * @return The likelihood for the specified site and model class and ancestral state..
    */
+
   virtual double getLikelihoodForASiteForAClassForAState(size_t site, size_t classIndex, int state) = 0;
 
+  virtual double getLogLikelihoodForASiteForAClassForAState(size_t site, size_t classIndex, int state) = 0;
+  
   /**
    * @brief Get the derivate of log-likelihood for the data set.
    *

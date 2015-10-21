@@ -80,7 +80,8 @@ namespace bpp
     }
     
   public:
-
+    virtual bool usesLog() const = 0;
+    
     virtual VVdouble& getLikelihoodArray(unsigned char DX) = 0;
     virtual const VVdouble& getLikelihoodArray(unsigned char DX) const = 0;
     
@@ -95,8 +96,6 @@ namespace bpp
     virtual double& operator()(size_t nSite, size_t nState) = 0;
 
     virtual double operator()(size_t nSite, size_t nState) const = 0;
-
-    virtual Vdouble& operator[](size_t nSite) = 0;
 
   };
 

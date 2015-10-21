@@ -70,6 +70,7 @@ void AbstractLikelihoodTreeCalculation::setData(const SiteContainer& sites)
     ApplicationTools::displayResult("Number of distinct sites", TextTools::toString(nbDistinctSites_));
 
   initialized_ = true;
+  vSites_.resize(nbSites_);
 }
 
 
@@ -77,21 +78,18 @@ void AbstractLikelihoodTreeCalculation::setData(const SiteContainer& sites)
 
 double AbstractLikelihoodTreeCalculation::getLogLikelihood()
 {
-  computeTreeLikelihood();
-  
-  vector<double> la(nbSites_);
-  for (size_t i = 0; i < nbSites_; ++i)
-  {
-    la[i] = log(getLikelihoodForASite(i));
-  }
+//  computeTreeLikelihood();
 
-  sort(la.begin(), la.end());
+  for (size_t i = 0; i < nbSites_; ++i)
+    vSites_[i] = getLogLikelihoodForASite(i);
+
+  sort(vSites_.begin(), vSites_.end());
   double ll = 0;
   for (size_t i = nbSites_; i > 0; i--)
   {
-    ll += la[i - 1];
+    ll += vSites_[i - 1];
   }
-
+  
   return ll;
 }
 
@@ -100,17 +98,15 @@ double AbstractLikelihoodTreeCalculation::getLogLikelihood()
 double AbstractLikelihoodTreeCalculation::getDLogLikelihood()
 {
   // Derivative of the sum is the sum of derivatives:
-  vector<double> dla(nbSites_);
+
   for (size_t i = 0; i < nbSites_; ++i)
-  {
-    dla[i] = getDLogLikelihoodForASite(i);
-  }
+    vSites_[i] = getDLogLikelihoodForASite(i);
   
-  sort(dla.begin(), dla.end());
+  sort(vSites_.begin(), vSites_.end());
   double dl = 0;
   for (size_t i = nbSites_; i > 0; --i)
   {
-    dl += dla[i - 1];
+    dl += vSites_[i - 1];
   }
 
   return dl;
@@ -129,6 +125,189 @@ double AbstractLikelihoodTreeCalculation::getD2LogLikelihood()
 
   return dl;
 }
+
+/******************************************************************************/
+
+double AbstractLikelihoodTreeCalculation::getLikelihoodForASite(size_t site)
+{
+  double l = 0;
+  
+  size_t posR=getLikelihoodData().getRootArrayPosition(site);
+  int Rid=getRootId();
+  
+  for (size_t c = 0; c < nbClasses_; ++c)
+  {
+    const VVdouble& lla = getLikelihoodData().getLikelihoodArray(Rid, c, ComputingNode::D0);
+
+    if (!usesLogAtRoot(c))
+      for (size_t j = 0; j < nbStates_; ++j)
+        l += lla[posR][j] * process_->getProbabilityForModel(c);
+    else
+      for (size_t j = 0; j < nbStates_; ++j)
+        l += exp(lla[posR][j]) * process_->getProbabilityForModel(c);
+  }
+
+  if (l < 0) l = 0; //May happen because of numerical errors.
+  return l;
+}
+
+/******************************************************************************/
+
+double AbstractLikelihoodTreeCalculation::getLogLikelihoodForASite(size_t site)
+{
+  size_t posR=getLikelihoodData().getRootArrayPosition(site);
+  int Rid=getRootId();
+
+  vector<double> v(nbClasses_);
+  
+  for (size_t c = 0; c < nbClasses_; ++c)
+  {
+    const VVdouble& lla = getLikelihoodData().getLikelihoodArray(Rid, c, ComputingNode::D0);
+
+    if (!usesLogAtRoot(c))
+      v[c]=VectorTools::logSumExp(VectorTools::log(lla[posR])) + log(process_->getProbabilityForModel(c));
+    else
+      v[c]=VectorTools::logSumExp(lla[posR]) + log(process_->getProbabilityForModel(c));
+  }
+
+  return VectorTools::logSumExp(v);
+}
+
+/******************************************************************************/
+
+double AbstractLikelihoodTreeCalculation::getLikelihoodForASiteForAClass(size_t site, size_t classIndex)
+{
+  const Vdouble& la = getLikelihoodData().getLikelihoodArray(getRootId(),classIndex, ComputingNode::D0)[getLikelihoodData().getRootArrayPosition(site)];
+
+  if (!usesLogAtRoot(classIndex))
+    return VectorTools::sum(la);
+  else
+    return VectorTools::sumExp(la);
+}
+
+/******************************************************************************/
+
+double AbstractLikelihoodTreeCalculation::getLogLikelihoodForASiteForAClass(size_t site, size_t classIndex)
+{
+  const Vdouble& la = getLikelihoodData().getLikelihoodArray(getRootId(),classIndex, ComputingNode::D0)[getLikelihoodData().getRootArrayPosition(site)];
+
+  if (!usesLogAtRoot(classIndex))
+    return log(VectorTools::sum(la));
+  else
+    return VectorTools::logSumExp(la);
+}
+
+/******************************************************************************/
+
+double AbstractLikelihoodTreeCalculation::getLikelihoodForASiteForAState(size_t site, int state)
+{
+  size_t posR=getLikelihoodData().getRootArrayPosition(site);
+  int Rid=getRootId();
+
+  double l = 0;
+  
+  for (size_t c = 0; c < nbClasses_; ++c)
+  {
+    const VVdouble& lla = getLikelihoodData().getLikelihoodArray(Rid, c, ComputingNode::D0);
+
+    if (!usesLogAtRoot(c))
+      l += lla[posR][state] * process_->getProbabilityForModel(c);
+    else
+      l += exp(lla[posR][state]) * process_->getProbabilityForModel(c);
+  }
+
+  if (l < 0) l = 0; //May happen because of numerical errors.
+  return l;
+}
+
+/******************************************************************************/
+
+double AbstractLikelihoodTreeCalculation::getLogLikelihoodForASiteForAState(size_t site, int state)
+{
+  size_t posR=getLikelihoodData().getRootArrayPosition(site);
+  int Rid=getRootId();
+  
+  vector<double> v(nbClasses_);
+
+  for (size_t c = 0; c < nbClasses_; ++c)
+  {
+    const VVdouble& lla = getLikelihoodData().getLikelihoodArray(Rid, c, ComputingNode::D0);
+
+    if (!usesLogAtRoot(c))
+      v[c] = log(lla[posR][state]) + log(process_->getProbabilityForModel(c));
+    else
+      v[c] = lla[posR][state] + log(process_->getProbabilityForModel(c));
+  }
+
+  return VectorTools::logSumExp(v);
+}
+
+/******************************************************************************/
+
+double AbstractLikelihoodTreeCalculation::getLikelihoodForASiteForAClassForAState(size_t site, size_t classIndex, int state)
+{
+  if (!usesLogAtRoot(classIndex))
+    return getLikelihoodData().getLikelihoodArray(getRootId(),classIndex, ComputingNode::D0)[getLikelihoodData().getRootArrayPosition(site)][state];
+  else
+    return exp(getLikelihoodData().getLikelihoodArray(getRootId(),classIndex, ComputingNode::D0)[getLikelihoodData().getRootArrayPosition(site)][state]);
+}
+
+/******************************************************************************/
+
+double AbstractLikelihoodTreeCalculation::getLogLikelihoodForASiteForAClassForAState(size_t site, size_t classIndex, int state)
+{
+  if (!usesLogAtRoot(classIndex))
+    return log(getLikelihoodData().getLikelihoodArray(getRootId(),classIndex, ComputingNode::D0)[getLikelihoodData().getRootArrayPosition(site)][state]);
+  else
+    return getLikelihoodData().getLikelihoodArray(getRootId(),classIndex, ComputingNode::D0)[getLikelihoodData().getRootArrayPosition(site)][state];
+}
+
+
+
+/******************************************************************************/
+
+double AbstractLikelihoodTreeCalculation::getDLikelihoodForASite(size_t site)
+{
+  if (nullDLikelihood_)
+    return 0;
+
+  size_t posR=getLikelihoodData().getRootArrayPosition(site);
+  int Rid=process_->getTree().getRootNode()->getId();
+  
+  // Derivative of the sum is the sum of derivatives:
+  double dl = 0;
+  for (size_t c = 0; c < nbClasses_; c++)
+  {
+    VVdouble& ldla = getLikelihoodData().getLikelihoodArray(Rid, c, ComputingNode::D1);
+    for (size_t j = 0; j < nbStates_; ++j)
+      dl += ldla[posR][j] * process_->getProbabilityForModel(c);
+  }
+  
+  return dl;
+}
+
+/******************************************************************************/
+
+double AbstractLikelihoodTreeCalculation::getD2LikelihoodForASite(size_t site)
+{
+  if (nullD2Likelihood_)
+    return 0;
+
+  size_t posR=getLikelihoodData().getRootArrayPosition(site);
+  int Rid=process_->getTree().getRootNode()->getId();
+
+  // Derivative of the sum is the sum of derivatives:
+  double d2l = 0;
+  for (size_t c = 0; c < nbClasses_; c++)
+  {
+    VVdouble& d2la = getLikelihoodData().getLikelihoodArray(Rid, c, ComputingNode::D2);
+    for (size_t j = 0; j < nbStates_; ++j)
+      d2l += d2la[posR][j] * process_->getProbabilityForModel(c);
+  }
+
+  return d2l;
+}
+
 
 
 /******************************************************************************/

@@ -52,12 +52,18 @@ vector<size_t> MarginalAncestralReconstruction::getAncestralStatesForNode(int no
   double r;
 
   likelihood_->computeLikelihoodsAtNode(nodeId);
-  
-  probs=likelihood_->getLikelihoodData().getNodeData(nodeId, 0).getLikelihoodArray(ComputingNode::D0)*likelihood_->getSubstitutionProcess()->getProbabilityForModel(0);
+
+  if (!likelihood_->getLikelihoodData().getNodeData(nodeId, 0).usesLog())
+    probs=likelihood_->getLikelihoodData().getNodeData(nodeId, 0).getLikelihoodArray(ComputingNode::D0)*likelihood_->getSubstitutionProcess()->getProbabilityForModel(0);
+  else
+    probs=VectorTools::exp(likelihood_->getLikelihoodData().getNodeData(nodeId, 0).getLikelihoodArray(ComputingNode::D0) + log(likelihood_->getSubstitutionProcess()->getProbabilityForModel(0)));
   
   for (size_t c = 1; c < nbClasses_; c++)
   {
-    probs+=likelihood_->getLikelihoodData().getNodeData(nodeId, c).getLikelihoodArray(ComputingNode::D0)*likelihood_->getSubstitutionProcess()->getProbabilityForModel(c);
+    if (!likelihood_->getLikelihoodData().getNodeData(nodeId, c).usesLog())
+      probs+=likelihood_->getLikelihoodData().getNodeData(nodeId, c).getLikelihoodArray(ComputingNode::D0)*likelihood_->getSubstitutionProcess()->getProbabilityForModel(c);
+    else
+      probs+=VectorTools::exp(likelihood_->getLikelihoodData().getNodeData(nodeId, 0).getLikelihoodArray(ComputingNode::D0) + log(likelihood_->getSubstitutionProcess()->getProbabilityForModel(0)));
   } 
 
   for (size_t i = 0; i < nbDistinctSites_; i++)

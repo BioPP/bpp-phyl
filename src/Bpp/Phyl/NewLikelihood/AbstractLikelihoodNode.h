@@ -98,7 +98,16 @@ namespace bpp
      */
 
     std::vector<const std::vector<size_t>* > vPatt_;
-    
+
+    /* @brief says if the likelihood arrays store the log-likelihoods
+     * (instead of the likelihoods).
+     *
+     * Note that it is not valable for the DXlikelihoods.
+     *
+     */
+
+    bool usesLog_;
+       
   public:
     AbstractLikelihoodNode() :
       LikelihoodNode(),
@@ -108,7 +117,8 @@ namespace bpp
       up2date_(false),
       up2dateD_(false),
       up2dateD2_(false),
-      vPatt_()
+      vPatt_(),
+      usesLog_(false)
     {}
     
     AbstractLikelihoodNode(const Node& np):
@@ -119,7 +129,8 @@ namespace bpp
       up2date_(false),
       up2dateD_(false),
       up2dateD2_(false),
-      vPatt_()
+      vPatt_(),
+      usesLog_(false)
     {}
 
     AbstractLikelihoodNode(int num, std::string st):
@@ -130,7 +141,8 @@ namespace bpp
       up2date_(false),
       up2dateD_(false),
       up2dateD2_(false),
-      vPatt_()
+      vPatt_(),
+      usesLog_(false)
     {}
 
     AbstractLikelihoodNode(const AbstractLikelihoodNode& data) :
@@ -141,7 +153,8 @@ namespace bpp
       up2date_(data.up2date_),
       up2dateD_(data.up2dateD_),
       up2dateD2_(data.up2dateD2_),
-      vPatt_(data.vPatt_)
+      vPatt_(data.vPatt_),
+      usesLog_(data.usesLog_)
     {}
     
     AbstractLikelihoodNode& operator=(const AbstractLikelihoodNode& data)
@@ -157,6 +170,7 @@ namespace bpp
       up2dateD2_ = data.up2dateD2_;
 
       vPatt_ = data.vPatt_;
+      usesLog_ = data.usesLog_;
 
       return *this;
     }
@@ -168,6 +182,13 @@ namespace bpp
 
   public:
 
+    bool usesLog() const
+    {
+      return usesLog_;
+    }
+
+    virtual void setUseLog(bool useLog);
+    
     /**
      * @brief Several Likelihood Arrays
      *
@@ -263,11 +284,6 @@ namespace bpp
       return nodeLikelihoods_[nSite][nState];
     }
     
-    Vdouble& operator[](size_t nSite)
-    {
-      return nodeLikelihoods_[nSite];
-    }
-
     /*
      * @brief recursively set likelihood arrays down from the node.
      *
@@ -310,7 +326,7 @@ namespace bpp
      * each distinct site.
      *
      * @param vPP The 2-dimension site X state of the a posteriori
-     *        probabilities [out].
+     *        probabilities [in, out].
      */
     
     void getPosteriorProbabilitiesForEachState(VVdouble& vPP) const;

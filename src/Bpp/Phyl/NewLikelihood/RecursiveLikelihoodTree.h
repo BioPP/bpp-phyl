@@ -179,24 +179,6 @@ namespace bpp
     void resetInnerAboveLikelihoods();
 
 
-    bool isUp2dateBelow(int nodeId, unsigned char DX) const
-    {
-      for (size_t c = 0; c < vTree_.size(); ++c)
-        if (!vTree_[c]->getNode(nodeId)->isUp2dateBelow(DX))
-          return false;
-      
-      return true;
-    }
-
-    bool isUp2dateAbove(int nodeId) const
-    {
-      for (size_t c = 0; c < vTree_.size(); ++c)
-        if (!vTree_[c]->getNode(nodeId)->isUp2dateAbove())
-          return false;
-      
-      return true;
-    }
-
     bool isAboveLikelihoodsInitialized() const
     {
       return initializedAboveLikelihoods_;

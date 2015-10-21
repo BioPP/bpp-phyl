@@ -206,7 +206,15 @@ void RecursiveLikelihoodTree::initLikelihoodsWithoutPatterns_(const Node* node, 
         for (size_t s = 0; s < nbStates_; s++)
         {
           double x = process.getInitValue(s, state);
-          lNode(i,s) = x;
+          if (lNode.usesLog())
+          {
+            if (x<=0)
+              throw BadNumberException("RecursiveLikelihoodTree::initTreelikelihoods log not possible for value",x);
+            lNode(i,s) = log(x);
+          }
+          else
+            lNode(i,s) = x;
+            
           test += x;
         }
         if (test < 0.000001) std::cerr << "WARNING!!! Likelihood will be 0 for this site " << TextTools::toString(i) << std::endl;
@@ -304,7 +312,15 @@ SitePatterns* RecursiveLikelihoodTree::initLikelihoodsWithPatterns_(const Node* 
         for (size_t s = 0; s < nbStates_; s++)
         {
           double x = process.getInitValue(s, state);
-          lNode(i,s) = x;
+          if (lNode.usesLog())
+          {
+            if (x<=0)
+              throw BadNumberException("RecursiveLikelihoodTree::initTreelikelihoods log not possible for value",x);
+            lNode(i,s) = log(x);
+          }
+          else
+            lNode(i,s) = x;
+
           test += x;
         }
 

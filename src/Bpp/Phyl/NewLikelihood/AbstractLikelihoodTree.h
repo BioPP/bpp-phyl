@@ -230,6 +230,26 @@ public:
     }
 
     /**
+     * @brief returns if given node at given class uses log in arrays.
+     *
+     */
+    
+    bool usesLog(int nodeId, size_t nClass) const
+    {
+      return getNodeData(nodeId, nClass).usesLog();
+    }
+    
+    /**
+     * @brief returns if root at given class uses log in arrays.
+     *
+     */
+    
+    bool usesLogAtRoot(size_t nClass) const
+    {
+      return getRootData(nClass).usesLog();
+    }
+    
+    /**
      * @brief Compute the posterior probabilities for each state and
      * each class of each distinct site.
      *

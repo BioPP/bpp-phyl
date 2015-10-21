@@ -42,6 +42,7 @@
 
 //From bpp-core:
 #include <Bpp/Numeric/Matrix/Matrix.h>
+#include <Bpp/Numeric/VectorTools.h>
 
 #include "../Tree/Node.h"
 #include "../Model/SubstitutionModel.h"
@@ -94,6 +95,15 @@ namespace bpp
     mutable  bool computeProbabilitiesD1_;
     mutable  bool computeProbabilitiesD2_;
 
+  private:
+
+    /*
+     * @brief for computational purpose
+     *
+     */
+    
+    mutable Vdouble vLogStates_;
+    
   public:
     ComputingNode(const SubstitutionModel* model);
 
@@ -300,25 +310,28 @@ namespace bpp
       return dynamic_cast<const ComputingNode*>(Node::getSon(pos));
     }
 
+    
     /*
-     *@brief compute partial likelihood
+     *@brief compute partial likelihoods from likelihoods
      */
 
     /**
-     *@brief multiplies the partial target (D)likelihood
-     * with this partial (D)likelihood multiplied with the
-     * (D)transition probabilities.
+     *@brief adds or sets the partial target (D)likelihood with this
+     * partial (D)likelihood multiplied with the (D)transition
+     * probabilities.
      *
-     * @param target_likelihoods a pointer to the partial target
+     * @param likelihoods_target a pointer to the partial target
      *  (D)likelihood [in, out].
      * @param likelihoods_node a pointer to the partial (D)likelihood
      *   of this node [in].
      * @param DX tells which matrix should be used as used for
      * transition factors, either D0 for transition probabilities, D1
      * for their first derivate, D2 for their second.
+     * @param usesLog says if log-likelihoods are used.
      **/
     
-    void multiplyUpwardLikelihoodsAtASite(Vdouble* likelihoods_target, const Vdouble* likelihoods_node, unsigned char DX) const
+
+    void addUpwardLikelihoodsAtASite(Vdouble* likelihoods_target, const Vdouble* likelihoods_node, unsigned char DX, bool usesLog) const
     {
       double (ComputingNode::*gtP)(size_t,size_t) const = NULL;
 
@@ -331,21 +344,31 @@ namespace bpp
           if (DX==D2)
             gtP=&ComputingNode::getTransitionProbabilityD2;
           else
-            throw Exception("ComputingNode::multiplyUpwardLikelihoodsAtASite: unknown function modifier " + TextTools::toString(DX));
-        
-      for (size_t x = 0; x < nbStates_; x++)
-      {
-        // For each initial state,
-        double likelihood = 0;
-        for (size_t y = 0; y < nbStates_; y++)
+            throw Exception("ComputingNode::addUpwardLikelihoodsAtASite: unknown function modifier " + TextTools::toString(DX));
+
+      if (usesLog)
+        for (size_t x = 0; x < nbStates_; x++)
         {
-          likelihood += (*this.*gtP)(x, y) * (*likelihoods_node)[y];
+          for (size_t y = 0; y < nbStates_; y++)
+            vLogStates_[y]=log((*this.*gtP)(x, y)) + (*likelihoods_node)[y];
+
+          double v=VectorTools::logSumExp(vLogStates_);
+          double w=(*likelihoods_target)[x];
+          (*likelihoods_target)[x] = (v<w)?w+log(1+exp(v-w)):v+log(1+exp(w-v));
         }
-        (*likelihoods_target)[x] *= likelihood;
-      }
+      else
+        for (size_t x = 0; x < nbStates_; x++)
+        {
+          // For each initial state,
+          double likelihood = 0;
+          for (size_t y = 0; y < nbStates_; y++)
+            likelihood += (*this.*gtP)(x, y) * (*likelihoods_node)[y];
+          
+          (*likelihoods_target)[x] += likelihood;
+        }
     }
 
-    void addUpwardLikelihoodsAtASite(Vdouble* likelihoods_target, const Vdouble* likelihoods_node, unsigned char DX) const
+    void setUpwardLikelihoodsAtASite(Vdouble* likelihoods_target, const Vdouble* likelihoods_node, unsigned char DX, bool usesLog) const
     {
       double (ComputingNode::*gtP)(size_t,size_t) const = NULL;
 
@@ -358,51 +381,33 @@ namespace bpp
           if (DX==D2)
             gtP=&ComputingNode::getTransitionProbabilityD2;
           else
-            throw Exception("ComputingNode::multiplyUpwardLikelihoodsAtASite: unknown function modifier " + TextTools::toString(DX));
-        
-      for (size_t x = 0; x < nbStates_; x++)
-      {
-        // For each initial state,
-        double likelihood = 0;
-        for (size_t y = 0; y < nbStates_; y++)
-        {
-          likelihood += (*this.*gtP)(x, y) * (*likelihoods_node)[y];
-        }
-        (*likelihoods_target)[x] += likelihood;
-      }
-    }
+            throw Exception("ComputingNode::setUpwardLikelihoodsAtASite: unknown function modifier " + TextTools::toString(DX));
 
-    void setUpwardLikelihoodsAtASite(Vdouble* likelihoods_target, const Vdouble* likelihoods_node, unsigned char DX) const
-    {
-      double (ComputingNode::*gtP)(size_t,size_t) const = NULL;
-
-      if (DX==D0)
-        gtP=&ComputingNode::getTransitionProbability;
-      else
-        if (DX==D1)
-          gtP=&ComputingNode::getTransitionProbabilityD1;
-        else
-          if (DX==D2)
-            gtP=&ComputingNode::getTransitionProbabilityD2;
-          else
-            throw Exception("ComputingNode::multiplyUpwardLikelihoodsAtASite: unknown function modifier " + TextTools::toString(DX));
-        
-      for (size_t x = 0; x < nbStates_; x++)
-      {
-        // For each initial state,
-        double likelihood = 0;
-        for (size_t y = 0; y < nbStates_; y++)
+      if (usesLog)
+        for (size_t x = 0; x < nbStates_; x++)
         {
-          likelihood += (*this.*gtP)(x, y) * (*likelihoods_node)[y];
+          // For each initial state,
+          for (size_t y = 0; y < nbStates_; y++)
+            vLogStates_[y]=log((*this.*gtP)(x, y)) + (*likelihoods_node)[y];
+          
+          (*likelihoods_target)[x] = VectorTools::logSumExp(vLogStates_);
         }
-        (*likelihoods_target)[x] = likelihood;
-      }
+      else 
+        for (size_t x = 0; x < nbStates_; x++)
+        {
+          // For each initial state,
+          double likelihood = 0;
+          for (size_t y = 0; y < nbStates_; y++)
+            likelihood += (*this.*gtP)(x, y) * (*likelihoods_node)[y];
+
+          (*likelihoods_target)[x] = likelihood;
+        }
     }
 
     
     /**
-     *@brief multiplies the partial (D)likelihood of this node with
-     * the partial (D)likelihood of the father multiplied with the
+     *@brief sets the partial (D)likelihood of this node with the
+     * partial (D)likelihood of the father multiplied with the
      * (D)transition probabilities.
      *
      * @param likelihoods_node a pointer to the partial (D)likelihood
@@ -414,7 +419,7 @@ namespace bpp
      * for their first derivate, D2 for their second.
      **/
     
-    void multiplyDownwardLikelihoodsAtASite(Vdouble* likelihoods_node, const Vdouble* likelihoods_father, unsigned char DX) const
+    void setDownwardLikelihoodsAtASite(Vdouble* likelihoods_node, const Vdouble* likelihoods_father, unsigned char DX, bool usesLog) const
     {
       double (ComputingNode::*gtP)(size_t,size_t) const = NULL;
 
@@ -427,118 +432,32 @@ namespace bpp
           if (DX==D2)
             gtP=&ComputingNode::getTransitionProbabilityD2;
           else
-            throw Exception("ComputingNode::multiplyDownwardLikelihoodsAtASite: unknown function modifier " + TextTools::toString(DX));
-        
-      for (size_t x = 0; x < nbStates_; x++)
-      {
-        // For each initial state,
-        double likelihood = 0;
-        for (size_t y = 0; y < nbStates_; y++)
+            throw Exception("ComputingNode::setDownwardLikelihoodsAtASite: unknown function modifier " + TextTools::toString(DX));
+
+      if (usesLog)
+        for (size_t x = 0; x < nbStates_; x++)
         {
-          likelihood += (*this.*gtP)(y, x) * (*likelihoods_father)[y];
+          // For each initial state,
+          for (size_t y = 0; y < nbStates_; y++)
+            vLogStates_[y]=log((*this.*gtP)(y, x)) + (*likelihoods_father)[y];
+          
+          (*likelihoods_node)[x] = VectorTools::logSumExp(vLogStates_);
         }
-        (*likelihoods_node)[x] *= likelihood;
-      }
-    }
-
-    void setDownwardLikelihoodsAtASite(Vdouble* likelihoods_node, const Vdouble* likelihoods_father, unsigned char DX) const
-    {
-      double (ComputingNode::*gtP)(size_t,size_t) const = NULL;
-
-      if (DX==D0)
-        gtP=&ComputingNode::getTransitionProbability;
       else
-        if (DX==D1)
-          gtP=&ComputingNode::getTransitionProbabilityD1;
-        else
-          if (DX==D2)
-            gtP=&ComputingNode::getTransitionProbabilityD2;
-          else
-            throw Exception("ComputingNode::multiplyDownwardLikelihoodsAtASite: unknown function modifier " + TextTools::toString(DX));
-        
-      for (size_t x = 0; x < nbStates_; x++)
-      {
-        // For each initial state,
-        double likelihood = 0;
-        for (size_t y = 0; y < nbStates_; y++)
+        for (size_t x = 0; x < nbStates_; x++)
         {
-          likelihood += (*this.*gtP)(y, x) * (*likelihoods_father)[y];
+          // For each initial state,
+          double likelihood = 0;
+          for (size_t y = 0; y < nbStates_; y++)
+            likelihood += (*this.*gtP)(y, x) * (*likelihoods_father)[y];
+          
+          (*likelihoods_node)[x] = likelihood;
         }
-        (*likelihoods_node)[x] = likelihood;
-      }
-    }
-
-    /**
-     *@brief multiplies its partial likelihood using the partial
-     * likelihoods of some sons.
-     *
-     * @param likelihoods_node a pointer to the partial likelihood
-     * of this node [in, out].
-     * @param vLikelihoods_sons a vector of the partial likelihoods of
-     * the sons. For sons that are not used, these pointers are null.
-     * @param DX tells which matrix should be used as used for
-     * transition factors, either D0 for transition probabilities, D1
-     * for their first derivate, D2 for their second.
-     **/
-
-    void multiplyUpwardPartialLikelihoods(VVdouble* likelihoods_node, const std::vector<const VVdouble*>& vLikelihoods_sons, unsigned char DX)
-    {
-      size_t nbSites=likelihoods_node->size();
-        
-      for (size_t l = 0; l < getNumberOfSons(); l++)
-      {
-        if (vLikelihoods_sons[l]==0)
-          continue;
-
-        const ComputingNode* son_l=static_cast<const ComputingNode*>(getSon(l));
-        const VVdouble* likelihoods_son_l = vLikelihoods_sons[l];
-
-        for (size_t i = 0; i < nbSites; i++)
-          son_l->multiplyUpwardLikelihoodsAtASite(&(*likelihoods_node)[i],&(*likelihoods_son_l)[i],DX);
-      }
     }
 
     
     /**
-     *@brief multiplies its partial likelihood using the partial
-     * likelihoods of some sons.
-     *
-     * @param likelihoods_node a pointer to the partial likelihood
-     * of this node [in, out].
-     * @param vLikelihoods_sons a vector of the partial likelihoods of
-     * some sons. For sons that are not used, these pointers are null.
-     * @param vPatterns a vector of the corresponding positions
-     * from this node to the sons.
-     * @param DX tells which matrix should be used as used for
-     * transition factors, either D0 for transition probabilities, D1
-     * for their first derivate, D2 for their second.
-     **/
-
-    void multiplyUpwardPartialLikelihoods(VVdouble* likelihoods_node, const std::vector<const VVdouble*>& vLikelihoods_sons, const std::vector<const std::vector<size_t>* >& vPatterns, unsigned char DX)
-    {
-      size_t nbSites=likelihoods_node->size();
-        
-      for (size_t i = 0; i < nbSites; i++)
-      {
-        Vdouble* likelihoods_node_i = &(*likelihoods_node)[i];
-      
-        for (size_t l = 0; l < getNumberOfSons(); l++)
-        {
-          if (vLikelihoods_sons[l]==0)
-            continue;
-
-          const ComputingNode* son_l=dynamic_cast<const ComputingNode*>(getSon(l));
-                    
-          const Vdouble* likelihoods_son_l_i = &(*vLikelihoods_sons[l])[(*vPatterns[l])[i]];
-          son_l->multiplyUpwardLikelihoodsAtASite(likelihoods_node_i,likelihoods_son_l_i,DX);
-        }
-      }
-    }
-
-    
-
-    /**
-     *@brief multiplies the partial likelihood using its own partial
+     *@brief adds or sets the partial likelihood using its own partial
      * likelihood.
      *
      * @param likelihoods a pointer to the partial likelihood updated
@@ -548,34 +467,28 @@ namespace bpp
      * @param DX tells which matrix should be used as used for
      * transition factors, either D0 for transition probabilities, D1
      * for their first derivate, D2 for their second.
+     * @param usesLog says if log-likelihoods are used.
      **/
 
-    void multiplyUpwardPartialLikelihoods(VVdouble* likelihoods, const VVdouble* likelihoods_self, unsigned char DX) const
+
+    void addUpwardPartialLikelihoods(VVdouble* likelihoods, const VVdouble* likelihoods_self, unsigned char DX, bool usesLog) const
     {
       size_t nbSites=likelihoods->size();
         
       for (size_t i = 0; i < nbSites; i++)
-        multiplyUpwardLikelihoodsAtASite(&(*likelihoods)[i], &(*likelihoods_self)[i],DX);
+        addUpwardLikelihoodsAtASite(&(*likelihoods)[i], &(*likelihoods_self)[i],DX, usesLog);
     }
 
-    void addUpwardPartialLikelihoods(VVdouble* likelihoods, const VVdouble* likelihoods_self, unsigned char DX) const
+    void setUpwardPartialLikelihoods(VVdouble* likelihoods, const VVdouble* likelihoods_self, unsigned char DX, bool usesLog) const
     {
       size_t nbSites=likelihoods->size();
         
       for (size_t i = 0; i < nbSites; i++)
-        addUpwardLikelihoodsAtASite(&(*likelihoods)[i], &(*likelihoods_self)[i],DX);
-    }
-
-    void setUpwardPartialLikelihoods(VVdouble* likelihoods, const VVdouble* likelihoods_self, unsigned char DX) const
-    {
-      size_t nbSites=likelihoods->size();
-        
-      for (size_t i = 0; i < nbSites; i++)
-        setUpwardLikelihoodsAtASite(&(*likelihoods)[i], &(*likelihoods_self)[i],DX);
+        setUpwardLikelihoodsAtASite(&(*likelihoods)[i], &(*likelihoods_self)[i],DX, usesLog);
     }
 
     /**
-     *@brief multiplies the partial likelihood using its own partial
+     *@brief adds or sets the partial likelihood using its own partial
      * likelihoods and a pattern of corresponding positions.
      *
      * @param likelihoods a pointer to the partial likelihood
@@ -586,37 +499,30 @@ namespace bpp
      * @param DX tells which matrix should be used as used for
      * transition factors, either D0 for transition probabilities, D1
      * for their first derivate, D2 for their second.
+     * @param usesLog says if log-likelihoods are used.
      **/
 
-    void multiplyUpwardPartialLikelihoods(VVdouble* likelihoods, const VVdouble* likelihoods_self, const std::vector<size_t>& patterns, unsigned char DX) const
+    
+    void addUpwardPartialLikelihoods(VVdouble* likelihoods, const VVdouble* likelihoods_self, const std::vector<size_t>& patterns, unsigned char DX, bool usesLog) const
     {
       size_t nbSites=likelihoods->size();
         
       for (size_t i = 0; i < nbSites; i++)
-        multiplyUpwardLikelihoodsAtASite(&(*likelihoods)[i], &(*likelihoods_self)[patterns[i]],DX);
+        addUpwardLikelihoodsAtASite(&(*likelihoods)[i], &(*likelihoods_self)[patterns[i]],DX, usesLog);
     }
 
     
-    void addUpwardPartialLikelihoods(VVdouble* likelihoods, const VVdouble* likelihoods_self, const std::vector<size_t>& patterns, unsigned char DX) const
+    void setUpwardPartialLikelihoods(VVdouble* likelihoods, const VVdouble* likelihoods_self, const std::vector<size_t>& patterns, unsigned char DX, bool usesLog) const
     {
       size_t nbSites=likelihoods->size();
         
       for (size_t i = 0; i < nbSites; i++)
-        addUpwardLikelihoodsAtASite(&(*likelihoods)[i], &(*likelihoods_self)[patterns[i]],DX);
-    }
-
-    
-    void setUpwardPartialLikelihoods(VVdouble* likelihoods, const VVdouble* likelihoods_self, const std::vector<size_t>& patterns, unsigned char DX) const
-    {
-      size_t nbSites=likelihoods->size();
-        
-      for (size_t i = 0; i < nbSites; i++)
-        setUpwardLikelihoodsAtASite(&(*likelihoods)[i], &(*likelihoods_self)[patterns[i]],DX);
+        setUpwardLikelihoodsAtASite(&(*likelihoods)[i], &(*likelihoods_self)[patterns[i]],DX, usesLog);
     }
 
 
     /**
-     *@brief multiplies its own partial likelihood using the father likelihood.
+     *@brief sets its own partial likelihood using the father likelihood.
      *
      * @param likelihoods_self a pointer to the partial likelihood of
      * the ComputingNode [in, out].
@@ -624,22 +530,16 @@ namespace bpp
      * @param DX tells which matrix should be used as used for
      * transition factors, either D0 for transition probabilities, D1
      * for their first derivate, D2 for their second.
+     * @param usesLog says if log-likelihoods are used.
      **/
 
-    void multiplyDownwardPartialLikelihoods(VVdouble* likelihoods_self, const VVdouble* likelihoods, unsigned char DX) const
-    {
-      size_t nbSites=likelihoods->size();
-        
-      for (size_t i = 0; i < nbSites; i++)
-        multiplyDownwardLikelihoodsAtASite(&(*likelihoods_self)[i], &(*likelihoods)[i], DX);
-    }
 
-    void setDownwardPartialLikelihoods(VVdouble* likelihoods_self, const VVdouble* likelihoods, unsigned char DX) const
+    void setDownwardPartialLikelihoods(VVdouble* likelihoods_self, const VVdouble* likelihoods, unsigned char DX, bool usesLog) const
     {
       size_t nbSites=likelihoods->size();
         
       for (size_t i = 0; i < nbSites; i++)
-        setDownwardLikelihoodsAtASite(&(*likelihoods_self)[i], &(*likelihoods)[i], DX);
+        setDownwardLikelihoodsAtASite(&(*likelihoods_self)[i], &(*likelihoods)[i], DX, usesLog);
     }
 
 

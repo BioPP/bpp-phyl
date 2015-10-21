@@ -56,7 +56,7 @@ namespace bpp
  * 
  * This class is for use with the RecursiveTreeLikelihoodData class.
  * 
- * Store all conditionnal likelihoods:
+ * Store all conditional likelihoods:
  * <pre>
  * x[i][s]
  *   |------> Site i
@@ -107,6 +107,7 @@ namespace bpp
      */
 
     VVdouble temp_;
+    VVdouble temp2_;
      
     /*
      * @brief Check if likelihood arrays are up to date
@@ -132,6 +133,7 @@ namespace bpp
       node_fatherD2Likelihoods_B_(),
       nodeLikelihoods_A_(),
       temp_(),
+      temp2_(),
       up2date_B_(false),
       up2dateD_B_(false),
       up2dateD2_B_(false),
@@ -151,6 +153,7 @@ namespace bpp
       node_fatherD2Likelihoods_B_(),
       nodeLikelihoods_A_(),
       temp_(),
+      temp2_(),
       up2date_B_(false),
       up2dateD_B_(false),
       up2dateD2_B_(false),
@@ -170,6 +173,7 @@ namespace bpp
       node_fatherD2Likelihoods_B_(),
       nodeLikelihoods_A_(),
       temp_(),
+      temp2_(),
       up2date_B_(false),
       up2dateD_B_(false),
       up2dateD2_B_(false),
@@ -188,7 +192,8 @@ namespace bpp
       node_fatherDLikelihoods_B_(data.node_fatherDLikelihoods_B_),
       node_fatherD2Likelihoods_B_(data.node_fatherD2Likelihoods_B_),
       nodeLikelihoods_A_(data.nodeLikelihoods_A_),
-      temp_(),
+      temp_(data.temp_),
+      temp2_(data.temp2_),
       up2date_B_(data.up2date_B_),
       up2dateD_B_(data.up2dateD_B_),
       up2dateD2_B_(data.up2dateD2_B_),
@@ -218,6 +223,9 @@ namespace bpp
       up2dateD2_BF_ = data.up2dateD2_BF_;
       up2date_A_ = data.up2date_A_;
 
+      temp_ = data.temp_;
+      temp2_ = data.temp2_;
+
       return *this;
     }
 
@@ -227,230 +235,47 @@ namespace bpp
       return new RecursiveLikelihoodNode(*this);
     }
 
-    /*
-     * @brief retrieve the Below DXLikelihood Arrays
-     *
-     */
-    
-    VVdouble& getBelowLikelihoodArray(unsigned char DX)
+
+    void setUseLog(bool useLog)
     {
-      if (isLeaf())
-        return getLikelihoodArray(DX);
-      
-      switch(DX){
-      case ComputingNode::D0:
-        return nodeLikelihoods_B_;
-      case ComputingNode::D1:
-        return nodeDLikelihoods_B_;
-      case ComputingNode::D2:
-        return nodeD2Likelihoods_B_;
-      default:
-        throw Exception("Unknown derivative " + TextTools::toString(DX));
-      }
-    }
+      if (useLog==usesLog())
+        return;
 
-    const VVdouble& getBelowLikelihoodArray(unsigned char DX) const
-    {
-      if (isLeaf())
-        return getLikelihoodArray(DX);
-      
-      switch(DX){
-      case ComputingNode::D0:
-        return nodeLikelihoods_B_;
-      case ComputingNode::D1:
-        return nodeDLikelihoods_B_;
-      case ComputingNode::D2:
-        return nodeD2Likelihoods_B_;
-      default:
-        throw Exception("Unknown derivative " + TextTools::toString(DX));
-      }
-    }
+      AbstractLikelihoodNode::setUseLog(useLog);
 
-    /*
-     * @brief retrieve the Below to Father DXLikelihood Arrays
-     *
-     */
+      size_t nSites=nodeLikelihoods_A_.size();
+      size_t nStates=nodeLikelihoods_A_[0].size();
 
-    VVdouble& getToFatherBelowLikelihoodArray(unsigned char DX)
-    {
-      switch(DX){
-      case ComputingNode::D0:
-        return node_fatherLikelihoods_B_;
-      case ComputingNode::D1:
-        return node_fatherDLikelihoods_B_;
-      case ComputingNode::D2:
-        return node_fatherD2Likelihoods_B_;
-      default:
-        throw Exception("Unknown derivative " + TextTools::toString(DX));
-      }
-    }
-
-    const VVdouble& getToFatherBelowLikelihoodArray(unsigned char DX) const
-    {
-      switch(DX){
-      case ComputingNode::D0:
-        return node_fatherLikelihoods_B_;
-      case ComputingNode::D1:
-        return node_fatherDLikelihoods_B_;
-      case ComputingNode::D2:
-        return node_fatherD2Likelihoods_B_;
-      default:
-        throw Exception("Unknown derivative " + TextTools::toString(DX));
-      }
-    }
-
-    /*
-     * @brief retrieve the Above to Father Likelihood Arrays
-     *
-     */
-
-    VVdouble& getAboveLikelihoodArray() { return nodeLikelihoods_A_; }
-
-    const VVdouble& getAboveLikelihoodArray() const { return nodeLikelihoods_A_; }
-
-    /*
-     * @brief Check the Update of Below Likelihood Arrays.
-     *
-     */
-    
-    bool isUp2dateBelow(unsigned char DX) const
-    {
-      switch(DX){
-      case ComputingNode::D0:
-        return up2date_B_;
-      case ComputingNode::D1:
-        return up2dateD_B_;
-      case ComputingNode::D2:
-        return up2dateD2_B_;
-      default:
-        return false;
-      }
-    }
-    
-    /*
-     * @brief Updates Below Likelihood flags, recursively up to the
-     * root if false and needed.
-     *
-     */
-      
-    void updateBelow(bool check, unsigned char DX)
-    {
-      if (!check)
+      if (useLog)
       {
-        switch(DX){
-        case ComputingNode::D0:
-          if (up2date_B_)
+        for (size_t i = 0; i < nSites; i++)
+        {
+          Vdouble* nodeLikelihoods_A_i_ = &(nodeLikelihoods_A_[i]);
+          Vdouble* node_fatherLikelihoods_B_i_ = &(node_fatherLikelihoods_B_[i]);
+          Vdouble* nodeLikelihoods_B_i_ = &(nodeLikelihoods_B_[i]);
+          
+          for(size_t s = 0; s < nStates; s++)
           {
-            updateFatherBelow(false, ComputingNode::D0);
-          }
-        case ComputingNode::D1:
-          if (up2dateD_B_)
-          {
-            updateFatherBelow(false, ComputingNode::D1);
-          }
-        case ComputingNode::D2:
-          if (up2dateD2_B_)
-          {
-            updateFatherBelow(false, ComputingNode::D2);
+            (*nodeLikelihoods_A_i_)[s]=log((*nodeLikelihoods_A_i_)[s]);
+            (*node_fatherLikelihoods_B_i_)[s]=log((*node_fatherLikelihoods_B_i_)[s]);
+            (*nodeLikelihoods_B_i_)[s]=log((*nodeLikelihoods_B_i_)[s]);
           }
         }
-        switch(DX){
-        case ComputingNode::D0:
-          up2date_B_=false;
-        case ComputingNode::D1:
-          up2dateD_B_=false;
-        case ComputingNode::D2:
-          up2dateD2_B_=false;
-        }
-        
-        update(false, DX);
       }
       else
       {
-        switch(DX){
-        case ComputingNode::D0:
-          up2date_B_=true;
-          break;
-        case ComputingNode::D1:
-          up2dateD_B_=true;
-          break;
-        case ComputingNode::D2:
-          up2dateD2_B_=true;
-          break;
-        }
-      }
-
-    }
-   
-
-    bool isUp2dateFatherBelow(unsigned char DX) const
-    {
-      switch(DX){
-      case ComputingNode::D0:
-        return up2date_BF_;
-      case ComputingNode::D1:
-        return up2dateD_BF_;
-      case ComputingNode::D2:
-        return up2dateD2_BF_;
-      default:
-        return false;
-      }
-    }
-    
-    /*
-     * @brief Updates Below to Father DXLikelihood flags, recursively up
-     * to the root if false and needed.
-     *
-     * Recursivity is done through the BelowLikelihoods only, to make
-     * it simple.
-     */
-      
-    void updateFatherBelow(bool check, unsigned char DX)
-    {
-      if (!check)
-      {
-        switch(DX){
-        case ComputingNode::D0:
-          if (up2date_BF_)
+        for (size_t i = 0; i < nSites; i++)
+        {
+          Vdouble* nodeLikelihoods_A_i_ = &(nodeLikelihoods_A_[i]);
+          Vdouble* node_fatherLikelihoods_B_i_ = &(node_fatherLikelihoods_B_[i]);
+          Vdouble* nodeLikelihoods_B_i_ = &(nodeLikelihoods_B_[i]);
+          
+          for(size_t s = 0; s < nStates; s++)
           {
-            if (hasFather())
-              static_cast<RecursiveLikelihoodNode*>(getFather())->updateBelow(false, ComputingNode::D0);
+            (*nodeLikelihoods_A_i_)[s]=exp((*nodeLikelihoods_A_i_)[s]);
+            (*node_fatherLikelihoods_B_i_)[s]=exp((*node_fatherLikelihoods_B_i_)[s]);
+            (*nodeLikelihoods_B_i_)[s]=exp((*nodeLikelihoods_B_i_)[s]);
           }
-        case ComputingNode::D1:
-          if (up2dateD_BF_)
-          {
-            if (hasFather())
-              static_cast<RecursiveLikelihoodNode*>(getFather())->updateBelow(false, ComputingNode::D1);
-          }
-        case ComputingNode::D2:
-          if (up2dateD2_BF_)
-          {
-            if (hasFather())
-              static_cast<RecursiveLikelihoodNode*>(getFather())->updateBelow(false, ComputingNode::D2);
-          }
-        }
-        switch(DX){
-        case ComputingNode::D0:
-          up2date_BF_=false;
-         case ComputingNode::D1:
-          up2dateD_BF_=false;
-         case ComputingNode::D2:
-          up2dateD2_BF_=false;
-         }
-        update(false, DX);
-      }
-      else
-      {
-        switch(DX){
-        case ComputingNode::D0:
-          up2date_BF_=true;
-          break;
-        case ComputingNode::D1:
-          up2dateD_BF_=true;
-          break;
-        case ComputingNode::D2:
-          up2dateD2_BF_=true;
-          break;
         }
       }
     }
@@ -490,8 +315,8 @@ namespace bpp
      
     void resetBelowLikelihoods(size_t nbSites, size_t nbStates, unsigned char DX)
     {
-      VVdouble& array=getBelowLikelihoodArray(DX);
-      VVdouble& array2=getToFatherBelowLikelihoodArray(DX);
+      VVdouble& array=getBelowLikelihoodArray_(DX);
+      VVdouble& array2=getToFatherBelowLikelihoodArray_(DX);
 
       array.resize(nbSites);
       if (hasFather())
@@ -504,14 +329,20 @@ namespace bpp
           (array2)[i].resize(nbStates);
       }
 
-      updateBelow(false, DX);
+      updateBelow_(false, DX);
       if (hasFather())
-        updateFatherBelow(false, DX);
+        updateFatherBelow_(false, DX);
 
       if (DX!=ComputingNode::D0){        
         temp_.resize(nbSites);
         for (size_t i = 0; i < nbSites; i++)
           temp_[i].resize(nbStates);
+        if (usesLog())
+        {
+          temp2_.resize(nbSites);
+          for (size_t i = 0; i < nbSites; i++)
+            temp2_[i].resize(nbStates);
+        }
       }
     }
  
@@ -522,7 +353,7 @@ namespace bpp
     
     void resetAboveLikelihoods(size_t nbSites, size_t nbStates)
     {
-      VVdouble& array=getAboveLikelihoodArray();
+      VVdouble& array=getAboveLikelihoodArray_();
 
       array.resize(nbSites);
       for (size_t i = 0; i < nbSites; i++)
@@ -536,6 +367,14 @@ namespace bpp
         for (size_t i = 0; i < nbSites; i++)
           temp_[i].resize(nbStates);
       }
+
+      if (temp2_.size()!=0)
+      {
+        temp2_.resize(nbSites);
+        for (size_t i = 0; i < nbSites; i++)
+          temp2_[i].resize(nbStates);
+      }
+      
       updateAbove(false);
     }
 
@@ -555,7 +394,7 @@ namespace bpp
     
     void computeLikelihoods(const ComputingNode& cNode, unsigned char DX, Vint* brId = NULL)
     {
-      if (!isUp2dateBelow(DX))
+      if (!isUp2dateBelow_(DX))
       {
         update(false, DX);
         computeUpwardBelowLikelihoods(cNode, DX, brId);
@@ -574,9 +413,12 @@ namespace bpp
       {
         VVdouble& res=getLikelihoodArray(DX);
         
-        res=getBelowLikelihoodArray(DX);
+        res=getBelowLikelihoodArray_(DX);
 
-        res*=getAboveLikelihoodArray();
+        if (usesLog())
+          res+=getAboveLikelihoodArray_();
+        else
+          res*=getAboveLikelihoodArray_();
         
         update(true, DX);
       }
@@ -594,22 +436,21 @@ namespace bpp
 
       // First check below dependencies are up to date
       
-      if (!isUp2dateBelow(ComputingNode::D0))
+      if (!isUp2dateBelow_(ComputingNode::D0))
         computeUpwardBelowLikelihoods(cNode, ComputingNode::D0, vBrid);
 
       if (DX!= ComputingNode::D0)
       {
-        if (!isUp2dateBelow(ComputingNode::D1))
+        if (!isUp2dateBelow_(ComputingNode::D1))
           computeUpwardBelowLikelihoods(cNode, ComputingNode::D1, vBrid);
 
-        if (!isUp2dateFatherBelow(ComputingNode::D0))
+        if (!isUp2dateFatherBelow_(ComputingNode::D0))
           computeUpwardToFatherBelowLikelihoods(cNode, ComputingNode::D0, vBrid);
         
-        if (DX== ComputingNode::D2){
-       
-          if (!isUp2dateBelow(ComputingNode::D2))
+        if (DX== ComputingNode::D2){       
+          if (!isUp2dateBelow_(ComputingNode::D2))
             computeUpwardBelowLikelihoods(cNode, ComputingNode::D2, vBrid);
-          if (!isUp2dateFatherBelow(ComputingNode::D1))
+          if (!isUp2dateFatherBelow_(ComputingNode::D1))
             computeUpwardToFatherBelowLikelihoods(cNode, ComputingNode::D1, vBrid);
         }
       }
@@ -617,24 +458,37 @@ namespace bpp
 
       // now compute
       
-      VVdouble* res=&(getToFatherBelowLikelihoodArray(DX));
+      VVdouble* res=&(getToFatherBelowLikelihoodArray_(DX));
 
       switch(DX){
       case ComputingNode::D0:
         cNode.setUpwardPartialLikelihoods(res,
-                                          &(getBelowLikelihoodArray(ComputingNode::D0)), ComputingNode::D0);
+                                          &(getBelowLikelihoodArray_(ComputingNode::D0)), ComputingNode::D0, usesLog());
         break;
         
       case ComputingNode::D1:
-        
+
         cNode.setUpwardPartialLikelihoods(res,
-                                          &(getBelowLikelihoodArray(ComputingNode::D1)),
-                                          ComputingNode::D0);
+                                          &(getBelowLikelihoodArray_(ComputingNode::D1)),
+                                          ComputingNode::D0,
+                                          false);
 
         if (vBrid && VectorTools::contains(*vBrid,getId()))
-          cNode.addUpwardPartialLikelihoods(res,
-                                            &(getBelowLikelihoodArray(ComputingNode::D0)),
-                                            ComputingNode::D1);
+        {
+          if (!usesLog())
+            cNode.addUpwardPartialLikelihoods(res,
+                                              &(getBelowLikelihoodArray_(ComputingNode::D0)),
+                                              ComputingNode::D1,
+                                              false);
+          else
+          {
+            temp_=VectorTools::exp(getBelowLikelihoodArray_(ComputingNode::D0));
+            cNode.addUpwardPartialLikelihoods(res,
+                                              &temp_,
+                                              ComputingNode::D1,
+                                              false);
+          }
+        }
         
         break;
         
@@ -642,25 +496,40 @@ namespace bpp
         if (vBrid && VectorTools::contains(*vBrid,getId()))
         {
           cNode.setUpwardPartialLikelihoods(res,
-                                            &(getBelowLikelihoodArray(ComputingNode::D1)),
-                                            ComputingNode::D1);
+                                            &(getBelowLikelihoodArray_(ComputingNode::D1)),
+                                            ComputingNode::D1,
+                                            false);
+
           (*res)*=2;
+
           
+          if (!usesLog())
+            cNode.addUpwardPartialLikelihoods(res,
+                                              &(getBelowLikelihoodArray_(ComputingNode::D0)),
+                                              ComputingNode::D2,
+                                              false);
+          else
+          {
+            temp_=VectorTools::exp(getBelowLikelihoodArray_(ComputingNode::D0));
+            cNode.addUpwardPartialLikelihoods(res,
+                                              &temp_,
+                                              ComputingNode::D2,
+                                              false);
+          }
+
           cNode.addUpwardPartialLikelihoods(res,
-                                            &(getBelowLikelihoodArray(ComputingNode::D0)),
-                                            ComputingNode::D2);
-          
-          cNode.addUpwardPartialLikelihoods(res,
-                                            &(getBelowLikelihoodArray(ComputingNode::D2)),
-                                            ComputingNode::D0);
+                                            &(getBelowLikelihoodArray_(ComputingNode::D2)),
+                                            ComputingNode::D0,
+                                            false);
         }
         else
           cNode.setUpwardPartialLikelihoods(res,
-                                            &(getBelowLikelihoodArray(ComputingNode::D2)),
-                                            ComputingNode::D0);
+                                            &(getBelowLikelihoodArray_(ComputingNode::D2)),
+                                            ComputingNode::D0,
+                                            false);
       }
 
-      updateFatherBelow(true, DX);
+      updateFatherBelow_(true, DX);
     }
 
     /*
@@ -679,43 +548,82 @@ namespace bpp
 
       for (size_t l = 0; l < nbSons; l++){
         RecursiveLikelihoodNode* son=dynamic_cast<RecursiveLikelihoodNode*>(getSon(l));
-        if (!son->isUp2dateFatherBelow(ComputingNode::D0))
+        if (!son->isUp2dateFatherBelow_(ComputingNode::D0))
           son->computeUpwardToFatherBelowLikelihoods(*cNode.getSon(l), ComputingNode::D0, vBrid);
         if (DX!=ComputingNode::D0)
         {
-          if (!son->isUp2dateFatherBelow(ComputingNode::D1))
+          if (!son->isUp2dateFatherBelow_(ComputingNode::D1))
             son->computeUpwardToFatherBelowLikelihoods(*cNode.getSon(l), ComputingNode::D1, vBrid);
           
           if (DX==ComputingNode::D2){
-            if (!son->isUp2dateFatherBelow(ComputingNode::D2))
+            if (!son->isUp2dateFatherBelow_(ComputingNode::D2))
               son->computeUpwardToFatherBelowLikelihoods(*cNode.getSon(l), ComputingNode::D2, vBrid);
           }
         }
       }
       
       // now compute
-      VVdouble* res=&(getBelowLikelihoodArray(DX));
-
+      VVdouble* res=&(getBelowLikelihoodArray_(DX));
+      RecursiveLikelihoodNode* son;
+      
       switch(DX){
       case ComputingNode::D0:
-
-        setLikelihoodsFromSon_(res, &dynamic_cast<RecursiveLikelihoodNode*>(getSon(0))->getToFatherBelowLikelihoodArray(ComputingNode::D0), 0);
+        
+        son=dynamic_cast<RecursiveLikelihoodNode*>(getSon(0));
+        if (usesLog()==son->usesLog())
+          setLikelihoodsFromSon_(res, &son->getToFatherBelowLikelihoodArray_(ComputingNode::D0), 0);
+        else
+        {
+          if (usesLog())
+            temp_=VectorTools::log(son->getToFatherBelowLikelihoodArray_(ComputingNode::D0));
+          else
+            temp_=VectorTools::exp(son->getToFatherBelowLikelihoodArray_(ComputingNode::D0));
+          
+          setLikelihoodsFromSon_(res, &temp_, 0);
+        }
         
         for (size_t l = 1; l < nbSons; l++)
-          multiplyLikelihoodsFromSon_(res, &dynamic_cast<RecursiveLikelihoodNode*>(getSon(l))->getToFatherBelowLikelihoodArray(ComputingNode::D0), l);
-
-
+        {
+          son=dynamic_cast<RecursiveLikelihoodNode*>(getSon(l));
+          if (usesLog()==son->usesLog())
+            if (usesLog())
+              addLikelihoodsFromSon_(res, &son->getToFatherBelowLikelihoodArray_(ComputingNode::D0), l);
+            else
+              multiplyLikelihoodsFromSon_(res, &son->getToFatherBelowLikelihoodArray_(ComputingNode::D0), l);
+          else
+          {
+            if (usesLog())
+              temp_=VectorTools::log(son->getToFatherBelowLikelihoodArray_(ComputingNode::D0));
+            else
+              temp_=VectorTools::exp(son->getToFatherBelowLikelihoodArray_(ComputingNode::D0));
+            
+            if (usesLog())
+              addLikelihoodsFromSon_(res, &temp_, l);
+            else
+              multiplyLikelihoodsFromSon_(res, &temp_, l);
+          }
+        }
+        
         break;
           
       case ComputingNode::D1:
 
         for (size_t l = 0; l < nbSons; l++){
-          setLikelihoodsFromSon_(&temp_, &dynamic_cast<RecursiveLikelihoodNode*>(getSon(l))->getToFatherBelowLikelihoodArray(ComputingNode::D1), l);
+          setLikelihoodsFromSon_(&temp_, &dynamic_cast<RecursiveLikelihoodNode*>(getSon(l))->getToFatherBelowLikelihoodArray_(ComputingNode::D1), l);
           
           for (size_t k = 0; k < nbSons; k++) 
             if (k!=l)
-              multiplyLikelihoodsFromSon_(&temp_ , &dynamic_cast<RecursiveLikelihoodNode*>(getSon(k))->getToFatherBelowLikelihoodArray(ComputingNode::D0), k);
-
+            {
+              son=dynamic_cast<RecursiveLikelihoodNode*>(getSon(k));
+              if (son->usesLog())
+              {
+                temp2_=VectorTools::exp(son->getToFatherBelowLikelihoodArray_(ComputingNode::D0));
+                multiplyLikelihoodsFromSon_(&temp_ , &temp2_, k);
+              }
+              else
+                multiplyLikelihoodsFromSon_(&temp_ , &son->getToFatherBelowLikelihoodArray_(ComputingNode::D0), k);
+            }
+          
           if (l==0)
             (*res)=temp_;
           else
@@ -727,11 +635,20 @@ namespace bpp
       case ComputingNode::D2:
 
         for (size_t l = 0; l < nbSons; l++){
-          setLikelihoodsFromSon_(&temp_, &dynamic_cast<RecursiveLikelihoodNode*>(getSon(l))->getToFatherBelowLikelihoodArray(ComputingNode::D2), l);
+          setLikelihoodsFromSon_(&temp_, &dynamic_cast<RecursiveLikelihoodNode*>(getSon(l))->getToFatherBelowLikelihoodArray_(ComputingNode::D2), l);
           
           for (size_t k = 0; k < nbSons; k++) 
             if (k!=l)
-              multiplyLikelihoodsFromSon_(&temp_ , &dynamic_cast<RecursiveLikelihoodNode*>(getSon(k))->getToFatherBelowLikelihoodArray(ComputingNode::D0), k);
+            {
+              son=dynamic_cast<RecursiveLikelihoodNode*>(getSon(k));
+              if (son->usesLog())
+              {
+                temp2_=VectorTools::exp(son->getToFatherBelowLikelihoodArray_(ComputingNode::D0));
+                multiplyLikelihoodsFromSon_(&temp_ , &temp2_, k);
+              }
+              else
+                multiplyLikelihoodsFromSon_(&temp_ , &son->getToFatherBelowLikelihoodArray_(ComputingNode::D0), k);
+            }
           
           if (l==0)
             (*res)=temp_;
@@ -740,15 +657,24 @@ namespace bpp
         }
         
         for (size_t l = 0; l < nbSons; l++){
-          setLikelihoodsFromSon_(&temp_, &dynamic_cast<RecursiveLikelihoodNode*>(getSon(l))->getToFatherBelowLikelihoodArray(ComputingNode::D1), l);
+          setLikelihoodsFromSon_(&temp_, &dynamic_cast<RecursiveLikelihoodNode*>(getSon(l))->getToFatherBelowLikelihoodArray_(ComputingNode::D1), l);
 
           for (size_t l2 = l+1; l2 < nbSons; l2++){
-            multiplyLikelihoodsFromSon_(&temp_ , &dynamic_cast<RecursiveLikelihoodNode*>(getSon(l2))->getToFatherBelowLikelihoodArray(ComputingNode::D1), l2);
+            multiplyLikelihoodsFromSon_(&temp_ , &dynamic_cast<RecursiveLikelihoodNode*>(getSon(l2))->getToFatherBelowLikelihoodArray_(ComputingNode::D1), l2);
             
             for (size_t k = 0; k < nbSons; k++) 
               if ((k!=l) && (k!=l2))
-                multiplyLikelihoodsFromSon_(&temp_ , &dynamic_cast<RecursiveLikelihoodNode*>(getSon(k))->getToFatherBelowLikelihoodArray(ComputingNode::D0), k);
-
+              {
+                son=dynamic_cast<RecursiveLikelihoodNode*>(getSon(k));
+                if (son->usesLog())
+                {
+                  temp2_=VectorTools::exp(son->getToFatherBelowLikelihoodArray_(ComputingNode::D0));
+                  multiplyLikelihoodsFromSon_(&temp_ , &temp2_, k);
+                }
+                else
+                  multiplyLikelihoodsFromSon_(&temp_ , &son->getToFatherBelowLikelihoodArray_(ComputingNode::D0), k);
+              }
+            
             temp_*=2;
             
             (*res)+=temp_;
@@ -756,60 +682,19 @@ namespace bpp
         }
       }
       
-      updateBelow(true, DX);
+      updateBelow_(true, DX);
     }
 
-  private:
-    /*
-     * @brief  Use patterns or not for computing likelihood arrays from sons
-     *
-     */
-    
-    void multiplyLikelihoodsFromSon_(VVdouble* likelihoods_out, const VVdouble* likelihoods_in, size_t sonNb)
-    {
-      size_t nbSites=likelihoods_out->size();
-
-      if (vPatt_.size()!=0)
-      {
-        const std::vector<size_t>& patterns=*vPatt_[sonNb];
-        for (size_t i = 0; i < nbSites; i++)
-          (*likelihoods_out)[i]*=(*likelihoods_in)[patterns[i]];
-      }
-      else
-        for (size_t i = 0; i < nbSites; i++)
-          (*likelihoods_out)[i]*=(*likelihoods_in)[i];
-    }
-    
-
-    void setLikelihoodsFromSon_(VVdouble* likelihoods_out, const VVdouble* likelihoods_in, size_t sonNb)
-    {
-      size_t nbSites=likelihoods_out->size();
-
-      if (vPatt_.size()!=0)
-      {
-        const std::vector<size_t>& patterns=*vPatt_[sonNb];
-        for (size_t i = 0; i < nbSites; i++)
-          (*likelihoods_out)[i]=(*likelihoods_in)[patterns[i]];
-
-        
-      }
-      else
-        for (size_t i = 0; i < nbSites; i++)
-          (*likelihoods_out)[i]=(*likelihoods_in)[i];
-    }
-    
-
-  public:
 
     /*
      * @brief set the Above Likelihood to a frequencies (or a set of
-     * frequencies). Uused for root frequencies.
+     * frequencies). Used for root frequencies.
      *
      */
 
     void setAboveLikelihoods(const Vdouble& rootFreq)
     {
-      VVdouble& abArray=getAboveLikelihoodArray();
+      VVdouble& abArray=getAboveLikelihoodArray_();
 
       size_t nbSites=abArray.size();
 
@@ -819,7 +704,7 @@ namespace bpp
 
     void setAboveLikelihoods(const VVdouble& initFreq)
     {
-      VVdouble& abArray=getAboveLikelihoodArray();
+      VVdouble& abArray=getAboveLikelihoodArray_();
 
       size_t nbSites=abArray.size();
 
@@ -849,34 +734,341 @@ namespace bpp
         {
           RecursiveLikelihoodNode* bro= dynamic_cast<RecursiveLikelihoodNode*>(father->getSon(i));
           if (bro!=this)
-            if (!bro->isUp2dateFatherBelow(ComputingNode::D0))
+            if (!bro->isUp2dateFatherBelow_(ComputingNode::D0))
               bro->computeUpwardToFatherBelowLikelihoods(*cFather->getSon(i), ComputingNode::D0);
         }
 
-
-        temp_ = father->getAboveLikelihoodArray();
+        if (usesLog()==father->usesLog())
+          temp_ = father->getAboveLikelihoodArray_();
+        else
+          if (usesLog())
+            temp_ = VectorTools::log(father->getAboveLikelihoodArray_());
+          else
+            temp_ = VectorTools::exp(father->getAboveLikelihoodArray_());
 
         for (size_t i=0; i<nbBr; i++)
         {
           const RecursiveLikelihoodNode* bro= dynamic_cast<const RecursiveLikelihoodNode*>(father->getSon(i));
           
           if (bro!=this)
-            temp_*=bro->getToFatherBelowLikelihoodArray(ComputingNode::D0);
+          {
+            if (usesLog())
+            {
+              if (bro->usesLog())
+                temp_+=bro->getToFatherBelowLikelihoodArray_(ComputingNode::D0);
+              else
+              {
+                temp2_=VectorTools::log(bro->getToFatherBelowLikelihoodArray_(ComputingNode::D0));
+                temp_+=temp2_;
+              }
+            }
+            else
+            {
+              if (bro->usesLog())
+              {
+                temp2_=VectorTools::exp(bro->getToFatherBelowLikelihoodArray_(ComputingNode::D0));
+                temp_*=temp2_;
+              }
+              else
+                temp_*=bro->getToFatherBelowLikelihoodArray_(ComputingNode::D0);
+            }
+          }
         }
-      
-        cNode.setDownwardPartialLikelihoods(&getAboveLikelihoodArray(), &temp_, ComputingNode::D0);
+              
+        cNode.setDownwardPartialLikelihoods(&getAboveLikelihoodArray_(), &temp_, ComputingNode::D0, usesLog());
       }
       
       updateAbove(true);
 
     }
 
+      private:
+
     /*
-     *
-     * @}
+     * @brief retrieve the Below DXLikelihood Arrays
      *
      */
-     
+    
+    VVdouble& getBelowLikelihoodArray_(unsigned char DX)
+    {
+      if (isLeaf())
+        return getLikelihoodArray(DX);
+      
+      switch(DX){
+      case ComputingNode::D0:
+        return nodeLikelihoods_B_;
+      case ComputingNode::D1:
+        return nodeDLikelihoods_B_;
+      case ComputingNode::D2:
+        return nodeD2Likelihoods_B_;
+      default:
+        throw Exception("Unknown derivative " + TextTools::toString(DX));
+      }
+    }
+
+    const VVdouble& getBelowLikelihoodArray_(unsigned char DX) const
+    {
+      if (isLeaf())
+        return getLikelihoodArray(DX);
+      
+      switch(DX){
+      case ComputingNode::D0:
+        return nodeLikelihoods_B_;
+      case ComputingNode::D1:
+        return nodeDLikelihoods_B_;
+      case ComputingNode::D2:
+        return nodeD2Likelihoods_B_;
+      default:
+        throw Exception("Unknown derivative " + TextTools::toString(DX));
+      }
+    }
+
+    /*
+     * @brief retrieve the Below to Father DXLikelihood Arrays
+     *
+     */
+
+    VVdouble& getToFatherBelowLikelihoodArray_(unsigned char DX)
+    {
+      switch(DX){
+      case ComputingNode::D0:
+        return node_fatherLikelihoods_B_;
+      case ComputingNode::D1:
+        return node_fatherDLikelihoods_B_;
+      case ComputingNode::D2:
+        return node_fatherD2Likelihoods_B_;
+      default:
+        throw Exception("Unknown derivative " + TextTools::toString(DX));
+      }
+    }
+
+    const VVdouble& getToFatherBelowLikelihoodArray_(unsigned char DX) const
+    {
+      switch(DX){
+      case ComputingNode::D0:
+        return node_fatherLikelihoods_B_;
+      case ComputingNode::D1:
+        return node_fatherDLikelihoods_B_;
+      case ComputingNode::D2:
+        return node_fatherD2Likelihoods_B_;
+      default:
+        throw Exception("Unknown derivative " + TextTools::toString(DX));
+      }
+    }
+
+    /*
+     * @brief retrieve the Above to Father Likelihood Arrays
+     *
+     */
+
+    VVdouble& getAboveLikelihoodArray_() { return nodeLikelihoods_A_; }
+
+    const VVdouble& getAboveLikelihoodArray_() const { return nodeLikelihoods_A_; }
+
+
+    /*
+     * @brief  Use patterns or not for computing likelihood arrays from sons
+     *
+     */
+    
+    void multiplyLikelihoodsFromSon_(VVdouble* likelihoods_out, const VVdouble* likelihoods_in, size_t sonNb)
+    {
+      size_t nbSites=likelihoods_out->size();
+
+      if (vPatt_.size()!=0)
+      {
+        const std::vector<size_t>& patterns=*vPatt_[sonNb];
+        for (size_t i = 0; i < nbSites; i++)
+          (*likelihoods_out)[i]*=(*likelihoods_in)[patterns[i]];
+      }
+      else
+        for (size_t i = 0; i < nbSites; i++)
+          (*likelihoods_out)[i]*=(*likelihoods_in)[i];
+    }
+
+    
+    void addLikelihoodsFromSon_(VVdouble* likelihoods_out, const VVdouble* likelihoods_in, size_t sonNb)
+    {
+      size_t nbSites=likelihoods_out->size();
+
+      if (vPatt_.size()!=0)
+      {
+        const std::vector<size_t>& patterns=*vPatt_[sonNb];
+        for (size_t i = 0; i < nbSites; i++)
+          (*likelihoods_out)[i]+=(*likelihoods_in)[patterns[i]];
+      }
+      else
+        for (size_t i = 0; i < nbSites; i++)
+          (*likelihoods_out)[i]+=(*likelihoods_in)[i];
+    }
+
+
+    void setLikelihoodsFromSon_(VVdouble* likelihoods_out, const VVdouble* likelihoods_in, size_t sonNb)
+    {
+      size_t nbSites=likelihoods_out->size();
+
+      if (vPatt_.size()!=0)
+      {
+        const std::vector<size_t>& patterns=*vPatt_[sonNb];
+        for (size_t i = 0; i < nbSites; i++)
+          (*likelihoods_out)[i]=(*likelihoods_in)[patterns[i]];
+      }
+      else
+        for (size_t i = 0; i < nbSites; i++)
+          (*likelihoods_out)[i]=(*likelihoods_in)[i];
+    }
+    
+
+    /*
+     * @brief Check the Update of Below Likelihood Arrays.
+     *
+     */
+    
+    bool isUp2dateBelow_(unsigned char DX) const
+    {
+      switch(DX){
+      case ComputingNode::D0:
+        return up2date_B_;
+      case ComputingNode::D1:
+        return up2dateD_B_;
+      case ComputingNode::D2:
+        return up2dateD2_B_;
+      default:
+        return false;
+      }
+    }
+    
+    /*
+     * @brief Updates Below Likelihood flags, recursively up to the
+     * root if false and needed.
+     *
+     */
+      
+    void updateBelow_(bool check, unsigned char DX)
+    {
+      if (!check)
+      {
+        switch(DX){
+        case ComputingNode::D0:
+          if (up2date_B_)
+          {
+            updateFatherBelow_(false, ComputingNode::D0);
+          }
+        case ComputingNode::D1:
+          if (up2dateD_B_)
+          {
+            updateFatherBelow_(false, ComputingNode::D1);
+          }
+        case ComputingNode::D2:
+          if (up2dateD2_B_)
+          {
+            updateFatherBelow_(false, ComputingNode::D2);
+          }
+        }
+        switch(DX){
+        case ComputingNode::D0:
+          up2date_B_=false;
+        case ComputingNode::D1:
+          up2dateD_B_=false;
+        case ComputingNode::D2:
+          up2dateD2_B_=false;
+        }
+        
+        update(false, DX);
+      }
+      else
+      {
+        switch(DX){
+        case ComputingNode::D0:
+          up2date_B_=true;
+          break;
+        case ComputingNode::D1:
+          up2dateD_B_=true;
+          break;
+        case ComputingNode::D2:
+          up2dateD2_B_=true;
+          break;
+        }
+      }
+
+    }
+   
+
+    bool isUp2dateFatherBelow_(unsigned char DX) const
+    {
+      switch(DX){
+      case ComputingNode::D0:
+        return up2date_BF_;
+      case ComputingNode::D1:
+        return up2dateD_BF_;
+      case ComputingNode::D2:
+        return up2dateD2_BF_;
+      default:
+        return false;
+      }
+    }
+    
+    /*
+     * @brief Updates Below to Father DXLikelihood flags, recursively up
+     * to the root if false and needed.
+     *
+     * Recursivity is done through the BelowLikelihoods only, to make
+     * it simple.
+     */
+      
+    void updateFatherBelow_(bool check, unsigned char DX)
+    {
+      if (!check)
+      {
+        switch(DX){
+        case ComputingNode::D0:
+          if (up2date_BF_)
+          {
+            if (hasFather())
+              static_cast<RecursiveLikelihoodNode*>(getFather())->updateBelow_(false, ComputingNode::D0);
+          }
+        case ComputingNode::D1:
+          if (up2dateD_BF_)
+          {
+            if (hasFather())
+              static_cast<RecursiveLikelihoodNode*>(getFather())->updateBelow_(false, ComputingNode::D1);
+          }
+        case ComputingNode::D2:
+          if (up2dateD2_BF_)
+          {
+            if (hasFather())
+              static_cast<RecursiveLikelihoodNode*>(getFather())->updateBelow_(false, ComputingNode::D2);
+          }
+        }
+        switch(DX){
+        case ComputingNode::D0:
+          up2date_BF_=false;
+        case ComputingNode::D1:
+          up2dateD_BF_=false;
+        case ComputingNode::D2:
+          up2dateD2_BF_=false;
+        }
+        update(false, DX);
+      }
+      else
+      {
+        switch(DX){
+        case ComputingNode::D0:
+          up2date_BF_=true;
+          break;
+        case ComputingNode::D1:
+          up2dateD_BF_=true;
+          break;
+        case ComputingNode::D2:
+          up2dateD2_BF_=true;
+          break;
+        }
+      }
+    }
+
+    friend class RecursiveLikelihoodTree;
+    friend class RecursiveLikelihoodTreeCalculation;
+    
   };
 
   

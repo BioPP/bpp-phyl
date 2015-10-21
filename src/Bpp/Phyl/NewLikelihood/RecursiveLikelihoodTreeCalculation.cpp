@@ -59,9 +59,7 @@ throw (Exception) :
   AbstractLikelihoodTreeCalculation(process, verbose),
   likelihoodData_(0),
   root1_(-1),
-  root2_(-1),
-  nullDLikelihood_(true),
-  nullD2Likelihood_(true)
+  root2_(-1)
 {
   init_(usePatterns);
 }
@@ -77,9 +75,7 @@ throw (Exception) :
   AbstractLikelihoodTreeCalculation(process, verbose),
   likelihoodData_(0),
   root1_(-1),
-  root2_(-1),
-  nullDLikelihood_(true),
-  nullD2Likelihood_(true)
+  root2_(-1)
 {
   init_(usePatterns);
   setData(data);
@@ -100,9 +96,7 @@ RecursiveLikelihoodTreeCalculation::RecursiveLikelihoodTreeCalculation(const Rec
   AbstractLikelihoodTreeCalculation(tlc),
   likelihoodData_(0),
   root1_(tlc.root1_),
-  root2_(tlc.root2_),
-  nullDLikelihood_(tlc.nullDLikelihood_),
-  nullD2Likelihood_(tlc.nullD2Likelihood_)
+  root2_(tlc.root2_)
 {
   likelihoodData_.reset(tlc.likelihoodData_->clone());
 }
@@ -116,67 +110,8 @@ RecursiveLikelihoodTreeCalculation& RecursiveLikelihoodTreeCalculation::operator
   likelihoodData_.reset(tlc.likelihoodData_->clone());
   root1_ = tlc.root1_;
   root2_ = tlc.root2_;
-  nullDLikelihood_ = tlc.nullDLikelihood_;
-  nullD2Likelihood_ = tlc.nullD2Likelihood_;
   return *this;
 }
-
-/******************************************************************************/
-
-double RecursiveLikelihoodTreeCalculation::getLikelihoodForASite(size_t site)
-{
-  double l = 0;
-  size_t posR=getLikelihoodData().getRootArrayPosition(site);
-  int Rid=process_->getTree().getRootNode()->getId();
-  
-  for (size_t c = 0; c < nbClasses_; ++c)
-  {
-    const VVdouble& lla = likelihoodData_->getLikelihoodArray(Rid, c, ComputingNode::D0);
-
-    for (size_t j = 0; j < nbStates_; ++j)
-    {
-      l += lla[posR][j] * process_->getProbabilityForModel(c);
-    }
-  }
-
-  if (l < 0) l = 0; //May happen because of numerical errors.
-  return l;
-}
-
-/******************************************************************************/
-
-double RecursiveLikelihoodTreeCalculation::getLikelihoodForASiteForAClass(size_t site, size_t classIndex)
-{
-  const Vdouble& la = likelihoodData_->getLikelihoodArray(
-    process_->getTree().getRootNode()->getId(),classIndex, ComputingNode::D0)[likelihoodData_->getRootArrayPosition(site)];
-
-  return VectorTools::sum(la);
-}
-
-/******************************************************************************/
-
-double RecursiveLikelihoodTreeCalculation::getLikelihoodForASiteForAState(size_t site, int state)
-{
-  double l = 0;
-  int Rid=process_->getTree().getRootNode()->getId();
-
-  size_t posR=likelihoodData_->getRootArrayPosition(site);
-  for (size_t c = 0; c < nbClasses_; ++c)
-  {
-    const VVdouble& lla = likelihoodData_->getLikelihoodArray(Rid,c, ComputingNode::D0);
-    l += lla[posR][state] * process_->getProbabilityForModel(c);
-  }
-  return l;
-}
-
-/******************************************************************************/
-
-double RecursiveLikelihoodTreeCalculation::getLikelihoodForASiteForAClassForAState(size_t site, size_t classIndex, int state)
-{
-  return likelihoodData_->getLikelihoodArray(
-    process_->getTree().getRootNode()->getId(),classIndex, ComputingNode::D0)[likelihoodData_->getRootArrayPosition(site)][state];
-}
-
 
 /******************************************************************************
  *                           Likelihood computation                           *
@@ -195,7 +130,7 @@ bool RecursiveLikelihoodTreeCalculation::updateLikelihoodFlags_()
         RecursiveLikelihoodNode* node=(*likelihoodData_)[c].getNode(upId[i]);
         if (upId[i]!=rootId)
         {
-          node->updateFatherBelow(false, ComputingNode::D0);
+          node->updateFatherBelow_(false, ComputingNode::D0);
           node->updateAbove(false);
         }
         else{
@@ -264,33 +199,11 @@ void RecursiveLikelihoodTreeCalculation::computeTreeDLogLikelihood(const string&
   
   for (size_t c=0; c<nbClasses_; c++){
     RecursiveLikelihoodNode* branch=(*likelihoodData_)[c].getNode(VbrId[0]);
-    branch->updateFatherBelow(false, ComputingNode::D1);
+    branch->updateFatherBelow_(false, ComputingNode::D1);
   }
   
   likelihoodData_->computeLikelihoods(process_->getComputingTree(), ComputingNode::D1, &VbrId);
 
-}
-
-/******************************************************************************/
-
-double RecursiveLikelihoodTreeCalculation::getDLikelihoodForASite(size_t site)
-{
-  if (nullDLikelihood_)
-    return 0;
-
-  size_t posR=likelihoodData_->getRootArrayPosition(site);
-  int Rid=process_->getTree().getRootNode()->getId();
-  
-  // Derivative of the sum is the sum of derivatives:
-  double dl = 0;
-  for (size_t c = 0; c < nbClasses_; c++)
-  {
-    VVdouble& ldla = likelihoodData_->getLikelihoodArray(Rid, c, ComputingNode::D1);
-    for (size_t j = 0; j < nbStates_; ++j)
-      dl += ldla[posR][j] * process_->getProbabilityForModel(c);
-  }
-  
-  return dl;
 }
 
 /******************************************************************************
@@ -319,33 +232,12 @@ void RecursiveLikelihoodTreeCalculation::computeTreeD2LogLikelihood(const string
   
   for (size_t c=0; c<nbClasses_; c++){
     RecursiveLikelihoodNode* branch=(*likelihoodData_)[c].getNode(VbrId[0]);
-    branch->updateFatherBelow(false, ComputingNode::D2);
+    branch->updateFatherBelow_(false, ComputingNode::D2);
   }
   
   likelihoodData_->computeLikelihoods(process_->getComputingTree(), ComputingNode::D2, &VbrId);
 
 }
 
-/******************************************************************************/
-
-double RecursiveLikelihoodTreeCalculation::getD2LikelihoodForASite(size_t site)
-{
-  if (nullD2Likelihood_)
-    return 0;
-
-  size_t posR=likelihoodData_->getRootArrayPosition(site);
-  int Rid=process_->getTree().getRootNode()->getId();
-
-  // Derivative of the sum is the sum of derivatives:
-  double d2l = 0;
-  for (size_t c = 0; c < nbClasses_; c++)
-  {
-    VVdouble& d2la = likelihoodData_->getLikelihoodArray(Rid, c, ComputingNode::D2);
-    for (size_t j = 0; j < nbStates_; ++j)
-      d2l += d2la[posR][j] * process_->getProbabilityForModel(c);
-  }
-
-  return d2l;
-}
 
 

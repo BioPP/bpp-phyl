@@ -66,6 +66,19 @@ namespace bpp
       bool initialized_;
       bool verbose_;
 
+      // booleans to say if the Dlikelihoods are null
+  
+      bool nullDLikelihood_;
+      bool nullD2Likelihood_;
+  
+    private:
+
+      /*
+       * @brief for computation purpose
+       *
+       */
+      mutable std::vector<double> vSites_;
+      
     public:
       AbstractLikelihoodTreeCalculation(const SubstitutionProcess* process, bool verbose = true):
         process_(process),
@@ -75,7 +88,10 @@ namespace bpp
         nbStates_(process->getNumberOfStates()),
         nbClasses_(process->getNumberOfClasses()),
         initialized_(false),
-        verbose_(verbose)
+        verbose_(verbose),
+        nullDLikelihood_(true),
+        nullD2Likelihood_(true),
+        vSites_()
       {
       }
   
@@ -87,7 +103,10 @@ namespace bpp
         nbStates_(tlc.nbStates_),
         nbClasses_(tlc.nbClasses_),
         initialized_(tlc.initialized_),
-        verbose_(tlc.verbose_)
+        verbose_(tlc.verbose_),
+        nullDLikelihood_(tlc.nullDLikelihood_),
+        nullD2Likelihood_(tlc.nullD2Likelihood_),
+        vSites_(tlc.vSites_)
       {
         if (tlc.data_.get()) data_.reset(tlc.data_->clone());
       }
@@ -103,6 +122,9 @@ namespace bpp
         nbClasses_                     = tlc.nbClasses_;
         initialized_                   = tlc.initialized_;
         verbose_                       = tlc.verbose_;
+        nullDLikelihood_               = tlc.nullDLikelihood_;
+        nullD2Likelihood_              = tlc.nullD2Likelihood_;
+        vSites_                        = tlc.vSites_;
         
         return *this;
       }
@@ -139,22 +161,37 @@ namespace bpp
 
 
       size_t getNumberOfDistinctSites() const {
-        return getLikelihoodData().getNumberOfDistinctSites();
+        return nbDistinctSites_;
       }
 
       size_t getNumberOfSites() const {
-        return getLikelihoodData().getNumberOfSites();
+        return nbSites_;
       }
       
       size_t getNumberOfStates() const {
-        return getLikelihoodData().getNumberOfStates();
+        return nbStates_;
       }
 
       size_t getNumberOfClasses() const {
         return getLikelihoodData().getNumberOfClasses();
       }
 
+      int getRootId() const
+      {
+        return process_->getTree().getRootNode()->getId();
+      }
+
+      /**
+       * @return if the log-likelihood is stored at root in class classIndex.
+       *
+       */
+       
+      bool usesLogAtRoot(size_t classIndex) const
+      {
+        return getLikelihoodData().usesLogAtRoot(classIndex);
+      }
       
+
       /*
        * @brief Retrieve the likelihood data.
        *
@@ -167,7 +204,22 @@ namespace bpp
 
       
       /*
-       * @brief get DXLikelihoods
+       * @brief get DX(log-)likelihoods
+       *
+       * !!!! These methods do not check that computations are up to
+       * date.
+       *
+       *
+       */
+
+      double getLogLikelihood();
+
+      double getDLogLikelihood();
+
+      double getD2LogLikelihood();
+      
+      /*
+       * @brief get DX(log-)likelihoods at sites.
        *
        * !!!! These methods do not check that computations are up to
        * date.
@@ -175,21 +227,35 @@ namespace bpp
        *
        */
       
-      double getLogLikelihood();
+      double getLikelihoodForASite(size_t site);
 
-      double getDLogLikelihood();
+      double getLikelihoodForASiteForAState(size_t site, int state);
 
-      virtual double getDLikelihoodForASite(size_t site) = 0;
-  
+      double getLikelihoodForASiteForAClass(size_t site, size_t classIndex);
+
+      double getLikelihoodForASiteForAClassForAState(size_t site, size_t classIndex, int state);
+
+      
+
+      double getLogLikelihoodForASite(size_t site);
+
+      double getLogLikelihoodForASiteForAState(size_t site, int state);
+
+      double getLogLikelihoodForASiteForAClass(size_t site, size_t classIndex);
+
+      double getLogLikelihoodForASiteForAClassForAState(size_t site, size_t classIndex, int state);
+
+
+      double getDLikelihoodForASite(size_t site);
+
+      double getD2LikelihoodForASite(size_t site);
+
+      
       double getDLogLikelihoodForASite(size_t site)
       {
         // d(f(g(x)))/dx = dg(x)/dx . df(g(x))/dg :
         return getDLikelihoodForASite(site) / getLikelihoodForASite(site);
       }
-
-      double getD2LogLikelihood();
-
-      virtual double getD2LikelihoodForASite(size_t site) = 0;
 
       double getD2LogLikelihoodForASite(size_t site)
       {
