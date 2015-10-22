@@ -74,6 +74,12 @@ namespace bpp
       virtual size_t getNumberOfModelStates() const = 0;
 
       /**
+       * @return A string describing the model state.
+       * @param index The state index.
+       */
+      virtual std::string getStateDescription(size_t index) const = 0;
+
+      /**
        * @return A vector with the corresponding alphabet states for each model state.
        * the size of the vector is the number of model states, not the number of supported alphabet states,
        * as distinct model states can correspond to a single alphabet state.
@@ -172,6 +178,7 @@ namespace bpp
 
       virtual CanonicalStateMap* clone() const { return new CanonicalStateMap(*this); }
 
+      virtual std::string getStateDescription(size_t index) const { return getAlphabetStateAsChar(index); }
   };
 
 
@@ -189,6 +196,7 @@ namespace bpp
       MarkovModulatedStateMap(const StateMap& unitMap, unsigned int nbClasses);
       virtual MarkovModulatedStateMap* clone() const { return new MarkovModulatedStateMap(*this); }
 
+      virtual std::string getStateDescription(size_t index) const { return getAlphabetStateAsChar(index) + TextTools::toString(index % nbClasses); }
   };
 
 }// end of namespace bpp

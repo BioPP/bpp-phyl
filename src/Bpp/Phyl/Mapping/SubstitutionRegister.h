@@ -160,7 +160,7 @@ class CategorySubstitutionRegister :
 protected:
   bool within_;
   size_t nbCategories_;
-  mutable std::map<int, size_t> categories_;
+  mutable std::map<size_t, size_t> categories_;
   std::vector<std::string> categoryNames_;
   std::vector< std::vector<size_t> > index_;
   std::vector< std::vector<size_t> > revIndex_;
@@ -184,7 +184,23 @@ public:
 
 protected:
   template<class T>
-  void setCategories(const std::map<int, T>& categories)
+  void setAlphabetCategories(const std::map<int, T>& categories)
+  {
+    //We need to convert alphabet states into model states.
+    std::map<size_t, T>& modelCategories;
+    for (typename std::map<int, T>::const_iterator it = categories.begin(); it != categories.end(); ++it)
+    {  
+      std::vector<size_t> states = model->getModelStates(it->first);
+      for (size_t i = 0; i < states.size(); ++i) {
+        modeCategories[states[i]] = it->second;
+      }
+    }
+    //Then we forward the model categories:
+    setModelCategories<T>(modelCategories);
+  }
+
+  template<class T>
+  void setModelCategories(const std::map<size_t, T>& categories)
   {
     // First index categories:
     nbCategories_ = 0;
@@ -201,18 +217,17 @@ protected:
     // Now creates categories:
     categories_.clear();
     categoryNames_.resize(nbCategories_);
-    std::vector<int> types = model_->getAlphabetStates();
-    for (size_t i = 0; i < types.size(); ++i)
+    for (size_t i = 0; i < model_->getNumberOfStates(); ++i)
     {
-      typename std::map<int, T>::const_iterator it = categories.find(types[i]);
+      typename std::map<int, T>::const_iterator it = categories.find(i);
       if (it != categories.end())
       {
-        categories_[types[i]] = cats[it->second];
-        categoryNames_[cats[it->second] - 1] += model_->getAlphabet()->intToChar(types[i]);
+        categories_[i] = cats[it->second];
+        categoryNames_[cats[it->second] - 1] += model_->getStateMap().getStateDescription(i);
       }
       else
       {
-        categories_[types[i]] = 0;
+        categories_[i] = 0;
       }
     }
 
