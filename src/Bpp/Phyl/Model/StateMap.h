@@ -192,11 +192,14 @@ namespace bpp
   class MarkovModulatedStateMap:
     public AbstractStateMap
   {
+    private:
+      unsigned int nbClasses_;
+
     public:
       MarkovModulatedStateMap(const StateMap& unitMap, unsigned int nbClasses);
       virtual MarkovModulatedStateMap* clone() const { return new MarkovModulatedStateMap(*this); }
 
-      virtual std::string getStateDescription(size_t index) const { return getAlphabetStateAsChar(index) + TextTools::toString(index % nbClasses); }
+      virtual std::string getStateDescription(size_t index) const { return getAlphabetStateAsChar(index) + TextTools::toString(index % nbClasses_); }
   };
 
 }// end of namespace bpp

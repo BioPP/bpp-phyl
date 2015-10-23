@@ -187,12 +187,12 @@ protected:
   void setAlphabetCategories(const std::map<int, T>& categories)
   {
     //We need to convert alphabet states into model states.
-    std::map<size_t, T>& modelCategories;
+    std::map<size_t, T> modelCategories;
     for (typename std::map<int, T>::const_iterator it = categories.begin(); it != categories.end(); ++it)
     {  
-      std::vector<size_t> states = model->getModelStates(it->first);
+      std::vector<size_t> states = model_->getModelStates(it->first);
       for (size_t i = 0; i < states.size(); ++i) {
-        modeCategories[states[i]] = it->second;
+        modelCategories[states[i]] = it->second;
       }
     }
     //Then we forward the model categories:
@@ -205,7 +205,7 @@ protected:
     // First index categories:
     nbCategories_ = 0;
     std::map<T, size_t> cats;
-    for (typename std::map<int, T>::const_iterator it = categories.begin(); it != categories.end(); ++it)
+    for (typename std::map<size_t, T>::const_iterator it = categories.begin(); it != categories.end(); ++it)
     {
       if (cats.find(it->second) == cats.end())
       {
@@ -219,7 +219,7 @@ protected:
     categoryNames_.resize(nbCategories_);
     for (size_t i = 0; i < model_->getNumberOfStates(); ++i)
     {
-      typename std::map<int, T>::const_iterator it = categories.find(i);
+      typename std::map<size_t, T>::const_iterator it = categories.find(i);
       if (it != categories.end())
       {
         categories_[i] = cats[it->second];
@@ -264,8 +264,7 @@ protected:
 public:
   virtual size_t getCategory(size_t state) const
   {
-    int alphabetState = model_->getAlphabetStateAsInt(state);
-    return categories_[alphabetState];
+    return categories_[state];
   }
 
   virtual size_t getCategoryFrom(size_t type) const
@@ -311,8 +310,8 @@ public:
 
   virtual size_t getType(size_t fromState, size_t toState) const
   {
-    size_t fromCat = categories_[model_->getAlphabetStateAsInt(fromState)];
-    size_t toCat   = categories_[model_->getAlphabetStateAsInt(toState)];
+    size_t fromCat = categories_[fromState];
+    size_t toCat   = categories_[toState];
     if (fromCat > 0 && toCat > 0)
       return index_[fromCat - 1][toCat - 1];
     else
@@ -474,7 +473,7 @@ public:
     {
       categories[i] = i;
     }
-    setCategories<int>(categories);
+    setAlphabetCategories<int>(categories);
   }
 
   ComprehensiveSubstitutionRegister* clone() const { return new ComprehensiveSubstitutionRegister(*this); }
@@ -806,7 +805,7 @@ public:
     categories[1] = 2;
     categories[2] = 2;
     categories[3] = 1;
-    setCategories<int>(categories);
+    setAlphabetCategories<int>(categories);
   }
 
   GCSubstitutionRegister* clone() const { return new GCSubstitutionRegister(*this); }
@@ -998,7 +997,7 @@ public:
         break;
       }
     }
-    setCategories<int>(categories);
+    setAlphabetCategories<int>(categories);
   }
 
   GCSynonymousSubstitutionRegister(const GCSynonymousSubstitutionRegister& reg) :
@@ -1032,8 +1031,8 @@ public:
         (pCA->getSecondPosition(x) != pCA->getSecondPosition(y)))
       return 0;
 
-    size_t fromCat = categories_[x];
-    size_t toCat   = categories_[y];
+    size_t fromCat = categories_[fromState];
+    size_t toCat   = categories_[toState];
 
     if (fromCat > 0 && toCat > 0)
       return index_[fromCat - 1][toCat - 1];
