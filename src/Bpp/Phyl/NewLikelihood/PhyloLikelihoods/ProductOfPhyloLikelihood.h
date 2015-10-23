@@ -124,7 +124,6 @@ namespace bpp
         return x;
       }
 
-  
       /** @} */
 
     protected:

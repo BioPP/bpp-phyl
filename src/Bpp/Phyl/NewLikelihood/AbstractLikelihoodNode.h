@@ -188,7 +188,9 @@ namespace bpp
     }
 
     virtual void setUseLog(bool useLog);
-    
+
+    void setUseLogDownward(bool useLog);
+
     /**
      * @brief Several Likelihood Arrays
      *
@@ -289,15 +291,14 @@ namespace bpp
      *
      */
     
-    void resetInnerLikelihoods(size_t nbSites, size_t nbStates, unsigned char DX)
+    void resetDownwardLikelihoods(size_t nbSites, size_t nbStates, unsigned char DX)
     {
-      if (degree()>=2)
-        resetLikelihoods(nbSites, nbStates, DX);
+      resetLikelihoods(nbSites, nbStates, DX);
 
       size_t nbSons=getNumberOfSons();
       for (size_t i=0;i<nbSons;i++)
       {
-        static_cast<AbstractLikelihoodNode*>(getSon(i))->resetInnerLikelihoods(nbSites, nbStates, DX);
+        static_cast<AbstractLikelihoodNode*>(getSon(i))->resetDownwardLikelihoods(nbSites, nbStates, DX);
       }
 
       update(false, DX);

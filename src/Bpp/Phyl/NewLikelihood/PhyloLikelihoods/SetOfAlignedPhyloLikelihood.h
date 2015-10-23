@@ -134,6 +134,8 @@ namespace bpp
 
       virtual double getLikelihoodForASite(size_t site) const = 0;
 
+      virtual double getLogLikelihoodForASite(size_t site) const = 0;
+
       /**
        * @brief Get the likelihood for a site for an aligned
        * phyloLikelihood 

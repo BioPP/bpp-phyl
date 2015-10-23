@@ -197,6 +197,16 @@ namespace bpp
     public:
 
       /**
+       * @brief set it arrays should be computed in log.
+       *
+       */
+
+      void setUseLog(bool useLog)
+      {
+        tlComp_->setAllUseLog(useLog);
+      }
+
+      /**
        * @return The underlying likelihood computation structure.
        */
       
@@ -242,6 +252,12 @@ namespace bpp
         computeLikelihood();
 
         return tlComp_->getLikelihoodForASite(siteIndex);
+      }
+
+      double getLogLikelihoodForASite(size_t siteIndex) const {
+        computeLikelihood();
+
+        return tlComp_->getLogLikelihoodForASite(siteIndex);
       }
 
       double getDLogLikelihoodForASite(size_t siteIndex) const {

@@ -1652,6 +1652,18 @@ PhyloLikelihoodContainer* PhylogeneticsApplicationTools::getPhyloLikelihoodConta
     else
       nProcess=(size_t)TextTools::toInt(args["process"]);
 
+    
+    // Says if log should be used or not
+
+    bool useLog=false;
+
+    if (args.find("useLog")!=args.end() && args["useLog"]=="yes")
+      useLog=true;
+
+    if (verbose)
+      ApplicationTools::displayResult("use log in computation ", (useLog?"yes":"no"));
+    
+
     // Check this process has not been used before
 
     for (size_t i=0; i<usedProc.size(); i++)
@@ -1732,6 +1744,7 @@ PhyloLikelihoodContainer* PhylogeneticsApplicationTools::getPhyloLikelihoodConta
     }
   
 //    nPL->setNamespace("phylo"+TextTools::toString(phylosNum[mPi])+".");
+    nPL->setUseLog(useLog);
 
     mPhylo->addPhyloLikelihood(phylosNum[mPi],nPL);
   }

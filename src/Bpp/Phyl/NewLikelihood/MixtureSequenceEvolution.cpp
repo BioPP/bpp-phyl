@@ -78,6 +78,9 @@ void MixtureSequenceEvolution::fireParameterChanged(const ParameterList& paramet
 
 ParameterList MixtureSequenceEvolution::getNonDerivableParameters() const
 {
+  // patch, to be fixed properly later
+  return getIndependentParameters();
+  
   ParameterList pl = MultiProcessSequenceEvolution::getNonDerivableParameters();
   pl.addParameters(simplex_.getParameters());
   

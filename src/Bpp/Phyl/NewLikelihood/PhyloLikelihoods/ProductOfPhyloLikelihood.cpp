@@ -43,6 +43,7 @@ using namespace bpp;
 using namespace std;
 
 ProductOfPhyloLikelihood::ProductOfPhyloLikelihood(PhyloLikelihoodContainer* pC) :
+  PhyloLikelihood(),
   AbstractPhyloLikelihood(),
   SetOfAbstractPhyloLikelihood(pC)
 {

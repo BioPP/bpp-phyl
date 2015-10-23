@@ -80,17 +80,24 @@ namespace bpp
        * @return 'true' is the likelihood function has been initialized.
        */
       virtual bool isInitialized() const = 0;
-    
+      
       /**
        * @}
        */
-      
+
+      /**
+       * @brief set it arrays should be computed in log.
+       *
+       */
+
+      virtual void setUseLog(bool useLog) = 0;
+
       /**
        * @name The likelihood functions.
        *
        * @{
        */
-
+      
       /**
        * @brief compute the likelihood
        *

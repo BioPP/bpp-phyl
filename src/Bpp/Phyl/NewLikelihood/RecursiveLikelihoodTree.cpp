@@ -76,6 +76,7 @@ RecursiveLikelihoodTree::RecursiveLikelihoodTree(const SubstitutionProcess& proc
     TreeTemplate<RecursiveLikelihoodNode>* pTC2=pTC->clone();
     vTree_.push_back(pTC2);
   }
+
   delete pTC;
 }
 
@@ -123,6 +124,7 @@ throw (Exception)
   nbStates_ = process.getNumberOfStates();
   nbSites_  = sites.getNumberOfSites();
   auto_ptr<SitePatterns> patterns;
+
   if (usePatterns_)
   {
     patterns.reset(initLikelihoodsWithPatterns_(process.getTree().getRootNode(), sites, process));
@@ -149,37 +151,22 @@ throw (Exception)
 void RecursiveLikelihoodTree::initLikelihoodsWithoutPatterns_(const Node* node, const SiteContainer& sequences, const SubstitutionProcess& process) throw (Exception)
 {
   int nId=node->getId();
-  
+
   // Initialize likelihood vector:
-  if (!node->isLeaf()){
-    if (!node->hasFather())
-    {
-      resetAboveLikelihoods(nId, nbDistinctSites_, nbStates_);      
-      resetLikelihoods(nId, nbDistinctSites_, nbStates_, ComputingNode::D0);
-    
-      resetLikelihoods(nId, nbDistinctSites_, nbStates_, ComputingNode::D1);
-      resetLikelihoods(nId, nbDistinctSites_, nbStates_, ComputingNode::D2);
-    }
-    
-    resetBelowLikelihoods(nId, nbDistinctSites_, nbStates_, ComputingNode::D0);
-    
-    resetBelowLikelihoods(nId, nbDistinctSites_, nbStates_, ComputingNode::D1);
-    resetBelowLikelihoods(nId, nbDistinctSites_, nbStates_, ComputingNode::D2);
-
-  }
-  else
+  if (!node->hasFather())
   {
-    resetBelowLikelihoods(node->getId(), nbDistinctSites_, nbStates_, ComputingNode::D0);
-    
-    resetBelowLikelihoods(node->getId(), nbDistinctSites_, nbStates_, ComputingNode::D1);
-    resetBelowLikelihoods(node->getId(), nbDistinctSites_, nbStates_, ComputingNode::D2);
-
+    resetAboveLikelihoods(nId, nbDistinctSites_, nbStates_);      
     resetLikelihoods(nId, nbDistinctSites_, nbStates_, ComputingNode::D0);
     
     resetLikelihoods(nId, nbDistinctSites_, nbStates_, ComputingNode::D1);
-    
     resetLikelihoods(nId, nbDistinctSites_, nbStates_, ComputingNode::D2);
   }
+
+  
+  resetBelowLikelihoods(nId, nbDistinctSites_, nbStates_, ComputingNode::D0);
+  resetBelowLikelihoods(nId, nbDistinctSites_, nbStates_, ComputingNode::D1);
+  resetBelowLikelihoods(nId, nbDistinctSites_, nbStates_, ComputingNode::D2);
+
   
   // Now initialize likelihood values and pointers:
 
@@ -197,10 +184,12 @@ void RecursiveLikelihoodTree::initLikelihoodsWithoutPatterns_(const Node* node, 
 
     for (size_t c = 0; c < nbClasses_; c++)
     {
-      LikelihoodNode& lNode= *vTree_[c]->getNode(nId);
+      RecursiveLikelihoodNode& lNode= *dynamic_cast<RecursiveLikelihoodNode*>(vTree_[c]->getNode(nId));
+      VVdouble& array=lNode.getBelowLikelihoodArray_(ComputingNode::D0);
       
       for (size_t i = 0; i < nbDistinctSites_; i++)
       {
+        Vdouble* array_i=&array[i];
         int state = seq->getValue(i);
         double test = 0.;
         for (size_t s = 0; s < nbStates_; s++)
@@ -209,16 +198,19 @@ void RecursiveLikelihoodTree::initLikelihoodsWithoutPatterns_(const Node* node, 
           if (lNode.usesLog())
           {
             if (x<=0)
-              throw BadNumberException("RecursiveLikelihoodTree::initTreelikelihoods log not possible for value",x);
-            lNode(i,s) = log(x);
+              (*array_i)[s]=-10000;
+            else
+              (*array_i)[s] = log(x);
           }
           else
-            lNode(i,s) = x;
+            (*array_i)[s] = x;
             
           test += x;
         }
         if (test < 0.000001) std::cerr << "WARNING!!! Likelihood will be 0 for this site " << TextTools::toString(i) << std::endl;
       }
+      lNode.updateBelow_(true, ComputingNode::D0);
+      
     }
   }
   else
@@ -256,35 +248,22 @@ SitePatterns* RecursiveLikelihoodTree::initLikelihoodsWithPatterns_(const Node* 
   auto_ptr<SiteContainer> subSequences(patterns->getSites());
 
   size_t nbSites = subSequences->getNumberOfSites();
+  int nId=node->getId();
 
   // Initialize likelihood vectors:
-  if (!node->isLeaf()){
-    if (!node->hasFather())
-    {
-      resetAboveLikelihoods(node->getId(), nbSites, nbStates_);      
-      resetLikelihoods(node->getId(), nbSites, nbStates_, ComputingNode::D0);
-      resetLikelihoods(node->getId(), nbSites, nbStates_, ComputingNode::D1);
-      resetLikelihoods(node->getId(), nbSites, nbStates_, ComputingNode::D2);
-    }
-    
-    resetBelowLikelihoods(node->getId(), nbSites, nbStates_, ComputingNode::D0);
-    
-    resetBelowLikelihoods(node->getId(), nbSites, nbStates_, ComputingNode::D1);
-    resetBelowLikelihoods(node->getId(), nbSites, nbStates_, ComputingNode::D2);
-  }
-  else
+      
+  if (!node->hasFather())
   {
-    resetBelowLikelihoods(node->getId(), nbSites, nbStates_, ComputingNode::D0);
-    
-    resetBelowLikelihoods(node->getId(), nbSites, nbStates_, ComputingNode::D1);
-    resetBelowLikelihoods(node->getId(), nbSites, nbStates_, ComputingNode::D2);
-    resetLikelihoods(node->getId(), nbSites, nbStates_, ComputingNode::D0);
-    
-    resetLikelihoods(node->getId(), nbSites, nbStates_, ComputingNode::D1);
-    
-    resetLikelihoods(node->getId(), nbSites, nbStates_, ComputingNode::D2);
+    resetAboveLikelihoods(nId, nbSites, nbStates_);      
+    resetLikelihoods(nId, nbSites, nbStates_, ComputingNode::D0);
+    resetLikelihoods(nId, nbSites, nbStates_, ComputingNode::D1);
+    resetLikelihoods(nId, nbSites, nbStates_, ComputingNode::D2);
   }
-
+    
+  resetBelowLikelihoods(nId, nbSites, nbStates_, ComputingNode::D0);
+    
+  resetBelowLikelihoods(nId, nbSites, nbStates_, ComputingNode::D1);
+  resetBelowLikelihoods(nId, nbSites, nbStates_, ComputingNode::D2);
     
   
   // Now initialize likelihood values and pointers:
@@ -303,10 +282,13 @@ SitePatterns* RecursiveLikelihoodTree::initLikelihoodsWithPatterns_(const Node* 
 
     for (size_t c = 0; c < nbClasses_; c++)
     {
-      LikelihoodNode& lNode= *vTree_[c]->getNode(node->getId());
-      
+      RecursiveLikelihoodNode& lNode= *dynamic_cast<RecursiveLikelihoodNode*>(vTree_[c]->getNode(nId));
+      VVdouble& array=lNode.getBelowLikelihoodArray_(ComputingNode::D0);
+
       for (size_t i = 0; i < nbSites; i++)
       {
+        Vdouble* array_i=&array[i];
+        
         int state = seq->getValue(i);
         double test = 0.;
         for (size_t s = 0; s < nbStates_; s++)
@@ -315,23 +297,25 @@ SitePatterns* RecursiveLikelihoodTree::initLikelihoodsWithPatterns_(const Node* 
           if (lNode.usesLog())
           {
             if (x<=0)
-              throw BadNumberException("RecursiveLikelihoodTree::initTreelikelihoods log not possible for value",x);
-            lNode(i,s) = log(x);
+              (*array_i)[s]=-10000;
+            else
+              (*array_i)[s] = log(x);
           }
           else
-            lNode(i,s) = x;
+            (*array_i)[s] = x;
 
           test += x;
         }
 
         if (test < 0.000001) std::cerr << "WARNING!!! Likelihood will be 0 for this site " << TextTools::toString(i) << std::endl;
       }
+      lNode.updateBelow_(true, ComputingNode::D0);
     }
   }
   else
   {
     // 'node' is an internal node.
-    std::map<int, std::vector<size_t> >* patternLinks_node = &patternLinks_[node->getId()];
+    std::map<int, std::vector<size_t> >* patternLinks_node = &patternLinks_[nId];
 
     // Now initialize pattern links:
     int nbSonNodes = static_cast<int>(node->getNumberOfSons());

@@ -83,27 +83,38 @@ void AbstractLikelihoodNode::setUseLog(bool useLog)
   if (useLog==usesLog())
     return;
 
-  size_t nSites=nodeLikelihoods_.size();
-  size_t nStates=nodeLikelihoods_[0].size();
-
-  if (useLog)
+  if (isUp2date(ComputingNode::D0))
   {
+    size_t nSites=nodeLikelihoods_.size();
+    size_t nStates=nodeLikelihoods_[0].size();
+
+    if (useLog)
+    {
+      for (size_t i = 0; i < nSites; i++)
+      {
+        Vdouble* nodeLikelihoods_i_ = &(nodeLikelihoods_[i]);
+        for(size_t s = 0; s < nStates; s++)
+          (*nodeLikelihoods_i_)[s]=log((*nodeLikelihoods_i_)[s]);
+      }
+    }
     for (size_t i = 0; i < nSites; i++)
     {
       Vdouble* nodeLikelihoods_i_ = &(nodeLikelihoods_[i]);
       for(size_t s = 0; s < nStates; s++)
-        (*nodeLikelihoods_i_)[s]=log((*nodeLikelihoods_i_)[s]);
+        (*nodeLikelihoods_i_)[s]=exp((*nodeLikelihoods_i_)[s]);
     }
-  }
-  for (size_t i = 0; i < nSites; i++)
-  {
-    Vdouble* nodeLikelihoods_i_ = &(nodeLikelihoods_[i]);
-    for(size_t s = 0; s < nStates; s++)
-      (*nodeLikelihoods_i_)[s]=exp((*nodeLikelihoods_i_)[s]);
   }
   
   usesLog_=useLog;
 }
 
 
+void AbstractLikelihoodNode::setUseLogDownward(bool useLog)
+{
+  setUseLog(useLog);
+
+  size_t nS=getNumberOfSons();
+  for (size_t i=0; i<nS; i++)
+    static_cast<AbstractLikelihoodNode*>(getSon(i))->setUseLogDownward(useLog);
+}
     

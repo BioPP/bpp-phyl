@@ -113,10 +113,9 @@ namespace bpp
 
 
       /**
-       * @brief Resize and initialize all likelihood arrays at a given
-       * node according to the given sizes, with values computed at
-       * leaves by the process on the sites.
-       *
+       * @brief Resize and initialize all likelihood arrays according
+       * to the given sizes, with values computed at leaves by the
+       * process on the sites.
        */
 
       virtual void initLikelihoods(const SiteContainer& sites, const SubstitutionProcess& process) = 0;
@@ -130,6 +129,12 @@ namespace bpp
 
       virtual void resetLikelihoods(int nodeId, size_t nbSites, size_t nbStates, unsigned char DX) = 0;
 
+      /**
+       * @brief sets using log in all likelihood arrays.
+       *
+       */
+    
+      virtual void setAllUseLog(bool useLog) = 0;
 
     };
 

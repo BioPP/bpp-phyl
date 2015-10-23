@@ -175,7 +175,18 @@ namespace bpp
         }
         
       }
+
+      /**
+       * @brief sets using log in all likelihood arrays.
+       *
+       */
       
+      void setUseLog(bool useLog)
+      {
+        for (size_t i = 0; i < vpTreelik_.size(); i++)
+          vpTreelik_[i]->setAllUseLog(useLog);
+      }
+
       /**
        * @brief Get the likelihood for a site.
        *
@@ -184,6 +195,8 @@ namespace bpp
        */
 
       virtual double getLikelihoodForASite(size_t site) const = 0;
+
+      virtual double getLogLikelihoodForASite(size_t site) const = 0;
 
       /**
        * @brief Get the likelihood for a site for a process.

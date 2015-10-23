@@ -69,7 +69,7 @@ double MixtureProcessPhyloLikelihood::getLogLikelihood() const
   vector<double> la(nbSites_);
   for (size_t i = 0; i < nbSites_; ++i)
     {
-      la[i] = log(getLikelihoodForASite(i));
+      la[i] = getLogLikelihoodForASite(i);
     }
   sort(la.begin(), la.end());
   double ll = 0;
@@ -154,6 +154,20 @@ double MixtureProcessPhyloLikelihood::getLikelihoodForASite(size_t site) const
   }
 
   return x;
+}
+
+/******************************************************************************/
+
+double MixtureProcessPhyloLikelihood::getLogLikelihoodForASite(size_t site) const
+{
+  computeLikelihood();
+
+  vector<double> v(vpTreelik_.size());
+  
+  for (size_t i = 0; i < vpTreelik_.size(); i++)
+    v[i]= vpTreelik_[i]->getLogLikelihoodForASite(site) + log(mSeqEvol_.getSubProcessProb(i));
+
+  return VectorTools::logSumExp(v);
 }
 
 

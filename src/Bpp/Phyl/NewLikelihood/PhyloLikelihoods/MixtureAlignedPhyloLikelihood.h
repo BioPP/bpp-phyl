@@ -125,6 +125,8 @@ namespace bpp
   
       double getLikelihoodForASite(size_t site) const;
   
+      double getLogLikelihoodForASite(size_t site) const;
+
       VVdouble getPosteriorProbabilitiesForEachSiteForEachProcess() const;
 
     protected:

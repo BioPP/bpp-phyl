@@ -240,44 +240,90 @@ namespace bpp
     {
       if (useLog==usesLog())
         return;
-
+      
       AbstractLikelihoodNode::setUseLog(useLog);
 
-      size_t nSites=nodeLikelihoods_A_.size();
-      size_t nStates=nodeLikelihoods_A_[0].size();
-
-      if (useLog)
+      if (isUp2dateAbove())
       {
-        for (size_t i = 0; i < nSites; i++)
+        size_t nSites=nodeLikelihoods_A_.size();
+        size_t nStates=nodeLikelihoods_A_[0].size();
+        
+        if (useLog)
         {
+          for (size_t i = 0; i < nSites; i++)
+          {
           Vdouble* nodeLikelihoods_A_i_ = &(nodeLikelihoods_A_[i]);
-          Vdouble* node_fatherLikelihoods_B_i_ = &(node_fatherLikelihoods_B_[i]);
-          Vdouble* nodeLikelihoods_B_i_ = &(nodeLikelihoods_B_[i]);
           
           for(size_t s = 0; s < nStates; s++)
-          {
             (*nodeLikelihoods_A_i_)[s]=log((*nodeLikelihoods_A_i_)[s]);
-            (*node_fatherLikelihoods_B_i_)[s]=log((*node_fatherLikelihoods_B_i_)[s]);
-            (*nodeLikelihoods_B_i_)[s]=log((*nodeLikelihoods_B_i_)[s]);
           }
         }
-      }
-      else
-      {
-        for (size_t i = 0; i < nSites; i++)
+        else
         {
-          Vdouble* nodeLikelihoods_A_i_ = &(nodeLikelihoods_A_[i]);
-          Vdouble* node_fatherLikelihoods_B_i_ = &(node_fatherLikelihoods_B_[i]);
-          Vdouble* nodeLikelihoods_B_i_ = &(nodeLikelihoods_B_[i]);
-          
-          for(size_t s = 0; s < nStates; s++)
+          for (size_t i = 0; i < nSites; i++)
           {
-            (*nodeLikelihoods_A_i_)[s]=exp((*nodeLikelihoods_A_i_)[s]);
-            (*node_fatherLikelihoods_B_i_)[s]=exp((*node_fatherLikelihoods_B_i_)[s]);
-            (*nodeLikelihoods_B_i_)[s]=exp((*nodeLikelihoods_B_i_)[s]);
+            Vdouble* nodeLikelihoods_A_i_ = &(nodeLikelihoods_A_[i]);
+          
+            for(size_t s = 0; s < nStates; s++)
+              (*nodeLikelihoods_A_i_)[s]=exp((*nodeLikelihoods_A_i_)[s]);
           }
         }
       }
+
+      if (isUp2dateFatherBelow_(ComputingNode::D0))
+      {
+        size_t nSites=node_fatherLikelihoods_B_.size();
+        size_t nStates=node_fatherLikelihoods_B_[0].size();
+
+        if (useLog)
+        {
+          for (size_t i = 0; i < nSites; i++)
+          {
+            Vdouble* node_fatherLikelihoods_B_i_ = &(node_fatherLikelihoods_B_[i]);
+          
+            for(size_t s = 0; s < nStates; s++)
+              (*node_fatherLikelihoods_B_i_)[s]=log((*node_fatherLikelihoods_B_i_)[s]);
+          }
+        }
+        else
+        {
+          for (size_t i = 0; i < nSites; i++)
+          {
+            Vdouble* node_fatherLikelihoods_B_i_ = &(node_fatherLikelihoods_B_[i]);
+            
+            for(size_t s = 0; s < nStates; s++)
+            (*node_fatherLikelihoods_B_i_)[s]=exp((*node_fatherLikelihoods_B_i_)[s]);
+          }
+        }
+      }
+
+      if (isUp2dateBelow_(ComputingNode::D0))
+      {
+        size_t nSites=nodeLikelihoods_B_.size();
+        size_t nStates=nodeLikelihoods_B_[0].size();
+
+        if (useLog)
+        {
+          for (size_t i = 0; i < nSites; i++)
+          {
+            Vdouble* nodeLikelihoods_B_i_ = &(nodeLikelihoods_B_[i]);
+          
+            for(size_t s = 0; s < nStates; s++)
+              (*nodeLikelihoods_B_i_)[s]=log((*nodeLikelihoods_B_i_)[s]);
+          }
+        }
+        else
+        {
+          for (size_t i = 0; i < nSites; i++)
+          {
+            Vdouble* nodeLikelihoods_B_i_ = &(nodeLikelihoods_B_[i]);
+            
+            for(size_t s = 0; s < nStates; s++)
+              (*nodeLikelihoods_B_i_)[s]=exp((*nodeLikelihoods_B_i_)[s]);
+          }
+        }
+      }
+
     }
 
     /*
@@ -681,7 +727,7 @@ namespace bpp
           }
         }
       }
-      
+
       updateBelow_(true, DX);
     }
 
@@ -698,8 +744,12 @@ namespace bpp
 
       size_t nbSites=abArray.size();
 
-      for (size_t i=0; i<nbSites; i++)
-        abArray[i]=rootFreq;
+      if (usesLog_)
+        for (size_t i=0; i<nbSites; i++)
+          abArray[i]=VectorTools::log(rootFreq);
+      else
+        for (size_t i=0; i<nbSites; i++)
+          abArray[i]=rootFreq;
     }
 
     void setAboveLikelihoods(const VVdouble& initFreq)
@@ -708,8 +758,12 @@ namespace bpp
 
       size_t nbSites=abArray.size();
 
-      for (size_t i=0; i<nbSites; i++)
-        abArray[i]=initFreq[i];
+      if (usesLog_)
+        for (size_t i=0; i<nbSites; i++)
+          abArray[i]=VectorTools::log(initFreq[i]);
+      else
+        for (size_t i=0; i<nbSites; i++)
+          abArray[i]=initFreq[i];
     }
 
     /*
@@ -791,9 +845,6 @@ namespace bpp
     
     VVdouble& getBelowLikelihoodArray_(unsigned char DX)
     {
-      if (isLeaf())
-        return getLikelihoodArray(DX);
-      
       switch(DX){
       case ComputingNode::D0:
         return nodeLikelihoods_B_;
@@ -808,9 +859,6 @@ namespace bpp
 
     const VVdouble& getBelowLikelihoodArray_(unsigned char DX) const
     {
-      if (isLeaf())
-        return getLikelihoodArray(DX);
-      
       switch(DX){
       case ComputingNode::D0:
         return nodeLikelihoods_B_;

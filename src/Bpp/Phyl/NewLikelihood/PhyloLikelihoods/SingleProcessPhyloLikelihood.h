@@ -180,7 +180,15 @@ namespace bpp
       const SubstitutionProcess& getSubstitutionProcess() const { return *process_; }
 
       size_t getSubstitutionProcessNumber() const { return nProc_; }
-      
+
+      /** @} */
+
+      /**
+       * @name Handling of parameters
+       *
+       * @{
+       */
+
       bool hasDerivableParameter(const std::string& name) const
       {
         return process_->hasDerivableParameter(name);
@@ -206,22 +214,20 @@ namespace bpp
         return process_->getSubstitutionModelParameters(true);
       }
 
+      //    ParameterList getTransitionProbabilitiesParameters() const { return process_->getTransitionProbabilitiesParameters(); }
+      // TODO: this has to be modified to deal with special cases...
+      ParameterList getDerivableParameters() const {
+        // patch, to be fixed properly later
+        return ParameterList();
+
+        return getBranchLengthParameters();
+      }
+
+      ParameterList getNonDerivableParameters() const;
+
       /** @} */
 
 
-      /**
-       * @brief Implements the Function interface.
-       *
-       * Update the parameter list and call the applyParameters() method.
-       * Then compute the likelihoods at each node (computeLikelihood() method)
-       * and call the getLogLikelihood() method.
-       *
-       * If a subset of the whole parameter list is passed to the function,
-       * only these parameters are updated and the other remain constant (i.e.
-       * equal to their last value).
-       *
-       */
-      
       void computeLikelihood() const
       {
         if (computeLikelihoods_)
@@ -245,10 +251,10 @@ namespace bpp
       double getFirstOrderDerivative(const std::string& variable) const throw (Exception)
       {
         if (!hasParameter(variable))
-          throw ParameterNotFoundException("AbstractPhyloLikelihood::getFirstOrderDerivative().", variable);
+          throw ParameterNotFoundException("SingleProcessPhyloLikelihood::getFirstOrderDerivative().", variable);
         if (!hasDerivableParameter(variable))
         {
-          throw Exception("AbstractPhyloLikelihood::Derivative is not implemented for " + variable + " parameter.");
+          throw Exception("SingleProcessPhyloLikelihood::getFirstOrderDerivative : Derivative is not implemented for " + variable + " parameter.");
         }
         
         computeDLogLikelihood_(variable);
@@ -258,10 +264,10 @@ namespace bpp
       double getSecondOrderDerivative(const std::string& variable) const throw (Exception)
       {
         if (!hasParameter(variable))
-          throw ParameterNotFoundException("AbstractPhyloLikelihood::getSecondOrderDerivative().", variable);
+          throw ParameterNotFoundException("SingleProcessPhyloLikelihood::getSecondOrderDerivative().", variable);
         if (!hasDerivableParameter(variable))
         {
-          throw Exception("Derivative is not implemented for " + variable + " parameter.");
+          throw Exception("SingleProcessPhyloLikelihood::getSecondOrderDerivative : Derivative is not implemented for " + variable + " parameter.");
         }
         computeD2LogLikelihood_(variable);
         return -getD2LogLikelihood();
@@ -285,16 +291,29 @@ namespace bpp
        */
       virtual const LikelihoodTree* getLikelihoodData() const { return &tlComp_->getLikelihoodData(); }
 
-      //    ParameterList getTransitionProbabilitiesParameters() const { return process_->getTransitionProbabilitiesParameters(); }
-      // TODO: this has to be modified to deal with special cases...
-      ParameterList getDerivableParameters() const {
-        // patch, to be fixed properly later
-        return ParameterList();
+      /**
+       * @brief set it arrays should be computed in log.
+       *
+       */
 
-        return getBranchLengthParameters();
+      void setUseLog(bool useLog)
+      {
+        tlComp_->setAllUseLog(useLog);
       }
-
-      ParameterList getNonDerivableParameters() const;
+      
+      /**
+       * @brief Implements the Function interface.
+       *
+       * Update the parameter list and call the applyParameters() method.
+       * Then compute the likelihoods at each node (computeLikelihood() method)
+       * and call the getLogLikelihood() method.
+       *
+       * If a subset of the whole parameter list is passed to the function,
+       * only these parameters are updated and the other remain constant (i.e.
+       * equal to their last value).
+       *
+       */
+      
 
       double getLogLikelihood() const
       {
@@ -316,6 +335,12 @@ namespace bpp
       {
         computeLikelihood();
         return tlComp_->getLikelihoodForASite(siteIndex);
+      }
+
+      double getLogLikelihoodForASite(size_t siteIndex) const
+      {
+        computeLikelihood();
+        return tlComp_->getLogLikelihoodForASite(siteIndex);
       }
 
       double getDLogLikelihoodForASite(size_t siteIndex) const {

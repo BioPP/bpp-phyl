@@ -164,8 +164,7 @@ void RecursiveLikelihoodTreeCalculation::computeLikelihoodsAtNode(int nodeId)
   if (!likelihoodData_->isAboveLikelihoodsInitialized())
   {
     likelihoodData_->resetInnerAboveLikelihoods();
-    
-    likelihoodData_->resetInnerLikelihoods(nbDistinctSites_, nbStates_, ComputingNode::D0);
+    likelihoodData_->resetDownwardLikelihoods(nbDistinctSites_, nbStates_, ComputingNode::D0);
   }
 
   // recursion

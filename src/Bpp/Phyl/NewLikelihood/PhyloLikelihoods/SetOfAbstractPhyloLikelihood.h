@@ -150,6 +150,18 @@ namespace bpp
        * @{
        */
       
+
+      /**
+       * @brief set it arrays should be computed in log.
+       *
+       */
+
+      void setUseLog(bool useLog)
+      {
+        for (size_t i=0; i<nPhylo_.size(); i++)
+          (*getPhyloContainer())[nPhylo_[i]]->setUseLog(useLog);
+      }
+      
       /**
        * @return initialized the likelihood function.
        *
@@ -229,10 +241,10 @@ namespace bpp
       double getSecondOrderDerivative(const std::string& variable) const throw (Exception)
       {
         if (!hasParameter(variable))
-          throw ParameterNotFoundException("AbstractPhyloLikelihood::getSecondOrderDerivative().", variable);
+          throw ParameterNotFoundException("SetOfAbstractPhyloLikelihood::getSecondOrderDerivative().", variable);
         if (!hasDerivableParameter(variable))
         {
-          throw Exception("Derivative is not implemented for " + variable + " parameter.");
+          throw Exception("SetOfAbstractPhyloLikelihood::Derivative is not implemented for " + variable + " parameter.");
         }
         
         computeD2LogLikelihood_(variable);

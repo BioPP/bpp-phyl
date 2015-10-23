@@ -179,10 +179,10 @@ namespace bpp
       double getFirstOrderDerivative(const std::string& variable) const throw (Exception)
       {
         if (!hasParameter(variable))
-          throw ParameterNotFoundException("AbstractPhyloLikelihood::getFirstOrderDerivative().", variable);
+          throw ParameterNotFoundException("SequencePhyloLikelihood::getFirstOrderDerivative().", variable);
         if (!hasDerivableParameter(variable))
         {
-          throw Exception("AbstractPhyloLikelihood::Derivative is not implemented for " + variable + " parameter.");
+          throw Exception("SequencePhyloLikelihood::Derivative is not implemented for " + variable + " parameter.");
         }
         
         computeDLogLikelihood_(variable);

@@ -126,6 +126,20 @@ namespace bpp
         return x;
       }
 
+      virtual double getLogLikelihoodForASite(size_t site) const
+      {
+        computeLikelihood();
+        
+        double x=0;
+
+        const std::vector<size_t>& nPhylo=getNumbersOfPhyloLikelihoods();
+        
+        for (size_t i=0; i<nPhylo.size(); i++)
+          x += getAbstractPhyloLikelihood(nPhylo[i])->getLogLikelihoodForASite(site);
+        
+        return x;
+      }
+
       /**
        * @brief Get the derivates of the LogLikelihood at a Site
        *

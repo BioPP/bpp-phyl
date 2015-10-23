@@ -156,6 +156,13 @@ namespace bpp
         return Hmm_->getLikelihoodForASite(site);
       }
 
+      double getLogLikelihoodForASite(size_t site) const
+      {
+        computeLikelihood();
+
+        return log(Hmm_->getLikelihoodForASite(site));
+      }
+
       double getDLogLikelihoodForASite(size_t site) const
       {
         return Hmm_->getDLogLikelihoodForASite(site);

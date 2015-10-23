@@ -51,6 +51,7 @@
 
 // From the STL:
 #include <map>
+using namespace std;
 
 namespace bpp
 {
@@ -152,6 +153,11 @@ namespace bpp
     {
       return usePatterns_;
     }
+
+    /*
+     * @brief resets the likelihood arrays.
+     *
+     */
     
     void resetBelowLikelihoods(int nodeId, size_t nbSites, size_t nbStates, unsigned char DX) const
     {
@@ -168,6 +174,17 @@ namespace bpp
     void setAboveLikelihoods(int nodeId, const Vdouble& freq) {
       for (size_t c = 0; c < vTree_.size(); ++c)
         vTree_[c]->getNode(nodeId)->setAboveLikelihoods(freq);
+    }
+
+    /*
+     * @brief set if log-likelihood should be computed at node.
+     *
+     */
+    
+    void setUseLog(int nodeId, bool useLog) const
+    {
+      for (size_t c = 0; c < vTree_.size(); ++c)
+        vTree_[c]->getNode(nodeId)->setUseLog(useLog);
     }
 
     /*

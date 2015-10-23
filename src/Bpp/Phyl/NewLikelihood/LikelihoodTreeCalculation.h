@@ -116,6 +116,7 @@ public:
    *
    * @param sites A sequence alignment to initialize the object with.
    */
+  
   virtual void setData(const SiteContainer& sites) = 0;
   
   /**
@@ -134,6 +135,13 @@ public:
    */
   
   virtual bool usesLogAtRoot(size_t nClass) const = 0;
+
+  /**
+   * @brief sets using log in all likelihood arrays.
+   *
+   */
+  
+  virtual void setAllUseLog(bool useLog) = 0;
 
   /**
    * @brief Get the log-likelihood for the data set.

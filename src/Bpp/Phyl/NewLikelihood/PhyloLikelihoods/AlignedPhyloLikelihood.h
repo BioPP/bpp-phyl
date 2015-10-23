@@ -174,11 +174,6 @@ namespace bpp
       nbSites_ = nbSites;
     }
 
-    double getLogLikelihoodForASite(size_t site) const
-    {
-      return log(getLikelihoodForASite(site));
-    }
-
     Vdouble getLikelihoodForEachSite() const
     {
       Vdouble l(getNumberOfSites());

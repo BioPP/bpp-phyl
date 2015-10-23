@@ -40,9 +40,6 @@ knowledge of the CeCILL license and that you accept its terms.
 #include "AbstractLikelihoodTree.h"
 
 #include "SubstitutionProcess.h"
-#include "RecursiveLikelihoodNode.h"
-
-#include <Bpp/Exceptions.h>
 
 using namespace bpp;
 using namespace std;

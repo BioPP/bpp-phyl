@@ -78,11 +78,10 @@ void AbstractLikelihoodTreeCalculation::setData(const SiteContainer& sites)
 
 double AbstractLikelihoodTreeCalculation::getLogLikelihood()
 {
-//  computeTreeLikelihood();
-
-  for (size_t i = 0; i < nbSites_; ++i)
+  for (size_t i = 0; i < nbSites_; ++i){
     vSites_[i] = getLogLikelihoodForASite(i);
-
+  }
+  
   sort(vSites_.begin(), vSites_.end());
   double ll = 0;
   for (size_t i = nbSites_; i > 0; i--)
@@ -130,6 +129,9 @@ double AbstractLikelihoodTreeCalculation::getD2LogLikelihood()
 
 double AbstractLikelihoodTreeCalculation::getLikelihoodForASite(size_t site)
 {
+  if (usesLogAtRoot(0))
+    return exp(getLogLikelihoodForASite(site));
+
   double l = 0;
   
   size_t posR=getLikelihoodData().getRootArrayPosition(site);
@@ -148,6 +150,7 @@ double AbstractLikelihoodTreeCalculation::getLikelihoodForASite(size_t site)
   }
 
   if (l < 0) l = 0; //May happen because of numerical errors.
+
   return l;
 }
 
@@ -155,6 +158,9 @@ double AbstractLikelihoodTreeCalculation::getLikelihoodForASite(size_t site)
 
 double AbstractLikelihoodTreeCalculation::getLogLikelihoodForASite(size_t site)
 {
+  if (!usesLogAtRoot(0))
+    return log(getLikelihoodForASite(site));
+
   size_t posR=getLikelihoodData().getRootArrayPosition(site);
   int Rid=getRootId();
 
