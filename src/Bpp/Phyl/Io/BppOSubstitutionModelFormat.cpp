@@ -96,6 +96,7 @@
 #include "../Model/Protein/LLG08_EHO.h"
 #include "../Model/Protein/LG10_EX_EHO.h"
 #include "../Model/BinarySubstitutionModel.h"
+#include "../Model/FromMixtureSubstitutionModel.h"
 
 #include "../App/PhylogeneticsApplicationTools.h"
 
@@ -626,9 +627,38 @@ SubstitutionModel* BppOSubstitutionModelFormat::read(
         model.reset(new LG10_EX_EHO(alpha));	
       else if (modelName == "LGL08_CAT")
       {
+        if (args.find("nbCat")==args.end())
+          throw Exception("'nbCat' argument is compulsory for model 'LGL08_CAT'");
+          
         unsigned int nbCat = TextTools::to<unsigned int>(args["nbCat"]);
         model.reset(new LGL08_CAT(alpha, nbCat));
       }
+      // submodels of mixture models
+      else if (modelName.substr(0,9) == "LGL08_CAT")
+      {
+        string subModelName = modelName.substr(10);
+
+        size_t posp=modelDescription.find("(");
+
+        string modelDesc2=modelName.substr(0,9)+modelDescription.substr(posp);
+        
+        BppOSubstitutionModelFormat nestedReader(PROTEIN, true, true, false, verbose_, warningLevel_);
+
+        
+        MixedSubstitutionModel* nestedModel=dynamic_cast<MixedSubstitutionModel*>(nestedReader.read(alphabet, modelDesc2, data, false));
+      
+        // Check that nestedModel is fine and has subModel of given name
+        if (nestedModel==NULL)
+          throw Exception("Unknown model " + modelName + ".");
+        
+        if (nestedModel->getSubModelWithName(subModelName)==NULL)
+          throw Exception("BppOSubstitutionModelFormat::read. " + nestedModel->getName() + "argument for model 'FromModel' has no submodel with name " + subModelName + ".");
+
+       // Now we create the FromModel substitution model:
+        model.reset(new FromMixtureSubstitutionModel(*nestedModel, subModelName, modelDesc2));
+        
+        delete nestedModel;
+      }      
       else if (modelName == "Empirical")
       {
         string prefix = args["name"];
@@ -1245,6 +1275,15 @@ void BppOSubstitutionModelFormat::write(const SubstitutionModel& model,
     comma = true;
   }
 
+  // // Is it a FromMixture model?
+
+  // const FromMixtureSubstitutionModel* fromModel = dynamic_cast<const FromMixtureSubstitutionModel*>(&model);
+  // if (fromModel)
+  // {
+  //   out << "exch=" << coalaModel->getExch() << ",nbrAxes=" << coalaModel->getNbrOfAxes();
+  //   comma = true;
+  // }
+  
   // Regular model
   const FrequenciesSet* pfs = model.getFrequenciesSet();
   if (pfs)

@@ -192,6 +192,16 @@ MixtureOfSubstitutionModels& MixtureOfSubstitutionModels::operator=(const Mixtur
 MixtureOfSubstitutionModels::~MixtureOfSubstitutionModels()
 {}
 
+const SubstitutionModel* MixtureOfSubstitutionModels::getSubModelWithName(const std::string& name) const
+{
+  size_t nbmod=getNumberOfModels();
+
+  for (size_t i=0; i<nbmod; i++)
+    if (getNModel(i)->getName()==name)
+      return getNModel(i);
+
+  return NULL;
+}
 
 void MixtureOfSubstitutionModels::updateMatrices()
 {
@@ -263,6 +273,7 @@ void MixtureOfSubstitutionModels::updateMatrices()
     }
   }
 }
+
 
 void MixtureOfSubstitutionModels::setFreq(std::map<int, double>& m)
 {

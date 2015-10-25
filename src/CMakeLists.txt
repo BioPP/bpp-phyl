@@ -74,9 +74,8 @@ SET(CPP_FILES
   Bpp/Phyl/Model/AbstractMixedSubstitutionModel.cpp
   Bpp/Phyl/Model/MixtureOfASubstitutionModel.cpp
   Bpp/Phyl/Model/MixtureOfSubstitutionModels.cpp
-  Bpp/Phyl/Model/RateDistributionFactory.cpp
+  Bpp/Phyl/Model/FromMixtureSubstitutionModel.cpp
   Bpp/Phyl/Model/RE08.cpp
-  Bpp/Phyl/Model/SubstitutionModelFactory.cpp
   Bpp/Phyl/Model/SubstitutionModelSet.cpp
   Bpp/Phyl/Model/MixedSubstitutionModelSet.cpp
   Bpp/Phyl/Model/SubstitutionModelSetTools.cpp
@@ -247,9 +246,8 @@ SET(H_FILES
   Bpp/Phyl/Model/AbstractMixedSubstitutionModel.h
   Bpp/Phyl/Model/MixtureOfASubstitutionModel.h
   Bpp/Phyl/Model/MixtureOfSubstitutionModels.h
-  Bpp/Phyl/Model/RateDistributionFactory.h
+  Bpp/Phyl/Model/FromMixtureSubstitutionModel.h
   Bpp/Phyl/Model/RE08.h
-  Bpp/Phyl/Model/SubstitutionModelFactory.h
   Bpp/Phyl/Model/SubstitutionModel.h
   Bpp/Phyl/Model/SubstitutionModelSet.h
   Bpp/Phyl/Model/MixedSubstitutionModelSet.h

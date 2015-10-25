@@ -127,6 +127,15 @@ public:
 
   void updateMatrices();
 
+  /**
+   * @brief retrieve a pointer to the submodel with the given name.
+   *
+   * Return Null if not found.
+   *
+   */
+    
+  const SubstitutionModel* getSubModelWithName(const std::string& name) const;
+    
   /*
      *@brief Returns the vector of numbers of the submodels in the
      *mixture that match a description of the parameters numbers.
