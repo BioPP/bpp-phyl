@@ -141,7 +141,7 @@ namespace bpp
        *
        */
       
-      void addPhyloLikelihood(size_t nPhyl);
+      bool addPhyloLikelihood(size_t nPhyl);
       
       /**
        * @name The Likelihood interface.

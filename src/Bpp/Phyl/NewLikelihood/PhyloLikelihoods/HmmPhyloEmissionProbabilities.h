@@ -1,7 +1,7 @@
 //
-// File: HmmProcessEmissionProbabilities.h
+// File: HmmPhyloEmissionProbabilities.h
 // Created by: Laurent Guéguen
-// Created on: mardi 24 septembre 2013, à 10h 00
+// Created on: mercredi 28 octobre 2015, à 17h 58
 //
 
 /*
@@ -37,11 +37,10 @@ The fact that you are presently reading this means that you have had
 knowledge of the CeCILL license and that you accept its terms.
 */
 
-#ifndef _HMM_PROCESS_EMISSION_PROBABILITIES_H_
-#define _HMM_PROCESS_EMISSION_PROBABILITIES_H_
+#ifndef _HMM_PHYLO_EMISSIONPROBABILITIES_H_
+#define _HMM_PHYLO_EMISSIONPROBABILITIES_H_
 
-#include "HmmProcessAlphabet.h"
-#include "PhyloLikelihoods/MultiProcessSequencePhyloLikelihood.h"
+#include "HmmPhyloAlphabet.h"
 
 #include <Bpp/Numeric/Hmm/HmmEmissionProbabilities.h>
 #include <Bpp/Numeric/AbstractParametrizable.h>
@@ -53,65 +52,80 @@ namespace bpp
  * @brief Emission probabilities in the context of substitution
  * process.
  *
+ * 
  */
 
-  class HmmProcessEmissionProbabilities:
+  class HmmPhyloEmissionProbabilities:
     public virtual HmmEmissionProbabilities,
     public AbstractParametrizable
   {
   private:
-    const HmmProcessAlphabet* procAlph_;
+    const HmmPhyloAlphabet* phylAlph_;
     
-    const MultiProcessSequencePhyloLikelihood* multiPL_;
-
     mutable std::vector<std::vector<double> > emProb_;
-
+    
     mutable std::vector<std::vector<double> > dEmProb_;
 
     mutable std::vector<std::vector<double> > d2EmProb_;
 
     mutable bool upToDate_;
 
+    size_t nbSites_;
+    
     void updateEmissionProbabilities_() const;
 
   public:
-    HmmProcessEmissionProbabilities(const HmmProcessAlphabet* alphabet,
-                                    const MultiProcessSequencePhyloLikelihood* multiPL);
-
-    HmmProcessEmissionProbabilities(const HmmProcessEmissionProbabilities& hEP) :
+    HmmPhyloEmissionProbabilities(const HmmPhyloAlphabet* alphabet);
+    
+    HmmPhyloEmissionProbabilities(const HmmPhyloEmissionProbabilities& hEP) :
       AbstractParametrizable(hEP),
-      procAlph_(hEP.procAlph_),
-      multiPL_(hEP.multiPL_),
+      phylAlph_(hEP.phylAlph_),
       emProb_(hEP.emProb_),
       dEmProb_(hEP.dEmProb_),
       d2EmProb_(hEP.d2EmProb_),
-      upToDate_(hEP.upToDate_)
+      upToDate_(hEP.upToDate_),
+      nbSites_(hEP.nbSites_)
     {}
 
-    HmmProcessEmissionProbabilities& operator=(const HmmProcessEmissionProbabilities& hEP)
+    HmmPhyloEmissionProbabilities& operator=(const HmmPhyloEmissionProbabilities& hEP)
     {
       AbstractParametrizable::operator=(hEP);
-      procAlph_=hEP.procAlph_;
-      multiPL_=hEP.multiPL_;
+      phylAlph_=hEP.phylAlph_;
       emProb_=hEP.emProb_;
       dEmProb_=hEP.dEmProb_;
       d2EmProb_=hEP.d2EmProb_;
       upToDate_=hEP.upToDate_;
+      nbSites_=hEP.nbSites_;
 
       return *this;
     }
 
-    HmmProcessEmissionProbabilities* clone() const { return new HmmProcessEmissionProbabilities(*this);}
+    void fireParameterChanged(const ParameterList& parameters)
+    {
+    }
+
+    HmmPhyloEmissionProbabilities* clone() const { return new HmmPhyloEmissionProbabilities(*this);}
 
     const HmmStateAlphabet* getHmmStateAlphabet() const
     {
-      return procAlph_;
+      return phylAlph_;
     }
 
-    void fireParameterChanged(const ParameterList& parameters) {
-      upToDate_=false;
-    };
+    size_t getNumberOfStates() const
+    {
+      return phylAlph_->getNumberOfStates();
+    }
 
+    size_t getNumberOfSites() const
+    {
+      return nbSites_;
+    }
+
+    void update()
+    {
+      upToDate_=false;
+    }
+    
     /**
      * @brief Set the new hidden state alphabet.
      * @param stateAlphabet The new state alphabet.
@@ -176,14 +190,15 @@ namespace bpp
     /**
      * @return The number of positions in the data.
      */
+
     size_t getNumberOfPositions() const
     {
-      return multiPL_->getNumberOfSites();
+      return nbSites_;
     }
     
   };
 
 } //end of namespace bpp.
 
-#endif //_HMM_PROCESS_EMISSION_PROBABILITIES_H_
+#endif //_HMM_PROCESS_EMISSIONPROBABILITIES_H_
 

@@ -113,6 +113,11 @@ namespace bpp
       mPhylo_[pos]=Ap;
     }
 
+    bool hasPhyloLikelihood(size_t pos) const
+    {
+      return (mPhylo_.find(pos)!=mPhylo_.end());
+    }
+
     virtual const PhyloLikelihood* operator[](size_t pos) const
     {
       std::map<size_t, PhyloLikelihood*>::const_iterator it=mPhylo_.find(pos);

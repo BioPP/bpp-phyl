@@ -171,8 +171,8 @@ namespace bpp
     protected:
       virtual void fireParameterChanged(const ParameterList& parameters)
       {
-        update();
         seqEvol_->matchParametersValues(parameters);
+        update();
       }
 
     public:
@@ -180,11 +180,11 @@ namespace bpp
       {
         if (!hasParameter(variable))
           throw ParameterNotFoundException("SequencePhyloLikelihood::getFirstOrderDerivative().", variable);
-        if (!hasDerivableParameter(variable))
+//        if (!hasDerivableParameter(variable))
         {
           throw Exception("SequencePhyloLikelihood::Derivative is not implemented for " + variable + " parameter.");
         }
-        
+
         computeDLogLikelihood_(variable);
         return -getDLogLikelihood();
       }
@@ -193,7 +193,7 @@ namespace bpp
       {
         if (!hasParameter(variable))
           throw ParameterNotFoundException("AbstractPhyloLikelihood::getSecondOrderDerivative().", variable);
-        if (!hasDerivableParameter(variable))
+//        if (!hasDerivableParameter(variable))
         {
           throw Exception("Derivative is not implemented for " + variable + " parameter.");
         }

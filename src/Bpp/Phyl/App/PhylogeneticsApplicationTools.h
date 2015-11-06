@@ -603,6 +603,9 @@ namespace bpp
      *
      * Default data compression is simple.
      *
+     * The PhyloLikelihood with number 0 is a specific
+     * PhyloLikelihood, with name "result" in the BppO file.
+     *
      */
     
     static PhyloLikelihoodContainer* getPhyloLikelihoodContainer(
@@ -958,17 +961,22 @@ namespace bpp
     static void printParameters(const SubstitutionProcessCollection* collection, OutputStream& out, int warn = 1);
 
     /**
-     * @brief Output a PhyloLikelihood description to a file.
+     * @brief Output the description of the  PhyloLikelihoods IN USE a
+     * a PhyloLikelihoodContainer to a file.
      *
-     * @param phylolike The PhyloLikelihood to serialize.
+     * Starting from PhyloLikelihood with number 0 (with name
+     * "result"), PhyloLikelihoods involved in the computation are
+     * successively serialized.
+     *
+     * @param phylocont The PhyloLikelihoodContainer to serialize.
      * @param out       The stream where to print.
      * @param warn  Set the warning level (0: always display warnings, >0 display warnings on demand).
      */
 
-    static void printParameters(const PhyloLikelihood* phylolike, OutputStream& out, int warn = 1);
+    static void printParameters(const PhyloLikelihoodContainer& phylocont, OutputStream& out, int warn = 1);
     
 
-    static void printParameters(const SingleDataPhyloLikelihood* phylolike, OutputStream& out, size_t nPhylo = 1, int warn = 1);
+    static void printParameters(const SingleDataPhyloLikelihood& phylolike, OutputStream& out, size_t nPhylo = 1, int warn = 1);
 
     /**
      * @brief Output a Sequence Evolution description to a file.

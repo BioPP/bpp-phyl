@@ -42,14 +42,15 @@
 using namespace bpp;
 using namespace std;
 
-SetOfAbstractPhyloLikelihood::SetOfAbstractPhyloLikelihood(PhyloLikelihoodContainer* pC) :
+SetOfAbstractPhyloLikelihood::SetOfAbstractPhyloLikelihood(PhyloLikelihoodContainer* pC, const std::string& prefix) :
   AbstractPhyloLikelihood(),
-  AbstractParametrizable(""),
+  AbstractParametrizable(prefix),
   pPhyloCont_(pC),
   nPhylo_()
 {
 }
 
+ 
 SetOfAbstractPhyloLikelihood::SetOfAbstractPhyloLikelihood(const SetOfAbstractPhyloLikelihood& sd) :
   AbstractPhyloLikelihood(sd),
   AbstractParametrizable(sd),
@@ -70,15 +71,17 @@ SetOfAbstractPhyloLikelihood& SetOfAbstractPhyloLikelihood::operator=(const SetO
 }
 
 
-void SetOfAbstractPhyloLikelihood::addPhyloLikelihood(size_t nPhyl)
+bool SetOfAbstractPhyloLikelihood::addPhyloLikelihood(size_t nPhyl)
 {
   const AbstractPhyloLikelihood* aPL=getAbstractPhyloLikelihood(nPhyl);
 
   if (aPL!=NULL){
     nPhylo_.push_back(nPhyl);
     includeParameters_(aPL->getParameters());
+    update();
+    return true;
   }
-
+  return false;
 }
 
 void SetOfAbstractPhyloLikelihood::addAllPhyloLikelihoods()

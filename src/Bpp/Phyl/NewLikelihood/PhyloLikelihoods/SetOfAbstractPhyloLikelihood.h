@@ -75,7 +75,7 @@ namespace bpp
       std::vector<size_t> nPhylo_;
 
     public:
-      SetOfAbstractPhyloLikelihood(PhyloLikelihoodContainer* pC);
+      SetOfAbstractPhyloLikelihood(PhyloLikelihoodContainer* pC, const std::string& prefix = "");
 
       ~SetOfAbstractPhyloLikelihood() {}
 
@@ -106,9 +106,10 @@ namespace bpp
        * PhyloLikelihoodContainer, iff it is an
        * AbstractPhyloLikelihood.
        *
+       * @return if the PhyloLikelihood has been added.
        */
 
-      virtual void addPhyloLikelihood(size_t nPhyl);
+      virtual bool addPhyloLikelihood(size_t nPhyl);
 
       /**
        *
@@ -212,7 +213,7 @@ namespace bpp
 
     public:
       
-      void fireParameterChanged(const ParameterList& params)
+      virtual void fireParameterChanged(const ParameterList& params)
       {
         for (size_t i=0; i<nPhylo_.size(); i++){
           getAbstractPhyloLikelihood(nPhylo_[i])->matchParametersValues(params);
@@ -229,7 +230,7 @@ namespace bpp
       {
         if (!hasParameter(variable))
           throw ParameterNotFoundException("AbstractPhyloLikelihood::getFirstOrderDerivative().", variable);
-        if (!hasDerivableParameter(variable))
+//        if (!hasDerivableParameter(variable))
         {
           throw Exception("AbstractPhyloLikelihood::Derivative is not implemented for " + variable + " parameter.");
         }
@@ -242,7 +243,7 @@ namespace bpp
       {
         if (!hasParameter(variable))
           throw ParameterNotFoundException("SetOfAbstractPhyloLikelihood::getSecondOrderDerivative().", variable);
-        if (!hasDerivableParameter(variable))
+//        if (!hasDerivableParameter(variable))
         {
           throw Exception("SetOfAbstractPhyloLikelihood::Derivative is not implemented for " + variable + " parameter.");
         }

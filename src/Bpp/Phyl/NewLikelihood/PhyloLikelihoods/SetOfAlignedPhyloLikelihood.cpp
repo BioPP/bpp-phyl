@@ -43,9 +43,27 @@ using namespace std;
 using namespace bpp;
 
 
+SetOfAlignedPhyloLikelihood::SetOfAlignedPhyloLikelihood(PhyloLikelihoodContainer* pC, const std::string& prefix):
+  AbstractPhyloLikelihood(),
+  AbstractAlignedPhyloLikelihood(0),
+  SetOfAbstractPhyloLikelihood(pC, prefix)
+{
+}
+
+/*************************************************************/
+
+SetOfAlignedPhyloLikelihood::SetOfAlignedPhyloLikelihood(PhyloLikelihoodContainer* pC, const std::vector<size_t>& nPhylo, const std::string& prefix):
+  AbstractPhyloLikelihood(),
+  AbstractAlignedPhyloLikelihood(0),
+  SetOfAbstractPhyloLikelihood(pC, prefix)
+{
+  for (size_t i=0; i< nPhylo.size(); i++)
+    addPhyloLikelihood(nPhylo[i]);
+}
+
 /******************************************************************************/
 
-void SetOfAlignedPhyloLikelihood::addPhyloLikelihood(size_t nPhyl)
+bool SetOfAlignedPhyloLikelihood::addPhyloLikelihood(size_t nPhyl)
 {
   const AbstractAlignedPhyloLikelihood* aPL=getAbstractPhyloLikelihood(nPhyl);
 
@@ -56,6 +74,8 @@ void SetOfAlignedPhyloLikelihood::addPhyloLikelihood(size_t nPhyl)
     
     if (getNumberOfSites()==0)
       setNumberOfSites(aPL->getNumberOfSites());
+    update();
+    return true;
   }
-  update();
+  return false;
 }

@@ -71,6 +71,7 @@ double MixtureProcessPhyloLikelihood::getLogLikelihood() const
     {
       la[i] = getLogLikelihoodForASite(i);
     }
+
   sort(la.begin(), la.end());
   double ll = 0;
   for (size_t i = nbSites_; i > 0; i--)

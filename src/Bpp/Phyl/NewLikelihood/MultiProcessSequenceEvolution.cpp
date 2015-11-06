@@ -56,13 +56,15 @@ MultiProcessSequenceEvolution::MultiProcessSequenceEvolution(
 
   for (size_t i=0; i<nProc_.size(); i++)
     includeParameters_(processColl_->getSubstitutionProcessParameters(nProc_[i],true));
-  
+
+//  setNamespace(prefix);
 }
 
 /******************************************************************************/
 
 void MultiProcessSequenceEvolution::fireParameterChanged(const ParameterList& parameters)
 {
+  AbstractParameterAliasable::fireParameterChanged(parameters);
   processColl_->matchParametersValues(parameters);
 }
 

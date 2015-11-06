@@ -137,7 +137,7 @@ PartitionProcessPhyloLikelihood::PartitionProcessPhyloLikelihood(
 
 /******************************************************************************/
 
-void PartitionProcessPhyloLikelihood::addPhyloLikelihood(size_t nPhyl)
+bool PartitionProcessPhyloLikelihood::addPhyloLikelihood(size_t nPhyl)
 {
   const AbstractAlignedPhyloLikelihood* aPL=getAbstractPhyloLikelihood(nPhyl);
   
@@ -145,9 +145,11 @@ void PartitionProcessPhyloLikelihood::addPhyloLikelihood(size_t nPhyl)
   {
     nPhylo_.push_back(nPhyl);
     includeParameters_(aPL->getParameters());
+    update();
+    return true;
   }
 
-  update();
+  return false;
 }
 
 /******************************************************************************/

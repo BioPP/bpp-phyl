@@ -252,7 +252,7 @@ namespace bpp
       {
         if (!hasParameter(variable))
           throw ParameterNotFoundException("SingleProcessPhyloLikelihood::getFirstOrderDerivative().", variable);
-        if (!hasDerivableParameter(variable))
+//        if (!hasDerivableParameter(variable))
         {
           throw Exception("SingleProcessPhyloLikelihood::getFirstOrderDerivative : Derivative is not implemented for " + variable + " parameter.");
         }
@@ -265,7 +265,7 @@ namespace bpp
       {
         if (!hasParameter(variable))
           throw ParameterNotFoundException("SingleProcessPhyloLikelihood::getSecondOrderDerivative().", variable);
-        if (!hasDerivableParameter(variable))
+//        if (!hasDerivableParameter(variable))
         {
           throw Exception("SingleProcessPhyloLikelihood::getSecondOrderDerivative : Derivative is not implemented for " + variable + " parameter.");
         }

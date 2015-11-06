@@ -39,8 +39,6 @@
 
 #include "HmmSequenceEvolution.h"
 
-#include <Bpp/Numeric/Hmm/FullHmmTransitionMatrix.h>
-
 using namespace std;
 using namespace bpp;
 

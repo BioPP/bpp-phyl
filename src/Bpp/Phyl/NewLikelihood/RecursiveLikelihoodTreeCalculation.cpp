@@ -134,9 +134,15 @@ bool RecursiveLikelihoodTreeCalculation::updateLikelihoodFlags_()
           node->updateAbove(false);
         }
         else{
-          node->updateAbove(false);
-          node->setAboveLikelihoods(process_->getRootFrequencies());
-          node->updateAbove(true);
+          const Vdouble& rf=process_->getRootFrequencies();
+          
+          if ((!node->usesLog() && node->getAboveLikelihoodArray_()[0]!=rf)
+              || (node->usesLog() && node->getAboveLikelihoodArray_()[0]!=VectorTools::log(rf)))
+          {
+            node->updateAbove(false);
+            node->setAboveLikelihoods(process_->getRootFrequencies());
+            node->updateAbove(true);
+          }
         }
       }
     }

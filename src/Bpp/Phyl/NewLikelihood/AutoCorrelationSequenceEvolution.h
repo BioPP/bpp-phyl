@@ -69,9 +69,9 @@ namespace bpp
         std::vector<size_t>& nProc);
 
       AutoCorrelationSequenceEvolution(const AutoCorrelationSequenceEvolution& mlc) :
-        MultiProcessSequenceEvolution(mlc),
-        hmmAlph_(mlc.hmmAlph_->clone()),
-        autoCorrTransMat_(mlc.autoCorrTransMat_->clone()){}
+      MultiProcessSequenceEvolution(mlc),
+      hmmAlph_(mlc.hmmAlph_->clone()),
+      autoCorrTransMat_(mlc.autoCorrTransMat_->clone()){}
 
       AutoCorrelationSequenceEvolution& operator=(const AutoCorrelationSequenceEvolution& mlc)
       {

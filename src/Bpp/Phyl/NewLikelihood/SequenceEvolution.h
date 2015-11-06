@@ -146,45 +146,45 @@ namespace bpp
 
   };
 
-  class AbstractSequenceEvolution :
-    public virtual SequenceEvolution,
-    public virtual AbstractParameterAliasable
-  {
-  protected:
-    size_t seqLength_;
+  // class AbstractSequenceEvolution :
+  //   public virtual SequenceEvolution,
+  //   public virtual AbstractParameterAliasable
+  // {
+  // protected:
+  //   size_t seqLength_;
 
-  public:
-    AbstractSequenceEvolution() :
-      AbstractParameterAliasable(""),
-      seqLength_(0)
-    {
-    }
+  // public:
+  //   AbstractSequenceEvolution() :
+  //     AbstractParameterAliasable(""),
+  //     seqLength_(0)
+  //   {
+  //   }
 
-    AbstractSequenceEvolution(const AbstractSequenceEvolution& evol) :
-      AbstractParameterAliasable(evol),
-      seqLength_(evol.seqLength_)
-    {
-    }
+  //   AbstractSequenceEvolution(const AbstractSequenceEvolution& evol) :
+  //     AbstractParameterAliasable(evol),
+  //     seqLength_(evol.seqLength_)
+  //   {
+  //   }
 
-    AbstractSequenceEvolution& operator=(const AbstractSequenceEvolution& evol)
-    {
-      AbstractParameterAliasable::operator=(*this);
-      seqLength_=evol.seqLength_;
+  //   AbstractSequenceEvolution& operator=(const AbstractSequenceEvolution& evol)
+  //   {
+  //     AbstractParameterAliasable::operator=(*this);
+  //     seqLength_=evol.seqLength_;
 
-      return *this;
-    }
+  //     return *this;
+  //   }
     
-    size_t getNumberOfPositions() const
-    {
-      return seqLength_;
-    }
+  //   size_t getNumberOfPositions() const
+  //   {
+  //     return seqLength_;
+  //   }
 
-    void setNumberOfPositions(size_t length) 
-    {
-      seqLength_=length;
-    }
+  //   void setNumberOfPositions(size_t length) 
+  //   {
+  //     seqLength_=length;
+  //   }
 
-  };
+//  };
 
 } // end namespace bpp
 

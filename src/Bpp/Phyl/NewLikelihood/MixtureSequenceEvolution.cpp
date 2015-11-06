@@ -51,7 +51,7 @@ MixtureSequenceEvolution::MixtureSequenceEvolution(
   simplex_(nProc.size(), 1, false, "Mixture.")
 {
   // initialize parameters:
-  addParameters_(simplex_.getIndependentParameters());
+  addParameters_(simplex_.getParameters());
 }
 
 void MixtureSequenceEvolution::setSubProcessProb(const Simplex& si)

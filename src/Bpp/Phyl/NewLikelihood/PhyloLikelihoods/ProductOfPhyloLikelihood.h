@@ -92,7 +92,7 @@ namespace bpp
         double x=0;
         for (size_t i=0; i<nPhylo.size(); i++)
           x += getAbstractPhyloLikelihood(nPhylo[i])->getLogLikelihood();
-        
+
         return x;
       }
 

@@ -37,8 +37,8 @@
   knowledge of the CeCILL license and that you accept its terms.
 */
 
-#ifndef _HMMPHYLOLIKELIHOOD_H_
-#define _HMMPHYLOLIKELIHOOD_H_
+#ifndef _HMM_PROCESS_PHYLOLIKELIHOOD_H_
+#define _HMM_PROCESS_PHYLOLIKELIHOOD_H_
 
 
 #include "MultiProcessSequencePhyloLikelihood.h"
@@ -217,5 +217,5 @@ namespace bpp
     };
 } // end of namespace bpp.
 
-#endif  // _HMMPHYLOLIKELIHOOD_H_
+#endif  // _HMM_PROCESS_PHYLOLIKELIHOOD_H_
 

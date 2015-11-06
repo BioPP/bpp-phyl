@@ -67,6 +67,8 @@ void HmmProcessEmissionProbabilities::setHmmStateAlphabet(const HmmStateAlphabet
     throw HmmUnvalidAlphabetException("Non Process alphabet in HmmProcessEmissionProbabilities::setHmmStateAlphabet");
   
   procAlph_=dynamic_cast<const HmmProcessAlphabet*>(stateAlphabet);
+  emProb_.resize(multiPL_->getNumberOfSites());
+  upToDate_=false;
 }
 
 

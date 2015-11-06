@@ -208,7 +208,6 @@ namespace bpp
        * @return The likelihood for site <i>site</i>.
        */
 
-  
       double getLikelihoodForASiteForAProcess(size_t site, size_t p) const
       {
         return vpTreelik_[p]->getLikelihoodForASite(site);
