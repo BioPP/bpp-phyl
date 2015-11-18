@@ -360,11 +360,7 @@ namespace bpp
   
     bool isCompatibleWith(const SiteContainer& data) const;
 
-    bool hasDerivableParameter(const std::string& name) const
-    {
-      return hasBranchLengthParameter(name);
-    }
-    
+    bool hasDerivableParameter(const std::string& name) const;
 
     /**
      * @brief Get the number of states associated to this model set.

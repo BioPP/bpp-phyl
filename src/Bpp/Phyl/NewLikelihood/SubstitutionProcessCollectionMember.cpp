@@ -136,6 +136,12 @@ inline const DiscreteDistribution* SubstitutionProcessCollectionMember::getRateD
   return &pSubProColl_->getRateDistribution(nDist_);
 }
 
+bool SubstitutionProcessCollectionMember::hasDerivableParameter(const std::string& name) const    
+{
+  return hasBranchLengthParameter(name);
+}
+    
+
 ParameterList SubstitutionProcessCollectionMember::getRateDistributionParameters(bool independent) const
 {
   return pSubProColl_->getRateDistributionParameters(nDist_, independent);
