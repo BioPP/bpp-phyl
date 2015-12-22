@@ -49,6 +49,12 @@ ProductOfAlignedPhyloLikelihood::ProductOfAlignedPhyloLikelihood(PhyloLikelihood
 {
 }
 
+ProductOfAlignedPhyloLikelihood::ProductOfAlignedPhyloLikelihood(PhyloLikelihoodContainer* pC, const std::vector<size_t>& nPhylo) :
+  AbstractPhyloLikelihood(),
+  AbstractAlignedPhyloLikelihood(0),
+  SetOfAlignedPhyloLikelihood(pC, nPhylo)
+{
+}
 
 ProductOfAlignedPhyloLikelihood::ProductOfAlignedPhyloLikelihood(const ProductOfAlignedPhyloLikelihood& sd) :
   AbstractPhyloLikelihood(sd),
@@ -92,6 +98,7 @@ double ProductOfAlignedPhyloLikelihood::getD2LogLikelihoodForASite(size_t site) 
 
 double ProductOfAlignedPhyloLikelihood::getLogLikelihood() const
 {
+  updateLikelihood();
   computeLikelihood();
 
   vector<double> la(nbSites_);

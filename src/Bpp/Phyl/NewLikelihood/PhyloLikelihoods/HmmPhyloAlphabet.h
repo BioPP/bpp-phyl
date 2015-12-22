@@ -162,6 +162,12 @@ namespace bpp {
      *
      */
 
+    void updateLikelihood() const
+    {
+      for (size_t i=0; i<vAP_.size(); i++)
+        vAP_[i]->updateLikelihood();
+    }
+
     void computeLikelihood() const
     {
       for (size_t i=0; i<vAP_.size(); i++)

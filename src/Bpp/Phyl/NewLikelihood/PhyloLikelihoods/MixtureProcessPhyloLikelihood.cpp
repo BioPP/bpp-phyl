@@ -64,6 +64,7 @@ MixtureProcessPhyloLikelihood::MixtureProcessPhyloLikelihood(
 
 double MixtureProcessPhyloLikelihood::getLogLikelihood() const
 {
+  updateLikelihood();
   computeLikelihood();
 
   vector<double> la(nbSites_);
@@ -146,6 +147,7 @@ double MixtureProcessPhyloLikelihood::getD2LogLikelihood() const
 
 double MixtureProcessPhyloLikelihood::getLikelihoodForASite(size_t site) const
 {
+  updateLikelihood();
   computeLikelihood();
 
   double x = 0;
@@ -161,6 +163,7 @@ double MixtureProcessPhyloLikelihood::getLikelihoodForASite(size_t site) const
 
 double MixtureProcessPhyloLikelihood::getLogLikelihoodForASite(size_t site) const
 {
+  updateLikelihood();
   computeLikelihood();
 
   vector<double> v(vpTreelik_.size());
@@ -176,6 +179,7 @@ double MixtureProcessPhyloLikelihood::getLogLikelihoodForASite(size_t site) cons
 
 VVdouble MixtureProcessPhyloLikelihood::getPosteriorProbabilitiesForEachSiteForEachProcess() const
 {
+  updateLikelihood();
   computeLikelihood();
 
   size_t nbProcess = getNumberOfSubstitutionProcess();

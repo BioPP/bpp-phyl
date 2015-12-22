@@ -175,6 +175,13 @@ namespace bpp
        * @{
        */
 
+      void updateLikelihood() const
+      {
+        if (computeLikelihoods_)
+          ProductOfAlignedPhyloLikelihood::updateLikelihood();
+      }
+      
+
       void computeLikelihood() const
       {
         if (computeLikelihoods_)

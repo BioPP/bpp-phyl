@@ -243,6 +243,14 @@ public:
   virtual double getD2LogLikelihoodForASite(size_t site) = 0;  
 
   /**
+   * @brief update the likelihood dependencies (but does not compute).
+   *  Is necessary befire computation.
+   *
+   */
+  
+  virtual void updateLikelihood() = 0;
+  
+  /**
    * @brief Perform a likelihood computation.
    */
   

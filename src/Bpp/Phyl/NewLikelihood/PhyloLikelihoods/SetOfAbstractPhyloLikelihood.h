@@ -195,6 +195,15 @@ namespace bpp
       
       void enableSecondOrderDerivatives(bool yn);
 
+      void updateLikelihood() const
+      {
+        if (computeLikelihoods_)
+        {
+          for (size_t i=0; i<nPhylo_.size(); i++)
+            getAbstractPhyloLikelihood(nPhylo_[i])->updateLikelihood();
+        }
+      }
+
       void computeLikelihood() const
       {
         if (computeLikelihoods_)
@@ -218,7 +227,7 @@ namespace bpp
         for (size_t i=0; i<nPhylo_.size(); i++){
           getAbstractPhyloLikelihood(nPhylo_[i])->matchParametersValues(params);
 
-          // to ensure phylolikelihood is recomputed, such as in
+          // to ensure each phylolikelihood is recomputed, such as in
           // case of total aliasing
           getAbstractPhyloLikelihood(nPhylo_[i])->update();
         }

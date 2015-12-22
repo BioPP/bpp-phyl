@@ -117,7 +117,7 @@ RecursiveLikelihoodTreeCalculation& RecursiveLikelihoodTreeCalculation::operator
  *                           Likelihood computation                           *
  ******************************************************************************/
 
-bool RecursiveLikelihoodTreeCalculation::updateLikelihoodFlags_()
+void RecursiveLikelihoodTreeCalculation::updateLikelihoodFlags_()
 {
   Vint upId=process_->getComputingTree().updatedNodes();
 
@@ -146,17 +146,18 @@ bool RecursiveLikelihoodTreeCalculation::updateLikelihoodFlags_()
         }
       }
     }
-    return true;
+    up2date_=false;
   }
-  return false;
 }
 
 /******************************************************************************/
 
 void RecursiveLikelihoodTreeCalculation::computeTreeLikelihood()
 {
-  if (updateLikelihoodFlags_())
+  if (!up2date_){
     likelihoodData_->computeLikelihoods(process_->getComputingTree(), ComputingNode::D0);
+    up2date_=true;
+  }
 }
 
 

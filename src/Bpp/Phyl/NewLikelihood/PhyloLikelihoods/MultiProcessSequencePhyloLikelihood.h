@@ -165,12 +165,22 @@ namespace bpp
        *
        */
 
+      void updateLikelihood() const
+      {
+        if (computeLikelihoods_)
+        {
+          for (size_t i = 0; i < vpTreelik_.size(); i++)
+            vpTreelik_[i]->updateLikelihood();
+        }
+      }
+      
       void computeLikelihood() const
       {
         if (computeLikelihoods_)
         {
           for (size_t i = 0; i < vpTreelik_.size(); i++)
             vpTreelik_[i]->computeTreeLikelihood();
+
           computeLikelihoods_=false;
         }
         

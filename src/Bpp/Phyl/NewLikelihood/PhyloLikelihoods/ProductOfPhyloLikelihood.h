@@ -85,6 +85,7 @@ namespace bpp
 
       double getLogLikelihood() const
       {
+        updateLikelihood();
         computeLikelihood();
         
         const std::vector<size_t>& nPhylo=getNumbersOfPhyloLikelihoods();

@@ -72,7 +72,7 @@ namespace bpp
 
     size_t nbSites_;
     
-    void updateEmissionProbabilities_() const;
+    void computeEmissionProbabilities_() const;
 
   public:
     HmmPhyloEmissionProbabilities(const HmmPhyloAlphabet* alphabet);
@@ -149,7 +149,7 @@ namespace bpp
     double operator()(size_t pos, size_t state) const
     {
       if (!upToDate_)
-        updateEmissionProbabilities_();
+        computeEmissionProbabilities_();
       
       return emProb_[pos][state];
     }
@@ -182,7 +182,7 @@ namespace bpp
     const std::vector<double>& operator()(size_t pos) const
     {
       if (!upToDate_)
-        updateEmissionProbabilities_();
+        computeEmissionProbabilities_();
 
       return emProb_[pos];
     }

@@ -85,6 +85,7 @@ void MultiProcessSequencePhyloLikelihood::setData(const SiteContainer& sites, si
   {
     vpTreelik_[i]->setData(sites);
   }
+  updateLikelihood();
   computeLikelihood();
 }
 

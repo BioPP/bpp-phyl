@@ -107,6 +107,12 @@ namespace bpp
 
       void fireParameterChanged(const ParameterList& parameters);
 
+      void updateLikelihood() const
+      {
+        if (computeLikelihoods_)
+          MultiProcessSequencePhyloLikelihood::updateLikelihood();
+      }
+      
       void computeLikelihood() const
       {
         if (computeLikelihoods_)
@@ -127,6 +133,7 @@ namespace bpp
 
       double getLogLikelihood() const
       {
+        updateLikelihood();
         computeLikelihood();
         return Hmm_->getLogLikelihood();  
       }
@@ -151,6 +158,7 @@ namespace bpp
 
       double getLikelihoodForASite(size_t site) const
       {
+        updateLikelihood();
         computeLikelihood();
 
         return Hmm_->getLikelihoodForASite(site);
@@ -158,6 +166,7 @@ namespace bpp
 
       double getLogLikelihoodForASite(size_t site) const
       {
+        updateLikelihood();
         computeLikelihood();
 
         return log(Hmm_->getLikelihoodForASite(site));
@@ -175,6 +184,7 @@ namespace bpp
 
       Vdouble getLikelihoodForEachSite() const
       {
+        updateLikelihood();
         computeLikelihood();
 
         return Hmm_->getLikelihoodForEachSite();
@@ -182,6 +192,7 @@ namespace bpp
 
       VVdouble getPosteriorProbabilitiesForEachSiteForEachProcess() const
       {
+        updateLikelihood();
         computeLikelihood();
 
         VVdouble pp;

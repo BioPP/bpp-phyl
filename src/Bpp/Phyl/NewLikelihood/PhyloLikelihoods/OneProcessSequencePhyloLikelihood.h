@@ -225,6 +225,12 @@ namespace bpp
 
     public:
 
+      void updateLikelihood() const
+      {
+        if (computeLikelihoods_)
+          tlComp_->updateLikelihood();
+      }
+      
       void computeLikelihood() const
       {
         if (computeLikelihoods_)
@@ -235,6 +241,7 @@ namespace bpp
       }
       
       double getLogLikelihood() const {
+        updateLikelihood();
         computeLikelihood();
         
         return tlComp_->getLogLikelihood();
@@ -249,12 +256,14 @@ namespace bpp
       }
 
       double getLikelihoodForASite(size_t siteIndex) const {
+        updateLikelihood();
         computeLikelihood();
 
         return tlComp_->getLikelihoodForASite(siteIndex);
       }
 
       double getLogLikelihoodForASite(size_t siteIndex) const {
+        updateLikelihood();
         computeLikelihood();
 
         return tlComp_->getLogLikelihoodForASite(siteIndex);

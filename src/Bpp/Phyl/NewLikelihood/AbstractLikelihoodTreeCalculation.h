@@ -66,6 +66,11 @@ namespace bpp
     bool initialized_;
     bool verbose_;
 
+    // if this is up to date as this knows it, but beware the process could
+    // change without any sign!!
+    
+    bool up2date_;
+    
     // booleans to say if the Dlikelihoods are null
   
     bool nullDLikelihood_;
@@ -89,6 +94,7 @@ namespace bpp
       nbClasses_(process->getNumberOfClasses()),
       initialized_(false),
       verbose_(verbose),
+      up2date_(false),
       nullDLikelihood_(true),
       nullD2Likelihood_(true),
       vSites_()
@@ -104,6 +110,7 @@ namespace bpp
     nbClasses_(tlc.nbClasses_),
     initialized_(tlc.initialized_),
     verbose_(tlc.verbose_),
+    up2date_(tlc.up2date_),
     nullDLikelihood_(tlc.nullDLikelihood_),
     nullD2Likelihood_(tlc.nullD2Likelihood_),
     vSites_(tlc.vSites_)
@@ -122,6 +129,7 @@ namespace bpp
       nbClasses_                     = tlc.nbClasses_;
       initialized_                   = tlc.initialized_;
       verbose_                       = tlc.verbose_;
+      up2date_                       = tlc.up2date_;
       nullDLikelihood_               = tlc.nullDLikelihood_;
       nullD2Likelihood_              = tlc.nullD2Likelihood_;
       vSites_                        = tlc.vSites_;

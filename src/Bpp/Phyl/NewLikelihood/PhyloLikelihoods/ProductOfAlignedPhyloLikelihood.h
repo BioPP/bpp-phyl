@@ -62,6 +62,8 @@ namespace bpp
     public:
       ProductOfAlignedPhyloLikelihood(PhyloLikelihoodContainer* pC);
 
+      ProductOfAlignedPhyloLikelihood(PhyloLikelihoodContainer* pC, const std::vector<size_t>& nPhylo);
+      
       ~ProductOfAlignedPhyloLikelihood() {};
       
       ProductOfAlignedPhyloLikelihood* clone() const
@@ -114,6 +116,7 @@ namespace bpp
 
       virtual double getLikelihoodForASite(size_t site) const
       {
+        updateLikelihood();
         computeLikelihood();
         
         double x=1;
@@ -128,6 +131,7 @@ namespace bpp
 
       virtual double getLogLikelihoodForASite(size_t site) const
       {
+        updateLikelihood();
         computeLikelihood();
         
         double x=0;

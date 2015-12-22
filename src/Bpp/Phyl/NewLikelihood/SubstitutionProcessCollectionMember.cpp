@@ -261,10 +261,10 @@ void SubstitutionProcessCollectionMember::addModel(size_t numModel, const std::v
   
   // Associate this model to specified nodes:
   for (size_t i = 0; i < nodesId.size(); i++)
-    {
-      nodeToModel_[nodesId[i]] = numModel;
-      modelToNodes_[numModel].push_back(nodesId[i]);
-    }
+  {
+    nodeToModel_[nodesId[i]] = numModel;
+    modelToNodes_[numModel].push_back(nodesId[i]);
+  }
 
   computingTree_->addModel(&nmod, nodesId);
 
@@ -310,6 +310,7 @@ bool SubstitutionProcessCollectionMember::checkUnknownNodes(bool throwEx) const
   throw (Exception)
 {
   vector<int> ids = getTree().getNodesId();
+
   int id;
   int rootId = getTree().getRootId();
   std::map<size_t, std::vector<int> >::const_iterator it;

@@ -77,6 +77,7 @@ void AutoCorrelationProcessPhyloLikelihood::setNamespace(const std::string& name
 void AutoCorrelationProcessPhyloLikelihood::fireParameterChanged(const ParameterList& parameters)
 {
   MultiProcessSequencePhyloLikelihood::fireParameterChanged(parameters);
+  MultiProcessSequencePhyloLikelihood::updateLikelihood();
   MultiProcessSequencePhyloLikelihood::computeLikelihood();
 
   Hmm_->matchParametersValues(parameters);

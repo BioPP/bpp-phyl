@@ -90,6 +90,7 @@ void MixtureOfAlignedPhyloLikelihood::fireParameterChanged(const ParameterList& 
 
 double MixtureOfAlignedPhyloLikelihood::getLogLikelihood() const
 {
+  updateLikelihood();
   computeLikelihood();
 
   vector<double> la(nbSites_);
@@ -112,6 +113,7 @@ double MixtureOfAlignedPhyloLikelihood::getLogLikelihood() const
 
 double MixtureOfAlignedPhyloLikelihood::getLikelihoodForASite(size_t site) const
 {
+  updateLikelihood();
   computeLikelihood();
 
   double x = 0;
@@ -129,6 +131,7 @@ double MixtureOfAlignedPhyloLikelihood::getLikelihoodForASite(size_t site) const
 
 double MixtureOfAlignedPhyloLikelihood::getLogLikelihoodForASite(size_t site) const
 {
+  updateLikelihood();
   computeLikelihood();
 
   const std::vector<size_t>& nPhylo=getNumbersOfPhyloLikelihoods();

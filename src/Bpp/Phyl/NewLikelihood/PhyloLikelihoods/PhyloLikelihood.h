@@ -99,6 +99,13 @@ namespace bpp
        */
       
       /**
+       * @brief update the likelihood to get ready for computation
+       *
+       */
+
+      virtual void updateLikelihood() const = 0;
+
+      /**
        * @brief compute the likelihood
        *
        */
