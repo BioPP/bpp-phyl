@@ -58,14 +58,30 @@ using namespace std;
 
 SiteContainer* PatternTools::getSequenceSubset(const SiteContainer& sequenceSet, const Node& node) throw (Exception)
 {
+  size_t nbSites=sequenceSet.getNumberOfSites();
+  
   VectorSiteContainer* sequenceSubset = new VectorSiteContainer(sequenceSet.getAlphabet());
   vector<const Node *> leaves = TreeTemplateTools::getLeaves(node);
   for (vector<const Node *>::iterator i = leaves.begin(); i < leaves.end(); i++)
   {
-    const Sequence* newSeq = &sequenceSet.getSequence((*i)->getName());
-    if (!newSeq) throw SequenceNotFoundException("PatternTools::getSequenceSubset(). Leaf name not found in sequence file: ", (*i)->getName());
-    sequenceSubset->addSequence(*newSeq);
+    const Sequence* newSeq = 0;
+
+    try
+    {
+      newSeq = &sequenceSet.getSequence((*i)->getName());
+      sequenceSubset->addSequence(*newSeq);
+    }
+    catch (std::exception const& e)
+    {
+      ApplicationTools::displayWarning("Leaf name not found in sequence file: " + (*i)->getName() + " : Replaced with unknown sequence");
+      
+      BasicSequence seq((*i)->getName(),"",sequenceSet.getAlphabet());
+      seq.setToSizeR(nbSites);
+      SymbolListTools::changeGapsToUnknownCharacters(seq);
+      sequenceSubset->addSequence(seq);
+    }
   }
+
   sequenceSubset->setSitePositions(sequenceSet.getSitePositions());
   
   return sequenceSubset;
