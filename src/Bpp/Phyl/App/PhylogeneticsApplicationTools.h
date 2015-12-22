@@ -50,7 +50,6 @@
 #include "../Likelihood/ClockTreeLikelihood.h"
 #include "../Mapping/SubstitutionCount.h"
 #include <Bpp/Text/TextTools.h>
-#include <Bpp/Text/StringTokenizer.h>
 #include <Bpp/Io/OutputStream.h>
 #include <Bpp/Numeric/Prob/DiscreteDistribution.h>
 #include <Bpp/Numeric/Prob/MultipleDiscreteDistribution.h>

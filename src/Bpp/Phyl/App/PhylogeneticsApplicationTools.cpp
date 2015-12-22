@@ -74,6 +74,7 @@
 #include "../NewLikelihood/PhyloLikelihoods/HmmOfAlignedPhyloLikelihood.h"
 #include "../NewLikelihood/PhyloLikelihoods/AutoCorrelationOfAlignedPhyloLikelihood.h"
 #include "../NewLikelihood/PhyloLikelihoods/ProductOfPhyloLikelihood.h"
+#include "../NewLikelihood/PhyloLikelihoods/ProductOfAlignedPhyloLikelihood.h"
 #include "../NewLikelihood/ParametrizableTree.h"
 #include "../NewLikelihood/NonHomogeneousSubstitutionProcess.h"
 #include "../NewLikelihood/SimpleSubstitutionProcess.h"
@@ -260,10 +261,10 @@ std::map<size_t, Tree*> PhylogeneticsApplicationTools::getTrees(
 
       if (verbose)
       {
-        if (flag)
+        if (flag){
+          ApplicationTools::displayMessage("");
           ApplicationTools::displayResult("Tree file", treeFilePath);
-        else
-          ApplicationTools::displayResult("tree file", treeFilePath);
+        }
         
         ApplicationTools::displayResult("Number of trees in file", trees.size());
       }
@@ -438,10 +439,8 @@ std::map<size_t, Tree*> PhylogeneticsApplicationTools::getTrees(
         mTree[num]->setDistanceToFather(TextTools::toInt(aveq.substr(5,string::npos)), TextTools::toDouble(apeq));
       else{
         size_t posun=apeq.find("_");
-        if (posun!=string::npos)
-          unparsedParams[aveq+"_"+TextTools::toString(num)]=apeq;
-        else
-          unparsedParams[aveq+"_"+TextTools::toString(num)]=apeq+"_"+TextTools::toString(num);
+        size_t posd=aveq.find("_");
+        unparsedParams[aveq+(posd!=string::npos?"":"_"+TextTools::toString(num))]=apeq+(posun!=string::npos?"":"_"+TextTools::toString(num));
       }
     }
     
@@ -1138,11 +1137,7 @@ void PhylogeneticsApplicationTools::addSubstitutionProcessCollectionMember(
     if (! SubProColl->hasModelNumber(numModel))
       throw BadIntegerException("PhylogeneticsApplicationTools::addSubstitutionProcessCollectionMember : unknown model number", (int)numModel);
     
-    size_t nNodes=SubProColl->getTree(numTree).getNumberOfBranches();
-
-    vector<int> vNodes;
-    for (int i=0; i<(int)nNodes; i++)
-      vNodes.push_back(i);
+    vector<int> vNodes=SubProColl->getTree(numTree).getTree().getBranchesId();
 
     map<size_t, vector<int> > mModBr;
     mModBr[numModel]=vNodes;
@@ -1216,47 +1211,6 @@ void PhylogeneticsApplicationTools::addSubstitutionProcessCollectionMember(
 
     throw Exception("OnePerBranch option not implemented yet. Ask developpers to do it");
     
-    // size_t nNodes=SubProColl->getTree(numTree)->getNumberOfBranches();
-
-    // vector<int> vNodes;
-    // for (int i=0; i<(int)nNodes; i++)
-    //   vNodes.push_back(i);
-
-    // map<size_t, vector<int> > mModBr;
-    // mModBr[numModel]=vNodes;
-
-    // size_t indModel=1;
-    // map<size_t, vector<int> > mModBr;
-
-    // while (args.find("model"+TextTools::toString(indModel))!=args.end())
-    // {
-    //   size_t numModel=(size_t)ApplicationTools::getIntParameter("model"+TextTools::toString(indModel), args, 1, "", true, warn);
-
-    //   if (mModBr.find(numModel)!=mModBr.end())
-    //     throw BadIntegerException("PhylogeneticsApplicationTools::addSubstitutionProcessCollectionMember : model number seen twice.", (int)numModel);
-
-    //   vector<int> nodesId = ApplicationTools::getVectorParameter<int>("model"+TextTools::toString(indModel)  + ".nodes_id", args, ',', ':', "0", "", true, warn);
-
-    //   mModBr[numModel]=nodesId;
-      
-    //   indModel++;
-    // }
-
-    // if (verbose){
-    //   ApplicationTools::displayMessage("Nonhomogeneous process : ");
-    //   map<size_t, vector<int> >::const_iterator it;
-    //   for (it=mModBr.begin(); it!=mModBr.end(); it++)
-    //     ApplicationTools::displayResult (" Model number" + TextTools::toString(it->first) + " associated to", TextTools::toString(it->second.size()) + " node(s).");
-    //   ApplicationTools::displayResult (" Tree number",TextTools::toString(numTree));
-    //   ApplicationTools::displayResult (" Rate number",TextTools::toString(numRate));
-    //   if (!stationarity)
-    //     ApplicationTools::displayResult (" Root frequencies number",TextTools::toString(numFreq));
-    // }
-    
-    // if (stationarity)
-    //   SubProColl->addSubstitutionProcess(procNum, mModBr, numTree, numRate);
-    // else
-    //   SubProColl->addSubstitutionProcess(procNum, mModBr, numTree, numRate, numFreq);
   }
   
 }
@@ -1630,7 +1584,7 @@ PhyloLikelihoodContainer* PhylogeneticsApplicationTools::getPhyloLikelihoodConta
     size_t phyln=(size_t)TextTools::toInt(phylosName[i].substr(5,poseq-5));
 
     if (phyln==0)
-      throw BadIntegerException("PhylogeneticsApplicationTools::getPhyloLikelihoodContainer : Forbiddend Phylo Number", (int)phyln);
+      throw BadIntegerException("PhylogeneticsApplicationTools::getPhyloLikelihoodContainer : Forbidden Phylo Number", TextTools::toInt(phylosName[i].substr(5,poseq-5)));
 
     string phyloDesc = ApplicationTools::getStringParameter("phylo", params, "Single", TextTools::toString(phyln), 2);
 
@@ -1657,7 +1611,6 @@ PhyloLikelihoodContainer* PhylogeneticsApplicationTools::getPhyloLikelihoodConta
   
   PhyloLikelihoodContainer* mPhylo=new PhyloLikelihoodContainer();
 
-  vector<size_t> usedProc;
   vector<size_t> usedPhylo;
   
 
@@ -1712,7 +1665,10 @@ PhyloLikelihoodContainer* PhylogeneticsApplicationTools::getPhyloLikelihoodConta
     size_t nProcess=0;
 
     if (args.find("process")==args.end())
+    {
+      ApplicationTools::displayWarning("Warning, missing 'process' argument. Set to 1");
       nProcess=1;
+    }
     else
       nProcess=(size_t)TextTools::toInt(args["process"]);
 
@@ -1730,14 +1686,8 @@ PhyloLikelihoodContainer* PhylogeneticsApplicationTools::getPhyloLikelihoodConta
 
     // Check this process has not been used before
 
-    for (size_t i=0; i<usedProc.size(); i++)
-      if (usedProc[i]==nProcess)
-        throw Exception("PhylogeneticsApplicationTools::getPhyloLikelihoodContainer : Process used twice. Ask developpers if want you this feature developped");
-
     if (verbose)
       ApplicationTools::displayResult(" Process ", TextTools::toString(nProcess));
-
-    usedProc.push_back(nProcess);
     
     // Compression
     
@@ -1834,8 +1784,13 @@ PhyloLikelihoodContainer* PhylogeneticsApplicationTools::getPhyloLikelihoodConta
 
   // Proceed the other phylos 
 
-  while (usedPhylo.size()!=0)  // there still has been dependencies
+  while (phylosMap.size()!=0)  // there is still phylos to be treated
   {
+    if (usedPhylo.size()==0){
+      ApplicationTools::displayWarning("Warning, some phylolikelihoods are not used.");
+      break;
+    }
+      
     usedPhylo.clear();
     
     for (map<size_t, vector<size_t> >::iterator it=phylosMap.begin(); it != phylosMap.end(); it++)
@@ -1925,10 +1880,15 @@ PhyloLikelihoodContainer* PhylogeneticsApplicationTools::getPhyloLikelihoodConta
 
           nPL=pMA;
         }
+        else if (phyloName=="Product")
+        {
+          ProductOfAlignedPhyloLikelihood* pAP=new ProductOfAlignedPhyloLikelihood(mPhylo, vPhylo);
+
+          nPL=pAP;
+        }
         else
           throw Exception("PhylogeneticsApplicationTools::getPhyloLikelihoodContainer : Unknown Phylo name " + phyloName);
 
-//        nPL->setUseLog(useLog);
         if (verbose)
         {
           ApplicationTools::displayResult(" Phylolikelihood type", phyloName);
@@ -1949,14 +1909,13 @@ PhyloLikelihoodContainer* PhylogeneticsApplicationTools::getPhyloLikelihoodConta
       }
       
       vector<size_t>& vphyl=it->second;
-      for (size_t i=0;i<vphyl.size();i++)
+      for (size_t i=vphyl.size();i>0;i--)
       {
-        std::vector<size_t>::iterator posp=find(usedPhylo.begin(), usedPhylo.end(), vphyl[i]);
+        std::vector<size_t>::iterator posp=find(usedPhylo.begin(), usedPhylo.end(), vphyl[i-1]);
         if (posp!=usedPhylo.end())
-          vphyl.erase(vphyl.begin() + i);
+          vphyl.erase(vphyl.begin() + i-1);
       }
       ++it;
-      
     }
   }
 
