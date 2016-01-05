@@ -91,9 +91,9 @@ namespace bpp
  * \endcode
  * for instance.
  * 
- * Reference:
- * - Hobolth A, Christensen O Fm Mailund T, Schierup M H (2007), PLoS_ Genetics_ 3(2) e7.
- * - Yap VB, Speed TP (1995), Journal_ Of Molecular Evolution_ 58(1) 12-18
+ * References:
+ * - Hobolth A, Christensen O Fm Mailund T, Schierup M H (2007), PLoS Genetics 3(2) e7.
+ * - Yap VB, Speed TP (2004), Journal Of Molecular Evolution 58(1) 12-18
  */
   class SSR:
     public AbstractReversibleNucleotideSubstitutionModel
@@ -113,7 +113,7 @@ namespace bpp
     SSR* clone() const { return new SSR(*this); }
   
   public:
-    std::string getName() const { return "Strand Symmetric Reversible"; }
+    std::string getName() const { return "SSR"; }
   
     void updateMatrices();
   
