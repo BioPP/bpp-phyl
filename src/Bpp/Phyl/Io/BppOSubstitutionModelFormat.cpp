@@ -245,34 +245,6 @@ SubstitutionModel* BppOSubstitutionModelFormat::read(
 
 
   // //////////////////////////////////
-  // gBGC
-  // //////////////////////////////////
-
-  else if (modelName == "gBGC")
-  {
-    if (!(alphabetCode_ & NUCLEOTIDE))
-      throw Exception("BppOSubstitutionModelFormat::read. Nucleotide alphabet not supported.");
-    // We have to parse the nested model first:
-    string nestedModelDescription = args["model"];
-    if (TextTools::isEmpty(nestedModelDescription))
-      throw Exception("BppOSubstitutionModelFormat::read. Missing argument 'model' for model 'gBGC'.");
-    if (verbose_)
-      ApplicationTools::displayResult("Biased gene conversion", modelName);
-    BppOSubstitutionModelFormat nestedReader(NUCLEOTIDE, true, true, false, verbose_, warningLevel_);
-    auto_ptr<NucleotideSubstitutionModel> nestedModel(dynamic_cast<NucleotideSubstitutionModel*>(nestedReader.read(alphabet, nestedModelDescription, data, false)));
-    map<string, string> unparsedParameterValuesNested(nestedReader.getUnparsedArguments());
-
-    // Now we create the gBGC substitution model:
-    model.reset(new gBGC(dynamic_cast<const NucleicAlphabet*>(alphabet), nestedModel.release()));
-
-    // Then we update the parameter set:
-    for (map<string, string>::iterator it = unparsedParameterValuesNested.begin(); it != unparsedParameterValuesNested.end(); it++)
-    {
-      unparsedArguments_["gBGC." + it->first] = it->second;
-    }
-  }
-
-  // //////////////////////////////////
   // YpR
   // //////////////////////////////////
 
@@ -463,11 +435,41 @@ SubstitutionModel* BppOSubstitutionModelFormat::read(
         throw Exception("BppOSubstitutionModelFormat::read. Nucleotide alphabet not supported.");
       const NucleicAlphabet* alpha = dynamic_cast<const NucleicAlphabet*>(alphabet);
 
+      // //////////////////////////////////
+      // gBGC
+      // //////////////////////////////////
+      if (modelName.find("+gBGC") != string::npos)
+      {
+        string subModName=modelName.substr(0,modelName.find("+gBGC"));
+
+        if (verbose_)
+          ApplicationTools::displayResult("Biased gene conversion for", subModName);
+
+        string::size_type begin = modelDescription.find_first_of("(");
+        string::size_type end = modelDescription.find_last_of(")");
+
+        string nestedModelDescription = subModName+modelDescription.substr(begin,end-begin+1);
+        
+        BppOSubstitutionModelFormat nestedReader(NUCLEOTIDE, true, true, false, verbose_, warningLevel_);
+        auto_ptr<NucleotideSubstitutionModel> nestedModel(dynamic_cast<NucleotideSubstitutionModel*>(nestedReader.read(alphabet, nestedModelDescription, data, false)));
+        map<string, string> unparsedParameterValuesNested(nestedReader.getUnparsedArguments());
+
+        // Now we create the gBGC substitution model:
+        model.reset(new gBGC(alpha, nestedModel.release()));
+
+        // Then we update the parameter set:
+        for (map<string, string>::iterator it = unparsedParameterValuesNested.begin(); it != unparsedParameterValuesNested.end(); it++)
+        {
+          unparsedArguments_["gBGC." + it->first] = it->second;
+        }
+      }
+
+
       // /////////////////////////////////
       // / GTR
       // ///////////////////////////////
 
-      if (modelName == "GTR")
+      else if (modelName == "GTR")
       {
         model.reset(new GTR(alpha));
       }
@@ -1227,9 +1229,18 @@ void BppOSubstitutionModelFormat::write(const SubstitutionModel& model,
   const gBGC* gbgcModel = dynamic_cast<const gBGC*>(&model);
   if (gbgcModel)
   {
-    out << "model=";
+    StdStr sout;
+    
     const SubstitutionModel* nestedModel = gbgcModel->getNestedModel();
-    write(*nestedModel, out, globalAliases, writtenNames);
+    write(*nestedModel, sout, globalAliases, writtenNames);
+
+    string ss=sout.str();
+
+    string::size_type begin = ss.find_first_of("(");
+    string::size_type end = ss.find_last_of(")");
+
+    out << ss.substr(begin+1,end-begin-1);
+    
     comma = true;
   }
 

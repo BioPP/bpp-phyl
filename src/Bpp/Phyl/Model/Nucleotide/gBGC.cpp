@@ -49,17 +49,17 @@ using namespace bpp;
 
 /******************************************************************************/
 
-gBGC::gBGC(const NucleicAlphabet* alph, NucleotideSubstitutionModel* const pm, double gamma) :
+gBGC::gBGC(const NucleicAlphabet* alph, NucleotideSubstitutionModel* const pm, double B) :
   AbstractParameterAliasable("gBGC."),
   AbstractNucleotideSubstitutionModel(alph, new CanonicalStateMap(alph, false), "gBGC."),
   model_(pm),
   nestedPrefix_(pm->getNamespace()),
-  gamma_(gamma)
+  B_(B)
 {
   model_->setNamespace("gBGC."+nestedPrefix_);
   model_->enableEigenDecomposition(0);
   addParameters_(model_->getParameters());
-  addParameter_(new Parameter("gBGC.gamma", gamma_, new IntervalConstraint(-999, 10, true, true), true));
+  addParameter_(new Parameter("gBGC.B", B_, new IntervalConstraint(-999, 10, true, true), true));
 
   updateMatrices();
 }
@@ -69,7 +69,7 @@ gBGC::gBGC(const gBGC& gbgc) :
   AbstractNucleotideSubstitutionModel(gbgc),
   model_(gbgc.model_->clone()),
   nestedPrefix_(gbgc.nestedPrefix_),
-  gamma_(gbgc.gamma_)
+  B_(gbgc.B_)
 {
 }
 
@@ -79,7 +79,7 @@ gBGC& gBGC::operator=(const gBGC& gbgc)
   AbstractSubstitutionModel::operator=(gbgc);
   model_ = auto_ptr<NucleotideSubstitutionModel>(gbgc.model_.get());
   nestedPrefix_ = gbgc.nestedPrefix_;
-  gamma_=gbgc.gamma_;
+  B_=gbgc.B_;
   return *this;
 }
 
@@ -92,31 +92,38 @@ void gBGC::fireParameterChanged(const ParameterList& parameters)
 
 void gBGC::updateMatrices()
 {
-  gamma_=getParameterValue("gamma");
+  B_=getParameterValue("B");
   unsigned int i,j;
   // Generator:
-  double eg=exp(gamma_);
-  
+
   for ( i = 0; i < 4; i++)
     for ( j = 0; j < 4; j++)
       generator_(i,j)=model_->Qij(i,j);
 
-  generator_(0,1) *= eg;
-  generator_(0,2) *= eg;
-  generator_(3,1) *= eg;
-  generator_(3,2) *= eg;
-  generator_(1,0) /= eg;
-  generator_(2,0) /= eg;
-  generator_(1,3) /= eg;
-  generator_(2,3) /= eg;
+  if (B_!=0)
+  {    
+    double bp=B_/(1-exp(-B_));
+    double bm=B_/(exp(B_)-1);
+    
+    generator_(0,0) -= (generator_(0,1)+generator_(0,2))*(bp-1);
+    generator_(1,1) -= (generator_(1,0)+generator_(1,3))*(bm-1);
+    generator_(2,2) -= (generator_(2,0)+generator_(2,3))*(bm-1);
+    generator_(3,3) -= (generator_(3,1)+generator_(3,2))*(bp-1);
 
-  generator_(0,0) -= (generator_(0,1)+generator_(0,2))*(1-1/eg);
-  generator_(3,3) -= (generator_(3,1)+generator_(3,2))*(1-1/eg);
+    generator_(0,1) *= bp;
+    generator_(0,2) *= bp;
+    generator_(3,1) *= bp;
+    generator_(3,2) *= bp;
+    generator_(1,0) *= bm;
+    generator_(2,0) *= bm;
+    generator_(1,3) *= bm;
+    generator_(2,3) *= bm;
+  }
 
   if (enableEigenDecomposition())
   {
     // calcul spectral
-
+    
     EigenValue<double> ev(generator_);
     eigenValues_ = ev.getRealEigenValues();
     iEigenValues_ = ev.getImagEigenValues();
@@ -235,7 +242,6 @@ void gBGC::updateMatrices()
       MatrixTools::Taylor(generator_, 30, vPowGen_);
 
   }
-
 }
 
 void gBGC::setNamespace(const std::string& prefix)
@@ -248,6 +254,6 @@ void gBGC::setNamespace(const std::string& prefix)
 
 std::string gBGC::getName() const
 {
-  return "gBGC";
+  return model_->getName()+"+gBGC";
 }
 
