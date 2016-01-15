@@ -62,7 +62,8 @@ CanonicalStateMap::CanonicalStateMap(const StateMap& sm, bool includeGaps):
 }
 
 MarkovModulatedStateMap::MarkovModulatedStateMap(const StateMap& unitMap, unsigned int nbClasses):
-  AbstractStateMap(unitMap.getAlphabet())
+  AbstractStateMap(unitMap.getAlphabet()),
+  nbClasses_(nbClasses)
 {
   for (unsigned int j = 0; j < nbClasses; ++j) {
     for (size_t i = 0; i < unitMap.getNumberOfModelStates(); ++i) {

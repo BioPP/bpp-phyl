@@ -77,7 +77,7 @@ namespace bpp
    */
   
   class SENCA :
-    public virtual ReversibleSubstitutionModel,
+    public virtual SubstitutionModel,
     public AbstractCodonSubstitutionModel,
     public AbstractCodonDistanceSubstitutionModel,
     public AbstractCodonFitnessSubstitutionModel

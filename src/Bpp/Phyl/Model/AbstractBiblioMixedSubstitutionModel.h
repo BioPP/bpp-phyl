@@ -157,6 +157,18 @@ public:
     return getMixedModel().getNRate(i);
   }
 
+  /**
+   * @brief retrieve a pointer to the submodel with the given name.
+   *
+   * Return Null if not found.
+   *
+   */
+  
+  const SubstitutionModel* getSubModelWithName(const std::string& name) const
+  {
+    return getMixedModel().getSubModelWithName(name);
+  }
+  
   /*
      *@brief Returns the vector of numbers of the submodels in the
      *mixture that match a description.

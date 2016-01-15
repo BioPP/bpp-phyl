@@ -161,6 +161,15 @@ public:
 public:
   std::string getName() const { return "Mixture"; }
 
+  /**
+   * @brief retrieve a pointer to the submodel with the given name.
+   *
+   * Return Null if not found.
+   *
+   */
+  
+  const SubstitutionModel* getSubModelWithName(const std::string& name) const;
+  
   void updateMatrices();
 
   /**

@@ -122,6 +122,15 @@ namespace bpp
 
     virtual void normalizeVRates() = 0;
 
+    /**
+     * @brief retrieve a pointer to the submodel with the given name.
+     *
+     * Return Null if not found.
+     *
+     */
+    
+    virtual const SubstitutionModel* getSubModelWithName(const std::string& name) const = 0;
+    
     /*
      *@brief Returns the vector of numbers of the submodels in the
      *mixture that match a description.

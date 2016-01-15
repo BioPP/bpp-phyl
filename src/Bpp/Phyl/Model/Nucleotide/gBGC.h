@@ -64,12 +64,18 @@ namespace bpp
  * given nucleotidic substitution model.
  *
  * In addition to the parameters of the basic nucleic model, the
- * biased gene conversion effect is parametrized by @f$ \gamma @f$
- * (denoted \c "gamma"), and the mutation rates from A<->T nucleotides
- * to C<->G nucleotides are multiplied by @f$ exp(\gamma)@f$.
+ * biased gene conversion effect is parametrized by @f$ B @f$, that
+ * corresponds to fixation, and stands for a dubious selection.
+ * 
+ * With this term, the mutation rates from A and T to C and G are
+ * multiplied by @f$ \frac{B}{2} . \frac{1}{1-exp(-B)}@f$, and
+ * the mutation rates from C and G to A and T are multiplied by
+ * @f$ \frac{B}{2} . \frac{1}{exp(B)-1}@f$.
  *
  * @see AbstractSubstitutionModel
  *
+ * Reference:
+ * - Galtier & al (2009), Trends in Genetics, 25(1), doi:10.1016/j.tig.2008.10.011
  */
 
   class gBGC :
@@ -84,14 +90,14 @@ namespace bpp
      *
      */
   
-    double gamma_;
+    double B_;
   
   public:
     /**
      * @brief Build a new gBGC substitution model.
      *
      */
-    gBGC(const NucleicAlphabet*, NucleotideSubstitutionModel* const, double gamma=0);
+    gBGC(const NucleicAlphabet*, NucleotideSubstitutionModel* const, double B=0);
 
     gBGC(const gBGC&);
 

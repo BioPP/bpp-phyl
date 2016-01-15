@@ -1,11 +1,11 @@
 //
-// File: AbstractBiblioSubstitutionModel.h
-// Created by: Laurent GuÃ©guen
-// Created on: vendredi 8 juillet 2011, Ã  20h 17
+// File: FromMixtureSubstitutionModel.h
+// Created by: Laurent Gueguen
+// Created on: samedi 24 octobre 2015, à 18h 28
 //
 
 /*
-  Copyright or Â© or Copr. Bio++ Development Team, (November 16, 2004)
+  Copyright or © or Copr. Bio++ Development Team, (November 16, 2004)
 
   This software is a computer program whose purpose is to provide classes
   for phylogenetic data analysis.
@@ -37,57 +37,67 @@
   knowledge of the CeCILL license and that you accept its terms.
 */
 
-#ifndef _ABSTRACTBIBLIOSUBSTITUTIONMODEL_H_
-#define _ABSTRACTBIBLIOSUBSTITUTIONMODEL_H_
+#ifndef _FROM_MIXTURE_SUBSTITUTIONMODEL_H_
+#define _FROM_MIXTURE_SUBSTITUTIONMODEL_H_
 
-#include "SubstitutionModel.h"
-
-#include <Bpp/Numeric/AbstractParameterAliasable.h>
+#include "AbstractSubstitutionModel.h"
+#include "MixtureOfSubstitutionModels.h"
 
 namespace bpp
 {
 /**
- * @brief Partial implementation of the SubstitutionModel interface
- *   for models that are set for matching the bibliography, and are
- *   only defined through a link to a "real" model.
+ * @brief Model taken from a SubModel of a
+ * MixtureOfSubstitutionModels.
+ *
+ * It has the same parameters as the SubModel.
  *
  */
 
-  class AbstractBiblioSubstitutionModel :
+  class FromMixtureSubstitutionModel :
     public virtual SubstitutionModel,
     public AbstractParameterAliasable
   {
-  protected:
-    /**
-     * @brief Tools to make the link between the Parameters of the
-     * object and those of pmixmodel_.
+  private:
+    /*
+     * @brief The subModel taken from the MixtureOfSubstitutionModels.
+     *
+     * This subModel is normalized, even if it is not in the mixture.
      *
      */
+  
+    std::auto_ptr<SubstitutionModel> subModel_;
+  
+    /*
+     * @brief The name of the mixture model (for io purpose).
+     */
 
-    std::map<std::string, std::string> mapParNamesFromPmodel_;
-
-    ParameterList lParPmodel_;
-
-  public:
-    AbstractBiblioSubstitutionModel(const std::string& prefix);
-
-    AbstractBiblioSubstitutionModel(const AbstractBiblioSubstitutionModel& model);
-
-    AbstractBiblioSubstitutionModel& operator=(const AbstractBiblioSubstitutionModel& model);
-
-    virtual ~AbstractBiblioSubstitutionModel() {}
-
-#ifndef NO_VIRTUAL_COV
-    virtual AbstractBiblioSubstitutionModel* clone() const = 0;
-#endif
+    std::string mixtName_;
 
   public:
-    virtual const SubstitutionModel& getModel() const = 0;
+    FromMixtureSubstitutionModel(const MixedSubstitutionModel& mixedModel, const std::string& subModelName, const std::string& mixtDesc);
+
+    FromMixtureSubstitutionModel(const FromMixtureSubstitutionModel& fmsm);
+
+    FromMixtureSubstitutionModel& operator=(const FromMixtureSubstitutionModel& fmsm);
+    
+    ~FromMixtureSubstitutionModel() {}
+
+    FromMixtureSubstitutionModel* clone() const { return new FromMixtureSubstitutionModel(*this); }
+  
+  public:
+    const SubstitutionModel& getModel() const
+    {
+      return *subModel_.get();
+    }
 
   protected:
-    virtual void updateMatrices();
+    void updateMatrices();
 
-    virtual SubstitutionModel& getModel() = 0;
+    SubstitutionModel& getModel()
+    {
+      return *subModel_.get();
+    }
+
 
   public:
     /*
@@ -108,15 +118,15 @@ namespace bpp
   
     std::vector<size_t> getModelStates(const std::string& code) const { return getModel().getModelStates(code); }
 
-    virtual double freq(size_t i) const { return getModel().freq(i); }
+    double freq(size_t i) const { return getModel().freq(i); }
 
-    virtual double Qij(size_t i, size_t j) const { return getModel().Qij(i, j); }
+    double Qij(size_t i, size_t j) const { return getModel().Qij(i, j); }
 
-    virtual double Pij_t    (size_t i, size_t j, double t) const { return getModel().Pij_t(i, j, t); }
-    virtual double dPij_dt  (size_t i, size_t j, double t) const { return getModel().dPij_dt (i, j, t); }
-    virtual double d2Pij_dt2(size_t i, size_t j, double t) const { return getModel().d2Pij_dt2(i, j, t); }
+    double Pij_t    (size_t i, size_t j, double t) const { return getModel().Pij_t(i, j, t); }
+    double dPij_dt  (size_t i, size_t j, double t) const { return getModel().dPij_dt (i, j, t); }
+    double d2Pij_dt2(size_t i, size_t j, double t) const { return getModel().d2Pij_dt2(i, j, t); }
 
-    virtual const Vdouble& getFrequencies() const { return getModel().getFrequencies(); }
+    const Vdouble& getFrequencies() const { return getModel().getFrequencies(); }
 
     const Matrix<double>& getGenerator() const { return getModel().getGenerator(); }
 
@@ -143,18 +153,23 @@ namespace bpp
     const Vdouble& getIEigenValues() const { return getModel().getIEigenValues(); }
 
     const Matrix<double>& getRowLeftEigenVectors() const { return getModel().getRowLeftEigenVectors(); }
+
     const Matrix<double>& getColumnRightEigenVectors() const { return getModel().getColumnRightEigenVectors(); }
 
     double getRate() const { return getModel().getRate(); }
 
     void setRate(double rate) { return getModel().setRate(rate); }
 
-    void addRateParameter();
+    void addRateParameter()
+    {
+      getModel().addRateParameter();
+      addParameter_(new Parameter(getNamespace() + "rate", getModel().getRate(), &Parameter::R_PLUS_STAR));
+    }
 
-    void setFreqFromData(const SequenceContainer& data, double pseudoCount = 0);
+    void setFreqFromData(const SequenceContainer& data, double pseudoCount = 0){getModel().setFreqFromData(data, pseudoCount);}
 
-    void setFreq(std::map<int, double>& frequ);
-
+    void setFreq(std::map<int, double>& frequ) {getModel().setFreq(frequ);}
+    
     const Alphabet* getAlphabet() const { return getModel().getAlphabet(); }
 
     size_t getNumberOfStates() const { return getModel().getNumberOfStates(); }
@@ -179,22 +194,18 @@ namespace bpp
      *
      * This updates the matrices consequently.
      */
-    virtual void fireParameterChanged(const ParameterList& parameters)
+    void fireParameterChanged(const ParameterList& parameters)
     {
       AbstractParameterAliasable::fireParameterChanged(parameters);
-    
-      if (parameters.hasParameter(getNamespace()+"rate"))
-      {
-        getModel().setRate(parameters.getParameterValue(getNamespace()+"rate"));
-        if (parameters.size()!=1)
-          updateMatrices();
-      }
-      else
-        updateMatrices();      
+      getModel().matchParametersValues(parameters);
     }
 
-    void setNamespace(const std::string& name);
-  
+    void setNamespace(const std::string& name)
+    {
+      AbstractParameterAliasable::setNamespace(name);
+      getModel().setNamespace(name);
+    }
+    
   public:
     double getScale() const { return getModel().getScale(); }
 
@@ -203,9 +214,11 @@ namespace bpp
     /*
      * @}
      */
+
+    std::string getName() const;
+
   };
 } // end of namespace bpp.
 
-
-#endif  // _ABSTRACTBIBLIOSUBSTITUTIONMODEL_H_
+#endif  // _FROM_MIXTURE_SUBSTITUTIONMODEL_H_
 

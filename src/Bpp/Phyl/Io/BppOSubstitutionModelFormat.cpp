@@ -97,6 +97,7 @@
 #include "../Model/Protein/LLG08_EHO.h"
 #include "../Model/Protein/LG10_EX_EHO.h"
 #include "../Model/BinarySubstitutionModel.h"
+#include "../Model/FromMixtureSubstitutionModel.h"
 
 #include "../App/PhylogeneticsApplicationTools.h"
 
@@ -244,34 +245,6 @@ SubstitutionModel* BppOSubstitutionModelFormat::read(
       throw Exception("Unknown Codon model: " + modelName);
   }
 
-
-  // //////////////////////////////////
-  // gBGC
-  // //////////////////////////////////
-
-  else if (modelName == "gBGC")
-  {
-    if (!(alphabetCode_ & NUCLEOTIDE))
-      throw Exception("BppOSubstitutionModelFormat::read. Nucleotide alphabet not supported.");
-    // We have to parse the nested model first:
-    string nestedModelDescription = args["model"];
-    if (TextTools::isEmpty(nestedModelDescription))
-      throw Exception("BppOSubstitutionModelFormat::read. Missing argument 'model' for model 'gBGC'.");
-    if (verbose_)
-      ApplicationTools::displayResult("Biased gene conversion", modelName);
-    BppOSubstitutionModelFormat nestedReader(NUCLEOTIDE, true, true, false, verbose_, warningLevel_);
-    auto_ptr<NucleotideSubstitutionModel> nestedModel(dynamic_cast<NucleotideSubstitutionModel*>(nestedReader.read(alphabet, nestedModelDescription, data, false)));
-    map<string, string> unparsedParameterValuesNested(nestedReader.getUnparsedArguments());
-
-    // Now we create the gBGC substitution model:
-    model.reset(new gBGC(dynamic_cast<const NucleicAlphabet*>(alphabet), nestedModel.release()));
-
-    // Then we update the parameter set:
-    for (map<string, string>::iterator it = unparsedParameterValuesNested.begin(); it != unparsedParameterValuesNested.end(); it++)
-    {
-      unparsedArguments_["gBGC." + it->first] = it->second;
-    }
-  }
 
   // //////////////////////////////////
   // YpR
@@ -464,11 +437,41 @@ SubstitutionModel* BppOSubstitutionModelFormat::read(
         throw Exception("BppOSubstitutionModelFormat::read. Nucleotide alphabet not supported.");
       const NucleicAlphabet* alpha = dynamic_cast<const NucleicAlphabet*>(alphabet);
 
+      // //////////////////////////////////
+      // gBGC
+      // //////////////////////////////////
+      if (modelName.find("+gBGC") != string::npos)
+      {
+        string subModName=modelName.substr(0,modelName.find("+gBGC"));
+
+        if (verbose_)
+          ApplicationTools::displayResult("Biased gene conversion for", subModName);
+
+        string::size_type begin = modelDescription.find_first_of("(");
+        string::size_type end = modelDescription.find_last_of(")");
+
+        string nestedModelDescription = subModName+modelDescription.substr(begin,end-begin+1);
+        
+        BppOSubstitutionModelFormat nestedReader(NUCLEOTIDE, true, true, false, verbose_, warningLevel_);
+        auto_ptr<NucleotideSubstitutionModel> nestedModel(dynamic_cast<NucleotideSubstitutionModel*>(nestedReader.read(alphabet, nestedModelDescription, data, false)));
+        map<string, string> unparsedParameterValuesNested(nestedReader.getUnparsedArguments());
+
+        // Now we create the gBGC substitution model:
+        model.reset(new gBGC(alpha, nestedModel.release()));
+
+        // Then we update the parameter set:
+        for (map<string, string>::iterator it = unparsedParameterValuesNested.begin(); it != unparsedParameterValuesNested.end(); it++)
+        {
+          unparsedArguments_["gBGC." + it->first] = it->second;
+        }
+      }
+
+
       // /////////////////////////////////
       // / GTR
       // ///////////////////////////////
 
-      if (modelName == "GTR")
+      else if (modelName == "GTR")
       {
         model.reset(new GTR(alpha));
       }
@@ -636,9 +639,38 @@ SubstitutionModel* BppOSubstitutionModelFormat::read(
         model.reset(new LG10_EX_EHO(alpha));	
       else if (modelName == "LGL08_CAT")
       {
+        if (args.find("nbCat")==args.end())
+          throw Exception("'nbCat' argument is compulsory for model 'LGL08_CAT'");
+          
         unsigned int nbCat = TextTools::to<unsigned int>(args["nbCat"]);
         model.reset(new LGL08_CAT(alpha, nbCat));
       }
+      // submodels of mixture models
+      else if (modelName.substr(0,9) == "LGL08_CAT")
+      {
+        string subModelName = modelName.substr(10);
+
+        size_t posp=modelDescription.find("(");
+
+        string modelDesc2=modelName.substr(0,9)+modelDescription.substr(posp);
+        
+        BppOSubstitutionModelFormat nestedReader(PROTEIN, true, true, false, verbose_, warningLevel_);
+
+        
+        MixedSubstitutionModel* nestedModel=dynamic_cast<MixedSubstitutionModel*>(nestedReader.read(alphabet, modelDesc2, data, false));
+      
+        // Check that nestedModel is fine and has subModel of given name
+        if (nestedModel==NULL)
+          throw Exception("Unknown model " + modelName + ".");
+        
+        if (nestedModel->getSubModelWithName(subModelName)==NULL)
+          throw Exception("BppOSubstitutionModelFormat::read. " + nestedModel->getName() + "argument for model 'FromModel' has no submodel with name " + subModelName + ".");
+
+       // Now we create the FromModel substitution model:
+        model.reset(new FromMixtureSubstitutionModel(*nestedModel, subModelName, modelDesc2));
+        
+        delete nestedModel;
+      }      
       else if (modelName == "Empirical")
       {
         string prefix = args["name"];
@@ -1205,9 +1237,18 @@ void BppOSubstitutionModelFormat::write(const SubstitutionModel& model,
   const gBGC* gbgcModel = dynamic_cast<const gBGC*>(&model);
   if (gbgcModel)
   {
-    out << "model=";
+    StdStr sout;
+    
     const SubstitutionModel* nestedModel = gbgcModel->getNestedModel();
-    write(*nestedModel, out, globalAliases, writtenNames);
+    write(*nestedModel, sout, globalAliases, writtenNames);
+
+    string ss=sout.str();
+
+    string::size_type begin = ss.find_first_of("(");
+    string::size_type end = ss.find_last_of(")");
+
+    out << ss.substr(begin+1,end-begin-1);
+    
     comma = true;
   }
 
@@ -1253,6 +1294,15 @@ void BppOSubstitutionModelFormat::write(const SubstitutionModel& model,
     comma = true;
   }
 
+  // // Is it a FromMixture model?
+
+  // const FromMixtureSubstitutionModel* fromModel = dynamic_cast<const FromMixtureSubstitutionModel*>(&model);
+  // if (fromModel)
+  // {
+  //   out << "exch=" << coalaModel->getExch() << ",nbrAxes=" << coalaModel->getNbrOfAxes();
+  //   comma = true;
+  // }
+  
   // Regular model
   const FrequenciesSet* pfs = model.getFrequenciesSet();
   if (pfs)

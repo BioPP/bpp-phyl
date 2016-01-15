@@ -453,67 +453,65 @@ void AbstractWordSubstitutionModel::updateMatrices()
       // eigen vector elements are equal.
       //
 
-      if (isDiagonalizable_)
-      {
-        size_t nulleigen = 0;
-        double val;
+      size_t nulleigen = 0;
+      double val;
 
-        isNonSingular_ = false;
-        while (nulleigen < salph - nbStop)
+      isNonSingular_ = false;
+      while (nulleigen < salph - nbStop)
+      {
+        if ((abs(eigenValues_[nulleigen]) < NumConstants::SMALL()) && (abs(iEigenValues_[nulleigen]) < NumConstants::SMALL()))
         {
-          if ((abs(eigenValues_[nulleigen]) < NumConstants::SMALL()) && (abs(iEigenValues_[nulleigen]) < NumConstants::SMALL()))
-          {
-            i = 0;
-            while (vnull[i])
-              i++;
-            
-            val = rightEigenVectors_(i, nulleigen);
+          i = 0;
+          while (vnull[i])
             i++;
-            while (i < salph)
+          
+          val = rightEigenVectors_(i, nulleigen);
+          i++;
+          while (i < salph)
+          {
+            if (!vnull[i])
             {
-              if (!vnull[i])
-              {
-                if (abs(rightEigenVectors_(i, nulleigen) - val) > NumConstants::SMALL())
-                  break;
-              }
-              i++;
+              if (abs(rightEigenVectors_(i, nulleigen) - val) > NumConstants::SMALL())
+                break;
             }
-            
-            if (i < salph)
-              nulleigen++;
-            else
-            {
-              isNonSingular_ = true;
-              break;
-            }
+            i++;
           }
-          else
+          
+          if (i < salph)
             nulleigen++;
+          else
+          {
+            isNonSingular_ = true;
+            break;
+          }
         }
-        
-        if (isNonSingular_)
-        {
-          eigenValues_[nulleigen] = 0; // to avoid approximation errors on long long branches
-          iEigenValues_[nulleigen] = 0; // to avoid approximation errors on long long branches
-          
-          for (i = 0; i < salph; i++)
-            freq_[i] = leftEigenVectors_(nulleigen, i);
-          
-          x = 0;
-          for (i = 0; i < salph; i++)
-            x += freq_[i];
-          
-          for (i = 0; i < salph; i++)
-          freq_[i] /= x;
-        }
-      
         else
-        {
-          ApplicationTools::displayMessage("Unable to find eigenvector for eigenvalue 1. Taylor series used instead.");
-          isDiagonalizable_ = false;
-        }
+          nulleigen++;
+      }
+      
+      if (isNonSingular_)
+      {
+        eigenValues_[nulleigen] = 0; // to avoid approximation errors on long long branches
+        iEigenValues_[nulleigen] = 0; // to avoid approximation errors on long long branches
+        
+        for (i = 0; i < salph; i++)
+          freq_[i] = leftEigenVectors_(nulleigen, i);
+        
+        x = 0;
+        for (i = 0; i < salph; i++)
+            x += freq_[i];
+        
+        for (i = 0; i < salph; i++)
+          freq_[i] /= x;
+      }
+      
+      else
+      {
+        ApplicationTools::displayMessage("Unable to find eigenvector for eigenvalue 1. Taylor series used instead.");
+        isDiagonalizable_ = false;
       }
     }
+    
     
     // if rightEigenVectors_ is singular
     catch (ZeroDivisionException& e)
