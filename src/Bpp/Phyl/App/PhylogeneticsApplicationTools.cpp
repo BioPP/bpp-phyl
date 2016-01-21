@@ -951,7 +951,7 @@ throw (Exception)
       bck.close();
       tl->setParameters(pl);
       if (abs(tl->getValue() - fval) > 0.000001)
-        throw Exception("Incorrect likelihood value after restoring, from backup file. Remove backup file and start from scratch :s");
+        ApplicationTools::displayWarning("Warning, incorrect likelihood value after restoring from backup file.");
       ApplicationTools::displayResult("Restoring log-likelihood", -fval);
     }
   }
