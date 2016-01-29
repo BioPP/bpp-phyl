@@ -282,6 +282,7 @@ std::map<size_t, Tree*> PhylogeneticsApplicationTools::getTrees(
           }
           
           mTree[i2+1]=trees[i2];
+          ApplicationTools::displayResult("Number of leaves", trees[i2]->getNumberOfLeaves());
         }
       }
       else
@@ -297,6 +298,7 @@ std::map<size_t, Tree*> PhylogeneticsApplicationTools::getTrees(
             delete mTree[num];
           }
           mTree[num]=trees[0];
+          ApplicationTools::displayResult("Number of leaves", trees[0]->getNumberOfLeaves());
         }
       }
     }
@@ -325,6 +327,7 @@ std::map<size_t, Tree*> PhylogeneticsApplicationTools::getTrees(
         delete mTree[num];
       }
       mTree[num]=tree;
+      ApplicationTools::displayResult("Number of leaves", tree->getNumberOfLeaves());
     }
     
 
