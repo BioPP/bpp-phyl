@@ -1827,23 +1827,14 @@ vector< vector<double> > SubstitutionMappingTools::getRelativeCountsPerBranch(
   const vector<int>& ids,
   SubstitutionModel* model,
   const SubstitutionRegister& reg,
-  bool stationarity,
   double threshold)
 {
   vector< vector<double> > counts = getCountsPerBranch(drtl, ids, model, reg, threshold);
 
-  const CategorySubstitutionRegister* creg;
-  if (!stationarity)
-  {
-    try
-    {
-      creg = &dynamic_cast<const CategorySubstitutionRegister&>(reg);
-    }
-    catch (Exception& ex)
-    {
-      throw Exception("The stationarity option can only be used with a category substitution register.");
-    }
+  const CategorySubstitutionRegister* creg = dynamic_cast<const CategorySubstitutionRegister*>(&reg);
 
+  if ((creg!=NULL) && !creg->isStationary())
+  {
     size_t nbTypes = counts[0].size();
 
     for (size_t k = 0; k < ids.size(); ++k)

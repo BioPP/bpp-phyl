@@ -226,6 +226,7 @@ SET(H_FILES
   Bpp/Phyl/Mapping/DecompositionSubstitutionCount.h
   Bpp/Phyl/Mapping/UniformizationSubstitutionCount.h
   Bpp/Phyl/Mapping/SubstitutionRegister.h
+  Bpp/Phyl/Mapping/CategorySubstitutionRegister.h
   Bpp/Phyl/Mapping/SubstitutionCount.h
   Bpp/Phyl/Mapping/Mapping.h
   Bpp/Phyl/Mapping/SubstitutionMapping.h

@@ -41,6 +41,7 @@
 #define _SUBSTITUTIONCOUNT_H_
 
 #include "SubstitutionRegister.h"
+#include "CategorySubstitutionRegister.h"
 #include "../Model/SubstitutionModel.h"
 
 #include <Bpp/Numeric/Matrix/Matrix.h>
