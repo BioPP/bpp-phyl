@@ -74,10 +74,14 @@ void AbstractFrequenciesSet::setFrequenciesFromAlphabetStatesFrequencies(const m
       freq[i] = 0;
     x += freq[i];
   }
-  for (size_t i = 0; i < s; ++i)
-  {
-    freq[i] /= x;
-  }
+
+  if (x!=0)
+    for (size_t i = 0; i < s; ++i)
+      freq[i] /= x;
+  else
+    for (size_t i = 0; i < s; ++i)
+      freq[i] = 1.0/(double)s;
+
   setFrequencies(freq);
 }
 
