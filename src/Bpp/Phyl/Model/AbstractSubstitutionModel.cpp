@@ -133,7 +133,7 @@ void AbstractSubstitutionModel::updateMatrices()
 
 const Matrix<double>& AbstractSubstitutionModel::getPij_t(double t) const
 {
-  if (t == 0)
+  if (t <= NumConstants::SMALL())
   {
     MatrixTools::getId(size_, pijt_);
   }
@@ -199,6 +199,7 @@ const Matrix<double>& AbstractSubstitutionModel::getPij_t(double t) const
     }
   }
 //  MatrixTools::print(pijt_);
+
   return pijt_;
 }
 
