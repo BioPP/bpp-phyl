@@ -206,7 +206,7 @@ const Matrix<double>& AbstractSubstitutionModel::getPij_t(double t) const
       for (size_t j = 0; j < size_; j++)
         if (pijt_(i,j)<0.)
           pijt_(i,j)=0.;
-  
+
   return pijt_;
 }
 
