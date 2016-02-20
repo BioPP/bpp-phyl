@@ -631,7 +631,15 @@ public:
    * @return The number of branches.
    */
     
-  static size_t getNumberOfBranches(const Node& node);
+  static size_t getNumberOfBranches(const Node& node)
+  {
+    size_t nbBranches = 0; //Basal node has no branch
+    for (int i = 0; i < static_cast<int>(node.getNumberOfSons()); i++)
+    {
+      nbBranches += getNumberOfNodes(*node[i]); //All son nodes define one branch each
+    }
+    return nbBranches;
+  }
 
   /**
    * @brief Get the number of leaves of a subtree defined by a particular node.
@@ -647,7 +655,17 @@ public:
    * @param node The node defining the subtree to check.
    * @return The number of nodes.
    */
-  static size_t getNumberOfNodes(const Node& node);
+  
+  static size_t getNumberOfNodes(const Node& node)
+  {
+    size_t nbNodes = 1;
+    for (int i = 0; i < static_cast<int>(node.getNumberOfSons()); i++)
+    {
+      nbNodes += getNumberOfNodes(*node[i]);
+    }
+    return nbNodes;
+  }
+
 
   /**
    * @brief Get the leaves names of a subtree defined by a particular node.
