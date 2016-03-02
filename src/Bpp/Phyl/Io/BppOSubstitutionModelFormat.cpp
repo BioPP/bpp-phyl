@@ -583,27 +583,37 @@ SubstitutionModel* BppOSubstitutionModelFormat::read(
         map<string, string> unparsedParameterValuesNested(freqReader.getUnparsedArguments());
 
         for (map<string, string>::iterator it = unparsedParameterValuesNested.begin(); it != unparsedParameterValuesNested.end(); it++)
-          {
-            unparsedArguments_[modelName + "." + it->first] = it->second;
-          }
+        {
+          unparsedArguments_[modelName + "." + it->first] = it->second;
+        }
+        
+        vector<string> pfn=protFreq->getParameters().getParameterNames();
+        for (size_t i = 0; i < pfn.size(); i++)
+          unparsedArguments_[modelName + "." + pfn[i]] = TextTools::toString(protFreq->getParameterValue(protFreq->getParameterNameWithoutNamespace(pfn[i])));
+          
         
         if (modelName == "JC69+F")
-          model.reset(new JCprot(alpha, dynamic_cast<ProteinFrequenciesSet*>(protFreq.release()), true));
+          model.reset(new JCprot(alpha, dynamic_cast<ProteinFrequenciesSet*>(protFreq.release())));
         else if (modelName == "DSO78+F")
-          model.reset(new DSO78(alpha, dynamic_cast<ProteinFrequenciesSet*>(protFreq.release()), true));
+          model.reset(new DSO78(alpha, dynamic_cast<ProteinFrequenciesSet*>(protFreq.release())));
         else if (modelName == "JTT92+F")
-          model.reset(new JTT92(alpha, dynamic_cast<ProteinFrequenciesSet*>(protFreq.release()), true));
+          model.reset(new JTT92(alpha, dynamic_cast<ProteinFrequenciesSet*>(protFreq.release())));
         else if (modelName == "LG08+F")
-          model.reset(new LG08(alpha, dynamic_cast<ProteinFrequenciesSet*>(protFreq.release()), true));
+          model.reset(new LG08(alpha, dynamic_cast<ProteinFrequenciesSet*>(protFreq.release())));
         else if (modelName == "WAG01+F")
-          model.reset(new WAG01(alpha, dynamic_cast<ProteinFrequenciesSet*>(protFreq.release()), true));
+          model.reset(new WAG01(alpha, dynamic_cast<ProteinFrequenciesSet*>(protFreq.release())));
         else if (modelName == "Empirical+F")
-          {
-            string prefix = args["name"];
-            if (TextTools::isEmpty(prefix))
-              throw Exception("'name' argument missing for user-defined substitution model.");
-            model.reset(new UserProteinSubstitutionModel(alpha, args["file"], dynamic_cast<ProteinFrequenciesSet*>(protFreq.release()), prefix + "+F.", true));
-          }
+        {
+          string prefix = args["name"];
+          if (TextTools::isEmpty(prefix))
+            throw Exception("'name' argument missing for user-defined substitution model.");
+          string fname = args["file"];
+          if (TextTools::isEmpty(fname))
+            throw Exception("'file' argument missing for user-defined substitution model.");
+          model.reset(new UserProteinSubstitutionModel(alpha, args["file"], dynamic_cast<ProteinFrequenciesSet*>(protFreq.release()), prefix + "+F."));
+        }
+
+        
       }
       else if (modelName == "JC69")
         model.reset(new JCprot(alpha));
@@ -755,7 +765,6 @@ SubstitutionModel* BppOSubstitutionModelFormat::read(
     throw Exception("useObservedFreqs argument is obsolete. Please use 'initFreqs=observed' instead.");
   if (args.find("useObservedFreqs.pseudoCount") != args.end())
     throw Exception("useObservedFreqs.pseudoCount argument is obsolete. Please use 'initFreqs.observedPseudoCount' instead.");
-
 
   if (args.find("initFreqs") != args.end())
     unparsedArguments_[pref + "initFreqs"] = args["initFreqs"];
@@ -1180,7 +1189,15 @@ void BppOSubstitutionModelFormat::write(const SubstitutionModel& model,
   if (userModel)
   {
     out << "file=" << userModel->getPath();
-    comma = true;
+    string ns=userModel->getNamespace();
+    
+    if (TextTools::hasSubstring(ns, "+F.") )
+      ns = ns.substr(0,ns.size()-3); 
+    else  
+      ns = ns.substr(0,ns.size()-1); 
+
+    out << ",name=" << ns;
+    comma = true;    
   }
 
   // Is it a markov-modulated model?

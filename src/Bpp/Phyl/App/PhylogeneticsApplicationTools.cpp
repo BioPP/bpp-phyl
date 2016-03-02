@@ -265,7 +265,7 @@ void PhylogeneticsApplicationTools::setSubstitutionModelParametersInitialValuesW
       }
     }
   }
-  
+
   model.matchParametersValues(pl);
 }
 

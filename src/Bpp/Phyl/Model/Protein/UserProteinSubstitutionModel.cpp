@@ -44,6 +44,7 @@ knowledge of the CeCILL license and that you accept its terms.
 #include <Bpp/Text/TextTools.h>
 #include <Bpp/Text/StringTokenizer.h>
 #include <Bpp/Numeric/VectorTools.h>
+#include <Bpp/Io/FileTools.h>
 
 //From SeqLib:
 #include <Bpp/Seq/Container/SequenceContainerTools.h>
@@ -102,6 +103,9 @@ std::string UserProteinSubstitutionModel::getName() const
 
 void UserProteinSubstitutionModel::readFromFile()
 {
+  if (!FileTools::fileExists(path_.c_str()))
+    throw Exception("UserProteinSubstitutionModel::readFromFile. Frequencies file not found : " +  path_);
+  
   ifstream in(path_.c_str(), ios::in);
   //Read exchangeability matrix:
   for (unsigned int i = 1; i < 20; i++)
