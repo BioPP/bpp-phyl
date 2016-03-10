@@ -170,6 +170,11 @@ namespace bpp
       return pp;
     }
 
+    Vdouble getPosteriorProbabilitiesForASiteForEachAligned(size_t site) const
+    {
+      return hmm_->getHiddenStatesPosteriorProbabilitiesForASite(site);
+    }
+
     const HmmTransitionMatrix& getHmmTransitionMatrix() const
     {
       return hmm_->getHmmTransitionMatrix();

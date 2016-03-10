@@ -91,8 +91,8 @@ namespace bpp
        *
        * @brief adds a PhyloLikelihood already stored in the m ap, iff
        * it is an AlignedPhyloLikelihood of the same size 
-       *
-       * @return if the PhyloLikelihood has been added.
+       * 
+      * @return if the PhyloLikelihood has been added.
        */
       
       virtual bool addPhyloLikelihood(size_t nPhyl);
@@ -147,6 +147,21 @@ namespace bpp
       double getLikelihoodForASiteForAPhyloLikelihood(size_t site, size_t nPhyl) const
       {
         return getAbstractPhyloLikelihood(nPhyl)->getLikelihoodForASite(site);
+      }
+
+      /**
+       * @brief Get the log likelihood for a site for an aligned
+       * phyloLikelihood 
+       *
+       * @param site The site index to analyse.
+       * @param p the phyloLikelihood index.
+       * @return The log likelihood for site <i>site</i>.
+       */
+
+  
+      double getLogLikelihoodForASiteForAPhyloLikelihood(size_t site, size_t nPhyl) const
+      {
+        return getAbstractPhyloLikelihood(nPhyl)->getLogLikelihoodForASite(site);
       }
 
       /**

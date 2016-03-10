@@ -56,6 +56,7 @@
 #include <Bpp/Numeric/Function/Optimizer.h>
 
 #include "../NewLikelihood/PhyloLikelihoods/SingleDataPhyloLikelihood.h"
+#include "../NewLikelihood/PhyloLikelihoods/SetOfAlignedPhyloLikelihood.h"
 #include "../NewLikelihood/PhyloLikelihoods/PhyloLikelihoodContainer.h"
 #include "../NewLikelihood/SubstitutionProcessCollection.h"
 #include "../NewLikelihood/SubstitutionProcessCollectionMember.h"
@@ -924,8 +925,11 @@ namespace bpp
      * @param modelSet The model set to serialize.
      * @param out      The stream where to print.
      * @param warn  Set the warning level (0: always display warnings, >0 display warnings on demand).
+     * @param withAlias outputs the alias names of the aliased
+     *                      Parameters instead of the values (default
+     *                      : true).
      */
-    static void printParameters(const SubstitutionModelSet* modelSet, OutputStream& out, int warn = 1);
+    static void printParameters(const SubstitutionModelSet* modelSet, OutputStream& out, int warn = 1, bool withAlias = true);
 
     /**
      * @brief Output a SubstitutionProcess description to a file.
@@ -938,26 +942,17 @@ namespace bpp
     static void printParameters(const SubstitutionProcess* process, OutputStream& out, int warn = 1);
 
     /**
-     * @brief Output information on the computation to a file.
-     *
-     * @param phylolike The phylolikelihood to serialize.
-     * @param out      The stream where to print.
-     * @param warn  Set the warning level (0: always display warnings, >0 display warnings on demand).
-     */
-    
-    static void printAnalysisInformation(const PhyloLikelihood* phylolike, OutputStream& out, int warn = 1);
-
-    static void printAnalysisInformation(const SingleDataPhyloLikelihood* phylolike, OutputStream& out, int warn = 1);
-
-    /**
      * @brief Output a SubstitutionProcessCollection description to a file.
      *
      * @param collection The process collection to serialize.
      * @param out      The stream where to print.
      * @param warn  Set the warning level (0: always display warnings, >0 display warnings on demand).
+     * @param withAlias outputs the alias names of the aliased
+     *                      Parameters instead of the values (default
+     *                      : true).
      */
 
-    static void printParameters(const SubstitutionProcessCollection* collection, OutputStream& out, int warn = 1);
+    static void printParameters(const SubstitutionProcessCollection* collection, OutputStream& out, int warn = 1, bool withAlias = true);
 
     /**
      * @brief Output the description of the  PhyloLikelihoods IN USE a
@@ -995,6 +990,21 @@ namespace bpp
      * @param out   The stream where to print.
      */
     static void printParameters(const DiscreteDistribution* rDist, OutputStream& out);
+
+    /**
+     * @brief Output information on the computation to a file.
+     *
+     * @param phylolike The phylolikelihood to serialize.
+     * @param infosFile   The name of the file where to print.
+     * @param warn  Set the warning level (0: always display warnings, >0 display warnings on demand).
+     */
+    
+    static void printAnalysisInformation(const PhyloLikelihoodContainer& phylocont, const std::string& infosFile, int warn = 1);
+
+    static void printAnalysisInformation(const SingleDataPhyloLikelihood& phylolike, const std::string& infosFile, int warn = 1);
+
+    static void printAnalysisInformation(const SetOfAlignedPhyloLikelihood& sOAP, const std::string& infosFile, int warn = 1);
+
 
   };
 

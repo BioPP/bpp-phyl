@@ -56,8 +56,8 @@ using namespace std;
 SimpleSubstitutionProcessSequenceSimulator::SimpleSubstitutionProcessSequenceSimulator(
   const SubstitutionProcess& process) throw (Exception) :
   process_(&process),
-  alphabet_(process_->getSubstitutionModel(0,0).getAlphabet()),
-  supportedStates_(process_->getSubstitutionModel(0,0).getAlphabetStates()),
+  alphabet_(process_->getSubstitutionModel(process_->getTree().getRootNode()->getSon(0)->getId(),0).getAlphabet()),
+  supportedStates_(process_->getSubstitutionModel(process_->getTree().getRootNode()->getSon(0)->getId(),0).getAlphabetStates()),
   templateTree_(&process_->getTree()),
   tree_(*&process_->getTree()),
   leaves_(tree_.getLeaves()),

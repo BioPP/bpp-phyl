@@ -3656,7 +3656,7 @@ void PhylogeneticsApplicationTools::printParameters(const SubstitutionProcess* p
   }
 }
 
-void PhylogeneticsApplicationTools::printParameters(const SubstitutionProcessCollection* collection, OutputStream& out, int warn)
+void PhylogeneticsApplicationTools::printParameters(const SubstitutionProcessCollection* collection, OutputStream& out, int warn, bool withAlias)
 {
   vector<string> writtenNames;
 
@@ -3669,16 +3669,19 @@ void PhylogeneticsApplicationTools::printParameters(const SubstitutionProcessCol
 
     // First get the aliases for this model:
     map<string, string> aliases;
-    
-    ParameterList pl=model.getParameters();
-    
-    for (size_t np = 0 ; np< pl.size() ; np++)
-    {
-      string nfrom=collection->getFrom(pl[np].getName()+"_"+TextTools::toString(modN[i]));
-      if (nfrom!="")
-        aliases[pl[np].getName()]=nfrom;
-    }
 
+    if (withAlias)
+    {
+      ParameterList pl=model.getParameters();
+      
+      for (size_t np = 0 ; np< pl.size() ; np++)
+      {
+        string nfrom=collection->getFrom(pl[np].getName()+"_"+TextTools::toString(modN[i]));
+        if (nfrom!="")
+          aliases[pl[np].getName()]=nfrom;
+      }
+    }
+    
     // Now print it:
     writtenNames.clear();
     out.endLine() << "model" << modN[i] << "=";
@@ -3702,14 +3705,18 @@ void PhylogeneticsApplicationTools::printParameters(const SubstitutionProcessCol
 
       map<string, string> aliases;
       
-      ParameterList pl=rootFreq.getParameters();
-        
-      for (size_t np = 0 ; np< pl.size() ; np++)
+      if (withAlias)
       {
-        string nfrom=collection->getFrom(pl[np].getName()+"_"+TextTools::toString(rootFreqN[i]));
-        if (nfrom!="")
-          aliases[pl[np].getName()]=nfrom;
+        ParameterList pl=rootFreq.getParameters();
+        
+        for (size_t np = 0 ; np< pl.size() ; np++)
+        {
+          string nfrom=collection->getFrom(pl[np].getName()+"_"+TextTools::toString(rootFreqN[i]));
+          if (nfrom!="")
+            aliases[pl[np].getName()]=nfrom;
+        }
       }
+      
 
       bIOf.write(&rootFreq, out, aliases, writtenNames);
       out.endLine();
@@ -3728,13 +3735,16 @@ void PhylogeneticsApplicationTools::printParameters(const SubstitutionProcessCol
       // First get the aliases for this model:
       map<string, string> aliases;
     
-      ParameterList pl=dist.getParameters();
-    
-      for (size_t np = 0 ; np< pl.size() ; np++)
+      if (withAlias)
       {
-        string nfrom=collection->getFrom(pl[np].getName()+"_"+TextTools::toString(distN[i]));
-        if (nfrom!="")
-          aliases[pl[np].getName()]=nfrom;
+        ParameterList pl=dist.getParameters();
+        
+        for (size_t np = 0 ; np< pl.size() ; np++)
+        {
+          string nfrom=collection->getFrom(pl[np].getName()+"_"+TextTools::toString(distN[i]));
+          if (nfrom!="")
+            aliases[pl[np].getName()]=nfrom;
+        }
       }
       
       // Now print it:
@@ -4064,26 +4074,164 @@ void PhylogeneticsApplicationTools::printParameters(const SequenceEvolution* evo
 ////////////////////////////////////////////////////////
 
 
-void PhylogeneticsApplicationTools::printAnalysisInformation(const PhyloLikelihood* phyloLike, OutputStream& out, int warn)
+void PhylogeneticsApplicationTools::printAnalysisInformation(const PhyloLikelihoodContainer& phylocont, const std::string& infosFile, int warn)
 {
-  if (dynamic_cast<const SingleDataPhyloLikelihood*>(phyloLike)!=NULL)
-    printAnalysisInformation(dynamic_cast<const SingleDataPhyloLikelihood*>(phyloLike), out, warn);
+  const PhyloLikelihood* result=phylocont[0];
+
+  if (!result)
+    return;
+
+  std::vector<size_t> phyldep;
+  const ProductOfPhyloLikelihood* pop=dynamic_cast<const ProductOfPhyloLikelihood*>(result);
+  if (pop)
+    phyldep=pop->getNumbersOfPhyloLikelihoods();
+    
   else
   {
-    const SetOfAbstractPhyloLikelihood* mDP=dynamic_cast<const SetOfAbstractPhyloLikelihood*>(phyloLike);
-    const vector<size_t>& vNum=mDP->getNumbersOfPhyloLikelihoods();
-    
-    for (size_t nSD=0; nSD< vNum.size(); nSD++)
-      printAnalysisInformation(mDP->getAbstractPhyloLikelihood(vNum[nSD]), out, warn);
+    const vector<size_t>& nPhyl=phylocont.getNumbersOfPhyloLikelihoods();
+    for (size_t i=0; i<nPhyl.size(); i++)
+    {
+      if (nPhyl[i]!=0 && phylocont[nPhyl[i]]==result)
+      {
+        phyldep.push_back(nPhyl[i]);
+        break;
+      }
+    }
   }
+
+  while (phyldep.size()!=0)
+  {
+    size_t num=phyldep[0];
+    const PhyloLikelihood* phyloLike=phylocont[num];
+
+    // remove phylolikelihoods with this number
+    vector<size_t>::iterator itf=find(phyldep.begin(),phyldep.end(),num);
+    while (itf!=phyldep.end())
+    {
+      phyldep.erase(itf);
+      itf=find(itf,phyldep.end(),num);
+    }
+
+    // then output
+
+    string info_out=infosFile+"_"+TextTools::toString(num);
+    
+    if (dynamic_cast<const SingleDataPhyloLikelihood*>(phyloLike)!=NULL)
+      printAnalysisInformation(dynamic_cast<const SingleDataPhyloLikelihood&>(*phyloLike), info_out, warn);
+    else
+    {
+      const SetOfAlignedPhyloLikelihood* sOAP=dynamic_cast<const SetOfAlignedPhyloLikelihood*>(phyloLike);
+
+      if (sOAP!=NULL)
+      {
+        printAnalysisInformation(*sOAP, info_out, warn);
+
+        std::vector<size_t> vPN=sOAP->getNumbersOfPhyloLikelihoods();
+
+        // update phyldep
+        for (size_t i=0; i<vPN.size(); i++)
+          if (find(phyldep.begin(),phyldep.end(),vPN[i])==phyldep.end())
+            phyldep.push_back(vPN[i]);
+
+      }
+    }
+    
+  }
+  
 }
 
 
-void PhylogeneticsApplicationTools::printAnalysisInformation(const SingleDataPhyloLikelihood* phyloLike, OutputStream& out, int warn)
+
+void PhylogeneticsApplicationTools::printAnalysisInformation(const SetOfAlignedPhyloLikelihood& sOAP, const std::string& infosFile, int warn)
 {
-  if (dynamic_cast<const SingleProcessPhyloLikelihood*>(phyloLike) != NULL)
+  StlOutputStream out(new ofstream(infosFile.c_str(), ios::out));
+
+  const MixtureOfAlignedPhyloLikelihood* mOAP=NULL;
+  const HmmOfAlignedPhyloLikelihood* hOAP=NULL;
+  const AutoCorrelationOfAlignedPhyloLikelihood* aCOAP=NULL;
+
+  std::vector<size_t> phyloNum= sOAP.getNumbersOfPhyloLikelihoods();
+  size_t nbP=phyloNum.size();
+  
+  if (dynamic_cast<const ProductOfAlignedPhyloLikelihood*>(&sOAP) == NULL)
   {
-    const SingleProcessPhyloLikelihood* pSPL = dynamic_cast<const SingleProcessPhyloLikelihood*>(phyloLike);
+    if (dynamic_cast<const MixtureOfAlignedPhyloLikelihood*>(&sOAP) != NULL)
+      mOAP = dynamic_cast<const MixtureOfAlignedPhyloLikelihood*>(&sOAP);
+    else if (dynamic_cast<const HmmOfAlignedPhyloLikelihood*>(&sOAP) != NULL)
+      hOAP = dynamic_cast<const HmmOfAlignedPhyloLikelihood*>(&sOAP);
+    else if (dynamic_cast<const AutoCorrelationOfAlignedPhyloLikelihood*>(&sOAP) != NULL)
+      aCOAP = dynamic_cast<const AutoCorrelationOfAlignedPhyloLikelihood*>(&sOAP);
+  
+    vector<string> colNames;
+    colNames.push_back("Sites");
+    colNames.push_back("lnL");
+    
+    for (size_t i = 0; i < nbP; i++)
+      colNames.push_back("lnL_phylo_"+ TextTools::toString(phyloNum[i]));
+    for (size_t i = 0; i < nbP; i++)
+      colNames.push_back("prob_phylo_"+ TextTools::toString(phyloNum[i]));
+
+      
+    vector<string> row(2+(nbP>1?2*nbP:0));
+    DataTable* infos = new DataTable(colNames);
+  
+    Vdouble vap(0);
+    Vdouble vlog(nbP);
+
+    if (mOAP)
+      vap=mOAP->getPhyloProbabilities();
+  
+    size_t nSites=sOAP.getNumberOfSites();
+    
+    for (size_t i = 0; i < nSites; i++)
+    {
+      row[0] = (string("[" + TextTools::toString(i) + "]"));
+      row[1] = TextTools::toString(sOAP.getLogLikelihoodForASite(i));
+    
+      if (nbP>1){
+        for (size_t j=0; j<nbP; j++)
+          vlog[j]=sOAP.getLogLikelihoodForASiteForAPhyloLikelihood(i, phyloNum[j]);
+
+        for (size_t j=0; j<nbP; j++)
+          row[2+j] = TextTools::toString(vlog[j]);
+
+        if (mOAP)
+        {
+          double sum=VectorTools::sumExp(vlog,vap);
+          for (size_t j=0; j<nbP; j++)
+            row[2+nbP+j] = TextTools::toString(exp(vlog[j])*vap[j]/sum);
+        }
+        else
+        {
+          if (hOAP)
+            vap=hOAP->getPosteriorProbabilitiesForASiteForEachAligned(i);
+          else if (aCOAP)
+            vap=aCOAP->getPosteriorProbabilitiesForASiteForEachAligned(i);
+          
+          for (size_t j=0; j<vap.size(); j++)
+            row[2+nbP+j] = TextTools::toString(vap[j]);
+        }
+      }
+    
+      infos->addRow(row);
+    }
+  
+    DataTable::write(*infos, out, "\t");
+    delete infos;
+  }
+}
+
+/******************************************************************************/
+
+void PhylogeneticsApplicationTools::printAnalysisInformation(const SingleDataPhyloLikelihood& phyloLike, const std::string& infosFile, int warn)
+{
+
+  if (dynamic_cast<const SingleProcessPhyloLikelihood*>(&phyloLike) != NULL)
+  {
+    const SingleProcessPhyloLikelihood* pSPL = dynamic_cast<const SingleProcessPhyloLikelihood*>(&phyloLike);
+    
+    StlOutputStream out(new ofstream(infosFile.c_str(), ios::out));
+
     const SubstitutionProcess* pSP = &pSPL->getSubstitutionProcess();
 
     vector<string> colNames;
@@ -4098,17 +4246,17 @@ void PhylogeneticsApplicationTools::printAnalysisInformation(const SingleDataPhy
     if (pDD != NULL) {
       nbR = pDD->getNumberOfCategories();
       
-      pDD->print(out);
+      // pDD->print(out);
 
-      out.endLine();
-      out.endLine();
+      // out.endLine();
+      // out.endLine();
 
       if (nbR>1)
         for (size_t i = 0; i < nbR; i++)
           colNames.push_back("prob"+ TextTools::toString(i+1));
     }
     
-    const SiteContainer* sites = phyloLike -> getData();
+    const SiteContainer* sites = phyloLike.getData();
 
     vector<string> row(4+(nbR>1?nbR:0));
     DataTable* infos = new DataTable(colNames);
@@ -4117,7 +4265,7 @@ void PhylogeneticsApplicationTools::printAnalysisInformation(const SingleDataPhy
     
     for (size_t i = 0; i < sites->getNumberOfSites(); i++)
     {
-      double lnL = phyloLike->getLogLikelihoodForASite(i);
+      double lnL = phyloLike.getLogLikelihoodForASite(i);
       const Site* currentSite = &sites->getSite(i);
       int currentSitePosition = currentSite->getPosition();
       string isCompl = "NA";
@@ -4141,10 +4289,13 @@ void PhylogeneticsApplicationTools::printAnalysisInformation(const SingleDataPhy
     DataTable::write(*infos, out, "\t");
     delete infos;
   }
-  else if (dynamic_cast<const MultiProcessSequencePhyloLikelihood*>(phyloLike) != NULL)
+  else if (dynamic_cast<const MultiProcessSequencePhyloLikelihood*>(&phyloLike) != NULL)
   { 
-    const MultiProcessSequencePhyloLikelihood* pMPL = dynamic_cast<const MultiProcessSequencePhyloLikelihood*>(phyloLike);
 
+    const MultiProcessSequencePhyloLikelihood* pMPL = dynamic_cast<const MultiProcessSequencePhyloLikelihood*>(&phyloLike);
+
+    StlOutputStream out(new ofstream(infosFile.c_str(), ios::out));
+    
     vector<string> colNames;
     colNames.push_back("Sites");
     colNames.push_back("is.complete");
@@ -4160,7 +4311,7 @@ void PhylogeneticsApplicationTools::printAnalysisInformation(const SingleDataPhy
         colNames.push_back("prob"+ TextTools::toString(i+1));
     }
       
-    const SiteContainer* sites = phyloLike -> getData();
+    const SiteContainer* sites = phyloLike.getData();
 
     vector<string> row(4+(nbP>1?2*nbP:0));
     DataTable* infos = new DataTable(colNames);
@@ -4170,7 +4321,7 @@ void PhylogeneticsApplicationTools::printAnalysisInformation(const SingleDataPhy
     
     for (size_t i = 0; i < sites->getNumberOfSites(); i++)
     {
-      double lnL = phyloLike->getLogLikelihoodForASite(i);
+      double lnL = phyloLike.getLogLikelihoodForASite(i);
       const Site* currentSite = &sites->getSite(i);
       int currentSitePosition = currentSite->getPosition();
       string isCompl = "NA";
@@ -4201,7 +4352,7 @@ void PhylogeneticsApplicationTools::printAnalysisInformation(const SingleDataPhy
 
 /******************************************************************************/
 
-void PhylogeneticsApplicationTools::printParameters(const SubstitutionModelSet* modelSet, OutputStream& out, int warn)
+void PhylogeneticsApplicationTools::printParameters(const SubstitutionModelSet* modelSet, OutputStream& out, int warn, bool withAlias)
 {
   (out << "nonhomogeneous=general").endLine();
   (out << "nonhomogeneous.number_of_models=" << modelSet->getNumberOfModels()).endLine();
@@ -4221,13 +4372,17 @@ void PhylogeneticsApplicationTools::printParameters(const SubstitutionModelSet* 
     ParameterList pl=model->getParameters();
 
     map<string, string> aliases;
-    for (size_t np = 0 ; np< pl.size() ; np++)
+
+    if (withAlias)
+    {
+      for (size_t np = 0 ; np< pl.size() ; np++)
       {
         string nfrom = modelSet->getFrom(pl[np].getName() + "_" + TextTools::toString(i + 1));
         if (nfrom != "")
           aliases[pl[np].getName()] = nfrom;
       }
-
+    }
+    
     // Now print it:
     writtenNames.clear();
     out.endLine() << "model" << (i + 1) << "=";
@@ -4250,12 +4405,17 @@ void PhylogeneticsApplicationTools::printParameters(const SubstitutionModelSet* 
   ParameterList plf=pFS->getParameters();
 
   map<string, string> aliases;
-  for (size_t np = 0 ; np< plf.size() ; np++)
+
+  if (withAlias)
   {
-    string nfrom = modelSet->getFrom(plf[np].getName());
-    if (nfrom != "")
-      aliases[plf[np].getName()] = nfrom;
+    for (size_t np = 0 ; np< plf.size() ; np++)
+    {
+      string nfrom = modelSet->getFrom(plf[np].getName());
+      if (nfrom != "")
+        aliases[plf[np].getName()] = nfrom;
+    }
   }
+  
   
   // Root frequencies:
   out.endLine();
