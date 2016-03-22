@@ -3929,7 +3929,15 @@ void PhylogeneticsApplicationTools::printParameters(const PhyloLikelihoodContain
       
           out << "),";
         }
-
+        else if ((dynamic_cast<const ProductOfAlignedPhyloLikelihood*>(phyloLike)!=NULL)
+                 ||  (dynamic_cast<const ProductOfPhyloLikelihood*>(phyloLike)!=NULL))
+        {
+          out << "Product(";
+        }
+        else
+          throw Exception("PhylogeneticsApplicationTools::printParameters - unknown phylolikelihood type : phylo " + TextTools::toString(num));
+        
+          
         std::vector<size_t> vPN=mDP->getNumbersOfPhyloLikelihoods();
 
         for (size_t i=0; i<vPN.size(); i++){
@@ -4121,7 +4129,6 @@ void PhylogeneticsApplicationTools::printAnalysisInformation(const PhyloLikeliho
     else
     {
       const SetOfAlignedPhyloLikelihood* sOAP=dynamic_cast<const SetOfAlignedPhyloLikelihood*>(phyloLike);
-
       if (sOAP!=NULL)
       {
         printAnalysisInformation(*sOAP, info_out, warn);
@@ -4132,7 +4139,6 @@ void PhylogeneticsApplicationTools::printAnalysisInformation(const PhyloLikeliho
         for (size_t i=0; i<vPN.size(); i++)
           if (find(phyldep.begin(),phyldep.end(),vPN[i])==phyldep.end())
             phyldep.push_back(vPN[i]);
-
       }
     }
     
@@ -4144,8 +4150,6 @@ void PhylogeneticsApplicationTools::printAnalysisInformation(const PhyloLikeliho
 
 void PhylogeneticsApplicationTools::printAnalysisInformation(const SetOfAlignedPhyloLikelihood& sOAP, const std::string& infosFile, int warn)
 {
-  StlOutputStream out(new ofstream(infosFile.c_str(), ios::out));
-
   const MixtureOfAlignedPhyloLikelihood* mOAP=NULL;
   const HmmOfAlignedPhyloLikelihood* hOAP=NULL;
   const AutoCorrelationOfAlignedPhyloLikelihood* aCOAP=NULL;
@@ -4155,6 +4159,8 @@ void PhylogeneticsApplicationTools::printAnalysisInformation(const SetOfAlignedP
   
   if (dynamic_cast<const ProductOfAlignedPhyloLikelihood*>(&sOAP) == NULL)
   {
+    StlOutputStream out(new ofstream(infosFile.c_str(), ios::out));
+
     if (dynamic_cast<const MixtureOfAlignedPhyloLikelihood*>(&sOAP) != NULL)
       mOAP = dynamic_cast<const MixtureOfAlignedPhyloLikelihood*>(&sOAP);
     else if (dynamic_cast<const HmmOfAlignedPhyloLikelihood*>(&sOAP) != NULL)
