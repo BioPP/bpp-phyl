@@ -266,8 +266,10 @@ class Nhx:
 
     Node* parenthesisToNode(const std::string& description) const;
   
-    std::string propertiesToParenthesis(const Node& node) const;
-  
+public:
+  std::string propertiesToParenthesis(const Node& node) const;
+
+protected:
     std::string nodeToParenthesis(const Node& node) const;
   
     bool setNodeProperties(Node& node, const std::string properties) const;
