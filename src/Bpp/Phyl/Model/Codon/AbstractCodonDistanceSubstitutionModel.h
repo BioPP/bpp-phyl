@@ -51,7 +51,7 @@
 namespace bpp
 {
 /**
- * @brief Abstract class for modelling of non-synonymous abd
+ * @brief Abstract class for modelling of non-synonymous and
  *  synonymous substitution rates in codon models.
  *
  * @author Laurent Guéguen

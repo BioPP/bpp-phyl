@@ -117,7 +117,9 @@ SET(CPP_FILES
   Bpp/Phyl/Model/Codon/AbstractCodonPhaseFrequenciesSubstitutionModel.cpp
   Bpp/Phyl/Model/Codon/AbstractCodonDistanceSubstitutionModel.cpp
   Bpp/Phyl/Model/Codon/AbstractCodonFitnessSubstitutionModel.cpp
+  Bpp/Phyl/Model/Codon/AbstractCodonCpGSubstitutionModel.cpp
   Bpp/Phyl/Model/Codon/CodonDistanceSubstitutionModel.cpp
+  Bpp/Phyl/Model/Codon/CodonDistanceCpGSubstitutionModel.cpp
   Bpp/Phyl/Model/Codon/CodonDistanceFrequenciesSubstitutionModel.cpp
   Bpp/Phyl/Model/Codon/CodonDistancePhaseFrequenciesSubstitutionModel.cpp
   Bpp/Phyl/Model/Codon/SENCA.cpp
@@ -295,7 +297,9 @@ SET(H_FILES
   Bpp/Phyl/Model/Codon/AbstractCodonPhaseFrequenciesSubstitutionModel.h
   Bpp/Phyl/Model/Codon/AbstractCodonDistanceSubstitutionModel.h
   Bpp/Phyl/Model/Codon/AbstractCodonFitnessSubstitutionModel.h
+  Bpp/Phyl/Model/Codon/AbstractCodonCpGSubstitutionModel.h
   Bpp/Phyl/Model/Codon/CodonDistanceSubstitutionModel.h
+  Bpp/Phyl/Model/Codon/CodonDistanceCpGSubstitutionModel.h
   Bpp/Phyl/Model/Codon/CodonDistanceFrequenciesSubstitutionModel.h
   Bpp/Phyl/Model/Codon/CodonDistancePhaseFrequenciesSubstitutionModel.h
   Bpp/Phyl/Model/Codon/SENCA.h

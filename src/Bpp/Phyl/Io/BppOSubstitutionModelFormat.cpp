@@ -58,6 +58,7 @@
 #include "../Model/Codon/TripletSubstitutionModel.h"
 #include "../Model/Codon/CodonRateSubstitutionModel.h"
 #include "../Model/Codon/CodonDistanceSubstitutionModel.h"
+#include "../Model/Codon/CodonDistanceCpGSubstitutionModel.h"
 #include "../Model/Codon/CodonRateFrequenciesSubstitutionModel.h"
 #include "../Model/Codon/CodonDistanceFrequenciesSubstitutionModel.h"
 #include "../Model/Codon/CodonDistancePhaseFrequenciesSubstitutionModel.h"
@@ -956,6 +957,18 @@ SubstitutionModel* BppOSubstitutionModelFormat::readWord_(const Alphabet* alphab
         model.reset(new CodonDistanceSubstitutionModel(geneticCode_, dynamic_cast<NucleotideSubstitutionModel*>(v_pSM[0]), pai2.release()));
       else
         model.reset(new CodonDistanceSubstitutionModel(
+                      geneticCode_,
+                      dynamic_cast<NucleotideSubstitutionModel*>(v_pSM[0]),
+                      dynamic_cast<NucleotideSubstitutionModel*>(v_pSM[1]),
+                      dynamic_cast<NucleotideSubstitutionModel*>(v_pSM[2]), pai2.release()));
+    }
+
+    else if (modelName == "CodonDistCpG")
+    {
+      if (v_nestedModelDescription.size() != 3)
+        model.reset(new CodonDistanceCpGSubstitutionModel(geneticCode_, dynamic_cast<NucleotideSubstitutionModel*>(v_pSM[0]), pai2.release()));
+      else
+        model.reset(new CodonDistanceCpGSubstitutionModel(
                       geneticCode_,
                       dynamic_cast<NucleotideSubstitutionModel*>(v_pSM[0]),
                       dynamic_cast<NucleotideSubstitutionModel*>(v_pSM[1]),
