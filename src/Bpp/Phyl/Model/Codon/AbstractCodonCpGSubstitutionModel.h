@@ -53,7 +53,7 @@ namespace bpp
  *
  * @author Laurent Guéguen
  *
- * Substitution rate from C to T (resp. from G to A) is multiplied by a factor @f$\rho$@f$
+ * Substitution rate from C to T (resp. from G to A) is multiplied by a factor @f$\rho@f$
  *  if C is followed by a G (resp. if G is following a C).
  *
  * Hypermutability parameter is named \c "rho".
