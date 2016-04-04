@@ -198,7 +198,7 @@ namespace bpp
      * @return A new SubstitutionModel object according to options specified.
      * @throw Exception if an error occured.
      */
-    
+
     static SubstitutionModel* getSubstitutionModel(
       const Alphabet* alphabet,
       const GeneticCode* gCode,
@@ -915,8 +915,10 @@ namespace bpp
      *
      * @param model The model to serialize.
      * @param out   The stream where to print.
-     * @param warn  Set the warning level (0: always display warnings, >0 display warnings on demand).
+     * @param warn  Set the warning level (0: always display warnings,
+     *                      >0 display warnings on demand).
      */
+
     static void printParameters(const SubstitutionModel* model, OutputStream& out,int warn = 1);
 
     /**
@@ -988,8 +990,11 @@ namespace bpp
      *
      * @param rDist The rate distribution to serialize.
      * @param out   The stream where to print.
+     * @param withAlias outputs the alias names of the aliased
+     *                      Parameters instead of the values (default
+     *                      : true).
      */
-    static void printParameters(const DiscreteDistribution* rDist, OutputStream& out);
+    static void printParameters(const DiscreteDistribution* rDist, OutputStream& out, bool withAlias = true);
 
     /**
      * @brief Output information on the computation to a file.

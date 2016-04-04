@@ -393,8 +393,10 @@ public:
    * @param ids               The numbers of the nodes of the tree
    * @param model             The model on which the SubstitutionCount is built
    * @param reg               the Substitution Register
-   * @param stationarity      if false, a correction is made if the SubstitutionRegister
-   *                             is a CategorySubstitutionRegister
+   *
+   *           If the SubstitutionRegister is a non-stationary
+   *           CategorySubstitutionRegister, a correction is made.
+   *
    * @param threshold         value above which counts are considered saturated
    *                                        (default: -1 means no threshold).
    *
@@ -405,7 +407,6 @@ public:
     const std::vector<int>& ids,
     SubstitutionModel* model,
     const SubstitutionRegister& reg,
-    bool stationarity = true,
     double threshold = -1);
 
   /**

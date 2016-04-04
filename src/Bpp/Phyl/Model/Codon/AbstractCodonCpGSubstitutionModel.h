@@ -37,61 +37,39 @@
    knowledge of the CeCILL license and that you accept its terms.
  */
 
-#ifndef _ABSTRACTCODONDISTANCESUBSTITUTIONMODEL_H_
-#define _ABSTRACTCODONDISTANCESUBSTITUTIONMODEL_H_
+#ifndef _ABSTRACTCODONCPGSUBSTITUTIONMODEL_H_
+#define _ABSTRACTCODONCPGSUBSTITUTIONMODEL_H_
 
 #include "CodonSubstitutionModel.h"
 #include <Bpp/Numeric/AbstractParameterAliasable.h>
 
 
-// From bpp-seq:
-#include <Bpp/Seq/GeneticCode/GeneticCode.h>
-#include <Bpp/Seq/AlphabetIndex/AlphabetIndex2.h>
-
 namespace bpp
 {
 /**
- * @brief Abstract class for modelling of non-synonymous and
- *  synonymous substitution rates in codon models.
+ * @brief Abstract class for modelling of CpG -> CpA or TpG (symetric)
+ *  hypermutability substitution rate inside codons. Note that the
+ *  neihbouring effects between codons is note considered.
  *
  * @author Laurent Guéguen
  *
- * If a distance @f$d@f$ between amino-acids is defined, the
- *  non-synonymous rate is multiplied with, if the coded amino-acids
- *  are @f$x@f$ and @f$y@f$, @f$\beta*\exp(-\alpha.d(x,y))@f$ with
- *  non-negative parameter \c "alpha" and positive parameter \c
- *  "beta".
+ * Substitution rate from C to T (resp. from G to A) is multiplied by a factor @f$\rho@f$
+ *  if C is followed by a G (resp. if G is following a C).
  *
- * If such a distance is not defined, the non-synonymous substitution
- *  rate is multiplied with @f$\beta@f$ with positive parameter \c
- *  "beta" (ie @f$d=0@f$).
+ * Hypermutability parameter is named \c "rho".
  *
- * If paramSynRate is true, the synonymous substitution rate is
- *  multiplied with @f$\gamma@f$ (with optional positive parameter \c
- *  "gamma"), else it is multiplied with 1.
- *
- * References:
- * - Goldman N. and Yang Z. (1994), _Molecular Biology And Evolution_ 11(5) 725--736. 
- * - Kosakovsky Pond, S. and Muse, S.V. (2005), _Molecular Biology And Evolution_,
- *   22(12), 2375--2385.
- * - Mayrose, I. and Doron-Faigenboim, A. and Bacharach, E. and Pupko T.
- *   (2007), Bioinformatics, 23, i319--i327.
  */
 
-class AbstractCodonDistanceSubstitutionModel :
+class AbstractCodonCpGSubstitutionModel :
   public virtual CodonSubstitutionModel,
   public virtual AbstractParameterAliasable
 {
 private:
-  const AlphabetIndex2* pdistance_;
-
-  double alpha_, beta_;
-
-  double gamma_;
+  double rho_;
 
 public:
   /**
-   * @brief Build a new AbstractCodonDistanceSubstitutionModel object from
+   * @brief Build a new AbstractCodonCpGSubstitutionModel object from
    *  a pointer to NucleotideSubstitutionModel.
    *
    * @param pdist optional pointer to a distance between amino-acids
@@ -99,31 +77,23 @@ public:
    * @param paramSynRate is true iff synonymous rate is parametrised
    *       (default=false).
    */
-  AbstractCodonDistanceSubstitutionModel(
-    const AlphabetIndex2* pdist,
-    const std::string& prefix,
-    bool paramSynRate = false);
+  AbstractCodonCpGSubstitutionModel(
+    const std::string& prefix);
 
-  AbstractCodonDistanceSubstitutionModel(const AbstractCodonDistanceSubstitutionModel& model) :
+  AbstractCodonCpGSubstitutionModel(const AbstractCodonCpGSubstitutionModel& model) :
     AbstractParameterAliasable(model),
-    pdistance_(model.pdistance_),
-    alpha_(model.alpha_),
-    beta_(model.beta_),
-    gamma_(model.gamma_)
+    rho_(model.rho_)
   {}
 
-  AbstractCodonDistanceSubstitutionModel& operator=(
-    const AbstractCodonDistanceSubstitutionModel& model)
+  AbstractCodonCpGSubstitutionModel& operator=(
+    const AbstractCodonCpGSubstitutionModel& model)
   {
     AbstractParameterAliasable::operator=(model);
-    pdistance_ = model.pdistance_;
-    alpha_ = model.alpha_;
-    beta_ = model.beta_;
-    gamma_ = model.gamma_;
+    rho_ = model.rho_;
     return *this;
   }
 
-  virtual ~AbstractCodonDistanceSubstitutionModel() {}
+  virtual ~AbstractCodonCpGSubstitutionModel() {}
 
 public:
   void fireParameterChanged(const ParameterList& parameters);

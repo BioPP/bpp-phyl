@@ -571,7 +571,9 @@ void BppOFrequenciesSetFormat::write(const FrequenciesSet* pfreqset,
   string name = pfreqset->getName();
   out << name << "(";
 
-  if ((name == "Fixed") || (name == "F0"))
+  bool oValues=false;
+  
+  if ((name == "Fixed") || (name == "F0") || (name== "Full"))
   {
     vector<double> vf = pfreqset->getFrequencies();
     out << "values=(";
@@ -582,9 +584,13 @@ void BppOFrequenciesSetFormat::write(const FrequenciesSet* pfreqset,
       out << vf[i];
     }
     out << ")";
-    out << ")";
-    out.setPrecision(p);
-    return;
+
+    vector<string> npl=pl.getParameterNames();
+    writtenNames.insert(writtenNames.end(), npl.begin(), npl.end());
+
+    comma=true;
+    
+    oValues=true;
   }
 
   
@@ -702,10 +708,13 @@ void BppOFrequenciesSetFormat::write(const FrequenciesSet* pfreqset,
   }
 
 // All remaining parameters
-  const BppOParametrizableFormat* bIO = new BppOParametrizableFormat();
-
-  bIO->write(pfreqset, out, globalAliases, pl.getParameterNames(), writtenNames, true, comma);
-  delete bIO;
+  if (!oValues)
+  {
+    const BppOParametrizableFormat* bIO = new BppOParametrizableFormat();
+  
+    bIO->write(pfreqset, out, globalAliases, pl.getParameterNames(), writtenNames, true, comma);
+    delete bIO;
+  }
   
   out << ")";
   out.setPrecision(p);

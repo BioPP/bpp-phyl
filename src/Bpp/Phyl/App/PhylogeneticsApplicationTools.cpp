@@ -1755,10 +1755,11 @@ PhyloLikelihoodContainer* PhylogeneticsApplicationTools::getPhyloLikelihoodConta
           }
         }
       }
+
     }
     else
       throw Exception("PhylogeneticsApplicationTools::getPhyloLikelihoodContainer : Unknown Process number.");
-
+    
 
     nPL->setUseLog(useLog);
     mPhylo->addPhyloLikelihood(phylonum,nPL);
@@ -2623,7 +2624,7 @@ throw (Exception)
       bck.close();
       tl->setParameters(pl);
       if (abs(tl->getValue() - fval) > 0.000001)
-        throw Exception("Incorrect likelihood value after restoring, from backup file. Remove backup file and start from scratch :s");
+        ApplicationTools::displayWarning("Warning, incorrect likelihood value after restoring from backup file.");
       ApplicationTools::displayResult("Restoring log-likelihood", -fval);
     }
   }
@@ -4375,10 +4376,9 @@ void PhylogeneticsApplicationTools::printParameters(const SubstitutionModelSet* 
 
     // First get the aliases for this model:
 
-    ParameterList pl=model->getParameters();
-
     map<string, string> aliases;
-
+    ParameterList pl=model->getParameters();
+    
     if (withAlias)
     {
       for (size_t np = 0 ; np< pl.size() ; np++)
@@ -4394,6 +4394,7 @@ void PhylogeneticsApplicationTools::printParameters(const SubstitutionModelSet* 
     out.endLine() << "model" << (i + 1) << "=";
     BppOSubstitutionModelFormat bIOsm(BppOSubstitutionModelFormat::ALL, true, true, true, false, warn);
     bIOsm.write(*model, out, aliases, writtenNames);
+
     out.endLine();
     vector<int> ids = modelSet->getNodesWithModel(i);
     out << "model" << (i + 1) << ".nodes_id=" << ids[0];
@@ -4434,7 +4435,7 @@ void PhylogeneticsApplicationTools::printParameters(const SubstitutionModelSet* 
 
 /******************************************************************************/
 
-void PhylogeneticsApplicationTools::printParameters(const DiscreteDistribution* rDist, OutputStream& out)
+void PhylogeneticsApplicationTools::printParameters(const DiscreteDistribution* rDist, OutputStream& out, bool withAlias)
 {
   out << "rate_distribution=";
   map<string, string> globalAliases;
