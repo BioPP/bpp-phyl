@@ -265,7 +265,7 @@ void PhylogeneticsApplicationTools::setSubstitutionModelParametersInitialValuesW
       }
     }
   }
-  
+
   model.matchParametersValues(pl);
 }
 
@@ -1413,7 +1413,7 @@ void PhylogeneticsApplicationTools::writeTrees(
 
 /******************************************************************************/
 
-void PhylogeneticsApplicationTools::printParameters(const SubstitutionModel* model, OutputStream& out, int warn)
+void PhylogeneticsApplicationTools::printParameters(const SubstitutionModel* model, OutputStream& out, int warn, bool withAlias)
 {
   out << "model=";
   map<string, string> globalAliases;
@@ -1425,7 +1425,7 @@ void PhylogeneticsApplicationTools::printParameters(const SubstitutionModel* mod
 
 /******************************************************************************/
 
-void PhylogeneticsApplicationTools::printParameters(const SubstitutionModelSet* modelSet, OutputStream& out, int warn)
+void PhylogeneticsApplicationTools::printParameters(const SubstitutionModelSet* modelSet, OutputStream& out, int warn, bool withAlias)
 {
   (out << "nonhomogeneous=general").endLine();
   (out << "nonhomogeneous.number_of_models=" << modelSet->getNumberOfModels()).endLine();
@@ -1440,23 +1440,29 @@ void PhylogeneticsApplicationTools::printParameters(const SubstitutionModelSet* 
   {
     const SubstitutionModel* model = modelSet->getModel(i);
 
+    map<string, string> aliases;
+
     // First get the aliases for this model:
 
-    ParameterList pl=model->getParameters();
-
-    map<string, string> aliases;
-    for (size_t np = 0 ; np< pl.size() ; np++)
+    if (withAlias)
+    {
+      
+      ParameterList pl=model->getParameters();
+      
+      for (size_t np = 0 ; np< pl.size() ; np++)
       {
         string nfrom = modelSet->getFrom(pl[np].getName() + "_" + TextTools::toString(i + 1));
         if (nfrom != "")
           aliases[pl[np].getName()] = nfrom;
       }
-
+    }
+    
     // Now print it:
     writtenNames.clear();
     out.endLine() << "model" << (i + 1) << "=";
     BppOSubstitutionModelFormat bIOsm(BppOSubstitutionModelFormat::ALL, true, true, true, false, warn);
     bIOsm.write(*model, out, aliases, writtenNames);
+
     out.endLine();
     vector<int> ids = modelSet->getNodesWithModel(i);
     out << "model" << (i + 1) << ".nodes_id=" << ids[0];
@@ -1474,11 +1480,15 @@ void PhylogeneticsApplicationTools::printParameters(const SubstitutionModelSet* 
   ParameterList plf=pFS->getParameters();
 
   map<string, string> aliases;
-  for (size_t np = 0 ; np< plf.size() ; np++)
+
+  if (withAlias)
   {
-    string nfrom = modelSet->getFrom(plf[np].getName());
-    if (nfrom != "")
-      aliases[plf[np].getName()] = nfrom;
+    for (size_t np = 0 ; np< plf.size() ; np++)
+    {
+      string nfrom = modelSet->getFrom(plf[np].getName());
+      if (nfrom != "")
+        aliases[plf[np].getName()] = nfrom;
+    }
   }
   
   // Root frequencies:
@@ -1492,7 +1502,7 @@ void PhylogeneticsApplicationTools::printParameters(const SubstitutionModelSet* 
 
 /******************************************************************************/
 
-void PhylogeneticsApplicationTools::printParameters(const DiscreteDistribution* rDist, OutputStream& out)
+void PhylogeneticsApplicationTools::printParameters(const DiscreteDistribution* rDist, OutputStream& out, bool withAlias)
 {
   out << "rate_distribution=";
   map<string, string> globalAliases;

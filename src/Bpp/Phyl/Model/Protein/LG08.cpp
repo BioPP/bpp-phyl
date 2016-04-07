@@ -69,9 +69,13 @@ LG08::LG08(const ProteicAlphabet* alpha, ProteinFrequenciesSet* freqSet, bool in
   #include "__LG08ExchangeabilityCode"
   #include "__LG08FrequenciesCode"
   freqSet_->setNamespace("LG08+F."+freqSet_->getNamespace());
-  if (initFreqs) freqSet_->setFrequencies(freq_);
-  else freq_ = freqSet_->getFrequencies();
+  if (initFreqs)
+    freqSet_->setFrequencies(freq_);
+  else
+    freq_ = freqSet_->getFrequencies();
+
   addParameters_(freqSet_->getParameters());
+  
   updateMatrices();  
 }
 
