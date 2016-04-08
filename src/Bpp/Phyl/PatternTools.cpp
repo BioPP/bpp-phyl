@@ -66,21 +66,25 @@ SiteContainer* PatternTools::getSequenceSubset(const SiteContainer& sequenceSet,
   {
     const Sequence* newSeq = 0;
 
-    try
+    if ((*i)->hasName())
     {
-      newSeq = &sequenceSet.getSequence((*i)->getName());
-      sequenceSubset->addSequence(*newSeq);
-    }
-    catch (std::exception const& e)
-    {
-      ApplicationTools::displayWarning("Leaf name not found in sequence file: " + (*i)->getName() + " : Replaced with unknown sequence");
-      
-      BasicSequence seq((*i)->getName(),"",sequenceSet.getAlphabet());
-      seq.setToSizeR(nbSites);
-      SymbolListTools::changeGapsToUnknownCharacters(seq);
-      sequenceSubset->addSequence(seq);
+      try
+      {
+        newSeq = &sequenceSet.getSequence((*i)->getName());
+        sequenceSubset->addSequence(*newSeq);
+      }
+      catch (std::exception const& e)
+      {
+        ApplicationTools::displayWarning("Leaf name not found in sequence file: " + (*i)->getName() + " : Replaced with unknown sequence");
+        
+        BasicSequence seq((*i)->getName(),"",sequenceSet.getAlphabet());
+        seq.setToSizeR(nbSites);
+        SymbolListTools::changeGapsToUnknownCharacters(seq);
+        sequenceSubset->addSequence(seq);
+      }
     }
   }
+  
 
   sequenceSubset->setSitePositions(sequenceSet.getSitePositions());
   

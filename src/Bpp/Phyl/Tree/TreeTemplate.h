@@ -201,6 +201,8 @@ public:
 
   bool isLeaf(int nodeId) const throw (NodeNotFoundException) { return getNode(nodeId)->isLeaf(); }
 
+  bool hasNoSon(int nodeId) const throw (NodeNotFoundException) { return getNode(nodeId)->hasNoSon(); }
+
   bool isRoot(int nodeId) const throw (NodeNotFoundException) { return TreeTemplateTools::isRoot(*getNode(nodeId)); }
 
   double getDistanceToFather(int nodeId) const { return getNode(nodeId)->getDistanceToFather(); }

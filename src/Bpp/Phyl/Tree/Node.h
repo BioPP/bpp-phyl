@@ -691,6 +691,8 @@ public:
 
   virtual bool isLeaf() const { return degree() <= 1; }
 
+  virtual bool hasNoSon() const { return getNumberOfSons() ==0; }
+
 };
 } // end of namespace bpp.
 

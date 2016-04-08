@@ -133,7 +133,7 @@ throw (NodeNotFoundException)
 void TreeTools::searchLeaf(const Tree& tree, int nodeId, const string& name, int*& id)
 throw (NodeNotFoundException)
 {
-  if (tree.isLeaf(nodeId))
+  if (tree.hasNoSon(nodeId))
   {
     if (tree.getNodeName(nodeId) == name)
     {
@@ -256,7 +256,7 @@ string TreeTools::nodeToParenthesis(const Tree& tree, int nodeId, bool writeId) 
   if (!tree.hasNode(nodeId))
     throw NodeNotFoundException("TreeTools::nodeToParenthesis", nodeId);
   ostringstream s;
-  if (tree.isLeaf(nodeId))
+  if (tree.hasNoSon(nodeId))
   {
     s << tree.getNodeName(nodeId);
   }
@@ -273,7 +273,7 @@ string TreeTools::nodeToParenthesis(const Tree& tree, int nodeId, bool writeId) 
   }
   if (writeId)
   {
-    if (tree.isLeaf(nodeId))
+    if (tree.hasNoSon(nodeId))
       s << "_";
     s << nodeId;
   }
@@ -295,7 +295,7 @@ string TreeTools::nodeToParenthesis(const Tree& tree, int nodeId, bool bootstrap
     throw NodeNotFoundException("TreeTools::nodeToParenthesis", nodeId);
   ostringstream s;
 
-  if (tree.isLeaf(nodeId))
+  if (tree.hasNoSon(nodeId))
   {
     s << tree.getNodeName(nodeId);
   }
@@ -335,7 +335,7 @@ string TreeTools::treeToParenthesis(const Tree& tree, bool writeId)
   s << "(";
   int rootId = tree.getRootId();
   vector<int> sonsId = tree.getSonsId(rootId);
-  if (tree.isLeaf(rootId))
+  if (tree.hasNoSon(rootId))
   {
     s << tree.getNodeName(rootId);
     for (size_t i = 0; i < sonsId.size(); i++)
@@ -368,7 +368,7 @@ string TreeTools::treeToParenthesis(const Tree& tree, bool bootstrap, const stri
   int rootId = tree.getRootId();
   vector<int> sonsId = tree.getSonsId(rootId);
   
-  if (tree.isLeaf(rootId))
+  if (tree.hasNoSon(rootId))
   {
     s << tree.getNodeName(rootId);
     for (size_t i = 0; i < sonsId.size(); i++)

@@ -185,7 +185,7 @@ public:
    */
   static void searchLeaf(const Node& node, const std::string& name, int*& id) throw (NodeNotFoundException)
   {
-    if (node.isLeaf())
+    if (node.hasNoSon())
     {
       if (node.getName() == name)
       {

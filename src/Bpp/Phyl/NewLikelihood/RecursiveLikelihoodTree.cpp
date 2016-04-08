@@ -170,7 +170,7 @@ void RecursiveLikelihoodTree::initLikelihoodsWithoutPatterns_(const Node* node, 
   
   // Now initialize likelihood values and pointers:
 
-  if (node->isLeaf())
+  if (node->hasNoSon())
   {
     const Sequence* seq;
     try
@@ -268,7 +268,7 @@ SitePatterns* RecursiveLikelihoodTree::initLikelihoodsWithPatterns_(const Node* 
   
   // Now initialize likelihood values and pointers:
 
-  if (node->isLeaf())
+  if (node->hasNoSon())
   {
     const Sequence* seq;
     try

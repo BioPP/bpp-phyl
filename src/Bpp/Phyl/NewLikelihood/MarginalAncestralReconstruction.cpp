@@ -142,7 +142,7 @@ void MarginalAncestralReconstruction::recursiveMarginalAncestralStates(
   map<int, vector<size_t> >& ancestors,
   AlignedSequenceContainer& data) const
 {
-  if (node->isLeaf())
+  if (node->hasNoSon())
   {
     const Sequence& seq = data.getSequence(node->getName());
     vector<size_t>* v = &ancestors[node->getId()];

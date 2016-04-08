@@ -210,7 +210,7 @@ void ComputingNode::updatedSubTreeNodes(Vint& lId) const
   if (!isUp2dateTransitionProbabilities())
     lId.push_back(getId());
 
-  if (!isLeaf()){
+  if (!hasNoSon()){
     size_t nS=getNumberOfSons();
     for (size_t i=0; i<nS; i++)
       getSon(i)->updatedSubTreeNodes(lId);

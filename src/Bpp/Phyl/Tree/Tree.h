@@ -234,6 +234,8 @@ namespace bpp
 
     virtual bool isLeaf(int nodeId) const throw (NodeNotFoundException) = 0;
 
+    virtual bool hasNoSon(int nodeId) const throw (NodeNotFoundException) = 0;
+
     virtual bool isRoot(int nodeId) const throw (NodeNotFoundException) = 0;
     /** @} */
 

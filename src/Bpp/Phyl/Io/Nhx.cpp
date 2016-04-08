@@ -434,7 +434,7 @@ string Nhx::propertiesToParenthesis(const Node& node) const
 string Nhx::nodeToParenthesis(const Node& node) const
 {
   ostringstream s;
-  if (node.isLeaf())
+  if (node.hasNoSon())
   {
     s << node.getName();
   }
@@ -462,7 +462,7 @@ string Nhx::treeToParenthesis(const TreeTemplate<Node>& tree) const
 
   const Node* node = tree.getRootNode();
 
-  if (node->isLeaf())
+  if (node->hasNoSon())
   {
     s << node->getName();
     for (size_t i = 0; i < node->getNumberOfSons(); ++i)

@@ -96,7 +96,7 @@ size_t TreeTemplateTools::getNumberOfLeaves(const Node& node)
 vector<string> TreeTemplateTools::getLeavesNames(const Node& node)
 {
   vector<string> names;
-  if (node.isLeaf())
+  if (node.hasNoSon())
   {
     names.push_back(node.getName());
   }
@@ -346,7 +346,7 @@ TreeTemplate<Node>* TreeTemplateTools::parenthesisToTree(const string& descripti
 string TreeTemplateTools::nodeToParenthesis(const Node& node, bool writeId)
 {
   ostringstream s;
-  if (node.isLeaf())
+  if (node.hasNoSon())
   {
     s << node.getName();
   }
@@ -362,7 +362,7 @@ string TreeTemplateTools::nodeToParenthesis(const Node& node, bool writeId)
   }
   if (writeId)
   {
-    if (node.isLeaf())
+    if (node.hasNoSon())
       s << "_";
     s << node.getId();
   }
@@ -381,7 +381,7 @@ string TreeTemplateTools::nodeToParenthesis(const Node& node, bool writeId)
 string TreeTemplateTools::nodeToParenthesis(const Node& node, bool bootstrap, const string& propertyName)
 {
   ostringstream s;
-  if (node.isLeaf())
+  if (node.hasNoSon())
   {
     s << node.getName();
   }
@@ -424,7 +424,7 @@ string TreeTemplateTools::treeToParenthesis(const TreeTemplate<Node>& tree, bool
   ostringstream s;
   s << "(";
   const Node* node = tree.getRootNode();
-  if (node->isLeaf() && node->hasName()) // In case we have a tree like ((A:1.0)); where the root node is an unamed leaf!
+  if (node->hasNoSon())
   {
     s << node->getName();
     for (size_t i = 0; i < node->getNumberOfSons(); ++i)
@@ -454,7 +454,7 @@ string TreeTemplateTools::treeToParenthesis(const TreeTemplate<Node>& tree, bool
   ostringstream s;
   s << "(";
   const Node* node = tree.getRootNode();
-  if (node->isLeaf())
+  if (node->hasNoSon())
   {
     s << node->getName();
     for (size_t i = 0; i < node->getNumberOfSons(); i++)
@@ -799,7 +799,7 @@ void TreeTemplateTools::processDistsInSubtree_(const Node* node, DistanceMatrix&
   if (!node->hasFather())
   {
     // node-is-root-and-leaf case
-    if (node->isLeaf() )
+    if (node->hasNoSon() )
     {
       string root_name = node->getName();
       for (vector< pair<string, double> >::iterator other_leaf = leavesDists[node->getSon(0)].begin();
@@ -925,7 +925,7 @@ void TreeTemplateTools::getBranchProperties(Node& node, const string& propertyNa
 
 bool TreeTemplateTools::haveSameOrderedTopology(const Node& n1, const Node& n2)
 {
-  if (n1.isLeaf() && n2.isLeaf() && n1.getName() != n2.getName())
+  if (n1.hasNoSon() && n2.hasNoSon() && n1.getName() != n2.getName())
     return false;
   size_t nl1 = n1.getNumberOfSons();
   size_t nl2 = n2.getNumberOfSons();
@@ -946,7 +946,7 @@ TreeTemplateTools::OrderTreeData_ TreeTemplateTools::orderTree_(Node& node, bool
 {
   OrderTreeData_ otd;
 
-  if (node.isLeaf() && node.hasFather())
+  if (node.hasNoSon() && node.hasFather())
   {
     otd.size = 1;
     otd.firstLeaf = node.getName();
