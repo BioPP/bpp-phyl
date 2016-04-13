@@ -707,7 +707,8 @@ SubstitutionModel* BppOSubstitutionModelFormat::read(
           model.reset(new BinarySubstitutionModel(balpha));
       }
       else
-        throw Exception("Model '" + modelName + "' unknown.");
+        throw Exception("Model '" + modelName + "' unknown, or does not fit alphabet.");
+        
     }
     if (verbose_)
       ApplicationTools::displayResult("Substitution model", modelName);

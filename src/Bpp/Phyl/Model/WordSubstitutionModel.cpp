@@ -175,6 +175,7 @@ const RowMatrix<double>& WordSubstitutionModel::getPij_t(double d) const
       pijt_(i, j) = x;
     }
   }
+  
   return pijt_;
 }
 
