@@ -91,9 +91,9 @@ void CladogramPlot::recursivePlot_(GraphicDevice& gDevice, INode& node, double x
 {
   double depth = static_cast<double>(TreeTemplateTools::getDepth(node));
   double x2 = ((getHorizontalOrientation() == ORIENTATION_LEFT_TO_RIGHT ? totalDepth_ : 0) - depth) * getXUnit() * hDirection;
-  auto_ptr<Cursor> cursor;
-  auto_ptr<DrawINodeEvent> nodeEvent;
-  auto_ptr<DrawIBranchEvent> branchEvent;
+  unique_ptr<Cursor> cursor;
+  unique_ptr<DrawINodeEvent> nodeEvent;
+  unique_ptr<DrawIBranchEvent> branchEvent;
   short hpos = (getHorizontalOrientation() == ORIENTATION_LEFT_TO_RIGHT ? GraphicDevice::TEXT_HORIZONTAL_LEFT : GraphicDevice::TEXT_HORIZONTAL_RIGHT);
   if (node.isLeaf())
   {

@@ -82,8 +82,8 @@ int main() {
   vector< vector< vector<double> > > realMapDetailed(n);
   VectorSiteContainer sites(tree->getLeavesNames(), alphabet);
   for (unsigned int i = 0; i < n; ++i) {
-    ApplicationTools::displayGauge(i, n-1, '=');
-    auto_ptr<RASiteSimulationResult> result(simulator.dSimulateSite());
+    ApplicationTools::displayGauge(i, n - 1, '=');
+    unique_ptr<RASiteSimulationResult> result(simulator.dSimulateSite());
     realMap[i].resize(ids.size());
     realMapTotal[i].resize(ids.size());
     realMapDetailed[i].resize(ids.size());
@@ -102,7 +102,7 @@ int main() {
         return 1;
       }
     }
-    auto_ptr<Site> site(result->getSite(*model));
+    unique_ptr<Site> site(result->getSite(*model));
     site->setPosition(static_cast<int>(i));
     sites.addSite(*site, false);
   }

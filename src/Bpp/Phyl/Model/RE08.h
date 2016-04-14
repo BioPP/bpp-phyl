@@ -100,7 +100,7 @@ namespace bpp
     public AbstractReversibleSubstitutionModel
   {
   private:
-    std::auto_ptr<ReversibleSubstitutionModel> simpleModel_;
+    std::unique_ptr<ReversibleSubstitutionModel> simpleModel_;
     RowMatrix<double> simpleGenerator_;
     RowMatrix<double> simpleExchangeabilities_;
     mutable double exp_;

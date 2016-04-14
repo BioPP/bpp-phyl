@@ -79,7 +79,7 @@ class MG94 :
     virtual public CodonReversibleSubstitutionModel
 {
 private:
-  std::auto_ptr<CodonDistancePhaseFrequenciesSubstitutionModel> pmodel_;
+  std::unique_ptr<CodonDistancePhaseFrequenciesSubstitutionModel> pmodel_;
 
 public:
   MG94(const GeneticCode* gc, FrequenciesSet* codonFreqs);

@@ -62,7 +62,7 @@ class ModelList
 {
   protected:
     std::vector<SubstitutionModel *> models_;
-    std::auto_ptr<WordAlphabet> wordAlphabet_;
+    std::unique_ptr<WordAlphabet> wordAlphabet_;
     WordAlphabet* pWordAlphabet_;
 
   public:
@@ -72,7 +72,7 @@ class ModelList
      * @param models A vector of pointers toward substitution model objects.
      */
     ModelList(const std::vector<SubstitutionModel *>& models):
-      models_(models), wordAlphabet_(0), pWordAlphabet_(0)
+      models_(models), wordAlphabet_(), pWordAlphabet_(0)
     {
       std::vector<const Alphabet *> alphabets(models.size());
       for (size_t i = 0; i < models.size(); ++i) {

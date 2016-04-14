@@ -175,12 +175,14 @@ SubstitutionModel* PhylogeneticsApplicationTools::getSubstitutionModel(
   BppOSubstitutionModelFormat bIO(BppOSubstitutionModelFormat::ALL, true, true, true, verbose, warn + 1);
   string modelDescription;
   const CodonAlphabet* ca = dynamic_cast<const CodonAlphabet*>(alphabet);
-  if (ca) {
+  if (ca)
+  {
     modelDescription = ApplicationTools::getStringParameter("model", params, "CodonRate(model=JC69)", suffix, suffixIsOptional, warn);
     if (!gCode)
       throw Exception("PhylogeneticsApplicationTools::getSubstitutionModel(): a GeneticCode instance is required for instanciating a codon model.");
     bIO.setGeneticCode(gCode);
-  } else if (AlphabetTools::isWordAlphabet(alphabet))
+  }
+  else if (AlphabetTools::isWordAlphabet(alphabet))
     modelDescription = ApplicationTools::getStringParameter("model", params, "Word(model=JC69)", suffix, suffixIsOptional, warn);
   else
     modelDescription = ApplicationTools::getStringParameter("model", params, "JC69", suffix, suffixIsOptional, warn);
@@ -229,7 +231,7 @@ void PhylogeneticsApplicationTools::setSubstitutionModelParametersInitialValuesW
       throw Exception("Unknown initFreqs argument");
   }
 
-  
+
   ParameterList pl = model.getIndependentParameters();
   for (size_t i = 0; i < pl.size(); ++i)
   {
@@ -251,17 +253,18 @@ void PhylogeneticsApplicationTools::setSubstitutionModelParametersInitialValuesW
     {
       if (!test1 && !test2 && test3)
         ApplicationTools::displayWarning("Warning, initFreqs argument is set and a value is set for parameter " + pName);
-      
+
       value = ApplicationTools::getStringParameter(pName, unparsedParameterValues, TextTools::toString(pl[i].getValue()));
 
-      try { 
+      try
+      {
         pl[i].setValue(TextTools::toDouble(value));
         if (verbose)
-          ApplicationTools::displayResult("Parameter found", pName + +"_"+TextTools::toString(modelNumber) + "=" + TextTools::toString(pl[i].getValue()));
+          ApplicationTools::displayResult("Parameter found", pName + +"_" + TextTools::toString(modelNumber) + "=" + TextTools::toString(pl[i].getValue()));
       }
       catch (Exception& e)
-      { 
-        sharedParams[pl[i].getName()+"_"+TextTools::toString(modelNumber)]=value;
+      {
+        sharedParams[pl[i].getName() + "_" + TextTools::toString(modelNumber)] = value;
       }
     }
   }
@@ -296,13 +299,15 @@ FrequenciesSet* PhylogeneticsApplicationTools::getRootFrequenciesSet(
   else
   {
     map<string, string> unparams;
-    
+
     FrequenciesSet* freq = getFrequenciesSet(alphabet, gCode, freqDescription, data, unparams, rateFreqs, verbose, warn + 1);
-    freq->setNamespace("root."+freq->getNamespace());
+    freq->setNamespace("root." + freq->getNamespace());
 
     map<string, string>::iterator it;
-    for (it=unparams.begin(); it!=unparams.end(); it++)
-      sharedparams["root."+it->first]=it->second;
+    for (it = unparams.begin(); it != unparams.end(); it++)
+    {
+      sharedparams["root." + it->first] = it->second;
+    }
 
     if (verbose)
       ApplicationTools::displayResult("Root frequencies ", freq->getName());
@@ -324,17 +329,18 @@ FrequenciesSet* PhylogeneticsApplicationTools::getFrequenciesSet(
 {
   map<string, string> unparsedParameterValues;
   BppOFrequenciesSetFormat bIO(BppOFrequenciesSetFormat::ALL, verbose, warn);
-  if (AlphabetTools::isCodonAlphabet(alphabet)) {
+  if (AlphabetTools::isCodonAlphabet(alphabet))
+  {
     if (!gCode)
       throw Exception("PhylogeneticsApplicationTools::getFrequenciesSet(): a GeneticCode instance is required for instanciating a codon frequencies set.");
     bIO.setGeneticCode(gCode);
   }
-  auto_ptr<FrequenciesSet> pFS(bIO.read(alphabet, freqDescription, data, true));
+  unique_ptr<FrequenciesSet> pFS(bIO.read(alphabet, freqDescription, data, true));
 
-  std::map<std::string, std::string> unparsedparam=bIO.getUnparsedArguments();
-  
-  sharedparams.insert(unparsedparam.begin(),unparsedparam.end());
-  
+  std::map<std::string, std::string> unparsedparam = bIO.getUnparsedArguments();
+
+  sharedparams.insert(unparsedparam.begin(), unparsedparam.end());
+
   // /////// To be changed for input normalization
   if (rateFreqs.size() > 0)
   {
@@ -422,18 +428,20 @@ void PhylogeneticsApplicationTools::setSubstitutionModelSet(
 
   vector<double> rateFreqs;
   string tmpDesc;
-  if (AlphabetTools::isCodonAlphabet(alphabet)) {
+  if (AlphabetTools::isCodonAlphabet(alphabet))
+  {
     if (!gCode)
       throw Exception("PhylogeneticsApplicationTools::setSubstitutionModelSet(): a GeneticCode instance is required for instanciating a codon model.");
     bIO.setGeneticCode(gCode);
     tmpDesc = ApplicationTools::getStringParameter("model1", params, "CodonRate(model=JC69)", suffix, suffixIsOptional, warn);
-  } else if (AlphabetTools::isWordAlphabet(alphabet))
+  }
+  else if (AlphabetTools::isWordAlphabet(alphabet))
     tmpDesc = ApplicationTools::getStringParameter("model1", params, "Word(model=JC69)", suffix, suffixIsOptional, warn);
   else
     tmpDesc = ApplicationTools::getStringParameter("model1", params, "JC69", suffix, suffixIsOptional, warn);
 
-  auto_ptr<SubstitutionModel> tmp(bIO.read(alphabet, tmpDesc, data, false));
-  
+  unique_ptr<SubstitutionModel> tmp(bIO.read(alphabet, tmpDesc, data, false));
+
   if (tmp->getNumberOfStates() != alphabet->getSize())
   {
     // Markov-Modulated Markov Model...
@@ -461,13 +469,13 @@ void PhylogeneticsApplicationTools::setSubstitutionModelSet(
         throw Exception("The MVAprotein frequencies set at the root can only be used if a Coala model is used on branches.");
     }
   }
-  
+
   ApplicationTools::displayBooleanResult("Stationarity assumed", stationarity);
 
   if (!stationarity)
     modelSet.setRootFrequencies(rootFrequencies);
 
-  
+
   // //////////////////////////////////////
   // Now parse all models:
 
@@ -484,17 +492,17 @@ void PhylogeneticsApplicationTools::setSubstitutionModelSet(
     else
       modelDesc = ApplicationTools::getStringParameter(prefix, params, "JC69", suffix, suffixIsOptional, warn);
 
-    auto_ptr<SubstitutionModel> model(bIO.read(alphabet, modelDesc, data, false));
+    unique_ptr<SubstitutionModel> model(bIO.read(alphabet, modelDesc, data, false));
 
-    map<string, string> unparsedModelParameters=bIO.getUnparsedArguments();
+    map<string, string> unparsedModelParameters = bIO.getUnparsedArguments();
     map<string, string> sharedParameters;
 
     setSubstitutionModelParametersInitialValuesWithAliases(
       *model,
-      unparsedModelParameters, i+1, data,
+      unparsedModelParameters, i + 1, data,
       sharedParameters,
       verbose);
-    
+
     unparsedParameters.insert(sharedParameters.begin(), sharedParameters.end());
 
     vector<int> nodesId = ApplicationTools::getVectorParameter<int>(prefix + ".nodes_id", params, ',', ':', TextTools::toString(i), suffix, suffixIsOptional, warn);
@@ -504,7 +512,7 @@ void PhylogeneticsApplicationTools::setSubstitutionModelSet(
 
     modelSet.addModel(model.release(), nodesId);
   }
-    
+
   // Finally check parameter aliasing:
   string aliasDesc = ApplicationTools::getStringParameter("nonhomogeneous.alias", params, "", suffix, suffixIsOptional, warn);
   StringTokenizer st(aliasDesc, ",");
@@ -514,12 +522,12 @@ void PhylogeneticsApplicationTools::setSubstitutionModelSet(
     string::size_type index = alias.find("->");
     if (index == string::npos)
       throw Exception("PhylogeneticsApplicationTools::setSubstitutionModelSet. Bad alias syntax, should contain `->' symbol: " + alias);
-    unparsedParameters[alias.substr(0, index)]=alias.substr(index + 2);
+    unparsedParameters[alias.substr(0, index)] = alias.substr(index + 2);
   }
 
   // alias unparsedParameters
 
-  modelSet.aliasParameters(unparsedParameters,verbose);
+  modelSet.aliasParameters(unparsedParameters, verbose);
 }
 
 /******************************************************************************/
@@ -676,7 +684,7 @@ DiscreteDistribution* PhylogeneticsApplicationTools::getRateDistribution(
   KeyvalTools::parseProcedure(distDescription, distName, args);
 
   BppORateDistributionFormat bIO(true);
-  auto_ptr<DiscreteDistribution> rDist(bIO.read(distDescription, true));
+  unique_ptr<DiscreteDistribution> rDist(bIO.read(distDescription, true));
 
   if (verbose)
   {
@@ -756,7 +764,7 @@ throw (Exception)
   // Should I ignore some parameters?
   ParameterList parametersToEstimate = parameters;
   vector<string> parNames = parametersToEstimate.getParameterNames();
-  
+
   if (params.find("optimization.ignore_parameter") != params.end())
     throw Exception("optimization.ignore_parameter is deprecated, use optimization.ignore_parameters instead!");
   string paramListDesc = ApplicationTools::getStringParameter("optimization.ignore_parameters", params, "", suffix, suffixIsOptional, warn + 1);
@@ -787,25 +795,26 @@ throw (Exception)
           ApplicationTools::displayResult("Parameter ignored", string("Root frequencies"));
       }
       else if (param == "Model")
+      {
+        vector<string> vs;
+        vector<string> vs1 = tl->getSubstitutionModelParameters().getParameterNames();
+        NonHomogeneousTreeLikelihood* nhtl = dynamic_cast<NonHomogeneousTreeLikelihood*>(tl);
+        if (nhtl != NULL)
         {
-          vector<string> vs;
-          vector<string> vs1 = tl->getSubstitutionModelParameters().getParameterNames();
-          NonHomogeneousTreeLikelihood* nhtl = dynamic_cast<NonHomogeneousTreeLikelihood*>(tl);
-          if (nhtl!=NULL){
-            vector<string> vs2 = nhtl->getRootFrequenciesParameters().getParameterNames();
-            VectorTools::diff(vs1,vs2,vs);
-            }
-          else
-            vs=vs1;
-
-          parametersToEstimate.deleteParameters(vs);
-          if (verbose)
-            ApplicationTools::displayResult("Parameter ignored", string("Model"));          
+          vector<string> vs2 = nhtl->getRootFrequenciesParameters().getParameterNames();
+          VectorTools::diff(vs1, vs2, vs);
         }
+        else
+          vs = vs1;
+
+        parametersToEstimate.deleteParameters(vs);
+        if (verbose)
+          ApplicationTools::displayResult("Parameter ignored", string("Model"));
+      }
       else if (param.find("*") != string::npos)
       {
-        vector<string> vs=ApplicationTools::matchingParameters(param,parNames);
-        
+        vector<string> vs = ApplicationTools::matchingParameters(param, parNames);
+
         for (vector<string>::iterator it = vs.begin(); it != vs.end(); it++)
         {
           parametersToEstimate.deleteParameter(*it);
@@ -828,14 +837,14 @@ throw (Exception)
 
   // Should I constrain some parameters?
   vector<string> parToEstNames = parametersToEstimate.getParameterNames();
-  
+
   if (params.find("optimization.constrain_parameter") != params.end())
     throw Exception("optimization.constrain_parameter is deprecated, use optimization.constrain_parameters instead!");
   paramListDesc = ApplicationTools::getStringParameter("optimization.constrain_parameters", params, "", suffix, suffixIsOptional, warn + 1);
 
-  string constraint="";
-  string pc, param="";
-  
+  string constraint = "";
+  string pc, param = "";
+
   StringTokenizer st2(paramListDesc, ",");
   while (st2.hasMoreToken())
   {
@@ -848,12 +857,13 @@ throw (Exception)
       param = pc.substr(0, index);
       constraint = pc.substr(index + 1);
       IntervalConstraint ic(constraint);
-      
+
       vector<string> parNames2;
-      
+
       if (param == "BrLen")
         parNames2  = tl->getBranchLengthsParameters().getParameterNames();
-      else if (param == "Ancient"){
+      else if (param == "Ancient")
+      {
         NonHomogeneousTreeLikelihood* nhtl = dynamic_cast<NonHomogeneousTreeLikelihood*>(tl);
         if (!nhtl)
           ApplicationTools::displayWarning("The 'Ancient' parameters do not exist in homogeneous models, and will be ignored.");
@@ -867,23 +877,25 @@ throw (Exception)
       {
         vector<string> vs1 = tl->getSubstitutionModelParameters().getParameterNames();
         NonHomogeneousTreeLikelihood* nhtl = dynamic_cast<NonHomogeneousTreeLikelihood*>(tl);
-        if (nhtl!=NULL){
+        if (nhtl != NULL)
+        {
           vector<string> vs2 = nhtl->getRootFrequenciesParameters().getParameterNames();
-          VectorTools::diff(vs1,vs2,parNames2);
+          VectorTools::diff(vs1, vs2, parNames2);
         }
         else
-          parNames2=vs1;
+          parNames2 = vs1;
       }
       else if (param.find("*") != string::npos)
-        parNames2=ApplicationTools::matchingParameters(param,parToEstNames);
+        parNames2 = ApplicationTools::matchingParameters(param, parToEstNames);
       else
         parNames2.push_back(param);
 
-      
-      for (size_t i=0; i<parNames2.size(); i++)
+
+      for (size_t i = 0; i < parNames2.size(); i++)
       {
-        Parameter& par=parametersToEstimate.getParameter(parNames2[i]);
-        if (par.hasConstraint()){
+        Parameter& par = parametersToEstimate.getParameter(parNames2[i]);
+        if (par.hasConstraint())
+        {
           par.setConstraint(ic & (*par.getConstraint()), true);
           if (par.getConstraint()->isEmpty())
             throw Exception("Empty interval for parameter " + parNames[i] + par.getConstraint()->getDescription());
@@ -905,10 +917,10 @@ throw (Exception)
     }
   }
 
-  
-  ///////
-  /// optimization options
-  
+
+  // /////
+  // / optimization options
+
   unsigned int nbEvalMax = ApplicationTools::getParameter<unsigned int>("optimization.max_number_f_eval", params, 1000000, suffix, suffixIsOptional, warn + 1);
   if (verbose)
     ApplicationTools::displayResult("Max # ML evaluations", TextTools::toString(nbEvalMax));
@@ -918,7 +930,7 @@ throw (Exception)
     ApplicationTools::displayResult("Tolerance", TextTools::toString(tolerance));
 
   // Backing up or restoring?
-  auto_ptr<BackupListener> backupListener;
+  unique_ptr<BackupListener> backupListener;
   string backupFile = ApplicationTools::getAFilePath("optimization.backup.file", params, false, false, suffix, suffixIsOptional, "none", warn + 1);
   if (backupFile != "none")
   {
@@ -1220,7 +1232,7 @@ throw (Exception)
     ApplicationTools::displayResult("Algorithm used for derivable parameters", order);
 
   // Backing up or restoring?
-  auto_ptr<BackupListener> backupListener;
+  unique_ptr<BackupListener> backupListener;
   string backupFile = ApplicationTools::getAFilePath("optimization.backup.file", params, false, false, suffix, suffixIsOptional, "none", warn + 1);
   if (backupFile != "none")
   {
@@ -1446,17 +1458,16 @@ void PhylogeneticsApplicationTools::printParameters(const SubstitutionModelSet* 
 
     if (withAlias)
     {
-      
-      ParameterList pl=model->getParameters();
-      
-      for (size_t np = 0 ; np< pl.size() ; np++)
+      ParameterList pl = model->getParameters();
+
+      for (size_t np = 0; np < pl.size(); np++)
       {
         string nfrom = modelSet->getFrom(pl[np].getName() + "_" + TextTools::toString(i + 1));
         if (nfrom != "")
           aliases[pl[np].getName()] = nfrom;
       }
     }
-    
+
     // Now print it:
     writtenNames.clear();
     out.endLine() << "model" << (i + 1) << "=";
@@ -1476,21 +1487,21 @@ void PhylogeneticsApplicationTools::printParameters(const SubstitutionModelSet* 
   // First get the aliases for this frequencies set
 
   const FrequenciesSet* pFS = modelSet->getRootFrequenciesSet();
-  
-  ParameterList plf=pFS->getParameters();
+
+  ParameterList plf = pFS->getParameters();
 
   map<string, string> aliases;
 
   if (withAlias)
   {
-    for (size_t np = 0 ; np< plf.size() ; np++)
+    for (size_t np = 0; np < plf.size(); np++)
     {
       string nfrom = modelSet->getFrom(plf[np].getName());
       if (nfrom != "")
         aliases[plf[np].getName()] = nfrom;
     }
   }
-  
+
   // Root frequencies:
   out.endLine();
   (out << "# Root frequencies:").endLine();
@@ -1515,9 +1526,8 @@ void PhylogeneticsApplicationTools::printParameters(const DiscreteDistribution* 
 }
 
 /************************
- * Substitution Mapping *
- ************************/
-
+* Substitution Mapping *
+************************/
 SubstitutionCount* PhylogeneticsApplicationTools::getSubstitutionCount(
   const Alphabet* alphabet,
   const SubstitutionModel* model,
@@ -1579,4 +1589,3 @@ SubstitutionCount* PhylogeneticsApplicationTools::getSubstitutionCount(
 }
 
 /******************************************************************************/
-

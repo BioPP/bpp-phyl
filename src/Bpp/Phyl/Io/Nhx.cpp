@@ -508,9 +508,9 @@ bool Nhx::setNodeProperties(Node& node, const string properties) const
       //Property found
       string ppt = (useTagsAsPropertyNames_ ? it->tag : it->name);
       if (it->onBranch) {
-        node.setBranchProperty(ppt, *auto_ptr<Clonable>(stringToProperty_(props[it->tag], it->type)));
+        node.setBranchProperty(ppt, *unique_ptr<Clonable>(stringToProperty_(props[it->tag], it->type)));
       } else {
-        node.setNodeProperty(ppt, *auto_ptr<Clonable>(stringToProperty_(props[it->tag], it->type)));
+        node.setNodeProperty(ppt, *unique_ptr<Clonable>(stringToProperty_(props[it->tag], it->type)));
       }
     }
   }

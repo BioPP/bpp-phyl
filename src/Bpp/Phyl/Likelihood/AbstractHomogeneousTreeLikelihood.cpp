@@ -132,7 +132,8 @@ AbstractHomogeneousTreeLikelihood& AbstractHomogeneousTreeLikelihood::operator=(
   verbose_         = lik.verbose_;
   minimumBrLen_    = lik.minimumBrLen_;
   maximumBrLen_    = lik.maximumBrLen_;
-  if (brLenConstraint_.get()) brLenConstraint_.release();
+  if (brLenConstraint_.get())
+    brLenConstraint_.release();
   brLenConstraint_.reset(lik.brLenConstraint_->clone());
   return *this;
 }
@@ -183,7 +184,7 @@ void AbstractHomogeneousTreeLikelihood::setSubstitutionModel(SubstitutionModel* 
   if (data_)
   {
     if (model->getNumberOfStates() != model_->getNumberOfStates())
-      setData(*data_);  // Have to reinitialize the whole data structure.
+      setData(*data_);                          // Have to reinitialize the whole data structure.
   }
 
   nbStates_ = model->getNumberOfStates();
@@ -373,7 +374,7 @@ void AbstractHomogeneousTreeLikelihood::computeTransitionProbabilitiesForNode(co
       }
     }
   }
-  
+
   if (computeFirstOrderDerivatives_)
   {
     // Computes all dpxy/dt once for all:
@@ -416,4 +417,3 @@ void AbstractHomogeneousTreeLikelihood::computeTransitionProbabilitiesForNode(co
 }
 
 /*******************************************************************************/
-

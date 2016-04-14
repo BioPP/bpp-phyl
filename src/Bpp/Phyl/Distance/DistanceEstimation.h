@@ -53,8 +53,11 @@ knowledge of the CeCILL license and that you accept its terms.
 #include <Bpp/Numeric/Function/SimpleMultiDimensions.h>
 #include <Bpp/Numeric/Function/MetaOptimizer.h>
 
-// From SeqLib:
+// From bpp-seq:
 #include <Bpp/Seq/Container/SiteContainer.h>
+
+// From the STL:
+#include <memory>
 
 namespace bpp
 {
@@ -307,8 +310,8 @@ class DistanceEstimation:
   public virtual Clonable
 {
   private:
-    auto_ptr<SubstitutionModel> model_;
-    auto_ptr<DiscreteDistribution> rateDist_;
+    std::unique_ptr<SubstitutionModel> model_;
+    std::unique_ptr<DiscreteDistribution> rateDist_;
     const SiteContainer* sites_;
     DistanceMatrix* dist_;
     Optimizer* optimizer_;

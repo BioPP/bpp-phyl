@@ -81,7 +81,7 @@ class YNGKP_M1:
     virtual public ReversibleSubstitutionModel
 {
 private:
-  std::auto_ptr<MixtureOfASubstitutionModel> pmixmodel_;
+  std::unique_ptr<MixtureOfASubstitutionModel> pmixmodel_;
 
 
   /**

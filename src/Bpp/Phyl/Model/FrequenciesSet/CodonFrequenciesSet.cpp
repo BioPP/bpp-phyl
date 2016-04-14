@@ -151,7 +151,7 @@ void FullCodonFrequenciesSet::setFrequencies(const vector<double>& frequencies)
 void FullCodonFrequenciesSet::fireParameterChanged(const ParameterList& parameters)
 {
   AbstractFrequenciesSet::fireParameterChanged(parameters);
-  
+
   sFreq_.matchParametersValues(parameters);
   updateFreq_();
 }
@@ -270,7 +270,7 @@ void FullPerAACodonFrequenciesSet::updateFrequencies()
     std::vector<int> vc = pgc_->getSynonymous(aa);
     for (size_t j = 0; j < vc.size(); j++)
     {
-      //NB: only one alphabet state per model state here, as it is a CodonFreqSet.
+      // NB: only one alphabet state per model state here, as it is a CodonFreqSet.
       getFreq_(getStateMap().getModelStates(vc[j])[0]) =
         static_cast<double>(vc.size()) * ppfs_->getFrequencies()[i] * vS_[i].prob(j);
     }
@@ -285,7 +285,7 @@ void FullPerAACodonFrequenciesSet::setFrequencies(const vector<double>& frequenc
 
   double bigS = 0;
   Vdouble vaa;
-  
+
   const StateMap& aaStates = ppfs_->getStateMap();
   for (size_t i = 0; i < aaStates.getNumberOfModelStates(); ++i)
   {
@@ -293,14 +293,14 @@ void FullPerAACodonFrequenciesSet::setFrequencies(const vector<double>& frequenc
     std::vector<int> vc = pgc_->getSynonymous(aa);
     Vdouble vp;
     double s = 0;
-    
+
     for (size_t j = 0; j < vc.size(); j++)
     {
       size_t index = pgc_->getSourceAlphabet()->getStateIndex(vc[j]);
-      vp.push_back(frequencies[index-1]);
-      s += frequencies[index-1];
+      vp.push_back(frequencies[index - 1]);
+      s += frequencies[index - 1];
     }
-      
+
     vp /= s;
     vS_[i].setFrequencies(vp);
 

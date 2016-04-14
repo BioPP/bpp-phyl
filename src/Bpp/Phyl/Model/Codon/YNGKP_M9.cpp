@@ -52,7 +52,7 @@ using namespace std;
 
 YNGKP_M9::YNGKP_M9(const GeneticCode* gc, FrequenciesSet* codonFreqs, unsigned int nbBeta, unsigned int nbGamma) :
   AbstractBiblioMixedSubstitutionModel("YNGKP_M9."),
-  pmixmodel_(0),
+  pmixmodel_(),
   synfrom_(),
   synto_(),
   nBeta_(nbBeta),
