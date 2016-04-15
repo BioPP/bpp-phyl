@@ -40,6 +40,7 @@
 #include "StateMap.h"
 
 using namespace bpp;
+using namespace std;
 
 CanonicalStateMap::CanonicalStateMap(const Alphabet* alphabet, bool includeGaps):
   AbstractStateMap(alphabet)
