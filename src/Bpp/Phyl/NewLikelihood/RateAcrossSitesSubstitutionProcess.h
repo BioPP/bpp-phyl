@@ -82,6 +82,8 @@ public:
 
   size_t getNumberOfStates() const { return model_->getNumberOfStates(); }
 
+  size_t getNumberOfModels() const { return 1; }
+
   bool hasDerivableParameter(const std::string& name) const {
     return !(model_->getIndependentParameters().hasParameter(name) ||
              rDist_->getIndependentParameters().hasParameter(name));

@@ -95,6 +95,12 @@ namespace bpp
     virtual size_t getNumberOfStates() const = 0;
 
     /**
+     * @return The current number of distinct substitution models.
+     */
+
+    virtual size_t getNumberOfModels() const = 0;
+    
+    /**
      * @brief Get the substitution model corresponding to a certain
      * branch, site pattern, and model class.
      *
