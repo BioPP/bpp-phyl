@@ -53,12 +53,11 @@ knowledge of the CeCILL license and that you accept its terms.
 #include <Bpp/Phyl/NewLikelihood/NonHomogeneousSubstitutionProcess.h>
 #include <Bpp/Phyl/NewLikelihood/SimpleSubstitutionProcess.h>
 #include <Bpp/Phyl/NewLikelihood/RateAcrossSitesSubstitutionProcess.h>
-#include <Bpp/Phyl/NewLikelihood/SinglePhyloLikelihood.h>
+#include <Bpp/Phyl/NewLikelihood/PhyloLikelihoods/SingleProcessPhyloLikelihood.h>
 
 #include <iostream>
 
 using namespace bpp;
-using namespace newlik;
 using namespace std;
 
 void fitModelNH(SubstitutionModelSet* model, DiscreteDistribution* rdist, const Tree& tree, const SiteContainer& sites,
@@ -151,11 +150,11 @@ int main() {
     SubstitutionProcess* nsubPro=subPro->clone();
     SubstitutionProcess* nsubPro2=subPro2->clone();
     
-    SingleRecursiveTreeLikelihoodCalculation* tlComp = new SingleRecursiveTreeLikelihoodCalculation(*sites->clone(), nsubPro, true, false);
-    SinglePhyloLikelihood ntl(nsubPro, tlComp, true);
+    RecursiveLikelihoodTreeCalculation* tlComp = new RecursiveLikelihoodTreeCalculation(*sites->clone(), nsubPro, true, false);
+    SingleProcessPhyloLikelihood ntl(nsubPro, tlComp, true);
 
-    SingleRecursiveTreeLikelihoodCalculation* tlComp2 = new SingleRecursiveTreeLikelihoodCalculation(*sites->clone(), nsubPro2, true);
-    SinglePhyloLikelihood ntl2(nsubPro2, tlComp2, true);
+    RecursiveLikelihoodTreeCalculation* tlComp2 = new RecursiveLikelihoodTreeCalculation(*sites->clone(), nsubPro2, true);
+    SingleProcessPhyloLikelihood ntl2(nsubPro2, tlComp2, true);
 
     for (size_t i = 0; i < nmodels; ++i) {
       ntl.setParameterValue("T92.theta_" + TextTools::toString(i + 1), thetas[i]);

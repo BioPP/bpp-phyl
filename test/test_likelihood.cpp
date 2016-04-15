@@ -51,11 +51,10 @@ knowledge of the CeCILL license and that you accept its terms.
 #include <Bpp/Phyl/NewLikelihood/ParametrizableTree.h>
 #include <Bpp/Phyl/NewLikelihood/SimpleSubstitutionProcess.h>
 #include <Bpp/Phyl/NewLikelihood/RateAcrossSitesSubstitutionProcess.h>
-#include <Bpp/Phyl/NewLikelihood/SinglePhyloLikelihood.h>
+#include <Bpp/Phyl/NewLikelihood/PhyloLikelihoods/SingleProcessPhyloLikelihood.h>
 #include <iostream>
 
 using namespace bpp;
-using namespace newlik;
 using namespace std;
 
 void fitModelHSR(SubstitutionModel* model, DiscreteDistribution* rdist, const Tree& tree, const SiteContainer& sites,
@@ -89,9 +88,10 @@ void fitModelHSR(SubstitutionModel* model, DiscreteDistribution* rdist, const Tr
   for (unsigned int i = 0; i < n; ++i) {
     ApplicationTools::displayGauge(i, n-1);
     RateAcrossSitesSubstitutionProcess* process = new RateAcrossSitesSubstitutionProcess(model->clone(), rdist->clone(), pTree->clone());
-    auto_ptr<SingleRecursiveTreeLikelihoodCalculation> tmComp(new SingleRecursiveTreeLikelihoodCalculation(sites, process, false, true));
-    SinglePhyloLikelihood newTl(process, tmComp.release(), false);
-    newTl.computeTreeLikelihood();
+    auto_ptr<RecursiveLikelihoodTreeCalculation> tmComp(new RecursiveLikelihoodTreeCalculation(sites, process, false, true));
+    SingleProcessPhyloLikelihood newTl(process, tmComp.release());
+
+    newTl.computeLikelihood();
     newTl.getFirstOrderDerivative("BrLen0");
     newTl.getFirstOrderDerivative("BrLen1");
     newTl.getFirstOrderDerivative("BrLen2");
@@ -119,8 +119,8 @@ void fitModelHSR(SubstitutionModel* model, DiscreteDistribution* rdist, const Tr
   
   SimpleSubstitutionProcess* process = new SimpleSubstitutionProcess(model->clone(), pTree->clone(), false);
 //  RateAcrossSitesSubstitutionProcess* process = new RateAcrossSitesSubstitutionProcess(model->clone(), rdist->clone(), pTree->clone());
-  auto_ptr<SingleRecursiveTreeLikelihoodCalculation> tmComp(new SingleRecursiveTreeLikelihoodCalculation(sites, process, false, true));
-  SinglePhyloLikelihood newTl(process, tmComp.release(), false);
+  auto_ptr<RecursiveLikelihoodTreeCalculation> tmComp(new RecursiveLikelihoodTreeCalculation(sites, process, false, true));
+  SingleProcessPhyloLikelihood newTl(process, tmComp.release(), false);
   OptimizationTools::optimizeNumericalParameters2(&newTl, newTl.getParameters(), 0, 0.000001, 10000, 0, 0);
   cout << setprecision(20) << newTl.getValue() << endl;
   ApplicationTools::displayResult("* lnL after full optimization (new)", newTl.getValue());
@@ -154,9 +154,6 @@ int main() {
   //-------------
 
   const NucleicAlphabet* alphabet = &AlphabetTools::DNA_ALPHABET;
-
-  SubstitutionModel* model = new T92(alphabet, 3.);
-  DiscreteDistribution* rdist = new GammaDiscreteRateDistribution(3, 0.1);
 
   VectorSiteContainer sites(alphabet);
   sites.addSequence(BasicSequence("A", "CTCCAGACATGCCGGGACTTTGCAGAGAAGGAGTTGTTTCCCATTGCAGCCCAGGTGGATAAGGAACAGC", alphabet));

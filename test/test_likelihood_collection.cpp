@@ -50,12 +50,15 @@ knowledge of the CeCILL license and that you accept its terms.
 
 #include <Bpp/Phyl/NewLikelihood/NonHomogeneousSubstitutionProcess.h>
 #include <Bpp/Phyl/NewLikelihood/SubstitutionProcessCollection.h>
-#include <Bpp/Phyl/NewLikelihood/MixturePhyloLikelihood.h>
+#include <Bpp/Phyl/NewLikelihood/RecursiveLikelihoodTreeCalculation.h>
+#include <Bpp/Phyl/NewLikelihood/MixtureSequenceEvolution.h>
+
+#include <Bpp/Phyl/NewLikelihood/PhyloLikelihoods/MixtureProcessPhyloLikelihood.h>
+#include <Bpp/Phyl/NewLikelihood/PhyloLikelihoods/SingleProcessPhyloLikelihood.h>
 
 #include <iostream>
 
 using namespace bpp;
-using namespace newlik;
 using namespace std;
 
 int main() {
@@ -119,13 +122,13 @@ int main() {
   mModBr1[1]=vP1m1;
   mModBr1[2]=vP1m2;
 
-  modelColl->addSubstitutionProcess(mModBr1, 1, 1);
+  modelColl->addSubstitutionProcess(1, mModBr1, 1, 1);
                                    
   map<size_t, Vint> mModBr2;
   mModBr2[1]=vP2m1;
   mModBr2[3]=vP2m2;
 
-  modelColl->addSubstitutionProcess(mModBr2, 2, 2, 1);
+  modelColl->addSubstitutionProcess(2, mModBr2, 2, 2, 1);
 
   // Data
 
@@ -140,17 +143,21 @@ int main() {
   SubstitutionProcess* sP1c=subPro1->clone();
   SubstitutionProcess* sP2c=subPro2->clone();
 
-  SingleRecursiveTreeLikelihoodCalculation* rtl1=new SingleRecursiveTreeLikelihoodCalculation(*sites.clone(), sP1c, true, true);
-  SinglePhyloLikelihood spl1(sP1c, rtl1, true);
-  spl1.computeTreeLikelihood();
+  RecursiveLikelihoodTreeCalculation* rtl1=new RecursiveLikelihoodTreeCalculation(*sites.clone(), sP1c, true, true);
+  SingleProcessPhyloLikelihood spl1(sP1c, rtl1, true);
+  spl1.computeLikelihood();
   
-  SingleRecursiveTreeLikelihoodCalculation* rtl2=new SingleRecursiveTreeLikelihoodCalculation(*sites.clone(), sP2c, true, true);
-  SinglePhyloLikelihood spl2(sP2c, rtl2, true);
-  spl2.computeTreeLikelihood();
+  RecursiveLikelihoodTreeCalculation* rtl2=new RecursiveLikelihoodTreeCalculation(*sites.clone(), sP2c, true, true);
+  SingleProcessPhyloLikelihood spl2(sP2c, rtl2, true);
+  spl2.computeLikelihood();
   
   cerr << setprecision(10) << "TL1:"  << spl1.getValue() << "\tTL2:" << spl2.getValue() << endl;
 
-  MixturePhyloLikelihood mlc(*sites.clone(), modelColl);
+  std::vector<size_t> vp(2);
+  vp[0]=1; vp[1]=2;
+  
+  MixtureSequenceEvolution mse(modelColl, vp);
+  MixtureProcessPhyloLikelihood mlc(*sites.clone(), mse);
 
   cerr << "Mlc: " << mlc.getValue() << endl;
 
