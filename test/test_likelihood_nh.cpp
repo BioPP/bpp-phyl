@@ -137,12 +137,20 @@ int main() {
     OutputStream* messenger = new StlOutputStream(new ofstream("messages.txt", ios::out));
 
     //Simulate data:
+<<<<<<< HEAD
     auto_ptr<SiteContainer> sites(simulator.simulate(nsites));
 
     //Now fit model:
     auto_ptr<SubstitutionModelSet> modelSet2(modelSet->clone());
 
     RNonHomogeneousTreeLikelihood tl(*tree, *sites.get(), modelSet, rdist, true, true, false);
+=======
+    unique_ptr<SiteContainer> sites(simulator.simulate(nsites));
+    //Now fit model:
+    unique_ptr<SubstitutionModelSet> modelSet2(modelSet->clone());
+    unique_ptr<SubstitutionModelSet> modelSet3(modelSet->clone());
+    RNonHomogeneousTreeLikelihood tl(*tree, *sites.get(), modelSet2.get(), rdist, true, true, false);
+>>>>>>> master
     tl.initialize();
 
     RNonHomogeneousTreeLikelihood tl2(*tree, *sites.get(), modelSet2.get(), rdist, true, true, true);

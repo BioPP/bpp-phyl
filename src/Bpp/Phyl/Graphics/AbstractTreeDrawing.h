@@ -156,14 +156,14 @@ class AbstractTreeDrawing:
   public virtual TreeDrawing
 {
   private:
-    std::auto_ptr<TreeTemplate<INode> > tree_;
+    std::unique_ptr<TreeTemplate<INode> > tree_;
     double xUnit_;
     double yUnit_;
     const TreeDrawingSettings* settings_;
     std::vector<TreeDrawingListener*> listeners_;
  
   public:
-    AbstractTreeDrawing(): tree_(0), xUnit_(1.), yUnit_(1.), settings_(&DEFAULT_SETTINGS), listeners_() {};
+    AbstractTreeDrawing(): tree_(), xUnit_(1.), yUnit_(1.), settings_(&DEFAULT_SETTINGS), listeners_() {};
     
     AbstractTreeDrawing(const AbstractTreeDrawing& atd) :
       tree_(atd.tree_.get() ? dynamic_cast<TreeTemplate<INode> *>(atd.tree_->clone()) : 0),

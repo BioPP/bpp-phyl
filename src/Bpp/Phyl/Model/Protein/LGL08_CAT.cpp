@@ -49,7 +49,7 @@ using namespace std;
 
 LGL08_CAT::LGL08_CAT(const ProteicAlphabet* alpha, unsigned int nbCat) :
   AbstractBiblioMixedSubstitutionModel("LGL08_CAT."),
-  pmixmodel_(0)
+  pmixmodel_()
 {
   // build the submodel
 

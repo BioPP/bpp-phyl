@@ -72,7 +72,7 @@ class YNGKP_M7:
     virtual public ReversibleSubstitutionModel
 {
 private:
-  std::auto_ptr<MixtureOfASubstitutionModel> pmixmodel_;
+  std::unique_ptr<MixtureOfASubstitutionModel> pmixmodel_;
 
   /**
    * @brief indexes of 2 codons between which the substitution is

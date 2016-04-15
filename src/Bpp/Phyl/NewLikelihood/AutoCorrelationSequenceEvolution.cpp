@@ -51,9 +51,9 @@ AutoCorrelationSequenceEvolution::AutoCorrelationSequenceEvolution(
   hmmAlph_(),
   autoCorrTransMat_()
 {
-  hmmAlph_=std::auto_ptr<HmmProcessAlphabet>(new HmmProcessAlphabet(processColl_, nProc));
+  hmmAlph_ = std::unique_ptr<HmmProcessAlphabet>(new HmmProcessAlphabet(processColl_, nProc));
 
-  autoCorrTransMat_=std::auto_ptr<AutoCorrelationTransitionMatrix>(new AutoCorrelationTransitionMatrix(hmmAlph_.get(),"AutoCorr."));
+  autoCorrTransMat_ = std::unique_ptr<AutoCorrelationTransitionMatrix>(new AutoCorrelationTransitionMatrix(hmmAlph_.get(), "AutoCorr."));
 
   // initialize parameters:
   addParameters_(hmmAlph_->getParameters());
@@ -81,5 +81,3 @@ void AutoCorrelationSequenceEvolution::fireParameterChanged(const ParameterList&
   hmmAlph_->matchParametersValues(parameters);
   autoCorrTransMat_->matchParametersValues(parameters);
 }
-
-

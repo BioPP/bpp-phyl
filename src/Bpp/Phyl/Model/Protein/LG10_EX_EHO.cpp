@@ -49,7 +49,7 @@ using namespace std;
 
 LG10_EX_EHO::LG10_EX_EHO(const ProteicAlphabet* alpha) : 
   AbstractBiblioMixedSubstitutionModel("LG10_EX_EHO."),
-  pmixmodel_(0)
+  pmixmodel_()
 {
   // build the submodel
 	

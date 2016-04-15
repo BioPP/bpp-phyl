@@ -124,7 +124,7 @@ class AbstractNonHomogeneousTreeLikelihood:
 
     double minimumBrLen_;
     double maximumBrLen_;
-    std::auto_ptr<Constraint> brLenConstraint_;
+    std::unique_ptr<Constraint> brLenConstraint_;
 
     bool reparametrizeRoot_;
     int root1_, root2_;

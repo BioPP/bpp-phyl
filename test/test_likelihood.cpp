@@ -51,11 +51,10 @@ knowledge of the CeCILL license and that you accept its terms.
 #include <Bpp/Phyl/NewLikelihood/ParametrizableTree.h>
 #include <Bpp/Phyl/NewLikelihood/SimpleSubstitutionProcess.h>
 #include <Bpp/Phyl/NewLikelihood/RateAcrossSitesSubstitutionProcess.h>
-#include <Bpp/Phyl/NewLikelihood/SinglePhyloLikelihood.h>
+#include <Bpp/Phyl/NewLikelihood/PhyloLikelihoods/SingleProcessPhyloLikelihood.h>
 #include <iostream>
 
 using namespace bpp;
-using namespace newlik;
 using namespace std;
 
 void fitModelHSR(SubstitutionModel* model, DiscreteDistribution* rdist, const Tree& tree, const SiteContainer& sites,
@@ -89,8 +88,8 @@ void fitModelHSR(SubstitutionModel* model, DiscreteDistribution* rdist, const Tr
   for (unsigned int i = 0; i < n; ++i) {
     ApplicationTools::displayGauge(i, n-1);
     RateAcrossSitesSubstitutionProcess* process = new RateAcrossSitesSubstitutionProcess(model->clone(), rdist->clone(), pTree->clone());
-    auto_ptr<SingleRecursiveTreeLikelihoodCalculation> tmComp(new SingleRecursiveTreeLikelihoodCalculation(sites, process, false, true));
-    SinglePhyloLikelihood newTl(process, tmComp.release(), false);
+    unique_ptr<RecursiveLikelihoodTreeCalculation> tmComp(new RecursiveLikelihoodTreeCalculation(sites, process, false, true));
+    SingleProcessPhyloLikelihood newTl(process, tmComp.release(), false);
     newTl.computeTreeLikelihood();
     newTl.getFirstOrderDerivative("BrLen0");
     newTl.getFirstOrderDerivative("BrLen1");
@@ -148,7 +147,7 @@ void fitModelHDR(SubstitutionModel* model, DiscreteDistribution* rdist, const Tr
 }
 
 int main() {
-  auto_ptr<TreeTemplate<Node> > tree(TreeTemplateTools::parenthesisToTree("((A:0.01, B:0.02):0.03,C:0.01,D:0.1);"));
+  unique_ptr<TreeTemplate<Node> > tree(TreeTemplateTools::parenthesisToTree("((A:0.01, B:0.02):0.03,C:0.01,D:0.1);"));
   vector<string> seqNames= tree->getLeavesNames();
   vector<int> ids = tree->getNodesId();
   //-------------
@@ -164,8 +163,8 @@ int main() {
   sites.addSequence(BasicSequence("C", "CGTCAGACATGCCGGGAATTTGCTGAAAAGGAGCTGGTTCCCATTGCAGCCCAGGTAGACAAGGAGCATC", alphabet));
   sites.addSequence(BasicSequence("D", "CTCCAGACATGCCGGGACTTTACCGAGAAGGAGTTGTTTTCCATTGCAGCCCAGGTGGATAAGGAACATC", alphabet));
 
-  auto_ptr<SubstitutionModel> model(new T92(alphabet, 3.));
-  auto_ptr<DiscreteDistribution> rdist(new GammaDiscreteRateDistribution(4, 1.0));
+  unique_ptr<SubstitutionModel> model(new T92(alphabet, 3.));
+  unique_ptr<DiscreteDistribution> rdist(new GammaDiscreteRateDistribution(4, 1.0));
   try {
     cout << "Testing Single Tree Traversal likelihood class..." << endl;
     fitModelHSR(model.get(), rdist.get(), *tree, sites, 85.030942031997312824, 65.72293577214308868406);

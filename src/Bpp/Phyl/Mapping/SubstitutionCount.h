@@ -168,7 +168,7 @@ namespace bpp
     public virtual SubstitutionCount
   {
   protected:
-    std::auto_ptr<SubstitutionRegister> register_;
+    std::unique_ptr<SubstitutionRegister> register_;
 
   public:
     AbstractSubstitutionCount(SubstitutionRegister* reg):

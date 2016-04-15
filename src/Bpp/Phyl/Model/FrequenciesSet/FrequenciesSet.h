@@ -132,7 +132,7 @@ namespace bpp
   {
   private:
     const Alphabet* alphabet_;
-    std::auto_ptr<StateMap> stateMap_;
+    std::unique_ptr<StateMap> stateMap_;
     std::vector<double> freq_;
     std::string name_;
 

@@ -55,15 +55,13 @@ class SimpleSubstitutionProcess :
     public AbstractSubstitutionProcess
 {
 protected:
-  std::auto_ptr<SubstitutionModel> model_;
+  std::unique_ptr<SubstitutionModel> model_;
 
 private:
   /**
    * @brief The related Computing Tree
-   *
    */
-
-  mutable std::auto_ptr<ComputingTree> computingTree_;
+  mutable std::unique_ptr<ComputingTree> computingTree_;
 
 public:
   SimpleSubstitutionProcess(SubstitutionModel* model, ParametrizableTree* tree, bool checkRooted);

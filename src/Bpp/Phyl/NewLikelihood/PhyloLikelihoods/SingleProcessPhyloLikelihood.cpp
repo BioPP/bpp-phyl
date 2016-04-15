@@ -201,21 +201,19 @@ Vdouble SingleProcessPhyloLikelihood::getPosteriorRateOfEachSite() const
 }
 
 /******************************************************************************
- *                           First Order Derivatives                          *
- ******************************************************************************/
-
+*                           First Order Derivatives                          *
+******************************************************************************/
 void SingleProcessPhyloLikelihood::computeDLogLikelihood_(const string& variable) const
 {
   // patch, to be fixed properly later
   throw Exception("SingleProcessPhyloLikelihood::1sd Derivative is not implemented for " + variable + " parameter.");
-  
- tlComp_->computeTreeDLogLikelihood(variable);
+
+  tlComp_->computeTreeDLogLikelihood(variable);
 }
 
 /******************************************************************************
- *                           Second Order Derivatives                         *
- ******************************************************************************/
-
+*                           Second Order Derivatives                         *
+******************************************************************************/
 void SingleProcessPhyloLikelihood::computeD2LogLikelihood_(const string& variable) const
 {
   // patch, to be fixed properly later
@@ -225,4 +223,3 @@ void SingleProcessPhyloLikelihood::computeD2LogLikelihood_(const string& variabl
 }
 
 /******************************************************************************/
-

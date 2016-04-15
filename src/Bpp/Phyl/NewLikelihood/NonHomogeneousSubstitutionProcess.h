@@ -115,19 +115,17 @@ namespace bpp
      * @brief Contains all models used in this tree.
      * Note that auto_ptr objects cannot be stored in a vector.
      */
-    
     std::vector<SubstitutionModel* > modelSet_;
 
     /**
      * @brief Root frequencies.
      */
-    std::auto_ptr<FrequenciesSet> rootFrequencies_;
+    std::unique_ptr<FrequenciesSet> rootFrequencies_;
 
     /**
      *  @brief Rate Distribution
      */
-
-    std::auto_ptr<DiscreteDistribution> rDist_;
+    std::unique_ptr<DiscreteDistribution> rDist_;
 
     /**
      * @brief Contains for each node in a tree the index of the corresponding model in modelSet_
@@ -137,19 +135,15 @@ namespace bpp
 
     /**
      * @brief Parameters for each model in the set.
-     *
      */
-
     std::vector<ParameterList> modelParameters_;
 
     bool stationarity_;
 
     /**
      * @brief The related Computing Tree
-     *
      */
-
-    mutable std::auto_ptr<ComputingTree> computingTree_;
+    mutable std::unique_ptr<ComputingTree> computingTree_;
 
 
   public:
@@ -163,7 +157,7 @@ namespace bpp
       AbstractParameterAliasable(""),
       AbstractSubstitutionProcess(tree, rdist ? rdist->getNumberOfCategories() : 0),
       modelSet_(),
-      rootFrequencies_(0),
+      rootFrequencies_(),
       rDist_(rdist),
       nodeToModel_(),
       modelToNodes_(),

@@ -46,7 +46,7 @@ using namespace std;
 
 AbstractLikelihoodTree::AbstractLikelihoodTree(const SubstitutionProcess& process) :
   rootPatternLinks_(), rootWeights_(), alphabet_(0),
-  shrunkData_(0), nbSites_(0), nbStates_(0),
+  shrunkData_(), nbSites_(0), nbStates_(0),
   nbClasses_(process.getNumberOfClasses()),
   vProbClass_(process.getClassProbabilities()),
   nbDistinctSites_(0)
@@ -57,7 +57,7 @@ AbstractLikelihoodTree::AbstractLikelihoodTree(const AbstractLikelihoodTree& atd
   rootPatternLinks_(atd.rootPatternLinks_),
   rootWeights_(atd.rootWeights_),
   alphabet_(atd.alphabet_),
-  shrunkData_(0),
+  shrunkData_(),
   nbSites_(atd.nbSites_), nbStates_(atd.nbStates_),
   nbClasses_(atd.nbClasses_),
   vProbClass_(atd.vProbClass_),

@@ -62,7 +62,7 @@ namespace bpp
 
     double minimumBrLen_;
     double maximumBrLen_;
-    std::auto_ptr<Constraint> brLenConstraint_;
+    std::unique_ptr<Constraint> brLenConstraint_;
 
   public:
     ParametrizableTree(const Tree& tree, bool reparametrizeRoot = false, bool liveIndex = true, const std::string& prefix = "");

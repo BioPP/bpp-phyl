@@ -5,37 +5,37 @@
 //
 
 /*
-  Copyright or <A9> or Copr. CNRS, (November 16, 2004)
+   Copyright or <A9> or Copr. CNRS, (November 16, 2004)
 
-  This software is a computer program whose purpose is to provide classes
-  for phylogenetic data analysis.
+   This software is a computer program whose purpose is to provide classes
+   for phylogenetic data analysis.
 
-  This software is governed by the CeCILL  license under French law and
-  abiding by the rules of distribution of free software.  You can  use,
-  modify and/ or redistribute the software under the terms of the CeCILL
-  license as circulated by CEA, CNRS and INRIA at the following URL
-  "http://www.cecill.info".
+   This software is governed by the CeCILL  license under French law and
+   abiding by the rules of distribution of free software.  You can  use,
+   modify and/ or redistribute the software under the terms of the CeCILL
+   license as circulated by CEA, CNRS and INRIA at the following URL
+   "http://www.cecill.info".
 
-  As a counterpart to the access to the source code and  rights to copy,
-  modify and redistribute granted by the license, users are provided only
-  with a limited warranty  and the software's author,  the holder of the
-  economic rights,  and the successive licensors  have only  limited
-  liability.
+   As a counterpart to the access to the source code and  rights to copy,
+   modify and redistribute granted by the license, users are provided only
+   with a limited warranty  and the software's author,  the holder of the
+   economic rights,  and the successive licensors  have only  limited
+   liability.
 
-  In this respect, the user's attention is drawn to the risks associated
-  with loading,  using,  modifying and/or developing or reproducing the
-  software by the user in light of its specific status of free software,
-  that may mean  that it is complicated to manipulate,  and  that  also
-  therefore means  that it is reserved for developers  and  experienced
-  professionals having in-depth computer knowledge. Users are therefore
-  encouraged to load and test the software's suitability as regards their
-  requirements in conditions enabling the security of their systems and/or
-  data to be ensured and,  more generally, to use and operate it in the
-  same conditions as regards security.
+   In this respect, the user's attention is drawn to the risks associated
+   with loading,  using,  modifying and/or developing or reproducing the
+   software by the user in light of its specific status of free software,
+   that may mean  that it is complicated to manipulate,  and  that  also
+   therefore means  that it is reserved for developers  and  experienced
+   professionals having in-depth computer knowledge. Users are therefore
+   encouraged to load and test the software's suitability as regards their
+   requirements in conditions enabling the security of their systems and/or
+   data to be ensured and,  more generally, to use and operate it in the
+   same conditions as regards security.
 
-  The fact that you are presently reading this means that you have had
-  knowledge of the CeCILL license and that you accept its terms.
-*/
+   The fact that you are presently reading this means that you have had
+   knowledge of the CeCILL license and that you accept its terms.
+ */
 
 #include "SubstitutionProcessCollectionMember.h"
 
@@ -74,25 +74,24 @@ SubstitutionProcessCollectionMember::SubstitutionProcessCollectionMember(const S
   stationarity_(set.stationarity_),
   nRoot_(set.nRoot_),
   computingTree_(new ComputingTree(pSubProColl_, nTree_, nDist_))
-{
-}
+{}
 
 SubstitutionProcessCollectionMember& SubstitutionProcessCollectionMember::operator=(const SubstitutionProcessCollectionMember& set)
 {
   AbstractParameterAliasable::operator=(set);
   pSubProColl_ = set.pSubProColl_;
   nProc_ = set.nProc_;
-  
+
   nodeToModel_ = set.nodeToModel_;
   modelToNodes_ = set.modelToNodes_;
   nTree_ = set.nTree_;
   nDist_ = set.nDist_;
   stationarity_ = set.stationarity_;
   nRoot_ = set.nRoot_;
-  
+
   computingTree_.release();
 
-  computingTree_=auto_ptr<ComputingTree>(new ComputingTree(pSubProColl_, nTree_, nDist_));
+  computingTree_ = unique_ptr<ComputingTree>(new ComputingTree(pSubProColl_, nTree_, nDist_));
 
   return *this;
 }
@@ -102,7 +101,7 @@ void SubstitutionProcessCollectionMember::clear()
   nodeToModel_.clear();
   modelToNodes_.clear();
 
-  stationarity_=true;
+  stationarity_ = true;
 }
 
 
@@ -125,8 +124,10 @@ std::vector<size_t> SubstitutionProcessCollectionMember::getModelNumbers() const
 {
   vector<size_t> vMN;
   std::map<size_t, std::vector<int> >::const_iterator it;
-  for (it= modelToNodes_.begin(); it != modelToNodes_.end() ; it++)
+  for (it = modelToNodes_.begin(); it != modelToNodes_.end(); it++)
+  {
     vMN.push_back(it->first);
+  }
 
   return vMN;
 }
@@ -136,11 +137,11 @@ inline const DiscreteDistribution* SubstitutionProcessCollectionMember::getRateD
   return &pSubProColl_->getRateDistribution(nDist_);
 }
 
-bool SubstitutionProcessCollectionMember::hasDerivableParameter(const std::string& name) const    
+bool SubstitutionProcessCollectionMember::hasDerivableParameter(const std::string& name) const
 {
   return hasBranchLengthParameter(name);
 }
-    
+
 
 ParameterList SubstitutionProcessCollectionMember::getRateDistributionParameters(bool independent) const
 {
@@ -168,7 +169,7 @@ ParameterList SubstitutionProcessCollectionMember::getRootFrequenciesParameters(
 void SubstitutionProcessCollectionMember::updateParameters()
 {
   resetParameters_();
-  addParameters_(getSubstitutionModelParameters(true)); 
+  addParameters_(getSubstitutionModelParameters(true));
   addParameters_(getRootFrequenciesParameters(true));
   addParameters_(getRateDistributionParameters(true));
   addParameters_(getBranchLengthParameters(true));
@@ -184,7 +185,7 @@ ParameterList SubstitutionProcessCollectionMember::getDerivableParameters() cons
 
 ParameterList SubstitutionProcessCollectionMember::getNonDerivableParameters() const
 {
-  ParameterList pl=getSubstitutionModelParameters(true);
+  ParameterList pl = getSubstitutionModelParameters(true);
   pl.includeParameters(getRootFrequenciesParameters(true));
   pl.includeParameters(getRateDistributionParameters(true));
 
@@ -198,11 +199,13 @@ ParameterList SubstitutionProcessCollectionMember::getNonDerivableParameters() c
 ParameterList SubstitutionProcessCollectionMember::getSubstitutionModelParameters(bool independent) const
 {
   ParameterList pl;
-  
+
   // Then we update all models in the set:
   std::map<size_t, std::vector<int> >::const_iterator it;
-  for (it= modelToNodes_.begin(); it != modelToNodes_.end() ; it++)
+  for (it = modelToNodes_.begin(); it != modelToNodes_.end(); it++)
+  {
     pl.includeParameters(pSubProColl_->getSubstitutionModelParameters(it->first, independent));
+  }
 
   return pl;
 }
@@ -242,23 +245,25 @@ inline size_t SubstitutionProcessCollectionMember::getNumberOfClasses() const
 
 void SubstitutionProcessCollectionMember::addModel(size_t numModel, const std::vector<int>& nodesId)
 {
-  const SubstitutionModel& nmod=pSubProColl_->getModel(numModel);
-  
-  if (modelToNodes_.size()>0){
-    const SubstitutionModel& modi=pSubProColl_->getModel(modelToNodes_.begin()->first);
+  const SubstitutionModel& nmod = pSubProColl_->getModel(numModel);
+
+  if (modelToNodes_.size() > 0)
+  {
+    const SubstitutionModel& modi = pSubProColl_->getModel(modelToNodes_.begin()->first);
     if (nmod.getAlphabet()->getAlphabetType() !=  modi.getAlphabet()->getAlphabetType())
       throw Exception("SubstitutionProcessCollectionMember::addModel. A Substitution Model cannot be added to a Model Set if it does not have the same alphabet.");
     if (nmod.getNumberOfStates() != modi.getNumberOfStates())
       throw Exception("SubstitutionProcessCollectionMember::addModel. A Substitution Model cannot be added to a Model Set if it does not have the same number of states.");
   }
-  else if (!stationarity_) {
-    const FrequenciesSet& freq=pSubProColl_->getFrequencies(nRoot_);
+  else if (!stationarity_)
+  {
+    const FrequenciesSet& freq = pSubProColl_->getFrequencies(nRoot_);
     if (freq.getAlphabet()->getAlphabetType() != nmod.getAlphabet()->getAlphabetType())
       throw Exception("SubstitutionProcessCollectionMember::addModel. A Substitution Model cannot be added to a Model Set if it does not have the same alphabet as the root frequencies.");
     if (freq.getFrequencies().size() != nmod.getNumberOfStates())
       throw Exception("SubstitutionProcessCollectionMember::addModel. A Substitution Model cannot be added to a Model Set if it does not have the same number of states as the root frequencies.");
   }
-  
+
   // Associate this model to specified nodes:
   for (size_t i = 0; i < nodesId.size(); i++)
   {
@@ -274,81 +279,82 @@ void SubstitutionProcessCollectionMember::addModel(size_t numModel, const std::v
 
 void SubstitutionProcessCollectionMember::setRootFrequencies(size_t numFreq)
 {
-  const FrequenciesSet& freq=pSubProColl_->getFrequencies(numFreq);
-  if (modelToNodes_.size()>0){
-    const SubstitutionModel& modi=pSubProColl_->getModel(modelToNodes_.begin()->first);
+  const FrequenciesSet& freq = pSubProColl_->getFrequencies(numFreq);
+  if (modelToNodes_.size() > 0)
+  {
+    const SubstitutionModel& modi = pSubProColl_->getModel(modelToNodes_.begin()->first);
 
     if (freq.getAlphabet()->getAlphabetType() != modi.getAlphabet()->getAlphabetType())
       throw Exception("SubstitutionProcessCollectionMember::setRootFrequencies. A Frequencies Set cannot be added to a Model Set if it does not have the same alphabet as the models.");
     if (freq.getFrequencies().size() != modi.getNumberOfStates())
       throw Exception("SubstitutionProcessCollectionMember::setRootFrequencies. A Frequencies Set cannot be added to a Model Set if it does not have the same number of states as the models.");
   }
-  
-  stationarity_=false;
-  nRoot_=numFreq;
+
+  stationarity_ = false;
+  nRoot_ = numFreq;
 
   updateParameters();
 }
 
 bool SubstitutionProcessCollectionMember::checkOrphanNodes(bool throwEx) const
-  throw (Exception)
+throw (Exception)
 {
   vector<int> ids = getTree().getNodesId();
   int rootId = getTree().getRootId();
   for (size_t i = 0; i < ids.size(); i++)
+  {
+    if (ids[i] != rootId && nodeToModel_.find(ids[i]) == nodeToModel_.end())
     {
-      if (ids[i] != rootId && nodeToModel_.find(ids[i]) == nodeToModel_.end())
-        {
-          if (throwEx) throw Exception("SubstitutionProcessCollectionMember::checkOrphanNodes(). Node '" + TextTools::toString(ids[i]) + "' in tree has no model associated.");
-          return false;
-        }
+      if (throwEx)
+        throw Exception("SubstitutionProcessCollectionMember::checkOrphanNodes(). Node '" + TextTools::toString(ids[i]) + "' in tree has no model associated.");
+      return false;
     }
+  }
   return true;
 }
 
 bool SubstitutionProcessCollectionMember::checkUnknownNodes(bool throwEx) const
-  throw (Exception)
+throw (Exception)
 {
   vector<int> ids = getTree().getNodesId();
 
   int id;
   int rootId = getTree().getRootId();
   std::map<size_t, std::vector<int> >::const_iterator it;
-  
-  for (it=modelToNodes_.begin(); it!=modelToNodes_.end(); it++)
+
+  for (it = modelToNodes_.begin(); it != modelToNodes_.end(); it++)
+  {
+    for (size_t j = 0; j < it->second.size(); j++)
     {
-      for (size_t j = 0; j < it->second.size(); j++)
-        {
-          id = it->second[j];
-          if (id == rootId || !VectorTools::contains(ids, id))
-            {
-              if (throwEx)
-                throw Exception("SubstitutionProcessCollectionMember::checkUnknownNodes(). Node '" + TextTools::toString(id) + "' is not found in tree or is the root node.");
-              return false;
-            }
-        }
+      id = it->second[j];
+      if (id == rootId || !VectorTools::contains(ids, id))
+      {
+        if (throwEx)
+          throw Exception("SubstitutionProcessCollectionMember::checkUnknownNodes(). Node '" + TextTools::toString(id) + "' is not found in tree or is the root node.");
+        return false;
+      }
     }
+  }
   return true;
 }
 
 bool SubstitutionProcessCollectionMember::hasMixedSubstitutionModel() const
 {
   std::map<size_t, std::vector<int> >::const_iterator it;
-  for (it= modelToNodes_.begin(); it != modelToNodes_.end() ; it++)
-    {
-      if (dynamic_cast<const MixedSubstitutionModel*>(&pSubProColl_->getModel(it->first)) != NULL)
-        return true;
-    }
+  for (it = modelToNodes_.begin(); it != modelToNodes_.end(); it++)
+  {
+    if (dynamic_cast<const MixedSubstitutionModel*>(&pSubProColl_->getModel(it->first)) != NULL)
+      return true;
+  }
   return false;
 }
 
 /*
  * Inheriting from SubstitutionProcess
  */
-  
 bool SubstitutionProcessCollectionMember::isCompatibleWith(const SiteContainer& data) const
 {
-  if (modelToNodes_.size() > 0) 
+  if (modelToNodes_.size() > 0)
     return data.getAlphabet()->getAlphabetType() == pSubProColl_->getModel(modelToNodes_.begin()->first).getAlphabet()->getAlphabetType();
   else
     return true;
@@ -365,9 +371,9 @@ inline const SubstitutionModel* SubstitutionProcessCollectionMember::getModelFor
 
 inline size_t SubstitutionProcessCollectionMember::getNumberOfStates() const
 {
-  if (modelToNodes_.size()==0)
+  if (modelToNodes_.size() == 0)
     return 0;
-  else 
+  else
     return getModel(modelToNodes_.begin()->first)->getNumberOfStates();
 }
 
@@ -378,13 +384,14 @@ inline const SubstitutionModel& SubstitutionProcessCollectionMember::getSubstitu
 
 inline double SubstitutionProcessCollectionMember::getInitValue(size_t i, int state) const throw (BadIntException)
 {
-  if (modelToNodes_.size()==0)
+  if (modelToNodes_.size() == 0)
     throw Exception("SubstitutionProcessCollectionMember::getInitValue : no model associated");
   else
-    return getModel(modelToNodes_.begin()->first)->getInitValue(i,state);
+    return getModel(modelToNodes_.begin()->first)->getInitValue(i, state);
 }
 
-inline double SubstitutionProcessCollectionMember::getProbabilityForModel(size_t classIndex) const {
+inline double SubstitutionProcessCollectionMember::getProbabilityForModel(size_t classIndex) const
+{
   if (classIndex >= getRateDistribution()->getNumberOfCategories())
     throw IndexOutOfBoundsException("SubstitutionProcessCollectionMember::getProbabilityForModel.", classIndex, 0, getRateDistribution()->getNumberOfCategories());
   return getRateDistribution()->getProbability(classIndex);
@@ -394,15 +401,17 @@ inline Vdouble SubstitutionProcessCollectionMember::getClassProbabilities() cons
 {
   Vdouble vProb;
 
-  for (size_t i=0;i<getRateDistribution()->getNumberOfCategories(); i++)
+  for (size_t i = 0; i < getRateDistribution()->getNumberOfCategories(); i++)
+  {
     vProb.push_back(getRateDistribution()->getProbability(i));
+  }
 
   return vProb;
 }
 
-inline double SubstitutionProcessCollectionMember::getRateForModel(size_t classIndex) const {
+inline double SubstitutionProcessCollectionMember::getRateForModel(size_t classIndex) const
+{
   if (classIndex >= getRateDistribution()->getNumberOfCategories())
     throw IndexOutOfBoundsException("SubstitutionProcessCollectionMember::getRateForModel.", classIndex, 0, getRateDistribution()->getNumberOfCategories());
   return getRateDistribution()->getCategory(classIndex);
 }
-

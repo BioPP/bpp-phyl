@@ -88,7 +88,7 @@ protected:
   /**
    * @brief The map of model states with alphabet states.
    */
-  std::auto_ptr<StateMap> stateMap_;
+  std::unique_ptr<StateMap> stateMap_;
 
   /**
    * @brief The size of the generator, i.e. the number of states.

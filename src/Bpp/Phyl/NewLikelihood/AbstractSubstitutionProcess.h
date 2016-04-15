@@ -63,7 +63,7 @@ namespace bpp
     public virtual AbstractParameterAliasable
   {
   protected:
-    std::auto_ptr<ParametrizableTree> pTree_;
+    std::unique_ptr<ParametrizableTree> pTree_;
 
     size_t nbClasses_;
 

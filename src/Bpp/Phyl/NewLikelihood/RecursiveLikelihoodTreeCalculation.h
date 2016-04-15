@@ -83,7 +83,7 @@ namespace bpp
       public AbstractLikelihoodTreeCalculation
     {
     private:
-      mutable std::auto_ptr<RecursiveLikelihoodTree> likelihoodData_;
+      mutable std::unique_ptr<RecursiveLikelihoodTree> likelihoodData_;
       int root1_, root2_; // Needed only in case of reparametrization of branch length at root node.
       // TODO: have to be initialized properly! We do not care of that for now. jdutheil on 11/12/12.
 

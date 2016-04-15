@@ -55,7 +55,7 @@ DecompositionSubstitutionCount::DecompositionSubstitutionCount(const ReversibleS
   jMat_(nbStates_, nbStates_),
   v_(nbStates_, nbStates_),
   vInv_(nbStates_, nbStates_),
-  lambda_(nbStates_, nbStates_),
+  lambda_(nbStates_),
   bMatrices_(reg->getNumberOfSubstitutionTypes()),
   insideProducts_(reg->getNumberOfSubstitutionTypes()),
   counts_(reg->getNumberOfSubstitutionTypes()),
@@ -166,7 +166,7 @@ void DecompositionSubstitutionCount::computeCounts_(double length) const
     for (size_t j = 0; j < nbStates_; j++) {
       for (size_t k = 0; k < nbStates_; k++) {
         counts_[i](j, k) /= P(j, k);
-        if (isnan(counts_[i](j, k)) || counts_[i](j, k) < 0.) {
+        if (std::isnan(counts_[i](j, k)) || counts_[i](j, k) < 0.) {
           counts_[i](j, k) = 0.;
         //Weights:
         if (weights_)
