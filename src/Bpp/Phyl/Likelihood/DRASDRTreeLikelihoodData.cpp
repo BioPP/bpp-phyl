@@ -125,6 +125,7 @@ void DRASDRTreeLikelihoodData::initLikelihoods(const Node* node, const SiteConta
       leavesLikelihoods_leaf_i->resize(nbStates_);
       int state = seq->getValue(i);
       double test = 0.;
+
       for (size_t s = 0; s < nbStates_; s++)
       {
         // Leaves likelihood are set to 1 if the char correspond to the site in the sequence,
@@ -133,7 +134,7 @@ void DRASDRTreeLikelihoodData::initLikelihoods(const Node* node, const SiteConta
         test += ( *leavesLikelihoods_leaf_i)[s];
       }
       if (test < 0.000001)
-        std::cerr << "WARNING!!! Likelihood will be 0 for this site." << std::endl;
+        std::cerr << "WARNING!!! Likelihood will be 0 for site " << i << std::endl;
     }
   }
 

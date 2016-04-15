@@ -1,3 +1,6 @@
+07/04/16 Julien Dutheil
+* Fixed bug in EB calculation for states at leaf nodes.
+
 03/03/15 Julien Dutheil
 * Added KrKcSubstitutionRegister for proteins.
 * Refactoring of SubstitutionModel hierarchy.
