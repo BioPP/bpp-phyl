@@ -55,7 +55,7 @@ DecompositionSubstitutionCount::DecompositionSubstitutionCount(const ReversibleS
   jMat_(nbStates_, nbStates_),
   v_(nbStates_, nbStates_),
   vInv_(nbStates_, nbStates_),
-  lambda_(nbStates_, nbStates_),
+  lambda_(nbStates_),
   bMatrices_(reg->getNumberOfSubstitutionTypes()),
   insideProducts_(reg->getNumberOfSubstitutionTypes()),
   counts_(reg->getNumberOfSubstitutionTypes()),
