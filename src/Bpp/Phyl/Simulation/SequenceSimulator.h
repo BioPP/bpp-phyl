@@ -60,9 +60,7 @@ class SequenceSimulator:
     SequenceSimulator() {}
     virtual ~SequenceSimulator() {}
 
-#ifndef NO_VIRTUAL_COV
     SequenceSimulator* clone() const = 0;
-#endif
   
   public:
     virtual SiteContainer* simulate(size_t numberOfSites) const = 0;

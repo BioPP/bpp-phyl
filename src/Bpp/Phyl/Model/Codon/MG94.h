@@ -90,12 +90,7 @@ public:
 
   ~MG94();
 
-#ifndef NO_VIRTUAL_COV
-  MG94*
-#else
-  Clonable*
-#endif
-  clone() const { return new MG94(*this); }
+  MG94* clone() const { return new MG94(*this); }
 
 public:
   std::string getName() const { return "MG94"; }

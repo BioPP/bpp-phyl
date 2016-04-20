@@ -117,13 +117,7 @@ class MarginalAncestralStateReconstruction:
       return *this;
     }
 
-
-#ifndef NO_VIRTUAL_COV
-    MarginalAncestralStateReconstruction*
-#else
-    Clonable*
-#endif
-    clone() const { return new MarginalAncestralStateReconstruction(*this); }
+    MarginalAncestralStateReconstruction* clone() const { return new MarginalAncestralStateReconstruction(*this); }
 
 		virtual ~MarginalAncestralStateReconstruction() {}
 
@@ -177,12 +171,7 @@ class MarginalAncestralStateReconstruction:
       return getAncestralSequences(false);
     }
 
-#ifndef NO_VIRTUAL_COV
-    AlignedSequenceContainer *
-#else
-    SequenceContainer *
-#endif
-    getAncestralSequences(bool sample) const;
+    AlignedSequenceContainer * getAncestralSequences(bool sample) const;
 	
   private:
 		void recursiveMarginalAncestralStates(

@@ -167,9 +167,7 @@ namespace bpp
       return *this;
     }
 
-#ifndef NO_VIRTUAL_COV
     AbstractMapping* clone() const = 0;
-#endif
   
     virtual ~AbstractMapping() {}
   

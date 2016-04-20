@@ -63,9 +63,7 @@ namespace bpp
     CodonSubstitutionModel() {}
     virtual ~CodonSubstitutionModel() {}
 
-#ifndef NO_VIRTUAL_COV
     virtual CodonSubstitutionModel* clone() const = 0;
-#endif
 
   public:
 
@@ -93,9 +91,7 @@ namespace bpp
     CodonReversibleSubstitutionModel() {}
     virtual ~CodonReversibleSubstitutionModel() {}
 
-#ifndef NO_VIRTUAL_COV
     virtual CodonReversibleSubstitutionModel* clone() const = 0;
-#endif
   };
 
 } // end of namespace bpp.

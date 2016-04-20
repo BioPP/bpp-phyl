@@ -59,9 +59,7 @@ class ClockTreeLikelihood:
   public virtual TreeLikelihood
 {
   public:
-#ifndef NO_VIRTUAL_COV
     ClockTreeLikelihood * clone() const = 0;
-#endif
 
     virtual ~ClockTreeLikelihood() {}
 };
@@ -76,9 +74,7 @@ class DiscreteRatesAcrossSitesClockTreeLikelihood:
   public virtual DiscreteRatesAcrossSitesTreeLikelihood
 {
   public:
-#ifndef NO_VIRTUAL_COV
     DiscreteRatesAcrossSitesClockTreeLikelihood * clone() const = 0;
-#endif
 
     virtual ~DiscreteRatesAcrossSitesClockTreeLikelihood() {}
 

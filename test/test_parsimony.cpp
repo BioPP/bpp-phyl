@@ -50,9 +50,9 @@ using namespace std;
 int main() {
   try {
     Newick treeReader;
-    auto_ptr<Tree> tree(treeReader.read("example1.mp.dnd"));
+    unique_ptr<Tree> tree(treeReader.read("example1.mp.dnd"));
     Phylip alnReader(false, false);
-    auto_ptr<SiteContainer> sites(alnReader.readAlignment("example1.ph", &AlphabetTools::DNA_ALPHABET));
+    unique_ptr<SiteContainer> sites(alnReader.readAlignment("example1.ph", &AlphabetTools::DNA_ALPHABET));
 
     DRTreeParsimonyScore pars(*tree, *sites, true, true);
   

@@ -59,11 +59,7 @@ public:
   TreeParsimonyScore() {}
   virtual ~TreeParsimonyScore() {}
 
-#if defined(NO_VIRTUAL_COV)
-  Clonable* clone() const = 0;
-#else
   TreeParsimonyScore* clone() const = 0;
-#endif
 
 public:
   /**

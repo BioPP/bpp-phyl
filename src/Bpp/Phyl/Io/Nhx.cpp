@@ -96,12 +96,7 @@ const string Nhx::getFormatDescription() const
 
 /******************************************************************************/
 
-#if defined(NO_VIRTUAL_COV)
-    Tree*
-#else
-    TreeTemplate<Node>* 
-#endif
-Nhx::read(istream& in) const throw (Exception)
+TreeTemplate<Node>* Nhx::read(istream& in) const throw (Exception)
 {
   // Checking the existence of specified file
   if (! in) { throw IOException ("Nhx ::read: failed to read from stream"); }

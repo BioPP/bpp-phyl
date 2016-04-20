@@ -104,12 +104,7 @@ public:
 
   virtual ~CodonRateFrequenciesSubstitutionModel(){}
 
-#ifndef NO_VIRTUAL_COV
-  CodonRateFrequenciesSubstitutionModel*
-#else
-  Clonable*
-#endif
-  clone() const { return new CodonRateFrequenciesSubstitutionModel(*this); }
+  CodonRateFrequenciesSubstitutionModel* clone() const { return new CodonRateFrequenciesSubstitutionModel(*this); }
 
 public:
   void fireParameterChanged(const ParameterList& parameterlist);

@@ -66,12 +66,7 @@ const string Newick::getFormatDescription() const
 
 /******************************************************************************/
 
-#if defined(NO_VIRTUAL_COV)
-    Tree*
-#else
-    TreeTemplate<Node> * 
-#endif
-Newick::read(istream& in) const throw (Exception)
+TreeTemplate<Node> * Newick::read(istream& in) const throw (Exception)
 {
   // Checking the existence of specified file
   if (! in) { throw IOException ("Newick::read: failed to read from stream"); }

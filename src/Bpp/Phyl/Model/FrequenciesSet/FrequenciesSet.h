@@ -66,9 +66,8 @@ namespace bpp
     public virtual ParameterAliasable
   {
   public:
-#ifndef NO_VIRTUAL_COV
+    
     FrequenciesSet* clone() const = 0;
-#endif
 
   public:
     /**
@@ -145,12 +144,7 @@ namespace bpp
       name_(name)
     {}
 
-#ifndef NO_VIRTUAL_COV
-    AbstractFrequenciesSet*
-#else
-    Clonable*
-#endif
-    clone() const = 0;
+    AbstractFrequenciesSet* clone() const = 0;
 
     AbstractFrequenciesSet(const AbstractFrequenciesSet& af) :
       AbstractParameterAliasable(af),

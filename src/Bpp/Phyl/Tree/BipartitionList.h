@@ -5,7 +5,7 @@
 //
 
 /*
-Copyright or © or Copr. CNRS, (November 16, 2004)
+Copyright or © or Copr. Bio++ Development Team, (November 16, 2004)
 
 This software is a computer program whose purpose is to provide classes
 for phylogenetic data analysis.
@@ -120,12 +120,7 @@ class BipartitionList:
 
     virtual ~BipartitionList();
 
-#ifndef NO_VIRTUAL_COV
-    BipartitionList*
-#else
-    Clonable*
-#endif
-    clone() const { return new BipartitionList(*this); }
+    BipartitionList* clone() const { return new BipartitionList(*this); }
 
   public:
 

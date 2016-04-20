@@ -56,12 +56,8 @@ class TreeDrawingListener :
   public virtual Clonable
 {
 public:
-#ifndef NO_VIRTUAL_COV
-  TreeDrawingListener*
-#else
-  Clonable*
-#endif
-  clone() const = 0;
+
+  TreeDrawingListener* clone() const = 0;
 
   virtual void beforeDrawTree(const DrawTreeEvent& event) = 0;
   virtual void afterDrawTree(const DrawTreeEvent& event) = 0;
