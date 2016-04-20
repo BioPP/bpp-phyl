@@ -37,8 +37,8 @@ The fact that you are presently reading this means that you have had
 knowledge of the CeCILL license and that you accept its terms.
 */
 
-#include <Bpp/Phyl/TreeTemplate.h>
-#include <Bpp/Phyl/TreeTemplateTools.h>
+#include <Bpp/Phyl/Tree/TreeTemplate.h>
+#include <Bpp/Phyl/Tree/TreeTemplateTools.h>
 #include <string>
 #include <vector>
 #include <iostream>
@@ -49,20 +49,24 @@ using namespace std;
 int main() {
   //Get some leaf names:
   vector<string> leaves(100);
+
   for (size_t i = 0; i < leaves.size(); ++i)
     leaves[i] = "leaf" + TextTools::toString(i);
   
   //Testing rerooting:
   //Get a random topology:
-  auto_ptr< TreeTemplate<Node> > tr(TreeTemplateTools::getRandomTree(leaves, true));
+  unique_ptr< TreeTemplate<Node> > tr(TreeTemplateTools::getRandomTree(leaves, true));
   //Set random branch lengths:
+
   vector<Node*> nodes = tr->getNodes();
   for (size_t i = 0; i < nodes.size(); ++i) {
     if (nodes[i]->hasFather())
       nodes[i]->setDistanceToFather(RandomTools::giveRandomNumberBetweenZeroAndEntry(1.));
   }
+  
   double totalLen = TreeTools::getTotalLength(*tr.get(), tr->getRootId(), false);
   ApplicationTools::displayResult("Total length", totalLen);
+
   for (unsigned int i = 0; i < 100; ++i) {
     size_t pos = RandomTools::giveIntRandomNumberBetweenZeroAndEntry<size_t>(100);
     tr->rootAt(nodes[pos]);

@@ -151,15 +151,17 @@ void DRASRTreeLikelihoodData::initLikelihoods(const Node* node, const SiteContai
       {
         Vdouble* _likelihoods_node_i_c = &(*_likelihoods_node_i)[c];
         double test = 0.;
+
         for (size_t s = 0; s < nbStates_; s++)
         {
           // Leaves likelihood are set to 1 if the char correspond to the site in the sequence,
           // otherwise value set to 0:
+          
           (*_likelihoods_node_i_c)[s] = model.getInitValue(s, state);
           test += (*_likelihoods_node_i_c)[s];
         }
         if (test < 0.000001)
-          std::cerr << "WARNING!!! Likelihood will be 0 for this site." << std::endl;
+          std::cerr << "WARNING!!! Likelihood will be 0 for site " << i << std::endl;
       }
     }
   }
@@ -248,6 +250,7 @@ SitePatterns* DRASRTreeLikelihoodData::initLikelihoodsWithPatterns(const Node* n
     {
       VVdouble* _likelihoods_node_i = &(*_likelihoods_node)[i];
       int state = seq->getValue(i);
+      
       for (size_t c = 0; c < nbClasses_; c++)
       {
         Vdouble* _likelihoods_node_i_c = &(*_likelihoods_node_i)[c];
@@ -261,7 +264,7 @@ SitePatterns* DRASRTreeLikelihoodData::initLikelihoodsWithPatterns(const Node* n
           test += (*_likelihoods_node_i_c)[s];
         }
         if (test < 0.000001)
-          std::cerr << "WARNING!!! Likelihood will be 0 for this site." << std::endl;
+          std::cerr << "WARNING!!! Likelihood will be 0 for site " << i << std::endl;
       }
     }
   }

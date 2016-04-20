@@ -145,12 +145,14 @@ AbstractWordSubstitutionModel::AbstractWordSubstitutionModel(
   unsigned int num,
   const std::string& prefix) :
   AbstractParameterAliasable(prefix),
-  AbstractSubstitutionModel(new WordAlphabet(pmodel->getAlphabet(), num), pmodel->getStateMap().clone(), prefix),
+  AbstractSubstitutionModel(new WordAlphabet(pmodel->getAlphabet(), num), 0, prefix),
   new_alphabet_ (true),
   VSubMod_      (),
   VnestedPrefix_(),
   Vrate_         (num)
 {
+  stateMap_ = unique_ptr<StateMap>(new CanonicalStateMap(getAlphabet(), false));
+
   enableEigenDecomposition(false);
   size_t i;
 

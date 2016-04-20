@@ -61,8 +61,8 @@ WordSubstitutionModel::WordSubstitutionModel(
   const std::string& prefix) :
   AbstractParameterAliasable((prefix == "") ? "Word." : prefix),
   AbstractWordSubstitutionModel(
-      modelList,
-      (prefix == "") ? "Word." : prefix)
+    modelList,
+    (prefix == "") ? "Word." : prefix)
 {
   size_t i, nbmod = VSubMod_.size();
 
@@ -134,8 +134,8 @@ void WordSubstitutionModel::completeMatrices()
     j = i;
     for (p = nbmod; p > 0; p--)
     {
-      m = VSubMod_[p-1]->getNumberOfStates();
-      freq_[i] *= VSubMod_[p-1]->getFrequencies()[j % m];
+      m = VSubMod_[p - 1]->getNumberOfStates();
+      freq_[i] *= VSubMod_[p - 1]->getFrequencies()[j % m];
       j /= m;
     }
   }
@@ -175,6 +175,7 @@ const RowMatrix<double>& WordSubstitutionModel::getPij_t(double d) const
       pijt_(i, j) = x;
     }
   }
+
   return pijt_;
 }
 
@@ -303,5 +304,3 @@ string WordSubstitutionModel::getName() const
 {
   return "Word";
 }
-
-

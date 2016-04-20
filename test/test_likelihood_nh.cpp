@@ -53,12 +53,11 @@ knowledge of the CeCILL license and that you accept its terms.
 #include <Bpp/Phyl/NewLikelihood/NonHomogeneousSubstitutionProcess.h>
 #include <Bpp/Phyl/NewLikelihood/SimpleSubstitutionProcess.h>
 #include <Bpp/Phyl/NewLikelihood/RateAcrossSitesSubstitutionProcess.h>
-#include <Bpp/Phyl/NewLikelihood/SinglePhyloLikelihood.h>
+#include <Bpp/Phyl/NewLikelihood/PhyloLikelihoods/SingleProcessPhyloLikelihood.h>
 
 #include <iostream>
 
 using namespace bpp;
-using namespace newlik;
 using namespace std;
 
 void fitModelNH(SubstitutionModelSet* model, DiscreteDistribution* rdist, const Tree& tree, const SiteContainer& sites,
@@ -104,7 +103,7 @@ int main() {
   map<string, string> alias;
 
   SubstitutionModelSet* modelSet = SubstitutionModelSetTools::createNonHomogeneousModelSet(model, rootFreqs, tree, alias, globalParameterNames);
-  auto_ptr<SubstitutionModelSet> modelSetSim(modelSet->clone());
+  unique_ptr<SubstitutionModelSet> modelSetSim(modelSet->clone());
 
   NonHomogeneousSubstitutionProcess* subPro= NonHomogeneousSubstitutionProcess::createNonHomogeneousSubstitutionProcess(model2, rdist2, rootFreqs2, parTree, globalParameterNames);
 
@@ -137,20 +136,12 @@ int main() {
     OutputStream* messenger = new StlOutputStream(new ofstream("messages.txt", ios::out));
 
     //Simulate data:
-<<<<<<< HEAD
-    auto_ptr<SiteContainer> sites(simulator.simulate(nsites));
-
-    //Now fit model:
-    auto_ptr<SubstitutionModelSet> modelSet2(modelSet->clone());
-
-    RNonHomogeneousTreeLikelihood tl(*tree, *sites.get(), modelSet, rdist, true, true, false);
-=======
     unique_ptr<SiteContainer> sites(simulator.simulate(nsites));
+
     //Now fit model:
     unique_ptr<SubstitutionModelSet> modelSet2(modelSet->clone());
-    unique_ptr<SubstitutionModelSet> modelSet3(modelSet->clone());
-    RNonHomogeneousTreeLikelihood tl(*tree, *sites.get(), modelSet2.get(), rdist, true, true, false);
->>>>>>> master
+
+    RNonHomogeneousTreeLikelihood tl(*tree, *sites.get(), modelSet, rdist, true, true, false);
     tl.initialize();
 
     RNonHomogeneousTreeLikelihood tl2(*tree, *sites.get(), modelSet2.get(), rdist, true, true, true);
@@ -159,11 +150,11 @@ int main() {
     SubstitutionProcess* nsubPro=subPro->clone();
     SubstitutionProcess* nsubPro2=subPro2->clone();
     
-    SingleRecursiveTreeLikelihoodCalculation* tlComp = new SingleRecursiveTreeLikelihoodCalculation(*sites->clone(), nsubPro, true, false);
-    SinglePhyloLikelihood ntl(nsubPro, tlComp, true);
+    RecursiveLikelihoodTreeCalculation* tlComp = new RecursiveLikelihoodTreeCalculation(*sites->clone(), nsubPro, true, false);
+    SingleProcessPhyloLikelihood ntl(nsubPro, tlComp, true);
 
-    SingleRecursiveTreeLikelihoodCalculation* tlComp2 = new SingleRecursiveTreeLikelihoodCalculation(*sites->clone(), nsubPro2, true);
-    SinglePhyloLikelihood ntl2(nsubPro2, tlComp2, true);
+    RecursiveLikelihoodTreeCalculation* tlComp2 = new RecursiveLikelihoodTreeCalculation(*sites->clone(), nsubPro2, true);
+    SingleProcessPhyloLikelihood ntl2(nsubPro2, tlComp2, true);
 
     for (size_t i = 0; i < nmodels; ++i) {
       ntl.setParameterValue("T92.theta_" + TextTools::toString(i + 1), thetas[i]);

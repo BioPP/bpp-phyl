@@ -717,7 +717,8 @@ SubstitutionModel* BppOSubstitutionModelFormat::read(
           model.reset(new BinarySubstitutionModel(balpha));
       }
       else
-        throw Exception("Model '" + modelName + "' unknown.");
+        throw Exception("Model '" + modelName + "' unknown, or does not fit alphabet.");
+        
     }
     if (verbose_)
       ApplicationTools::displayResult("Substitution model", modelName);
@@ -1088,6 +1089,8 @@ MixedSubstitutionModel* BppOSubstitutionModelFormat::readMixed_(const Alphabet* 
       throw Exception("The argument 'model' is missing from MixedSubstitutionModel description");
     string nestedModelDescription = args["model"];
     BppOSubstitutionModelFormat nestedReader(alphabetCode_, allowCovarions_, true, allowGaps_, false, warningLevel_);
+    if (geneticCode_)
+      nestedReader.setGeneticCode(geneticCode_); //This uses the same instance as the one that will be used by the model.
     pSM.reset(nestedReader.read(alphabet, nestedModelDescription, data, false));
     map<string, string> unparsedParameterValuesNested(nestedReader.getUnparsedArguments());
 
@@ -1169,6 +1172,8 @@ MixedSubstitutionModel* BppOSubstitutionModelFormat::readMixed_(const Alphabet* 
     for (unsigned i = 0; i < v_nestedModelDescription.size(); i++)
     {
       BppOSubstitutionModelFormat nestedReader(alphabetCode_, false, true, false, false, warningLevel_);
+      if (geneticCode_)
+        nestedReader.setGeneticCode(geneticCode_); //This uses the same instance as the one that will be used by the model.
       pSM.reset(nestedReader.read(alphabet, v_nestedModelDescription[i], data, false));
       map<string, string> unparsedParameterValuesNested(nestedReader.getUnparsedArguments());
       for (map<string, string>::iterator it = unparsedParameterValuesNested.begin(); it != unparsedParameterValuesNested.end(); it++)
@@ -1417,17 +1422,17 @@ void BppOSubstitutionModelFormat::writeMixed_(const MixedSubstitutionModel& mode
   {
     const MixtureOfSubstitutionModels* pMS = dynamic_cast<const MixtureOfSubstitutionModels*>(&model);
 
-    for (unsigned int i = 0; i < pMS->getNumberOfModels(); i++)
-    {
-      const SubstitutionModel* eM = pMS->getNModel(i);
+    // for (unsigned int i = 0; i < pMS->getNumberOfModels(); i++)
+    // {
+    //   const SubstitutionModel* eM = pMS->getNModel(i);
 
-      vector<string> vpl = eM->getIndependentParameters().getParameterNames();
-      for (unsigned j = 0; j < vpl.size(); j++)
-      {
-        if (eM->getParameterNameWithoutNamespace(vpl[j]) == "rate")
-          writtenNames.push_back(vpl[j]);
-      }
-    }
+    //   vector<string> vpl = eM->getIndependentParameters().getParameterNames();
+    //   for (unsigned j = 0; j < vpl.size(); j++)
+    //   {
+    //     if (eM->getParameterNameWithoutNamespace(vpl[j]) == "rate")
+    //       writtenNames.push_back(vpl[j]);
+    //   }
+    // }
 
     out << "Mixture(";
     for (unsigned int i = 0; i < pMS->getNumberOfModels(); i++)
@@ -1451,19 +1456,14 @@ void BppOSubstitutionModelFormat::writeMixed_(const MixedSubstitutionModel& mode
     {
       if (find(writtenNames.begin(), writtenNames.end(), vpl[j]) == writtenNames.end())
       {
-        if (eM->getParameterNameWithoutNamespace(vpl[j]) == "rate")
-          writtenNames.push_back(vpl[j]);
-        else
+        const DiscreteDistribution* pDD = pMS->getDistribution(vpl[j]);
+        if (pDD && dynamic_cast<const ConstantDistribution*>(pDD) == NULL)
         {
-          const DiscreteDistribution* pDD = pMS->getDistribution(vpl[j]);
-          if (pDD && dynamic_cast<const ConstantDistribution*>(pDD) == NULL)
-          {
-            const BppODiscreteDistributionFormat* bIO = new BppODiscreteDistributionFormat();
-            StdStr sout;
-            bIO->write(*pDD, sout, globalAliases, writtenNames);
-            globalAliases[vpl[j]] = sout.str();
-            delete bIO;
-          }
+          const BppODiscreteDistributionFormat* bIO = new BppODiscreteDistributionFormat();
+          StdStr sout;
+          bIO->write(*pDD, sout, globalAliases, writtenNames);
+          globalAliases[vpl[j]] = sout.str();
+          delete bIO;
         }
       }
     }
