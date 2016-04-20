@@ -5,36 +5,36 @@
 //
 
 /*
-Copyright or © or Copr. Bio++ Development Team, (November 16, 2004)
+  Copyright or © or Copr. Bio++ Development Team, (November 16, 2004)
 
-This software is a computer program whose purpose is to provide classes
-for phylogenetic data analysis.
+  This software is a computer program whose purpose is to provide classes
+  for phylogenetic data analysis.
 
-This software is governed by the CeCILL  license under French law and
-abiding by the rules of distribution of free software.  You can  use, 
-modify and/ or redistribute the software under the terms of the CeCILL
-license as circulated by CEA, CNRS and INRIA at the following URL
-"http://www.cecill.info". 
+  This software is governed by the CeCILL  license under French law and
+  abiding by the rules of distribution of free software.  You can  use, 
+  modify and/ or redistribute the software under the terms of the CeCILL
+  license as circulated by CEA, CNRS and INRIA at the following URL
+  "http://www.cecill.info". 
 
-As a counterpart to the access to the source code and  rights to copy,
-modify and redistribute granted by the license, users are provided only
-with a limited warranty  and the software's author,  the holder of the
-economic rights,  and the successive licensors  have only  limited
-liability. 
+  As a counterpart to the access to the source code and  rights to copy,
+  modify and redistribute granted by the license, users are provided only
+  with a limited warranty  and the software's author,  the holder of the
+  economic rights,  and the successive licensors  have only  limited
+  liability. 
 
-In this respect, the user's attention is drawn to the risks associated
-with loading,  using,  modifying and/or developing or reproducing the
-software by the user in light of its specific status of free software,
-that may mean  that it is complicated to manipulate,  and  that  also
-therefore means  that it is reserved for developers  and  experienced
-professionals having in-depth computer knowledge. Users are therefore
-encouraged to load and test the software's suitability as regards their
-requirements in conditions enabling the security of their systems and/or 
-data to be ensured and,  more generally, to use and operate it in the 
-same conditions as regards security. 
+  In this respect, the user's attention is drawn to the risks associated
+  with loading,  using,  modifying and/or developing or reproducing the
+  software by the user in light of its specific status of free software,
+  that may mean  that it is complicated to manipulate,  and  that  also
+  therefore means  that it is reserved for developers  and  experienced
+  professionals having in-depth computer knowledge. Users are therefore
+  encouraged to load and test the software's suitability as regards their
+  requirements in conditions enabling the security of their systems and/or 
+  data to be ensured and,  more generally, to use and operate it in the 
+  same conditions as regards security. 
 
-The fact that you are presently reading this means that you have had
-knowledge of the CeCILL license and that you accept its terms.
+  The fact that you are presently reading this means that you have had
+  knowledge of the CeCILL license and that you accept its terms.
 */
 
 #ifndef _NHX_H_
@@ -84,53 +84,53 @@ namespace bpp
  * All node annotations are stored as node properties, with type bppString for all properties except for support values, where a Number is used.
  *
  */
-class Nhx:
-  public AbstractITree,
-  public AbstractOTree,
-  public AbstractIMultiTree,
-  public AbstractOMultiTree
-{
+  class Nhx:
+    public AbstractITree,
+    public AbstractOTree,
+    public AbstractIMultiTree,
+    public AbstractOMultiTree
+  {
   private:
     struct Element
     {
-      public:
-        std::string content;
-        std::string length;
-        std::string annotation;
-        bool isLeaf;
+    public:
+      std::string content;
+      std::string length;
+      std::string annotation;
+      bool isLeaf;
   
-      public:
-        Element() : content(), length(), annotation(), isLeaf(false) {}
+    public:
+      Element() : content(), length(), annotation(), isLeaf(false) {}
     };
   
   public:
     struct Property
     {
-      public:
-        /**
-         * @brief The name of the property, which will be used in parsed trees.
-         */
-        std::string name;
-        /**
-         * @brief The tag of the property, as it will be found in the tree file.
-         */
-        std::string tag;
-        /**
-         * @brief Tells if the property is a branch property instead of a node property.
-         */
-        bool onBranch;
-        /**
-         * @brief The type of the property. 0 is string, 1 is integer, 2 is double, 3 is boolean.
-         */
-        short type;
+    public:
+      /**
+       * @brief The name of the property, which will be used in parsed trees.
+       */
+      std::string name;
+      /**
+       * @brief The tag of the property, as it will be found in the tree file.
+       */
+      std::string tag;
+      /**
+       * @brief Tells if the property is a branch property instead of a node property.
+       */
+      bool onBranch;
+      /**
+       * @brief The type of the property. 0 is string, 1 is integer, 2 is double, 3 is boolean.
+       */
+      short type;
 
-      public:
-        Property(const std::string& pptName, const std::string& pptTag, bool pptOnBranch = false, short pptType = 0):
-          name(pptName), tag(pptTag), onBranch(pptOnBranch), type(pptType) {}
+    public:
+      Property(const std::string& pptName, const std::string& pptTag, bool pptOnBranch = false, short pptType = 0):
+        name(pptName), tag(pptTag), onBranch(pptOnBranch), type(pptType) {}
 
-        bool operator<(const Property& ppt) const {
-          return (name < ppt.name);
-        }
+      bool operator<(const Property& ppt) const {
+        return (name < ppt.name);
+      }
 
     };
 
@@ -264,6 +264,7 @@ class Nhx:
 
     Element getElement(const std::string& elt) const throw (IOException);
 
+  public:
     Node* parenthesisToNode(const std::string& description) const;
   
     std::string propertiesToParenthesis(const Node& node) const;
@@ -272,9 +273,10 @@ class Nhx:
   
     bool setNodeProperties(Node& node, const std::string properties) const;
 
+  protected:
     static std::string propertyToString_(const Clonable* pptObject, short type) throw (Exception);
     static Clonable* stringToProperty_(const std::string& pptDesc, short type) throw (Exception);
-};
+  };
 
 } //end of namespace bpp.
 
