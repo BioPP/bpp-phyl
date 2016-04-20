@@ -441,12 +441,7 @@ class DistanceEstimation:
       delete optimizer_;
     }
 
-#ifndef NO_VIRTUAL_COV
-    DistanceEstimation*
-#else
-    Clonable*
-#endif
-    clone() const { return new DistanceEstimation(*this); }
+    DistanceEstimation* clone() const { return new DistanceEstimation(*this); }
     
   private:
     void init_()

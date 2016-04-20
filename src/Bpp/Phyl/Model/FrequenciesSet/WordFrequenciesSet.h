@@ -68,22 +68,18 @@ protected:
   virtual size_t getSizeFromVector(const std::vector<FrequenciesSet*>& freqVector) = 0;
   
 public:
-#ifndef NO_VIRTUAL_COV
   WordFrequenciesSet* clone() const = 0;
 
   const WordAlphabet* getAlphabet() const = 0;
-#endif
 
   /**
    *@ brief Returns the n-th FrequenciesSet&
-   **/
-
+   */
   virtual const FrequenciesSet& getFrequenciesSetForLetter(size_t i) const = 0;
 
   /**
    *@ brief Returns the length of the words
-   **/
-
+   */
   virtual size_t getLength() const = 0;
 };
 
@@ -98,12 +94,7 @@ protected:
 public:
   AbstractWordFrequenciesSet(StateMap* stateMap, const std::string& prefix = "", const std::string& name="");
 
-#ifndef NO_VIRTUAL_COV
-  AbstractWordFrequenciesSet*
-#else
-  Clonable*
-#endif
-  clone() const = 0;
+  AbstractWordFrequenciesSet* clone() const = 0;
 
   AbstractWordFrequenciesSet(const AbstractWordFrequenciesSet& af) :
     AbstractFrequenciesSet(af) {}
@@ -114,28 +105,25 @@ public:
     return *this;
   }
 
-#ifndef NO_VIRTUAL_COV
   const WordAlphabet* getAlphabet() const
   {
     return dynamic_cast<const WordAlphabet*>(AbstractFrequenciesSet::getAlphabet());
   }
-#endif
 
   virtual ~AbstractWordFrequenciesSet();
   
   /**
    *@ brief Return the length of the words
-   **/
-  
+   */
   size_t getLength() const;
 };
 
 
 /**
  * @brief the Frequencies in words are the product of Independent Frequencies in letters
+ *
  * @author Laurent Guéguen
  */
-
 class WordFromIndependentFrequenciesSet :
     public AbstractWordFrequenciesSet
 {

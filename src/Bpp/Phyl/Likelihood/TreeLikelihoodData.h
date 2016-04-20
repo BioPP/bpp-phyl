@@ -65,12 +65,7 @@ class TreeLikelihoodNodeData:
     TreeLikelihoodNodeData() {}
     virtual ~TreeLikelihoodNodeData() {}
 
-#ifndef NO_VIRTUAL_COV
-    TreeLikelihoodNodeData*
-#else
-    Clonable*
-#endif
-    clone() const = 0;
+    TreeLikelihoodNodeData* clone() const = 0;
 
   public:
     /**
@@ -106,9 +101,7 @@ class TreeLikelihoodData:
     TreeLikelihoodData() {}
     virtual ~TreeLikelihoodData() {}
     
-#ifndef NO_VIRTUAL_COV
     TreeLikelihoodData* clone() const = 0;
-#endif
 
   public:
     virtual const Alphabet* getAlphabet() const = 0;

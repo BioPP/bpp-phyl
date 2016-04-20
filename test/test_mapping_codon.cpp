@@ -109,7 +109,7 @@ int main() {
       //  return 1;
       //}
     }
-    auto_ptr<Site> site(result->getSite(*model));
+    unique_ptr<Site> site(result->getSite(*model));
     site->setPosition(static_cast<int>(i));
     sites.addSite(*site, false);
     delete result;

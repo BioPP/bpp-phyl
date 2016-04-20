@@ -517,12 +517,7 @@ public:
 
     virtual ~ScaleFunction();
 
-#ifndef NO_VIRTUAL_COV
-    ScaleFunction*
-#else
-    Clonable*
-#endif
-    clone() const { return new ScaleFunction(*this); }
+    ScaleFunction* clone() const { return new ScaleFunction(*this); }
 
 public:
     void setParameters(const ParameterList& lambda) throw (ParameterNotFoundException, ConstraintException);

@@ -203,12 +203,7 @@ public:
     for (size_t i = 0; i < modelSet_.size(); i++) { delete modelSet_[i]; }
   }
 
-#ifndef NO_VIRTUAL_COV
-  SubstitutionModelSet*
-#else
-  Clonable*
-#endif
-  clone() const { return new SubstitutionModelSet(*this); }
+  SubstitutionModelSet* clone() const { return new SubstitutionModelSet(*this); }
 
 public:
   /**

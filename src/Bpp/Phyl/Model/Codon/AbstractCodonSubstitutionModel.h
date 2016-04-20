@@ -142,12 +142,7 @@ public:
     return *this;
   }
 
-#ifndef NO_VIRTUAL_COV
-  AbstractCodonSubstitutionModel*
-#else
-  Clonable*
-#endif
-  clone() const = 0;
+  AbstractCodonSubstitutionModel* clone() const = 0;
 
 protected:
   /**

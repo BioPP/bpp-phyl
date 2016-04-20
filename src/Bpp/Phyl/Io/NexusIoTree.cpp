@@ -48,7 +48,7 @@ knowledge of the CeCILL license and that you accept its terms.
 #include <Bpp/Text/NestedStringTokenizer.h>
 #include <Bpp/Numeric/VectorTools.h>
 
-//From SeqLib:
+//From bpp-seq:
 #include <Bpp/Seq/Io/NexusTools.h>
 
 using namespace bpp;
@@ -72,12 +72,7 @@ const string NexusIOTree::getFormatDescription() const
 
 /******************************************************************************/
 
-#if defined(NO_VIRTUAL_COV)
-		Tree *
-#else
-		TreeTemplate<Node> * 
-#endif
-NexusIOTree::read(istream &in) const throw (Exception)
+TreeTemplate<Node> * NexusIOTree::read(istream &in) const throw (Exception)
 {
   vector<Tree*> trees;
   read(in, trees);

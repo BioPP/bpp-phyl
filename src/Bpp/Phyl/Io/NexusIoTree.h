@@ -89,24 +89,12 @@ class NexusIOTree:
 		 *
 		 * @{
 		 */
-#if defined(NO_VIRTUAL_COV)
-		Tree* read(const std::string& path) const throw (Exception)
-		{
-			return AbstractITree::read(path);
-		}
-#else
 		TreeTemplate<Node>* read(const std::string& path) const throw (Exception)
 		{
 			return dynamic_cast<TreeTemplate<Node>*>(AbstractITree::read(path));
 		}
-#endif
 		
-#if defined(NO_VIRTUAL_COV)
-		Tree*
-#else
-		TreeTemplate<Node>* 
-#endif
-		read(std::istream& in) const throw (Exception);
+		TreeTemplate<Node>* read(std::istream& in) const throw (Exception);
 		/** @} */
 
     /**

@@ -57,11 +57,10 @@ class CodonFrequenciesSet :
   public virtual FrequenciesSet
 {
 public:
-#ifndef NO_VIRTUAL_COV
+  
   CodonFrequenciesSet* clone() const = 0;
 
   const CodonAlphabet* getAlphabet() const = 0;
-#endif
 
 public:
   /**
@@ -131,12 +130,7 @@ public:
   FullCodonFrequenciesSet(const FullCodonFrequenciesSet& fcfs);
   FullCodonFrequenciesSet& operator=(const FullCodonFrequenciesSet& fcfs);
 
-#ifndef NO_VIRTUAL_COV
-  FullCodonFrequenciesSet*
-#else
-  Clonable*
-#endif
-  clone() const { return new FullCodonFrequenciesSet(*this); }
+  FullCodonFrequenciesSet* clone() const { return new FullCodonFrequenciesSet(*this); }
 
 public:
   const GeneticCode* getGeneticCode() const { return pgc_; }
@@ -148,12 +142,10 @@ public:
    */
   void setFrequencies(const std::vector<double>& frequencies);
 
-#ifndef NO_VIRTUAL_COV
   const CodonAlphabet* getAlphabet() const
   {
     return dynamic_cast<const CodonAlphabet*>(AbstractFrequenciesSet::getAlphabet());
   }
-#endif
 
   void setNamespace(const std::string& nameSpace);
 
@@ -202,22 +194,16 @@ public:
     return *this;
   }
 
-#ifndef NO_VIRTUAL_COV
-  FixedCodonFrequenciesSet*
-#else
-  Clonable*
-#endif
-  clone() const { return new FixedCodonFrequenciesSet(*this); }
+  FixedCodonFrequenciesSet* clone() const { return new FixedCodonFrequenciesSet(*this); }
 
 public:
   const GeneticCode* getGeneticCode() const { return pgc_; }
 
-#ifndef NO_VIRTUAL_COV
   const CodonAlphabet* getAlphabet() const
   {
     return dynamic_cast<const CodonAlphabet*>(AbstractFrequenciesSet::getAlphabet());
   }
-#endif
+  
   /**
    * @brief the given frequencies are normalized such thaat the sum of
    * the frequencies on the non-stop codons equals 1.
@@ -284,20 +270,14 @@ public:
 
   virtual ~FullPerAACodonFrequenciesSet() {}
 
-#ifndef NO_VIRTUAL_COV
-  FullPerAACodonFrequenciesSet*
-#else
-  Clonable*
-#endif
-  clone() const { return new FullPerAACodonFrequenciesSet(*this); }
+  FullPerAACodonFrequenciesSet* clone() const { return new FullPerAACodonFrequenciesSet(*this); }
 
 public:
-#ifndef NO_VIRTUAL_COV
+  
   const CodonAlphabet* getAlphabet() const
   {
     return dynamic_cast<const CodonAlphabet*>(AbstractFrequenciesSet::getAlphabet());
   }
-#endif
 
   const GeneticCode* getGeneticCode() const { return pgc_; }
 

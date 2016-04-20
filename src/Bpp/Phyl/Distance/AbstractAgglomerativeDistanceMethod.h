@@ -119,12 +119,8 @@ class AbstractAgglomerativeDistanceMethod:
      * @return A copy of the computed tree if there is one, 0 otherwise.
      */
     virtual
-#if defined(NO_VIRTUAL_COV)
-		Tree *
-#else
-		TreeTemplate<Node> * 
-#endif
-		getTree() const
+		
+		TreeTemplate<Node> * getTree() const
     {
     	//Node * root = TreeTools::cloneSubtree<Node>(* dynamic_cast<TreeTemplate<Node> *>(tree_) -> getRootNode());
 	    //return new TreeTemplate<Node>(* root);

@@ -53,11 +53,10 @@ class ProteinFrequenciesSet :
   public virtual FrequenciesSet
 {
 public:
-#ifndef NO_VIRTUAL_COV
+  
   ProteinFrequenciesSet* clone() const = 0;
 
   const ProteicAlphabet* getAlphabet() const = 0;
-#endif
 };
 
 /**
@@ -81,20 +80,13 @@ public:
   FullProteinFrequenciesSet(const ProteicAlphabet* alphabet, const std::vector<double>& initFreqs, bool allowNullFreqs = false, unsigned short method = 1, const std::string& name = "Full") :
     FullFrequenciesSet(new CanonicalStateMap(alphabet, false), initFreqs, allowNullFreqs, method, name) {}
 
-#ifndef NO_VIRTUAL_COV
-  FullProteinFrequenciesSet*
-#else
-  Clonable*
-#endif
-  clone() const { return new FullProteinFrequenciesSet(*this); }
+  FullProteinFrequenciesSet* clone() const { return new FullProteinFrequenciesSet(*this); }
 
 public:
-#ifndef NO_VIRTUAL_COV
   const ProteicAlphabet* getAlphabet() const
   {
     return dynamic_cast<const ProteicAlphabet*>(AbstractFrequenciesSet::getAlphabet());
   }
-#endif
 };
 
 /**
@@ -117,19 +109,12 @@ public:
   FixedProteinFrequenciesSet(const ProteicAlphabet* alphabet, const std::string& name = "Fixed") :
     FixedFrequenciesSet(new CanonicalStateMap(alphabet, false), name) {}
 
-#ifndef NO_VIRTUAL_COV
-  FixedProteinFrequenciesSet*
-#else
-  FixedFrequenciesSet*
-#endif
-  clone() const { return new FixedProteinFrequenciesSet(*this); }
+  FixedProteinFrequenciesSet* clone() const { return new FixedProteinFrequenciesSet(*this); }
 
-#ifndef NO_VIRTUAL_COV
   const ProteicAlphabet* getAlphabet() const
   {
     return dynamic_cast<const ProteicAlphabet*>(AbstractFrequenciesSet::getAlphabet());
   }
-#endif
 };
 
 

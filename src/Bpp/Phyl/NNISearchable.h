@@ -101,9 +101,7 @@ class NNISearchable:
 		NNISearchable() {}
 		virtual ~NNISearchable() {}
 
-#ifndef NO_VIRTUAL_COV
     virtual NNISearchable* clone() const = 0;
-#endif
 
 	public:
 

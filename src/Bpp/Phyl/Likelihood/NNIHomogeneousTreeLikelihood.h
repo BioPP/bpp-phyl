@@ -230,12 +230,7 @@ public:
 
   virtual ~NNIHomogeneousTreeLikelihood();
 
-#ifndef NO_VIRTUAL_COV
-  NNIHomogeneousTreeLikelihood*
-#else
-  Clonable*
-#endif
-  clone() const { return new NNIHomogeneousTreeLikelihood(*this); }
+  NNIHomogeneousTreeLikelihood* clone() const { return new NNIHomogeneousTreeLikelihood(*this); }
 
 public:
   void setData(const SiteContainer& sites) throw (Exception)

@@ -203,9 +203,7 @@ public:
   SubstitutionModel() {}
   virtual ~SubstitutionModel() {}
 
-#ifndef NO_VIRTUAL_COV
   SubstitutionModel* clone() const = 0;
-#endif
 
 public:
   /**

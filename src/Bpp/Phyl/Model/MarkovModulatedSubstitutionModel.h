@@ -177,12 +177,7 @@ namespace bpp
 
     virtual ~MarkovModulatedSubstitutionModel() { delete model_; }
 
-#ifndef NO_VIRTUAL_COV
-    MarkovModulatedSubstitutionModel*
-#else
-    Clonable*
-#endif
-    clone() const = 0;
+    MarkovModulatedSubstitutionModel* clone() const = 0;
 
   public:
 	  

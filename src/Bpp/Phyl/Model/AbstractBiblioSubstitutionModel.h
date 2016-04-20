@@ -77,9 +77,7 @@ namespace bpp
 
     virtual ~AbstractBiblioSubstitutionModel() {}
 
-#ifndef NO_VIRTUAL_COV
     virtual AbstractBiblioSubstitutionModel* clone() const = 0;
-#endif
 
   public:
     virtual const SubstitutionModel& getModel() const = 0;

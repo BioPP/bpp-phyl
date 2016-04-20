@@ -96,12 +96,7 @@ public:
 
   ~TripletSubstitutionModel() {};
   
-#ifndef NO_VIRTUAL_COV
-  TripletSubstitutionModel*
-#else
-  Clonable*
-#endif
-  clone() const { return new TripletSubstitutionModel(*this);}
+  TripletSubstitutionModel* clone() const { return new TripletSubstitutionModel(*this);}
   
 public:
   std::string getName() const;

@@ -98,12 +98,7 @@ class DRASRTreeLikelihoodNodeData :
       return *this;
     }
  
-#ifndef NO_VIRTUAL_COV
-    DRASRTreeLikelihoodNodeData*
-#else
-    Clonable*
-#endif
-    clone() const
+    DRASRTreeLikelihoodNodeData* clone() const
     {
       return new DRASRTreeLikelihoodNodeData(*this);
     }

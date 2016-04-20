@@ -76,12 +76,7 @@ namespace bpp
       {}
       virtual ~PhyloStatistics() {}
 
-#ifndef NO_VIRTUAL_COV
-      Clonable*
-#else
-      PhyloStatistics*
-#endif
-      clone() const { return new PhyloStatistics(*this); }
+      PhyloStatistics* clone() const { return new PhyloStatistics(*this); }
 
       /**
        * @brief Compute statistics for a given input tree.

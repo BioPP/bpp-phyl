@@ -86,9 +86,7 @@ class TopologyListener :
     TopologyListener() {}
     virtual ~TopologyListener() {}
 
-#ifndef NO_VIRTUAL_COV
     TopologyListener* clone() const = 0;
-#endif
 
   public:
 		/**

@@ -97,12 +97,7 @@ namespace bpp
 
     virtual ~TS98() {}
 
-#ifndef NO_VIRTUAL_COV
-    TS98*
-#else
-    Clonable*
-#endif
-    clone() const { return new TS98(*this); }
+    TS98* clone() const { return new TS98(*this); }
 
   public:
     std::string getName() const { return "TS98"; }

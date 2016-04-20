@@ -70,9 +70,7 @@ namespace bpp
     SubstitutionMapping() {}
     virtual ~SubstitutionMapping() {}
 
-#ifndef NO_VIRTUAL_COV
     SubstitutionMapping* clone() const = 0;
-#endif
 
   public:
     /**
@@ -103,9 +101,7 @@ public:
   AbstractSubstitutionMapping(const AbstractSubstitutionMapping& absm):
     AbstractMapping(absm) {}
 
-#ifndef NO_VIRTUAL_COV
   AbstractSubstitutionMapping* clone() const = 0;
-#endif
 
   AbstractSubstitutionMapping& operator=(const AbstractSubstitutionMapping& absm)
     {

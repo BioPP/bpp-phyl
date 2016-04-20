@@ -268,9 +268,7 @@ class TreeDrawing:
     TreeDrawing() {}
     virtual ~TreeDrawing() {}
  
-#ifndef NO_VIRTUAL_COV
     TreeDrawing* clone() const = 0;
-#endif
 
   public:
     /**

@@ -62,9 +62,7 @@ public:
   TreeParsimonyNodeData() {}
   virtual ~TreeParsimonyNodeData() {}
 
-#ifndef NO_VIRTUAL_COV
   TreeParsimonyNodeData* clone() const = 0;
-#endif
 
 public:
   /**
@@ -98,9 +96,7 @@ public:
   TreeParsimonyData() {}
   virtual ~TreeParsimonyData() {}
 
-#ifndef NO_VIRTUAL_COV
   TreeParsimonyData* clone() const = 0;
-#endif
 
 public:
   virtual const TreeTemplate<Node>* getTree() const = 0;
