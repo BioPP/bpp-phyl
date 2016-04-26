@@ -194,16 +194,6 @@ protected:
    */
   virtual void displayLikelihood(const Node* node);
 
-  virtual void setMinimumBranchLength(double brlen) throw (Exception) {
-    RHomogeneousMixedTreeLikelihood::setMinimumBranchLength(brlen);
-    for (size_t i = 0; i < treeLikelihoodsContainer_.size(); ++i)
-      treeLikelihoodsContainer_[i]->setMinimumBranchLength(brlen);
-  }
-  virtual void setMaximumBranchLength(double brlen) throw (Exception) {
-    RHomogeneousMixedTreeLikelihood::setMaximumBranchLength(brlen);
-    for (size_t i = 0; i < treeLikelihoodsContainer_.size(); ++i)
-      treeLikelihoodsContainer_[i]->setMaximumBranchLength(brlen);
-  }
 };
 } // end of namespace bpp.
 

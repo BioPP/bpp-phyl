@@ -243,7 +243,7 @@ class DrawTreeEvent
 /**
  * @brief Basal interface for tree drawing classes.
  *
- * Basicly, a TreeDrawing object draw a graph of the tree and compute the coordinates
+ * Basically, a TreeDrawing object draws a graph of the tree and computes the coordinates
  * of each node on the graph. These coordinates may be retrieved by dedicated functions.
  * The drawing is performed on a GraphicDevice object.
  *
