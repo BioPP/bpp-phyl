@@ -214,8 +214,6 @@ Vdouble OneProcessSequencePhyloLikelihood::getPosteriorRateOfEachSite() const
 
 void OneProcessSequencePhyloLikelihood::computeDLogLikelihood_(const string& variable) const
 {
-  // patch, to be fixed properly later
-  throw Exception("OneProcessSequencePhyloLikelihood::Derivative is not implemented for " + variable + " parameter.");
   tlComp_->computeTreeDLogLikelihood(variable);
 }
 
@@ -223,8 +221,6 @@ void OneProcessSequencePhyloLikelihood::computeDLogLikelihood_(const string& var
 
 void OneProcessSequencePhyloLikelihood::computeD2LogLikelihood_(const string& variable) const
 {
-  // patch, to be fixed properly later
-  throw Exception("OneProcessSequencePhyloLikelihood::Derivative is not implemented for " + variable + " parameter.");
   tlComp_->computeTreeD2LogLikelihood(variable);
 }
 

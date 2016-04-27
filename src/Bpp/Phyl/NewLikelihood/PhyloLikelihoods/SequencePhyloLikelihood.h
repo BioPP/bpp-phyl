@@ -45,6 +45,7 @@
 #include <Bpp/Seq/Container/SiteContainer.h>
 
 #include "PhyloLikelihood.h"
+#include "AbstractPhyloLikelihood.h"
 #include "SingleDataPhyloLikelihood.h"
 #include "../SequenceEvolution.h"
 
@@ -180,7 +181,7 @@ namespace bpp
       {
         if (!hasParameter(variable))
           throw ParameterNotFoundException("SequencePhyloLikelihood::getFirstOrderDerivative().", variable);
-//        if (!hasDerivableParameter(variable))
+        if (!hasDerivableParameter(variable))
         {
           throw Exception("SequencePhyloLikelihood::Derivative is not implemented for " + variable + " parameter.");
         }
@@ -193,7 +194,7 @@ namespace bpp
       {
         if (!hasParameter(variable))
           throw ParameterNotFoundException("AbstractPhyloLikelihood::getSecondOrderDerivative().", variable);
-//        if (!hasDerivableParameter(variable))
+        if (!hasDerivableParameter(variable))
         {
           throw Exception("Derivative is not implemented for " + variable + " parameter.");
         }

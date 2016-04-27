@@ -363,6 +363,7 @@ throw (Exception)
   }
 
   const_cast<RHomogeneousTreeLikelihood*>(this)->computeTreeDLikelihood(variable);
+  
   return -getDLogLikelihood();
 }
 
@@ -395,6 +396,7 @@ void RHomogeneousTreeLikelihood::computeTreeDLikelihood(const string& variable)
   size_t nbNodes = father->getNumberOfSons();
   for (size_t l = 0; l < nbNodes; l++)
   {
+
     const Node* son = father->getSon(l);
 
     vector<size_t> * _patternLinks_father_son = &likelihoodData_->getArrayPositions(father->getId(), son->getId());
@@ -615,6 +617,7 @@ throw (Exception)
   }
 
   const_cast<RHomogeneousTreeLikelihood*>(this)->computeTreeD2Likelihood(variable);
+  
   return -getD2LogLikelihood();
 }
 

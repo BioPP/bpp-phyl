@@ -122,9 +122,6 @@ ParameterList MultiProcessSequenceEvolution::getBranchLengthParameters(bool inde
 
 ParameterList MultiProcessSequenceEvolution::getNonDerivableParameters() const
 {
-  // patch, to be fixed properly later
-  return getIndependentParameters();
-
   ParameterList pl;
   
   for (size_t i=0; i<nProc_.size(); i++)
@@ -158,10 +155,17 @@ bool MultiProcessSequenceEvolution::isCompatibleWith(const SiteContainer& data) 
 
 bool MultiProcessSequenceEvolution::hasDerivableParameter(const std::string& name) const
 {
-  for (size_t i=0; i<nProc_.size(); i++)
-    if (processColl_->getSubstitutionProcess(nProc_[i]).hasDerivableParameter(name))
-      return true;
+  if (!hasParameter(name))
+    return false;
   
-  return false;
+  for (size_t i=0; i<nProc_.size(); i++)
+  {
+    const SubstitutionProcess& spcm=processColl_->getSubstitutionProcess(nProc_[i]);
+
+    if (spcm.hasParameter(name) &&  !spcm.hasDerivableParameter(name))
+      return false;
+  }
+  
+  return true;
 }
 

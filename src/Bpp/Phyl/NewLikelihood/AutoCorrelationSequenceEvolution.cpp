@@ -47,7 +47,7 @@ using namespace bpp;
 AutoCorrelationSequenceEvolution::AutoCorrelationSequenceEvolution(
   SubstitutionProcessCollection* processColl,
   std::vector<size_t>& nProc) :
-  MultiProcessSequenceEvolution(processColl, nProc, "AutoCorr."),
+  MultiProcessSequenceEvolution(processColl, nProc),
   hmmAlph_(),
   autoCorrTransMat_()
 {

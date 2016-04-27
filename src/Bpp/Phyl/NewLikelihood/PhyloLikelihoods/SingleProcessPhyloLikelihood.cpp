@@ -134,20 +134,6 @@ VVVdouble SingleProcessPhyloLikelihood::getLikelihoodForEachSiteForEachClassForE
 
 /******************************************************************************/
 
-ParameterList SingleProcessPhyloLikelihood::getNonDerivableParameters() const
-{
-  // patch, to be fixed properly later
-  return getParameters();
-
-  ParameterList pl = getSubstitutionModelParameters();
-  pl.addParameters(getRootFrequenciesParameters());
-  pl.addParameters(getRateDistributionParameters());
-
-  return pl;
-}
-
-/******************************************************************************/
-
 VVdouble SingleProcessPhyloLikelihood::getPosteriorProbabilitiesOfEachClass() const
 {
   size_t nbSites   = getNumberOfSites();
@@ -206,9 +192,6 @@ Vdouble SingleProcessPhyloLikelihood::getPosteriorRateOfEachSite() const
 
 void SingleProcessPhyloLikelihood::computeDLogLikelihood_(const string& variable) const
 {
-  // patch, to be fixed properly later
-  throw Exception("SingleProcessPhyloLikelihood::1sd Derivative is not implemented for " + variable + " parameter.");
-  
  tlComp_->computeTreeDLogLikelihood(variable);
 }
 
@@ -218,9 +201,6 @@ void SingleProcessPhyloLikelihood::computeDLogLikelihood_(const string& variable
 
 void SingleProcessPhyloLikelihood::computeD2LogLikelihood_(const string& variable) const
 {
-  // patch, to be fixed properly later
-  throw Exception("SingleProcessPhyloLikelihood::2nd Derivative is not implemented for " + variable + " parameter.");
-
   tlComp_->computeTreeD2LogLikelihood(variable);
 }
 

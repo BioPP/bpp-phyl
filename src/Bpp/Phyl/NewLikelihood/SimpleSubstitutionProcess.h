@@ -79,7 +79,8 @@ public:
 
   size_t getNumberOfModels() const { return 1; }
 
-  bool hasDerivableParameter(const std::string& name) const {
+  bool hasDerivableParameter(const std::string& name) const
+  {
     return !model_->getIndependentParameters().hasParameter(name);
   }
   

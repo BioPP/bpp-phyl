@@ -42,6 +42,7 @@
 
 
 #include "PhyloLikelihood.h"
+#include "AbstractPhyloLikelihood.h"
 #include "PhyloLikelihoodContainer.h"
 
 namespace bpp
@@ -239,7 +240,7 @@ namespace bpp
       {
         if (!hasParameter(variable))
           throw ParameterNotFoundException("AbstractPhyloLikelihood::getFirstOrderDerivative().", variable);
-//        if (!hasDerivableParameter(variable))
+        if (!hasDerivableParameter(variable))
         {
           throw Exception("AbstractPhyloLikelihood::Derivative is not implemented for " + variable + " parameter.");
         }
@@ -252,7 +253,7 @@ namespace bpp
       {
         if (!hasParameter(variable))
           throw ParameterNotFoundException("SetOfAbstractPhyloLikelihood::getSecondOrderDerivative().", variable);
-//        if (!hasDerivableParameter(variable))
+        if (!hasDerivableParameter(variable))
         {
           throw Exception("SetOfAbstractPhyloLikelihood::Derivative is not implemented for " + variable + " parameter.");
         }
@@ -313,15 +314,6 @@ namespace bpp
 
       ParameterList getDerivableParameters() const;
 
-      /**
-       * @brief All non derivable parameters.
-       *
-       * Usually, this contains all substitution model parameters and rate distribution.
-       *
-       * @return A ParameterList.
-       */
-
-      ParameterList getNonDerivableParameters() const;
 
       /** @} */
 

@@ -46,280 +46,172 @@
 namespace bpp
 {
 
+  /**
+   * @brief The PhyloLikelihood interface, for phylogenetic likelihood.
+   *
+   * This interface defines the common methods needed to compute a likelihood
+   * from a sequence alignement, usually involving one or more phylogenetic trees.
+   */
+  class PhyloLikelihood:
+    public virtual DerivableSecondOrder
+  {
+  public:
+    PhyloLikelihood() {}
+    virtual ~PhyloLikelihood() {}
+
+    PhyloLikelihood* clone() const = 0;
+
+  public:
+
     /**
-     * @brief The PhyloLikelihood interface, for phylogenetic likelihood.
      *
-     * This interface defines the common methods needed to compute a likelihood
-     * from a sequence alignement, usually involving one or more phylogenetic trees.
+     * @name The data functions
+     *
+     * @{
      */
-    class PhyloLikelihood:
-      public virtual DerivableSecondOrder
-    {
-    public:
-      PhyloLikelihood() {}
-      virtual ~PhyloLikelihood() {}
-
-      PhyloLikelihood* clone() const = 0;
-
-    public:
-
-      /**
-       *
-       * @name The data functions
-       *
-       * @{
-       */
       
-      /**
-       * @return initialize the likelihood function.
-       */
+    /**
+     * @return initialize the likelihood function.
+     */
       
-      virtual void initialize() = 0;
+    virtual void initialize() = 0;
       
-      /**
-       * @return 'true' is the likelihood function has been initialized.
-       */
-      virtual bool isInitialized() const = 0;
+    /**
+     * @return 'true' is the likelihood function has been initialized.
+     */
+    virtual bool isInitialized() const = 0;
       
-      /**
-       * @}
-       */
+    /**
+     * @}
+     */
 
-      /**
-       * @brief set it arrays should be computed in log.
-       *
-       */
+    /**
+     * @brief set it arrays should be computed in log.
+     *
+     */
 
-      virtual void setUseLog(bool useLog) = 0;
+    virtual void setUseLog(bool useLog) = 0;
 
-      /**
-       * @name The likelihood functions.
-       *
-       * @{
-       */
+    /**
+     * @name The likelihood functions.
+     *
+     * @{
+     */
       
-      /**
-       * @brief update the likelihood to get ready for computation
-       *
-       */
+    /**
+     * @brief update the likelihood to get ready for computation
+     *
+     */
 
-      virtual void updateLikelihood() const = 0;
+    virtual void updateLikelihood() const = 0;
 
-      /**
-       * @brief compute the likelihood
-       *
-       */
+    /**
+     * @brief compute the likelihood
+     *
+     */
 
-      virtual void computeLikelihood() const = 0;
+    virtual void computeLikelihood() const = 0;
 
-      /**
-       * @brief Get the logarithm of the likelihood for the whole dataset.
-       *
-       * @return The logarithm of the likelihood of the dataset.
-       */
-      virtual double getLogLikelihood() const = 0;
+    /**
+     * @brief Get the logarithm of the likelihood for the whole dataset.
+     *
+     * @return The logarithm of the likelihood of the dataset.
+     */
+    virtual double getLogLikelihood() const = 0;
       
-      /**
-       * @brief Get the derivates of the LogLikelihood.
-       *
-       */
+    /**
+     * @brief Get the derivates of the LogLikelihood.
+     *
+     */
 
-      virtual double getDLogLikelihood() const = 0;
+    virtual double getDLogLikelihood() const = 0;
 
-      virtual double getD2LogLikelihood() const = 0;
+    virtual double getD2LogLikelihood() const = 0;
 
-      virtual void computeDLogLikelihood_(const std::string& variable) const = 0;
+    virtual void computeDLogLikelihood_(const std::string& variable) const = 0;
       
-      virtual void computeD2LogLikelihood_(const std::string& variable) const = 0;
+    virtual void computeD2LogLikelihood_(const std::string& variable) const = 0;
 
 
-      /** @} */
+    /** @} */
 
-      /**
-       * @name Retrieve some particular independent parameters subsets.
-       *
-       * @{
-       */
+    /**
+     * @name Retrieve some particular independent parameters subsets.
+     *
+     * @{
+     */
     
-      /**
-       * @brief Get the independent branch lengths parameters.
-       *
-       * @return A ParameterList with all branch lengths.
-       */
+    /**
+     * @brief Get the independent branch lengths parameters.
+     *
+     * @return A ParameterList with all branch lengths.
+     */
 
-       virtual ParameterList getBranchLengthParameters() const = 0;
+    virtual ParameterList getBranchLengthParameters() const = 0;
     
-       /**
-        * @brief Get the independent parameters associated to substitution model(s).
-        *
-        * @return A ParameterList.
-        */
+    /**
+     * @brief Get the independent parameters associated to substitution model(s).
+     *
+     * @return A ParameterList.
+     */
 
-       virtual ParameterList getSubstitutionModelParameters() const = 0;
+    virtual ParameterList getSubstitutionModelParameters() const = 0;
 
-       /**
-        * @brief Get the independent parameters associated to the rate distribution(s).
-        *
-        * @return A ParameterList.
-        */
+    /**
+     * @brief Get the independent parameters associated to the rate distribution(s).
+     *
+     * @return A ParameterList.
+     */
 
-       virtual ParameterList getRateDistributionParameters() const = 0;
+    virtual ParameterList getRateDistributionParameters() const = 0;
 
-       /**
-        * @brief Get the independent parameters associated to the root frequencies(s).
-        *
-        * @return A ParameterList.
-        */
+    /**
+     * @brief Get the independent parameters associated to the root frequencies(s).
+     *
+     * @return A ParameterList.
+     */
 
-       virtual ParameterList getRootFrequenciesParameters() const = 0;
+    virtual ParameterList getRootFrequenciesParameters() const = 0;
 
-      /**
-       * @brief All independent derivable parameters.
-       *
-       * Usually, this contains all branch lengths parameters.
-       *
-       * @return A ParameterList.
-       */
+    /**
+     * @brief test that given parameter is derivable.
+     *
+     */
 
-      virtual ParameterList getDerivableParameters() const = 0;
+    virtual bool hasDerivableParameter(const std::string& variable) const = 0;
 
-      /**
-       * @brief All independent non derivable parameters.
-       *
-       * Usually, this contains all substitution model parameters and rate distribution.
-       *
-       * @return A ParameterList.
-       */
+    /**
+     * @brief All independent derivable parameters.
+     *
+     * Usually, this contains all branch lengths parameters.
+     *
+     * @return A ParameterList.
+     */
 
-      virtual ParameterList getNonDerivableParameters() const = 0;
+    virtual ParameterList getDerivableParameters() const = 0;
 
-      /** @} */
+    /**
+     * @brief All independent non derivable parameters.
+     *
+     * Usually, this contains all substitution model parameters and rate distribution.
+     *
+     * @return A ParameterList.
+     */
 
-      /**
-       * @brief Tell if derivatives must be computed.
-       *
-       * This methods calls the enableFirstOrderDerivatives and enableSecondOrderDerivatives.
-       *
-       * @param yn Yes or no.
-       */
-      virtual void enableDerivatives(bool yn) = 0;
+    virtual ParameterList getNonDerivableParameters() const = 0;
 
-    };
+    /** @} */
 
+    /**
+     * @brief Tell if derivatives must be computed.
+     *
+     * This methods calls the enableFirstOrderDerivatives and enableSecondOrderDerivatives.
+     *
+     * @param yn Yes or no.
+     */
+    virtual void enableDerivatives(bool yn) = 0;
 
-    class AbstractPhyloLikelihood :
-      public virtual PhyloLikelihood
-    {
-    protected:
-      
-      /**
-       * @brief the value
-       *
-       **/
-      
-      mutable double minusLogLik_;
-
-      /**
-       * @brief sey if derivatives should be computed
-       *
-       */
-      
-      bool computeFirstOrderDerivatives_;
-      bool computeSecondOrderDerivatives_;
-
-      // say if the Likelihoods should be recomputed
-      
-      mutable bool computeLikelihoods_;
-
-      // say if initialized
-      
-      mutable bool initialized_;
-
-    public:
-      AbstractPhyloLikelihood() :
-        minusLogLik_(0),
-        computeFirstOrderDerivatives_(true),
-        computeSecondOrderDerivatives_(true),
-        computeLikelihoods_(true),
-        initialized_(false)
-      {
-      }
-
-      AbstractPhyloLikelihood(const AbstractPhyloLikelihood& asd) :
-        minusLogLik_(asd.minusLogLik_),
-        computeFirstOrderDerivatives_(asd.computeFirstOrderDerivatives_),
-        computeSecondOrderDerivatives_(asd.computeSecondOrderDerivatives_),
-        computeLikelihoods_(asd.computeLikelihoods_),
-        initialized_(asd.initialized_)
-      {
-      }
-      
-      AbstractPhyloLikelihood& operator=(const AbstractPhyloLikelihood& asd)
-      {
-        minusLogLik_                   = asd.minusLogLik_;
-        computeFirstOrderDerivatives_  = asd.computeFirstOrderDerivatives_;
-        computeSecondOrderDerivatives_ = asd.computeSecondOrderDerivatives_;
-
-        computeLikelihoods_ = asd.computeLikelihoods_;
-        initialized_ = asd.initialized_;
-        
-        return *this;
-      }
-
-      virtual ~AbstractPhyloLikelihood() {}
-
-      AbstractPhyloLikelihood* clone() const = 0;
-
-    public:
-      /**
-       * @brief Sets the computeLikelihoods_ to true.
-       *
-       */
-      
-      void update()
-      {
-        computeLikelihoods_ = true;
-      }
-
-      virtual void initialize()
-      {
-        initialized_=true;
-      }
-
-    public:
-
-      void setParameters(const ParameterList& parameters) throw (ParameterNotFoundException, ConstraintException)
-      {
-        setParametersValues(parameters);
-      }
-
-      virtual void enableDerivatives(bool yn) { computeFirstOrderDerivatives_ = computeSecondOrderDerivatives_ = yn; }
-      virtual void enableFirstOrderDerivatives(bool yn) { computeFirstOrderDerivatives_ = yn; }
-      virtual void enableSecondOrderDerivatives(bool yn) { computeFirstOrderDerivatives_ = computeSecondOrderDerivatives_ = yn; }
-      bool enableFirstOrderDerivatives() const { return computeFirstOrderDerivatives_; }
-      bool enableSecondOrderDerivatives() const { return computeSecondOrderDerivatives_; }
-
-      bool isInitialized() const { return initialized_; }
-
-      /*
-       * @brief return the value, ie -loglikelihood
-       *
-       * !!! check on computeLikelihoods_ is not done here.
-       *
-       */
-      
-      double getValue() const throw (Exception)
-      {
-        if (!isInitialized())
-          throw Exception("AbstractPhyloLikelihood::getValue(). Instance is not initialized.");
-
-        minusLogLik_=-getLogLikelihood();
-        
-        return minusLogLik_;
-      }
-
-
-    };
+  };
 
 } //end of namespace bpp.
 

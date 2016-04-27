@@ -465,7 +465,7 @@ namespace bpp
           res+=getAboveLikelihoodArray_();
         else
           res*=getAboveLikelihoodArray_();
-        
+
         update(true, DX);
       }
     }
@@ -479,7 +479,6 @@ namespace bpp
      
     void computeUpwardToFatherBelowLikelihoods(const ComputingNode& cNode, unsigned char DX, Vint* vBrid= NULL)
     {
-
       // First check below dependencies are up to date
       
       if (!isUp2dateBelow_(ComputingNode::D0))
@@ -513,7 +512,6 @@ namespace bpp
         break;
         
       case ComputingNode::D1:
-
         cNode.setUpwardPartialLikelihoods(res,
                                           &(getBelowLikelihoodArray_(ComputingNode::D1)),
                                           ComputingNode::D0,
@@ -535,7 +533,7 @@ namespace bpp
                                               false);
           }
         }
-        
+
         break;
         
       case ComputingNode::D2:
@@ -653,10 +651,10 @@ namespace bpp
         break;
           
       case ComputingNode::D1:
-
+        
         for (size_t l = 0; l < nbSons; l++){
           setLikelihoodsFromSon_(&temp_, &dynamic_cast<RecursiveLikelihoodNode*>(getSon(l))->getToFatherBelowLikelihoodArray_(ComputingNode::D1), l);
-          
+
           for (size_t k = 0; k < nbSons; k++) 
             if (k!=l)
             {
@@ -666,8 +664,10 @@ namespace bpp
                 temp2_=VectorTools::exp(son->getToFatherBelowLikelihoodArray_(ComputingNode::D0));
                 multiplyLikelihoodsFromSon_(&temp_ , &temp2_, k);
               }
-              else
+              else{
                 multiplyLikelihoodsFromSon_(&temp_ , &son->getToFatherBelowLikelihoodArray_(ComputingNode::D0), k);
+              }
+              
             }
           
           if (l==0)

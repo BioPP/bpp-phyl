@@ -41,7 +41,6 @@
 #define _PRODUCT_OFPHYLOLIKELIHOOD_H_
 
 
-#include "PhyloLikelihood.h"
 #include "SetOfAbstractPhyloLikelihood.h"
 
 namespace bpp

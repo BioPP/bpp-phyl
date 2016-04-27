@@ -56,7 +56,7 @@
 
 #include "SingleDataPhyloLikelihood.h"
 #include "../RecursiveLikelihoodTreeCalculation.h"
-#include "PhyloLikelihood.h"
+#include "AbstractPhyloLikelihood.h"
 
 namespace bpp
 {
@@ -214,16 +214,9 @@ namespace bpp
         return process_->getSubstitutionModelParameters(true);
       }
 
-      //    ParameterList getTransitionProbabilitiesParameters() const { return process_->getTransitionProbabilitiesParameters(); }
-      // TODO: this has to be modified to deal with special cases...
       ParameterList getDerivableParameters() const {
-        // patch, to be fixed properly later
-        return ParameterList();
-
         return getBranchLengthParameters();
       }
-
-      ParameterList getNonDerivableParameters() const;
 
       /** @} */
 
@@ -260,12 +253,13 @@ namespace bpp
       {
         if (!hasParameter(variable))
           throw ParameterNotFoundException("SingleProcessPhyloLikelihood::getFirstOrderDerivative().", variable);
-//        if (!hasDerivableParameter(variable))
+        if (!hasDerivableParameter(variable))
         {
           throw Exception("SingleProcessPhyloLikelihood::getFirstOrderDerivative : Derivative is not implemented for " + variable + " parameter.");
         }
         
         computeDLogLikelihood_(variable);
+
         return -getDLogLikelihood();
       }
 
@@ -273,7 +267,7 @@ namespace bpp
       {
         if (!hasParameter(variable))
           throw ParameterNotFoundException("SingleProcessPhyloLikelihood::getSecondOrderDerivative().", variable);
-//        if (!hasDerivableParameter(variable))
+        if (!hasDerivableParameter(variable))
         {
           throw Exception("SingleProcessPhyloLikelihood::getSecondOrderDerivative : Derivative is not implemented for " + variable + " parameter.");
         }
@@ -332,6 +326,8 @@ namespace bpp
 
       double getDLogLikelihood() const
       {
+        updateLikelihood();
+        computeLikelihood();
         return tlComp_->getDLogLikelihood();
       }
 

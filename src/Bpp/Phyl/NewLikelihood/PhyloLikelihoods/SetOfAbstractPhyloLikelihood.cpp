@@ -142,32 +142,23 @@ ParameterList SetOfAbstractPhyloLikelihood::getRootFrequenciesParameters() const
 
 bool SetOfAbstractPhyloLikelihood::hasDerivableParameter(const std::string& variable) const
 {
-  // patch, to be fixed properly later
-  return false;
+  if (!hasParameter(variable))
+    return false;
+  
+  for (size_t i=0; i<nPhylo_.size(); i++)
+    if (getAbstractPhyloLikelihood(nPhylo_[i])->hasParameter(variable) && !getAbstractPhyloLikelihood(nPhylo_[i])->hasDerivableParameter(variable))
+      return false;
+
+  return true;
 }
 
 ParameterList SetOfAbstractPhyloLikelihood::getDerivableParameters() const
 {
-  // patch, to be fixed properly later
-  return ParameterList();
-
   ParameterList pl;
-  // for (std::map<size_t, AbstractPhyloLikelihood*>::const_iterator it=mSDP_.begin(); it != mSDP_.end(); it++)
-  //   pl.includeParameters(it->second->getDerivableParameters());
+  for (size_t i=0; i<nPhylo_.size(); i++)
+    pl.includeParameters(getAbstractPhyloLikelihood(nPhylo_[i])->getDerivableParameters());
   
   return pl;
-}
-
-ParameterList SetOfAbstractPhyloLikelihood::getNonDerivableParameters() const
-{
-  // patch, to be fixed properly later
-  return getParameters();
-
-  // ParameterList pl;
-  // for (std::map<size_t, AbstractPhyloLikelihood*>::const_iterator it=mSDP_.begin(); it != mSDP_.end(); it++)
-  //   pl.includeParameters(it->second->getNonDerivableParameters());
-  
-  // return pl;
 }
 
 void SetOfAbstractPhyloLikelihood::enableDerivatives(bool yn)

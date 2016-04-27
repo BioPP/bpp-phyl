@@ -72,6 +72,7 @@ SET(CPP_FILES
   Bpp/Phyl/NewLikelihood/RecursiveLikelihoodTreeCalculation.cpp
   Bpp/Phyl/NewLikelihood/ComputingNode.cpp
   Bpp/Phyl/NewLikelihood/ComputingTree.cpp
+  Bpp/Phyl/NewLikelihood/PhyloLikelihoods/AbstractPhyloLikelihood.cpp
   Bpp/Phyl/NewLikelihood/PhyloLikelihoods/SingleProcessPhyloLikelihood.cpp
   Bpp/Phyl/NewLikelihood/PhyloLikelihoods/OneProcessSequencePhyloLikelihood.cpp
   Bpp/Phyl/NewLikelihood/PhyloLikelihoods/MultiProcessSequencePhyloLikelihood.cpp
@@ -288,6 +289,7 @@ SET(H_FILES
   Bpp/Phyl/NewLikelihood/ComputingNode.h
   Bpp/Phyl/NewLikelihood/ComputingTree.h
   Bpp/Phyl/NewLikelihood/PhyloLikelihoods/PhyloLikelihood.h
+  Bpp/Phyl/NewLikelihood/PhyloLikelihoods/AbstractPhyloLikelihood.h
   Bpp/Phyl/NewLikelihood/PhyloLikelihoods/AlignedPhyloLikelihood.h
   Bpp/Phyl/NewLikelihood/PhyloLikelihoods/SingleDataPhyloLikelihood.h
   Bpp/Phyl/NewLikelihood/PhyloLikelihoods/AbstractSequencePhyloLikelihood.h

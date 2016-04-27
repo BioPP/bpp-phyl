@@ -63,7 +63,7 @@ using namespace std;
 
 int main() {
   TreeTemplate<Node>* tree1 = TreeTemplateTools::parenthesisToTree("(((A:0.1, B:0.2):0.3,C:0.1):0.2,D:0.3);");
-  TreeTemplate<Node>* tree2 = TreeTemplateTools::parenthesisToTree("((A:0.1, C:0.2):0.2,(D:0.1,B:0.2):0.1);");
+  TreeTemplate<Node>* tree2 = TreeTemplateTools::parenthesisToTree("((A:0.05, C:0.02):0.1,(D:0.01,B:0.03):0.05);");
 
   vector<string> seqNames= tree1->getLeavesNames();
   vector<int> ids = tree1->getNodesId();
@@ -167,6 +167,15 @@ int main() {
       cerr << "Problem on site " << x << endl;
   }
 
+  cout << endl;
+  
+  cout << "==========================================" << endl;
+  cout << "==========================================" << endl;
+  cout << endl;
+  
+  cout << "Optimization : " << endl;
+  cout << endl;
+
   OutputStream* profiler  = new StlOutputStream(new ofstream("profile.txt", ios::out));
   OutputStream* messenger = new StlOutputStream(new ofstream("messages.txt", ios::out));
 
@@ -174,48 +183,26 @@ int main() {
    &spl1, spl1.getParameters(), 0,
    0.0001, 10000, messenger, profiler, false, false, 1, OptimizationTools::OPTIMIZATION_NEWTON);
 
-  cerr << "Opt 1: " << c1 << endl;
+  cerr << "Opt 1: rounds " << c1 << endl;
   unsigned int c2 = OptimizationTools::optimizeNumericalParameters2(
          &spl2, spl2.getParameters(), 0,
          0.0001, 10000, messenger, profiler, false, false, 1, OptimizationTools::OPTIMIZATION_NEWTON);
 
-  cerr << "Opt 2: " << c2 << endl;
+  cerr << "Opt 2: rounds " << c2 << endl;
+
   unsigned int cM = OptimizationTools::optimizeNumericalParameters2(
                                                                     &mlc, mlc.getParameters(), 0,
                                                                     0.0001, 10000, messenger, profiler, false, false, 1, OptimizationTools::OPTIMIZATION_NEWTON);
 
   
-  cerr << setprecision(10) << "TL1:"  << spl1.getValue() << "\tTL2:" << spl2.getValue() << endl;
-  cerr << "Opt M: " << cM << endl;
+  cerr << setprecision(10) << "Ml1:"  << spl1.getValue() << "\tMl2:" << spl2.getValue() << endl;
+  
+  cerr << "Opt M rounds: " << cM << endl;
 
   cerr << "Mlc: " << mlc.getValue() << endl;
 
   mlc.getParameters().printParameters(std::cout);
   
-  //   for (size_t i = 0; i < nmodels; ++i) {
-  //     cout << modelSet2->getModel(i)->getParameter("theta").getValue() << "\t" << modelSet3->getModel(i)->getParameter("theta").getValue() << endl;
-  //     //if (abs(modelSet2->getModel(i)->getParameter("theta").getValue() - modelSet3->getModel(i)->getParameter("theta").getValue()) > 0.1)
-  //     //  return 1;
-  //     thetasEst1[i] +=  modelSet2->getModel(i)->getParameter("theta").getValue();
-  //     thetasEst2[i] +=  modelSet3->getModel(i)->getParameter("theta").getValue();
-  //   }
-  // }
-  // thetasEst1 /= static_cast<double>(nrep);
-  // thetasEst2 /= static_cast<double>(nrep);
-
-  // //Now compare estimated values to real ones:
-  // for (size_t i = 0; i < thetas.size(); ++i) {
-  //    cout << thetas[i] << "\t" << thetasEst1[i] << "\t" << thetasEst2[i] << endl;
-  //    double diff1 = abs(thetas[i] - thetasEst1[i]);
-  //    double diff2 = abs(thetas[i] - thetasEst2[i]);
-  //    if (diff1 > 0.2 || diff2 > 0.2)
-  //       return 1;
-      //}
-
-  // //-------------
-  // delete tree;
-  // delete modelSet;
-  // delete rdist;
 
   return 0;
 }

@@ -333,6 +333,10 @@ SitePatterns* RecursiveLikelihoodTree::initLikelihoodsWithPatterns_(const Node* 
 
     
   }
+  
+  if (!node->hasFather())
+    setAboveLikelihoods(nId, process.getRootFrequencies());
+
   return patterns.release();
 }
 

@@ -201,12 +201,13 @@ void RecursiveLikelihoodTreeCalculation::computeTreeDLogLikelihood(const string&
 
   nullDLikelihood_=false;
 
-  /// This is correct only if one branch is derivated
+  vector<int> lId=(*process_->getComputingTree()[0]).getLeavesId();
   
-  for (size_t c=0; c<nbClasses_; c++){
-    RecursiveLikelihoodNode* branch=(*likelihoodData_)[c].getNode(VbrId[0]);
-    branch->updateFatherBelow_(false, ComputingNode::D1);
-  }
+  for (size_t i=0;i<lId.size();i++)
+    for (size_t c=0; c<nbClasses_; c++){
+      RecursiveLikelihoodNode* branch=(*likelihoodData_)[c].getNode(lId[i]);
+      branch->updateFatherBelow_(false, ComputingNode::D1);
+    }
   
   likelihoodData_->computeLikelihoods(process_->getComputingTree(), ComputingNode::D1, &VbrId);
 
@@ -234,12 +235,13 @@ void RecursiveLikelihoodTreeCalculation::computeTreeD2LogLikelihood(const string
   nullD2Likelihood_=false;
 
 
-  /// This is correct only if one branch is derivated
+  vector<int> lId=(*process_->getComputingTree()[0]).getLeavesId();
   
-  for (size_t c=0; c<nbClasses_; c++){
-    RecursiveLikelihoodNode* branch=(*likelihoodData_)[c].getNode(VbrId[0]);
-    branch->updateFatherBelow_(false, ComputingNode::D2);
-  }
+  for (size_t i=0;i<lId.size();i++)
+    for (size_t c=0; c<nbClasses_; c++){
+      RecursiveLikelihoodNode* branch=(*likelihoodData_)[c].getNode(lId[i]);
+      branch->updateFatherBelow_(false, ComputingNode::D2);
+    }
   
   likelihoodData_->computeLikelihoods(process_->getComputingTree(), ComputingNode::D2, &VbrId);
 

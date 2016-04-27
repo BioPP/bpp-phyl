@@ -48,6 +48,7 @@
 #include <Bpp/Numeric/AbstractParametrizable.h>
 
 #include "PhyloLikelihood.h"
+#include "AbstractPhyloLikelihood.h"
 
 namespace bpp
 {

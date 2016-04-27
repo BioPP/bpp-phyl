@@ -145,9 +145,6 @@ void SubstitutionProcessCollection::addParametrizable(Parametrizable* parametriz
 
 ParameterList SubstitutionProcessCollection::getNonDerivableParameters() const
 {
-  // patch, to be fixed properly later
-  return getIndependentParameters();
-
   ParameterList pl=distColl_.getIndependentParameters();
   pl.addParameters(modelColl_.getIndependentParameters());
   pl.addParameters(freqColl_.getIndependentParameters());

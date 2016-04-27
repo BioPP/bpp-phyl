@@ -47,7 +47,7 @@ using namespace bpp;
 MixtureSequenceEvolution::MixtureSequenceEvolution(
   SubstitutionProcessCollection* processColl,
   std::vector<size_t>& nProc) :
-  MultiProcessSequenceEvolution(processColl, nProc, "Mixture."),
+  MultiProcessSequenceEvolution(processColl, nProc, ""),
   simplex_(nProc.size(), 1, false, "Mixture.")
 {
   // initialize parameters:
@@ -78,9 +78,6 @@ void MixtureSequenceEvolution::fireParameterChanged(const ParameterList& paramet
 
 ParameterList MixtureSequenceEvolution::getNonDerivableParameters() const
 {
-  // patch, to be fixed properly later
-  return getIndependentParameters();
-  
   ParameterList pl = MultiProcessSequenceEvolution::getNonDerivableParameters();
   pl.addParameters(simplex_.getParameters());
   

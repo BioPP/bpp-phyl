@@ -47,7 +47,7 @@ using namespace bpp;
 HmmSequenceEvolution::HmmSequenceEvolution(
   SubstitutionProcessCollection* processColl,
   std::vector<size_t>& nProc) :
-  MultiProcessSequenceEvolution(processColl, nProc, "HMM."),
+  MultiProcessSequenceEvolution(processColl, nProc),
   hmmAlph_(),
   hmmTransMat_()
 {

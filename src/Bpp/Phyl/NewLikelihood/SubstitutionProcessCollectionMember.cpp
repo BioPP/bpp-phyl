@@ -176,21 +176,16 @@ void SubstitutionProcessCollectionMember::updateParameters()
 
 ParameterList SubstitutionProcessCollectionMember::getDerivableParameters() const
 {
-  // patch, to be fixed properly later
-  return ParameterList();
-
   return pSubProColl_->getBranchLengthParameters(nTree_, true);
 }
 
 ParameterList SubstitutionProcessCollectionMember::getNonDerivableParameters() const
 {
-  ParameterList pl=getSubstitutionModelParameters(true);
-  pl.includeParameters(getRootFrequenciesParameters(true));
-  pl.includeParameters(getRateDistributionParameters(true));
+  ParameterList pl=getParameters();
+  ParameterList pld=getDerivableParameters();
 
-  // patch, to be fixed properly later
-  pl.includeParameters(getBranchLengthParameters(true));
-
+  pl.deleteParameters(pld.getParameterNames());
+  
   return pl;
 }
 
