@@ -88,7 +88,7 @@ namespace bpp
 
     const Alphabet* alphabet_;
 
-    std::auto_ptr<SiteContainer> shrunkData_;
+    std::unique_ptr<SiteContainer> shrunkData_;
     size_t nbSites_; 
     size_t nbStates_;
     size_t nbClasses_;

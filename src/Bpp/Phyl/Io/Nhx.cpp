@@ -96,12 +96,7 @@ const string Nhx::getFormatDescription() const
 
 /******************************************************************************/
 
-#if defined(NO_VIRTUAL_COV)
-    Tree*
-#else
-    TreeTemplate<Node>* 
-#endif
-Nhx::read(istream& in) const throw (Exception)
+TreeTemplate<Node>* Nhx::read(istream& in) const throw (Exception)
 {
   // Checking the existence of specified file
   if (! in) { throw IOException ("Nhx ::read: failed to read from stream"); }
@@ -509,9 +504,9 @@ bool Nhx::setNodeProperties(Node& node, const string properties) const
       //Property found
       string ppt = (useTagsAsPropertyNames_ ? it->tag : it->name);
       if (it->onBranch) {
-        node.setBranchProperty(ppt, *auto_ptr<Clonable>(stringToProperty_(props[it->tag], it->type)));
+        node.setBranchProperty(ppt, *unique_ptr<Clonable>(stringToProperty_(props[it->tag], it->type)));
       } else {
-        node.setNodeProperty(ppt, *auto_ptr<Clonable>(stringToProperty_(props[it->tag], it->type)));
+        node.setNodeProperty(ppt, *unique_ptr<Clonable>(stringToProperty_(props[it->tag], it->type)));
       }
     }
   }

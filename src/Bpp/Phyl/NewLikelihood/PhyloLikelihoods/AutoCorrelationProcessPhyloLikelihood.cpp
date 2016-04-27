@@ -59,12 +59,12 @@ AutoCorrelationProcessPhyloLikelihood::AutoCorrelationProcessPhyloLikelihood(
   AbstractPhyloLikelihood(),
   AbstractAlignedPhyloLikelihood(data.getNumberOfSites()),
   MultiProcessSequencePhyloLikelihood(data, processSeqEvol, nSeqEvol, nData, verbose, patterns),
-  Hpep_(0),
-  Hmm_(0)
+  Hpep_(),
+  Hmm_()
 {
-  Hpep_=std::auto_ptr<HmmProcessEmissionProbabilities>(new HmmProcessEmissionProbabilities(&processSeqEvol.getHmmProcessAlphabet(), this));
+  Hpep_ = unique_ptr<HmmProcessEmissionProbabilities>(new HmmProcessEmissionProbabilities(&processSeqEvol.getHmmProcessAlphabet(), this));
 
-  Hmm_ = auto_ptr<LogsumHmmLikelihood>(new LogsumHmmLikelihood(&processSeqEvol.getHmmProcessAlphabet(), &processSeqEvol.getHmmTransitionMatrix(), Hpep_.get(), false));
+  Hmm_ = unique_ptr<LogsumHmmLikelihood>(new LogsumHmmLikelihood(&processSeqEvol.getHmmProcessAlphabet(), &processSeqEvol.getHmmTransitionMatrix(), Hpep_.get(), false));
 }
 
 void AutoCorrelationProcessPhyloLikelihood::setNamespace(const std::string& nameSpace)
@@ -82,5 +82,3 @@ void AutoCorrelationProcessPhyloLikelihood::fireParameterChanged(const Parameter
 
   Hmm_->matchParametersValues(parameters);
 }
-
-

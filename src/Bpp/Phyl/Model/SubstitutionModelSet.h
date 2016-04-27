@@ -121,7 +121,7 @@ private:
   /**
    * @brief Root frequencies.
    */
-  std::auto_ptr<FrequenciesSet> rootFrequencies_;
+  std::unique_ptr<FrequenciesSet> rootFrequencies_;
 
   /**
    * @brief Contains for each node in a tree the index of the corresponding model in modelSet_
@@ -152,7 +152,7 @@ public:
     alphabet_(alpha),
     nbStates_(0),
     modelSet_(),
-    rootFrequencies_(0),
+    rootFrequencies_(),
     nodeToModel_(),
     modelToNodes_(),
     modelParameters_(),
@@ -172,7 +172,7 @@ public:
     alphabet_(alpha),
     nbStates_(0),
     modelSet_(),
-    rootFrequencies_(0),
+    rootFrequencies_(),
     nodeToModel_(),
     modelToNodes_(),
     modelParameters_(),
@@ -185,7 +185,6 @@ public:
    * @brief Resets all the information contained in this object.
    *
    */
-   
   void clear();
   
   /**
@@ -193,7 +192,6 @@ public:
    *
    * @param rootFreqs The FrequenciesSet for root frequencies.
    */
-
   void setRootFrequencies(FrequenciesSet* rootFreqs);
 
   SubstitutionModelSet(const SubstitutionModelSet& set);
@@ -205,12 +203,7 @@ public:
     for (size_t i = 0; i < modelSet_.size(); i++) { delete modelSet_[i]; }
   }
 
-#ifndef NO_VIRTUAL_COV
-  SubstitutionModelSet*
-#else
-  Clonable*
-#endif
-  clone() const { return new SubstitutionModelSet(*this); }
+  SubstitutionModelSet* clone() const { return new SubstitutionModelSet(*this); }
 
 public:
   /**

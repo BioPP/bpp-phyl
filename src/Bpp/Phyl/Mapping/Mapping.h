@@ -64,9 +64,7 @@ namespace bpp
     Mapping() {}
     virtual ~Mapping() {}
 
-#ifndef NO_VIRTUAL_COV
     Mapping* clone() const = 0;
-#endif
 
   public:
     
@@ -131,7 +129,7 @@ namespace bpp
     virtual public Mapping
   {
   private:
-    std::auto_ptr<const TreeTemplate<Node> > tree_;
+    std::unique_ptr<const TreeTemplate<Node> > tree_;
     std::vector<int> sitesPositions_;
     std::vector<const Node *> nodes_;
     size_t nbSites_;
@@ -169,9 +167,7 @@ namespace bpp
       return *this;
     }
 
-#ifndef NO_VIRTUAL_COV
     AbstractMapping* clone() const = 0;
-#endif
   
     virtual ~AbstractMapping() {}
   

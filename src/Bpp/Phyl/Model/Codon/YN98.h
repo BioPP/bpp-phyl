@@ -90,7 +90,7 @@ class YN98 :
     public virtual CodonReversibleSubstitutionModel
 {
 private:
-  std::auto_ptr<CodonDistanceFrequenciesSubstitutionModel> pmodel_;
+  std::unique_ptr<CodonDistanceFrequenciesSubstitutionModel> pmodel_;
 
 public:
   YN98(const GeneticCode* gc, FrequenciesSet* codonFreqs);

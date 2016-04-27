@@ -55,37 +55,62 @@ VVVdouble DRTreeLikelihoodTools::getPosteriorProbabilitiesForEachStateForEachRat
   
   const DiscreteDistribution* rDist = drl.getRateDistribution();
   Vdouble rcProbs = rDist->getProbabilities();
-  VVVdouble larray;
-  drl.computeLikelihoodAtNode(nodeId, larray);
-    
-  Vdouble likelihoods(nSites, 0);
-  for(size_t i = 0; i < nSites; i++)
+  if (drl.getTree().isLeaf(nodeId))
   {
-    VVdouble * larray_i = & larray[i];
-    for(size_t c = 0; c < nClasses; c++)
+    VVdouble larray = drl.getLikelihoodData()->getLeafLikelihoods(nodeId);
+    for (size_t i = 0; i < nSites; i++)
     {
-      Vdouble * larray_i_c = & (* larray_i)[c];
-      for(size_t s = 0; s < nStates; s++)
+      VVdouble * postProb_i = & postProb[i];
+      postProb_i->resize(nClasses);
+      Vdouble * larray_i = & larray[i];
+      //In case of generic character:
+      double sumprobs = VectorTools::sum(*larray_i);
+      for (size_t c = 0; c < nClasses; c++)
       {
-        likelihoods[i] += (* larray_i_c)[s];
+        Vdouble * postProb_i_c = & (* postProb_i)[c];
+        postProb_i_c->resize(nStates);
+        double * rcProb = & rcProbs[c];
+        for (size_t x = 0; x < nStates; x++)
+        {
+          (* postProb_i_c)[x] = (* larray_i)[x] * (* rcProb) / sumprobs;
+        }
       }
     }
   }
-    
-  for(size_t i = 0; i < nSites; i++)
+  else
   {
-    VVdouble * postProb_i = & postProb[i];
-    postProb_i->resize(nClasses);
-    VVdouble * larray_i = & larray[i];
-    double likelihood = likelihoods[i];
-    for(size_t c = 0; c < nClasses; c++)
+    VVVdouble larray;
+    drl.computeLikelihoodAtNode(nodeId, larray);
+    
+    Vdouble likelihoods(nSites, 0);
+    for(size_t i = 0; i < nSites; i++)
     {
-      Vdouble * postProb_i_c = & (* postProb_i)[c];
-      postProb_i_c->resize(nStates);
-      Vdouble * larray_i_c = & (* larray_i)[c];
-      for(size_t x = 0; x < nStates; x++)
+      VVdouble * larray_i = & larray[i];
+      for(size_t c = 0; c < nClasses; c++)
       {
-        (* postProb_i_c)[x] = (* larray_i_c)[x] / likelihood;
+        Vdouble * larray_i_c = & (* larray_i)[c];
+        for(size_t s = 0; s < nStates; s++)
+        {
+          likelihoods[i] += (* larray_i_c)[s];
+        }
+      }
+    }
+    
+    for(size_t i = 0; i < nSites; i++)
+    {
+      VVdouble * postProb_i = & postProb[i];
+      postProb_i->resize(nClasses);
+      VVdouble * larray_i = & larray[i];
+      double likelihood = likelihoods[i];
+      for(size_t c = 0; c < nClasses; c++)
+      {
+        Vdouble * postProb_i_c = & (* postProb_i)[c];
+        postProb_i_c->resize(nStates);
+        Vdouble * larray_i_c = & (* larray_i)[c];
+        for(size_t x = 0; x < nStates; x++)
+        {
+          (* postProb_i_c)[x] = (* larray_i_c)[x] / likelihood;
+        }
       }
     }
   }

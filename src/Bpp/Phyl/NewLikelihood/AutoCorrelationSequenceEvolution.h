@@ -60,8 +60,8 @@ namespace bpp
       public MultiProcessSequenceEvolution
     {
     private:
-      std::auto_ptr<HmmProcessAlphabet> hmmAlph_;
-      std::auto_ptr<AutoCorrelationTransitionMatrix> autoCorrTransMat_;
+      std::unique_ptr<HmmProcessAlphabet> hmmAlph_;
+      std::unique_ptr<AutoCorrelationTransitionMatrix> autoCorrTransMat_;
   
     public:
       AutoCorrelationSequenceEvolution(
@@ -77,8 +77,8 @@ namespace bpp
       {
         MultiProcessSequenceEvolution::operator=(mlc);
 
-        hmmAlph_=std::auto_ptr<HmmProcessAlphabet>(new HmmProcessAlphabet(*mlc.hmmAlph_.get()));
-        autoCorrTransMat_=std::auto_ptr<AutoCorrelationTransitionMatrix>(new AutoCorrelationTransitionMatrix(*mlc.autoCorrTransMat_.get()));
+        hmmAlph_ = std::unique_ptr<HmmProcessAlphabet>(new HmmProcessAlphabet(*mlc.hmmAlph_.get()));
+        autoCorrTransMat_ = std::unique_ptr<AutoCorrelationTransitionMatrix>(new AutoCorrelationTransitionMatrix(*mlc.autoCorrTransMat_.get()));
         
         return *this;
       }

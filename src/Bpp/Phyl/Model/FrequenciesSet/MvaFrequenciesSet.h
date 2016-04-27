@@ -64,12 +64,7 @@ public:
    */
 	MvaFrequenciesSet(const ProteicAlphabet* alpha);
 	
-#ifndef NO_VIRTUAL_COV
-	MvaFrequenciesSet*
-#else
-	Clonable*
-#endif
-	clone() const { return new MvaFrequenciesSet(*this); }
+	MvaFrequenciesSet* clone() const { return new MvaFrequenciesSet(*this); }
 	
 	MvaFrequenciesSet& operator=(const MvaFrequenciesSet& mfs)
 	{

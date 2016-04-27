@@ -166,7 +166,7 @@ throw (Exception)
   ParameterList pl = parameters;
 
   // Shall we reparametrize the function to remove constraints?
-  auto_ptr<DerivableSecondOrder> frep;
+  unique_ptr<DerivableSecondOrder> frep;
   if (reparametrization)
   {
     frep.reset(new ReparametrizationDerivableSecondOrderWrapper(f, parameters));
@@ -269,7 +269,7 @@ throw (Exception)
   ParameterList pl = parameters;
 
   // Shall we reparametrize the function to remove constraints?
-  auto_ptr<DerivableSecondOrder> frep;
+  unique_ptr<DerivableSecondOrder> frep;
   if (reparametrization)
   {
     frep.reset(new ReparametrizationDerivableSecondOrderWrapper(f, parameters));
@@ -372,7 +372,7 @@ throw (Exception)
   DerivableSecondOrder* f = tl;
   ParameterList pl = parameters;
   // Shall we use a molecular clock constraint on branch lengths?
-  auto_ptr<GlobalClockTreeLikelihoodFunctionWrapper> fclock;
+  unique_ptr<GlobalClockTreeLikelihoodFunctionWrapper> fclock;
   if (useClock)
   {
     fclock.reset(new GlobalClockTreeLikelihoodFunctionWrapper(tl));
@@ -385,7 +385,7 @@ throw (Exception)
     pl.addParameters(fclock->getHeightParameters());
   }
   // Shall we reparametrize the function to remove constraints?
-  auto_ptr<DerivableSecondOrder> frep;
+  unique_ptr<DerivableSecondOrder> frep;
   if (reparametrization)
   {
     frep.reset(new ReparametrizationDerivableSecondOrderWrapper(f, pl));
@@ -395,9 +395,9 @@ throw (Exception)
     pl = f->getParameters().subList(pl.getParameterNames());
   }
 
-  auto_ptr<AbstractNumericalDerivative> fnum;
+  unique_ptr<AbstractNumericalDerivative> fnum;
   // Build optimizer:
-  auto_ptr<Optimizer> optimizer;
+  unique_ptr<Optimizer> optimizer;
   if (optMethodDeriv == OPTIMIZATION_GRADIENT)
   {
     fnum.reset(new TwoPointsNumericalDerivative(f));
@@ -466,8 +466,8 @@ throw (Exception)
   DerivableSecondOrder* f = lik;
   ParameterList pl = parameters;
   
-// Shall we use a molecular clock constraint on branch lengths?
-  // auto_ptr<GlobalClockTreeLikelihoodFunctionWrapper> fclock;
+  // Shall we use a molecular clock constraint on branch lengths?
+  // unique_ptr<GlobalClockTreeLikelihoodFunctionWrapper> fclock;
   // if (useClock)
   //   {
   //     fclock.reset(new GlobalClockTreeLikelihoodFunctionWrapper(lik));
@@ -480,7 +480,7 @@ throw (Exception)
   //     pl.addParameters(fclock->getHeightParameters());
   //   }
   // Shall we reparametrize the function to remove constraints?
-  auto_ptr<DerivableSecondOrder> frep;
+  unique_ptr<DerivableSecondOrder> frep;
   if (reparametrization)
   {
     frep.reset(new ReparametrizationDerivableSecondOrderWrapper(f, pl));
@@ -490,9 +490,9 @@ throw (Exception)
     pl = f->getParameters().subList(pl.getParameterNames());
   }
 
-  auto_ptr<AbstractNumericalDerivative> fnum;
+  unique_ptr<AbstractNumericalDerivative> fnum;
   // Build optimizer:
-  auto_ptr<Optimizer> optimizer;
+  unique_ptr<Optimizer> optimizer;
 
   if (optMethodDeriv == OPTIMIZATION_GRADIENT)
   {
@@ -868,7 +868,7 @@ DistanceMatrix* OptimizationTools::estimateDistanceMatrix(
   if (verbose > 0)
     ApplicationTools::displayTask("Estimating distance matrix", true);
   estimationMethod.computeMatrix();
-  auto_ptr<DistanceMatrix> matrix(estimationMethod.getMatrix());
+  unique_ptr<DistanceMatrix> matrix(estimationMethod.getMatrix());
   if (verbose > 0)
     ApplicationTools::displayTaskDone();
 
@@ -944,8 +944,8 @@ TreeTemplate<Node>* OptimizationTools::buildDistanceTree(
       break;                // Ends here.
 
     // Now, re-estimate parameters:
-    auto_ptr<SubstitutionModel> model(estimationMethod.getSubstitutionModel().clone());
-    auto_ptr<DiscreteDistribution> rdist(estimationMethod.getRateDistribution().clone());
+    unique_ptr<SubstitutionModel> model(estimationMethod.getSubstitutionModel().clone());
+    unique_ptr<DiscreteDistribution> rdist(estimationMethod.getRateDistribution().clone());
     DRHomogeneousTreeLikelihood tl(*tree,
                                    *estimationMethod.getData(),
                                    model.get(),

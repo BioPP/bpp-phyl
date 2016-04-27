@@ -81,12 +81,7 @@ public:
 
   virtual ~DRTreeParsimonyScore();
 
-#ifndef NO_VIRTUAL_COV
-  DRTreeParsimonyScore*
-#else
-  Clonable*
-#endif
-  clone() const { return new DRTreeParsimonyScore(*this); }
+  DRTreeParsimonyScore* clone() const { return new DRTreeParsimonyScore(*this); }
 
 private:
   void init_(const SiteContainer& data, bool verbose);

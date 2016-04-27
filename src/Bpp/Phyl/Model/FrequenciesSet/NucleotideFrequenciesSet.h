@@ -53,11 +53,11 @@ class NucleotideFrequenciesSet :
   public virtual FrequenciesSet
 {
 public:
-#ifndef NO_VIRTUAL_COV
+  
   NucleotideFrequenciesSet* clone() const = 0;
 
   const NucleicAlphabet* getAlphabet() const = 0;
-#endif
+
 };
 
 /**
@@ -83,20 +83,14 @@ public:
     getFreq_(1) = getFreq_(2) = theta / 2.;
   }
 
-#ifndef NO_VIRTUAL_COV
-  GCFrequenciesSet*
-#else
-  Clonable*
-#endif
-  clone() const { return new GCFrequenciesSet(*this); }
+  GCFrequenciesSet* clone() const { return new GCFrequenciesSet(*this); }
 
 public:
-#ifndef NO_VIRTUAL_COV
+  
   const NucleicAlphabet* getAlphabet() const
   {
     return dynamic_cast<const NucleicAlphabet*>(AbstractFrequenciesSet::getAlphabet());
   }
-#endif
 
   void setFrequencies(const std::vector<double>& frequencies);
 
@@ -134,20 +128,14 @@ public:
 
   FullNucleotideFrequenciesSet(const NucleicAlphabet* alphabet, double theta, double theta1, double theta2, bool allowNullFreqs = false, const std::string& name = "Full");
 
-#ifndef NO_VIRTUAL_COV
-  FullNucleotideFrequenciesSet*
-#else
-  Clonable*
-#endif
-  clone() const { return new FullNucleotideFrequenciesSet(*this); }
+  FullNucleotideFrequenciesSet* clone() const { return new FullNucleotideFrequenciesSet(*this); }
 
 public:
-#ifndef NO_VIRTUAL_COV
+  
   const NucleicAlphabet* getAlphabet() const
   {
     return dynamic_cast<const NucleicAlphabet*>(AbstractFrequenciesSet::getAlphabet());
   }
-#endif
 
   void setFrequencies(const std::vector<double>& frequencies);
 
@@ -176,19 +164,12 @@ public:
   FixedNucleotideFrequenciesSet(const NucleicAlphabet* alphabet, const std::string& name = "Fixed") :
     FixedFrequenciesSet(new CanonicalStateMap(alphabet, false), name) {}
 
-#ifndef NO_VIRTUAL_COV
-  FixedNucleotideFrequenciesSet*
-#else
-  NucleotideFrequenciesSet*
-#endif
-  clone() const { return new FixedNucleotideFrequenciesSet(*this); }
+  FixedNucleotideFrequenciesSet* clone() const { return new FixedNucleotideFrequenciesSet(*this); }
 
-#ifndef NO_VIRTUAL_COV
   const NucleicAlphabet* getAlphabet() const
   {
     return dynamic_cast<const NucleicAlphabet*>(AbstractFrequenciesSet::getAlphabet());
   }
-#endif
 };
 
 

@@ -73,41 +73,29 @@ namespace bpp
 
     virtual ~NexusIOTree() {}
 	
-  public:
+	public:
 
-    /**
-     * @name The IOTree interface
-     *
-     * @{
-     */
-    const std::string getFormatName() const;
-    const std::string getFormatDescription() const;
-    /* @} */
+		/**
+		 * @name The IOTree interface
+		 *
+		 * @{
+		 */
+		const std::string getFormatName() const;
+		const std::string getFormatDescription() const;
+		/* @} */
 
-    /**
-     * @name The ITree interface
-     *
-     * @{
-     */
-#if defined(NO_VIRTUAL_COV)
-    Tree* read(const std::string& path) const throw (Exception)
-    {
-      return AbstractITree::read(path);
-    }
-#else
-    TreeTemplate<Node>* read(const std::string& path) const throw (Exception)
-    {
-      return dynamic_cast<TreeTemplate<Node>*>(AbstractITree::read(path));
-    }
-#endif
+		/**
+		 * @name The ITree interface
+		 *
+		 * @{
+		 */
+		TreeTemplate<Node>* read(const std::string& path) const throw (Exception)
+		{
+			return dynamic_cast<TreeTemplate<Node>*>(AbstractITree::read(path));
+		}
 		
-#if defined(NO_VIRTUAL_COV)
-    Tree*
-#else
-    TreeTemplate<Node>* 
-#endif
-    read(std::istream& in) const throw (Exception);
-    /** @} */
+		TreeTemplate<Node>* read(std::istream& in) const throw (Exception);
+		/** @} */
 
     /**
      * @name The OTree interface

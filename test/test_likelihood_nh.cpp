@@ -92,6 +92,7 @@ int main() {
   std::vector<std::string> globalParameterNames;
   globalParameterNames.push_back("T92.kappa");
 
+  
   //Very difficult to optimize on small datasets:
   DiscreteDistribution* rdist = new GammaDiscreteRateDistribution(4, 1.0);
   
@@ -103,7 +104,8 @@ int main() {
   map<string, string> alias;
 
   SubstitutionModelSet* modelSet = SubstitutionModelSetTools::createNonHomogeneousModelSet(model, rootFreqs, tree, alias, globalParameterNames);
-  auto_ptr<SubstitutionModelSet> modelSetSim(modelSet->clone());
+
+  unique_ptr<SubstitutionModelSet> modelSetSim(modelSet->clone());
 
   NonHomogeneousSubstitutionProcess* subPro= NonHomogeneousSubstitutionProcess::createNonHomogeneousSubstitutionProcess(model2, rdist2, rootFreqs2, parTree, globalParameterNames);
 
@@ -114,17 +116,12 @@ int main() {
   size_t nmodels = modelSet->getNumberOfModels();
   vector<double> thetas(nmodels);
   vector<double> thetasEst1(nmodels);
-  vector<double> thetasEst2(nmodels);
   vector<double> thetasEst1n(nmodels);
-  vector<double> thetasEst2n(nmodels);
-
-  auto_ptr<SubstitutionModelSet> modelSet2(modelSet->clone());
 
   for (size_t i = 0; i < nmodels; ++i) {
     double theta = RandomTools::giveRandomNumberBetweenZeroAndEntry(0.99) + 0.005;
     cout << "Theta" << i << " set to " << theta << endl; 
     modelSetSim->setParameterValue("T92.theta_" + TextTools::toString(i + 1), theta);
-    modelSet2->setParameterValue("T92.theta_" + TextTools::toString(i + 1), theta);
     thetas[i] = theta;
   }
 
@@ -138,9 +135,10 @@ int main() {
     OutputStream* messenger = new StlOutputStream(new ofstream("messages.txt", ios::out));
 
     //Simulate data:
-    auto_ptr<SiteContainer> sites(simulator.simulate(nsites));
+    unique_ptr<SiteContainer> sites(simulator.simulate(nsites));
 
     //Now fit model:
+
     RNonHomogeneousTreeLikelihood tl(*tree, *sites.get(), modelSet, rdist, true, true, false);
     tl.initialize();
 

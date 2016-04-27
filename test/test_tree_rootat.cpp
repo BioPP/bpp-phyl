@@ -55,7 +55,7 @@ int main() {
   
   //Testing rerooting:
   //Get a random topology:
-  auto_ptr< TreeTemplate<Node> > tr(TreeTemplateTools::getRandomTree(leaves, true));
+  unique_ptr< TreeTemplate<Node> > tr(TreeTemplateTools::getRandomTree(leaves, true));
   //Set random branch lengths:
 
   vector<Node*> nodes = tr->getNodes();

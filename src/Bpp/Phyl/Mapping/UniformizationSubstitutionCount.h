@@ -58,8 +58,8 @@ class UniformizationSubstitutionCount:
   public AbstractSubstitutionCount,
   public AbstractWeightedSubstitutionCount
 {
-	private:
-		const SubstitutionModel* model_;
+  private:
+    const SubstitutionModel* model_;
     size_t nbStates_;
     std::vector< RowMatrix<double> > bMatrices_;
     mutable std::vector< RowMatrix<double> > power_;
@@ -67,10 +67,10 @@ class UniformizationSubstitutionCount:
     double miu_;
     mutable std::vector< RowMatrix<double> > counts_;
     mutable double currentLength_;
-	
-	public:
-		UniformizationSubstitutionCount(const SubstitutionModel* model, SubstitutionRegister* reg, const AlphabetIndex2* weights = 0);
-		
+  
+  public:
+    UniformizationSubstitutionCount(const SubstitutionModel* model, SubstitutionRegister* reg, const AlphabetIndex2* weights = 0);
+    
     UniformizationSubstitutionCount(const UniformizationSubstitutionCount& usc) :
       AbstractSubstitutionCount(usc), 
       AbstractWeightedSubstitutionCount(usc),
@@ -82,7 +82,7 @@ class UniformizationSubstitutionCount:
       miu_(usc.miu_),
       counts_(usc.counts_),
       currentLength_(usc.currentLength_)
-    {}				
+    {}        
     
     UniformizationSubstitutionCount& operator=(const UniformizationSubstitutionCount& usc)
     {
@@ -97,10 +97,10 @@ class UniformizationSubstitutionCount:
       counts_         = usc.counts_;
       currentLength_  = usc.currentLength_;
       return *this;
-    }				
-		
+    }        
+    
     virtual ~UniformizationSubstitutionCount() {}
-		
+    
     UniformizationSubstitutionCount* clone() const { return new UniformizationSubstitutionCount(*this); }
 
 public:

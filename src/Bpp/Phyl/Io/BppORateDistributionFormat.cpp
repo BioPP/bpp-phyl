@@ -66,7 +66,7 @@ DiscreteDistribution* BppORateDistributionFormat::read(
   string distName;
   map<string, string> args;
   KeyvalTools::parseProcedure(distDescription, distName, args);
-  auto_ptr<DiscreteDistribution> rDist;
+  unique_ptr<DiscreteDistribution> rDist;
 
   if (distName == "Uniform")
     throw Exception("BppO Warning: Uniform distribution is deprecated, use Constant instead.");
@@ -183,7 +183,7 @@ DiscreteDistribution* BppORateDistributionFormat::read(
     for (unsigned i = 0; i < v_nestedDistrDescr.size(); i++)
     {
       BppORateDistributionFormat nestedReader(false);
-      auto_ptr<DiscreteDistribution> pdd(nestedReader.read(v_nestedDistrDescr[i], false));
+      unique_ptr<DiscreteDistribution> pdd(nestedReader.read(v_nestedDistrDescr[i], false));
       map<string, string> unparsedArgumentsNested(nestedReader.getUnparsedArguments());
 
       for (map<string, string>::iterator it = unparsedArgumentsNested.begin(); it != unparsedArgumentsNested.end(); it++)

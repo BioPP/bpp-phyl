@@ -88,9 +88,7 @@ void fitModelHSR(SubstitutionModel* model, DiscreteDistribution* rdist, const Tr
   for (unsigned int i = 0; i < n; ++i) {
     ApplicationTools::displayGauge(i, n-1);
     RateAcrossSitesSubstitutionProcess* process = new RateAcrossSitesSubstitutionProcess(model->clone(), rdist->clone(), pTree->clone());
-
-    auto_ptr<RecursiveLikelihoodTreeCalculation> tmComp(new RecursiveLikelihoodTreeCalculation(sites, process, false, true));
-
+    unique_ptr<RecursiveLikelihoodTreeCalculation> tmComp(new RecursiveLikelihoodTreeCalculation(sites, process, false, true));
     SingleProcessPhyloLikelihood newTl(process, tmComp.release());
     
     newTl.computeLikelihood();
@@ -131,9 +129,9 @@ void fitModelHSR(SubstitutionModel* model, DiscreteDistribution* rdist, const Tr
     throw Exception("Incorrect final value.");
   tl.getParameters().printParameters(cout);
   
-
   RateAcrossSitesSubstitutionProcess* process = new RateAcrossSitesSubstitutionProcess(model->clone(), rdist->clone(), pTree->clone());
-  auto_ptr<RecursiveLikelihoodTreeCalculation> tmComp(new RecursiveLikelihoodTreeCalculation(sites, process, false, true));
+  unique_ptr<RecursiveLikelihoodTreeCalculation> tmComp(new RecursiveLikelihoodTreeCalculation(sites, process, false, true));
+
   SingleProcessPhyloLikelihood newTl(process, tmComp.release(), false);
 
   ParameterList opln1=process->getBranchLengthParameters(true);
@@ -166,7 +164,7 @@ void fitModelHDR(SubstitutionModel* model, DiscreteDistribution* rdist, const Tr
 }
 
 int main() {
-  auto_ptr<TreeTemplate<Node> > tree(TreeTemplateTools::parenthesisToTree("((A:0.01, B:0.02):0.03,C:0.01,D:0.1);"));
+  unique_ptr<TreeTemplate<Node> > tree(TreeTemplateTools::parenthesisToTree("((A:0.01, B:0.02):0.03,C:0.01,D:0.1);"));
   vector<string> seqNames= tree->getLeavesNames();
   vector<int> ids = tree->getNodesId();
   //-------------
@@ -179,8 +177,8 @@ int main() {
   sites.addSequence(BasicSequence("C", "GGTCAGACATGCCGGGAATTTGCTGAAAAGGAGCTGGTTCCCATTGCAGCCCAGGTAGACAAGGAGCATC", alphabet));
   sites.addSequence(BasicSequence("D", "TTCCAGACATGCCGGGACTTTACCGAGAAGGAGTTGTTTTCCATTGCAGCCCAGGTGGATAAGGAACATC", alphabet));
 
-  auto_ptr<SubstitutionModel> model(new T92(alphabet, 3.));
-  auto_ptr<DiscreteDistribution> rdist(new GammaDiscreteRateDistribution(4, 1.0));
+  unique_ptr<SubstitutionModel> model(new T92(alphabet, 3.));
+  unique_ptr<DiscreteDistribution> rdist(new GammaDiscreteRateDistribution(4, 1.0));
   try {
     cout << "Testing Single Tree Traversal likelihood class..." << endl;
     fitModelHSR(model.get(), rdist.get(), *tree, sites, 228.6333642493463, 198.47216106233);

@@ -63,9 +63,7 @@ public:
 
   virtual ~AbstractBiblioMixedSubstitutionModel();
 
-#ifndef NO_VIRTUAL_COV
   virtual AbstractBiblioMixedSubstitutionModel* clone() const = 0;
-#endif
 
 public:
   virtual const MixedSubstitutionModel& getMixedModel() const = 0;

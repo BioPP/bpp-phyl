@@ -55,16 +55,13 @@ class RateAcrossSitesSubstitutionProcess :
   public AbstractSubstitutionProcess
 {
 private:
-  std::auto_ptr<SubstitutionModel> model_;
-  std::auto_ptr<DiscreteDistribution> rDist_;
+  std::unique_ptr<SubstitutionModel> model_;
+  std::unique_ptr<DiscreteDistribution> rDist_;
 
   /**
    * @brief The related Computing Tree
-   *
    */
-
-  mutable std::auto_ptr<ComputingTree> computingTree_;
-
+  mutable std::unique_ptr<ComputingTree> computingTree_;
 
 public:
   RateAcrossSitesSubstitutionProcess(

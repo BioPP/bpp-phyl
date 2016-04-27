@@ -295,12 +295,7 @@ public:
 
   MixedSubstitutionModelSet& operator=(const MixedSubstitutionModelSet& set);
 
-#ifndef NO_VIRTUAL_COV
-  MixedSubstitutionModelSet*
-#else
-  Clonable*
-#endif
-  clone() const { return new MixedSubstitutionModelSet(*this); }
+  MixedSubstitutionModelSet* clone() const { return new MixedSubstitutionModelSet(*this); }
 
   /**
    * @brief Resets the list of the HyperNodes

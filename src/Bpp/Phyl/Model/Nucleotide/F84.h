@@ -96,7 +96,7 @@ namespace bpp
  * 1 & \left(1 + \kappa/\pi_Y\right) & 1 & \frac{-\pi_G-\left(1 + \kappa/\pi_Y\right)\pi_C-\pi_A}{\pi_T} \\ 
  * \end{pmatrix}
  * \f]
- * with \f$P=2k\left({frac{piC.piT}{piT+piC}}+{\frac{piA.piG}{piG+piA}}\right)-piT^2-piG^2-piC^2-piA^2+1\f$.
+ * with \f$P=2\kappa \left({\frac{\pi_C \pi_T}{\pi_T+\pi_C}}+{\frac{\pi_A \pi_G}{\pi_G+\pi_A}}\right)-\pi_T^2-\pi_G^2-\pi_C^2-\pi_A^2+1\f$.
  *
  * The normalized generator is obtained by taking the dot product of \f$S\f$ and \f$\pi\f$:
  * \f[

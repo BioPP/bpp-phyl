@@ -163,9 +163,7 @@ class TreeLikelihood:
     TreeLikelihood() {}
     virtual ~TreeLikelihood() {}
 
-#ifndef NO_VIRTUAL_COV
     TreeLikelihood* clone() const = 0;
-#endif
 
   public:
 

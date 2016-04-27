@@ -70,350 +70,350 @@ namespace bpp
  * the associated SubstitutionProcess.
  */
 
-    class SingleProcessPhyloLikelihood :
-      public AbstractSingleDataPhyloLikelihood,
-      public AbstractParametrizable
-    { 
-    protected:
-      mutable std::auto_ptr<LikelihoodTreeCalculation> tlComp_;
-      SubstitutionProcess* process_;
+  class SingleProcessPhyloLikelihood :
+    public AbstractSingleDataPhyloLikelihood,
+    public AbstractParametrizable
+  { 
+  protected:
+    mutable std::unique_ptr<LikelihoodTreeCalculation> tlComp_;
+    SubstitutionProcess* process_;
 
-      /**
-       * @brief the Substitution Process number
-       *
-       **/
+    /**
+     * @brief the Substitution Process number
+     *
+     **/
 
-      size_t nProc_;
+    size_t nProc_;
 
-    public:
-      SingleProcessPhyloLikelihood(SubstitutionProcess* process, LikelihoodTreeCalculation* tlComp, size_t nProc = 0, size_t nData = 0);
+  public:
+    SingleProcessPhyloLikelihood(SubstitutionProcess* process, LikelihoodTreeCalculation* tlComp, size_t nProc = 0, size_t nData = 0);
 
-      SingleProcessPhyloLikelihood(const SingleProcessPhyloLikelihood& lik) :
+    SingleProcessPhyloLikelihood(const SingleProcessPhyloLikelihood& lik) :
       AbstractPhyloLikelihood(lik),
       AbstractAlignedPhyloLikelihood(lik),
       AbstractSingleDataPhyloLikelihood(lik),
       AbstractParametrizable(lik),
-      tlComp_(0),
+      tlComp_(),
       process_(lik.process_),
       nProc_(lik.nProc_)
-      {
-        if (lik.tlComp_.get()) tlComp_.reset(lik.tlComp_->clone());
-      }
+    {
+      if (lik.tlComp_.get()) tlComp_.reset(lik.tlComp_->clone());
+    }
 
-      SingleProcessPhyloLikelihood& operator=(const SingleProcessPhyloLikelihood& lik)
-      {
-        AbstractSingleDataPhyloLikelihood::operator=(lik);
+    SingleProcessPhyloLikelihood& operator=(const SingleProcessPhyloLikelihood& lik)
+    {
+      AbstractSingleDataPhyloLikelihood::operator=(lik);
 
-        AbstractParametrizable::operator=(lik);
+      AbstractParametrizable::operator=(lik);
 
-        if (lik.tlComp_.get()) tlComp_.reset(lik.tlComp_->clone());
-        else tlComp_.reset();
+      if (lik.tlComp_.get()) tlComp_.reset(lik.tlComp_->clone());
+      else tlComp_.reset();
 
-        process_=lik.process_;
-        nProc_=lik.nProc_;
+      process_=lik.process_;
+      nProc_=lik.nProc_;
     
-        return *this;
-      }
+      return *this;
+    }
 
-      virtual ~SingleProcessPhyloLikelihood() {}
+    virtual ~SingleProcessPhyloLikelihood() {}
 
-      SingleProcessPhyloLikelihood* clone() const { return new SingleProcessPhyloLikelihood(*this); }
+    SingleProcessPhyloLikelihood* clone() const { return new SingleProcessPhyloLikelihood(*this); }
 
-    public:
+  public:
 
-      /**
-       * @name Handling of data
-       *
-       * @{
-       */
-      void setData(const SiteContainer& sites, size_t nData = 0)
-      {
-        AbstractSingleDataPhyloLikelihood::setData(sites, nData);
+    /**
+     * @name Handling of data
+     *
+     * @{
+     */
+    void setData(const SiteContainer& sites, size_t nData = 0)
+    {
+      AbstractSingleDataPhyloLikelihood::setData(sites, nData);
 
-        update();
+      update();
                 
-        tlComp_->setData(sites);
-      }
+      tlComp_->setData(sites);
+    }
 
-      /**
-       * @brief return a pointer to the compressed data. 
-       *
-       */
+    /**
+     * @brief return a pointer to the compressed data. 
+     *
+     */
       
-      const SiteContainer* getData() const {
-        return tlComp_->getData();
-      }
+    const SiteContainer* getData() const {
+      return tlComp_->getData();
+    }
 
-      const Alphabet* getAlphabet() const {
-        return tlComp_->getAlphabet();
-      }
+    const Alphabet* getAlphabet() const {
+      return tlComp_->getAlphabet();
+    }
 
-      /** @} */
+    /** @} */
 
-      // TODO: need to acount for model classes
-      // ConstBranchModelIterator* getNewBranchModelIterator(int nodeId) const
-      // {
-      //  return new ConstNoPartitionBranchModelIterator(modelSet_->getModelForNode(nodeId), nbDistinctSites_);
-      // }
+    // TODO: need to acount for model classes
+    // ConstBranchModelIterator* getNewBranchModelIterator(int nodeId) const
+    // {
+    //  return new ConstNoPartitionBranchModelIterator(modelSet_->getModelForNode(nodeId), nbDistinctSites_);
+    // }
 
 
-      /**
-       * @name Handling of substitution process
-       *
-       * @{
-       */
+    /**
+     * @name Handling of substitution process
+     *
+     * @{
+     */
 
-      /**
-       * @brief Get the number of model classes.
-       *
-       * @return The Number of model classes.
-       */
-      size_t getNumberOfClasses() const { return process_->getNumberOfClasses(); }
+    /**
+     * @brief Get the number of model classes.
+     *
+     * @return The Number of model classes.
+     */
+    size_t getNumberOfClasses() const { return process_->getNumberOfClasses(); }
 
-      /**
-       * @brief Get the tree (topology and branch lengths).
-       *
-       * @return The tree of this SingleProcessPhyloLikelihood object.
-       */
-      const Tree& getTree() const { return process_->getTree(); }
+    /**
+     * @brief Get the tree (topology and branch lengths).
+     *
+     * @return The tree of this SingleProcessPhyloLikelihood object.
+     */
+    const Tree& getTree() const { return process_->getTree(); }
 
-      const SubstitutionProcess& getSubstitutionProcess() const { return *process_; }
+    const SubstitutionProcess& getSubstitutionProcess() const { return *process_; }
 
-      size_t getSubstitutionProcessNumber() const { return nProc_; }
+    size_t getSubstitutionProcessNumber() const { return nProc_; }
 
-      /** @} */
+    /** @} */
 
-      /**
-       * @name Handling of parameters
-       *
-       * @{
-       */
+    /**
+     * @name Handling of parameters
+     *
+     * @{
+     */
 
-      bool hasDerivableParameter(const std::string& name) const
-      {
-        return process_->hasDerivableParameter(name);
-      }
+    bool hasDerivableParameter(const std::string& name) const
+    {
+      return process_->hasDerivableParameter(name);
+    }
       
-      ParameterList getBranchLengthParameters() const
-      {
-        return process_->getBranchLengthParameters(true);
-      }
+    ParameterList getBranchLengthParameters() const
+    {
+      return process_->getBranchLengthParameters(true);
+    }
 
-      ParameterList getRootFrequenciesParameters() const
-      {
-        return process_->getRootFrequenciesParameters(true);
-      }
+    ParameterList getRootFrequenciesParameters() const
+    {
+      return process_->getRootFrequenciesParameters(true);
+    }
 
-      ParameterList getRateDistributionParameters() const
-      {
-        return process_->getRateDistributionParameters(true);
-      }
+    ParameterList getRateDistributionParameters() const
+    {
+      return process_->getRateDistributionParameters(true);
+    }
 
-      ParameterList getSubstitutionModelParameters() const
-      {
-        return process_->getSubstitutionModelParameters(true);
-      }
+    ParameterList getSubstitutionModelParameters() const
+    {
+      return process_->getSubstitutionModelParameters(true);
+    }
 
-      ParameterList getDerivableParameters() const {
-        return getBranchLengthParameters();
-      }
+    ParameterList getDerivableParameters() const {
+      return getBranchLengthParameters();
+    }
 
-      /** @} */
+    /** @} */
 
 
-      void updateLikelihood() const
-      {
-        if (computeLikelihoods_)
-          tlComp_->updateLikelihood();
-      }
+    void updateLikelihood() const
+    {
+      if (computeLikelihoods_)
+        tlComp_->updateLikelihood();
+    }
       
-      void computeLikelihood() const
+    void computeLikelihood() const
+    {
+      if (computeLikelihoods_)
       {
-        if (computeLikelihoods_)
-        {
-          tlComp_->computeTreeLikelihood();
-          computeLikelihoods_=false;
-        }
+        tlComp_->computeTreeLikelihood();
+        computeLikelihoods_=false;
       }
+    }
 
-      bool isInitialized() const {
-        return tlComp_->isInitialized();
-      }
+    bool isInitialized() const {
+      return tlComp_->isInitialized();
+    }
 
-    protected:
-      void fireParameterChanged(const ParameterList& params);
+  protected:
+    void fireParameterChanged(const ParameterList& params);
   
-      void computeDLogLikelihood_(const std::string& variable) const;
+    void computeDLogLikelihood_(const std::string& variable) const;
 
-      void computeD2LogLikelihood_(const std::string& variable) const;
+    void computeD2LogLikelihood_(const std::string& variable) const;
 
-    public:
+  public:
 
-      double getFirstOrderDerivative(const std::string& variable) const throw (Exception)
+    double getFirstOrderDerivative(const std::string& variable) const throw (Exception)
+    {
+      if (!hasParameter(variable))
+        throw ParameterNotFoundException("SingleProcessPhyloLikelihood::getFirstOrderDerivative().", variable);
+      if (!hasDerivableParameter(variable))
       {
-        if (!hasParameter(variable))
-          throw ParameterNotFoundException("SingleProcessPhyloLikelihood::getFirstOrderDerivative().", variable);
-        if (!hasDerivableParameter(variable))
-        {
-          throw Exception("SingleProcessPhyloLikelihood::getFirstOrderDerivative : Derivative is not implemented for " + variable + " parameter.");
-        }
+        throw Exception("SingleProcessPhyloLikelihood::getFirstOrderDerivative : Derivative is not implemented for " + variable + " parameter.");
+      }
         
-        computeDLogLikelihood_(variable);
+      computeDLogLikelihood_(variable);
 
-        return -getDLogLikelihood();
-      }
+      return -getDLogLikelihood();
+    }
 
-      double getSecondOrderDerivative(const std::string& variable) const throw (Exception)
+    double getSecondOrderDerivative(const std::string& variable) const throw (Exception)
+    {
+      if (!hasParameter(variable))
+        throw ParameterNotFoundException("SingleProcessPhyloLikelihood::getSecondOrderDerivative().", variable);
+      if (!hasDerivableParameter(variable))
       {
-        if (!hasParameter(variable))
-          throw ParameterNotFoundException("SingleProcessPhyloLikelihood::getSecondOrderDerivative().", variable);
-        if (!hasDerivableParameter(variable))
-        {
-          throw Exception("SingleProcessPhyloLikelihood::getSecondOrderDerivative : Derivative is not implemented for " + variable + " parameter.");
-        }
-        computeD2LogLikelihood_(variable);
-        return -getD2LogLikelihood();
+        throw Exception("SingleProcessPhyloLikelihood::getSecondOrderDerivative : Derivative is not implemented for " + variable + " parameter.");
       }
+      computeD2LogLikelihood_(variable);
+      return -getD2LogLikelihood();
+    }
 
-      double getSecondOrderDerivative(const std::string& variable1, const std::string& variable2) const throw (Exception) { return 0; } // Not implemented for now.
+    double getSecondOrderDerivative(const std::string& variable1, const std::string& variable2) const throw (Exception) { return 0; } // Not implemented for now.
 
-      /**
-       * @return The underlying likelihood computation structure.
-       */
+    /**
+     * @return The underlying likelihood computation structure.
+     */
       
-      LikelihoodTreeCalculation* getLikelihoodCalculation() { return tlComp_.get(); }
+    LikelihoodTreeCalculation* getLikelihoodCalculation() { return tlComp_.get(); }
 
-      /**
-       * @return The underlying likelihood data structure.
-       */
-      virtual LikelihoodTree* getLikelihoodData() { return &tlComp_->getLikelihoodData(); }
+    /**
+     * @return The underlying likelihood data structure.
+     */
+    virtual LikelihoodTree* getLikelihoodData() { return &tlComp_->getLikelihoodData(); }
 
-      /**
-       * @return The underlying likelihood data structure.
-       */
-      virtual const LikelihoodTree* getLikelihoodData() const { return &tlComp_->getLikelihoodData(); }
+    /**
+     * @return The underlying likelihood data structure.
+     */
+    virtual const LikelihoodTree* getLikelihoodData() const { return &tlComp_->getLikelihoodData(); }
 
-      /**
-       * @brief set it arrays should be computed in log.
-       *
-       */
+    /**
+     * @brief set it arrays should be computed in log.
+     *
+     */
 
-      void setUseLog(bool useLog)
-      {
-        tlComp_->setAllUseLog(useLog);
-      }
+    void setUseLog(bool useLog)
+    {
+      tlComp_->setAllUseLog(useLog);
+    }
       
-      /**
-       * @brief Implements the Function interface.
-       *
-       * Update the parameter list and call the applyParameters() method.
-       * Then compute the likelihoods at each node (computeLikelihood() method)
-       * and call the getLogLikelihood() method.
-       *
-       * If a subset of the whole parameter list is passed to the function,
-       * only these parameters are updated and the other remain constant (i.e.
-       * equal to their last value).
-       *
-       */
+    /**
+     * @brief Implements the Function interface.
+     *
+     * Update the parameter list and call the applyParameters() method.
+     * Then compute the likelihoods at each node (computeLikelihood() method)
+     * and call the getLogLikelihood() method.
+     *
+     * If a subset of the whole parameter list is passed to the function,
+     * only these parameters are updated and the other remain constant (i.e.
+     * equal to their last value).
+     *
+     */
       
 
-      double getLogLikelihood() const
-      {
-        updateLikelihood();
-        computeLikelihood();
-        return tlComp_->getLogLikelihood();
-      }
+    double getLogLikelihood() const
+    {
+      updateLikelihood();
+      computeLikelihood();
+      return tlComp_->getLogLikelihood();
+    }
 
-      double getDLogLikelihood() const
-      {
-        updateLikelihood();
-        computeLikelihood();
-        return tlComp_->getDLogLikelihood();
-      }
+    double getDLogLikelihood() const
+    {
+      updateLikelihood();
+      computeLikelihood();
+      return tlComp_->getDLogLikelihood();
+    }
 
-      double getD2LogLikelihood() const
-      {
-        return tlComp_->getD2LogLikelihood();
-      }
+    double getD2LogLikelihood() const
+    {
+      return tlComp_->getD2LogLikelihood();
+    }
 
-      double getLikelihoodForASite(size_t siteIndex) const
-      {
-        updateLikelihood();
-        computeLikelihood();
-        return tlComp_->getLikelihoodForASite(siteIndex);
-      }
+    double getLikelihoodForASite(size_t siteIndex) const
+    {
+      updateLikelihood();
+      computeLikelihood();
+      return tlComp_->getLikelihoodForASite(siteIndex);
+    }
 
-      double getLogLikelihoodForASite(size_t siteIndex) const
-      {
-        updateLikelihood();
-        computeLikelihood();
-        return tlComp_->getLogLikelihoodForASite(siteIndex);
-      }
+    double getLogLikelihoodForASite(size_t siteIndex) const
+    {
+      updateLikelihood();
+      computeLikelihood();
+      return tlComp_->getLogLikelihoodForASite(siteIndex);
+    }
 
-      double getDLogLikelihoodForASite(size_t siteIndex) const {
-        return tlComp_->getDLogLikelihoodForASite(siteIndex);
-      }
+    double getDLogLikelihoodForASite(size_t siteIndex) const {
+      return tlComp_->getDLogLikelihoodForASite(siteIndex);
+    }
 
-      double getD2LogLikelihoodForASite(size_t siteIndex) const {
-        return tlComp_->getD2LogLikelihoodForASite(siteIndex);
-      }
+    double getD2LogLikelihoodForASite(size_t siteIndex) const {
+      return tlComp_->getD2LogLikelihoodForASite(siteIndex);
+    }
 
-      /**
-       * @brief Get the likelihood for each site and for each state.
-       *
-       * @return A 2d vector with all likelihoods for each site and for each state.
-       */
-      VVdouble getLikelihoodForEachSiteForEachState() const;
+    /**
+     * @brief Get the likelihood for each site and for each state.
+     *
+     * @return A 2d vector with all likelihoods for each site and for each state.
+     */
+    VVdouble getLikelihoodForEachSiteForEachState() const;
 
-      /**
-       * @brief Get the likelihood for each site and each model class.
-       *
-       * @return A two-dimension vector with all likelihoods:
-       * <code>V[i][j] =</code> likelihood of site i and model class j.
-       */
-      VVdouble getLikelihoodForEachSiteForEachClass() const;
+    /**
+     * @brief Get the likelihood for each site and each model class.
+     *
+     * @return A two-dimension vector with all likelihoods:
+     * <code>V[i][j] =</code> likelihood of site i and model class j.
+     */
+    VVdouble getLikelihoodForEachSiteForEachClass() const;
 
-      /**
-       * @brief Get the likelihood for each site and each model class and each state.
-       *
-       * @return A three-dimension vector with all likelihoods:
-       * <code>V[i][j][k} =</code> likelihood of site i and model class j and state k.
-       */
-      VVVdouble getLikelihoodForEachSiteForEachClassForEachState() const;
+    /**
+     * @brief Get the likelihood for each site and each model class and each state.
+     *
+     * @return A three-dimension vector with all likelihoods:
+     * <code>V[i][j][k} =</code> likelihood of site i and model class j and state k.
+     */
+    VVVdouble getLikelihoodForEachSiteForEachClassForEachState() const;
       
-      /** @} */
+    /** @} */
       
-      /**
-       * @brief Get the index (used for inner computations) of a given site (original alignment column).
-       *
-       * @param site An alignment position.
-       * @return The site index corresponding to the given input alignment position.
-       */
-      size_t getSiteIndex(size_t site) const throw (IndexOutOfBoundsException) {
-        return tlComp_->getSiteIndex(site);
-      }
+    /**
+     * @brief Get the index (used for inner computations) of a given site (original alignment column).
+     *
+     * @param site An alignment position.
+     * @return The site index corresponding to the given input alignment position.
+     */
+    size_t getSiteIndex(size_t site) const throw (IndexOutOfBoundsException) {
+      return tlComp_->getSiteIndex(site);
+    }
       
-      /**
-       * Utilities
-       *
-       */
+    /**
+     * Utilities
+     *
+     */
       
-      VVdouble getPosteriorProbabilitiesOfEachClass() const;
+    VVdouble getPosteriorProbabilitiesOfEachClass() const;
       
-      /**
-       * @brief Get the posterior model class (the one with maximum posterior
-       * probability) for each site.
-       *
-       * @return A vector with all model classes indexes.
-       */
-      std::vector<size_t> getClassWithMaxPostProbOfEachSite() const;
-      
-      Vdouble getPosteriorRateOfEachSite() const;
+    /**
+     * @brief Get the posterior model class (the one with maximum posterior
+     * probability) for each site.
+     *
+     * @return A vector with all model classes indexes.
+     */
 
-      /* @} */
+    std::vector<size_t> getClassWithMaxPostProbOfEachSite() const;
+      
+    Vdouble getPosteriorRateOfEachSite() const;
 
-    };
+    /* @} */
+
+  };
 } // end of namespace bpp.
 
 #endif  // _SINGLEPROCESSPHYLOLIKELIHOOD_H_
-

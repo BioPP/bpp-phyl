@@ -157,12 +157,7 @@ class SitePatterns :
       return *this;
     }
 
-#ifdef NO_VIRTUAL_COV
-    Clonable*
-#else
-    SitePatterns *
-#endif
-    clone() const { return new SitePatterns(*this); }
+    SitePatterns * clone() const { return new SitePatterns(*this); }
 
   public:
     /**

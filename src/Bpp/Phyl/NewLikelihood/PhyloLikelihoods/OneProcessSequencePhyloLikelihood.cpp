@@ -56,9 +56,9 @@ OneProcessSequencePhyloLikelihood::OneProcessSequencePhyloLikelihood(
   mSeqEvol_(evol),
   tlComp_()
 {
-  SubstitutionProcess& sp=evol.getSubstitutionProcess();
+  SubstitutionProcess& sp = evol.getSubstitutionProcess();
 
-  tlComp_ = std::auto_ptr<LikelihoodTreeCalculation>(new RecursiveLikelihoodTreeCalculation(&sp, true, patterns));
+  tlComp_ = std::unique_ptr<LikelihoodTreeCalculation>(new RecursiveLikelihoodTreeCalculation(&sp, true, patterns));
 }
 
 /******************************************************************************/
@@ -76,9 +76,9 @@ OneProcessSequencePhyloLikelihood::OneProcessSequencePhyloLikelihood(
   mSeqEvol_(evol),
   tlComp_()
 {
-  SubstitutionProcess& sp=evol.getSubstitutionProcess();
+  SubstitutionProcess& sp = evol.getSubstitutionProcess();
 
-  tlComp_ = std::auto_ptr<LikelihoodTreeCalculation>(new RecursiveLikelihoodTreeCalculation(&sp, true, patterns));
+  tlComp_ = std::unique_ptr<LikelihoodTreeCalculation>(new RecursiveLikelihoodTreeCalculation(&sp, true, patterns));
 
   setData(data, nData);
 }
@@ -223,5 +223,3 @@ void OneProcessSequencePhyloLikelihood::computeD2LogLikelihood_(const string& va
 {
   tlComp_->computeTreeD2LogLikelihood(variable);
 }
-
-

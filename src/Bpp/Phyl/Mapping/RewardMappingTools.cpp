@@ -153,13 +153,13 @@ ProbabilisticRewardMapping* RewardMappingTools::computeRewardVectors(
         const VVVdouble* likelihoodsFather_son = &drtl.getLikelihoodData()->getLikelihoodArray(father->getId(), currentSon->getId());
 
         // Now iterate over all site partitions:
-        auto_ptr<TreeLikelihood::ConstBranchModelIterator> mit(drtl.getNewBranchModelIterator(currentSon->getId()));
+        unique_ptr<TreeLikelihood::ConstBranchModelIterator> mit(drtl.getNewBranchModelIterator(currentSon->getId()));
         VVVdouble pxy;
         bool first;
         while (mit->hasNext())
         {
           TreeLikelihood::ConstBranchModelDescription* bmd = mit->next();
-          auto_ptr<TreeLikelihood::SiteIterator> sit(bmd->getNewSiteIterator());
+          unique_ptr<TreeLikelihood::SiteIterator> sit(bmd->getNewSiteIterator());
           first = true;
           while (sit->hasNext())
           {
@@ -197,13 +197,13 @@ ProbabilisticRewardMapping* RewardMappingTools::computeRewardVectors(
       const Node* currentSon = father->getFather();
       const VVVdouble* likelihoodsFather_son = &drtl.getLikelihoodData()->getLikelihoodArray(father->getId(), currentSon->getId());
       // Now iterate over all site partitions:
-      auto_ptr<TreeLikelihood::ConstBranchModelIterator> mit(drtl.getNewBranchModelIterator(father->getId()));
+      unique_ptr<TreeLikelihood::ConstBranchModelIterator> mit(drtl.getNewBranchModelIterator(father->getId()));
       VVVdouble pxy;
       bool first;
       while (mit->hasNext())
       {
         TreeLikelihood::ConstBranchModelDescription* bmd = mit->next();
-        auto_ptr<TreeLikelihood::SiteIterator> sit(bmd->getNewSiteIterator());
+        unique_ptr<TreeLikelihood::SiteIterator> sit(bmd->getNewSiteIterator());
         first = true;
         while (sit->hasNext())
         {
@@ -259,7 +259,7 @@ ProbabilisticRewardMapping* RewardMappingTools::computeRewardVectors(
 
     // Iterate over all site partitions:
     const VVVdouble* likelihoodsFather_node = &(drtl.getLikelihoodData()->getLikelihoodArray(father->getId(), currentNode->getId()));
-    auto_ptr<TreeLikelihood::ConstBranchModelIterator> mit(drtl.getNewBranchModelIterator(currentNode->getId()));
+    unique_ptr<TreeLikelihood::ConstBranchModelIterator> mit(drtl.getNewBranchModelIterator(currentNode->getId()));
     VVVdouble pxy;
     bool first;
     while (mit->hasNext())
@@ -287,7 +287,7 @@ ProbabilisticRewardMapping* RewardMappingTools::computeRewardVectors(
       }
 
       // Now loop over sites:
-      auto_ptr<TreeLikelihood::SiteIterator> sit(bmd->getNewSiteIterator());
+      unique_ptr<TreeLikelihood::SiteIterator> sit(bmd->getNewSiteIterator());
       first = true;
       while (sit->hasNext())
       {

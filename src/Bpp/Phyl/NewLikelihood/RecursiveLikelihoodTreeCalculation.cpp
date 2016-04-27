@@ -57,7 +57,7 @@ RecursiveLikelihoodTreeCalculation::RecursiveLikelihoodTreeCalculation(
   bool usePatterns)
 throw (Exception) :
   AbstractLikelihoodTreeCalculation(process, verbose),
-  likelihoodData_(0),
+  likelihoodData_(),
   root1_(-1),
   root2_(-1)
 {
@@ -73,7 +73,7 @@ RecursiveLikelihoodTreeCalculation::RecursiveLikelihoodTreeCalculation(
   bool usePatterns)
 throw (Exception) :
   AbstractLikelihoodTreeCalculation(process, verbose),
-  likelihoodData_(0),
+  likelihoodData_(),
   root1_(-1),
   root2_(-1)
 {
@@ -94,7 +94,7 @@ void RecursiveLikelihoodTreeCalculation::init_(bool usePatterns) throw (Exceptio
 
 RecursiveLikelihoodTreeCalculation::RecursiveLikelihoodTreeCalculation(const RecursiveLikelihoodTreeCalculation& tlc) :
   AbstractLikelihoodTreeCalculation(tlc),
-  likelihoodData_(0),
+  likelihoodData_(),
   root1_(tlc.root1_),
   root2_(tlc.root2_)
 {

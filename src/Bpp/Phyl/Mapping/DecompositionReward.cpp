@@ -54,7 +54,7 @@ DecompositionReward::DecompositionReward(const SubstitutionModel* model, Alphabe
   jMat_(nbStates_, nbStates_),
   v_(nbStates_, nbStates_),
   vInv_(nbStates_, nbStates_),
-  lambda_(nbStates_, nbStates_),
+  lambda_(nbStates_),
   bMatrice_(nbStates_, nbStates_),
   insideProduct_(nbStates_, nbStates_),
   rewards_(nbStates_, nbStates_),
@@ -137,7 +137,7 @@ void DecompositionReward::computeRewards_(double length) const
   for (size_t j = 0; j < nbStates_; j++) {
     for (size_t k = 0; k < nbStates_; k++) {
       rewards_(j, k) /= P(j, k);
-      if (isnan(rewards_(j, k)))
+      if (std::isnan(rewards_(j, k)))
         rewards_(j, k) = 0.;
     }
   }

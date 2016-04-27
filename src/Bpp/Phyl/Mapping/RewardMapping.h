@@ -67,9 +67,7 @@ namespace bpp
     RewardMapping() {}
     virtual ~RewardMapping() {}
 
-#ifndef NO_VIRTUAL_COV
     RewardMapping* clone() const = 0;
-#endif
 
   public:
     
@@ -96,9 +94,7 @@ public:
   AbstractRewardMapping(const AbstractRewardMapping& arm):
     AbstractMapping(arm) {}
 
-#ifndef NO_VIRTUAL_COV
   AbstractRewardMapping* clone() const = 0;
-#endif
 
   AbstractRewardMapping& operator=(const AbstractRewardMapping& arm)
     {

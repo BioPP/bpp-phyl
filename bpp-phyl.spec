@@ -180,7 +180,7 @@ exit 0
 %{_prefix}/include/*
 
 %changelog
-* Mon Sep 22 2014 Julien Dutheil <julien.dutheil@univ-montp2.fr> 2.2.0-1
+* Mon Sep 28 2014 Julien Dutheil <julien.dutheil@univ-montp2.fr> 2.2.0-1
 - Bugs fixed + code improvements
 - More efficient DR likelihood derivatives.
 * Thu Mar 07 2013 Julien Dutheil <julien.dutheil@univ-montp2.fr> 2.1.0-1

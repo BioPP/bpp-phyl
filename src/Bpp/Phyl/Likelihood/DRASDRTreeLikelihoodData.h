@@ -84,12 +84,7 @@ class DRASDRTreeLikelihoodLeafData :
       return *this;
     }
 
-#ifndef NO_VIRTUAL_COV
-    DRASDRTreeLikelihoodLeafData*
-#else
-    Clonable*
-#endif
-    clone() const
+    DRASDRTreeLikelihoodLeafData* clone() const
     { 
       return new DRASDRTreeLikelihoodLeafData(*this);
     }
@@ -173,12 +168,7 @@ class DRASDRTreeLikelihoodNodeData :
  
     virtual ~DRASDRTreeLikelihoodNodeData() {}
 
-#ifndef NO_VIRTUAL_COV
-    DRASDRTreeLikelihoodNodeData*
-#else 
-    Clonable*
-#endif
-    clone() const
+    DRASDRTreeLikelihoodNodeData* clone() const
     { 
       return new DRASDRTreeLikelihoodNodeData(*this);
     }

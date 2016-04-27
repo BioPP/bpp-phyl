@@ -191,55 +191,57 @@ std::map<size_t, Tree*> PhylogeneticsApplicationTools::getTrees(
   std::map<std::string, std::string>& params,
   const std::map<size_t, SiteContainer*>& mSeq,
   std::map<std::string, std::string>& unparsedParams,
-  const std::string& prefix ,
-  const std::string& suffix ,
-  bool suffixIsOptional ,
-  bool verbose ,
+  const std::string& prefix,
+  const std::string& suffix,
+  bool suffixIsOptional,
+  bool verbose,
   int warn) throw (Exception)
 {
-  vector<string> vTreesName=ApplicationTools::matchingParameters(prefix+"tree*", params);
+  vector<string> vTreesName = ApplicationTools::matchingParameters(prefix + "tree*", params);
 
   map<size_t, Tree*> mTree;
 
-  for (size_t nT=0; nT < vTreesName.size(); nT++)
+  for (size_t nT = 0; nT < vTreesName.size(); nT++)
   {
-    size_t poseq=vTreesName[nT].find("=");
+    size_t poseq = vTreesName[nT].find("=");
     size_t num = 0;
-    size_t len = (prefix+"tree").size();
-    
-    string suff = vTreesName[nT].substr(len,poseq-len);
-    bool flag=0;
+    size_t len = (prefix + "tree").size();
+
+    string suff = vTreesName[nT].substr(len, poseq - len);
+    bool flag = 0;
     size_t nbTree = 1;
 
-    if (TextTools::isDecimalInteger(suff,'$'))
-      num=static_cast<size_t>(TextTools::toInt(suff));
-    else{
-      flag=1;
-      num=1;
+    if (TextTools::isDecimalInteger(suff, '$'))
+      num = static_cast<size_t>(TextTools::toInt(suff));
+    else
+    {
+      flag = 1;
+      num = 1;
     }
 
-    if (!flag){      
+    if (!flag)
+    {
       ApplicationTools::displayMessage("");
       ApplicationTools::displayMessage("Tree " + TextTools::toString(num));
     }
-    
+
     string treeDesc = ApplicationTools::getStringParameter(vTreesName[nT], params, "", suffix, suffixIsOptional);
 
     string treeName;
-    
+
     map<string, string> args;
-    
+
     KeyvalTools::parseProcedure(treeDesc, treeName, args);
 
-    if (treeName=="user")
+    if (treeName == "user")
     {
       string format;
-      
-      if (args.find("format")!=args.end())
+
+      if (args.find("format") != args.end())
         format = args["format"];
       else
       {
-        format="Newick";
+        format = "Newick";
         ApplicationTools::displayWarning("Warning, " + vTreesName[nT] + " format set to Newick");
       }
 
@@ -261,82 +263,84 @@ std::map<size_t, Tree*> PhylogeneticsApplicationTools::getTrees(
 
       if (verbose)
       {
-        if (flag){
+        if (flag)
+        {
           ApplicationTools::displayMessage("");
           ApplicationTools::displayResult("Tree file", treeFilePath);
         }
-        
+
         ApplicationTools::displayResult("Number of trees in file", trees.size());
       }
 
       if (flag)
       {
-        nbTree=trees.size();
+        nbTree = trees.size();
 
-        for (size_t i2=0; i2<trees.size(); i2++)
+        for (size_t i2 = 0; i2 < trees.size(); i2++)
         {
-          if (mTree.find(i2+1)!=mTree.end())
+          if (mTree.find(i2 + 1) != mTree.end())
           {
-            ApplicationTools::displayWarning("Tree " + TextTools::toString(i2+1) + " already assigned, replaced by new one.");
-            delete mTree[i2+1];
+            ApplicationTools::displayWarning("Tree " + TextTools::toString(i2 + 1) + " already assigned, replaced by new one.");
+            delete mTree[i2 + 1];
           }
-          
-          mTree[i2+1]=trees[i2];
+
+          mTree[i2 + 1] = trees[i2];
           ApplicationTools::displayResult("Number of leaves", trees[i2]->getNumberOfLeaves());
         }
       }
       else
       {
-        if (trees.size()>1)
+        if (trees.size() > 1)
           throw Exception("Error : Several trees for description of " + vTreesName[nT] + ".");
 
-        if (trees.size()==1)
+        if (trees.size() == 1)
         {
-          if (mTree.find(num)!=mTree.end())
+          if (mTree.find(num) != mTree.end())
           {
             ApplicationTools::displayWarning("Tree " + TextTools::toString(num) + " already assigned, replaced by new one.");
             delete mTree[num];
           }
-          mTree[num]=trees[0];
+          mTree[num] = trees[0];
           ApplicationTools::displayResult("Number of leaves", trees[0]->getNumberOfLeaves());
         }
       }
     }
-    else if (treeName=="random")
+    else if (treeName == "random")
     {
       size_t seqNum;
-      
-      if (args.find("data")==args.end()){
+
+      if (args.find("data") == args.end())
+      {
         ApplicationTools::displayWarning("Random tree set from data 1");
-        seqNum=1;
+        seqNum = 1;
       }
       else
-        seqNum=(size_t)TextTools::toInt(args["data"]);
+        seqNum = (size_t) TextTools::toInt(args["data"]);
 
-      
-      if (mSeq.find(seqNum)==mSeq.end())
+
+      if (mSeq.find(seqNum) == mSeq.end())
         throw Exception("Error : Wrong number of data " + TextTools::toString(seqNum));
-        
+
       vector<string> names = mSeq.find(seqNum)->second->getSequencesNames();
       Tree* tree = TreeTemplateTools::getRandomTree(names);
       tree->setBranchLengths(1.);
 
-      if (mTree.find(num)!=mTree.end())
+      if (mTree.find(num) != mTree.end())
       {
         ApplicationTools::displayWarning("Tree " + TextTools::toString(num) + " already assigned, replaced by new one.");
         delete mTree[num];
       }
-      mTree[num]=tree;
+      mTree[num] = tree;
       ApplicationTools::displayResult("Number of leaves", tree->getNumberOfLeaves());
     }
-    
 
-    ////////////
+
+    // //////////
     // Setting branch lengths?
     string initBrLenMethod = ApplicationTools::getStringParameter("init.brlen.method", args, "Input", "", true, 1);
     string cmdName;
     map<string, string> cmdArgs;
-    
+
     KeyvalTools::parseProcedure(initBrLenMethod, cmdName, cmdArgs);
 
     if (cmdName == "Input")
@@ -347,8 +351,10 @@ std::map<size_t, Tree*> PhylogeneticsApplicationTools::getTrees(
       {
         if (flag)
         {
-          for (size_t i=0; i<nbTree; i++)
-            TreeTools::constrainedMidPointRooting(*mTree[i+1]);
+          for (size_t i = 0; i < nbTree; i++)
+          {
+            TreeTools::constrainedMidPointRooting(*mTree[i + 1]);
+          }
         }
         else
           TreeTools::constrainedMidPointRooting(*mTree[num]);
@@ -362,8 +368,10 @@ std::map<size_t, Tree*> PhylogeneticsApplicationTools::getTrees(
       ApplicationTools::displayResult("Branch lengths set to", value);
       if (flag)
       {
-        for (size_t i=0; i<nbTree; i++)
-          mTree[i+1]->setBranchLengths(value);
+        for (size_t i = 0; i < nbTree; i++)
+        {
+          mTree[i + 1]->setBranchLengths(value);
+        }
       }
       else
         mTree[num]->setBranchLengths(value);
@@ -372,8 +380,10 @@ std::map<size_t, Tree*> PhylogeneticsApplicationTools::getTrees(
     {
       if (flag)
       {
-        for (size_t i=0; i<nbTree; i++)
-          TreeTools::convertToClockTree(*mTree[i+1], mTree[i+1]->getRootId(), true);
+        for (size_t i = 0; i < nbTree; i++)
+        {
+          TreeTools::convertToClockTree(*mTree[i + 1], mTree[i + 1]->getRootId(), true);
+        }
       }
       else
         TreeTools::convertToClockTree(*mTree[num], mTree[num]->getRootId(), true);
@@ -384,9 +394,9 @@ std::map<size_t, Tree*> PhylogeneticsApplicationTools::getTrees(
       double h;
       if (flag)
       {
-        for (size_t i=0; i<nbTree; i++)
+        for (size_t i = 0; i < nbTree; i++)
         {
-          Tree* tree=mTree[i+1];
+          Tree* tree = mTree[i + 1];
           if (grafenHeight == "input")
           {
             h = TreeTools::getHeight(*tree, tree->getRootId());
@@ -394,7 +404,8 @@ std::map<size_t, Tree*> PhylogeneticsApplicationTools::getTrees(
           else
           {
             h = TextTools::toDouble(grafenHeight);
-            if (h <= 0) throw Exception("Height must be positive in Grafen's method.");
+            if (h <= 0)
+              throw Exception("Height must be positive in Grafen's method.");
           }
           ApplicationTools::displayResult("Total height", TextTools::toString(h));
 
@@ -407,7 +418,7 @@ std::map<size_t, Tree*> PhylogeneticsApplicationTools::getTrees(
       }
       else
       {
-        Tree* tree=mTree[num];
+        Tree* tree = mTree[num];
         if (grafenHeight == "input")
         {
           h = TreeTools::getHeight(*tree, tree->getRootId());
@@ -415,7 +426,8 @@ std::map<size_t, Tree*> PhylogeneticsApplicationTools::getTrees(
         else
         {
           h = TextTools::toDouble(grafenHeight);
-          if (h <= 0) throw Exception("Height must be positive in Grafen's method.");
+          if (h <= 0)
+            throw Exception("Height must be positive in Grafen's method.");
         }
         ApplicationTools::displayResult("Total height", TextTools::toString(h));
 
@@ -429,28 +441,29 @@ std::map<size_t, Tree*> PhylogeneticsApplicationTools::getTrees(
     else
       throw Exception("Method '" + initBrLenMethod + "' unknown for computing branch lengths.");
 
-    ////////////// Setting branch lengths with aliases
-    
-    vector<string> vBrNb=ApplicationTools::matchingParameters("BrLen*", args);
+    // //////////// Setting branch lengths with aliases
 
-    for (size_t ib = 0; ib<vBrNb.size(); ib++)
+    vector<string> vBrNb = ApplicationTools::matchingParameters("BrLen*", args);
+
+    for (size_t ib = 0; ib < vBrNb.size(); ib++)
     {
-      string apeq=args[vBrNb[ib]];
-      string aveq=vBrNb[ib];
+      string apeq = args[vBrNb[ib]];
+      string aveq = vBrNb[ib];
 
       if (TextTools::isDecimalInteger(apeq))
-        mTree[num]->setDistanceToFather(TextTools::toInt(aveq.substr(5,string::npos)), TextTools::toDouble(apeq));
-      else{
-        size_t posun=apeq.find("_");
-        size_t posd=aveq.find("_");
-        unparsedParams[aveq+(posd!=string::npos?"":"_"+TextTools::toString(num))]=apeq+(posun!=string::npos?"":"_"+TextTools::toString(num));
+        mTree[num]->setDistanceToFather(TextTools::toInt(aveq.substr(5, string::npos)), TextTools::toDouble(apeq));
+      else
+      {
+        size_t posun = apeq.find("_");
+        size_t posd = aveq.find("_");
+        unparsedParams[aveq + (posd != string::npos ? "" : "_" + TextTools::toString(num))] = apeq + (posun != string::npos ? "" : "_" + TextTools::toString(num));
       }
     }
-    
+
     ApplicationTools::displayResult("Branch lengths", cmdName);
   }
-  
-  
+
+
   return mTree;
 }
 
@@ -460,39 +473,40 @@ std::map<size_t, Tree*> PhylogeneticsApplicationTools::getTrees(
 
 
 map<size_t, DiscreteDistribution*> PhylogeneticsApplicationTools::getRateDistributions(
-      map<string, string>& params,
-      const string& suffix,
-      bool suffixIsOptional,
-      bool verbose) throw (Exception)
+  map<string, string>& params,
+  const string& suffix,
+  bool suffixIsOptional,
+  bool verbose) throw (Exception)
 {
   string DistFilePath = ApplicationTools::getAFilePath("rate_distribution.file", params, false, false, suffix, suffixIsOptional, "none", 1);
 
   map<string, string> paramDist;
-  
-  if (DistFilePath!="none")
-    paramDist=AttributesTools::getAttributesMapFromFile(DistFilePath,"=");
+
+  if (DistFilePath != "none")
+    paramDist = AttributesTools::getAttributesMapFromFile(DistFilePath, "=");
 
   paramDist.insert(params.begin(), params.end());
 
-  vector<string> vratesName=ApplicationTools::matchingParameters("rate_distribution*", paramDist);
+  vector<string> vratesName = ApplicationTools::matchingParameters("rate_distribution*", paramDist);
 
   BppORateDistributionFormat bIO(true);
   map<size_t, DiscreteDistribution*> mDist;
 
-  
-  for (size_t i=0; i< vratesName.size(); i++)
+
+  for (size_t i = 0; i < vratesName.size(); i++)
   {
-    size_t poseq=vratesName[i].find("=");
+    size_t poseq = vratesName[i].find("=");
     size_t num = 0;
-    string suff = vratesName[i].substr(17,poseq-17);
-    bool flag=0;
-    
-    
-    if (TextTools::isDecimalInteger(suff,'$'))
-      num=static_cast<size_t>(TextTools::toInt(suff));
-    else{
-      flag=1;
-      num=0;
+    string suff = vratesName[i].substr(17, poseq - 17);
+    bool flag = 0;
+
+
+    if (TextTools::isDecimalInteger(suff, '$'))
+      num = static_cast<size_t>(TextTools::toInt(suff));
+    else
+    {
+      flag = 1;
+      num = 0;
     }
 
     if (verbose)
@@ -501,21 +515,22 @@ map<size_t, DiscreteDistribution*> PhylogeneticsApplicationTools::getRateDistrib
         ApplicationTools::displayMessage("");
         ApplicationTools::displayMessage("Rate " + TextTools::toString(num));
       }
-    
+
     string distDescription = ApplicationTools::getStringParameter(vratesName[i], paramDist, "", suffix, suffixIsOptional);
-    
-    auto_ptr<DiscreteDistribution> rDist(bIO.read(distDescription, true));
-    
-    
-    mDist[num]=rDist.release();    
+
+    unique_ptr<DiscreteDistribution> rDist(bIO.read(distDescription, true));
+
+
+    mDist[num] = rDist.release();
   }
-  
-  if (mDist.size()==0){    
+
+  if (mDist.size() == 0)
+  {
     string distDescription = ApplicationTools::getStringParameter("rate_distribution", paramDist, "Constant()", suffix, suffixIsOptional);
-    auto_ptr<DiscreteDistribution> rDist(bIO.read(distDescription, true));
-    mDist[0]=rDist.release();    
+    unique_ptr<DiscreteDistribution> rDist(bIO.read(distDescription, true));
+    mDist[0] = rDist.release();
   }
-  
+
   return mDist;
 }
 
@@ -525,15 +540,15 @@ map<size_t, DiscreteDistribution*> PhylogeneticsApplicationTools::getRateDistrib
 /*************************************************************/
 
 map<size_t, SubstitutionModel*> PhylogeneticsApplicationTools::getSubstitutionModels(
-     const Alphabet* alphabet,
-     const GeneticCode* gCode,
-     const map<size_t, SiteContainer*>& mData,
-     map<string, string>& params,
-     map<string, string>& unparsedParams,
-     const string& suffix,
-     bool suffixIsOptional,
-     bool verbose,
-     int warn) throw (Exception)
+  const Alphabet* alphabet,
+  const GeneticCode* gCode,
+  const map<size_t, SiteContainer*>& mData,
+  map<string, string>& params,
+  map<string, string>& unparsedParams,
+  const string& suffix,
+  bool suffixIsOptional,
+  bool verbose,
+  int warn) throw (Exception)
 {
   if (dynamic_cast<const CodonAlphabet*>(alphabet) && !gCode)
     throw Exception("PhylogeneticsApplicationTools::getSubstitutionModels(): a GeneticCode instance is required for instanciating codon models.");
@@ -541,61 +556,63 @@ map<size_t, SubstitutionModel*> PhylogeneticsApplicationTools::getSubstitutionMo
   string ModelFilePath = ApplicationTools::getAFilePath("models.file", params, false, false, suffix, suffixIsOptional,  "none", 1);
 
   map<string, string> paramModel;
-  
-  if (ModelFilePath!="none")
-    paramModel=AttributesTools::getAttributesMapFromFile(ModelFilePath,"=");
+
+  if (ModelFilePath != "none")
+    paramModel = AttributesTools::getAttributesMapFromFile(ModelFilePath, "=");
 
   paramModel.insert(params.begin(), params.end());
 
-  vector<string> modelsName=ApplicationTools::matchingParameters("model*", paramModel);
+  vector<string> modelsName = ApplicationTools::matchingParameters("model*", paramModel);
 
   vector<size_t> modelsNum;
-  for (size_t i=0; i< modelsName.size(); i++)
-    {
-      size_t poseq=modelsName[i].find("=");
-      if (modelsName[i].find("nodes_id")==string::npos)
-        modelsNum.push_back((size_t)TextTools::toInt(modelsName[i].substr(5,poseq-5)));
-    }
+  for (size_t i = 0; i < modelsName.size(); i++)
+  {
+    size_t poseq = modelsName[i].find("=");
+    if (modelsName[i].find("nodes_id") == string::npos)
+      modelsNum.push_back((size_t) TextTools::toInt(modelsName[i].substr(5, poseq - 5)));
+  }
 
   map<size_t, SubstitutionModel*> mModel;
 
   BppOSubstitutionModelFormat bIO(BppOSubstitutionModelFormat::ALL, true, true, true, verbose, warn);
   bIO.setGeneticCode(gCode);
 
-  for (size_t i=0; i<modelsNum.size(); i++)
+  for (size_t i = 0; i < modelsNum.size(); i++)
+  {
+    ApplicationTools::displayMessage("");
+    ApplicationTools::displayMessage("Model " + TextTools::toString(modelsNum[i]));
+
+    string modelDescription = ApplicationTools::getStringParameter("model" + TextTools::toString(modelsNum[i]), paramModel, "", suffix, suffixIsOptional, warn);
+
+    map<string, string> args;
+    string modelName;
+
+    KeyvalTools::parseProcedure(modelDescription, modelName, args);
+
+    size_t nData = 0;
+
+    if (args.find("data") != args.end())
+      nData = (size_t) TextTools::toInt(args["data"]);
+
+    unique_ptr<SubstitutionModel> model(bIO.read(alphabet, modelDescription, (args.find("data") != args.end()) ? mData.find(nData)->second : 0, true));
+
+    map<string, string> tmpUnparsedParameterValues(bIO.getUnparsedArguments());
+
+    map<string, string>::iterator it;
+    for (it = tmpUnparsedParameterValues.begin(); it != tmpUnparsedParameterValues.end(); it++)
     {
-      ApplicationTools::displayMessage("");
-      ApplicationTools::displayMessage("Model " + TextTools::toString(modelsNum[i]));
-      
-      string modelDescription = ApplicationTools::getStringParameter("model"+TextTools::toString(modelsNum[i]), paramModel, "", suffix, suffixIsOptional, warn);
-
-      map<string, string> args;
-      string modelName;
-    
-      KeyvalTools::parseProcedure(modelDescription, modelName, args);
-
-      size_t nData=0;
-    
-      if (args.find("data")!=args.end())
-        nData=(size_t)TextTools::toInt(args["data"]);
-
-      auto_ptr<SubstitutionModel> model(bIO.read(alphabet, modelDescription, (args.find("data")!=args.end())?mData.find(nData)->second:0, true));
-      
-      map<string, string> tmpUnparsedParameterValues(bIO.getUnparsedArguments());
-      
-      map<string, string>::iterator it;
-      for (it=tmpUnparsedParameterValues.begin(); it != tmpUnparsedParameterValues.end(); it++)
-        unparsedParams[it->first+"_"+TextTools::toString(modelsNum[i])]=it->second;
-
-      if (verbose)
-      {
-      //   ApplicationTools::displayResult("substitution Model " + TextTools::toString(modelsNum[i]), model->getName());
-        if (nData!=0)
-          ApplicationTools::displayResult("Data used ", TextTools::toString("nData"));
-      }
-    
-      mModel[modelsNum[i]]=model.release();
+      unparsedParams[it->first + "_" + TextTools::toString(modelsNum[i])] = it->second;
     }
+
+    if (verbose)
+    {
+      //   ApplicationTools::displayResult("substitution Model " + TextTools::toString(modelsNum[i]), model->getName());
+      if (nData != 0)
+        ApplicationTools::displayResult("Data used ", TextTools::toString("nData"));
+    }
+
+    mModel[modelsNum[i]] = model.release();
+  }
 
   return mModel;
 }
@@ -616,22 +633,26 @@ SubstitutionModel* PhylogeneticsApplicationTools::getSubstitutionModel(
   BppOSubstitutionModelFormat bIO(BppOSubstitutionModelFormat::ALL, true, true, true, verbose, warn + 1);
   string modelDescription;
   const CodonAlphabet* ca = dynamic_cast<const CodonAlphabet*>(alphabet);
-  if (ca) {
+  if (ca)
+  {
     modelDescription = ApplicationTools::getStringParameter("model", params, "CodonRate(model=JC69)", suffix, suffixIsOptional, warn);
     if (!gCode)
       throw Exception("PhylogeneticsApplicationTools::getSubstitutionModel(): a GeneticCode instance is required for instanciating a codon model.");
     bIO.setGeneticCode(gCode);
-  } else if (AlphabetTools::isWordAlphabet(alphabet))
+  }
+  else if (AlphabetTools::isWordAlphabet(alphabet))
     modelDescription = ApplicationTools::getStringParameter("model", params, "Word(model=JC69)", suffix, suffixIsOptional, warn);
   else
     modelDescription = ApplicationTools::getStringParameter("model", params, "JC69", suffix, suffixIsOptional, warn);
 
   SubstitutionModel* model = bIO.read(alphabet, modelDescription, data, true);
   map<string, string> tmpUnparsedParameterValues(bIO.getUnparsedArguments());
-      
+
   map<string, string>::iterator it;
-  for (it=tmpUnparsedParameterValues.begin(); it != tmpUnparsedParameterValues.end(); it++)
-    unparsedParams[it->first]=it->second;
+  for (it = tmpUnparsedParameterValues.begin(); it != tmpUnparsedParameterValues.end(); it++)
+  {
+    unparsedParams[it->first] = it->second;
+  }
 
   return model;
 }
@@ -662,7 +683,7 @@ void PhylogeneticsApplicationTools::setSubstitutionModelParametersInitialValuesW
     }
     else if (initFreqs.substr(0, 6) == "values")
     {
-      // Initialization using the "values" argument                                                                                                                           
+      // Initialization using the "values" argument
       map<int, double> frequencies;
 
       string rf = initFreqs.substr(6);
@@ -683,8 +704,9 @@ void PhylogeneticsApplicationTools::setSubstitutionModelParametersInitialValuesW
     AutoParameter ap(pl[i]);
     ap.setMessageHandler(ApplicationTools::warning);
     pl.setParameter(i, ap);
-  }  for (size_t i = 0; i < pl.size(); ++i)
-  {                                     
+  }
+  for (size_t i = 0; i < pl.size(); ++i)
+  {
     const string pName = pl[i].getName();
     size_t posp = model.getParameterNameWithoutNamespace(pName).rfind(".");
     string value;
@@ -699,14 +721,15 @@ void PhylogeneticsApplicationTools::setSubstitutionModelParametersInitialValuesW
 
       value = ApplicationTools::getStringParameter(pName, unparsedParameterValues, TextTools::toString(pl[i].getValue()));
 
-      try {
+      try
+      {
         pl[i].setValue(TextTools::toDouble(value));
         if (verbose)
-          ApplicationTools::displayResult("Parameter found", pName + +"_"+TextTools::toString(modelNumber) + "=" + TextTools::toString(pl[i].getValue()));
+          ApplicationTools::displayResult("Parameter found", pName + +"_" + TextTools::toString(modelNumber) + "=" + TextTools::toString(pl[i].getValue()));
       }
       catch (Exception& e)
       {
-        sharedParams[pl[i].getName()+"_"+TextTools::toString(modelNumber)]=value;
+        sharedParams[pl[i].getName() + "_" + TextTools::toString(modelNumber)] = value;
       }
     }
   }
@@ -731,26 +754,26 @@ FrequenciesSet* PhylogeneticsApplicationTools::getFrequenciesSet(
 {
   map<string, string> unparsedParameterValues;
   BppOFrequenciesSetFormat bIO(BppOFrequenciesSetFormat::ALL, verbose, warn);
-  if (AlphabetTools::isCodonAlphabet(alphabet)) {
+  if (AlphabetTools::isCodonAlphabet(alphabet))
+  {
     if (!gCode)
       throw Exception("PhylogeneticsApplicationTools::getFrequenciesSet(): a GeneticCode instance is required for instanciating a codon frequencies set.");
     bIO.setGeneticCode(gCode);
   }
-  auto_ptr<FrequenciesSet> pFS(bIO.read(alphabet, freqDescription, data, true));
+  unique_ptr<FrequenciesSet> pFS(bIO.read(alphabet, freqDescription, data, true));
 
-  std::map<std::string, std::string> unparsedparam=bIO.getUnparsedArguments();
-  
-  sharedparams.insert(unparsedparam.begin(),unparsedparam.end());
-  
+  std::map<std::string, std::string> unparsedparam = bIO.getUnparsedArguments();
+
+  sharedparams.insert(unparsedparam.begin(), unparsedparam.end());
+
   // /////// To be changed for input normalization
   if (rateFreqs.size() > 0)
   {
     pFS.reset(new MarkovModulatedFrequenciesSet(pFS.release(), rateFreqs));
   }
-  
+
   return pFS.release();
 }
-
 
 
 FrequenciesSet* PhylogeneticsApplicationTools::getRootFrequenciesSet(
@@ -773,13 +796,15 @@ FrequenciesSet* PhylogeneticsApplicationTools::getRootFrequenciesSet(
   else
   {
     map<string, string> unparams;
-    
+
     FrequenciesSet* freq = getFrequenciesSet(alphabet, gCode, freqDescription, data, unparams, rateFreqs, verbose, warn + 1);
-    freq->setNamespace("root."+freq->getNamespace());
+    freq->setNamespace("root." + freq->getNamespace());
 
     map<string, string>::iterator it;
-    for (it=unparams.begin(); it!=unparams.end(); it++)
-      sharedparams["root."+it->first]=it->second;
+    for (it = unparams.begin(); it != unparams.end(); it++)
+    {
+      sharedparams["root." + it->first] = it->second;
+    }
 
     if (verbose)
       ApplicationTools::displayResult("Root frequencies ", freq->getName());
@@ -804,22 +829,24 @@ std::map<size_t, FrequenciesSet*> PhylogeneticsApplicationTools::getRootFrequenc
 
   string RootFilePath = ApplicationTools::getAFilePath("root_freq.file", params, false, false, suffix, suffixIsOptional,  "none", 1);
   map<string, string> paramRF;
-  
-  if (RootFilePath!="none")
-    paramRF=AttributesTools::getAttributesMapFromFile(RootFilePath,"=");
+
+  if (RootFilePath != "none")
+    paramRF = AttributesTools::getAttributesMapFromFile(RootFilePath, "=");
 
   paramRF.insert(params.begin(), params.end());
-  
-  vector<string> vrfName=ApplicationTools::matchingParameters("root_freq*", paramRF);
+
+  vector<string> vrfName = ApplicationTools::matchingParameters("root_freq*", paramRF);
 
   vector<size_t> rfNum;
-  for (size_t i=0; i< vrfName.size(); i++)
+  for (size_t i = 0; i < vrfName.size(); i++)
   {
-    size_t poseq=vrfName[i].find("=");
-    try {
-      rfNum.push_back((size_t)TextTools::toInt(vrfName[i].substr(9,poseq-9)));
+    size_t poseq = vrfName[i].find("=");
+    try
+    {
+      rfNum.push_back((size_t) TextTools::toInt(vrfName[i].substr(9, poseq - 9)));
     }
-    catch (Exception& e) {}
+    catch (Exception& e)
+    {}
   }
 
   BppOFrequenciesSetFormat bIO(BppOFrequenciesSetFormat::ALL, verbose, warn);
@@ -827,37 +854,39 @@ std::map<size_t, FrequenciesSet*> PhylogeneticsApplicationTools::getRootFrequenc
 
   map<size_t, FrequenciesSet*> mFS;
 
-  for (size_t i=0; i<rfNum.size(); i++)
+  for (size_t i = 0; i < rfNum.size(); i++)
   {
     ApplicationTools::displayMessage("");
     ApplicationTools::displayMessage("Root Frequencies Set " + TextTools::toString(rfNum[i]));
-    
-    string freqDescription = ApplicationTools::getStringParameter("root_freq"+TextTools::toString(rfNum[i]), paramRF, "", suffix, suffixIsOptional, warn);
+
+    string freqDescription = ApplicationTools::getStringParameter("root_freq" + TextTools::toString(rfNum[i]), paramRF, "", suffix, suffixIsOptional, warn);
 
     map<string, string> args;
     string freqName;
-    
+
     KeyvalTools::parseProcedure(freqDescription, freqName, args);
 
-    size_t nData=0;
-    
-    if (args.find("data")!=args.end())
-      nData=(size_t)TextTools::toInt(args["data"]);
+    size_t nData = 0;
 
-    auto_ptr<FrequenciesSet> rFS(bIO.read(alphabet, freqDescription, (args.find("data")!=args.end())?mData.find(nData)->second:0, true));
-    rFS->setNamespace("root."+rFS->getNamespace());
-    std::map<std::string, std::string> unparsedparam=bIO.getUnparsedArguments();    map<string, string>::iterator it;
-    for (it=unparsedparam.begin(); it!=unparsedparam.end(); it++)
-      sharedparams["root."+it->first+"_"+TextTools::toString(rfNum[i])]=it->second;
+    if (args.find("data") != args.end())
+      nData = (size_t) TextTools::toInt(args["data"]);
+
+    unique_ptr<FrequenciesSet> rFS(bIO.read(alphabet, freqDescription, (args.find("data") != args.end()) ? mData.find(nData)->second : 0, true));
+    rFS->setNamespace("root." + rFS->getNamespace());
+    std::map<std::string, std::string> unparsedparam = bIO.getUnparsedArguments();    map<string, string>::iterator it;
+    for (it = unparsedparam.begin(); it != unparsedparam.end(); it++)
+    {
+      sharedparams["root." + it->first + "_" + TextTools::toString(rfNum[i])] = it->second;
+    }
 
     if (verbose)
     {
       // ApplicationTools::displayResult("Root Frequencies Set " + TextTools::toString(rfNum[i]), rFS->getName());
-      if (nData!=0)
+      if (nData != 0)
         ApplicationTools::displayResult("Data used ", TextTools::toString(nData));
     }
-    
-    mFS[rfNum[i]]=rFS.release();
+
+    mFS[rfNum[i]] = rFS.release();
   }
 
   return mFS;
@@ -872,46 +901,46 @@ SubstitutionProcess* PhylogeneticsApplicationTools::getSubstitutionProcess(
   const Alphabet* alphabet,
   const GeneticCode* gCode,
   const SiteContainer* pData,
-  const vector<Tree*>& vTree, 
+  const vector<Tree*>& vTree,
   map<string, string>& params,
   const string& suffix,
   bool suffixIsOptional,
   bool verbose,
   int warn)
 {
-  SubstitutionProcess* SP=0;
-  
+  SubstitutionProcess* SP = 0;
+
   map<string, string> unparsedParams;
 
   string nhOpt = ApplicationTools::getStringParameter("nonhomogeneous", params, "no", "", true, warn);
   ApplicationTools::displayResult("Heterogeneous process", nhOpt);
 
-  /////////////////////////
+  // ///////////////////////
   // Tree
-  
-  auto_ptr<ParametrizableTree> pTree(new ParametrizableTree(*vTree[0]));
 
-  //////////////////////////
+  unique_ptr<ParametrizableTree> pTree(new ParametrizableTree(*vTree[0]));
+
+  // ////////////////////////
   // Rates
-  
-  auto_ptr<DiscreteDistribution> rDist(getRateDistribution(params));
+
+  unique_ptr<DiscreteDistribution> rDist(getRateDistribution(params));
 
   BppOSubstitutionModelFormat bIO(BppOSubstitutionModelFormat::ALL, true, true, true, false, warn);
   bIO.setGeneticCode(gCode);
 
 
-  ///////////////////////////
-  /// Models
-  
+  // /////////////////////////
+  // / Models
+
   string tmpDesc;
- 
-  if (nhOpt=="no")
+
+  if (nhOpt == "no")
   {
     // Homogeneous & stationary models
-  
-    auto_ptr<SubstitutionModel> tmp(getSubstitutionModel(alphabet, gCode, pData, params, unparsedParams));
 
-    if (tmp->getNumberOfStates() >= 2 * tmp->getAlphabet()->getSize() || (rDist->getName()=="Constant"))// first test is for Markov-modulated Markov model!
+    unique_ptr<SubstitutionModel> tmp(getSubstitutionModel(alphabet, gCode, pData, params, unparsedParams));
+
+    if (tmp->getNumberOfStates() >= 2 * tmp->getAlphabet()->getSize() || (rDist->getName() == "Constant")) // first test is for Markov-modulated Markov model!
       SP = new SimpleSubstitutionProcess(tmp.release(), pTree.release(), true);
     else
       SP = new RateAcrossSitesSubstitutionProcess(tmp.release(), rDist.release(), pTree.release());
@@ -920,20 +949,19 @@ SubstitutionProcess* PhylogeneticsApplicationTools::getSubstitutionProcess(
   // Non-homogeneous models
   else
   {
-    string fName=(nhOpt=="one_per_branch"?"model":"model1");
-    
-    tmpDesc = ApplicationTools::getStringParameter(fName, params, "", suffix, suffixIsOptional, warn);
-    auto_ptr<SubstitutionModel> tmp(bIO.read(alphabet, tmpDesc, pData, true));
-    
+    string fName = (nhOpt == "one_per_branch" ? "model" : "model1");
 
-    
+    tmpDesc = ApplicationTools::getStringParameter(fName, params, "", suffix, suffixIsOptional, warn);
+    unique_ptr<SubstitutionModel> tmp(bIO.read(alphabet, tmpDesc, pData, true));
+
+
     // ////////////////////////////////////
     // Root frequencies
-    
+
     bool stationarity = ApplicationTools::getBooleanParameter("nonhomogeneous.stationarity", params, false, "", false, warn);
-    
-    auto_ptr<FrequenciesSet> rootFrequencies(0);
-  
+
+    unique_ptr<FrequenciesSet> rootFrequencies;
+
     if (!stationarity)
     {
       // Markov Modulated  models
@@ -946,7 +974,7 @@ SubstitutionProcess* PhylogeneticsApplicationTools::getSubstitutionProcess(
       }
 
       // MVA models
-    
+
       string freqDescription = ApplicationTools::getStringParameter("nonhomogeneous.root_freq", params, "", suffix, suffixIsOptional, warn);
       if (freqDescription.substr(0, 10) == "MVAprotein")
       {
@@ -957,35 +985,36 @@ SubstitutionProcess* PhylogeneticsApplicationTools::getSubstitutionProcess(
       }
       else
         rootFrequencies.reset(getRootFrequenciesSet(alphabet, gCode, pData, params, unparsedParams, rateFreqs, suffix, suffixIsOptional, warn));
-    
+
       stationarity = !rootFrequencies.get();
     }
 
     ApplicationTools::displayBooleanResult("Stationarity assumed", stationarity);
 
-    ///////////////////////////////////////
+    // /////////////////////////////////////
     // One_per_branch
 
-    if (nhOpt=="one_per_branch"){
+    if (nhOpt == "one_per_branch")
+    {
       vector<string> globalParameters = ApplicationTools::getVectorParameter<string>("nonhomogeneous_one_per_branch.shared_parameters", params, ',', "");
 
       for (unsigned int i = 0; i < globalParameters.size(); i++)
+      {
         ApplicationTools::displayResult("Global parameter", globalParameters[i]);
+      }
 
       SP = NonHomogeneousSubstitutionProcess::createNonHomogeneousSubstitutionProcess(
-                            tmp.release(),
-                            rDist.release(),
-                            rootFrequencies.release(),
-                            pTree.release(),
-                            globalParameters);
-      
+        tmp.release(),
+        rDist.release(),
+        rootFrequencies.release(),
+        pTree.release(),
+        globalParameters);
     }
     else
     {
-
       // //////////////////////////////
       // General
-    
+
       size_t nbModels = ApplicationTools::getParameter<size_t>("nonhomogeneous.number_of_models", params, 1, suffix, suffixIsOptional, warn);
 
       if (nbModels == 0)
@@ -998,39 +1027,40 @@ SubstitutionProcess* PhylogeneticsApplicationTools::getSubstitutionProcess(
       // Now parse all models:
 
       bIO.setVerbose(true);
-      
-      SP = new NonHomogeneousSubstitutionProcess(rDist.release(), pTree.release(),rootFrequencies.release());
 
-      NonHomogeneousSubstitutionProcess* nhSP=dynamic_cast<NonHomogeneousSubstitutionProcess*>(SP);
-      
+      SP = new NonHomogeneousSubstitutionProcess(rDist.release(), pTree.release(), rootFrequencies.release());
+
+      NonHomogeneousSubstitutionProcess* nhSP = dynamic_cast<NonHomogeneousSubstitutionProcess*>(SP);
+
       for (size_t i = 0; i < nbModels; i++)
       {
         string prefix = "model" + TextTools::toString(i + 1);
         string modelDesc;
         modelDesc = ApplicationTools::getStringParameter(prefix, params, "", suffix, suffixIsOptional, warn);
-        
-        auto_ptr<SubstitutionModel> model(bIO.read(alphabet, modelDesc, pData, true));
+
+        unique_ptr<SubstitutionModel> model(bIO.read(alphabet, modelDesc, pData, true));
         map<string, string> tmpUnparsedParameterValues(bIO.getUnparsedArguments());
 
         map<string, string>::iterator it;
-        for (it=tmpUnparsedParameterValues.begin(); it != tmpUnparsedParameterValues.end(); it++)
-          unparsedParams[it->first+"_"+TextTools::toString(i+1)]=it->second;
+        for (it = tmpUnparsedParameterValues.begin(); it != tmpUnparsedParameterValues.end(); it++)
+        {
+          unparsedParams[it->first + "_" + TextTools::toString(i + 1)] = it->second;
+        }
 
         vector<int> nodesId = ApplicationTools::getVectorParameter<int>(prefix + ".nodes_id", params, ',', ':', TextTools::toString(i), suffix, suffixIsOptional, warn);
-        
+
         if (verbose)
           ApplicationTools::displayResult("Model" + TextTools::toString(i + 1) + " is associated to", TextTools::toString(nodesId.size()) + " node(s).");
 
         nhSP->addModel(model.release(), nodesId);
       }
-      
-      nhSP->isFullySetUp();
 
+      nhSP->isFullySetUp();
     }
   }
 
 
-  //////// Aliasing
+  // ////// Aliasing
   // Finally check parameter aliasing:
 
   string aliasDesc = ApplicationTools::getStringParameter("nonhomogeneous.alias", params, "", suffix, suffixIsOptional, warn);
@@ -1044,18 +1074,18 @@ SubstitutionProcess* PhylogeneticsApplicationTools::getSubstitutionProcess(
       throw Exception("PhylogeneticsApplicationTools::getSubstitutionProcess. Bad alias syntax, should contain `->' symbol: " + alias);
     string p1 = alias.substr(0, index);
     string p2 = alias.substr(index + 2);
-    unparsedParams[p1]=p2;
+    unparsedParams[p1] = p2;
   }
 
   SP->aliasParameters(unparsedParams, verbose);
-  
+
   return SP;
 }
 
 /******************************************************************************/
 
 void PhylogeneticsApplicationTools::addSubstitutionProcessCollectionMember(
-  SubstitutionProcessCollection* SubProColl, 
+  SubstitutionProcessCollection* SubProColl,
   size_t procNum,
   map<string, string>& params,
   bool verbose,
@@ -1068,94 +1098,96 @@ void PhylogeneticsApplicationTools::addSubstitutionProcessCollectionMember(
 
   KeyvalTools::parseProcedure(procDesc, procName, args);
 
-  if ((procName!="OnePerBranch") && (procName!="Homogeneous") && (procName!="Nonhomogeneous") &&  (procName!="NonHomogeneous"))
+  if ((procName != "OnePerBranch") && (procName != "Homogeneous") && (procName != "Nonhomogeneous") &&  (procName != "NonHomogeneous"))
     return;
-  
-  
-  /////
+
+
+  // ///
   // tree number
-  
-  if (args.find("tree")==args.end())
+
+  if (args.find("tree") == args.end())
     throw Exception("PhylogeneticsApplicationTools::addSubstitutionProcessCollectionMember. A tree number is compulsory.");
 
-  size_t numTree=(size_t)ApplicationTools::getIntParameter("tree", args, 1, "", true, warn);
+  size_t numTree = (size_t) ApplicationTools::getIntParameter("tree", args, 1, "", true, warn);
 
-  if (! SubProColl->hasTreeNumber(numTree))
+  if (!SubProColl->hasTreeNumber(numTree))
     throw BadIntegerException("PhylogeneticsApplicationTools::addSubstitutionProcessCollectionMember : unknown tree number", (int)numTree);
 
 
-  ///////
+  // /////
   // rate number
-      
-  if (args.find("rate")==args.end())
+
+  if (args.find("rate") == args.end())
     throw Exception("PhylogeneticsApplicationTools::addSubstitutionProcessCollectionMember. A rate number is compulsory.");
 
   size_t numRate;
 
-  string sRate=ApplicationTools::getStringParameter("rate", args, "1", "", true, warn);
+  string sRate = ApplicationTools::getStringParameter("rate", args, "1", "", true, warn);
 
-  size_t pp=sRate.find(".");
-  
-  numRate=TextTools::toInt(sRate.substr(0,pp));
-  if (! SubProColl->hasDistributionNumber(numRate))
+  size_t pp = sRate.find(".");
+
+  numRate = TextTools::toInt(sRate.substr(0, pp));
+  if (!SubProColl->hasDistributionNumber(numRate))
     throw BadIntegerException("PhylogeneticsApplicationTools::addSubstitutionProcessCollectionMember : unknown rate number", (int)numRate);
 
-  if (pp!=string::npos){
-    size_t numSRate=TextTools::toInt(sRate.substr(pp+1));
-    SubProColl->addDistribution(new ConstantDistribution(SubProColl->getRateDistribution(numRate).getCategory(numSRate)),10000*(numRate+1)+numSRate);
+  if (pp != string::npos)
+  {
+    size_t numSRate = TextTools::toInt(sRate.substr(pp + 1));
+    SubProColl->addDistribution(new ConstantDistribution(SubProColl->getRateDistribution(numRate).getCategory(numSRate)), 10000 * (numRate + 1) + numSRate);
 
-    numRate=10000*(numRate+1)+numSRate;
+    numRate = 10000 * (numRate + 1) + numSRate;
   }
-  
 
-  //////////
+
+  // ////////
   // root freq number
 
-  bool stationarity=(args.find("root_freq")==args.end());
-  size_t numFreq=0;
-  
+  bool stationarity = (args.find("root_freq") == args.end());
+  size_t numFreq = 0;
+
   if (!stationarity)
   {
-    numFreq=(size_t)ApplicationTools::getIntParameter("root_freq", args, 1, "", true, warn);
-    if (! SubProColl->hasFrequenciesNumber(numFreq))
+    numFreq = (size_t) ApplicationTools::getIntParameter("root_freq", args, 1, "", true, warn);
+    if (!SubProColl->hasFrequenciesNumber(numFreq))
       throw BadIntegerException("PhylogeneticsApplicationTools::addSubstitutionProcessCollectionMember : unknown root frequencies number", (int)numFreq);
   }
 
-  //////////////////
-  /// models
+  // ////////////////
+  // / models
 
   if (verbose)
   {
     ApplicationTools::displayMessage("");
     ApplicationTools::displayMessage("Process " + TextTools::toString(procNum));
   }
-  
-  if (procName=="Homogeneous")
+
+  if (procName == "Homogeneous")
   {
-    if (args.find("model")==args.end())
+    if (args.find("model") == args.end())
       throw Exception("PhylogeneticsApplicationTools::addSubstitutionProcessCollectionMember. A model number is compulsory.");
 
-    size_t numModel=(size_t)ApplicationTools::getIntParameter("model", args, 1, "", true, warn);
+    size_t numModel = (size_t) ApplicationTools::getIntParameter("model", args, 1, "", true, warn);
 
-    if (! SubProColl->hasModelNumber(numModel))
+    if (!SubProColl->hasModelNumber(numModel))
       throw BadIntegerException("PhylogeneticsApplicationTools::addSubstitutionProcessCollectionMember : unknown model number", (int)numModel);
-    
-    vector<int> vNodes=SubProColl->getTree(numTree).getTree().getBranchesId();
+
+    vector<int> vNodes = SubProColl->getTree(numTree).getTree().getBranchesId();
 
     map<size_t, vector<int> > mModBr;
-    mModBr[numModel]=vNodes;
+    mModBr[numModel] = vNodes;
 
-    if (verbose){
+    if (verbose)
+    {
       ApplicationTools::displayResult("Process type", string("Homogeneous"));
-      ApplicationTools::displayResult (" Model number",TextTools::toString(numModel));
-      ApplicationTools::displayResult (" Tree number",TextTools::toString(numTree));
-      if (numRate<10000)
-        ApplicationTools::displayResult (" Rate number",TextTools::toString(numRate));
+      ApplicationTools::displayResult (" Model number", TextTools::toString(numModel));
+      ApplicationTools::displayResult (" Tree number", TextTools::toString(numTree));
+      if (numRate < 10000)
+        ApplicationTools::displayResult (" Rate number", TextTools::toString(numRate));
       else
-        ApplicationTools::displayResult (" Rate number",TextTools::toString(numRate/10000-1)+"."+TextTools::toString(numRate%10000));
+        ApplicationTools::displayResult (" Rate number", TextTools::toString(numRate / 10000 - 1) + "." + TextTools::toString(numRate % 10000));
 
       if (!stationarity)
-        ApplicationTools::displayResult (" Root frequencies number",TextTools::toString(numFreq));
+        ApplicationTools::displayResult (" Root frequencies number", TextTools::toString(numFreq));
       else
         ApplicationTools::displayMessage(" Stationarity assumed.");
     }
@@ -1165,57 +1197,58 @@ void PhylogeneticsApplicationTools::addSubstitutionProcessCollectionMember(
     else
       SubProColl->addSubstitutionProcess(procNum, mModBr, numTree, numRate, numFreq);
   }
-  
-  else if ((procName=="Nonhomogeneous") ||  (procName=="NonHomogeneous"))
+
+  else if ((procName == "Nonhomogeneous") ||  (procName == "NonHomogeneous"))
   {
-    size_t indModel=1;
+    size_t indModel = 1;
     map<size_t, vector<int> > mModBr;
 
-    while (args.find("model"+TextTools::toString(indModel))!=args.end())
+    while (args.find("model" + TextTools::toString(indModel)) != args.end())
     {
-      size_t numModel=(size_t)ApplicationTools::getIntParameter("model"+TextTools::toString(indModel), args, 1, "", true, warn);
+      size_t numModel = (size_t) ApplicationTools::getIntParameter("model" + TextTools::toString(indModel), args, 1, "", true, warn);
 
-      if (mModBr.find(numModel)!=mModBr.end())
+      if (mModBr.find(numModel) != mModBr.end())
         throw BadIntegerException("PhylogeneticsApplicationTools::addSubstitutionProcessCollectionMember : model number seen twice.", (int)numModel);
 
-      vector<int> nodesId = ApplicationTools::getVectorParameter<int>("model"+TextTools::toString(indModel)  + ".nodes_id", args, ',', ':', "0", "", true, warn);
+      vector<int> nodesId = ApplicationTools::getVectorParameter<int>("model" + TextTools::toString(indModel)  + ".nodes_id", args, ',', ':', "0", "", true, warn);
 
-      mModBr[numModel]=nodesId;
-      
+      mModBr[numModel] = nodesId;
+
       indModel++;
     }
 
-    if (verbose){
+    if (verbose)
+    {
       ApplicationTools::displayResult("Process type", string("NonHomogeneous"));
       map<size_t, vector<int> >::const_iterator it;
-      for (it=mModBr.begin(); it!=mModBr.end(); it++)
+      for (it = mModBr.begin(); it != mModBr.end(); it++)
+      {
         ApplicationTools::displayResult (" Model number" + TextTools::toString(it->first) + " associated to", TextTools::toString(it->second.size()) + " node(s).");
-      ApplicationTools::displayResult (" Tree number",TextTools::toString(numTree));
-      ApplicationTools::displayResult (" Rate number",TextTools::toString(numRate));
+      }
+      ApplicationTools::displayResult (" Tree number", TextTools::toString(numTree));
+      ApplicationTools::displayResult (" Rate number", TextTools::toString(numRate));
       if (!stationarity)
-        ApplicationTools::displayResult (" Root frequencies number",TextTools::toString(numFreq));
+        ApplicationTools::displayResult (" Root frequencies number", TextTools::toString(numFreq));
     }
-    
+
     if (stationarity)
       SubProColl->addSubstitutionProcess(procNum, mModBr, numTree, numRate);
     else
       SubProColl->addSubstitutionProcess(procNum, mModBr, numTree, numRate, numFreq);
   }
-  else if (procName=="OnePerBranch")
+  else if (procName == "OnePerBranch")
   {
-    if (args.find("model")==args.end())
+    if (args.find("model") == args.end())
       throw Exception("PhylogeneticsApplicationTools::addSubstitutionProcessCollectionMember. A model number is compulsory.");
 
-    size_t numModel=(size_t)ApplicationTools::getIntParameter("model", args, 1, "", true, warn);
+    size_t numModel = (size_t) ApplicationTools::getIntParameter("model", args, 1, "", true, warn);
 
-    if (! SubProColl->hasModelNumber(numModel))
+    if (!SubProColl->hasModelNumber(numModel))
       throw BadIntegerException("PhylogeneticsApplicationTools::addSubstitutionProcessCollectionMember : unknown model number", (int)numModel);
 
 
     throw Exception("OnePerBranch option not implemented yet. Ask developpers to do it");
-    
   }
-  
 }
 
 
@@ -1223,95 +1256,103 @@ void PhylogeneticsApplicationTools::addSubstitutionProcessCollectionMember(
 
 
 SubstitutionProcessCollection* PhylogeneticsApplicationTools::getSubstitutionProcessCollection(
-       const Alphabet* alphabet,
-       const GeneticCode* gCode,
-       const map<size_t, Tree*>& mTree,
-       const map<size_t, SubstitutionModel*>& mMod,
-       const map<size_t, FrequenciesSet*>& mRootFreq,
-       const map<size_t, DiscreteDistribution*>& mDist,
-       map<string, string>& params,
-       map<string, string>& unparsedParams,
-       const string& suffix,
-       bool suffixIsOptional,
-       bool verbose,
-       int warn)
+  const Alphabet* alphabet,
+  const GeneticCode* gCode,
+  const map<size_t, Tree*>& mTree,
+  const map<size_t, SubstitutionModel*>& mMod,
+  const map<size_t, FrequenciesSet*>& mRootFreq,
+  const map<size_t, DiscreteDistribution*>& mDist,
+  map<string, string>& params,
+  map<string, string>& unparsedParams,
+  const string& suffix,
+  bool suffixIsOptional,
+  bool verbose,
+  int warn)
 {
-  SubstitutionProcessCollection*  SPC=new SubstitutionProcessCollection();
+  SubstitutionProcessCollection*  SPC = new SubstitutionProcessCollection();
 
   map<string, double> existingParameters;
- 
-  /////////////////////////
+
+  // ///////////////////////
   // Trees
-  
-  if (mTree.size()==0)
+
+  if (mTree.size() == 0)
     throw Exception("Missing tree in construction of SubstitutionProcessCollection.");
-  
+
   map<size_t, Tree*>::const_iterator itt;
-  
-  for (itt=mTree.begin(); itt!=mTree.end(); itt++)
+
+  for (itt = mTree.begin(); itt != mTree.end(); itt++)
+  {
     SPC->addTree(new ParametrizableTree(*(itt->second)), itt->first);
+  }
 
-  /////////////////////////
+  // ///////////////////////
   // Rates
-  
-  if (mDist.size()==0)
-    throw Exception("Missing rate distribution in construction of SubstitutionProcessCollection.");
-  
-  map<size_t, DiscreteDistribution*>::const_iterator itd;
-  
-  for (itd=mDist.begin();itd!=mDist.end(); itd++)
-    SPC->addDistribution(itd->second, itd->first);
 
-  //////////////////////////
+  if (mDist.size() == 0)
+    throw Exception("Missing rate distribution in construction of SubstitutionProcessCollection.");
+
+  map<size_t, DiscreteDistribution*>::const_iterator itd;
+
+  for (itd = mDist.begin(); itd != mDist.end(); itd++)
+  {
+    SPC->addDistribution(itd->second, itd->first);
+  }
+
+  // ////////////////////////
   // Models
 
-  if (mMod.size()==0)
+  if (mMod.size() == 0)
     throw Exception("Missing model in construction of SubstitutionProcessCollection.");
-  
+
   map<size_t, SubstitutionModel*>::const_iterator itm;
-  
-  for (itm=mMod.begin();itm!=mMod.end(); itm++)
+
+  for (itm = mMod.begin(); itm != mMod.end(); itm++)
+  {
     SPC->addModel(itm->second, itm->first);
+  }
 
 
-  /////////////////////////////
+  // ///////////////////////////
   // Root Frequencies
 
   map<size_t, FrequenciesSet*>::const_iterator itr;
-  
-  for (itr=mRootFreq.begin();itr!=mRootFreq.end(); itr++)
-    SPC->addFrequencies(itr->second, itr->first);
 
-  
-  ////////////////////////////////
+  for (itr = mRootFreq.begin(); itr != mRootFreq.end(); itr++)
+  {
+    SPC->addFrequencies(itr->second, itr->first);
+  }
+
+
+  // //////////////////////////////
   // Now processes
 
-  vector<string> vProcName=ApplicationTools::matchingParameters("process*", params);
+  vector<string> vProcName = ApplicationTools::matchingParameters("process*", params);
 
-  if (vProcName.size()==0)
+  if (vProcName.size() == 0)
     throw Exception("Missing process in construction of SubstitutionProcessCollection.");
 
-  for (size_t nT=0; nT < vProcName.size(); nT++)
+  for (size_t nT = 0; nT < vProcName.size(); nT++)
   {
-    size_t poseq=vProcName[nT].find("=");
+    size_t poseq = vProcName[nT].find("=");
     size_t num;
     size_t len = 7;
-    
-    string suff = vProcName[nT].substr(len,poseq-len);
 
-    if (TextTools::isDecimalInteger(suff,'$'))
-      num=static_cast<size_t>(TextTools::toInt(suff));
+    string suff = vProcName[nT].substr(len, poseq - len);
+
+    if (TextTools::isDecimalInteger(suff, '$'))
+      num = static_cast<size_t>(TextTools::toInt(suff));
     else
-      num=1;
-    
+      num = 1;
+
     addSubstitutionProcessCollectionMember(SPC, num, params, num);
   }
-  
+
 
   // string ProcessFilePath = ApplicationTools::getAFilePath("processes.file", params, false, false, suffix, suffixIsOptional);
 
   // map<string, string> paramProcess;
-  
+
   // if (ProcessFilePath!="none")
   //   paramModel=AttributesTools::getAttributesMapFromFile(ProcessFilePath,"=");
 
@@ -1333,10 +1374,10 @@ SubstitutionProcessCollection* PhylogeneticsApplicationTools::getSubstitutionPro
   //   addSubstitutionProcessCollectionMember(SPC, params, processNum[i]);
 
 
-  ///////////////////////////
+  // /////////////////////////
   // Now set shared parameters:
 
-  //////// Aliasing
+  // ////// Aliasing
   // Finally check parameter aliasing:
 
   string aliasDesc = ApplicationTools::getStringParameter("likelihood.alias", params, "", suffix, suffixIsOptional, warn);
@@ -1350,7 +1391,7 @@ SubstitutionProcessCollection* PhylogeneticsApplicationTools::getSubstitutionPro
       throw Exception("PhylogeneticsApplicationTools::getSubstitutionProcessCollection. Bad alias syntax, should contain `->' symbol: " + alias);
     string p1 = alias.substr(0, index);
     string p2 = alias.substr(index + 2);
-    unparsedParams[p1]=p2;
+    unparsedParams[p1] = p2;
   }
 
   SPC->aliasParameters(unparsedParams, verbose);
@@ -1373,27 +1414,27 @@ map<size_t, SequenceEvolution*> PhylogeneticsApplicationTools::getSequenceEvolut
   int warn) throw (Exception)
 {
   map<string, string> paramEvol;
-  
+
   paramEvol.insert(params.begin(), params.end());
 
-  vector<string> evolsName=ApplicationTools::matchingParameters("process*", paramEvol);
+  vector<string> evolsName = ApplicationTools::matchingParameters("process*", paramEvol);
 
   vector<size_t> evolsNum;
-  for (size_t i=0; i< evolsName.size(); i++)
+  for (size_t i = 0; i < evolsName.size(); i++)
   {
-    size_t poseq=evolsName[i].find("=");
-    evolsNum.push_back((size_t)TextTools::toInt(evolsName[i].substr(7,poseq-7)));
+    size_t poseq = evolsName[i].find("=");
+    evolsNum.push_back((size_t) TextTools::toInt(evolsName[i].substr(7, poseq - 7)));
   }
 
   map<size_t, SequenceEvolution*> mEvol;
-  
-  for (size_t mPi=0; mPi< evolsNum.size(); mPi++)
+
+  for (size_t mPi = 0; mPi < evolsNum.size(); mPi++)
   {
     if (SPC.hasSubstitutionProcessNumber(evolsNum[mPi]))
       continue;
-    
+
     SequenceEvolution* nEvol;
-    
+
     string evolName = "";
     map<string, string> args;
 
@@ -1402,73 +1443,79 @@ map<size_t, SequenceEvolution*> PhylogeneticsApplicationTools::getSequenceEvolut
     KeyvalTools::parseProcedure(evolDesc, evolName, args);
 
     // Process
-    if (verbose){
+    if (verbose)
+    {
       ApplicationTools::displayMessage("");
       ApplicationTools::displayMessage("Process " + TextTools::toString(evolsNum[mPi]));
     }
 
-    if (evolName=="Simple")
+    if (evolName == "Simple")
     {
-      size_t nproc = (size_t)ApplicationTools::getIntParameter("process", args, ',', "");
-      if (! SPC.hasSubstitutionProcessNumber(nproc))    
-        throw BadIntegerException("PhylogeneticsApplicationTools::getEvolutions. Unknown process number:",(int)nproc);
-      
+      size_t nproc = (size_t) ApplicationTools::getIntParameter("process", args, ',', "");
+      if (!SPC.hasSubstitutionProcessNumber(nproc))
+        throw BadIntegerException("PhylogeneticsApplicationTools::getEvolutions. Unknown process number:", (int)nproc);
+
       nEvol = new OneProcessSequenceEvolution(SPC.getSubstitutionProcess(nproc), nproc);
-      if (verbose){
+      if (verbose)
+      {
         ApplicationTools::displayResult("Process type", string("Simple"));
-        ApplicationTools::displayResult (" Process number",TextTools::toString(nproc));
+        ApplicationTools::displayResult (" Process number", TextTools::toString(nproc));
       }
     }
     else
     {
-      size_t indProc=1;
+      size_t indProc = 1;
       vector<size_t> vproc;
-      
-      while (args.find("process"+TextTools::toString(indProc))!=args.end())
+
+      while (args.find("process" + TextTools::toString(indProc)) != args.end())
       {
-        size_t numProc=(size_t)ApplicationTools::getIntParameter("process"+TextTools::toString(indProc), args, 1, "", true, warn);
+        size_t numProc = (size_t) ApplicationTools::getIntParameter("process" + TextTools::toString(indProc), args, 1, "", true, warn);
 
         vproc.push_back(numProc);
         indProc++;
       }
-      
-      if (vproc.size()==0)
+
+      if (vproc.size() == 0)
         throw BadIntegerException("PhylogeneticsApplicationTools::getEvolutions. A process number is compulsory for process", (int)indProc);
 
       for (size_t i = 0; i < vproc.size(); i++)
-        if (! SPC.hasSubstitutionProcessNumber(vproc[i]))    
-          throw BadIntegerException("PhylogeneticsApplicationTools::getEvolutions. Unknown process number:",(int)vproc[i]);
+      {
+        if (!SPC.hasSubstitutionProcessNumber(vproc[i]))
+          throw BadIntegerException("PhylogeneticsApplicationTools::getEvolutions. Unknown process number:", (int)vproc[i]);
+      }
 
-      if (evolName=="Partition")
+      if (evolName == "Partition")
       {
         // parse all processes sites
-      
+
         vector<size_t> vMap;
-      
+
         map<size_t, size_t> posProc;
-      
+
         for (size_t i = 0; i < vproc.size(); i++)
         {
           string prefix = "process" + TextTools::toString(i + 1);
-        
+
           vector<size_t> procPos = ApplicationTools::getVectorParameter<size_t>(prefix + ".sites", args, ',', ':', TextTools::toString(i), "", true, true);
 
-          for (size_t j=0; j<procPos.size(); j++)
-            if (posProc.find(procPos[j])!=posProc.end())
-              throw BadIntegerException("A process position is defined twice:",(int)j);
+          for (size_t j = 0; j < procPos.size(); j++)
+          {
+            if (posProc.find(procPos[j]) != posProc.end())
+              throw BadIntegerException("A process position is defined twice:", (int)j);
             else
-              posProc[procPos[j]]=vproc[i];
+              posProc[procPos[j]] = vproc[i];
+          }
         }
-      
-        size_t pos=1;
-      
-        while (posProc.find(pos)!=posProc.end())
+
+        size_t pos = 1;
+
+        while (posProc.find(pos) != posProc.end())
         {
           vMap.push_back(posProc[pos]);
-          pos++;          
+          pos++;
         }
-      
-        if (vMap.size()!=posProc.size())
+
+        if (vMap.size() != posProc.size())
           throw Exception("Error : there are gaps in the process sites");
 
         if (verbose)
@@ -1478,80 +1525,84 @@ map<size_t, SequenceEvolution*> PhylogeneticsApplicationTools::getSequenceEvolut
 
         nEvol = pMP;
       }
-      else if (evolName=="Mixture")
+      else if (evolName == "Mixture")
       {
         MixtureSequenceEvolution* pMP = new MixtureSequenceEvolution(&SPC, vproc);
-        
+
         if (verbose)
           ApplicationTools::displayResult("Process type", string("Mixture"));
 
         size_t nbP = pMP->getNumberOfSubstitutionProcess();
-        
-        std::vector<double> vprob=ApplicationTools::getVectorParameter<double>("probas", args, ',', "("+VectorTools::paste(std::vector<double>(nbP,1./(double)nbP))+")");
-        if (vprob.size()!=1)
+
+        std::vector<double> vprob = ApplicationTools::getVectorParameter<double>("probas", args, ',', "(" + VectorTools::paste(std::vector<double>(nbP, 1. / (double)nbP)) + ")");
+        if (vprob.size() != 1)
         {
-          if (vprob.size()!=nbP)
+          if (vprob.size() != nbP)
             throw BadSizeException("Wrong size of probas description in Mixture", vprob.size(), nbP);
           Simplex si(vprob);
           pMP->setSubProcessProb(si);
         }
-        
-        nEvol=pMP;
+
+        nEvol = pMP;
       }
-      else if (evolName=="HMM")
+      else if (evolName == "HMM")
       {
         HmmSequenceEvolution* pMP = new HmmSequenceEvolution(&SPC, vproc);
-        
+
         if (verbose)
           ApplicationTools::displayResult("Process type", string("HMM"));
 
         size_t nbP = pMP->getNumberOfSubstitutionProcess();
-        
-        string vs="("+VectorTools::paste(std::vector<double>(nbP,1./(double)nbP),",")+")";
-        string vvs="(";
-        for (size_t i=0;i<nbP;i++)
-          vvs+=(i==0?"":",")+vs;
-        vvs+=")";
-        
-        RowMatrix<double> mat=ApplicationTools::getMatrixParameter<double>("probas", args, ',', vvs);
-        
+
+        string vs = "(" + VectorTools::paste(std::vector<double>(nbP, 1. / (double)nbP), ",") + ")";
+        string vvs = "(";
+        for (size_t i = 0; i < nbP; i++)
+        {
+          vvs += (i == 0 ? "" : ",") + vs;
+        }
+        vvs += ")";
+
+        RowMatrix<double> mat = ApplicationTools::getMatrixParameter<double>("probas", args, ',', vvs);
+
         FullHmmTransitionMatrix fhtm(pMP->getHmmTransitionMatrix().getHmmStateAlphabet(), pMP->getNamespace());
         fhtm.setTransitionProbabilities(mat);
-        
+
         pMP->matchParametersValues(fhtm.getParameters());
 
-        nEvol=pMP;
+        nEvol = pMP;
       }
-      else if (evolName=="AutoCorr")
+      else if (evolName == "AutoCorr")
       {
         AutoCorrelationSequenceEvolution* pMP = new AutoCorrelationSequenceEvolution(&SPC, vproc);
-        
+
         size_t nbP = pMP->getNumberOfSubstitutionProcess();
 
         if (verbose)
           ApplicationTools::displayResult("Process type", string("AutoCorr"));
 
-        string vs="("+VectorTools::paste(std::vector<double>(nbP,1./(int)nbP),",")+")";
-        
-        vector<double> v=ApplicationTools::getVectorParameter<double>("probas", args, ',', vs);
-        
+        string vs = "(" + VectorTools::paste(std::vector<double>(nbP, 1. / (int)nbP), ",") + ")";
+
+        vector<double> v = ApplicationTools::getVectorParameter<double>("probas", args, ',', vs);
+
         ParameterList pl;
-        
-        for (size_t i=0;i<v.size();i++)
-          pl.addParameter(Parameter("AutoCorr.lambda"+TextTools::toString(i+1),v[i]));
+
+        for (size_t i = 0; i < v.size(); i++)
+        {
+          pl.addParameter(Parameter("AutoCorr.lambda" + TextTools::toString(i + 1), v[i]));
+        }
 
         pMP->matchParametersValues(pl);
-        
-        nEvol=pMP;
+
+        nEvol = pMP;
       }
       else
-        throw Exception("Unknown Process description : "+ evolName);
+        throw Exception("Unknown Process description : " + evolName);
 
       if (verbose)
-        ApplicationTools::displayResult (" Process numbers", VectorTools::paste(vproc,","));
+        ApplicationTools::displayResult (" Process numbers", VectorTools::paste(vproc, ","));
     }
-    
-    mEvol[evolsNum[mPi]]=nEvol;
+
+    mEvol[evolsNum[mPi]] = nEvol;
   }
 
   return mEvol;
@@ -1575,61 +1626,61 @@ PhyloLikelihoodContainer* PhylogeneticsApplicationTools::getPhyloLikelihoodConta
 
   paramPhyl.insert(params.begin(), params.end());
 
-  vector<string> phylosName=ApplicationTools::matchingParameters("phylo*", paramPhyl);
+  vector<string> phylosName = ApplicationTools::matchingParameters("phylo*", paramPhyl);
 
   // map of dependencies between phylolikelihoods
 
   map<size_t, vector<size_t> > phylosMap;
 
-  for (size_t i=0; i< phylosName.size(); i++)
+  for (size_t i = 0; i < phylosName.size(); i++)
   {
-    size_t poseq=phylosName[i].find("=");
-    size_t phyln=(size_t)TextTools::toInt(phylosName[i].substr(5,poseq-5));
+    size_t poseq = phylosName[i].find("=");
+    size_t phyln = (size_t) TextTools::toInt(phylosName[i].substr(5, poseq - 5));
 
-    if (phyln==0)
-      throw BadIntegerException("PhylogeneticsApplicationTools::getPhyloLikelihoodContainer : Forbidden Phylo Number", TextTools::toInt(phylosName[i].substr(5,poseq-5)));
+    if (phyln == 0)
+      throw BadIntegerException("PhylogeneticsApplicationTools::getPhyloLikelihoodContainer : Forbidden Phylo Number", TextTools::toInt(phylosName[i].substr(5, poseq - 5)));
 
     string phyloDesc = ApplicationTools::getStringParameter("phylo", params, "Single", TextTools::toString(phyln), 2);
 
     map<string, string> args;
 
     string phyloName = "";
-    
+
     KeyvalTools::parseProcedure(phyloDesc, phyloName, args);
 
-    size_t indPhyl=1;
+    size_t indPhyl = 1;
     vector<size_t> vphyl;
-    
-    while (args.find("phylo"+TextTools::toString(indPhyl))!=args.end())
+
+    while (args.find("phylo" + TextTools::toString(indPhyl)) != args.end())
     {
-      size_t numPhyl=(size_t)ApplicationTools::getIntParameter("phylo"+TextTools::toString(indPhyl), args, 1, "", true, warn);
+      size_t numPhyl = (size_t) ApplicationTools::getIntParameter("phylo" + TextTools::toString(indPhyl), args, 1, "", true, warn);
 
       vphyl.push_back(numPhyl);
       indPhyl++;
     }
 
-    phylosMap[phyln]=vphyl;
+    phylosMap[phyln] = vphyl;
   }
 
-  
-  PhyloLikelihoodContainer* mPhylo=new PhyloLikelihoodContainer();
+
+  PhyloLikelihoodContainer* mPhylo = new PhyloLikelihoodContainer();
 
   vector<size_t> usedPhylo;
-  
 
-  ////////////////////////////////////////////
+
+  // //////////////////////////////////////////
   // First the phylos that do not depend on other phylos
 
-  for (map<size_t, vector<size_t> >::iterator it=phylosMap.begin(); it != phylosMap.end(); it++)
+  for (map<size_t, vector<size_t> >::iterator it = phylosMap.begin(); it != phylosMap.end(); it++)
   {
-    if (it->second.size()!=0)
+    if (it->second.size() != 0)
       continue;
 
-    size_t phylonum=it->first;
-      
+    size_t phylonum = it->first;
+
     PhyloLikelihood* nPL;
     string phyloName = "";
-    
+
     map<string, string> args;
 
     string phyloDesc = ApplicationTools::getStringParameter("phylo", params, "Single", TextTools::toString(phylonum), warn);
@@ -1639,115 +1690,115 @@ PhyloLikelihoodContainer* PhylogeneticsApplicationTools::getPhyloLikelihoodConta
       ApplicationTools::displayMessage("");
       ApplicationTools::displayMessage("Phylolikelihood " + TextTools::toString(phylonum));
     }
-    
+
     KeyvalTools::parseProcedure(phyloDesc, phyloName, args);
 
     // Data
 
     size_t nData;
- 
-    if (args.find("data")==args.end())
-      nData=1;
-    else
-      nData=(size_t)TextTools::toInt(args["data"]);
 
-    if (mData.find(nData)==mData.end())
-      throw BadIntegerException("PhylogeneticsApplicationTools::getPhyloLikelihoodContainer. Data number is wrong:",(int)nData);
- 
-    const VectorSiteContainer* data= dynamic_cast<const VectorSiteContainer*>(mData.find(nData)->second);
+    if (args.find("data") == args.end())
+      nData = 1;
+    else
+      nData = (size_t) TextTools::toInt(args["data"]);
+
+    if (mData.find(nData) == mData.end())
+      throw BadIntegerException("PhylogeneticsApplicationTools::getPhyloLikelihoodContainer. Data number is wrong:", (int)nData);
+
+    const VectorSiteContainer* data = dynamic_cast<const VectorSiteContainer*>(mData.find(nData)->second);
 
     if (!data)
       throw Exception("PhylogeneticsApplicationTools::getPhyloLikelihoodContainer. Data " + TextTools::toString(nData) + " does not match with aligned sequences");
- 
+
 
     if (verbose)
       ApplicationTools::displayResult(" Data used ", TextTools::toString(nData));
 
     // Sequence Evolution or process
 
-    size_t nProcess=0;
+    size_t nProcess = 0;
 
-    if (args.find("process")==args.end())
+    if (args.find("process") == args.end())
     {
       ApplicationTools::displayWarning("Warning, missing 'process' argument. Set to 1");
-      nProcess=1;
+      nProcess = 1;
     }
     else
-      nProcess=(size_t)TextTools::toInt(args["process"]);
+      nProcess = (size_t) TextTools::toInt(args["process"]);
 
-    
+
     // Says if log should be used or not
 
-    bool useLog=false;
+    bool useLog = false;
 
-    if (args.find("useLog")!=args.end() && args["useLog"]=="yes")
-      useLog=true;
+    if (args.find("useLog") != args.end() && args["useLog"] == "yes")
+      useLog = true;
 
     if (verbose)
-      ApplicationTools::displayResult(" Use log in computation ", (useLog?"yes":"no"));
-    
+      ApplicationTools::displayResult(" Use log in computation ", (useLog ? "yes" : "no"));
+
 
     // Check this process has not been used before
 
     if (verbose)
       ApplicationTools::displayResult(" Process ", TextTools::toString(nProcess));
-    
+
     // Compression
-    
+
     char compression = 'S';
 
-    if (args.find("compression")!=args.end() && args["compression"]=="recursive")
+    if (args.find("compression") != args.end() && args["compression"] == "recursive")
       compression = 'R';
 
     if (verbose)
-      ApplicationTools::displayResult(" Compression ", (compression=='R')?"recursive":"simple");
+      ApplicationTools::displayResult(" Compression ", (compression == 'R') ? "recursive" : "simple");
 
     // Construction
 
     if (SPC.hasSubstitutionProcessNumber(nProcess))
     {
-      LikelihoodTreeCalculation* tlc=0;
+      LikelihoodTreeCalculation* tlc = 0;
 
-      tlc=new RecursiveLikelihoodTreeCalculation(*data, &SPC.getSubstitutionProcess(nProcess), true, compression == 'R');
-        
+      tlc = new RecursiveLikelihoodTreeCalculation(*data, &SPC.getSubstitutionProcess(nProcess), true, compression == 'R');
+
       nPL = new SingleProcessPhyloLikelihood(&SPC.getSubstitutionProcess(nProcess), tlc, nProcess, nData);
     }
-    else if (mSeqEvol.find(nProcess)!=mSeqEvol.end())
+    else if (mSeqEvol.find(nProcess) != mSeqEvol.end())
     {
-      //////////////////
-      /// from sequence evolutions to phyloLikelihoods
-      
-      OneProcessSequenceEvolution* opse=dynamic_cast<OneProcessSequenceEvolution*>(mSeqEvol[nProcess]);
-      
-      if (opse!=NULL)
-        nPL = new OneProcessSequencePhyloLikelihood(*data, *opse, nProcess, nData, true, compression=='R');
+      // ////////////////
+      // / from sequence evolutions to phyloLikelihoods
+
+      OneProcessSequenceEvolution* opse = dynamic_cast<OneProcessSequenceEvolution*>(mSeqEvol[nProcess]);
+
+      if (opse != NULL)
+        nPL = new OneProcessSequencePhyloLikelihood(*data, *opse, nProcess, nData, true, compression == 'R');
       else
       {
-        MixtureSequenceEvolution* mse=dynamic_cast<MixtureSequenceEvolution*>(mSeqEvol[nProcess]);
+        MixtureSequenceEvolution* mse = dynamic_cast<MixtureSequenceEvolution*>(mSeqEvol[nProcess]);
 
-        if (mse!=NULL)
-          nPL = new MixtureProcessPhyloLikelihood(*data, *mse, nProcess, nData, true, compression=='R');
-        
-        else {
-          
-          HmmSequenceEvolution* hse =dynamic_cast<HmmSequenceEvolution*>(mSeqEvol[nProcess]);
-          
-          if (hse!=NULL)
-            nPL = new HmmProcessPhyloLikelihood(*data, *hse, nProcess, nData, true, compression=='R');
-          
-          else {
-            
-            AutoCorrelationSequenceEvolution* ase =dynamic_cast<AutoCorrelationSequenceEvolution*>(mSeqEvol[nProcess]);
-            
-            if (ase!=NULL)
-              nPL = new AutoCorrelationProcessPhyloLikelihood(*data, *ase, nProcess, nData, true, compression=='R');
-            
-            else {
-              
-              PartitionSequenceEvolution* pse =dynamic_cast<PartitionSequenceEvolution*>(mSeqEvol[nProcess]);
+        if (mse != NULL)
+          nPL = new MixtureProcessPhyloLikelihood(*data, *mse, nProcess, nData, true, compression == 'R');
 
-              if (pse!=NULL)
-                nPL = new PartitionProcessPhyloLikelihood(*data, *pse, nProcess, nData, true, compression=='R');
+        else
+        {
+          HmmSequenceEvolution* hse = dynamic_cast<HmmSequenceEvolution*>(mSeqEvol[nProcess]);
+
+          if (hse != NULL)
+            nPL = new HmmProcessPhyloLikelihood(*data, *hse, nProcess, nData, true, compression == 'R');
+
+          else
+          {
+            AutoCorrelationSequenceEvolution* ase = dynamic_cast<AutoCorrelationSequenceEvolution*>(mSeqEvol[nProcess]);
+
+            if (ase != NULL)
+              nPL = new AutoCorrelationProcessPhyloLikelihood(*data, *ase, nProcess, nData, true, compression == 'R');
+
+            else
+            {
+              PartitionSequenceEvolution* pse = dynamic_cast<PartitionSequenceEvolution*>(mSeqEvol[nProcess]);
+
+              if (pse != NULL)
+                nPL = new PartitionProcessPhyloLikelihood(*data, *pse, nProcess, nData, true, compression == 'R');
 
               else
                 throw Exception("PhylogeneticsApplicationTools::getPhyloLikelihoodContainer : Unknown Sequence Evolution.");
@@ -1755,57 +1806,57 @@ PhyloLikelihoodContainer* PhylogeneticsApplicationTools::getPhyloLikelihoodConta
           }
         }
       }
-
     }
     else
       throw Exception("PhylogeneticsApplicationTools::getPhyloLikelihoodContainer : Unknown Process number.");
-    
+
 
     nPL->setUseLog(useLog);
-    mPhylo->addPhyloLikelihood(phylonum,nPL);
+    mPhylo->addPhyloLikelihood(phylonum, nPL);
 
     usedPhylo.push_back(phylonum);
   }
 
   // Now clean the map
-  for (map<size_t, vector<size_t> >::iterator it=phylosMap.begin(); it != phylosMap.end(); )
+  for (map<size_t, vector<size_t> >::iterator it = phylosMap.begin(); it != phylosMap.end(); )
   {
-    if (it->second.size()==0){
+    if (it->second.size() == 0)
+    {
       phylosMap.erase(it++);
       continue;
     }
-    
-    vector<size_t>& vphyl=it->second;
-    for (size_t i=vphyl.size();i>0;i--)
+
+    vector<size_t>& vphyl = it->second;
+    for (size_t i = vphyl.size(); i > 0; i--)
     {
-      std::vector<size_t>::iterator posp=find(usedPhylo.begin(), usedPhylo.end(), vphyl[i-1]);
-      if (posp!=usedPhylo.end())
-        vphyl.erase(vphyl.begin() + i-1);
+      std::vector<size_t>::iterator posp = find(usedPhylo.begin(), usedPhylo.end(), vphyl[i - 1]);
+      if (posp != usedPhylo.end())
+        vphyl.erase(vphyl.begin() + i - 1);
     }
     ++it;
-    
   }
 
-  // Proceed the other phylos 
+  // Proceed the other phylos
 
-  while (phylosMap.size()!=0)  // there is still phylos to be treated
+  while (phylosMap.size() != 0)  // there is still phylos to be treated
   {
-    if (usedPhylo.size()==0){
+    if (usedPhylo.size() == 0)
+    {
       ApplicationTools::displayWarning("Warning, some phylolikelihoods are not used.");
       break;
     }
-      
-    usedPhylo.clear();
-    
-    for (map<size_t, vector<size_t> >::iterator it=phylosMap.begin(); it != phylosMap.end(); it++)
-    {
-      if (it->second.size()==0){
 
-        size_t phylonum=it->first;
-      
+    usedPhylo.clear();
+
+    for (map<size_t, vector<size_t> >::iterator it = phylosMap.begin(); it != phylosMap.end(); it++)
+    {
+      if (it->second.size() == 0)
+      {
+        size_t phylonum = it->first;
+
         PhyloLikelihood* nPL;
         string phyloName = "";
-    
+
         map<string, string> args;
 
         string phyloDesc = ApplicationTools::getStringParameter("phylo", params, "Single", TextTools::toString(phylonum), warn);
@@ -1816,79 +1867,83 @@ PhyloLikelihoodContainer* PhylogeneticsApplicationTools::getPhyloLikelihoodConta
           ApplicationTools::displayMessage("");
           ApplicationTools::displayMessage("Phylolikelihood " + TextTools::toString(phylonum));
         }
-    
+
         KeyvalTools::parseProcedure(phyloDesc, phyloName, args);
-        
-        size_t indPhylo=1;
+
+        size_t indPhylo = 1;
         vector<size_t> vPhylo;
-        
-        while (args.find("phylo"+TextTools::toString(indPhylo))!=args.end())
+
+        while (args.find("phylo" + TextTools::toString(indPhylo)) != args.end())
         {
-          size_t numPhylo=(size_t)ApplicationTools::getIntParameter("phylo"+TextTools::toString(indPhylo), args, 1, "", true, warn);
-          
+          size_t numPhylo = (size_t) ApplicationTools::getIntParameter("phylo" + TextTools::toString(indPhylo), args, 1, "", true, warn);
+
           vPhylo.push_back(numPhylo);
           indPhylo++;
         }
 
-        if (phyloName=="Mixture")
+        if (phyloName == "Mixture")
         {
-          MixtureOfAlignedPhyloLikelihood* pMA=new MixtureOfAlignedPhyloLikelihood(mPhylo, vPhylo);
-          std::vector<double> vprob=ApplicationTools::getVectorParameter<double>("probas", args, ',', "("+VectorTools::paste(std::vector<double>(vPhylo.size(),1./(double)vPhylo.size()))+")");
-          if (vprob.size()!=1)
+          MixtureOfAlignedPhyloLikelihood* pMA = new MixtureOfAlignedPhyloLikelihood(mPhylo, vPhylo);
+          std::vector<double> vprob = ApplicationTools::getVectorParameter<double>("probas", args, ',', "(" + VectorTools::paste(std::vector<double>(vPhylo.size(), 1. / (double)vPhylo.size())) + ")");
+          if (vprob.size() != 1)
           {
-            if (vprob.size()!=vPhylo.size())
+            if (vprob.size() != vPhylo.size())
               throw BadSizeException("Wrong size of probas description in Mixture", vprob.size(), vPhylo.size());
             Simplex si(vprob);
             pMA->setPhyloProb(si);
           }
 
-          nPL=dynamic_cast<PhyloLikelihood*>(pMA);
+          nPL = dynamic_cast<PhyloLikelihood*>(pMA);
         }
-        else if (phyloName=="HMM")
+        else if (phyloName == "HMM")
         {
-          HmmOfAlignedPhyloLikelihood* pMA=new HmmOfAlignedPhyloLikelihood(mPhylo, vPhylo);
+          HmmOfAlignedPhyloLikelihood* pMA = new HmmOfAlignedPhyloLikelihood(mPhylo, vPhylo);
 
           size_t nbP = pMA->getNumbersOfPhyloLikelihoods().size();
-        
-          string vs="("+VectorTools::paste(std::vector<double>(nbP,1./(double)nbP),",")+")";
-          string vvs="(";
-          for (size_t i=0;i<nbP;i++)
-            vvs+=(i==0?"":",")+vs;
-          vvs+=")";
-        
-          RowMatrix<double> mat=ApplicationTools::getMatrixParameter<double>("probas", args, ',', vvs);
-        
+
+          string vs = "(" + VectorTools::paste(std::vector<double>(nbP, 1. / (double)nbP), ",") + ")";
+          string vvs = "(";
+          for (size_t i = 0; i < nbP; i++)
+          {
+            vvs += (i == 0 ? "" : ",") + vs;
+          }
+          vvs += ")";
+
+          RowMatrix<double> mat = ApplicationTools::getMatrixParameter<double>("probas", args, ',', vvs);
+
           FullHmmTransitionMatrix fhtm(pMA->getHmmTransitionMatrix().getHmmStateAlphabet(), pMA->getNamespace());
           fhtm.setTransitionProbabilities(mat);
-        
+
           pMA->matchParametersValues(fhtm.getParameters());
 
-          nPL=pMA;
+          nPL = pMA;
         }
-        else if (phyloName=="AutoCorr")
+        else if (phyloName == "AutoCorr")
         {
-          AutoCorrelationOfAlignedPhyloLikelihood* pMA=new AutoCorrelationOfAlignedPhyloLikelihood(mPhylo, vPhylo);
+          AutoCorrelationOfAlignedPhyloLikelihood* pMA = new AutoCorrelationOfAlignedPhyloLikelihood(mPhylo, vPhylo);
 
           size_t nbP = pMA->getNumbersOfPhyloLikelihoods().size();
 
-          string vs="("+VectorTools::paste(std::vector<double>(nbP,1./(double)nbP),",")+")";
-        
-          vector<double> v=ApplicationTools::getVectorParameter<double>("probas", args, ',', vs);
-        
+          string vs = "(" + VectorTools::paste(std::vector<double>(nbP, 1. / (double)nbP), ",") + ")";
+
+          vector<double> v = ApplicationTools::getVectorParameter<double>("probas", args, ',', vs);
+
           ParameterList pl;
-        
-          for (size_t i=0;i<v.size();i++)
-            pl.addParameter(Parameter("AutoCorr.lambda"+TextTools::toString(i+1),v[i]));
-        
+
+          for (size_t i = 0; i < v.size(); i++)
+          {
+            pl.addParameter(Parameter("AutoCorr.lambda" + TextTools::toString(i + 1), v[i]));
+          }
+
           pMA->matchParametersValues(pl);
 
-          nPL=pMA;
+          nPL = pMA;
         }
-        else if (phyloName=="Product")
+        else if (phyloName == "Product")
         {
-          ProductOfAlignedPhyloLikelihood* pAP=new ProductOfAlignedPhyloLikelihood(mPhylo, vPhylo);
+          ProductOfAlignedPhyloLikelihood* pAP = new ProductOfAlignedPhyloLikelihood(mPhylo, vPhylo);
 
-          nPL=pAP;
+          nPL = pAP;
         }
         else
           throw Exception("PhylogeneticsApplicationTools::getPhyloLikelihoodContainer : Unknown Phylo name " + phyloName);
@@ -1896,117 +1951,118 @@ PhyloLikelihoodContainer* PhylogeneticsApplicationTools::getPhyloLikelihoodConta
         if (verbose)
         {
           ApplicationTools::displayResult(" Phylolikelihood type", phyloName);
-          ApplicationTools::displayResult(" Phylo numbers", VectorTools::paste(vPhylo,","));
+          ApplicationTools::displayResult(" Phylo numbers", VectorTools::paste(vPhylo, ","));
         }
-        
-        mPhylo->addPhyloLikelihood(phylonum,nPL);
+
+        mPhylo->addPhyloLikelihood(phylonum, nPL);
         usedPhylo.push_back(phylonum);
       }
     }
-  
+
     // Now clean the map
-    for (map<size_t, vector<size_t> >::iterator it=phylosMap.begin(); it != phylosMap.end();)
+    for (map<size_t, vector<size_t> >::iterator it = phylosMap.begin(); it != phylosMap.end(); )
     {
-      if (it->second.size()==0){
+      if (it->second.size() == 0)
+      {
         phylosMap.erase(it++);
         continue;
       }
-      
-      vector<size_t>& vphyl=it->second;
-      for (size_t i=vphyl.size();i>0;i--)
+
+      vector<size_t>& vphyl = it->second;
+      for (size_t i = vphyl.size(); i > 0; i--)
       {
-        std::vector<size_t>::iterator posp=find(usedPhylo.begin(), usedPhylo.end(), vphyl[i-1]);
-        if (posp!=usedPhylo.end())
-          vphyl.erase(vphyl.begin() + i-1);
+        std::vector<size_t>::iterator posp = find(usedPhylo.begin(), usedPhylo.end(), vphyl[i - 1]);
+        if (posp != usedPhylo.end())
+          vphyl.erase(vphyl.begin() + i - 1);
       }
       ++it;
     }
   }
 
 
-  if (mPhylo->getNumbersOfPhyloLikelihoods().size()==0)
+  if (mPhylo->getNumbersOfPhyloLikelihoods().size() == 0)
     throw Exception("PhylogeneticsApplicationTools::getPhyloLikelihoodContainer : No phyloLikelihoods described");
 
   // get the result phylogeny => with number 0 in the
   // PhyloLikelihoodContainer
-  
+
   ApplicationTools::displayMessage("");
   ApplicationTools::displayMessage("Result Phylolikelihood ");
 
-  string resultDesc=ApplicationTools::getStringParameter("result", params, (mPhylo->getNumbersOfPhyloLikelihoods().size()==1?"Single":"Product"));
+  string resultDesc = ApplicationTools::getStringParameter("result", params, (mPhylo->getNumbersOfPhyloLikelihoods().size() == 1 ? "Single" : "Product"));
 
   map<string, string> args;
   string resultName;
   KeyvalTools::parseProcedure(resultDesc, resultName, args);
-  
-  PhyloLikelihood* nPL=0;
 
-  if (resultName=="Product")
+  PhyloLikelihood* nPL = 0;
+
+  if (resultName == "Product")
   {
-    size_t indPhyl=1;
+    size_t indPhyl = 1;
     vector<size_t> vphyl;
-  
-    while (args.find("phylo"+TextTools::toString(indPhyl))!=args.end())
+
+    while (args.find("phylo" + TextTools::toString(indPhyl)) != args.end())
     {
-      size_t numPhyl=(size_t)ApplicationTools::getIntParameter("phylo"+TextTools::toString(indPhyl), args, 1, "", true, warn);
+      size_t numPhyl = (size_t) ApplicationTools::getIntParameter("phylo" + TextTools::toString(indPhyl), args, 1, "", true, warn);
 
       if (!mPhylo->hasPhyloLikelihood(numPhyl))
         throw BadIntegerException("PhylogeneticsApplicationTools::getPhyloLikelihoodContainer : Unknown Phylo Number for result ", (int)numPhyl);
-        
+
       vphyl.push_back(numPhyl);
       indPhyl++;
     }
 
-    ProductOfPhyloLikelihood* pp=new ProductOfPhyloLikelihood(mPhylo);
-    if (vphyl.size()==0)
+    ProductOfPhyloLikelihood* pp = new ProductOfPhyloLikelihood(mPhylo);
+    if (vphyl.size() == 0)
       pp->addAllPhyloLikelihoods();
     else
     {
-      for (size_t i=0; i<vphyl.size(); i++)
+      for (size_t i = 0; i < vphyl.size(); i++)
+      {
         pp->addPhyloLikelihood(vphyl[i]);
+      }
     }
 
     if (verbose)
     {
       ApplicationTools::displayResult(" Type", resultName);
-      if (vphyl.size()==0)
-        ApplicationTools::displayResult(" Phylo numbers", VectorTools::paste(mPhylo->getNumbersOfPhyloLikelihoods(),","));
+      if (vphyl.size() == 0)
+        ApplicationTools::displayResult(" Phylo numbers", VectorTools::paste(mPhylo->getNumbersOfPhyloLikelihoods(), ","));
       else
-        ApplicationTools::displayResult(" Phylo numbers", VectorTools::paste(vphyl,","));
+        ApplicationTools::displayResult(" Phylo numbers", VectorTools::paste(vphyl, ","));
     }
 
-    nPL=pp;
+    nPL = pp;
   }
-  else if (resultName=="Single")
+  else if (resultName == "Single")
   {
-    if (mPhylo->getNumbersOfPhyloLikelihoods().size()==1)
-      nPL=(*mPhylo)[mPhylo->getNumbersOfPhyloLikelihoods()[0]];
+    if (mPhylo->getNumbersOfPhyloLikelihoods().size() == 1)
+      nPL = (*mPhylo)[mPhylo->getNumbersOfPhyloLikelihoods()[0]];
     else
     {
-      if (args.find("phylo")==args.end())
+      if (args.find("phylo") == args.end())
         throw Exception("PhylogeneticsApplicationTools::getPhyloLikelihoodContainer : Missing Phylo Number for result");
 
-      size_t numPhyl=(size_t)ApplicationTools::getIntParameter("phylo", args, 1, "", true, warn);
+      size_t numPhyl = (size_t) ApplicationTools::getIntParameter("phylo", args, 1, "", true, warn);
 
       if (!mPhylo->hasPhyloLikelihood(numPhyl))
         throw BadIntegerException("PhylogeneticsApplicationTools::getPhyloLikelihoodContainer : Unknown Phylo Number for result ", (int)numPhyl);
 
-      nPL=(*mPhylo)[numPhyl];
+      nPL = (*mPhylo)[numPhyl];
 
       if (verbose)
       {
         ApplicationTools::displayResult(" Type", resultName);
         ApplicationTools::displayResult(" Phylo number", TextTools::toString(numPhyl));
       }
-
     }
-
   }
   else
     throw Exception("PhylogeneticsApplicationTools::getPhyloLikelihoodContainer : Unknown result phylo Name " + resultName);
-    
-  mPhylo->addPhyloLikelihood(0,nPL);
-  
+
+  mPhylo->addPhyloLikelihood(0, nPL);
+
   return mPhylo;
 }
 
@@ -2086,20 +2142,22 @@ void PhylogeneticsApplicationTools::setSubstitutionModelSet(
 
   // ///////////////////////////////////////////
   // Build a new model set object:
-  
+
   vector<double> rateFreqs;
   string tmpDesc;
-  if (AlphabetTools::isCodonAlphabet(alphabet)) {
+  if (AlphabetTools::isCodonAlphabet(alphabet))
+  {
     if (!gCode)
       throw Exception("PhylogeneticsApplicationTools::setSubstitutionModelSet(): a GeneticCode instance is required for instanciating a codon model.");
     bIO.setGeneticCode(gCode);
     tmpDesc = ApplicationTools::getStringParameter("model1", params, "CodonRate(model=JC69)", suffix, suffixIsOptional, warn);
-  } else if (AlphabetTools::isWordAlphabet(alphabet))
+  }
+  else if (AlphabetTools::isWordAlphabet(alphabet))
     tmpDesc = ApplicationTools::getStringParameter("model1", params, "Word(model=JC69)", suffix, suffixIsOptional, warn);
   else
     tmpDesc = ApplicationTools::getStringParameter("model1", params, "JC69", suffix, suffixIsOptional, warn);
 
-  auto_ptr<SubstitutionModel> tmp(bIO.read(alphabet, tmpDesc, data, false));
+  unique_ptr<SubstitutionModel> tmp(bIO.read(alphabet, tmpDesc, data, false));
 
   if (tmp->getNumberOfStates() != alphabet->getSize())
   {
@@ -2107,12 +2165,12 @@ void PhylogeneticsApplicationTools::setSubstitutionModelSet(
 
     size_t n = static_cast<size_t>(tmp->getNumberOfStates() / alphabet->getSize());
     rateFreqs = vector<double>(n, 1. / static_cast<double>(n));
-     // Equal rates assumed for now, may be changed later
+    // Equal rates assumed for now, may be changed later
   }
 
   // ////////////////////////////////////
   // Deal with root frequencies
-  
+
   map<string, string> unparsedParameters;
 
   bool stationarity = ApplicationTools::getBooleanParameter("nonhomogeneous.stationarity", params, false, "", true, warn);
@@ -2139,7 +2197,7 @@ void PhylogeneticsApplicationTools::setSubstitutionModelSet(
 
   // //////////////////////////////////////
   // Now parse all models:
-  
+
   bIO.setVerbose(true);
 
   for (size_t i = 0; i < nbModels; i++)
@@ -2153,15 +2211,15 @@ void PhylogeneticsApplicationTools::setSubstitutionModelSet(
     else
       modelDesc = ApplicationTools::getStringParameter(prefix, params, "JC69", suffix, suffixIsOptional, warn);
 
-    auto_ptr<SubstitutionModel> model(bIO.read(alphabet, modelDesc, data, false));
+    unique_ptr<SubstitutionModel> model(bIO.read(alphabet, modelDesc, data, false));
 
-    map<string, string> unparsedModelParameters=bIO.getUnparsedArguments();
+    map<string, string> unparsedModelParameters = bIO.getUnparsedArguments();
     map<string, string> sharedParameters;
 
 
     setSubstitutionModelParametersInitialValuesWithAliases(
       *model,
-      unparsedModelParameters, i+1, data,
+      unparsedModelParameters, i + 1, data,
       sharedParameters,
       verbose);
 
@@ -2185,12 +2243,12 @@ void PhylogeneticsApplicationTools::setSubstitutionModelSet(
     string::size_type index = alias.find("->");
     if (index == string::npos)
       throw Exception("PhylogeneticsApplicationTools::setSubstitutionModelSet. Bad alias syntax, should contain `->' symbol: " + alias);
-    unparsedParameters[alias.substr(0, index)]=alias.substr(index + 2);
+    unparsedParameters[alias.substr(0, index)] = alias.substr(index + 2);
   }
 
   // alias unparsedParameters
-  
-  modelSet.aliasParameters(unparsedParameters,verbose);
+
+  modelSet.aliasParameters(unparsedParameters, verbose);
 }
 
 /******************************************************************************/
@@ -2282,7 +2340,6 @@ void PhylogeneticsApplicationTools::completeMixedSubstitutionModelSet(
 }
 
 
-
 /******************************************************/
 /*** DISTRIBUTIONS ********************************/
 /******************************************************/
@@ -2349,7 +2406,7 @@ DiscreteDistribution* PhylogeneticsApplicationTools::getRateDistribution(
   KeyvalTools::parseProcedure(distDescription, distName, args);
 
   BppORateDistributionFormat bIO(true);
-  auto_ptr<DiscreteDistribution> rDist(bIO.read(distDescription, true));
+  unique_ptr<DiscreteDistribution> rDist(bIO.read(distDescription, true));
 
   if (verbose)
   {
@@ -2428,8 +2485,8 @@ throw (Exception)
 
   // Should I ignore some parameters?
   ParameterList parametersToEstimate = parameters;
-  vector<string> parNames=parametersToEstimate.getParameterNames();
-  
+  vector<string> parNames = parametersToEstimate.getParameterNames();
+
   string paramListDesc = ApplicationTools::getStringParameter("optimization.ignore_parameter", params, "", suffix, suffixIsOptional, warn);
   if (paramListDesc.length() == 0)
     paramListDesc = ApplicationTools::getStringParameter("optimization.ignore_parameters", params, "", suffix, suffixIsOptional, warn);
@@ -2460,25 +2517,26 @@ throw (Exception)
           ApplicationTools::displayResult("Parameter ignored", string("Root frequencies"));
       }
       else if (param == "Model")
+      {
+        vector<string> vs;
+        vector<string> vs1 = tl->getSubstitutionModelParameters().getParameterNames();
+        NonHomogeneousTreeLikelihood* nhtl = dynamic_cast<NonHomogeneousTreeLikelihood*>(tl);
+        if (nhtl != NULL)
         {
-          vector<string> vs;
-          vector<string> vs1 = tl->getSubstitutionModelParameters().getParameterNames();
-          NonHomogeneousTreeLikelihood* nhtl = dynamic_cast<NonHomogeneousTreeLikelihood*>(tl);
-          if (nhtl!=NULL){
-            vector<string> vs2 = nhtl->getRootFrequenciesParameters().getParameterNames();
-            VectorTools::diff(vs1,vs2,vs);
-            }
-          else
-            vs=vs1;
-
-          parametersToEstimate.deleteParameters(vs);
-          if (verbose)
-            ApplicationTools::displayResult("Parameter ignored", string("Model"));          
+          vector<string> vs2 = nhtl->getRootFrequenciesParameters().getParameterNames();
+          VectorTools::diff(vs1, vs2, vs);
         }
+        else
+          vs = vs1;
+
+        parametersToEstimate.deleteParameters(vs);
+        if (verbose)
+          ApplicationTools::displayResult("Parameter ignored", string("Model"));
+      }
       else if (param.find("*") != string::npos)
       {
-        vector<string> vs=ApplicationTools::matchingParameters(param,parNames);
-        
+        vector<string> vs = ApplicationTools::matchingParameters(param, parNames);
+
         for (vector<string>::iterator it = vs.begin(); it != vs.end(); it++)
         {
           parametersToEstimate.deleteParameter(*it);
@@ -2500,15 +2558,15 @@ throw (Exception)
   }
 
   // Should I constrain some parameters?
-  vector<string> parToEstNames=parametersToEstimate.getParameterNames();
-  
+  vector<string> parToEstNames = parametersToEstimate.getParameterNames();
+
   paramListDesc = ApplicationTools::getStringParameter("optimization.constrain_parameter", params, "", suffix, suffixIsOptional, warn);
   if (paramListDesc.length() == 0)
     paramListDesc = ApplicationTools::getStringParameter("optimization.constrain_parameters", params, "", suffix, suffixIsOptional, warn);
 
-  string constraint="";
-  string pc, param="";
-  
+  string constraint = "";
+  string pc, param = "";
+
   StringTokenizer st2(paramListDesc, ",");
   while (st2.hasMoreToken())
   {
@@ -2521,12 +2579,13 @@ throw (Exception)
       param = pc.substr(0, index);
       constraint = pc.substr(index + 1);
       IntervalConstraint ic(constraint);
-      
+
       vector<string> parNames2;
-      
+
       if (param == "BrLen")
         parNames2  = tl->getBranchLengthsParameters().getParameterNames();
-      else if (param == "Ancient"){
+      else if (param == "Ancient")
+      {
         NonHomogeneousTreeLikelihood* nhtl = dynamic_cast<NonHomogeneousTreeLikelihood*>(tl);
         if (!nhtl)
           ApplicationTools::displayWarning("The 'Ancient' parameters do not exist in homogeneous models, and will be ignored.");
@@ -2540,23 +2599,25 @@ throw (Exception)
       {
         vector<string> vs1 = tl->getSubstitutionModelParameters().getParameterNames();
         NonHomogeneousTreeLikelihood* nhtl = dynamic_cast<NonHomogeneousTreeLikelihood*>(tl);
-        if (nhtl!=NULL){
+        if (nhtl != NULL)
+        {
           vector<string> vs2 = nhtl->getRootFrequenciesParameters().getParameterNames();
-          VectorTools::diff(vs1,vs2,parNames2);
+          VectorTools::diff(vs1, vs2, parNames2);
         }
         else
-          parNames2=vs1;
+          parNames2 = vs1;
       }
       else if (param.find("*") != string::npos)
-        parNames2=ApplicationTools::matchingParameters(param,parToEstNames);
+        parNames2 = ApplicationTools::matchingParameters(param, parToEstNames);
       else
         parNames2.push_back(param);
 
-      
-      for (size_t i=0; i<parNames2.size(); i++)
+
+      for (size_t i = 0; i < parNames2.size(); i++)
       {
-        Parameter& par=parametersToEstimate.getParameter(parNames2[i]);
-        if (par.hasConstraint()){
+        Parameter& par = parametersToEstimate.getParameter(parNames2[i]);
+        if (par.hasConstraint())
+        {
           par.setConstraint(ic & (*par.getConstraint()), true);
           if (par.getConstraint()->isEmpty())
             throw Exception("Empty interval for parameter " + parNames[i] + par.getConstraint()->getDescription());
@@ -2578,10 +2639,10 @@ throw (Exception)
     }
   }
 
-  
-  ///////
-  /// optimization options
-  
+
+  // /////
+  // / optimization options
+
   unsigned int nbEvalMax = ApplicationTools::getParameter<unsigned int>("optimization.max_number_f_eval", params, 1000000, suffix, suffixIsOptional, warn + 1);
   if (verbose)
     ApplicationTools::displayResult("Max # ML evaluations", TextTools::toString(nbEvalMax));
@@ -2591,7 +2652,7 @@ throw (Exception)
     ApplicationTools::displayResult("Tolerance", TextTools::toString(tolerance));
 
   // Backing up or restoring?
-  auto_ptr<BackupListener> backupListener;
+  unique_ptr<BackupListener> backupListener;
   string backupFile = ApplicationTools::getAFilePath("optimization.backup.file", params, false, false);
   if (backupFile != "none")
   {
@@ -2786,16 +2847,15 @@ throw (Exception)
 /******************************************************************************/
 
 PhyloLikelihood* PhylogeneticsApplicationTools::optimizeParameters(
-    PhyloLikelihood* lik,
-    const ParameterList& parameters,
-    std::map<std::string, std::string>& params,
-    const std::string& suffix,
-    bool suffixIsOptional,
-    bool verbose,
+  PhyloLikelihood* lik,
+  const ParameterList& parameters,
+  std::map<std::string, std::string>& params,
+  const std::string& suffix,
+  bool suffixIsOptional,
+  bool verbose,
   int warn)
 throw (Exception)
 {
-  
   string optimization = ApplicationTools::getStringParameter("optimization", params, "FullD(derivatives=Newton)", suffix, suffixIsOptional, warn);
   if (optimization == "None")
     return lik;
@@ -2825,11 +2885,11 @@ throw (Exception)
 
   bool scaleFirst = ApplicationTools::getBooleanParameter("optimization.scale_first", params, false, suffix, suffixIsOptional, warn + 1);
   if (scaleFirst)
-    {
-      ApplicationTools::displayError("Sorry, optimization.scale_first not implemented yet for process.");
-      exit(-1);
-    }
-   
+  {
+    ApplicationTools::displayError("Sorry, optimization.scale_first not implemented yet for process.");
+    exit(-1);
+  }
+
   //     // We scale the tree before optimizing each branch length separately:
   //     if (verbose)
   //       ApplicationTools::displayMessage("Scaling the tree before optimizing each branch length separately.");
@@ -2853,7 +2913,7 @@ throw (Exception)
   // Should I ignore some parameters?
   ParameterList parametersToEstimate = parameters;
   vector<string> parNames = parametersToEstimate.getParameterNames();
-  
+
   if (params.find("optimization.ignore_parameter") != params.end())
     throw Exception("optimization.ignore_parameter is deprecated, use optimization.ignore_parameters instead!");
   string paramListDesc = ApplicationTools::getStringParameter("optimization.ignore_parameters", params, "", suffix, suffixIsOptional, warn + 1);
@@ -2879,15 +2939,15 @@ throw (Exception)
       }
       else if (param == "Model")
       {
-        vector<string> vs= lik->getSubstitutionModelParameters().getParameterNames();
+        vector<string> vs = lik->getSubstitutionModelParameters().getParameterNames();
         parametersToEstimate.deleteParameters(vs);
         if (verbose)
-          ApplicationTools::displayResult("Parameter ignored", string("Model"));          
+          ApplicationTools::displayResult("Parameter ignored", string("Model"));
       }
       else if (param.find("*") != string::npos)
       {
-        vector<string> vs=ApplicationTools::matchingParameters(param,parNames);
-        
+        vector<string> vs = ApplicationTools::matchingParameters(param, parNames);
+
         for (vector<string>::iterator it = vs.begin(); it != vs.end(); it++)
         {
           parametersToEstimate.deleteParameter(*it);
@@ -2910,14 +2970,14 @@ throw (Exception)
 
   // Should I constrain some parameters?
   vector<string> parToEstNames = parametersToEstimate.getParameterNames();
-  
+
   if (params.find("optimization.constrain_parameter") != params.end())
     throw Exception("optimization.constrain_parameter is deprecated, use optimization.constrain_parameters instead!");
   paramListDesc = ApplicationTools::getStringParameter("optimization.constrain_parameters", params, "", suffix, suffixIsOptional, warn + 1);
 
-  string constraint="";
-  string pc, param="";
-  
+  string constraint = "";
+  string pc, param = "";
+
   StringTokenizer st2(paramListDesc, ",");
   while (st2.hasMoreToken())
   {
@@ -2930,27 +2990,28 @@ throw (Exception)
       param = pc.substr(0, index);
       constraint = pc.substr(index + 1);
       IntervalConstraint ic(constraint);
-      
+
       vector<string> parNames2;
-      
+
       if (param == "BrLen")
         parNames2  = lik->getBranchLengthParameters().getParameterNames();
       else if (param == "Ancient")
         parNames2 = lik->getRootFrequenciesParameters().getParameterNames();
       else if (param == "Model")
       {
-        vector<string> vs= lik->getSubstitutionModelParameters().getParameterNames();
+        vector<string> vs = lik->getSubstitutionModelParameters().getParameterNames();
       }
       else if (param.find("*") != string::npos)
-        parNames2=ApplicationTools::matchingParameters(param,parToEstNames);
+        parNames2 = ApplicationTools::matchingParameters(param, parToEstNames);
       else
         parNames2.push_back(param);
 
-      
-      for (size_t i=0; i<parNames2.size(); i++)
+
+      for (size_t i = 0; i < parNames2.size(); i++)
       {
-        Parameter& par=parametersToEstimate.getParameter(parNames2[i]);
-        if (par.hasConstraint()){
+        Parameter& par = parametersToEstimate.getParameter(parNames2[i]);
+        if (par.hasConstraint())
+        {
           par.setConstraint(ic & (*par.getConstraint()), true);
           if (par.getConstraint()->isEmpty())
             throw Exception("Empty interval for parameter " + parNames[i] + par.getConstraint()->getDescription());
@@ -2972,7 +3033,7 @@ throw (Exception)
     }
   }
 
-  unsigned int nbEvalMax = ApplicationTools::getParameter<unsigned int>("optimization.max_number_f_eval", params, 1000000, suffix, suffixIsOptional, warn+1);
+  unsigned int nbEvalMax = ApplicationTools::getParameter<unsigned int>("optimization.max_number_f_eval", params, 1000000, suffix, suffixIsOptional, warn + 1);
   if (verbose)
     ApplicationTools::displayResult("Max # ML evaluations", TextTools::toString(nbEvalMax));
 
@@ -2981,49 +3042,49 @@ throw (Exception)
     ApplicationTools::displayResult("Tolerance", TextTools::toString(tolerance));
 
   // Backing up or restoring?
-  auto_ptr<BackupListener> backupListener;
+  unique_ptr<BackupListener> backupListener;
   string backupFile = ApplicationTools::getAFilePath("optimization.backup.file", params, false, false, suffix, suffixIsOptional, "none", warn + 1);
   if (backupFile != "none")
+  {
+    ApplicationTools::displayResult("Parameters will be backup to", backupFile);
+    backupListener.reset(new BackupListener(backupFile));
+    if (FileTools::fileExists(backupFile))
     {
-      ApplicationTools::displayResult("Parameters will be backup to", backupFile);
-      backupListener.reset(new BackupListener(backupFile));
-      if (FileTools::fileExists(backupFile))
+      ApplicationTools::displayMessage("A backup file was found! Try to restore parameters from previous run...");
+      ifstream bck(backupFile.c_str(), ios::in);
+      vector<string> lines = FileTools::putStreamIntoVectorOfStrings(bck);
+      double fval = TextTools::toDouble(lines[0].substr(5));
+      ParameterList pl = lik->getParameters();
+      for (size_t l = 1; l < lines.size(); ++l)
+      {
+        if (!TextTools::isEmpty(lines[l]))
         {
-          ApplicationTools::displayMessage("A backup file was found! Try to restore parameters from previous run...");
-          ifstream bck(backupFile.c_str(), ios::in);
-          vector<string> lines = FileTools::putStreamIntoVectorOfStrings(bck);
-          double fval = TextTools::toDouble(lines[0].substr(5));
-          ParameterList pl = lik->getParameters();
-          for (size_t l = 1; l < lines.size(); ++l)
-            {
-              if (!TextTools::isEmpty(lines[l]))
-                {
-                  StringTokenizer stp(lines[l], "=");
-                  if (stp.numberOfRemainingTokens() != 2)
-                    {
-                      cerr << "Corrupted backup file!!!" << endl;
-                      cerr << "at line " << l << ": " << lines[l] << endl;
-                    }
-                  string pname  = stp.nextToken();
-                  string pvalue = stp.nextToken();
-                  size_t p = pl.whichParameterHasName(pname);
-                  pl.setParameter(p, AutoParameter(pl[p]));
-                  pl[p].setValue(TextTools::toDouble(pvalue));
-                }
-            }
-          bck.close();
-          lik->setParameters(pl);
-          if (abs(lik->getValue() - fval) > 0.000001)
-            throw Exception("Incorrect likelihood value after restoring, from backup file. Remove backup file and start from scratch :s");
-          ApplicationTools::displayResult("Restoring log-likelihood", -fval);
+          StringTokenizer stp(lines[l], "=");
+          if (stp.numberOfRemainingTokens() != 2)
+          {
+            cerr << "Corrupted backup file!!!" << endl;
+            cerr << "at line " << l << ": " << lines[l] << endl;
+          }
+          string pname  = stp.nextToken();
+          string pvalue = stp.nextToken();
+          size_t p = pl.whichParameterHasName(pname);
+          pl.setParameter(p, AutoParameter(pl[p]));
+          pl[p].setValue(TextTools::toDouble(pvalue));
         }
+      }
+      bck.close();
+      lik->setParameters(pl);
+      if (abs(lik->getValue() - fval) > 0.000001)
+        throw Exception("Incorrect likelihood value after restoring, from backup file. Remove backup file and start from scratch :s");
+      ApplicationTools::displayResult("Restoring log-likelihood", -fval);
     }
+  }
 
   // There it goes...
-  bool optimizeTopo = ApplicationTools::getBooleanParameter("optimization.topology", params, false, suffix, suffixIsOptional, warn+1);
+  bool optimizeTopo = ApplicationTools::getBooleanParameter("optimization.topology", params, false, suffix, suffixIsOptional, warn + 1);
   if (optimizeTopo)
     throw Exception("Topology opmitization not implemented yet for processes");
-  
+
   // if (verbose)
   //   ApplicationTools::displayResult("Optimize topology", optimizeTopo ? "yes" : "no");
   // string nniMethod = ApplicationTools::getStringParameter("optimization.topology.algorithm_nni.method", params, "phyml", suffix, suffixIsOptional, warn + 1);
@@ -3043,21 +3104,21 @@ throw (Exception)
   // else
   //   throw Exception("Unknown NNI algorithm: '" + nniMethod + "'.");
 
-  
+
   string order = ApplicationTools::getStringParameter("derivatives", optArgs, "Newton", "", true, warn + 1);
   string optMethodDeriv;
   if (order == "Gradient")
-    {
-      optMethodDeriv = OptimizationTools::OPTIMIZATION_GRADIENT;
-    }
+  {
+    optMethodDeriv = OptimizationTools::OPTIMIZATION_GRADIENT;
+  }
   else if (order == "Newton")
-    {
-      optMethodDeriv = OptimizationTools::OPTIMIZATION_NEWTON;
-    }
+  {
+    optMethodDeriv = OptimizationTools::OPTIMIZATION_NEWTON;
+  }
   else if (order == "BFGS")
-    {
-      optMethodDeriv = OptimizationTools::OPTIMIZATION_BFGS;
-    }
+  {
+    optMethodDeriv = OptimizationTools::OPTIMIZATION_BFGS;
+  }
   else
     throw Exception("Unknown derivatives algorithm: '" + order + "'.");
   if (verbose)
@@ -3082,101 +3143,99 @@ throw (Exception)
 
   unsigned int n = 0;
   if ((optName == "D-Brent") || (optName == "D-BFGS"))
-    {
-      // Uses Newton-Brent method or Newton-BFGS method
-      string optMethodModel;
-      if (optName == "D-Brent")
-        optMethodModel = OptimizationTools::OPTIMIZATION_BRENT;
-      else
-        optMethodModel = OptimizationTools::OPTIMIZATION_BFGS;
+  {
+    // Uses Newton-Brent method or Newton-BFGS method
+    string optMethodModel;
+    if (optName == "D-Brent")
+      optMethodModel = OptimizationTools::OPTIMIZATION_BRENT;
+    else
+      optMethodModel = OptimizationTools::OPTIMIZATION_BFGS;
 
-      unsigned int nstep = ApplicationTools::getParameter<unsigned int>("nstep", optArgs, 1, "", true, warn+1);
+    unsigned int nstep = ApplicationTools::getParameter<unsigned int>("nstep", optArgs, 1, "", true, warn + 1);
 
-      // if (optimizeTopo)
-      //   {
-      //     bool optNumFirst = ApplicationTools::getBooleanParameter("optimization.topology.numfirst", params, true, suffix, suffixIsOptional, warn + 1);
-      //     unsigned int topoNbStep = ApplicationTools::getParameter<unsigned int>("optimization.topology.nstep", params, 1, "", true, warn + 1);
-      //     double tolBefore = ApplicationTools::getDoubleParameter("optimization.topology.tolerance.before", params, 100, suffix, suffixIsOptional);
-      //     double tolDuring = ApplicationTools::getDoubleParameter("optimization.topology.tolerance.during", params, 100, suffix, suffixIsOptional);
-      //     tl = OptimizationTools::optimizeTreeNNI(
-      //                                             dynamic_cast<NNIHomogeneousTreeLikelihood*>(tl), parametersToEstimate,
-      //                                             optNumFirst, tolBefore, tolDuring, nbEvalMax, topoNbStep, messageHandler, profiler,
-      //                                             reparam, optVerbose, optMethodDeriv, nstep, nniAlgo);
-      //   }
+    // if (optimizeTopo)
+    //   {
+    //     bool optNumFirst = ApplicationTools::getBooleanParameter("optimization.topology.numfirst", params, true, suffix, suffixIsOptional, warn + 1);
+    //     unsigned int topoNbStep = ApplicationTools::getParameter<unsigned int>("optimization.topology.nstep", params, 1, "", true, warn + 1);
+    //     double tolBefore = ApplicationTools::getDoubleParameter("optimization.topology.tolerance.before", params, 100, suffix, suffixIsOptional);
+    //     double tolDuring = ApplicationTools::getDoubleParameter("optimization.topology.tolerance.during", params, 100, suffix, suffixIsOptional);
+    //     tl = OptimizationTools::optimizeTreeNNI(
+    //                                             dynamic_cast<NNIHomogeneousTreeLikelihood*>(tl), parametersToEstimate,
+    //                                             optNumFirst, tolBefore, tolDuring, nbEvalMax, topoNbStep, messageHandler, profiler,
+    //                                             reparam, optVerbose, optMethodDeriv, nstep, nniAlgo);
+    //   }
 
-      if (verbose && nstep > 1)
-        ApplicationTools::displayResult("# of precision steps", TextTools::toString(nstep));
-      parametersToEstimate.matchParametersValues(lik->getParameters());
-      n = OptimizationTools::optimizeNumericalParameters(
-                                                         lik, parametersToEstimate,
-                                                         backupListener.get(), nstep, tolerance, nbEvalMax, messageHandler, profiler, reparam, optVerbose, optMethodDeriv, optMethodModel);
-    }
+    if (verbose && nstep > 1)
+      ApplicationTools::displayResult("# of precision steps", TextTools::toString(nstep));
+    parametersToEstimate.matchParametersValues(lik->getParameters());
+    n = OptimizationTools::optimizeNumericalParameters(
+      lik, parametersToEstimate,
+      backupListener.get(), nstep, tolerance, nbEvalMax, messageHandler, profiler, reparam, optVerbose, optMethodDeriv, optMethodModel);
+  }
   else if (optName == "FullD")
-    {
-      // Uses Newton-raphson algorithm with numerical derivatives when required.
+  {
+    // Uses Newton-raphson algorithm with numerical derivatives when required.
 
-      // if (optimizeTopo)
-      //   {
-      //     bool optNumFirst = ApplicationTools::getBooleanParameter("optimization.topology.numfirst", params, true, suffix, suffixIsOptional, warn + 1);
-      //     unsigned int topoNbStep = ApplicationTools::getParameter<unsigned int>("optimization.topology.nstep", params, 1, "", true, warn + 1);
-      //     double tolBefore = ApplicationTools::getDoubleParameter("optimization.topology.tolerance.before", params, 100, suffix, suffixIsOptional);
-      //     double tolDuring = ApplicationTools::getDoubleParameter("optimization.topology.tolerance.during", params, 100, suffix, suffixIsOptional);
-      //     tl = OptimizationTools::optimizeTreeNNI2(
-      //                                              dynamic_cast<NNIHomogeneousTreeLikelihood*>(tl), parametersToEstimate,
-      //                                              optNumFirst, tolBefore, tolDuring, nbEvalMax, topoNbStep, messageHandler, profiler,
-      //                                              reparam, optVerbose, optMethodDeriv, nniAlgo);
-      //   }
+    // if (optimizeTopo)
+    //   {
+    //     bool optNumFirst = ApplicationTools::getBooleanParameter("optimization.topology.numfirst", params, true, suffix, suffixIsOptional, warn + 1);
+    //     unsigned int topoNbStep = ApplicationTools::getParameter<unsigned int>("optimization.topology.nstep", params, 1, "", true, warn + 1);
+    //     double tolBefore = ApplicationTools::getDoubleParameter("optimization.topology.tolerance.before", params, 100, suffix, suffixIsOptional);
+    //     double tolDuring = ApplicationTools::getDoubleParameter("optimization.topology.tolerance.during", params, 100, suffix, suffixIsOptional);
+    //     tl = OptimizationTools::optimizeTreeNNI2(
+    //                                              dynamic_cast<NNIHomogeneousTreeLikelihood*>(tl), parametersToEstimate,
+    //                                              optNumFirst, tolBefore, tolDuring, nbEvalMax, topoNbStep, messageHandler, profiler,
+    //                                              reparam, optVerbose, optMethodDeriv, nniAlgo);
+    //   }
 
-      
-      parametersToEstimate.matchParametersValues(lik->getParameters());
 
-      n = OptimizationTools::optimizeNumericalParameters2(
-                                                          lik, parametersToEstimate,
-                                                          backupListener.get(), tolerance, nbEvalMax, messageHandler, profiler, reparam, useClock, optVerbose, optMethodDeriv);
+    parametersToEstimate.matchParametersValues(lik->getParameters());
 
-      
-    }
+    n = OptimizationTools::optimizeNumericalParameters2(
+      lik, parametersToEstimate,
+      backupListener.get(), tolerance, nbEvalMax, messageHandler, profiler, reparam, useClock, optVerbose, optMethodDeriv);
+  }
   else
     throw Exception("Unknown optimization method: " + optName);
 
   string finalMethod = ApplicationTools::getStringParameter("optimization.final", params, "none", suffix, suffixIsOptional, warn + 1);
   Optimizer* finalOptimizer  = 0;
   if (finalMethod == "none")
-    {}
+  {}
   else if (finalMethod == "simplex")
-    {
-      finalOptimizer = new DownhillSimplexMethod(lik);
-    }
+  {
+    finalOptimizer = new DownhillSimplexMethod(lik);
+  }
   else if (finalMethod == "powell")
-    {
-      finalOptimizer = new PowellMultiDimensions(lik);
-    }
+  {
+    finalOptimizer = new PowellMultiDimensions(lik);
+  }
   else
     throw Exception("Unknown final optimization method: " + finalMethod);
 
   if (finalOptimizer)
-    {
-      parametersToEstimate.matchParametersValues(lik->getParameters());
-      if (verbose)
-        ApplicationTools::displayResult("Final optimization step", finalMethod);
-      finalOptimizer->setProfiler(profiler);
-      finalOptimizer->setMessageHandler(messageHandler);
-      finalOptimizer->setMaximumNumberOfEvaluations(nbEvalMax);
-      finalOptimizer->getStopCondition()->setTolerance(tolerance);
-      finalOptimizer->setVerbose(verbose);
-      finalOptimizer->setConstraintPolicy(AutoParameter::CONSTRAINTS_AUTO);
-      finalOptimizer->init(parametersToEstimate);
-      finalOptimizer->optimize();
-      n += finalOptimizer->getNumberOfEvaluations();
-      delete finalOptimizer;
-    }
+  {
+    parametersToEstimate.matchParametersValues(lik->getParameters());
+    if (verbose)
+      ApplicationTools::displayResult("Final optimization step", finalMethod);
+    finalOptimizer->setProfiler(profiler);
+    finalOptimizer->setMessageHandler(messageHandler);
+    finalOptimizer->setMaximumNumberOfEvaluations(nbEvalMax);
+    finalOptimizer->getStopCondition()->setTolerance(tolerance);
+    finalOptimizer->setVerbose(verbose);
+    finalOptimizer->setConstraintPolicy(AutoParameter::CONSTRAINTS_AUTO);
+    finalOptimizer->init(parametersToEstimate);
+    finalOptimizer->optimize();
+    n += finalOptimizer->getNumberOfEvaluations();
+    delete finalOptimizer;
+  }
 
   if (verbose)
     ApplicationTools::displayResult("Performed", TextTools::toString(n) + " function evaluations.");
   if (backupFile != "none")
-    {
-      remove(backupFile.c_str());
-    }
+  {
+    remove(backupFile.c_str());
+  }
   return lik;
 }
 
@@ -3290,7 +3349,7 @@ throw (Exception)
     ApplicationTools::displayResult("Algorithm used for derivable parameters", order);
 
   // Backing up or restoring?
-  auto_ptr<BackupListener> backupListener;
+  unique_ptr<BackupListener> backupListener;
   string backupFile = ApplicationTools::getAFilePath("optimization.backup.file", params, false, false, suffix, suffixIsOptional, "none", warn + 1);
   if (backupFile != "none")
   {
@@ -3512,12 +3571,14 @@ void PhylogeneticsApplicationTools::writeTrees(
 
   if (!checkOnly)
   {
-    vector<size_t> vTN=spc.getTreeNumbers();
-    
-    for (size_t i=0; i< vTN.size(); i++)
-      treeWriter->write(spc.getTree(vTN[i]).getTree(), file+"_"+TextTools::toString(vTN[i]), true);
+    vector<size_t> vTN = spc.getTreeNumbers();
+
+    for (size_t i = 0; i < vTN.size(); i++)
+    {
+      treeWriter->write(spc.getTree(vTN[i]).getTree(), file + "_" + TextTools::toString(vTN[i]), true);
+    }
     if (verbose)
-      ApplicationTools::displayResult("Wrote trees to files : ", file+"_...");
+      ApplicationTools::displayResult("Wrote trees to files : ", file + "_...");
   }
 
   delete treeWriter;
@@ -3536,34 +3597,34 @@ void PhylogeneticsApplicationTools::printParameters(const SubstitutionModel* mod
 
 void PhylogeneticsApplicationTools::printParameters(const SubstitutionProcess* process, OutputStream& out, int warn)
 {
-  if (dynamic_cast<const SimpleSubstitutionProcess*>(process)!=NULL)
+  if (dynamic_cast<const SimpleSubstitutionProcess*>(process) != NULL)
   {
     (out << "nonhomogeneous=no").endLine();
-    
+
     out << "model=";
     map<string, string> globalAliases;
     vector<string> writtenNames;
     BppOSubstitutionModelFormat bIO(BppOSubstitutionModelFormat::ALL, true, true, true, false, warn);
-    bIO.write(process->getSubstitutionModel(0,0), out, globalAliases, writtenNames);
+    bIO.write(process->getSubstitutionModel(0, 0), out, globalAliases, writtenNames);
     out.endLine();
   }
 
-  else if (dynamic_cast<const RateAcrossSitesSubstitutionProcess*>(process)!=NULL)
+  else if (dynamic_cast<const RateAcrossSitesSubstitutionProcess*>(process) != NULL)
   {
     const RateAcrossSitesSubstitutionProcess* pRA = dynamic_cast<const RateAcrossSitesSubstitutionProcess*>(process);
-      
+
     (out << "nonhomogeneous=no").endLine();
-    
+
     out << "model=";
     map<string, string> globalAliases;
     vector<string> writtenNames;
     BppOSubstitutionModelFormat bIO(BppOSubstitutionModelFormat::ALL, true, true, true, false, warn);
-    bIO.write(process->getSubstitutionModel(0,0), out, globalAliases, writtenNames);
+    bIO.write(process->getSubstitutionModel(0, 0), out, globalAliases, writtenNames);
     out.endLine();
     out.endLine();
-    
+
     // Rate distribution
-    
+
     out << "rate_distribution=";
     const BppORateDistributionFormat* bIOR = new BppORateDistributionFormat(true);
     bIOR->write(*pRA->getRateDistribution(), out, globalAliases, writtenNames);
@@ -3571,7 +3632,7 @@ void PhylogeneticsApplicationTools::printParameters(const SubstitutionProcess* p
     out.endLine();
   }
 
-  else if (dynamic_cast<const NonHomogeneousSubstitutionProcess*>(process)!=NULL)
+  else if (dynamic_cast<const NonHomogeneousSubstitutionProcess*>(process) != NULL)
   {
     const NonHomogeneousSubstitutionProcess* pNH = dynamic_cast<const NonHomogeneousSubstitutionProcess*>(process);
 
@@ -3587,14 +3648,14 @@ void PhylogeneticsApplicationTools::printParameters(const SubstitutionProcess* p
 
       // First get the aliases for this model:
       map<string, string> aliases;
-      
-      ParameterList pl=model->getParameters();
-        
-      for (size_t np = 0 ; np< pl.size() ; np++)
+
+      ParameterList pl = model->getParameters();
+
+      for (size_t np = 0; np < pl.size(); np++)
       {
-        string nfrom=pNH->getFrom(pl[np].getName()+"_"+TextTools::toString(i+1));
-        if (nfrom!="")
-          aliases[pl[np].getName()]=nfrom;
+        string nfrom = pNH->getFrom(pl[np].getName() + "_" + TextTools::toString(i + 1));
+        if (nfrom != "")
+          aliases[pl[np].getName()] = nfrom;
       }
 
       // Now print it:
@@ -3619,14 +3680,14 @@ void PhylogeneticsApplicationTools::printParameters(const SubstitutionProcess* p
       out << "nonhomogeneous.root_freq=";
 
       map<string, string> aliases;
-      
-      ParameterList pl=pNH->getRootFrequenciesSet()->getParameters();
-        
-      for (size_t np = 0 ; np< pl.size() ; np++)
+
+      ParameterList pl = pNH->getRootFrequenciesSet()->getParameters();
+
+      for (size_t np = 0; np < pl.size(); np++)
       {
-        string nfrom=pNH->getFrom(pl[np].getName());
-        if (nfrom!="")
-          aliases[pl[np].getName()]=nfrom;
+        string nfrom = pNH->getFrom(pl[np].getName());
+        if (nfrom != "")
+          aliases[pl[np].getName()] = nfrom;
       }
 
       BppOFrequenciesSetFormat bIO(BppOFrequenciesSetFormat::ALL, false, warn);
@@ -3637,16 +3698,16 @@ void PhylogeneticsApplicationTools::printParameters(const SubstitutionProcess* p
     out.endLine();
 
     // Rate distribution
-    
+
     map<string, string> aliases;
-    const DiscreteDistribution* pdd=pNH->getRateDistribution();
-    
-    ParameterList pl=pdd->getParameters();
-    for (size_t np = 0 ; np< pl.size() ; np++)
+    const DiscreteDistribution* pdd = pNH->getRateDistribution();
+
+    ParameterList pl = pdd->getParameters();
+    for (size_t np = 0; np < pl.size(); np++)
     {
-      string nfrom=pNH->getFrom(pl[np].getName());
-      if (nfrom!="")
-        aliases[pl[np].getName()]=nfrom;
+      string nfrom = pNH->getFrom(pl[np].getName());
+      if (nfrom != "")
+        aliases[pl[np].getName()] = nfrom;
     }
     out.endLine();
     out << "rate_distribution=";
@@ -3662,27 +3723,27 @@ void PhylogeneticsApplicationTools::printParameters(const SubstitutionProcessCol
   vector<string> writtenNames;
 
   // The models
-  vector<size_t> modN=collection->getModelNumbers();
+  vector<size_t> modN = collection->getModelNumbers();
 
   for (size_t i = 0; i < modN.size(); i++)
   {
-    const SubstitutionModel& model =collection->getModel(modN[i]);
+    const SubstitutionModel& model = collection->getModel(modN[i]);
 
     // First get the aliases for this model:
     map<string, string> aliases;
 
     if (withAlias)
     {
-      ParameterList pl=model.getParameters();
-      
-      for (size_t np = 0 ; np< pl.size() ; np++)
+      ParameterList pl = model.getParameters();
+
+      for (size_t np = 0; np < pl.size(); np++)
       {
-        string nfrom=collection->getFrom(pl[np].getName()+"_"+TextTools::toString(modN[i]));
-        if (nfrom!="")
-          aliases[pl[np].getName()]=nfrom;
+        string nfrom = collection->getFrom(pl[np].getName() + "_" + TextTools::toString(modN[i]));
+        if (nfrom != "")
+          aliases[pl[np].getName()] = nfrom;
       }
     }
-    
+
     // Now print it:
     writtenNames.clear();
     out.endLine() << "model" << modN[i] << "=";
@@ -3692,62 +3753,62 @@ void PhylogeneticsApplicationTools::printParameters(const SubstitutionProcessCol
   }
 
   // Root frequencies:
-  vector<size_t> rootFreqN=collection->getFrequenciesNumbers();
+  vector<size_t> rootFreqN = collection->getFrequenciesNumbers();
 
   for (size_t i = 0; i < rootFreqN.size(); i++)
+  {
+    const FrequenciesSet& rootFreq = collection->getFrequencies(rootFreqN[i]);
+
+
+    // Now print it:
+    writtenNames.clear();
+    out.endLine() << "root_freq" << rootFreqN[i] << "=";
+    BppOFrequenciesSetFormat bIOf(BppOFrequenciesSetFormat::ALL, true, warn);
+
+    map<string, string> aliases;
+
+    if (withAlias)
     {
-      const FrequenciesSet& rootFreq =collection->getFrequencies(rootFreqN[i]);
+      ParameterList pl = rootFreq.getParameters();
 
-
-      // Now print it:
-      writtenNames.clear();
-      out.endLine() << "root_freq" << rootFreqN[i] << "=";
-      BppOFrequenciesSetFormat bIOf(BppOFrequenciesSetFormat::ALL, true, warn);
-
-      map<string, string> aliases;
-      
-      if (withAlias)
+      for (size_t np = 0; np < pl.size(); np++)
       {
-        ParameterList pl=rootFreq.getParameters();
-        
-        for (size_t np = 0 ; np< pl.size() ; np++)
-        {
-          string nfrom=collection->getFrom(pl[np].getName()+"_"+TextTools::toString(rootFreqN[i]));
-          if (nfrom!="")
-            aliases[pl[np].getName()]=nfrom;
-        }
+        string nfrom = collection->getFrom(pl[np].getName() + "_" + TextTools::toString(rootFreqN[i]));
+        if (nfrom != "")
+          aliases[pl[np].getName()] = nfrom;
       }
-      
-
-      bIOf.write(&rootFreq, out, aliases, writtenNames);
-      out.endLine();
     }
+
+
+    bIOf.write(&rootFreq, out, aliases, writtenNames);
+    out.endLine();
+  }
 
   // Rate distribution
 
-  vector<size_t> distN=collection->getRateDistributionNumbers();
+  vector<size_t> distN = collection->getRateDistributionNumbers();
 
   for (size_t i = 0; i < distN.size(); i++)
   {
-    if (distN[i]<10000)
+    if (distN[i] < 10000)
     {
-      const DiscreteDistribution& dist =collection->getRateDistribution(distN[i]);
+      const DiscreteDistribution& dist = collection->getRateDistribution(distN[i]);
 
       // First get the aliases for this model:
       map<string, string> aliases;
-    
+
       if (withAlias)
       {
-        ParameterList pl=dist.getParameters();
-        
-        for (size_t np = 0 ; np< pl.size() ; np++)
+        ParameterList pl = dist.getParameters();
+
+        for (size_t np = 0; np < pl.size(); np++)
         {
-          string nfrom=collection->getFrom(pl[np].getName()+"_"+TextTools::toString(distN[i]));
-          if (nfrom!="")
-            aliases[pl[np].getName()]=nfrom;
+          string nfrom = collection->getFrom(pl[np].getName() + "_" + TextTools::toString(distN[i]));
+          if (nfrom != "")
+            aliases[pl[np].getName()] = nfrom;
         }
       }
-      
+
       // Now print it:
       writtenNames.clear();
       out.endLine() << "rate_distribution" << modN[i] << "=";
@@ -3756,35 +3817,35 @@ void PhylogeneticsApplicationTools::printParameters(const SubstitutionProcessCol
       out.endLine();
     }
   }
-  
+
 
   // processes
   out.endLine();
 
-  vector<size_t> vprocN=collection->getSubstitutionProcessNumbers();
+  vector<size_t> vprocN = collection->getSubstitutionProcessNumbers();
 
-  for (size_t i=0;i<vprocN.size();i++)
+  for (size_t i = 0; i < vprocN.size(); i++)
   {
-    const SubstitutionProcessCollectionMember& spcm=*dynamic_cast<const SubstitutionProcessCollectionMember*>(&collection->getSubstitutionProcess(vprocN[i]));
-    
+    const SubstitutionProcessCollectionMember& spcm = *dynamic_cast<const SubstitutionProcessCollectionMember*>(&collection->getSubstitutionProcess(vprocN[i]));
+
     out << "process" << vprocN[i] << "=";
-      
-    if (spcm.getNumberOfModels()==1)
+
+    if (spcm.getNumberOfModels() == 1)
       out << "Homogeneous(model=" << spcm.getModelNumbers()[0];
     else
     {
       out << "Nonhomogeneous(";
-      vector<size_t> vMN=spcm.getModelNumbers();
-      for (size_t j=0;j<vMN.size();j++)
+      vector<size_t> vMN = spcm.getModelNumbers();
+      for (size_t j = 0; j < vMN.size(); j++)
       {
-        if (j!=0)
+        if (j != 0)
           out << ",";
 
-        out << "model" << (j+1) << "=" << vMN[j];
+        out << "model" << (j + 1) << "=" << vMN[j];
         out << ",";
-        
+
         vector<int> ids = spcm.getNodesWithModel(vMN[j]);
-        out << "model" << (j+1) << ".nodes_id=(" << ids[0];
+        out << "model" << (j + 1) << ".nodes_id=(" << ids[0];
         for (size_t k = 1; k < ids.size(); ++k)
         {
           out << "," << ids[k];
@@ -3794,22 +3855,21 @@ void PhylogeneticsApplicationTools::printParameters(const SubstitutionProcessCol
     }
 
     out << ", tree=" << spcm.getTreeNumber();
-    
-    out << ", rate=";
-    size_t dN=spcm.getRateDistributionNumber();
 
-    if (dN<10000)
-      out<< dN;
+    out << ", rate=";
+    size_t dN = spcm.getRateDistributionNumber();
+
+    if (dN < 10000)
+      out << dN;
     else
-      out<< size_t(dN/10000-1) << "." << dN%10000;
-      
+      out << size_t(dN / 10000 - 1) << "." << dN % 10000;
+
     if (spcm.getRootFrequenciesSet())
       out << ", root_freq=" << spcm.getRootFrequenciesNumber();
     out << ")";
     out.endLine();
     out.endLine();
   }
-  
 }
 
 
@@ -3817,7 +3877,7 @@ void PhylogeneticsApplicationTools::printParameters(const PhyloLikelihoodContain
 {
   out << "# Log likelihood = ";
 
-  const PhyloLikelihood* result=phylocont[0];
+  const PhyloLikelihood* result = phylocont[0];
 
   if (!result)
   {
@@ -3825,7 +3885,7 @@ void PhylogeneticsApplicationTools::printParameters(const PhyloLikelihoodContain
     out.endLine();
     return;
   }
-  
+
   out.setPrecision(20) << (-result->getValue());
   out.endLine();
   out.endLine();
@@ -3833,31 +3893,31 @@ void PhylogeneticsApplicationTools::printParameters(const PhyloLikelihoodContain
 
   // First output result
   out << "result=";
-  
+
   std::vector<size_t> phyldep;
-  
-  const ProductOfPhyloLikelihood* pop=dynamic_cast<const ProductOfPhyloLikelihood*>(result);
+
+  const ProductOfPhyloLikelihood* pop = dynamic_cast<const ProductOfPhyloLikelihood*>(result);
   if (pop)
   {
     out << "Product(";
-    phyldep=pop->getNumbersOfPhyloLikelihoods();
-    
-    for (size_t i=0;i<phyldep.size();i++)
+    phyldep = pop->getNumbersOfPhyloLikelihoods();
+
+    for (size_t i = 0; i < phyldep.size(); i++)
     {
-      if (i!=0)
+      if (i != 0)
         out << ",";
-      
-      out << "phylo" <<  i+1 << "=" << phyldep[i];
+
+      out << "phylo" <<  i + 1 << "=" << phyldep[i];
     }
     out << ")";
   }
   else
   {
     out << "Single(phylo=";
-    const vector<size_t>& nPhyl=phylocont.getNumbersOfPhyloLikelihoods();
-    for (size_t i=0; i<nPhyl.size(); i++)
+    const vector<size_t>& nPhyl = phylocont.getNumbersOfPhyloLikelihoods();
+    for (size_t i = 0; i < nPhyl.size(); i++)
     {
-      if (nPhyl[i]!=0 && phylocont[nPhyl[i]]==result)
+      if (nPhyl[i] != 0 && phylocont[nPhyl[i]] == result)
       {
         out << nPhyl[i];
         out << ")";
@@ -3868,121 +3928,125 @@ void PhylogeneticsApplicationTools::printParameters(const PhyloLikelihoodContain
     }
   }
   out.endLine();
-  
+
   // Then the other phylolikelihoods
 
-  while (phyldep.size()!=0)
+  while (phyldep.size() != 0)
   {
-    size_t num=phyldep[0];
-    const PhyloLikelihood* phyloLike=phylocont[num];
+    size_t num = phyldep[0];
+    const PhyloLikelihood* phyloLike = phylocont[num];
 
     // remove phylolikelihoods with this number
-    vector<size_t>::iterator itf=find(phyldep.begin(),phyldep.end(),num);
-    while (itf!=phyldep.end())
+    vector<size_t>::iterator itf = find(phyldep.begin(), phyldep.end(), num);
+    while (itf != phyldep.end())
     {
       phyldep.erase(itf);
-      itf=find(itf,phyldep.end(),num);
+      itf = find(itf, phyldep.end(), num);
     }
 
-    
+
     // then output
 
-    if (dynamic_cast<const SingleDataPhyloLikelihood*>(phyloLike)!=NULL)
+    if (dynamic_cast<const SingleDataPhyloLikelihood*>(phyloLike) != NULL)
       printParameters(dynamic_cast<const SingleDataPhyloLikelihood&>(*phyloLike), out, num, warn);
     else
     {
       out << "phylo" << num << "=";
-    
-      const SetOfAbstractPhyloLikelihood* mDP=dynamic_cast<const SetOfAbstractPhyloLikelihood*>(phyloLike);
+
+      const SetOfAbstractPhyloLikelihood* mDP = dynamic_cast<const SetOfAbstractPhyloLikelihood*>(phyloLike);
       if (mDP)
       {
-        if (dynamic_cast<const MixtureOfAlignedPhyloLikelihood*>(phyloLike)!=NULL)
+        if (dynamic_cast<const MixtureOfAlignedPhyloLikelihood*>(phyloLike) != NULL)
         {
-          const MixtureOfAlignedPhyloLikelihood* pM=dynamic_cast<const MixtureOfAlignedPhyloLikelihood*>(phyloLike);
-        
-          out << "Mixture(probas=(" << VectorTools::paste(pM->getPhyloProbabilities(),",");
+          const MixtureOfAlignedPhyloLikelihood* pM = dynamic_cast<const MixtureOfAlignedPhyloLikelihood*>(phyloLike);
+
+          out << "Mixture(probas=(" << VectorTools::paste(pM->getPhyloProbabilities(), ",");
 
           out << "),";
         }
 
-        else if (dynamic_cast<const HmmOfAlignedPhyloLikelihood*>(phyloLike)!=NULL)
+        else if (dynamic_cast<const HmmOfAlignedPhyloLikelihood*>(phyloLike) != NULL)
         {
-        const HmmOfAlignedPhyloLikelihood* pM=dynamic_cast<const HmmOfAlignedPhyloLikelihood*>(phyloLike);
-        out << "HMM(probas=";
-        
-        const Matrix<double>& tMt = pM->getHmmTransitionMatrix().getPij();
-        MatrixTools::print(tMt, out);
+          const HmmOfAlignedPhyloLikelihood* pM = dynamic_cast<const HmmOfAlignedPhyloLikelihood*>(phyloLike);
+          out << "HMM(probas=";
 
-        out << ",";
+          const Matrix<double>& tMt = pM->getHmmTransitionMatrix().getPij();
+          MatrixTools::print(tMt, out);
+
+          out << ",";
         }
-        
-        else if (dynamic_cast<const AutoCorrelationOfAlignedPhyloLikelihood*>(phyloLike)!=NULL)
+
+        else if (dynamic_cast<const AutoCorrelationOfAlignedPhyloLikelihood*>(phyloLike) != NULL)
         {
-          const AutoCorrelationOfAlignedPhyloLikelihood* pM=dynamic_cast<const AutoCorrelationOfAlignedPhyloLikelihood*>(phyloLike);
-      
+          const AutoCorrelationOfAlignedPhyloLikelihood* pM = dynamic_cast<const AutoCorrelationOfAlignedPhyloLikelihood*>(phyloLike);
+
           out << "AutoCorr(probas=(";
-      
+
           Vdouble vP;
-          for (unsigned int i=0;i<pM->getHmmTransitionMatrix().getNumberOfStates();i++)
-            vP.push_back(pM->getHmmTransitionMatrix().Pij(i,i));
-      
+          for (unsigned int i = 0; i < pM->getHmmTransitionMatrix().getNumberOfStates(); i++)
+          {
+            vP.push_back(pM->getHmmTransitionMatrix().Pij(i, i));
+          }
+
           out << VectorTools::paste(vP, ",");
-      
+
           out << "),";
         }
-        else if ((dynamic_cast<const ProductOfAlignedPhyloLikelihood*>(phyloLike)!=NULL)
-                 ||  (dynamic_cast<const ProductOfPhyloLikelihood*>(phyloLike)!=NULL))
+        else if ((dynamic_cast<const ProductOfAlignedPhyloLikelihood*>(phyloLike) != NULL)
+                 ||  (dynamic_cast<const ProductOfPhyloLikelihood*>(phyloLike) != NULL))
         {
           out << "Product(";
         }
         else
           throw Exception("PhylogeneticsApplicationTools::printParameters - unknown phylolikelihood type : phylo " + TextTools::toString(num));
-        
-          
-        std::vector<size_t> vPN=mDP->getNumbersOfPhyloLikelihoods();
 
-        for (size_t i=0; i<vPN.size(); i++){
-          out << "phylo" << i+1 << "=" << vPN[i];
-          if (i!=vPN.size()-1)
+
+        std::vector<size_t> vPN = mDP->getNumbersOfPhyloLikelihoods();
+
+        for (size_t i = 0; i < vPN.size(); i++)
+        {
+          out << "phylo" << i + 1 << "=" << vPN[i];
+          if (i != vPN.size() - 1)
             out << ",";
         }
-    
+
         out << ")";
 
         // update phyldep
-        for (size_t i=0; i<vPN.size(); i++)
-          if (find(phyldep.begin(),phyldep.end(),vPN[i])==phyldep.end())
+        for (size_t i = 0; i < vPN.size(); i++)
+        {
+          if (find(phyldep.begin(), phyldep.end(), vPN[i]) == phyldep.end())
             phyldep.push_back(vPN[i]);
+        }
       }
       out.endLine();
     }
     out.endLine();
   }
   out.endLine();
-  
 }
 
-  
+
 void PhylogeneticsApplicationTools::printParameters(const SingleDataPhyloLikelihood& phyloLike, OutputStream& out, size_t nPhylo, int warn)
 {
   out << "phylo" << TextTools::toString(nPhylo) << "=";
 
   out << "Single(";
-  
-  if (dynamic_cast<const SequencePhyloLikelihood*>(&phyloLike)!=NULL)
+
+  if (dynamic_cast<const SequencePhyloLikelihood*>(&phyloLike) != NULL)
   {
-    const SequencePhyloLikelihood* pMP=dynamic_cast<const SequencePhyloLikelihood*>(&phyloLike);
-    
+    const SequencePhyloLikelihood* pMP = dynamic_cast<const SequencePhyloLikelihood*>(&phyloLike);
+
     out << "process=" << pMP->getSequenceEvolutionNumber();
   }
   else
   {
-    const SingleProcessPhyloLikelihood* pS=dynamic_cast<const SingleProcessPhyloLikelihood*>(&phyloLike);
+    const SingleProcessPhyloLikelihood* pS = dynamic_cast<const SingleProcessPhyloLikelihood*>(&phyloLike);
 
     if (pS)
       out << "process=" << pS->getSubstitutionProcessNumber();
   }
-  
+
   out << ",data=" << TextTools::toString(phyloLike.getNData()) << ")";
   out.endLine();
 }
@@ -3991,116 +4055,118 @@ void PhylogeneticsApplicationTools::printParameters(const SequenceEvolution* evo
 {
   out << "process" << TextTools::toString(nEvol) << "=";
 
-  if (dynamic_cast<const OneProcessSequenceEvolution*>(evol)!=NULL)
+  if (dynamic_cast<const OneProcessSequenceEvolution*>(evol) != NULL)
   {
-    const OneProcessSequenceEvolution* pOP=dynamic_cast<const OneProcessSequenceEvolution*>(evol);
-    
+    const OneProcessSequenceEvolution* pOP = dynamic_cast<const OneProcessSequenceEvolution*>(evol);
+
     out << "Simple(process=" <<  pOP->getSubstitutionProcessNumber() << ")";
   }
-  else if (dynamic_cast<const MultiProcessSequenceEvolution*>(evol)!=NULL)
+  else if (dynamic_cast<const MultiProcessSequenceEvolution*>(evol) != NULL)
   {
-    const MultiProcessSequenceEvolution* pMP=dynamic_cast<const MultiProcessSequenceEvolution*>(evol);
+    const MultiProcessSequenceEvolution* pMP = dynamic_cast<const MultiProcessSequenceEvolution*>(evol);
 
-    
-    if (dynamic_cast<const MixtureSequenceEvolution*>(evol)!=NULL)
+
+    if (dynamic_cast<const MixtureSequenceEvolution*>(evol) != NULL)
     {
-      const MixtureSequenceEvolution* pM=dynamic_cast<const MixtureSequenceEvolution*>(evol);
-        
-      out << "Mixture(probas=(" << VectorTools::paste(pM->getSubProcessProbabilities(),",");
+      const MixtureSequenceEvolution* pM = dynamic_cast<const MixtureSequenceEvolution*>(evol);
+
+      out << "Mixture(probas=(" << VectorTools::paste(pM->getSubProcessProbabilities(), ",");
       out << "),";
     }
 
-    else if (dynamic_cast<const HmmSequenceEvolution*>(evol)!=NULL)
+    else if (dynamic_cast<const HmmSequenceEvolution*>(evol) != NULL)
     {
-      const HmmSequenceEvolution* pM=dynamic_cast<const HmmSequenceEvolution*>(evol);
+      const HmmSequenceEvolution* pM = dynamic_cast<const HmmSequenceEvolution*>(evol);
       out << "HMM(probas=";
-      
+
       const Matrix<double>& tMt = pM->getHmmTransitionMatrix().getPij();
       MatrixTools::print(tMt, out);
 
       out << ",";
     }
-    else if (dynamic_cast<const AutoCorrelationSequenceEvolution*>(evol)!=NULL)
+    else if (dynamic_cast<const AutoCorrelationSequenceEvolution*>(evol) != NULL)
     {
-      const AutoCorrelationSequenceEvolution* pM=dynamic_cast<const AutoCorrelationSequenceEvolution*>(evol);
-      
+      const AutoCorrelationSequenceEvolution* pM = dynamic_cast<const AutoCorrelationSequenceEvolution*>(evol);
+
       out << "AutoCorr(probas=(";
-      
+
       Vdouble vP;
-      for (unsigned int i=0;i<pM->getNumberOfSubstitutionProcess();i++)
-        vP.push_back(pM->getHmmTransitionMatrix().Pij(i,i));
-      
+      for (unsigned int i = 0; i < pM->getNumberOfSubstitutionProcess(); i++)
+      {
+        vP.push_back(pM->getHmmTransitionMatrix().Pij(i, i));
+      }
+
       out << VectorTools::paste(vP, ",");
-      
+
       out << "),";
     }
-    else if (dynamic_cast<const PartitionSequenceEvolution*>(evol)!=NULL)
+    else if (dynamic_cast<const PartitionSequenceEvolution*>(evol) != NULL)
     {
-      const PartitionSequenceEvolution* pM=dynamic_cast<const PartitionSequenceEvolution*>(evol);
-      
+      const PartitionSequenceEvolution* pM = dynamic_cast<const PartitionSequenceEvolution*>(evol);
+
       out << "Partition(";
 
-      const std::map<size_t, std::vector<size_t> >& mProcPos=pM->getMapOfProcessSites();
-      
-      std::vector<size_t> vP=pMP->getSubstitutionProcessNumbers();
+      const std::map<size_t, std::vector<size_t> >& mProcPos = pM->getMapOfProcessSites();
 
-      for (unsigned int i=0;i<vP.size();i++)
+      std::vector<size_t> vP = pMP->getSubstitutionProcessNumbers();
+
+      for (unsigned int i = 0; i < vP.size(); i++)
       {
-        out << "process" << TextTools::toString(i+1) << ".sites=";
+        out << "process" << TextTools::toString(i + 1) << ".sites=";
 
-        vector<size_t> v=mProcPos.find(vP[i])->second+1;
+        vector<size_t> v = mProcPos.find(vP[i])->second + 1;
 
-        if (v.size()>1)
+        if (v.size() > 1)
           out << "(";
-        
-        VectorTools::printRange(v,out,",",":");
 
-        if (v.size()>1)
+        VectorTools::printRange(v, out, ",", ":");
+
+        if (v.size() > 1)
           out << ")";
 
         out << ",";
       }
     }
-    
-    std::vector<size_t> vPN=pMP->getSubstitutionProcessNumbers();
 
-    for (size_t i=0; i<vPN.size(); i++){
-      out << "process" << i+1 << "=" << vPN[i];
-      if (i!=vPN.size()-1)
+    std::vector<size_t> vPN = pMP->getSubstitutionProcessNumbers();
+
+    for (size_t i = 0; i < vPN.size(); i++)
+    {
+      out << "process" << i + 1 << "=" << vPN[i];
+      if (i != vPN.size() - 1)
         out << ",";
     }
-    
+
     out << ")";
   }
-    
+
   out.endLine();
 }
 
 
-
-/////////////////////////////////////////////////////////
+// ///////////////////////////////////////////////////////
 // Analysis Information
-////////////////////////////////////////////////////////
+// //////////////////////////////////////////////////////
 
 
 void PhylogeneticsApplicationTools::printAnalysisInformation(const PhyloLikelihoodContainer& phylocont, const std::string& infosFile, int warn)
 {
-  const PhyloLikelihood* result=phylocont[0];
+  const PhyloLikelihood* result = phylocont[0];
 
   if (!result)
     return;
 
   std::vector<size_t> phyldep;
-  const ProductOfPhyloLikelihood* pop=dynamic_cast<const ProductOfPhyloLikelihood*>(result);
+  const ProductOfPhyloLikelihood* pop = dynamic_cast<const ProductOfPhyloLikelihood*>(result);
   if (pop)
-    phyldep=pop->getNumbersOfPhyloLikelihoods();
-    
+    phyldep = pop->getNumbersOfPhyloLikelihoods();
+
   else
   {
-    const vector<size_t>& nPhyl=phylocont.getNumbersOfPhyloLikelihoods();
-    for (size_t i=0; i<nPhyl.size(); i++)
+    const vector<size_t>& nPhyl = phylocont.getNumbersOfPhyloLikelihoods();
+    for (size_t i = 0; i < nPhyl.size(); i++)
     {
-      if (nPhyl[i]!=0 && phylocont[nPhyl[i]]==result)
+      if (nPhyl[i] != 0 && phylocont[nPhyl[i]] == result)
       {
         phyldep.push_back(nPhyl[i]);
         break;
@@ -4108,56 +4174,55 @@ void PhylogeneticsApplicationTools::printAnalysisInformation(const PhyloLikeliho
     }
   }
 
-  while (phyldep.size()!=0)
+  while (phyldep.size() != 0)
   {
-    size_t num=phyldep[0];
-    const PhyloLikelihood* phyloLike=phylocont[num];
+    size_t num = phyldep[0];
+    const PhyloLikelihood* phyloLike = phylocont[num];
 
     // remove phylolikelihoods with this number
-    vector<size_t>::iterator itf=find(phyldep.begin(),phyldep.end(),num);
-    while (itf!=phyldep.end())
+    vector<size_t>::iterator itf = find(phyldep.begin(), phyldep.end(), num);
+    while (itf != phyldep.end())
     {
       phyldep.erase(itf);
-      itf=find(itf,phyldep.end(),num);
+      itf = find(itf, phyldep.end(), num);
     }
 
     // then output
 
-    string info_out=infosFile+"_"+TextTools::toString(num);
-    
-    if (dynamic_cast<const SingleDataPhyloLikelihood*>(phyloLike)!=NULL)
+    string info_out = infosFile + "_" + TextTools::toString(num);
+
+    if (dynamic_cast<const SingleDataPhyloLikelihood*>(phyloLike) != NULL)
       printAnalysisInformation(dynamic_cast<const SingleDataPhyloLikelihood&>(*phyloLike), info_out, warn);
     else
     {
-      const SetOfAlignedPhyloLikelihood* sOAP=dynamic_cast<const SetOfAlignedPhyloLikelihood*>(phyloLike);
-      if (sOAP!=NULL)
+      const SetOfAlignedPhyloLikelihood* sOAP = dynamic_cast<const SetOfAlignedPhyloLikelihood*>(phyloLike);
+      if (sOAP != NULL)
       {
         printAnalysisInformation(*sOAP, info_out, warn);
 
-        std::vector<size_t> vPN=sOAP->getNumbersOfPhyloLikelihoods();
+        std::vector<size_t> vPN = sOAP->getNumbersOfPhyloLikelihoods();
 
         // update phyldep
-        for (size_t i=0; i<vPN.size(); i++)
-          if (find(phyldep.begin(),phyldep.end(),vPN[i])==phyldep.end())
+        for (size_t i = 0; i < vPN.size(); i++)
+        {
+          if (find(phyldep.begin(), phyldep.end(), vPN[i]) == phyldep.end())
             phyldep.push_back(vPN[i]);
+        }
       }
     }
-    
   }
-  
 }
-
 
 
 void PhylogeneticsApplicationTools::printAnalysisInformation(const SetOfAlignedPhyloLikelihood& sOAP, const std::string& infosFile, int warn)
 {
-  const MixtureOfAlignedPhyloLikelihood* mOAP=NULL;
-  const HmmOfAlignedPhyloLikelihood* hOAP=NULL;
-  const AutoCorrelationOfAlignedPhyloLikelihood* aCOAP=NULL;
+  const MixtureOfAlignedPhyloLikelihood* mOAP = NULL;
+  const HmmOfAlignedPhyloLikelihood* hOAP = NULL;
+  const AutoCorrelationOfAlignedPhyloLikelihood* aCOAP = NULL;
 
-  std::vector<size_t> phyloNum= sOAP.getNumbersOfPhyloLikelihoods();
-  size_t nbP=phyloNum.size();
-  
+  std::vector<size_t> phyloNum = sOAP.getNumbersOfPhyloLikelihoods();
+  size_t nbP = phyloNum.size();
+
   if (dynamic_cast<const ProductOfAlignedPhyloLikelihood*>(&sOAP) == NULL)
   {
     StlOutputStream out(new ofstream(infosFile.c_str(), ios::out));
@@ -4168,61 +4233,74 @@ void PhylogeneticsApplicationTools::printAnalysisInformation(const SetOfAlignedP
       hOAP = dynamic_cast<const HmmOfAlignedPhyloLikelihood*>(&sOAP);
     else if (dynamic_cast<const AutoCorrelationOfAlignedPhyloLikelihood*>(&sOAP) != NULL)
       aCOAP = dynamic_cast<const AutoCorrelationOfAlignedPhyloLikelihood*>(&sOAP);
-  
+
     vector<string> colNames;
     colNames.push_back("Sites");
     colNames.push_back("lnL");
-    
-    for (size_t i = 0; i < nbP; i++)
-      colNames.push_back("lnL_phylo_"+ TextTools::toString(phyloNum[i]));
-    for (size_t i = 0; i < nbP; i++)
-      colNames.push_back("prob_phylo_"+ TextTools::toString(phyloNum[i]));
 
-      
-    vector<string> row(2+(nbP>1?2*nbP:0));
+    for (size_t i = 0; i < nbP; i++)
+    {
+      colNames.push_back("lnL_phylo_" + TextTools::toString(phyloNum[i]));
+    }
+    for (size_t i = 0; i < nbP; i++)
+    {
+      colNames.push_back("prob_phylo_" + TextTools::toString(phyloNum[i]));
+    }
+
+
+    vector<string> row(2 + (nbP > 1 ? 2 * nbP : 0));
     DataTable* infos = new DataTable(colNames);
-  
+
     Vdouble vap(0);
     Vdouble vlog(nbP);
 
     if (mOAP)
-      vap=mOAP->getPhyloProbabilities();
-  
-    size_t nSites=sOAP.getNumberOfSites();
-    
+      vap = mOAP->getPhyloProbabilities();
+
+    size_t nSites = sOAP.getNumberOfSites();
+
     for (size_t i = 0; i < nSites; i++)
     {
       row[0] = (string("[" + TextTools::toString(i) + "]"));
       row[1] = TextTools::toString(sOAP.getLogLikelihoodForASite(i));
-    
-      if (nbP>1){
-        for (size_t j=0; j<nbP; j++)
-          vlog[j]=sOAP.getLogLikelihoodForASiteForAPhyloLikelihood(i, phyloNum[j]);
 
-        for (size_t j=0; j<nbP; j++)
-          row[2+j] = TextTools::toString(vlog[j]);
+      if (nbP > 1)
+      {
+        for (size_t j = 0; j < nbP; j++)
+        {
+          vlog[j] = sOAP.getLogLikelihoodForASiteForAPhyloLikelihood(i, phyloNum[j]);
+        }
+
+        for (size_t j = 0; j < nbP; j++)
+        {
+          row[2 + j] = TextTools::toString(vlog[j]);
+        }
 
         if (mOAP)
         {
-          double sum=VectorTools::sumExp(vlog,vap);
-          for (size_t j=0; j<nbP; j++)
-            row[2+nbP+j] = TextTools::toString(exp(vlog[j])*vap[j]/sum);
+          double sum = VectorTools::sumExp(vlog, vap);
+          for (size_t j = 0; j < nbP; j++)
+          {
+            row[2 + nbP + j] = TextTools::toString(exp(vlog[j]) * vap[j] / sum);
+          }
         }
         else
         {
           if (hOAP)
-            vap=hOAP->getPosteriorProbabilitiesForASiteForEachAligned(i);
+            vap = hOAP->getPosteriorProbabilitiesForASiteForEachAligned(i);
           else if (aCOAP)
-            vap=aCOAP->getPosteriorProbabilitiesForASiteForEachAligned(i);
-          
-          for (size_t j=0; j<vap.size(); j++)
-            row[2+nbP+j] = TextTools::toString(vap[j]);
+            vap = aCOAP->getPosteriorProbabilitiesForASiteForEachAligned(i);
+
+          for (size_t j = 0; j < vap.size(); j++)
+          {
+            row[2 + nbP + j] = TextTools::toString(vap[j]);
+          }
         }
       }
-    
+
       infos->addRow(row);
     }
-  
+
     DataTable::write(*infos, out, "\t");
     delete infos;
   }
@@ -4232,11 +4310,10 @@ void PhylogeneticsApplicationTools::printAnalysisInformation(const SetOfAlignedP
 
 void PhylogeneticsApplicationTools::printAnalysisInformation(const SingleDataPhyloLikelihood& phyloLike, const std::string& infosFile, int warn)
 {
-
   if (dynamic_cast<const SingleProcessPhyloLikelihood*>(&phyloLike) != NULL)
   {
     const SingleProcessPhyloLikelihood* pSPL = dynamic_cast<const SingleProcessPhyloLikelihood*>(&phyloLike);
-    
+
     StlOutputStream out(new ofstream(infosFile.c_str(), ios::out));
 
     const SubstitutionProcess* pSP = &pSPL->getSubstitutionProcess();
@@ -4249,27 +4326,30 @@ void PhylogeneticsApplicationTools::printAnalysisInformation(const SingleDataPhy
 
     const DiscreteDistribution* pDD = pSP->getRateDistribution();
     size_t nbR = 0;
-    
-    if (pDD != NULL) {
+
+    if (pDD != NULL)
+    {
       nbR = pDD->getNumberOfCategories();
-      
+
       // pDD->print(out);
 
       // out.endLine();
       // out.endLine();
 
-      if (nbR>1)
+      if (nbR > 1)
         for (size_t i = 0; i < nbR; i++)
-          colNames.push_back("prob"+ TextTools::toString(i+1));
+        {
+          colNames.push_back("prob" + TextTools::toString(i + 1));
+        }
     }
-    
+
     const SiteContainer* sites = phyloLike.getData();
 
-    vector<string> row(4+(nbR>1?nbR:0));
+    vector<string> row(4 + (nbR > 1 ? nbR : 0));
     DataTable* infos = new DataTable(colNames);
 
     VVdouble vvPP = pSPL->getPosteriorProbabilitiesOfEachClass();
-    
+
     for (size_t i = 0; i < sites->getNumberOfSites(); i++)
     {
       double lnL = phyloLike.getLogLikelihoodForASite(i);
@@ -4277,55 +4357,69 @@ void PhylogeneticsApplicationTools::printAnalysisInformation(const SingleDataPhy
       int currentSitePosition = currentSite->getPosition();
       string isCompl = "NA";
       string isConst = "NA";
-      try { isCompl = (SiteTools::isComplete(*currentSite) ? "1" : "0"); }
-      catch(EmptySiteException& ex) {}
-      try { isConst = (SiteTools::isConstant(*currentSite) ? "1" : "0"); }
-      catch(EmptySiteException& ex) {}
+      try
+      {
+        isCompl = (SiteTools::isComplete(*currentSite) ? "1" : "0");
+      }
+      catch (EmptySiteException& ex)
+      {}
+      try
+      {
+        isConst = (SiteTools::isConstant(*currentSite) ? "1" : "0");
+      }
+      catch (EmptySiteException& ex)
+      {}
       row[0] = (string("[" + TextTools::toString(currentSitePosition) + "]"));
       row[1] = isCompl;
       row[2] = isConst;
       row[3] = TextTools::toString(lnL);
 
-      if (nbR>1)
-        for (size_t j=0; j<nbR; j++)
-          row[4+j] = TextTools::toString(vvPP[i][j]);
-      
+      if (nbR > 1)
+        for (size_t j = 0; j < nbR; j++)
+        {
+          row[4 + j] = TextTools::toString(vvPP[i][j]);
+        }
+
       infos->addRow(row);
     }
-          
+
     DataTable::write(*infos, out, "\t");
     delete infos;
   }
   else if (dynamic_cast<const MultiProcessSequencePhyloLikelihood*>(&phyloLike) != NULL)
-  { 
-
+  {
     const MultiProcessSequencePhyloLikelihood* pMPL = dynamic_cast<const MultiProcessSequencePhyloLikelihood*>(&phyloLike);
 
     StlOutputStream out(new ofstream(infosFile.c_str(), ios::out));
-    
+
     vector<string> colNames;
     colNames.push_back("Sites");
     colNames.push_back("is.complete");
     colNames.push_back("is.constant");
     colNames.push_back("lnL");
-    
+
     size_t nbP = pMPL->getNumberOfSubstitutionProcess();
-      
-    if (nbP>1){
+
+    if (nbP > 1)
+    {
       for (size_t i = 0; i < nbP; i++)
-        colNames.push_back("lnL"+ TextTools::toString(i+1));
+      {
+        colNames.push_back("lnL" + TextTools::toString(i + 1));
+      }
       for (size_t i = 0; i < nbP; i++)
-        colNames.push_back("prob"+ TextTools::toString(i+1));
+      {
+        colNames.push_back("prob" + TextTools::toString(i + 1));
+      }
     }
-      
+
     const SiteContainer* sites = phyloLike.getData();
 
-    vector<string> row(4+(nbP>1?2*nbP:0));
+    vector<string> row(4 + (nbP > 1 ? 2 * nbP : 0));
     DataTable* infos = new DataTable(colNames);
 
     VVdouble vvPP = pMPL->getPosteriorProbabilitiesForEachSiteForEachProcess();
     VVdouble vvL = pMPL->getLikelihoodForEachSiteForEachProcess();
-    
+
     for (size_t i = 0; i < sites->getNumberOfSites(); i++)
     {
       double lnL = phyloLike.getLogLikelihoodForASite(i);
@@ -4333,28 +4427,40 @@ void PhylogeneticsApplicationTools::printAnalysisInformation(const SingleDataPhy
       int currentSitePosition = currentSite->getPosition();
       string isCompl = "NA";
       string isConst = "NA";
-      try { isCompl = (SiteTools::isComplete(*currentSite) ? "1" : "0"); }
-      catch(EmptySiteException& ex) {}
-      try { isConst = (SiteTools::isConstant(*currentSite) ? "1" : "0"); }
-      catch(EmptySiteException& ex) {}
+      try
+      {
+        isCompl = (SiteTools::isComplete(*currentSite) ? "1" : "0");
+      }
+      catch (EmptySiteException& ex)
+      {}
+      try
+      {
+        isConst = (SiteTools::isConstant(*currentSite) ? "1" : "0");
+      }
+      catch (EmptySiteException& ex)
+      {}
       row[0] = (string("[" + TextTools::toString(currentSitePosition) + "]"));
       row[1] = isCompl;
       row[2] = isConst;
       row[3] = TextTools::toString(lnL);
-      
-      if (nbP>1){
-        for (size_t j=0; j<nbP; j++)
-          row[4+j] = TextTools::toString(log(vvL[i][j]));
-        for (size_t j=0; j<nbP; j++)
-          row[4+nbP+j] = TextTools::toString(vvPP[i][j]);
+
+      if (nbP > 1)
+      {
+        for (size_t j = 0; j < nbP; j++)
+        {
+          row[4 + j] = TextTools::toString(log(vvL[i][j]));
+        }
+        for (size_t j = 0; j < nbP; j++)
+        {
+          row[4 + nbP + j] = TextTools::toString(vvPP[i][j]);
+        }
       }
       infos->addRow(row);
     }
-    
+
     DataTable::write(*infos, out, "\t");
     delete infos;
   }
-  
 }
 
 /******************************************************************************/
@@ -4377,18 +4483,18 @@ void PhylogeneticsApplicationTools::printParameters(const SubstitutionModelSet* 
     // First get the aliases for this model:
 
     map<string, string> aliases;
-    ParameterList pl=model->getParameters();
-    
+    ParameterList pl = model->getParameters();
+
     if (withAlias)
     {
-      for (size_t np = 0 ; np< pl.size() ; np++)
+      for (size_t np = 0; np < pl.size(); np++)
       {
         string nfrom = modelSet->getFrom(pl[np].getName() + "_" + TextTools::toString(i + 1));
         if (nfrom != "")
           aliases[pl[np].getName()] = nfrom;
       }
     }
-    
+
     // Now print it:
     writtenNames.clear();
     out.endLine() << "model" << (i + 1) << "=";
@@ -4408,22 +4514,22 @@ void PhylogeneticsApplicationTools::printParameters(const SubstitutionModelSet* 
   // First get the aliases for this frequencies set
 
   const FrequenciesSet* pFS = modelSet->getRootFrequenciesSet();
-  
-  ParameterList plf=pFS->getParameters();
+
+  ParameterList plf = pFS->getParameters();
 
   map<string, string> aliases;
 
   if (withAlias)
   {
-    for (size_t np = 0 ; np< plf.size() ; np++)
+    for (size_t np = 0; np < plf.size(); np++)
     {
       string nfrom = modelSet->getFrom(plf[np].getName());
       if (nfrom != "")
         aliases[plf[np].getName()] = nfrom;
     }
   }
-  
-  
+
+
   // Root frequencies:
   out.endLine();
   (out << "# Root frequencies:").endLine();
@@ -4447,9 +4553,8 @@ void PhylogeneticsApplicationTools::printParameters(const DiscreteDistribution* 
 }
 
 /************************
- * Substitution Mapping *
- ************************/
-
+* Substitution Mapping *
+************************/
 SubstitutionCount* PhylogeneticsApplicationTools::getSubstitutionCount(
   const Alphabet* alphabet,
   const SubstitutionModel* model,
@@ -4511,4 +4616,3 @@ SubstitutionCount* PhylogeneticsApplicationTools::getSubstitutionCount(
 }
 
 /******************************************************************************/
-

@@ -59,9 +59,8 @@ class HomogeneousTreeLikelihood :
 	public virtual TreeLikelihood
 {
 	public:
-#ifndef NO_VIRTUAL_COV
+
     HomogeneousTreeLikelihood* clone() const = 0;
-#endif
 
   public:
     const SubstitutionModel* getSubstitutionModel(int nodeId, size_t siteIndex) const throw (NodeNotFoundException)

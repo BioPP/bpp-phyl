@@ -127,9 +127,10 @@ void NonHomogeneousSubstitutionProcess::clear()
 void NonHomogeneousSubstitutionProcess::setRootFrequencies(FrequenciesSet* rootFreqs)
 {
   if (rootFreqs){
+    addParameters_(rootFreqs->getIndependentParameters());
     stationarity_=false;
-    rootFrequencies_.reset(rootFreqs);
-    addParameters_(rootFrequencies_->getIndependentParameters());
+
+    rootFrequencies_.reset(rootFreqs->clone());
   }
 }
 
@@ -457,6 +458,7 @@ NonHomogeneousSubstitutionProcess* NonHomogeneousSubstitutionProcess::createNonH
   //   }
   // }
   // else
+
   modelSet = new NonHomogeneousSubstitutionProcess(rdist, tree, rootFreqs);
 
   // We assign a copy of this model to all nodes in the tree (excepted root node), and link all parameters with it.
@@ -486,7 +488,7 @@ NonHomogeneousSubstitutionProcess* NonHomogeneousSubstitutionProcess::createNonH
       for (size_t nn = 1; nn < ids.size(); nn++)
         modelSet->aliasParameters(pname+"_1",pname+"_"+TextTools::toString(nn+1));
     }
-  
+
   // Defines the hypernodes if mixed
   // if (mixed)
   // {

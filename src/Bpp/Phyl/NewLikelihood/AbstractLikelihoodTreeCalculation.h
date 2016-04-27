@@ -57,7 +57,7 @@ namespace bpp
 
   protected:
     const SubstitutionProcess* process_;
-    std::auto_ptr<const SiteContainer> data_;
+    std::unique_ptr<const SiteContainer> data_;
 
     size_t nbSites_;
     size_t nbDistinctSites_;
@@ -87,7 +87,7 @@ namespace bpp
   public:
     AbstractLikelihoodTreeCalculation(const SubstitutionProcess* process, bool verbose = true):
       process_(process),
-      data_(0),
+      data_(),
       nbSites_(0),
       nbDistinctSites_(0),
       nbStates_(process->getNumberOfStates()),
@@ -103,7 +103,7 @@ namespace bpp
   
     AbstractLikelihoodTreeCalculation(const AbstractLikelihoodTreeCalculation& tlc):
     process_(tlc.process_),
-    data_(0),
+    data_(),
     nbSites_(tlc.nbSites_),
     nbDistinctSites_(tlc.nbDistinctSites_),
     nbStates_(tlc.nbStates_),

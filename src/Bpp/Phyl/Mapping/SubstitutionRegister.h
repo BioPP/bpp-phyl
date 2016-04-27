@@ -78,9 +78,7 @@ namespace bpp
     SubstitutionRegister() {}
     virtual ~SubstitutionRegister() {}
 
-#ifndef NO_VIRTUAL_COV
     virtual SubstitutionRegister* clone() const = 0;
-#endif
 
   public:
     /**
