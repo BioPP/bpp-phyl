@@ -186,6 +186,11 @@ public:
    *
    */
   void clear();
+
+  bool isStationary() const
+  {
+    return stationarity_;
+  }
   
   /**
    * @brief Sets a given FrequenciesSet for root frequencies.
