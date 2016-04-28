@@ -58,55 +58,110 @@ using namespace bpp;
 using namespace std;
 
 void fitModelHSR(SubstitutionModel* model, DiscreteDistribution* rdist, const Tree& tree, const SiteContainer& sites,
-    double initialValue, double finalValue) {
-  ApplicationTools::startTimer();
-  unsigned int n = 1;
-  for (unsigned int i = 0; i < n; ++i) {
-    ApplicationTools::displayGauge(i, n-1);
-    RHomogeneousTreeLikelihood tl(tree, sites, model->clone(), rdist->clone(), false, false);
-    tl.initialize();
-    // tl.getFirstOrderDerivative("BrLen0");
-    // tl.getFirstOrderDerivative("BrLen1");
-    // tl.getFirstOrderDerivative("BrLen2");
-    // tl.getFirstOrderDerivative("BrLen3");
-    // tl.getFirstOrderDerivative("BrLen4");
-    ApplicationTools::displayResult("Test model", model->getName());
-    cout << "OldTL: " << setprecision(20) << tl.getValue() << endl;
-    cout << "OldTL D1: " << setprecision(20) << tl.getFirstOrderDerivative("BrLen2") << endl;
-    cout << "OldTL D2: " << setprecision(20) << tl.getSecondOrderDerivative("BrLen2") << endl;
-    ApplicationTools::displayResult("* initial likelihood", tl.getValue());
-    if (abs(tl.getValue() - initialValue) > 0.001)
-      throw Exception("Incorrect initial value.");
-    cout << endl;
-  }
-  ApplicationTools::displayTime("Old Likelihood");
+                 double initialValue, double finalValue) {
+  
+  RHomogeneousTreeLikelihood tl(tree, sites, model->clone(), rdist->clone(), false, false);
+  tl.initialize();
+  // tl.getFirstOrderDerivative("BrLen0");
+  // tl.getFirstOrderDerivative("BrLen1");
+  // tl.getFirstOrderDerivative("BrLen2");
+  // tl.getFirstOrderDerivative("BrLen3");
+  // tl.getFirstOrderDerivative("BrLen4");
+  ApplicationTools::displayResult("Test model", model->getName());
+  cout << "OldTL: " << setprecision(20) << tl.getValue() << endl;
+  cout << "OldTL D1: " << setprecision(20) << tl.getFirstOrderDerivative("BrLen2") << endl;
+  cout << "OldTL D2: " << setprecision(20) << tl.getSecondOrderDerivative("BrLen2") << endl;
+  ApplicationTools::displayResult("* initial likelihood", tl.getValue());
+  if (abs(tl.getValue() - initialValue) > 0.001)
+    throw Exception("Incorrect initial value.");
+  cout << endl;
+  
+  Parameter p1("T92.kappa",0.1);
+  Parameter p2("T92.kappa",0.2);
 
+  ParameterList pl1;pl1.addParameter(p1);
+  ParameterList pl2;pl2.addParameter(p2);
+
+  Parameter p3("BrLen1",0.1);
+  Parameter p4("BrLen1",0.2);
+
+  ParameterList pl3;pl3.addParameter(p3);
+  ParameterList pl4;pl4.addParameter(p4);
+
+  unsigned int n = 100000;
+  
+  ApplicationTools::startTimer();
+  for (size_t i = 0; i < n; ++i) { 
+    ApplicationTools::displayGauge(i, n-1);
+    tl.matchParametersValues(pl1);
+    tl.getValue();
+    tl.matchParametersValues(pl2);
+    tl.getValue();
+  }
+  cout << endl;
+  ApplicationTools::displayTime("Old Likelihood: model upgrade");
+
+  ApplicationTools::startTimer();
+  for (size_t i = 0; i < n; ++i) { 
+    ApplicationTools::displayGauge(i, n-1);
+    tl.matchParametersValues(pl3);
+    tl.getValue();
+    tl.matchParametersValues(pl4);
+    tl.getValue();
+  }
+  cout << endl;
+  
+  ApplicationTools::displayTime("Old Likelihood: brlen upgrade");
+
+
+  cout << "=============================" << endl;
+  
   cout << endl << "New" << endl;
   ParametrizableTree* pTree = new ParametrizableTree(tree);
 
   ApplicationTools::startTimer();
-  for (unsigned int i = 0; i < n; ++i) {
-    ApplicationTools::displayGauge(i, n-1);
-    RateAcrossSitesSubstitutionProcess* process = new RateAcrossSitesSubstitutionProcess(model->clone(), rdist->clone(), pTree->clone());
-    unique_ptr<RecursiveLikelihoodTreeCalculation> tmComp(new RecursiveLikelihoodTreeCalculation(sites, process, false, true));
-    SingleProcessPhyloLikelihood newTl(process, tmComp.release());
-    
-    newTl.computeLikelihood();
-    // newTl.getFirstOrderDerivative("BrLen0");
-    // newTl.getFirstOrderDerivative("BrLen1");
-    // newTl.getFirstOrderDerivative("BrLen2");
-    // newTl.getFirstOrderDerivative("BrLen3");
+  
+  unique_ptr<RateAcrossSitesSubstitutionProcess> process(new RateAcrossSitesSubstitutionProcess(model->clone(), rdist->clone(), pTree->clone()));
+  unique_ptr<RecursiveLikelihoodTreeCalculation> tmComp(new RecursiveLikelihoodTreeCalculation(sites, process.get(), false, true));
+  SingleProcessPhyloLikelihood newTl(process.get(), tmComp.release());
+  
+  newTl.computeLikelihood();
+  // newTl.getFirstOrderDerivative("BrLen0");
+  // newTl.getFirstOrderDerivative("BrLen1");
+  // newTl.getFirstOrderDerivative("BrLen2");
+  // newTl.getFirstOrderDerivative("BrLen3");
 //    newTl.getFirstOrderDerivative("BrLen4");
   
-    cout << "NewTL: " << setprecision(20) << newTl.getValue() << endl;
-    cout << "NewTL D1: " << setprecision(20) << newTl.getFirstOrderDerivative("BrLen2") << endl;
-    cout << "NewTL D2: " << setprecision(20) << newTl.getSecondOrderDerivative("BrLen2") << endl;
-    ApplicationTools::displayResult("* initial likelihood", newTl.getValue());
-    if (abs(newTl.getValue() - initialValue) > 0.001)
-      throw Exception("Incorrect initial value.");
-    cout << endl;
+  cout << "NewTL: " << setprecision(20) << newTl.getValue() << endl;
+  cout << "NewTL D1: " << setprecision(20) << newTl.getFirstOrderDerivative("BrLen2") << endl;
+  cout << "NewTL D2: " << setprecision(20) << newTl.getSecondOrderDerivative("BrLen2") << endl;
+  ApplicationTools::displayResult("* initial likelihood", newTl.getValue());
+  if (abs(newTl.getValue() - initialValue) > 0.001)
+    throw Exception("Incorrect initial value.");
+  cout << endl;
+
+  for (size_t i = 0; i < n; ++i) { 
+    ApplicationTools::displayGauge(i, n-1);
+    newTl.matchParametersValues(pl1);
+    newTl.getValue();
+    newTl.matchParametersValues(pl2);
+    newTl.getValue();
   }
-  ApplicationTools::displayTime("New Likelihood");
+
+  cout << endl;
+  ApplicationTools::displayTime("New Likelihood: model upgrade");
+
+  ApplicationTools::startTimer();
+  for (size_t i = 0; i < n; ++i) { 
+    ApplicationTools::displayGauge(i, n-1);
+    newTl.matchParametersValues(pl3);
+    newTl.getValue();
+    newTl.matchParametersValues(pl4);
+    newTl.getValue();
+  }
+  cout << endl;
+  
+  ApplicationTools::displayTime("New Likelihood: brlen upgrade");
 
   cout << endl;
   
@@ -119,29 +174,31 @@ void fitModelHSR(SubstitutionModel* model, DiscreteDistribution* rdist, const Tr
 
   int nboptim=1000;
   
-  RHomogeneousTreeLikelihood tl(tree, sites, model->clone(), rdist->clone(), false, false);
-  tl.initialize();
+  RHomogeneousTreeLikelihood tlop(tree, sites, model->clone(), rdist->clone(), false, false);
+  tlop.initialize();
 
-  OptimizationTools::optimizeNumericalParameters2(&tl, tl.getParameters(), 0, 0.000001, nboptim, 0, 0);
-  cout << setprecision(20) << tl.getValue() << endl;
-  ApplicationTools::displayResult("* lnL after full optimization (old)", tl.getValue());
-  if (abs(tl.getValue() - finalValue) > 0.001)
+  OptimizationTools::optimizeNumericalParameters2(&tlop, tlop.getParameters(), 0, 0.000001, nboptim, 0, 0);
+  cout << setprecision(20) << tlop.getValue() << endl;
+  ApplicationTools::displayResult("* lnL after full optimization (old)", tlop.getValue());
+  if (abs(tlop.getValue() - finalValue) > 0.001)
     throw Exception("Incorrect final value.");
-  tl.getParameters().printParameters(cout);
-  
-  RateAcrossSitesSubstitutionProcess* process = new RateAcrossSitesSubstitutionProcess(model->clone(), rdist->clone(), pTree->clone());
-  unique_ptr<RecursiveLikelihoodTreeCalculation> tmComp(new RecursiveLikelihoodTreeCalculation(sites, process, false, true));
+  tlop.getParameters().printParameters(cout);
 
-  SingleProcessPhyloLikelihood newTl(process, tmComp.release(), false);
+
+  process.reset(new RateAcrossSitesSubstitutionProcess(model->clone(), rdist->clone(), pTree->clone()));
+  
+  tmComp.reset(new RecursiveLikelihoodTreeCalculation(sites, process.get(), false, true));
+
+  SingleProcessPhyloLikelihood newTlop(process.get(), tmComp.release(), false);
 
   ParameterList opln1=process->getBranchLengthParameters(true);
   
-  OptimizationTools::optimizeNumericalParameters2(&newTl, newTl.getParameters(), 0, 0.000001, nboptim, 0, 0);
-  cout << setprecision(20) << newTl.getValue() << endl;
-  ApplicationTools::displayResult("* lnL after full optimization (new)", newTl.getValue());
-  if (abs(newTl.getValue() - finalValue) > 0.001)
+  OptimizationTools::optimizeNumericalParameters2(&newTlop, newTlop.getParameters(), 0, 0.000001, nboptim, 0, 0);
+  cout << setprecision(20) << newTlop.getValue() << endl;
+  ApplicationTools::displayResult("* lnL after full optimization (new)", newTlop.getValue());
+  if (abs(newTlop.getValue() - finalValue) > 0.001)
     throw Exception("Incorrect final value.");
-  newTl.getParameters().printParameters(cout);
+  newTlop.getParameters().printParameters(cout);
 }
 
 void fitModelHDR(SubstitutionModel* model, DiscreteDistribution* rdist, const Tree& tree, const SiteContainer& sites,
@@ -187,28 +244,28 @@ int main() {
     return 1;
   }  
 
-  model.reset(new T92(alphabet, 3.));
-  rdist.reset(new GammaDiscreteRateDistribution(4, 1.0));
-  try {
-    cout << "Testing Double Tree Traversal likelihood class..." << endl;
-    fitModelHDR(model.get(), rdist.get(), *tree, sites, 228.6333642493463, 198.47216106233);
-  } catch (Exception& ex) {
-    cerr << ex.what() << endl;
-    return 1;
-  }  
+  // model.reset(new T92(alphabet, 3.));
+  // rdist.reset(new GammaDiscreteRateDistribution(4, 1.0));
+  // try {
+  //   cout << "Testing Double Tree Traversal likelihood class..." << endl;
+  //   fitModelHDR(model.get(), rdist.get(), *tree, sites, 228.6333642493463, 198.47216106233);
+  // } catch (Exception& ex) {
+  //   cerr << ex.what() << endl;
+  //   return 1;
+  // }  
 
-  //Let's compare the derivatives:
-  RHomogeneousTreeLikelihood tlsr(*tree, sites, model.get(), rdist.get());
-  tlsr.initialize();
-  DRHomogeneousTreeLikelihood tldr(*tree, sites, model.get(), rdist.get());
-  tldr.initialize();
-  vector<string> params = tlsr.getBranchLengthsParameters().getParameterNames();
-  for (vector<string>::iterator it = params.begin(); it != params.end(); ++it) {
-    double d1sr = tlsr.getFirstOrderDerivative(*it);
-    double d1dr = tldr.getFirstOrderDerivative(*it);
-    cout << *it << "\t" << d1sr << "\t" << d1dr << endl;
-    if (abs(d1sr - d1dr) > 0.000001) return 1;
-  }
+  // //Let's compare the derivatives:
+  // RHomogeneousTreeLikelihood tlsr(*tree, sites, model.get(), rdist.get());
+  // tlsr.initialize();
+  // DRHomogeneousTreeLikelihood tldr(*tree, sites, model.get(), rdist.get());
+  // tldr.initialize();
+  // vector<string> params = tlsr.getBranchLengthsParameters().getParameterNames();
+  // for (vector<string>::iterator it = params.begin(); it != params.end(); ++it) {
+  //   double d1sr = tlsr.getFirstOrderDerivative(*it);
+  //   double d1dr = tldr.getFirstOrderDerivative(*it);
+  //   cout << *it << "\t" << d1sr << "\t" << d1dr << endl;
+  //   if (abs(d1sr - d1dr) > 0.000001) return 1;
+  // }
 
   return 0;
 }
