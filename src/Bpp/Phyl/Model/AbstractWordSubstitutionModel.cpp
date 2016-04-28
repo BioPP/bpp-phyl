@@ -151,7 +151,7 @@ AbstractWordSubstitutionModel::AbstractWordSubstitutionModel(
   VnestedPrefix_(),
   Vrate_         (num)
 {
-  stateMap_=std::auto_ptr<StateMap>(new CanonicalStateMap(getAlphabet(), false));
+  stateMap_=std::unique_ptr<StateMap>(new CanonicalStateMap(getAlphabet(), false));
 
   enableEigenDecomposition(false);
   size_t i;

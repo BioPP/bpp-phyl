@@ -1442,6 +1442,9 @@ void PhylogeneticsApplicationTools::printParameters(const SubstitutionModelSet* 
   (out << "nonhomogeneous=general").endLine();
   (out << "nonhomogeneous.number_of_models=" << modelSet->getNumberOfModels()).endLine();
 
+  if (modelSet->isStationary())
+    (out << "nonhomogeneous.stationarity = yes");
+    
   // Get the parameter links:
   map< size_t, vector<string> > modelLinks; // for each model index, stores the list of global parameters.
   map< string, set<size_t> > parameterLinks; // for each parameter name, stores the list of model indices, wich should be sorted.
@@ -1486,29 +1489,34 @@ void PhylogeneticsApplicationTools::printParameters(const SubstitutionModelSet* 
 
   // First get the aliases for this frequencies set
 
-  const FrequenciesSet* pFS = modelSet->getRootFrequenciesSet();
-
-  ParameterList plf = pFS->getParameters();
-
-  map<string, string> aliases;
-
-  if (withAlias)
+  if (!modelSet->isStationary())
   {
-    for (size_t np = 0; np < plf.size(); np++)
+    
+    const FrequenciesSet* pFS = modelSet->getRootFrequenciesSet();
+
+    ParameterList plf = pFS->getParameters();
+
+    map<string, string> aliases;
+    
+    if (withAlias)
     {
-      string nfrom = modelSet->getFrom(plf[np].getName());
-      if (nfrom != "")
-        aliases[plf[np].getName()] = nfrom;
+      for (size_t np = 0; np < plf.size(); np++)
+      {
+        string nfrom = modelSet->getFrom(plf[np].getName());
+        if (nfrom != "")
+          aliases[plf[np].getName()] = nfrom;
+      }
     }
+    
+    // Root frequencies:
+    out.endLine();
+    (out << "# Root frequencies:").endLine();
+    out << "nonhomogeneous.root_freq=";
+    
+    BppOFrequenciesSetFormat bIO(BppOFrequenciesSetFormat::ALL, false, warn);
+    bIO.write(pFS, out, aliases, writtenNames);
   }
-
-  // Root frequencies:
-  out.endLine();
-  (out << "# Root frequencies:").endLine();
-  out << "nonhomogeneous.root_freq=";
-
-  BppOFrequenciesSetFormat bIO(BppOFrequenciesSetFormat::ALL, false, warn);
-  bIO.write(pFS, out, aliases, writtenNames);
+  
 }
 
 /******************************************************************************/
