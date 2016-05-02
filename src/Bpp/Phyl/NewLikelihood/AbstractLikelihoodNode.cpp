@@ -38,7 +38,7 @@
  */
 
 #include "AbstractLikelihoodNode.h"
-#include "ComputingNode.h"
+#include "SpeciationComputingNode.h"
 #include "../PatternTools.h"
 
 using namespace bpp;

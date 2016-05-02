@@ -45,8 +45,6 @@ knowledge of the CeCILL license and that you accept its terms.
 #include "../Tree/TreeTemplate.h"
 #include "AbstractLikelihoodNode.h"
 #include "LikelihoodTree.h"
-#include "ComputingTree.h"
-
 
 namespace bpp
 {

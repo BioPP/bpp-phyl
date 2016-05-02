@@ -120,7 +120,8 @@ namespace bpp
     /**
      * @brief Root frequencies.
      */
-    std::unique_ptr<FrequenciesSet> rootFrequencies_;
+    //std::unique_ptr<FrequenciesSet> rootFrequencies_;
+    std::auto_ptr<FrequenciesSet> rootFrequencies_;
 
     /**
      *  @brief Rate Distribution

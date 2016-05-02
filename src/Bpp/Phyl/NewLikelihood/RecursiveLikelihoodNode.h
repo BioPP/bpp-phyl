@@ -438,7 +438,7 @@ namespace bpp
      */
 
     
-    void computeLikelihoods(const ComputingNode& cNode, unsigned char DX, Vint* brId = NULL)
+    void computeLikelihoods(const SpeciationComputingNode& cNode, unsigned char DX, Vint* brId = NULL)
     {
       if (!isUp2dateBelow_(DX))
       {
@@ -477,7 +477,7 @@ namespace bpp
      *
      */
      
-    void computeUpwardToFatherBelowLikelihoods(const ComputingNode& cNode, unsigned char DX, Vint* vBrid= NULL)
+    void computeUpwardToFatherBelowLikelihoods(const SpeciationComputingNode& cNode, unsigned char DX, Vint* vBrid= NULL)
     {
       // First check below dependencies are up to date
       
@@ -582,7 +582,7 @@ namespace bpp
      *
      */
      
-    void computeUpwardBelowLikelihoods(const ComputingNode& cNode, unsigned char DX, Vint* vBrid= NULL)
+    void computeUpwardBelowLikelihoods(const SpeciationComputingNode& cNode, unsigned char DX, Vint* vBrid= NULL)
     {
       // First check below dependencies are up to date
       size_t nbSons=getNumberOfSons();
@@ -771,14 +771,14 @@ namespace bpp
      *
      */
      
-    void computeDownwardAboveLikelihoods(const ComputingNode& cNode)
+    void computeDownwardAboveLikelihoods(const SpeciationComputingNode& cNode)
     {
       // First check dependencies are up to date
 
       if (hasFather())
       {
         RecursiveLikelihoodNode* father = dynamic_cast<RecursiveLikelihoodNode*>(getFather());
-        const ComputingNode* cFather=dynamic_cast<const ComputingNode*>(cNode.getFather());
+        const SpeciationComputingNode* cFather=dynamic_cast<const SpeciationComputingNode*>(cNode.getFather());
 
         if (!father->isUp2dateAbove())
           father->computeDownwardAboveLikelihoods(*cFather);

@@ -40,7 +40,7 @@
 
 #include "RecursiveLikelihoodTreeCalculation.h"
 #include "RecursiveLikelihoodTree.h"
-//#include "ComputingNode.h"
+//#include "SpeciationComputingNode.h"
 
 using namespace bpp;
 
@@ -119,7 +119,7 @@ RecursiveLikelihoodTreeCalculation& RecursiveLikelihoodTreeCalculation::operator
 
 void RecursiveLikelihoodTreeCalculation::updateLikelihoodFlags_()
 {
-  Vint upId=process_->getComputingTree().updatedNodes();
+  Vint upId=process_->getComputingTree().toBeUpdatedNodes();
 
   int rootId=process_->getComputingTree()[0]->getRootId();
 

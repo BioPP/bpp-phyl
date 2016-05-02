@@ -56,14 +56,14 @@ ComputingTree::ComputingTree(const ParametrizableTree& ptree, const DiscreteDist
 {
   TreeTemplate<Node> tree=ptree.getTree();
   
-  ComputingNode* rCN= TreeTemplateTools::cloneSubtree<ComputingNode>(*tree.getRootNode());
-  TreeTemplate<ComputingNode>* pTC=new TreeTemplate<ComputingNode>(rCN);
+  SpeciationComputingNode* rCN= TreeTemplateTools::cloneSubtree<SpeciationComputingNode>(*tree.getRootNode());
+  TreeTemplate<SpeciationComputingNode>* pTC=new TreeTemplate<SpeciationComputingNode>(rCN);
 
   size_t nbCl=dist.getNumberOfCategories();
   
   for (size_t i=0; i<nbCl; i++){
-    TreeTemplate<ComputingNode>* pTC2=pTC->clone();
-    std::vector<ComputingNode*> vCN=pTC2->getNodes();
+    TreeTemplate<SpeciationComputingNode>* pTC2=pTC->clone();
+    std::vector<SpeciationComputingNode*> vCN=pTC2->getNodes();
     for (size_t j=0; j<vCN.size(); j++)
       vCN[j]->setParameterValue("scale",dist.getCategory(i));
     vTree_.push_back(pTC2);
@@ -83,14 +83,14 @@ ComputingTree::ComputingTree(const ParametrizableTree& ptree) :
 {
   TreeTemplate<Node> tree=ptree.getTree();
   
-  ComputingNode* rCN= TreeTemplateTools::cloneSubtree<ComputingNode>(*tree.getRootNode());
-  TreeTemplate<ComputingNode>* pTC=new TreeTemplate<ComputingNode>(rCN);
+  SpeciationComputingNode* rCN= TreeTemplateTools::cloneSubtree<SpeciationComputingNode>(*tree.getRootNode());
+  TreeTemplate<SpeciationComputingNode>* pTC=new TreeTemplate<SpeciationComputingNode>(rCN);
 
   size_t nbCl=1;
   
   for (size_t i=0; i<nbCl; i++){
-    TreeTemplate<ComputingNode>* pTC2=pTC->clone();
-    std::vector<ComputingNode*> vCN=pTC2->getNodes();
+    TreeTemplate<SpeciationComputingNode>* pTC2=pTC->clone();
+    std::vector<SpeciationComputingNode*> vCN=pTC2->getNodes();
     for (size_t j=0; j<vCN.size(); j++)
       vCN[j]->setParameterValue("scale",1);
     vTree_.push_back(pTC2);
@@ -109,14 +109,14 @@ ComputingTree::ComputingTree(const SubstitutionProcessCollection* pSubProColl, s
 {
   TreeTemplate<Node> tree=parTree_->getTree();
   
-  ComputingNode* rCN= TreeTemplateTools::cloneSubtree<ComputingNode>(*tree.getRootNode());
-  TreeTemplate<ComputingNode>* pTC=new TreeTemplate<ComputingNode>(rCN);
+  SpeciationComputingNode* rCN= TreeTemplateTools::cloneSubtree<SpeciationComputingNode>(*tree.getRootNode());
+  TreeTemplate<SpeciationComputingNode>* pTC=new TreeTemplate<SpeciationComputingNode>(rCN);
 
   size_t nbCl=pDist_->getNumberOfCategories();
   
   for (size_t i=0; i<nbCl; i++){
-    TreeTemplate<ComputingNode>* pTC2=pTC->clone();
-    std::vector<ComputingNode*> vCN=pTC2->getNodes();
+    TreeTemplate<SpeciationComputingNode>* pTC2=pTC->clone();
+    std::vector<SpeciationComputingNode*> vCN=pTC2->getNodes();
     for (size_t j=0; j<vCN.size(); j++)
       vCN[j]->setParameterValue("scale",pDist_->getCategory(i));
     vTree_.push_back(pTC2);
@@ -148,8 +148,6 @@ ComputingTree::ComputingTree(const ComputingTree& tree) :
 {
   for (size_t i=0; i<tree.vTree_.size(); i++)
     vTree_.push_back(tree.vTree_[i]->clone());
-
-  clearAllModels_();
 }
 
 ComputingTree& ComputingTree::operator=(const ComputingTree& tree)
@@ -161,8 +159,6 @@ ComputingTree& ComputingTree::operator=(const ComputingTree& tree)
   
   for (size_t i=0; i<tree.vTree_.size(); i++)
     vTree_.push_back(tree.vTree_[i]->clone());
-
-  clearAllModels_();
   
   return *this;
 }
@@ -170,27 +166,36 @@ ComputingTree& ComputingTree::operator=(const ComputingTree& tree)
 ComputingTree::~ComputingTree()
 {
   for (size_t i=0;i<vTree_.size();i++)
-    TreeTemplateTools::deleteSubtree(dynamic_cast<ComputingNode*>(vTree_[i]->getRootNode()));
+    TreeTemplateTools::deleteSubtree(dynamic_cast<SpeciationComputingNode*>(vTree_[i]->getRootNode()));
 
   vTree_.clear();
 }
 
-void ComputingTree::clearAllModels_()
-{
-  for (size_t i=0; i<vTree_.size(); i++)
-    vTree_[i]->getRootNode()->clearAllModels();
-  isReadyToCompute_=false;
-}
-
 void ComputingTree::checkModelOnEachNode()
 {
-  for (size_t i=0; i<vTree_.size(); i++)
-    if (! vTree_[i]->getRootNode()->hasModelOnEachNode())
-    {
-      isReadyToCompute_=false;
-      return;
-    }
+  Vint vId=vTree_[0]->getBranchesId();
 
+  int rId=vTree_[0]->getRootId();
+  
+  for (size_t j=0; j< vId.size(); j++)
+  {
+    if (vId[j]==rId)
+      continue;
+    
+    for (size_t i=0; i<vTree_.size(); i++)
+    {
+      ComputingNode* cn=vTree_[i]->getNode(vId[j]);
+      if (dynamic_cast<SpeciationComputingNode*>(cn))
+      {
+        if (dynamic_cast<SpeciationComputingNode*>(cn)->getSubstitutionModel()==NULL)
+        {
+          isReadyToCompute_=false;
+          return;
+        }
+      }
+    }
+  }
+  
   isReadyToCompute_=true;
 }
   
@@ -198,8 +203,12 @@ void ComputingTree::addModel(const SubstitutionModel* pSubMod, std::vector<int> 
 {
   for (size_t i=0; i< getNumberOfClasses(); i++)
     for (size_t j=0; j<vBr.size(); j++)
-      vTree_[i]->getNode(vBr[j])->setSubstitutionModel(pSubMod);
-
+    {
+      ComputingNode* cn=vTree_[i]->getNode(vBr[j]);
+      if (dynamic_cast<SpeciationComputingNode*>(cn))
+        dynamic_cast<SpeciationComputingNode*>(cn)->setSubstitutionModel(pSubMod);
+    }
+  
   checkModelOnEachNode();
 }
 
@@ -212,8 +221,12 @@ void ComputingTree::addModel(const SubstitutionModel* pSubMod)
   
   for (size_t i=0; i< getNumberOfClasses(); i++)
     for (size_t j=0; j< vId.size(); j++)
-      vTree_[i]->getNode(vId[j])->setSubstitutionModel(pSubMod);
-
+    {
+      ComputingNode* cn=vTree_[i]->getNode(vId[j]);
+      if (dynamic_cast<SpeciationComputingNode*>(cn))
+        dynamic_cast<SpeciationComputingNode*>(cn)->setSubstitutionModel(pSubMod);
+    }
+  
   isReadyToCompute_=true;
 }
 
@@ -244,7 +257,7 @@ void ComputingTree::fireParameterChanged(const ParameterList& pl)
   {
     size_t nbCl=pDist_?pDist_->getNumberOfCategories():1;
     for (size_t i=0; i<nbCl; i++){
-      std::vector<ComputingNode*> vCN=vTree_[i]->getNodes();
+      std::vector<SpeciationComputingNode*> vCN=vTree_[i]->getNodes();
       for (size_t j=0; j<vCN.size(); j++)
         vCN[j]->setParameterValue("scale",pDist_?pDist_->getCategory(i):1);
     }
@@ -264,17 +277,17 @@ void ComputingTree::update(vector<int>& vId, bool flag)
 void ComputingTree::update(int id, bool flag)
 {
   if (!isReadyToCompute_)
-    throw Exception("ComputingTree::update : some nodes do not have a model.");
+    throw Exception("ComputingTree::update :  node " + TextTools::toString(id) + " is not ready.");
 
   for (size_t i=0; i<vTree_.size(); i++)
     vTree_[i]->getNode(id)->update(flag);
 }
 
 
-Vint ComputingTree::updatedNodes() const
+Vint ComputingTree::toBeUpdatedNodes() const
 {
   Vint lId;
-  vTree_[0]->getRootNode()->updatedSubTreeNodes(lId);
+  vTree_[0]->getRootNode()->toBeUpdatedBelow(lId);
 
   return lId;
 }
@@ -282,9 +295,9 @@ Vint ComputingTree::updatedNodes() const
 void ComputingTree::updateAll()
 {
   if (!isReadyToCompute_)
-    throw Exception("ComputingTree::update : some nodes do not have a model.");
+    throw Exception("ComputingTree::updateAll : some nodes are not ready.");
 
   for (size_t i=0; i<vTree_.size(); i++)
-    vTree_[i]->getRootNode()->updateAll();
+    vTree_[i]->getRootNode()->updateAllBelow();
 }
 

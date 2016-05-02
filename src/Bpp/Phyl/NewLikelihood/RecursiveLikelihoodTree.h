@@ -109,7 +109,7 @@ public:
 
 public:
   /*
-   * @brief operator to get numbered TreeTemplate<ComputingNode>
+   * @brief operator to get numbered TreeTemplate<SpeciationComputingNode>
    *
    */
 

@@ -39,7 +39,7 @@
  */
 
 #include "RecursiveLikelihoodTree.h"
-#include "ComputingNode.h"
+#include "SpeciationComputingNode.h"
 #include "../PatternTools.h"
 
 // From bpp-seq:

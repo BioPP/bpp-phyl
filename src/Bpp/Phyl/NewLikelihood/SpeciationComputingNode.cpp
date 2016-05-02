@@ -1,5 +1,5 @@
 
- // File: ComputingNode.cpp
+ // File: SpeciationComputingNode.cpp
  // Created by: Laurent Guéguen
  // Created on: mercredi 3 juillet 2013, à 00h 10
 
@@ -37,15 +37,15 @@
    knowledge of the CeCILL license and that you accept its terms.
 */
 
-#include "ComputingNode.h"
+#include "SpeciationComputingNode.h"
 #include <Bpp/Numeric/Constraints.h>
 #include <Bpp/Numeric/Matrix/MatrixTools.h>
 
 using namespace bpp;
 using namespace std;
 
-ComputingNode::ComputingNode(const SubstitutionModel* model) :
-  Node(),
+SpeciationComputingNode::SpeciationComputingNode(const SubstitutionModel* model) :
+  ComputingNode(),
   AbstractParametrizable(""),
   model_(model),
   nbStates_(model->getNumberOfStates()),
@@ -61,8 +61,8 @@ ComputingNode::ComputingNode(const SubstitutionModel* model) :
   addParameter_(new Parameter("scale", 1, &Parameter::R_PLUS_STAR));
 }
 
-ComputingNode::ComputingNode(int num, string st):
-  Node(num, st),
+SpeciationComputingNode::SpeciationComputingNode(int num, string st):
+  ComputingNode(num, st),
   AbstractParametrizable(""),
   model_(0),
   nbStates_(0),
@@ -78,8 +78,8 @@ ComputingNode::ComputingNode(int num, string st):
   addParameter_(new Parameter("scale", 1, &Parameter::R_PLUS_STAR));
 }
 
-ComputingNode::ComputingNode():
-  Node(),
+SpeciationComputingNode::SpeciationComputingNode():
+  ComputingNode(),
   AbstractParametrizable(""),
   model_(0),
   nbStates_(0),
@@ -95,8 +95,8 @@ ComputingNode::ComputingNode():
   addParameter_(new Parameter("scale", 1, &Parameter::R_PLUS_STAR));
 }
 
-ComputingNode::ComputingNode(const Node& cn) :
-  Node(cn),
+SpeciationComputingNode::SpeciationComputingNode(const Node& cn) :
+  ComputingNode(cn),
   AbstractParametrizable(""),
   model_(0),
   nbStates_(0),
@@ -112,8 +112,8 @@ ComputingNode::ComputingNode(const Node& cn) :
   addParameter_(new Parameter("scale", 1, &Parameter::R_PLUS_STAR));
 }
 
-ComputingNode::ComputingNode(const ComputingNode& cn) :
-  Node(cn),
+SpeciationComputingNode::SpeciationComputingNode(const SpeciationComputingNode& cn) :
+  ComputingNode(cn),
   AbstractParametrizable(cn),
   model_(cn.model_),
   nbStates_(cn.nbStates_),
@@ -128,9 +128,9 @@ ComputingNode::ComputingNode(const ComputingNode& cn) :
 {
 }
 
-ComputingNode& ComputingNode::operator=(const ComputingNode& cn)
+SpeciationComputingNode& SpeciationComputingNode::operator=(const SpeciationComputingNode& cn)
 {
-  Node::operator=(cn);
+  ComputingNode::operator=(cn);
   AbstractParametrizable::operator=(cn);
 
   model_=cn.model_;
@@ -148,7 +148,7 @@ ComputingNode& ComputingNode::operator=(const ComputingNode& cn)
   return *this;
 }
 
-void ComputingNode::setSubstitutionModel(const SubstitutionModel* pSM)
+void SpeciationComputingNode::setSubstitutionModel(const SubstitutionModel* pSM)
 {
   model_=pSM;
 
@@ -161,7 +161,7 @@ void ComputingNode::setSubstitutionModel(const SubstitutionModel* pSM)
   vLogStates_.resize(nbStates_);
 }
 
-void ComputingNode::fireParameterChanged(const ParameterList& pl)
+void SpeciationComputingNode::fireParameterChanged(const ParameterList& pl)
 {
   scale_=getParameterValue("scale");
   
@@ -170,14 +170,14 @@ void ComputingNode::fireParameterChanged(const ParameterList& pl)
   computeProbabilitiesD2_=true;
 }  
 
-void ComputingNode::update(bool flag)
+void SpeciationComputingNode::update(bool flag)
 {
   computeProbabilities_=flag;
   computeProbabilitiesD1_=flag;
   computeProbabilitiesD2_=flag;
 }  
   
-void ComputingNode::computeTransitionProbabilities() const
+void SpeciationComputingNode::computeTransitionProbabilities() const
 {
   if (computeProbabilities_) {
     computeProbabilities_ = false; //We record that we did this computation.
@@ -185,7 +185,7 @@ void ComputingNode::computeTransitionProbabilities() const
   }
 }
 
-void ComputingNode::computeTransitionProbabilitiesD1() const
+void SpeciationComputingNode::computeTransitionProbabilitiesD1() const
 {
   if (computeProbabilitiesD1_) {
     computeProbabilitiesD1_ = false; //We record that we did this computation.
@@ -195,7 +195,7 @@ void ComputingNode::computeTransitionProbabilitiesD1() const
   }
 }
 
-void ComputingNode::computeTransitionProbabilitiesD2() const
+void SpeciationComputingNode::computeTransitionProbabilitiesD2() const
 {
   if (computeProbabilitiesD2_) {
     computeProbabilitiesD2_ = false; //We record that we did this computation.
@@ -205,14 +205,3 @@ void ComputingNode::computeTransitionProbabilitiesD2() const
   }
 }
 
-void ComputingNode::updatedSubTreeNodes(Vint& lId) const
-{
-  if (!isUp2dateTransitionProbabilities())
-    lId.push_back(getId());
-
-  if (!hasNoSon()){
-    size_t nS=getNumberOfSons();
-    for (size_t i=0; i<nS; i++)
-      getSon(i)->updatedSubTreeNodes(lId);
-  }
-}

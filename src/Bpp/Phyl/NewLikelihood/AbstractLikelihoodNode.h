@@ -42,7 +42,7 @@
 #define _ABSTRACT_LIKELIHOOD_NODE_H_
 
 #include "LikelihoodNode.h"
-#include "ComputingNode.h"
+#include "SpeciationComputingNode.h"
 
 // From the STL:
 #include <map>

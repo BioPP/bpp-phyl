@@ -44,7 +44,7 @@ knowledge of the CeCILL license and that you accept its terms.
 
 #include "../Tree/TreeTemplate.h"
 
-#include "ComputingNode.h"
+#include "SpeciationComputingNode.h"
 #include "ParametrizableTree.h"
 
 namespace bpp
@@ -58,7 +58,7 @@ namespace bpp
  * Stores computation tools for all nodes, for all classes.
  *
  * This object has the parameters of the Tree and the rates
- * distribution, since it manages the ComputingNodes.
+ * distribution, since it manages the SpeciationComputingNodes.
  *
  */
 
@@ -85,11 +85,11 @@ namespace bpp
      *
      */
     
-    std::vector<TreeTemplate<ComputingNode>* > vTree_;
+    std::vector<TreeTemplate<SpeciationComputingNode>* > vTree_;
 
     /*
      * boolean to say if the ComputingTree can be used for
-     * computation, ie if every ComputingNode has a Model.
+     * computation, ie if every SpeciationComputingNode has a Model.
      *
      */
 
@@ -144,7 +144,7 @@ namespace bpp
      *
      * @param pSubMod a  pointer of SubstitutionModel.
      * @param vBr a vector of attribution of the model on the
-     * branches of the tree.
+     * branches of the tree that need a model.
      *
      */
      
@@ -168,24 +168,24 @@ namespace bpp
   public:
 
     /*
-     * @brief Checks if every ComputingNode has a Model
+     * @brief Checks if every SpeciationComputingNode has a Model
      *
      */
     
     void checkModelOnEachNode();
 
     /*
-     * @brief operator to get numbered TreeTemplate<ComputingNode>*
+     * @brief operator to get numbered TreeTemplate<SpeciationComputingNode>*
      *
      */
     
-    TreeTemplate<ComputingNode>* operator[](size_t ntree) { return vTree_[ntree];}
+    TreeTemplate<SpeciationComputingNode>* operator[](size_t ntree) { return vTree_[ntree];}
 
-    const TreeTemplate<ComputingNode>* operator[](size_t ntree) const { return vTree_[ntree];}
+    const TreeTemplate<SpeciationComputingNode>* operator[](size_t ntree) const { return vTree_[ntree];}
 
     /*
      *@brief update Distribution parameters and says to the
-     * ComputingNodes to be ready to update if the Branch lengths are
+     * SpeciationComputingNodes to be ready to update if the Branch lengths are
      * changed.
      *
      */
@@ -214,7 +214,7 @@ namespace bpp
      *
      */
     
-    Vint updatedNodes() const;
+    Vint toBeUpdatedNodes() const;
 
   };
   

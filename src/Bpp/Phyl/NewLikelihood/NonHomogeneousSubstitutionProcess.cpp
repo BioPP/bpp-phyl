@@ -130,7 +130,7 @@ void NonHomogeneousSubstitutionProcess::setRootFrequencies(FrequenciesSet* rootF
     addParameters_(rootFreqs->getIndependentParameters());
     stationarity_=false;
 
-    rootFrequencies_.reset(rootFreqs->clone());
+    rootFrequencies_.reset(rootFreqs);//->clone());
   }
 }
 

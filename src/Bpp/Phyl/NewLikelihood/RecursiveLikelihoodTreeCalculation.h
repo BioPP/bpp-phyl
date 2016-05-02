@@ -156,14 +156,14 @@ namespace bpp
     protected:
       
       /**
-       * @brief check the ComputingNodes to update recursively the
-       * Likelihoods flags. If at least one ComputingNode has changed
+       * @brief check the SpeciationComputingNodes to update recursively the
+       * Likelihoods flags. If at least one SpeciationComputingNode has changed
        * all Above Likelihood flags of the trees are set to false.
        * Below DXLikelihood flags of the changed nodes are set to
        * false, and all their ancestors.
        *
        *
-       * Set up2date_ to false if at least one ComputingNode has
+       * Set up2date_ to false if at least one SpeciationComputingNode has
        * changed, otherwise does not change up2date_.
        *
        */

@@ -175,7 +175,22 @@ public:
 
   std::vector<int> getInnerNodesId() const { return TreeTemplateTools::getInnerNodesId(*root_); }
 
-  std::vector<int> getBranchesId() const { return TreeTemplateTools::getBranchesId(*root_); }
+  std::vector<int> getBranchesId() const
+  {
+    Vint vRes = TreeTemplateTools::getNodesId(*root_);
+    int rId=getRootId();
+    std::vector<int>::const_iterator rit(vRes.begin());
+    while(rit<vRes.end())
+      if (*rit==rId)
+      {
+        vRes.erase(rit, rit+1);
+        return vRes;
+      }
+      else
+        rit++;
+    
+    return vRes;
+  }
 
   std::vector<double> getBranchLengths() const { return TreeTemplateTools::getBranchLengths(*root_); }
 

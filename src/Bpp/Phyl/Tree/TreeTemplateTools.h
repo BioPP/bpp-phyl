@@ -374,19 +374,6 @@ public:
   }
 
   /**
-   * @brief Retrieve all branches ids from a subtree.
-   *
-   * @param node The node that defines the subtree.
-   * @return A vector of ids.
-   */
-  static std::vector<int> getBranchesId(const Node& node)
-  {
-    std::vector<int> ids;
-    getBranchesId(node, ids);
-    return ids;
-  }
-
-  /**
    * @brief Retrieve all nodes ids from a subtree.
    *
    * @param node The node that defines the subtree.
@@ -399,20 +386,6 @@ public:
       getNodesId(*node.getSon(i), ids);
     }
     ids.push_back(node.getId());
-  }
-
-  /**
-   * @brief Retrieve all branches ids from a subtree.
-   *
-   * @param node The node that defines the subtree.
-   * @param ids A vector of ids.
-   */
-  static void getBranchesId(const Node& node, std::vector<int>& ids)
-  {
-    for (size_t i = 0; i < node.getNumberOfSons(); i++)
-    {
-      getNodesId(*node.getSon(i), ids);
-    }
   }
 
   /**
