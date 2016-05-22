@@ -397,7 +397,7 @@ bool MixedSubstitutionModelSet::HyperNode::intersects(const HyperNode& hn) const
 
 bool MixedSubstitutionModelSet::HyperNode::operator>=(const HyperNode& hn) const
 {
-  return hn >= *this;
+  return hn <= *this;
 }
 
 MixedSubstitutionModelSet::HyperNode& MixedSubstitutionModelSet::HyperNode::operator+=(const HyperNode& hn)
