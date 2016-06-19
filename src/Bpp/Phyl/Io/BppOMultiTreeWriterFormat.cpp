@@ -39,7 +39,7 @@
 
 #include "BppOMultiTreeWriterFormat.h"
 #include "Newick.h"
-#include "NexusIOTree.h"
+#include "NexusIoTree.h"
 #include "Nhx.h"
 
 #include <Bpp/Text/KeyvalTools.h>
