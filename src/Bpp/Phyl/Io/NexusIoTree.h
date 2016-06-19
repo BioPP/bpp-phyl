@@ -64,80 +64,80 @@ class NexusIOTree:
   public virtual AbstractIMultiTree,
   public virtual AbstractOMultiTree
 {
-	public:
-		
-		/**
-		 * @brief Build a new Nexus tree parser.
-		 */
-		NexusIOTree() {}
+  public:
+    
+    /**
+     * @brief Build a new Nexus tree parser.
+     */
+    NexusIOTree() {}
 
-		virtual ~NexusIOTree() {}
-	
-	public:
-
-		/**
-		 * @name The IOTree interface
-		 *
-		 * @{
-		 */
-		const std::string getFormatName() const;
-		const std::string getFormatDescription() const;
-		/* @} */
-
-		/**
-		 * @name The ITree interface
-		 *
-		 * @{
-		 */
-		TreeTemplate<Node>* read(const std::string& path) const throw (Exception)
-		{
-			return dynamic_cast<TreeTemplate<Node>*>(AbstractITree::read(path));
-		}
-		
-		TreeTemplate<Node>* read(std::istream& in) const throw (Exception);
-		/** @} */
+    virtual ~NexusIOTree() {}
+  
+  public:
 
     /**
-		 * @name The OTree interface
-		 *
-		 * @{
-		 */
-		void write(const Tree& tree, const std::string& path, bool overwrite = true) const throw (Exception)
-		{
-			AbstractOTree::write(tree, path, overwrite);
-		}
-		void write(const Tree& tree, std::ostream& out) const throw (Exception)
+     * @name The IOTree interface
+     *
+     * @{
+     */
+    const std::string getFormatName() const;
+    const std::string getFormatDescription() const;
+    /* @} */
+
+    /**
+     * @name The ITree interface
+     *
+     * @{
+     */
+    TreeTemplate<Node>* read(const std::string& path) const throw (Exception)
+    {
+      return dynamic_cast<TreeTemplate<Node>*>(AbstractITree::read(path));
+    }
+    
+    TreeTemplate<Node>* read(std::istream& in) const throw (Exception);
+    /** @} */
+
+    /**
+     * @name The OTree interface
+     *
+     * @{
+     */
+    void write(const Tree& tree, const std::string& path, bool overwrite = true) const throw (Exception)
+    {
+      AbstractOTree::write(tree, path, overwrite);
+    }
+    void write(const Tree& tree, std::ostream& out) const throw (Exception)
     {
       write_(tree, out);
     }
-		/** @} */
+    /** @} */
 
-		/**
-		 * @name The IMultiTree interface
-		 *
-		 * @{
-		 */
-		void read(const std::string& path, std::vector<Tree*>& trees) const throw (Exception)
-		{
-			AbstractIMultiTree::read(path, trees);
-		}
-		void read(std::istream& in, std::vector<Tree*>& trees) const throw (Exception);
+    /**
+     * @name The IMultiTree interface
+     *
+     * @{
+     */
+    void read(const std::string& path, std::vector<Tree*>& trees) const throw (Exception)
+    {
+      AbstractIMultiTree::read(path, trees);
+    }
+    void read(std::istream& in, std::vector<Tree*>& trees) const throw (Exception);
     /**@}*/
 
-		/**
-		 * @name The OMultiTree interface
-		 *
-		 * @{
-		 */
-		void write(const std::vector<Tree*>& trees, const std::string& path, bool overwrite = true) const throw (Exception)
-		{
-			AbstractOMultiTree::write(trees, path, overwrite);
-		}
-		void write(const std::vector<Tree*>& trees, std::ostream& out) const throw (Exception)
+    /**
+     * @name The OMultiTree interface
+     *
+     * @{
+     */
+    void write(const std::vector<Tree*>& trees, const std::string& path, bool overwrite = true) const throw (Exception)
+    {
+      AbstractOMultiTree::write(trees, path, overwrite);
+    }
+    void write(const std::vector<Tree*>& trees, std::ostream& out) const throw (Exception)
     {
       write_(trees, out);
     }
-		/** @} */
+    /** @} */
 
   protected:
     void write_(const Tree& tree, std::ostream& out) const throw (Exception);
@@ -154,5 +154,5 @@ class NexusIOTree:
 
 } //end of namespace bpp.
 
-#endif	//_NEXUSIOTREE_H_
+#endif  //_NEXUSIOTREE_H_
 

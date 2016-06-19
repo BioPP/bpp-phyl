@@ -63,10 +63,10 @@ namespace bpp
  * 
  * Newick * newickReader = new Newick(false); //No comment allowed!
  * try {
- * 	Tree * tree = newickReader->read("MyTestTree.dnd"); // Tree in file MyTestTree.dnd
- * 	cout << "Tree has " << tree->getNumberOfLeaves() << " leaves." << endl;
+ *   Tree * tree = newickReader->read("MyTestTree.dnd"); // Tree in file MyTestTree.dnd
+ *   cout << "Tree has " << tree->getNumberOfLeaves() << " leaves." << endl;
  * } catch (Exception e) {
- *	cout << "Error when reading tree." << endl;
+ *  cout << "Error when reading tree." << endl;
  * }
  * delete tree;
  * delete newickReader;
@@ -86,34 +86,34 @@ class Newick:
   public AbstractIMultiTree,
   public AbstractOMultiTree
 {
-	protected:
-		bool allowComments_;
+  protected:
+    bool allowComments_;
     bool writeId_;
     bool useBootstrap_;
     std::string bootstrapPropertyName_;
     bool verbose_;
-	
-	public:
-		
-		/**
-		 * @brief Build a new Newick reader/writer.
-		 *
-		 * Some newick format allow comments between hooks ('[' ']').
-		 * 
-		 * @param allowComments Tell if comments between [] are allowed in file.
-		 * @param writeId       If true, nodes ids will be written in place of bootstrap values.
+  
+  public:
+    
+    /**
+     * @brief Build a new Newick reader/writer.
+     *
+     * Some newick format allow comments between hooks ('[' ']').
+     * 
+     * @param allowComments Tell if comments between [] are allowed in file.
+     * @param writeId       If true, nodes ids will be written in place of bootstrap values.
      * @param verbose       If some info should be displayed, such as progress bar etc.
-		 */
-		Newick(bool allowComments = false, bool writeId = false, bool verbose = false):
+     */
+    Newick(bool allowComments = false, bool writeId = false, bool verbose = false):
       allowComments_(allowComments),
       writeId_(writeId),
       useBootstrap_(true),
       bootstrapPropertyName_(TreeTools::BOOTSTRAP),
       verbose_(verbose) {}
 
-		virtual ~Newick() {}
-	
-	public:
+    virtual ~Newick() {}
+  
+  public:
 
     void enableExtendedBootstrapProperty(const std::string& propertyName)
     {
@@ -126,77 +126,77 @@ class Newick:
       bootstrapPropertyName_ = TreeTools::BOOTSTRAP;
     }
 
-		/**
-		 * @name The IOTree interface
-		 *
-		 * @{
-		 */
-		const std::string getFormatName() const;
-		const std::string getFormatDescription() const;
-		/* @} */
+    /**
+     * @name The IOTree interface
+     *
+     * @{
+     */
+    const std::string getFormatName() const;
+    const std::string getFormatDescription() const;
+    /* @} */
 
-		/**
-		 * @name The ITree interface
-		 *
-		 * @{
-		 */		
-		TreeTemplate<Node>* read(const std::string& path) const throw (Exception)
-		{
-			return dynamic_cast<TreeTemplate<Node>*>(AbstractITree::read(path));
-		}
-		
-		TreeTemplate<Node>* read(std::istream& in) const throw (Exception);
-		/** @} */
+    /**
+     * @name The ITree interface
+     *
+     * @{
+     */    
+    TreeTemplate<Node>* read(const std::string& path) const throw (Exception)
+    {
+      return dynamic_cast<TreeTemplate<Node>*>(AbstractITree::read(path));
+    }
+    
+    TreeTemplate<Node>* read(std::istream& in) const throw (Exception);
+    /** @} */
 
-		/**
-		 * @name The OTree interface
-		 *
-		 * @{
-		 */
-		void write(const Tree& tree, const std::string& path, bool overwrite = true) const throw (Exception)
-		{
-			AbstractOTree::write(tree, path, overwrite);
-		}
-		
+    /**
+     * @name The OTree interface
+     *
+     * @{
+     */
+    void write(const Tree& tree, const std::string& path, bool overwrite = true) const throw (Exception)
+    {
+      AbstractOTree::write(tree, path, overwrite);
+    }
+    
     void write(const Tree& tree, std::ostream& out) const throw (Exception)
     {
       write_(tree, out);
     }
-		/** @} */
+    /** @} */
 
-		/**
-		 * @name The IMultiTree interface
-		 *
-		 * @{
-		 */
-		void read(const std::string& path, std::vector<Tree*>& trees) const throw (Exception)
-		{
-			AbstractIMultiTree::read(path, trees);
-		}
-		void read(std::istream& in, std::vector<Tree*>& trees) const throw (Exception);
+    /**
+     * @name The IMultiTree interface
+     *
+     * @{
+     */
+    void read(const std::string& path, std::vector<Tree*>& trees) const throw (Exception)
+    {
+      AbstractIMultiTree::read(path, trees);
+    }
+    void read(std::istream& in, std::vector<Tree*>& trees) const throw (Exception);
     /**@}*/
 
-		/**
-		 * @name The OMultiTree interface
-		 *
-		 * @{
-		 */
-		void write(const std::vector<Tree*>& trees, const std::string& path, bool overwrite = true) const throw (Exception)
-		{
-			AbstractOMultiTree::write(trees, path, overwrite);
-		}
-		void write(const std::vector<Tree*>& trees, std::ostream& out) const throw (Exception)
+    /**
+     * @name The OMultiTree interface
+     *
+     * @{
+     */
+    void write(const std::vector<Tree*>& trees, const std::string& path, bool overwrite = true) const throw (Exception)
+    {
+      AbstractOMultiTree::write(trees, path, overwrite);
+    }
+    void write(const std::vector<Tree*>& trees, std::ostream& out) const throw (Exception)
     {
       write_(trees, out);
     }
-		/** @} */
+    /** @} */
 
   protected:
     void write_(const Tree& tree, std::ostream& out) const throw (Exception);
     
     template<class N>
     void write_(const TreeTemplate<N>& tree, std::ostream& out) const throw (Exception);
-		
+    
     void write_(const std::vector<Tree*>& trees, std::ostream& out) const throw (Exception);
     
     template<class N>
@@ -206,5 +206,5 @@ class Newick:
 
 } //end of namespace bpp.
 
-#endif	//_NEWICK_H_
+#endif  //_NEWICK_H_
 

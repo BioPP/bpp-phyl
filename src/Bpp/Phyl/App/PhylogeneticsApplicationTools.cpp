@@ -50,9 +50,10 @@
 #include "../Mapping/OneJumpSubstitutionCount.h"
 #include "../OptimizationTools.h"
 #include "../Tree.h"
-#include "../Io/Newick.h"
-#include "../Io/NexusIoTree.h"
-#include "../Io/Nhx.h"
+#include "../Io/BppOTreeReaderFormat.h"
+#include "../Io/BppOMultiTreeReaderFormat.h"
+#include "../Io/BppOTreeWriterFormat.h"
+#include "../Io/BppOMultiTreeWriterFormat.h"
 #include "../Io/BppOSubstitutionModelFormat.h"
 #include "../Io/BppOFrequenciesSetFormat.h"
 #include "../Io/BppORateDistributionFormat.h"
@@ -104,20 +105,14 @@ Tree* PhylogeneticsApplicationTools::getTree(
   string format = ApplicationTools::getStringParameter(prefix + "tree.format", params, "Newick", suffix, suffixIsOptional, warn);
   string treeFilePath = ApplicationTools::getAFilePath(prefix + "tree.file", params, true, true, suffix, suffixIsOptional, "none", warn);
 
-  ITree* treeReader;
-  if (format == "Newick")
-    treeReader = new Newick(true);
-  else if (format == "Nexus")
-    treeReader = new NexusIOTree();
-  else if (format == "NHX")
-    treeReader = new Nhx();
-  else
-    throw Exception("Unknow format for tree reading: " + format);
-  Tree* tree = treeReader->read(treeFilePath);
-  delete treeReader;
-
+  BppOTreeReaderFormat bppoReader(warn);
+  unique_ptr<ITree> iTree(bppoReader.read(format));
   if (verbose)
-    ApplicationTools::displayResult("Tree file", treeFilePath);
+  {
+    ApplicationTools::displayResult("Input tree file " + suffix, treeFilePath);
+    ApplicationTools::displayResult("Input tree format " + suffix, iTree->getFormatName());
+  }
+  Tree* tree = iTree->read(treeFilePath);
   return tree;
 }
 
@@ -134,22 +129,18 @@ vector<Tree*> PhylogeneticsApplicationTools::getTrees(
   string format = ApplicationTools::getStringParameter(prefix + "trees.format", params, "Newick", suffix, suffixIsOptional, warn);
   string treeFilePath = ApplicationTools::getAFilePath(prefix + "trees.file", params, true, true, suffix, suffixIsOptional, "none", warn);
 
-  IMultiTree* treeReader;
-  if (format == "Newick")
-    treeReader = new Newick(true);
-  else if (format == "Nexus")
-    treeReader = new NexusIOTree();
-  else if (format == "NHX")
-    treeReader = new Nhx();
-  else
-    throw Exception("Unknow format for tree reading: " + format);
+  BppOMultiTreeReaderFormat bppoReader(warn);
+  unique_ptr<IMultiTree> iTrees(bppoReader.read(format));
+  if (verbose)
+  {
+    ApplicationTools::displayResult("Input trees file " + suffix, treeFilePath);
+    ApplicationTools::displayResult("Input trees format " + suffix, iTrees->getFormatName());
+  }
   vector<Tree*> trees;
-  treeReader->read(treeFilePath, trees);
-  delete treeReader;
+  iTrees->read(treeFilePath, trees);
 
   if (verbose)
   {
-    ApplicationTools::displayResult("Tree file", treeFilePath);
     ApplicationTools::displayResult("Number of trees in file", trees.size());
   }
   return trees;
@@ -1377,20 +1368,16 @@ void PhylogeneticsApplicationTools::writeTree(
 {
   string format = ApplicationTools::getStringParameter(prefix + "tree.format", params, "Newick", suffix, suffixIsOptional, warn);
   string file = ApplicationTools::getAFilePath(prefix + "tree.file", params, false, false, suffix, suffixIsOptional, "none", warn);
-  OTree* treeWriter;
-  if (format == "Newick")
-    treeWriter = new Newick();
-  else if (format == "Nexus")
-    treeWriter = new NexusIOTree();
-  else if (format == "NHX")
-    treeWriter = new Nhx(false);
-  else
-    throw Exception("Unknown format for tree writing: " + format);
-  if (!checkOnly && file != "none")
-    treeWriter->write(tree, file, true);
-  delete treeWriter;
+ 
+  BppOTreeWriterFormat bppoWriter(warn);
+  unique_ptr<OTree> oTree(bppoWriter.read(format));
   if (verbose)
-    ApplicationTools::displayResult("Wrote tree to file ", file);
+  {
+    ApplicationTools::displayResult("Output tree file " + suffix, file);
+    ApplicationTools::displayResult("Output tree format " + suffix, oTree->getFormatName());
+  }
+  if (!checkOnly && file != "none")
+    oTree->write(tree, file, true);  
 }
 
 /******************************************************************************/
@@ -1407,20 +1394,17 @@ void PhylogeneticsApplicationTools::writeTrees(
 {
   string format = ApplicationTools::getStringParameter(prefix + "trees.format", params, "Newick", suffix, suffixIsOptional, warn);
   string file = ApplicationTools::getAFilePath(prefix + "trees.file", params, true, false, suffix, suffixIsOptional, "none", warn);
-  OMultiTree* treeWriter;
-  if (format == "Newick")
-    treeWriter = new Newick();
-  else if (format == "Nexus")
-    treeWriter = new NexusIOTree();
-  else if (format == "NHX")
-    treeWriter = new Nhx();
-  else
-    throw Exception("Unknow format for tree writing: " + format);
-  if (!checkOnly)
-    treeWriter->write(trees, file, true);
-  delete treeWriter;
+
+  BppOMultiTreeWriterFormat bppoWriter(warn);
+  unique_ptr<OMultiTree> oTrees(bppoWriter.read(format));
   if (verbose)
-    ApplicationTools::displayResult("Wrote trees to file ", file);
+  {
+    ApplicationTools::displayResult("Output trees file " + suffix, file);
+    ApplicationTools::displayResult("Output trees format " + suffix, oTrees->getFormatName());
+  }
+  if (!checkOnly && file != "none")
+    oTrees->write(trees, file, true);
+  
 }
 
 /******************************************************************************/

@@ -31,6 +31,10 @@ SET(CPP_FILES
   Bpp/Phyl/Io/IoFrequenciesSetFactory.cpp
   Bpp/Phyl/Io/BppOFrequenciesSetFormat.cpp
   Bpp/Phyl/Io/BppORateDistributionFormat.cpp
+  Bpp/Phyl/Io/BppOTreeReaderFormat.cpp
+  Bpp/Phyl/Io/BppOMultiTreeReaderFormat.cpp
+  Bpp/Phyl/Io/BppOTreeWriterFormat.cpp
+  Bpp/Phyl/Io/BppOMultiTreeWriterFormat.cpp
   Bpp/Phyl/Likelihood/AbstractDiscreteRatesAcrossSitesTreeLikelihood.cpp
   Bpp/Phyl/Likelihood/AbstractHomogeneousTreeLikelihood.cpp
   Bpp/Phyl/Likelihood/AbstractNonHomogeneousTreeLikelihood.cpp
@@ -189,6 +193,10 @@ SET(H_FILES
   Bpp/Phyl/Io/IoFrequenciesSetFactory.h
   Bpp/Phyl/Io/BppOFrequenciesSetFormat.h
   Bpp/Phyl/Io/BppORateDistributionFormat.h
+  Bpp/Phyl/Io/BppOTreeReaderFormat.h
+  Bpp/Phyl/Io/BppOMultiTreeReaderFormat.h
+  Bpp/Phyl/Io/BppOTreeWriterFormat.h
+  Bpp/Phyl/Io/BppOMultiTreeWriterFormat.h
   Bpp/Phyl/Likelihood/AbstractDiscreteRatesAcrossSitesTreeLikelihood.h
   Bpp/Phyl/Likelihood/AbstractHomogeneousTreeLikelihood.h
   Bpp/Phyl/Likelihood/AbstractNonHomogeneousTreeLikelihood.h
