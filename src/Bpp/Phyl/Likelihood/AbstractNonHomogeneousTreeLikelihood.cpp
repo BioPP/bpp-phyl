@@ -316,26 +316,26 @@ void AbstractNonHomogeneousTreeLikelihood::applyParameters() throw (Exception)
   if (!initialized_) throw Exception("AbstractBranchNonHomogeneousTreeLikelihood::applyParameters(). Object not initialized.");
   //Apply branch lengths:
   for (unsigned int i = 0; i < nbNodes_; i++)
+  {
+    int id = nodes_[i]->getId();
+    if (reparametrizeRoot_ && id == root1_)
     {
-      int id = nodes_[i]->getId();
-      if (reparametrizeRoot_ && id == root1_)
-        {
-          const Parameter* rootBrLen = &getParameter("BrLenRoot");
-          const Parameter* rootPos = &getParameter("RootPosition");
-          nodes_[i]->setDistanceToFather(rootBrLen->getValue() * rootPos->getValue());
-        }
-      else if (reparametrizeRoot_ && id == root2_)
-        {
-          const Parameter* rootBrLen = &getParameter("BrLenRoot");
-          const Parameter* rootPos = &getParameter("RootPosition");
-          nodes_[i]->setDistanceToFather(rootBrLen->getValue() * (1. - rootPos->getValue()));
-        }
-      else
-        {
-          const Parameter* brLen = &getParameter(string("BrLen") + TextTools::toString(i));
-          if (brLen) nodes_[i]->setDistanceToFather(brLen->getValue());
-        }
+      const Parameter* rootBrLen = &getParameter("BrLenRoot");
+      const Parameter* rootPos = &getParameter("RootPosition");
+      nodes_[i]->setDistanceToFather(rootBrLen->getValue() * rootPos->getValue());
     }
+    else if (reparametrizeRoot_ && id == root2_)
+    {
+      const Parameter* rootBrLen = &getParameter("BrLenRoot");
+      const Parameter* rootPos = &getParameter("RootPosition");
+      nodes_[i]->setDistanceToFather(rootBrLen->getValue() * (1. - rootPos->getValue()));
+    }
+    else
+    {
+      const Parameter* brLen = &getParameter(string("BrLen") + TextTools::toString(i));
+      if (brLen) nodes_[i]->setDistanceToFather(brLen->getValue());
+    }
+  }
   //Apply substitution model parameters:
 
   modelSet_->matchParametersValues(getParameters());

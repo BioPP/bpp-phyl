@@ -192,7 +192,7 @@ void PhylogeneticsApplicationTools::setSubstitutionModelParametersInitialValuesW
   std::map<std::string, std::string>& sharedParams,
   bool verbose) throw (Exception)
 {
-  string initFreqs = ApplicationTools::getStringParameter(model.getNamespace() + "initFreqs", unparsedParameterValues, "", "", true, false);
+  string initFreqs = ApplicationTools::getStringParameter(model.getNamespace() + "initFreqs", unparsedParameterValues, "", "", true, 2);
 
   if (verbose)
     ApplicationTools::displayResult("Frequencies Initialization for model", (initFreqs == "") ? "None" : initFreqs);
