@@ -1643,8 +1643,8 @@ vector< vector<double> > SubstitutionMappingTools::getNormalizationsPerBranch(
       }
       rewards[k][nbt] = s;
     }
-    reward.release();
-    mapping.release();
+    reward.reset();
+    mapping.reset();
   }
   return rewards;
 }
@@ -1725,8 +1725,8 @@ vector< vector<double> > SubstitutionMappingTools::getNormalizationsPerBranch(
           
           rewards[VectorTools::which(ids, mids[k])][nbt] = s;
         }
-        reward.release();
-        mapping.release();
+        reward.reset();
+        mapping.reset();
       }
     }
   }

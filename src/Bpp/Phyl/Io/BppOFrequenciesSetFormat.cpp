@@ -478,8 +478,8 @@ FrequenciesSet* BppOFrequenciesSetFormat::read(const Alphabet* alphabet, const s
   //MVAprotein freq set for COaLA model
   else if (freqName == "MVAprotein")
   {
-	  pFS.reset(new MvaFrequenciesSet(dynamic_cast<const ProteicAlphabet*>(alphabet)));
-	  dynamic_cast<MvaFrequenciesSet*>(pFS.get())->setParamValues(args);
+    pFS.reset(new MvaFrequenciesSet(dynamic_cast<const ProteicAlphabet*>(alphabet)));
+    dynamic_cast<MvaFrequenciesSet*>(pFS.get())->setParamValues(args);
   }
   else
     throw Exception("Unknown frequency option: " + freqName);
@@ -537,19 +537,23 @@ FrequenciesSet* BppOFrequenciesSetFormat::read(const Alphabet* alphabet, const s
     unparsedArguments_["init"] = args["init"];
     unparsedArguments_["initFreqs"] = args["init"];
   }
+  
   if (args.find("init.observedPseudoCount") != args.end())
   {
     unparsedArguments_["init.observedPseudoCount"] = args["init.observedPseudoCount"];
     unparsedArguments_["initFreqs.observedPseudoCount"] = args["init.observedPseudoCount"];
   }
+
   if (args.find("values") != args.end())
   {
     unparsedArguments_["initFreqs"] = "values" + args["values"];
     unparsedArguments_["init"] = "values" + args["values"];
+    initialize_(*pFS, data);    
   }
-
-  if (parseArguments)
-    initialize_(*pFS, data);
+  else 
+    if (parseArguments)
+      initialize_(*pFS, data);
+  
   return pFS.release();
 }
 
@@ -726,6 +730,7 @@ void BppOFrequenciesSetFormat::initialize_(FrequenciesSet& freqSet, const SiteCo
   {
     // Initialization using the "init" option
     string init = unparsedArguments_["init"];
+
     if (init == "observed")
     {
       if (!data)

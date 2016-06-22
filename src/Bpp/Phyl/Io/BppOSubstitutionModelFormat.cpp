@@ -1043,7 +1043,8 @@ SubstitutionModel* BppOSubstitutionModelFormat::readWord_(const Alphabet* alphab
         throw Exception("Missing fitness in model " + modelName + ".");
 
       BppOFrequenciesSetFormat bIOFreq(alphabetCode_, verbose_, warningLevel_);
-      bIOFreq.setGeneticCode(geneticCode_); 
+      bIOFreq.setGeneticCode(geneticCode_);
+      
       unique_ptr<FrequenciesSet> pFit(bIOFreq.read(pCA, args["fitness"], data, false));
       map<string, string> unparsedParameterValuesNested(bIOFreq.getUnparsedArguments());
 
