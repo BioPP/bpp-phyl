@@ -238,26 +238,12 @@ namespace bpp
       
       double getFirstOrderDerivative(const std::string& variable) const throw (Exception)
       {
-        if (!hasParameter(variable))
-          throw ParameterNotFoundException("AbstractPhyloLikelihood::getFirstOrderDerivative().", variable);
-        if (!hasDerivableParameter(variable))
-        {
-          throw Exception("AbstractPhyloLikelihood::Derivative is not implemented for " + variable + " parameter.");
-        }
-        
         computeDLogLikelihood_(variable);
         return -getDLogLikelihood();
       }
 
       double getSecondOrderDerivative(const std::string& variable) const throw (Exception)
       {
-        if (!hasParameter(variable))
-          throw ParameterNotFoundException("SetOfAbstractPhyloLikelihood::getSecondOrderDerivative().", variable);
-        if (!hasDerivableParameter(variable))
-        {
-          throw Exception("SetOfAbstractPhyloLikelihood::Derivative is not implemented for " + variable + " parameter.");
-        }
-        
         computeD2LogLikelihood_(variable);
         return -getD2LogLikelihood();
       }
@@ -270,8 +256,6 @@ namespace bpp
        * @{
        */
     
-      bool hasDerivableParameter(const std::string& name) const;
-      
       /**
        * @brief Get the branch lengths parameters.
        *

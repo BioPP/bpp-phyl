@@ -1582,7 +1582,7 @@ map<size_t, SequenceEvolution*> PhylogeneticsApplicationTools::getSequenceEvolut
 
         string vs = "(" + VectorTools::paste(std::vector<double>(nbP, 1. / (int)nbP), ",") + ")";
 
-        vector<double> v = ApplicationTools::getVectorParameter<double>("probas", args, ',', vs);
+        vector<double> v = ApplicationTools::getVectorParameter<double>("lambdas", args, ',', vs);
 
         ParameterList pl;
 
@@ -1926,7 +1926,7 @@ PhyloLikelihoodContainer* PhylogeneticsApplicationTools::getPhyloLikelihoodConta
 
           string vs = "(" + VectorTools::paste(std::vector<double>(nbP, 1. / (double)nbP), ",") + ")";
 
-          vector<double> v = ApplicationTools::getVectorParameter<double>("probas", args, ',', vs);
+          vector<double> v = ApplicationTools::getVectorParameter<double>("lambdas", args, ',', vs);
 
           ParameterList pl;
 
@@ -2911,6 +2911,7 @@ throw (Exception)
   //   }
 
   // Should I ignore some parameters?
+
   ParameterList parametersToEstimate = parameters;
   vector<string> parNames = parametersToEstimate.getParameterNames();
 
@@ -3980,7 +3981,7 @@ void PhylogeneticsApplicationTools::printParameters(const PhyloLikelihoodContain
         {
           const AutoCorrelationOfAlignedPhyloLikelihood* pM = dynamic_cast<const AutoCorrelationOfAlignedPhyloLikelihood*>(phyloLike);
 
-          out << "AutoCorr(probas=(";
+          out << "AutoCorr(lambdas=(";
 
           Vdouble vP;
           for (unsigned int i = 0; i < pM->getHmmTransitionMatrix().getNumberOfStates(); i++)
@@ -4088,7 +4089,7 @@ void PhylogeneticsApplicationTools::printParameters(const SequenceEvolution* evo
     {
       const AutoCorrelationSequenceEvolution* pM = dynamic_cast<const AutoCorrelationSequenceEvolution*>(evol);
 
-      out << "AutoCorr(probas=(";
+      out << "AutoCorr(lambdas=(";
 
       Vdouble vP;
       for (unsigned int i = 0; i < pM->getNumberOfSubstitutionProcess(); i++)

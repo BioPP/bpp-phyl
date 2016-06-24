@@ -137,12 +137,6 @@ inline const DiscreteDistribution* SubstitutionProcessCollectionMember::getRateD
   return &pSubProColl_->getRateDistribution(nDist_);
 }
 
-bool SubstitutionProcessCollectionMember::hasDerivableParameter(const std::string& name) const
-{
-  return hasBranchLengthParameter(name);
-}
-
-
 ParameterList SubstitutionProcessCollectionMember::getRateDistributionParameters(bool independent) const
 {
   return pSubProColl_->getRateDistributionParameters(nDist_, independent);
@@ -315,6 +309,7 @@ throw (Exception)
 
   int id;
   int rootId = getTree().getRootId();
+  
   std::map<size_t, std::vector<int> >::const_iterator it;
 
   for (it = modelToNodes_.begin(); it != modelToNodes_.end(); it++)

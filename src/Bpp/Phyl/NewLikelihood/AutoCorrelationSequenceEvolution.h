@@ -91,7 +91,7 @@ namespace bpp
       void setNamespace(const std::string& nameSpace);
 
       void fireParameterChanged(const ParameterList& parameters);
-
+      
       const AutoCorrelationTransitionMatrix& getHmmTransitionMatrix() const
       {
         return *autoCorrTransMat_.get();
@@ -112,7 +112,7 @@ namespace bpp
         return *hmmAlph_.get();
       }
 
-
+      ParameterList getNonDerivableParameters() const;
     };
 } // end of namespace bpp.
 

@@ -140,18 +140,6 @@ ParameterList SetOfAbstractPhyloLikelihood::getRootFrequenciesParameters() const
   return pl;
 }
 
-bool SetOfAbstractPhyloLikelihood::hasDerivableParameter(const std::string& variable) const
-{
-  if (!hasParameter(variable))
-    return false;
-  
-  for (size_t i=0; i<nPhylo_.size(); i++)
-    if (getAbstractPhyloLikelihood(nPhylo_[i])->hasParameter(variable) && !getAbstractPhyloLikelihood(nPhylo_[i])->hasDerivableParameter(variable))
-      return false;
-
-  return true;
-}
-
 ParameterList SetOfAbstractPhyloLikelihood::getDerivableParameters() const
 {
   ParameterList pl;

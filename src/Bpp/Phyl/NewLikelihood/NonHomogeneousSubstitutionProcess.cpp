@@ -334,12 +334,6 @@ bool NonHomogeneousSubstitutionProcess::isCompatibleWith(const SiteContainer& da
 }
 
 
-bool NonHomogeneousSubstitutionProcess::hasDerivableParameter(const std::string& name) const
-{
-  // Up to now (!), only branch length parameters are derivable
-  return (name.substr(0,5)=="BrLen");
-}
-
 NonHomogeneousSubstitutionProcess* NonHomogeneousSubstitutionProcess::createHomogeneousSubstitutionProcess(
                                                                                                                 SubstitutionModel* model,
                                                                                                                 DiscreteDistribution* rdist,

@@ -173,13 +173,6 @@ namespace bpp
     virtual ParameterList getRootFrequenciesParameters() const = 0;
 
     /**
-     * @brief test that given parameter is derivable.
-     *
-     */
-
-    virtual bool hasDerivableParameter(const std::string& variable) const = 0;
-
-    /**
      * @brief All independent derivable parameters.
      *
      * Usually, this contains all branch lengths parameters.

@@ -465,7 +465,7 @@ throw (Exception)
 {
   DerivableSecondOrder* f = lik;
   ParameterList pl = parameters;
-  
+
   // Shall we use a molecular clock constraint on branch lengths?
   // unique_ptr<GlobalClockTreeLikelihoodFunctionWrapper> fclock;
   // if (useClock)
@@ -521,6 +521,7 @@ throw (Exception)
 
   // if (useClock)
   //   tmp.addParameters(fclock->getHeightParameters());
+
   fnum->setParametersToDerivate(tmp.getParameterNames());
 
   optimizer->setVerbose(verbose);

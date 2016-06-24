@@ -88,8 +88,6 @@ namespace bpp
   
     virtual const ParametrizableTree& getParametrizableTree() const = 0;
 
-    virtual bool hasDerivableParameter(const std::string& name) const = 0;
-
     virtual size_t getNumberOfClasses() const = 0;
   
     virtual size_t getNumberOfStates() const = 0;

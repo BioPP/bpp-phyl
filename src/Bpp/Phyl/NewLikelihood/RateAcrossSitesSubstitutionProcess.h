@@ -81,12 +81,6 @@ public:
 
   size_t getNumberOfModels() const { return 1; }
 
-  bool hasDerivableParameter(const std::string& name) const
-  {
-    return !(model_->getIndependentParameters().hasParameter(name) ||
-             rDist_->getIndependentParameters().hasParameter(name));
-  }
-  
   bool isCompatibleWith(const SiteContainer& data) const {
     return data.getAlphabet()->getAlphabetType() == model_->getAlphabet()->getAlphabetType();
   }

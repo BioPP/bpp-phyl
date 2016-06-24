@@ -130,8 +130,6 @@ namespace bpp
         return nProc_;
       }  
 
-      bool hasDerivableParameter(const std::string& name) const;
-
       ParameterList getSubstitutionProcessParameters(bool independent) const;
 
       ParameterList getSubstitutionModelParameters(bool independent) const;
@@ -148,7 +146,6 @@ namespace bpp
       }
 
       virtual ParameterList getNonDerivableParameters() const;
-  
 
       virtual void fireParameterChanged(const ParameterList& parameters);
 

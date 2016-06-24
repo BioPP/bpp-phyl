@@ -179,26 +179,12 @@ namespace bpp
     public:
       double getFirstOrderDerivative(const std::string& variable) const throw (Exception)
       {
-        if (!hasParameter(variable))
-          throw ParameterNotFoundException("SequencePhyloLikelihood::getFirstOrderDerivative().", variable);
-        if (!hasDerivableParameter(variable))
-        {
-          throw Exception("SequencePhyloLikelihood::Derivative is not implemented for " + variable + " parameter.");
-        }
-
         computeDLogLikelihood_(variable);
         return -getDLogLikelihood();
       }
 
       double getSecondOrderDerivative(const std::string& variable) const throw (Exception)
       {
-        if (!hasParameter(variable))
-          throw ParameterNotFoundException("AbstractPhyloLikelihood::getSecondOrderDerivative().", variable);
-        if (!hasDerivableParameter(variable))
-        {
-          throw Exception("Derivative is not implemented for " + variable + " parameter.");
-        }
-        
         computeD2LogLikelihood_(variable);
         return -getD2LogLikelihood();
       }
@@ -217,11 +203,6 @@ namespace bpp
         seqEvol_->setNamespace(nameSpace);
       }
 
-      bool hasDerivableParameter(const std::string& variable) const
-      {
-        return seqEvol_->hasDerivableParameter(variable);
-      }
-      
       ParameterList getDerivableParameters() const
       {
         return seqEvol_->getDerivableParameters();

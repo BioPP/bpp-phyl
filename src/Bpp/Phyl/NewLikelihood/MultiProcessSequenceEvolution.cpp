@@ -126,7 +126,7 @@ ParameterList MultiProcessSequenceEvolution::getNonDerivableParameters() const
   
   for (size_t i=0; i<nProc_.size(); i++)
     pl.includeParameters(processColl_->getSubstitutionProcess(nProc_[i]).getNonDerivableParameters());
-
+  
   return pl;
 }
 
@@ -151,21 +151,4 @@ bool MultiProcessSequenceEvolution::isCompatibleWith(const SiteContainer& data) 
   return true;
 }
 
-/*****************************************************************************/
-
-bool MultiProcessSequenceEvolution::hasDerivableParameter(const std::string& name) const
-{
-  if (!hasParameter(name))
-    return false;
-  
-  for (size_t i=0; i<nProc_.size(); i++)
-  {
-    const SubstitutionProcess& spcm=processColl_->getSubstitutionProcess(nProc_[i]);
-
-    if (spcm.hasParameter(name) &&  !spcm.hasDerivableParameter(name))
-      return false;
-  }
-  
-  return true;
-}
 

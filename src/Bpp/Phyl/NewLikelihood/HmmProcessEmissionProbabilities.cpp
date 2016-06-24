@@ -99,7 +99,8 @@ void HmmProcessEmissionProbabilities::computeDEmissionProbabilities(std::string&
     for (size_t j=0;j<dEmProb_[j].size();j++)
       dEmProb_[i][j]= multiPL_->getDLogLikelihoodForASiteForAProcess(i, j) * multiPL_->getLikelihoodForASiteForAProcess(i, j);
 }
-  
+
+
 void HmmProcessEmissionProbabilities::computeD2EmissionProbabilities(std::string& variable) const
 {
   for (size_t i=0;i<multiPL_->getNumberOfSubstitutionProcess();i++)

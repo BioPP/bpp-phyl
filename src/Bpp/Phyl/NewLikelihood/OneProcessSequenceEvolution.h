@@ -97,11 +97,6 @@ namespace bpp
       return subsProc_->isCompatibleWith(data);
     }
     
-    bool hasDerivableParameter(const std::string& name) const
-    {
-      return subsProc_->hasDerivableParameter(name);
-    }
-
     const size_t getSubstitutionProcessNumber() const
     {
       return nProc_;

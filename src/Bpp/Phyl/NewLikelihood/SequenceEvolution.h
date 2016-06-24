@@ -77,8 +77,6 @@ namespace bpp
   public:
     virtual bool isCompatibleWith(const SiteContainer& data) const = 0;
 
-    virtual bool hasDerivableParameter(const std::string& name) const = 0;
-
     virtual const std::vector<size_t>& getSubstitutionProcessNumbers() const = 0;
     
     virtual const SubstitutionProcess& getSubstitutionProcess(size_t number) const = 0;
