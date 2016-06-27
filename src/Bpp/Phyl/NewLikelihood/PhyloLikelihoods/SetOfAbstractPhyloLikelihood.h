@@ -296,7 +296,7 @@ namespace bpp
        * @return A ParameterList.
        */
 
-      ParameterList getDerivableParameters() const;
+      virtual ParameterList getDerivableParameters() const;
 
 
       /** @} */

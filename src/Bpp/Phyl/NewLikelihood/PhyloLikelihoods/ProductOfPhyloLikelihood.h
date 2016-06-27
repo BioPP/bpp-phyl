@@ -140,6 +140,12 @@ namespace bpp
         throw Exception("ProductOfPhyloLikelihood::Derivative is not implemented for " + variable + " parameter.");
       }
 
+      ParameterList getDerivableParameters() const
+      {
+        // patch, to be fixed properly later
+        return ParameterList();
+      }
+
     };
 
 } //end of namespace bpp.
