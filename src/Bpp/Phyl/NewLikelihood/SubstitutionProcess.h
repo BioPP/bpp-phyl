@@ -129,8 +129,6 @@ namespace bpp
 
     virtual ParameterList getBranchLengthParameters(bool independent) const = 0;
 
-    virtual ParameterList getDerivableParameters() const = 0;
-
     virtual ParameterList getNonDerivableParameters() const = 0;
 
     /**

@@ -42,13 +42,4 @@
 using namespace bpp;
 using namespace std;
 
-ParameterList AbstractPhyloLikelihood::getNonDerivableParameters() const
-{
-  ParameterList pl=getParameters();
-  ParameterList pld=getDerivableParameters();
-
-  pl.deleteParameters(pld.getParameterNames());
-  
-  return pl;
-}
 

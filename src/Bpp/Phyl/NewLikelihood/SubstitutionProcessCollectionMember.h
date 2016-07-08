@@ -183,6 +183,17 @@ private:
   }
 
 public:
+  const SubstitutionProcessCollection* getCollection() const
+  {
+    return pSubProColl_;
+  }
+
+  SubstitutionProcessCollection* getCollection()
+  {
+    return pSubProColl_;
+  }
+
+
   const Alphabet* getAlphabet() const;
 
   /**
@@ -414,11 +425,9 @@ public:
   ParameterList getRootFrequenciesParameters(bool independent) const;
 
   /**
-   * @brief get (Non)Derivable INDEPENDENT parameters
+   * @brief get all NonDerivable parameters.
    *
    **/
-
-  ParameterList getDerivableParameters() const;
 
   ParameterList getNonDerivableParameters() const;
 

@@ -133,12 +133,6 @@ namespace bpp
   
       VVdouble getPosteriorProbabilitiesForEachSiteForEachProcess() const;
 
-    protected:
-  
-      void computeDLogLikelihood_(const std::string& variable) const;
-
-      void computeD2LogLikelihood_(const std::string& variable) const;
-
       /*
        * @}
        */

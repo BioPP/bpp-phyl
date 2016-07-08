@@ -289,14 +289,14 @@ namespace bpp
       ParameterList getRootFrequenciesParameters() const;
 
       /**
-       * @brief All derivable parameters.
+       * @brief All non derivable parameters.
        *
-       * Usually, this contains all branch lengths parameters.
+       * It is the union of the non derivable parameters from all members.
        *
        * @return A ParameterList.
        */
 
-      virtual ParameterList getDerivableParameters() const;
+      ParameterList getNonDerivableParameters() const;
 
 
       /** @} */

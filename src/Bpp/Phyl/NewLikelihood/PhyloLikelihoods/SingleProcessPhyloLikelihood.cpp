@@ -191,7 +191,19 @@ Vdouble SingleProcessPhyloLikelihood::getPosteriorRateOfEachSite() const
 ******************************************************************************/
 void SingleProcessPhyloLikelihood::computeDLogLikelihood_(const string& variable) const
 {
-  tlComp_->computeTreeDLogLikelihood(variable);
+  // Get the node with the branch whose length must be derivated:
+  Vint vbrId;
+  
+  try {
+    vbrId.push_back(atoi(variable.substr(5).c_str()));
+  }
+  catch (std::exception const& e)
+  {
+    return;
+  }
+
+
+  tlComp_->computeTreeDLogLikelihood(vbrId);
 }
 
 /******************************************************************************
@@ -199,7 +211,18 @@ void SingleProcessPhyloLikelihood::computeDLogLikelihood_(const string& variable
 ******************************************************************************/
 void SingleProcessPhyloLikelihood::computeD2LogLikelihood_(const string& variable) const
 {
-  tlComp_->computeTreeD2LogLikelihood(variable);
+  // Get the node with the branch whose length must be derivated:
+  Vint vbrId;
+  
+  try {
+    vbrId.push_back(atoi(variable.substr(5).c_str()));
+  }
+  catch (std::exception const& e)
+  {
+    return;
+  }
+
+  tlComp_->computeTreeD2LogLikelihood(vbrId);
 }
 
 /******************************************************************************/

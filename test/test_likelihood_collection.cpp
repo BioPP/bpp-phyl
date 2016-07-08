@@ -157,6 +157,7 @@ int main() {
   vp[0]=1; vp[1]=2;
   
   MixtureSequenceEvolution mse(modelColl, vp);
+
   MixtureProcessPhyloLikelihood mlc(*sites.clone(), mse);
 
   cerr << "Mlc: " << mlc.getValue() << endl;

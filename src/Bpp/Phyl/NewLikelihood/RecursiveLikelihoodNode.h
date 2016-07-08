@@ -438,7 +438,7 @@ namespace bpp
      */
 
     
-    void computeLikelihoods(const SpeciationComputingNode& cNode, unsigned char DX, Vint* brId = NULL)
+    void computeLikelihoods(const SpeciationComputingNode& cNode, unsigned char DX, const Vint* brId = NULL)
     {
       if (!isUp2dateBelow_(DX))
       {
@@ -477,7 +477,7 @@ namespace bpp
      *
      */
      
-    void computeUpwardToFatherBelowLikelihoods(const SpeciationComputingNode& cNode, unsigned char DX, Vint* vBrid= NULL)
+    void computeUpwardToFatherBelowLikelihoods(const SpeciationComputingNode& cNode, unsigned char DX, const Vint* vBrid= NULL)
     {
       // First check below dependencies are up to date
       
@@ -582,7 +582,7 @@ namespace bpp
      *
      */
      
-    void computeUpwardBelowLikelihoods(const SpeciationComputingNode& cNode, unsigned char DX, Vint* vBrid= NULL)
+    void computeUpwardBelowLikelihoods(const SpeciationComputingNode& cNode, unsigned char DX, const Vint* vBrid= NULL)
     {
       // First check below dependencies are up to date
       size_t nbSons=getNumberOfSons();

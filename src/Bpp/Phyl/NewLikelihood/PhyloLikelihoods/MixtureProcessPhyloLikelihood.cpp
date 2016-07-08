@@ -198,24 +198,3 @@ VVdouble MixtureProcessPhyloLikelihood::getPosteriorProbabilitiesForEachSiteForE
 }
 
 
-/******************************************************************************/
-
-void MixtureProcessPhyloLikelihood::computeD2LogLikelihood_(const std::string& variable) const
-{
-  for (size_t i = 0; i < vpTreelik_.size(); i++)
-  {
-    vpTreelik_[i]->computeTreeD2LogLikelihood(variable);
-  }
-}
-
-/******************************************************************************/
-
-void MixtureProcessPhyloLikelihood::computeDLogLikelihood_(const std::string& variable) const
-{
-  for (size_t i = 0; i < vpTreelik_.size(); i++)
-  {
-    vpTreelik_[i]->computeTreeDLogLikelihood(variable);
-  }
-}
-
-/******************************************************************************/

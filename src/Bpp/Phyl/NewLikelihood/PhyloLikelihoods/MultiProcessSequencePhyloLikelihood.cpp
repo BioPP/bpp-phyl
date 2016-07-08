@@ -109,52 +109,68 @@ VVdouble MultiProcessSequencePhyloLikelihood::getLikelihoodForEachSiteForEachPro
 
 /******************************************************************************/
 
-void MultiProcessSequencePhyloLikelihood::computeDLogLikelihoodForAProcess(std::string& variable, size_t p) const
+void MultiProcessSequencePhyloLikelihood::computeDLogLikelihood_(const std::string& variable) const
 {
+  for (size_t i=0; i<vpTreelik_.size();i++)
+    computeDLogLikelihoodForAProcess(variable, i);
+}
+
+/******************************************************************************/
+
+void MultiProcessSequencePhyloLikelihood::computeD2LogLikelihood_(const std::string& variable) const
+{
+  for (size_t i=0; i<vpTreelik_.size();i++)
+    computeD2LogLikelihoodForAProcess(variable, i);
+}
+
+/******************************************************************************/
+
+
+void MultiProcessSequencePhyloLikelihood::computeDLogLikelihoodForAProcess(const std::string& variable, size_t p) const
+{
+  Vint VbrId;
+
+  // Get the node with the branch whose length must be derivated:
+
   size_t i=0;
-  
   try {
     i=(size_t)atoi(variable.substr(variable.rfind('_')+1).c_str());
-    if (p+1==i){
-      vpTreelik_[p]->computeTreeDLogLikelihood(variable);
-      return;
-    }
+    if (p+1==i)
+      VbrId.push_back(atoi(variable.substr(5).c_str()));
   }
   catch (exception& e){}
   
   vector<string> valias= mSeqEvol_.getCollection().getAlias(variable);
-  
+
   for (size_t v=0; v<valias.size();v++)
   {
     try {
       i=(size_t)atoi(valias[v].substr(valias[v].rfind('_')+1).c_str());
       if (p+1==i){
-        vpTreelik_[p]->computeTreeDLogLikelihood(valias[v]);
-        return;
+        VbrId.push_back(atoi(valias[v].substr(5).c_str()));
       }
     }
-    catch (exception& e){
-      continue;
-    }
+    catch (exception& e)
+    {}
   }
-  
-  vpTreelik_[p]->computeTreeDLogLikelihood("");
 
+  vpTreelik_[p]->computeTreeDLogLikelihood(VbrId);
 }
 
 
 /************************************************************/
 
-void MultiProcessSequencePhyloLikelihood::computeD2LogLikelihoodForAProcess(std::string& variable, size_t p) const
+void MultiProcessSequencePhyloLikelihood::computeD2LogLikelihoodForAProcess(const std::string& variable, size_t p) const
 {
+  Vint VbrId;
+
+  // Get the node with the branch whose length must be derivated:
+
   size_t i=0;
-  
   try {
     i=(size_t)atoi(variable.substr(variable.rfind('_')+1).c_str());
-    if (p+1==i){
-      vpTreelik_[p]->computeTreeD2LogLikelihood(variable);
-      return;
-    }
+    if (p+1==i)
+      VbrId.push_back(atoi(variable.substr(5).c_str()));
   }
   catch (exception& e){}
   
@@ -165,15 +181,12 @@ void MultiProcessSequencePhyloLikelihood::computeD2LogLikelihoodForAProcess(std:
     try {
       i=(size_t)atoi(valias[v].substr(valias[v].rfind('_')+1).c_str());
       if (p+1==i){
-        vpTreelik_[p]->computeTreeD2LogLikelihood(valias[v]);
-        return;
+        VbrId.push_back(atoi(valias[v].substr(5).c_str()));
       }
     }
-    catch (exception& e){
-      continue;
-    }
+    catch (exception& e)
+    {}
   }
-  
-  vpTreelik_[p]->computeTreeD2LogLikelihood("");
 
+  vpTreelik_[p]->computeTreeD2LogLikelihood(VbrId);
 }

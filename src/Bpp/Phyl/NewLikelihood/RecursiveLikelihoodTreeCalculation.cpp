@@ -184,23 +184,16 @@ void RecursiveLikelihoodTreeCalculation::computeLikelihoodsAtNode(int nodeId)
  *                           First Order Derivatives                          *
  ******************************************************************************/
 
-void RecursiveLikelihoodTreeCalculation::computeTreeDLogLikelihood(const string& variable)
+void RecursiveLikelihoodTreeCalculation::computeTreeDLogLikelihood(const Vint& vbrId)
 {
-
-  // Get the node with the branch whose length must be derivated:
-
-  Vint VbrId;
-  try {
-    VbrId.push_back(atoi(variable.substr(5).c_str()));
-  }
-  catch (std::exception const& e)
+  if (vbrId.size()==0)
   {
-    nullDLikelihood_=true;
+    nullDLogLikelihood_=true;
     return;
   }
 
-  nullDLikelihood_=false;
-
+  nullDLogLikelihood_=false;
+  
   vector<int> lId=(*process_->getComputingTree()[0]).getLeavesId();
   
   for (size_t i=0;i<lId.size();i++)
@@ -209,31 +202,22 @@ void RecursiveLikelihoodTreeCalculation::computeTreeDLogLikelihood(const string&
       branch->updateFatherBelow_(false, ComputingNode::D1);
     }
   
-  likelihoodData_->computeLikelihoods(process_->getComputingTree(), ComputingNode::D1, &VbrId);
-
+  likelihoodData_->computeLikelihoods(process_->getComputingTree(), ComputingNode::D1, &vbrId);
 }
 
 /******************************************************************************
  *                           Second Order Derivatives                         *
  ******************************************************************************/
 
-void RecursiveLikelihoodTreeCalculation::computeTreeD2LogLikelihood(const string& variable)
+void RecursiveLikelihoodTreeCalculation::computeTreeD2LogLikelihood(const Vint& vbrId)
 {
-
-  // Get the node with the branch whose length must be derivated:
-  Vint VbrId;
-  
-  try {
-    VbrId.push_back(atoi(variable.substr(5).c_str()));
-  }
-  catch (std::exception const& e)
+  if (vbrId.size()==0)
   {
-    nullD2Likelihood_=true;
+    nullD2LogLikelihood_=true;
     return;
   }
 
-  nullD2Likelihood_=false;
-
+  nullD2LogLikelihood_=false;
 
   vector<int> lId=(*process_->getComputingTree()[0]).getLeavesId();
   
@@ -243,8 +227,7 @@ void RecursiveLikelihoodTreeCalculation::computeTreeD2LogLikelihood(const string
       branch->updateFatherBelow_(false, ComputingNode::D2);
     }
   
-  likelihoodData_->computeLikelihoods(process_->getComputingTree(), ComputingNode::D2, &VbrId);
-
+  likelihoodData_->computeLikelihoods(process_->getComputingTree(), ComputingNode::D2, &vbrId);
 }
 
 

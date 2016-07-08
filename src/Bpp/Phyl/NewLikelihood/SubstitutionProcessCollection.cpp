@@ -148,14 +148,15 @@ ParameterList SubstitutionProcessCollection::getNonDerivableParameters() const
   ParameterList pl=distColl_.getIndependentParameters();
   pl.addParameters(modelColl_.getIndependentParameters());
   pl.addParameters(freqColl_.getIndependentParameters());
-  
+
+  pl.includeParameters(getAliasedParameters(pl));
+  pl.includeParameters(getFromParameters(pl));
+
   return pl;
 }
   
 void SubstitutionProcessCollection::fireParameterChanged(const ParameterList& parameters)
 {
-  AbstractParameterAliasable::fireParameterChanged(parameters);
-
   ParameterList gAP=getAliasedParameters(parameters);
 
   gAP.addParameters(parameters);

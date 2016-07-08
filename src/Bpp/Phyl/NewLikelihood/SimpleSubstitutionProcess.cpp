@@ -43,7 +43,7 @@ using namespace bpp;
 using namespace std;
 
 SimpleSubstitutionProcess::SimpleSubstitutionProcess(SubstitutionModel* model, ParametrizableTree* tree, bool checkRooted) :
-  AbstractParameterAliasable(model ? model->getNamespace() : ""),
+  AbstractParameterAliasable(""),
   AbstractSubstitutionProcess(tree, 1, model ? model->getNamespace() : ""),
   model_(model),
   computingTree_()

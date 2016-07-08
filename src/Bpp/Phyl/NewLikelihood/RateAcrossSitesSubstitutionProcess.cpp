@@ -49,7 +49,7 @@ RateAcrossSitesSubstitutionProcess::RateAcrossSitesSubstitutionProcess(
     DiscreteDistribution* rdist,
     ParametrizableTree* tree,
     bool checkRooted) :
-  AbstractParameterAliasable(model ? model->getNamespace() : ""),
+  AbstractParameterAliasable(""),
   AbstractSubstitutionProcess(tree, rdist ? rdist->getNumberOfCategories() : 0, model ? model->getNamespace() : ""),
   model_(model),
   rDist_(rdist),
@@ -68,8 +68,11 @@ RateAcrossSitesSubstitutionProcess::RateAcrossSitesSubstitutionProcess(
 
   // Add parameters:
   addParameters_(tree->getParameters());  //Branch lengths
+
   addParameters_(model->getIndependentParameters()); //Substitution model
-  addParameters_(rdist->getIndependentParameters()); //Rate distribution
+
+  addParameters_(rdist->getIndependentParameters()); //Rate
+                                                     //distribution
 }
     
 RateAcrossSitesSubstitutionProcess::RateAcrossSitesSubstitutionProcess(const RateAcrossSitesSubstitutionProcess& rassp) :

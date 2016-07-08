@@ -203,11 +203,6 @@ namespace bpp
         seqEvol_->setNamespace(nameSpace);
       }
 
-      ParameterList getDerivableParameters() const
-      {
-        return seqEvol_->getDerivableParameters();
-      }
-
       ParameterList getNonDerivableParameters() const
       {
         return seqEvol_->getNonDerivableParameters();

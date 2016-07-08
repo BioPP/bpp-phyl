@@ -130,8 +130,6 @@ namespace bpp
       setParametersValues(parameters);
     }
 
-    ParameterList getNonDerivableParameters() const;
-
     virtual void enableDerivatives(bool yn) { computeFirstOrderDerivatives_ = computeSecondOrderDerivatives_ = yn; }
     virtual void enableFirstOrderDerivatives(bool yn) { computeFirstOrderDerivatives_ = yn; }
     virtual void enableSecondOrderDerivatives(bool yn) { computeFirstOrderDerivatives_ = computeSecondOrderDerivatives_ = yn; }

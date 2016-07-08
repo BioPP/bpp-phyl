@@ -92,7 +92,6 @@ int main() {
   std::vector<std::string> globalParameterNames;
   globalParameterNames.push_back("T92.kappa");
 
-  
   //Very difficult to optimize on small datasets:
   DiscreteDistribution* rdist = new GammaDiscreteRateDistribution(4, 1.0);
   
@@ -106,6 +105,7 @@ int main() {
   SubstitutionModelSet* modelSet = SubstitutionModelSetTools::createNonHomogeneousModelSet(model, rootFreqs, tree, alias, globalParameterNames);
 
   unique_ptr<SubstitutionModelSet> modelSetSim(modelSet->clone());
+  
 
   NonHomogeneousSubstitutionProcess* subPro= NonHomogeneousSubstitutionProcess::createNonHomogeneousSubstitutionProcess(model2, rdist2, rootFreqs2, parTree, globalParameterNames);
 
@@ -140,11 +140,13 @@ int main() {
     //Now fit model:
 
     RNonHomogeneousTreeLikelihood tl(*tree, *sites.get(), modelSet, rdist, true, true, false);
+
     tl.initialize();
 
     SubstitutionProcess* nsubPro=subPro->clone();
-    
+
     RecursiveLikelihoodTreeCalculation* tlComp = new RecursiveLikelihoodTreeCalculation(*sites->clone(), nsubPro, true, false);
+
     SingleProcessPhyloLikelihood ntl(nsubPro, tlComp, true);
 
     cout << setprecision(10) << "OldTL init: "  << tl.getValue()  << endl;

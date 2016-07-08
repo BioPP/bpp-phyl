@@ -67,6 +67,7 @@ void fitModelHSR(SubstitutionModel* model, DiscreteDistribution* rdist, const Tr
   // tl.getFirstOrderDerivative("BrLen2");
   // tl.getFirstOrderDerivative("BrLen3");
   // tl.getFirstOrderDerivative("BrLen4");
+
   ApplicationTools::displayResult("Test model", model->getName());
   cout << "OldTL: " << setprecision(20) << tl.getValue() << endl;
   cout << "OldTL D1: " << setprecision(20) << tl.getFirstOrderDerivative("BrLen2") << endl;
@@ -78,13 +79,13 @@ void fitModelHSR(SubstitutionModel* model, DiscreteDistribution* rdist, const Tr
   
   Parameter p1("T92.kappa",0.1);
   Parameter p2("T92.kappa",0.2);
-
+  
   ParameterList pl1;pl1.addParameter(p1);
   ParameterList pl2;pl2.addParameter(p2);
-
+  
   Parameter p3("BrLen1",0.1);
   Parameter p4("BrLen1",0.2);
-
+  
   ParameterList pl3;pl3.addParameter(p3);
   ParameterList pl4;pl4.addParameter(p4);
 
@@ -122,15 +123,17 @@ void fitModelHSR(SubstitutionModel* model, DiscreteDistribution* rdist, const Tr
   ApplicationTools::startTimer();
   
   unique_ptr<RateAcrossSitesSubstitutionProcess> process(new RateAcrossSitesSubstitutionProcess(model->clone(), rdist->clone(), pTree->clone()));
+
   unique_ptr<RecursiveLikelihoodTreeCalculation> tmComp(new RecursiveLikelihoodTreeCalculation(sites, process.get(), false, true));
+
   SingleProcessPhyloLikelihood newTl(process.get(), tmComp.release());
-  
+
   newTl.computeLikelihood();
   // newTl.getFirstOrderDerivative("BrLen0");
   // newTl.getFirstOrderDerivative("BrLen1");
   // newTl.getFirstOrderDerivative("BrLen2");
   // newTl.getFirstOrderDerivative("BrLen3");
-//    newTl.getFirstOrderDerivative("BrLen4");
+  // newTl.getFirstOrderDerivative("BrLen4");
   
   cout << "NewTL: " << setprecision(20) << newTl.getValue() << endl;
   cout << "NewTL D1: " << setprecision(20) << newTl.getFirstOrderDerivative("BrLen2") << endl;

@@ -228,7 +228,7 @@ public:
    * is a pointer on a vector of ids of derivated branches.
    *
    */
-  void computeLikelihoods(const ComputingTree& lTree, unsigned char DX, Vint* brId = NULL)
+  void computeLikelihoods(const ComputingTree& lTree, unsigned char DX, const Vint* brId = NULL)
   {
     int rId = lTree[0]->getRootId();
 

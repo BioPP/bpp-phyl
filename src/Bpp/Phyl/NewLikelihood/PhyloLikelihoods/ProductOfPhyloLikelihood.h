@@ -126,26 +126,6 @@ namespace bpp
 
       /** @} */
 
-    protected:
-
-      void computeDLogLikelihood_(const std::string& variable) const
-      {
-        // patch, to be fixed properly later
-        throw Exception("ProductOfPhyloLikelihood::Derivative is not implemented for " + variable + " parameter.");
-      }
-
-      void computeD2LogLikelihood_(const std::string& variable) const
-      {
-        // patch, to be fixed properly later
-        throw Exception("ProductOfPhyloLikelihood::Derivative is not implemented for " + variable + " parameter.");
-      }
-
-      ParameterList getDerivableParameters() const
-      {
-        // patch, to be fixed properly later
-        return ParameterList();
-      }
-
     };
 
 } //end of namespace bpp.

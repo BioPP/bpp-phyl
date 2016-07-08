@@ -100,9 +100,9 @@ namespace bpp
       return *this;
     }
 
-    void fireParameterChanged(const ParameterList& parameters)
-    {
-    }
+    // void fireParameterChanged(const ParameterList& parameters)
+    // {
+    // }
 
     HmmPhyloEmissionProbabilities* clone() const { return new HmmPhyloEmissionProbabilities(*this);}
 

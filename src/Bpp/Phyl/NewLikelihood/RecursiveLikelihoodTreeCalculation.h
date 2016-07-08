@@ -184,9 +184,9 @@ namespace bpp
        *
        */
        
-      void computeTreeDLogLikelihood(const std::string& variable);
+      void computeTreeDLogLikelihood(const Vint& vbrId);
 
-      void computeTreeD2LogLikelihood(const std::string& variable);
+      void computeTreeD2LogLikelihood(const Vint& vbrId);
 
       /*
        * @brief compute likelihood and set up2date_ to true.

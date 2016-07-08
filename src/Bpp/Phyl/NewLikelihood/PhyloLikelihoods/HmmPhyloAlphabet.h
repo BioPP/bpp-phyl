@@ -150,11 +150,6 @@ namespace bpp {
       return stateAlphabet==this;
     }
 
-    void fireParameterChanged(const ParameterList& parameters)
-    {
-    }
-    
-
     /**
      * @{
      *

@@ -209,10 +209,17 @@ namespace bpp
       return process_->getSubstitutionModelParameters(true);
     }
 
-    ParameterList getDerivableParameters() const {
-      return getBranchLengthParameters();
+    ParameterList getNonDerivableParameters() const
+    {
+      ParameterList pl=getSubstitutionModelParameters();
+      
+      pl.includeParameters(getRateDistributionParameters());
+      pl.includeParameters(getRootFrequenciesParameters());
+
+      return pl;
     }
 
+        
     /** @} */
 
 

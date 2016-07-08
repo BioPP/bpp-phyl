@@ -173,16 +173,6 @@ namespace bpp
     virtual ParameterList getRootFrequenciesParameters() const = 0;
 
     /**
-     * @brief All independent derivable parameters.
-     *
-     * Usually, this contains all branch lengths parameters.
-     *
-     * @return A ParameterList.
-     */
-
-    virtual ParameterList getDerivableParameters() const = 0;
-
-    /**
      * @brief All independent non derivable parameters.
      *
      * Usually, this contains all substitution model parameters and rate distribution.

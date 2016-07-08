@@ -123,19 +123,10 @@ namespace bpp
 
 
     /**
-     * @brief All independent derivable parameters.
+     * @brief All non derivable parameters.
      *
-     * Usually, this contains all branch lengths parameters.
-     *
-     * @return A ParameterList.
-     */
-
-    virtual ParameterList getDerivableParameters() const = 0;
-
-    /**
-     * @brief All independent non derivable parameters.
-     *
-     * Usually, this contains all substitution model parameters and rate distribution.
+     * Usually, this contains all substitution model parameters and
+     * rate distribution, and alias.
      *
      * @return A ParameterList.
      */
@@ -143,46 +134,6 @@ namespace bpp
     virtual ParameterList getNonDerivableParameters() const = 0;
 
   };
-
-  // class AbstractSequenceEvolution :
-  //   public virtual SequenceEvolution,
-  //   public virtual AbstractParameterAliasable
-  // {
-  // protected:
-  //   size_t seqLength_;
-
-  // public:
-  //   AbstractSequenceEvolution() :
-  //     AbstractParameterAliasable(""),
-  //     seqLength_(0)
-  //   {
-  //   }
-
-  //   AbstractSequenceEvolution(const AbstractSequenceEvolution& evol) :
-  //     AbstractParameterAliasable(evol),
-  //     seqLength_(evol.seqLength_)
-  //   {
-  //   }
-
-  //   AbstractSequenceEvolution& operator=(const AbstractSequenceEvolution& evol)
-  //   {
-  //     AbstractParameterAliasable::operator=(*this);
-  //     seqLength_=evol.seqLength_;
-
-  //     return *this;
-  //   }
-    
-  //   size_t getNumberOfPositions() const
-  //   {
-  //     return seqLength_;
-  //   }
-
-  //   void setNumberOfPositions(size_t length) 
-  //   {
-  //     seqLength_=length;
-  //   }
-
-//  };
 
 } // end namespace bpp
 

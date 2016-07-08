@@ -160,10 +160,6 @@ namespace bpp
        */
       
     public:
-      /**
-       * @brief To be defined in inheriting classes.
-       *
-       */
 
       void updateLikelihood() const
       {
@@ -185,7 +181,6 @@ namespace bpp
         }
         
       }
-
       /**
        * @brief sets using log in all likelihood arrays.
        *
@@ -231,7 +226,7 @@ namespace bpp
        * @return The likelihood for site <i>site</i>.
        */
 
-      void computeDLogLikelihoodForAProcess(std::string& variable, size_t p) const;
+      void computeDLogLikelihoodForAProcess(const std::string& variable, size_t p) const;
 
       /**
        * @brief Get the first derivative of the likelihood for a site for
@@ -255,7 +250,7 @@ namespace bpp
        * @return The likelihood for site <i>site</i>.
        */
   
-      virtual void computeD2LogLikelihoodForAProcess(std::string& variable, size_t p) const;
+      virtual void computeD2LogLikelihoodForAProcess(const std::string& variable, size_t p) const;
 
       /**
        * @brief Get the second derivative of the likelihood for a site for
@@ -290,7 +285,14 @@ namespace bpp
        */
   
       size_t getNumberOfSubstitutionProcess() const { return vpTreelik_.size(); }
-      
+
+    protected:
+
+      virtual void computeDLogLikelihood_(const std::string& variable) const;
+
+      virtual void computeD2LogLikelihood_(const std::string& variable) const;
+
+
       /** @} */
     };
 } // end of namespace bpp.

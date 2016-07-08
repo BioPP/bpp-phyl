@@ -113,6 +113,7 @@ bool testModel(SubstitutionModel& model) {
 int main() {
   //Nucleotide models:
   GTR gtr(&AlphabetTools::DNA_ALPHABET);
+
   if (!testModel(gtr)) return 1;
 
   //Codon models:
