@@ -193,7 +193,6 @@ public:
    */
   void fireParameterChanged(const ParameterList& parameters)
   {
-    AbstractParameterAliasable::fireParameterChanged(parameters);
     getModel().matchParametersValues(parameters);
   }
 

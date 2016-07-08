@@ -293,8 +293,6 @@ public:
    */
   virtual void fireParameterChanged(const ParameterList& parameters)
   {
-    AbstractParameterAliasable::fireParameterChanged(parameters);
-    
     if (parameters.hasParameter(getNamespace()+"rate"))
     {
       rate_=parameters.getParameterValue(getNamespace()+"rate");

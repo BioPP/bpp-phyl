@@ -137,7 +137,6 @@ void FullFrequenciesSet::setNamespace(const std::string& nameSpace)
 
 void FullFrequenciesSet::fireParameterChanged(const ParameterList& parameters)
 {
-  AbstractFrequenciesSet::fireParameterChanged(parameters);
   sFreq_.matchParametersValues(parameters);
   updateFreq_();
 }
@@ -245,7 +244,6 @@ void FromModelFrequenciesSet::setFrequencies(const std::vector<double>& frequenc
 
 void FromModelFrequenciesSet::fireParameterChanged(const ParameterList& pl)
 {
-  AbstractFrequenciesSet::fireParameterChanged(pl);
   model_->matchParametersValues(pl);
   setFrequencies_(model_->getFrequencies());
 }

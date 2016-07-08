@@ -233,8 +233,6 @@ void SubstitutionModelSet::listModelNames(std::ostream& out) const
 
 void SubstitutionModelSet::fireParameterChanged(const ParameterList& parameters)
 {
-  AbstractParameterAliasable::fireParameterChanged(parameters);
-  
   // Update root frequencies:
   updateRootFrequencies();
 

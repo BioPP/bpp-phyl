@@ -140,11 +140,6 @@ namespace bpp
 
       ParameterList getBranchLengthParameters(bool independent) const;
 
-      virtual ParameterList getDerivableParameters() const
-      {
-        return getBranchLengthParameters(true);
-      }
-
       virtual ParameterList getNonDerivableParameters() const;
 
       virtual void fireParameterChanged(const ParameterList& parameters);

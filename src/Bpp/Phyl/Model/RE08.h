@@ -181,7 +181,6 @@ namespace bpp
 	
     void fireParameterChanged(const ParameterList& parameters)
     {
-      AbstractParameterAliasable::fireParameterChanged(parameters);      
       simpleModel_->matchParametersValues(parameters);
       lambda_ = getParameter_(0).getValue();
       mu_     = getParameter_(1).getValue();

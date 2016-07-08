@@ -122,7 +122,6 @@ void FullNucleotideFrequenciesSet::setFrequencies(const vector<double>& frequenc
 
 void FullNucleotideFrequenciesSet::fireParameterChanged(const ParameterList& parameters)
 {
-  AbstractFrequenciesSet::fireParameterChanged(parameters);
   double theta  = getParameter_(0).getValue();
   double theta1 = getParameter_(1).getValue();
   double theta2 = getParameter_(2).getValue();
@@ -154,7 +153,6 @@ void GCFrequenciesSet::setFrequencies(const vector<double>& frequencies)
 
 void GCFrequenciesSet::fireParameterChanged(const ParameterList& parameters)
 {
-  AbstractFrequenciesSet::fireParameterChanged(parameters);
   double theta = getParameter_(0).getValue();
   getFreq_(0) = getFreq_(3) = (1. - theta) / 2.;
   getFreq_(1) = getFreq_(2) = theta / 2.;

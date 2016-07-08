@@ -177,11 +177,6 @@ namespace bpp
      *
      **/
 
-    ParameterList getDerivableParameters() const
-    {
-      return subsProc_->getDerivableParameters();
-    }
-
     ParameterList getNonDerivableParameters() const
     {
       return subsProc_->getNonDerivableParameters();

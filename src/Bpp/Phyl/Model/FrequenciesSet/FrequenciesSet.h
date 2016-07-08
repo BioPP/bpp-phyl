@@ -142,7 +142,8 @@ namespace bpp
       stateMap_(stateMap),
       freq_(stateMap->getNumberOfModelStates()),
       name_(name)
-    {}
+    {
+    }
 
     AbstractFrequenciesSet* clone() const = 0;
 
@@ -194,11 +195,6 @@ namespace bpp
       for (size_t i = 0; i < freq_.size(); i++)
         x += freq_[i];
       freq_ /= x;
-    }
-
-    virtual void fireParameterChanged(const ParameterList& parameters)
-    {
-      AbstractParameterAliasable::fireParameterChanged(parameters);
     }
 
   protected:
@@ -338,7 +334,6 @@ namespace bpp
 
     void fireParameterChanged(const ParameterList& pl)
     {
-      AbstractFrequenciesSet::fireParameterChanged(pl);
       freqSet_->matchParametersValues(pl);
       setFrequencies_(VectorTools::kroneckerMult(rateFreqs_, freqSet_->getFrequencies()));
     }
@@ -381,8 +376,6 @@ namespace bpp
   public:
     void setFrequencies(const std::vector<double>& frequencies);
 
-  protected:
-    void fireParameterChanged(const ParameterList& parameters) {}
   };
 
  

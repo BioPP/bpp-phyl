@@ -89,15 +89,10 @@ namespace bpp
   public:
 
     /**
-     * @brief get (Non)Derivable INDEPENDENT parameters
+     * @brief get NonDerivable parameters
      *
      **/
 
-    ParameterList getDerivableParameters() const
-    {
-      return getBranchLengthParameters(true);
-    }
-  
     ParameterList getNonDerivableParameters() const;
 
     /**

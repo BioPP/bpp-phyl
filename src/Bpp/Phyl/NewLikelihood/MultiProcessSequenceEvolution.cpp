@@ -55,16 +55,15 @@ MultiProcessSequenceEvolution::MultiProcessSequenceEvolution(
   // initialize parameters:
 
   for (size_t i=0; i<nProc_.size(); i++)
+  {
     includeParameters_(processColl_->getSubstitutionProcessParameters(nProc_[i],true));
-
-//  setNamespace(prefix);
+  }
 }
 
 /******************************************************************************/
 
 void MultiProcessSequenceEvolution::fireParameterChanged(const ParameterList& parameters)
 {
-  AbstractParameterAliasable::fireParameterChanged(parameters);
   processColl_->matchParametersValues(parameters);
 }
 
@@ -126,6 +125,8 @@ ParameterList MultiProcessSequenceEvolution::getNonDerivableParameters() const
   
   for (size_t i=0; i<nProc_.size(); i++)
     pl.includeParameters(processColl_->getSubstitutionProcess(nProc_[i]).getNonDerivableParameters());
+
+  pl.includeParameters(getAliasedParameters(pl));
   
   return pl;
 }

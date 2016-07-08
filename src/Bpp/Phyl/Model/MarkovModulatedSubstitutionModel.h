@@ -274,7 +274,6 @@ namespace bpp
      */
     virtual void fireParameterChanged(const ParameterList& parameters)
     {
-      AbstractParameterAliasable::fireParameterChanged(parameters);
       model_->matchParametersValues(parameters);
       updateRatesModel();
       updateMatrices();

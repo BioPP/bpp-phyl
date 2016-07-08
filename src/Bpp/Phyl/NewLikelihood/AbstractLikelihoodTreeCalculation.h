@@ -73,8 +73,8 @@ namespace bpp
     
     // booleans to say if the Dlikelihoods are null
   
-    bool nullDLikelihood_;
-    bool nullD2Likelihood_;
+    bool nullDLogLikelihood_;
+    bool nullD2LogLikelihood_;
   
   private:
 
@@ -95,8 +95,8 @@ namespace bpp
       initialized_(false),
       verbose_(verbose),
       up2date_(false),
-      nullDLikelihood_(true),
-      nullD2Likelihood_(true),
+      nullDLogLikelihood_(true),
+      nullD2LogLikelihood_(true),
       vSites_()
     {
     }
@@ -111,8 +111,8 @@ namespace bpp
     initialized_(tlc.initialized_),
     verbose_(tlc.verbose_),
     up2date_(tlc.up2date_),
-    nullDLikelihood_(tlc.nullDLikelihood_),
-    nullD2Likelihood_(tlc.nullD2Likelihood_),
+    nullDLogLikelihood_(tlc.nullDLogLikelihood_),
+    nullD2LogLikelihood_(tlc.nullD2LogLikelihood_),
     vSites_(tlc.vSites_)
     {
       if (tlc.data_.get()) data_.reset(tlc.data_->clone());
@@ -130,8 +130,8 @@ namespace bpp
       initialized_                   = tlc.initialized_;
       verbose_                       = tlc.verbose_;
       up2date_                       = tlc.up2date_;
-      nullDLikelihood_               = tlc.nullDLikelihood_;
-      nullD2Likelihood_              = tlc.nullD2Likelihood_;
+      nullDLogLikelihood_            = tlc.nullDLogLikelihood_;
+      nullD2LogLikelihood_           = tlc.nullD2LogLikelihood_;
       vSites_                        = tlc.vSites_;
         
       return *this;

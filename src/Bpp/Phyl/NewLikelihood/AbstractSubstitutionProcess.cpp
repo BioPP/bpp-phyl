@@ -56,6 +56,7 @@ AbstractSubstitutionProcess::AbstractSubstitutionProcess(const AbstractSubstitut
   pTree_(asp.pTree_->clone()),
   nbClasses_(asp.nbClasses_)
 {
+  cerr << "absSubProc" << endl;
 }
 
 AbstractSubstitutionProcess& AbstractSubstitutionProcess::operator=(const AbstractSubstitutionProcess& asp)
@@ -82,13 +83,14 @@ ParameterList AbstractSubstitutionProcess::getNonDerivableParameters() const
   pl.includeParameters(getRootFrequenciesParameters(true));
   pl.includeParameters(getRateDistributionParameters(true));
 
+  pl.includeParameters(getAliasedParameters(pl));
+  pl.includeParameters(getFromParameters(pl));
+
   return pl;
 }
 
 void AbstractSubstitutionProcess::fireParameterChanged(const ParameterList& pl)
 {
-  AbstractParameterAliasable::fireParameterChanged(pl);
-
   ParameterList gAP=getAliasedParameters(pl);
   gAP.addParameters(pl);
 

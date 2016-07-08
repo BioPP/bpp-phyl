@@ -184,7 +184,7 @@ namespace bpp
       AbstractParameterAliasable(""),
       AbstractSubstitutionProcess(tree, rdist ? rdist->getNumberOfCategories() : 0),
       modelSet_(),
-      rootFrequencies_(rootFreqs),
+      rootFrequencies_(),
       rDist_(rdist),
       nodeToModel_(),
       modelToNodes_(),

@@ -263,24 +263,21 @@ public:
   /**
    * @brief Initiate a derivative log-likelihood computation.
    *
-   * @param variable The name of a parameter according to which
-   * derivatives can been computed. If variable is not valid, the
-   * derivatives set to 0.
+   * @param vbrId the Ids of the branches that are derivated.
    *
    */
   
-  virtual void computeTreeDLogLikelihood(const std::string& variable) = 0;
+  virtual void computeTreeDLogLikelihood(const Vint& vbrId) = 0;
 
   /**
    * @brief Initiate a second-order derivative log-likelihood
    * computation.
    *
-   * @param variable The name of a parameter according to which
-   * second-order derivatives can been computed. If variable is not
-   * valid, the derivatives set to 0.
+   * @param vbrId the Ids of the branches that are derivated.
+   *
    */
   
-  virtual void computeTreeD2LogLikelihood(const std::string& variable) = 0;
+  virtual void computeTreeD2LogLikelihood(const Vint& vbrId) = 0;
 
 };
 

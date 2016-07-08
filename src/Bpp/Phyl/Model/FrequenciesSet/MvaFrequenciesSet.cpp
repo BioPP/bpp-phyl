@@ -81,7 +81,6 @@ void MvaFrequenciesSet::defineParameters()
 
 void MvaFrequenciesSet::fireParameterChanged(const ParameterList& parameters)
 {
-  AbstractFrequenciesSet::fireParameterChanged(parameters);
   updateFrequencies();
 }
 

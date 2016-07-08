@@ -179,8 +179,6 @@ namespace bpp
      */
     virtual void fireParameterChanged(const ParameterList& parameters)
     {
-      AbstractParameterAliasable::fireParameterChanged(parameters);
-    
       if (parameters.hasParameter(getNamespace()+"rate"))
       {
         getModel().setRate(parameters.getParameterValue(getNamespace()+"rate"));

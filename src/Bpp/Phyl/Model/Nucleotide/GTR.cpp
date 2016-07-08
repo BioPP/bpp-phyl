@@ -82,7 +82,7 @@ GTR::GTR(
 /******************************************************************************/
   
 void GTR::updateMatrices()
-{
+{  
   a_ = getParameterValue("a");
   b_ = getParameterValue("b");
   c_ = getParameterValue("c");

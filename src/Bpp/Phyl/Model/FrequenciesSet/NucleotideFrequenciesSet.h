@@ -83,7 +83,13 @@ public:
     getFreq_(1) = getFreq_(2) = theta / 2.;
   }
 
-  GCFrequenciesSet* clone() const { return new GCFrequenciesSet(*this); }
+  GCFrequenciesSet* clone() const {
+    return new GCFrequenciesSet(*this); }
+
+  GCFrequenciesSet(const GCFrequenciesSet& gcf) :
+    AbstractFrequenciesSet(gcf)
+  {
+  }
 
 public:
   

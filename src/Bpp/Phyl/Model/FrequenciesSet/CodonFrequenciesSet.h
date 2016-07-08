@@ -211,8 +211,6 @@ public:
    */
   void setFrequencies(const std::vector<double>& frequencies);
 
-protected:
-  void fireParameterChanged(const ParameterList& parameters) {}
 };
 
 /**

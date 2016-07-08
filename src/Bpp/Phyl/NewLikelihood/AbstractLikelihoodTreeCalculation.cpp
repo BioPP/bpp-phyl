@@ -274,7 +274,7 @@ double AbstractLikelihoodTreeCalculation::getLogLikelihoodForASiteForAClassForAS
 
 double AbstractLikelihoodTreeCalculation::getDLikelihoodForASite(size_t site)
 {
-  if (nullDLikelihood_)
+  if (nullDLogLikelihood_)
     return 0;
 
   size_t posR=getLikelihoodData().getRootArrayPosition(site);
@@ -296,7 +296,7 @@ double AbstractLikelihoodTreeCalculation::getDLikelihoodForASite(size_t site)
 
 double AbstractLikelihoodTreeCalculation::getD2LikelihoodForASite(size_t site)
 {
-  if (nullD2Likelihood_)
+  if (nullD2LogLikelihood_)
     return 0;
 
   size_t posR=getLikelihoodData().getRootArrayPosition(site);
