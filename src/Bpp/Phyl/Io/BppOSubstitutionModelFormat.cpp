@@ -98,6 +98,7 @@
 #include "../Model/Protein/LLG08_EHO.h"
 #include "../Model/Protein/LG10_EX_EHO.h"
 #include "../Model/BinarySubstitutionModel.h"
+#include "../Model/EquiprobableSubstitutionModel.h"
 #include "../Model/FromMixtureSubstitutionModel.h"
 
 #include "../App/PhylogeneticsApplicationTools.h"
@@ -432,6 +433,16 @@ SubstitutionModel* BppOSubstitutionModelFormat::read(
   else
   {
     // This is a 'simple' model...
+
+    ////////////////////////////
+    //// Equiprobable (most simple)
+    if (modelName == "Equi")
+      model.reset(new EquiprobableSubstitutionModel(alphabet));
+    else
+    {
+      
+      ///////////////////////////////////////////////////
+      // nucleotidic model
     if (AlphabetTools::isNucleicAlphabet(alphabet))
     {
       if (!(alphabetCode_ & NUCLEOTIDE))
@@ -583,6 +594,9 @@ SubstitutionModel* BppOSubstitutionModelFormat::read(
     }
     else
     {
+      ////////////////////////////////////
+      //// Proteic model
+      
       if (!(alphabetCode_ & PROTEIN))
         throw Exception("BppOSubstitutionModelFormat::read. Protein alphabet not supported.");
       const ProteicAlphabet* alpha = dynamic_cast<const ProteicAlphabet*>(alphabet);
@@ -720,10 +734,11 @@ SubstitutionModel* BppOSubstitutionModelFormat::read(
         throw Exception("Model '" + modelName + "' unknown, or does not fit alphabet.");
         
     }
+    }
     if (verbose_)
       ApplicationTools::displayResult("Substitution model", modelName);
   }
-
+  
   // Update parameter args:
   vector<string> pnames = model->getParameters().getParameterNames();
 

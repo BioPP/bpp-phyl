@@ -103,6 +103,7 @@ SET(CPP_FILES
   Bpp/Phyl/Mapping/RewardMappingTools.cpp
   Bpp/Phyl/Model/StateMap.cpp
   Bpp/Phyl/Model/BinarySubstitutionModel.cpp
+  Bpp/Phyl/Model/EquiprobableSubstitutionModel.cpp
   Bpp/Phyl/Model/AbstractSubstitutionModel.cpp
   Bpp/Phyl/Model/AbstractBiblioSubstitutionModel.cpp
   Bpp/Phyl/Model/AbstractBiblioMixedSubstitutionModel.cpp
@@ -337,6 +338,7 @@ SET(H_FILES
   Bpp/Phyl/Model/StateMap.h
   Bpp/Phyl/Model/AbstractSubstitutionModel.h
   Bpp/Phyl/Model/BinarySubstitutionModel.h
+  Bpp/Phyl/Model/EquiprobableSubstitutionModel.h
   Bpp/Phyl/Model/G2001.h
   Bpp/Phyl/Model/AbstractBiblioSubstitutionModel.h
   Bpp/Phyl/Model/AbstractBiblioMixedSubstitutionModel.h
