@@ -38,4 +38,9 @@ knowledge of the CeCILL license and that you accept its terms.
 
 using namespace bpp;
 
+PhyloTree::PhyloTree(const Tree& tree) :
+  SimpleAssociationTreeGraphObserver<PhyloNode,PhyloBranch,SimpleTreeGraph<SimpleGraph> >(tree.isRooted())
+{
+  
+}
 
