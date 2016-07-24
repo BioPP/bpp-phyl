@@ -3,6 +3,8 @@
 
 #include <Bpp/Graph/AssociationTreeGraphObserver.h>
 
+#include "Tree.h"
+
 namespace bpp
 {
 
@@ -17,10 +19,13 @@ class PhyloBranch;
    */
   
     
-    class PhyloTree:
+  class PhyloTree:
     public SimpleAssociationTreeGraphObserver<PhyloNode,PhyloBranch,SimpleTreeGraph<SimpleGraph> >
     {
-      
+    public:
+
+      PhyloTree(const Tree&);
+
       
     };
     
