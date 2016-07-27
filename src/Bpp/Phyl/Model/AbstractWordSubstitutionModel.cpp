@@ -604,7 +604,7 @@ void AbstractWordSubstitutionModel::fillBasicGenerator()
     gk = VSubMod_[k - 1]->getGenerator();
     for (size_t i = 0; i < vsize[k - 1]; i++)
     {
-      vector<double>& row_gi=gk.getRow(i);
+      const vector<double>& row_gi=gk.getRow(i);
       
       for (size_t j = 0; j < vsize[k - 1]; j++)
       {
