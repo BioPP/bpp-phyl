@@ -1,7 +1,7 @@
 //
-// File: AbstractCodonSubstitutionModel.h
+// File: AbstractKroneckerCodonSubstitutionModel.h
 // Created by: Laurent Gueguen
-// Created on: Tue Dec 24 11:03:53 2003
+// Created on: mardi 26 juillet 2016, à 21h 15
 //
 
 /*
@@ -37,10 +37,10 @@
   knowledge of the CeCILL license and that you accept its terms.
 */
 
-#ifndef _ABSTRACTCODONSUBSTITUTIONMODEL_H_
-#define _ABSTRACTCODONSUBSTITUTIONMODEL_H_
+#ifndef _ABSTRACT_KRONECKER_CODON_SUBSTITUTIONMODEL_H_
+#define _ABSTRACT_KRONECKER_CODON_SUBSTITUTIONMODEL_H_
 
-#include "../AbstractWordSubstitutionModel.h"
+#include "../AbstractKroneckerWordSubstitutionModel.h"
 #include "../Nucleotide/NucleotideSubstitutionModel.h"
 #include "CodonSubstitutionModel.h"
 
@@ -49,58 +49,71 @@
 
 // From the STL:
 #include <memory>
+#include <set>
 
 namespace bpp
 {
 /**
- * @brief Abstract class for substitution models on codons.
+ * @brief Abstract class for substitution models on codons allowing
+ * multiple substitutions.
+ *
+ * Rates of multiple substitutions equal the product of single
+ * substitutions involved, before removing stop codons.
+ *
  * @author Laurent Guéguen
  *
  * Objects of this class are built from either one (repeated three
  * times) or three different substitution models of NucleicAlphabets.
  * No model is directly accessible. </p>
  *
- * Only substitutions with one letter changed are accepted. </p>
- *
- * There is one substitution per codon per unit of time
- * on the equilibrium frequency, and each position has its specific rate.
- *
  * The parameters of this codon are the same as the ones of the models
  * used. Their names have a new prefix, "i_" where i stands for the
  * the phase (1,2 or 3) in the codon.
  */
-  class AbstractCodonSubstitutionModel :
+
+  class AbstractKroneckerCodonSubstitutionModel :
     public virtual CodonSubstitutionModel,
-    public AbstractWordSubstitutionModel
+    public AbstractKroneckerWordSubstitutionModel
   {
   private:
-    /**
-     * @brief boolean for the parametrization of the position relative
-     * rates. Default : false.
-     */
-    bool hasParametrizedRates_;
     const GeneticCode* gCode_;
 
   public:
     /**
-     * @brief Build a new AbstractCodonSubstitutionModel object from
+     * @brief Build a new AbstractKroneckerCodonSubstitutionModel object from
      * a pointer to a NucleotideSubstitutionModel.
      *
      * @param gCode a pointer toward a genetic code. The codon alphabet from the genetic code will be used by the model class.
      * @param pmod pointer to the NucleotideSubstitutionModel to use in
      *        the three positions. It is owned by the instance.
      * @param st string of the Namespace
-     * @param paramRates boolean concerning the presence of position
-     * relative rates (default: false)
      */
-    AbstractCodonSubstitutionModel(
+    
+    AbstractKroneckerCodonSubstitutionModel(
       const GeneticCode* gCode,
       NucleotideSubstitutionModel* pmod,
-      const std::string& st,
-      bool paramRates = false);
+      const std::string& st);
 
     /**
-     * @brief Build a new AbstractCodonSubstitutionModel object
+     * @brief Build a new AbstractKroneckerCodonSubstitutionModel object from
+     * a pointer to a NucleotideSubstitutionModel.
+     *
+     * @param gCode a pointer toward a genetic code. The codon alphabet from the genetic code will be used by the model class.
+     * @param pmod pointer to the NucleotideSubstitutionModel to use in
+     *        the three positions. It is owned by the instance.
+     * @param vPos a vector of sets of simultaneously changing
+     *   positions.
+     * @param st string of the Namespace
+     */
+
+    AbstractKroneckerCodonSubstitutionModel(
+      const GeneticCode* gCode,
+      NucleotideSubstitutionModel* pmod,
+      const std::vector<std::set< size_t> >& vPos,
+      const std::string& st);
+
+    /**
+     * @brief Build a new AbstractKroneckerCodonSubstitutionModel object
      * from three pointers to NucleotideSubstitutionModels.
      *
      * @param gCode a pointer toward a genetic code. This model instance will own the underlying GeneticCode object and delete it when required.
@@ -110,37 +123,55 @@ namespace bpp
      *   All the models must be different objects to avoid redundant
      *   parameters.  They are owned by the instance.
      * @param st string of the Namespace
-     * @param paramRates boolean concerning the presence of position
-     * relative rates (default: false)
      */
-    AbstractCodonSubstitutionModel(
+    
+    AbstractKroneckerCodonSubstitutionModel(
       const GeneticCode* gCode,
       NucleotideSubstitutionModel* pmod1,
       NucleotideSubstitutionModel* pmod2,
       NucleotideSubstitutionModel* pmod3,
-      const std::string& st,
-      bool paramRates = false);
+      const std::string& st);
 
-    virtual ~AbstractCodonSubstitutionModel() {}
+    /**
+     * @brief Build a new AbstractKroneckerCodonSubstitutionModel object
+     * from three pointers to NucleotideSubstitutionModels.
+     *
+     * @param gCode a pointer toward a genetic code. This model instance will own the underlying GeneticCode object and delete it when required.
+     *   The codon alphabet from the genetic code will be used by the model class.
+     * @param pmod1, pmod2, pmod3 are pointers to the
+     *   NucleotideSubstitutionModel to use in the three positions.
+     *   All the models must be different objects to avoid redundant
+     *   parameters.  They are owned by the instance.
+     * @param vPos a vector of sets of simultaneously changing
+     *   positions.
+     * @param st string of the Namespace
+     */
+    
+    AbstractKroneckerCodonSubstitutionModel(
+      const GeneticCode* gCode,
+      NucleotideSubstitutionModel* pmod1,
+      NucleotideSubstitutionModel* pmod2,
+      NucleotideSubstitutionModel* pmod3,
+      const std::vector<std::set< size_t> >& vPos,
+      const std::string& st);
 
-    AbstractCodonSubstitutionModel(const AbstractCodonSubstitutionModel& model) :
+    virtual ~AbstractKroneckerCodonSubstitutionModel() {}
+
+    AbstractKroneckerCodonSubstitutionModel(const AbstractKroneckerCodonSubstitutionModel& model) :
       AbstractParameterAliasable(model),
-      AbstractWordSubstitutionModel(model),
-      hasParametrizedRates_(model.hasParametrizedRates_),
+      AbstractKroneckerWordSubstitutionModel(model),
       gCode_(model.gCode_)
     {}
 
-    AbstractCodonSubstitutionModel& operator=(const AbstractCodonSubstitutionModel& model)
+    AbstractKroneckerCodonSubstitutionModel& operator=(const AbstractKroneckerCodonSubstitutionModel& model)
     {
       AbstractParameterAliasable::operator=(model);
-      AbstractSubstitutionModel::operator=(model);
-      AbstractWordSubstitutionModel::operator=(model);
-      hasParametrizedRates_ = model.hasParametrizedRates_;
+      AbstractKroneckerWordSubstitutionModel::operator=(model);
       gCode_ = model.gCode_;
       return *this;
     }
 
-    AbstractCodonSubstitutionModel* clone() const = 0;
+    AbstractKroneckerCodonSubstitutionModel* clone() const = 0;
 
   protected:
     /**
@@ -152,19 +183,19 @@ namespace bpp
     void completeMatrices();
 
   public:
-    void updateMatrices();
 
     const GeneticCode* getGeneticCode() const { return gCode_; }
-  
+
     /**
      * @brief Method inherited from CodonSubstitutionModel
      *
      * Here this methods returns 1;
      *
      **/
+
     virtual double getCodonsMulRate(size_t i, size_t j) const { return 1.; }
   };
 } // end of namespace bpp.
 
-#endif
+#endif // _ABSTRACT_KRONECKER_CODON_SUBSTITUTIONMODEL_H_
 

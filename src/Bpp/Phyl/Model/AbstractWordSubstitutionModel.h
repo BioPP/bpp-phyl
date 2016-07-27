@@ -134,14 +134,19 @@ class ModelList
  * @f{eqnarray*}
  * Q_{abc \rightarrow abd} &=& \rho_2 Q^{(2)}_{c \rightarrow d}\\
  * Q_{abc \rightarrow aed} &=& 0\\
- * Q_{abc \rightarrow abc} &=& \rho_0 Q^{(0)}_{a \rightarrow a} + \rho_1 Q^{(1)}_{b \rightarrow b} + \rho_2 Q^{(2)}_{c \rightarrow c})
  * @f}
  *
  * The parameters of this word model are the same as the ones of the
- * models used. Their names have a new suffix, "phi_" where i stands
- * for the position (i.e. the phase) in the word.
+ * models used. Their names have a new prefix :
+ *
+ * If there is one model per position, "i_" where i stands for the
+ * position in the word.
+ *
+ * If there is only one model, "123..._" where all positions are
+ * enumerated.
  *
  */
+  
 class AbstractWordSubstitutionModel :
     public AbstractSubstitutionModel
 {
@@ -166,6 +171,13 @@ protected:
    */
   virtual void completeMatrices() = 0;
 
+  /**
+   * @brief First fill of the generator, from the position model
+   *
+   */
+  
+  virtual void fillBasicGenerator();
+  
 public:
   /**
    * @brief Build a new AbstractWordSubstitutionModel object from a

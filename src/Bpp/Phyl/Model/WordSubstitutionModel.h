@@ -49,7 +49,7 @@
 namespace bpp
 {
 /**
- * @brief Basal class for words of reversible substitution models.
+ * @brief Basal class for words of substitution models.
  * @author Laurent Guéguen
  *
  * Only substitutions with one letter changed are accepted. Hence the
