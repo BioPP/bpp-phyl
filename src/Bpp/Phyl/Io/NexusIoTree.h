@@ -72,30 +72,30 @@ namespace bpp
     NexusIOTree() {}
 
     virtual ~NexusIOTree() {}
-	
-	public:
+  
+  public:
 
-		/**
-		 * @name The IOTree interface
-		 *
-		 * @{
-		 */
-		const std::string getFormatName() const;
-		const std::string getFormatDescription() const;
-		/* @} */
+    /**
+     * @name The IOTree interface
+     *
+     * @{
+     */
+    const std::string getFormatName() const;
+    const std::string getFormatDescription() const;
+    /* @} */
 
-		/**
-		 * @name The ITree interface
-		 *
-		 * @{
-		 */
-		TreeTemplate<Node>* read(const std::string& path) const throw (Exception)
-		{
-			return dynamic_cast<TreeTemplate<Node>*>(AbstractITree::read(path));
-		}
-		
-		TreeTemplate<Node>* read(std::istream& in) const throw (Exception);
-		/** @} */
+    /**
+     * @name The ITree interface
+     *
+     * @{
+     */
+    TreeTemplate<Node>* read(const std::string& path) const throw (Exception)
+    {
+      return dynamic_cast<TreeTemplate<Node>*>(AbstractITree::read(path));
+    }
+    
+    TreeTemplate<Node>* read(std::istream& in) const throw (Exception);
+    /** @} */
 
     /**
      * @name The OTree interface
@@ -129,6 +129,7 @@ namespace bpp
      *
      * @{
      */
+
     void write(const std::vector<const Tree*>& trees, const std::string& path, bool overwrite = true) const throw (Exception)
     {
       AbstractOMultiTree::write(trees, path, overwrite);
@@ -154,5 +155,5 @@ namespace bpp
 
 } //end of namespace bpp.
 
-#endif	//_NEXUSIOTREE_H_
+#endif  //_NEXUSIOTREE_H_
 

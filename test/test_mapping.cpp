@@ -45,6 +45,7 @@ knowledge of the CeCILL license and that you accept its terms.
 #include <Bpp/Seq/Io/Fasta.h>
 #include <Bpp/Phyl/Tree/TreeTemplate.h>
 #include <Bpp/Phyl/Model/Nucleotide/GTR.h>
+#include <Bpp/Phyl/Model/Protein/JTT92.h>
 #include <Bpp/Phyl/Simulation/HomogeneousSequenceSimulator.h>
 #include <Bpp/Phyl/Likelihood/DRHomogeneousTreeLikelihood.h>
 #include <Bpp/Phyl/Mapping/SubstitutionRegister.h>
@@ -52,9 +53,11 @@ knowledge of the CeCILL license and that you accept its terms.
 #include <Bpp/Phyl/Mapping/LaplaceSubstitutionCount.h>
 #include <Bpp/Phyl/Mapping/DecompositionSubstitutionCount.h>
 #include <Bpp/Phyl/Mapping/UniformizationSubstitutionCount.h>
+#include <Bpp/Phyl/Mapping/DecompositionReward.h>
 #include <Bpp/Phyl/Mapping/NaiveSubstitutionCount.h>
 #include <Bpp/Phyl/Mapping/ProbabilisticSubstitutionMapping.h>
 #include <Bpp/Phyl/Mapping/SubstitutionMappingTools.h>
+#include <Bpp/Seq/AlphabetIndex/GranthamAAVolumeIndex.h>
 #include <iostream>
 
 using namespace bpp;
@@ -75,6 +78,17 @@ int main() {
   HomogeneousSequenceSimulator simulator(model, rdist, tree);
   TotalSubstitutionRegister* totReg = new TotalSubstitutionRegister(model);
   ComprehensiveSubstitutionRegister* detReg = new ComprehensiveSubstitutionRegister(model);
+
+
+  cout << "test mem" << endl;
+  ProteicAlphabet* alphabet2 = new ProteicAlphabet();
+  ReversibleSubstitutionModel* model2 = new JTT92(alphabet2);
+  AlphabetIndex1* ind = new GranthamAAVolumeIndex();
+  for (size_t i = 0; i < 1000000; i++) {
+    cout << i << endl;
+    unique_ptr<DecompositionReward> d(new DecompositionReward(model2, ind));
+  }
+  cout << "done" << endl;
 
   unsigned int n = 20000;
   vector< vector<double> > realMap(n);

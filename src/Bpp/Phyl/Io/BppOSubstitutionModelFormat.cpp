@@ -45,6 +45,8 @@
 #include <Bpp/Text/StringTokenizer.h>
 #include <Bpp/Text/KeyvalTools.h>
 
+#include "../Model/WordSubstitutionModel.h"
+#include "../Model/KroneckerWordSubstitutionModel.h"
 #include "../Model/Codon/MG94.h"
 #include "../Model/Codon/GY94.h"
 #include "../Model/Codon/YNGKP_M1.h"
@@ -60,6 +62,7 @@
 #include "../Model/Codon/CodonDistanceSubstitutionModel.h"
 #include "../Model/Codon/CodonDistanceCpGSubstitutionModel.h"
 #include "../Model/Codon/CodonRateFrequenciesSubstitutionModel.h"
+#include "../Model/Codon/KroneckerCodonDistanceFrequenciesSubstitutionModel.h"
 #include "../Model/Codon/CodonDistanceFrequenciesSubstitutionModel.h"
 #include "../Model/Codon/CodonDistancePhaseFrequenciesSubstitutionModel.h"
 #include "../Model/Codon/SENCA.h"
@@ -118,10 +121,14 @@
 #include <Bpp/Numeric/Prob/ConstantDistribution.h>
 #include <Bpp/Numeric/AutoParameter.h>
 
+
+#include <Bpp/Text/StringTokenizer.h>
+
 using namespace bpp;
 
 // From the STL:
 #include <iomanip>
+#include <set>
 
 using namespace std;
 
@@ -159,7 +166,7 @@ SubstitutionModel* BppOSubstitutionModelFormat::read(
   // / WORDS and CODONS
   // ///////////////////////////////
 
-  else if ((modelName == "Word") || (modelName == "Triplet") || (modelName.substr(0, 5) == "Codon") || (modelName == "SENCA") )
+  else if ((modelName == "Word") || (modelName.substr(0,4) == "Kron") || (modelName == "Triplet") || (modelName.substr(0, 5) == "Codon") || (modelName == "SENCA") )
     model.reset(readWord_(alphabet, modelDescription, data));
 
 
@@ -826,17 +833,21 @@ SubstitutionModel* BppOSubstitutionModelFormat::readWord_(const Alphabet* alphab
   string s, nestedModelDescription;
   unsigned int nbmodels;
 
-  if ((modelName == "Word" && !AlphabetTools::isWordAlphabet(alphabet)) ||
-      (modelName != "Word" && !AlphabetTools::isCodonAlphabet(alphabet)))
+  if (((modelName == "Word" || modelName == "Kron") && !AlphabetTools::isWordAlphabet(alphabet)) ||
+      ((!(modelName == "Word" || modelName == "Kron")) && !AlphabetTools::isCodonAlphabet(alphabet)))
     throw Exception("Bad alphabet type "
                     + alphabet->getAlphabetType() + " for  model " + modelName + ".");
 
   pWA = dynamic_cast<const WordAlphabet*>(alphabet);
 
+  
+  ////////////////////////////////////
+  /// Reading the submodels
+  
   if (args.find("model") != args.end())
   {
     v_nestedModelDescription.push_back(args["model"]);
-    nbmodels = (modelName == "Word") ? pWA->getLength() : 3;
+    nbmodels = (modelName == "Word" || modelName == "Kron") ? pWA->getLength() : 3;
   }
   else
   {
@@ -890,6 +901,35 @@ SubstitutionModel* BppOSubstitutionModelFormat::readWord_(const Alphabet* alphab
     }
   }
 
+  // //////////////////////////////
+  // In case of a Kron... model, mgmt of the positions
+
+  // check the vector of simultaneous changing positions
+    
+  vector<set<size_t> > vposKron;
+  if (modelName.substr(0,4) == "Kron")
+  {
+    if (args.find("positions")!=args.end())
+    {
+      StringTokenizer nst(args["positions"], "+");
+    
+      while (nst.hasMoreToken())
+      {
+        string spos=nst.nextToken();
+        StringTokenizer nst2(spos, "*");
+
+        set<size_t> ss;
+        
+        while (nst2.hasMoreToken())
+        {
+          ss.insert((size_t)TextTools::toInt(nst2.nextToken()));
+        }
+
+        vposKron.push_back(ss);
+      }
+    }
+  }
+  
   // /////////////////////////////////
   // / WORD
   // ///////////////////////////////
@@ -901,6 +941,32 @@ SubstitutionModel* BppOSubstitutionModelFormat::readWord_(const Alphabet* alphab
     } else {
       ModelList ml(v_pSM);
       model.reset(new WordSubstitutionModel(ml));
+    }
+  }
+
+  // /////////////////////////////////
+  // / KRON
+  // ///////////////////////////////
+
+  else if (modelName == "Kron")
+  {
+    if (vposKron.size()==0)
+    {
+      if (v_nestedModelDescription.size() != nbmodels) {
+        model.reset(new KroneckerWordSubstitutionModel(v_pSM[0], nbmodels));
+      } else {
+        ModelList ml(v_pSM);
+        model.reset(new KroneckerWordSubstitutionModel(ml));
+      }
+    }
+    else
+    {
+      if (v_nestedModelDescription.size() != nbmodels) {
+        model.reset(new KroneckerWordSubstitutionModel(v_pSM[0], nbmodels, vposKron));
+      } else {
+        ModelList ml(v_pSM);
+        model.reset(new KroneckerWordSubstitutionModel(ml, vposKron));
+      }
     }
   }
 
@@ -930,11 +996,16 @@ SubstitutionModel* BppOSubstitutionModelFormat::readWord_(const Alphabet* alphab
     if (!geneticCode_)
       throw Exception("BppOSubstitutionModelFormat::readWord_(). No genetic code specified! Consider using 'setGeneticCode'.");
 
+
+    ///////////////////////////////////
+    /// Dist
     
     if ((modelName.find("Dist") != string::npos) || (modelName=="SENCA"))
       pai2.reset((args.find("aadistance") == args.end()) ? 0 : SequenceApplicationTools::getAlphabetIndex2(&AlphabetTools::PROTEIN_ALPHABET, args["aadistance"]));
     
-
+    //////////////////////////////////
+    /// Freq
+    
     if (modelName.find("Freq") != string::npos)
     {
       if (args.find("frequencies") == args.end())
@@ -951,8 +1022,8 @@ SubstitutionModel* BppOSubstitutionModelFormat::readWord_(const Alphabet* alphab
       }
     }
 
-
-    // //
+    // //////////////
+    // // Triplet
 
     if (modelName == "Triplet")
       model.reset((v_nestedModelDescription.size() != 3)
@@ -1036,6 +1107,47 @@ SubstitutionModel* BppOSubstitutionModelFormat::readWord_(const Alphabet* alphab
                       pai2.release()));
     }
 
+    
+    else if (modelName == "KronDistFreq")
+    {
+      if (v_nestedModelDescription.size() != 3){
+        
+        if (vposKron.size()==0)
+          model.reset(new KroneckerCodonDistanceFrequenciesSubstitutionModel(geneticCode_,
+                                                                             dynamic_cast<NucleotideSubstitutionModel*>(v_pSM[0]),
+                                                                             pFS.release(),
+                                                                             pai2.release()));
+        else
+          model.reset(new KroneckerCodonDistanceFrequenciesSubstitutionModel(geneticCode_,
+                                                                             dynamic_cast<NucleotideSubstitutionModel*>(v_pSM[0]),
+                                                                             vposKron,
+                                                                             pFS.release(),
+                                                                             pai2.release()));
+
+      }
+      else
+      {
+        if (vposKron.size()!=0)
+          model.reset(new KroneckerCodonDistanceFrequenciesSubstitutionModel(
+                      geneticCode_,
+                      dynamic_cast<NucleotideSubstitutionModel*>(v_pSM[0]),
+                      dynamic_cast<NucleotideSubstitutionModel*>(v_pSM[1]),
+                      dynamic_cast<NucleotideSubstitutionModel*>(v_pSM[2]),
+                      pFS.release(),
+                      pai2.release()));
+        else
+          model.reset(new KroneckerCodonDistanceFrequenciesSubstitutionModel(
+                        geneticCode_,
+                        dynamic_cast<NucleotideSubstitutionModel*>(v_pSM[0]),
+                        dynamic_cast<NucleotideSubstitutionModel*>(v_pSM[1]),
+                        dynamic_cast<NucleotideSubstitutionModel*>(v_pSM[2]),
+                        vposKron, 
+                        pFS.release(),
+                        pai2.release()));
+
+      }
+    }
+    
     else if (modelName == "CodonDistPhasFreq")
     {
       if (v_nestedModelDescription.size() != 3)
@@ -1052,6 +1164,7 @@ SubstitutionModel* BppOSubstitutionModelFormat::readWord_(const Alphabet* alphab
                       pFS.release(),
                       pai2.release()));
     }
+    
     else if (modelName == "SENCA")
     {
       if (args.find("fitness") == args.end())

@@ -68,9 +68,9 @@ namespace bpp
     virtual const std::string getDataType() const { return "Tree"; }
   };
 
-  /**
-   * @brief General interface for tree readers.
-   */
+/**
+ * @brief General interface for tree readers.
+ */
   class ITree:
     public virtual IOTree
   {
@@ -97,9 +97,9 @@ namespace bpp
     virtual Tree* read(std::istream& in) const throw (Exception) = 0;
   };
 
-  /**
-   * @brief General interface for tree writers.
-   */
+/**
+ * @brief General interface for tree writers.
+ */
   class OTree:
     public virtual IOTree
   {
@@ -128,9 +128,9 @@ namespace bpp
     virtual void write(const Tree& tree, std::ostream& out) const throw (Exception) = 0;
   };
 
-  /**
-   * @brief Partial implementation of the ITree interface.
-   */
+/**
+ * @brief Partial implementation of the ITree interface.
+ */
   class AbstractITree:
     public virtual ITree
   {
@@ -150,9 +150,9 @@ namespace bpp
 
   };
 
-  /**
-   * @brief Partial implementation of the OTree interface.
-   */
+/**
+ * @brief Partial implementation of the OTree interface.
+ */
   class AbstractOTree:
     public virtual OTree
   {
@@ -166,17 +166,18 @@ namespace bpp
     {
       try {
         // Open file in specified mode
+
         std::ofstream output(path.c_str(), overwrite ? (std::ios::out) : (std::ios::out|std::ios::app));
         write(tree, output);
         output.close();
       }
       catch (IOException e)
-        {
-          std::stringstream ss ;
-          ss << e.what() <<"\nProblem writing tree to file "<< path <<"\n Is the file path correct and do \
+      {
+        std::stringstream ss ;
+        ss << e.what() <<"\nProblem writing tree to file "<< path <<"\n Is the file path correct and do \
 you have the proper authorizations? ";
-          throw (IOException ( ss.str() ) );
-        }
+        throw (IOException ( ss.str() ) );
+      }
 
     }
   };
@@ -184,12 +185,9 @@ you have the proper authorizations? ";
 
 
 
-
-
-
-  /**
-   * @brief General interface for multiple trees readers.
-   */
+/**
+ * @brief General interface for multiple trees readers.
+ */
   class IMultiTree:
     public virtual IOTree
   {
@@ -216,9 +214,9 @@ you have the proper authorizations? ";
     virtual void read(std::istream& in, std::vector<Tree*>& trees) const throw (Exception) = 0;
   };
 
-  /**
-   * @brief General interface for tree writers.
-   */
+/**
+ * @brief General interface for tree writers.
+ */
   class OMultiTree:
     public virtual IOTree
   {
@@ -236,7 +234,9 @@ you have the proper authorizations? ";
      * Otherwise append to the file.
      * @throw Exception If an error occured.
      */
+
     virtual void write(const std::vector<const Tree*>& trees, const std::string& path, bool overwrite) const throw (Exception) = 0;
+
     /**
      * @brief Write trees to a stream.
      *
@@ -244,6 +244,7 @@ you have the proper authorizations? ";
      * @param out The output stream.
      * @throw Exception If an error occured.
      */
+
     virtual void write(const std::vector<const Tree*>& trees, std::ostream& out) const throw (Exception) = 0;
   };
 
@@ -268,9 +269,9 @@ you have the proper authorizations? ";
 
   };
 
-  /**
-   * @brief Partial implementation of the OTree interface.
-   */
+/**
+ * @brief Partial implementation of the OTree interface.
+ */
   class AbstractOMultiTree:
     public virtual OMultiTree
   {
@@ -281,6 +282,7 @@ you have the proper authorizations? ";
   public:
     void write(const std::vector<const Tree*>& trees, std::ostream& out) const throw (Exception) = 0;
     virtual void write(const std::vector<const Tree*>& trees, const std::string& path, bool overwrite) const throw (Exception)
+
     {
       // Open file in specified mode
       std::ofstream output(path.c_str(), overwrite ? (std::ios::out) : (std::ios::out|std::ios::app));
@@ -291,5 +293,5 @@ you have the proper authorizations? ";
 
 } //end of namespace bpp.
 
-#endif	//_IOTREE_H_
+#endif  //_IOTREE_H_
 

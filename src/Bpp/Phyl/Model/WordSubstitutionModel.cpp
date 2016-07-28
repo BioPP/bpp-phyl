@@ -37,7 +37,6 @@
  */
 
 #include "WordSubstitutionModel.h"
-#include "FrequenciesSet/WordFrequenciesSet.h"
 
 #include <Bpp/Numeric/Matrix/MatrixTools.h>
 #include <Bpp/Numeric/VectorTools.h>

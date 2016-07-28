@@ -210,6 +210,8 @@ const Matrix<double>& AbstractSubstitutionModel::getPij_t(double t) const
   return pijt_;
 }
 
+/******************************************************************************/
+
 const Matrix<double>& AbstractSubstitutionModel::getdPij_dt(double t) const
 {
   if (isNonSingular_)
@@ -278,6 +280,8 @@ const Matrix<double>& AbstractSubstitutionModel::getdPij_dt(double t) const
   }
   return dpijt_;
 }
+
+/******************************************************************************/
 
 const Matrix<double>& AbstractSubstitutionModel::getd2Pij_dt2(double t) const
 {

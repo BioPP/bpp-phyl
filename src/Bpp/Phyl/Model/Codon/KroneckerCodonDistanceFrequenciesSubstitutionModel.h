@@ -1,7 +1,7 @@
 //
-// File: CodonDistanceFrequenciesSubstitutionModel.h
+// File: KroneckerCodonDistanceFrequenciesSubstitutionModel.h
 // Created by: Laurent Gueguen
-// Created on: lundi 19 septembre 2011, à 11h 47
+// Created on: mardi 26 juillet 2016, à 23h 43
 //
 
 /*
@@ -37,18 +37,24 @@
    knowledge of the CeCILL license and that you accept its terms.
  */
 
-#ifndef _CODONDISTANCEFREQUENCIESSUBSTITUTIONMODEL_H_
-#define _CODONDISTANCEFREQUENCIESSUBSTITUTIONMODEL_H_
+#ifndef _KRONECKER_CODONDISTANCEFREQUENCIESSUBSTITUTIONMODEL_H_
+#define _KRONECKER_CODONDISTANCEFREQUENCIESSUBSTITUTIONMODEL_H_
 
-#include "AbstractCodonSubstitutionModel.h"
+#include "AbstractKroneckerCodonSubstitutionModel.h"
 #include "AbstractCodonDistanceSubstitutionModel.h"
 #include "AbstractCodonFrequenciesSubstitutionModel.h"
 
 namespace bpp
 {
 /**
- * @brief Class for asynonymous substitution models on codons with
- * parameterized equilibrium frequencies and nucleotidic models.
+ * @brief Class for non-synonymous substitution models on codons with
+ * parameterized equilibrium frequencies and nucleotidic models,
+ * with allowed multiple substitutions.
+ *
+ * Rates of multiple substitutions equal the product of single
+ * substitutions involved, before mgmt of selection and removing stop
+ * codons.
+ *
  * @author Laurent Guéguen
  *
  * This class should be used with models which equilibrium
@@ -56,13 +62,12 @@ namespace bpp
  * Otherwise there may be problems of identifiability of the
  * parameters.
  *
- * See description in AbstractCodonDistanceSubstitutionModel and
- * AbstractCodonFrequenciesSubstitutionModel class.
+ * See description in AbstractKroneckerCodonDistanceSubstitutionModel
+ * and AbstractCodonFrequenciesSubstitutionModel class.
  *
- * Only substitutions with one letter changed are accepted. </p>
- *
- * The additional parameters to CodonFrequenciesSubstitutionModel are
- * the rates of nonsynonymous over synonymous substitutions.
+ * The additional parameters to
+ * AbstractCodonFrequenciesSubstitutionModel are the rates of
+ * nonsynonymous over synonymous substitutions.
  *
  * If a distance @f$d@f$ between amino-acids is defined, the
  *  non-synonymous rate is multiplied with, if the coded amino-acids
@@ -77,21 +82,16 @@ namespace bpp
  * If such a distance is not defined, the ratio between non-synonymous
  * and synonymous substitutions rates is @f$\beta@f$ with positive
  * parameter \c "beta".
- *
- * If paramSynRate is true, the synonymous substitution rate is
- *  multiplied with @f$\gamma@f$ (with optional positive parameter \c
- *  "gamma"), else it is multiplied with 1.
- *
  */
   
-class CodonDistanceFrequenciesSubstitutionModel :
-    public AbstractCodonSubstitutionModel,
+class KroneckerCodonDistanceFrequenciesSubstitutionModel :
+    public AbstractKroneckerCodonSubstitutionModel,
     public AbstractCodonDistanceSubstitutionModel,
     public AbstractCodonFrequenciesSubstitutionModel
 {
 public:
   /**
-   * @brief Build a new CodonDistanceFrequenciesSubstitutionModel object
+   * @brief Build a new KroneckerCodonDistanceFrequenciesSubstitutionModel object
    * from three pointers to AbstractSubstitutionModels. NEW
    * AbstractSubstitutionModels are copied from the given ones.
    *
@@ -101,18 +101,38 @@ public:
    * @param pfreq pointer to the FrequenciesSet* equilibrium frequencies
    * @param pdist optional pointer to the AlphabetIndex2 amino-acids
    *        distance object.
-   * @param paramSynRate is true iff synonymous rate is parametrised
-   *        (default=false).
    */
-  CodonDistanceFrequenciesSubstitutionModel(
+
+  KroneckerCodonDistanceFrequenciesSubstitutionModel(
       const GeneticCode* gCode,
       NucleotideSubstitutionModel* pmod,
       FrequenciesSet* pfreq,
-      const AlphabetIndex2* pdist = 0,
-      bool paramSynRate = false);
+      const AlphabetIndex2* pdist = 0);
 
   /**
-   * @brief Build a new CodonDistanceFrequenciesSubstitutionModel object
+   * @brief Build a new KroneckerCodonDistanceFrequenciesSubstitutionModel object
+   * from three pointers to AbstractSubstitutionModels. NEW
+   * AbstractSubstitutionModels are copied from the given ones.
+   *
+   * @param gCode pointer to a GeneticCode
+   * @param pmod pointer to the NucleotideSubstitutionModel to use in
+   *        the three positions. It is owned by the instance.
+   * @param vPos a vector of sets of simultaneously changing
+   *   positions.
+   * @param pfreq pointer to the FrequenciesSet* equilibrium frequencies
+   * @param pdist optional pointer to the AlphabetIndex2 amino-acids
+   *        distance object.
+   */
+
+  KroneckerCodonDistanceFrequenciesSubstitutionModel(
+    const GeneticCode* gCode,
+    NucleotideSubstitutionModel* pmod,
+    const std::vector<std::set< size_t> >& vPos,
+    FrequenciesSet* pfreq,
+    const AlphabetIndex2* pdist = 0);
+
+  /**
+   * @brief Build a new KroneckerCodonDistanceFrequenciesSubstitutionModel object
    * from three pointers to AbstractSubstitutionModels. NEW
    * AbstractSubstitutionModels are copied from the given ones.
    *
@@ -124,23 +144,47 @@ public:
    * @param pfreq pointer to the FrequenciesSet* equilibrium frequencies
    * @param pdist optional pointer to the AlphabetIndex2 amino-acids
    *   distance object.
-   * @param paramSynRate is true iff synonymous rate is parametrised
-   *   (default=false).
    */
-  CodonDistanceFrequenciesSubstitutionModel(
+
+  KroneckerCodonDistanceFrequenciesSubstitutionModel(
       const GeneticCode* gCode,
       NucleotideSubstitutionModel* pmod1,
       NucleotideSubstitutionModel* pmod2,
       NucleotideSubstitutionModel* pmod3,
       FrequenciesSet* pfreq,
-      const AlphabetIndex2* pdist = 0,
-      bool paramSynRate = false);
+      const AlphabetIndex2* pdist = 0);
 
-  virtual ~CodonDistanceFrequenciesSubstitutionModel() {}
+  /**
+   * @brief Build a new KroneckerCodonDistanceFrequenciesSubstitutionModel object
+   * from three pointers to AbstractSubstitutionModels. NEW
+   * AbstractSubstitutionModels are copied from the given ones.
+   *
+   * @param gCode pointer to a GeneticCode
+   * @param pmod1, pmod2, pmod3 are pointers to the
+   *   NucleotideSubstitutionModel to use in the three positions.
+   *   All the models must be different objects to avoid redundant
+   *   parameters.  They are owned by the instance.
+   * @param vPos a vector of sets of simultaneously changing
+   *   positions.
+   * @param pfreq pointer to the FrequenciesSet* equilibrium frequencies
+   * @param pdist optional pointer to the AlphabetIndex2 amino-acids
+   *   distance object.
+   */
 
-  CodonDistanceFrequenciesSubstitutionModel* clone() const
+  KroneckerCodonDistanceFrequenciesSubstitutionModel(
+    const GeneticCode* gCode,
+    NucleotideSubstitutionModel* pmod1,
+    NucleotideSubstitutionModel* pmod2,
+    NucleotideSubstitutionModel* pmod3,
+    const std::vector<std::set< size_t> >& vPos,
+    FrequenciesSet* pfreq,
+    const AlphabetIndex2* pdist = 0);
+
+  virtual ~KroneckerCodonDistanceFrequenciesSubstitutionModel() {}
+
+  KroneckerCodonDistanceFrequenciesSubstitutionModel* clone() const
   {
-    return new CodonDistanceFrequenciesSubstitutionModel(*this);
+    return new KroneckerCodonDistanceFrequenciesSubstitutionModel(*this);
   }
 
 public:
@@ -158,5 +202,5 @@ public:
 
 } // end of namespace bpp.
 
-#endif
+#endif // _KRONECKER_CODONDISTANCEFREQUENCIESSUBSTITUTIONMODEL_H_
 

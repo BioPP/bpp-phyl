@@ -1,7 +1,7 @@
 //
-// File: AbstractCodonSubstitutionModel.cpp
+// File: AbstractKroneckerCodonSubstitutionModel.cpp
 // Created by:  Laurent Gueguen
-// Created on: Feb 2009
+// Created on: mardi 26 juillet 2016, à 19h 00
 //
 
 /*
@@ -36,7 +36,7 @@
    knowledge of the CeCILL license and that you accept its terms.
  */
 
-#include "AbstractCodonSubstitutionModel.h"
+#include "AbstractKroneckerCodonSubstitutionModel.h"
 
 using namespace bpp;
 
@@ -44,14 +44,12 @@ using namespace std;
 
 /******************************************************************************/
 
-AbstractCodonSubstitutionModel::AbstractCodonSubstitutionModel(
+AbstractKroneckerCodonSubstitutionModel::AbstractKroneckerCodonSubstitutionModel(
   const GeneticCode* gCode,
   NucleotideSubstitutionModel* pmod,
-  const std::string& prefix,
-  bool paramRates) :
+  const std::string& prefix) :
   AbstractParameterAliasable(prefix),
-  AbstractWordSubstitutionModel(gCode->getSourceAlphabet(), new CanonicalStateMap(gCode->getSourceAlphabet(), false), prefix),
-  hasParametrizedRates_(paramRates),
+  AbstractKroneckerWordSubstitutionModel(gCode->getSourceAlphabet(), new CanonicalStateMap(gCode->getSourceAlphabet(), false), prefix),
   gCode_(gCode)
 {
   enableEigenDecomposition(true);
@@ -67,36 +65,93 @@ AbstractCodonSubstitutionModel::AbstractCodonSubstitutionModel(
   pmod->enableEigenDecomposition(0);
   addParameters_(pmod->getParameters());
 
-  Vrate_.resize(3);
-  for (i = 0; i < 3; i++)
-  {
-    Vrate_[i] = 1.0 / 3;
-  }
-
-
-  if (hasParametrizedRates_)
-  {
-    // relative rates
-    for (i = 0; i < 2; i++)
-    {
-      addParameter_(new Parameter(prefix + "relrate" + TextTools::toString(i + 1), 1.0 / static_cast<double>(3 - i), &Parameter::PROP_CONSTRAINT_EX));
-    }
-  }
+  initGenerators_();
 }
 
-AbstractCodonSubstitutionModel::AbstractCodonSubstitutionModel(
+AbstractKroneckerCodonSubstitutionModel::AbstractKroneckerCodonSubstitutionModel(
+  const GeneticCode* gCode,
+  NucleotideSubstitutionModel* pmod,
+  const std::vector<std::set< size_t> >& vPos,
+  const std::string& prefix) :
+  AbstractParameterAliasable(prefix),
+  AbstractKroneckerWordSubstitutionModel(gCode->getSourceAlphabet(), new CanonicalStateMap(gCode->getSourceAlphabet(), false), prefix),
+  gCode_(gCode)
+{
+  enableEigenDecomposition(true);
+
+  size_t i;
+  for (i = 0; i < 3; i++)
+  {
+    VSubMod_.push_back(pmod);
+    VnestedPrefix_.push_back(pmod->getNamespace());
+  }
+  pmod->setNamespace(prefix + "123_" + VnestedPrefix_[0]);
+  pmod->enableEigenDecomposition(0);
+  addParameters_(pmod->getParameters());
+
+  initGenerators_();
+  setChangingPositions(vPos);
+}
+
+AbstractKroneckerCodonSubstitutionModel::AbstractKroneckerCodonSubstitutionModel(
   const GeneticCode* gCode,
   NucleotideSubstitutionModel* pmod1,
   NucleotideSubstitutionModel* pmod2,
   NucleotideSubstitutionModel* pmod3,
-  const std::string& prefix,
-  bool paramRates) :
+  const std::string& prefix) :
   AbstractParameterAliasable(prefix),
-  AbstractWordSubstitutionModel(gCode->getSourceAlphabet(), new CanonicalStateMap(gCode->getSourceAlphabet(), false), prefix),
-  hasParametrizedRates_(paramRates),
+  AbstractKroneckerWordSubstitutionModel(gCode->getSourceAlphabet(), new CanonicalStateMap(gCode->getSourceAlphabet(), false), prefix),
   gCode_(gCode)
 {
-  enableEigenDecomposition(1);
+  enableEigenDecomposition(true);
+
+  if ((pmod1 == pmod2) || (pmod2 == pmod3) || (pmod1 == pmod3))
+  {
+    for (size_t i = 0; i < 3; ++i)
+    {
+      VSubMod_.push_back(pmod1);
+      VnestedPrefix_.push_back(pmod1->getNamespace());
+    }
+
+    pmod1->setNamespace(prefix + "123_" + VnestedPrefix_[0]);
+    pmod1->enableEigenDecomposition(0);
+    addParameters_(pmod1->getParameters());
+  }
+  else
+  {
+    VSubMod_.push_back(pmod1);
+    VnestedPrefix_.push_back(pmod1->getNamespace());
+    VSubMod_[0]->setNamespace(prefix + "1_" + VnestedPrefix_[0]);
+    VSubMod_[0]->enableEigenDecomposition(0);
+    addParameters_(pmod1->getParameters());
+
+    VSubMod_.push_back(pmod2);
+    VnestedPrefix_.push_back(pmod2->getNamespace());
+    VSubMod_[1]->setNamespace(prefix + "2_" + VnestedPrefix_[1]);
+    VSubMod_[1]->enableEigenDecomposition(0);
+    addParameters_(pmod2->getParameters());
+
+    VSubMod_.push_back(pmod3);
+    VnestedPrefix_.push_back(pmod3->getNamespace());
+    VSubMod_[2]->setNamespace(prefix + "3_" + VnestedPrefix_[2]);
+    VSubMod_[2]->enableEigenDecomposition(0);
+    addParameters_(pmod3->getParameters());
+  }
+  initGenerators_();
+}
+
+AbstractKroneckerCodonSubstitutionModel::AbstractKroneckerCodonSubstitutionModel(
+  const GeneticCode* gCode,
+  NucleotideSubstitutionModel* pmod1,
+  NucleotideSubstitutionModel* pmod2,
+  NucleotideSubstitutionModel* pmod3,
+  const std::vector<std::set< size_t> >& vPos,
+  const std::string& prefix) :
+  AbstractParameterAliasable(prefix),
+  AbstractKroneckerWordSubstitutionModel(gCode->getSourceAlphabet(), new CanonicalStateMap(gCode->getSourceAlphabet(), false), prefix),
+  gCode_(gCode)
+{
+  enableEigenDecomposition(true);
 
   if ((pmod1 == pmod2) || (pmod2 == pmod3) || (pmod1 == pmod3))
   {
@@ -131,46 +186,12 @@ AbstractCodonSubstitutionModel::AbstractCodonSubstitutionModel(
     addParameters_(pmod3->getParameters());
   }
 
-  Vrate_.resize(3);
-  for (size_t i = 0; i < 3; ++i)
-  {
-    Vrate_[i] = 1.0 / 3;
-  }
-
-  if (hasParametrizedRates_)
-  {
-    // relative rates
-    for (int i = 0; i < 2; ++i)
-    {
-      addParameter_(new Parameter(prefix + "relrate" + TextTools::toString(i + 1), 1.0 / (3.0 - i), &Parameter::PROP_CONSTRAINT_EX));
-    }
-  }
+  initGenerators_();
+  setChangingPositions(vPos);
 }
 
-void AbstractCodonSubstitutionModel::updateMatrices()
-{
-  if (hasParametrizedRates_)
-  {
-    size_t i, nbmod = VSubMod_.size();
-    double x;
-    size_t k;
-    for (k = nbmod - 1; k > 0; k--)
-    {
-      x = 1.0;
-      for (i = 0; i < k; i++)
-      {
-        x *= 1 - getParameterValue("relrate" + TextTools::toString(i + 1));
-      }
-      if (k != nbmod - 1)
-        x *= getParameterValue("relrate" + TextTools::toString(k + 1));
-      Vrate_[k] = x;
-    }
-  }
 
-  AbstractWordSubstitutionModel::updateMatrices();
-}
-
-void AbstractCodonSubstitutionModel::completeMatrices()
+void AbstractKroneckerCodonSubstitutionModel::completeMatrices()
 {
   size_t i, j;
   size_t salph = getNumberOfStates();

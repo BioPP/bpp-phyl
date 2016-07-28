@@ -49,10 +49,15 @@
 #include "../Mapping/NaiveSubstitutionCount.h"
 #include "../Mapping/OneJumpSubstitutionCount.h"
 #include "../OptimizationTools.h"
+
 #include "../Tree/Tree.h"
 #include "../Io/Newick.h"
 #include "../Io/NexusIoTree.h"
 #include "../Io/Nhx.h"
+#include "../Io/BppOTreeReaderFormat.h"
+#include "../Io/BppOMultiTreeReaderFormat.h"
+#include "../Io/BppOTreeWriterFormat.h"
+#include "../Io/BppOMultiTreeWriterFormat.h"
 #include "../Io/BppOSubstitutionModelFormat.h"
 #include "../Io/BppOFrequenciesSetFormat.h"
 #include "../Io/BppORateDistributionFormat.h"
@@ -134,20 +139,14 @@ Tree* PhylogeneticsApplicationTools::getTree(
   string format = ApplicationTools::getStringParameter(prefix + "tree.format", params, "Newick", suffix, suffixIsOptional, warn);
   string treeFilePath = ApplicationTools::getAFilePath(prefix + "tree.file", params, true, true, suffix, suffixIsOptional, "none", warn);
 
-  ITree* treeReader;
-  if (format == "Newick")
-    treeReader = new Newick(true);
-  else if (format == "Nexus")
-    treeReader = new NexusIOTree();
-  else if (format == "NHX")
-    treeReader = new Nhx();
-  else
-    throw Exception("Unknow format for tree reading: " + format);
-  Tree* tree = treeReader->read(treeFilePath);
-  delete treeReader;
-
+  BppOTreeReaderFormat bppoReader(warn);
+  unique_ptr<ITree> iTree(bppoReader.read(format));
   if (verbose)
-    ApplicationTools::displayResult("Tree file", treeFilePath);
+  {
+    ApplicationTools::displayResult("Input tree file " + suffix, treeFilePath);
+    ApplicationTools::displayResult("Input tree format " + suffix, iTree->getFormatName());
+  }
+  Tree* tree = iTree->read(treeFilePath);
   return tree;
 }
 
@@ -164,22 +163,18 @@ vector<Tree*> PhylogeneticsApplicationTools::getTrees(
   string format = ApplicationTools::getStringParameter(prefix + "tree.format", params, "Newick", suffix, suffixIsOptional, warn);
   string treeFilePath = ApplicationTools::getAFilePath(prefix + "tree.file", params, true, true, suffix, suffixIsOptional, "none", warn);
 
-  IMultiTree* treeReader;
-  if (format == "Newick")
-    treeReader = new Newick(true);
-  else if (format == "Nexus")
-    treeReader = new NexusIOTree();
-  else if (format == "NHX")
-    treeReader = new Nhx();
-  else
-    throw Exception("Unknow format for tree reading: " + format);
+  BppOMultiTreeReaderFormat bppoReader(warn);
+  unique_ptr<IMultiTree> iTrees(bppoReader.read(format));
+  if (verbose)
+  {
+    ApplicationTools::displayResult("Input trees file " + suffix, treeFilePath);
+    ApplicationTools::displayResult("Input trees format " + suffix, iTrees->getFormatName());
+  }
   vector<Tree*> trees;
-  treeReader->read(treeFilePath, trees);
-  delete treeReader;
+  iTrees->read(treeFilePath, trees);
 
   if (verbose)
   {
-    ApplicationTools::displayResult("Tree file", treeFilePath);
     ApplicationTools::displayResult("Number of trees in file", trees.size());
   }
   return trees;
@@ -667,7 +662,7 @@ void PhylogeneticsApplicationTools::setSubstitutionModelParametersInitialValuesW
   std::map<std::string, std::string>& sharedParams,
   bool verbose) throw (Exception)
 {
-  string initFreqs = ApplicationTools::getStringParameter(model.getNamespace() + "initFreqs", unparsedParameterValues, "", "", true, false);
+  string initFreqs = ApplicationTools::getStringParameter(model.getNamespace() + "initFreqs", unparsedParameterValues, "", "", true, 2);
 
   if (verbose)
     ApplicationTools::displayResult("Frequencies Initialization for model", (initFreqs == "") ? "None" : initFreqs);

@@ -29,6 +29,10 @@ SET(CPP_FILES
   Bpp/Phyl/Io/IoFrequenciesSetFactory.cpp
   Bpp/Phyl/Io/BppOFrequenciesSetFormat.cpp
   Bpp/Phyl/Io/BppORateDistributionFormat.cpp
+  Bpp/Phyl/Io/BppOTreeReaderFormat.cpp
+  Bpp/Phyl/Io/BppOMultiTreeReaderFormat.cpp
+  Bpp/Phyl/Io/BppOTreeWriterFormat.cpp
+  Bpp/Phyl/Io/BppOMultiTreeWriterFormat.cpp
   Bpp/Phyl/Likelihood/AbstractDiscreteRatesAcrossSitesTreeLikelihood.cpp
   Bpp/Phyl/Likelihood/AbstractHomogeneousTreeLikelihood.cpp
   Bpp/Phyl/Likelihood/AbstractNonHomogeneousTreeLikelihood.cpp
@@ -117,7 +121,9 @@ SET(CPP_FILES
   Bpp/Phyl/Model/MixedSubstitutionModelSet.cpp
   Bpp/Phyl/Model/SubstitutionModelSetTools.cpp
   Bpp/Phyl/Model/AbstractWordSubstitutionModel.cpp
+  Bpp/Phyl/Model/AbstractKroneckerWordSubstitutionModel.cpp
   Bpp/Phyl/Model/WordSubstitutionModel.cpp
+  Bpp/Phyl/Model/KroneckerWordSubstitutionModel.cpp
   Bpp/Phyl/Model/Nucleotide/F84.cpp
   Bpp/Phyl/Model/Nucleotide/HKY85.cpp
   Bpp/Phyl/Model/Nucleotide/F81.cpp
@@ -151,6 +157,7 @@ SET(CPP_FILES
   Bpp/Phyl/Model/Codon/MG94.cpp
   Bpp/Phyl/Model/Codon/TripletSubstitutionModel.cpp
   Bpp/Phyl/Model/Codon/AbstractCodonSubstitutionModel.cpp
+  Bpp/Phyl/Model/Codon/AbstractKroneckerCodonSubstitutionModel.cpp
   Bpp/Phyl/Model/Codon/AbstractCodonFrequenciesSubstitutionModel.cpp
   Bpp/Phyl/Model/Codon/AbstractCodonPhaseFrequenciesSubstitutionModel.cpp
   Bpp/Phyl/Model/Codon/AbstractCodonDistanceSubstitutionModel.cpp
@@ -159,6 +166,7 @@ SET(CPP_FILES
   Bpp/Phyl/Model/Codon/CodonDistanceSubstitutionModel.cpp
   Bpp/Phyl/Model/Codon/CodonDistanceCpGSubstitutionModel.cpp
   Bpp/Phyl/Model/Codon/CodonDistanceFrequenciesSubstitutionModel.cpp
+  Bpp/Phyl/Model/Codon/KroneckerCodonDistanceFrequenciesSubstitutionModel.cpp
   Bpp/Phyl/Model/Codon/CodonDistancePhaseFrequenciesSubstitutionModel.cpp
   Bpp/Phyl/Model/Codon/SENCA.cpp
   Bpp/Phyl/Model/Codon/CodonRateSubstitutionModel.cpp
@@ -230,6 +238,10 @@ SET(H_FILES
   Bpp/Phyl/Io/IoFrequenciesSetFactory.h
   Bpp/Phyl/Io/BppOFrequenciesSetFormat.h
   Bpp/Phyl/Io/BppORateDistributionFormat.h
+  Bpp/Phyl/Io/BppOTreeReaderFormat.h
+  Bpp/Phyl/Io/BppOMultiTreeReaderFormat.h
+  Bpp/Phyl/Io/BppOTreeWriterFormat.h
+  Bpp/Phyl/Io/BppOMultiTreeWriterFormat.h
   Bpp/Phyl/Likelihood/AbstractDiscreteRatesAcrossSitesTreeLikelihood.h
   Bpp/Phyl/Likelihood/AbstractHomogeneousTreeLikelihood.h
   Bpp/Phyl/Likelihood/AbstractNonHomogeneousTreeLikelihood.h
@@ -355,7 +367,9 @@ SET(H_FILES
   Bpp/Phyl/Model/SubstitutionModelSetTools.h
   Bpp/Phyl/Model/TS98.h
   Bpp/Phyl/Model/AbstractWordSubstitutionModel.h
+  Bpp/Phyl/Model/AbstractKroneckerWordSubstitutionModel.h
   Bpp/Phyl/Model/WordSubstitutionModel.h
+  Bpp/Phyl/Model/KroneckerWordSubstitutionModel.h
   Bpp/Phyl/Model/Nucleotide/NucleotideSubstitutionModel.h
   Bpp/Phyl/Model/Nucleotide/F81.h
   Bpp/Phyl/Model/Nucleotide/F84.h
@@ -392,6 +406,7 @@ SET(H_FILES
   Bpp/Phyl/Model/Codon/CodonSubstitutionModel.h
   Bpp/Phyl/Model/Codon/TripletSubstitutionModel.h
   Bpp/Phyl/Model/Codon/AbstractCodonSubstitutionModel.h
+  Bpp/Phyl/Model/Codon/AbstractKroneckerCodonSubstitutionModel.h
   Bpp/Phyl/Model/Codon/AbstractCodonFrequenciesSubstitutionModel.h
   Bpp/Phyl/Model/Codon/AbstractCodonPhaseFrequenciesSubstitutionModel.h
   Bpp/Phyl/Model/Codon/AbstractCodonDistanceSubstitutionModel.h
@@ -400,6 +415,7 @@ SET(H_FILES
   Bpp/Phyl/Model/Codon/CodonDistanceSubstitutionModel.h
   Bpp/Phyl/Model/Codon/CodonDistanceCpGSubstitutionModel.h
   Bpp/Phyl/Model/Codon/CodonDistanceFrequenciesSubstitutionModel.h
+  Bpp/Phyl/Model/Codon/KroneckerCodonDistanceFrequenciesSubstitutionModel.h
   Bpp/Phyl/Model/Codon/CodonDistancePhaseFrequenciesSubstitutionModel.h
   Bpp/Phyl/Model/Codon/SENCA.h
   Bpp/Phyl/Model/Codon/CodonRateSubstitutionModel.h
