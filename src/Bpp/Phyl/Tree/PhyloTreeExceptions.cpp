@@ -41,6 +41,7 @@
 
 #include "PhyloTreeExceptions.h"
 #include "PhyloNode.h"
+#include "PhyloBranch.h"
 #include "PhyloTree.h"
 
 #include <Bpp/Text/TextTools.h>
@@ -61,6 +62,22 @@ NodeNotFoundException::NodeNotFoundException(const std::string& text, const std:
 
 PhyloNodeNotFoundException::NodeNotFoundException(const std::string& text, int id) :
   Exception("NodeNotFoundException: " + text + "(" + TextTools::toString(id) + ")"),
+  id_(TextTools::toString(id)) {}
+
+/******************************************************************************/
+
+PhyloBranchPException::PhyloBranchPException(const std::string& text, const PhylBranch* branch) :
+  BranchException(text, branch->getId()), branch_(branch)
+{}
+
+/******************************************************************************/
+
+BranchNotFoundException::BranchNotFoundException(const std::string& text, const std::string& id) :
+  Exception("BranchNotFoundException: " + text + "(" + id + ")"),
+  id_(id) {}
+
+PhyloBranchNotFoundException::BranchNotFoundException(const std::string& text, int id) :
+  Exception("BranchNotFoundException: " + text + "(" + TextTools::toString(id) + ")"),
   id_(TextTools::toString(id)) {}
 
 /******************************************************************************/

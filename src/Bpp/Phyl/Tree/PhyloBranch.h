@@ -49,36 +49,56 @@
 namespace bpp
 {
 
-class PhyloBranch
-{
-private:
+  class PhyloBranch
+  {
+  private:
     bool isLengthDefined_;
     double length_;
     mutable std::map<std::string, Clonable*> properties_;
     
-public:
+  public:
+    virtual ~PhyloBranch()
+    {
+      deleteProperties();
+    }
+    
+    PhyloBranch():
+      isLengthDefined_(false),
+      length_(0),
+      properties_()
+    {
+      
+    }
+
+    PhyloBranch(double length):
+      isLengthDefined_(true),
+      length_(length),
+      properties_()
+    {
+    }
+
     /**
-    * Has the length been set?
-    * @return true if a length has been defined
-    */
+     * Has the length been set?
+     * @return true if a length has been defined
+     */
     bool hasLength() const;
     
     /**
-    * Has the length been set?
-    * @return true if a length has been defined
-    */
+     * Has the length been set?
+     * @return true if a length has been defined
+     */
     void deleteLength();
     
     /**
-    * What is the branch length
-    * @return a double representing the branch length
-    */
+     * What is the branch length
+     * @return a double representing the branch length
+     */
     bool getLength() const;
     
-     /**
-    * Define a new branch length
-    * @param newLength a double repserenting the new length of the branch
-    */
+    /**
+     * Define a new branch length
+     * @param newLength a double repserenting the new length of the branch
+     */
     bool setLength(double newLength);
   
   
@@ -96,30 +116,31 @@ public:
      * @param name The name of the property to set.
      * @param property The property object (will be cloned).
      */
-    virtual void setProperty(const std::string& name, const Clonable& property)
+    
+    void setProperty(const std::string& name, const Clonable& property)
     {
       if (hasProperty(name))
         delete properties_[name];
       properties_[name] = property.clone();
     }
     
-    virtual Clonable* getProperty(const std::string& name) // throw (PropertyNotFoundException)
+    Clonable* getProperty(const std::string& name) 
     {
       if (hasProperty(name))
         return properties_[name];
-      //else
-        //throw PropertyNotFoundException("", name, this);
+      else
+        throw PhyloBranchPropertyNotFoundException("", name, this);
     }
     
-    virtual const Clonable* getProperty(const std::string& name) const // throw (PropertyNotFoundException)
+    const Clonable* getProperty(const std::string& name) const
     {
       if (hasProperty(name))
         return const_cast<const Clonable*>(properties_[name]);
-      //else
-        //throw PropertyNotFoundException("", name, this);
+      else
+        throw PhyloBranchPropertyNotFoundException("", name, this);
     }
     
-    virtual Clonable* removeProperty(const std::string& name) // throw (PropertyNotFoundException)
+    Clonable* removeProperty(const std::string& name) 
     {
       if (hasProperty(name))
       {
@@ -127,19 +148,19 @@ public:
         properties_.erase(name);
         return removed;
       }
-      //else
-        //throw PropertyNotFoundException("", name, this);
+      else
+        throw PhyloBranchPropertyNotFoundException("", name, this);
     }
     
-    virtual void deleteProperty(const std::string& name) // throw (PropertyNotFoundException)
+    void deleteProperty(const std::string& name) 
     {
       if (hasProperty(name))
       {
         delete properties_[name];
         properties_.erase(name);
       }
-      //else
-        //throw PropertyNotFoundException("", name, this);
+      else
+        throw PhyloBranchPropertyNotFoundException("", name, this);
     }
     
     /**
@@ -147,7 +168,7 @@ public:
      *
      * Attached objects will not be deleted.
      */
-    virtual void removeProperties()
+    void removeProperties()
     {
       properties_.clear();
     }
@@ -155,7 +176,7 @@ public:
     /**
      * @brief Delete all branch properties.
      */
-    virtual void deleteProperties()
+    void deleteProperties()
     {
       for (std::map<std::string, Clonable*>::iterator i = properties_.begin(); i != properties_.end(); i++)
       {
@@ -164,30 +185,17 @@ public:
       properties_.clear();
     }
     
-    virtual bool hasProperty(const std::string& name) const { return properties_.find(name) != properties_.end(); }
+    bool hasProperty(const std::string& name) const { return properties_.find(name) != properties_.end(); }
     
-    virtual std::vector<std::string> getPropertyNames() const { return MapTools::getKeys(properties_); }
+    std::vector<std::string> getPropertyNames() const { return MapTools::getKeys(properties_); }
     
-    virtual bool hasBootstrapValue() const;
+    bool hasBootstrapValue() const;
     
-    virtual double getBootstrapValue() const; // throw (PropertyNotFoundException);
+    double getBootstrapValue() const; 
     /** @} */
     
-    virtual ~PhyloBranch()
-    {
-      deleteProperties();
-    }
     
-    PhyloBranch():
-      isLengthDefined_(false),
-      length_(0),
-      properties_()
-    {
-      
-    }
-    
-    
-}; //end of class PhyloBranch 
+  }; //end of class PhyloBranch 
 
 
 } //end of namespace bpp.

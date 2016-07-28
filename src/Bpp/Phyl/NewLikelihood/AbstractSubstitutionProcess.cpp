@@ -56,7 +56,6 @@ AbstractSubstitutionProcess::AbstractSubstitutionProcess(const AbstractSubstitut
   pTree_(asp.pTree_->clone()),
   nbClasses_(asp.nbClasses_)
 {
-  cerr << "absSubProc" << endl;
 }
 
 AbstractSubstitutionProcess& AbstractSubstitutionProcess::operator=(const AbstractSubstitutionProcess& asp)

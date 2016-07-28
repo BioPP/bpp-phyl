@@ -473,7 +473,7 @@ SET(H_FILES
   Bpp/Phyl/Tree/TreeTemplate.h
   Bpp/Phyl/Tree/TreeTemplateTools.h
   Bpp/Phyl/Tree/TreeTools.h
-  Bpp/Phyl/Tree/PlyloTree.h
+  Bpp/Phyl/Tree/PhyloTree.h
   Bpp/Phyl/Tree/PhyloNode.h
   Bpp/Phyl/Tree/PhyloBranch.h
   )

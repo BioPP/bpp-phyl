@@ -1,6 +1,6 @@
 //
-// File: Tree.h
-// Created by: Julien Dutheil
+// File: PhyloNode.h
+// Created by: Thomas Bigot
 // Created on: Thu Mar 13 12:03:18 2003
 //
 
@@ -107,11 +107,13 @@ namespace bpp
     /**
      * @brief Build a new Node with specified id and name.
      */
-    PhyloNode(PhyloTree *tree,int id, const std::string& name) :
+    PhyloNode(PhyloTree *tree,unsigned int index, const std::string& name) :
     phyloTree_(tree),
     name_(name),
     properties_()
-    {}
+    {
+      tree->setNodeIndex(this,index);
+    }
     
     /**
      * @brief Copy constructor.
@@ -154,16 +156,18 @@ namespace bpp
      *
      * @return The identity tag of this node.
      */
-    virtual int getId() const { return phyloTree_->getNodeIndex(this); }
+
+    int getId() const { return phyloTree_->getNodeIndex(this); }
     
     /**
      * @brief Set this node's id.
      *
      * @param id The new identity tag.
      */
-    virtual void setId(int id) { phyloTree_->setNodeIndex(this,id); }
+
+    void setId(int id) { phyloTree_->setNodeIndex(this,id); }
     
-    virtual std::vector<int> getSonsId() const
+    std::vector<int> getSonsId() const
     {
       std::vector<PhyloNode*> sons = getSons();
       std::vector<int> sonsId(sons.size());
@@ -177,6 +181,7 @@ namespace bpp
     /**
      * @brief Get the node leading to this branch.
      */
+
     PhyloBranch* getBranch() const
     {
         return phyloTree_->getBranchToFather(this);
@@ -197,7 +202,8 @@ namespace bpp
      *
      * @return The name associated to this node.
      */
-    virtual std::string getName() const throw (PhyloNodePException)
+
+    std::string getName() const 
     {
       if (!hasName()) throw PhyloNodePException("Node::getName: no name associated to this node.", this);
       return name_;
@@ -208,7 +214,8 @@ namespace bpp
      *
      * @param name The name to give to the node.
      */
-    virtual void setName(const std::string& name)
+
+    void setName(const std::string& name)
     {
       name_ = name;
     }
@@ -216,7 +223,8 @@ namespace bpp
     /**
      * @brief Delete the name associated to this node (do nothing if there is no name).
      */
-    virtual void deleteName()
+
+    void deleteName()
     {
       name_ = "";
     }
@@ -226,7 +234,8 @@ namespace bpp
      *
      * @return True if name != 0.
      */
-    virtual bool hasName() const { return name_ != ""; }
+
+    bool hasName() const { return name_ != ""; }
     
     /** @} */
     
@@ -242,7 +251,8 @@ namespace bpp
      *
      * @return The distance to the father node.
      */
-    virtual double getDistanceToFather() const
+
+    double getDistanceToFather() const
     {
       if (!phyloTree_->isRooted())
         throw PhyloNodePException("PhyloNode::getDistanceToFather: unRooted tree has no father.", this);
@@ -258,7 +268,8 @@ namespace bpp
      *
      * @param distance The new distance to the father node.
      */
-    virtual void setDistanceToFather(double distance)
+
+    void setDistanceToFather(double distance)
     {
       phyloTree_->getBranchToFather(this)->setLength(distance);
     }
@@ -266,7 +277,8 @@ namespace bpp
     /**
      * @brief Delete the distance to the father node.
      */
-    virtual void deleteDistanceToFather()
+
+    void deleteDistanceToFather()
     {
       phyloTree_->getBranchToFather(this)->deleteLength();
     }
@@ -276,7 +288,8 @@ namespace bpp
      *
      * @return True if distanceToFather != 0.
      */
-    virtual bool hasDistanceToFather() const
+
+    bool hasDistanceToFather() const
     {
       return phyloTree_->getBranchToFather(this)->hasLength();
     }
@@ -294,23 +307,26 @@ namespace bpp
      *
      * @return A pointer toward the father node, 0 if there is not.
      */
-    virtual const PhyloNode* getFather() const { return phyloTree_->getFather(this); }
+
+    const PhyloNode* getFather() const { return phyloTree_->getFather(this); }
     
     /**
      * @brief Get the father of this node is there is one.
      *
      * @return A pointer toward the father node, 0 if there is not.
      */
-    virtual PhyloNode* getFather() { return phyloTree_->getFather(this); }
+
+    PhyloNode* getFather() { return phyloTree_->getFather(this); }
     
-    virtual int getFatherId() const { return phyloTree_->getNodeIndex(phyloTree_->getFather(this)); }
+    int getFatherId() const { return phyloTree_->getNodeIndex(phyloTree_->getFather(this)); }
     
     /**
      * @brief Set the father node of this node.
      *
      * @param node The father node.
      */
-    virtual void setFather(PhyloNode* node) throw (NullPointerException)
+
+    void setFather(PhyloNode* node) 
     {
       if (!node)
         throw NullPointerException("Node::setFather(). Empty node given as input.");
@@ -321,7 +337,8 @@ namespace bpp
     /**
      * @brief Tell if this node has a father node.
      */
-    virtual bool hasFather() const { return phyloTree_->hasFather(this); }
+
+    bool hasFather() const { return phyloTree_->hasFather(this); }
     
     /** @} */
     
@@ -330,28 +347,29 @@ namespace bpp
      *
      * @{
      */
-    virtual size_t getNumberOfSons() const { return phyloTree_->getNumberOfSons(this); }
+
+    size_t getNumberOfSons() const { return phyloTree_->getNumberOfSons(this); }
     
-    virtual std::vector<PhyloNode*> getSons() const
+    std::vector<PhyloNode*> getSons() const
     {
       return phyloTree_->getSons(this);
     }
     
-    virtual void addSon(PhyloNode* node) throw (NullPointerException, PhyloNodePException)
+    void addSon(PhyloNode* node) 
     {
       if (!node)
         throw NullPointerException("Node::addSon(). Empty node given as input.");
       phyloTree_->addSon(this,node);
     }
     
-    virtual void removeSon(PhyloNode* node) throw (PhyloNodeNotFoundException, NullPointerException)
+    void removeSon(PhyloNode* node) 
     {
       if (!node)
         throw NullPointerException("Node::removeSon(). Empty node given as input.");
       phyloTree_->addSon(this,node);
     }
     
-    virtual void removeSons()
+    void removeSons()
     {
       phyloTree_->removeSons(this);
     }
@@ -364,7 +382,7 @@ namespace bpp
     
     std::vector<PhyloNode*> getNeighbors();
     
-    virtual size_t degree() const { return phyloTree_->getNeighbors(const_cast<PhyloNode*>(this)).size();} //FIXME: to replace by a GetDegree function.
+    size_t degree() const { return phyloTree_->getNeighbors(const_cast<PhyloNode*>(this)).size();} //FIXME: to replace by a GetDegree function.
     
     
     /**
@@ -378,55 +396,56 @@ namespace bpp
      *
      * If no property with the same name is found, the new property will be added to the list.
      * Conversely, the property will be deleted and replaced by the new one.
-     * If you want to keep a copy of the old property, consider using the removeNodeProperty function before.
+     * If you want to keep a copy of the old property, consider using the removeProperty function before.
      *
      * @param name The name of the property to set.
      * @param property The property object (will be cloned).
      */
-    virtual void setNodeProperty(const std::string& name, const Clonable& property)
+
+    void setProperty(const std::string& name, const Clonable& property)
     {
-      if (hasNodeProperty(name))
+      if (hasProperty(name))
         delete properties_[name];
       properties_[name] = property.clone();
     }
     
-    virtual Clonable* getNodeProperty(const std::string& name) throw (PropertyNotFoundException)
+    Clonable* getProperty(const std::string& name) 
     {
-      if (hasNodeProperty(name))
+      if (hasProperty(name))
         return properties_[name];
       else
-        throw PropertyNotFoundException("", name, this);
+        throw PhyloNodePropertyNotFoundException("", name, this);
     }
     
-    virtual const Clonable* getNodeProperty(const std::string& name) const throw (PropertyNotFoundException)
+    const Clonable* getProperty(const std::string& name) const 
     {
-      if (hasNodeProperty(name))
+      if (hasProperty(name))
         return const_cast<const Clonable*>(properties_[name]);
       else
-        throw PropertyNotFoundException("", name, this);
+        throw PhyloNodePropertyNotFoundException("", name, this);
     }
     
-    virtual Clonable* removeNodeProperty(const std::string& name) throw (PropertyNotFoundException)
+    Clonable* removeProperty(const std::string& name) 
     {
-      if (hasNodeProperty(name))
+      if (hasProperty(name))
       {
         Clonable* removed = properties_[name];
         properties_.erase(name);
         return removed;
       }
       else
-        throw PropertyNotFoundException("", name, this);
+        throw PhyloNodePropertyNotFoundException("", name, this);
     }
     
-    virtual void deleteNodeProperty(const std::string& name) throw (PropertyNotFoundException)
+    void deleteProperty(const std::string& name) 
     {
-      if (hasNodeProperty(name))
+      if (hasProperty(name))
       {
         delete properties_[name];
         properties_.erase(name);
       }
       else
-        throw PropertyNotFoundException("", name, this);
+        throw PhyloNodePropertyNotFoundException("", name, this);
     }
     
     /**
@@ -434,7 +453,7 @@ namespace bpp
      *
      * Attached objects will not be deleted.
      */
-    virtual void removeNodeProperties()
+    void removeProperties()
     {
       properties_.clear();
     }
@@ -442,7 +461,7 @@ namespace bpp
     /**
      * @brief Delete all node properties.
      */
-    virtual void deleteNodeProperties()
+    void deleteProperties()
     {
       for (std::map<std::string, Clonable*>::iterator i = properties_.begin(); i != properties_.end(); i++)
       {
@@ -451,9 +470,69 @@ namespace bpp
       properties_.clear();
     }
     
-    virtual bool hasNodeProperty(const std::string& name) const { return properties_.find(name) != properties_.end(); }
+    bool hasProperty(const std::string& name) const { return properties_.find(name) != properties_.end(); }
     
-    virtual std::vector<std::string> getNodePropertyNames() const { return MapTools::getKeys(properties_); }
+    std::vector<std::string> getPropertyNames() const { return MapTools::getKeys(properties_); }
+    /** @} */
+
+    /**
+     * The following is for backward compatibility
+     *
+     * @{
+     */
+    
+    /**
+     * @name Node properties:
+     *
+     * @{
+     */
+    
+    void setNodeProperty(const std::string& name, const Clonable& property)
+    {
+      setProperty(name, property);
+    }
+    
+    Clonable* getNodeProperty(const std::string& name) 
+    {
+      return getProperty(name);
+    }
+    
+    const Clonable* getNodeProperty(const std::string& name) const 
+    {
+      return getProperty(name);
+    }
+    
+    Clonable* removeNodeProperty(const std::string& name) 
+    {
+      return removeProperty(name);
+    }
+    
+    void deleteNodeProperty(const std::string& name) 
+    {
+      deleteProperty(name);
+    }
+    
+    /**
+     * @brief Remove all node properties.
+     *
+     * Attached objects will not be deleted.
+     */
+    void removeNodeProperties()
+    {
+      removeProperties();
+    }
+    
+    /**
+     * @brief Delete all node properties.
+     */
+    void deleteNodeProperties()
+    {
+      deleteProperties();
+    }
+    
+    bool hasNodeProperty(const std::string& name) const { return hasProperty(name); }
+    
+    std::vector<std::string> getNodePropertyNames() const { return getPropertyNames(); }
     
     /** @} */
     
@@ -473,27 +552,27 @@ namespace bpp
      * @param name The name of the property to set.
      * @param property The property object (will be cloned).
      */
-    virtual void setBranchProperty(const std::string& name, const Clonable& property)
+    void setBranchProperty(const std::string& name, const Clonable& property)
     {
       getBranch()->setProperty(name, property);
     }
     
-    virtual Clonable* getBranchProperty(const std::string& name) throw (PropertyNotFoundException)
+    Clonable* getBranchProperty(const std::string& name) 
     {
       return getBranch()->getProperty(name);
     }
     
-    virtual const Clonable* getBranchProperty(const std::string& name) const throw (PropertyNotFoundException)
+    const Clonable* getBranchProperty(const std::string& name) const 
     {
       return getBranch()->getProperty(name);
     }
     
-    virtual Clonable* removeBranchProperty(const std::string& name) throw (PropertyNotFoundException)
+    Clonable* removeBranchProperty(const std::string& name) 
     {
       return getBranch()->removeProperty(name);
     }
     
-    virtual void deleteBranchProperty(const std::string& name) throw (PropertyNotFoundException)
+    void deleteBranchProperty(const std::string& name) 
     {
       getBranch()->deleteProperty(name);
     }
@@ -503,7 +582,7 @@ namespace bpp
      *
      * Attached objects will not be deleted.
      */
-    virtual void removeBranchProperties()
+    void removeBranchProperties()
     {
       getBranch()->removeProperties();
     }
@@ -511,26 +590,30 @@ namespace bpp
     /**
      * @brief Delete all branch properties.
      */
-    virtual void deleteBranchProperties()
+    void deleteBranchProperties()
     {
       getBranch()->deleteProperties();
     }
     
-    virtual bool hasBranchProperty(const std::string& name) const { return getBranch()->hasProperty(name); }
+    bool hasBranchProperty(const std::string& name) const { return getBranch()->hasProperty(name); }
     
-    virtual std::vector<std::string> getBranchPropertyNames() const { return getBranch()->getPropertyNames(); }
+    std::vector<std::string> getBranchPropertyNames() const { return getBranch()->getPropertyNames(); }
     
-    virtual bool hasBootstrapValue() const;
+    bool hasBootstrapValue() const;
     
-    virtual double getBootstrapValue() const throw (PropertyNotFoundException);
+    double getBootstrapValue() const;
+    
     /** @} */
-    // Equality operator:
+
+    /** @} */
     
-    virtual bool operator==(const PhyloNode& node) const { return phyloTree_->getNodeGraphid(this) == phyloTree_->getNodeGraphid(&node); }
+    /** Equality operator: */
+    
+    bool operator==(const PhyloNode& node) const { return phyloTree_->getNodeGraphid(this) == phyloTree_->getNodeGraphid(&node); }
     
     // Tests:
     
-    virtual bool isLeaf() const { return (phyloTree_->getOutgoingNeighbors(this).size() == 0); }
+    bool isLeaf() const { return (phyloTree_->getOutgoingNeighbors(this).size() == 0); }
     
     
   }; //end of class node 

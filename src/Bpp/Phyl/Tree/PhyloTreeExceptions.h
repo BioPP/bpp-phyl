@@ -48,7 +48,8 @@
 
 namespace bpp
 {
-class PhyloNode;
+  class PhyloNode;
+  class PhyloBranch;
 class PhyloTree;
 
 /**
@@ -139,7 +140,7 @@ public:
 /**
  * @brief General exception thrown if a property could not be found.
  */
-class PropertyNotFoundException :
+class PhyloNodePropertyNotFoundException :
   public PhyloNodePException
 {
 private:
@@ -152,7 +153,7 @@ public:
    * @param propertyName The name of the property.
    * @param node A const pointer toward the node that threw the exception.
    */
-  PropertyNotFoundException(const std::string& text, const std::string& propertyName, const PhyloNode* node = 0) :
+  PhyloNodePropertyNotFoundException(const std::string& text, const std::string& propertyName, const PhyloNode* node = 0) :
     PhyloNodePException("Property not found: " + propertyName + ". " + text, node),
     propertyName_(propertyName) {}
 
@@ -163,11 +164,11 @@ public:
    * @param propertyName The name of the property.
    * @param nodeId The id of the node that threw the exception.
    */
-  PropertyNotFoundException(const std::string& text, const std::string& propertyName, int nodeId) :
+  PhyloNodePropertyNotFoundException(const std::string& text, const std::string& propertyName, int nodeId) :
     PhyloNodePException("Property not found: " + propertyName + ". " + text, nodeId),
     propertyName_(propertyName) {}
 
-  virtual ~PropertyNotFoundException() throw () {}
+  virtual ~PhyloNodePropertyNotFoundException() throw () {}
 
 public:
   /**
@@ -214,6 +215,170 @@ public:
    */
   virtual std::string getId() const { return id_; }
 };
+
+  /**
+   * @brief General exception thrown when something is wrong with a particular branch.
+   */
+  class PhyloBranchException :
+    public Exception
+  {
+  protected:
+    unsigned int branchId_;
+
+  public:
+    /**
+     * @brief Build a new PhyloBranchPException.
+     * @param text A message to be passed to the exception hierarchy.
+     * @param branchId The id of the branch that threw the exception.
+     */
+    PhyloBranchException(const std::string& text, int branchId) :
+      Exception("PhyloBranchException: " + text + "(id:" + TextTools::toString(branchId) + ")"),
+      branchId_(branchId) {}
+
+    virtual ~PhyloBranchException() throw () {}
+
+  public:
+    /**
+     * @brief Get the id of branch that threw the exception.
+     *
+     * @return The id of the faulty branch.
+     */
+    virtual int getBranchId() const { return branchId_; }
+  };
+
+
+/**
+ * @brief General exception thrown when something is wrong with a particular branch.
+ */
+  class PhyloBranchPException :
+    public PhyloBranchException
+  {
+  private:
+    const PhyloBranch* branch_;
+
+  public:
+    /**
+     * @brief Build a new PhyloBranchPException.
+     * @param text A message to be passed to the exception hierarchy.
+     * @param branch A const pointer toward the branch that threw the exception.
+     */
+    PhyloBranchPException(const std::string& text, const PhyloBranch* branch = 0);
+
+    /**
+     * @brief Build a new PhyloBranchPException.
+     * @param text A message to be passed to the exception hierarchy.
+     * @param branchId The id of the branch that threw the exception.
+     */
+    PhyloBranchPException(const std::string& text, int branchId) :
+      PhyloBranchException(text, branchId), branch_(0) {}
+
+    PhyloBranchPException(const PhyloBranchPException& nex) :
+      PhyloBranchException(nex),
+      branch_(nex.branch_)
+    {}
+
+    PhyloBranchPException& operator=(const PhyloBranchPException& nex)
+    {
+      PhyloBranchException::operator=(nex);
+      branch_ = nex.branch_;
+      return *this;
+    }
+
+    virtual ~PhyloBranchPException() throw () {}
+
+  public:
+    /**
+     * @brief Get the branch that threw the exception.
+     *
+     * @return A pointer toward the faulty branch.
+     */
+    virtual const PhyloBranch* getBranch() const { return branch_; };
+    /**
+     * @brief Get the id of branch that threw the exception.
+     *
+     * @return The id of the faulty branch.
+     */
+    virtual int getBranchId() const { return branchId_; }
+  };
+
+/**
+ * @brief General exception thrown if a property could not be found.
+ */
+  class PhyloBranchPropertyNotFoundException :
+    public PhyloBranchPException
+  {
+  private:
+    std::string propertyName_;
+
+  public:
+    /**
+     * @brief Build a new PropertyNotFoundException (Branch).
+     * @param text A message to be passed to the exception hierarchy.
+     * @param propertyName The name of the property.
+     * @param branch A const pointer toward the branch that threw the exception.
+     */
+    PhyloBranchPropertyNotFoundException(const std::string& text, const std::string& propertyName, const PhyloBranch* branch = 0) :
+      PhyloBranchPException("Property not found: " + propertyName + ". " + text, branch),
+      propertyName_(propertyName) {}
+
+    /**
+     * @brief Build a new PropertyNotFoundException.
+     *
+     * @param text A message to be passed to the exception hierarchy.
+     * @param propertyName The name of the property.
+     * @param branchId The id of the branch that threw the exception.
+     */
+    PhyloBranchPropertyNotFoundException(const std::string& text, const std::string& propertyName, int branchId) :
+      PhyloBranchPException("Property not found: " + propertyName + ". " + text, branchId),
+      propertyName_(propertyName) {}
+
+    virtual ~PhyloBranchPropertyNotFoundException() throw () {}
+
+  public:
+    /**
+     * @brief Get the name of the property that could not be found.
+     *
+     * @return The name of the missing property.
+     */
+    virtual const std::string& getPropertyName() const { return propertyName_; }
+  };
+
+/**
+ * @brief Exception thrown when something is wrong with a particular branch.
+ */
+  class PhyloBranchNotFoundException :
+    public Exception
+  {
+  private:
+    std::string id_;
+
+  public:
+    /**
+     * @brief Build a new PhyloBranchNotFoundException.
+     *
+     * @param text A message to be passed to the exception hierarchy.
+     * @param id   A string describing the branch.
+     */
+    PhyloBranchNotFoundException(const std::string& text, const std::string& id);
+
+    /**
+     * @brief Build a new PhyloBranchNotFoundException.
+     *
+     * @param text A message to be passed to the exception hierarchy.
+     * @param id   A branch identifier.
+     */
+    PhyloBranchNotFoundException(const std::string& text, int id);
+
+    virtual ~PhyloBranchNotFoundException() throw () {}
+
+  public:
+    /**
+     * @brief Get the branch id that threw the exception.
+     *
+     * @return The id of the branch.
+     */
+    virtual std::string getId() const { return id_; }
+  };
 
 /**
  * @brief General exception thrown when something wrong happened in a tree.
