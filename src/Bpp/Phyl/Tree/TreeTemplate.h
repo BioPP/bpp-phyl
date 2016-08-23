@@ -179,7 +179,7 @@ public:
   {
     Vint vRes = TreeTemplateTools::getNodesId(*root_);
     int rId=getRootId();
-    std::vector<int>::const_iterator rit(vRes.begin());
+    std::vector<int>::iterator rit(vRes.begin());
     while(rit<vRes.end())
       if (*rit==rId)
       {
