@@ -49,6 +49,7 @@ CodonRateSubstitutionModel::CodonRateSubstitutionModel(
     const GeneticCode* gCode,
     NucleotideSubstitutionModel* pmod) :
   AbstractParameterAliasable("CodonRate."),
+  AbstractWordSubstitutionModel(pmod, 3, "CodonRate."),
   AbstractCodonSubstitutionModel(gCode, pmod, "CodonRate.", true)
 {
   updateMatrices();
@@ -60,6 +61,7 @@ CodonRateSubstitutionModel::CodonRateSubstitutionModel(
     NucleotideSubstitutionModel* pmod2,
     NucleotideSubstitutionModel* pmod3) :
   AbstractParameterAliasable("CodonRate."),
+  AbstractWordSubstitutionModel(gCode->getSourceAlphabet(), new CanonicalStateMap(gCode->getSourceAlphabet(), false), "CodonRate."),
   AbstractCodonSubstitutionModel(gCode, pmod1, pmod2, pmod3, "CodonRate.", true)
 {
   updateMatrices();

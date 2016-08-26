@@ -50,6 +50,7 @@ MixtureOfSubstitutionModels::MixtureOfSubstitutionModels(
   const Alphabet* alpha,
   vector<SubstitutionModel*> vpModel) :
   AbstractParameterAliasable("Mixture."),
+  AbstractSubstitutionModel(alpha, vpModel[0]->getStateMap().clone(), "Mixture."),
   AbstractMixedSubstitutionModel(alpha, vpModel[0]->getStateMap().clone(), "Mixture.")
 {
   size_t i, nbmod = vpModel.size();
@@ -101,6 +102,7 @@ MixtureOfSubstitutionModels::MixtureOfSubstitutionModels(
     Vdouble& vproba,
     Vdouble& vrate) :
   AbstractParameterAliasable("Mixture."),
+  AbstractSubstitutionModel(alpha, vpModel[0]->getStateMap().clone(), "Mixture."),
   AbstractMixedSubstitutionModel(alpha, vpModel[0]->getStateMap().clone(), "Mixture.")
 {
   size_t i, nbmod = vpModel.size();
@@ -178,6 +180,7 @@ MixtureOfSubstitutionModels::MixtureOfSubstitutionModels(
 
 MixtureOfSubstitutionModels::MixtureOfSubstitutionModels(const MixtureOfSubstitutionModels& msm) :
   AbstractParameterAliasable(msm),
+  AbstractSubstitutionModel(msm),
   AbstractMixedSubstitutionModel(msm)
 {}
 

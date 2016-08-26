@@ -101,7 +101,7 @@ namespace bpp
  *
  */
 class MixtureOfASubstitutionModel :
-  public AbstractMixedSubstitutionModel
+    public AbstractMixedSubstitutionModel
 {
 private:
   std::map<std::string, DiscreteDistribution*> distributionMap_;

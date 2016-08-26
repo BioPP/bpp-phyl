@@ -66,7 +66,7 @@ namespace bpp
 
 class AbstractMixedSubstitutionModel :
   public virtual MixedSubstitutionModel,
-  public AbstractSubstitutionModel
+  public virtual AbstractSubstitutionModel
 {
 protected:
   /**

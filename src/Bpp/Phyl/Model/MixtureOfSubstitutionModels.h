@@ -115,7 +115,7 @@ namespace bpp
  */
 
 class MixtureOfSubstitutionModels :
-  public AbstractMixedSubstitutionModel
+    public AbstractMixedSubstitutionModel
 {
 public:
   /**

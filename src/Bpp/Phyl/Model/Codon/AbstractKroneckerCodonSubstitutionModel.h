@@ -73,7 +73,7 @@ namespace bpp
 
   class AbstractKroneckerCodonSubstitutionModel :
     public virtual CodonSubstitutionModel,
-    public AbstractKroneckerWordSubstitutionModel
+    public virtual AbstractKroneckerWordSubstitutionModel
   {
   private:
     const GeneticCode* gCode_;

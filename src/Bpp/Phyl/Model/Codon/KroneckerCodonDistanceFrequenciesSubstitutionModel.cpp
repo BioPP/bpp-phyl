@@ -50,6 +50,7 @@ KroneckerCodonDistanceFrequenciesSubstitutionModel::KroneckerCodonDistanceFreque
     FrequenciesSet* pfreq,
     const AlphabetIndex2* pdist) :
   AbstractParameterAliasable("KronCodonDistFreq."),
+  AbstractKroneckerWordSubstitutionModel(pmod, 3, "KronCodonDistFreq."),
   AbstractKroneckerCodonSubstitutionModel(gCode, pmod, "KronCodonDistFreq."),
   AbstractCodonDistanceSubstitutionModel(pdist, "KronCodonDistFreq."),
   AbstractCodonFrequenciesSubstitutionModel(pfreq, "KronCodonDistFreq.")
@@ -64,6 +65,7 @@ KroneckerCodonDistanceFrequenciesSubstitutionModel::KroneckerCodonDistanceFreque
   FrequenciesSet* pfreq,
   const AlphabetIndex2* pdist) :
   AbstractParameterAliasable("KronCodonDistFreq."),
+  AbstractKroneckerWordSubstitutionModel(pmod, 3, "KronCodonDistFreq."),
   AbstractKroneckerCodonSubstitutionModel(gCode, pmod, vPos, "KronCodonDistFreq."),
   AbstractCodonDistanceSubstitutionModel(pdist, "KronCodonDistFreq."),
   AbstractCodonFrequenciesSubstitutionModel(pfreq, "KronCodonDistFreq.")
@@ -79,6 +81,7 @@ KroneckerCodonDistanceFrequenciesSubstitutionModel::KroneckerCodonDistanceFreque
     FrequenciesSet* pfreq,
     const AlphabetIndex2* pdist) :
   AbstractParameterAliasable("KronCodonDistFreq."),
+  AbstractKroneckerWordSubstitutionModel(gCode->getSourceAlphabet(), new CanonicalStateMap(gCode->getSourceAlphabet(), false), "KronCodonDistFreq."),
   AbstractKroneckerCodonSubstitutionModel(gCode, pmod1, pmod2, pmod3, "KronCodonDistFreq."),
   AbstractCodonDistanceSubstitutionModel(pdist, "KronCodonDistFreq."),
   AbstractCodonFrequenciesSubstitutionModel(pfreq, "KronCodonDistFreq.")
@@ -95,6 +98,7 @@ KroneckerCodonDistanceFrequenciesSubstitutionModel::KroneckerCodonDistanceFreque
   FrequenciesSet* pfreq,
   const AlphabetIndex2* pdist) :
   AbstractParameterAliasable("KronCodonDistFreq."),
+  AbstractKroneckerWordSubstitutionModel(gCode->getSourceAlphabet(), new CanonicalStateMap(gCode->getSourceAlphabet(), false), "KronCodonDistFreq."),
   AbstractKroneckerCodonSubstitutionModel(gCode, pmod1, pmod2, pmod3, vPos, "KronCodonDistFreq."),
   AbstractCodonDistanceSubstitutionModel(pdist, "KronCodonDistFreq."),
   AbstractCodonFrequenciesSubstitutionModel(pfreq, "KronCodonDistFreq.")

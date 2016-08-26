@@ -55,6 +55,7 @@ MixtureOfASubstitutionModel::MixtureOfASubstitutionModel(
   int ffrom,
   int tto) throw (Exception) :
   AbstractParameterAliasable(model->getNamespace()),
+  AbstractSubstitutionModel(alpha, model->getStateMap().clone(), model->getNamespace()),
   AbstractMixedSubstitutionModel(alpha, model->getStateMap().clone(), model->getNamespace()),
   distributionMap_(),
   from_(ffrom),
@@ -138,6 +139,7 @@ MixtureOfASubstitutionModel::MixtureOfASubstitutionModel(
 
 MixtureOfASubstitutionModel::MixtureOfASubstitutionModel(const MixtureOfASubstitutionModel& msm) :
   AbstractParameterAliasable(msm),
+  AbstractSubstitutionModel(msm),
   AbstractMixedSubstitutionModel(msm),
   distributionMap_(),
   from_(msm.from_),

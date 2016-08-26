@@ -71,7 +71,7 @@ namespace bpp
  */
   class AbstractCodonSubstitutionModel :
     public virtual CodonSubstitutionModel,
-    public AbstractWordSubstitutionModel
+    public virtual AbstractWordSubstitutionModel
   {
   private:
     /**
