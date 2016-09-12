@@ -47,48 +47,63 @@
 #include <Bpp/Text/TextTools.h>
 
 using namespace bpp;
+using namespace std;
 
 /******************************************************************************/
 
-PhyloNodePException::PhyloNodePException(const std::string& text, const PhylNode* node) :
-    NodeException(text, node->getId()), node_(node)
+PhyloNodePException::PhyloNodePException(const std::string& text, const PhyloTree& tree, const shared_ptr<PhyloNode> node) :
+  PhyloNodeException(text, tree.getNodeIndex(node)), node_(node.get())
 {}
 
 /******************************************************************************/
 
-NodeNotFoundException::NodeNotFoundException(const std::string& text, const std::string& id) :
+PhyloNodePException::PhyloNodePException(const std::string& text, const PhyloNode* node) :
+  PhyloNodeException(text, 0), node_(node)
+{}
+
+/******************************************************************************/
+
+PhyloNodeNotFoundException::PhyloNodeNotFoundException(const std::string& text, const std::string& id) :
   Exception("NodeNotFoundException: " + text + "(" + id + ")"),
   id_(id) {}
 
-PhyloNodeNotFoundException::NodeNotFoundException(const std::string& text, int id) :
+PhyloNodeNotFoundException::PhyloNodeNotFoundException(const std::string& text, int id) :
   Exception("NodeNotFoundException: " + text + "(" + TextTools::toString(id) + ")"),
   id_(TextTools::toString(id)) {}
 
 /******************************************************************************/
 
-PhyloBranchPException::PhyloBranchPException(const std::string& text, const PhylBranch* branch) :
-  BranchException(text, branch->getId()), branch_(branch)
+PhyloBranchPException::PhyloBranchPException(const std::string& text, const PhyloTree& tree, const shared_ptr<PhyloBranch> branch) :
+  PhyloBranchException(text, tree.getEdgeIndex(branch)), branch_(branch.get())
 {}
 
 /******************************************************************************/
 
-BranchNotFoundException::BranchNotFoundException(const std::string& text, const std::string& id) :
+PhyloBranchPException::PhyloBranchPException(const std::string& text, const PhyloBranch* branch) :
+  PhyloBranchException(text, 0), branch_(branch)
+{}
+
+/******************************************************************************/
+
+PhyloBranchNotFoundException::PhyloBranchNotFoundException(const std::string& text, const std::string& id) :
   Exception("BranchNotFoundException: " + text + "(" + id + ")"),
   id_(id) {}
 
-PhyloBranchNotFoundException::BranchNotFoundException(const std::string& text, int id) :
+/******************************************************************************/
+
+PhyloBranchNotFoundException::PhyloBranchNotFoundException(const std::string& text, int id) :
   Exception("BranchNotFoundException: " + text + "(" + TextTools::toString(id) + ")"),
   id_(TextTools::toString(id)) {}
 
 /******************************************************************************/
 
-PhyloTreeException::PhyloTreeException(const std::string& text, const Tree* tree) :
+PhyloTreeException::PhyloTreeException(const std::string& text, const PhyloTree* tree) :
   Exception("PhyloTreeException: " + text + (tree != 0 ? "(" + tree->getName() + ")" : "")),
   tree_(tree) {}
 
 /******************************************************************************/
 
-UnrootedPhyloTreeException::UnrootedPhyloTreeException(const std::string& text, const Tree* tree) :
+UnrootedPhyloTreeException::UnrootedPhyloTreeException(const std::string& text, const PhyloTree* tree) :
   PhyloTreeException("UnrootedPhyloTreeException: " + text, tree) {}
 
 /******************************************************************************/

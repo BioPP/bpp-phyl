@@ -42,6 +42,7 @@
 
 #include "IoTree.h"
 #include "../Tree/TreeTemplate.h"
+#include "../Tree/PhyloTree.h"
 
 //From the STL:
 #include <set>
@@ -90,19 +91,6 @@ namespace bpp
     public AbstractIMultiTree,
     public AbstractOMultiTree
   {
-  private:
-    struct Element
-    {
-    public:
-      std::string content;
-      std::string length;
-      std::string annotation;
-      bool isLeaf;
-  
-    public:
-      Element() : content(), length(), annotation(), isLeaf(false) {}
-    };
-  
   public:
     struct Property
     {
@@ -167,25 +155,43 @@ namespace bpp
      *
      * @{
      */    
-    TreeTemplate<Node>* read(const std::string& path) const throw (Exception)
+    TreeTemplate<Node>* read(const std::string& path) const
     {
       return dynamic_cast<TreeTemplate<Node>*>(AbstractITree::read(path));
     }
     
-    TreeTemplate<Node>* read(std::istream& in) const throw (Exception);
-    /** @} */
+    TreeTemplate<Node>* read(std::istream& in) const;
+
+    PhyloTree* readP(const std::string& path) const
+    {
+      return AbstractITree::readP(path);
+    }
+    
+    PhyloTree* readP(std::istream& in) const;
+    
+/** @} */
 
     /**
      * @name The OTree interface
      *
      * @{
      */
-    void write(const Tree& tree, const std::string& path, bool overwrite = true) const throw (Exception)
+    void write(const Tree& tree, const std::string& path, bool overwrite = true) const
     {
       AbstractOTree::write(tree, path, overwrite);
     }
     
-    void write(const Tree& tree, std::ostream& out) const throw (Exception)
+    void write(const Tree& tree, std::ostream& out) const
+    {
+      write_(tree, out);
+    }
+    
+    void write(const PhyloTree& tree, const std::string& path, bool overwrite = true) const
+    {
+      AbstractOTree::write(tree, path, overwrite);
+    }
+    
+    void write(const PhyloTree& tree, std::ostream& out) const
     {
       write_(tree, out);
     }
@@ -196,31 +202,51 @@ namespace bpp
      *
      * @{
      */
-    void read(const std::string& path, std::vector<Tree*>& trees) const throw (Exception)
+    void read(const std::string& path, std::vector<Tree*>& trees) const
     {
       AbstractIMultiTree::read(path, trees);
     }
-    void read(std::istream& in, std::vector<Tree*>& trees) const throw (Exception);
-    /**@}*/
+    void read(std::istream& in, std::vector<Tree*>& trees) const;
+
+    void read(const std::string& path, std::vector<PhyloTree*>& trees) const
+    {
+      AbstractIMultiTree::read(path, trees);
+    }
+
+    void read(std::istream& in, std::vector<PhyloTree*>& trees) const;
+
+/**@}*/
 
     /**
      * @name The OMultiTree interface
      *
      * @{
      */
-    void write(const std::vector<const Tree*>& trees, const std::string& path, bool overwrite = true) const throw (Exception)
+    void write(const std::vector<const Tree*>& trees, const std::string& path, bool overwrite = true) const
     {
       AbstractOMultiTree::write(trees, path, overwrite);
     }
-    void write(const std::vector<const Tree*>& trees, std::ostream& out) const throw (Exception)
+    void write(const std::vector<const Tree*>& trees, std::ostream& out) const
     {
       write_(trees, out);
     }
-    /** @} */
+    void write(const std::vector<const PhyloTree*>& trees, const std::string& path, bool overwrite = true) const
+    {
+      AbstractOMultiTree::write(trees, path, overwrite);
+    }
+    void write(const std::vector<const PhyloTree*>& trees, std::ostream& out) const
+    {
+      write_(trees, out);
+    }
+     /** @} */
 
-    TreeTemplate<Node>* parenthesisToTree(const std::string& description) const throw (Exception);
+    TreeTemplate<Node>* parenthesisToTree(const std::string& description) const;
+
+    PhyloTree* parenthesisToPhyloTree(const std::string& description) const;
 
     std::string treeToParenthesis(const TreeTemplate<Node>& tree) const;
+
+    std::string treeToParenthesis(const PhyloTree& tree) const;
 
     void registerProperty(const Property& property) {
       supportedProperties_.insert(property);
@@ -236,6 +262,7 @@ namespace bpp
      * @param node The root node of the subtree to convert.
      */
     void changeTagsToNames(Node& node) const;
+    void changeTagsToNames(PhyloTree& tree, std::shared_ptr<PhyloNode> node) const;
 
     /**
      * @brief Convert property names from names to tags.
@@ -247,37 +274,50 @@ namespace bpp
      * @param node The root node of the subtree to convert.
      */
     void changeNamesToTags(Node& node) const;
+    void changeNamesToTags(PhyloTree& tree, std::shared_ptr<PhyloNode> node) const;
 
     void useTagsAsPropertyNames(bool yn) { useTagsAsPropertyNames_ = yn; }
     bool useTagsAsPropertyNames() const { return useTagsAsPropertyNames_; }
 
   protected:
-    void write_(const Tree& tree, std::ostream& out) const throw (Exception);
+    void write_(const Tree& tree, std::ostream& out) const;
+
+    void write_(const PhyloTree& tree, std::ostream& out) const;
+       
+    template<class N>
+    void write_(const TreeTemplate<N>& tree, std::ostream& out) const;
+    
+    void write_(const std::vector<const Tree*>& trees, std::ostream& out) const;
+    
+    void write_(const std::vector<const PhyloTree*>& trees, std::ostream& out) const;
     
     template<class N>
-    void write_(const TreeTemplate<N>& tree, std::ostream& out) const throw (Exception);
-    
-    void write_(const std::vector<const Tree*>& trees, std::ostream& out) const throw (Exception);
-    
-    template<class N>
-    void write_(const std::vector<TreeTemplate<N>*>& trees, std::ostream& out) const throw (Exception);
+    void write_(const std::vector<TreeTemplate<N>*>& trees, std::ostream& out) const;
 
-    Element getElement(const std::string& elt) const throw (IOException);
+    AbstractITree::Element getElement(const std::string& elt) const;
 
-  public:
+  private:
     Node* parenthesisToNode(const std::string& description) const;
-  
+
+    std::shared_ptr<PhyloNode> parenthesisToNode(PhyloTree& tree, std::shared_ptr<PhyloNode> father, const std::string& description) const;
+
 public:
-  std::string propertiesToParenthesis(const Node& node) const;
+    std::string propertiesToParenthesis(const Node& node) const;
+
+    std::string propertiesToParenthesis(const PhyloTree& tree, const std::shared_ptr<PhyloNode> node) const;
 
 protected:
     std::string nodeToParenthesis(const Node& node) const;
-  
+
+    std::string nodeToParenthesis(const PhyloTree& tree, const std::shared_ptr<PhyloNode> node) const;
+
     bool setNodeProperties(Node& node, const std::string properties) const;
 
+    bool setNodeProperties(PhyloTree& tree, std::shared_ptr<PhyloNode> node, const std::string properties) const;
+
   protected:
-    static std::string propertyToString_(const Clonable* pptObject, short type) throw (Exception);
-    static Clonable* stringToProperty_(const std::string& pptDesc, short type) throw (Exception);
+    static std::string propertyToString_(const Clonable* pptObject, short type);
+    static Clonable* stringToProperty_(const std::string& pptDesc, short type);
   };
 
 } //end of namespace bpp.

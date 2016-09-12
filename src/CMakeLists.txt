@@ -204,6 +204,10 @@ SET(CPP_FILES
   Bpp/Phyl/Tree/TreeTemplateTools.cpp
   Bpp/Phyl/Tree/TreeTools.cpp
   Bpp/Phyl/Tree/PhyloTree.cpp
+  Bpp/Phyl/Tree/PhyloNode.cpp
+  Bpp/Phyl/Tree/PhyloBranch.cpp
+  Bpp/Phyl/Tree/PhyloTreeTools.cpp
+  Bpp/Phyl/Tree/PhyloTreeExceptions.cpp
   )
 SET(H_FILES
   Bpp/Phyl/AncestralStateReconstruction.h
@@ -476,6 +480,8 @@ SET(H_FILES
   Bpp/Phyl/Tree/PhyloTree.h
   Bpp/Phyl/Tree/PhyloNode.h
   Bpp/Phyl/Tree/PhyloBranch.h
+  Bpp/Phyl/Tree/PhyloTreeTools.h
+  Bpp/Phyl/Tree/PhyloTreeExceptions.h
   )
 
 # Build the static lib

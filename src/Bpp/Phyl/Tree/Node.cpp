@@ -67,6 +67,27 @@ Node::Node(const Node& node):
     branchProperties_[i->first] = i->second->clone();
 }
 
+// Node::Node(const PhyloNode& pn):
+//   id_(pn.getId()), name_(0),
+//   sons_(), father_(0),
+//   //, sons_(node.sons_), father_(node.father_),
+//   distanceToFather_(0), nodeProperties_(), branchProperties_()
+// {
+//   name_             = pn.hasName() ? new string(pn.getName()) : 0;
+//   const PhyloBranch* pb = pn.getBranch();
+  
+//   distanceToFather_ = pb->hasLength() ? new double(pb->getLength()) : 0;
+//   const vector<string>& pnProp = pn.getPropertyNames();
+
+//   for (vector<string>::const_iterator i = pnProp.begin(); i != pnProp.end(); i++)
+//     nodeProperties_[*i] = pn.getProperty(*i)->clone();
+
+//   const vector<string>& pbProp = pb->getPropertyNames();
+  
+//   for (vector<string>::const_iterator i = pbProp.begin(); i != pbProp.end(); i++)
+//     branchProperties_[*i] = pb->getProperty(*i)->clone();
+// }
+
 /** Assignation operator: *****************************************************/
 
 Node& Node::operator=(const Node & node)

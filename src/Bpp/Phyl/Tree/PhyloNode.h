@@ -42,9 +42,10 @@
 
 #include "PhyloTreeExceptions.h"
 
-#include "PhyloBranch.h"
-#include "PhyloTree.h"
+#include <Bpp/Clonable.h>
+#include <Bpp/Utils/MapTools.h>
 
+#include <memory>
 
 namespace bpp
 {
@@ -52,73 +53,36 @@ namespace bpp
   class PhyloNode
   {
   private:
-    // the tree this node is in
-    PhyloTree *phyloTree_;
-    
     // a name, if specified
     std::string name_;
     
     // Node properties
     mutable std::map<std::string, Clonable*> properties_;
-    
-    /**
-     * @brief Build a new void Node object.
-     * @param index the wanted index. If zero: the next available index
-     */
-    unsigned int setIndex_(unsigned int index = 0)
-    {
-      return phyloTree_->setNodeIndex(this,index);
-    }
-    
-    
+
     
   public:
     /**
      * @brief Build a new void Node object.
-     * @param tree 
      */
-    PhyloNode(PhyloTree *tree) :
-    phyloTree_(tree),
-    name_(""),
-    properties_()
+    PhyloNode() :
+      name_(""),
+      properties_()
     {
-    }
-    
-    /**
-     * @brief Build a new Node with specified id.
-     */
-    PhyloNode(PhyloTree *tree, unsigned int index) :
-    phyloTree_(tree),
-    name_(""),
-    properties_()
-    {
-      tree->setNodeIndex(this,index);
     }
     
     /**
      * @brief Build a new Node with specified name.
+     *
+     *
      */
-    PhyloNode(PhyloTree *tree, const std::string& name):
-    phyloTree_(tree),
-    name_(name),
-    properties_()
-    {}
-    
-    /**
-     * @brief Build a new Node with specified id and name.
-     */
-    PhyloNode(PhyloTree *tree,unsigned int index, const std::string& name) :
-    phyloTree_(tree),
+    PhyloNode(const std::string& name):
     name_(name),
     properties_()
     {
-      tree->setNodeIndex(this,index);
     }
     
     /**
      * @brief Copy constructor.
-     *
-     * @warning This constructor copies all fields, excepted father and son node pointers.
      *
      * @param node The node to copy.
      */
@@ -127,69 +91,25 @@ namespace bpp
     /**
      * @brief Assignation operator.
      *
-     * @warning This operator copies all fields, excepted father and son node pointers.
-     *
      * @param node the node to copy.
      * @return A reference toward this node.
      */
+
     PhyloNode& operator=(const PhyloNode& node);
     
     PhyloNode* clone() const { return new PhyloNode(*this); }
-    
+
+    /**
+     * @brief destructor.
+     *
+     */
+
     virtual ~PhyloNode()
     {
-      for (std::map<std::string, Clonable*>::iterator i = properties_.begin(); i != properties_.end(); i++)
-      {
-        delete i->second;
-      }
+      deleteProperties();
     }
     
   public:
-    /**
-     * @name Identity
-     *
-     * @{
-     */
-    
-    /**
-     * @brief Get the node's id.
-     *
-     * @return The identity tag of this node.
-     */
-
-    int getId() const { return phyloTree_->getNodeIndex(this); }
-    
-    /**
-     * @brief Set this node's id.
-     *
-     * @param id The new identity tag.
-     */
-
-    void setId(int id) { phyloTree_->setNodeIndex(this,id); }
-    
-    std::vector<int> getSonsId() const
-    {
-      std::vector<PhyloNode*> sons = getSons();
-      std::vector<int> sonsId(sons.size());
-      for (size_t i = 0; i < sons.size(); i++)
-      {
-        sonsId[i] = phyloTree_->getNodeIndex(sons[i]);
-      }
-      return sonsId;
-    }
-    
-    /**
-     * @brief Get the node leading to this branch.
-     */
-
-    PhyloBranch* getBranch() const
-    {
-        return phyloTree_->getBranchToFather(this);
-    }
-    
-    
-    /** @} */
-    
     /**
      * @name Name:
      *
@@ -238,152 +158,6 @@ namespace bpp
     bool hasName() const { return name_ != ""; }
     
     /** @} */
-    
-    /**
-     * @name Distances:
-     *
-     * @{
-     */
-    
-    /**
-     * @brief Get the distance to the father node is there is one,
-     * otherwise throw a NodeException.
-     *
-     * @return The distance to the father node.
-     */
-
-    double getDistanceToFather() const
-    {
-      if (!phyloTree_->isRooted())
-        throw PhyloNodePException("PhyloNode::getDistanceToFather: unRooted tree has no father.", this);
-      return getBranch()->getLength();
-    }
-    
-    /**
-     * @brief Set or update the distance toward the father node.
-     *
-     * Warning: a distance to the father node may be set even if no father node is specified.
-     * This is used by several tree reconstruction methods.
-     * It may also be useful for manipulating subtrees.
-     *
-     * @param distance The new distance to the father node.
-     */
-
-    void setDistanceToFather(double distance)
-    {
-      phyloTree_->getBranchToFather(this)->setLength(distance);
-    }
-    
-    /**
-     * @brief Delete the distance to the father node.
-     */
-
-    void deleteDistanceToFather()
-    {
-      phyloTree_->getBranchToFather(this)->deleteLength();
-    }
-    
-    /**
-     * @brief Tell is this node has a distance to the father.
-     *
-     * @return True if distanceToFather != 0.
-     */
-
-    bool hasDistanceToFather() const
-    {
-      return phyloTree_->getBranchToFather(this)->hasLength();
-    }
-    
-    /** @} */
-    
-    /**
-     * @name Father:
-     *
-     * @{
-     */
-    
-    /**
-     * @brief Get the father of this node is there is one.
-     *
-     * @return A pointer toward the father node, 0 if there is not.
-     */
-
-    const PhyloNode* getFather() const { return phyloTree_->getFather(this); }
-    
-    /**
-     * @brief Get the father of this node is there is one.
-     *
-     * @return A pointer toward the father node, 0 if there is not.
-     */
-
-    PhyloNode* getFather() { return phyloTree_->getFather(this); }
-    
-    int getFatherId() const { return phyloTree_->getNodeIndex(phyloTree_->getFather(this)); }
-    
-    /**
-     * @brief Set the father node of this node.
-     *
-     * @param node The father node.
-     */
-
-    void setFather(PhyloNode* node) 
-    {
-      if (!node)
-        throw NullPointerException("Node::setFather(). Empty node given as input.");
-      phyloTree_->setFather(this,node);
-    }
-    
-
-    /**
-     * @brief Tell if this node has a father node.
-     */
-
-    bool hasFather() const { return phyloTree_->hasFather(this); }
-    
-    /** @} */
-    
-    /**
-     * @name Sons:
-     *
-     * @{
-     */
-
-    size_t getNumberOfSons() const { return phyloTree_->getNumberOfSons(this); }
-    
-    std::vector<PhyloNode*> getSons() const
-    {
-      return phyloTree_->getSons(this);
-    }
-    
-    void addSon(PhyloNode* node) 
-    {
-      if (!node)
-        throw NullPointerException("Node::addSon(). Empty node given as input.");
-      phyloTree_->addSon(this,node);
-    }
-    
-    void removeSon(PhyloNode* node) 
-    {
-      if (!node)
-        throw NullPointerException("Node::removeSon(). Empty node given as input.");
-      phyloTree_->addSon(this,node);
-    }
-    
-    void removeSons()
-    {
-      phyloTree_->removeSons(this);
-    }
-            
-    /** @} */
-    
-    // These functions must not be declared as virtual!!
-    
-    std::vector<const PhyloNode*> getNeighbors() const;
-    
-    std::vector<PhyloNode*> getNeighbors();
-    
-    size_t degree() const { return phyloTree_->getNeighbors(const_cast<PhyloNode*>(this)).size();} //FIXME: to replace by a GetDegree function.
-    
     
     /**
      * @name Node properties:
@@ -474,147 +248,6 @@ namespace bpp
     
     std::vector<std::string> getPropertyNames() const { return MapTools::getKeys(properties_); }
     /** @} */
-
-    /**
-     * The following is for backward compatibility
-     *
-     * @{
-     */
-    
-    /**
-     * @name Node properties:
-     *
-     * @{
-     */
-    
-    void setNodeProperty(const std::string& name, const Clonable& property)
-    {
-      setProperty(name, property);
-    }
-    
-    Clonable* getNodeProperty(const std::string& name) 
-    {
-      return getProperty(name);
-    }
-    
-    const Clonable* getNodeProperty(const std::string& name) const 
-    {
-      return getProperty(name);
-    }
-    
-    Clonable* removeNodeProperty(const std::string& name) 
-    {
-      return removeProperty(name);
-    }
-    
-    void deleteNodeProperty(const std::string& name) 
-    {
-      deleteProperty(name);
-    }
-    
-    /**
-     * @brief Remove all node properties.
-     *
-     * Attached objects will not be deleted.
-     */
-    void removeNodeProperties()
-    {
-      removeProperties();
-    }
-    
-    /**
-     * @brief Delete all node properties.
-     */
-    void deleteNodeProperties()
-    {
-      deleteProperties();
-    }
-    
-    bool hasNodeProperty(const std::string& name) const { return hasProperty(name); }
-    
-    std::vector<std::string> getNodePropertyNames() const { return getPropertyNames(); }
-    
-    /** @} */
-    
-    /**
-     * @name Branch properties:
-     *
-     * @{
-     */
-    
-    /**
-     * @brief Set/add a branch property.
-     *
-     * If no property with the same name is found, the new property will be added to the list.
-     * Conversely, the property will be deleted and replaced by the new one.
-     * If you want to keep a copy of the old property, consider using the removeBranchProperty function before.
-     *
-     * @param name The name of the property to set.
-     * @param property The property object (will be cloned).
-     */
-    void setBranchProperty(const std::string& name, const Clonable& property)
-    {
-      getBranch()->setProperty(name, property);
-    }
-    
-    Clonable* getBranchProperty(const std::string& name) 
-    {
-      return getBranch()->getProperty(name);
-    }
-    
-    const Clonable* getBranchProperty(const std::string& name) const 
-    {
-      return getBranch()->getProperty(name);
-    }
-    
-    Clonable* removeBranchProperty(const std::string& name) 
-    {
-      return getBranch()->removeProperty(name);
-    }
-    
-    void deleteBranchProperty(const std::string& name) 
-    {
-      getBranch()->deleteProperty(name);
-    }
-    
-    /**
-     * @brief Remove all branch properties.
-     *
-     * Attached objects will not be deleted.
-     */
-    void removeBranchProperties()
-    {
-      getBranch()->removeProperties();
-    }
-    
-    /**
-     * @brief Delete all branch properties.
-     */
-    void deleteBranchProperties()
-    {
-      getBranch()->deleteProperties();
-    }
-    
-    bool hasBranchProperty(const std::string& name) const { return getBranch()->hasProperty(name); }
-    
-    std::vector<std::string> getBranchPropertyNames() const { return getBranch()->getPropertyNames(); }
-    
-    bool hasBootstrapValue() const;
-    
-    double getBootstrapValue() const;
-    
-    /** @} */
-
-    /** @} */
-    
-    /** Equality operator: */
-    
-    bool operator==(const PhyloNode& node) const { return phyloTree_->getNodeGraphid(this) == phyloTree_->getNodeGraphid(&node); }
-    
-    // Tests:
-    
-    bool isLeaf() const { return (phyloTree_->getOutgoingNeighbors(this).size() == 0); }
-    
     
   }; //end of class node 
   

@@ -42,6 +42,7 @@
 
 #include "IoTree.h"
 #include "../Tree/TreeTemplate.h"
+#include "../Tree/PhyloTree.h"
 
 namespace bpp
 {
@@ -108,7 +109,7 @@ namespace bpp
       allowComments_(allowComments),
       writeId_(writeId),
       useBootstrap_(true),
-      bootstrapPropertyName_(TreeTools::BOOTSTRAP),
+      bootstrapPropertyName_("bootstrap"),
       verbose_(verbose) {}
 
     virtual ~Newick() {}
@@ -123,7 +124,7 @@ namespace bpp
     void disableExtendedBootstrapProperty()
     {
       useBootstrap_ = true;
-      bootstrapPropertyName_ = TreeTools::BOOTSTRAP;
+      bootstrapPropertyName_ = "bootstrap";
     }
 
     /**
@@ -141,25 +142,50 @@ namespace bpp
      * @{
      */    
 
-    TreeTemplate<Node>* read(const std::string& path) const throw (Exception)
+    TreeTemplate<Node>* read(const std::string& path) const
     {
       return dynamic_cast<TreeTemplate<Node>*>(AbstractITree::read(path));
     }
     
-    TreeTemplate<Node>* read(std::istream& in) const throw (Exception);
-    /** @} */
+    TreeTemplate<Node>* read(std::istream& in) const;
+
+    PhyloTree* readP(const std::string& path) const
+    {
+      return AbstractITree::readP(path);
+    }
+    
+    PhyloTree* readP(std::istream& in) const;
+
+  private:
+    
+    std::shared_ptr<PhyloNode> parenthesisToNode(PhyloTree& tree, std::shared_ptr<PhyloNode> father, const std::string& description, unsigned int& nodeCounter, bool bootstrap, const std::string& propertyName, bool withId, bool verbose) const;
+    
+    PhyloTree* parenthesisToPhyloTree(const std::string& description, bool bootstrap, const std::string& propertyName, bool withId, bool verbose) const;
+    
+
+/** @} */
 
     /**
      * @name The OTree interface
      *
      * @{
      */
-    void write(const Tree& tree, const std::string& path, bool overwrite = true) const throw (Exception)
+
+  public:
+    void write(const Tree& tree, const std::string& path, bool overwrite = true) const
+    {
+      AbstractOTree::write(tree, path, overwrite);
+    }
+    void write(const PhyloTree& tree, const std::string& path, bool overwrite = true) const
     {
       AbstractOTree::write(tree, path, overwrite);
     }
     
-    void write(const Tree& tree, std::ostream& out) const throw (Exception)
+    void write(const Tree& tree, std::ostream& out) const
+    {
+      write_(tree, out);
+    }
+    void write(const PhyloTree& tree, std::ostream& out) const
     {
       write_(tree, out);
     }
@@ -170,12 +196,18 @@ namespace bpp
      *
      * @{
      */
-    void read(const std::string& path, std::vector<Tree*>& trees) const throw (Exception)
+    void read(const std::string& path, std::vector<Tree*>& trees) const
     {
       AbstractIMultiTree::read(path, trees);
     }
-    void read(std::istream& in, std::vector<Tree*>& trees) const throw (Exception);
-    /**@}*/
+    void read(std::istream& in, std::vector<Tree*>& trees) const;
+
+    void read(const std::string& path, std::vector<PhyloTree*>& trees) const
+    {
+      AbstractIMultiTree::read(path, trees);
+    }
+    void read(std::istream& in, std::vector<PhyloTree*>& trees) const;
+/**@}*/
 
     /**
      * @name The OMultiTree interface
@@ -183,27 +215,98 @@ namespace bpp
      * @{
      */
 
-    void write(const std::vector<const Tree*>& trees, const std::string& path, bool overwrite = true) const throw (Exception)
+    void write(const std::vector<const Tree*>& trees, const std::string& path, bool overwrite = true) const
     {
       AbstractOMultiTree::write(trees, path, overwrite);
     }
-    void write(const std::vector<const Tree*>& trees, std::ostream& out) const throw (Exception)
+
+    void write(const std::vector<const Tree*>& trees, std::ostream& out) const
+    {
+      write_(trees, out);
+    }
+
+    void write(const std::vector<const PhyloTree*>& trees, const std::string& path, bool overwrite = true) const
+    {
+      AbstractOMultiTree::write(trees, path, overwrite);
+    }
+    
+    void write(const std::vector<const PhyloTree*>& trees, std::ostream& out) const
     {
       write_(trees, out);
     }
     /** @} */
 
   protected:
-    void write_(const Tree& tree, std::ostream& out) const throw (Exception);
-    
-    template<class N>
-    void write_(const TreeTemplate<N>& tree, std::ostream& out) const throw (Exception);
-		
-    void write_(const std::vector<const Tree*>& trees, std::ostream& out) const throw (Exception);
-    
-    template<class N>
-    void write_(const std::vector<TreeTemplate<N>*>& trees, std::ostream& out) const throw (Exception);
+    void write_(const Tree& tree, std::ostream& out) const;
 
+    void write_(const PhyloTree& tree, std::ostream& out) const;
+
+    template<class N>
+    void write_(const TreeTemplate<N>& tree, std::ostream& out) const;
+		
+    void write_(const std::vector<const Tree*>& trees, std::ostream& out) const;
+
+    void write_(const std::vector<const PhyloTree*>& trees, std::ostream& out) const;
+
+    template<class N>
+    void write_(const std::vector<TreeTemplate<N>*>& trees, std::ostream& out) const;
+
+    AbstractITree::Element getElement(const std::string& elt) const;
+    
+/**
+ * @brief Get the Newick description of a subtree.
+ *
+ * @param tree The tree to convert.
+ * @param node The top of the subtree to convert.
+ * @param writeId Tells if node ids must be printed.
+ *                This will overwrite bootstrap values if there are ones.
+ *                Leaves id will be added to the leave names, separated by a '_' character.
+ * @return A string in the parenthesis format.
+ */
+
+    std::string nodeToParenthesis(const PhyloTree& tree, std::shared_ptr<PhyloNode> node, bool writeId = false) const;
+
+/*        * @brief Get the parenthesis description of a subtree.
+ *
+ * @param tree The tree
+ * @param node The node defining the subtree.
+ * @param bootstrap Tell is bootstrap values must be writen.
+ * If so, the content of the property with name "bootstrap" will be written as bootstrap value.
+ * The property should be a Number<double> object.
+ * Otherwise, the content of the property with name 'propertyName' will be written.
+ * In this later case, the property should be a String object.
+ * @param propertyName The name of the property to use. Only used if bootstrap = false.
+ * @return A string in the parenthesis format.
+ */
+
+    std::string nodeToParenthesis(const PhyloTree& tree, std::shared_ptr<PhyloNode> node, bool bootstrap, const std::string& propertyName) const;
+
+/**
+ * @brief Get the parenthesis description of a tree.
+ *
+ * @param tree The tree to convert.
+ * @param writeId Tells if node ids must be printed.
+ *                This will overwrite bootstrap values if there are ones.
+ *                Leaves id will be added to the leave names, separated by a '_' character.
+ * @return A string in the parenthesis format.
+ */
+
+    std::string treeToParenthesis(const PhyloTree& tree, bool writeId = false) const;
+
+/**
+ * @brief Get the parenthesis description of a tree.
+ *
+ * @param tree The tree to convert.
+ * @param bootstrap Tell is bootstrap values must be writen.
+ * If so, the content of the property with name "bootstrap" will be written as bootstrap value.
+ * The property should be a Number<double> object.
+ * Otherwise, the content of the property with name 'propertyName' will be written.
+ * In this later case, the property should be a String object.
+ * @param propertyName The name of the property to use. Only used if bootstrap = false.
+ * @return A string in the parenthesis format.
+ */
+    std::string treeToParenthesis(const PhyloTree& tree, bool bootstrap, const std::string& propertyName) const;
+    
   };
 
 } //end of namespace bpp.

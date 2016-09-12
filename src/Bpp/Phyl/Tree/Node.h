@@ -41,6 +41,7 @@
 #define _NODE_H_
 
 #include "TreeExceptions.h"
+#include "PhyloNode.h"
 
 #include <Bpp/Clonable.h>
 #include <Bpp/Utils/MapTools.h>
@@ -161,6 +162,8 @@ public:
    */
   Node(const Node& node);
 
+  Node(const PhyloNode& pn);
+  
   /**
    * @brief Assignation operator.
    *

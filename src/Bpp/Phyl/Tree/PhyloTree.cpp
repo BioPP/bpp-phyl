@@ -32,57 +32,115 @@ knowledge of the CeCILL license and that you accept its terms.
 */
 
 #include "PhyloTree.h"
-#include "PhyloBranch.h"
-#include "PhyloNode.h"
+// #include "PhyloBranch.h"
+// #include "PhyloNode.h"
 
 
 using namespace bpp;
 using namespace std;
 
-PhyloTree::PhyloTree(const Tree& tree) :
-  SimpleAssociationGraphObserver<PhyloNode,PhyloBranch,SimpleTreeGraph<SimpleGraph> >(tree.isRooted()),
-  SimpleAssociationTreeGraphObserver<PhyloNode,PhyloBranch,SimpleTreeGraph<SimpleGraph> >(tree.isRooted())
+PhyloTree::PhyloTree(bool rooted) :
+  SimpleAssociationGraphObserver<PhyloNode,PhyloBranch,SimpleTreeGraph<SimpleGraph> >(rooted),
+  SimpleAssociationTreeGraphObserver<PhyloNode,PhyloBranch,SimpleTreeGraph<SimpleGraph> >(rooted),
+  name_("")
 {
-  std::vector<int> vID = tree.getNodesId();
+}
 
-  // first sets the nodes
-  for (size_t i=0; i<vID.size();i++)
-  {
-    int nID=vID[i];
-    
-    PhyloNode* nN=new PhyloNode(this, nID, tree.getNodeName(nID));
 
-    vector<string> vPn=tree.getNodePropertyNames(nID);
-    for (size_t j=0; j<vPn.size();j++)
-    {
-      nN->setProperty(vPn[j], *tree.getNodeProperty(nID, vPn[j])->clone());
-    }
-    
-    createNode(nN);
-    
-    if (!tree.hasFather(nID))
-      setRoot(nN);
-    
-  }
+// PhyloTree::PhyloTree(const Tree& tree) :
+//   SimpleAssociationGraphObserver<PhyloNode,PhyloBranch,SimpleTreeGraph<SimpleGraph> >(tree.isRooted()),
+//   SimpleAssociationTreeGraphObserver<PhyloNode,PhyloBranch,SimpleTreeGraph<SimpleGraph> >(tree.isRooted()),
+//   name_(tree.getName())
+// {
+//   std::vector<int> vID = tree.getNodesId();
 
-  // then set the branches
-  for (size_t i=0; i<vID.size();i++)
-  {
-    int nID=vID[i];
-    if (!tree.hasFather(nID))
-      continue;
+//   // first sets the nodes
+//   for (size_t i=0; i<vID.size();i++)
+//   {
+//     int nID=vID[i];
     
-    PhyloBranch*nB = new PhyloBranch(tree.getDistanceToFather(nID));
+//     PhyloNode* nN=new PhyloNode(this, nID, tree.getNodeName(nID));
 
-    vector<string> vPn=tree.getBranchPropertyNames(nID);
-    for (size_t j=0; j<vPn.size();j++)
-    {
-      nB->setProperty(vPn[j], *tree.getBranchProperty(nID, vPn[j])->clone());
-    }
+//     vector<string> vPn=tree.getNodePropertyNames(nID);
+//     for (size_t j=0; j<vPn.size();j++)
+//     {
+//       nN->setProperty(vPn[j], *tree.getNodeProperty(nID, vPn[j])->clone());
+//     }
     
-    link(getNode(tree.getFatherId(nID)), getNode(nID),nB);
+//     createNode(nN);
     
-  }
+//     if (!tree.hasFather(nID))
+//       setRoot(nN);
+    
+//   }
+
+//   // then set the branches
+//   for (size_t i=0; i<vID.size();i++)
+//   {
+//     int nID=vID[i];
+//     if (!tree.hasFather(nID))
+//       continue;
+    
+//     PhyloBranch* nB = new PhyloBranch(this, nID, tree.getDistanceToFather(nID));
+
+//     vector<string> vPn=tree.getBranchPropertyNames(nID);
+//     for (size_t j=0; j<vPn.size();j++)
+//     {
+//       nB->setProperty(vPn[j], *tree.getBranchProperty(nID, vPn[j])->clone());
+//     }
+    
+//     link(getNode(tree.getFatherId(nID)), getNode(nID),nB);
+    
+//   }
   
+// }
+
+void PhyloTree::resetNodesId()
+{
+  std::vector<shared_ptr<PhyloNode> > nodes = getAllNodes();
+  for (unsigned int i = 0; i < nodes.size(); i++)
+  {
+    setNodeIndex(nodes[i], i);
+    
+    if (hasFather(nodes[i]))
+      setEdgeIndex(getEdgeToFather(nodes[i]),i);
+  }
+}
+
+std::vector<std::string> PhyloTree::getAllLeavesNames() const
+{
+  vector<string> vn;
+  
+  vector<shared_ptr<PhyloNode> > vpn=getAllLeaves();
+
+  for (vector<shared_ptr<PhyloNode> >::const_iterator it=vpn.begin(); it != vpn.end(); it++)
+    vn.push_back((*it)->getName());
+  
+  return vn;
+}
+
+void PhyloTree::scaleTree(shared_ptr<PhyloNode> node, double factor)
+{
+  vector<shared_ptr<PhyloBranch> > branches = getSubtreeEdges(node);
+  for (vector<shared_ptr<PhyloBranch> >::iterator currBranch = branches.begin(); currBranch != branches.end(); currBranch++)
+  {
+    if((*currBranch)->hasLength())
+      (*currBranch)->setLength((*currBranch)->getLength()*factor);
+    else
+      throw PhyloBranchPException("PhyloTree::scaleTree : undefined length", (*currBranch).get());
+  }
+}
+      
+void PhyloTree::scaleTree(double factor)
+{
+  scaleTree(getRoot(), factor);
+}
+
+void PhyloTree::setBranchLengths(double l)
+{
+  vector<shared_ptr<PhyloBranch> > vpn=getAllEdges();
+
+  for (vector<shared_ptr<PhyloBranch> >::const_iterator it=vpn.begin(); it != vpn.end(); it++)
+    (*it)->setLength(l);
 }
 

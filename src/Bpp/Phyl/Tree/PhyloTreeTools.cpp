@@ -1,5 +1,5 @@
 //
-// File: TreeTools.cpp
+// File: PhyloTreeTools.cpp
 // Created by: Julien Dutheil
 // Created on: Wed Aug  6 13:45:28 2003
 //
@@ -37,8 +37,8 @@
    knowledge of the CeCILL license and that you accept its terms.
  */
 
-#include "TreeTools.h"
-#include "Tree.h"
+#include "PhyloTreeTools.h"
+
 #include "BipartitionTools.h"
 #include "../Model/Nucleotide/JCnuc.h"
 #include "../Distance/DistanceEstimation.h"
@@ -67,47 +67,15 @@ using namespace bpp;
 
 using namespace std;
 
+/******************************************************************************/
 
-
-const string TreeTools::BOOTSTRAP = "bootstrap";
-
-/*
-
-vector<int> TreeTools::getLeavesId(const PhyloTree& tree, PhyloNode* node) throw (NodeNotFoundException)
-{
-  vector<int> leaves;
-  getLeavesId(tree, node, leaves);
-  return leaves;
-}
-
-void TreeTools::getLeavesId(const PhyloTree& tree, PhyloNode* node, std::vector<int>& leaves) throw (NodeNotFoundException)
-{
-  if (!tree.hasNode(nodeId))
-    throw NodeNotFoundException("TreeTools::getLeavesId", nodeId);
-  if (tree.isLeaf(nodeId))
-  {
-    leaves.push_back(nodeId);
-  }
-  vector<int> sons = tree.getSonsId(nodeId);
-  for (size_t i = 0; i < sons.size(); i++)
-{
-    getLeavesId(tree, sons[i], leaves);
-  }
-}*/
-
-size_t TreeTools::getNumberOfLeaves(const PhyloTree& tree, PhyloTree::NodeIndex node) throw (NodeNotFoundException)
-{
-  return tree->getNumberOfLeaves(node);
-}
-
-
-// int TreeTools::getLeafId(const PhyloTree& tree, PhyloTree::NodeIndex nodeIndex, const std::string& name)
+// int PhyloTreeTools::getLeafId(const PhyloTree& tree, PhyloTree::NodeIndex nodeIndex, const std::string& name)
 // throw (NodeNotFoundException)
 // {
 //   int* id = NULL;
 //   searchLeaf(tree, nodeId, name, id);
 //   if (id == NULL)
-//     throw NodeNotFoundException("TreeTools::getLeafId().", name);
+//     throw PhyloNodeNotFoundException("PhyloTreeTools::getLeafId().", name);
 //   else
 //   {
 //     int i = *id;
@@ -116,7 +84,7 @@ size_t TreeTools::getNumberOfLeaves(const PhyloTree& tree, PhyloTree::NodeIndex 
 //   }
 // }
 // 
-// void TreeTools::searchLeaf(const PhyloTree& tree, PhyloTree::NodeIndex nodeIndex, const string& name, int*& id)
+// void PhyloTreeTools::searchLeaf(const PhyloTree& tree, PhyloTree::NodeIndex nodeIndex, const string& name, int*& id)
 // throw (NodeNotFoundException)
 // {
 //   if (tree.isLeaf(nodeId))
@@ -136,938 +104,691 @@ size_t TreeTools::getNumberOfLeaves(const PhyloTree& tree, PhyloTree::NodeIndex 
 // 
 
 
-vector<PhyloTree::NodeIndex> TreeTools::getNodesId(const PhyloTree& tree, PhyloTree::NodeIndex nodeIndex) throw (NodeNotFoundException)
+// size_t PhyloTreeTools::getDepth(const PhyloTree& tree, PhyloTree::NodeIndex nodeIndex) throw (NodeNotFoundException)
+// {
+//   //TODO must check if node exists
+// //   if (!tree.hasNode(nodeId))
+// //     throw PhyloNodeNotFoundException("PhyloTreeTools::getDepth", nodeId);
+//   size_t d = 0;
+//   vector<int> sons = tree.getSons(nodeId);
+//   for (size_t i = 0; i < sons.size(); i++)
+//   {
+//     size_t c = getDepth(tree, sons[i]) + 1;
+//     if (c > d)
+//       d = c;
+//   }
+//   return d;
+// }
+
+
+
+// size_t PhyloTreeTools::getDepths(const PhyloTree& tree, PhyloTree::NodeIndex nodeIndex, map<int, size_t>& depths) throw (NodeNotFoundException)
+// {
+// //   if (!tree.hasNode(nodeId))
+// //     throw PhyloNodeNotFoundException("PhyloTreeTools::getDepth", nodeId);
+//   size_t d = 0;
+//   vector<int> sons = tree.getSonsId(nodeId);
+//   for (size_t i = 0; i < sons.size(); i++)
+//   {
+//     size_t c = getDepths(tree, sons[i], depths) + 1;
+//     if (c > d)
+//       d = c;
+//   }
+//   depths[nodeId] = d;
+//   return d;
+// }
+
+
+
+double PhyloTreeTools::getHeight(const PhyloTree& tree, const shared_ptr<PhyloNode> node) 
 {
-  return tree.getSubtreeNodes(getNode(nodeIndex))
-}
-
-
-size_t TreeTools::getDepth(const PhyloTree& tree, PhyloTree::NodeIndex nodeIndex) throw (NodeNotFoundException)
-{
-  //TODO must check if node exists
-//   if (!tree.hasNode(nodeId))
-//     throw NodeNotFoundException("TreeTools::getDepth", nodeId);
-  size_t d = 0;
-  vector<int> sons = tree.getSons(nodeId);
-  for (size_t i = 0; i < sons.size(); i++)
-  {
-    size_t c = getDepth(tree, sons[i]) + 1;
-    if (c > d)
-      d = c;
-  }
-  return d;
-}
-
-
-
-size_t TreeTools::getDepths(const PhyloTree& tree, PhyloTree::NodeIndex nodeIndex, map<int, size_t>& depths) throw (NodeNotFoundException)
-{
-//   if (!tree.hasNode(nodeId))
-//     throw NodeNotFoundException("TreeTools::getDepth", nodeId);
-  size_t d = 0;
-  vector<int> sons = tree.getSonsId(nodeId);
-  for (size_t i = 0; i < sons.size(); i++)
-  {
-    size_t c = getDepths(tree, sons[i], depths) + 1;
-    if (c > d)
-      d = c;
-  }
-  depths[nodeId] = d;
-  return d;
-}
-
-
-
-double TreeTools::getHeight(const PhyloTree& tree, PhyloTree::NodeIndex nodeIndex) throw (NodeNotFoundException, NodeException)
-{
-  if (!tree.hasNode(nodeId))
-    throw NodeNotFoundException("TreeTools::getHeight", nodeId);
   double d = 0;
-  vector<int> sons = tree.getSonsId(nodeId);
-  for (size_t i = 0; i < sons.size(); i++)
+
+  vector<shared_ptr<PhyloBranch> > edges = tree.getOutgoingEdges(node);
+  for (size_t i = 0; i < edges.size(); i++)
   {
     double dist = 0;
-    if (tree.hasDistanceToFather(sons[i]))
-      dist = tree.getDistanceToFather(sons[i]);
+    if (edges[i]->hasLength())
+      dist = edges[i]->getLength();
     else
-      throw NodeException("Node without branch length.", sons[i]);
-    double c = getHeight(tree, sons[i]) + dist;
+      throw PhyloBranchPException("Branch without length.", edges[i].get());
+
+    double c = getHeight(tree, get<1>(tree.getNodes(edges[i]))) + dist;
     if (c > d)
       d = c;
   }
+
   return d;
 }
 
 
 
-double TreeTools::getHeights(const PhyloTree& tree, PhyloTree::NodeIndex nodeIndex, map<int, double>& heights) throw (NodeNotFoundException, NodeException)
+// double PhyloTreeTools::getHeights(const PhyloTree& tree, PhyloTree::NodeIndex nodeIndex, map<int, double>& heights) throw (NodeNotFoundException, PhyloNodeException)
+// {
+//   if (!tree.hasNode(nodeId))
+//     throw PhyloNodeNotFoundException("PhyloTreeTools::getHeight", nodeId);
+//   double d = 0;
+//   vector<int> sons = tree.getSonsId(nodeId);
+//   for (size_t i = 0; i < sons.size(); i++)
+//   {
+//     double dist = 0;
+//     if (tree.hasDistanceToFather(sons[i]))
+//       dist = tree.getDistanceToFather(sons[i]);
+//     else
+//       throw PhyloNodeException("Node without branch length.", sons[i]);
+//     double c = getHeights(tree, sons[i], heights) + dist;
+//     if (c > d)
+//       d = c;
+//   }
+//   heights[nodeId] = d;
+//   return d;
+// }
+
+
+
+// // double PhyloTreeTools::getDistanceBetweenAnyTwoNodes(const PhyloTree& tree, PhyloTree::NodeIndex nodeIndex1, PhyloTree::NodeIndex nodeIndex2)
+// // {
+// //   std::vector<PhyloEdge*> edgePath = tree->getEdgePathBetweenTwoNodes(nodeId1,nodeId2);
+// //   double d = 0;
+// //   for (std::vector<PhyloEdge*>::iterator currBranch = edgePath.begin(); currBranch != edgePath.end(); currBranch++)
+// //   {
+// //     d += (*currBranch)->getLength();
+// //   }
+// //   return d;
+// // }
+
+
+
+// Vdouble PhyloTreeTools::getBranchLengths(const PhyloTree& tree, PhyloTree::NodeIndex nodeIndex) throw (NodeNotFoundException, PhyloNodeException)
+// {
+//   if (!tree.hasNode(nodeId))
+//     throw PhyloNodeNotFoundException("PhyloTreeTools::getBranchLengths", nodeId);
+//   Vdouble brLen(1);
+//   if (tree.hasDistanceToFather(nodeId))
+//     brLen[0] = tree.getDistanceToFather(nodeId);
+//   else
+//     throw PhyloNodeException("PhyloTreeTools::getbranchLengths(). No branch length.", nodeId);
+//   vector<int> sons = tree.getSonsId(nodeId);
+//   for (size_t i = 0; i < sons.size(); i++)
+//   {
+//     Vdouble sonBrLen = getBranchLengths(tree, sons[i]);
+//     for (size_t j = 0; j < sonBrLen.size(); j++)
+//     {
+//       brLen.push_back(sonBrLen[j]);
+//     }
+//   }
+//   return brLen;
+// }
+
+
+
+// double PhyloTreeTools::getTotalLength(const PhyloTree& tree, PhyloTree::NodeIndex nodeIndex, bool includeAncestor) throw (NodeNotFoundException, PhyloNodeException)
+// {
+//   if (!tree.hasNode(nodeId))
+//     throw PhyloNodeNotFoundException("PhyloTreeTools::getTotalLength", nodeId);
+//   if (includeAncestor && !tree.hasDistanceToFather(nodeId))
+//     throw PhyloNodeException("PhyloTreeTools::getTotalLength(). No branch length.", nodeId);
+//   double length = includeAncestor ? tree.getDistanceToFather(nodeId) : 0;
+//   vector<int> sons = tree.getSonsId(nodeId);
+//   for (size_t i = 0; i < sons.size(); i++)
+//   {
+//     length += getTotalLength(tree, sons[i], true);
+//   }
+//   return length;
+// }
+
+
+
+// void PhyloTreeTools::setBranchLengths(PhyloTree& tree, shared_ptr<PhyloNode>  node, double brLen) throw (NodeNotFoundException)
+// {
+//   vector<PhyloBranch*> branches = tree->getSubtreeEdges(node);
+//   for (vector<PhyloBranch*>::iterator currBranch = branches.begin(); currBranch != branches.end(); currBranch++)
+//   {
+//     (*currBranch)->setLenght(brLen);
+//   }
+// }
+
+
+
+// void PhyloTreeTools::setVoidBranchLengths(PhyloTree& tree, shared_ptr<PhyloNode>  node, double brLen) throw (NodeNotFoundException)
+// {
+//  vector<PhyloBranch*> branches = tree->getSubtreeEdges(node);
+//   for (vector<PhyloBranch*>::iterator currBranch = branches.begin(); currBranch != branches.end(); currBranch++)
+//   {
+//     if(!(*currBranch)->hasLength())
+//       (*currBranch)->setLenght(brLen);
+//   }
+// }
+
+
+
+size_t PhyloTreeTools::initBranchLengthsGrafen(PhyloTree& tree, shared_ptr<PhyloNode> node)
 {
-  if (!tree.hasNode(nodeId))
-    throw NodeNotFoundException("TreeTools::getHeight", nodeId);
-  double d = 0;
-  vector<int> sons = tree.getSonsId(nodeId);
+  vector<shared_ptr<PhyloNode> > sons = tree.getSons(node);
+  vector<size_t> h(sons.size());
   for (size_t i = 0; i < sons.size(); i++)
   {
-    double dist = 0;
-    if (tree.hasDistanceToFather(sons[i]))
-      dist = tree.getDistanceToFather(sons[i]);
+    h[i] = initBranchLengthsGrafen(tree, sons[i]);
+  }
+  size_t thish = sons.size() == 0 ? 0 : VectorTools::sum<size_t>(h) + sons.size() - 1;
+  for (size_t i = 0; i < sons.size(); i++)
+  {
+    tree.getEdgeToFather(sons[i])->setLength((double)(thish - h[i]));
+  }
+  return thish;
+}
+
+
+void PhyloTreeTools::initBranchLengthsGrafen(PhyloTree& tree)
+{
+  initBranchLengthsGrafen(tree, tree.getRoot());
+}
+
+void PhyloTreeTools::computeBranchLengthsGrafen(
+  PhyloTree& tree,
+  shared_ptr<PhyloNode> node,
+  double power,
+  double total,
+  double& height,
+  double& heightRaised)
+{
+  vector<shared_ptr<PhyloNode> > sons = tree.getSons(node);
+  vector<double> hr(sons.size());
+  height = 0;
+  for (size_t i = 0; i < sons.size(); i++)
+  {
+    shared_ptr<PhyloBranch> branch=tree.getEdgeToFather(sons[i]);
+    
+    if (branch->hasLength())
+    {
+      double h;
+      computeBranchLengthsGrafen(tree, sons[i], power, total, h, hr[i]);
+      double d = h + branch->getLength();
+      if (d > height)
+        height = d;
+    }
     else
-      throw NodeException("Node without branch length.", sons[i]);
-    double c = getHeights(tree, sons[i], heights) + dist;
-    if (c > d)
-      d = c;
+      throw PhyloBranchPException ("PhyloTreeTools::computeBranchLengthsGrafen. Branch length lacking.", branch.get());
   }
-  heights[nodeId] = d;
-  return d;
+  heightRaised = pow(height / total, power) * total;
+  for (size_t i = 0; i < sons.size(); i++)
+  {
+    tree.getEdgeToFather(sons[i])->setLength(heightRaised - hr[i]);
+  }
 }
 
 
-
-string TreeTools::nodeToParenthesis(const PhyloTree& tree, PhyloTree::NodeIndex nodeIndex, bool writeId) throw (NodeNotFoundException)
+void PhyloTreeTools::computeBranchLengthsGrafen(PhyloTree& tree, double power, bool init)
 {
-  if (!tree.hasNode(nodeId))
-    throw NodeNotFoundException("TreeTools::nodeToParenthesis", nodeId);
-  ostringstream s;
-  if (tree.isLeaf(nodeId))
+  shared_ptr<PhyloNode>  root = tree.getRoot();
+  if (init)
   {
-    s << tree.getNodeName(nodeId);
+    initBranchLengthsGrafen(tree);
   }
-  else
-  {
-    s << "(";
-    vector<int> sonsId = tree.getSonsId(nodeId);
-    s << nodeToParenthesis(tree, sonsId[0], writeId);
-    for (size_t i = 1; i < sonsId.size(); i++)
-    {
-      s << "," << nodeToParenthesis(tree, sonsId[i], writeId);
-    }
-    s << ")";
-  }
-  if (writeId)
-  {
-    if (tree.isLeaf(nodeId))
-      s << "_";
-    s << nodeId;
-  }
-  else
-  {
-    if (tree.hasBranchProperty(nodeId, BOOTSTRAP))
-      s << (dynamic_cast<const Number<double>*>(tree.getBranchProperty(nodeId, BOOTSTRAP))->getValue());
-  }
-  if (tree.hasDistanceToFather(nodeId))
-    s << ":" << tree.getDistanceToFather(nodeId);
-  return s.str();
+  // Scale by total heigth:
+  double totalHeight = getHeight(tree, root);
+  double h, hr;
+  computeBranchLengthsGrafen(tree, root, power, totalHeight, h, hr);
 }
 
-
-
-string TreeTools::nodeToParenthesis(const PhyloTree& tree, PhyloTree::NodeIndex nodeIndex, bool bootstrap, const string& propertyName) throw (NodeNotFoundException)
+double PhyloTreeTools::convertToClockTree(PhyloTree& tree, shared_ptr<PhyloNode> node)
 {
-  if (!tree.hasNode(nodeId))
-    throw NodeNotFoundException("TreeTools::nodeToParenthesis", nodeId);
-  ostringstream s;
-  if (tree.isLeaf(nodeId))
-  {
-    s << tree.getNodeName(nodeId);
-  }
-  else
-  {
-    s << "(";
-    vector<int> sonsId = tree.getSonsId(nodeId);
-    s << nodeToParenthesis(tree, sonsId[0], bootstrap, propertyName);
-    for (size_t i = 1; i < sonsId.size(); i++)
-    {
-      s << "," << nodeToParenthesis(tree, sonsId[i], bootstrap, propertyName);
-    }
-    s << ")";
+  vector<shared_ptr<PhyloNode> > sons = tree.getSons(node);
 
-    if (bootstrap)
+  vector<double> h(sons.size());
+  // We compute the mean height:
+  double l = 0;
+  double maxh = -1.;
+  for (size_t i = 0; i < sons.size(); i++)
+  {
+    shared_ptr<PhyloBranch> branch=tree.getEdgeToFather(sons[i]);
+
+    if (branch->hasLength())
     {
-      if (tree.hasBranchProperty(nodeId, BOOTSTRAP))
-        s << (dynamic_cast<const Number<double>*>(tree.getBranchProperty(nodeId, BOOTSTRAP))->getValue());
+      h[i] = convertToClockTree(tree, sons[i]);
+      if (h[i] > maxh)
+        maxh = h[i];
+      l += h[i] + branch->getLength();
     }
     else
-    {
-      if (tree.hasBranchProperty(nodeId, propertyName))
-        s << *(dynamic_cast<const BppString*>(tree.getBranchProperty(nodeId, propertyName)));
-    }
+      throw PhyloBranchPException ("PhyloTreeTools::convertToClockTree. Branch length lacking.", branch.get());
   }
-  if (tree.hasDistanceToFather(nodeId))
-    s << ":" << tree.getDistanceToFather(nodeId);
-  return s.str();
-}
-
-
-
-string TreeTools::treeToParenthesis(const PhyloTree& tree, bool writeId)
-{
-  ostringstream s;
-  s << "(";
-  int rootId = tree.getRootId();
-  vector<int> sonsId = tree.getSonsId(rootId);
-  if (tree.isLeaf(rootId))
-  {
-    s << tree.getNodeName(rootId);
-    for (size_t i = 0; i < sonsId.size(); i++)
-    {
-      s << "," << nodeToParenthesis(tree, sonsId[i], writeId);
-    }
-  }
-  else
-  {
-    if (sonsId.size() > 0)
-    {
-      s << nodeToParenthesis(tree, sonsId[0], writeId);
-      for (size_t i = 1; i < sonsId.size(); i++)
-      {
-        s << "," << nodeToParenthesis(tree, sonsId[i], writeId);
-      }
-    }
-    // Otherwise, this is an empty tree!
-  }
-  s << ");" << endl;
-  return s.str();
-}
-
-
-
-string TreeTools::treeToParenthesis(const PhyloTree& tree, bool bootstrap, const string& propertyName)
-{
-  ostringstream s;
-  s << "(";
-  int rootId = tree.getRootId();
-  vector<int> sonsId = tree.getSonsId(rootId);
-  if (tree.isLeaf(rootId))
-  {
-    s << tree.getNodeName(rootId);
-    for (size_t i = 0; i < sonsId.size(); i++)
-    {
-      s << "," << nodeToParenthesis(tree, sonsId[i], bootstrap, propertyName);
-    }
-  }
-  else
-  {
-    s << nodeToParenthesis(tree, sonsId[0], bootstrap, propertyName);
-    for (size_t i = 1; i < sonsId.size(); i++)
-    {
-      s << "," << nodeToParenthesis(tree, sonsId[i], bootstrap, propertyName);
-    }
-  }
-  s << ")";
-  if (bootstrap)
-  {
-    if (tree.hasBranchProperty(rootId, BOOTSTRAP))
-      s << (dynamic_cast<const Number<double>*>(tree.getBranchProperty(rootId, BOOTSTRAP))->getValue());
-  }
-  else
-  {
-    if (tree.hasBranchProperty(rootId, propertyName))
-      s << *(dynamic_cast<const BppString*>(tree.getBranchProperty(rootId, propertyName)));
-  }
-  s << ";" << endl;
-  return s.str();
-}
-
-
-
-vector<int> TreeTools::getPathBetweenAnyTwoNodes(const PhyloTree& tree, PhyloNode& nodeId1, PhyloNode& nodeId2, bool includeAncestor)
-throw (NodeNotFoundException)
-{
-  return tree->getNodePathBetweenTwoNodes(nodeId1, nodeId2, includeAncestor);
-}
-
-
-
-double TreeTools::getDistanceBetweenAnyTwoNodes(const PhyloTree& tree, PhyloTree::NodeIndex nodeIndex1, PhyloTree::NodeIndex nodeIndex2)
-{
-  std::vector<PhyloEdge*> edgePath = tree->getEdgePathBetweenTwoNodes(nodeId1,nodeId2);
-  double d = 0;
-  for (std::vector<PhyloEdge*>::iterator currBranch = edgePath.begin(); currBranch != edgePath.end(); currBranch++)
-  {
-    d += (*currBranch)->getLength();
-  }
-  return d;
-}
-
-
-
-Vdouble TreeTools::getBranchLengths(const PhyloTree& tree, PhyloTree::NodeIndex nodeIndex) throw (NodeNotFoundException, NodeException)
-{
-  if (!tree.hasNode(nodeId))
-    throw NodeNotFoundException("TreeTools::getBranchLengths", nodeId);
-  Vdouble brLen(1);
-  if (tree.hasDistanceToFather(nodeId))
-    brLen[0] = tree.getDistanceToFather(nodeId);
-  else
-    throw NodeException("TreeTools::getbranchLengths(). No branch length.", nodeId);
-  vector<int> sons = tree.getSonsId(nodeId);
+  if (sons.size() > 0)
+    l /= (double)sons.size();
+  if (l < maxh)
+    l = maxh;
   for (size_t i = 0; i < sons.size(); i++)
   {
-    Vdouble sonBrLen = getBranchLengths(tree, sons[i]);
-    for (size_t j = 0; j < sonBrLen.size(); j++)
-    {
-      brLen.push_back(sonBrLen[j]);
-    }
+    tree.getEdgeToFather(sons[i])->setLength(l - h[i]);
   }
-  return brLen;
+  return l;
 }
 
 
 
-double TreeTools::getTotalLength(const PhyloTree& tree, PhyloTree::NodeIndex nodeIndex, bool includeAncestor) throw (NodeNotFoundException, NodeException)
+
+double PhyloTreeTools::convertToClockTree2(PhyloTree& tree, shared_ptr<PhyloNode> node)
 {
-  if (!tree.hasNode(nodeId))
-    throw NodeNotFoundException("TreeTools::getTotalLength", nodeId);
-  if (includeAncestor && !tree.hasDistanceToFather(nodeId))
-    throw NodeException("TreeTools::getTotalLength(). No branch length.", nodeId);
-  double length = includeAncestor ? tree.getDistanceToFather(nodeId) : 0;
-  vector<int> sons = tree.getSonsId(nodeId);
+  vector<shared_ptr<PhyloNode> > sons = tree.getSons(node);
+  vector<double> h(sons.size());
+  // We compute the mean height:
+  double l = 0;
+  double maxh = -1.;
   for (size_t i = 0; i < sons.size(); i++)
   {
-    length += getTotalLength(tree, sons[i], true);
+    shared_ptr<PhyloBranch> branch=tree.getEdgeToFather(sons[i]);
+
+    if (branch->hasLength())
+    {
+      h[i] = convertToClockTree2(tree, sons[i]);
+      if (h[i] > maxh)
+        maxh = h[i];
+      l += h[i] + branch->getLength();
+    }
+    else
+      throw PhyloBranchPException("PhyloTreeTools::convertToClockTree2. Branch length lacking.", branch.get());
   }
-  return length;
-}
-
-
-
-void TreeTools::setBranchLengths(PhyloTree& tree, PhyloNode* node, double brLen) throw (NodeNotFoundException)
-{
-  vector<PhyloBranch*> branches = tree->getSubtreeEdges(node);
-  for (vector<PhyloBranch*>::iterator currBranch = branches.begin(); currBranch != branches.end(); currBranch++)
+  if (sons.size() > 0)
+    l /= (double)sons.size();
+  for (size_t i = 0; i < sons.size(); i++)
   {
-    (*currBranch)->setLenght(brLen);
+    tree.scaleTree(sons[i], h[i] > 0 ? l / h[i] : 0);
   }
+  return l;
 }
 
-
-
-void TreeTools::setVoidBranchLengths(PhyloTree& tree, PhyloNode* node, double brLen) throw (NodeNotFoundException)
-{
- vector<PhyloBranch*> branches = tree->getSubtreeEdges(node);
-  for (vector<PhyloBranch*>::iterator currBranch = branches.begin(); currBranch != branches.end(); currBranch++)
-  {
-    if(!(*currBranch)->hasLength())
-      (*currBranch)->setLenght(brLen);
-  }
-}
-
-
-
-void TreeTools::scaleTree(PhyloTree& tree, PhyloTree::NodeIndex nodeIndex, double factor) throw (NodeNotFoundException, NodeException)
-{
-  vector<PhyloBranch*> branches = tree->getSubtreeEdges(node);
-  for (vector<PhyloBranch*>::iterator currBranch = branches.begin(); currBranch != branches.end(); currBranch++)
-  {
-    if(!(*currBranch)->hasLength())
-      (*currBranch)->setLenght((*currBranch)->getLength*factor);
-    // TODO else Exception
-  }
-}
-
-
-// /*
-// size_t TreeTools::initBranchLengthsGrafen(PhyloTree& tree, PhyloTree::NodeIndex nodeIndex) throw (NodeNotFoundException)
-// {
-//   if (!tree.hasNode(nodeId))
-//     throw NodeNotFoundException("TreeTools::initBranchLengthsGrafen", nodeId);
-//   vector<int> sons = tree.getSonsId(nodeId);
-//   vector<size_t> h(sons.size());
-//   for (size_t i = 0; i < sons.size(); i++)
-//   {
-//     h[i] = initBranchLengthsGrafen(tree, sons[i]);
-//   }
-//   size_t thish = sons.size() == 0 ? 0 : VectorTools::sum<size_t>(h) + sons.size() - 1;
-//   for (size_t i = 0; i < sons.size(); i++)
-//   {
-//     tree.setDistanceToFather(sons[i], (double)(thish - h[i]));
-//   }
-//   return thish;
-// }
-// 
-// void TreeTools::initBranchLengthsGrafen(PhyloTree& tree)
-// {
-//   initBranchLengthsGrafen(tree, tree.getRootId());
-// }
-// 
-// 
-// 
-// void TreeTools::computeBranchLengthsGrafen(
-//   PhyloTree& tree,
-//   PhyloTree::NodeIndex nodeIndex,
-//   double power,
-//   double total,
-//   double& height,
-//   double& heightRaised)
-// throw (NodeNotFoundException, NodeException)
-// {
-//   if (!tree.hasNode(nodeId))
-//     throw NodeNotFoundException("TreeTools::computeBranchLengthsGrafen", nodeId);
-//   vector<int> sons = tree.getSonsId(nodeId);
-//   vector<double> hr(sons.size());
-//   height = 0;
-//   for (size_t i = 0; i < sons.size(); i++)
-//   {
-//     int son = sons[i];
-//     if (tree.hasDistanceToFather(son))
-//     {
-//       double h;
-//       computeBranchLengthsGrafen(tree, sons[i], power, total, h, hr[i]);
-//       double d = h + tree.getDistanceToFather(son);
-//       if (d > height)
-//         height = d;
-//     }
-//     else
-//       throw NodeException ("TreeTools::computeBranchLengthsGrafen. Branch length lacking.", son);
-//   }
-//   heightRaised = pow(height / total, power) * total;
-//   for (size_t i = 0; i < sons.size(); i++)
-//   {
-//     tree.setDistanceToFather(sons[i], heightRaised - hr[i]);
-//   }
-// }
-// 
-// void TreeTools::computeBranchLengthsGrafen(PhyloTree& tree, double power, bool init)
-// throw (NodeException)
-// {
-//   int rootId = tree.getRootId();
-//   if (init)
-//   {
-//     initBranchLengthsGrafen(tree);
-//   }
-//   // Scale by total heigth:
-//   double totalHeight = getHeight(tree, rootId);
-//   double h, hr;
-//   computeBranchLengthsGrafen(tree, rootId, power, totalHeight, h, hr);
-// }
-// 
-// 
-// 
-// double TreeTools::convertToClockTree(PhyloTree& tree, PhyloTree::NodeIndex nodeIndex, bool noneg)
-// {
-//   if (!tree.hasNode(nodeId))
-//     throw NodeNotFoundException("TreeTools::convertToClockTree", nodeId);
-//   vector<int> sons = tree.getSonsId(nodeId);
-//   vector<double> h(sons.size());
-//   // We compute the mean height:
-//   double l = 0;
-//   double maxh = -1.;
-//   for (size_t i = 0; i < sons.size(); i++)
-//   {
-//     int son = sons[i];
-//     if (tree.hasDistanceToFather(son))
-//     {
-//       h[i] = convertToClockTree(tree, son);
-//       if (h[i] > maxh)
-//         maxh = h[i];
-//       l += h[i] + tree.getDistanceToFather(son);
-//     }
-//     else
-//       throw NodeException ("TreeTools::convertToClockTree. Branch length lacking.", son);
-//   }
-//   if (sons.size() > 0)
-//     l /= (double)sons.size();
-//   if (l < maxh)
-//     l = maxh;
-//   for (size_t i = 0; i < sons.size(); i++)
-//   {
-//     tree.setDistanceToFather(sons[i], l - h[i]);
-//   }
-//   return l;
-// }
-// 
-// 
-// 
-// double TreeTools::convertToClockTree2(PhyloTree& tree, PhyloTree::NodeIndex nodeIndex)
-// {
-//   if (!tree.hasNode(nodeId))
-//     throw NodeNotFoundException("TreeTools::convertToClockTree2", nodeId);
-//   vector<int> sons = tree.getSonsId(nodeId);
-//   vector<double> h(sons.size());
-//   // We compute the mean height:
-//   double l = 0;
-//   double maxh = -1.;
-//   for (size_t i = 0; i < sons.size(); i++)
-//   {
-//     int son = sons[i];
-//     if (tree.hasDistanceToFather(son))
-//     {
-//       h[i] = convertToClockTree2(tree, son);
-//       if (h[i] > maxh)
-//         maxh = h[i];
-//       l += h[i] + tree.getDistanceToFather(son);
-//     }
-//     else
-//       throw NodeException ("TreeTools::convertToClockTree2. Branch length lacking.", son);
-//   }
-//   if (sons.size() > 0)
-//     l /= (double)sons.size();
-//   for (size_t i = 0; i < sons.size(); i++)
-//   {
-//     scaleTree(tree, sons[i], h[i] > 0 ? l / h[i] : 0);
-//   }
-//   return l;
-// }
-// 
-// 
-// 
-// DistanceMatrix* TreeTools::getDistanceMatrix(const PhyloTree& tree)
-// {
-//   vector<string> names = tree.getLeavesNames();
-//   DistanceMatrix* mat = new DistanceMatrix(names);
-//   for (size_t i = 0; i < names.size(); i++)
-//   {
-//     (*mat)(i, i) = 0;
-//     for (size_t j = 0; j < i; j++)
-//     {
-//       (*mat)(i, j) = (*mat)(j, i) = getDistanceBetweenAnyTwoNodes(tree, tree.getLeafId(names[i]), tree.getLeafId(names[j]));
-//     }
-//   }
-//   return mat;
-// }
-// 
-// 
-// 
-// void TreeTools::midpointRooting(PhyloTree& tree)
-// {
-//   throw Exception("TreeTools::midpointRooting(Tree). This function is deprecated, use TreeTemplateTools::midRoot instead!");
-//   if (tree.isRooted())
-//     tree.unroot();
-//   DistanceMatrix* dist = getDistanceMatrix(tree);
-//   vector<size_t> pos = MatrixTools::whichMax(dist->asMatrix());
-//   double dmid = (*dist)(pos[0], pos[1]) / 2;
-//   int id1 = tree.getLeafId(dist->getName(pos[0]));
-//   int id2 = tree.getLeafId(dist->getName(pos[1]));
-//   int rootId = tree.getRootId();
-//   double d1 = getDistanceBetweenAnyTwoNodes(tree, id1, rootId);
-//   double d2 = getDistanceBetweenAnyTwoNodes(tree, id2, rootId);
-//   int current = d2 > d1 ? id2 : id1;
-//   delete dist;
-//   double l = tree.getDistanceToFather(current);
-//   double c = l;
-//   while (c < dmid)
-//   {
-//     current = tree.getFatherId(current);
-//     l = tree.getDistanceToFather(current);
-//     c += l;
-//   }
-//   tree.newOutGroup(current);
-//   int brother = tree.getSonsId(tree.getRootId())[1];
-//   if (brother == current)
-//     brother = tree.getSonsId(tree.getRootId())[0];
-//   tree.setDistanceToFather(current, l - (c - dmid));
-//   tree.setDistanceToFather(brother, c - dmid);
-// }
-// 
-// 
-// 
-// int TreeTools::getMaxId(const PhyloTree& tree, int id)
-// {
-//   int maxId = id;
-//   vector<int> sonsId = tree.getSonsId(id);
-//   for (size_t i = 0; i < sonsId.size(); i++)
-//   {
-//     int subMax = getMaxId(tree, sonsId[i]);
-//     if (subMax > maxId)
-//       maxId = subMax;
-//   }
-//   return maxId;
-// }
-// 
-// 
-// 
-// int TreeTools::getMPNUId(const PhyloTree& tree, int id)
-// {
-//   vector<int> ids = getNodesId(tree, id);
-//   sort(ids.begin(), ids.end());
-//   // Check if some id is "missing" in the subtree:
-//   for (size_t i = 0; i < ids.size(); i++)
-//   {
-//     if (ids[i] != (int)i)
-//       return (int)i;
-//   }
-//   // Well, all ids are from 0 to n, so send n+1:
-//   return (int)ids.size();
-// }
-// 
-// 
-// 
-// bool TreeTools::checkIds(const PhyloTree& tree, bool throwException) throw (Exception)
-// {
-//   vector<int> ids = tree.getNodesId();
-//   sort(ids.begin(), ids.end());
-//   for (size_t i = 1; i < ids.size(); i++)
-//   {
-//     if (ids[i] == ids[i - 1])
-//     {
-//       if (throwException)
-//         throw Exception("TreeTools::checkIds. This id is used at least twice: " + TextTools::toString(ids[i]));
-//       return false;
-//     }
-//   }
-//   return true;
-// }
-// 
-// 
-// 
-// VectorSiteContainer* TreeTools::MRPEncode(const vector<Tree*>& vecTr)
-// {
-//   vector<BipartitionList*> vecBipL;
-//   for (size_t i = 0; i < vecTr.size(); i++)
-//   {
-//     vecBipL.push_back(new BipartitionList(*vecTr[i]));
-//   }
-// 
-//   VectorSiteContainer* cont = BipartitionTools::MRPEncode(vecBipL);
-// 
-//   for (size_t i = 0; i < vecTr.size(); i++)
-//   {
-//     delete vecBipL[i];
-//   }
-// 
-//   return cont;
-// }
-// 
-// 
-// 
-// VectorSiteContainer* TreeTools::MRPEncodeMultilabel(const vector<Tree*>& vecTr)
-// {
-//     vector<BipartitionList*> vecBipL;
-//     for (size_t i = 0; i < vecTr.size(); i++)
-//     {
-//         vecBipL.push_back(new BipartitionList(*vecTr[i]));
-//     }
-//     
-//     VectorSiteContainer* cont = BipartitionTools::MRPEncodeMultilabel(vecBipL);
-//     
-//     for (size_t i = 0; i < vecTr.size(); i++)
-//     {
-//         delete vecBipL[i];
-//     }
-//     
-//     return cont;
-// }
-// 
-// 
-// 
-// bool TreeTools::haveSameTopology(const PhyloTree& tr1, const PhyloTree& tr2)
-// {
-//   size_t jj, nbbip;
-//   BipartitionList* bipL1, * bipL2;
-//   vector<size_t> size1, size2;
-// 
-//   /* compare sets of leaves */
-//   if (!VectorTools::haveSameElements(tr1.getLeavesNames(), tr2.getLeavesNames()))
-//     return false;
-// 
-//   /* construct bipartitions */
-//   bipL1 = new BipartitionList(tr1, true);
-//   bipL1->removeTrivialBipartitions();
-//   bipL1->removeRedundantBipartitions();
-//   bipL1->sortByPartitionSize();
-//   bipL2 = new BipartitionList(tr2, true);
-//   bipL2->removeTrivialBipartitions();
-//   bipL2->removeRedundantBipartitions();
-//   bipL2->sortByPartitionSize();
-// 
-//   /* compare numbers of bipartitions */
-//   if (bipL1->getNumberOfBipartitions() != bipL2->getNumberOfBipartitions())
-//     return false;
-//   nbbip = bipL1->getNumberOfBipartitions();
-// 
-//   /* compare partition sizes */
-//   for (size_t i = 0; i < nbbip; i++)
-//   {
-//     size1.push_back(bipL1->getPartitionSize(i));
-//     size2.push_back(bipL1->getPartitionSize(i));
-//     if (size1[i] != size2[i])
-//       return false;
-//   }
-// 
-//   /* compare bipartitions */
-//   for (size_t i = 0; i < nbbip; i++)
-//   {
-//     for (jj = 0; jj < nbbip; jj++)
-//     {
-//       if (size1[i] == size2[jj] && BipartitionTools::areIdentical(*bipL1, i, *bipL2, jj))
-//         break;
-//     }
-//     if (jj == nbbip)
-//       return false;
-//   }
-// 
-//   return true;
-// }
-// 
-// 
-// 
-// int TreeTools::robinsonFouldsDistance(const PhyloTree& tr1, const PhyloTree& tr2, bool checkNames, int* missing_in_tr2, int* missing_in_tr1) throw (Exception)
-// {
-//   BipartitionList* bipL1, * bipL2;
-//   size_t i, j;
-//   vector<size_t> size1, size2;
-//   vector<bool> bipOK2;
-// 
-// 
-//   if (checkNames && !VectorTools::haveSameElements(tr1.getLeavesNames(), tr2.getLeavesNames()))
-//     throw Exception("Distinct leaf sets between trees ");
-// 
-//   /* prepare things */
-//   int missing1 = 0;
-//   int missing2 = 0;
-// 
-//   bipL1 = new BipartitionList(tr1, true);
-//   bipL1->removeTrivialBipartitions();
-//   bipL1->sortByPartitionSize();
-//   bipL2 = new BipartitionList(tr2, true);
-//   bipL2->removeTrivialBipartitions();
-//   bipL2->sortByPartitionSize();
-// 
-// 
-//   for (i = 0; i < bipL1->getNumberOfBipartitions(); i++)
-//   {
-//     size1.push_back(bipL1->getPartitionSize(i));
-//   }
-//   for (i = 0; i < bipL2->getNumberOfBipartitions(); i++)
-//   {
-//     size2.push_back(bipL2->getPartitionSize(i));
-//   }
-// 
-//   for (i = 0; i < bipL2->getNumberOfBipartitions(); i++)
-//   {
-//     bipOK2.push_back(false);
-//   }
-// 
-//   /* main loops */
-// 
-//   for (i = 0; i < bipL1->getNumberOfBipartitions(); i++)
-//   {
-//     for (j = 0; j < bipL2->getNumberOfBipartitions(); j++)
-//     {
-//       if (bipOK2[j])
-//         continue;
-//       if (size1[i] == size2[j] && BipartitionTools::areIdentical(*bipL1, i, *bipL2, j))
-//       {
-//         bipOK2[j] = true;
-//         break;
-//       }
-//     }
-//     if (j == bipL2->getNumberOfBipartitions())
-//       missing2++;
-//   }
-// 
-//   missing1 = static_cast<int>(bipL2->getNumberOfBipartitions()) - static_cast<int>(bipL1->getNumberOfBipartitions()) + missing2;
-// 
-//   if (missing_in_tr1)
-//     *missing_in_tr1 = missing1;
-//   if (missing_in_tr2)
-//     *missing_in_tr2 = missing2;
-//   return missing1 + missing2;
+// // 
+// // 
+// // 
+// // DistanceMatrix* PhyloTreeTools::getDistanceMatrix(const PhyloTree& tree)
+// // {
+// //   vector<string> names = tree.getLeavesNames();
+// //   DistanceMatrix* mat = new DistanceMatrix(names);
+// //   for (size_t i = 0; i < names.size(); i++)
+// //   {
+// //     (*mat)(i, i) = 0;
+// //     for (size_t j = 0; j < i; j++)
+// //     {
+// //       (*mat)(i, j) = (*mat)(j, i) = getDistanceBetweenAnyTwoNodes(tree, tree.getLeafId(names[i]), tree.getLeafId(names[j]));
+// //     }
+// //   }
+// //   return mat;
+// // }
+// // 
+// // 
+// // 
+// // int PhyloTreeTools::getMPNUId(const PhyloTree& tree, int id)
+// // {
+// //   vector<int> ids = getNodesId(tree, id);
+// //   sort(ids.begin(), ids.end());
+// //   // Check if some id is "missing" in the subtree:
+// //   for (size_t i = 0; i < ids.size(); i++)
+// //   {
+// //     if (ids[i] != (int)i)
+// //       return (int)i;
+// //   }
+// //   // Well, all ids are from 0 to n, so send n+1:
+// //   return (int)ids.size();
+// // }
+// // 
+// // VectorSiteContainer* PhyloTreeTools::MRPEncode(const vector<Tree*>& vecTr)
+// // {
+// //   vector<BipartitionList*> vecBipL;
+// //   for (size_t i = 0; i < vecTr.size(); i++)
+// //   {
+// //     vecBipL.push_back(new BipartitionList(*vecTr[i]));
+// //   }
+// // 
+// //   VectorSiteContainer* cont = BipartitionTools::MRPEncode(vecBipL);
+// // 
+// //   for (size_t i = 0; i < vecTr.size(); i++)
+// //   {
+// //     delete vecBipL[i];
+// //   }
+// // 
+// //   return cont;
+// // }
+// // 
+// // 
+// // 
+// // VectorSiteContainer* PhyloTreeTools::MRPEncodeMultilabel(const vector<Tree*>& vecTr)
+// // {
+// //     vector<BipartitionList*> vecBipL;
+// //     for (size_t i = 0; i < vecTr.size(); i++)
+// //     {
+// //         vecBipL.push_back(new BipartitionList(*vecTr[i]));
+// //     }
+// //     
+// //     VectorSiteContainer* cont = BipartitionTools::MRPEncodeMultilabel(vecBipL);
+// //     
+// //     for (size_t i = 0; i < vecTr.size(); i++)
+// //     {
+// //         delete vecBipL[i];
+// //     }
+// //     
+// //     return cont;
+// // }
+// // 
+// // 
+// // 
+// // bool PhyloTreeTools::haveSameTopology(const PhyloTree& tr1, const PhyloTree& tr2)
+// // {
+// //   size_t jj, nbbip;
+// //   BipartitionList* bipL1, * bipL2;
+// //   vector<size_t> size1, size2;
+// // 
+// //   /* compare sets of leaves */
+// //   if (!VectorTools::haveSameElements(tr1.getLeavesNames(), tr2.getLeavesNames()))
+// //     return false;
+// // 
+// //   /* construct bipartitions */
+// //   bipL1 = new BipartitionList(tr1, true);
+// //   bipL1->removeTrivialBipartitions();
+// //   bipL1->removeRedundantBipartitions();
+// //   bipL1->sortByPartitionSize();
+// //   bipL2 = new BipartitionList(tr2, true);
+// //   bipL2->removeTrivialBipartitions();
+// //   bipL2->removeRedundantBipartitions();
+// //   bipL2->sortByPartitionSize();
+// // 
+// //   /* compare numbers of bipartitions */
+// //   if (bipL1->getNumberOfBipartitions() != bipL2->getNumberOfBipartitions())
+// //     return false;
+// //   nbbip = bipL1->getNumberOfBipartitions();
+// // 
+// //   /* compare partition sizes */
+// //   for (size_t i = 0; i < nbbip; i++)
+// //   {
+// //     size1.push_back(bipL1->getPartitionSize(i));
+// //     size2.push_back(bipL1->getPartitionSize(i));
+// //     if (size1[i] != size2[i])
+// //       return false;
+// //   }
+// // 
+// //   /* compare bipartitions */
+// //   for (size_t i = 0; i < nbbip; i++)
+// //   {
+// //     for (jj = 0; jj < nbbip; jj++)
+// //     {
+// //       if (size1[i] == size2[jj] && BipartitionTools::areIdentical(*bipL1, i, *bipL2, jj))
+// //         break;
+// //     }
+// //     if (jj == nbbip)
+// //       return false;
+// //   }
+// // 
+// //   return true;
+// // }
+// // 
+// // 
+// // 
+// // int PhyloTreeTools::robinsonFouldsDistance(const PhyloTree& tr1, const PhyloTree& tr2, bool checkNames, int* missing_in_tr2, int* missing_in_tr1) throw (Exception)
+// // {
+// //   BipartitionList* bipL1, * bipL2;
+// //   size_t i, j;
+// //   vector<size_t> size1, size2;
+// //   vector<bool> bipOK2;
+// // 
+// // 
+// //   if (checkNames && !VectorTools::haveSameElements(tr1.getLeavesNames(), tr2.getLeavesNames()))
+// //     throw Exception("Distinct leaf sets between trees ");
+// // 
+// //   /* prepare things */
+// //   int missing1 = 0;
+// //   int missing2 = 0;
+// // 
+// //   bipL1 = new BipartitionList(tr1, true);
+// //   bipL1->removeTrivialBipartitions();
+// //   bipL1->sortByPartitionSize();
+// //   bipL2 = new BipartitionList(tr2, true);
+// //   bipL2->removeTrivialBipartitions();
+// //   bipL2->sortByPartitionSize();
+// // 
+// // 
+// //   for (i = 0; i < bipL1->getNumberOfBipartitions(); i++)
+// //   {
+// //     size1.push_back(bipL1->getPartitionSize(i));
+// //   }
+// //   for (i = 0; i < bipL2->getNumberOfBipartitions(); i++)
+// //   {
+// //     size2.push_back(bipL2->getPartitionSize(i));
+// //   }
+// // 
+// //   for (i = 0; i < bipL2->getNumberOfBipartitions(); i++)
+// //   {
+// //     bipOK2.push_back(false);
+// //   }
+// // 
+// //   /* main loops */
+// // 
+// //   for (i = 0; i < bipL1->getNumberOfBipartitions(); i++)
+// //   {
+// //     for (j = 0; j < bipL2->getNumberOfBipartitions(); j++)
+// //     {
+// //       if (bipOK2[j])
+// //         continue;
+// //       if (size1[i] == size2[j] && BipartitionTools::areIdentical(*bipL1, i, *bipL2, j))
+// //       {
+// //         bipOK2[j] = true;
+// //         break;
+// //       }
+// //     }
+// //     if (j == bipL2->getNumberOfBipartitions())
+// //       missing2++;
+// //   }
+// // 
+// //   missing1 = static_cast<int>(bipL2->getNumberOfBipartitions()) - static_cast<int>(bipL1->getNumberOfBipartitions()) + missing2;
+// // 
+// //   if (missing_in_tr1)
+// //     *missing_in_tr1 = missing1;
+// //   if (missing_in_tr2)
+// //     *missing_in_tr2 = missing2;
+// //   return missing1 + missing2;
+// // }
+// // 
+// // 
+// // 
+// // BipartitionList* PhyloTreeTools::bipartitionOccurrences(const vector<Tree*>& vecTr, vector<size_t>& bipScore)
+// // {
+// //   vector<BipartitionList*> vecBipL;
+// //   BipartitionList* mergedBipL;
+// //   vector<size_t> bipSize;
+// //   size_t nbBip;
+// // 
+// //   /*  build and merge bipartitions */
+// //   for (size_t i = 0; i < vecTr.size(); i++)
+// //   {
+// //     vecBipL.push_back(new BipartitionList(*vecTr[i]));
+// //   }
+// //   mergedBipL = BipartitionTools::mergeBipartitionLists(vecBipL);
+// //   for (size_t i = 0; i < vecTr.size(); i++)
+// //   {
+// //     delete vecBipL[i];
+// //   }
+// // 
+// //   mergedBipL->removeTrivialBipartitions();
+// //   nbBip = mergedBipL->getNumberOfBipartitions();
+// //   bipScore.clear();
+// //   for (size_t i = 0; i < nbBip; i++)
+// //   {
+// //     bipSize.push_back(mergedBipL->getPartitionSize(i));
+// //     bipScore.push_back(1);
+// //   }
+// // 
+// //   /* compare bipartitions */
+// //   for (size_t i = nbBip; i > 0; i--)
+// //   {
+// //     if (bipScore[i - 1] == 0)
+// //       continue;
+// //     for (size_t j = i - 1; j > 0; j--)
+// //     {
+// //       if (bipScore[j - 1] && bipSize[i - 1] == bipSize[j - 1] && mergedBipL->areIdentical(i - 1, j - 1))
+// //       {
+// //         bipScore[i - 1]++;
+// //         bipScore[j - 1] = 0;
+// //       }
+// //     }
+// //   }
+// // 
+// //   /* keep only distinct bipartitions */
+// //   for (size_t i = nbBip; i > 0; i--)
+// //   {
+// //     if (bipScore[i - 1] == 0)
+// //     {
+// //       bipScore.erase(bipScore.begin() + static_cast<ptrdiff_t>(i - 1));
+// //       mergedBipL->deleteBipartition(i - 1);
+// //     }
+// //   }
+// // 
+// //   /* add terminal branches */
+// //   mergedBipL->addTrivialBipartitions(false);
+// //   for (size_t i = 0; i < mergedBipL->getNumberOfElements(); i++)
+// //   {
+// //     bipScore.push_back(vecTr.size());
+// //   }
+// // 
+// //   return mergedBipL;
+// // }
+// // 
+// // 
+// // 
+// // PhyloTree<Node>* PhyloTreeTools::thresholdConsensus(const vector<Tree*>& vecTr, double threshold, bool checkNames) throw (Exception)
+// // {
+// //   vector<size_t> bipScore;
+// //   vector<string> tr0leaves;
+// //   BipartitionList* bipL;
+// //   double score;
+// // 
+// //   if (vecTr.size() == 0)
+// //     throw Exception("PhyloTreeTools::thresholdConsensus. Empty vector passed");
+// // 
+// //   /* check names */
+// //   if (checkNames)
+// //   {
+// //     tr0leaves = vecTr[0]->getLeavesNames();
+// //     for (size_t i = 1; i < vecTr.size(); i++)
+// //     {
+// //       if (!VectorTools::haveSameElements(vecTr[i]->getLeavesNames(), tr0leaves))
+// //         throw Exception("PhyloTreeTools::thresholdConsensus. Distinct leaf sets between trees");
+// //     }
+// //   }
+// // 
+// //   bipL = bipartitionOccurrences(vecTr, bipScore);
+// // 
+// //   for (size_t i = bipL->getNumberOfBipartitions(); i > 0; i--)
+// //   {
+// //     if (bipL->getPartitionSize(i - 1) == 1)
+// //       continue;
+// //     score = static_cast<int>(bipScore[i - 1]) / static_cast<double>(vecTr.size());
+// //     if (score <= threshold && score != 1.)
+// //     {
+// //       bipL->deleteBipartition(i - 1);
+// //       continue;
+// //     }
+// //     if (score > 0.5)
+// //       continue;
+// //     for (size_t j = bipL->getNumberOfBipartitions(); j > i; j--)
+// //     {
+// //       if (!bipL->areCompatible(i - 1, j - 1))
+// //       {
+// //         bipL->deleteBipartition(i - 1);
+// //         break;
+// //       }
+// //     }
+// //   }
+// // 
+// //   PhyloTree<Node>* tr = bipL->toTree();
+// //   delete bipL;
+// //   return tr;
+// // }
+// // 
+// // 
+// // 
+// // PhyloTree<Node>* PhyloTreeTools::fullyResolvedConsensus(const vector<Tree*>& vecTr, bool checkNames)
+// // {
+// //   return thresholdConsensus(vecTr, 0., checkNames);
+// // }
+// // 
+// // 
+// // 
+// // PhyloTree<Node>* PhyloTreeTools::majorityConsensus(const vector<Tree*>& vecTr, bool checkNames)
+// // {
+// //   return thresholdConsensus(vecTr, 0.5, checkNames);
+// // }
+// // 
+// // 
+// // 
+// // PhyloTree<Node>* PhyloTreeTools::strictConsensus(const vector<Tree*>& vecTr, bool checkNames)
+// // {
+// //   return thresholdConsensus(vecTr, 1., checkNames);
+// // }
+// // 
+// // 
+// // 
+// // Tree* PhyloTreeTools::MRP(const vector<Tree*>& vecTr)
+// // {
+// //   // matrix representation
+// //   VectorSiteContainer* sites = PhyloTreeTools::MRPEncode(vecTr);
+// // 
+// //   // starting bioNJ tree
+// //   const DNA* alphabet = dynamic_cast<const DNA*>(sites->getAlphabet());
+// //   JCnuc* jc = new JCnuc(alphabet);
+// //   ConstantDistribution* constRate = new ConstantDistribution(1.);
+// //   DistanceEstimation distFunc(jc, constRate, sites, 0, true);
+// //   BioNJ bionjTreeBuilder(false, false);
+// //   bionjTreeBuilder.setDistanceMatrix(*(distFunc.getMatrix()));
+// //   bionjTreeBuilder.computeTree();
+// //   if (ApplicationTools::message)
+// //     ApplicationTools::message->endLine();
+// //   PhyloTree<Node>* startTree = new PhyloTree<Node>(*bionjTreeBuilder.getTree());
+// // 
+// //   // MP optimization
+// //   DRTreeParsimonyScore* MPScore = new DRTreeParsimonyScore(*startTree, *sites, false);
+// //   MPScore = OptimizationTools::optimizeTreeNNI(MPScore, 0);
+// //   delete startTree;
+// //   Tree* retTree = new PhyloTree<Node>(MPScore->getTree());
+// //   delete MPScore;
+// // 
+// //   return retTree;
+// // }
+// // 
+// // 
+// // 
+// // void PhyloTreeTools::computeBootstrapValues(PhyloTree& tree, const vector<Tree*>& vecTr, bool verbose, int format)
+// // {
+// //   vector<int> index;
+// //   BipartitionList bpTree(tree, true, &index);
+// //   vector<size_t> occurences;
+// //   BipartitionList* bpList = bipartitionOccurrences(vecTr, occurences);
+// // 
+// //   vector< Number<double> > bootstrapValues(bpTree.getNumberOfBipartitions());
+// // 
+// //   for (size_t i = 0; i < bpTree.getNumberOfBipartitions(); i++)
+// //   {
+// //     if (verbose)
+// //       ApplicationTools::displayGauge(i, bpTree.getNumberOfBipartitions() - 1, '=');
+// //     for (size_t j = 0; j < bpList->getNumberOfBipartitions(); j++)
+// //     {
+// //       if (BipartitionTools::areIdentical(bpTree, i, *bpList, j))
+// //       {
+// //         bootstrapValues[i] = format >= 0 ? round(static_cast<double>(occurences[j]) * pow(10., 2 + format) / static_cast<double>(vecTr.size())) / pow(10., format) : static_cast<double>(occurences[j]);
+// //         break;
+// //       }
+// //     }
+// //   }
+// // 
+// //   for (size_t i = 0; i < index.size(); i++)
+// //   {
+// //     if (!tree.isLeaf(index[i]))
+// //       tree.setBranchProperty(index[i], BOOTSTRAP, bootstrapValues[i]);
+// //   }
+// // 
+// //   delete bpList;
 // }
 // 
 // 
 // 
-// BipartitionList* TreeTools::bipartitionOccurrences(const vector<Tree*>& vecTr, vector<size_t>& bipScore)
-// {
-//   vector<BipartitionList*> vecBipL;
-//   BipartitionList* mergedBipL;
-//   vector<size_t> bipSize;
-//   size_t nbBip;
-// 
-//   /*  build and merge bipartitions */
-//   for (size_t i = 0; i < vecTr.size(); i++)
-//   {
-//     vecBipL.push_back(new BipartitionList(*vecTr[i]));
-//   }
-//   mergedBipL = BipartitionTools::mergeBipartitionLists(vecBipL);
-//   for (size_t i = 0; i < vecTr.size(); i++)
-//   {
-//     delete vecBipL[i];
-//   }
-// 
-//   mergedBipL->removeTrivialBipartitions();
-//   nbBip = mergedBipL->getNumberOfBipartitions();
-//   bipScore.clear();
-//   for (size_t i = 0; i < nbBip; i++)
-//   {
-//     bipSize.push_back(mergedBipL->getPartitionSize(i));
-//     bipScore.push_back(1);
-//   }
-// 
-//   /* compare bipartitions */
-//   for (size_t i = nbBip; i > 0; i--)
-//   {
-//     if (bipScore[i - 1] == 0)
-//       continue;
-//     for (size_t j = i - 1; j > 0; j--)
-//     {
-//       if (bipScore[j - 1] && bipSize[i - 1] == bipSize[j - 1] && mergedBipL->areIdentical(i - 1, j - 1))
-//       {
-//         bipScore[i - 1]++;
-//         bipScore[j - 1] = 0;
-//       }
-//     }
-//   }
-// 
-//   /* keep only distinct bipartitions */
-//   for (size_t i = nbBip; i > 0; i--)
-//   {
-//     if (bipScore[i - 1] == 0)
-//     {
-//       bipScore.erase(bipScore.begin() + static_cast<ptrdiff_t>(i - 1));
-//       mergedBipL->deleteBipartition(i - 1);
-//     }
-//   }
-// 
-//   /* add terminal branches */
-//   mergedBipL->addTrivialBipartitions(false);
-//   for (size_t i = 0; i < mergedBipL->getNumberOfElements(); i++)
-//   {
-//     bipScore.push_back(vecTr.size());
-//   }
-// 
-//   return mergedBipL;
-// }
-// 
-// 
-// 
-// TreeTemplate<Node>* TreeTools::thresholdConsensus(const vector<Tree*>& vecTr, double threshold, bool checkNames) throw (Exception)
-// {
-//   vector<size_t> bipScore;
-//   vector<string> tr0leaves;
-//   BipartitionList* bipL;
-//   double score;
-// 
-//   if (vecTr.size() == 0)
-//     throw Exception("TreeTools::thresholdConsensus. Empty vector passed");
-// 
-//   /* check names */
-//   if (checkNames)
-//   {
-//     tr0leaves = vecTr[0]->getLeavesNames();
-//     for (size_t i = 1; i < vecTr.size(); i++)
-//     {
-//       if (!VectorTools::haveSameElements(vecTr[i]->getLeavesNames(), tr0leaves))
-//         throw Exception("TreeTools::thresholdConsensus. Distinct leaf sets between trees");
-//     }
-//   }
-// 
-//   bipL = bipartitionOccurrences(vecTr, bipScore);
-// 
-//   for (size_t i = bipL->getNumberOfBipartitions(); i > 0; i--)
-//   {
-//     if (bipL->getPartitionSize(i - 1) == 1)
-//       continue;
-//     score = static_cast<int>(bipScore[i - 1]) / static_cast<double>(vecTr.size());
-//     if (score <= threshold && score != 1.)
-//     {
-//       bipL->deleteBipartition(i - 1);
-//       continue;
-//     }
-//     if (score > 0.5)
-//       continue;
-//     for (size_t j = bipL->getNumberOfBipartitions(); j > i; j--)
-//     {
-//       if (!bipL->areCompatible(i - 1, j - 1))
-//       {
-//         bipL->deleteBipartition(i - 1);
-//         break;
-//       }
-//     }
-//   }
-// 
-//   TreeTemplate<Node>* tr = bipL->toTree();
-//   delete bipL;
-//   return tr;
-// }
-// 
-// 
-// 
-// TreeTemplate<Node>* TreeTools::fullyResolvedConsensus(const vector<Tree*>& vecTr, bool checkNames)
-// {
-//   return thresholdConsensus(vecTr, 0., checkNames);
-// }
-// 
-// 
-// 
-// TreeTemplate<Node>* TreeTools::majorityConsensus(const vector<Tree*>& vecTr, bool checkNames)
-// {
-//   return thresholdConsensus(vecTr, 0.5, checkNames);
-// }
-// 
-// 
-// 
-// TreeTemplate<Node>* TreeTools::strictConsensus(const vector<Tree*>& vecTr, bool checkNames)
-// {
-//   return thresholdConsensus(vecTr, 1., checkNames);
-// }
-// 
-// 
-// 
-// Tree* TreeTools::MRP(const vector<Tree*>& vecTr)
-// {
-//   // matrix representation
-//   VectorSiteContainer* sites = TreeTools::MRPEncode(vecTr);
-// 
-//   // starting bioNJ tree
-//   const DNA* alphabet = dynamic_cast<const DNA*>(sites->getAlphabet());
-//   JCnuc* jc = new JCnuc(alphabet);
-//   ConstantDistribution* constRate = new ConstantDistribution(1.);
-//   DistanceEstimation distFunc(jc, constRate, sites, 0, true);
-//   BioNJ bionjTreeBuilder(false, false);
-//   bionjTreeBuilder.setDistanceMatrix(*(distFunc.getMatrix()));
-//   bionjTreeBuilder.computeTree();
-//   if (ApplicationTools::message)
-//     ApplicationTools::message->endLine();
-//   TreeTemplate<Node>* startTree = new TreeTemplate<Node>(*bionjTreeBuilder.getTree());
-// 
-//   // MP optimization
-//   DRTreeParsimonyScore* MPScore = new DRTreeParsimonyScore(*startTree, *sites, false);
-//   MPScore = OptimizationTools::optimizeTreeNNI(MPScore, 0);
-//   delete startTree;
-//   Tree* retTree = new TreeTemplate<Node>(MPScore->getTree());
-//   delete MPScore;
-// 
-//   return retTree;
-// }
-// 
-// 
-// 
-// void TreeTools::computeBootstrapValues(PhyloTree& tree, const vector<Tree*>& vecTr, bool verbose, int format)
-// {
-//   vector<int> index;
-//   BipartitionList bpTree(tree, true, &index);
-//   vector<size_t> occurences;
-//   BipartitionList* bpList = bipartitionOccurrences(vecTr, occurences);
-// 
-//   vector< Number<double> > bootstrapValues(bpTree.getNumberOfBipartitions());
-// 
-//   for (size_t i = 0; i < bpTree.getNumberOfBipartitions(); i++)
-//   {
-//     if (verbose)
-//       ApplicationTools::displayGauge(i, bpTree.getNumberOfBipartitions() - 1, '=');
-//     for (size_t j = 0; j < bpList->getNumberOfBipartitions(); j++)
-//     {
-//       if (BipartitionTools::areIdentical(bpTree, i, *bpList, j))
-//       {
-//         bootstrapValues[i] = format >= 0 ? round(static_cast<double>(occurences[j]) * pow(10., 2 + format) / static_cast<double>(vecTr.size())) / pow(10., format) : static_cast<double>(occurences[j]);
-//         break;
-//       }
-//     }
-//   }
-// 
-//   for (size_t i = 0; i < index.size(); i++)
-//   {
-//     if (!tree.isLeaf(index[i]))
-//       tree.setBranchProperty(index[i], BOOTSTRAP, bootstrapValues[i]);
-//   }
-// 
-//   delete bpList;
-// }
-// 
-// 
-// 
-// vector<int> TreeTools::getAncestors(const PhyloTree& tree, PhyloTree::NodeIndex nodeIndex) throw (NodeNotFoundException)
+// vector<int> PhyloTreeTools::getAncestors(const PhyloTree& tree, PhyloTree::NodeIndex nodeIndex) throw (NodeNotFoundException)
 // {
 //   vector<int> ids;
 //   int currentId = nodeId;
@@ -1081,10 +802,10 @@ void TreeTools::scaleTree(PhyloTree& tree, PhyloTree::NodeIndex nodeIndex, doubl
 // 
 // 
 // 
-// int TreeTools::getLastCommonAncestor(const PhyloTree& tree, const vector<int>& nodeIds) throw (NodeNotFoundException, Exception)
+// int PhyloTreeTools::getLastCommonAncestor(const PhyloTree& tree, const vector<int>& nodeIds) throw (NodeNotFoundException, Exception)
 // {
 //   if (nodeIds.size() == 0)
-//     throw Exception("TreeTools::getLastCommonAncestor(). You must provide at least one node id.");
+//     throw Exception("PhyloTreeTools::getLastCommonAncestor(). You must provide at least one node id.");
 //   vector< vector<int> > ancestors(nodeIds.size());
 //   for (size_t i = 0; i < nodeIds.size(); i++)
 //   {
@@ -1114,92 +835,102 @@ void TreeTools::scaleTree(PhyloTree& tree, PhyloTree::NodeIndex nodeIndex, doubl
 // 
 // 
 // 
-// void TreeTools::constrainedMidPointRooting(PhyloTree& tree)
-// {
-//   // is the tree rooted?
-//   if (!tree.isRooted())
-//     throw Exception("The tree has to be rooted on the branch of interest to determine the midpoint position of the root");
-//   // is the tree multifurcating?
-//   if (tree.isMultifurcating())
-//     throw Exception("The tree is multifurcated, which is not allowed.");
+
+void PhyloTreeTools::constrainedMidPointRooting(PhyloTree& tree)
+{
+  // is the tree rooted?
+  if (!tree.isRooted())
+    throw Exception("The tree has to be rooted on the branch of interest to determine the midpoint position of the root");
+
+  vector<shared_ptr<PhyloNode> > sons = tree.getSons(tree.getRoot());
+
+  if (sons.size()>2)
+    throw Exception("The tree is multifurcated at the root, which is not allowed.");
+
+  double length = 0.;
+
+  // Length of the branch containing the root:
+  shared_ptr<PhyloBranch> branch0=tree.getEdgeToFather(sons[0]);
+  shared_ptr<PhyloBranch> branch1=tree.getEdgeToFather(sons[1]);
+
+  length = branch0->getLength() + branch1->getLength();
+  
+  // The fraction of the original branch allowing to split its length and to place the root:
+  double x = bestRootPosition_(tree, sons[0], sons[1], length);
+  // The new branch lengths are then computed:
+  branch0->setLength(length * x);
+  branch1->setLength(length * (1 - x));
+}
+
+
+
+double PhyloTreeTools::bestRootPosition_(const PhyloTree& tree, const shared_ptr<PhyloNode>  node1, const shared_ptr<PhyloNode> node2, double length)
+{
+  double x;
+  Moments_ m1, m2;
+  double A, B; // C;
+  // The variance is expressed as a degree 2 polynomial : variance(x) = A * x * x + B * x + C
+  // The fraction x is then obtained by differentiating this equation.
+  m1 = statFromNode_(tree, node1);
+  m2 = statFromNode_(tree, node2);
+  A = 4 * m1.N * (m2.N * length) * length;
+  B = 4 * length * (m2.N * m1.sum - m1.N * m2.sum - length * m1.N * m2.N);
+//   C = (m1.N + m2.N) * (m1.squaredSum + m2.squaredSum) + m1.N * length * m2.N * length +
+//     2 * m1.N * length * m2.sum - 2 * m2.N * length * m1.sum -
+//     (m1.sum + m2.sum) * (m1.sum + m2.sum);
+
+  if (A < 1e-20)
+    x = 0.5;
+  else
+    x = -B / (2 * A);
+  if (x < 0)
+    x = 0;
+  else if (x > 1)
+    x = 1;
+
+  return x;
+}
+
+
+
+PhyloTreeTools::Moments_ PhyloTreeTools::statFromNode_(const PhyloTree& tree, const shared_ptr<PhyloNode> root)
+{
+  // This function recursively calculates both the sum of the branch lengths and the sum of the squared branch lengths down the node whose ID is rootId.
+  // If below a particular node there are N leaves, the branch between this node and its father is taken into account N times in the calculation.
+  Moments_ m;
+  static Moments_ mtmp;
+
+  if (tree.isLeaf(root))
+  {
+    m.N = 1;
+    m.sum = 0.;
+    m.squaredSum = 0.;
+  }
+  else
+  {
+    vector<shared_ptr<PhyloNode> > sons = tree.getSons(root);
+    for (size_t i = 0; i < sons.size(); i++)
+    {
+      mtmp = statFromNode_(tree, sons[i]);
+      shared_ptr<PhyloBranch> branch=tree.getEdgeToFather(sons[i]);
+
+      double bLength = branch->getLength();
+      m.N += mtmp.N;
+      m.sum += mtmp.sum + bLength * mtmp.N;
+      m.squaredSum += mtmp.squaredSum + 2 * bLength * mtmp.sum + mtmp.N * bLength * bLength;
+    }
+  }
+
+  return m;
+
+}
 // 
-//   double length = 0.;
-//   vector<int> sonsIds = tree.getSonsId(tree.getRootId());
-//   // Length of the branch containing the root:
-//   length = tree.getDistanceToFather(sonsIds.at(0)) + tree.getDistanceToFather(sonsIds.at(1));
-//   // The fraction of the original branch allowing to split its length and to place the root:
-//   double x = bestRootPosition_(tree, sonsIds.at(0), sonsIds.at(1), length);
-//   // The new branch lengths are then computed:
-//   tree.setDistanceToFather(sonsIds.at(0), length * x);
-//   tree.setDistanceToFather(sonsIds.at(1), length * (1 - x));
-// }
 // 
 // 
-// 
-// double TreeTools::bestRootPosition_(PhyloTree& tree, PhyloTree::NodeIndex nodeIndex1, PhyloTree::NodeIndex nodeIndex2, double length)
-// {
-//   double x;
-//   Moments_ m1, m2;
-//   double A, B; // C;
-//   // The variance is expressed as a degree 2 polynomial : variance(x) = A * x * x + B * x + C
-//   // The fraction x is then obtained by differentiating this equation.
-//   m1 = statFromNode_(tree, nodeId1);
-//   m2 = statFromNode_(tree, nodeId2);
-//   A = 4 * m1.N * (m2.N * length) * length;
-//   B = 4 * length * (m2.N * m1.sum - m1.N * m2.sum - length * m1.N * m2.N);
-// //   C = (m1.N + m2.N) * (m1.squaredSum + m2.squaredSum) + m1.N * length * m2.N * length +
-// //     2 * m1.N * length * m2.sum - 2 * m2.N * length * m1.sum -
-// //     (m1.sum + m2.sum) * (m1.sum + m2.sum);
-// 
-//   if (A < 1e-20)
-//     x = 0.5;
-//   else
-//     x = -B / (2 * A);
-//   if (x < 0)
-//     x = 0;
-//   else if (x > 1)
-//     x = 1;
-// 
-//   return x;
-// }
-// 
-// 
-// 
-// TreeTools::Moments_ TreeTools::statFromNode_(PhyloTree& tree, int rootId)
-// {
-//   // This function recursively calculates both the sum of the branch lengths and the sum of the squared branch lengths down the node whose ID is rootId.
-//   // If below a particular node there are N leaves, the branch between this node and its father is taken into account N times in the calculation.
-//   Moments_ m;
-//   static Moments_ mtmp;
-// 
-//   if (tree.isLeaf(rootId))
-//   {
-//     m.N = 1;
-//     m.sum = 0.;
-//     m.squaredSum = 0.;
-//   }
-//   else
-//   {
-//     vector<int> sonsId = tree.getSonsId(rootId);
-//     for (size_t i = 0; i < sonsId.size(); i++)
-//     {
-//       mtmp = statFromNode_(tree, sonsId.at(i));
-//       double bLength = tree.getDistanceToFather(sonsId.at(i));
-//       m.N += mtmp.N;
-//       m.sum += mtmp.sum + bLength * mtmp.N;
-//       m.squaredSum += mtmp.squaredSum + 2 * bLength * mtmp.sum + mtmp.N * bLength * bLength;
-//     }
-//   }
-// 
-//   return m;
-// }
-// 
-// 
-// 
-// Tree* TreeTools::MRPMultilabel(const vector<Tree*>& vecTr)
+// Tree* PhyloTreeTools::MRPMultilabel(const vector<Tree*>& vecTr)
 // {
 //     // matrix representation
-//     VectorSiteContainer* sites = TreeTools::MRPEncode(vecTr);
+//     VectorSiteContainer* sites = PhyloTreeTools::MRPEncode(vecTr);
 //     
 //     // starting bioNJ tree
 //     const DNA* alphabet = dynamic_cast<const DNA*>(sites->getAlphabet());
@@ -1211,13 +942,13 @@ void TreeTools::scaleTree(PhyloTree& tree, PhyloTree::NodeIndex nodeIndex, doubl
 //     bionjTreeBuilder.computeTree();
 //     if (ApplicationTools::message)
 //         ApplicationTools::message->endLine();
-//     TreeTemplate<Node>* startTree = new TreeTemplate<Node>(*bionjTreeBuilder.getTree());
+//     PhyloTree<Node>* startTree = new PhyloTree<Node>(*bionjTreeBuilder.getTree());
 //     
 //     // MP optimization
 //     DRTreeParsimonyScore* MPScore = new DRTreeParsimonyScore(*startTree, *sites, false);
 //     MPScore = OptimizationTools::optimizeTreeNNI(MPScore, 0);
 //     delete startTree;
-//     Tree* retTree = new TreeTemplate<Node>(MPScore->getTree());
+//     Tree* retTree = new PhyloTree<Node>(MPScore->getTree());
 //     delete MPScore;
 //     
 //     return retTree;

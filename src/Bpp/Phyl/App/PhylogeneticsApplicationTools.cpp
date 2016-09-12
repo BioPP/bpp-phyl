@@ -51,6 +51,10 @@
 #include "../OptimizationTools.h"
 
 #include "../Tree/Tree.h"
+#include "../Tree/PhyloTreeTools.h"
+#include "../Tree/TreeTools.h"
+
+#include "../Tree/PhyloTree.h"
 #include "../Io/Newick.h"
 #include "../Io/NexusIoTree.h"
 #include "../Io/Nhx.h"
@@ -182,6 +186,7 @@ vector<Tree*> PhylogeneticsApplicationTools::getTrees(
 
 /******************************************************************************/
 
+    
 std::map<size_t, Tree*> PhylogeneticsApplicationTools::getTrees(
   std::map<std::string, std::string>& params,
   const std::map<size_t, SiteContainer*>& mSeq,
@@ -458,6 +463,294 @@ std::map<size_t, Tree*> PhylogeneticsApplicationTools::getTrees(
     ApplicationTools::displayResult("Branch lengths", cmdName);
   }
 
+  return mTree;
+}
+
+std::map<size_t, PhyloTree*> PhylogeneticsApplicationTools::getPhyloTrees(
+  std::map<std::string, std::string>& params,
+  const std::map<size_t, SiteContainer*>& mSeq,
+  std::map<std::string, std::string>& unparsedParams,
+  const std::string& prefix,
+  const std::string& suffix,
+  bool suffixIsOptional,
+  bool verbose,
+  int warn)
+{
+  vector<string> vTreesName = ApplicationTools::matchingParameters(prefix + "tree*", params);
+
+  map<size_t, PhyloTree*> mTree;
+
+  for (size_t nT = 0; nT < vTreesName.size(); nT++)
+  {
+    size_t poseq = vTreesName[nT].find("=");
+    size_t num = 0;
+    size_t len = (prefix + "tree").size();
+
+    string suff = vTreesName[nT].substr(len, poseq - len);
+    bool flag = 0;
+    size_t nbTree = 1;
+
+    if (TextTools::isDecimalInteger(suff, '$'))
+      num = static_cast<size_t>(TextTools::toInt(suff));
+    else
+    {
+      flag = 1;
+      num = 1;
+    }
+
+    if (!flag)
+    {
+      ApplicationTools::displayMessage("");
+      ApplicationTools::displayMessage("Tree " + TextTools::toString(num));
+    }
+
+    string treeDesc = ApplicationTools::getStringParameter(vTreesName[nT], params, "", suffix, suffixIsOptional);
+
+    string treeName;
+
+    map<string, string> args;
+
+    KeyvalTools::parseProcedure(treeDesc, treeName, args);
+
+    if (treeName == "user")
+    {
+      string format;
+
+      if (args.find("format") != args.end())
+        format = args["format"];
+      else
+      {
+        format = "Newick";
+        ApplicationTools::displayWarning("Warning, " + vTreesName[nT] + " format set to Newick");
+      }
+
+      string treeFilePath = ApplicationTools::getAFilePath("file", args, true, true, suffix, suffixIsOptional, "none", warn);
+
+      IMultiTree* treeReader;
+      if (format == "Newick")
+        treeReader = new Newick(true);
+      else if (format == "Nexus")
+        treeReader = new NexusIOTree();
+      else if (format == "NHX")
+        treeReader = new Nhx();
+      else
+        throw Exception("Unknow format for tree reading: " + format);
+
+      vector<PhyloTree*> trees;
+      treeReader->read(treeFilePath, trees);
+      delete treeReader;
+
+      if (verbose)
+      {
+        if (flag)
+        {
+          ApplicationTools::displayMessage("");
+          ApplicationTools::displayResult("Tree file", treeFilePath);
+        }
+
+        ApplicationTools::displayResult("Number of trees in file", trees.size());
+      }
+
+      if (flag)
+      {
+        nbTree = trees.size();
+
+        for (size_t i2 = 0; i2 < trees.size(); i2++)
+        {
+          if (mTree.find(i2 + 1) != mTree.end())
+          {
+            ApplicationTools::displayWarning("Tree " + TextTools::toString(i2 + 1) + " already assigned, replaced by new one.");
+            delete mTree[i2 + 1];
+          }
+
+          mTree[i2 + 1] = trees[i2];
+          ApplicationTools::displayResult("Number of leaves", trees[i2]->getNumberOfLeaves());
+        }
+      }
+      else
+      {
+        if (trees.size() > 1)
+          throw Exception("Error : Several trees for description of " + vTreesName[nT] + ".");
+
+        if (trees.size() == 1)
+        {
+          if (mTree.find(num) != mTree.end())
+          {
+            ApplicationTools::displayWarning("Tree " + TextTools::toString(num) + " already assigned, replaced by new one.");
+            delete mTree[num];
+          }
+          mTree[num] = trees[0];
+          ApplicationTools::displayResult("Number of leaves", trees[0]->getNumberOfLeaves());
+        }
+      }
+    }
+    else if (treeName == "random")
+    {
+      throw Exception("Random Phylotrees not defined yet. Ask developpers.");
+      
+      size_t seqNum;
+
+      if (args.find("data") == args.end())
+      {
+        ApplicationTools::displayWarning("Random tree set from data 1");
+        seqNum = 1;
+      }
+      else
+        seqNum = (size_t) TextTools::toInt(args["data"]);
+
+
+      if (mSeq.find(seqNum) == mSeq.end())
+        throw Exception("Error : Wrong number of data " + TextTools::toString(seqNum));
+
+      vector<string> names = mSeq.find(seqNum)->second->getSequencesNames();
+//      PhyloTree* tree = TreeTemplateTools::getRandomTree(names);
+      PhyloTree* tree = 0;
+      tree->setBranchLengths(1.);
+
+      if (mTree.find(num) != mTree.end())
+      {
+        ApplicationTools::displayWarning("Tree " + TextTools::toString(num) + " already assigned, replaced by new one.");
+        delete mTree[num];
+      }
+      mTree[num] = tree;
+      ApplicationTools::displayResult("Number of leaves", tree->getNumberOfLeaves());
+    }
+
+
+    // //////////
+    // Setting branch lengths?
+    string initBrLenMethod = ApplicationTools::getStringParameter("init.brlen.method", args, "Input", "", true, 1);
+    string cmdName;
+    map<string, string> cmdArgs;
+
+    KeyvalTools::parseProcedure(initBrLenMethod, cmdName, cmdArgs);
+
+    ApplicationTools::displayResult("Branch lengths", cmdName);
+
+    if (cmdName == "Input")
+    {
+      // Is the root has to be moved to the midpoint position along the branch that contains it ? If no, do nothing!
+      string midPointRootBrLengths = ApplicationTools::getStringParameter("midPointRootBrLengths", cmdArgs, "no", "", true, 2);
+      if (midPointRootBrLengths == "yes")
+      {
+        ApplicationTools::displayResult(" Mid Point Rooting", midPointRootBrLengths);
+        if (flag)
+        {
+          for (size_t i = 0; i < nbTree; i++)
+          {
+            PhyloTreeTools::constrainedMidPointRooting(*mTree[i + 1]);
+          }
+        }
+        else
+          PhyloTreeTools::constrainedMidPointRooting(*mTree[num]);
+      }
+    }
+    else if (cmdName == "Equal")
+    {
+      double value = ApplicationTools::getDoubleParameter("value", cmdArgs, 0.1, "", true, 2);
+      if (value <= 0)
+        throw Exception("Value for branch length must be superior to 0");
+      ApplicationTools::displayResult("Branch lengths set to", value);
+      if (flag)
+      {
+        for (size_t i = 0; i < nbTree; i++)
+        {
+          mTree[i + 1]->setBranchLengths(value);
+        }
+      }
+      else
+        mTree[num]->setBranchLengths(value);
+    }
+    else if (cmdName == "Clock")
+    {
+      if (flag)
+      {
+        for (size_t i = 0; i < nbTree; i++)
+        {
+          PhyloTreeTools::convertToClockTree(*mTree[i + 1], mTree[i + 1]->getRoot());
+        }
+      }
+      else
+        PhyloTreeTools::convertToClockTree(*mTree[num], mTree[num]->getRoot());
+    }
+    else if (cmdName == "Grafen")
+    {
+      string grafenHeight = ApplicationTools::getStringParameter("height", cmdArgs, "input", "", true, 2);
+      double h;
+      if (flag)
+      {
+        for (size_t i = 0; i < nbTree; i++)
+        {
+          PhyloTree* tree = mTree[i + 1];
+          if (grafenHeight == "input")
+          {
+            h = PhyloTreeTools::getHeight(*tree, tree->getRoot());
+          }
+          else
+          {
+            h = TextTools::toDouble(grafenHeight);
+            if (h <= 0)
+              throw Exception("Height must be positive in Grafen's method.");
+          }
+          ApplicationTools::displayResult("Total height", TextTools::toString(h));
+
+          double rho = ApplicationTools::getDoubleParameter("rho", cmdArgs, 1., "", true, 2);
+          ApplicationTools::displayResult("Grafen's rho", rho);
+          PhyloTreeTools::computeBranchLengthsGrafen(*tree, rho);
+  
+          double nh = PhyloTreeTools::getHeight(*tree, tree->getRoot());
+          tree->scaleTree(h / nh);
+        }
+      }
+      else
+      {
+        PhyloTree* tree = mTree[num];
+        if (grafenHeight == "input")
+          h = PhyloTreeTools::getHeight(*tree, tree->getRoot());
+        else
+        {
+          h = TextTools::toDouble(grafenHeight);
+          if (h <= 0)
+            throw Exception("Height must be positive in Grafen's method.");
+        }
+        ApplicationTools::displayResult("Total height", TextTools::toString(h));
+
+        double rho = ApplicationTools::getDoubleParameter("rho", cmdArgs, 1., "", true, 2);
+        ApplicationTools::displayResult("Grafen's rho", rho);
+
+                  
+        PhyloTreeTools::computeBranchLengthsGrafen(*tree, rho);
+        double nh = PhyloTreeTools::getHeight(*tree, tree->getRoot());
+
+        tree->scaleTree(h / nh);
+      }
+    }
+    else
+      throw Exception("Method '" + initBrLenMethod + "' unknown for computing branch lengths.");
+
+    // //////////// Setting branch lengths with aliases
+
+    vector<string> vBrNb = ApplicationTools::matchingParameters("BrLen*", args);
+
+    for (size_t ib = 0; ib < vBrNb.size(); ib++)
+    {
+      string apeq = args[vBrNb[ib]];
+      string aveq = vBrNb[ib];
+
+      if (TextTools::isDecimalInteger(apeq))
+      {
+        shared_ptr<PhyloBranch> branch=mTree[num]->getEdgeToFather(mTree[num]->getNode(TextTools::toInt(aveq.substr(5, string::npos))));
+        if (branch)
+          branch->setLength(TextTools::toDouble(apeq));
+      }
+      else
+      {
+        size_t posun = apeq.find("_");
+        size_t posd = aveq.find("_");
+        unparsedParams[aveq + (posd != string::npos ? "" : "_" + TextTools::toString(num))] = apeq + (posun != string::npos ? "" : "_" + TextTools::toString(num));
+      }
+    }
+  }
 
   return mTree;
 }
@@ -3515,6 +3808,36 @@ void PhylogeneticsApplicationTools::writeTree(
 
 void PhylogeneticsApplicationTools::writeTrees(
   const vector<const Tree*>& trees,
+  map<string, string>& params,
+  const string& prefix,
+  const string& suffix,
+  bool suffixIsOptional,
+  bool verbose,
+  bool checkOnly,
+  int warn) throw (Exception)
+{
+  string format = ApplicationTools::getStringParameter(prefix + "tree.format", params, "Newick", suffix, suffixIsOptional, warn);
+  string file = ApplicationTools::getAFilePath(prefix + "tree.file", params, true, false, suffix, suffixIsOptional, "none", warn);
+  OMultiTree* treeWriter;
+  if (format == "Newick")
+    treeWriter = new Newick();
+  else if (format == "Nexus")
+    treeWriter = new NexusIOTree();
+  else if (format == "NHX")
+    treeWriter = new Nhx();
+  else
+    throw Exception("Unknow format for tree writing: " + format);
+
+  if (!checkOnly)
+    treeWriter->write(trees, file, true);
+
+  delete treeWriter;
+  if (verbose)
+    ApplicationTools::displayResult("Wrote trees to file ", file);
+}
+
+void PhylogeneticsApplicationTools::writeTrees(
+  const vector<const PhyloTree*>& trees,
   map<string, string>& params,
   const string& prefix,
   const string& suffix,

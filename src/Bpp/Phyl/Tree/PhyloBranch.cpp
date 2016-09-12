@@ -1,7 +1,7 @@
 //
-// File: PhyloNode.cpp
-// Created by: Julien Dutheil
-// Created on: Thu Mar 13 12:03:18 2003
+// File: PhyloBranch.cpp
+// Created by: Laurent Guéguen
+// Created on: vendredi 26 août 2016, à 10h 46
 //
 
 /*
@@ -37,35 +37,36 @@ The fact that you are presently reading this means that you have had
 knowledge of the CeCILL license and that you accept its terms.
 */
 
-#include "PhyloNode.h"
+#include "PhyloBranch.h"
 
 using namespace bpp;
 using namespace std;
 
 /** Copy constructor: *********************************************************/
   
-PhyloNode::PhyloNode(const PhyloNode& node):
-  name_(node.name_),
+PhyloBranch::PhyloBranch(const PhyloBranch& branch):
+  isLengthDefined_(branch.isLengthDefined_),
+  length_(branch.length_),
   properties_()
 {
-  for (map<string, Clonable *>::iterator i = node.properties_.begin(); i != node.properties_.end(); i++)
+  for (map<string, Clonable *>::iterator i = branch.properties_.begin(); i != branch.properties_.end(); i++)
     properties_[i->first] = i->second->clone();
 }
 
 /** Assignation operator: *****************************************************/
 
-PhyloNode& PhyloNode::operator=(const PhyloNode & node)
+PhyloBranch& PhyloBranch::operator=(const PhyloBranch & branch)
 {
-  name_  = name_;
-  for(map<string, Clonable *>::iterator i = node.properties_.begin(); i != node.properties_.end(); i++)
+  isLengthDefined_ = branch.isLengthDefined_;
+  length_ = branch.length_;
+
+  for(map<string, Clonable *>::iterator i = branch.properties_.begin(); i != branch.properties_.end(); i++)
   {
     Clonable * p = properties_[i->first];
     if(p) delete p;
     properties_[i->first] = i->second->clone();
   }
-
-  return *this;
+  return * this;
 }
 
-/******************************************************************************/
 

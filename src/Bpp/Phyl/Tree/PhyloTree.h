@@ -42,14 +42,14 @@
 
 #include <Bpp/Graph/AssociationTreeGraphObserver.h>
 
-#include "Tree.h"
+#include "PhyloNode.h"
+#include "PhyloBranch.h"
 
 namespace bpp
 {
 
-  class PhyloNode;
-  class PhyloBranch;
-
+  // class PhyloNode;
+  // class PhyloBranch;
 
   /**
    * @brief Defines a Phylogenetic Tree based on a TreeGraph & its
@@ -62,12 +62,63 @@ namespace bpp
   class PhyloTree:
     public SimpleAssociationTreeGraphObserver<PhyloNode,PhyloBranch,SimpleTreeGraph<SimpleGraph> >
     {
+    private:
+      std::string name_;
+      
     public:
 
-      PhyloTree(const Tree&);
+      PhyloTree(bool rooted = false);
 
+//      PhyloTree(const Tree&);
+
+      PhyloTree* clone() const
+      {
+        return new PhyloTree(*this);
+      }
       
-    };
+      /**
+       * @brief Tree name.
+       *
+       * @{
+       */
+
+      std::string getName() const
+      {
+        return name_;
+      }
+		
+      void setName(const std::string& name)
+      {
+        name_=name;
+      }
+
+      /** @} */
+
+      std::vector<std::string> getAllLeavesNames() const;
+
+      void resetNodesId();
+
+      void setBranchLengths(double l);
+
+      /**
+       * @brief Multiply all branch lengths by a given factor.
+       *
+       * @param factor The factor to multiply all branch lengths with.
+       */
+
+
+      void scaleTree(double factor);
+
+      /**
+       * @brief Multiply all branch lengths under a Node by a given factor.
+       *
+       * @param node The node defining the subtree.
+       * @param factor The factor to multiply all branch lengths with.
+       */
+
+      void scaleTree(std::shared_ptr<PhyloNode> node, double factor);
+
+  };
     
 }
 

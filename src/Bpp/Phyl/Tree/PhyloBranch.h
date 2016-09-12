@@ -1,7 +1,7 @@
 //
-// File: Tree.h
-// Created by: Julien Dutheil
-// Created on: Thu Mar 13 12:03:18 2003
+// File: PhyloBranch.h
+// Created by: Laurent Guéguen, Thomas Bigot
+// Created on: vendredi 26 août 2016, à 10h 05
 //
 
 /*
@@ -41,8 +41,9 @@
 #define _PHYLOBRANCH_H_
 
 #include <Bpp/Utils/MapTools.h>
+#include <Bpp/Numeric/Number.h>
+#include <Bpp/Clonable.h>
 
-#include "PhyloTree.h"
 #include "PhyloTreeExceptions.h"
 
 
@@ -57,17 +58,18 @@ namespace bpp
     mutable std::map<std::string, Clonable*> properties_;
     
   public:
-    virtual ~PhyloBranch()
-    {
-      deleteProperties();
-    }
+    /**
+     * @brief Constructors.
+     *
+     * @warning phyloTree_ does not know the edge exists.
+     *
+     */
     
     PhyloBranch():
       isLengthDefined_(false),
       length_(0),
       properties_()
     {
-      
     }
 
     PhyloBranch(double length):
@@ -78,33 +80,86 @@ namespace bpp
     }
 
     /**
-     * Has the length been set?
-     * @return true if a length has been defined
+     * @brief Copy constructor.
+     *
+     * @warning This operator copies all fields, excepted father and
+     * son branch pointers. Without specific id, The PhyloTree does
+     * not know the existence of the new edge.
+     *
+     * @param branch The branch to copy.
      */
-    bool hasLength() const;
+    PhyloBranch(const PhyloBranch& branch);
     
     /**
-     * Has the length been set?
-     * @return true if a length has been defined
+     * @brief Assignation operator.
+     *
+     * @warning This operator copies all fields, excepted father and
+     * son branch pointers. Without specific id, the PhyloTree does
+     * not know the existence of the new edge.
+     *
+     * @param branch the branch to copy.
+     * @return A reference toward this branch.
      */
-    void deleteLength();
+    PhyloBranch& operator=(const PhyloBranch& branch);
+    
+    PhyloBranch* clone() const { return new PhyloBranch(*this); }
     
     /**
-     * What is the branch length
-     * @return a double representing the branch length
+     * @brief destructor. In Graph, nothing is changed.
+     *
      */
-    bool getLength() const;
+    
+    virtual ~PhyloBranch()
+    {
+      deleteProperties();
+    }
+
+    /**
+     * @brief Has the length been set?
+     * @return true if a length has been defined
+     */
+
+    bool hasLength() const
+    {
+      return isLengthDefined_;
+    }
+    
+    
+    /**
+     * @brief Delete length
+     */
+
+    void deleteLength()
+    {
+      isLengthDefined_ = false;
+    }
+    
+    /**
+     * @brief What is the branch length?
+     * @return a double representing the branch length, 0 if length is
+     * not defined.
+     *
+     */
+
+    double getLength() const
+    {
+      if (!isLengthDefined_)
+        throw PhyloBranchPException("PhyloBranch::getLength: length is not defined.", this);
+
+      return length_;
+    }
+    
     
     /**
      * Define a new branch length
      * @param newLength a double repserenting the new length of the branch
      */
-    bool setLength(double newLength);
-  
-  
     
-    // RECYCLING OLD “NODE” BRANCH PROPERTIES
-    
+    void setLength(double newLength)
+    {
+      length_ = newLength;
+      isLengthDefined_ = true;
+    }
     
     /**
      * @brief Set/add a branch property.
@@ -189,9 +244,21 @@ namespace bpp
     
     std::vector<std::string> getPropertyNames() const { return MapTools::getKeys(properties_); }
     
-    bool hasBootstrapValue() const;
+    bool hasBootstrapValue() const
+    {
+      return (properties_.find("bootstrap")!=properties_.end());
+    }
     
-    double getBootstrapValue() const; 
+    
+    double getBootstrapValue() const
+    {
+      if (!hasBootstrapValue())
+        throw PhyloBranchPropertyNotFoundException("","bootstrap",this);
+
+      return ((dynamic_cast<const Number<double>*>(properties_.find("bootstrap")->second))->getValue());
+    }
+    
+      
     /** @} */
     
     

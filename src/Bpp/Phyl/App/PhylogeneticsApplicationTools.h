@@ -42,6 +42,7 @@
 #define _PHYLOGENETICSAPPLICATIONTOOLS_H_
 
 #include "../Tree/Tree.h"
+#include "../Tree/PhyloTree.h"
 #include "../Model/SubstitutionModel.h"
 #include "../Model/SubstitutionModelSet.h"
 #include "../Model/MixedSubstitutionModelSet.h"
@@ -172,7 +173,17 @@ namespace bpp
       bool suffixIsOptional = true,
       bool verbose = true,
       int warn = 1) throw (Exception);
-    
+
+    static std::map<size_t, PhyloTree*> getPhyloTrees(
+      std::map<std::string, std::string>& params,
+      const std::map<size_t, SiteContainer*>& mSeq,
+      std::map<std::string, std::string>& unparsedParams,
+      const std::string& prefix = "input.",
+      const std::string& suffix = "",
+      bool suffixIsOptional = true,
+      bool verbose = true,
+      int warn = 1);
+
 
     /**
      * @brief Build a SubstitutionModel object according to options.
@@ -881,6 +892,16 @@ namespace bpp
      */
     static void writeTrees(
       const std::vector<const Tree*>& trees,
+      std::map<std::string, std::string>& params,
+      const std::string& prefix = "output.",
+      const std::string& suffix = "",
+      bool suffixIsOptional = true,
+      bool verbose = true,
+      bool checkOnly = false,
+      int warn = 1) throw (Exception);
+
+    static void writeTrees(
+      const std::vector<const PhyloTree*>& trees,
       std::map<std::string, std::string>& params,
       const std::string& prefix = "output.",
       const std::string& suffix = "",

@@ -42,6 +42,7 @@
 
 #include "IoTree.h"
 #include "../Tree/TreeTemplate.h"
+#include "../Tree/PhyloTree.h"
 
 namespace bpp
 {
@@ -89,24 +90,40 @@ namespace bpp
      *
      * @{
      */
-    TreeTemplate<Node>* read(const std::string& path) const throw (Exception)
+    TreeTemplate<Node>* read(const std::string& path) const
     {
       return dynamic_cast<TreeTemplate<Node>*>(AbstractITree::read(path));
     }
     
-    TreeTemplate<Node>* read(std::istream& in) const throw (Exception);
-    /** @} */
+    TreeTemplate<Node>* read(std::istream& in) const;
+
+    PhyloTree* readP(const std::string& path) const
+    {
+      return AbstractITree::readP(path);
+    }
+    
+    PhyloTree* readP(std::istream& in) const;
+    
+/** @} */
 
     /**
      * @name The OTree interface
      *
      * @{
      */
-    void write(const Tree& tree, const std::string& path, bool overwrite = true) const throw (Exception)
+    void write(const Tree& tree, const std::string& path, bool overwrite = true) const
     {
       AbstractOTree::write(tree, path, overwrite);
     }
-    void write(const Tree& tree, std::ostream& out) const throw (Exception)
+    void write(const Tree& tree, std::ostream& out) const
+    {
+      write_(tree, out);
+    }
+    void write(const PhyloTree& tree, const std::string& path, bool overwrite = true) const
+    {
+      AbstractOTree::write(tree, path, overwrite);
+    }
+    void write(const PhyloTree& tree, std::ostream& out) const
     {
       write_(tree, out);
     }
@@ -117,12 +134,19 @@ namespace bpp
      *
      * @{
      */
-    void read(const std::string& path, std::vector<Tree*>& trees) const throw (Exception)
+    void read(const std::string& path, std::vector<Tree*>& trees) const
     {
       AbstractIMultiTree::read(path, trees);
     }
-    void read(std::istream& in, std::vector<Tree*>& trees) const throw (Exception);
-    /**@}*/
+    void read(std::istream& in, std::vector<Tree*>& trees) const;
+
+    void read(const std::string& path, std::vector<PhyloTree*>& trees) const
+    {
+      AbstractIMultiTree::read(path, trees);
+    }
+    
+    void read(std::istream& in, std::vector<PhyloTree*>& trees) const;
+/**@}*/
 
     /**
      * @name The OMultiTree interface
@@ -130,26 +154,38 @@ namespace bpp
      * @{
      */
 
-    void write(const std::vector<const Tree*>& trees, const std::string& path, bool overwrite = true) const throw (Exception)
+    void write(const std::vector<const Tree*>& trees, const std::string& path, bool overwrite = true) const
     {
       AbstractOMultiTree::write(trees, path, overwrite);
     }
-    void write(const std::vector<const Tree*>& trees, std::ostream& out) const throw (Exception)
+    void write(const std::vector<const Tree*>& trees, std::ostream& out) const
+    {
+      write_(trees, out);
+    }
+    void write(const std::vector<const PhyloTree*>& trees, const std::string& path, bool overwrite = true) const
+    {
+      AbstractOMultiTree::write(trees, path, overwrite);
+    }
+    void write(const std::vector<const PhyloTree*>& trees, std::ostream& out) const
     {
       write_(trees, out);
     }
     /** @} */
 
   protected:
-    void write_(const Tree& tree, std::ostream& out) const throw (Exception);
-    
-    template<class N>
-    void write_(const TreeTemplate<N>& tree, std::ostream& out) const throw (Exception);
+    void write_(const Tree& tree, std::ostream& out) const;
 
-    void write_(const std::vector<const Tree*>& trees, std::ostream& out) const throw (Exception);
-    
+    void write_(const PhyloTree& tree, std::ostream& out) const;
+
     template<class N>
-    void write_(const std::vector<TreeTemplate<N>*>& trees, std::ostream& out) const throw (Exception);
+    void write_(const TreeTemplate<N>& tree, std::ostream& out) const;
+
+    void write_(const std::vector<const Tree*>& trees, std::ostream& out) const;
+
+    void write_(const std::vector<const PhyloTree*>& trees, std::ostream& out) const;
+
+    template<class N>
+    void write_(const std::vector<TreeTemplate<N>*>& trees, std::ostream& out) const;
 
   };
 

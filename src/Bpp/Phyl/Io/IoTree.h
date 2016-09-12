@@ -41,6 +41,7 @@
 #define _IOTREE_H_
 
 #include "../Tree/Tree.h"
+#include "../Tree/PhyloTree.h"
 
 // From the STL:
 #include <string>
@@ -86,7 +87,10 @@ namespace bpp
      * @return A new tree object.
      * @throw Exception If an error occured.
      */
-    virtual Tree* read(const std::string& path) const throw (Exception) = 0;
+
+    virtual Tree* read(const std::string& path) const = 0;
+    virtual PhyloTree* readP(const std::string& path) const = 0;
+    
     /**
      * @brief Read a tree from a stream.
      *
@@ -94,7 +98,9 @@ namespace bpp
      * @return A new tree object.
      * @throw Exception If an error occured.
      */
-    virtual Tree* read(std::istream& in) const throw (Exception) = 0;
+    
+    virtual Tree* read(std::istream& in) const = 0;
+    virtual PhyloTree* readP(std::istream& in) const = 0;
   };
 
 /**
@@ -117,15 +123,18 @@ namespace bpp
      * Otherwise append to the file.
      * @throw Exception If an error occured.
      */
-    virtual void write(const Tree& tree, const std::string& path, bool overwrite) const throw (Exception) = 0;
-    /**
+    virtual void write(const Tree& tree, const std::string& path, bool overwrite) const = 0;
+    virtual void write(const PhyloTree& tree, const std::string& path, bool overwrite) const = 0;
+/**
      * @brief Write a tree to a stream.
      *
      * @param tree A tree object.
      * @param out The output stream.
      * @throw Exception If an error occured.
      */
-    virtual void write(const Tree& tree, std::ostream& out) const throw (Exception) = 0;
+    virtual void write(const Tree& tree, std::ostream& out) const = 0;
+    virtual void write(const PhyloTree& tree, std::ostream& out) const =  0;
+
   };
 
 /**
@@ -134,20 +143,55 @@ namespace bpp
   class AbstractITree:
     public virtual ITree
   {
+
+    /*
+     * @brief Basic element for branch description.
+     *
+     */
+    
+  protected:
+    struct Element
+    {
+    public:
+      std::string content;
+      std::string length;
+      std::string annotation;
+      bool isLeaf;
+
+    public:
+      Element() : content(),
+                  length(),
+                  annotation(),
+                  isLeaf(false) {}
+    };
+
   public:
     AbstractITree() {}
     virtual ~AbstractITree() {}
 
   public:
-    virtual Tree* read(std::istream& in) const throw (Exception) = 0;
-    virtual Tree* read(const std::string& path) const throw (Exception)
+    virtual Tree* read(std::istream& in) const = 0;
+    virtual Tree* read(const std::string& path) const
     {
       std::ifstream input(path.c_str(), std::ios::in);
       Tree* tree = read(input);
       input.close();
       return tree;
     }
+    virtual PhyloTree* readP(std::istream& in) const = 0;
+    virtual PhyloTree* readP(const std::string& path) const
+    {
+      std::ifstream input(path.c_str(), std::ios::in);
+      PhyloTree* tree = readP(input);
+      input.close();
+      return tree;
+    }
 
+    virtual Element getElement(const std::string& elt)
+    {
+      return Element();
+    }
+    
   };
 
 /**
@@ -161,8 +205,27 @@ namespace bpp
     virtual ~AbstractOTree() {}
 
   public:
-    void write(const Tree& tree, std::ostream& out) const throw (Exception) = 0;
-    virtual void write(const Tree& tree, const std::string& path, bool overwrite) const throw (Exception)
+    void write(const Tree& tree, std::ostream& out) const = 0;
+    virtual void write(const Tree& tree, const std::string& path, bool overwrite) const
+    {
+      try {
+        // Open file in specified mode
+
+        std::ofstream output(path.c_str(), overwrite ? (std::ios::out) : (std::ios::out|std::ios::app));
+        write(tree, output);
+        output.close();
+      }
+      catch (IOException e)
+      {
+        std::stringstream ss ;
+        ss << e.what() <<"\nProblem writing tree to file "<< path <<"\n Is the file path correct and do \
+you have the proper authorizations? ";
+        throw (IOException ( ss.str() ) );
+      }
+
+    }
+    void write(const PhyloTree& tree, std::ostream& out) const = 0;
+    virtual void write(const PhyloTree& tree, const std::string& path, bool overwrite) const
     {
       try {
         // Open file in specified mode
@@ -203,7 +266,8 @@ you have the proper authorizations? ";
      * @param trees The output trees container.
      * @throw Exception If an error occured.
      */
-    virtual void read(const std::string& path, std::vector<Tree*>& trees) const throw (Exception) = 0;
+    virtual void read(const std::string& path, std::vector<Tree*>& trees) const = 0;
+    virtual void read(const std::string& path, std::vector<PhyloTree*>& trees) const = 0;
     /**
      * @brief Read trees from a stream.
      *
@@ -211,7 +275,8 @@ you have the proper authorizations? ";
      * @param trees The output trees container.
      * @throw Exception If an error occured.
      */
-    virtual void read(std::istream& in, std::vector<Tree*>& trees) const throw (Exception) = 0;
+    virtual void read(std::istream& in, std::vector<Tree*>& trees) const = 0;
+    virtual void read(std::istream& in, std::vector<PhyloTree*>& trees) const = 0;
   };
 
 /**
@@ -235,7 +300,8 @@ you have the proper authorizations? ";
      * @throw Exception If an error occured.
      */
 
-    virtual void write(const std::vector<const Tree*>& trees, const std::string& path, bool overwrite) const throw (Exception) = 0;
+    virtual void write(const std::vector<const Tree*>& trees, const std::string& path, bool overwrite) const = 0;
+    virtual void write(const std::vector<const PhyloTree*>& trees, const std::string& path, bool overwrite) const = 0;
 
     /**
      * @brief Write trees to a stream.
@@ -245,7 +311,8 @@ you have the proper authorizations? ";
      * @throw Exception If an error occured.
      */
 
-    virtual void write(const std::vector<const Tree*>& trees, std::ostream& out) const throw (Exception) = 0;
+    virtual void write(const std::vector<const Tree*>& trees, std::ostream& out) const = 0;
+    virtual void write(const std::vector<const PhyloTree*>& trees, std::ostream& out) const = 0;
   };
 
   /**
@@ -259,8 +326,15 @@ you have the proper authorizations? ";
     virtual ~AbstractIMultiTree() {}
 
   public:
-    virtual void read(std::istream& in, std::vector<Tree*>& trees) const throw (Exception) = 0;
-    virtual void read(const std::string& path, std::vector<Tree*>& trees) const throw (Exception)
+    virtual void read(std::istream& in, std::vector<Tree*>& trees) const = 0;
+    virtual void read(const std::string& path, std::vector<Tree*>& trees) const
+    {
+      std::ifstream input(path.c_str(), std::ios::in);
+      read(input, trees);
+      input.close();
+    }
+    virtual void read(std::istream& in, std::vector<PhyloTree*>& trees) const = 0;
+    virtual void read(const std::string& path, std::vector<PhyloTree*>& trees) const
     {
       std::ifstream input(path.c_str(), std::ios::in);
       read(input, trees);
@@ -280,8 +354,17 @@ you have the proper authorizations? ";
     virtual ~AbstractOMultiTree() {}
 
   public:
-    void write(const std::vector<const Tree*>& trees, std::ostream& out) const throw (Exception) = 0;
-    virtual void write(const std::vector<const Tree*>& trees, const std::string& path, bool overwrite) const throw (Exception)
+    void write(const std::vector<const Tree*>& trees, std::ostream& out) const = 0;
+    virtual void write(const std::vector<const Tree*>& trees, const std::string& path, bool overwrite) const
+
+    {
+      // Open file in specified mode
+      std::ofstream output(path.c_str(), overwrite ? (std::ios::out) : (std::ios::out|std::ios::app));
+      write(trees, output);
+      output.close();
+    }
+    void write(const std::vector<const PhyloTree*>& trees, std::ostream& out) const = 0;
+    virtual void write(const std::vector<const PhyloTree*>& trees, const std::string& path, bool overwrite) const
 
     {
       // Open file in specified mode
