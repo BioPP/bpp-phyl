@@ -12,16 +12,16 @@ This software is a computer program whose purpose is to provide classes
 for phylogenetic data analysis.
 
 This software is governed by the CeCILL  license under French law and
-abiding by the rules of distribution of free software.  You can  use, 
+abiding by the rules of distribution of free software.  You can  use,
 modify and/ or redistribute the software under the terms of the CeCILL
 license as circulated by CEA, CNRS and INRIA at the following URL
-"http://www.cecill.info". 
+"http://www.cecill.info".
 
 As a counterpart to the access to the source code and  rights to copy,
 modify and redistribute granted by the license, users are provided only
 with a limited warranty  and the software's author,  the holder of the
 economic rights,  and the successive licensors  have only  limited
-liability. 
+liability.
 
 In this respect, the user's attention is drawn to the risks associated
 with loading,  using,  modifying and/or developing or reproducing the
@@ -30,9 +30,9 @@ that may mean  that it is complicated to manipulate,  and  that  also
 therefore means  that it is reserved for developers  and  experienced
 professionals having in-depth computer knowledge. Users are therefore
 encouraged to load and test the software's suitability as regards their
-requirements in conditions enabling the security of their systems and/or 
-data to be ensured and,  more generally, to use and operate it in the 
-same conditions as regards security. 
+requirements in conditions enabling the security of their systems and/or
+data to be ensured and,  more generally, to use and operate it in the
+same conditions as regards security.
 
 The fact that you are presently reading this means that you have had
 knowledge of the CeCILL license and that you accept its terms.
@@ -104,13 +104,13 @@ class NonHomogeneousSequenceSimulator:
     const Tree                * templateTree_;
     mutable TreeTemplate<SNode> tree_;
     bool ownModelSet_;
-  
+
     /**
      * @brief This stores once for all all leaves in a given order.
      * This order will be used during site creation.
      */
     std::vector<SNode*> leaves_;
-  
+
     std::vector<std::string> seqNames_;
 
     size_t nbNodes_;
@@ -118,14 +118,17 @@ class NonHomogeneousSequenceSimulator:
     size_t nbStates_;
 
     bool continuousRates_;
-  
+
+    // Should we ouptut internal sequences as well?
+    bool outputInternalSequences_;
+
     /**
      * @name Stores intermediate results.
      *
      * @{
      */
 
-  public:    
+  public:
     NonHomogeneousSequenceSimulator(
       const SubstitutionModelSet* modelSet,
       const DiscreteDistribution* rate,
@@ -137,7 +140,7 @@ class NonHomogeneousSequenceSimulator:
       const DiscreteDistribution* rate,
       const Tree* tree
     );
-      
+
     virtual ~NonHomogeneousSequenceSimulator()
     {
       if (ownModelSet_ && modelSet_) delete modelSet_;
@@ -156,7 +159,8 @@ class NonHomogeneousSequenceSimulator:
       nbNodes_        (nhss.nbNodes_),
       nbClasses_      (nhss.nbClasses_),
       nbStates_       (nhss.nbStates_),
-      continuousRates_(nhss.continuousRates_)
+      continuousRates_(nhss.continuousRates_),
+      outputInternalSequences_(nhss.outputInternalSequences_)
     {}
 
     NonHomogeneousSequenceSimulator& operator=(const NonHomogeneousSequenceSimulator& nhss)
@@ -174,6 +178,7 @@ class NonHomogeneousSequenceSimulator:
       nbClasses_       = nhss.nbClasses_;
       nbStates_        = nhss.nbStates_;
       continuousRates_ = nhss.continuousRates_;
+      outputInternalSequences_ = nhss.outputInternalSequences_;
       return *this;
     }
 
@@ -188,7 +193,7 @@ class NonHomogeneousSequenceSimulator:
     void init();
 
   public:
-  
+
     /**
      * @name The SiteSimulator interface
      *
@@ -199,23 +204,23 @@ class NonHomogeneousSequenceSimulator:
     Site* simulateSite(size_t ancestralStateIndex) const;
 
     Site* simulateSite(size_t ancestralStateIndex, double rate) const;
-    
+
     Site* simulateSite(double rate) const;
 
     std::vector<std::string> getSequencesNames() const { return seqNames_; }
     /** @} */
-    
+
     /**
      * @name The DetailedSiteSimulator interface.
      *
      * @{
      */
     RASiteSimulationResult* dSimulateSite() const;
-    
+
     RASiteSimulationResult* dSimulateSite(size_t ancestralStateIndex) const;
-    
+
     RASiteSimulationResult* dSimulateSite(size_t ancestralStateIndex, double rate) const;
-    
+
     RASiteSimulationResult* dSimulateSite(double rate) const;
     /** @} */
 
@@ -226,7 +231,7 @@ class NonHomogeneousSequenceSimulator:
      */
     SiteContainer* simulate(size_t numberOfSites) const;
     /** @} */
-    
+
     /**
      * @name SiteSimulator and SequenceSimulator interface
      *
@@ -243,14 +248,14 @@ class NonHomogeneousSequenceSimulator:
     virtual Site* simulateSite(size_t ancestralStateIndex, size_t rateClass) const;
     virtual RASiteSimulationResult* dSimulateSite(size_t ancestralStateIndex, size_t rateClass) const;
     /** @} */
-  
+
     /**
      * @brief Get the substitution model associated to this instance.
      *
      * @return The substitution model associated to this instance.
      */
     const SubstitutionModelSet* getSubstitutionModelSet() const { return modelSet_; }
-    
+
     /**
      * @brief Get the rate distribution associated to this instance.
      *
@@ -273,9 +278,18 @@ class NonHomogeneousSequenceSimulator:
      * @param yn Tell if we should use continuous rates.
      */
     void enableContinuousRates(bool yn) { continuousRates_ = yn; }
-  
+
+    /**
+     * @brief Sets whether we will output the internal sequences or not.
+     *
+     *
+     * @param yn Tell if we should output internal sequences.
+     */
+    void outputInternalSequences(bool yn) { outputInternalSequences_ = yn; }
+
+
   protected:
-    
+
     /**
      * @brief Evolve from an initial state along a branch, knowing the evolutionary rate class.
      *
@@ -283,7 +297,7 @@ class NonHomogeneousSequenceSimulator:
      * This method is used for the implementation of the SiteSimulator interface.
      */
     size_t evolve(const SNode* node, size_t initialStateIndex, size_t rateClass) const;
-    
+
     /**
      * @brief Evolve from an initial state along a branch, knowing the evolutionary rate.
      *
@@ -291,7 +305,7 @@ class NonHomogeneousSequenceSimulator:
      * This method is used for the implementation of the SiteSimulator interface.
      */
     size_t evolve(const SNode* node, size_t initialStateIndex, double rate) const;
-    
+
     /**
      * @brief The same as the evolve(initialState, rateClass) function, but for several sites at a time.
      *
@@ -305,9 +319,9 @@ class NonHomogeneousSequenceSimulator:
     SiteContainer* multipleEvolve(
         const std::vector<size_t>& initialStates,
         const std::vector<size_t>& rateClasses) const;
-    
+
     void dEvolve(size_t initialState, double rate, RASiteSimulationResult& rassr) const;
-    
+
     /**
      * @name The 'Internal' methods.
      *
@@ -338,4 +352,3 @@ class NonHomogeneousSequenceSimulator:
 } //end of namespace bpp.
 
 #endif //_NONHOMOGENEOUSSEQUENCESIMULATOR_H_
-

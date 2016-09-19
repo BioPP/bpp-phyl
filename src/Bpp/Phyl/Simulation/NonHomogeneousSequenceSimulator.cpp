@@ -493,19 +493,40 @@ SiteContainer* NonHomogeneousSequenceSimulator::multipleEvolve(
   }
   // Now create a SiteContainer object:
   AlignedSequenceContainer* sites = new AlignedSequenceContainer(alphabet_);
-  size_t n = leaves_.size();
   size_t nbSites = initialStateIndices.size();
   const SubstitutionModel* model = 0;
-  for (size_t i = 0; i < n; i++)
-  {
-    vector<int> content(nbSites);
-    vector<size_t>& states = leaves_[i]->getInfos().states;
-    model = leaves_[i]->getInfos().model;
-    for (size_t j = 0; j < nbSites; j++)
+  if (outputInternalSequences_) {
+    vector<SNode*> nodes = tree_.getNodes();
+    size_t n = nbNodes_ ;
+    for (size_t i = 0; i < n; i++)
     {
-      content[j] = model->getAlphabetStateAsInt(states[j]);
+      vector<int> content(nbSites);
+      vector<size_t>& states = nodes[i]->getInfos().states;
+      model = nodes[i]->getInfos().model;
+      for (size_t j = 0; j < nbSites; j++)
+      {
+        content[j] = model->getAlphabetStateAsInt(states[j]);
+      }
+      if (nodes[i]->isLeaf())
+        sites->addSequence(BasicSequence(nodes[i]->getName(), content, alphabet_), false);
+      else
+        sites->addSequence(BasicSequence(TextTools::toString(nodes[i]->getId()), content, alphabet_), false);
+
     }
-    sites->addSequence(BasicSequence(leaves_[i]->getName(), content, alphabet_), false);
+  }
+    else {
+    size_t n = leaves_.size();
+    for (size_t i = 0; i < n; i++)
+    {
+      vector<int> content(nbSites);
+      vector<size_t>& states = leaves_[i]->getInfos().states;
+      model = leaves_[i]->getInfos().model;
+      for (size_t j = 0; j < nbSites; j++)
+      {
+        content[j] = model->getAlphabetStateAsInt(states[j]);
+      }
+      sites->addSequence(BasicSequence(leaves_[i]->getName(), content, alphabet_), false);
+    }
   }
   return sites;
 }
@@ -547,4 +568,3 @@ void NonHomogeneousSequenceSimulator::dEvolveInternal(SNode* node, double rate, 
 }
 
 /******************************************************************************/
-
