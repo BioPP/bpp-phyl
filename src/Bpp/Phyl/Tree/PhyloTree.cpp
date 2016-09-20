@@ -40,7 +40,6 @@ using namespace bpp;
 using namespace std;
 
 PhyloTree::PhyloTree(bool rooted) :
-  SimpleAssociationGraphObserver<PhyloNode,PhyloBranch,SimpleTreeGraph<SimpleGraph> >(rooted),
   SimpleAssociationTreeGraphObserver<PhyloNode,PhyloBranch,SimpleTreeGraph<SimpleGraph> >(rooted),
   name_("")
 {
