@@ -70,7 +70,8 @@ NonHomogeneousSequenceSimulator::NonHomogeneousSequenceSimulator(
   nbNodes_(),
   nbClasses_(rate_->getNumberOfCategories()),
   nbStates_(modelSet_->getNumberOfStates()),
-  continuousRates_(false)
+  continuousRates_(false),
+  outputInternalSequences_(false)
 {
   if (!modelSet->isFullySetUpFor(*tree))
     throw Exception("NonHomogeneousSequenceSimulator(constructor). Model set is not fully specified.");
@@ -95,7 +96,8 @@ NonHomogeneousSequenceSimulator::NonHomogeneousSequenceSimulator(
   nbNodes_(),
   nbClasses_(rate_->getNumberOfCategories()),
   nbStates_(model->getNumberOfStates()),
-  continuousRates_(false)
+  continuousRates_(false),
+  outputInternalSequences_(false)
 {
   FixedFrequenciesSet* fSet = new FixedFrequenciesSet(model->getStateMap().clone(), model->getFrequencies());
   fSet->setNamespace("anc.");
