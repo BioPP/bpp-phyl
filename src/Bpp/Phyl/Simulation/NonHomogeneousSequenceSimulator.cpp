@@ -109,13 +109,28 @@ NonHomogeneousSequenceSimulator::NonHomogeneousSequenceSimulator(
 
 void NonHomogeneousSequenceSimulator::init()
 {
-  seqNames_.resize(leaves_.size());
-  for (size_t i = 0; i < seqNames_.size(); i++)
-  {
-    seqNames_[i] = leaves_[i]->getName();
+  vector<SNode*> nodes = tree_.getNodes();
+
+  if (outputInternalSequences_) {
+    seqNames_.resize(nodes.size());
+    for (size_t i = 0; i < seqNames_.size(); i++)
+    {
+      if (nodes[i]->isLeaf()) {
+        seqNames_[i] = nodes[i]->getName();
+      }
+    else {
+      seqNames_[i] = TextTools::toString( nodes[i]->getId() );
+      }
+    }
+  }
+  else {
+    seqNames_.resize(leaves_.size());
+    for (size_t i = 0; i < seqNames_.size(); i++)
+    {
+      seqNames_[i] = leaves_[i]->getName();
+    }
   }
   // Initialize cumulative pxy:
-  vector<SNode*> nodes = tree_.getNodes();
   nodes.pop_back(); // remove root
   nbNodes_ = nodes.size();
 
@@ -198,10 +213,29 @@ Site* NonHomogeneousSequenceSimulator::simulateSite(size_t ancestralStateIndex, 
     evolveInternal(root->getSon(i), rateClass);
   }
   // Now create a Site object:
-  Vint site(leaves_.size());
-  for (size_t i = 0; i < leaves_.size(); ++i)
-  {
-    site[i] = leaves_[i]->getInfos().model->getAlphabetStateAsInt(leaves_[i]->getInfos().state);
+  size_t n = nbNodes_ + 1 ;
+  if (! outputInternalSequences_) {
+    n = leaves_.size() ;
+  }
+  Vint site(n);
+
+  if (outputInternalSequences_) {
+  vector<SNode*> nodes = tree_.getNodes();
+  for (size_t i = 0; i < n; i++)
+    {
+      if (i == n - 1) { // We take the model of node i-1 because the root has no model
+        site[i] = nodes[i-1]->getInfos().model->getAlphabetStateAsInt(nodes[i]->getInfos().state);
+      }
+      else {
+        site[i] = nodes[i]->getInfos().model->getAlphabetStateAsInt(nodes[i]->getInfos().state);
+      }
+    }
+  }
+  else {
+    for (size_t i = 0; i < leaves_.size(); ++i)
+    {
+      site[i] = leaves_[i]->getInfos().model->getAlphabetStateAsInt(leaves_[i]->getInfos().state);
+    }
   }
   return new Site(site, alphabet_);
 }
@@ -218,10 +252,29 @@ Site* NonHomogeneousSequenceSimulator::simulateSite(size_t ancestralStateIndex, 
     evolveInternal(root->getSon(i), rate);
   }
   // Now create a Site object:
-  Vint site(leaves_.size());
-  for (size_t i = 0; i < leaves_.size(); i++)
-  {
-    site[i] = leaves_[i]->getInfos().model->getAlphabetStateAsInt(leaves_[i]->getInfos().state);
+  size_t n = nbNodes_ + 1 ;
+  if (! outputInternalSequences_) {
+    n = leaves_.size() ;
+  }
+  Vint site(n);
+
+  if (outputInternalSequences_) {
+  vector<SNode*> nodes = tree_.getNodes();
+  for (size_t i = 0; i < n; i++)
+    {
+      if (i == n - 1) { // We take the model of node i-1 because the root has no model
+        site[i] = nodes[i-1]->getInfos().model->getAlphabetStateAsInt(nodes[i]->getInfos().state);
+      }
+      else {
+        site[i] = nodes[i]->getInfos().model->getAlphabetStateAsInt(nodes[i]->getInfos().state);
+      }
+    }
+  }
+  else {
+    for (size_t i = 0; i < leaves_.size(); i++)
+    {
+      site[i] = leaves_[i]->getInfos().model->getAlphabetStateAsInt(leaves_[i]->getInfos().state);
+    }
   }
   return new Site(site, alphabet_);
 }
@@ -499,12 +552,17 @@ SiteContainer* NonHomogeneousSequenceSimulator::multipleEvolve(
   const SubstitutionModel* model = 0;
   if (outputInternalSequences_) {
     vector<SNode*> nodes = tree_.getNodes();
-    size_t n = nbNodes_ ;
+    size_t n = nbNodes_ + 1 ;
     for (size_t i = 0; i < n; i++)
     {
       vector<int> content(nbSites);
       vector<size_t>& states = nodes[i]->getInfos().states;
-      model = nodes[i]->getInfos().model;
+      if (i == n - 1) { // If at the root, there is no model, so we take the model of node n-1.
+        model = nodes[i-1]->getInfos().model;
+      }
+      else {
+        model = nodes[i]->getInfos().model;
+      }
       for (size_t j = 0; j < nbSites; j++)
       {
         content[j] = model->getAlphabetStateAsInt(states[j]);
@@ -513,7 +571,6 @@ SiteContainer* NonHomogeneousSequenceSimulator::multipleEvolve(
         sites->addSequence(BasicSequence(nodes[i]->getName(), content, alphabet_), false);
       else
         sites->addSequence(BasicSequence(TextTools::toString(nodes[i]->getId()), content, alphabet_), false);
-
     }
   }
     else {
@@ -566,6 +623,32 @@ void NonHomogeneousSequenceSimulator::dEvolveInternal(SNode* node, double rate, 
   for (size_t i = 0; i < node->getNumberOfSons(); i++)
   {
     dEvolveInternal(node->getSon(i), rate, rassr);
+  }
+}
+
+/******************************************************************************/
+
+void NonHomogeneousSequenceSimulator::outputInternalSequences(bool yn) {
+  outputInternalSequences_ = yn;
+  if (outputInternalSequences_) {
+    vector<SNode*> nodes = tree_.getNodes();
+    seqNames_.resize(nodes.size());
+    for (size_t i = 0; i < seqNames_.size(); i++)
+    {
+      if (nodes[i]->isLeaf()) {
+        seqNames_[i] = nodes[i]->getName();
+      }
+    else {
+      seqNames_[i] = TextTools::toString( nodes[i]->getId() );
+      }
+    }
+  }
+  else {
+    seqNames_.resize(leaves_.size());
+    for (size_t i = 0; i < seqNames_.size(); i++)
+    {
+      seqNames_[i] = leaves_[i]->getName();
+    }
   }
 }
 

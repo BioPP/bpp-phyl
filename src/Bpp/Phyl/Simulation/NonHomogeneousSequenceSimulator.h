@@ -285,7 +285,7 @@ class NonHomogeneousSequenceSimulator:
      *
      * @param yn Tell if we should output internal sequences.
      */
-    void outputInternalSequences(bool yn) { outputInternalSequences_ = yn; }
+    void outputInternalSequences(bool yn) ;
 
 
   protected:
@@ -316,6 +316,7 @@ class NonHomogeneousSequenceSimulator:
         const std::vector<size_t>& initialStateIndices,
         const std::vector<size_t>& rateClasses,
         std::vector<size_t>& finalStates) const;
+
     SiteContainer* multipleEvolve(
         const std::vector<size_t>& initialStates,
         const std::vector<size_t>& rateClasses) const;
