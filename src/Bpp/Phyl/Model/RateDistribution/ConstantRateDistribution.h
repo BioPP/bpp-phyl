@@ -53,7 +53,7 @@ class ConstantRateDistribution:
       AbstractParameterAliasable("Constant."),
       ConstantDistribution(1.)
     {
-      deleteParameter_(0);
+      resetParameters_();
     }
 
     ConstantRateDistribution* clone() const { return new ConstantRateDistribution(*this); }
