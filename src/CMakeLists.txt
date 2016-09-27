@@ -397,6 +397,3 @@ INSTALL(TARGETS bppphyl-static bppphyl-shared DESTINATION lib${LIB_SUFFIX})
 # Install headers
 INSTALL(DIRECTORY Bpp/ DESTINATION include/Bpp FILES_MATCHING PATTERN "*.h")
 
-# Generate generic include files (.all)
-INSTALL(CODE "EXECUTE_PROCESS(COMMAND ${CMAKE_SOURCE_DIR}/genIncludes.sh ${CMAKE_PREFIX_PATH}/include/Bpp)")
-
