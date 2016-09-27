@@ -63,6 +63,8 @@
 #include "../Model/Codon/CodonDistanceCpGSubstitutionModel.h"
 #include "../Model/Codon/CodonRateFrequenciesSubstitutionModel.h"
 #include "../Model/Codon/KroneckerCodonDistanceFrequenciesSubstitutionModel.h"
+#include "../Model/Codon/KroneckerCodonDistanceSubstitutionModel.h"
+#include "../Model/Codon/KCM.h"
 #include "../Model/Codon/CodonDistanceFrequenciesSubstitutionModel.h"
 #include "../Model/Codon/CodonDistancePhaseFrequenciesSubstitutionModel.h"
 #include "../Model/Codon/SENCA.h"
@@ -172,7 +174,9 @@ SubstitutionModel* BppOSubstitutionModelFormat::read(
   // //////////////////////////////////////
 
   else if (((modelName == "MG94") || (modelName == "YN98") ||
-            (modelName == "GY94") || (modelName.substr(0, 5) == "YNGKP")) && (alphabetCode_ & CODON))
+            (modelName == "GY94") || (modelName.substr(0, 5) == "YNGKP") ||
+            (modelName.substr(0,3) == "KCM")
+             ) && (alphabetCode_ & CODON))
   {
     if (!(alphabetCode_ & CODON))
       throw Exception("BppOSubstitutionModelFormat::read. Codon alphabet not supported.");
@@ -247,6 +251,10 @@ SubstitutionModel* BppOSubstitutionModelFormat::read(
       else
         model.reset(new YNGKP_M10(geneticCode_, codonFreqs.release(), nbBeta, nbGamma));
     }
+    else if (modelName == "KCM7")
+      model.reset(new KCM(geneticCode_, true));
+    else if (modelName == "KCM19")
+      model.reset(new KCM(geneticCode_, false));
     else
       throw Exception("Unknown Codon model: " + modelName);
   }
@@ -1118,6 +1126,41 @@ SubstitutionModel* BppOSubstitutionModelFormat::readWord_(const Alphabet* alphab
                         dynamic_cast<NucleotideSubstitutionModel*>(v_pSM[2]),
                         vposKron, 
                         pFS.release(),
+                        pai2.release()));
+
+      }
+    }
+    else if (modelName == "KronDist")
+    {
+      if (v_nestedModelDescription.size() != 3){
+        
+        if (vposKron.size()==0)
+          model.reset(new KroneckerCodonDistanceSubstitutionModel(geneticCode_,
+                                                                             dynamic_cast<NucleotideSubstitutionModel*>(v_pSM[0]),
+                                                                             pai2.release()));
+        else
+          model.reset(new KroneckerCodonDistanceSubstitutionModel(geneticCode_,
+                                                                             dynamic_cast<NucleotideSubstitutionModel*>(v_pSM[0]),
+                                                                             vposKron,
+                                                                             pai2.release()));
+
+      }
+      else
+      {
+        if (vposKron.size()!=0)
+          model.reset(new KroneckerCodonDistanceSubstitutionModel(
+                        geneticCode_,
+                        dynamic_cast<NucleotideSubstitutionModel*>(v_pSM[0]),
+                        dynamic_cast<NucleotideSubstitutionModel*>(v_pSM[1]),
+                        dynamic_cast<NucleotideSubstitutionModel*>(v_pSM[2]),
+                        pai2.release()));
+        else
+          model.reset(new KroneckerCodonDistanceSubstitutionModel(
+                        geneticCode_,
+                        dynamic_cast<NucleotideSubstitutionModel*>(v_pSM[0]),
+                        dynamic_cast<NucleotideSubstitutionModel*>(v_pSM[1]),
+                        dynamic_cast<NucleotideSubstitutionModel*>(v_pSM[2]),
+                        vposKron, 
                         pai2.release()));
 
       }
