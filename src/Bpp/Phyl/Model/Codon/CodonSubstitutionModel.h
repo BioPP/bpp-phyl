@@ -40,8 +40,6 @@
 #ifndef _CODONSUBSTITUTIONMODEL_H_
 #define _CODONSUBSTITUTIONMODEL_H_
 
-#include <Bpp/Numeric/ParameterAliasable.h>
-
 //From bpp-seq:
 #include <Bpp/Seq/GeneticCode/GeneticCode.h>
 

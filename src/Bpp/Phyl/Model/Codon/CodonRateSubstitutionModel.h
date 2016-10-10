@@ -97,11 +97,8 @@ public:
   clone() const { return new CodonRateSubstitutionModel(*this); }
 
 public:
-  void fireParameterChanged(const ParameterList& parameterlist);
-  
   std::string getName() const;
 
-  double getCodonsMulRate(size_t i, size_t j) const;
 };
 
 } // end of namespace bpp.

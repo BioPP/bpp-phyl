@@ -39,7 +39,7 @@
 #ifndef _ABSTRACTCODONPHASEFREQUENCIESSUBSTITUTIONMODEL_H_
 #define _ABSTRACTCODONPHASEFREQUENCIESSUBSTITUTIONMODEL_H_
 
-#include "AbstractCodonSubstitutionModel.h"
+#include "CodonSubstitutionModel.h"
 #include "../FrequenciesSet/CodonFrequenciesSet.h"
 
 namespace bpp

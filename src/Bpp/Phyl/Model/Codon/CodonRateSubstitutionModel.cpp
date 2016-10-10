@@ -70,13 +70,4 @@ std::string CodonRateSubstitutionModel::getName() const
   return "CodonRate";
 }
 
-void CodonRateSubstitutionModel::fireParameterChanged(const ParameterList& parameters)
-{
-  AbstractCodonSubstitutionModel::fireParameterChanged(parameters);
-}
-
-double CodonRateSubstitutionModel::getCodonsMulRate(size_t i, size_t j) const
-{
-  return AbstractCodonSubstitutionModel::getCodonsMulRate(i,j);
-}
 
