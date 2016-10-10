@@ -99,7 +99,6 @@ public:
 public:
   std::string getName() const;
 
-  double getCodonsMulRate(size_t i, size_t j) const;
 };
 
 } // end of namespace bpp.

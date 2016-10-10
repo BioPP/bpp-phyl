@@ -1,7 +1,7 @@
 //
-// File: CodonSubstitutionModel.cpp
+// File: KCM.cpp
 // Created by:  Laurent Gueguen
-// Created on: Feb 2009
+// Created on: vendredi 23 septembre 2016, à 11h 39
 //
 
 /*
@@ -36,8 +36,11 @@
    knowledge of the CeCILL license and that you accept its terms.
  */
 
-#include "CodonRateSubstitutionModel.h"
+#include "KCM.h"
+#include "../Nucleotide/GTR.h"
 
+#include "../FrequenciesSet/CodonFrequenciesSet.h"
+#include <Bpp/Numeric/NumConstants.h>
 
 using namespace bpp;
 
@@ -45,29 +48,63 @@ using namespace std;
 
 /******************************************************************************/
 
-CodonRateSubstitutionModel::CodonRateSubstitutionModel(
-    const GeneticCode* gCode,
-    NucleotideSubstitutionModel* pmod) :
-  AbstractParameterAliasable("CodonRate."),
-  AbstractCodonSubstitutionModel(gCode, pmod, "CodonRate.", true)
+KCM::KCM(const GeneticCode* gc, bool oneModel) :
+  AbstractBiblioSubstitutionModel("KCM"+string(oneModel?"7":"19")+"."),
+  pmodel_(),
+  oneModel_(oneModel)
 {
+  const NucleicAlphabet* nalph=dynamic_cast<const CodonAlphabet*>(gc->getSourceAlphabet())->getNucleicAlphabet();
+  
+  if (oneModel)
+    pmodel_.reset(new KroneckerCodonDistanceSubstitutionModel(gc, new GTR(nalph)));
+  else
+    pmodel_.reset(new KroneckerCodonDistanceSubstitutionModel(gc, new GTR(nalph), new GTR(nalph), new GTR(nalph)));
+
+  string name="KCM"+string(oneModel?"7":"19")+".";
+
+  pmodel_->setNamespace(name);
+
+  addParameters_(pmodel_->getParameters());
+
+  getParameter_("beta").setName(name+"omega"),
+  // deleteParameter("KCM.beta")N
+
+  
+  // addParameter(new Parameter("KCM.omega", 1, new IntervalConstraint(NumConstants::MILLI(), 999, true, true), true));
+
+  lParPmodel_.addParameters(pmodel_->getParameters());
+
+  vector<std::string> v = lParPmodel_.getParameterNames();
+
+  for (size_t i = 0; i < v.size(); i++)
+    mapParNamesFromPmodel_[v[i]] = getParameterNameWithoutNamespace(v[i]);
+
+  mapParNamesFromPmodel_[name+"beta"] = "omega";
+
+  cerr << "ok" << endl;
+  
+  getParameters().printParameters(cerr);
+
+  cerr << "oo" << endl;
+  
+  
+  
   updateMatrices();
 }
 
-CodonRateSubstitutionModel::CodonRateSubstitutionModel(
-    const GeneticCode* gCode,
-    NucleotideSubstitutionModel* pmod1,
-    NucleotideSubstitutionModel* pmod2,
-    NucleotideSubstitutionModel* pmod3) :
-  AbstractParameterAliasable("CodonRate."),
-  AbstractCodonSubstitutionModel(gCode, pmod1, pmod2, pmod3, "CodonRate.", true)
-{
-  updateMatrices();
-}
 
-std::string CodonRateSubstitutionModel::getName() const
-{
-  return "CodonRate";
-}
+KCM::KCM(const KCM& kcm) :
+  AbstractBiblioSubstitutionModel(kcm),
+  pmodel_(new KroneckerCodonDistanceSubstitutionModel(*kcm.pmodel_)),
+  oneModel_(kcm.oneModel_)
+{}
 
+KCM& KCM::operator=(const KCM& kcm)
+{
+  AbstractBiblioSubstitutionModel::operator=(kcm);
+
+  oneModel_=kcm.oneModel_;
+  pmodel_.reset(new KroneckerCodonDistanceSubstitutionModel(*kcm.pmodel_));
+  return *this;
+}
 

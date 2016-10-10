@@ -166,7 +166,9 @@ SET(CPP_FILES
   Bpp/Phyl/Model/Codon/CodonDistanceSubstitutionModel.cpp
   Bpp/Phyl/Model/Codon/CodonDistanceCpGSubstitutionModel.cpp
   Bpp/Phyl/Model/Codon/CodonDistanceFrequenciesSubstitutionModel.cpp
-  Bpp/Phyl/Model/Codon/KroneckerCodonDistanceFrequenciesSubstitutionModel.cpp
+  Bpp/Phyl/Model/Codon/KroneckerCodonDistanceFrequenciesSubstitutionModel.cpp 
+  Bpp/Phyl/Model/Codon/KroneckerCodonDistanceSubstitutionModel.cpp
+  Bpp/Phyl/Model/Codon/KCM.cpp
   Bpp/Phyl/Model/Codon/CodonDistancePhaseFrequenciesSubstitutionModel.cpp
   Bpp/Phyl/Model/Codon/SENCA.cpp
   Bpp/Phyl/Model/Codon/CodonRateSubstitutionModel.cpp
@@ -420,6 +422,8 @@ SET(H_FILES
   Bpp/Phyl/Model/Codon/CodonDistanceCpGSubstitutionModel.h
   Bpp/Phyl/Model/Codon/CodonDistanceFrequenciesSubstitutionModel.h
   Bpp/Phyl/Model/Codon/KroneckerCodonDistanceFrequenciesSubstitutionModel.h
+  Bpp/Phyl/Model/Codon/KroneckerCodonDistanceSubstitutionModel.h
+  Bpp/Phyl/Model/Codon/KCM.h
   Bpp/Phyl/Model/Codon/CodonDistancePhaseFrequenciesSubstitutionModel.h
   Bpp/Phyl/Model/Codon/SENCA.h
   Bpp/Phyl/Model/Codon/CodonRateSubstitutionModel.h
@@ -508,7 +512,4 @@ INSTALL(TARGETS bppphyl-static bppphyl-shared DESTINATION lib${LIB_SUFFIX})
 
 # Install headers
 INSTALL(DIRECTORY Bpp/ DESTINATION include/Bpp FILES_MATCHING PATTERN "*.h")
-
-# Generate generic include files (.all)
-INSTALL(CODE "EXECUTE_PROCESS(COMMAND ${CMAKE_SOURCE_DIR}/genIncludes.sh ${CMAKE_PREFIX_PATH}/include/Bpp)")
 

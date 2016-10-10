@@ -95,6 +95,8 @@ public:
    * from three pointers to AbstractSubstitutionModels. NEW
    * AbstractSubstitutionModels are copied from the given ones.
    *
+   * Any number of any positions can change simultaneously
+   *
    * @param gCode pointer to a GeneticCode
    * @param pmod pointer to the NucleotideSubstitutionModel to use in
    *        the three positions. It is owned by the instance.
@@ -135,6 +137,8 @@ public:
    * @brief Build a new KroneckerCodonDistanceFrequenciesSubstitutionModel object
    * from three pointers to AbstractSubstitutionModels. NEW
    * AbstractSubstitutionModels are copied from the given ones.
+   *
+   * Any number of any positions can change simultaneously
    *
    * @param gCode pointer to a GeneticCode
    * @param pmod1, pmod2, pmod3 are pointers to the

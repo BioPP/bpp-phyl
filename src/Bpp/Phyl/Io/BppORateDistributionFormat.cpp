@@ -102,7 +102,7 @@ DiscreteDistribution* BppORateDistributionFormat::read(
       throw Exception("BppORateDistributionFormat::read(). Constant distribution not allowed.");
 
     if (args.find("value") != args.end())
-      throw Exception("Found argument 'value' in Constant distribution. Constant distribution is defined to have an average of 1.");
+      ApplicationTools::displayMessage("Found argument 'value' in Constant distribution. Constant distribution is defined to have an average of 1.");
     rDist.reset(new ConstantRateDistribution());
   }
   else if (distName == "Simple")
