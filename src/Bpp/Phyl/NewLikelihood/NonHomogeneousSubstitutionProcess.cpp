@@ -135,19 +135,19 @@ void NonHomogeneousSubstitutionProcess::setRootFrequencies(FrequenciesSet* rootF
 }
 
 
-void NonHomogeneousSubstitutionProcess::setModelToNode(size_t modelIndex, int nodeNumber)
+void NonHomogeneousSubstitutionProcess::setModelToNode(size_t modelIndex, unsigned int nodeNumber)
 {
   if (modelIndex >= nodeToModel_.size()) throw IndexOutOfBoundsException("NonHomogeneousSubstitutionProcess::setModelToNode.", modelIndex, 0, nodeToModel_.size() - 1);
   nodeToModel_[nodeNumber] = modelIndex;
   
-  vector<int> vNod;
+  vector<unsigned int> vNod;
   vNod.push_back(nodeNumber);
 
   computingTree_->addModel(modelSet_[modelIndex], vNod);
 }
 
  
-void NonHomogeneousSubstitutionProcess::addModel(SubstitutionModel* model, const std::vector<int>& nodesId)
+void NonHomogeneousSubstitutionProcess::addModel(SubstitutionModel* model, const std::vector<unsigned int>& nodesId)
 {
   if (modelSet_.size() > 0 && model->getAlphabet()->getAlphabetType() != modelSet_[0]->getAlphabet()->getAlphabetType())
     throw Exception("NonHomogeneousSubstitutionProcess::addModel. A Substitution Model cannot be added to a Substituion Process if it does not have the same alphabet.");
@@ -275,8 +275,8 @@ ParameterList NonHomogeneousSubstitutionProcess::getSubstitutionModelParameters(
 
 bool NonHomogeneousSubstitutionProcess::checkOrphanNodes(bool throwEx) const
 {
-  vector<int> ids = getTree().getNodesId();
-  int rootId = getTree().getRootId();
+  vector<unsigned int> ids = getParametrizablePhyloTree().getAllNodesIndexes();
+  unsigned int rootId = getParametrizablePhyloTree().getNodeIndex(getParametrizablePhyloTree().getRoot());
   for (size_t i = 0; i < ids.size(); i++)
     {
       if (ids[i] != rootId && nodeToModel_.find(ids[i]) == nodeToModel_.end())
@@ -290,10 +290,11 @@ bool NonHomogeneousSubstitutionProcess::checkOrphanNodes(bool throwEx) const
 
 bool NonHomogeneousSubstitutionProcess::checkUnknownNodes(bool throwEx) const
 {
-  vector<int> ids = getTree().getNodesId();
-  int id;
-  int rootId = getTree().getRootId();
-  std::map<size_t, std::vector<int> >::const_iterator it;
+  vector<unsigned int> ids = getParametrizablePhyloTree().getAllNodesIndexes();
+  unsigned int id;
+  unsigned int rootId = getParametrizablePhyloTree().getNodeIndex(getParametrizablePhyloTree().getRoot());
+
+  std::map<size_t, std::vector<unsigned int> >::const_iterator it;
   
   for (it=modelToNodes_.begin(); it!=modelToNodes_.end(); it++)
     {
@@ -338,7 +339,7 @@ NonHomogeneousSubstitutionProcess* NonHomogeneousSubstitutionProcess::createHomo
                                                                                                                 SubstitutionModel* model,
                                                                                                                 DiscreteDistribution* rdist,
                                                                                                                 FrequenciesSet* rootFreqs,
-                                                                                                                ParametrizableTree* tree
+                                                                                                                ParametrizablePhyloTree* tree
                                                                                                                 )
 {
   // Check alphabet:
@@ -350,8 +351,9 @@ NonHomogeneousSubstitutionProcess* NonHomogeneousSubstitutionProcess::createHomo
   NonHomogeneousSubstitutionProcess*  modelSet = new NonHomogeneousSubstitutionProcess(rdist, tree, rootFreqs);
 
   // We assign this model to all nodes in the tree (excepted root node), and link all parameters with it.
-  vector<int> ids = tree->getTree().getNodesId();
-  int rootId = tree->getTree().getRootId();
+  vector<unsigned int> ids = tree->getAllNodesIndexes();
+  unsigned int rootId = tree->getNodeIndex(tree->getRoot());
+
   unsigned int pos = 0;
   for (unsigned int i = 0; i < ids.size(); i++)
     {
@@ -362,6 +364,7 @@ NonHomogeneousSubstitutionProcess* NonHomogeneousSubstitutionProcess::createHomo
         }
     }
   ids.erase(ids.begin() + pos);
+  
   modelSet->addModel(model, ids);
   return modelSet;
 }
@@ -370,7 +373,7 @@ NonHomogeneousSubstitutionProcess* NonHomogeneousSubstitutionProcess::createNonH
                                                                                                                    SubstitutionModel* model,
                                                                                                                    DiscreteDistribution* rdist,
                                                                                                                    FrequenciesSet* rootFreqs,
-                                                                                                                   ParametrizableTree* tree,
+                                                                                                                   ParametrizablePhyloTree* tree,
                                                                                                                    const vector<string>& globalParameterNames
                                                                                                                    )
 {
@@ -456,8 +459,8 @@ NonHomogeneousSubstitutionProcess* NonHomogeneousSubstitutionProcess::createNonH
   modelSet = new NonHomogeneousSubstitutionProcess(rdist, tree, rootFreqs);
 
   // We assign a copy of this model to all nodes in the tree (excepted root node), and link all parameters with it.
-  vector<int> ids = tree->getTree().getNodesId();
-  int rootId = tree->getTree().getRootId();
+  vector<unsigned int> ids = tree->getAllNodesIndexes();
+  unsigned int rootId = tree->getNodeIndex(tree->getRoot());
   size_t pos = 0;
   for (i = 0; i < ids.size(); i++)
     {
@@ -471,7 +474,7 @@ NonHomogeneousSubstitutionProcess* NonHomogeneousSubstitutionProcess::createNonH
   ids.erase(ids.begin() + pos);
   for (i = 0; i < ids.size(); i++)
     {
-      modelSet->addModel(dynamic_cast<SubstitutionModel*>(model->clone()), vector<int>(1, ids[i]));
+      modelSet->addModel(dynamic_cast<SubstitutionModel*>(model->clone()), vector<unsigned int>(1, ids[i]));
     }
 
   // Now alias all global parameters on all nodes:

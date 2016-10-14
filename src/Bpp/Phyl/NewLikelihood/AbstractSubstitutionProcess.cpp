@@ -42,7 +42,7 @@
 using namespace bpp;
 using namespace std;
 
-AbstractSubstitutionProcess::AbstractSubstitutionProcess(ParametrizableTree* tree, size_t nbClasses, const string& prefix) :
+AbstractSubstitutionProcess::AbstractSubstitutionProcess(ParametrizablePhyloTree* tree, size_t nbClasses, const string& prefix) :
   AbstractParameterAliasable(prefix),
   pTree_(tree),
   nbClasses_(nbClasses)
@@ -68,14 +68,6 @@ AbstractSubstitutionProcess& AbstractSubstitutionProcess::operator=(const Abstra
   return *this;
 }
 
-size_t AbstractSubstitutionProcess::getModelIndex_(int nodeId, size_t modelClass) const throw (NodeNotFoundException, IndexOutOfBoundsException)
-{
-  size_t i = pTree_->getNodeIndex(nodeId);
-  if (modelClass >= nbClasses_)
-    throw IndexOutOfBoundsException("AbstractSubstitutionProcess::getModelIndex_().", modelClass, 0, nbClasses_);
-  return i * nbClasses_ + modelClass;
-}
-
 ParameterList AbstractSubstitutionProcess::getNonDerivableParameters() const
 {
   ParameterList pl=getSubstitutionModelParameters(true);
@@ -94,6 +86,7 @@ void AbstractSubstitutionProcess::fireParameterChanged(const ParameterList& pl)
   gAP.addParameters(pl);
 
   pTree_->matchParametersValues(gAP);
+  
   getComputingTree().matchParametersValues(gAP);
 }
 

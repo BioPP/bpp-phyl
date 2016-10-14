@@ -96,8 +96,6 @@ namespace bpp {
 
     ~HmmProcessAlphabet() {};
 
-//    void fireParameterChanged(const ParameterList& pl) {};
-    
     /**
      * @param stateIndex The index of a hidden state.
      * @return The corresponding hidden state.

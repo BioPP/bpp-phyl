@@ -65,7 +65,7 @@ namespace bpp
   
     public:
       HmmSequenceEvolution(
-        SubstitutionProcessCollection* processColl,
+	SubstitutionProcessCollection* processColl,
         std::vector<size_t>& nProc);
 
       HmmSequenceEvolution(const HmmSequenceEvolution& mlc) :

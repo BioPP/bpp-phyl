@@ -120,21 +120,9 @@ namespace bpp
       vPatt_(),
       usesLog_(false)
     {}
-    
-    AbstractLikelihoodNode(const Node& np):
-      LikelihoodNode(np),
-      nodeLikelihoods_(),
-      nodeDLikelihoods_(),
-      nodeD2Likelihoods_(),
-      up2date_(false),
-      up2dateD_(false),
-      up2dateD2_(false),
-      vPatt_(),
-      usesLog_(false)
-    {}
 
-    AbstractLikelihoodNode(int num, std::string st):
-      LikelihoodNode(num, st),
+    AbstractLikelihoodNode(const PhyloNode& np) :
+      LikelihoodNode(np),
       nodeLikelihoods_(),
       nodeDLikelihoods_(),
       nodeD2Likelihoods_(),

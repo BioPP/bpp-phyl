@@ -65,7 +65,7 @@ namespace bpp
  * likelihoods of the process.
  */
 class HmmProcessPhyloLikelihood :
-  public MultiProcessSequencePhyloLikelihood
+    public MultiProcessSequencePhyloLikelihood
 {
 private:
   std::unique_ptr<HmmProcessEmissionProbabilities> Hpep_;

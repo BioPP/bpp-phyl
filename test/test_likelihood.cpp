@@ -40,6 +40,7 @@ knowledge of the CeCILL license and that you accept its terms.
 #include <Bpp/Numeric/Matrix/MatrixTools.h>
 #include <Bpp/Numeric/AutoParameter.h>
 #include <Bpp/Seq/Alphabet/AlphabetTools.h>
+#include <Bpp/Phyl/Io/Newick.h>
 #include <Bpp/Phyl/Tree/TreeTemplate.h>
 #include <Bpp/Phyl/Model/Nucleotide/JCnuc.h>
 #include <Bpp/Phyl/Model/Nucleotide/T92.h>
@@ -48,16 +49,17 @@ knowledge of the CeCILL license and that you accept its terms.
 #include <Bpp/Phyl/Simulation/HomogeneousSequenceSimulator.h>
 #include <Bpp/Phyl/Likelihood/RHomogeneousTreeLikelihood.h>
 #include <Bpp/Phyl/OptimizationTools.h>
-#include <Bpp/Phyl/NewLikelihood/ParametrizableTree.h>
+#include <Bpp/Phyl/NewLikelihood/ParametrizablePhyloTree.h>
 #include <Bpp/Phyl/NewLikelihood/SimpleSubstitutionProcess.h>
 #include <Bpp/Phyl/NewLikelihood/RateAcrossSitesSubstitutionProcess.h>
 #include <Bpp/Phyl/NewLikelihood/PhyloLikelihoods/SingleProcessPhyloLikelihood.h>
 #include <iostream>
 
+
 using namespace bpp;
 using namespace std;
 
-void fitModelHSR(SubstitutionModel* model, DiscreteDistribution* rdist, const Tree& tree, const SiteContainer& sites,
+void fitModelHSR(SubstitutionModel* model, DiscreteDistribution* rdist, const Tree& tree, const PhyloTree&  new_tree, const SiteContainer& sites,
                  double initialValue, double finalValue) {
   
   RHomogeneousTreeLikelihood tl(tree, sites, model->clone(), rdist->clone(), false, false);
@@ -118,7 +120,7 @@ void fitModelHSR(SubstitutionModel* model, DiscreteDistribution* rdist, const Tr
   cout << "=============================" << endl;
   
   cout << endl << "New" << endl;
-  ParametrizableTree* pTree = new ParametrizableTree(tree);
+  std::shared_ptr<ParametrizablePhyloTree> pTree(new ParametrizablePhyloTree(new_tree));
 
   ApplicationTools::startTimer();
   
@@ -227,6 +229,10 @@ int main() {
   unique_ptr<TreeTemplate<Node> > tree(TreeTemplateTools::parenthesisToTree("((A:0.01, B:0.02):0.03,C:0.01,D:0.1);"));
   vector<string> seqNames= tree->getLeavesNames();
   vector<int> ids = tree->getNodesId();
+
+  Newick reader;
+  unique_ptr<PhyloTree> pTree(reader.parenthesisToPhyloTree("((A:0.01, B:0.02):0.03,C:0.01,D:0.1);", false, "", false, false));
+  
   //-------------
 
   const NucleicAlphabet* alphabet = &AlphabetTools::DNA_ALPHABET;
@@ -241,7 +247,7 @@ int main() {
   unique_ptr<DiscreteDistribution> rdist(new GammaDiscreteRateDistribution(4, 1.0));
   try {
     cout << "Testing Single Tree Traversal likelihood class..." << endl;
-    fitModelHSR(model.get(), rdist.get(), *tree, sites, 228.6333642493463, 198.47216106233);
+    fitModelHSR(model.get(), rdist.get(), *tree, *pTree, sites, 228.6333642493463, 198.47216106233);
   } catch (Exception& ex) {
     cerr << ex.what() << endl;
     return 1;

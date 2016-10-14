@@ -623,8 +623,9 @@ string Newick::treeToParenthesis(const PhyloTree& tree, bool bootstrap, const st
   s << "(";
 
   shared_ptr<PhyloNode>  root = tree.getRoot();
-  std::vector<shared_ptr<PhyloNode> > rSons = tree.getSons(root);
   
+  std::vector<shared_ptr<PhyloNode> > rSons = tree.getSons(root);
+
   if (tree.isRooted())
   {
     for (size_t i = 0; i < rSons.size(); ++i)

@@ -38,6 +38,7 @@ knowledge of the CeCILL license and that you accept its terms.
 */
 
 #include "PhyloBranch.h"
+#include "PhyloBranchParam.h"
 
 using namespace bpp;
 using namespace std;
@@ -51,6 +52,14 @@ PhyloBranch::PhyloBranch(const PhyloBranch& branch):
 {
   for (map<string, Clonable *>::iterator i = branch.properties_.begin(); i != branch.properties_.end(); i++)
     properties_[i->first] = i->second->clone();
+}
+
+    
+PhyloBranch::PhyloBranch(const PhyloBranchParam& branch):
+  isLengthDefined_(true),
+  length_(branch.getLength()),
+  properties_()
+{
 }
 
 /** Assignation operator: *****************************************************/

@@ -40,8 +40,8 @@
 #ifndef _LIKELIHOOD_TREE_H_
 #define _LIKELIHOOD_TREE_H_
 
-#include "../Tree/Node.h"
-#include "../Tree/TreeTemplate.h"
+#include "../Tree/AwareNode.h"
+#include "../Tree/PhyloTree.h"
 #include "SubstitutionProcess.h"
 #include "AbstractLikelihoodNode.h"
 
@@ -68,9 +68,7 @@ namespace bpp
       LikelihoodTree() {}
       virtual ~LikelihoodTree() {}
     
-#ifndef NO_VIRTUAL_COV
       LikelihoodTree* clone() const = 0;
-#endif
 
     public:
       virtual const Alphabet* getAlphabet() const = 0;

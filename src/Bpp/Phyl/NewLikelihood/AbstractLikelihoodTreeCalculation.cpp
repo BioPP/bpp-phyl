@@ -47,9 +47,7 @@ using namespace std;
 
 void AbstractLikelihoodTreeCalculation::setData(const SiteContainer& sites)
 {
-  const TreeTemplate<Node>& tt = dynamic_cast<const TreeTemplate<Node>&>(process_->getTree());
-
-  data_.reset(PatternTools::getSequenceSubset(sites, *tt.getRootNode()));
+  data_.reset(PatternTools::getSequenceSubset(sites, process_->getParametrizablePhyloTree().getRoot(), process_->getParametrizablePhyloTree())) ;
 
   if (verbose_)
     ApplicationTools::displayTask("Initializing data structure");
@@ -278,7 +276,8 @@ double AbstractLikelihoodTreeCalculation::getDLikelihoodForASite(size_t site)
     return 0;
 
   size_t posR=getLikelihoodData().getRootArrayPosition(site);
-  int Rid=process_->getTree().getRootNode()->getId();
+  int Rid=process_->getParametrizablePhyloTree().getNodeIndex(process_->getParametrizablePhyloTree().getRoot());
+  
   
   // Derivative of the sum is the sum of derivatives:
   double dl = 0;
@@ -300,7 +299,7 @@ double AbstractLikelihoodTreeCalculation::getD2LikelihoodForASite(size_t site)
     return 0;
 
   size_t posR=getLikelihoodData().getRootArrayPosition(site);
-  int Rid=process_->getTree().getRootNode()->getId();
+  int Rid=process_->getParametrizablePhyloTree().getNodeIndex(process_->getParametrizablePhyloTree().getRoot());
 
   // Derivative of the sum is the sum of derivatives:
   double d2l = 0;
@@ -431,7 +430,7 @@ void AbstractLikelihoodTreeCalculation::getAncestralFrequencies_(
   if (!parentNode.isLeaf() || alsoForLeaves)
     frequencies[parentId] = ancestralFrequencies;
 
-  vector<int> sonsId = parentNode.getSonsId();
+  vector<unsigned int> sonsId = parentNode.getSonsId();
   for (size_t i = 0; i < sonsId.size(); i++)
   {
     vector<double> sonFrequencies(getNumberOfStates());

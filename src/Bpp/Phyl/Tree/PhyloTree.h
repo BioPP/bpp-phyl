@@ -45,12 +45,9 @@
 #include "PhyloNode.h"
 #include "PhyloBranch.h"
 
+
 namespace bpp
 {
-
-  // class PhyloNode;
-  // class PhyloBranch;
-
   /**
    * @brief Defines a Phylogenetic Tree based on a TreeGraph & its
    * associationObserver.
@@ -58,6 +55,7 @@ namespace bpp
    * @author Thomas Bigot
    */
   
+  class ParametrizablePhyloTree;
     
   class PhyloTree:
     public SimpleAssociationTreeGraphObserver<PhyloNode,PhyloBranch,SimpleTreeGraph<SimpleGraph> >
@@ -69,7 +67,7 @@ namespace bpp
 
       PhyloTree(bool rooted = false);
 
-//      PhyloTree(const Tree&);
+      PhyloTree(const ParametrizablePhyloTree& tree);
 
       PhyloTree* clone() const
       {

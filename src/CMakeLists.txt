@@ -69,6 +69,7 @@ SET(CPP_FILES
   Bpp/Phyl/NewLikelihood/AutoCorrelationSequenceEvolution.cpp
   Bpp/Phyl/NewLikelihood/HmmProcessEmissionProbabilities.cpp
   Bpp/Phyl/NewLikelihood/ParametrizableTree.cpp
+  Bpp/Phyl/NewLikelihood/ParametrizablePhyloTree.cpp
   Bpp/Phyl/NewLikelihood/AbstractLikelihoodNode.cpp
   Bpp/Phyl/NewLikelihood/AbstractLikelihoodTree.cpp
   Bpp/Phyl/NewLikelihood/RecursiveLikelihoodTree.cpp
@@ -202,12 +203,14 @@ SET(CPP_FILES
   Bpp/Phyl/Tree/BipartitionTools.cpp
   Bpp/Phyl/Tree/NNITopologySearch.cpp
   Bpp/Phyl/Tree/Node.cpp
+  Bpp/Phyl/Tree/AwareNode.cpp
   Bpp/Phyl/Tree/TreeExceptions.cpp
   Bpp/Phyl/Tree/TreeTemplateTools.cpp
   Bpp/Phyl/Tree/TreeTools.cpp
   Bpp/Phyl/Tree/PhyloTree.cpp
   Bpp/Phyl/Tree/PhyloNode.cpp
   Bpp/Phyl/Tree/PhyloBranch.cpp
+  Bpp/Phyl/Tree/PhyloBranchParam.cpp
   Bpp/Phyl/Tree/PhyloTreeTools.cpp
   Bpp/Phyl/Tree/PhyloTreeExceptions.cpp
   )
@@ -288,6 +291,7 @@ SET(H_FILES
   Bpp/Phyl/NewLikelihood/SubstitutionProcessCollection.h
   Bpp/Phyl/NewLikelihood/SubstitutionProcessCollectionMember.h
   Bpp/Phyl/NewLikelihood/HmmProcessEmissionProbabilities.h
+  Bpp/Phyl/NewLikelihood/HmmPhyloAlphabet.h
   Bpp/Phyl/NewLikelihood/SequenceEvolution.h
   Bpp/Phyl/NewLikelihood/OneProcessSequenceEvolution.h
   Bpp/Phyl/NewLikelihood/MultiProcessSequenceEvolution.h
@@ -296,6 +300,7 @@ SET(H_FILES
   Bpp/Phyl/NewLikelihood/HmmSequenceEvolution.h
   Bpp/Phyl/NewLikelihood/AutoCorrelationSequenceEvolution.h
   Bpp/Phyl/NewLikelihood/ParametrizableTree.h
+  Bpp/Phyl/NewLikelihood/ParametrizablePhyloTree.h
   Bpp/Phyl/NewLikelihood/LikelihoodNode.h
   Bpp/Phyl/NewLikelihood/AbstractLikelihoodNode.h
   Bpp/Phyl/NewLikelihood/LikelihoodTree.h
@@ -322,7 +327,6 @@ SET(H_FILES
   Bpp/Phyl/NewLikelihood/PhyloLikelihoods/MixtureProcessPhyloLikelihood.h
   Bpp/Phyl/NewLikelihood/PhyloLikelihoods/HmmProcessPhyloLikelihood.h
   Bpp/Phyl/NewLikelihood/PhyloLikelihoods/AutoCorrelationProcessPhyloLikelihood.h
-  Bpp/Phyl/NewLikelihood/PhyloLikelihoods/HmmProcessAlphabet.h
   Bpp/Phyl/NewLikelihood/PhyloLikelihoods/PhyloLikelihoodContainer.h
   Bpp/Phyl/NewLikelihood/PhyloLikelihoods/SetOfAbstractPhyloLikelihood.h
   Bpp/Phyl/NewLikelihood/PhyloLikelihoods/SetOfAlignedPhyloLikelihood.h
@@ -459,6 +463,7 @@ SET(H_FILES
   Bpp/Phyl/Parsimony/TreeParsimonyScore.h
   Bpp/Phyl/PatternTools.h
   Bpp/Phyl/PhyloStatistics.h
+  Bpp/Phyl/Simulation/New_DetailedSiteSimulator.h
   Bpp/Phyl/Simulation/DetailedSiteSimulator.h
   Bpp/Phyl/Simulation/HomogeneousSequenceSimulator.h
   Bpp/Phyl/Simulation/MutationProcess.h
@@ -483,6 +488,7 @@ SET(H_FILES
   Bpp/Phyl/Tree/TreeTools.h
   Bpp/Phyl/Tree/PhyloTree.h
   Bpp/Phyl/Tree/PhyloNode.h
+  Bpp/Phyl/Tree/AwareNode.h
   Bpp/Phyl/Tree/PhyloBranch.h
   Bpp/Phyl/Tree/PhyloTreeTools.h
   Bpp/Phyl/Tree/PhyloTreeExceptions.h

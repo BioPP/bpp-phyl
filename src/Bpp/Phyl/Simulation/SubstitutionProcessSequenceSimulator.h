@@ -41,10 +41,9 @@ knowledge of the CeCILL license and that you accept its terms.
 #ifndef _SUBSTITUTIONPROCESSSEQUENCESIMULATOR_H_
 #define _SUBSTITUTIONPROCESSSEQUENCESIMULATOR_H_
 
-#include "DetailedSiteSimulator.h"
+#include "New_DetailedSiteSimulator.h"
 #include "SequenceSimulator.h"
-#include "../Tree/TreeTemplate.h"
-#include "../Tree/NodeTemplate.h"
+#include "../NewLikelihood/ParametrizablePhyloTree.h"
 #include "../Model/SubstitutionModel.h"
 
 #include <Bpp/Numeric/Random/RandomTools.h>
@@ -62,23 +61,33 @@ knowledge of the CeCILL license and that you accept its terms.
 #include "../NewLikelihood/SubstitutionProcessCollection.h"
 #include "../NewLikelihood/SubstitutionProcess.h"
 #include "../NewLikelihood/SequenceEvolution.h"
+#include "../Tree/AwareNode.h"
+#include "../Tree/PhyloBranch.h"
 
 namespace bpp
 {
   
-  class SimProcessData
+  class SimProcessNode :
+    public AwareNode
   {
   private:
     size_t state;
     std::vector<size_t> states;
     VVVdouble cumpxy;
     const SubstitutionProcess* process_;
+    std::string name_;
     
   public:
-    SimProcessData(): state(), states(), cumpxy(), process_(0) {}
-    SimProcessData(const SimProcessData& sd): state(sd.state), states(sd.states), cumpxy(), process_(sd.process_) {}
-    SimProcessData& operator=(const SimProcessData& sd)
+    SimProcessNode(): AwareNode(), state(), states(), cumpxy(), process_(0), name_() {}
+    
+    SimProcessNode(const SimProcessNode& sd): AwareNode(sd), state(sd.state), states(sd.states), cumpxy(), process_(sd.process_), name_(sd.name_) {}
+
+    SimProcessNode(const PhyloNode& pn): AwareNode(pn), state(), states(), cumpxy(), process_(), name_(pn.hasName()?pn.getName():"") {}
+
+    SimProcessNode& operator=(const SimProcessNode& sd)
     {
+      AwareNode::operator=(sd);
+      
       state  = sd.state;
       states = sd.states;
       cumpxy = sd.cumpxy;
@@ -86,11 +95,28 @@ namespace bpp
       return *this;
     }
 
+    std::string getName() const 
+    {
+      return name_;
+    }
+
+    SimProcessNode* getFather()
+    {
+      return dynamic_cast<SimProcessNode*>(AwareNode::getFather());
+    }
+
+    SimProcessNode* getSon(size_t i)
+    {
+      return dynamic_cast<SimProcessNode*>(AwareNode::getSon(i));
+    }
+
     friend class SimpleSubstitutionProcessSequenceSimulator;
     
   };
+
+
+  typedef SimpleAssociationTreeGraphObserver<SimProcessNode, PhyloBranch, SimpleTreeGraph<SimpleGraph> >  SPTree;
   
-  typedef NodeTemplate<SimProcessData> SPNode;
 
 /**
  * @brief Site and sequences simulation under a unique substitution process.
@@ -98,21 +124,21 @@ namespace bpp
  */
 
   class SimpleSubstitutionProcessSequenceSimulator:
-    public DetailedSiteSimulator,
+    public New_DetailedSiteSimulator,
     public virtual SequenceSimulator
   {
   private:
     const SubstitutionProcess* process_;
-    const Alphabet*            alphabet_;
-    std::vector<int>           supportedStates_;
-    const Tree*                templateTree_;
-    mutable TreeTemplate<SPNode> tree_;
+    const Alphabet*                alphabet_;
+    std::vector<int>               supportedStates_;
+    const ParametrizablePhyloTree* phyloTree_;
+    mutable SPTree                 tree_;
   
     /**
      * @brief This stores once for all all leaves in a given order.
      * This order will be used during site creation.
      */
-    std::vector<SPNode*> leaves_;
+    std::vector<std::shared_ptr<SimProcessNode> > leaves_;
   
     std::vector<std::string> seqNames_;
 
@@ -140,7 +166,7 @@ namespace bpp
       process_        (nhss.process_),
       alphabet_       (nhss.alphabet_),
       supportedStates_(nhss.supportedStates_),
-      templateTree_   (nhss.templateTree_),
+      phyloTree_      (nhss.phyloTree_),
       tree_           (nhss.tree_),
       leaves_         (nhss.leaves_),
       seqNames_       (nhss.seqNames_),
@@ -155,7 +181,7 @@ namespace bpp
       process_        = nhss.process_;
       alphabet_        = nhss.alphabet_;
       supportedStates_ = nhss.supportedStates_;
-      templateTree_    = nhss.templateTree_;
+      phyloTree_       = nhss.phyloTree_;
       tree_            = nhss.tree_;
       leaves_          = nhss.leaves_;
       seqNames_        = nhss.seqNames_;
@@ -200,13 +226,13 @@ namespace bpp
      *
      * @{
      */
-    SiteSimulationResult* dSimulateSite() const;
+    New_SiteSimulationResult* dSimulateSite() const;
     
-    SiteSimulationResult* dSimulateSite(size_t ancestralStateIndex) const;
+    New_SiteSimulationResult* dSimulateSite(size_t ancestralStateIndex) const;
     
-    SiteSimulationResult* dSimulateSite(size_t ancestralStateIndex, double rate) const;
+    New_SiteSimulationResult* dSimulateSite(size_t ancestralStateIndex, double rate) const;
     
-    SiteSimulationResult* dSimulateSite(double rate) const;
+    New_SiteSimulationResult* dSimulateSite(double rate) const;
     
     /** @} */
 
@@ -258,7 +284,7 @@ namespace bpp
      *
      * @return The Tree object associated to this instance.
      */
-    const Tree* getTree() const { return templateTree_; }
+    const ParametrizablePhyloTree* getTree() const { return phyloTree_; }
 
     /**
      * @brief Enable the use of continuous rates instead of discrete rates.
@@ -282,7 +308,7 @@ namespace bpp
      * This method is used for the implementation of the SiteSimulator interface.
      */
     
-    size_t evolve(const SPNode* node, size_t initialStateIndex, size_t rateClass) const;
+    size_t evolve(const SimProcessNode* node, size_t initialStateIndex, size_t rateClass) const;
     
     /**
      * @brief Evolve from an initial state along a branch, knowing the evolutionary class.
@@ -291,7 +317,7 @@ namespace bpp
      * This method is used for the implementation of the SiteSimulator interface.
      */
     
-    size_t evolve(const SPNode* node, size_t initialStateIndex, size_t rateClass, double rate) const;
+    size_t evolve(const SimProcessNode* node, size_t initialStateIndex, size_t rateClass, double rate) const;
     
      /**
      * @brief The same as the evolve(initialState, rateClass)
@@ -301,7 +327,7 @@ namespace bpp
      */
     
     void multipleEvolve(
-        const SPNode* node,
+        const SimProcessNode* node,
         const std::vector<size_t>& initialStateIndices,
         const std::vector<size_t>& rateClasses,
         std::vector<size_t>& finalStates) const;
@@ -310,9 +336,9 @@ namespace bpp
       const std::vector<size_t>& initialStates,
       const std::vector<size_t>& rateClasses) const;
 
-    void dEvolve(size_t initialState, size_t rateClass, SiteSimulationResult& ssr) const;
+    void dEvolve(size_t initialState, size_t rateClass, New_SiteSimulationResult& ssr) const;
 
-    void dEvolve(size_t initialState, size_t rateClass, double rate, SiteSimulationResult& ssr) const;
+    void dEvolve(size_t initialState, size_t rateClass, double rate, New_SiteSimulationResult& ssr) const;
 
     /**
      * @name The 'Internal' methods.
@@ -323,25 +349,25 @@ namespace bpp
     /**
      * This method uses the states_ variable for saving ancestral states.
      */
-    void evolveInternal(SPNode* node, size_t rateClass) const;
+    void evolveInternal(SimProcessNode* node, size_t rateClass) const;
 
     /**
      * This method uses the states_ variable for saving ancestral states.
      */
-    void evolveInternal(SPNode* node, size_t rateClass, double rate) const;
+    void evolveInternal(SimProcessNode* node, size_t rateClass, double rate) const;
 
     /**
      * This method uses the multipleStates_ variable for saving ancestral states.
      */
-     void multipleEvolveInternal(SPNode* node, const std::vector<size_t>& rateClasses) const;
+     void multipleEvolveInternal(SimProcessNode* node, const std::vector<size_t>& rateClasses) const;
 
     /**
      * This method uses the states_ variable for saving ancestral states.
      */
 
-    void dEvolveInternal(SPNode * node, size_t rateClass, double rate, SiteSimulationResult & ssr) const;
+    void dEvolveInternal(SimProcessNode * node, size_t rateClass, double rate, New_SiteSimulationResult & ssr) const;
 
-    void dEvolveInternal(SPNode * node, size_t rateClass, SiteSimulationResult & ssr) const;
+    void dEvolveInternal(SimProcessNode * node, size_t rateClass, New_SiteSimulationResult & ssr) const;
 /** @} */
 
   };

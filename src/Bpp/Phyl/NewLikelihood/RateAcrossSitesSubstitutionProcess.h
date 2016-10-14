@@ -67,8 +67,7 @@ public:
   RateAcrossSitesSubstitutionProcess(
       SubstitutionModel* model,
       DiscreteDistribution* rdist,
-      ParametrizableTree* tree,
-      bool checkRooted = true);
+      ParametrizablePhyloTree* tree);
     
   RateAcrossSitesSubstitutionProcess(const RateAcrossSitesSubstitutionProcess& rassp);
 
@@ -85,7 +84,7 @@ public:
     return data.getAlphabet()->getAlphabetType() == model_->getAlphabet()->getAlphabetType();
   }
  
-  const SubstitutionModel& getSubstitutionModel(int nodeId, size_t classIndex) const
+  const SubstitutionModel& getSubstitutionModel(unsigned int nodeId, size_t classIndex) const
   {
     return *model_;
   }
@@ -95,7 +94,7 @@ public:
     return rDist_.get();
   }
 
-  const Matrix<double>& getGenerator(int nodeId, size_t classIndex) const
+  const Matrix<double>& getGenerator(unsigned int nodeId, size_t classIndex) const
   {
     return model_->getGenerator();
   }
@@ -117,7 +116,7 @@ public:
 
   ParameterList getBranchLengthParameters(bool independent) const
   {
-    return getParametrizableTree().getParameters();
+    return getParametrizablePhyloTree().getParameters();
   }
   
   const FrequenciesSet* getRootFrequenciesSet() const

@@ -130,8 +130,8 @@ namespace bpp
     /**
      * @brief Contains for each node in a tree the index of the corresponding model in modelSet_
      */
-    mutable std::map<int, size_t> nodeToModel_;
-    mutable std::map<size_t, std::vector<int> > modelToNodes_;
+    mutable std::map<unsigned int, size_t> nodeToModel_;
+    mutable std::map<size_t, std::vector<unsigned int> > modelToNodes_;
 
     /**
      * @brief Parameters for each model in the set.
@@ -153,7 +153,7 @@ namespace bpp
      * @param rdist  The DiscreteDistribution for the rates
      * @param tree the parametrizable tree
      */
-    NonHomogeneousSubstitutionProcess(DiscreteDistribution*  rdist, ParametrizableTree* tree) :
+    NonHomogeneousSubstitutionProcess(DiscreteDistribution*  rdist, ParametrizablePhyloTree* tree) :
       AbstractParameterAliasable(""),
       AbstractSubstitutionProcess(tree, rdist ? rdist->getNumberOfCategories() : 0),
       modelSet_(),
@@ -180,7 +180,7 @@ namespace bpp
      * @param tree the parametrizable tree
      * @param rootFreqs The frequencies at root node. The underlying object will be owned by this instance.
      */
-    NonHomogeneousSubstitutionProcess(DiscreteDistribution*  rdist, ParametrizableTree* tree, FrequenciesSet* rootFreqs):
+    NonHomogeneousSubstitutionProcess(DiscreteDistribution*  rdist, ParametrizablePhyloTree* tree, FrequenciesSet* rootFreqs):
       AbstractParameterAliasable(""),
       AbstractSubstitutionProcess(tree, rdist ? rdist->getNumberOfCategories() : 0),
       modelSet_(),
@@ -277,9 +277,9 @@ namespace bpp
      * @throw Exception If no model is found for this node.
      */
 
-    size_t getModelIndexForNode(int nodeId) const
+    size_t getModelIndexForNode(unsigned int nodeId) const
     {
-      std::map<int, size_t>::iterator i = nodeToModel_.find(nodeId);
+      std::map<unsigned int, size_t>::iterator i = nodeToModel_.find(nodeId);
       if (i == nodeToModel_.end())
         throw Exception("NonHomogeneousSubstitutionProcess::getModelIndexForNode(). No model associated to node with id " + TextTools::toString(nodeId));
       return i->second;
@@ -293,17 +293,17 @@ namespace bpp
      * @throw Exception If no model is found for this node.
      */
   
-    const SubstitutionModel* getModelForNode(int nodeId) const
+    const SubstitutionModel* getModelForNode(unsigned int nodeId) const
     {
-      std::map<int, size_t>::const_iterator i = nodeToModel_.find(nodeId);
+      std::map<unsigned int, size_t>::const_iterator i = nodeToModel_.find(nodeId);
       if (i == nodeToModel_.end())
         throw Exception("NonHomogeneousSubstitutionProcess::getModelForNode(). No model associated to node with id " + TextTools::toString(nodeId));
       return modelSet_[i->second];
     }
   
-    SubstitutionModel* getModelForNode(int nodeId)
+    SubstitutionModel* getModelForNode(unsigned int nodeId)
     {
-      std::map<int, size_t>::iterator i = nodeToModel_.find(nodeId);
+      std::map<unsigned int, size_t>::iterator i = nodeToModel_.find(nodeId);
       if (i == nodeToModel_.end())
         throw Exception("NonHomogeneousSubstitutionProcess::getModelForNode(). No model associated to node with id " + TextTools::toString(nodeId));
       return modelSet_[i->second];
@@ -317,7 +317,7 @@ namespace bpp
      * @throw IndexOutOfBoundsException If the index is not valid.
      */
 
-    const std::vector<int>& getNodesWithModel(size_t i) const
+    const std::vector<unsigned int>& getNodesWithModel(size_t i) const
     {
       if (i >= modelSet_.size()) throw IndexOutOfBoundsException("NonHomogeneousSubstitutionProcess::getNodesWithModel().", i, 0, modelSet_.size());
       return modelToNodes_[i];
@@ -339,7 +339,7 @@ namespace bpp
      * </ul>
      */
 
-    void addModel(SubstitutionModel* model, const std::vector<int>& nodesId);
+    void addModel(SubstitutionModel* model, const std::vector<unsigned int>& nodesId);
 
     /**
      * @brief Change a given model.
@@ -364,7 +364,7 @@ namespace bpp
      * @param nodeNumber The id of the corresponding node.
      */
 
-    void setModelToNode(size_t modelIndex, int nodeNumber);
+    void setModelToNode(size_t modelIndex, unsigned int nodeNumber);
  
     /**
      * @brief list all model names.
@@ -407,7 +407,7 @@ namespace bpp
 
     ParameterList getBranchLengthParameters(bool independent) const
     {
-      return getParametrizableTree().getParameters();
+      return getParametrizablePhyloTree().getParameters();
     }
 
     /**
@@ -511,12 +511,12 @@ namespace bpp
      * @param classIndex The model class index.
      */
 
-    const SubstitutionModel& getSubstitutionModel(int nodeId, size_t classIndex) const
+    const SubstitutionModel& getSubstitutionModel(unsigned int nodeId, size_t classIndex) const
     {
       return *modelSet_[nodeToModel_[nodeId]];
     }
     
-    const Matrix<double>& getGenerator(int nodeId, size_t classIndex) const
+    const Matrix<double>& getGenerator(unsigned int nodeId, size_t classIndex) const
     {
       return getSubstitutionModel(nodeId, classIndex).getGenerator();
     }
@@ -601,7 +601,7 @@ namespace bpp
       SubstitutionModel* model,
       DiscreteDistribution* rdist,
       FrequenciesSet* rootFreqs,
-      ParametrizableTree* tree
+      ParametrizablePhyloTree* tree
       );
 
     /**
@@ -621,7 +621,7 @@ namespace bpp
       SubstitutionModel* model,
       DiscreteDistribution* rdist,
       FrequenciesSet* rootFreqs,
-      ParametrizableTree* tree,
+      ParametrizablePhyloTree* tree,
       const std::vector<std::string>& globalParameterNames
       );
     

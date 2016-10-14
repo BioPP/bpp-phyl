@@ -42,6 +42,7 @@ knowledge of the CeCILL license and that you accept its terms.
 
 #include "../AncestralStateReconstruction.h"
 #include "DRTreeLikelihood.h"
+#include "../Tree/TreeTemplate.h"
 
 // From SeqLib:
 #include <Bpp/Seq/Alphabet/Alphabet.h>

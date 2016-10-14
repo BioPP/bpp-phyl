@@ -1,8 +1,7 @@
 //
-// File: LikelihoodNode.h
+// File: PhyloBranchParam.cpp
 // Created by: Laurent Guéguen
-// Created on: mardi 23 juin 2015, à 00h 26
-// From file HomogeneousTreeLikelihood.h
+// Created on: mercredi 14 septembre 2016, à 23h 29
 //
 
 /*
@@ -38,57 +37,17 @@
   knowledge of the CeCILL license and that you accept its terms.
 */
 
-#ifndef _LIKELIHOOD_NODE_H_
-#define _LIKELIHOOD_NODE_H_
+#include "PhyloBranchParam.h"
+#include "PhyloBranch.h"
 
-#include <Bpp/Numeric/VectorTools.h>
+using namespace std;
+using namespace bpp;
 
-// From the STL:
-#include <map>
-
-#include "../Tree/PhyloNode.h"
-#include "../Tree/AwareNode.h"
-
-namespace bpp
+PhyloBranchParam::PhyloBranchParam(const PhyloBranch& branch):
+  AbstractParametrizable("")
 {
-
-/**
- * @brief Likelihood data structure for a node.
- * 
- */
-  class LikelihoodNode :
-    public AwareNode
-  {
-  public:
-    LikelihoodNode() :
-      AwareNode()
-    {
-    }
-
-    
-    LikelihoodNode(const PhyloNode& np) :
-      AwareNode(np)
-    {
-    }
-
-    virtual LikelihoodNode* clone() const = 0;
-    
-
-  public:
-    virtual bool usesLog() const = 0;
-    
-    virtual VVdouble& getLikelihoodArray(unsigned char DX) = 0;
-    virtual const VVdouble& getLikelihoodArray(unsigned char DX) const = 0;
-    
-    virtual void resetLikelihoods(size_t nbSites, size_t nbStates, unsigned char DX) = 0;
-
-    virtual double& operator()(size_t nSite, size_t nState) = 0;
-
-    virtual double operator()(size_t nSite, size_t nState) const = 0;
-
-  };
-
-} //end of namespace bpp.
-
-#endif //_LIKELIHOOD_NODE_H_
-
+  double brLen=NumConstants::SMALL();
+  if (!branch.hasLength() || branch.getLength()>=NumConstants::SMALL())
+    brLen=branch.getLength();
+  addParameter_(new Parameter("BrLen", brLen, &Parameter::R_PLUS_STAR, 0));
+}

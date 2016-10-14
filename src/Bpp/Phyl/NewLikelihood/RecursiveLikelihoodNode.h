@@ -143,7 +143,7 @@ namespace bpp
       up2date_A_(false)
     {}
     
-    RecursiveLikelihoodNode(const Node& np):
+    RecursiveLikelihoodNode(const PhyloNode& np):
       AbstractLikelihoodNode(np),
       nodeLikelihoods_B_(),
       nodeDLikelihoods_B_(),
@@ -163,26 +163,6 @@ namespace bpp
       up2date_A_(false)
     {}
 
-    RecursiveLikelihoodNode(int num, std::string st):
-      AbstractLikelihoodNode(num, st),
-      nodeLikelihoods_B_(),
-      nodeDLikelihoods_B_(),
-      nodeD2Likelihoods_B_(),
-      node_fatherLikelihoods_B_(),
-      node_fatherDLikelihoods_B_(),
-      node_fatherD2Likelihoods_B_(),
-      nodeLikelihoods_A_(),
-      temp_(),
-      temp2_(),
-      up2date_B_(false),
-      up2dateD_B_(false),
-      up2dateD2_B_(false),
-      up2date_BF_(false),
-      up2dateD_BF_(false),
-      up2dateD2_BF_(false),
-      up2date_A_(false)
-    {}
-    
     RecursiveLikelihoodNode(const RecursiveLikelihoodNode& data) :
       AbstractLikelihoodNode(data),
       nodeLikelihoods_B_(data.nodeLikelihoods_B_),
@@ -438,11 +418,12 @@ namespace bpp
      */
 
     
-    void computeLikelihoods(const SpeciationComputingNode& cNode, unsigned char DX, const Vint* brId = NULL)
+    void computeLikelihoods(const SpeciationComputingNode& cNode, unsigned char DX, const Vuint* brId = NULL)
     {
       if (!isUp2dateBelow_(DX))
       {
         update(false, DX);
+
         computeUpwardBelowLikelihoods(cNode, DX, brId);
       }
 
@@ -458,7 +439,7 @@ namespace bpp
       if (!isUp2date(DX))
       {
         VVdouble& res=getLikelihoodArray(DX);
-        
+
         res=getBelowLikelihoodArray_(DX);
 
         if (usesLog())
@@ -477,10 +458,9 @@ namespace bpp
      *
      */
      
-    void computeUpwardToFatherBelowLikelihoods(const SpeciationComputingNode& cNode, unsigned char DX, const Vint* vBrid= NULL)
+    void computeUpwardToFatherBelowLikelihoods(const SpeciationComputingNode& cNode, unsigned char DX, const Vuint* vBrid= NULL)
     {
       // First check below dependencies are up to date
-      
       if (!isUp2dateBelow_(ComputingNode::D0))
         computeUpwardBelowLikelihoods(cNode, ComputingNode::D0, vBrid);
 
@@ -582,7 +562,7 @@ namespace bpp
      *
      */
      
-    void computeUpwardBelowLikelihoods(const SpeciationComputingNode& cNode, unsigned char DX, const Vint* vBrid= NULL)
+    void computeUpwardBelowLikelihoods(const SpeciationComputingNode& cNode, unsigned char DX, const Vuint* vBrid= NULL)
     {
       // First check below dependencies are up to date
       size_t nbSons=getNumberOfSons();
@@ -909,9 +889,11 @@ namespace bpp
      *
      */
 
-    VVdouble& getAboveLikelihoodArray_() { return nodeLikelihoods_A_; }
+    VVdouble& getAboveLikelihoodArray_() {
+      return nodeLikelihoods_A_; }
 
-    const VVdouble& getAboveLikelihoodArray_() const { return nodeLikelihoods_A_; }
+    const VVdouble& getAboveLikelihoodArray_() const {
+      return nodeLikelihoods_A_; }
 
 
     /*

@@ -84,13 +84,13 @@
 #include "../NewLikelihood/PhyloLikelihoods/AutoCorrelationOfAlignedPhyloLikelihood.h"
 #include "../NewLikelihood/PhyloLikelihoods/ProductOfPhyloLikelihood.h"
 #include "../NewLikelihood/PhyloLikelihoods/ProductOfAlignedPhyloLikelihood.h"
-#include "../NewLikelihood/ParametrizableTree.h"
 #include "../NewLikelihood/NonHomogeneousSubstitutionProcess.h"
 #include "../NewLikelihood/SimpleSubstitutionProcess.h"
 #include "../NewLikelihood/SubstitutionProcessCollection.h"
 #include "../NewLikelihood/RateAcrossSitesSubstitutionProcess.h"
 #include "../NewLikelihood/RecursiveLikelihoodTreeCalculation.h"
 
+#include "../NewLikelihood/ParametrizablePhyloTree.h"
 
 // From bpp-core
 #include <Bpp/Io/BppODiscreteDistributionFormat.h>
@@ -883,7 +883,7 @@ map<size_t, SubstitutionModel*> PhylogeneticsApplicationTools::getSubstitutionMo
       nData = (size_t) TextTools::toInt(args["data"]);
 
     unique_ptr<SubstitutionModel> model(bIO.read(alphabet, modelDescription, (args.find("data") != args.end()) ? mData.find(nData)->second : 0, true));
-
+    
     map<string, string> tmpUnparsedParameterValues(bIO.getUnparsedArguments());
 
     map<string, string>::iterator it;
@@ -1189,7 +1189,7 @@ SubstitutionProcess* PhylogeneticsApplicationTools::getSubstitutionProcess(
   const Alphabet* alphabet,
   const GeneticCode* gCode,
   const SiteContainer* pData,
-  const vector<Tree*>& vTree,
+  const vector<PhyloTree*>& vTree,
   map<string, string>& params,
   const string& suffix,
   bool suffixIsOptional,
@@ -1206,7 +1206,7 @@ SubstitutionProcess* PhylogeneticsApplicationTools::getSubstitutionProcess(
   // ///////////////////////
   // Tree
 
-  unique_ptr<ParametrizableTree> pTree(new ParametrizableTree(*vTree[0]));
+  unique_ptr<ParametrizablePhyloTree> pTree(new ParametrizablePhyloTree(*vTree[0]));
 
   // ////////////////////////
   // Rates
@@ -1229,7 +1229,7 @@ SubstitutionProcess* PhylogeneticsApplicationTools::getSubstitutionProcess(
     unique_ptr<SubstitutionModel> tmp(getSubstitutionModel(alphabet, gCode, pData, params, unparsedParams));
 
     if (tmp->getNumberOfStates() >= 2 * tmp->getAlphabet()->getSize() || (rDist->getName() == "Constant")) // first test is for Markov-modulated Markov model!
-      SP = new SimpleSubstitutionProcess(tmp.release(), pTree.release(), true);
+      SP = new SimpleSubstitutionProcess(tmp.release(), pTree.release());
     else
       SP = new RateAcrossSitesSubstitutionProcess(tmp.release(), rDist.release(), pTree.release());
   }
@@ -1335,7 +1335,7 @@ SubstitutionProcess* PhylogeneticsApplicationTools::getSubstitutionProcess(
           unparsedParams[it->first + "_" + TextTools::toString(i + 1)] = it->second;
         }
 
-        vector<int> nodesId = ApplicationTools::getVectorParameter<int>(prefix + ".nodes_id", params, ',', ':', TextTools::toString(i), suffix, suffixIsOptional, warn);
+        vector<unsigned int> nodesId = ApplicationTools::getVectorParameter<unsigned int>(prefix + ".nodes_id", params, ',', ':', TextTools::toString(i), suffix, suffixIsOptional, warn);
 
         if (verbose)
           ApplicationTools::displayResult("Model" + TextTools::toString(i + 1) + " is associated to", TextTools::toString(nodesId.size()) + " node(s).");
@@ -1370,7 +1370,7 @@ SubstitutionProcess* PhylogeneticsApplicationTools::getSubstitutionProcess(
   return SP;
 }
 
-/******************************************************************************/
+/************************************************************/
 
 void PhylogeneticsApplicationTools::addSubstitutionProcessCollectionMember(
   SubstitutionProcessCollection* SubProColl,
@@ -1457,11 +1457,12 @@ void PhylogeneticsApplicationTools::addSubstitutionProcessCollectionMember(
     size_t numModel = (size_t) ApplicationTools::getIntParameter("model", args, 1, "", true, warn);
 
     if (!SubProColl->hasModelNumber(numModel))
-      throw BadIntegerException("PhylogeneticsApplicationTools::addSubstitutionProcessCollectionMember : unknown model number", (int)numModel);
+      throw BadIntegerException("PhylogeneticsApplicationTools::addSubstitutionProcessCollectionMember : unknown model number", (unsigned int)numModel);
 
-    vector<int> vNodes = SubProColl->getTree(numTree).getTree().getBranchesId();
+    vector<unsigned int> vNodes = SubProColl->getTree(numTree).getAllNodesIndexes();
+    vNodes.erase(std::find(vNodes.begin(),vNodes.end(), SubProColl->getTree(numTree).getNodeIndex(SubProColl->getTree(numTree).getRoot())));
 
-    map<size_t, vector<int> > mModBr;
+    map<size_t, vector<unsigned int> > mModBr;
     mModBr[numModel] = vNodes;
 
     if (verbose)
@@ -1489,7 +1490,7 @@ void PhylogeneticsApplicationTools::addSubstitutionProcessCollectionMember(
   else if ((procName == "Nonhomogeneous") ||  (procName == "NonHomogeneous"))
   {
     size_t indModel = 1;
-    map<size_t, vector<int> > mModBr;
+    map<size_t, vector<unsigned int> > mModBr;
 
     while (args.find("model" + TextTools::toString(indModel)) != args.end())
     {
@@ -1498,7 +1499,7 @@ void PhylogeneticsApplicationTools::addSubstitutionProcessCollectionMember(
       if (mModBr.find(numModel) != mModBr.end())
         throw BadIntegerException("PhylogeneticsApplicationTools::addSubstitutionProcessCollectionMember : model number seen twice.", (int)numModel);
 
-      vector<int> nodesId = ApplicationTools::getVectorParameter<int>("model" + TextTools::toString(indModel)  + ".nodes_id", args, ',', ':', "0", "", true, warn);
+      vector<unsigned int> nodesId = ApplicationTools::getVectorParameter<unsigned int>("model" + TextTools::toString(indModel)  + ".nodes_id", args, ',', ':', "0", "", true, warn);
 
       mModBr[numModel] = nodesId;
 
@@ -1508,7 +1509,7 @@ void PhylogeneticsApplicationTools::addSubstitutionProcessCollectionMember(
     if (verbose)
     {
       ApplicationTools::displayResult("Process type", string("NonHomogeneous"));
-      map<size_t, vector<int> >::const_iterator it;
+      map<size_t, vector<unsigned int> >::const_iterator it;
       for (it = mModBr.begin(); it != mModBr.end(); it++)
       {
         ApplicationTools::displayResult (" Model number" + TextTools::toString(it->first) + " associated to", TextTools::toString(it->second.size()) + " node(s).");
@@ -1542,11 +1543,10 @@ void PhylogeneticsApplicationTools::addSubstitutionProcessCollectionMember(
 
 /******************************************************************************/
 
-
 SubstitutionProcessCollection* PhylogeneticsApplicationTools::getSubstitutionProcessCollection(
   const Alphabet* alphabet,
   const GeneticCode* gCode,
-  const map<size_t, Tree*>& mTree,
+  const map<size_t, PhyloTree*>& mTree,
   const map<size_t, SubstitutionModel*>& mMod,
   const map<size_t, FrequenciesSet*>& mRootFreq,
   const map<size_t, DiscreteDistribution*>& mDist,
@@ -1567,12 +1567,10 @@ SubstitutionProcessCollection* PhylogeneticsApplicationTools::getSubstitutionPro
   if (mTree.size() == 0)
     throw Exception("Missing tree in construction of SubstitutionProcessCollection.");
 
-  map<size_t, Tree*>::const_iterator itt;
+  map<size_t, PhyloTree*>::const_iterator itt;
 
   for (itt = mTree.begin(); itt != mTree.end(); itt++)
-  {
-    SPC->addTree(new ParametrizableTree(*(itt->second)), itt->first);
-  }
+    SPC->addTree(new ParametrizablePhyloTree(*(itt->second)), itt->first);
 
   // ///////////////////////
   // Rates
@@ -1654,10 +1652,10 @@ SubstitutionProcessCollection* PhylogeneticsApplicationTools::getSubstitutionPro
   //   size_t poseq=processName[i].find("=");
   //   processNum.push_back((size_t)TextTools::toInt(processName[i].substr(7,poseq-7)));
   // }
-
+  
   // if (processNum.size()==0)
   //   throw Exception("Missing process in construction of SubstitutionProcessCollection.");
-
+  
   // for (size_t i=0; i<processNum.size(); i++)
   //   addSubstitutionProcessCollectionMember(SPC, params, processNum[i]);
 
@@ -1683,14 +1681,13 @@ SubstitutionProcessCollection* PhylogeneticsApplicationTools::getSubstitutionPro
   }
 
   SPC->aliasParameters(unparsedParams, verbose);
-
+  
   return SPC;
 }
 
 /******************************************************/
 /**** SEQUENCE EVOLUTIONS *****************************/
 /******************************************************/
-
 
 map<size_t, SequenceEvolution*> PhylogeneticsApplicationTools::getSequenceEvolutions(
   SubstitutionProcessCollection& SPC,
@@ -1895,6 +1892,7 @@ map<size_t, SequenceEvolution*> PhylogeneticsApplicationTools::getSequenceEvolut
 
   return mEvol;
 }
+
 
 /******************************************************/
 /**** PHYLO LIKELIHOODS *********************************/
@@ -3894,7 +3892,9 @@ void PhylogeneticsApplicationTools::writeTrees(
 
     for (size_t i = 0; i < vTN.size(); i++)
     {
-      treeWriter->write(spc.getTree(vTN[i]).getTree(), file + "_" + TextTools::toString(vTN[i]), true);
+      PhyloTree tree(spc.getTree(vTN[i]));
+      
+      treeWriter->write(tree, file + "_" + TextTools::toString(vTN[i]), true);
     }
     if (verbose)
       ApplicationTools::displayResult("Wrote trees to files : ", file + "_...");
@@ -3983,7 +3983,7 @@ void PhylogeneticsApplicationTools::printParameters(const SubstitutionProcess* p
       BppOSubstitutionModelFormat bIOsm(BppOSubstitutionModelFormat::ALL, true, true, true, false, warn);
       bIOsm.write(*model, out, aliases, writtenNames);
       out.endLine();
-      vector<int> ids = pNH->getNodesWithModel(i);
+      vector<unsigned int> ids = pNH->getNodesWithModel(i);
       out << "model" << (i + 1) << ".nodes_id=" << ids[0];
       for (size_t j = 1; j < ids.size(); ++j)
       {
@@ -4163,7 +4163,7 @@ void PhylogeneticsApplicationTools::printParameters(const SubstitutionProcessCol
         out << "model" << (j + 1) << "=" << vMN[j];
         out << ",";
 
-        vector<int> ids = spcm.getNodesWithModel(vMN[j]);
+        vector<unsigned int> ids = spcm.getNodesWithModel(vMN[j]);
         out << "model" << (j + 1) << ".nodes_id=(" << ids[0];
         for (size_t k = 1; k < ids.size(); ++k)
         {

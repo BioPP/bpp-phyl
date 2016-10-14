@@ -67,7 +67,9 @@ private:
    *
    */
 
-  std::vector<TreeTemplate<RecursiveLikelihoodNode>* > vTree_;
+  typedef SimpleAssociationTreeGraphObserver<RecursiveLikelihoodNode, PhyloBranchParam, SimpleTreeGraph<SimpleGraph> >  LikTree;
+  
+  std::vector<std::shared_ptr<LikTree> > vTree_;
 
 
 /**
@@ -113,9 +115,9 @@ public:
    *
    */
 
-  TreeTemplate<RecursiveLikelihoodNode>& operator[](size_t ntree) { return *vTree_[ntree]; }
+  LikTree& operator[](size_t ntree) { return *vTree_[ntree]; }
 
-  const TreeTemplate<RecursiveLikelihoodNode>& operator[](size_t ntree) const { return *vTree_[ntree]; }
+  const LikTree& operator[](size_t ntree) const { return *vTree_[ntree]; }
 
   /*
    * @brief the Node Data
@@ -133,12 +135,12 @@ public:
 
   AbstractLikelihoodNode& getRootData(size_t nClass)
   {
-    return *(*this)[nClass].getRootNode();
+    return *(*this)[nClass].getRoot();
   }
 
   const AbstractLikelihoodNode& getRootData(size_t nClass) const
   {
-    return *(*this)[nClass].getRootNode();
+    return *(*this)[nClass].getRoot();
   }
 
   /*
@@ -219,7 +221,7 @@ public:
   {
     for (size_t c = 0; c < vTree_.size(); ++c)
     {
-      vTree_[c]->getNode(nodeId)->computeLikelihoods(*(lTree[c]->getNode(nodeId)), ComputingNode::D0);
+      vTree_[c]->getNode(nodeId)->computeLikelihoods(dynamic_cast<SpeciationComputingNode&>(*(lTree[c]->getNode(nodeId))), ComputingNode::D0);
     }
   }
 
@@ -228,13 +230,13 @@ public:
    * is a pointer on a vector of ids of derivated branches.
    *
    */
-  void computeLikelihoods(const ComputingTree& lTree, unsigned char DX, const Vint* brId = NULL)
+  void computeLikelihoods(const ComputingTree& lTree, unsigned char DX, const Vuint* brId = NULL)
   {
-    int rId = lTree[0]->getRootId();
+    unsigned int rId = lTree[0]->getNodeIndex(lTree[0]->getRoot());
 
     for (size_t c = 0; c < vTree_.size(); ++c)
     {
-      vTree_[c]->getNode(rId)->computeLikelihoods(*(lTree[c]->getNode(rId)), DX, brId);
+      vTree_[c]->getNode(rId)->computeLikelihoods(dynamic_cast<SpeciationComputingNode&>(*(lTree[c]->getNode(rId))), DX, brId);
     }
   }
 
@@ -254,7 +256,7 @@ protected:
    * @param process   The substitution process to use.
    */
 
-  virtual void initLikelihoodsWithoutPatterns_(const Node* node, const SiteContainer& sequences, const SubstitutionProcess& process) throw (Exception);
+  virtual void initLikelihoodsWithoutPatterns_(const RecursiveLikelihoodNode* node, const SiteContainer& sequences, const SubstitutionProcess& process) throw (Exception);
 
   /**
    * @brief This method initializes the leaves according to a sequence file.
@@ -273,7 +275,7 @@ protected:
    * @return The shrunk sub-dataset + indices for the subtree defined by <i>node</i>.
    */
 
-  virtual SitePatterns* initLikelihoodsWithPatterns_(const Node* node, const SiteContainer& sequences, const SubstitutionProcess& process) throw (Exception);
+  virtual SitePatterns* initLikelihoodsWithPatterns_(const RecursiveLikelihoodNode* node, const SiteContainer& sequences, const SubstitutionProcess& process) throw (Exception);
 };
 } // end of namespace bpp.
 

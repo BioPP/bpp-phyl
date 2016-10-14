@@ -43,7 +43,10 @@
 //From bpp-core:
 #include <Bpp/Numeric/VectorTools.h>
 
-#include "../Tree/Node.h"
+#include <Bpp/Clonable.h>
+
+#include "../Tree/PhyloNode.h"
+#include "../Tree/AwareNode.h"
 
 namespace bpp
 {
@@ -55,8 +58,17 @@ namespace bpp
    */
   
   class ComputingNode :
-    public Node
+    public AwareNode,
+    virtual public Clonable
   {
+  private:
+
+    /*
+     *For compatibilty during development, should be removed.
+     */
+    
+    const RowMatrix<double> voidprob_;
+    
   public:
     static const unsigned char D0=0;
     static const unsigned char D1=1;
@@ -64,47 +76,50 @@ namespace bpp
 
   public:
     ComputingNode() :
-      Node() {}
-
-    ComputingNode(const ComputingNode& np) :
-      Node(np) 
-    {
-    }
-    
-
-    ComputingNode(const Node& np) :
-      Node(np)
+      AwareNode(),
+      voidprob_()
     {
     }
 
-    ComputingNode(int num, std::string st):
-      Node(num, st)
+
+    ComputingNode(const ComputingNode& nc) :
+      AwareNode(nc),
+      voidprob_()
     {
     }
-    
 
-    ComputingNode& operator=(const ComputingNode& np)
+    ComputingNode(const PhyloNode& np) :
+      AwareNode(np),
+      voidprob_()
     {
-      Node::operator=(*this);
+    }
 
+    ComputingNode& operator=(const ComputingNode& nc) 
+    {
       return *this;
     }
-
     
+    virtual ~ComputingNode()
+    {
+    }
 
+    virtual ComputingNode* clone() const {
+      return (new ComputingNode(*this));
+    }
+    
     /**
      * @brief updates this node.
      *
      * If flag = true (default), node has to be updated (false otherwise).
      */
     
-    virtual void update(bool flag = true) = 0;
+    virtual void update(bool flag = true) {};
 
     /**
      * @brief checks if this node is up to date.
      */
     
-    virtual bool isUp2date() const = 0;
+    virtual bool isUp2date() const { return(false);};
 
     /**
      * @brief Updates this node and all subtree below.
@@ -124,7 +139,7 @@ namespace bpp
      *
      */
     
-    void toBeUpdatedBelow(Vint& lId) const
+    void toBeUpdatedBelow(Vuint& lId) const
     {
       if (!isUp2date())
         lId.push_back(getId());
@@ -140,14 +155,14 @@ namespace bpp
      *@brief from Node
      */
 
-    ComputingNode* getSon(size_t pos) throw (IndexOutOfBoundsException)
+    ComputingNode* getSon(size_t pos)
     {
-      return dynamic_cast<ComputingNode*>(Node::getSon(pos));
+      return dynamic_cast<ComputingNode*>(AwareNode::getSon(pos));
     }
 
-    const ComputingNode* getSon(size_t pos) const throw (IndexOutOfBoundsException)
+    const ComputingNode* getSon(size_t pos) const
     {
-      return dynamic_cast<const ComputingNode*>(Node::getSon(pos));
+      return dynamic_cast<const ComputingNode*>(AwareNode::getSon(pos));
     }
 
 
@@ -175,11 +190,11 @@ namespace bpp
      **/
     
 
-    virtual void addUpwardLikelihoodsAtASite(Vdouble* likelihoods_target, const Vdouble* likelihoods_node, unsigned char DX, bool usesLog) const = 0;
+    virtual void addUpwardLikelihoodsAtASite(Vdouble* likelihoods_target, const Vdouble* likelihoods_node, unsigned char DX, bool usesLog) const {};
     
-    virtual void setUpwardLikelihoodsAtASite(Vdouble* likelihoods_target, const Vdouble* likelihoods_node, unsigned char DX, bool usesLog) const = 0;
+    virtual void setUpwardLikelihoodsAtASite(Vdouble* likelihoods_target, const Vdouble* likelihoods_node, unsigned char DX, bool usesLog) const {};
     
-    virtual void setDownwardLikelihoodsAtASite(Vdouble* likelihoods_node, const Vdouble* likelihoods_father, unsigned char DX, bool usesLog) const = 0;
+    virtual void setDownwardLikelihoodsAtASite(Vdouble* likelihoods_node, const Vdouble* likelihoods_father, unsigned char DX, bool usesLog) const {};
     
     /**
      *@brief adds or sets the  likelihood using its own
@@ -189,49 +204,7 @@ namespace bpp
      *   [in, out].
      *
      * @param likelihoods_self  the partial likelihood of
-     *   the ComputingNode.
-     *
-     * @param DX tells which likelihood arrays should be computed,
-     *   either D0 for likelihoods, D1 for their first derivate, D2
-     *   for their second.
-     * @param usesLog says if log-likelihoods are used.
-     *
-     **/
-
-
-    void addUpwardLikelihoods(VVdouble* likelihoods, const VVdouble* likelihoods_self, unsigned char DX, bool usesLog) const
-    {
-      size_t nbSites=likelihoods->size();
-        
-      for (size_t i = 0; i < nbSites; i++)
-        addUpwardLikelihoodsAtASite(&(*likelihoods)[i], &(*likelihoods_self)[i],DX, usesLog);
-    }
-
-    void setUpwardLikelihoods(VVdouble* likelihoods, const VVdouble* likelihoods_self, unsigned char DX, bool usesLog) const
-    {
-      size_t nbSites=likelihoods->size();
-        
-      for (size_t i = 0; i < nbSites; i++)
-        setUpwardLikelihoodsAtASite(&(*likelihoods)[i], &(*likelihoods_self)[i],DX, usesLog);
-    }
-
-    void setDownwardPartialLikelihoods(VVdouble* likelihoods_self, const VVdouble* likelihoods, unsigned char DX, bool usesLog) const
-    {
-      size_t nbSites=likelihoods->size();
-        
-      for (size_t i = 0; i < nbSites; i++)
-        setDownwardLikelihoodsAtASite(&(*likelihoods_self)[i], &(*likelihoods)[i], DX, usesLog);
-    }
-
-    /**
-     *@brief adds or sets the  likelihood using its own
-     * likelihood.
-     *
-     * @param likelihoods a pointer to the partial likelihood updated
-     *   [in, out].
-     *
-     * @param likelihoods_self  the partial likelihood of
-     *   the ComputingNode.
+     *   the gNode.
      *
      * @param patterns the corresponding positions.
      *
@@ -260,6 +233,33 @@ namespace bpp
         setUpwardLikelihoodsAtASite(&(*likelihoods)[i], &(*likelihoods_self)[patterns[i]],DX, usesLog);
     }
 
+    /***
+     * Here, these method should not be called.
+     *
+     **/
+    
+    virtual const Matrix<double>& getTransitionProbabilities() const
+    {
+      throw Exception("ComputingNode::getTransitionProbabilities should not be called.");
+      
+      return voidprob_;
+    }
+
+    
+    virtual const Matrix<double>& getTransitionProbabilitiesD1() const
+    {
+      throw Exception("ComputingNode::getTransitionProbabilities should not be called.");
+      
+      return voidprob_;
+    }
+
+    
+    virtual const Matrix<double>& getTransitionProbabilitiesD2() const
+    {
+      throw Exception("ComputingNode::getTransitionProbabilities should not be called.");
+      
+      return voidprob_;
+    }
 
 
   };

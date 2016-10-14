@@ -40,8 +40,7 @@
 #ifndef _ONE_PROCESS_SEQUENCE_PHYLOLIKELIHOOD_H_
 #define _ONE_PROCESS_SEQUENCE_PHYLOLIKELIHOOD_H_
 
-#include "../../Tree/Node.h"
-#include "../../Tree/Tree.h"
+#include "../../Tree/PhyloTree.h"
 #include "../ModelIterator.h"
 #include "../SitePartition.h"
 
@@ -180,7 +179,6 @@ public:
    *
    * @return The tree of this OneProcessSequencePhyloLikelihood object.
    */
-  const Tree& getTree() const { return mSeqEvol_.getSubstitutionProcess().getTree(); }
 
   const SubstitutionProcess& getSubstitutionProcess() const { return mSeqEvol_.getSubstitutionProcess(); }
 

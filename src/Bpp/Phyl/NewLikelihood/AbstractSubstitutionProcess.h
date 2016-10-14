@@ -42,6 +42,7 @@
 
 #include "SubstitutionProcess.h"
 #include "ComputingTree.h"
+#include "SpeciationComputingNode.h"
 
 //From the STL:
 #include <memory>
@@ -63,12 +64,12 @@ namespace bpp
     public virtual AbstractParameterAliasable
   {
   protected:
-    std::unique_ptr<ParametrizableTree> pTree_;
+    std::unique_ptr<ParametrizablePhyloTree> pTree_;
 
     size_t nbClasses_;
 
   protected:
-    AbstractSubstitutionProcess(ParametrizableTree* tree, size_t nbClasses, const std::string& prefix = "");
+    AbstractSubstitutionProcess(ParametrizablePhyloTree* tree, size_t nbClasses, const std::string& prefix = "");
 
     AbstractSubstitutionProcess(const AbstractSubstitutionProcess& asp);
 
@@ -76,15 +77,11 @@ namespace bpp
 
   public:
 
-    const TreeTemplate<Node>& getTree() const {return pTree_->getTree(); }
+//    const TreeTemplate<Node>& getTree() const {return pTree_->getTree(); }
   
-    const ParametrizableTree& getParametrizableTree() const { return *pTree_; }
+    const ParametrizablePhyloTree& getParametrizablePhyloTree() const { return *pTree_; }
 
     size_t getNumberOfClasses() const { return nbClasses_; }
-
-  protected:
-    size_t getModelIndex_(int nodeId, size_t modelClass) const throw (NodeNotFoundException, IndexOutOfBoundsException);
-
 
   public:
 
@@ -108,9 +105,9 @@ namespace bpp
      * @param nodeId The id of the node.
      * @param classIndex The model class index.
      */
-    const Matrix<double>& getTransitionProbabilities(int nodeId, size_t classIndex) const
+    const Matrix<double>& getTransitionProbabilities(unsigned int nodeId, size_t classIndex) const
     {
-      return getComputingTree()[classIndex]->getNode(nodeId)->getTransitionProbabilities();
+      return dynamic_cast<const SpeciationComputingNode*>(getComputingTree()[classIndex]->getNode(nodeId).get())->getTransitionProbabilities();
     }
  
     /**
@@ -119,9 +116,9 @@ namespace bpp
      * @param nodeId The id of the node.
      * @param classIndex The model class index.
      */
-    const Matrix<double>& getTransitionProbabilitiesD1(int nodeId, size_t classIndex) const
+    const Matrix<double>& getTransitionProbabilitiesD1(unsigned int nodeId, size_t classIndex) const
     {
-      return getComputingTree()[classIndex]->getNode(nodeId)->getTransitionProbabilitiesD1();
+      return dynamic_cast<const SpeciationComputingNode*>(getComputingTree()[classIndex]->getNode(nodeId).get())->getTransitionProbabilitiesD1();
     }
  
     /**
@@ -130,9 +127,9 @@ namespace bpp
      * @param nodeId The id of the node.
      * @param classIndex The model class index.
      */
-    const Matrix<double>& getTransitionProbabilitiesD2(int nodeId, size_t classIndex) const
+    const Matrix<double>& getTransitionProbabilitiesD2(unsigned int nodeId, size_t classIndex) const
     {
-      return getComputingTree()[classIndex]->getNode(nodeId)->getTransitionProbabilitiesD2();
+      return dynamic_cast<const SpeciationComputingNode*>(getComputingTree()[classIndex]->getNode(nodeId).get())->getTransitionProbabilitiesD2();
     }
 
   };

@@ -40,13 +40,15 @@
 #ifndef _SUBSTITUTIONPROCESS_H_
 #define _SUBSTITUTIONPROCESS_H_
 
-#include "ParametrizableTree.h"
+#include "ParametrizablePhyloTree.h"
 #include "ComputingTree.h"
 #include "../Model/SubstitutionModel.h"
 
 //From bpp-core:
 #include <Bpp/Numeric/ParameterAliasable.h>
 #include <Bpp/Numeric/Prob/DiscreteDistribution.h>
+
+#include <Bpp/Seq/Container/SiteContainer.h>
 
 //From the STL:
 #include <memory>
@@ -84,9 +86,9 @@ namespace bpp
   public:
     virtual bool isCompatibleWith(const SiteContainer& data) const = 0;
 
-    virtual const TreeTemplate<Node>& getTree() const = 0;
+    // virtual const TreeTemplate<Node>& getTree() const = 0;
   
-    virtual const ParametrizableTree& getParametrizableTree() const = 0;
+    virtual const ParametrizablePhyloTree& getParametrizablePhyloTree() const = 0;
 
     virtual size_t getNumberOfClasses() const = 0;
   
@@ -106,7 +108,7 @@ namespace bpp
      * @param classIndex The model class index.
      */
 
-    virtual const SubstitutionModel& getSubstitutionModel(int nodeId, size_t classIndex) const = 0;
+    virtual const SubstitutionModel& getSubstitutionModel(unsigned int nodeId, size_t classIndex) const = 0;
 
     /**
      * @brief Get a pointer to the rate distribution (or null if there
@@ -139,7 +141,7 @@ namespace bpp
      * @param classIndex The model class index.
      */
   
-    virtual const Matrix<double>& getTransitionProbabilities(int nodeId, size_t classIndex) const = 0;
+    virtual const Matrix<double>& getTransitionProbabilities(unsigned int nodeId, size_t classIndex) const = 0;
  
     /**
      * @brief Get the first order derivatives of the transition
@@ -149,7 +151,7 @@ namespace bpp
      * @param nodeId The id of the node.
      * @param classIndex The model class index.
      */
-    virtual const Matrix<double>& getTransitionProbabilitiesD1(int nodeId, size_t classIndex) const = 0;
+    virtual const Matrix<double>& getTransitionProbabilitiesD1(unsigned int nodeId, size_t classIndex) const = 0;
  
     /**
      * @brief Get the second order derivatives of the transition
@@ -159,7 +161,7 @@ namespace bpp
      * @param nodeId The id of the node.
      * @param classIndex The model class index.
      */
-    virtual const Matrix<double>& getTransitionProbabilitiesD2(int nodeId, size_t classIndex) const = 0;
+    virtual const Matrix<double>& getTransitionProbabilitiesD2(unsigned int nodeId, size_t classIndex) const = 0;
  
     /**
      * @brief Get the generator corresponding to a certain branch, and
@@ -168,7 +170,7 @@ namespace bpp
      * @param nodeId The id of the node.
      * @param classIndex The model class index.
      */
-    virtual const Matrix<double>& getGenerator(int nodeId, size_t classIndex) const = 0;
+    virtual const Matrix<double>& getGenerator(unsigned int nodeId, size_t classIndex) const = 0;
 
     /**
      * @brief Get the values of the frequencies for each state in the

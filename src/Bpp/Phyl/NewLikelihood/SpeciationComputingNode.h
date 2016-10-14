@@ -103,13 +103,9 @@ namespace bpp
   public:
     SpeciationComputingNode(const SubstitutionModel* model);
 
+    SpeciationComputingNode(const PhyloNode& np);
+
     SpeciationComputingNode(const SpeciationComputingNode& np);
-
-    SpeciationComputingNode(const Node& np);
-
-    SpeciationComputingNode(int num, std::string st);
-
-    SpeciationComputingNode();
 
     SpeciationComputingNode& operator=(const SpeciationComputingNode& np);
 
@@ -121,7 +117,7 @@ namespace bpp
 
     void setDistanceToFather(double x)
     {
-      Node::setDistanceToFather(x);
+      AwareNode::setDistanceToFather(x);
       update();
     }
 
@@ -266,17 +262,17 @@ namespace bpp
     void update(bool flag = true);
 
     /*
-     *@brief from Node
+     *@brief from AwareNode
      */
 
     SpeciationComputingNode* getSon(size_t pos) throw (IndexOutOfBoundsException)
     {
-      return dynamic_cast<SpeciationComputingNode*>(Node::getSon(pos));
+      return dynamic_cast<SpeciationComputingNode*>(AwareNode::getSon(pos));
     }
 
     const SpeciationComputingNode* getSon(size_t pos) const throw (IndexOutOfBoundsException)
     {
-      return dynamic_cast<const SpeciationComputingNode*>(Node::getSon(pos));
+      return dynamic_cast<const SpeciationComputingNode*>(AwareNode::getSon(pos));
     }
 
     

@@ -41,10 +41,13 @@
 #define _PATTERNTOOLS_H_
 
 #include "Tree/Tree.h"
+#include "Tree/PhyloTree.h"
 
 #include <Bpp/Numeric/VectorTools.h>
 
-//From SeqLib:
+// From SeqLib:
+#include <Bpp/Seq/Container/VectorSiteContainer.h>
+#include <Bpp/Seq/SiteTools.h>
 #include <Bpp/Seq/Site.h>
 #include <Bpp/Seq/Container/SiteContainer.h>
 
@@ -72,6 +75,10 @@ namespace bpp
      * @throw Exception if an error occured.
      */
     static SiteContainer* getSequenceSubset(const SiteContainer& sequenceSet, const Node& node) throw (Exception);
+
+    template<class N, class E, class I>
+    static SiteContainer* getSequenceSubset(const SiteContainer& sequenceSet, const std::shared_ptr<N> node, const SimpleAssociationTreeGraphObserver<N,E,I>& tree) throw (Exception);
+
     /**
      * @brief Extract the sequences corresponding to a given set of names.
      *
@@ -80,7 +87,8 @@ namespace bpp
      * @return A new site container with corresponding sequences.
      * @throw Exception if an error occured.
      */
-    static SiteContainer* getSequenceSubset(const SiteContainer& sequenceSet, const std::vector<std::string>& names) throw (Exception);
+
+      static SiteContainer* getSequenceSubset(const SiteContainer& sequenceSet, const std::vector<std::string>& names) throw (Exception);
     /**
      * @brief Compress a site container by removing duplicated sites.
      *
@@ -100,6 +108,42 @@ namespace bpp
      */
     static Vint getIndexes(const SiteContainer& sequences1, const SiteContainer& sequences2);
   };
+
+  template<class N, class E, class I>
+  SiteContainer* PatternTools::getSequenceSubset(const SiteContainer& sequenceSet, const std::shared_ptr<N> node, const SimpleAssociationTreeGraphObserver<N,E,I>& tree) throw (Exception)
+  {
+    size_t nbSites=sequenceSet.getNumberOfSites();
+
+    VectorSiteContainer* sequenceSubset = new VectorSiteContainer(sequenceSet.getAlphabet());
+    std::vector<std::shared_ptr<N> > leaves = tree.getLeavesUnderNode(node);
+
+    for (typename std::vector<std::shared_ptr<N> >::iterator i = leaves.begin(); i < leaves.end(); i++)
+    {
+      const Sequence* newSeq = 0;
+
+      if ((*i)->hasName())
+      {
+        try
+        {
+          newSeq = &sequenceSet.getSequence((*i)->getName());
+          sequenceSubset->addSequence(*newSeq);
+        }
+        catch (std::exception const& e)
+        {
+          ApplicationTools::displayWarning("Leaf name not found in sequence file: " + (*i)->getName() + " : Replaced with unknown sequence");
+        
+          BasicSequence seq((*i)->getName(),"",sequenceSet.getAlphabet());
+          seq.setToSizeR(nbSites);
+          SymbolListTools::changeGapsToUnknownCharacters(seq);
+          sequenceSubset->addSequence(seq);
+        }
+      }
+    }
+  
+    sequenceSubset->setSitePositions(sequenceSet.getSitePositions());
+  
+    return sequenceSubset;
+  }
 
 
 } //end of namespace bpp.

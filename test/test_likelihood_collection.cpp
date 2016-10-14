@@ -40,7 +40,8 @@ knowledge of the CeCILL license and that you accept its terms.
 #include <Bpp/Numeric/Matrix/MatrixTools.h>
 #include <Bpp/Numeric/Prob/Simplex.h>
 #include <Bpp/Seq/Alphabet/AlphabetTools.h>
-#include <Bpp/Phyl/Tree/TreeTemplate.h>
+#include <Bpp/Phyl/Io/Newick.h>
+#include <Bpp/Phyl/Tree/PhyloTree.h>
 #include <Bpp/Phyl/Model/Nucleotide/T92.h>
 #include <Bpp/Phyl/Model/FrequenciesSet/NucleotideFrequenciesSet.h>
 #include <Bpp/Phyl/Model/RateDistribution/GammaDiscreteRateDistribution.h>
@@ -62,11 +63,19 @@ using namespace bpp;
 using namespace std;
 
 int main() {
-  TreeTemplate<Node>* tree1 = TreeTemplateTools::parenthesisToTree("(((A:0.1, B:0.2):0.3,C:0.1):0.2,D:0.3);");
-  TreeTemplate<Node>* tree2 = TreeTemplateTools::parenthesisToTree("((A:0.05, C:0.02):0.1,(D:0.01,B:0.03):0.05);");
+  Newick reader;
 
-  vector<string> seqNames= tree1->getLeavesNames();
-  vector<int> ids = tree1->getNodesId();
+  unique_ptr<PhyloTree> tree1(reader.parenthesisToPhyloTree("(((A:0.1, B:0.2):0.3,C:0.1):0.2,D:0.3);"));
+  unique_ptr<PhyloTree> tree2(reader.parenthesisToPhyloTree("((A:0.05, C:0.02):0.1,(D:0.01,B:0.03):0.05);"));
+
+
+  vector<shared_ptr<PhyloNode> > vl= tree1->getAllLeaves();
+  
+  vector<string> seqNames;
+  for (size_t i=0; i<vl.size(); i++)
+    seqNames.push_back(vl[i]->getName());
+  
+  vector<unsigned int> ids = tree1->getNodeIndexes(tree1->getAllNodes());
   //-------------
 
   const NucleicAlphabet* alphabet = &AlphabetTools::DNA_ALPHABET;
@@ -79,16 +88,16 @@ int main() {
   DiscreteDistribution* rdist1 = new GammaDiscreteRateDistribution(4, 2.0);
   DiscreteDistribution* rdist2 = new GammaDiscreteRateDistribution(3, 1.0);
   
-  ParametrizableTree* parTree1 = new ParametrizableTree(*tree1);
-  ParametrizableTree* parTree2 = new ParametrizableTree(*tree2);
+  unique_ptr<ParametrizablePhyloTree> parTree1(new ParametrizablePhyloTree(*tree1));
+  unique_ptr<ParametrizablePhyloTree> parTree2(new ParametrizablePhyloTree(*tree2));
 
   // First Process
 
   NonHomogeneousSubstitutionProcess* subPro1=new NonHomogeneousSubstitutionProcess(rdist1->clone(), parTree1->clone());
 
-  int P1[] = {0,3,4,5,1,2};
-  Vint vP1m1(&P1[0], &P1[4]);
-  Vint vP1m2(&P1[4], &P1[sizeof(P1)/sizeof(P1[0])]);
+  unsigned int P1[] = {0,3,4,5,1,2};
+  Vuint vP1m1(&P1[0], &P1[4]);
+  Vuint vP1m2(&P1[4], &P1[sizeof(P1)/sizeof(P1[0])]);
 
   subPro1->addModel(model1->clone(),vP1m1);
   subPro1->addModel(model2->clone(),vP1m2);
@@ -97,9 +106,9 @@ int main() {
 
   NonHomogeneousSubstitutionProcess* subPro2= new NonHomogeneousSubstitutionProcess(rdist2->clone(), parTree2->clone(), rootFreqs->clone());
 
-  int P2[] = {0,1,2,3,4,5};
-  Vint vP2m1(&P2[0], &P2[5]);
-  Vint vP2m2(&P2[5], &P2[sizeof(P2)/sizeof(P2[0])]);
+  unsigned int P2[] = {0,1,2,3,4,5};
+  Vuint vP2m1(&P2[0], &P2[5]);
+  Vuint vP2m2(&P2[5], &P2[sizeof(P2)/sizeof(P2[0])]);
 
   subPro2->addModel(model1->clone(),vP2m1);
   subPro2->addModel(model3->clone(),vP2m2);
@@ -115,16 +124,16 @@ int main() {
   modelColl->addDistribution(rdist1, 1);
   modelColl->addDistribution(rdist2, 2);
 
-  modelColl->addTree(parTree1, 1);
-  modelColl->addTree(parTree2, 2);
+  modelColl->addTree(parTree1.get(), 1);
+  modelColl->addTree(parTree2.get(), 2);
 
-  map<size_t, Vint> mModBr1;
+  map<size_t, Vuint> mModBr1;
   mModBr1[1]=vP1m1;
   mModBr1[2]=vP1m2;
 
   modelColl->addSubstitutionProcess(1, mModBr1, 1, 1);
                                    
-  map<size_t, Vint> mModBr2;
+  map<size_t, Vuint> mModBr2;
   mModBr2[1]=vP2m1;
   mModBr2[3]=vP2m2;
 

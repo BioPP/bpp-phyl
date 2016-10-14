@@ -88,7 +88,6 @@ private:
   double alpha_, beta_;
 
   double gamma_;
-
 public:
   /**
    * @brief Build a new AbstractCodonDistanceSubstitutionModel object from

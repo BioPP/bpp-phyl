@@ -42,7 +42,7 @@
 using namespace bpp;
 using namespace std;
 
-SimpleSubstitutionProcess::SimpleSubstitutionProcess(SubstitutionModel* model, ParametrizableTree* tree, bool checkRooted) :
+SimpleSubstitutionProcess::SimpleSubstitutionProcess(SubstitutionModel* model, ParametrizablePhyloTree* tree) :
   AbstractParameterAliasable(""),
   AbstractSubstitutionProcess(tree, 1, model ? model->getNamespace() : ""),
   model_(model),
@@ -50,10 +50,6 @@ SimpleSubstitutionProcess::SimpleSubstitutionProcess(SubstitutionModel* model, P
 {
   if (!model)
     throw Exception("SimpleSubstitutionProcess. A model instance must be provided.");
-  if (checkRooted && pTree_->isRooted())
-  {
-    throw Exception("SimpleSubstitutionProcess (constructor). Tree is rooted.");
-  }
 
   computingTree_.reset(new ComputingTree(*pTree_.get()));
   computingTree_->addModel(model_.get());

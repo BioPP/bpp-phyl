@@ -48,7 +48,7 @@
 #include "SubstitutionProcess.h"
 
 
-#include "ParametrizableTree.h"
+#include "ParametrizablePhyloTree.h"
 
 #include <Bpp/Numeric/ParametrizableCollection.h>
 #include <Bpp/Numeric/Prob/DiscreteDistribution.h>
@@ -145,7 +145,7 @@ private:
    *
    */
 
-  ParametrizableCollection<ParametrizableTree> treeColl_;
+  ParametrizableCollection<ParametrizablePhyloTree> treeColl_;
 
   /**
    * A map from each Tree number to the SubProcess members that are
@@ -257,7 +257,7 @@ public:
       mVConstDist_[distributionIndex/10000-1].push_back(distributionIndex%10000);
   }
   
-  void addTree(ParametrizableTree* tree, size_t treeIndex)
+  void addTree(ParametrizablePhyloTree* tree, size_t treeIndex)
   {
     addParametrizable(tree , treeIndex);
   }
@@ -317,17 +317,17 @@ public:
    * @brief Get a tree from the set.
    *
    * @param treeIndex The index of the model in the set.
-   * @return the got ParametrizableTree*. 
+   * @return the got ParametrizablePhyloTree*. 
    */
   
-  ParametrizableTree& getTree(size_t treeIndex)
+  ParametrizablePhyloTree& getTree(size_t treeIndex)
   {
-    return *(dynamic_cast<ParametrizableTree*>(treeColl_[treeIndex]));
+    return *(dynamic_cast<ParametrizablePhyloTree*>(treeColl_[treeIndex]));
   }
   
-  const ParametrizableTree& getTree(size_t treeIndex) const 
+  const ParametrizablePhyloTree& getTree(size_t treeIndex) const 
   {
-    return *(dynamic_cast<const ParametrizableTree*>(treeColl_[treeIndex]));
+    return *(dynamic_cast<const ParametrizablePhyloTree*>(treeColl_[treeIndex]));
   }
   
 
@@ -435,7 +435,7 @@ public:
    *
    */
 
-  void addSubstitutionProcess(size_t nProc, std::map<size_t, std::vector<int> > mModBr, size_t nTree, size_t nRate, size_t nFreq);
+  void addSubstitutionProcess(size_t nProc, std::map<size_t, std::vector<unsigned int> > mModBr, size_t nTree, size_t nRate, size_t nFreq);
 
   /*
    * @brief Method to add a SubstitutionProcess.
@@ -449,7 +449,7 @@ public:
    *
    */
 
-  void addSubstitutionProcess(size_t nProc, std::map<size_t, std::vector<int> > mModBr, size_t nTree, size_t nRate);
+  void addSubstitutionProcess(size_t nProc, std::map<size_t, std::vector<unsigned int> > mModBr, size_t nTree, size_t nRate);
 
   /*
    * @brief Methods to retrieve Substitution Process

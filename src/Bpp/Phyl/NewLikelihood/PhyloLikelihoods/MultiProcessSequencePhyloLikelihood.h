@@ -37,8 +37,8 @@
   knowledge of the CeCILL license and that you accept its terms.
 */
 
-#ifndef _MULTIPROCESSSEQUENCEPHYLOLIKELIHOOD_H_
-#define _MULTIPROCESSSEQUENCEPHYLOLIKELIHOOD_H_
+#ifndef _MULTI_PROCESSSEQUENCEPHYLOLIKELIHOOD_H_
+#define _MULTI_PROCESSSEQUENCEPHYLOLIKELIHOOD_H_
 
 #include "SequencePhyloLikelihood.h"
 #include "../MultiProcessSequenceEvolution.h"

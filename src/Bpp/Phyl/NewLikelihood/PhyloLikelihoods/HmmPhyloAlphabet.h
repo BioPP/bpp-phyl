@@ -190,5 +190,5 @@ namespace bpp {
 
 }
 
-#endif //_HMMPROCESSALPHABET_H_
+#endif //_HMM_PHYLO_ALPHABET_H_
 

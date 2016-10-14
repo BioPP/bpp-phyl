@@ -40,6 +40,7 @@ knowledge of the CeCILL license and that you accept its terms.
 #include <Bpp/Numeric/Matrix/MatrixTools.h>
 #include <Bpp/Seq/Alphabet/AlphabetTools.h>
 #include <Bpp/Phyl/Tree/TreeTemplate.h>
+#include <Bpp/Phyl/Io/Newick.h>
 #include <Bpp/Phyl/Model/Nucleotide/T92.h>
 #include <Bpp/Phyl/Model/FrequenciesSet/NucleotideFrequenciesSet.h>
 #include <Bpp/Phyl/Model/SubstitutionModelSetTools.h>
@@ -81,6 +82,9 @@ int main() {
 
   TreeTemplate<Node>* tree = TreeTemplateTools::parenthesisToTree("(((A:0.1, B:0.2):0.3,C:0.1):0.2,(D:0.3,(E:0.2,F:0.05):0.1):0.1);");
 
+  Newick reader;
+  unique_ptr<PhyloTree> pTree(reader.parenthesisToPhyloTree("(((A:0.1, B:0.2):0.3,C:0.1):0.2,(D:0.3,(E:0.2,F:0.05):0.1):0.1);", false, "", false, false));
+
   vector<string> seqNames= tree->getLeavesNames();
   vector<int> ids = tree->getNodesId();
   //-------------
@@ -95,7 +99,8 @@ int main() {
   //Very difficult to optimize on small datasets:
   DiscreteDistribution* rdist = new GammaDiscreteRateDistribution(4, 1.0);
   
-  ParametrizableTree* parTree = new ParametrizableTree(*tree);
+  unique_ptr<ParametrizablePhyloTree> parTree(new ParametrizablePhyloTree(*pTree));
+                                              
   FrequenciesSet* rootFreqs2 = rootFreqs->clone();
   DiscreteDistribution* rdist2 = rdist->clone();
   SubstitutionModel* model2=model->clone();
@@ -107,7 +112,7 @@ int main() {
   unique_ptr<SubstitutionModelSet> modelSetSim(modelSet->clone());
   
 
-  NonHomogeneousSubstitutionProcess* subPro= NonHomogeneousSubstitutionProcess::createNonHomogeneousSubstitutionProcess(model2, rdist2, rootFreqs2, parTree, globalParameterNames);
+  NonHomogeneousSubstitutionProcess* subPro= NonHomogeneousSubstitutionProcess::createNonHomogeneousSubstitutionProcess(model2, rdist2, rootFreqs2, parTree.get(), globalParameterNames);
 
   // Simulation
     
@@ -127,7 +132,7 @@ int main() {
 
   NonHomogeneousSequenceSimulator simulator(modelSetSim.get(), rdist, tree);
 
-  nrep=20;
+  nrep=2;
   
   for (unsigned int j = 0; j < nrep; j++) {
 

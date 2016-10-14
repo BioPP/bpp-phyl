@@ -42,7 +42,6 @@ knowledge of the CeCILL license and that you accept its terms.
 
 #include "SubstitutionProcess.h"
 
-#include "../Tree/TreeTemplate.h"
 #include "AbstractLikelihoodNode.h"
 #include "LikelihoodTree.h"
 

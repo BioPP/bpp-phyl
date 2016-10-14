@@ -64,7 +64,7 @@ private:
   mutable std::unique_ptr<ComputingTree> computingTree_;
 
 public:
-  SimpleSubstitutionProcess(SubstitutionModel* model, ParametrizableTree* tree, bool checkRooted);
+  SimpleSubstitutionProcess(SubstitutionModel* model, ParametrizablePhyloTree* tree);
 
   SimpleSubstitutionProcess(const SimpleSubstitutionProcess& ssp);
 
@@ -81,7 +81,7 @@ public:
     return data.getAlphabet()->getAlphabetType() == model_->getAlphabet()->getAlphabetType();
   }
  
-  const SubstitutionModel& getSubstitutionModel(int nodeId, size_t classIndex) const
+  const SubstitutionModel& getSubstitutionModel(unsigned int nodeId, size_t classIndex) const
   {
     return *model_;
   }
@@ -91,7 +91,7 @@ public:
     return 0;
   }
   
-  const Matrix<double>& getGenerator(int nodeId, size_t classIndex) const {
+  const Matrix<double>& getGenerator(unsigned int nodeId, size_t classIndex) const {
     return model_->getGenerator();
   }
 
@@ -113,7 +113,7 @@ public:
   }
 
   ParameterList getBranchLengthParameters(bool independent) const {
-    return getParametrizableTree().getParameters();
+    return getParametrizablePhyloTree().getParameters();
   }
   
   const std::vector<double>& getRootFrequencies() const {

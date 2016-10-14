@@ -267,7 +267,7 @@ public:
    *
    */
   
-  virtual void computeTreeDLogLikelihood(const Vint& vbrId) = 0;
+  virtual void computeTreeDLogLikelihood(const Vuint& vbrId) = 0;
 
   /**
    * @brief Initiate a second-order derivative log-likelihood
@@ -277,7 +277,7 @@ public:
    *
    */
   
-  virtual void computeTreeD2LogLikelihood(const Vint& vbrId) = 0;
+  virtual void computeTreeD2LogLikelihood(const Vuint& vbrId) = 0;
 
 };
 

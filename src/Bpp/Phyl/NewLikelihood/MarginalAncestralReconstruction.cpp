@@ -103,16 +103,18 @@ map<int, vector<size_t> > MarginalAncestralReconstruction::getAllAncestralStates
   map<int, vector<size_t> > ancestors;
   // Clone the data into a AlignedSequenceContainer for more efficiency:
   AlignedSequenceContainer* data = new AlignedSequenceContainer(*likelihood_->getLikelihoodData().getShrunkData());
-  recursiveMarginalAncestralStates(tree_.getRootNode(), ancestors, *data);
+  recursiveMarginalAncestralStates(tree_->getRoot(), ancestors, *data);
   delete data;
   return ancestors;
 }
 
 Sequence* MarginalAncestralReconstruction::getAncestralSequenceForNode(int nodeId, VVdouble* probs, bool sample) const
 {
-  string name = tree_.hasNodeName(nodeId) ? tree_.getNodeName(nodeId) : ("" + TextTools::toString(nodeId));
+  string name = tree_->getNode(nodeId)->hasName() ? tree_->getNode(nodeId)->getName() : ("" + TextTools::toString(nodeId));
   const vector<size_t>* rootPatternLinks = &likelihood_->getLikelihoodData().getRootArrayPositions();
-  const SubstitutionModel& model = likelihood_->getSubstitutionProcess()->getSubstitutionModel(tree_.getNodesId()[0], 0); // We assume all nodes have a model with the same set of states.
+
+  const SubstitutionModel& model = likelihood_->getSubstitutionProcess()->getSubstitutionModel(tree_->getNodeIndex(tree_->getAllLeaves()[0]), 0); // We assume all nodes have a model with the same set of states.
+
   vector<size_t> states;
   vector<int> allStates(nbSites_);
   VVdouble patternedProbs;
@@ -138,19 +140,19 @@ Sequence* MarginalAncestralReconstruction::getAncestralSequenceForNode(int nodeI
 }
 
 void MarginalAncestralReconstruction::recursiveMarginalAncestralStates(
-  const Node* node,
+  const std::shared_ptr<PhyloNode> node,
   map<int, vector<size_t> >& ancestors,
   AlignedSequenceContainer& data) const
 {
-  if (node->hasNoSon())
+  if (tree_->isLeaf(node))
   {
     const Sequence& seq = data.getSequence(node->getName());
-    vector<size_t>* v = &ancestors[node->getId()];
+    vector<size_t>* v = &ancestors[tree_->getNodeIndex(node)];
     v->resize(seq.size());
     // This is a tricky way to store the real sequence as an ancestral one...
     // In case of Markov Modulated models, we consider that the real sequences
     // Are all in the first category.
-    const SubstitutionModel& model = likelihood_->getSubstitutionProcess()->getSubstitutionModel(tree_.getNodesId()[0], 0); // We assume all nodes have a model with the same number of states.
+    const SubstitutionModel& model = likelihood_->getSubstitutionProcess()->getSubstitutionModel(tree_->getNodeIndex(tree_->getAllLeaves()[0]), 0); // We assume all nodes have a model with the same number of states.
     for (size_t i = 0; i < seq.size(); i++)
     {
       (*v)[i] = model.getModelStates(seq[i])[0];
@@ -158,10 +160,12 @@ void MarginalAncestralReconstruction::recursiveMarginalAncestralStates(
   }
   else
   {
-    ancestors[node->getId()] = getAncestralStatesForNode(node->getId());
-    for (size_t i = 0; i < node->getNumberOfSons(); i++)
+    ancestors[tree_->getNodeIndex(node)] = getAncestralStatesForNode(tree_->getNodeIndex(node));
+    vector<shared_ptr<PhyloNode> > vsons=tree_->getSons(node);
+    
+    for (size_t i = 0; i < vsons.size(); i++)
     {
-      recursiveMarginalAncestralStates(node->getSon(i), ancestors, data);
+      recursiveMarginalAncestralStates(vsons[i], ancestors, data);
     }
   }
 }
@@ -169,10 +173,10 @@ void MarginalAncestralReconstruction::recursiveMarginalAncestralStates(
 AlignedSequenceContainer* MarginalAncestralReconstruction::getAncestralSequences(bool sample) const
 {
   AlignedSequenceContainer* asc = new AlignedSequenceContainer(alphabet_);
-  vector<int> ids = tree_.getInnerNodesId();
-  for (size_t i = 0; i < ids.size(); i++)
+  vector<shared_ptr<PhyloNode> > inNodes = tree_->getAllInnerNodes();
+  for (size_t i = 0; i < inNodes.size(); i++)
   {
-    Sequence* seq = getAncestralSequenceForNode(ids[i], NULL, sample);
+    Sequence* seq = getAncestralSequenceForNode(tree_->getNodeIndex(inNodes[i]), NULL, sample);
     asc->addSequence(*seq);
     delete seq;
   }

@@ -40,8 +40,8 @@
 #ifndef _SINGLEPROCESSPHYLOLIKELIHOOD_H_
 #define _SINGLEPROCESSPHYLOLIKELIHOOD_H_
 
-#include "../../Tree/Node.h"
-#include "../../Tree/Tree.h"
+#include "../../Tree/PhyloNode.h"
+#include "../../Tree/PhyloTree.h"
 #include "../../Model/SubstitutionModel.h"
 #include "../ModelIterator.h"
 #include "../SitePartition.h"
@@ -175,7 +175,7 @@ namespace bpp
      *
      * @return The tree of this SingleProcessPhyloLikelihood object.
      */
-    const Tree& getTree() const { return process_->getTree(); }
+    const ParametrizablePhyloTree& getTree() const { return process_->getParametrizablePhyloTree(); }
 
     const SubstitutionProcess& getSubstitutionProcess() const { return *process_; }
 

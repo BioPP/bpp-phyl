@@ -42,14 +42,15 @@ knowledge of the CeCILL license and that you accept its terms.
 
 #include <Bpp/Numeric/Prob/DiscreteDistribution.h>
 
-#include "../Tree/TreeTemplate.h"
+#include "../Tree/PhyloTree.h"
+#include "../Tree/PhyloBranchParam.h"
+#include "../Tree/AwareNode.h"
 
 #include "SpeciationComputingNode.h"
-#include "ParametrizableTree.h"
+#include "ParametrizablePhyloTree.h"
 
 namespace bpp
 {
-
   class SubstitutionProcessCollection;
 
 /**
@@ -65,13 +66,17 @@ namespace bpp
   class ComputingTree :
     public AbstractParametrizable
   {
+    typedef SimpleAssociationTreeGraphObserver<ComputingNode, PhyloBranchParam, SimpleTreeGraph<SimpleGraph> >  CompTree;
+
+    typedef SimpleAssociationTreeGraphObserver<SpeciationComputingNode, PhyloBranchParam, SimpleTreeGraph<SimpleGraph> >  SpecCompTree;
+
   private:
     /*
-     * A pointer towards a Parametrizable Tree
+     * A pointer towards a Parametrizable Phylo Tree
      *
      */
 
-    const ParametrizableTree* parTree_;
+    const ParametrizablePhyloTree* parTree_;
 
     /*
      * A pointer towards a Discrete Distribution
@@ -85,7 +90,7 @@ namespace bpp
      *
      */
     
-    std::vector<TreeTemplate<SpeciationComputingNode>* > vTree_;
+    std::vector<std::shared_ptr<CompTree> > vTree_;
 
     /*
      * boolean to say if the ComputingTree can be used for
@@ -115,7 +120,7 @@ namespace bpp
      *
      */
      
-    ComputingTree(const ParametrizableTree& ptree);
+    ComputingTree(const ParametrizablePhyloTree& ptree);
 
     /*
      * @brief construction of an empty ComputingTree.
@@ -129,7 +134,7 @@ namespace bpp
      *
      */
      
-    ComputingTree(const ParametrizableTree& ptree, const DiscreteDistribution& dist);
+    ComputingTree(const ParametrizablePhyloTree& ptree, const DiscreteDistribution& dist);
 
     ComputingTree(const ComputingTree& tree);
  
@@ -148,7 +153,7 @@ namespace bpp
      *
      */
      
-    void addModel(const SubstitutionModel* pSubMod, std::vector<int> vBr);
+    void addModel(const SubstitutionModel* pSubMod, std::vector<unsigned int> vBr);
 
     /*
      * @brief construction of an homogeneous ComputingTree.
@@ -179,9 +184,9 @@ namespace bpp
      *
      */
     
-    TreeTemplate<SpeciationComputingNode>* operator[](size_t ntree) { return vTree_[ntree];}
+    std::shared_ptr<CompTree> operator[](size_t ntree) { return vTree_[ntree];}
 
-    const TreeTemplate<SpeciationComputingNode>* operator[](size_t ntree) const { return vTree_[ntree];}
+    const std::shared_ptr<CompTree> operator[](size_t ntree) const { return vTree_[ntree];}
 
     /*
      *@brief update Distribution parameters and says to the
@@ -198,9 +203,9 @@ namespace bpp
      * If flag = true (default), node has to be updated (false otherwise).
      */
 
-    void update(std::vector<int>& vId, bool flag = true);
+    void update(std::vector<unsigned int>& vId, bool flag = true);
 
-    void update(int id, bool flag = true);
+    void update(unsigned int id, bool flag = true);
 
     /*
      * @brief Says to all nodes to be ready for update
@@ -214,7 +219,7 @@ namespace bpp
      *
      */
     
-    Vint toBeUpdatedNodes() const;
+    Vuint toBeUpdatedNodes() const;
 
   };
   

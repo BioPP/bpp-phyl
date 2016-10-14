@@ -215,10 +215,10 @@ Vdouble OneProcessSequencePhyloLikelihood::getPosteriorRateOfEachSite() const
 void OneProcessSequencePhyloLikelihood::computeDLogLikelihood_(const string& variable) const
 {
   // Get the node with the branch whose length must be derivated:
-  Vint vbrId;
+  Vuint vbrId;
   
   try {
-    vbrId.push_back(atoi(variable.substr(5).c_str()));
+    vbrId.push_back((unsigned int)atoi(variable.substr(5).c_str()));
   }
   catch (std::exception const& e)
   {
@@ -233,10 +233,10 @@ void OneProcessSequencePhyloLikelihood::computeDLogLikelihood_(const string& var
 void OneProcessSequencePhyloLikelihood::computeD2LogLikelihood_(const string& variable) const
 {
   // Get the node with the branch whose length must be derivated:
-  Vint vbrId;
+  Vuint vbrId;
   
   try {
-    vbrId.push_back(atoi(variable.substr(5).c_str()));
+    vbrId.push_back((unsigned int)atoi(variable.substr(5).c_str()));
   }
   catch (std::exception const& e)
   {

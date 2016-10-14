@@ -276,7 +276,6 @@ namespace bpp
       bool verbose = true,
       int warn = 1) throw (Exception);
 
-
     /**
      * @brief Set parameter initial values of a given model in a set according to options.
      *
@@ -569,17 +568,17 @@ namespace bpp
       const Alphabet* alphabet,
       const GeneticCode* gCode,
       const SiteContainer* pData, 
-      const vector<Tree*>& vTree, 
+      const vector<PhyloTree*>& vTree, 
       std::map<std::string, std::string>& params,
       const std::string& suffix = "",
       bool suffixIsOptional = true,
       bool verbose = true,
       int warn = 1);
-    
+
     static SubstitutionProcessCollection* getSubstitutionProcessCollection(
       const Alphabet* alphabet,
       const GeneticCode* gCode,
-      const map<size_t, Tree*>& mTree,
+      const map<size_t, PhyloTree*>& mTree,
       const map<size_t, SubstitutionModel*>& mMod,
       const map<size_t, FrequenciesSet*>& mRootFreq,
       const map<size_t, DiscreteDistribution*>& mDist,

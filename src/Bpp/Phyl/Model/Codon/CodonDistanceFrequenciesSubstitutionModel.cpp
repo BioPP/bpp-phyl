@@ -51,7 +51,6 @@ CodonDistanceFrequenciesSubstitutionModel::CodonDistanceFrequenciesSubstitutionM
     const AlphabetIndex2* pdist,
     bool paramSynRate) :
   AbstractParameterAliasable("CodonDistFreq."),
-  AbstractWordSubstitutionModel(pmod, 3, "CodonDistFreq."),
   AbstractCodonSubstitutionModel(gCode, pmod, "CodonDistFreq."),
   AbstractCodonDistanceSubstitutionModel(pdist, "CodonDistFreq.", paramSynRate),
   AbstractCodonFrequenciesSubstitutionModel(pfreq, "CodonDistFreq.")
@@ -68,7 +67,6 @@ CodonDistanceFrequenciesSubstitutionModel::CodonDistanceFrequenciesSubstitutionM
     const AlphabetIndex2* pdist,
     bool paramSynRate) :
   AbstractParameterAliasable("CodonDistFreq."),
-  AbstractWordSubstitutionModel(gCode->getSourceAlphabet(), new CanonicalStateMap(gCode->getSourceAlphabet(), false), "CodonDistFreq."),
   AbstractCodonSubstitutionModel(gCode, pmod1, pmod2, pmod3, "CodonDistFreq."),
   AbstractCodonDistanceSubstitutionModel(pdist, "CodonDistFreq.", paramSynRate),
   AbstractCodonFrequenciesSubstitutionModel(pfreq, "CodonDistFreq.")

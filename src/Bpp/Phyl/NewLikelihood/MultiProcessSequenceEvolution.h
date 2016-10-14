@@ -58,10 +58,10 @@ namespace bpp
  *
  */
   
-    class MultiProcessSequenceEvolution :
-      virtual public SequenceEvolution,
-      public AbstractParameterAliasable
-    {
+  class MultiProcessSequenceEvolution :
+    virtual public SequenceEvolution,
+    public AbstractParameterAliasable
+  {
     protected:
       SubstitutionProcessCollection* processColl_;
 

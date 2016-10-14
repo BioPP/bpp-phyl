@@ -1,5 +1,5 @@
 //
-// File: PhyloNode.cpp
+// File: Node.cpp
 // Created by: Julien Dutheil
 // Created on: Thu Mar 13 12:03:18 2003
 //
@@ -37,36 +37,68 @@ The fact that you are presently reading this means that you have had
 knowledge of the CeCILL license and that you accept its terms.
 */
 
-#include "PhyloNode.h"
-
-#include <iostream>
+#include "AwareNode.h"
+#include <Bpp/Exceptions.h>
+#include <Bpp/Text/TextTools.h>
 
 using namespace bpp;
 using namespace std;
 
 /** Copy constructor: *********************************************************/
   
-PhyloNode::PhyloNode(const PhyloNode& node):
-  name_(node.name_),
-  properties_()
+AwareNode::AwareNode(const AwareNode& node):
+  id_(node.id_),
+  sons_(), father_(),
+  distanceToFather_(node.distanceToFather_)
 {
-  for (map<string, Clonable *>::iterator i = node.properties_.begin(); i != node.properties_.end(); i++)
-    properties_[i->first] = i->second->clone();
+}
+
+AwareNode::AwareNode(const PhyloNode& node):
+  id_(),
+  sons_(), father_(),
+  distanceToFather_(0)
+{
 }
 
 /** Assignation operator: *****************************************************/
 
-PhyloNode& PhyloNode::operator=(const PhyloNode & node)
+AwareNode& AwareNode::operator=(const AwareNode & node)
 {
-  name_  = name_;
-  for(map<string, Clonable *>::iterator i = node.properties_.begin(); i != node.properties_.end(); i++)
-  {
-    Clonable * p = properties_[i->first];
-    if(p) delete p;
-    properties_[i->first] = i->second->clone();
-  }
+  id_               = node.id_;
+  father_           = 0;
+  distanceToFather_ = node.distanceToFather_;
+  sons_.clear();
 
-  return *this;
+  return * this;
+}
+      
+/** Sons: *********************************************************************/
+      
+void AwareNode::swap(size_t branch1, size_t branch2)
+{
+  if (branch1 > branch2)
+  {
+    size_t tmp = branch1;
+    branch1 = branch2;
+    branch2 = tmp;
+  }
+  AwareNode* node1 = getSon(branch1);
+  AwareNode* node2 = getSon(branch2);
+  removeSon(node1);
+  removeSon(node2);
+  addSon(branch1, node2);
+  addSon(branch2, node1);
+}
+
+size_t AwareNode::getSonPosition(const AwareNode* son) const
+{
+  if (!son)
+    throw NullPointerException("Node::getSonPosition(). Empty node given as input.");
+  for(size_t i = 0; i < sons_.size(); i++)
+  {
+    if(sons_[i] == son) return i;
+  }
+  throw Exception("Son not found: " + TextTools::toString(son->getId()));
 }
 
 /******************************************************************************/

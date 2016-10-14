@@ -47,8 +47,7 @@ using namespace std;
 RateAcrossSitesSubstitutionProcess::RateAcrossSitesSubstitutionProcess(
     SubstitutionModel* model,
     DiscreteDistribution* rdist,
-    ParametrizableTree* tree,
-    bool checkRooted) :
+    ParametrizablePhyloTree* tree) :
   AbstractParameterAliasable(""),
   AbstractSubstitutionProcess(tree, rdist ? rdist->getNumberOfCategories() : 0, model ? model->getNamespace() : ""),
   model_(model),
@@ -59,8 +58,6 @@ RateAcrossSitesSubstitutionProcess::RateAcrossSitesSubstitutionProcess(
     throw Exception("RateAcrossSitesSubstitutionProcess. A model instance must be provided.");
   if (!rdist)
     throw Exception("RateAcrossSitesSubstitutionProcess. A rate distribution instance must be provided.");
-  if (checkRooted && pTree_->isRooted())
-    throw Exception("RateAcrossSitesSubstitutionProcess (constructor). Tree is rooted.");
 
   computingTree_.reset(new ComputingTree(*pTree_.get(), *rDist_.get()));
   computingTree_->addModel(model_.get());

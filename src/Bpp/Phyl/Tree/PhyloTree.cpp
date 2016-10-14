@@ -32,15 +32,19 @@ knowledge of the CeCILL license and that you accept its terms.
 */
 
 #include "PhyloTree.h"
-// #include "PhyloBranch.h"
-// #include "PhyloNode.h"
-
+#include "../NewLikelihood/ParametrizablePhyloTree.h"
 
 using namespace bpp;
 using namespace std;
 
 PhyloTree::PhyloTree(bool rooted) :
   SimpleAssociationTreeGraphObserver<PhyloNode,PhyloBranch,SimpleTreeGraph<SimpleGraph> >(rooted),
+  name_("")
+{
+}
+
+PhyloTree::PhyloTree(const ParametrizablePhyloTree& tree) :
+  SimpleAssociationTreeGraphObserver<PhyloNode,PhyloBranch,SimpleTreeGraph<SimpleGraph> >(tree),
   name_("")
 {
 }

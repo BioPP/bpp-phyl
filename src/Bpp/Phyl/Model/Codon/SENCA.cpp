@@ -48,7 +48,6 @@ SENCA::SENCA(
     FrequenciesSet* pfit,
     const AlphabetIndex2* pdist) :
   AbstractParameterAliasable("SENCA."),
-  AbstractWordSubstitutionModel(pmod, 3, "SENCA."),
   AbstractCodonSubstitutionModel(gCode, pmod, "SENCA."),
   AbstractCodonDistanceSubstitutionModel(pdist, "SENCA."),
   AbstractCodonFitnessSubstitutionModel(pfit, "SENCA.")
@@ -64,7 +63,6 @@ SENCA::SENCA(
     FrequenciesSet* pfit,
     const AlphabetIndex2* pdist) :
   AbstractParameterAliasable("SENCA."),
-  AbstractWordSubstitutionModel(gCode->getSourceAlphabet(), new CanonicalStateMap(gCode->getSourceAlphabet(), false), "SENCA."),
   AbstractCodonSubstitutionModel(gCode, pmod1, pmod2, pmod3, "SENCA."),
   AbstractCodonDistanceSubstitutionModel(pdist, "SENCA."),
   AbstractCodonFitnessSubstitutionModel(pfit,"SENCA.")

@@ -1,7 +1,6 @@
-
- // File: SpeciationComputingNode.cpp
- // Created by: Laurent Guéguen
- // Created on: mercredi 3 juillet 2013, à 00h 10
+// File: SpeciationComputingNode.cpp
+// Created by: Laurent Guéguen
+// Created on: mercredi 3 juillet 2013, à 00h 10
 
 
 /*
@@ -61,8 +60,8 @@ SpeciationComputingNode::SpeciationComputingNode(const SubstitutionModel* model)
   addParameter_(new Parameter("scale", 1, &Parameter::R_PLUS_STAR));
 }
 
-SpeciationComputingNode::SpeciationComputingNode(int num, string st):
-  ComputingNode(num, st),
+SpeciationComputingNode::SpeciationComputingNode(const PhyloNode& pn) :
+  ComputingNode(pn),
   AbstractParametrizable(""),
   model_(0),
   nbStates_(0),
@@ -73,41 +72,7 @@ SpeciationComputingNode::SpeciationComputingNode(int num, string st):
   computeProbabilities_(true),
   computeProbabilitiesD1_(true),
   computeProbabilitiesD2_(true),
-  vLogStates_()
-{
-  addParameter_(new Parameter("scale", 1, &Parameter::R_PLUS_STAR));
-}
-
-SpeciationComputingNode::SpeciationComputingNode():
-  ComputingNode(),
-  AbstractParametrizable(""),
-  model_(0),
-  nbStates_(0),
-  scale_(1),
-  probabilities_(),
-  probabilitiesD1_(),
-  probabilitiesD2_(),
-  computeProbabilities_(true),
-  computeProbabilitiesD1_(true),
-  computeProbabilitiesD2_(true),
-  vLogStates_()
-{
-  addParameter_(new Parameter("scale", 1, &Parameter::R_PLUS_STAR));
-}
-
-SpeciationComputingNode::SpeciationComputingNode(const Node& cn) :
-  ComputingNode(cn),
-  AbstractParametrizable(""),
-  model_(0),
-  nbStates_(0),
-  scale_(1),
-  probabilities_(),
-  probabilitiesD1_(),
-  probabilitiesD2_(),
-  computeProbabilities_(true),
-  computeProbabilitiesD1_(true),
-  computeProbabilitiesD2_(true),
-  vLogStates_()
+  vLogStates_(0)
 {
   addParameter_(new Parameter("scale", 1, &Parameter::R_PLUS_STAR));
 }

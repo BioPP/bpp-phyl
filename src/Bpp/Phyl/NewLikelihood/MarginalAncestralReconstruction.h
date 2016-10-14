@@ -65,7 +65,7 @@ namespace bpp
   {
   private:
     AbstractLikelihoodTreeCalculation* likelihood_;
-    TreeTemplate<Node> tree_;
+    const ParametrizablePhyloTree* tree_;
     const Alphabet* alphabet_;
     size_t nbSites_;
     size_t nbDistinctSites_;
@@ -76,7 +76,7 @@ namespace bpp
   public:
       MarginalAncestralReconstruction(AbstractLikelihoodTreeCalculation* drl) :
         likelihood_      (drl),
-        tree_            (drl->getSubstitutionProcess()->getTree()),
+        tree_            (&drl->getSubstitutionProcess()->getParametrizablePhyloTree()),
         alphabet_        (drl->getAlphabet()),
         nbSites_         (drl->getLikelihoodData().getNumberOfSites()),
         nbDistinctSites_ (drl->getLikelihoodData().getNumberOfDistinctSites()),
@@ -181,7 +181,7 @@ namespace bpp
 	
     private:
       void recursiveMarginalAncestralStates(
-        const Node* node,
+        const std::shared_ptr<PhyloNode> node,
         std::map<int, std::vector<size_t> >& ancestors,
         AlignedSequenceContainer& data) const;
 		

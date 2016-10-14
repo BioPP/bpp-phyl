@@ -66,19 +66,16 @@ RecursiveLikelihoodTree::RecursiveLikelihoodTree(const SubstitutionProcess& proc
   usePatterns_(usepatterns),
   initializedAboveLikelihoods_(false)
 {
-  TreeTemplate<Node> tree = process.getParametrizableTree().getTree();
-
-  RecursiveLikelihoodNode* rCN = TreeTemplateTools::cloneSubtree<RecursiveLikelihoodNode>(*tree.getRootNode());
-
-  TreeTemplate<RecursiveLikelihoodNode>* pTC = new TreeTemplate<RecursiveLikelihoodNode>(rCN);
-
   for (size_t i = 0; i < nbClasses_; i++)
   {
-    TreeTemplate<RecursiveLikelihoodNode>* pTC2 = pTC->clone();
+    std::shared_ptr<LikTree> pTC2(new LikTree(process.getParametrizablePhyloTree()));
+    std::vector<std::shared_ptr<RecursiveLikelihoodNode> > vCN=pTC2->getAllNodes();
+    
+    for (size_t j=0; j<vCN.size(); j++)
+      vCN[j]->updateTree(pTC2.get(), pTC2->getNodeIndex(vCN[j]));
+    
     vTree_.push_back(pTC2);
   }
-
-  delete pTC;
 }
 
 RecursiveLikelihoodTree::RecursiveLikelihoodTree(const RecursiveLikelihoodTree& data) :
@@ -90,7 +87,11 @@ RecursiveLikelihoodTree::RecursiveLikelihoodTree(const RecursiveLikelihoodTree& 
 {
   for (size_t i = 0; i < data.vTree_.size(); i++)
   {
-    vTree_.push_back(data.vTree_[i]->clone());
+    std::shared_ptr<LikTree> pTC2(new LikTree(*data.vTree_[i]));
+    std::vector<std::shared_ptr<RecursiveLikelihoodNode> > vCN=pTC2->getAllNodes();
+    for (size_t j=0; j<vCN.size(); j++)
+      vCN[j]->updateTree(pTC2.get(), pTC2->getNodeIndex(vCN[j]));
+    vTree_.push_back(pTC2);
   }
 }
 
@@ -100,7 +101,12 @@ RecursiveLikelihoodTree& RecursiveLikelihoodTree::operator=(const RecursiveLikel
 
   for (size_t i = 0; i < data.vTree_.size(); i++)
   {
-    vTree_.push_back(data.vTree_[i]->clone());
+    std::shared_ptr<LikTree> pTC2(new LikTree(*data.vTree_[i]));
+    std::vector<std::shared_ptr<RecursiveLikelihoodNode> > vCN=pTC2->getAllNodes();
+    for (size_t j=0; j<vCN.size(); j++)
+      vCN[j]->updateTree(pTC2.get(), pTC2->getNodeIndex(vCN[j]));
+
+    vTree_.push_back(pTC2);
   }
 
   patternLinks_      = data.patternLinks_;
@@ -112,11 +118,6 @@ RecursiveLikelihoodTree& RecursiveLikelihoodTree::operator=(const RecursiveLikel
 
 RecursiveLikelihoodTree::~RecursiveLikelihoodTree()
 {
-  for (size_t i = 0; i < vTree_.size(); i++)
-  {
-    TreeTemplateTools::deleteSubtree(vTree_[i]->getRootNode());
-  }
-
   vTree_.clear();
 }
 
@@ -136,7 +137,7 @@ throw (Exception)
 
   if (usePatterns_)
   {
-    patterns.reset(initLikelihoodsWithPatterns_(process.getTree().getRootNode(), sites, process));
+    patterns.reset(initLikelihoodsWithPatterns_(vTree_[0]->getRoot().get(), sites, process));
     shrunkData_.reset(patterns->getSites());
     rootWeights_      = patterns->getWeights();
     rootPatternLinks_ = patterns->getIndices();
@@ -151,14 +152,15 @@ throw (Exception)
     rootWeights_      = patterns->getWeights();
     rootPatternLinks_ = patterns->getIndices();
     nbDistinctSites_  = shrunkData_->getNumberOfSites();
-    initLikelihoodsWithoutPatterns_(process.getTree().getRootNode(), *shrunkData_, process);
+    initLikelihoodsWithoutPatterns_(vTree_[0]->getRoot().get(), *shrunkData_, process);
   }
 }
 
 /******************************************************************************/
 
-void RecursiveLikelihoodTree::initLikelihoodsWithoutPatterns_(const Node* node, const SiteContainer& sequences, const SubstitutionProcess& process) throw (Exception)
+void RecursiveLikelihoodTree::initLikelihoodsWithoutPatterns_(const RecursiveLikelihoodNode* node, const SiteContainer& sequences, const SubstitutionProcess& process) throw (Exception)
 {
+  const ParametrizablePhyloTree& tree=process.getParametrizablePhyloTree();
   int nId = node->getId();
 
   // Initialize likelihood vector:
@@ -179,31 +181,34 @@ void RecursiveLikelihoodTree::initLikelihoodsWithoutPatterns_(const Node* node, 
 
   // Now initialize likelihood values and pointers:
 
+  
   if (node->hasNoSon())
   {
     const Sequence* seq;
     try
     {
-      seq = &sequences.getSequence(node->getName());
+      seq = &sequences.getSequence(tree.getNode(node->getId())->getName());
     }
     catch (SequenceNotFoundException snfe)
     {
-      throw SequenceNotFoundException("RecursiveLikelihoodTree::initTreelikelihoods. Leaf name in tree not found in site conainer: ", (node->getName()));
+      throw SequenceNotFoundException("RecursiveLikelihoodTree::initTreelikelihoods. Leaf name in tree not found in site container: ", tree.getNode(node->getId())->getName());
     }
 
     for (size_t c = 0; c < nbClasses_; c++)
     {
-      RecursiveLikelihoodNode& lNode = *dynamic_cast<RecursiveLikelihoodNode*>(vTree_[c]->getNode(nId));
+      RecursiveLikelihoodNode& lNode = dynamic_cast<RecursiveLikelihoodNode&>(*vTree_[c]->getNode(nId));
       VVdouble& array = lNode.getBelowLikelihoodArray_(ComputingNode::D0);
 
       for (size_t i = 0; i < nbDistinctSites_; i++)
       {
         Vdouble* array_i = &array[i];
         int state = seq->getValue(i);
+        
         double test = 0.;
         for (size_t s = 0; s < nbStates_; s++)
         {
           double x = process.getInitValue(s, state);
+
           if (lNode.usesLog())
           {
             if (x <= 0)
@@ -226,11 +231,11 @@ void RecursiveLikelihoodTree::initLikelihoodsWithoutPatterns_(const Node* node, 
   {
     // 'node' is an internal node.
     std::map<int, std::vector<size_t> >* patternLinks_node = &patternLinks_[nId];
-    int nbSonNodes = static_cast<int>(node->getNumberOfSons());
-    for (int l = 0; l < nbSonNodes; ++l)
+    size_t nbSonNodes = node->getNumberOfSons();
+    for (size_t l = 0; l < nbSonNodes; ++l)
     {
       // For each son node,
-      const Node* son = (*node)[l];
+      const RecursiveLikelihoodNode* son = dynamic_cast<const RecursiveLikelihoodNode*>((*node)[l]);
       initLikelihoodsWithoutPatterns_(son, sequences, process);
       std::vector<size_t>* patternLinks_node_son = &(*patternLinks_node)[son->getId()];
 
@@ -250,9 +255,11 @@ void RecursiveLikelihoodTree::initLikelihoodsWithoutPatterns_(const Node* node, 
 
 /******************************************************************************/
 
-SitePatterns* RecursiveLikelihoodTree::initLikelihoodsWithPatterns_(const Node* node, const SiteContainer& sequences, const SubstitutionProcess& process) throw (Exception)
+SitePatterns* RecursiveLikelihoodTree::initLikelihoodsWithPatterns_(const RecursiveLikelihoodNode* node, const SiteContainer& sequences, const SubstitutionProcess& process) throw (Exception)
 {
-  SiteContainer* tmp = PatternTools::getSequenceSubset(sequences, *node);
+  const ParametrizablePhyloTree& tree=process.getParametrizablePhyloTree();
+  SiteContainer* tmp = PatternTools::getSequenceSubset(sequences, tree.getNode(node->getId()), tree);
+  
   unique_ptr<SitePatterns> patterns(new SitePatterns(tmp, true)); // Important: patterns own tmp, otherwise sizes will not be accessible outside this function.
   unique_ptr<SiteContainer> subSequences(patterns->getSites());
 
@@ -282,16 +289,16 @@ SitePatterns* RecursiveLikelihoodTree::initLikelihoodsWithPatterns_(const Node* 
     const Sequence* seq;
     try
     {
-      seq = &subSequences->getSequence(node->getName());
+      seq = &subSequences->getSequence(tree.getNode(node->getId())->getName());
     }
     catch (SequenceNotFoundException snfe)
     {
-      throw SequenceNotFoundException("RecursiveLikelihoodTree::initTreelikelihoodsWithPatterns_. Leaf name in tree not found in site conainer: ", (node->getName()));
+      throw SequenceNotFoundException("RecursiveLikelihoodTree::initTreelikelihoodsWithPatterns_. Leaf name in tree not found in site container: ", tree.getNode(node->getId())->getName());
     }
 
     for (size_t c = 0; c < nbClasses_; c++)
     {
-      RecursiveLikelihoodNode& lNode = *dynamic_cast<RecursiveLikelihoodNode*>(vTree_[c]->getNode(nId));
+      RecursiveLikelihoodNode& lNode = dynamic_cast<RecursiveLikelihoodNode&>(*vTree_[c]->getNode(nId));
       VVdouble& array = lNode.getBelowLikelihoodArray_(ComputingNode::D0);
 
       for (size_t i = 0; i < nbSites; i++)
@@ -303,6 +310,7 @@ SitePatterns* RecursiveLikelihoodTree::initLikelihoodsWithPatterns_(const Node* 
         for (size_t s = 0; s < nbStates_; s++)
         {
           double x = process.getInitValue(s, state);
+
           if (lNode.usesLog())
           {
             if (x <= 0)
@@ -332,11 +340,12 @@ SitePatterns* RecursiveLikelihoodTree::initLikelihoodsWithPatterns_(const Node* 
     for (int l = 0; l < nbSonNodes; l++)
     {
       // For each son node,
-      const Node* son = (*node)[l];
+      const RecursiveLikelihoodNode* son = dynamic_cast<const RecursiveLikelihoodNode*>((*node)[l]);
 
       std::vector<size_t>* patternLinks_node_son = &(*patternLinks_node)[son->getId()];
 
-      // Initialize subtree 'l' and retrieves corresponding subSequences:
+
+// Initialize subtree 'l' and retrieves corresponding subSequences:
       unique_ptr<SitePatterns> subPatterns(initLikelihoodsWithPatterns_(son, *subSequences.get(), process));
       (*patternLinks_node_son) = subPatterns->getIndices();
     }
@@ -356,11 +365,11 @@ void RecursiveLikelihoodTree::resetInnerAboveLikelihoods()
   // Initialize likelihood vector:
   for (size_t i = 0; i < nbClasses_; i++)
   {
-    vector<RecursiveLikelihoodNode*> vNd = vTree_[i]->getNodes();
+    vector<shared_ptr<RecursiveLikelihoodNode> > vNd = vTree_[i]->getAllNodes();
 
     for (size_t j = 0; j < vNd.size(); j++)
     {
-      if (vNd[j]->getId() != vTree_[i]->getRootId())
+      if (vNd[j] != vTree_[i]->getRoot())
         vNd[j]->resetAboveLikelihoods(nbDistinctSites_, nbStates_);
     }
   }

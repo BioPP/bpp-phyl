@@ -159,8 +159,9 @@ namespace bpp
   private:
     
     std::shared_ptr<PhyloNode> parenthesisToNode(PhyloTree& tree, std::shared_ptr<PhyloNode> father, const std::string& description, unsigned int& nodeCounter, bool bootstrap, const std::string& propertyName, bool withId, bool verbose) const;
-    
-    PhyloTree* parenthesisToPhyloTree(const std::string& description, bool bootstrap, const std::string& propertyName, bool withId, bool verbose) const;
+
+  public:
+    PhyloTree* parenthesisToPhyloTree(const std::string& description, bool bootstrap = false, const std::string& propertyName = "", bool withId = false, bool verbose = false) const;
     
 
 /** @} */

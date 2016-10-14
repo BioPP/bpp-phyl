@@ -128,7 +128,7 @@ void MultiProcessSequencePhyloLikelihood::computeD2LogLikelihood_(const std::str
 
 void MultiProcessSequencePhyloLikelihood::computeDLogLikelihoodForAProcess(const std::string& variable, size_t p) const
 {
-  Vint VbrId;
+  Vuint VbrId;
 
   // Get the node with the branch whose length must be derivated:
 
@@ -147,7 +147,7 @@ void MultiProcessSequencePhyloLikelihood::computeDLogLikelihoodForAProcess(const
     try {
       i=(size_t)atoi(valias[v].substr(valias[v].rfind('_')+1).c_str());
       if (p+1==i){
-        VbrId.push_back(atoi(valias[v].substr(5).c_str()));
+        VbrId.push_back((unsigned int)atoi(valias[v].substr(5).c_str()));
       }
     }
     catch (exception& e)
@@ -162,7 +162,7 @@ void MultiProcessSequencePhyloLikelihood::computeDLogLikelihoodForAProcess(const
 
 void MultiProcessSequencePhyloLikelihood::computeD2LogLikelihoodForAProcess(const std::string& variable, size_t p) const
 {
-  Vint VbrId;
+  Vuint VbrId;
 
   // Get the node with the branch whose length must be derivated:
 
@@ -170,7 +170,7 @@ void MultiProcessSequencePhyloLikelihood::computeD2LogLikelihoodForAProcess(cons
   try {
     i=(size_t)atoi(variable.substr(variable.rfind('_')+1).c_str());
     if (p+1==i)
-      VbrId.push_back(atoi(variable.substr(5).c_str()));
+      VbrId.push_back((unsigned int)atoi(variable.substr(5).c_str()));
   }
   catch (exception& e){}
   

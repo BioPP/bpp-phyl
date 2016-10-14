@@ -47,12 +47,15 @@
 #include "PhyloTreeExceptions.h"
 
 
+
 namespace bpp
 {
 
+  class PhyloBranchParam;
+
   class PhyloBranch
   {
-  private:
+  protected:
     bool isLengthDefined_;
     double length_;
     mutable std::map<std::string, Clonable*> properties_;
@@ -79,12 +82,10 @@ namespace bpp
     {
     }
 
+    PhyloBranch(const PhyloBranchParam& branch);
+
     /**
      * @brief Copy constructor.
-     *
-     * @warning This operator copies all fields, excepted father and
-     * son branch pointers. Without specific id, The PhyloTree does
-     * not know the existence of the new edge.
      *
      * @param branch The branch to copy.
      */
@@ -92,10 +93,6 @@ namespace bpp
     
     /**
      * @brief Assignation operator.
-     *
-     * @warning This operator copies all fields, excepted father and
-     * son branch pointers. Without specific id, the PhyloTree does
-     * not know the existence of the new edge.
      *
      * @param branch the branch to copy.
      * @return A reference toward this branch.

@@ -41,9 +41,10 @@
 
 #include "SubstitutionProcessCollectionMember.h"
 
-#include "../Tree/TreeTemplateTools.h"
+#include "ParametrizablePhyloTree.h"
 
 #include <Bpp/Numeric/Prob/ConstantDistribution.h>
+#include <Bpp/Numeric/VectorTools.h>
 
 
 using namespace bpp;
@@ -131,8 +132,8 @@ void SubstitutionProcessCollection::addParametrizable(Parametrizable* parametriz
         pl=distColl_.getParametersForObject(parametrizableIndex);
       }
       else
-        if (dynamic_cast<ParametrizableTree*>(parametrizable)){
-          treeColl_.addObject(dynamic_cast<ParametrizableTree*>(parametrizable), parametrizableIndex);
+        if (dynamic_cast<ParametrizablePhyloTree*>(parametrizable)){
+          treeColl_.addObject(dynamic_cast<ParametrizablePhyloTree*>(parametrizable), parametrizableIndex);
           pl=treeColl_.getParametersForObject(parametrizableIndex);
         }
 
@@ -223,6 +224,7 @@ void SubstitutionProcessCollection::fireParameterChanged(const ParameterList& pa
   treeColl_.matchParametersValues(gAP);
   
   const vector<size_t>& vT=treeColl_.hasChanged();
+
   for (size_t i=0; i<vT.size(); i++)
   {
     const vector<size_t>& vs=mTreeToSubPro_[vT[i]];      
@@ -280,7 +282,7 @@ void SubstitutionProcessCollection::aliasParameters(std::map<std::string, std::s
 }
 
 
-void SubstitutionProcessCollection::addSubstitutionProcess(size_t nProc, std::map<size_t, std::vector<int> > mModBr, size_t nTree, size_t nRate, size_t nFreq)
+void SubstitutionProcessCollection::addSubstitutionProcess(size_t nProc, std::map<size_t, std::vector<unsigned int> > mModBr, size_t nTree, size_t nRate, size_t nFreq)
 {
   if (mSubProcess_.find(nProc)!=mSubProcess_.end())
     throw BadIntegerException("Already assigned substitution process",(int)nProc);
@@ -295,7 +297,7 @@ void SubstitutionProcessCollection::addSubstitutionProcess(size_t nProc, std::ma
   SubstitutionProcessCollectionMember* pSMS=new SubstitutionProcessCollectionMember(this, nProc, nTree, nRate);
   pSMS->setRootFrequencies(nFreq);
 
-  std::map<size_t, std::vector<int> >::iterator it;
+  std::map<size_t, std::vector<unsigned int> >::iterator it;
   for (it=mModBr.begin(); it!=mModBr.end(); it++){
     pSMS->addModel(it->first, it->second);
     mModelToSubPro_[it->first].push_back(nProc);
@@ -310,7 +312,7 @@ void SubstitutionProcessCollection::addSubstitutionProcess(size_t nProc, std::ma
   mSubProcess_[nProc]=pSMS;
 }
 
-void SubstitutionProcessCollection::addSubstitutionProcess(size_t nProc, std::map<size_t, std::vector<int> > mModBr, size_t nTree, size_t nRate)
+void SubstitutionProcessCollection::addSubstitutionProcess(size_t nProc, std::map<size_t, std::vector<unsigned int> > mModBr, size_t nTree, size_t nRate)
 {
   if (mSubProcess_.find(nProc)!=mSubProcess_.end())
     throw BadIntegerException("Already assigned substitution process",(int)nProc);
@@ -322,7 +324,7 @@ void SubstitutionProcessCollection::addSubstitutionProcess(size_t nProc, std::ma
 
   SubstitutionProcessCollectionMember* pSMS=new SubstitutionProcessCollectionMember(this, nProc, nTree, nRate);
 
-  std::map<size_t, std::vector<int> >::iterator it;
+  std::map<size_t, std::vector<unsigned int> >::iterator it;
   for (it=mModBr.begin(); it!=mModBr.end(); it++){
     pSMS->addModel(it->first, it->second);
     mModelToSubPro_[it->first].push_back(nProc);

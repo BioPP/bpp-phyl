@@ -123,7 +123,7 @@ inline bool SubstitutionProcessCollectionMember::matchParametersValues(const Par
 std::vector<size_t> SubstitutionProcessCollectionMember::getModelNumbers() const
 {
   vector<size_t> vMN;
-  std::map<size_t, std::vector<int> >::const_iterator it;
+  std::map<size_t, std::vector<unsigned int> >::const_iterator it;
   for (it = modelToNodes_.begin(); it != modelToNodes_.end(); it++)
   {
     vMN.push_back(it->first);
@@ -187,7 +187,7 @@ ParameterList SubstitutionProcessCollectionMember::getSubstitutionModelParameter
   ParameterList pl;
 
   // Then we update all models in the set:
-  std::map<size_t, std::vector<int> >::const_iterator it;
+  std::map<size_t, std::vector<unsigned int> >::const_iterator it;
   for (it = modelToNodes_.begin(); it != modelToNodes_.end(); it++)
   {
     pl.includeParameters(getCollection()->getSubstitutionModelParameters(it->first, independent));
@@ -213,12 +213,7 @@ inline const std::vector<double>& SubstitutionProcessCollectionMember::getRootFr
     return (getCollection()->getFrequencies(nRoot_)).getFrequencies();
 }
 
-inline const TreeTemplate<Node>& SubstitutionProcessCollectionMember::getTree() const
-{
-  return getCollection()->getTree(nTree_).getTree();
-}
-
-inline const ParametrizableTree& SubstitutionProcessCollectionMember::getParametrizableTree() const
+inline const ParametrizablePhyloTree& SubstitutionProcessCollectionMember::getParametrizablePhyloTree() const
 {
   return getCollection()->getTree(nTree_);
 }
@@ -229,7 +224,7 @@ inline size_t SubstitutionProcessCollectionMember::getNumberOfClasses() const
 }
 
 
-void SubstitutionProcessCollectionMember::addModel(size_t numModel, const std::vector<int>& nodesId)
+void SubstitutionProcessCollectionMember::addModel(size_t numModel, const std::vector<unsigned int>& nodesId)
 {
   const SubstitutionModel& nmod = getCollection()->getModel(numModel);
 
@@ -285,8 +280,8 @@ void SubstitutionProcessCollectionMember::setRootFrequencies(size_t numFreq)
 bool SubstitutionProcessCollectionMember::checkOrphanNodes(bool throwEx) const
 throw (Exception)
 {
-  vector<int> ids = getTree().getNodesId();
-  int rootId = getTree().getRootId();
+  vector<unsigned int> ids = getParametrizablePhyloTree().getAllNodesIndexes();
+  unsigned int rootId = getParametrizablePhyloTree().getNodeIndex(getParametrizablePhyloTree().getRoot());
   for (size_t i = 0; i < ids.size(); i++)
   {
     if (ids[i] != rootId && nodeToModel_.find(ids[i]) == nodeToModel_.end())
@@ -302,12 +297,12 @@ throw (Exception)
 bool SubstitutionProcessCollectionMember::checkUnknownNodes(bool throwEx) const
 throw (Exception)
 {
-  vector<int> ids = getTree().getNodesId();
+  vector<unsigned int> ids = getParametrizablePhyloTree().getAllNodesIndexes();
 
-  int id;
-  int rootId = getTree().getRootId();
+  unsigned int id;
+  unsigned int rootId = getParametrizablePhyloTree().getNodeIndex(getParametrizablePhyloTree().getRoot());
   
-  std::map<size_t, std::vector<int> >::const_iterator it;
+  std::map<size_t, std::vector<unsigned int> >::const_iterator it;
 
   for (it = modelToNodes_.begin(); it != modelToNodes_.end(); it++)
   {
@@ -327,7 +322,7 @@ throw (Exception)
 
 bool SubstitutionProcessCollectionMember::hasMixedSubstitutionModel() const
 {
-  std::map<size_t, std::vector<int> >::const_iterator it;
+  std::map<size_t, std::vector<unsigned int> >::const_iterator it;
   for (it = modelToNodes_.begin(); it != modelToNodes_.end(); it++)
   {
     if (dynamic_cast<const MixedSubstitutionModel*>(&getCollection()->getModel(it->first)) != NULL)
@@ -348,9 +343,9 @@ bool SubstitutionProcessCollectionMember::isCompatibleWith(const SiteContainer& 
 }
 
 
-inline const SubstitutionModel* SubstitutionProcessCollectionMember::getModelForNode(int nodeId) const throw (Exception)
+inline const SubstitutionModel* SubstitutionProcessCollectionMember::getModelForNode(unsigned int nodeId) const throw (Exception)
 {
-  std::map<int, size_t>::const_iterator i = nodeToModel_.find(nodeId);
+  std::map<unsigned int, size_t>::const_iterator i = nodeToModel_.find(nodeId);
   if (i == nodeToModel_.end())
     throw Exception("SubstitutionProcessCollectionMember::getModelForNode(). No model associated to node with id " + TextTools::toString(nodeId));
   return getModel(i->second);
@@ -364,7 +359,7 @@ inline size_t SubstitutionProcessCollectionMember::getNumberOfStates() const
     return getModel(modelToNodes_.begin()->first)->getNumberOfStates();
 }
 
-inline const SubstitutionModel& SubstitutionProcessCollectionMember::getSubstitutionModel(int nodeId, size_t classIndex) const
+inline const SubstitutionModel& SubstitutionProcessCollectionMember::getSubstitutionModel(unsigned int nodeId, size_t classIndex) const
 {
   return *getModel(nodeToModel_.at(nodeId));
 }

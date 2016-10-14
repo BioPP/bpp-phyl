@@ -40,7 +40,6 @@
 
 #include "RecursiveLikelihoodTreeCalculation.h"
 #include "RecursiveLikelihoodTree.h"
-//#include "SpeciationComputingNode.h"
 
 using namespace bpp;
 
@@ -119,15 +118,15 @@ RecursiveLikelihoodTreeCalculation& RecursiveLikelihoodTreeCalculation::operator
 
 void RecursiveLikelihoodTreeCalculation::updateLikelihoodFlags_()
 {
-  Vint upId=process_->getComputingTree().toBeUpdatedNodes();
+  Vuint upId=process_->getComputingTree().toBeUpdatedNodes();
 
-  int rootId=process_->getComputingTree()[0]->getRootId();
+  unsigned int rootId=process_->getComputingTree()[0]->getNodeIndex(process_->getComputingTree()[0]->getRoot());
 
   if (upId.size()!=0)
   {
     for (size_t c=0; c<nbClasses_; c++){
       for (size_t i=0;i<upId.size();i++){
-        RecursiveLikelihoodNode* node=(*likelihoodData_)[c].getNode(upId[i]);
+        shared_ptr<RecursiveLikelihoodNode> node=(*likelihoodData_)[c].getNode(upId[i]);
         if (upId[i]!=rootId)
         {
           node->updateFatherBelow_(false, ComputingNode::D0);
@@ -184,7 +183,7 @@ void RecursiveLikelihoodTreeCalculation::computeLikelihoodsAtNode(int nodeId)
  *                           First Order Derivatives                          *
  ******************************************************************************/
 
-void RecursiveLikelihoodTreeCalculation::computeTreeDLogLikelihood(const Vint& vbrId)
+void RecursiveLikelihoodTreeCalculation::computeTreeDLogLikelihood(const Vuint& vbrId)
 {
   if (vbrId.size()==0)
   {
@@ -194,11 +193,11 @@ void RecursiveLikelihoodTreeCalculation::computeTreeDLogLikelihood(const Vint& v
 
   nullDLogLikelihood_=false;
   
-  vector<int> lId=(*process_->getComputingTree()[0]).getLeavesId();
+  vector<unsigned int> lId=(*process_->getComputingTree()[0]).getNodeIndexes((*process_->getComputingTree()[0]).getAllLeaves());
   
   for (size_t i=0;i<lId.size();i++)
     for (size_t c=0; c<nbClasses_; c++){
-      RecursiveLikelihoodNode* branch=(*likelihoodData_)[c].getNode(lId[i]);
+      shared_ptr<RecursiveLikelihoodNode> branch=(*likelihoodData_)[c].getNode(lId[i]);
       branch->updateFatherBelow_(false, ComputingNode::D1);
     }
   
@@ -209,7 +208,7 @@ void RecursiveLikelihoodTreeCalculation::computeTreeDLogLikelihood(const Vint& v
  *                           Second Order Derivatives                         *
  ******************************************************************************/
 
-void RecursiveLikelihoodTreeCalculation::computeTreeD2LogLikelihood(const Vint& vbrId)
+void RecursiveLikelihoodTreeCalculation::computeTreeD2LogLikelihood(const Vuint& vbrId)
 {
   if (vbrId.size()==0)
   {
@@ -219,11 +218,11 @@ void RecursiveLikelihoodTreeCalculation::computeTreeD2LogLikelihood(const Vint& 
 
   nullD2LogLikelihood_=false;
 
-  vector<int> lId=(*process_->getComputingTree()[0]).getLeavesId();
+  vector<unsigned int> lId=(*process_->getComputingTree()[0]).getNodeIndexes((*process_->getComputingTree()[0]).getAllLeaves());
   
   for (size_t i=0;i<lId.size();i++)
     for (size_t c=0; c<nbClasses_; c++){
-      RecursiveLikelihoodNode* branch=(*likelihoodData_)[c].getNode(lId[i]);
+      shared_ptr<RecursiveLikelihoodNode> branch=(*likelihoodData_)[c].getNode(lId[i]);
       branch->updateFatherBelow_(false, ComputingNode::D2);
     }
   

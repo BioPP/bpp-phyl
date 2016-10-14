@@ -93,8 +93,8 @@ private:
    * @brief Contains for each node in a tree the index of the corresponding model in modelSet_
    */
 
-  std::map<int, size_t> nodeToModel_;
-  std::map<size_t, std::vector<int> > modelToNodes_;
+  std::map<unsigned int, size_t> nodeToModel_;
+  std::map<size_t, std::vector<unsigned int> > modelToNodes_;
 
   /**
      *@brief The number of the tree
@@ -179,7 +179,7 @@ private:
    */
   void changedRoot(bool flag = true)
   {
-    computingTree_->update((*computingTree_)[0]->getRootId(), flag);
+    computingTree_->update((*computingTree_)[0]->getNodeIndex((*computingTree_)[0]->getRoot()), flag);
   }
 
 public:
@@ -241,9 +241,9 @@ public:
    * @return The index of the model associated to the given node.
    * @throw Exception If no model is found for this node.
    */
-  size_t getModelIndexForNode(int nodeId) const throw (Exception)
+  size_t getModelIndexForNode(unsigned int nodeId) const throw (Exception)
   {
-    std::map<int, size_t>::const_iterator i = nodeToModel_.find(nodeId);
+    std::map<unsigned int, size_t>::const_iterator i = nodeToModel_.find(nodeId);
     if (i == nodeToModel_.end())
       throw Exception("SubstitutionProcessCollectionMember::getModelIndexForNode(). No model associated to node with id " + TextTools::toString(nodeId));
     return i->second;
@@ -257,7 +257,7 @@ public:
    * @throw Exception If no model is found for this node.
    */
 
-  const SubstitutionModel* getModelForNode(int nodeId) const throw (Exception);
+  const SubstitutionModel* getModelForNode(unsigned int nodeId) const throw (Exception);
 
   /**
    * @brief Get a list of nodes id for which the given model is associated.
@@ -267,9 +267,9 @@ public:
    * @throw IndexOutOfBoundsException If the index is not valid.
    */
 
-  const std::vector<int>& getNodesWithModel(size_t i) const
+  const std::vector<unsigned int>& getNodesWithModel(size_t i) const
   {
-    std::map<size_t, std::vector<int> >::const_iterator it = modelToNodes_.find(i);
+    std::map<size_t, std::vector<unsigned int> >::const_iterator it = modelToNodes_.find(i);
     if (it == modelToNodes_.end())
       throw Exception("SubstitutionProcessCollectionMember::getNodesWithModel(). No nodes associated with model " + TextTools::toString(i));
 
@@ -284,7 +284,7 @@ public:
    * This will override any previous affectation.
    */
 
-  void addModel(size_t numModel, const std::vector<int>& nodesId);
+  void addModel(size_t numModel, const std::vector<unsigned int>& nodesId);
 
   /**
    * @brief Get the rate distribution
@@ -377,9 +377,7 @@ public:
    * @return the Tree
    */
 
-  const TreeTemplate<Node>& getTree() const;
-
-  const ParametrizableTree& getParametrizableTree() const;
+  const ParametrizablePhyloTree& getParametrizablePhyloTree() const;
 
   size_t getTreeNumber() const { return nTree_; }
 
@@ -392,7 +390,7 @@ public:
    * @param classIndex The model class index.
    */
 
-  const SubstitutionModel& getSubstitutionModel(int nodeId, size_t classIndex) const;
+  const SubstitutionModel& getSubstitutionModel(unsigned int nodeId, size_t classIndex) const;
 
   /**
    * @brief Get the parameters of the substitution models.
@@ -439,7 +437,7 @@ public:
    * @param nodeId The id of the node.
    * @param classIndex The model class index.
    */
-  const Matrix<double>& getTransitionProbabilities(int nodeId, size_t classIndex) const
+  const Matrix<double>& getTransitionProbabilities(unsigned int nodeId, size_t classIndex) const
   {
     return (*computingTree_)[classIndex]->getNode(nodeId)->getTransitionProbabilities();
   }
@@ -452,7 +450,7 @@ public:
    * @param nodeId The id of the node.
    * @param classIndex The model class index.
    */
-  const Matrix<double>& getTransitionProbabilitiesD1(int nodeId, size_t classIndex) const
+  const Matrix<double>& getTransitionProbabilitiesD1(unsigned int nodeId, size_t classIndex) const
   {
     return (*computingTree_)[classIndex]->getNode(nodeId)->getTransitionProbabilitiesD1();
   }
@@ -465,13 +463,13 @@ public:
    * @param nodeId The id of the node.
    * @param classIndex The model class index.
    */
-  const Matrix<double>& getTransitionProbabilitiesD2(int nodeId, size_t classIndex) const
+  const Matrix<double>& getTransitionProbabilitiesD2(unsigned int nodeId, size_t classIndex) const
   {
     return (*computingTree_)[classIndex]->getNode(nodeId)->getTransitionProbabilitiesD2();
   }
 
 
-  const Matrix<double>& getGenerator(int nodeId, size_t classIndex) const
+  const Matrix<double>& getGenerator(unsigned int nodeId, size_t classIndex) const
   {
     return getSubstitutionModel(nodeId, classIndex).getGenerator();
   }

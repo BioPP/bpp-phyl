@@ -186,7 +186,7 @@ namespace bpp
 
     int getRootId() const
     {
-      return process_->getTree().getRootNode()->getId();
+      return process_->getParametrizablePhyloTree().getNodeIndex(process_->getParametrizablePhyloTree().getRoot());
     }
       
     /**
