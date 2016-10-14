@@ -80,10 +80,10 @@ void fitModelNH(SubstitutionModelSet* model, DiscreteDistribution* rdist, const 
 
 int main() {
 
-  TreeTemplate<Node>* tree = TreeTemplateTools::parenthesisToTree("(((A:0.1, B:0.2):0.3,C:0.1):0.2,(D:0.3,(E:0.2,F:0.05):0.1):0.1);");
+  TreeTemplate<Node>* tree = TreeTemplateTools::parenthesisToTree("(((A:0.1, B:0.2):0.3,C:0.15):0.25,(D:0.35,(E:0.26,F:0.05):0.12):0.16);");
 
   Newick reader;
-  unique_ptr<PhyloTree> pTree(reader.parenthesisToPhyloTree("(((A:0.1, B:0.2):0.3,C:0.1):0.2,(D:0.3,(E:0.2,F:0.05):0.1):0.1);", false, "", false, false));
+  unique_ptr<PhyloTree> pTree(reader.parenthesisToPhyloTree("(((A:0.1, B:0.2):0.3,C:0.15):0.25,(D:0.35,(E:0.26,F:0.05):0.12):0.16);", false, "", false, false));
 
   vector<string> seqNames= tree->getLeavesNames();
   vector<int> ids = tree->getNodesId();
@@ -132,7 +132,7 @@ int main() {
 
   NonHomogeneousSequenceSimulator simulator(modelSetSim.get(), rdist, tree);
 
-  nrep=2;
+  nrep=20;
   
   for (unsigned int j = 0; j < nrep; j++) {
 

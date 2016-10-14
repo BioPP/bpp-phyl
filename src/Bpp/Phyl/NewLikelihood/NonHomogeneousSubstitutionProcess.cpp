@@ -42,6 +42,7 @@
 #include "NonHomogeneousSubstitutionProcess.h"
 #include "../Model/MixedSubstitutionModel.h"
 
+#include <algorithm>
 #include <Bpp/Utils/MapTools.h>
 
 using namespace bpp;
@@ -160,10 +161,10 @@ void NonHomogeneousSubstitutionProcess::addModel(SubstitutionModel* model, const
 
   // Associate this model to specified nodes:
   for (size_t i = 0; i < nodesId.size(); i++)
-    {
-      nodeToModel_[nodesId[i]] = thisModelIndex;
-      modelToNodes_[thisModelIndex].push_back(nodesId[i]);
-    }
+  {
+    nodeToModel_[nodesId[i]] = thisModelIndex;
+    modelToNodes_[thisModelIndex].push_back(nodesId[i]);
+  }
 
   // Associate parameters:
   string pname;
@@ -171,11 +172,11 @@ void NonHomogeneousSubstitutionProcess::addModel(SubstitutionModel* model, const
   modelParameters_.push_back(pl);
    
   for (size_t i  = 0; i < pl.size(); i++)
-    {
-      Parameter* p = pl[i].clone();
-      p->setName(p->getName() + "_" + TextTools::toString(modelParameters_.size()));
-      addParameter_(p);
-    }
+  {
+    Parameter* p = pl[i].clone();
+    p->setName(p->getName() + "_" + TextTools::toString(modelParameters_.size()));
+    addParameter_(p);
+  }
 
   computingTree_->addModel(model, nodesId);
   computingTree_->checkModelOnEachNode();
@@ -185,9 +186,9 @@ void NonHomogeneousSubstitutionProcess::addModel(SubstitutionModel* model, const
 void NonHomogeneousSubstitutionProcess::setModel(SubstitutionModel* model, size_t modelIndex)
 {
   if (modelSet_.size() > 0 && model->getAlphabet()->getAlphabetType() != modelSet_[0]->getAlphabet()->getAlphabetType())
-    throw Exception("NonHomogeneousSubstitutionProcess::addModel. A Substitution Model cannot be added to a Substituion Process if it does not have the same alphabet.");
+    throw Exception("NonHomogeneousSubstitutionProcess::setModel. A Substitution Model cannot be added to a Substituion Process if it does not have the same alphabet.");
   if (modelSet_.size() > 0 && model->getNumberOfStates() != modelSet_[0]->getNumberOfStates())
-    throw Exception("NonHomogeneousSubstitutionProcess::addModel. A Substitution Model cannot be added to a Substitution Process if it does not have the same number of states.");
+    throw Exception("NonHomogeneousSubstitutionProcess::setModel. A Substitution Model cannot be added to a Substitution Process if it does not have the same number of states.");
 
   if (modelIndex >= modelSet_.size())
     throw IndexOutOfBoundsException("NonHomogeneousSubstitutionProcess::setModel.", modelIndex, 0, modelSet_.size());
@@ -207,11 +208,11 @@ void NonHomogeneousSubstitutionProcess::setModel(SubstitutionModel* model, size_
   modelParameters_[modelIndex]=pl;
   
   for (size_t i  = 0; i < pl.size(); i++)
-    {
-      Parameter* p = pl[i].clone();
-      p->setName(p->getName() + "_" + TextTools::toString(modelIndex+1));
-      addParameter_(p);
-    }
+  {
+    Parameter* p = pl[i].clone();
+    p->setName(p->getName() + "_" + TextTools::toString(modelIndex+1));
+    addParameter_(p);
+  }
 
   computingTree_->addModel(model, modelToNodes_[modelIndex]);
   computingTree_->checkModelOnEachNode();
@@ -220,14 +221,14 @@ void NonHomogeneousSubstitutionProcess::setModel(SubstitutionModel* model, size_
 void NonHomogeneousSubstitutionProcess::listModelNames(std::ostream& out) const
 {
   for (size_t i = 0; i < modelSet_.size(); i++)
+  {
+    out << "Model " << i + 1 << ": " << modelSet_[i]->getName() << "\t attached to nodes ";
+    for (size_t j = 0; j < modelToNodes_[i].size(); j++)
     {
-      out << "Model " << i + 1 << ": " << modelSet_[i]->getName() << "\t attached to nodes ";
-      for (size_t j = 0; j < modelToNodes_[i].size(); j++)
-        {
-          out << modelToNodes_[i][j];
-        }
-      out << endl;
+      out << modelToNodes_[i][j];
     }
+    out << endl;
+  }
 }
 
 void NonHomogeneousSubstitutionProcess::fireParameterChanged(const ParameterList& parameters)
@@ -241,14 +242,14 @@ void NonHomogeneousSubstitutionProcess::fireParameterChanged(const ParameterList
 
   // Then we update all models in the set:
   for (size_t i = 0; i < modelParameters_.size(); i++)
+  {
+    for (size_t np = 0 ; np< modelParameters_[i].size() ; np++)
     {
-      for (size_t np = 0 ; np< modelParameters_[i].size() ; np++)
-        {
-          modelParameters_[i][np].setValue(getParameterValue(modelParameters_[i][np].getName()+"_"+TextTools::toString(i+1)));
-        }
-      if (modelSet_[i]->matchParametersValues(modelParameters_[i]))
-        computingTree_->update(modelToNodes_[i]);
+      modelParameters_[i][np].setValue(getParameterValue(modelParameters_[i][np].getName()+"_"+TextTools::toString(i+1)));
     }
+    if (modelSet_[i]->matchParametersValues(modelParameters_[i]))
+      computingTree_->update(modelToNodes_[i]);
+  }
 
   AbstractSubstitutionProcess::fireParameterChanged(parameters);
 }
@@ -260,15 +261,15 @@ ParameterList NonHomogeneousSubstitutionProcess::getSubstitutionModelParameters(
   
   // Then we update all models in the set:
   for (size_t i = 0; i < modelParameters_.size(); i++)
-    {
-      for (size_t np = 0 ; np< modelParameters_[i].size() ; np++)
-        if (!independent || hasIndependentParameter(modelParameters_[i][np].getName()+"_"+TextTools::toString(i+1)))
-        {
-          Parameter p(modelParameters_[i][np]);
-          p.setName(p.getName()+"_"+TextTools::toString(i+1));
-          pl.addParameter(p);
-        }
-    }
+  {
+    for (size_t np = 0 ; np< modelParameters_[i].size() ; np++)
+      if (!independent || hasIndependentParameter(modelParameters_[i][np].getName()+"_"+TextTools::toString(i+1)))
+      {
+        Parameter p(modelParameters_[i][np]);
+        p.setName(p.getName()+"_"+TextTools::toString(i+1));
+        pl.addParameter(p);
+      }
+  }
 
   return pl;
 }
@@ -278,13 +279,13 @@ bool NonHomogeneousSubstitutionProcess::checkOrphanNodes(bool throwEx) const
   vector<unsigned int> ids = getParametrizablePhyloTree().getAllNodesIndexes();
   unsigned int rootId = getParametrizablePhyloTree().getNodeIndex(getParametrizablePhyloTree().getRoot());
   for (size_t i = 0; i < ids.size(); i++)
+  {
+    if (ids[i] != rootId && nodeToModel_.find(ids[i]) == nodeToModel_.end())
     {
-      if (ids[i] != rootId && nodeToModel_.find(ids[i]) == nodeToModel_.end())
-        {
-          if (throwEx) throw Exception("NonHomogeneousSubstitutionProcess::checkOrphanNodes(). Node '" + TextTools::toString(ids[i]) + "' in tree has no model associated.");
-          return false;
-        }
+      if (throwEx) throw Exception("NonHomogeneousSubstitutionProcess::checkOrphanNodes(). Node '" + TextTools::toString(ids[i]) + "' in tree has no model associated.");
+      return false;
     }
+  }
   return true;
 }
 
@@ -297,28 +298,28 @@ bool NonHomogeneousSubstitutionProcess::checkUnknownNodes(bool throwEx) const
   std::map<size_t, std::vector<unsigned int> >::const_iterator it;
   
   for (it=modelToNodes_.begin(); it!=modelToNodes_.end(); it++)
+  {
+    for (size_t j = 0; j < it->second.size(); j++)
     {
-      for (size_t j = 0; j < it->second.size(); j++)
-        {
-          id = it->second[j];
-          if (id == rootId || !VectorTools::contains(ids, id))
-            {
-              if (throwEx)
-                throw Exception("NonHomogeneousSubstitutionProcess::checkUnknownNodes(). Node '" + TextTools::toString(id) + "' is not found in tree or is the root node.");
-              return false;
-            }
-        }
+      id = it->second[j];
+      if (id == rootId || !VectorTools::contains(ids, id))
+      {
+        if (throwEx)
+          throw Exception("NonHomogeneousSubstitutionProcess::checkUnknownNodes(). Node '" + TextTools::toString(id) + "' is not found in tree or is the root node.");
+        return false;
+      }
     }
+  }
   return true;
 }
 
 bool NonHomogeneousSubstitutionProcess::hasMixedSubstitutionModel() const
 {
   for (size_t i = 0; i < getNumberOfModels(); i++)
-    {
-      if (dynamic_cast<const MixedSubstitutionModel*>(getModel(i)) != NULL)
-        return true;
-    }
+  {
+    if (dynamic_cast<const MixedSubstitutionModel*>(getModel(i)) != NULL)
+      return true;
+  }
   return false;
 }
 
@@ -336,11 +337,11 @@ bool NonHomogeneousSubstitutionProcess::isCompatibleWith(const SiteContainer& da
 
 
 NonHomogeneousSubstitutionProcess* NonHomogeneousSubstitutionProcess::createHomogeneousSubstitutionProcess(
-                                                                                                                SubstitutionModel* model,
-                                                                                                                DiscreteDistribution* rdist,
-                                                                                                                FrequenciesSet* rootFreqs,
-                                                                                                                ParametrizablePhyloTree* tree
-                                                                                                                )
+  SubstitutionModel* model,
+  DiscreteDistribution* rdist,
+  FrequenciesSet* rootFreqs,
+  ParametrizablePhyloTree* tree
+  )
 {
   // Check alphabet:
   if  (rootFreqs && model->getAlphabet()->getAlphabetType() != rootFreqs->getAlphabet()->getAlphabetType())
@@ -356,13 +357,13 @@ NonHomogeneousSubstitutionProcess* NonHomogeneousSubstitutionProcess::createHomo
 
   unsigned int pos = 0;
   for (unsigned int i = 0; i < ids.size(); i++)
+  {
+    if (ids[i] == rootId)
     {
-      if (ids[i] == rootId)
-        {
-          pos = i;
-          break;
-        }
+      pos = i;
+      break;
     }
+  }
   ids.erase(ids.begin() + pos);
   
   modelSet->addModel(model, ids);
@@ -370,12 +371,12 @@ NonHomogeneousSubstitutionProcess* NonHomogeneousSubstitutionProcess::createHomo
 }
 
 NonHomogeneousSubstitutionProcess* NonHomogeneousSubstitutionProcess::createNonHomogeneousSubstitutionProcess(
-                                                                                                                   SubstitutionModel* model,
-                                                                                                                   DiscreteDistribution* rdist,
-                                                                                                                   FrequenciesSet* rootFreqs,
-                                                                                                                   ParametrizablePhyloTree* tree,
-                                                                                                                   const vector<string>& globalParameterNames
-                                                                                                                   )
+  SubstitutionModel* model,
+  DiscreteDistribution* rdist,
+  FrequenciesSet* rootFreqs,
+  ParametrizablePhyloTree* tree,
+  const vector<string>& globalParameterNames
+  )
 {
   // Check alphabet:
   if (rootFreqs && model->getAlphabet()->getAlphabetType() != rootFreqs->getAlphabet()->getAlphabetType())
@@ -392,52 +393,52 @@ NonHomogeneousSubstitutionProcess* NonHomogeneousSubstitutionProcess::createNonH
   size_t i, j;
 
   for (i = 0; i < globalParameterNames.size(); i++)
+  {
+    if (globalParameterNames[i].find("*") != string::npos)
     {
-      if (globalParameterNames[i].find("*") != string::npos)
+      for (j = 0; j < globalParameters.size(); j++)
+      {
+        StringTokenizer stj(globalParameterNames[i], "*", true, false);
+        size_t pos1, pos2;
+        string parn = globalParameters[j].getName();
+        bool flag(true);
+        string g = stj.nextToken();
+        pos1 = parn.find(g);
+        if (pos1 != 0)
+          flag = false;
+        pos1 += g.length();
+        while (flag && stj.hasMoreToken())
         {
-          for (j = 0; j < globalParameters.size(); j++)
-            {
-              StringTokenizer stj(globalParameterNames[i], "*", true, false);
-              size_t pos1, pos2;
-              string parn = globalParameters[j].getName();
-              bool flag(true);
-              string g = stj.nextToken();
-              pos1 = parn.find(g);
-              if (pos1 != 0)
-                flag = false;
-              pos1 += g.length();
-              while (flag && stj.hasMoreToken())
-                {
-                  g = stj.nextToken();
-                  pos2 = parn.find(g, pos1);
-                  if (pos2 == string::npos)
-                    {
-                      flag = false;
-                      break;
-                    }
-                  pos1 = pos2 + g.length();
-                }
-              if (flag &&
-                  ((g.length() == 0) || (pos1 == parn.length()) || (parn.rfind(g) == parn.length() - g.length())))
-                globalParameterNames2.push_back(parn);
-            }
+          g = stj.nextToken();
+          pos2 = parn.find(g, pos1);
+          if (pos2 == string::npos)
+          {
+            flag = false;
+            break;
+          }
+          pos1 = pos2 + g.length();
         }
-      else if (!globalParameters.hasParameter(globalParameterNames[i]))
-        throw Exception("NonHomogeneousSubstitutionProcess::createNonHomogeneousModelSet. Parameter '" + globalParameterNames[i] + "' is not valid.");
-      else
-        globalParameterNames2.push_back(globalParameterNames[i]);
+        if (flag &&
+            ((g.length() == 0) || (pos1 == parn.length()) || (parn.rfind(g) == parn.length() - g.length())))
+          globalParameterNames2.push_back(parn);
+      }
     }
+    else if (!globalParameters.hasParameter(globalParameterNames[i]))
+      throw Exception("NonHomogeneousSubstitutionProcess::createNonHomogeneousModelSet. Parameter '" + globalParameterNames[i] + "' is not valid.");
+    else
+      globalParameterNames2.push_back(globalParameterNames[i]);
+  }
 
   // remove non global parameters
   for (i = globalParameters.size(); i > 0; i--)
+  {
+    if (find(globalParameterNames2.begin(), globalParameterNames2.end(), globalParameters[i - 1].getName()) == globalParameterNames2.end())
     {
-      if (find(globalParameterNames2.begin(), globalParameterNames2.end(), globalParameters[i - 1].getName()) == globalParameterNames2.end())
-        {
-          // not a global parameter:
-          branchParameters.addParameter(globalParameters[i - 1]);
-          globalParameters.deleteParameter(i - 1);
-        }
+      // not a global parameter:
+      branchParameters.addParameter(globalParameters[i - 1]);
+      globalParameters.deleteParameter(i - 1);
     }
+  }
 
   // bool mixed = (dynamic_cast<MixedSubstitutionModel*>(model) != NULL);
   NonHomogeneousSubstitutionProcess*  modelSet;
@@ -460,31 +461,33 @@ NonHomogeneousSubstitutionProcess* NonHomogeneousSubstitutionProcess::createNonH
 
   // We assign a copy of this model to all nodes in the tree (excepted root node), and link all parameters with it.
   vector<unsigned int> ids = tree->getAllNodesIndexes();
-  unsigned int rootId = tree->getNodeIndex(tree->getRoot());
+  unsigned int rootId = tree->getRootIndex();
   size_t pos = 0;
   for (i = 0; i < ids.size(); i++)
+  {
+    if (ids[i] == rootId)
     {
-      if (ids[i] == rootId)
-        {
-          pos = i;
-          break;
-        }
+      pos = i;
+      break;
     }
+  }
 
   ids.erase(ids.begin() + pos);
+  std::sort(ids.begin(), ids.end());
+  
   for (i = 0; i < ids.size(); i++)
-    {
-      modelSet->addModel(dynamic_cast<SubstitutionModel*>(model->clone()), vector<unsigned int>(1, ids[i]));
-    }
+  {
+    modelSet->addModel(dynamic_cast<SubstitutionModel*>(model->clone()), vector<unsigned int>(1, ids[i]));
+  }
 
   // Now alias all global parameters on all nodes:
   for (i=0; i < globalParameters.size(); i++)
-    {
-      string pname=globalParameters[i].getName();
-
-      for (size_t nn = 1; nn < ids.size(); nn++)
-        modelSet->aliasParameters(pname+"_1",pname+"_"+TextTools::toString(nn+1));
-    }
+  {
+    string pname=globalParameters[i].getName();
+    
+    for (size_t nn = 1; nn < ids.size(); nn++)
+      modelSet->aliasParameters(pname+"_1",pname+"_"+TextTools::toString(nn+1));
+  }
 
   // Defines the hypernodes if mixed
   // if (mixed)
