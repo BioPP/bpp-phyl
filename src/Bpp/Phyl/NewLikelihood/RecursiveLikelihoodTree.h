@@ -67,7 +67,7 @@ private:
    *
    */
 
-  typedef SimpleAssociationTreeGraphObserver<RecursiveLikelihoodNode, PhyloBranchParam, SimpleTreeGraph<SimpleGraph> >  LikTree;
+  typedef AssociationTreeGlobalGraphObserver<RecursiveLikelihoodNode, PhyloBranchParam>  LikTree;
   
   std::vector<std::shared_ptr<LikTree> > vTree_;
 

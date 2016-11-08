@@ -66,9 +66,9 @@ namespace bpp
   class ComputingTree :
     public AbstractParametrizable
   {
-    typedef SimpleAssociationTreeGraphObserver<ComputingNode, PhyloBranchParam, SimpleTreeGraph<SimpleGraph> >  CompTree;
+    typedef AssociationTreeGlobalGraphObserver<ComputingNode, PhyloBranchParam>  CompTree;
 
-    typedef SimpleAssociationTreeGraphObserver<SpeciationComputingNode, PhyloBranchParam, SimpleTreeGraph<SimpleGraph> >  SpecCompTree;
+    typedef AssociationTreeGlobalGraphObserver<SpeciationComputingNode, PhyloBranchParam>  SpecCompTree;
 
   private:
     /*

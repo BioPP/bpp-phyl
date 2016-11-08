@@ -115,7 +115,7 @@ namespace bpp
   };
 
 
-  typedef SimpleAssociationTreeGraphObserver<SimProcessNode, PhyloBranch, SimpleTreeGraph<SimpleGraph> >  SPTree;
+  typedef AssociationTreeGlobalGraphObserver<SimProcessNode, PhyloBranch>  SPTree;
   
 
 /**

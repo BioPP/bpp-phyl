@@ -38,65 +38,18 @@ using namespace bpp;
 using namespace std;
 
 PhyloTree::PhyloTree(bool rooted) :
-  SimpleAssociationTreeGraphObserver<PhyloNode,PhyloBranch,SimpleTreeGraph<SimpleGraph> >(rooted),
+  AssociationTreeGlobalGraphObserver<PhyloNode,PhyloBranch>(rooted),
   name_("")
 {
 }
 
 PhyloTree::PhyloTree(const ParametrizablePhyloTree& tree) :
-  SimpleAssociationTreeGraphObserver<PhyloNode,PhyloBranch,SimpleTreeGraph<SimpleGraph> >(tree),
+  AssociationTreeGlobalGraphObserver<PhyloNode,PhyloBranch>(tree),
   name_("")
 {
 }
 
 
-// PhyloTree::PhyloTree(const Tree& tree) :
-//   SimpleAssociationGraphObserver<PhyloNode,PhyloBranch,SimpleTreeGraph<SimpleGraph> >(tree.isRooted()),
-//   SimpleAssociationTreeGraphObserver<PhyloNode,PhyloBranch,SimpleTreeGraph<SimpleGraph> >(tree.isRooted()),
-//   name_(tree.getName())
-// {
-//   std::vector<int> vID = tree.getNodesId();
-
-//   // first sets the nodes
-//   for (size_t i=0; i<vID.size();i++)
-//   {
-//     int nID=vID[i];
-    
-//     PhyloNode* nN=new PhyloNode(this, nID, tree.getNodeName(nID));
-
-//     vector<string> vPn=tree.getNodePropertyNames(nID);
-//     for (size_t j=0; j<vPn.size();j++)
-//     {
-//       nN->setProperty(vPn[j], *tree.getNodeProperty(nID, vPn[j])->clone());
-//     }
-    
-//     createNode(nN);
-    
-//     if (!tree.hasFather(nID))
-//       setRoot(nN);
-    
-//   }
-
-//   // then set the branches
-//   for (size_t i=0; i<vID.size();i++)
-//   {
-//     int nID=vID[i];
-//     if (!tree.hasFather(nID))
-//       continue;
-    
-//     PhyloBranch* nB = new PhyloBranch(this, nID, tree.getDistanceToFather(nID));
-
-//     vector<string> vPn=tree.getBranchPropertyNames(nID);
-//     for (size_t j=0; j<vPn.size();j++)
-//     {
-//       nB->setProperty(vPn[j], *tree.getBranchProperty(nID, vPn[j])->clone());
-//     }
-    
-//     link(getNode(tree.getFatherId(nID)), getNode(nID),nB);
-    
-//   }
-  
-// }
 
 void PhyloTree::resetNodesId()
 {

@@ -57,7 +57,7 @@
 #include <cstddef>
 #include <memory>
 
-#include <Bpp/Graph/AssociationTreeGraphObserver.h>
+#include <Bpp/Graph/AssociationTreeGraphImplObserver.h>
 
 namespace bpp
 {
@@ -144,7 +144,7 @@ namespace bpp
      */
 
     template<class N, class E, class I>
-    void updateTree(SimpleAssociationTreeGraphObserver<N, E, I>* tree, unsigned int index);
+    void updateTree(AssociationTreeGraphImplObserver<N, E, I>* tree, unsigned int index);
   
   
 /**
@@ -375,7 +375,7 @@ namespace bpp
   };
 
   template<class N, class E, class I>
-  void AwareNode::updateTree(SimpleAssociationTreeGraphObserver<N, E, I>* tree, unsigned int index)
+  void AwareNode::updateTree(AssociationTreeGraphImplObserver<N, E, I>* tree, unsigned int index)
   {
     id_ = index;
 

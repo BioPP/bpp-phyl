@@ -40,7 +40,7 @@
 #ifndef _PHYLOTREE_H_
 #define _PHYLOTREE_H_
 
-#include <Bpp/Graph/AssociationTreeGraphObserver.h>
+#include <Bpp/Graph/AssociationTreeGraphImplObserver.h>
 
 #include "PhyloNode.h"
 #include "PhyloBranch.h"
@@ -58,9 +58,9 @@ namespace bpp
   class ParametrizablePhyloTree;
     
   class PhyloTree:
-    public SimpleAssociationTreeGraphObserver<PhyloNode,PhyloBranch,SimpleTreeGraph<SimpleGraph> >
-    {
-    private:
+    public AssociationTreeGlobalGraphObserver<PhyloNode,PhyloBranch>
+  {
+  private:
       std::string name_;
       
     public:

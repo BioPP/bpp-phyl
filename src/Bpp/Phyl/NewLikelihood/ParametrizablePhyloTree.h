@@ -46,7 +46,7 @@
 #include "../Tree/PhyloTree.h"
 
 #include <Bpp/Numeric/AbstractParametrizable.h>
-#include <Bpp/Graph/AssociationTreeGraphObserver.h>
+#include <Bpp/Graph/AssociationTreeGraphImplObserver.h>
 
 //From the stl:
 #include <string>
@@ -61,7 +61,7 @@ namespace bpp
    **/
   
   class ParametrizablePhyloTree:
-    public SimpleAssociationTreeGraphObserver<PhyloNode,PhyloBranchParam,SimpleTreeGraph<SimpleGraph> >,
+    public AssociationTreeGlobalGraphObserver<PhyloNode,PhyloBranchParam>,
     public AbstractParametrizable
   {
   private:

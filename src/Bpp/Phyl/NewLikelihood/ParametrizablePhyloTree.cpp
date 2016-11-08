@@ -43,7 +43,7 @@ using namespace bpp;
 using namespace std;
 
 ParametrizablePhyloTree::ParametrizablePhyloTree(const PhyloTree& tree, const std::string& prefix): 
-   SimpleAssociationTreeGraphObserver<PhyloNode,PhyloBranchParam,SimpleTreeGraph<SimpleGraph> >(tree),
+  AssociationTreeGlobalGraphObserver<PhyloNode,PhyloBranchParam>(tree),
   AbstractParametrizable(prefix),
   minimumBrLen_(0.000001),
   maximumBrLen_(10000),
@@ -60,7 +60,7 @@ ParametrizablePhyloTree::ParametrizablePhyloTree(const PhyloTree& tree, const st
 }
 
 ParametrizablePhyloTree::ParametrizablePhyloTree(const ParametrizablePhyloTree& pTree): 
-  SimpleAssociationTreeGraphObserver<PhyloNode,PhyloBranchParam,SimpleTreeGraph<SimpleGraph> >(pTree),
+  AssociationTreeGlobalGraphObserver<PhyloNode,PhyloBranchParam>(pTree),
   AbstractParametrizable(pTree),
   minimumBrLen_(pTree.minimumBrLen_),
   maximumBrLen_(pTree.maximumBrLen_),
@@ -71,7 +71,7 @@ ParametrizablePhyloTree::ParametrizablePhyloTree(const ParametrizablePhyloTree& 
 
 ParametrizablePhyloTree& ParametrizablePhyloTree::operator=(const ParametrizablePhyloTree& pTree)
 {
-  SimpleAssociationTreeGraphObserver<PhyloNode,PhyloBranchParam,SimpleTreeGraph<SimpleGraph> >::operator=(pTree);
+  AssociationTreeGlobalGraphObserver<PhyloNode,PhyloBranchParam>::operator=(pTree);
   AbstractParametrizable::operator=(pTree);
   minimumBrLen_ = pTree.minimumBrLen_;
   maximumBrLen_ = pTree.maximumBrLen_;

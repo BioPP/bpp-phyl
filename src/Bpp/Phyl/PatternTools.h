@@ -77,7 +77,7 @@ namespace bpp
     static SiteContainer* getSequenceSubset(const SiteContainer& sequenceSet, const Node& node) throw (Exception);
 
     template<class N, class E, class I>
-    static SiteContainer* getSequenceSubset(const SiteContainer& sequenceSet, const std::shared_ptr<N> node, const SimpleAssociationTreeGraphObserver<N,E,I>& tree) throw (Exception);
+    static SiteContainer* getSequenceSubset(const SiteContainer& sequenceSet, const std::shared_ptr<N> node, const AssociationTreeGraphImplObserver<N,E,I>& tree) throw (Exception);
 
     /**
      * @brief Extract the sequences corresponding to a given set of names.
@@ -110,7 +110,7 @@ namespace bpp
   };
 
   template<class N, class E, class I>
-  SiteContainer* PatternTools::getSequenceSubset(const SiteContainer& sequenceSet, const std::shared_ptr<N> node, const SimpleAssociationTreeGraphObserver<N,E,I>& tree) throw (Exception)
+  SiteContainer* PatternTools::getSequenceSubset(const SiteContainer& sequenceSet, const std::shared_ptr<N> node, const AssociationTreeGraphImplObserver<N,E,I>& tree) throw (Exception)
   {
     size_t nbSites=sequenceSet.getNumberOfSites();
 
