@@ -147,7 +147,10 @@ namespace bpp
     size_t nbStates_;
 
     bool continuousRates_;
-  
+
+    // Should we ouptut internal sequences as well?
+    bool outputInternalSequences_;
+    
     /**
      * @name Stores intermediate results.
      *
@@ -173,7 +176,8 @@ namespace bpp
       nbNodes_        (nhss.nbNodes_),
       nbClasses_      (nhss.nbClasses_),
       nbStates_       (nhss.nbStates_),
-      continuousRates_(nhss.continuousRates_)
+      continuousRates_(nhss.continuousRates_),
+      outputInternalSequences_(nhss.outputInternalSequences_)
     {}
 
     SimpleSubstitutionProcessSequenceSimulator& operator=(const SimpleSubstitutionProcessSequenceSimulator& nhss)
@@ -189,6 +193,8 @@ namespace bpp
       nbClasses_       = nhss.nbClasses_;
       nbStates_        = nhss.nbStates_;
       continuousRates_ = nhss.continuousRates_;
+      outputInternalSequences_ = nhss.outputInternalSequences_;
+      
       return *this;
     }
 
@@ -298,7 +304,15 @@ namespace bpp
      * @param yn Tell if we should use continuous rates.
      */
     void enableContinuousRates(bool yn) { continuousRates_ = yn; }
-  
+
+    /**
+     * @brief Sets whether we will output the internal sequences or not.
+     *
+     *
+     * @param yn Tell if we should output internal sequences.
+     */
+    void outputInternalSequences(bool yn) ;
+    
   protected:
     
     /**
@@ -415,7 +429,6 @@ namespace bpp
 
     std::map<size_t, std::vector<size_t> > mvPosNames_;
     
-    
   public:
     SubstitutionProcessSequenceSimulator(const SequenceEvolution& evol);
 
@@ -437,6 +450,15 @@ namespace bpp
         throw BadIntegerException("Out of range position for SubstitutionProcessSequenceSimulator", (int)pos);
       return *mProcess_[vMap_[pos]];
     }
+
+    /**
+     * @brief Sets whether we will output the internal sequences or not.
+     *
+     *
+     * @param yn Tell if we should output internal sequences.
+     */
+    
+    void outputInternalSequences(bool yn) ;
 
     /**
      * @brief reset the set of processes.

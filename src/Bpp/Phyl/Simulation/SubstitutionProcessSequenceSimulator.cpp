@@ -66,7 +66,8 @@ SimpleSubstitutionProcessSequenceSimulator::SimpleSubstitutionProcessSequenceSim
   nbNodes_(),
   nbClasses_(process_->getNumberOfClasses()),
   nbStates_(process_->getNumberOfStates()),
-  continuousRates_(false)
+  continuousRates_(false),
+  outputInternalSequences_(false)
 {
   init();
 }
@@ -83,12 +84,26 @@ void SimpleSubstitutionProcessSequenceSimulator::init()
 
   // set sequence names
 
-  seqNames_.resize(leaves_.size());
-  for (size_t i = 0; i < seqNames_.size(); i++)
-  {
-    seqNames_[i] = leaves_[i]->getName();
+  if (outputInternalSequences_) {
+    seqNames_.resize(vCN.size());
+    for (size_t i = 0; i < seqNames_.size(); i++)
+    {
+      if (vCN[i]->isLeaf()) {
+        seqNames_[i] = vCN[i]->getName();
+      }
+      else {
+        seqNames_[i] = TextTools::toString(vCN[i]->getId() );
+      }
+    }
   }
-
+  else {
+    seqNames_.resize(leaves_.size());
+    for (size_t i = 0; i < seqNames_.size(); i++)
+    {
+      seqNames_[i] = leaves_[i]->getName();
+    }
+  }
+  
   // Initialize cumulative pxy:
   vector<shared_ptr<SimProcessNode> > nodes = tree_.getAllNodes();
   nodes.erase(std::find(nodes.begin(), nodes.end(), tree_.getRoot()));
@@ -195,11 +210,27 @@ Site* SimpleSubstitutionProcessSequenceSimulator::simulateSite(size_t ancestralS
     evolveInternal(root->getSon(i), rateClass, rate);
   }
   // Now create a Site object:
-  Vint site(leaves_.size());
-  for (size_t i = 0; i < leaves_.size(); i++)
-  {
-    site[i] = process_->getSubstitutionModel(leaves_[i]->getId(),rateClass).getAlphabetStateAsInt(leaves_[i]->state);
+  size_t n = nbNodes_ + 1 ;
+  if (! outputInternalSequences_) {
+    n = leaves_.size() ;
   }
+  Vint site(n);
+  
+  if (outputInternalSequences_) {
+    vector<shared_ptr<SimProcessNode> > nodes = tree_.getAllNodes();
+    for (size_t i = 0; i < n; i++)
+    {
+      size_t i2 = (i==n-1)?i-1:i; //  because the root has no model
+      site[i] = process_->getSubstitutionModel(nodes[i2]->getId(),rateClass).getAlphabetStateAsInt(nodes[i2]->state);
+    }
+  }
+  else {
+    for (size_t i = 0; i < n; i++)
+    {
+      site[i] = process_->getSubstitutionModel(leaves_[i]->getId(),rateClass).getAlphabetStateAsInt(leaves_[i]->state);
+    }
+  }
+  
   return new Site(site, alphabet_);
 }
 
@@ -481,18 +512,44 @@ SiteContainer* SimpleSubstitutionProcessSequenceSimulator::multipleEvolve(
   size_t n = leaves_.size();
   size_t nbSites = initialStateIndices.size();
   const SubstitutionModel* model = 0;
-  for (size_t i = 0; i < n; i++)
-  {
-    vector<int> content(nbSites);
-    vector<size_t>& states = leaves_[i]->states;
-    model = &leaves_[i]->process_->getSubstitutionModel(leaves_[i]->getId(), rateClasses[0]);
 
-    for (size_t j = 0; j < nbSites; j++)
+  if (outputInternalSequences_) {
+    vector<shared_ptr<SimProcessNode> > nodes = tree_.getAllNodes();
+    size_t nn = nbNodes_ + 1 ;
+    for (size_t i = 0; i < nn; i++)
     {
-      content[j] = model->getAlphabetStateAsInt(states[j]);
+      vector<int> content(nbSites);
+      vector<size_t>& states = nodes[i]->states;
+
+      size_t i2 = (i==nn-1)?i-1:i; // at the root, there is no model, so we take the model of node n-1.
+      model = &nodes[i2]->process_->getSubstitutionModel(nodes[i2]->getId(), rateClasses[0]);
+
+      for (size_t j = 0; j < nbSites; j++)
+      {
+        content[j] = model->getAlphabetStateAsInt(states[j]);
+      }
+      if (nodes[i]->isLeaf())
+        sites->addSequence(BasicSequence(nodes[i]->getName(), content, alphabet_), false);
+      else
+        sites->addSequence(BasicSequence(TextTools::toString(nodes[i]->getId()), content, alphabet_), false);
     }
-    sites->addSequence(BasicSequence(leaves_[i]->getName(), content, alphabet_), false);
   }
+  else
+  {
+    for (size_t i = 0; i < n; i++)
+    {
+      vector<int> content(nbSites);
+      vector<size_t>& states = leaves_[i]->states;
+      model = &leaves_[i]->process_->getSubstitutionModel(leaves_[i]->getId(), rateClasses[0]);
+      
+      for (size_t j = 0; j < nbSites; j++)
+      {
+        content[j] = model->getAlphabetStateAsInt(states[j]);
+      }
+      sites->addSequence(BasicSequence(leaves_[i]->getName(), content, alphabet_), false);
+    }
+  }
+  
   return sites;
 }
 
@@ -573,6 +630,30 @@ void SimpleSubstitutionProcessSequenceSimulator::dEvolveInternal(SimProcessNode*
   }
 }
 
+
+void SimpleSubstitutionProcessSequenceSimulator::outputInternalSequences(bool yn) {
+  outputInternalSequences_ = yn;
+  if (outputInternalSequences_) {
+    vector<shared_ptr<SimProcessNode> > nodes = tree_.getAllNodes();
+    seqNames_.resize(nodes.size());
+    for (size_t i = 0; i < seqNames_.size(); i++)
+    {
+      if (nodes[i]->isLeaf()) {
+        seqNames_[i] = nodes[i]->getName();
+      }
+      else {
+        seqNames_[i] = TextTools::toString( nodes[i]->getId() );
+      }
+    }
+  }
+  else {
+    seqNames_.resize(leaves_.size());
+    for (size_t i = 0; i < seqNames_.size(); i++)
+    {
+      seqNames_[i] = leaves_[i]->getName();
+    }
+  }
+}
 
 
 /******************************************************************************/
@@ -715,6 +796,11 @@ SubstitutionProcessSequenceSimulator::~SubstitutionProcessSequenceSimulator()
     delete it->second;
 }
 
+void SubstitutionProcessSequenceSimulator::outputInternalSequences(bool yn)
+{
+  for (std::map<size_t, SimpleSubstitutionProcessSequenceSimulator*>::iterator  it=mProcess_.begin(); it != mProcess_.end(); it++)
+    it->second->outputInternalSequences(yn);
+}
 
 void SubstitutionProcessSequenceSimulator::setMap(std::vector<size_t> vMap)
 {
@@ -840,5 +926,6 @@ const Alphabet* SubstitutionProcessSequenceSimulator::getAlphabet() const
   return mProcess_.begin()->second->getAlphabet();
 }
 
+/******************************************************************************/
     
 
