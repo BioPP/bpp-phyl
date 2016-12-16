@@ -48,7 +48,7 @@ SingleProcessPhyloLikelihood::SingleProcessPhyloLikelihood(
   SubstitutionProcess* process,
   LikelihoodTreeCalculation* tlComp,
   size_t nProc,
-  size_t nData) :
+  size_t nData) : 
   AbstractPhyloLikelihood(),
   AbstractAlignedPhyloLikelihood(tlComp->getNumberOfSites()),
   AbstractSingleDataPhyloLikelihood(tlComp->getNumberOfSites(), process->getNumberOfStates(), nData),
@@ -191,6 +191,9 @@ Vdouble SingleProcessPhyloLikelihood::getPosteriorRateOfEachSite() const
 ******************************************************************************/
 void SingleProcessPhyloLikelihood::computeDLogLikelihood_(const string& variable) const
 {
+  if (!hasParameter(variable) || (variable.compare(0,5,"BrLen")!=0))
+    return;
+  
   // Get the node with the branch whose length must be derivated:
   Vuint vbrId;
   
@@ -202,8 +205,11 @@ void SingleProcessPhyloLikelihood::computeDLogLikelihood_(const string& variable
     return;
   }
 
-
   tlComp_->computeTreeDLogLikelihood(vbrId);
+
+  // derivative exists and ready to compute
+  
+  dValues_[variable]= nan("");
 }
 
 /******************************************************************************
@@ -214,6 +220,9 @@ void SingleProcessPhyloLikelihood::computeD2LogLikelihood_(const string& variabl
   // Get the node with the branch whose length must be derivated:
   Vuint vbrId;
   
+  if (!hasParameter(variable) || (variable.compare(0,5,"BrLen")!=0))
+    return;
+
   try {
     vbrId.push_back(atoi(variable.substr(5).c_str()));
   }
@@ -223,6 +232,10 @@ void SingleProcessPhyloLikelihood::computeD2LogLikelihood_(const string& variabl
   }
 
   tlComp_->computeTreeD2LogLikelihood(vbrId);
+
+  // derivative exists and ready to compute
+  
+  d2Values_[variable]= nan("");
 }
 
 /******************************************************************************/

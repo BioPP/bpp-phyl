@@ -177,20 +177,30 @@ namespace bpp
       }
 
     public:
+
       double getFirstOrderDerivative(const std::string& variable) const throw (Exception)
       {
-        computeDLogLikelihood_(variable);
-        return -getDLogLikelihood();
+        if (dValues_.find(variable)==dValues_.end())
+          computeDLogLikelihood_(variable);
+
+        if (dValues_.find(variable)==dValues_.end() || std::isnan(dValues_[variable]))
+          dValues_[variable]=-getDLogLikelihood(variable);
+        
+        return dValues_[variable];
       }
 
       double getSecondOrderDerivative(const std::string& variable) const throw (Exception)
       {
-        computeD2LogLikelihood_(variable);
-        return -getD2LogLikelihood();
+        if (d2Values_.find(variable)==d2Values_.end())
+          computeD2LogLikelihood_(variable);
+
+        if (d2Values_.find(variable)==d2Values_.end() || std::isnan(d2Values_[variable]))
+          d2Values_[variable]=-getD2LogLikelihood(variable);
+        
+        return d2Values_[variable];
       }
 
       double getSecondOrderDerivative(const std::string& variable1, const std::string& variable2) const throw (Exception) { return 0; } // Not implemented for now.
-
 
       void setData(const SiteContainer& sites, size_t nData = 0)
       {

@@ -238,13 +238,23 @@ public:
     return tlComp_->getLogLikelihood();
   }
 
-  double getDLogLikelihood() const
+  double getDLogLikelihood(const std::string& variable) const
   {
+    // check it is a "BrLen" variable
+
+    if (!hasParameter(variable) || (variable.compare(0,5,"BrLen")!=0))
+      return 0;
+
     return tlComp_->getDLogLikelihood();
   }
 
-  double getD2LogLikelihood() const
+  double getD2LogLikelihood(const std::string& variable) const
   {
+    // check it is a "BrLen" variable
+
+  if (!hasParameter(variable) || (variable.compare(0,5,"BrLen")!=0))
+      return 0;
+
     return tlComp_->getD2LogLikelihood();
   }
 
@@ -264,13 +274,23 @@ public:
     return tlComp_->getLogLikelihoodForASite(siteIndex);
   }
 
-  double getDLogLikelihoodForASite(size_t siteIndex) const
+  double getDLogLikelihoodForASite(const std::string& variable, size_t siteIndex) const
   {
+    // check it is a "BrLen" variable
+
+  if (!hasParameter(variable) || (variable.compare(0,5,"BrLen")!=0))
+      return 0;
+
     return tlComp_->getDLogLikelihoodForASite(siteIndex);
   }
 
-  double getD2LogLikelihoodForASite(size_t siteIndex) const
+  double getD2LogLikelihoodForASite(const std::string& variable, size_t siteIndex) const
   {
+    // check it is a "BrLen" variable
+
+  if (!hasParameter(variable) || (variable.compare(0,5,"BrLen")!=0))
+      return 0;
+
     return tlComp_->getD2LogLikelihoodForASite(siteIndex);
   }
 

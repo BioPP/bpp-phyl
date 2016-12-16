@@ -71,24 +71,24 @@ ProductOfAlignedPhyloLikelihood& ProductOfAlignedPhyloLikelihood::operator=(cons
 }
 
 
-double ProductOfAlignedPhyloLikelihood::getDLogLikelihoodForASite(size_t site) const
+double ProductOfAlignedPhyloLikelihood::getDLogLikelihoodForASite(const std::string& variable, size_t site) const
 {
   double x=0;
   const std::vector<size_t>& nPhylo=getNumbersOfPhyloLikelihoods();
         
   for (size_t i=0; i<nPhylo.size(); i++)
-    x += getAbstractPhyloLikelihood(nPhylo[i])->getDLogLikelihoodForASite(site);
+    x += getAbstractPhyloLikelihood(nPhylo[i])->getDLogLikelihoodForASite(variable, site);
   return x;
 }
 
 
-double ProductOfAlignedPhyloLikelihood::getD2LogLikelihoodForASite(size_t site) const
+double ProductOfAlignedPhyloLikelihood::getD2LogLikelihoodForASite(const std::string& variable, size_t site) const
 {
   double x=0;
   const std::vector<size_t>& nPhylo=getNumbersOfPhyloLikelihoods();
         
   for (size_t i=0; i<nPhylo.size(); i++)
-    x += getAbstractPhyloLikelihood(nPhylo[i])->getD2LogLikelihoodForASite(site);
+    x += getAbstractPhyloLikelihood(nPhylo[i])->getD2LogLikelihoodForASite(variable, site);
   return x;
 }
 
@@ -119,12 +119,12 @@ double ProductOfAlignedPhyloLikelihood::getLogLikelihood() const
 
 /******************************************************************************/
 
-double ProductOfAlignedPhyloLikelihood::getDLogLikelihood() const
+double ProductOfAlignedPhyloLikelihood::getDLogLikelihood(const std::string& variable) const
 {
   vector<double> la(nbSites_);
   for (size_t i = 0; i < nbSites_; ++i)
   {
-    la[i] = getDLogLikelihoodForASite(i);
+    la[i] = getDLogLikelihoodForASite(variable, i);
   }
 
   sort(la.begin(), la.end());
@@ -139,12 +139,12 @@ double ProductOfAlignedPhyloLikelihood::getDLogLikelihood() const
 
 /******************************************************************************/
 
-double ProductOfAlignedPhyloLikelihood::getD2LogLikelihood() const
+double ProductOfAlignedPhyloLikelihood::getD2LogLikelihood(const std::string& variable) const
 {
   vector<double> la(nbSites_);
   for (size_t i = 0; i < nbSites_; ++i)
   {
-    la[i] = getD2LogLikelihoodForASite(i);
+    la[i] = getD2LogLikelihoodForASite(variable, i);
   }
 
   sort(la.begin(), la.end());

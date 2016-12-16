@@ -96,12 +96,20 @@ void SetOfAbstractPhyloLikelihood::computeDLogLikelihood_(const std::string& var
 {
   for (size_t i=0; i<nPhylo_.size(); i++)
     getAbstractPhyloLikelihood(nPhylo_[i])->computeDLogLikelihood_(variable);
+
+  // derivative exists and ready to compute
+  
+  dValues_[variable]= nan("");
 }
 
 void SetOfAbstractPhyloLikelihood::computeD2LogLikelihood_(const std::string& variable) const
 {
   for (size_t i=0; i<nPhylo_.size(); i++)
     getAbstractPhyloLikelihood(nPhylo_[i])->computeD2LogLikelihood_(variable);
+
+  // derivative exists and ready to compute
+  
+  d2Values_[variable]= nan("");
 }
   
 ParameterList SetOfAbstractPhyloLikelihood::getBranchLengthParameters() const

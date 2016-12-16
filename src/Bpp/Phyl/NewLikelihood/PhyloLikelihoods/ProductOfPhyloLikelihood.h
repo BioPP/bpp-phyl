@@ -101,25 +101,25 @@ namespace bpp
        *
        */
 
-      double getDLogLikelihood() const
+      double getDLogLikelihood(const std::string& variable) const
       {
         const std::vector<size_t>& nPhylo=getNumbersOfPhyloLikelihoods();
         
         double x=0;
         for (size_t i=0; i<nPhylo.size(); i++)
-          x += getAbstractPhyloLikelihood(nPhylo[i])->getDLogLikelihood();
+          x += getAbstractPhyloLikelihood(nPhylo[i])->getDLogLikelihood(variable);
 
         return x;
       }
 
 
-      double getD2LogLikelihood() const
+      double getD2LogLikelihood(const std::string& variable) const
       {
         const std::vector<size_t>& nPhylo=getNumbersOfPhyloLikelihoods();
         
         double x=0;
         for (size_t i=0; i<nPhylo.size(); i++)
-          x += getAbstractPhyloLikelihood(nPhylo[i])->getD2LogLikelihood();
+          x += getAbstractPhyloLikelihood(nPhylo[i])->getD2LogLikelihood(variable);
 
         return x;
       }

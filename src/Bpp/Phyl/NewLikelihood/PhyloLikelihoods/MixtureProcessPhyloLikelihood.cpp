@@ -84,8 +84,13 @@ double MixtureProcessPhyloLikelihood::getLogLikelihood() const
 
 /******************************************************************************/
 
-double MixtureProcessPhyloLikelihood::getDLogLikelihoodForASite(size_t site) const
+double MixtureProcessPhyloLikelihood::getDLogLikelihoodForASite(const std::string& variable, size_t site) const
 {
+  // check it is a "BrLen" variable
+
+  if (!hasParameter(variable) || (variable.compare(0,5,"BrLen")!=0))
+    return 0;
+
   Vdouble vD;
 
   for (size_t i = 0; i < vpTreelik_.size(); i++)
@@ -96,8 +101,13 @@ double MixtureProcessPhyloLikelihood::getDLogLikelihoodForASite(size_t site) con
 
 /******************************************************************************/
 
-double MixtureProcessPhyloLikelihood::getD2LogLikelihoodForASite(size_t site) const
+double MixtureProcessPhyloLikelihood::getD2LogLikelihoodForASite(const std::string& variable, size_t site) const
 {
+  // check it is a "BrLen" variable
+
+  if (!hasParameter(variable) || (variable.compare(0,5,"BrLen")!=0))
+    return 0;
+
   Vdouble vD2;
 
   for (size_t i = 0; i < vpTreelik_.size(); i++)
@@ -108,12 +118,19 @@ double MixtureProcessPhyloLikelihood::getD2LogLikelihoodForASite(size_t site) co
 
 /******************************************************************************/
 
-double MixtureProcessPhyloLikelihood::getDLogLikelihood() const
+double MixtureProcessPhyloLikelihood::getDLogLikelihood(const std::string& variable) const
 {
+  // check it is a "BrLen" variable
+
+  if (!hasParameter(variable) || (variable.compare(0,5,"BrLen")!=0))
+    return 0;
+
+  //
+  
   vector<double> la(nbSites_);
   for (size_t i = 0; i < nbSites_; ++i)
   {
-    la[i] = getDLogLikelihoodForASite(i);
+    la[i] = getDLogLikelihoodForASite(variable, i);
   }
   sort(la.begin(), la.end());
   double ll = 0;
@@ -126,13 +143,18 @@ double MixtureProcessPhyloLikelihood::getDLogLikelihood() const
 
 /******************************************************************************/
 
-double MixtureProcessPhyloLikelihood::getD2LogLikelihood() const
+double MixtureProcessPhyloLikelihood::getD2LogLikelihood(const std::string& variable) const
 {
+  // check it is a "BrLen" variable
+
+  if (!hasParameter(variable) || (variable.compare(0,5,"BrLen")!=0))
+    return 0;
+  
   // Derivative of the sum is the sum of derivatives:
   vector<double> la(nbSites_);
   for (size_t i = 0; i < nbSites_; ++i)
   {
-    la[i] = getD2LogLikelihoodForASite(i);
+    la[i] = getD2LogLikelihoodForASite(variable, i);
   }
   sort(la.begin(), la.end());
   double ll = 0;

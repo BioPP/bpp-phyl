@@ -80,3 +80,12 @@ void AutoCorrelationOfAlignedPhyloLikelihood::fireParameterChanged(const Paramet
   hpep_->update();
   hmm_->matchParametersValues(parameters);
 }
+
+ParameterList AutoCorrelationOfAlignedPhyloLikelihood::getNonDerivableParameters() const
+{
+  ParameterList pl=SetOfAlignedPhyloLikelihood::getNonDerivableParameters();
+  
+  pl.includeParameters(htm_->getParameters());
+
+  return pl;
+}

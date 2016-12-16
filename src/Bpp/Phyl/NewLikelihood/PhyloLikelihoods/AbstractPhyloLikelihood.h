@@ -68,6 +68,11 @@ namespace bpp
       
     mutable bool computeLikelihoods_;
 
+    // maps of the updated values for derivatives of the logLik
+
+    mutable std::map<std::string, double> dValues_;
+    mutable std::map<std::string, double> d2Values_;
+    
     // say if initialized
       
     mutable bool initialized_;
@@ -78,6 +83,8 @@ namespace bpp
       computeFirstOrderDerivatives_(true),
       computeSecondOrderDerivatives_(true),
       computeLikelihoods_(true),
+      dValues_(),
+      d2Values_(),
       initialized_(false)
     {
     }
@@ -87,6 +94,8 @@ namespace bpp
       computeFirstOrderDerivatives_(asd.computeFirstOrderDerivatives_),
       computeSecondOrderDerivatives_(asd.computeSecondOrderDerivatives_),
       computeLikelihoods_(asd.computeLikelihoods_),
+      dValues_(asd.dValues_),
+      d2Values_(asd.d2Values_),
       initialized_(asd.initialized_)
     {
     }
@@ -98,6 +107,9 @@ namespace bpp
       computeSecondOrderDerivatives_ = asd.computeSecondOrderDerivatives_;
 
       computeLikelihoods_ = asd.computeLikelihoods_;
+      dValues_ = asd.dValues_;
+      d2Values_ = asd.d2Values_;
+
       initialized_ = asd.initialized_;
         
       return *this;
@@ -116,6 +128,8 @@ namespace bpp
     void update()
     {
       computeLikelihoods_ = true;
+      dValues_.clear();
+      d2Values_.clear();
     }
 
     virtual void initialize()
@@ -151,7 +165,7 @@ namespace bpp
         throw Exception("AbstractPhyloLikelihood::getValue(). Instance is not initialized.");
 
       minusLogLik_=-getLogLikelihood();
-        
+
       return minusLogLik_;
     }
 

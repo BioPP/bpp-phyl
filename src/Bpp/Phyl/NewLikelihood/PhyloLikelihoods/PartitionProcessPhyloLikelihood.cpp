@@ -189,16 +189,16 @@ double PartitionProcessPhyloLikelihood::getLogLikelihoodForASite(size_t site) co
 
 /******************************************************************************/
 
-double PartitionProcessPhyloLikelihood::getDLogLikelihoodForASite(size_t site) const
+double PartitionProcessPhyloLikelihood::getDLogLikelihoodForASite(const std::string& variable, size_t site) const
 {
-  return getAbstractPhyloLikelihood(vProcPos_[site].nProc)->getDLogLikelihoodForASite(vProcPos_[site].pos);
+  return getAbstractPhyloLikelihood(vProcPos_[site].nProc)->getDLogLikelihoodForASite(variable, vProcPos_[site].pos);
 }
 
 /******************************************************************************/
 
-double PartitionProcessPhyloLikelihood::getD2LogLikelihoodForASite(size_t site) const
+double PartitionProcessPhyloLikelihood::getD2LogLikelihoodForASite(const std::string& variable, size_t site) const
 {
-  return getAbstractPhyloLikelihood(vProcPos_[site].nProc)->getD2LogLikelihoodForASite(vProcPos_[site].pos);
+  return getAbstractPhyloLikelihood(vProcPos_[site].nProc)->getD2LogLikelihoodForASite(variable, vProcPos_[site].pos);
 }
 
 

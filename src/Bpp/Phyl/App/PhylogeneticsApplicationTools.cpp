@@ -83,6 +83,7 @@
 #include "../NewLikelihood/PhyloLikelihoods/HmmOfAlignedPhyloLikelihood.h"
 #include "../NewLikelihood/PhyloLikelihoods/AutoCorrelationOfAlignedPhyloLikelihood.h"
 #include "../NewLikelihood/PhyloLikelihoods/ProductOfPhyloLikelihood.h"
+#include "../NewLikelihood/PhyloLikelihoods/FormulaOfPhyloLikelihood.h"
 #include "../NewLikelihood/PhyloLikelihoods/ProductOfAlignedPhyloLikelihood.h"
 #include "../NewLikelihood/NonHomogeneousSubstitutionProcess.h"
 #include "../NewLikelihood/SimpleSubstitutionProcess.h"
@@ -107,6 +108,7 @@
 #include <Bpp/Numeric/Function/PowellMultiDimensions.h>
 #include <Bpp/Utils/AttributesTools.h>
 #include <Bpp/Numeric/Matrix/MatrixTools.h>
+#include <Bpp/Numeric/Prob/ConstantDistribution.h>
 #include <Bpp/Numeric/Prob/ConstantDistribution.h>
 
 // From bpp-seq:
@@ -1870,7 +1872,7 @@ map<size_t, SequenceEvolution*> PhylogeneticsApplicationTools::getSequenceEvolut
         vector<double> v = ApplicationTools::getVectorParameter<double>("lambdas", args, ',', vs);
 
         ParameterList pl;
-
+        
         for (size_t i = 0; i < v.size(); i++)
         {
           pl.addParameter(Parameter("AutoCorr.lambda" + TextTools::toString(i + 1), v[i]));
@@ -2078,7 +2080,6 @@ PhyloLikelihoodContainer* PhylogeneticsApplicationTools::getPhyloLikelihoodConta
 
             if (ase != NULL)
               nPL = new AutoCorrelationProcessPhyloLikelihood(*data, *ase, nProcess, nData, true, compression == 'R');
-
             else
             {
               PartitionSequenceEvolution* pse = dynamic_cast<PartitionSequenceEvolution*>(mSeqEvol[nProcess]);
@@ -2274,78 +2275,94 @@ PhyloLikelihoodContainer* PhylogeneticsApplicationTools::getPhyloLikelihoodConta
 
   ApplicationTools::displayMessage("");
   ApplicationTools::displayMessage("Result Phylolikelihood ");
-
-  string resultDesc = ApplicationTools::getStringParameter("result", params, (mPhylo->getNumbersOfPhyloLikelihoods().size() == 1 ? "Single" : "Product"));
-
-  map<string, string> args;
-  string resultName;
-  KeyvalTools::parseProcedure(resultDesc, resultName, args);
-
-  PhyloLikelihood* nPL = 0;
-
-  if (resultName == "Product")
+  
+  string sumAll;
+  const vector<size_t>& nPhyl = mPhylo->getNumbersOfPhyloLikelihoods();
+  
+  for (size_t i = 0; i < nPhyl.size(); i++)
   {
-    size_t indPhyl = 1;
-    vector<size_t> vphyl;
-
-    while (args.find("phylo" + TextTools::toString(indPhyl)) != args.end())
-    {
-      size_t numPhyl = (size_t) ApplicationTools::getIntParameter("phylo" + TextTools::toString(indPhyl), args, 1, "", true, warn);
-
-      if (!mPhylo->hasPhyloLikelihood(numPhyl))
-        throw BadIntegerException("PhylogeneticsApplicationTools::getPhyloLikelihoodContainer : Unknown Phylo Number for result ", (int)numPhyl);
-
-      vphyl.push_back(numPhyl);
-      indPhyl++;
-    }
-
-    ProductOfPhyloLikelihood* pp = new ProductOfPhyloLikelihood(mPhylo);
-    if (vphyl.size() == 0)
-      pp->addAllPhyloLikelihoods();
-    else
-    {
-      for (size_t i = 0; i < vphyl.size(); i++)
-      {
-        pp->addPhyloLikelihood(vphyl[i]);
-      }
-    }
-
-    if (verbose)
-    {
-      ApplicationTools::displayResult(" Type", resultName);
-      if (vphyl.size() == 0)
-        ApplicationTools::displayResult(" Phylo numbers", VectorTools::paste(mPhylo->getNumbersOfPhyloLikelihoods(), ","));
-      else
-        ApplicationTools::displayResult(" Phylo numbers", VectorTools::paste(vphyl, ","));
-    }
-
-    nPL = pp;
+    if (i!=0)
+      sumAll+=" + ";
+    
+    sumAll += "phylo"+TextTools::toString(nPhyl[i]);
   }
-  else if (resultName == "Single")
-  {
-    if (mPhylo->getNumbersOfPhyloLikelihoods().size() == 1)
-      nPL = (*mPhylo)[mPhylo->getNumbersOfPhyloLikelihoods()[0]];
-    else
-    {
-      if (args.find("phylo") == args.end())
-        throw Exception("PhylogeneticsApplicationTools::getPhyloLikelihoodContainer : Missing Phylo Number for result");
 
-      size_t numPhyl = (size_t) ApplicationTools::getIntParameter("phylo", args, 1, "", true, warn);
+  
+  string resultDesc = ApplicationTools::getStringParameter("result", params, sumAll);
 
-      if (!mPhylo->hasPhyloLikelihood(numPhyl))
-        throw BadIntegerException("PhylogeneticsApplicationTools::getPhyloLikelihoodContainer : Unknown Phylo Number for result ", (int)numPhyl);
+  // map<string, string> args;
+  // string resultName;
+  // KeyvalTools::parseProcedure(resultDesc, resultName, args);
 
-      nPL = (*mPhylo)[numPhyl];
+  
+  FormulaOfPhyloLikelihood* nPL = new FormulaOfPhyloLikelihood(mPhylo, resultDesc);
 
-      if (verbose)
-      {
-        ApplicationTools::displayResult(" Type", resultName);
-        ApplicationTools::displayResult(" Phylo number", TextTools::toString(numPhyl));
-      }
-    }
-  }
-  else
-    throw Exception("PhylogeneticsApplicationTools::getPhyloLikelihoodContainer : Unknown result phylo Name " + resultName);
+  if (verbose)
+    ApplicationTools::displayResult(" Result", nPL->output());
+
+  // if (resultName == "Product")
+  // {
+  //   size_t indPhyl = 1;
+  //   vector<size_t> vphyl;
+
+  //   while (args.find("phylo" + TextTools::toString(indPhyl)) != args.end())
+  //   {
+  //     size_t numPhyl = (size_t) ApplicationTools::getIntParameter("phylo" + TextTools::toString(indPhyl), args, 1, "", true, warn);
+
+  //     if (!mPhylo->hasPhyloLikelihood(numPhyl))
+  //       throw BadIntegerException("PhylogeneticsApplicationTools::getPhyloLikelihoodContainer : Unknown Phylo Number for result ", (int)numPhyl);
+
+  //     vphyl.push_back(numPhyl);
+  //     indPhyl++;
+  //   }
+
+  //   ProductOfPhyloLikelihood* pp = new ProductOfPhyloLikelihood(mPhylo);
+  //   if (vphyl.size() == 0)
+  //     pp->addAllPhyloLikelihoods();
+  //   else
+  //   {
+  //     for (size_t i = 0; i < vphyl.size(); i++)
+  //     {
+  //       pp->addPhyloLikelihood(vphyl[i]);
+  //     }
+  //   }
+
+  //   if (verbose)
+  //   {
+  //     ApplicationTools::displayResult(" Type", resultName);
+  //     if (vphyl.size() == 0)
+  //       ApplicationTools::displayResult(" Phylo numbers", VectorTools::paste(mPhylo->getNumbersOfPhyloLikelihoods(), ","));
+  //     else
+  //       ApplicationTools::displayResult(" Phylo numbers", VectorTools::paste(vphyl, ","));
+  //   }
+
+  //   nPL = pp;
+  // }
+  // else if (resultName == "Single")
+  // {
+  //   if (mPhylo->getNumbersOfPhyloLikelihoods().size() == 1)
+  //     nPL = (*mPhylo)[mPhylo->getNumbersOfPhyloLikelihoods()[0]];
+  //   else
+  //   {
+  //     if (args.find("phylo") == args.end())
+  //       throw Exception("PhylogeneticsApplicationTools::getPhyloLikelihoodContainer : Missing Phylo Number for result");
+
+  //     size_t numPhyl = (size_t) ApplicationTools::getIntParameter("phylo", args, 1, "", true, warn);
+
+  //     if (!mPhylo->hasPhyloLikelihood(numPhyl))
+  //       throw BadIntegerException("PhylogeneticsApplicationTools::getPhyloLikelihoodContainer : Unknown Phylo Number for result ", (int)numPhyl);
+
+  //     nPL = (*mPhylo)[numPhyl];
+
+  //     if (verbose)
+  //     {
+  //       ApplicationTools::displayResult(" Type", resultName);
+  //       ApplicationTools::displayResult(" Phylo number", TextTools::toString(numPhyl));
+  //     }
+  //   }
+  // }
+  // else
+  //   throw Exception("PhylogeneticsApplicationTools::getPhyloLikelihoodContainer : Unknown result phylo Name " + resultName);
 
   mPhylo->addPhyloLikelihood(0, nPL);
 
@@ -4213,41 +4230,30 @@ void PhylogeneticsApplicationTools::printParameters(const PhyloLikelihoodContain
   // First output result
   out << "result=";
 
-  std::vector<size_t> phyldep;
+  const FormulaOfPhyloLikelihood* pop = dynamic_cast<const FormulaOfPhyloLikelihood*>(result);
 
-  const ProductOfPhyloLikelihood* pop = dynamic_cast<const ProductOfPhyloLikelihood*>(result);
-  if (pop)
+  if (!pop)
+    throw Exception("PhylogeneticsApplicationTools::printParameters : unknown result phyloLikelihood format");
+
+  string popout=pop->output();
+
+  out << popout;
+  
+  StringTokenizer st(popout,"phylo",true, true);
+  st.nextToken();
+
+  vector<size_t> phyldep;
+  
+  while (st.hasMoreToken())
   {
-    out << "Product(";
-    phyldep = pop->getNumbersOfPhyloLikelihoods();
-
-    for (size_t i = 0; i < phyldep.size(); i++)
-    {
-      if (i != 0)
-        out << ",";
-
-      out << "phylo" <<  i + 1 << "=" << phyldep[i];
-    }
-    out << ")";
+    string ex=st.nextToken();
+    phyldep.push_back((size_t)(atoi(ex.c_str())));
   }
-  else
-  {
-    out << "Single(phylo=";
-    const vector<size_t>& nPhyl = phylocont.getNumbersOfPhyloLikelihoods();
-    for (size_t i = 0; i < nPhyl.size(); i++)
-    {
-      if (nPhyl[i] != 0 && phylocont[nPhyl[i]] == result)
-      {
-        out << nPhyl[i];
-        out << ")";
-        out.endLine();
-        phyldep.push_back(nPhyl[i]);
-        break;
-      }
-    }
-  }
+  
+  
   out.endLine();
-
+  out.endLine();
+  
   // Then the other phylolikelihoods
 
   while (phyldep.size() != 0)

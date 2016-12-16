@@ -173,9 +173,9 @@ namespace bpp
        * @return The likelihood for site <i>site</i>.
        */
 
-      double getDLogLikelihoodForASiteForAPhyloLikelihood(size_t site, size_t nPhyl) const
+      double getDLogLikelihoodForASiteForAPhyloLikelihood(const std::string& variable, size_t site, size_t nPhyl) const
       {
-        return getAbstractPhyloLikelihood(nPhyl)->getDLogLikelihoodForASite(site);
+        return getAbstractPhyloLikelihood(nPhyl)->getDLogLikelihoodForASite(variable, site);
       }
       
       /**
@@ -187,9 +187,9 @@ namespace bpp
        * @return The likelihood for site <i>site</i>.
        */
 
-      double getD2LogLikelihoodForASiteForAPhyloLikelihood(size_t site, size_t nPhyl) const
+      double getD2LogLikelihoodForASiteForAPhyloLikelihood(const std::string& variable, size_t site, size_t nPhyl) const
       {
-        return getAbstractPhyloLikelihood(nPhyl)->getD2LogLikelihoodForASite(site);
+        return getAbstractPhyloLikelihood(nPhyl)->getD2LogLikelihoodForASite(variable, site);
       }
 
     };

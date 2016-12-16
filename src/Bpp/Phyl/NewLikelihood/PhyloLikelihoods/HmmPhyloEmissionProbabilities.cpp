@@ -99,8 +99,7 @@ void HmmPhyloEmissionProbabilities::computeDEmissionProbabilities(std::string& v
     for (size_t j=0;j<getNumberOfStates();j++)
     {
       const AlignedPhyloLikelihood& apl=phylAlph_->getPhyloLikelihood(j);
-      
-      dEmProb_[i][j]= apl.getDLogLikelihoodForASite(i) * apl.getLikelihoodForASite(i);
+      dEmProb_[i][j]= apl.getDLogLikelihoodForASite(variable, i) * apl.getLikelihoodForASite(i);
     }
 }
   
@@ -119,9 +118,9 @@ void HmmPhyloEmissionProbabilities::computeD2EmissionProbabilities(std::string& 
     for (size_t j=0;j<getNumberOfStates();j++)
     {
       const AlignedPhyloLikelihood& apl=phylAlph_->getPhyloLikelihood(j);
-      double x= apl.getDLogLikelihoodForASite(i);
+      double x= apl.getDLogLikelihoodForASite(variable, i);
       
-      d2EmProb_[i][j]= (apl.getD2LogLikelihoodForASite(i) + x*x) * apl.getLikelihoodForASite(i);
+      d2EmProb_[i][j]= (apl.getD2LogLikelihoodForASite(variable, i) + x*x) * apl.getLikelihoodForASite(i);
     }
 }
 

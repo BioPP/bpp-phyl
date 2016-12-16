@@ -141,9 +141,9 @@ namespace bpp
 
     double getLogLikelihood() const;
 
-    double getDLogLikelihood() const;
+    double getDLogLikelihood(const std::string& variable) const;
 
-    double getD2LogLikelihood() const;
+    double getD2LogLikelihood(const std::string& variable) const;
     
     /**
      * @brief Get the logarithm of the likelihood for any site.
@@ -160,13 +160,16 @@ namespace bpp
      *
      */
 
-    double getDLogLikelihoodForASite(size_t site) const;
+    double getDLogLikelihoodForASite(const std::string& variable, size_t site) const;
       
-    double getD2LogLikelihoodForASite(size_t site) const;
+    double getD2LogLikelihoodForASite(const std::string& variable, size_t site) const;
       
     /*
      * @}
      */
+
+    ParameterList getNonDerivableParameters() const;
+    
   };
 } // end of namespace bpp.
 

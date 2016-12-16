@@ -119,12 +119,12 @@ public:
     return hmm_->getLogLikelihood();
   }
 
-  double getDLogLikelihood() const
+  double getDLogLikelihood(const std::string& variable) const
   {
     return hmm_->getDLogLikelihood();
   }
 
-  double getD2LogLikelihood() const
+  double getD2LogLikelihood(const std::string& variable) const
   {
     return hmm_->getD2LogLikelihood();
   }
@@ -145,12 +145,12 @@ public:
     return log(hmm_->getLikelihoodForASite(site));
   }
 
-  double getDLogLikelihoodForASite(size_t site) const
+  double getDLogLikelihoodForASite(const std::string& variable, size_t site) const
   {
     return hmm_->getDLogLikelihoodForASite(site);
   }
 
-  double getD2LogLikelihoodForASite(size_t site) const
+  double getD2LogLikelihoodForASite(const std::string& variable, size_t site) const
   {
     return hmm_->getD2LogLikelihoodForASite(site);
   }
@@ -181,14 +181,20 @@ protected:
   void computeDLogLikelihood_(const std::string& variable) const
   {
     hmm_->getFirstOrderDerivative(variable);
+    // derivative exists and ready to compute
+  
+    dValues_[variable]= std::nan("");
   }
 
 
   void computeD2LogLikelihood_(const std::string& variable) const
   {
     hmm_->getSecondOrderDerivative(variable);
+    
+    d2Values_[variable]= std::nan("");
   }
 
+  ParameterList getNonDerivableParameters() const;
 
   /*
    * @}

@@ -214,6 +214,11 @@ Vdouble OneProcessSequencePhyloLikelihood::getPosteriorRateOfEachSite() const
 
 void OneProcessSequencePhyloLikelihood::computeDLogLikelihood_(const string& variable) const
 {
+  // check it is a "BrLen" variable
+
+  if (!hasParameter(variable) || (variable.compare(0,5,"BrLen")!=0))
+    return;
+  
   // Get the node with the branch whose length must be derivated:
   Vuint vbrId;
   
@@ -226,12 +231,18 @@ void OneProcessSequencePhyloLikelihood::computeDLogLikelihood_(const string& var
   }
 
   tlComp_->computeTreeDLogLikelihood(vbrId);
+  dValues_[variable]= std::nan("");
 }
 
 /******************************************************************************/
 
 void OneProcessSequencePhyloLikelihood::computeD2LogLikelihood_(const string& variable) const
 {
+  // check it is a "BrLen" variable
+
+  if (!hasParameter(variable) || (variable.compare(0,5,"BrLen")!=0))
+    return;
+
   // Get the node with the branch whose length must be derivated:
   Vuint vbrId;
   
@@ -244,4 +255,5 @@ void OneProcessSequencePhyloLikelihood::computeD2LogLikelihood_(const string& va
   }
 
   tlComp_->computeTreeD2LogLikelihood(vbrId);
+  d2Values_[variable]= std::nan("");
 }

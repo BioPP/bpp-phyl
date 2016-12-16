@@ -253,19 +253,28 @@ namespace bpp
 
     double getFirstOrderDerivative(const std::string& variable) const throw (Exception)
     {
-      computeDLogLikelihood_(variable);
-
-      return -getDLogLikelihood();
+      if (dValues_.find(variable)==dValues_.end())
+        computeDLogLikelihood_(variable);
+      
+      if (dValues_.find(variable)==dValues_.end() || std::isnan(dValues_[variable]))
+        dValues_[variable]=-getDLogLikelihood(variable);
+      
+      return dValues_[variable];
     }
 
     double getSecondOrderDerivative(const std::string& variable) const throw (Exception)
     {
-      computeD2LogLikelihood_(variable);
-      return -getD2LogLikelihood();
+      if (d2Values_.find(variable)==d2Values_.end())
+        computeD2LogLikelihood_(variable);
+      
+      if (d2Values_.find(variable)==d2Values_.end() || std::isnan(d2Values_[variable]))
+        d2Values_[variable]=-getD2LogLikelihood(variable);
+      
+      return d2Values_[variable];
     }
-
+    
     double getSecondOrderDerivative(const std::string& variable1, const std::string& variable2) const throw (Exception) { return 0; } // Not implemented for now.
-
+    
     /**
      * @return The underlying likelihood computation structure.
      */
@@ -313,14 +322,12 @@ namespace bpp
       return tlComp_->getLogLikelihood();
     }
 
-    double getDLogLikelihood() const
+    double getDLogLikelihood(const std::string& variable) const
     {
-      updateLikelihood();
-      computeLikelihood();
       return tlComp_->getDLogLikelihood();
     }
 
-    double getD2LogLikelihood() const
+    double getD2LogLikelihood(const std::string& variable) const
     {
       return tlComp_->getD2LogLikelihood();
     }
@@ -339,12 +346,18 @@ namespace bpp
       return tlComp_->getLogLikelihoodForASite(siteIndex);
     }
 
-    double getDLogLikelihoodForASite(size_t siteIndex) const {
-      return tlComp_->getDLogLikelihoodForASite(siteIndex);
+    double getDLogLikelihoodForASite(const std::string& variable, size_t siteIndex) const {
+      if (dValues_.find(variable)!=dValues_.end())
+        return tlComp_->getDLogLikelihoodForASite(siteIndex);
+      else
+        return 0;
     }
 
-    double getD2LogLikelihoodForASite(size_t siteIndex) const {
-      return tlComp_->getD2LogLikelihoodForASite(siteIndex);
+    double getD2LogLikelihoodForASite(const std::string& variable, size_t siteIndex) const {
+      if (dValues_.find(variable)!=dValues_.end())
+        return tlComp_->getD2LogLikelihoodForASite(siteIndex);
+      else
+        return 0;
     }
 
     /**

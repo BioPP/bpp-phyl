@@ -113,6 +113,8 @@ void MultiProcessSequencePhyloLikelihood::computeDLogLikelihood_(const std::stri
 {
   for (size_t i=0; i<vpTreelik_.size();i++)
     computeDLogLikelihoodForAProcess(variable, i);
+  
+  dValues_[variable]= std::nan("");
 }
 
 /******************************************************************************/
@@ -121,6 +123,8 @@ void MultiProcessSequencePhyloLikelihood::computeD2LogLikelihood_(const std::str
 {
   for (size_t i=0; i<vpTreelik_.size();i++)
     computeD2LogLikelihoodForAProcess(variable, i);
+
+  d2Values_[variable]= std::nan("");
 }
 
 /******************************************************************************/
@@ -128,9 +132,14 @@ void MultiProcessSequencePhyloLikelihood::computeD2LogLikelihood_(const std::str
 
 void MultiProcessSequencePhyloLikelihood::computeDLogLikelihoodForAProcess(const std::string& variable, size_t p) const
 {
-  Vuint VbrId;
+  // check it is a "BrLen" variable
+
+  if (!hasParameter(variable) || (variable.compare(0,5,"BrLen")!=0))
+    return;
 
   // Get the node with the branch whose length must be derivated:
+  
+  Vuint VbrId;
 
   size_t i=0;
   try {
@@ -162,9 +171,14 @@ void MultiProcessSequencePhyloLikelihood::computeDLogLikelihoodForAProcess(const
 
 void MultiProcessSequencePhyloLikelihood::computeD2LogLikelihoodForAProcess(const std::string& variable, size_t p) const
 {
-  Vuint VbrId;
+  // check it is a "BrLen" variable
+
+  if (!hasParameter(variable) || (variable.compare(0,5,"BrLen")!=0))
+    return;
 
   // Get the node with the branch whose length must be derivated:
+
+  Vuint VbrId;
 
   size_t i=0;
   try {

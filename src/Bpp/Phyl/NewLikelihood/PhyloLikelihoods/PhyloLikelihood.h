@@ -116,21 +116,27 @@ namespace bpp
      *
      * @return The logarithm of the likelihood of the dataset.
      */
+    
     virtual double getLogLikelihood() const = 0;
       
+    /**
+     * @brief Compute the derivates of the LogLikelihood.
+     *
+     */
+
+    virtual void computeDLogLikelihood_(const std::string& variable) const = 0;
+
+    
+    virtual void computeD2LogLikelihood_(const std::string& variable) const = 0;
+    
     /**
      * @brief Get the derivates of the LogLikelihood.
      *
      */
 
-    virtual double getDLogLikelihood() const = 0;
+    virtual double getDLogLikelihood(const std::string& variable) const = 0;
 
-    virtual double getD2LogLikelihood() const = 0;
-
-    virtual void computeDLogLikelihood_(const std::string& variable) const = 0;
-      
-    virtual void computeD2LogLikelihood_(const std::string& variable) const = 0;
-
+    virtual double getD2LogLikelihood(const std::string& variable) const = 0;
 
     /** @} */
 
