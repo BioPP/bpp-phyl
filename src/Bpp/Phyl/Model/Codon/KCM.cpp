@@ -81,14 +81,6 @@ KCM::KCM(const GeneticCode* gc, bool oneModel) :
 
   mapParNamesFromPmodel_[name+"beta"] = "omega";
 
-  cerr << "ok" << endl;
-  
-  getParameters().printParameters(cerr);
-
-  cerr << "oo" << endl;
-  
-  
-  
   updateMatrices();
 }
 
