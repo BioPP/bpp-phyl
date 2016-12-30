@@ -433,11 +433,8 @@ PhyloTree* Nhx::parenthesisToPhyloTree(const string& description) const
 
   shared_ptr<PhyloNode> root = parenthesisToNode(*tree, 0, content);
 
-  if (tree->getNumberOfSons(root)<=2)
-    tree->rootAt(root);
-  else
-    tree->setRoot(root);
-
+  tree->rootAt(root);
+  
   if (!hasIds_)
   {
     tree->resetNodesId();

@@ -82,7 +82,6 @@
 #include "../NewLikelihood/PhyloLikelihoods/MixtureOfAlignedPhyloLikelihood.h"
 #include "../NewLikelihood/PhyloLikelihoods/HmmOfAlignedPhyloLikelihood.h"
 #include "../NewLikelihood/PhyloLikelihoods/AutoCorrelationOfAlignedPhyloLikelihood.h"
-#include "../NewLikelihood/PhyloLikelihoods/ProductOfPhyloLikelihood.h"
 #include "../NewLikelihood/PhyloLikelihoods/FormulaOfPhyloLikelihood.h"
 #include "../NewLikelihood/PhyloLikelihoods/ProductOfAlignedPhyloLikelihood.h"
 #include "../NewLikelihood/NonHomogeneousSubstitutionProcess.h"
@@ -2300,70 +2299,6 @@ PhyloLikelihoodContainer* PhylogeneticsApplicationTools::getPhyloLikelihoodConta
   if (verbose)
     ApplicationTools::displayResult(" Result", nPL->output());
 
-  // if (resultName == "Product")
-  // {
-  //   size_t indPhyl = 1;
-  //   vector<size_t> vphyl;
-
-  //   while (args.find("phylo" + TextTools::toString(indPhyl)) != args.end())
-  //   {
-  //     size_t numPhyl = (size_t) ApplicationTools::getIntParameter("phylo" + TextTools::toString(indPhyl), args, 1, "", true, warn);
-
-  //     if (!mPhylo->hasPhyloLikelihood(numPhyl))
-  //       throw BadIntegerException("PhylogeneticsApplicationTools::getPhyloLikelihoodContainer : Unknown Phylo Number for result ", (int)numPhyl);
-
-  //     vphyl.push_back(numPhyl);
-  //     indPhyl++;
-  //   }
-
-  //   ProductOfPhyloLikelihood* pp = new ProductOfPhyloLikelihood(mPhylo);
-  //   if (vphyl.size() == 0)
-  //     pp->addAllPhyloLikelihoods();
-  //   else
-  //   {
-  //     for (size_t i = 0; i < vphyl.size(); i++)
-  //     {
-  //       pp->addPhyloLikelihood(vphyl[i]);
-  //     }
-  //   }
-
-  //   if (verbose)
-  //   {
-  //     ApplicationTools::displayResult(" Type", resultName);
-  //     if (vphyl.size() == 0)
-  //       ApplicationTools::displayResult(" Phylo numbers", VectorTools::paste(mPhylo->getNumbersOfPhyloLikelihoods(), ","));
-  //     else
-  //       ApplicationTools::displayResult(" Phylo numbers", VectorTools::paste(vphyl, ","));
-  //   }
-
-  //   nPL = pp;
-  // }
-  // else if (resultName == "Single")
-  // {
-  //   if (mPhylo->getNumbersOfPhyloLikelihoods().size() == 1)
-  //     nPL = (*mPhylo)[mPhylo->getNumbersOfPhyloLikelihoods()[0]];
-  //   else
-  //   {
-  //     if (args.find("phylo") == args.end())
-  //       throw Exception("PhylogeneticsApplicationTools::getPhyloLikelihoodContainer : Missing Phylo Number for result");
-
-  //     size_t numPhyl = (size_t) ApplicationTools::getIntParameter("phylo", args, 1, "", true, warn);
-
-  //     if (!mPhylo->hasPhyloLikelihood(numPhyl))
-  //       throw BadIntegerException("PhylogeneticsApplicationTools::getPhyloLikelihoodContainer : Unknown Phylo Number for result ", (int)numPhyl);
-
-  //     nPL = (*mPhylo)[numPhyl];
-
-  //     if (verbose)
-  //     {
-  //       ApplicationTools::displayResult(" Type", resultName);
-  //       ApplicationTools::displayResult(" Phylo number", TextTools::toString(numPhyl));
-  //     }
-  //   }
-  // }
-  // else
-  //   throw Exception("PhylogeneticsApplicationTools::getPhyloLikelihoodContainer : Unknown result phylo Name " + resultName);
-
   mPhylo->addPhyloLikelihood(0, nPL);
 
   return mPhylo;
@@ -4317,8 +4252,7 @@ void PhylogeneticsApplicationTools::printParameters(const PhyloLikelihoodContain
 
           out << "),";
         }
-        else if ((dynamic_cast<const ProductOfAlignedPhyloLikelihood*>(phyloLike) != NULL)
-                 ||  (dynamic_cast<const ProductOfPhyloLikelihood*>(phyloLike) != NULL))
+        else if (dynamic_cast<const ProductOfAlignedPhyloLikelihood*>(phyloLike) != NULL)
         {
           out << "Product(";
         }
@@ -4482,20 +4416,13 @@ void PhylogeneticsApplicationTools::printAnalysisInformation(const PhyloLikeliho
     return;
 
   std::vector<size_t> phyldep;
-  const ProductOfPhyloLikelihood* pop = dynamic_cast<const ProductOfPhyloLikelihood*>(result);
-  if (pop)
-    phyldep = pop->getNumbersOfPhyloLikelihoods();
-
-  else
+  const vector<size_t>& nPhyl = phylocont.getNumbersOfPhyloLikelihoods();
+  for (size_t i = 0; i < nPhyl.size(); i++)
   {
-    const vector<size_t>& nPhyl = phylocont.getNumbersOfPhyloLikelihoods();
-    for (size_t i = 0; i < nPhyl.size(); i++)
+    if (nPhyl[i] != 0 && phylocont[nPhyl[i]] == result)
     {
-      if (nPhyl[i] != 0 && phylocont[nPhyl[i]] == result)
-      {
-        phyldep.push_back(nPhyl[i]);
-        break;
-      }
+      phyldep.push_back(nPhyl[i]);
+      break;
     }
   }
 

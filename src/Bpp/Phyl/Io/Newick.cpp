@@ -358,11 +358,8 @@ PhyloTree* Newick::parenthesisToPhyloTree(const string& description, bool bootst
   PhyloTree* tree = new PhyloTree();
   shared_ptr<PhyloNode>  root = parenthesisToNode(*tree, 0, content, nodeCounter, bootstrap, propertyName, withId, verbose);
 
-  if (tree->getNumberOfSons(root)<=2)
-    tree->rootAt(root);
-  else
-    tree->setRoot(root);
-  
+  tree->rootAt(root);
+
   if (verbose) {
     (*ApplicationTools::message) << " nodes loaded.";
     ApplicationTools::message->endLine();

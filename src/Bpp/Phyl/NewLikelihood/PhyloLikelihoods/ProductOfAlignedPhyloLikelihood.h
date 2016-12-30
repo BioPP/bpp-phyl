@@ -45,7 +45,6 @@
 #include <Bpp/Seq/Container/SiteContainer.h>
 
 #include "SetOfAlignedPhyloLikelihood.h"
-#include "ProductOfPhyloLikelihood.h"
 
 namespace bpp
 {
