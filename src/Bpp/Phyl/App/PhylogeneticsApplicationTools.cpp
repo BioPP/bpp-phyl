@@ -363,16 +363,16 @@ SubstitutionModelSet* PhylogeneticsApplicationTools::getSubstitutionModelSet(
   if (nbModels == 0)
     throw Exception("The number of models can't be 0 !");
 
-  bool nomix = true;
-  for (size_t i = 0; nomix &(i < nbModels); i++)
-  {
-    string prefix = "model" + TextTools::toString(i + 1);
-    string modelDesc;
-    modelDesc = ApplicationTools::getStringParameter(prefix, params, "", suffix, suffixIsOptional, warn);
+  // bool nomix = true;
+  // for (size_t i = 0; nomix &(i < nbModels); i++)
+  // {
+  //   string prefix = "model" + TextTools::toString(i + 1);
+  //   string modelDesc;
+  //   modelDesc = ApplicationTools::getStringParameter(prefix, params, "", suffix, suffixIsOptional, warn);
 
-    if (modelDesc.find("Mixed") != string::npos)
-      nomix = false;
-  }
+  //   if (modelDesc.find("Mixed") != string::npos)
+  //     nomix = false;
+  // }
 
   SubstitutionModelSet* modelSet, * modelSet1 = 0;
   modelSet1 = new SubstitutionModelSet(alphabet);
