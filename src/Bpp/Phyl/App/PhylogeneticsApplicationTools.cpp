@@ -1108,7 +1108,8 @@ throw (Exception)
     ApplicationTools::displayResult("Performed", TextTools::toString(n) + " function evaluations.");
   if (backupFile != "none")
   {
-    remove(backupFile.c_str());
+    string bf=backupFile+".def";
+    rename(backupFile.c_str(),bf.c_str());
   }
   return tl;
 }
@@ -1332,7 +1333,8 @@ throw (Exception)
     ApplicationTools::displayResult("Performed", TextTools::toString(n) + " function evaluations.");
   if (backupFile != "none")
   {
-    remove(backupFile.c_str());
+    string bf=backupFile+".def";
+    rename(backupFile.c_str(),bf.c_str());
   }
 }
 
