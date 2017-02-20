@@ -86,8 +86,19 @@ namespace bpp
     virtual void updateMatrices();
 
     virtual SubstitutionModel& getModel() = 0;
-
+    
   public:
+
+    
+    /*
+     * @brief get the name of a parameter from its name in a submodel
+     *
+     * @var name the name of the parameter in the submodel
+     *
+     */
+    
+    std::string getParNameFromPmodel(const std::string& name) const;
+    
     /*
      *@ brief Methods to supersede SubstitutionModel methods.
      *

@@ -89,8 +89,6 @@ YNGKP_M1::YNGKP_M1(const GeneticCode* gc, FrequenciesSet* codonFreqs) :
 
   // specific parameters
 
-  cerr << "pmix "<< pmixmodel_->getNamespace() << endl;
-  
   string st;
   for (map<string, string>::iterator it = mapParNamesFromPmodel_.begin(); it != mapParNamesFromPmodel_.end(); it++)
   {
