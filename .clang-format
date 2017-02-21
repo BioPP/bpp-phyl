@@ -2,4 +2,7 @@ BasedOnStyle: Mozilla
 Cpp11BracedListStyle: true
 BreakBeforeBraces: Allman
 NamespaceIndentation: All
+AlwaysBreakAfterReturnType: None
+AlwaysBreakAfterDefinitionReturnType: None
+CommentPragmas: ^\*
 ColumnLimit: 120

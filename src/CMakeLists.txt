@@ -315,6 +315,7 @@ SET(H_FILES
   Bpp/Phyl/NewLikelihood/SpeciationComputingNode.h
   Bpp/Phyl/NewLikelihood/ComputingTree.h
   Bpp/Phyl/NewLikelihood/DataFlow.h
+  Bpp/Phyl/NewLikelihood/ForRange.h
   Bpp/Phyl/NewLikelihood/PhyloLikelihoods/PhyloLikelihood.h
   Bpp/Phyl/NewLikelihood/PhyloLikelihoods/AbstractPhyloLikelihood.h
   Bpp/Phyl/NewLikelihood/PhyloLikelihoods/AlignedPhyloLikelihood.h
