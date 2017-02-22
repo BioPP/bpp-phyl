@@ -1,16 +1,23 @@
 # CMake script for Bio++ PhylLib
-# Author: Sylvain Gaillard and Julien Dutheil
+# Authors:
+#   Sylvain Gaillard
+#   Julien Dutheil
+#   Francois Gindraud (2017)
 # Created: 20/08/2009
 
+# Why 2.8.11:
+# - support of target_include_directories
+cmake_minimum_required (VERSION 2.8.11)
+project (bpp-phyl CXX)
+
 # Global parameters
-CMAKE_MINIMUM_REQUIRED(VERSION 2.6)
-PROJECT(bpp-phyl CXX)
 IF(NOT CMAKE_BUILD_TYPE)
   SET(CMAKE_BUILD_TYPE RelWithDebInfo CACHE STRING
       "Choose the type of build, options are: None Debug Release RelWithDebInfo MinSizeRel."
       FORCE)
 ENDIF(NOT CMAKE_BUILD_TYPE)
 
+# TODO ? Since CMake 3.1 (dec 2014) there is a cleaner CXX_STANDARD variable for that
 SET(CMAKE_CXX_FLAGS "-std=c++11 -Wall -Wshadow -Wconversion")
 
 IF(NOT NO_DEP_CHECK)
@@ -72,7 +79,7 @@ IMPROVED_FIND_LIBRARY(LIBS bpp-seq Bpp/Seq/Alphabet/Alphabet.h)
 IMPROVED_FIND_LIBRARY(LIBS bpp-core Bpp/Clonable.h)
 
 # Subdirectories
-ADD_SUBDIRECTORY(src)
+add_subdirectory (src) # Defines targets bppphyl-static and bppphyl-shared
 
 # Doxygen
 FIND_PACKAGE(Doxygen)
@@ -156,14 +163,15 @@ ADD_DEPENDENCIES(rpm dist)
 
 ENDIF()
 
+# TODO is this thing still needed ? we seem to only do simple tests
 SET(CTEST_UPDATE_TYPE git)
 SET(UPDATE_COMMAND "git")
 SET(UPDATE_OPTIONS "")
 
-ENABLE_TESTING()
-INCLUDE(CTest)
-IF (BUILD_TESTING)
-  ADD_SUBDIRECTORY(test)
-ENDIF(BUILD_TESTING)
+enable_testing ()
+include (CTest)
+if (BUILD_TESTING)
+  add_subdirectory (test)
+endif ()
 
 ENDIF(NOT NO_DEP_CHECK)
