@@ -95,7 +95,8 @@ void TN93::updateMatrices()
   piT_ = (1. - theta1_) * (1. - theta_);
   piR_ = piA_ + piG_;
   piY_ = piT_ + piC_;
-  r_ = 1. / (2. * (piA_ * piC_ + piC_ * piG_ + piA_ * piT_ + piG_ * piT_ + kappa2_ * piC_ * piT_ + kappa1_ * piA_ * piG_));
+  r_ = isScalable()?1. / (2. * (piA_ * piC_ + piC_ * piG_ + piA_ * piT_ + piG_ * piT_ + kappa2_ * piC_ * piT_ + kappa1_ * piA_ * piG_)):1;
+  
   k1_ = kappa2_ * piY_ + piR_;
   k2_ = kappa1_ * piR_ + piY_;
 
@@ -124,7 +125,7 @@ void TN93::updateMatrices()
   generator_(1, 3) = kappa2_ * piT_;
   
   // Normalization:
-  MatrixTools::scale(generator_, r_);
+  setScale(r_);
   
   // Exchangeability:
   exchangeability_(0,0) = generator_(0,0) / piA_;

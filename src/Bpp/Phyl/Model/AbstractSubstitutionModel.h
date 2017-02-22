@@ -96,6 +96,13 @@ protected:
   size_t size_;
 
   /**
+   * @brief If the model is scalable (ie generator can be normalized
+   * automatically).
+   */
+  
+  bool isScalable_;
+
+  /**
    * @brief The rate of the model (default: 1). The generator (and all
    * its vectorial components) is independent of the rate, since it
    * should be normalized.
@@ -182,6 +189,7 @@ public:
     alphabet_(model.alphabet_),
     stateMap_(model.stateMap_->clone()),
     size_(model.size_),
+    isScalable_(model.isScalable_),
     rate_(model.rate_),
     generator_(model.generator_),
     freq_(model.freq_),
@@ -206,6 +214,7 @@ public:
     alphabet_          = model.alphabet_;
     stateMap_.reset(model.stateMap_->clone());
     size_              = model.size_;
+    isScalable_        = model.isScalable_;
     rate_              = model.rate_;
     generator_         = model.generator_;
     freq_              = model.freq_;
@@ -332,6 +341,33 @@ protected:
   virtual void updateMatrices();
 
 public:
+
+  /**
+   * @brief sets if model is scalable, ie scale can be changed.
+   * Default : true, set to false to avoid normalization for example.
+   *
+   */
+  
+  void setScalable(bool scalable)
+  {
+    isScalable_=scalable;
+  }
+  
+  /**
+   * @brief returns  if model is scalable
+   *
+   */
+
+  virtual bool isScalable() const
+  {
+    return isScalable_;
+  }
+
+  /**
+   * @brief return scale
+   *
+   */
+  
   double getScale() const;
 
   /**
@@ -342,6 +378,13 @@ public:
    */
   void setScale(double scale);
 
+  /**
+   * @brief normalize the generator
+   *
+   */
+
+  virtual void normalize();
+  
   /**
    * @brief The rate of the substitution process.
    *

@@ -117,8 +117,9 @@ void HKY85::updateMatrices()
   generator_(1, 3) = kappa_ * piT_;
 	
   // Normalization:
-  r_ = 1. / (2. * (piA_ * piC_ + piC_ * piG_ + piA_ * piT_ + piG_ * piT_ + kappa_ * (piC_ * piT_ + piA_ * piG_)));
-  MatrixTools::scale(generator_, r_);
+  r_ = isScalable()?1. / (2. * (piA_ * piC_ + piC_ * piG_ + piA_ * piT_ + piG_ * piT_ + kappa_ * (piC_ * piT_ + piA_ * piG_))):1;
+
+  setScale(r_);
 	
   // Exchangeability:
   exchangeability_(0,0) = generator_(0,0) / piA_;

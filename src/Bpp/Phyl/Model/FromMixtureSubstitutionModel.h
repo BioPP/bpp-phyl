@@ -204,6 +204,21 @@ public:
   }
 
 public:
+  bool isScalable() const 
+  {
+    return getModel().isScalable();
+  }
+
+  void setScalable(bool scalable)
+  {
+    getModel().setScalable(scalable);
+  }
+
+  void normalize()
+  {
+    getModel().normalize();
+  }
+    
   double getScale() const { return getModel().getScale(); }
 
   void setScale(double scale) { getModel().setScale(scale); }

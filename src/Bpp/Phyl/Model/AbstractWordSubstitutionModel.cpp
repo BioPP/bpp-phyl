@@ -511,7 +511,7 @@ void AbstractWordSubstitutionModel::updateMatrices()
           min = generator_(i, i);
       }
 
-      MatrixTools::scale(generator_, -1 / min);
+      setScale(-1 / min);
 
       if (vPowGen_.size() == 0)
         vPowGen_.resize(30);
@@ -529,18 +529,9 @@ void AbstractWordSubstitutionModel::updateMatrices()
     }
 
     // normalization
+    normalize();
 
-    x = 0;
-    for (i = 0; i < salph; i++)
-      x += freq_[i] * generator_(i, i);
-
-    MatrixTools::scale(generator_, -1. / x);
-    for (i = 0; i < salph; i++)
-    {
-      eigenValues_[i] /= -x;
-      iEigenValues_[i] /= -x;
-    }
-
+    
     if (!isNonSingular_)
       MatrixTools::Taylor(generator_, 30, vPowGen_);
   }
@@ -567,6 +558,9 @@ void AbstractWordSubstitutionModel::updateMatrices()
       }
       m *= vsize[k - 1];
     }
+
+    // normalization
+    normalize();
   }
   
 
