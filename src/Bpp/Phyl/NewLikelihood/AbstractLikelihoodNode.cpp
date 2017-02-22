@@ -38,83 +38,78 @@
  */
 
 #include "AbstractLikelihoodNode.h"
-#include "SpeciationComputingNode.h"
 #include "../PatternTools.h"
+#include "SpeciationComputingNode.h"
 
 using namespace bpp;
 using namespace std;
 
-
 void AbstractLikelihoodNode::getPosteriorProbabilitiesForEachState(VVdouble& vPP) const
 {
-  size_t nSites=nodeLikelihoods_.size();
-  size_t nStates=nodeLikelihoods_[0].size();
+  auto nSites = nodeLikelihoods_.get ().size();
+  auto nStates = nodeLikelihoods_.get ()[0].size();
 
   vPP.resize(nSites);
-  
-  const VVdouble& larray = getLikelihoodArray(ComputingNode::D0);
 
-  for (size_t i = 0; i < nSites; i++)
+  const auto& larray = getLikelihoodArray(ComputingNode::D0);
+
+  for (auto i : make_range(nSites))
   {
-    const Vdouble * larray_i = & larray[i];
-    Vdouble * vPP_i = & vPP[i];
-    vPP_i->resize(nStates);
-    
+    const auto& larray_i = larray[i];
+    auto& vPP_i = vPP[i];
+    vPP_i.resize(nStates);
+
     double likelihood;
     if (usesLog())
     {
-      likelihood=VectorTools::logSumExp(* larray_i);
+      likelihood = VectorTools::logSumExp(larray_i);
 
-      for(size_t s = 0; s < nStates; s++)
-        (* vPP_i)[s] = exp((* larray_i)[s] - likelihood);
+      for (auto s : make_range(nStates))
+        vPP_i[s] = exp(larray_i[s] - likelihood);
     }
     else
     {
-      likelihood=VectorTools::sum((* larray_i));
-      
-      for(size_t s = 0; s < nStates; s++)
-        (* vPP_i)[s] = (* larray_i)[s] / likelihood;
+      likelihood = VectorTools::sum(larray_i);
+
+      for (auto s : make_range(nStates))
+        vPP_i[s] = larray_i[s] / likelihood;
     }
   }
 }
 
 void AbstractLikelihoodNode::setUseLog(bool useLog)
 {
-  if (useLog==usesLog())
+  if (useLog == usesLog())
     return;
 
   if (isUp2date(ComputingNode::D0))
   {
-    size_t nSites=nodeLikelihoods_.size();
-    size_t nStates=nodeLikelihoods_[0].size();
+    auto nSites = nodeLikelihoods_.get ().size();
+    auto nStates = nodeLikelihoods_.get ()[0].size();
 
     if (useLog)
     {
-      for (size_t i = 0; i < nSites; i++)
+      for (auto i : make_range(nSites))
       {
-        Vdouble* nodeLikelihoods_i_ = &(nodeLikelihoods_[i]);
-        for(size_t s = 0; s < nStates; s++)
-          (*nodeLikelihoods_i_)[s]=log((*nodeLikelihoods_i_)[s]);
+        auto& nodeLikelihoods_i_ = nodeLikelihoods_.get_mutable ()[i];
+        for (auto s : make_range(nStates))
+          nodeLikelihoods_i_[s] = log(nodeLikelihoods_i_[s]);
       }
     }
-    for (size_t i = 0; i < nSites; i++)
+    for (auto i : make_range(nSites))
     {
-      Vdouble* nodeLikelihoods_i_ = &(nodeLikelihoods_[i]);
-      for(size_t s = 0; s < nStates; s++)
-        (*nodeLikelihoods_i_)[s]=exp((*nodeLikelihoods_i_)[s]);
+      auto& nodeLikelihoods_i_ = nodeLikelihoods_.get_mutable ()[i];
+      for (auto s : make_range(nStates))
+        nodeLikelihoods_i_[s] = exp(nodeLikelihoods_i_[s]);
     }
   }
-  
-  usesLog_=useLog;
-}
 
+  usesLog_ = useLog;
+}
 
 void AbstractLikelihoodNode::setUseLogDownward(bool useLog)
 {
   setUseLog(useLog);
-
-  size_t nS=getNumberOfSons();
-  for (size_t i=0; i<nS; i++)
+  for (auto i : make_range(getNumberOfSons()))
     static_cast<AbstractLikelihoodNode*>(getSon(i))->setUseLogDownward(useLog);
 }
-    
