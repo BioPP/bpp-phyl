@@ -1,6 +1,8 @@
 //
 // File: AbstractLikelihoodNode.cpp
-// Created by: Laurent Guéguen
+// Authors:
+//   Laurent Guéguen
+//   Francois Gindraud (2017)
 // Created on: mercredi 1 juillet 2015, à 16h 22
 //
 

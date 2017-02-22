@@ -1,6 +1,8 @@
 //
 // File: AbstractLikelihoodNode.h
-// Created by: Laurent Guéguen
+// Authors:
+//   Laurent Guéguen
+//   Francois Gindraud (2017)
 // Created on: mardi 23 juin 2015, à 00h 26
 // From file HomogeneousTreeLikelihood.h
 //
@@ -41,8 +43,9 @@
 #ifndef _ABSTRACT_LIKELIHOOD_NODE_H_
 #define _ABSTRACT_LIKELIHOOD_NODE_H_
 
-#include "DataFlow.h"
-#include "ForRange.h"
+#include <Bpp/Phyl/NewLikelihood/DataFlow.h>
+#include <Bpp/Phyl/NewLikelihood/ForRange.h>
+
 #include "LikelihoodNode.h"
 #include "SpeciationComputingNode.h"
 

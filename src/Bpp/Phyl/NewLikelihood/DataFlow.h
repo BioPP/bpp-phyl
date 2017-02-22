@@ -1,6 +1,7 @@
 //
 // File: DataFlow.h
-// Created by: François Gindraud
+// Authors:
+//   Francois Gindraud (2017)
 // Created on: mardi 21 février 2017, à 11h19
 //
 
