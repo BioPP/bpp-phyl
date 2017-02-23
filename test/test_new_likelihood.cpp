@@ -1,7 +1,8 @@
 //
 // File: test_likelihood.cpp
-// Created by: Julien Dutheil
-// Created on: Mon Apr 04 10:18 2011
+// Authors:
+//   Francois Gindraud (2017)
+// Created on: jeudi 23 février
 //
 
 /*
@@ -53,226 +54,160 @@ knowledge of the CeCILL license and that you accept its terms.
 #include <Bpp/Phyl/Simulation/HomogeneousSequenceSimulator.h>
 #include <Bpp/Phyl/Tree/TreeTemplate.h>
 #include <Bpp/Seq/Alphabet/AlphabetTools.h>
+
+#include <Bpp/Phyl/NewLikelihood/Cpp14.h>
+#include <Bpp/Phyl/NewLikelihood/ForRange.h>
+#include <chrono>
 #include <iostream>
 
-using namespace bpp;
-using namespace std;
+#define DOCTEST_CONFIG_IMPLEMENT_WITH_MAIN
+#include "doctest.h"
 
-void fitModelHSR(SubstitutionModel* model, DiscreteDistribution* rdist, const Tree& tree, const PhyloTree& new_tree,
-                 const SiteContainer& sites, double initialValue, double finalValue)
+using bpp::Cpp14::make_unique;
+using bpp::make_range;
+
+namespace
 {
 
-  RHomogeneousTreeLikelihood tl(tree, sites, model->clone(), rdist->clone(), false, false);
-  tl.initialize();
-  // tl.getFirstOrderDerivative("BrLen0");
-  // tl.getFirstOrderDerivative("BrLen1");
-  // tl.getFirstOrderDerivative("BrLen2");
-  // tl.getFirstOrderDerivative("BrLen3");
-  // tl.getFirstOrderDerivative("BrLen4");
+  bool fuzzyEqual(double a, double b, double precision = 0.000001) { return std::abs(a - b) < precision; }
 
-  ApplicationTools::displayResult("Test model", model->getName());
-  cout << "OldTL: " << setprecision(20) << tl.getValue() << endl;
-  cout << "OldTL D1: " << setprecision(20) << tl.getFirstOrderDerivative("BrLen2") << endl;
-  cout << "OldTL D2: " << setprecision(20) << tl.getSecondOrderDerivative("BrLen2") << endl;
-  ApplicationTools::displayResult("* initial likelihood", tl.getValue());
-  if (abs(tl.getValue() - initialValue) > 0.001)
-    throw Exception("Incorrect initial value.");
-  cout << endl;
-
-  Parameter p1("T92.kappa", 0.1);
-  Parameter p2("T92.kappa", 0.2);
-
-  ParameterList pl1;
-  pl1.addParameter(p1);
-  ParameterList pl2;
-  pl2.addParameter(p2);
-
-  Parameter p3("BrLen1", 0.1);
-  Parameter p4("BrLen1", 0.2);
-
-  ParameterList pl3;
-  pl3.addParameter(p3);
-  ParameterList pl4;
-  pl4.addParameter(p4);
-
-  unsigned int n = 100000;
-
-  ApplicationTools::startTimer();
-  for (size_t i = 0; i < n; ++i)
+  using TimePoint = typename std::chrono::high_resolution_clock::time_point;
+  TimePoint timingStart(void) { return std::chrono::high_resolution_clock::now(); }
+  void timingEnd(TimePoint start, const std::string& prefix)
   {
-    ApplicationTools::displayGauge(i, n - 1);
-    tl.matchParametersValues(pl1);
-    tl.getValue();
-    tl.matchParametersValues(pl2);
-    tl.getValue();
-  }
-  cout << endl;
-  ApplicationTools::displayTime("Old Likelihood: model upgrade");
-
-  ApplicationTools::startTimer();
-  for (size_t i = 0; i < n; ++i)
-  {
-    ApplicationTools::displayGauge(i, n - 1);
-    tl.matchParametersValues(pl3);
-    tl.getValue();
-    tl.matchParametersValues(pl4);
-    tl.getValue();
-  }
-  cout << endl;
-
-  ApplicationTools::displayTime("Old Likelihood: brlen upgrade");
-
-  cout << "=============================" << endl;
-
-  cout << endl << "New" << endl;
-  std::shared_ptr<ParametrizablePhyloTree> pTree(new ParametrizablePhyloTree(new_tree));
-
-  ApplicationTools::startTimer();
-
-  unique_ptr<RateAcrossSitesSubstitutionProcess> process(
-    new RateAcrossSitesSubstitutionProcess(model->clone(), rdist->clone(), pTree->clone()));
-
-  unique_ptr<RecursiveLikelihoodTreeCalculation> tmComp(
-    new RecursiveLikelihoodTreeCalculation(sites, process.get(), false, true));
-
-  SingleProcessPhyloLikelihood newTl(process.get(), tmComp.release());
-
-  newTl.computeLikelihood();
-  // newTl.getFirstOrderDerivative("BrLen0");
-  // newTl.getFirstOrderDerivative("BrLen1");
-  // newTl.getFirstOrderDerivative("BrLen2");
-  // newTl.getFirstOrderDerivative("BrLen3");
-  // newTl.getFirstOrderDerivative("BrLen4");
-
-  cout << "NewTL: " << setprecision(20) << newTl.getValue() << endl;
-  cout << "NewTL D1: " << setprecision(20) << newTl.getFirstOrderDerivative("BrLen2") << endl;
-  cout << "NewTL D2: " << setprecision(20) << newTl.getSecondOrderDerivative("BrLen2") << endl;
-  ApplicationTools::displayResult("* initial likelihood", newTl.getValue());
-  if (abs(newTl.getValue() - initialValue) > 0.001)
-    throw Exception("Incorrect initial value.");
-  cout << endl;
-
-  for (size_t i = 0; i < n; ++i)
-  {
-    ApplicationTools::displayGauge(i, n - 1);
-    newTl.matchParametersValues(pl1);
-    newTl.getValue();
-    newTl.matchParametersValues(pl2);
-    newTl.getValue();
+    auto end = timingStart(); // ill named, just to get now()
+    std::cout << "[time-ns] " << prefix << " "
+              << std::chrono::duration_cast<std::chrono::nanoseconds>(end - start).count() << "\n";
   }
 
-  cout << endl;
-  ApplicationTools::displayTime("New Likelihood: model upgrade");
-
-  ApplicationTools::startTimer();
-  for (size_t i = 0; i < n; ++i)
+  template <typename Lik>
+  void do_param_changes_multiple_times(Lik& llh, const std::string& timePrefix, const bpp::ParameterList& p1,
+                                       const bpp::ParameterList& p2)
   {
-    ApplicationTools::displayGauge(i, n - 1);
-    newTl.matchParametersValues(pl3);
-    newTl.getValue();
-    newTl.matchParametersValues(pl4);
-    newTl.getValue();
+    constexpr std::size_t updatesNbIterations = 10;
+    auto ts = timingStart();
+    for (auto i : make_range(updatesNbIterations))
+    {
+      (void)i;
+      llh.matchParametersValues(p1);
+      llh.getValue();
+      llh.matchParametersValues(p2);
+      llh.getValue();
+    }
+    timingEnd(ts, timePrefix);
   }
-  cout << endl;
 
-  ApplicationTools::displayTime("New Likelihood: brlen upgrade");
-
-  cout << endl;
-
-  cout << "==========================================" << endl;
-  cout << "==========================================" << endl;
-  cout << endl;
-
-  cout << "Optimization : " << endl;
-  cout << endl;
-
-  int nboptim = 1000;
-
-  RHomogeneousTreeLikelihood tlop(tree, sites, model->clone(), rdist->clone(), false, false);
-  tlop.initialize();
-
-  OptimizationTools::optimizeNumericalParameters2(&tlop, tlop.getParameters(), 0, 0.000001, nboptim, 0, 0);
-  cout << setprecision(20) << tlop.getValue() << endl;
-  ApplicationTools::displayResult("* lnL after full optimization (old)", tlop.getValue());
-  if (abs(tlop.getValue() - finalValue) > 0.001)
-    throw Exception("Incorrect final value.");
-  tlop.getParameters().printParameters(cout);
-
-  process.reset(new RateAcrossSitesSubstitutionProcess(model->clone(), rdist->clone(), pTree->clone()));
-
-  tmComp.reset(new RecursiveLikelihoodTreeCalculation(sites, process.get(), false, true));
-
-  SingleProcessPhyloLikelihood newTlop(process.get(), tmComp.release(), false);
-
-  ParameterList opln1 = process->getBranchLengthParameters(true);
-
-  OptimizationTools::optimizeNumericalParameters2(&newTlop, newTlop.getParameters(), 0, 0.000001, nboptim, 0, 0);
-  cout << setprecision(20) << newTlop.getValue() << endl;
-  ApplicationTools::displayResult("* lnL after full optimization (new)", newTlop.getValue());
-  if (abs(newTlop.getValue() - finalValue) > 0.001)
-    throw Exception("Incorrect final value.");
-  newTlop.getParameters().printParameters(cout);
+  template <typename Lik>
+  void do_optimization(Lik& llh, const std::string& timePrefix)
+  {
+    constexpr int nbOptim = 1000;
+    auto ts = timingStart();
+    bpp::OptimizationTools::optimizeNumericalParameters2(&llh, llh.getParameters(), 0, 0.000001, nbOptim, 0, 0);
+    timingEnd(ts, timePrefix);
+  }
 }
 
-int main()
+struct ValuesToCompare
 {
-  unique_ptr<TreeTemplate<Node>> tree(TreeTemplateTools::parenthesisToTree("((A:0.01, B:0.02):0.03,C:0.01,D:0.1);"));
-  vector<string> seqNames = tree->getLeavesNames();
-  vector<int> ids = tree->getNodesId();
+  double initialLikelihood{};
+  double initial1DerivativeBr2{};
+  double initial2DerivativeBr2{};
+  double finalLikelihood{};
+  ValuesToCompare() = default;
+};
 
-  Newick reader;
-  unique_ptr<PhyloTree> pTree(
-    reader.parenthesisToPhyloTree("((A:0.01, B:0.02):0.03,C:0.01,D:0.1);", false, "", false, false));
+TEST_CASE("comparing results between old and new likelihood (single travsersal)")
+{
+  using namespace bpp;
 
-  //-------------
-
-  const NucleicAlphabet* alphabet = &AlphabetTools::DNA_ALPHABET;
-
-  VectorSiteContainer sites(alphabet);
+  // Input sequences
+  const auto& alphabet = AlphabetTools::DNA_ALPHABET;
+  VectorSiteContainer sites(&alphabet);
   sites.addSequence(
-    BasicSequence("A", "ATCCAGACATGCCGGGACTTTGCAGAGAAGGAGTTGTTTCCCATTGCAGCCCAGGTGGATAAGGAACAGC", alphabet));
+    BasicSequence("A", "ATCCAGACATGCCGGGACTTTGCAGAGAAGGAGTTGTTTCCCATTGCAGCCCAGGTGGATAAGGAACAGC", &alphabet));
   sites.addSequence(
-    BasicSequence("B", "CGTCAGACATGCCGTGACTTTGCCGAGAAGGAGTTGGTCCCCATTGCGGCCCAGCTGGACAGGGAGCATC", alphabet));
+    BasicSequence("B", "CGTCAGACATGCCGTGACTTTGCCGAGAAGGAGTTGGTCCCCATTGCGGCCCAGCTGGACAGGGAGCATC", &alphabet));
   sites.addSequence(
-    BasicSequence("C", "GGTCAGACATGCCGGGAATTTGCTGAAAAGGAGCTGGTTCCCATTGCAGCCCAGGTAGACAAGGAGCATC", alphabet));
+    BasicSequence("C", "GGTCAGACATGCCGGGAATTTGCTGAAAAGGAGCTGGTTCCCATTGCAGCCCAGGTAGACAAGGAGCATC", &alphabet));
   sites.addSequence(
-    BasicSequence("D", "TTCCAGACATGCCGGGACTTTACCGAGAAGGAGTTGTTTTCCATTGCAGCCCAGGTGGATAAGGAACATC", alphabet));
+    BasicSequence("D", "TTCCAGACATGCCGGGACTTTACCGAGAAGGAGTTGTTTTCCATTGCAGCCCAGGTGGATAAGGAACATC", &alphabet));
 
-  unique_ptr<SubstitutionModel> model(new T92(alphabet, 3.));
-  unique_ptr<DiscreteDistribution> rdist(new GammaDiscreteRateDistribution(4, 1.0));
-  try
+  // Evolution model
+  T92 model(&alphabet, 3.);
+  GammaDiscreteRateDistribution rateDistribution(4, 1.0);
+
+  // Set of parameters to apply to tree + model
+  ParameterList paramModel1;
+  paramModel1.addParameter(Parameter("T92.kappa", 0.1));
+  ParameterList paramModel2;
+  paramModel2.addParameter(Parameter("T92.kappa", 0.2));
+
+  ParameterList paramBrLen1;
+  paramBrLen1.addParameter(Parameter("BrLen1", 0.1));
+  ParameterList paramBrLen2;
+  paramBrLen2.addParameter(Parameter("BrLen1", 0.2));
+
+  // FIXME check values ???
+  // double initialValue = 228.6333642493463;
+  // double finalValue = 198.47216106233;
+
+  ValuesToCompare oldL;
+  ValuesToCompare newL;
+
+  // Old likelihood
   {
-    cout << "Testing Single Tree Traversal likelihood class..." << endl;
-    fitModelHSR(model.get(), rdist.get(), *tree, *pTree, sites, 228.6333642493463, 198.47216106233);
+    auto ts = timingStart();
+    auto tree = std::unique_ptr<TreeTemplate<Node>>(
+      TreeTemplateTools::parenthesisToTree("((A:0.01, B:0.02):0.03,C:0.01,D:0.1);"));
+    RHomogeneousTreeLikelihood llh(*tree, sites, model.clone(), rateDistribution.clone(), false, false);
+    llh.initialize();
+    oldL.initialLikelihood = llh.getValue();
+    timingEnd(ts, "old_init_value");
+
+    oldL.initial1DerivativeBr2 = llh.getFirstOrderDerivative("BrLen2");
+    oldL.initial2DerivativeBr2 = llh.getSecondOrderDerivative("BrLen2");
+
+    do_param_changes_multiple_times(llh, "old_param_model_change", paramModel1, paramModel2);
+    do_param_changes_multiple_times(llh, "old_param_brlen_change", paramBrLen1, paramBrLen2);
+    do_optimization(llh, "old_optimization");
+    oldL.finalLikelihood = llh.getValue();
   }
-  catch (Exception& ex)
+
+  // New likelihood
   {
-    cerr << ex.what() << endl;
-    return 1;
+    auto ts = timingStart();
+    Newick reader;
+    auto phyloTree = std::unique_ptr<PhyloTree>(
+      reader.parenthesisToPhyloTree("((A:0.01, B:0.02):0.03,C:0.01,D:0.1);", false, "", false, false));
+    auto paramPhyloTree = std::make_shared<ParametrizablePhyloTree>(*phyloTree);
+    auto process =
+      make_unique<RateAcrossSitesSubstitutionProcess>(model.clone(), rateDistribution.clone(), paramPhyloTree->clone());
+    auto likelihoodCompStruct = make_unique<RecursiveLikelihoodTreeCalculation>(sites, process.get(), false, true);
+    SingleProcessPhyloLikelihood llh(process.get(), likelihoodCompStruct.release());
+    llh.computeLikelihood();
+    newL.initialLikelihood = llh.getValue();
+    timingEnd(ts, "new_init_value");
+
+    newL.initial1DerivativeBr2 = llh.getFirstOrderDerivative("BrLen2");
+    newL.initial2DerivativeBr2 = llh.getSecondOrderDerivative("BrLen2");
+
+    do_param_changes_multiple_times(llh, "new_param_model_change", paramModel1, paramModel2);
+    do_param_changes_multiple_times(llh, "new_param_brlen_change", paramBrLen1, paramBrLen2);
+    do_optimization(llh, "new_optimization");
+    newL.finalLikelihood = llh.getValue();
   }
 
-  // model.reset(new T92(alphabet, 3.));
-  // rdist.reset(new GammaDiscreteRateDistribution(4, 1.0));
-  // try {
-  //   cout << "Testing Double Tree Traversal likelihood class..." << endl;
-  //   fitModelHDR(model.get(), rdist.get(), *tree, sites, 228.6333642493463, 198.47216106233);
-  // } catch (Exception& ex) {
-  //   cerr << ex.what() << endl;
-  //   return 1;
-  // }
+  // TODO check... NewNewLlh ?
 
-  // //Let's compare the derivatives:
-  // RHomogeneousTreeLikelihood tlsr(*tree, sites, model.get(), rdist.get());
-  // tlsr.initialize();
-  // DRHomogeneousTreeLikelihood tldr(*tree, sites, model.get(), rdist.get());
-  // tldr.initialize();
-  // vector<string> params = tlsr.getBranchLengthsParameters().getParameterNames();
-  // for (vector<string>::iterator it = params.begin(); it != params.end(); ++it) {
-  //   double d1sr = tlsr.getFirstOrderDerivative(*it);
-  //   double d1dr = tldr.getFirstOrderDerivative(*it);
-  //   cout << *it << "\t" << d1sr << "\t" << d1dr << endl;
-  //   if (abs(d1sr - d1dr) > 0.000001) return 1;
-  // }
+  // TODO newTlop.getParameters().printParameters(cout);
+  
+  // FIXME fails after optimization.
+  // in the initial test it recreated the tree after param shuffling... maybe we need to do it too
+  // also, make CHECK recognize fuzzyEqual ?
+  // or a Fuzzy<double> type where == is fuzzy ?
 
-  return 0;
+  CHECK(fuzzyEqual(oldL.initialLikelihood, newL.initialLikelihood));
+  CHECK(fuzzyEqual(oldL.initial1DerivativeBr2, newL.initial1DerivativeBr2));
+  CHECK(fuzzyEqual(oldL.initial2DerivativeBr2, newL.initial2DerivativeBr2));
+  CHECK(fuzzyEqual(oldL.finalLikelihood, newL.finalLikelihood));
 }

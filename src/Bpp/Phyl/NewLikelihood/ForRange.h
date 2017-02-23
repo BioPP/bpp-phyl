@@ -156,4 +156,4 @@ namespace bpp
     return {T(), end_elem};
   }
 } // end namespace bpp
-#endif // _RANGE_H_
+#endif // _FORRANGE_H_
