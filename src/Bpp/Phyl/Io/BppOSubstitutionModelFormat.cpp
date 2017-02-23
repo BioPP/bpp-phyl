@@ -1563,7 +1563,9 @@ void BppOSubstitutionModelFormat::write(const SubstitutionModel& model,
   
   if (absm)
   {
-    for (size_t i=0;i<writtenNames.size(); i++)
+    size_t wNs=writtenNames.size();
+    
+    for (size_t i=0;i<wNs; i++)
     {
       try
       {
