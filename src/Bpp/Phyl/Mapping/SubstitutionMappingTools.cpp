@@ -1612,10 +1612,6 @@ vector< vector<double> > SubstitutionMappingTools::getNormalizationsPerBranch(
     }
   }
 
-  const WordAlphabet* wAlp=dynamic_cast<const WordAlphabet*>(nullModel->getAlphabet());
-  
-  float sizeWord=float(wAlp?wAlp->getLength():1);
-  
   // compute the normalization for each substitutionType
   vector< vector<double> > rewards(ids.size());
 
@@ -1645,7 +1641,7 @@ vector< vector<double> > SubstitutionMappingTools::getNormalizationsPerBranch(
         }
         s += tmp;
       }
-      rewards[k][nbt] = s*sizeWord;
+      rewards[k][nbt] = s;
     }
     reward.reset();
     mapping.reset();
@@ -1677,9 +1673,6 @@ vector< vector<double> > SubstitutionMappingTools::getNormalizationsPerBranch(
   }
 
   vector<UserAlphabetIndex1 >  usai(nbTypes, UserAlphabetIndex1(nullModelSet->getAlphabet()));
-
-  const WordAlphabet* wAlp=dynamic_cast<const WordAlphabet*>(nullModelSet->getAlphabet());
-  float sizeWord=float(wAlp?wAlp->getLength():1);
 
   for (size_t nbm = 0; nbm < nbModels; nbm++)
   {
@@ -1730,7 +1723,7 @@ vector< vector<double> > SubstitutionMappingTools::getNormalizationsPerBranch(
               s += tmp;
           }
           
-          rewards[VectorTools::which(ids, mids[k])][nbt] = s * sizeWord;
+          rewards[VectorTools::which(ids, mids[k])][nbt] = s;
         }
         reward.reset();
         mapping.reset();
