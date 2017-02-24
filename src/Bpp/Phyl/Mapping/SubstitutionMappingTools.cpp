@@ -1966,7 +1966,12 @@ void SubstitutionMappingTools::outputIndividualCountsPerBranchPerSite(
 
   for (size_t i = 0; i < reg.getNumberOfSubstitutionTypes(); ++i)
   {
-    string path = filenamePrefix + TextTools::toString(i + 1) + string(".count");
+    string name=reg.getTypeName(i+1);
+    if (name=="")
+      name=TextTools::toString(i + 1);
+
+    string path = filenamePrefix + name + string(".count");
+    
     ApplicationTools::displayResult(string("Output counts of type ") + TextTools::toString(i + 1) + string(" to file"), path);
     file.open(path.c_str());
 
