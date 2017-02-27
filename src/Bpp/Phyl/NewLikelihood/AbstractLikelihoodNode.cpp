@@ -55,7 +55,7 @@ void AbstractLikelihoodNode::getPosteriorProbabilitiesForEachState(VVdouble& vPP
 
   const auto& larray = getLikelihoodArray(ComputingNode::D0);
 
-  for (auto i : make_range(nSites))
+  for (auto i : makeRange(nSites))
   {
     const auto& larray_i = larray[i];
     auto& vPP_i = vPP[i];
@@ -66,14 +66,14 @@ void AbstractLikelihoodNode::getPosteriorProbabilitiesForEachState(VVdouble& vPP
     {
       likelihood = VectorTools::logSumExp(larray_i);
 
-      for (auto s : make_range(nStates))
+      for (auto s : makeRange(nStates))
         vPP_i[s] = exp(larray_i[s] - likelihood);
     }
     else
     {
       likelihood = VectorTools::sum(larray_i);
 
-      for (auto s : make_range(nStates))
+      for (auto s : makeRange(nStates))
         vPP_i[s] = larray_i[s] / likelihood;
     }
   }
@@ -91,17 +91,17 @@ void AbstractLikelihoodNode::setUseLog(bool useLog)
 
     if (useLog)
     {
-      for (auto i : make_range(nSites))
+      for (auto i : makeRange(nSites))
       {
         auto& nodeLikelihoods_i_ = nodeLikelihoods_.get_mutable ()[i];
-        for (auto s : make_range(nStates))
+        for (auto s : makeRange(nStates))
           nodeLikelihoods_i_[s] = log(nodeLikelihoods_i_[s]);
       }
     }
-    for (auto i : make_range(nSites))
+    for (auto i : makeRange(nSites))
     {
       auto& nodeLikelihoods_i_ = nodeLikelihoods_.get_mutable ()[i];
-      for (auto s : make_range(nStates))
+      for (auto s : makeRange(nStates))
         nodeLikelihoods_i_[s] = exp(nodeLikelihoods_i_[s]);
     }
   }
@@ -112,6 +112,6 @@ void AbstractLikelihoodNode::setUseLog(bool useLog)
 void AbstractLikelihoodNode::setUseLogDownward(bool useLog)
 {
   setUseLog(useLog);
-  for (auto i : make_range(getNumberOfSons()))
+  for (auto i : makeRange(getNumberOfSons()))
     static_cast<AbstractLikelihoodNode*>(getSon(i))->setUseLogDownward(useLog);
 }

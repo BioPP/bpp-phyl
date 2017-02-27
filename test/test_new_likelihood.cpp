@@ -64,7 +64,7 @@ knowledge of the CeCILL license and that you accept its terms.
 #include "doctest.h"
 
 using bpp::Cpp14::make_unique;
-using bpp::make_range;
+using bpp::makeRange;
 
 namespace
 {
@@ -86,7 +86,7 @@ namespace
   {
     constexpr std::size_t updatesNbIterations = 10;
     auto ts = timingStart();
-    for (auto i : make_range(updatesNbIterations))
+    for (auto i : makeRange(updatesNbIterations))
     {
       (void)i;
       llh.matchParametersValues(p1);

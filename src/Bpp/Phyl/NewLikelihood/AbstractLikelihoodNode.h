@@ -219,7 +219,7 @@ namespace bpp
     {
       resetLikelihoods(nbSites, nbStates, DX);
 
-      for (auto i : make_range(getNumberOfSons()))
+      for (auto i : makeRange(getNumberOfSons()))
       {
         static_cast<AbstractLikelihoodNode*>(getSon(i))->resetDownwardLikelihoods(nbSites, nbStates, DX);
       }
@@ -236,7 +236,7 @@ namespace bpp
     {
       const auto& patt = patterns.find(getId())->second;
 
-      for (auto i : make_range(getNumberOfSons()))
+      for (auto i : makeRange(getNumberOfSons()))
       {
         static_cast<AbstractLikelihoodNode*>(getSon(i))->setPatterns(patterns);
         vPatt_.push_back(&(patt.find(getSon(i)->getId())->second));

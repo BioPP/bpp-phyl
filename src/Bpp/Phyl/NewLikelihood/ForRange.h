@@ -41,17 +41,16 @@ knowledge of the CeCILL license and that you accept its terms.
 #ifndef _FORRANGE_H_
 #define _FORRANGE_H_
 
-/**
- * @file ForRange.h
+/** @file ForRange.h
  * Defines range-related classes and function.
  * Instances of the ForRange<T> class can be used with range-for constructs:
  * @code{.cpp}
- * for (auto i : make_range (size_t (42)))
+ * for (auto i : makeRange (size_t (42)))
  * @endcode
  *
- * FIXME try to make it compatible with bpp::Range ?
- * bpp::Range from bpp-core defines begin() and end() for direct access to bounds.
- * Thus it cannot be used as is for range-for constructs.
+ * This class represents the same concept as bpp::Range.
+ * However it cannot use bpp::Range as we need begin() and end() to return iterators.
+ * bpp::Range defines begin() and end() to return the bounds...
  */
 
 #if !(__cplusplus >= 201103L)
@@ -63,13 +62,14 @@ knowledge of the CeCILL license and that you accept its terms.
 
 namespace bpp
 {
-  /**
-   * @brief ForRange class.
-   *
-   * Can be used in for-range constructs.
+  /** Class that represents an interval of values that can be iterated over using the for-range syntax.
    * Represent the ordered set of values [begin, end[.
    * As constructors have no parameter type deduction, the type must be explicit.
-   * @see make_range
+   *
+   * This class is intended to be used with numeric-like T types.
+   * The type T must at least be copyable.
+   *
+   * @see makeRange
    */
   template <typename T>
   class ForRange
@@ -81,27 +81,27 @@ namespace bpp
     T end_;
 
   public:
-    ForRange(const T& begin_elem, const T& end_elem)
-      : begin_(begin_elem)
-      , end_(end_elem)
+    ForRange(const T& beginElem, const T& endElem)
+      : begin_(beginElem)
+      , end_(endElem)
     {
     }
 
     ForRange(const ForRange&) = default;
     ForRange& operator=(const ForRange&) = default;
 
-    /**
-	  * @brief Access range bounds.
-	  */
-    T& range_begin(void) { return begin_; }
-    const T& range_begin(void) const { return begin_; }
-    T& range_end(void) { return end_; }
-    const T& range_end(void) const { return end_; }
+    /// Get lower bound.
+    T& rangeBegin(void) { return begin_; }
+    /// Get lower bound.
+    const T& rangeBegin(void) const { return begin_; }
+    /// Get upper bound.
+    T& rangeEnd(void) { return end_; }
+    /// Get upper bound.
+    const T& rangeEnd(void) const { return end_; }
 
-    /**
-     * @brief Internal iterator class.
-     *
-     * input iterator (can only read values and increment).
+    /** Internal iterator class.
+     * It is an input iterator (can only read values and increment).
+     * It only stores a value of T, returns it on dereference, or increment it.
      */
     class iterator : public std::iterator<std::input_iterator_tag, T>
     {
@@ -133,27 +133,25 @@ namespace bpp
     iterator end(void) const { return iterator(end_); }
   };
 
-  /**
-	* @brief Build a range with type deduction.
-	*
-	* Returns a range [begin_elem, end_elem[.
-	*/
+  /** Build a range with type deduction.
+   * Returns a range [beginElem, endElem[.
+   * Use this function instead of calling the constructor (which requires an explicit type).
+   */
   template <typename T>
-  ForRange<T> make_range(const T& begin_elem, const T& end_elem)
+  ForRange<T> makeRange(const T& beginElem, const T& endElem)
   {
-    return {begin_elem, end_elem};
+    return {beginElem, endElem};
   }
 
-  /**
-	* @brief Build a range with type deduction and default begin.
-	*
-	* Returns a range [T(), end_elem[.
-	* For integers T() == 0.
-	*/
+  /** Build a range with type deduction and default begin.
+   * Returns a range [T(), endElem[.
+   * For integers T() == 0.
+   * Use this function instead of calling the constructor (which requires an explicit type).
+   */
   template <typename T>
-  ForRange<T> make_range(const T& end_elem)
+  ForRange<T> makeRange(const T& endElem)
   {
-    return {T(), end_elem};
+    return {T(), endElem};
   }
 } // end namespace bpp
 #endif // _FORRANGE_H_
