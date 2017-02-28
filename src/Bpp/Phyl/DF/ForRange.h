@@ -54,7 +54,7 @@ knowledge of the CeCILL license and that you accept its terms.
  */
 
 #if !(__cplusplus >= 201103L)
-#error "Bpp/Phyl/ForRange.h requires C++11 support"
+#error "Bpp/Phyl/DF/ForRange.h requires C++11 support"
 #endif
 
 #include <iterator>

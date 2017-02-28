@@ -43,17 +43,56 @@
 #ifndef _ABSTRACT_LIKELIHOOD_NODE_H_
 #define _ABSTRACT_LIKELIHOOD_NODE_H_
 
-#include <Bpp/Phyl/NewLikelihood/DataFlow.h>
-#include <Bpp/Phyl/NewLikelihood/ForRange.h>
+#include <Bpp/Phyl/DF/ForRange.h>
 
 #include "LikelihoodNode.h"
 #include "SpeciationComputingNode.h"
 
 // From the STL:
 #include <map>
+#include <cassert>
 
 namespace bpp
 {
+  /** A class that stores a value that can be valid of invalid.
+   * This class is temporary, as I will move to a more integrated data flow approach later.
+   * It will be used to simplify code at first (grouping values and flags).
+   * Extracted from DataFlow.h as real DF stuff will be used in new classes.
+   */
+  template <typename T>
+  class CachedValue
+  {
+  private:
+    T value_{};
+    bool valid_{false}; // Default = invalid
+
+  public:
+    CachedValue() = default;
+    CachedValue(const CachedValue&) = default;
+
+    bool is_valid(void) const { return valid_; }
+    void make_valid(void) { valid_ = true; }
+    void invalidate(void) { valid_ = false; }
+
+    void set(const T& v)
+    {
+      value_ = v;
+      make_valid();
+    }
+    void set(T&& v) { value_ = std::move(v); }
+
+    const T& get(void) const
+    {
+      assert(is_valid());
+      return value_;
+    }
+
+    // FIXME temporary
+    T& get_mutable(void) { return value_; }
+
+    // TODO deal with complex objects (release-like func that moves, invalid and access internal storage)
+  };
+
   /**
    * @brief Basic Likelihood data structure for a node.
    *

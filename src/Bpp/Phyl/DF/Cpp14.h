@@ -52,7 +52,7 @@ knowledge of the CeCILL license and that you accept its terms.
  */
 
 #if !(__cplusplus >= 201103L)
-#error "Bpp/Phyl/Cpp14.h requires C++11 support"
+#error "Bpp/Phyl/DF/Cpp14.h requires C++11 support"
 #endif
 
 #include <memory>  // unique_ptr
@@ -62,7 +62,7 @@ namespace bpp
 {
   namespace Cpp14
   {
-/**
+    /**
      * @brief Implements std::make_unique if not available.
      */
 #if (__cplusplus >= 201402L)
@@ -79,7 +79,7 @@ namespace bpp
     }
 #endif
 
-/**
+    /**
      * @brief Implement std::index_sequence and std::index_sequence_for.
      */
 #if (__cplusplus >= 201402L)

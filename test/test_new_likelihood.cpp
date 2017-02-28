@@ -40,23 +40,25 @@ knowledge of the CeCILL license and that you accept its terms.
 
 #include <Bpp/Numeric/AutoParameter.h>
 #include <Bpp/Numeric/Matrix/MatrixTools.h>
-#include <Bpp/Phyl/Io/Newick.h>
-#include <Bpp/Phyl/Likelihood/RHomogeneousTreeLikelihood.h>
 #include <Bpp/Phyl/Model/Nucleotide/JCnuc.h>
 #include <Bpp/Phyl/Model/Nucleotide/T92.h>
 #include <Bpp/Phyl/Model/RateDistribution/ConstantRateDistribution.h>
 #include <Bpp/Phyl/Model/RateDistribution/GammaDiscreteRateDistribution.h>
-#include <Bpp/Phyl/NewLikelihood/ParametrizablePhyloTree.h>
-#include <Bpp/Phyl/NewLikelihood/PhyloLikelihoods/SingleProcessPhyloLikelihood.h>
-#include <Bpp/Phyl/NewLikelihood/RateAcrossSitesSubstitutionProcess.h>
-#include <Bpp/Phyl/NewLikelihood/SimpleSubstitutionProcess.h>
 #include <Bpp/Phyl/OptimizationTools.h>
 #include <Bpp/Phyl/Simulation/HomogeneousSequenceSimulator.h>
 #include <Bpp/Phyl/Tree/TreeTemplate.h>
 #include <Bpp/Seq/Alphabet/AlphabetTools.h>
 
-#include <Bpp/Phyl/NewLikelihood/Cpp14.h>
-#include <Bpp/Phyl/NewLikelihood/ForRange.h>
+#include <Bpp/Phyl/Likelihood/RHomogeneousTreeLikelihood.h>
+
+#include <Bpp/Phyl/Io/Newick.h>
+#include <Bpp/Phyl/NewLikelihood/ParametrizablePhyloTree.h>
+#include <Bpp/Phyl/NewLikelihood/PhyloLikelihoods/SingleProcessPhyloLikelihood.h>
+#include <Bpp/Phyl/NewLikelihood/RateAcrossSitesSubstitutionProcess.h>
+#include <Bpp/Phyl/NewLikelihood/SimpleSubstitutionProcess.h>
+
+#include <Bpp/Phyl/DF/Cpp14.h>
+#include <Bpp/Phyl/DF/ForRange.h>
 #include <chrono>
 #include <iostream>
 
@@ -68,28 +70,6 @@ using bpp::makeRange;
 
 namespace
 {
-  class Fuzzy
-  {
-  private:
-    double value_;
-    double precision_;
-
-  public:
-    explicit Fuzzy(double v, double precision = 0.000001)
-      : value_(v)
-      , precision_(precision)
-    {
-    }
-    operator double(void) const { return value_; }
-    bool operator==(const Fuzzy& other) const
-    {
-      return std::abs(value_ - other.value_) <= (precision_ + other.precision_);
-    }
-  };
-  doctest::String toString (const Fuzzy & f) {
-    return doctest::toString (static_cast<double> (f));
-  }
-
   using TimePoint = typename std::chrono::high_resolution_clock::time_point;
   TimePoint timingStart(void) { return std::chrono::high_resolution_clock::now(); }
   void timingEnd(TimePoint start, const std::string& prefix)
@@ -220,8 +200,8 @@ TEST_CASE("comparing results between old and new likelihood (single travsersal)"
 
   // TODO newTlop.getParameters().printParameters(cout);
 
-  CHECK(Fuzzy(oldL.initialLikelihood) == Fuzzy(newL.initialLikelihood));
-  CHECK(Fuzzy(oldL.initial1DerivativeBr2) == Fuzzy(newL.initial1DerivativeBr2));
-  CHECK(Fuzzy(oldL.initial2DerivativeBr2) == Fuzzy(newL.initial2DerivativeBr2));
-  CHECK(Fuzzy(oldL.finalLikelihood, 0.0001) == Fuzzy(newL.finalLikelihood));
+  CHECK(doctest::Approx(oldL.initialLikelihood) == newL.initialLikelihood);
+  CHECK(doctest::Approx(oldL.initial1DerivativeBr2) == newL.initial1DerivativeBr2);
+  CHECK(doctest::Approx(oldL.initial2DerivativeBr2) == newL.initial2DerivativeBr2);
+  CHECK(doctest::Approx(oldL.finalLikelihood).epsilon(0.0001) == newL.finalLikelihood);
 }

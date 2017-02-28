@@ -43,18 +43,18 @@ knowledge of the CeCILL license and that you accept its terms.
 
 /**
  * @file DataFlow.h
- * This file will contain the implementation for a dataflow graph with cached values.
+ * Contains the node classes for a dataflow graph with cached values.
  * For now this only contains CachedValue<T>
  */
 
 #if !(__cplusplus >= 201103L)
-#error "Bpp/Phyl/DataFlow.h requires C++11 support"
+#error "Bpp/Phyl/DF/DataFlow.h requires C++11 support"
 #endif
 
 #include <cassert> // TODO keep assert or exception...
 
-#include <Bpp/Phyl/NewLikelihood/Cpp14.h> // IndexSequence
-#include <algorithm>                      // remove
+#include <Bpp/Phyl/DF/Cpp14.h> // IndexSequence
+#include <algorithm>           // remove
 #include <tuple>
 #include <utility> // move, forward
 #include <vector>
@@ -297,43 +297,5 @@ namespace bpp
 
     // TODO add reduction
   } // end namespace DF
-
-  /** A class that stores a value that can be valid of invalid.
-   * This class is temporary, as I will move to a more integrated data flow approach later.
-   * It will be used to simplify code at first (grouping values and flags).
-   */
-  template <typename T>
-  class CachedValue
-  {
-  private:
-    T value_{};
-    bool valid_{false}; // Default = invalid
-
-  public:
-    CachedValue() = default;
-    CachedValue(const CachedValue&) = default;
-
-    bool is_valid(void) const { return valid_; }
-    void make_valid(void) { valid_ = true; }
-    void invalidate(void) { valid_ = false; }
-
-    void set(const T& v)
-    {
-      value_ = v;
-      make_valid();
-    }
-    void set(T&& v) { value_ = std::move(v); }
-
-    const T& get(void) const
-    {
-      assert(is_valid());
-      return value_;
-    }
-
-    // FIXME temporary
-    T& get_mutable(void) { return value_; }
-
-    // TODO deal with complex objects (release-like func that moves, invalid and access internal storage)
-  };
 } // end namespace bpp
 #endif // _DATAFLOW_H_

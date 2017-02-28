@@ -42,7 +42,6 @@
 #define _RECURSIVE_LIKELIHOOD_NODE_H_
 
 #include "AbstractLikelihoodNode.h"
-#include "DataFlow.h"
 
 #include <Bpp/Numeric/VectorTools.h>
 
