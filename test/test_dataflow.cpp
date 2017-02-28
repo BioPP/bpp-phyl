@@ -90,20 +90,20 @@ TEST_CASE("Testing data flow system on simple int reduction tree")
 
   // Initial state
   CHECK(p1.isValid());
-  CHECK(!n2.isValid());
-  CHECK(!root.isValid());
-  CHECK(!n3.isValid());
+  CHECK_FALSE(n2.isValid());
+  CHECK_FALSE(root.isValid());
+  CHECK_FALSE(n3.isValid());
 
   // Get an intermediate value
   CHECK(n2.getValue() == 43);
   CHECK(n2.isValid());
-  CHECK(!root.isValid());
-  CHECK(!n3.isValid());
+  CHECK_FALSE(root.isValid());
+  CHECK_FALSE(n3.isValid());
 
   // Get root
   CHECK(root.getValue() == -43);
   CHECK(root.isValid());
-  CHECK(!n3.isValid());
+  CHECK_FALSE(n3.isValid());
 
   // Get n3
   CHECK(n3.getValue() == 3);
@@ -113,14 +113,14 @@ TEST_CASE("Testing data flow system on simple int reduction tree")
   // Change p3, check invalidations
   p3.setValue(10);
   CHECK(p3.isValid());
-  CHECK(!root.isValid());
-  CHECK(!n3.isValid());
+  CHECK_FALSE(root.isValid());
+  CHECK_FALSE(n3.isValid());
   CHECK(n1.isValid()); // Not dependent on p3
 
   // Recompute root
   CHECK(root.getValue() == -53);
   CHECK(root.isValid());
-  CHECK(!n3.isValid());
+  CHECK_FALSE(n3.isValid());
 
   // Recompute n3
   CHECK(n3.getValue() == 13);

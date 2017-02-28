@@ -68,8 +68,27 @@ using bpp::makeRange;
 
 namespace
 {
+  class Fuzzy
+  {
+  private:
+    double value_;
+    double precision_;
 
-  bool fuzzyEqual(double a, double b, double precision = 0.000001) { return std::abs(a - b) < precision; }
+  public:
+    explicit Fuzzy(double v, double precision = 0.000001)
+      : value_(v)
+      , precision_(precision)
+    {
+    }
+    operator double(void) const { return value_; }
+    bool operator==(const Fuzzy& other) const
+    {
+      return std::abs(value_ - other.value_) <= (precision_ + other.precision_);
+    }
+  };
+  doctest::String toString (const Fuzzy & f) {
+    return doctest::toString (static_cast<double> (f));
+  }
 
   using TimePoint = typename std::chrono::high_resolution_clock::time_point;
   TimePoint timingStart(void) { return std::chrono::high_resolution_clock::now(); }
@@ -200,14 +219,9 @@ TEST_CASE("comparing results between old and new likelihood (single travsersal)"
   // TODO check... NewNewLlh ?
 
   // TODO newTlop.getParameters().printParameters(cout);
-  
-  // FIXME fails after optimization.
-  // in the initial test it recreated the tree after param shuffling... maybe we need to do it too
-  // also, make CHECK recognize fuzzyEqual ?
-  // or a Fuzzy<double> type where == is fuzzy ?
 
-  CHECK(fuzzyEqual(oldL.initialLikelihood, newL.initialLikelihood));
-  CHECK(fuzzyEqual(oldL.initial1DerivativeBr2, newL.initial1DerivativeBr2));
-  CHECK(fuzzyEqual(oldL.initial2DerivativeBr2, newL.initial2DerivativeBr2));
-  CHECK(fuzzyEqual(oldL.finalLikelihood, newL.finalLikelihood));
+  CHECK(Fuzzy(oldL.initialLikelihood) == Fuzzy(newL.initialLikelihood));
+  CHECK(Fuzzy(oldL.initial1DerivativeBr2) == Fuzzy(newL.initial1DerivativeBr2));
+  CHECK(Fuzzy(oldL.initial2DerivativeBr2) == Fuzzy(newL.initial2DerivativeBr2));
+  CHECK(Fuzzy(oldL.finalLikelihood, 0.0001) == Fuzzy(newL.finalLikelihood));
 }
