@@ -52,13 +52,253 @@ knowledge of the CeCILL license and that you accept its terms.
 #endif
 
 #include <cassert> // TODO keep assert or exception...
+
+#include <Bpp/Phyl/NewLikelihood/Cpp14.h> // IndexSequence
+#include <algorithm>                      // remove
+#include <tuple>
 #include <utility> // move, forward
+#include <vector>
 
 namespace bpp
 {
-  /**
-   * @brief A class that stores a value that can be valid of invalid.
-   *
+  /// namespace for data flow graph (DFG) related classes
+  namespace DF
+  {
+    using bpp::Cpp14::IndexSequence;
+    using bpp::Cpp14::IndexSequenceFor;
+
+    /** Data flow graph base class.
+     * This class is inherited by all data flow nodes.
+     * It represents (and stores data needed by) the graph of invalidations.
+     * The graph of invalidations is the reverse of the value computation graph.
+     * I.e., an InvalidationNode has pointers to nodes that depend on its value.
+     * It also contains a boolean flag for validity.
+     *
+     * This class is not copyable nor movable, as we will store references to it everywhere.
+     * Thus all DFG classes are also non copyable nor movable.
+     * TODO might change this, but maybe costly.
+     *
+     * This class contains implementation details, and should not be used directly.
+     * Hence the constructor is protected.
+     * However some of the API has to be public (registering)...
+     *
+     * This base class makes invalidation indendent on types, and 100% non virtual.
+     */
+    class InvalidableNode
+    {
+    private:
+      std::vector<InvalidableNode*> dependentNodes_; // TODO SSO for vectors ?
+      bool valid_{false};
+
+    protected:
+      void makeValid(void) { valid_ = true; }
+
+      /** Recursively invalidate nodes.
+       * Does nothing if already invalid, as its dependent nodes will already be invalid too.
+       */
+      void invalidate(void)
+      {
+        if (isValid())
+        {
+          valid_ = false;
+          for (auto n : dependentNodes_)
+            n->invalidate();
+        }
+      }
+
+      /// Protected constructor.
+      InvalidableNode(bool initialState)
+        : valid_(initialState)
+      {
+      }
+
+    public:
+      /* Other nodes should not have to query the flag directly.
+       * They should just use getValue from ValuedNode<T> and let the class manage the rest.
+       * However, it does not hurt to let this public, and it is useful for testing (internal info).
+       */
+      bool isValid(void) const { return valid_; }
+
+      // Non copyable nor movable
+      InvalidableNode(const InvalidableNode&) = delete;
+      InvalidableNode(InvalidableNode&&) = delete;
+      InvalidableNode& operator=(const InvalidableNode&) = delete;
+      InvalidableNode& operator=(InvalidableNode&&) = delete;
+      ~InvalidableNode() = default;
+
+      /** Adds node to the list of dependent nodes.
+       * No duplicate checks performed.
+       */
+      void registerDependent(InvalidableNode* node) { dependentNodes_.emplace_back(node); }
+      /** Removes node from list of dependent nodes.
+       * Only one instance will be removed if duplicates.
+       */
+      void unregisterDependent(InvalidableNode* node)
+      {
+        dependentNodes_.erase(std::remove(dependentNodes_.begin(), dependentNodes_.end(), node), dependentNodes_.end());
+      }
+    };
+
+    /** Data flow node storing a value (interface).
+     * This class is a node storing a value of type T.
+     *
+     * Having this type is critical.
+     * It allows a computation that requires an input value of type T to not care about how the value is provided.
+     * I.e., there is no difference in interface between getValue on a parameter and a computation.
+     */
+    template <typename T>
+    class ValuedNode : public InvalidableNode
+    {
+    protected:
+      /// Value is protected to let subclasses modify it.
+      T value_;
+
+      /** Initialize validity state, and value by forwarding arguments to constructor.
+       * Allow in-place initilization of T without overhead.
+       */
+      template <typename... Args>
+      ValuedNode(bool initialState, Args&&... args)
+        : InvalidableNode(initialState)
+        , value_(std::forward<Args>(args)...)
+      {
+      }
+      /** Default constructor, with an invalid default value.
+       */
+      ValuedNode()
+        : InvalidableNode(false)
+        , value_()
+      {
+      }
+
+      /** Virtual function to recompute value.
+       * Computation nodes will subclass it with the computation process.
+       * ParameterNode should subclass it to a failure (parameters should always be valid).
+       * This function must only compute and set the new value (valid flag is managed by getValue).
+       */
+      virtual void compute(void) = 0;
+
+    public:
+      /** Access value, recompute if needed.
+       *
+       * This function is not virtual, so only 1 indirection (isValid) in the best case.
+       * In the worst case, two indirection with the virtual function.
+       * It would have been more natural to make this function virtual, but it would cost 2 indirections for all cases.
+       */
+      const T& getValue(void)
+      {
+        if (!isValid())
+        {
+          compute();
+          makeValid();
+        }
+        return value_;
+      }
+    };
+
+    /** Node storing a parameter.
+     * Leaf of the data flow dag.
+     * A parameter is valid as long as it has been initialized.
+     * So the compute function is a runtime error (accessing uninitialized value).
+     */
+    template <typename T>
+    class ParameterNode : public ValuedNode<T>
+    {
+    private:
+      /// Generates a runtime error.
+      void compute(void) override final { assert(false); }
+
+    public:
+      /// Default constructor will be invalid state.
+      ParameterNode() = default;
+      /// Construct the T in place by forwarding arguments, valid state.
+      template <typename... Args>
+      ParameterNode(Args&&... args)
+        : ValuedNode<T>(true, std::forward<Args>(args)...)
+      {
+      }
+
+      /** Change parameter value.
+       * For now, interface that replaces the value.
+       * TODO: add in place change ?
+       */
+      template <typename U>
+      void setValue(U&& value)
+      {
+        InvalidableNode::invalidate();
+        ValuedNode<T>::value_ = std::forward<U>(value);
+        InvalidableNode::makeValid();
+      }
+    };
+
+    /** Heterogeneous computation node.
+     * Performs a computation with a fixed set of arguments of possibly different types.
+     * This class wraps a function in a node type ready to be used.
+     *
+     * DependentValues... represent the list of types of arguments used in the computation.
+     * Callable must be a functor type (either manual, or a lambda).
+     * (functor type is a type with an operator()(Args...) method).
+     * The Callable function must have the following prototype:
+     * @code{.cpp}
+     * void func (ResultType & result, const Arg1Type & arg1, ..., const ArgNType & argN);
+     * @endcode
+     * With {Arg1Type, ..., ArgNType} being the types in the DependentValues list.
+     * The value is modified in place, to avoid reallocations if the type is a complex type like a vector.
+     *
+     * Nodes that provide the input values are called producers.
+     * Their values are automatically retrieved before calling the function.
+     * Producers are initialy unset, and can be set with setProducer<id>.
+     * All producers must be set before using the node (runtime error if not).
+     * 
+     * TODO add examples (lambda and static wrapper).
+     */
+    template <typename T, typename Callable, typename... DependentValues>
+    class HeterogeneousComputationNode : public ValuedNode<T>, private Callable
+    {
+    private:
+      /// Pointer to producers.
+      std::tuple<ValuedNode<DependentValues>*...> dependencies_;
+
+      /* Helper function: only useful to unpack the index sequence.
+       * Unpacking the sequence is needed to apply std::get to the tuple an call get_value on each producer.
+       * For more information, see cppreference std::tuple and std::integer_sequence pages.
+       */
+      template <std::size_t... Is>
+      void computeHelper(IndexSequence<Is...>)
+      {
+        Callable::operator()(ValuedNode<T>::value_, std::get<Is>(dependencies_)->getValue()...);
+      }
+      void compute(void) override final { computeHelper(IndexSequenceFor<DependentValues...>()); }
+
+    public:
+      /** Constructor.
+       * A value of the callable must be provided first.
+       * This is required for lambdas as they have no default constructor.
+       * The value is also initialized using the remaining arguments (but set to invalid to trigger the first computation).
+       * This initialization is useful for vector, to set their initial working size.
+       */
+      template <typename C, typename... Args>
+      HeterogeneousComputationNode(C&& c, Args&&... args)
+        : ValuedNode<T>(false, std::forward<Args>(args)...)
+        , Callable(std::forward<C>(c))
+      {
+      }
+
+      /** Set the Index-th producer.
+       */
+      template <std::size_t Index>
+      void setProducer(const typename std::tuple_element<Index, decltype(dependencies_)>::type& producer)
+      {
+        auto& dep = std::get<Index>(dependencies_);
+        assert(dep == nullptr); // for now, no modification of the computation is allowed
+        dep = producer;
+        producer->registerDependent(this);
+      }
+    };
+
+    // TODO add reduction
+  } // end namespace DF
+
+  /** A class that stores a value that can be valid of invalid.
    * This class is temporary, as I will move to a more integrated data flow approach later.
    * It will be used to simplify code at first (grouping values and flags).
    */
@@ -66,7 +306,7 @@ namespace bpp
   class CachedValue
   {
   private:
-    T value_ {};
+    T value_{};
     bool valid_{false}; // Default = invalid
 
   public:
