@@ -56,6 +56,7 @@ knowledge of the CeCILL license and that you accept its terms.
 
 #include <Bpp/Phyl/DF/Cpp14.h> // IndexSequence
 #include <algorithm>           // remove
+#include <array>               // used for compute assert only !
 #include <tuple>
 #include <type_traits> // result_of
 #include <utility>     // move, forward
@@ -254,7 +255,6 @@ namespace bpp
      * Their values are automatically retrieved before calling the function.
      * Producers are initialy unset, and can be set with setProducer<id>.
      * All producers must be set before using the node (runtime error if not, checked by an assert).
-     * TODO check functions (are all producers set ? for debug mode with assert.
      * 
      * An example of use is available in the test/test_dataflow.cpp file.
      *
@@ -282,9 +282,19 @@ namespace bpp
       template <std::size_t... Is>
       void computeHelper(IndexSequence<Is...>)
       {
+        assert(checkAllProducersAreDefined<Is...>());
+        // Forward call to functor
         Callable::operator()(ValuedNode<T>::value_, std::get<Is>(dependencies_)->getValue()...);
       }
       void compute(void) override final { computeHelper(IndexSequenceFor<DependentValues...>()); }
+
+      // Returns true if all producers are set
+      template <std::size_t... Is>
+      bool checkAllProducersAreDefined(void) const
+      {
+        std::array<bool, sizeof...(Is)> are_not_null = {(std::get<Is>(dependencies_) != nullptr)...};
+        return std::all_of(are_not_null.begin(), are_not_null.end(), [](bool b) { return b; });
+      }
 
     public:
       /** Constructor.
