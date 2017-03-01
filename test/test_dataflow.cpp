@@ -58,21 +58,28 @@ namespace
     std::cout << "[time-ns] " << prefix << " "
               << std::chrono::duration_cast<std::chrono::nanoseconds>(end - start).count() << "\n";
   }
+
+  void negate_int (int & r, int a) { r = -a; }
 }
 
 TEST_CASE("Testing data flow system on simple int reduction tree")
 {
-  auto add_ints = [](int& r, int a, int b) { r = a + b; };
-  auto negate_int = [](int& r, int a) { r = -a; };
-
   using namespace bpp::DF;
+
+  // A parameter type
   using IntParam = ParameterNode<int>;
+
+  // A compute type from a lambda
+  auto add_ints = [](int& r, int a, int b) { r = a + b; };
   using AddIntNode = HeterogeneousComputationNode<int, decltype(add_ints), int, int>;
-  using NegIntNode = HeterogeneousComputationNode<int, decltype(negate_int), int>;
+
+  // A compute type from a function pointer
+  using Functor = FunctionPointerWrapper<decltype (&negate_int), negate_int>;
+  using NegIntNode = HeterogeneousComputationNode<int, Functor, int>;
 
   IntParam p1(42), p2(1), p3(0), p4(3);
   AddIntNode n1(add_ints), n2(add_ints), n3(add_ints);
-  NegIntNode root(negate_int);
+  NegIntNode root(Functor{});
 
   /* Build the following DAG:
    * p1__n1__n2__root

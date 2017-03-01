@@ -44,7 +44,8 @@ knowledge of the CeCILL license and that you accept its terms.
 /**
  * @file DataFlow.h
  * Contains the node classes for a dataflow graph with cached values.
- * For now this only contains CachedValue<T>
+ *
+ * TODO explain classes interaction
  */
 
 #if !(__cplusplus >= 201103L)
@@ -56,7 +57,8 @@ knowledge of the CeCILL license and that you accept its terms.
 #include <Bpp/Phyl/DF/Cpp14.h> // IndexSequence
 #include <algorithm>           // remove
 #include <tuple>
-#include <utility> // move, forward
+#include <type_traits> // result_of
+#include <utility>     // move, forward
 #include <vector>
 
 namespace bpp
@@ -77,6 +79,7 @@ namespace bpp
      * This class is not copyable nor movable, as we will store references to it everywhere.
      * Thus all DFG classes are also non copyable nor movable.
      * TODO might change this, but maybe costly.
+     * TODO virtual func to notify dependentNodes_ on death ?
      *
      * This class contains implementation details, and should not be used directly.
      * Hence the constructor is protected.
@@ -141,6 +144,7 @@ namespace bpp
 
     /** Data flow node storing a value (interface).
      * This class is a node storing a value of type T.
+     * Constructor is still protected as we are not supposed to instance this class manually.
      *
      * Having this type is critical.
      * It allows a computation that requires an input value of type T to not care about how the value is provided.
@@ -169,6 +173,7 @@ namespace bpp
         , value_()
       {
       }
+      virtual ~ValuedNode() = default;
 
       /** Virtual function to recompute value.
        * Computation nodes will subclass it with the computation process.
@@ -243,13 +248,25 @@ namespace bpp
      * @endcode
      * With {Arg1Type, ..., ArgNType} being the types in the DependentValues list.
      * The value is modified in place, to avoid reallocations if the type is a complex type like a vector.
+     * Callable cannot be a function pointer, please wrap it into a FunctionPointerWrapper class.
      *
      * Nodes that provide the input values are called producers.
      * Their values are automatically retrieved before calling the function.
      * Producers are initialy unset, and can be set with setProducer<id>.
-     * All producers must be set before using the node (runtime error if not).
+     * All producers must be set before using the node (runtime error if not, checked by an assert).
+     * TODO check functions (are all producers set ? for debug mode with assert.
      * 
-     * TODO add examples (lambda and static wrapper).
+     * An example of use is available in the test/test_dataflow.cpp file.
+     *
+     * EBO:
+     * In most cases, compute functions will not use any data except their arguments (pure functions).
+     * Thus the functors types will have a 0 size.
+     * If the functor is an attribute, the compiler must make it 1 byte at least for reasons.
+     * This loses space, more than 1 byte due to alignment.
+     * Thus we use private inheritance, which lets the compiler make it really 0 size (empty base optimisation).
+     * The only downside is that Callable must be a class type.
+     * Function pointers are not class types, so we cannot use them.
+     * FunctionPointerWrapper allow to use function pointers and have static linking to the function.
      */
     template <typename T, typename Callable, typename... DependentValues>
     class HeterogeneousComputationNode : public ValuedNode<T>, private Callable
@@ -295,7 +312,31 @@ namespace bpp
       }
     };
 
-    // TODO add reduction
+    /** Creates a functor out of a compile time function pointer.
+     * This class is used to give a raw function pointer to the computation classes.
+     * Usage:
+     * @code{.cpp}
+     * void f (int & r, int a, int b) { r = a + b; }
+     * using AddIntFunctor = FunctionPointerWrapper<decltype (&f), f>;
+     * HeterogeneousComputationNode<int, Functor, int, int> node (AddIntFunctor {});
+     * @endcode
+     *
+     * Most of the time, we know at compile time which function should be used in a node instance.
+     * For performance it is better for the node to generate a static call instead of an indirect call.
+     * Storing a function pointer generates an indirect call.
+     * Thus we use this type which has no storage size, and allow to statically link to the given function.
+     */
+    template <typename FuncPtrType, FuncPtrType funcPtr>
+    struct FunctionPointerWrapper
+    {
+      template <typename... Args>
+      void operator()(Args&&... args)
+      {
+        static_assert(std::is_same<void, typename std::result_of<FuncPtrType(Args...)>::type>::value,
+                      "bpp::DF::FunctionPointerWrapper: function must return void");
+        funcPtr(std::forward<Args>(args)...);
+      }
+    };
   } // end namespace DF
 } // end namespace bpp
 #endif // _DATAFLOW_H_
