@@ -2,7 +2,7 @@
 // File: DataFlow.h
 // Authors:
 //   Francois Gindraud (2017)
-// Created on: mardi 21 février 2017, à 11h19
+// Created on: mardi 21 février 2017
 //
 
 /*
@@ -38,38 +38,31 @@ The fact that you are presently reading this means that you have had
 knowledge of the CeCILL license and that you accept its terms.
 */
 
-#ifndef _DATAFLOW_H_
-#define _DATAFLOW_H_
+#ifndef _DF_DATAFLOW_H_
+#define _DF_DATAFLOW_H_
 
 /**
  * @file DataFlow.h
- * Contains the node classes for a dataflow graph with cached values.
+ * Contains the basic node classes at the root of the dataflow system.
+ * These classes are mostly interfaces.
  *
- * TODO explain classes interaction
+ * Helper classes to define computation nodes easily are found in ComputationNodes.h
  */
 
 #if !(__cplusplus >= 201103L)
 #error "Bpp/Phyl/DF/DataFlow.h requires C++11 support"
 #endif
 
-#include <cassert> // TODO keep assert or exception...
-
-#include <Bpp/Phyl/DF/Cpp14.h> // IndexSequence
-#include <algorithm>           // remove
-#include <array>               // used for compute assert only !
-#include <tuple>
-#include <type_traits> // result_of
-#include <utility>     // move, forward
+#include <algorithm> // remove
+#include <cassert>
+#include <utility> // move, forward
 #include <vector>
 
 namespace bpp
 {
-  /// namespace for data flow graph (DFG) related classes
+  /// namespace for data flow graph (DFG) related classes.
   namespace DF
   {
-    using bpp::Cpp14::IndexSequence;
-    using bpp::Cpp14::IndexSequenceFor;
-
     /** Data flow graph base class.
      * This class is inherited by all data flow nodes.
      * It represents (and stores data needed by) the graph of invalidations.
@@ -87,6 +80,8 @@ namespace bpp
      * However some of the API has to be public (registering)...
      *
      * This base class makes invalidation indendent on types, and 100% non virtual.
+     * The API of this class should not be called by anything else than other DF classes.
+     * However it cannot be private or protected as many DF classes rely on them.
      */
     class InvalidableNode
     {
@@ -96,6 +91,26 @@ namespace bpp
 
     protected:
       void makeValid(void) { valid_ = true; }
+
+      /// Protected constructor.
+      InvalidableNode(bool initialState)
+        : valid_(initialState)
+      {
+      }
+
+    public:
+      // Non copyable nor movable
+      InvalidableNode(const InvalidableNode&) = delete;
+      InvalidableNode(InvalidableNode&&) = delete;
+      InvalidableNode& operator=(const InvalidableNode&) = delete;
+      InvalidableNode& operator=(InvalidableNode&&) = delete;
+      ~InvalidableNode() = default;
+
+      /* Other nodes should not have to query the flag directly.
+       * They should just use getValue from ValuedNode<T> and let the class manage the rest.
+       * However, it does not hurt to let this public, and it is useful for testing (internal info).
+       */
+      bool isValid(void) const { return valid_; }
 
       /** Recursively invalidate nodes.
        * Does nothing if already invalid, as its dependent nodes will already be invalid too.
@@ -110,36 +125,18 @@ namespace bpp
         }
       }
 
-      /// Protected constructor.
-      InvalidableNode(bool initialState)
-        : valid_(initialState)
-      {
-      }
-
-    public:
-      /* Other nodes should not have to query the flag directly.
-       * They should just use getValue from ValuedNode<T> and let the class manage the rest.
-       * However, it does not hurt to let this public, and it is useful for testing (internal info).
-       */
-      bool isValid(void) const { return valid_; }
-
-      // Non copyable nor movable
-      InvalidableNode(const InvalidableNode&) = delete;
-      InvalidableNode(InvalidableNode&&) = delete;
-      InvalidableNode& operator=(const InvalidableNode&) = delete;
-      InvalidableNode& operator=(InvalidableNode&&) = delete;
-      ~InvalidableNode() = default;
-
       /** Adds node to the list of dependent nodes.
        * No duplicate checks performed.
        */
-      void registerDependent(InvalidableNode* node) { dependentNodes_.emplace_back(node); }
+      void registerDependent(InvalidableNode& node) { dependentNodes_.emplace_back(&node); }
+
       /** Removes node from list of dependent nodes.
        * Only one instance will be removed if duplicates.
        */
-      void unregisterDependent(InvalidableNode* node)
+      void unregisterDependent(InvalidableNode& node)
       {
-        dependentNodes_.erase(std::remove(dependentNodes_.begin(), dependentNodes_.end(), node), dependentNodes_.end());
+        dependentNodes_.erase(std::remove(dependentNodes_.begin(), dependentNodes_.end(), &node),
+                              dependentNodes_.end());
       }
     };
 
@@ -147,9 +144,12 @@ namespace bpp
      * This class is a node storing a value of type T.
      * Constructor is still protected as we are not supposed to instance this class manually.
      *
-     * Having this type is critical.
+     * This class provides an interface used by all node subclasses with a value.
      * It allows a computation that requires an input value of type T to not care about how the value is provided.
      * I.e., there is no difference in interface between getValue on a parameter and a computation.
+     *
+     * The only indirection we need is on how to compute the value (hence the virtual compute).
+     * No other function is required to be virtual in order for the data flow system to work.
      */
     template <typename T>
     class ValuedNode : public InvalidableNode
@@ -201,6 +201,97 @@ namespace bpp
       }
     };
 
+    /** This class represent a consumer of a type T value generated in a ValuedNode<T>.
+     * It should be used by computation nodes to represent a dependence to a value node.
+     * It basically wraps a pointer to a ValuedNode<T> with a nice interface.
+     * In descriptions, owner node refers to the computation node that stores and uses this dependency.
+     *
+     * For memory size concerns, it only stores a pointer to the producer node, and not to the owner node.
+     * When (dis)connecting, it needs to register/unregister the owner node.
+     * Thus the current class cannot perform (dis)connection operations by itself.
+     * Instead, this class is used for storage (small) in computation nodes.
+     * To perform a (dis)connection, the owner class should create a temporary DependencyConnector from this class.
+     * A DependencyConnector just bundles both Dependency and owner node pointer.
+     */
+    template <typename T>
+    class Dependency
+    {
+    private:
+      ValuedNode<T>* producer_{nullptr};
+      friend class DependencyConnector; // Allow the small connector subclass to modify the producer_.
+
+    public:
+      Dependency() = default;
+      /** On destruction check that we have been disconnected properly.
+       * A dependency cannot disconnect itself, as it does not store which node owns it.
+       * Owner nodes must disconnect all dependencies in their destructors.
+       * An assert checks that a Dependency has been disconnected before destruction in debug mode.
+       */
+      ~Dependency() { assert(!isConnected()); }
+
+      bool isConnected(void) const { return producer_ != nullptr; }
+
+      /// Get the value from the producer node linked to this dependency (check it exists).
+      const T& getValue(void)
+      {
+        assert(isConnected());
+        return producer_->getValue();
+      }
+
+      /** Little temporary class to allow connection operations.
+       * Instances of this class should be built by owner nodes and returned to allow users to manage connections.
+       * This class stores a reference to the owner node and to the dependency, so we can connect/disconnect.
+       * It can be copied but this should not be stored...
+       */
+      class DependencyConnector
+      {
+      private:
+        Dependency& dep_;
+        InvalidableNode& ownerNode_;
+
+      public:
+        DependencyConnector(Dependency& dep, InvalidableNode& ownerNode)
+          : dep_(dep)
+          , ownerNode_(ownerNode)
+        {
+        }
+
+        /// Check if we are connected.
+        bool isConnected (void) const { return dep_.isConnected (); }
+
+        /// Connects, clears any previous connection.
+        void connect(ValuedNode<T>& producer)
+        {
+          disconnect();
+          dep_.producer_ = &producer;
+          dep_.producer_->registerDependent(ownerNode_);
+        }
+
+        /// Pointer overload of connect
+        void connect(ValuedNode<T>* producer)
+        {
+          assert(producer != nullptr);
+          connect(*producer);
+        }
+
+        /// Disconnect, returns true if it was connected, and invalidates its owner node.
+        bool disconnect(void)
+        {
+          if (isConnected())
+          {
+            dep_.producer_->unregisterDependent(ownerNode_);
+            dep_.producer_ = nullptr;
+            ownerNode_.invalidate(); // Node value is now out of date
+            return true;
+          }
+          return false;
+        }
+      };
+
+      /// Builds a DependencyConnector by packing the current dependency and the owner node.
+      DependencyConnector buildConnector(InvalidableNode& ownerNode) { return {*this, ownerNode}; }
+    };
+
     /** Node storing a parameter.
      * Leaf of the data flow dag.
      * A parameter is valid as long as it has been initialized.
@@ -235,118 +326,6 @@ namespace bpp
         InvalidableNode::makeValid();
       }
     };
-
-    /** Heterogeneous computation node.
-     * Performs a computation with a fixed set of arguments of possibly different types.
-     * This class wraps a function in a node type ready to be used.
-     *
-     * DependentValues... represent the list of types of arguments used in the computation.
-     * Callable must be a functor type (either manual, or a lambda).
-     * (functor type is a type with an operator()(Args...) method).
-     * The Callable function must have the following prototype:
-     * @code{.cpp}
-     * void func (ResultType & result, const Arg1Type & arg1, ..., const ArgNType & argN);
-     * @endcode
-     * With {Arg1Type, ..., ArgNType} being the types in the DependentValues list.
-     * The value is modified in place, to avoid reallocations if the type is a complex type like a vector.
-     * Callable cannot be a function pointer, please wrap it into a FunctionPointerWrapper class.
-     *
-     * Nodes that provide the input values are called producers.
-     * Their values are automatically retrieved before calling the function.
-     * Producers are initialy unset, and can be set with setProducer<id>.
-     * All producers must be set before using the node (runtime error if not, checked by an assert).
-     * 
-     * An example of use is available in the test/test_dataflow.cpp file.
-     *
-     * EBO:
-     * In most cases, compute functions will not use any data except their arguments (pure functions).
-     * Thus the functors types will have a 0 size.
-     * If the functor is an attribute, the compiler must make it 1 byte at least for reasons.
-     * This loses space, more than 1 byte due to alignment.
-     * Thus we use private inheritance, which lets the compiler make it really 0 size (empty base optimisation).
-     * The only downside is that Callable must be a class type.
-     * Function pointers are not class types, so we cannot use them.
-     * FunctionPointerWrapper allow to use function pointers and have static linking to the function.
-     */
-    template <typename T, typename Callable, typename... DependentValues>
-    class HeterogeneousComputationNode : public ValuedNode<T>, private Callable
-    {
-    private:
-      /// Pointer to producers.
-      std::tuple<ValuedNode<DependentValues>*...> dependencies_;
-
-      /* Helper function: only useful to unpack the index sequence.
-       * Unpacking the sequence is needed to apply std::get to the tuple an call get_value on each producer.
-       * For more information, see cppreference std::tuple and std::integer_sequence pages.
-       */
-      template <std::size_t... Is>
-      void computeHelper(IndexSequence<Is...>)
-      {
-        assert(checkAllProducersAreDefined<Is...>());
-        // Forward call to functor
-        Callable::operator()(ValuedNode<T>::value_, std::get<Is>(dependencies_)->getValue()...);
-      }
-      void compute(void) override final { computeHelper(IndexSequenceFor<DependentValues...>()); }
-
-      // Returns true if all producers are set
-      template <std::size_t... Is>
-      bool checkAllProducersAreDefined(void) const
-      {
-        std::array<bool, sizeof...(Is)> are_not_null = {(std::get<Is>(dependencies_) != nullptr)...};
-        return std::all_of(are_not_null.begin(), are_not_null.end(), [](bool b) { return b; });
-      }
-
-    public:
-      /** Constructor.
-       * A value of the callable must be provided first.
-       * This is required for lambdas as they have no default constructor.
-       * The value is also initialized using the remaining arguments (but set to invalid to trigger the first computation).
-       * This initialization is useful for vector, to set their initial working size.
-       */
-      template <typename C, typename... Args>
-      HeterogeneousComputationNode(C&& c, Args&&... args)
-        : ValuedNode<T>(false, std::forward<Args>(args)...)
-        , Callable(std::forward<C>(c))
-      {
-      }
-
-      /** Set the Index-th producer.
-       */
-      template <std::size_t Index>
-      void setProducer(const typename std::tuple_element<Index, decltype(dependencies_)>::type& producer)
-      {
-        auto& dep = std::get<Index>(dependencies_);
-        assert(dep == nullptr); // for now, no modification of the computation is allowed
-        dep = producer;
-        producer->registerDependent(this);
-      }
-    };
-
-    /** Creates a functor out of a compile time function pointer.
-     * This class is used to give a raw function pointer to the computation classes.
-     * Usage:
-     * @code{.cpp}
-     * void f (int & r, int a, int b) { r = a + b; }
-     * using AddIntFunctor = FunctionPointerWrapper<decltype (&f), f>;
-     * HeterogeneousComputationNode<int, Functor, int, int> node (AddIntFunctor {});
-     * @endcode
-     *
-     * Most of the time, we know at compile time which function should be used in a node instance.
-     * For performance it is better for the node to generate a static call instead of an indirect call.
-     * Storing a function pointer generates an indirect call.
-     * Thus we use this type which has no storage size, and allow to statically link to the given function.
-     */
-    template <typename FuncPtrType, FuncPtrType funcPtr>
-    struct FunctionPointerWrapper
-    {
-      template <typename... Args>
-      void operator()(Args&&... args)
-      {
-        static_assert(std::is_same<void, typename std::result_of<FuncPtrType(Args...)>::type>::value,
-                      "bpp::DF::FunctionPointerWrapper: function must return void");
-        funcPtr(std::forward<Args>(args)...);
-      }
-    };
   } // end namespace DF
 } // end namespace bpp
-#endif // _DATAFLOW_H_
+#endif // _DF_DATAFLOW_H_

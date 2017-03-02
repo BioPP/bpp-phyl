@@ -38,6 +38,7 @@ The fact that you are presently reading this means that you have had
 knowledge of the CeCILL license and that you accept its terms.
 */
 
+#include <Bpp/Phyl/DF/ComputationNodes.h>
 #include <Bpp/Phyl/DF/Cpp14.h>
 #include <Bpp/Phyl/DF/DataFlow.h>
 #include <chrono>
@@ -59,7 +60,7 @@ namespace
               << std::chrono::duration_cast<std::chrono::nanoseconds>(end - start).count() << "\n";
   }
 
-  void negate_int (int & r, int a) { r = -a; }
+  void negate_int(int& r, int a) { r = -a; }
 }
 
 TEST_CASE("Testing data flow system on simple int reduction tree")
@@ -74,7 +75,7 @@ TEST_CASE("Testing data flow system on simple int reduction tree")
   using AddIntNode = HeterogeneousComputationNode<int, decltype(add_ints), int, int>;
 
   // A compute type from a function pointer
-  using Functor = FunctionPointerWrapper<decltype (&negate_int), negate_int>;
+  using Functor = FunctionPointerWrapper<decltype(&negate_int), negate_int>;
   using NegIntNode = HeterogeneousComputationNode<int, Functor, int>;
 
   IntParam p1(42), p2(1), p3(0), p4(3);
@@ -87,13 +88,13 @@ TEST_CASE("Testing data flow system on simple int reduction tree")
    * p3____/__n3
    * p4______/
    */
-  n1.setProducer<0>(&p1);
-  n1.setProducer<1>(&p2);
-  n2.setProducer<0>(&n1);
-  n2.setProducer<1>(&p3);
-  root.setProducer<0>(&n2);
-  n3.setProducer<0>(&p3);
-  n3.setProducer<1>(&p4);
+  n1.dependency<0>().connect(p1);
+  n1.dependency<1>().connect(p2);
+  n2.dependency<0>().connect(n1);
+  n2.dependency<1>().connect(p3);
+  root.dependency<0>().connect(n2);
+  n3.dependency<0>().connect(p3);
+  n3.dependency<1>().connect(p4);
 
   // Initial state
   CHECK(p1.isValid());
