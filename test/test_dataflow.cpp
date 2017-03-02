@@ -59,8 +59,6 @@ namespace
     std::cout << "[time-ns] " << prefix << " "
               << std::chrono::duration_cast<std::chrono::nanoseconds>(end - start).count() << "\n";
   }
-
-  void negate_int(int& r, int a) { r = -a; }
 }
 
 TEST_CASE("Testing data flow system on simple int reduction tree")
@@ -70,17 +68,27 @@ TEST_CASE("Testing data flow system on simple int reduction tree")
   // A parameter type
   using IntParam = ParameterNode<int>;
 
-  // A compute type from a lambda
-  auto add_ints = [](int& r, int a, int b) { r = a + b; };
-  using AddIntNode = HeterogeneousComputationNode<int, decltype(add_ints), int, int>;
+  // Define operations structs
+  struct AddIntOp
+  {
+    using ResultType = int;
+    using ArgumentTypes = std::tuple<int, int>;
+    static void compute(int& r, int a, int b) { r = a + b; }
+  };
+  struct NegIntOp
+  {
+    using ResultType = int;
+    using ArgumentTypes = std::tuple<int>;
+    static void compute(int& r, int a) { r = -a; }
+  };
 
-  // A compute type from a function pointer
-  using Functor = FunctionPointerWrapper<decltype(&negate_int), negate_int>;
-  using NegIntNode = HeterogeneousComputationNode<int, Functor, int>;
+  // Create nodes out of them
+  using AddIntNode = HeterogeneousComputationNode<AddIntOp>;
+  using NegIntNode = HeterogeneousComputationNode<NegIntOp>;
 
   IntParam p1(42), p2(1), p3(0), p4(3);
-  AddIntNode n1(add_ints), n2(add_ints), n3(add_ints);
-  NegIntNode root(Functor{});
+  AddIntNode n1, n2, n3;
+  NegIntNode root;
 
   /* Build the following DAG:
    * p1__n1__n2__root

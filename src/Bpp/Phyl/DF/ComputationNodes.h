@@ -70,92 +70,76 @@ namespace bpp
   namespace DF
   {
     using bpp::Cpp14::IndexSequence;
-    using bpp::Cpp14::IndexSequenceFor;
+    using bpp::Cpp14::MakeIndexSequence;
 
     /** Heterogeneous computation node.
-     * Performs a computation with a fixed set of arguments of possibly different types.
-     * This class wraps a function in a node type ready to be used.
-     *
-     * ArgumentTypes... represent the list of types of arguments used in the computation.
-     * Callable must be a functor type (either manual, or a lambda).
-     * (functor type is a type with an operator()(Args...) method).
-     * The Callable function must have the following prototype:
+     * Performs a computation with a fixed set of arguments of heterogeneous types.
+     * The computation itself must be encoded as s struct defining multiple elements:
      * @code{.cpp}
-     * void func (ResultType & result, const Arg1Type & arg1, ..., const ArgNType & argN);
+     * struct ComputationStruct {
+     *    using ResultType = ...; // return type of the computation
+     *    using ArgumentTypes = std::tuple<Arg1Type, ..., ArgNType>; // list of types of the arguments (in order)
+     *    // Computation function
+     *    static void compute (ResultType & result, const Arg1Type & arg1, ..., const ArgNType & argN);
+     * };
      * @endcode
-     * With {Arg1Type, ..., ArgNType} being the types in the ArgumentTypes list.
-     * The value is modified in place, to avoid reallocations if the type is a complex type like a vector.
-     * Callable cannot be a function pointer, please wrap it into a FunctionPointerWrapper class.
      *
-     * Each argument generates a dependency (something requesting a value).
-     * All dependencies must be connected to producer nodes before we can compute the current node.
-     * During computation, arguments values will be retrieved from the producers nodes by following the dependencies.
+     * For each argument type given, the node class will define a Dependency class instance.
+     * This class represents an input to the computation.
+     * Each dependency (Dependency class instance) must be connected to a ValuedNode of the matching type.
+     * When computing our own value, values of the dependent nodes will be computed and then fed to the compute function.
+     *
+     * A computation attempt while some dependencies are not connected is a runtime error.
      * dependency<N> () returns a DependencyConnector object that can be used to connect/disconnect the N-th dependency.
      * 
      * An example of use is available in the test/test_dataflow.cpp file.
-     *
-     * EBO:
-     * In most cases, compute functions will not use any data except their arguments (pure functions).
-     * Thus the functors types will have a 0 size.
-     * If the functor is an attribute, the compiler must make it 1 byte at least for reasons.
-     * This loses space, more than 1 byte due to alignment.
-     * Thus we use private inheritance, which lets the compiler make it really 0 size (empty base optimisation).
-     * The only downside is that Callable must be a class type.
-     * Function pointers are not class types, so we cannot use them.
-     * FunctionPointerWrapper allow to use function pointers and have static linking to the function.
      */
-    template <typename T, typename Callable, typename... ArgumentTypes>
-    class HeterogeneousComputationNode : public ValuedNode<T>, private Callable
+    template <typename ComputationOp>
+    class HeterogeneousComputationNode : public ValuedNode<typename ComputationOp::ResultType>
     {
     private:
-      /// List of dependencies to nodes
-      std::tuple<Dependency<ArgumentTypes>...> dependencies_;
+      // This struct is used to generate a std::tuple<Dependency<Arg1Type>, ..., std::tuple<Dependency<ArgNType>>
+      template <typename T>
+      struct MakeDependencyTuple;
+      template <typename... ArgumentTypes>
+      struct MakeDependencyTuple<std::tuple<ArgumentTypes...>>
+      {
+        using Type = std::tuple<Dependency<ArgumentTypes>...>;
+      };
+      /// Generated type of a tuple containing Dependency<Arg> structs for each argument type in order.
+      using DependencyTupleType = typename MakeDependencyTuple<typename ComputationOp::ArgumentTypes>::Type;
 
     public:
+      using ResultType = typename ComputationOp::ResultType;
+
       /// Gives the type of the N-th dependency.
       template <std::size_t Index>
-      using DependencyType = typename std::tuple_element<Index, decltype(dependencies_)>::type;
+      using DependencyType = typename std::tuple_element<Index, DependencyTupleType>::type;
 
     private:
-      /* Helper function: only useful to unpack the index sequence.
-       * Unpacking the sequence is needed to apply std::get to the tuple an call getValue on each dependency.
-       * For more information, see cppreference std::tuple and std::integer_sequence pages.
-       */
-      template <std::size_t... Is>
-      void computeWithUnpackedIndexSequence(IndexSequence<Is...>)
-      {
-        // Forward call to functor
-        Callable::operator()(ValuedNode<T>::value_, std::get<Is>(dependencies_).getValue()...);
-      }
-      void compute(void) override final { computeWithUnpackedIndexSequence(IndexSequenceFor<ArgumentTypes...>{}); }
-
-      // Helper function for destructor
-      template <std::size_t... Is>
-      void destructorWithUnpackedIndexSequence(IndexSequence<Is...>)
-      {
-        // Awful trick to force calling disconnect on all elements of the tuple.
-        // Only a few context allow a parameter pack expansion, and struct initializer list are one of them.
-        (void)std::initializer_list<bool>{dependency<Is>().disconnect()...};
-      }
+      /// Static heterogeneous list of dependencies.
+      DependencyTupleType dependencies_;
 
     public:
       /** Constructor.
-       * A value of the callable must be provided first.
-       * This is required for lambdas as they have no default constructor.
-       * The value is also initialized using the remaining arguments (but set to invalid to trigger the first computation).
-       * This initialization is useful for complex types (like T = std::vector<...>), to set their initial working size.
+       * The stored value is initialized using the given arguments (forwarded to ResultType constructor).
+       * This initialization step is useful for complex types like std::vector<...>.
+       * Using this, they can be allocated only once to their working size instead of every computation.
        */
-      template <typename C, typename... Args>
-      HeterogeneousComputationNode(C&& c, Args&&... args)
-        : ValuedNode<T>(false, std::forward<Args>(args)...)
-        , Callable(std::forward<C>(c))
+      template <typename... Args>
+      HeterogeneousComputationNode(Args&&... args)
+        : ValuedNode<ResultType>(false, std::forward<Args>(args)...)
       {
       }
 
       /** Destructor.
-       * Disconnects all dependences.
+       * Disconnects all dependences, as required by the Dependency class.
+       * Use a helper function to unpack the tuple (see std::index_sequence).
        */
-      ~HeterogeneousComputationNode() { destructorWithUnpackedIndexSequence(IndexSequenceFor<ArgumentTypes...>{}); }
+      ~HeterogeneousComputationNode() { destructorWithUnpackedIndexSequence(MakeIndexSequence<nbDependencies()>{}); }
+
+      /// Get number of dependencies (static function).
+      static constexpr std::size_t nbDependencies(void) { return std::tuple_size<DependencyTupleType>::value; }
 
       /** Gets DependencyConnector object linked to the n-th dependency object.
        * This object allows to connect() or disconnect() to any ValuedNode<T>.
@@ -168,8 +152,31 @@ namespace bpp
         return std::get<Index>(dependencies_).buildConnector(*this);
       }
 
-      /// Get number of dependencies (static function).
-      static constexpr std::size_t nbDependencies(void) { return sizeof...(ArgumentTypes); }
+    private:
+      /* Helper function: only useful to unpack the index sequence.
+       * Unpacking the sequence is needed to apply std::get to the tuple an call getValue on each dependency.
+       * For more information, see cppreference std::tuple and std::integer_sequence pages.
+       */
+      template <std::size_t... Is>
+      void computeWithUnpackedIndexSequence(IndexSequence<Is...>)
+      {
+        ComputationOp::compute(ValuedNode<ResultType>::value_, std::get<Is>(dependencies_).getValue()...);
+      }
+
+      /** Compute implementation.
+       * Apply the compute function on values retrieved from dependent nodes.
+       * Use a helper function to unpack the tuple (see std::index_sequence).
+       */
+      void compute(void) override final { computeWithUnpackedIndexSequence(MakeIndexSequence<nbDependencies()>{}); }
+
+      // Helper function for destructor
+      template <std::size_t... Is>
+      void destructorWithUnpackedIndexSequence(IndexSequence<Is...>)
+      {
+        // Awful trick to force calling disconnect on all elements of the tuple.
+        // Only a few context allow a parameter pack expansion, and struct initializer list are one of them.
+        (void)std::initializer_list<bool>{dependency<Is>().disconnect()...};
+      }
     };
 
     /** Perform a reduction with an arbitrary number of elements.
@@ -196,23 +203,31 @@ namespace bpp
       using ArgumentType = typename ResultType::ArgumentType;
 
     private:
+      /// Dynamic list of dependencies.
       std::vector<Dependency<ArgumentType>> dependencies_;
-      using ValuedNode<ResultType>::value_;
-
-      void compute(void) override final
-      {
-        ReductionOp::reset(value_);
-        for (auto& dep : dependencies_)
-          ReductionOp::reduce(value_, dep.getValue());
-      }
 
     public:
-      /// Dependencies manual disconnect.
+      /** Constructor.
+       * The stored value is initialized using the given arguments (forwarded to ResultType constructor).
+       * This initialization step is useful for complex types like std::vector<...>.
+       * Using this, they can be allocated only once to their working size instead of every computation.
+       */
+      template <typename... Args>
+      ReductionComputationNode(Args&&... args)
+        : ValuedNode<ResultType>(false, std::forward<Args>(args)...)
+      {
+      }
+
+      /** Destructor.
+       * Disconnects all dependences, as required by the Dependency class.
+       */
       ~ReductionComputationNode()
       {
         for (auto& dep : dependencies_)
           dep.buildConnector(*this).disconnect();
       }
+
+      std::size_t nbDependencies(void) const { return dependencies_.size(); }
 
       void addDependencyTo(ValuedNode<ArgumentType>& producer)
       {
@@ -222,32 +237,15 @@ namespace bpp
 
       // TODO removal and other manipulation tools
 
-      std::size_t nbDependencies(void) const { return dependencies_.size(); }
-    };
+    private:
+      using ValuedNode<ResultType>::value_;
 
-    /** Creates a functor out of a compile time function pointer.
-     * This class is used to give a raw function pointer to the computation classes.
-     * Usage:
-     * @code{.cpp}
-     * void f (int & r, int a, int b) { r = a + b; }
-     * using AddIntFunctor = FunctionPointerWrapper<decltype (&f), f>;
-     * HeterogeneousComputationNode<int, Functor, int, int> node (AddIntFunctor {});
-     * @endcode
-     *
-     * Most of the time, we know at compile time which function should be used in a node instance.
-     * For performance it is better for the node to generate a static call instead of an indirect call.
-     * Storing a function pointer generates an indirect call.
-     * Thus we use this type which has no storage size, and allow to statically link to the given function.
-     */
-    template <typename FuncPtrType, FuncPtrType funcPtr>
-    struct FunctionPointerWrapper
-    {
-      template <typename... Args>
-      void operator()(Args&&... args)
+      /// Compute implementation; applies reduce iteratively for each dependency.
+      void compute(void) override final
       {
-        static_assert(std::is_same<void, typename std::result_of<FuncPtrType(Args...)>::type>::value,
-                      "bpp::DF::FunctionPointerWrapper: function must return void");
-        funcPtr(std::forward<Args>(args)...);
+        ReductionOp::reset(value_);
+        for (auto& dep : dependencies_)
+          ReductionOp::reduce(value_, dep.getValue());
       }
     };
   } // end namespace DF
