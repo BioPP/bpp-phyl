@@ -212,6 +212,9 @@ namespace bpp
      * Instead, this class is used for storage (small) in computation nodes.
      * To perform a (dis)connection, the owner class should create a temporary DependencyConnector from this class.
      * A DependencyConnector just bundles both Dependency and owner node pointer.
+     *
+     * This class cannot be copied: no meaningful semantics, risk of triggering the destructor assert.
+     * It can however be moved (as long as it keeps the same owner, which cannot be checked).
      */
     template <typename T>
     class Dependency
@@ -228,6 +231,19 @@ namespace bpp
        * An assert checks that a Dependency has been disconnected before destruction in debug mode.
        */
       ~Dependency() { assert(!isConnected()); }
+
+      Dependency(const Dependency&) = delete;
+      Dependency& operator=(const Dependency&) = delete;
+      Dependency(Dependency&& other)
+        : producer_(other.producer_)
+      {
+        other.producer_ = nullptr;
+      }
+      Dependency& operator=(Dependency&& other)
+      {
+        producer_ = other.producer_;
+        other.producer_ = nullptr;
+      }
 
       bool isConnected(void) const { return producer_ != nullptr; }
 
@@ -257,7 +273,7 @@ namespace bpp
         }
 
         /// Check if we are connected.
-        bool isConnected (void) const { return dep_.isConnected (); }
+        bool isConnected(void) const { return dep_.isConnected(); }
 
         /// Connects, clears any previous connection.
         void connect(ValuedNode<T>& producer)

@@ -59,6 +59,7 @@ knowledge of the CeCILL license and that you accept its terms.
 #include <Bpp/Phyl/DF/DataFlow.h>
 #include <algorithm> // all_of
 #include <cassert>
+#include <initializer_list> // foreach on tuple trick
 #include <tuple>
 #include <type_traits> // result_of
 #include <utility>     // move, forward
@@ -134,8 +135,7 @@ namespace bpp
       {
         // Awful trick to force calling disconnect on all elements of the tuple.
         // Only a few context allow a parameter pack expansion, and struct initializer list are one of them.
-        bool dummy[sizeof...(Is)] = {dependency<Is>().disconnect()...};
-        (void)dummy; // Prevent unused variable warning
+        (void)std::initializer_list<bool>{dependency<Is>().disconnect()...};
       }
 
     public:
@@ -168,8 +168,61 @@ namespace bpp
         return std::get<Index>(dependencies_).buildConnector(*this);
       }
 
-      /// Get number of producers (static function).
-      static constexpr std::size_t nbProducers(void) { return sizeof...(ArgumentTypes); }
+      /// Get number of dependencies (static function).
+      static constexpr std::size_t nbDependencies(void) { return sizeof...(ArgumentTypes); }
+    };
+
+    /** Perform a reduction with an arbitrary number of elements.
+     * Each element is represented by a dependency.
+     * Contrary to HeterogeneousComputationNode, every dependency of this class must be connected.
+     * Thus removing an element from the computation is equivalent to removing the dependency completely.
+     *
+     * The reduction operation is defined by implementing a specific struct that defines how to perform the reduction.
+     * Any reduction defining struct must have the following elements:
+     * @code{.cpp}
+     * struct MyReduction {
+     *   using ResultType = ...; // the type of the result
+     *   using ArgumentType = ...; // the type of the arguments
+     *   static void reset (ResultType &); // a function that resets the storage
+     *   static void reduce (ResultType & accumulator, const ArgumentType & arg); // one step of the reduction
+     * };
+     * @endcode
+     */
+    template <typename ReductionOp>
+    class ReductionComputationNode : public ValuedNode<typename ReductionOp::ResultType>
+    {
+    public:
+      using ResultType = typename ReductionOp::ResultType;
+      using ArgumentType = typename ResultType::ArgumentType;
+
+    private:
+      std::vector<Dependency<ArgumentType>> dependencies_;
+      using ValuedNode<ResultType>::value_;
+
+      void compute(void) override final
+      {
+        ReductionOp::reset(value_);
+        for (auto& dep : dependencies_)
+          ReductionOp::reduce(value_, dep.getValue());
+      }
+
+    public:
+      /// Dependencies manual disconnect.
+      ~ReductionComputationNode()
+      {
+        for (auto& dep : dependencies_)
+          dep.buildConnector(*this).disconnect();
+      }
+
+      void addDependencyTo(ValuedNode<ArgumentType>& producer)
+      {
+        dependencies_.emplace_back();
+        dependencies_.back().buildConnector(*this).connect(producer);
+      }
+
+      // TODO removal and other manipulation tools
+
+      std::size_t nbDependencies(void) const { return dependencies_.size(); }
     };
 
     /** Creates a functor out of a compile time function pointer.
