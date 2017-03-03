@@ -74,7 +74,7 @@ namespace bpp
 
     /** Heterogeneous computation node.
      * Performs a computation with a fixed set of arguments of heterogeneous types.
-     * The computation itself must be encoded as s struct defining multiple elements:
+     * The computation itself must be encoded as a struct defining multiple elements:
      * @code{.cpp}
      * struct ComputationStruct {
      *    using ResultType = ...; // return type of the computation
@@ -106,7 +106,13 @@ namespace bpp
       {
         using Type = std::tuple<Dependency<ArgumentTypes>...>;
       };
-      /// Generated type of a tuple containing Dependency<Arg> structs for each argument type in order.
+      /** Generated type of the dependency tuple.
+       * Due to the heterogeneous computation, we must use a tuple to store the dependencies.
+       * This tuple is defined from arguments types in ComputationOp and looks like:
+       * @code{.cpp}
+       * std::tuple<Dependency<Arg1Type>, ..., Dependency<ArgNType>>
+       * @endcode
+       */
       using DependencyTupleType = typename MakeDependencyTuple<typename ComputationOp::ArgumentTypes>::Type;
 
     public:
