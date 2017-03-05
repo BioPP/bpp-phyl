@@ -49,18 +49,6 @@ knowledge of the CeCILL license and that you accept its terms.
 
 using bpp::Cpp14::make_unique;
 
-namespace
-{
-  using TimePoint = typename std::chrono::high_resolution_clock::time_point;
-  TimePoint timingStart(void) { return std::chrono::high_resolution_clock::now(); }
-  void timingEnd(TimePoint start, const std::string& prefix)
-  {
-    auto end = timingStart(); // ill named, just to get now()
-    std::cout << "[time-ns] " << prefix << " "
-              << std::chrono::duration_cast<std::chrono::nanoseconds>(end - start).count() << "\n";
-  }
-}
-
 TEST_CASE("Testing data flow system on simple int reduction tree")
 {
   using namespace bpp::DF;

@@ -142,7 +142,10 @@ namespace bpp
        * Disconnects all dependences, as required by the Dependency class.
        * Use a helper function to unpack the tuple (see std::index_sequence).
        */
-      ~HeterogeneousComputationNode() { destructorWithUnpackedIndexSequence(MakeIndexSequence<nbDependencies()>{}); }
+      ~HeterogeneousComputationNode() override
+      {
+        destructorWithUnpackedIndexSequence(MakeIndexSequence<nbDependencies()>{});
+      }
 
       /// Get number of dependencies (static function).
       static constexpr std::size_t nbDependencies(void) { return std::tuple_size<DependencyTupleType>::value; }
@@ -159,29 +162,41 @@ namespace bpp
       }
 
     private:
-      /* Helper function: only useful to unpack the index sequence.
-       * Unpacking the sequence is needed to apply std::get to the tuple an call getValue on each dependency.
+      /* This part contains multiple helper functions dedicated to applying an operation to each tuple element.
+       * The usual method is to generate a variadic parameter pack with integers from 0 to size of tuple - 1.
+       * Then using this sequence to call std::get on each element.
+       * The helper functions provide a context where we can deduce and unpack the parameter pack.
        * For more information, see cppreference std::tuple and std::integer_sequence pages.
        */
-      template <std::size_t... Is>
-      void computeWithUnpackedIndexSequence(IndexSequence<Is...>)
-      {
-        ComputationOp::compute(ValuedNode<ResultType>::value_, std::get<Is>(dependencies_).getValue()...);
-      }
-
-      /** Compute implementation.
-       * Apply the compute function on values retrieved from dependent nodes.
-       * Use a helper function to unpack the tuple (see std::index_sequence).
-       */
-      void compute(void) override final { computeWithUnpackedIndexSequence(MakeIndexSequence<nbDependencies()>{}); }
-
-      // Helper function for destructor
       template <std::size_t... Is>
       void destructorWithUnpackedIndexSequence(IndexSequence<Is...>)
       {
         // Awful trick to force calling disconnect on all elements of the tuple.
         // Only a few context allow a parameter pack expansion, and struct initializer list are one of them.
         (void)std::initializer_list<bool>{dependency<Is>().disconnect()...};
+      }
+      template <std::size_t... Is>
+      void computeWithUnpackedIndexSequence(IndexSequence<Is...>)
+      {
+        ComputationOp::compute(ValuedNode<ResultType>::value_, std::get<Is>(dependencies_).getValue()...);
+      }
+      template <std::size_t... Is>
+      void dependencyWasDestroyedWithUnpackedIndexSequence(const InvalidableNode* node, IndexSequence<Is...>)
+      {
+        (void)std::initializer_list<bool>{(std::get<Is>(dependencies_).clearIfMatching(node))...};
+      }
+
+      /** Compute implementation.
+       * Apply the compute function on values retrieved from dependent nodes.
+       */
+      void compute(void) override final { computeWithUnpackedIndexSequence(MakeIndexSequence<nbDependencies()>{}); }
+
+      /** Cleaning dependencies to destroyed nodes.
+       * Test each dependency, and clear it if it matches.
+       */
+      void dependencyWasDestroyed(const InvalidableNode* node) override final
+      {
+        dependencyWasDestroyedWithUnpackedIndexSequence(node, MakeIndexSequence<nbDependencies()>{});
       }
     };
 
@@ -230,15 +245,49 @@ namespace bpp
       ~ReductionComputationNode()
       {
         for (auto& dep : dependencies_)
-          dep.buildConnector(*this).disconnect();
+          dep.disconnect(*this);
       }
 
+      /* TODO Find a better way to handle that.
+       * To have the "all deps are connected at all time" property:
+       * - we need to connect them on creation
+       * - and disconnect them on any possible deletion
+       * This leads to code that could be nicer...
+       */
       std::size_t nbDependencies(void) const { return dependencies_.size(); }
+
+      typename Dependency<ArgumentType>::DependencyConnector dependency(std::size_t i)
+      {
+        // Warning, users can disconnect them...
+        // Return a raw const Dependency<> &, to prevent that ?
+        // Is this function useful ?
+        return dependencies_.at(i).buildConnector(*this);
+      }
 
       void addDependencyTo(ValuedNode<ArgumentType>& producer)
       {
         dependencies_.emplace_back();
-        dependencies_.back().buildConnector(*this).connect(producer);
+        dependencies_.back().connect(*this, producer);
+      }
+
+      void removeDependency(std::size_t i)
+      {
+        auto it = dependencies_.begin() + i;
+        it->disconnect(*this);
+        dependencies_.erase(it);
+      }
+
+      bool removeDependencyMatching(const InvalidableNode* node)
+      {
+        auto it = std::find_if(dependencies_.begin(), dependencies_.end(),
+                               [=](const Dependency<ArgumentType>& dep) { return dep.producer() == node; });
+        if (it != dependencies_.end())
+        {
+          it->disconnect(*this);
+          dependencies_.erase(it);
+          return true;
+        }
+        return false;
       }
 
       // TODO removal and other manipulation tools
@@ -252,6 +301,18 @@ namespace bpp
         ReductionOp::reset(value_);
         for (auto& dep : dependencies_)
           ReductionOp::reduce(value_, dep.getValue());
+      }
+
+      /// Cleaning dependencies to destroyed nodes.
+      void dependencyWasDestroyed(const InvalidableNode* node) override final
+      {
+        auto it = std::find_if(dependencies_.begin(), dependencies_.end(),
+                               [=](const Dependency<ArgumentType>& dep) { return dep.producer() == node; });
+        if (it != dependencies_.end())
+        {
+          it->clear();
+          dependencies_.erase(it);
+        }
       }
     };
   } // end namespace DF

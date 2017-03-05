@@ -70,18 +70,17 @@ namespace bpp
      * I.e., an InvalidationNode has pointers to nodes that depend on its value.
      * It also contains a boolean flag for validity.
      *
+     * Another feature is a notification of death.
+     * When the current node is destroyed, it will notify all dependent nodes so they can remove their links to us.
+     *
      * This class is not copyable nor movable, as we will store references to it everywhere.
      * Thus all DFG classes are also non copyable nor movable.
      * TODO might change this, but maybe costly.
-     * TODO virtual func to notify dependentNodes_ on death ?
      *
-     * This class contains implementation details, and should not be used directly.
-     * Hence the constructor is protected.
-     * However some of the API has to be public (registering)...
-     *
-     * This base class makes invalidation indendent on types, and 100% non virtual.
-     * The API of this class should not be called by anything else than other DF classes.
-     * However it cannot be private or protected as many DF classes rely on them.
+     * This class is an internal class of the data flow system.
+     * Most of its features are reserved to other DF classes usage (internal api).
+     * However due to access constraints, part of the API is public (invalidate and registration).
+     * Calling them outside of the DF classes is not recommended though.
      */
     class InvalidableNode
     {
@@ -90,6 +89,14 @@ namespace bpp
       bool valid_{false};
 
     protected:
+      /** Callback for death notification.
+       * This function will be called when a node we depend on (dependency node) is destroyed.
+       * destroyedNode will contain the pointer to the destroyed dependency node.
+       * A computation node should only clear depency pointers to the destroyedNode.
+       */
+      virtual void dependencyWasDestroyed(const InvalidableNode* destroyedNode) = 0;
+
+      /// Set the valid flag.
       void makeValid(void) { valid_ = true; }
 
       /// Protected constructor.
@@ -104,9 +111,23 @@ namespace bpp
       InvalidableNode(InvalidableNode&&) = delete;
       InvalidableNode& operator=(const InvalidableNode&) = delete;
       InvalidableNode& operator=(InvalidableNode&&) = delete;
-      ~InvalidableNode() = default;
 
-      /* Other nodes should not have to query the flag directly.
+      /** On destruction, notify dependent nodes so they can clear dependencies to this node.
+       * This prevents undetected pointers to destroyed objects.
+       * Notification is done by calling the virtul dependencyWasDestroyed function.
+       *
+       * Dependent nodes must not deregister themselves from us (dependentNodes_ list).
+       * First, it is unneeded as we are destroying the node (the list will be destroyed anyway).
+       * Second, it can modify the list while we are iterating on it... bad.
+       */
+      virtual ~InvalidableNode()
+      {
+        for (auto dependentNode : dependentNodes_)
+          dependentNode->dependencyWasDestroyed(this);
+      }
+
+      /** Test if the node has a valid value already computed.
+       * Other nodes should not have to query the flag directly.
        * They should just use getValue from ValuedNode<T> and let the class manage the rest.
        * However, it does not hurt to let this public, and it is useful for testing (internal info).
        */
@@ -174,7 +195,6 @@ namespace bpp
         , value_()
       {
       }
-      virtual ~ValuedNode() = default;
 
       /** Virtual function to recompute value.
        * Computation nodes will subclass it with the computation process.
@@ -221,7 +241,6 @@ namespace bpp
     {
     private:
       ValuedNode<T>* producer_{nullptr};
-      friend class DependencyConnector; // Allow the small connector subclass to modify the producer_.
 
     public:
       Dependency() = default;
@@ -232,6 +251,7 @@ namespace bpp
        */
       ~Dependency() { assert(!isConnected()); }
 
+      // Movable but non copyable
       Dependency(const Dependency&) = delete;
       Dependency& operator=(const Dependency&) = delete;
       Dependency(Dependency&& other)
@@ -241,14 +261,55 @@ namespace bpp
       }
       Dependency& operator=(Dependency&& other)
       {
+        // potentially problematic, overwrites silently the old dep...
         producer_ = other.producer_;
         other.producer_ = nullptr;
       }
 
       bool isConnected(void) const { return producer_ != nullptr; }
 
+      ValuedNode<T>* producer(void) const { return producer_; }
+
+      /// Connects to a producer, assuming we are owned by ownerNode.
+      void connect(InvalidableNode& ownerNode, ValuedNode<T>& producer)
+      {
+        disconnect(ownerNode);
+        producer_ = &producer;
+        producer_->registerDependent(ownerNode);
+      }
+
+      /// Disconnects, assuming we are owned by ownerNode.
+      bool disconnect(InvalidableNode& ownerNode)
+      {
+        if (isConnected())
+        {
+          producer_->unregisterDependent(ownerNode);
+          producer_ = nullptr;
+          ownerNode.invalidate(); // Node value is now out of date
+          return true;
+        }
+        return false;
+      }
+
+      /** Clears the dependency.
+       * Clears the pointers without performing unregistration at the producer.
+       * Used by computation nodes to implement dependencyWasDestroyed.
+       */
+      void clear(void) { producer_ = nullptr; }
+
+      /// Clear dependency only if it points to the given node.
+      bool clearIfMatching(const InvalidableNode* node)
+      {
+        if (node == producer_)
+        {
+          clear();
+          return true;
+        }
+        return false;
+      }
+
       /// Get the value from the producer node linked to this dependency (check it exists).
-      const T& getValue(void)
+      const T& getValue(void) const
       {
         assert(isConnected());
         return producer_->getValue();
@@ -272,36 +333,21 @@ namespace bpp
         {
         }
 
-        /// Check if we are connected.
         bool isConnected(void) const { return dep_.isConnected(); }
+        ValuedNode<T>* producer(void) const { return dep_.producer(); }
 
         /// Connects, clears any previous connection.
-        void connect(ValuedNode<T>& producer)
-        {
-          disconnect();
-          dep_.producer_ = &producer;
-          dep_.producer_->registerDependent(ownerNode_);
-        }
+        void connect(ValuedNode<T>& producer) const { dep_.connect(ownerNode_, producer); }
 
-        /// Pointer overload of connect
-        void connect(ValuedNode<T>* producer)
+        /// Pointer overload of connect.
+        void connect(ValuedNode<T>* producer) const
         {
           assert(producer != nullptr);
           connect(*producer);
         }
 
         /// Disconnect, returns true if it was connected, and invalidates its owner node.
-        bool disconnect(void)
-        {
-          if (isConnected())
-          {
-            dep_.producer_->unregisterDependent(ownerNode_);
-            dep_.producer_ = nullptr;
-            ownerNode_.invalidate(); // Node value is now out of date
-            return true;
-          }
-          return false;
-        }
+        bool disconnect(void) const { return dep_.disconnect(ownerNode_); }
       };
 
       /// Builds a DependencyConnector by packing the current dependency and the owner node.
@@ -317,8 +363,11 @@ namespace bpp
     class ParameterNode : public ValuedNode<T>
     {
     private:
-      /// Generates a runtime error.
+      /// Runtime error: should not have to recompute.
       void compute(void) override final { assert(false); }
+
+      /// Runtime error: should never have any dependency to other nodes.
+      void dependencyWasDestroyed(const InvalidableNode*) override final { assert(false); }
 
     public:
       /// Default constructor will be invalid state.
