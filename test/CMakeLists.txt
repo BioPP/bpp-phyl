@@ -20,6 +20,7 @@ foreach (test_cpp_file ${test_cpp_files})
   target_link_libraries (${test_name} bpp-phyl-shared ${BPP_LIBS_SHARED})
   add_test (
     NAME ${test_name}
+    WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
     COMMAND ${test_name}
     )
 endforeach (test_cpp_file)
