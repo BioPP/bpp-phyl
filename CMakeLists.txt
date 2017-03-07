@@ -5,8 +5,6 @@
 #   Francois Gindraud (2017)
 # Created: 20/08/2009
 
-# Why 2.8.11:
-# - support of target_include_directories
 cmake_minimum_required (VERSION 2.8.11)
 project (bpp-phyl CXX)
 
@@ -17,7 +15,6 @@ IF(NOT CMAKE_BUILD_TYPE)
       FORCE)
 ENDIF(NOT CMAKE_BUILD_TYPE)
 
-# TODO ? Since CMake 3.1 (dec 2014) there is a cleaner CXX_STANDARD variable for that
 SET(CMAKE_CXX_FLAGS "-std=c++11 -Wall -Wshadow -Wconversion")
 
 IF(NOT NO_DEP_CHECK)
@@ -48,38 +45,31 @@ SET(BPPPHYL_VERSION_MINOR ${BPPPHYL_VERSION_AGE})
 SET(BPPPHYL_VERSION_PATCH ${BPPPHYL_VERSION_REVISION})
 SET(BPPPHYL_VERSION "${BPPPHYL_VERSION_MAJOR}.${BPPPHYL_VERSION_MINOR}.${BPPPHYL_VERSION_PATCH}")
 
-# Set the CMAKE_PREFIX_PATH for the find_library fonction when using non
-# standard install location
-IF(CMAKE_INSTALL_PREFIX)
-  SET(CMAKE_PREFIX_PATH "${CMAKE_INSTALL_PREFIX}" ${CMAKE_PREFIX_PATH})
-ENDIF(CMAKE_INSTALL_PREFIX)
+# Set the CMAKE_PREFIX_PATH for the find_package function (to pull other bpp libs from install dir)
+if (CMAKE_INSTALL_PREFIX)
+  set (CMAKE_PREFIX_PATH "${CMAKE_INSTALL_PREFIX}" ${CMAKE_PREFIX_PATH})
+endif (CMAKE_INSTALL_PREFIX)
 
-#here is a useful function:
-MACRO(IMPROVED_FIND_LIBRARY OUTPUT_LIBS lib_name include_to_find)
-  #start:
-  FIND_PATH(${lib_name}_INCLUDE_DIR ${include_to_find})
-  SET(${lib_name}_NAMES ${lib_name} ${lib_name}lib ${lib_name}dll)
-  FIND_LIBRARY(${lib_name}_LIBRARY NAMES ${${lib_name}_NAMES} PATH_SUFFIXES lib${LIB_SUFFIX})
+macro (require_bpp_lib name)
+  find_package (${name} REQUIRED)
+  # Add IMPORTED targets to lists used later
+  set (BPP_LIBS_STATIC "${BPP_LIBS_STATIC}" ${name}-static)
+  set (BPP_LIBS_SHARED "${BPP_LIBS_SHARED}" ${name}-shared)
+  # Show path information
+  get_property (${name}-static-location TARGET ${name}-static PROPERTY LOCATION)
+  get_property (${name}-shared-location TARGET ${name}-shared PROPERTY LOCATION)
+  get_property (${name}-header-location TARGET ${name}-static PROPERTY INTERFACE_INCLUDE_DIRECTORIES)
+  message (STATUS "${name} found:")
+  message (STATUS "  static lib: ${${name}-static-location}")
+  message (STATUS "  shared lib: ${${name}-shared-location}")
+  message (STATUS "  includes: ${${name}-header-location}")
+endmacro (require_bpp_lib)
 
-  IF(${${lib_name}_INCLUDE_DIR} MATCHES ${lib_name}_INCLUDE_DIR-NOTFOUND)
-    MESSAGE(FATAL_ERROR "${lib_name} required but not found.")
-  ELSE(${${lib_name}_INCLUDE_DIR} MATCHES ${lib_name}_INCLUDE_DIR-NOTFOUND)
-    MESSAGE("-- Library ${lib_name} found here:")
-    MESSAGE("   includes : ${${lib_name}_INCLUDE_DIR}")
-    MESSAGE("   libraries: ${${lib_name}_LIBRARY}")
-  ENDIF(${${lib_name}_INCLUDE_DIR} MATCHES ${lib_name}_INCLUDE_DIR-NOTFOUND)
-  
-  #add the dependency:
-  INCLUDE_DIRECTORIES(${${lib_name}_INCLUDE_DIR})
-  SET(${OUTPUT_LIBS} ${${OUTPUT_LIBS}} ${${lib_name}_LIBRARY})
-ENDMACRO(IMPROVED_FIND_LIBRARY)
-
-#Find the Bio++ libraries:
-IMPROVED_FIND_LIBRARY(LIBS bpp-seq Bpp/Seq/Alphabet/Alphabet.h)
-IMPROVED_FIND_LIBRARY(LIBS bpp-core Bpp/Clonable.h)
+require_bpp_lib (bpp-core)
+require_bpp_lib (bpp-seq)
 
 # Subdirectories
-add_subdirectory (src) # Defines targets bppphyl-static and bppphyl-shared
+add_subdirectory (src) # Defines targets bpp-phyl-static and bpp-phyl-shared
 
 # Doxygen
 FIND_PACKAGE(Doxygen)
@@ -163,7 +153,6 @@ ADD_DEPENDENCIES(rpm dist)
 
 ENDIF()
 
-# TODO is this thing still needed ? we seem to only do simple tests
 SET(CTEST_UPDATE_TYPE git)
 SET(UPDATE_COMMAND "git")
 SET(UPDATE_OPTIONS "")

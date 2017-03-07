@@ -219,32 +219,32 @@ set (CPP_FILES
   )
 
 # Build the static lib
-add_library (bppphyl-static STATIC ${CPP_FILES})
-target_include_directories (bppphyl-static PUBLIC
+add_library (bpp-phyl-static STATIC ${CPP_FILES})
+target_include_directories (bpp-phyl-static PUBLIC
   $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>
   $<INSTALL_INTERFACE:include>
   )
-set_target_properties (bppphyl-static PROPERTIES OUTPUT_NAME bpp-phyl)
-target_link_libraries (bppphyl-static ${LIBS})
+set_target_properties (bpp-phyl-static PROPERTIES OUTPUT_NAME bpp-phyl)
+target_link_libraries (bpp-phyl-static ${BPP_LIBS_STATIC})
 
 # Build the shared lib
-add_library (bppphyl-shared SHARED ${CPP_FILES})
-target_include_directories (bppphyl-shared PUBLIC
+add_library (bpp-phyl-shared SHARED ${CPP_FILES})
+target_include_directories (bpp-phyl-shared PUBLIC
   $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>
   $<INSTALL_INTERFACE:include>
   )
-set_target_properties (bppphyl-shared
+set_target_properties (bpp-phyl-shared
   PROPERTIES OUTPUT_NAME bpp-phyl
   MACOSX_RPATH 1
   VERSION ${BPPPHYL_VERSION}
   SOVERSION ${BPPPHYL_VERSION_MAJOR}
   )
-target_link_libraries (bppphyl-shared ${LIBS})
+target_link_libraries (bpp-phyl-shared ${BPP_LIBS_SHARED})
 
 # Install libs and headers
 install (
-  TARGETS bppphyl-static bppphyl-shared
-  EXPORT bppphyl
+  TARGETS bpp-phyl-static bpp-phyl-shared
+  EXPORT bpp-phyl-config
   LIBRARY DESTINATION lib${LIB_SUFFIX}
   ARCHIVE DESTINATION lib${LIB_SUFFIX}
   )
@@ -253,5 +253,5 @@ install (
   DESTINATION include
   FILES_MATCHING PATTERN "*.h"
   )
-install (EXPORT bppphyl DESTINATION share/bpp)
+install (EXPORT bpp-phyl-config DESTINATION lib/cmake/bpp-phyl)
 
