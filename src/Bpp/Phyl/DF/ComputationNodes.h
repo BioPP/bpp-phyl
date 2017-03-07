@@ -1,9 +1,7 @@
-//
 // File: ComputationPatterns.h
 // Authors:
 //   Francois Gindraud (2017)
-// Created on: mercredi 1 mars 2017
-//
+// Created: 01/03/2017
 
 /*
 Copyright or © or Copr. Bio++ Development Team, (November 16, 2004)
@@ -51,13 +49,9 @@ knowledge of the CeCILL license and that you accept its terms.
  * TODO fixed reduction ?
  */
 
-#if !(__cplusplus >= 201103L)
-#error "Bpp/Phyl/DF/ComputationNodes.h requires C++11 support"
-#endif
-
 #include <Bpp/Phyl/DF/Cpp14.h> // IndexSequence
 #include <Bpp/Phyl/DF/DataFlow.h>
-#include <algorithm> // all_of
+#include <algorithm>
 #include <cassert>
 #include <initializer_list> // foreach on tuple trick
 #include <tuple>
@@ -69,6 +63,140 @@ namespace bpp
 {
   namespace DF
   {
+    /** This class represent a consumer of a type T value generated in a ValuedNode<T>.
+     * It should be used by computation nodes to represent a dependence to a value node.
+     * It basically wraps a pointer to a ValuedNode<T> with a nice interface.
+     * In descriptions, owner node refers to the computation node that stores and uses this dependency.
+     *
+     * For memory size concerns, it only stores a pointer to the producer node, and not to the owner node.
+     * When (dis)connecting, it needs to register/unregister the owner node.
+     * Thus the current class cannot perform (dis)connection operations by itself.
+     * Instead, this class is used for storage (small) in computation nodes.
+     * To perform a (dis)connection, the owner class should create a temporary DependencyConnector from this class.
+     * A DependencyConnector just bundles both Dependency and owner node pointer.
+     *
+     * This class cannot be copied: no meaningful semantics, risk of triggering the destructor assert.
+     * It can however be moved (as long as it keeps the same owner, which cannot be checked).
+     */
+    template <typename T>
+    class Dependency
+    {
+    private:
+      ValuedNode<T>* producer_{nullptr};
+
+    public:
+      Dependency() = default;
+      /** On destruction check that we have been disconnected properly.
+       * A dependency cannot disconnect itself, as it does not store which node owns it.
+       * Owner nodes must disconnect all dependencies in their destructors.
+       * An assert checks that a Dependency has been disconnected before destruction in debug mode.
+       */
+      ~Dependency() { assert(!isConnected()); }
+
+      // Movable but non copyable
+      Dependency(const Dependency&) = delete;
+      Dependency& operator=(const Dependency&) = delete;
+      Dependency(Dependency&& other)
+        : producer_(other.producer_)
+      {
+        other.producer_ = nullptr;
+      }
+      Dependency& operator=(Dependency&& other)
+      {
+        // potentially problematic, overwrites silently the old dep...
+        producer_ = other.producer_;
+        other.producer_ = nullptr;
+      }
+
+      bool isConnected(void) const { return producer_ != nullptr; }
+
+      ValuedNode<T>* producer(void) const { return producer_; }
+
+      /// Connects to a producer, assuming we are owned by ownerNode.
+      void connect(InvalidableNode& ownerNode, ValuedNode<T>& producer)
+      {
+        disconnect(ownerNode);
+        producer_ = &producer;
+        producer_->registerDependent(ownerNode);
+      }
+
+      /// Disconnects, assuming we are owned by ownerNode.
+      bool disconnect(InvalidableNode& ownerNode)
+      {
+        if (isConnected())
+        {
+          producer_->unregisterDependent(ownerNode);
+          producer_ = nullptr;
+          ownerNode.invalidate(); // Node value is now out of date
+          return true;
+        }
+        return false;
+      }
+
+      /** Clears the dependency.
+       * Clears the pointers without performing unregistration at the producer.
+       * Used by computation nodes to implement dependencyWasDestroyed.
+       */
+      void clear(void) { producer_ = nullptr; }
+
+      /// Clear dependency only if it points to the given node.
+      bool clearIfMatching(const InvalidableNode* node)
+      {
+        if (node == producer_)
+        {
+          clear();
+          return true;
+        }
+        return false;
+      }
+
+      /// Get the value from the producer node linked to this dependency (check it exists).
+      const T& getValue(void) const
+      {
+        assert(isConnected());
+        return producer_->getValue();
+      }
+
+      /** Little temporary class to allow connection operations.
+       * Instances of this class should be built by owner nodes and returned to allow users to manage connections.
+       * This class stores a reference to the owner node and to the dependency, so we can connect/disconnect.
+       * It can be copied but this should not be stored...
+       */
+      class DependencyConnector
+      {
+      private:
+        Dependency& dep_;
+        InvalidableNode& ownerNode_;
+
+      public:
+        DependencyConnector(Dependency& dep, InvalidableNode& ownerNode)
+          : dep_(dep)
+          , ownerNode_(ownerNode)
+        {
+        }
+
+        bool isConnected(void) const { return dep_.isConnected(); }
+        ValuedNode<T>* producer(void) const { return dep_.producer(); }
+
+        /// Connects, clears any previous connection.
+        void connect(ValuedNode<T>& producer) const { dep_.connect(ownerNode_, producer); }
+
+        /// Pointer overload of connect.
+        void connect(ValuedNode<T>* producer) const
+        {
+          assert(producer != nullptr);
+          connect(*producer);
+        }
+
+        /// Disconnect, returns true if it was connected, and invalidates its owner node.
+        bool disconnect(void) const { return dep_.disconnect(ownerNode_); }
+      };
+
+      /// Builds a DependencyConnector by packing the current dependency and the owner node.
+      DependencyConnector buildConnector(InvalidableNode& ownerNode) { return {*this, ownerNode}; }
+    };
+
+    // Import them for use in HeterogeneousComputationNode
     using bpp::Cpp14::IndexSequence;
     using bpp::Cpp14::MakeIndexSequence;
 
