@@ -1,9 +1,7 @@
-//
 // File: Cpp14.h
 // Authors:
 //   Francois Gindraud (2017)
-// Created on: jeudi février 2017, à 9h29
-//
+// Created: 23/02/2017
 
 /*
 Copyright or © or Copr. Bio++ Development Team, (November 16, 2004)
@@ -43,17 +41,14 @@ knowledge of the CeCILL license and that you accept its terms.
 
 /**
  * @file Cpp14.h
- * Compatibility header that adds some utilities missing in C++11:
+ * Compatibility header that adds some utilities missing in C++11.
+ * Utilities:
  * - make_unique
  * - IndexSequence / MakeIndexSequence / IndexSequenceFor
  *
  * They are placed in a Cpp14 namespace for now to prevent name clashes with other stuff
  * TODO better doxygen below
  */
-
-#if !(__cplusplus >= 201103L)
-#error "Bpp/Phyl/DF/Cpp14.h requires C++11 support"
-#endif
 
 #include <memory>  // unique_ptr
 #include <utility> // index_sequence

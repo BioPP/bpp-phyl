@@ -1,9 +1,7 @@
-//
 // File: test_likelihood.cpp
 // Authors:
 //   Francois Gindraud (2017)
-// Created on: jeudi 23 février
-//
+// Created: 23/02/2017
 
 /*
 Copyright or © or Copr. Bio++ Development Team, (November 17, 2004)

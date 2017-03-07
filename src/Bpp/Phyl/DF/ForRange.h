@@ -1,9 +1,7 @@
-//
 // File: ForRange.h
 // Authors:
 //   Francois Gindraud (2017)
-// Created on: mardi 21 février 2017, à 16h55
-//
+// Created: 21/02/2017
 
 /*
 Copyright or © or Copr. Bio++ Development Team, (November 16, 2004)
@@ -52,10 +50,6 @@ knowledge of the CeCILL license and that you accept its terms.
  * However it cannot use bpp::Range as we need begin() and end() to return iterators.
  * bpp::Range defines begin() and end() to return the bounds...
  */
-
-#if !(__cplusplus >= 201103L)
-#error "Bpp/Phyl/DF/ForRange.h requires C++11 support"
-#endif
 
 #include <iterator>
 #include <type_traits>
