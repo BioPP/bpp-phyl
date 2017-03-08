@@ -7,6 +7,10 @@
 
 cmake_minimum_required (VERSION 2.8.11)
 project (bpp-phyl CXX)
+# PROJECT_NAME is used to name:
+# - the library
+# - the CMake targets (${PROJECT_NAME}-static or ${PROJECT_NAME}-shared)
+# - the CMake package
 
 # Global parameters
 IF(NOT CMAKE_BUILD_TYPE)
@@ -35,41 +39,47 @@ ELSE(NO_DEP_CHECK)
 #           library implements.
 # In other words, the library implements all the interface numbers in the
 # range from number current - age to current.
-SET(BPPPHYL_VERSION_CURRENT "10")
-SET(BPPPHYL_VERSION_REVISION "3")
-SET(BPPPHYL_VERSION_AGE "1")
+SET(${PROJECT_NAME}_VERSION_CURRENT "10")
+SET(${PROJECT_NAME}_VERSION_REVISION "3")
+SET(${PROJECT_NAME}_VERSION_AGE "1")
 
 # Effective version number computation
-MATH(EXPR BPPPHYL_VERSION_MAJOR "${BPPPHYL_VERSION_CURRENT} - ${BPPPHYL_VERSION_AGE}")
-SET(BPPPHYL_VERSION_MINOR ${BPPPHYL_VERSION_AGE})
-SET(BPPPHYL_VERSION_PATCH ${BPPPHYL_VERSION_REVISION})
-SET(BPPPHYL_VERSION "${BPPPHYL_VERSION_MAJOR}.${BPPPHYL_VERSION_MINOR}.${BPPPHYL_VERSION_PATCH}")
+MATH(EXPR ${PROJECT_NAME}_VERSION_MAJOR "${${PROJECT_NAME}_VERSION_CURRENT} - ${${PROJECT_NAME}_VERSION_AGE}")
+SET(${PROJECT_NAME}_VERSION_MINOR ${${PROJECT_NAME}_VERSION_AGE})
+SET(${PROJECT_NAME}_VERSION_PATCH ${${PROJECT_NAME}_VERSION_REVISION})
+SET(${PROJECT_NAME}_VERSION "${${PROJECT_NAME}_VERSION_MAJOR}.${${PROJECT_NAME}_VERSION_MINOR}.${${PROJECT_NAME}_VERSION_PATCH}")
 
-# Set the CMAKE_PREFIX_PATH for the find_package function (to pull other bpp libs from install dir)
+set (PROJECT_VERSION ${${PROJECT_NAME}_VERSION})
+
+# Find dependencies (add install directory to search)
 if (CMAKE_INSTALL_PREFIX)
   set (CMAKE_PREFIX_PATH "${CMAKE_INSTALL_PREFIX}" ${CMAKE_PREFIX_PATH})
 endif (CMAKE_INSTALL_PREFIX)
 
-macro (require_bpp_lib name)
-  find_package (${name} REQUIRED)
-  # Add IMPORTED targets to lists used later
-  set (BPP_LIBS_STATIC "${BPP_LIBS_STATIC}" ${name}-static)
-  set (BPP_LIBS_SHARED "${BPP_LIBS_SHARED}" ${name}-shared)
-  # Show path information
-  get_property (${name}-static-location TARGET ${name}-static PROPERTY LOCATION)
-  get_property (${name}-shared-location TARGET ${name}-shared PROPERTY LOCATION)
-  get_property (${name}-header-location TARGET ${name}-static PROPERTY INTERFACE_INCLUDE_DIRECTORIES)
-  message (STATUS "${name} found:")
-  message (STATUS "  static lib: ${${name}-static-location}")
-  message (STATUS "  shared lib: ${${name}-shared-location}")
-  message (STATUS "  includes: ${${name}-header-location}")
-endmacro (require_bpp_lib)
+find_package (bpp-core 2.0.3 REQUIRED)
+find_package (bpp-seq 9.1.3 REQUIRED)
 
-require_bpp_lib (bpp-core)
-require_bpp_lib (bpp-seq)
+# CMake package
+set (cmake-package-location lib/cmake/${PROJECT_NAME})
+include (CMakePackageConfigHelpers)
+configure_package_config_file (
+  ${PROJECT_NAME}-config.cmake.in
+  ${CMAKE_CURRENT_BINARY_DIR}/${PROJECT_NAME}-config.cmake
+  INSTALL_DESTINATION ${cmake-package-location}
+  )
+write_basic_package_version_file (
+  ${CMAKE_CURRENT_BINARY_DIR}/${PROJECT_NAME}-config-version.cmake
+  VERSION ${${PROJECT_NAME}_VERSION}
+  COMPATIBILITY ExactVersion
+  )
+install (FILES
+  ${CMAKE_CURRENT_BINARY_DIR}/${PROJECT_NAME}-config.cmake
+  ${CMAKE_CURRENT_BINARY_DIR}/${PROJECT_NAME}-config-version.cmake
+  DESTINATION ${cmake-package-location}
+  )
 
-# Subdirectories
-add_subdirectory (src) # Defines targets bpp-phyl-static and bpp-phyl-shared
+# Define the libraries
+add_subdirectory (src)
 
 # Doxygen
 FIND_PACKAGE(Doxygen)

@@ -219,32 +219,32 @@ set (CPP_FILES
   )
 
 # Build the static lib
-add_library (bpp-phyl-static STATIC ${CPP_FILES})
-target_include_directories (bpp-phyl-static PUBLIC
+add_library (${PROJECT_NAME}-static STATIC ${CPP_FILES})
+target_include_directories (${PROJECT_NAME}-static PUBLIC
   $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>
   $<INSTALL_INTERFACE:include>
   )
-set_target_properties (bpp-phyl-static PROPERTIES OUTPUT_NAME bpp-phyl)
-target_link_libraries (bpp-phyl-static ${BPP_LIBS_STATIC})
+set_target_properties (${PROJECT_NAME}-static PROPERTIES OUTPUT_NAME ${PROJECT_NAME})
+target_link_libraries (${PROJECT_NAME}-static ${BPP_LIBS_STATIC})
 
 # Build the shared lib
-add_library (bpp-phyl-shared SHARED ${CPP_FILES})
-target_include_directories (bpp-phyl-shared PUBLIC
+add_library (${PROJECT_NAME}-shared SHARED ${CPP_FILES})
+target_include_directories (${PROJECT_NAME}-shared PUBLIC
   $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>
   $<INSTALL_INTERFACE:include>
   )
-set_target_properties (bpp-phyl-shared
-  PROPERTIES OUTPUT_NAME bpp-phyl
+set_target_properties (${PROJECT_NAME}-shared
+  PROPERTIES OUTPUT_NAME ${PROJECT_NAME}
   MACOSX_RPATH 1
-  VERSION ${BPPPHYL_VERSION}
-  SOVERSION ${BPPPHYL_VERSION_MAJOR}
+  VERSION ${${PROJECT_NAME}_VERSION}
+  SOVERSION ${${PROJECT_NAME}_VERSION_MAJOR}
   )
-target_link_libraries (bpp-phyl-shared ${BPP_LIBS_SHARED})
+target_link_libraries (${PROJECT_NAME}-shared ${BPP_LIBS_SHARED})
 
 # Install libs and headers
 install (
-  TARGETS bpp-phyl-static bpp-phyl-shared
-  EXPORT bpp-phyl-config
+  TARGETS ${PROJECT_NAME}-static ${PROJECT_NAME}-shared
+  EXPORT ${PROJECT_NAME}-targets
   LIBRARY DESTINATION lib${LIB_SUFFIX}
   ARCHIVE DESTINATION lib${LIB_SUFFIX}
   )
@@ -253,5 +253,5 @@ install (
   DESTINATION include
   FILES_MATCHING PATTERN "*.h"
   )
-install (EXPORT bpp-phyl-config DESTINATION lib/cmake/bpp-phyl)
-
+# Install cmake file representing targets
+install (EXPORT ${PROJECT_NAME}-targets DESTINATION ${cmake-package-location})
