@@ -907,11 +907,11 @@ namespace bpp
       }
       else if (type == 1)
       {
-        return "synonymous";
+        return "dS";
       }
       else if (type == 2)
       {
-        return "non synonymous";
+        return "dN";
       }
       else
       {
