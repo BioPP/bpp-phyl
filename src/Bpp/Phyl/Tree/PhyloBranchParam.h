@@ -115,7 +115,7 @@ namespace bpp
 
     double getLength() const
     {
-      return get_at(0)->getValue();
+      return getParameter_(0).getValue();
     }
     
     
@@ -126,7 +126,7 @@ namespace bpp
     
     void setLength(double newLength)
     {
-      get_at(0)->setValue(newLength);
+      getParameter_(0).setValue(newLength);
     }
     
 
