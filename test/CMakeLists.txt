@@ -8,9 +8,7 @@
 # Any .cpp file in test/ is considered to be a test.
 # It will be compiled as a standalone program (must contain a main()).
 # A test is considered to succeed if it returns EXIT_SUCCESS (usually 0).
-
-# Tests are linked to the the shared library target, which should point to the newly compiled library.
-# CMake will handle command line parameters for it and dependencies.
+# Tests are linked to the the shared library target.
 
 file (GLOB test_cpp_files RELATIVE ${CMAKE_CURRENT_SOURCE_DIR} *.cpp)
 foreach (test_cpp_file ${test_cpp_files})
