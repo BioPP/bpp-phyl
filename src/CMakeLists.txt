@@ -1,38 +1,40 @@
 # CMake script for Bio++ PhylLib
-# Author: Sylvain Gaillard and Julien Dutheil
+# Authors:
+#   Sylvain Gaillard
+#   Julien Dutheil
+#   Francois Gindraud (2017)
 # Created: 20/08/2009
 
-# File list
-SET(CPP_FILES
+set (CPP_FILES
   Bpp/Phyl/App/PhylogeneticsApplicationTools.cpp
   Bpp/Phyl/Distance/AbstractAgglomerativeDistanceMethod.cpp
   Bpp/Phyl/Distance/BioNJ.cpp
   Bpp/Phyl/Distance/DistanceEstimation.cpp
+  Bpp/Phyl/Distance/HierarchicalClustering.cpp
   Bpp/Phyl/Distance/NeighborJoining.cpp
   Bpp/Phyl/Distance/PGMA.cpp
-  Bpp/Phyl/Distance/HierarchicalClustering.cpp
   Bpp/Phyl/Graphics/AbstractDendrogramPlot.cpp
   Bpp/Phyl/Graphics/AbstractTreeDrawing.cpp
   Bpp/Phyl/Graphics/CladogramPlot.cpp
   Bpp/Phyl/Graphics/PhylogramPlot.cpp
   Bpp/Phyl/Graphics/TreeDrawingDisplayControler.cpp
   Bpp/Phyl/Graphics/TreeDrawingListener.cpp
+  Bpp/Phyl/Io/BppOFrequenciesSetFormat.cpp
+  Bpp/Phyl/Io/BppOMultiTreeReaderFormat.cpp
+  Bpp/Phyl/Io/BppOMultiTreeWriterFormat.cpp
+  Bpp/Phyl/Io/BppORateDistributionFormat.cpp
+  Bpp/Phyl/Io/BppOSubstitutionModelFormat.cpp
+  Bpp/Phyl/Io/BppOTreeReaderFormat.cpp
+  Bpp/Phyl/Io/BppOTreeWriterFormat.cpp
   Bpp/Phyl/Io/IoDistanceMatrixFactory.cpp
+  Bpp/Phyl/Io/IoFrequenciesSetFactory.cpp
+  Bpp/Phyl/Io/IoPairedSiteLikelihoods.cpp
+  Bpp/Phyl/Io/IoSubstitutionModelFactory.cpp
   Bpp/Phyl/Io/IoTreeFactory.cpp
   Bpp/Phyl/Io/Newick.cpp
   Bpp/Phyl/Io/NexusIoTree.cpp
   Bpp/Phyl/Io/Nhx.cpp
   Bpp/Phyl/Io/PhylipDistanceMatrixFormat.cpp
-  Bpp/Phyl/Io/IoPairedSiteLikelihoods.cpp
-  Bpp/Phyl/Io/IoSubstitutionModelFactory.cpp
-  Bpp/Phyl/Io/BppOSubstitutionModelFormat.cpp
-  Bpp/Phyl/Io/IoFrequenciesSetFactory.cpp
-  Bpp/Phyl/Io/BppOFrequenciesSetFormat.cpp
-  Bpp/Phyl/Io/BppORateDistributionFormat.cpp
-  Bpp/Phyl/Io/BppOTreeReaderFormat.cpp
-  Bpp/Phyl/Io/BppOMultiTreeReaderFormat.cpp
-  Bpp/Phyl/Io/BppOTreeWriterFormat.cpp
-  Bpp/Phyl/Io/BppOMultiTreeWriterFormat.cpp
   Bpp/Phyl/Likelihood/AbstractDiscreteRatesAcrossSitesTreeLikelihood.cpp
   Bpp/Phyl/Likelihood/AbstractHomogeneousTreeLikelihood.cpp
   Bpp/Phyl/Likelihood/AbstractNonHomogeneousTreeLikelihood.cpp
@@ -43,8 +45,10 @@ SET(CPP_FILES
   Bpp/Phyl/Likelihood/DRHomogeneousTreeLikelihood.cpp
   Bpp/Phyl/Likelihood/DRNonHomogeneousTreeLikelihood.cpp
   Bpp/Phyl/Likelihood/DRTreeLikelihoodTools.cpp
+  Bpp/Phyl/Likelihood/GlobalClockTreeLikelihoodFunctionWrapper.cpp
   Bpp/Phyl/Likelihood/MarginalAncestralStateReconstruction.cpp
   Bpp/Phyl/Likelihood/NNIHomogeneousTreeLikelihood.cpp
+  Bpp/Phyl/Likelihood/PairedSiteLikelihoods.cpp
   Bpp/Phyl/Likelihood/PseudoNewtonOptimizer.cpp
   Bpp/Phyl/Likelihood/RASTools.cpp
   Bpp/Phyl/Likelihood/RHomogeneousClockTreeLikelihood.cpp
@@ -53,83 +57,70 @@ SET(CPP_FILES
   Bpp/Phyl/Likelihood/RNonHomogeneousMixedTreeLikelihood.cpp
   Bpp/Phyl/Likelihood/RNonHomogeneousTreeLikelihood.cpp
   Bpp/Phyl/Likelihood/TreeLikelihoodTools.cpp
-  Bpp/Phyl/Likelihood/PairedSiteLikelihoods.cpp
-  Bpp/Phyl/Likelihood/GlobalClockTreeLikelihoodFunctionWrapper.cpp
-  Bpp/Phyl/NewLikelihood/AbstractSubstitutionProcess.cpp
-  Bpp/Phyl/NewLikelihood/SimpleSubstitutionProcess.cpp
-  Bpp/Phyl/NewLikelihood/NonHomogeneousSubstitutionProcess.cpp
-  Bpp/Phyl/NewLikelihood/RateAcrossSitesSubstitutionProcess.cpp
-  Bpp/Phyl/NewLikelihood/SubstitutionProcessCollection.cpp
-  Bpp/Phyl/NewLikelihood/SubstitutionProcessCollectionMember.cpp
-  Bpp/Phyl/NewLikelihood/OneProcessSequenceEvolution.cpp
-  Bpp/Phyl/NewLikelihood/MultiProcessSequenceEvolution.cpp
-  Bpp/Phyl/NewLikelihood/PartitionSequenceEvolution.cpp
-  Bpp/Phyl/NewLikelihood/MixtureSequenceEvolution.cpp
-  Bpp/Phyl/NewLikelihood/HmmSequenceEvolution.cpp
-  Bpp/Phyl/NewLikelihood/AutoCorrelationSequenceEvolution.cpp
-  Bpp/Phyl/NewLikelihood/HmmProcessEmissionProbabilities.cpp
-  Bpp/Phyl/NewLikelihood/ParametrizableTree.cpp
-  Bpp/Phyl/NewLikelihood/ParametrizablePhyloTree.cpp
-  Bpp/Phyl/NewLikelihood/AbstractLikelihoodNode.cpp
-  Bpp/Phyl/NewLikelihood/AbstractLikelihoodTree.cpp
-  Bpp/Phyl/NewLikelihood/RecursiveLikelihoodTree.cpp
-  Bpp/Phyl/NewLikelihood/AbstractLikelihoodTreeCalculation.cpp
-  Bpp/Phyl/NewLikelihood/RecursiveLikelihoodTreeCalculation.cpp
-  Bpp/Phyl/NewLikelihood/SpeciationComputingNode.cpp
-  Bpp/Phyl/NewLikelihood/ComputingTree.cpp
-  Bpp/Phyl/NewLikelihood/PhyloLikelihoods/AbstractPhyloLikelihood.cpp
-  Bpp/Phyl/NewLikelihood/PhyloLikelihoods/SingleProcessPhyloLikelihood.cpp
-  Bpp/Phyl/NewLikelihood/PhyloLikelihoods/OneProcessSequencePhyloLikelihood.cpp
-  Bpp/Phyl/NewLikelihood/PhyloLikelihoods/MultiProcessSequencePhyloLikelihood.cpp
-  Bpp/Phyl/NewLikelihood/PhyloLikelihoods/SetOfAbstractPhyloLikelihood.cpp
-  Bpp/Phyl/NewLikelihood/PhyloLikelihoods/SetOfAlignedPhyloLikelihood.cpp
-  Bpp/Phyl/NewLikelihood/PhyloLikelihoods/FormulaOfPhyloLikelihood.cpp
-  Bpp/Phyl/NewLikelihood/PhyloLikelihoods/ProductOfAlignedPhyloLikelihood.cpp
-  Bpp/Phyl/NewLikelihood/PhyloLikelihoods/MixtureOfAlignedPhyloLikelihood.cpp
-  Bpp/Phyl/NewLikelihood/PhyloLikelihoods/HmmPhyloEmissionProbabilities.cpp
-  Bpp/Phyl/NewLikelihood/PhyloLikelihoods/HmmOfAlignedPhyloLikelihood.cpp
-  Bpp/Phyl/NewLikelihood/PhyloLikelihoods/AutoCorrelationOfAlignedPhyloLikelihood.cpp
-  Bpp/Phyl/NewLikelihood/PhyloLikelihoods/PartitionProcessPhyloLikelihood.cpp
-  Bpp/Phyl/NewLikelihood/PhyloLikelihoods/MixtureProcessPhyloLikelihood.cpp
-  Bpp/Phyl/NewLikelihood/PhyloLikelihoods/HmmProcessPhyloLikelihood.cpp
-  Bpp/Phyl/NewLikelihood/PhyloLikelihoods/AutoCorrelationProcessPhyloLikelihood.cpp
-  Bpp/Phyl/NewLikelihood/MarginalAncestralReconstruction.cpp
-  Bpp/Phyl/Mapping/SubstitutionRegister.cpp
-  Bpp/Phyl/Mapping/LaplaceSubstitutionCount.cpp
-  Bpp/Phyl/Mapping/OneJumpSubstitutionCount.cpp
-  Bpp/Phyl/Mapping/ProbabilisticSubstitutionMapping.cpp
-  Bpp/Phyl/Mapping/NaiveSubstitutionCount.cpp
+  Bpp/Phyl/Mapping/DecompositionReward.cpp
   Bpp/Phyl/Mapping/DecompositionSubstitutionCount.cpp
+  Bpp/Phyl/Mapping/LaplaceSubstitutionCount.cpp
+  Bpp/Phyl/Mapping/NaiveSubstitutionCount.cpp
+  Bpp/Phyl/Mapping/OneJumpSubstitutionCount.cpp
+  Bpp/Phyl/Mapping/ProbabilisticRewardMapping.cpp
+  Bpp/Phyl/Mapping/ProbabilisticSubstitutionMapping.cpp
+  Bpp/Phyl/Mapping/RewardMappingTools.cpp
+  Bpp/Phyl/Mapping/SubstitutionMappingTools.cpp
+  Bpp/Phyl/Mapping/SubstitutionRegister.cpp
   Bpp/Phyl/Mapping/UniformizationSubstitutionCount.cpp
   Bpp/Phyl/Mapping/WeightedSubstitutionCount.cpp
-  Bpp/Phyl/Mapping/SubstitutionMappingTools.cpp
-  Bpp/Phyl/Mapping/DecompositionReward.cpp
-  Bpp/Phyl/Mapping/ProbabilisticRewardMapping.cpp
-  Bpp/Phyl/Mapping/RewardMappingTools.cpp
-  Bpp/Phyl/Model/StateMap.cpp
-  Bpp/Phyl/Model/BinarySubstitutionModel.cpp
-  Bpp/Phyl/Model/EquiprobableSubstitutionModel.cpp
-  Bpp/Phyl/Model/AbstractSubstitutionModel.cpp
-  Bpp/Phyl/Model/AbstractBiblioSubstitutionModel.cpp
   Bpp/Phyl/Model/AbstractBiblioMixedSubstitutionModel.cpp
-  Bpp/Phyl/Model/MarkovModulatedSubstitutionModel.cpp
+  Bpp/Phyl/Model/AbstractBiblioSubstitutionModel.cpp
+  Bpp/Phyl/Model/AbstractKroneckerWordSubstitutionModel.cpp
   Bpp/Phyl/Model/AbstractMixedSubstitutionModel.cpp
+  Bpp/Phyl/Model/AbstractSubstitutionModel.cpp
+  Bpp/Phyl/Model/AbstractWordSubstitutionModel.cpp
+  Bpp/Phyl/Model/BinarySubstitutionModel.cpp
+  Bpp/Phyl/Model/Codon/AbstractCodonCpGSubstitutionModel.cpp
+  Bpp/Phyl/Model/Codon/AbstractCodonDistanceSubstitutionModel.cpp
+  Bpp/Phyl/Model/Codon/AbstractCodonFitnessSubstitutionModel.cpp
+  Bpp/Phyl/Model/Codon/AbstractCodonFrequenciesSubstitutionModel.cpp
+  Bpp/Phyl/Model/Codon/AbstractCodonPhaseFrequenciesSubstitutionModel.cpp
+  Bpp/Phyl/Model/Codon/AbstractCodonSubstitutionModel.cpp
+  Bpp/Phyl/Model/Codon/AbstractKroneckerCodonSubstitutionModel.cpp
+  Bpp/Phyl/Model/Codon/CodonDistanceCpGSubstitutionModel.cpp
+  Bpp/Phyl/Model/Codon/CodonDistanceFrequenciesSubstitutionModel.cpp
+  Bpp/Phyl/Model/Codon/CodonDistancePhaseFrequenciesSubstitutionModel.cpp
+  Bpp/Phyl/Model/Codon/CodonDistanceSubstitutionModel.cpp
+  Bpp/Phyl/Model/Codon/CodonRateFrequenciesSubstitutionModel.cpp
+  Bpp/Phyl/Model/Codon/CodonRateSubstitutionModel.cpp
+  Bpp/Phyl/Model/Codon/GY94.cpp
+  Bpp/Phyl/Model/Codon/KCM.cpp
+  Bpp/Phyl/Model/Codon/KroneckerCodonDistanceFrequenciesSubstitutionModel.cpp 
+  Bpp/Phyl/Model/Codon/KroneckerCodonDistanceSubstitutionModel.cpp
+  Bpp/Phyl/Model/Codon/MG94.cpp
+  Bpp/Phyl/Model/Codon/SENCA.cpp
+  Bpp/Phyl/Model/Codon/TripletSubstitutionModel.cpp
+  Bpp/Phyl/Model/Codon/YN98.cpp
+  Bpp/Phyl/Model/Codon/YNGKP_M1.cpp
+  Bpp/Phyl/Model/Codon/YNGKP_M10.cpp
+  Bpp/Phyl/Model/Codon/YNGKP_M2.cpp
+  Bpp/Phyl/Model/Codon/YNGKP_M3.cpp
+  Bpp/Phyl/Model/Codon/YNGKP_M7.cpp
+  Bpp/Phyl/Model/Codon/YNGKP_M8.cpp
+  Bpp/Phyl/Model/Codon/YNGKP_M9.cpp
+  Bpp/Phyl/Model/EquiprobableSubstitutionModel.cpp
+  Bpp/Phyl/Model/FrequenciesSet/CodonFrequenciesSet.cpp
+  Bpp/Phyl/Model/FrequenciesSet/FrequenciesSet.cpp
+  Bpp/Phyl/Model/FrequenciesSet/MvaFrequenciesSet.cpp
+  Bpp/Phyl/Model/FrequenciesSet/NucleotideFrequenciesSet.cpp
+  Bpp/Phyl/Model/FrequenciesSet/WordFrequenciesSet.cpp
+  Bpp/Phyl/Model/FromMixtureSubstitutionModel.cpp
+  Bpp/Phyl/Model/KroneckerWordSubstitutionModel.cpp
+  Bpp/Phyl/Model/MarkovModulatedSubstitutionModel.cpp
+  Bpp/Phyl/Model/MixedSubstitutionModelSet.cpp
   Bpp/Phyl/Model/MixtureOfASubstitutionModel.cpp
   Bpp/Phyl/Model/MixtureOfSubstitutionModels.cpp
-  Bpp/Phyl/Model/FromMixtureSubstitutionModel.cpp
-  Bpp/Phyl/Model/RE08.cpp
-  Bpp/Phyl/Model/SubstitutionModelSet.cpp
-  Bpp/Phyl/Model/MixedSubstitutionModelSet.cpp
-  Bpp/Phyl/Model/SubstitutionModelSetTools.cpp
-  Bpp/Phyl/Model/AbstractWordSubstitutionModel.cpp
-  Bpp/Phyl/Model/AbstractKroneckerWordSubstitutionModel.cpp
-  Bpp/Phyl/Model/WordSubstitutionModel.cpp
-  Bpp/Phyl/Model/KroneckerWordSubstitutionModel.cpp
-  Bpp/Phyl/Model/Nucleotide/F84.cpp
-  Bpp/Phyl/Model/Nucleotide/HKY85.cpp
   Bpp/Phyl/Model/Nucleotide/F81.cpp
-  Bpp/Phyl/Model/Nucleotide/JCnuc.cpp
+  Bpp/Phyl/Model/Nucleotide/F84.cpp
   Bpp/Phyl/Model/Nucleotide/GTR.cpp
+  Bpp/Phyl/Model/Nucleotide/HKY85.cpp
+  Bpp/Phyl/Model/Nucleotide/JCnuc.cpp
   Bpp/Phyl/Model/Nucleotide/K80.cpp
   Bpp/Phyl/Model/Nucleotide/L95.cpp
   Bpp/Phyl/Model/Nucleotide/RN95.cpp
@@ -137,385 +128,137 @@ SET(CPP_FILES
   Bpp/Phyl/Model/Nucleotide/SSR.cpp
   Bpp/Phyl/Model/Nucleotide/T92.cpp
   Bpp/Phyl/Model/Nucleotide/TN93.cpp
-  Bpp/Phyl/Model/Nucleotide/gBGC.cpp
   Bpp/Phyl/Model/Nucleotide/YpR.cpp
+  Bpp/Phyl/Model/Nucleotide/gBGC.cpp
+  Bpp/Phyl/Model/Protein/Coala.cpp
+  Bpp/Phyl/Model/Protein/CoalaCore.cpp
   Bpp/Phyl/Model/Protein/DSO78.cpp
-  Bpp/Phyl/Model/Protein/UserProteinSubstitutionModel.cpp
   Bpp/Phyl/Model/Protein/JCprot.cpp
   Bpp/Phyl/Model/Protein/JTT92.cpp
   Bpp/Phyl/Model/Protein/LG08.cpp
-  Bpp/Phyl/Model/Protein/WAG01.cpp
+  Bpp/Phyl/Model/Protein/LG10_EX_EHO.cpp
+  Bpp/Phyl/Model/Protein/LGL08_CAT.cpp
   Bpp/Phyl/Model/Protein/LLG08_EHO.cpp
   Bpp/Phyl/Model/Protein/LLG08_EX2.cpp
   Bpp/Phyl/Model/Protein/LLG08_EX3.cpp
   Bpp/Phyl/Model/Protein/LLG08_UL2.cpp
   Bpp/Phyl/Model/Protein/LLG08_UL3.cpp
-  Bpp/Phyl/Model/Protein/LG10_EX_EHO.cpp
-  Bpp/Phyl/Model/Protein/LGL08_CAT.cpp
-  Bpp/Phyl/Model/Protein/Coala.cpp
-  Bpp/Phyl/Model/Protein/CoalaCore.cpp
-  Bpp/Phyl/Model/Codon/GY94.cpp
-  Bpp/Phyl/Model/Codon/MG94.cpp
-  Bpp/Phyl/Model/Codon/TripletSubstitutionModel.cpp
-  Bpp/Phyl/Model/Codon/AbstractCodonSubstitutionModel.cpp
-  Bpp/Phyl/Model/Codon/AbstractKroneckerCodonSubstitutionModel.cpp
-  Bpp/Phyl/Model/Codon/AbstractCodonFrequenciesSubstitutionModel.cpp
-  Bpp/Phyl/Model/Codon/AbstractCodonPhaseFrequenciesSubstitutionModel.cpp
-  Bpp/Phyl/Model/Codon/AbstractCodonDistanceSubstitutionModel.cpp
-  Bpp/Phyl/Model/Codon/AbstractCodonFitnessSubstitutionModel.cpp
-  Bpp/Phyl/Model/Codon/AbstractCodonCpGSubstitutionModel.cpp
-  Bpp/Phyl/Model/Codon/CodonDistanceSubstitutionModel.cpp
-  Bpp/Phyl/Model/Codon/CodonDistanceCpGSubstitutionModel.cpp
-  Bpp/Phyl/Model/Codon/CodonDistanceFrequenciesSubstitutionModel.cpp
-  Bpp/Phyl/Model/Codon/KroneckerCodonDistanceFrequenciesSubstitutionModel.cpp 
-  Bpp/Phyl/Model/Codon/KroneckerCodonDistanceSubstitutionModel.cpp
-  Bpp/Phyl/Model/Codon/KCM.cpp
-  Bpp/Phyl/Model/Codon/CodonDistancePhaseFrequenciesSubstitutionModel.cpp
-  Bpp/Phyl/Model/Codon/SENCA.cpp
-  Bpp/Phyl/Model/Codon/CodonRateSubstitutionModel.cpp
-  Bpp/Phyl/Model/Codon/CodonRateFrequenciesSubstitutionModel.cpp
-  Bpp/Phyl/Model/Codon/YN98.cpp
-  Bpp/Phyl/Model/Codon/YNGKP_M1.cpp
-  Bpp/Phyl/Model/Codon/YNGKP_M2.cpp
-  Bpp/Phyl/Model/Codon/YNGKP_M3.cpp
-  Bpp/Phyl/Model/Codon/YNGKP_M7.cpp
-  Bpp/Phyl/Model/Codon/YNGKP_M8.cpp
-  Bpp/Phyl/Model/Codon/YNGKP_M9.cpp
-  Bpp/Phyl/Model/Codon/YNGKP_M10.cpp
-  Bpp/Phyl/Model/FrequenciesSet/FrequenciesSet.cpp
-  Bpp/Phyl/Model/FrequenciesSet/NucleotideFrequenciesSet.cpp
-  Bpp/Phyl/Model/FrequenciesSet/MvaFrequenciesSet.cpp
-  Bpp/Phyl/Model/FrequenciesSet/WordFrequenciesSet.cpp
-  Bpp/Phyl/Model/FrequenciesSet/CodonFrequenciesSet.cpp
+  Bpp/Phyl/Model/Protein/UserProteinSubstitutionModel.cpp
+  Bpp/Phyl/Model/Protein/WAG01.cpp
+  Bpp/Phyl/Model/RE08.cpp
+  Bpp/Phyl/Model/StateMap.cpp
+  Bpp/Phyl/Model/SubstitutionModelSet.cpp
+  Bpp/Phyl/Model/SubstitutionModelSetTools.cpp
+  Bpp/Phyl/Model/WordSubstitutionModel.cpp
+  Bpp/Phyl/NewLikelihood/AbstractLikelihoodNode.cpp
+  Bpp/Phyl/NewLikelihood/AbstractLikelihoodTree.cpp
+  Bpp/Phyl/NewLikelihood/AbstractLikelihoodTreeCalculation.cpp
+  Bpp/Phyl/NewLikelihood/AbstractSubstitutionProcess.cpp
+  Bpp/Phyl/NewLikelihood/AutoCorrelationSequenceEvolution.cpp
+  Bpp/Phyl/NewLikelihood/ComputingTree.cpp
+  Bpp/Phyl/NewLikelihood/HmmProcessEmissionProbabilities.cpp
+  Bpp/Phyl/NewLikelihood/HmmSequenceEvolution.cpp
+  Bpp/Phyl/NewLikelihood/MarginalAncestralReconstruction.cpp
+  Bpp/Phyl/NewLikelihood/MixtureSequenceEvolution.cpp
+  Bpp/Phyl/NewLikelihood/MultiProcessSequenceEvolution.cpp
+  Bpp/Phyl/NewLikelihood/NonHomogeneousSubstitutionProcess.cpp
+  Bpp/Phyl/NewLikelihood/OneProcessSequenceEvolution.cpp
+  Bpp/Phyl/NewLikelihood/ParametrizablePhyloTree.cpp
+  Bpp/Phyl/NewLikelihood/ParametrizableTree.cpp
+  Bpp/Phyl/NewLikelihood/PartitionSequenceEvolution.cpp
+  Bpp/Phyl/NewLikelihood/PhyloLikelihoods/AbstractPhyloLikelihood.cpp
+  Bpp/Phyl/NewLikelihood/PhyloLikelihoods/AutoCorrelationOfAlignedPhyloLikelihood.cpp
+  Bpp/Phyl/NewLikelihood/PhyloLikelihoods/AutoCorrelationProcessPhyloLikelihood.cpp
+  Bpp/Phyl/NewLikelihood/PhyloLikelihoods/FormulaOfPhyloLikelihood.cpp
+  Bpp/Phyl/NewLikelihood/PhyloLikelihoods/HmmOfAlignedPhyloLikelihood.cpp
+  Bpp/Phyl/NewLikelihood/PhyloLikelihoods/HmmPhyloEmissionProbabilities.cpp
+  Bpp/Phyl/NewLikelihood/PhyloLikelihoods/HmmProcessPhyloLikelihood.cpp
+  Bpp/Phyl/NewLikelihood/PhyloLikelihoods/MixtureOfAlignedPhyloLikelihood.cpp
+  Bpp/Phyl/NewLikelihood/PhyloLikelihoods/MixtureProcessPhyloLikelihood.cpp
+  Bpp/Phyl/NewLikelihood/PhyloLikelihoods/MultiProcessSequencePhyloLikelihood.cpp
+  Bpp/Phyl/NewLikelihood/PhyloLikelihoods/OneProcessSequencePhyloLikelihood.cpp
+  Bpp/Phyl/NewLikelihood/PhyloLikelihoods/PartitionProcessPhyloLikelihood.cpp
+  Bpp/Phyl/NewLikelihood/PhyloLikelihoods/ProductOfAlignedPhyloLikelihood.cpp
+  Bpp/Phyl/NewLikelihood/PhyloLikelihoods/SetOfAbstractPhyloLikelihood.cpp
+  Bpp/Phyl/NewLikelihood/PhyloLikelihoods/SetOfAlignedPhyloLikelihood.cpp
+  Bpp/Phyl/NewLikelihood/PhyloLikelihoods/SingleProcessPhyloLikelihood.cpp
+  Bpp/Phyl/NewLikelihood/RateAcrossSitesSubstitutionProcess.cpp
+  Bpp/Phyl/NewLikelihood/RecursiveLikelihoodTree.cpp
+  Bpp/Phyl/NewLikelihood/RecursiveLikelihoodTreeCalculation.cpp
+  Bpp/Phyl/NewLikelihood/SimpleSubstitutionProcess.cpp
+  Bpp/Phyl/NewLikelihood/SpeciationComputingNode.cpp
+  Bpp/Phyl/NewLikelihood/SubstitutionProcessCollection.cpp
+  Bpp/Phyl/NewLikelihood/SubstitutionProcessCollectionMember.cpp
   Bpp/Phyl/OptimizationTools.cpp
   Bpp/Phyl/Parsimony/AbstractTreeParsimonyScore.cpp
   Bpp/Phyl/Parsimony/DRTreeParsimonyData.cpp
   Bpp/Phyl/Parsimony/DRTreeParsimonyScore.cpp
   Bpp/Phyl/PatternTools.cpp
   Bpp/Phyl/PhyloStatistics.cpp
+  Bpp/Phyl/Simulation/EvolutionSequenceSimulator.cpp
   Bpp/Phyl/Simulation/MutationProcess.cpp
   Bpp/Phyl/Simulation/NonHomogeneousSequenceSimulator.cpp
-  Bpp/Phyl/Simulation/SubstitutionProcessSequenceSimulator.cpp
-  Bpp/Phyl/Simulation/EvolutionSequenceSimulator.cpp
   Bpp/Phyl/Simulation/SequenceSimulationTools.cpp
+  Bpp/Phyl/Simulation/SubstitutionProcessSequenceSimulator.cpp
   Bpp/Phyl/SitePatterns.cpp
+  Bpp/Phyl/Tree/AwareNode.cpp
   Bpp/Phyl/Tree/BipartitionList.cpp
   Bpp/Phyl/Tree/BipartitionTools.cpp
   Bpp/Phyl/Tree/NNITopologySearch.cpp
   Bpp/Phyl/Tree/Node.cpp
-  Bpp/Phyl/Tree/AwareNode.cpp
+  Bpp/Phyl/Tree/PhyloBranch.cpp
+  Bpp/Phyl/Tree/PhyloBranchParam.cpp
+  Bpp/Phyl/Tree/PhyloNode.cpp
+  Bpp/Phyl/Tree/PhyloTree.cpp
+  Bpp/Phyl/Tree/PhyloTreeExceptions.cpp
+  Bpp/Phyl/Tree/PhyloTreeTools.cpp
   Bpp/Phyl/Tree/TreeExceptions.cpp
   Bpp/Phyl/Tree/TreeTemplateTools.cpp
   Bpp/Phyl/Tree/TreeTools.cpp
-  Bpp/Phyl/Tree/PhyloTree.cpp
-  Bpp/Phyl/Tree/PhyloNode.cpp
-  Bpp/Phyl/Tree/PhyloBranch.cpp
-  Bpp/Phyl/Tree/PhyloBranchParam.cpp
-  Bpp/Phyl/Tree/PhyloTreeTools.cpp
-  Bpp/Phyl/Tree/PhyloTreeExceptions.cpp
-  )
-SET(H_FILES
-  Bpp/Phyl/AncestralStateReconstruction.h
-  Bpp/Phyl/App/PhylogeneticsApplicationTools.h
-  Bpp/Phyl/Distance/AbstractAgglomerativeDistanceMethod.h
-  Bpp/Phyl/Distance/DistanceMethod.h
-  Bpp/Phyl/Distance/BioNJ.h
-  Bpp/Phyl/Distance/DistanceEstimation.h
-  Bpp/Phyl/Distance/NeighborJoining.h
-  Bpp/Phyl/Distance/PGMA.h
-  Bpp/Phyl/Distance/HierarchicalClustering.h
-  Bpp/Phyl/Graphics/AbstractDendrogramPlot.h
-  Bpp/Phyl/Graphics/AbstractTreeDrawing.h
-  Bpp/Phyl/Graphics/CladogramPlot.h
-  Bpp/Phyl/Graphics/PhylogramPlot.h
-  Bpp/Phyl/Graphics/TreeDrawingDisplayControler.h
-  Bpp/Phyl/Graphics/TreeDrawing.h
-  Bpp/Phyl/Graphics/TreeDrawingListener.h
-  Bpp/Phyl/Io/IoDistanceMatrixFactory.h
-  Bpp/Phyl/Io/IoDistanceMatrix.h
-  Bpp/Phyl/Io/IoTreeFactory.h
-  Bpp/Phyl/Io/IoTree.h
-  Bpp/Phyl/Io/Newick.h
-  Bpp/Phyl/Io/Nhx.h
-  Bpp/Phyl/Io/NexusIoTree.h
-  Bpp/Phyl/Io/PhylipDistanceMatrixFormat.h
-  Bpp/Phyl/Io/IoPairedSiteLikelihoods.h
-  Bpp/Phyl/Io/IoSubstitutionModel.h
-  Bpp/Phyl/Io/IoSubstitutionModelFactory.h
-  Bpp/Phyl/Io/BppOSubstitutionModelFormat.h
-  Bpp/Phyl/Io/IoFrequenciesSet.h
-  Bpp/Phyl/Io/IoFrequenciesSetFactory.h
-  Bpp/Phyl/Io/BppOFrequenciesSetFormat.h
-  Bpp/Phyl/Io/BppORateDistributionFormat.h
-  Bpp/Phyl/Io/BppOTreeReaderFormat.h
-  Bpp/Phyl/Io/BppOMultiTreeReaderFormat.h
-  Bpp/Phyl/Io/BppOTreeWriterFormat.h
-  Bpp/Phyl/Io/BppOMultiTreeWriterFormat.h
-  Bpp/Phyl/Likelihood/AbstractDiscreteRatesAcrossSitesTreeLikelihood.h
-  Bpp/Phyl/Likelihood/AbstractHomogeneousTreeLikelihood.h
-  Bpp/Phyl/Likelihood/AbstractNonHomogeneousTreeLikelihood.h
-  Bpp/Phyl/Likelihood/AbstractTreeLikelihoodData.h
-  Bpp/Phyl/Likelihood/AbstractTreeLikelihood.h
-  Bpp/Phyl/Likelihood/ClockTreeLikelihood.h
-  Bpp/Phyl/Likelihood/DiscreteRatesAcrossSitesTreeLikelihood.h
-  Bpp/Phyl/Likelihood/DRASDRTreeLikelihoodData.h
-  Bpp/Phyl/Likelihood/DRASRTreeLikelihoodData.h
-  Bpp/Phyl/Likelihood/DRHomogeneousMixedTreeLikelihood.h
-  Bpp/Phyl/Likelihood/DRHomogeneousTreeLikelihood.h
-  Bpp/Phyl/Likelihood/DRNonHomogeneousTreeLikelihood.h
-  Bpp/Phyl/Likelihood/DRTreeLikelihood.h
-  Bpp/Phyl/Likelihood/DRTreeLikelihoodTools.h
-  Bpp/Phyl/Likelihood/HomogeneousTreeLikelihood.h
-  Bpp/Phyl/Likelihood/MarginalAncestralStateReconstruction.h
-  Bpp/Phyl/Likelihood/NNIHomogeneousTreeLikelihood.h
-  Bpp/Phyl/Likelihood/NonHomogeneousTreeLikelihood.h
-  Bpp/Phyl/Likelihood/PseudoNewtonOptimizer.h
-  Bpp/Phyl/Likelihood/RASTools.h
-  Bpp/Phyl/Likelihood/RHomogeneousClockTreeLikelihood.h
-  Bpp/Phyl/Likelihood/RHomogeneousMixedTreeLikelihood.h
-  Bpp/Phyl/Likelihood/RHomogeneousTreeLikelihood.h
-  Bpp/Phyl/Likelihood/RNonHomogeneousMixedTreeLikelihood.h
-  Bpp/Phyl/Likelihood/RNonHomogeneousTreeLikelihood.h
-  Bpp/Phyl/Likelihood/SitePartitionTreeLikelihood.h
-  Bpp/Phyl/Likelihood/TreeLikelihoodData.h
-  Bpp/Phyl/Likelihood/TreeLikelihood.h
-  Bpp/Phyl/Likelihood/TreeLikelihoodTools.h
-  Bpp/Phyl/Likelihood/PairedSiteLikelihoods.h
-  Bpp/Phyl/Likelihood/GlobalClockTreeLikelihoodFunctionWrapper.h
-  Bpp/Phyl/NewLikelihood/SubstitutionProcess.h
-  Bpp/Phyl/NewLikelihood/AbstractSubstitutionProcess.h
-  Bpp/Phyl/NewLikelihood/ModelIterator.h
-  Bpp/Phyl/NewLikelihood/SimpleSubstitutionProcess.h
-  Bpp/Phyl/NewLikelihood/NonHomogeneousSubstitutionProcess.h
-  Bpp/Phyl/NewLikelihood/RateAcrossSitesSubstitutionProcess.h
-  Bpp/Phyl/NewLikelihood/SubstitutionProcessCollection.h
-  Bpp/Phyl/NewLikelihood/SubstitutionProcessCollectionMember.h
-  Bpp/Phyl/NewLikelihood/HmmProcessEmissionProbabilities.h
-  Bpp/Phyl/NewLikelihood/HmmPhyloAlphabet.h
-  Bpp/Phyl/NewLikelihood/SequenceEvolution.h
-  Bpp/Phyl/NewLikelihood/OneProcessSequenceEvolution.h
-  Bpp/Phyl/NewLikelihood/MultiProcessSequenceEvolution.h
-  Bpp/Phyl/NewLikelihood/MixtureSequenceEvolution.h
-  Bpp/Phyl/NewLikelihood/PartitionSequenceEvolution.h
-  Bpp/Phyl/NewLikelihood/HmmSequenceEvolution.h
-  Bpp/Phyl/NewLikelihood/AutoCorrelationSequenceEvolution.h
-  Bpp/Phyl/NewLikelihood/ParametrizableTree.h
-  Bpp/Phyl/NewLikelihood/ParametrizablePhyloTree.h
-  Bpp/Phyl/NewLikelihood/LikelihoodNode.h
-  Bpp/Phyl/NewLikelihood/AbstractLikelihoodNode.h
-  Bpp/Phyl/NewLikelihood/LikelihoodTree.h
-  Bpp/Phyl/NewLikelihood/AbstractLikelihoodTree.h
-  Bpp/Phyl/NewLikelihood/RecursiveLikelihoodNode.h
-  Bpp/Phyl/NewLikelihood/RecursiveLikelihoodTree.h
-  Bpp/Phyl/NewLikelihood/LikelihoodTreeCalculation.h 
-  Bpp/Phyl/NewLikelihood/AbstractLikelihoodTreeCalculation.h
-  Bpp/Phyl/NewLikelihood/RecursiveLikelihoodTreeCalculation.h
-  Bpp/Phyl/NewLikelihood/SitePartition.h
-  Bpp/Phyl/NewLikelihood/ComputingNode.h
-  Bpp/Phyl/NewLikelihood/SpeciationComputingNode.h
-  Bpp/Phyl/NewLikelihood/ComputingTree.h
-  Bpp/Phyl/NewLikelihood/PhyloLikelihoods/PhyloLikelihood.h
-  Bpp/Phyl/NewLikelihood/PhyloLikelihoods/AbstractPhyloLikelihood.h
-  Bpp/Phyl/NewLikelihood/PhyloLikelihoods/AlignedPhyloLikelihood.h
-  Bpp/Phyl/NewLikelihood/PhyloLikelihoods/SingleDataPhyloLikelihood.h
-  Bpp/Phyl/NewLikelihood/PhyloLikelihoods/AbstractSequencePhyloLikelihood.h
-  Bpp/Phyl/NewLikelihood/PhyloLikelihoods/OneProcessSequencePhyloLikelihood.h
-  Bpp/Phyl/NewLikelihood/PhyloLikelihoods/SingleProcessPhyloLikelihood.h
-  Bpp/Phyl/NewLikelihood/PhyloLikelihoods/MultiSequencePhyloLikelihood.h
-  Bpp/Phyl/NewLikelihood/PhyloLikelihoods/MultiPhyloLikelihood.h
-  Bpp/Phyl/NewLikelihood/PhyloLikelihoods/MultiProcessSequencePhyloLikelihood.h
-  Bpp/Phyl/NewLikelihood/PhyloLikelihoods/MixtureProcessPhyloLikelihood.h
-  Bpp/Phyl/NewLikelihood/PhyloLikelihoods/HmmProcessPhyloLikelihood.h
-  Bpp/Phyl/NewLikelihood/PhyloLikelihoods/AutoCorrelationProcessPhyloLikelihood.h
-  Bpp/Phyl/NewLikelihood/PhyloLikelihoods/PhyloLikelihoodContainer.h
-  Bpp/Phyl/NewLikelihood/PhyloLikelihoods/SetOfAbstractPhyloLikelihood.h
-  Bpp/Phyl/NewLikelihood/PhyloLikelihoods/SetOfAlignedPhyloLikelihood.h
-  Bpp/Phyl/NewLikelihood/PhyloLikelihoods/FormulaOfPhyloLikelihood.h
-  Bpp/Phyl/NewLikelihood/PhyloLikelihoods/ProductOfAlignedPhyloLikelihood.h
-  Bpp/Phyl/NewLikelihood/PhyloLikelihoods/MixtureOfAlignedPhyloLikelihood.h
-  Bpp/Phyl/NewLikelihood/PhyloLikelihoods/HmmPhyloAlphabet.h
-  Bpp/Phyl/NewLikelihood/PhyloLikelihoods/HmmPhyloEmissionProbabilities.h
-  Bpp/Phyl/NewLikelihood/PhyloLikelihoods/HmmOfAlignedPhyloLikelihood.h
-  Bpp/Phyl/NewLikelihood/PhyloLikelihoods/AutoCorrelationOfAlignedPhyloLikelihood.h
-  Bpp/Phyl/NewLikelihood/PhyloLikelihoods/PartitionProcessPhyloLikelihood.h
-  Bpp/Phyl/NewLikelihood/MarginalAncestralReconstruction.h
-  Bpp/Phyl/Mapping/LaplaceSubstitutionCount.h
-  Bpp/Phyl/Mapping/WeightedSubstitutionCount.h
-  Bpp/Phyl/Mapping/OneJumpSubstitutionCount.h
-  Bpp/Phyl/Mapping/ProbabilisticSubstitutionMapping.h
-  Bpp/Phyl/Mapping/NaiveSubstitutionCount.h
-  Bpp/Phyl/Mapping/DecompositionSubstitutionCount.h
-  Bpp/Phyl/Mapping/UniformizationSubstitutionCount.h
-  Bpp/Phyl/Mapping/SubstitutionRegister.h
-  Bpp/Phyl/Mapping/CategorySubstitutionRegister.h
-  Bpp/Phyl/Mapping/SubstitutionCount.h
-  Bpp/Phyl/Mapping/Mapping.h
-  Bpp/Phyl/Mapping/SubstitutionMapping.h
-  Bpp/Phyl/Mapping/SubstitutionMappingTools.h
-  Bpp/Phyl/Mapping/Reward.h
-  Bpp/Phyl/Mapping/DecompositionReward.h
-  Bpp/Phyl/Mapping/RewardMapping.h
-  Bpp/Phyl/Mapping/RewardMappingTools.h
-  Bpp/Phyl/Mapping/ProbabilisticRewardMapping.h
-  Bpp/Phyl/Model/StateMap.h
-  Bpp/Phyl/Model/AbstractSubstitutionModel.h
-  Bpp/Phyl/Model/BinarySubstitutionModel.h
-  Bpp/Phyl/Model/EquiprobableSubstitutionModel.h
-  Bpp/Phyl/Model/G2001.h
-  Bpp/Phyl/Model/AbstractBiblioSubstitutionModel.h
-  Bpp/Phyl/Model/AbstractBiblioMixedSubstitutionModel.h
-  Bpp/Phyl/Model/MarkovModulatedSubstitutionModel.h
-  Bpp/Phyl/Model/MixedSubstitutionModel.h
-  Bpp/Phyl/Model/AbstractMixedSubstitutionModel.h
-  Bpp/Phyl/Model/MixtureOfASubstitutionModel.h
-  Bpp/Phyl/Model/MixtureOfSubstitutionModels.h
-  Bpp/Phyl/Model/FromMixtureSubstitutionModel.h
-  Bpp/Phyl/Model/RE08.h
-  Bpp/Phyl/Model/SubstitutionModel.h
-  Bpp/Phyl/Model/SubstitutionModelSet.h
-  Bpp/Phyl/Model/MixedSubstitutionModelSet.h
-  Bpp/Phyl/Model/SubstitutionModelSetTools.h
-  Bpp/Phyl/Model/TS98.h
-  Bpp/Phyl/Model/AbstractWordSubstitutionModel.h
-  Bpp/Phyl/Model/AbstractKroneckerWordSubstitutionModel.h
-  Bpp/Phyl/Model/WordSubstitutionModel.h
-  Bpp/Phyl/Model/KroneckerWordSubstitutionModel.h
-  Bpp/Phyl/Model/Nucleotide/NucleotideSubstitutionModel.h
-  Bpp/Phyl/Model/Nucleotide/F81.h
-  Bpp/Phyl/Model/Nucleotide/F84.h
-  Bpp/Phyl/Model/Nucleotide/HKY85.h
-  Bpp/Phyl/Model/Nucleotide/JCnuc.h
-  Bpp/Phyl/Model/Nucleotide/GTR.h
-  Bpp/Phyl/Model/Nucleotide/K80.h
-  Bpp/Phyl/Model/Nucleotide/L95.h
-  Bpp/Phyl/Model/Nucleotide/RN95.h
-  Bpp/Phyl/Model/Nucleotide/RN95s.h
-  Bpp/Phyl/Model/Nucleotide/SSR.h
-  Bpp/Phyl/Model/Nucleotide/T92.h
-  Bpp/Phyl/Model/Nucleotide/TN93.h
-  Bpp/Phyl/Model/Nucleotide/gBGC.h
-  Bpp/Phyl/Model/Nucleotide/YpR.h
-  Bpp/Phyl/Model/Protein/ProteinSubstitutionModel.h
-  Bpp/Phyl/Model/Protein/DSO78.h
-  Bpp/Phyl/Model/Protein/UserProteinSubstitutionModel.h
-  Bpp/Phyl/Model/Protein/JCprot.h
-  Bpp/Phyl/Model/Protein/JTT92.h
-  Bpp/Phyl/Model/Protein/LG08.h
-  Bpp/Phyl/Model/Protein/WAG01.h
-  Bpp/Phyl/Model/Protein/LLG08_EHO.h
-  Bpp/Phyl/Model/Protein/LLG08_EX2.h
-  Bpp/Phyl/Model/Protein/LLG08_EX3.h
-  Bpp/Phyl/Model/Protein/LLG08_UL2.h
-  Bpp/Phyl/Model/Protein/LLG08_UL3.h
-  Bpp/Phyl/Model/Protein/LG10_EX_EHO.h
-  Bpp/Phyl/Model/Protein/LGL08_CAT.h
-  Bpp/Phyl/Model/Protein/Coala.h
-  Bpp/Phyl/Model/Protein/CoalaCore.h
-  Bpp/Phyl/Model/Codon/GY94.h
-  Bpp/Phyl/Model/Codon/MG94.h
-  Bpp/Phyl/Model/Codon/CodonSubstitutionModel.h
-  Bpp/Phyl/Model/Codon/TripletSubstitutionModel.h
-  Bpp/Phyl/Model/Codon/AbstractCodonSubstitutionModel.h
-  Bpp/Phyl/Model/Codon/AbstractKroneckerCodonSubstitutionModel.h
-  Bpp/Phyl/Model/Codon/AbstractCodonFrequenciesSubstitutionModel.h
-  Bpp/Phyl/Model/Codon/AbstractCodonPhaseFrequenciesSubstitutionModel.h
-  Bpp/Phyl/Model/Codon/AbstractCodonDistanceSubstitutionModel.h
-  Bpp/Phyl/Model/Codon/AbstractCodonFitnessSubstitutionModel.h
-  Bpp/Phyl/Model/Codon/AbstractCodonCpGSubstitutionModel.h
-  Bpp/Phyl/Model/Codon/CodonDistanceSubstitutionModel.h
-  Bpp/Phyl/Model/Codon/CodonDistanceCpGSubstitutionModel.h
-  Bpp/Phyl/Model/Codon/CodonDistanceFrequenciesSubstitutionModel.h
-  Bpp/Phyl/Model/Codon/KroneckerCodonDistanceFrequenciesSubstitutionModel.h
-  Bpp/Phyl/Model/Codon/KroneckerCodonDistanceSubstitutionModel.h
-  Bpp/Phyl/Model/Codon/KCM.h
-  Bpp/Phyl/Model/Codon/CodonDistancePhaseFrequenciesSubstitutionModel.h
-  Bpp/Phyl/Model/Codon/SENCA.h
-  Bpp/Phyl/Model/Codon/CodonRateSubstitutionModel.h
-  Bpp/Phyl/Model/Codon/CodonRateFrequenciesSubstitutionModel.h
-  Bpp/Phyl/Model/Codon/YN98.h
-  Bpp/Phyl/Model/Codon/YNGKP_M1.h
-  Bpp/Phyl/Model/Codon/YNGKP_M2.h
-  Bpp/Phyl/Model/Codon/YNGKP_M3.h
-  Bpp/Phyl/Model/Codon/YNGKP_M7.h
-  Bpp/Phyl/Model/Codon/YNGKP_M8.h
-  Bpp/Phyl/Model/Codon/YNGKP_M9.h
-  Bpp/Phyl/Model/Codon/YNGKP_M10.h
-  Bpp/Phyl/Model/FrequenciesSet/FrequenciesSet.h
-  Bpp/Phyl/Model/FrequenciesSet/NucleotideFrequenciesSet.h
-  Bpp/Phyl/Model/FrequenciesSet/WordFrequenciesSet.h
-  Bpp/Phyl/Model/FrequenciesSet/CodonFrequenciesSet.h
-  Bpp/Phyl/Model/FrequenciesSet/FrequenciesSet.h
-  Bpp/Phyl/Model/FrequenciesSet/NucleotideFrequenciesSet.h
-  Bpp/Phyl/Model/FrequenciesSet/ProteinFrequenciesSet.h
-  Bpp/Phyl/Model/FrequenciesSet/MvaFrequenciesSet.h
-  Bpp/Phyl/Model/FrequenciesSet/WordFrequenciesSet.h
-  Bpp/Phyl/Model/FrequenciesSet/CodonFrequenciesSet.h
-  Bpp/Phyl/Model/RateDistribution/ConstantRateDistribution.h
-  Bpp/Phyl/Model/RateDistribution/GammaDiscreteRateDistribution.h
-  Bpp/Phyl/Model/RateDistribution/GaussianDiscreteRateDistribution.h
-  Bpp/Phyl/Model/RateDistribution/ExponentialDiscreteRateDistribution.h
-  Bpp/Phyl/OptimizationTools.h
-  Bpp/Phyl/Parsimony/AbstractTreeParsimonyData.h
-  Bpp/Phyl/Parsimony/AbstractTreeParsimonyScore.h
-  Bpp/Phyl/Parsimony/DRTreeParsimonyData.h
-  Bpp/Phyl/Parsimony/DRTreeParsimonyScore.h
-  Bpp/Phyl/Parsimony/TreeParsimonyData.h
-  Bpp/Phyl/Parsimony/TreeParsimonyScore.h
-  Bpp/Phyl/PatternTools.h
-  Bpp/Phyl/PhyloStatistics.h
-  Bpp/Phyl/Simulation/New_DetailedSiteSimulator.h
-  Bpp/Phyl/Simulation/DetailedSiteSimulator.h
-  Bpp/Phyl/Simulation/HomogeneousSequenceSimulator.h
-  Bpp/Phyl/Simulation/MutationProcess.h
-  Bpp/Phyl/Simulation/NonHomogeneousSequenceSimulator.h
-  Bpp/Phyl/Simulation/SubstitutionProcessSequenceSimulator.h
-  Bpp/Phyl/Simulation/EvolutionSequenceSimulator.h
-  Bpp/Phyl/Simulation/SequenceSimulationTools.h
-  Bpp/Phyl/Simulation/SequenceSimulator.h
-  Bpp/Phyl/Simulation/SiteSimulator.h
-  Bpp/Phyl/SitePatterns.h
-  Bpp/Phyl/Tree/TopologySearch.h
-  Bpp/Phyl/Tree/NNISearchable.h
-  Bpp/Phyl/Tree/NNITopologySearch.h
-  Bpp/Phyl/Tree/BipartitionList.h
-  Bpp/Phyl/Tree/BipartitionTools.h
-  Bpp/Phyl/Tree/Node.h
-  Bpp/Phyl/Tree/NodeTemplate.h
-  Bpp/Phyl/Tree/TreeExceptions.h
-  Bpp/Phyl/Tree/Tree.h
-  Bpp/Phyl/Tree/TreeTemplate.h
-  Bpp/Phyl/Tree/TreeTemplateTools.h
-  Bpp/Phyl/Tree/TreeTools.h
-  Bpp/Phyl/Tree/PhyloTree.h
-  Bpp/Phyl/Tree/PhyloNode.h
-  Bpp/Phyl/Tree/AwareNode.h
-  Bpp/Phyl/Tree/PhyloBranch.h
-  Bpp/Phyl/Tree/PhyloTreeTools.h
-  Bpp/Phyl/Tree/PhyloTreeExceptions.h
   )
 
 # Build the static lib
-ADD_LIBRARY(bppphyl-static STATIC ${CPP_FILES})
-SET_TARGET_PROPERTIES(bppphyl-static
-  PROPERTIES OUTPUT_NAME bpp-phyl
-  CLEAN_DIRECT_OUTPUT 1
+add_library (${PROJECT_NAME}-static STATIC ${CPP_FILES})
+target_include_directories (${PROJECT_NAME}-static PUBLIC
+  $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>
+  $<INSTALL_INTERFACE:include>
   )
-TARGET_LINK_LIBRARIES(bppphyl-static ${LIBS})
+set_target_properties (${PROJECT_NAME}-static PROPERTIES OUTPUT_NAME ${PROJECT_NAME})
+target_link_libraries (${PROJECT_NAME}-static ${BPP_LIBS_STATIC})
+target_compile_options (${PROJECT_NAME}-static
+  PUBLIC ${public-compile-options}
+  PRIVATE ${private-compile-options}
+  )
 
 # Build the shared lib
-ADD_LIBRARY(bppphyl-shared SHARED ${CPP_FILES})
-SET_TARGET_PROPERTIES(bppphyl-shared
-  PROPERTIES OUTPUT_NAME bpp-phyl
-  CLEAN_DIRECT_OUTPUT 1
-  MACOSX_RPATH 1
-  VERSION ${BPPPHYL_VERSION}
-  SOVERSION ${BPPPHYL_VERSION_MAJOR}
+add_library (${PROJECT_NAME}-shared SHARED ${CPP_FILES})
+target_include_directories (${PROJECT_NAME}-shared PUBLIC
+  $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>
+  $<INSTALL_INTERFACE:include>
   )
-TARGET_LINK_LIBRARIES(bppphyl-shared ${LIBS})
+set_target_properties (${PROJECT_NAME}-shared
+  PROPERTIES OUTPUT_NAME ${PROJECT_NAME}
+  MACOSX_RPATH 1
+  VERSION ${${PROJECT_NAME}_VERSION}
+  SOVERSION ${${PROJECT_NAME}_VERSION_MAJOR}
+  )
+target_link_libraries (${PROJECT_NAME}-shared ${BPP_LIBS_SHARED})
+target_compile_options (${PROJECT_NAME}-shared
+  PUBLIC ${public-compile-options}
+  PRIVATE ${private-compile-options}
+  )
 
-# Install libs
-INSTALL(TARGETS bppphyl-static bppphyl-shared DESTINATION lib${LIB_SUFFIX})
-
-# Install headers
-INSTALL(DIRECTORY Bpp/ DESTINATION include/Bpp FILES_MATCHING PATTERN "*.h")
-
+# Install libs and headers
+install (
+  TARGETS ${PROJECT_NAME}-static ${PROJECT_NAME}-shared
+  EXPORT ${PROJECT_NAME}-targets
+  LIBRARY DESTINATION lib${LIB_SUFFIX}
+  ARCHIVE DESTINATION lib${LIB_SUFFIX}
+  )
+install (
+  DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/
+  DESTINATION include
+  FILES_MATCHING PATTERN "*.h"
+  )
+# Install cmake file representing targets
+install (EXPORT ${PROJECT_NAME}-targets DESTINATION ${cmake-package-location})

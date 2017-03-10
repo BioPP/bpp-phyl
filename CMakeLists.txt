@@ -1,17 +1,22 @@
 # CMake script for Bio++ PhylLib
-# Author: Sylvain Gaillard and Julien Dutheil
+# Authors:
+#   Sylvain Gaillard
+#   Julien Dutheil
+#   Francois Gindraud (2017)
 # Created: 20/08/2009
 
-# Global parameters
-CMAKE_MINIMUM_REQUIRED(VERSION 2.6)
-PROJECT(bpp-phyl CXX)
+cmake_minimum_required (VERSION 2.8.12)
+project (bpp-phyl CXX)
+
+# Compile options
+set (public-compile-options -std=c++11)
+set (private-compile-options -Wall -Weffc++ -Wshadow -Wconversion)
+
 IF(NOT CMAKE_BUILD_TYPE)
   SET(CMAKE_BUILD_TYPE RelWithDebInfo CACHE STRING
       "Choose the type of build, options are: None Debug Release RelWithDebInfo MinSizeRel."
       FORCE)
 ENDIF(NOT CMAKE_BUILD_TYPE)
-
-SET(CMAKE_CXX_FLAGS "-std=c++11 -Wall -Wshadow -Weffc++ -Wconversion")
 
 IF(NOT NO_DEP_CHECK)
   SET(NO_DEP_CHECK FALSE CACHE BOOL
@@ -31,48 +36,47 @@ ELSE(NO_DEP_CHECK)
 #           library implements.
 # In other words, the library implements all the interface numbers in the
 # range from number current - age to current.
-SET(BPPPHYL_VERSION_CURRENT "10")
-SET(BPPPHYL_VERSION_REVISION "3")
-SET(BPPPHYL_VERSION_AGE "1")
+SET(${PROJECT_NAME}_VERSION_CURRENT "10")
+SET(${PROJECT_NAME}_VERSION_REVISION "3")
+SET(${PROJECT_NAME}_VERSION_AGE "1")
 
 # Effective version number computation
-MATH(EXPR BPPPHYL_VERSION_MAJOR "${BPPPHYL_VERSION_CURRENT} - ${BPPPHYL_VERSION_AGE}")
-SET(BPPPHYL_VERSION_MINOR ${BPPPHYL_VERSION_AGE})
-SET(BPPPHYL_VERSION_PATCH ${BPPPHYL_VERSION_REVISION})
-SET(BPPPHYL_VERSION "${BPPPHYL_VERSION_MAJOR}.${BPPPHYL_VERSION_MINOR}.${BPPPHYL_VERSION_PATCH}")
+MATH(EXPR ${PROJECT_NAME}_VERSION_MAJOR "${${PROJECT_NAME}_VERSION_CURRENT} - ${${PROJECT_NAME}_VERSION_AGE}")
+SET(${PROJECT_NAME}_VERSION_MINOR ${${PROJECT_NAME}_VERSION_AGE})
+SET(${PROJECT_NAME}_VERSION_PATCH ${${PROJECT_NAME}_VERSION_REVISION})
+SET(${PROJECT_NAME}_VERSION "${${PROJECT_NAME}_VERSION_MAJOR}.${${PROJECT_NAME}_VERSION_MINOR}.${${PROJECT_NAME}_VERSION_PATCH}")
 
-# Set the CMAKE_PREFIX_PATH for the find_library fonction when using non
-# standard install location
-IF(CMAKE_INSTALL_PREFIX)
-  SET(CMAKE_PREFIX_PATH "${CMAKE_INSTALL_PREFIX}" ${CMAKE_PREFIX_PATH})
-ENDIF(CMAKE_INSTALL_PREFIX)
+set (PROJECT_VERSION ${${PROJECT_NAME}_VERSION})
 
-#here is a useful function:
-MACRO(IMPROVED_FIND_LIBRARY OUTPUT_LIBS lib_name include_to_find)
-  #start:
-  FIND_PATH(${lib_name}_INCLUDE_DIR ${include_to_find})
-  SET(${lib_name}_NAMES ${lib_name} ${lib_name}lib ${lib_name}dll)
-  FIND_LIBRARY(${lib_name}_LIBRARY NAMES ${${lib_name}_NAMES} PATH_SUFFIXES lib${LIB_SUFFIX})
+# Find dependencies (add install directory to search)
+if (CMAKE_INSTALL_PREFIX)
+  set (CMAKE_PREFIX_PATH "${CMAKE_INSTALL_PREFIX}" ${CMAKE_PREFIX_PATH})
+endif (CMAKE_INSTALL_PREFIX)
 
-  IF(${${lib_name}_INCLUDE_DIR} MATCHES ${lib_name}_INCLUDE_DIR-NOTFOUND)
-    MESSAGE(FATAL_ERROR "${lib_name} required but not found.")
-  ELSE(${${lib_name}_INCLUDE_DIR} MATCHES ${lib_name}_INCLUDE_DIR-NOTFOUND)
-    MESSAGE("-- Library ${lib_name} found here:")
-    MESSAGE("   includes : ${${lib_name}_INCLUDE_DIR}")
-    MESSAGE("   libraries: ${${lib_name}_LIBRARY}")
-  ENDIF(${${lib_name}_INCLUDE_DIR} MATCHES ${lib_name}_INCLUDE_DIR-NOTFOUND)
-  
-  #add the dependency:
-  INCLUDE_DIRECTORIES(${${lib_name}_INCLUDE_DIR})
-  SET(${OUTPUT_LIBS} ${${OUTPUT_LIBS}} ${${lib_name}_LIBRARY})
-ENDMACRO(IMPROVED_FIND_LIBRARY)
+find_package (bpp-core 2.0.3 REQUIRED)
+find_package (bpp-seq 9.1.3 REQUIRED)
 
-#Find the Bio++ libraries:
-IMPROVED_FIND_LIBRARY(LIBS bpp-seq Bpp/Seq/Alphabet/Alphabet.h)
-IMPROVED_FIND_LIBRARY(LIBS bpp-core Bpp/Clonable.h)
+# CMake package
+set (cmake-package-location lib/cmake/${PROJECT_NAME})
+include (CMakePackageConfigHelpers)
+configure_package_config_file (
+  ${PROJECT_NAME}-config.cmake.in
+  ${CMAKE_CURRENT_BINARY_DIR}/${PROJECT_NAME}-config.cmake
+  INSTALL_DESTINATION ${cmake-package-location}
+  )
+write_basic_package_version_file (
+  ${CMAKE_CURRENT_BINARY_DIR}/${PROJECT_NAME}-config-version.cmake
+  VERSION ${PROJECT_VERSION}
+  COMPATIBILITY SameMajorVersion
+  )
+install (FILES
+  ${CMAKE_CURRENT_BINARY_DIR}/${PROJECT_NAME}-config.cmake
+  ${CMAKE_CURRENT_BINARY_DIR}/${PROJECT_NAME}-config-version.cmake
+  DESTINATION ${cmake-package-location}
+  )
 
-# Subdirectories
-ADD_SUBDIRECTORY(src)
+# Define the libraries
+add_subdirectory (src)
 
 # Doxygen
 FIND_PACKAGE(Doxygen)
@@ -159,10 +163,10 @@ SET(CTEST_UPDATE_TYPE git)
 SET(UPDATE_COMMAND "git")
 SET(UPDATE_OPTIONS "")
 
-ENABLE_TESTING()
-INCLUDE(CTest)
-IF (BUILD_TESTING)
-  ADD_SUBDIRECTORY(test)
-ENDIF(BUILD_TESTING)
+enable_testing ()
+include (CTest)
+if (BUILD_TESTING)
+  add_subdirectory (test)
+endif ()
 
 ENDIF(NOT NO_DEP_CHECK)

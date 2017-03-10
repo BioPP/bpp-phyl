@@ -1,0 +1,27 @@
+# CMake package file for Bio++ PhylLib
+# Authors:
+#   Francois Gindraud (2017)
+# Created: 08/03/2017
+@PACKAGE_INIT@
+
+if (NOT @PROJECT_NAME@_FOUND)
+  # Deps
+  find_package (bpp-core @bpp-core_VERSION@ REQUIRED)
+  find_package (bpp-seq @bpp-seq_VERSION@ REQUIRED)
+  # Add targets
+  include ("${CMAKE_CURRENT_LIST_DIR}/@PROJECT_NAME@-targets.cmake")
+  # Append targets to convenient lists
+  set (BPP_LIBS_STATIC "${BPP_LIBS_STATIC}" @PROJECT_NAME@-static)
+  set (BPP_LIBS_SHARED "${BPP_LIBS_SHARED}" @PROJECT_NAME@-shared)
+  # Print some path info for targets
+  get_property (static-location TARGET @PROJECT_NAME@-static PROPERTY LOCATION)
+  get_property (shared-location TARGET @PROJECT_NAME@-shared PROPERTY LOCATION)
+  get_property (header-location TARGET @PROJECT_NAME@-static PROPERTY INTERFACE_INCLUDE_DIRECTORIES)
+  message (STATUS "@PROJECT_NAME@ @PROJECT_VERSION@ found:")
+  message (STATUS "  static lib: ${static-location}")
+  message (STATUS "  shared lib: ${shared-location}")
+  message (STATUS "  includes: ${header-location}")
+  unset (static-location)
+  unset (shared-location)
+  unset (header-location)
+endif (NOT @PROJECT_NAME@_FOUND)
