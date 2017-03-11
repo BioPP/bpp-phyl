@@ -171,16 +171,16 @@ void RN95::updateMatrices()
   generator_(3, 3) = -(delta_ + sigma_ + kappa_);
 
   // Normalization
-
+  
   double x = 0;
   for (size_t i = 0; i < 4; i++)
   {
     x += generator_(i, i) * freq_[i];
   }
 
-  r_ = -1 / x;
+  r_ = isScalable()?-1 / x:1;
 
-  MatrixTools::scale(generator_, r_);
+  setScale(r_);
   // variables for calculation purposes
 
   c1_ = 1;

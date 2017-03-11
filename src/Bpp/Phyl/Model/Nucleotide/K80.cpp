@@ -65,7 +65,7 @@ void K80::updateMatrices()
 {
   kappa_ = getParameterValue("kappa");
   k_ = (kappa_ + 1.) / 2.;
-  r_ = 4. / (kappa_ + 2.);
+  r_ = isScalable()?4. / (kappa_ + 2.):4;
 	
   // Frequences:
   freq_[0] = freq_[1] = freq_[2] = freq_[3] = 1. / 4.;
@@ -91,7 +91,7 @@ void K80::updateMatrices()
   generator_(3, 1) = kappa_;
 
   // Normalization:
-  MatrixTools::scale(generator_, r_/4);
+  setScale(r_/4);
 
   // Exchangeability:
   exchangeability_ = generator_;

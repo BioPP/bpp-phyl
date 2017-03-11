@@ -416,6 +416,21 @@ public:
   virtual double getInitValue(size_t i, int state) const throw (IndexOutOfBoundsException, BadIntException) = 0;
 
   /**
+   * @brief sets if model is scalable, ie scale can be changed.
+   * Default : true, set to false to avoid normalization for example.
+   *
+   */
+  
+  virtual void setScalable(bool scalable) = 0;
+  
+  /**
+   * @brief returns  if model is scalable
+   *
+   */
+
+  virtual bool isScalable() const = 0;
+  
+  /**
    * @brief Get the scalar product of diagonal elements of the generator
    * and the frequencies vector.
    * If the generator is normalized, then scale=1. Otherwise each element
@@ -424,7 +439,7 @@ public:
    * @return Minus the scalar product of diagonal elements and the frequencies vector.
    */
   virtual double getScale() const = 0;
-
+  
   /**
    * 
    * @brief Multiplies the current generator by the given scale.
@@ -434,6 +449,13 @@ public:
    */
   virtual void setScale(double scale) = 0;
 
+  /**
+   * @brief Normalize the generator
+   *
+   */
+  
+  virtual void normalize() = 0;
+  
   /**
    * @brief Get the rate
    */

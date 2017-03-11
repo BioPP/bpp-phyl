@@ -1521,6 +1521,7 @@ void BppOSubstitutionModelFormat::write(const SubstitutionModel& model,
     
     BppOFrequenciesSetFormat bIOFreq(alphabetCode_, false, warningLevel_);
     bIOFreq.write(pfs, out, globalAliases, writtenNames);
+    
     comma = true;
   }
 
@@ -1554,7 +1555,7 @@ void BppOSubstitutionModelFormat::write(const SubstitutionModel& model,
   {
     if (comma)
       out << ",";
-    out << "n=" << pM8->getNumberOfModels();
+    out << "n=" << pM8->getNumberOfModels()-1;
     comma=true;
   }
 
@@ -1580,6 +1581,24 @@ void BppOSubstitutionModelFormat::write(const SubstitutionModel& model,
   
   BppOParametrizableFormat bIO;
 
+  // case of Biblio models, update writtenNames
+
+  const AbstractBiblioSubstitutionModel* absm=dynamic_cast<const AbstractBiblioSubstitutionModel*>(&model);
+  
+  if (absm)
+  {
+    size_t wNs=writtenNames.size();
+    
+    for (size_t i=0;i<wNs; i++)
+    {
+      try
+      {
+        writtenNames.push_back(absm->getNamespace()+absm->getParNameFromPmodel(writtenNames[i]));
+      }
+      catch (Exception& e) {}
+    }
+  }
+    
   bIO.write(&model, out, globalAliases, model.getIndependentParameters().getParameterNames(), writtenNames, true, comma);
   out << ")";
 }

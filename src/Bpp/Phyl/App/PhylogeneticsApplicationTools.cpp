@@ -3697,7 +3697,8 @@ throw (Exception)
     ApplicationTools::displayResult("Performed", TextTools::toString(n) + " function evaluations.");
   if (backupFile != "none")
   {
-    remove(backupFile.c_str());
+    string bf=backupFile+".def";
+    rename(backupFile.c_str(),bf.c_str());
   }
 }
 
@@ -4030,7 +4031,6 @@ void PhylogeneticsApplicationTools::printParameters(const SubstitutionProcessCol
   {
     const FrequenciesSet& rootFreq = collection->getFrequencies(rootFreqN[i]);
 
-
     // Now print it:
     writtenNames.clear();
     out.endLine() << "root_freq" << rootFreqN[i] << "=";
@@ -4323,7 +4323,6 @@ void PhylogeneticsApplicationTools::printParameters(const SequenceEvolution* evo
   else if (dynamic_cast<const MultiProcessSequenceEvolution*>(evol) != NULL)
   {
     const MultiProcessSequenceEvolution* pMP = dynamic_cast<const MultiProcessSequenceEvolution*>(evol);
-
 
     if (dynamic_cast<const MixtureSequenceEvolution*>(evol) != NULL)
     {

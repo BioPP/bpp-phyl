@@ -77,11 +77,9 @@ YNGKP_M3::YNGKP_M3(const GeneticCode* gc, FrequenciesSet* codonFreqs, unsigned i
   mpdd["omega"] = psdd;
 
   YN98* yn98 = new YN98(gc, codonFreqs);
-  yn98->setNamespace("YNGKP_M3.");
+
   pmixmodel_.reset(new MixtureOfASubstitutionModel(gc->getSourceAlphabet(), yn98, mpdd));
   delete psdd;
-
-  pmixmodel_->setNamespace("YNGKP_M3.");
 
   vector<int> supportedChars = yn98->getAlphabetStates();
 
@@ -96,21 +94,21 @@ YNGKP_M3::YNGKP_M3(const GeneticCode* gc, FrequenciesSet* codonFreqs, unsigned i
   vector<std::string> v = dynamic_cast<YN98*>(pmixmodel_->getNModel(0))->getFrequenciesSet()->getParameters().getParameterNames();
   for (size_t i = 0; i < v.size(); ++i)
   {
-    mapParNamesFromPmodel_[v[i]] = getParameterNameWithoutNamespace(v[i]);
+    mapParNamesFromPmodel_[v[i]] = v[i].substr(5);
   }
 
-  mapParNamesFromPmodel_["YNGKP_M3.kappa"] = "kappa";
+  mapParNamesFromPmodel_["YN98.kappa"] = "kappa";
 
   for (size_t i = 1; i < nbOmega; ++i)
   {
-    mapParNamesFromPmodel_["YNGKP_M3.omega_Simple.theta" + TextTools::toString(i)] = "theta" + TextTools::toString(i);
+    mapParNamesFromPmodel_["YN98.omega_Simple.theta" + TextTools::toString(i)] = "theta" + TextTools::toString(i);
   }
 
 
-  mapParNamesFromPmodel_["YNGKP_M3.omega_Simple.V1"] = "omega0";
+  mapParNamesFromPmodel_["YN98.omega_Simple.V1"] = "omega0";
   for (size_t i = 1; i < nbOmega; ++i)
   {
-    mapParNamesFromPmodel_["YNGKP_M3.omega_Simple.V" + TextTools::toString(i + 1)] = "delta" + TextTools::toString(i);
+    mapParNamesFromPmodel_["YN98.omega_Simple.V" + TextTools::toString(i + 1)] = "delta" + TextTools::toString(i);
   }
 
   // specific parameters

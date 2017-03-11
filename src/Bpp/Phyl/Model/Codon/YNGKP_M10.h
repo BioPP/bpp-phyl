@@ -54,9 +54,9 @@ namespace bpp
  * @author Laurent Guéguen
  *
  * This model is a mixture of models as described in YN98 class, the
- * mixture being defined on the selection parameter oomega to allow it
+ * mixture being defined on the selection parameter omega to allow it
  * to vary among sites, following a mixture of a Beta distribution and
- * of a Gamma distribution.
+ * of a switched Gamma distribution.
  *
  * This model includes 5 parameters (@f$\kappa@f$, @f$ p @f$ and
  * @f$q@f$ of the @f$ Beta(p,q) @f$ distribution, @f$ \alpha @f$ and

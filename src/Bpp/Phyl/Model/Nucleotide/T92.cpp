@@ -87,7 +87,8 @@ void T92::updateMatrices()
   piG_ = theta_ / 2;
   piT_ = (1 - theta_) / 2;
   k_ = (kappa_ + 1.) / 2.;
-  r_ = 2. / (1. + 2. * theta_ * kappa_ - 2. * theta_ * theta_ * kappa_);
+  r_ = isScalable()?2. / (1. + 2. * theta_ * kappa_ - 2. * theta_ * theta_ * kappa_):1;
+  
 
   freq_[0] = piA_;
   freq_[1] = piC_;
@@ -114,7 +115,7 @@ void T92::updateMatrices()
   generator_(1, 3) = kappa_ * (1. - theta_) / 2;
 
   // Normalization:
-  MatrixTools::scale(generator_, r_);
+  setScale(r_);
 
   // Exchangeability:
   exchangeability_(0, 0) = generator_(0, 0) * 2. / (1. - theta_);

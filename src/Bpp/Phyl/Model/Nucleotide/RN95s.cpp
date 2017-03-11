@@ -138,9 +138,9 @@ void RN95s::updateMatrices()
     x += generator_(i, i) * freq_[i];
   }
 
-  r_ = -1 / x;
-
-  MatrixTools::scale(generator_, r_);
+  r_ = isScalable()?-1 / x:1;
+  
+  setScale(r_);
 
   // variables for calculation purposes
 

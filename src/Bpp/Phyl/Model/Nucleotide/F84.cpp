@@ -87,7 +87,8 @@ void F84::updateMatrices()
   piT_ = (1. - theta1_) * (1. - theta_);
   piR_ = piA_ + piG_;
   piY_ = piT_ + piC_;
-  r_ = 1. / (1 - piA_ * piA_ - piC_ * piC_ - piG_ * piG_ - piT_*piT_ + 2. * kappa_ * (piC_ * piT_ / piY_ + piA_ * piG_ / piR_));
+
+  r_ = isScalable()?1. / (1 - piA_ * piA_ - piC_ * piC_ - piG_ * piG_ - piT_*piT_ + 2. * kappa_ * (piC_ * piT_ / piY_ + piA_ * piG_ / piR_)):1;
   k1_ = 1;
   k2_ = kappa_ + 1;
   
@@ -118,7 +119,7 @@ void F84::updateMatrices()
   generator_(1, 3) = (1 + kappa_ / piY_) * piT_;
   
   // Normalization:
-  MatrixTools::scale(generator_, r_);
+  setScale(r_);
   
   // Exchangeability:
   exchangeability_(0,0) = generator_(0,0) / piA_;

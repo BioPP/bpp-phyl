@@ -58,6 +58,7 @@ AbstractSubstitutionModel::AbstractSubstitutionModel(const Alphabet* alpha, Stat
   alphabet_(alpha),
   stateMap_(stateMap),
   size_(alpha->getSize()),
+  isScalable_(true),
   rate_(1),
   generator_(size_, size_),
   freq_(size_),
@@ -419,8 +420,23 @@ double AbstractSubstitutionModel::getScale() const
 
 /******************************************************************************/
 
-void AbstractSubstitutionModel::setScale(double scale) {
-  MatrixTools::scale(generator_, scale);
+void AbstractSubstitutionModel::setScale(double scale)
+{
+  if (isScalable_)
+  {
+    MatrixTools::scale(generator_, scale);
+    eigenValues_ *= scale;
+    iEigenValues_ *= scale;
+  }
+}
+
+
+/******************************************************************************/
+
+void AbstractSubstitutionModel::normalize() 
+{
+  if (isScalable_)
+    setScale(1/getScale());
 }
 
 /******************************************************************************/
@@ -455,6 +471,7 @@ void AbstractReversibleSubstitutionModel::updateMatrices()
   RowMatrix<double> Pi;
   MatrixTools::diag(freq_, Pi);
   MatrixTools::mult(exchangeability_, Pi, generator_); // Diagonal elements of the exchangability matrix will be ignored.
+
   // Compute diagonal elements of the generator:
   for (size_t i = 0; i < size_; i++)
   {
@@ -466,17 +483,17 @@ void AbstractReversibleSubstitutionModel::updateMatrices()
     }
     generator_(i, i) = -lambda;
   }
+  
   // Normalization:
-  double scale = getScale();
-  MatrixTools::scale(generator_, 1. / scale);
-
-  // Normalize exchangeability matrix too:
-  MatrixTools::scale(exchangeability_, 1. / scale);
+  normalize();
+  
   // Compute diagonal elements of the exchangeability matrix:
   for (size_t i = 0; i < size_; i++)
-  {
-    exchangeability_(i, i) = generator_(i, i) / freq_[i];
-  }
+    for (size_t j = 0; j < size_; j++)
+    {
+      exchangeability_(i, j) = generator_(i, j) / freq_[i];
+    }
+  
   AbstractSubstitutionModel::updateMatrices();
 }
 

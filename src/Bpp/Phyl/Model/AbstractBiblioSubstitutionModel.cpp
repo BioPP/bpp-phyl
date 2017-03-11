@@ -65,6 +65,18 @@ AbstractBiblioSubstitutionModel& AbstractBiblioSubstitutionModel::operator=(cons
   return *this;
 }
 
+
+/******************************************************************************/
+
+std::string AbstractBiblioSubstitutionModel::getParNameFromPmodel(const std::string& name) const
+{
+  auto it = mapParNamesFromPmodel_.find(name);
+  if (it==mapParNamesFromPmodel_.end())
+    throw Exception("AbstractBiblioSubstitutionModel::getParNameFromPmodel : unknown parameter " + name);
+  return it->second;
+}
+    
+
 /******************************************************************************/
 
 void AbstractBiblioSubstitutionModel::updateMatrices()
@@ -96,11 +108,9 @@ void AbstractBiblioSubstitutionModel::setNamespace(const std::string& name)
 {
   AbstractParameterAliasable::setNamespace(name);
 
-  std::map<std::string, std::string>::const_iterator it;
-
   std::map<std::string, std::string> mapParNamesFromPmodel_new;
 
-  for (it=mapParNamesFromPmodel_.begin(); it!=mapParNamesFromPmodel_.end(); it++)
+  for (auto it=mapParNamesFromPmodel_.begin(); it!=mapParNamesFromPmodel_.end(); it++)
     mapParNamesFromPmodel_new[name+getModel().getParameterNameWithoutNamespace(it->first)]=it->second;
   
   mapParNamesFromPmodel_.clear();
@@ -119,9 +129,8 @@ void AbstractBiblioSubstitutionModel::setFreq(std::map<int, double>& m)
 {
   getModel().setFreq(m);
 
-  map<string, string>::iterator it;
   ParameterList pl;
-  for (it = mapParNamesFromPmodel_.begin(); it != mapParNamesFromPmodel_.end(); it++)
+  for (auto it = mapParNamesFromPmodel_.begin(); it != mapParNamesFromPmodel_.end(); it++)
   {
     pl.addParameter(Parameter(getNamespace() + it->second, getModel().getParameterValue(getModel().getParameterNameWithoutNamespace(it->first))));
   }
@@ -133,9 +142,8 @@ void AbstractBiblioSubstitutionModel::setFreq(std::map<int, double>& m)
 void AbstractBiblioSubstitutionModel::setFreqFromData(const SequenceContainer& data, double pseudoCount)
 {
   getModel().setFreqFromData(data, pseudoCount);
-  map<string, string>::iterator it;
   ParameterList pl;
-  for (it = mapParNamesFromPmodel_.begin(); it != mapParNamesFromPmodel_.end(); it++)
+  for (auto it = mapParNamesFromPmodel_.begin(); it != mapParNamesFromPmodel_.end(); it++)
   {
     pl.addParameter(Parameter(getNamespace() + it->second, getModel().getParameterValue(getModel().getParameterNameWithoutNamespace(it->first))));
   }
