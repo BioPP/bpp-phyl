@@ -5,21 +5,18 @@
 #   Francois Gindraud (2017)
 # Created: 20/08/2009
 
-cmake_minimum_required (VERSION 2.8.11)
+cmake_minimum_required (VERSION 2.8.12)
 project (bpp-phyl CXX)
-# PROJECT_NAME is used to name:
-# - the library
-# - the CMake targets (${PROJECT_NAME}-static or ${PROJECT_NAME}-shared)
-# - the CMake package
 
-# Global parameters
+# Compile options
+set (public-compile-options -std=c++11)
+set (private-compile-options -Wall -Weffc++ -Wshadow -Wconversion)
+
 IF(NOT CMAKE_BUILD_TYPE)
   SET(CMAKE_BUILD_TYPE RelWithDebInfo CACHE STRING
       "Choose the type of build, options are: None Debug Release RelWithDebInfo MinSizeRel."
       FORCE)
 ENDIF(NOT CMAKE_BUILD_TYPE)
-
-SET(CMAKE_CXX_FLAGS "-std=c++11 -Wall -Wshadow -Weffc++ -Wconversion")
 
 IF(NOT NO_DEP_CHECK)
   SET(NO_DEP_CHECK FALSE CACHE BOOL
@@ -69,8 +66,8 @@ configure_package_config_file (
   )
 write_basic_package_version_file (
   ${CMAKE_CURRENT_BINARY_DIR}/${PROJECT_NAME}-config-version.cmake
-  VERSION ${${PROJECT_NAME}_VERSION}
-  COMPATIBILITY ExactVersion
+  VERSION ${PROJECT_VERSION}
+  COMPATIBILITY SameMajorVersion
   )
 install (FILES
   ${CMAKE_CURRENT_BINARY_DIR}/${PROJECT_NAME}-config.cmake
