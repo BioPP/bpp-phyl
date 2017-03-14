@@ -603,11 +603,6 @@ SubstitutionModel* BppOSubstitutionModelFormat::read(
           unparsedArguments_[modelName + "." + it->first] = it->second;
         }
         
-        vector<string> pfn=protFreq->getParameters().getParameterNames();
-        for (size_t i = 0; i < pfn.size(); i++)
-          unparsedArguments_[modelName + "." + pfn[i]] = TextTools::toString(protFreq->getParameterValue(protFreq->getParameterNameWithoutNamespace(pfn[i])));
-          
-        
         if (modelName == "JC69+F")
           model.reset(new JCprot(alpha, dynamic_cast<ProteinFrequenciesSet*>(protFreq.release())));
         else if (modelName == "DSO78+F")
@@ -1690,13 +1685,15 @@ void BppOSubstitutionModelFormat::initialize_(
     ap.setMessageHandler(ApplicationTools::warning);
     pl.setParameter(i, ap);
   }
+  
   size_t posp;
   for (size_t i = 0; i < pl.size(); i++)
   {
     const string pName = pl[i].getName();
+    
     posp = pName.rfind(".");
     bool test1 = (initFreqs == "");
-    bool test2 = (model.getParameterNameWithoutNamespace(pName).size() < posp + 6) || (model.getParameterNameWithoutNamespace(pName).substr(posp + 1, 5) != "theta");
+    bool test2 = (pName.size() < posp + 6) || (pName.substr(posp + 1, 5) != "theta");
     bool test3 = (unparsedArguments_.find(pName) != unparsedArguments_.end());
     try {
       if (test1 || test2 || test3)
