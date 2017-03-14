@@ -49,13 +49,13 @@
 #include "../Model/KroneckerWordSubstitutionModel.h"
 #include "../Model/Codon/MG94.h"
 #include "../Model/Codon/GY94.h"
-#include "../Model/Codon/YNGKP_M1.h"
-#include "../Model/Codon/YNGKP_M2.h"
-#include "../Model/Codon/YNGKP_M3.h"
-#include "../Model/Codon/YNGKP_M7.h"
-#include "../Model/Codon/YNGKP_M8.h"
-#include "../Model/Codon/YNGKP_M9.h"
-#include "../Model/Codon/YNGKP_M10.h"
+#include "../Model/Codon/YNGP_M1.h"
+#include "../Model/Codon/YNGP_M2.h"
+#include "../Model/Codon/YNGP_M3.h"
+#include "../Model/Codon/YNGP_M7.h"
+#include "../Model/Codon/YNGP_M8.h"
+#include "../Model/Codon/YNGP_M9.h"
+#include "../Model/Codon/YNGP_M10.h"
 #include "../Model/Codon/YN98.h"
 #include "../Model/Codon/TripletSubstitutionModel.h"
 #include "../Model/Codon/CodonRateSubstitutionModel.h"
@@ -174,7 +174,7 @@ SubstitutionModel* BppOSubstitutionModelFormat::read(
   // //////////////////////////////////////
 
   else if (((modelName == "MG94") || (modelName == "YN98") ||
-            (modelName == "GY94") || (modelName.substr(0, 5) == "YNGKP") ||
+            (modelName == "GY94") || (modelName.substr(0, 5) == "YNGP") ||
             (modelName.substr(0,3) == "KCM")
              ) && (alphabetCode_ & CODON))
   {
@@ -211,18 +211,18 @@ SubstitutionModel* BppOSubstitutionModelFormat::read(
       model.reset(new MG94(geneticCode_, codonFreqs.release()));
     else if (modelName == "GY94")
       model.reset(new GY94(geneticCode_, codonFreqs.release()));
-    else if ((modelName == "YN98") || (modelName == "YNGKP_M0"))
+    else if ((modelName == "YN98") || (modelName == "YNGP_M0"))
       model.reset(new YN98(geneticCode_, codonFreqs.release()));
-    else if (modelName == "YNGKP_M1")
-      model.reset(new YNGKP_M1(geneticCode_, codonFreqs.release()));
-    else if (modelName == "YNGKP_M2")
-      model.reset(new YNGKP_M2(geneticCode_, codonFreqs.release()));
-    else if (modelName == "YNGKP_M3")
+    else if (modelName == "YNGP_M1")
+      model.reset(new YNGP_M1(geneticCode_, codonFreqs.release()));
+    else if (modelName == "YNGP_M2")
+      model.reset(new YNGP_M2(geneticCode_, codonFreqs.release()));
+    else if (modelName == "YNGP_M3")
       if (args.find("n") == args.end())
-        model.reset(new YNGKP_M3(geneticCode_, codonFreqs.release()));
+        model.reset(new YNGP_M3(geneticCode_, codonFreqs.release()));
       else
-        model.reset(new YNGKP_M3(geneticCode_, codonFreqs.release(), TextTools::to<unsigned int>(args["n"])));
-    else if ((modelName == "YNGKP_M7") || modelName == "YNGKP_M8")
+        model.reset(new YNGP_M3(geneticCode_, codonFreqs.release(), TextTools::to<unsigned int>(args["n"])));
+    else if ((modelName == "YNGP_M7") || modelName == "YNGP_M8")
     {
       if (args.find("n") == args.end())
         throw Exception("Missing argument 'n' (number of classes) in " + modelName + " distribution");
@@ -230,12 +230,12 @@ SubstitutionModel* BppOSubstitutionModelFormat::read(
       if (verbose_)
         ApplicationTools::displayResult("Number of classes in model", nbClasses);
 
-      if (modelName == "YNGKP_M7")
-        model.reset(new YNGKP_M7(geneticCode_, codonFreqs.release(), nbClasses));
-      else if (modelName == "YNGKP_M8")
-        model.reset(new YNGKP_M8(geneticCode_, codonFreqs.release(), nbClasses));
+      if (modelName == "YNGP_M7")
+        model.reset(new YNGP_M7(geneticCode_, codonFreqs.release(), nbClasses));
+      else if (modelName == "YNGP_M8")
+        model.reset(new YNGP_M8(geneticCode_, codonFreqs.release(), nbClasses));
     }
-    else if (modelName == "YNGKP_M9" || modelName == "YNGKP_M10")
+    else if (modelName == "YNGP_M9" || modelName == "YNGP_M10")
     {
       if (args.find("nbeta") == args.end())
         throw Exception("Missing argument 'nbeta' (number of classes of beta distribution) in " + modelName + " distribution");
@@ -246,10 +246,10 @@ SubstitutionModel* BppOSubstitutionModelFormat::read(
       if (verbose_)
         ApplicationTools::displayResult("Number of classes in model", nbBeta + nbGamma);
 
-      if (modelName == "YNGKP_M9")
-        model.reset(new YNGKP_M9(geneticCode_, codonFreqs.release(), nbBeta, nbGamma));
+      if (modelName == "YNGP_M9")
+        model.reset(new YNGP_M9(geneticCode_, codonFreqs.release(), nbBeta, nbGamma));
       else
-        model.reset(new YNGKP_M10(geneticCode_, codonFreqs.release(), nbBeta, nbGamma));
+        model.reset(new YNGP_M10(geneticCode_, codonFreqs.release(), nbBeta, nbGamma));
     }
     else if (modelName == "KCM7")
       model.reset(new KCM(geneticCode_, true));
@@ -1512,7 +1512,7 @@ void BppOSubstitutionModelFormat::write(const SubstitutionModel& model,
 
   // and bibliomixed models
 
-  const YNGKP_M7* pM7 = dynamic_cast<const YNGKP_M7*>(&model);
+  const YNGP_M7* pM7 = dynamic_cast<const YNGP_M7*>(&model);
   if (pM7)
   {
     if (comma)
@@ -1521,7 +1521,7 @@ void BppOSubstitutionModelFormat::write(const SubstitutionModel& model,
     comma=true;
   }
 
-  const YNGKP_M8* pM8 = dynamic_cast<const YNGKP_M8*>(&model);
+  const YNGP_M8* pM8 = dynamic_cast<const YNGP_M8*>(&model);
   if (pM8)
   {
     if (comma)
@@ -1530,7 +1530,7 @@ void BppOSubstitutionModelFormat::write(const SubstitutionModel& model,
     comma=true;
   }
 
-  const YNGKP_M9* pM9 = dynamic_cast<const YNGKP_M9*>(&model);
+  const YNGP_M9* pM9 = dynamic_cast<const YNGP_M9*>(&model);
   if (pM9)
   {
     if (comma)
@@ -1540,7 +1540,7 @@ void BppOSubstitutionModelFormat::write(const SubstitutionModel& model,
     comma=true;
   }
 
-  const YNGKP_M10* pM10 = dynamic_cast<const YNGKP_M10*>(&model);
+  const YNGP_M10* pM10 = dynamic_cast<const YNGP_M10*>(&model);
   if (pM10)
   {
     if (comma)

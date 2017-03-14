@@ -1,5 +1,5 @@
 //
-// File: YNGKP_M2.h
+// File: YNGP_M8.h
 // Created by: Laurent Gueguen
 // Created on: May 2010
 //
@@ -37,8 +37,8 @@ The fact that you are presently reading this means that you have had
 knowledge of the CeCILL license and that you accept its terms.
 */
 
-#ifndef _YNGKP_M2_H_
-#define _YNGKP_M2_H_
+#ifndef _YNGP_M8_H_
+#define _YNGP_M8_H_
 
 #include "../AbstractBiblioMixedSubstitutionModel.h"
 #include "../MixtureOfASubstitutionModel.h"
@@ -50,29 +50,27 @@ namespace bpp
 {
 
 /**
- * @brief The Yang et al (2000) M2 substitution model for codons, with
- * the more realistic modification in Wong & al (2004).
+ * @brief The Yang et al (2000) M8 substitution model for codons.
  * @author Laurent Guéguen
  *
  * This model is a mixture of models as described in YN98 class, the
- * mixture being defined on the selection parameter to allow it to
- * vary among sites. A site is either negatively selected @f$ 0 <
- * \omega_0 < 1 @f$ (with probability @f$p_0 @f$), or neutral (@f$
- * \omega_1 = 1 @f$) with probability @f$p_1 @f$, or positively
- * selected @f$ 1 < \omega_2 @f$ (with probability @f$p_2 @f$). This
- * model includes 5 parameters (@f$kappa@f$, @f$ theta1=p0,
- * theta2=\frac{p1}{p1+p2}, omega0 @f$ and @f$ omega2 @f$). The codon
- * frequencies @f$\pi_j@f$ are either observed or infered.
+ * mixture being defined on the selection parameter oomega to allow it
+ * to vary among sites, following a mixture of a Beta distribution and
+ * of another value above 1.
+ *
+ * This model includes 5 parameters (@f$\kappa@f$, @f$ p @f$ and
+ * @f$q@f$ of the @f$ Beta(p,q) @f$ distribution, @f$p0@f$ the weight of the
+ * Beta distribution and @f$\omega @f$ the selection parameter above 1
+ * (with weight @f$ 1-p0 @f$)). The codon frequencies @f$ \pi_j @f$ are
+ * either observed or infered.
  *
  * References:
  *
  * Yang, Z., R. Nielsen, N. Goldman, and A.-M. K. Pedersen (2000)
  * Genetics 155:431-449.
  * 
- * Wong, W. S. W., Z. Yang, N. Goldman, and R. Nielsen. (2004)
- * Genetics 168:1041--1051.
  */
-class YNGKP_M2:
+class YNGP_M8:
     public AbstractBiblioMixedSubstitutionModel,
     virtual public ReversibleSubstitutionModel
 {
@@ -86,15 +84,21 @@ private:
   size_t synfrom_, synto_;
   
 public:
-  YNGKP_M2(const GeneticCode* gc, FrequenciesSet* codonFreqs);
-
-  virtual ~YNGKP_M2();
+  /*
+   *@brief Constructor that requires the number of classes of the
+   * BetaDiscreteDistribution.
+   *
+   */
   
-  YNGKP_M2* clone() const { return new YNGKP_M2(*this); }
+  YNGP_M8(const GeneticCode* gc, FrequenciesSet* codonFreqs, unsigned int nbclass);
 
-  YNGKP_M2(const YNGKP_M2&);
+  ~YNGP_M8();
+  
+  YNGP_M8* clone() const { return new YNGP_M8(*this); }
 
-  YNGKP_M2& operator=(const YNGKP_M2&);
+  YNGP_M8(const YNGP_M8&);
+
+  YNGP_M8& operator=(const YNGP_M8&);
 
 protected:
   void updateMatrices();
@@ -104,7 +108,7 @@ public:
 
   const MixedSubstitutionModel& getMixedModel() const { return *pmixmodel_.get(); }
 
-  std::string getName() const { return "YNGKP_M2"; }
+  std::string getName() const { return "YNGP_M8"; }
 
 private:
   SubstitutionModel& getModel() { return *pmixmodel_.get(); }
@@ -116,5 +120,5 @@ private:
 
 } //end of namespace bpp.
 
-#endif	//_YNGKP_M2_H_
+#endif	//_YNGP_M8_H_
 

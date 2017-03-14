@@ -99,13 +99,13 @@ set (CPP_FILES
   Bpp/Phyl/Model/Codon/SENCA.cpp
   Bpp/Phyl/Model/Codon/TripletSubstitutionModel.cpp
   Bpp/Phyl/Model/Codon/YN98.cpp
-  Bpp/Phyl/Model/Codon/YNGKP_M1.cpp
-  Bpp/Phyl/Model/Codon/YNGKP_M10.cpp
-  Bpp/Phyl/Model/Codon/YNGKP_M2.cpp
-  Bpp/Phyl/Model/Codon/YNGKP_M3.cpp
-  Bpp/Phyl/Model/Codon/YNGKP_M7.cpp
-  Bpp/Phyl/Model/Codon/YNGKP_M8.cpp
-  Bpp/Phyl/Model/Codon/YNGKP_M9.cpp
+  Bpp/Phyl/Model/Codon/YNGP_M1.cpp
+  Bpp/Phyl/Model/Codon/YNGP_M10.cpp
+  Bpp/Phyl/Model/Codon/YNGP_M2.cpp
+  Bpp/Phyl/Model/Codon/YNGP_M3.cpp
+  Bpp/Phyl/Model/Codon/YNGP_M7.cpp
+  Bpp/Phyl/Model/Codon/YNGP_M8.cpp
+  Bpp/Phyl/Model/Codon/YNGP_M9.cpp
   Bpp/Phyl/Model/FrequenciesSet/CodonFrequenciesSet.cpp
   Bpp/Phyl/Model/FrequenciesSet/FrequenciesSet.cpp
   Bpp/Phyl/Model/FrequenciesSet/MvaFrequenciesSet.cpp
