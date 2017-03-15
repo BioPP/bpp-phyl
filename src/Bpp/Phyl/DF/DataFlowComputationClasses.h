@@ -1,4 +1,4 @@
-// File: ComputationPatterns.h
+// File: DataFlowComputationClasses.h
 // Authors:
 //   Francois Gindraud (2017)
 // Created: 01/03/2017

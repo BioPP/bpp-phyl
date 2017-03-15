@@ -50,6 +50,8 @@ knowledge of the CeCILL license and that you accept its terms.
 #include <Bpp/Phyl/NewLikelihood/RateAcrossSitesSubstitutionProcess.h>
 #include <Bpp/Phyl/NewLikelihood/SimpleSubstitutionProcess.h>
 
+#include <Bpp/Phyl/DF/PhylogenyTree.h>
+
 #include <Bpp/Phyl/DF/Cpp14.h>
 #include <Bpp/Phyl/DF/ForRange.h>
 #include <chrono>
@@ -189,7 +191,15 @@ TEST_CASE("comparing results between old and new likelihood (single travsersal)"
     newL.finalLikelihood = llh.getValue();
   }
 
-  // TODO check... NewNewLlh ?
+  // DF likelihood
+  {
+    auto ts = timingStart();
+    Newick reader;
+    auto phyloTree = std::unique_ptr<PhyloTree>(
+      reader.parenthesisToPhyloTree("((A:0.01, B:0.02):0.03,C:0.01,D:0.1);", false, "", false, false));
+
+    // TODO
+  }
 
   // TODO newTlop.getParameters().printParameters(cout);
 
