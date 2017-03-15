@@ -36,11 +36,11 @@ The fact that you are presently reading this means that you have had
 knowledge of the CeCILL license and that you accept its terms.
 */
 
-#ifndef _DF_COMPUTATIONNODES_H_
-#define _DF_COMPUTATIONNODES_H_
+#ifndef _DF_DATAFLOW_COMPUTATION_CLASSES_H_
+#define _DF_DATAFLOW_COMPUTATION_CLASSES_H_
 
 /**
- * @file ComputationNodes.h
+ * @file DataFlowComputationClasses.h
  * Computation nodes helper templates.
  * Provides classes to define common computation patterns:
  * - A fixed arguments heterogeneous computation
@@ -50,7 +50,7 @@ knowledge of the CeCILL license and that you accept its terms.
  */
 
 #include <Bpp/Phyl/DF/Cpp14.h> // IndexSequence
-#include <Bpp/Phyl/DF/DataFlow.h>
+#include <Bpp/Phyl/DF/DataFlowBaseClasses.h>
 #include <algorithm>
 #include <cassert>
 #include <initializer_list> // foreach on tuple trick
@@ -63,139 +63,6 @@ namespace bpp
 {
   namespace DF
   {
-    /** This class represent a consumer of a type T value generated in a ValuedNode<T>.
-     * It should be used by computation nodes to represent a dependence to a value node.
-     * It basically wraps a pointer to a ValuedNode<T> with a nice interface.
-     * In descriptions, owner node refers to the computation node that stores and uses this dependency.
-     *
-     * For memory size concerns, it only stores a pointer to the producer node, and not to the owner node.
-     * When (dis)connecting, it needs to register/unregister the owner node.
-     * Thus the current class cannot perform (dis)connection operations by itself.
-     * Instead, this class is used for storage (small) in computation nodes.
-     * To perform a (dis)connection, the owner class should create a temporary DependencyConnector from this class.
-     * A DependencyConnector just bundles both Dependency and owner node pointer.
-     *
-     * This class cannot be copied: no meaningful semantics, risk of triggering the destructor assert.
-     * It can however be moved (as long as it keeps the same owner, which cannot be checked).
-     */
-    template <typename T>
-    class Dependency
-    {
-    private:
-      ValuedNode<T>* producer_{nullptr};
-
-    public:
-      Dependency() = default;
-      /** On destruction check that we have been disconnected properly.
-       * A dependency cannot disconnect itself, as it does not store which node owns it.
-       * Owner nodes must disconnect all dependencies in their destructors.
-       * An assert checks that a Dependency has been disconnected before destruction in debug mode.
-       */
-      ~Dependency() { assert(!isConnected()); }
-
-      // Movable but non copyable
-      Dependency(const Dependency&) = delete;
-      Dependency& operator=(const Dependency&) = delete;
-      Dependency(Dependency&& other)
-        : producer_(other.producer_)
-      {
-        other.producer_ = nullptr;
-      }
-      Dependency& operator=(Dependency&& other)
-      {
-        // potentially problematic, overwrites silently the old dep...
-        producer_ = other.producer_;
-        other.producer_ = nullptr;
-      }
-
-      bool isConnected(void) const { return producer_ != nullptr; }
-
-      ValuedNode<T>* producer(void) const { return producer_; }
-
-      /// Connects to a producer, assuming we are owned by ownerNode.
-      void connect(InvalidableNode& ownerNode, ValuedNode<T>& producer)
-      {
-        disconnect(ownerNode);
-        producer_ = &producer;
-        producer_->registerDependent(ownerNode);
-      }
-
-      /// Disconnects, assuming we are owned by ownerNode.
-      bool disconnect(InvalidableNode& ownerNode)
-      {
-        if (isConnected())
-        {
-          producer_->unregisterDependent(ownerNode);
-          producer_ = nullptr;
-          ownerNode.invalidate(); // Node value is now out of date
-          return true;
-        }
-        return false;
-      }
-
-      /** Clears the dependency.
-       * Clears the pointers without performing unregistration at the producer.
-       * Used by computation nodes to implement dependencyWasDestroyed.
-       */
-      void clear(void) { producer_ = nullptr; }
-
-      /// Clear dependency only if it points to the given node.
-      bool clearIfMatching(const InvalidableNode* node)
-      {
-        if (node == producer_)
-        {
-          clear();
-          return true;
-        }
-        return false;
-      }
-
-      /// Get the value from the producer node linked to this dependency (check it exists).
-      const T& getValue(void) const
-      {
-        assert(isConnected());
-        return producer_->getValue();
-      }
-
-      /** Little temporary class to allow connection operations.
-       * Instances of this class should be built by owner nodes and returned to allow users to manage connections.
-       * This class stores a reference to the owner node and to the dependency, so we can connect/disconnect.
-       * It can be copied but this should not be stored...
-       */
-      class DependencyConnector
-      {
-      private:
-        Dependency& dep_;
-        InvalidableNode& ownerNode_;
-
-      public:
-        DependencyConnector(Dependency& dep, InvalidableNode& ownerNode)
-          : dep_(dep)
-          , ownerNode_(ownerNode)
-        {
-        }
-
-        bool isConnected(void) const { return dep_.isConnected(); }
-        ValuedNode<T>* producer(void) const { return dep_.producer(); }
-
-        /// Connects, clears any previous connection.
-        void connect(ValuedNode<T>& producer) const { dep_.connect(ownerNode_, producer); }
-
-        /// Pointer overload of connect.
-        void connect(ValuedNode<T>* producer) const
-        {
-          assert(producer != nullptr);
-          connect(*producer);
-        }
-
-        /// Disconnect, returns true if it was connected, and invalidates its owner node.
-        bool disconnect(void) const { return dep_.disconnect(ownerNode_); }
-      };
-
-      /// Builds a DependencyConnector by packing the current dependency and the owner node.
-      DependencyConnector buildConnector(InvalidableNode& ownerNode) { return {*this, ownerNode}; }
-    };
-
     // Import them for use in HeterogeneousComputationNode
     using bpp::Cpp14::IndexSequence;
     using bpp::Cpp14::MakeIndexSequence;
@@ -218,7 +85,8 @@ namespace bpp
      * When computing our own value, values of the dependent nodes will be computed and then fed to the compute function.
      *
      * A computation attempt while some dependencies are not connected is a runtime error.
-     * dependency<N> () returns a DependencyConnector object that can be used to connect/disconnect the N-th dependency.
+     * setDependency<N> and unsetDependency<N> functions can be used to set/unset the N-th dependencies of this node.
+     * dependency<N> allows to look at the dependency state.
      * 
      * An example of use is available in the test/test_dataflow.cpp file.
      */
@@ -252,7 +120,7 @@ namespace bpp
 
     private:
       /// Static heterogeneous list of dependencies.
-      DependencyTupleType dependencies_;
+      DependencyTupleType dependencies_{};
 
     public:
       /** Constructor.
@@ -267,7 +135,7 @@ namespace bpp
       }
 
       /** Destructor.
-       * Disconnects all dependences, as required by the Dependency class.
+       * Unsets all dependences, as required by the Dependency class.
        * Use a helper function to unpack the tuple (see std::index_sequence).
        */
       ~HeterogeneousComputationNode() override
@@ -278,15 +146,23 @@ namespace bpp
       /// Get number of dependencies (static function).
       static constexpr std::size_t nbDependencies(void) { return std::tuple_size<DependencyTupleType>::value; }
 
-      /** Gets DependencyConnector object linked to the n-th dependency object.
-       * This object allows to connect() or disconnect() to any ValuedNode<T>.
-       * All dependencies must be connected to a producer before computing this node value.
-       * An unconnected dependency during the computation of this node is a runtime error.
-       */
+      /// Set the N-th dependency (must be unset).
       template <std::size_t Index>
-      typename DependencyType<Index>::DependencyConnector dependency(void)
+      void setDependency(typename DependencyType<Index>::ProducerNodeType& producer)
       {
-        return std::get<Index>(dependencies_).buildConnector(*this);
+        std::get<Index>(dependencies_).set(producer, *this);
+      }
+      /// Unsets the N-th dependency (must be set).
+      template <std::size_t Index>
+      void unsetDependency(void)
+      {
+        std::get<Index>(dependencies_).unset(*this);
+      }
+      /// Get dependency state (const reference, cannot be modified).
+      template <std::size_t Index>
+      const DependencyType<Index>& dependency(void) const
+      {
+        return std::get<Index>(dependencies_);
       }
 
     private:
@@ -301,7 +177,7 @@ namespace bpp
       {
         // Awful trick to force calling disconnect on all elements of the tuple.
         // Only a few context allow a parameter pack expansion, and struct initializer list are one of them.
-        (void)std::initializer_list<bool>{dependency<Is>().disconnect()...};
+        (void)std::initializer_list<int>{(unsetDependency<Is>(), 0)...};
       }
       template <std::size_t... Is>
       void computeWithUnpackedIndexSequence(IndexSequence<Is...>)
@@ -311,7 +187,7 @@ namespace bpp
       template <std::size_t... Is>
       void dependencyWasDestroyedWithUnpackedIndexSequence(const InvalidableNode* node, IndexSequence<Is...>)
       {
-        (void)std::initializer_list<bool>{(std::get<Is>(dependencies_).clearIfMatching(node))...};
+        (void)std::initializer_list<int>{(std::get<Is>(dependencies_).clearIfMatching(node), 0)...};
       }
 
       /** Compute implementation.
@@ -373,7 +249,7 @@ namespace bpp
       ~ReductionComputationNode()
       {
         for (auto& dep : dependencies_)
-          dep.disconnect(*this);
+          dep.unset(*this);
       }
 
       /* TODO Find a better way to handle that.
@@ -383,28 +259,14 @@ namespace bpp
        * This leads to code that could be nicer...
        */
       std::size_t nbDependencies(void) const { return dependencies_.size(); }
-
-      typename Dependency<ArgumentType>::DependencyConnector dependency(std::size_t i)
-      {
-        // Warning, users can disconnect them...
-        // Return a raw const Dependency<> &, to prevent that ?
-        // Is this function useful ?
-        return dependencies_.at(i).buildConnector(*this);
-      }
-
-      void addDependencyTo(ValuedNode<ArgumentType>& producer)
-      {
-        dependencies_.emplace_back();
-        dependencies_.back().connect(*this, producer);
-      }
-
+      const Dependency<ArgumentType>& dependency(std::size_t i) const { return dependencies_.at(i); }
+      void addDependencyTo(ValuedNode<ArgumentType>& producer) { dependencies_.emplace_back(producer, *this); }
       void removeDependency(std::size_t i)
       {
         auto it = dependencies_.begin() + i;
-        it->disconnect(*this);
+        it->unset(*this);
         dependencies_.erase(it);
       }
-
       bool removeDependencyMatching(const InvalidableNode* node)
       {
         auto it = std::find_if(dependencies_.begin(), dependencies_.end(),
@@ -417,8 +279,6 @@ namespace bpp
         }
         return false;
       }
-
-      // TODO removal and other manipulation tools
 
     private:
       using ValuedNode<ResultType>::value_;
@@ -445,4 +305,4 @@ namespace bpp
     };
   } // end namespace DF
 } // end namespace bpp
-#endif // _DATAFLOW_H_
+#endif // _DF_DATAFLOW_COMPUTATION_CLASSES_H_

@@ -36,9 +36,8 @@ The fact that you are presently reading this means that you have had
 knowledge of the CeCILL license and that you accept its terms.
 */
 
-#include <Bpp/Phyl/DF/ComputationNodes.h>
 #include <Bpp/Phyl/DF/Cpp14.h>
-#include <Bpp/Phyl/DF/DataFlow.h>
+#include <Bpp/Phyl/DF/DataFlowComputationClasses.h>
 #include <chrono>
 #include <iostream>
 
@@ -82,13 +81,13 @@ TEST_CASE("Testing data flow system on simple int reduction tree")
    * p3____/__n3
    * p4______/
    */
-  n1.dependency<0>().connect(p1);
-  n1.dependency<1>().connect(p2);
-  n2.dependency<0>().connect(n1);
-  n2.dependency<1>().connect(p3);
-  root.dependency<0>().connect(n2);
-  n3.dependency<0>().connect(p3);
-  n3.dependency<1>().connect(p4);
+  n1.setDependency<0>(p1);
+  n1.setDependency<1>(p2);
+  n2.setDependency<0>(n1);
+  n2.setDependency<1>(p3);
+  root.setDependency<0>(n2);
+  n3.setDependency<0>(p3);
+  n3.setDependency<1>(p4);
 
   // Initial state
   CHECK(p1.isValid());

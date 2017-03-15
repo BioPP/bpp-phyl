@@ -36,11 +36,11 @@ The fact that you are presently reading this means that you have had
 knowledge of the CeCILL license and that you accept its terms.
 */
 
-#ifndef _DF_DATAFLOW_H_
-#define _DF_DATAFLOW_H_
+#ifndef _DF_DATAFLOW_BASE_CLASSES_H_
+#define _DF_DATAFLOW_BASE_CLASSES_H_
 
 /**
- * @file DataFlow.h
+ * @file DataFlowBaseClasses.h
  * Contains the basic node classes at the root of the dataflow system.
  * These classes are mostly interfaces.
  *
@@ -155,6 +155,10 @@ namespace bpp
       }
     };
 
+    // Forward declaration
+    template <typename T>
+    class StandaloneDependency;
+
     /** Data flow node storing a value (interface).
      * This class is a node storing a value of type T.
      * Constructor is still protected as we are not supposed to instance this class manually.
@@ -215,6 +219,93 @@ namespace bpp
       }
     };
 
+    /** Represents a dependency to a ValuedNode<T>.
+     *
+     * A Dependency is supposed to have a fixed owner node.
+     * The owner node is a computation node that uses the value of the dependency.
+     * The Dependency object then abstracts the (un)registering of the owner node to its producers.
+     *
+     * A Dependency can have two states:
+     * - unset: no dependency, pointer set to nullptr.
+     * - set: a dependency to the producer node pointer to by producer_; owner node is registered to producer_.
+     *
+     * For a reduced size, the Dependency does not store a pointer to its owner node.
+     * The owner node must be passed to some API functions when needed (when it involves registering).
+     * While possible, a Dependency must NOT be transfered between owner nodes (registering would not be updated).
+     *
+     * TODO transfer that updates registering instead of unreg+reg ?
+     *
+     *
+     *
+     * Never return a mutable ref to user code... would allow breaking the invariant.
+     */
+    template <typename T>
+    class Dependency
+    {
+    public:
+      using ProducerNodeType = ValuedNode<T>;
+
+    private:
+      ValuedNode<T>* producer_{};
+
+    public:
+      /// Create unset dependency.
+      Dependency() = default;
+      /// Create set dependency.
+      Dependency(ValuedNode<T>& producer, InvalidableNode& ownerNode) { set(producer, ownerNode); }
+      /** Destruction: check that dependency was unset.
+       * We cannot perform unregistering without the owner node, so all dependencies must be unset at destruction.
+       * The assert is used to check that in debug builds.
+       */
+      ~Dependency() { assert(!isSet()); }
+
+      // Non copyable
+      Dependency(const Dependency&) = delete;
+      Dependency& operator=(const Dependency&) = delete;
+
+      // Movable (between same owner node !)
+      Dependency(Dependency&& other)
+        : Dependency(other.producer_)
+      {
+        other.producer_ = nullptr;
+      }
+      Dependency& operator=(Dependency&& other)
+      {
+        assert(!isSet()); // Only movable assignable if currently unset.
+        producer_ = other.producer_;
+        other.producer_ = nullptr;
+      }
+
+      bool isSet(void) const { return producer_ != nullptr; }
+      ValuedNode<T>* producer(void) const { return producer_; }
+
+      const T& getValue(void)
+      {
+        assert(isSet());
+        return producer_->getValue();
+      }
+
+      void set(ValuedNode<T>& producer, InvalidableNode& ownerNode)
+      {
+        assert(!isSet());
+        producer_ = &producer;
+        producer.registerDependent(ownerNode);
+      }
+      void unset(InvalidableNode& ownerNode)
+      {
+        assert(isSet());
+        producer_->unregisterDependent(ownerNode);
+        clear();
+        ownerNode.invalidate(); // Node needs to be recomputed
+      }
+      void clear(void) { producer_ = nullptr; }
+      void clearIfMatching(const InvalidableNode* producerToClear)
+      {
+        if (producer_ == producerToClear)
+          clear();
+      }
+    };
+
     /** Node storing a parameter.
      * Leaf of the data flow dag.
      * A parameter is valid as long as it has been initialized.
@@ -254,4 +345,4 @@ namespace bpp
     };
   } // end namespace DF
 } // end namespace bpp
-#endif // _DF_DATAFLOW_H_
+#endif // _DF_DATAFLOW_BASE_CLASSES_H_
