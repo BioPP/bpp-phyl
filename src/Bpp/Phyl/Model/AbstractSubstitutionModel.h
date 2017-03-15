@@ -388,7 +388,6 @@ public:
   /**
    * @brief The rate of the substitution process.
    *
-   * @param scale the scale by which the generator is multiplied.
    */
   virtual double getRate() const;
 

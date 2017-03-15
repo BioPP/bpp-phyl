@@ -82,6 +82,7 @@ class SubstitutionModelSetTools
      * @param model                The model to use.
      * @param rootFreqs            A FrequenciesSet object to parametrize root frequencies.
      * @param tree                 The tree to use for the construction of the set.
+     * @param aliasFreqNames             Aliases for the frequencies names
      * @param globalParameterNames Common parameters for all branches.
      * All other parameters will be considered distinct for all branches.
      */
