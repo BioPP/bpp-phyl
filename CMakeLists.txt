@@ -133,6 +133,7 @@ SET(CPACK_SOURCE_IGNORE_FILES
  "install_manifest.txt"
  "DartConfiguration.tcl"
  ".clang_format"
+ ".clang_complete"
  ${CPACK_SOURCE_IGNORE_FILES}
 )
 IF (MACOS)
