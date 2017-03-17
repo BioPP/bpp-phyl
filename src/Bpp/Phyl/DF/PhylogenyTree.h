@@ -39,43 +39,116 @@ knowledge of the CeCILL license and that you accept its terms.
 #ifndef _PHYLOGENY_TREE_H_
 #define _PHYLOGENY_TREE_H_
 
-#include <Bpp/Phyl/NewLikelihood/SubstitutionProcess.h>
+//#include <Bpp/Phyl/NewLikelihood/SubstitutionProcess.h>
 
 #include <Bpp/Phyl/DF/DataFlowBaseClasses.h>
 #include <Bpp/Phyl/DF/ForRange.h>
 
+#include <cstdint>
+#include <limits>
 #include <memory>
+#include <type_traits>
 #include <vector>
 
 namespace bpp
 {
-  class PhylogenyTree
-  {
-    // Topology + Branch len
-  public:
-    using IndexType = std::size_t;
+  // Forward declare manipulator
+  template <typename NodeType, typename BranchType, typename StorageType>
+  class TreeManipulator;
 
+  // Base class of extended trees.
+  // Contains a tree topology only.
+  class ExtendableTree
+  {
+  public:
+    using IndexType = std::uint32_t;
+    static constexpr IndexType invalidIndex = std::numeric_limits<IndexType>::max();
+
+    // Base node type
     class Node
     {
     private:
-      IndexType id;
+      IndexType id_;
+      IndexType fatherBranch_{invalidIndex};
+      std::vector<IndexType> childBranches_;
 
     public:
       virtual ~Node() = default;
     };
+    // Base branch type
     class Branch
     {
     private:
+      IndexType id_;
+      IndexType fatherNode_;
+      IndexType childNode_;
+
     public:
       virtual ~Branch() = default;
     };
-
-  private:
-    std::vector<std::unique_ptr<Node>> treeNodes_;
+    // Store tree.
+    // Ptr to node and branches to allow virtual dispatching.
+    // Also because tree elements will ultimately store DF nodes that are non movable.
+    struct Storage
+    {
+      std::vector<std::unique_ptr<Node>> nodes_;
+      std::vector<std::unique_ptr<Branch>> branches_;
+    };
 
   protected:
-    virtual Node* createNode(void) { return new Node; }
-    virtual Branch* createBranch(void) { return new Branch; }
+    Storage tree_;
+
+  public:
+    // Method that allow to access the tree.
+    // Should be overriden in each extended tree subclass to return a manipulator with extended Node and Branch.
+    TreeManipulator<Node, Branch, Storage> tree(void);
+    TreeManipulator<const Node, const Branch, const Storage> tree(void) const;
+  };
+
+  // Class that manipulates the tree (access, modification, etc).
+  // Access the extensions of basic Node and Branch given in the templates.
+  template <typename NodeType, typename BranchType, typename StorageType>
+  class TreeManipulator
+  {
+  public:
+    using IndexType = ExtendableTree::IndexType;
+    static_assert(std::is_base_of<ExtendableTree::Node, NodeType>::value,
+                  "NodeType must inherit from ExtendableTree::Node");
+    static_assert(std::is_base_of<ExtendableTree::Branch, BranchType>::value,
+                  "BranchType must inherit from ExtendableTree::Branch");
+    static_assert(std::is_same<ExtendableTree::Storage, typename std::decay<StorageType>::type>::value,
+                  "StorageType must be a const or non-const ExtendableTree::Storage");
+
+  private:
+    StorageType& tree_;
+
+  public:
+    TreeManipulator(StorageType& storage)
+      : tree_(storage)
+    {
+    }
+
+    NodeType& node(IndexType index) const { return *tree_.nodes_[index]; }
+    BranchType& branch(IndexType index) const { return *tree_.branches_[index]; }
+
+    IndexType addNode(void) const { return 0; }
+  };
+
+  // Need to put it after TreeManipulator definition
+  auto ExtendableTree::tree(void) -> TreeManipulator<Node, Branch, Storage> { return {tree_}; }
+  auto ExtendableTree::tree(void) const -> TreeManipulator<const Node, const Branch, const Storage> { return {tree_}; }
+
+  class PhylogenyTree : public virtual ExtendableTree
+  {
+  public:
+    class Node : public virtual ExtendableTree::Node
+    {
+    };
+    class Branch : public virtual ExtendableTree::Branch
+    {
+    };
+
+    TreeManipulator<Node, Branch, Storage> tree(void) { return {tree_}; }
   };
 
   class PhylogenyProcess : public virtual PhylogenyTree
@@ -89,9 +162,7 @@ namespace bpp
     {
     };
 
-  protected:
-    Node* createNode(void) override { return new Node; }
-    Branch* createBranch(void) override { return new Branch; }
+    TreeManipulator<Node, Branch, Storage> tree(void) { return {tree_}; }
   };
 
 } // end of namespace bpp.
