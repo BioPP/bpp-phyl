@@ -47,4 +47,5 @@ TEST_CASE("comparing results between old and new likelihood (single travsersal)"
 {
   bpp::PhylogenyProcess process;
   auto manipulator = process.tree();
+  manipulator.node (0);
 }

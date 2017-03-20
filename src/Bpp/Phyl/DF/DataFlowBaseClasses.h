@@ -155,10 +155,6 @@ namespace bpp
       }
     };
 
-    // Forward declaration
-    template <typename T>
-    class StandaloneDependency;
-
     /** Data flow node storing a value (interface).
      * This class is a node storing a value of type T.
      * Constructor is still protected as we are not supposed to instance this class manually.

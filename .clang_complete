@@ -1,2 +1,3 @@
--I/home/fgindraud/work/code/local/include
--I/home/fgindraud/work/code/bpp-phyl/src/
+-std=c++11
+-I../local/include
+-Isrc/

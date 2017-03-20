@@ -36,12 +36,14 @@ The fact that you are presently reading this means that you have had
 knowledge of the CeCILL license and that you accept its terms.
 */
 
-#ifndef _PHYLOGENY_TREE_H_
-#define _PHYLOGENY_TREE_H_
+#ifndef _DF_PHYLOGENY_TREE_H_
+#define _DF_PHYLOGENY_TREE_H_
 
 //#include <Bpp/Phyl/NewLikelihood/SubstitutionProcess.h>
+#include <Bpp/Phyl/Model/SubstitutionModel.h>
 
-#include <Bpp/Phyl/DF/DataFlowBaseClasses.h>
+#include <Bpp/Phyl/DF/Cpp14.h>
+#include <Bpp/Phyl/DF/DataFlowComputationClasses.h>
 #include <Bpp/Phyl/DF/ForRange.h>
 
 #include <cstdint>
@@ -53,7 +55,7 @@ knowledge of the CeCILL license and that you accept its terms.
 namespace bpp
 {
   // Forward declare manipulator
-  template <typename NodeType, typename BranchType, typename StorageType>
+  template <typename NodeType, typename BranchType>
   class TreeManipulator;
 
   // Base class of extended trees.
@@ -101,13 +103,12 @@ namespace bpp
   public:
     // Method that allow to access the tree.
     // Should be overriden in each extended tree subclass to return a manipulator with extended Node and Branch.
-    TreeManipulator<Node, Branch, Storage> tree(void);
-    TreeManipulator<const Node, const Branch, const Storage> tree(void) const;
+    TreeManipulator<Node, Branch> tree(void);
   };
 
   // Class that manipulates the tree (access, modification, etc).
   // Access the extensions of basic Node and Branch given in the templates.
-  template <typename NodeType, typename BranchType, typename StorageType>
+  template <typename NodeType, typename BranchType>
   class TreeManipulator
   {
   public:
@@ -116,57 +117,81 @@ namespace bpp
                   "NodeType must inherit from ExtendableTree::Node");
     static_assert(std::is_base_of<ExtendableTree::Branch, BranchType>::value,
                   "BranchType must inherit from ExtendableTree::Branch");
-    static_assert(std::is_same<ExtendableTree::Storage, typename std::decay<StorageType>::type>::value,
-                  "StorageType must be a const or non-const ExtendableTree::Storage");
 
   private:
-    StorageType& tree_;
+    ExtendableTree::Storage& tree_;
 
   public:
-    TreeManipulator(StorageType& storage)
+    TreeManipulator(ExtendableTree::Storage& storage)
       : tree_(storage)
     {
     }
 
-    NodeType& node(IndexType index) const { return *tree_.nodes_[index]; }
-    BranchType& branch(IndexType index) const { return *tree_.branches_[index]; }
+    // Downcast access (cannot be static due to language rules)
+    NodeType& node(IndexType index) const { return dynamic_cast<NodeType&>(*tree_.nodes_[index]); }
+    BranchType& branch(IndexType index) const { return dynamic_cast<BranchType&>(*tree_.branches_[index]); }
 
-    IndexType addNode(void) const { return 0; }
+    NodeType& addNode(void) const
+    {
+      tree_.nodes_.emplace_back();
+      return *tree_.nodes_.back();
+    }
   };
 
   // Need to put it after TreeManipulator definition
-  auto ExtendableTree::tree(void) -> TreeManipulator<Node, Branch, Storage> { return {tree_}; }
-  auto ExtendableTree::tree(void) const -> TreeManipulator<const Node, const Branch, const Storage> { return {tree_}; }
+  auto ExtendableTree::tree(void) -> TreeManipulator<Node, Branch> { return {tree_}; }
 
+  // Adds branch lengths
   class PhylogenyTree : public virtual ExtendableTree
   {
   public:
-    class Node : public virtual ExtendableTree::Node
-    {
-    };
+    using ExtendableTree::Node;
     class Branch : public virtual ExtendableTree::Branch
     {
+    private:
+      DF::ParameterNode<double> length_;
+
+    public:
+      void setLength(double length) { length_.setValue(length); }
+      double getLength(void) { return length_.getValue(); }
     };
 
-    TreeManipulator<Node, Branch, Storage> tree(void) { return {tree_}; }
-    TreeManipulator<const Node, const Branch, const Storage> tree(void) const { return {tree_}; }
+    TreeManipulator<Node, Branch> tree(void) { return {tree_}; }
   };
 
+  // Add a model per branch
   class PhylogenyProcess : public virtual PhylogenyTree
   {
-    // Add a model per branch
   public:
-    class Node : public virtual PhylogenyTree::Node
-    {
-    };
+    using PhylogenyTree::Node;
     class Branch : public virtual PhylogenyTree::Branch
     {
+    private:
+      DF::ParameterNode<SubstitutionModel*> model_;
+
+      // Compute matrix from model
+      struct ModelMatrixComputation
+      {
+        using ResultType = Matrix<double>;
+        enum
+        {
+          BranchLen,
+          Model
+        };
+        using ArgumentTypes = std::tuple<double, SubstitutionModel*>;
+        static void compute (ResultType & result, double brLen, SubstitutionModel * model) {
+        }
+      };
+      DF::HeterogeneousComputationNode<ModelMatrixComputation> modelMatrixForBranchLength_;
+
+    public:
+      void setModel(SubstitutionModel* model) { model_.setValue(model); }
+      SubstitutionModel* getModel(void) { return model_.getValue(); }
     };
 
-    TreeManipulator<Node, Branch, Storage> tree(void) { return {tree_}; }
-    TreeManipulator<const Node, const Branch, const Storage> tree(void) const { return {tree_}; }
+    TreeManipulator<Node, Branch> tree(void) { return {tree_}; }
   };
 
 } // end of namespace bpp.
 
-#endif //_PHYLOGENY_TREE_H_
+#endif //_DF_PHYLOGENY_TREE_H_
