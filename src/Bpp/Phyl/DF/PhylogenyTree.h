@@ -149,6 +149,7 @@ namespace bpp
     };
 
     TreeManipulator<Node, Branch, Storage> tree(void) { return {tree_}; }
+    TreeManipulator<const Node, const Branch, const Storage> tree(void) const { return {tree_}; }
   };
 
   class PhylogenyProcess : public virtual PhylogenyTree
@@ -163,6 +164,7 @@ namespace bpp
     };
 
     TreeManipulator<Node, Branch, Storage> tree(void) { return {tree_}; }
+    TreeManipulator<const Node, const Branch, const Storage> tree(void) const { return {tree_}; }
   };
 
 } // end of namespace bpp.

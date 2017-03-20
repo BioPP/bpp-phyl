@@ -50,7 +50,7 @@ knowledge of the CeCILL license and that you accept its terms.
 #include <Bpp/Phyl/NewLikelihood/RateAcrossSitesSubstitutionProcess.h>
 #include <Bpp/Phyl/NewLikelihood/SimpleSubstitutionProcess.h>
 
-#include <Bpp/Phyl/DF/PhylogenyTree.h>
+//#include <Bpp/Phyl/DF/PhylogenyTree.h>
 
 #include <Bpp/Phyl/DF/Cpp14.h>
 #include <Bpp/Phyl/DF/ForRange.h>
@@ -110,7 +110,7 @@ struct ValuesToCompare
   ValuesToCompare() = default;
 };
 
-TEST_CASE("comparing results between old and new likelihood (single travsersal)")
+TEST_CASE("comparing results between old and new likelihood (single traversal)")
 {
   using namespace bpp;
 
