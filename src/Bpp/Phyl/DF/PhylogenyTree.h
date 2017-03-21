@@ -42,9 +42,10 @@ knowledge of the CeCILL license and that you accept its terms.
 //#include <Bpp/Phyl/NewLikelihood/SubstitutionProcess.h>
 #include <Bpp/Phyl/Model/SubstitutionModel.h>
 
-#include <Bpp/Phyl/DF/Cpp14.h>
 #include <Bpp/Phyl/DF/DataFlowComputationClasses.h>
-#include <Bpp/Phyl/DF/ForRange.h>
+#include <Bpp/Utils/Cpp14.h>
+#include <Bpp/Utils/ForRange.h>
+#include <Bpp/Numeric/Matrix/Matrix.h>
 
 #include <cstdint>
 #include <limits>
@@ -172,15 +173,14 @@ namespace bpp
       // Compute matrix from model
       struct ModelMatrixComputation
       {
-        using ResultType = Matrix<double>;
+        using ResultType = DefaultMatrix<double>;
         enum
         {
           BranchLen,
           Model
         };
         using ArgumentTypes = std::tuple<double, SubstitutionModel*>;
-        static void compute (ResultType & result, double brLen, SubstitutionModel * model) {
-        }
+        static void compute(ResultType& result, double brLen, SubstitutionModel* model) {}
       };
       DF::HeterogeneousComputationNode<ModelMatrixComputation> modelMatrixForBranchLength_;
 

@@ -43,7 +43,7 @@
 #ifndef _ABSTRACT_LIKELIHOOD_NODE_H_
 #define _ABSTRACT_LIKELIHOOD_NODE_H_
 
-#include <Bpp/Phyl/DF/ForRange.h>
+#include <Bpp/Utils/ForRange.h>
 
 #include "LikelihoodNode.h"
 #include "SpeciationComputingNode.h"
