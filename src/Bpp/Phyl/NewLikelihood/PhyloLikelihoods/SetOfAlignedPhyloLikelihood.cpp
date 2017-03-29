@@ -69,13 +69,15 @@ bool SetOfAlignedPhyloLikelihood::addPhyloLikelihood(size_t nPhyl)
 
   if (aPL!=NULL && (getNumberOfSites()==0 || aPL->getNumberOfSites()==getNumberOfSites()))
   {
-    nPhylo_.push_back(nPhyl);
-    includeParameters_(aPL->getParameters());
-    
-    if (getNumberOfSites()==0)
-      setNumberOfSites(aPL->getNumberOfSites());
-    update();
-    return true;
+    if (SetOfAbstractPhyloLikelihood::addPhyloLikelihood(nPhyl))
+    {
+      if (getNumberOfSites()==0)
+        setNumberOfSites(aPL->getNumberOfSites());
+      return true;
+    }
+    else
+      return false;
   }
+  
   return false;
 }
