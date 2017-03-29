@@ -174,7 +174,7 @@ SubstitutionModel* BppOSubstitutionModelFormat::read(
   // //////////////////////////////////////
 
   else if (((modelName == "MG94") || (modelName == "YN98") ||
-            (modelName == "GY94") || (modelName.substr(0, 5) == "YNGP") ||
+            (modelName == "GY94") || (modelName.substr(0, 4) == "YNGP") ||
             (modelName.substr(0,3) == "KCM")
              ) && (alphabetCode_ & CODON))
   {
