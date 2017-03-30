@@ -41,11 +41,12 @@ knowledge of the CeCILL license and that you accept its terms.
 
 //#include <Bpp/Phyl/NewLikelihood/SubstitutionProcess.h>
 #include <Bpp/Phyl/Model/SubstitutionModel.h>
+#include <Bpp/Seq/Sequence.h>
 
+#include <Bpp/Numeric/Matrix/Matrix.h>
 #include <Bpp/Phyl/DF/DataFlowComputationClasses.h>
 #include <Bpp/Utils/Cpp14.h>
 #include <Bpp/Utils/ForRange.h>
-#include <Bpp/Numeric/Matrix/Matrix.h>
 
 #include <cstdint>
 #include <limits>
@@ -55,143 +56,262 @@ knowledge of the CeCILL license and that you accept its terms.
 
 namespace bpp
 {
-  // Forward declare manipulator
-  template <typename NodeType, typename BranchType>
-  class TreeManipulator;
-
-  // Base class of extended trees.
-  // Contains a tree topology only.
-  class ExtendableTree
+  namespace New
   {
-  public:
-    using IndexType = std::uint32_t;
-    static constexpr IndexType invalidIndex = std::numeric_limits<IndexType>::max();
+    // Forward declare manipulator
+    template <typename NodeType, typename BranchType>
+    class TreeManipulator;
 
-    // Base node type
-    class Node
+    // Base class of extended trees.
+    // Contains a tree topology only.
+    class ExtendableTree
     {
-    private:
-      IndexType id_;
-      IndexType fatherBranch_{invalidIndex};
-      std::vector<IndexType> childBranches_;
-
     public:
-      virtual ~Node() = default;
-    };
-    // Base branch type
-    class Branch
-    {
-    private:
-      IndexType id_;
-      IndexType fatherNode_;
-      IndexType childNode_;
+      using IndexType = std::uint32_t;
+      static constexpr IndexType invalidIndex = std::numeric_limits<IndexType>::max();
 
-    public:
-      virtual ~Branch() = default;
-    };
-    // Store tree.
-    // Ptr to node and branches to allow virtual dispatching.
-    // Also because tree elements will ultimately store DF nodes that are non movable.
-    struct Storage
-    {
-      std::vector<std::unique_ptr<Node>> nodes_;
-      std::vector<std::unique_ptr<Branch>> branches_;
-    };
-
-  protected:
-    Storage tree_;
-
-  public:
-    // Method that allow to access the tree.
-    // Should be overriden in each extended tree subclass to return a manipulator with extended Node and Branch.
-    TreeManipulator<Node, Branch> tree(void);
-  };
-
-  // Class that manipulates the tree (access, modification, etc).
-  // Access the extensions of basic Node and Branch given in the templates.
-  template <typename NodeType, typename BranchType>
-  class TreeManipulator
-  {
-  public:
-    using IndexType = ExtendableTree::IndexType;
-    static_assert(std::is_base_of<ExtendableTree::Node, NodeType>::value,
-                  "NodeType must inherit from ExtendableTree::Node");
-    static_assert(std::is_base_of<ExtendableTree::Branch, BranchType>::value,
-                  "BranchType must inherit from ExtendableTree::Branch");
-
-  private:
-    ExtendableTree::Storage& tree_;
-
-  public:
-    TreeManipulator(ExtendableTree::Storage& storage)
-      : tree_(storage)
-    {
-    }
-
-    // Downcast access (cannot be static due to language rules)
-    NodeType& node(IndexType index) const { return dynamic_cast<NodeType&>(*tree_.nodes_[index]); }
-    BranchType& branch(IndexType index) const { return dynamic_cast<BranchType&>(*tree_.branches_[index]); }
-
-    NodeType& addNode(void) const
-    {
-      tree_.nodes_.emplace_back();
-      return *tree_.nodes_.back();
-    }
-  };
-
-  // Need to put it after TreeManipulator definition
-  auto ExtendableTree::tree(void) -> TreeManipulator<Node, Branch> { return {tree_}; }
-
-  // Adds branch lengths
-  class PhylogenyTree : public virtual ExtendableTree
-  {
-  public:
-    using ExtendableTree::Node;
-    class Branch : public virtual ExtendableTree::Branch
-    {
-    private:
-      DF::ParameterNode<double> length_;
-
-    public:
-      void setLength(double length) { length_.setValue(length); }
-      double getLength(void) { return length_.getValue(); }
-    };
-
-    TreeManipulator<Node, Branch> tree(void) { return {tree_}; }
-  };
-
-  // Add a model per branch
-  class PhylogenyProcess : public virtual PhylogenyTree
-  {
-  public:
-    using PhylogenyTree::Node;
-    class Branch : public virtual PhylogenyTree::Branch
-    {
-    private:
-      DF::ParameterNode<SubstitutionModel*> model_;
-
-      // Compute matrix from model
-      struct ModelMatrixComputation
+      // Base node type
+      class Node
       {
-        using ResultType = DefaultMatrix<double>;
-        enum
-        {
-          BranchLen,
-          Model
-        };
-        using ArgumentTypes = std::tuple<double, SubstitutionModel*>;
-        static void compute(ResultType& result, double brLen, SubstitutionModel* model) {}
-      };
-      DF::HeterogeneousComputationNode<ModelMatrixComputation> modelMatrixForBranchLength_;
+      private:
+        IndexType id_;
+        IndexType fatherBranch_{invalidIndex};
+        std::vector<IndexType> childBranches_;
 
-    public:
-      void setModel(SubstitutionModel* model) { model_.setValue(model); }
-      SubstitutionModel* getModel(void) { return model_.getValue(); }
+      public:
+        void setIndex(IndexType id) { id_ = id; }
+        IndexType getIndex() const { return id_; }
+        virtual ~Node() = default;
+      };
+      // Base branch type
+      class Branch
+      {
+      private:
+        IndexType id_;
+        IndexType fatherNode_;
+        IndexType childNode_;
+
+      public:
+        virtual ~Branch() = default;
+      };
+      // Store tree.
+      // Ptr to node and branches to allow virtual dispatching.
+      // Also because tree elements will ultimately store DF nodes that are non movable.
+      struct Storage
+      {
+        std::vector<std::unique_ptr<Node>> nodes_;
+        std::vector<std::unique_ptr<Branch>> branches_;
+      };
+
+      // Method that allow to access the tree.
+      // Should be overriden in each extended tree subclass to return a manipulator with extended Node and Branch.
+      TreeManipulator<Node, Branch> tree(void);
+
+    protected:
+      Storage tree_;
     };
 
-    TreeManipulator<Node, Branch> tree(void) { return {tree_}; }
-  };
+    // Class that manipulates the tree (access, modification, etc).
+    // Access the extensions of basic Node and Branch given in the templates.
+    template <typename NodeType, typename BranchType>
+    class TreeManipulator
+    {
+    public:
+      using IndexType = ExtendableTree::IndexType;
+      static_assert(std::is_base_of<ExtendableTree::Node, NodeType>::value,
+                    "NodeType must inherit from ExtendableTree::Node");
+      static_assert(std::is_base_of<ExtendableTree::Branch, BranchType>::value,
+                    "BranchType must inherit from ExtendableTree::Branch");
 
+      TreeManipulator(ExtendableTree::Storage& storage)
+        : tree_(storage)
+      {
+      }
+
+      // Downcast access (cannot be static due to language rules)
+      NodeType& node(IndexType index) const { return dynamic_cast<NodeType&>(*tree_.nodes_[index]); }
+      BranchType& branch(IndexType index) const { return dynamic_cast<BranchType&>(*tree_.branches_[index]); }
+
+      std::size_t nbNodes() const { return tree_.nodes_.size(); }
+      std::size_t nbBranches() const { return tree_.branches_.size(); }
+
+      NodeType& addNode(void) const
+      {
+        auto id = IndexType(tree_.nodes_.size());
+        tree_.nodes_.emplace_back(Cpp14::make_unique<NodeType>());
+        auto& n = node(id);
+        n.setIndex(id);
+        return n;
+      }
+
+    private:
+      ExtendableTree::Storage& tree_;
+    };
+
+    // Need to put it after TreeManipulator definition
+    auto ExtendableTree::tree(void) -> TreeManipulator<Node, Branch> { return {tree_}; }
+
+    // Adds branch lengths
+    class PhylogenyTree : public virtual ExtendableTree
+    {
+    public:
+      using ExtendableTree::Node;
+      class Branch : public virtual ExtendableTree::Branch
+      {
+      public:
+        void setLength(double length) { length_.setValue(length); }
+        double getLength(void) { return length_.getValue(); }
+      protected:
+        DF::ParameterNode<double> length_;
+      };
+
+      TreeManipulator<Node, Branch> tree(void) { return {tree_}; }
+    };
+
+    // Add a model per branch
+    class PhylogenyProcess : public virtual PhylogenyTree
+    {
+    public:
+      using PhylogenyTree::Node;
+      class Branch : public virtual PhylogenyTree::Branch
+      {
+      public:
+        Branch()
+          : PhylogenyTree::Branch()
+        {
+          // Connect to brlen and model (value, diff, diff2)
+          modelMatrixForBranchLength_.setDependency<ModelMatrixComputation::BranchLen>(length_);
+          modelMatrixForBranchLength_.setDependency<ModelMatrixComputation::Model>(model_);
+          modelDMatrixForBranchLength_.setDependency<ModelDMatrixComputation::BranchLen>(length_);
+          modelDMatrixForBranchLength_.setDependency<ModelDMatrixComputation::Model>(model_);
+          modelDDMatrixForBranchLength_.setDependency<ModelDDMatrixComputation::BranchLen>(length_);
+          modelDDMatrixForBranchLength_.setDependency<ModelDDMatrixComputation::Model>(model_);
+        }
+
+        void setModel(SubstitutionModel* model) { model_.setValue(model); }
+        SubstitutionModel* getModel(void) { return model_.getValue(); }
+
+      protected:
+        DF::ParameterNode<SubstitutionModel*> model_;
+
+        // Compute matrix from model
+        struct ModelMatrixComputation
+        {
+          using ResultType = DefaultMatrix<double>;
+          enum
+          {
+            BranchLen,
+            Model
+          };
+          using ArgumentTypes = std::tuple<double, SubstitutionModel*>;
+          static void compute(ResultType& result, double brLen, SubstitutionModel* model)
+          {
+            result = model->getPij_t(brLen);
+          }
+        };
+        DF::HeterogeneousComputationNode<ModelMatrixComputation> modelMatrixForBranchLength_;
+
+        // Compute diff matrix from model
+        struct ModelDMatrixComputation
+        {
+          using ResultType = DefaultMatrix<double>;
+          enum
+          {
+            BranchLen,
+            Model
+          };
+          using ArgumentTypes = std::tuple<double, SubstitutionModel*>;
+          static void compute(ResultType& result, double brLen, SubstitutionModel* model)
+          {
+            result = model->getdPij_dt(brLen);
+          }
+        };
+        DF::HeterogeneousComputationNode<ModelDMatrixComputation> modelDMatrixForBranchLength_;
+
+        // Compute diff2 matrix from model
+        struct ModelDDMatrixComputation
+        {
+          using ResultType = DefaultMatrix<double>;
+          enum
+          {
+            BranchLen,
+            Model
+          };
+          using ArgumentTypes = std::tuple<double, SubstitutionModel*>;
+          static void compute(ResultType& result, double brLen, SubstitutionModel* model)
+          {
+            result = model->getd2Pij_dt2(brLen);
+          }
+        };
+        DF::HeterogeneousComputationNode<ModelDDMatrixComputation> modelDDMatrixForBranchLength_;
+      };
+
+      TreeManipulator<Node, Branch> tree(void) { return {tree_}; }
+    };
+
+    using LikelihoodValues = std::vector<double>;
+    using LikelihoodValuesBySite = std::vector<LikelihoodValues>;
+
+    class PhylogenySiteObservations : public virtual ExtendableTree
+    {
+    public:
+      class Node : public virtual ExtendableTree::Node
+      {
+      public:
+        void setSequence(const Sequence* seq) { sequence_ = seq; }
+        bool hasSequence() const { return sequence_ != nullptr; }
+        const std::string& sequenceName() const { return sequence_->getName(); }
+
+      private:
+        const Sequence* sequence_{};
+      };
+      using Branch = ExtendableTree::Branch;
+
+      TreeManipulator<Node, Branch> tree(void) { return {tree_}; }
+    };
+
+    // Add conditional likelihoods for all sites
+    class PhylogenyConditionalLikelihood : public virtual PhylogenyProcess, public virtual PhylogenySiteObservations
+    {
+    public:
+      class Node : public virtual PhylogenyProcess::Node, public virtual PhylogenySiteObservations::Node
+      {
+      protected:
+        // Conditionnal lik computed from childrens
+        struct ConditionalLikelihoodComputation
+        {
+          // FIXME matrix ?
+          using ResultType = LikelihoodValuesBySite;
+          using ArgumentType = LikelihoodValuesBySite;
+          static void reset(ResultType& result)
+          {
+            for (auto& site : result)
+              for (auto& likOfChar : site)
+                likOfChar = 1.;
+          }
+          static void reduce(ResultType& result, const ArgumentType& forwardLik)
+          {
+            for (auto siteIndex : makeRange(forwardLik.size()))
+            {
+              auto& siteCondLik = result[siteIndex];
+              auto& siteFwdLik = forwardLik[siteIndex];
+              for (auto c : makeRange(siteCondLik.size()))
+                siteCondLik[c] *= siteFwdLik[c];
+            }
+          }
+        };
+        DF::ReductionComputationNode<ConditionalLikelihoodComputation> conditionalLikelihood_;
+
+        //
+      };
+      class Branch : public virtual PhylogenyProcess::Branch, public virtual PhylogenySiteObservations::Branch
+      {
+      public:
+      };
+
+      TreeManipulator<Node, Branch> tree(void) { return {tree_}; }
+    };
+  }
 } // end of namespace bpp.
 
 #endif //_DF_PHYLOGENY_TREE_H_

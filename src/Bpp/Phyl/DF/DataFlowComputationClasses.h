@@ -225,7 +225,7 @@ namespace bpp
     {
     public:
       using ResultType = typename ReductionOp::ResultType;
-      using ArgumentType = typename ResultType::ArgumentType;
+      using ArgumentType = typename ReductionOp::ArgumentType;
 
     private:
       /// Dynamic list of dependencies.

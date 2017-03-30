@@ -270,6 +270,7 @@ namespace bpp
         assert(!isSet()); // Only movable assignable if currently unset.
         producer_ = other.producer_;
         other.producer_ = nullptr;
+        return *this;
       }
 
       bool isSet(void) const { return producer_ != nullptr; }

@@ -50,8 +50,6 @@ knowledge of the CeCILL license and that you accept its terms.
 #include <Bpp/Phyl/NewLikelihood/RateAcrossSitesSubstitutionProcess.h>
 #include <Bpp/Phyl/NewLikelihood/SimpleSubstitutionProcess.h>
 
-//#include <Bpp/Phyl/DF/PhylogenyTree.h>
-
 #include <Bpp/Utils/Cpp14.h>
 #include <Bpp/Utils/ForRange.h>
 #include <chrono>
@@ -145,10 +143,8 @@ TEST_CASE("comparing results between old and new likelihood (single traversal)")
   // double initialValue = 228.6333642493463;
   // double finalValue = 198.47216106233;
 
-  ValuesToCompare oldL;
-  ValuesToCompare newL;
-
   // Old likelihood
+  ValuesToCompare oldL;
   {
     auto ts = timingStart();
     auto tree = std::unique_ptr<TreeTemplate<Node>>(
@@ -168,6 +164,7 @@ TEST_CASE("comparing results between old and new likelihood (single traversal)")
   }
 
   // New likelihood
+  ValuesToCompare newL;
   {
     auto ts = timingStart();
     Newick reader;
@@ -189,16 +186,6 @@ TEST_CASE("comparing results between old and new likelihood (single traversal)")
     do_param_changes_multiple_times(llh, "new_param_brlen_change", paramBrLen1, paramBrLen2);
     do_optimization(llh, "new_optimization");
     newL.finalLikelihood = llh.getValue();
-  }
-
-  // DF likelihood
-  {
-    auto ts = timingStart();
-    Newick reader;
-    auto phyloTree = std::unique_ptr<PhyloTree>(
-      reader.parenthesisToPhyloTree("((A:0.01, B:0.02):0.03,C:0.01,D:0.1);", false, "", false, false));
-
-    // TODO
   }
 
   // TODO newTlop.getParameters().printParameters(cout);
