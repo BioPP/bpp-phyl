@@ -570,7 +570,6 @@ void AbstractWordSubstitutionModel::updateMatrices()
     for (j = 0; j < size_; j++)
       exchangeability_(i, j) = generator_(i, j) / freq_[j];
 
-//  MatrixTools::print(generator_,cerr);
 }
 
 

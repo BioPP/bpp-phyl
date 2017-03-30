@@ -1,5 +1,5 @@
 //
-// File: YNGKP_M9.h
+// File: YNGP_M3.h
 // Created by: Laurent Gueguen
 // Created on: May 2010
 //
@@ -37,8 +37,8 @@ The fact that you are presently reading this means that you have had
 knowledge of the CeCILL license and that you accept its terms.
 */
 
-#ifndef _YNGKP_M9_H_
-#define _YNGKP_M9_H_
+#ifndef _YNGP_M3_H_
+#define _YNGP_M3_H_
 
 #include "../AbstractBiblioMixedSubstitutionModel.h"
 #include "../MixtureOfASubstitutionModel.h"
@@ -50,19 +50,21 @@ namespace bpp
 {
 
 /**
- * @brief The Yang et al (2000) M9 substitution model for codons.
+ * @brief The Yang et al (2000) M3 substitution model for codons.
  * @author Laurent Guéguen
  *
  * This model is a mixture of models as described in YN98 class, the
- * mixture being defined on the selection parameter oomega to allow it
- * to vary among sites, following a mixture of a Beta distribution and
- * of a Gamma distribution.
+ * mixture being defined on the selection parameter to allow it to
+ * vary among sites. There are $K$ selection parameters @f$ \omega_0 <
+ * ... \omega_{K-1} @f$, with their respective probabilities @f$ p_0,
+ * ..., p_{K-1} @f$ with @f$ p_0+p_1+...+p_{K-1}=1@f$. To garantee
+ * that the @f$\omega_i@f$ are in increasing order, we define
+ * @f$\delta_i=\omega_i - \omega_{i-1}@f$.
  *
- * This model includes 5 parameters (@f$\kappa@f$, @f$ p @f$ and
- * @f$q@f$ of the @f$ Beta(p,q) @f$ distribution, @f$ \alpha @f$ and
- * @f$\beta@f$ of the @f$ Gamma(\alpha,\beta) @f$
- * distribution,@f$p0@f$ the weight of the Beta distribution. The
- * codon frequencies @f$ \pi_j @f$ are either observed or infered.
+ * This model includes 2*K parameters (@f$\kappa@f$, relative
+ * probabilities @f$ theta1, theta2, ..., thetaK-1 @f$ and @f$omega0,
+ * delta1, deltaK-1@f$). The codon frequencies @f$\pi_j@f$ are either
+ * observed or infered.
  *
  * References:
  *
@@ -70,7 +72,7 @@ namespace bpp
  * Genetics 155:431-449.
  * 
  */
-class YNGKP_M9:
+class YNGP_M3:
     public AbstractBiblioMixedSubstitutionModel,
     virtual public ReversibleSubstitutionModel
 {
@@ -80,27 +82,20 @@ private:
   /**
    * @brief indexes of 2 codons between which the substitution is
    * synonymous, to set a basis to the homogeneization of the rates.
-   */
-  size_t synfrom_, synto_;
-
-  unsigned int nBeta_, nGamma_;
-  
-public:
-  /*
-   *@brief Constructor that requires the number of classes of the
-   * BetaDiscreteDistribution and the GammaDiscreteDistribution.
    *
    */
+  size_t synfrom_, synto_;
   
-  YNGKP_M9(const GeneticCode* gc, FrequenciesSet* codonFreqs, unsigned int nbBeta, unsigned int nbGamma);
+public:
+  YNGP_M3(const GeneticCode* gc, FrequenciesSet* codonFreqs, unsigned int nclass = 3);
 
-  ~YNGKP_M9();
+  ~YNGP_M3();
   
-  YNGKP_M9* clone() const { return new YNGKP_M9(*this); }
+  YNGP_M3* clone() const { return new YNGP_M3(*this); }
 
-  YNGKP_M9(const YNGKP_M9&);
+  YNGP_M3(const YNGP_M3&);
 
-  YNGKP_M9& operator=(const YNGKP_M9&);
+  YNGP_M3& operator=(const YNGP_M3&);
 
 protected:
   void updateMatrices();
@@ -110,27 +105,18 @@ public:
 
   const MixedSubstitutionModel& getMixedModel() const { return *pmixmodel_.get(); }
 
-  std::string getName() const { return "YNGKP_M9"; }
+  std::string getName() const { return "YNGP_M3"; }
 
-  unsigned int getNBeta() const 
-  {
-    return nBeta_;
-  }
-  
-  unsigned int getNGamma() const 
-  {
-    return nGamma_;
-  }
-  
 private:
   SubstitutionModel& getModel() { return *pmixmodel_.get(); }
-
+  
   MixedSubstitutionModel& getMixedModel() { return *pmixmodel_.get(); }
-
+  
   const FrequenciesSet* getFrequenciesSet() const {return pmixmodel_->getNModel(1)->getFrequenciesSet();}
+
 };
 
 } //end of namespace bpp.
 
-#endif	//_YNGKP_M9_H_
+#endif	//_YNGP_M3_H_
 

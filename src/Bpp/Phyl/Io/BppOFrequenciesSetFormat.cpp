@@ -553,7 +553,7 @@ FrequenciesSet* BppOFrequenciesSetFormat::read(const Alphabet* alphabet, const s
   else 
     if (parseArguments)
       initialize_(*pFS, data);
-  
+
   return pFS.release();
 }
 
