@@ -573,17 +573,12 @@ void CodonFromUniqueFrequenciesSet::updateFrequencies()
   {
     // The frequencies of the stop codons are distributed to all
     // neighbour non-stop codons
-    double f[64];
-    for (size_t i = 0; i < s; i++)
+    double f[64] = {0};
+    
+    for (auto mStopNeigh_it : mStopNeigh_)
     {
-      f[i] = 0;
-    }
-
-    std::map<int, Vint>::iterator mStopNeigh_it(mStopNeigh_.begin());
-    while (mStopNeigh_it != mStopNeigh_.end())
-    {
-      int stNb = mStopNeigh_it->first;
-      Vint vneigh = mStopNeigh_it->second;
+      int stNb = mStopNeigh_it.first;
+      Vint vneigh = mStopNeigh_it.second;
       double sneifreq = 0;
       for (size_t vn = 0; vn < vneigh.size(); vn++)
       {
@@ -595,13 +590,10 @@ void CodonFromUniqueFrequenciesSet::updateFrequencies()
         f[vneigh[vn]] += pow(getFreq_(static_cast<size_t>(vneigh[vn])), mgmtStopCodon_) * x;
       }
       getFreq_(static_cast<size_t>(stNb)) = 0;
-      mStopNeigh_it++;
     }
 
     for (size_t i = 0; i < s; i++)
-    {
       getFreq_(i) += f[i];
-    }
   }
   else
   {
