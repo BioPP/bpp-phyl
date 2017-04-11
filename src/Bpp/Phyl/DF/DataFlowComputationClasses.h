@@ -49,8 +49,8 @@ knowledge of the CeCILL license and that you accept its terms.
  * TODO fixed reduction ?
  */
 
-#include <Bpp/Utils/Cpp14.h> // IndexSequence
 #include <Bpp/Phyl/DF/DataFlowBaseClasses.h>
+#include <Bpp/Utils/Cpp14.h> // IndexSequence
 #include <algorithm>
 #include <cassert>
 #include <initializer_list> // foreach on tuple trick
@@ -123,17 +123,6 @@ namespace bpp
       DependencyTupleType dependencies_{};
 
     public:
-      /** Constructor.
-       * The stored value is initialized using the given arguments (forwarded to ResultType constructor).
-       * This initialization step is useful for complex types like std::vector<...>.
-       * Using this, they can be allocated only once to their working size instead of every computation.
-       */
-      template <typename... Args>
-      HeterogeneousComputationNode(Args&&... args)
-        : ValuedNode<ResultType>(false, std::forward<Args>(args)...)
-      {
-      }
-
       /** Destructor.
        * Unsets all dependences, as required by the Dependency class.
        * Use a helper function to unpack the tuple (see std::index_sequence).
@@ -232,17 +221,6 @@ namespace bpp
       std::vector<Dependency<ArgumentType>> dependencies_;
 
     public:
-      /** Constructor.
-       * The stored value is initialized using the given arguments (forwarded to ResultType constructor).
-       * This initialization step is useful for complex types like std::vector<...>.
-       * Using this, they can be allocated only once to their working size instead of every computation.
-       */
-      template <typename... Args>
-      ReductionComputationNode(Args&&... args)
-        : ValuedNode<ResultType>(false, std::forward<Args>(args)...)
-      {
-      }
-
       /** Destructor.
        * Disconnects all dependences, as required by the Dependency class.
        */

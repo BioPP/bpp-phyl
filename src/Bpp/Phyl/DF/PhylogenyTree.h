@@ -74,26 +74,40 @@ namespace bpp
       class Node
       {
       private:
-        IndexType id_;
+        IndexType id_{invalidIndex};
         IndexType fatherBranch_{invalidIndex};
         std::vector<IndexType> childBranches_;
 
       public:
-        void setIndex(IndexType id) { id_ = id; }
+        void graphInit(IndexType id) { id_ = id; }
         IndexType getIndex() const { return id_; }
+        void addChildBranch(IndexType branchId) { childBranches_.emplace_back(branchId); }
+        void setFatherBranch(IndexType branchId) { fatherBranch_ = branchId; }
         virtual ~Node() = default;
       };
       // Base branch type
       class Branch
       {
       private:
-        IndexType id_;
-        IndexType fatherNode_;
-        IndexType childNode_;
+        IndexType id_{invalidIndex};
+        IndexType fatherNode_{invalidIndex};
+        IndexType childNode_{invalidIndex};
 
       public:
+        void graphInit(IndexType id, Node& father, Node& child)
+        {
+          id_ = id;
+          fatherNode_ = father.getIndex();
+          father.addChildBranch(id);
+          childNode_ = child.getIndex();
+          child.setFatherBranch(id);
+        }
+        IndexType getIndex() const { return id_; }
+        IndexType getFather() const { return fatherNode_; }
+        IndexType getChild() const { return childNode_; }
         virtual ~Branch() = default;
       };
+
       // Store tree.
       // Ptr to node and branches to allow virtual dispatching.
       // Also because tree elements will ultimately store DF nodes that are non movable.
@@ -128,21 +142,43 @@ namespace bpp
       {
       }
 
-      // Downcast access (cannot be static due to language rules)
-      NodeType& node(IndexType index) const { return dynamic_cast<NodeType&>(*tree_.nodes_[index]); }
-      BranchType& branch(IndexType index) const { return dynamic_cast<BranchType&>(*tree_.branches_[index]); }
+      // Downcast (cannot be static due to language rules)
+      static NodeType& node_cast(ExtendableTree::Node& node) { return dynamic_cast<NodeType&>(node); }
+      static const NodeType& node_cast(const ExtendableTree::Node& node) { return dynamic_cast<const NodeType&>(node); }
+      static BranchType& branch_cast(ExtendableTree::Branch& branch) { return dynamic_cast<BranchType&>(branch); }
+      static const BranchType& branch_cast(const ExtendableTree::Branch& branch)
+      {
+        return dynamic_cast<const BranchType&>(branch);
+      }
 
-      std::size_t nbNodes() const { return tree_.nodes_.size(); }
-      std::size_t nbBranches() const { return tree_.branches_.size(); }
+      // Tree access
+      ExtendableTree::Node& basic_node(IndexType index) const { return *tree_.nodes_[index]; }
+      ExtendableTree::Branch& basic_branch(IndexType index) const { return *tree_.branches_[index]; }
+
+      NodeType& node(IndexType index) const { return node_cast(basic_node(index)); }
+      BranchType& branch(IndexType index) const { return branch_cast(basic_branch(index)); }
+
+      IndexType nbNodes() const { return IndexType(tree_.nodes_.size()); }
+      IndexType nbBranches() const { return IndexType(tree_.branches_.size()); }
 
       NodeType& addNode(void) const
       {
         auto id = IndexType(tree_.nodes_.size());
         tree_.nodes_.emplace_back(Cpp14::make_unique<NodeType>());
         auto& n = node(id);
-        n.setIndex(id);
+        n.graphInit(id);
         return n;
       }
+
+      BranchType& addBranch(NodeType& from, NodeType& to)
+      {
+        auto id = IndexType(tree_.branches_.size());
+        tree_.branches_.emplace_back(Cpp14::make_unique<BranchType>());
+        auto& br = branch(id);
+        br.graphInit(id, from, to);
+        return br;
+      }
+      BranchType& addBranch(IndexType from, IndexType to) { return addBranch(node(from), node(to)); }
 
     private:
       ExtendableTree::Storage& tree_;
@@ -260,6 +296,7 @@ namespace bpp
       public:
         void setSequence(const Sequence* seq) { sequence_ = seq; }
         bool hasSequence() const { return sequence_ != nullptr; }
+        const Sequence& getSequence() const { return *sequence_; }
         const std::string& sequenceName() const { return sequence_->getName(); }
 
       private:
@@ -276,7 +313,40 @@ namespace bpp
     public:
       class Node : public virtual PhylogenyProcess::Node, public virtual PhylogenySiteObservations::Node
       {
-      protected:
+      public:
+        void initStuff(std::size_t nbSites, std::size_t nbStates)
+        {
+          conditionalLikelihood_.initValue() = LikelihoodValuesBySite(nbSites, LikelihoodValues(nbStates));
+          if (hasSequence())
+          {
+            // Setup the init likelihoods
+            LikelihoodValuesBySite initLikBySite(nbSites);
+            for (auto site : makeRange(initLikBySite.size()))
+            {
+              LikelihoodValues liks(nbStates, 0.);
+              liks[getSequence().getValue(site)] = 1.;
+              initLikBySite[site] = std::move(liks);
+            }
+            initLikelihoodFromData_.setValue(std::move(initLikBySite));
+            // Link them to cond
+            conditionalLikelihood_.addDependencyTo(initLikelihoodFromData_);
+          }
+        }
+
+        double getLogLik()
+        {
+          auto& condLiksBySite = conditionalLikelihood_.getValue();
+          double logLik = 0.;
+          for (auto& likOfSite : condLiksBySite)
+          {
+            double lik = 1.;
+            for (auto l : likOfSite)
+              lik *= l;
+            logLik += std::log(lik);
+          }
+          return -logLik;
+        }
+
         // Conditionnal lik computed from childrens
         struct ConditionalLikelihoodComputation
         {
@@ -285,12 +355,14 @@ namespace bpp
           using ArgumentType = LikelihoodValuesBySite;
           static void reset(ResultType& result)
           {
+            std::cout << "RESET condlik\n";
             for (auto& site : result)
               for (auto& likOfChar : site)
                 likOfChar = 1.;
           }
           static void reduce(ResultType& result, const ArgumentType& forwardLik)
           {
+            std::cout << "REDUCE condlik\n";
             for (auto siteIndex : makeRange(forwardLik.size()))
             {
               auto& siteCondLik = result[siteIndex];
@@ -302,11 +374,57 @@ namespace bpp
         };
         DF::ReductionComputationNode<ConditionalLikelihoodComputation> conditionalLikelihood_;
 
-        //
+        DF::ParameterNode<LikelihoodValuesBySite> initLikelihoodFromData_;
       };
+
       class Branch : public virtual PhylogenyProcess::Branch, public virtual PhylogenySiteObservations::Branch
       {
       public:
+        Branch()
+          : PhylogenyProcess::Branch()
+        {
+          forwardLikelihood_.setDependency<ForwardLikelihoodComputation::BranchModel>(modelMatrixForBranchLength_);
+        }
+
+        void graphInit(IndexType id, Node& from, Node& to)
+        {
+          PhylogenyProcess::Branch::graphInit(id, from, to);
+          from.conditionalLikelihood_.addDependencyTo(forwardLikelihood_);
+          forwardLikelihood_.setDependency<ForwardLikelihoodComputation::ChildCondLik>(to.conditionalLikelihood_);
+        }
+
+        void initStuff(std::size_t nbSites, std::size_t nbStates)
+        {
+          forwardLikelihood_.initValue() = LikelihoodValuesBySite(nbSites, LikelihoodValues(nbStates));
+        }
+
+      protected:
+        struct ForwardLikelihoodComputation
+        {
+          using ResultType = LikelihoodValuesBySite;
+          enum
+          {
+            ChildCondLik,
+            BranchModel
+          };
+          using ArgumentTypes = std::tuple<LikelihoodValuesBySite, DefaultMatrix<double>>;
+          static void compute(ResultType& resBySite, const LikelihoodValuesBySite& childCondLikBySite,
+                              const DefaultMatrix<double>& transitionMatrix)
+          {
+            for (auto site : makeRange(resBySite.size()))
+            {
+              auto& fwdLiks = resBySite[site];
+              auto& childCondLik = childCondLikBySite[site];
+              for (auto target_c : makeRange(fwdLiks.size()))
+              {
+                fwdLiks[target_c] = 0;
+                for (auto c : makeRange(fwdLiks.size()))
+                  fwdLiks[target_c] += transitionMatrix(target_c, c) * childCondLik[c];
+              }
+            }
+          }
+        };
+        DF::HeterogeneousComputationNode<ForwardLikelihoodComputation> forwardLikelihood_;
       };
 
       TreeManipulator<Node, Branch> tree(void) { return {tree_}; }

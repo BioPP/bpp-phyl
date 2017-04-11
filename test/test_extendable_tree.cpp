@@ -36,6 +36,8 @@ The fact that you are presently reading this means that you have had
 knowledge of the CeCILL license and that you accept its terms.
 */
 
+#undef NDEBUG
+
 // Shared stuff
 #include <Bpp/Numeric/Prob/ConstantDistribution.h>
 #include <Bpp/Phyl/Model/Nucleotide/T92.h>
@@ -52,8 +54,8 @@ knowledge of the CeCILL license and that you accept its terms.
 #include <Bpp/Utils/Cpp14.h>
 #include <Bpp/Utils/ForRange.h>
 #include <chrono>
-#include <map>
 #include <iostream>
+#include <map>
 
 #define DOCTEST_CONFIG_IMPLEMENT_WITH_MAIN
 #include "doctest.h"
@@ -126,7 +128,7 @@ TEST_CASE("Compare likelihood computations with 3 methods")
   paramBrLen1.addParameter(Parameter("BrLen1", 0.1));
   ParameterList paramBrLen2;
   paramBrLen2.addParameter(Parameter("BrLen1", 0.2));
-  
+
   // Old likelihood
   ValuesToCompare oldL;
   {
@@ -137,7 +139,7 @@ TEST_CASE("Compare likelihood computations with 3 methods")
     llh.initialize();
     oldL.initialLikelihood = llh.getValue();
     timingEnd(ts, "old_init_value");
-    
+
     do_param_changes_multiple_times(llh, "old_param_model_change", paramModel1, paramModel2);
     do_param_changes_multiple_times(llh, "old_param_brlen_change", paramBrLen1, paramBrLen2);
   }
@@ -149,25 +151,65 @@ TEST_CASE("Compare likelihood computations with 3 methods")
     auto phyloTree = std::unique_ptr<PhyloTree>(
       reader.parenthesisToPhyloTree("((A:0.01, B:0.02):0.03,C:0.01,D:0.1);", false, "", false, false));
 
+    //
+    auto& seq = sites.getSequence("A");
+    auto nbSites = seq.size();
+    auto nbStates = seq.getAlphabet()->getSize();
+    auto* localModel = model.clone();
+
     // Create problem tree
     New::PhylogenyConditionalLikelihood lik;
     auto manipulator = lik.tree();
 
     // Fill tree
     std::map<PhyloTree::NodeIndex, New::PhylogenyProcess::IndexType> nodeConv;
-    for (auto phylNodeId : phyloTree->getAllNodesIndexes ()) {
-      auto & node = manipulator.addNode();
+    for (auto phylNodeId : phyloTree->getAllNodesIndexes())
+    {
+      auto& node = manipulator.addNode();
       std::cout << "node_create(id=" << node.getIndex() << ",phylid=" << phylNodeId << ")\n";
       nodeConv[phylNodeId] = node.getIndex();
       auto phylNode = phyloTree->getNode(phylNodeId);
-      if (phylNode->hasName()) {
+      if (phylNode->hasName())
+      {
         // Add sequence to corresponding node
-        std::cout << "add_seq(id=" << node.getIndex () << ",seqName=" << phylNode->getName() << ")\n";
-        node.setSequence (&sites.getSequence(phylNode->getName ()));
+        std::cout << "add_seq(id=" << node.getIndex() << ",seqName=" << phylNode->getName() << ")\n";
+        node.setSequence(&sites.getSequence(phylNode->getName()));
       }
     }
-    // TODO fill edges (how to connect properly the liks)
+    for (auto phylNodeId : phyloTree->getAllNodesIndexes())
+    {
+      // Add links (to father, doesn't matter as we iterate over all nodes)
+      if (phyloTree->hasFather(phylNodeId))
+      {
+        auto phylNode = phyloTree->getNode(phylNodeId);
+        auto phylFatherId = phyloTree->getNodeIndex(phyloTree->getFather(phylNode));
+        auto phylBranch = phyloTree->getEdgeToFather(phylNodeId);
+        auto& branch = manipulator.addBranch(nodeConv.at(phylFatherId), nodeConv.at(phylNodeId));
+        branch.setLength(phylBranch->getLength());
+        branch.setModel(localModel);
+        std::cout << "branch_create(id=" << branch.getIndex() << ",from=" << branch.getFather()
+                  << ",to=" << branch.getChild() << ",len=" << branch.getLength() << ")\n";
+      }
+    }
+    std::cout << "root_id=" << nodeConv[phyloTree->getRootIndex()] << "\n";
+    // Final init... (crappy but temporary)
+    for (auto i : makeRange(manipulator.nbNodes()))
+      manipulator.node(i).initStuff(nbSites, nbStates);
+    for (auto i : makeRange(manipulator.nbBranches()))
+      manipulator.branch(i).initStuff(nbSites, nbStates);
+
+    newL.initialLikelihood = manipulator.node(nodeConv[phyloTree->getRootIndex()]).getLogLik();
+    timingEnd(ts, "df_init");
+
+    auto& v = manipulator.node(nodeConv[phyloTree->getRootIndex()]).conditionalLikelihood_.getValue();
+    for (auto siteId : makeRange(v.size()))
+    {
+      std::cout << "Lik[site " << siteId << "] = { ";
+      for (auto l : v[siteId])
+        std::cout << l << " ";
+      std::cout << "}\n";
+    }
   }
-  
+
   CHECK(doctest::Approx(oldL.initialLikelihood) == newL.initialLikelihood);
 }

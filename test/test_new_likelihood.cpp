@@ -76,7 +76,7 @@ namespace
   void do_param_changes_multiple_times(Lik& llh, const std::string& timePrefix, const bpp::ParameterList& p1,
                                        const bpp::ParameterList& p2)
   {
-    constexpr std::size_t updatesNbIterations = 10;
+    constexpr std::size_t updatesNbIterations = 1000;
     auto ts = timingStart();
     for (auto i : makeRange(updatesNbIterations))
     {
@@ -92,7 +92,7 @@ namespace
   template <typename Lik>
   void do_optimization(Lik& llh, const std::string& timePrefix)
   {
-    constexpr int nbOptim = 1000;
+    constexpr int nbOptim = 100000;
     auto ts = timingStart();
     bpp::OptimizationTools::optimizeNumericalParameters2(&llh, llh.getParameters(), 0, 0.000001, nbOptim, 0, 0);
     timingEnd(ts, timePrefix);
@@ -145,7 +145,7 @@ TEST_CASE("comparing results between old and new likelihood (single traversal)")
 
   // Old likelihood
   ValuesToCompare oldL;
-  {
+  if (0){
     auto ts = timingStart();
     auto tree = std::unique_ptr<TreeTemplate<Node>>(
       TreeTemplateTools::parenthesisToTree("((A:0.01, B:0.02):0.03,C:0.01,D:0.1);"));
@@ -190,8 +190,8 @@ TEST_CASE("comparing results between old and new likelihood (single traversal)")
 
   // TODO newTlop.getParameters().printParameters(cout);
 
-  CHECK(doctest::Approx(oldL.initialLikelihood) == newL.initialLikelihood);
-  CHECK(doctest::Approx(oldL.initial1DerivativeBr2) == newL.initial1DerivativeBr2);
-  CHECK(doctest::Approx(oldL.initial2DerivativeBr2) == newL.initial2DerivativeBr2);
-  CHECK(doctest::Approx(oldL.finalLikelihood).epsilon(0.0001) == newL.finalLikelihood);
+  //CHECK(doctest::Approx(oldL.initialLikelihood) == newL.initialLikelihood);
+  //CHECK(doctest::Approx(oldL.initial1DerivativeBr2) == newL.initial1DerivativeBr2);
+  //CHECK(doctest::Approx(oldL.initial2DerivativeBr2) == newL.initial2DerivativeBr2);
+  //CHECK(doctest::Approx(oldL.finalLikelihood).epsilon(0.0001) == newL.finalLikelihood);
 }

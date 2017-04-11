@@ -94,10 +94,7 @@ namespace bpp
       void makeValid(void) { valid_ = true; }
 
       /// Protected constructor.
-      InvalidableNode(bool initialState)
-        : valid_(initialState)
-      {
-      }
+      InvalidableNode() = default;
 
     public:
       // Non copyable nor movable
@@ -171,24 +168,10 @@ namespace bpp
     {
     protected:
       /// Value is protected to let subclasses modify it.
-      T value_;
+      T value_{};
 
-      /** Initialize validity state, and value by forwarding arguments to constructor.
-       * Allow in-place initilization of T without overhead.
-       */
-      template <typename... Args>
-      ValuedNode(bool initialState, Args&&... args)
-        : InvalidableNode(initialState)
-        , value_(std::forward<Args>(args)...)
-      {
-      }
-      /** Default constructor, with an invalid default value.
-       */
-      ValuedNode()
-        : InvalidableNode(false)
-        , value_()
-      {
-      }
+      /// Default constructor, with an invalid default value.
+      ValuedNode() = default;
 
       /** Virtual function to recompute value.
        * Computation nodes will subclass it with the computation process.
@@ -198,6 +181,13 @@ namespace bpp
       virtual void compute(void) = 0;
 
     public:
+      /// Allow to setup the value inside (for vectors, etc).
+      T& initValue()
+      {
+        invalidate();
+        return value_;
+      }
+
       /** Access value, recompute if needed.
        *
        * This function is not virtual, so only 1 indirection (isValid) in the best case.
@@ -261,7 +251,7 @@ namespace bpp
 
       // Movable (between same owner node !)
       Dependency(Dependency&& other)
-        : Dependency(other.producer_)
+        : producer_(other.producer_)
       {
         other.producer_ = nullptr;
       }
@@ -290,10 +280,12 @@ namespace bpp
       }
       void unset(InvalidableNode& ownerNode)
       {
-        assert(isSet());
-        producer_->unregisterDependent(ownerNode);
-        clear();
-        ownerNode.invalidate(); // Node needs to be recomputed
+        if (isSet())
+        {
+          producer_->unregisterDependent(ownerNode);
+          clear();
+          ownerNode.invalidate(); // Node needs to be recomputed
+        }
       }
       void clear(void) { producer_ = nullptr; }
       void clearIfMatching(const InvalidableNode* producerToClear)
@@ -321,12 +313,9 @@ namespace bpp
     public:
       /// Default constructor will be invalid state.
       ParameterNode() = default;
-      /// Construct the T in place by forwarding arguments, valid state.
-      template <typename... Args>
-      ParameterNode(Args&&... args)
-        : ValuedNode<T>(true, std::forward<Args>(args)...)
-      {
-      }
+
+      /// Temp constructor with setup.
+      ParameterNode(const T& value) { setValue(value); }
 
       /** Change parameter value.
        * For now, interface that replaces the value.
@@ -335,8 +324,7 @@ namespace bpp
       template <typename U>
       void setValue(U&& value)
       {
-        InvalidableNode::invalidate();
-        ValuedNode<T>::value_ = std::forward<U>(value);
+        ValuedNode<T>::initValue() = std::forward<U>(value);
         InvalidableNode::makeValid();
       }
     };
