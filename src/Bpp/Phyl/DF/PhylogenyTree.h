@@ -333,15 +333,16 @@ namespace bpp
           }
         }
 
-        double getLogLik()
+        double getLogLik(SubstitutionModel* model)
         {
+          const auto& freqs = model->getFrequencies();
           auto& condLiksBySite = conditionalLikelihood_.getValue();
           double logLik = 0.;
           for (auto& likOfSite : condLiksBySite)
           {
-            double lik = 1.;
-            for (auto l : likOfSite)
-              lik *= l;
+            double lik = 0.;
+            for (auto c : makeRange(likOfSite.size()))
+              lik += likOfSite[c] * freqs[c];
             logLik += std::log(lik);
           }
           return -logLik;
@@ -355,14 +356,12 @@ namespace bpp
           using ArgumentType = LikelihoodValuesBySite;
           static void reset(ResultType& result)
           {
-            std::cout << "RESET condlik\n";
             for (auto& site : result)
               for (auto& likOfChar : site)
                 likOfChar = 1.;
           }
           static void reduce(ResultType& result, const ArgumentType& forwardLik)
           {
-            std::cout << "REDUCE condlik\n";
             for (auto siteIndex : makeRange(forwardLik.size()))
             {
               auto& siteCondLik = result[siteIndex];
