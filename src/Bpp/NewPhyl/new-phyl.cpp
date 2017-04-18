@@ -3,9 +3,15 @@
 #include <vector>
 
 #include <iostream>
+#include <map>
 #include <stdexcept>
 #include <string>
 #include <unordered_map>
+
+template <typename T> std::string basic_type_name ();
+#define SET_TYPE_NAME(t)                                                                           \
+	template <> std::string basic_type_name<t> () { return #t; }
+SET_TYPE_NAME (int);
 
 namespace DF {
 ///////////////////////////////////////// DF nodes //////////////////////////////////////
@@ -45,6 +51,7 @@ protected:
 class Node {
 public:
 	Node (std::shared_ptr<BaseNode> p) : p_node_ (std::move (p)) {}
+	const std::shared_ptr<BaseNode> & get_pointer () const { return p_node_; }
 
 private:
 	std::shared_ptr<BaseNode> p_node_;
@@ -85,7 +92,28 @@ template <typename T> struct ParamNode final : public ValuedNode<T> {
 	void compute () override { throw std::runtime_error ("Param node unset"); }
 };
 
-// TODO keep or trash
+// Value type for ParamNode
+template <typename T> class Param {
+public:
+	Param (std::shared_ptr<ParamNode<T>> p) : p_node_ (std::move (p)) {}
+
+	Param (const Node & node)
+	    : p_node_ (std::dynamic_pointer_cast<ParamNode<T>> (node.get_pointer ())) {
+		if (!p_node_)
+			throw std::runtime_error ("bad dynamic cast");
+	}
+
+	Param (T t) : Param (std::make_shared<ParamNode<T>> ()) { set_value (t); }
+
+	void set_value (T t) const { p_node_->set_value (t); }
+	const T & get_value () const { return p_node_->get_value (); }
+
+	Node as_node () const { return Node (std::static_pointer_cast<BaseNode> (p_node_)); }
+
+private:
+	std::shared_ptr<ParamNode<T>> p_node_;
+};
+
 template <typename T> struct AddNode final : public ValuedNode<T> {
 	void add_dep (Value<T> v) {
 		auto p = v.get ();
@@ -162,27 +190,60 @@ void print_tree (std::ostream & os, Tree t, int depth = 0) {
 
 //////////////////////////////////// DF registry ///////////////////////////////////
 
+using DataSet = int;
+class Registry;
+
 struct Key {
 	const OperationId op_id;
 	const Tree application_point;
+	const DataSet data_set;
 
 	bool operator== (const Key & k) const {
-		return std::tie (op_id, application_point) == std::tie (k.op_id, k.application_point);
+		return std::tie (op_id, application_point, data_set) ==
+		       std::tie (k.op_id, k.application_point, k.data_set);
 	}
 	struct Hash {
-		std::size_t operator() (const Key & k) const { return std::hash<OperationId>{}(k.op_id); }
+		std::size_t operator() (const Key & k) const {
+			return std::hash<OperationId>{}(k.op_id) ^ (std::hash<Tree>{}(k.application_point) << 1) ^
+			       (std::hash<DataSet>{}(k.data_set) << 2);
+		}
 	};
 };
 
-template <typename OperationType> Key make_key () {
-	return Key{get_operation_id<OperationType> ()};
-}
-
 class Registry {
 public:
+	// Data set and data points
+	DataSet create_data_set () { return counter++; }
+	template <typename T>
+	DF::Param<T> create_parameter (const Tree & tree, const DataSet & data_set, T t = T ()) {
+		auto res = registry_.emplace (make_key<DF::ParamNode<T>> (tree, data_set),
+		                              DF::Param<T> (t).as_node ());
+		if (!res.second)
+			throw std::runtime_error ("param node already created !");
+		return DF::Param<T> (res.first->second);
+	}
+	template <typename T> DF::Param<T> get_parameter (const Tree & tree, const DataSet & data_set) {
+		auto it = registry_.find (make_key<DF::ParamNode<T>> (tree, data_set));
+		if (it == registry_.end ())
+			throw std::runtime_error ("param not found");
+		return DF::Param<T> (it->second);
+	}
+
+  template<typename DFNode> std::shared_ptr<DFNode> get_or_create_node_raw (const Tree & tree, const DataSet & data_set) {
+    // TODO
+  }
+
 private:
+	template <typename OperationType>
+	Key make_key (const Tree & tree, const DataSet & data_set) const {
+		return Key{get_operation_id<OperationType> (), tree, data_set};
+	}
+
+	DataSet counter{0};
 	std::unordered_map<Key, DF::Node, typename Key::Hash> registry_;
 };
+
+
 
 int main () {
 	// Building a tree.
@@ -203,50 +264,14 @@ int main () {
 	std::cout << "end tree printing\n";
 	// End tree
 
-	std::cout << (g == alt_root) << "\n";
-	std::cout << get_operation_id<int> () << " " << get_operation_id<int> () << " "
-	          << get_operation_id<bool> () << "\n";
+	Registry registry;
+
+	auto data1 = registry.create_data_set ();
+	registry.create_parameter (a, data1, 1);
+	registry.create_parameter (b, data1, 2);
+	registry.create_parameter (d, data1, 3);
+	registry.create_parameter (e, data1, 4);
+	registry.create_parameter (f, data1, 5);
 
 	return 0;
 }
-
-#if 0
-static constexpr int invalid = -1;
-
-class Tree {
-public:
-	struct Node {
-		int id{invalid};
-		int father{invalid};
-		std::vector<int> childrens{};
-	};
-
-	// copy and move auto
-
-	Node & node (int id) { return nodes_[id]; }
-	const Node & node (int id) const { return nodes_[id]; }
-
-	int add_node (std::vector<int> childrens) {
-		auto id = int(nodes_.size ());
-		for (auto i : childrens)
-			nodes_[i].father = id;
-		auto node = Node{};
-		node.id = id;
-		node.childrens = std::move (childrens);
-		nodes_.emplace_back (std::move (node));
-		return id;
-	}
-
-	int root_id () const { return int(nodes_.size ()) - 1; } // invalid if empty
-
-	void print (std::ostream & os, int from_node, int depth = 0) const {
-		auto & n = node (from_node);
-		os << std::string (depth * 4, ' ') << n.id << "\n";
-		for (auto i : n.childrens)
-			print (os, i, depth + 1);
-	}
-
-private:
-	std::vector<Node> nodes_;
-};
-#endif
