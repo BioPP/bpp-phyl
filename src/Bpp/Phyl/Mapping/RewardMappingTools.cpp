@@ -265,7 +265,7 @@ ProbabilisticRewardMapping* RewardMappingTools::computeRewardVectors(
     while (mit->hasNext())
     {
       TreeLikelihood::ConstBranchModelDescription* bmd = mit->next();
-      reward.setSubstitutionModel(bmd->getModel());
+      reward.setSubstitutionModel(bmd->getSubstitutionModel());
       // compute all nxy first:
       VVVdouble nxy(nbClasses);
       for (size_t c = 0; c < nbClasses; ++c)

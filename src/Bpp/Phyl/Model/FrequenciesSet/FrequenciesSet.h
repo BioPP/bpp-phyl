@@ -60,7 +60,7 @@ namespace bpp
  * Frequencies are ordered according to alphabet states.
  */
 
-  class SubstitutionModel;
+  class TransitionModel;
   
   class FrequenciesSet :
     public virtual ParameterAliasable
@@ -264,10 +264,10 @@ namespace bpp
     public AbstractFrequenciesSet
   {
   private:
-    SubstitutionModel* model_;
+    TransitionModel* model_;
 
   public:
-    FromModelFrequenciesSet(SubstitutionModel* model);
+    FromModelFrequenciesSet(TransitionModel* model);
 
     FromModelFrequenciesSet(const FromModelFrequenciesSet& fmfs);
     
@@ -279,7 +279,7 @@ namespace bpp
 
   public:
 
-    const SubstitutionModel* getModel() const
+    const TransitionModel* getModel() const
     {
       return model_;
     }

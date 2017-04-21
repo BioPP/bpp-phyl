@@ -81,7 +81,7 @@ NonHomogeneousSequenceSimulator::NonHomogeneousSequenceSimulator(
 /******************************************************************************/
 
 NonHomogeneousSequenceSimulator::NonHomogeneousSequenceSimulator(
-  const SubstitutionModel* model,
+  const TransitionModel* model,
   const DiscreteDistribution* rate,
   const Tree* tree) :
   modelSet_(0),
@@ -101,7 +101,7 @@ NonHomogeneousSequenceSimulator::NonHomogeneousSequenceSimulator(
 {
   FixedFrequenciesSet* fSet = new FixedFrequenciesSet(model->getStateMap().clone(), model->getFrequencies());
   fSet->setNamespace("anc.");
-  modelSet_ = SubstitutionModelSetTools::createHomogeneousModelSet(dynamic_cast<SubstitutionModel*>(model->clone()), fSet, templateTree_);
+  modelSet_ = SubstitutionModelSetTools::createHomogeneousModelSet(model->clone(), fSet, templateTree_);
   init();
 }
 
@@ -448,7 +448,7 @@ size_t NonHomogeneousSequenceSimulator::evolve(const SNode* node, size_t initial
   double cumpxy = 0;
   double rand = RandomTools::giveRandomNumberBetweenZeroAndEntry(1.);
   double l = rate * node->getDistanceToFather();
-  const SubstitutionModel* model = node->getInfos().model;
+  const TransitionModel* model = node->getInfos().model;
   for (size_t y = 0; y < nbStates_; y++)
   {
     cumpxy += model->Pij_t(initialStateIndex, y, l);
@@ -549,7 +549,7 @@ SiteContainer* NonHomogeneousSequenceSimulator::multipleEvolve(
   // Now create a SiteContainer object:
   AlignedSequenceContainer* sites = new AlignedSequenceContainer(alphabet_);
   size_t nbSites = initialStateIndices.size();
-  const SubstitutionModel* model = 0;
+  const TransitionModel* model = 0;
   if (outputInternalSequences_) {
     vector<SNode*> nodes = tree_.getNodes();
     size_t n = nbNodes_ + 1 ;
@@ -612,7 +612,12 @@ void NonHomogeneousSequenceSimulator::dEvolveInternal(SNode* node, double rate, 
     cerr << "DEBUG: NonHomogeneousSequenceSimulator::evolveInternal. Forbidden call of method on root node." << endl;
     return;
   }
-  SimpleMutationProcess process(node->getInfos().model);
+  const TransitionModel* tm=node->getInfos().model;
+  if (dynamic_cast<const SubstitutionModel*>(tm)==0)
+    throw Exception("NonHomogeneousSequenceSimulator::dEvolveInternal : detailed simulation not possible for non-markovian model");
+  
+  SimpleMutationProcess process(dynamic_cast<const SubstitutionModel*>(tm));
+  
   MutationPath mp = process.detailedEvolve(node->getFather()->getInfos().state, node->getDistanceToFather() * rate);
   node->getInfos().state = mp.getFinalState();
 

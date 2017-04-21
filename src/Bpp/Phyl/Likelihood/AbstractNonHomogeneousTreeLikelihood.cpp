@@ -408,7 +408,7 @@ void AbstractNonHomogeneousTreeLikelihood::computeAllTransitionProbabilities()
 
 void AbstractNonHomogeneousTreeLikelihood::computeTransitionProbabilitiesForNode(const Node* node)
 {
-  const SubstitutionModel* model = modelSet_->getModelForNode(node->getId());
+  const TransitionModel* model = modelSet_->getModelForNode(node->getId());
   double l = node->getDistanceToFather(); 
 
   //Computes all pxy and pyx once for all:

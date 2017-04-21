@@ -212,7 +212,7 @@ FromModelFrequenciesSet::~FromModelFrequenciesSet()
   delete model_;
 }
 
-FromModelFrequenciesSet::FromModelFrequenciesSet(SubstitutionModel* model) :
+FromModelFrequenciesSet::FromModelFrequenciesSet(TransitionModel* model) :
   AbstractFrequenciesSet(model->getStateMap().clone(), "FromModel."+(model?model->getNamespace():""), "FromModel"),
   model_(model)
 {

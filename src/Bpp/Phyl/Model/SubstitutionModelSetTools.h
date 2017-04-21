@@ -68,7 +68,7 @@ class SubstitutionModelSetTools
      * @param tree      The tree to use for the construction of the set.
      */
     static SubstitutionModelSet* createHomogeneousModelSet(
-        SubstitutionModel* model,
+        TransitionModel* model,
         FrequenciesSet* rootFreqs,
         const Tree* tree
       ) throw (AlphabetException, Exception);
@@ -87,7 +87,7 @@ class SubstitutionModelSetTools
      * All other parameters will be considered distinct for all branches.
      */
     static SubstitutionModelSet* createNonHomogeneousModelSet(
-        SubstitutionModel* model,
+        TransitionModel* model,
         FrequenciesSet* rootFreqs,
         const Tree* tree,
         const std::map<std::string, std::string>& aliasFreqNames,

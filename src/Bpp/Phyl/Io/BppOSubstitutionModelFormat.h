@@ -142,7 +142,7 @@ public:
     geneticCode_ = gCode;
   }
 
-  SubstitutionModel* read(const Alphabet* alphabet, const std::string& modelDescription, const SiteContainer* data = 0, bool parseArguments = true);
+  TransitionModel* read(const Alphabet* alphabet, const std::string& modelDescription, const SiteContainer* data = 0, bool parseArguments = true);
 
   const std::map<std::string, std::string>& getUnparsedArguments() const { return unparsedArguments_; }
 
@@ -157,7 +157,7 @@ public:
    * parameters so far [in, out];
    * @throw Exception If an error occured.
    */
-  void write(const SubstitutionModel& model,
+  void write(const TransitionModel& model,
              OutputStream& out,
              std::map<std::string, std::string>& globalAliases,
              std::vector<std::string>& writtenNames) const;
@@ -167,7 +167,7 @@ public:
 private:
   MixedSubstitutionModel* readMixed_(const Alphabet* alphabet, const std::string& modelDescription, const SiteContainer* data);
 
-  SubstitutionModel* readWord_(const Alphabet* alphabet, const std::string& modelDescription, const SiteContainer* data);
+  TransitionModel* readWord_(const Alphabet* alphabet, const std::string& modelDescription, const SiteContainer* data);
 
   /**
    * @brief Set parameter initial values of a given model according to options.
@@ -183,7 +183,7 @@ private:
    *               May be equal to NULL, but in this case use_observed_freq option will be unavailable.
    * @throw Exception if an error occured.
    */
-  void initialize_(SubstitutionModel& model, const SiteContainer* data) throw (Exception);
+  void initialize_(TransitionModel& model, const SiteContainer* data) throw (Exception);
 
   void writeMixed_(const MixedSubstitutionModel& model,
              OutputStream& out,

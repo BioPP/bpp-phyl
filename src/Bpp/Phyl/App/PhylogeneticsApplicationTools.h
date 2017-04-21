@@ -153,7 +153,7 @@ public:
    * @throw Exception if an error occured.
    */
 
-  static SubstitutionModel* getSubstitutionModel(
+  static TransitionModel* getSubstitutionModel(
     const Alphabet* alphabet,
     const GeneticCode* gCode,
     const SiteContainer* data,
@@ -184,7 +184,7 @@ public:
    * @throw Exception if an error occured.
    */
   static void setSubstitutionModelParametersInitialValuesWithAliases(
-    SubstitutionModel& model,
+    TransitionModel& model,
     std::map<std::string, std::string>& unparsedParameterValues,
     size_t modelNumber,
     const SiteContainer* data,
@@ -627,7 +627,7 @@ public:
    *                      : true).
    */
 
-  static void printParameters(const SubstitutionModel* model, OutputStream& out, int warn = 1, bool withAlias = true);
+  static void printParameters(const TransitionModel* model, OutputStream& out, int warn = 1, bool withAlias = true);
 
 
   /**

@@ -170,7 +170,7 @@ class SiteSimulationResult
     /**
      * @return The site corresponding to this simulation.
      */
-    virtual Site* getSite(const SubstitutionModel& model) const {
+    virtual Site* getSite(const TransitionModel& model) const {
       std::vector<size_t> mstates = getFinalStates();
       std::vector<int> astates(mstates.size());
       for (size_t i = 0; i < mstates.size(); ++i) {

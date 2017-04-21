@@ -61,12 +61,12 @@ class SitePartitionHomogeneousTreeLikelihood :
     SitePartitionHomogeneousTreeLikelihood* clone() const = 0;
 
   public:
-    const SubstitutionModel* getSubstitutionModel(int nodeId, size_t siteIndex) const throw (NodeNotFoundException)
+    const TransitionModel* getSubstitutionModel(int nodeId, size_t siteIndex) const throw (NodeNotFoundException)
     {
       return getSubstitutionModelForSite(siteIndex);
     }
 
-    SubstitutionModel* getSubstitutionModel(int nodeId, size_t siteIndex) throw (NodeNotFoundException)
+    TransitionModel* getSubstitutionModel(int nodeId, size_t siteIndex) throw (NodeNotFoundException)
     {
       return getSubstitutionModelForSite(siteIndex);
     }
@@ -77,7 +77,7 @@ class SitePartitionHomogeneousTreeLikelihood :
      * @param siteIndex The position in the alignment.
      * @return A pointer toward the corresponding model.
      */
-    virtual const SubstitutionModel* getSubstitutionModelForSite(size_t siteIndex) const = 0;
+    virtual const TransitionModel* getSubstitutionModelForSite(size_t siteIndex) const = 0;
 
     /**
      * @brief Get the substitution model associated to a given node.
@@ -85,7 +85,7 @@ class SitePartitionHomogeneousTreeLikelihood :
      * @param siteIndex The position in the alignment.
      * @return A pointer toward the corresponding model.
      */
-    virtual SubstitutionModel* getSubstitutionModelForSite(size_t siteIndex) = 0;
+    virtual TransitionModel* getSubstitutionModelForSite(size_t siteIndex) = 0;
 
 };
 

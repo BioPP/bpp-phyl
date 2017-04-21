@@ -46,7 +46,7 @@ using namespace bpp;
 using namespace std;
 
 SubstitutionModelSet* SubstitutionModelSetTools::createHomogeneousModelSet(
-  SubstitutionModel* model,
+  TransitionModel* model,
   FrequenciesSet* rootFreqs,
   const Tree* tree
   ) throw (AlphabetException, Exception)
@@ -79,7 +79,7 @@ SubstitutionModelSet* SubstitutionModelSetTools::createHomogeneousModelSet(
 }
 
 SubstitutionModelSet* SubstitutionModelSetTools::createNonHomogeneousModelSet(
-  SubstitutionModel* model,
+  TransitionModel* model,
   FrequenciesSet* rootFreqs,
   const Tree* tree,
   const std::map<std::string, std::string>& aliasFreqNames,
@@ -142,7 +142,7 @@ SubstitutionModelSet* SubstitutionModelSetTools::createNonHomogeneousModelSet(
   ids.erase(ids.begin() + static_cast<ptrdiff_t>(pos));
   for (size_t i = 0; i < ids.size(); i++)
   {
-    modelSet->addModel(dynamic_cast<SubstitutionModel*>(model->clone()), vector<int>(1, ids[i]));
+    modelSet->addModel(dynamic_cast<TransitionModel*>(model->clone()), vector<int>(1, ids[i]));
   }
 
   // Now alias all global parameters on all nodes:

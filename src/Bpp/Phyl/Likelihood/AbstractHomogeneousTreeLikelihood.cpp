@@ -58,7 +58,7 @@ using namespace std;
 
 AbstractHomogeneousTreeLikelihood::AbstractHomogeneousTreeLikelihood(
   const Tree& tree,
-  SubstitutionModel* model,
+  TransitionModel* model,
   DiscreteDistribution* rDist,
   bool checkRooted,
   bool verbose)
@@ -142,7 +142,7 @@ AbstractHomogeneousTreeLikelihood& AbstractHomogeneousTreeLikelihood::operator=(
 
 void AbstractHomogeneousTreeLikelihood::init_(
   const Tree& tree,
-  SubstitutionModel* model,
+  TransitionModel* model,
   DiscreteDistribution* rDist,
   bool checkRooted,
   bool verbose) throw (Exception)
@@ -170,7 +170,7 @@ void AbstractHomogeneousTreeLikelihood::init_(
 
 /******************************************************************************/
 
-void AbstractHomogeneousTreeLikelihood::setSubstitutionModel(SubstitutionModel* model) throw (Exception)
+void AbstractHomogeneousTreeLikelihood::setSubstitutionModel(TransitionModel* model) throw (Exception)
 {
   // Check:
   if (data_)

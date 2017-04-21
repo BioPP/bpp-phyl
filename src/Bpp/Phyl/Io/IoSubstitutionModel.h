@@ -53,6 +53,7 @@
 namespace bpp
 {
 
+  class TransitionModel;
   class SubstitutionModel;
 
   /**
@@ -91,7 +92,7 @@ namespace bpp
      * @throw Exception if an error occured.
      */
 
-    virtual SubstitutionModel* read(const Alphabet* alphabet,
+    virtual TransitionModel* read(const Alphabet* alphabet,
                                     const std::string& modelDescription,
                                     const SiteContainer* data = 0,
                                     bool parseArguments = true) = 0;
@@ -125,7 +126,7 @@ namespace bpp
      * parameters so far [in, out];
      * @throw Exception if an error occured.
      */
-    virtual void write(const SubstitutionModel& model,
+    virtual void write(const TransitionModel& model,
                        OutputStream& out,
                        std::map<std::string, std::string>& globalAliases,
                        std::vector<std::string>& writtenNames) const = 0;

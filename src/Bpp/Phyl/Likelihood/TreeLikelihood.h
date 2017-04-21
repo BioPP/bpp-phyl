@@ -5,36 +5,36 @@
 //
 
 /*
-Copyright or © or Copr. Bio++ Development Team, (November 16, 2004)
+  Copyright or © or Copr. Bio++ Development Team, (November 16, 2004)
 
-This software is a computer program whose purpose is to provide classes
-for phylogenetic data analysis.
+  This software is a computer program whose purpose is to provide classes
+  for phylogenetic data analysis.
 
-This software is governed by the CeCILL  license under French law and
-abiding by the rules of distribution of free software.  You can  use, 
-modify and/ or redistribute the software under the terms of the CeCILL
-license as circulated by CEA, CNRS and INRIA at the following URL
-"http://www.cecill.info". 
+  This software is governed by the CeCILL  license under French law and
+  abiding by the rules of distribution of free software.  You can  use, 
+  modify and/ or redistribute the software under the terms of the CeCILL
+  license as circulated by CEA, CNRS and INRIA at the following URL
+  "http://www.cecill.info". 
 
-As a counterpart to the access to the source code and  rights to copy,
-modify and redistribute granted by the license, users are provided only
-with a limited warranty  and the software's author,  the holder of the
-economic rights,  and the successive licensors  have only  limited
-liability. 
+  As a counterpart to the access to the source code and  rights to copy,
+  modify and redistribute granted by the license, users are provided only
+  with a limited warranty  and the software's author,  the holder of the
+  economic rights,  and the successive licensors  have only  limited
+  liability. 
 
-In this respect, the user's attention is drawn to the risks associated
-with loading,  using,  modifying and/or developing or reproducing the
-software by the user in light of its specific status of free software,
-that may mean  that it is complicated to manipulate,  and  that  also
-therefore means  that it is reserved for developers  and  experienced
-professionals having in-depth computer knowledge. Users are therefore
-encouraged to load and test the software's suitability as regards their
-requirements in conditions enabling the security of their systems and/or 
-data to be ensured and,  more generally, to use and operate it in the 
-same conditions as regards security. 
+  In this respect, the user's attention is drawn to the risks associated
+  with loading,  using,  modifying and/or developing or reproducing the
+  software by the user in light of its specific status of free software,
+  that may mean  that it is complicated to manipulate,  and  that  also
+  therefore means  that it is reserved for developers  and  experienced
+  professionals having in-depth computer knowledge. Users are therefore
+  encouraged to load and test the software's suitability as regards their
+  requirements in conditions enabling the security of their systems and/or 
+  data to be ensured and,  more generally, to use and operate it in the 
+  same conditions as regards security. 
 
-The fact that you are presently reading this means that you have had
-knowledge of the CeCILL license and that you accept its terms.
+  The fact that you are presently reading this means that you have had
+  knowledge of the CeCILL license and that you accept its terms.
 */
 
 #ifndef _TREELIKELIHOOD_H_
@@ -63,27 +63,27 @@ namespace bpp
  * This interface defines the methods needed for computing the likelihood
  * of a phylogenetic tree, given a dataset.
  */ 
-class TreeLikelihood:
-  public virtual DerivableSecondOrder
-{
+  class TreeLikelihood:
+    public virtual DerivableSecondOrder
+  {
   public:
     /**
      * @brief An iterator over a set of branches, specified by their node ids.
      */
     class BranchIterator
     {
-      public:
-        virtual ~BranchIterator() {}
+    public:
+      virtual ~BranchIterator() {}
 
-      public:
-        /**
-         * @return The id of the next node in the set.
-         */
-        virtual int next() throw (Exception) = 0;
-        /**
-         * @return True if there is at least another node in the set.
-         */
-        virtual bool hasNext() const = 0;
+    public:
+      /**
+       * @return The id of the next node in the set.
+       */
+      virtual int next() throw (Exception) = 0;
+      /**
+       * @return True if there is at least another node in the set.
+       */
+      virtual bool hasNext() const = 0;
     };
 
     /**
@@ -93,18 +93,18 @@ class TreeLikelihood:
      */
     class SiteIterator
     {
-      public:
-        virtual ~SiteIterator() {}
+    public:
+      virtual ~SiteIterator() {}
 
-      public:
-        /**
-         * @return The position of the next site in the set.
-         */
-        virtual size_t next() throw (Exception) = 0;
-        /**
-         * @return True is there is at least another site in the set.
-         */
-        virtual bool hasNext() const = 0;
+    public:
+      /**
+       * @return The position of the next site in the set.
+       */
+      virtual size_t next() throw (Exception) = 0;
+      /**
+       * @return True is there is at least another site in the set.
+       */
+      virtual bool hasNext() const = 0;
     };
 
     /**
@@ -112,12 +112,13 @@ class TreeLikelihood:
      */
     class ConstBranchModelDescription
     {
-      public:
-        virtual ~ConstBranchModelDescription() {}
+    public:
+      virtual ~ConstBranchModelDescription() {}
 
-      public:
-        virtual const SubstitutionModel* getModel() const = 0;
-        virtual SiteIterator* getNewSiteIterator() const = 0;
+    public:
+      virtual const TransitionModel* getModel() const = 0;
+      virtual const SubstitutionModel* getSubstitutionModel() const = 0;
+      virtual SiteIterator* getNewSiteIterator() const = 0;
     };
 
     /**
@@ -125,12 +126,12 @@ class TreeLikelihood:
      */
     class ConstBranchModelIterator
     {
-      public:
-        virtual ~ConstBranchModelIterator() {}
+    public:
+      virtual ~ConstBranchModelIterator() {}
 
-      public:
-        virtual ConstBranchModelDescription* next() throw (Exception) = 0;
-        virtual bool hasNext() const = 0;
+    public:
+      virtual ConstBranchModelDescription* next() throw (Exception) = 0;
+      virtual bool hasNext() const = 0;
     };
 
     /**
@@ -138,12 +139,13 @@ class TreeLikelihood:
      */
     class ConstSiteModelDescription
     {
-      public:
-        virtual ~ConstSiteModelDescription() {}
+    public:
+      virtual ~ConstSiteModelDescription() {}
 
-      public:
-        virtual const SubstitutionModel* getModel() const = 0;
-        virtual BranchIterator* getNewBranchIterator() const = 0;
+    public:
+      virtual const TransitionModel* getModel() const = 0;
+      virtual const SubstitutionModel* getSubstitutionModel() const = 0;
+      virtual BranchIterator* getNewBranchIterator() const = 0;
     };
 
     /**
@@ -151,12 +153,12 @@ class TreeLikelihood:
      */
     class ConstSiteModelIterator
     {
-      public:
-        virtual ~ConstSiteModelIterator() {}
+    public:
+      virtual ~ConstSiteModelIterator() {}
 
-      public:
-        virtual ConstSiteModelDescription* next() throw (Exception) = 0;
-        virtual bool hasNext() const = 0;
+    public:
+      virtual ConstSiteModelDescription* next() throw (Exception) = 0;
+      virtual bool hasNext() const = 0;
     };
 
   public:
@@ -286,7 +288,7 @@ class TreeLikelihood:
      * @brief Get the tree (topology and branch lengths).
      *
      * @return The tree of this TreeLikelihood object.
-      */
+     */
     virtual const Tree& getTree() const = 0;
 
     /**
@@ -352,7 +354,7 @@ class TreeLikelihood:
      * @return A pointer toward the corresponding model.
      * @throw NodeNotFoundException This exception may be thrown if the node is not found (depending on the implementation).
      */
-    virtual const SubstitutionModel* getSubstitutionModel(int nodeId, size_t siteIndex) const throw (NodeNotFoundException) = 0;
+    virtual const TransitionModel* getSubstitutionModel(int nodeId, size_t siteIndex) const throw (NodeNotFoundException) = 0;
 
     /**
      * @brief Get the substitution model associated to a given node and alignment column.
@@ -363,7 +365,7 @@ class TreeLikelihood:
      * @return A pointer toward the corresponding model.
      * @throw NodeNotFoundException This exception may be thrown if the node is not found (depending on the implementation).
      */
-    virtual SubstitutionModel* getSubstitutionModel(int nodeId, size_t siteIndex) throw (NodeNotFoundException) = 0;
+    virtual TransitionModel* getSubstitutionModel(int nodeId, size_t siteIndex) throw (NodeNotFoundException) = 0;
 
     /**
      * @brief Retrieves all Pij(t) for a particular branch, defined by the upper node and site.
@@ -433,7 +435,7 @@ class TreeLikelihood:
      */
     virtual ParameterList getNonDerivableParameters() const = 0;
 
-};
+  };
 
 } //end of namespace bpp.
 

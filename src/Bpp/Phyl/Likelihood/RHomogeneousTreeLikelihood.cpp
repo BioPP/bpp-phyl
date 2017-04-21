@@ -54,7 +54,7 @@ using namespace std;
 
 RHomogeneousTreeLikelihood::RHomogeneousTreeLikelihood(
   const Tree& tree,
-  SubstitutionModel* model,
+  TransitionModel* model,
   DiscreteDistribution* rDist,
   bool checkRooted,
   bool verbose,
@@ -72,7 +72,7 @@ throw (Exception) :
 RHomogeneousTreeLikelihood::RHomogeneousTreeLikelihood(
   const Tree& tree,
   const SiteContainer& data,
-  SubstitutionModel* model,
+  TransitionModel* model,
   DiscreteDistribution* rDist,
   bool checkRooted,
   bool verbose,

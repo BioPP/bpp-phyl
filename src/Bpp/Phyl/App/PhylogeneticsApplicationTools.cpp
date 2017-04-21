@@ -153,7 +153,7 @@ vector<Tree*> PhylogeneticsApplicationTools::getTrees(
 
 /******************************************************************************/
 
-SubstitutionModel* PhylogeneticsApplicationTools::getSubstitutionModel(
+TransitionModel* PhylogeneticsApplicationTools::getSubstitutionModel(
   const Alphabet* alphabet,
   const GeneticCode* gCode,
   const SiteContainer* data,
@@ -178,14 +178,14 @@ SubstitutionModel* PhylogeneticsApplicationTools::getSubstitutionModel(
   else
     modelDescription = ApplicationTools::getStringParameter("model", params, "JC69", suffix, suffixIsOptional, warn);
 
-  SubstitutionModel* model = bIO.read(alphabet, modelDescription, data, true);
+  TransitionModel* model = bIO.read(alphabet, modelDescription, data, true);
   return model;
 }
 
 /******************************************************************************/
 
 void PhylogeneticsApplicationTools::setSubstitutionModelParametersInitialValuesWithAliases(
-  SubstitutionModel& model,
+  TransitionModel& model,
   std::map<std::string, std::string>& unparsedParameterValues,
   size_t modelNumber,
   const SiteContainer* data,
@@ -431,7 +431,7 @@ void PhylogeneticsApplicationTools::setSubstitutionModelSet(
   else
     tmpDesc = ApplicationTools::getStringParameter("model1", params, "JC69", suffix, suffixIsOptional, warn);
 
-  unique_ptr<SubstitutionModel> tmp(bIO.read(alphabet, tmpDesc, data, false));
+  unique_ptr<TransitionModel> tmp(bIO.read(alphabet, tmpDesc, data, false));
 
   if (tmp->getNumberOfStates() != alphabet->getSize())
   {
@@ -483,7 +483,7 @@ void PhylogeneticsApplicationTools::setSubstitutionModelSet(
     else
       modelDesc = ApplicationTools::getStringParameter(prefix, params, "JC69", suffix, suffixIsOptional, warn);
 
-    unique_ptr<SubstitutionModel> model(bIO.read(alphabet, modelDesc, data, false));
+    unique_ptr<TransitionModel> model(bIO.read(alphabet, modelDesc, data, false));
 
     map<string, string> unparsedModelParameters = bIO.getUnparsedArguments();
     map<string, string> sharedParameters;
@@ -1411,7 +1411,7 @@ void PhylogeneticsApplicationTools::writeTrees(
 
 /******************************************************************************/
 
-void PhylogeneticsApplicationTools::printParameters(const SubstitutionModel* model, OutputStream& out, int warn, bool withAlias)
+void PhylogeneticsApplicationTools::printParameters(const TransitionModel* model, OutputStream& out, int warn, bool withAlias)
 {
   out << "model=";
   map<string, string> globalAliases;
@@ -1439,7 +1439,7 @@ void PhylogeneticsApplicationTools::printParameters(const SubstitutionModelSet* 
   // Loop over all models:
   for (size_t i = 0; i < modelSet->getNumberOfModels(); i++)
   {
-    const SubstitutionModel* model = modelSet->getModel(i);
+    const TransitionModel* model = modelSet->getModel(i);
 
     map<string, string> aliases;
 

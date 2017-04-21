@@ -238,7 +238,7 @@ FrequenciesSet* BppOFrequenciesSetFormat::read(const Alphabet* alphabet, const s
     if (geneticCode_)
       nestedReader.setGeneticCode(geneticCode_);
 
-    SubstitutionModel* model=nestedReader.read(alphabet, args["model"], data, false);
+    TransitionModel* model=nestedReader.read(alphabet, args["model"], data, false);
     pFS.reset(new FromModelFrequenciesSet(model));
     map<string, string> unparsedParameterValuesNested(nestedReader.getUnparsedArguments());
     for (map<string, string>::iterator it = unparsedParameterValuesNested.begin(); it != unparsedParameterValuesNested.end(); it++)

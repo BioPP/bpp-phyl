@@ -99,6 +99,207 @@ public:
   virtual const SubstitutionModel* getSubstitutionModel() const { return model_; }
 };
 
+
+  /*
+   *
+   * @brief Interface for all transition models.
+   *
+   * A transition model defines transition probability matrices, the size of
+   * which depends on the alphabet used (4 for nucleotides, 20 for proteins, etc.).
+   * Each SubstitutionModel object hence includes a pointer toward an alphabet,
+   * and provides a method to retrieve the alphabet used (getAlphabet() method).
+   *
+   * What we want from a transition model is to compute the
+   * probabilities of state j at time t geven state j at time 0
+   * (\f$P_{i,j}(t)\f$).
+   *
+   * First and second order derivatives of \f$P(t)\f$ with respect to \f$t\f$
+   * can also be retrieved.
+   * These methods may be useful for optimization processes.
+   *
+   */
+
+  class TransitionModel :
+    public virtual ParameterAliasable
+  {
+  public:
+    TransitionModel() {}
+    virtual ~TransitionModel() {}
+
+    TransitionModel* clone() const = 0;
+
+  public:
+ /**
+     * @brief Get the name of the model.
+     *
+     * @return The name of this model.
+     */
+    virtual std::string getName() const = 0;
+
+    /**
+     * @return The alphabet states of each state of the model, as a vector of int codes.
+     *
+     * @see Alphabet
+     */
+    virtual const std::vector<int>& getAlphabetStates() const = 0;
+
+    /**
+     * @return The mapping of model states with alphabet states.
+     */
+    virtual const StateMap& getStateMap() const = 0;
+
+    /**
+     * @brief Get the state in the model corresponding to a particular state in the alphabet.
+     *
+     * @param code The alphabet state to check.
+     * @return A vector of indices of model states.
+     */
+    virtual std::vector<size_t> getModelStates(int code) const = 0;
+
+    /**
+     * @brief Get the state in the model corresponding to a particular state in the alphabet.
+     *
+     * @param code The alphabet state to check.
+     * @return A vector of indices of model states.
+     */
+    virtual std::vector<size_t> getModelStates(const std::string& code) const = 0;
+
+    /**
+     * @param index The model state.
+     * @return The corresponding alphabet state as character code.
+     */
+    virtual int getAlphabetStateAsInt(size_t index) const = 0;
+  
+    /**
+     * @param index The model state.
+     * @return The corresponding alphabet state as character code.
+     */
+    virtual std::string getAlphabetStateAsChar(size_t index) const = 0;
+
+    /**
+     * @return Equilibrium frequency associated to character i.
+     * @see getFrequencies(), getStates()
+     */
+    virtual double freq(size_t i) const = 0;
+
+    /**
+     * @return The probability of change from state i to state j during time t.
+     * @see getPij_t(), getStates()
+     */
+    virtual double Pij_t(size_t i, size_t j, double t) const = 0;
+
+    /**
+     * @return The first order derivative of the probability of change from state
+     * i to state j with respect to time t, at time t.
+     * @see getdPij_dt(), getStates()
+     */
+    virtual double dPij_dt(size_t i, size_t j, double t) const = 0;
+
+    /**
+     * @return The second order derivative of the probability of change from state
+     * i to state j with respect to time t, at time t.
+     * @see getd2Pij_dt2(), getStates()
+     */
+    virtual double d2Pij_dt2(size_t i, size_t j, double t) const = 0;
+
+    /**
+     * @return A vector of all equilibrium frequencies.
+     * @see freq()
+     */
+    virtual const Vdouble& getFrequencies() const = 0;
+
+    /**
+     * @return All probabilities of change from state i to state j during time t.
+     * @see Pij_t()
+     */
+    virtual const Matrix<double>& getPij_t(double t) const = 0;
+
+    /**
+     * @return Get all first order derivatives of the probability of change from state
+     * i to state j with respect to time t, at time t.
+     * @see dPij_dt()
+     */
+    virtual const Matrix<double>& getdPij_dt(double t) const = 0;
+
+    /**
+     * @return All second order derivatives of the probability of change from state
+     * i to state j with respect to time t, at time t.
+     * @see d2Pij_dt2()
+     */
+    virtual const Matrix<double>& getd2Pij_dt2(double t) const = 0;
+
+    /**
+     * @return Get the alphabet associated to this model.
+     */
+    virtual const Alphabet* getAlphabet() const = 0;
+
+    /**
+     * @brief Get the number of states.
+     *
+     * For most models, this equals the size of the alphabet.
+     * @see getAlphabetChars for the list of supported states.
+     *
+     * @return The number of different states in the model.
+     */
+    virtual size_t getNumberOfStates() const = 0;
+
+    /**
+     * This method is used to initialize likelihoods in reccursions.
+     * It typically sends 1 if i = state, 0 otherwise, where
+     * i is one of the possible states of the alphabet allowed in the model
+     * and state is the observed state in the considered sequence/site.
+     *
+     * @param i the index of the state in the model.
+     * @param state An observed state in the sequence/site.
+     * @return 1 or 0 depending if the two states are compatible.
+     * @throw IndexOutOfBoundsException if array position is out of range.
+     * @throw BadIntException if states are not allowed in the associated alphabet.
+     * @see getStates();
+     */
+    virtual double getInitValue(size_t i, int state) const throw (IndexOutOfBoundsException, BadIntException) = 0;
+
+    /**
+     * @brief Get the rate
+     */
+    virtual double getRate() const = 0;
+
+    /**
+     * @brief Set the rate of the model (must be positive).
+     * @param rate must be positive.
+     */
+    virtual void setRate(double rate) = 0;
+
+    virtual void addRateParameter() = 0;
+  
+    /**
+     * @brief Set equilibrium frequencies equal to the frequencies estimated
+     * from the data.
+     *
+     * @param data The sequences to use.
+     * @param pseudoCount A quantity @f$\psi@f$ to add to adjust the observed
+     *   values in order to prevent issues due to missing states on small data set.
+     * The corrected frequencies shall be computed as
+     * @f[
+     * \pi_i = \frac{n_i+\psi}{\sum_j (f_j+\psi)}
+     * @f]
+     */
+    virtual void setFreqFromData(const SequenceContainer& data, double pseudoCount = 0) = 0;
+
+    /**
+     * @brief Set equilibrium frequencies
+     *
+     * @param frequencies The map of the frequencies to use.
+     */
+    virtual void setFreq(std::map<int, double>& frequencies) {}
+
+    /**
+     * @brief If the model owns a FrequenciesSet, returns a pointer to
+     * it, otherwise return 0.
+     */
+    virtual const FrequenciesSet* getFrequenciesSet() const {return NULL;}
+  };
+
+  
 /**
  * @brief Interface for all substitution models.
  *
@@ -197,7 +398,7 @@ public:
  */
 
 class SubstitutionModel :
-  public virtual ParameterAliasable
+  public virtual TransitionModel
 {
 public:
   SubstitutionModel() {}
@@ -206,58 +407,6 @@ public:
   SubstitutionModel* clone() const = 0;
 
 public:
-  /**
-   * @brief Get the name of the model.
-   *
-   * @return The name of this model.
-   */
-  virtual std::string getName() const = 0;
-
-  /**
-   * @return The alphabet states of each state of the model, as a vector of int codes.
-   *
-   * @see Alphabet
-   */
-  virtual const std::vector<int>& getAlphabetStates() const = 0;
-
-  /**
-   * @return The mapping of model states with alphabet states.
-   */
-  virtual const StateMap& getStateMap() const = 0;
-
-  /**
-   * @brief Get the state in the model corresponding to a particular state in the alphabet.
-   *
-   * @param code The alphabet state to check.
-   * @return A vector of indices of model states.
-   */
-  virtual std::vector<size_t> getModelStates(int code) const = 0;
-
-  /**
-   * @brief Get the state in the model corresponding to a particular state in the alphabet.
-   *
-   * @param code The alphabet state to check.
-   * @return A vector of indices of model states.
-   */
-  virtual std::vector<size_t> getModelStates(const std::string& code) const = 0;
-
-  /**
-   * @param index The model state.
-   * @return The corresponding alphabet state as character code.
-   */
-  virtual int getAlphabetStateAsInt(size_t index) const = 0;
-  
-  /**
-   * @param index The model state.
-   * @return The corresponding alphabet state as character code.
-   */
-  virtual std::string getAlphabetStateAsChar(size_t index) const = 0;
-
-  /**
-   * @return Equilibrium frequency associated to character i.
-   * @see getFrequencies(), getStates()
-   */
-  virtual double freq(size_t i) const = 0;
 
   /**
    * @return The rate in the generator of change from state i to state j.
@@ -265,32 +414,6 @@ public:
    * @see getStates();
    */
   virtual double Qij(size_t i, size_t j) const = 0;
-
-  /**
-   * @return The probability of change from state i to state j during time t.
-   * @see getPij_t(), getStates()
-   */
-  virtual double Pij_t(size_t i, size_t j, double t) const = 0;
-
-  /**
-   * @return The first order derivative of the probability of change from state
-   * i to state j with respect to time t, at time t.
-   * @see getdPij_dt(), getStates()
-   */
-  virtual double dPij_dt(size_t i, size_t j, double t) const = 0;
-
-  /**
-   * @return The second order derivative of the probability of change from state
-   * i to state j with respect to time t, at time t.
-   * @see getd2Pij_dt2(), getStates()
-   */
-  virtual double d2Pij_dt2(size_t i, size_t j, double t) const = 0;
-
-  /**
-   * @return A vector of all equilibrium frequencies.
-   * @see freq()
-   */
-  virtual const Vdouble& getFrequencies() const = 0;
 
   /**
    * @return The normalized Markov generator matrix, i.e. all
@@ -323,25 +446,6 @@ public:
    */
   
   virtual double Sij(size_t i, size_t j) const = 0;
-  /**
-   * @return All probabilities of change from state i to state j during time t.
-   * @see Pij_t()
-   */
-  virtual const Matrix<double>& getPij_t(double t) const = 0;
-
-  /**
-   * @return Get all first order derivatives of the probability of change from state
-   * i to state j with respect to time t, at time t.
-   * @see dPij_dt()
-   */
-  virtual const Matrix<double>& getdPij_dt(double t) const = 0;
-
-  /**
-   * @return All second order derivatives of the probability of change from state
-   * i to state j with respect to time t, at time t.
-   * @see d2Pij_dt2()
-   */
-  virtual const Matrix<double>& getd2Pij_dt2(double t) const = 0;
 
   /**
    * @brief Set if eigenValues and Vectors must be computed
@@ -384,36 +488,6 @@ public:
    * Each column in the matrix stands for an eigen vector.
    */
   virtual const Matrix<double>& getColumnRightEigenVectors() const = 0;
-
-  /**
-   * @return Get the alphabet associated to this model.
-   */
-  virtual const Alphabet* getAlphabet() const = 0;
-
-  /**
-   * @brief Get the number of states.
-   *
-   * For most models, this equals the size of the alphabet.
-   * @see getAlphabetChars for the list of supported states.
-   *
-   * @return The number of different states in the model.
-   */
-  virtual size_t getNumberOfStates() const = 0;
-
-  /**
-   * This method is used to initialize likelihoods in reccursions.
-   * It typically sends 1 if i = state, 0 otherwise, where
-   * i is one of the possible states of the alphabet allowed in the model
-   * and state is the observed state in the considered sequence/site.
-   *
-   * @param i the index of the state in the model.
-   * @param state An observed state in the sequence/site.
-   * @return 1 or 0 depending if the two states are compatible.
-   * @throw IndexOutOfBoundsException if array position is out of range.
-   * @throw BadIntException if states are not allowed in the associated alphabet.
-   * @see getStates();
-   */
-  virtual double getInitValue(size_t i, int state) const throw (IndexOutOfBoundsException, BadIntException) = 0;
 
   /**
    * @brief sets if model is scalable, ie scale can be changed.
@@ -468,33 +542,7 @@ public:
   virtual void setRate(double rate) = 0;
 
   virtual void addRateParameter() = 0;
-  
-  /**
-   * @brief Set equilibrium frequencies equal to the frequencies estimated
-   * from the data.
-   *
-   * @param data The sequences to use.
-   * @param pseudoCount A quantity @f$\psi@f$ to add to adjust the observed
-   *   values in order to prevent issues due to missing states on small data set.
-   * The corrected frequencies shall be computed as
-   * @f[
-   * \pi_i = \frac{n_i+\psi}{\sum_j (f_j+\psi)}
-   * @f]
-   */
-  virtual void setFreqFromData(const SequenceContainer& data, double pseudoCount = 0) = 0;
 
-  /**
-   * @brief Set equilibrium frequencies
-   *
-   * @param frequencies The map of the frequencies to use.
-   */
-  virtual void setFreq(std::map<int, double>& frequencies) {}
-
-  /**
-   * @brief If the model owns a FrequenciesSet, returns a pointer to
-   * it, otherwise return 0.
-   */
-  virtual const FrequenciesSet* getFrequenciesSet() const {return NULL;}
 };
 
 
