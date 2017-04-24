@@ -7,6 +7,7 @@
 
 # File list
 set (CPP_FILES
+  Bpp/NewPhyl/DataFlow.cpp
   Bpp/Phyl/App/PhylogeneticsApplicationTools.cpp
   Bpp/Phyl/Distance/AbstractAgglomerativeDistanceMethod.cpp
   Bpp/Phyl/Distance/BioNJ.cpp

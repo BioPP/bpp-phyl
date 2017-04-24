@@ -8,22 +8,22 @@
 
 /*
   Copyright or © or Copr. Bio++ Development Team, (November 16, 2004)
-  
+
   This software is a computer program whose purpose is to provide classes
   for phylogenetic data analysis.
-  
+
   This software is governed by the CeCILL license under French law and
   abiding by the rules of distribution of free software. You can use,
   modify and/ or redistribute the software under the terms of the CeCILL
   license as circulated by CEA, CNRS and INRIA at the following URL
   "http://www.cecill.info".
-  
+
   As a counterpart to the access to the source code and rights to copy,
   modify and redistribute granted by the license, users are provided only
   with a limited warranty and the software's author, the holder of the
   economic rights, and the successive licensors have only limited
   liability.
-  
+
   In this respect, the user's attention is drawn to the risks associated
   with loading, using, modifying and/or developing or reproducing the
   software by the user in light of its specific status of free software,
@@ -34,7 +34,7 @@
   requirements in conditions enabling the security of their systems and/or
   data to be ensured and, more generally, to use and operate it in the
   same conditions as regards security.
-  
+
   The fact that you are presently reading this means that you have had
   knowledge of the CeCILL license and that you accept its terms.
 */
@@ -43,5 +43,82 @@
 #ifndef BPP_NEWPHYL_DATAFLOW_H
 #define BPP_NEWPHYL_DATAFLOW_H
 
+#include <algorithm>
+#include <iosfwd>
+#include <memory>
+#include <utility>
+#include <vector>
+
+namespace bpp {
+namespace DF {
+
+	class Node {
+	public:
+		class Impl;
+
+		explicit Node (std::shared_ptr<Impl> p) : pImpl_ (std::move (p)) {}
+
+		Impl & get () const { return *pImpl_; }
+
+		template <typename T, typename... Args> static Node create (Args &&... args) {
+			return Node (std::make_shared<T> (std::forward<Args> (args)...));
+		}
+
+	private:
+		std::shared_ptr<Impl> pImpl_;
+	};
+
+	class Node::Impl {
+	public:
+		Impl () = default;
+		Impl (const Impl &) = delete;
+		Impl (Impl &&) = delete;
+		Impl & operator= (const Impl &) = delete;
+		Impl & operator= (Impl &&) = delete;
+
+		virtual ~Impl () {
+			forEachDependencyNode ([this](Impl * node) { node->unregisterNode (this); });
+		}
+
+		bool isValid () const { return isValid_; }
+		void invalidate () {
+			if (isValid_) {
+				isValid_ = false;
+				for (auto p : dependentNodes_)
+					p->invalidate ();
+			}
+		}
+
+		void registerNode (Impl * n) { dependentNodes_.emplace_back (n); }
+		void unregisterNode (const Impl * n) {
+			dependentNodes_.erase (std::remove (dependentNodes_.begin (), dependentNodes_.end (), n),
+			                       dependentNodes_.end ());
+		}
+
+		virtual void compute () = 0;
+
+		virtual std::string name () const = 0;
+
+		// TODO Replace with ranges
+		template <typename F> void forEachDependentNode (F f) const {
+			for (auto & p : dependentNodes_)
+				f (p);
+		}
+		template <typename F> void forEachDependencyNode (F f) const {
+			for (auto & p : dependencyNodes_)
+				f (&p.get ());
+		}
+
+	protected:
+		bool isValid_{false};
+    // TODO definitely need a small opt vector
+		std::vector<Impl *> dependentNodes_{}; // Nodes that depend on us.
+		std::vector<Node> dependencyNodes_{};  // Nodes that we depend on.
+	};
+
+	void debugDagStructure (std::ostream & os, const Node & entryPoint);
+	void debugDag (std::ostream & os, const Node & entryPoint);
+}
+}
 
 #endif // BPP_NEWPHYL_DATAFLOW_H
