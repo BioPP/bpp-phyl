@@ -73,6 +73,7 @@ set (CPP_FILES
   Bpp/Phyl/Mapping/WeightedSubstitutionCount.cpp
   Bpp/Phyl/Model/AbstractBiblioMixedSubstitutionModel.cpp
   Bpp/Phyl/Model/AbstractBiblioSubstitutionModel.cpp
+  Bpp/Phyl/Model/AbstractFromSubstitutionModelTransitionModel.cpp
   Bpp/Phyl/Model/AbstractKroneckerWordSubstitutionModel.cpp
   Bpp/Phyl/Model/AbstractMixedSubstitutionModel.cpp
   Bpp/Phyl/Model/AbstractSubstitutionModel.cpp
@@ -130,6 +131,7 @@ set (CPP_FILES
   Bpp/Phyl/Model/Nucleotide/TN93.cpp
   Bpp/Phyl/Model/Nucleotide/YpR.cpp
   Bpp/Phyl/Model/Nucleotide/gBGC.cpp
+  Bpp/Phyl/Model/OneChangeTransitionModel.cpp
   Bpp/Phyl/Model/Protein/Coala.cpp
   Bpp/Phyl/Model/Protein/CoalaCore.cpp
   Bpp/Phyl/Model/Protein/DSO78.cpp
