@@ -1,16 +1,16 @@
 //
-// File: new_phyl_dataflow.cpp
+// File: Registry.h
 // Authors:
 //   Francois Gindraud (2017)
-// Created: 2017-04-19
-// Last modified: 2017-04-19
+// Created: 2017-04-25
+// Last modified: 2017-04-25
 //
 
 /*
-  Copyright or © or Copr. Bio++ Development Team, (November 17, 2004)
+  Copyright or © or Copr. Bio++ Development Team, (November 16, 2004)
 
   This software is a computer program whose purpose is to provide classes
-  for numerical calculus. This file is part of the Bio++ project.
+  for phylogenetic data analysis.
 
   This software is governed by the CeCILL license under French law and
   abiding by the rules of distribution of free software. You can use,
@@ -39,51 +39,48 @@
   knowledge of the CeCILL license and that you accept its terms.
 */
 
-#define DOCTEST_CONFIG_IMPLEMENT_WITH_MAIN
-#include "doctest.h"
+#pragma once
+#ifndef BPP_NEWPHYL_REGISTRY_H
+#define BPP_NEWPHYL_REGISTRY_H
 
 #include <Bpp/NewPhyl/DataFlow.h>
-#include <Bpp/NewPhyl/Registry.h>
-#include <fstream>
-#include <iostream>
+#include <unordered_map>
 
-using bpp::DF::Node;
-using bpp::DF::Value;
-
-struct A : public Value<int>::Impl
-{
-  int i_;
-  A(int i)
-    : Value<int>::Impl(0)
-    , i_(i)
-  {
-  }
-
-  void compute() override
-  {
-    int a = i_;
-    this->foreachDependencyNode([&a](Node::Impl* n) { a += dynamic_cast<Value<int>::Impl&>(*n).getValue(); });
-    this->value_ = a;
-  }
-
-  void addDep(Node n)
-  {
-    n.get().registerNode(this);
-    dependencyNodes_.emplace_back(std::move(n));
-  }
-};
-
-TEST_CASE("test")
-{
-  auto a = Node::create<A>(1);
-  auto b = Node::create<A>(2);
-  auto c = Node::create<A>(3);
-  auto d = Node::create<A>(4);
-  dynamic_cast<A&>(a.get()).addDep(b);
-  dynamic_cast<A&>(a.get()).addDep(c);
-  dynamic_cast<A&>(d.get()).addDep(a);
-  Value<int> v(d);
-  CHECK(v.getValue() == 10);
-  std::ofstream file("df_debug");
-  bpp::DF::debugDag(file, a);
+namespace bpp {
+namespace Topology {
+	class Leave {};
+	class Tree {
+		//
+	};
+	class Node {
+		Tree * ref;
+		int node_id;
+	};
+	class Branch {
+		Tree * ref;
+		int node_a, node_b;
+	};
+	class Element {
+		// Able to create elements from other parts of tree, probably a polymorphic ref
+    // Value type
+	};
 }
+
+namespace DF {
+
+	class DataSet {
+		// Value type
+	};
+
+	class RegistryKey {
+	private:
+		Topology::Element phylogenyObject_;
+		std::type_index operationType_;
+		DataSet dataSet_;
+	};
+
+	class Registry {};
+}
+}
+
+#endif // BPP_NEWPHYL_REGISTRY_H
