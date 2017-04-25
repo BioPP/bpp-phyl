@@ -47,11 +47,23 @@
 #include <iostream>
 
 using bpp::DF::Node;
+using bpp::DF::Value;
 
-struct A : public Node::Impl
+struct A : public Value<int>::Impl
 {
-  void compute() override {}
-  std::string name() const override { return "A"; }
+  int i_;
+  A(int i)
+    : Value<int>::Impl(0)
+    , i_(i)
+  {
+  }
+
+  void compute() override
+  {
+    int a = i_;
+    this->foreachDependencyNode([&a](Node::Impl* n) { a += dynamic_cast<Value<int>::Impl&>(*n).getValue(); });
+    this->value_ = a;
+  }
 
   void addDep(Node n)
   {
@@ -62,13 +74,15 @@ struct A : public Node::Impl
 
 TEST_CASE("test")
 {
-  auto a = Node::create<A>();
-  auto b = Node::create<A>();
-  auto c = Node::create<A>();
-  auto d = Node::create<A>();
+  auto a = Node::create<A>(1);
+  auto b = Node::create<A>(2);
+  auto c = Node::create<A>(3);
+  auto d = Node::create<A>(4);
   dynamic_cast<A&>(a.get()).addDep(b);
   dynamic_cast<A&>(a.get()).addDep(c);
   dynamic_cast<A&>(d.get()).addDep(a);
+  Value<int> v(d);
+  CHECK(v.getValue() == 10);
   auto file = std::ofstream("df_debug");
   bpp::DF::debugDag(file, a);
 }

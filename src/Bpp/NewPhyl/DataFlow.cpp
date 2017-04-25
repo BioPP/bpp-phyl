@@ -42,34 +42,36 @@
 #include <Bpp/NewPhyl/DataFlow.h>
 #include <ostream>
 #include <queue>
+#include <typeinfo>
 #include <unordered_set>
 
 namespace bpp {
 namespace DF {
 
+	static std::uintptr_t debugFormat (const Node::Impl * p) { return std::uintptr_t (p); }
+
 	void debugDagStructure (std::ostream & os, const Node & entryPoint) {
 		std::queue<const Node::Impl *> nodesToVisit;
 		std::unordered_set<const Node::Impl *> nodesAlreadyVisited;
-		using NF = std::uintptr_t;
 
 		nodesToVisit.push (&entryPoint.get ());
 		while (!nodesToVisit.empty ()) {
 			auto node = nodesToVisit.front ();
-			os << '\t' << NF (node) << " [shape=box,label=\"" << NF (node) << '-' << node->name ()
-			   << "\"];\n";
+			os << '\t' << debugFormat (node) << " [shape=box,label=\"" << debugFormat (node) << '-'
+			   << typeid (*node).name () << "\"];\n";
 			nodesAlreadyVisited.emplace (node);
 			nodesToVisit.pop ();
 
-			node->forEachDependentNode ([&](const Node::Impl * p) {
+			node->foreachDependentNode ([&](const Node::Impl * p) {
 				if (nodesAlreadyVisited.count (p))
 					return;
-				os << '\t' << NF (p) << " -> " << NF (node) << ";\n";
+				os << '\t' << debugFormat (p) << " -> " << debugFormat (node) << ";\n";
 				nodesToVisit.emplace (p);
 			});
-			node->forEachDependencyNode ([&](const Node::Impl * p) {
+			node->foreachDependencyNode ([&](const Node::Impl * p) {
 				if (nodesAlreadyVisited.count (p))
 					return;
-				os << '\t' << NF (node) << " -> " << NF (p) << ";\n";
+				os << '\t' << debugFormat (node) << " -> " << debugFormat (p) << ";\n";
 				nodesToVisit.emplace (p);
 			});
 		}

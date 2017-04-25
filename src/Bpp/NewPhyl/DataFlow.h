@@ -46,25 +46,29 @@
 #include <algorithm>
 #include <iosfwd>
 #include <memory>
+#include <typeinfo> // std::bad_cast
 #include <utility>
 #include <vector>
 
 namespace bpp {
 namespace DF {
 
+	/* Base Node.
+	 */
 	class Node {
 	public:
 		class Impl;
-
-		explicit Node (std::shared_ptr<Impl> p) : pImpl_ (std::move (p)) {}
-
-		Impl & get () const { return *pImpl_; }
+    using Ref = Impl &;
 
 		template <typename T, typename... Args> static Node create (Args &&... args) {
 			return Node (std::make_shared<T> (std::forward<Args> (args)...));
 		}
 
+		Ref get () const { return *pImpl_; }
+		const std::shared_ptr<Impl> & getShared () const { return pImpl_; }
+
 	private:
+		explicit Node (std::shared_ptr<Impl> p) : pImpl_ (std::move (p)) {}
 		std::shared_ptr<Impl> pImpl_;
 	};
 
@@ -77,7 +81,7 @@ namespace DF {
 		Impl & operator= (Impl &&) = delete;
 
 		virtual ~Impl () {
-			forEachDependencyNode ([this](Impl * node) { node->unregisterNode (this); });
+			foreachDependencyNode ([this](Impl * node) { node->unregisterNode (this); });
 		}
 
 		bool isValid () const { return isValid_; }
@@ -97,27 +101,67 @@ namespace DF {
 
 		virtual void compute () = 0;
 
-		virtual std::string name () const = 0;
-
 		// TODO Replace with ranges
-		template <typename F> void forEachDependentNode (F f) const {
+		template <typename F> void foreachDependentNode (F f) const {
 			for (auto & p : dependentNodes_)
 				f (p);
 		}
-		template <typename F> void forEachDependencyNode (F f) const {
+		template <typename F> void foreachDependencyNode (F f) const {
 			for (auto & p : dependencyNodes_)
 				f (&p.get ());
 		}
 
 	protected:
 		bool isValid_{false};
-    // TODO definitely need a small opt vector
+		// TODO definitely need a small opt vector
 		std::vector<Impl *> dependentNodes_{}; // Nodes that depend on us.
 		std::vector<Node> dependencyNodes_{};  // Nodes that we depend on.
 	};
 
 	void debugDagStructure (std::ostream & os, const Node & entryPoint);
 	void debugDag (std::ostream & os, const Node & entryPoint);
+
+	/* Valued node.
+	 */
+	template <typename T> class Value {
+	public:
+		class Impl;
+    using Ref = Impl &;
+
+		template <typename U, typename... Args> static Value create (Args &&... args) {
+			return Value (std::make_shared<U> (std::forward<Args> (args)...));
+		}
+		explicit Value (const Node & n) : pImpl_ (std::dynamic_pointer_cast<Impl> (n.getShared ())) {
+			if (!pImpl_)
+				throw std::bad_cast ();
+		}
+
+		const T & getValue () { return pImpl_->getValue (); }
+
+		Ref get () const { return *pImpl_; }
+		const std::shared_ptr<Impl> & getShared () const { return pImpl_; }
+
+	private:
+		explicit Value (std::shared_ptr<Impl> p) : pImpl_ (std::move (p)) {}
+		std::shared_ptr<Impl> pImpl_;
+	};
+
+	template <typename T> class Value<T>::Impl : public Node::Impl {
+	public:
+		template <typename... Args>
+		Impl (Args &&... args) : Node::Impl (), value_ (std::forward<Args> (args)...) {}
+
+		const T & getValue () {
+			if (!this->isValid ()) {
+				this->compute ();
+				this->isValid_ = true;
+			}
+			return value_;
+		}
+
+	protected:
+		T value_;
+	};
 }
 }
 
