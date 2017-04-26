@@ -1,9 +1,9 @@
 //
-// File: Registry.h
+// File: Topology.h
 // Authors:
 //   Francois Gindraud (2017)
-// Created: 2017-04-25
-// Last modified: 2017-04-25
+// Created: 2017-04-26
+// Last modified: 2017-04-26
 //
 
 /*
@@ -40,30 +40,28 @@
 */
 
 #pragma once
-#ifndef BPP_NEWPHYL_REGISTRY_H
-#define BPP_NEWPHYL_REGISTRY_H
-
-#include <Bpp/NewPhyl/DataFlow.h>
-#include <Bpp/NewPhyl/Topology.h>
-#include <typeindex>
-#include <unordered_map>
+#ifndef BPP_NEWPHYL_TOPOLOGY_H
+#define BPP_NEWPHYL_TOPOLOGY_H
 
 namespace bpp {
-namespace DF {
-
-	class DataSet {
+namespace Topology {
+	class Leave {};
+	class Tree {
+		//
+	};
+	class Node {
+		Tree * ref;
+		int node_id;
+	};
+	class Branch {
+		Tree * ref;
+		int node_a, node_b;
+	};
+	class Element {
+		// Able to create elements from other parts of tree, probably a polymorphic ref
 		// Value type
 	};
-
-	class RegistryKey {
-	private:
-		Topology::Element phylogenyObject_;
-		std::type_index operationType_;
-		DataSet dataSet_;
-	};
-
-	class Registry {};
 }
 }
 
-#endif // BPP_NEWPHYL_REGISTRY_H
+#endif // BPP_NEWPHYL_TOPOLOGY_H
