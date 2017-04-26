@@ -43,23 +43,91 @@
 #ifndef BPP_NEWPHYL_TOPOLOGY_H
 #define BPP_NEWPHYL_TOPOLOGY_H
 
+#include <stdexcept>
+#include <string>
+#include <vector>
+
 namespace bpp {
 namespace Topology {
-	class Leave {};
+	using IndexType = int;
+	constexpr IndexType invalid{-1};
+
+	class Element;
+	class NodeRef;
+	class BranchRef;
+
 	class Tree {
-		//
+	public:
+		struct Node {
+			IndexType fatherId_{invalid};
+			std::vector<IndexType> childrenIds_{};
+
+			Node () = default;
+		};
+
+		std::size_t nbNodes () const { return nodes_.size (); }
+		const Node & node (IndexType id) const { return nodes_[i]; }
+		const IndexType & rootId () const { return rootId_; }
+		IndexType & rootId () { return rootId_; }
+
+		IndexType createNode () {
+			auto id = IndexType (nbNodes ());
+			nodes_.emplace (std::move (n));
+			return id;
+		}
+		void createEdge (IndexType fatherId, IndexType childId) {
+			auto & father = nodes_[fatherId];
+			auto & child = nodes_[childId];
+			if (child.fatherId_ != invalid)
+				throw std::runtime_error ("child already has a father");
+			child.fatherId_ = fatherId;
+			father.childrenIds_.emplace (childId);
+		}
+		IndexType createNode (std::vector<IndexType> childrens) {
+			auto id = createNode ();
+			for (auto i : childrens)
+				createEdge (id, i);
+			return id;
+		}
+
+		Element nodeRef (IndexType nodeId) const;
+		Element upwardBranchRef (IndexType nodeId) const;
+
+	private:
+		IndexType rootId_{invalid};
+		std::vector<Node> nodes_{};
 	};
-	class Node {
-		Tree * ref;
-		int node_id;
+
+	class NodeRef {
+	public:
+		NodeRef (const Tree & tree, IndexType nodeId) : tree_ (tree), nodeId_ (nodeId) {}
+
+	private:
+		const Tree & tree_;
+		IndexType nodeId_;
 	};
-	class Branch {
-		Tree * ref;
-		int node_a, node_b;
+
+	class BranchRef {
+	public:
+		BranchRef (const Tree & tree, IndexType childNodeId)
+		    : tree_ (tree), childNodeId_ (childNodeId) {}
+
+	private:
+		const Tree & tree_;
+		IndexType childNodeId_;
 	};
+
 	class Element {
+	public:
+		enum Type { Node, Branch };
 		// Able to create elements from other parts of tree, probably a polymorphic ref
 		// Value type
+	private:
+		Type type_;
+		union {
+			NodeRef nodeRef;
+			BranchRef branchRef;
+		} d_;
 	};
 }
 }
