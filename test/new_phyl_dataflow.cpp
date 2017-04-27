@@ -44,6 +44,7 @@
 
 #include <Bpp/NewPhyl/DataFlow.h>
 #include <Bpp/NewPhyl/Registry.h>
+#include <Bpp/NewPhyl/Topology.h>
 #include <fstream>
 #include <iostream>
 
@@ -75,6 +76,17 @@ struct A : public Value<int>::Impl
 
 TEST_CASE("test")
 {
+  bpp::Topology::Tree tree;
+  {
+    auto a = tree.createNode({}, "A");
+    auto b = tree.createNode({}, "B");
+    auto c = tree.createNode({a, b});
+    auto d = tree.createNode({c});
+    tree.rootId() = d;
+    std::ofstream file("topology_debug");
+    bpp::Topology::debugTree(file, tree);
+  }
+
   auto a = Node::create<A>(1);
   auto b = Node::create<A>(2);
   auto c = Node::create<A>(3);

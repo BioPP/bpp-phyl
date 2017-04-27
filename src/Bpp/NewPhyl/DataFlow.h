@@ -58,17 +58,17 @@ namespace DF {
 	class Node {
 	public:
 		class Impl;
-    using Ref = Impl &;
+		using Ref = Impl &;
 
 		template <typename T, typename... Args> static Node create (Args &&... args) {
 			return Node (std::make_shared<T> (std::forward<Args> (args)...));
 		}
 
-		Ref get () const { return *pImpl_; }
-		const std::shared_ptr<Impl> & getShared () const { return pImpl_; }
+		Ref get () const noexcept { return *pImpl_; }
+		const std::shared_ptr<Impl> & getShared () const noexcept { return pImpl_; }
 
 	private:
-		explicit Node (std::shared_ptr<Impl> p) : pImpl_ (std::move (p)) {}
+		explicit Node (std::shared_ptr<Impl> p) noexcept : pImpl_ (std::move (p)) {}
 		std::shared_ptr<Impl> pImpl_;
 	};
 
@@ -84,8 +84,8 @@ namespace DF {
 			foreachDependencyNode ([this](Impl * node) { node->unregisterNode (this); });
 		}
 
-		bool isValid () const { return isValid_; }
-		void invalidate () {
+		bool isValid () const noexcept { return isValid_; }
+		void invalidate () noexcept {
 			if (isValid_) {
 				isValid_ = false;
 				for (auto p : dependentNodes_)
@@ -126,7 +126,7 @@ namespace DF {
 	template <typename T> class Value {
 	public:
 		class Impl;
-    using Ref = Impl &;
+		using Ref = Impl &;
 
 		template <typename U, typename... Args> static Value create (Args &&... args) {
 			return Value (std::make_shared<U> (std::forward<Args> (args)...));
@@ -136,13 +136,13 @@ namespace DF {
 				throw std::bad_cast ();
 		}
 
-		const T & getValue () { return pImpl_->getValue (); }
+		const T & getValue () noexcept { return pImpl_->getValue (); }
 
-		Ref get () const { return *pImpl_; }
-		const std::shared_ptr<Impl> & getShared () const { return pImpl_; }
+		Ref get () const noexcept { return *pImpl_; }
+		const std::shared_ptr<Impl> & getShared () const noexcept { return pImpl_; }
 
 	private:
-		explicit Value (std::shared_ptr<Impl> p) : pImpl_ (std::move (p)) {}
+		explicit Value (std::shared_ptr<Impl> p) noexcept : pImpl_ (std::move (p)) {}
 		std::shared_ptr<Impl> pImpl_;
 	};
 

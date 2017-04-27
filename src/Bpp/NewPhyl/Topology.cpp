@@ -1,9 +1,9 @@
 //
-// File: DataFlow.cpp
+// File: Topology.cpp
 // Authors:
 //   Francois Gindraud (2017)
-// Created: 2017-04-19
-// Last modified: 2017-04-19
+// Created: 2017-04-27
+// Last modified: 2017-04-27
 //
 
 /*
@@ -39,46 +39,30 @@
   knowledge of the CeCILL license and that you accept its terms.
 */
 
-#include <Bpp/NewPhyl/DataFlow.h>
+#include <Bpp/NewPhyl/Topology.h>
 #include <ostream>
 #include <queue>
-#include <typeinfo>
-#include <unordered_set>
 
 namespace bpp {
-namespace DF {
-
-	static std::uintptr_t debugFormat (const Node::Impl * p) noexcept { return std::uintptr_t (p); }
-
-	void debugDagStructure (std::ostream & os, const Node & entryPoint) {
-		std::queue<const Node::Impl *> nodesToVisit;
-		std::unordered_set<const Node::Impl *> nodesAlreadyVisited;
-
-		nodesToVisit.emplace (&entryPoint.get ());
-		while (!nodesToVisit.empty ()) {
-			auto node = nodesToVisit.front ();
-			os << '\t' << debugFormat (node) << " [shape=box,label=\"" << debugFormat (node) << '-'
-			   << typeid (*node).name () << "\"];\n";
-			nodesAlreadyVisited.emplace (node);
-			nodesToVisit.pop ();
-
-			node->foreachDependentNode ([&](const Node::Impl * p) {
-				if (nodesAlreadyVisited.count (p))
-					return;
-				os << '\t' << debugFormat (p) << " -> " << debugFormat (node) << ";\n";
-				nodesToVisit.emplace (p);
-			});
-			node->foreachDependencyNode ([&](const Node::Impl * p) {
-				if (nodesAlreadyVisited.count (p))
-					return;
-				os << '\t' << debugFormat (node) << " -> " << debugFormat (p) << ";\n";
-				nodesToVisit.emplace (p);
-			});
-		}
-	}
-	void debugDag (std::ostream & os, const Node & entryPoint) {
+namespace Topology {
+	void debugTree (std::ostream & os, const Tree & tree) {
 		os << "digraph {\n";
-		debugDagStructure (os, entryPoint);
+
+		std::queue<IndexType> nodesToVisit;
+		if (tree.rootId () != invalid)
+			nodesToVisit.emplace (tree.rootId ());
+
+		while (!nodesToVisit.empty ()) {
+			auto nodeId = nodesToVisit.front ();
+			nodesToVisit.pop ();
+			auto & node = tree.node (nodeId);
+			os << '\t' << nodeId << " [shape=box,label=\"" << nodeId << '-' << node.nodeName_ << "\"];\n";
+			for (auto childId : node.childrenIds_) {
+				nodesToVisit.emplace (childId);
+				os << '\t' << nodeId << " -> " << childId << ";\n";
+			}
+		}
+
 		os << "}\n";
 	}
 }

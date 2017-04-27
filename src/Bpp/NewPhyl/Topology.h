@@ -43,36 +43,43 @@
 #ifndef BPP_NEWPHYL_TOPOLOGY_H
 #define BPP_NEWPHYL_TOPOLOGY_H
 
-#include <stdexcept>
+#include <iosfwd>
+#include <limits>
+#include <stdexcept> // std::runtime_error
 #include <string>
+#include <typeinfo> // std::bad_cast
 #include <vector>
 
 namespace bpp {
 namespace Topology {
-	using IndexType = int;
-	constexpr IndexType invalid{-1};
+	using IndexType = std::size_t;
+	constexpr IndexType invalid{std::numeric_limits<IndexType>::max ()};
 
 	class Element;
 	class NodeRef;
 	class BranchRef;
 
+	/* Tree class, stores structure.
+	 * TODO improve...
+	 */
 	class Tree {
 	public:
 		struct Node {
 			IndexType fatherId_{invalid};
 			std::vector<IndexType> childrenIds_{};
+			std::string nodeName_{};
 
 			Node () = default;
 		};
 
-		std::size_t nbNodes () const { return nodes_.size (); }
-		const Node & node (IndexType id) const { return nodes_[i]; }
-		const IndexType & rootId () const { return rootId_; }
-		IndexType & rootId () { return rootId_; }
+		std::size_t nbNodes () const noexcept { return nodes_.size (); }
+		const Node & node (IndexType id) const noexcept { return nodes_[id]; }
+		const IndexType & rootId () const noexcept { return rootId_; }
+		IndexType & rootId () noexcept { return rootId_; }
 
 		IndexType createNode () {
 			auto id = IndexType (nbNodes ());
-			nodes_.emplace (std::move (n));
+			nodes_.emplace_back ();
 			return id;
 		}
 		void createEdge (IndexType fatherId, IndexType childId) {
@@ -81,26 +88,44 @@ namespace Topology {
 			if (child.fatherId_ != invalid)
 				throw std::runtime_error ("child already has a father");
 			child.fatherId_ = fatherId;
-			father.childrenIds_.emplace (childId);
+			father.childrenIds_.emplace_back (childId);
 		}
-		IndexType createNode (std::vector<IndexType> childrens) {
+		void setNodeName (IndexType id, std::string name) noexcept {
+			nodes_[id].nodeName_ = std::move (name);
+		}
+		IndexType createNode (std::vector<IndexType> childrens, std::string name = std::string ()) {
 			auto id = createNode ();
+			setNodeName (id, std::move (name));
 			for (auto i : childrens)
 				createEdge (id, i);
 			return id;
 		}
 
-		Element nodeRef (IndexType nodeId) const;
-		Element upwardBranchRef (IndexType nodeId) const;
+		Element nodeRef (IndexType nodeId) const noexcept;
 
 	private:
 		IndexType rootId_{invalid};
 		std::vector<Node> nodes_{};
 	};
 
+	void debugTree (std::ostream & os, const Tree & tree);
+
+	/* NodeRef and BranchRef.
+	 * Kind of iterators on the tree, allow to inspect structure.
+	 */
 	class NodeRef {
 	public:
-		NodeRef (const Tree & tree, IndexType nodeId) : tree_ (tree), nodeId_ (nodeId) {}
+		NodeRef (const Tree & tree, IndexType nodeId) noexcept : tree_ (tree), nodeId_ (nodeId) {}
+
+		IndexType nodeId () const noexcept { return nodeId_; }
+		IndexType nbChildBranches () const noexcept {
+			return tree_.node (nodeId_).childrenIds_.size ();
+		}
+		const std::string & name () const { return tree_.node (nodeId_).nodeName_; }
+
+		// Navigate
+		BranchRef fatherBranch () const;
+		BranchRef childBranch (IndexType id) const;
 
 	private:
 		const Tree & tree_;
@@ -109,22 +134,68 @@ namespace Topology {
 
 	class BranchRef {
 	public:
-		BranchRef (const Tree & tree, IndexType childNodeId)
+		BranchRef (const Tree & tree, IndexType childNodeId) noexcept
 		    : tree_ (tree), childNodeId_ (childNodeId) {}
+
+		IndexType fatherNodeId () const noexcept { return tree_.node (childNodeId_).fatherId_; }
+		IndexType childNodeId () const noexcept { return childNodeId_; }
+
+		// Navigate
+		NodeRef fatherNode () const {
+			auto id = fatherNodeId ();
+			if (id == invalid)
+				throw std::runtime_error ("branch has no father node");
+			return NodeRef (tree_, id);
+		}
+		NodeRef childNode () const { return NodeRef (tree_, childNodeId_); }
 
 	private:
 		const Tree & tree_;
 		IndexType childNodeId_;
 	};
 
+	inline BranchRef NodeRef::fatherBranch () const { return BranchRef (tree_, nodeId_); }
+	inline BranchRef NodeRef::childBranch (IndexType id) const {
+		return BranchRef (tree_, tree_.node (nodeId_).childrenIds_[id]);
+	}
+
+	/* Element: sum type storing either a NodeRef or a BranchRef.
+	 */
 	class Element {
+		// Sum type
 	public:
 		enum Type { Node, Branch };
-		// Able to create elements from other parts of tree, probably a polymorphic ref
-		// Value type
+
+		Element (const NodeRef & n) noexcept : type_ (Node) { new (&d_.nodeRef) NodeRef (n); }
+		Element (const BranchRef & b) noexcept : type_ (Branch) { new (&d_.branchRef) BranchRef (b); }
+		~Element () noexcept {
+			switch (type_) {
+			case Node:
+				d_.nodeRef.~NodeRef ();
+				break;
+			case Branch:
+				d_.branchRef.~BranchRef ();
+				break;
+			}
+		}
+
+		Type type () const noexcept { return type_; }
+		const NodeRef & asNodeRef () const {
+			if (type_ != Node)
+				throw std::bad_cast ();
+			return d_.nodeRef;
+		}
+		const BranchRef & asBranchRef () const {
+			if (type_ != Branch)
+				throw std::bad_cast ();
+			return d_.branchRef;
+		}
+
 	private:
 		Type type_;
-		union {
+		union Content {
+			Content () {}
+			~Content () {}
 			NodeRef nodeRef;
 			BranchRef branchRef;
 		} d_;
