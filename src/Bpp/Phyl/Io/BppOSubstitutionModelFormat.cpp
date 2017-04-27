@@ -103,6 +103,7 @@
 #include "../Model/Protein/LG10_EX_EHO.h"
 #include "../Model/BinarySubstitutionModel.h"
 #include "../Model/FromMixtureSubstitutionModel.h"
+#include "../Model/OneChangeTransitionModel.h"
 
 #include "../App/PhylogeneticsApplicationTools.h"
 
@@ -153,6 +154,7 @@ TransitionModel* BppOSubstitutionModelFormat::read(
   map<string, string> args;
   KeyvalTools::parseProcedure(modelDescription, modelName, args);
 
+  
   // //////////////////////////////////
   // / MIXED MODELS
   // ////////////////////////////////
@@ -442,6 +444,42 @@ TransitionModel* BppOSubstitutionModelFormat::read(
       unparsedArguments_["G01.rdist_" + it->first] = it->second;
     }
   }
+
+  ////////////////////////////////////////////////
+  ///// ONE CHANGE
+  ////////////////////////////////////////////////
+
+  else if (modelName == "OneChange")
+  {
+    // We have to parse the nested model first:
+    string nestedModelDescription = args["model"];
+    if (TextTools::isEmpty(nestedModelDescription))
+      throw Exception("BppOSubstitutionModelFormat::read. Missing argument 'model' for model 'OneChange'.");
+    BppOSubstitutionModelFormat nestedReader(ALL, false, allowMixed_, allowGaps_, verbose_, warningLevel_);
+    if (geneticCode_)
+      nestedReader.setGeneticCode(geneticCode_);
+
+
+    SubstitutionModel* nestedModel=dynamic_cast<SubstitutionModel*>(nestedReader.read(alphabet, nestedModelDescription, data, false));
+    
+    // Check that nestedModel is fine and has subModel of given name
+    if (nestedModel==NULL)
+      throw Exception("BppOSubstitutionModelFormat::read. Need for a SubstitutionModel for model 'OneChange'.");
+    
+    // Now we create the FromModel substitution model:
+    model.reset(new OneChangeTransitionModel(*nestedModel));
+        
+    delete nestedModel;
+  }
+
+  ///////////////////////////////////////////////////////
+  ///
+  ///
+  ///  SIMPLE MODELS
+  ///
+  ///
+  //////////////////////////////////////////////////////////
+
   else
   {
     // This is a 'simple' model...
@@ -666,7 +704,6 @@ TransitionModel* BppOSubstitutionModelFormat::read(
         string modelDesc2=modelName.substr(0,9)+modelDescription.substr(posp);
         
         BppOSubstitutionModelFormat nestedReader(PROTEIN, true, true, false, verbose_, warningLevel_);
-
         
         MixedSubstitutionModel* nestedModel=dynamic_cast<MixedSubstitutionModel*>(nestedReader.read(alphabet, modelDesc2, data, false));
       
@@ -1439,6 +1476,16 @@ void BppOSubstitutionModelFormat::write(const TransitionModel& model,
     out << "model=";
     const TransitionModel* nestedModel = yprModel->getNestedModel();
     write(*nestedModel, out, globalAliases, writtenNames);
+    comma = true;
+  }
+
+  // Is it a OneChange model?
+  const OneChangeTransitionModel* onechangetransitionmodel = dynamic_cast<const OneChangeTransitionModel*>(&model);
+  if (onechangetransitionmodel)
+  {
+    out << "model=";
+    const SubstitutionModel& nestedModel = onechangetransitionmodel->getModel();
+    write(nestedModel, out, globalAliases, writtenNames);
     comma = true;
   }
 

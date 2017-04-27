@@ -5,36 +5,36 @@
 //
 
 /*
-Copyright or © or Copr. Bio++ Development Team, (November 16, 2004, 2005, 2006)
+  Copyright or © or Copr. Bio++ Development Team, (November 16, 2004, 2005, 2006)
 
-This software is a computer program whose purpose is to provide classes
-for phylogenetic data analysis.
+  This software is a computer program whose purpose is to provide classes
+  for phylogenetic data analysis.
 
-This software is governed by the CeCILL  license under French law and
-abiding by the rules of distribution of free software.  You can  use, 
-modify and/ or redistribute the software under the terms of the CeCILL
-license as circulated by CEA, CNRS and INRIA at the following URL
-"http://www.cecill.info". 
+  This software is governed by the CeCILL  license under French law and
+  abiding by the rules of distribution of free software.  You can  use, 
+  modify and/ or redistribute the software under the terms of the CeCILL
+  license as circulated by CEA, CNRS and INRIA at the following URL
+  "http://www.cecill.info". 
 
-As a counterpart to the access to the source code and  rights to copy,
-modify and redistribute granted by the license, users are provided only
-with a limited warranty  and the software's author,  the holder of the
-economic rights,  and the successive licensors  have only  limited
-liability. 
+  As a counterpart to the access to the source code and  rights to copy,
+  modify and redistribute granted by the license, users are provided only
+  with a limited warranty  and the software's author,  the holder of the
+  economic rights,  and the successive licensors  have only  limited
+  liability. 
 
-In this respect, the user's attention is drawn to the risks associated
-with loading,  using,  modifying and/or developing or reproducing the
-software by the user in light of its specific status of free software,
-that may mean  that it is complicated to manipulate,  and  that  also
-therefore means  that it is reserved for developers  and  experienced
-professionals having in-depth computer knowledge. Users are therefore
-encouraged to load and test the software's suitability as regards their
-requirements in conditions enabling the security of their systems and/or 
-data to be ensured and,  more generally, to use and operate it in the 
-same conditions as regards security. 
+  In this respect, the user's attention is drawn to the risks associated
+  with loading,  using,  modifying and/or developing or reproducing the
+  software by the user in light of its specific status of free software,
+  that may mean  that it is complicated to manipulate,  and  that  also
+  therefore means  that it is reserved for developers  and  experienced
+  professionals having in-depth computer knowledge. Users are therefore
+  encouraged to load and test the software's suitability as regards their
+  requirements in conditions enabling the security of their systems and/or 
+  data to be ensured and,  more generally, to use and operate it in the 
+  same conditions as regards security. 
 
-The fact that you are presently reading this means that you have had
-knowledge of the CeCILL license and that you accept its terms.
+  The fact that you are presently reading this means that you have had
+  knowledge of the CeCILL license and that you accept its terms.
 */
 
 #include "DecompositionSubstitutionCount.h"
@@ -135,17 +135,17 @@ void DecompositionSubstitutionCount::initBMatrices_()
 
 void DecompositionSubstitutionCount::jFunction_(const std::vector<double>& lambda, double t, RowMatrix<double>& result) const
 {
-	vector<double> expLam = VectorTools::exp(lambda * t);
-	for (unsigned int i = 0; i < nbStates_; ++i) {
-	  for (unsigned int j = 0; j < nbStates_; ++j) {
+  vector<double> expLam = VectorTools::exp(lambda * t);
+  for (unsigned int i = 0; i < nbStates_; ++i) {
+    for (unsigned int j = 0; j < nbStates_; ++j) {
       double dd = lambda[i] - lambda[j];
       if (dd == 0) {
-  		  result(i, j) = t * expLam[i];
+        result(i, j) = t * expLam[i];
       } else {
-  		  result(i, j) = (expLam[i] - expLam[j]) / dd;
+        result(i, j) = (expLam[i] - expLam[j]) / dd;
       }
     }
-	}
+  }
 }
 
 /******************************************************************************/
@@ -158,7 +158,7 @@ void DecompositionSubstitutionCount::computeCounts_(double length) const
     MatrixTools::hadamardMult(jMat_, insideProducts_[i], tmp1);
     MatrixTools::mult(v_, tmp1, tmp2);
     MatrixTools::mult(tmp2, vInv_, counts_[i]);
-	}
+  }
   // Now we must divide by pijt and account for putative weights:
   vector<int> supportedStates = model_->getAlphabetStates();
   RowMatrix<double> P = model_->getPij_t(length);
@@ -168,9 +168,9 @@ void DecompositionSubstitutionCount::computeCounts_(double length) const
         counts_[i](j, k) /= P(j, k);
         if (std::isnan(counts_[i](j, k)) || counts_[i](j, k) < 0.) {
           counts_[i](j, k) = 0.;
-        //Weights:
-        if (weights_)
-          counts_[i](j, k) *= weights_->getIndex(supportedStates[j], supportedStates[k]);
+          //Weights:
+          if (weights_)
+            counts_[i](j, k) *= weights_->getIndex(supportedStates[j], supportedStates[k]);
         }
       }
     }
@@ -185,22 +185,22 @@ Matrix<double>* DecompositionSubstitutionCount::getAllNumbersOfSubstitutions(dou
     throw Exception("DecompositionSubstitutionCount::getAllNumbersOfSubstitutions. Negative branch length: " + TextTools::toString(length) + ".");
   if (length != currentLength_)
   {
-  //if (length < 0.000001) // Limit case!
-  //{ 
-  //  unsigned int s = model_->getAlphabet()->getSize();
-  //  for (unsigned int i = 0; i < s; i++)
-  //  {
-  //    for (unsigned int j = 0; j < s; j++)
-  //    {
-  //      m_(i, j) = i == j ? 0. : 1.;
-  //    }
-  //  }
-  //}
-  //else
-  //{
-  // Else we need to recompute M:
+    //if (length < 0.000001) // Limit case!
+    //{ 
+    //  unsigned int s = model_->getAlphabet()->getSize();
+    //  for (unsigned int i = 0; i < s; i++)
+    //  {
+    //    for (unsigned int j = 0; j < s; j++)
+    //    {
+    //      m_(i, j) = i == j ? 0. : 1.;
+    //    }
+    //  }
+    //}
+    //else
+    //{
+    // Else we need to recompute M:
     computeCounts_(length);
-  //}
+    //}
 
     currentLength_ = length;
   }
@@ -280,7 +280,7 @@ void DecompositionSubstitutionCount::substitutionRegisterHasChanged() throw (Exc
 
   //Recompute counts:
   if (currentLength_ > 0)
-   computeCounts_(currentLength_);
+    computeCounts_(currentLength_);
 }
 
 /******************************************************************************/
