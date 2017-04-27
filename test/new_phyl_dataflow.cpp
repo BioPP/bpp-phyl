@@ -45,11 +45,13 @@
 #include <Bpp/NewPhyl/DataFlow.h>
 #include <Bpp/NewPhyl/Registry.h>
 #include <Bpp/NewPhyl/Topology.h>
+
 #include <fstream>
-#include <iostream>
+#include <iosfwd>
 
 using bpp::DF::Node;
 using bpp::DF::Value;
+using bpp::DF::Parameter;
 
 struct A : public Value<int>::Impl
 {
@@ -92,15 +94,22 @@ TEST_CASE("test")
     CHECK (e.hashCode () == e2.hashCode ());
   }
 
-  auto a = Node::create<A>(1);
-  auto b = Node::create<A>(2);
-  auto c = Node::create<A>(3);
-  auto d = Node::create<A>(4);
-  dynamic_cast<A&>(a.get()).addDep(b);
-  dynamic_cast<A&>(a.get()).addDep(c);
-  dynamic_cast<A&>(d.get()).addDep(a);
-  Value<int> v(d);
-  CHECK(v.getValue() == 10);
-  std::ofstream file("df_debug");
-  bpp::DF::debugDag(file, a);
+  auto a = Parameter<int>::create (3);
+  auto b = Parameter<int>::create (42);
+
+  CHECK (a.getValue() == 3);
+  a.setValue(-42);
+  CHECK (a.getValue() == -42);
+
+ // auto a = Node::create<A>(1);
+ // auto b = Node::create<A>(2);
+ // auto c = Node::create<A>(3);
+ // auto d = Node::create<A>(4);
+ // dynamic_cast<A&>(a.get()).addDep(b);
+ // dynamic_cast<A&>(a.get()).addDep(c);
+ // dynamic_cast<A&>(d.get()).addDep(a);
+ // Value<int> v(d);
+ // CHECK(v.getValue() == 10);
+ // std::ofstream file("df_debug");
+ // bpp::DF::debugDag(file, a);
 }

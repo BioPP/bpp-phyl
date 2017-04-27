@@ -86,10 +86,9 @@ namespace DF {
 
 		bool isValid () const noexcept { return isValid_; }
 		void invalidate () noexcept {
-			if (isValid_) {
+			if (isValid ()) {
 				isValid_ = false;
-				for (auto p : dependentNodes_)
-					p->invalidate ();
+				foreachDependentNode ([](Impl * node) { node->invalidate (); });
 			}
 		}
 
@@ -112,10 +111,14 @@ namespace DF {
 		}
 
 	protected:
-		bool isValid_{false};
+		void makeValid () noexcept { isValid_ = true; }
+
 		// TODO definitely need a small opt vector
 		std::vector<Impl *> dependentNodes_{}; // Nodes that depend on us.
 		std::vector<Node> dependencyNodes_{};  // Nodes that we depend on.
+
+	private:
+		bool isValid_{false};
 	};
 
 	void debugDagStructure (std::ostream & os, const Node & entryPoint);
@@ -154,13 +157,62 @@ namespace DF {
 		const T & getValue () {
 			if (!this->isValid ()) {
 				this->compute ();
-				this->isValid_ = true;
+				this->makeValid ();
 			}
 			return value_;
 		}
 
 	protected:
 		T value_;
+	};
+
+	/* Param node.
+	 */
+	template <typename T> class Parameter {
+	public:
+		class Impl;
+		using Ref = Impl &;
+
+		template <typename... Args> static Parameter create (Args &&... args) {
+			return Parameter (std::make_shared<Impl> (std::forward<Args> (args)...));
+		}
+		explicit Parameter (const Node & n)
+		    : pImpl_ (std::dynamic_pointer_cast<Impl> (n.getShared ())) {
+			if (!pImpl_)
+				throw std::bad_cast ();
+		}
+		explicit Parameter (const Value<T> & v)
+		    : pImpl_ (std::dynamic_pointer_cast<Impl> (v.getShared ())) {
+			if (!pImpl_)
+				throw std::bad_cast ();
+		}
+
+		const T & getValue () noexcept { return pImpl_->getValue (); }
+		void setValue (T t) noexcept { pImpl_->setValue (std::move (t)); }
+
+		Ref get () const noexcept { return *pImpl_; }
+		const std::shared_ptr<Impl> & getShared () const noexcept { return pImpl_; }
+
+	private:
+		explicit Parameter (std::shared_ptr<Impl> p) noexcept : pImpl_ (std::move (p)) {}
+		std::shared_ptr<Impl> pImpl_;
+	};
+
+	template <typename T> class Parameter<T>::Impl : public Value<T>::Impl {
+	public:
+		template <typename... Args>
+		Impl (Args &&... args) : Value<T>::Impl (std::forward<Args> (args)...) {
+			this->makeValid ();
+		}
+
+		void setValue (T t) noexcept {
+			this->invalidate ();
+			this->value_ = std::move (t);
+			this->makeValid ();
+		}
+
+	private:
+		void compute () override final { throw std::runtime_error ("compute(): parameter node"); }
 	};
 }
 }
