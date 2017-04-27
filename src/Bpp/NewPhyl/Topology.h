@@ -43,6 +43,7 @@
 #ifndef BPP_NEWPHYL_TOPOLOGY_H
 #define BPP_NEWPHYL_TOPOLOGY_H
 
+#include <functional> // std::hash
 #include <iosfwd>
 #include <limits>
 #include <stdexcept> // std::runtime_error
@@ -127,6 +128,15 @@ namespace Topology {
 		BranchRef fatherBranch () const;
 		BranchRef childBranch (IndexType id) const;
 
+		bool operator== (const NodeRef & node) const noexcept {
+			return &tree_ == &node.tree_ && nodeId_ == node.nodeId_;
+		}
+		std::size_t hashCode () const noexcept {
+			auto a = std::hash<const Tree *>{}(&tree_);
+			auto b = std::hash<IndexType>{}(nodeId_);
+			return a ^ (b << 1);
+		}
+
 	private:
 		const Tree & tree_;
 		IndexType nodeId_;
@@ -148,6 +158,15 @@ namespace Topology {
 			return NodeRef (tree_, id);
 		}
 		NodeRef childNode () const { return NodeRef (tree_, childNodeId_); }
+
+		bool operator== (const BranchRef & branch) const noexcept {
+			return &tree_ == &branch.tree_ && childNodeId_ == branch.childNodeId_;
+		}
+		std::size_t hashCode () const noexcept {
+			auto a = std::hash<const Tree *>{}(&tree_);
+			auto b = std::hash<IndexType>{}(childNodeId_);
+			return a ^ (b << 1);
+		}
 
 	private:
 		const Tree & tree_;
@@ -191,6 +210,20 @@ namespace Topology {
 			return d_.branchRef;
 		}
 
+		bool operator== (const Element & element) const noexcept {
+			if (type_ != element.type_)
+				return false;
+			if (type_ == Node)
+				return asNodeRef () == element.asNodeRef ();
+			else
+				return asBranchRef () == element.asBranchRef ();
+		}
+		std::size_t hashCode () const noexcept {
+			auto a = std::hash<Type>{}(type_);
+			auto b = type_ == Node ? asNodeRef ().hashCode () : asBranchRef ().hashCode ();
+			return a ^ (b << 1);
+		}
+
 	private:
 		Type type_;
 		union Content {
@@ -200,6 +233,8 @@ namespace Topology {
 			BranchRef branchRef;
 		} d_;
 	};
+
+	inline Element Tree::nodeRef (IndexType nodeId) const noexcept { return NodeRef (*this, nodeId); }
 }
 }
 

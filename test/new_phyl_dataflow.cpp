@@ -85,6 +85,11 @@ TEST_CASE("test")
     tree.rootId() = d;
     std::ofstream file("topology_debug");
     bpp::Topology::debugTree(file, tree);
+
+    auto e = tree.nodeRef(c);
+    auto e2 = bpp::Topology::Element (e.asNodeRef().fatherBranch().childNode());
+    CHECK (e == e2);
+    CHECK (e.hashCode () == e2.hashCode ());
   }
 
   auto a = Node::create<A>(1);

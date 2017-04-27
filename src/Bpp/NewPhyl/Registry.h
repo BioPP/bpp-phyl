@@ -51,18 +51,36 @@
 namespace bpp {
 namespace DF {
 
-	class DataSet {
-		// Value type
-	};
+	// TODO add dataset for multi model and similar
+	// DataSet should know some parameters like nb site / alphabet
 
 	class RegistryKey {
+	public:
+		RegistryKey (const Topology::Element & treeElement, const std::type_index & operationType)
+		    : treeElement_ (treeElement), operationType_ (operationType) {}
+
+		bool operator== (const RegistryKey & key) const noexcept {
+			return treeElement_ == key.treeElement_ && operationType_ == key.operationType_;
+		}
+		std::size_t hashCode () const noexcept {
+			auto a = treeElement_.hashCode ();
+			auto b = operationType_.hash_code ();
+			return a ^ (b << 1);
+		}
+		struct Hash {
+			std::size_t operator() (const RegistryKey & key) const noexcept { return key.hashCode (); }
+		};
+
 	private:
-		Topology::Element phylogenyObject_;
+		Topology::Element treeElement_;
 		std::type_index operationType_;
-		DataSet dataSet_;
 	};
 
-	class Registry {};
+	class Registry {
+	public:
+	private:
+		std::unordered_map<RegistryKey, Node, RegistryKey::Hash> dataflowNodes_;
+	};
 }
 }
 
