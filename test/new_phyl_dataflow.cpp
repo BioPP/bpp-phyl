@@ -47,24 +47,23 @@
 #include <Bpp/NewPhyl/Topology.h>
 
 #include <fstream>
-#include <iosfwd>
+#include <iostream>
+#include <unordered_map>
 
 using bpp::DF::Node;
 using bpp::DF::Value;
 using bpp::DF::Parameter;
+using bpp::DF::Registry;
 
-struct A : public Value<int>::Impl
+using DataSet = std::unordered_map<std::string, Value<int>>;
+
+struct Sum : public Value<int>::Impl
 {
-  int i_;
-  A(int i)
-    : Value<int>::Impl(0)
-    , i_(i)
-  {
-  }
+  Sum() = default;
 
   void compute() override
   {
-    int a = i_;
+    int a = 0;
     this->foreachDependencyNode([&a](Node::Impl* n) { a += dynamic_cast<Value<int>::Impl&>(*n).getValue(); });
     this->value_ = a;
   }
@@ -97,9 +96,18 @@ TEST_CASE("test")
   auto a = Parameter<int>::create (3);
   auto b = Parameter<int>::create (42);
 
+  DataSet ds;
+  //ds.emplace ("A", a);
+
   CHECK (a.getValue() == 3);
   a.setValue(-42);
   CHECK (a.getValue() == -42);
+
+  std::cout << "cast tests\n";
+  auto z = Node::create<Sum> ();
+  auto y = z;
+  Value<int> x {y};
+  Value<int> w {x};
 
  // auto a = Node::create<A>(1);
  // auto b = Node::create<A>(2);
