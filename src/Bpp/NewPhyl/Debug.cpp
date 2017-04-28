@@ -42,13 +42,32 @@
 #include <Bpp/NewPhyl/DataFlow.h>
 #include <Bpp/NewPhyl/Registry.h>
 #include <Bpp/NewPhyl/Topology.h>
+#include <algorithm>
 #include <ostream>
 #include <queue>
 #include <string>
 #include <typeinfo>
 #include <unordered_set>
 
+#if HAVE_DEMANGLING
+#include <cstdlib>
+#include <cxxabi.h>
+#include <memory>
+#endif
+
 namespace bpp {
+
+std::string demangle (const char * name) {
+#if HAVE_DEMANGLING
+	int status{};
+	std::unique_ptr<char, void (*) (void *)> res{
+	    abi::__cxa_demangle (name, nullptr, nullptr, &status), std::free};
+	return status == 0 ? res.get () : name;
+#else
+	return name;
+#endif
+}
+
 namespace Topology {
 	void debugTree (std::ostream & os, const Tree & tree) {
 		os << "digraph {\n";
@@ -72,8 +91,32 @@ namespace Topology {
 	}
 }
 namespace DF {
-	static std::size_t debugKey (const Node::Impl * p) { return std::hash<const Node::Impl *>{}(p); }
-	static std::size_t debugKey (const RegistryKey & key) { return key.hashCode (); }
+	// Dot node key: hash code reduced to a short
+	static std::string dotNodeKey (char type, std::size_t hash) {
+		return type + std::to_string (std::uint16_t (hash));
+	}
+	static std::string dotNodeKey (const Node::Impl * p) {
+		return dotNodeKey ('N', std::hash<const Node::Impl *>{}(p));
+	}
+	static std::string dotNodeKey (const RegistryKey & key) {
+		return dotNodeKey ('R', key.hashCode ());
+	}
+
+	static std::string dotLabelEscape (std::string s) {
+		// Escapes characters in a record type dot node label.
+		const char toEscape[] = "<>|{} ";
+		std::string result;
+		for (auto c : s) {
+			if (std::any_of (std::begin (toEscape), std::end (toEscape),
+			                 [c](char c2) { return c == c2; }))
+				result.push_back ('\\');
+			result.push_back (c);
+		}
+		return result;
+	}
+	static std::string typeToDotLabel (const std::type_index & type) {
+		return dotLabelEscape (demangle (type.name ()));
+	}
 
 	static void debugDagStructure (std::ostream & os, const Node & entryPoint) {
 		std::queue<const Node::Impl *> nodesToVisit;
@@ -82,21 +125,21 @@ namespace DF {
 		nodesToVisit.emplace (&entryPoint.getImpl ());
 		while (!nodesToVisit.empty ()) {
 			auto node = nodesToVisit.front ();
-			os << '\t' << debugKey (node) << " [shape=record,label=\"" << debugKey (node) << '|'
-			   << typeid (*node).name () << "\"];\n";
+			os << '\t' << dotNodeKey (node) << " [shape=record,label=\"" << dotNodeKey (node) << '|'
+			   << typeToDotLabel (typeid (*node)) << "\"];\n";
 			nodesAlreadyVisited.emplace (node);
 			nodesToVisit.pop ();
 
 			node->foreachDependentNode ([&](const Node::Impl * p) {
 				if (nodesAlreadyVisited.count (p))
 					return;
-				os << '\t' << debugKey (p) << " -> " << debugKey (node) << ";\n";
+				os << '\t' << dotNodeKey (p) << " -> " << dotNodeKey (node) << ";\n";
 				nodesToVisit.emplace (p);
 			});
 			node->foreachDependencyNode ([&](const Node::Impl * p) {
 				if (nodesAlreadyVisited.count (p))
 					return;
-				os << '\t' << debugKey (node) << " -> " << debugKey (p) << ";\n";
+				os << '\t' << dotNodeKey (node) << " -> " << dotNodeKey (p) << ";\n";
 				nodesToVisit.emplace (p);
 			});
 		}
@@ -105,14 +148,14 @@ namespace DF {
 	static void debugRegistryLinks (std::ostream & os, const Registry & registry) {
 		for (auto & it : registry.rawAccess ()) {
 			auto & key = it.first;
-			os << '\t' << debugKey (key) << " [shape=record,label=\"{" << debugKey (key) << "|{";
-			os << key.operation ().name () << '|';
+			os << '\t' << dotNodeKey (key) << " [shape=Mrecord,label=\"{" << dotNodeKey (key) << "|{";
+			os << typeToDotLabel (key.operation ()) << '|';
 			if (key.element ().type () == bpp::Topology::Element::Node)
 				os << 'N' << key.element ().asNodeRef ().nodeId ();
 			else
 				os << 'B' << key.element ().asBranchRef ().childNodeId ();
 			os << "}}\"];\n";
-			os << '\t' << debugKey (key) << " -> " << debugKey (&it.second.getImpl ()) << ";\n";
+			os << '\t' << dotNodeKey (key) << " -> " << dotNodeKey (&it.second.getImpl ()) << ";\n";
 		}
 	}
 

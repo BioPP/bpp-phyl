@@ -44,17 +44,27 @@
 #define BPP_NEWPHYL_DEBUG_H
 
 #include <iosfwd>
+#include <string>
 
 namespace bpp {
+// Demangle a C++ symbol name
+std::string demangle (const char * name);
+
 namespace Topology {
 	class Tree;
+
+	// Output a dot format graph representing the tree
 	void debugTree (std::ostream & os, const Tree & tree);
 }
 namespace DF {
 	class Node;
-  class Registry;
+	class Registry;
+
+	// Output a dot format graph representing the dataflow dag
 	void debugDag (std::ostream & os, const Node & entryPoint);
-  void debugRegistry (std::ostream & os, const Registry & registry);
+
+	// Outputs debugDag + registry pointers to dataflow dag
+	void debugRegistry (std::ostream & os, const Registry & registry);
 }
 }
 
