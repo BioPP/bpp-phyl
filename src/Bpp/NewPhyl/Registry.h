@@ -72,6 +72,9 @@ namespace DF {
 			std::size_t operator() (const RegistryKey & key) const noexcept { return key.hashCode (); }
 		};
 
+		const Topology::Element & element () const { return treeElement_; }
+		const std::type_index & operation () const { return operationType_; }
+
 	private:
 		Topology::Element treeElement_;
 		std::type_index operationType_;
@@ -90,6 +93,10 @@ namespace DF {
 		template <typename T, typename F>
 		Node node (const Topology::Element & element, F && createIfNotFound) {
 			return node (RegistryKey (element, typeid (T)), std::forward<F> (createIfNotFound));
+		}
+
+		const std::unordered_map<RegistryKey, Node, RegistryKey::Hash> & rawAccess () const {
+			return dataflowNodes_;
 		}
 
 	private:

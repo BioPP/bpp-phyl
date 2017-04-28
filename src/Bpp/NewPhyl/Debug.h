@@ -52,8 +52,9 @@ namespace Topology {
 }
 namespace DF {
 	class Node;
-	void debugDagStructure (std::ostream & os, const Node & entryPoint);
+  class Registry;
 	void debugDag (std::ostream & os, const Node & entryPoint);
+  void debugRegistry (std::ostream & os, const Registry & registry);
 }
 }
 

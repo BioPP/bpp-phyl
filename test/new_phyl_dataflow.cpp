@@ -120,8 +120,8 @@ TEST_CASE("test")
   auto b = Parameter<int>::create(42);
 
   DataSet ds;
-  ds.emplace("A", a);
-  ds.emplace("B", b);
+  ds.emplace("A", Node(a));
+  ds.emplace("B", Node(b));
 
   Registry registry;
 
@@ -133,5 +133,5 @@ TEST_CASE("test")
   Value<int> partialSum{Sum::build(registry, tree.nodeRef(0), ds)};
 
   std::ofstream file("df_debug");
-  bpp::DF::debugDag(file, Node(sum));
+  bpp::DF::debugRegistry(file, registry);
 }

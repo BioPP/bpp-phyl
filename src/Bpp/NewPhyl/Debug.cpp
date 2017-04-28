@@ -40,9 +40,11 @@
 */
 
 #include <Bpp/NewPhyl/DataFlow.h>
+#include <Bpp/NewPhyl/Registry.h>
 #include <Bpp/NewPhyl/Topology.h>
 #include <ostream>
 #include <queue>
+#include <string>
 #include <typeinfo>
 #include <unordered_set>
 
@@ -70,17 +72,17 @@ namespace Topology {
 	}
 }
 namespace DF {
+	static std::size_t debugKey (const Node::Impl * p) { return std::hash<const Node::Impl *>{}(p); }
+	static std::size_t debugKey (const RegistryKey & key) { return key.hashCode (); }
 
-	static std::uintptr_t debugFormat (const Node::Impl * p) noexcept { return std::uintptr_t (p); }
-
-	void debugDagStructure (std::ostream & os, const Node & entryPoint) {
+	static void debugDagStructure (std::ostream & os, const Node & entryPoint) {
 		std::queue<const Node::Impl *> nodesToVisit;
 		std::unordered_set<const Node::Impl *> nodesAlreadyVisited;
 
 		nodesToVisit.emplace (&entryPoint.getImpl ());
 		while (!nodesToVisit.empty ()) {
 			auto node = nodesToVisit.front ();
-			os << '\t' << debugFormat (node) << " [shape=box,label=\"" << debugFormat (node) << '-'
+			os << '\t' << debugKey (node) << " [shape=record,label=\"" << debugKey (node) << '|'
 			   << typeid (*node).name () << "\"];\n";
 			nodesAlreadyVisited.emplace (node);
 			nodesToVisit.pop ();
@@ -88,20 +90,43 @@ namespace DF {
 			node->foreachDependentNode ([&](const Node::Impl * p) {
 				if (nodesAlreadyVisited.count (p))
 					return;
-				os << '\t' << debugFormat (p) << " -> " << debugFormat (node) << ";\n";
+				os << '\t' << debugKey (p) << " -> " << debugKey (node) << ";\n";
 				nodesToVisit.emplace (p);
 			});
 			node->foreachDependencyNode ([&](const Node::Impl * p) {
 				if (nodesAlreadyVisited.count (p))
 					return;
-				os << '\t' << debugFormat (node) << " -> " << debugFormat (p) << ";\n";
+				os << '\t' << debugKey (node) << " -> " << debugKey (p) << ";\n";
 				nodesToVisit.emplace (p);
 			});
 		}
 	}
+
+	static void debugRegistryLinks (std::ostream & os, const Registry & registry) {
+		for (auto & it : registry.rawAccess ()) {
+			auto & key = it.first;
+			os << '\t' << debugKey (key) << " [shape=record,label=\"{" << debugKey (key) << "|{";
+			os << key.operation ().name () << '|';
+			if (key.element ().type () == bpp::Topology::Element::Node)
+				os << 'N' << key.element ().asNodeRef ().nodeId ();
+			else
+				os << 'B' << key.element ().asBranchRef ().childNodeId ();
+			os << "}}\"];\n";
+			os << '\t' << debugKey (key) << " -> " << debugKey (&it.second.getImpl ()) << ";\n";
+		}
+	}
+
 	void debugDag (std::ostream & os, const Node & entryPoint) {
 		os << "digraph {\n";
 		debugDagStructure (os, entryPoint);
+		os << "}\n";
+	}
+	void debugRegistry (std::ostream & os, const Registry & registry) {
+		os << "digraph {\n";
+		if (!registry.rawAccess ().empty ()) {
+			debugDagStructure (os, registry.rawAccess ().begin ()->second);
+			debugRegistryLinks (os, registry);
+		}
 		os << "}\n";
 	}
 }
