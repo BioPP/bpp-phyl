@@ -54,6 +54,7 @@
 
 namespace bpp {
 namespace DF {
+	// TODO automatise value type class generation
 
 	/* Base Node.
 	 */
@@ -73,7 +74,7 @@ namespace DF {
 			return Node (std::make_shared<T> (std::forward<Args> (args)...));
 		}
 
-		Ref get () const noexcept { return *pImpl_; }
+		Ref getImpl () const noexcept { return *pImpl_; }
 
 	private:
 		explicit Node (std::shared_ptr<Impl> p) noexcept : pImpl_ (std::move (p)) {}
@@ -115,7 +116,7 @@ namespace DF {
 		}
 		template <typename F> void foreachDependencyNode (F f) const {
 			for (auto & p : dependencyNodes_)
-				f (&p.get ());
+				f (&p.getImpl ());
 		}
 
 	protected:
@@ -150,7 +151,7 @@ namespace DF {
 			return Value (std::make_shared<U> (std::forward<Args> (args)...));
 		}
 
-		Ref get () const noexcept { return *pImpl_; }
+		Ref getImpl () const noexcept { return *pImpl_; }
 		const T & getValue () noexcept { return pImpl_->getValue (); }
 
 	private:
@@ -193,7 +194,7 @@ namespace DF {
 			return Parameter (std::make_shared<Impl> (std::forward<Args> (args)...));
 		}
 
-		Ref get () const noexcept { return *pImpl_; }
+		Ref getImpl () const noexcept { return *pImpl_; }
 		const T & getValue () noexcept { return pImpl_->getValue (); }
 		void setValue (T t) noexcept { pImpl_->setValue (std::move (t)); }
 

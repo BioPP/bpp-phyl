@@ -54,7 +54,7 @@ namespace DF {
 		std::queue<const Node::Impl *> nodesToVisit;
 		std::unordered_set<const Node::Impl *> nodesAlreadyVisited;
 
-		nodesToVisit.emplace (&entryPoint.get ());
+		nodesToVisit.emplace (&entryPoint.getImpl ());
 		while (!nodesToVisit.empty ()) {
 			auto node = nodesToVisit.front ();
 			os << '\t' << debugFormat (node) << " [shape=box,label=\"" << debugFormat (node) << '-'

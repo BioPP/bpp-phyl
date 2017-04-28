@@ -54,8 +54,9 @@ using bpp::DF::Node;
 using bpp::DF::Value;
 using bpp::DF::Parameter;
 using bpp::DF::Registry;
+using bpp::Topology::Element;
 
-using DataSet = std::unordered_map<std::string, Value<int>>;
+using DataSet = std::unordered_map<std::string, Node>;
 
 struct Sum : public Value<int>::Impl
 {
@@ -70,8 +71,29 @@ struct Sum : public Value<int>::Impl
 
   void addDep(Node n)
   {
-    n.get().registerNode(this);
+    n.getImpl().registerNode(this);
     dependencyNodes_.emplace_back(std::move(n));
+  }
+
+  static Node build(Registry& registry, const Element& element, const DataSet& ds)
+  {
+    return registry.node<Sum>(element, [&] {
+      auto& phyloNode = element.asNodeRef();
+      auto dfNode = Node::create<Sum>();
+      auto& sumNode = static_cast<Sum&>(dfNode.getImpl());
+      if (phyloNode.nbChildBranches() > 0)
+      {
+        // Internal node
+        for (bpp::Topology::IndexType i = 0; i < phyloNode.nbChildBranches(); ++i)
+          sumNode.addDep(build(registry, phyloNode.childBranch(i).childNode(), ds));
+      }
+      else
+      {
+        // Leaf
+        sumNode.addDep(ds.at(phyloNode.name()));
+      }
+      return dfNode;
+    });
   }
 };
 
@@ -88,36 +110,27 @@ TEST_CASE("test")
     bpp::Topology::debugTree(file, tree);
 
     auto e = tree.nodeRef(c);
-    auto e2 = bpp::Topology::Element (e.asNodeRef().fatherBranch().childNode());
-    CHECK (e == e2);
-    CHECK (e.hashCode () == e2.hashCode ());
+    auto e2 = bpp::Topology::Element(e.asNodeRef().fatherBranch().childNode());
+    CHECK(e == e2);
+    CHECK(e.hashCode() == e2.hashCode());
   }
 
-  auto a = Parameter<int>::create (3);
-  auto b = Parameter<int>::create (42);
+  auto a = Parameter<int>::create(3);
+  auto b = Parameter<int>::create(42);
 
   DataSet ds;
-  //ds.emplace ("A", a);
+  ds.emplace("A", a);
+  ds.emplace("B", b);
 
-  CHECK (a.getValue() == 3);
+  Registry registry;
+
+  Value<int> sum{Sum::build(registry, tree.nodeRef(tree.rootId()), ds)};
+  CHECK(sum.getValue() == 45);
   a.setValue(-42);
-  CHECK (a.getValue() == -42);
+  CHECK(sum.getValue() == 0);
 
-  std::cout << "cast tests\n";
-  auto z = Node::create<Sum> ();
-  auto y = z;
-  Value<int> x {y};
-  Value<int> w {x};
+  Value<int> partialSum{Sum::build(registry, tree.nodeRef(0), ds)};
 
- // auto a = Node::create<A>(1);
- // auto b = Node::create<A>(2);
- // auto c = Node::create<A>(3);
- // auto d = Node::create<A>(4);
- // dynamic_cast<A&>(a.get()).addDep(b);
- // dynamic_cast<A&>(a.get()).addDep(c);
- // dynamic_cast<A&>(d.get()).addDep(a);
- // Value<int> v(d);
- // CHECK(v.getValue() == 10);
- // std::ofstream file("df_debug");
- // bpp::DF::debugDag(file, a);
+  std::ofstream file("df_debug");
+  bpp::DF::debugDag(file, Node(sum));
 }

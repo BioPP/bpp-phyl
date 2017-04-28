@@ -47,6 +47,7 @@
 #include <Bpp/NewPhyl/Topology.h>
 #include <typeindex>
 #include <unordered_map>
+#include <utility>
 
 namespace bpp {
 namespace DF {
@@ -78,6 +79,19 @@ namespace DF {
 
 	class Registry {
 	public:
+		template <typename F> Node node (const RegistryKey & key, F && createIfNotFound) {
+			auto it = dataflowNodes_.find (key);
+			if (it != dataflowNodes_.end ())
+				return it->second;
+			auto node = std::forward<F> (createIfNotFound) ();
+			dataflowNodes_.emplace (key, node);
+			return std::move (node);
+		}
+		template <typename T, typename F>
+		Node node (const Topology::Element & element, F && createIfNotFound) {
+			return node (RegistryKey (element, typeid (T)), std::forward<F> (createIfNotFound));
+		}
+
 	private:
 		std::unordered_map<RegistryKey, Node, RegistryKey::Hash> dataflowNodes_;
 	};
