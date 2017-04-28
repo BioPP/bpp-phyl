@@ -1,9 +1,9 @@
 //
-// File: DataFlow.cpp
+// File: Debug.cpp
 // Authors:
 //   Francois Gindraud (2017)
-// Created: 2017-04-19
-// Last modified: 2017-04-19
+// Created: 2017-04-28 00:00:00
+// Last modified: 2017-04-28
 //
 
 /*
@@ -40,12 +40,35 @@
 */
 
 #include <Bpp/NewPhyl/DataFlow.h>
+#include <Bpp/NewPhyl/Topology.h>
 #include <ostream>
 #include <queue>
 #include <typeinfo>
 #include <unordered_set>
 
 namespace bpp {
+namespace Topology {
+	void debugTree (std::ostream & os, const Tree & tree) {
+		os << "digraph {\n";
+
+		std::queue<IndexType> nodesToVisit;
+		if (tree.rootId () != invalid)
+			nodesToVisit.emplace (tree.rootId ());
+
+		while (!nodesToVisit.empty ()) {
+			auto nodeId = nodesToVisit.front ();
+			nodesToVisit.pop ();
+			auto & node = tree.node (nodeId);
+			os << '\t' << nodeId << " [shape=box,label=\"" << nodeId << '-' << node.nodeName_ << "\"];\n";
+			for (auto childId : node.childrenIds_) {
+				nodesToVisit.emplace (childId);
+				os << '\t' << nodeId << " -> " << childId << ";\n";
+			}
+		}
+
+		os << "}\n";
+	}
+}
 namespace DF {
 
 	static std::uintptr_t debugFormat (const Node::Impl * p) noexcept { return std::uintptr_t (p); }

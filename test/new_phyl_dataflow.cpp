@@ -43,6 +43,7 @@
 #include "doctest.h"
 
 #include <Bpp/NewPhyl/DataFlow.h>
+#include <Bpp/NewPhyl/Debug.h>
 #include <Bpp/NewPhyl/Registry.h>
 #include <Bpp/NewPhyl/Topology.h>
 

@@ -44,13 +44,10 @@
 #define BPP_NEWPHYL_DATAFLOW_H
 
 #include <algorithm>
-#include <iosfwd>
 #include <memory>
 #include <typeinfo> // std::bad_cast
 #include <utility>
 #include <vector>
-
-#include <iostream>
 
 namespace bpp {
 namespace DF {
@@ -129,9 +126,6 @@ namespace DF {
 	private:
 		bool isValid_{false};
 	};
-
-	void debugDagStructure (std::ostream & os, const Node & entryPoint);
-	void debugDag (std::ostream & os, const Node & entryPoint);
 
 	/* Valued node.
 	 */

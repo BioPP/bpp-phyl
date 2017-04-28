@@ -1,9 +1,9 @@
 //
-// File: Topology.cpp
+// File: Debug.h
 // Authors:
 //   Francois Gindraud (2017)
-// Created: 2017-04-27
-// Last modified: 2017-04-27
+// Created: 2017-04-28
+// Last modified: 2017-04-28
 //
 
 /*
@@ -39,31 +39,22 @@
   knowledge of the CeCILL license and that you accept its terms.
 */
 
-#include <Bpp/NewPhyl/Topology.h>
-#include <ostream>
-#include <queue>
+#pragma once
+#ifndef BPP_NEWPHYL_DEBUG_H
+#define BPP_NEWPHYL_DEBUG_H
+
+#include <iosfwd>
 
 namespace bpp {
 namespace Topology {
-	void debugTree (std::ostream & os, const Tree & tree) {
-		os << "digraph {\n";
-
-		std::queue<IndexType> nodesToVisit;
-		if (tree.rootId () != invalid)
-			nodesToVisit.emplace (tree.rootId ());
-
-		while (!nodesToVisit.empty ()) {
-			auto nodeId = nodesToVisit.front ();
-			nodesToVisit.pop ();
-			auto & node = tree.node (nodeId);
-			os << '\t' << nodeId << " [shape=box,label=\"" << nodeId << '-' << node.nodeName_ << "\"];\n";
-			for (auto childId : node.childrenIds_) {
-				nodesToVisit.emplace (childId);
-				os << '\t' << nodeId << " -> " << childId << ";\n";
-			}
-		}
-
-		os << "}\n";
-	}
+	class Tree;
+	void debugTree (std::ostream & os, const Tree & tree);
+}
+namespace DF {
+	class Node;
+	void debugDagStructure (std::ostream & os, const Node & entryPoint);
+	void debugDag (std::ostream & os, const Node & entryPoint);
 }
 }
+
+#endif // BPP_NEWPHYL_DEBUG_H

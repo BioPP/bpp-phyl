@@ -44,7 +44,6 @@
 #define BPP_NEWPHYL_TOPOLOGY_H
 
 #include <functional> // std::hash
-#include <iosfwd>
 #include <limits>
 #include <stdexcept> // std::runtime_error
 #include <string>
@@ -108,8 +107,6 @@ namespace Topology {
 		IndexType rootId_{invalid};
 		std::vector<Node> nodes_{};
 	};
-
-	void debugTree (std::ostream & os, const Tree & tree);
 
 	/* NodeRef and BranchRef.
 	 * Kind of iterators on the tree, allow to inspect structure.
