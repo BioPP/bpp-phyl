@@ -216,7 +216,7 @@ namespace Topology {
 				return asBranchRef () == element.asBranchRef ();
 		}
 		std::size_t hashCode () const noexcept {
-			auto a = std::hash<Type>{}(type_);
+			auto a = std::hash<int>{}(int(type_));
 			auto b = type_ == Node ? asNodeRef ().hashCode () : asBranchRef ().hashCode ();
 			return a ^ (b << 1);
 		}
