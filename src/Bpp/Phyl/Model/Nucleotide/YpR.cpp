@@ -294,7 +294,7 @@ void YpR::updateMatrices(double CgT, double cGA,
         min = generator_(i, i);
     }
 
-    MatrixTools::scale(generator_, -1 / min);
+    setScale(-1 / min);
 
     MatrixTools::getId(36, tmpMat_);    // to compute the equilibrium frequency  (Q+Id)^256
 
@@ -331,16 +331,19 @@ void YpR::updateMatrices(double CgT, double cGA,
     }
   }
 
-  MatrixTools::scale(generator_, 1 / x);
+  setScale(1 / x);
 
+  if (isScalable())
+  {
+    for (i = 0; i < 36; i++)
+    {
+      eigenValues_[i] /= x;
+      iEigenValues_[i] /= x;
+    }
+  }
+  
   if (!isNonSingular_)
     MatrixTools::Taylor(generator_, 30, vPowGen_);
-
-  for (i = 0; i < 36; i++)
-  {
-    eigenValues_[i] /= x;
-    iEigenValues_[i] /= x;
-  }
 
   // and the exchangeability_
   for (i = 0; i < size_; i++)

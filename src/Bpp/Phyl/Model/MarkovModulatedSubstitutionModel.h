@@ -251,6 +251,22 @@ namespace bpp
 
     void setRate(double rate) { model_->setRate(rate); }
 
+    bool isScalable() const 
+    {
+      return model_->isScalable();
+    }
+
+    void setScalable(bool scalable)
+    {
+      model_->setScalable(scalable);
+    }
+
+    void normalize()
+    {
+      model_->normalize();
+      updateMatrices();
+    }
+    
     double getScale() const
     {
       std::vector<double> v;

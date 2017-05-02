@@ -220,9 +220,7 @@ namespace bpp
       bool suffixIsOptional = true,
       bool verbose = true,
       int warn = 1) throw (Exception);
-  
-  
-
+    
     /*
      * @brief The same as before, but with several models.
      *

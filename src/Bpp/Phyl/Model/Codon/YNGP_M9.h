@@ -1,11 +1,11 @@
 //
-// File: YNGKP_M1.h
+// File: YNGP_M9.h
 // Created by: Laurent Gueguen
 // Created on: May 2010
 //
 
 /*
-Copyright or © or Copr. Bio++ Development Team, (November 16, 2004)
+Copyright or © or Copr. CNRS, (November 16, 2004)
 
 This software is a computer program whose purpose is to provide classes
 for phylogenetic data analysis.
@@ -37,8 +37,8 @@ The fact that you are presently reading this means that you have had
 knowledge of the CeCILL license and that you accept its terms.
 */
 
-#ifndef _YNGKP_M1_H_
-#define _YNGKP_M1_H_
+#ifndef _YNGP_M9_H_
+#define _YNGP_M9_H_
 
 #include "../AbstractBiblioMixedSubstitutionModel.h"
 #include "../MixtureOfASubstitutionModel.h"
@@ -50,57 +50,57 @@ namespace bpp
 {
 
 /**
- * @brief The Yang et al (2000) M1 substitution model for codons, with
- * the more realistic modification in Wong & al (2004).
+ * @brief The Yang et al (2000) M9 substitution model for codons.
  * @author Laurent Guéguen
  *
  * This model is a mixture of models as described in YN98 class, the
- * mixture being defined on the selection parameter to allow it to
- * vary among sites. A site is either negatively selected @f$ 0 <
- * \omega_0 < 1 @f$ (with probability @f$p_0 @f$), or neutral (@f$
- * \omega_1 = 1 @f$) with probability @f$1-p_0 @f$.
+ * mixture being defined on the selection parameter oomega to allow it
+ * to vary among sites, following a mixture of a Beta distribution and
+ * of a Gamma distribution.
  *
- * The synonymous rates must be the same between both models, so the
- * overall rates of the models are modified to respect this constraint
- * and such that the mean rate of the mixed model equals one.
- *
- * This model includes 3 parameters (@f$\kappa@f$, @f$ p0 @f$ and
- * @f$\omega@f$). The codon frequencies @f$\pi_j@f$ are either
- * observed or infered.
+ * This model includes 5 parameters (@f$\kappa@f$, @f$ p @f$ and
+ * @f$q@f$ of the @f$ Beta(p,q) @f$ distribution, @f$ \alpha @f$ and
+ * @f$\beta@f$ of the @f$ Gamma(\alpha,\beta) @f$
+ * distribution,@f$p0@f$ the weight of the Beta distribution. The
+ * codon frequencies @f$ \pi_j @f$ are either observed or infered.
  *
  * References:
  *
  * Yang, Z., R. Nielsen, N. Goldman, and A.-M. K. Pedersen (2000)
  * Genetics 155:431-449.
  * 
- * Wong, W. S. W., Z. Yang, N. Goldman, and R. Nielsen. (2004)
- * Genetics 168:1041--1051.
  */
-class YNGKP_M1:
+class YNGP_M9:
     public AbstractBiblioMixedSubstitutionModel,
     virtual public ReversibleSubstitutionModel
 {
 private:
   std::unique_ptr<MixtureOfASubstitutionModel> pmixmodel_;
 
-
   /**
-   * @brief indexes of 2 codons states between which the substitution is
+   * @brief indexes of 2 codons between which the substitution is
    * synonymous, to set a basis to the homogeneization of the rates.
-   *
    */
   size_t synfrom_, synto_;
+
+  unsigned int nBeta_, nGamma_;
   
 public:
-  YNGKP_M1(const GeneticCode* gc, FrequenciesSet* codonFreqs);
-
-  virtual ~YNGKP_M1();
+  /*
+   *@brief Constructor that requires the number of classes of the
+   * BetaDiscreteDistribution and the GammaDiscreteDistribution.
+   *
+   */
   
-  YNGKP_M1* clone() const { return new YNGKP_M1(*this); }
+  YNGP_M9(const GeneticCode* gc, FrequenciesSet* codonFreqs, unsigned int nbBeta, unsigned int nbGamma);
 
-  YNGKP_M1(const YNGKP_M1&);
+  ~YNGP_M9();
+  
+  YNGP_M9* clone() const { return new YNGP_M9(*this); }
 
-  YNGKP_M1& operator=(const YNGKP_M1&);
+  YNGP_M9(const YNGP_M9&);
+
+  YNGP_M9& operator=(const YNGP_M9&);
 
 protected:
   void updateMatrices();
@@ -110,11 +110,21 @@ public:
 
   const MixedSubstitutionModel& getMixedModel() const { return *pmixmodel_.get(); }
 
-  std::string getName() const { return "YNGKP_M1"; }
+  std::string getName() const { return "YNGP_M9"; }
 
+  unsigned int getNBeta() const 
+  {
+    return nBeta_;
+  }
+  
+  unsigned int getNGamma() const 
+  {
+    return nGamma_;
+  }
+  
 private:
   SubstitutionModel& getModel() { return *pmixmodel_.get(); }
-  
+
   MixedSubstitutionModel& getMixedModel() { return *pmixmodel_.get(); }
 
   const FrequenciesSet* getFrequenciesSet() const {return pmixmodel_->getNModel(1)->getFrequenciesSet();}
@@ -122,5 +132,5 @@ private:
 
 } //end of namespace bpp.
 
-#endif	//_YNGKP_M1_H_
+#endif	//_YNGP_M9_H_
 

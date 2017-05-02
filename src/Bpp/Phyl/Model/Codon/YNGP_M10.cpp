@@ -1,5 +1,5 @@
 //
-// File: YNGKP_M9.cpp
+// File: YNGP_M10.cpp
 // Created by:  Laurent Gueguen
 // Created on: lundi 15 décembre 2014, à 15h 21
 //
@@ -36,7 +36,7 @@
    knowledge of the CeCILL license and that you accept its terms.
  */
 
-#include "YNGKP_M9.h"
+#include "YNGP_M10.h"
 #include "YN98.h"
 
 #include <Bpp/Numeric/Prob/MixtureOfDiscreteDistributions.h>
@@ -50,8 +50,8 @@ using namespace std;
 
 /******************************************************************************/
 
-YNGKP_M9::YNGKP_M9(const GeneticCode* gc, FrequenciesSet* codonFreqs, unsigned int nbBeta, unsigned int nbGamma) :
-  AbstractBiblioMixedSubstitutionModel("YNGKP_M9."),
+YNGP_M10::YNGP_M10(const GeneticCode* gc, FrequenciesSet* codonFreqs, unsigned int nbBeta, unsigned int nbGamma) :
+  AbstractBiblioMixedSubstitutionModel("YNGP_M10."),
   pmixmodel_(),
   synfrom_(),
   synto_(),
@@ -59,14 +59,14 @@ YNGKP_M9::YNGKP_M9(const GeneticCode* gc, FrequenciesSet* codonFreqs, unsigned i
   nGamma_(nbGamma)
 {
   if (nbBeta <= 0)
-    throw Exception("Bad number of classes for beta distribution of model YNGKP_M9: " + TextTools::toString(nbBeta));
+    throw Exception("Bad number of classes for beta distribution of model YNGP_M10: " + TextTools::toString(nbBeta));
   if (nbGamma <= 0)
-    throw Exception("Bad number of classes for gamma distribution of model YNGKP_M9: " + TextTools::toString(nbGamma));
+    throw Exception("Bad number of classes for gamma distribution of model YNGP_M10: " + TextTools::toString(nbGamma));
 
   // build the submodel
 
   BetaDiscreteDistribution* pbdd = new BetaDiscreteDistribution(nbBeta, 2, 2);
-  GammaDiscreteDistribution* pgdd = new GammaDiscreteDistribution(nbGamma, 1, 1);
+  GammaDiscreteDistribution* pgdd = new GammaDiscreteDistribution(nbGamma, 1, 1, 0.05, 0.05, false, 1);
 
   vector<DiscreteDistribution*> v_distr;
   v_distr.push_back(pbdd); v_distr.push_back(pgdd);
@@ -79,13 +79,11 @@ YNGKP_M9::YNGKP_M9(const GeneticCode* gc, FrequenciesSet* codonFreqs, unsigned i
   mpdd["omega"] = pmodd;
 
   YN98* yn98 = new YN98(gc, codonFreqs);
-  yn98->setNamespace("YNGKP_M9.");
+
   pmixmodel_.reset(new MixtureOfASubstitutionModel(gc->getSourceAlphabet(), yn98, mpdd));
   delete pbdd;
   delete pgdd;
 
-  pmixmodel_->setNamespace("YNGKP_M9.");
-  
   vector<int> supportedChars = yn98->getAlphabetStates();
 
   // mapping the parameters
@@ -100,15 +98,15 @@ YNGKP_M9::YNGKP_M9(const GeneticCode* gc, FrequenciesSet* codonFreqs, unsigned i
 
   for (size_t i = 0; i < v.size(); i++)
   {
-    mapParNamesFromPmodel_[v[i]] = getParameterNameWithoutNamespace(v[i]);
+    mapParNamesFromPmodel_[v[i]] = v[i].substr(5);
   }
 
-  mapParNamesFromPmodel_["YNGKP_M9.kappa"] = "kappa";
-  mapParNamesFromPmodel_["YNGKP_M9.omega_Mixture.theta1"] = "p0";
-  mapParNamesFromPmodel_["YNGKP_M9.omega_Mixture.1_Beta.alpha"] = "p";
-  mapParNamesFromPmodel_["YNGKP_M9.omega_Mixture.1_Beta.beta"] = "q";
-  mapParNamesFromPmodel_["YNGKP_M9.omega_Mixture.2_Gamma.alpha"] = "alpha";
-  mapParNamesFromPmodel_["YNGKP_M9.omega_Mixture.2_Gamma.beta"] = "beta";
+  mapParNamesFromPmodel_["YN98.kappa"] = "kappa";
+  mapParNamesFromPmodel_["YN98.omega_Mixture.theta1"] = "p0";
+  mapParNamesFromPmodel_["YN98.omega_Mixture.1_Beta.alpha"] = "p";
+  mapParNamesFromPmodel_["YN98.omega_Mixture.1_Beta.beta"] = "q";
+  mapParNamesFromPmodel_["YN98.omega_Mixture.2_Gamma.alpha"] = "alpha";
+  mapParNamesFromPmodel_["YN98.omega_Mixture.2_Gamma.beta"] = "beta";
 
   // specific parameters
 
@@ -116,7 +114,7 @@ YNGKP_M9::YNGKP_M9(const GeneticCode* gc, FrequenciesSet* codonFreqs, unsigned i
   for (map<string, string>::iterator it = mapParNamesFromPmodel_.begin(); it != mapParNamesFromPmodel_.end(); it++)
   {
     st = pmixmodel_->getParameterNameWithoutNamespace(it->first);
-    addParameter_(new Parameter("YNGKP_M9." + it->second, pmixmodel_->getParameterValue(st),
+    addParameter_(new Parameter("YNGP_M10." + it->second, pmixmodel_->getParameterValue(st),
                                 pmixmodel_->getParameter(st).hasConstraint() ? pmixmodel_->getParameter(st).getConstraint()->clone() : 0, true));
   }
 
@@ -141,7 +139,7 @@ YNGKP_M9::YNGKP_M9(const GeneticCode* gc, FrequenciesSet* codonFreqs, unsigned i
   updateMatrices();
 }
 
-YNGKP_M9::YNGKP_M9(const YNGKP_M9& mod2) : AbstractBiblioMixedSubstitutionModel(mod2),
+YNGP_M10::YNGP_M10(const YNGP_M10& mod2) : AbstractBiblioMixedSubstitutionModel(mod2),
                                            pmixmodel_(new MixtureOfASubstitutionModel(*mod2.pmixmodel_)),
                                            synfrom_(mod2.synfrom_),
                                            synto_(mod2.synto_),
@@ -151,7 +149,7 @@ YNGKP_M9::YNGKP_M9(const YNGKP_M9& mod2) : AbstractBiblioMixedSubstitutionModel(
 {}
 
 
-YNGKP_M9& YNGKP_M9::operator=(const YNGKP_M9& mod2)
+YNGP_M10& YNGP_M10::operator=(const YNGP_M10& mod2)
 {
   AbstractBiblioMixedSubstitutionModel::operator=(mod2);
 
@@ -164,9 +162,9 @@ YNGKP_M9& YNGKP_M9::operator=(const YNGKP_M9& mod2)
   return *this;
 }
 
-YNGKP_M9::~YNGKP_M9() {}
+YNGP_M10::~YNGP_M10() {}
 
-void YNGKP_M9::updateMatrices()
+void YNGP_M10::updateMatrices()
 {
   AbstractBiblioSubstitutionModel::updateMatrices();
 

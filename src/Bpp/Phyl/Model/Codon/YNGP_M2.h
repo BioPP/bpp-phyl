@@ -1,5 +1,5 @@
 //
-// File: YNGKP_M2.h
+// File: YNGP_M2.h
 // Created by: Laurent Gueguen
 // Created on: May 2010
 //
@@ -37,8 +37,8 @@ The fact that you are presently reading this means that you have had
 knowledge of the CeCILL license and that you accept its terms.
 */
 
-#ifndef _YNGKP_M2_H_
-#define _YNGKP_M2_H_
+#ifndef _YNGP_M2_H_
+#define _YNGP_M2_H_
 
 #include "../AbstractBiblioMixedSubstitutionModel.h"
 #include "../MixtureOfASubstitutionModel.h"
@@ -72,7 +72,7 @@ namespace bpp
  * Wong, W. S. W., Z. Yang, N. Goldman, and R. Nielsen. (2004)
  * Genetics 168:1041--1051.
  */
-class YNGKP_M2:
+class YNGP_M2:
     public AbstractBiblioMixedSubstitutionModel,
     virtual public ReversibleSubstitutionModel
 {
@@ -86,15 +86,15 @@ private:
   size_t synfrom_, synto_;
   
 public:
-  YNGKP_M2(const GeneticCode* gc, FrequenciesSet* codonFreqs);
+  YNGP_M2(const GeneticCode* gc, FrequenciesSet* codonFreqs);
 
-  virtual ~YNGKP_M2();
+  virtual ~YNGP_M2();
   
-  YNGKP_M2* clone() const { return new YNGKP_M2(*this); }
+  YNGP_M2* clone() const { return new YNGP_M2(*this); }
 
-  YNGKP_M2(const YNGKP_M2&);
+  YNGP_M2(const YNGP_M2&);
 
-  YNGKP_M2& operator=(const YNGKP_M2&);
+  YNGP_M2& operator=(const YNGP_M2&);
 
 protected:
   void updateMatrices();
@@ -104,7 +104,7 @@ public:
 
   const MixedSubstitutionModel& getMixedModel() const { return *pmixmodel_.get(); }
 
-  std::string getName() const { return "YNGKP_M2"; }
+  std::string getName() const { return "YNGP_M2"; }
 
 private:
   SubstitutionModel& getModel() { return *pmixmodel_.get(); }
@@ -116,5 +116,5 @@ private:
 
 } //end of namespace bpp.
 
-#endif	//_YNGKP_M2_H_
+#endif	//_YNGP_M2_H_
 

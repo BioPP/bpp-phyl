@@ -129,13 +129,12 @@ void MarkovModulatedSubstitutionModel::updateMatrices()
   if (normalizeRateChanges_)
   {
     // Normalization:
-    Vdouble Tmp;
-    MatrixTools::diag(generator_, Tmp);
-    double scale = -VectorTools::scalar<double, double>(Tmp, freq_);
-    MatrixTools::scale(generator_, 1. / scale);
+    double scale = getScale();
+    setScale(1. / scale);
 
     // Normalize exchangeability matrix too:
-    MatrixTools::scale(exchangeability_, 1. / scale);
+    if (isScalable())
+      MatrixTools::scale(exchangeability_, 1. / scale);
   }
 
   // Compute eigen values and vectors:

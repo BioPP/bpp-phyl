@@ -221,7 +221,7 @@ void gBGC::updateMatrices()
           min = generator_(i, i);
       }
 
-      MatrixTools::scale(generator_, -1 / min);
+      setScale(-1 / min);
 
       if (vPowGen_.size() == 0)
         vPowGen_.resize(30);
@@ -240,19 +240,9 @@ void gBGC::updateMatrices()
 
     // mise a l'echelle
 
-    double x = 0;
-    for (i = 0; i < 4; i++)
-    {
-      x += freq_[i] * generator_(i, i);
-    }
+    normalize();
 
-    MatrixTools::scale(generator_, -1 / x);
-    for (i = 0; i < 4; i++)
-    {
-      eigenValues_[i] /= -x;
-      iEigenValues_[i] /= -x;
-    }
-
+    
     if (!isNonSingular_)
       MatrixTools::Taylor(generator_, 30, vPowGen_);
   }

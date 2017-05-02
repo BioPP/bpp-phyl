@@ -72,10 +72,7 @@ public:
    * @brief Build a new AbstractCodonCpGSubstitutionModel object from
    *  a pointer to NucleotideSubstitutionModel.
    *
-   * @param pdist optional pointer to a distance between amino-acids
    * @param prefix the Namespace
-   * @param paramSynRate is true iff synonymous rate is parametrised
-   *       (default=false).
    */
   AbstractCodonCpGSubstitutionModel(
     const std::string& prefix);

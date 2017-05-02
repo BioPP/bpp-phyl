@@ -1,7 +1,7 @@
 //
-// File: YNGKP_M8.cpp
+// File: YNGP_M9.cpp
 // Created by:  Laurent Gueguen
-// Created on: May 2010
+// Created on: lundi 15 décembre 2014, à 15h 21
 //
 
 /*
@@ -36,12 +36,12 @@
    knowledge of the CeCILL license and that you accept its terms.
  */
 
-#include "YNGKP_M8.h"
+#include "YNGP_M9.h"
 #include "YN98.h"
 
 #include <Bpp/Numeric/Prob/MixtureOfDiscreteDistributions.h>
-#include <Bpp/Numeric/Prob/SimpleDiscreteDistribution.h>
 #include <Bpp/Numeric/Prob/BetaDiscreteDistribution.h>
+#include <Bpp/Numeric/Prob/GammaDiscreteDistribution.h>
 #include <Bpp/Text/TextTools.h>
 
 using namespace bpp;
@@ -50,26 +50,28 @@ using namespace std;
 
 /******************************************************************************/
 
-YNGKP_M8::YNGKP_M8(const GeneticCode* gc, FrequenciesSet* codonFreqs, unsigned int nclass) :
-  AbstractBiblioMixedSubstitutionModel("YNGKP_M8."),
+YNGP_M9::YNGP_M9(const GeneticCode* gc, FrequenciesSet* codonFreqs, unsigned int nbBeta, unsigned int nbGamma) :
+  AbstractBiblioMixedSubstitutionModel("YNGP_M9."),
   pmixmodel_(),
   synfrom_(),
-  synto_()
+  synto_(),
+  nBeta_(nbBeta),
+  nGamma_(nbGamma)
 {
-  if (nclass <= 0)
-    throw Exception("Bad number of classes for model YNGKP_M8: " + TextTools::toString(nclass));
+  if (nbBeta <= 0)
+    throw Exception("Bad number of classes for beta distribution of model YNGP_M9: " + TextTools::toString(nbBeta));
+  if (nbGamma <= 0)
+    throw Exception("Bad number of classes for gamma distribution of model YNGP_M9: " + TextTools::toString(nbGamma));
 
   // build the submodel
 
-  BetaDiscreteDistribution* pbdd = new BetaDiscreteDistribution(nclass, 2, 2);
-
-  vector<double> val; val.push_back(2);
-  vector<double> prob; prob.push_back(1);
-  SimpleDiscreteDistribution* psdd = new SimpleDiscreteDistribution(val, prob);
+  BetaDiscreteDistribution* pbdd = new BetaDiscreteDistribution(nbBeta, 2, 2);
+  GammaDiscreteDistribution* pgdd = new GammaDiscreteDistribution(nbGamma, 1, 1);
 
   vector<DiscreteDistribution*> v_distr;
-  v_distr.push_back(pbdd); v_distr.push_back(psdd);
-  prob.clear(); prob.push_back(0.5); prob.push_back(0.5);
+  v_distr.push_back(pbdd); v_distr.push_back(pgdd);
+  vector<double> prob;
+  prob.push_back(0.5); prob.push_back(0.5);
 
   MixtureOfDiscreteDistributions* pmodd = new MixtureOfDiscreteDistributions(v_distr, prob);
 
@@ -77,15 +79,12 @@ YNGKP_M8::YNGKP_M8(const GeneticCode* gc, FrequenciesSet* codonFreqs, unsigned i
   mpdd["omega"] = pmodd;
 
   YN98* yn98 = new YN98(gc, codonFreqs);
-  yn98->setNamespace("YNGKP_M8.");
-
   pmixmodel_.reset(new MixtureOfASubstitutionModel(gc->getSourceAlphabet(), yn98, mpdd));
   delete pbdd;
-
-  pmixmodel_->setNamespace("YNGKP_M8.");
+  delete pgdd;
 
   vector<int> supportedChars = yn98->getAlphabetStates();
-  
+
   // mapping the parameters
 
   ParameterList pl = pmixmodel_->getParameters();
@@ -98,14 +97,15 @@ YNGKP_M8::YNGKP_M8(const GeneticCode* gc, FrequenciesSet* codonFreqs, unsigned i
 
   for (size_t i = 0; i < v.size(); i++)
   {
-    mapParNamesFromPmodel_[v[i]] = getParameterNameWithoutNamespace(v[i]);
+    mapParNamesFromPmodel_[v[i]] = v[i].substr(5);
   }
 
-  mapParNamesFromPmodel_["YNGKP_M8.kappa"] = "kappa";
-  mapParNamesFromPmodel_["YNGKP_M8.omega_Mixture.theta1"] = "p0";
-  mapParNamesFromPmodel_["YNGKP_M8.omega_Mixture.1_Beta.alpha"] = "p";
-  mapParNamesFromPmodel_["YNGKP_M8.omega_Mixture.1_Beta.beta"] = "q";
-  mapParNamesFromPmodel_["YNGKP_M8.omega_Mixture.2_Simple.V1"] = "omegas";
+  mapParNamesFromPmodel_["YN98.kappa"] = "kappa";
+  mapParNamesFromPmodel_["YN98.omega_Mixture.theta1"] = "p0";
+  mapParNamesFromPmodel_["YN98.omega_Mixture.1_Beta.alpha"] = "p";
+  mapParNamesFromPmodel_["YN98.omega_Mixture.1_Beta.beta"] = "q";
+  mapParNamesFromPmodel_["YN98.omega_Mixture.2_Gamma.alpha"] = "alpha";
+  mapParNamesFromPmodel_["YN98.omega_Mixture.2_Gamma.beta"] = "beta";
 
   // specific parameters
 
@@ -113,12 +113,9 @@ YNGKP_M8::YNGKP_M8(const GeneticCode* gc, FrequenciesSet* codonFreqs, unsigned i
   for (map<string, string>::iterator it = mapParNamesFromPmodel_.begin(); it != mapParNamesFromPmodel_.end(); it++)
   {
     st = pmixmodel_->getParameterNameWithoutNamespace(it->first);
-    if (it->second != "omegas")
-      addParameter_(new Parameter("YNGKP_M8." + it->second, pmixmodel_->getParameterValue(st),
-                              pmixmodel_->getParameter(st).hasConstraint() ? pmixmodel_->getParameter(st).getConstraint()->clone() : 0, true));
+    addParameter_(new Parameter("YNGP_M9." + it->second, pmixmodel_->getParameterValue(st),
+                                pmixmodel_->getParameter(st).hasConstraint() ? pmixmodel_->getParameter(st).getConstraint()->clone() : 0, true));
   }
-
-  addParameter_(new Parameter("YNGKP_M8.omegas", 2., new IntervalConstraint(1, 1, false), true));
 
   // look for synonymous codons
   for (synfrom_ = 1; synfrom_ < supportedChars.size(); synfrom_++)
@@ -141,26 +138,32 @@ YNGKP_M8::YNGKP_M8(const GeneticCode* gc, FrequenciesSet* codonFreqs, unsigned i
   updateMatrices();
 }
 
-YNGKP_M8::YNGKP_M8(const YNGKP_M8& mod2) : AbstractBiblioMixedSubstitutionModel(mod2),
-  pmixmodel_(new MixtureOfASubstitutionModel(*mod2.pmixmodel_)),
-  synfrom_(mod2.synfrom_),
-  synto_(mod2.synto_)
+YNGP_M9::YNGP_M9(const YNGP_M9& mod2) : AbstractBiblioMixedSubstitutionModel(mod2),
+                                           pmixmodel_(new MixtureOfASubstitutionModel(*mod2.pmixmodel_)),
+                                           synfrom_(mod2.synfrom_),
+                                           synto_(mod2.synto_),
+                                           nBeta_(mod2.nBeta_),
+                                           nGamma_(mod2.nGamma_)
+
 {}
 
-YNGKP_M8& YNGKP_M8::operator=(const YNGKP_M8& mod2)
+
+YNGP_M9& YNGP_M9::operator=(const YNGP_M9& mod2)
 {
   AbstractBiblioMixedSubstitutionModel::operator=(mod2);
 
   pmixmodel_.reset(new MixtureOfASubstitutionModel(*mod2.pmixmodel_));
   synfrom_ = mod2.synfrom_;
   synto_ = mod2.synto_;
-
+  nBeta_ = mod2.nBeta_;
+  nGamma_ = mod2.nGamma_;
+  
   return *this;
 }
 
-YNGKP_M8::~YNGKP_M8() {}
+YNGP_M9::~YNGP_M9() {}
 
-void YNGKP_M8::updateMatrices()
+void YNGP_M9::updateMatrices()
 {
   AbstractBiblioSubstitutionModel::updateMatrices();
 

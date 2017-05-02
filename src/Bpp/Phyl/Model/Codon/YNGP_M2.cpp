@@ -1,5 +1,5 @@
 //
-// File: YNGKP_M3.cpp
+// File: YNGP_M2.cpp
 // Created by:  Laurent Gueguen
 // Created on: May 2010
 //
@@ -36,7 +36,7 @@
    knowledge of the CeCILL license and that you accept its terms.
  */
 
-#include "YNGKP_M3.h"
+#include "YNGP_M2.h"
 #include "YN98.h"
 
 #include <Bpp/Numeric/NumConstants.h>
@@ -48,70 +48,50 @@ using namespace std;
 
 /******************************************************************************/
 
-YNGKP_M3::YNGKP_M3(const GeneticCode* gc, FrequenciesSet* codonFreqs, unsigned int nbOmega) :
-  AbstractBiblioMixedSubstitutionModel("YNGKP_M3."),
+YNGP_M2::YNGP_M2(const GeneticCode* gc, FrequenciesSet* codonFreqs) :
+  AbstractBiblioMixedSubstitutionModel("YNGP_M2."),
   pmixmodel_(),
   synfrom_(),
   synto_()
 {
-  if (nbOmega < 1)
-    throw Exception("At least one omega is necessary in the YNGKP_M3 model");
-
   // build the submodel
 
   vector<double> v1, v2;
-  v1.push_back(0.5);
-  for (unsigned int i = 1; i < nbOmega; i++)
-  {
-    v1.push_back(0.5 + 0.5 * i);
-  }
+  v1.push_back(0.5); v1.push_back(1); v1.push_back(2);
+  v2.push_back(0.333333); v2.push_back(0.333333); v2.push_back(0.333334);
 
-  for (unsigned int i = 0; i < nbOmega; i++)
-  {
-    v2.push_back(1. / nbOmega);
-  }
-
-  SimpleDiscreteDistribution* psdd = new SimpleDiscreteDistribution(v1, v2, NumConstants::MILLI());
+  SimpleDiscreteDistribution* psdd = new SimpleDiscreteDistribution(v1, v2);
 
   map<string, DiscreteDistribution*> mpdd;
   mpdd["omega"] = psdd;
 
   YN98* yn98 = new YN98(gc, codonFreqs);
-  yn98->setNamespace("YNGKP_M3.");
+
   pmixmodel_.reset(new MixtureOfASubstitutionModel(gc->getSourceAlphabet(), yn98, mpdd));
   delete psdd;
-
-  pmixmodel_->setNamespace("YNGKP_M3.");
 
   vector<int> supportedChars = yn98->getAlphabetStates();
 
   // mapping the parameters
 
   ParameterList pl = pmixmodel_->getParameters();
-  for (size_t i = 0; i < pl.size(); ++i)
+  for (size_t i = 0; i < pl.size(); i++)
   {
     lParPmodel_.addParameter(Parameter(pl[i]));
   }
 
   vector<std::string> v = dynamic_cast<YN98*>(pmixmodel_->getNModel(0))->getFrequenciesSet()->getParameters().getParameterNames();
-  for (size_t i = 0; i < v.size(); ++i)
+
+  for (size_t i = 0; i < v.size(); i++)
   {
-    mapParNamesFromPmodel_[v[i]] = getParameterNameWithoutNamespace(v[i]);
+    mapParNamesFromPmodel_[v[i]] = v[i].substr(5);
   }
 
-  mapParNamesFromPmodel_["YNGKP_M3.kappa"] = "kappa";
-
-  for (size_t i = 1; i < nbOmega; ++i)
-  {
-    mapParNamesFromPmodel_["YNGKP_M3.omega_Simple.theta" + TextTools::toString(i)] = "theta" + TextTools::toString(i);
-  }
-
-
-  mapParNamesFromPmodel_["YNGKP_M3.omega_Simple.V1"] = "omega0";
-  for (size_t i = 1; i < nbOmega; ++i)
-  {
-    mapParNamesFromPmodel_["YNGKP_M3.omega_Simple.V" + TextTools::toString(i + 1)] = "delta" + TextTools::toString(i);
-  }
+  mapParNamesFromPmodel_["YN98.kappa"] = "kappa";
+  mapParNamesFromPmodel_["YN98.omega_Simple.V1"] = "omega0";
+  mapParNamesFromPmodel_["YN98.omega_Simple.theta1"] = "theta1";
+  mapParNamesFromPmodel_["YN98.omega_Simple.V3"] = "omega2";
+  mapParNamesFromPmodel_["YN98.omega_Simple.theta2"] = "theta2";
 
   // specific parameters
 
@@ -119,20 +99,19 @@ YNGKP_M3::YNGKP_M3(const GeneticCode* gc, FrequenciesSet* codonFreqs, unsigned i
   for (map<string, string>::iterator it = mapParNamesFromPmodel_.begin(); it != mapParNamesFromPmodel_.end(); it++)
   {
     st = pmixmodel_->getParameterNameWithoutNamespace(it->first);
-    if (it->second.substr(0, 5) != "delta")
-      addParameter_(new Parameter("YNGKP_M3." + it->second, pmixmodel_->getParameterValue(st),
+    if (it->second.substr(0, 5) != "omega")
+      addParameter_(new Parameter("YNGP_M2." + it->second, pmixmodel_->getParameterValue(st),
                               pmixmodel_->getParameter(st).hasConstraint() ? pmixmodel_->getParameter(st).getConstraint()->clone() : 0, true));
   }
 
-  for (size_t i = 1; i < nbOmega; ++i)
-  {
-    addParameter_(new Parameter("YNGKP_M3.delta" + TextTools::toString(i), 0.5, new IntervalConstraint(NumConstants::MILLI(), 999, true, true, NumConstants::MILLI()), true));
-  }
+  addParameter_(new Parameter("YNGP_M2.omega0", 0.5, new IntervalConstraint(NumConstants::MILLI(), 1, true, false), true));
+
+  addParameter_(new Parameter("YNGP_M2.omega2", 2, new IntervalConstraint(1, 999, false, false, NumConstants::MILLI()), true));
 
   // look for synonymous codons
-  for (synfrom_ = 1; synfrom_ < supportedChars.size(); synfrom_++)
+  for (synfrom_ = 1; synfrom_ < supportedChars.size(); ++synfrom_)
   {
-    for (synto_ = 0; synto_ < synfrom_; synto_++)
+    for (synto_ = 0; synto_ < synfrom_; ++synto_)
     {
       if (gc->areSynonymous(supportedChars[synfrom_], supportedChars[synto_])
           && (pmixmodel_->getNModel(0)->Qij(synfrom_, synto_) != 0)
@@ -147,16 +126,17 @@ YNGKP_M3::YNGKP_M3(const GeneticCode* gc, FrequenciesSet* codonFreqs, unsigned i
     throw Exception("Impossible to find synonymous codons");
 
   // update Matrices
+
   updateMatrices();
 }
 
-YNGKP_M3::YNGKP_M3(const YNGKP_M3& mod2) : AbstractBiblioMixedSubstitutionModel(mod2),
+YNGP_M2::YNGP_M2(const YNGP_M2& mod2) : AbstractBiblioMixedSubstitutionModel(mod2),
   pmixmodel_(new MixtureOfASubstitutionModel(*mod2.pmixmodel_)),
   synfrom_(mod2.synfrom_),
   synto_(mod2.synto_)
 {}
 
-YNGKP_M3& YNGKP_M3::operator=(const YNGKP_M3& mod2)
+YNGP_M2& YNGP_M2::operator=(const YNGP_M2& mod2)
 {
   AbstractBiblioMixedSubstitutionModel::operator=(mod2);
 
@@ -167,44 +147,20 @@ YNGKP_M3& YNGKP_M3::operator=(const YNGKP_M3& mod2)
   return *this;
 }
 
-YNGKP_M3::~YNGKP_M3() {}
+YNGP_M2::~YNGP_M2() {}
 
-void YNGKP_M3::updateMatrices()
+void YNGP_M2::updateMatrices()
 {
-  for (unsigned int i = 0; i < lParPmodel_.size(); i++)
-  {
-    if (mapParNamesFromPmodel_.find(lParPmodel_[i].getName()) != mapParNamesFromPmodel_.end())
-    {
-      if (lParPmodel_[i].getName()[18] == 'V')
-      {
-        size_t ind = TextTools::to<size_t>(lParPmodel_[i].getName().substr(19));
-        double x = getParameterValue("omega0");
-        for (unsigned j = 1; j < ind; j++)
-        {
-          x += getParameterValue("delta" + TextTools::toString(j));
-        }
-        lParPmodel_[i].setValue(x);
-      }
-      else
-      {
-        lParPmodel_[i].setValue(getParameter(getParameterNameWithoutNamespace(mapParNamesFromPmodel_[lParPmodel_[i].getName()])).getValue());
-      }
-    }
-  }
+  AbstractBiblioSubstitutionModel::updateMatrices();
 
-  pmixmodel_->matchParametersValues(lParPmodel_);
-
-  // homogeneization of the synonymous substitution rates
-
+  // homogeneization of the synonymous substittion rates
 
   Vdouble vd;
 
-  for (unsigned int i = 0; i < pmixmodel_->getNumberOfModels(); i++)
-  {
-    vd.push_back(1 / pmixmodel_->getNModel(i)->Qij(synfrom_, synto_));
-  }
+  vd.push_back(1 / pmixmodel_->getNModel(0)->Qij(synfrom_, synto_));
+  vd.push_back(1 / pmixmodel_->getNModel(1)->Qij(synfrom_, synto_));
+  vd.push_back(1 / pmixmodel_->getNModel(2)->Qij(synfrom_, synto_));
 
   pmixmodel_->setVRates(vd);
 }
-
 

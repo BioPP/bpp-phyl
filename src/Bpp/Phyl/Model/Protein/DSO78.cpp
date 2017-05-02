@@ -86,7 +86,10 @@ void DSO78::setFreqFromData(const SequenceContainer& data, double pseudoCount)
   {
     t += (counts[i] + pseudoCount);
   }
-  for (size_t i = 0; i < size_; ++i) freq_[i] = (static_cast<double>(counts[static_cast<int>(i)]) + pseudoCount) / t;
+  for (size_t i = 0; i < size_; ++i) {
+    freq_[i] = (static_cast<double>(counts[static_cast<int>(i)]) + pseudoCount) / t;
+    //ApplicationTools::displayResult("-- Frequency for " + alphabet_->intToChar(static_cast<int>(i)), freq_[i]);
+  }
   freqSet_->setFrequencies(freq_);
   //Update parameters and re-compute generator and eigen values:
   matchParametersValues(freqSet_->getParameters());
