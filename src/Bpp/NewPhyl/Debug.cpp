@@ -39,6 +39,7 @@
   knowledge of the CeCILL license and that you accept its terms.
 */
 
+#include <Bpp/NewPhyl/Config.h>
 #include <Bpp/NewPhyl/DataFlow.h>
 #include <Bpp/NewPhyl/Registry.h>
 #include <Bpp/NewPhyl/Topology.h>
@@ -49,7 +50,7 @@
 #include <typeinfo>
 #include <unordered_set>
 
-#if HAVE_DEMANGLING
+#ifdef BPP_HAVE_DEMANGLING
 #include <cstdlib>
 #include <cxxabi.h>
 #include <memory>
@@ -58,7 +59,7 @@
 namespace bpp {
 
 std::string demangle (const char * name) {
-#if HAVE_DEMANGLING
+#ifdef BPP_HAVE_DEMANGLING
 	int status{};
 	std::unique_ptr<char, void (*) (void *)> res{
 	    abi::__cxa_demangle (name, nullptr, nullptr, &status), std::free};

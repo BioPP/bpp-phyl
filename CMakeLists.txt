@@ -75,10 +75,7 @@ install (FILES ${CMAKE_CURRENT_BINARY_DIR}/package-version.cmake DESTINATION ${c
 
 # Check demangling support
 include (CheckCXXSymbolExists)
-CHECK_CXX_SYMBOL_EXISTS("abi::__cxa_demangle" "cxxabi.h" HAVE_DEMANGLING)
-if (HAVE_DEMANGLING)
-  add_definitions (-DHAVE_DEMANGLING)
-endif (HAVE_DEMANGLING)
+CHECK_CXX_SYMBOL_EXISTS("abi::__cxa_demangle" "cxxabi.h" BPP_HAVE_DEMANGLING)
 
 # Define the libraries
 add_subdirectory (src)
