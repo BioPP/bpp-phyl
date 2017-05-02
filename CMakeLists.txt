@@ -9,8 +9,7 @@ cmake_minimum_required (VERSION 2.8.12)
 project (bpp-phyl CXX)
 
 # Compile options
-set (public-compile-options -std=c++11)
-set (private-compile-options -Wall -Weffc++ -Wshadow -Wconversion)
+set (private-compile-options -std=c++11 -Wall -Weffc++ -Wshadow -Wconversion)
 
 IF(NOT CMAKE_BUILD_TYPE)
   SET(CMAKE_BUILD_TYPE RelWithDebInfo CACHE STRING
@@ -60,20 +59,19 @@ find_package (bpp-seq 9.1.3 REQUIRED)
 set (cmake-package-location lib/cmake/${PROJECT_NAME})
 include (CMakePackageConfigHelpers)
 configure_package_config_file (
-  ${PROJECT_NAME}-config.cmake.in
-  ${CMAKE_CURRENT_BINARY_DIR}/${PROJECT_NAME}-config.cmake
+  package.cmake.in
+  ${CMAKE_CURRENT_BINARY_DIR}/package.cmake
   INSTALL_DESTINATION ${cmake-package-location}
   )
 write_basic_package_version_file (
-  ${CMAKE_CURRENT_BINARY_DIR}/${PROJECT_NAME}-config-version.cmake
+  ${CMAKE_CURRENT_BINARY_DIR}/package-version.cmake
   VERSION ${PROJECT_VERSION}
   COMPATIBILITY SameMajorVersion
   )
-install (FILES
-  ${CMAKE_CURRENT_BINARY_DIR}/${PROJECT_NAME}-config.cmake
-  ${CMAKE_CURRENT_BINARY_DIR}/${PROJECT_NAME}-config-version.cmake
-  DESTINATION ${cmake-package-location}
-  )
+install (FILES ${CMAKE_CURRENT_BINARY_DIR}/package.cmake DESTINATION ${cmake-package-location}
+  RENAME ${PROJECT_NAME}-config.cmake)
+install (FILES ${CMAKE_CURRENT_BINARY_DIR}/package-version.cmake DESTINATION ${cmake-package-location}
+  RENAME ${PROJECT_NAME}-config-version.cmake)
 
 # Check demangling support
 include (CheckCXXSymbolExists)
