@@ -44,6 +44,7 @@
 #define BPP_NEWPHYL_DATAFLOW_H
 
 #include <algorithm>
+#include <cassert>
 #include <memory>
 #include <typeinfo> // std::bad_cast
 #include <utility>
@@ -98,13 +99,16 @@ namespace DF {
 			}
 		}
 
-		void registerNode (Impl * n) { dependentNodes_.emplace_back (n); }
-		void unregisterNode (const Impl * n) {
-			dependentNodes_.erase (std::remove (dependentNodes_.begin (), dependentNodes_.end (), n),
-			                       dependentNodes_.end ());
-		}
-
 		virtual void compute () = 0;
+
+		void computeRecursively () {
+			// Compute the current node (and dependencies recursively) if needed
+			if (!isValid ()) {
+				foreachDependencyNode ([](Impl * node) { node->computeRecursively (); });
+				compute ();
+				makeValid ();
+			}
+		}
 
 		// TODO Replace with ranges
 		template <typename F> void foreachDependentNode (F f) const {
@@ -119,6 +123,19 @@ namespace DF {
 	protected:
 		void makeValid () noexcept { isValid_ = true; }
 
+		void appendDependency (Node n) {
+			n.getImpl ().registerNode (this);
+			dependencyNodes_.emplace_back (std::move (n));
+		}
+
+	private:
+		void registerNode (Impl * n) { dependentNodes_.emplace_back (n); }
+		void unregisterNode (const Impl * n) {
+			dependentNodes_.erase (std::remove (dependentNodes_.begin (), dependentNodes_.end (), n),
+			                       dependentNodes_.end ());
+		}
+
+	protected:
 		// TODO definitely need a small opt vector
 		std::vector<Impl *> dependentNodes_{}; // Nodes that depend on us.
 		std::vector<Node> dependencyNodes_{};  // Nodes that we depend on.
@@ -146,7 +163,11 @@ namespace DF {
 		}
 
 		Ref getImpl () const noexcept { return *pImpl_; }
-		const T & getValue () noexcept { return pImpl_->getValue (); }
+		const T & getValue () noexcept {
+			// The value class is the interface, perform the recomputation.
+			pImpl_->computeRecursively ();
+			return pImpl_->getValue ();
+		}
 
 	private:
 		explicit Value (std::shared_ptr<Impl> p) noexcept : pImpl_ (std::move (p)) {}
@@ -158,11 +179,9 @@ namespace DF {
 		template <typename... Args>
 		Impl (Args &&... args) : Node::Impl (), value_ (std::forward<Args> (args)...) {}
 
-		const T & getValue () {
-			if (!this->isValid ()) {
-				this->compute ();
-				this->makeValid ();
-			}
+		const T & getValue () const noexcept {
+			// Implementation, do not recompute (should be done using Node::Impl functions before).
+			assert (this->isValid ());
 			return value_;
 		}
 

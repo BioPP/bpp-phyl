@@ -70,11 +70,7 @@ struct Sum : public Value<int>::Impl
     this->value_ = a;
   }
 
-  void addDep(Node n)
-  {
-    n.getImpl().registerNode(this);
-    dependencyNodes_.emplace_back(std::move(n));
-  }
+  void addDep(Node n) { this->appendDependency(std::move(n)); }
 
   static Node build(Registry& registry, const Element& element, const DataSet& ds)
   {
