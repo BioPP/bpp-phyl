@@ -1,3 +1,4 @@
 -std=c++11
 -I../local/include
 -Isrc/
+-I/usr/include/eigen3/

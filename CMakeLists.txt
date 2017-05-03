@@ -77,6 +77,9 @@ install (FILES ${CMAKE_CURRENT_BINARY_DIR}/package-version.cmake DESTINATION ${c
 include (CheckCXXSymbolExists)
 CHECK_CXX_SYMBOL_EXISTS("abi::__cxa_demangle" "cxxabi.h" BPP_HAVE_DEMANGLING)
 
+# Use eigen (TODO, add eigen files to repository directly)
+find_package (Eigen3)
+
 # Define the libraries
 add_subdirectory (src)
 
