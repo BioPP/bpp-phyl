@@ -86,9 +86,9 @@ namespace DF {
 			auto it = dataflowNodes_.find (key);
 			if (it != dataflowNodes_.end ())
 				return it->second;
-			auto node = std::forward<F> (createIfNotFound) ();
-			dataflowNodes_.emplace (key, node);
-			return std::move (node);
+			auto n = std::forward<F> (createIfNotFound) ();
+			dataflowNodes_.emplace (key, n);
+			return std::move (n);
 		}
 		template <typename T, typename F>
 		Node node (const Topology::Element & element, F && createIfNotFound) {
