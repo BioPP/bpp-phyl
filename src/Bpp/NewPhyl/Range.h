@@ -222,6 +222,7 @@ namespace Range {
 	}
 }
 using Range::range;
+using Range::index_range;
 }
 
 #endif // BPP_NEWPHYL_RANGE_H

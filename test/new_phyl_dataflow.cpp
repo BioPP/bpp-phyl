@@ -44,6 +44,8 @@
 
 #include <Bpp/NewPhyl/DataFlow.h>
 #include <Bpp/NewPhyl/Debug.h>
+#include <Bpp/NewPhyl/Likelihood.h>
+#include <Bpp/NewPhyl/Range.h>
 #include <Bpp/NewPhyl/Registry.h>
 #include <Bpp/NewPhyl/Topology.h>
 
@@ -81,7 +83,7 @@ struct Sum : public Value<int>::Impl
       if (phyloNode.nbChildBranches() > 0)
       {
         // Internal node
-        for (bpp::Topology::IndexType i = 0; i < phyloNode.nbChildBranches(); ++i)
+        for (auto i : bpp::range(phyloNode.nbChildBranches()))
           sumNode.addDep(build(registry, phyloNode.childBranch(i).childNode(), ds));
       }
       else

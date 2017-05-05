@@ -43,18 +43,17 @@
 #ifndef BPP_NEWPHYL_LIKELIHOOD_H
 #define BPP_NEWPHYL_LIKELIHOOD_H
 
-#include <Bpp/NewPhyl/Dataflow.h>
+#include <Bpp/NewPhyl/DataFlow.h>
+#include <Bpp/NewPhyl/Range.h>
 #include <Eigen/Dense>
 #include <cassert>
+#include <functional> // reference_wrapper
 #include <vector>
 
 namespace bpp {
 
 using LikelihoodVector = Eigen::VectorXd;
 using LikelihoodVectorBySite = std::vector<LikelihoodVector>;
-
-// TODO have special types for Nucleotide (N=4) ?
-using NucleotideLikelihoodVector = Eigen::Vector4d;
 
 namespace DF {
 
@@ -71,13 +70,22 @@ namespace DF {
 
 	private:
 		void compute () override final {
+			// Store refs to liks
 			auto & deps = this->dependencyNodes_;
 			assert (!deps.empty ());
-      // Store vect of reference wrappers to deps values
-      // Process liks site by site
-			this->value_ = static_cast<ArgumentType::Ref> (deps.front ().getImpl ()).getValue ();
-			for (auto it = deps.begin () + 1; it != deps.end (); ++it)
-				;
+			std::vector<std::reference_wrapper<const LikelihoodVectorBySite>> depsLikelihoods;
+			depsLikelihoods.reserve (deps.size ());
+			for (auto & dep : deps)
+				depsLikelihoods.emplace_back (static_cast<ArgumentType::Ref> (dep.getImpl ()).getValue ());
+			// Init
+			auto & result = this->value_;
+			result = depsLikelihoods.front ();
+			// Compute site by site
+			for (auto siteIndex : bpp::index_range (result)) {
+				auto & r = result[siteIndex];
+				for (auto & fwdLik : bpp::range (depsLikelihoods).pop_front ())
+					r *= fwdLik.get ()[siteIndex];
+			}
 		}
 	};
 }
