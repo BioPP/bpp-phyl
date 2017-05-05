@@ -48,7 +48,7 @@
 
 TEST_CASE("test")
 {
-  // TODO continue later
   bpp::SmallVector<int*> a;
   std::cout << a.threshold () << '\n';
+  std::cout << sizeof (a) << '\n';
 }

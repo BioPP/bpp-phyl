@@ -52,39 +52,37 @@
 
 namespace bpp {
 
-template <typename Callable> class ExecuteAtScopeEnd : private Callable {
-	// Execute a lambda at end of scope
-public:
-	ExecuteAtScopeEnd (Callable && c, bool execute) noexcept
-	    : Callable (std::move (c)), execute_ (execute) {}
-
-	ExecuteAtScopeEnd (const ExecuteAtScopeEnd &) = delete;
-	ExecuteAtScopeEnd & operator= (const ExecuteAtScopeEnd &) = delete;
-	ExecuteAtScopeEnd (ExecuteAtScopeEnd &&) = default;
-	ExecuteAtScopeEnd & operator= (ExecuteAtScopeEnd &&) = delete;
-
-	~ExecuteAtScopeEnd () {
-		if (execute_)
-			Callable::operator() ();
-	}
-
-	void set_executable (bool execute) noexcept { execute_ = execute; }
-
-private:
-	bool execute_;
-};
-
-template <typename Callable>
-ExecuteAtScopeEnd<Callable> execute_at_end_of_scope (Callable && c, bool execute = true) noexcept {
-	return ExecuteAtScopeEnd<Callable>{std::forward<Callable> (c), execute};
-}
-
 namespace Detail {
 	template <typename T> void call_destructors (T * a, std::size_t n) {
 		for (std::size_t i = 0; i < n; ++i)
 			a[i].~T ();
 	}
 }
+
+template <typename T, typename Allocator = std::allocator<T>>
+class SmallVectorBase : private Allocator {
+  /* Split SmallVector code:
+   * - SmallVectorBase has most of the API, and can grow but not shrink
+   *   If created as a SmallVector<T, N>, data_ starts as ptr to T[N] buf.
+   *   capacity_ can grow (replacing the buf with allocated data)
+   *   it cannot shrink and reuse the local buf (no way to retrieve it from Base).
+   *
+   * - SmallVector<T, N> has the inline buf only and gives it to Base at init
+   *
+   * Copy and moves can be optimal between SmallVector.
+   *
+   * TODO use allocator_traits
+   *
+   * FIXME need a bit flag to tell if allocated
+   * LLVM relies on object layout to do its trick...
+   * Use bitfield ?
+   * Store size and cap as uint16 ?
+   */
+private:
+	std::size_t size_;
+	std::size_t capacity_;
+	T * data_;
+};
 
 template <typename T, std::size_t threshold_ = sizeof (T *) / sizeof (T),
           typename Allocator = std::allocator<T>>
