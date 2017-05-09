@@ -52,14 +52,17 @@
 
 namespace bpp {
 namespace DF {
-	// TODO automatise value type class generation
-
 	/* Base Node.
 	 */
 	class Node {
 	public:
 		class Impl;
 		using Ref = Impl &;
+
+		// FIXME improve semantics of empty Nodes...
+		// Try using link to global shared empty node ?
+		Node () = default;
+		bool hasNode () const noexcept { return bool(pImpl_); }
 
 		template <typename U, typename = typename U::Impl>
 		explicit Node (const U & u) : pImpl_ (std::dynamic_pointer_cast<Impl> (u.getShared ())) {
@@ -110,7 +113,7 @@ namespace DF {
 			}
 		}
 
-		// TODO Replace with ranges
+		// TODO Replace with ranges ?
 		template <typename F> void foreachDependentNode (F f) const {
 			for (auto & p : dependentNodes_)
 				f (p);
@@ -123,10 +126,23 @@ namespace DF {
 	protected:
 		void makeValid () noexcept { isValid_ = true; }
 
+		// For reduction-like computations
 		void appendDependency (Node n) {
 			n.getImpl ().registerNode (this);
 			dependencyNodes_.emplace_back (std::move (n));
 		}
+
+		// For heterogeneous computations
+		void allocateDependencies (std::size_t nbDependencies) {
+			dependencyNodes_.resize (nbDependencies);
+		}
+		void setDependency (std::size_t index, Node n) {
+			auto & dep = dependencyNodes_.at (index);
+			assert (!dep.hasNode ());
+			n.getImpl ().registerNode (this);
+			dep = std::move (n);
+		}
+		Impl & getDependencyImpl (std::size_t index) { return dependencyNodes_[index].getImpl (); }
 
 	private:
 		void registerNode (Impl * n) { dependentNodes_.emplace_back (n); }

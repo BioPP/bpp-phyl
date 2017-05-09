@@ -54,14 +54,15 @@ namespace bpp {
 
 using LikelihoodVector = Eigen::VectorXd;
 using LikelihoodVectorBySite = std::vector<LikelihoodVector>;
+using TransitionMatrix = Eigen::MatrixXd;
 
 namespace DF {
 
-	class ConditionalLikelihood : public Value<LikelihoodVectorBySite>::Impl {
+	class ConditionalLikelihoodComputation : public Value<LikelihoodVectorBySite>::Impl {
 	public:
 		using ArgumentType = Value<LikelihoodVectorBySite>;
 
-		ConditionalLikelihood (std::size_t nbCharacters, std::size_t nbSites)
+		ConditionalLikelihoodComputation (std::size_t nbCharacters, std::size_t nbSites)
 		    : Value<LikelihoodVectorBySite>::Impl (nbSites, LikelihoodVector (nbCharacters)) {}
 
 		void addDependency (ArgumentType forwardLikelihood) {
@@ -88,6 +89,14 @@ namespace DF {
 			}
 		}
 	};
+
+  class ForwardLikelihoodComputation : public Value<LikelihoodVectorBySite>::Impl {
+    //
+  };
+
+  class TransitionMatrixComputation : public Value<TransitionMatrix>::Impl {
+    //
+  };
 }
 }
 
