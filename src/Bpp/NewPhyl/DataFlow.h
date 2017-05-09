@@ -219,8 +219,8 @@ namespace DF {
 		}
 		const std::shared_ptr<Impl> & getShared () const noexcept { return pImpl_; }
 
-		template <typename... Args> static Parameter create (Args &&... args) {
-			return Parameter (std::make_shared<Impl> (std::forward<Args> (args)...));
+		template <typename U, typename... Args> static Parameter create (Args &&... args) {
+			return Parameter (std::make_shared<U> (std::forward<Args> (args)...));
 		}
 
 		Ref getImpl () const noexcept { return *pImpl_; }

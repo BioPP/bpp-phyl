@@ -62,7 +62,7 @@ using bpp::Topology::Element;
 
 using DataSet = std::unordered_map<std::string, Node>;
 
-struct Sum : public Value<int>::Impl
+struct Sum : public bpp::DF::Value<int>::Impl
 {
   Sum() = default;
 
@@ -97,6 +97,22 @@ struct Sum : public Value<int>::Impl
   }
 };
 
+struct ForwardIntComputationOp
+{
+  using ResultType = int;
+  using ArgumentTypes = std::tuple<int>;
+  static void compute(int& result, int i) { result = i; }
+};
+using ForwardIntComputation = bpp::DF::GenericFunctionComputation<ForwardIntComputationOp>;
+
+struct MyParam : public bpp::DF::Parameter<int>::Impl
+{
+  MyParam(int i)
+    : bpp::DF::Parameter<int>::Impl(i)
+  {
+  }
+};
+
 TEST_CASE("test")
 {
   bpp::Topology::Tree tree;
@@ -115,8 +131,8 @@ TEST_CASE("test")
     CHECK(e.hashCode() == e2.hashCode());
   }
 
-  auto a = Parameter<int>::create(3);
-  auto b = Parameter<int>::create(42);
+  auto a = Parameter<int>::create<MyParam>(3);
+  auto b = Parameter<int>::create<MyParam>(42);
 
   DataSet ds;
   ds.emplace("A", Node(a));
