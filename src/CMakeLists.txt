@@ -5,6 +5,7 @@
 #   Francois Gindraud (2017)
 # Created: 20/08/2009
 
+# File list
 set (CPP_FILES
   Bpp/Phyl/App/PhylogeneticsApplicationTools.cpp
   Bpp/Phyl/BipartitionList.cpp
@@ -208,7 +209,7 @@ install (
   ARCHIVE DESTINATION lib${LIB_SUFFIX}
   )
 install (
-  DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/
+  DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/Bpp
   DESTINATION include
   FILES_MATCHING PATTERN "*.h"
   )
