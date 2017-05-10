@@ -56,11 +56,15 @@
 
 using bpp::DF::Node;
 using bpp::DF::Value;
-using bpp::DF::Parameter;
-using bpp::DF::Registry;
 using bpp::Topology::Element;
 
-using DataSet = std::unordered_map<std::string, Node>;
+struct MyParam : public bpp::DF::Parameter<int>::Impl
+{
+  MyParam(int i)
+    : bpp::DF::Parameter<int>::Impl(i)
+  {
+  }
+};
 
 struct Sum : public bpp::DF::Value<int>::Impl
 {
@@ -75,78 +79,67 @@ struct Sum : public bpp::DF::Value<int>::Impl
 
   void addDep(Node n) { this->appendDependency(std::move(n)); }
 
-  static Node build(Registry& registry, const Element& element, const DataSet& ds)
+  static std::vector<bpp::DF::RegistryKey> computeDepencies(const bpp::DF::RegistryKey& key)
   {
-    return registry.node<Sum>(element, [&] {
-      auto& phyloNode = element.asNodeRef();
-      auto dfNode = Node::create<Sum>();
-      auto& sumNode = static_cast<Sum&>(dfNode.getImpl());
-      if (phyloNode.nbChildBranches() > 0)
-      {
-        // Internal node
-        for (auto i : bpp::range(phyloNode.nbChildBranches()))
-          sumNode.addDep(build(registry, phyloNode.childBranch(i).childNode(), ds));
-      }
-      else
-      {
-        // Leaf
-        sumNode.addDep(ds.at(phyloNode.name()));
-      }
-      return dfNode;
-    });
+    auto& phyloNode = key.element().asNodeRef();
+    std::vector<bpp::DF::RegistryKey> deps;
+    if (phyloNode.nbChildBranches() > 0)
+    {
+      // Internal node
+      for (auto i : bpp::range(phyloNode.nbChildBranches()))
+        deps.emplace_back(key.withElement(phyloNode.childBranch(i).childNode()));
+    }
+    else
+    {
+      // Leaf
+      deps.emplace_back(key.withOperation<MyParam>());
+    }
+    return deps;
   }
-};
-
-struct ForwardIntComputationOp
-{
-  using ResultType = int;
-  using ArgumentTypes = std::tuple<int>;
-  static void compute(int& result, int i) { result = i; }
-};
-using ForwardIntComputation = bpp::DF::GenericFunctionComputation<ForwardIntComputationOp>;
-
-struct MyParam : public bpp::DF::Parameter<int>::Impl
-{
-  MyParam(int i)
-    : bpp::DF::Parameter<int>::Impl(i)
+  static Node buildNode(std::vector<Node> deps)
   {
+    // TODO automatize ?
+    auto node = Node::create<Sum>();
+    auto& impl = static_cast<Sum&>(node.getImpl());
+    for (auto& d : deps)
+      impl.addDep(std::move(d));
+    return node;
   }
 };
 
 TEST_CASE("test")
 {
+  bpp::DF::Builder::registerOperation<Sum>(Sum::computeDepencies, Sum::buildNode);
+
   bpp::Topology::Tree tree;
-  {
-    auto a = tree.createNode({}, "A");
-    auto b = tree.createNode({}, "B");
-    auto c = tree.createNode({a, b});
-    auto d = tree.createNode({c});
-    tree.rootId() = d;
-    std::ofstream file("topology_debug");
-    bpp::Topology::debugTree(file, tree);
+  auto ta = tree.createNode({}, "A");
+  auto tb = tree.createNode({}, "B");
+  auto tc = tree.createNode({ta, tb});
+  auto td = tree.createNode({tc});
+  tree.rootId() = td;
+  /*
+  std::ofstream ft("topology_debug");
+  bpp::Topology::debugTree(ft, tree);
+  */
 
-    auto e = tree.nodeRef(c);
-    auto e2 = bpp::Topology::Element(e.asNodeRef().fatherBranch().childNode());
-    CHECK(e == e2);
-    CHECK(e.hashCode() == e2.hashCode());
-  }
+  bpp::DF::Registry registry;
 
-  auto a = Parameter<int>::create<MyParam>(3);
-  auto b = Parameter<int>::create<MyParam>(42);
+  using Key = bpp::DF::RegistryKey;
 
-  DataSet ds;
-  ds.emplace("A", Node(a));
-  ds.emplace("B", Node(b));
+  auto a = bpp::DF::Parameter<int>::create<MyParam>(3);
+  auto b = bpp::DF::Parameter<int>::create<MyParam>(42);
 
-  Registry registry;
+  auto ds = registry.createEmptyDataSet();
+  registry.setNode(Key::create<MyParam>(tree.nodeRef(ta), ds), Node(a));
+  registry.setNode(Key::create<MyParam>(tree.nodeRef(tb), ds), Node(b));
 
-  Value<int> sum{Sum::build(registry, tree.nodeRef(tree.rootId()), ds)};
+  Value<int> sum{registry.instantiate(Key::create<Sum>(tree.nodeRef(tree.rootId()), ds))};
   CHECK(sum.getValue() == 45);
   a.setValue(-42);
   CHECK(sum.getValue() == 0);
 
-  Value<int> partialSum{Sum::build(registry, tree.nodeRef(0), ds)};
+  // Value<int> partialSum{Sum::build(registry, tree.nodeRef(0), ds)};
 
-  std::ofstream file("df_debug");
-  bpp::DF::debugRegistry(file, registry);
+  std::ofstream fd("df_debug");
+  bpp::DF::debugRegistry(fd, registry);
 }
