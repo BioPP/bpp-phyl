@@ -16,7 +16,6 @@ foreach (test_cpp_file ${test_cpp_files})
   get_filename_component (test_name ${test_cpp_file} NAME_WE)
   add_executable (${test_name} ${test_cpp_file})
   target_link_libraries (${test_name} ${PROJECT_NAME}-shared)
-  target_compile_options (${test_name} PRIVATE ${private-compile-options})
   add_test (
     NAME ${test_name}
     WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
