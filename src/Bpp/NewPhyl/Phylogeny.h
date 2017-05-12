@@ -1,9 +1,9 @@
 //
-// File: Likelihood.h
+// File: Phylogeny.h
 // Authors:
 //   Francois Gindraud (2017)
-// Created: 2017-05-03
-// Last modified: 2017-05-03
+// Created: 2017-05-12
+// Last modified: 2017-05-12
 //
 
 /*
@@ -40,60 +40,32 @@
 */
 
 #pragma once
-#ifndef BPP_NEWPHYL_LIKELIHOOD_H
-#define BPP_NEWPHYL_LIKELIHOOD_H
+#ifndef BPP_NEWPHYL_PHYLOGENY_H
+#define BPP_NEWPHYL_PHYLOGENY_H
 
 #include <Bpp/NewPhyl/DataFlow.h>
-#include <Bpp/NewPhyl/Phylogeny.h>
-#include <Bpp/NewPhyl/Range.h>
 #include <Eigen/Dense>
-#include <cassert>
-#include <functional> // reference_wrapper
-#include <vector>
 
 namespace bpp {
 
-namespace DF {
+class SubstitutionModel;
 
-	using LikelihoodVector = Eigen::VectorXd;
-	using LikelihoodVectorBySite = std::vector<LikelihoodVector>;
+namespace Phylo {
 
-	class ConditionalLikelihoodComputation : public Value<LikelihoodVectorBySite>::Impl {
+	class BranchLength : public DF::Parameter<double>::Impl {
 	public:
-		using ArgumentType = Value<LikelihoodVectorBySite>;
-
-		ConditionalLikelihoodComputation (std::size_t nbCharacters, std::size_t nbSites)
-		    : Value<LikelihoodVectorBySite>::Impl (nbSites, LikelihoodVector (nbCharacters)) {}
-
-		void addDependency (ArgumentType forwardLikelihood) {
-			this->appendDependency (Node (forwardLikelihood));
-		}
-
-	private:
-		void compute () override final {
-			// Store refs to liks
-			auto & deps = this->dependencyNodes_;
-			assert (!deps.empty ());
-			std::vector<std::reference_wrapper<const LikelihoodVectorBySite>> depsLikelihoods;
-			depsLikelihoods.reserve (deps.size ());
-			for (auto & dep : deps)
-				depsLikelihoods.emplace_back (static_cast<ArgumentType::Ref> (dep.getImpl ()).getValue ());
-			// Init
-			auto & result = this->value_;
-			result = depsLikelihoods.front ();
-			// Compute site by site
-			for (auto siteIndex : bpp::index_range (result)) {
-				auto & r = result[siteIndex];
-				for (auto & fwdLik : bpp::range (depsLikelihoods).pop_front ())
-					r *= fwdLik.get ()[siteIndex];
-			}
-		}
+		BranchLength (double initialValue) : DF::Parameter<double>::Impl (initialValue) {}
 	};
 
-	class ForwardLikelihoodComputation : public Value<LikelihoodVectorBySite>::Impl {
-		//
+	class Model : public DF::Parameter<SubstitutionModel *>::Impl {
+	public:
+		Model (SubstitutionModel * model) : DF::Parameter<SubstitutionModel *>::Impl (model) {}
 	};
+
+	using TransitionMatrix = Eigen::MatrixXd;
+
+	class TransitionMatrixComputation; // TODO
 }
 }
 
-#endif // BPP_NEWPHYL_LIKELIHOOD_H
+#endif // BPP_NEWPHYL_PHYLOGENY_H
