@@ -79,10 +79,10 @@ struct Sum : public bpp::DF::Value<int>::Impl
 
   void addDep(Node n) { this->appendDependency(std::move(n)); }
 
-  static std::vector<bpp::DF::RegistryKey> computeDepencies(const bpp::DF::RegistryKey& key)
+  static std::vector<bpp::DF::NodeSpecification> computeDepencies(const bpp::DF::NodeSpecification& key)
   {
     auto& phyloNode = key.element().asNodeRef();
-    std::vector<bpp::DF::RegistryKey> deps;
+    std::vector<bpp::DF::NodeSpecification> deps;
     if (phyloNode.nbChildBranches() > 0)
     {
       // Internal node
@@ -124,16 +124,15 @@ TEST_CASE("test")
 
   bpp::DF::Registry registry;
 
-  using Key = bpp::DF::RegistryKey;
+  using Key = bpp::DF::NodeSpecification;
 
   auto a = bpp::DF::Parameter<int>::create<MyParam>(3);
   auto b = bpp::DF::Parameter<int>::create<MyParam>(42);
 
-  auto ds = registry.createEmptyDataSet();
-  registry.setNode(Key::create<MyParam>(tree.nodeRef(ta), ds), Node(a));
-  registry.setNode(Key::create<MyParam>(tree.nodeRef(tb), ds), Node(b));
+  registry.setNode(Key::create<MyParam>(tree.nodeRef(ta)), Node(a));
+  registry.setNode(Key::create<MyParam>(tree.nodeRef(tb)), Node(b));
 
-  Value<int> sum{registry.instantiate(Key::create<Sum>(tree.nodeRef(tree.rootId()), ds))};
+  Value<int> sum{registry.instantiate(Key::create<Sum>(tree.nodeRef(tree.rootId())))};
   CHECK(sum.getValue() == 45);
   a.setValue(-42);
   CHECK(sum.getValue() == 0);

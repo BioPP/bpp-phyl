@@ -58,72 +58,49 @@ namespace DF {
 	// TODO add dataset for multi model and similar
 	// DataSet should know some parameters like nb site / alphabet
 
-	class DataSet {
-	public:
-		class Impl;
-
-		template <typename T, typename... Args> static DataSet create (Args &&... args) {
-			return DataSet (std::make_shared<T> (std::forward<Args> (args)...));
-		}
-
-		bool operator== (const DataSet & other) const noexcept { return pImpl_ == other.pImpl_; }
-		std::size_t hashCode () const noexcept { return std::hash<std::shared_ptr<Impl>>{}(pImpl_); }
-
-	private:
-		explicit DataSet (std::shared_ptr<Impl> p) : pImpl_ (std::move (p)) {}
-		std::shared_ptr<Impl> pImpl_;
-	};
-	class DataSet::Impl {
-	public:
-	};
-
-	/* RegistryKey
+	/* NodeSpecification
 	 */
-	class RegistryKey {
+	class NodeSpecification {
 	public:
-		RegistryKey (const Topology::Element & treeElement, const DataSet & dataSet,
-		             const std::type_index & operationType)
-		    : treeElement_ (treeElement), dataSet_ (dataSet), operationType_ (operationType) {}
+		NodeSpecification (const Topology::Element & treeElement, const std::type_index & operationType)
+		    : treeElement_ (treeElement), operationType_ (operationType) {}
 
-		template <typename T>
-		static RegistryKey create (const Topology::Element & treeElement, const DataSet & dataSet) {
-			return RegistryKey (treeElement, dataSet, typeid (T));
+		template <typename T> static NodeSpecification create (const Topology::Element & treeElement) {
+			return NodeSpecification (treeElement, typeid (T));
 		}
 
-		bool operator== (const RegistryKey & key) const noexcept {
-			return treeElement_ == key.treeElement_ && dataSet_ == key.dataSet_ &&
-			       operationType_ == key.operationType_;
+		bool operator== (const NodeSpecification & key) const noexcept {
+			return treeElement_ == key.treeElement_ && operationType_ == key.operationType_;
 		}
 		std::size_t hashCode () const noexcept {
 			auto a = treeElement_.hashCode ();
-			auto b = dataSet_.hashCode ();
-			auto c = operationType_.hash_code ();
-			return a ^ (b << 1) ^ (c << 2);
+			auto b = operationType_.hash_code ();
+			return a ^ (b << 1);
 		}
 		struct Hash {
-			std::size_t operator() (const RegistryKey & key) const noexcept { return key.hashCode (); }
+			std::size_t operator() (const NodeSpecification & key) const noexcept {
+				return key.hashCode ();
+			}
 		};
 
 		const Topology::Element & element () const noexcept { return treeElement_; }
-		const DataSet & dataSet () const noexcept { return dataSet_; }
 		const std::type_index & operation () const noexcept { return operationType_; }
 
-		RegistryKey withElement (const Topology::Element & treeElement) const noexcept {
-			return RegistryKey (treeElement, dataSet_, operationType_);
+		NodeSpecification withElement (const Topology::Element & treeElement) const noexcept {
+			return NodeSpecification (treeElement, operationType_);
 		}
-		template <typename Op> RegistryKey withOperation () const noexcept {
-			return RegistryKey (treeElement_, dataSet_, typeid (Op));
+		template <typename Op> NodeSpecification withOperation () const noexcept {
+			return NodeSpecification (treeElement_, typeid (Op));
 		}
 
 	private:
 		Topology::Element treeElement_;
-		DataSet dataSet_;
 		std::type_index operationType_;
 	};
 
 	class Builder {
-    // Add recursing registering of types ?
-    // TODO Move to per registry map ?
+		// Add recursing registering of types ?
+		// TODO Move to per registry map ?
 	public:
 		class NodeBuildingFunctions {
 		public:
@@ -132,13 +109,14 @@ namespace DF {
 			    : computeDependencies_ (std::forward<ComputeDepCallable> (cd)),
 			      buildNode_ (std::forward<BuildNodeCallable> (bn)) {}
 
-			std::vector<RegistryKey> computeDependencies (const RegistryKey & key) const {
+			std::vector<NodeSpecification> computeDependencies (const NodeSpecification & key) const {
 				return computeDependencies_ (key);
 			}
 			Node buildNode (std::vector<Node> deps) const { return buildNode_ (std::move (deps)); }
 
 		private:
-			std::function<std::vector<RegistryKey> (const RegistryKey &)> computeDependencies_;
+			std::function<std::vector<NodeSpecification> (const NodeSpecification &)>
+			    computeDependencies_;
 			std::function<Node (std::vector<Node>)> buildNode_;
 		};
 
@@ -165,7 +143,7 @@ namespace DF {
 
 	class Registry {
 	public:
-		using Key = RegistryKey;
+		using Key = NodeSpecification;
 
 		bool trySetNode (const Key & key, Node n) {
 			auto result = dataflowNodes_.emplace (key, std::move (n));
@@ -176,7 +154,7 @@ namespace DF {
 				throw std::runtime_error ("Node already set for key");
 		}
 
-		Node instantiate (const RegistryKey & key) {
+		Node instantiate (const NodeSpecification & key) {
 			// Use already built node
 			auto currentNode = dataflowNodes_.find (key);
 			if (currentNode != dataflowNodes_.end ())
@@ -192,14 +170,13 @@ namespace DF {
 			return node;
 		}
 
-		const std::unordered_map<RegistryKey, Node, RegistryKey::Hash> & rawAccess () const {
+		const std::unordered_map<NodeSpecification, Node, NodeSpecification::Hash> &
+		rawAccess () const {
 			return dataflowNodes_;
 		}
 
-		DataSet createEmptyDataSet () { return DataSet::create<DataSet::Impl> (); }
-
 	private:
-		std::unordered_map<RegistryKey, Node, RegistryKey::Hash> dataflowNodes_;
+		std::unordered_map<NodeSpecification, Node, NodeSpecification::Hash> dataflowNodes_;
 	};
 }
 }

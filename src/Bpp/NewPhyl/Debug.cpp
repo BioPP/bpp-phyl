@@ -99,8 +99,8 @@ namespace DF {
 	static std::string dotNodeKey (const Node::Impl * p) {
 		return dotNodeKey ('N', std::hash<const Node::Impl *>{}(p));
 	}
-	static std::string dotNodeKey (const RegistryKey & key) {
-		return dotNodeKey ('R', key.hashCode ());
+	static std::string dotNodeKey (const NodeSpecification & spec) {
+		return dotNodeKey ('R', spec.hashCode ());
 	}
 
 	static std::string dotLabelEscape (std::string s) {
