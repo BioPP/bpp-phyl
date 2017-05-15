@@ -65,10 +65,6 @@ namespace DF {
 		ConditionalLikelihoodComputation (std::size_t nbCharacters, std::size_t nbSites)
 		    : Value<LikelihoodVectorBySite>::Impl (nbSites, LikelihoodVector (nbCharacters)) {}
 
-		void addDependency (ArgumentType forwardLikelihood) {
-			this->appendDependency (Node (forwardLikelihood));
-		}
-
 	private:
 		void compute () override final {
 			// Store refs to liks

@@ -50,6 +50,7 @@
 #include <Bpp/NewPhyl/Range.h>
 #include <Bpp/NewPhyl/Topology.h>
 
+#include <cassert>
 #include <fstream>
 #include <iostream>
 #include <unordered_map>
@@ -89,16 +90,20 @@ struct MyParam : public bpp::DF::Parameter<int>::Impl
 
 struct Sum : public bpp::DF::Value<int>::Impl
 {
-  Sum() = default;
+  Sum(std::vector<Node> deps)
+    : bpp::DF::Value<int>::Impl(std::move(deps))
+  {
+    // Check deps
+    this->foreachDependencyNode([](Node::Impl* n) { assert(dynamic_cast<Value<int>::Impl*>(n)); });
+  }
 
   void compute() override
   {
     int a = 0;
-    this->foreachDependencyNode([&a](Node::Impl* n) { a += dynamic_cast<Value<int>::Impl&>(*n).getValue(); });
+    // Use static downcast as it was checked before (TODO make this more ergonomic)
+    this->foreachDependencyNode([&a](Node::Impl* n) { a += static_cast<Value<int>::Impl&>(*n).getValue(); });
     this->value_ = a;
   }
-
-  void addDep(Node n) { this->appendDependency(std::move(n)); }
 
   class Spec
   {
@@ -125,15 +130,7 @@ struct Sum : public bpp::DF::Value<int>::Impl
       }
       return deps;
     }
-    static Node buildNode(std::vector<Node> deps)
-    {
-      // TODO automatize ?
-      auto node = Node::create<Sum>();
-      auto& impl = static_cast<Sum&>(node.getImpl());
-      for (auto& d : deps)
-        impl.addDep(std::move(d));
-      return node;
-    }
+    static Node buildNode(std::vector<Node> deps) { return Node::create<Sum>(std::move(deps)); }
 
   private:
     bpp::Topology::NodeRef node_;
@@ -169,5 +166,5 @@ TEST_CASE("test")
   // Value<int> partialSum{Sum::build(registry, tree.nodeRef(0), ds)};
 
   std::ofstream fd("df_debug");
-  bpp::DF::debugDag(fd, Node (sum));
+  bpp::DF::debugDag(fd, Node(sum));
 }

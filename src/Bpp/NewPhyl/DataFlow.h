@@ -90,6 +90,11 @@ namespace DF {
 		Impl & operator= (const Impl &) = delete;
 		Impl & operator= (Impl &&) = delete;
 
+		// Constructor that sets the dependencies
+		Impl (std::vector<Node> dependencies) : dependencyNodes_ (std::move (dependencies)) {
+			foreachDependencyNode ([this](Impl * node) { node->registerNode (this); });
+		}
+
 		virtual ~Impl () {
 			foreachDependencyNode ([this](Impl * node) { node->unregisterNode (this); });
 		}
@@ -126,13 +131,7 @@ namespace DF {
 	protected:
 		void makeValid () noexcept { isValid_ = true; }
 
-		// For reduction-like computations
-		void appendDependency (Node n) {
-			n.getImpl ().registerNode (this);
-			dependencyNodes_.emplace_back (std::move (n));
-		}
-
-		// For heterogeneous computations
+		// For heterogeneous computations TODO probably remove in favor of building with deps
 		void allocateDependencies (std::size_t nbDependencies) {
 			dependencyNodes_.resize (nbDependencies);
 		}
@@ -192,6 +191,12 @@ namespace DF {
 
 	template <typename T> class Value<T>::Impl : public Node::Impl {
 	public:
+		// Init deps
+		template <typename... Args>
+		Impl (std::vector<Node> deps, Args &&... args)
+		    : Node::Impl (std::move (deps)), value_ (std::forward<Args> (args)...) {}
+
+		// No deps TODO add type tag to guarantee template choice ?
 		template <typename... Args>
 		Impl (Args &&... args) : Node::Impl (), value_ (std::forward<Args> (args)...) {}
 
