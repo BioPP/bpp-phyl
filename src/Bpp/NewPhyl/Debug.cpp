@@ -135,20 +135,20 @@ namespace DF {
 			if (nodesAlreadyVisited.count (node))
 				continue;
 
-			os << '\t' << dotNodeKey (node) << " [shape=record,label=\"" << dotNodeKey (node) << '|'
-			   << typeToDotLabel (typeid (*node)) << "\"];\n";
+			os << '\t' << dotNodeKey (node) << " [color=blue,shape=record,label=\"" << dotNodeKey (node)
+			   << '|' << typeToDotLabel (typeid (*node)) << "\"];\n";
 			nodesAlreadyVisited.emplace (node);
 
 			node->foreachDependentNode ([&](const Node::Impl * p) {
 				if (nodesAlreadyVisited.count (p))
 					return;
-				os << '\t' << dotNodeKey (p) << " -> " << dotNodeKey (node) << ";\n";
+				os << '\t' << dotNodeKey (p) << " -> " << dotNodeKey (node) << " [color=blue];\n";
 				nodesToVisit.emplace (p);
 			});
 			node->foreachDependencyNode ([&](const Node::Impl * p) {
 				if (nodesAlreadyVisited.count (p))
 					return;
-				os << '\t' << dotNodeKey (node) << " -> " << dotNodeKey (p) << ";\n";
+				os << '\t' << dotNodeKey (node) << " -> " << dotNodeKey (p) << " [color=blue];\n";
 				nodesToVisit.emplace (p);
 			});
 		}
