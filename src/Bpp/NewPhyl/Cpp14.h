@@ -63,23 +63,6 @@ namespace bpp
   namespace Cpp14
   {
     /**
-     * @brief Implements std::make_unique if not available.
-     */
-#if (__cplusplus >= 201402L)
-    template <typename T, typename... Args>
-    std::unique_ptr<T> make_unique(Args&&... args)
-    {
-      return std::make_unique<T>(std::forward<Args>(args)...);
-    }
-#else
-    template <typename T, typename... Args>
-    std::unique_ptr<T> make_unique(Args&&... args)
-    {
-      return std::unique_ptr<T>(new T(std::forward<Args>(args)...));
-    }
-#endif
-
-    /**
      * @brief Implement std::index_sequence and std::index_sequence_for.
      */
 #if (__cplusplus >= 201402L)

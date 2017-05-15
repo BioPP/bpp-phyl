@@ -50,6 +50,8 @@
 namespace bpp {
 namespace DF {
 
+  // FIXME out of date, revamp or delete
+
 	/** Generic function computation.
 	 * Performs a computation with a fixed set of arguments of heterogeneous types.
 	 * The computation itself must be encoded as a struct defining multiple elements:

@@ -62,31 +62,23 @@ using bpp::Topology::NodeRef;
 
 using NodeVec = std::vector<Node>;
 
-struct MyParam : public bpp::DF::Parameter<int>::Impl
+class MyParamSpec
 {
-  MyParam(int i)
-    : bpp::DF::Parameter<int>::Impl(i)
+  // Just return the right param
+public:
+  MyParamSpec(NodeRef node, NodeVec& params)
+    : node_(node)
+    , params_(params)
   {
   }
 
-  class Spec
-  {
-    // Just return the right param
-  public:
-    Spec(NodeRef node, NodeVec& params)
-      : node_(node)
-      , params_(params)
-    {
-    }
+  static std::vector<NodeSpecification> computeDependencies() { return {}; }
+  Node buildNode(std::vector<Node>) const { return Node(params_[node_.nodeId()]); }
+  static std::type_index nodeType() { return typeid(int); } // dummy
 
-    static std::vector<NodeSpecification> computeDependencies() { return {}; }
-    Node buildNode(std::vector<Node>) const { return Node(params_[node_.nodeId()]); }
-    static std::type_index nodeType() { return typeid(MyParam); }
-
-  private:
-    bpp::Topology::NodeRef node_;
-    NodeVec& params_;
-  };
+private:
+  bpp::Topology::NodeRef node_;
+  NodeVec& params_;
 };
 
 struct Sum : public bpp::DF::Value<int>::Impl
@@ -127,7 +119,7 @@ struct Sum : public bpp::DF::Value<int>::Impl
       else
       {
         // Leaf
-        deps.emplace_back(MyParam::Spec{node_, params_});
+        deps.emplace_back(MyParamSpec{node_, params_});
       }
       return deps;
     }
@@ -152,8 +144,8 @@ TEST_CASE("test")
   std::ofstream ft("topology_debug");
   bpp::Topology::debugTree(ft, tree);
 
-  auto a = bpp::DF::Parameter<int>::create<MyParam>(3);
-  auto b = bpp::DF::Parameter<int>::create<MyParam>(42);
+  auto a = bpp::DF::Parameter<int>::create(3);
+  auto b = bpp::DF::Parameter<int>::create(42);
   NodeVec params(tree.nbNodes());
   params[ta] = Node(a);
   params[tb] = Node(b);

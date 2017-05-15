@@ -134,18 +134,6 @@ namespace DF {
 	protected:
 		void makeValid () noexcept { isValid_ = true; }
 
-		// For heterogeneous computations TODO probably remove in favor of building with deps
-		void allocateDependencies (std::size_t nbDependencies) {
-			dependencyNodes_.resize (nbDependencies);
-		}
-		void setDependency (std::size_t index, Node n) {
-			auto & dep = dependencyNodes_.at (index);
-			assert (!dep.hasNode ());
-			n.getImpl ().registerNode (this);
-			dep = std::move (n);
-		}
-		Impl & getDependencyImpl (std::size_t index) { return dependencyNodes_[index].getImpl (); }
-
 	private:
 		void registerNode (Impl * n) { dependentNodes_.emplace_back (n); }
 		void unregisterNode (const Impl * n) {
@@ -227,8 +215,8 @@ namespace DF {
 		}
 		const std::shared_ptr<Impl> & getShared () const noexcept { return pImpl_; }
 
-		template <typename U, typename... Args> static Parameter create (Args &&... args) {
-			return Parameter (std::make_shared<U> (std::forward<Args> (args)...));
+		template <typename... Args> static Parameter create (Args &&... args) {
+			return Parameter (std::make_shared<Impl> (std::forward<Args> (args)...));
 		}
 
 		Ref getImpl () const noexcept { return *pImpl_; }

@@ -52,6 +52,13 @@ class SubstitutionModel;
 
 namespace Phylo {
 
+  /* Here define model set, branch length sets, etc.
+   * Which Topology object to use ?
+   * Classes which define a Phylogeny tree
+   *
+   * No need to override Parameter<T> now
+   */
+
 	class BranchLength : public DF::Parameter<double>::Impl {
 	public:
 		BranchLength (double initialValue) : DF::Parameter<double>::Impl (initialValue) {}

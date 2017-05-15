@@ -43,11 +43,9 @@
 #ifndef BPP_NEWPHYL_TOPOLOGY_H
 #define BPP_NEWPHYL_TOPOLOGY_H
 
-#include <functional> // std::hash
 #include <limits>
 #include <stdexcept> // std::runtime_error
 #include <string>
-#include <typeinfo> // std::bad_cast
 #include <vector>
 
 namespace bpp {
@@ -124,15 +122,6 @@ namespace Topology {
 		BranchRef fatherBranch () const;
 		BranchRef childBranch (IndexType id) const;
 
-		bool operator== (const NodeRef & node) const noexcept {
-			return &tree_ == &node.tree_ && nodeId_ == node.nodeId_;
-		}
-		std::size_t hashCode () const noexcept {
-			auto a = std::hash<const Tree *>{}(&tree_);
-			auto b = std::hash<IndexType>{}(nodeId_);
-			return a ^ (b << 1);
-		}
-
 	private:
 		const Tree & tree_;
 		IndexType nodeId_;
@@ -156,15 +145,6 @@ namespace Topology {
 			return NodeRef (tree_, id);
 		}
 		NodeRef childNode () const { return NodeRef (tree_, childNodeId_); }
-
-		bool operator== (const BranchRef & branch) const noexcept {
-			return &tree_ == &branch.tree_ && childNodeId_ == branch.childNodeId_;
-		}
-		std::size_t hashCode () const noexcept {
-			auto a = std::hash<const Tree *>{}(&tree_);
-			auto b = std::hash<IndexType>{}(childNodeId_);
-			return a ^ (b << 1);
-		}
 
 	private:
 		const Tree & tree_;
