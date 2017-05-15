@@ -1,9 +1,9 @@
 //
-// File: Registry.h
+// File: NodeSpecification.h
 // Authors:
 //   Francois Gindraud (2017)
-// Created: 2017-04-25
-// Last modified: 2017-04-25
+// Created: 2017-05-15
+// Last modified: 2017-05-15
 //
 
 /*
@@ -40,61 +40,64 @@
 */
 
 #pragma once
-#ifndef BPP_NEWPHYL_REGISTRY_H
-#define BPP_NEWPHYL_REGISTRY_H
+#ifndef BPP_NEWPHYL_NODESPECIFICATION_H
+#define BPP_NEWPHYL_NODESPECIFICATION_H
 
 #include <Bpp/NewPhyl/DataFlow.h>
-#include <Bpp/NewPhyl/Debug.h>
-#include <functional>
 #include <memory>
-#include <typeindex>
-#include <unordered_map>
-#include <utility>
+#include <vector>
 
 namespace bpp {
 namespace DF {
-/*
-	class Registry {
+
+	class NodeSpecification {
+		// Abstracted spec value
 	public:
+		// FIXME add nonself
+		// TODO use perfect fwd
+		template <typename T>
+		explicit NodeSpecification (const T & spec) : specification_ (new Specification<T> (spec)) {}
 
-
-		bool trySetNode (const Key & key, Node n) {
-			auto result = dataflowNodes_.emplace (key, std::move (n));
-			return result.second;
+		std::vector<NodeSpecification> computeDependencies () const {
+			return specification_->computeDependencies ();
 		}
-		void setNode (const Key & key, Node n) {
-			if (!trySetNode (key, std::move (n)))
-				throw std::runtime_error ("Node already set for key");
+		Node buildNode (std::vector<Node> dependencies) const {
+			return specification_->buildNode (std::move (dependencies));
 		}
 
-		Node instantiate (const NodeSpecification & key) {
-			// Use already built node
-			auto currentNode = dataflowNodes_.find (key);
-			if (currentNode != dataflowNodes_.end ())
-				return currentNode->second;
-			// Instantiate dependencies
-			auto & factory = Builder::functions (key.operation ());
+    // Build DF graph recursively without merging
+		Node instantiate () const {
 			std::vector<Node> deps;
-			for (auto & depKey : factory.computeDependencies (key))
-				deps.emplace_back (instantiate (depKey));
-			// Build node
-			auto node = factory.buildNode (std::move (deps));
-			dataflowNodes_.emplace (key, node);
-			return node;
+			for (auto & depSpec : computeDependencies ())
+				deps.emplace_back (depSpec.instantiate ());
+			return buildNode (std::move (deps));
 		}
 
-		const std::unordered_map<NodeSpecification, Node, NodeSpecification::Hash> &
-		rawAccess () const {
-			return dataflowNodes_;
-		}
+		// TODO add registry version
+		// Registry should now be a map from (type, deps) -> node
+		// Should only depend on the DF graph and not the spec
 
 	private:
-		std::unordered_map<NodeSpecification, Node, NodeSpecification::Hash> dataflowNodes_;
+		struct Interface {
+			virtual ~Interface () = default;
+			virtual std::vector<NodeSpecification> computeDependencies () const = 0;
+			virtual Node buildNode (std::vector<Node> dependencies) const = 0;
+		};
+		template <typename T> struct Specification final : public Interface {
+			T spec_;
+			Specification (const T & spec) : spec_ (spec) {}
+			std::vector<NodeSpecification> computeDependencies () const {
+				return spec_.computeDependencies ();
+			}
+			Node buildNode (std::vector<Node> dependencies) const {
+				return spec_.buildNode (std::move (dependencies));
+			}
+		};
+		std::unique_ptr<Interface> specification_;
 	};
-  */
 
-  //TODO convert to a pure DF registry
+	using NodeSpecificationVec = std::vector<NodeSpecification>;
 }
 }
 
-#endif // BPP_NEWPHYL_REGISTRY_H
+#endif // BPP_NEWPHYL_NODESPECIFICATION_H

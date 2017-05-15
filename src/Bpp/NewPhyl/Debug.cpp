@@ -99,9 +99,9 @@ namespace DF {
 	static std::string dotNodeKey (const Node::Impl * p) {
 		return dotNodeKey ('N', std::hash<const Node::Impl *>{}(p));
 	}
-	static std::string dotNodeKey (const NodeSpecification & spec) {
-		return dotNodeKey ('R', spec.hashCode ());
-	}
+	/*	static std::string dotNodeKey (const NodeSpecification & spec) {
+	    return dotNodeKey ('R', spec.hashCode ());
+	  }*/
 
 	static std::string dotLabelEscape (std::string s) {
 		// Escapes characters in a record type dot node label.
@@ -145,20 +145,21 @@ namespace DF {
 			});
 		}
 	}
-
-	static void debugRegistryLinks (std::ostream & os, const Registry & registry) {
-		for (auto & it : registry.rawAccess ()) {
-			auto & key = it.first;
-			os << '\t' << dotNodeKey (key) << " [shape=Mrecord,label=\"{" << dotNodeKey (key) << "|{";
-			os << typeToDotLabel (key.operation ()) << '|';
-			if (key.element ().type () == bpp::Topology::Element::Node)
-				os << 'N' << key.element ().asNodeRef ().nodeId ();
-			else
-				os << 'B' << key.element ().asBranchRef ().childNodeId ();
-			os << "}}\"];\n";
-			os << '\t' << dotNodeKey (key) << " -> " << dotNodeKey (&it.second.getImpl ()) << ";\n";
-		}
-	}
+	/*
+	  static void debugRegistryLinks (std::ostream & os, const Registry & registry) {
+	    for (auto & it : registry.rawAccess ()) {
+	      auto & key = it.first;
+	      os << '\t' << dotNodeKey (key) << " [shape=Mrecord,label=\"{" << dotNodeKey (key) << "|{";
+	      os << typeToDotLabel (key.operation ()) << '|';
+	      if (key.element ().type () == bpp::Topology::Element::Node)
+	        os << 'N' << key.element ().asNodeRef ().nodeId ();
+	      else
+	        os << 'B' << key.element ().asBranchRef ().childNodeId ();
+	      os << "}}\"];\n";
+	      os << '\t' << dotNodeKey (key) << " -> " << dotNodeKey (&it.second.getImpl ()) << ";\n";
+	    }
+	  }
+	  */
 
 	void debugDag (std::ostream & os, const Node & entryPoint) {
 		os << "digraph {\n";
@@ -166,12 +167,12 @@ namespace DF {
 		os << "}\n";
 	}
 	void debugRegistry (std::ostream & os, const Registry & registry) {
-		os << "digraph {\n";
+		/*os << "digraph {\n";
 		if (!registry.rawAccess ().empty ()) {
-			debugDagStructure (os, registry.rawAccess ().begin ()->second);
-			debugRegistryLinks (os, registry);
+		  debugDagStructure (os, registry.rawAccess ().begin ()->second);
+		  debugRegistryLinks (os, registry);
 		}
-		os << "}\n";
+		os << "}\n";*/
 	}
 }
 }

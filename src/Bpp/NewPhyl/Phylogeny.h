@@ -57,6 +57,8 @@ namespace Phylo {
 		BranchLength (double initialValue) : DF::Parameter<double>::Impl (initialValue) {}
 	};
 
+	using BranchLengthSet = std::vector<std::shared_ptr<BranchLength>>;
+
 	class Model : public DF::Parameter<SubstitutionModel *>::Impl {
 	public:
 		Model (SubstitutionModel * model) : DF::Parameter<SubstitutionModel *>::Impl (model) {}

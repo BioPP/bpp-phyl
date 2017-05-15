@@ -44,8 +44,6 @@
 namespace bpp {
   namespace DF {
 
-    std::unordered_map<std::type_index, Builder::NodeBuildingFunctions> Builder::functionsByType_;
-
   }
 }
 

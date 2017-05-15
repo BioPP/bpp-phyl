@@ -55,7 +55,6 @@ namespace Topology {
 	using IndexType = std::size_t;
 	constexpr IndexType invalid{std::numeric_limits<IndexType>::max ()};
 
-	class Element;
 	class NodeRef;
 	class BranchRef;
 
@@ -101,7 +100,7 @@ namespace Topology {
 			return id;
 		}
 
-		Element nodeRef (IndexType nodeId) const noexcept;
+		NodeRef nodeRef (IndexType nodeId) const noexcept;
 
 	private:
 		IndexType rootId_{invalid};
@@ -139,6 +138,8 @@ namespace Topology {
 		IndexType nodeId_;
 	};
 
+	inline NodeRef Tree::nodeRef (IndexType nodeId) const noexcept { return NodeRef (*this, nodeId); }
+
 	class BranchRef {
 	public:
 		BranchRef (const Tree & tree, IndexType childNodeId) noexcept
@@ -174,64 +175,6 @@ namespace Topology {
 	inline BranchRef NodeRef::childBranch (IndexType id) const {
 		return BranchRef (tree_, tree_.node (nodeId_).childrenIds_[id]);
 	}
-
-	/* Element: sum type storing either a NodeRef or a BranchRef.
-	 */
-	class Element {
-		// Sum type
-	public:
-		enum Type { Node, Branch };
-
-		Element (const NodeRef & n) noexcept : type_ (Node) { new (&d_.nodeRef) NodeRef (n); }
-		Element (const BranchRef & b) noexcept : type_ (Branch) { new (&d_.branchRef) BranchRef (b); }
-		~Element () noexcept {
-			switch (type_) {
-			case Node:
-				d_.nodeRef.~NodeRef ();
-				break;
-			case Branch:
-				d_.branchRef.~BranchRef ();
-				break;
-			}
-		}
-
-		Type type () const noexcept { return type_; }
-		const NodeRef & asNodeRef () const {
-			if (type_ != Node)
-				throw std::bad_cast ();
-			return d_.nodeRef;
-		}
-		const BranchRef & asBranchRef () const {
-			if (type_ != Branch)
-				throw std::bad_cast ();
-			return d_.branchRef;
-		}
-
-		bool operator== (const Element & element) const noexcept {
-			if (type_ != element.type_)
-				return false;
-			if (type_ == Node)
-				return asNodeRef () == element.asNodeRef ();
-			else
-				return asBranchRef () == element.asBranchRef ();
-		}
-		std::size_t hashCode () const noexcept {
-			auto a = std::hash<int>{}(int(type_));
-			auto b = type_ == Node ? asNodeRef ().hashCode () : asBranchRef ().hashCode ();
-			return a ^ (b << 1);
-		}
-
-	private:
-		Type type_;
-		union Content {
-			Content () {}
-			~Content () {}
-			NodeRef nodeRef;
-			BranchRef branchRef;
-		} d_;
-	};
-
-	inline Element Tree::nodeRef (IndexType nodeId) const noexcept { return NodeRef (*this, nodeId); }
 }
 }
 
