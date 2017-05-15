@@ -45,8 +45,10 @@
 
 #include <Bpp/NewPhyl/DataFlow.h>
 #include <memory>
+#include <type_traits>
 #include <typeindex>
 #include <unordered_map>
+#include <utility>
 #include <vector>
 
 namespace bpp {
@@ -111,10 +113,23 @@ namespace DF {
 		// Abstracted spec value
 		// TODO doc
 	public:
-		// FIXME add nonself
-		// TODO use perfect fwd
-		template <typename T>
-		explicit NodeSpecification (const T & spec) : specification_ (new Specification<T> (spec)) {}
+		// Constructors
+		NodeSpecification () = delete;
+		NodeSpecification (const NodeSpecification & other)
+		    : specification_ (other.specification_->clone ()) {}
+		NodeSpecification (NodeSpecification &&) = default;
+		NodeSpecification & operator= (NodeSpecification &&) = default;
+		NodeSpecification & operator= (const NodeSpecification & other) {
+			return *this = NodeSpecification (other);
+		}
+		~NodeSpecification () = default;
+
+		// TODO externalize for clarity
+		template <typename T, typename Decayed = typename std::decay<T>::type,
+		          typename = typename std::enable_if<
+		              !std::is_base_of<NodeSpecification, Decayed>::value>::type>
+		explicit NodeSpecification (T && spec)
+		    : specification_ (new Specification<Decayed> (std::forward<T> (spec))) {}
 
 		template <typename T, typename... Args> static NodeSpecification create (Args &&... args) {
 			return NodeSpecification (T (std::forward<Args> (args)...));
@@ -127,7 +142,7 @@ namespace DF {
 		Node buildNode (std::vector<Node> dependencies) const {
 			return specification_->buildNode (std::move (dependencies));
 		}
-		std::type_index nodeType () const { return specification_->nodeType (); }
+		std::type_index nodeType () const noexcept { return specification_->nodeType (); }
 
 		// Build DF graph recursively without merging
 		Node instantiate () const {
@@ -166,6 +181,7 @@ namespace DF {
 		// Virtual value type pattern
 		struct Interface {
 			virtual ~Interface () = default;
+			virtual Interface * clone () const = 0;
 			virtual std::vector<NodeSpecification> computeDependencies () const = 0;
 			virtual Node buildNode (std::vector<Node> dependencies) const = 0;
 			virtual std::type_index nodeType () const = 0;
@@ -173,13 +189,15 @@ namespace DF {
 		template <typename T> struct Specification final : public Interface {
 			T spec_;
 			Specification (const T & spec) : spec_ (spec) {}
-			std::vector<NodeSpecification> computeDependencies () const {
+			Specification (T && spec) : spec_ (std::move (spec)) {}
+			Specification * clone () const override { return new Specification (*this); }
+			std::vector<NodeSpecification> computeDependencies () const override {
 				return spec_.computeDependencies ();
 			}
-			Node buildNode (std::vector<Node> dependencies) const {
+			Node buildNode (std::vector<Node> dependencies) const override {
 				return spec_.buildNode (std::move (dependencies));
 			}
-			std::type_index nodeType () const { return spec_.nodeType (); }
+			std::type_index nodeType () const noexcept override { return spec_.nodeType (); }
 		};
 		std::unique_ptr<Interface> specification_;
 	};
