@@ -41,13 +41,14 @@
 
 #include <Bpp/NewPhyl/Config.h>
 #include <Bpp/NewPhyl/DataFlow.h>
-#include <Bpp/NewPhyl/Registry.h>
+#include <Bpp/NewPhyl/Debug.h>
+//#include <Bpp/NewPhyl/Registry.h>
 #include <Bpp/NewPhyl/Topology.h>
 #include <algorithm>
 #include <ostream>
 #include <queue>
 #include <string>
-#include <typeinfo>
+#include <typeindex>
 #include <unordered_set>
 
 #ifdef BPP_HAVE_DEMANGLING

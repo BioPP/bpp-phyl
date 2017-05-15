@@ -77,6 +77,9 @@ namespace DF {
 
 		Ref getImpl () const noexcept { return *pImpl_; }
 
+		bool operator== (const Node & other) const noexcept { return pImpl_ == other.pImpl_; }
+		std::size_t hashCode () const noexcept { return std::hash<std::shared_ptr<Impl>>{}(pImpl_); }
+
 	private:
 		explicit Node (std::shared_ptr<Impl> p) noexcept : pImpl_ (std::move (p)) {}
 		std::shared_ptr<Impl> pImpl_;

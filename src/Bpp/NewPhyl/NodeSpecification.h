@@ -45,13 +45,62 @@
 
 #include <Bpp/NewPhyl/DataFlow.h>
 #include <memory>
+#include <typeindex>
+#include <unordered_map>
 #include <vector>
 
 namespace bpp {
 namespace DF {
 
+	class Registry {
+	public:
+		class Key {
+			// Key is type of node, and dependencies
+		public:
+			Key (std::type_index nodeType, const std::vector<Node> & dependencies)
+			    : nodeType_ (nodeType), dependencies_ (dependencies) {}
+
+			bool operator== (const Key & other) const noexcept {
+				return nodeType_ == other.nodeType_ && dependencies_ == other.dependencies_;
+			}
+			std::size_t hashCode () const noexcept {
+				auto nodeTypeHash = std::hash<std::type_index>{}(nodeType_);
+				std::size_t vecHash = dependencies_.size ();
+				for (auto & n : dependencies_)
+					vecHash ^= n.hashCode () + 0x9e3779b9 + (vecHash << 6) + (vecHash >> 2);
+				return vecHash ^ (nodeTypeHash << 1);
+			}
+
+		private:
+			std::type_index nodeType_;
+			std::vector<Node> dependencies_;
+		};
+
+		// May be null
+		Node get (const Key & key) const {
+			auto it = nodes_.find (key);
+			if (it != nodes_.end ())
+				return it->second;
+			else
+				return Node ();
+		}
+
+		void set (Key key, Node node) {
+			auto result = nodes_.emplace (std::move (key), std::move (node));
+			if (!result.second)
+				throw std::runtime_error ("Node already set for key");
+		}
+
+	private:
+		struct Hash {
+			std::size_t operator() (const Key & k) const noexcept { return k.hashCode (); }
+		};
+		std::unordered_map<Key, Node, Hash> nodes_;
+	};
+
 	class NodeSpecification {
 		// Abstracted spec value
+		// TODO doc
 	public:
 		// FIXME add nonself
 		// TODO use perfect fwd
@@ -64,8 +113,9 @@ namespace DF {
 		Node buildNode (std::vector<Node> dependencies) const {
 			return specification_->buildNode (std::move (dependencies));
 		}
+		std::type_index nodeType () const { return specification_->nodeType (); }
 
-    // Build DF graph recursively without merging
+		// Build DF graph recursively without merging
 		Node instantiate () const {
 			std::vector<Node> deps;
 			for (auto & depSpec : computeDependencies ())
@@ -73,15 +123,37 @@ namespace DF {
 			return buildNode (std::move (deps));
 		}
 
-		// TODO add registry version
-		// Registry should now be a map from (type, deps) -> node
-		// Should only depend on the DF graph and not the spec
+		// Build DF graph while merging using the given registry
+		Node instantiateWithReuse (Registry & registry) const {
+			Node n{};
+			auto depSpecs = computeDependencies ();
+			if (depSpecs.empty ()) {
+				// Parameters are not stored in the registry.
+				// buildNode should just create a new reference.
+				n = buildNode ({});
+			} else {
+				// Instantiate dependencies
+				std::vector<Node> deps;
+				for (auto & depSpec : depSpecs)
+					deps.emplace_back (depSpec.instantiateWithReuse (registry));
+				// Check the registry
+				Registry::Key key{nodeType (), deps};
+				n = registry.get (key);
+				if (!n.hasNode ()) {
+					// Build it if not found
+					n = buildNode (std::move (deps));
+					registry.set (std::move (key), n);
+				}
+			}
+			return n;
+		}
 
 	private:
 		struct Interface {
 			virtual ~Interface () = default;
 			virtual std::vector<NodeSpecification> computeDependencies () const = 0;
 			virtual Node buildNode (std::vector<Node> dependencies) const = 0;
+			virtual std::type_index nodeType () const = 0;
 		};
 		template <typename T> struct Specification final : public Interface {
 			T spec_;
@@ -92,6 +164,7 @@ namespace DF {
 			Node buildNode (std::vector<Node> dependencies) const {
 				return spec_.buildNode (std::move (dependencies));
 			}
+			std::type_index nodeType () const { return spec_.nodeType (); }
 		};
 		std::unique_ptr<Interface> specification_;
 	};
