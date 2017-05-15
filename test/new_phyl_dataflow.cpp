@@ -75,6 +75,7 @@ public:
   static std::vector<NodeSpecification> computeDependencies() { return {}; }
   Node buildNode(std::vector<Node>) const { return Node(params_[node_.nodeId()]); }
   static std::type_index nodeType() { return typeid(int); } // dummy
+  std::string description() const { return "MyParam-N" + std::to_string(node_.nodeId()); }
 
 private:
   bpp::Topology::NodeRef node_;
@@ -125,6 +126,7 @@ struct Sum : public bpp::DF::Value<int>::Impl
     }
     static Node buildNode(std::vector<Node> deps) { return Node::create<Sum>(std::move(deps)); }
     static std::type_index nodeType() { return typeid(Sum); }
+    std::string description() const { return "Sum-N" + std::to_string(node_.nodeId()); }
 
   private:
     bpp::Topology::NodeRef node_;
@@ -153,6 +155,7 @@ TEST_CASE("test")
   auto sumSpec = NodeSpecification::create<Sum::Spec>(tree.nodeRef(tree.rootId()), params);
   auto partialSumSpec = NodeSpecification::create<Sum::Spec>(tree.nodeRef(0), params);
 
+  /*
   bpp::DF::Registry registry;
 
   Value<int> sum{sumSpec.instantiateWithReuse(registry)};
@@ -161,7 +164,8 @@ TEST_CASE("test")
   CHECK(sum.getValue() == 0);
 
   Value<int> partialSum{partialSumSpec.instantiateWithReuse(registry)};
-
+*/
   std::ofstream fd("df_debug");
-  bpp::DF::debugRegistry(fd, registry);
+  bpp::DF::debugNodeSpecInstantiation(fd, sumSpec);
+  //  bpp::DF::debugRegistry(fd, registry);
 }

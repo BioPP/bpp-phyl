@@ -105,6 +105,9 @@ namespace DF {
 	static std::string dotNodeKey (const Registry::Key & key) {
 		return dotNodeKey ('K', key.hashCode ());
 	}
+	static std::string dotNodeKey (const NodeSpecification & nodeSpec) {
+		return dotNodeKey ('S', std::hash<std::string>{}(nodeSpec.description ()));
+	}
 
 	static std::string dotLabelEscape (std::string s) {
 		// Escapes characters in a record type dot node label.
@@ -122,6 +125,8 @@ namespace DF {
 		return dotLabelEscape (demangle (type.name ()));
 	}
 
+	// Print the DF dag structure (in blue).
+	// Takes list of entry points.
 	static void debugDagStructure (std::ostream & os, std::vector<Node> entryPoints) {
 		std::queue<const Node::Impl *> nodesToVisit;
 		std::unordered_set<const Node::Impl *> nodesAlreadyVisited;
@@ -154,7 +159,8 @@ namespace DF {
 		}
 	}
 
-	// Show registry links, return list of entry points
+	// Print registry keys, and links to stored nodes (key only).
+	// Returns list of pointed-to nodes.
 	static std::vector<Node> debugRegistryLinks (std::ostream & os, const Registry & registry) {
 		std::vector<Node> entryPoints;
 		registry.foreachKeyValue ([&entryPoints, &os](const Registry::Key & key, const Node & node) {
@@ -171,6 +177,25 @@ namespace DF {
 		return entryPoints;
 	}
 
+	// Instantiate a NodeSpec (without registry), duplicate of NodeSpec.instantiate
+	// Print NodeSpec details, and links between NodeSpecs.
+	// Print links to node (key only).
+	static Node debugPlayNodeSpecInstantiation (std::ostream & os,
+	                                            const NodeSpecification & nodeSpec) {
+		os << '\t' << dotNodeKey (nodeSpec) << " [color=red,shape=record,label=\"{"
+		   << dotNodeKey (nodeSpec) << "|" << dotLabelEscape (nodeSpec.description ()) << "}\"];\n";
+		std::vector<Node> deps;
+		for (auto & depSpec : nodeSpec.computeDependencies ()) {
+			deps.emplace_back (debugPlayNodeSpecInstantiation (os, depSpec));
+			os << '\t' << dotNodeKey (nodeSpec) << " -> " << dotNodeKey (depSpec) << " [color=red];\n";
+		}
+		auto n = nodeSpec.buildNode (std::move (deps));
+		os << '\t' << dotNodeKey (nodeSpec) << " -> " << dotNodeKey (n) << " [color=green];\n";
+		return n;
+	}
+
+  // TODO with reuse version
+
 	void debugDag (std::ostream & os, const Node & entryPoint) {
 		os << "digraph {\n";
 		debugDagStructure (os, {entryPoint});
@@ -179,6 +204,11 @@ namespace DF {
 	void debugRegistry (std::ostream & os, const Registry & registry) {
 		os << "digraph {\n";
 		debugDagStructure (os, debugRegistryLinks (os, registry));
+		os << "}\n";
+	}
+	void debugNodeSpecInstantiation (std::ostream & os, const NodeSpecification & nodeSpec) {
+		os << "digraph {\n";
+		debugDagStructure (os, {debugPlayNodeSpecInstantiation (os, nodeSpec)});
 		os << "}\n";
 	}
 }

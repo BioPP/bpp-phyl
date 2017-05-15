@@ -58,13 +58,17 @@ namespace Topology {
 }
 namespace DF {
 	class Node;
-	class Registry;
+	class NodeSpecification;
+  class Registry;
 
 	// Output a dot format graph representing the dataflow dag
 	void debugDag (std::ostream & os, const Node & entryPoint);
 
 	// Outputs debugDag + registry pointers to dataflow dag
 	void debugRegistry (std::ostream & os, const Registry & registry);
+
+  // Instantiate a nodespec, prints nodespec hierarchy & DF graph
+  void debugNodeSpecInstantiation (std::ostream & os, const NodeSpecification & nodeSpec);
 }
 }
 

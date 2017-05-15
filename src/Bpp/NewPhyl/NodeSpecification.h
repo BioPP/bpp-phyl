@@ -45,6 +45,7 @@
 
 #include <Bpp/NewPhyl/DataFlow.h>
 #include <memory>
+#include <string>
 #include <type_traits>
 #include <typeindex>
 #include <unordered_map>
@@ -144,6 +145,9 @@ namespace DF {
 		}
 		std::type_index nodeType () const noexcept { return specification_->nodeType (); }
 
+		// Debug
+		std::string description () const { return specification_->description (); }
+
 		// Build DF graph recursively without merging
 		Node instantiate () const {
 			std::vector<Node> deps;
@@ -184,7 +188,8 @@ namespace DF {
 			virtual Interface * clone () const = 0;
 			virtual std::vector<NodeSpecification> computeDependencies () const = 0;
 			virtual Node buildNode (std::vector<Node> dependencies) const = 0;
-			virtual std::type_index nodeType () const = 0;
+			virtual std::type_index nodeType () const noexcept = 0;
+			virtual std::string description () const = 0;
 		};
 		template <typename T> struct Specification final : public Interface {
 			T spec_;
@@ -198,6 +203,7 @@ namespace DF {
 				return spec_.buildNode (std::move (dependencies));
 			}
 			std::type_index nodeType () const noexcept override { return spec_.nodeType (); }
+			std::string description () const override { return spec_.description (); }
 		};
 		std::unique_ptr<Interface> specification_;
 	};
