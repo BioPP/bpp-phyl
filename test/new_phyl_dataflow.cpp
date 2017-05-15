@@ -148,10 +148,9 @@ TEST_CASE("test")
   auto tc = tree.createNode({ta, tb});
   auto td = tree.createNode({tc});
   tree.rootId() = td;
-  /*
+
   std::ofstream ft("topology_debug");
   bpp::Topology::debugTree(ft, tree);
-  */
 
   auto a = bpp::DF::Parameter<int>::create<MyParam>(3);
   auto b = bpp::DF::Parameter<int>::create<MyParam>(42);
@@ -159,8 +158,8 @@ TEST_CASE("test")
   params[ta] = Node(a);
   params[tb] = Node(b);
 
-  NodeSpecification sumSpec{Sum::Spec{tree.nodeRef(tree.rootId()), params}};
-  NodeSpecification partialSumSpec{Sum::Spec{tree.nodeRef (0), params}};
+  auto sumSpec = NodeSpecification::create<Sum::Spec>(tree.nodeRef(tree.rootId()), params);
+  auto partialSumSpec = NodeSpecification::create<Sum::Spec>(tree.nodeRef(0), params);
 
   bpp::DF::Registry registry;
 
@@ -169,8 +168,8 @@ TEST_CASE("test")
   a.setValue(-42);
   CHECK(sum.getValue() == 0);
 
-  Value<int> partialSum{partialSumSpec.instantiateWithReuse (registry)};
+  Value<int> partialSum{partialSumSpec.instantiateWithReuse(registry)};
 
   std::ofstream fd("df_debug");
-  bpp::DF::debugDag(fd, Node(partialSum));
+  bpp::DF::debugRegistry(fd, registry);
 }

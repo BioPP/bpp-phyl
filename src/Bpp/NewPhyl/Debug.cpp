@@ -42,7 +42,7 @@
 #include <Bpp/NewPhyl/Config.h>
 #include <Bpp/NewPhyl/DataFlow.h>
 #include <Bpp/NewPhyl/Debug.h>
-//#include <Bpp/NewPhyl/Registry.h>
+#include <Bpp/NewPhyl/NodeSpecification.h>
 #include <Bpp/NewPhyl/Topology.h>
 #include <algorithm>
 #include <ostream>
@@ -71,6 +71,7 @@ std::string demangle (const char * name) {
 }
 
 namespace Topology {
+	// Print tree structure
 	void debugTree (std::ostream & os, const Tree & tree) {
 		os << "digraph {\n";
 
@@ -100,9 +101,10 @@ namespace DF {
 	static std::string dotNodeKey (const Node::Impl * p) {
 		return dotNodeKey ('N', std::hash<const Node::Impl *>{}(p));
 	}
-	/*	static std::string dotNodeKey (const NodeSpecification & spec) {
-	    return dotNodeKey ('R', spec.hashCode ());
-	  }*/
+	static std::string dotNodeKey (const Node & n) { return dotNodeKey (&n.getImpl ()); }
+	static std::string dotNodeKey (const Registry::Key & key) {
+		return dotNodeKey ('K', key.hashCode ());
+	}
 
 	static std::string dotLabelEscape (std::string s) {
 		// Escapes characters in a record type dot node label.
@@ -120,17 +122,22 @@ namespace DF {
 		return dotLabelEscape (demangle (type.name ()));
 	}
 
-	static void debugDagStructure (std::ostream & os, const Node & entryPoint) {
+	static void debugDagStructure (std::ostream & os, std::vector<Node> entryPoints) {
 		std::queue<const Node::Impl *> nodesToVisit;
 		std::unordered_set<const Node::Impl *> nodesAlreadyVisited;
 
-		nodesToVisit.emplace (&entryPoint.getImpl ());
+		for (auto & n : entryPoints)
+			nodesToVisit.emplace (&n.getImpl ());
+
 		while (!nodesToVisit.empty ()) {
 			auto node = nodesToVisit.front ();
+			nodesToVisit.pop ();
+			if (nodesAlreadyVisited.count (node))
+				continue;
+
 			os << '\t' << dotNodeKey (node) << " [shape=record,label=\"" << dotNodeKey (node) << '|'
 			   << typeToDotLabel (typeid (*node)) << "\"];\n";
 			nodesAlreadyVisited.emplace (node);
-			nodesToVisit.pop ();
 
 			node->foreachDependentNode ([&](const Node::Impl * p) {
 				if (nodesAlreadyVisited.count (p))
@@ -146,34 +153,33 @@ namespace DF {
 			});
 		}
 	}
-	/*
-	  static void debugRegistryLinks (std::ostream & os, const Registry & registry) {
-	    for (auto & it : registry.rawAccess ()) {
-	      auto & key = it.first;
-	      os << '\t' << dotNodeKey (key) << " [shape=Mrecord,label=\"{" << dotNodeKey (key) << "|{";
-	      os << typeToDotLabel (key.operation ()) << '|';
-	      if (key.element ().type () == bpp::Topology::Element::Node)
-	        os << 'N' << key.element ().asNodeRef ().nodeId ();
-	      else
-	        os << 'B' << key.element ().asBranchRef ().childNodeId ();
-	      os << "}}\"];\n";
-	      os << '\t' << dotNodeKey (key) << " -> " << dotNodeKey (&it.second.getImpl ()) << ";\n";
-	    }
-	  }
-	  */
+
+	// Show registry links, return list of entry points
+	static std::vector<Node> debugRegistryLinks (std::ostream & os, const Registry & registry) {
+		std::vector<Node> entryPoints;
+		registry.foreachKeyValue ([&entryPoints, &os](const Registry::Key & key, const Node & node) {
+			//
+			os << '\t' << dotNodeKey (key) << " [shape=Mrecord,label=\"{" << dotNodeKey (key) << "|{";
+			os << typeToDotLabel (key.operation ()) << '|';
+			for (auto & dep : key.dependencies ())
+				os << dotNodeKey (dep) << ' ';
+			os << "}}\"];\n";
+			os << '\t' << dotNodeKey (key) << " -> " << dotNodeKey (node) << ";\n";
+
+			entryPoints.emplace_back (node);
+		});
+		return entryPoints;
+	}
 
 	void debugDag (std::ostream & os, const Node & entryPoint) {
 		os << "digraph {\n";
-		debugDagStructure (os, entryPoint);
+		debugDagStructure (os, {entryPoint});
 		os << "}\n";
 	}
 	void debugRegistry (std::ostream & os, const Registry & registry) {
-		/*os << "digraph {\n";
-		if (!registry.rawAccess ().empty ()) {
-		  debugDagStructure (os, registry.rawAccess ().begin ()->second);
-		  debugRegistryLinks (os, registry);
-		}
-		os << "}\n";*/
+		os << "digraph {\n";
+		debugDagStructure (os, debugRegistryLinks (os, registry));
+		os << "}\n";
 	}
 }
 }

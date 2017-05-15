@@ -56,6 +56,7 @@ namespace DF {
 	public:
 		class Key {
 			// Key is type of node, and dependencies
+			// FIXME Node key or Node::Impl* key ? think of the shared_ptr ownership graph.
 		public:
 			Key (std::type_index nodeType, const std::vector<Node> & dependencies)
 			    : nodeType_ (nodeType), dependencies_ (dependencies) {}
@@ -70,6 +71,9 @@ namespace DF {
 					vecHash ^= n.hashCode () + 0x9e3779b9 + (vecHash << 6) + (vecHash >> 2);
 				return vecHash ^ (nodeTypeHash << 1);
 			}
+
+			std::type_index operation () const noexcept { return nodeType_; }
+			const std::vector<Node> & dependencies () const noexcept { return dependencies_; }
 
 		private:
 			std::type_index nodeType_;
@@ -91,6 +95,11 @@ namespace DF {
 				throw std::runtime_error ("Node already set for key");
 		}
 
+		template <typename Callable> void foreachKeyValue (Callable callable) const {
+			for (auto & it : nodes_)
+				callable (it.first, it.second);
+		}
+
 	private:
 		struct Hash {
 			std::size_t operator() (const Key & k) const noexcept { return k.hashCode (); }
@@ -107,6 +116,11 @@ namespace DF {
 		template <typename T>
 		explicit NodeSpecification (const T & spec) : specification_ (new Specification<T> (spec)) {}
 
+		template <typename T, typename... Args> static NodeSpecification create (Args &&... args) {
+			return NodeSpecification (T (std::forward<Args> (args)...));
+		}
+
+		// Wrappers
 		std::vector<NodeSpecification> computeDependencies () const {
 			return specification_->computeDependencies ();
 		}
@@ -149,6 +163,7 @@ namespace DF {
 		}
 
 	private:
+		// Virtual value type pattern
 		struct Interface {
 			virtual ~Interface () = default;
 			virtual std::vector<NodeSpecification> computeDependencies () const = 0;
