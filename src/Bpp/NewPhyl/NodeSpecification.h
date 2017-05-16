@@ -58,8 +58,14 @@ namespace DF {
 	class Registry {
 	public:
 		class Key {
-			// Key is type of node, and dependencies
-			// FIXME Node key or Node::Impl* key ? think of the shared_ptr ownership graph.
+			/* Nodes are indexed by node type and dependencies.
+			 * This is sufficient to ensure merging of DF nodes with similar values.
+			 *
+			 * Key is a temporary class (stores a ref to the dependency vector).
+			 * When searching, the ref should point to the built dep vector.
+			 * When stored, the ref points to the Node dep vector.
+			 * The Key will be destroyed at the same time as the Node.
+			 */
 		public:
 			Key (std::type_index nodeType, const std::vector<Node> & dependencies)
 			    : nodeType_ (nodeType), dependencies_ (dependencies) {}
@@ -68,7 +74,7 @@ namespace DF {
 				return nodeType_ == other.nodeType_ && dependencies_ == other.dependencies_;
 			}
 			std::size_t hashCode () const noexcept {
-				auto nodeTypeHash = std::hash<std::type_index>{}(nodeType_);
+				std::size_t nodeTypeHash = std::hash<std::type_index>{}(nodeType_);
 				std::size_t vecHash = dependencies_.size ();
 				for (auto & n : dependencies_)
 					vecHash ^= n.hashCode () + 0x9e3779b9 + (vecHash << 6) + (vecHash >> 2);
@@ -80,7 +86,7 @@ namespace DF {
 
 		private:
 			std::type_index nodeType_;
-			std::vector<Node> dependencies_;
+			const std::vector<Node> & dependencies_;
 		};
 
 		// May be null
@@ -92,10 +98,13 @@ namespace DF {
 				return Node ();
 		}
 
-		void set (Key key, Node node) {
-			auto result = nodes_.emplace (std::move (key), std::move (node));
+		void set (Node node) {
+      // Impl is independent of Node moves, so we can build a key referencing its dependencies.
+			auto & impl = node.getImpl ();
+      // By definition of the standard, typeid (impl) performs lookup to derived type.
+			auto result = nodes_.emplace (Key{typeid (impl), impl.dependencies ()}, std::move (node));
 			if (!result.second)
-				throw std::runtime_error ("Node already set for key");
+				throw std::runtime_error ("Registry::set: key already used");
 		}
 
 		template <typename Callable> void foreachKeyValue (Callable callable) const {
@@ -175,7 +184,7 @@ namespace DF {
 				if (!n.hasNode ()) {
 					// Build it if not found
 					n = buildNode (std::move (deps));
-					registry.set (std::move (key), n);
+					registry.set (n);
 				}
 			}
 			return n;

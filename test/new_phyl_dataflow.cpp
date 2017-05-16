@@ -43,9 +43,7 @@
 #include "doctest.h"
 
 #include <Bpp/NewPhyl/DataFlow.h>
-#include <Bpp/NewPhyl/DataFlowTemplates.h>
 #include <Bpp/NewPhyl/Debug.h>
-#include <Bpp/NewPhyl/Likelihood.h>
 #include <Bpp/NewPhyl/NodeSpecification.h>
 #include <Bpp/NewPhyl/Range.h>
 #include <Bpp/NewPhyl/Topology.h>

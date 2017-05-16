@@ -131,6 +131,8 @@ namespace DF {
 				f (&p.getImpl ());
 		}
 
+		const std::vector<Node> & dependencies () const noexcept { return dependencyNodes_; }
+
 	protected:
 		void makeValid () noexcept { isValid_ = true; }
 

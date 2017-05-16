@@ -241,8 +241,7 @@ namespace DF {
 					dotEdgePretty (os, nodeSpec, depSpec);
 				}
 				// Check the registry
-				Registry::Key key{nodeSpec.nodeType (), deps};
-				n = registry.get (key);
+				n = registry.get (Registry::Key{nodeSpec.nodeType (), deps});
 				if (!n.hasNode ())
 					throw std::runtime_error (
 					    "debugReplayNodeSpecInstantiationWithReuse: nodeSpec was not found in registry");
