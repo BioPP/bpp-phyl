@@ -155,7 +155,6 @@ TEST_CASE("test")
   auto sumSpec = NodeSpecification::create<Sum::Spec>(tree.nodeRef(tree.rootId()), params);
   auto partialSumSpec = NodeSpecification::create<Sum::Spec>(tree.nodeRef(0), params);
 
-  /*
   bpp::DF::Registry registry;
 
   Value<int> sum{sumSpec.instantiateWithReuse(registry)};
@@ -164,8 +163,7 @@ TEST_CASE("test")
   CHECK(sum.getValue() == 0);
 
   Value<int> partialSum{partialSumSpec.instantiateWithReuse(registry)};
-*/
+
   std::ofstream fd("df_debug");
-  bpp::DF::debugNodeSpecInstantiation(fd, sumSpec);
-  //  bpp::DF::debugRegistry(fd, registry);
+  bpp::DF::debugNodeSpecInstantiationInRegistry(fd, sumSpec, registry, true);
 }
