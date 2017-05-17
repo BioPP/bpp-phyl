@@ -1,3 +1,11 @@
+10/05/17 -*- Version 2.3.0 -*-
+
+23/09/16 Laurent Gueguen
+* KCM model
+
+26/04/16 Julien Dutheil
+* Moved to C++11
+
 07/04/16 Julien Dutheil
 * Fixed bug in EB calculation for states at leaf nodes.
 

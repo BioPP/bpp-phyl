@@ -1,4 +1,4 @@
-# CMake script for Bio++ PhylLib
+# CMake script for Bio++ Phylogenetic Library
 # Authors:
 #   Sylvain Gaillard
 #   Julien Dutheil
@@ -36,7 +36,7 @@ ELSE(NO_DEP_CHECK)
 # In other words, the library implements all the interface numbers in the
 # range from number current - age to current.
 SET(${PROJECT_NAME}_VERSION_CURRENT "10")
-SET(${PROJECT_NAME}_VERSION_REVISION "3")
+SET(${PROJECT_NAME}_VERSION_REVISION "4")
 SET(${PROJECT_NAME}_VERSION_AGE "1")
 
 # Effective version number computation
@@ -95,9 +95,9 @@ ENDIF(NO_DEP_CHECK)
 # Packager
 SET(CPACK_PACKAGE_NAME "libbpp-phyl")
 SET(CPACK_PACKAGE_VENDOR "Bio++ Development Team")
-SET(CPACK_PACKAGE_VERSION "2.2.0")
+SET(CPACK_PACKAGE_VERSION "2.3.0")
 SET(CPACK_PACKAGE_VERSION_MAJOR "2")
-SET(CPACK_PACKAGE_VERSION_MINOR "2")
+SET(CPACK_PACKAGE_VERSION_MINOR "3")
 SET(CPACK_PACKAGE_VERSION_PATCH "0")
 SET(CPACK_PACKAGE_DESCRIPTION_SUMMARY "The Bio++ Phylogenetics library")
 SET(CPACK_RESOURCE_FILE_LICENSE "${CMAKE_SOURCE_DIR}/COPYING.txt")
@@ -136,6 +136,6 @@ enable_testing ()
 include (CTest)
 if (BUILD_TESTING)
   add_subdirectory (test)
-endif ()
+endif (BUILD_TESTING)
 
 ENDIF(NOT NO_DEP_CHECK)
