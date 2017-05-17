@@ -5,11 +5,11 @@
 #   Francois Gindraud (2017)
 # Created: 20/08/2009
 
-cmake_minimum_required (VERSION 2.8.12)
+cmake_minimum_required (VERSION 2.8.11)
 project (bpp-phyl CXX)
 
 # Compile options
-set (private-compile-options -std=c++11 -Wall -Weffc++ -Wshadow -Wconversion)
+set (CMAKE_CXX_FLAGS "-std=c++11 -Wall -Weffc++ -Wshadow -Wconversion")
 
 IF(NOT CMAKE_BUILD_TYPE)
   SET(CMAKE_BUILD_TYPE RelWithDebInfo CACHE STRING
@@ -104,34 +104,13 @@ SET(CPACK_RESOURCE_FILE_LICENSE "${CMAKE_SOURCE_DIR}/COPYING.txt")
 SET(CPACK_RESOURCE_FILE_AUTHORS "${CMAKE_SOURCE_DIR}/AUTHORS.txt")
 SET(CPACK_RESOURCE_FILE_INSTALL "${CMAKE_SOURCE_DIR}/INSTALL.txt")
 SET(CPACK_SOURCE_GENERATOR "TGZ")
-SET(CPACK_SOURCE_IGNORE_FILES
- "CMakeFiles"
- "Makefile"
- "_CPack_Packages"
- "CMakeCache.txt"
- ".*\\\\.cmake"
- ".*\\\\.git"
- ".*\\\\.gz"
- ".*\\\\.deb"
- ".*\\\\.rpm"
- ".*\\\\.dmg"
- ".*\\\\.sh"
- ".*\\\\..*\\\\.swp"
- "src/\\\\..*"
- "src/libbpp*"
- "test/tmp_*"
- "tmp_*"
- "html"
- "Phyl.tag"
- "Testing"
- "build-stamp"
- "install_manifest.txt"
- "DartConfiguration.tcl"
- ${CPACK_SOURCE_IGNORE_FILES}
-)
-IF (MACOS)
-  SET(CPACK_GENERATOR "Bundle")
-ENDIF()
+# /!\ This assumes that an external build is used
+SET(CPACK_SOURCE_IGNORE_FILES 
+       "/build/" 
+       "/\\\\.git/" 
+       "/\\\\.gitignore" 
+       ${CPACK_SOURCE_IGNORE_FILES}
+       )
 
 SET(CPACK_SOURCE_PACKAGE_FILE_NAME "${CMAKE_PROJECT_NAME}-${CPACK_PACKAGE_VERSION_MAJOR}.${CPACK_PACKAGE_VERSION_MINOR}.${CPACK_PACKAGE_VERSION_PATCH}")
 SET(CPACK_DEBSOURCE_PACKAGE_FILE_NAME "lib${CMAKE_PROJECT_NAME}_${CPACK_PACKAGE_VERSION_MAJOR}.${CPACK_PACKAGE_VERSION_MINOR}.${CPACK_PACKAGE_VERSION_PATCH}.orig")
@@ -139,14 +118,6 @@ INCLUDE(CPack)
 
 #This adds the 'dist' target
 ADD_CUSTOM_TARGET(dist COMMAND ${CMAKE_MAKE_PROGRAM} package_source)
-# 'clean' is not (yet) a first class target. However, we need to clean the directories before building the sources:
-IF("${CMAKE_GENERATOR}" MATCHES "Make")
-  ADD_CUSTOM_TARGET(make_clean
-  COMMAND ${CMAKE_MAKE_PROGRAM} clean
-  WORKING_DIRECTORY ${CMAKE_CURRENT_DIR}
-  )
-  ADD_DEPENDENCIES(dist make_clean)
-ENDIF()
 
 IF(NOT NO_DEP_CHECK)
 IF (UNIX)
