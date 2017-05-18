@@ -83,9 +83,8 @@ namespace Topology {
 		while (!nodesToVisit.empty ()) {
 			auto nodeId = nodesToVisit.front ();
 			nodesToVisit.pop ();
-			auto & node = tree.node (nodeId);
-			os << '\t' << nodeId << " [shape=box,label=\"" << nodeId << '-' << node.nodeName_ << "\"];\n";
-			for (auto childId : node.childrenIds_) {
+			os << '\t' << nodeId << " [shape=box,label=\"" << nodeId << "\"];\n";
+			for (auto childId : tree.node (nodeId).childrenIds_) {
 				nodesToVisit.emplace (childId);
 				os << '\t' << nodeId << " -> " << childId << ";\n";
 			}

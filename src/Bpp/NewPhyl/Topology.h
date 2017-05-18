@@ -58,14 +58,15 @@ namespace Topology {
 
 	/* Tree class, stores structure.
 	 * TODO improve...
+	 * TODO manipulate by shared_ptr + static create()
+	 * TODO start by mutable shared_ptr, then const shared_ptr before getting refs.
+	 * TODO add "observers" (other name needed !), a value one, and an indexing one (names).
 	 */
 	class Tree {
 	public:
 		struct Node {
 			IndexType fatherId_{invalid};
 			std::vector<IndexType> childrenIds_{};
-			std::string nodeName_{};
-
 			Node () = default;
 		};
 
@@ -87,12 +88,8 @@ namespace Topology {
 			child.fatherId_ = fatherId;
 			father.childrenIds_.emplace_back (childId);
 		}
-		void setNodeName (IndexType id, std::string name) noexcept {
-			nodes_[id].nodeName_ = std::move (name);
-		}
-		IndexType createNode (std::vector<IndexType> childrens, std::string name = std::string ()) {
+		IndexType createNode (std::vector<IndexType> childrens) {
 			auto id = createNode ();
-			setNodeName (id, std::move (name));
 			for (auto i : childrens)
 				createEdge (id, i);
 			return id;
@@ -116,11 +113,11 @@ namespace Topology {
 		IndexType nbChildBranches () const noexcept {
 			return tree_.node (nodeId_).childrenIds_.size ();
 		}
-		const std::string & name () const { return tree_.node (nodeId_).nodeName_; }
 
 		// Navigate
 		BranchRef fatherBranch () const;
 		BranchRef childBranch (IndexType id) const;
+		template <typename Callable> void foreachChildBranch (Callable callable) const;
 
 	private:
 		const Tree & tree_;
@@ -154,6 +151,10 @@ namespace Topology {
 	inline BranchRef NodeRef::fatherBranch () const { return BranchRef (tree_, nodeId_); }
 	inline BranchRef NodeRef::childBranch (IndexType id) const {
 		return BranchRef (tree_, tree_.node (nodeId_).childrenIds_[id]);
+	}
+	template <typename Callable> void NodeRef::foreachChildBranch (Callable callable) const {
+		for (auto childId : tree_.node (nodeId_).childrenIds_)
+			callable (BranchRef (tree_, childId));
 	}
 }
 }

@@ -112,8 +112,9 @@ struct Sum : public bpp::DF::Value<int>::Impl
       if (node_.nbChildBranches() > 0)
       {
         // Internal node
-        for (auto i : bpp::range(node_.nbChildBranches()))
-          deps.emplace_back(Spec{node_.childBranch(i).childNode(), params_});
+        node_.foreachChildBranch([this, &deps](bpp::Topology::BranchRef&& branch) {
+          deps.emplace_back(Spec{std::move(branch).childNode(), params_});
+        });
       }
       else
       {
@@ -135,8 +136,8 @@ struct Sum : public bpp::DF::Value<int>::Impl
 TEST_CASE("test")
 {
   bpp::Topology::Tree tree;
-  auto ta = tree.createNode({}, "A");
-  auto tb = tree.createNode({}, "B");
+  auto ta = tree.createNode();
+  auto tb = tree.createNode();
   auto tc = tree.createNode({ta, tb});
   auto td = tree.createNode({tc});
   tree.rootId() = td;
