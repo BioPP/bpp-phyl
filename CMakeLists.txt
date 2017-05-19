@@ -52,8 +52,7 @@ if (CMAKE_INSTALL_PREFIX)
   set (CMAKE_PREFIX_PATH "${CMAKE_INSTALL_PREFIX}" ${CMAKE_PREFIX_PATH})
 endif (CMAKE_INSTALL_PREFIX)
 
-find_package (bpp-core 2.0.3 REQUIRED)
-find_package (bpp-seq 9.1.3 REQUIRED)
+find_package (bpp-seq 9.1.4 REQUIRED)
 
 # CMake package
 set (cmake-package-location lib/cmake/${PROJECT_NAME})
