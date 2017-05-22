@@ -576,7 +576,7 @@ void PhylogeneticsApplicationTools::completeMixedSubstitutionModelSet(
       size_t num = TextTools::to<size_t>(submodel.substr(5, indexo - 5));
       string p2 = submodel.substr(indexo + 1, indexf - indexo - 1);
 
-      const MixedSubstitutionModel* pSM = dynamic_cast<const MixedSubstitutionModel*>(mixedModelSet.getModel(num - 1));
+      const MixedSubstitutionModel* pSM = dynamic_cast<const MixedSubstitutionModel*>(mixedModelSet.getSubstitutionModel(num - 1));
       if (!pSM)
         throw BadIntegerException("PhylogeneticsApplicationTools::setMixedSubstitutionModelSet: Wrong model for number", static_cast<int>(num - 1));
       Vint submodnb = pSM->getSubmodelNumbers(p2);
@@ -1439,7 +1439,7 @@ void PhylogeneticsApplicationTools::printParameters(const SubstitutionModelSet* 
   // Loop over all models:
   for (size_t i = 0; i < modelSet->getNumberOfModels(); i++)
   {
-    const TransitionModel* model = modelSet->getModel(i);
+    const TransitionModel* model = modelSet->getTransitionModel(i);
 
     map<string, string> aliases;
 
