@@ -45,6 +45,7 @@
 #include <Bpp/NewPhyl/NodeSpecification.h>
 #include <Bpp/NewPhyl/Topology.h>
 #include <algorithm>
+#include <memory>
 #include <ostream>
 #include <queue>
 #include <stdexcept>
@@ -55,7 +56,6 @@
 #ifdef BPP_HAVE_DEMANGLING
 #include <cstdlib>
 #include <cxxabi.h>
-#include <memory>
 #endif
 
 namespace bpp {
@@ -73,23 +73,21 @@ std::string demangle (const char * name) {
 
 namespace Topology {
 	// Print tree structure
-	void debugTree (std::ostream & os, const Tree & tree) {
+	void debugTree (std::ostream & os, std::shared_ptr<const Tree> tree) {
 		os << "digraph {\n";
-
 		std::queue<IndexType> nodesToVisit;
-		if (tree.rootId () != invalid)
-			nodesToVisit.emplace (tree.rootId ());
+		if (tree->rootId () != invalid)
+			nodesToVisit.emplace (tree->rootId ());
 
 		while (!nodesToVisit.empty ()) {
 			auto nodeId = nodesToVisit.front ();
 			nodesToVisit.pop ();
 			os << '\t' << nodeId << " [shape=box,label=\"" << nodeId << "\"];\n";
-			for (auto childId : tree.node (nodeId).childrenIds_) {
+			for (auto childId : tree->node (nodeId).childrenIds_) {
 				nodesToVisit.emplace (childId);
 				os << '\t' << nodeId << " -> " << childId << ";\n";
 			}
 		}
-
 		os << "}\n";
 	}
 }

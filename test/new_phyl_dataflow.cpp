@@ -56,7 +56,6 @@
 using bpp::DF::Node;
 using bpp::DF::NodeSpecification;
 using bpp::DF::Value;
-using bpp::Topology::NodeRef;
 
 using NodeVec = std::vector<Node>;
 
@@ -64,7 +63,7 @@ class MyParamSpec
 {
   // Just return the right param
 public:
-  MyParamSpec(NodeRef node, NodeVec& params)
+  MyParamSpec(bpp::Topology::Node node, NodeVec& params)
     : node_(node)
     , params_(params)
   {
@@ -76,7 +75,7 @@ public:
   std::string description() const { return "MyParam-N" + std::to_string(node_.nodeId()); }
 
 private:
-  bpp::Topology::NodeRef node_;
+  bpp::Topology::Node node_;
   NodeVec& params_;
 };
 
@@ -100,7 +99,7 @@ struct Sum : public bpp::DF::Value<int>::Impl
   class Spec
   {
   public:
-    Spec(NodeRef node, NodeVec& params)
+    Spec(bpp::Topology::Node node, NodeVec& params)
       : node_(node)
       , params_(params)
     {
@@ -112,7 +111,7 @@ struct Sum : public bpp::DF::Value<int>::Impl
       if (node_.nbChildBranches() > 0)
       {
         // Internal node
-        node_.foreachChildBranch([this, &deps](bpp::Topology::BranchRef&& branch) {
+        node_.foreachChildBranch([this, &deps](bpp::Topology::Branch&& branch) {
           deps.emplace_back(Spec{std::move(branch).childNode(), params_});
         });
       }
@@ -128,31 +127,32 @@ struct Sum : public bpp::DF::Value<int>::Impl
     std::string description() const { return "Sum-N" + std::to_string(node_.nodeId()); }
 
   private:
-    bpp::Topology::NodeRef node_;
+    bpp::Topology::Node node_;
     NodeVec& params_;
   };
 };
 
 TEST_CASE("test")
 {
-  bpp::Topology::Tree tree;
-  auto ta = tree.createNode();
-  auto tb = tree.createNode();
-  auto tc = tree.createNode({ta, tb});
-  auto td = tree.createNode({tc});
-  tree.rootId() = td;
+  auto buildTree = bpp::Topology::Tree::create();
+  auto ta = buildTree->createNode();
+  auto tb = buildTree->createNode();
+  auto tc = buildTree->createNode({ta, tb});
+  auto td = buildTree->createNode({tc});
+  buildTree->rootId() = td;
+  auto tree = bpp::Topology::Tree::finalize(std::move(buildTree));
 
   std::ofstream ft("topology_debug");
   bpp::Topology::debugTree(ft, tree);
 
   auto a = bpp::DF::Parameter<int>::create(3);
   auto b = bpp::DF::Parameter<int>::create(42);
-  NodeVec params(tree.nbNodes());
+  NodeVec params(tree->nbNodes());
   params[ta] = Node(a);
   params[tb] = Node(b);
 
-  auto sumSpec = NodeSpecification::create<Sum::Spec>(tree.nodeRef(tree.rootId()), params);
-  auto partialSumSpec = NodeSpecification::create<Sum::Spec>(tree.nodeRef(0), params);
+  auto sumSpec = NodeSpecification::create<Sum::Spec>(bpp::Topology::Node(tree, tree->rootId()), params);
+  auto partialSumSpec = NodeSpecification::create<Sum::Spec>(bpp::Topology::Node(tree, 0), params);
 
   bpp::DF::Registry registry;
 

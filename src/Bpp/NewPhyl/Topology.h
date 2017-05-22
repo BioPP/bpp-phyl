@@ -44,22 +44,22 @@
 #define BPP_NEWPHYL_TOPOLOGY_H
 
 #include <limits>
+#include <memory>
 #include <stdexcept> // std::runtime_error
 #include <string>
 #include <vector>
 
 namespace bpp {
 namespace Topology {
-	using IndexType = std::size_t;
+	using IndexType = std::size_t; // For Node and Branch
 	constexpr IndexType invalid{std::numeric_limits<IndexType>::max ()};
 
-	class NodeRef;
-	class BranchRef;
+	class Node;
+	class Branch;
 
 	/* Tree class, stores structure.
-	 * TODO improve...
-	 * TODO manipulate by shared_ptr + static create()
-	 * TODO start by mutable shared_ptr, then const shared_ptr before getting refs.
+	 * TODO improve, make this a virtual class with impls for subtrees, etc
+   * TODO split branchs from nodes (for dag like structures), ids too
 	 * TODO add "observers" (other name needed !), a value one, and an indexing one (names).
 	 */
 	class Tree {
@@ -80,13 +80,14 @@ namespace Topology {
 			nodes_.emplace_back ();
 			return id;
 		}
-		void createEdge (IndexType fatherId, IndexType childId) {
+		IndexType createEdge (IndexType fatherId, IndexType childId) {
 			auto & father = nodes_[fatherId];
 			auto & child = nodes_[childId];
 			if (child.fatherId_ != invalid)
 				throw std::runtime_error ("child already has a father");
 			child.fatherId_ = fatherId;
 			father.childrenIds_.emplace_back (childId);
+			return childId; // Edge id is id of child node
 		}
 		IndexType createNode (std::vector<IndexType> childrens) {
 			auto id = createNode ();
@@ -95,7 +96,13 @@ namespace Topology {
 			return id;
 		}
 
-		NodeRef nodeRef (IndexType nodeId) const noexcept;
+		static std::unique_ptr<Tree> create () { return std::unique_ptr<Tree>{new Tree}; }
+		static std::shared_ptr<const Tree> finalize (std::unique_ptr<Tree> && tree) {
+			return {std::move (tree)};
+		}
+
+	protected:
+		Tree () = default;
 
 	private:
 		IndexType rootId_{invalid};
@@ -104,58 +111,62 @@ namespace Topology {
 
 	/* NodeRef and BranchRef.
 	 * Kind of iterators on the tree, allow to inspect structure.
+	 * TODO add && navigation ops (reuse tree shared_ptr mostly)
 	 */
-	class NodeRef {
+	class Node {
 	public:
-		NodeRef (const Tree & tree, IndexType nodeId) noexcept : tree_ (tree), nodeId_ (nodeId) {}
+		Node (std::shared_ptr<const Tree> tree, IndexType nodeId) noexcept
+		    : tree_ (tree), nodeId_ (nodeId) {}
 
 		IndexType nodeId () const noexcept { return nodeId_; }
-		IndexType nbChildBranches () const noexcept {
-			return tree_.node (nodeId_).childrenIds_.size ();
+		std::size_t nbChildBranches () const noexcept {
+			return tree_->node (nodeId_).childrenIds_.size ();
 		}
 
 		// Navigate
-		BranchRef fatherBranch () const;
-		BranchRef childBranch (IndexType id) const;
+		Branch fatherBranch () const;
+		Branch childBranch (std::size_t index) const;
 		template <typename Callable> void foreachChildBranch (Callable callable) const;
 
 	private:
-		const Tree & tree_;
+		std::shared_ptr<const Tree> tree_;
 		IndexType nodeId_;
 	};
 
-	inline NodeRef Tree::nodeRef (IndexType nodeId) const noexcept { return NodeRef (*this, nodeId); }
-
-	class BranchRef {
+	class Branch {
 	public:
-		BranchRef (const Tree & tree, IndexType childNodeId) noexcept
+		Branch (std::shared_ptr<const Tree> tree, IndexType childNodeId) noexcept
 		    : tree_ (tree), childNodeId_ (childNodeId) {}
 
-		IndexType fatherNodeId () const noexcept { return tree_.node (childNodeId_).fatherId_; }
+		IndexType fatherNodeId () const noexcept { return tree_->node (childNodeId_).fatherId_; }
 		IndexType childNodeId () const noexcept { return childNodeId_; }
 
 		// Navigate
-		NodeRef fatherNode () const {
-			auto id = fatherNodeId ();
-			if (id == invalid)
-				throw std::runtime_error ("branch has no father node");
-			return NodeRef (tree_, id);
-		}
-		NodeRef childNode () const { return NodeRef (tree_, childNodeId_); }
+		Node fatherNode () const;
+		Node childNode () const;
 
 	private:
-		const Tree & tree_;
+		std::shared_ptr<const Tree> tree_;
 		IndexType childNodeId_;
 	};
 
-	inline BranchRef NodeRef::fatherBranch () const { return BranchRef (tree_, nodeId_); }
-	inline BranchRef NodeRef::childBranch (IndexType id) const {
-		return BranchRef (tree_, tree_.node (nodeId_).childrenIds_[id]);
+	// Node navigation
+	inline Branch Node::fatherBranch () const { return Branch (tree_, nodeId_); }
+	inline Branch Node::childBranch (std::size_t index) const {
+		return Branch (tree_, tree_->node (nodeId_).childrenIds_.at (index));
 	}
-	template <typename Callable> void NodeRef::foreachChildBranch (Callable callable) const {
-		for (auto childId : tree_.node (nodeId_).childrenIds_)
-			callable (BranchRef (tree_, childId));
+	template <typename Callable> void Node::foreachChildBranch (Callable callable) const {
+		for (auto childId : tree_->node (nodeId_).childrenIds_)
+			callable (Branch (tree_, childId));
 	}
+	// Branch navigation
+	inline Node Branch::fatherNode () const {
+		auto id = fatherNodeId ();
+		if (id == invalid)
+			throw std::runtime_error ("branch has no father node");
+		return Node (tree_, id);
+	}
+	inline Node Branch::childNode () const { return Node (tree_, childNodeId_); }
 }
 }
 
