@@ -43,6 +43,7 @@
 #include <Bpp/NewPhyl/DataFlow.h>
 #include <Bpp/NewPhyl/Debug.h>
 #include <Bpp/NewPhyl/NodeSpecification.h>
+#include <Bpp/NewPhyl/Range.h>
 #include <Bpp/NewPhyl/Topology.h>
 #include <algorithm>
 #include <memory>
@@ -75,18 +76,19 @@ namespace Topology {
 	// Print tree structure
 	void debugTree (std::ostream & os, std::shared_ptr<const Tree> tree) {
 		os << "digraph {\n";
-		std::queue<IndexType> nodesToVisit;
-		if (tree->rootId () != invalid)
-			nodesToVisit.emplace (tree->rootId ());
+		std::queue<Node> nodesToVisit;
+		if (tree->rootNodeId () != invalid)
+			nodesToVisit.emplace (Node (tree, tree->rootNodeId ()));
 
 		while (!nodesToVisit.empty ()) {
-			auto nodeId = nodesToVisit.front ();
+			auto node = nodesToVisit.front ();
 			nodesToVisit.pop ();
-			os << '\t' << nodeId << " [shape=box,label=\"" << nodeId << "\"];\n";
-			for (auto childId : tree->node (nodeId).childrenIds_) {
-				nodesToVisit.emplace (childId);
-				os << '\t' << nodeId << " -> " << childId << ";\n";
-			}
+			os << '\t' << node.nodeId () << " [shape=box,label=\"" << node.nodeId () << "\"];\n";
+			node.foreachChildBranch ([&os, &node, &nodesToVisit](Branch && branch) {
+				auto childNode = std::move (branch).childNode ();
+				os << '\t' << node.nodeId () << " -> " << childNode.nodeId () << ";\n";
+				nodesToVisit.emplace (std::move (childNode));
+			});
 		}
 		os << "}\n";
 	}

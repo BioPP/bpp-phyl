@@ -139,7 +139,7 @@ TEST_CASE("test")
   auto tb = buildTree->createNode();
   auto tc = buildTree->createNode({ta, tb});
   auto td = buildTree->createNode({tc});
-  buildTree->rootId() = td;
+  buildTree->setRootNodeId(td);
   auto tree = bpp::Topology::Tree::finalize(std::move(buildTree));
 
   std::ofstream ft("topology_debug");
@@ -151,7 +151,7 @@ TEST_CASE("test")
   params[ta] = Node(a);
   params[tb] = Node(b);
 
-  auto sumSpec = NodeSpecification::create<Sum::Spec>(bpp::Topology::Node(tree, tree->rootId()), params);
+  auto sumSpec = NodeSpecification::create<Sum::Spec>(bpp::Topology::Node(tree, tree->rootNodeId()), params);
   auto partialSumSpec = NodeSpecification::create<Sum::Spec>(bpp::Topology::Node(tree, 0), params);
 
   bpp::DF::Registry registry;

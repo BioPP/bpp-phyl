@@ -43,6 +43,7 @@
 #ifndef BPP_NEWPHYL_TOPOLOGY_H
 #define BPP_NEWPHYL_TOPOLOGY_H
 
+#include <Bpp/NewPhyl/Range.h>
 #include <limits>
 #include <memory>
 #include <stdexcept> // std::runtime_error
@@ -59,7 +60,7 @@ namespace Topology {
 
 	/* Tree class, stores structure.
 	 * TODO improve, make this a virtual class with impls for subtrees, etc
-   * TODO split branchs from nodes (for dag like structures), ids too
+	 * TODO split branchs from nodes (for dag like structures)
 	 * TODO add "observers" (other name needed !), a value one, and an indexing one (names).
 	 */
 	class Tree {
@@ -70,13 +71,34 @@ namespace Topology {
 			Node () = default;
 		};
 
-		std::size_t nbNodes () const noexcept { return nodes_.size (); }
-		const Node & node (IndexType id) const noexcept { return nodes_[id]; }
-		const IndexType & rootId () const noexcept { return rootId_; }
-		IndexType & rootId () noexcept { return rootId_; }
+    // Base info
+		IndexType nbNodes () const { return nodes_.size (); }
+		IndexType nbBranches () const { return nbNodes (); }
+		IndexType rootNodeId () const { return rootNodeId_; }
 
+    // Branch info
+		IndexType branchFatherNode (IndexType branchId) const {
+			return nodes_.at (branchChildNode (branchId)).fatherId_;
+		}
+		IndexType branchChildNode (IndexType branchId) const { return branchId; }
+
+    // Node info
+		IndexType nodeFatherBranch (IndexType nodeId) const { return nodeId; }
+		std::size_t nodeNbChildrenBranches (IndexType nodeId) const {
+			return nodes_.at (nodeId).childrenIds_.size ();
+		}
+		IndexType nodeChildBranch (IndexType nodeId, std::size_t childBranchIndexInNode) const {
+			return nodes_.at (nodeId).childrenIds_.at (childBranchIndexInNode);
+		}
+
+    // Setup
+		void setRootNodeId (IndexType nodeId) {
+			if (rootNodeId_ != invalid)
+				throw std::runtime_error ("root node has already been set");
+			rootNodeId_ = nodeId;
+		}
 		IndexType createNode () {
-			auto id = IndexType (nbNodes ());
+			auto id = nbNodes ();
 			nodes_.emplace_back ();
 			return id;
 		}
@@ -105,7 +127,7 @@ namespace Topology {
 		Tree () = default;
 
 	private:
-		IndexType rootId_{invalid};
+		IndexType rootNodeId_{invalid};
 		std::vector<Node> nodes_{};
 	};
 
@@ -119,8 +141,10 @@ namespace Topology {
 		    : tree_ (tree), nodeId_ (nodeId) {}
 
 		IndexType nodeId () const noexcept { return nodeId_; }
-		std::size_t nbChildBranches () const noexcept {
-			return tree_->node (nodeId_).childrenIds_.size ();
+		IndexType fatherBranchId () const { return tree_->nodeFatherBranch (nodeId ()); }
+		std::size_t nbChildBranches () const { return tree_->nodeNbChildrenBranches (nodeId ()); }
+		IndexType childBranchId (std::size_t branchIndex) const {
+			return tree_->nodeChildBranch (nodeId (), branchIndex);
 		}
 
 		// Navigate
@@ -135,11 +159,12 @@ namespace Topology {
 
 	class Branch {
 	public:
-		Branch (std::shared_ptr<const Tree> tree, IndexType childNodeId) noexcept
-		    : tree_ (tree), childNodeId_ (childNodeId) {}
+		Branch (std::shared_ptr<const Tree> tree, IndexType branchId) noexcept
+		    : tree_ (tree), branchId_ (branchId) {}
 
-		IndexType fatherNodeId () const noexcept { return tree_->node (childNodeId_).fatherId_; }
-		IndexType childNodeId () const noexcept { return childNodeId_; }
+		IndexType branchId () const noexcept { return branchId_; }
+		IndexType fatherNodeId () const noexcept { return tree_->branchFatherNode (branchId ()); }
+		IndexType childNodeId () const noexcept { return tree_->branchChildNode (branchId ()); }
 
 		// Navigate
 		Node fatherNode () const;
@@ -147,17 +172,17 @@ namespace Topology {
 
 	private:
 		std::shared_ptr<const Tree> tree_;
-		IndexType childNodeId_;
+		IndexType branchId_;
 	};
 
 	// Node navigation
-	inline Branch Node::fatherBranch () const { return Branch (tree_, nodeId_); }
-	inline Branch Node::childBranch (std::size_t index) const {
-		return Branch (tree_, tree_->node (nodeId_).childrenIds_.at (index));
+	inline Branch Node::fatherBranch () const { return Branch (tree_, nodeId ()); }
+	inline Branch Node::childBranch (std::size_t branchIndex) const {
+		return Branch (tree_, childBranchId (branchIndex));
 	}
 	template <typename Callable> void Node::foreachChildBranch (Callable callable) const {
-		for (auto childId : tree_->node (nodeId_).childrenIds_)
-			callable (Branch (tree_, childId));
+		for (auto branchIndex : bpp::range (nbChildBranches ()))
+			callable (Branch (tree_, childBranchId (branchIndex)));
 	}
 	// Branch navigation
 	inline Node Branch::fatherNode () const {
@@ -166,7 +191,7 @@ namespace Topology {
 			throw std::runtime_error ("branch has no father node");
 		return Node (tree_, id);
 	}
-	inline Node Branch::childNode () const { return Node (tree_, childNodeId_); }
+	inline Node Branch::childNode () const { return Node (tree_, childNodeId ()); }
 }
 }
 
