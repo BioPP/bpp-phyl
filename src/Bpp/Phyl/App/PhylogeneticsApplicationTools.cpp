@@ -55,6 +55,7 @@
 #include "../Io/BppOTreeWriterFormat.h"
 #include "../Io/BppOMultiTreeWriterFormat.h"
 #include "../Io/BppOSubstitutionModelFormat.h"
+#include "../Io/BppOTransitionModelFormat.h"
 #include "../Io/BppOFrequenciesSetFormat.h"
 #include "../Io/BppORateDistributionFormat.h"
 
@@ -153,7 +154,7 @@ vector<Tree*> PhylogeneticsApplicationTools::getTrees(
 
 /******************************************************************************/
 
-TransitionModel* PhylogeneticsApplicationTools::getSubstitutionModel(
+SubstitutionModel* PhylogeneticsApplicationTools::getSubstitutionModel(
   const Alphabet* alphabet,
   const GeneticCode* gCode,
   const SiteContainer* data,
@@ -178,7 +179,36 @@ TransitionModel* PhylogeneticsApplicationTools::getSubstitutionModel(
   else
     modelDescription = ApplicationTools::getStringParameter("model", params, "JC69", suffix, suffixIsOptional, warn);
 
-  TransitionModel* model = bIO.read(alphabet, modelDescription, data, true);
+  SubstitutionModel* model = bIO.read(alphabet, modelDescription, data, true);
+  return model;
+}
+
+TransitionModel* PhylogeneticsApplicationTools::getTransitionModel(
+  const Alphabet* alphabet,
+  const GeneticCode* gCode,
+  const SiteContainer* data,
+  std::map<std::string, std::string>& params,
+  const string& suffix,
+  bool suffixIsOptional,
+  bool verbose,
+  int warn) throw (Exception)
+{
+  BppOTransitionModelFormat bIO(BppOSubstitutionModelFormat::ALL, true, true, true, verbose, warn + 1);
+  string modelDescription;
+  const CodonAlphabet* ca = dynamic_cast<const CodonAlphabet*>(alphabet);
+  if (ca)
+  {
+    modelDescription = ApplicationTools::getStringParameter("model", params, "CodonRate(model=JC69)", suffix, suffixIsOptional, warn);
+    if (!gCode)
+      throw Exception("PhylogeneticsApplicationTools::getSubstitutionModel(): a GeneticCode instance is required for instanciating a codon model.");
+    bIO.setGeneticCode(gCode);
+  }
+  else if (AlphabetTools::isWordAlphabet(alphabet))
+    modelDescription = ApplicationTools::getStringParameter("model", params, "Word(model=JC69)", suffix, suffixIsOptional, warn);
+  else
+    modelDescription = ApplicationTools::getStringParameter("model", params, "JC69", suffix, suffixIsOptional, warn);
+
+  TransitionModel* model = bIO.readTransitionModel(alphabet, modelDescription, data, true);
   return model;
 }
 
@@ -412,7 +442,7 @@ void PhylogeneticsApplicationTools::setSubstitutionModelSet(
   if (verbose)
     ApplicationTools::displayResult("Number of distinct models", TextTools::toString(nbModels));
 
-  BppOSubstitutionModelFormat bIO(BppOSubstitutionModelFormat::ALL, true, true, true, false, warn);
+  BppOTransitionModelFormat bIO(BppOSubstitutionModelFormat::ALL, true, true, true, false, warn);
 
   // ///////////////////////////////////////////
   // Build a new model set object:
@@ -431,7 +461,7 @@ void PhylogeneticsApplicationTools::setSubstitutionModelSet(
   else
     tmpDesc = ApplicationTools::getStringParameter("model1", params, "JC69", suffix, suffixIsOptional, warn);
 
-  unique_ptr<TransitionModel> tmp(bIO.read(alphabet, tmpDesc, data, false));
+  unique_ptr<TransitionModel> tmp(bIO.readTransitionModel(alphabet, tmpDesc, data, false));
 
   if (tmp->getNumberOfStates() != alphabet->getSize())
   {
@@ -483,7 +513,7 @@ void PhylogeneticsApplicationTools::setSubstitutionModelSet(
     else
       modelDesc = ApplicationTools::getStringParameter(prefix, params, "JC69", suffix, suffixIsOptional, warn);
 
-    unique_ptr<TransitionModel> model(bIO.read(alphabet, modelDesc, data, false));
+    unique_ptr<TransitionModel> model(bIO.readTransitionModel(alphabet, modelDesc, data, false));
 
     map<string, string> unparsedModelParameters = bIO.getUnparsedArguments();
     map<string, string> sharedParameters;

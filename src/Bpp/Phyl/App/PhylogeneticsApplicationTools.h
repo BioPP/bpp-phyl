@@ -153,7 +153,7 @@ public:
    * @throw Exception if an error occured.
    */
 
-  static TransitionModel* getSubstitutionModel(
+  static SubstitutionModel* getSubstitutionModel(
     const Alphabet* alphabet,
     const GeneticCode* gCode,
     const SiteContainer* data,
@@ -163,6 +163,16 @@ public:
     bool verbose = true,
     int warn = 1) throw (Exception);
 
+  
+  static TransitionModel* getTransitionModel(
+    const Alphabet* alphabet,
+    const GeneticCode* gCode,
+    const SiteContainer* data,
+    std::map<std::string, std::string>& params,
+    const std::string& suffix = "",
+    bool suffixIsOptional = true,
+    bool verbose = true,
+    int warn = 1) throw (Exception);
 
   /**
    * @brief Set parameter initial values of a given model in a set according to options.

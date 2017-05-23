@@ -27,6 +27,7 @@ set (CPP_FILES
   Bpp/Phyl/Io/BppOMultiTreeWriterFormat.cpp
   Bpp/Phyl/Io/BppORateDistributionFormat.cpp
   Bpp/Phyl/Io/BppOSubstitutionModelFormat.cpp
+  Bpp/Phyl/Io/BppOTransitionModelFormat.cpp
   Bpp/Phyl/Io/BppOTreeReaderFormat.cpp
   Bpp/Phyl/Io/BppOTreeWriterFormat.cpp
   Bpp/Phyl/Io/IoDistanceMatrixFactory.cpp
