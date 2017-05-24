@@ -43,6 +43,7 @@
 #ifndef BPP_NEWPHYL_TOPOLOGY_H
 #define BPP_NEWPHYL_TOPOLOGY_H
 
+#include <Bpp/NewPhyl/Optional.h>
 #include <Bpp/NewPhyl/Range.h>
 #include <limits>
 #include <memory>
@@ -51,6 +52,9 @@
 #include <vector>
 
 namespace bpp {
+
+class PhyloTree; // Forward declaration
+
 namespace Topology {
 	using IndexType = std::size_t; // For Node and Branch
 	constexpr IndexType invalid{std::numeric_limits<IndexType>::max ()};
@@ -138,7 +142,7 @@ namespace Topology {
 	class Node {
 	public:
 		Node (std::shared_ptr<const Tree> tree, IndexType nodeId) noexcept
-		    : tree_ (tree), nodeId_ (nodeId) {}
+		    : tree_ (std::move (tree)), nodeId_ (nodeId) {}
 
 		IndexType nodeId () const noexcept { return nodeId_; }
 		IndexType fatherBranchId () const { return tree_->nodeFatherBranch (nodeId ()); }
@@ -165,7 +169,7 @@ namespace Topology {
 	class Branch {
 	public:
 		Branch (std::shared_ptr<const Tree> tree, IndexType branchId) noexcept
-		    : tree_ (tree), branchId_ (branchId) {}
+		    : tree_ (std::move (tree)), branchId_ (branchId) {}
 
 		IndexType branchId () const noexcept { return branchId_; }
 		IndexType fatherNodeId () const { return tree_->branchFatherNode (branchId ()); }
@@ -212,6 +216,19 @@ namespace Topology {
 	inline Node Branch::childNode () && { return std::move (*this).buildNode (childNodeId ()); }
 	inline Node Branch::buildNode (IndexType nodeId) const & { return Node (tree_, nodeId); }
 	inline Node Branch::buildNode (IndexType nodeId) && { return Node (std::move (tree_), nodeId); }
+
+	/* (Node|Branch)Map<T> associates T values to a tree's elements.
+	 */
+
+	/* (Node|Branch)Index<T> associates T values with bijection to a tree's elements.
+	 */
+
+	// From PhyloTree
+	struct ConvertedPhyloTreeData {
+		std::shared_ptr<const Tree> topology;
+		// TODO add data name index, brlens map
+	};
+	ConvertedPhyloTreeData convertPhyloTree (const bpp::PhyloTree & phyloTree);
 }
 }
 

@@ -1,16 +1,16 @@
 //
-// File: Topology.cpp
+// File: new_topology.cpp
 // Authors:
 //   Francois Gindraud (2017)
-// Created: 2017-05-19
-// Last modified: 2017-05-19
+// Created: 2017-05-24
+// Last modified: 2017-05-24
 //
 
 /*
-  Copyright or © or Copr. Bio++ Development Team, (November 16, 2004)
+  Copyright or © or Copr. Bio++ Development Team, (November 17, 2004)
 
   This software is a computer program whose purpose is to provide classes
-  for phylogenetic data analysis.
+  for numerical calculus. This file is part of the Bio++ project.
 
   This software is governed by the CeCILL license under French law and
   abiding by the rules of distribution of free software. You can use,
@@ -39,43 +39,24 @@
   knowledge of the CeCILL license and that you accept its terms.
 */
 
+#define DOCTEST_CONFIG_IMPLEMENT_WITH_MAIN
+#include "doctest.h"
+
+#include <Bpp/NewPhyl/Debug.h>
 #include <Bpp/NewPhyl/Topology.h>
-#include <Bpp/Phyl/Tree/PhyloTree.h>
-#include <memory>
-#include <stdexcept>
-#include <unordered_map>
+#include <Bpp/Phyl/Io/Newick.h>
+#include <fstream>
 
-namespace bpp {
-namespace Topology {
-	// Convert from PhyloTree
-	ConvertedPhyloTreeData convertPhyloTree (const bpp::PhyloTree & phyloTree) {
-		ConvertedPhyloTreeData returnData{};
-		{
-			auto tree = Tree::create ();
+TEST_CASE("Convert PhyloTree")
+{
+  bpp::Newick reader;
+  auto phyloTree = std::unique_ptr<bpp::PhyloTree>(
+    reader.parenthesisToPhyloTree("((A:0.01, B:0.02):0.03,C:0.01,D:0.1);", false, "", false, false));
 
-			// Build topology
-			std::unordered_map<bpp::PhyloTree::NodeIndex, IndexType> phyloNodeIdToOurIds;
-			for (auto phyloNodeId : phyloTree.getAllNodesIndexes ()) {
-				// Create all nodes
-				auto ourId = tree->createNode ();
-				phyloNodeIdToOurIds[phyloNodeId] = ourId;
-			}
-			for (auto phyloNodeId : phyloTree.getAllNodesIndexes ()) {
-				if (phyloTree.hasFather (phyloNodeId)) {
-					// Link them by using the father link
-					auto phyloFatherId =
-					    phyloTree.getNodeIndex (phyloTree.getFather (phyloTree.getNode (phyloNodeId)));
-					tree->createEdge (phyloNodeIdToOurIds.at (phyloFatherId),
-					                  phyloNodeIdToOurIds.at (phyloNodeId));
-				}
-			}
-			if (!phyloTree.isRooted ())
-				throw std::runtime_error ("PhyloTree is not rooted");
-			tree->setRootNodeId (phyloNodeIdToOurIds.at (phyloTree.getRootIndex ()));
+  auto newTree = bpp::Topology::convertPhyloTree(*phyloTree).topology;
 
-			returnData.topology = Tree::finalize (std::move (tree));
-		}
-		return returnData;
-	}
-}
+  CHECK(newTree->nbNodes() == phyloTree->getNumberOfNodes());
+
+  std::ofstream ft("topology_debug");
+  bpp::Topology::debugTree(ft, newTree);
 }
