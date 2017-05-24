@@ -1,8 +1,6 @@
 //
 // File: AbstractLikelihoodNode.cpp
-// Authors:
-//   Laurent Guéguen
-//   Francois Gindraud (2017)
+// Created by: Laurent Guéguen
 // Created on: mercredi 1 juillet 2015, à 16h 22
 //
 
@@ -40,78 +38,83 @@
  */
 
 #include "AbstractLikelihoodNode.h"
-#include "../PatternTools.h"
 #include "SpeciationComputingNode.h"
+#include "../PatternTools.h"
 
 using namespace bpp;
 using namespace std;
 
+
 void AbstractLikelihoodNode::getPosteriorProbabilitiesForEachState(VVdouble& vPP) const
 {
-  auto nSites = nodeLikelihoods_.get ().size();
-  auto nStates = nodeLikelihoods_.get ()[0].size();
+  size_t nSites=nodeLikelihoods_.size();
+  size_t nStates=nodeLikelihoods_[0].size();
 
   vPP.resize(nSites);
+  
+  const VVdouble& larray = getLikelihoodArray(ComputingNode::D0);
 
-  const auto& larray = getLikelihoodArray(ComputingNode::D0);
-
-  for (auto i : makeRange(nSites))
+  for (size_t i = 0; i < nSites; i++)
   {
-    const auto& larray_i = larray[i];
-    auto& vPP_i = vPP[i];
-    vPP_i.resize(nStates);
-
+    const Vdouble * larray_i = & larray[i];
+    Vdouble * vPP_i = & vPP[i];
+    vPP_i->resize(nStates);
+    
     double likelihood;
     if (usesLog())
     {
-      likelihood = VectorTools::logSumExp(larray_i);
+      likelihood=VectorTools::logSumExp(* larray_i);
 
-      for (auto s : makeRange(nStates))
-        vPP_i[s] = exp(larray_i[s] - likelihood);
+      for(size_t s = 0; s < nStates; s++)
+        (* vPP_i)[s] = exp((* larray_i)[s] - likelihood);
     }
     else
     {
-      likelihood = VectorTools::sum(larray_i);
-
-      for (auto s : makeRange(nStates))
-        vPP_i[s] = larray_i[s] / likelihood;
+      likelihood=VectorTools::sum((* larray_i));
+      
+      for(size_t s = 0; s < nStates; s++)
+        (* vPP_i)[s] = (* larray_i)[s] / likelihood;
     }
   }
 }
 
 void AbstractLikelihoodNode::setUseLog(bool useLog)
 {
-  if (useLog == usesLog())
+  if (useLog==usesLog())
     return;
 
   if (isUp2date(ComputingNode::D0))
   {
-    auto nSites = nodeLikelihoods_.get ().size();
-    auto nStates = nodeLikelihoods_.get ()[0].size();
+    size_t nSites=nodeLikelihoods_.size();
+    size_t nStates=nodeLikelihoods_[0].size();
 
     if (useLog)
     {
-      for (auto i : makeRange(nSites))
+      for (size_t i = 0; i < nSites; i++)
       {
-        auto& nodeLikelihoods_i_ = nodeLikelihoods_.get_mutable ()[i];
-        for (auto s : makeRange(nStates))
-          nodeLikelihoods_i_[s] = log(nodeLikelihoods_i_[s]);
+        Vdouble* nodeLikelihoods_i_ = &(nodeLikelihoods_[i]);
+        for(size_t s = 0; s < nStates; s++)
+          (*nodeLikelihoods_i_)[s]=log((*nodeLikelihoods_i_)[s]);
       }
     }
-    for (auto i : makeRange(nSites))
+    for (size_t i = 0; i < nSites; i++)
     {
-      auto& nodeLikelihoods_i_ = nodeLikelihoods_.get_mutable ()[i];
-      for (auto s : makeRange(nStates))
-        nodeLikelihoods_i_[s] = exp(nodeLikelihoods_i_[s]);
+      Vdouble* nodeLikelihoods_i_ = &(nodeLikelihoods_[i]);
+      for(size_t s = 0; s < nStates; s++)
+        (*nodeLikelihoods_i_)[s]=exp((*nodeLikelihoods_i_)[s]);
     }
   }
-
-  usesLog_ = useLog;
+  
+  usesLog_=useLog;
 }
+
 
 void AbstractLikelihoodNode::setUseLogDownward(bool useLog)
 {
   setUseLog(useLog);
-  for (auto i : makeRange(getNumberOfSons()))
+
+  size_t nS=getNumberOfSons();
+  for (size_t i=0; i<nS; i++)
     static_cast<AbstractLikelihoodNode*>(getSon(i))->setUseLogDownward(useLog);
 }
+    
