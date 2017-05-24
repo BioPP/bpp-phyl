@@ -673,8 +673,8 @@ void DistanceEstimation::computeMatrix() throw (NullPointerException)
         new TwoTreeLikelihood(names[i], names[j], *sites_, model_.get(), rateDist_.get(), verbose_ > 3);
       lik->initialize();
       lik->enableDerivatives(true);
-      size_t d = SymbolListTools::getNumberOfDistinctPositions(sites_->getSequence(i), sites_->getSequence(j));
-      size_t g = SymbolListTools::getNumberOfPositionsWithoutGap(sites_->getSequence(i), sites_->getSequence(j));
+      size_t d = SymbolListTools::getNumberOfDistinctPositions((const IntSymbolList&)sites_->getSequence(i), (const IntSymbolList&)sites_->getSequence(j));
+      size_t g = SymbolListTools::getNumberOfPositionsWithoutGap((const IntSymbolList&)sites_->getSequence(i), (const IntSymbolList&)sites_->getSequence(j));
       lik->setParameterValue("BrLen", g == 0 ? lik->getMinimumBranchLength() : std::max(lik->getMinimumBranchLength(), static_cast<double>(d) / static_cast<double>(g)));
       // Optimization:
       optimizer_->setFunction(lik);

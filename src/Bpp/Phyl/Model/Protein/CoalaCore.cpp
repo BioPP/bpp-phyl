@@ -84,8 +84,8 @@ ParameterList CoalaCore::computeCOA(const SequenceContainer& data, bool param)
   for (size_t i = 0; i < names.size(); ++i)
   {
     Sequence* seq = new BasicSequence(data.getSequence(names[i]));
-    SymbolListTools::changeGapsToUnknownCharacters(*seq);
-    SequenceTools::getFrequencies(*seq, freqs.at(i));
+    SymbolListTools::changeGapsToUnknownCharacters((IntSymbolList&)*seq);
+    SequenceTools::getFrequencies((IntSymbolList&)*seq, freqs.at(i));
     // Unknown characters are now ignored:
     double t = 0;
     for (int k = 0; k < 20; ++k)
