@@ -55,7 +55,6 @@
  * TODO better doxygen below
  */
 
-#include <memory>  // unique_ptr
 #include <utility> // index_sequence
 
 namespace bpp

@@ -51,10 +51,9 @@ knowledge of the CeCILL license and that you accept its terms.
 #include <Bpp/Phyl/NewLikelihood/PhyloLikelihoods/SingleProcessPhyloLikelihood.h>
 #include <Bpp/Phyl/NewLikelihood/SimpleSubstitutionProcess.h>
 // DF
-#include <Bpp/Phyl/DF/PhylogenyTree.h>
+#include "old_df/PhylogenyTree.h"
 
-#include <Bpp/Utils/Cpp14.h>
-#include <Bpp/Utils/ForRange.h>
+#include <Bpp/NewPhyl/Range.h>
 #include <chrono>
 #include <iostream>
 #include <map>
@@ -62,8 +61,7 @@ knowledge of the CeCILL license and that you accept its terms.
 #define DOCTEST_CONFIG_IMPLEMENT_WITH_MAIN
 #include "doctest.h"
 
-using bpp::Cpp14::make_unique;
-using bpp::makeRange;
+using bpp::range;
 
 namespace
 {
@@ -76,20 +74,22 @@ namespace
               << std::chrono::duration_cast<std::chrono::nanoseconds>(end - start).count() << "\n";
   }
 
-  template <typename Func>
+  template<typename Func>
   void do_func_multiple_times(const std::string& timePrefix, Func f)
   {
     constexpr std::size_t updatesNbIterations = 1000;
     auto ts = timingStart();
-    for (auto i : makeRange(updatesNbIterations))
+    for (auto i : range(updatesNbIterations))
     {
       (void)i;
       f();
     }
     timingEnd(ts, timePrefix);
   }
-  template <typename Lik>
-  void do_param_changes_multiple_times(Lik& llh, const std::string& timePrefix, const bpp::ParameterList& p1,
+  template<typename Lik>
+  void do_param_changes_multiple_times(Lik& llh,
+                                       const std::string& timePrefix,
+                                       const bpp::ParameterList& p1,
                                        const bpp::ParameterList& p2)
   {
     do_func_multiple_times(timePrefix, [&]() {
@@ -161,8 +161,10 @@ TEST_CASE("Compare likelihood computations with 3 methods")
     auto phyloTree = std::unique_ptr<PhyloTree>(
       reader.parenthesisToPhyloTree("((A:0.01, B:0.02):0.03,C:0.01,D:0.1);", false, "", false, false));
     auto paramPhyloTree = std::make_shared<ParametrizablePhyloTree>(*phyloTree);
-    auto process = make_unique<SimpleSubstitutionProcess>(model.clone(), paramPhyloTree->clone());
-    auto likelihoodCompStruct = make_unique<RecursiveLikelihoodTreeCalculation>(sites, process.get(), false, true);
+    auto process =
+      std::unique_ptr<SimpleSubstitutionProcess>(new SimpleSubstitutionProcess(model.clone(), paramPhyloTree->clone()));
+    auto likelihoodCompStruct = std::unique_ptr<RecursiveLikelihoodTreeCalculation>(
+      new RecursiveLikelihoodTreeCalculation(sites, process.get(), false, true));
     SingleProcessPhyloLikelihood llh(process.get(), likelihoodCompStruct.release());
     llh.computeLikelihood();
     newL.initialLikelihood = llh.getValue();
@@ -225,9 +227,9 @@ TEST_CASE("Compare likelihood computations with 3 methods")
     }
     //    std::cout << "root_id=" << nodeConv[phyloTree->getRootIndex()] << "\n";
     // Final init... (crappy but temporary)
-    for (auto i : makeRange(manipulator.nbNodes()))
+    for (auto i : range(manipulator.nbNodes()))
       manipulator.node(i).initStuff(nbSites, nbStates);
-    for (auto i : makeRange(manipulator.nbBranches()))
+    for (auto i : range(manipulator.nbBranches()))
       manipulator.branch(i).initStuff(nbSites, nbStates);
 
     auto get_llh = [&]() { return manipulator.node(nodeConv[phyloTree->getRootIndex()]).getLogLik(localModel); };
@@ -238,7 +240,7 @@ TEST_CASE("Compare likelihood computations with 3 methods")
     // Model change TODO
     auto change_model_param_invalidate_and_compute = [&](double v) {
       localModel->setParameterValue("kappa", v);
-      for (auto i : makeRange(manipulator.nbBranches()))
+      for (auto i : range(manipulator.nbBranches()))
         manipulator.branch(i).setModel(localModel);
       get_llh();
     };
@@ -258,7 +260,7 @@ TEST_CASE("Compare likelihood computations with 3 methods")
     });
 
     // auto& v = manipulator.node(nodeConv[phyloTree->getRootIndex()]).conditionalLikelihood_.getValue();
-    // for (auto siteId : makeRange(v.size()))
+    // for (auto siteId : range(v.size()))
     //{
     //  std::cout << "Lik[site " << siteId << "] = { ";
     //  for (auto l : v[siteId])

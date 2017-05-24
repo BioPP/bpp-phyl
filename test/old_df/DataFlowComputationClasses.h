@@ -49,8 +49,8 @@ knowledge of the CeCILL license and that you accept its terms.
  * TODO fixed reduction ?
  */
 
-#include <Bpp/Phyl/DF/DataFlowBaseClasses.h>
-#include <Bpp/Utils/Cpp14.h> // IndexSequence
+#include "DataFlowBaseClasses.h"
+#include <Bpp/NewPhyl/Cpp14.h> // IndexSequence
 #include <algorithm>
 #include <cassert>
 #include <initializer_list> // foreach on tuple trick
@@ -90,14 +90,14 @@ namespace bpp
      * 
      * An example of use is available in the test/test_dataflow.cpp file.
      */
-    template <typename ComputationOp>
+    template<typename ComputationOp>
     class HeterogeneousComputationNode : public ValuedNode<typename ComputationOp::ResultType>
     {
     private:
       // This struct is used to generate a std::tuple<Dependency<Arg1Type>, ..., std::tuple<Dependency<ArgNType>>
-      template <typename T>
+      template<typename T>
       struct MakeDependencyTuple;
-      template <typename... ArgumentTypes>
+      template<typename... ArgumentTypes>
       struct MakeDependencyTuple<std::tuple<ArgumentTypes...>>
       {
         using Type = std::tuple<Dependency<ArgumentTypes>...>;
@@ -115,7 +115,7 @@ namespace bpp
       using ResultType = typename ComputationOp::ResultType;
 
       /// Gives the type of the N-th dependency.
-      template <std::size_t Index>
+      template<std::size_t Index>
       using DependencyType = typename std::tuple_element<Index, DependencyTupleType>::type;
 
     private:
@@ -136,19 +136,19 @@ namespace bpp
       static constexpr std::size_t nbDependencies(void) { return std::tuple_size<DependencyTupleType>::value; }
 
       /// Set the N-th dependency (must be unset).
-      template <std::size_t Index>
+      template<std::size_t Index>
       void setDependency(typename DependencyType<Index>::ProducerNodeType& producer)
       {
         std::get<Index>(dependencies_).set(producer, *this);
       }
       /// Unsets the N-th dependency (must be set).
-      template <std::size_t Index>
+      template<std::size_t Index>
       void unsetDependency(void)
       {
         std::get<Index>(dependencies_).unset(*this);
       }
       /// Get dependency state (const reference, cannot be modified).
-      template <std::size_t Index>
+      template<std::size_t Index>
       const DependencyType<Index>& dependency(void) const
       {
         return std::get<Index>(dependencies_);
@@ -161,19 +161,19 @@ namespace bpp
        * The helper functions provide a context where we can deduce and unpack the parameter pack.
        * For more information, see cppreference std::tuple and std::integer_sequence pages.
        */
-      template <std::size_t... Is>
+      template<std::size_t... Is>
       void destructorWithUnpackedIndexSequence(IndexSequence<Is...>)
       {
         // Awful trick to force calling disconnect on all elements of the tuple.
         // Only a few context allow a parameter pack expansion, and struct initializer list are one of them.
         (void)std::initializer_list<int>{(unsetDependency<Is>(), 0)...};
       }
-      template <std::size_t... Is>
+      template<std::size_t... Is>
       void computeWithUnpackedIndexSequence(IndexSequence<Is...>)
       {
         ComputationOp::compute(ValuedNode<ResultType>::value_, std::get<Is>(dependencies_).getValue()...);
       }
-      template <std::size_t... Is>
+      template<std::size_t... Is>
       void dependencyWasDestroyedWithUnpackedIndexSequence(const InvalidableNode* node, IndexSequence<Is...>)
       {
         (void)std::initializer_list<int>{(std::get<Is>(dependencies_).clearIfMatching(node), 0)...};
@@ -209,7 +209,7 @@ namespace bpp
      * };
      * @endcode
      */
-    template <typename ReductionOp>
+    template<typename ReductionOp>
     class ReductionComputationNode : public ValuedNode<typename ReductionOp::ResultType>
     {
     public:
@@ -247,8 +247,9 @@ namespace bpp
       }
       bool removeDependencyMatching(const InvalidableNode* node)
       {
-        auto it = std::find_if(dependencies_.begin(), dependencies_.end(),
-                               [=](const Dependency<ArgumentType>& dep) { return dep.producer() == node; });
+        auto it = std::find_if(dependencies_.begin(), dependencies_.end(), [=](const Dependency<ArgumentType>& dep) {
+          return dep.producer() == node;
+        });
         if (it != dependencies_.end())
         {
           it->disconnect(*this);
@@ -272,8 +273,9 @@ namespace bpp
       /// Cleaning dependencies to destroyed nodes.
       void dependencyWasDestroyed(const InvalidableNode* node) override final
       {
-        auto it = std::find_if(dependencies_.begin(), dependencies_.end(),
-                               [=](const Dependency<ArgumentType>& dep) { return dep.producer() == node; });
+        auto it = std::find_if(dependencies_.begin(), dependencies_.end(), [=](const Dependency<ArgumentType>& dep) {
+          return dep.producer() == node;
+        });
         if (it != dependencies_.end())
         {
           it->clear();

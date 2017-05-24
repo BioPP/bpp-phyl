@@ -43,10 +43,10 @@ knowledge of the CeCILL license and that you accept its terms.
 #include <Bpp/Phyl/Model/SubstitutionModel.h>
 #include <Bpp/Seq/Sequence.h>
 
+#include "DataFlowComputationClasses.h"
+#include <Bpp/NewPhyl/Cpp14.h>
+#include <Bpp/NewPhyl/Range.h>
 #include <Bpp/Numeric/Matrix/Matrix.h>
-#include <Bpp/Phyl/DF/DataFlowComputationClasses.h>
-#include <Bpp/Utils/Cpp14.h>
-#include <Bpp/Utils/ForRange.h>
 
 #include <cstdint>
 #include <limits>
@@ -59,7 +59,7 @@ namespace bpp
   namespace New
   {
     // Forward declare manipulator
-    template <typename NodeType, typename BranchType>
+    template<typename NodeType, typename BranchType>
     class TreeManipulator;
 
     // Base class of extended trees.
@@ -127,7 +127,7 @@ namespace bpp
 
     // Class that manipulates the tree (access, modification, etc).
     // Access the extensions of basic Node and Branch given in the templates.
-    template <typename NodeType, typename BranchType>
+    template<typename NodeType, typename BranchType>
     class TreeManipulator
     {
     public:
@@ -164,7 +164,7 @@ namespace bpp
       NodeType& addNode(void) const
       {
         auto id = IndexType(tree_.nodes_.size());
-        tree_.nodes_.emplace_back(Cpp14::make_unique<NodeType>());
+        tree_.nodes_.emplace_back(std::unique_ptr<NodeType>(new NodeType));
         auto& n = node(id);
         n.graphInit(id);
         return n;
@@ -173,7 +173,7 @@ namespace bpp
       BranchType& addBranch(NodeType& from, NodeType& to)
       {
         auto id = IndexType(tree_.branches_.size());
-        tree_.branches_.emplace_back(Cpp14::make_unique<BranchType>());
+        tree_.branches_.emplace_back(std::unique_ptr<BranchType>(new BranchType));
         auto& br = branch(id);
         br.graphInit(id, from, to);
         return br;
@@ -197,6 +197,7 @@ namespace bpp
       public:
         void setLength(double length) { length_.setValue(length); }
         double getLength(void) { return length_.getValue(); }
+
       protected:
         DF::ParameterNode<double> length_;
       };
@@ -321,7 +322,7 @@ namespace bpp
           {
             // Setup the init likelihoods
             LikelihoodValuesBySite initLikBySite(nbSites);
-            for (auto site : makeRange(initLikBySite.size()))
+            for (auto site : range(initLikBySite.size()))
             {
               LikelihoodValues liks(nbStates, 0.);
               liks[getSequence().getValue(site)] = 1.;
@@ -341,7 +342,7 @@ namespace bpp
           for (auto& likOfSite : condLiksBySite)
           {
             double lik = 0.;
-            for (auto c : makeRange(likOfSite.size()))
+            for (auto c : range(likOfSite.size()))
               lik += likOfSite[c] * freqs[c];
             logLik += std::log(lik);
           }
@@ -362,11 +363,11 @@ namespace bpp
           }
           static void reduce(ResultType& result, const ArgumentType& forwardLik)
           {
-            for (auto siteIndex : makeRange(forwardLik.size()))
+            for (auto siteIndex : range(forwardLik.size()))
             {
               auto& siteCondLik = result[siteIndex];
               auto& siteFwdLik = forwardLik[siteIndex];
-              for (auto c : makeRange(siteCondLik.size()))
+              for (auto c : range(siteCondLik.size()))
                 siteCondLik[c] *= siteFwdLik[c];
             }
           }
@@ -407,17 +408,18 @@ namespace bpp
             BranchModel
           };
           using ArgumentTypes = std::tuple<LikelihoodValuesBySite, DefaultMatrix<double>>;
-          static void compute(ResultType& resBySite, const LikelihoodValuesBySite& childCondLikBySite,
+          static void compute(ResultType& resBySite,
+                              const LikelihoodValuesBySite& childCondLikBySite,
                               const DefaultMatrix<double>& transitionMatrix)
           {
-            for (auto site : makeRange(resBySite.size()))
+            for (auto site : range(resBySite.size()))
             {
               auto& fwdLiks = resBySite[site];
               auto& childCondLik = childCondLikBySite[site];
-              for (auto target_c : makeRange(fwdLiks.size()))
+              for (auto target_c : range(fwdLiks.size()))
               {
                 fwdLiks[target_c] = 0;
-                for (auto c : makeRange(fwdLiks.size()))
+                for (auto c : range(fwdLiks.size()))
                   fwdLiks[target_c] += transitionMatrix(target_c, c) * childCondLik[c];
               }
             }
