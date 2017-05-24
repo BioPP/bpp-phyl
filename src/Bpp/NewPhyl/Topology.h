@@ -71,18 +71,18 @@ namespace Topology {
 			Node () = default;
 		};
 
-    // Base info
+		// Base info
 		IndexType nbNodes () const { return nodes_.size (); }
 		IndexType nbBranches () const { return nbNodes (); }
 		IndexType rootNodeId () const { return rootNodeId_; }
 
-    // Branch info
+		// Branch info
 		IndexType branchFatherNode (IndexType branchId) const {
 			return nodes_.at (branchChildNode (branchId)).fatherId_;
 		}
 		IndexType branchChildNode (IndexType branchId) const { return branchId; }
 
-    // Node info
+		// Node info
 		IndexType nodeFatherBranch (IndexType nodeId) const { return nodeId; }
 		std::size_t nodeNbChildrenBranches (IndexType nodeId) const {
 			return nodes_.at (nodeId).childrenIds_.size ();
@@ -91,7 +91,7 @@ namespace Topology {
 			return nodes_.at (nodeId).childrenIds_.at (childBranchIndexInNode);
 		}
 
-    // Setup
+		// Setup
 		void setRootNodeId (IndexType nodeId) {
 			if (rootNodeId_ != invalid)
 				throw std::runtime_error ("root node has already been set");
@@ -148,11 +148,16 @@ namespace Topology {
 		}
 
 		// Navigate
-		Branch fatherBranch () const;
-		Branch childBranch (std::size_t index) const;
+		Branch fatherBranch () const &;
+		Branch fatherBranch () &&;
+		Branch childBranch (std::size_t index) const &;
+		Branch childBranch (std::size_t index) &&;
 		template <typename Callable> void foreachChildBranch (Callable callable) const;
 
 	private:
+		Branch buildBranch (IndexType branchId) const &;
+		Branch buildBranch (IndexType branchId) &&;
+
 		std::shared_ptr<const Tree> tree_;
 		IndexType nodeId_;
 	};
@@ -163,35 +168,50 @@ namespace Topology {
 		    : tree_ (tree), branchId_ (branchId) {}
 
 		IndexType branchId () const noexcept { return branchId_; }
-		IndexType fatherNodeId () const noexcept { return tree_->branchFatherNode (branchId ()); }
-		IndexType childNodeId () const noexcept { return tree_->branchChildNode (branchId ()); }
+		IndexType fatherNodeId () const { return tree_->branchFatherNode (branchId ()); }
+		IndexType childNodeId () const { return tree_->branchChildNode (branchId ()); }
 
 		// Navigate
-		Node fatherNode () const;
-		Node childNode () const;
+		Node fatherNode () const &;
+		Node fatherNode () &&;
+		Node childNode () const &;
+		Node childNode () &&;
 
 	private:
+		Node buildNode (IndexType nodeId) const &;
+		Node buildNode (IndexType nodeId) &&;
+
 		std::shared_ptr<const Tree> tree_;
 		IndexType branchId_;
 	};
 
 	// Node navigation
-	inline Branch Node::fatherBranch () const { return Branch (tree_, nodeId ()); }
-	inline Branch Node::childBranch (std::size_t branchIndex) const {
-		return Branch (tree_, childBranchId (branchIndex));
+	inline Branch Node::fatherBranch () const & { return buildBranch (fatherBranchId ()); }
+	inline Branch Node::fatherBranch () && {
+		return std::move (*this).buildBranch (fatherBranchId ());
+	}
+	inline Branch Node::childBranch (std::size_t index) const & {
+		return buildBranch (childBranchId (index));
+	}
+	inline Branch Node::childBranch (std::size_t index) && {
+		return std::move (*this).buildBranch (childBranchId (index));
 	}
 	template <typename Callable> void Node::foreachChildBranch (Callable callable) const {
 		for (auto branchIndex : bpp::range (nbChildBranches ()))
-			callable (Branch (tree_, childBranchId (branchIndex)));
+			callable (childBranch (branchIndex));
 	}
+	inline Branch Node::buildBranch (IndexType branchId) const & { return Branch (tree_, branchId); }
+	inline Branch Node::buildBranch (IndexType branchId) && {
+		return Branch (std::move (tree_), branchId);
+	}
+
 	// Branch navigation
-	inline Node Branch::fatherNode () const {
-		auto id = fatherNodeId ();
-		if (id == invalid)
-			throw std::runtime_error ("branch has no father node");
-		return Node (tree_, id);
-	}
-	inline Node Branch::childNode () const { return Node (tree_, childNodeId ()); }
+	inline Node Branch::fatherNode () const & { return buildNode (fatherNodeId ()); }
+	inline Node Branch::fatherNode () && { return std::move (*this).buildNode (fatherNodeId ()); }
+	inline Node Branch::childNode () const & { return buildNode (childNodeId ()); }
+	inline Node Branch::childNode () && { return std::move (*this).buildNode (childNodeId ()); }
+	inline Node Branch::buildNode (IndexType nodeId) const & { return Node (tree_, nodeId); }
+	inline Node Branch::buildNode (IndexType nodeId) && { return Node (std::move (tree_), nodeId); }
 }
 }
 
