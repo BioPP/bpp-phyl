@@ -71,7 +71,7 @@ class TwoTreeLikelihood:
   private:
     SiteContainer* shrunkData_;
     std::vector<std::string> seqnames_;
-    SubstitutionModel* model_;
+    TransitionModel* model_;
     ParameterList brLenParameters_;
     
     mutable VVVdouble pxy_;
@@ -119,7 +119,7 @@ class TwoTreeLikelihood:
     TwoTreeLikelihood(
       const std::string& seq1, const std::string& seq2,  
       const SiteContainer& data,
-      SubstitutionModel* model,
+      TransitionModel* model,
       DiscreteDistribution* rDist,
       bool verbose)  throw (Exception);
 
@@ -162,8 +162,8 @@ class TwoTreeLikelihood:
     double getLogLikelihoodForASite(size_t site) const;
     ParameterList getBranchLengthsParameters() const;
     ParameterList getSubstitutionModelParameters() const;
-    SubstitutionModel* getSubstitutionModel(int nodeId, size_t siteIndex) throw (NodeNotFoundException) { return model_; }
-    const SubstitutionModel* getSubstitutionModel(int nodeId, size_t siteIndex) const throw (NodeNotFoundException) { return model_; }
+    TransitionModel* getSubstitutionModel(int nodeId, size_t siteIndex) throw (NodeNotFoundException) { return model_; }
+    const TransitionModel* getSubstitutionModel(int nodeId, size_t siteIndex) const throw (NodeNotFoundException) { return model_; }
     const std::vector<double>& getRootFrequencies(size_t siteIndex) const { return model_->getFrequencies(); }
     size_t getSiteIndex(size_t site) const throw (IndexOutOfBoundsException) { return rootPatternLinks_[site]; }
     /**
@@ -190,14 +190,14 @@ class TwoTreeLikelihood:
      *
      * @return A const pointer toward the substitution model of this instance.
      */
-    const SubstitutionModel* getSubstitutionModel() const { return model_; }
+    const TransitionModel* getSubstitutionModel() const { return model_; }
     
     /**
      * @brief Get the substitution model used for the computation.
      *
      * @return A pointer toward the substitution model of this instance.
      */
-    SubstitutionModel* getSubstitutionModel() { return model_; }
+    TransitionModel* getSubstitutionModel() { return model_; }
 
     ConstBranchModelIterator* getNewBranchModelIterator(int nodeId) const throw (NotImplementedException)
     {
@@ -310,7 +310,7 @@ class DistanceEstimation:
   public virtual Clonable
 {
   private:
-    std::unique_ptr<SubstitutionModel> model_;
+    std::unique_ptr<TransitionModel> model_;
     std::unique_ptr<DiscreteDistribution> rateDist_;
     const SiteContainer* sites_;
     DistanceMatrix* dist_;
@@ -336,7 +336,7 @@ class DistanceEstimation:
      *  - 4=3 + likelihood object verbose enabled
      */
     DistanceEstimation(
-        SubstitutionModel* model,
+        TransitionModel* model,
         DiscreteDistribution* rateDist,
         size_t verbose = 1) :
       model_(model),
@@ -369,7 +369,7 @@ class DistanceEstimation:
      *  @param computeMat if true the computeMatrix() method is called.
      */
     DistanceEstimation(
-        SubstitutionModel* model,
+        TransitionModel* model,
         DiscreteDistribution* rateDist,
         const SiteContainer* sites,
         size_t verbose = 1,
@@ -479,16 +479,16 @@ class DistanceEstimation:
      */
     DistanceMatrix* getMatrix() const { return dist_ == 0 ? 0 : new DistanceMatrix(*dist_); }
 
-    bool hasSubstitutionModel() const { return model_.get(); }
+    bool hasModel() const { return model_.get(); }
 
-    const SubstitutionModel& getSubstitutionModel() const throw (Exception) {
-      if (hasSubstitutionModel())
+    const TransitionModel& getSubstitutionModel() const throw (Exception) {
+      if (hasModel())
         return *model_;
       else
         throw Exception("DistanceEstimation::getSubstitutionModel(). No model assciated to this instance.");
     }
 
-    void resetSubstitutionModel(SubstitutionModel* model = 0) { model_.reset(model); }
+    void resetSubstitutionModel(TransitionModel* model = 0) { model_.reset(model); }
 
     bool hasRateDistribution() const { return rateDist_.get(); }
 

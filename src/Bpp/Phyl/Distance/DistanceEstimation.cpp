@@ -68,7 +68,7 @@ using namespace std;
 TwoTreeLikelihood::TwoTreeLikelihood(
     const std::string& seq1, const std::string& seq2,
     const SiteContainer& data,
-    SubstitutionModel* model,
+    TransitionModel* model,
     DiscreteDistribution* rDist,
     bool verbose) throw (Exception) :
   AbstractDiscreteRatesAcrossSitesTreeLikelihood(rDist, verbose),

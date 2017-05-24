@@ -5,6 +5,7 @@
 #   Francois Gindraud (2017)
 # Created: 20/08/2009
 
+# File list
 set (CPP_FILES
   Bpp/Phyl/App/PhylogeneticsApplicationTools.cpp
   Bpp/Phyl/Distance/AbstractAgglomerativeDistanceMethod.cpp
@@ -24,6 +25,7 @@ set (CPP_FILES
   Bpp/Phyl/Io/BppOMultiTreeWriterFormat.cpp
   Bpp/Phyl/Io/BppORateDistributionFormat.cpp
   Bpp/Phyl/Io/BppOSubstitutionModelFormat.cpp
+  Bpp/Phyl/Io/BppOTransitionModelFormat.cpp
   Bpp/Phyl/Io/BppOTreeReaderFormat.cpp
   Bpp/Phyl/Io/BppOTreeWriterFormat.cpp
   Bpp/Phyl/Io/IoDistanceMatrixFactory.cpp
@@ -112,6 +114,7 @@ set (CPP_FILES
   Bpp/Phyl/Mapping/WeightedSubstitutionCount.cpp
   Bpp/Phyl/Model/AbstractBiblioMixedSubstitutionModel.cpp
   Bpp/Phyl/Model/AbstractBiblioSubstitutionModel.cpp
+  Bpp/Phyl/Model/AbstractFromSubstitutionModelTransitionModel.cpp
   Bpp/Phyl/Model/AbstractKroneckerWordSubstitutionModel.cpp
   Bpp/Phyl/Model/AbstractMixedSubstitutionModel.cpp
   Bpp/Phyl/Model/AbstractSubstitutionModel.cpp
@@ -176,6 +179,7 @@ set (CPP_FILES
   Bpp/Phyl/Model/Nucleotide/TN93.cpp
   Bpp/Phyl/Model/Nucleotide/YpR.cpp
   Bpp/Phyl/Model/Nucleotide/gBGC.cpp
+  Bpp/Phyl/Model/OneChangeTransitionModel.cpp
   Bpp/Phyl/Model/Protein/Coala.cpp
   Bpp/Phyl/Model/Protein/CoalaCore.cpp
   Bpp/Phyl/Model/Protein/DSO78.cpp
@@ -223,20 +227,16 @@ set (CPP_FILES
 add_library (${PROJECT_NAME}-static STATIC ${CPP_FILES})
 target_include_directories (${PROJECT_NAME}-static PUBLIC
   $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>
-  $<INSTALL_INTERFACE:include>
+  $<INSTALL_INTERFACE:$<INSTALL_PREFIX>/include>
   )
 set_target_properties (${PROJECT_NAME}-static PROPERTIES OUTPUT_NAME ${PROJECT_NAME})
 target_link_libraries (${PROJECT_NAME}-static ${BPP_LIBS_STATIC})
-target_compile_options (${PROJECT_NAME}-static
-  PUBLIC ${public-compile-options}
-  PRIVATE ${private-compile-options}
-  )
 
 # Build the shared lib
 add_library (${PROJECT_NAME}-shared SHARED ${CPP_FILES})
 target_include_directories (${PROJECT_NAME}-shared PUBLIC
   $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>
-  $<INSTALL_INTERFACE:include>
+  $<INSTALL_INTERFACE:$<INSTALL_PREFIX>/include>
   )
 set_target_properties (${PROJECT_NAME}-shared
   PROPERTIES OUTPUT_NAME ${PROJECT_NAME}
@@ -245,10 +245,6 @@ set_target_properties (${PROJECT_NAME}-shared
   SOVERSION ${${PROJECT_NAME}_VERSION_MAJOR}
   )
 target_link_libraries (${PROJECT_NAME}-shared ${BPP_LIBS_SHARED})
-target_compile_options (${PROJECT_NAME}-shared
-  PUBLIC ${public-compile-options}
-  PRIVATE ${private-compile-options}
-  )
 
 # Install libs and headers
 install (
@@ -258,7 +254,7 @@ install (
   ARCHIVE DESTINATION lib${LIB_SUFFIX}
   )
 install (
-  DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/
+  DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/Bpp
   DESTINATION include
   FILES_MATCHING PATTERN "*.h"
   )

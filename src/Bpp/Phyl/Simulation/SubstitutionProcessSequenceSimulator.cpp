@@ -57,8 +57,8 @@ using namespace std;
 SimpleSubstitutionProcessSequenceSimulator::SimpleSubstitutionProcessSequenceSimulator(
   const SubstitutionProcess& process) throw (Exception) :
   process_(&process),
-  alphabet_(process_->getSubstitutionModel(process_->getParametrizablePhyloTree().getNodeIndex(process_->getParametrizablePhyloTree().getOutgoingNeighbors(process_->getParametrizablePhyloTree().getRoot())[0]),0).getAlphabet()),
-  supportedStates_(process_->getSubstitutionModel(process_->getParametrizablePhyloTree().getNodeIndex(process_->getParametrizablePhyloTree().getOutgoingNeighbors(process_->getParametrizablePhyloTree().getRoot())[0]),0).getAlphabetStates()),
+  alphabet_(process_->getTransitionModel(process_->getParametrizablePhyloTree().getNodeIndex(process_->getParametrizablePhyloTree().getOutgoingNeighbors(process_->getParametrizablePhyloTree().getRoot())[0]),0).getAlphabet()),
+  supportedStates_(process_->getTransitionModel(process_->getParametrizablePhyloTree().getNodeIndex(process_->getParametrizablePhyloTree().getOutgoingNeighbors(process_->getParametrizablePhyloTree().getRoot())[0]),0).getAlphabetStates()),
   phyloTree_(&process_->getParametrizablePhyloTree()),
   tree_(process_->getParametrizablePhyloTree()),
   leaves_(tree_.getAllLeaves()),
@@ -189,7 +189,7 @@ Site* SimpleSubstitutionProcessSequenceSimulator::simulateSite(size_t ancestralS
     Vint site(leaves_.size());
     for (size_t i = 0; i < leaves_.size(); ++i)
     {
-      site[i] = process_->getSubstitutionModel(leaves_[i]->getId(), rateClass).getAlphabetStateAsInt(leaves_[i]->state);
+      site[i] = process_->getTransitionModel(leaves_[i]->getId(), rateClass).getAlphabetStateAsInt(leaves_[i]->state);
     }
     return new Site(site, alphabet_);
   }
@@ -221,13 +221,13 @@ Site* SimpleSubstitutionProcessSequenceSimulator::simulateSite(size_t ancestralS
     for (size_t i = 0; i < n; i++)
     {
       size_t i2 = (i==n-1)?i-1:i; //  because the root has no model
-      site[i] = process_->getSubstitutionModel(nodes[i2]->getId(),rateClass).getAlphabetStateAsInt(nodes[i2]->state);
+      site[i] = process_->getTransitionModel(nodes[i2]->getId(),rateClass).getAlphabetStateAsInt(nodes[i2]->state);
     }
   }
   else {
     for (size_t i = 0; i < n; i++)
     {
-      site[i] = process_->getSubstitutionModel(leaves_[i]->getId(),rateClass).getAlphabetStateAsInt(leaves_[i]->state);
+      site[i] = process_->getTransitionModel(leaves_[i]->getId(),rateClass).getAlphabetStateAsInt(leaves_[i]->state);
     }
   }
   
@@ -405,7 +405,7 @@ size_t SimpleSubstitutionProcessSequenceSimulator::evolve(const SimProcessNode* 
   double rand = RandomTools::giveRandomNumberBetweenZeroAndEntry(1.);
   double l = rate * node->getDistanceToFather();
   
-  const SubstitutionModel* model = &node->process_->getSubstitutionModel(node->getId(), rateClass);
+  const TransitionModel* model = &node->process_->getTransitionModel(node->getId(), rateClass);
   
   for (size_t y = 0; y < nbStates_; y++)
   {
@@ -511,7 +511,7 @@ SiteContainer* SimpleSubstitutionProcessSequenceSimulator::multipleEvolve(
   AlignedSequenceContainer* sites = new AlignedSequenceContainer(alphabet_);
   size_t n = leaves_.size();
   size_t nbSites = initialStateIndices.size();
-  const SubstitutionModel* model = 0;
+  const TransitionModel* model = 0;
 
   if (outputInternalSequences_) {
     vector<shared_ptr<SimProcessNode> > nodes = tree_.getAllNodes();
@@ -522,7 +522,7 @@ SiteContainer* SimpleSubstitutionProcessSequenceSimulator::multipleEvolve(
       vector<size_t>& states = nodes[i]->states;
 
       size_t i2 = (i==nn-1)?i-1:i; // at the root, there is no model, so we take the model of node n-1.
-      model = &nodes[i2]->process_->getSubstitutionModel(nodes[i2]->getId(), rateClasses[0]);
+      model = &nodes[i2]->process_->getTransitionModel(nodes[i2]->getId(), rateClasses[0]);
 
       for (size_t j = 0; j < nbSites; j++)
       {
@@ -540,7 +540,7 @@ SiteContainer* SimpleSubstitutionProcessSequenceSimulator::multipleEvolve(
     {
       vector<int> content(nbSites);
       vector<size_t>& states = leaves_[i]->states;
-      model = &leaves_[i]->process_->getSubstitutionModel(leaves_[i]->getId(), rateClasses[0]);
+      model = &leaves_[i]->process_->getTransitionModel(leaves_[i]->getId(), rateClasses[0]);
       
       for (size_t j = 0; j < nbSites; j++)
       {
@@ -590,7 +590,12 @@ void SimpleSubstitutionProcessSequenceSimulator::dEvolveInternal(SimProcessNode*
     return;
   }
   
-  SimpleMutationProcess process(&node->process_->getSubstitutionModel(node->getId(), rateClass));
+  const TransitionModel* tm=&node->process_->getTransitionModel(node->getId(), rateClass);
+  
+  if (dynamic_cast<const SubstitutionModel*>(tm)==0)
+    throw Exception("SimpleSubstitutionProcessSequenceSimulator::dEvolveInternal : detailed simulation not possible for non-markovian model");
+
+  SimpleMutationProcess process(dynamic_cast<const SubstitutionModel*>(tm));
                                 
   MutationPath mp = process.detailedEvolve(node->getFather()->state, node->getDistanceToFather() * rate);
   node->state = mp.getFinalState();
@@ -614,9 +619,14 @@ void SimpleSubstitutionProcessSequenceSimulator::dEvolveInternal(SimProcessNode*
     cerr << "DEBUG: SimpleSubstitutionProcessSequenceSimulator::evolveInternal. Forbidden call of method on root node." << endl;
     return;
   }
+
+  const TransitionModel* tm=&node->process_->getTransitionModel(node->getId(), rateClass);
   
-  SimpleMutationProcess process(&node->process_->getSubstitutionModel(node->getId(), rateClass));
-                                
+  if (dynamic_cast<const SubstitutionModel*>(tm)==0)
+    throw Exception("SimpleSubstitutionProcessSequenceSimulator::dEvolveInternal : detailed simulation not possible for non-markovian model");
+
+  SimpleMutationProcess process(dynamic_cast<const SubstitutionModel*>(tm));
+
   MutationPath mp = process.detailedEvolve(node->getFather()->state, node->getDistanceToFather());
   node->state = mp.getFinalState();
 

@@ -60,6 +60,7 @@
 #include <map>
 #include <algorithm>
 #include <memory>
+#include <typeinfo>
 
 namespace bpp
 {
@@ -115,7 +116,7 @@ protected:
   /**
    * @brief Contains all models used in this tree.
    */
-  std::vector<SubstitutionModel*> modelSet_;
+  std::vector<TransitionModel*> modelSet_;
 
 private:
   /**
@@ -205,7 +206,7 @@ public:
 
   virtual ~SubstitutionModelSet()
   {
-    for (size_t i = 0; i < modelSet_.size(); i++) { delete modelSet_[i]; }
+    for (auto model : modelSet_) { delete model; }
   }
 
   SubstitutionModelSet* clone() const { return new SubstitutionModelSet(*this); }
@@ -246,18 +247,77 @@ public:
    * @param i Index of the model in the set.
    * @return A pointer toward the corresponding model.
    */
+  
   const SubstitutionModel* getModel(size_t i) const throw (IndexOutOfBoundsException)
   {
-    if (i >= modelSet_.size()) throw IndexOutOfBoundsException("SubstitutionModelSet::getNumberOfModels().", 0, modelSet_.size() - 1, i);
-    return modelSet_[i];
+    std::cerr << "#warning : SubstitutionModelSet::getModel function is deprecated in Bio++ 2.3.0. Replace it with SubstitutionModelSet::getSubstitutionModel." << std::endl;
+
+    return getSubstitutionModel(i);
   }
 
   SubstitutionModel* getModel(size_t i) throw (IndexOutOfBoundsException)
   {
+    std::cerr << "#warning : SubstitutionModelSet::getModel function is deprecated in Bio++ 2.3.0. Replace it with SubstitutionModelSet::getSubstitutionModel." << std::endl;
+
+    return getSubstitutionModel(i);
+  }
+
+  const TransitionModel* getTransitionModel(size_t i) const throw (IndexOutOfBoundsException)
+  {
     if (i >= modelSet_.size()) throw IndexOutOfBoundsException("SubstitutionModelSet::getNumberOfModels().", 0, modelSet_.size() - 1, i);
     return modelSet_[i];
   }
 
+  TransitionModel* getTransitionModel(size_t i) throw (IndexOutOfBoundsException)
+  {
+    if (i >= modelSet_.size()) throw IndexOutOfBoundsException("SubstitutionModelSet::getNumberOfModels().", 0, modelSet_.size() - 1, i);
+    return modelSet_[i];
+  }
+
+  /*
+   * @brief Return a markovian substitution model (or null)
+   *
+   */
+  
+  const SubstitutionModel* getSubstitutionModel(size_t i) const throw (IndexOutOfBoundsException)
+  {
+    try
+    {
+      return dynamic_cast<const SubstitutionModel*>(getTransitionModel(i));
+    }
+    catch (std::bad_cast& bc)
+    {
+      throw Exception("SubstitutionModelSet::getSubstitutionModel : model is not a sustitution model " + getTransitionModel(i)->getName());
+    }
+  }
+  
+
+  SubstitutionModel* getSubstitutionModel(size_t i) throw (IndexOutOfBoundsException)
+  {
+    try
+    {
+      return dynamic_cast<SubstitutionModel*>(getTransitionModel(i));
+    }
+    catch (std::bad_cast& bc)
+    {
+      throw Exception("SubstitutionModelSet::getSubstitutionModel : model is not a sustitution model " + getTransitionModel(i)->getName());
+    }
+  }
+
+  /*
+   * @brief check if has only markovian substitution models
+   *
+   */
+ 
+  bool hasOnlySubstitutionModels() const
+  {
+    for (auto mod : modelSet_)
+      if (dynamic_cast<const SubstitutionModel*>(mod)==0)
+        return false;
+
+    return true;
+  }
+  
   /**
    * @brief Get the index in the set of the model associated to a particular node id.
    *
@@ -280,19 +340,29 @@ public:
    * @return A pointer toward the corresponding model.
    * @throw Exception If no model is found for this node.
    */
-  const SubstitutionModel* getModelForNode(int nodeId) const throw (Exception)
+  const TransitionModel* getModelForNode(int nodeId) const throw (Exception)
   {
    std::map<int, size_t>::const_iterator i = nodeToModel_.find(nodeId);
     if (i == nodeToModel_.end())
       throw Exception("SubstitutionModelSet::getModelForNode(). No model associated to node with id " + TextTools::toString(nodeId));
     return modelSet_[i->second];
   }
-  SubstitutionModel* getModelForNode(int nodeId) throw (Exception)
+  TransitionModel* getModelForNode(int nodeId) throw (Exception)
   {
    std::map<int, size_t>::iterator i = nodeToModel_.find(nodeId);
     if (i == nodeToModel_.end())
       throw Exception("SubstitutionModelSet::getModelForNode(). No model associated to node with id " + TextTools::toString(nodeId));
     return modelSet_[i->second];
+  }
+
+  const SubstitutionModel* getSubstitutionModelForNode(int nodeId) const throw (Exception)
+  {
+    return dynamic_cast<const SubstitutionModel*>(getModelForNode(nodeId));
+  }
+
+  SubstitutionModel* getSubstitutionModelForNode(int nodeId) throw (Exception)
+  {
+    return dynamic_cast<SubstitutionModel*>(getModelForNode(nodeId));
   }
 
   /**
@@ -332,7 +402,7 @@ public:
    * <li>etc.</li>
    * </ul>
    */
-  void addModel(SubstitutionModel* model, const std::vector<int>& nodesId);//, const std::vector<std::string>& newParams) throw (Exception);
+  void addModel(TransitionModel* model, const std::vector<int>& nodesId);//, const std::vector<std::string>& newParams) throw (Exception);
 
   /**
    * @brief Replace a model in the set, and all corresponding
@@ -344,7 +414,7 @@ public:
    * @throw Exception if a parameter becomes orphan because of the removal.
    */
 
-  void replaceModel(size_t modelIndex, SubstitutionModel* model) throw (Exception);
+  void replaceModel(size_t modelIndex, TransitionModel* model) throw (Exception);
 
   void listModelNames(std::ostream& out = std::cout) const;
 
@@ -413,19 +483,19 @@ public:
    * @see Alphabet
    */
   virtual const std::vector<int>& getAlphabetStates() const {
-    return getModel(0)->getAlphabetStates();
+    return getTransitionModel(0)->getAlphabetStates();
   }
 
   virtual const StateMap& getStateMap() const {
-    return getModel(0)->getStateMap();
+    return getTransitionModel(0)->getStateMap();
   }
 
   virtual std::vector<size_t> getModelStates(int code) const {
-    return getModel(0)->getModelStates(code);
+    return getTransitionModel(0)->getModelStates(code);
   }
 
   virtual std::vector<size_t> getModelStates(const std::string& code) const {
-    return getModel(0)->getModelStates(code);
+    return getTransitionModel(0)->getModelStates(code);
   }
 
   /**
@@ -433,7 +503,7 @@ public:
    * @return The corresponding alphabet state as character code.
    */
   virtual int getAlphabetStateAsInt(size_t index) const {
-    return getModel(0)->getAlphabetStateAsInt(index);
+    return getTransitionModel(0)->getAlphabetStateAsInt(index);
   }
   
   /**
@@ -441,7 +511,7 @@ public:
    * @return The corresponding alphabet state as character code.
    */
   virtual std::string getAlphabetStateAsChar(size_t index) const {
-    return getModel(0)->getAlphabetStateAsChar(index);
+    return getTransitionModel(0)->getAlphabetStateAsChar(index);
   }
 
   /**

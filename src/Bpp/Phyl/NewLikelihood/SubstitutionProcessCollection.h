@@ -91,10 +91,10 @@ private:
   /**
    * A collection of Substitution Models
    */
-  ParametrizableCollection<SubstitutionModel> modelColl_;
+  ParametrizableCollection<TransitionModel> modelColl_;
 
   /**
-   * A map from each SubstitutionModel number to the SubProcess
+   * A map from each TransitionModel number to the SubProcess
    * members that are linked to it.
    *
    */
@@ -239,7 +239,7 @@ public:
    * ? operator[] ?
    */
   
-  void addModel(SubstitutionModel* model, size_t modelIndex)
+  void addModel(TransitionModel* model, size_t modelIndex)
   {
     addParametrizable(model, modelIndex);
   }
@@ -263,20 +263,20 @@ public:
   }
 
   /**
-   * @brief Get a SubstitutionModel from the collection.
+   * @brief Get a TransitionModel from the collection.
    *
    * @param modelIndex The index of the model in the collection.
-   * @return the got SubstitutionModel*. 
+   * @return the got TransitionModel*. 
    */
   
-  SubstitutionModel& getModel(size_t modelIndex)
+  TransitionModel& getModel(size_t modelIndex)
   {
-    return *(dynamic_cast<SubstitutionModel*>(modelColl_[modelIndex]));
+    return *(dynamic_cast<TransitionModel*>(modelColl_[modelIndex]));
   }
 
-  const SubstitutionModel& getModel(size_t modelIndex) const
+  const TransitionModel& getModel(size_t modelIndex) const
   {
-    return *(dynamic_cast<const SubstitutionModel*>(modelColl_[modelIndex]));
+    return *(dynamic_cast<const TransitionModel*>(modelColl_[modelIndex]));
   }
 
   /**

@@ -61,7 +61,7 @@ namespace bpp
  *
  * It main purpose is to provide the necessary calculus for each branch-site-model class combination,
  * such as Markov generator and transition probabilities.
- * These are typically provided by a SubstitutionModel class, applied in various combination along the
+ * These are typically provided by a TransitionModel class, applied in various combination along the
  * tree (eg non-homogeneous models) and alignment (eg partition models).
  * The so-called "model class" refers to mixture models.
  *
@@ -108,7 +108,7 @@ namespace bpp
      * @param classIndex The model class index.
      */
 
-    virtual const SubstitutionModel& getSubstitutionModel(unsigned int nodeId, size_t classIndex) const = 0;
+    virtual const TransitionModel& getTransitionModel(unsigned int nodeId, size_t classIndex) const = 0;
 
     /**
      * @brief Get a pointer to the rate distribution (or null if there
@@ -170,7 +170,7 @@ namespace bpp
      * @param nodeId The id of the node.
      * @param classIndex The model class index.
      */
-    virtual const Matrix<double>& getGenerator(unsigned int nodeId, size_t classIndex) const = 0;
+    // virtual const Matrix<double>& getGenerator(unsigned int nodeId, size_t classIndex) const = 0;
 
     /**
      * @brief Get the values of the frequencies for each state in the

@@ -237,7 +237,7 @@ FrequenciesSet* BppOFrequenciesSetFormat::read(const Alphabet* alphabet, const s
     if (geneticCode_)
       nestedReader.setGeneticCode(geneticCode_);
 
-    SubstitutionModel* model=nestedReader.read(alphabet, args["model"], data, false);
+    TransitionModel* model=nestedReader.read(alphabet, args["model"], data, false);
     pFS.reset(new FromModelFrequenciesSet(model));
     map<string, string> unparsedParameterValuesNested(nestedReader.getUnparsedArguments());
     for (map<string, string>::iterator it = unparsedParameterValuesNested.begin(); it != unparsedParameterValuesNested.end(); it++)
@@ -375,10 +375,13 @@ FrequenciesSet* BppOFrequenciesSetFormat::read(const Alphabet* alphabet, const s
     {
       opt = CodonFrequenciesSet::F1X4;
       
-      if (args.find("mgmtStopCodons") != args.end()){
+      if (args.find("mgmtStopCodons") != args.end())
         mgmtStopCodon = args["mgmtStopCodons"];
-        ApplicationTools::displayResult("StopCodon frequencies distribution ", mgmtStopCodon);
-      }
+      else if (args.find("mgmtStopCodon") != args.end())
+        mgmtStopCodon = args["mgmtStopCodon"];
+      
+      ApplicationTools::displayResult("StopCodon frequencies distribution ", mgmtStopCodon);
+
       if (args.find("frequency") != args.end())
       {
         string sAFS = args["frequency"];
@@ -413,10 +416,12 @@ FrequenciesSet* BppOFrequenciesSetFormat::read(const Alphabet* alphabet, const s
     {
       opt = CodonFrequenciesSet::F3X4;
 
-      if (args.find("mgmtStopCodons") != args.end()){
+      if (args.find("mgmtStopCodons") != args.end())
         mgmtStopCodon = args["mgmtStopCodons"];
-        ApplicationTools::displayResult("StopCodon frequencies distribution ", mgmtStopCodon);
-      }
+      else if (args.find("mgmtStopCodon") != args.end())
+          mgmtStopCodon = args["mgmtStopCodon"];
+      
+      ApplicationTools::displayResult("StopCodon frequencies distribution ", mgmtStopCodon);
 
       if (args.find("frequency1") != args.end() ||
           args.find("frequency2") != args.end() ||

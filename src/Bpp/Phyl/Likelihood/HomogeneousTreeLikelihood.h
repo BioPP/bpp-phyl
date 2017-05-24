@@ -63,12 +63,12 @@ class HomogeneousTreeLikelihood :
     HomogeneousTreeLikelihood* clone() const = 0;
 
   public:
-    const SubstitutionModel* getSubstitutionModel(int nodeId, size_t siteIndex) const throw (NodeNotFoundException)
+    const TransitionModel* getSubstitutionModel(int nodeId, size_t siteIndex) const throw (NodeNotFoundException)
     {
       return getSubstitutionModel();
     }
 
-    SubstitutionModel* getSubstitutionModel(int nodeId, size_t siteIndex) throw (NodeNotFoundException)
+    TransitionModel* getSubstitutionModel(int nodeId, size_t siteIndex) throw (NodeNotFoundException)
     {
       return getSubstitutionModel();
     }
@@ -76,18 +76,18 @@ class HomogeneousTreeLikelihood :
     /**
      * @return The substitution model attached to this instance.
      */
-    virtual const SubstitutionModel* getSubstitutionModel() const = 0;
+    virtual const TransitionModel* getSubstitutionModel() const = 0;
     
     /**
      * @return The substitution model attached to this instance.
      */
-    virtual SubstitutionModel* getSubstitutionModel() = 0;
+    virtual TransitionModel* getSubstitutionModel() = 0;
 
     /**
      * @return Set the substitution model for this instance.
      * @throw Exception If the model could not be set (for instance, because of a wrong alphabet type).
      */
-    virtual void setSubstitutionModel(SubstitutionModel* model) throw (Exception) = 0;
+    virtual void setSubstitutionModel(TransitionModel* model) throw (Exception) = 0;
     
 };
 

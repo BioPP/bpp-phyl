@@ -115,7 +115,7 @@ namespace bpp
      * @brief Contains all models used in this tree.
      * Note that auto_ptr objects cannot be stored in a vector.
      */
-    std::vector<SubstitutionModel* > modelSet_;
+    std::vector<TransitionModel* > modelSet_;
 
     /**
      * @brief Root frequencies.
@@ -257,13 +257,13 @@ namespace bpp
      * @return A pointer toward the corresponding model.
      */
 
-    const SubstitutionModel* getModel(size_t i) const
+    const TransitionModel* getModel(size_t i) const
     {
       if (i > modelSet_.size()) throw IndexOutOfBoundsException("NonHomogeneousSubstitutionProcess::getNumberOfModels().", 0, modelSet_.size() - 1, i);
       return modelSet_[i];
     }
 
-    SubstitutionModel* getModel(size_t i)
+    TransitionModel* getModel(size_t i)
     {
       if (i > modelSet_.size()) throw IndexOutOfBoundsException("NonHomogeneousSubstitutionProcess::getNumberOfModels().", 0, modelSet_.size() - 1, i);
       return modelSet_[i];
@@ -293,7 +293,7 @@ namespace bpp
      * @throw Exception If no model is found for this node.
      */
   
-    const SubstitutionModel* getModelForNode(unsigned int nodeId) const
+    const TransitionModel* getModelForNode(unsigned int nodeId) const
     {
       std::map<unsigned int, size_t>::const_iterator i = nodeToModel_.find(nodeId);
       if (i == nodeToModel_.end())
@@ -301,7 +301,7 @@ namespace bpp
       return modelSet_[i->second];
     }
   
-    SubstitutionModel* getModelForNode(unsigned int nodeId)
+    TransitionModel* getModelForNode(unsigned int nodeId)
     {
       std::map<unsigned int, size_t>::iterator i = nodeToModel_.find(nodeId);
       if (i == nodeToModel_.end())
@@ -339,7 +339,7 @@ namespace bpp
      * </ul>
      */
 
-    void addModel(SubstitutionModel* model, const std::vector<unsigned int>& nodesId);
+    void addModel(TransitionModel* model, const std::vector<unsigned int>& nodesId);
 
     /**
      * @brief Change a given model.
@@ -352,7 +352,7 @@ namespace bpp
      * @param modelIndex The index of the existing model to replace.
      */
 
-    void setModel(SubstitutionModel* model, size_t modelIndex);
+    void setModel(TransitionModel* model, size_t modelIndex);
 
     /**
      * @brief Associate an existing model with a given node.
@@ -511,15 +511,15 @@ namespace bpp
      * @param classIndex The model class index.
      */
 
-    const SubstitutionModel& getSubstitutionModel(unsigned int nodeId, size_t classIndex) const
+    const TransitionModel& getTransitionModel(unsigned int nodeId, size_t classIndex) const
     {
       return *modelSet_[nodeToModel_[nodeId]];
     }
     
-    const Matrix<double>& getGenerator(unsigned int nodeId, size_t classIndex) const
-    {
-      return getSubstitutionModel(nodeId, classIndex).getGenerator();
-    }
+    // const Matrix<double>& getGenerator(unsigned int nodeId, size_t classIndex) const
+    // {
+    //   return getSubstitutionModel(nodeId, classIndex).getGenerator();
+    // }
 
     /**
      * This method is used to initialize likelihoods in reccursions.
@@ -534,7 +534,7 @@ namespace bpp
      * @return 1 or 0 depending if the two states are compatible.
      * @throw BadIntException if states are not allowed in the associated alphabet.
      * @see getStates();
-     * @see SubstitutionModel
+     * @see TransitionModel
      */
 
     double getInitValue(size_t i, int state) const throw (BadIntException)
@@ -598,7 +598,7 @@ namespace bpp
      */
     
     static NonHomogeneousSubstitutionProcess* createHomogeneousSubstitutionProcess(
-      SubstitutionModel* model,
+      TransitionModel* model,
       DiscreteDistribution* rdist,
       FrequenciesSet* rootFreqs,
       ParametrizablePhyloTree* tree
@@ -618,7 +618,7 @@ namespace bpp
      * All other parameters will be considered distinct for all branches.
      */
     static NonHomogeneousSubstitutionProcess* createNonHomogeneousSubstitutionProcess(
-      SubstitutionModel* model,
+      TransitionModel* model,
       DiscreteDistribution* rdist,
       FrequenciesSet* rootFreqs,
       ParametrizablePhyloTree* tree,

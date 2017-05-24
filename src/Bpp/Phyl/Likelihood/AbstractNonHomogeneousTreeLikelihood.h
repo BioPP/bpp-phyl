@@ -193,12 +193,12 @@ class AbstractNonHomogeneousTreeLikelihood:
       return AbstractDiscreteRatesAcrossSitesTreeLikelihood::getRateDistributionParameters();
     }
 
-    const SubstitutionModel* getSubstitutionModelForNode(int nodeId) const throw (NodeNotFoundException) 
+    const TransitionModel* getSubstitutionModelForNode(int nodeId) const throw (NodeNotFoundException) 
     {
       return modelSet_->getModelForNode(nodeId);
     }
 
-    SubstitutionModel* getSubstitutionModelForNode(int nodeId) throw (NodeNotFoundException)
+    TransitionModel* getSubstitutionModelForNode(int nodeId) throw (NodeNotFoundException)
     {
       return modelSet_->getModelForNode(nodeId);
     }

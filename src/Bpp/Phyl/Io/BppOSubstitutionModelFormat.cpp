@@ -5,36 +5,36 @@
 //
 
 /*
-   Copyright or © or Copr. Bio++ Development Team, (November 16, 2004)
+  Copyright or © or Copr. Bio++ Development Team, (November 16, 2004)
 
-   This software is a computer program whose purpose is to provide classes
-   for phylogenetic data analysis.
+  This software is a computer program whose purpose is to provide classes
+  for phylogenetic data analysis.
 
-   This software is governed by the CeCILL  license under French law and
-   abiding by the rules of distribution of free software.  You can  use,
-   modify and/ or redistribute the software under the terms of the CeCILL
-   license as circulated by CEA, CNRS and INRIA at the following URL
-   "http://www.cecill.info".
+  This software is governed by the CeCILL  license under French law and
+  abiding by the rules of distribution of free software.  You can  use,
+  modify and/ or redistribute the software under the terms of the CeCILL
+  license as circulated by CEA, CNRS and INRIA at the following URL
+  "http://www.cecill.info".
 
-   As a counterpart to the access to the source code and  rights to copy,
-   modify and redistribute granted by the license, users are provided only
-   with a limited warranty  and the software's author,  the holder of the
-   economic rights,  and the successive licensors  have only  limited
-   liability.
+  As a counterpart to the access to the source code and  rights to copy,
+  modify and redistribute granted by the license, users are provided only
+  with a limited warranty  and the software's author,  the holder of the
+  economic rights,  and the successive licensors  have only  limited
+  liability.
 
-   In this respect, the user's attention is drawn to the risks associated
-   with loading,  using,  modifying and/or developing or reproducing the
-   software by the user in light of its specific status of free software,
-   that may mean  that it is complicated to manipulate,  and  that  also
-   therefore means  that it is reserved for developers  and  experienced
-   professionals having in-depth computer knowledge. Users are therefore
-   encouraged to load and test the software's suitability as regards their
-   requirements in conditions enabling the security of their systems and/or
-   data to be ensured and,  more generally, to use and operate it in the
-   same conditions as regards security.
+  In this respect, the user's attention is drawn to the risks associated
+  with loading,  using,  modifying and/or developing or reproducing the
+  software by the user in light of its specific status of free software,
+  that may mean  that it is complicated to manipulate,  and  that  also
+  therefore means  that it is reserved for developers  and  experienced
+  professionals having in-depth computer knowledge. Users are therefore
+  encouraged to load and test the software's suitability as regards their
+  requirements in conditions enabling the security of their systems and/or
+  data to be ensured and,  more generally, to use and operate it in the
+  same conditions as regards security.
 
-   The fact that you are presently reading this means that you have had
-   knowledge of the CeCILL license and that you accept its terms.
+  The fact that you are presently reading this means that you have had
+  knowledge of the CeCILL license and that you accept its terms.
 */
 
 #include "BppOSubstitutionModelFormat.h"
@@ -105,6 +105,7 @@
 #include "../Model/BinarySubstitutionModel.h"
 #include "../Model/EquiprobableSubstitutionModel.h"
 #include "../Model/FromMixtureSubstitutionModel.h"
+#include "../Model/OneChangeTransitionModel.h"
 
 #include "../App/PhylogeneticsApplicationTools.h"
 
@@ -145,10 +146,10 @@ unsigned char BppOSubstitutionModelFormat::ALL = 1 | 2 | 4 | 8 | 16 | 32;
 
 
 SubstitutionModel* BppOSubstitutionModelFormat::read(
-    const Alphabet* alphabet,
-    const std::string& modelDescription,
-    const SiteContainer* data,
-    bool parseArguments)
+  const Alphabet* alphabet,
+  const std::string& modelDescription,
+  const SiteContainer* data,
+  bool parseArguments)
 {
   unparsedArguments_.clear();
   unique_ptr<SubstitutionModel> model;
@@ -156,6 +157,7 @@ SubstitutionModel* BppOSubstitutionModelFormat::read(
   map<string, string> args;
   KeyvalTools::parseProcedure(modelDescription, modelName, args);
 
+  
   // //////////////////////////////////
   // / MIXED MODELS
   // ////////////////////////////////
@@ -445,6 +447,15 @@ SubstitutionModel* BppOSubstitutionModelFormat::read(
       unparsedArguments_["G01.rdist_" + it->first] = it->second;
     }
   }
+
+  ///////////////////////////////////////////////////////
+  ///
+  ///
+  ///  SIMPLE MODELS
+  ///
+  ///
+  //////////////////////////////////////////////////////////
+
   else
   {
     // This is a 'simple' model...
@@ -453,12 +464,9 @@ SubstitutionModel* BppOSubstitutionModelFormat::read(
     //// Equiprobable (most simple)
     if (modelName == "Equi")
       model.reset(new EquiprobableSubstitutionModel(alphabet));
-    else
-    {
-      
-      ///////////////////////////////////////////////////
-      // nucleotidic model
-    if (AlphabetTools::isNucleicAlphabet(alphabet))
+    ///////////////////////////////////////////////////
+    // nucleotidic model
+    else if (AlphabetTools::isNucleicAlphabet(alphabet))
     {
       if (!(alphabetCode_ & NUCLEOTIDE))
         throw Exception("BppOSubstitutionModelFormat::read. Nucleotide alphabet not supported.");
@@ -607,7 +615,7 @@ SubstitutionModel* BppOSubstitutionModelFormat::read(
         throw Exception("Model '" + modelName + "' unknown.");
       }
     }
-    else
+    else if (AlphabetTools::isProteicAlphabet(alphabet))
     {
       ////////////////////////////////////
       //// Proteic model
@@ -615,7 +623,7 @@ SubstitutionModel* BppOSubstitutionModelFormat::read(
       if (!(alphabetCode_ & PROTEIN))
         throw Exception("BppOSubstitutionModelFormat::read. Protein alphabet not supported.");
       const ProteicAlphabet* alpha = dynamic_cast<const ProteicAlphabet*>(alphabet);
-
+      
       if (modelName.find("+F") != string::npos) {
         string freqOpt = ApplicationTools::getStringParameter("frequencies", args, "Full", "", true, warningLevel_);
         BppOFrequenciesSetFormat freqReader(BppOFrequenciesSetFormat::ALL, false, warningLevel_);
@@ -647,8 +655,6 @@ SubstitutionModel* BppOSubstitutionModelFormat::read(
             throw Exception("'file' argument missing for user-defined substitution model.");
           model.reset(new UserProteinSubstitutionModel(alpha, args["file"], dynamic_cast<ProteinFrequenciesSet*>(protFreq.release()), prefix + "+F."));
         }
-
-        
       }
       else if (modelName == "JC69")
         model.reset(new JCprot(alpha));
@@ -690,7 +696,6 @@ SubstitutionModel* BppOSubstitutionModelFormat::read(
         string modelDesc2=modelName.substr(0,9)+modelDescription.substr(posp);
         
         BppOSubstitutionModelFormat nestedReader(PROTEIN, true, true, false, verbose_, warningLevel_);
-
         
         MixedSubstitutionModel* nestedModel=dynamic_cast<MixedSubstitutionModel*>(nestedReader.read(alphabet, modelDesc2, data, false));
       
@@ -701,7 +706,7 @@ SubstitutionModel* BppOSubstitutionModelFormat::read(
         if (nestedModel->getSubModelWithName(subModelName)==NULL)
           throw Exception("BppOSubstitutionModelFormat::read. " + nestedModel->getName() + "argument for model 'FromModel' has no submodel with name " + subModelName + ".");
 
-       // Now we create the FromModel substitution model:
+        // Now we create the FromModel substitution model:
         model.reset(new FromMixtureSubstitutionModel(*nestedModel, subModelName, modelDesc2));
         
         delete nestedModel;
@@ -730,37 +735,48 @@ SubstitutionModel* BppOSubstitutionModelFormat::read(
         model.reset(new Coala(alpha, *nestedModel, TextTools::to<unsigned int>(nbrOfParametersPerBranch)));
         model->setFreqFromData(*data);
       }
-
-      else if (AlphabetTools::isBinaryAlphabet(alphabet))
-      {
-        if (!(alphabetCode_ & BINARY))
-          throw Exception("BppOSubstitutionModelFormat::read. Binary alphabet not supported.");
-        const BinaryAlphabet* balpha = dynamic_cast<const BinaryAlphabet*>(alphabet);
-
-        if (modelName == "Binary")
-          model.reset(new BinarySubstitutionModel(balpha));
-      }
-      else
-        throw Exception("Model '" + modelName + "' unknown, or does not fit alphabet.");
-        
     }
+    else if (AlphabetTools::isBinaryAlphabet(alphabet))
+    {
+      if (!(alphabetCode_ & BINARY))
+        throw Exception("BppOSubstitutionModelFormat::read. Binary alphabet not supported.");
+      
+      const BinaryAlphabet* balpha = dynamic_cast<const BinaryAlphabet*>(alphabet);
+      
+      if (modelName == "Binary")
+        model.reset(new BinarySubstitutionModel(balpha));
     }
-    if (verbose_)
-      ApplicationTools::displayResult("Substitution model", modelName);
+    else
+      throw Exception("Model '" + modelName + "' unknown, or does not fit alphabet.");
+    
   }
   
+  if (verbose_)
+    ApplicationTools::displayResult("Substitution model", modelName);
+  
+  updateParameters_(model.get(), args);
+  
+  if (parseArguments)
+    initialize_(*model, data);
+  
+  return model.release();
+}
+
+  
+void BppOSubstitutionModelFormat::updateParameters_(TransitionModel* model, std::map<std::string, std::string>& args)
+{
   // Update parameter args:
   vector<string> pnames = model->getParameters().getParameterNames();
-
+  
   string pref = model->getNamespace();
-
+  
   for (size_t i = 0; i < pnames.size(); i++)
   {
     string name = model->getParameterNameWithoutNamespace(pnames[i]);
     if (args.find(name) != args.end())
       unparsedArguments_[pref + name] = args[name];
   }
-
+  
   // Now look if some parameters are aliased:
   ParameterList pl = model->getIndependentParameters();
   string pname, pval, pname2;
@@ -813,12 +829,7 @@ SubstitutionModel* BppOSubstitutionModelFormat::read(
   {
     model->addRateParameter();
     unparsedArguments_[pref+"rate"] = args["rate"];
-  }
-  
-  if (parseArguments)
-    initialize_(*model, data);
-
-  return model.release();
+  }  
 }
 
 
@@ -939,10 +950,18 @@ SubstitutionModel* BppOSubstitutionModelFormat::readWord_(const Alphabet* alphab
 
   if (modelName == "Word")
   {
+    vector<SubstitutionModel*> vsm;
+    
+    for (auto mod : v_pSM)
+      if (dynamic_cast<SubstitutionModel*>(mod)==0)
+        throw Exception("Need Markov SubstitutionModel for Words");
+      else
+        vsm.push_back(dynamic_cast<SubstitutionModel*>(mod));
+    
     if (v_nestedModelDescription.size() != nbmodels) {
-      model.reset(new WordSubstitutionModel(v_pSM[0], nbmodels));
+      model.reset(new WordSubstitutionModel(vsm[0], nbmodels));
     } else {
-      ModelList ml(v_pSM);
+      ModelList ml(vsm);
       model.reset(new WordSubstitutionModel(ml));
     }
   }
@@ -953,21 +972,29 @@ SubstitutionModel* BppOSubstitutionModelFormat::readWord_(const Alphabet* alphab
 
   else if (modelName == "Kron")
   {
+    vector<SubstitutionModel*> vsm;
+    
+    for (auto mod : v_pSM)
+      if (dynamic_cast<SubstitutionModel*>(mod)==0)
+        throw Exception("Need Markov SubstitutionModel for Krons");
+      else
+        vsm.push_back(dynamic_cast<SubstitutionModel*>(mod));
+
     if (vposKron.size()==0)
     {
       if (v_nestedModelDescription.size() != nbmodels) {
-        model.reset(new KroneckerWordSubstitutionModel(v_pSM[0], nbmodels));
+        model.reset(new KroneckerWordSubstitutionModel(vsm[0], nbmodels));
       } else {
-        ModelList ml(v_pSM);
+        ModelList ml(vsm);
         model.reset(new KroneckerWordSubstitutionModel(ml));
       }
     }
     else
     {
       if (v_nestedModelDescription.size() != nbmodels) {
-        model.reset(new KroneckerWordSubstitutionModel(v_pSM[0], nbmodels, vposKron));
+        model.reset(new KroneckerWordSubstitutionModel(vsm[0], nbmodels, vposKron));
       } else {
-        ModelList ml(v_pSM);
+        ModelList ml(vsm);
         model.reset(new KroneckerWordSubstitutionModel(ml, vposKron));
       }
     }
@@ -1079,18 +1106,18 @@ SubstitutionModel* BppOSubstitutionModelFormat::readWord_(const Alphabet* alphab
     {
       if (v_nestedModelDescription.size() != 3)
         model.reset(
-            new CodonRateFrequenciesSubstitutionModel(
-              geneticCode_,
-              dynamic_cast<NucleotideSubstitutionModel*>(v_pSM[0]),
-              pFS.release()));
+          new CodonRateFrequenciesSubstitutionModel(
+            geneticCode_,
+            dynamic_cast<NucleotideSubstitutionModel*>(v_pSM[0]),
+            pFS.release()));
       else
         model.reset(
-            new CodonRateFrequenciesSubstitutionModel(
-              geneticCode_,
-              dynamic_cast<NucleotideSubstitutionModel*>(v_pSM[0]),
-              dynamic_cast<NucleotideSubstitutionModel*>(v_pSM[1]),
-              dynamic_cast<NucleotideSubstitutionModel*>(v_pSM[2]),
-              pFS.release()));
+          new CodonRateFrequenciesSubstitutionModel(
+            geneticCode_,
+            dynamic_cast<NucleotideSubstitutionModel*>(v_pSM[0]),
+            dynamic_cast<NucleotideSubstitutionModel*>(v_pSM[1]),
+            dynamic_cast<NucleotideSubstitutionModel*>(v_pSM[2]),
+            pFS.release()));
     }
 
     else if (modelName == "CodonDistFreq")
@@ -1132,12 +1159,12 @@ SubstitutionModel* BppOSubstitutionModelFormat::readWord_(const Alphabet* alphab
       {
         if (vposKron.size()!=0)
           model.reset(new KroneckerCodonDistanceFrequenciesSubstitutionModel(
-                      geneticCode_,
-                      dynamic_cast<NucleotideSubstitutionModel*>(v_pSM[0]),
-                      dynamic_cast<NucleotideSubstitutionModel*>(v_pSM[1]),
-                      dynamic_cast<NucleotideSubstitutionModel*>(v_pSM[2]),
-                      pFS.release(),
-                      pai2.release()));
+                        geneticCode_,
+                        dynamic_cast<NucleotideSubstitutionModel*>(v_pSM[0]),
+                        dynamic_cast<NucleotideSubstitutionModel*>(v_pSM[1]),
+                        dynamic_cast<NucleotideSubstitutionModel*>(v_pSM[2]),
+                        pFS.release(),
+                        pai2.release()));
         else
           model.reset(new KroneckerCodonDistanceFrequenciesSubstitutionModel(
                         geneticCode_,
@@ -1156,13 +1183,13 @@ SubstitutionModel* BppOSubstitutionModelFormat::readWord_(const Alphabet* alphab
         
         if (vposKron.size()==0)
           model.reset(new KroneckerCodonDistanceSubstitutionModel(geneticCode_,
-                                                                             dynamic_cast<NucleotideSubstitutionModel*>(v_pSM[0]),
-                                                                             pai2.release()));
+                                                                  dynamic_cast<NucleotideSubstitutionModel*>(v_pSM[0]),
+                                                                  pai2.release()));
         else
           model.reset(new KroneckerCodonDistanceSubstitutionModel(geneticCode_,
-                                                                             dynamic_cast<NucleotideSubstitutionModel*>(v_pSM[0]),
-                                                                             vposKron,
-                                                                             pai2.release()));
+                                                                  dynamic_cast<NucleotideSubstitutionModel*>(v_pSM[0]),
+                                                                  vposKron,
+                                                                  pai2.release()));
 
       }
       else
@@ -1257,8 +1284,16 @@ MixedSubstitutionModel* BppOSubstitutionModelFormat::readMixed_(const Alphabet* 
     string nestedModelDescription = args["model"];
     BppOSubstitutionModelFormat nestedReader(alphabetCode_, allowCovarions_, true, allowGaps_, false, warningLevel_);
     if (geneticCode_)
-      nestedReader.setGeneticCode(geneticCode_); //This uses the same instance as the one that will be used by the model.
-    pSM.reset(nestedReader.read(alphabet, nestedModelDescription, data, false));
+      nestedReader.setGeneticCode(geneticCode_); //This uses the same
+    //instance as the one
+    //that will be used
+    //by the model.
+    SubstitutionModel* tm=nestedReader.read(alphabet, nestedModelDescription, data, false);
+    if (dynamic_cast<SubstitutionModel*>(tm)==0)
+      throw Exception("Need Markov SubstitutionModel for Mixtures");
+
+    pSM.reset(dynamic_cast<SubstitutionModel*>(tm));
+
     map<string, string> unparsedParameterValuesNested(nestedReader.getUnparsedArguments());
 
     map<string, DiscreteDistribution*> mdist;
@@ -1310,10 +1345,10 @@ MixedSubstitutionModel* BppOSubstitutionModelFormat::readMixed_(const Alphabet* 
     }
 
     if (verbose_)
-      {
-        ApplicationTools::displayResult("Mixture Of A Substitution Model", sModN);
-        ApplicationTools::displayResult("Number of classes", model->getNumberOfModels());
-      }
+    {
+      ApplicationTools::displayResult("Mixture Of A Substitution Model", sModN);
+      ApplicationTools::displayResult("Number of classes", model->getNumberOfModels());
+    }
   }
 
 
@@ -1341,7 +1376,13 @@ MixedSubstitutionModel* BppOSubstitutionModelFormat::readMixed_(const Alphabet* 
       BppOSubstitutionModelFormat nestedReader(alphabetCode_, false, true, false, false, warningLevel_);
       if (geneticCode_)
         nestedReader.setGeneticCode(geneticCode_); //This uses the same instance as the one that will be used by the model.
-      pSM.reset(nestedReader.read(alphabet, v_nestedModelDescription[i], data, false));
+
+      SubstitutionModel* tm=nestedReader.read(alphabet, v_nestedModelDescription[i], data, false);
+      if (dynamic_cast<SubstitutionModel*>(tm)==0)
+        throw Exception("Need Markov SubstitutionModel for Mixtures");
+
+      pSM.reset(dynamic_cast<SubstitutionModel*>(tm));
+
       map<string, string> unparsedParameterValuesNested(nestedReader.getUnparsedArguments());
       for (map<string, string>::iterator it = unparsedParameterValuesNested.begin(); it != unparsedParameterValuesNested.end(); it++)
       {
@@ -1352,7 +1393,7 @@ MixedSubstitutionModel* BppOSubstitutionModelFormat::readMixed_(const Alphabet* 
 
     model.reset(new MixtureOfSubstitutionModels(alphabet, v_pSM));
     if (verbose_)
-        ApplicationTools::displayResult("Mixture Of Substitution Models", modelName );
+      ApplicationTools::displayResult("Mixture Of Substitution Models", modelName );
   }
   else
     throw Exception("Unknown model name for mixture " + modelName);
@@ -1361,7 +1402,7 @@ MixedSubstitutionModel* BppOSubstitutionModelFormat::readMixed_(const Alphabet* 
 }
 
 
-void BppOSubstitutionModelFormat::write(const SubstitutionModel& model,
+void BppOSubstitutionModelFormat::write(const TransitionModel& model,
                                         OutputStream& out,
                                         std::map<std::string, std::string>& globalAliases,
                                         std::vector<std::string>& writtenNames) const
@@ -1399,7 +1440,7 @@ void BppOSubstitutionModelFormat::write(const SubstitutionModel& model,
   if (mmModel)
   {
     out << "model=";
-    const SubstitutionModel* nestedModel = mmModel->getNestedModel();
+    const TransitionModel* nestedModel = mmModel->getNestedModel();
     write(*nestedModel, out, globalAliases, writtenNames);
 
     const G2001* gModel = dynamic_cast<const G2001*>(&model);
@@ -1421,7 +1462,7 @@ void BppOSubstitutionModelFormat::write(const SubstitutionModel& model,
   if (reModel)
   {
     out << "model=";
-    const SubstitutionModel* nestedModel = reModel->getNestedModel();
+    const TransitionModel* nestedModel = reModel->getNestedModel();
     write(*nestedModel, out, globalAliases, writtenNames);
     comma = true;
   }
@@ -1431,8 +1472,18 @@ void BppOSubstitutionModelFormat::write(const SubstitutionModel& model,
   if (yprModel)
   {
     out << "model=";
-    const SubstitutionModel* nestedModel = yprModel->getNestedModel();
+    const TransitionModel* nestedModel = yprModel->getNestedModel();
     write(*nestedModel, out, globalAliases, writtenNames);
+    comma = true;
+  }
+
+  // Is it a OneChange model?
+  const OneChangeTransitionModel* onechangetransitionmodel = dynamic_cast<const OneChangeTransitionModel*>(&model);
+  if (onechangetransitionmodel)
+  {
+    out << "model=";
+    const SubstitutionModel& nestedModel = onechangetransitionmodel->getModel();
+    write(nestedModel, out, globalAliases, writtenNames);
     comma = true;
   }
 
@@ -1442,7 +1493,7 @@ void BppOSubstitutionModelFormat::write(const SubstitutionModel& model,
   {
     StdStr sout;
     
-    const SubstitutionModel* nestedModel = gbgcModel->getNestedModel();
+    const TransitionModel* nestedModel = gbgcModel->getNestedModel();
     write(*nestedModel, sout, globalAliases, writtenNames);
 
     string ss=sout.str();
@@ -1461,7 +1512,7 @@ void BppOSubstitutionModelFormat::write(const SubstitutionModel& model,
   if (wM)
   {
     size_t nmod = wM->getNumberOfModels();
-    const SubstitutionModel* mod0 = wM->getNModel(0);
+    const TransitionModel* mod0 = wM->getNModel(0);
     if (nmod == 1)
     {
       out << "model=";
@@ -1469,7 +1520,7 @@ void BppOSubstitutionModelFormat::write(const SubstitutionModel& model,
     }
     else
     {
-      const SubstitutionModel* mod1 = wM->getNModel(1);
+      const TransitionModel* mod1 = wM->getNModel(1);
       if (mod1 == mod0)
       {
         out << "model=";
@@ -1633,7 +1684,7 @@ void BppOSubstitutionModelFormat::writeMixed_(const MixedSubstitutionModel& mode
   {
     const MixtureOfASubstitutionModel* pMS = dynamic_cast<const MixtureOfASubstitutionModel*>(&model);
     out << "MixedModel(model=";
-    const SubstitutionModel* eM = pMS->getNModel(0);
+    const TransitionModel* eM = pMS->getNModel(0);
 
     ParameterList pl = eM->getIndependentParameters();
     vector<string> vpl = pl.getParameterNames();
@@ -1668,7 +1719,7 @@ void BppOSubstitutionModelFormat::writeMixed_(const MixedSubstitutionModel& mode
 }
 
 void BppOSubstitutionModelFormat::initialize_(
-  SubstitutionModel& model,
+  TransitionModel& model,
   const SiteContainer* data) throw (Exception)
 {
   string initFreqs = ApplicationTools::getStringParameter(model.getNamespace() + "initFreqs", unparsedArguments_, "", "", true, warningLevel_);

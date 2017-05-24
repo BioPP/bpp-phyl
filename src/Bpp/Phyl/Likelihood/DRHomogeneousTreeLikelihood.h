@@ -88,7 +88,7 @@ class DRHomogeneousTreeLikelihood:
      */
     DRHomogeneousTreeLikelihood(
       const Tree& tree,
-      SubstitutionModel* model,
+      TransitionModel* model,
       DiscreteDistribution* rDist,
       bool checkRooted = true,
       bool verbose = true)
@@ -111,7 +111,7 @@ class DRHomogeneousTreeLikelihood:
     DRHomogeneousTreeLikelihood(
       const Tree& tree,
       const SiteContainer& data,
-      SubstitutionModel* model,
+      TransitionModel* model,
       DiscreteDistribution* rDist,
       bool checkRooted = true,
       bool verbose = true)

@@ -60,7 +60,7 @@ SubstitutionModelSet::SubstitutionModelSet(const SubstitutionModelSet& set) :
   // Duplicate all model objects:
   for (size_t i = 0; i < set.modelSet_.size(); i++)
     {
-      modelSet_[i] = dynamic_cast<SubstitutionModel*>(set.modelSet_[i]->clone());
+      modelSet_[i] = dynamic_cast<TransitionModel*>(set.modelSet_[i]->clone());
     }
 }
 
@@ -82,7 +82,7 @@ SubstitutionModelSet& SubstitutionModelSet::operator=(const SubstitutionModelSet
   modelSet_.resize(set.modelSet_.size());
   for (size_t i = 0; i < set.modelSet_.size(); i++)
     {
-      modelSet_[i] = dynamic_cast<SubstitutionModel*>(set.modelSet_[i]->clone());
+      modelSet_[i] = dynamic_cast<TransitionModel*>(set.modelSet_[i]->clone());
     }
   return *this;
 }
@@ -135,7 +135,7 @@ std::vector<int> SubstitutionModelSet::getNodesWithParameter(const std::string& 
   return inode;
 }
 
-void SubstitutionModelSet::addModel(SubstitutionModel* model, const std::vector<int>& nodesId)//, const vector<string>& newParams) throw (Exception)
+void SubstitutionModelSet::addModel(TransitionModel* model, const std::vector<int>& nodesId)//, const vector<string>& newParams) throw (Exception)
 {
   if (model->getAlphabet()->getAlphabetType() != alphabet_->getAlphabetType())
     throw Exception("SubstitutionModelSet::addModel. A Substitution Model cannot be added to a Model Set if it does not have the same alphabet.");
@@ -169,7 +169,7 @@ void SubstitutionModelSet::addModel(SubstitutionModel* model, const std::vector<
     }
 }
 
-void SubstitutionModelSet::replaceModel(size_t modelIndex, SubstitutionModel* model) throw (Exception)
+void SubstitutionModelSet::replaceModel(size_t modelIndex, TransitionModel* model) throw (Exception)
 {
   delete modelSet_[modelIndex];
   modelSet_[modelIndex]=model;
@@ -303,7 +303,7 @@ bool SubstitutionModelSet::hasMixedSubstitutionModel() const
 {
   for (size_t i = 0; i < getNumberOfModels(); i++)
     {
-      if ((dynamic_cast<const MixedSubstitutionModel*>(getModel(i)) != NULL) && (modelToNodes_[i].size()>1))
+      if ((dynamic_cast<const MixedSubstitutionModel*>(getTransitionModel(i)) != NULL) && (modelToNodes_[i].size()>1))
         return true;
     }
   return false;

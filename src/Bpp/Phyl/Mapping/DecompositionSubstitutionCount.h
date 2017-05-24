@@ -55,21 +55,21 @@ namespace bpp
  *
  * @author Julien Dutheil
  */
-class DecompositionSubstitutionCount:
-  public AbstractSubstitutionCount,
-  public AbstractWeightedSubstitutionCount
-{
-	private:
-		const ReversibleSubstitutionModel* model_;
+  class DecompositionSubstitutionCount:
+    public AbstractSubstitutionCount,
+    public AbstractWeightedSubstitutionCount
+  {
+  private:
+    const ReversibleSubstitutionModel* model_;
     size_t nbStates_;
-		mutable RowMatrix<double> jMat_, v_, vInv_;
+    mutable RowMatrix<double> jMat_, v_, vInv_;
     mutable std::vector<double> lambda_;
     std::vector< RowMatrix<double> > bMatrices_, insideProducts_;
     mutable std::vector< RowMatrix<double> > counts_;
     mutable double currentLength_;
 	
-	public:
-		DecompositionSubstitutionCount(const ReversibleSubstitutionModel* model, SubstitutionRegister* reg, const AlphabetIndex2* weights = 0);
+  public:
+    DecompositionSubstitutionCount(const ReversibleSubstitutionModel* model, SubstitutionRegister* reg, const AlphabetIndex2* weights = 0);
 		
     DecompositionSubstitutionCount(const DecompositionSubstitutionCount& dsc) :
       AbstractSubstitutionCount(dsc),
@@ -134,7 +134,7 @@ class DecompositionSubstitutionCount:
     void fillBMatrices_();
     void computeEigen_();
     void computeProducts_();
-};
+  };
 
 } //end of namespace bpp.
 

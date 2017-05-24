@@ -1,5 +1,5 @@
 %define _basename bpp-phyl
-%define _version 2.2.0
+%define _version 2.3.0
 %define _release 1
 %define _prefix /usr
 
@@ -17,8 +17,8 @@ Requires: bpp-core = %{_version}
 Requires: bpp-seq = %{_version}
 
 BuildRoot: %{_builddir}/%{_basename}-root
-BuildRequires: cmake >= 2.6.0
-BuildRequires: gcc-c++ >= 4.0.0
+BuildRequires: cmake >= 2.8.11
+BuildRequires: gcc-c++ >= 4.7.0
 BuildRequires: libbpp-core2 = %{_version}
 BuildRequires: libbpp-core-devel = %{_version}
 BuildRequires: libbpp-seq9 = %{_version}
@@ -73,99 +73,7 @@ rm -rf $RPM_BUILD_ROOT
 
 %post -n libbpp-phyl9 -p /sbin/ldconfig
 
-%post -n libbpp-phyl-devel
-createGeneric() {
-  echo "-- Creating generic include file: $1.all"
-  #Make sure we run into subdirectories first:
-  dirs=()
-  for file in "$1"/*
-  do
-    if [ -d "$file" ]
-    then
-      # Recursion:
-      dirs+=( "$file" )
-    fi
-  done
-  for dir in ${dirs[@]}
-  do
-    createGeneric $dir
-  done
-  #Now list all files, including newly created .all files:
-  if [ -f $1.all ]
-  then
-    rm $1.all
-  fi
-  dir=`basename $1`
-  for file in "$1"/*
-  do
-    if [ -f "$file" ] && ( [ "${file##*.}" == "h" ] || [ "${file##*.}" == "all" ] )
-    then
-      file=`basename $file`
-      echo "#include \"$dir/$file\"" >> $1.all
-    fi
-  done;
-}
-# Actualize .all files
-createGeneric %{_prefix}/include/Bpp
-exit 0
-
-%preun -n libbpp-phyl-devel
-removeGeneric() {
-  if [ -f $1.all ]
-  then
-    echo "-- Remove generic include file: $1.all"
-    rm $1.all
-  fi
-  for file in "$1"/*
-  do
-    if [ -d "$file" ]
-    then
-      # Recursion:
-      removeGeneric $file
-    fi
-  done
-}
-# Actualize .all files
-removeGeneric %{_prefix}/include/Bpp
-exit 0
-
 %postun -n libbpp-phyl9 -p /sbin/ldconfig
-
-%postun -n libbpp-phyl-devel
-createGeneric() {
-  echo "-- Creating generic include file: $1.all"
-  #Make sure we run into subdirectories first:
-  dirs=()
-  for file in "$1"/*
-  do
-    if [ -d "$file" ]
-    then
-      # Recursion:
-      dirs+=( "$file" )
-    fi
-  done
-  for dir in ${dirs[@]}
-  do
-    createGeneric $dir
-  done
-  #Now list all files, including newly created .all files:
-  if [ -f $1.all ]
-  then
-    rm $1.all
-  fi
-  dir=`basename $1`
-  for file in "$1"/*
-  do
-    if [ -f "$file" ] && ( [ "${file##*.}" == "h" ] || [ "${file##*.}" == "all" ] )
-    then
-      file=`basename $file`
-      echo "#include \"$dir/$file\"" >> $1.all
-    fi
-  done;
-}
-# Actualize .all files
-createGeneric %{_prefix}/include/Bpp
-exit 0
 
 %files -n libbpp-phyl9
 %defattr(-,root,root)
@@ -175,11 +83,17 @@ exit 0
 %files -n libbpp-phyl-devel
 %defattr(-,root,root)
 %doc AUTHORS.txt COPYING.txt INSTALL.txt ChangeLog
+%dir %{_prefix}/lib/cmake/
+%dir %{_prefix}/lib/cmake/bpp-phyl
 %{_prefix}/%{_lib}/lib*.so
 %{_prefix}/%{_lib}/lib*.a
+%{_prefix}/lib/cmake/bpp-phyl/bpp-phyl*.cmake
 %{_prefix}/include/*
 
 %changelog
+* Wed May 10 2017 Julien Dutheil <julien.dutheil@univ-montp2.fr> 2.3.0-1
+- Several bugs fixed and performance improvements
+- Upgrade to C++11
 * Mon Sep 28 2014 Julien Dutheil <julien.dutheil@univ-montp2.fr> 2.2.0-1
 - Bugs fixed + code improvements
 - More efficient DR likelihood derivatives.

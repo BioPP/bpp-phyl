@@ -65,7 +65,7 @@ NonHomogeneousSubstitutionProcess::NonHomogeneousSubstitutionProcess(const NonHo
   // Duplicate all model objects:
   for (size_t i = 0; i < set.modelSet_.size(); i++)
   {
-    modelSet_[i]=dynamic_cast<SubstitutionModel*>(set.modelSet_[i]->clone());
+    modelSet_[i]=dynamic_cast<TransitionModel*>(set.modelSet_[i]->clone());
     computingTree_->addModel(modelSet_[i],set.modelToNodes_[i]);
   }
 
@@ -98,7 +98,7 @@ NonHomogeneousSubstitutionProcess& NonHomogeneousSubstitutionProcess::operator=(
 
   for (size_t i = 0; i < set.modelSet_.size(); i++)
   {
-    modelSet_[i]=dynamic_cast<SubstitutionModel*>(set.modelSet_[i]->clone());
+    modelSet_[i]=dynamic_cast<TransitionModel*>(set.modelSet_[i]->clone());
     computingTree_->addModel(modelSet_[i],set.modelToNodes_[i]);
   }
 
@@ -148,7 +148,7 @@ void NonHomogeneousSubstitutionProcess::setModelToNode(size_t modelIndex, unsign
 }
 
  
-void NonHomogeneousSubstitutionProcess::addModel(SubstitutionModel* model, const std::vector<unsigned int>& nodesId)
+void NonHomogeneousSubstitutionProcess::addModel(TransitionModel* model, const std::vector<unsigned int>& nodesId)
 {
   if (modelSet_.size() > 0 && model->getAlphabet()->getAlphabetType() != modelSet_[0]->getAlphabet()->getAlphabetType())
     throw Exception("NonHomogeneousSubstitutionProcess::addModel. A Substitution Model cannot be added to a Substituion Process if it does not have the same alphabet.");
@@ -183,7 +183,7 @@ void NonHomogeneousSubstitutionProcess::addModel(SubstitutionModel* model, const
 }
 
 
-void NonHomogeneousSubstitutionProcess::setModel(SubstitutionModel* model, size_t modelIndex)
+void NonHomogeneousSubstitutionProcess::setModel(TransitionModel* model, size_t modelIndex)
 {
   if (modelSet_.size() > 0 && model->getAlphabet()->getAlphabetType() != modelSet_[0]->getAlphabet()->getAlphabetType())
     throw Exception("NonHomogeneousSubstitutionProcess::setModel. A Substitution Model cannot be added to a Substituion Process if it does not have the same alphabet.");
@@ -337,7 +337,7 @@ bool NonHomogeneousSubstitutionProcess::isCompatibleWith(const SiteContainer& da
 
 
 NonHomogeneousSubstitutionProcess* NonHomogeneousSubstitutionProcess::createHomogeneousSubstitutionProcess(
-  SubstitutionModel* model,
+  TransitionModel* model,
   DiscreteDistribution* rdist,
   FrequenciesSet* rootFreqs,
   ParametrizablePhyloTree* tree
@@ -371,7 +371,7 @@ NonHomogeneousSubstitutionProcess* NonHomogeneousSubstitutionProcess::createHomo
 }
 
 NonHomogeneousSubstitutionProcess* NonHomogeneousSubstitutionProcess::createNonHomogeneousSubstitutionProcess(
-  SubstitutionModel* model,
+  TransitionModel* model,
   DiscreteDistribution* rdist,
   FrequenciesSet* rootFreqs,
   ParametrizablePhyloTree* tree,
@@ -477,7 +477,7 @@ NonHomogeneousSubstitutionProcess* NonHomogeneousSubstitutionProcess::createNonH
   
   for (i = 0; i < ids.size(); i++)
   {
-    modelSet->addModel(dynamic_cast<SubstitutionModel*>(model->clone()), vector<unsigned int>(1, ids[i]));
+    modelSet->addModel(dynamic_cast<TransitionModel*>(model->clone()), vector<unsigned int>(1, ids[i]));
   }
 
   // Now alias all global parameters on all nodes:

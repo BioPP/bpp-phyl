@@ -52,7 +52,7 @@ using namespace std;
 
 /******************************************************************************/
 
-void DRASRTreeLikelihoodData::initLikelihoods(const SiteContainer& sites, const SubstitutionModel& model)
+void DRASRTreeLikelihoodData::initLikelihoods(const SiteContainer& sites, const TransitionModel& model)
 throw (Exception)
 {
   if (sites.getNumberOfSequences() == 1)
@@ -92,7 +92,7 @@ throw (Exception)
 
 /******************************************************************************/
 
-void DRASRTreeLikelihoodData::initLikelihoods(const Node* node, const SiteContainer& sequences, const SubstitutionModel& model) throw (Exception)
+void DRASRTreeLikelihoodData::initLikelihoods(const Node* node, const SiteContainer& sequences, const TransitionModel& model) throw (Exception)
 {
   // Initialize likelihood vector:
   DRASRTreeLikelihoodNodeData* nodeData = &nodeData_[node->getId()];
@@ -190,7 +190,7 @@ void DRASRTreeLikelihoodData::initLikelihoods(const Node* node, const SiteContai
 
 /******************************************************************************/
 
-SitePatterns* DRASRTreeLikelihoodData::initLikelihoodsWithPatterns(const Node* node, const SiteContainer& sequences, const SubstitutionModel& model) throw (Exception)
+SitePatterns* DRASRTreeLikelihoodData::initLikelihoodsWithPatterns(const Node* node, const SiteContainer& sequences, const TransitionModel& model) throw (Exception)
 {
   SiteContainer* tmp = PatternTools::getSequenceSubset(sequences, *node);
   SitePatterns* patterns = new SitePatterns(tmp, true);

@@ -55,7 +55,7 @@ class SimpleSubstitutionProcess :
     public AbstractSubstitutionProcess
 {
 protected:
-  std::unique_ptr<SubstitutionModel> model_;
+  std::unique_ptr<TransitionModel> model_;
 
 private:
   /**
@@ -64,7 +64,7 @@ private:
   mutable std::unique_ptr<ComputingTree> computingTree_;
 
 public:
-  SimpleSubstitutionProcess(SubstitutionModel* model, ParametrizablePhyloTree* tree);
+  SimpleSubstitutionProcess(TransitionModel* model, ParametrizablePhyloTree* tree);
 
   SimpleSubstitutionProcess(const SimpleSubstitutionProcess& ssp);
 
@@ -81,7 +81,7 @@ public:
     return data.getAlphabet()->getAlphabetType() == model_->getAlphabet()->getAlphabetType();
   }
  
-  const SubstitutionModel& getSubstitutionModel(unsigned int nodeId, size_t classIndex) const
+  const TransitionModel& getTransitionModel(unsigned int nodeId, size_t classIndex) const
   {
     return *model_;
   }
@@ -91,9 +91,9 @@ public:
     return 0;
   }
   
-  const Matrix<double>& getGenerator(unsigned int nodeId, size_t classIndex) const {
-    return model_->getGenerator();
-  }
+  // const Matrix<double>& getGenerator(unsigned int nodeId, size_t classIndex) const {
+  //   return model_->getGenerator();
+  // }
 
   const FrequenciesSet* getRootFrequenciesSet() const {
     return 0;

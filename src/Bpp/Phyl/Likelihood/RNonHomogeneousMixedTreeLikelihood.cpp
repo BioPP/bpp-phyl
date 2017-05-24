@@ -720,10 +720,10 @@ void RNonHomogeneousMixedTreeLikelihood::computeDownSubtreeD2Likelihood(const No
 
 void RNonHomogeneousMixedTreeLikelihood::computeTransitionProbabilitiesForNode(const Node* node)
 {
-  const SubstitutionModel* model = modelSet_->getModelForNode(node->getId());
+  const TransitionModel* model = modelSet_->getModelForNode(node->getId());
   size_t modelnum = modelSet_->getModelIndexForNode(node->getId());
 
-  vector<const SubstitutionModel*> vModel;
+  vector<const TransitionModel*> vModel;
   vector<double> vProba;
   
   const MixedSubstitutionModelSet::HyperNode::Node& nd = hyperNode_.getNode(modelnum);

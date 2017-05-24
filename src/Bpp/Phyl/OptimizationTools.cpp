@@ -946,7 +946,7 @@ TreeTemplate<Node>* OptimizationTools::buildDistanceTree(
       break;                // Ends here.
 
     // Now, re-estimate parameters:
-    unique_ptr<SubstitutionModel> model(estimationMethod.getSubstitutionModel().clone());
+    unique_ptr<TransitionModel> model(estimationMethod.getSubstitutionModel().clone());
     unique_ptr<DiscreteDistribution> rdist(estimationMethod.getRateDistribution().clone());
     DRHomogeneousTreeLikelihood tl(*tree,
                                    *estimationMethod.getData(),

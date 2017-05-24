@@ -184,6 +184,7 @@ namespace bpp
       bool verbose = true,
       int warn = 1);
 
+  
 
     /**
      * @brief Build a SubstitutionModel object according to options.
@@ -221,12 +222,24 @@ namespace bpp
       bool verbose = true,
       int warn = 1) throw (Exception);
     
+    
+    static TransitionModel* getTransitionModel(
+      const Alphabet* alphabet,
+      const GeneticCode* gCode,
+      const SiteContainer* data,
+      std::map<std::string, std::string>& params,
+      std::map<std::string, std::string>& unparsedparams,
+      const std::string& suffix = "",
+      bool suffixIsOptional = true,
+      bool verbose = true,
+      int warn = 1) throw (Exception);
+
     /*
      * @brief The same as before, but with several models.
      *
      */
     
-    static std::map<size_t, SubstitutionModel*> getSubstitutionModels(
+    static std::map<size_t, TransitionModel*> getTransitionModels(
       const Alphabet* alphabet,
       const GeneticCode* gCode,
       const std::map<size_t, SiteContainer*>& mData, 
@@ -259,7 +272,7 @@ namespace bpp
      * @param suffixIsOptional Tell if the suffix is absolutely required.
      * @param verbose          Print some info to the 'message' output stream.
      * @param warn             Set the warning level (0: always display warnings, >0 display warnings on demand).
-     * @return A new SubstitutionModel object according to options specified.
+     * @return A new TransitionModel object according to options specified.
      * @throw Exception if an error occured.
      */
     
@@ -295,7 +308,7 @@ namespace bpp
      */
 
     static void setSubstitutionModelParametersInitialValuesWithAliases(
-      SubstitutionModel& model,
+      TransitionModel& model,
       std::map<std::string, std::string>& unparsedParameterValues,
       size_t modelNumber,
       const SiteContainer* data,
@@ -577,7 +590,7 @@ namespace bpp
       const Alphabet* alphabet,
       const GeneticCode* gCode,
       const map<size_t, PhyloTree*>& mTree,
-      const map<size_t, SubstitutionModel*>& mMod,
+      const map<size_t, TransitionModel*>& mMod,
       const map<size_t, FrequenciesSet*>& mRootFreq,
       const map<size_t, DiscreteDistribution*>& mDist,
       map<string, string>& params,
@@ -937,7 +950,7 @@ namespace bpp
      *                      >0 display warnings on demand).
      */
 
-    static void printParameters(const SubstitutionModel* model, OutputStream& out,int warn = 1);
+    static void printParameters(const TransitionModel* model, OutputStream& out,int warn = 1);
 
     /**
      * @brief Output a SubstitutionModelSet description to a file.

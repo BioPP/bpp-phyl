@@ -232,7 +232,12 @@ namespace bpp
       updateMatrices();
     }
 
-
+    virtual void setFreq(std::map<int, double>& frequencies)
+    {
+      model_->setFreq(frequencies);
+      updateMatrices();
+    }
+    
     const ReversibleSubstitutionModel* getNestedModel() const { return model_; }
 
     /**

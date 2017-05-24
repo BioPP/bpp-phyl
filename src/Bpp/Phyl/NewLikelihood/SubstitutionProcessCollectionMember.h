@@ -230,7 +230,7 @@ public:
    * @return A pointer toward the corresponding model.
    */
 
-  const SubstitutionModel* getModel(size_t i) const;
+  const TransitionModel* getModel(size_t i) const;
 
   std::vector<size_t> getModelNumbers() const;
 
@@ -257,7 +257,7 @@ public:
    * @throw Exception If no model is found for this node.
    */
 
-  const SubstitutionModel* getModelForNode(unsigned int nodeId) const throw (Exception);
+  const TransitionModel* getModelForNode(unsigned int nodeId) const throw (Exception);
 
   /**
    * @brief Get a list of nodes id for which the given model is associated.
@@ -390,7 +390,7 @@ public:
    * @param classIndex The model class index.
    */
 
-  const SubstitutionModel& getSubstitutionModel(unsigned int nodeId, size_t classIndex) const;
+  const TransitionModel& getTransitionModel(unsigned int nodeId, size_t classIndex) const;
 
   /**
    * @brief Get the parameters of the substitution models.
@@ -469,10 +469,10 @@ public:
   }
 
 
-  const Matrix<double>& getGenerator(unsigned int nodeId, size_t classIndex) const
-  {
-    return getSubstitutionModel(nodeId, classIndex).getGenerator();
-  }
+  // const Matrix<double>& getGenerator(unsigned int nodeId, size_t classIndex) const
+  // {
+  //   return getSubstitutionModel(nodeId, classIndex).getGenerator();
+  // }
 
   /**
    * This method is used to initialize likelihoods in reccursions.

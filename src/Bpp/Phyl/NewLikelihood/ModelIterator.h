@@ -86,7 +86,7 @@ public:
 };
 
 /**
- * @brief A pair of SubstitutionModel / SiteIterator.
+ * @brief A pair of TransitionModel / SiteIterator.
  */
 class ConstBranchModelDescription
 {
@@ -111,7 +111,7 @@ public:
 };
 
 /**
- * @brief A pair of SubstitutionModel / BranchIterator.
+ * @brief A pair of TransitionModel / BranchIterator.
  */
 class ConstSiteModelDescription
 {
@@ -207,7 +207,7 @@ private:
   unsigned int nbSites_;
 
 public:
-  ConstNoPartitionBranchModelDescription(const SubstitutionModel* model, unsigned int nbSites) :
+  ConstNoPartitionBranchModelDescription(const TransitionModel* model, unsigned int nbSites) :
     nbSites_(nbSites) {}
 
   ConstNoPartitionBranchModelDescription(const ConstNoPartitionBranchModelDescription& bmd) :
@@ -232,7 +232,7 @@ private:
   unsigned int index_;
 
 public:
-  ConstNoPartitionBranchModelIterator(const SubstitutionModel* model, unsigned int nbSites) :
+  ConstNoPartitionBranchModelIterator(const TransitionModel* model, unsigned int nbSites) :
     branchModelDescription_(model, nbSites),
     index_(0) {}
 
@@ -255,7 +255,7 @@ private:
   std::vector<int> nodesId_;
 
 public:
-  ConstNoPartitionSiteModelDescription(const SubstitutionModel* model, const std::vector<int> nodesId) :
+  ConstNoPartitionSiteModelDescription(const TransitionModel* model, const std::vector<int> nodesId) :
     nodesId_(nodesId) {}
 
   ConstNoPartitionSiteModelDescription(const ConstNoPartitionSiteModelDescription& smd) :
@@ -282,7 +282,7 @@ class ConstHomogeneousSiteModelIterator :
     unsigned int index_;
 
   public:
-    ConstHomogeneousSiteModelIterator(const ParametrizableTree& tree, const SubstitutionModel* model) :
+    ConstHomogeneousSiteModelIterator(const ParametrizableTree& tree, const TransitionModel* model) :
      siteModelDescription_(model, tree.getBranchesId()), index_(0) {}
 
   public:

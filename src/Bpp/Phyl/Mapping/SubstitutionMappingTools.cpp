@@ -276,7 +276,7 @@ ProbabilisticSubstitutionMapping* SubstitutionMappingTools::computeSubstitutionV
     while (mit->hasNext())
     {
       TreeLikelihood::ConstBranchModelDescription* bmd = mit->next();
-      substitutionCount.setSubstitutionModel(bmd->getModel());
+      substitutionCount.setSubstitutionModel(bmd->getSubstitutionModel());
       // compute all nxy first:
       VVVVdouble nxy(nbClasses);
       for (size_t c = 0; c < nbClasses; ++c)
@@ -587,7 +587,7 @@ ProbabilisticSubstitutionMapping* SubstitutionMappingTools::computeSubstitutionV
     while (mit->hasNext())
     {
       TreeLikelihood::ConstBranchModelDescription* bmd = mit->next();
-      substitutionCount.setSubstitutionModel(modelSet.getModelForNode(currentNode->getId()));
+      substitutionCount.setSubstitutionModel(modelSet.getSubstitutionModelForNode(currentNode->getId()));
 
       // compute all nxy first:
       VVVVdouble nxy(nbClasses);
@@ -875,7 +875,7 @@ ProbabilisticSubstitutionMapping* SubstitutionMappingTools::computeSubstitutionV
     while (mit->hasNext())
     {
       TreeLikelihood::ConstBranchModelDescription* bmd = mit->next();
-      substitutionCount.setSubstitutionModel(bmd->getModel());
+      substitutionCount.setSubstitutionModel(bmd->getSubstitutionModel());
       // compute all nxy first:
       VVVVdouble nxy(nbClasses);
       for (size_t c = 0; c < nbClasses; ++c)
@@ -1053,7 +1053,7 @@ ProbabilisticSubstitutionMapping* SubstitutionMappingTools::computeSubstitutionV
     while (mit->hasNext())
     {
       TreeLikelihood::ConstBranchModelDescription* bmd = mit->next();
-      substitutionCount.setSubstitutionModel(bmd->getModel());
+      substitutionCount.setSubstitutionModel(bmd->getSubstitutionModel());
       // compute all nxy first:
       VVVdouble nxyt(nbTypes);
       for (size_t t = 0; t < nbTypes; ++t)
@@ -1175,7 +1175,7 @@ ProbabilisticSubstitutionMapping* SubstitutionMappingTools::computeSubstitutionV
     while (mit->hasNext())
     {
       TreeLikelihood::ConstBranchModelDescription* bmd = mit->next();
-      substitutionCount.setSubstitutionModel(bmd->getModel());
+      substitutionCount.setSubstitutionModel(bmd->getSubstitutionModel());
       // compute all nxy first:
       VVVVdouble nxy(nbClasses);
       for (size_t c = 0; c < nbClasses; ++c)
@@ -1508,7 +1508,7 @@ vector< vector<double> > SubstitutionMappingTools::getCountsPerBranch(
 {
   SubstitutionRegister* reg2 = reg.clone();
 
-  unique_ptr<SubstitutionCount> count(new UniformizationSubstitutionCount(modelSet.getModel(0), reg2));
+  unique_ptr<SubstitutionCount> count(new UniformizationSubstitutionCount(modelSet.getSubstitutionModel(0), reg2));
 
   unique_ptr<ProbabilisticSubstitutionMapping> mapping(SubstitutionMappingTools::computeSubstitutionVectors(drtl, modelSet, ids, *count, false));
 
@@ -1687,7 +1687,7 @@ vector< vector<double> > SubstitutionMappingTools::getNormalizationsPerBranch(
     
     if (mids.size()>0)
     {
-      const SubstitutionModel* modn = nullModelSet->getModel(nbm);
+      const SubstitutionModel* modn = nullModelSet->getSubstitutionModel(nbm);
       vector<int> supportedStates = modn->getAlphabetStates();
 
       for (size_t nbt = 0; nbt < nbTypes; nbt++)
@@ -1709,7 +1709,7 @@ vector< vector<double> > SubstitutionMappingTools::getNormalizationsPerBranch(
 
       for (size_t nbt = 0; nbt < nbTypes; nbt++)
       {
-        unique_ptr<Reward> reward(new DecompositionReward(nullModelSet->getModel(nbm), &usai[nbt]));
+        unique_ptr<Reward> reward(new DecompositionReward(nullModelSet->getSubstitutionModel(nbm), &usai[nbt]));
         
         unique_ptr<ProbabilisticRewardMapping> mapping(RewardMappingTools::computeRewardVectors(drtl, mids, *reward, false));
         
@@ -1797,7 +1797,7 @@ vector< vector<double> > SubstitutionMappingTools::getNormalizedCountsPerBranch(
   vector< vector<double> > counts;
   vector< vector<double> > factors;
 
-  counts = getCountsPerBranch(drtl, ids, modelSet->getModel(0), reg, -1, verbose);
+  counts = getCountsPerBranch(drtl, ids, modelSet->getSubstitutionModel(0), reg, -1, verbose);
   factors = getNormalizationsPerBranch(drtl, ids, nullModelSet, reg, verbose);
 
   size_t nbTypes = counts[0].size();

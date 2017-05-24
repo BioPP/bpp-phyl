@@ -55,7 +55,7 @@ class RateAcrossSitesSubstitutionProcess :
   public AbstractSubstitutionProcess
 {
 private:
-  std::unique_ptr<SubstitutionModel> model_;
+  std::unique_ptr<TransitionModel> model_;
   std::unique_ptr<DiscreteDistribution> rDist_;
 
   /**
@@ -65,7 +65,7 @@ private:
 
 public:
   RateAcrossSitesSubstitutionProcess(
-      SubstitutionModel* model,
+      TransitionModel* model,
       DiscreteDistribution* rdist,
       ParametrizablePhyloTree* tree);
     
@@ -84,7 +84,7 @@ public:
     return data.getAlphabet()->getAlphabetType() == model_->getAlphabet()->getAlphabetType();
   }
  
-  const SubstitutionModel& getSubstitutionModel(unsigned int nodeId, size_t classIndex) const
+  const TransitionModel& getTransitionModel(unsigned int nodeId, size_t classIndex) const
   {
     return *model_;
   }
@@ -94,10 +94,10 @@ public:
     return rDist_.get();
   }
 
-  const Matrix<double>& getGenerator(unsigned int nodeId, size_t classIndex) const
-  {
-    return model_->getGenerator();
-  }
+  // const Matrix<double>& getGenerator(unsigned int nodeId, size_t classIndex) const
+  // {
+  //   return model_->getGenerator();
+  // }
 
   ParameterList getSubstitutionModelParameters(bool independent) const
   {

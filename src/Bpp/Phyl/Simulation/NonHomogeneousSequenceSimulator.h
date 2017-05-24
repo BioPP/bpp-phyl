@@ -70,7 +70,7 @@ class SimData
     size_t state;
     std::vector<size_t> states;
     VVVdouble cumpxy;
-    const SubstitutionModel* model;
+    const TransitionModel* model;
 
   public:
     SimData(): state(), states(), cumpxy(), model(0) {}
@@ -136,7 +136,7 @@ class NonHomogeneousSequenceSimulator:
     ) throw (Exception);
 
     NonHomogeneousSequenceSimulator(
-      const SubstitutionModel* model,
+      const TransitionModel* model,
       const DiscreteDistribution* rate,
       const Tree* tree
     );

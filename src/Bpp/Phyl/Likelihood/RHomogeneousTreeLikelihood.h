@@ -107,7 +107,7 @@ namespace bpp
      */
     RHomogeneousTreeLikelihood(
                                const Tree& tree,
-                               SubstitutionModel* model,
+                               TransitionModel* model,
                                DiscreteDistribution* rDist,
                                bool checkRooted = true,
                                bool verbose = true,
@@ -132,7 +132,7 @@ namespace bpp
     RHomogeneousTreeLikelihood(
                                const Tree& tree,
                                const SiteContainer& data,
-                               SubstitutionModel* model,
+                               TransitionModel* model,
                                DiscreteDistribution* rDist,
                                bool checkRooted = true,
                                bool verbose = true,

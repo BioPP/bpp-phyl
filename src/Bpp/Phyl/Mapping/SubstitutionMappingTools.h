@@ -50,7 +50,8 @@ namespace bpp
 /**
  * @brief Provide methods to compute substitution mappings.
  *
- * For now, only 4 methods are implemented, and provide probabilistic substitution mappings.
+ * For now, only 4 methods are implemented, and provide probabilistic
+ * substitution mappings.
  *
  * See:
  * Dutheil J, Pupko T, Jean-Marie A, Galtier N.
