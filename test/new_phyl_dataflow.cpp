@@ -47,42 +47,42 @@
 #include <Bpp/NewPhyl/NodeSpecification.h>
 #include <Bpp/NewPhyl/Range.h>
 #include <Bpp/NewPhyl/Topology.h>
+#include <Bpp/NewPhyl/TopologyAnnotation.h>
 
 #include <cassert>
 #include <fstream>
 #include <iostream>
 #include <unordered_map>
 
-using bpp::DF::Node;
-using bpp::DF::NodeSpecification;
-using bpp::DF::Value;
-
-using NodeVec = std::vector<Node>;
+using namespace bpp;
+using DF::Node;
+using DF::NodeSpecification;
+using DF::Value;
 
 class MyParamSpec
 {
   // Just return the right param
 public:
-  MyParamSpec(bpp::Topology::Node node, NodeVec& params)
+  MyParamSpec(Topology::Node node, const Topology::NodeMap<int>& params)
     : node_(node)
     , params_(params)
   {
   }
 
   static std::vector<NodeSpecification> computeDependencies() { return {}; }
-  Node buildNode(std::vector<Node>) const { return Node(params_[node_.nodeId()]); }
+  Node buildNode(std::vector<Node>) const { return Node(params_.getParameter(node_)); }
   static std::type_index nodeType() { return typeid(int); } // dummy
   std::string description() const { return "MyParam-N" + std::to_string(node_.nodeId()); }
 
 private:
-  bpp::Topology::Node node_;
-  NodeVec& params_;
+  Topology::Node node_;
+  const Topology::NodeMap<int>& params_;
 };
 
-struct Sum : public bpp::DF::Value<int>::Impl
+struct Sum : public DF::Value<int>::Impl
 {
   Sum(std::vector<Node> deps)
-    : bpp::DF::Value<int>::Impl(std::move(deps))
+    : DF::Value<int>::Impl(std::move(deps))
   {
     // Check deps
     this->foreachDependencyNode([](Node::Impl* n) { assert(dynamic_cast<Value<int>::Impl*>(n)); });
@@ -99,7 +99,7 @@ struct Sum : public bpp::DF::Value<int>::Impl
   class Spec
   {
   public:
-    Spec(bpp::Topology::Node node, NodeVec& params)
+    Spec(Topology::Node node, const Topology::NodeMap<int>& params)
       : node_(node)
       , params_(params)
     {
@@ -111,7 +111,7 @@ struct Sum : public bpp::DF::Value<int>::Impl
       if (node_.nbChildBranches() > 0)
       {
         // Internal node
-        node_.foreachChildBranch([this, &deps](bpp::Topology::Branch&& branch) {
+        node_.foreachChildBranch([this, &deps](Topology::Branch&& branch) {
           deps.emplace_back(Spec{std::move(branch).childNode(), params_});
         });
       }
@@ -127,34 +127,32 @@ struct Sum : public bpp::DF::Value<int>::Impl
     std::string description() const { return "Sum-N" + std::to_string(node_.nodeId()); }
 
   private:
-    bpp::Topology::Node node_;
-    NodeVec& params_;
+    Topology::Node node_;
+    const Topology::NodeMap<int>& params_;
   };
 };
 
 TEST_CASE("test")
 {
-  auto buildTree = bpp::Topology::Tree::create();
+  auto buildTree = Topology::Tree::create();
   auto ta = buildTree->createNode();
   auto tb = buildTree->createNode();
   auto tc = buildTree->createNode({ta, tb});
   auto td = buildTree->createNode({tc});
   buildTree->setRootNodeId(td);
-  auto tree = bpp::Topology::Tree::finalize(std::move(buildTree));
+  auto tree = Topology::Tree::finalize(std::move(buildTree));
 
   std::ofstream ft("topology_debug");
-  bpp::Topology::debugTree(ft, tree);
+  Topology::debugTree(ft, tree);
 
-  auto a = bpp::DF::Parameter<int>::create(3);
-  auto b = bpp::DF::Parameter<int>::create(42);
-  NodeVec params(tree->nbNodes());
-  params[ta] = Node(a);
-  params[tb] = Node(b);
+  Topology::NodeMap<int> params{tree};
+  auto a = params.createParameter(Topology::Node{tree, ta}, 3);
+  auto b = params.createParameter(Topology::Node{tree, tb}, 42);
 
-  auto sumSpec = NodeSpecification::create<Sum::Spec>(bpp::Topology::Node(tree, tree->rootNodeId()), params);
-  auto partialSumSpec = NodeSpecification::create<Sum::Spec>(bpp::Topology::Node(tree, 0), params);
+  auto sumSpec = NodeSpecification::create<Sum::Spec>(Topology::Node{tree, tree->rootNodeId()}, params);
+  auto partialSumSpec = NodeSpecification::create<Sum::Spec>(Topology::Node{tree, 0}, params);
 
-  bpp::DF::Registry registry;
+  DF::Registry registry;
 
   Value<int> sum{sumSpec.instantiateWithReuse(registry)};
   CHECK(sum.getValue() == 45);
@@ -164,5 +162,5 @@ TEST_CASE("test")
   Value<int> partialSum{partialSumSpec.instantiateWithReuse(registry)};
 
   std::ofstream fd("df_debug");
-  bpp::DF::debugNodeSpecInstantiationInRegistry(fd, sumSpec, registry, true);
+  DF::debugNodeSpecInstantiationInRegistry(fd, sumSpec, registry, true);
 }

@@ -43,7 +43,6 @@
 #ifndef BPP_NEWPHYL_TOPOLOGY_H
 #define BPP_NEWPHYL_TOPOLOGY_H
 
-#include <Bpp/NewPhyl/Optional.h>
 #include <Bpp/NewPhyl/Range.h>
 #include <limits>
 #include <memory>
@@ -137,7 +136,6 @@ namespace Topology {
 
 	/* NodeRef and BranchRef.
 	 * Kind of iterators on the tree, allow to inspect structure.
-	 * TODO add && navigation ops (reuse tree shared_ptr mostly)
 	 */
 	class Node {
 	public:
@@ -150,6 +148,7 @@ namespace Topology {
 		IndexType childBranchId (std::size_t branchIndex) const {
 			return tree_->nodeChildBranch (nodeId (), branchIndex);
 		}
+		const std::shared_ptr<const Tree> & tree () const noexcept { return tree_; }
 
 		// Navigate
 		Branch fatherBranch () const &;
@@ -174,6 +173,7 @@ namespace Topology {
 		IndexType branchId () const noexcept { return branchId_; }
 		IndexType fatherNodeId () const { return tree_->branchFatherNode (branchId ()); }
 		IndexType childNodeId () const { return tree_->branchChildNode (branchId ()); }
+		const std::shared_ptr<const Tree> & tree () const noexcept { return tree_; }
 
 		// Navigate
 		Node fatherNode () const &;
@@ -217,16 +217,10 @@ namespace Topology {
 	inline Node Branch::buildNode (IndexType nodeId) const & { return Node (tree_, nodeId); }
 	inline Node Branch::buildNode (IndexType nodeId) && { return Node (std::move (tree_), nodeId); }
 
-	/* (Node|Branch)Map<T> associates T values to a tree's elements.
-	 */
-
-	/* (Node|Branch)Index<T> associates T values with bijection to a tree's elements.
-	 */
-
 	// From PhyloTree
 	struct ConvertedPhyloTreeData {
 		std::shared_ptr<const Tree> topology;
-		// TODO add data name index, brlens map
+		// TODO add data name index, brlens map (move to other file)
 	};
 	ConvertedPhyloTreeData convertPhyloTree (const bpp::PhyloTree & phyloTree);
 }
