@@ -51,9 +51,6 @@
 #include <vector>
 
 namespace bpp {
-
-class PhyloTree; // Forward declaration
-
 namespace Topology {
 	using IndexType = std::size_t; // For Node and Branch
 	constexpr IndexType invalid{std::numeric_limits<IndexType>::max ()};
@@ -216,13 +213,6 @@ namespace Topology {
 	inline Node Branch::childNode () && { return std::move (*this).buildNode (childNodeId ()); }
 	inline Node Branch::buildNode (IndexType nodeId) const & { return Node (tree_, nodeId); }
 	inline Node Branch::buildNode (IndexType nodeId) && { return Node (std::move (tree_), nodeId); }
-
-	// From PhyloTree
-	struct ConvertedPhyloTreeData {
-		std::shared_ptr<const Tree> topology;
-		// TODO add data name index, brlens map (move to other file)
-	};
-	ConvertedPhyloTreeData convertPhyloTree (const bpp::PhyloTree & phyloTree);
 }
 }
 

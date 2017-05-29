@@ -46,12 +46,56 @@
 #include <Bpp/NewPhyl/Optional.h>
 #include <Bpp/NewPhyl/Topology.h>
 #include <cassert>
+#include <utility>
 #include <vector>
 
 namespace bpp {
+class PhyloTree; // Forward declaration
+
 namespace Topology {
+/* Map: associate existing DF nodes to tree elements (by id).
+ * Can be used for both Node or Branch.
+ */
+#if 0
+	class HomogeneousMap {
+	public:
+		HomogeneousMap (DF::Node node) : node_ (std::move (node)) {}
+
+		DF::Node getNode (IndexType) const { return node_; }
+
+	private:
+		DF::Node node_;
+	};
+
+	class HeterogeneousMap {
+	public:
+		HeterogeneousMap (IndexType size) : nodeById_ (size) {}
+		void setNode (IndexType id, DF::Node node) { nodeById_.at (id) = std::move (node); }
+
+		DF::Node getNode (IndexType id) const { return nodeById_.at (id); }
+
+	private:
+		std::vector<DF::Node> nodeById_;
+	};
+
 	/* (Node|Branch)Map<T> associates T values to a tree's elements.
 	 */
+	class NodeMap {
+	private:
+		struct Interface {
+			virtual ~Interface () = default;
+			virtual DF::Node getNode (IndexType id) const = 0;
+		};
+		template <typename T> struct Map final : public Interface {
+			T map_;
+			Map (const T & map) : map_ (map) {}
+			Map (T && map) : map_ (std::move (map)) {}
+			DF::Node getNode (IndexType id) const override { return map_.getNode (id); }
+		};
+    std::shared_ptr<const Interface> map_;
+	};
+#endif
+
 	template <typename T> class NodeMap {
 	public:
 		explicit NodeMap (std::shared_ptr<const Tree> tree)
@@ -84,6 +128,13 @@ namespace Topology {
 
 	/* (Node|Branch)Index<T> associates T values with bijection to a tree's elements.
 	 */
+
+	// Retrieve info from PhyloTree
+	struct ConvertedPhyloTreeData {
+		std::shared_ptr<const Tree> topology;
+		// TODO add data name index, brlens map (move to other file)
+	};
+	ConvertedPhyloTreeData convertPhyloTree (const bpp::PhyloTree & phyloTree);
 }
 }
 

@@ -40,6 +40,7 @@
 */
 
 #include <Bpp/NewPhyl/Topology.h>
+#include <Bpp/NewPhyl/TopologyAnnotation.h>
 #include <Bpp/Phyl/Tree/PhyloTree.h>
 #include <memory>
 #include <stdexcept>

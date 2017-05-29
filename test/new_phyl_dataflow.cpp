@@ -42,125 +42,19 @@
 #define DOCTEST_CONFIG_IMPLEMENT_WITH_MAIN
 #include "doctest.h"
 
-#include <Bpp/NewPhyl/DataFlow.h>
 #include <Bpp/NewPhyl/Debug.h>
-#include <Bpp/NewPhyl/NodeSpecification.h>
-#include <Bpp/NewPhyl/Range.h>
-#include <Bpp/NewPhyl/Topology.h>
 #include <Bpp/NewPhyl/TopologyAnnotation.h>
-
-#include <cassert>
+#include <Bpp/Phyl/Io/Newick.h>
 #include <fstream>
-#include <iostream>
-#include <unordered_map>
-
-using namespace bpp;
-using DF::Node;
-using DF::NodeSpecification;
-using DF::Value;
-
-class MyParamSpec
-{
-  // Just return the right param
-public:
-  MyParamSpec(Topology::Node node, const Topology::NodeMap<int>& params)
-    : node_(node)
-    , params_(params)
-  {
-  }
-
-  static std::vector<NodeSpecification> computeDependencies() { return {}; }
-  Node buildNode(std::vector<Node>) const { return Node(params_.getParameter(node_)); }
-  static std::type_index nodeType() { return typeid(int); } // dummy
-  std::string description() const { return "MyParam-N" + std::to_string(node_.nodeId()); }
-
-private:
-  Topology::Node node_;
-  const Topology::NodeMap<int>& params_;
-};
-
-struct Sum : public DF::Value<int>::Impl
-{
-  Sum(std::vector<Node> deps)
-    : DF::Value<int>::Impl(std::move(deps))
-  {
-    // Check deps
-    this->foreachDependencyNode([](Node::Impl* n) { assert(dynamic_cast<Value<int>::Impl*>(n)); });
-  }
-
-  void compute() override
-  {
-    int a = 0;
-    // Use static downcast as it was checked before (TODO make this more ergonomic)
-    this->foreachDependencyNode([&a](Node::Impl* n) { a += static_cast<Value<int>::Impl&>(*n).getValue(); });
-    this->value_ = a;
-  }
-
-  class Spec
-  {
-  public:
-    Spec(Topology::Node node, const Topology::NodeMap<int>& params)
-      : node_(node)
-      , params_(params)
-    {
-    }
-
-    std::vector<NodeSpecification> computeDependencies() const
-    {
-      std::vector<NodeSpecification> deps;
-      if (node_.nbChildBranches() > 0)
-      {
-        // Internal node
-        node_.foreachChildBranch([this, &deps](Topology::Branch&& branch) {
-          deps.emplace_back(Spec{std::move(branch).childNode(), params_});
-        });
-      }
-      else
-      {
-        // Leaf
-        deps.emplace_back(MyParamSpec{node_, params_});
-      }
-      return deps;
-    }
-    static Node buildNode(std::vector<Node> deps) { return Node::create<Sum>(std::move(deps)); }
-    static std::type_index nodeType() { return typeid(Sum); }
-    std::string description() const { return "Sum-N" + std::to_string(node_.nodeId()); }
-
-  private:
-    Topology::Node node_;
-    const Topology::NodeMap<int>& params_;
-  };
-};
 
 TEST_CASE("test")
 {
-  auto buildTree = Topology::Tree::create();
-  auto ta = buildTree->createNode();
-  auto tb = buildTree->createNode();
-  auto tc = buildTree->createNode({ta, tb});
-  auto td = buildTree->createNode({tc});
-  buildTree->setRootNodeId(td);
-  auto tree = Topology::Tree::finalize(std::move(buildTree));
+  bpp::Newick reader;
+  auto phyloTree = std::unique_ptr<bpp::PhyloTree>(
+    reader.parenthesisToPhyloTree("((A:0.01, B:0.02):0.03,C:0.01,D:0.1);", false, "", false, false));
+
+  auto phyloTreeData = bpp::Topology::convertPhyloTree(*phyloTree);
 
   std::ofstream ft("topology_debug");
-  Topology::debugTree(ft, tree);
-
-  Topology::NodeMap<int> params{tree};
-  auto a = params.createParameter(Topology::Node{tree, ta}, 3);
-  auto b = params.createParameter(Topology::Node{tree, tb}, 42);
-
-  auto sumSpec = NodeSpecification::create<Sum::Spec>(Topology::Node{tree, tree->rootNodeId()}, params);
-  auto partialSumSpec = NodeSpecification::create<Sum::Spec>(Topology::Node{tree, 0}, params);
-
-  DF::Registry registry;
-
-  Value<int> sum{sumSpec.instantiateWithReuse(registry)};
-  CHECK(sum.getValue() == 45);
-  a.setValue(-42);
-  CHECK(sum.getValue() == 0);
-
-  Value<int> partialSum{partialSumSpec.instantiateWithReuse(registry)};
-
-  std::ofstream fd("df_debug");
-  DF::debugNodeSpecInstantiationInRegistry(fd, sumSpec, registry, true);
+  bpp::Topology::debugTree(ft, phyloTreeData.topology);
 }
