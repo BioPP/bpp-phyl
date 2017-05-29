@@ -1,9 +1,9 @@
 //
-// File: Phylogeny.h
+// File: Model.cpp
 // Authors:
 //   Francois Gindraud (2017)
-// Created: 2017-05-12
-// Last modified: 2017-05-12
+// Created: 2017-05-29
+// Last modified: 2017-05-29
 //
 
 /*
@@ -39,11 +39,11 @@
   knowledge of the CeCILL license and that you accept its terms.
 */
 
-#pragma once
-#ifndef BPP_NEWPHYL_PHYLOGENY_H
-#define BPP_NEWPHYL_PHYLOGENY_H
+#include <Bpp/NewPhyl/Model.h>
+#include <Bpp/Phyl/Model/SubstitutionModel.h>
 
 namespace bpp {
+namespace Phyl {
+	ModelNode::~ModelNode () = default;
 }
-
-#endif // BPP_NEWPHYL_PHYLOGENY_H
+}

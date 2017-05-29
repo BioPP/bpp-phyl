@@ -1,9 +1,9 @@
 //
-// File: Phylogeny.h
+// File: Model.h
 // Authors:
 //   Francois Gindraud (2017)
-// Created: 2017-05-12
-// Last modified: 2017-05-12
+// Created: 2017-05-29
+// Last modified: 2017-05-29
 //
 
 /*
@@ -40,10 +40,33 @@
 */
 
 #pragma once
-#ifndef BPP_NEWPHYL_PHYLOGENY_H
-#define BPP_NEWPHYL_PHYLOGENY_H
+#ifndef BPP_NEWPHYL_MODEL_H
+#define BPP_NEWPHYL_MODEL_H
+
+#include <Bpp/NewPhyl/DataFlow.h>
+#include <Eigen/Dense>
+#include <memory>
 
 namespace bpp {
+class SubstitutionModel;
+
+namespace Phyl {
+
+	using TransitionMatrix = Eigen::MatrixXd;
+	using LikelihoodVector = Eigen::VectorXd;
+
+	class ModelNode : public DF::Value<SubstitutionModel *>::Impl {
+	public:
+		ModelNode (std::unique_ptr<SubstitutionModel> model)
+		    : DF::Value<SubstitutionModel *>::Impl (model.get ()), model_ (std::move (model)) {}
+		~ModelNode ();
+
+    // methods for access that invalidate.
+
+	private:
+		std::unique_ptr<SubstitutionModel> model_;
+	};
+}
 }
 
-#endif // BPP_NEWPHYL_PHYLOGENY_H
+#endif // BPP_NEWPHYL_MODEL_H
