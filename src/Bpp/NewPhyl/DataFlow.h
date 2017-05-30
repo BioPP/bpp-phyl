@@ -88,6 +88,8 @@ namespace DF {
 		std::shared_ptr<Impl> pImpl_;
 	};
 
+	using NodeVec = std::vector<Node>;
+
 	class Node::Impl {
 	public:
 		Impl () = default;
@@ -268,6 +270,16 @@ namespace DF {
 	    : pImpl_ (std::dynamic_pointer_cast<Impl> (v.getShared ())) {
 		if (!pImpl_)
 			throw std::bad_cast ();
+	}
+
+	/* Node value access.
+	 */
+	template <typename T> bool isValueNode (const Node & n) noexcept {
+		return dynamic_cast<const typename Value<T>::Impl *> (&n.getImpl ()) != nullptr;
+	}
+	template <typename T> const T & getValueUnsafe (const Node & n) noexcept {
+		assert (n.hasNode ());
+		return static_cast<const typename Value<T>::Impl &> (n.getImpl ()).getValue ();
 	}
 }
 }

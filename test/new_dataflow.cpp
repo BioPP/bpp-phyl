@@ -40,6 +40,7 @@ knowledge of the CeCILL license and that you accept its terms.
 #include "doctest.h"
 
 #include <Bpp/NewPhyl/DataFlow.h>
+#include <Bpp/NewPhyl/DataFlowTemplates.h>
 #include <Bpp/NewPhyl/Debug.h>
 #include <cassert>
 #include <fstream>
@@ -48,37 +49,31 @@ using namespace bpp;
 
 struct Sum : public DF::Value<int>::Impl
 {
-  Sum(std::vector<DF::Node> deps)
+  Sum(DF::NodeVec deps)
     : DF::Value<int>::Impl(std::move(deps))
   {
     // Check deps
-    this->foreachDependencyNode([](DF::Node::Impl* n) { assert(dynamic_cast<DF::Value<int>::Impl*>(n)); });
+    for (const auto& dep : this->dependencies())
+      assert(DF::isValueNode<int>(dep));
   }
 
   void compute() override
   {
     int a = 0;
-    // Use static downcast as it was checked before (TODO make this more ergonomic)
-    this->foreachDependencyNode([&a](DF::Node::Impl* n) { a += static_cast<DF::Value<int>::Impl&>(*n).getValue(); });
+    for (const auto& dep : this->dependencies())
+      a += DF::getValueUnsafe<int>(dep);
     this->value_ = a;
   }
 };
 
-struct NegOne : public DF::Value<int>::Impl
+struct NegateOp
 {
-  NegOne(DF::Node dep)
-    : DF::Value<int>::Impl(std::vector<DF::Node>{std::move(dep)})
-  {
-    // Check deps
-    this->foreachDependencyNode([](DF::Node::Impl* n) { assert(dynamic_cast<DF::Value<int>::Impl*>(n)); });
-  }
-
-  void compute() override
-  {
-    // Use static downcast as it was checked before (TODO make this more ergonomic)
-    this->value_ = -static_cast<DF::Value<int>::Impl&>(this->dependencyNodes_.front().getImpl()).getValue();
-  }
+  using ResultType = int;
+  using ArgumentTypes = std::tuple<int>;
+  static void compute(int& r, int a) { r = -a; }
 };
+
+using NegateNode = DF::GenericFunctionComputation<NegateOp>;
 
 TEST_CASE("Testing data flow system on simple int reduction tree")
 {
@@ -98,11 +93,17 @@ TEST_CASE("Testing data flow system on simple int reduction tree")
   auto p3 = Parameter<int>::create(0);
   auto p4 = Parameter<int>::create(3);
 
-  auto n1 = Value<int>::create<Sum>(std::vector<Node>{p1, p2});
-  auto n2 = Value<int>::create<Sum>(std::vector<Node>{n1, p3});
-  auto n3 = Value<int>::create<Sum>(std::vector<Node>{p3, p4});
+  auto n1 = Value<int>::create<Sum>(DF::NodeVec{p1, p2});
+  auto n2 = Value<int>::create<Sum>(DF::NodeVec{n1, p3});
+  auto n3 = Value<int>::create<Sum>(DF::NodeVec{p3, p4});
 
-  auto root = Value<int>::create<NegOne>(n2);
+  auto root = Value<int>::create<NegateNode>(DF::NodeVec{n2});
+
+  /* TODO move to exceptions and test them
+  auto fail = Parameter<long>::create();
+  auto willCrash = Value<int>::create<NegateNode>(DF::NodeVec{fail});
+  auto willCrashToo = Value<int>::create<NegateNode>(DF::NodeVec{n2, n2});
+  */
 
   // Initial state
   CHECK(p1.getImpl().isValid());
