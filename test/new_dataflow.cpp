@@ -98,11 +98,11 @@ TEST_CASE("Testing data flow system on simple int reduction tree")
   auto p3 = Parameter<int>::create(0);
   auto p4 = Parameter<int>::create(3);
 
-  auto n1 = Value<int>::create<Sum>(std::vector<Node>{Node(p1), Node(p2)});
-  auto n2 = Value<int>::create<Sum>(std::vector<Node>{Node(n1), Node(p3)});
-  auto n3 = Value<int>::create<Sum>(std::vector<Node>{Node(p3), Node(p4)});
+  auto n1 = Value<int>::create<Sum>(std::vector<Node>{p1, p2});
+  auto n2 = Value<int>::create<Sum>(std::vector<Node>{n1, p3});
+  auto n3 = Value<int>::create<Sum>(std::vector<Node>{p3, p4});
 
-  auto root = Value<int>::create<NegOne>(Node(n2));
+  auto root = Value<int>::create<NegOne>(n2);
 
   // Initial state
   CHECK(p1.getImpl().isValid());

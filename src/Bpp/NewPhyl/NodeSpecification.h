@@ -95,7 +95,7 @@ namespace DF {
 			if (it != nodes_.end ())
 				return it->second;
 			else
-				return Node ();
+				return {};
 		}
 
 		void set (Node node) {

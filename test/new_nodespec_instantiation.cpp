@@ -66,7 +66,7 @@ public:
   }
 
   static std::vector<NodeSpecification> computeDependencies() { return {}; }
-  Node buildNode(std::vector<Node>) const { return Node(params_.getParameter(node_)); }
+  Node buildNode(std::vector<Node>) const { return params_.getParameter(node_); }
   static std::type_index nodeType() { return typeid(int); } // dummy
   std::string description() const { return "MyParam-N" + std::to_string(node_.nodeId()); }
 

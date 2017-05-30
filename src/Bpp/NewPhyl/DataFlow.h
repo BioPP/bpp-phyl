@@ -52,6 +52,12 @@
 
 namespace bpp {
 namespace DF {
+
+	// Fwd declaration
+	class Node;
+	template <typename T> class Value;
+	template <typename T> class Parameter;
+
 	/* Base Node.
 	 */
 	class Node {
@@ -64,11 +70,8 @@ namespace DF {
 		Node () = default;
 		bool hasNode () const noexcept { return bool(pImpl_); }
 
-		template <typename U, typename = typename U::Impl>
-		explicit Node (const U & u) : pImpl_ (std::dynamic_pointer_cast<Impl> (u.getShared ())) {
-			if (!pImpl_)
-				throw std::bad_cast ();
-		}
+		template <typename T> Node (const Value<T> & v) noexcept;
+		template <typename T> Node (const Parameter<T> & p) noexcept;
 		const std::shared_ptr<Impl> & getShared () const noexcept { return pImpl_; }
 
 		template <typename T, typename... Args> static Node create (Args &&... args) {
@@ -159,11 +162,8 @@ namespace DF {
 		class Impl;
 		using Ref = Impl &;
 
-		template <typename U, typename = typename U::Impl>
-		explicit Value (const U & u) : pImpl_ (std::dynamic_pointer_cast<Impl> (u.getShared ())) {
-			if (!pImpl_)
-				throw std::bad_cast ();
-		}
+		explicit Value (const Node & n);
+		Value (const Parameter<T> & p) noexcept;
 		const std::shared_ptr<Impl> & getShared () const noexcept { return pImpl_; }
 
 		template <typename U, typename... Args> static Value create (Args &&... args) {
@@ -210,11 +210,8 @@ namespace DF {
 		class Impl;
 		using Ref = Impl &;
 
-		template <typename U, typename = typename U::Impl>
-		explicit Parameter (const U & u) : pImpl_ (std::dynamic_pointer_cast<Impl> (u.getShared ())) {
-			if (!pImpl_)
-				throw std::bad_cast ();
-		}
+		explicit Parameter (const Node & n);
+		explicit Parameter (const Value<T> & v);
 		const std::shared_ptr<Impl> & getShared () const noexcept { return pImpl_; }
 
 		template <typename... Args> static Parameter create (Args &&... args) {
@@ -246,6 +243,32 @@ namespace DF {
 	private:
 		void compute () override final { throw std::runtime_error ("compute(): parameter node"); }
 	};
+
+	/* Conversion constructors
+	 */
+	template <typename T> Node::Node (const Value<T> & v) noexcept : pImpl_ (v.getShared ()) {}
+	template <typename T> Node::Node (const Parameter<T> & p) noexcept : pImpl_ (p.getShared ()) {}
+
+	template <typename T>
+	Value<T>::Value (const Node & n) : pImpl_ (std::dynamic_pointer_cast<Impl> (n.getShared ())) {
+		if (!pImpl_)
+			throw std::bad_cast ();
+	}
+	template <typename T>
+	Value<T>::Value (const Parameter<T> & p) noexcept : pImpl_ (p.getShared ()) {}
+
+	template <typename T>
+	Parameter<T>::Parameter (const Node & n)
+	    : pImpl_ (std::dynamic_pointer_cast<Impl> (n.getShared ())) {
+		if (!pImpl_)
+			throw std::bad_cast ();
+	}
+	template <typename T>
+	Parameter<T>::Parameter (const Value<T> & v)
+	    : pImpl_ (std::dynamic_pointer_cast<Impl> (v.getShared ())) {
+		if (!pImpl_)
+			throw std::bad_cast ();
+	}
 }
 }
 
