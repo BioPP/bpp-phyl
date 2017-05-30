@@ -46,14 +46,21 @@
 #include <iosfwd>
 #include <memory>
 #include <string>
+#include <typeindex>
 #include <typeinfo>
 
 namespace bpp {
 // Demangle a C++ symbol name
 std::string demangle (const char * name);
 
+// Pretty type name
+std::string prettyTypeName (const std::type_info & ti);
+std::string prettyTypeName (std::type_index ti);
 template <typename T> std::string prettyTypeName () {
-	return demangle (typeid (T).name ());
+	return prettyTypeName (typeid (T));
+}
+template <typename T> std::string prettyTypeName (const T &) {
+	return prettyTypeName<T> ();
 }
 
 namespace Topology {

@@ -46,9 +46,17 @@
 #include <Bpp/NewPhyl/Cpp14.h>
 #include <Bpp/NewPhyl/DataFlow.h>
 #include <tuple>
+#include <typeinfo>
 
 namespace bpp {
 namespace DF {
+	// Error utils
+	void genericFunctionComputationCheckDependencyNum (const std::type_info & ti,
+	                                                   std::size_t expected, std::size_t given);
+	void dataFlowTemplatesDependencyTypeMismatch (const std::type_info & computationNode,
+	                                              std::size_t index, const std::type_info & expected,
+	                                              const Node::Impl & given);
+
 	/** Generic function computation.
 	 * Performs a computation with a fixed set of arguments of heterogeneous types.
 	 * The computation itself must be encoded as a struct defining multiple elements:
@@ -64,7 +72,7 @@ namespace DF {
 	 *
 	 * For each argument type given, a dependency slot is reserved.
 	 * Each dependency must be connected to a Value<T> of the matching type.
-	 * A computation attempt while some dependencies are not connected is a runtime error.
+	 * Dependencies given to the constructor must match.
 	 */
 	template <typename Op>
 	class GenericFunctionComputation : public Value<typename Op::ResultType>::Impl {
@@ -76,9 +84,9 @@ namespace DF {
 		static constexpr auto nbDependencies = std::tuple_size<ArgumentTypes>::value;
 
 		template <typename... Args>
-		GenericFunctionComputation (std::vector<Node> deps, Args &&... args)
+		GenericFunctionComputation (NodeVec deps, Args &&... args)
 		    : Value<ResultType>::Impl (std::move (deps), std::forward<Args> (args)...) {
-			checkDependenciesTypes (Cpp14::MakeIndexSequence<nbDependencies>{});
+			checkDependencyTypes (Cpp14::MakeIndexSequence<nbDependencies>{});
 		}
 
 	private:
@@ -88,11 +96,18 @@ namespace DF {
 			Op::compute (this->value_, getValueUnsafe<ArgumentType<Is>> (this->dependencies ()[Is])...);
 		}
 
-		template <std::size_t... Is> void checkDependenciesTypes (Cpp14::IndexSequence<Is...>) {
-      // TODO use exceptions
-			assert (this->dependencies ().size () == nbDependencies);
-			(void) std::initializer_list<int>{
-			    (assert (isValueNode<ArgumentType<Is>> (this->dependencies ()[Is])), 0)...};
+		template <std::size_t Index> int checkDependencyType () {
+			if (!isValueNode<ArgumentType<Index>> (this->dependencies ()[Index]))
+				dataFlowTemplatesDependencyTypeMismatch (typeid (GenericFunctionComputation), Index,
+				                                         typeid (typename Value<ArgumentType<Index>>::Impl),
+				                                         this->dependencies ()[Index].getImpl ());
+			return 0;
+		}
+		template <std::size_t... Is> void checkDependencyTypes (Cpp14::IndexSequence<Is...>) {
+			// TODO clean
+			genericFunctionComputationCheckDependencyNum (typeid (GenericFunctionComputation),
+			                                              nbDependencies, this->dependencies ().size ());
+			(void) std::initializer_list<int>{checkDependencyType<Is> ()...};
 		}
 
 		/** Compute implementation.
@@ -103,7 +118,7 @@ namespace DF {
 		}
 	};
 
-  // TODO reduction
+	// TODO reduction
 }
 }
 #endif // BPP_NEWPHYL_DATAFLOWTEMPLATES_H

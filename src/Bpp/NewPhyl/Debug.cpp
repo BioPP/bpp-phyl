@@ -52,6 +52,7 @@
 #include <stdexcept>
 #include <string>
 #include <typeindex>
+#include <typeinfo>
 #include <unordered_set>
 
 #ifdef BPP_HAVE_DEMANGLING
@@ -70,6 +71,13 @@ std::string demangle (const char * name) {
 #else
 	return name;
 #endif
+}
+
+std::string prettyTypeName (const std::type_info & ti) {
+	return demangle (ti.name ());
+}
+std::string prettyTypeName (std::type_index ti) {
+	return demangle (ti.name ());
 }
 
 namespace Topology {

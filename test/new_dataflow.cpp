@@ -149,10 +149,25 @@ TEST_CASE("Testing data flow system on simple int reduction tree")
   debugDag(fd, Node(root));
 }
 
-TEST_CASE("exception testing")
+#include <iostream>
+
+TEST_CASE("Exceptions")
 {
-  auto param = DF::Parameter<int>::create(42);
-  DF::Value<int> asValue{param};
-  asValue.getImpl().invalidate(); // Bad !
-  CHECK_THROWS_AS(asValue.getValue(), const Exception&);
+  using namespace bpp::DF;
+
+  // Check that param should crash if made invalid
+  auto param = Parameter<int>::create(42);
+  param.getImpl().invalidate(); // Bad !
+  Value<int> asValue{param};    // Value<int> handle recomputes if needed (not the parameter one)
+  CHECK_THROWS_AS(asValue.getValue(), const bpp::Exception&);
+
+  // Bad node dynamic downcast
+  CHECK_THROWS_AS((void)static_cast<Value<bool>>(param), const bpp::Exception&);
+
+  // GenericFunctionComputation: bad dep vec len
+  CHECK_THROWS_AS(Node::create<NegateNode>(NodeVec{}), const bpp::Exception&);
+
+  // GenericFunctionComputation: type mismatch
+  auto p = Parameter<bool>::create();
+  CHECK_THROWS_AS(Node::create<NegateNode>(NodeVec{p}), const bpp::Exception&);
 }

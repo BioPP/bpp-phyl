@@ -41,18 +41,35 @@
 
 #include <Bpp/Exceptions.h>
 #include <Bpp/NewPhyl/DataFlow.h>
+#include <Bpp/NewPhyl/DataFlowTemplates.h>
 #include <Bpp/NewPhyl/Debug.h>
+#include <typeinfo>
 
 namespace bpp {
 namespace DF {
-	//
+	// Error functions TODO clean names
+	void parameterFailComputeWasCalled (const std::type_info & ti) {
+		throw Exception (prettyTypeName (ti) + ": compute() was called on a Parameter node");
+	}
 
-	struct ParameterComputeWasCalled : public Exception {
-		ParameterComputeWasCalled ()
-		    : Exception (prettyTypeName<ParameterComputeWasCalled> () +
-		                 ": compute() was called on a Parameter node") {}
-	};
+	void nodeHandleConversionFailed (const std::type_info & handle, const Node::Impl & impl) {
+		throw Exception (prettyTypeName (handle) +
+		                 " handle type cannot store: " + prettyTypeName (typeid (impl)));
+	}
 
-	void parameterFailComputeWasCalled () { throw ParameterComputeWasCalled{}; }
+	void genericFunctionComputationCheckDependencyNum (const std::type_info & ti,
+	                                                   std::size_t expected, std::size_t given) {
+		if (expected != given)
+			throw Exception (prettyTypeName (ti) + ": expected " + std::to_string (expected) +
+			                 " dependencies, got " + std::to_string (given));
+	}
+
+	void dataFlowTemplatesDependencyTypeMismatch (const std::type_info & computationNode,
+	                                              std::size_t index, const std::type_info & expected,
+	                                              const Node::Impl & given) {
+		throw Exception (prettyTypeName (computationNode) + ": expected " + prettyTypeName (expected) +
+		                 " as " + std::to_string (index) + "-th argument, got " +
+		                 prettyTypeName (typeid (given)));
+	}
 }
 }

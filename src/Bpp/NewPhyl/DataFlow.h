@@ -46,7 +46,7 @@
 #include <algorithm>
 #include <cassert>
 #include <memory>
-#include <typeinfo> // std::bad_cast
+#include <typeinfo>
 #include <utility>
 #include <vector>
 
@@ -173,7 +173,7 @@ namespace DF {
 		}
 
 		Ref getImpl () const noexcept { return *pImpl_; }
-		const T & getValue () noexcept {
+		const T & getValue () {
 			// The value class is the interface, perform the recomputation.
 			pImpl_->computeRecursively ();
 			return pImpl_->getValue ();
@@ -229,7 +229,7 @@ namespace DF {
 		std::shared_ptr<Impl> pImpl_;
 	};
 
-  void parameterFailComputeWasCalled ();
+	void parameterFailComputeWasCalled (const std::type_info & ti);
 
 	template <typename T> class Parameter<T>::Impl : public Value<T>::Impl {
 	public:
@@ -245,18 +245,20 @@ namespace DF {
 		}
 
 	private:
-		void compute () override final { parameterFailComputeWasCalled ();}
+		void compute () override final { parameterFailComputeWasCalled (typeid (Parameter<T>)); }
 	};
 
 	/* Conversion constructors
 	 */
+	void nodeHandleConversionFailed (const std::type_info & handle, const Node::Impl & impl);
+
 	template <typename T> Node::Node (const Value<T> & v) noexcept : pImpl_ (v.getShared ()) {}
 	template <typename T> Node::Node (const Parameter<T> & p) noexcept : pImpl_ (p.getShared ()) {}
 
 	template <typename T>
 	Value<T>::Value (const Node & n) : pImpl_ (std::dynamic_pointer_cast<Impl> (n.getShared ())) {
 		if (!pImpl_)
-			throw std::bad_cast ();
+			nodeHandleConversionFailed (typeid (Value<T>), n.getImpl ());
 	}
 	template <typename T>
 	Value<T>::Value (const Parameter<T> & p) noexcept : pImpl_ (p.getShared ()) {}
@@ -265,13 +267,13 @@ namespace DF {
 	Parameter<T>::Parameter (const Node & n)
 	    : pImpl_ (std::dynamic_pointer_cast<Impl> (n.getShared ())) {
 		if (!pImpl_)
-			throw std::bad_cast ();
+			nodeHandleConversionFailed (typeid (Parameter<T>), n.getImpl ());
 	}
 	template <typename T>
 	Parameter<T>::Parameter (const Value<T> & v)
 	    : pImpl_ (std::dynamic_pointer_cast<Impl> (v.getShared ())) {
 		if (!pImpl_)
-			throw std::bad_cast ();
+			nodeHandleConversionFailed (typeid (Parameter<T>), v.getImpl ());
 	}
 
 	/* Node value access.
