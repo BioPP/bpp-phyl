@@ -229,6 +229,8 @@ namespace DF {
 		std::shared_ptr<Impl> pImpl_;
 	};
 
+  void parameterFailComputeWasCalled ();
+
 	template <typename T> class Parameter<T>::Impl : public Value<T>::Impl {
 	public:
 		template <typename... Args>
@@ -243,7 +245,7 @@ namespace DF {
 		}
 
 	private:
-		void compute () override final { throw std::runtime_error ("compute(): parameter node"); }
+		void compute () override final { parameterFailComputeWasCalled ();}
 	};
 
 	/* Conversion constructors
@@ -279,6 +281,7 @@ namespace DF {
 	}
 	template <typename T> const T & getValueUnsafe (const Node & n) noexcept {
 		assert (n.hasNode ());
+		assert (isValueNode<T> (n));
 		return static_cast<const typename Value<T>::Impl &> (n.getImpl ()).getValue ();
 	}
 }

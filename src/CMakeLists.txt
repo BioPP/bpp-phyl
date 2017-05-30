@@ -7,6 +7,7 @@
 
 # File list
 set (CPP_FILES
+  Bpp/NewPhyl/DataFlow.cpp
   Bpp/NewPhyl/Debug.cpp
   Bpp/NewPhyl/Model.cpp
   Bpp/NewPhyl/Topology.cpp

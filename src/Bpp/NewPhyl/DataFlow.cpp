@@ -1,9 +1,9 @@
 //
-// File: Debug.h
+// File: DataFlow.cpp
 // Authors:
 //   Francois Gindraud (2017)
-// Created: 2017-04-28
-// Last modified: 2017-04-28
+// Created: 2017-05-30
+// Last modified: 2017-05-30
 //
 
 /*
@@ -39,49 +39,20 @@
   knowledge of the CeCILL license and that you accept its terms.
 */
 
-#pragma once
-#ifndef BPP_NEWPHYL_DEBUG_H
-#define BPP_NEWPHYL_DEBUG_H
-
-#include <iosfwd>
-#include <memory>
-#include <string>
-#include <typeinfo>
+#include <Bpp/Exceptions.h>
+#include <Bpp/NewPhyl/DataFlow.h>
+#include <Bpp/NewPhyl/Debug.h>
 
 namespace bpp {
-// Demangle a C++ symbol name
-std::string demangle (const char * name);
-
-template <typename T> std::string prettyTypeName () {
-	return demangle (typeid (T).name ());
-}
-
-namespace Topology {
-	class Tree;
-
-	// Output a dot format graph representing the tree
-	void debugTree (std::ostream & os, std::shared_ptr<const Tree> tree);
-}
 namespace DF {
-	class Node;
-	class NodeSpecification;
-	class Registry;
+	//
 
-	// Output a dot format graph representing the dataflow dag
-	void debugDag (std::ostream & os, const Node & entryPoint);
+	struct ParameterComputeWasCalled : public Exception {
+		ParameterComputeWasCalled ()
+		    : Exception (prettyTypeName<ParameterComputeWasCalled> () +
+		                 ": compute() was called on a Parameter node") {}
+	};
 
-	// Outputs debugDag + registry pointers to dataflow dag
-	void debugRegistry (std::ostream & os, const Registry & registry);
-
-	// Instantiate a nodespec, prints nodespec hierarchy & DF graph
-	void debugNodeSpecInstantiation (std::ostream & os, const NodeSpecification & nodeSpec);
-
-	// Trace previous instantiation of a NodeSpec in a registry
-	// Prints: registry, nodespecs, df graph
-	void debugNodeSpecInstantiationInRegistry (std::ostream & os, const NodeSpecification & nodeSpec,
-	                                           const Registry & registry,
-	                                           bool showRegistryLinks = false);
+	void parameterFailComputeWasCalled () { throw ParameterComputeWasCalled{}; }
 }
 }
-
-#endif // BPP_NEWPHYL_DEBUG_H

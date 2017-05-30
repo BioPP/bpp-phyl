@@ -49,9 +49,6 @@
 
 namespace bpp {
 namespace DF {
-
-	// FIXME out of date, revamp or delete
-
 	/** Generic function computation.
 	 * Performs a computation with a fixed set of arguments of heterogeneous types.
 	 * The computation itself must be encoded as a struct defining multiple elements:
@@ -92,6 +89,7 @@ namespace DF {
 		}
 
 		template <std::size_t... Is> void checkDependenciesTypes (Cpp14::IndexSequence<Is...>) {
+      // TODO use exceptions
 			assert (this->dependencies ().size () == nbDependencies);
 			(void) std::initializer_list<int>{
 			    (assert (isValueNode<ArgumentType<Is>> (this->dependencies ()[Is])), 0)...};
@@ -104,6 +102,8 @@ namespace DF {
 			computeWithUnpackedIndexSequence (Cpp14::MakeIndexSequence<nbDependencies>{});
 		}
 	};
+
+  // TODO reduction
 }
 }
 #endif // BPP_NEWPHYL_DATAFLOWTEMPLATES_H

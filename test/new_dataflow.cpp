@@ -39,6 +39,7 @@ knowledge of the CeCILL license and that you accept its terms.
 #define DOCTEST_CONFIG_IMPLEMENT_WITH_MAIN
 #include "doctest.h"
 
+#include <Bpp/Exceptions.h>
 #include <Bpp/NewPhyl/DataFlow.h>
 #include <Bpp/NewPhyl/DataFlowTemplates.h>
 #include <Bpp/NewPhyl/Debug.h>
@@ -146,4 +147,12 @@ TEST_CASE("Testing data flow system on simple int reduction tree")
   // Print DF graph
   std::ofstream fd("df_debug");
   debugDag(fd, Node(root));
+}
+
+TEST_CASE("exception testing")
+{
+  auto param = DF::Parameter<int>::create(42);
+  DF::Value<int> asValue{param};
+  asValue.getImpl().invalidate(); // Bad !
+  CHECK_THROWS_AS(asValue.getValue(), const Exception&);
 }
