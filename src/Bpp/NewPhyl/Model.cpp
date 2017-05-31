@@ -45,5 +45,18 @@
 namespace bpp {
 namespace Phyl {
 	ModelNode::~ModelNode () = default;
+
+	void ModelEquilibriumFrequenciesOp::compute (FrequencyVector & freqs,
+	                                             const SubstitutionModel * model) {
+		auto & freqsFromModel = model->getFrequencies ();
+		freqs = Eigen::Map<const FrequencyVector> (freqsFromModel.data (),
+		                                           Eigen::Index (freqsFromModel.size ()));
+	}
+
+	void ModelTransitionMatrixOp::compute (TransitionMatrix & matrix, const SubstitutionModel * model,
+	                                       double brlen) {
+		auto & matrixFromModel = model->getPij_t (brlen);
+    // TODO cpy data
+	}
 }
 }

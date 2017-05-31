@@ -44,27 +44,43 @@
 #define BPP_NEWPHYL_MODEL_H
 
 #include <Bpp/NewPhyl/DataFlow.h>
-#include <Eigen/Dense>
+#include <Bpp/NewPhyl/DataFlowTemplates.h>
+#include <Eigen/Core>
 #include <memory>
 
 namespace bpp {
 class SubstitutionModel;
 
 namespace Phyl {
-
 	using TransitionMatrix = Eigen::MatrixXd;
-	using LikelihoodVector = Eigen::VectorXd;
+	using FrequencyVector = Eigen::VectorXd;
 
-	class ModelNode : public DF::Value<SubstitutionModel *>::Impl {
+	class ModelNode : public DF::Value<const SubstitutionModel *>::Impl {
 	public:
 		ModelNode (std::unique_ptr<SubstitutionModel> model)
-		    : DF::Value<SubstitutionModel *>::Impl (model.get ()), model_ (std::move (model)) {}
+		    : DF::Value<const SubstitutionModel *>::Impl (model.get ()), model_ (std::move (model)) {}
 		~ModelNode ();
 
-    // methods for access that invalidate.
+		// methods for access that invalidate.
 
 	private:
 		std::unique_ptr<SubstitutionModel> model_;
+	};
+
+	struct ModelEquilibriumFrequenciesOp {
+		using ResultType = FrequencyVector;
+		using ArgumentTypes = std::tuple<const SubstitutionModel *>;
+		static void compute (FrequencyVector & freqs, const SubstitutionModel * model);
+	};
+	// Should init with freq vector size
+	using ModelEquilibriumFrequenciesComputation =
+	    DF::GenericFunctionComputation<ModelEquilibriumFrequenciesOp>;
+
+	struct ModelTransitionMatrixOp {
+		using ResultType = TransitionMatrix;
+		enum { Model, BrLen };
+		using ArgumentTypes = std::tuple<const SubstitutionModel *, double>;
+    static void compute (TransitionMatrix & matrix, const SubstitutionModel * model, double brlen);
 	};
 }
 }

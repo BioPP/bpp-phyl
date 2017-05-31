@@ -46,7 +46,7 @@
 #include <Bpp/NewPhyl/DataFlow.h>
 #include <Bpp/NewPhyl/Phylogeny.h>
 #include <Bpp/NewPhyl/Range.h>
-#include <Eigen/Dense>
+#include <Eigen/Core>
 #include <cassert>
 #include <functional> // reference_wrapper
 #include <vector>
