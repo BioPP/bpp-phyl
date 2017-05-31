@@ -48,24 +48,14 @@ knowledge of the CeCILL license and that you accept its terms.
 
 using namespace bpp;
 
-struct Sum : public DF::Value<int>::Impl
+struct SumOp
 {
-  Sum(DF::NodeVec deps)
-    : DF::Value<int>::Impl(std::move(deps))
-  {
-    // Check deps
-    for (const auto& dep : this->dependencies())
-      assert(DF::isValueNode<int>(dep));
-  }
-
-  void compute() override
-  {
-    int a = 0;
-    for (const auto& dep : this->dependencies())
-      a += DF::getValueUnsafe<int>(dep);
-    this->value_ = a;
-  }
+  using ResultType = int;
+  using ArgumentType = int;
+  static void reset(int& r) { r = 0; }
+  static void reduce(int& acc, int i) { acc += i; }
 };
+using SumNode = DF::GenericReductionComputation<SumOp>;
 
 struct NegateOp
 {
@@ -73,7 +63,6 @@ struct NegateOp
   using ArgumentTypes = std::tuple<int>;
   static void compute(int& r, int a) { r = -a; }
 };
-
 using NegateNode = DF::GenericFunctionComputation<NegateOp>;
 
 TEST_CASE("Testing data flow system on simple int reduction tree")
@@ -94,17 +83,11 @@ TEST_CASE("Testing data flow system on simple int reduction tree")
   auto p3 = Parameter<int>::create(0);
   auto p4 = Parameter<int>::create(3);
 
-  auto n1 = Value<int>::create<Sum>(DF::NodeVec{p1, p2});
-  auto n2 = Value<int>::create<Sum>(DF::NodeVec{n1, p3});
-  auto n3 = Value<int>::create<Sum>(DF::NodeVec{p3, p4});
+  auto n1 = Value<int>::create<SumNode>(DF::NodeVec{p1, p2});
+  auto n2 = Value<int>::create<SumNode>(DF::NodeVec{n1, p3});
+  auto n3 = Value<int>::create<SumNode>(DF::NodeVec{p3, p4});
 
   auto root = Value<int>::create<NegateNode>(DF::NodeVec{n2});
-
-  /* TODO move to exceptions and test them
-  auto fail = Parameter<long>::create();
-  auto willCrash = Value<int>::create<NegateNode>(DF::NodeVec{fail});
-  auto willCrashToo = Value<int>::create<NegateNode>(DF::NodeVec{n2, n2});
-  */
 
   // Initial state
   CHECK(p1.getImpl().isValid());
@@ -170,4 +153,7 @@ TEST_CASE("Exceptions")
   // GenericFunctionComputation: type mismatch
   auto p = Parameter<bool>::create();
   CHECK_THROWS_AS(Node::create<NegateNode>(NodeVec{p}), const bpp::Exception&);
+
+  // GenericReductionComputation: type mismatch
+  CHECK_THROWS_AS(Node::create<SumNode>(NodeVec{p}), const bpp::Exception&);
 }

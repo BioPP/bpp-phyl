@@ -45,6 +45,7 @@
 
 #include <Bpp/NewPhyl/Cpp14.h>
 #include <Bpp/NewPhyl/DataFlow.h>
+#include <Bpp/NewPhyl/Range.h>
 #include <tuple>
 #include <typeinfo>
 
@@ -61,12 +62,11 @@ namespace DF {
 	 * Performs a computation with a fixed set of arguments of heterogeneous types.
 	 * The computation itself must be encoded as a struct defining multiple elements:
 	 * @code{.cpp}
-	 * struct ComputationStruct {
+	 * struct MyComputationStruct {
 	 *    using ResultType = ...; // return type of the computation
 	 *    using ArgumentTypes = std::tuple<Arg1Type, ..., ArgNType>; // list of types of the arguments
 	 *    // Computation function
-	 *    static void compute (ResultType & result, const Arg1Type & arg1, ..., const ArgNType &
-	 * argN);
+	 *    static void compute (ResultType & result, const Arg1Type & a1, ..., const ArgNType & aN);
 	 * };
 	 * @endcode
 	 *
@@ -79,47 +79,87 @@ namespace DF {
 	public:
 		using ResultType = typename Op::ResultType;
 		using ArgumentTypes = typename Op::ArgumentTypes;
+		static constexpr auto nbDependencies = std::tuple_size<ArgumentTypes>::value;
 		template <std::size_t Index>
 		using ArgumentType = typename std::tuple_element<Index, ArgumentTypes>::type;
-		static constexpr auto nbDependencies = std::tuple_size<ArgumentTypes>::value;
 
 		template <typename... Args>
 		GenericFunctionComputation (NodeVec deps, Args &&... args)
 		    : Value<ResultType>::Impl (std::move (deps), std::forward<Args> (args)...) {
-			checkDependencyTypes (Cpp14::MakeIndexSequence<nbDependencies>{});
+			checkDependencies (Cpp14::MakeIndexSequence<nbDependencies>{});
 		}
 
 	private:
-		template <std::size_t... Is>
-		void computeWithUnpackedIndexSequence (Cpp14::IndexSequence<Is...>) {
-			// Helper function : unpack and cast each dependency to its type, feed values to compute.
-			Op::compute (this->value_, getValueUnsafe<ArgumentType<Is>> (this->dependencies ()[Is])...);
+		/** Runtime checks the dependency for type / number mismatch.
+		 */
+		template <std::size_t... Is> void checkDependencies (Cpp14::IndexSequence<Is...>) {
+			checkDependencyNumber (typeid (GenericFunctionComputation), nbDependencies,
+			                       this->dependencies ().size ());
+			// check dependency type for each required argument (uses IndexSequence for tuple unpacking)
+			(void) std::initializer_list<int>{checkDependencyType<Is> ()...};
 		}
-
 		template <std::size_t Index> int checkDependencyType () {
 			using ArgType = ArgumentType<Index>;
 			if (!isValueNode<ArgType> (this->dependencies ()[Index]))
 				failureDependencyTypeMismatch (typeid (GenericFunctionComputation), Index,
 				                               typeid (typename Value<ArgType>::Impl),
 				                               this->dependencies ()[Index].getImpl ());
-			return 0;
-		}
-		template <std::size_t... Is> void checkDependencyTypes (Cpp14::IndexSequence<Is...>) {
-			checkDependencyNumber (typeid (GenericFunctionComputation), nbDependencies,
-			                       this->dependencies ().size ());
-			// check dependency type for each required argument (uses IndexSequence for tuple unpacking)
-			(void) std::initializer_list<int>{checkDependencyType<Is> ()...};
+			return 0; // Dummy int for the initializer_list<int>
 		}
 
 		/** Compute implementation.
 		 * Apply the compute function on values retrieved from dependent nodes.
 		 */
-		void compute (void) override final {
+		void compute () override final {
 			computeWithUnpackedIndexSequence (Cpp14::MakeIndexSequence<nbDependencies>{});
+		}
+		template <std::size_t... Is>
+		void computeWithUnpackedIndexSequence (Cpp14::IndexSequence<Is...>) {
+			// Helper function : unpack and cast each dependency to its type, feed values to compute.
+			Op::compute (this->value_, getValueUnsafe<ArgumentType<Is>> (this->dependencies ()[Is])...);
 		}
 	};
 
-	// TODO reduction
+	/** Generic reduction computation.
+	 * Performs a reduction by applying a reduction function over an arbitrary set of arguments.
+	 * Arguments must all have the same type.
+	 *
+	 * The reduction operation is defined by implementing a specific struct that defines how to
+	 * perform the reduction.
+	 * Any reduction defining struct must have the following elements:
+	 * @code{.cpp}
+	 * struct MyReductionStruct {
+	 *   using ResultType = ...; // the type of the result
+	 *   using ArgumentType = ...; // the type of the arguments
+	 *   static void reset (ResultType &); // a function that resets the storage
+	 *   // one step of the reduction
+	 *   static void reduce (ResultType & accumulator, const ArgumentType & arg);
+	 * };
+	 * @endcode
+	 */
+	template <typename Op>
+	class GenericReductionComputation : public Value<typename Op::ResultType>::Impl {
+	public:
+		using ResultType = typename Op::ResultType;
+		using ArgumentType = typename Op::ArgumentType;
+
+		template <typename... Args>
+		GenericReductionComputation (NodeVec deps, Args &&... args)
+		    : Value<ResultType>::Impl (std::move (deps), std::forward<Args> (args)...) {
+			for (auto i : index_range (this->dependencies ()))
+				if (!isValueNode<ArgumentType> (this->dependencies ()[i]))
+					failureDependencyTypeMismatch (typeid (GenericReductionComputation), i,
+					                               typeid (typename Value<ArgumentType>::Impl),
+					                               this->dependencies ()[i].getImpl ());
+		}
+
+	private:
+		void compute () override final {
+			Op::reset (this->value_);
+			for (const auto & dep : this->dependencies ())
+				Op::reduce (this->value_, getValueUnsafe<ArgumentType> (dep));
+		}
+	};
 }
 }
 #endif // BPP_NEWPHYL_DATAFLOWTEMPLATES_H
