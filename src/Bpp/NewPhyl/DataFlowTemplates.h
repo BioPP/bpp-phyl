@@ -51,11 +51,11 @@
 namespace bpp {
 namespace DF {
 	// Error utils
-	void genericFunctionComputationCheckDependencyNum (const std::type_info & ti,
-	                                                   std::size_t expected, std::size_t given);
-	void dataFlowTemplatesDependencyTypeMismatch (const std::type_info & computationNode,
-	                                              std::size_t index, const std::type_info & expected,
-	                                              const Node::Impl & given);
+	void checkDependencyNumber (const std::type_info & computeNodeType, std::size_t expectedSize,
+	                            std::size_t givenSize);
+	void failureDependencyTypeMismatch (const std::type_info & computeNodeType, std::size_t depIndex,
+	                                    const std::type_info & expectedType,
+	                                    const Node::Impl & givenNode);
 
 	/** Generic function computation.
 	 * Performs a computation with a fixed set of arguments of heterogeneous types.
@@ -97,16 +97,17 @@ namespace DF {
 		}
 
 		template <std::size_t Index> int checkDependencyType () {
-			if (!isValueNode<ArgumentType<Index>> (this->dependencies ()[Index]))
-				dataFlowTemplatesDependencyTypeMismatch (typeid (GenericFunctionComputation), Index,
-				                                         typeid (typename Value<ArgumentType<Index>>::Impl),
-				                                         this->dependencies ()[Index].getImpl ());
+			using ArgType = ArgumentType<Index>;
+			if (!isValueNode<ArgType> (this->dependencies ()[Index]))
+				failureDependencyTypeMismatch (typeid (GenericFunctionComputation), Index,
+				                               typeid (typename Value<ArgType>::Impl),
+				                               this->dependencies ()[Index].getImpl ());
 			return 0;
 		}
 		template <std::size_t... Is> void checkDependencyTypes (Cpp14::IndexSequence<Is...>) {
-			// TODO clean
-			genericFunctionComputationCheckDependencyNum (typeid (GenericFunctionComputation),
-			                                              nbDependencies, this->dependencies ().size ());
+			checkDependencyNumber (typeid (GenericFunctionComputation), nbDependencies,
+			                       this->dependencies ().size ());
+			// check dependency type for each required argument (uses IndexSequence for tuple unpacking)
 			(void) std::initializer_list<int>{checkDependencyType<Is> ()...};
 		}
 

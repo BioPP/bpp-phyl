@@ -229,7 +229,7 @@ namespace DF {
 		std::shared_ptr<Impl> pImpl_;
 	};
 
-	void parameterFailComputeWasCalled (const std::type_info & ti);
+	void failureParameterComputeWasCalled (const std::type_info & paramType);
 
 	template <typename T> class Parameter<T>::Impl : public Value<T>::Impl {
 	public:
@@ -245,12 +245,12 @@ namespace DF {
 		}
 
 	private:
-		void compute () override final { parameterFailComputeWasCalled (typeid (Parameter<T>)); }
+		void compute () override final { failureParameterComputeWasCalled (typeid (Parameter<T>)); }
 	};
 
 	/* Conversion constructors
 	 */
-	void nodeHandleConversionFailed (const std::type_info & handle, const Node::Impl & impl);
+	void failureNodeHandleConversion (const std::type_info & handleType, const Node::Impl & node);
 
 	template <typename T> Node::Node (const Value<T> & v) noexcept : pImpl_ (v.getShared ()) {}
 	template <typename T> Node::Node (const Parameter<T> & p) noexcept : pImpl_ (p.getShared ()) {}
@@ -258,7 +258,7 @@ namespace DF {
 	template <typename T>
 	Value<T>::Value (const Node & n) : pImpl_ (std::dynamic_pointer_cast<Impl> (n.getShared ())) {
 		if (!pImpl_)
-			nodeHandleConversionFailed (typeid (Value<T>), n.getImpl ());
+			failureNodeHandleConversion (typeid (Value<T>), n.getImpl ());
 	}
 	template <typename T>
 	Value<T>::Value (const Parameter<T> & p) noexcept : pImpl_ (p.getShared ()) {}
@@ -267,13 +267,13 @@ namespace DF {
 	Parameter<T>::Parameter (const Node & n)
 	    : pImpl_ (std::dynamic_pointer_cast<Impl> (n.getShared ())) {
 		if (!pImpl_)
-			nodeHandleConversionFailed (typeid (Parameter<T>), n.getImpl ());
+			failureNodeHandleConversion (typeid (Parameter<T>), n.getImpl ());
 	}
 	template <typename T>
 	Parameter<T>::Parameter (const Value<T> & v)
 	    : pImpl_ (std::dynamic_pointer_cast<Impl> (v.getShared ())) {
 		if (!pImpl_)
-			nodeHandleConversionFailed (typeid (Parameter<T>), v.getImpl ());
+			failureNodeHandleConversion (typeid (Parameter<T>), v.getImpl ());
 	}
 
 	/* Node value access.

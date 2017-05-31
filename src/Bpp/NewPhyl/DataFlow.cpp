@@ -47,29 +47,34 @@
 
 namespace bpp {
 namespace DF {
-	// Error functions TODO clean names
-	void parameterFailComputeWasCalled (const std::type_info & ti) {
-		throw Exception (prettyTypeName (ti) + ": compute() was called on a Parameter node");
+	// Error functions
+	void failureParameterComputeWasCalled (const std::type_info & paramType) {
+		throw Exception (prettyTypeName (paramType) + ": compute() was called on a Parameter node");
 	}
 
-	void nodeHandleConversionFailed (const std::type_info & handle, const Node::Impl & impl) {
-		throw Exception (prettyTypeName (handle) +
-		                 " handle type cannot store: " + prettyTypeName (typeid (impl)));
+	void failureNodeHandleConversion (const std::type_info & handleType, const Node::Impl & node) {
+		throw Exception (prettyTypeName (handleType) +
+		                 " cannot store: " + prettyTypeName (typeid (node)));
 	}
 
-	void genericFunctionComputationCheckDependencyNum (const std::type_info & ti,
-	                                                   std::size_t expected, std::size_t given) {
-		if (expected != given)
-			throw Exception (prettyTypeName (ti) + ": expected " + std::to_string (expected) +
-			                 " dependencies, got " + std::to_string (given));
+	static void failureDependencyNumberMismatch (const std::type_info & computeNodeType,
+	                                             std::size_t expectedSize, std::size_t givenSize) {
+		throw Exception (prettyTypeName (computeNodeType) + ": expected " +
+		                 std::to_string (expectedSize) + " dependencies, got " +
+		                 std::to_string (givenSize));
+	}
+	void checkDependencyNumber (const std::type_info & computeNodeType, std::size_t expectedSize,
+	                            std::size_t givenSize) {
+		if (expectedSize != givenSize)
+			failureDependencyNumberMismatch (computeNodeType, expectedSize, givenSize);
 	}
 
-	void dataFlowTemplatesDependencyTypeMismatch (const std::type_info & computationNode,
-	                                              std::size_t index, const std::type_info & expected,
-	                                              const Node::Impl & given) {
-		throw Exception (prettyTypeName (computationNode) + ": expected " + prettyTypeName (expected) +
-		                 " as " + std::to_string (index) + "-th argument, got " +
-		                 prettyTypeName (typeid (given)));
+	void failureDependencyTypeMismatch (const std::type_info & computeNodeType, std::size_t depIndex,
+	                                    const std::type_info & expectedType,
+	                                    const Node::Impl & givenNode) {
+		throw Exception (prettyTypeName (computeNodeType) + ": expected class derived from " +
+		                 prettyTypeName (expectedType) + " as " + std::to_string (depIndex) +
+		                 "-th dependency, got " + prettyTypeName (typeid (givenNode)));
 	}
 }
 }
