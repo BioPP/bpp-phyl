@@ -56,7 +56,9 @@ namespace Phyl {
 	void ModelTransitionMatrixOp::compute (TransitionMatrix & matrix, const SubstitutionModel * model,
 	                                       double brlen) {
 		auto & matrixFromModel = model->getPij_t (brlen);
-    // TODO cpy data
+		for (auto i : range (matrix.rows ()))
+			for (auto j : range (matrix.cols ()))
+				matrix (i, j) = matrixFromModel (std::size_t (i), std::size_t (j));
 	}
 }
 }
