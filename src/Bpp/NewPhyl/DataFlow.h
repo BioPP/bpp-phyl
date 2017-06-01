@@ -77,6 +77,10 @@ namespace DF {
 		template <typename T, typename... Args> static Node create (Args &&... args) {
 			return Node (std::make_shared<T> (std::forward<Args> (args)...));
 		}
+		template <typename T, typename... Args>
+		static Node create (std::initializer_list<Node> deps, Args &&... args) {
+			return Node (std::make_shared<T> (std::move (deps), std::forward<Args> (args)...));
+		}
 
 		Ref getImpl () const noexcept { return *pImpl_; }
 
@@ -99,7 +103,7 @@ namespace DF {
 		Impl & operator= (Impl &&) = delete;
 
 		// Constructor that sets the dependencies
-		Impl (std::vector<Node> dependencies) : dependencyNodes_ (std::move (dependencies)) {
+		Impl (NodeVec dependencies) : dependencyNodes_ (std::move (dependencies)) {
 			foreachDependencyNode ([this](Impl * node) { node->registerNode (this); });
 		}
 
@@ -136,7 +140,7 @@ namespace DF {
 				f (&p.getImpl ());
 		}
 
-		const std::vector<Node> & dependencies () const noexcept { return dependencyNodes_; }
+		const NodeVec & dependencies () const noexcept { return dependencyNodes_; }
 
 	protected:
 		void makeValid () noexcept { isValid_ = true; }
@@ -171,6 +175,10 @@ namespace DF {
 		template <typename U, typename... Args> static Value create (Args &&... args) {
 			return Value (std::make_shared<U> (std::forward<Args> (args)...));
 		}
+		template <typename U, typename... Args>
+		static Value create (std::initializer_list<Node> deps, Args &&... args) {
+			return Value (std::make_shared<U> (std::move (deps), std::forward<Args> (args)...));
+		}
 
 		Ref getImpl () const noexcept { return *pImpl_; }
 		const T & getValue () {
@@ -188,7 +196,7 @@ namespace DF {
 	public:
 		// Init deps
 		template <typename... Args>
-		Impl (std::vector<Node> deps, Args &&... args)
+		Impl (NodeVec deps, Args &&... args)
 		    : Node::Impl (std::move (deps)), value_ (std::forward<Args> (args)...) {}
 
 		// No deps TODO add type tag to guarantee template choice ?

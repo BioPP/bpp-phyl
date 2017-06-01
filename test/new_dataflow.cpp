@@ -83,11 +83,11 @@ TEST_CASE("Testing data flow system on simple int reduction tree")
   auto p3 = Parameter<int>::create(0);
   auto p4 = Parameter<int>::create(3);
 
-  auto n1 = Value<int>::create<SumNode>(DF::NodeVec{p1, p2});
-  auto n2 = Value<int>::create<SumNode>(DF::NodeVec{n1, p3});
-  auto n3 = Value<int>::create<SumNode>(DF::NodeVec{p3, p4});
+  auto n1 = Value<int>::create<SumNode>({p1, p2});
+  auto n2 = Value<int>::create<SumNode>({n1, p3});
+  auto n3 = Value<int>::create<SumNode>({p3, p4});
 
-  auto root = Value<int>::create<NegateNode>(DF::NodeVec{n2});
+  auto root = Value<int>::create<NegateNode>({n2});
 
   // Initial state
   CHECK(p1.getImpl().isValid());
@@ -148,12 +148,12 @@ TEST_CASE("Exceptions")
   CHECK_THROWS_AS((void)static_cast<Value<bool>>(param), const bpp::Exception&);
 
   // GenericFunctionComputation: bad dep vec len
-  CHECK_THROWS_AS(Node::create<NegateNode>(NodeVec{}), const bpp::Exception&);
+  CHECK_THROWS_AS(Node::create<NegateNode>({}), const bpp::Exception&);
 
   // GenericFunctionComputation: type mismatch
   auto p = Parameter<bool>::create();
-  CHECK_THROWS_AS(Node::create<NegateNode>(NodeVec{p}), const bpp::Exception&);
+  CHECK_THROWS_AS(Node::create<NegateNode>({p}), const bpp::Exception&);
 
   // GenericReductionComputation: type mismatch
-  CHECK_THROWS_AS(Node::create<SumNode>(NodeVec{p}), const bpp::Exception&);
+  CHECK_THROWS_AS(Node::create<SumNode>({p}), const bpp::Exception&);
 }
