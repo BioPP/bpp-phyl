@@ -96,7 +96,7 @@ namespace DF {
 			checkDependencyNumber (typeid (GenericFunctionComputation), nbDependencies,
 			                       this->dependencies ().size ());
 			// check dependency type for each required argument (uses IndexSequence for tuple unpacking)
-			(void) std::initializer_list<int>{checkDependencyType<Is> ()...};
+			static_cast<void> (std::initializer_list<int>{checkDependencyType<Is> ()...});
 		}
 		template <std::size_t Index> int checkDependencyType () {
 			using ArgType = ArgumentType<Index>;

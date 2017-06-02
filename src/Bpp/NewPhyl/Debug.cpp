@@ -235,11 +235,12 @@ namespace DF {
 		Node debugReplayNodeSpecInstantiationInRegistry (std::ostream & os,
 		                                                 const NodeSpecification & nodeSpec,
 		                                                 const Registry & registry) {
-			Node n{};
 			dotNodePretty (os, nodeSpec);
 			auto depSpecs = nodeSpec.computeDependencies ();
 			if (depSpecs.empty ()) {
-				n = nodeSpec.buildNode ({});
+				Node n = nodeSpec.buildNode ({});
+				dotEdgePretty (os, nodeSpec, n);
+				return n;
 			} else {
 				// Instantiate dependencies
 				std::vector<Node> deps;
@@ -248,13 +249,12 @@ namespace DF {
 					dotEdgePretty (os, nodeSpec, depSpec);
 				}
 				// Check the registry
-				n = registry.get (Registry::Key{nodeSpec.nodeType (), deps});
-				if (!n.hasNode ())
+				auto result = registry.get (Registry::Key{nodeSpec.nodeType (), deps});
+				if (!result)
 					throw std::runtime_error (
 					    "debugReplayNodeSpecInstantiationWithReuse: nodeSpec was not found in registry");
+				return std::move (result).value ();
 			}
-			dotEdgePretty (os, nodeSpec, n);
-			return n;
 		}
 	}
 

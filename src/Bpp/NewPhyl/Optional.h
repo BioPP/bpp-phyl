@@ -49,6 +49,8 @@
 
 namespace bpp {
 
+// TODO add doc
+
 struct InPlace {
 	constexpr InPlace () = default;
 };
@@ -127,6 +129,13 @@ public:
 	template <typename U> T value_or (U && default_value) && {
 		return has_value_ ? std::move (*value_ptr ())
 		                  : static_cast<T> (std::forward<U> (default_value));
+	}
+
+	template <typename Callable> T value_or_generate (Callable && callable) const & {
+		return has_value_ ? *value_ptr () : std::forward<Callable> (callable) ();
+	}
+	template <typename Callable> T value_or_generate (Callable && callable) && {
+		return has_value_ ? std::move (*value_ptr ()) : std::forward<Callable> (callable) ();
 	}
 
 	void reset () noexcept {

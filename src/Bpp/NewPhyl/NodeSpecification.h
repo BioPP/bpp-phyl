@@ -44,6 +44,7 @@
 #define BPP_NEWPHYL_NODESPECIFICATION_H
 
 #include <Bpp/NewPhyl/DataFlow.h>
+#include <Bpp/NewPhyl/Optional.h>
 #include <memory>
 #include <string>
 #include <type_traits>
@@ -89,19 +90,18 @@ namespace DF {
 			const std::vector<Node> & dependencies_;
 		};
 
-		// May be null
-		Node get (const Key & key) const {
+		Optional<Node> get (const Key & key) const {
 			auto it = nodes_.find (key);
 			if (it != nodes_.end ())
-				return it->second;
+				return {in_place, it->second};
 			else
 				return {};
 		}
 
 		void set (Node node) {
-      // Impl is independent of Node moves, so we can build a key referencing its dependencies.
+			// Impl is independent of Node moves, so we can build a key referencing its dependencies.
 			auto & impl = node.getImpl ();
-      // By definition of the standard, typeid (impl) performs lookup to derived type.
+			// By definition of the standard, typeid (impl) performs lookup to derived type.
 			auto result = nodes_.emplace (Key{typeid (impl), impl.dependencies ()}, std::move (node));
 			if (!result.second)
 				throw std::runtime_error ("Registry::set: key already used");
@@ -167,12 +167,11 @@ namespace DF {
 
 		// Build DF graph while merging using the given registry
 		Node instantiateWithReuse (Registry & registry) const {
-			Node n{};
 			auto depSpecs = computeDependencies ();
 			if (depSpecs.empty ()) {
 				// Parameters are not stored in the registry.
 				// buildNode should just create a new reference.
-				n = buildNode ({});
+				return buildNode ({});
 			} else {
 				// Instantiate dependencies
 				std::vector<Node> deps;
@@ -180,14 +179,12 @@ namespace DF {
 					deps.emplace_back (depSpec.instantiateWithReuse (registry));
 				// Check the registry
 				Registry::Key key{nodeType (), deps};
-				n = registry.get (key);
-				if (!n.hasNode ()) {
-					// Build it if not found
-					n = buildNode (std::move (deps));
+				return registry.get (key).value_or_generate ([this, &registry, &deps] {
+					Node n = buildNode (std::move (deps));
 					registry.set (n);
-				}
+					return n;
+				});
 			}
-			return n;
 		}
 
 	private:

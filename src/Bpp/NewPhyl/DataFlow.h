@@ -59,16 +59,12 @@ namespace DF {
 	template <typename T> class Parameter;
 
 	/* Base Node.
+   * Always contains a node (as do all handle classes.
 	 */
 	class Node {
 	public:
 		class Impl;
 		using Ref = Impl &;
-
-		// FIXME improve semantics of empty Nodes...
-		// Try using link to global shared empty node ?
-		Node () = default;
-		bool hasNode () const noexcept { return bool(pImpl_); }
 
 		template <typename T> Node (const Value<T> & v) noexcept;
 		template <typename T> Node (const Parameter<T> & p) noexcept;
@@ -290,7 +286,6 @@ namespace DF {
 		return dynamic_cast<const typename Value<T>::Impl *> (&n.getImpl ()) != nullptr;
 	}
 	template <typename T> const T & getValueUnsafe (const Node & n) noexcept {
-		assert (n.hasNode ());
 		assert (isValueNode<T> (n));
 		return static_cast<const typename Value<T>::Impl &> (n.getImpl ()).getValue ();
 	}
