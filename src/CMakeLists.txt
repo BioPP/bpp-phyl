@@ -9,6 +9,7 @@
 set (CPP_FILES
   Bpp/NewPhyl/DataFlow.cpp
   Bpp/NewPhyl/Debug.cpp
+  Bpp/NewPhyl/Likelihood.cpp
   Bpp/NewPhyl/Model.cpp
   Bpp/NewPhyl/Topology.cpp
   Bpp/Phyl/App/PhylogeneticsApplicationTools.cpp

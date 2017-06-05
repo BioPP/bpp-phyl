@@ -44,50 +44,55 @@
 #define BPP_NEWPHYL_LIKELIHOOD_H
 
 #include <Bpp/NewPhyl/DataFlow.h>
-#include <Bpp/NewPhyl/Phylogeny.h>
-#include <Bpp/NewPhyl/Range.h>
+#include <Bpp/NewPhyl/DataFlowTemplates.h>
+#include <Bpp/NewPhyl/Model.h>
 #include <Eigen/Core>
-#include <cassert>
-#include <functional> // reference_wrapper
 #include <vector>
 
 namespace bpp {
 
-namespace DF {
+// Forward declare
+class Sequence;
+
+namespace Phyl {
 
 	using LikelihoodVector = Eigen::VectorXd;
 	using LikelihoodVectorBySite = std::vector<LikelihoodVector>;
 
-	class ConditionalLikelihoodComputation : public Value<LikelihoodVectorBySite>::Impl {
-	public:
-		using ArgumentType = Value<LikelihoodVectorBySite>;
-
-		ConditionalLikelihoodComputation (std::size_t nbCharacters, std::size_t nbSites)
-		    : Value<LikelihoodVectorBySite>::Impl (nbSites, LikelihoodVector (nbCharacters)) {}
-
-	private:
-		void compute () override final {
-			// Store refs to liks
-			auto & deps = this->dependencyNodes_;
-			assert (!deps.empty ());
-			std::vector<std::reference_wrapper<const LikelihoodVectorBySite>> depsLikelihoods;
-			depsLikelihoods.reserve (deps.size ());
-			for (auto & dep : deps)
-				depsLikelihoods.emplace_back (static_cast<ArgumentType::Ref> (dep.getImpl ()).getValue ());
-			// Init
-			auto & result = this->value_;
-			result = depsLikelihoods.front ();
-			// Compute site by site
-			for (auto siteIndex : bpp::index_range (result)) {
-				auto & r = result[siteIndex];
-				for (auto & fwdLik : bpp::range (depsLikelihoods).pop_front ())
-					r *= fwdLik.get ()[siteIndex];
-			}
-		}
+	struct ConditionalLikelihoodFromDataOp {
+		using ResultType = LikelihoodVectorBySite;
+		using ArgumentTypes = std::tuple<const Sequence *>;
+		static void compute (LikelihoodVectorBySite & condLikBySite, const Sequence * sequence);
 	};
+	//
+	using ConditionalLikelihoodFromDataComputation =
+	    DF::GenericFunctionComputation<ConditionalLikelihoodFromDataOp>;
 
-	class ForwardLikelihoodComputation : public Value<LikelihoodVectorBySite>::Impl {
-		//
+	struct ConditionalLikelihoodFromChildrensOp {
+		using ResultType = LikelihoodVectorBySite;
+		using ArgumentType = LikelihoodVectorBySite;
+		static void reset (LikelihoodVectorBySite & condLikBySite);
+		static void reduce (LikelihoodVectorBySite & condLikBySite,
+		                    const LikelihoodVectorBySite & fwdLikBySite);
+	};
+	//
+	using ConditionalLikelihoodFromChildrensComputation =
+	    DF::GenericReductionComputation<ConditionalLikelihoodFromChildrensOp>;
+
+	struct ForwardLikelihoodOp {
+		using ResultType = LikelihoodVectorBySite;
+		using ArgumentTypes = std::tuple<LikelihoodVectorBySite, TransitionMatrix>;
+		static void compute (LikelihoodVectorBySite & fwdLikBySite,
+		                     const LikelihoodVectorBySite & condLikBySite,
+		                     const TransitionMatrix & transitionMatrix);
+	};
+	using ForwardLikelihoodComputation = DF::GenericFunctionComputation<ForwardLikelihoodOp>;
+
+	struct LogLikelihoodOp {
+		using ResultType = double;
+		using ArgumentTypes = std::tuple<LikelihoodVectorBySite, FrequencyVector>;
+		static void compute (double & logLikelihood, const LikelihoodVectorBySite & condLikBySite,
+		                     const FrequencyVector & equilibriumFreqs);
 	};
 }
 }

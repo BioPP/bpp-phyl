@@ -57,8 +57,7 @@ namespace Phyl {
 
 	class ModelNode : public DF::Value<const SubstitutionModel *>::Impl {
 	public:
-		ModelNode (std::unique_ptr<SubstitutionModel> model)
-		    : DF::Value<const SubstitutionModel *>::Impl (model.get ()), model_ (std::move (model)) {}
+		ModelNode (std::unique_ptr<SubstitutionModel> model);
 		~ModelNode ();
 
 		// methods for access that invalidate.
@@ -80,8 +79,10 @@ namespace Phyl {
 		using ResultType = TransitionMatrix;
 		enum { Model, BrLen };
 		using ArgumentTypes = std::tuple<const SubstitutionModel *, double>;
-    static void compute (TransitionMatrix & matrix, const SubstitutionModel * model, double brlen);
+		static void compute (TransitionMatrix & matrix, const SubstitutionModel * model, double brlen);
 	};
+	// Should init with (nb_char, nb_char)
+	using ModelTransitionMatrixComputation = DF::GenericFunctionComputation<ModelTransitionMatrixOp>;
 }
 }
 
