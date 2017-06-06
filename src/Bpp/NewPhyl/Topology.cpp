@@ -50,33 +50,38 @@ namespace bpp {
 namespace Topology {
 	// Convert from PhyloTree
 	ConvertedPhyloTreeData convertPhyloTree (const bpp::PhyloTree & phyloTree) {
-		ConvertedPhyloTreeData returnData{};
-		{
-			auto tree = Tree::create ();
-
-			// Build topology
-			std::unordered_map<bpp::PhyloTree::NodeIndex, IndexType> phyloNodeIdToOurIds;
-			for (auto phyloNodeId : phyloTree.getAllNodesIndexes ()) {
-				// Create all nodes
-				auto ourId = tree->createNode ();
-				phyloNodeIdToOurIds[phyloNodeId] = ourId;
-			}
-			for (auto phyloNodeId : phyloTree.getAllNodesIndexes ()) {
-				if (phyloTree.hasFather (phyloNodeId)) {
-					// Link them by using the father link
-					auto phyloFatherId =
-					    phyloTree.getNodeIndex (phyloTree.getFather (phyloTree.getNode (phyloNodeId)));
-					tree->createEdge (phyloNodeIdToOurIds.at (phyloFatherId),
-					                  phyloNodeIdToOurIds.at (phyloNodeId));
-				}
-			}
-			if (!phyloTree.isRooted ())
-				throw std::runtime_error ("PhyloTree is not rooted");
-			tree->setRootNodeId (phyloNodeIdToOurIds.at (phyloTree.getRootIndex ()));
-
-			returnData.topology = Tree::finalize (std::move (tree));
+		// Build topology
+		auto tmpTree = Tree::create ();
+		std::unordered_map<bpp::PhyloTree::NodeIndex, IndexType> phyloNodeIdToOurIds;
+		for (auto phyloNodeId : phyloTree.getAllNodesIndexes ()) {
+			// Create all nodes
+			auto ourId = tmpTree->createNode ();
+			phyloNodeIdToOurIds[phyloNodeId] = ourId;
 		}
-		return returnData;
+		for (auto phyloNodeId : phyloTree.getAllNodesIndexes ()) {
+			if (phyloTree.hasFather (phyloNodeId)) {
+				// Link them by using the father link
+				auto phyloFatherId =
+				    phyloTree.getNodeIndex (phyloTree.getFather (phyloTree.getNode (phyloNodeId)));
+				tmpTree->createEdge (phyloNodeIdToOurIds.at (phyloFatherId),
+				                     phyloNodeIdToOurIds.at (phyloNodeId));
+			}
+		}
+		if (!phyloTree.isRooted ())
+			throw std::runtime_error ("PhyloTree is not rooted");
+		tmpTree->setRootNodeId (phyloNodeIdToOurIds.at (phyloTree.getRootIndex ()));
+		auto tree = Tree::finalize (std::move (tmpTree));
+
+		// Data
+    /*
+		BranchMap<double> brlens{tree};
+		for (auto phyloNodeId : phyloTree.getAllNodesIndexes ()) {
+      auto
+			if (phyloTree->hasFather (phyloNodeId)) {
+      }
+		}*/
+
+		return {tree};
 	}
 }
 }

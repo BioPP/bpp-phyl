@@ -61,20 +61,20 @@ class MyParamSpec
 {
   // Just return the right param
 public:
-  MyParamSpec(Topology::Node node, const Topology::NodeMap<int>& params)
+  MyParamSpec(Topology::Node node, const Topology::NodeMap<DF::Parameter<int>>& params)
     : node_(node)
     , params_(params)
   {
   }
 
   static std::vector<NodeSpecification> computeDependencies() { return {}; }
-  Node buildNode(NodeVec) const { return params_.getParameter(node_); }
+  Node buildNode(NodeVec) const { return params_[node_].value(); }
   static std::type_index nodeType() { return typeid(int); } // dummy
   std::string description() const { return "MyParam-N" + std::to_string(node_.nodeId()); }
 
 private:
   Topology::Node node_;
-  const Topology::NodeMap<int>& params_;
+  const Topology::NodeMap<DF::Parameter<int>>& params_;
 };
 
 struct SumOp
@@ -89,7 +89,7 @@ using Sum = DF::GenericReductionComputation<SumOp>;
 class SumSpec
 {
 public:
-  SumSpec(Topology::Node node, const Topology::NodeMap<int>& params)
+  SumSpec(Topology::Node node, const Topology::NodeMap<DF::Parameter<int>>& params)
     : node_(node)
     , params_(params)
   {
@@ -118,7 +118,7 @@ public:
 
 private:
   Topology::Node node_;
-  const Topology::NodeMap<int>& params_;
+  const Topology::NodeMap<DF::Parameter<int>>& params_;
 };
 
 TEST_CASE("test")
@@ -134,9 +134,9 @@ TEST_CASE("test")
   std::ofstream ft("topology_debug");
   Topology::debugTree(ft, tree);
 
-  Topology::NodeMap<int> params{tree};
-  auto a = params.createParameter(Topology::Node{tree, ta}, 3);
-  auto b = params.createParameter(Topology::Node{tree, tb}, 42);
+  Topology::NodeMap<DF::Parameter<int>> params{tree};
+  params.access(ta) = DF::Parameter<int>::create(3);
+  params.access(tb) = DF::Parameter<int>::create(42);
 
   auto sumSpec = NodeSpecification::create<SumSpec>(Topology::Node{tree, tree->rootNodeId()}, params);
   auto partialSumSpec = NodeSpecification::create<SumSpec>(Topology::Node{tree, 0}, params);
@@ -145,7 +145,7 @@ TEST_CASE("test")
 
   Value<int> sum{sumSpec.instantiateWithReuse(registry)};
   CHECK(sum.getValue() == 45);
-  a.setValue(-42);
+  params.access (ta)->setValue(-42);
   CHECK(sum.getValue() == 0);
 
   Value<int> partialSum{partialSumSpec.instantiateWithReuse(registry)};
