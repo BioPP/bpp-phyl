@@ -1,9 +1,8 @@
 //
-// File: Model.h
+// File: Phylogeny.cpp
 // Authors:
-//   Francois Gindraud (2017)
-// Created: 2017-05-29
-// Last modified: 2017-05-29
+// Created: 2017-06-06
+// Last modified: 2017-06-06
 //
 
 /*
@@ -39,53 +38,6 @@
   knowledge of the CeCILL license and that you accept its terms.
 */
 
-#pragma once
-#ifndef BPP_NEWPHYL_MODEL_H
-#define BPP_NEWPHYL_MODEL_H
+#include <Bpp/NewPhyl/Phylogeny.h>
 
-#include <Bpp/NewPhyl/DataFlow.h>
-#include <Bpp/NewPhyl/DataFlowTemplates.h>
-#include <Eigen/Core>
-#include <memory>
-
-namespace bpp {
-class SubstitutionModel;
-
-namespace Phyl {
-	using TransitionMatrix = Eigen::MatrixXd;
-	using FrequencyVector = Eigen::VectorXd;
-
-  // TODO wrap SubstitutionModel in a Pimpl ModelValue class.
-
-	class ModelNode : public DF::Value<const SubstitutionModel *>::Impl {
-	public:
-		ModelNode (std::unique_ptr<SubstitutionModel> model);
-		~ModelNode ();
-
-		// methods for access that invalidate.
-
-	private:
-		std::unique_ptr<SubstitutionModel> model_;
-	};
-
-	struct ModelEquilibriumFrequenciesOp {
-		using ResultType = FrequencyVector;
-		using ArgumentTypes = std::tuple<const SubstitutionModel *>;
-		static void compute (FrequencyVector & freqs, const SubstitutionModel * model);
-	};
-	// Should init with freq vector size
-	using ModelEquilibriumFrequenciesComputation =
-	    DF::GenericFunctionComputation<ModelEquilibriumFrequenciesOp>;
-
-	struct ModelTransitionMatrixOp {
-		using ResultType = TransitionMatrix;
-		enum { Model, BrLen };
-		using ArgumentTypes = std::tuple<const SubstitutionModel *, double>;
-		static void compute (TransitionMatrix & matrix, const SubstitutionModel * model, double brlen);
-	};
-	// Should init with (nb_char, nb_char)
-	using ModelTransitionMatrixComputation = DF::GenericFunctionComputation<ModelTransitionMatrixOp>;
-}
-}
-
-#endif // BPP_NEWPHYL_MODEL_H
+namespace bpp {}

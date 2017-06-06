@@ -43,7 +43,35 @@
 #ifndef BPP_NEWPHYL_PHYLOGENY_H
 #define BPP_NEWPHYL_PHYLOGENY_H
 
+#include <Bpp/NewPhyl/Likelihood.h>
+#include <Bpp/NewPhyl/Model.h>
+#include <Bpp/NewPhyl/TopologyAnnotation.h>
+
 namespace bpp {
+
+class Sequence;
+class SubstitutionModel;
+
+namespace Phyl {
+
+	struct Process {
+		std::shared_ptr<const Topology::Tree> tree_;
+		const Topology::BranchMap<DF::Parameter<double>> branchLengths_;
+		const Topology::BranchMap<DF::Value<const SubstitutionModel *>> modelByBranch_;
+	};
+
+  struct LikelihoodParameters {
+    std::shared_ptr<const Process> process_;
+		const Topology::NodeMap<DF::Parameter<const Sequence *>> leafData_;
+  };
+
+  struct ConditionalLikelihood {
+    LikelihoodParameters params_;
+  };
+  struct ForwardLikelihood {
+    LikelihoodParameters params_;
+  };
+}
 }
 
 #endif // BPP_NEWPHYL_PHYLOGENY_H

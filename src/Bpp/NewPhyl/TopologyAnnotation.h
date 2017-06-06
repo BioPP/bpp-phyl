@@ -57,6 +57,7 @@ class PhyloTree;
 
 namespace Topology {
 	// TODO reference base tree to check it is the same ?
+  // TODO maps should really be shared_ptr-ised !
 
 	/* Map: associate existing DF nodes to tree elements (by id).
 	 * Can be used for both Node or Branch.
@@ -98,6 +99,7 @@ namespace Topology {
 	};
 
 	/* (Node|Branch)Index<T> associates T values with bijection to a tree's elements.
+   * TODO
 	 */
 
 	// Retrieve info from PhyloTree
