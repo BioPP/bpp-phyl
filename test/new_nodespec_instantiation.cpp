@@ -135,17 +135,17 @@ TEST_CASE("test")
   Topology::debugTree(ft, tree);
 
   Topology::NodeMap<DF::Parameter<int>> params{tree};
-  params.access(ta) = DF::Parameter<int>::create(3);
-  params.access(tb) = DF::Parameter<int>::create(42);
+  params[tree->node(ta)] = DF::Parameter<int>::create(3);
+  params[tree->node(tb)] = DF::Parameter<int>::create(42);
 
-  auto sumSpec = NodeSpecification::create<SumSpec>(Topology::Node{tree, tree->rootNodeId()}, params);
-  auto partialSumSpec = NodeSpecification::create<SumSpec>(Topology::Node{tree, 0}, params);
+  auto sumSpec = NodeSpecification::create<SumSpec>(tree->rootNode(), params);
+  auto partialSumSpec = NodeSpecification::create<SumSpec>(tree->node(0), params);
 
   DF::Registry registry;
 
   Value<int> sum{sumSpec.instantiateWithReuse(registry)};
   CHECK(sum.getValue() == 45);
-  params.access (ta)->setValue(-42);
+  params.access(ta)->setValue(-42);
   CHECK(sum.getValue() == 0);
 
   Value<int> partialSum{partialSumSpec.instantiateWithReuse(registry)};

@@ -60,15 +60,13 @@ namespace Topology {
 
 	/* Tree class, stores structure.
 	 * TODO improve, make this a virtual class with impls for subtrees, etc
-	 * TODO split branchs from nodes (for dag like structures)
-	 * TODO add "observers" (other name needed !), a value one, and an indexing one (names).
 	 */
-	class Tree {
+	class Tree : public std::enable_shared_from_this<Tree> {
 	public:
-		struct Node {
+		struct NodeData {
 			IndexType fatherId_{invalid};
 			std::vector<IndexType> childrenIds_{};
-			Node () = default;
+			NodeData () = default;
 		};
 
 		// Base info
@@ -123,12 +121,17 @@ namespace Topology {
 			return {std::move (tree)};
 		}
 
+		// "Iterators"
+		Node node (IndexType id) const;
+		Node rootNode () const;
+		Branch branch (IndexType id) const;
+
 	protected:
 		Tree () = default;
 
 	private:
 		IndexType rootNodeId_{invalid};
-		std::vector<Node> nodes_{};
+		std::vector<NodeData> nodes_{};
 	};
 
 	/* NodeRef and BranchRef.
@@ -185,6 +188,11 @@ namespace Topology {
 		std::shared_ptr<const Tree> tree_;
 		IndexType branchId_;
 	};
+
+	// Tree "iterators"
+	inline Node Tree::node (IndexType id) const { return Node{shared_from_this (), id}; }
+	inline Node Tree::rootNode () const { return Node{shared_from_this (), rootNodeId ()}; }
+	inline Branch Tree::branch (IndexType id) const { return Branch{shared_from_this (), id}; }
 
 	// Node navigation
 	inline Branch Node::fatherBranch () const & { return buildBranch (fatherBranchId ()); }
