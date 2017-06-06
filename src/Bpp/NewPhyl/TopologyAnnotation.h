@@ -47,6 +47,7 @@
 #include <Bpp/NewPhyl/Topology.h>
 #include <cassert>
 #include <memory>
+#include <string>
 #include <utility>
 #include <vector>
 
@@ -102,9 +103,8 @@ namespace Topology {
 	// Retrieve info from PhyloTree
 	struct ConvertedPhyloTreeData {
 		std::shared_ptr<const Tree> topology;
-		//BranchMap<double> branchLengths;
-		//NodeMap<std::string> leafNames;
-		// TODO add data name index, brlens map (move to other file)
+		BranchMap<double> branchLengths;
+		NodeMap<std::string> nodeNames;
 	};
 	ConvertedPhyloTreeData convertPhyloTree (const bpp::PhyloTree & phyloTree);
 }

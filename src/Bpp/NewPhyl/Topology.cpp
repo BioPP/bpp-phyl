@@ -45,6 +45,7 @@
 #include <memory>
 #include <stdexcept>
 #include <unordered_map>
+#include <string>
 
 namespace bpp {
 namespace Topology {
@@ -73,15 +74,22 @@ namespace Topology {
 		auto tree = Tree::finalize (std::move (tmpTree));
 
 		// Data
-    /*
-		BranchMap<double> brlens{tree};
+		BranchMap<double> brLens{tree};
+    NodeMap<std::string> nodeNames {tree};
 		for (auto phyloNodeId : phyloTree.getAllNodesIndexes ()) {
-      auto
-			if (phyloTree->hasFather (phyloNodeId)) {
-      }
-		}*/
+			auto node = tree->node (phyloNodeIdToOurIds.at (phyloNodeId));
+      // Branch length
+			if (phyloTree.hasFather (phyloNodeId)) {
+				auto branch = phyloTree.getEdgeToFather (phyloNodeId);
+				brLens[node.fatherBranch ()] = branch->getLength ();
+			}
+      // Leaf name
+      auto phyloNode = phyloTree.getNode(phyloNodeId);
+      if (phyloNode->hasName())
+        nodeNames[node] = phyloNode->getName();
+		}
 
-		return {tree};
+		return {std::move(tree), std::move (brLens), std::move (nodeNames)};
 	}
 }
 }

@@ -58,5 +58,5 @@ TEST_CASE("Convert PhyloTree")
   CHECK(newTree->nbNodes() == phyloTree->getNumberOfNodes());
 
   std::ofstream ft("topology_debug");
-  bpp::Topology::debugTree(ft, newTree);
+  bpp::Topology::debugTree(ft, newTree); // TODO add debug of maps
 }
