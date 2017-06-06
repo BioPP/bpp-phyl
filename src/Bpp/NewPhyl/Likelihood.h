@@ -56,44 +56,44 @@ class Sequence;
 
 namespace Phyl {
 
+	// TODO small classes with nice constructor arguments (like nbStates / nbSite)
 	using LikelihoodVector = Eigen::VectorXd;
 	using LikelihoodVectorBySite = std::vector<LikelihoodVector>;
 
-	struct ConditionalLikelihoodFromDataOp {
+	struct ComputeConditionalLikelihoodFromDataOp {
 		using ResultType = LikelihoodVectorBySite;
 		using ArgumentTypes = std::tuple<const Sequence *>;
 		static void compute (LikelihoodVectorBySite & condLikBySite, const Sequence * sequence);
 	};
-	//
-	using ConditionalLikelihoodFromDataComputation =
-	    DF::GenericFunctionComputation<ConditionalLikelihoodFromDataOp>;
+	using ComputeConditionalLikelihoodFromDataNode =
+	    DF::GenericFunctionComputation<ComputeConditionalLikelihoodFromDataOp>;
 
-	struct ConditionalLikelihoodFromChildrensOp {
+	struct ComputeConditionalLikelihoodFromChildrensOp {
 		using ResultType = LikelihoodVectorBySite;
 		using ArgumentType = LikelihoodVectorBySite;
 		static void reset (LikelihoodVectorBySite & condLikBySite);
 		static void reduce (LikelihoodVectorBySite & condLikBySite,
 		                    const LikelihoodVectorBySite & fwdLikBySite);
 	};
-	//
-	using ConditionalLikelihoodFromChildrensComputation =
-	    DF::GenericReductionComputation<ConditionalLikelihoodFromChildrensOp>;
+	using ComputeConditionalLikelihoodFromChildrensNode =
+	    DF::GenericReductionComputation<ComputeConditionalLikelihoodFromChildrensOp>;
 
-	struct ForwardLikelihoodOp {
+	struct ComputeForwardLikelihoodOp {
 		using ResultType = LikelihoodVectorBySite;
 		using ArgumentTypes = std::tuple<LikelihoodVectorBySite, TransitionMatrix>;
 		static void compute (LikelihoodVectorBySite & fwdLikBySite,
 		                     const LikelihoodVectorBySite & condLikBySite,
 		                     const TransitionMatrix & transitionMatrix);
 	};
-	using ForwardLikelihoodComputation = DF::GenericFunctionComputation<ForwardLikelihoodOp>;
+	using ComputeForwardLikelihoodNode = DF::GenericFunctionComputation<ComputeForwardLikelihoodOp>;
 
-	struct LogLikelihoodOp {
+	struct ComputeLogLikelihoodOp {
 		using ResultType = double;
 		using ArgumentTypes = std::tuple<LikelihoodVectorBySite, FrequencyVector>;
 		static void compute (double & logLikelihood, const LikelihoodVectorBySite & condLikBySite,
 		                     const FrequencyVector & equilibriumFreqs);
 	};
+	using ComputeLogLikelihoodNode = DF::GenericFunctionComputation<ComputeLogLikelihoodOp>;
 }
 }
 
