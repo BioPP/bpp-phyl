@@ -253,6 +253,7 @@ namespace DF {
 				if (!result)
 					throw std::runtime_error (
 					    "debugReplayNodeSpecInstantiationWithReuse: nodeSpec was not found in registry");
+				dotEdgePretty (os, nodeSpec, *result);
 				return std::move (result).value ();
 			}
 		}
