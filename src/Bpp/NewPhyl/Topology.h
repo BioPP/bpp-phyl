@@ -116,12 +116,13 @@ namespace Topology {
 			return id;
 		}
 
+    // TODO safer semantics here
 		static std::unique_ptr<Tree> create () { return std::unique_ptr<Tree>{new Tree}; }
-		static std::shared_ptr<const Tree> finalize (std::unique_ptr<Tree> && tree) {
+		static std::shared_ptr<const Tree> freeze (std::unique_ptr<Tree> && tree) {
 			return {std::move (tree)};
 		}
 
-		// "Iterators"
+		// "Iterators" only use if is a shared_ptr...
 		Node node (IndexType id) const;
 		Node rootNode () const;
 		Branch branch (IndexType id) const;

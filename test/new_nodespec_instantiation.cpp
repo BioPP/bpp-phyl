@@ -129,7 +129,7 @@ TEST_CASE("test")
   auto tc = buildTree->createNode({ta, tb});
   auto td = buildTree->createNode({tc});
   buildTree->setRootNodeId(td);
-  auto tree = Topology::Tree::finalize(std::move(buildTree));
+  auto tree = Topology::Tree::freeze(std::move(buildTree));
 
   std::ofstream ft("topology_debug");
   Topology::debugTree(ft, tree);

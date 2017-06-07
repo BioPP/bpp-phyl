@@ -71,7 +71,7 @@ namespace Topology {
 		if (!phyloTree.isRooted ())
 			throw std::runtime_error ("PhyloTree is not rooted");
 		tmpTree->setRootNodeId (phyloNodeIdToOurIds.at (phyloTree.getRootIndex ()));
-		auto tree = Tree::finalize (std::move (tmpTree));
+		auto tree = Tree::freeze (std::move (tmpTree));
 
 		// Data
 		BranchMap<double> brLens{tree};

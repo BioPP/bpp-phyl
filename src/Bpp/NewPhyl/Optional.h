@@ -161,7 +161,7 @@ public:
 
 	// Status test
 	constexpr bool has_value () const noexcept { return has_value_; }
-	constexpr operator bool () const noexcept { return has_value (); }
+	constexpr explicit operator bool () const noexcept { return has_value (); }
 
 	// Access with default
 	template <typename U> constexpr T value_or (U && default_value) const & {
