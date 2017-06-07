@@ -52,10 +52,11 @@ if (CMAKE_INSTALL_PREFIX)
   set (CMAKE_PREFIX_PATH "${CMAKE_INSTALL_PREFIX}" ${CMAKE_PREFIX_PATH})
 endif (CMAKE_INSTALL_PREFIX)
 
+include (GNUInstallDirs)
 find_package (bpp-seq 11.0.0 REQUIRED)
 
 # CMake package
-set (cmake-package-location lib/cmake/${PROJECT_NAME})
+set (cmake-package-location ${CMAKE_INSTALL_LIBDIR}/cmake/${PROJECT_NAME})
 include (CMakePackageConfigHelpers)
 configure_package_config_file (
   package.cmake.in
