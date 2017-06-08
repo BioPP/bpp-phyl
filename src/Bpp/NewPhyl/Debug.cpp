@@ -42,6 +42,7 @@
 #include <Bpp/NewPhyl/Config.h>
 #include <Bpp/NewPhyl/DataFlow.h>
 #include <Bpp/NewPhyl/Debug.h>
+#include <Bpp/NewPhyl/FrozenPtr.h>
 #include <Bpp/NewPhyl/NodeSpecification.h>
 #include <Bpp/NewPhyl/Range.h>
 #include <Bpp/NewPhyl/Topology.h>
@@ -82,7 +83,7 @@ std::string prettyTypeName (std::type_index ti) {
 
 namespace Topology {
 	// Print tree structure
-	void debugTree (std::ostream & os, std::shared_ptr<const Tree> tree) {
+	void debugTree (std::ostream & os, FrozenSharedPtr<Tree> tree) {
 		os << "digraph {\n";
 		std::queue<Node> nodesToVisit;
 		if (tree->rootNodeId () != invalid)

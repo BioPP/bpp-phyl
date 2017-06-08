@@ -44,15 +44,15 @@
 #include <Bpp/Phyl/Tree/PhyloTree.h>
 #include <memory>
 #include <stdexcept>
-#include <unordered_map>
 #include <string>
+#include <unordered_map>
 
 namespace bpp {
 namespace Topology {
 	// Convert from PhyloTree
 	ConvertedPhyloTreeData convertPhyloTree (const bpp::PhyloTree & phyloTree) {
 		// Build topology
-		auto tmpTree = Tree::create ();
+		auto tmpTree = make_freezable_unique<Tree> ();
 		std::unordered_map<bpp::PhyloTree::NodeIndex, IndexType> phyloNodeIdToOurIds;
 		for (auto phyloNodeId : phyloTree.getAllNodesIndexes ()) {
 			// Create all nodes
@@ -71,25 +71,25 @@ namespace Topology {
 		if (!phyloTree.isRooted ())
 			throw std::runtime_error ("PhyloTree is not rooted");
 		tmpTree->setRootNodeId (phyloNodeIdToOurIds.at (phyloTree.getRootIndex ()));
-		auto tree = Tree::freeze (std::move (tmpTree));
+		auto tree = std::move (tmpTree).freeze ();
 
 		// Data
 		BranchMap<double> brLens{tree};
-    NodeMap<std::string> nodeNames {tree};
+		NodeMap<std::string> nodeNames{tree};
 		for (auto phyloNodeId : phyloTree.getAllNodesIndexes ()) {
 			auto node = tree->node (phyloNodeIdToOurIds.at (phyloNodeId));
-      // Branch length
+			// Branch length
 			if (phyloTree.hasFather (phyloNodeId)) {
 				auto branch = phyloTree.getEdgeToFather (phyloNodeId);
 				brLens[node.fatherBranch ()] = branch->getLength ();
 			}
-      // Leaf name
-      auto phyloNode = phyloTree.getNode(phyloNodeId);
-      if (phyloNode->hasName())
-        nodeNames[node] = phyloNode->getName();
+			// Leaf name
+			auto phyloNode = phyloTree.getNode (phyloNodeId);
+			if (phyloNode->hasName ())
+				nodeNames[node] = phyloNode->getName ();
 		}
 
-		return {std::move(tree), std::move (brLens), std::move (nodeNames)};
+		return {std::move (tree), std::move (brLens), std::move (nodeNames)};
 	}
 }
 }

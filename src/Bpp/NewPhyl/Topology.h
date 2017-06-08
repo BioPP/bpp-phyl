@@ -43,9 +43,9 @@
 #ifndef BPP_NEWPHYL_TOPOLOGY_H
 #define BPP_NEWPHYL_TOPOLOGY_H
 
+#include <Bpp/NewPhyl/FrozenPtr.h>
 #include <Bpp/NewPhyl/Range.h>
 #include <limits>
-#include <memory>
 #include <stdexcept> // std::runtime_error
 #include <string>
 #include <vector>
@@ -68,6 +68,8 @@ namespace Topology {
 			std::vector<IndexType> childrenIds_{};
 			NodeData () = default;
 		};
+
+		Tree () = default;
 
 		// Base info
 		IndexType nbNodes () const { return nodes_.size (); }
@@ -116,19 +118,10 @@ namespace Topology {
 			return id;
 		}
 
-    // TODO safer semantics here
-		static std::unique_ptr<Tree> create () { return std::unique_ptr<Tree>{new Tree}; }
-		static std::shared_ptr<const Tree> freeze (std::unique_ptr<Tree> && tree) {
-			return {std::move (tree)};
-		}
-
 		// "Iterators" only use if is a shared_ptr...
 		Node node (IndexType id) const;
 		Node rootNode () const;
 		Branch branch (IndexType id) const;
-
-	protected:
-		Tree () = default;
 
 	private:
 		IndexType rootNodeId_{invalid};
@@ -140,7 +133,7 @@ namespace Topology {
 	 */
 	class Node {
 	public:
-		Node (std::shared_ptr<const Tree> tree, IndexType nodeId) noexcept
+		Node (FrozenSharedPtr<Tree> tree, IndexType nodeId) noexcept
 		    : tree_ (std::move (tree)), nodeId_ (nodeId) {}
 
 		IndexType nodeId () const noexcept { return nodeId_; }
@@ -149,7 +142,7 @@ namespace Topology {
 		IndexType childBranchId (std::size_t branchIndex) const {
 			return tree_->nodeChildBranch (nodeId (), branchIndex);
 		}
-		const std::shared_ptr<const Tree> & tree () const noexcept { return tree_; }
+		const FrozenSharedPtr<Tree> & tree () const noexcept { return tree_; }
 
 		// Navigate
 		Branch fatherBranch () const &;
@@ -162,19 +155,19 @@ namespace Topology {
 		Branch buildBranch (IndexType branchId) const &;
 		Branch buildBranch (IndexType branchId) &&;
 
-		std::shared_ptr<const Tree> tree_;
+		FrozenSharedPtr<Tree> tree_;
 		IndexType nodeId_;
 	};
 
 	class Branch {
 	public:
-		Branch (std::shared_ptr<const Tree> tree, IndexType branchId) noexcept
+		Branch (FrozenSharedPtr<Tree> tree, IndexType branchId) noexcept
 		    : tree_ (std::move (tree)), branchId_ (branchId) {}
 
 		IndexType branchId () const noexcept { return branchId_; }
 		IndexType fatherNodeId () const { return tree_->branchFatherNode (branchId ()); }
 		IndexType childNodeId () const { return tree_->branchChildNode (branchId ()); }
-		const std::shared_ptr<const Tree> & tree () const noexcept { return tree_; }
+		const FrozenSharedPtr<Tree> & tree () const noexcept { return tree_; }
 
 		// Navigate
 		Node fatherNode () const &;
@@ -186,14 +179,20 @@ namespace Topology {
 		Node buildNode (IndexType nodeId) const &;
 		Node buildNode (IndexType nodeId) &&;
 
-		std::shared_ptr<const Tree> tree_;
+		FrozenSharedPtr<Tree> tree_;
 		IndexType branchId_;
 	};
 
 	// Tree "iterators"
-	inline Node Tree::node (IndexType id) const { return Node{shared_from_this (), id}; }
-	inline Node Tree::rootNode () const { return Node{shared_from_this (), rootNodeId ()}; }
-	inline Branch Tree::branch (IndexType id) const { return Branch{shared_from_this (), id}; }
+	inline Node Tree::node (IndexType id) const {
+		return Node{FrozenSharedPtr<Tree>::shared_from_this (*this), id};
+	}
+	inline Node Tree::rootNode () const {
+		return Node{FrozenSharedPtr<Tree>::shared_from_this (*this), rootNodeId ()};
+	}
+	inline Branch Tree::branch (IndexType id) const {
+		return Branch{FrozenSharedPtr<Tree>::shared_from_this (*this), id};
+	}
 
 	// Node navigation
 	inline Branch Node::fatherBranch () const & { return buildBranch (fatherBranchId ()); }

@@ -43,6 +43,7 @@
 #define BPP_NEWPHYL_TOPOLOGYANNOTATION_H
 
 #include <Bpp/NewPhyl/DataFlow.h>
+#include <Bpp/NewPhyl/FrozenPtr.h>
 #include <Bpp/NewPhyl/Optional.h>
 #include <Bpp/NewPhyl/Topology.h>
 #include <cassert>
@@ -57,7 +58,7 @@ class PhyloTree;
 
 namespace Topology {
 	// TODO reference base tree to check it is the same ?
-  // TODO maps should really be shared_ptr-ised !
+	// TODO maps should really be shared_ptr-ised !
 
 	/* Map: associate existing DF nodes to tree elements (by id).
 	 * Can be used for both Node or Branch.
@@ -80,7 +81,7 @@ namespace Topology {
 	};
 	template <typename T> class NodeMap : public BaseMap<T> {
 	public:
-		explicit NodeMap (const std::shared_ptr<const Tree> & tree) : BaseMap<T> (tree->nbNodes ()) {}
+		explicit NodeMap (const FrozenSharedPtr<Tree> & tree) : BaseMap<T> (tree->nbNodes ()) {}
 		Optional<T> & operator[] (const Node & node) noexcept { return this->access (node.nodeId ()); }
 		const Optional<T> & operator[] (const Node & node) const noexcept {
 			return this->access (node.nodeId ());
@@ -88,8 +89,7 @@ namespace Topology {
 	};
 	template <typename T> class BranchMap : public BaseMap<T> {
 	public:
-		explicit BranchMap (const std::shared_ptr<const Tree> & tree)
-		    : BaseMap<T> (tree->nbBranches ()) {}
+		explicit BranchMap (const FrozenSharedPtr<Tree> & tree) : BaseMap<T> (tree->nbBranches ()) {}
 		Optional<T> & operator[] (const Branch & branch) noexcept {
 			return this->access (branch.branchId ());
 		}
@@ -99,12 +99,12 @@ namespace Topology {
 	};
 
 	/* (Node|Branch)Index<T> associates T values with bijection to a tree's elements.
-   * TODO
+	 * TODO
 	 */
 
 	// Retrieve info from PhyloTree
 	struct ConvertedPhyloTreeData {
-		std::shared_ptr<const Tree> topology;
+		FrozenSharedPtr<Tree> topology;
 		BranchMap<double> branchLengths;
 		NodeMap<std::string> nodeNames;
 	};

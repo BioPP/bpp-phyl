@@ -43,8 +43,8 @@
 #ifndef BPP_NEWPHYL_DEBUG_H
 #define BPP_NEWPHYL_DEBUG_H
 
+#include <Bpp/NewPhyl/FrozenPtr.h>
 #include <iosfwd>
-#include <memory>
 #include <string>
 #include <typeindex>
 #include <typeinfo>
@@ -67,7 +67,7 @@ namespace Topology {
 	class Tree;
 
 	// Output a dot format graph representing the tree
-	void debugTree (std::ostream & os, std::shared_ptr<const Tree> tree);
+	void debugTree (std::ostream & os, FrozenSharedPtr<Tree> tree);
 }
 namespace DF {
 	class Node;
