@@ -64,14 +64,22 @@ template <typename T> class Optional {
 	/* Optional<T> is similar to the c++17 std::optional<T>.
 	 * It conditionally stores in place a T value.
 	 *
-	 * A moved-from Optional still contains a value.
+	 * It behaves like a pointer to data, also for constness:
+	 * A const Optional cannot change its state ; however the stored value is mutable.
+	 * An Optional<const T> can change its state but not the stored value after creation.
+	 *
+	 * Moves are considered to change state, so move overloads require a non const && *this.
+	 * A moved-from Optional still contains a value (which is moved-from).
+	 *
+	 * Types that do not support copy/move assignments use destruction+copy/move construction instead.
+	 * Non copyable and non movable object should only use emplace().
 	 */
 	static_assert (!std::is_reference<T>::value, "Optional<T> does not support references");
 
 public:
 	using value_type = T;
 
-	constexpr Optional () = default;
+	constexpr Optional () : has_value_ (false) {}
 	constexpr Optional (NullOpt) noexcept : Optional () {}
 	Optional (bool) = delete;
 	Optional (const Optional & other) : Optional () {
@@ -102,7 +110,7 @@ public:
 	Optional & operator= (bool) = delete;
 	Optional & operator= (const Optional & other) {
 		if (has_value () && other)
-			value () = *other;
+			replace_value_with (*other);
 		else if (!has_value () && other)
 			create (*other);
 		else if (has_value () && !other)
@@ -111,7 +119,7 @@ public:
 	}
 	Optional & operator= (Optional && other) noexcept {
 		if (has_value () && other)
-			value () = std::move (*other);
+			replace_value_with (std::move (*other));
 		else if (!has_value () && other)
 			create (std::move (*other));
 		else if (has_value () && !other)
@@ -120,25 +128,21 @@ public:
 	}
 	Optional & operator= (const T & t) {
 		if (has_value ())
-			value () = t;
+			replace_value_with (t);
 		else
 			create (t);
 		return *this;
 	}
 	Optional & operator= (T && t) noexcept {
 		if (has_value ())
-			value () = std::move (t);
+			replace_value_with (std::move (t));
 		else
 			create (std::move (t));
 		return *this;
 	}
 
 	// Unchecked access
-	T & value () & noexcept {
-		assert (has_value ());
-		return *value_ptr ();
-	}
-	const T & value () const & noexcept {
+	T & value () const & noexcept {
 		assert (has_value ());
 		return *value_ptr ();
 	}
@@ -146,18 +150,11 @@ public:
 		assert (has_value ());
 		return std::move (*value_ptr ());
 	}
-	const T && value () const && noexcept {
-		assert (has_value ());
-		return std::move (*value_ptr ());
-	}
 
 	// Operator unchecked access
-	T * operator-> () noexcept { return value_ptr (); }
-	constexpr const T * operator-> () const noexcept { return value_ptr (); }
-	T & operator* () & noexcept { return *value_ptr (); }
-	constexpr const T & operator* () const & noexcept { return *value_ptr (); }
-	T && operator* () && noexcept { return std::move (*value_ptr ()); }
-	constexpr const T && operator* () const && noexcept { return std::move (*value_ptr ()); }
+	T * operator-> () const noexcept { return value_ptr (); }
+	T & operator* () const & noexcept { return value (); }
+	T && operator* () && noexcept { return std::move (*this).value (); }
 
 	// Status test
 	constexpr bool has_value () const noexcept { return has_value_; }
@@ -168,7 +165,8 @@ public:
 		return has_value () ? value () : static_cast<T> (std::forward<U> (default_value));
 	}
 	template <typename U> T value_or (U && default_value) && {
-		return has_value () ? std::move (value ()) : static_cast<T> (std::forward<U> (default_value));
+		return has_value () ? std::move (*this).value ()
+		                    : static_cast<T> (std::forward<U> (default_value));
 	}
 
 	// Access with generated default
@@ -176,7 +174,7 @@ public:
 		return has_value () ? value () : std::forward<Callable> (callable) ();
 	}
 	template <typename Callable> T value_or_generate (Callable && callable) && {
-		return has_value () ? std::move (value ()) : std::forward<Callable> (callable) ();
+		return has_value () ? std::move (*this).value () : std::forward<Callable> (callable) ();
 	}
 
 	// Map : Optional<T> -> Optional<U> with f : T -> U
@@ -191,7 +189,21 @@ public:
 	template <typename Callable, typename ReturnType = typename std::result_of<Callable (T &&)>::type>
 	Optional<ReturnType> map (Callable && callable) && {
 		if (has_value ())
-			return std::forward<Callable> (callable) (std::move (value ()));
+			return std::forward<Callable> (callable) (std::move (*this).value ());
+		else
+			return {};
+	}
+
+	// Filter : Optional<T> -> Optional<T>, propagate arg if p(arg), or return NullOpt
+	template <typename Predicate> Optional filter (Predicate && predicate) const & {
+		if (has_value () && std::forward<Predicate> (predicate) (value ()))
+			return *this;
+		else
+			return {};
+	}
+	template <typename Predicate> Optional filter (Predicate && predicate) && {
+		if (has_value () && std::forward<Predicate> (predicate) (value ()))
+			return std::move (*this);
 		else
 			return {};
 	}
@@ -237,13 +249,22 @@ private:
 		has_value_ = false;
 	}
 
-	T * value_ptr () noexcept { return reinterpret_cast<T *> (&storage_); }
-	constexpr const T * value_ptr () const noexcept {
-		return reinterpret_cast<const T *> (&storage_);
+	// Implement replace using assignment operators if possible, or destroy+constructor
+	template <typename U> void replace_value_with (U && u) {
+		replace_value_with_helper (std::forward<U> (u), std::is_assignable<T, U>{});
+	}
+	template <typename U> void replace_value_with_helper (U && u, std::true_type) {
+		value () = std::forward<U> (u);
+	}
+	template <typename U> void replace_value_with_helper (U && u, std::false_type) {
+		destroy ();
+		create (std::forward<U> (u));
 	}
 
-	typename std::aligned_storage<sizeof (T), alignof (T)>::type storage_;
-	bool has_value_{false};
+	// Storage is "mutable" to support muting the object if the optional is const
+	T * value_ptr () const noexcept { return reinterpret_cast<T *> (&storage_); }
+	mutable typename std::aligned_storage<sizeof (T), alignof (T)>::type storage_;
+	bool has_value_;
 };
 }
 
