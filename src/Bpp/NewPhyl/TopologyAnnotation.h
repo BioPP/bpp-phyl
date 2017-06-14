@@ -45,6 +45,7 @@
 #include <Bpp/NewPhyl/DataFlow.h>
 #include <Bpp/NewPhyl/FrozenPtr.h>
 #include <Bpp/NewPhyl/Optional.h>
+#include <Bpp/NewPhyl/Range.h>
 #include <Bpp/NewPhyl/Topology.h>
 #include <cassert>
 #include <memory>
@@ -73,6 +74,8 @@ namespace Topology {
 			return data_[id];
 		}
 
+		IndexType size () const noexcept { return IndexType (data_.size ()); }
+
 	private:
 		std::vector<Optional<T>> data_;
 	};
@@ -81,6 +84,7 @@ namespace Topology {
 	public:
 		explicit NodeValueMap (const FrozenSharedPtr<Tree> & tree)
 		    : ValueMapBase<T> (tree->nbNodes ()) {}
+		explicit NodeValueMap (ValueMapBase<T> && map) : ValueMapBase<T> (std::move (map)) {}
 		using ValueMapBase<T>::value;
 		Optional<T> & value (const Node & node) noexcept { return this->value (node.nodeId ()); }
 		const Optional<T> & value (const Node & node) const noexcept {
@@ -92,6 +96,7 @@ namespace Topology {
 	public:
 		explicit BranchValueMap (const FrozenSharedPtr<Tree> & tree)
 		    : ValueMapBase<T> (tree->nbBranches ()) {}
+		explicit BranchValueMap (ValueMapBase<T> && map) : ValueMapBase<T> (std::move (map)) {}
 		using ValueMapBase<T>::value;
 		Optional<T> & value (const Branch & branch) noexcept {
 			return this->value (branch.branchId ());
@@ -100,6 +105,27 @@ namespace Topology {
 			return this->value (branch.branchId ());
 		}
 	};
+
+	/* Utility functions to create a parameter map from a value map, with parameters initialized to
+	 * the given values.
+	 */
+	template <typename T>
+	ValueMapBase<DF::Parameter<T>> make_parameter_map_from_value_map (ValueMapBase<T> & valueMap) {
+		ValueMapBase<DF::Parameter<T>> map (valueMap.size ());
+		for (auto i : map.size ())
+			map.value (i) =
+			    valueMap.value (i).map ([](const T & t) { return DF::Parameter<T>::create (t); });
+	}
+	template <typename T>
+	NodeValueMap<DF::Parameter<T>>
+	make_node_parameter_map_from_value_map (NodeValueMap<T> & valueMap) {
+		return NodeValueMap<DF::Parameter<T>>{make_parameter_map_from_value_map (valueMap)};
+	}
+	template <typename T>
+	BranchValueMap<DF::Parameter<T>>
+	make_branch_parameter_map_from_value_map (BranchValueMap<T> & valueMap) {
+		return BranchValueMap<DF::Parameter<T>>{make_parameter_map_from_value_map (valueMap)};
+	}
 
 	/* (Node|Branch)Index<T> associates T values with bijection to a tree's elements.
 	 * TODO
