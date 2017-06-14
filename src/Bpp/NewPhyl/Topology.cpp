@@ -74,19 +74,19 @@ namespace Topology {
 		auto tree = std::move (tmpTree).freeze ();
 
 		// Data
-		BranchMap<double> brLens{tree};
-		NodeMap<std::string> nodeNames{tree};
+		auto brLens = make_freezable_unique<BranchValueMap<double>> (tree);
+		auto nodeNames = make_freezable_unique<NodeValueMap<std::string>> (tree);
 		for (auto phyloNodeId : phyloTree.getAllNodesIndexes ()) {
 			auto node = tree->node (phyloNodeIdToOurIds.at (phyloNodeId));
 			// Branch length
 			if (phyloTree.hasFather (phyloNodeId)) {
 				auto branch = phyloTree.getEdgeToFather (phyloNodeId);
-				brLens[node.fatherBranch ()] = branch->getLength ();
+				brLens->value (node.fatherBranch ()) = branch->getLength ();
 			}
 			// Leaf name
 			auto phyloNode = phyloTree.getNode (phyloNodeId);
 			if (phyloNode->hasName ())
-				nodeNames[node] = phyloNode->getName ();
+				nodeNames->value (node) = phyloNode->getName ();
 		}
 
 		return {std::move (tree), std::move (brLens), std::move (nodeNames)};

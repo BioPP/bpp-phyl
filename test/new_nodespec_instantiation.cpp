@@ -45,6 +45,7 @@
 #include <Bpp/NewPhyl/DataFlow.h>
 #include <Bpp/NewPhyl/DataFlowTemplates.h>
 #include <Bpp/NewPhyl/Debug.h>
+#include <Bpp/NewPhyl/FrozenPtr.h>
 #include <Bpp/NewPhyl/NodeSpecification.h>
 #include <Bpp/NewPhyl/Range.h>
 #include <Bpp/NewPhyl/TopologyAnnotation.h>
@@ -61,20 +62,20 @@ class MyParamSpec
 {
   // Just return the right param
 public:
-  MyParamSpec(Topology::Node node, const Topology::NodeMap<DF::Parameter<int>>& params)
+  MyParamSpec(Topology::Node node, FrozenSharedPtr<Topology::NodeValueMap<DF::Parameter<int>>> params)
     : node_(node)
-    , params_(params)
+    , params_(std::move(params))
   {
   }
 
   static std::vector<NodeSpecification> computeDependencies() { return {}; }
-  Node buildNode(NodeVec) const { return params_[node_].value(); }
+  Node buildNode(NodeVec) const { return params_->value(node_).value(); }
   static std::type_index nodeType() { return typeid(int); } // dummy
   std::string description() const { return "MyParam-N" + std::to_string(node_.nodeId()); }
 
 private:
   Topology::Node node_;
-  const Topology::NodeMap<DF::Parameter<int>>& params_;
+  FrozenSharedPtr<Topology::NodeValueMap<DF::Parameter<int>>> params_;
 };
 
 struct SumOp
@@ -89,9 +90,9 @@ using Sum = DF::GenericReductionComputation<SumOp>;
 class SumSpec
 {
 public:
-  SumSpec(Topology::Node node, const Topology::NodeMap<DF::Parameter<int>>& params)
+  SumSpec(Topology::Node node, FrozenSharedPtr<Topology::NodeValueMap<DF::Parameter<int>>> params)
     : node_(node)
-    , params_(params)
+    , params_(std::move(params))
   {
   }
 
@@ -118,7 +119,7 @@ public:
 
 private:
   Topology::Node node_;
-  const Topology::NodeMap<DF::Parameter<int>>& params_;
+  FrozenSharedPtr<Topology::NodeValueMap<DF::Parameter<int>>> params_;
 };
 
 TEST_CASE("test")
@@ -134,9 +135,10 @@ TEST_CASE("test")
   std::ofstream ft("topology_debug");
   Topology::debugTree(ft, tree);
 
-  Topology::NodeMap<DF::Parameter<int>> params{tree};
-  params[tree->node(ta)] = DF::Parameter<int>::create(3);
-  params[tree->node(tb)] = DF::Parameter<int>::create(42);
+  auto buildParams = make_freezable_unique<Topology::NodeValueMap<DF::Parameter<int>>>(tree);
+  buildParams->value(tree->node(ta)) = DF::Parameter<int>::create(3);
+  buildParams->value(tree->node(tb)) = DF::Parameter<int>::create(42);
+  auto params = std::move(buildParams).freeze();
 
   auto sumSpec = NodeSpecification::create<SumSpec>(tree->rootNode(), params);
   auto partialSumSpec = NodeSpecification::create<SumSpec>(tree->node(0), params);
@@ -145,7 +147,7 @@ TEST_CASE("test")
 
   Value<int> sum{sumSpec.instantiateWithReuse(registry)};
   CHECK(sum.getValue() == 45);
-  params.access(ta)->setValue(-42);
+  params->value (tree->node(ta))->setValue(-42);
   CHECK(sum.getValue() == 0);
 
   Value<int> partialSum{partialSumSpec.instantiateWithReuse(registry)};

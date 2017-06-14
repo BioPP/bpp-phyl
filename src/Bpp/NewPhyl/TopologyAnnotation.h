@@ -57,21 +57,18 @@ namespace bpp {
 class PhyloTree;
 
 namespace Topology {
-	// TODO reference base tree to check it is the same ?
-	// TODO maps should really be shared_ptr-ised !
-
-	/* Map: associate existing DF nodes to tree elements (by id).
+	/* ValueMap: associate existing DF nodes to tree elements (by id).
 	 * Can be used for both Node or Branch.
 	 */
-	template <typename T> class BaseMap {
+	template <typename T> class ValueMapBase {
 	public:
-		explicit BaseMap (std::size_t size) : data_ (size) {}
+		explicit ValueMapBase (std::size_t size) : data_ (size) {}
 
-		Optional<T> & access (IndexType id) noexcept {
+		Optional<T> & value (IndexType id) noexcept {
 			assert (id < data_.size ());
 			return data_[id];
 		}
-		const Optional<T> & access (IndexType id) const noexcept {
+		const Optional<T> & value (IndexType id) const noexcept {
 			assert (id < data_.size ());
 			return data_[id];
 		}
@@ -79,22 +76,28 @@ namespace Topology {
 	private:
 		std::vector<Optional<T>> data_;
 	};
-	template <typename T> class NodeMap : public BaseMap<T> {
+
+	template <typename T> class NodeValueMap : public ValueMapBase<T> {
 	public:
-		explicit NodeMap (const FrozenSharedPtr<Tree> & tree) : BaseMap<T> (tree->nbNodes ()) {}
-		Optional<T> & operator[] (const Node & node) noexcept { return this->access (node.nodeId ()); }
-		const Optional<T> & operator[] (const Node & node) const noexcept {
-			return this->access (node.nodeId ());
+		explicit NodeValueMap (const FrozenSharedPtr<Tree> & tree)
+		    : ValueMapBase<T> (tree->nbNodes ()) {}
+		using ValueMapBase<T>::value;
+		Optional<T> & value (const Node & node) noexcept { return this->value (node.nodeId ()); }
+		const Optional<T> & value (const Node & node) const noexcept {
+			return this->value (node.nodeId ());
 		}
 	};
-	template <typename T> class BranchMap : public BaseMap<T> {
+
+	template <typename T> class BranchValueMap : public ValueMapBase<T> {
 	public:
-		explicit BranchMap (const FrozenSharedPtr<Tree> & tree) : BaseMap<T> (tree->nbBranches ()) {}
-		Optional<T> & operator[] (const Branch & branch) noexcept {
-			return this->access (branch.branchId ());
+		explicit BranchValueMap (const FrozenSharedPtr<Tree> & tree)
+		    : ValueMapBase<T> (tree->nbBranches ()) {}
+		using ValueMapBase<T>::value;
+		Optional<T> & value (const Branch & branch) noexcept {
+			return this->value (branch.branchId ());
 		}
-		const Optional<T> & operator[] (const Branch & branch) const noexcept {
-			return this->access (branch.branchId ());
+		const Optional<T> & value (const Branch & branch) const noexcept {
+			return this->value (branch.branchId ());
 		}
 	};
 
@@ -105,8 +108,8 @@ namespace Topology {
 	// Retrieve info from PhyloTree
 	struct ConvertedPhyloTreeData {
 		FrozenSharedPtr<Tree> topology;
-		BranchMap<double> branchLengths;
-		NodeMap<std::string> nodeNames;
+		FreezableUniquePtr<BranchValueMap<double>> branchLengths;
+		FreezableUniquePtr<NodeValueMap<std::string>> nodeNames;
 	};
 	ConvertedPhyloTreeData convertPhyloTree (const bpp::PhyloTree & phyloTree);
 }
