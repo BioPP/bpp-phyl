@@ -134,6 +134,7 @@ set (CPP_FILES
   Bpp/Phyl/Model/Nucleotide/YpR.cpp
   Bpp/Phyl/Model/Nucleotide/gBGC.cpp
   Bpp/Phyl/Model/OneChangeTransitionModel.cpp
+  Bpp/Phyl/Model/OneChangeRegisterTransitionModel.cpp
   Bpp/Phyl/Model/Protein/Coala.cpp
   Bpp/Phyl/Model/Protein/CoalaCore.cpp
   Bpp/Phyl/Model/Protein/DSO78.cpp

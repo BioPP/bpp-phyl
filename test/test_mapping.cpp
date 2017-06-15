@@ -84,10 +84,18 @@ int main() {
   ProteicAlphabet* alphabet2 = new ProteicAlphabet();
   ReversibleSubstitutionModel* model2 = new JTT92(alphabet2);
   AlphabetIndex1* ind = new GranthamAAVolumeIndex();
-  for (size_t i = 0; i < 1000000; i++) {
-    cout << i << endl;
+  size_t nI=0; //1000000;
+  
+  for (size_t i = 0; i < nI; i++) {
+    if (i%1000==0){
+      cout << i << "\r";
+      cout.flush();
+    }
+    
     unique_ptr<DecompositionReward> d(new DecompositionReward(model2, ind));
   }
+  cout << endl;
+  
   cout << "done" << endl;
 
   unsigned int n = 20000;
@@ -191,48 +199,17 @@ int main() {
 
   //Check saturation:
   cout << "checking saturation..." << endl;
-  m = sCountUniDet->getAllNumbersOfSubstitutions(0.001,1);
-  cout << "Total count, uniformization method:" << endl;
-  MatrixTools::print(*m);
-  cout << MatrixTools::sumElements(*m) << endl;
-  delete m;
-  m = sCountUniDet->getAllNumbersOfSubstitutions(0.01,1);
-  cout << "Total count, uniformization method:" << endl;
-  MatrixTools::print(*m);
-  cout << MatrixTools::sumElements(*m) << endl;
-  delete m;
-  m = sCountUniDet->getAllNumbersOfSubstitutions(0.1,1);
-  cout << "Total count, uniformization method:" << endl;
-  MatrixTools::print(*m);
-  cout << MatrixTools::sumElements(*m) << endl;
-  delete m;
-  m = sCountUniDet->getAllNumbersOfSubstitutions(1,1);
-  cout << "Total count, uniformization method:" << endl;
-  MatrixTools::print(*m);
-  cout << MatrixTools::sumElements(*m) << endl;
-  delete m;
-  m = sCountUniDet->getAllNumbersOfSubstitutions(2,1);
-  cout << "Total count, uniformization method:" << endl;
-  MatrixTools::print(*m);
-  cout << MatrixTools::sumElements(*m) << endl;
-  delete m;
-  m = sCountUniDet->getAllNumbersOfSubstitutions(3,1);
-  cout << "Total count, uniformization method:" << endl;
-  MatrixTools::print(*m);
-  cout << MatrixTools::sumElements(*m) << endl;
-  delete m;
-  m = sCountUniDet->getAllNumbersOfSubstitutions(4,1);
-  cout << "Total count, uniformization method:" << endl;
-  MatrixTools::print(*m);
-  cout << MatrixTools::sumElements(*m) << endl;
-  delete m;
-  m = sCountUniDet->getAllNumbersOfSubstitutions(10,1);
-  cout << "Total count, uniformization method:" << endl;
-  MatrixTools::print(*m);
-  cout << MatrixTools::sumElements(*m) << endl;
-  delete m;
+  double td[] = {0.001, 0.01, 0.1, 1, 2, 3, 4, 10};
+  Vdouble vd(td, td+sizeof(td)/sizeof(double));
 
-
+  for (auto d : vd)
+  {
+    m = sCountUniDet->getAllNumbersOfSubstitutions(d,1);
+    cout << "Total count, uniformization method for " << d << endl;
+    MatrixTools::print(*m);
+    cout << MatrixTools::sumElements(*m) << endl;
+    delete m;
+  }
 
   //Check per branch:
   

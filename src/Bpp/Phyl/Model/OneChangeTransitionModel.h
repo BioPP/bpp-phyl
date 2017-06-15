@@ -93,6 +93,11 @@ namespace bpp
 
     const Matrix<double>& getd2Pij_dt2(double t) const;
 
+    std::string getName() const
+    {
+      return "OneChange(model="+getModel().getName()+")";
+    }
+
     /*
      * @}
      *

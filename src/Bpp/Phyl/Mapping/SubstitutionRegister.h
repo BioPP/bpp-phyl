@@ -97,6 +97,14 @@ namespace bpp
     virtual size_t getNumberOfSubstitutionTypes() const = 0;
 
     /**
+     * @brief Get the name of the register.
+     *
+     * @return A string describing the register.
+     */
+    
+    virtual const std::string& getName() const = 0;
+
+    /**
      * @brief Get the substitution type far a given pair of model states.
      *
      * @param fromState Initial state (should be a state supported by the specified alphabet).
@@ -123,19 +131,21 @@ namespace bpp
   {
   protected:
     const SubstitutionModel* model_;
-
+    std::string name_;
+    
   public:
-    AbstractSubstitutionRegister(const SubstitutionModel* model) :
-      model_(model)
+    AbstractSubstitutionRegister(const SubstitutionModel* model, const std::string& name) :
+      model_(model), name_(name)
     {}
 
     AbstractSubstitutionRegister(const AbstractSubstitutionRegister& asr) :
-      model_(asr.model_)
+      model_(asr.model_), name_(asr.name_)
     {}
 
     AbstractSubstitutionRegister& operator=(const AbstractSubstitutionRegister& asr)
     {
       model_ = asr.model_;
+      name_ = asr.name_;
       return *this;
     }
 
@@ -145,6 +155,12 @@ namespace bpp
     const SubstitutionModel* getSubstitutionModel() const { return model_; }
 
     const Alphabet* getAlphabet() const { return model_->getAlphabet(); }
+
+    const std::string& getName() const
+    {
+      return name_;
+    }
+    
   };
 
 /**
@@ -159,7 +175,7 @@ namespace bpp
   {
   public:
     TotalSubstitutionRegister(const SubstitutionModel* model) :
-      AbstractSubstitutionRegister(model)
+      AbstractSubstitutionRegister(model,"Total")
     {}
 
     TotalSubstitutionRegister* clone() const { return new TotalSubstitutionRegister(*this); }
@@ -194,6 +210,7 @@ namespace bpp
  * all substitutions. The new substitutions are considered in an
  * additional type.
  */
+  
   class CompleteSubstitutionRegister :
     public AbstractSubstitutionRegister
   {
@@ -204,7 +221,7 @@ namespace bpp
 
   public:
     CompleteSubstitutionRegister(const SubstitutionRegister& reg) :
-      AbstractSubstitutionRegister(reg.getSubstitutionModel()),
+      AbstractSubstitutionRegister(reg.getSubstitutionModel(),reg.getName()),
       preg_(reg.clone()),
       isRegComplete_(true)
     {
@@ -303,7 +320,7 @@ namespace bpp
   public:
 
     VectorOfSubstitionRegisters(const SubstitutionModel* model) :
-      AbstractSubstitutionRegister(model),
+      AbstractSubstitutionRegister(model, "Combination"),
       vSubReg_()
     {}
 
@@ -450,14 +467,14 @@ namespace bpp
 
   public:
     GeneralSubstitutionRegister(const SubstitutionModel* model) :
-      AbstractSubstitutionRegister(model),
+      AbstractSubstitutionRegister(model,"General"),
       size_(model->getNumberOfStates()),
       matrix_(size_, size_),
       types_()
     {}
 
     GeneralSubstitutionRegister(const SubstitutionModel* model, const RowMatrix<size_t>& matrix) :
-      AbstractSubstitutionRegister(model),
+      AbstractSubstitutionRegister(model,"General"),
       size_(model->getNumberOfStates()),
       matrix_(matrix),
       types_()
@@ -744,12 +761,12 @@ namespace bpp
 
   public:
     TsTvSubstitutionRegister(const NucleotideSubstitutionModel* model) :
-      AbstractSubstitutionRegister(model),
+      AbstractSubstitutionRegister(model,"TsTv"),
       code_()
     {}
 
     TsTvSubstitutionRegister(const CodonSubstitutionModel* model) :
-      AbstractSubstitutionRegister(model),
+      AbstractSubstitutionRegister(model,"TsTv"),
       code_(model->getGeneticCode())
     {}
 
@@ -848,7 +865,7 @@ namespace bpp
 
   public:
     DnDsSubstitutionRegister(const CodonSubstitutionModel* model, bool countMultiple = false) :
-      AbstractSubstitutionRegister(model),
+      AbstractSubstitutionRegister(model,"DnDs"),
       code_(model->getGeneticCode()),
       countMultiple_(countMultiple)
     {}
@@ -937,7 +954,7 @@ namespace bpp
 
   public:
     KrKcSubstitutionRegister(const ProteinSubstitutionModel* model) :
-      AbstractSubstitutionRegister(model),
+      AbstractSubstitutionRegister(model,"KrKc"),
       types_(20)
     {
       for (size_t i = 0; i < 20; ++i) {

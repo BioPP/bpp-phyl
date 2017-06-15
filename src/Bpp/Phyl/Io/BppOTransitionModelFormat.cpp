@@ -46,6 +46,7 @@
 #include <Bpp/Text/KeyvalTools.h>
 
 #include "../Model/OneChangeTransitionModel.h"
+#include "../Model/OneChangeRegisterTransitionModel.h"
 
 #include "../App/PhylogeneticsApplicationTools.h"
 
@@ -97,10 +98,24 @@ TransitionModel* BppOTransitionModelFormat::readTransitionModel(
       nestedReader.setGeneticCode(geneticCode_);
     
     SubstitutionModel* nestedModel=nestedReader.read(alphabet, nestedModelDescription, data, false);
-    
-    // Now we create the FromModel substitution model:
-    model.reset(new OneChangeTransitionModel(*nestedModel));
-        
+
+    // We look for the register:
+    string registerDescription = args["register"];
+    if (TextTools::isEmpty(registerDescription))
+      model.reset(new OneChangeTransitionModel(*nestedModel));
+    else
+    {
+      SubstitutionRegister* reg=PhylogeneticsApplicationTools::getSubstitutionRegister(registerDescription, nestedModel);
+
+      if (args.find("numReg") == args.end())
+        throw Exception("Missing argument 'numReg' (number of event for register in model " + modelName);
+
+      size_t numReg = TextTools::to<size_t>(args["numReg"]);
+
+      model.reset(new OneChangeRegisterTransitionModel(*nestedModel, *reg, numReg));
+      delete reg;
+    }
+
     delete nestedModel;
   }
   else

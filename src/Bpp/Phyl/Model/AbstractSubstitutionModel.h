@@ -394,6 +394,7 @@ public:
   virtual void setRate(double rate);
 
   friend class AbstractBiblioSubstitutionModel;
+  friend class OneChangeRegisterTransitionModel;
 
 };
 

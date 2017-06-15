@@ -104,6 +104,7 @@
 #include "../Model/BinarySubstitutionModel.h"
 #include "../Model/FromMixtureSubstitutionModel.h"
 #include "../Model/OneChangeTransitionModel.h"
+#include "../Model/OneChangeRegisterTransitionModel.h"
 
 #include "../App/PhylogeneticsApplicationTools.h"
 
@@ -1467,7 +1468,20 @@ void BppOSubstitutionModelFormat::write(const TransitionModel& model,
     write(nestedModel, out, globalAliases, writtenNames);
     comma = true;
   }
-
+  else
+  {
+    const OneChangeRegisterTransitionModel* onechangeregistertransitionmodel = dynamic_cast<const OneChangeRegisterTransitionModel*>(&model);
+    if (onechangeregistertransitionmodel)
+    {
+      out << "model=";
+      const SubstitutionModel& nestedModel = onechangeregistertransitionmodel->getModel();
+      write(nestedModel, out, globalAliases, writtenNames);
+      comma = true;
+      out << ", register=" << onechangeregistertransitionmodel->getRegisterName();
+      out << ", numReg=" << onechangeregistertransitionmodel->getRegisterNumber();
+    }
+  }
+  
   // Is it a gBGC model?
   const gBGC* gbgcModel = dynamic_cast<const gBGC*>(&model);
   if (gbgcModel)
