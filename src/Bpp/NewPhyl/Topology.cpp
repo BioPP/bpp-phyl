@@ -39,6 +39,8 @@
   knowledge of the CeCILL license and that you accept its terms.
 */
 
+#include <Bpp/Exceptions.h>
+#include <Bpp/NewPhyl/Debug.h>
 #include <Bpp/NewPhyl/Topology.h>
 #include <Bpp/NewPhyl/TopologyAnnotation.h>
 #include <Bpp/Phyl/Tree/PhyloTree.h>
@@ -81,15 +83,25 @@ namespace Topology {
 			// Branch length
 			if (phyloTree.hasFather (phyloNodeId)) {
 				auto branch = phyloTree.getEdgeToFather (phyloNodeId);
-				brLens->value (node.fatherBranch ()) = branch->getLength ();
+				brLens->access (node.fatherBranch ()) = branch->getLength ();
 			}
 			// Leaf name
 			auto phyloNode = phyloTree.getNode (phyloNodeId);
 			if (phyloNode->hasName ())
-				nodeNames->value (node) = phyloNode->getName ();
+				nodeNames->access (node) = phyloNode->getName ();
 		}
 
 		return {std::move (tree), std::move (brLens), std::move (nodeNames)};
+	}
+
+	// Error functions
+	void failureIndexMapIndexAlreadySet (const std::type_info & mapType, IndexType id) {
+		throw Exception (prettyTypeName (mapType) + ": set(" + std::to_string (id) +
+		                 ") tries to set an already set Index");
+	}
+	void failureIndexMapValueAlreadySet (const std::type_info & mapType, std::string value) {
+		throw Exception (prettyTypeName (mapType) + ": set(" + value +
+		                 ") tries to set an already used value");
 	}
 }
 }

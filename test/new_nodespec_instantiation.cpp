@@ -69,7 +69,7 @@ public:
   }
 
   static std::vector<NodeSpecification> computeDependencies() { return {}; }
-  Node buildNode(NodeVec) const { return params_->value(node_).value(); }
+  Node buildNode(NodeVec) const { return params_->access(node_).value(); }
   static std::type_index nodeType() { return typeid(int); } // dummy
   std::string description() const { return "MyParam-N" + std::to_string(node_.nodeId()); }
 
@@ -136,8 +136,8 @@ TEST_CASE("test")
   Topology::debugTree(ft, tree);
 
   auto buildParams = make_freezable_unique<Topology::NodeValueMap<DF::Parameter<int>>>(tree);
-  buildParams->value(tree->node(ta)) = DF::Parameter<int>::create(3);
-  buildParams->value(tree->node(tb)) = DF::Parameter<int>::create(42);
+  buildParams->access(tree->node(ta)) = DF::Parameter<int>::create(3);
+  buildParams->access(tree->node(tb)) = DF::Parameter<int>::create(42);
   auto params = std::move(buildParams).freeze();
 
   auto sumSpec = NodeSpecification::create<SumSpec>(tree->rootNode(), params);
@@ -147,7 +147,7 @@ TEST_CASE("test")
 
   Value<int> sum{sumSpec.instantiateWithReuse(registry)};
   CHECK(sum.getValue() == 45);
-  params->value (tree->node(ta))->setValue(-42);
+  params->access(tree->node(ta))->setValue(-42);
   CHECK(sum.getValue() == 0);
 
   Value<int> partialSum{partialSumSpec.instantiateWithReuse(registry)};

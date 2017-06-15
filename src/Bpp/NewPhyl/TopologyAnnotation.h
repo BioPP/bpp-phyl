@@ -50,6 +50,8 @@
 #include <cassert>
 #include <memory>
 #include <string>
+#include <typeinfo>
+#include <unordered_map>
 #include <utility>
 #include <vector>
 
@@ -58,18 +60,23 @@ namespace bpp {
 class PhyloTree;
 
 namespace Topology {
-	/* ValueMap: associate existing DF nodes to tree elements (by id).
-	 * Can be used for both Node or Branch.
+	// Error function
+	void failureIndexMapIndexAlreadySet (const std::type_info & mapType, IndexType id);
+	void failureIndexMapValueAlreadySet (const std::type_info & mapType, std::string value);
+
+	/* ValueMapBase: associate values to tree elements (by id).
+	 * Base class (as both nodes and branches use IndexType indexes).
+	 * Created with a fixed size, so types are not required to be movable / copyable.
 	 */
 	template <typename T> class ValueMapBase {
 	public:
-		explicit ValueMapBase (std::size_t size) : data_ (size) {}
+		explicit ValueMapBase (IndexType size) : data_ (size) {}
 
-		Optional<T> & value (IndexType id) noexcept {
+		Optional<T> & access (IndexType id) noexcept {
 			assert (id < data_.size ());
 			return data_[id];
 		}
-		const Optional<T> & value (IndexType id) const noexcept {
+		const Optional<T> & access (IndexType id) const noexcept {
 			assert (id < data_.size ());
 			return data_[id];
 		}
@@ -80,15 +87,52 @@ namespace Topology {
 		std::vector<Optional<T>> data_;
 	};
 
+	/* IndexMapBase: associate (both direction) values to tree elements (by id).
+	 * Indexes AND values can only be set once (required to have a bijection).
+	 * All set values must be different, and hashable (same system as std::unordered_map).
+	 * This class is useful to add names to tree elements.
+	 */
+	template <typename T, typename Hash = std::hash<T>> class IndexMapBase {
+	public:
+		IndexMapBase (IndexType size) : valueMap_ (size), indexMap_ (size) {}
+
+		template <typename... Args> void set (IndexType id, Args &&... args) {
+			auto & opt = valueMap_.access (id);
+			if (opt)
+				failureIndexMapIndexAlreadySet (typeid (IndexMapBase), id);
+			opt.emplace (std::forward<Args> (args)...);
+			auto result = indexMap_.emplace (opt.value (), id);
+			if (!result->second)
+				failureIndexMapValueAlreadySet (typeid (IndexMapBase), std::to_string (opt.value ()));
+		}
+
+		const Optional<const T> & access (IndexType id) const noexcept { return valueMap_.access (id); }
+
+		Optional<IndexType> index (const T & value) const noexcept {
+			auto it = indexMap_.find (value);
+			if (it != indexMap_.end ())
+				return it->second;
+			else
+				return {};
+		}
+
+	private:
+		ValueMapBase<const T> valueMap_;
+		std::unordered_map<T, Hash, IndexType> indexMap_;
+	};
+
+	/* Node / Branch specific wrappers for ValueMapBase.
+	 * Add overloads to build from a Tree, and access by Node / Branch iterators.
+	 */
 	template <typename T> class NodeValueMap : public ValueMapBase<T> {
 	public:
 		explicit NodeValueMap (const FrozenSharedPtr<Tree> & tree)
 		    : ValueMapBase<T> (tree->nbNodes ()) {}
 		explicit NodeValueMap (ValueMapBase<T> && map) : ValueMapBase<T> (std::move (map)) {}
-		using ValueMapBase<T>::value;
-		Optional<T> & value (const Node & node) noexcept { return this->value (node.nodeId ()); }
-		const Optional<T> & value (const Node & node) const noexcept {
-			return this->value (node.nodeId ());
+		using ValueMapBase<T>::access;
+		Optional<T> & access (const Node & node) noexcept { return access (node.nodeId ()); }
+		const Optional<T> & access (const Node & node) const noexcept {
+			return access (node.nodeId ());
 		}
 	};
 
@@ -97,24 +141,67 @@ namespace Topology {
 		explicit BranchValueMap (const FrozenSharedPtr<Tree> & tree)
 		    : ValueMapBase<T> (tree->nbBranches ()) {}
 		explicit BranchValueMap (ValueMapBase<T> && map) : ValueMapBase<T> (std::move (map)) {}
-		using ValueMapBase<T>::value;
-		Optional<T> & value (const Branch & branch) noexcept {
-			return this->value (branch.branchId ());
-		}
-		const Optional<T> & value (const Branch & branch) const noexcept {
-			return this->value (branch.branchId ());
+		using ValueMapBase<T>::access;
+		Optional<T> & access (const Branch & branch) noexcept { return access (branch.branchId ()); }
+		const Optional<T> & access (const Branch & branch) const noexcept {
+			return access (branch.branchId ());
 		}
 	};
 
-	/* Utility functions to create a parameter map from a value map, with parameters initialized to
-	 * the given values.
+  /* Node / Branch specific wrappers for IndexMapBase.
+	 */
+	template <typename T> class NodeIndexMap : IndexMapBase<T> {
+	public:
+		NodeIndexMap (FrozenSharedPtr<Tree> tree)
+		    : IndexMapBase<T> (tree->nbNodes ()), tree_ (std::move (tree)) {}
+		using IndexMapBase<T>::set;
+		using IndexMapBase<T>::access;
+		using IndexMapBase<T>::index;
+		template <typename... Args> void set (const Node & node, Args &&... args) {
+			set (node.nodeId (), std::forward<Args> (args)...);
+		}
+		const Optional<const T> & access (const Node & node) const noexcept {
+			return access (node.nodeId ());
+		}
+		Optional<Node> node (const T & value) const noexcept {
+			return index (value).map ([this](IndexType id) { return Node{tree_, id}; });
+		}
+
+	private:
+		FrozenSharedPtr<Tree> tree_;
+	};
+
+	template <typename T> class BranchIndexMap : IndexMapBase<T> {
+	public:
+		BranchIndexMap (FrozenSharedPtr<Tree> tree)
+		    : IndexMapBase<T> (tree->nbBranches ()), tree_ (std::move (tree)) {}
+		using IndexMapBase<T>::set;
+		using IndexMapBase<T>::access;
+		using IndexMapBase<T>::index;
+		template <typename... Args> void set (const Branch & branch, Args &&... args) {
+			set (branch.branchId (), std::forward<Args> (args)...);
+		}
+		const Optional<const T> & access (const Branch & branch) const noexcept {
+			return access (branch.branchId ());
+		}
+		Optional<Branch> branch (const T & value) const noexcept {
+			return index (value).map ([this](IndexType id) { return Branch{tree_, id}; });
+		}
+
+	private:
+		FrozenSharedPtr<Tree> tree_;
+	};
+
+	/* Utility functions:
+	 * Create a ValueMap of DF::Parameters initialized by values found in another ValueMap.
+	 * Parameters are only created for existing values.
 	 */
 	template <typename T>
 	ValueMapBase<DF::Parameter<T>> make_parameter_map_from_value_map (ValueMapBase<T> & valueMap) {
 		ValueMapBase<DF::Parameter<T>> map (valueMap.size ());
 		for (auto i : map.size ())
-			map.value (i) =
-			    valueMap.value (i).map ([](const T & t) { return DF::Parameter<T>::create (t); });
+			map.access (i) =
+			    valueMap.access (i).map ([](const T & t) { return DF::Parameter<T>::create (t); });
 	}
 	template <typename T>
 	NodeValueMap<DF::Parameter<T>>
@@ -126,10 +213,6 @@ namespace Topology {
 	make_branch_parameter_map_from_value_map (BranchValueMap<T> & valueMap) {
 		return BranchValueMap<DF::Parameter<T>>{make_parameter_map_from_value_map (valueMap)};
 	}
-
-	/* (Node|Branch)Index<T> associates T values with bijection to a tree's elements.
-	 * TODO
-	 */
 
 	// Retrieve info from PhyloTree
 	struct ConvertedPhyloTreeData {
