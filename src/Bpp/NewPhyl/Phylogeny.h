@@ -46,7 +46,7 @@
 #include <Bpp/NewPhyl/FrozenPtr.h>
 #include <Bpp/NewPhyl/Likelihood.h>
 #include <Bpp/NewPhyl/Model.h>
-#include <Bpp/NewPhyl/TopologyAnnotation.h>
+#include <Bpp/NewPhyl/TopologyMap.h>
 
 namespace bpp {
 

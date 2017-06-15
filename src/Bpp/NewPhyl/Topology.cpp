@@ -42,7 +42,7 @@
 #include <Bpp/Exceptions.h>
 #include <Bpp/NewPhyl/Debug.h>
 #include <Bpp/NewPhyl/Topology.h>
-#include <Bpp/NewPhyl/TopologyAnnotation.h>
+#include <Bpp/NewPhyl/TopologyMap.h>
 #include <Bpp/Phyl/Tree/PhyloTree.h>
 #include <memory>
 #include <stdexcept>
@@ -77,7 +77,7 @@ namespace Topology {
 
 		// Data
 		auto brLens = make_freezable_unique<BranchValueMap<double>> (tree);
-		auto nodeNames = make_freezable_unique<NodeValueMap<std::string>> (tree);
+		auto nodeNames = make_freezable_unique<NodeIndexMap<std::string>> (tree);
 		for (auto phyloNodeId : phyloTree.getAllNodesIndexes ()) {
 			auto node = tree->node (phyloNodeIdToOurIds.at (phyloNodeId));
 			// Branch length
@@ -88,7 +88,7 @@ namespace Topology {
 			// Leaf name
 			auto phyloNode = phyloTree.getNode (phyloNodeId);
 			if (phyloNode->hasName ())
-				nodeNames->access (node) = phyloNode->getName ();
+				nodeNames->set (node, phyloNode->getName ());
 		}
 
 		return {std::move (tree), std::move (brLens), std::move (nodeNames)};
@@ -100,7 +100,7 @@ namespace Topology {
 		                 ") tries to set an already set Index");
 	}
 	void failureIndexMapValueAlreadySet (const std::type_info & mapType, std::string value) {
-		throw Exception (prettyTypeName (mapType) + ": set(" + value +
+		throw Exception (prettyTypeName (mapType) + ": set(" + std::move (value) +
 		                 ") tries to set an already used value");
 	}
 }

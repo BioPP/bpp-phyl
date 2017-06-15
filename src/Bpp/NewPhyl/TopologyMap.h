@@ -1,8 +1,8 @@
 //
-// File: TopologyAnnotation.h
+// File: TopologyMap.h
 // Authors:
-// Created: 2017-05-25
-// Last modified: 2017-05-25
+// Created: 2017-05-25 00:00:00
+// Last modified: 2017-06-15
 //
 
 /*
@@ -38,11 +38,11 @@
   knowledge of the CeCILL license and that you accept its terms.
 */
 
-#pragma once
-#ifndef BPP_NEWPHYL_TOPOLOGYANNOTATION_H
-#define BPP_NEWPHYL_TOPOLOGYANNOTATION_H
+#ifndef BPP_NEWPHYL_TOPOLOGYMAP_H
+#define BPP_NEWPHYL_TOPOLOGYMAP_H
 
 #include <Bpp/NewPhyl/DataFlow.h>
+#include <Bpp/NewPhyl/Debug.h>
 #include <Bpp/NewPhyl/FrozenPtr.h>
 #include <Bpp/NewPhyl/Optional.h>
 #include <Bpp/NewPhyl/Range.h>
@@ -102,8 +102,8 @@ namespace Topology {
 				failureIndexMapIndexAlreadySet (typeid (IndexMapBase), id);
 			opt.emplace (std::forward<Args> (args)...);
 			auto result = indexMap_.emplace (opt.value (), id);
-			if (!result->second)
-				failureIndexMapValueAlreadySet (typeid (IndexMapBase), std::to_string (opt.value ()));
+			if (!result.second)
+				failureIndexMapValueAlreadySet (typeid (IndexMapBase), debug_to_string (opt.value ()));
 		}
 
 		const Optional<const T> & access (IndexType id) const noexcept { return valueMap_.access (id); }
@@ -111,14 +111,14 @@ namespace Topology {
 		Optional<IndexType> index (const T & value) const noexcept {
 			auto it = indexMap_.find (value);
 			if (it != indexMap_.end ())
-				return it->second;
+				return it.second;
 			else
 				return {};
 		}
 
 	private:
 		ValueMapBase<const T> valueMap_;
-		std::unordered_map<T, Hash, IndexType> indexMap_;
+		std::unordered_map<T, IndexType, Hash> indexMap_;
 	};
 
 	/* Node / Branch specific wrappers for ValueMapBase.
@@ -148,15 +148,16 @@ namespace Topology {
 		}
 	};
 
-  /* Node / Branch specific wrappers for IndexMapBase.
+	/* Node / Branch specific wrappers for IndexMapBase.
 	 */
-	template <typename T> class NodeIndexMap : IndexMapBase<T> {
+	template <typename T, typename Hash = std::hash<T>>
+	class NodeIndexMap : public IndexMapBase<T, Hash> {
 	public:
 		NodeIndexMap (FrozenSharedPtr<Tree> tree)
-		    : IndexMapBase<T> (tree->nbNodes ()), tree_ (std::move (tree)) {}
-		using IndexMapBase<T>::set;
-		using IndexMapBase<T>::access;
-		using IndexMapBase<T>::index;
+		    : IndexMapBase<T, Hash> (tree->nbNodes ()), tree_ (std::move (tree)) {}
+		using IndexMapBase<T, Hash>::set;
+		using IndexMapBase<T, Hash>::access;
+		using IndexMapBase<T, Hash>::index;
 		template <typename... Args> void set (const Node & node, Args &&... args) {
 			set (node.nodeId (), std::forward<Args> (args)...);
 		}
@@ -171,13 +172,14 @@ namespace Topology {
 		FrozenSharedPtr<Tree> tree_;
 	};
 
-	template <typename T> class BranchIndexMap : IndexMapBase<T> {
+	template <typename T, typename Hash = std::hash<T>>
+	class BranchIndexMap : public IndexMapBase<T, Hash> {
 	public:
 		BranchIndexMap (FrozenSharedPtr<Tree> tree)
-		    : IndexMapBase<T> (tree->nbBranches ()), tree_ (std::move (tree)) {}
-		using IndexMapBase<T>::set;
-		using IndexMapBase<T>::access;
-		using IndexMapBase<T>::index;
+		    : IndexMapBase<T, Hash> (tree->nbBranches ()), tree_ (std::move (tree)) {}
+		using IndexMapBase<T, Hash>::set;
+		using IndexMapBase<T, Hash>::access;
+		using IndexMapBase<T, Hash>::index;
 		template <typename... Args> void set (const Branch & branch, Args &&... args) {
 			set (branch.branchId (), std::forward<Args> (args)...);
 		}
@@ -197,7 +199,8 @@ namespace Topology {
 	 * Parameters are only created for existing values.
 	 */
 	template <typename T>
-	ValueMapBase<DF::Parameter<T>> make_parameter_map_from_value_map (ValueMapBase<T> & valueMap) {
+	ValueMapBase<DF::Parameter<T>>
+	make_parameter_map_from_value_map (const ValueMapBase<T> & valueMap) {
 		ValueMapBase<DF::Parameter<T>> map (valueMap.size ());
 		for (auto i : map.size ())
 			map.access (i) =
@@ -205,12 +208,12 @@ namespace Topology {
 	}
 	template <typename T>
 	NodeValueMap<DF::Parameter<T>>
-	make_node_parameter_map_from_value_map (NodeValueMap<T> & valueMap) {
+	make_node_parameter_map_from_value_map (const NodeValueMap<T> & valueMap) {
 		return NodeValueMap<DF::Parameter<T>>{make_parameter_map_from_value_map (valueMap)};
 	}
 	template <typename T>
 	BranchValueMap<DF::Parameter<T>>
-	make_branch_parameter_map_from_value_map (BranchValueMap<T> & valueMap) {
+	make_branch_parameter_map_from_value_map (const BranchValueMap<T> & valueMap) {
 		return BranchValueMap<DF::Parameter<T>>{make_parameter_map_from_value_map (valueMap)};
 	}
 
@@ -218,10 +221,9 @@ namespace Topology {
 	struct ConvertedPhyloTreeData {
 		FrozenSharedPtr<Tree> topology;
 		FreezableUniquePtr<BranchValueMap<double>> branchLengths;
-		FreezableUniquePtr<NodeValueMap<std::string>> nodeNames;
+		FreezableUniquePtr<NodeIndexMap<std::string>> nodeNames;
 	};
 	ConvertedPhyloTreeData convertPhyloTree (const bpp::PhyloTree & phyloTree);
 }
 }
-
-#endif // BPP_NEWPHYL_TOPOLOGYANNOTATION_H
+#endif // BPP_NEWPHYL_TOPOLOGYMAP_H

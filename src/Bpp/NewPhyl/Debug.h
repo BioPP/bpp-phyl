@@ -63,6 +63,18 @@ template <typename T> std::string prettyTypeName (const T &) {
 	return prettyTypeName<T> ();
 }
 
+// TODO more general to_string ? (duck::format ?)
+inline const std::string & debug_to_string (const std::string & s) {
+	return s;
+}
+inline std::string && debug_to_string (std::string && s) {
+	return std::move (s);
+}
+template <typename T, typename = decltype (std::to_string (std::declval<T> ()))>
+std::string debug_to_string (T && t) {
+	return std::to_string (std::forward<T> (t));
+}
+
 namespace Topology {
 	class Tree;
 

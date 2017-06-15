@@ -43,7 +43,7 @@
 #include "doctest.h"
 
 #include <Bpp/NewPhyl/Debug.h>
-#include <Bpp/NewPhyl/TopologyAnnotation.h>
+#include <Bpp/NewPhyl/TopologyMap.h>
 #include <Bpp/Phyl/Io/Newick.h>
 #include <fstream>
 
