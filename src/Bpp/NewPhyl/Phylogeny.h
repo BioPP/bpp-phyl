@@ -43,9 +43,11 @@
 #ifndef BPP_NEWPHYL_PHYLOGENY_H
 #define BPP_NEWPHYL_PHYLOGENY_H
 
+#include <Bpp/NewPhyl/Debug.h>
 #include <Bpp/NewPhyl/FrozenPtr.h>
 #include <Bpp/NewPhyl/Likelihood.h>
 #include <Bpp/NewPhyl/Model.h>
+#include <Bpp/NewPhyl/NodeSpecification.h>
 #include <Bpp/NewPhyl/TopologyMap.h>
 
 namespace bpp {
@@ -56,21 +58,53 @@ class SubstitutionModel;
 namespace Phyl {
 
 	struct Process {
-		FrozenSharedPtr<Topology::Tree> tree_;
-		FrozenSharedPtr<Topology::BranchValueMap<DF::Parameter<double>>> branchLengths_;
-		FrozenSharedPtr<Topology::BranchValueMap<DF::Value<const SubstitutionModel *>>> modelByBranch_;
+		const FrozenSharedPtr<Topology::Tree> tree;
+		const FrozenSharedPtr<Topology::BranchValueMap<DF::Parameter<double>>> branchLengths;
+		const FrozenSharedPtr<Topology::BranchValueMap<DF::Value<const SubstitutionModel *>>>
+		    modelByBranch;
 	};
 
 	struct LikelihoodParameters {
-		const Process process_;
-		FrozenSharedPtr<Topology::NodeValueMap<DF::Parameter<const Sequence *>>> leafData_;
+		const Process process;
+		const FrozenSharedPtr<Topology::NodeValueMap<DF::Parameter<const Sequence *>>> leafData;
 	};
 
-	struct ConditionalLikelihood {
-		LikelihoodParameters params_;
+	// SPECS
+  // TODO add simplified wrapper in NodeSpecification (deduce buildNode, nodeType, description ffrom typedef)
+
+	struct ConditionalLikelihoodSpec {
+		const LikelihoodParameters likParams;
+		const Topology::Node node;
+
+		bool computed_from_data () const { return node.nbChildBranches () == 0; }
+		DF::NodeSpecificationVec computeDependencies () const;
+		DF::Node buildNode (DF::NodeVec deps) const {
+			if (computed_from_data ())
+				return DF::Node::create<ComputeConditionalLikelihoodFromDataNode> (std::move (deps));
+			else
+				return DF::Node::create<ComputeConditionalLikelihoodFromChildrensNode> (std::move (deps));
+		}
+		std::type_index nodeType () const {
+			return computed_from_data () ? typeid (ComputeConditionalLikelihoodFromDataNode)
+			                             : typeid (ComputeConditionalLikelihoodFromChildrensNode);
+		}
+		std::string description () const { return prettyTypeName (*this); }
 	};
+
 	struct ForwardLikelihood {
-		LikelihoodParameters params_;
+		const Topology::Branch branch;
+		const LikelihoodParameters likParams;
+	};
+
+	struct LogLikelihoodSpec {
+		const LikelihoodParameters likParams;
+		DF::NodeSpecificationVec computeDependencies () const {
+			return DF::makeNodeSpecVec (
+			    ConditionalLikelihoodSpec{likParams, likParams.process.tree->rootNode ()});
+		}
+		static DF::Node buildNode (DF::NodeVec deps) {
+			return DF::Node::create<ComputeLogLikelihoodNode> (std::move (deps));
+		}
 	};
 }
 }

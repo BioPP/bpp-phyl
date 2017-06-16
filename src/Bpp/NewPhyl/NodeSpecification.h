@@ -122,6 +122,7 @@ namespace DF {
 	class NodeSpecification {
 		// Abstracted spec value
 		// TODO doc
+    // TODO instantiation as free funcs
 	public:
 		// Constructors
 		NodeSpecification () = delete;
@@ -215,6 +216,9 @@ namespace DF {
 	};
 
 	using NodeSpecificationVec = std::vector<NodeSpecification>;
+	template <typename... Args> NodeSpecificationVec makeNodeSpecVec (Args &&... args) {
+		return {NodeSpecification{std::forward<Args> (args)}...};
+	}
 }
 }
 
