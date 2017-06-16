@@ -54,21 +54,7 @@
 
 using namespace bpp;
 using DF::Node;
-using DF::NodeVec;
-using DF::NodeSpecification;
 using DF::Value;
-
-struct MyParamSpec
-{
-  Topology::Node node;
-  FrozenSharedPtr<Topology::NodeValueMap<DF::Parameter<int>>> params;
-
-  // Just return the right param
-  static DF::NodeSpecificationVec computeDependencies() { return {}; }
-  DF::Node buildNode(DF::NodeVec) const { return params->access(node).value(); }
-  static std::type_index nodeType() { return typeid(void); } // dummy
-  std::string description() const { return "MyParam-N" + std::to_string(node.nodeId()); }
-};
 
 struct SumOp
 {
@@ -104,7 +90,7 @@ struct SumSpec : DF::NodeSpecAlwaysGenerate<Sum>
     else
     {
       // Leaf
-      return DF::makeNodeSpecVec(MyParamSpec{node, params});
+      return DF::makeNodeSpecVec(DF::NodeSpecReturnParameter{params->access(node).value()});
     }
   }
   std::string description() const { return "Sum-N" + std::to_string(node.nodeId()); }

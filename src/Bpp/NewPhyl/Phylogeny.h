@@ -70,7 +70,6 @@ namespace Phyl {
 	};
 
 	// SPECS
-  // TODO add simplified wrapper in NodeSpecification (deduce buildNode, nodeType, description ffrom typedef)
 
 	struct ConditionalLikelihoodSpec {
 		const LikelihoodParameters likParams;
@@ -96,14 +95,18 @@ namespace Phyl {
 		const LikelihoodParameters likParams;
 	};
 
-	struct LogLikelihoodSpec {
+	DF::NodeSpecificationVec ConditionalLikelihoodSpec::computeDependencies () const {
+		return DF::makeNodeSpecVec (); // FIXME
+	}
+
+	struct LogLikelihoodSpec : DF::NodeSpecAlwaysGenerate<ComputeLogLikelihoodNode> {
 		const LikelihoodParameters likParams;
+
+		LogLikelihoodSpec (const LikelihoodParameters & params) : likParams (params) {}
+
 		DF::NodeSpecificationVec computeDependencies () const {
 			return DF::makeNodeSpecVec (
 			    ConditionalLikelihoodSpec{likParams, likParams.process.tree->rootNode ()});
-		}
-		static DF::Node buildNode (DF::NodeVec deps) {
-			return DF::Node::create<ComputeLogLikelihoodNode> (std::move (deps));
 		}
 	};
 }

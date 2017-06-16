@@ -223,13 +223,29 @@ namespace DF {
 		return {NodeSpecification{std::forward<Args> (args)}...};
 	}
 
-	/* Helper class to reduce boilerplate.
-	 * Defines all but computeDependencies () for a Spec that always generates the same node type.
+	/* Defines all but computeDependencies () for a Spec that always generates the same node type.
 	 */
 	template <typename NodeType> struct NodeSpecAlwaysGenerate {
 		static Node buildNode (NodeVec deps) { return Node::create<NodeType> (std::move (deps)); }
 		static std::type_index nodeType () { return typeid (NodeType); }
 		static std::string description () { return prettyTypeName<NodeSpecAlwaysGenerate> (); }
+	};
+
+	/* A dummy node spec that returns a stored node.
+	 * nodeType () returns a dummy value, but is never used.
+	 * TODO add better description, and fix nodeType in case it is used somewhere.
+	 */
+	class NodeSpecReturnParameter {
+	public:
+		template <typename N> NodeSpecReturnParameter (N && n) : node_ (std::forward<N> (n)) {}
+
+		static NodeSpecificationVec computeDependencies () { return {}; }
+		Node buildNode (NodeVec) const { return node_; }
+		static std::type_index nodeType () { return typeid (void); }
+		static std::string description () { return "NodeSpecReturnParameter"; }
+
+	private:
+		Node node_;
 	};
 }
 }
