@@ -44,6 +44,7 @@
 #define BPP_NEWPHYL_NODESPECIFICATION_H
 
 #include <Bpp/NewPhyl/DataFlow.h>
+#include <Bpp/NewPhyl/Debug.h>
 #include <Bpp/NewPhyl/Optional.h>
 #include <memory>
 #include <string>
@@ -68,7 +69,7 @@ namespace DF {
 			 * The Key will be destroyed at the same time as the Node.
 			 */
 		public:
-			Key (std::type_index nodeType, const std::vector<Node> & dependencies)
+			Key (std::type_index nodeType, const NodeVec & dependencies)
 			    : nodeType_ (nodeType), dependencies_ (dependencies) {}
 
 			bool operator== (const Key & other) const noexcept {
@@ -83,11 +84,11 @@ namespace DF {
 			}
 
 			std::type_index operation () const noexcept { return nodeType_; }
-			const std::vector<Node> & dependencies () const noexcept { return dependencies_; }
+			const NodeVec & dependencies () const noexcept { return dependencies_; }
 
 		private:
 			std::type_index nodeType_;
-			const std::vector<Node> & dependencies_;
+			const NodeVec & dependencies_;
 		};
 
 		Optional<Node> get (const Key & key) const {
@@ -119,10 +120,16 @@ namespace DF {
 		std::unordered_map<Key, Node, Hash> nodes_;
 	};
 
+	/* Node specifications are structs that describe a phylogenetic value in a context.
+	 * They are not template, but must follow the following interface :
+	 * TODO required interface doc when stabilised
+	 *
+	 * NodeSpecification is a type that wraps any NodeSpec compatible type in a virtual hierarchy.
+	 * This allow instantiation functions to be type independent, at the cost of memory allocations.
+	 * TODO use duck::SmallUniqPtr is perf is too critical
+	 */
+
 	class NodeSpecification {
-		// Abstracted spec value
-		// TODO doc
-    // TODO instantiation as free funcs
 	public:
 		// Constructors
 		NodeSpecification () = delete;
@@ -139,54 +146,18 @@ namespace DF {
 		template <typename T, typename Decayed = typename std::decay<T>::type,
 		          typename = typename std::enable_if<
 		              !std::is_base_of<NodeSpecification, Decayed>::value>::type>
-		explicit NodeSpecification (T && spec)
+		NodeSpecification (T && spec)
 		    : specification_ (new Specification<Decayed> (std::forward<T> (spec))) {}
-
-		template <typename T, typename... Args> static NodeSpecification create (Args &&... args) {
-			return NodeSpecification (T (std::forward<Args> (args)...));
-		}
 
 		// Wrappers
 		std::vector<NodeSpecification> computeDependencies () const {
 			return specification_->computeDependencies ();
 		}
-		Node buildNode (std::vector<Node> dependencies) const {
+		Node buildNode (NodeVec dependencies) const {
 			return specification_->buildNode (std::move (dependencies));
 		}
 		std::type_index nodeType () const noexcept { return specification_->nodeType (); }
-
-		// Debug
 		std::string description () const { return specification_->description (); }
-
-		// Build DF graph recursively without merging
-		Node instantiate () const {
-			std::vector<Node> deps;
-			for (auto & depSpec : computeDependencies ())
-				deps.emplace_back (depSpec.instantiate ());
-			return buildNode (std::move (deps));
-		}
-
-		// Build DF graph while merging using the given registry
-		Node instantiateWithReuse (Registry & registry) const {
-			auto depSpecs = computeDependencies ();
-			if (depSpecs.empty ()) {
-				// Parameters are not stored in the registry.
-				// buildNode should just create a new reference.
-				return buildNode ({});
-			} else {
-				// Instantiate dependencies
-				std::vector<Node> deps;
-				for (auto & depSpec : depSpecs)
-					deps.emplace_back (depSpec.instantiateWithReuse (registry));
-				// Check the registry
-				Registry::Key key{nodeType (), deps};
-				return registry.get (key).value_or_generate ([this, &registry, &deps] {
-					Node n = buildNode (std::move (deps));
-					registry.set (n);
-					return n;
-				});
-			}
-		}
 
 	private:
 		// Virtual value type pattern
@@ -194,7 +165,7 @@ namespace DF {
 			virtual ~Interface () = default;
 			virtual Interface * clone () const = 0;
 			virtual std::vector<NodeSpecification> computeDependencies () const = 0;
-			virtual Node buildNode (std::vector<Node> dependencies) const = 0;
+			virtual Node buildNode (NodeVec dependencies) const = 0;
 			virtual std::type_index nodeType () const noexcept = 0;
 			virtual std::string description () const = 0;
 		};
@@ -206,7 +177,7 @@ namespace DF {
 			std::vector<NodeSpecification> computeDependencies () const override {
 				return spec_.computeDependencies ();
 			}
-			Node buildNode (std::vector<Node> dependencies) const override {
+			Node buildNode (NodeVec dependencies) const override {
 				return spec_.buildNode (std::move (dependencies));
 			}
 			std::type_index nodeType () const noexcept override { return spec_.nodeType (); }
@@ -215,10 +186,51 @@ namespace DF {
 		std::unique_ptr<Interface> specification_;
 	};
 
+	// Build DF graph recursively without merging
+	inline Node instantiateNodeSpec (const NodeSpecification & nodeSpec) {
+		NodeVec deps;
+		for (auto & depSpec : nodeSpec.computeDependencies ())
+			deps.emplace_back (instantiateNodeSpec (depSpec));
+		return nodeSpec.buildNode (std::move (deps));
+	}
+
+	// Build DF graph while merging using the given registry
+	inline Node instantiateNodeSpecWithReuse (const NodeSpecification & nodeSpec,
+	                                          Registry & registry) {
+		auto depSpecs = nodeSpec.computeDependencies ();
+		if (depSpecs.empty ()) {
+			// Parameters are not stored in the registry.
+			// buildNode should just create a new reference.
+			return nodeSpec.buildNode ({});
+		} else {
+			// Instantiate dependencies
+			NodeVec deps;
+			for (auto & depSpec : depSpecs)
+				deps.emplace_back (instantiateNodeSpecWithReuse (depSpec, registry));
+			// Check the registry
+			Registry::Key key{nodeSpec.nodeType (), deps};
+			return registry.get (key).value_or_generate ([&nodeSpec, &registry, &deps] {
+				Node n = nodeSpec.buildNode (std::move (deps));
+				registry.set (n);
+				return n;
+			});
+		}
+	}
+
+	// Convenience typedef / functions.
 	using NodeSpecificationVec = std::vector<NodeSpecification>;
 	template <typename... Args> NodeSpecificationVec makeNodeSpecVec (Args &&... args) {
 		return {NodeSpecification{std::forward<Args> (args)}...};
 	}
+
+	/* Helper class to reduce boilerplate.
+	 * Defines all but computeDependencies () for a Spec that always generates the same node type.
+	 */
+	template <typename NodeType> struct NodeSpecAlwaysGenerate {
+		static Node buildNode (NodeVec deps) { return Node::create<NodeType> (std::move (deps)); }
+		static std::type_index nodeType () { return typeid (NodeType); }
+		static std::string description () { return prettyTypeName<NodeSpecAlwaysGenerate> (); }
+	};
 }
 }
 

@@ -219,7 +219,7 @@ namespace DF {
 		// Print NodeSpec details, and links between NodeSpecs.
 		// Print links to node (key only).
 		Node debugPlayNodeSpecInstantiation (std::ostream & os, const NodeSpecification & nodeSpec) {
-			std::vector<Node> deps;
+			NodeVec deps;
 			dotNodePretty (os, nodeSpec);
 			for (auto & depSpec : nodeSpec.computeDependencies ()) {
 				deps.emplace_back (debugPlayNodeSpecInstantiation (os, depSpec));
@@ -244,7 +244,7 @@ namespace DF {
 				return n;
 			} else {
 				// Instantiate dependencies
-				std::vector<Node> deps;
+				NodeVec deps;
 				for (auto & depSpec : depSpecs) {
 					deps.emplace_back (debugReplayNodeSpecInstantiationInRegistry (os, depSpec, registry));
 					dotEdgePretty (os, nodeSpec, depSpec);

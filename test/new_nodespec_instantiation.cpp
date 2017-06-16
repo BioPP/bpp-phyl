@@ -58,24 +58,16 @@ using DF::NodeVec;
 using DF::NodeSpecification;
 using DF::Value;
 
-class MyParamSpec
+struct MyParamSpec
 {
+  Topology::Node node;
+  FrozenSharedPtr<Topology::NodeValueMap<DF::Parameter<int>>> params;
+
   // Just return the right param
-public:
-  MyParamSpec(Topology::Node node, FrozenSharedPtr<Topology::NodeValueMap<DF::Parameter<int>>> params)
-    : node_(node)
-    , params_(std::move(params))
-  {
-  }
-
-  static std::vector<NodeSpecification> computeDependencies() { return {}; }
-  Node buildNode(NodeVec) const { return params_->access(node_).value(); }
-  static std::type_index nodeType() { return typeid(int); } // dummy
-  std::string description() const { return "MyParam-N" + std::to_string(node_.nodeId()); }
-
-private:
-  Topology::Node node_;
-  FrozenSharedPtr<Topology::NodeValueMap<DF::Parameter<int>>> params_;
+  static DF::NodeSpecificationVec computeDependencies() { return {}; }
+  DF::Node buildNode(DF::NodeVec) const { return params->access(node).value(); }
+  static std::type_index nodeType() { return typeid(void); } // dummy
+  std::string description() const { return "MyParam-N" + std::to_string(node.nodeId()); }
 };
 
 struct SumOp
@@ -87,39 +79,35 @@ struct SumOp
 };
 using Sum = DF::GenericReductionComputation<SumOp>;
 
-class SumSpec
+struct SumSpec : DF::NodeSpecAlwaysGenerate<Sum>
 {
-public:
-  SumSpec(Topology::Node node, FrozenSharedPtr<Topology::NodeValueMap<DF::Parameter<int>>> params)
-    : node_(node)
-    , params_(std::move(params))
+  Topology::Node node;
+  FrozenSharedPtr<Topology::NodeValueMap<DF::Parameter<int>>> params;
+
+  SumSpec(const Topology::Node& n, const FrozenSharedPtr<Topology::NodeValueMap<DF::Parameter<int>>>& p)
+    : node(n)
+    , params(p)
   {
   }
 
-  std::vector<NodeSpecification> computeDependencies() const
+  DF::NodeSpecificationVec computeDependencies() const
   {
-    std::vector<NodeSpecification> deps;
-    if (node_.nbChildBranches() > 0)
+    if (node.nbChildBranches() > 0)
     {
       // Internal node
-      node_.foreachChildBranch([this, &deps](Topology::Branch&& branch) {
-        deps.emplace_back(SumSpec{std::move(branch).childNode(), params_});
+      DF::NodeSpecificationVec deps;
+      node.foreachChildBranch([this, &deps](Topology::Branch&& branch) {
+        deps.emplace_back(SumSpec{std::move(branch).childNode(), params});
       });
+      return deps;
     }
     else
     {
       // Leaf
-      deps.emplace_back(MyParamSpec{node_, params_});
+      return DF::makeNodeSpecVec(MyParamSpec{node, params});
     }
-    return deps;
   }
-  static Node buildNode(NodeVec deps) { return Node::create<Sum>(std::move(deps)); }
-  static std::type_index nodeType() { return typeid(Sum); }
-  std::string description() const { return "Sum-N" + std::to_string(node_.nodeId()); }
-
-private:
-  Topology::Node node_;
-  FrozenSharedPtr<Topology::NodeValueMap<DF::Parameter<int>>> params_;
+  std::string description() const { return "Sum-N" + std::to_string(node.nodeId()); }
 };
 
 TEST_CASE("test")
@@ -140,17 +128,15 @@ TEST_CASE("test")
   buildParams->access(tree->node(tb)) = DF::Parameter<int>::create(42);
   auto params = std::move(buildParams).freeze();
 
-  auto sumSpec = NodeSpecification::create<SumSpec>(tree->rootNode(), params);
-  auto partialSumSpec = NodeSpecification::create<SumSpec>(tree->node(0), params);
-
   DF::Registry registry;
 
-  Value<int> sum{sumSpec.instantiateWithReuse(registry)};
+  auto sumSpec = SumSpec{tree->rootNode(), params};
+  Value<int> sum{DF::instantiateNodeSpecWithReuse(sumSpec, registry)};
   CHECK(sum.getValue() == 45);
   params->access(tree->node(ta))->setValue(-42);
   CHECK(sum.getValue() == 0);
 
-  Value<int> partialSum{partialSumSpec.instantiateWithReuse(registry)};
+  Value<int> partialSum{DF::instantiateNodeSpecWithReuse(SumSpec{tree->node(0), params}, registry)};
 
   std::ofstream fd("df_debug");
   DF::debugNodeSpecInstantiationInRegistry(fd, sumSpec, registry, true);
