@@ -1478,7 +1478,7 @@ void BppOSubstitutionModelFormat::write(const TransitionModel& model,
       write(nestedModel, out, globalAliases, writtenNames);
       comma = true;
       out << ", register=" << onechangeregistertransitionmodel->getRegisterName();
-      out << ", numReg=" << onechangeregistertransitionmodel->getRegisterNumber();
+      out << ", numReg=" << VectorTools::paste(onechangeregistertransitionmodel->getRegisterNumbers(),"+");
     }
   }
   

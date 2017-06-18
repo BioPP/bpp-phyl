@@ -48,7 +48,7 @@ OneChangeRegisterTransitionModel::OneChangeRegisterTransitionModel(const Substit
   otherChanges_(getNumberOfStates()),
   modelChanged_(new AnonymousSubstitutionModel(getAlphabet(), &originalModel.getStateMap())),
   registerName_(reg.getName()),
-  numReg_(numReg)
+  vNumRegs_(vector<size_t>(1,numReg))
 {
   if ((numReg<=0) || (numReg>reg.getNumberOfSubstitutionTypes()))
     throw IndexOutOfBoundsException("OneChangeRegisterTransitionModel::OneChangeRegisterTransitionModel : wrong number for register category", numReg, 1, reg.getNumberOfSubstitutionTypes());
@@ -62,6 +62,40 @@ OneChangeRegisterTransitionModel::OneChangeRegisterTransitionModel(const Substit
 
   updateMatrices();
   
+}
+
+OneChangeRegisterTransitionModel::OneChangeRegisterTransitionModel(const SubstitutionModel& originalModel, const SubstitutionRegister& reg, vector<size_t> vNumRegs) :
+  AbstractFromSubstitutionModelTransitionModel(originalModel, "OneChange."),
+  otherChanges_(getNumberOfStates()),
+  modelChanged_(new AnonymousSubstitutionModel(getAlphabet(), &originalModel.getStateMap())),
+  registerName_(reg.getName()),
+  vNumRegs_(vNumRegs)
+{
+  for (auto numReg : vNumRegs_)
+    if ((numReg<=0) || (numReg>reg.getNumberOfSubstitutionTypes()))
+      throw IndexOutOfBoundsException("OneChangeRegisterTransitionModel::OneChangeRegisterTransitionModel : wrong number for register category", numReg, 1, reg.getNumberOfSubstitutionTypes());
+
+  for (size_t i=0;i<size_;i++)
+    for (size_t j=0;j<size_;j++)
+    {
+      bool othCh=true;
+      size_t regt=reg.getType(i,j);
+      
+      for (auto numReg : vNumRegs_)
+      {
+        if (regt==numReg)
+        {
+          othCh=false;
+          break;
+        }
+      }
+      if (othCh)
+        otherChanges_[i].push_back(j);
+      else
+        modelChanged_->getGenerator()(i,j)=0;
+    }
+
+  updateMatrices();  
 }
 
 /******************************************************************************/
@@ -88,7 +122,7 @@ double OneChangeRegisterTransitionModel::Pij_t(size_t i, size_t j, double t) con
     else
       return (i==j)?1:0;
   }
-  
+
   const RowMatrix<double>& ch_t=modelChanged_->getPij_t(t);
 
   double si=1-VectorTools::sum(ch_t.getRow(i));
@@ -210,7 +244,6 @@ const Matrix<double>& OneChangeRegisterTransitionModel::getPij_t(double t) const
     return pij_t;
   }
   
-
   const RowMatrix<double>& orig_t=getModel().getPij_t(t);
   const RowMatrix<double>& ch_t=modelChanged_->getPij_t(t);
 

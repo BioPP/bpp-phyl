@@ -83,7 +83,7 @@ namespace bpp
      */
 
     std::string registerName_;
-    size_t numReg_;
+    std::vector<size_t> vNumRegs_;
     
   public:
     /*
@@ -98,13 +98,26 @@ namespace bpp
      */
     
     OneChangeRegisterTransitionModel(const SubstitutionModel& originalModel, const SubstitutionRegister& reg, size_t numReg);
+
+    /*
+     * @brief Constructor
+     *
+     * @param originalModel the substitution model used
+     * @param reg the register in which the considered type of event is
+     * defined.
+     * @param vNumRegs the vector of numbers of the considered event
+     * in the register.
+     *
+     */
     
+    OneChangeRegisterTransitionModel(const SubstitutionModel& originalModel, const SubstitutionRegister& reg, std::vector<size_t> vNumRegs);
+
     OneChangeRegisterTransitionModel(const OneChangeRegisterTransitionModel& fmsm) :
       AbstractFromSubstitutionModelTransitionModel(fmsm),
       otherChanges_(fmsm.otherChanges_),
       modelChanged_(std::unique_ptr<AnonymousSubstitutionModel>(fmsm.modelChanged_->clone())),
       registerName_(fmsm.registerName_),
-      numReg_(fmsm.numReg_)
+      vNumRegs_(fmsm.vNumRegs_)
     {}
     
 
@@ -114,7 +127,7 @@ namespace bpp
       otherChanges_=fmsm.otherChanges_;
       modelChanged_=std::unique_ptr<AnonymousSubstitutionModel>(fmsm.modelChanged_->clone());
       registerName_=fmsm.registerName_;
-      numReg_=fmsm.numReg_;
+      vNumRegs_=fmsm.vNumRegs_;
         
       return *this;
     }
@@ -159,9 +172,9 @@ namespace bpp
       return registerName_;
     }
 
-    size_t getRegisterNumber() const
+    const std::vector<size_t>& getRegisterNumbers() const
     {
-      return numReg_;
+      return vNumRegs_;
     }
     
     /*

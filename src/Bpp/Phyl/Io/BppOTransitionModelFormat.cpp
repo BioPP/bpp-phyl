@@ -111,9 +111,19 @@ TransitionModel* BppOTransitionModelFormat::readTransitionModel(
       if (args.find("numReg") == args.end())
         throw Exception("Missing argument 'numReg' (number of event for register in model " + modelName);
 
-      size_t numReg = TextTools::to<size_t>(args["numReg"]);
+      vector<size_t> vNumRegs;
+      
+      StringTokenizer nst(args["numReg"], "+");
+    
+      while (nst.hasMoreToken())
+      {
+        vNumRegs.push_back(TextTools::to<size_t>(nst.nextToken()));
+      }
+        
+      if (verbose_)
+        ApplicationTools::displayResult("Register numbers", args["numReg"]);
 
-      model.reset(new OneChangeRegisterTransitionModel(*nestedModel, *reg, numReg));
+      model.reset(new OneChangeRegisterTransitionModel(*nestedModel, *reg, vNumRegs));
       delete reg;
     }
 

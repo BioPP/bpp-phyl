@@ -1615,7 +1615,7 @@ SubstitutionCount* PhylogeneticsApplicationTools::getSubstitutionCount(
 /****************************************************************************/
 
 
-SubstitutionRegister* PhylogeneticsApplicationTools::getSubstitutionRegister(const std::string& regTypeDesc, const SubstitutionModel* model)
+SubstitutionRegister* PhylogeneticsApplicationTools::getSubstitutionRegister(const std::string& regTypeDesc, const SubstitutionModel* model, bool verbose)
 {
   string regType = "";
   map<string, string> regArgs;
@@ -1720,7 +1720,10 @@ SubstitutionRegister* PhylogeneticsApplicationTools::getSubstitutionRegister(con
   CategorySubstitutionRegister* csr=dynamic_cast<CategorySubstitutionRegister*>(reg);
   if (csr)
     csr->setStationarity(ApplicationTools::getBooleanParameter("stationarity", regArgs, true));
-    
+
+  if (verbose)
+    ApplicationTools::displayResult("Substitution Register", regType);
+
   return reg;
 }
 
