@@ -78,7 +78,7 @@ namespace bpp
     mutable RowMatrix<double> d2pij_t;
 
   public:
-    AbstractFromSubstitutionModelTransitionModel(const SubstitutionModel& subModel);
+    AbstractFromSubstitutionModelTransitionModel(const SubstitutionModel& subModel, const std::string& prefix);
 
     AbstractFromSubstitutionModelTransitionModel(const AbstractFromSubstitutionModelTransitionModel& fmsm);
 

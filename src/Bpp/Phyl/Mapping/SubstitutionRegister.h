@@ -848,6 +848,142 @@ namespace bpp
     }
   };
 
+  /**
+   * @brief Distinguishes substitutions given the link between the
+   * changed nucleotides : S for strong (GC) and W for weak (AT).
+   *
+   * This register has 4 substitution types, mapped as:
+   * - 0 not a substitution
+   * - 1 S->S
+   * - 2 S->W
+   * - 3 W->S
+   * - 4 W->W
+   */
+
+  class SWSubstitutionRegister :
+    public AbstractSubstitutionRegister
+  {
+  private:
+    /**
+     *  @brief useful for codon alphabet
+     *
+     */
+    
+    const GeneticCode* code_;
+
+  public:
+    SWSubstitutionRegister(const NucleotideSubstitutionModel* model) :
+      AbstractSubstitutionRegister(model,"SW"),
+      code_()
+    {}
+
+    SWSubstitutionRegister(const CodonSubstitutionModel* model) :
+      AbstractSubstitutionRegister(model,"SW"),
+      code_(model->getGeneticCode())
+    {}
+
+    SWSubstitutionRegister(const SWSubstitutionRegister& reg) :
+      AbstractSubstitutionRegister(reg),
+      code_(reg.code_)
+    {}
+
+    SWSubstitutionRegister& operator=(const SWSubstitutionRegister& reg)
+    {
+      AbstractSubstitutionRegister::operator=(reg);
+      code_ = reg.code_;
+      return *this;
+    }
+
+    SWSubstitutionRegister* clone() const { return new SWSubstitutionRegister(*this); }
+
+  public:
+    size_t getNumberOfSubstitutionTypes() const { return 4; }
+
+    size_t getType(size_t fromState, size_t toState) const
+    {
+      int x = model_->getAlphabetStateAsInt(fromState);
+      int y = model_->getAlphabetStateAsInt(toState);
+      if (x == y)
+        return 0;                     // nothing happens
+
+      const CodonAlphabet* cAlpha = dynamic_cast<const CodonAlphabet*>(model_->getAlphabet());
+      int nd, na;
+      
+      if (cAlpha)
+      {
+        if (code_->getSourceAlphabet()->isGap(x)
+            || code_->getSourceAlphabet()->isGap(y)
+            || code_->isStop(x)
+            || code_->isStop(y))
+          return 0;
+        
+        nd=cAlpha->getFirstPosition(x);
+        na=cAlpha->getFirstPosition(y);
+        if (na!=nd)
+        {
+          if (cAlpha->getSecondPosition(x) != cAlpha->getSecondPosition(y)
+              || (cAlpha->getThirdPosition(x) != cAlpha->getThirdPosition(y)))
+            return 0;
+        }
+        else
+        {
+          nd=cAlpha->getSecondPosition(x);
+          na=cAlpha->getSecondPosition(y);
+          if (na!=nd)
+          {
+            if (cAlpha->getThirdPosition(x) != cAlpha->getThirdPosition(y))
+              return 0;
+          }
+          else
+          {
+            nd=cAlpha->getSecondPosition(x);
+            na=cAlpha->getSecondPosition(y);
+          }
+        }
+      }
+      else
+      {
+        nd=x;
+        na=y;
+      }
+      
+      switch(nd)
+      {
+      case 0:
+        return (na==3)?4:3;
+      case 1:
+        return (na==2)?1:2;
+      case 2:
+        return (na==1)?1:2;
+      case 3:
+        return (na==0)?4:3;
+      default:
+        return 0;
+      }
+    }
+
+    std::string getTypeName(size_t type) const
+    {
+      switch(type)
+      {
+      case 0:
+        return "no substitution";
+      case 1:
+        return "S->S";
+      case 2:
+        return "S->W";
+      case 3:
+        return "W->S";
+      case 4:
+        return "W->W";
+      default:
+        throw Exception("SWSubstitutionRegister::getTypeName. Bad substitution type.");
+      }
+    }
+    
+  };
+
+
 /**
  * @brief Distinguishes synonymous from non-synonymous substitutions.
  *

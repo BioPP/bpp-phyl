@@ -98,6 +98,7 @@ TransitionModel* BppOTransitionModelFormat::readTransitionModel(
       nestedReader.setGeneticCode(geneticCode_);
     
     SubstitutionModel* nestedModel=nestedReader.read(alphabet, nestedModelDescription, data, false);
+    map<string, string> unparsedParameterValuesNested(nestedReader.getUnparsedArguments());
 
     // We look for the register:
     string registerDescription = args["register"];
@@ -114,6 +115,12 @@ TransitionModel* BppOTransitionModelFormat::readTransitionModel(
 
       model.reset(new OneChangeRegisterTransitionModel(*nestedModel, *reg, numReg));
       delete reg;
+    }
+
+    // Then we update the parameter set:
+    for (map<string, string>::iterator it = unparsedParameterValuesNested.begin(); it != unparsedParameterValuesNested.end(); it++)
+    {
+      unparsedArguments_["OneChange." + it->first] = it->second;
     }
 
     delete nestedModel;

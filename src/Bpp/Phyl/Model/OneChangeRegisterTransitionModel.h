@@ -1,5 +1,5 @@
 //
-// File: OneChangeTransitionModel.h
+// File: OneChangeRegisterTransitionModel.h
 // Created by: Laurent Gueguen
 // Created on: samedi 24 octobre 2015, à 18h 28
 //
@@ -37,46 +37,100 @@
   knowledge of the CeCILL license and that you accept its terms.
 */
 
-#ifndef _ONE_CHANGE_TRANSITION_MODEL_H_
-#define _ONE_CHANGE_TRANSITION_MODEL_H_
+#ifndef _ONE_CHANGE_REGISTER_TRANSITION_MODEL_H_
+#define _ONE_CHANGE_REGISTER_TRANSITION_MODEL_H_
 
 #include "AbstractFromSubstitutionModelTransitionModel.h"
+#include "AnonymousSubstitutionModel.h"
+
+#include "../Mapping/SubstitutionRegister.h"
 
 namespace bpp
 {
 /**
  * @brief From a model, compute transition probabilities given there
- * is at least a change in the branch.
+ * is at least a change of a category (ie a non null number in a
+ * register) in the branch.
  *
  * It has the same parameters as the SubModel.
+ *
+ * @see SubstitutionRgister
  */
 
-  class OneChangeTransitionModel :
+  class OneChangeRegisterTransitionModel :
     public AbstractFromSubstitutionModelTransitionModel
   {
-  public:
-    OneChangeTransitionModel(const SubstitutionModel& originalModel) :
-      AbstractFromSubstitutionModelTransitionModel(originalModel, "OneChange.")
-    {
-    }
+  private:
+    /*
+     * The coordinates of the sustitutions or non-sustitutions that
+     * are NOT considered (ie for which the changes generator equals
+     * the model one).
+     *
+     */
     
-    OneChangeTransitionModel(const OneChangeTransitionModel& fmsm) :
-      AbstractFromSubstitutionModelTransitionModel(fmsm)
-    {
-    }
+    std::vector<std::vector<size_t> > otherChanges_;
+
+    /*
+     * The SubstitutionModel in which generator as
+     * considered changes set to 0.
+     */
+
+    std::unique_ptr<AnonymousSubstitutionModel> modelChanged_;
+
+    /*
+     * For ouput
+     *
+     */
+
+    std::string registerName_;
+    size_t numReg_;
+    
+  public:
+    /*
+     * @brief Constructor
+     *
+     * @param originalModel the substitution model used
+     * @param reg the register in which the considered type of event is
+     * defined.
+     * @param numReg the number of the considered event in the
+     * register.
+     *
+     */
+    
+    OneChangeRegisterTransitionModel(const SubstitutionModel& originalModel, const SubstitutionRegister& reg, size_t numReg);
+    
+    OneChangeRegisterTransitionModel(const OneChangeRegisterTransitionModel& fmsm) :
+      AbstractFromSubstitutionModelTransitionModel(fmsm),
+      otherChanges_(fmsm.otherChanges_),
+      modelChanged_(std::unique_ptr<AnonymousSubstitutionModel>(fmsm.modelChanged_->clone())),
+      registerName_(fmsm.registerName_),
+      numReg_(fmsm.numReg_)
+    {}
     
 
-    OneChangeTransitionModel& operator=(const OneChangeTransitionModel& fmsm)
+    OneChangeRegisterTransitionModel& operator=(const OneChangeRegisterTransitionModel& fmsm)
     {
       AbstractFromSubstitutionModelTransitionModel::operator=(fmsm);
+      otherChanges_=fmsm.otherChanges_;
+      modelChanged_=std::unique_ptr<AnonymousSubstitutionModel>(fmsm.modelChanged_->clone());
+      registerName_=fmsm.registerName_;
+      numReg_=fmsm.numReg_;
+        
       return *this;
     }
     
-    ~OneChangeTransitionModel() {}
+    ~OneChangeRegisterTransitionModel() {}
 
-    OneChangeTransitionModel* clone() const { return new OneChangeTransitionModel(*this); }
+    OneChangeRegisterTransitionModel* clone() const { return new OneChangeRegisterTransitionModel(*this); }
 
   public:
+
+    void fireParameterChanged(const ParameterList& parameters)
+    {
+      AbstractFromSubstitutionModelTransitionModel::fireParameterChanged(parameters);
+      updateMatrices();
+    }
+
     double freq(size_t i) const { return getModel().freq(i); }
 
     double Pij_t    (size_t i, size_t j, double t) const;
@@ -93,11 +147,23 @@ namespace bpp
 
     const Matrix<double>& getd2Pij_dt2(double t) const;
 
+    void updateMatrices();
+    
     std::string getName() const
     {
       return "OneChange";
     }
 
+    const std::string& getRegisterName() const
+    {
+      return registerName_;
+    }
+
+    size_t getRegisterNumber() const
+    {
+      return numReg_;
+    }
+    
     /*
      * @}
      *
@@ -106,4 +172,4 @@ namespace bpp
   };
 } // end of namespace bpp.
 
-#endif  // _ONE_CHANGE_TRANSITION_MODEL_H_
+#endif  // _ONE_CHANGE_REGISTER_TRANSITION_MODEL_H_

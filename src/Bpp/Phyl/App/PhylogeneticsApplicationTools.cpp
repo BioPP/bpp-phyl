@@ -1689,6 +1689,15 @@ SubstitutionRegister* PhylogeneticsApplicationTools::getSubstitutionRegister(con
     else
       throw Exception("TsTv categorization is only available for nucleotide or codon alphabet!");
   }
+  else if (regType == "SW")
+  {
+    if (AlphabetTools::isNucleicAlphabet(model->getAlphabet()))
+      reg = new SWSubstitutionRegister(dynamic_cast<const NucleotideSubstitutionModel*>(model));
+    else if (AlphabetTools::isCodonAlphabet(model->getAlphabet()))
+      reg = new SWSubstitutionRegister(dynamic_cast<const CodonSubstitutionModel*>(model));
+    else
+      throw Exception("SW categorization is only available for nucleotide or codon alphabet!");
+  }
   else if (regType == "KrKc")
   {
     if (AlphabetTools::isProteicAlphabet(model->getAlphabet()))
