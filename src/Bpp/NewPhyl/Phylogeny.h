@@ -90,13 +90,29 @@ namespace Phyl {
 		std::string description () const { return prettyTypeName (*this); }
 	};
 
-	struct ForwardLikelihood {
+	struct ForwardLikelihoodSpec : DF::NodeSpecAlwaysGenerate<ComputeForwardLikelihoodNode> {
 		const Topology::Branch branch;
 		const LikelihoodParameters likParams;
+
+		ForwardLikelihoodSpec (const Topology::Branch & b, const LikelihoodParameters & params)
+		    : branch (b), likParams (params) {}
+
+		DF::NodeSpecificationVec computeDependencies () const {
+			return {}; // FIXME continue, needs model and such
+		}
 	};
 
 	DF::NodeSpecificationVec ConditionalLikelihoodSpec::computeDependencies () const {
-		return DF::makeNodeSpecVec (); // FIXME
+		if (computed_from_data ()) {
+			return DF::makeNodeSpecVec (
+			    DF::NodeSpecReturnParameter{likParams.leafData->access (node).value ()});
+		} else {
+			DF::NodeSpecificationVec depSpecs;
+			node.foreachChildBranch ([this, &depSpecs](Topology::Branch && branch) {
+				depSpecs.emplace_back (ForwardLikelihoodSpec{branch, likParams});
+			});
+			return depSpecs;
+		}
 	}
 
 	struct LogLikelihoodSpec : DF::NodeSpecAlwaysGenerate<ComputeLogLikelihoodNode> {
