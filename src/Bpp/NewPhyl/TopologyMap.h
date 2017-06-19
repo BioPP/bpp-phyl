@@ -126,6 +126,8 @@ namespace Topology {
 		Range::Range<value_iterator> value_range () const noexcept { return indexMap_.value_range (); }
 		Range::Range<index_iterator> index_range () const noexcept { return range (indexMap_); }
 
+		IndexType size () const noexcept { return valueMap_.size (); }
+
 	private:
 		ValueMapBase<const T> valueMap_;
 		std::unordered_map<T, IndexType, Hash> indexMap_;
@@ -211,7 +213,7 @@ namespace Topology {
 	ValueMapBase<DF::Parameter<T>>
 	make_parameter_map_from_value_map (const ValueMapBase<T> & valueMap) {
 		ValueMapBase<DF::Parameter<T>> map (valueMap.size ());
-		for (auto i : range (map.size ()))
+		for (auto i : index_range (map))
 			map.access (i) =
 			    valueMap.access (i).map ([](const T & t) { return DF::Parameter<T>::create (t); });
 		return map;

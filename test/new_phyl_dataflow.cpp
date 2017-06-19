@@ -84,5 +84,22 @@ TEST_CASE("test")
   auto modelMap = bpp::make_frozen(bpp::Topology::make_uniform_branch_value_map(phyloTreeData.topology, model));
   auto process = bpp::Phyl::Process{phyloTreeData.topology, branchLengthMap, modelMap};
 
-  // TODO leafData and likparams
+  // Make leaf data
+  auto leafDataMapTmp =
+    bpp::make_freezable<bpp::Topology::NodeValueMap<bpp::DF::Parameter<const bpp::Sequence*>>>(phyloTreeData.topology);
+  for (auto i : bpp::index_range(*leafDataMapTmp))
+    leafDataMapTmp->access(i) = phyloTreeData.nodeNames->access(i).map([&sites](const std::string& name) {
+      return bpp::DF::Parameter<const bpp::Sequence*>::create(&sites.getSequence(name));
+    });
+  auto leafDataMap = std::move(leafDataMapTmp).freeze();
+
+  // Finally, likelihood parameters
+  auto likParams = bpp::Phyl::LikelihoodParameters{process, leafDataMap};
+
+  bpp::DF::Value<double> logLikNode{bpp::DF::instantiateNodeSpec(bpp::Phyl::LogLikelihoodSpec{likParams})};
+
+  std::ofstream fd("df_debug");
+  //bpp::DF::debugNodeSpecInstantiation(fd, bpp::Phyl::LogLikelihoodSpec{likParams});
+  //FIXME a bit big =)
+  bpp::DF::debugDag(fd, logLikNode);
 }
