@@ -419,12 +419,12 @@ namespace bpp
       
       for (size_t p=vSubReg_.size(); p>0; p--)
       {
-        res+=vSubReg_[p-1]->getTypeName((ty%vSubReg_[p-1]->getNumberOfSubstitutionTypes())+1);
+        if (p!=vSubReg_.size())
+          res=" X " + res;
+        res=vSubReg_[p-1]->getTypeName((ty%vSubReg_[p-1]->getNumberOfSubstitutionTypes())+1) + res;
 
         ty/=vSubReg_[p-1]->getNumberOfSubstitutionTypes();
         
-        if (p!=1)
-          res+="_";
       }
 
       return res;
@@ -936,8 +936,8 @@ namespace bpp
           }
           else
           {
-            nd=cAlpha->getSecondPosition(x);
-            na=cAlpha->getSecondPosition(y);
+            nd=cAlpha->getThirdPosition(x);
+            na=cAlpha->getThirdPosition(y);
           }
         }
       }
@@ -1029,7 +1029,7 @@ namespace bpp
     {
       int x = model_->getAlphabetStateAsInt(fromState);
       int y = model_->getAlphabetStateAsInt(toState);
-      const CodonAlphabet* cAlpha = dynamic_cast<const CodonAlphabet*>(model_->getAlphabet());
+      const CodonAlphabet* cAlpha = static_cast<const CodonAlphabet*>(model_->getAlphabet());
       if (code_->getSourceAlphabet()->isGap(x)
           || code_->getSourceAlphabet()->isGap(y)
           || code_->isStop(x)
@@ -1088,10 +1088,43 @@ namespace bpp
   private:
     std::vector< std::vector<bool> > types_;
 
+    // In case of codon model
+    const GeneticCode* code_;
+
   public:
     KrKcSubstitutionRegister(const ProteinSubstitutionModel* model) :
       AbstractSubstitutionRegister(model,"KrKc"),
-      types_(20)
+      types_(20),
+      code_(0)
+    {
+      init();
+    }
+
+    KrKcSubstitutionRegister(const CodonSubstitutionModel* model) :
+      AbstractSubstitutionRegister(model,"KrKc"),
+      types_(20),
+      code_(model->getGeneticCode())
+    {
+      init();
+    }
+
+    KrKcSubstitutionRegister(const KrKcSubstitutionRegister& kreg) :
+      AbstractSubstitutionRegister(kreg),
+      types_(kreg.types_),
+      code_(kreg.code_)
+    {
+    }
+
+    KrKcSubstitutionRegister& operator=(const KrKcSubstitutionRegister& kreg)
+    {
+      AbstractSubstitutionRegister::operator=(kreg);
+      types_=kreg.types_;
+      code_=kreg.code_;
+
+      return *this;
+    }
+
+    void init()
     {
       for (size_t i = 0; i < 20; ++i) {
         types_[i].resize(20);
@@ -1202,6 +1235,34 @@ namespace bpp
         return 0;  // nothing happens
       int x = model_->getAlphabetStateAsInt(fromState);
       int y = model_->getAlphabetStateAsInt(toState);
+
+      if (code_) //Codon model
+      {
+        if (code_->getSourceAlphabet()->isGap(x)
+            || code_->getSourceAlphabet()->isGap(y)
+            || code_->isStop(x)
+            || code_->isStop(y))
+          return 0;
+        if (code_->areSynonymous(x, y))
+          return 0;
+
+        // avoid multiple substitutions
+        const CodonAlphabet* cAlpha = static_cast<const CodonAlphabet*>(model_->getAlphabet());
+        
+        size_t countPos = 0;
+        if (cAlpha->getFirstPosition(x) != cAlpha->getFirstPosition(y))
+          countPos++;
+        if (cAlpha->getSecondPosition(x) != cAlpha->getSecondPosition(y))
+          countPos++;
+        if (cAlpha->getThirdPosition(x) != cAlpha->getThirdPosition(y))
+          countPos++;
+        if (countPos > 1)
+          return 0;
+
+        x=code_->translate(x);
+        y=code_->translate(y);
+      }
+
       return types_[static_cast<size_t>(x)][static_cast<size_t>(y)] ? 1 : 2;
     }
 
