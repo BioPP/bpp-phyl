@@ -159,6 +159,13 @@ namespace DF {
 		std::type_index nodeType () const noexcept { return specification_->nodeType (); }
 		std::string description () const { return specification_->description (); }
 
+		// Debug: generate an id that is probably unique (only use for debug !)
+		std::size_t debugHashCode () const noexcept {
+			auto ptr_hash = std::hash<std::unique_ptr<Interface>>{}(specification_);
+			auto descr_hash = std::hash<std::string>{}(description ());
+			return ptr_hash ^ (descr_hash << 1);
+		}
+
 	private:
 		// Virtual value type pattern
 		struct Interface {
@@ -233,7 +240,6 @@ namespace DF {
 
 	/* A dummy node spec that returns a stored node.
 	 * nodeType () returns a dummy value, but is never used.
-	 * TODO add better description, and fix nodeType in case it is used somewhere.
 	 */
 	class NodeSpecReturnParameter {
 	public:
@@ -242,7 +248,10 @@ namespace DF {
 		static NodeSpecificationVec computeDependencies () { return {}; }
 		Node buildNode (NodeVec) const { return node_; }
 		static std::type_index nodeType () { return typeid (void); }
-		static std::string description () { return "NodeSpecReturnParameter"; }
+		std::string description () const {
+			auto & impl = node_.getImpl ();
+			return std::string ("ReturnParameter(") + prettyTypeName (impl) + ")";
+		}
 
 	private:
 		Node node_;

@@ -59,12 +59,11 @@ namespace DF {
 	template <typename T> class Parameter;
 
 	/* Base Node.
-   * Always contains a node (as do all handle classes.
+	 * Always contains a node (as do all handle classes.
 	 */
 	class Node {
 	public:
 		class Impl;
-		using Ref = Impl &;
 
 		template <typename T> Node (const Value<T> & v) noexcept;
 		template <typename T> Node (const Parameter<T> & p) noexcept;
@@ -78,7 +77,7 @@ namespace DF {
 			return Node (std::make_shared<T> (std::move (deps), std::forward<Args> (args)...));
 		}
 
-		Ref getImpl () const noexcept { return *pImpl_; }
+		Impl & getImpl () const noexcept { return *pImpl_; }
 
 		bool operator== (const Node & other) const noexcept { return pImpl_ == other.pImpl_; }
 		std::size_t hashCode () const noexcept { return std::hash<std::shared_ptr<Impl>>{}(pImpl_); }
@@ -162,7 +161,6 @@ namespace DF {
 	template <typename T> class Value {
 	public:
 		class Impl;
-		using Ref = Impl &;
 
 		explicit Value (const Node & n);
 		Value (const Parameter<T> & p) noexcept;
@@ -176,7 +174,7 @@ namespace DF {
 			return Value (std::make_shared<U> (std::move (deps), std::forward<Args> (args)...));
 		}
 
-		Ref getImpl () const noexcept { return *pImpl_; }
+		Impl & getImpl () const noexcept { return *pImpl_; }
 		const T & getValue () {
 			// The value class is the interface, perform the recomputation.
 			pImpl_->computeRecursively ();
@@ -214,7 +212,6 @@ namespace DF {
 	template <typename T> class Parameter {
 	public:
 		class Impl;
-		using Ref = Impl &;
 
 		explicit Parameter (const Node & n);
 		explicit Parameter (const Value<T> & v);
@@ -224,7 +221,7 @@ namespace DF {
 			return Parameter (std::make_shared<Impl> (std::forward<Args> (args)...));
 		}
 
-		Ref getImpl () const noexcept { return *pImpl_; }
+		Impl & getImpl () const noexcept { return *pImpl_; }
 		const T & getValue () noexcept { return pImpl_->getValue (); }
 		void setValue (T t) noexcept { pImpl_->setValue (std::move (t)); }
 

@@ -131,8 +131,7 @@ namespace DF {
 		std::string dotNodeKey (const Node & n) { return dotNodeKey (&n.getImpl ()); }
 		std::string dotNodeKey (const Registry::Key & key) { return dotNodeKey ('K', key.hashCode ()); }
 		std::string dotNodeKey (const NodeSpecification & nodeSpec) {
-      // FIXME use more than description !
-			return dotNodeKey ('S', std::hash<std::string>{}(nodeSpec.description ()));
+			return dotNodeKey ('S', nodeSpec.debugHashCode ());
 		}
 
 		// Dot pretty print of elements

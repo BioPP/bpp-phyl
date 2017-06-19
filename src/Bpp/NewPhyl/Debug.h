@@ -59,8 +59,8 @@ std::string prettyTypeName (std::type_index ti);
 template <typename T> std::string prettyTypeName () {
 	return prettyTypeName (typeid (T));
 }
-template <typename T> std::string prettyTypeName (const T &) {
-	return prettyTypeName<T> ();
+template <typename T> std::string prettyTypeName (const T & t) {
+	return prettyTypeName (typeid (t));
 }
 
 // TODO more general to_string ? (duck::format ?)
