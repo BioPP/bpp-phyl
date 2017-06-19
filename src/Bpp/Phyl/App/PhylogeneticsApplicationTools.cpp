@@ -1702,8 +1702,10 @@ SubstitutionRegister* PhylogeneticsApplicationTools::getSubstitutionRegister(con
   {
     if (AlphabetTools::isProteicAlphabet(model->getAlphabet()))
       reg = new KrKcSubstitutionRegister(dynamic_cast<const ProteinSubstitutionModel*>(model));
+    else if (AlphabetTools::isCodonAlphabet(model->getAlphabet()))
+      reg = new KrKcSubstitutionRegister(dynamic_cast<const CodonSubstitutionModel*>(model));
     else
-      throw Exception("KrKc categorization is only available for amino acid alphabet!");
+      throw Exception("KrKc categorization is only available for protein or amino acid alphabet!");
   }
   else if (regType == "DnDs")
   {

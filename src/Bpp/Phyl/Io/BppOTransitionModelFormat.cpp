@@ -114,14 +114,19 @@ TransitionModel* BppOTransitionModelFormat::readTransitionModel(
       vector<size_t> vNumRegs;
       
       StringTokenizer nst(args["numReg"], "+");
-    
+
+      bool out=true;
+      
       while (nst.hasMoreToken())
       {
-        vNumRegs.push_back(TextTools::to<size_t>(nst.nextToken()));
+        size_t n=TextTools::to<size_t>(nst.nextToken());
+        vNumRegs.push_back(n);
+        if (verbose_)
+        {
+          ApplicationTools::displayResult(out?"Register types":"", reg->getTypeName(n));
+          out=false;
+        }
       }
-        
-      if (verbose_)
-        ApplicationTools::displayResult("Register numbers", args["numReg"]);
 
       model.reset(new OneChangeRegisterTransitionModel(*nestedModel, *reg, vNumRegs));
       delete reg;
