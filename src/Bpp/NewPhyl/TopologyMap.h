@@ -81,6 +81,11 @@ namespace Topology {
 			return data_[id];
 		}
 
+		using value_iterator = typename std::vector<Optional<T>>::iterator;
+		using value_const_iterator = typename std::vector<Optional<T>>::const_iterator;
+		Range::Range<value_iterator> value_range () noexcept { return range (data_); }
+		Range::Range<value_const_iterator> value_range () const noexcept { return range (data_); }
+
 		IndexType size () const noexcept { return IndexType (data_.size ()); }
 
 	private:
@@ -115,6 +120,11 @@ namespace Topology {
 			else
 				return {};
 		}
+
+		using value_iterator = typename ValueMapBase<const T>::value_const_iterator;
+		using index_iterator = typename std::unordered_map<T, IndexType, Hash>::const_iterator;
+		Range::Range<value_iterator> value_range () const noexcept { return indexMap_.value_range (); }
+		Range::Range<index_iterator> index_range () const noexcept { return range (indexMap_); }
 
 	private:
 		ValueMapBase<const T> valueMap_;
@@ -221,8 +231,8 @@ namespace Topology {
 	 */
 	template <typename T> ValueMapBase<T> make_uniform_value_map (IndexType size, const T & t) {
 		ValueMapBase<T> map (size);
-		for (auto i : range (size))
-			map.access (i) = t;
+		for (auto & v : map.value_range ())
+			v = t;
 		return map;
 	}
 	template <typename T>
