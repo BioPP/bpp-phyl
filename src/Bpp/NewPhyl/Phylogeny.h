@@ -91,25 +91,28 @@ namespace Phyl {
 	};
 
 	struct ForwardLikelihoodSpec : DF::NodeSpecAlwaysGenerate<ComputeForwardLikelihoodNode> {
-		const Topology::Branch branch;
 		const LikelihoodParameters likParams;
+		const Topology::Branch branch;
 
-		ForwardLikelihoodSpec (const Topology::Branch & b, const LikelihoodParameters & params)
-		    : branch (b), likParams (params) {}
+		ForwardLikelihoodSpec (const LikelihoodParameters & params, const Topology::Branch & b)
+		    : likParams (params), branch (b) {}
 
 		DF::NodeSpecificationVec computeDependencies () const {
-			return {}; // FIXME continue, needs model and such
+			return DF::makeNodeSpecVec (
+			    ConditionalLikelihoodSpec{likParams, branch.childNode ()},
+			    ModelTransitionMatrixSpec (likParams.process.modelByBranch->access (branch).value (),
+			                               likParams.process.branchLengths->access (branch).value ()));
 		}
 	};
 
-	DF::NodeSpecificationVec ConditionalLikelihoodSpec::computeDependencies () const {
+	inline DF::NodeSpecificationVec ConditionalLikelihoodSpec::computeDependencies () const {
 		if (computed_from_data ()) {
 			return DF::makeNodeSpecVec (
 			    DF::NodeSpecReturnParameter{likParams.leafData->access (node).value ()});
 		} else {
 			DF::NodeSpecificationVec depSpecs;
 			node.foreachChildBranch ([this, &depSpecs](Topology::Branch && branch) {
-				depSpecs.emplace_back (ForwardLikelihoodSpec{branch, likParams});
+				depSpecs.emplace_back (ForwardLikelihoodSpec{likParams, branch});
 			});
 			return depSpecs;
 		}
@@ -122,7 +125,11 @@ namespace Phyl {
 
 		DF::NodeSpecificationVec computeDependencies () const {
 			return DF::makeNodeSpecVec (
-			    ConditionalLikelihoodSpec{likParams, likParams.process.tree->rootNode ()});
+			    ConditionalLikelihoodSpec{likParams, likParams.process.tree->rootNode ()},
+			    ModelEquilibriumFrequenciesSpec (
+			        likParams.process.modelByBranch
+			            ->access (likParams.process.tree->rootNode ().fatherBranch ())
+			            .value ()));
 		}
 	};
 }
