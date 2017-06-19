@@ -68,7 +68,7 @@ public:
 	~FreezableUniquePtr () = default;
 
 	// Move construct from unique_ptr ; prefer the static make function.
-	explicit FreezableUniquePtr (std::unique_ptr<T> && ptr) noexcept : ptr_ (std::move (ptr)) {}
+	FreezableUniquePtr (std::unique_ptr<T> && ptr) noexcept : ptr_ (std::move (ptr)) {}
 
 	// Builds "in place", less overhead than unique_ptr constructor.
 	template <typename... Args> static FreezableUniquePtr make (Args &&... args) {
@@ -122,7 +122,7 @@ public:
 	// All move/copy constructor/assignemnt default
 
 	// Move construct from FreezableUniquePtr
-	explicit FrozenSharedPtr (FreezableUniquePtr<T> && ptr) noexcept
+	FrozenSharedPtr (FreezableUniquePtr<T> && ptr) noexcept
 	    : ptr_ (static_cast<std::shared_ptr<T>> (std::move (ptr))) {}
 
 	// Access
@@ -153,7 +153,7 @@ public:
 	}
 
 	// Allow shared_from_this functionnality, may violate the properties !
-  // FIXME use a custom base enable_shared_from_this type, and std::is_base_of check
+	// FIXME use a custom base enable_shared_from_this type, and std::is_base_of check
 	template <typename SharedFromThisType>
 	static FrozenSharedPtr shared_from_this (const SharedFromThisType & t) {
 		return FrozenSharedPtr{t.shared_from_this ()};
@@ -164,7 +164,7 @@ public:
 	std::shared_ptr<ConstT> && get_shared () && noexcept { return std::move (ptr_); }
 
 private:
-  // Only used by shared_from_this
+	// Only used by shared_from_this
 	FrozenSharedPtr (std::shared_ptr<ConstT> && ptr) noexcept : ptr_ (std::move (ptr)) {}
 
 	std::shared_ptr<ConstT> ptr_;

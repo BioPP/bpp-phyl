@@ -57,13 +57,15 @@ namespace Phyl {
 	using FrequencyVector = Eigen::VectorXd;
 
 	// TODO wrap SubstitutionModel in a Pimpl ModelValue class.
-
+  // TODO improve ModelNode system...
 	class ModelNode : public DF::Value<const SubstitutionModel *>::Impl {
 	public:
 		ModelNode (std::unique_ptr<SubstitutionModel> model);
 		~ModelNode ();
 
 		// methods for access that invalidate.
+
+		void compute () final { DF::failureParameterComputeWasCalled (typeid (ModelNode)); }
 
 	private:
 		std::unique_ptr<SubstitutionModel> model_;

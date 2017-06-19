@@ -94,7 +94,7 @@ namespace Topology {
 	 */
 	template <typename T, typename Hash = std::hash<T>> class IndexMapBase {
 	public:
-		IndexMapBase (IndexType size) : valueMap_ (size), indexMap_ (size) {}
+		explicit IndexMapBase (IndexType size) : valueMap_ (size), indexMap_ (size) {}
 
 		template <typename... Args> void set (IndexType id, Args &&... args) {
 			auto & opt = valueMap_.access (id);
@@ -153,7 +153,7 @@ namespace Topology {
 	template <typename T, typename Hash = std::hash<T>>
 	class NodeIndexMap : public IndexMapBase<T, Hash> {
 	public:
-		NodeIndexMap (FrozenSharedPtr<Tree> tree)
+		explicit NodeIndexMap (FrozenSharedPtr<Tree> tree)
 		    : IndexMapBase<T, Hash> (tree->nbNodes ()), tree_ (std::move (tree)) {}
 		using IndexMapBase<T, Hash>::set;
 		using IndexMapBase<T, Hash>::access;
@@ -175,7 +175,7 @@ namespace Topology {
 	template <typename T, typename Hash = std::hash<T>>
 	class BranchIndexMap : public IndexMapBase<T, Hash> {
 	public:
-		BranchIndexMap (FrozenSharedPtr<Tree> tree)
+		explicit BranchIndexMap (FrozenSharedPtr<Tree> tree)
 		    : IndexMapBase<T, Hash> (tree->nbBranches ()), tree_ (std::move (tree)) {}
 		using IndexMapBase<T, Hash>::set;
 		using IndexMapBase<T, Hash>::access;
@@ -194,17 +194,17 @@ namespace Topology {
 		FrozenSharedPtr<Tree> tree_;
 	};
 
-	/* Utility functions:
-	 * Create a ValueMap of DF::Parameters initialized by values found in another ValueMap.
+	/* Create a ValueMap of DF::Parameters initialized by values found in another ValueMap.
 	 * Parameters are only created for existing values.
 	 */
 	template <typename T>
 	ValueMapBase<DF::Parameter<T>>
 	make_parameter_map_from_value_map (const ValueMapBase<T> & valueMap) {
 		ValueMapBase<DF::Parameter<T>> map (valueMap.size ());
-		for (auto i : map.size ())
+		for (auto i : range (map.size ()))
 			map.access (i) =
 			    valueMap.access (i).map ([](const T & t) { return DF::Parameter<T>::create (t); });
+		return map;
 	}
 	template <typename T>
 	NodeValueMap<DF::Parameter<T>>
@@ -215,6 +215,24 @@ namespace Topology {
 	BranchValueMap<DF::Parameter<T>>
 	make_branch_parameter_map_from_value_map (const BranchValueMap<T> & valueMap) {
 		return BranchValueMap<DF::Parameter<T>>{make_parameter_map_from_value_map (valueMap)};
+	}
+
+	/* Create a uniform map from a value, filling all possible value slots.
+	 */
+	template <typename T> ValueMapBase<T> make_uniform_value_map (IndexType size, const T & t) {
+		ValueMapBase<T> map (size);
+		for (auto i : range (size))
+			map.access (i) = t;
+		return map;
+	}
+	template <typename T>
+	NodeValueMap<T> make_uniform_node_value_map (const FrozenSharedPtr<Tree> & tree, const T & t) {
+		return NodeValueMap<T>{make_uniform_value_map (tree->nbNodes (), t)};
+	}
+	template <typename T>
+	BranchValueMap<T> make_uniform_branch_value_map (const FrozenSharedPtr<Tree> & tree,
+	                                                 const T & t) {
+		return BranchValueMap<T>{make_uniform_value_map (tree->nbBranches (), t)};
 	}
 
 	// Retrieve info from PhyloTree
