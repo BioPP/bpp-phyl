@@ -75,12 +75,14 @@ TEST_CASE("test")
     bpp::BasicSequence("D", "TTCCAGACATGCCGGGACTTTACCGAGAAGGAGTTGTTTTCCATTGCAGCCCAGGTGGATAAGGAACATC", &alphabet));
 
   // Model
-  auto model =
-    bpp::DF::Node::create<bpp::Phyl::ModelNode>(std::unique_ptr<bpp::SubstitutionModel>(new bpp::T92(&alphabet, 3.)));
+  auto model = bpp::DF::Value<const bpp::SubstitutionModel*>::create<bpp::Phyl::ModelNode>(
+    std::unique_ptr<bpp::SubstitutionModel>(new bpp::T92(&alphabet, 3.)));
 
   // Init
-  auto branchLengthMap = bpp::Topology::make_branch_parameter_map_from_value_map(*phyloTreeData.branchLengths);
-  auto modelMap = bpp::Topology::make_uniform_branch_value_map(phyloTreeData.topology, model);
+  auto branchLengthMap =
+    bpp::make_frozen(bpp::Topology::make_branch_parameter_map_from_value_map(*phyloTreeData.branchLengths));
+  auto modelMap = bpp::make_frozen(bpp::Topology::make_uniform_branch_value_map(phyloTreeData.topology, model));
+  auto process = bpp::Phyl::Process{phyloTreeData.topology, branchLengthMap, modelMap};
 
-  //auto process = bpp::Phyl::Process{phyloTreeData.topology}; // TODO
+  // TODO leafData and likparams
 }

@@ -54,7 +54,7 @@ namespace Topology {
 	// Convert from PhyloTree
 	ConvertedPhyloTreeData convertPhyloTree (const bpp::PhyloTree & phyloTree) {
 		// Build topology
-		auto tmpTree = make_freezable_unique<Tree> ();
+		auto tmpTree = make_freezable<Tree> ();
 		std::unordered_map<bpp::PhyloTree::NodeIndex, IndexType> phyloNodeIdToOurIds;
 		for (auto phyloNodeId : phyloTree.getAllNodesIndexes ()) {
 			// Create all nodes
@@ -76,8 +76,8 @@ namespace Topology {
 		auto tree = std::move (tmpTree).freeze ();
 
 		// Data
-		auto brLens = make_freezable_unique<BranchValueMap<double>> (tree);
-		auto nodeNames = make_freezable_unique<NodeIndexMap<std::string>> (tree);
+		auto brLens = make_freezable<BranchValueMap<double>> (tree);
+		auto nodeNames = make_freezable<NodeIndexMap<std::string>> (tree);
 		for (auto phyloNodeId : phyloTree.getAllNodesIndexes ()) {
 			auto node = tree->node (phyloNodeIdToOurIds.at (phyloNodeId));
 			// Branch length

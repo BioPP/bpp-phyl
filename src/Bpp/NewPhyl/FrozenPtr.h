@@ -108,9 +108,12 @@ private:
 	std::shared_ptr<T> ptr_;
 };
 
-template <typename T, typename... Args>
-FreezableUniquePtr<T> make_freezable_unique (Args &&... args) {
+// Equivalent to std::make_unique
+template <typename T, typename... Args> FreezableUniquePtr<T> make_freezable (Args &&... args) {
 	return FreezableUniquePtr<T>::make (std::forward<Args> (args)...);
+}
+template <typename T> FreezableUniquePtr<T> make_freezable (T && t) {
+	return FreezableUniquePtr<T>::make (std::forward<T> (t));
 }
 
 template <typename T> class FrozenSharedPtr {
@@ -124,6 +127,11 @@ public:
 	// Move construct from FreezableUniquePtr
 	FrozenSharedPtr (FreezableUniquePtr<T> && ptr) noexcept
 	    : ptr_ (static_cast<std::shared_ptr<T>> (std::move (ptr))) {}
+
+	// Build in place (skip Freezable pointer)
+	template <typename... Args> static FrozenSharedPtr make (Args &&... args) {
+		return std::make_shared<ConstT> (std::forward<Args> (args)...);
+	}
 
 	// Access
 	constexpr explicit operator bool () const noexcept { return bool(ptr_); }
@@ -170,6 +178,15 @@ private:
 	std::shared_ptr<ConstT> ptr_;
 };
 
+// Similar to std::make_shared
+template <typename T, typename... Args> FrozenSharedPtr<T> make_frozen (Args &&... args) {
+	return FrozenSharedPtr<T>::make (std::forward<Args> (args)...);
+}
+template <typename T> FrozenSharedPtr<T> make_frozen (T && t) {
+	return FrozenSharedPtr<T>::make (std::forward<T> (t));
+}
+
+// Deferred freeze() impl
 template <typename T> FrozenSharedPtr<T> FreezableUniquePtr<T>::freeze () && {
 	return FrozenSharedPtr<T>{std::move (*this)};
 }

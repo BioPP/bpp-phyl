@@ -98,7 +98,7 @@ struct SumSpec : DF::NodeSpecAlwaysGenerate<Sum>
 
 TEST_CASE("test")
 {
-  auto buildTree = make_freezable_unique<Topology::Tree>();
+  auto buildTree = make_freezable<Topology::Tree>();
   auto ta = buildTree->createNode();
   auto tb = buildTree->createNode();
   auto tc = buildTree->createNode({ta, tb});
@@ -109,7 +109,7 @@ TEST_CASE("test")
   std::ofstream ft("topology_debug");
   Topology::debugTree(ft, tree);
 
-  auto buildParams = make_freezable_unique<Topology::NodeValueMap<DF::Parameter<int>>>(tree);
+  auto buildParams = make_freezable<Topology::NodeValueMap<DF::Parameter<int>>>(tree);
   buildParams->access(tree->node(ta)) = DF::Parameter<int>::create(3);
   buildParams->access(tree->node(tb)) = DF::Parameter<int>::create(42);
   auto params = std::move(buildParams).freeze();
