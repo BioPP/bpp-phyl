@@ -192,7 +192,7 @@ namespace bpp
     {
       if (type == 0)
       {
-        return "no substitution";
+        return "nosub";
       }
       else if (type == 1)
       {
@@ -289,7 +289,7 @@ namespace bpp
       catch (Exception& e)
       {
         if (type == getNumberOfSubstitutionTypes())
-          return "Completion substitution";
+          return "Completion_substitution";
         else
           throw Exception("CompleteSubstitutionRegister::getTypeName. Bad substitution type.");
       }
@@ -412,7 +412,7 @@ namespace bpp
     std::string getTypeName(size_t type) const
     {
       if (type == 0)
-        return "no substitution";
+        return "nosub";
 
       std::string res="";
       size_t ty=type-1;
@@ -420,7 +420,7 @@ namespace bpp
       for (size_t p=vSubReg_.size(); p>0; p--)
       {
         if (p!=vSubReg_.size())
-          res=" X " + res;
+          res="_X_" + res;
         res=vSubReg_[p-1]->getTypeName((ty%vSubReg_[p-1]->getNumberOfSubstitutionTypes())+1) + res;
 
         ty/=vSubReg_[p-1]->getNumberOfSubstitutionTypes();
@@ -831,15 +831,15 @@ namespace bpp
     {
       if (type == 0)
       {
-        return "no substitution";
+        return "nosub";
       }
       else if (type == 1)
       {
-        return "transition";
+        return "Ts";
       }
       else if (type == 2)
       {
-        return "transversion";
+        return "Tv";
       }
       else
       {
@@ -967,7 +967,7 @@ namespace bpp
       switch(type)
       {
       case 0:
-        return "no substitution";
+        return "nosub";
       case 1:
         return "S->S";
       case 2:
@@ -1056,7 +1056,7 @@ namespace bpp
     {
       if (type == 0)
       {
-        return "no substitution";
+        return "nosub";
       }
       else if (type == 1)
       {
@@ -1270,15 +1270,15 @@ namespace bpp
     {
       if (type == 0)
       {
-        return "no substitution";
+        return "nosub";
       }
       else if (type == 1)
       {
-        return "conservative";
+        return "Kc";
       }
       else if (type == 2)
       {
-        return "radical";
+        return "Kr";
       }
       else
       {

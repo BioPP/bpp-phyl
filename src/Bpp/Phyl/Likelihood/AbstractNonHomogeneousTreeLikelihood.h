@@ -74,7 +74,7 @@ class AbstractNonHomogeneousTreeLikelihood:
           siteModelDescriptions_(), index_(0), nbModels_(modelSet->getNumberOfModels())
         {
           for (size_t i = 0; i < nbModels_; ++i)
-            siteModelDescriptions_.push_back(ConstNoPartitionSiteModelDescription(modelSet->getModel(i), modelSet->getNodesWithModel(i)));        
+            siteModelDescriptions_.push_back(ConstNoPartitionSiteModelDescription(modelSet->getTransitionModel(i), modelSet->getNodesWithModel(i)));        
         }
 
       public:
