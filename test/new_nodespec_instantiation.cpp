@@ -68,9 +68,9 @@ using Sum = DF::GenericReductionComputation<SumOp>;
 struct SumSpec : DF::NodeSpecAlwaysGenerate<Sum>
 {
   Topology::Node node;
-  FrozenSharedPtr<Topology::NodeValueMap<DF::Parameter<int>>> params;
+  FrozenPtr<Topology::NodeValueMap<DF::Parameter<int>>> params;
 
-  SumSpec(const Topology::Node& n, const FrozenSharedPtr<Topology::NodeValueMap<DF::Parameter<int>>>& p)
+  SumSpec(const Topology::Node& n, const FrozenPtr<Topology::NodeValueMap<DF::Parameter<int>>>& p)
     : node(n)
     , params(p)
   {

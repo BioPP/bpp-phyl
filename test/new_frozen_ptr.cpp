@@ -51,9 +51,9 @@ struct Derived : Base
 {
 };
 
-TEST_CASE("FreezableUniquePtr")
+TEST_CASE("FreezablePtr")
 {
-  auto empty = bpp::FreezableUniquePtr<int>{};
+  auto empty = bpp::FreezablePtr<int>{};
   CHECK(!empty);
 
   auto p = bpp::make_freezable<int>(42);
@@ -68,10 +68,10 @@ TEST_CASE("FreezableUniquePtr")
   CHECK(*p2 == 3);
 
   auto derived = bpp::make_freezable<Derived>();
-  bpp::FreezableUniquePtr<Base> base{std::move(derived)};
+  bpp::FreezablePtr<Base> base{std::move(derived)};
 }
 
-TEST_CASE("FrozenSharedPtr")
+TEST_CASE("FrozenPtr")
 {
   auto p = bpp::make_freezable<int>(44);
   auto sp = std::move(p).freeze();
@@ -86,5 +86,5 @@ TEST_CASE("FrozenSharedPtr")
   CHECK(*spcpy == 44);
   CHECK(sp.get() == spcpy.get());
 
-  bpp::FrozenSharedPtr<Base> basep{bpp::make_freezable<Derived>().freeze()};
+  bpp::FrozenPtr<Base> basep{bpp::make_freezable<Derived>().freeze()};
 }

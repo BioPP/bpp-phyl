@@ -133,7 +133,7 @@ namespace Topology {
 	 */
 	class Node {
 	public:
-		Node (FrozenSharedPtr<Tree> tree, IndexType nodeId) noexcept
+		Node (FrozenPtr<Tree> tree, IndexType nodeId) noexcept
 		    : tree_ (std::move (tree)), nodeId_ (nodeId) {}
 
 		IndexType nodeId () const noexcept { return nodeId_; }
@@ -142,7 +142,7 @@ namespace Topology {
 		IndexType childBranchId (std::size_t branchIndex) const {
 			return tree_->nodeChildBranch (nodeId (), branchIndex);
 		}
-		const FrozenSharedPtr<Tree> & tree () const noexcept { return tree_; }
+		const FrozenPtr<Tree> & tree () const noexcept { return tree_; }
 
 		// Navigate
 		Branch fatherBranch () const &;
@@ -155,19 +155,19 @@ namespace Topology {
 		Branch buildBranch (IndexType branchId) const &;
 		Branch buildBranch (IndexType branchId) &&;
 
-		FrozenSharedPtr<Tree> tree_;
+		FrozenPtr<Tree> tree_;
 		IndexType nodeId_;
 	};
 
 	class Branch {
 	public:
-		Branch (FrozenSharedPtr<Tree> tree, IndexType branchId) noexcept
+		Branch (FrozenPtr<Tree> tree, IndexType branchId) noexcept
 		    : tree_ (std::move (tree)), branchId_ (branchId) {}
 
 		IndexType branchId () const noexcept { return branchId_; }
 		IndexType fatherNodeId () const { return tree_->branchFatherNode (branchId ()); }
 		IndexType childNodeId () const { return tree_->branchChildNode (branchId ()); }
-		const FrozenSharedPtr<Tree> & tree () const noexcept { return tree_; }
+		const FrozenPtr<Tree> & tree () const noexcept { return tree_; }
 
 		// Navigate
 		Node fatherNode () const &;
@@ -179,19 +179,19 @@ namespace Topology {
 		Node buildNode (IndexType nodeId) const &;
 		Node buildNode (IndexType nodeId) &&;
 
-		FrozenSharedPtr<Tree> tree_;
+		FrozenPtr<Tree> tree_;
 		IndexType branchId_;
 	};
 
 	// Tree "iterators"
 	inline Node Tree::node (IndexType id) const {
-		return Node{FrozenSharedPtr<Tree>::shared_from_this (*this), id};
+		return Node{FrozenPtr<Tree>::shared_from_this (*this), id};
 	}
 	inline Node Tree::rootNode () const {
-		return Node{FrozenSharedPtr<Tree>::shared_from_this (*this), rootNodeId ()};
+		return Node{FrozenPtr<Tree>::shared_from_this (*this), rootNodeId ()};
 	}
 	inline Branch Tree::branch (IndexType id) const {
-		return Branch{FrozenSharedPtr<Tree>::shared_from_this (*this), id};
+		return Branch{FrozenPtr<Tree>::shared_from_this (*this), id};
 	}
 
 	// Node navigation

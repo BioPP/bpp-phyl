@@ -79,7 +79,7 @@ namespace Topology {
 	class Tree;
 
 	// Output a dot format graph representing the tree
-	void debugTree (std::ostream & os, FrozenSharedPtr<Tree> tree);
+	void debugTree (std::ostream & os, FrozenPtr<Tree> tree);
 }
 namespace DF {
 	class Node;

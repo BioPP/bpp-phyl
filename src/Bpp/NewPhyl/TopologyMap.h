@@ -138,8 +138,7 @@ namespace Topology {
 	 */
 	template <typename T> class NodeValueMap : public ValueMapBase<T> {
 	public:
-		explicit NodeValueMap (const FrozenSharedPtr<Tree> & tree)
-		    : ValueMapBase<T> (tree->nbNodes ()) {}
+		explicit NodeValueMap (const FrozenPtr<Tree> & tree) : ValueMapBase<T> (tree->nbNodes ()) {}
 		explicit NodeValueMap (ValueMapBase<T> && map) : ValueMapBase<T> (std::move (map)) {}
 		using ValueMapBase<T>::access;
 		Optional<T> & access (const Node & node) noexcept { return access (node.nodeId ()); }
@@ -150,7 +149,7 @@ namespace Topology {
 
 	template <typename T> class BranchValueMap : public ValueMapBase<T> {
 	public:
-		explicit BranchValueMap (const FrozenSharedPtr<Tree> & tree)
+		explicit BranchValueMap (const FrozenPtr<Tree> & tree)
 		    : ValueMapBase<T> (tree->nbBranches ()) {}
 		explicit BranchValueMap (ValueMapBase<T> && map) : ValueMapBase<T> (std::move (map)) {}
 		using ValueMapBase<T>::access;
@@ -165,7 +164,7 @@ namespace Topology {
 	template <typename T, typename Hash = std::hash<T>>
 	class NodeIndexMap : public IndexMapBase<T, Hash> {
 	public:
-		explicit NodeIndexMap (FrozenSharedPtr<Tree> tree)
+		explicit NodeIndexMap (FrozenPtr<Tree> tree)
 		    : IndexMapBase<T, Hash> (tree->nbNodes ()), tree_ (std::move (tree)) {}
 		using IndexMapBase<T, Hash>::set;
 		using IndexMapBase<T, Hash>::access;
@@ -181,13 +180,13 @@ namespace Topology {
 		}
 
 	private:
-		FrozenSharedPtr<Tree> tree_;
+		FrozenPtr<Tree> tree_;
 	};
 
 	template <typename T, typename Hash = std::hash<T>>
 	class BranchIndexMap : public IndexMapBase<T, Hash> {
 	public:
-		explicit BranchIndexMap (FrozenSharedPtr<Tree> tree)
+		explicit BranchIndexMap (FrozenPtr<Tree> tree)
 		    : IndexMapBase<T, Hash> (tree->nbBranches ()), tree_ (std::move (tree)) {}
 		using IndexMapBase<T, Hash>::set;
 		using IndexMapBase<T, Hash>::access;
@@ -203,7 +202,7 @@ namespace Topology {
 		}
 
 	private:
-		FrozenSharedPtr<Tree> tree_;
+		FrozenPtr<Tree> tree_;
 	};
 
 	/* Create a ValueMap of DF::Parameters initialized by values found in another ValueMap.
@@ -238,20 +237,19 @@ namespace Topology {
 		return map;
 	}
 	template <typename T>
-	NodeValueMap<T> make_uniform_node_value_map (const FrozenSharedPtr<Tree> & tree, const T & t) {
+	NodeValueMap<T> make_uniform_node_value_map (const FrozenPtr<Tree> & tree, const T & t) {
 		return NodeValueMap<T>{make_uniform_value_map (tree->nbNodes (), t)};
 	}
 	template <typename T>
-	BranchValueMap<T> make_uniform_branch_value_map (const FrozenSharedPtr<Tree> & tree,
-	                                                 const T & t) {
+	BranchValueMap<T> make_uniform_branch_value_map (const FrozenPtr<Tree> & tree, const T & t) {
 		return BranchValueMap<T>{make_uniform_value_map (tree->nbBranches (), t)};
 	}
 
 	// Retrieve info from PhyloTree
 	struct ConvertedPhyloTreeData {
-		FrozenSharedPtr<Tree> topology;
-		FreezableUniquePtr<BranchValueMap<double>> branchLengths;
-		FreezableUniquePtr<NodeIndexMap<std::string>> nodeNames;
+		FrozenPtr<Tree> topology;
+		FreezablePtr<BranchValueMap<double>> branchLengths;
+		FreezablePtr<NodeIndexMap<std::string>> nodeNames;
 	};
 	ConvertedPhyloTreeData convertPhyloTree (const bpp::PhyloTree & phyloTree);
 }

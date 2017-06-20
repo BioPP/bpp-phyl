@@ -58,15 +58,14 @@ class SubstitutionModel;
 namespace Phyl {
 
 	struct Process {
-		const FrozenSharedPtr<Topology::Tree> tree;
-		const FrozenSharedPtr<Topology::BranchValueMap<DF::Parameter<double>>> branchLengths;
-		const FrozenSharedPtr<Topology::BranchValueMap<DF::Value<const SubstitutionModel *>>>
-		    modelByBranch;
+		const FrozenPtr<Topology::Tree> tree;
+		const FrozenPtr<Topology::BranchValueMap<DF::Parameter<double>>> branchLengths;
+		const FrozenPtr<Topology::BranchValueMap<DF::Value<const SubstitutionModel *>>> modelByBranch;
 	};
 
 	struct LikelihoodParameters {
 		const Process process;
-		const FrozenSharedPtr<Topology::NodeValueMap<DF::Parameter<const Sequence *>>> leafData;
+		const FrozenPtr<Topology::NodeValueMap<DF::Parameter<const Sequence *>>> leafData;
 	};
 
 	// SPECS
