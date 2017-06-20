@@ -38,6 +38,83 @@
   knowledge of the CeCILL license and that you accept its terms.
 */
 
+#include <Bpp/NewPhyl/Debug.h>
+#include <Bpp/NewPhyl/Likelihood.h>
+#include <Bpp/NewPhyl/Model.h>
 #include <Bpp/NewPhyl/Phylogeny.h>
+#include <utility>
 
-namespace bpp {}
+namespace bpp {
+namespace Phyl {
+
+	// ConditionalLikelihoodSpec
+
+	bool ConditionalLikelihoodSpec::computed_from_data () const {
+		return node.nbChildBranches () == 0;
+	}
+	DF::NodeSpecificationVec ConditionalLikelihoodSpec::computeDependencies () const {
+		if (computed_from_data ()) {
+			return DF::makeNodeSpecVec (
+			    DF::NodeSpecReturnParameter{likParams.leafData->access (node).value ()});
+		} else {
+			DF::NodeSpecificationVec depSpecs;
+			node.foreachChildBranch ([this, &depSpecs](Topology::Branch && branch) {
+				depSpecs.emplace_back (ForwardLikelihoodSpec{likParams, branch});
+			});
+			return depSpecs;
+		}
+	}
+	DF::Node ConditionalLikelihoodSpec::buildNode (DF::NodeVec deps) const {
+		if (computed_from_data ())
+			return DF::Node::create<ComputeConditionalLikelihoodFromDataNode> (
+			    std::move (deps), likParams.nbSites, LikelihoodVector (likParams.process.nbStates));
+		else
+			return DF::Node::create<ComputeConditionalLikelihoodFromChildrensNode> (
+			    std::move (deps), likParams.nbSites, LikelihoodVector (likParams.process.nbStates));
+	}
+	std::type_index ConditionalLikelihoodSpec::nodeType () const {
+		return computed_from_data () ? typeid (ComputeConditionalLikelihoodFromDataNode)
+		                             : typeid (ComputeConditionalLikelihoodFromChildrensNode);
+	}
+	std::string ConditionalLikelihoodSpec::description () {
+		return prettyTypeName<ConditionalLikelihoodSpec> ();
+	}
+
+	// ForwardLikelihoodSpec
+
+	DF::NodeSpecificationVec ForwardLikelihoodSpec::computeDependencies () const {
+		return DF::makeNodeSpecVec (
+		    ConditionalLikelihoodSpec{likParams, branch.childNode ()},
+		    ModelTransitionMatrixSpec (likParams.process.modelByBranch->access (branch).value (),
+		                               likParams.process.branchLengths->access (branch).value (),
+		                               likParams.process.nbStates));
+	}
+	DF::Node ForwardLikelihoodSpec::buildNode (DF::NodeVec deps) const {
+		return DF::Node::create<ComputeForwardLikelihoodNode> (
+		    std::move (deps), likParams.nbSites, LikelihoodVector (likParams.process.nbStates));
+	}
+	std::type_index ForwardLikelihoodSpec::nodeType () {
+		return typeid (ComputeForwardLikelihoodNode);
+	}
+	std::string ForwardLikelihoodSpec::description () {
+		return prettyTypeName<ForwardLikelihoodSpec> ();
+	}
+
+	// LogLikelihoodSpec
+
+	DF::NodeSpecificationVec LogLikelihoodSpec::computeDependencies () const {
+		return DF::makeNodeSpecVec (
+		    ConditionalLikelihoodSpec{likParams, likParams.process.tree->rootNode ()},
+		    ModelEquilibriumFrequenciesSpec (
+		        likParams.process.modelByBranch
+		            ->access (likParams.process.tree->rootNode ().fatherBranch ())
+		            .value (),
+		        likParams.process.nbStates));
+	}
+	DF::Node LogLikelihoodSpec::buildNode (DF::NodeVec deps) {
+		return DF::Node::create<ComputeLogLikelihoodNode> (std::move (deps));
+	}
+	std::type_index LogLikelihoodSpec::nodeType () { return typeid (ComputeLogLikelihoodNode); }
+	std::string LogLikelihoodSpec::description () { return prettyTypeName<LogLikelihoodSpec> (); }
+}
+}
