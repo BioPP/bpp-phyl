@@ -74,6 +74,11 @@ namespace
               << std::chrono::duration_cast<std::chrono::nanoseconds>(end - start).count() << "\n";
   }
 
+  void printLik(double logLik, const std::string& prefix)
+  {
+    std::cout << "[log-lik] " << prefix << " " << logLik << "\n";
+  }
+
   template<typename Func>
   void do_func_multiple_times(const std::string& timePrefix, Func f)
   {
@@ -148,6 +153,7 @@ TEST_CASE("Compare likelihood computations with 3 methods")
     llh.initialize();
     oldL.initialLikelihood = llh.getValue();
     timingEnd(ts, "old_init_value");
+    printLik(oldL.initialLikelihood, "old");
 
     do_param_changes_multiple_times(llh, "old_param_model_change", paramModel1, paramModel2);
     do_param_changes_multiple_times(llh, "old_param_brlen_change", paramBrLen1, paramBrLen2);
@@ -169,6 +175,7 @@ TEST_CASE("Compare likelihood computations with 3 methods")
     llh.computeLikelihood();
     newL.initialLikelihood = llh.getValue();
     timingEnd(ts, "new_init_value");
+    printLik(newL.initialLikelihood, "new");
 
     do_param_changes_multiple_times(llh, "new_param_model_change", paramModel1, paramModel2);
     do_param_changes_multiple_times(llh, "new_param_brlen_change", paramBrLen1, paramBrLen2);
@@ -236,6 +243,7 @@ TEST_CASE("Compare likelihood computations with 3 methods")
 
     dfL.initialLikelihood = get_llh();
     timingEnd(ts, "df_init");
+    printLik(dfL.initialLikelihood, "df");
 
     // Model change TODO
     auto change_model_param_invalidate_and_compute = [&](double v) {

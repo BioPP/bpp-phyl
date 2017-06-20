@@ -82,7 +82,7 @@ TEST_CASE("test")
   auto branchLengthMap =
     bpp::make_frozen(bpp::Topology::make_branch_parameter_map_from_value_map(*phyloTreeData.branchLengths));
   auto modelMap = bpp::make_frozen(bpp::Topology::make_uniform_branch_value_map(phyloTreeData.topology, model));
-  auto process = bpp::Phyl::Process{phyloTreeData.topology, branchLengthMap, modelMap};
+  auto process = bpp::Phyl::Process{phyloTreeData.topology, branchLengthMap, modelMap, alphabet.getSize()};
 
   // Make leaf data
   auto leafDataMapTmp =
@@ -94,12 +94,12 @@ TEST_CASE("test")
   auto leafDataMap = std::move(leafDataMapTmp).freeze();
 
   // Finally, likelihood parameters
-  auto likParams = bpp::Phyl::LikelihoodParameters{process, leafDataMap};
+  auto likParams = bpp::Phyl::LikelihoodParameters{process, leafDataMap, sites.getNumberOfSites()};
 
   bpp::DF::Value<double> logLikNode{bpp::DF::instantiateNodeSpec(bpp::Phyl::LogLikelihoodSpec{likParams})};
 
   std::ofstream fd("df_debug");
   bpp::DF::debugDag(fd, logLikNode);
 
-  //std::cout << "Log lik = " << logLikNode.getValue() << "\n";
+  std::cout << "Log lik = " << logLikNode.getValue() << "\n";
 }

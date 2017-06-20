@@ -45,7 +45,9 @@
 namespace bpp {
 namespace Phyl {
 	ModelNode::ModelNode (std::unique_ptr<SubstitutionModel> model)
-	    : DF::Value<const SubstitutionModel *>::Impl (model.get ()), model_ (std::move (model)) {}
+	    : DF::Value<const SubstitutionModel *>::Impl (model.get ()), model_ (std::move (model)) {
+        this->makeValid();
+      }
 	ModelNode::~ModelNode () = default;
 
 	void ComputeEquilibriumFrequenciesFromModelOp::compute (FrequencyVector & freqs,

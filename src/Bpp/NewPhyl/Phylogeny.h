@@ -61,11 +61,13 @@ namespace Phyl {
 		const FrozenPtr<Topology::Tree> tree;
 		const FrozenPtr<Topology::BranchValueMap<DF::Parameter<double>>> branchLengths;
 		const FrozenPtr<Topology::BranchValueMap<DF::Value<const SubstitutionModel *>>> modelByBranch;
+		const std::size_t nbStates;
 	};
 
 	struct LikelihoodParameters {
 		const Process process;
 		const FrozenPtr<Topology::NodeValueMap<DF::Parameter<const Sequence *>>> leafData;
+		const std::size_t nbSites;
 	};
 
 	// SPECS
@@ -78,30 +80,36 @@ namespace Phyl {
 		DF::NodeSpecificationVec computeDependencies () const;
 		DF::Node buildNode (DF::NodeVec deps) const {
 			if (computed_from_data ())
-				return DF::Node::create<ComputeConditionalLikelihoodFromDataNode> (std::move (deps));
+				return DF::Node::create<ComputeConditionalLikelihoodFromDataNode> (
+				    std::move (deps), likParams.nbSites, LikelihoodVector (likParams.process.nbStates));
 			else
-				return DF::Node::create<ComputeConditionalLikelihoodFromChildrensNode> (std::move (deps));
+				return DF::Node::create<ComputeConditionalLikelihoodFromChildrensNode> (
+				    std::move (deps), likParams.nbSites, LikelihoodVector (likParams.process.nbStates));
 		}
 		std::type_index nodeType () const {
 			return computed_from_data () ? typeid (ComputeConditionalLikelihoodFromDataNode)
 			                             : typeid (ComputeConditionalLikelihoodFromChildrensNode);
 		}
-		std::string description () const { return prettyTypeName (*this); }
+		static std::string description () { return prettyTypeName<ConditionalLikelihoodSpec> (); }
 	};
 
-	struct ForwardLikelihoodSpec : DF::NodeSpecAlwaysGenerate<ComputeForwardLikelihoodNode> {
+	struct ForwardLikelihoodSpec {
 		const LikelihoodParameters likParams;
 		const Topology::Branch branch;
-
-		ForwardLikelihoodSpec (const LikelihoodParameters & params, const Topology::Branch & b)
-		    : likParams (params), branch (b) {}
 
 		DF::NodeSpecificationVec computeDependencies () const {
 			return DF::makeNodeSpecVec (
 			    ConditionalLikelihoodSpec{likParams, branch.childNode ()},
 			    ModelTransitionMatrixSpec (likParams.process.modelByBranch->access (branch).value (),
-			                               likParams.process.branchLengths->access (branch).value ()));
+			                               likParams.process.branchLengths->access (branch).value (),
+			                               likParams.process.nbStates));
 		}
+		DF::Node buildNode (DF::NodeVec deps) const {
+			return DF::Node::create<ComputeForwardLikelihoodNode> (
+			    std::move (deps), likParams.nbSites, LikelihoodVector (likParams.process.nbStates));
+		}
+		static std::type_index nodeType () { return typeid (ComputeForwardLikelihoodNode); }
+		static std::string description () { return prettyTypeName<ForwardLikelihoodSpec> (); }
 	};
 
 	inline DF::NodeSpecificationVec ConditionalLikelihoodSpec::computeDependencies () const {
@@ -128,7 +136,8 @@ namespace Phyl {
 			    ModelEquilibriumFrequenciesSpec (
 			        likParams.process.modelByBranch
 			            ->access (likParams.process.tree->rootNode ().fatherBranch ())
-			            .value ()));
+			            .value (),
+			        likParams.process.nbStates));
 		}
 	};
 }

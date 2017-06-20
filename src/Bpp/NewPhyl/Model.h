@@ -98,32 +98,46 @@ namespace Phyl {
 	class ModelEquilibriumFrequenciesSpec
 	    : public DF::NodeSpecAlwaysGenerate<ComputeEquilibriumFrequenciesFromModelNode> {
 	public:
-		ModelEquilibriumFrequenciesSpec (DF::Node modelParameter)
-		    : modelParameter_ (std::move (modelParameter)) {}
+		ModelEquilibriumFrequenciesSpec (DF::Node modelParameter, std::size_t nbStates)
+		    : modelParameter_ (std::move (modelParameter)), nbStates_ (nbStates) {}
 
 		DF::NodeSpecificationVec computeDependencies () const {
 			return DF::makeNodeSpecVec (DF::NodeSpecReturnParameter (modelParameter_));
 		}
 
+		DF::Node buildNode (DF::NodeVec deps) const {
+			return DF::Node::create<ComputeEquilibriumFrequenciesFromModelNode> (std::move (deps),
+			                                                                     nbStates_);
+		}
+
 	private:
 		DF::Node modelParameter_;
+		std::size_t nbStates_;
 	};
 
 	class ModelTransitionMatrixSpec
 	    : public DF::NodeSpecAlwaysGenerate<ComputeTransitionMatrixFromModelNode> {
 	public:
-		ModelTransitionMatrixSpec (DF::Node modelParameter, DF::Node branchLengthParameter)
+		ModelTransitionMatrixSpec (DF::Node modelParameter, DF::Node branchLengthParameter,
+		                           std::size_t nbStates)
 		    : modelParameter_ (std::move (modelParameter)),
-		      branchLengthParameter_ (std::move (branchLengthParameter)) {}
+		      branchLengthParameter_ (std::move (branchLengthParameter)),
+		      nbStates_ (nbStates) {}
 
 		DF::NodeSpecificationVec computeDependencies () const {
 			return DF::makeNodeSpecVec (DF::NodeSpecReturnParameter (modelParameter_),
 			                            DF::NodeSpecReturnParameter (branchLengthParameter_));
 		}
 
+		DF::Node buildNode (DF::NodeVec deps) const {
+			return DF::Node::create<ComputeTransitionMatrixFromModelNode> (std::move (deps), nbStates_,
+			                                                               nbStates_);
+		}
+
 	private:
 		DF::Node modelParameter_;
 		DF::Node branchLengthParameter_;
+		std::size_t nbStates_;
 	};
 }
 }

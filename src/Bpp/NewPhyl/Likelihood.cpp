@@ -67,7 +67,7 @@ namespace Phyl {
 	    LikelihoodVectorBySite & condLikBySite, const LikelihoodVectorBySite & fwdLikBySite) {
 		assert (condLikBySite.size () == fwdLikBySite.size ());
 		for (auto siteIndex : index_range (condLikBySite))
-			condLikBySite[siteIndex] *= fwdLikBySite[siteIndex];
+			condLikBySite[siteIndex] = condLikBySite[siteIndex].cwiseProduct (fwdLikBySite[siteIndex]);
 	}
 
 	void ComputeForwardLikelihoodOp::compute (LikelihoodVectorBySite & fwdLikBySite,
