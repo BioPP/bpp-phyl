@@ -249,8 +249,7 @@ namespace DF {
 		Node buildNode (NodeVec) const { return node_; }
 		static std::type_index nodeType () { return typeid (void); }
 		std::string description () const {
-			auto & impl = node_.getImpl ();
-			return std::string ("ReturnParameter(") + prettyTypeName (impl) + ")";
+			return std::string ("Parameter(") + node_.getImpl().description() + ")";
 		}
 
 	private:

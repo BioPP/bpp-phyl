@@ -47,6 +47,7 @@
 #include <Bpp/NewPhyl/DataFlowTemplates.h>
 #include <Bpp/NewPhyl/Model.h>
 #include <Eigen/Core>
+#include <string> // description
 #include <vector>
 
 namespace bpp {
@@ -64,6 +65,7 @@ namespace Phyl {
 		using ResultType = LikelihoodVectorBySite;
 		using ArgumentTypes = std::tuple<const Sequence *>;
 		static void compute (LikelihoodVectorBySite & condLikBySite, const Sequence * sequence);
+    static std::string description () { return "CondLikFromData"; }
 	};
 	using ComputeConditionalLikelihoodFromDataNode =
 	    DF::GenericFunctionComputation<ComputeConditionalLikelihoodFromDataOp>;
@@ -74,6 +76,7 @@ namespace Phyl {
 		static void reset (LikelihoodVectorBySite & condLikBySite);
 		static void reduce (LikelihoodVectorBySite & condLikBySite,
 		                    const LikelihoodVectorBySite & fwdLikBySite);
+    static std::string description () { return "CondLikFromChildrens"; }
 	};
 	using ComputeConditionalLikelihoodFromChildrensNode =
 	    DF::GenericReductionComputation<ComputeConditionalLikelihoodFromChildrensOp>;
@@ -84,6 +87,7 @@ namespace Phyl {
 		static void compute (LikelihoodVectorBySite & fwdLikBySite,
 		                     const LikelihoodVectorBySite & condLikBySite,
 		                     const TransitionMatrix & transitionMatrix);
+    static std::string description () { return "FwdLik"; }
 	};
 	using ComputeForwardLikelihoodNode = DF::GenericFunctionComputation<ComputeForwardLikelihoodOp>;
 
@@ -92,6 +96,7 @@ namespace Phyl {
 		using ArgumentTypes = std::tuple<LikelihoodVectorBySite, FrequencyVector>;
 		static void compute (double & logLikelihood, const LikelihoodVectorBySite & condLikBySite,
 		                     const FrequencyVector & equilibriumFreqs);
+    static std::string description () { return "LogLikFromCondLik"; }
 	};
 	using ComputeLogLikelihoodNode = DF::GenericFunctionComputation<ComputeLogLikelihoodOp>;
 }

@@ -99,7 +99,7 @@ TEST_CASE("test")
   bpp::DF::Value<double> logLikNode{bpp::DF::instantiateNodeSpec(bpp::Phyl::LogLikelihoodSpec{likParams})};
 
   std::ofstream fd("df_debug");
-  //bpp::DF::debugNodeSpecInstantiation(fd, bpp::Phyl::LogLikelihoodSpec{likParams});
-  //FIXME a bit big =)
   bpp::DF::debugDag(fd, logLikNode);
+
+  //std::cout << "Log lik = " << logLikNode.getValue() << "\n";
 }

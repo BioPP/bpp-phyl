@@ -137,7 +137,7 @@ namespace DF {
 		// Dot pretty print of elements
 		void dotNodePretty (std::ostream & os, const Node::Impl * node) {
 			os << '\t' << dotNodeKey (node) << " [color=blue,shape=record,label=\"" << dotNodeKey (node)
-			   << '|' << typeToDotLabel (typeid (*node)) << "\"];\n";
+			   << '|' << dotLabelEscape (node->description ()) << "\"];\n";
 		}
 		void dotNodePretty (std::ostream & os, const Registry::Key & key) {
 			os << '\t' << dotNodeKey (key) << " [shape=Mrecord,label=\"{" << dotNodeKey (key) << "|{"

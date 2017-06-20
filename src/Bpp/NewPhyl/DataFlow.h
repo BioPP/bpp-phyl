@@ -39,13 +39,14 @@
   knowledge of the CeCILL license and that you accept its terms.
 */
 
-#pragma once
 #ifndef BPP_NEWPHYL_DATAFLOW_H
 #define BPP_NEWPHYL_DATAFLOW_H
 
+#include <Bpp/NewPhyl/Debug.h> // description
 #include <algorithm>
 #include <cassert>
 #include <memory>
+#include <string> // description
 #include <typeinfo>
 #include <utility>
 #include <vector>
@@ -137,6 +138,9 @@ namespace DF {
 
 		const NodeVec & dependencies () const noexcept { return dependencyNodes_; }
 
+		// Debug information (smaller graph)
+		virtual std::string description () const noexcept { return "Node"; }
+
 	protected:
 		void makeValid () noexcept { isValid_ = true; }
 
@@ -203,6 +207,10 @@ namespace DF {
 			return value_;
 		}
 
+		std::string description () const noexcept override {
+			return "Value<" + prettyTypeName<T> () + ">";
+		}
+
 	protected:
 		T value_;
 	};
@@ -243,6 +251,10 @@ namespace DF {
 			this->invalidate ();
 			this->value_ = std::move (t);
 			this->makeValid ();
+		}
+
+		std::string description () const noexcept final {
+			return "Parameter<" + prettyTypeName<T> () + ">";
 		}
 
 	private:

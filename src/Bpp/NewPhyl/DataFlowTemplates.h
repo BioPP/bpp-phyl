@@ -39,14 +39,16 @@
   knowledge of the CeCILL license and that you accept its terms.
 */
 
-#pragma once
 #ifndef BPP_NEWPHYL_DATAFLOWTEMPLATES_H
 #define BPP_NEWPHYL_DATAFLOWTEMPLATES_H
 
 #include <Bpp/NewPhyl/Cpp14.h>
 #include <Bpp/NewPhyl/DataFlow.h>
+#include <Bpp/NewPhyl/Debug.h> // description
 #include <Bpp/NewPhyl/Range.h>
+#include <string> // description
 #include <tuple>
+#include <type_traits> // description
 #include <typeinfo>
 
 namespace bpp {
@@ -57,6 +59,23 @@ namespace DF {
 	void failureDependencyTypeMismatch (const std::type_info & computeNodeType, std::size_t depIndex,
 	                                    const std::type_info & expectedType,
 	                                    const Node::Impl & givenNode);
+
+	// Description utils (hidden as a private member of a class)
+	struct OpDescription {
+	private:
+		// FIXME doc this ? keep ? I don't like exposing this...
+		template <typename Op> static auto test (Op) -> decltype (Op::description (), std::true_type{});
+		static auto test (...) -> std::false_type;
+		template <typename Op> using HasDescription = decltype (test (std::declval<Op> ()));
+
+		template <typename Op> static std::string helper (std::true_type) { return Op::description (); }
+		template <typename Op> static std::string helper (std::false_type) {
+			return prettyTypeName<Op> ();
+		}
+
+	public:
+		template <typename Op> static std::string make () { return helper<Op> (HasDescription<Op>{}); }
+	};
 
 	/** Generic function computation.
 	 * Performs a computation with a fixed set of arguments of heterogeneous types.
@@ -87,6 +106,10 @@ namespace DF {
 		GenericFunctionComputation (NodeVec deps, Args &&... args)
 		    : Value<ResultType>::Impl (std::move (deps), std::forward<Args> (args)...) {
 			checkDependencies (Cpp14::MakeIndexSequence<nbDependencies>{});
+		}
+
+		std::string description () const noexcept final {
+			return "Func(" + OpDescription::make<Op> () + ")";
 		}
 
 	private:
@@ -151,6 +174,10 @@ namespace DF {
 					failureDependencyTypeMismatch (typeid (GenericReductionComputation), i,
 					                               typeid (typename Value<ArgumentType>::Impl),
 					                               this->dependencies ()[i].getImpl ());
+		}
+
+		std::string description () const noexcept final {
+			return "Reduce(" + OpDescription::make<Op> () + ")";
 		}
 
 	private:

@@ -48,6 +48,7 @@
 #include <Bpp/NewPhyl/NodeSpecification.h>
 #include <Eigen/Core>
 #include <memory>
+#include <string> // description
 
 namespace bpp {
 class SubstitutionModel;
@@ -57,7 +58,7 @@ namespace Phyl {
 	using FrequencyVector = Eigen::VectorXd;
 
 	// TODO wrap SubstitutionModel in a Pimpl ModelValue class.
-  // TODO improve ModelNode system...
+	// TODO improve ModelNode system...
 	class ModelNode : public DF::Value<const SubstitutionModel *>::Impl {
 	public:
 		ModelNode (std::unique_ptr<SubstitutionModel> model);
@@ -75,6 +76,7 @@ namespace Phyl {
 		using ResultType = FrequencyVector;
 		using ArgumentTypes = std::tuple<const SubstitutionModel *>;
 		static void compute (FrequencyVector & freqs, const SubstitutionModel * model);
+		static std::string description () { return "EquilibriumFreqs"; }
 	};
 	// Should init with freq vector size
 	using ComputeEquilibriumFrequenciesFromModelNode =
@@ -85,6 +87,7 @@ namespace Phyl {
 		enum { Model, BrLen };
 		using ArgumentTypes = std::tuple<const SubstitutionModel *, double>;
 		static void compute (TransitionMatrix & matrix, const SubstitutionModel * model, double brlen);
+		static std::string description () { return "TransitionMatrix"; }
 	};
 	// Should init with (nb_char, nb_char)
 	using ComputeTransitionMatrixFromModelNode =
