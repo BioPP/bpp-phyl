@@ -59,19 +59,25 @@ namespace Phyl {
 	using FrequencyVector = Eigen::VectorXd;
 
 	// TODO wrap SubstitutionModel in a Pimpl ModelValue class.
-	// TODO improve ModelNode system...
 	class ModelNode : public DF::Value<const SubstitutionModel *>::Impl {
 	public:
 		ModelNode (std::unique_ptr<SubstitutionModel> model);
 		~ModelNode ();
 
-		// methods for access that invalidate.
+		std::size_t nbParameters () const noexcept { return this->dependencies ().size (); }
+		DF::Parameter<double> getParameter (std::size_t index) {
+			return DF::Parameter<double>{this->dependencies ().at (index)};
+		}
+		DF::Parameter<double> getParameter (const std::string & name) {
+			return getParameter (parameterIndexByName_.at (name));
+		}
+		const std::string & getParameterName (std::size_t index);
 
-		void compute () final { DF::failureParameterComputeWasCalled (typeid (ModelNode)); }
+		void compute () final;
 
 	private:
 		std::unique_ptr<SubstitutionModel> model_;
-		std::unordered_map<std::string, DF::Parameter<double>> parameters_;
+		std::unordered_map<std::string, std::size_t> parameterIndexByName_;
 	};
 
 	struct ComputeEquilibriumFrequenciesFromModelOp {

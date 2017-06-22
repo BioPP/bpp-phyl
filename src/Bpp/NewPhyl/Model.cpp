@@ -39,6 +39,7 @@
   knowledge of the CeCILL license and that you accept its terms.
 */
 
+#include <Bpp/NewPhyl/DataFlow.h>
 #include <Bpp/NewPhyl/Model.h>
 #include <Bpp/NewPhyl/Range.h>
 #include <Bpp/Numeric/Parameter.h>
@@ -48,20 +49,33 @@
 namespace bpp {
 namespace Phyl {
 	ModelNode::ModelNode (std::unique_ptr<SubstitutionModel> model)
-	    : DF::Value<const SubstitutionModel *>::Impl (model.get ()),
-	      model_ (std::move (model)),
-	      parameters_ () {
+	    : DF::Value<const SubstitutionModel *>::Impl (model.get ()), model_ (std::move (model)) {
 
 		const auto & parameters = model_->getParameters ();
 		for (auto i : index_range (parameters)) {
 			auto & p = parameters[i];
-			auto dfParam = DF::Parameter<double>::create (p.getValue ());
-			this->appendDependency (dfParam);
-			parameters_.insert ({p.getName (), std::move (dfParam)});
+			this->appendDependency (DF::Parameter<double>::create (p.getValue ()));
+			parameterIndexByName_.emplace (p.getName (), i);
 		}
 
-		this->makeValid ();
+		this->makeValid (); // Initially valid
 	}
+
+	const std::string & ModelNode::getParameterName (std::size_t index) {
+		return model_->getParameters ()[index].getName ();
+	}
+
+	void ModelNode::compute () {
+		// Update current model params with ours
+		auto & modelParams = model_->getParameters ();
+		for (auto i : index_range (this->dependencies ())) {
+			auto v = DF::getValueUnsafe<double> (this->dependencies ()[i]);
+			auto & p = modelParams[i];
+			if (p.getValue () != v)
+				model_->setParameterValue (p.getName (), v);
+		}
+	}
+
 	ModelNode::~ModelNode () = default;
 
 	void ComputeEquilibriumFrequenciesFromModelOp::compute (FrequencyVector & freqs,
