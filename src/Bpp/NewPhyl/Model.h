@@ -49,6 +49,7 @@
 #include <Eigen/Core>
 #include <memory>
 #include <string> // description
+#include <unordered_map>
 
 namespace bpp {
 class SubstitutionModel;
@@ -70,6 +71,7 @@ namespace Phyl {
 
 	private:
 		std::unique_ptr<SubstitutionModel> model_;
+		std::unordered_map<std::string, DF::Parameter<double>> parameters_;
 	};
 
 	struct ComputeEquilibriumFrequenciesFromModelOp {

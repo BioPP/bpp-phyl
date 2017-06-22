@@ -40,14 +40,28 @@
 */
 
 #include <Bpp/NewPhyl/Model.h>
+#include <Bpp/NewPhyl/Range.h>
+#include <Bpp/Numeric/Parameter.h>
 #include <Bpp/Phyl/Model/SubstitutionModel.h>
+#include <iostream>
 
 namespace bpp {
 namespace Phyl {
 	ModelNode::ModelNode (std::unique_ptr<SubstitutionModel> model)
-	    : DF::Value<const SubstitutionModel *>::Impl (model.get ()), model_ (std::move (model)) {
-        this->makeValid();
-      }
+	    : DF::Value<const SubstitutionModel *>::Impl (model.get ()),
+	      model_ (std::move (model)),
+	      parameters_ () {
+
+		const auto & parameters = model_->getParameters ();
+		for (auto i : index_range (parameters)) {
+			auto & p = parameters[i];
+			auto dfParam = DF::Parameter<double>::create (p.getValue ());
+			this->appendDependency (dfParam);
+			parameters_.insert ({p.getName (), std::move (dfParam)});
+		}
+
+		this->makeValid ();
+	}
 	ModelNode::~ModelNode () = default;
 
 	void ComputeEquilibriumFrequenciesFromModelOp::compute (FrequencyVector & freqs,

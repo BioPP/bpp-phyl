@@ -144,6 +144,13 @@ namespace DF {
 	protected:
 		void makeValid () noexcept { isValid_ = true; }
 
+		// FIXME replace ? This should only be used for complex initialisation !
+		void appendDependency (Node node) noexcept {
+			node.getImpl ().registerNode (this);
+			dependencyNodes_.emplace_back (std::move (node));
+			invalidate ();
+		}
+
 	private:
 		void registerNode (Impl * n) { dependentNodes_.emplace_back (n); }
 		void unregisterNode (const Impl * n) {
