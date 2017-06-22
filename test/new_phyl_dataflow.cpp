@@ -42,6 +42,9 @@
 #define DOCTEST_CONFIG_IMPLEMENT_WITH_MAIN
 #include "doctest.h"
 
+//#define ENABLE_OLD
+//#define ENABLE_NEW
+
 // Common stuff
 #include <Bpp/Phyl/Io/Newick.h>
 #include <Bpp/Phyl/Model/Nucleotide/T92.h>
@@ -52,11 +55,15 @@
 #include <iostream>
 
 // Old likelihood
+#ifdef ENABLE_OLD
 #include <Bpp/Numeric/Prob/ConstantDistribution.h>
 #include <Bpp/Phyl/Likelihood/RHomogeneousTreeLikelihood.h>
+#endif
 // Newlik
+#ifdef ENABLE_NEW
 #include <Bpp/Phyl/NewLikelihood/PhyloLikelihoods/SingleProcessPhyloLikelihood.h>
 #include <Bpp/Phyl/NewLikelihood/SimpleSubstitutionProcess.h>
+#endif
 // DF
 #include <Bpp/NewPhyl/Debug.h>
 #include <Bpp/NewPhyl/Model.h>
@@ -120,6 +127,7 @@ TEST_CASE("Compare likelihood computation with 3 methods")
   sites.addSequence(
     bpp::BasicSequence("D", "TTCCAGACATGCCGGGACTTTACCGAGAAGGAGTTGTTTTCCATTGCAGCCCAGGTGGATAAGGAACATC", &alphabet));
 
+#ifdef ENABLE_OLD
   // Old
   {
     auto ts = timingStart();
@@ -135,7 +143,9 @@ TEST_CASE("Compare likelihood computation with 3 methods")
     timingEnd(ts, "old_init_value");
     printLik(logLik, "old");
   }
+#endif
 
+#ifdef ENABLE_NEW
   // Newlik
   {
     auto ts = timingStart();
@@ -156,8 +166,10 @@ TEST_CASE("Compare likelihood computation with 3 methods")
     timingEnd(ts, "new_init_value");
     printLik(logLik, "new");
   }
+#endif
 
   // DF
+  // for (int i = 0; i < 100; ++i)
   {
     auto ts = timingStart();
     // Read tree structure
