@@ -56,8 +56,6 @@
 #include <vector>
 
 namespace bpp {
-// Forward declarations
-class PhyloTree;
 
 namespace Topology {
 	// Error function
@@ -244,14 +242,6 @@ namespace Topology {
 	BranchValueMap<T> make_uniform_branch_value_map (const FrozenPtr<Tree> & tree, const T & t) {
 		return BranchValueMap<T>{make_uniform_value_map (tree->nbBranches (), t)};
 	}
-
-	// Retrieve info from PhyloTree
-	struct ConvertedPhyloTreeData {
-		FrozenPtr<Tree> topology;
-		FreezablePtr<BranchValueMap<double>> branchLengths;
-		FreezablePtr<NodeIndexMap<std::string>> nodeNames;
-	};
-	ConvertedPhyloTreeData convertPhyloTree (const bpp::PhyloTree & phyloTree);
 }
 }
 #endif // BPP_NEWPHYL_TOPOLOGYMAP_H

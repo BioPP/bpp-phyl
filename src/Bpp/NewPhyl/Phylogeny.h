@@ -50,6 +50,8 @@
 
 namespace bpp {
 
+// Forward declarations
+class PhyloTree;
 class Sequence;
 class SubstitutionModel;
 
@@ -67,6 +69,14 @@ namespace Phyl {
 		const FrozenPtr<Topology::NodeValueMap<DF::Parameter<const Sequence *>>> leafData;
 		const std::size_t nbSites;
 	};
+
+	// Retrieve info from PhyloTree
+	struct ConvertedPhyloTreeData {
+		FrozenPtr<Topology::Tree> topology;
+		FreezablePtr<Topology::BranchValueMap<double>> branchLengths;
+		FreezablePtr<Topology::NodeIndexMap<std::string>> nodeNames;
+	};
+	ConvertedPhyloTreeData convertPhyloTree (const bpp::PhyloTree & phyloTree);
 
 	// SPECS
 

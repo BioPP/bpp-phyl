@@ -42,58 +42,11 @@
 #include <Bpp/Exceptions.h>
 #include <Bpp/NewPhyl/Debug.h>
 #include <Bpp/NewPhyl/Topology.h>
-#include <Bpp/NewPhyl/TopologyMap.h>
-#include <Bpp/Phyl/Tree/PhyloTree.h>
-#include <memory>
 #include <stdexcept>
 #include <string>
-#include <unordered_map>
 
 namespace bpp {
 namespace Topology {
-	// Convert from PhyloTree
-	ConvertedPhyloTreeData convertPhyloTree (const bpp::PhyloTree & phyloTree) {
-		// Build topology
-		auto tmpTree = make_freezable<Tree> ();
-		std::unordered_map<bpp::PhyloTree::NodeIndex, IndexType> phyloNodeIdToOurIds;
-		for (auto phyloNodeId : phyloTree.getAllNodesIndexes ()) {
-			// Create all nodes
-			auto ourId = tmpTree->createNode ();
-			phyloNodeIdToOurIds[phyloNodeId] = ourId;
-		}
-		for (auto phyloNodeId : phyloTree.getAllNodesIndexes ()) {
-			if (phyloTree.hasFather (phyloNodeId)) {
-				// Link them by using the father link
-				auto phyloFatherId =
-				    phyloTree.getNodeIndex (phyloTree.getFather (phyloTree.getNode (phyloNodeId)));
-				tmpTree->createEdge (phyloNodeIdToOurIds.at (phyloFatherId),
-				                     phyloNodeIdToOurIds.at (phyloNodeId));
-			}
-		}
-		if (!phyloTree.isRooted ())
-			throw std::runtime_error ("PhyloTree is not rooted");
-		tmpTree->setRootNodeId (phyloNodeIdToOurIds.at (phyloTree.getRootIndex ()));
-		auto tree = std::move (tmpTree).freeze ();
-
-		// Data
-		auto brLens = make_freezable<BranchValueMap<double>> (tree);
-		auto nodeNames = make_freezable<NodeIndexMap<std::string>> (tree);
-		for (auto phyloNodeId : phyloTree.getAllNodesIndexes ()) {
-			auto node = tree->node (phyloNodeIdToOurIds.at (phyloNodeId));
-			// Branch length
-			if (phyloTree.hasFather (phyloNodeId)) {
-				auto branch = phyloTree.getEdgeToFather (phyloNodeId);
-				brLens->access (node.fatherBranch ()) = branch->getLength ();
-			}
-			// Leaf name
-			auto phyloNode = phyloTree.getNode (phyloNodeId);
-			if (phyloNode->hasName ())
-				nodeNames->set (node, phyloNode->getName ());
-		}
-
-		return {std::move (tree), std::move (brLens), std::move (nodeNames)};
-	}
-
 	// Error functions
 	void failureIndexMapIndexAlreadySet (const std::type_info & mapType, IndexType id) {
 		throw Exception (prettyTypeName (mapType) + ": set(" + std::to_string (id) +

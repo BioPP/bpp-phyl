@@ -57,7 +57,7 @@ TEST_CASE("test")
   bpp::Newick reader;
   auto phyloTree = std::unique_ptr<bpp::PhyloTree>(
     reader.parenthesisToPhyloTree("((A:0.01, B:0.02):0.03,C:0.01,D:0.1);", false, "", false, false));
-  auto phyloTreeData = bpp::Topology::convertPhyloTree(*phyloTree);
+  auto phyloTreeData = bpp::Phyl::convertPhyloTree(*phyloTree);
 
   std::ofstream ft("topology_debug");
   bpp::Topology::debugTree(ft, phyloTreeData.topology);
