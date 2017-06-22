@@ -77,9 +77,10 @@ namespace Phyl {
 
 	// Retrieve info from PhyloTree
 	struct ConvertedPhyloTreeData {
-		FrozenPtr<Topology::Tree> topology;
-		FrozenPtr<Topology::BranchValueMap<double>> branchLengths;
-		FrozenPtr<Topology::NodeIndexMap<std::string>> nodeNames;
+		const FrozenPtr<Topology::Tree> topology;
+		const FrozenPtr<Topology::NodeIndexMap<int>> phyloTreeNodeIndexes;
+		const FrozenPtr<Topology::BranchValueMap<double>> branchLengths;
+		const FrozenPtr<Topology::NodeIndexMap<std::string>> nodeNames;
 	};
 	ConvertedPhyloTreeData convertPhyloTree (const bpp::PhyloTree & phyloTree);
 	SequenceMap makeSequenceMap (const Topology::NodeIndexMap<std::string> & nodeNames,

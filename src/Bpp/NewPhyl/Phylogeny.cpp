@@ -48,7 +48,6 @@
 #include <Bpp/Phyl/Tree/PhyloTree.h>
 #include <Bpp/Seq/Container/VectorSiteContainer.h>
 #include <string>
-#include <unordered_map>
 #include <utility>
 
 namespace bpp {
@@ -57,33 +56,35 @@ namespace Phyl {
 	ConvertedPhyloTreeData convertPhyloTree (const bpp::PhyloTree & phyloTree) {
 		using namespace Topology;
 
-		// Build topology
+		// Build topology : create nodes and an index conversion map
+		// Assumes our indexes are densely allocated (in sequence from 0)
+		IndexMapBase<int> tmpPhyloNodeIdMap{phyloTree.getNumberOfNodes ()};
+		auto bppIdToOurs = [&tmpPhyloNodeIdMap](const bpp::PhyloTree::NodeIndex & index) {
+			return tmpPhyloNodeIdMap.index (static_cast<int> (index)).value ();
+		};
 		auto tmpTree = make_freezable<Tree> ();
-		std::unordered_map<bpp::PhyloTree::NodeIndex, IndexType> phyloNodeIdToOurIds;
 		for (auto phyloNodeId : phyloTree.getAllNodesIndexes ()) {
-			// Create all nodes
 			auto ourId = tmpTree->createNode ();
-			phyloNodeIdToOurIds[phyloNodeId] = ourId;
+			tmpPhyloNodeIdMap.set (ourId, static_cast<int> (phyloNodeId));
 		}
 		for (auto phyloNodeId : phyloTree.getAllNodesIndexes ()) {
 			if (phyloTree.hasFather (phyloNodeId)) {
 				// Link them by using the father link
 				auto phyloFatherId =
 				    phyloTree.getNodeIndex (phyloTree.getFather (phyloTree.getNode (phyloNodeId)));
-				tmpTree->createEdge (phyloNodeIdToOurIds.at (phyloFatherId),
-				                     phyloNodeIdToOurIds.at (phyloNodeId));
+				tmpTree->createEdge (bppIdToOurs (phyloFatherId), bppIdToOurs (phyloNodeId));
 			}
 		}
 		if (!phyloTree.isRooted ())
 			throw std::runtime_error ("PhyloTree is not rooted");
-		tmpTree->setRootNodeId (phyloNodeIdToOurIds.at (phyloTree.getRootIndex ()));
+		tmpTree->setRootNodeId (bppIdToOurs (phyloTree.getRootIndex ()));
 		auto tree = std::move (tmpTree).freeze ();
 
 		// Data
 		auto brLens = make_freezable<BranchValueMap<double>> (tree);
 		auto nodeNames = make_freezable<NodeIndexMap<std::string>> (tree);
 		for (auto phyloNodeId : phyloTree.getAllNodesIndexes ()) {
-			auto node = tree->node (phyloNodeIdToOurIds.at (phyloNodeId));
+			auto node = tree->node (bppIdToOurs (phyloNodeId));
 			// Branch length
 			if (phyloTree.hasFather (phyloNodeId)) {
 				auto branch = phyloTree.getEdgeToFather (phyloNodeId);
@@ -95,7 +96,9 @@ namespace Phyl {
 				nodeNames->set (node, phyloNode->getName ());
 		}
 
-		return {std::move (tree), std::move (brLens).freeze (), std::move (nodeNames).freeze ()};
+		auto phyloNodeIdMap = make_frozen<NodeIndexMap<int>> (tree, std::move (tmpPhyloNodeIdMap));
+		return {std::move (tree), std::move (phyloNodeIdMap), std::move (brLens).freeze (),
+		        std::move (nodeNames).freeze ()};
 	}
 
 	SequenceMap makeSequenceMap (const Topology::NodeIndexMap<std::string> & nodeNames,

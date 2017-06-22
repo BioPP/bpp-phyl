@@ -114,7 +114,7 @@ namespace Topology {
 		Optional<IndexType> index (const T & value) const noexcept {
 			auto it = indexMap_.find (value);
 			if (it != indexMap_.end ())
-				return it.second;
+				return it->second;
 			else
 				return {};
 		}
@@ -164,6 +164,11 @@ namespace Topology {
 	public:
 		explicit NodeIndexMap (FrozenPtr<Tree> tree)
 		    : IndexMapBase<T, Hash> (tree->nbNodes ()), tree_ (std::move (tree)) {}
+		explicit NodeIndexMap (FrozenPtr<Tree> tree, IndexMapBase<T, Hash> && map)
+		    : IndexMapBase<T, Hash> (std::move (map)), tree_ (std::move (tree)) {
+			assert (this->size () == tree_->nbNodes ());
+		}
+
 		using IndexMapBase<T, Hash>::set;
 		using IndexMapBase<T, Hash>::access;
 		using IndexMapBase<T, Hash>::index;
@@ -187,6 +192,10 @@ namespace Topology {
 	public:
 		explicit BranchIndexMap (FrozenPtr<Tree> tree)
 		    : IndexMapBase<T, Hash> (tree->nbBranches ()), tree_ (std::move (tree)) {}
+		explicit BranchIndexMap (FrozenPtr<Tree> tree, IndexMapBase<T, Hash> && map)
+		    : IndexMapBase<T, Hash> (std::move (map)), tree_ (std::move (tree)) {
+			assert (this->size () == tree_->nbBranches ());
+		}
 		using IndexMapBase<T, Hash>::set;
 		using IndexMapBase<T, Hash>::access;
 		using IndexMapBase<T, Hash>::index;
