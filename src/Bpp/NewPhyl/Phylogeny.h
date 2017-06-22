@@ -39,7 +39,6 @@
   knowledge of the CeCILL license and that you accept its terms.
 */
 
-#pragma once
 #ifndef BPP_NEWPHYL_PHYLOGENY_H
 #define BPP_NEWPHYL_PHYLOGENY_H
 
@@ -47,6 +46,7 @@
 #include <Bpp/NewPhyl/FrozenPtr.h>
 #include <Bpp/NewPhyl/NodeSpecification.h>
 #include <Bpp/NewPhyl/TopologyMap.h>
+#include <string>
 
 namespace bpp {
 
@@ -54,6 +54,7 @@ namespace bpp {
 class PhyloTree;
 class Sequence;
 class SubstitutionModel;
+class VectorSiteContainer;
 
 namespace Phyl {
 
@@ -64,19 +65,25 @@ namespace Phyl {
 		const std::size_t nbStates;
 	};
 
+	struct SequenceMap {
+		const FrozenPtr<Topology::NodeValueMap<DF::Parameter<const Sequence *>>> sequences;
+		const std::size_t nbSites;
+	};
+
 	struct LikelihoodParameters {
 		const Process process;
-		const FrozenPtr<Topology::NodeValueMap<DF::Parameter<const Sequence *>>> leafData;
-		const std::size_t nbSites;
+		const SequenceMap leafData;
 	};
 
 	// Retrieve info from PhyloTree
 	struct ConvertedPhyloTreeData {
 		FrozenPtr<Topology::Tree> topology;
-		FreezablePtr<Topology::BranchValueMap<double>> branchLengths;
-		FreezablePtr<Topology::NodeIndexMap<std::string>> nodeNames;
+		FrozenPtr<Topology::BranchValueMap<double>> branchLengths;
+		FrozenPtr<Topology::NodeIndexMap<std::string>> nodeNames;
 	};
 	ConvertedPhyloTreeData convertPhyloTree (const bpp::PhyloTree & phyloTree);
+	SequenceMap makeSequenceMap (const Topology::NodeIndexMap<std::string> & nodeNames,
+	                             const VectorSiteContainer & sequences);
 
 	// SPECS
 

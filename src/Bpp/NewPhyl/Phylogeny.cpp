@@ -46,6 +46,8 @@
 #include <Bpp/NewPhyl/Topology.h>
 #include <Bpp/NewPhyl/TopologyMap.h>
 #include <Bpp/Phyl/Tree/PhyloTree.h>
+#include <Bpp/Seq/Container/VectorSiteContainer.h>
+#include <string>
 #include <unordered_map>
 #include <utility>
 
@@ -53,7 +55,7 @@ namespace bpp {
 namespace Phyl {
 	// Convert from PhyloTree
 	ConvertedPhyloTreeData convertPhyloTree (const bpp::PhyloTree & phyloTree) {
-    using namespace Topology;
+		using namespace Topology;
 
 		// Build topology
 		auto tmpTree = make_freezable<Tree> ();
@@ -93,7 +95,19 @@ namespace Phyl {
 				nodeNames->set (node, phyloNode->getName ());
 		}
 
-		return {std::move (tree), std::move (brLens), std::move (nodeNames)};
+		return {std::move (tree), std::move (brLens).freeze (), std::move (nodeNames).freeze ()};
+	}
+
+	SequenceMap makeSequenceMap (const Topology::NodeIndexMap<std::string> & nodeNames,
+	                             const VectorSiteContainer & sequences) {
+		using namespace Topology;
+		auto sequenceMap =
+		    make_freezable<NodeValueMap<DF::Parameter<const Sequence *>>> (nodeNames.tree ());
+		for (auto i : bpp::index_range (*sequenceMap))
+			sequenceMap->access (i) = nodeNames.access (i).map ([&sequences](const std::string & name) {
+				return DF::Parameter<const Sequence *>::create (&sequences.getSequence (name));
+			});
+		return {std::move (sequenceMap).freeze (), sequences.getNumberOfSites ()};
 	}
 
 	// ConditionalLikelihoodSpec
@@ -104,7 +118,7 @@ namespace Phyl {
 	DF::NodeSpecificationVec ConditionalLikelihoodSpec::computeDependencies () const {
 		if (computed_from_data ()) {
 			return DF::makeNodeSpecVec (
-			    DF::NodeSpecReturnParameter{likParams.leafData->access (node).value ()});
+			    DF::NodeSpecReturnParameter{likParams.leafData.sequences->access (node).value ()});
 		} else {
 			DF::NodeSpecificationVec depSpecs;
 			node.foreachChildBranch ([this, &depSpecs](Topology::Branch && branch) {
@@ -116,10 +130,12 @@ namespace Phyl {
 	DF::Node ConditionalLikelihoodSpec::buildNode (DF::NodeVec deps) const {
 		if (computed_from_data ())
 			return DF::Node::create<ComputeConditionalLikelihoodFromDataNode> (
-			    std::move (deps), likParams.nbSites, LikelihoodVector (likParams.process.nbStates));
+			    std::move (deps), likParams.leafData.nbSites,
+			    LikelihoodVector (likParams.process.nbStates));
 		else
 			return DF::Node::create<ComputeConditionalLikelihoodFromChildrensNode> (
-			    std::move (deps), likParams.nbSites, LikelihoodVector (likParams.process.nbStates));
+			    std::move (deps), likParams.leafData.nbSites,
+			    LikelihoodVector (likParams.process.nbStates));
 	}
 	std::type_index ConditionalLikelihoodSpec::nodeType () const {
 		return computed_from_data () ? typeid (ComputeConditionalLikelihoodFromDataNode)
@@ -140,7 +156,8 @@ namespace Phyl {
 	}
 	DF::Node ForwardLikelihoodSpec::buildNode (DF::NodeVec deps) const {
 		return DF::Node::create<ComputeForwardLikelihoodNode> (
-		    std::move (deps), likParams.nbSites, LikelihoodVector (likParams.process.nbStates));
+		    std::move (deps), likParams.leafData.nbSites,
+		    LikelihoodVector (likParams.process.nbStates));
 	}
 	std::type_index ForwardLikelihoodSpec::nodeType () {
 		return typeid (ComputeForwardLikelihoodNode);

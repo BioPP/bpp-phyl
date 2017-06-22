@@ -176,6 +176,7 @@ namespace Topology {
 		Optional<Node> node (const T & value) const noexcept {
 			return index (value).map ([this](IndexType id) { return Node{tree_, id}; });
 		}
+		const FrozenPtr<Tree> & tree () const noexcept { return tree_; }
 
 	private:
 		FrozenPtr<Tree> tree_;
@@ -198,6 +199,7 @@ namespace Topology {
 		Optional<Branch> branch (const T & value) const noexcept {
 			return index (value).map ([this](IndexType id) { return Branch{tree_, id}; });
 		}
+		const FrozenPtr<Tree> & tree () const noexcept { return tree_; }
 
 	private:
 		FrozenPtr<Tree> tree_;
