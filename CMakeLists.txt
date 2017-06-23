@@ -83,6 +83,9 @@ find_package (Eigen3)
 # Define the libraries
 add_subdirectory (src)
 
+# TODO remove at some point, profiling setup for NewPhyl
+add_subdirectory (profiling)
+
 # Doxygen
 FIND_PACKAGE(Doxygen)
 IF (DOXYGEN_FOUND)
