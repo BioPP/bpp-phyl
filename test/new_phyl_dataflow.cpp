@@ -112,6 +112,11 @@ namespace
                                               const bpp::ParameterList& p1,
                                               const bpp::ParameterList& p2)
   {
+    llh.matchParametersValues(p1);
+    printLik(llh.getValue(), timePrefix);
+    llh.matchParametersValues(p2);
+    printLik(llh.getValue(), timePrefix);
+
     do_func_multiple_times(timePrefix, [&]() {
       llh.matchParametersValues(p1);
       llh.getValue();
@@ -125,6 +130,11 @@ namespace
                                           double v1,
                                           double v2)
   {
+    param.setValue(v1);
+    printLik(lik.getValue(), timePrefix);
+    param.setValue(v2);
+    printLik(lik.getValue(), timePrefix);
+
     do_func_multiple_times(timePrefix, [&]() {
       param.setValue(v1);
       lik.getValue();
@@ -175,7 +185,7 @@ TEST_CASE("Compare likelihood computation with 3 methods")
     llh.initialize();
     auto logLik = llh.getValue();
     timingEnd(ts, "old_init_value");
-    printLik(logLik, "old");
+    printLik(logLik, "old_init_value");
 
     do_param_changes_multiple_times_legacy(llh, "old_param_model_change", paramModel1, paramModel2);
     do_param_changes_multiple_times_legacy(llh, "old_param_brlen_change", paramBrLen1, paramBrLen2);
@@ -201,7 +211,7 @@ TEST_CASE("Compare likelihood computation with 3 methods")
     llh.computeLikelihood();
     auto logLik = llh.getValue();
     timingEnd(ts, "new_init_value");
-    printLik(logLik, "new");
+    printLik(logLik, "new_init_value");
 
     do_param_changes_multiple_times_legacy(llh, "new_param_model_change", paramModel1, paramModel2);
     do_param_changes_multiple_times_legacy(llh, "new_param_brlen_change", paramBrLen1, paramBrLen2);
@@ -209,7 +219,6 @@ TEST_CASE("Compare likelihood computation with 3 methods")
 #endif
 
   // DF
-  // for (int i = 0; i < 100; ++i)
   {
     auto ts = timingStart();
     // Read tree structure
@@ -235,7 +244,7 @@ TEST_CASE("Compare likelihood computation with 3 methods")
     ts = timingStart();
     auto logLik = logLikNode.getValue();
     timingEnd(ts, "df_init_value");
-    printLik(logLik, "df");
+    printLik(logLik, "df_init_value");
 
     std::ofstream fd("df_debug");
     bpp::DF::debugDag(fd, logLikNode);
