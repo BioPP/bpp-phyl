@@ -108,9 +108,7 @@ namespace DF {
 			checkDependencies (Cpp14::MakeIndexSequence<nbDependencies>{});
 		}
 
-		std::string description () const noexcept final {
-			return "Func(" + OpDescription::make<Op> () + ")";
-		}
+		std::string description () const final { return "Func(" + OpDescription::make<Op> () + ")"; }
 
 	private:
 		/** Runtime checks the dependency for type / number mismatch.
@@ -176,9 +174,7 @@ namespace DF {
 					                               this->dependencies ()[i].getImpl ());
 		}
 
-		std::string description () const noexcept final {
-			return "Reduce(" + OpDescription::make<Op> () + ")";
-		}
+		std::string description () const final { return "Reduce(" + OpDescription::make<Op> () + ")"; }
 
 	private:
 		void compute () override final {

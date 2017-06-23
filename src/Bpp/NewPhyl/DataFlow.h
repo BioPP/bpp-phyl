@@ -139,7 +139,7 @@ namespace DF {
 		const NodeVec & dependencies () const noexcept { return dependencyNodes_; }
 
 		// Debug information (smaller graph)
-		virtual std::string description () const noexcept { return "Node"; }
+		virtual std::string description () const { return "Node"; }
 
 	protected:
 		void makeValid () noexcept { isValid_ = true; }
@@ -214,9 +214,7 @@ namespace DF {
 			return value_;
 		}
 
-		std::string description () const noexcept override {
-			return "Value<" + prettyTypeName<T> () + ">";
-		}
+		std::string description () const override { return "Value<" + prettyTypeName<T> () + ">"; }
 
 	protected:
 		T value_;
@@ -260,9 +258,7 @@ namespace DF {
 			this->makeValid ();
 		}
 
-		std::string description () const noexcept final {
-			return "Parameter<" + prettyTypeName<T> () + ">";
-		}
+		std::string description () const final { return "Parameter<" + prettyTypeName<T> () + ">"; }
 
 	private:
 		void compute () override final { failureParameterComputeWasCalled (typeid (Parameter<T>)); }

@@ -75,6 +75,8 @@ namespace Phyl {
 
 		void compute () final;
 
+    std::string description () const override;
+
 	private:
 		std::unique_ptr<SubstitutionModel> model_;
 		std::unordered_map<std::string, std::size_t> parameterIndexByName_;

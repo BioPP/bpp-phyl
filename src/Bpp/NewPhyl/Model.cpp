@@ -40,6 +40,7 @@
 */
 
 #include <Bpp/NewPhyl/DataFlow.h>
+#include <Bpp/NewPhyl/Debug.h>
 #include <Bpp/NewPhyl/Model.h>
 #include <Bpp/NewPhyl/Range.h>
 #include <Bpp/Numeric/Parameter.h>
@@ -61,6 +62,8 @@ namespace Phyl {
 		this->makeValid (); // Initially valid
 	}
 
+	ModelNode::~ModelNode () = default;
+
 	const std::string & ModelNode::getParameterName (std::size_t index) {
 		return model_->getParameters ()[index].getName ();
 	}
@@ -76,7 +79,7 @@ namespace Phyl {
 		}
 	}
 
-	ModelNode::~ModelNode () = default;
+	std::string ModelNode::description () const { return "Model(" + prettyTypeName (*model_) + ")"; }
 
 	void ComputeEquilibriumFrequenciesFromModelOp::compute (FrequencyVector & freqs,
 	                                                        const SubstitutionModel * model) {
