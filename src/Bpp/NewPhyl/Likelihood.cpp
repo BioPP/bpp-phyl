@@ -75,7 +75,7 @@ namespace Phyl {
 	                                          const TransitionMatrix & transitionMatrix) {
 		assert (fwdLikBySite.size () == condLikBySite.size ());
 		for (auto siteIndex : index_range (fwdLikBySite))
-			fwdLikBySite[siteIndex] = transitionMatrix * condLikBySite[siteIndex];
+			fwdLikBySite[siteIndex].noalias () = transitionMatrix * condLikBySite[siteIndex];
 	}
 
 	void ComputeLogLikelihoodOp::compute (double & logLik,
