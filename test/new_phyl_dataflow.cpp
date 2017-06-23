@@ -42,8 +42,8 @@
 #define DOCTEST_CONFIG_IMPLEMENT_WITH_MAIN
 #include "doctest.h"
 
-#define ENABLE_OLD
-#define ENABLE_NEW
+//#define ENABLE_OLD
+//#define ENABLE_NEW
 
 #if defined(ENABLE_OLD) || defined(ENABLE_NEW)
 #define ENABLE_LEGACY_STUFF

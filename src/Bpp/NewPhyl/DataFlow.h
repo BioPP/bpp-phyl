@@ -116,15 +116,7 @@ namespace DF {
 		}
 
 		virtual void compute () = 0;
-
-		void computeRecursively () {
-			// Compute the current node (and dependencies recursively) if needed
-			if (!isValid ()) {
-				foreachDependencyNode ([](Impl * node) { node->computeRecursively (); });
-				compute ();
-				makeValid ();
-			}
-		}
+		void computeRecursively ();
 
 		// TODO Replace with ranges ?
 		template <typename F> void foreachDependentNode (F f) const {

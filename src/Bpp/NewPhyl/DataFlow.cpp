@@ -43,6 +43,7 @@
 #include <Bpp/NewPhyl/DataFlow.h>
 #include <Bpp/NewPhyl/DataFlowTemplates.h>
 #include <Bpp/NewPhyl/Debug.h>
+#include <stack>
 #include <typeinfo>
 
 namespace bpp {
@@ -75,6 +76,33 @@ namespace DF {
 		throw Exception (prettyTypeName (computeNodeType) + ": expected class derived from " +
 		                 prettyTypeName (expectedType) + " as " + std::to_string (depIndex) +
 		                 "-th dependency, got " + prettyTypeName (typeid (givenNode)));
+	}
+
+	//
+
+	void Node::Impl::computeRecursively () {
+		// Compute the current node (and dependencies recursively) if needed
+		if (isValid ())
+			return;
+
+		// Discover then recompute needed nodes
+		std::stack<Impl *> nodesToVisit;
+		std::stack<Impl *> nodesToRecompute;
+		nodesToVisit.push (this);
+		while (!nodesToVisit.empty ()) {
+			auto * n = nodesToVisit.top ();
+			nodesToVisit.pop ();
+			if (!n->isValid ())
+				nodesToRecompute.push (n);
+			for (auto & dep : n->dependencies ())
+				nodesToVisit.push (&dep.getImpl ());
+		}
+		while (!nodesToRecompute.empty ()) {
+			auto * n = nodesToRecompute.top ();
+			nodesToRecompute.pop ();
+			n->compute ();
+			n->makeValid ();
+		}
 	}
 }
 }
