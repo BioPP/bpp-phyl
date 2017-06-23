@@ -49,7 +49,6 @@
 #include <Eigen/Core>
 #include <memory>
 #include <string> // description
-#include <unordered_map>
 
 namespace bpp {
 class SubstitutionModel;
@@ -65,21 +64,16 @@ namespace Phyl {
 		~ModelNode ();
 
 		std::size_t nbParameters () const noexcept { return this->dependencies ().size (); }
-		DF::Parameter<double> getParameter (std::size_t index) {
-			return DF::Parameter<double>{this->dependencies ().at (index)};
-		}
-		DF::Parameter<double> getParameter (const std::string & name) {
-			return getParameter (parameterIndexByName_.at (name));
-		}
+		DF::Parameter<double> getParameter (std::size_t index);
+		DF::Parameter<double> getParameter (const std::string & name);
 		const std::string & getParameterName (std::size_t index);
 
 		void compute () final;
 
-    std::string description () const override;
+		std::string description () const override;
 
 	private:
 		std::unique_ptr<SubstitutionModel> model_;
-		std::unordered_map<std::string, std::size_t> parameterIndexByName_;
 	};
 
 	struct ComputeEquilibriumFrequenciesFromModelOp {

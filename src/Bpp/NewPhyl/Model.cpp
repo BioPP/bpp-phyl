@@ -52,18 +52,22 @@ namespace Phyl {
 	ModelNode::ModelNode (std::unique_ptr<SubstitutionModel> model)
 	    : DF::Value<const SubstitutionModel *>::Impl (model.get ()), model_ (std::move (model)) {
 
+		model_->setNamespace ({}); // Delete namespace prefix
 		const auto & parameters = model_->getParameters ();
-		for (auto i : index_range (parameters)) {
-			auto & p = parameters[i];
-			this->appendDependency (DF::Parameter<double>::create (p.getValue ()));
-			parameterIndexByName_.emplace (p.getName (), i);
-		}
+		for (auto i : index_range (parameters))
+			this->appendDependency (DF::Parameter<double>::create (parameters[i].getValue ()));
 
 		this->makeValid (); // Initially valid
 	}
 
 	ModelNode::~ModelNode () = default;
 
+	DF::Parameter<double> ModelNode::getParameter (std::size_t index) {
+		return DF::Parameter<double>{this->dependencies ().at (index)};
+	}
+	DF::Parameter<double> ModelNode::getParameter (const std::string & name) {
+		return getParameter (model_->getParameters ().whichParameterHasName (name));
+	}
 	const std::string & ModelNode::getParameterName (std::size_t index) {
 		return model_->getParameters ()[index].getName ();
 	}
@@ -79,7 +83,7 @@ namespace Phyl {
 		}
 	}
 
-	std::string ModelNode::description () const { return "Model(" + prettyTypeName (*model_) + ")"; }
+	std::string ModelNode::description () const { return "Model(" + model_->getName () + ")"; }
 
 	void ComputeEquilibriumFrequenciesFromModelOp::compute (FrequencyVector & freqs,
 	                                                        const SubstitutionModel * model) {

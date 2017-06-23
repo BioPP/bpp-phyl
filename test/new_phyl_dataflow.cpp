@@ -42,8 +42,12 @@
 #define DOCTEST_CONFIG_IMPLEMENT_WITH_MAIN
 #include "doctest.h"
 
-//#define ENABLE_OLD
-//#define ENABLE_NEW
+#define ENABLE_OLD
+#define ENABLE_NEW
+
+#if defined(ENABLE_OLD) || defined(ENABLE_NEW)
+#define ENABLE_LEGACY_STUFF
+#endif
 
 // Common stuff
 #include <Bpp/Phyl/Io/Newick.h>
@@ -53,6 +57,12 @@
 #include <chrono>
 #include <fstream>
 #include <iostream>
+
+// Common legacy stuff
+#ifdef ENABLE_LEGACY_STUFF
+#include <Bpp/Numeric/Parameter.h>
+#include <Bpp/Numeric/ParameterList.h>
+#endif
 
 // Old likelihood
 #ifdef ENABLE_OLD
@@ -84,7 +94,6 @@ namespace
     std::cout << "[log-lik] " << prefix << " " << logLik << "\n";
   }
 
-#if 0
   template<typename Func>
   void do_func_multiple_times(const std::string& timePrefix, Func f)
   {
@@ -98,10 +107,10 @@ namespace
     timingEnd(ts, timePrefix);
   }
   template<typename Lik>
-  void do_param_changes_multiple_times(Lik& llh,
-                                       const std::string& timePrefix,
-                                       const bpp::ParameterList& p1,
-                                       const bpp::ParameterList& p2)
+  void do_param_changes_multiple_times_legacy(Lik& llh,
+                                              const std::string& timePrefix,
+                                              const bpp::ParameterList& p1,
+                                              const bpp::ParameterList& p2)
   {
     do_func_multiple_times(timePrefix, [&]() {
       llh.matchParametersValues(p1);
@@ -110,7 +119,19 @@ namespace
       llh.getValue();
     });
   }
-#endif
+  void do_param_changes_multiple_times_df(bpp::DF::Value<double>& lik,
+                                          const std::string& timePrefix,
+                                          bpp::DF::Parameter<double> param,
+                                          double v1,
+                                          double v2)
+  {
+    do_func_multiple_times(timePrefix, [&]() {
+      param.setValue(v1);
+      lik.getValue();
+      param.setValue(v2);
+      lik.getValue();
+    });
+  }
 }
 
 TEST_CASE("Compare likelihood computation with 3 methods")
@@ -127,6 +148,19 @@ TEST_CASE("Compare likelihood computation with 3 methods")
   sites.addSequence(
     bpp::BasicSequence("D", "TTCCAGACATGCCGGGACTTTACCGAGAAGGAGTTGTTTTCCATTGCAGCCCAGGTGGATAAGGAACATC", &alphabet));
 
+#ifdef ENABLE_LEGACY_STUFF
+  // Set of parameters to apply to tree + model
+  bpp::ParameterList paramModel1;
+  paramModel1.addParameter(bpp::Parameter("T92.kappa", 0.1));
+  bpp::ParameterList paramModel2;
+  paramModel2.addParameter(bpp::Parameter("T92.kappa", 0.2));
+
+  bpp::ParameterList paramBrLen1;
+  paramBrLen1.addParameter(bpp::Parameter("BrLen1", 0.1));
+  bpp::ParameterList paramBrLen2;
+  paramBrLen2.addParameter(bpp::Parameter("BrLen1", 0.2));
+#endif
+
 #ifdef ENABLE_OLD
   // Old
   {
@@ -142,6 +176,9 @@ TEST_CASE("Compare likelihood computation with 3 methods")
     auto logLik = llh.getValue();
     timingEnd(ts, "old_init_value");
     printLik(logLik, "old");
+
+    do_param_changes_multiple_times_legacy(llh, "old_param_model_change", paramModel1, paramModel2);
+    do_param_changes_multiple_times_legacy(llh, "old_param_brlen_change", paramBrLen1, paramBrLen2);
   }
 #endif
 
@@ -165,6 +202,9 @@ TEST_CASE("Compare likelihood computation with 3 methods")
     auto logLik = llh.getValue();
     timingEnd(ts, "new_init_value");
     printLik(logLik, "new");
+
+    do_param_changes_multiple_times_legacy(llh, "new_param_model_change", paramModel1, paramModel2);
+    do_param_changes_multiple_times_legacy(llh, "new_param_brlen_change", paramBrLen1, paramBrLen2);
   }
 #endif
 
@@ -199,5 +239,14 @@ TEST_CASE("Compare likelihood computation with 3 methods")
 
     std::ofstream fd("df_debug");
     bpp::DF::debugDag(fd, logLikNode);
+
+    // Change parameters
+    auto& modelNode = dynamic_cast<bpp::Phyl::ModelNode&>(model.getImpl());
+    do_param_changes_multiple_times_df(logLikNode, "df_param_model_change", modelNode.getParameter("kappa"), 0.1, 0.2);
+
+    auto topologyIdOfPhyloNode1 = phyloTreeData.phyloTreeNodeIndexes->index(1).value();
+    auto& brlen1Param =
+      branchLengthMap->access(phyloTreeData.topology->node(topologyIdOfPhyloNode1).fatherBranch()).value();
+    do_param_changes_multiple_times_df(logLikNode, "df_param_brlen_change", brlen1Param, 0.1, 0.2);
   }
 }
