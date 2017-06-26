@@ -32,7 +32,21 @@ add_executable (${PROF_EXEC_TARGET} EXCLUDE_FROM_ALL
 target_link_libraries (${PROF_EXEC_TARGET} ${BPP_LIBS_STATIC} prof-lib-legacy)
 target_compile_options (${PROF_EXEC_TARGET}
   PRIVATE
+  -O2
+  -g
   -std=c++11
-  # TODO add specific flags
+  -Wall
+  -fno-omit-frame-pointer
+  -fno-inline-functions
+  -fno-inline-functions-called-once
+  -fno-optimize-sibling-calls
+  )
+
+# Convenience targets
+add_custom_target (
+  prof-perf
+  COMMAND perf record -g -- ${CMAKE_CURRENT_BINARY_DIR}/${PROF_EXEC_TARGET}
+  DEPENDS ${PROF_EXEC_TARGET}
+  COMMENT "Perf record on ${PROF_EXEC_TARGET}"
   )
 
