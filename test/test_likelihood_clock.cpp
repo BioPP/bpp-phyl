@@ -69,7 +69,7 @@ void fitModelH(SubstitutionModel* model, DiscreteDistribution* rdist, const Tree
   cout << setprecision(20) << tl.getValue() << endl;
   ApplicationTools::displayResult("* likelihood after full optimization", tl.getValue());
   tl.getParameters().printParameters(cout);
-  if (abs(tl.getValue() - finalValue) > 0.0001)
+  if (abs(tl.getValue() - finalValue) > 0.001)
     throw Exception("Incorrect final value.");
 }
 
