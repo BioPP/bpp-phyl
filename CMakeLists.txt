@@ -1,15 +1,15 @@
-# CMake script for Bio++ PhylLib
+# CMake script for Bio++ Phylogenetic Library
 # Authors:
 #   Sylvain Gaillard
 #   Julien Dutheil
 #   Francois Gindraud (2017)
 # Created: 20/08/2009
 
-cmake_minimum_required (VERSION 2.8.12)
+cmake_minimum_required (VERSION 2.8.11)
 project (bpp-phyl CXX)
 
 # Compile options
-set (private-compile-options -std=c++11 -Wall -Weffc++ -Wshadow -Wconversion)
+set (CMAKE_CXX_FLAGS "-std=c++11 -Wall -Weffc++ -Wshadow -Wconversion")
 
 IF(NOT CMAKE_BUILD_TYPE)
   SET(CMAKE_BUILD_TYPE RelWithDebInfo CACHE STRING
@@ -35,9 +35,9 @@ ELSE(NO_DEP_CHECK)
 #           library implements.
 # In other words, the library implements all the interface numbers in the
 # range from number current - age to current.
-SET(${PROJECT_NAME}_VERSION_CURRENT "10")
-SET(${PROJECT_NAME}_VERSION_REVISION "3")
-SET(${PROJECT_NAME}_VERSION_AGE "1")
+SET(${PROJECT_NAME}_VERSION_CURRENT "11")
+SET(${PROJECT_NAME}_VERSION_REVISION "0")
+SET(${PROJECT_NAME}_VERSION_AGE "0")
 
 # Effective version number computation
 MATH(EXPR ${PROJECT_NAME}_VERSION_MAJOR "${${PROJECT_NAME}_VERSION_CURRENT} - ${${PROJECT_NAME}_VERSION_AGE}")
@@ -52,11 +52,11 @@ if (CMAKE_INSTALL_PREFIX)
   set (CMAKE_PREFIX_PATH "${CMAKE_INSTALL_PREFIX}" ${CMAKE_PREFIX_PATH})
 endif (CMAKE_INSTALL_PREFIX)
 
-find_package (bpp-core 2.0.3 REQUIRED)
-find_package (bpp-seq 9.1.3 REQUIRED)
+include (GNUInstallDirs)
+find_package (bpp-seq 11.0.0 REQUIRED)
 
 # CMake package
-set (cmake-package-location lib/cmake/${PROJECT_NAME})
+set (cmake-package-location ${CMAKE_INSTALL_LIBDIR}/cmake/${PROJECT_NAME})
 include (CMakePackageConfigHelpers)
 configure_package_config_file (
   package.cmake.in
@@ -105,45 +105,22 @@ ENDIF(NO_DEP_CHECK)
 # Packager
 SET(CPACK_PACKAGE_NAME "libbpp-phyl")
 SET(CPACK_PACKAGE_VENDOR "Bio++ Development Team")
-SET(CPACK_PACKAGE_VERSION "2.2.0")
+SET(CPACK_PACKAGE_VERSION "2.3.1")
 SET(CPACK_PACKAGE_VERSION_MAJOR "2")
-SET(CPACK_PACKAGE_VERSION_MINOR "2")
-SET(CPACK_PACKAGE_VERSION_PATCH "0")
+SET(CPACK_PACKAGE_VERSION_MINOR "3")
+SET(CPACK_PACKAGE_VERSION_PATCH "1")
 SET(CPACK_PACKAGE_DESCRIPTION_SUMMARY "The Bio++ Phylogenetics library")
 SET(CPACK_RESOURCE_FILE_LICENSE "${CMAKE_SOURCE_DIR}/COPYING.txt")
 SET(CPACK_RESOURCE_FILE_AUTHORS "${CMAKE_SOURCE_DIR}/AUTHORS.txt")
 SET(CPACK_RESOURCE_FILE_INSTALL "${CMAKE_SOURCE_DIR}/INSTALL.txt")
 SET(CPACK_SOURCE_GENERATOR "TGZ")
-SET(CPACK_SOURCE_IGNORE_FILES
- "CMakeFiles"
- "Makefile"
- "_CPack_Packages"
- "CMakeCache.txt"
- ".*\\\\.cmake"
- ".*\\\\.git"
- ".*\\\\.gz"
- ".*\\\\.deb"
- ".*\\\\.rpm"
- ".*\\\\.dmg"
- ".*\\\\.sh"
- ".*\\\\..*\\\\.swp"
- "src/\\\\..*"
- "src/libbpp*"
- "test/tmp_*"
- "tmp_*"
- "html"
- "Phyl.tag"
- "Testing"
- "build-stamp"
- "install_manifest.txt"
- "DartConfiguration.tcl"
- ".clang_format"
- ".clang_complete"
- ${CPACK_SOURCE_IGNORE_FILES}
-)
-IF (MACOS)
-  SET(CPACK_GENERATOR "Bundle")
-ENDIF()
+# /!\ This assumes that an external build is used
+SET(CPACK_SOURCE_IGNORE_FILES 
+       "/build/" 
+       "/\\\\.git/" 
+       "/\\\\.gitignore" 
+       ${CPACK_SOURCE_IGNORE_FILES}
+       )
 
 SET(CPACK_SOURCE_PACKAGE_FILE_NAME "${CMAKE_PROJECT_NAME}-${CPACK_PACKAGE_VERSION_MAJOR}.${CPACK_PACKAGE_VERSION_MINOR}.${CPACK_PACKAGE_VERSION_PATCH}")
 SET(CPACK_DEBSOURCE_PACKAGE_FILE_NAME "lib${CMAKE_PROJECT_NAME}_${CPACK_PACKAGE_VERSION_MAJOR}.${CPACK_PACKAGE_VERSION_MINOR}.${CPACK_PACKAGE_VERSION_PATCH}.orig")
@@ -151,14 +128,6 @@ INCLUDE(CPack)
 
 #This adds the 'dist' target
 ADD_CUSTOM_TARGET(dist COMMAND ${CMAKE_MAKE_PROGRAM} package_source)
-# 'clean' is not (yet) a first class target. However, we need to clean the directories before building the sources:
-IF("${CMAKE_GENERATOR}" MATCHES "Make")
-  ADD_CUSTOM_TARGET(make_clean
-  COMMAND ${CMAKE_MAKE_PROGRAM} clean
-  WORKING_DIRECTORY ${CMAKE_CURRENT_DIR}
-  )
-  ADD_DEPENDENCIES(dist make_clean)
-ENDIF()
 
 IF(NOT NO_DEP_CHECK)
 IF (UNIX)
@@ -177,6 +146,6 @@ enable_testing ()
 include (CTest)
 if (BUILD_TESTING)
   add_subdirectory (test)
-endif ()
+endif (BUILD_TESTING)
 
 ENDIF(NOT NO_DEP_CHECK)

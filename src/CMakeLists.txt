@@ -236,21 +236,17 @@ add_library (${PROJECT_NAME}-static STATIC ${CPP_FILES})
 target_include_directories (${PROJECT_NAME}-static PUBLIC
   $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>
   $<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}>
-  $<INSTALL_INTERFACE:include>
+  $<INSTALL_INTERFACE:$<INSTALL_PREFIX>/${CMAKE_INSTALL_INCLUDEDIR}>
   )
 set_target_properties (${PROJECT_NAME}-static PROPERTIES OUTPUT_NAME ${PROJECT_NAME})
 target_link_libraries (${PROJECT_NAME}-static ${BPP_LIBS_STATIC} Eigen3::Eigen)
-target_compile_options (${PROJECT_NAME}-static
-  PUBLIC ${public-compile-options}
-  PRIVATE ${private-compile-options}
-  )
 
 # Build the shared lib
 add_library (${PROJECT_NAME}-shared SHARED ${CPP_FILES})
 target_include_directories (${PROJECT_NAME}-shared PUBLIC
   $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>
   $<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}>
-  $<INSTALL_INTERFACE:include>
+  $<INSTALL_INTERFACE:$<INSTALL_PREFIX>/${CMAKE_INSTALL_INCLUDEDIR}>
   )
 set_target_properties (${PROJECT_NAME}-shared
   PROPERTIES OUTPUT_NAME ${PROJECT_NAME}
@@ -259,21 +255,18 @@ set_target_properties (${PROJECT_NAME}-shared
   SOVERSION ${${PROJECT_NAME}_VERSION_MAJOR}
   )
 target_link_libraries (${PROJECT_NAME}-shared ${BPP_LIBS_SHARED} Eigen3::Eigen)
-target_compile_options (${PROJECT_NAME}-shared
-  PUBLIC ${public-compile-options}
-  PRIVATE ${private-compile-options}
-  )
 
 # Install libs and headers
 install (
   TARGETS ${PROJECT_NAME}-static ${PROJECT_NAME}-shared
   EXPORT ${PROJECT_NAME}-targets
-  LIBRARY DESTINATION lib${LIB_SUFFIX}
-  ARCHIVE DESTINATION lib${LIB_SUFFIX}
+  LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
+  ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}
+  RUNTIME DESTINATION ${CMAKE_INSTALL_LIBDIR}
   )
 install (
   DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/Bpp
-  DESTINATION include
+  DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}
   FILES_MATCHING PATTERN "*.h"
   )
 # Install cmake file representing targets
