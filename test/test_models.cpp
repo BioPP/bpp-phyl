@@ -66,8 +66,7 @@ class DummyFunction:
 
     DummyFunction* clone() const { return new DummyFunction(*this); }
 
-    void setParameters(const ParameterList& pl) throw (bpp::ParameterNotFoundException
-, bpp::ConstraintException, bpp::Exception) {
+    void setParameters(const ParameterList& pl) {
       matchParametersValues(pl);
     }
 
