@@ -16,6 +16,7 @@ foreach (test_cpp_file ${test_cpp_files})
   get_filename_component (test_name ${test_cpp_file} NAME_WE)
   add_executable (${test_name} ${test_cpp_file})
   target_link_libraries (${test_name} ${PROJECT_NAME}-shared)
+  set_target_properties (${test_name} PROPERTIES POSITION_INDEPENDENT_CODE TRUE)
   add_test (
     NAME ${test_name}
     WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
