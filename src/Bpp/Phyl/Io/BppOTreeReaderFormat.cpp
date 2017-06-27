@@ -50,7 +50,7 @@
 using namespace bpp;
 using namespace std;
 
-ITree* BppOTreeReaderFormat::read(const std::string& description) throw (Exception)
+ITree* BppOTreeReaderFormat::read(const std::string& description)
 {
   unparsedArguments_.clear();
   string format = "";

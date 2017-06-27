@@ -114,7 +114,7 @@ namespace bpp
      *@param reg pointer to a SubstitutionRegister
      *
      */
-    void setSubstitutionRegister(SubstitutionRegister* reg) throw (Exception) {
+    void setSubstitutionRegister(SubstitutionRegister* reg) {
       throw Exception("LaplaceSubstitutionCount::setSubstitutionRegister. This SubstitutionsCount only works with a TotalSubstitutionRegister.");
     }
 

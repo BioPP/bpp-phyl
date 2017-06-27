@@ -81,7 +81,7 @@ public:
    * @param weighted Tell if we should perform Weighted or Unweighted pair group method.
    * @param verbose Allow to display extra information, like progress bars.
    */
-  PGMA(const DistanceMatrix& matrix, bool weighted = true, bool verbose = true) throw (Exception) :
+  PGMA(const DistanceMatrix& matrix, bool weighted = true, bool verbose = true) :
     AbstractAgglomerativeDistanceMethod(matrix, verbose, true),
     weighted_(weighted)
   {
@@ -94,7 +94,7 @@ public:
 public:
   std::string getName() const { return std::string(weighted_ ? "W" : "U") + "PGMA"; }
 
-  void setDistanceMatrix(const DistanceMatrix& matrix) throw (Exception)
+  void setDistanceMatrix(const DistanceMatrix& matrix)
   {
     AbstractAgglomerativeDistanceMethod::setDistanceMatrix(matrix);
   }
@@ -105,7 +105,7 @@ public:
   bool isWeighted() const { return weighted_; }
 
 protected:
-  std::vector<size_t> getBestPair() throw (Exception);
+  std::vector<size_t> getBestPair();
   std::vector<double> computeBranchLengthsForPair(const std::vector<size_t>& pair);
   double computeDistancesFromPair(const std::vector<size_t>& pair, const std::vector<double>& branchLengths, size_t pos);
   void finalStep(int idRoot);

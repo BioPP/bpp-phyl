@@ -88,8 +88,7 @@ public:
     DiscreteDistribution* rDist,
     bool checkRooted = true,
     bool verbose = true,
-    bool usePatterns = true)
-  throw (Exception);
+    bool usePatterns = true);
 
   /**
    * @brief Build a new RHomogeneousMixedTreeLikelihood object with data.
@@ -113,8 +112,7 @@ public:
     DiscreteDistribution* rDist,
     bool checkRooted = true,
     bool verbose = true,
-    bool usePatterns = true)
-  throw (Exception);
+    bool usePatterns = true);
 
   RHomogeneousMixedTreeLikelihood(const RHomogeneousMixedTreeLikelihood& lik);
 
@@ -132,7 +130,7 @@ public:
    *
    * @{
    */
-  void setData(const SiteContainer& sites) throw (Exception);
+  void setData(const SiteContainer& sites);
 
   /** @} */
 
@@ -150,7 +148,7 @@ public:
 
 public:
   // Specific methods:
-  void initialize() throw (Exception);
+  void initialize();
 
   void fireParameterChanged(const ParameterList& params);
 

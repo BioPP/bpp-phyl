@@ -198,7 +198,7 @@ namespace bpp
      *               May be equal to NULL, but in this case use_observed_freq option will be unavailable.
      * @throw Exception if an error occured.
      */
-    void initialize_(TransitionModel& model, const SiteContainer* data) throw (Exception);
+    void initialize_(TransitionModel& model, const SiteContainer* data);
 
   };
 

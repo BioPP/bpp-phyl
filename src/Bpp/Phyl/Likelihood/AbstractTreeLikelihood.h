@@ -88,7 +88,7 @@ namespace bpp
         nodesId_(nodesId), index_(0) {}
 
     public:
-      int next() throw (Exception)
+      int next()
       {
         if (!hasNext())
           throw Exception("AbstractTreeLikelihood::SimpleBranchIterator::next(). No more branch in the set.");
@@ -119,7 +119,7 @@ namespace bpp
         maxIndex_(nbSites), index_(0), offset_(offset) {}
 
     public:
-      size_t next() throw (Exception)
+      size_t next()
       {
         if (!hasNext())
           throw Exception("AbstractTreeLikelihood::SimpleSiteIterator::next(). No more site in the set.");
@@ -178,7 +178,7 @@ namespace bpp
         branchModelDescription_(model, nbSites), index_(0) {}
 
     public:
-      ConstNoPartitionBranchModelDescription* next() throw (Exception)
+      ConstNoPartitionBranchModelDescription* next()
       {
         if (!hasNext())
           throw Exception("AbstractHomogeneousTreeLikelihood::ConstHomogeneousBranchModelIterator::next(). No more branch in the set.");
@@ -299,7 +299,7 @@ namespace bpp
     bool enableFirstOrderDerivatives() const { return computeFirstOrderDerivatives_; }
     bool enableSecondOrderDerivatives() const { return computeSecondOrderDerivatives_; }
     bool isInitialized() const { return initialized_; }
-    void initialize() throw (Exception) { initialized_ = true; }
+    void initialize() { initialized_ = true; }
     /** @} */
 
 //  protected:

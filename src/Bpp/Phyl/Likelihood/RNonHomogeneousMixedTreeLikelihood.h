@@ -197,8 +197,7 @@ public:
     MixedSubstitutionModelSet* modelSet,
     DiscreteDistribution* rDist,
     bool verbose = true,
-    bool usePatterns = true)
-  throw (Exception);
+    bool usePatterns = true);
 
   /**
    * @brief Build a new RNonHomogeneousMixedTreeLikelihood object
@@ -220,8 +219,7 @@ public:
                                      MixedSubstitutionModelSet* modelSet,
                                      DiscreteDistribution* rDist,
                                      bool verbose = true,
-                                     bool usePatterns = true)
-    throw (Exception);
+                                     bool usePatterns = true);
 
   RNonHomogeneousMixedTreeLikelihood(const RNonHomogeneousMixedTreeLikelihood& lik);
 
@@ -239,11 +237,11 @@ public:
    *
    * @{
    */
-  void setData(const SiteContainer& sites) throw (Exception);
+  void setData(const SiteContainer& sites);
 
 public:
   // Specific methods:
-  void initialize() throw (Exception);
+  void initialize();
 
   void computeTreeDLikelihood(const string& variable);
 

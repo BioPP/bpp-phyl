@@ -90,8 +90,7 @@ class RHomogeneousClockTreeLikelihood:
       TransitionModel* model,
       DiscreteDistribution* rDist,
       bool checkRooted = true,
-      bool verbose = true)
-      throw (Exception);
+      bool verbose = true);
   
     /**
      * @brief Build a new RHomogeneousClockTreeLikelihood object.
@@ -115,8 +114,7 @@ class RHomogeneousClockTreeLikelihood:
       TransitionModel* model,
       DiscreteDistribution* rDist,
       bool checkRooted = true,
-      bool verbose = true)
-      throw (Exception);
+      bool verbose = true);
 
     RHomogeneousClockTreeLikelihood* clone() const { return new RHomogeneousClockTreeLikelihood(*this); }
 
@@ -136,14 +134,14 @@ class RHomogeneousClockTreeLikelihood:
      *
      * @{
      */
-    void applyParameters() throw (Exception);
+    void applyParameters();
     void fireParameterChanged(const ParameterList& params);
     void initBranchLengthsParameters(bool verbose = true);
-    ParameterList getDerivableParameters() const throw (Exception);
-    ParameterList getNonDerivableParameters() const throw (Exception);
-    double getFirstOrderDerivative(const std::string& variable) const throw (Exception);
-    double getSecondOrderDerivative(const std::string& variable) const throw (Exception);
-    double getSecondOrderDerivative(const std::string& variable1, const std::string& variable2) const throw (Exception) { return 0; } // Not implemented for now.
+    ParameterList getDerivableParameters() const;
+    ParameterList getNonDerivableParameters() const;
+    double getFirstOrderDerivative(const std::string& variable) const;
+    double getSecondOrderDerivative(const std::string& variable) const;
+    double getSecondOrderDerivative(const std::string& variable1, const std::string& variable2) const { return 0; } // Not implemented for now.
     /** @} */
 
   protected:
@@ -158,7 +156,7 @@ class RHomogeneousClockTreeLikelihood:
      * @param height the current height.
      * @throw Exception If something unexpected happened.
      */
-    void computeBranchLengthsFromHeights(Node* node, double height) throw (Exception);
+    void computeBranchLengthsFromHeights(Node* node, double height);
 
 };
 

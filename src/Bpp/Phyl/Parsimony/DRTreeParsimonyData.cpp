@@ -87,7 +87,7 @@ DRTreeParsimonyData& DRTreeParsimonyData::operator=(const DRTreeParsimonyData& d
 }
 
 /******************************************************************************/
-void DRTreeParsimonyData::init(const SiteContainer& sites, const StateMap& stateMap) throw (Exception)
+void DRTreeParsimonyData::init(const SiteContainer& sites, const StateMap& stateMap)
 {
   nbStates_         = stateMap.getNumberOfModelStates();
   nbSites_          = sites.getNumberOfSites();
@@ -109,7 +109,7 @@ void DRTreeParsimonyData::init(const SiteContainer& sites, const StateMap& state
 }
 
 /******************************************************************************/
-void DRTreeParsimonyData::init(const Node* node, const SiteContainer& sites, const StateMap& stateMap) throw (Exception)
+void DRTreeParsimonyData::init(const Node* node, const SiteContainer& sites, const StateMap& stateMap)
 {
   const Alphabet* alphabet = sites.getAlphabet();
   if (node->isLeaf())
@@ -175,13 +175,13 @@ void DRTreeParsimonyData::init(const Node* node, const SiteContainer& sites, con
 }
 
 /******************************************************************************/
-void DRTreeParsimonyData::reInit() throw (Exception)
+void DRTreeParsimonyData::reInit()
 {
   reInit(getTreeP_()->getRootNode());
 }
 
 /******************************************************************************/
-void DRTreeParsimonyData::reInit(const Node* node) throw (Exception)
+void DRTreeParsimonyData::reInit(const Node* node)
 {
   if (node->isLeaf())
   {

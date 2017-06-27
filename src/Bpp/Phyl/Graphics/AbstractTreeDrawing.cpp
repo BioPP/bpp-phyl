@@ -53,7 +53,6 @@ using namespace std;
 const TreeDrawingSettings AbstractTreeDrawing::DEFAULT_SETTINGS;
   
 Point2D<double> AbstractTreeDrawing::getNodePosition(int nodeId) const
-throw (NodeNotFoundException)
 {
   vector<INode *> nodes = tree_->getNodes();
   for(unsigned int i = 0; i < nodes.size(); i++)
@@ -68,7 +67,6 @@ throw (NodeNotFoundException)
 }
 
 int AbstractTreeDrawing::getNodeAt(const Point2D<double>& position) const
-throw (NodeNotFoundException)
 {
   vector<INode *> nodes = tree_->getNodes();
   for(unsigned int i = 0; i < nodes.size(); i++)

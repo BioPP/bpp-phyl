@@ -103,7 +103,7 @@ void GlobalClockTreeLikelihoodFunctionWrapper::initParameters_()
   fireParameterChanged(getParameters());
 }
 
-void GlobalClockTreeLikelihoodFunctionWrapper::computeBranchLengthsFromHeights_(const Node* node, double height, ParameterList& brlenPl) throw (Exception)
+void GlobalClockTreeLikelihoodFunctionWrapper::computeBranchLengthsFromHeights_(const Node* node, double height, ParameterList& brlenPl)
 {
   for (unsigned int i = 0; i < node->getNumberOfSons(); i++)
   {

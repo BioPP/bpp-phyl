@@ -126,8 +126,7 @@ NNIHomogeneousTreeLikelihood::NNIHomogeneousTreeLikelihood(
   TransitionModel* model,
   DiscreteDistribution* rDist,
   bool checkRooted,
-  bool verbose)
-throw (Exception) :
+  bool verbose) :
   DRHomogeneousTreeLikelihood(tree, model, rDist, checkRooted, verbose),
   brLikFunction_(0),
   brentOptimizer_(0),
@@ -149,8 +148,7 @@ NNIHomogeneousTreeLikelihood::NNIHomogeneousTreeLikelihood(
   TransitionModel* model,
   DiscreteDistribution* rDist,
   bool checkRooted,
-  bool verbose)
-throw (Exception) :
+  bool verbose) :
   DRHomogeneousTreeLikelihood(tree, data, model, rDist, checkRooted, verbose),
   brLikFunction_(0),
   brentOptimizer_(0),
@@ -204,7 +202,7 @@ NNIHomogeneousTreeLikelihood::~NNIHomogeneousTreeLikelihood()
 }
 
 /******************************************************************************/
-double NNIHomogeneousTreeLikelihood::testNNI(int nodeId) const throw (NodeException)
+double NNIHomogeneousTreeLikelihood::testNNI(int nodeId) const
 {
   const Node* son    = tree_->getNode(nodeId);
   if (!son->hasFather()) throw NodePException("DRHomogeneousTreeLikelihood::testNNI(). Node 'son' must not be the root node.", son);
@@ -311,7 +309,7 @@ double NNIHomogeneousTreeLikelihood::testNNI(int nodeId) const throw (NodeExcept
 }
 
 /*******************************************************************************/
-void NNIHomogeneousTreeLikelihood::doNNI(int nodeId) throw (NodeException)
+void NNIHomogeneousTreeLikelihood::doNNI(int nodeId)
 {
   // Perform the topological move, the likelihood array will have to be recomputed...
   Node* son    = tree_->getNode(nodeId);

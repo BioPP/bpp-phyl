@@ -168,7 +168,7 @@ namespace bpp
 
     size_t getNumberOfStates() const { return getModel().getNumberOfStates(); }
 
-    double getInitValue(size_t i, int state) const throw (BadIntException) { return getModel().getInitValue(i, state); }
+    double getInitValue(size_t i, int state) const { return getModel().getInitValue(i, state); }
 
     const FrequenciesSet* getFrequenciesSet() const {return getModel().getFrequenciesSet(); }
 

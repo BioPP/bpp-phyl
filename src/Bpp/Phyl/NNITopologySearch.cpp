@@ -82,7 +82,7 @@ void NNITopologySearch::notifyAllSuccessful(const TopologyChangeEvent& event)
   }
 }
 
-void NNITopologySearch::search() throw (Exception)
+void NNITopologySearch::search()
 {
   if (algorithm_ == FAST)
     searchFast();
@@ -94,7 +94,7 @@ void NNITopologySearch::search() throw (Exception)
     throw Exception("Unknown NNI algorithm: " + algorithm_ + ".\n");
 }
 
-void NNITopologySearch::searchFast() throw (Exception)
+void NNITopologySearch::searchFast()
 {
   bool test = true;
   do
@@ -146,7 +146,7 @@ void NNITopologySearch::searchFast() throw (Exception)
   while (test);
 }
 
-void NNITopologySearch::searchBetter() throw (Exception)
+void NNITopologySearch::searchBetter()
 {
   bool test = true;
   do
@@ -211,7 +211,7 @@ void NNITopologySearch::searchBetter() throw (Exception)
   while (test);
 }
 
-void NNITopologySearch::searchPhyML() throw (Exception)
+void NNITopologySearch::searchPhyML()
 {
   bool test = true;
   do

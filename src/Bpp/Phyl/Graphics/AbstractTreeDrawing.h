@@ -225,9 +225,9 @@ class AbstractTreeDrawing:
       treeHasChanged();
     }
     
-    Point2D<double> getNodePosition(int nodeId) const throw (NodeNotFoundException);
+    Point2D<double> getNodePosition(int nodeId) const;
 
-    int getNodeAt(const Point2D<double>& position) const throw (NodeNotFoundException);
+    int getNodeAt(const Point2D<double>& position) const;
  
     /**
      * @brief Utilitary function, telling if a point belongs to a specified area.
@@ -270,7 +270,7 @@ class AbstractTreeDrawing:
      */
     virtual void drawAtBranch(GraphicDevice& gDevice, const INode& node, const std::string& text, double xOffset = 0, double yOffset = 0, short hpos = GraphicDevice::TEXT_HORIZONTAL_LEFT, short vpos = GraphicDevice::TEXT_VERTICAL_CENTER, double angle = 0) const;
    
-    void setDisplaySettings(const TreeDrawingSettings* tds) throw (NullPointerException) {
+    void setDisplaySettings(const TreeDrawingSettings* tds) {
       if (!tds)
         throw NullPointerException("AbstractTreeDrawing::setDisplaySettings. Null pointer provided.");
       settings_ = tds;
@@ -285,26 +285,26 @@ class AbstractTreeDrawing:
     
     void setYUnit(double yu) { yUnit_ = yu; }
 
-    void collapseNode(int nodeId, bool yn) throw (NodeNotFoundException, Exception)
+    void collapseNode(int nodeId, bool yn)
     {
       if(! tree_.get()) throw Exception("AbstractTreeDrawing::collapseNode. No tree is associated to the drawing.");
       tree_->getNode(nodeId)->getInfos().collapse(yn);
     }
 
-    bool isNodeCollapsed(int nodeId) const throw (NodeNotFoundException, Exception)
+    bool isNodeCollapsed(int nodeId) const
     {
       if(! tree_.get()) throw Exception("AbstractTreeDrawing::isNodeCollapsed. No tree is associated to the drawing.");
       return tree_->getNode(nodeId)->getInfos().isCollapsed();
     }
 
-    void addTreeDrawingListener(TreeDrawingListener* listener) throw (Exception)
+    void addTreeDrawingListener(TreeDrawingListener* listener)
     {
       if (find(listeners_.begin(), listeners_.end(), listener) != listeners_.end())
         throw Exception("AbstractTreeDrawing::addTreeDrawingListener. Listener is already associated to this drawing.");
       listeners_.push_back(listener);
     }
 
-    void removeTreeDrawingListener(TreeDrawingListener* listener) throw (Exception)
+    void removeTreeDrawingListener(TreeDrawingListener* listener)
     {
       std::vector<TreeDrawingListener*>::iterator it = std::find(listeners_.begin(), listeners_.end(), listener);
       if (it == listeners_.end())

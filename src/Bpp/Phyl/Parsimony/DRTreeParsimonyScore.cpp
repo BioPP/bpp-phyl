@@ -53,8 +53,7 @@ DRTreeParsimonyScore::DRTreeParsimonyScore(
   const Tree& tree,
   const SiteContainer& data,
   bool verbose,
-  bool includeGaps)
-throw (Exception) :
+  bool includeGaps) :
   AbstractTreeParsimonyScore(tree, data, verbose, includeGaps),
   parsimonyData_(new DRTreeParsimonyData(getTreeP_())),
   nbDistinctSites_()
@@ -66,8 +65,7 @@ DRTreeParsimonyScore::DRTreeParsimonyScore(
   const Tree& tree,
   const SiteContainer& data,
   const StateMap* statesMap,
-  bool verbose)
-throw (Exception) :
+  bool verbose) :
   AbstractTreeParsimonyScore(tree, data, statesMap, verbose),
   parsimonyData_(new DRTreeParsimonyData(getTreeP_())),
   nbDistinctSites_()
@@ -310,7 +308,7 @@ void DRTreeParsimonyScore::computeScoresFromArrays(
 }
 
 /******************************************************************************/
-double DRTreeParsimonyScore::testNNI(int nodeId) const throw (NodeException)
+double DRTreeParsimonyScore::testNNI(int nodeId) const
 {
   const Node* son = getTreeP_()->getNode(nodeId);
   if (!son->hasFather()) throw NodePException("DRTreeParsimonyScore::testNNI(). Node 'son' must not be the root node.", son);
@@ -382,7 +380,7 @@ double DRTreeParsimonyScore::testNNI(int nodeId) const throw (NodeException)
 }
 
 /******************************************************************************/
-void DRTreeParsimonyScore::doNNI(int nodeId) throw (NodeException)
+void DRTreeParsimonyScore::doNNI(int nodeId)
 {
   Node* son = getTreeP_()->getNode(nodeId);
   if (!son->hasFather()) throw NodePException("DRTreeParsimonyScore::doNNI(). Node 'son' must not be the root node.", son);

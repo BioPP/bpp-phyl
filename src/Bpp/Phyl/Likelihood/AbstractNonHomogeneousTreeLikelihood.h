@@ -78,7 +78,7 @@ class AbstractNonHomogeneousTreeLikelihood:
         }
 
       public:
-        ConstSiteModelDescription* next() throw (Exception)
+        ConstSiteModelDescription* next()
         {
           if (!hasNext())
             throw Exception("AbstractNonHomogeneousTreeLikelihood::ConstHomogeneousSiteModelIterator::next(). No more site in the set.");
@@ -135,8 +135,7 @@ class AbstractNonHomogeneousTreeLikelihood:
       SubstitutionModelSet* modelSet,
       DiscreteDistribution* rDist,
       bool verbose = true,
-      bool reparametrizeRoot = true)
-      throw (Exception);
+      bool reparametrizeRoot = true);
 
     /**
      * @brief Copy constructor
@@ -163,7 +162,7 @@ class AbstractNonHomogeneousTreeLikelihood:
         const Tree& tree,
         SubstitutionModelSet* modelSet,
         DiscreteDistribution* rDist,
-        bool verbose) throw (Exception);
+        bool verbose);
 
   public:
     
@@ -182,7 +181,7 @@ class AbstractNonHomogeneousTreeLikelihood:
   
     std::string getAlphabetStateAsChar(size_t i) const { return modelSet_->getAlphabetStateAsChar(i); }
      
-    void initialize() throw(Exception);
+    void initialize();
     
     ParameterList getBranchLengthsParameters() const;
     
@@ -193,12 +192,12 @@ class AbstractNonHomogeneousTreeLikelihood:
       return AbstractDiscreteRatesAcrossSitesTreeLikelihood::getRateDistributionParameters();
     }
 
-    const TransitionModel* getSubstitutionModelForNode(int nodeId) const throw (NodeNotFoundException) 
+    const TransitionModel* getSubstitutionModelForNode(int nodeId) const 
     {
       return modelSet_->getModelForNode(nodeId);
     }
 
-    TransitionModel* getSubstitutionModelForNode(int nodeId) throw (NodeNotFoundException)
+    TransitionModel* getSubstitutionModelForNode(int nodeId)
     {
       return modelSet_->getModelForNode(nodeId);
     }
@@ -230,7 +229,7 @@ class AbstractNonHomogeneousTreeLikelihood:
     
     SubstitutionModelSet* getSubstitutionModelSet() { return modelSet_; }
     
-    void setSubstitutionModelSet(SubstitutionModelSet* modelSet) throw (Exception);
+    void setSubstitutionModelSet(SubstitutionModelSet* modelSet);
 
     ParameterList getRootFrequenciesParameters() const
     {
@@ -251,11 +250,11 @@ class AbstractNonHomogeneousTreeLikelihood:
      * This function apply these parameters to the substitution model,
      * to the rate distribution and to the branch lengths.
      */
-    virtual void applyParameters() throw (Exception);  
+    virtual void applyParameters();  
 
     virtual void initBranchLengthsParameters(bool verbose = true);
 
-    virtual void setMinimumBranchLength(double minimum) throw (Exception)
+    virtual void setMinimumBranchLength(double minimum)
     {
       if (minimum > maximumBrLen_)
         throw Exception("AbstractNonHomogeneousTreeLikelihood::setMinimumBranchLength. Minimum branch length sould be lower than the maximum one: " + TextTools::toString(maximumBrLen_));
@@ -265,7 +264,7 @@ class AbstractNonHomogeneousTreeLikelihood:
       initBranchLengthsParameters();
     }
 
-    virtual void setMaximumBranchLength(double maximum) throw (Exception)
+    virtual void setMaximumBranchLength(double maximum)
     {
       if (maximum < minimumBrLen_)
         throw Exception("AbstractNonHomogeneousTreeLikelihood::setMaximumBranchLength. Maximum branch length sould be higher than the minimum one: " + TextTools::toString(minimumBrLen_));

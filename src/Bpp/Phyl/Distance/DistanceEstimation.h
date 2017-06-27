@@ -121,7 +121,7 @@ class TwoTreeLikelihood:
       const SiteContainer& data,
       TransitionModel* model,
       DiscreteDistribution* rDist,
-      bool verbose)  throw (Exception);
+      bool verbose);
 
     TwoTreeLikelihood(const TwoTreeLikelihood& lik);
     
@@ -148,11 +148,11 @@ class TwoTreeLikelihood:
   
     std::string getAlphabetStateAsChar(size_t i) const { return model_->getAlphabetStateAsChar(i); }
     
-    TreeLikelihoodData* getLikelihoodData() throw (NotImplementedException)
+    TreeLikelihoodData* getLikelihoodData()
     {
       throw NotImplementedException("TwoTreeLikelihood::getLikelihoodData.");
     }
-    const TreeLikelihoodData* getLikelihoodData() const throw (NotImplementedException)
+    const TreeLikelihoodData* getLikelihoodData() const
     {
       throw NotImplementedException("TwoTreeLikelihood::getLikelihoodData.");
     }  
@@ -162,16 +162,16 @@ class TwoTreeLikelihood:
     double getLogLikelihoodForASite(size_t site) const;
     ParameterList getBranchLengthsParameters() const;
     ParameterList getSubstitutionModelParameters() const;
-    TransitionModel* getSubstitutionModel(int nodeId, size_t siteIndex) throw (NodeNotFoundException) { return model_; }
-    const TransitionModel* getSubstitutionModel(int nodeId, size_t siteIndex) const throw (NodeNotFoundException) { return model_; }
+    TransitionModel* getSubstitutionModel(int nodeId, size_t siteIndex) { return model_; }
+    const TransitionModel* getSubstitutionModel(int nodeId, size_t siteIndex) const { return model_; }
     const std::vector<double>& getRootFrequencies(size_t siteIndex) const { return model_->getFrequencies(); }
-    size_t getSiteIndex(size_t site) const throw (IndexOutOfBoundsException) { return rootPatternLinks_[site]; }
+    size_t getSiteIndex(size_t site) const { return rootPatternLinks_[site]; }
     /**
      * @brief This method is not applicable for this object.
      */
     VVVdouble getTransitionProbabilitiesPerRateClass(int nodeId, size_t siteIndex) const { return pxy_; }
-    void setData(const SiteContainer& sites) throw (Exception) {}
-    void initialize() throw(Exception);
+    void setData(const SiteContainer& sites) {}
+    void initialize();
     /** @} */
 
     /**
@@ -199,12 +199,12 @@ class TwoTreeLikelihood:
      */
     TransitionModel* getSubstitutionModel() { return model_; }
 
-    ConstBranchModelIterator* getNewBranchModelIterator(int nodeId) const throw (NotImplementedException)
+    ConstBranchModelIterator* getNewBranchModelIterator(int nodeId) const
     {
       throw NotImplementedException("TwoTreeLikelihood::getNewBranchSiteModelIterator. This class does not (yet) provide support for partition models.");
     }
 
-    ConstSiteModelIterator* getNewSiteModelIterator(size_t siteIndex) const throw (NotImplementedException)
+    ConstSiteModelIterator* getNewSiteModelIterator(size_t siteIndex) const
     {
       throw NotImplementedException("TwoTreeLikelihood::getNewSiteModelIterator. This class is for inner use only and does not provide site model iterators.");
     }
@@ -224,15 +224,15 @@ class TwoTreeLikelihood:
      *
      * @param parameters The parameter list to pass to the function.
      */
-    void setParameters(const ParameterList& parameters) throw (ParameterNotFoundException, ConstraintException);
-    double getValue() const throw(Exception);
+    void setParameters(const ParameterList& parameters);
+    double getValue() const;
     
     /**
      * @name DerivableFirstOrder interface.
      *
      * @{
      */
-    double getFirstOrderDerivative(const std::string& variable) const throw (Exception);
+    double getFirstOrderDerivative(const std::string& variable) const;
     /** @{ */
 
     /**
@@ -240,8 +240,8 @@ class TwoTreeLikelihood:
      *
      * @{
      */
-    double getSecondOrderDerivative(const std::string& variable) const throw (Exception);
-    double getSecondOrderDerivative(const std::string& variable1, const std::string& variable2) const throw (Exception) { return 0; } // Not implemented for now.
+    double getSecondOrderDerivative(const std::string& variable) const;
+    double getSecondOrderDerivative(const std::string& variable1, const std::string& variable2) const { return 0; } // Not implemented for now.
     /** @} */
 
     virtual void initBranchLengthsParameters();
@@ -272,7 +272,7 @@ class TwoTreeLikelihood:
      *
      * @param sequences The sequence container to use.
      */
-    virtual void initTreeLikelihoods(const SequenceContainer & sequences) throw (Exception);
+    virtual void initTreeLikelihoods(const SequenceContainer & sequences);
 
     void fireParameterChanged(const ParameterList & params);
     virtual void computeTreeLikelihood();
@@ -290,7 +290,7 @@ class TwoTreeLikelihood:
      * This function apply these parameters to the substitution model,
      * to the rate distribution and to the branch lengths.
      */
-    virtual void applyParameters() throw (Exception);  
+    virtual void applyParameters();  
 
 };
 
@@ -470,7 +470,7 @@ class DistanceEstimation:
      * @throw NullPointerException if at least one of the model,
      * rate distribution or data are not initialized.
      */
-    void computeMatrix() throw (NullPointerException);
+    void computeMatrix();
     
     /**
      * @brief Get the distance matrix.
@@ -481,7 +481,7 @@ class DistanceEstimation:
 
     bool hasModel() const { return model_.get(); }
 
-    const TransitionModel& getSubstitutionModel() const throw (Exception) {
+    const TransitionModel& getSubstitutionModel() const {
       if (hasModel())
         return *model_;
       else
@@ -492,7 +492,7 @@ class DistanceEstimation:
 
     bool hasRateDistribution() const { return rateDist_.get(); }
 
-    const DiscreteDistribution& getRateDistribution() const throw (Exception) {
+    const DiscreteDistribution& getRateDistribution() const {
       if (hasRateDistribution())
         return *rateDist_;
       else

@@ -95,7 +95,7 @@ Node& Node::operator=(const Node & node)
       
 /** Sons: *********************************************************************/
       
-void Node::swap(size_t branch1, size_t branch2) throw (IndexOutOfBoundsException)
+void Node::swap(size_t branch1, size_t branch2)
 {
   if (branch1 > branch2)
   {
@@ -127,7 +127,7 @@ vector<Node *> Node::getNeighbors()
   return neighbors;
 }
 
-size_t Node::getSonPosition(const Node* son) const throw (NodeNotFoundException, NullPointerException)
+size_t Node::getSonPosition(const Node* son) const
 {
   if (!son)
     throw NullPointerException("Node::getSonPosition(). Empty node given as input.");
@@ -143,7 +143,7 @@ bool Node::hasBootstrapValue() const
   return hasBranchProperty(TreeTools::BOOTSTRAP);
 }
 
-double Node::getBootstrapValue() const throw (PropertyNotFoundException)
+double Node::getBootstrapValue() const
 {
   if(hasBranchProperty(TreeTools::BOOTSTRAP))
     return dynamic_cast<const Number<double> *>(getBranchProperty(TreeTools::BOOTSTRAP))->getValue();

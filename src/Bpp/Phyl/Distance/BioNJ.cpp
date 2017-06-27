@@ -57,7 +57,7 @@ double BioNJ::computeDistancesFromPair(const vector<size_t>& pair, const vector<
          :          lambda_ * (matrix_(pair[0], pos) - branchLengths[0]) + (1 - lambda_) * (matrix_(pair[1], pos) - branchLengths[1]);
 }
 
-void BioNJ::computeTree() throw (Exception)
+void BioNJ::computeTree()
 {
   // Initialization:
   for (size_t i = 0; i < matrix_.size(); i++)

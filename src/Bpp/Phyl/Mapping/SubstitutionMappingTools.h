@@ -80,7 +80,7 @@ public:
   static ProbabilisticSubstitutionMapping* computeSubstitutionVectors(
     const DRTreeLikelihood& drtl,
     SubstitutionCount& substitutionCount,
-    bool verbose = true) throw (Exception)
+    bool verbose = true)
   {
     std::vector<int> nodeIds;
     return computeSubstitutionVectors(drtl, nodeIds, substitutionCount, verbose);
@@ -103,14 +103,14 @@ public:
     const DRTreeLikelihood& drtl,
     const std::vector<int>& nodeIds,
     SubstitutionCount& substitutionCount,
-    bool verbose = true) throw (Exception);
+    bool verbose = true);
 
   static ProbabilisticSubstitutionMapping* computeSubstitutionVectors(
     const DRTreeLikelihood& drtl,
     const SubstitutionModelSet& modelSet,
     const std::vector<int>& nodeIds,
     SubstitutionCount& substitutionCount,
-    bool verbose = true) throw (Exception);
+    bool verbose = true);
 
   /**
    * @brief Compute the substitutions vectors for a particular dataset using the
@@ -135,7 +135,7 @@ public:
   static ProbabilisticSubstitutionMapping* computeSubstitutionVectorsNoAveraging(
     const DRTreeLikelihood& drtl,
     SubstitutionCount& substitutionCount,
-    bool verbose = true) throw (Exception);
+    bool verbose = true);
 
 
   /**
@@ -159,7 +159,7 @@ public:
   static ProbabilisticSubstitutionMapping* computeSubstitutionVectorsNoAveragingMarginal(
     const DRTreeLikelihood& drtl,
     SubstitutionCount& substitutionCount,
-    bool verbose = true) throw (Exception);
+    bool verbose = true);
 
 
   /**
@@ -180,7 +180,7 @@ public:
   static ProbabilisticSubstitutionMapping* computeSubstitutionVectorsMarginal(
     const DRTreeLikelihood& drtl,
     SubstitutionCount& substitutionCount,
-    bool verbose = true) throw (Exception);
+    bool verbose = true);
 
 
   /**
@@ -192,7 +192,7 @@ public:
    */
   static ProbabilisticSubstitutionMapping* computeOneJumpProbabilityVectors(
     const DRTreeLikelihood& drtl,
-    bool verbose = true) throw (Exception)
+    bool verbose = true)
   {
     OneJumpSubstitutionCount ojsm(0);
     return computeSubstitutionVectors(drtl, drtl.getTree().getNodesId(), ojsm, 0);
@@ -214,8 +214,7 @@ public:
     const ProbabilisticSubstitutionMapping& substitutions,
     const SiteContainer& sites,
     size_t type,
-    std::ostream& out)
-  throw (IOException);
+    std::ostream& out);
 
 
   /**
@@ -226,8 +225,7 @@ public:
    * @param type          The type of substitutions that are read. Should be in supported by the substittuion count obect assiciated to the mapping, if any.
    * @throw IOException If an input error happens.
    */
-  static void readFromStream(std::istream& in, ProbabilisticSubstitutionMapping& substitutions, size_t type)
-  throw (IOException);
+  static void readFromStream(std::istream& in, ProbabilisticSubstitutionMapping& substitutions, size_t type);
 
 
   /**

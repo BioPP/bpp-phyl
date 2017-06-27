@@ -61,8 +61,7 @@ AbstractHomogeneousTreeLikelihood::AbstractHomogeneousTreeLikelihood(
   TransitionModel* model,
   DiscreteDistribution* rDist,
   bool checkRooted,
-  bool verbose)
-throw (Exception) :
+  bool verbose) :
   AbstractDiscreteRatesAcrossSitesTreeLikelihood(rDist, verbose),
   model_(0),
   brLenParameters_(),
@@ -145,7 +144,7 @@ void AbstractHomogeneousTreeLikelihood::init_(
   TransitionModel* model,
   DiscreteDistribution* rDist,
   bool checkRooted,
-  bool verbose) throw (Exception)
+  bool verbose)
 {
   TreeTools::checkIds(tree, true);
   tree_ = new TreeTemplate<Node>(tree);
@@ -170,7 +169,7 @@ void AbstractHomogeneousTreeLikelihood::init_(
 
 /******************************************************************************/
 
-void AbstractHomogeneousTreeLikelihood::setSubstitutionModel(TransitionModel* model) throw (Exception)
+void AbstractHomogeneousTreeLikelihood::setSubstitutionModel(TransitionModel* model)
 {
   // Check:
   if (data_)
@@ -235,7 +234,7 @@ void AbstractHomogeneousTreeLikelihood::setSubstitutionModel(TransitionModel* mo
 
 /******************************************************************************/
 
-void AbstractHomogeneousTreeLikelihood::initialize() throw (Exception)
+void AbstractHomogeneousTreeLikelihood::initialize()
 {
   if (initialized_)
     throw Exception("AbstractHomogeneousTreeLikelihood::initialize(). Object is already initialized.");
@@ -284,7 +283,7 @@ void AbstractHomogeneousTreeLikelihood::initParameters()
 
 /******************************************************************************/
 
-void AbstractHomogeneousTreeLikelihood::applyParameters() throw (Exception)
+void AbstractHomogeneousTreeLikelihood::applyParameters()
 {
   if (!initialized_)
     throw Exception("AbstractHomogeneousTreeLikelihood::applyParameters(). Object not initialized.");

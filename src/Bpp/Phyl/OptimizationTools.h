@@ -82,7 +82,7 @@ class NaNListener: public OptimizationListener
   
   public:
     void optimizationInitializationPerformed(const OptimizationEvent &event) {}
-    void optimizationStepPerformed(const OptimizationEvent &event) throw (Exception)
+    void optimizationStepPerformed(const OptimizationEvent &event)
     {
       if (std::isnan(optimizer_->getFunction()->getValue()))
       {
@@ -347,8 +347,7 @@ public:
     bool reparametrization            = false,
     unsigned int verbose              = 1,
     const std::string& optMethodDeriv = OPTIMIZATION_NEWTON,
-    const std::string& optMethodModel = OPTIMIZATION_BRENT)
-  throw (Exception);
+    const std::string& optMethodModel = OPTIMIZATION_BRENT);
 
   /**
    * @brief Optimize numerical parameters (branch length, substitution model & rate distribution) of a TreeLikelihood function.
@@ -383,8 +382,7 @@ public:
     bool reparametrization             = false,
     bool useClock                      = false,
     unsigned int verbose               = 1,
-    const std::string& optMethodDeriv  = OPTIMIZATION_NEWTON)
-  throw (Exception);
+    const std::string& optMethodDeriv  = OPTIMIZATION_NEWTON);
 
   /**
    * @brief Optimize branch lengths parameters of a TreeLikelihood function.
@@ -416,8 +414,7 @@ public:
     OutputStream* messageHandler       = ApplicationTools::message,
     OutputStream* profiler             = ApplicationTools::message,
     unsigned int verbose               = 1,
-    const std::string& optMethodDeriv  = OPTIMIZATION_NEWTON)
-  throw (Exception);
+    const std::string& optMethodDeriv  = OPTIMIZATION_NEWTON);
 
   /**
    * @brief Optimize numerical parameters assuming a global clock (branch heights, substitution model & rate distribution) of a ClockTreeLikelihood function.
@@ -454,8 +451,7 @@ public:
     OutputStream* messageHandler      = ApplicationTools::message,
     OutputStream* profiler            = ApplicationTools::message,
     unsigned int verbose              = 1,
-    const std::string& optMethodDeriv = OPTIMIZATION_GRADIENT)
-  throw (Exception);
+    const std::string& optMethodDeriv = OPTIMIZATION_GRADIENT);
 
   /**
    * @brief Optimize numerical parameters assuming a global clock (branch heights, substitution model & rate distribution) of a ClockTreeLikelihood function.
@@ -486,8 +482,7 @@ public:
     OutputStream* messageHandler      = ApplicationTools::message,
     OutputStream* profiler            = ApplicationTools::message,
     unsigned int verbose              = 1,
-    const std::string& optMethodDeriv = OPTIMIZATION_GRADIENT)
-  throw (Exception);
+    const std::string& optMethodDeriv = OPTIMIZATION_GRADIENT);
 
 private:
   class ScaleFunction :
@@ -520,15 +515,15 @@ public:
     ScaleFunction* clone() const { return new ScaleFunction(*this); }
 
 public:
-    void setParameters(const ParameterList& lambda) throw (ParameterNotFoundException, ConstraintException);
-    double getValue() const throw (ParameterException);
-    const ParameterList& getParameters() const throw (Exception) { return lambda_; }
-    const Parameter& getParameter(const std::string& name) const throw (ParameterNotFoundException)
+    void setParameters(const ParameterList& lambda);
+    double getValue() const;
+    const ParameterList& getParameters() const { return lambda_; }
+    const Parameter& getParameter(const std::string& name) const
     {
       if (name == "lambda") return lambda_[0];
       else throw ParameterNotFoundException("ScaleFunction::getParameter.", name);
     }
-    double getParameterValue(const std::string& name) const throw (ParameterNotFoundException)
+    double getParameterValue(const std::string& name) const
     {
       return lambda_.getParameter(name).getValue();
     }
@@ -565,8 +560,7 @@ public:
     unsigned int tlEvalMax = 1000000,
     OutputStream* messageHandler = ApplicationTools::message,
     OutputStream* profiler       = ApplicationTools::message,
-    unsigned int verbose = 1)
-  throw (Exception);
+    unsigned int verbose = 1);
 
   /**
    * @brief Optimize all parameters from a TreeLikelihood object, including tree topology using Nearest Neighbor Interchanges.
@@ -621,8 +615,7 @@ public:
     unsigned int verbose         = 1,
     const std::string& optMethod = OptimizationTools::OPTIMIZATION_NEWTON,
     unsigned int nStep           = 1,
-    const std::string& nniMethod = NNITopologySearch::PHYML)
-  throw (Exception);
+    const std::string& nniMethod = NNITopologySearch::PHYML);
 
   /**
    * @brief Optimize all parameters from a TreeLikelihood object, including tree topology using Nearest Neighbor Interchanges.
@@ -675,8 +668,7 @@ public:
     bool reparametrization       = false,
     unsigned int verbose         = 1,
     const std::string& optMethod = OptimizationTools::OPTIMIZATION_NEWTON,
-    const std::string& nniMethod = NNITopologySearch::PHYML)
-  throw (Exception);
+    const std::string& nniMethod = NNITopologySearch::PHYML);
 
   /**
    * @brief Optimize tree topology from a DRTreeParsimonyScore using Nearest Neighbor Interchanges.
@@ -716,7 +708,7 @@ public:
     DistanceEstimation& estimationMethod,
     const ParameterList& parametersToIgnore,
     const std::string& param = DISTANCEMETHOD_INIT,
-    unsigned int verbose = 0) throw (Exception);
+    unsigned int verbose = 0);
 
   /**
    * @brief Build a tree using a distance method.
@@ -752,7 +744,7 @@ public:
     unsigned int tlEvalMax = 1000000,
     OutputStream* profiler = 0,
     OutputStream* messenger = 0,
-    unsigned int verbose = 0) throw (Exception);
+    unsigned int verbose = 0);
 
 public:
   static std::string DISTANCEMETHOD_INIT;

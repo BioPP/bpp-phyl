@@ -71,7 +71,7 @@ class DummyFunction:
       matchParametersValues(pl);
     }
 
-    double getValue() const throw (Exception) { return 0; }
+    double getValue() const { return 0; }
 
     void fireParameterChanged(const bpp::ParameterList&) {}
 

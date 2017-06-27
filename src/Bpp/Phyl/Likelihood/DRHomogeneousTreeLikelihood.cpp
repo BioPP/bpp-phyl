@@ -62,8 +62,7 @@ DRHomogeneousTreeLikelihood::DRHomogeneousTreeLikelihood(
   TransitionModel* model,
   DiscreteDistribution* rDist,
   bool checkRooted,
-  bool verbose)
-throw (Exception) :
+  bool verbose) :
   AbstractHomogeneousTreeLikelihood(tree, model, rDist, checkRooted, verbose),
   likelihoodData_(0),
   minusLogLik_(-1.)
@@ -79,8 +78,7 @@ DRHomogeneousTreeLikelihood::DRHomogeneousTreeLikelihood(
   TransitionModel* model,
   DiscreteDistribution* rDist,
   bool checkRooted,
-  bool verbose)
-throw (Exception) :
+  bool verbose) :
   AbstractHomogeneousTreeLikelihood(tree, model, rDist, checkRooted, verbose),
   likelihoodData_(0),
   minusLogLik_(-1.)
@@ -91,7 +89,7 @@ throw (Exception) :
 
 /******************************************************************************/
 
-void DRHomogeneousTreeLikelihood::init_() throw (Exception)
+void DRHomogeneousTreeLikelihood::init_()
 {
   likelihoodData_ = new DRASDRTreeLikelihoodData(
     tree_,
@@ -132,7 +130,7 @@ DRHomogeneousTreeLikelihood::~DRHomogeneousTreeLikelihood()
 
 /******************************************************************************/
 
-void DRHomogeneousTreeLikelihood::setData(const SiteContainer& sites) throw (Exception)
+void DRHomogeneousTreeLikelihood::setData(const SiteContainer& sites)
 {
   if (data_)
     delete data_;
@@ -231,7 +229,6 @@ double DRHomogeneousTreeLikelihood::getLogLikelihoodForASiteForARateClassForASta
 /******************************************************************************/
 
 void DRHomogeneousTreeLikelihood::setParameters(const ParameterList& parameters)
-throw (ParameterNotFoundException, ConstraintException)
 {
   setParametersValues(parameters);
 }
@@ -278,7 +275,6 @@ void DRHomogeneousTreeLikelihood::fireParameterChanged(const ParameterList& para
 /******************************************************************************/
 
 double DRHomogeneousTreeLikelihood::getValue() const
-throw (Exception)
 {
   if (!isInitialized())
     throw Exception("DRHomogeneousTreeLikelihood::getValue(). Instance is not initialized.");
@@ -342,7 +338,6 @@ void DRHomogeneousTreeLikelihood::computeTreeDLikelihoods()
 /******************************************************************************/
 
 double DRHomogeneousTreeLikelihood::getFirstOrderDerivative(const std::string& variable) const
-throw (Exception)
 {
   if (!hasParameter(variable))
     throw ParameterNotFoundException("DRHomogeneousTreeLikelihood::getFirstOrderDerivative().", variable);
@@ -428,7 +423,6 @@ void DRHomogeneousTreeLikelihood::computeTreeD2Likelihoods()
 /******************************************************************************/
 
 double DRHomogeneousTreeLikelihood::getSecondOrderDerivative(const std::string& variable) const
-throw (Exception)
 {
   if (!hasParameter(variable))
     throw ParameterNotFoundException("DRHomogeneousTreeLikelihood::getSecondOrderDerivative().", variable);

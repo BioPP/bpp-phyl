@@ -101,7 +101,7 @@ Tree* PhylogeneticsApplicationTools::getTree(
   const string& suffix,
   bool suffixIsOptional,
   bool verbose,
-  int warn) throw (Exception)
+  int warn)
 {
   string format = ApplicationTools::getStringParameter(prefix + "tree.format", params, "Newick", suffix, suffixIsOptional, warn);
   string treeFilePath = ApplicationTools::getAFilePath(prefix + "tree.file", params, true, true, suffix, suffixIsOptional, "none", warn);
@@ -125,7 +125,7 @@ vector<Tree*> PhylogeneticsApplicationTools::getTrees(
   const string& suffix,
   bool suffixIsOptional,
   bool verbose,
-  int warn) throw (Exception)
+  int warn)
 {
   string format = ApplicationTools::getStringParameter(prefix + "trees.format", params, "Newick", suffix, suffixIsOptional, warn);
   string treeFilePath = ApplicationTools::getAFilePath(prefix + "trees.file", params, true, true, suffix, suffixIsOptional, "none", warn);
@@ -162,7 +162,7 @@ SubstitutionModel* PhylogeneticsApplicationTools::getSubstitutionModel(
   const string& suffix,
   bool suffixIsOptional,
   bool verbose,
-  int warn) throw (Exception)
+  int warn)
 {
   BppOSubstitutionModelFormat bIO(BppOSubstitutionModelFormat::ALL, true, true, true, verbose, warn + 1);
   string modelDescription;
@@ -191,7 +191,7 @@ TransitionModel* PhylogeneticsApplicationTools::getTransitionModel(
   const string& suffix,
   bool suffixIsOptional,
   bool verbose,
-  int warn) throw (Exception)
+  int warn)
 {
   BppOTransitionModelFormat bIO(BppOSubstitutionModelFormat::ALL, true, true, true, verbose, warn + 1);
   string modelDescription;
@@ -220,7 +220,7 @@ void PhylogeneticsApplicationTools::setSubstitutionModelParametersInitialValuesW
   size_t modelNumber,
   const SiteContainer* data,
   std::map<std::string, std::string>& sharedParams,
-  bool verbose) throw (Exception)
+  bool verbose)
 {
   string initFreqs = ApplicationTools::getStringParameter(model.getNamespace() + "initFreqs", unparsedParameterValues, "", "", true, 2);
 
@@ -310,7 +310,7 @@ FrequenciesSet* PhylogeneticsApplicationTools::getRootFrequenciesSet(
   const std::string& suffix,
   bool suffixIsOptional,
   bool verbose,
-  int warn) throw (Exception)
+  int warn)
 {
   string freqDescription = ApplicationTools::getStringParameter("nonhomogeneous.root_freq", params, "Full(init=observed)", suffix, suffixIsOptional, warn);
   if (freqDescription == "None")
@@ -346,7 +346,7 @@ FrequenciesSet* PhylogeneticsApplicationTools::getFrequenciesSet(
   std::map<std::string, std::string>& sharedparams,
   const std::vector<double>& rateFreqs,
   bool verbose,
-  int warn) throw (Exception)
+  int warn)
 {
   map<string, string> unparsedParameterValues;
   BppOFrequenciesSetFormat bIO(BppOFrequenciesSetFormat::ALL, verbose, warn);
@@ -696,7 +696,7 @@ DiscreteDistribution* PhylogeneticsApplicationTools::getRateDistribution(
   map<string, string>& params,
   const string& suffix,
   bool suffixIsOptional,
-  bool verbose) throw (Exception)
+  bool verbose)
 {
   string distDescription = ApplicationTools::getStringParameter("rate_distribution", params, "Constant()", suffix, suffixIsOptional);
 
@@ -731,7 +731,6 @@ TreeLikelihood* PhylogeneticsApplicationTools::optimizeParameters(
   bool suffixIsOptional,
   bool verbose,
   int warn)
-throw (Exception)
 {
   string optimization = ApplicationTools::getStringParameter("optimization", params, "FullD(derivatives=Newton)", suffix, suffixIsOptional, warn);
   if (optimization == "None")
@@ -1154,7 +1153,6 @@ void PhylogeneticsApplicationTools::optimizeParameters(
   bool suffixIsOptional,
   bool verbose,
   int warn)
-throw (Exception)
 {
   string optimization = ApplicationTools::getStringParameter("optimization", params, "FullD(derivatives=Newton)", suffix, suffixIsOptional, warn);
   if (optimization == "None")
@@ -1396,7 +1394,7 @@ void PhylogeneticsApplicationTools::writeTree(
   bool suffixIsOptional,
   bool verbose,
   bool checkOnly,
-  int warn) throw (Exception)
+  int warn)
 {
   string format = ApplicationTools::getStringParameter(prefix + "tree.format", params, "Newick", suffix, suffixIsOptional, warn);
   string file = ApplicationTools::getAFilePath(prefix + "tree.file", params, false, false, suffix, suffixIsOptional, "none", warn);
@@ -1422,7 +1420,7 @@ void PhylogeneticsApplicationTools::writeTrees(
   bool suffixIsOptional,
   bool verbose,
   bool checkOnly,
-  int warn) throw (Exception)
+  int warn)
 {
   string format = ApplicationTools::getStringParameter(prefix + "trees.format", params, "Newick", suffix, suffixIsOptional, warn);
   string file = ApplicationTools::getAFilePath(prefix + "trees.file", params, true, false, suffix, suffixIsOptional, "none", warn);

@@ -72,7 +72,7 @@ void PhylogramPlot::setTree(const Tree* tree)
   }
 }
 
-void PhylogramPlot::drawDendrogram_(GraphicDevice& gDevice) const throw (Exception)
+void PhylogramPlot::drawDendrogram_(GraphicDevice& gDevice) const
 {
   if (hasTree())
   {
