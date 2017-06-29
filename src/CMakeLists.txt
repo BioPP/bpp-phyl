@@ -9,6 +9,7 @@
 set (CPP_FILES
   Bpp/NewPhyl/DataFlow.cpp
   Bpp/NewPhyl/Debug.cpp
+  Bpp/NewPhyl/ImportMaster.cpp
   Bpp/NewPhyl/ImportNewlik.cpp
   Bpp/NewPhyl/Likelihood.cpp
   Bpp/NewPhyl/Model.cpp

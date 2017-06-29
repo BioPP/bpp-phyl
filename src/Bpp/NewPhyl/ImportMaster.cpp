@@ -1,5 +1,5 @@
 //
-// File: ImportNewlik.cpp
+// File: ImportMaster.cpp
 // Authors:
 //   Francois Gindraud (2017)
 // Created: 2017-06-29
@@ -40,34 +40,32 @@
 */
 
 #include <Bpp/Exceptions.h>
-#include <Bpp/NewPhyl/ImportNewlik.h>
-#include <Bpp/Phyl/Tree/PhyloTree.h>
+#include <Bpp/NewPhyl/ImportMaster.h>
+#include <Bpp/Phyl/Tree/Node.h>
+#include <Bpp/Phyl/Tree/TreeTemplate.h>
+#include <Bpp/Seq/Container/VectorSiteContainer.h>
+#include <utility>
 
 namespace bpp {
 namespace Phyl {
-	ConvertedPhyloTreeData convertPhyloTree (const bpp::PhyloTree & fromTree) {
+	ConvertedTreeTemplateData convertTreeTemplate (const TreeTemplate<Node> & fromTree) {
 		if (!fromTree.isRooted ())
-			throw Exception ("PhyloTree is not rooted");
+			throw Exception ("TreeTemplate is not rooted");
 
 		// Build topology : create nodes and an index conversion map
 		// Assumes our indexes are densely allocated (in sequence from 0)
 		Topology::IndexMapBase<int> fromNodeIdMap{fromTree.getNumberOfNodes ()};
-		auto convertId = [&fromNodeIdMap](const bpp::PhyloTree::NodeIndex & index) {
-			return fromNodeIdMap.index (static_cast<int> (index)).value ();
-		};
+		auto convertId = [&fromNodeIdMap](int index) { return fromNodeIdMap.index (index).value (); };
 		auto tmpTree = make_freezable<Topology::Tree> ();
-		auto allNodeIds = fromTree.getAllNodesIndexes ();
+		auto allNodeIds = fromTree.getNodesId ();
 		for (auto i : allNodeIds) {
 			auto ourId = tmpTree->createNode ();
-			fromNodeIdMap.set (ourId, static_cast<int> (i));
+			fromNodeIdMap.set (ourId, i);
 		}
-		for (auto i : allNodeIds) {
-			if (fromTree.hasFather (i)) {
-				auto fatherId = fromTree.getNodeIndex (fromTree.getFather (fromTree.getNode (i)));
-				tmpTree->createEdge (convertId (fatherId), convertId (i));
-			}
-		}
-		tmpTree->setRootNodeId (convertId (fromTree.getRootIndex ()));
+		for (auto i : allNodeIds)
+			if (fromTree.hasFather (i))
+				tmpTree->createEdge (convertId (fromTree.getFatherId (i)), convertId (i));
+		tmpTree->setRootNodeId (convertId (fromTree.getRootId ()));
 		auto tree = std::move (tmpTree).freeze ();
 
 		// Data
@@ -76,19 +74,28 @@ namespace Phyl {
 		for (auto i : allNodeIds) {
 			auto node = tree->node (convertId (i));
 			// Branch length
-			if (fromTree.hasFather (i)) {
-				auto branch = fromTree.getEdgeToFather (i);
-				brLens->access (node.fatherBranch ()) = branch->getLength ();
-			}
+			if (fromTree.hasFather (i))
+				brLens->access (node.fatherBranch ()) = fromTree.getDistanceToFather (i);
 			// Leaf name
-			auto phyloNode = fromTree.getNode (i);
-			if (phyloNode->hasName ())
-				nodeNames->set (node, phyloNode->getName ());
+			if (fromTree.hasNodeName (i))
+				nodeNames->set (node, fromTree.getNodeName (i));
 		}
 
 		return {std::move (tree),
 		        make_frozen<Topology::NodeIndexMap<int>> (tree, std::move (fromNodeIdMap)),
 		        std::move (brLens).freeze (), std::move (nodeNames).freeze ()};
+	}
+
+	SequenceMap makeSequenceMap (const Topology::NodeIndexMap<std::string> & nodeNames,
+	                             const VectorSiteContainer & sequences) {
+		using namespace Topology;
+		auto sequenceMap =
+		    make_freezable<NodeValueMap<DF::Parameter<const Sequence *>>> (nodeNames.tree ());
+		for (auto i : bpp::index_range (*sequenceMap))
+			sequenceMap->access (i) = nodeNames.access (i).map ([&sequences](const std::string & name) {
+				return DF::Parameter<const Sequence *>::create (&sequences.getSequence (name));
+			});
+		return {std::move (sequenceMap).freeze (), sequences.getNumberOfSites ()};
 	}
 }
 }

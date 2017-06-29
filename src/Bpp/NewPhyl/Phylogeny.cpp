@@ -42,23 +42,10 @@
 #include <Bpp/NewPhyl/Likelihood.h>
 #include <Bpp/NewPhyl/Model.h>
 #include <Bpp/NewPhyl/Phylogeny.h>
-#include <Bpp/Seq/Container/VectorSiteContainer.h>
 #include <utility>
 
 namespace bpp {
 namespace Phyl {
-	SequenceMap makeSequenceMap (const Topology::NodeIndexMap<std::string> & nodeNames,
-	                             const VectorSiteContainer & sequences) {
-		using namespace Topology;
-		auto sequenceMap =
-		    make_freezable<NodeValueMap<DF::Parameter<const Sequence *>>> (nodeNames.tree ());
-		for (auto i : bpp::index_range (*sequenceMap))
-			sequenceMap->access (i) = nodeNames.access (i).map ([&sequences](const std::string & name) {
-				return DF::Parameter<const Sequence *>::create (&sequences.getSequence (name));
-			});
-		return {std::move (sequenceMap).freeze (), sequences.getNumberOfSites ()};
-	}
-
 	// ConditionalLikelihoodSpec
 
 	bool ConditionalLikelihoodSpec::computed_from_data () const {

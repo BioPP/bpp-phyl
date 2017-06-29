@@ -1,9 +1,9 @@
 //
-// File: Phylogeny.h
+// File: ImportMaster.h
 // Authors:
 //   Francois Gindraud (2017)
-// Created: 2017-05-12
-// Last modified: 2017-05-12
+// Created: 2017-06-29
+// Last modified: 2017-06-29
 //
 
 /*
@@ -39,73 +39,35 @@
   knowledge of the CeCILL license and that you accept its terms.
 */
 
-#ifndef BPP_NEWPHYL_PHYLOGENY_H
-#define BPP_NEWPHYL_PHYLOGENY_H
+#ifndef BPP_NEWPHYL_IMPORTMASTER_H
+#define BPP_NEWPHYL_IMPORTMASTER_H
 
-#include <Bpp/NewPhyl/DataFlow.h>
 #include <Bpp/NewPhyl/FrozenPtr.h>
-#include <Bpp/NewPhyl/NodeSpecification.h>
+#include <Bpp/NewPhyl/Phylogeny.h>
 #include <Bpp/NewPhyl/Topology.h>
 #include <Bpp/NewPhyl/TopologyMap.h>
-#include <string>
 
 namespace bpp {
 
 // Forward declarations
-class Sequence;
-class SubstitutionModel;
+class Node;
+template<typename N> class TreeTemplate;
+class VectorSiteContainer;
 
 namespace Phyl {
-
-	struct Process {
-		const FrozenPtr<Topology::Tree> tree;
-		const FrozenPtr<Topology::BranchValueMap<DF::Parameter<double>>> branchLengths;
-		const FrozenPtr<Topology::BranchValueMap<DF::Value<const SubstitutionModel *>>> modelByBranch;
-		const std::size_t nbStates;
+  // Extract information from a TreeTemplate<Node> structure (master)
+	struct ConvertedTreeTemplateData {
+		const FrozenPtr<Topology::Tree> topology;
+		const FrozenPtr<Topology::NodeIndexMap<int>> treeTemplateNodeIndexes;
+		const FrozenPtr<Topology::BranchValueMap<double>> branchLengths;
+		const FrozenPtr<Topology::NodeIndexMap<std::string>> nodeNames;
 	};
-	
-  struct SequenceMap {
-		const FrozenPtr<Topology::NodeValueMap<DF::Parameter<const Sequence *>>> sequences;
-		const std::size_t nbSites;
-	};
+	ConvertedTreeTemplateData convertTreeTemplate (const TreeTemplate<Node> & tree);
 
-	struct LikelihoodParameters {
-		const Process process;
-		const SequenceMap leafData;
-	};
-
-	// SPECS
-
-	struct ConditionalLikelihoodSpec {
-		const LikelihoodParameters likParams;
-		const Topology::Node node;
-
-		bool computed_from_data () const;
-		DF::NodeSpecificationVec computeDependencies () const;
-		DF::Node buildNode (DF::NodeVec deps) const;
-		std::type_index nodeType () const;
-		static std::string description ();
-	};
-
-	struct ForwardLikelihoodSpec {
-		const LikelihoodParameters likParams;
-		const Topology::Branch branch;
-
-		DF::NodeSpecificationVec computeDependencies () const;
-		DF::Node buildNode (DF::NodeVec deps) const;
-		static std::type_index nodeType ();
-		static std::string description ();
-	};
-
-	struct LogLikelihoodSpec {
-		const LikelihoodParameters likParams;
-
-		DF::NodeSpecificationVec computeDependencies () const;
-		static DF::Node buildNode (DF::NodeVec deps);
-		static std::type_index nodeType ();
-		static std::string description ();
-	};
+	// Create sequence map from bpp VectorSiteContainer and a name mapping.
+	SequenceMap makeSequenceMap (const Topology::NodeIndexMap<std::string> & nodeNames,
+	                             const VectorSiteContainer & sequences);
 }
 }
 
-#endif // BPP_NEWPHYL_PHYLOGENY_H
+#endif // BPP_NEWPHYL_IMPORTMASTER_H

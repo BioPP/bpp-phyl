@@ -76,9 +76,10 @@
 #endif
 // DF
 #include <Bpp/NewPhyl/Debug.h>
+#include <Bpp/NewPhyl/ImportMaster.h>
+#include <Bpp/NewPhyl/ImportNewlik.h>
 #include <Bpp/NewPhyl/Model.h>
 #include <Bpp/NewPhyl/Phylogeny.h>
-#include <Bpp/NewPhyl/ImportNewlik.h>
 
 namespace
 {
