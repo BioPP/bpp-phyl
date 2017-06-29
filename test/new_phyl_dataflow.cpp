@@ -42,16 +42,16 @@
 #define DOCTEST_CONFIG_IMPLEMENT_WITH_MAIN
 #include "doctest.h"
 
-//#define ENABLE_OLD
-//#define ENABLE_NEW
+#define ENABLE_OLD
+#define ENABLE_NEW
 
 #if defined(ENABLE_OLD) || defined(ENABLE_NEW)
 #define ENABLE_LEGACY_STUFF
 #endif
 
 // Common stuff
-#include <Bpp/Phyl/Io/Newick.h>
 #include <Bpp/Phyl/Model/Nucleotide/T92.h>
+#include <Bpp/Phyl/Tree/TreeTemplate.h>
 #include <Bpp/Seq/Alphabet/AlphabetTools.h>
 #include <Bpp/Seq/Container/VectorSiteContainer.h>
 #include <chrono>
@@ -71,6 +71,7 @@
 #endif
 // Newlik
 #ifdef ENABLE_NEW
+#include <Bpp/Phyl/Io/Newick.h>
 #include <Bpp/Phyl/NewLikelihood/PhyloLikelihoods/SingleProcessPhyloLikelihood.h>
 #include <Bpp/Phyl/NewLikelihood/SimpleSubstitutionProcess.h>
 #endif
@@ -173,14 +174,15 @@ TEST_CASE("Compare likelihood computation with 3 methods")
   paramBrLen2.addParameter(bpp::Parameter("BrLen1", 0.2));
 #endif
 
+  auto treeStr = "((A:0.01, B:0.02):0.03,C:0.01,D:0.1);";
+
 #ifdef ENABLE_OLD
   // Old
   {
     auto ts = timingStart();
     auto model = new bpp::T92(&alphabet, 3.);
     auto distribution = new bpp::ConstantDistribution(1.0);
-    auto tree = std::unique_ptr<bpp::TreeTemplate<bpp::Node>>(
-      bpp::TreeTemplateTools::parenthesisToTree("((A:0.01, B:0.02):0.03,C:0.01,D:0.1);"));
+    auto tree = std::unique_ptr<bpp::TreeTemplate<bpp::Node>>(bpp::TreeTemplateTools::parenthesisToTree(treeStr));
     bpp::RHomogeneousTreeLikelihood llh(*tree, sites, model, distribution, false, false);
     timingEnd(ts, "old_setup");
     ts = timingStart();
@@ -200,8 +202,7 @@ TEST_CASE("Compare likelihood computation with 3 methods")
     auto ts = timingStart();
     auto model = new bpp::T92(&alphabet, 3.);
     bpp::Newick reader;
-    auto phyloTree = std::unique_ptr<bpp::PhyloTree>(
-      reader.parenthesisToPhyloTree("((A:0.01, B:0.02):0.03,C:0.01,D:0.1);", false, "", false, false));
+    auto phyloTree = std::unique_ptr<bpp::PhyloTree>(reader.parenthesisToPhyloTree(treeStr, false, "", false, false));
     auto paramPhyloTree = new bpp::ParametrizablePhyloTree(*phyloTree);
     auto process =
       std::unique_ptr<bpp::SimpleSubstitutionProcess>(new bpp::SimpleSubstitutionProcess(model, paramPhyloTree));
@@ -224,10 +225,8 @@ TEST_CASE("Compare likelihood computation with 3 methods")
   {
     auto ts = timingStart();
     // Read tree structure
-    bpp::Newick reader;
-    auto phyloTree = std::unique_ptr<bpp::PhyloTree>(
-      reader.parenthesisToPhyloTree("((A:0.01, B:0.02):0.03,C:0.01,D:0.1);", false, "", false, false));
-    auto phyloTreeData = bpp::Phyl::convertPhyloTree(*phyloTree);
+    auto tree = std::unique_ptr<bpp::TreeTemplate<bpp::Node>>(bpp::TreeTemplateTools::parenthesisToTree(treeStr));
+    auto treeData = bpp::Phyl::convertTreeTemplate(*tree);
 
     // Model
     auto model = bpp::DF::Value<const bpp::SubstitutionModel*>::create<bpp::Phyl::ModelNode>(
@@ -235,10 +234,10 @@ TEST_CASE("Compare likelihood computation with 3 methods")
 
     // Create a specification
     auto branchLengthMap =
-      bpp::make_frozen(bpp::Topology::make_branch_parameter_map_from_value_map(*phyloTreeData.branchLengths));
-    auto modelMap = bpp::make_frozen(bpp::Topology::make_uniform_branch_value_map(phyloTreeData.topology, model));
-    auto process = bpp::Phyl::Process{phyloTreeData.topology, branchLengthMap, modelMap, alphabet.getSize()};
-    auto sequenceMap = bpp::Phyl::makeSequenceMap(*phyloTreeData.nodeNames, sites);
+      bpp::make_frozen(bpp::Topology::make_branch_parameter_map_from_value_map(*treeData.branchLengths));
+    auto modelMap = bpp::make_frozen(bpp::Topology::make_uniform_branch_value_map(treeData.topology, model));
+    auto process = bpp::Phyl::Process{treeData.topology, branchLengthMap, modelMap, alphabet.getSize()};
+    auto sequenceMap = bpp::Phyl::makeSequenceMap(*treeData.nodeNames, sites);
     auto likParams = bpp::Phyl::LikelihoodParameters{process, sequenceMap};
 
     bpp::DF::Value<double> logLikNode{bpp::DF::instantiateNodeSpec(bpp::Phyl::LogLikelihoodSpec{likParams})};
@@ -255,9 +254,8 @@ TEST_CASE("Compare likelihood computation with 3 methods")
     auto& modelNode = dynamic_cast<bpp::Phyl::ModelNode&>(model.getImpl());
     do_param_changes_multiple_times_df(logLikNode, "df_param_model_change", modelNode.getParameter("kappa"), 0.1, 0.2);
 
-    auto topologyIdOfPhyloNode1 = phyloTreeData.phyloTreeNodeIndexes->index(1).value();
-    auto& brlen1Param =
-      branchLengthMap->access(phyloTreeData.topology->node(topologyIdOfPhyloNode1).fatherBranch()).value();
+    auto topologyIdOfPhyloNode1 = treeData.treeTemplateNodeIndexes->index(1).value();
+    auto& brlen1Param = branchLengthMap->access(treeData.topology->node(topologyIdOfPhyloNode1).fatherBranch()).value();
     do_param_changes_multiple_times_df(logLikNode, "df_param_brlen_change", brlen1Param, 0.1, 0.2);
   }
 }

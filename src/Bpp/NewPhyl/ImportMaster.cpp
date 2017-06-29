@@ -49,7 +49,8 @@
 namespace bpp {
 namespace Phyl {
 	ConvertedTreeTemplateData convertTreeTemplate (const TreeTemplate<Node> & fromTree) {
-		if (!fromTree.isRooted ())
+    // isRooted method checks if 2 sons, fails on newphyl example that has 3 sons...
+		if (fromTree.getRootNode () == nullptr)
 			throw Exception ("TreeTemplate is not rooted");
 
 		// Build topology : create nodes and an index conversion map
