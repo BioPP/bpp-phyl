@@ -46,12 +46,12 @@
 #include <Bpp/NewPhyl/FrozenPtr.h>
 #include <Bpp/NewPhyl/NodeSpecification.h>
 #include <Bpp/NewPhyl/TopologyMap.h>
+#include <Bpp/NewPhyl/Topology.h>
 #include <string>
 
 namespace bpp {
 
 // Forward declarations
-class PhyloTree;
 class Sequence;
 class SubstitutionModel;
 class VectorSiteContainer;
@@ -70,21 +70,15 @@ namespace Phyl {
 		const std::size_t nbSites;
 	};
 
+  // Create sequence map from bpp VectorSiteContainer and a name mapping.
+	SequenceMap makeSequenceMap (const Topology::NodeIndexMap<std::string> & nodeNames,
+	                             const VectorSiteContainer & sequences);
+
 	struct LikelihoodParameters {
 		const Process process;
 		const SequenceMap leafData;
 	};
 
-	// Retrieve info from PhyloTree
-	struct ConvertedPhyloTreeData {
-		const FrozenPtr<Topology::Tree> topology;
-		const FrozenPtr<Topology::NodeIndexMap<int>> phyloTreeNodeIndexes;
-		const FrozenPtr<Topology::BranchValueMap<double>> branchLengths;
-		const FrozenPtr<Topology::NodeIndexMap<std::string>> nodeNames;
-	};
-	ConvertedPhyloTreeData convertPhyloTree (const bpp::PhyloTree & phyloTree);
-	SequenceMap makeSequenceMap (const Topology::NodeIndexMap<std::string> & nodeNames,
-	                             const VectorSiteContainer & sequences);
 
 	// SPECS
 

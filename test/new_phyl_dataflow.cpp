@@ -78,6 +78,7 @@
 #include <Bpp/NewPhyl/Debug.h>
 #include <Bpp/NewPhyl/Model.h>
 #include <Bpp/NewPhyl/Phylogeny.h>
+#include <Bpp/NewPhyl/ImportNewlik.h>
 
 namespace
 {
