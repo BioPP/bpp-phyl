@@ -59,7 +59,7 @@ ProbabilisticRewardMapping* RewardMappingTools::computeRewardVectors(
   const DRTreeLikelihood& drtl,
   const vector<int>& nodeIds,
   Reward& reward,
-  bool verbose) throw (Exception)
+  bool verbose)
 {
   // Preamble:
   if (!drtl.isInitialized())
@@ -351,7 +351,6 @@ void RewardMappingTools::writeToStream(
   const ProbabilisticRewardMapping& rewards,
   const SiteContainer& sites,
   ostream& out)
-throw (IOException)
 {
   if (!out)
     throw IOException("RewardMappingTools::writeToFile. Can't write to stream.");
@@ -377,7 +376,6 @@ throw (IOException)
 /**************************************************************************************************/
 
 void RewardMappingTools::readFromStream(istream& in, ProbabilisticRewardMapping& rewards)
-throw (IOException)
 {
   try
   {

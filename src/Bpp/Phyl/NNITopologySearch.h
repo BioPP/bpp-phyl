@@ -113,7 +113,7 @@ class NNITopologySearch :
     }
 
 	public:
-		void search() throw (Exception);
+		void search();
     
     /**
      * @brief Add a listener to the list.
@@ -147,9 +147,9 @@ class NNITopologySearch :
     const NNISearchable* getSearchableObject() const { return searchableTree_; }
 
 	protected:
-		void searchFast()   throw (Exception);
-		void searchBetter() throw (Exception);
-		void searchPhyML()  throw (Exception);
+		void searchFast();
+		void searchBetter();
+		void searchPhyML();
 
     /**
      * @brief Process a TopologyChangeEvent to all listeners.

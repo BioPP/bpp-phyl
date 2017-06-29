@@ -233,7 +233,7 @@ public:
    *
    * @return The name associated to this node.
    */
-  virtual std::string getName() const throw (NodePException)
+  virtual std::string getName() const
   {
     if (!hasName()) throw NodePException("Node::getName: no name associated to this node.", this);
     return *name_;
@@ -352,7 +352,7 @@ public:
    *
    * @param node The father node.
    */
-  virtual void setFather(Node* node) throw (NullPointerException)
+  virtual void setFather(Node* node)
   {
     if (!node)
       throw NullPointerException("Node::setFather(). Empty node given as input.");
@@ -392,19 +392,19 @@ public:
     return sons_;
   }
 
-  virtual const Node* getSon(size_t pos) const throw (IndexOutOfBoundsException)
+  virtual const Node* getSon(size_t pos) const
   {
     if (pos >= sons_.size()) throw IndexOutOfBoundsException("Node::getSon().", pos, 0, sons_.size() - 1);
     return sons_[pos];
   }
 
-  virtual Node* getSon(size_t pos) throw (IndexOutOfBoundsException)
+  virtual Node* getSon(size_t pos)
   {
     if (pos >= sons_.size()) throw IndexOutOfBoundsException("Node::getSon().", pos, 0, sons_.size() - 1);
     return sons_[pos];
   }
 
-  virtual void addSon(size_t pos, Node* node) throw (NullPointerException, NodePException)
+  virtual void addSon(size_t pos, Node* node)
   {
     if (!node)
       throw NullPointerException("Node::addSon(). Empty node given as input.");
@@ -416,7 +416,7 @@ public:
     node->father_ = this;
   }
 
-  virtual void addSon(Node* node) throw (NullPointerException, NodePException)
+  virtual void addSon(Node* node)
   {
     if (!node)
       throw NullPointerException("Node::addSon(). Empty node given as input.");
@@ -427,7 +427,7 @@ public:
     node->father_ = this;
   }
 
-  virtual void setSon(size_t pos, Node* node) throw (IndexOutOfBoundsException, NullPointerException, NodePException)
+  virtual void setSon(size_t pos, Node* node)
   {
     if (!node)
       throw NullPointerException("Node::setSon(). Empty node given as input.");
@@ -441,7 +441,7 @@ public:
     node->father_ = this;
   }
 
-  virtual Node* removeSon(size_t pos) throw (IndexOutOfBoundsException)
+  virtual Node* removeSon(size_t pos)
   {
     if (pos >= sons_.size())
       throw IndexOutOfBoundsException("Node::removeSon(). Invalid node position.", pos, 0, sons_.size() - 1);
@@ -451,7 +451,7 @@ public:
     return node;
   }
 
-  virtual void removeSon(Node* node) throw (NodeNotFoundException, NullPointerException)
+  virtual void removeSon(Node* node)
   {
     if (!node)
       throw NullPointerException("Node::removeSon(). Empty node given as input.");
@@ -473,9 +473,9 @@ public:
       removeSon(static_cast<size_t>(0));
   }
 
-  virtual void swap(size_t branch1, size_t branch2) throw (IndexOutOfBoundsException);
+  virtual void swap(size_t branch1, size_t branch2);
 
-  virtual size_t getSonPosition(const Node* son) const throw (NodeNotFoundException, NullPointerException);
+  virtual size_t getSonPosition(const Node* son) const;
 
   /** @} */
 
@@ -524,7 +524,7 @@ public:
     nodeProperties_[name] = property.clone();
   }
 
-  virtual Clonable* getNodeProperty(const std::string& name) throw (PropertyNotFoundException)
+  virtual Clonable* getNodeProperty(const std::string& name)
   {
     if (hasNodeProperty(name))
       return nodeProperties_[name];
@@ -532,7 +532,7 @@ public:
       throw PropertyNotFoundException("", name, this);
   }
 
-  virtual const Clonable* getNodeProperty(const std::string& name) const throw (PropertyNotFoundException)
+  virtual const Clonable* getNodeProperty(const std::string& name) const
   {
     if (hasNodeProperty(name))
       return const_cast<const Clonable*>(nodeProperties_[name]);
@@ -540,7 +540,7 @@ public:
       throw PropertyNotFoundException("", name, this);
   }
 
-  virtual Clonable* removeNodeProperty(const std::string& name) throw (PropertyNotFoundException)
+  virtual Clonable* removeNodeProperty(const std::string& name)
   {
     if (hasNodeProperty(name))
     {
@@ -552,7 +552,7 @@ public:
       throw PropertyNotFoundException("", name, this);
   }
 
-  virtual void deleteNodeProperty(const std::string& name) throw (PropertyNotFoundException)
+  virtual void deleteNodeProperty(const std::string& name)
   {
     if (hasNodeProperty(name))
     {
@@ -614,7 +614,7 @@ public:
     branchProperties_[name] = property.clone();
   }
 
-  virtual Clonable* getBranchProperty(const std::string& name) throw (PropertyNotFoundException)
+  virtual Clonable* getBranchProperty(const std::string& name)
   {
     if (hasBranchProperty(name))
       return branchProperties_[name];
@@ -622,7 +622,7 @@ public:
       throw PropertyNotFoundException("", name, this);
   }
 
-  virtual const Clonable* getBranchProperty(const std::string& name) const throw (PropertyNotFoundException)
+  virtual const Clonable* getBranchProperty(const std::string& name) const
   {
     if (hasBranchProperty(name))
       return const_cast<const Clonable*>(branchProperties_[name]);
@@ -630,7 +630,7 @@ public:
       throw PropertyNotFoundException("", name, this);
   }
 
-  virtual Clonable* removeBranchProperty(const std::string& name) throw (PropertyNotFoundException)
+  virtual Clonable* removeBranchProperty(const std::string& name)
   {
     if (hasBranchProperty(name))
     {
@@ -642,7 +642,7 @@ public:
       throw PropertyNotFoundException("", name, this);
   }
 
-  virtual void deleteBranchProperty(const std::string& name) throw (PropertyNotFoundException)
+  virtual void deleteBranchProperty(const std::string& name)
   {
     if (hasBranchProperty(name))
     {
@@ -681,7 +681,7 @@ public:
 
   virtual bool hasBootstrapValue() const;
 
-  virtual double getBootstrapValue() const throw (PropertyNotFoundException);
+  virtual double getBootstrapValue() const;
   /** @} */
   // Equality operator:
 

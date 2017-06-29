@@ -127,8 +127,7 @@ protected:
   SubstitutionModel* pmodel_;
 
   // Check that the model is good for YpR
-  void check_model(SubstitutionModel* const) const
-  throw (Exception);
+  void check_model(SubstitutionModel* const) const;
 
   std::string _nestedPrefix;
 

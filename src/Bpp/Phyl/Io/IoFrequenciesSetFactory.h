@@ -83,7 +83,7 @@ public:
    * @return A pointer toward a new IFrequenciesSet object.
    * @throw Exception If the format name do not match any available format.
    */
-  virtual IFrequenciesSet* createReader(const std::string& format) throw (Exception);
+  virtual IFrequenciesSet* createReader(const std::string& format);
   
   /**
    * @brief Get a new dynamically created OFrequenciesSet object.
@@ -92,7 +92,7 @@ public:
    * @return A pointer toward a new OFrequenciesSet object.
    * @throw Exception If the format name do not match any available format.
    */
-  virtual OFrequenciesSet * createWriter(const std::string& format) throw (Exception);
+  virtual OFrequenciesSet * createWriter(const std::string& format);
 };
 
 } //end of namespace bpp.

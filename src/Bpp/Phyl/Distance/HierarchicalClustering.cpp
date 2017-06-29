@@ -57,7 +57,7 @@ TreeTemplate<Node>* HierarchicalClustering::getTree() const
   return new TreeTemplate<Node>(root);
 }
 
-vector<size_t> HierarchicalClustering::getBestPair() throw (Exception)
+vector<size_t> HierarchicalClustering::getBestPair()
 {
   vector<size_t> bestPair(2);
   double distMin = -std::log(0.);

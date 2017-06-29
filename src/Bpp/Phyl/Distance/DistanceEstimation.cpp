@@ -70,7 +70,7 @@ TwoTreeLikelihood::TwoTreeLikelihood(
     const SiteContainer& data,
     TransitionModel* model,
     DiscreteDistribution* rDist,
-    bool verbose) throw (Exception) :
+    bool verbose) :
   AbstractDiscreteRatesAcrossSitesTreeLikelihood(rDist, verbose),
   shrunkData_(0), seqnames_(2), model_(model), brLenParameters_(), pxy_(), dpxy_(), d2pxy_(),
   rootPatternLinks_(), rootWeights_(), nbSites_(0), nbClasses_(0), nbStates_(0), nbDistinctSites_(0),
@@ -185,7 +185,7 @@ TwoTreeLikelihood::~TwoTreeLikelihood()
 
 /******************************************************************************/
 
-void TwoTreeLikelihood::initialize() throw (Exception)
+void TwoTreeLikelihood::initialize()
 {
   initParameters();
   initialized_ = true;
@@ -294,7 +294,7 @@ void TwoTreeLikelihood::initParameters()
 
 /******************************************************************************/
 
-void TwoTreeLikelihood::applyParameters() throw (Exception)
+void TwoTreeLikelihood::applyParameters()
 {
   // Apply branch length:
   brLen_ = getParameterValue("BrLen");
@@ -320,7 +320,6 @@ void TwoTreeLikelihood::initBranchLengthsParameters()
 /******************************************************************************/
 
 void TwoTreeLikelihood::setParameters(const ParameterList& parameters)
-throw (ParameterNotFoundException, ConstraintException)
 {
   setParametersValues(parameters);
 }
@@ -409,14 +408,13 @@ void TwoTreeLikelihood::fireParameterChanged(const ParameterList& params)
 /******************************************************************************/
 
 double TwoTreeLikelihood::getValue() const
-throw (Exception)
 {
   return -getLogLikelihood();
 }
 
 /******************************************************************************/
 
-void TwoTreeLikelihood::initTreeLikelihoods(const SequenceContainer& sequences) throw (Exception)
+void TwoTreeLikelihood::initTreeLikelihoods(const SequenceContainer& sequences)
 {
   const Sequence* seq1 = &sequences.getSequence(seqnames_[0]);
   const Sequence* seq2 = &sequences.getSequence(seqnames_[1]);
@@ -588,7 +586,6 @@ void TwoTreeLikelihood::computeTreeD2Likelihood()
 /******************************************************************************/
 
 double TwoTreeLikelihood::getFirstOrderDerivative(const string& variable) const
-throw (Exception)
 {
   if (!hasParameter(variable))
     throw ParameterNotFoundException("TwoTreeLikelihood::getFirstOrderDerivative().", variable);
@@ -619,7 +616,6 @@ throw (Exception)
 /******************************************************************************/
 
 double TwoTreeLikelihood::getSecondOrderDerivative(const string& variable) const
-throw (Exception)
 {
   if (!hasParameter(variable))
     throw ParameterNotFoundException("TwoTreeLikelihood::getSecondOrderDerivative().", variable);
@@ -649,7 +645,7 @@ throw (Exception)
 
 /******************************************************************************/
 
-void DistanceEstimation::computeMatrix() throw (NullPointerException)
+void DistanceEstimation::computeMatrix()
 {
   size_t n = sites_->getNumberOfSequences();
   vector<string> names = sites_->getSequencesNames();

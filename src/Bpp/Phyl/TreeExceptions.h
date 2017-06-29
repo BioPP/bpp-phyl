@@ -70,7 +70,7 @@ public:
     Exception("NodeException: " + text + "(id:" + TextTools::toString(nodeId) + ")"),
     nodeId_(nodeId) {}
 
-  virtual ~NodeException() throw () {}
+  virtual ~NodeException() {}
 
 public:
   /**
@@ -119,7 +119,7 @@ public:
     return *this;
   }
 
-  virtual ~NodePException() throw () {}
+  virtual ~NodePException() {}
 
 public:
   /**
@@ -168,7 +168,7 @@ public:
     NodePException("Property not found: " + propertyName + ". " + text, nodeId),
     propertyName_(propertyName) {}
 
-  virtual ~PropertyNotFoundException() throw () {}
+  virtual ~PropertyNotFoundException() {}
 
 public:
   /**
@@ -205,7 +205,7 @@ public:
    */
   NodeNotFoundException(const std::string& text, int id);
 
-  virtual ~NodeNotFoundException() throw () {}
+  virtual ~NodeNotFoundException() {}
 
 public:
   /**
@@ -246,7 +246,7 @@ public:
     return *this;
   }
 
-  virtual ~TreeException() throw () {}
+  virtual ~TreeException() {}
 
 public:
   /**
@@ -272,7 +272,7 @@ public:
    */
   UnrootedTreeException(const std::string& text, const Tree* tree = 0);
 
-  virtual ~UnrootedTreeException() throw () {}
+  virtual ~UnrootedTreeException() {}
 };
 
 } // end of namespace bpp.

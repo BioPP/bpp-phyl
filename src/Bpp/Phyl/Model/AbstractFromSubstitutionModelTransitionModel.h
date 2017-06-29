@@ -153,7 +153,7 @@ namespace bpp
 
     void setFreq(std::map<int, double>& frequ) {getModel().setFreq(frequ); }
 
-    double getInitValue(size_t i, int state) const throw (BadIntException) { return getModel().getInitValue(i, state); }
+    double getInitValue(size_t i, int state) const { return getModel().getInitValue(i, state); }
 
     virtual const FrequenciesSet* getFrequenciesSet() const = 0;
 

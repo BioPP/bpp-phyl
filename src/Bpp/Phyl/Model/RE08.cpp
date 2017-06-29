@@ -294,7 +294,7 @@ const Matrix<double>& RE08::getd2Pij_dt2(double d) const
 
 /******************************************************************************/
 
-double RE08::getInitValue(size_t i, int state) const throw (IndexOutOfBoundsException, BadIntException)
+double RE08::getInitValue(size_t i, int state) const
 {
   if (i >= size_) throw IndexOutOfBoundsException("RE08::getInitValue", i, 0, size_ - 1);
   if (state < -1 || !getAlphabet()->isIntInAlphabet(state))

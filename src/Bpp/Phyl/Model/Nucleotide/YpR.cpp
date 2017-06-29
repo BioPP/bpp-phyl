@@ -356,7 +356,6 @@ void YpR::updateMatrices(double CgT, double cGA,
 }
 
 void YpR::check_model(SubstitutionModel* const pm) const
-throw (Exception)
 {
   if (!pm)
     throw Exception("No Model ");

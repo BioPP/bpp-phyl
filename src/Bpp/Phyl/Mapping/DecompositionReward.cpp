@@ -197,7 +197,7 @@ void DecompositionReward::setSubstitutionModel(const SubstitutionModel* model)
 
 /******************************************************************************/
 
-void DecompositionReward::alphabetIndexHasChanged() throw (Exception)
+void DecompositionReward::alphabetIndexHasChanged()
 {
   //Check compatiblity between model and substitution register:
   if (model_->getAlphabet()->getAlphabetType() != alphIndex_->getAlphabet()->getAlphabetType())

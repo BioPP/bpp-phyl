@@ -65,12 +65,12 @@ class NonHomogeneousTreeLikelihood :
     NonHomogeneousTreeLikelihood* clone() const = 0;
 
   public:
-    const TransitionModel* getSubstitutionModel(int nodeId, size_t siteIndex) const throw (NodeNotFoundException)
+    const TransitionModel* getSubstitutionModel(int nodeId, size_t siteIndex) const
     {
       return getSubstitutionModelForNode(nodeId);
     }
 
-    TransitionModel* getSubstitutionModel(int nodeId, size_t siteIndex) throw (NodeNotFoundException)
+    TransitionModel* getSubstitutionModel(int nodeId, size_t siteIndex)
     {
       return getSubstitutionModelForNode(nodeId);
     }
@@ -82,7 +82,7 @@ class NonHomogeneousTreeLikelihood :
      * @return A pointer toward the corresponding model.
      * @throw NodeNotFoundException This exception may be thrown if the node is not found (depending on the implementation).
      */
-    virtual const TransitionModel* getSubstitutionModelForNode(int nodeId) const throw (NodeNotFoundException) = 0;
+    virtual const TransitionModel* getSubstitutionModelForNode(int nodeId) const = 0;
 
     /**
      * @brief Get the substitution model associated to a given node.
@@ -91,7 +91,7 @@ class NonHomogeneousTreeLikelihood :
      * @return A pointer toward the corresponding model.
      * @throw NodeNotFoundException This exception may be thrown if the node is not found (depending on the implementation).
      */
-    virtual TransitionModel* getSubstitutionModelForNode(int nodeId) throw (NodeNotFoundException) = 0;
+    virtual TransitionModel* getSubstitutionModelForNode(int nodeId) = 0;
 
     /**
      * @return The set of substitution models associated to this instance.
@@ -107,7 +107,7 @@ class NonHomogeneousTreeLikelihood :
      * @return Set the substitution models for this instance.
      * @throw Exception If the model could not be set (for instance, because of a wrong alphabet type).
      */
-    virtual void setSubstitutionModelSet(SubstitutionModelSet* model) throw (Exception) = 0;
+    virtual void setSubstitutionModelSet(SubstitutionModelSet* model) = 0;
 
     /**
      * @return The parameters on which the root frequencies depend.

@@ -111,7 +111,7 @@ class AbstractAgglomerativeDistanceMethod:
     }
 
 	public:
-		virtual void setDistanceMatrix(const DistanceMatrix& matrix) throw (Exception);
+		virtual void setDistanceMatrix(const DistanceMatrix& matrix);
 
     /**
      * @brief Get the computed tree, if there is one.
@@ -139,7 +139,7 @@ class AbstractAgglomerativeDistanceMethod:
      * 6) Return to step 2 while there are more than 3 remaining nodes.
      * 7) Perform the final step, and send a rooted or unrooted tree.
      */
-		virtual void computeTree() throw (Exception);
+		virtual void computeTree();
 
     void setVerbose(bool yn) { verbose_ = yn; }
     bool isVerbose() const { return verbose_; }
@@ -160,7 +160,7 @@ class AbstractAgglomerativeDistanceMethod:
      * @return A size 2 vector with the indices of the nodes.
      * @throw Exception If an error occured.
      */
-		virtual std::vector<size_t> getBestPair() throw (Exception) = 0;
+		virtual std::vector<size_t> getBestPair() = 0;
 		
     /**
      * @brief Compute the branch lengths for two nodes to agglomerate.

@@ -99,28 +99,28 @@ class TreeDrawingDisplayControler
      * @brief Add a listener to the controler. The controler then owns the object, and will
      * copy or delete it when needed.
      */
-    void addListener(const std::string& propertyName, TreeDrawingListener* listener) throw (Exception);
+    void addListener(const std::string& propertyName, TreeDrawingListener* listener);
 
     bool hasListenerFor(const std::string& propertyName) const
     {
       return listeners_.find(propertyName) != listeners_.end();
     }
 
-    void enableListener(const std::string& propertyName, bool tf) throw (Exception)
+    void enableListener(const std::string& propertyName, bool tf)
     {
       if (!hasListenerFor(propertyName))
         throw Exception("TreeDrawingDisplayControler::enableListener. No listener is registered for property " + propertyName + ".");
       listeners_[propertyName]->enable(tf);
     }
 
-    bool isListenerEnabled(const std::string& propertyName) const throw (Exception)
+    bool isListenerEnabled(const std::string& propertyName) const
     {
       if (!hasListenerFor(propertyName))
         throw Exception("TreeDrawingDisplayControler::enableListener. No listener is registered for property " + propertyName + ".");
       return listeners_.find(propertyName)->second->isEnabled();
     }
 
-    void registerTreeDrawing(TreeDrawing* td) throw (Exception)
+    void registerTreeDrawing(TreeDrawing* td)
     {
       if (std::find(registeredTreeDrawings_.begin(), registeredTreeDrawings_.end(), td) != registeredTreeDrawings_.end())
         throw Exception("TreeDrawingDisplayControler::registerTreeDrawing. TreeDrawing is already associated to this controler.");
@@ -159,7 +159,7 @@ class BasicTreeDrawingDisplayControler :
     const TreeDrawingSettings* settings_;
 
   public:
-    BasicTreeDrawingDisplayControler(const TreeDrawingSettings* settings) throw (NullPointerException) :
+    BasicTreeDrawingDisplayControler(const TreeDrawingSettings* settings) :
       settings_(settings)
     {
       if (!settings)

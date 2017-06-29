@@ -129,7 +129,7 @@ public:
 protected:
   void computeRewards_(double length) const;
   void jFunction_(const std::vector<double>& lambda, double t, RowMatrix<double>& result) const;
-  void alphabetIndexHasChanged() throw (Exception);
+  void alphabetIndexHasChanged();
 
 private:
   void resetStates_();

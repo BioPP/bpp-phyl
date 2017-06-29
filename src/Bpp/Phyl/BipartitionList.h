@@ -132,23 +132,23 @@ class BipartitionList:
 
     const std::vector<int*> & getBitBipartitionList() const { return bitBipartitionList_; }
 
-    std::map<std::string, bool> getBipartition(size_t i) const throw (Exception);
+    std::map<std::string, bool> getBipartition(size_t i) const;
 
-    int* getBitBipartition(size_t i) throw (Exception);
+    int* getBitBipartition(size_t i);
 
     bool haveSameElementsThan(std::map<std::string, bool>& bipart) const;
 
-    void addBipartition(std::map<std::string, bool>& bipart, bool checkElements = 1) throw(Exception);
+    void addBipartition(std::map<std::string, bool>& bipart, bool checkElements = 1);
 
-    void deleteBipartition(size_t i) throw(Exception);
+    void deleteBipartition(size_t i);
 
     bool isSorted() const { return sorted_; }
 
     void sortElements();
 
-    bool containsBipartition(std::map<std::string, bool>& bipart, bool checkElements = 1) const throw(Exception);
+    bool containsBipartition(std::map<std::string, bool>& bipart, bool checkElements = 1) const;
 
-    bool areIdentical(size_t k1, size_t k2) const throw(Exception);
+    bool areIdentical(size_t k1, size_t k2) const;
 
     void removeRedundantBipartitions();
 
@@ -160,7 +160,7 @@ class BipartitionList:
      * and B1 contains A2) or (B1 contains A1 and A2 contains B2) or (B2 contains A1 and A2
      * contains B1). Only compatible bipartitions can belong to the same tree.
      */
-    bool areCompatible(size_t k1, size_t k2) const throw(Exception);
+    bool areCompatible(size_t k1, size_t k2) const;
 
     /**
      * @brief Tells whether all bipartitions in the list are compatible with each other
@@ -173,7 +173,7 @@ class BipartitionList:
      * @param bipart A map representing a bipartition.
      * @param checkElements Check the correspondance of element sets or not.
      */
-    bool areAllCompatibleWith(std::map<std::string, bool>& bipart, bool checkElements = true) const throw (Exception);
+    bool areAllCompatibleWith(std::map<std::string, bool>& bipart, bool checkElements = true) const;
 
     /**
      * @brief Removes bipartitions corresponding to external branches (1 vs n-1)
@@ -189,12 +189,12 @@ class BipartitionList:
     /**
      * @brief Replaces ones by zeros and zeros by ones in the ith bipartition
      */
-    void flip(size_t i) throw(Exception);
+    void flip(size_t i);
 
     /**
      * @brief Returns the size of the smallest of the two partitions (e.g. 1 for external branches)
      */
-    size_t getPartitionSize(size_t i) const throw(Exception);
+    size_t getPartitionSize(size_t i) const;
 
     /**
      * @brief Sort bipartitions by partition size
@@ -204,7 +204,7 @@ class BipartitionList:
     /**
      * @brief Translate into a tree
      */
-    TreeTemplate<Node>* toTree() const throw(Exception);
+    TreeTemplate<Node>* toTree() const;
 
     /**
      * @brief Create a matrix representation of the bifurcations.

@@ -65,15 +65,13 @@ public:
     const Tree& tree,
     const SiteContainer& data,
     bool verbose = true,
-    bool includeGaps = false)
-  throw (Exception);
+    bool includeGaps = false);
 
   DRTreeParsimonyScore(
     const Tree& tree,
     const SiteContainer& data,
     const StateMap* statesMap,
-    bool verbose = true)
-  throw (Exception);
+    bool verbose = true);
 
   DRTreeParsimonyScore(const DRTreeParsimonyScore& tp);
 
@@ -166,11 +164,11 @@ public:
    *
    * @{
    */
-  double getTopologyValue() const throw (Exception) { return getScore(); }
+  double getTopologyValue() const { return getScore(); }
 
-  double testNNI(int nodeId) const throw (NodeException);
+  double testNNI(int nodeId) const;
 
-  void doNNI(int nodeId) throw (NodeException);
+  void doNNI(int nodeId);
 
   // Tree& getTopology() { return getTree(); } do we realy need this one?
   const Tree& getTopology() const { return getTree(); }

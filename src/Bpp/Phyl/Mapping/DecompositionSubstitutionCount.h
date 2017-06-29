@@ -124,8 +124,8 @@ namespace bpp
   protected:
     void computeCounts_(double length) const;
     void jFunction_(const std::vector<double>& lambda, double t, RowMatrix<double>& result) const;
-    void substitutionRegisterHasChanged() throw (Exception);
-    void weightsHaveChanged() throw (Exception);
+    void substitutionRegisterHasChanged();
+    void weightsHaveChanged();
 
   private:
     void resetStates_();

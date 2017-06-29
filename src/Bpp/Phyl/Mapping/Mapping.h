@@ -103,7 +103,7 @@ namespace bpp
      * @param nodeId An id of the node to look for in the map.
      * @return The mapping index for the specified node id.
      */
-    virtual size_t getNodeIndex(int nodeId) const throw (NodeNotFoundException) = 0;
+    virtual size_t getNodeIndex(int nodeId) const = 0;
 
     /**
      * @brief Set the position of a given site.
@@ -175,7 +175,7 @@ namespace bpp
   
     bool isEmpty() const { return tree_.get() == 0; }
 
-    const TreeTemplate<Node>& getTree() const throw (Exception)
+    const TreeTemplate<Node>& getTree() const
     {
       if (isEmpty()) throw Exception("AbstractSubstitutionMapping::getSitePosition. No tree is assigned to this map yet.");
       return *tree_.get();
@@ -189,13 +189,13 @@ namespace bpp
       nbBranches_ = nodes_.size();
     }
  
-    int getSitePosition(size_t index) const throw (Exception)
+    int getSitePosition(size_t index) const
     {
       if (isEmpty()) throw Exception("AbstractMapping::getSitePosition. No tree is assigned to this map yet.");
       return sitesPositions_[index];
     }
     
-    void setSitePosition(size_t index, int position) throw (Exception)
+    void setSitePosition(size_t index, int position)
     {
       if (isEmpty()) throw Exception("AbstractMapping::setSitePosition. No tree is assigned to this map yet.");
       sitesPositions_[index] = position;
@@ -223,7 +223,7 @@ namespace bpp
       return brLen;
     }
 
-    virtual size_t getNodeIndex(int nodeId) const throw (NodeNotFoundException)
+    virtual size_t getNodeIndex(int nodeId) const
     {
       for (size_t i = 0; i < nbBranches_; i++)
         if(nodes_[i]->getId() == nodeId) return i;

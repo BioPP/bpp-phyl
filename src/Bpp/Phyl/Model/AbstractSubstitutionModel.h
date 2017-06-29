@@ -285,7 +285,7 @@ public:
   virtual double dPij_dt  (size_t i, size_t j, double t) const { return getdPij_dt(t) (i, j); }
   virtual double d2Pij_dt2(size_t i, size_t j, double t) const { return getd2Pij_dt2(t) (i, j); }
 
-  double getInitValue(size_t i, int state) const throw (IndexOutOfBoundsException, BadIntException);
+  double getInitValue(size_t i, int state) const;
 
   void setFreqFromData(const SequenceContainer& data, double pseudoCount = 0);
 

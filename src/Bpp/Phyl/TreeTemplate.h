@@ -167,7 +167,7 @@ public:
 
   size_t getNumberOfBranches() const { return getNumberOfNodes() -1;}
 
-  int getLeafId(const std::string& name) const throw (NodeNotFoundException) { return TreeTemplateTools::getLeafId(*root_, name); }
+  int getLeafId(const std::string& name) const { return TreeTemplateTools::getLeafId(*root_, name); }
 
   std::vector<int> getLeavesId() const { return TreeTemplateTools::getLeavesId(*root_); }
 
@@ -181,27 +181,27 @@ public:
 
   std::vector<std::string> getLeavesNames() const { return TreeTemplateTools::getLeavesNames(*const_cast<const N*>( root_)); }
 
-  std::vector<int> getSonsId(int parentId) const throw (NodeNotFoundException)  { return getNode(parentId)->getSonsId(); }
+  std::vector<int> getSonsId(int parentId) const  { return getNode(parentId)->getSonsId(); }
 
-  std::vector<int> getAncestorsId(int nodeId) const throw (NodeNotFoundException) { return TreeTemplateTools::getAncestorsId(*getNode(nodeId)); }
+  std::vector<int> getAncestorsId(int nodeId) const { return TreeTemplateTools::getAncestorsId(*getNode(nodeId)); }
 
-  int getFatherId(int parentId) const throw (NodeNotFoundException) { return getNode(parentId)->getFatherId(); }
+  int getFatherId(int parentId) const { return getNode(parentId)->getFatherId(); }
 
-  bool hasFather(int nodeId) const throw (NodeNotFoundException) { return getNode(nodeId)->hasFather(); }
+  bool hasFather(int nodeId) const { return getNode(nodeId)->hasFather(); }
 
-  std::string getNodeName(int nodeId) const throw (NodeNotFoundException) { return getNode(nodeId)->getName(); }
+  std::string getNodeName(int nodeId) const { return getNode(nodeId)->getName(); }
 
-  bool hasNodeName(int nodeId) const throw (NodeNotFoundException) { return getNode(nodeId)->hasName(); }
+  bool hasNodeName(int nodeId) const { return getNode(nodeId)->hasName(); }
 
-  void setNodeName(int nodeId, const std::string& name) throw (NodeNotFoundException) { getNode(nodeId)->setName(name); }
+  void setNodeName(int nodeId, const std::string& name) { getNode(nodeId)->setName(name); }
 
-  void deleteNodeName(int nodeId) throw (NodeNotFoundException) { return getNode(nodeId)->deleteName(); }
+  void deleteNodeName(int nodeId) { return getNode(nodeId)->deleteName(); }
 
   bool hasNode(int nodeId) const { return TreeTemplateTools::hasNodeWithId(*root_, nodeId); }
 
-  bool isLeaf(int nodeId) const throw (NodeNotFoundException) { return getNode(nodeId)->isLeaf(); }
+  bool isLeaf(int nodeId) const { return getNode(nodeId)->isLeaf(); }
 
-  bool isRoot(int nodeId) const throw (NodeNotFoundException) { return TreeTemplateTools::isRoot(*getNode(nodeId)); }
+  bool isRoot(int nodeId) const { return TreeTemplateTools::isRoot(*getNode(nodeId)); }
 
   double getDistanceToFather(int nodeId) const { return getNode(nodeId)->getDistanceToFather(); }
 
@@ -211,37 +211,37 @@ public:
 
   bool hasDistanceToFather(int nodeId) const { return getNode(nodeId)->hasDistanceToFather(); }
 
-  bool hasNodeProperty(int nodeId, const std::string& name) const throw (NodeNotFoundException) { return getNode(nodeId)->hasNodeProperty(name); }
+  bool hasNodeProperty(int nodeId, const std::string& name) const { return getNode(nodeId)->hasNodeProperty(name); }
 
-  void setNodeProperty(int nodeId, const std::string& name, const Clonable& property) throw (NodeNotFoundException) { getNode(nodeId)->setNodeProperty(name, property); }
+  void setNodeProperty(int nodeId, const std::string& name, const Clonable& property) { getNode(nodeId)->setNodeProperty(name, property); }
 
-  Clonable* getNodeProperty(int nodeId, const std::string& name) throw (NodeNotFoundException) { return getNode(nodeId)->getNodeProperty(name); }
+  Clonable* getNodeProperty(int nodeId, const std::string& name) { return getNode(nodeId)->getNodeProperty(name); }
 
-  const Clonable* getNodeProperty(int nodeId, const std::string& name) const throw (NodeNotFoundException) { return getNode(nodeId)->getNodeProperty(name); }
+  const Clonable* getNodeProperty(int nodeId, const std::string& name) const { return getNode(nodeId)->getNodeProperty(name); }
 
-  Clonable* removeNodeProperty(int nodeId, const std::string& name) throw (NodeNotFoundException) { return getNode(nodeId)->removeNodeProperty(name); }
+  Clonable* removeNodeProperty(int nodeId, const std::string& name) { return getNode(nodeId)->removeNodeProperty(name); }
 
-  std::vector<std::string> getNodePropertyNames(int nodeId) const throw (NodeNotFoundException) { return getNode(nodeId)->getNodePropertyNames(); }
+  std::vector<std::string> getNodePropertyNames(int nodeId) const { return getNode(nodeId)->getNodePropertyNames(); }
 
-  bool hasBranchProperty(int nodeId, const std::string& name) const throw (NodeNotFoundException) { return getNode(nodeId)->hasBranchProperty(name); }
+  bool hasBranchProperty(int nodeId, const std::string& name) const { return getNode(nodeId)->hasBranchProperty(name); }
 
-  void setBranchProperty(int nodeId, const std::string& name, const Clonable& property) throw (NodeNotFoundException) { getNode(nodeId)->setBranchProperty(name, property); }
+  void setBranchProperty(int nodeId, const std::string& name, const Clonable& property) { getNode(nodeId)->setBranchProperty(name, property); }
 
-  Clonable* getBranchProperty(int nodeId, const std::string& name) throw (NodeNotFoundException) { return getNode(nodeId)->getBranchProperty(name); }
+  Clonable* getBranchProperty(int nodeId, const std::string& name) { return getNode(nodeId)->getBranchProperty(name); }
 
-  const Clonable* getBranchProperty(int nodeId, const std::string& name) const throw (NodeNotFoundException) { return getNode(nodeId)->getBranchProperty(name); }
+  const Clonable* getBranchProperty(int nodeId, const std::string& name) const { return getNode(nodeId)->getBranchProperty(name); }
 
-  Clonable* removeBranchProperty(int nodeId, const std::string& name) throw (NodeNotFoundException) { return getNode(nodeId)->removeBranchProperty(name); }
+  Clonable* removeBranchProperty(int nodeId, const std::string& name) { return getNode(nodeId)->removeBranchProperty(name); }
 
-  std::vector<std::string> getBranchPropertyNames(int nodeId) const throw (NodeNotFoundException) { return getNode(nodeId)->getBranchPropertyNames(); }
+  std::vector<std::string> getBranchPropertyNames(int nodeId) const { return getNode(nodeId)->getBranchPropertyNames(); }
 
-  void rootAt(int nodeId) throw (NodeNotFoundException) { rootAt(getNode(nodeId)); }
+  void rootAt(int nodeId) { rootAt(getNode(nodeId)); }
 
-  void newOutGroup(int nodeId) throw (NodeNotFoundException) {  newOutGroup(getNode(nodeId)); }
+  void newOutGroup(int nodeId) {  newOutGroup(getNode(nodeId)); }
 
   bool isRooted() const { return root_->getNumberOfSons() == 2; }
 
-  bool unroot() throw (UnrootedTreeException)
+  bool unroot()
   {
     if (!isRooted()) throw UnrootedTreeException("Tree::unroot", this);
     else
@@ -342,7 +342,7 @@ public:
     return test;
   }
 
-  std::vector<double> getBranchLengths() throw (NodeException)
+  std::vector<double> getBranchLengths()
   {
     Vdouble brLen(1);
     for (size_t i = 0; i < root_->getNumberOfSons(); i++)
@@ -353,7 +353,7 @@ public:
     return brLen;
   }
 
-  double getTotalLength() throw (NodeException)
+  double getTotalLength()
   {
     return TreeTemplateTools::getTotalLength(*root_, false);
   }
@@ -374,7 +374,7 @@ public:
     }
   }
 
-  void scaleTree(double factor) throw (NodeException)
+  void scaleTree(double factor)
   {
     for (size_t i = 0; i < root_->getNumberOfSons(); i++)
     {
@@ -387,7 +387,7 @@ public:
     return TreeTools::getMPNUId(*this, root_->getId());
   }
 
-  void swapNodes(int parentId, size_t i1, size_t i2) throw (NodeNotFoundException, IndexOutOfBoundsException)
+  void swapNodes(int parentId, size_t i1, size_t i2)
   {
     std::vector<N*> nodes = TreeTemplateTools::searchNodeWithId<N>(*root_, parentId);
     if (nodes.size() == 0) throw NodeNotFoundException("TreeTemplate:swapNodes(): Node with id not found.", TextTools::toString(parentId));
@@ -418,7 +418,7 @@ public:
 
   virtual std::vector<N*> getInnerNodes() { return TreeTemplateTools::getInnerNodes(*root_); }
 
-  virtual N* getNode(int id, bool checkId = false) throw (NodeNotFoundException, Exception)
+  virtual N* getNode(int id, bool checkId = false)
   {
     if (checkId) {
       std::vector<N*> nodes;
@@ -435,7 +435,7 @@ public:
     }
   }
 
-  virtual const N* getNode(int id, bool checkId = false) const throw (NodeNotFoundException, Exception)
+  virtual const N* getNode(int id, bool checkId = false) const
   {
     if (checkId) {
       std::vector<const N*> nodes;
@@ -452,7 +452,7 @@ public:
     }
   }
 
-  virtual N* getNode(const std::string& name) throw (NodeNotFoundException, Exception)
+  virtual N* getNode(const std::string& name)
   {
     std::vector<N*> nodes;
     TreeTemplateTools::searchNodeWithName(*root_, name, nodes);
@@ -461,7 +461,7 @@ public:
     return nodes[0];
   }
 
-  virtual const N* getNode(const std::string& name) const throw (NodeNotFoundException, Exception)
+  virtual const N* getNode(const std::string& name) const
   {
     std::vector<const N*> nodes;
     TreeTemplateTools::searchNodeWithName<const N>(*root_, name, nodes);

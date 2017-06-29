@@ -78,7 +78,7 @@ public:
   PairedSiteLikelihoods(
     const std::vector<std::vector<double> >& siteLogLikelihoods,
     const std::vector<std::string>& modelNames = std::vector<std::string>()
-    ) throw (Exception);
+    );
 
   ~PairedSiteLikelihoods() {}
 
@@ -92,7 +92,7 @@ public:
    */
   void appendModel(
     const std::vector<double>& siteLogLikelihoods,
-    const std::string& modelName = "") throw (Exception);
+    const std::string& modelName = "");
 
   /**
    * @brief Append a model.
@@ -101,7 +101,7 @@ public:
    *
    * @throw Exception If the number of sites is not the same as in the container.
    */
-  void appendModel(const bpp::TreeLikelihood& treelikelihood) throw (Exception);
+  void appendModel(const bpp::TreeLikelihood& treelikelihood);
 
   /**
    * @brief Append models by concatenation.
@@ -110,7 +110,7 @@ public:
    *
    * @throw Exception If the number of sites in the two object is not equal.
    */
-  void appendModels(const PairedSiteLikelihoods& psl) throw (Exception);
+  void appendModels(const PairedSiteLikelihoods& psl);
 
   /**
    * @return The site-likelihoods of all models.
@@ -138,7 +138,7 @@ public:
    * @return The number of sites for each model.
    * @throw Exception If the container is empty.
    */
-  std::size_t getNumberOfSites() const throw (Exception)
+  std::size_t getNumberOfSites() const
   {
     try
     {

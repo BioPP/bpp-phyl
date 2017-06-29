@@ -71,7 +71,7 @@ class PatternTools
      * @return A new site container with corresponding sequences.
      * @throw Exception if an error occured.
      */
-		static SiteContainer* getSequenceSubset(const SiteContainer& sequenceSet, const Node& node) throw (Exception);
+		static SiteContainer* getSequenceSubset(const SiteContainer& sequenceSet, const Node& node);
     /**
      * @brief Extract the sequences corresponding to a given set of names.
      *
@@ -80,7 +80,7 @@ class PatternTools
      * @return A new site container with corresponding sequences.
      * @throw Exception if an error occured.
      */
-		static SiteContainer* getSequenceSubset(const SiteContainer& sequenceSet, const std::vector<std::string>& names) throw (Exception);
+		static SiteContainer* getSequenceSubset(const SiteContainer& sequenceSet, const std::vector<std::string>& names);
 		/**
      * @brief Compress a site container by removing duplicated sites.
      *
@@ -88,7 +88,7 @@ class PatternTools
      * @return A new site container with unique sites.
      * @throw Exception if an error occured.
      */
-    static SiteContainer* shrinkSiteSet(const SiteContainer& sequenceSet) throw (Exception);
+    static SiteContainer* shrinkSiteSet(const SiteContainer& sequenceSet);
 
 		/**
      * @brief Look for the occurence of each site in sequences1 in sequences2 and send the

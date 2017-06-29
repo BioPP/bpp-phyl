@@ -140,12 +140,11 @@ public:
   }
 
   void setParameters(const ParameterList& parameters)
-  throw (ParameterNotFoundException, ConstraintException)
   {
     setParametersValues(parameters);
   }
 
-  double getValue() const throw (Exception) { return lnL_; }
+  double getValue() const { return lnL_; }
 
   void fireParameterChanged(const ParameterList& parameters)
   {
@@ -197,8 +196,7 @@ public:
     TransitionModel* model,
     DiscreteDistribution* rDist,
     bool checkRooted = true,
-    bool verbose = true)
-  throw (Exception);
+    bool verbose = true);
 
   /**
    * @brief Build a new NNIHomogeneousTreeLikelihood object.
@@ -218,8 +216,7 @@ public:
     TransitionModel* model,
     DiscreteDistribution* rDist,
     bool checkRooted = true,
-    bool verbose = true)
-  throw (Exception);
+    bool verbose = true);
 
   /**
    * @brief Copy constructor.
@@ -233,7 +230,7 @@ public:
   NNIHomogeneousTreeLikelihood* clone() const { return new NNIHomogeneousTreeLikelihood(*this); }
 
 public:
-  void setData(const SiteContainer& sites) throw (Exception)
+  void setData(const SiteContainer& sites)
   {
     DRHomogeneousTreeLikelihood::setData(sites);
     if (brLikFunction_) delete brLikFunction_;
@@ -253,11 +250,11 @@ public:
    */
   const Tree& getTopology() const { return getTree(); }
 
-  double getTopologyValue() const throw (Exception) { return getValue(); }
+  double getTopologyValue() const { return getValue(); }
 
-  double testNNI(int nodeId) const throw (NodeException);
+  double testNNI(int nodeId) const;
 
-  void doNNI(int nodeId) throw (NodeException);
+  void doNNI(int nodeId);
 
   void topologyChangeTested(const TopologyChangeEvent& event)
   {

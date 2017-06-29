@@ -61,12 +61,12 @@ class SitePartitionHomogeneousTreeLikelihood :
     SitePartitionHomogeneousTreeLikelihood* clone() const = 0;
 
   public:
-    const TransitionModel* getSubstitutionModel(int nodeId, size_t siteIndex) const throw (NodeNotFoundException)
+    const TransitionModel* getSubstitutionModel(int nodeId, size_t siteIndex) const
     {
       return getSubstitutionModelForSite(siteIndex);
     }
 
-    TransitionModel* getSubstitutionModel(int nodeId, size_t siteIndex) throw (NodeNotFoundException)
+    TransitionModel* getSubstitutionModel(int nodeId, size_t siteIndex)
     {
       return getSubstitutionModelForSite(siteIndex);
     }

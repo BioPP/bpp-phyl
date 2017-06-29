@@ -73,14 +73,14 @@ const string TreeTools::BOOTSTRAP = "bootstrap";
 
 /******************************************************************************/
 
-vector<int> TreeTools::getLeavesId(const Tree& tree, int nodeId) throw (NodeNotFoundException)
+vector<int> TreeTools::getLeavesId(const Tree& tree, int nodeId)
 {
   vector<int> leaves;
   getLeavesId(tree, nodeId, leaves);
   return leaves;
 }
 
-void TreeTools::getLeavesId(const Tree& tree, int nodeId, std::vector<int>& leaves) throw (NodeNotFoundException)
+void TreeTools::getLeavesId(const Tree& tree, int nodeId, std::vector<int>& leaves)
 {
   if (!tree.hasNode(nodeId))
     throw NodeNotFoundException("TreeTools::getLeavesId", nodeId);
@@ -95,7 +95,7 @@ void TreeTools::getLeavesId(const Tree& tree, int nodeId, std::vector<int>& leav
   }
 }
 
-size_t TreeTools::getNumberOfLeaves(const Tree& tree, int nodeId) throw (NodeNotFoundException)
+size_t TreeTools::getNumberOfLeaves(const Tree& tree, int nodeId)
 {
   if (!tree.hasNode(nodeId))
     throw NodeNotFoundException("TreeTools::getNumberOfLeaves", nodeId);
@@ -116,7 +116,6 @@ size_t TreeTools::getNumberOfLeaves(const Tree& tree, int nodeId) throw (NodeNot
 /******************************************************************************/
 
 int TreeTools::getLeafId(const Tree& tree, int nodeId, const std::string& name)
-throw (NodeNotFoundException)
 {
   int* id = NULL;
   searchLeaf(tree, nodeId, name, id);
@@ -131,7 +130,6 @@ throw (NodeNotFoundException)
 }
 
 void TreeTools::searchLeaf(const Tree& tree, int nodeId, const string& name, int*& id)
-throw (NodeNotFoundException)
 {
   if (tree.isLeaf(nodeId))
   {
@@ -150,14 +148,14 @@ throw (NodeNotFoundException)
 
 /******************************************************************************/
 
-vector<int> TreeTools::getNodesId(const Tree& tree, int nodeId) throw (NodeNotFoundException)
+vector<int> TreeTools::getNodesId(const Tree& tree, int nodeId)
 {
   vector<int> nodes;
   getNodesId(tree, nodeId, nodes);
   return nodes;
 }
 
-void TreeTools::getNodesId(const Tree& tree, int nodeId, vector<int>& nodes) throw (NodeNotFoundException)
+void TreeTools::getNodesId(const Tree& tree, int nodeId, vector<int>& nodes)
 {
   if (!tree.hasNode(nodeId))
     throw NodeNotFoundException("TreeTools::getNodesId", nodeId);
@@ -171,7 +169,7 @@ void TreeTools::getNodesId(const Tree& tree, int nodeId, vector<int>& nodes) thr
 
 /******************************************************************************/
 
-size_t TreeTools::getDepth(const Tree& tree, int nodeId) throw (NodeNotFoundException)
+size_t TreeTools::getDepth(const Tree& tree, int nodeId)
 {
   if (!tree.hasNode(nodeId))
     throw NodeNotFoundException("TreeTools::getDepth", nodeId);
@@ -188,7 +186,7 @@ size_t TreeTools::getDepth(const Tree& tree, int nodeId) throw (NodeNotFoundExce
 
 /******************************************************************************/
 
-size_t TreeTools::getDepths(const Tree& tree, int nodeId, map<int, size_t>& depths) throw (NodeNotFoundException)
+size_t TreeTools::getDepths(const Tree& tree, int nodeId, map<int, size_t>& depths)
 {
   if (!tree.hasNode(nodeId))
     throw NodeNotFoundException("TreeTools::getDepth", nodeId);
@@ -206,7 +204,7 @@ size_t TreeTools::getDepths(const Tree& tree, int nodeId, map<int, size_t>& dept
 
 /******************************************************************************/
 
-double TreeTools::getHeight(const Tree& tree, int nodeId) throw (NodeNotFoundException, NodeException)
+double TreeTools::getHeight(const Tree& tree, int nodeId)
 {
   if (!tree.hasNode(nodeId))
     throw NodeNotFoundException("TreeTools::getHeight", nodeId);
@@ -228,7 +226,7 @@ double TreeTools::getHeight(const Tree& tree, int nodeId) throw (NodeNotFoundExc
 
 /******************************************************************************/
 
-double TreeTools::getHeights(const Tree& tree, int nodeId, map<int, double>& heights) throw (NodeNotFoundException, NodeException)
+double TreeTools::getHeights(const Tree& tree, int nodeId, map<int, double>& heights)
 {
   if (!tree.hasNode(nodeId))
     throw NodeNotFoundException("TreeTools::getHeight", nodeId);
@@ -251,7 +249,7 @@ double TreeTools::getHeights(const Tree& tree, int nodeId, map<int, double>& hei
 
 /******************************************************************************/
 
-string TreeTools::nodeToParenthesis(const Tree& tree, int nodeId, bool writeId) throw (NodeNotFoundException)
+string TreeTools::nodeToParenthesis(const Tree& tree, int nodeId, bool writeId)
 {
   if (!tree.hasNode(nodeId))
     throw NodeNotFoundException("TreeTools::nodeToParenthesis", nodeId);
@@ -289,7 +287,7 @@ string TreeTools::nodeToParenthesis(const Tree& tree, int nodeId, bool writeId) 
 
 /******************************************************************************/
 
-string TreeTools::nodeToParenthesis(const Tree& tree, int nodeId, bool bootstrap, const string& propertyName) throw (NodeNotFoundException)
+string TreeTools::nodeToParenthesis(const Tree& tree, int nodeId, bool bootstrap, const string& propertyName)
 {
   if (!tree.hasNode(nodeId))
     throw NodeNotFoundException("TreeTools::nodeToParenthesis", nodeId);
@@ -399,7 +397,6 @@ string TreeTools::treeToParenthesis(const Tree& tree, bool bootstrap, const stri
 /******************************************************************************/
 
 vector<int> TreeTools::getPathBetweenAnyTwoNodes(const Tree& tree, int nodeId1, int nodeId2, bool includeAncestor)
-throw (NodeNotFoundException)
 {
   if (!tree.hasNode(nodeId1))
     throw NodeNotFoundException("TreeTools::getPathBetweenAnyTwoNodes", nodeId1);
@@ -469,7 +466,7 @@ double TreeTools::getDistanceBetweenAnyTwoNodes(const Tree& tree, int nodeId1, i
 
 /******************************************************************************/
 
-Vdouble TreeTools::getBranchLengths(const Tree& tree, int nodeId) throw (NodeNotFoundException, NodeException)
+Vdouble TreeTools::getBranchLengths(const Tree& tree, int nodeId)
 {
   if (!tree.hasNode(nodeId))
     throw NodeNotFoundException("TreeTools::getBranchLengths", nodeId);
@@ -492,7 +489,7 @@ Vdouble TreeTools::getBranchLengths(const Tree& tree, int nodeId) throw (NodeNot
 
 /******************************************************************************/
 
-double TreeTools::getTotalLength(const Tree& tree, int nodeId, bool includeAncestor) throw (NodeNotFoundException, NodeException)
+double TreeTools::getTotalLength(const Tree& tree, int nodeId, bool includeAncestor)
 {
   if (!tree.hasNode(nodeId))
     throw NodeNotFoundException("TreeTools::getTotalLength", nodeId);
@@ -509,7 +506,7 @@ double TreeTools::getTotalLength(const Tree& tree, int nodeId, bool includeAnces
 
 /******************************************************************************/
 
-void TreeTools::setBranchLengths(Tree& tree, int nodeId, double brLen) throw (NodeNotFoundException)
+void TreeTools::setBranchLengths(Tree& tree, int nodeId, double brLen)
 {
   if (!tree.hasNode(nodeId))
     throw NodeNotFoundException("TreeTools::setBranchLengths", nodeId);
@@ -522,7 +519,7 @@ void TreeTools::setBranchLengths(Tree& tree, int nodeId, double brLen) throw (No
 
 /******************************************************************************/
 
-void TreeTools::setVoidBranchLengths(Tree& tree, int nodeId, double brLen) throw (NodeNotFoundException)
+void TreeTools::setVoidBranchLengths(Tree& tree, int nodeId, double brLen)
 {
   if (!tree.hasNode(nodeId))
     throw NodeNotFoundException("TreeTools::setVoidBranchLengths", nodeId);
@@ -536,7 +533,7 @@ void TreeTools::setVoidBranchLengths(Tree& tree, int nodeId, double brLen) throw
 
 /******************************************************************************/
 
-void TreeTools::scaleTree(Tree& tree, int nodeId, double factor) throw (NodeNotFoundException, NodeException)
+void TreeTools::scaleTree(Tree& tree, int nodeId, double factor)
 {
   if (!tree.hasNode(nodeId))
     throw NodeNotFoundException("TreeTools::scaleTree", nodeId);
@@ -555,7 +552,7 @@ void TreeTools::scaleTree(Tree& tree, int nodeId, double factor) throw (NodeNotF
 
 /******************************************************************************/
 
-size_t TreeTools::initBranchLengthsGrafen(Tree& tree, int nodeId) throw (NodeNotFoundException)
+size_t TreeTools::initBranchLengthsGrafen(Tree& tree, int nodeId)
 {
   if (!tree.hasNode(nodeId))
     throw NodeNotFoundException("TreeTools::initBranchLengthsGrafen", nodeId);
@@ -587,7 +584,6 @@ void TreeTools::computeBranchLengthsGrafen(
   double total,
   double& height,
   double& heightRaised)
-throw (NodeNotFoundException, NodeException)
 {
   if (!tree.hasNode(nodeId))
     throw NodeNotFoundException("TreeTools::computeBranchLengthsGrafen", nodeId);
@@ -616,7 +612,6 @@ throw (NodeNotFoundException, NodeException)
 }
 
 void TreeTools::computeBranchLengthsGrafen(Tree& tree, double power, bool init)
-throw (NodeException)
 {
   int rootId = tree.getRootId();
   if (init)
@@ -780,7 +775,7 @@ int TreeTools::getMPNUId(const Tree& tree, int id)
 
 /******************************************************************************/
 
-bool TreeTools::checkIds(const Tree& tree, bool throwException) throw (Exception)
+bool TreeTools::checkIds(const Tree& tree, bool throwException)
 {
   vector<int> ids = tree.getNodesId();
   sort(ids.begin(), ids.end());
@@ -889,7 +884,7 @@ bool TreeTools::haveSameTopology(const Tree& tr1, const Tree& tr2)
 
 /******************************************************************************/
 
-int TreeTools::robinsonFouldsDistance(const Tree& tr1, const Tree& tr2, bool checkNames, int* missing_in_tr2, int* missing_in_tr1) throw (Exception)
+int TreeTools::robinsonFouldsDistance(const Tree& tr1, const Tree& tr2, bool checkNames, int* missing_in_tr2, int* missing_in_tr1)
 {
   BipartitionList* bipL1, * bipL2;
   size_t i, j;
@@ -1019,7 +1014,7 @@ BipartitionList* TreeTools::bipartitionOccurrences(const vector<Tree*>& vecTr, v
 
 /******************************************************************************/
 
-TreeTemplate<Node>* TreeTools::thresholdConsensus(const vector<Tree*>& vecTr, double threshold, bool checkNames) throw (Exception)
+TreeTemplate<Node>* TreeTools::thresholdConsensus(const vector<Tree*>& vecTr, double threshold, bool checkNames)
 {
   vector<size_t> bipScore;
   vector<string> tr0leaves;
@@ -1155,7 +1150,7 @@ void TreeTools::computeBootstrapValues(Tree& tree, const vector<Tree*>& vecTr, b
 
 /******************************************************************************/
 
-vector<int> TreeTools::getAncestors(const Tree& tree, int nodeId) throw (NodeNotFoundException)
+vector<int> TreeTools::getAncestors(const Tree& tree, int nodeId)
 {
   vector<int> ids;
   int currentId = nodeId;
@@ -1169,7 +1164,7 @@ vector<int> TreeTools::getAncestors(const Tree& tree, int nodeId) throw (NodeNot
 
 /******************************************************************************/
 
-int TreeTools::getLastCommonAncestor(const Tree& tree, const vector<int>& nodeIds) throw (NodeNotFoundException, Exception)
+int TreeTools::getLastCommonAncestor(const Tree& tree, const vector<int>& nodeIds)
 {
   if (nodeIds.size() == 0)
     throw Exception("TreeTools::getLastCommonAncestor(). You must provide at least one node id.");
