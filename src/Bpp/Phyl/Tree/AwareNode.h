@@ -364,9 +364,9 @@ namespace bpp
      *
      * @{
      */
-    AwareNode* operator[](size_t i) { return (i < 0) ? father_ : sons_[i]; }
+    AwareNode* operator[](int i) { return (i < 0) ? father_ : sons_[static_cast<std::size_t> (i)]; }
 
-    const AwareNode* operator[](size_t i) const { return (i < 0) ? father_ : sons_[i]; }
+    const AwareNode* operator[](int i) const { return (i < 0) ? father_ : sons_[static_cast<std::size_t> (i)]; }
 
     /** @} */
   
