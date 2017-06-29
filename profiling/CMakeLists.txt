@@ -17,8 +17,10 @@ target_include_directories (prof-lib-legacy PUBLIC
   )
 target_link_libraries (prof-lib-legacy ${BPP_LIBS_STATIC} Eigen3::Eigen)
 target_compile_options (prof-lib-legacy
-  PUBLIC ${public-compile-options}
-  PRIVATE ${private-compile-options}
+  PRIVATE
+  -O2
+  -g
+  -fno-omit-frame-pointer
   )
 
 # Compile a program with custom debug flags
@@ -34,12 +36,10 @@ target_compile_options (${PROF_EXEC_TARGET}
   PRIVATE
   -O2
   -g
-  -std=c++11
-  -Wall
   -fno-omit-frame-pointer
-  -fno-inline-functions
-  -fno-inline-functions-called-once
-  -fno-optimize-sibling-calls
+  #-fno-inline-functions
+  #gcc:  -fno-inline-functions-called-once
+  #-fno-optimize-sibling-calls
   )
 
 # Convenience targets

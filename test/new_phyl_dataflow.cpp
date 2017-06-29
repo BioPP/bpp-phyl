@@ -44,12 +44,12 @@
 
 #define ENABLE_OLD
 #define ENABLE_NEW
-
-#if defined(ENABLE_OLD) || defined(ENABLE_NEW)
-#define ENABLE_LEGACY_STUFF
-#endif
+#define ENABLE_DF
 
 // Common stuff
+#include <Bpp/NewPhyl/Range.h>
+#include <Bpp/Numeric/Parameter.h>
+#include <Bpp/Numeric/ParameterList.h>
 #include <Bpp/Phyl/Model/Nucleotide/T92.h>
 #include <Bpp/Phyl/Tree/TreeTemplate.h>
 #include <Bpp/Seq/Alphabet/AlphabetTools.h>
@@ -57,12 +57,6 @@
 #include <chrono>
 #include <fstream>
 #include <iostream>
-
-// Common legacy stuff
-#ifdef ENABLE_LEGACY_STUFF
-#include <Bpp/Numeric/Parameter.h>
-#include <Bpp/Numeric/ParameterList.h>
-#endif
 
 // Old likelihood
 #ifdef ENABLE_OLD
@@ -76,11 +70,13 @@
 #include <Bpp/Phyl/NewLikelihood/SimpleSubstitutionProcess.h>
 #endif
 // DF
+#ifdef ENABLE_DF
 #include <Bpp/NewPhyl/Debug.h>
 #include <Bpp/NewPhyl/ImportMaster.h>
 #include <Bpp/NewPhyl/ImportNewlik.h>
 #include <Bpp/NewPhyl/Model.h>
 #include <Bpp/NewPhyl/Phylogeny.h>
+#endif
 
 namespace
 {
@@ -100,7 +96,7 @@ namespace
   template<typename Func>
   void do_func_multiple_times(const std::string& timePrefix, Func f)
   {
-    constexpr std::size_t updatesNbIterations = 1000;
+    constexpr std::size_t updatesNbIterations = 100000;
     auto ts = timingStart();
     for (auto i : bpp::range(updatesNbIterations))
     {
@@ -127,6 +123,7 @@ namespace
       llh.getValue();
     });
   }
+#ifdef ENABLE_DF
   void do_param_changes_multiple_times_df(bpp::DF::Value<double>& lik,
                                           const std::string& timePrefix,
                                           bpp::DF::Parameter<double> param,
@@ -145,117 +142,126 @@ namespace
       lik.getValue();
     });
   }
-}
-
-TEST_CASE("Compare likelihood computation with 3 methods")
-{
-  // Init sequences
-  const auto& alphabet = bpp::AlphabetTools::DNA_ALPHABET;
-  bpp::VectorSiteContainer sites(&alphabet);
-  sites.addSequence(
-    bpp::BasicSequence("A", "ATCCAGACATGCCGGGACTTTGCAGAGAAGGAGTTGTTTCCCATTGCAGCCCAGGTGGATAAGGAACAGC", &alphabet));
-  sites.addSequence(
-    bpp::BasicSequence("B", "CGTCAGACATGCCGTGACTTTGCCGAGAAGGAGTTGGTCCCCATTGCGGCCCAGCTGGACAGGGAGCATC", &alphabet));
-  sites.addSequence(
-    bpp::BasicSequence("C", "GGTCAGACATGCCGGGAATTTGCTGAAAAGGAGCTGGTTCCCATTGCAGCCCAGGTAGACAAGGAGCATC", &alphabet));
-  sites.addSequence(
-    bpp::BasicSequence("D", "TTCCAGACATGCCGGGACTTTACCGAGAAGGAGTTGTTTTCCATTGCAGCCCAGGTGGATAAGGAACATC", &alphabet));
-
-#ifdef ENABLE_LEGACY_STUFF
-  // Set of parameters to apply to tree + model
-  bpp::ParameterList paramModel1;
-  paramModel1.addParameter(bpp::Parameter("T92.kappa", 0.1));
-  bpp::ParameterList paramModel2;
-  paramModel2.addParameter(bpp::Parameter("T92.kappa", 0.2));
-
-  bpp::ParameterList paramBrLen1;
-  paramBrLen1.addParameter(bpp::Parameter("BrLen1", 0.1));
-  bpp::ParameterList paramBrLen2;
-  paramBrLen2.addParameter(bpp::Parameter("BrLen1", 0.2));
 #endif
 
-  auto treeStr = "((A:0.01, B:0.02):0.03,C:0.01,D:0.1);";
+  struct CommonStuff
+  {
+    const bpp::NucleicAlphabet& alphabet;
+    bpp::VectorSiteContainer sites;
+    const char* treeStr;
+    bpp::ParameterList paramModel1;
+    bpp::ParameterList paramModel2;
+    bpp::ParameterList paramBrLen1;
+    bpp::ParameterList paramBrLen2;
+
+    CommonStuff()
+      : alphabet(bpp::AlphabetTools::DNA_ALPHABET)
+      , sites(&alphabet)
+      , treeStr("((A:0.01, B:0.02):0.03,C:0.01,D:0.1);")
+    {
+      // Init sequences
+      sites.addSequence(
+        bpp::BasicSequence("A", "ATCCAGACATGCCGGGACTTTGCAGAGAAGGAGTTGTTTCCCATTGCAGCCCAGGTGGATAAGGAACAGC", &alphabet));
+      sites.addSequence(
+        bpp::BasicSequence("B", "CGTCAGACATGCCGTGACTTTGCCGAGAAGGAGTTGGTCCCCATTGCGGCCCAGCTGGACAGGGAGCATC", &alphabet));
+      sites.addSequence(
+        bpp::BasicSequence("C", "GGTCAGACATGCCGGGAATTTGCTGAAAAGGAGCTGGTTCCCATTGCAGCCCAGGTAGACAAGGAGCATC", &alphabet));
+      sites.addSequence(
+        bpp::BasicSequence("D", "TTCCAGACATGCCGGGACTTTACCGAGAAGGAGTTGTTTTCCATTGCAGCCCAGGTGGATAAGGAACATC", &alphabet));
+
+      // Set of parameters to apply to tree + model
+      paramModel1.addParameter(bpp::Parameter("T92.kappa", 0.1));
+      paramModel2.addParameter(bpp::Parameter("T92.kappa", 0.2));
+      paramBrLen1.addParameter(bpp::Parameter("BrLen1", 0.1));
+      paramBrLen2.addParameter(bpp::Parameter("BrLen1", 0.2));
+    }
+  };
+}
 
 #ifdef ENABLE_OLD
-  // Old
-  {
-    auto ts = timingStart();
-    auto model = new bpp::T92(&alphabet, 3.);
-    auto distribution = new bpp::ConstantDistribution(1.0);
-    auto tree = std::unique_ptr<bpp::TreeTemplate<bpp::Node>>(bpp::TreeTemplateTools::parenthesisToTree(treeStr));
-    bpp::RHomogeneousTreeLikelihood llh(*tree, sites, model, distribution, false, false);
-    timingEnd(ts, "old_setup");
-    ts = timingStart();
-    llh.initialize();
-    auto logLik = llh.getValue();
-    timingEnd(ts, "old_init_value");
-    printLik(logLik, "old_init_value");
+TEST_CASE("old")
+{
+  const CommonStuff c;
+  auto ts = timingStart();
+  auto model = new bpp::T92(&c.alphabet, 3.);
+  auto distribution = new bpp::ConstantDistribution(1.0);
+  auto tree = std::unique_ptr<bpp::TreeTemplate<bpp::Node>>(bpp::TreeTemplateTools::parenthesisToTree(c.treeStr));
+  bpp::RHomogeneousTreeLikelihood llh(*tree, c.sites, model, distribution, false, false);
+  timingEnd(ts, "old_setup");
+  ts = timingStart();
+  llh.initialize();
+  auto logLik = llh.getValue();
+  timingEnd(ts, "old_init_value");
+  printLik(logLik, "old_init_value");
 
-    do_param_changes_multiple_times_legacy(llh, "old_param_model_change", paramModel1, paramModel2);
-    do_param_changes_multiple_times_legacy(llh, "old_param_brlen_change", paramBrLen1, paramBrLen2);
-  }
+  do_param_changes_multiple_times_legacy(llh, "old_param_model_change", c.paramModel1, c.paramModel2);
+  do_param_changes_multiple_times_legacy(llh, "old_param_brlen_change", c.paramBrLen1, c.paramBrLen2);
+}
 #endif
 
 #ifdef ENABLE_NEW
-  // Newlik
-  {
-    auto ts = timingStart();
-    auto model = new bpp::T92(&alphabet, 3.);
-    bpp::Newick reader;
-    auto phyloTree = std::unique_ptr<bpp::PhyloTree>(reader.parenthesisToPhyloTree(treeStr, false, "", false, false));
-    auto paramPhyloTree = new bpp::ParametrizablePhyloTree(*phyloTree);
-    auto process =
-      std::unique_ptr<bpp::SimpleSubstitutionProcess>(new bpp::SimpleSubstitutionProcess(model, paramPhyloTree));
-    auto likelihoodCompStruct = std::unique_ptr<bpp::RecursiveLikelihoodTreeCalculation>(
-      new bpp::RecursiveLikelihoodTreeCalculation(sites, process.get(), false, true));
-    bpp::SingleProcessPhyloLikelihood llh(process.get(), likelihoodCompStruct.release());
-    timingEnd(ts, "new_setup");
-    ts = timingStart();
-    llh.computeLikelihood();
-    auto logLik = llh.getValue();
-    timingEnd(ts, "new_init_value");
-    printLik(logLik, "new_init_value");
+TEST_CASE("new")
+{
+  const CommonStuff c;
+  auto ts = timingStart();
+  auto model = new bpp::T92(&c.alphabet, 3.);
+  bpp::Newick reader;
+  auto phyloTree = std::unique_ptr<bpp::PhyloTree>(reader.parenthesisToPhyloTree(c.treeStr, false, "", false, false));
+  auto paramPhyloTree = new bpp::ParametrizablePhyloTree(*phyloTree);
+  auto process =
+    std::unique_ptr<bpp::SimpleSubstitutionProcess>(new bpp::SimpleSubstitutionProcess(model, paramPhyloTree));
+  auto likelihoodCompStruct = std::unique_ptr<bpp::RecursiveLikelihoodTreeCalculation>(
+    new bpp::RecursiveLikelihoodTreeCalculation(c.sites, process.get(), false, true));
+  bpp::SingleProcessPhyloLikelihood llh(process.get(), likelihoodCompStruct.release());
+  timingEnd(ts, "new_setup");
+  ts = timingStart();
+  llh.computeLikelihood();
+  auto logLik = llh.getValue();
+  timingEnd(ts, "new_init_value");
+  printLik(logLik, "new_init_value");
 
-    do_param_changes_multiple_times_legacy(llh, "new_param_model_change", paramModel1, paramModel2);
-    do_param_changes_multiple_times_legacy(llh, "new_param_brlen_change", paramBrLen1, paramBrLen2);
-  }
+  do_param_changes_multiple_times_legacy(llh, "new_param_model_change", c.paramModel1, c.paramModel2);
+  do_param_changes_multiple_times_legacy(llh, "new_param_brlen_change", c.paramBrLen1, c.paramBrLen2);
+}
 #endif
 
-  // DF
-  {
-    auto ts = timingStart();
-    // Read tree structure
-    auto tree = std::unique_ptr<bpp::TreeTemplate<bpp::Node>>(bpp::TreeTemplateTools::parenthesisToTree(treeStr));
-    auto treeData = bpp::Phyl::convertTreeTemplate(*tree);
+#ifdef ENABLE_DF
+TEST_CASE("df")
+{
+  const CommonStuff c;
+  auto ts = timingStart();
+  // Read tree structure
+  auto tree = std::unique_ptr<bpp::TreeTemplate<bpp::Node>>(bpp::TreeTemplateTools::parenthesisToTree(c.treeStr));
+  auto treeData = bpp::Phyl::convertTreeTemplate(*tree);
 
-    // Model
-    auto model = bpp::DF::Value<const bpp::SubstitutionModel*>::create<bpp::Phyl::ModelNode>(
-      std::unique_ptr<bpp::SubstitutionModel>(new bpp::T92(&alphabet, 3.)));
+  // Model
+  auto model = bpp::DF::Value<const bpp::SubstitutionModel*>::create<bpp::Phyl::ModelNode>(
+    std::unique_ptr<bpp::SubstitutionModel>(new bpp::T92(&c.alphabet, 3.)));
 
-    // Create a specification
-    auto branchLengthMap =
-      bpp::make_frozen(bpp::Topology::make_branch_parameter_map_from_value_map(*treeData.branchLengths));
-    auto modelMap = bpp::make_frozen(bpp::Topology::make_uniform_branch_value_map(treeData.topology, model));
-    auto process = bpp::Phyl::Process{treeData.topology, branchLengthMap, modelMap, alphabet.getSize()};
-    auto sequenceMap = bpp::Phyl::makeSequenceMap(*treeData.nodeNames, sites);
-    auto likParams = bpp::Phyl::LikelihoodParameters{process, sequenceMap};
+  // Create a specification
+  auto branchLengthMap =
+    bpp::make_frozen(bpp::Topology::make_branch_parameter_map_from_value_map(*treeData.branchLengths));
+  auto modelMap = bpp::make_frozen(bpp::Topology::make_uniform_branch_value_map(treeData.topology, model));
+  auto process = bpp::Phyl::Process{treeData.topology, branchLengthMap, modelMap, c.alphabet.getSize()};
+  auto sequenceMap = bpp::Phyl::makeSequenceMap(*treeData.nodeNames, c.sites);
+  auto likParams = bpp::Phyl::LikelihoodParameters{process, sequenceMap};
 
-    bpp::DF::Value<double> logLikNode{bpp::DF::instantiateNodeSpec(bpp::Phyl::LogLikelihoodSpec{likParams})};
-    timingEnd(ts, "df_setup");
-    ts = timingStart();
-    auto logLik = logLikNode.getValue();
-    timingEnd(ts, "df_init_value");
-    printLik(logLik, "df_init_value");
+  bpp::DF::Value<double> logLikNode{bpp::DF::instantiateNodeSpec(bpp::Phyl::LogLikelihoodSpec{likParams})};
+  timingEnd(ts, "df_setup");
+  ts = timingStart();
+  auto logLik = logLikNode.getValue();
+  timingEnd(ts, "df_init_value");
+  printLik(logLik, "df_init_value");
 
-    std::ofstream fd("df_debug");
-    bpp::DF::debugDag(fd, logLikNode);
+  // std::ofstream fd("df_debug");
+  // bpp::DF::debugDag(fd, logLikNode);
 
-    // Change parameters
-    auto& modelNode = dynamic_cast<bpp::Phyl::ModelNode&>(model.getImpl());
-    do_param_changes_multiple_times_df(logLikNode, "df_param_model_change", modelNode.getParameter("kappa"), 0.1, 0.2);
+  // Change parameters
+  auto& modelNode = dynamic_cast<bpp::Phyl::ModelNode&>(model.getImpl());
+  do_param_changes_multiple_times_df(logLikNode, "df_param_model_change", modelNode.getParameter("kappa"), 0.1, 0.2);
 
-    auto topologyIdOfPhyloNode1 = treeData.treeTemplateNodeIndexes->index(1).value();
-    auto& brlen1Param = branchLengthMap->access(treeData.topology->node(topologyIdOfPhyloNode1).fatherBranch()).value();
-    do_param_changes_multiple_times_df(logLikNode, "df_param_brlen_change", brlen1Param, 0.1, 0.2);
-  }
+  auto topologyIdOfPhyloNode1 = treeData.treeTemplateNodeIndexes->index(1).value();
+  auto& brlen1Param = branchLengthMap->access(treeData.topology->node(topologyIdOfPhyloNode1).fatherBranch()).value();
+  do_param_changes_multiple_times_df(logLikNode, "df_param_brlen_change", brlen1Param, 0.1, 0.2);
 }
+#endif
