@@ -46,9 +46,9 @@
 #include <Bpp/NewPhyl/DataFlow.h>
 #include <Bpp/NewPhyl/DataFlowTemplates.h>
 #include <Bpp/NewPhyl/Model.h>
+#include <Bpp/NewPhyl/PackedVector.h>
 #include <Eigen/Core>
 #include <string> // description
-#include <vector>
 
 namespace bpp {
 
@@ -59,7 +59,7 @@ namespace Phyl {
 
 	// TODO small classes with nice constructor arguments (like nbStates / nbSite)
 	using LikelihoodVector = Eigen::VectorXd;
-	using LikelihoodVectorBySite = std::vector<LikelihoodVector>;
+	using LikelihoodVectorBySite = PackedVector<LikelihoodVector>;
 
 	struct ComputeConditionalLikelihoodFromDataOp {
 		using ResultType = LikelihoodVectorBySite;

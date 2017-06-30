@@ -51,39 +51,34 @@ namespace Phyl {
 		assert (sequence != nullptr);
 		assert (condLikBySite.size () == sequence->size ());
 		for (auto siteIndex : index_range (condLikBySite)) {
-			auto & lik = condLikBySite[siteIndex];
+			auto lik = condLikBySite[siteIndex];
 			assert (lik.size () == sequence->getAlphabet ()->getSize ());
 			lik.fill (0.);
-			auto siteValue = static_cast<int> (sequence->getValue (siteIndex));
+			auto siteValue = static_cast<int> (sequence->getValue (static_cast<std::size_t> (siteIndex)));
 			lik[siteValue] = 1.;
 		}
 	}
 
 	void ComputeConditionalLikelihoodFromChildrensOp::reset (LikelihoodVectorBySite & condLikBySite) {
-		for (auto & lik : condLikBySite)
-			lik.fill (1.);
+		condLikBySite.asMatrix ().fill (1.);
 	}
 	void ComputeConditionalLikelihoodFromChildrensOp::reduce (
 	    LikelihoodVectorBySite & condLikBySite, const LikelihoodVectorBySite & fwdLikBySite) {
-		assert (condLikBySite.size () == fwdLikBySite.size ());
-		for (auto siteIndex : index_range (condLikBySite))
-			condLikBySite[siteIndex] = condLikBySite[siteIndex].cwiseProduct (fwdLikBySite[siteIndex]);
+		condLikBySite.asMatrix () = condLikBySite.asMatrix ().cwiseProduct (fwdLikBySite.asMatrix ());
 	}
 
 	void ComputeForwardLikelihoodOp::compute (LikelihoodVectorBySite & fwdLikBySite,
 	                                          const LikelihoodVectorBySite & condLikBySite,
 	                                          const TransitionMatrix & transitionMatrix) {
-		assert (fwdLikBySite.size () == condLikBySite.size ());
-		for (auto siteIndex : index_range (fwdLikBySite))
-			fwdLikBySite[siteIndex].noalias () = transitionMatrix * condLikBySite[siteIndex];
+		fwdLikBySite.asMatrix ().noalias () = transitionMatrix * condLikBySite.asMatrix ();
 	}
 
 	void ComputeLogLikelihoodOp::compute (double & logLik,
 	                                      const LikelihoodVectorBySite & condLikBySite,
 	                                      const FrequencyVector & equilibriumFreqs) {
 		logLik = 0.;
-		for (auto & condLik : condLikBySite)
-			logLik += std::log (condLik.dot (equilibriumFreqs));
+		for (auto i : index_range (condLikBySite))
+			logLik += std::log (condLikBySite[i].dot (equilibriumFreqs));
 	}
 }
 }

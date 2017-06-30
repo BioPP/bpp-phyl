@@ -145,11 +145,9 @@ namespace Phyl {
 	ModelEquilibriumFrequenciesSpec::ModelEquilibriumFrequenciesSpec (DF::Node modelParameter,
 	                                                                  std::size_t nbStates)
 	    : modelParameter_ (std::move (modelParameter)), nbStates_ (nbStates) {}
-
 	DF::NodeSpecificationVec ModelEquilibriumFrequenciesSpec::computeDependencies () const {
 		return DF::makeNodeSpecVec (DF::NodeSpecReturnParameter (modelParameter_));
 	}
-
 	DF::Node ModelEquilibriumFrequenciesSpec::buildNode (DF::NodeVec deps) const {
 		return DF::Node::create<ComputeEquilibriumFrequenciesFromModelNode> (std::move (deps),
 		                                                                     nbStates_);
@@ -161,12 +159,10 @@ namespace Phyl {
 	    : modelParameter_ (std::move (modelParameter)),
 	      branchLengthParameter_ (std::move (branchLengthParameter)),
 	      nbStates_ (nbStates) {}
-
 	DF::NodeSpecificationVec ModelTransitionMatrixSpec::computeDependencies () const {
 		return DF::makeNodeSpecVec (DF::NodeSpecReturnParameter (modelParameter_),
 		                            DF::NodeSpecReturnParameter (branchLengthParameter_));
 	}
-
 	DF::Node ModelTransitionMatrixSpec::buildNode (DF::NodeVec deps) const {
 		return DF::Node::create<ComputeTransitionMatrixFromModelNode> (std::move (deps), nbStates_,
 		                                                               nbStates_);
@@ -177,12 +173,10 @@ namespace Phyl {
 	    : modelParameter_ (std::move (modelParameter)),
 	      branchLengthParameter_ (std::move (branchLengthParameter)),
 	      nbStates_ (nbStates) {}
-
 	DF::NodeSpecificationVec ModelTransitionMatrixFirstDerivativeSpec::computeDependencies () const {
 		return DF::makeNodeSpecVec (DF::NodeSpecReturnParameter (modelParameter_),
 		                            DF::NodeSpecReturnParameter (branchLengthParameter_));
 	}
-
 	DF::Node ModelTransitionMatrixFirstDerivativeSpec::buildNode (DF::NodeVec deps) const {
 		return DF::Node::create<ComputeTransitionMatrixFirstDerivativeFromModelNode> (
 		    std::move (deps), nbStates_, nbStates_);
@@ -193,12 +187,10 @@ namespace Phyl {
 	    : modelParameter_ (std::move (modelParameter)),
 	      branchLengthParameter_ (std::move (branchLengthParameter)),
 	      nbStates_ (nbStates) {}
-
 	DF::NodeSpecificationVec ModelTransitionMatrixSecondDerivativeSpec::computeDependencies () const {
 		return DF::makeNodeSpecVec (DF::NodeSpecReturnParameter (modelParameter_),
 		                            DF::NodeSpecReturnParameter (branchLengthParameter_));
 	}
-
 	DF::Node ModelTransitionMatrixSecondDerivativeSpec::buildNode (DF::NodeVec deps) const {
 		return DF::Node::create<ComputeTransitionMatrixSecondDerivativeFromModelNode> (
 		    std::move (deps), nbStates_, nbStates_);

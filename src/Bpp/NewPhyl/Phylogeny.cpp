@@ -66,12 +66,10 @@ namespace Phyl {
 	DF::Node ConditionalLikelihoodSpec::buildNode (DF::NodeVec deps) const {
 		if (computed_from_data ())
 			return DF::Node::create<ComputeConditionalLikelihoodFromDataNode> (
-			    std::move (deps), likParams.leafData.nbSites,
-			    LikelihoodVector (likParams.process.nbStates));
+			    std::move (deps), likParams.leafData.nbSites, likParams.process.nbStates);
 		else
 			return DF::Node::create<ComputeConditionalLikelihoodFromChildrensNode> (
-			    std::move (deps), likParams.leafData.nbSites,
-			    LikelihoodVector (likParams.process.nbStates));
+			    std::move (deps), likParams.leafData.nbSites, likParams.process.nbStates);
 	}
 	std::type_index ConditionalLikelihoodSpec::nodeType () const {
 		return computed_from_data () ? typeid (ComputeConditionalLikelihoodFromDataNode)
@@ -92,8 +90,7 @@ namespace Phyl {
 	}
 	DF::Node ForwardLikelihoodSpec::buildNode (DF::NodeVec deps) const {
 		return DF::Node::create<ComputeForwardLikelihoodNode> (
-		    std::move (deps), likParams.leafData.nbSites,
-		    LikelihoodVector (likParams.process.nbStates));
+		    std::move (deps), likParams.leafData.nbSites, likParams.process.nbStates);
 	}
 	std::type_index ForwardLikelihoodSpec::nodeType () {
 		return typeid (ComputeForwardLikelihoodNode);
