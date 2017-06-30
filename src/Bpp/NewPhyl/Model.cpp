@@ -39,16 +39,17 @@
   knowledge of the CeCILL license and that you accept its terms.
 */
 
-#include <Bpp/NewPhyl/DataFlow.h>
 #include <Bpp/NewPhyl/Debug.h>
 #include <Bpp/NewPhyl/Model.h>
 #include <Bpp/NewPhyl/Range.h>
 #include <Bpp/Numeric/Parameter.h>
 #include <Bpp/Phyl/Model/SubstitutionModel.h>
-#include <iostream>
+#include <cassert>
 
 namespace bpp {
 namespace Phyl {
+	// Model DF Node
+
 	ModelNode::ModelNode (std::unique_ptr<SubstitutionModel> model)
 	    : DF::Value<const SubstitutionModel *>::Impl (model.get ()), model_ (std::move (model)) {
 
@@ -85,6 +86,8 @@ namespace Phyl {
 
 	std::string ModelNode::description () const { return "Model(" + model_->getName () + ")"; }
 
+	// Compute node functions
+
 	void ComputeEquilibriumFrequenciesFromModelOp::compute (FrequencyVector & freqs,
 	                                                        const SubstitutionModel * model) {
 		auto & freqsFromModel = model->getFrequencies ();
@@ -92,12 +95,52 @@ namespace Phyl {
 		                                           Eigen::Index (freqsFromModel.size ()));
 	}
 
+	std::string ComputeEquilibriumFrequenciesFromModelOp::description () {
+		return "EquilibriumFreqs";
+	}
+
 	void ComputeTransitionMatrixFromModelOp::compute (TransitionMatrix & matrix,
 	                                                  const SubstitutionModel * model, double brlen) {
+		// Copy bpp::Matrix to Eigen (TODO add method to bppSubstModel to do it internally, maybe
+		// cheaper)
 		auto & matrixFromModel = model->getPij_t (brlen);
 		for (auto i : range (matrix.rows ()))
 			for (auto j : range (matrix.cols ()))
 				matrix (i, j) = matrixFromModel (std::size_t (i), std::size_t (j));
+	}
+
+	std::string ComputeTransitionMatrixFromModelOp::description () { return "TransitionMatrix"; }
+
+	// Specs
+
+	ModelEquilibriumFrequenciesSpec::ModelEquilibriumFrequenciesSpec (DF::Node modelParameter,
+	                                                                  std::size_t nbStates)
+	    : modelParameter_ (std::move (modelParameter)), nbStates_ (nbStates) {}
+
+	DF::NodeSpecificationVec ModelEquilibriumFrequenciesSpec::computeDependencies () const {
+		return DF::makeNodeSpecVec (DF::NodeSpecReturnParameter (modelParameter_));
+	}
+
+	DF::Node ModelEquilibriumFrequenciesSpec::buildNode (DF::NodeVec deps) const {
+		return DF::Node::create<ComputeEquilibriumFrequenciesFromModelNode> (std::move (deps),
+		                                                                     nbStates_);
+	}
+
+	ModelTransitionMatrixSpec::ModelTransitionMatrixSpec (DF::Node modelParameter,
+	                                                      DF::Node branchLengthParameter,
+	                                                      std::size_t nbStates)
+	    : modelParameter_ (std::move (modelParameter)),
+	      branchLengthParameter_ (std::move (branchLengthParameter)),
+	      nbStates_ (nbStates) {}
+
+	DF::NodeSpecificationVec ModelTransitionMatrixSpec::computeDependencies () const {
+		return DF::makeNodeSpecVec (DF::NodeSpecReturnParameter (modelParameter_),
+		                            DF::NodeSpecReturnParameter (branchLengthParameter_));
+	}
+
+	DF::Node ModelTransitionMatrixSpec::buildNode (DF::NodeVec deps) const {
+		return DF::Node::create<ComputeTransitionMatrixFromModelNode> (std::move (deps), nbStates_,
+		                                                               nbStates_);
 	}
 }
 }

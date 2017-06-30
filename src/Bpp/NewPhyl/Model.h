@@ -57,8 +57,10 @@ namespace Phyl {
 	using TransitionMatrix = Eigen::MatrixXd;
 	using FrequencyVector = Eigen::VectorXd;
 
-	// TODO wrap SubstitutionModel in a Pimpl ModelValue class.
+  // DF Node representing a model with its parameter (wrapper to master code).
+
 	class ModelNode : public DF::Value<const SubstitutionModel *>::Impl {
+    // TODO wrap SubstitutionModel in a Pimpl ModelValue class.
 	public:
 		ModelNode (std::unique_ptr<SubstitutionModel> model);
 		~ModelNode ();
@@ -76,13 +78,15 @@ namespace Phyl {
 		std::unique_ptr<SubstitutionModel> model_;
 	};
 
+  // Compute nodes
+
 	struct ComputeEquilibriumFrequenciesFromModelOp {
 		using ResultType = FrequencyVector;
 		using ArgumentTypes = std::tuple<const SubstitutionModel *>;
 		static void compute (FrequencyVector & freqs, const SubstitutionModel * model);
-		static std::string description () { return "EquilibriumFreqs"; }
+		static std::string description ();
+    // Should init with freq vector size (nb states)
 	};
-	// Should init with freq vector size
 	using ComputeEquilibriumFrequenciesFromModelNode =
 	    DF::GenericFunctionComputation<ComputeEquilibriumFrequenciesFromModelOp>;
 
@@ -91,9 +95,9 @@ namespace Phyl {
 		enum { Model, BrLen };
 		using ArgumentTypes = std::tuple<const SubstitutionModel *, double>;
 		static void compute (TransitionMatrix & matrix, const SubstitutionModel * model, double brlen);
-		static std::string description () { return "TransitionMatrix"; }
+		static std::string description ();
+    // Should init with (nb_state, nb_state)
 	};
-	// Should init with (nb_char, nb_char)
 	using ComputeTransitionMatrixFromModelNode =
 	    DF::GenericFunctionComputation<ComputeTransitionMatrixFromModelOp>;
 
@@ -102,17 +106,9 @@ namespace Phyl {
 	class ModelEquilibriumFrequenciesSpec
 	    : public DF::NodeSpecAlwaysGenerate<ComputeEquilibriumFrequenciesFromModelNode> {
 	public:
-		ModelEquilibriumFrequenciesSpec (DF::Node modelParameter, std::size_t nbStates)
-		    : modelParameter_ (std::move (modelParameter)), nbStates_ (nbStates) {}
-
-		DF::NodeSpecificationVec computeDependencies () const {
-			return DF::makeNodeSpecVec (DF::NodeSpecReturnParameter (modelParameter_));
-		}
-
-		DF::Node buildNode (DF::NodeVec deps) const {
-			return DF::Node::create<ComputeEquilibriumFrequenciesFromModelNode> (std::move (deps),
-			                                                                     nbStates_);
-		}
+		ModelEquilibriumFrequenciesSpec (DF::Node modelParameter, std::size_t nbStates);
+		DF::NodeSpecificationVec computeDependencies () const;
+		DF::Node buildNode (DF::NodeVec deps) const;
 
 	private:
 		DF::Node modelParameter_;
@@ -123,20 +119,9 @@ namespace Phyl {
 	    : public DF::NodeSpecAlwaysGenerate<ComputeTransitionMatrixFromModelNode> {
 	public:
 		ModelTransitionMatrixSpec (DF::Node modelParameter, DF::Node branchLengthParameter,
-		                           std::size_t nbStates)
-		    : modelParameter_ (std::move (modelParameter)),
-		      branchLengthParameter_ (std::move (branchLengthParameter)),
-		      nbStates_ (nbStates) {}
-
-		DF::NodeSpecificationVec computeDependencies () const {
-			return DF::makeNodeSpecVec (DF::NodeSpecReturnParameter (modelParameter_),
-			                            DF::NodeSpecReturnParameter (branchLengthParameter_));
-		}
-
-		DF::Node buildNode (DF::NodeVec deps) const {
-			return DF::Node::create<ComputeTransitionMatrixFromModelNode> (std::move (deps), nbStates_,
-			                                                               nbStates_);
-		}
+		                           std::size_t nbStates);
+		DF::NodeSpecificationVec computeDependencies () const;
+		DF::Node buildNode (DF::NodeVec deps) const;
 
 	private:
 		DF::Node modelParameter_;
