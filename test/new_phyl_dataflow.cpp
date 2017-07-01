@@ -96,7 +96,7 @@ namespace
   template<typename Func>
   void do_func_multiple_times(const std::string& timePrefix, Func f)
   {
-    constexpr std::size_t updatesNbIterations = 1000;
+    constexpr std::size_t updatesNbIterations = 100000;
     auto ts = timingStart();
     for (auto i : bpp::range(updatesNbIterations))
     {

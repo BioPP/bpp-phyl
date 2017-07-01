@@ -83,8 +83,8 @@ private:
 	using Container = Eigen::Matrix<T, Eigen::Dynamic, Eigen::Dynamic>;
 
 public:
-	using reference = Eigen::Block<Container, Eigen::Dynamic, 1>;
-	using const_reference = Eigen::Block<const Container, Eigen::Dynamic, 1>;
+	using reference = decltype (std::declval<Container>().col (0));
+	using const_reference = decltype (std::declval<const Container> ().col (0));
 
 	PackedVector (int size, int vectorSize) : matrix_ (vectorSize, size) {}
 
@@ -93,12 +93,12 @@ public:
 	reference operator[] (int i) {
 		assert (0 <= i);
 		assert (i < size ());
-		return reference{matrix_, 0, i, matrix_.rows (), 1};
+    return matrix_.col (i);
 	}
 	const_reference operator[] (int i) const {
 		assert (0 <= i);
 		assert (i < size ());
-		return const_reference{matrix_, 0, i, matrix_.rows (), 1};
+    return matrix_.col (i);
 	}
 
 	Container & asMatrix () noexcept { return matrix_; }
