@@ -1,9 +1,9 @@
 //
-// File: PackedVector.h
+// File: Signed.h
 // Authors:
 //   Francois Gindraud (2017)
-// Created: 2017-06-30
-// Last modified: 2017-06-30
+// Created: 2017-07-04 00:00:00
+// Last modified: 2017-07-04
 //
 
 /*
@@ -39,48 +39,63 @@
   knowledge of the CeCILL license and that you accept its terms.
 */
 
-#ifndef BPP_NEWPHYL_PACKEDVECTOR_H
-#define BPP_NEWPHYL_PACKEDVECTOR_H
+#ifndef BPP_NEWPHYL_SIGNED_H
+#define BPP_NEWPHYL_SIGNED_H
 
-#include <Bpp/NewPhyl/Signed.h>
-#include <Eigen/Core>
+#include <cassert>
+#include <cstddef>
+#include <vector>
 
 namespace bpp {
-template <typename T> class PackedVector : public Vector<T> {};
 
-template <typename T> class PackedVector<Eigen::Matrix<T, Eigen::Dynamic, 1>> {
-	// Specialisation for Vectors : pack all in a Matrix
-	// Lose iterators
+// Use signed values for indexes and sizes instead of unsigned (CppCoreGuidelines)
+using SizeType = std::ptrdiff_t;
+using IndexType = std::ptrdiff_t;
+
+template <typename T> class Vector {
+	// Vector with signed indexing
 private:
-	using Container = Eigen::Matrix<T, Eigen::Dynamic, Eigen::Dynamic>;
+	using Container = std::vector<T>;
 
 public:
 	using size_type = SizeType;
-	using reference = decltype (std::declval<Container> ().col (0));
-	using const_reference = decltype (std::declval<const Container> ().col (0));
+	using reference = typename Container::reference;
+	using const_reference = typename Container::const_reference;
+	using iterator = typename Container::iterator;
+	using const_iterator = typename Container::const_iterator;
 
-	PackedVector (size_type size, Eigen::Index vectorSize) : matrix_ (vectorSize, size) {}
+	Vector () : vec_ () {}
+	explicit Vector (size_type size) : vec_ (static_cast<typename Container::size_type> (size)) {}
+
+	reference at (size_type i) {
+		assert (0 <= i);
+		return vec_.at (static_cast<typename Container::size_type> (i));
+	}
+	const_reference at (size_type i) const {
+		assert (0 <= i);
+		return vec_.at (static_cast<typename Container::size_type> (i));
+	}
 
 	reference operator[] (size_type i) {
 		assert (0 <= i);
 		assert (i < size ());
-		return matrix_.col (static_cast<typename Eigen::Index> (i));
+		return vec_[static_cast<typename Container::size_type> (i)];
 	}
 	const_reference operator[] (size_type i) const {
 		assert (0 <= i);
 		assert (i < size ());
-		return matrix_.col (static_cast<typename Eigen::Index> (i));
+		return vec_[static_cast<typename Container::size_type> (i)];
 	}
 
-	size_type size () const noexcept { return static_cast<size_type> (matrix_.cols ()); }
+	iterator begin () noexcept { return vec_.begin (); }
+	const_iterator begin () const noexcept { return vec_.begin (); }
+	iterator end () noexcept { return vec_.end (); }
+	const_iterator end () const noexcept { return vec_.end (); }
 
-	Container & asMatrix () noexcept { return matrix_; }
-	const Container & asMatrix () const noexcept { return matrix_; }
+	size_type size () const noexcept { return static_cast<size_type> (vec_.size ()); }
 
 private:
-	// Vectors are stored in each column (as by default, Eigen::Matrix is ColMajor)
-	Container matrix_;
+	Container vec_;
 };
 }
-
-#endif // BPP_NEWPHYL_PACKEDVECTOR_H
+#endif // BPP_NEWPHYL_SIGNED_H
