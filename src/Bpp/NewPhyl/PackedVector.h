@@ -42,8 +42,9 @@
 #ifndef BPP_NEWPHYL_PACKEDVECTOR_H
 #define BPP_NEWPHYL_PACKEDVECTOR_H
 
-#include <Bpp/NewPhyl/Signed.h>
+#include <Bpp/NewPhyl/Vector.h>
 #include <Eigen/Core>
+#include <cassert>
 
 namespace bpp {
 template <typename T> class PackedVector : public Vector<T> {};

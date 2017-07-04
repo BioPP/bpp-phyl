@@ -43,13 +43,13 @@
 #define BPP_NEWPHYL_DATAFLOW_H
 
 #include <Bpp/NewPhyl/Debug.h> // description
+#include <Bpp/NewPhyl/Vector.h>
 #include <algorithm>
 #include <cassert>
 #include <memory>
 #include <string> // description
 #include <typeinfo>
 #include <utility>
-#include <vector>
 
 namespace bpp {
 namespace DF {
@@ -88,7 +88,7 @@ namespace DF {
 		std::shared_ptr<Impl> pImpl_;
 	};
 
-	using NodeVec = std::vector<Node>;
+	using NodeVec = Vector<Node>;
 
 	class Node::Impl {
 	public:
@@ -100,25 +100,28 @@ namespace DF {
 
 		// Constructor that sets the dependencies
 		Impl (NodeVec dependencies) : dependencyNodes_ (std::move (dependencies)) {
-			foreachDependencyNode ([this](Impl * node) { node->registerNode (this); });
+			for (auto & n : dependencyNodes_)
+				n.getImpl ().registerNode (this);
 		}
 
 		virtual ~Impl () {
-			foreachDependencyNode ([this](Impl * node) { node->unregisterNode (this); });
+			for (auto & n : dependencyNodes_)
+				n.getImpl ().unregisterNode (this);
 		}
 
 		bool isValid () const noexcept { return isValid_; }
 		void invalidate () noexcept {
 			if (isValid ()) {
 				isValid_ = false;
-				foreachDependentNode ([](Impl * node) { node->invalidate (); });
+				for (auto * impl : dependentNodes_)
+					impl->invalidate ();
 			}
 		}
 
 		virtual void compute () = 0;
 		void computeRecursively ();
 
-		// TODO Replace with ranges ?
+		// TODO Remove ?
 		template <typename F> void foreachDependentNode (F f) const {
 			for (auto & p : dependentNodes_)
 				f (p);
@@ -151,9 +154,9 @@ namespace DF {
 		}
 
 	protected:
-		// TODO definitely need a small opt vector
-		std::vector<Impl *> dependentNodes_{}; // Nodes that depend on us.
-		std::vector<Node> dependencyNodes_{};  // Nodes that we depend on.
+		// TODO small opt vector ?
+		Vector<Impl *> dependentNodes_{}; // Nodes that depend on us.
+		NodeVec dependencyNodes_{};       // Nodes that we depend on.
 
 	private:
 		bool isValid_{false};
@@ -294,6 +297,14 @@ namespace DF {
 		return static_cast<const typename Value<T>::Impl &> (n.getImpl ()).getValue ();
 	}
 }
+}
+
+namespace std {
+template <> struct hash<bpp::DF::Node> {
+	using argument_type = typename bpp::DF::Node;
+	using result_type = std::size_t;
+	result_type operator() (const argument_type & node) const { return node.hashCode (); }
+};
 }
 
 #endif // BPP_NEWPHYL_DATAFLOW_H

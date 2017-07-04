@@ -77,9 +77,7 @@ namespace DF {
 			}
 			std::size_t hashCode () const noexcept {
 				std::size_t nodeTypeHash = std::hash<std::type_index>{}(nodeType_);
-				std::size_t vecHash = dependencies_.size ();
-				for (auto & n : dependencies_)
-					vecHash ^= n.hashCode () + 0x9e3779b9 + (vecHash << 6) + (vecHash >> 2);
+				std::size_t vecHash = std::hash<NodeVec>{}(dependencies_);
 				return vecHash ^ (nodeTypeHash << 1);
 			}
 
@@ -249,7 +247,7 @@ namespace DF {
 		Node buildNode (NodeVec) const { return node_; }
 		static std::type_index nodeType () { return typeid (void); }
 		std::string description () const {
-			return std::string ("Parameter(") + node_.getImpl().description() + ")";
+			return std::string ("Parameter(") + node_.getImpl ().description () + ")";
 		}
 
 	private:
