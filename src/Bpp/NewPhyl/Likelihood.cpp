@@ -51,10 +51,11 @@ namespace Phyl {
 		assert (sequence != nullptr);
 		assert (condLikBySite.size () == sequence->size ());
 		for (auto siteIndex : index_range (condLikBySite)) {
-			auto lik = condLikBySite[siteIndex];
+			LikelihoodVectorBySite::reference lik = condLikBySite[siteIndex];
 			assert (lik.size () == sequence->getAlphabet ()->getSize ());
 			lik.fill (0.);
-			auto siteValue = static_cast<int> (sequence->getValue (static_cast<std::size_t> (siteIndex)));
+			auto siteValue =
+			    static_cast<IndexType> (sequence->getValue (static_cast<std::size_t> (siteIndex)));
 			lik[siteValue] = 1.;
 		}
 	}
