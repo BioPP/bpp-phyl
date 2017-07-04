@@ -43,6 +43,7 @@
 #include <Bpp/NewPhyl/DataFlow.h>
 #include <Bpp/NewPhyl/DataFlowTemplates.h>
 #include <Bpp/NewPhyl/Debug.h>
+#include <algorithm>
 #include <stack>
 #include <typeinfo>
 
@@ -80,6 +81,14 @@ namespace DF {
 
 	//
 
+	void Node::Impl::invalidate () noexcept {
+		if (isValid ()) {
+			isValid_ = false;
+			for (auto * impl : dependentNodes_)
+				impl->invalidate ();
+		}
+	}
+
 	void Node::Impl::computeRecursively () {
 		// Compute the current node (and dependencies recursively) if needed
 		if (isValid ())
@@ -103,6 +112,12 @@ namespace DF {
 			n->compute ();
 			n->makeValid ();
 		}
+	}
+
+	void Node::Impl::registerNode (Impl * n) { dependentNodes_.emplace_back (n); }
+	void Node::Impl::unregisterNode (const Impl * n) {
+		dependentNodes_.erase (std::remove (dependentNodes_.begin (), dependentNodes_.end (), n),
+		                       dependentNodes_.end ());
 	}
 }
 }

@@ -44,7 +44,6 @@
 
 #include <Bpp/NewPhyl/Debug.h> // description
 #include <Bpp/NewPhyl/Vector.h>
-#include <algorithm>
 #include <cassert>
 #include <memory>
 #include <string> // description
@@ -110,13 +109,7 @@ namespace DF {
 		}
 
 		bool isValid () const noexcept { return isValid_; }
-		void invalidate () noexcept {
-			if (isValid ()) {
-				isValid_ = false;
-				for (auto * impl : dependentNodes_)
-					impl->invalidate ();
-			}
-		}
+		void invalidate () noexcept;
 
 		virtual void compute () = 0;
 		void computeRecursively ();
@@ -131,6 +124,7 @@ namespace DF {
 				f (&p.getImpl ());
 		}
 
+		const Vector<Impl *> & dependentNodes () const noexcept { return dependentNodes_; }
 		const NodeVec & dependencies () const noexcept { return dependencyNodes_; }
 
 		// Debug information (smaller graph)
@@ -147,11 +141,8 @@ namespace DF {
 		}
 
 	private:
-		void registerNode (Impl * n) { dependentNodes_.emplace_back (n); }
-		void unregisterNode (const Impl * n) {
-			dependentNodes_.erase (std::remove (dependentNodes_.begin (), dependentNodes_.end (), n),
-			                       dependentNodes_.end ());
-		}
+		void registerNode (Impl * n);
+		void unregisterNode (const Impl * n);
 
 	protected:
 		// TODO small opt vector ?
