@@ -85,6 +85,14 @@ public:
 		return vec_[static_cast<typename Container::size_type> (i)];
 	}
 
+	reference front () { return vec_.front (); }
+	const_reference front () const { return vec_.front (); }
+	reference back () { return vec_.back (); }
+	const_reference back () const { return vec_.back (); }
+
+	T * data () noexcept { return vec_.data (); }
+	const T * data () const noexcept { return vec_.data (); }
+
 	iterator begin () noexcept { return vec_.begin (); }
 	const_iterator begin () const noexcept { return vec_.begin (); }
 	iterator end () noexcept { return vec_.end (); }
@@ -93,9 +101,15 @@ public:
 	bool empty () const noexcept { return vec_.empty (); }
 	size_type size () const noexcept { return static_cast<size_type> (vec_.size ()); }
 
-	template <typename... Args> void emplace_back (Args... args) {
+	void clear () noexcept { vec_.clear (); }
+	template <typename... Args> reference emplace_back (Args... args) {
 		vec_.emplace_back (std::forward<Args> (args)...);
+		return back ();
 	}
+	void reserve (size_type size) {
+		vec_.reserve (static_cast<typename Container::size_type> (size));
+	}
+	void resize (size_type size) { vec_.resize (static_cast<typename Container::size_type> (size)); }
 
 	iterator erase (iterator first, iterator last) { return vec_.erase (first, last); }
 
