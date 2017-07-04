@@ -59,18 +59,18 @@ namespace DF {
 	}
 
 	static void failureDependencyNumberMismatch (const std::type_info & computeNodeType,
-	                                             std::size_t expectedSize, std::size_t givenSize) {
+	                                             SizeType expectedSize, SizeType givenSize) {
 		throw Exception (prettyTypeName (computeNodeType) + ": expected " +
 		                 std::to_string (expectedSize) + " dependencies, got " +
 		                 std::to_string (givenSize));
 	}
-	void checkDependencyNumber (const std::type_info & computeNodeType, std::size_t expectedSize,
-	                            std::size_t givenSize) {
+	void checkDependencyNumber (const std::type_info & computeNodeType, SizeType expectedSize,
+	                            SizeType givenSize) {
 		if (expectedSize != givenSize)
 			failureDependencyNumberMismatch (computeNodeType, expectedSize, givenSize);
 	}
 
-	void failureDependencyTypeMismatch (const std::type_info & computeNodeType, std::size_t depIndex,
+	void failureDependencyTypeMismatch (const std::type_info & computeNodeType, IndexType depIndex,
 	                                    const std::type_info & expectedType,
 	                                    const Node::Impl & givenNode) {
 		throw Exception (prettyTypeName (computeNodeType) + ": expected class derived from " +

@@ -45,6 +45,7 @@
 #include <Bpp/NewPhyl/DataFlow.h>
 #include <Bpp/NewPhyl/FrozenPtr.h>
 #include <Bpp/NewPhyl/NodeSpecification.h>
+#include <Bpp/NewPhyl/Signed.h>
 #include <Bpp/NewPhyl/Topology.h>
 #include <Bpp/NewPhyl/TopologyMap.h>
 #include <string>
@@ -61,12 +62,12 @@ namespace Phyl {
 		const FrozenPtr<Topology::Tree> tree;
 		const FrozenPtr<Topology::BranchValueMap<DF::Parameter<double>>> branchLengths;
 		const FrozenPtr<Topology::BranchValueMap<DF::Value<const SubstitutionModel *>>> modelByBranch;
-		const std::size_t nbStates;
+		const SizeType nbStates;
 	};
-	
-  struct SequenceMap {
+
+	struct SequenceMap {
 		const FrozenPtr<Topology::NodeValueMap<DF::Parameter<const Sequence *>>> sequences;
-		const std::size_t nbSites;
+		const SizeType nbSites;
 	};
 
 	struct LikelihoodParameters {

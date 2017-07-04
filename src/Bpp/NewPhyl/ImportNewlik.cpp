@@ -51,15 +51,16 @@ namespace Phyl {
 
 		// Build topology : create nodes and an index conversion map
 		// Assumes our indexes are densely allocated (in sequence from 0)
-		Topology::IndexMapBase<int> fromNodeIdMap{fromTree.getNumberOfNodes ()};
+		Topology::IndexMapBase<IndexType> fromNodeIdMap{
+		    static_cast<SizeType> (fromTree.getNumberOfNodes ())};
 		auto convertId = [&fromNodeIdMap](const bpp::PhyloTree::NodeIndex & index) {
-			return fromNodeIdMap.index (static_cast<int> (index)).value ();
+			return fromNodeIdMap.index (static_cast<IndexType> (index)).value ();
 		};
 		auto tmpTree = make_freezable<Topology::Tree> ();
 		auto allNodeIds = fromTree.getAllNodesIndexes ();
 		for (auto i : allNodeIds) {
 			auto ourId = tmpTree->createNode ();
-			fromNodeIdMap.set (ourId, static_cast<int> (i));
+			fromNodeIdMap.set (ourId, static_cast<IndexType> (i));
 		}
 		for (auto i : allNodeIds) {
 			if (fromTree.hasFather (i)) {
@@ -87,7 +88,7 @@ namespace Phyl {
 		}
 
 		return {std::move (tree),
-		        make_frozen<Topology::NodeIndexMap<int>> (tree, std::move (fromNodeIdMap)),
+		        make_frozen<Topology::NodeIndexMap<IndexType>> (tree, std::move (fromNodeIdMap)),
 		        std::move (brLens).freeze (), std::move (nodeNames).freeze ()};
 	}
 }

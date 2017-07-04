@@ -43,6 +43,7 @@
 #define BPP_NEWPHYL_IMPORTNEWLIK_H
 
 #include <Bpp/NewPhyl/FrozenPtr.h>
+#include <Bpp/NewPhyl/Signed.h>
 #include <Bpp/NewPhyl/Topology.h>
 #include <Bpp/NewPhyl/TopologyMap.h>
 #include <string>
@@ -54,10 +55,10 @@ class PhyloTree;
 
 namespace Phyl {
 
-  // Extract information from a PhyloTree structure (NewLik)
+	// Extract information from a PhyloTree structure (NewLik)
 	struct ConvertedPhyloTreeData {
 		const FrozenPtr<Topology::Tree> topology;
-		const FrozenPtr<Topology::NodeIndexMap<int>> phyloTreeNodeIndexes;
+		const FrozenPtr<Topology::NodeIndexMap<IndexType>> phyloTreeNodeIndexes;
 		const FrozenPtr<Topology::BranchValueMap<double>> branchLengths;
 		const FrozenPtr<Topology::NodeIndexMap<std::string>> nodeNames;
 	};

@@ -46,6 +46,7 @@
 #include <Bpp/NewPhyl/DataFlow.h>
 #include <Bpp/NewPhyl/Debug.h> // description
 #include <Bpp/NewPhyl/Range.h>
+#include <Bpp/NewPhyl/Signed.h>
 #include <string> // description
 #include <tuple>
 #include <type_traits> // description
@@ -54,9 +55,9 @@
 namespace bpp {
 namespace DF {
 	// Error utils
-	void checkDependencyNumber (const std::type_info & computeNodeType, std::size_t expectedSize,
-	                            std::size_t givenSize);
-	void failureDependencyTypeMismatch (const std::type_info & computeNodeType, std::size_t depIndex,
+	void checkDependencyNumber (const std::type_info & computeNodeType, SizeType expectedSize,
+	                            SizeType givenSize);
+	void failureDependencyTypeMismatch (const std::type_info & computeNodeType, IndexType depIndex,
 	                                    const std::type_info & expectedType,
 	                                    const Node::Impl & givenNode);
 
@@ -99,7 +100,7 @@ namespace DF {
 		using ResultType = typename Op::ResultType;
 		using ArgumentTypes = typename Op::ArgumentTypes;
 		static constexpr auto nbDependencies = std::tuple_size<ArgumentTypes>::value;
-		template <std::size_t Index>
+		template <SizeType Index>
 		using ArgumentType = typename std::tuple_element<Index, ArgumentTypes>::type;
 
 		template <typename... Args>
@@ -113,13 +114,13 @@ namespace DF {
 	private:
 		/** Runtime checks the dependency for type / number mismatch.
 		 */
-		template <std::size_t... Is> void checkDependencies (Cpp14::IndexSequence<Is...>) {
+		template <SizeType... Is> void checkDependencies (Cpp14::IndexSequence<Is...>) {
 			checkDependencyNumber (typeid (GenericFunctionComputation), nbDependencies,
 			                       this->dependencies ().size ());
 			// check dependency type for each required argument (uses IndexSequence for tuple unpacking)
 			static_cast<void> (std::initializer_list<int>{checkDependencyType<Is> ()...});
 		}
-		template <std::size_t Index> int checkDependencyType () {
+		template <SizeType Index> int checkDependencyType () {
 			using ArgType = ArgumentType<Index>;
 			if (!isValueNode<ArgType> (this->dependencies ()[Index]))
 				failureDependencyTypeMismatch (typeid (GenericFunctionComputation), Index,
@@ -134,8 +135,7 @@ namespace DF {
 		void compute () override final {
 			computeWithUnpackedIndexSequence (Cpp14::MakeIndexSequence<nbDependencies>{});
 		}
-		template <std::size_t... Is>
-		void computeWithUnpackedIndexSequence (Cpp14::IndexSequence<Is...>) {
+		template <SizeType... Is> void computeWithUnpackedIndexSequence (Cpp14::IndexSequence<Is...>) {
 			// Helper function : unpack and cast each dependency to its type, feed values to compute.
 			Op::compute (this->value_, getValueUnsafe<ArgumentType<Is>> (this->dependencies ()[Is])...);
 		}

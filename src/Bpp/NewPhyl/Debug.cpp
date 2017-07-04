@@ -172,7 +172,7 @@ namespace DF {
 
 		// Print the DF dag structure (in blue).
 		// Takes list of entry points.
-		void debugDagStructure (std::ostream & os, std::vector<Node> entryPoints) {
+		void debugDagStructure (std::ostream & os, NodeVec entryPoints) {
 			std::queue<const Node::Impl *> nodesToVisit;
 			std::unordered_set<const Node::Impl *> nodesAlreadyVisited;
 
@@ -205,8 +205,8 @@ namespace DF {
 
 		// Print registry keys, and links to stored nodes (key only).
 		// Returns list of pointed-to nodes.
-		std::vector<Node> debugRegistryLinks (std::ostream & os, const Registry & registry) {
-			std::vector<Node> entryPoints;
+		NodeVec debugRegistryLinks (std::ostream & os, const Registry & registry) {
+			NodeVec entryPoints;
 			registry.foreachKeyValue ([&entryPoints, &os](const Registry::Key & key, const Node & node) {
 				dotNodePretty (os, key);
 				dotEdgePretty (os, key, node);

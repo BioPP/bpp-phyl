@@ -47,47 +47,41 @@
 #include <Bpp/NewPhyl/Optional.h>
 #include <Bpp/NewPhyl/Range.h>
 #include <Bpp/NewPhyl/Topology.h>
+#include <Bpp/NewPhyl/Vector.h>
 #include <cassert>
 #include <memory>
 #include <string>
 #include <typeinfo>
 #include <unordered_map>
 #include <utility>
-#include <vector>
 
 namespace bpp {
 
 namespace Topology {
 	// Error function
-	void failureIndexMapIndexAlreadySet (const std::type_info & mapType, IndexType id);
+	void failureIndexMapIndexAlreadySet (const std::type_info & mapType, Index id);
 	void failureIndexMapValueAlreadySet (const std::type_info & mapType, std::string value);
 
 	/* ValueMapBase: associate values to tree elements (by id).
-	 * Base class (as both nodes and branches use IndexType indexes).
+	 * Base class (as both nodes and branches use Index indexes).
 	 * Created with a fixed size, so types are not required to be movable / copyable.
 	 */
 	template <typename T> class ValueMapBase {
 	public:
-		explicit ValueMapBase (IndexType size) : data_ (size) {}
+		explicit ValueMapBase (SizeType size) : data_ (size) {}
 
-		Optional<T> & access (IndexType id) noexcept {
-			assert (id < data_.size ());
-			return data_[id];
-		}
-		const Optional<T> & access (IndexType id) const noexcept {
-			assert (id < data_.size ());
-			return data_[id];
-		}
+		Optional<T> & access (Index id) noexcept { return data_[id]; }
+		const Optional<T> & access (Index id) const noexcept { return data_[id]; }
 
-		using value_iterator = typename std::vector<Optional<T>>::iterator;
-		using value_const_iterator = typename std::vector<Optional<T>>::const_iterator;
+		using value_iterator = typename Vector<Optional<T>>::iterator;
+		using value_const_iterator = typename Vector<Optional<T>>::const_iterator;
 		Range::Range<value_iterator> value_range () noexcept { return range (data_); }
 		Range::Range<value_const_iterator> value_range () const noexcept { return range (data_); }
 
-		IndexType size () const noexcept { return IndexType (data_.size ()); }
+		SizeType size () const noexcept { return data_.size (); }
 
 	private:
-		std::vector<Optional<T>> data_;
+		Vector<Optional<T>> data_;
 	};
 
 	/* IndexMapBase: associate (both direction) values to tree elements (by id).
@@ -97,9 +91,11 @@ namespace Topology {
 	 */
 	template <typename T, typename Hash = std::hash<T>> class IndexMapBase {
 	public:
-		explicit IndexMapBase (IndexType size) : valueMap_ (size), indexMap_ (size) {}
+		explicit IndexMapBase (SizeType size)
+		    : valueMap_ (size),
+		      indexMap_ (static_cast<typename std::unordered_map<T, Index, Hash>::size_type> (size)) {}
 
-		template <typename... Args> void set (IndexType id, Args &&... args) {
+		template <typename... Args> void set (Index id, Args &&... args) {
 			auto & opt = valueMap_.access (id);
 			if (opt)
 				failureIndexMapIndexAlreadySet (typeid (IndexMapBase), id);
@@ -109,9 +105,9 @@ namespace Topology {
 				failureIndexMapValueAlreadySet (typeid (IndexMapBase), debug_to_string (opt.value ()));
 		}
 
-		const Optional<const T> & access (IndexType id) const noexcept { return valueMap_.access (id); }
+		const Optional<const T> & access (Index id) const noexcept { return valueMap_.access (id); }
 
-		Optional<IndexType> index (const T & value) const noexcept {
+		Optional<Index> index (const T & value) const noexcept {
 			auto it = indexMap_.find (value);
 			if (it != indexMap_.end ())
 				return it->second;
@@ -120,15 +116,15 @@ namespace Topology {
 		}
 
 		using value_iterator = typename ValueMapBase<const T>::value_const_iterator;
-		using index_iterator = typename std::unordered_map<T, IndexType, Hash>::const_iterator;
+		using index_iterator = typename std::unordered_map<T, Index, Hash>::const_iterator;
 		Range::Range<value_iterator> value_range () const noexcept { return indexMap_.value_range (); }
 		Range::Range<index_iterator> index_range () const noexcept { return range (indexMap_); }
 
-		IndexType size () const noexcept { return valueMap_.size (); }
+		SizeType size () const noexcept { return valueMap_.size (); }
 
 	private:
 		ValueMapBase<const T> valueMap_;
-		std::unordered_map<T, IndexType, Hash> indexMap_;
+		std::unordered_map<T, Index, Hash> indexMap_;
 	};
 
 	/* Node / Branch specific wrappers for ValueMapBase.
@@ -179,7 +175,7 @@ namespace Topology {
 			return access (node.nodeId ());
 		}
 		Optional<Node> node (const T & value) const noexcept {
-			return index (value).map ([this](IndexType id) { return Node{tree_, id}; });
+			return index (value).map ([this](Index id) { return Node{tree_, id}; });
 		}
 		const FrozenPtr<Tree> & tree () const noexcept { return tree_; }
 
@@ -206,7 +202,7 @@ namespace Topology {
 			return access (branch.branchId ());
 		}
 		Optional<Branch> branch (const T & value) const noexcept {
-			return index (value).map ([this](IndexType id) { return Branch{tree_, id}; });
+			return index (value).map ([this](Index id) { return Branch{tree_, id}; });
 		}
 		const FrozenPtr<Tree> & tree () const noexcept { return tree_; }
 
@@ -239,7 +235,7 @@ namespace Topology {
 
 	/* Create a uniform map from a value, filling all possible value slots.
 	 */
-	template <typename T> ValueMapBase<T> make_uniform_value_map (IndexType size, const T & t) {
+	template <typename T> ValueMapBase<T> make_uniform_value_map (SizeType size, const T & t) {
 		ValueMapBase<T> map (size);
 		for (auto & v : map.value_range ())
 			v = t;

@@ -48,7 +48,7 @@
 namespace bpp {
 namespace Topology {
 	// Error functions
-	void failureIndexMapIndexAlreadySet (const std::type_info & mapType, IndexType id) {
+	void failureIndexMapIndexAlreadySet (const std::type_info & mapType, Index id) {
 		throw Exception (prettyTypeName (mapType) + ": set(" + std::to_string (id) +
 		                 ") tries to set an already set Index");
 	}

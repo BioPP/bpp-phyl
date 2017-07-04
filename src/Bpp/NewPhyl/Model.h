@@ -46,6 +46,7 @@
 #include <Bpp/NewPhyl/DataFlow.h>
 #include <Bpp/NewPhyl/DataFlowTemplates.h>
 #include <Bpp/NewPhyl/NodeSpecification.h>
+#include <Bpp/NewPhyl/Signed.h>
 #include <Eigen/Core>
 #include <memory>
 #include <string> // description
@@ -65,10 +66,10 @@ namespace Phyl {
 		ModelNode (std::unique_ptr<SubstitutionModel> model);
 		~ModelNode ();
 
-		std::size_t nbParameters () const noexcept { return this->dependencies ().size (); }
-		DF::Parameter<double> getParameter (std::size_t index);
+		SizeType nbParameters () const noexcept { return this->dependencies ().size (); }
+		DF::Parameter<double> getParameter (SizeType index);
 		DF::Parameter<double> getParameter (const std::string & name);
-		const std::string & getParameterName (std::size_t index);
+		const std::string & getParameterName (SizeType index);
 
 		void compute () final;
 
@@ -128,56 +129,55 @@ namespace Phyl {
 	class ModelEquilibriumFrequenciesSpec
 	    : public DF::NodeSpecAlwaysGenerate<ComputeEquilibriumFrequenciesFromModelNode> {
 	public:
-		ModelEquilibriumFrequenciesSpec (DF::Node modelParameter, std::size_t nbStates);
+		ModelEquilibriumFrequenciesSpec (DF::Node modelParameter, SizeType nbStates);
 		DF::NodeSpecificationVec computeDependencies () const;
 		DF::Node buildNode (DF::NodeVec deps) const;
 
 	private:
 		DF::Node modelParameter_;
-		std::size_t nbStates_;
+		SizeType nbStates_;
 	};
 
 	class ModelTransitionMatrixSpec
 	    : public DF::NodeSpecAlwaysGenerate<ComputeTransitionMatrixFromModelNode> {
 	public:
 		ModelTransitionMatrixSpec (DF::Node modelParameter, DF::Node branchLengthParameter,
-		                           std::size_t nbStates);
+		                           SizeType nbStates);
 		DF::NodeSpecificationVec computeDependencies () const;
 		DF::Node buildNode (DF::NodeVec deps) const;
 
 	private:
 		DF::Node modelParameter_;
 		DF::Node branchLengthParameter_;
-		std::size_t nbStates_;
+		SizeType nbStates_;
 	};
 
 	class ModelTransitionMatrixFirstDerivativeSpec
 	    : public DF::NodeSpecAlwaysGenerate<ComputeTransitionMatrixFirstDerivativeFromModelNode> {
 	public:
 		ModelTransitionMatrixFirstDerivativeSpec (DF::Node modelParameter,
-		                                          DF::Node branchLengthParameter, std::size_t nbStates);
+		                                          DF::Node branchLengthParameter, SizeType nbStates);
 		DF::NodeSpecificationVec computeDependencies () const;
 		DF::Node buildNode (DF::NodeVec deps) const;
 
 	private:
 		DF::Node modelParameter_;
 		DF::Node branchLengthParameter_;
-		std::size_t nbStates_;
+		SizeType nbStates_;
 	};
 
 	class ModelTransitionMatrixSecondDerivativeSpec
 	    : public DF::NodeSpecAlwaysGenerate<ComputeTransitionMatrixSecondDerivativeFromModelNode> {
 	public:
 		ModelTransitionMatrixSecondDerivativeSpec (DF::Node modelParameter,
-		                                           DF::Node branchLengthParameter,
-		                                           std::size_t nbStates);
+		                                           DF::Node branchLengthParameter, SizeType nbStates);
 		DF::NodeSpecificationVec computeDependencies () const;
 		DF::Node buildNode (DF::NodeVec deps) const;
 
 	private:
 		DF::Node modelParameter_;
 		DF::Node branchLengthParameter_;
-		std::size_t nbStates_;
+		SizeType nbStates_;
 	};
 }
 }

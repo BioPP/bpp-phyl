@@ -46,13 +46,13 @@
 #include <Bpp/NewPhyl/DataFlow.h>
 #include <Bpp/NewPhyl/Debug.h>
 #include <Bpp/NewPhyl/Optional.h>
+#include <Bpp/NewPhyl/Vector.h>
 #include <memory>
 #include <string>
 #include <type_traits>
 #include <typeindex>
 #include <unordered_map>
 #include <utility>
-#include <vector>
 
 namespace bpp {
 namespace DF {
@@ -76,8 +76,8 @@ namespace DF {
 				return nodeType_ == other.nodeType_ && dependencies_ == other.dependencies_;
 			}
 			std::size_t hashCode () const noexcept {
-				std::size_t nodeTypeHash = std::hash<std::type_index>{}(nodeType_);
-				std::size_t vecHash = std::hash<NodeVec>{}(dependencies_);
+				auto nodeTypeHash = std::hash<std::type_index>{}(nodeType_);
+				auto vecHash = std::hash<NodeVec>{}(dependencies_);
 				return vecHash ^ (nodeTypeHash << 1);
 			}
 
@@ -148,7 +148,7 @@ namespace DF {
 		    : specification_ (new Specification<Decayed> (std::forward<T> (spec))) {}
 
 		// Wrappers
-		std::vector<NodeSpecification> computeDependencies () const {
+		Vector<NodeSpecification> computeDependencies () const {
 			return specification_->computeDependencies ();
 		}
 		Node buildNode (NodeVec dependencies) const {
@@ -169,7 +169,7 @@ namespace DF {
 		struct Interface {
 			virtual ~Interface () = default;
 			virtual Interface * clone () const = 0;
-			virtual std::vector<NodeSpecification> computeDependencies () const = 0;
+			virtual Vector<NodeSpecification> computeDependencies () const = 0;
 			virtual Node buildNode (NodeVec dependencies) const = 0;
 			virtual std::type_index nodeType () const noexcept = 0;
 			virtual std::string description () const = 0;
@@ -179,7 +179,7 @@ namespace DF {
 			Specification (const T & spec) : spec_ (spec) {}
 			Specification (T && spec) : spec_ (std::move (spec)) {}
 			Specification * clone () const override { return new Specification (*this); }
-			std::vector<NodeSpecification> computeDependencies () const override {
+			Vector<NodeSpecification> computeDependencies () const override {
 				return spec_.computeDependencies ();
 			}
 			Node buildNode (NodeVec dependencies) const override {
@@ -223,7 +223,7 @@ namespace DF {
 	}
 
 	// Convenience typedef / functions.
-	using NodeSpecificationVec = std::vector<NodeSpecification>;
+	using NodeSpecificationVec = Vector<NodeSpecification>;
 	template <typename... Args> NodeSpecificationVec makeNodeSpecVec (Args &&... args) {
 		return {NodeSpecification{std::forward<Args> (args)}...};
 	}

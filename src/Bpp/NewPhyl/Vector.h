@@ -90,6 +90,7 @@ public:
 	iterator end () noexcept { return vec_.end (); }
 	const_iterator end () const noexcept { return vec_.end (); }
 
+	bool empty () const noexcept { return vec_.empty (); }
 	size_type size () const noexcept { return static_cast<size_type> (vec_.size ()); }
 
 	template <typename... Args> void emplace_back (Args... args) {

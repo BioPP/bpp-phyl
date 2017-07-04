@@ -44,6 +44,7 @@
 
 #include <Bpp/NewPhyl/FrozenPtr.h>
 #include <Bpp/NewPhyl/Phylogeny.h>
+#include <Bpp/NewPhyl/Signed.h>
 #include <Bpp/NewPhyl/Topology.h>
 #include <Bpp/NewPhyl/TopologyMap.h>
 
@@ -51,14 +52,14 @@ namespace bpp {
 
 // Forward declarations
 class Node;
-template<typename N> class TreeTemplate;
+template <typename N> class TreeTemplate;
 class VectorSiteContainer;
 
 namespace Phyl {
-  // Extract information from a TreeTemplate<Node> structure (master)
+	// Extract information from a TreeTemplate<Node> structure (master)
 	struct ConvertedTreeTemplateData {
 		const FrozenPtr<Topology::Tree> topology;
-		const FrozenPtr<Topology::NodeIndexMap<int>> treeTemplateNodeIndexes;
+		const FrozenPtr<Topology::NodeIndexMap<IndexType>> treeTemplateNodeIndexes;
 		const FrozenPtr<Topology::BranchValueMap<double>> branchLengths;
 		const FrozenPtr<Topology::NodeIndexMap<std::string>> nodeNames;
 	};

@@ -49,14 +49,17 @@
 namespace bpp {
 namespace Phyl {
 	ConvertedTreeTemplateData convertTreeTemplate (const TreeTemplate<Node> & fromTree) {
-    // isRooted method checks if 2 sons, fails on newphyl example that has 3 sons...
+		// isRooted method checks if 2 sons, fails on newphyl example that has 3 sons...
 		if (fromTree.getRootNode () == nullptr)
 			throw Exception ("TreeTemplate is not rooted");
 
 		// Build topology : create nodes and an index conversion map
 		// Assumes our indexes are densely allocated (in sequence from 0)
-		Topology::IndexMapBase<int> fromNodeIdMap{fromTree.getNumberOfNodes ()};
-		auto convertId = [&fromNodeIdMap](int index) { return fromNodeIdMap.index (index).value (); };
+		Topology::IndexMapBase<IndexType> fromNodeIdMap{
+		    static_cast<SizeType> (fromTree.getNumberOfNodes ())};
+		auto convertId = [&fromNodeIdMap](int index) {
+			return fromNodeIdMap.index (static_cast<IndexType> (index)).value ();
+		};
 		auto tmpTree = make_freezable<Topology::Tree> ();
 		auto allNodeIds = fromTree.getNodesId ();
 		for (auto i : allNodeIds) {
@@ -83,7 +86,7 @@ namespace Phyl {
 		}
 
 		return {std::move (tree),
-		        make_frozen<Topology::NodeIndexMap<int>> (tree, std::move (fromNodeIdMap)),
+		        make_frozen<Topology::NodeIndexMap<IndexType>> (tree, std::move (fromNodeIdMap)),
 		        std::move (brLens).freeze (), std::move (nodeNames).freeze ()};
 	}
 
@@ -96,7 +99,8 @@ namespace Phyl {
 			sequenceMap->access (i) = nodeNames.access (i).map ([&sequences](const std::string & name) {
 				return DF::Parameter<const Sequence *>::create (&sequences.getSequence (name));
 			});
-		return {std::move (sequenceMap).freeze (), sequences.getNumberOfSites ()};
+		return {std::move (sequenceMap).freeze (),
+		        static_cast<SizeType> (sequences.getNumberOfSites ())};
 	}
 }
 }
