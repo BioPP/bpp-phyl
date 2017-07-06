@@ -82,10 +82,18 @@ namespace DF {
 	//
 
 	void Node::Impl::invalidate () noexcept {
-		if (isValid ()) {
-			isValid_ = false;
-			for (auto * impl : dependentNodes_)
-				impl->invalidate ();
+		if (!isValid ())
+			return;
+		std::stack<Impl *> nodesToInvalidate;
+		nodesToInvalidate.push (this);
+		while (!nodesToInvalidate.empty ()) {
+			auto * n = nodesToInvalidate.top ();
+			nodesToInvalidate.pop ();
+			if (n->isValid ()) {
+				n->isValid_ = false;
+				for (auto * impl : n->dependentNodes_)
+					nodesToInvalidate.push (impl);
+			}
 		}
 	}
 
