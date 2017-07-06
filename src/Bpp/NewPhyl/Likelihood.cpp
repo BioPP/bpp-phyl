@@ -78,9 +78,18 @@ namespace Phyl {
 	void ComputeLogLikelihoodOp::compute (double & logLik,
 	                                      const LikelihoodVectorBySite & condLikBySite,
 	                                      const FrequencyVector & equilibriumFreqs) {
-		logLik = (equilibriumFreqs.transpose () * condLikBySite.asMatrix ())
-		             .unaryExpr ([](double d) { return std::log (d); })
-		             .sum ();
+		auto lik = (equilibriumFreqs.transpose () * condLikBySite.asMatrix ())
+		               .unaryExpr ([](double d) {
+			               ExtendedFloat ef{d};
+			               ef.normalize_small ();
+			               return ef;
+			             })
+		               .redux ([](const ExtendedFloat & lhs, const ExtendedFloat & rhs) {
+			               auto r = denorm_mul (lhs, rhs);
+			               r.normalize_small ();
+			               return r;
+			             });
+		logLik = log (lik);
 	}
 }
 }
