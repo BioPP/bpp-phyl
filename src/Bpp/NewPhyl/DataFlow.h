@@ -292,7 +292,7 @@ namespace DF {
 
 namespace std {
 template <> struct hash<bpp::DF::Node> {
-	using argument_type = typename bpp::DF::Node;
+	using argument_type = bpp::DF::Node;
 	using result_type = std::size_t;
 	result_type operator() (const argument_type & node) const { return node.hashCode (); }
 };

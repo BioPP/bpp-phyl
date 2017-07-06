@@ -54,9 +54,9 @@
 #include <Bpp/Phyl/Tree/TreeTemplate.h>
 #include <Bpp/Seq/Alphabet/AlphabetTools.h>
 #include <Bpp/Seq/Container/VectorSiteContainer.h>
+#include <Eigen/Dense>
 #include <chrono>
 #include <fstream>
-#include <iostream>
 
 // Old likelihood
 #ifdef ENABLE_OLD
@@ -174,6 +174,12 @@ namespace
       paramModel2.addParameter(bpp::Parameter("T92.kappa", 0.2));
       paramBrLen1.addParameter(bpp::Parameter("BrLen1", 0.1));
       paramBrLen2.addParameter(bpp::Parameter("BrLen1", 0.2));
+
+      // Warm up with eigen
+      double d = 0;
+      for (int i = 0; i < 500; ++i)
+        d += (Eigen::MatrixXd::Random(200, 200) * Eigen::MatrixXd::Random(200, 200)).determinant();
+      static_cast<void>(d);
     }
   };
 }

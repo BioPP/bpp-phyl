@@ -38,6 +38,7 @@
   knowledge of the CeCILL license and that you accept its terms.
 */
 
+#include <Bpp/NewPhyl/ExtendedFloat.h>
 #include <Bpp/NewPhyl/Likelihood.h>
 #include <Bpp/NewPhyl/Range.h>
 #include <Bpp/Seq/Sequence.h>
