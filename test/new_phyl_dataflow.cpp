@@ -175,11 +175,13 @@ namespace
       paramBrLen1.addParameter(bpp::Parameter("BrLen1", 0.1));
       paramBrLen2.addParameter(bpp::Parameter("BrLen1", 0.2));
 
-      // Warm up with eigen
+#ifndef NO_WARMUP
+      // Warm up with eigen dummy computation
       double d = 0;
       for (int i = 0; i < 500; ++i)
         d += (Eigen::MatrixXd::Random(200, 200) * Eigen::MatrixXd::Random(200, 200)).determinant();
       static_cast<void>(d);
+#endif
     }
   };
 }
