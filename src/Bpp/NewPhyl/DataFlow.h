@@ -221,7 +221,7 @@ namespace DF {
 		}
 
 		Impl & getImpl () const noexcept { return *pImpl_; }
-		const T & getValue () noexcept { return pImpl_->getValue (); }
+		const T & getValue () const noexcept { return pImpl_->getValue (); }
 		void setValue (T t) noexcept { pImpl_->setValue (std::move (t)); }
 
 	private:
