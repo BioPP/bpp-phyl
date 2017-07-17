@@ -84,10 +84,17 @@ int main() {
   ProteicAlphabet* alphabet2 = new ProteicAlphabet();
   ReversibleSubstitutionModel* model2 = new JTT92(alphabet2);
   AlphabetIndex1* ind = new GranthamAAVolumeIndex();
-  for (size_t i = 0; i < 0; i++){//1000000; i++) {
-    cout << i << endl;
+  size_t nI=1000000;
+  
+  for (size_t i = 0; i < nI; i++) {
+    if (i%1000==0){
+      cout << i << "\r";
+      cout.flush();
+    }
     unique_ptr<DecompositionReward> d(new DecompositionReward(model2, ind));
   }
+  cout << endl;
+  
   cout << "done" << endl;
 
   unsigned int n = 20000;

@@ -46,6 +46,7 @@
 #include <Bpp/Text/KeyvalTools.h>
 
 #include "../Model/OneChangeTransitionModel.h"
+#include "../Model/OneChangeRegisterTransitionModel.h"
 
 #include "../App/PhylogeneticsApplicationTools.h"
 
@@ -97,10 +98,46 @@ TransitionModel* BppOTransitionModelFormat::readTransitionModel(
       nestedReader.setGeneticCode(geneticCode_);
     
     SubstitutionModel* nestedModel=nestedReader.read(alphabet, nestedModelDescription, data, false);
-    
-    // Now we create the FromModel substitution model:
-    model.reset(new OneChangeTransitionModel(*nestedModel));
-        
+    map<string, string> unparsedParameterValuesNested(nestedReader.getUnparsedArguments());
+
+    // We look for the register:
+    string registerDescription = args["register"];
+    if (TextTools::isEmpty(registerDescription))
+      model.reset(new OneChangeTransitionModel(*nestedModel));
+    else
+    {
+      SubstitutionRegister* reg=PhylogeneticsApplicationTools::getSubstitutionRegister(registerDescription, nestedModel);
+
+      if (args.find("numReg") == args.end())
+        throw Exception("Missing argument 'numReg' (number of event for register in model " + modelName);
+
+      vector<size_t> vNumRegs;
+      
+      StringTokenizer nst(args["numReg"], "+");
+
+      bool out=true;
+      
+      while (nst.hasMoreToken())
+      {
+        size_t n=TextTools::to<size_t>(nst.nextToken());
+        vNumRegs.push_back(n);
+        if (verbose_)
+        {
+          ApplicationTools::displayResult(out?"Register types":"", reg->getTypeName(n));
+          out=false;
+        }
+      }
+
+      model.reset(new OneChangeRegisterTransitionModel(*nestedModel, *reg, vNumRegs));
+      delete reg;
+    }
+
+    // Then we update the parameter set:
+    for (map<string, string>::iterator it = unparsedParameterValuesNested.begin(); it != unparsedParameterValuesNested.end(); it++)
+    {
+      unparsedArguments_["OneChange." + it->first] = it->second;
+    }
+
     delete nestedModel;
   }
   else

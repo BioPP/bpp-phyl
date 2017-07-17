@@ -89,8 +89,6 @@ public:
   }
 
 protected:
-  void updateMatrices();
-
   SubstitutionModel& getModel()
   {
     return *subModel_.get();
@@ -227,6 +225,7 @@ public:
    */
 
   std::string getName() const;
+
 };
 } // end of namespace bpp.
 

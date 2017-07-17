@@ -78,7 +78,7 @@ namespace bpp
      * @param within Specifies if within categories substitutions should be counted as well.
      */
     CategorySubstitutionRegister(const SubstitutionModel* model, bool within = false) :
-      AbstractSubstitutionRegister(model),
+      AbstractSubstitutionRegister(model,"Category"),
       within_(within),
       nbCategories_(0),
       categories_(),

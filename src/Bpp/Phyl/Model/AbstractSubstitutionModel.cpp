@@ -53,7 +53,7 @@ using namespace std;
 
 /******************************************************************************/
 
-AbstractSubstitutionModel::AbstractSubstitutionModel(const Alphabet* alpha, StateMap* stateMap, const std::string& prefix) :
+AbstractSubstitutionModel::AbstractSubstitutionModel(const Alphabet* alpha, const StateMap* stateMap, const std::string& prefix) :
   AbstractParameterAliasable(prefix),
   alphabet_(alpha),
   stateMap_(stateMap),
@@ -107,6 +107,7 @@ void AbstractSubstitutionModel::updateMatrices()
     rightEigenVectors_ = ev.getV();
     eigenValues_ = ev.getRealEigenValues();
     iEigenValues_ = ev.getImagEigenValues();
+
     try
     {
       MatrixTools::inv(rightEigenVectors_, leftEigenVectors_);

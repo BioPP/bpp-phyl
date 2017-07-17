@@ -44,15 +44,15 @@ using namespace std;
 
 /******************************************************************************/
 
-AbstractFromSubstitutionModelTransitionModel::AbstractFromSubstitutionModelTransitionModel(const SubstitutionModel& subModel) :
-  AbstractParameterAliasable(subModel.getName()),
+AbstractFromSubstitutionModelTransitionModel::AbstractFromSubstitutionModelTransitionModel(const SubstitutionModel& subModel, const std::string& prefix) :
+  AbstractParameterAliasable(prefix+subModel.getNamespace()),
   subModel_(std::unique_ptr<SubstitutionModel>(subModel.clone())),
   size_(subModel.getNumberOfStates()),
   pij_t(size_, size_),
   dpij_t(size_, size_),
   d2pij_t(size_, size_)
 {
-  subModel_->setNamespace(getName());
+  subModel_->setNamespace(getNamespace());
   addParameters_(subModel_->getParameters());
 }
 

@@ -56,7 +56,7 @@ namespace bpp
   {
   public:
     OneChangeTransitionModel(const SubstitutionModel& originalModel) :
-      AbstractFromSubstitutionModelTransitionModel(originalModel)
+      AbstractFromSubstitutionModelTransitionModel(originalModel, "OneChange.")
     {
     }
     
@@ -92,6 +92,11 @@ namespace bpp
     const Matrix<double>& getdPij_dt(double t) const;
 
     const Matrix<double>& getd2Pij_dt2(double t) const;
+
+    std::string getName() const
+    {
+      return "OneChange";
+    }
 
     /*
      * @}
