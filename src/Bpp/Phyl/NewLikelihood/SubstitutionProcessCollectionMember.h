@@ -356,7 +356,7 @@ public:
    * Inheriting from SubstitutionProcess
    */
 
-  bool isCompatibleWith(const SiteContainer& data) const;
+  bool isCompatibleWith(const AlignedValuesContainer& data) const;
 
   /**
    * @brief Get the number of states associated to this model set.

@@ -115,7 +115,7 @@ public:
    */
   DRHomogeneousMixedTreeLikelihood(
     const Tree& tree,
-    const SiteContainer& data,
+    const AlignedValuesContainer& data,
     TransitionModel* model,
     DiscreteDistribution* rDist,
     bool checkRooted = true,
@@ -142,7 +142,7 @@ public:
   double getLikelihood() const;
   double getLogLikelihood() const;
   
-  void setData(const SiteContainer& sites) throw (Exception);
+  void setData(const AlignedValuesContainer& sites) throw (Exception);
   double getLikelihoodForASite (size_t site) const;
   double getLogLikelihoodForASite(size_t site) const;
   /** @} */

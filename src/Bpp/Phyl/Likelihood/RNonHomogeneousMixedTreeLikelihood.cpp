@@ -79,7 +79,7 @@ throw (Exception) :
 /******************************************************************************/
 
 RNonHomogeneousMixedTreeLikelihood::RNonHomogeneousMixedTreeLikelihood(const Tree& tree,
-                                                                       const SiteContainer& data,
+                                                                       const AlignedValuesContainer& data,
                                                                        MixedSubstitutionModelSet* modelSet,
                                                                        DiscreteDistribution* rDist,
                                                                        bool verbose,
@@ -122,7 +122,7 @@ RNonHomogeneousMixedTreeLikelihood::RNonHomogeneousMixedTreeLikelihood(const Tre
 /******************************************************************************/
 
 RNonHomogeneousMixedTreeLikelihood::RNonHomogeneousMixedTreeLikelihood(const Tree& tree,
-                                                                       const SiteContainer& data,
+                                                                       const AlignedValuesContainer& data,
                                                                        MixedSubstitutionModelSet* modelSet,
                                                                        const MixedSubstitutionModelSet::HyperNode& hyperNode,
                                                                        int upperNode,
@@ -150,7 +150,7 @@ void RNonHomogeneousMixedTreeLikelihood::init(bool usePatterns)
   vector<int> vn;
   size_t nbmodels = modelSet_->getNumberOfModels();
 
-  const SiteContainer* pdata = getData();
+  const AlignedValuesContainer* pdata = getData();
   
   const Tree& tree = getTree();
   
@@ -434,7 +434,7 @@ RNonHomogeneousMixedTreeLikelihood::~RNonHomogeneousMixedTreeLikelihood()
 }
 
 /******************************************************************************/
-void RNonHomogeneousMixedTreeLikelihood::setData(const SiteContainer& sites) throw (Exception)
+void RNonHomogeneousMixedTreeLikelihood::setData(const AlignedValuesContainer& sites) throw (Exception)
 {
   RNonHomogeneousTreeLikelihood::setData(sites);
   map<int, vector<RNonHomogeneousMixedTreeLikelihood*> >::iterator it;

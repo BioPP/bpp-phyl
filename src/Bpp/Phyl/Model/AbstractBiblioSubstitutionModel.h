@@ -160,7 +160,7 @@ namespace bpp
 
     void addRateParameter();
 
-    void setFreqFromData(const SequenceContainer& data, double pseudoCount = 0);
+    void setFreqFromData(const SequencedValuesContainer& data, double pseudoCount = 0);
 
     void setFreq(std::map<int, double>& frequ);
 

@@ -226,7 +226,7 @@ namespace bpp
     
     double getInitValue(size_t i, int state) const throw (IndexOutOfBoundsException, BadIntException);
     
-    void setFreqFromData(const SequenceContainer& data, double pseudoCount = 0)
+    void setFreqFromData(const SequencedValuesContainer& data, double pseudoCount = 0)
     {
       model_->setFreqFromData(data, pseudoCount);
       updateMatrices();

@@ -117,13 +117,13 @@ public:
    * @param sites A sequence alignment to initialize the object with.
    */
   
-  virtual void setData(const SiteContainer& sites) = 0;
+  virtual void setData(const AlignedValuesContainer& sites) = 0;
   
   /**
    * @return The data set used to initialize this object.
    * @throw LikelihoodTreeCalculationNotInitializedException In this instance was not initialized.
    */
-  virtual const SiteContainer* getData() const = 0;
+  virtual const AlignedValuesContainer* getData() const = 0;
 
   virtual LikelihoodTree& getLikelihoodData() = 0;
   

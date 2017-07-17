@@ -106,19 +106,18 @@ void SENCA::setFreq(map<int,double>& frequencies)
 
    map<int, double> freq2;
    double s=0;
-   map<int, double>::iterator it;
 
-    for (it=frequencies.begin();it!=frequencies.end();it++)
-    {
-      freq2[it->first]=(freq1[alphabet->getStateIndex(it->first)-1] != 0 ? it->second/freq1[alphabet->getStateIndex(it->first)-1] : 0);
-      s += freq2[it->first];
-    }
+   for (auto it : frequencies)
+   {
+     freq2[it.first]=(freq1[alphabet->getStateIndex(it.first)-1] != 0 ? it.second/freq1[alphabet->getStateIndex(it.first)-1] : 0);
+     s += freq2[it.first];
+   }
   
-    for (it = freq2.begin(); it != freq2.end(); it++)
-      freq2[it->first] /= s;
-
-    AbstractCodonFitnessSubstitutionModel::setFreq(freq2);
-
+   for (auto it : freq2)
+     freq2[it.first] /= s;
+   
+   AbstractCodonFitnessSubstitutionModel::setFreq(freq2);
+   
   updateMatrices();
 }
 

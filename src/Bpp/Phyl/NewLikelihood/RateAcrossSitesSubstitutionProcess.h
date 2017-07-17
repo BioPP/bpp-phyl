@@ -80,7 +80,7 @@ public:
 
   size_t getNumberOfModels() const { return 1; }
 
-  bool isCompatibleWith(const SiteContainer& data) const {
+  bool isCompatibleWith(const AlignedValuesContainer& data) const {
     return data.getAlphabet()->getAlphabetType() == model_->getAlphabet()->getAlphabetType();
   }
  

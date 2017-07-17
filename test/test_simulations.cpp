@@ -93,6 +93,8 @@ int main() {
     sites.addSite(*site, false);
   }
 
+  cout << "fit model" << endl;
+  
   //Now fit model:
   SubstitutionModelSet* modelSet2 = modelSet->clone();
   RNonHomogeneousTreeLikelihood tl(*tree, sites, modelSet2, rdist);
@@ -104,8 +106,8 @@ int main() {
 
   //Now compare estimated values to real ones:
   for (size_t i = 0; i < thetas.size(); ++i) {
-    cout << thetas[i] << "\t" << modelSet2->getModel(i)->getParameter("theta").getValue() << endl;
-    double diff = abs(thetas[i] - modelSet2->getModel(i)->getParameter("theta").getValue());
+    cout << thetas[i] << "\t" << modelSet2->getTransitionModel(i)->getParameter("theta").getValue() << endl;
+    double diff = abs(thetas[i] - modelSet2->getTransitionModel(i)->getParameter("theta").getValue());
     if (diff > 0.1)
       return 1;
   }
@@ -119,7 +121,7 @@ int main() {
   VectorSiteContainer sites2(seqNames, alphabet);
   for (unsigned int i = 0; i < n; ++i) {
     RASiteSimulationResult* result = simulator.dSimulateSite();
-    unique_ptr<Site> site(result->getSite(*simulator.getSubstitutionModelSet()->getModel(0)));
+    unique_ptr<Site> site(result->getSite(*simulator.getSubstitutionModelSet()->getTransitionModel(0)));
     site->setPosition(static_cast<int>(i));
     sites2.addSite(*site, false);
     delete result;
@@ -136,10 +138,14 @@ int main() {
 
   //Now compare estimated values to real ones:
   for (size_t i = 0; i < thetas.size(); ++i) {
-    cout << thetas[i] << "\t" << modelSet3->getModel(i)->getParameter("theta").getValue() << endl;
-    double diff = abs(thetas[i] - modelSet3->getModel(i)->getParameter("theta").getValue());
+    cout << thetas[i] << "\t" << modelSet3->getTransitionModel(i)->getParameter("theta").getValue() << endl;
+    double diff = abs(thetas[i] - modelSet3->getTransitionModel(i)->getParameter("theta").getValue());
+    
     if (diff > 0.1)
+    {
+      cout << "difference too large" << endl;
       return 1;
+    }
   }
   delete modelSet3;
 

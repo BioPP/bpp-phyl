@@ -212,7 +212,7 @@ public:
    */
   static void writeToStream(
     const ProbabilisticSubstitutionMapping& substitutions,
-    const SiteContainer& sites,
+    const AlignedValuesContainer& sites,
     size_t type,
     std::ostream& out)
   throw (IOException);

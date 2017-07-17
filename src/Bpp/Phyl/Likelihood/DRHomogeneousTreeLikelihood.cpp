@@ -75,7 +75,7 @@ throw (Exception) :
 
 DRHomogeneousTreeLikelihood::DRHomogeneousTreeLikelihood(
   const Tree& tree,
-  const SiteContainer& data,
+  const AlignedValuesContainer& data,
   TransitionModel* model,
   DiscreteDistribution* rDist,
   bool checkRooted,
@@ -132,7 +132,7 @@ DRHomogeneousTreeLikelihood::~DRHomogeneousTreeLikelihood()
 
 /******************************************************************************/
 
-void DRHomogeneousTreeLikelihood::setData(const SiteContainer& sites) throw (Exception)
+void DRHomogeneousTreeLikelihood::setData(const AlignedValuesContainer& sites) throw (Exception)
 {
   if (data_)
     delete data_;

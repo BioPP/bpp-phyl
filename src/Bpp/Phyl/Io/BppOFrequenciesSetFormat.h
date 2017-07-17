@@ -119,7 +119,7 @@ public:
   FrequenciesSet* read(
       const Alphabet* alphabet,
       const std::string& freqDescription,
-      const SiteContainer* data,
+      const AlignedValuesContainer* data,
       bool parseArguments = true);
 
   const std::map<std::string, std::string>& getUnparsedArguments() const { return unparsedArguments_; }
@@ -131,7 +131,7 @@ public:
       std::vector<std::string>& writtenNames) const;
 
 private:
-  void initialize_(FrequenciesSet& freqSet, const SiteContainer* data);
+  void initialize_(FrequenciesSet& freqSet, const AlignedValuesContainer* data);
 };
 
 } // end of namespace bpp.

@@ -96,7 +96,7 @@ public:
    */
   static void writeToStream(
     const ProbabilisticRewardMapping& rewards,
-    const SiteContainer& sites,
+    const AlignedValuesContainer& sites,
     std::ostream& out)
   throw (IOException);
 

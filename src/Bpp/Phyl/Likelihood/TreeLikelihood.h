@@ -52,7 +52,7 @@
 
 // From SeqLib:
 #include <Bpp/Seq/Alphabet/Alphabet.h>
-#include <Bpp/Seq/Container/SiteContainer.h>
+#include <Bpp/Seq/Container/AlignedValuesContainer.h>
 
 namespace bpp
 {
@@ -174,14 +174,14 @@ namespace bpp
      *
      * @param sites The data set to use.
      */
-    virtual void setData(const SiteContainer& sites) = 0;
+    virtual void setData(const AlignedValuesContainer& sites) = 0;
     
     /**
      * @brief Get the dataset for which the likelihood must be evaluated.
      *
      * @return A pointer toward the site container where the sequences are stored.
      */
-    virtual const SiteContainer* getData() const = 0;
+    virtual const AlignedValuesContainer* getData() const = 0;
 
     /**
      * @brief Init the likelihood object.

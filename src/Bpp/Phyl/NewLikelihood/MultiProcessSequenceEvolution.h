@@ -47,7 +47,7 @@
 #include <Bpp/Numeric/AbstractParametrizable.h>
 
 // From SeqLib:
-#include <Bpp/Seq/Container/SiteContainer.h>
+#include <Bpp/Seq/Container/AlignedValuesContainer.h>
 
 using namespace std;
 
@@ -151,7 +151,7 @@ namespace bpp
        *
        */
       
-      virtual bool isCompatibleWith(const SiteContainer& data) const;
+      virtual bool isCompatibleWith(const AlignedValuesContainer& data) const;
 
     };
 } // end of namespace bpp.

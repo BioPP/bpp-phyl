@@ -41,7 +41,7 @@
 #define _SET_OF_ALIGNED_PHYLOLIKELIHOOD_H_
 
 // From bpp-seq:
-#include <Bpp/Seq/Container/SiteContainer.h>
+#include <Bpp/Seq/Container/AlignedValuesContainer.h>
 
 #include "AlignedPhyloLikelihood.h"
 #include "SetOfAbstractPhyloLikelihood.h"

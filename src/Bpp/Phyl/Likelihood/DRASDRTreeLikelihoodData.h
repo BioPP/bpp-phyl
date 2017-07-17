@@ -6,36 +6,36 @@
 //
 
 /*
-Copyright or © or Copr. CNRS, (November 16, 2004)
+  Copyright or © or Copr. CNRS, (November 16, 2004)
 
-This software is a computer program whose purpose is to provide classes
-for phylogenetic data analysis.
+  This software is a computer program whose purpose is to provide classes
+  for phylogenetic data analysis.
 
-This software is governed by the CeCILL  license under French law and
-abiding by the rules of distribution of free software.  You can  use, 
-modify and/ or redistribute the software under the terms of the CeCILL
-license as circulated by CEA, CNRS and INRIA at the following URL
-"http://www.cecill.info". 
+  This software is governed by the CeCILL  license under French law and
+  abiding by the rules of distribution of free software.  You can  use, 
+  modify and/ or redistribute the software under the terms of the CeCILL
+  license as circulated by CEA, CNRS and INRIA at the following URL
+  "http://www.cecill.info". 
 
-As a counterpart to the access to the source code and  rights to copy,
-modify and redistribute granted by the license, users are provided only
-with a limited warranty  and the software's author,  the holder of the
-economic rights,  and the successive licensors  have only  limited
-liability. 
+  As a counterpart to the access to the source code and  rights to copy,
+  modify and redistribute granted by the license, users are provided only
+  with a limited warranty  and the software's author,  the holder of the
+  economic rights,  and the successive licensors  have only  limited
+  liability. 
 
-In this respect, the user's attention is drawn to the risks associated
-with loading,  using,  modifying and/or developing or reproducing the
-software by the user in light of its specific status of free software,
-that may mean  that it is complicated to manipulate,  and  that  also
-therefore means  that it is reserved for developers  and  experienced
-professionals having in-depth computer knowledge. Users are therefore
-encouraged to load and test the software's suitability as regards their
-requirements in conditions enabling the security of their systems and/or 
-data to be ensured and,  more generally, to use and operate it in the 
-same conditions as regards security. 
+  In this respect, the user's attention is drawn to the risks associated
+  with loading,  using,  modifying and/or developing or reproducing the
+  software by the user in light of its specific status of free software,
+  that may mean  that it is complicated to manipulate,  and  that  also
+  therefore means  that it is reserved for developers  and  experienced
+  professionals having in-depth computer knowledge. Users are therefore
+  encouraged to load and test the software's suitability as regards their
+  requirements in conditions enabling the security of their systems and/or 
+  data to be ensured and,  more generally, to use and operate it in the 
+  same conditions as regards security. 
 
-The fact that you are presently reading this means that you have had
-knowledge of the CeCILL license and that you accept its terms.
+  The fact that you are presently reading this means that you have had
+  knowledge of the CeCILL license and that you accept its terms.
 */
 
 #ifndef _DRASDRHOMOGENEOUSTREELIKELIHOODDATA_H_
@@ -64,9 +64,9 @@ namespace bpp
  * 
  * @see DRASDRTreeLikelihoodData
  */
-class DRASDRTreeLikelihoodLeafData :
-  public virtual TreeLikelihoodNodeData
-{
+  class DRASDRTreeLikelihoodLeafData :
+    public virtual TreeLikelihoodNodeData
+  {
   private:
     mutable VVdouble leafLikelihood_;
     const Node* leaf_;
@@ -94,7 +94,7 @@ class DRASDRTreeLikelihoodLeafData :
     void setNode(const Node* node) { leaf_ = node; }
 
     VVdouble& getLikelihoodArray()  { return leafLikelihood_;  }
-};
+  };
 
 /**
  * @brief Likelihood data structure for a node.
@@ -105,9 +105,9 @@ class DRASDRTreeLikelihoodLeafData :
  *
  * @see DRASDRTreeLikelihoodData
  */
-class DRASDRTreeLikelihoodNodeData :
-  public virtual TreeLikelihoodNodeData
-{
+  class DRASDRTreeLikelihoodNodeData :
+    public virtual TreeLikelihoodNodeData
+  {
   private:
     /**
      * @brief This contains all likelihood values used for computation.
@@ -115,7 +115,7 @@ class DRASDRTreeLikelihoodNodeData :
      * <pre>
      * x[b][i][c][s]
      *   |------------> Neighbor node of n (id)
-      *     |---------> Site i
+     *     |---------> Site i
      *         |------> Rate class c
      *            |---> Ancestral state s
      * </pre>
@@ -139,7 +139,7 @@ class DRASDRTreeLikelihoodNodeData :
      *
      * <pre>
      * x[i]
-         |---------> Site i
+     |---------> Site i
      * </pre> 
      * We call this the <i>d2Likelihood array</i> for each node.
      */
@@ -211,14 +211,14 @@ class DRASDRTreeLikelihoodNodeData :
       nodeDLikelihoods_.erase(nodeDLikelihoods_.begin(), nodeDLikelihoods_.end());
       nodeD2Likelihoods_.erase(nodeD2Likelihoods_.begin(), nodeD2Likelihoods_.end());
     }
-};
+  };
 
 /**
  * @brief Likelihood data structure for rate across sites models, using a double-recursive algorithm.
  */
-class DRASDRTreeLikelihoodData :
-  public virtual AbstractTreeLikelihoodData
-{
+  class DRASDRTreeLikelihoodData :
+    public virtual AbstractTreeLikelihoodData
+  {
   private:
 
     mutable std::map<int, DRASDRTreeLikelihoodNodeData> nodeData_;
@@ -227,7 +227,7 @@ class DRASDRTreeLikelihoodData :
     mutable VVdouble  rootLikelihoodsS_;
     mutable Vdouble   rootLikelihoodsSR_;
 
-    SiteContainer* shrunkData_;
+    std::shared_ptr<AlignedValuesContainer> shrunkData_;
     size_t nbSites_; 
     size_t nbStates_;
     size_t nbClasses_;
@@ -251,7 +251,7 @@ class DRASDRTreeLikelihoodData :
       nbClasses_(data.nbClasses_), nbDistinctSites_(data.nbDistinctSites_)
     {
       if (data.shrunkData_)
-        shrunkData_ = dynamic_cast<SiteContainer*>(data.shrunkData_->clone());
+        shrunkData_ = std::shared_ptr<AlignedValuesContainer>(dynamic_cast<AlignedValuesContainer*>(data.shrunkData_->clone()));
     }
 
     DRASDRTreeLikelihoodData& operator=(const DRASDRTreeLikelihoodData& data)
@@ -266,15 +266,14 @@ class DRASDRTreeLikelihoodData :
       nbStates_          = data.nbStates_;
       nbClasses_         = data.nbClasses_;
       nbDistinctSites_   = data.nbDistinctSites_;
-      if (shrunkData_) delete shrunkData_;
       if (data.shrunkData_)
-        shrunkData_      = dynamic_cast<SiteContainer *>(data.shrunkData_->clone());
+        shrunkData_ = std::shared_ptr<AlignedValuesContainer>(dynamic_cast<AlignedValuesContainer*>(data.shrunkData_->clone()));
       else
         shrunkData_      = 0;
       return *this;
     }
 
-    virtual ~DRASDRTreeLikelihoodData() { delete shrunkData_; }
+    virtual ~DRASDRTreeLikelihoodData() {}
 
     DRASDRTreeLikelihoodData* clone() const { return new DRASDRTreeLikelihoodData(*this); }
 
@@ -395,7 +394,7 @@ class DRASDRTreeLikelihoodData :
     
     size_t getNumberOfClasses() const { return nbClasses_; }
 
-    const SiteContainer* getShrunkData() const { return shrunkData_; }
+    const std::shared_ptr<AlignedValuesContainer> getShrunkData() const { return shrunkData_; }
     
     /**
      * @brief Resize and initialize all likelihood arrays according to the given data set and substitution model.
@@ -404,7 +403,7 @@ class DRASDRTreeLikelihoodData :
      * @param model The substitution model to use.
      * @throw Exception if an error occures.
      */
-    void initLikelihoods(const SiteContainer& sites, const TransitionModel& model) throw (Exception);
+    void initLikelihoods(const AlignedValuesContainer& sites, const TransitionModel& model) throw (Exception);
     
     /**
      * @brief Rebuild likelihood arrays at inner nodes.
@@ -434,9 +433,9 @@ class DRASDRTreeLikelihoodData :
      * @param sites The sequence container to use.
      * @param model The model, used for initializing leaves' likelihoods.
      */
-    void initLikelihoods(const Node* node, const SiteContainer& sites, const TransitionModel& model) throw (Exception);
+    void initLikelihoods(const Node* node, const AlignedValuesContainer& sites, const TransitionModel& model) throw (Exception);
     
-};
+  };
 
 } //end of namespace bpp.
 

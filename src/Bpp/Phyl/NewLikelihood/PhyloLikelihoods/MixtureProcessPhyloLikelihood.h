@@ -45,7 +45,7 @@
 #include "../MixtureSequenceEvolution.h"
 
 // From SeqLib:
-#include <Bpp/Seq/Container/SiteContainer.h>
+#include <Bpp/Seq/Container/AlignedValuesContainer.h>
 
 
 namespace bpp
@@ -73,7 +73,7 @@ namespace bpp
       
     public:
       MixtureProcessPhyloLikelihood(
-        const SiteContainer& data,
+        const AlignedValuesContainer& data,
         MixtureSequenceEvolution& processSeqEvol,
         size_t nSeqEvol = 0,
         size_t nData = 0,

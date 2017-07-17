@@ -126,7 +126,7 @@ namespace bpp
      *
      * @{
      */
-    void setData(const SiteContainer& sites, size_t nData = 0)
+    void setData(const AlignedValuesContainer& sites, size_t nData = 0)
     {
       AbstractSingleDataPhyloLikelihood::setData(sites, nData);
 
@@ -140,7 +140,7 @@ namespace bpp
      *
      */
       
-    const SiteContainer* getData() const {
+    const AlignedValuesContainer* getData() const {
       return tlComp_->getData();
     }
 

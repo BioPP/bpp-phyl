@@ -42,7 +42,7 @@
 
 // From bpp-seq:
 #include <Bpp/Seq/Alphabet/Alphabet.h>
-#include <Bpp/Seq/Container/SiteContainer.h>
+#include <Bpp/Seq/Container/AlignedValuesContainer.h>
 
 #include "SetOfAlignedPhyloLikelihood.h"
 

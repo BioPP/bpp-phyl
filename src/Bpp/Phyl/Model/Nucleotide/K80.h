@@ -180,7 +180,7 @@ namespace bpp
      * @param data Unused parameter.
      * @param pseudoCount Unused parameter.
      */
-    void setFreqFromData(const SequenceContainer& data, double pseudoCount = 0) {}
+    void setFreqFromData(const SequencedValuesContainer& data, double pseudoCount = 0) {}
 	
   protected:
     void updateMatrices();

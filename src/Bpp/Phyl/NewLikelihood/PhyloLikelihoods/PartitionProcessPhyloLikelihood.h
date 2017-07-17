@@ -46,7 +46,7 @@
 #include "../PartitionSequenceEvolution.h"
 
 // From SeqLib:
-#include <Bpp/Seq/Container/SiteContainer.h>
+#include <Bpp/Seq/Container/AlignedValuesContainer.h>
 
 namespace bpp
 {
@@ -92,7 +92,7 @@ namespace bpp
         bool patterns = true);
 
       PartitionProcessPhyloLikelihood(
-        const SiteContainer& data,
+        const AlignedValuesContainer& data,
         PartitionSequenceEvolution& processSeqEvol,
         size_t nSeqEvol = 0,
         size_t nData = 0,
@@ -134,7 +134,7 @@ namespace bpp
        * @param nData the number of the data (optionnal, default = 0)
        */
   
-      void setData(const SiteContainer& data, size_t nData = 0);
+      void setData(const AlignedValuesContainer& data, size_t nData = 0);
 
       /**
        * @brief add aligned phylolikelihood without length constraint
@@ -149,7 +149,7 @@ namespace bpp
        * @{
        */
       
-      const SiteContainer* getData() const
+      const AlignedValuesContainer* getData() const
       {
         return getPhyloContainer()->getData(getPhyloContainer()->getNumbersOfPhyloLikelihoods()[0]);
       }

@@ -42,7 +42,7 @@
 
 // From bpp-seq:
 #include <Bpp/Seq/Alphabet/Alphabet.h>
-#include <Bpp/Seq/Container/SiteContainer.h>
+#include <Bpp/Seq/Container/AlignedValuesContainer.h>
 
 // from bpp-core
 
@@ -85,7 +85,7 @@ namespace bpp
      * @param nData the number of the data
      */
     
-    virtual void setData(const SiteContainer& sites, size_t nData = 0) = 0;
+    virtual void setData(const AlignedValuesContainer& sites, size_t nData = 0) = 0;
     
     /**
      * @brief Get the dataset for which the likelihood must be evaluated.
@@ -93,7 +93,7 @@ namespace bpp
      * @return A pointer toward the site container where the sequences are stored.
      */
 
-    virtual const SiteContainer* getData() const = 0;
+    virtual const AlignedValuesContainer* getData() const = 0;
     
     /**
      * @brief Get the number of dataset concerned.
@@ -165,7 +165,7 @@ namespace bpp
       return *this;
     }
     
-    virtual void setData(const SiteContainer& sites, size_t nData = 0)
+    virtual void setData(const AlignedValuesContainer& sites, size_t nData = 0)
     {
       setNumberOfSites(sites.getNumberOfSites());
       nbStates_ = sites.getAlphabet()->getSize();

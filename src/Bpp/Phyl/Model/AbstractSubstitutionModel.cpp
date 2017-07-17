@@ -377,21 +377,10 @@ double AbstractSubstitutionModel::getInitValue(size_t i, int state) const throw 
 
 /******************************************************************************/
 
-void AbstractSubstitutionModel::setFreqFromData(const SequenceContainer& data, double pseudoCount)
+void AbstractSubstitutionModel::setFreqFromData(const SequencedValuesContainer& data, double pseudoCount)
 {
-  map<int, int> counts;
-  SequenceContainerTools::getCounts(data, counts);
-  double t = 0;
   map<int, double> freqs;
-
-  for (int i = 0; i < static_cast<int>(size_); i++)
-  {
-    t += (counts[i] + pseudoCount);
-  }
-  for (int i = 0; i < static_cast<int>(size_); i++)
-  {
-    freqs[i] = (static_cast<double>(counts[i]) + pseudoCount) / t;
-  }
+  SequenceContainerTools::getFrequencies(data, freqs, pseudoCount);
 
   // Re-compute generator and eigen values:
   setFreq(freqs);

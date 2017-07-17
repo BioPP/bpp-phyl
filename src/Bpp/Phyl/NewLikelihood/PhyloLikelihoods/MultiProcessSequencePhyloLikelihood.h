@@ -48,7 +48,7 @@
 #include <Bpp/Numeric/AbstractParametrizable.h>
 
 // From SeqLib:
-#include <Bpp/Seq/Container/SiteContainer.h>
+#include <Bpp/Seq/Container/AlignedValuesContainer.h>
 
 using namespace std;
 
@@ -85,7 +85,7 @@ namespace bpp
 
     public:
       MultiProcessSequencePhyloLikelihood(
-        const SiteContainer& data,
+        const AlignedValuesContainer& data,
         MultiProcessSequenceEvolution& processSeqEvol,
         size_t nSeqEvol = 0, 
         size_t nData = 0,
@@ -147,7 +147,7 @@ namespace bpp
        * @{
        */
 
-      const SiteContainer* getData() const {
+      const AlignedValuesContainer* getData() const {
         return vpTreelik_[0]->getData();
       }
 
@@ -278,7 +278,7 @@ namespace bpp
        * @param nData the number of the data (optionnal, default 0).
        */
   
-      void setData(const SiteContainer& sites, size_t nData = 0);
+      void setData(const AlignedValuesContainer& sites, size_t nData = 0);
 
       /**
        * @brief Return the number of process used for computation.

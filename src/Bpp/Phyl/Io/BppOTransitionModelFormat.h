@@ -84,7 +84,7 @@ namespace bpp
     virtual ~BppOTransitionModelFormat() {}
 
   public:
-    TransitionModel* readTransitionModel(const Alphabet* alphabet, const std::string& modelDescription, const SiteContainer* data = 0, bool parseArguments = true);
+    TransitionModel* readTransitionModel(const Alphabet* alphabet, const std::string& modelDescription, const AlignedValuesContainer* data = 0, bool parseArguments = true);
 
   };
 

@@ -93,7 +93,7 @@ public:
 public:
   std::string getName() const { return "Coala"; }
   std::string getExch() const { return exch_; }
-  void setFreqFromData(const SequenceContainer& data, double pseudoCount = 0);
+  void setFreqFromData(const SequencedValuesContainer& data, double pseudoCount = 0);
   std::string getEmpiricalMatrixFile() const { return file_; }
 
 protected:

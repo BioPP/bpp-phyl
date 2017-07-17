@@ -76,7 +76,7 @@ RHomogeneousMixedTreeLikelihood::RHomogeneousMixedTreeLikelihood(
 
 RHomogeneousMixedTreeLikelihood::RHomogeneousMixedTreeLikelihood(
   const Tree& tree,
-  const SiteContainer& data,
+  const AlignedValuesContainer& data,
   TransitionModel* model,
   DiscreteDistribution* rDist,
   bool checkRooted,
@@ -149,7 +149,7 @@ void RHomogeneousMixedTreeLikelihood::initialize() throw (Exception)
   RHomogeneousTreeLikelihood::initialize();
 }
 
-void RHomogeneousMixedTreeLikelihood::setData(const SiteContainer& sites) throw (Exception)
+void RHomogeneousMixedTreeLikelihood::setData(const AlignedValuesContainer& sites) throw (Exception)
 {
   RHomogeneousTreeLikelihood::setData(sites);
 

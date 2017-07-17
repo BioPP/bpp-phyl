@@ -46,7 +46,7 @@ knowledge of the CeCILL license and that you accept its terms.
 
 //From SeqLib:
 #include <Bpp/Seq/Alphabet/Alphabet.h>
-#include <Bpp/Seq/Container/SiteContainer.h>
+#include <Bpp/Seq/Container/AlignedValuesContainer.h>
 
 namespace bpp
 {

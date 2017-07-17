@@ -53,7 +53,7 @@
 
 // From bpp-seq:
 #include <Bpp/Seq/Alphabet/Alphabet.h>
-#include <Bpp/Seq/Container/SequenceContainer.h>
+#include <Bpp/Seq/Container/SequencedValuesContainer.h>
 
 // From the STL:
 #include <cstdlib>
@@ -283,7 +283,7 @@ namespace bpp
      * \pi_i = \frac{n_i+\psi}{\sum_j (f_j+\psi)}
      * @f]
      */
-    virtual void setFreqFromData(const SequenceContainer& data, double pseudoCount = 0) = 0;
+    virtual void setFreqFromData(const SequencedValuesContainer& data, double pseudoCount = 0) = 0;
 
     /**
      * @brief Set equilibrium frequencies

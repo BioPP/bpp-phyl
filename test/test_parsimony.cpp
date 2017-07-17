@@ -51,8 +51,9 @@ int main() {
   try {
     Newick treeReader;
     unique_ptr<Tree> tree(treeReader.read("example1.mp.dnd"));
+
     Phylip alnReader(false, false);
-    unique_ptr<SiteContainer> sites(alnReader.readAlignment("example1.ph", &AlphabetTools::DNA_ALPHABET));
+    unique_ptr<SiteContainer> sites(dynamic_cast<SiteContainer*>(alnReader.readAlignment("example1.ph", &AlphabetTools::DNA_ALPHABET)));
 
     DRTreeParsimonyScore pars(*tree, *sites, true, true);
   

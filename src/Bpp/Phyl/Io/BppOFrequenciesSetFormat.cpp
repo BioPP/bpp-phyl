@@ -75,7 +75,7 @@ unsigned char BppOFrequenciesSetFormat::CODON = 8;
 unsigned char BppOFrequenciesSetFormat::WORD = 16;
 unsigned char BppOFrequenciesSetFormat::ALL = 1 | 2 | 4 | 8 | 16;
 
-FrequenciesSet* BppOFrequenciesSetFormat::read(const Alphabet* alphabet, const std::string& freqDescription, const SiteContainer* data, bool parseArguments)
+FrequenciesSet* BppOFrequenciesSetFormat::read(const Alphabet* alphabet, const std::string& freqDescription, const AlignedValuesContainer* data, bool parseArguments)
 {
   unparsedArguments_.clear();
   string freqName;
@@ -729,7 +729,7 @@ void BppOFrequenciesSetFormat::write(const FrequenciesSet* pfreqset,
   out.setPrecision(p);
 }
 
-void BppOFrequenciesSetFormat::initialize_(FrequenciesSet& freqSet, const SiteContainer* data)
+void BppOFrequenciesSetFormat::initialize_(FrequenciesSet& freqSet, const AlignedValuesContainer* data)
 {
   if (unparsedArguments_.find("init") != unparsedArguments_.end())
   {

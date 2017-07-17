@@ -111,7 +111,7 @@ class RHomogeneousClockTreeLikelihood:
      */
     RHomogeneousClockTreeLikelihood(
       const Tree& tree,
-      const SiteContainer& data,
+      const AlignedValuesContainer& data,
       TransitionModel* model,
       DiscreteDistribution* rDist,
       bool checkRooted = true,

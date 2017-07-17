@@ -41,9 +41,6 @@
 
 #include <Bpp/Numeric/Matrix/MatrixTools.h>
 
-// From SeqLib:
-#include <Bpp/Seq/Container/SequenceContainerTools.h>
-
 // From the STL:
 #include <cmath>
 

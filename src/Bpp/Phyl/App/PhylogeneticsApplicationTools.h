@@ -67,6 +67,7 @@
 // From SeqLib:
 #include <Bpp/Seq/Container/SiteContainer.h>
 #include <Bpp/Seq/Container/VectorSiteContainer.h>
+#include <Bpp/Seq/Container/VectorProbabilisticSiteContainer.h>
 
 // From the STL:
 #include <string>
@@ -151,7 +152,7 @@ namespace bpp
      *
      * @param params           The attribute map where options may be
      * found.
-     * @param mSeq             A map of pointers of SiteContainers,
+     * @param mSeq             A map of pointers of AlignedValuesContainers,
      * necessary in case of random trees
      * @param unparsedParams   A map of parameters (BrLen) that will
      * be aliased after.
@@ -166,7 +167,7 @@ namespace bpp
     
     static std::map<size_t, Tree*> getTrees(
       std::map<std::string, std::string>& params,
-      const std::map<size_t, SiteContainer*>& mSeq,
+      const std::map<size_t, AlignedValuesContainer*>& mSeq,
       std::map<std::string, std::string>& unparsedParams,
       const std::string& prefix = "input.",
       const std::string& suffix = "",
@@ -176,7 +177,7 @@ namespace bpp
 
     static std::map<size_t, PhyloTree*> getPhyloTrees(
       std::map<std::string, std::string>& params,
-      const std::map<size_t, SiteContainer*>& mSeq,
+      const std::map<size_t, AlignedValuesContainer*>& mSeq,
       std::map<std::string, std::string>& unparsedParams,
       const std::string& prefix = "input.",
       const std::string& suffix = "",
@@ -196,7 +197,7 @@ namespace bpp
      * @param alphabet         The alphabet to use in the model.
      * @param gCode            The genetic code to use (only for codon models, otherwise can be set to 0).
      *                         If set to NULL and a codon model is requested, an Exception will be thrown.
-     * @param data             A pointer toward the SiteContainer for which the substitution model is designed.
+     * @param data             A pointer toward the AlignedValuesContainer for which the substitution model is designed.
      *                         The alphabet associated to the data must be of the same type as the one specified for the model.
      *                         May be equal to NULL, but in this case use_observed_freq option will be unavailable.
      * @param params           The attribute map where options may be
@@ -214,7 +215,7 @@ namespace bpp
     static SubstitutionModel* getSubstitutionModel(
       const Alphabet* alphabet,
       const GeneticCode* gCode,
-      const SiteContainer* data, 
+      const AlignedValuesContainer* data, 
       std::map<std::string, std::string>& params,
       std::map<std::string, std::string>& unparsedparams,
       const std::string& suffix = "",
@@ -226,7 +227,7 @@ namespace bpp
     static TransitionModel* getTransitionModel(
       const Alphabet* alphabet,
       const GeneticCode* gCode,
-      const SiteContainer* data,
+      const AlignedValuesContainer* data,
       std::map<std::string, std::string>& params,
       std::map<std::string, std::string>& unparsedparams,
       const std::string& suffix = "",
@@ -242,7 +243,7 @@ namespace bpp
     static std::map<size_t, TransitionModel*> getTransitionModels(
       const Alphabet* alphabet,
       const GeneticCode* gCode,
-      const std::map<size_t, SiteContainer*>& mData, 
+      const std::map<size_t, AlignedValuesContainer*>& mData, 
       std::map<std::string, std::string>& params,
       std::map<std::string, std::string>& unparsedparams,
       const std::string& suffix = "",
@@ -262,7 +263,7 @@ namespace bpp
      * @param gCode            The genetic code to use (only for codon models, otherwise can be set to 0).
      *                         If set to NULL and a codon model is requested, an Exception will be thrown.
      * @param mData            A map of pointers toward the
-     * SiteContainers for which the substitution process wil be designed.
+     * AlignedValuesContainers for which the substitution process wil be designed.
      *                         The alphabet associated to the data
      * must be of the same type as the one specified for the process. 
      * @param  params           The attribute map where options may be
@@ -279,7 +280,7 @@ namespace bpp
     static std::map<size_t, SubstitutionProcess*> getSubstitutionProcesses(
       const Alphabet* alphabet,
       const GeneticCode* gCode,
-      const std::map<size_t, SiteContainer*>& mData, 
+      const std::map<size_t, AlignedValuesContainer*>& mData, 
       std::map<std::string, std::string>& params,
       std::map<std::string, std::string>& unparsedparams,
       const std::string& suffix = "",
@@ -299,7 +300,7 @@ namespace bpp
      * @param unparsedParameterValues A map that contains all the model parameters
      *                                names and their corresponding unparsed value, if they were found.
      * @param modelNumber The number of this model in the SubstitutionModelSet.
-     * @param data   A pointer toward the SiteContainer for which the substitution model is designed.
+     * @param data   A pointer toward the AlignedValuesContainer for which the substitution model is designed.
      *               The alphabet associated to the data must be of the same type as the one specified for the model.
      *               May be equal to NULL, but in this case use_observed_freq option will be unavailable.
      * @param sharedParams (out) remote parameters will be recorded here.
@@ -311,7 +312,7 @@ namespace bpp
       TransitionModel& model,
       std::map<std::string, std::string>& unparsedParameterValues,
       size_t modelNumber,
-      const SiteContainer* data,
+      const AlignedValuesContainer* data,
       std::map<std::string, std::string>& sharedParams,
       bool verbose) throw (Exception);
 
@@ -321,7 +322,7 @@ namespace bpp
      * @param alphabet         The alpabet to use.
      * @param gCode            The genetic code to use (only for codon alphabets, otherwise can be set to 0).
      *                         If set to NULL and a codon frequencies set is requested, an Exception will be thrown.
-     * @param data             A pointer toward the SiteContainer for which the substitution model is designed.
+     * @param data             A pointer toward the AlignedValuesContainer for which the substitution model is designed.
      *                         The alphabet associated to the data must be of the same type as the one specified for the model.
      *                         May be equal to NULL, but in this cas use_observed_freq option will be unavailable.
      * @param params           The attribute map where options may be
@@ -340,7 +341,7 @@ namespace bpp
     static FrequenciesSet* getRootFrequenciesSet(
       const Alphabet* alphabet,
       const GeneticCode* gCode,
-      const SiteContainer* data, 
+      const AlignedValuesContainer* data, 
       std::map<std::string, std::string>& params,
       std::map<std::string, std::string>& sharedparams,
       const std::vector<double>& rateFreqs,
@@ -357,7 +358,7 @@ namespace bpp
     static std::map<size_t, FrequenciesSet*> getRootFrequenciesSets(
       const Alphabet* alphabet,
       const GeneticCode* gCode,
-      const std::map<size_t, SiteContainer*>& mData, 
+      const std::map<size_t, AlignedValuesContainer*>& mData, 
       std::map<std::string, std::string>& params,
       std::map<std::string, std::string>& sharedparams,
       const std::string& suffix = "",
@@ -373,7 +374,7 @@ namespace bpp
      *                         If set to NULL and a codon frequencies set is requested, an Exception will be thrown.
      * @param freqDescription  A string in the keyval syntaxe describing the frequency set to use.:if expand("%") == ""|browse confirm w|else|confirm w|endif
      * 
-     * @param data             A pointer toward the SiteContainer for which the substitution model is designed.
+     * @param data             A pointer toward the AlignedValuesContainer for which the substitution model is designed.
      *                         The alphabet associated to the data must be of the same type as the one specified for the model.
      *                         May be equal to NULL, but in this cas use_observed_freq option will be unavailable.
      * @param sharedParams     (out) remote parameters will be recorded here.
@@ -389,7 +390,7 @@ namespace bpp
         const Alphabet* alphabet,
         const GeneticCode* gCode,
         const std::string& freqDescription,
-        const SiteContainer* data, 
+        const AlignedValuesContainer* data, 
         std::map<std::string, std::string>& sharedParams,
         const std::vector<double>& rateFreqs,
         bool verbose = true,
@@ -404,7 +405,7 @@ namespace bpp
      *                         If set to NULL and a codon frequencies set is requested, an Exception will be thrown.
      * @param freqDescription  A string in the keyval syntaxe describing the frequency set to use.:if expand("%") == ""|browse confirm w|else|confirm w|endif
      * 
-     * @param data             A pointer toward the SiteContainer for which the substitution model is designed.
+     * @param data             A pointer toward the AlignedValuesContainer for which the substitution model is designed.
      *                         The alphabet associated to the data must be of the same type as the one specified for the model.
      *                         May be equal to NULL, but in this cas use_observed_freq option will be unavailable.
      * @param rateFreqs        A vector of rate catégories frequencies in case of a Markov Modulated Markov Model.
@@ -418,7 +419,7 @@ namespace bpp
         const Alphabet* alphabet,
         const GeneticCode* gCode,
         const std::string& freqDescription,
-        const SiteContainer* data, 
+        const AlignedValuesContainer* data, 
         const std::vector<double>& rateFreqs,
         bool verbose = true,
         int warn = 1)
@@ -438,7 +439,7 @@ namespace bpp
     static SubstitutionModelSet* getSubstitutionModelSet(
       const Alphabet* alphabet,
       const GeneticCode* gcode,
-      const SiteContainer* data, 
+      const AlignedValuesContainer* data, 
       std::map<std::string, std::string>& params,
       const std::string& suffix = "",
       bool suffixIsOptional = true,
@@ -489,7 +490,7 @@ namespace bpp
      * @param alphabet         The alpabet to use in all models.
      * @param gcode            The genetic code to use (only for codon models, otherwise can be set to 0).
      *                         If set to NULL and a codon model is requested, an Exception will be thrown.
-     * @param data             A pointer toward the SiteContainer for which the substitution model is designed.
+     * @param data             A pointer toward the AlignedValuesContainer for which the substitution model is designed.
      *                         The alphabet associated to the data must be of the same type as the one specified for the model.
      *                         May be equal to NULL, but in this cas use_observed_freq option will be unavailable.
      * @param params           The attribute map where options may be found.
@@ -503,7 +504,7 @@ namespace bpp
       SubstitutionModelSet& modelSet,
       const Alphabet* alphabet,
       const GeneticCode* gcode,
-      const SiteContainer* data, 
+      const AlignedValuesContainer* data, 
       std::map<std::string, std::string>& params,
       const std::string& suffix = "",
       bool suffixIsOptional = true,
@@ -558,7 +559,7 @@ namespace bpp
      * @param alphabet The alpabet to use in all models.
      * @param gCode            The genetic code to use (only for codon alphabets, otherwise can be set to 0).
      *                         If set to NULL and a codon frequencies set is requested, an Exception will be thrown.
-     * @param pData A pointer toward the SiteContainer for which the
+     * @param pData A pointer toward the AlignedValuesContainer for which the
      *             substitution process is designed.
      *
      *             The alphabet associated to the data must be of the
@@ -578,7 +579,7 @@ namespace bpp
     static SubstitutionProcess* getSubstitutionProcess(
       const Alphabet* alphabet,
       const GeneticCode* gCode,
-      const SiteContainer* pData, 
+      const AlignedValuesContainer* pData, 
       const vector<PhyloTree*>& vTree, 
       std::map<std::string, std::string>& params,
       const std::string& suffix = "",
@@ -632,7 +633,7 @@ namespace bpp
     static PhyloLikelihoodContainer* getPhyloLikelihoodContainer(
       SubstitutionProcessCollection& SPC,
       std::map<size_t, SequenceEvolution*>& mSeqEvol,
-      const std::map<size_t, SiteContainer*>& mData,
+      const std::map<size_t, AlignedValuesContainer*>& mData,
       map<string, string>& params,
       const string& suffix = "",
       bool suffixIsOptional = true,
@@ -692,7 +693,7 @@ namespace bpp
      *
      * @param mixedModelSet    The modified MixedSubstitutionModelSet object according to options specified.
      * @param alphabet         The alpabet to use in all models.
-     * @param data             A pointer toward the SiteContainer for which the substitution model is designed.
+     * @param data             A pointer toward the AlignedValuesContainer for which the substitution model is designed.
      *                         The alphabet associated to the data must be of the same type as the one specified for the model.
      *                         May be equal to NULL, but in this cas use_observed_freq option will be unavailable.
      * @param params           The attribute map where options may be found.
@@ -705,7 +706,7 @@ namespace bpp
     static void completeMixedSubstitutionModelSet(
       MixedSubstitutionModelSet& mixedModelSet,
       const Alphabet* alphabet,
-      const SiteContainer* data, 
+      const AlignedValuesContainer* data, 
       std::map<std::string, std::string>& params,
       const std::string& suffix = "",
       bool suffixIsOptional = true,

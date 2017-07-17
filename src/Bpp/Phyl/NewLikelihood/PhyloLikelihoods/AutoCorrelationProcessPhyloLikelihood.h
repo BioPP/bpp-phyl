@@ -46,7 +46,7 @@
 #include "../HmmProcessEmissionProbabilities.h"
 
 // From bpp-seq:
-#include <Bpp/Seq/Container/SiteContainer.h>
+#include <Bpp/Seq/Container/AlignedValuesContainer.h>
 
 // From bpp-core:
 #include <Bpp/Numeric/Hmm/HmmLikelihood.h>
@@ -73,7 +73,7 @@ private:
 
 public:
   AutoCorrelationProcessPhyloLikelihood(
-    const SiteContainer& data,
+    const AlignedValuesContainer& data,
     AutoCorrelationSequenceEvolution& processSeqEvol,
     size_t nSeqEvol = 0,
     size_t nData = 0,

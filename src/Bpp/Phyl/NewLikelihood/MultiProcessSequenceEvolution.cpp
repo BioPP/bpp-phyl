@@ -143,7 +143,7 @@ throw (ParameterNotFoundException, ConstraintException)
 
 /*************************************************************************/
 
-bool MultiProcessSequenceEvolution::isCompatibleWith(const SiteContainer& data) const
+bool MultiProcessSequenceEvolution::isCompatibleWith(const AlignedValuesContainer& data) const
 {
   for (size_t i=0; i<nProc_.size(); i++)
     if ( !processColl_->getSubstitutionProcess(nProc_[i]).isCompatibleWith(data))

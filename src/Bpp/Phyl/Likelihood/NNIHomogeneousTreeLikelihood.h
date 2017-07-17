@@ -214,7 +214,7 @@ public:
    */
   NNIHomogeneousTreeLikelihood(
     const Tree& tree,
-    const SiteContainer& data,
+    const AlignedValuesContainer& data,
     TransitionModel* model,
     DiscreteDistribution* rDist,
     bool checkRooted = true,
@@ -233,7 +233,7 @@ public:
   NNIHomogeneousTreeLikelihood* clone() const { return new NNIHomogeneousTreeLikelihood(*this); }
 
 public:
-  void setData(const SiteContainer& sites) throw (Exception)
+  void setData(const AlignedValuesContainer& sites) throw (Exception)
   {
     DRHomogeneousTreeLikelihood::setData(sites);
     if (brLikFunction_) delete brLikFunction_;

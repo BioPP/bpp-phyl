@@ -41,7 +41,7 @@
 #define _PHYLOLIKELIHOOD_CONTAINER_H_
 
 // From bpp-seq:
-#include <Bpp/Seq/Container/SiteContainer.h>
+#include <Bpp/Seq/Container/AlignedValuesContainer.h>
 
 #include "PhyloLikelihood.h"
 #include "SingleDataPhyloLikelihood.h"
@@ -153,7 +153,7 @@ namespace bpp
      * @param sites The data set to use.
      */
 
-    void setData(const SiteContainer& sites, size_t nPhyl)
+    void setData(const AlignedValuesContainer& sites, size_t nPhyl)
     {
       std::map<size_t, PhyloLikelihood*>::iterator it=mPhylo_.find(nPhyl);
       if (it!=mPhylo_.end())
@@ -171,7 +171,7 @@ namespace bpp
      * @return A pointer toward the site container where the sequences are stored.
      */
 
-    const SiteContainer* getData(size_t nPhyl) const
+    const AlignedValuesContainer* getData(size_t nPhyl) const
     {
       std::map<size_t, PhyloLikelihood*>::const_iterator it=mPhylo_.find(nPhyl);
       if (mPhylo_.find(nPhyl)!=mPhylo_.end())

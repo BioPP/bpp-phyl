@@ -77,7 +77,7 @@ throw (Exception) :
 
 DRNonHomogeneousTreeLikelihood::DRNonHomogeneousTreeLikelihood(
   const Tree& tree,
-  const SiteContainer& data,
+  const AlignedValuesContainer& data,
   SubstitutionModelSet* modelSet,
   DiscreteDistribution* rDist,
   bool verbose,
@@ -135,7 +135,7 @@ DRNonHomogeneousTreeLikelihood::~DRNonHomogeneousTreeLikelihood()
 
 /******************************************************************************/
 
-void DRNonHomogeneousTreeLikelihood::setData(const SiteContainer& sites) throw (Exception)
+void DRNonHomogeneousTreeLikelihood::setData(const AlignedValuesContainer& sites) throw (Exception)
 {
   if (data_)
     delete data_;

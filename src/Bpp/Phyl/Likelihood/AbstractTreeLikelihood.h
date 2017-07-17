@@ -47,7 +47,7 @@
 #include <Bpp/Numeric/AbstractParametrizable.h>
 
 //From SeqLib:
-#include <Bpp/Seq/Container/SiteContainer.h>
+#include <Bpp/Seq/Container/AlignedValuesContainer.h>
 
 namespace bpp
 {
@@ -226,7 +226,7 @@ namespace bpp
 
 
   protected:
-    const SiteContainer* data_;
+    const AlignedValuesContainer* data_;
     mutable TreeTemplate<Node>* tree_;
     bool computeFirstOrderDerivatives_;
     bool computeSecondOrderDerivatives_;
@@ -249,7 +249,7 @@ namespace bpp
       computeSecondOrderDerivatives_(lik.computeSecondOrderDerivatives_),
       initialized_(lik.initialized_) 
     {
-      if (lik.data_) data_ = dynamic_cast<SiteContainer*>(lik.data_->clone());
+      if (lik.data_) data_ = dynamic_cast<AlignedValuesContainer*>(lik.data_->clone());
       if (lik.tree_) tree_ = lik.tree_->clone();
     }
 
@@ -257,7 +257,7 @@ namespace bpp
     {
       AbstractParametrizable::operator=(lik);
       if (data_) delete data_;
-      if (lik.data_) data_ = dynamic_cast<SiteContainer*>(lik.data_->clone());
+      if (lik.data_) data_ = dynamic_cast<AlignedValuesContainer*>(lik.data_->clone());
       else           data_ = 0;
       if (tree_) delete tree_;
       if (lik.tree_) tree_ = lik.tree_->clone();
@@ -285,7 +285,7 @@ namespace bpp
      *
      * @{
      */
-    const SiteContainer* getData() const { return data_; }
+    const AlignedValuesContainer* getData() const { return data_; }
     const Alphabet* getAlphabet() const { return data_->getAlphabet(); }  
     Vdouble getLikelihoodForEachSite()                 const;
     Vdouble getLogLikelihoodForEachSite()              const;

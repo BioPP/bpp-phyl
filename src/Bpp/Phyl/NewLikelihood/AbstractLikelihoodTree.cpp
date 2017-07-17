@@ -64,7 +64,7 @@ AbstractLikelihoodTree::AbstractLikelihoodTree(const AbstractLikelihoodTree& atd
   nbDistinctSites_(atd.nbDistinctSites_)
 {
   if (atd.shrunkData_.get())
-    shrunkData_.reset(dynamic_cast<SiteContainer*>(atd.shrunkData_->clone()));
+    shrunkData_.reset(dynamic_cast<AlignedValuesContainer*>(atd.shrunkData_->clone()));
 }
 
 AbstractLikelihoodTree& AbstractLikelihoodTree::operator=(const AbstractLikelihoodTree& atd)
@@ -79,7 +79,7 @@ AbstractLikelihoodTree& AbstractLikelihoodTree::operator=(const AbstractLikeliho
   
   nbDistinctSites_  = atd.nbDistinctSites_;
   if (atd.shrunkData_.get())
-    shrunkData_.reset(dynamic_cast<SiteContainer*>(atd.shrunkData_->clone()));
+    shrunkData_.reset(dynamic_cast<AlignedValuesContainer*>(atd.shrunkData_->clone()));
   else
     shrunkData_.reset();
 

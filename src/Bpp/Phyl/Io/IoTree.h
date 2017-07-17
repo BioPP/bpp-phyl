@@ -174,6 +174,7 @@ namespace bpp
     virtual Tree* read(const std::string& path) const
     {
       std::ifstream input(path.c_str(), std::ios::in);
+
       Tree* tree = read(input);
       input.close();
       return tree;

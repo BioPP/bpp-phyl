@@ -327,7 +327,7 @@ bool NonHomogeneousSubstitutionProcess::hasMixedSubstitutionModel() const
  * Inheriting from SubstitutionProcess
  */
   
-bool NonHomogeneousSubstitutionProcess::isCompatibleWith(const SiteContainer& data) const
+bool NonHomogeneousSubstitutionProcess::isCompatibleWith(const AlignedValuesContainer& data) const
 {
   if (modelSet_.size() > 0) 
     return data.getAlphabet()->getAlphabetType() == modelSet_[0]->getAlphabet()->getAlphabetType();

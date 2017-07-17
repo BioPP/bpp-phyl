@@ -149,7 +149,7 @@ namespace bpp
       addParameter_(new Parameter(getNamespace() + "rate", getModel().getRate(), &Parameter::R_PLUS_STAR));
     }
 
-    void setFreqFromData(const SequenceContainer& data, double pseudoCount = 0){getModel().setFreqFromData(data, pseudoCount); }
+    void setFreqFromData(const SequencedValuesContainer& data, double pseudoCount = 0){getModel().setFreqFromData(data, pseudoCount); }
 
     void setFreq(std::map<int, double>& frequ) {getModel().setFreq(frequ); }
 

@@ -47,7 +47,7 @@ using namespace bpp;
 /******************************************************************************/
 
 MixtureProcessPhyloLikelihood::MixtureProcessPhyloLikelihood(
-  const SiteContainer& data,
+  const AlignedValuesContainer& data,
   MixtureSequenceEvolution& processSeqEvol,
   size_t nSeqEvol,
   size_t nData,

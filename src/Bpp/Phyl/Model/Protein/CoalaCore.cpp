@@ -48,6 +48,10 @@
 #include <Bpp/Numeric/Stat/Mva/CorrespondenceAnalysis.h>
 
 #include <Bpp/Seq/SequenceTools.h>
+#include <Bpp/Seq/Container/SequenceContainer.h>
+#include <Bpp/Seq/Container/ProbabilisticSequenceContainer.h>
+#include <Bpp/Seq/Sequence.h>
+#include <Bpp/Seq/ProbabilisticSequence.h>
 
 
 using namespace bpp;
@@ -73,7 +77,7 @@ CoalaCore::CoalaCore(size_t nbAxes, const string& exch) :
 
 /******************************************************************************/
 
-ParameterList CoalaCore::computeCOA(const SequenceContainer& data, bool param)
+ParameterList CoalaCore::computeCOA(const SequencedValuesContainer& data, bool param)
 {
   ParameterList pList;
   // Now we perform the Correspondence Analysis on from the matrix of observed frequencies computed on the alignment, to obtain the matrix of principal axes.
@@ -83,9 +87,15 @@ ParameterList CoalaCore::computeCOA(const SequenceContainer& data, bool param)
   // Each map is filled with the corresponding frequencies, which are then normalized.
   for (size_t i = 0; i < names.size(); ++i)
   {
-    Sequence* seq = new BasicSequence(data.getSequence(names[i]));
-    SymbolListTools::changeGapsToUnknownCharacters((IntSymbolList&)*seq);
-    SequenceTools::getFrequencies((IntSymbolList&)*seq, freqs.at(i));
+    const SequenceContainer* sc=dynamic_cast<const SequenceContainer*>(&data);
+    const ProbabilisticSequenceContainer* psc=dynamic_cast<const ProbabilisticSequenceContainer*>(&data);
+    
+    shared_ptr<CruxSymbolList> seq(sc?
+                                   dynamic_cast<CruxSymbolList*>(new BasicSequence(sc->getSequence(names[i]))):
+                                   dynamic_cast<CruxSymbolList*>(new BasicProbabilisticSequence(*psc->getSequence(names[i]))));
+    
+    SymbolListTools::changeGapsToUnknownCharacters(*seq);
+    SequenceTools::getFrequencies(*seq, freqs.at(i));
     // Unknown characters are now ignored:
     double t = 0;
     for (int k = 0; k < 20; ++k)
@@ -96,7 +106,6 @@ ParameterList CoalaCore::computeCOA(const SequenceContainer& data, bool param)
     {
       freqs.at(i)[k] /= t;
     }
-    delete seq;
   }
 
   // The matrix of observed frequencies is filled. If an amino acid is completely absent from the alignment, its frequency is set to 10^-6.

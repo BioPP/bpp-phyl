@@ -77,7 +77,7 @@ using namespace std;
 TransitionModel* BppOTransitionModelFormat::readTransitionModel(
   const Alphabet* alphabet,
     const std::string& modelDescription,
-    const SiteContainer* data,
+    const AlignedValuesContainer* data,
     bool parseArguments)
 {
   unparsedArguments_.clear();

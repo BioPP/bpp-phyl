@@ -42,7 +42,7 @@
 
 // From bpp-seq:
 #include <Bpp/Seq/Alphabet/Alphabet.h>
-#include <Bpp/Seq/Container/SiteContainer.h>
+#include <Bpp/Seq/Container/AlignedValuesContainer.h>
 
 #include "PhyloLikelihood.h"
 #include "AbstractPhyloLikelihood.h"
@@ -202,7 +202,7 @@ namespace bpp
 
       double getSecondOrderDerivative(const std::string& variable1, const std::string& variable2) const throw (Exception) { return 0; } // Not implemented for now.
 
-      void setData(const SiteContainer& sites, size_t nData = 0)
+      void setData(const AlignedValuesContainer& sites, size_t nData = 0)
       {
         AbstractSingleDataPhyloLikelihood::setData(sites, nData);
         update();

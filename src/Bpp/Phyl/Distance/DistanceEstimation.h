@@ -54,7 +54,7 @@ knowledge of the CeCILL license and that you accept its terms.
 #include <Bpp/Numeric/Function/MetaOptimizer.h>
 
 // From bpp-seq:
-#include <Bpp/Seq/Container/SiteContainer.h>
+#include <Bpp/Seq/Container/AlignedValuesContainer.h>
 
 // From the STL:
 #include <memory>
@@ -65,11 +65,11 @@ namespace bpp
 /**
  * @brief This class is a simplified version of DRHomogeneousTreeLikelihood for 2-Trees.
  */
-class TwoTreeLikelihood:
-  public AbstractDiscreteRatesAcrossSitesTreeLikelihood  
-{
+  class TwoTreeLikelihood:
+    public AbstractDiscreteRatesAcrossSitesTreeLikelihood  
+  {
   private:
-    SiteContainer* shrunkData_;
+    std::shared_ptr<AlignedValuesContainer> shrunkData_;
     std::vector<std::string> seqnames_;
     TransitionModel* model_;
     ParameterList brLenParameters_;
@@ -118,7 +118,7 @@ class TwoTreeLikelihood:
   public:
     TwoTreeLikelihood(
       const std::string& seq1, const std::string& seq2,  
-      const SiteContainer& data,
+      const AlignedValuesContainer& data,
       TransitionModel* model,
       DiscreteDistribution* rDist,
       bool verbose)  throw (Exception);
@@ -170,7 +170,7 @@ class TwoTreeLikelihood:
      * @brief This method is not applicable for this object.
      */
     VVVdouble getTransitionProbabilitiesPerRateClass(int nodeId, size_t siteIndex) const { return pxy_; }
-    void setData(const SiteContainer& sites) throw (Exception) {}
+    void setData(const AlignedValuesContainer& sites) throw (Exception) {}
     void initialize() throw(Exception);
     /** @} */
 
@@ -272,7 +272,7 @@ class TwoTreeLikelihood:
      *
      * @param sequences The sequence container to use.
      */
-    virtual void initTreeLikelihoods(const SequenceContainer & sequences) throw (Exception);
+    virtual void initTreeLikelihoods(const SequencedValuesContainer & sequences) throw (Exception);
 
     void fireParameterChanged(const ParameterList & params);
     virtual void computeTreeLikelihood();
@@ -312,7 +312,7 @@ class DistanceEstimation:
   private:
     std::unique_ptr<TransitionModel> model_;
     std::unique_ptr<DiscreteDistribution> rateDist_;
-    const SiteContainer* sites_;
+    const AlignedValuesContainer* sites_;
     DistanceMatrix* dist_;
     Optimizer* optimizer_;
     MetaOptimizer* defaultOptimizer_;
@@ -371,7 +371,7 @@ class DistanceEstimation:
     DistanceEstimation(
         TransitionModel* model,
         DiscreteDistribution* rateDist,
-        const SiteContainer* sites,
+        const AlignedValuesContainer* sites,
         size_t verbose = 1,
         bool computeMat = true) :
       model_(model),
@@ -501,8 +501,8 @@ class DistanceEstimation:
 
     void resetRateDistribution(DiscreteDistribution* rateDist = 0) { rateDist_.reset(rateDist); }
 
-    void setData(const SiteContainer* sites) { sites_ = sites; }
-    const SiteContainer* getData() const { return sites_; }
+    void setData(const AlignedValuesContainer* sites) { sites_ = sites; }
+    const AlignedValuesContainer* getData() const { return sites_; }
     void resetData() { sites_ = 0; }
     
     void setOptimizer(const Optimizer * optimizer)

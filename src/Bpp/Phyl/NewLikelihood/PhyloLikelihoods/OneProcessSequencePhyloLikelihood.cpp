@@ -64,7 +64,7 @@ OneProcessSequencePhyloLikelihood::OneProcessSequencePhyloLikelihood(
 /******************************************************************************/
 
 OneProcessSequencePhyloLikelihood::OneProcessSequencePhyloLikelihood(
-  const SiteContainer& data,
+  const AlignedValuesContainer& data,
   OneProcessSequenceEvolution& evol,
   size_t nSeqEvol,
   size_t nData,

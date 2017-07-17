@@ -334,7 +334,7 @@ bool SubstitutionProcessCollectionMember::hasMixedSubstitutionModel() const
 /*
  * Inheriting from SubstitutionProcess
  */
-bool SubstitutionProcessCollectionMember::isCompatibleWith(const SiteContainer& data) const
+bool SubstitutionProcessCollectionMember::isCompatibleWith(const AlignedValuesContainer& data) const
 {
   if (modelToNodes_.size() > 0)
     return data.getAlphabet()->getAlphabetType() == getCollection()->getModel(modelToNodes_.begin()->first).getAlphabet()->getAlphabetType();

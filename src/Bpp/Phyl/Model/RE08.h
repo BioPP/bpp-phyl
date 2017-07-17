@@ -174,7 +174,7 @@ namespace bpp
      * @param data The data to be passed to the simple model (gaps will be ignored).
      * @param pseudoCount A (typically small) value to add to each count to avoid 0 estimates.
      */
-    void setFreqFromData(const SequenceContainer& data, double pseudoCount = 0)
+    void setFreqFromData(const SequencedValuesContainer& data, double pseudoCount = 0)
     {
       simpleModel_->setFreqFromData(data, pseudoCount);
     }

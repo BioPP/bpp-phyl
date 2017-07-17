@@ -85,7 +85,7 @@ namespace bpp
 
     const Alphabet* alphabet_;
 
-    std::unique_ptr<SiteContainer> shrunkData_;
+    std::shared_ptr<AlignedValuesContainer> shrunkData_;
     size_t nbSites_; 
     size_t nbStates_;
     size_t nbClasses_;
@@ -170,7 +170,7 @@ public:
     
     const std::vector<size_t>& getRootArrayPositions() const { return rootPatternLinks_; }
 
-    const SiteContainer* getShrunkData() const {
+    const AlignedValuesContainer* getShrunkData() const {
       return shrunkData_.get();
     }
 

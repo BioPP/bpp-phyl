@@ -48,7 +48,7 @@
 #include <Bpp/Numeric/ParameterAliasable.h>
 #include <Bpp/Numeric/Prob/DiscreteDistribution.h>
 
-#include <Bpp/Seq/Container/SiteContainer.h>
+#include <Bpp/Seq/Container/AlignedValuesContainer.h>
 
 //From the STL:
 #include <memory>
@@ -84,7 +84,7 @@ namespace bpp
     virtual SubstitutionProcess* clone() const = 0;
 
   public:
-    virtual bool isCompatibleWith(const SiteContainer& data) const = 0;
+    virtual bool isCompatibleWith(const AlignedValuesContainer& data) const = 0;
 
     // virtual const TreeTemplate<Node>& getTree() const = 0;
   

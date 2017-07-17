@@ -51,7 +51,7 @@
 
 // From bpp-seq:
 #include <Bpp/Seq/Alphabet/Alphabet.h>
-#include <Bpp/Seq/Container/SiteContainer.h>
+#include <Bpp/Seq/Container/AlignedValuesContainer.h>
 
 #include "SequencePhyloLikelihood.h"
 #include "../SubstitutionProcess.h"
@@ -92,7 +92,7 @@ public:
     bool patterns = true);
 
   OneProcessSequencePhyloLikelihood(
-    const SiteContainer& data,
+    const AlignedValuesContainer& data,
     OneProcessSequenceEvolution& evol,
     size_t nSeqEvol = 0,
     size_t nData = 0,
@@ -132,7 +132,7 @@ public:
    *
    * @{
    */
-  void setData(const SiteContainer& sites, size_t nData = 0) throw (Exception)
+  void setData(const AlignedValuesContainer& sites, size_t nData = 0) throw (Exception)
   {
     AbstractSequencePhyloLikelihood::setData(sites, nData);
     tlComp_->setData(sites);
@@ -142,7 +142,7 @@ public:
    * @brief return a pointer to the compressed data.
    *
    */
-  const SiteContainer* getData() const
+  const AlignedValuesContainer* getData() const
   {
     return tlComp_->getData();
   }

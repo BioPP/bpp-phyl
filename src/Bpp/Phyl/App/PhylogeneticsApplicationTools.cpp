@@ -115,7 +115,7 @@
 #include <Bpp/Seq/Alphabet/AlphabetTools.h>
 #include <Bpp/Seq/Container/SequenceContainerTools.h>
 #include <Bpp/Seq/App/SequenceApplicationTools.h>
-#include <Bpp/Seq/SiteTools.h>
+#include <Bpp/Seq/SymbolListTools.h>
 
 using namespace bpp;
 
@@ -191,7 +191,7 @@ vector<Tree*> PhylogeneticsApplicationTools::getTrees(
     
 std::map<size_t, Tree*> PhylogeneticsApplicationTools::getTrees(
   std::map<std::string, std::string>& params,
-  const std::map<size_t, SiteContainer*>& mSeq,
+  const std::map<size_t, AlignedValuesContainer*>& mSeq,
   std::map<std::string, std::string>& unparsedParams,
   const std::string& prefix,
   const std::string& suffix,
@@ -469,7 +469,7 @@ std::map<size_t, Tree*> PhylogeneticsApplicationTools::getTrees(
 
 std::map<size_t, PhyloTree*> PhylogeneticsApplicationTools::getPhyloTrees(
   std::map<std::string, std::string>& params,
-  const std::map<size_t, SiteContainer*>& mSeq,
+  const std::map<size_t, AlignedValuesContainer*>& mSeq,
   std::map<std::string, std::string>& unparsedParams,
   const std::string& prefix,
   const std::string& suffix,
@@ -762,7 +762,7 @@ std::map<size_t, PhyloTree*> PhylogeneticsApplicationTools::getPhyloTrees(
 SubstitutionModel* PhylogeneticsApplicationTools::getSubstitutionModel(
   const Alphabet* alphabet,
   const GeneticCode* gCode,
-  const SiteContainer* data,
+  const AlignedValuesContainer* data,
   std::map<std::string, std::string>& params,
   map<string, string>& unparsedParams,
   const string& suffix,
@@ -800,7 +800,7 @@ SubstitutionModel* PhylogeneticsApplicationTools::getSubstitutionModel(
 TransitionModel* PhylogeneticsApplicationTools::getTransitionModel(
   const Alphabet* alphabet,
   const GeneticCode* gCode,
-  const SiteContainer* data,
+  const AlignedValuesContainer* data,
   std::map<std::string, std::string>& params,
   map<string, string>& unparsedParams,
   const string& suffix,
@@ -907,7 +907,7 @@ map<size_t, DiscreteDistribution*> PhylogeneticsApplicationTools::getRateDistrib
 map<size_t, TransitionModel*> PhylogeneticsApplicationTools::getTransitionModels(
   const Alphabet* alphabet,
   const GeneticCode* gCode,
-  const map<size_t, SiteContainer*>& mData,
+  const map<size_t, AlignedValuesContainer*>& mData,
   map<string, string>& params,
   map<string, string>& unparsedParams,
   const string& suffix,
@@ -988,7 +988,7 @@ void PhylogeneticsApplicationTools::setSubstitutionModelParametersInitialValuesW
   TransitionModel& model,
   std::map<std::string, std::string>& unparsedParameterValues,
   size_t modelNumber,
-  const SiteContainer* data,
+  const AlignedValuesContainer* data,
   std::map<std::string, std::string>& sharedParams,
   bool verbose) throw (Exception)
 {
@@ -1071,7 +1071,7 @@ FrequenciesSet* PhylogeneticsApplicationTools::getFrequenciesSet(
   const Alphabet* alphabet,
   const GeneticCode* gCode,
   const std::string& freqDescription,
-  const SiteContainer* data,
+  const AlignedValuesContainer* data,
   std::map<std::string, std::string>& sharedparams,
   const std::vector<double>& rateFreqs,
   bool verbose,
@@ -1104,7 +1104,7 @@ FrequenciesSet* PhylogeneticsApplicationTools::getFrequenciesSet(
 FrequenciesSet* PhylogeneticsApplicationTools::getRootFrequenciesSet(
   const Alphabet* alphabet,
   const GeneticCode* gCode,
-  const SiteContainer* data,
+  const AlignedValuesContainer* data,
   std::map<std::string, std::string>& params,
   std::map<std::string, std::string>& sharedparams,
   const std::vector<double>& rateFreqs,
@@ -1141,7 +1141,7 @@ FrequenciesSet* PhylogeneticsApplicationTools::getRootFrequenciesSet(
 std::map<size_t, FrequenciesSet*> PhylogeneticsApplicationTools::getRootFrequenciesSets(
   const Alphabet* alphabet,
   const GeneticCode* gCode,
-  const map<size_t, SiteContainer*>& mData,
+  const map<size_t, AlignedValuesContainer*>& mData,
   std::map<std::string, std::string>& params,
   std::map<std::string, std::string>& sharedparams,
   const std::string& suffix,
@@ -1225,7 +1225,7 @@ std::map<size_t, FrequenciesSet*> PhylogeneticsApplicationTools::getRootFrequenc
 SubstitutionProcess* PhylogeneticsApplicationTools::getSubstitutionProcess(
   const Alphabet* alphabet,
   const GeneticCode* gCode,
-  const SiteContainer* pData,
+  const AlignedValuesContainer* pData,
   const vector<PhyloTree*>& vTree,
   map<string, string>& params,
   const string& suffix,
@@ -1938,7 +1938,7 @@ map<size_t, SequenceEvolution*> PhylogeneticsApplicationTools::getSequenceEvolut
 PhyloLikelihoodContainer* PhylogeneticsApplicationTools::getPhyloLikelihoodContainer(
   SubstitutionProcessCollection& SPC,
   map<size_t, SequenceEvolution*>& mSeqEvol,
-  const map<size_t, SiteContainer*>& mData,
+  const map<size_t, AlignedValuesContainer*>& mData,
   map<string, string>& params,
   const string& suffix,
   bool suffixIsOptional,
@@ -2028,7 +2028,7 @@ PhyloLikelihoodContainer* PhylogeneticsApplicationTools::getPhyloLikelihoodConta
     if (mData.find(nData) == mData.end())
       throw BadIntegerException("PhylogeneticsApplicationTools::getPhyloLikelihoodContainer. Data number is wrong:", (int)nData);
 
-    const VectorSiteContainer* data = dynamic_cast<const VectorSiteContainer*>(mData.find(nData)->second);
+    const AlignedValuesContainer* data = dynamic_cast<const AlignedValuesContainer*>(mData.find(nData)->second);
 
     if (!data)
       throw Exception("PhylogeneticsApplicationTools::getPhyloLikelihoodContainer. Data " + TextTools::toString(nData) + " does not match with aligned sequences");
@@ -2350,7 +2350,7 @@ PhyloLikelihoodContainer* PhylogeneticsApplicationTools::getPhyloLikelihoodConta
 SubstitutionModelSet* PhylogeneticsApplicationTools::getSubstitutionModelSet(
   const Alphabet* alphabet,
   const GeneticCode* gCode,
-  const SiteContainer* data,
+  const AlignedValuesContainer* data,
   std::map<std::string, std::string>& params,
   const std::string& suffix,
   bool suffixIsOptional,
@@ -2395,7 +2395,7 @@ void PhylogeneticsApplicationTools::setSubstitutionModelSet(
   SubstitutionModelSet& modelSet,
   const Alphabet* alphabet,
   const GeneticCode* gCode,
-  const SiteContainer* data,
+  const AlignedValuesContainer* data,
   map<string, string>& params,
   const string& suffix,
   bool suffixIsOptional,
@@ -2530,7 +2530,7 @@ void PhylogeneticsApplicationTools::setSubstitutionModelSet(
 void PhylogeneticsApplicationTools::completeMixedSubstitutionModelSet(
   MixedSubstitutionModelSet& mixedModelSet,
   const Alphabet* alphabet,
-  const SiteContainer* data,
+  const AlignedValuesContainer* data,
   map<string, string>& params,
   const string& suffix,
   bool suffixIsOptional,
@@ -4630,7 +4630,7 @@ void PhylogeneticsApplicationTools::printAnalysisInformation(const SingleDataPhy
         }
     }
 
-    const SiteContainer* sites = phyloLike.getData();
+    const AlignedValuesContainer* sites = phyloLike.getData();
 
     vector<string> row(4 + (nbR > 1 ? nbR : 0));
     DataTable* infos = new DataTable(colNames);
@@ -4640,19 +4640,20 @@ void PhylogeneticsApplicationTools::printAnalysisInformation(const SingleDataPhy
     for (size_t i = 0; i < sites->getNumberOfSites(); i++)
     {
       double lnL = phyloLike.getLogLikelihoodForASite(i);
-      const Site* currentSite = &sites->getSite(i);
-      int currentSitePosition = currentSite->getPosition();
+      
+      const CruxSymbolListSite& currentSite = sites->getSymbolListSite(i);
+      int currentSitePosition = currentSite.getPosition();
       string isCompl = "NA";
       string isConst = "NA";
       try
       {
-        isCompl = (SiteTools::isComplete(*currentSite) ? "1" : "0");
+        isCompl = (SymbolListTools::isComplete(currentSite) ? "1" : "0");
       }
       catch (EmptySiteException& ex)
       {}
       try
       {
-        isConst = (SiteTools::isConstant(*currentSite) ? "1" : "0");
+        isConst = (SymbolListTools::isConstant(currentSite) ? "1" : "0");
       }
       catch (EmptySiteException& ex)
       {}
@@ -4699,8 +4700,8 @@ void PhylogeneticsApplicationTools::printAnalysisInformation(const SingleDataPhy
       }
     }
 
-    const SiteContainer* sites = phyloLike.getData();
-
+    const AlignedValuesContainer* sites = phyloLike.getData();
+    
     vector<string> row(4 + (nbP > 1 ? 2 * nbP : 0));
     DataTable* infos = new DataTable(colNames);
 
@@ -4710,19 +4711,19 @@ void PhylogeneticsApplicationTools::printAnalysisInformation(const SingleDataPhy
     for (size_t i = 0; i < sites->getNumberOfSites(); i++)
     {
       double lnL = phyloLike.getLogLikelihoodForASite(i);
-      const Site* currentSite = &sites->getSite(i);
-      int currentSitePosition = currentSite->getPosition();
+      const CruxSymbolListSite& currentSite = sites->getSymbolListSite(i);
+      int currentSitePosition = currentSite.getPosition();
       string isCompl = "NA";
       string isConst = "NA";
       try
       {
-        isCompl = (SiteTools::isComplete(*currentSite) ? "1" : "0");
+        isCompl = (SymbolListTools::isComplete(currentSite) ? "1" : "0");
       }
       catch (EmptySiteException& ex)
       {}
       try
       {
-        isConst = (SiteTools::isConstant(*currentSite) ? "1" : "0");
+        isConst = (SymbolListTools::isConstant(currentSite) ? "1" : "0");
       }
       catch (EmptySiteException& ex)
       {}

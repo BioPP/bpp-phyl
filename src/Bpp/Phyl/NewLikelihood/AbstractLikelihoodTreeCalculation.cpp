@@ -45,7 +45,7 @@ using namespace std;
 
 /******************************************************************************/
 
-void AbstractLikelihoodTreeCalculation::setData(const SiteContainer& sites)
+void AbstractLikelihoodTreeCalculation::setData(const AlignedValuesContainer& sites)
 {
   data_.reset(PatternTools::getSequenceSubset(sites, process_->getParametrizablePhyloTree().getRoot(), process_->getParametrizablePhyloTree())) ;
 

@@ -114,11 +114,11 @@ YNGP_M3::YNGP_M3(const GeneticCode* gc, FrequenciesSet* codonFreqs, unsigned int
   // specific parameters
 
   string st;
-  for (map<string, string>::iterator it = mapParNamesFromPmodel_.begin(); it != mapParNamesFromPmodel_.end(); it++)
+  for (auto it : mapParNamesFromPmodel_)
   {
-    st = pmixmodel_->getParameterNameWithoutNamespace(it->first);
-    if (it->second.substr(0, 5) != "delta")
-      addParameter_(new Parameter("YNGP_M3." + it->second, pmixmodel_->getParameterValue(st),
+    st = pmixmodel_->getParameterNameWithoutNamespace(it.first);
+    if (it.second.substr(0, 5) != "delta")
+      addParameter_(new Parameter("YNGP_M3." + it.second, pmixmodel_->getParameterValue(st),
                               pmixmodel_->getParameter(st).hasConstraint() ? pmixmodel_->getParameter(st).getConstraint()->clone() : 0, true));
   }
 

@@ -177,7 +177,7 @@ void Coala::updateMatrices()
 
 /******************************************************************************/
 
-void Coala::setFreqFromData(const SequenceContainer& data, double pseudoCount)
+void Coala::setFreqFromData(const SequencedValuesContainer& data, double pseudoCount)
 {
   // Compute the COA from the observed frequencies, add the axis position parameters and update the Markov matrix
   ParameterList pList = computeCOA(data, param_);

@@ -148,7 +148,7 @@ unsigned char BppOSubstitutionModelFormat::ALL = 1 | 2 | 4 | 8 | 16 | 32;
 SubstitutionModel* BppOSubstitutionModelFormat::read(
   const Alphabet* alphabet,
   const std::string& modelDescription,
-  const SiteContainer* data,
+  const AlignedValuesContainer* data,
   bool parseArguments)
 {
   unparsedArguments_.clear();
@@ -833,7 +833,7 @@ void BppOSubstitutionModelFormat::updateParameters_(TransitionModel* model, std:
 }
 
 
-SubstitutionModel* BppOSubstitutionModelFormat::readWord_(const Alphabet* alphabet, const std::string& modelDescription, const SiteContainer* data)
+SubstitutionModel* BppOSubstitutionModelFormat::readWord_(const Alphabet* alphabet, const std::string& modelDescription, const AlignedValuesContainer* data)
 {
   unique_ptr<SubstitutionModel> model;
   string modelName = "";
@@ -1268,7 +1268,7 @@ SubstitutionModel* BppOSubstitutionModelFormat::readWord_(const Alphabet* alphab
 }
 
 
-MixedSubstitutionModel* BppOSubstitutionModelFormat::readMixed_(const Alphabet* alphabet, const std::string& modelDescription, const SiteContainer* data)
+MixedSubstitutionModel* BppOSubstitutionModelFormat::readMixed_(const Alphabet* alphabet, const std::string& modelDescription, const AlignedValuesContainer* data)
 {
   unique_ptr<MixedSubstitutionModel> model;
 
@@ -1720,7 +1720,7 @@ void BppOSubstitutionModelFormat::writeMixed_(const MixedSubstitutionModel& mode
 
 void BppOSubstitutionModelFormat::initialize_(
   TransitionModel& model,
-  const SiteContainer* data) throw (Exception)
+  const AlignedValuesContainer* data) throw (Exception)
 {
   string initFreqs = ApplicationTools::getStringParameter(model.getNamespace() + "initFreqs", unparsedArguments_, "", "", true, warningLevel_);
   if (verbose_)

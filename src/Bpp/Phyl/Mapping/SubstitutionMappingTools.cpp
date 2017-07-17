@@ -73,7 +73,7 @@ ProbabilisticSubstitutionMapping* SubstitutionMappingTools::computeSubstitutionV
   // A few variables we'll need:
 
   const TreeTemplate<Node> tree(drtl.getTree());
-  const SiteContainer*    sequences = drtl.getData();
+  const AlignedValuesContainer*    sequences = drtl.getData();
   const DiscreteDistribution* rDist = drtl.getRateDistribution();
 
   size_t nbSites         = sequences->getNumberOfSites();
@@ -384,7 +384,7 @@ ProbabilisticSubstitutionMapping* SubstitutionMappingTools::computeSubstitutionV
   // A few variables we'll need:
 
   const TreeTemplate<Node> tree(drtl.getTree());
-  const SiteContainer*    sequences = drtl.getData();
+  const AlignedValuesContainer*    sequences = drtl.getData();
   const DiscreteDistribution* rDist = drtl.getRateDistribution();
 
   size_t nbSites         = sequences->getNumberOfSites();
@@ -693,7 +693,7 @@ ProbabilisticSubstitutionMapping* SubstitutionMappingTools::computeSubstitutionV
 
   // A few variables we'll need:
   const TreeTemplate<Node> tree(drtl.getTree());
-  const SiteContainer*    sequences = drtl.getData();
+  const AlignedValuesContainer*    sequences = drtl.getData();
   const DiscreteDistribution* rDist = drtl.getRateDistribution();
 
   size_t nbSites         = sequences->getNumberOfSites();
@@ -991,7 +991,7 @@ ProbabilisticSubstitutionMapping* SubstitutionMappingTools::computeSubstitutionV
   // A few variables we'll need:
 
   const TreeTemplate<Node> tree(drtl.getTree());
-  const SiteContainer*    sequences = drtl.getData();
+  const AlignedValuesContainer*    sequences = drtl.getData();
   const DiscreteDistribution* rDist = drtl.getRateDistribution();
   const Alphabet*             alpha = sequences->getAlphabet();
 
@@ -1122,7 +1122,7 @@ ProbabilisticSubstitutionMapping* SubstitutionMappingTools::computeSubstitutionV
   // A few variables we'll need:
 
   const TreeTemplate<Node> tree(drtl.getTree());
-  const SiteContainer*    sequences = drtl.getData();
+  const AlignedValuesContainer*    sequences = drtl.getData();
   const DiscreteDistribution* rDist = drtl.getRateDistribution();
 
   size_t nbSites         = sequences->getNumberOfSites();
@@ -1257,7 +1257,7 @@ ProbabilisticSubstitutionMapping* SubstitutionMappingTools::computeSubstitutionV
 
 void SubstitutionMappingTools::writeToStream(
   const ProbabilisticSubstitutionMapping& substitutions,
-  const SiteContainer& sites,
+  const AlignedValuesContainer& sites,
   size_t type,
   ostream& out)
 throw (IOException)
@@ -1268,7 +1268,7 @@ throw (IOException)
   out << "\tMean";
   for (size_t i = 0; i < substitutions.getNumberOfSites(); i++)
   {
-    out << "\tSite" << sites.getSite(i).getPosition();
+    out << "\tSite" << sites.getSymbolListSite(i).getPosition();
   }
   out << endl;
 

@@ -47,7 +47,7 @@
 
 //From SeqLib:
 #include <Bpp/Seq/Alphabet/Alphabet.h>
-#include <Bpp/Seq/Container/SiteContainer.h>
+#include <Bpp/Seq/Container/AlignedValuesContainer.h>
 
 namespace bpp
 {
@@ -116,7 +116,7 @@ namespace bpp
        * process on the sites.
        */
 
-      virtual void initLikelihoods(const SiteContainer& sites, const SubstitutionProcess& process) = 0;
+      virtual void initLikelihoods(const AlignedValuesContainer& sites, const SubstitutionProcess& process) = 0;
 
       /**
        * @brief Resize and initialize all likelihood arrays at a given

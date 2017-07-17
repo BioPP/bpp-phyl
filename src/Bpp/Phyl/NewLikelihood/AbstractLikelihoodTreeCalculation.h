@@ -57,7 +57,7 @@ namespace bpp
 
   protected:
     const SubstitutionProcess* process_;
-    std::unique_ptr<const SiteContainer> data_;
+    std::unique_ptr<const AlignedValuesContainer> data_;
 
     size_t nbSites_;
     size_t nbDistinctSites_;
@@ -156,9 +156,9 @@ namespace bpp
       return getLikelihoodData().getRootArrayPosition(site);
     }
 
-    void setData(const SiteContainer& sites);
+    void setData(const AlignedValuesContainer& sites);
 
-    const SiteContainer* getData() const
+    const AlignedValuesContainer* getData() const
     {
       if (!initialized_)
         throw new LikelihoodTreeCalculationNotInitializedException("SingleRecursiveLikelihoodTreeCalculation::getData().");

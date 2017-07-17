@@ -90,12 +90,12 @@ YNGP_M1::YNGP_M1(const GeneticCode* gc, FrequenciesSet* codonFreqs) :
   // specific parameters
 
   string st;
-  for (map<string, string>::iterator it = mapParNamesFromPmodel_.begin(); it != mapParNamesFromPmodel_.end(); it++)
+  for (auto it : mapParNamesFromPmodel_)
   {
-    st = pmixmodel_->getParameterNameWithoutNamespace(it->first);
+    st = pmixmodel_->getParameterNameWithoutNamespace(it.first);
     if (st != "omega_Simple.V1")
     {
-      addParameter_(new Parameter("YNGP_M1." + it->second, pmixmodel_->getParameterValue(st),
+      addParameter_(new Parameter("YNGP_M1." + it.second, pmixmodel_->getParameterValue(st),
                                   pmixmodel_->getParameter(st).hasConstraint() ? pmixmodel_->getParameter(st).getConstraint()->clone() : 0, true));
     }
   }
