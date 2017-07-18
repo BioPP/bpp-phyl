@@ -299,13 +299,13 @@ namespace bpp
     
     void setPatterns(const std::map<int, std::map<int, std::vector<size_t> > >& patterns)
     {
-      const std::map<int, std::vector<size_t> >& patt=patterns.find(getId())->second;
+      const std::map<int, std::vector<size_t> >& patt=patterns.find(static_cast<int> (getId()))->second;
 
       size_t nbSons=getNumberOfSons();
       for (size_t i=0;i<nbSons;i++)
       {
         static_cast<AbstractLikelihoodNode*>(getSon(i))->setPatterns(patterns);
-        vPatt_.push_back(&(patt.find(getSon(i)->getId())->second));
+        vPatt_.push_back(&(patt.find(static_cast<int>(getSon(i)->getId()))->second));
       }
     }
 

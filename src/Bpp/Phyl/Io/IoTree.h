@@ -188,7 +188,7 @@ namespace bpp
       return tree;
     }
 
-    virtual Element getElement(const std::string& elt)
+    virtual Element getElement(const std::string& elt) const
     {
       return Element();
     }

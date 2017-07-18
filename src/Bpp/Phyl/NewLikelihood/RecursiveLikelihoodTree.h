@@ -68,6 +68,7 @@ private:
    */
 
   typedef AssociationTreeGlobalGraphObserver<RecursiveLikelihoodNode, PhyloBranchParam>  LikTree;
+  using NodeIndex = typename LikTree::NodeIndex;
   
   std::vector<std::shared_ptr<LikTree> > vTree_;
 
@@ -125,12 +126,12 @@ public:
    */
   AbstractLikelihoodNode& getNodeData(int nodeId, size_t nClass)
   {
-    return *(*this)[nClass].getNode(nodeId);
+    return *(*this)[nClass].getNode(static_cast<NodeIndex>(nodeId));
   }
 
   const AbstractLikelihoodNode& getNodeData(int nodeId, size_t nClass) const
   {
-    return *(*this)[nClass].getNode(nodeId);
+    return *(*this)[nClass].getNode(static_cast<NodeIndex>(nodeId));
   }
 
   AbstractLikelihoodNode& getRootData(size_t nClass)
@@ -160,7 +161,7 @@ public:
   {
     for (size_t c = 0; c < vTree_.size(); ++c)
     {
-      vTree_[c]->getNode(nodeId)->resetBelowLikelihoods(nbSites, nbStates, DX);
+      vTree_[c]->getNode(static_cast<NodeIndex>(nodeId))->resetBelowLikelihoods(nbSites, nbStates, DX);
     }
   }
 
@@ -168,7 +169,7 @@ public:
   {
     for (size_t c = 0; c < vTree_.size(); ++c)
     {
-      vTree_[c]->getNode(nodeId)->resetAboveLikelihoods(nbSites, nbStates);
+      vTree_[c]->getNode(static_cast<NodeIndex>(nodeId))->resetAboveLikelihoods(nbSites, nbStates);
     }
   }
 
@@ -176,7 +177,7 @@ public:
   {
     for (size_t c = 0; c < vTree_.size(); ++c)
     {
-      vTree_[c]->getNode(nodeId)->setAboveLikelihoods(freq);
+      vTree_[c]->getNode(static_cast<NodeIndex>(nodeId))->setAboveLikelihoods(freq);
     }
   }
 
@@ -188,7 +189,7 @@ public:
   {
     for (size_t c = 0; c < vTree_.size(); ++c)
     {
-      vTree_[c]->getNode(nodeId)->setUseLog(useLog);
+      vTree_[c]->getNode(static_cast<NodeIndex>(nodeId))->setUseLog(useLog);
     }
   }
 
@@ -221,7 +222,7 @@ public:
   {
     for (size_t c = 0; c < vTree_.size(); ++c)
     {
-      vTree_[c]->getNode(nodeId)->computeLikelihoods(dynamic_cast<SpeciationComputingNode&>(*(lTree[c]->getNode(nodeId))), ComputingNode::D0);
+      vTree_[c]->getNode(static_cast<NodeIndex>(nodeId))->computeLikelihoods(dynamic_cast<SpeciationComputingNode&>(*(lTree[c]->getNode(static_cast<NodeIndex>(nodeId)))), ComputingNode::D0);
     }
   }
 
