@@ -201,7 +201,7 @@ void RecursiveLikelihoodTree::initLikelihoodsWithoutPatterns_(const RecursiveLik
       for (size_t i = 0; i < nbDistinctSites_; i++)
       {
         Vdouble* array_i = &array[i];
-        
+
         double test = 0.;
         for (size_t s = 0; s < nbStates_; s++)
         {
@@ -219,6 +219,7 @@ void RecursiveLikelihoodTree::initLikelihoodsWithoutPatterns_(const RecursiveLik
 
           test += x;
         }
+
         if (test < 0.000001)
           std::cerr << "WARNING!!! Likelihood will be 0 for this site " << TextTools::toString(i) << std::endl;
       }
