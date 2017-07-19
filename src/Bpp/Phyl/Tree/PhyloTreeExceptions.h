@@ -60,7 +60,7 @@ namespace bpp
     public Exception
   {
   protected:
-    unsigned int nodeId_;
+    int nodeId_;
 
   public:
     /**
@@ -243,7 +243,7 @@ namespace bpp
     public Exception
   {
   protected:
-    unsigned int branchId_;
+    int branchId_;
 
   public:
     /**

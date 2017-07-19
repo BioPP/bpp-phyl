@@ -739,7 +739,7 @@ std::map<size_t, PhyloTree*> PhylogeneticsApplicationTools::getPhyloTrees(
 
       if (TextTools::isDecimalInteger(apeq))
       {
-        shared_ptr<PhyloBranch> branch=mTree[num]->getEdgeToFather(mTree[num]->getNode(TextTools::toInt(aveq.substr(5, string::npos))));
+        shared_ptr<PhyloBranch> branch=mTree[num]->getEdgeToFather(mTree[num]->getNode(static_cast<PhyloTree::NodeIndex> (TextTools::toInt(aveq.substr(5, string::npos)))));
         if (branch)
           branch->setLength(TextTools::toDouble(apeq));
       }
@@ -1451,13 +1451,13 @@ void PhylogeneticsApplicationTools::addSubstitutionProcessCollectionMember(
 
   size_t pp = sRate.find(".");
 
-  numRate = TextTools::toInt(sRate.substr(0, pp));
+  numRate = static_cast<std::size_t> (TextTools::toInt(sRate.substr(0, pp)));
   if (!SubProColl->hasDistributionNumber(numRate))
     throw BadIntegerException("PhylogeneticsApplicationTools::addSubstitutionProcessCollectionMember : unknown rate number", (int)numRate);
 
   if (pp != string::npos)
   {
-    size_t numSRate = TextTools::toInt(sRate.substr(pp + 1));
+    size_t numSRate = static_cast<std::size_t> (TextTools::toInt(sRate.substr(pp + 1)));
     SubProColl->addDistribution(new ConstantDistribution(SubProColl->getRateDistribution(numRate).getCategory(numSRate)), 10000 * (numRate + 1) + numSRate);
 
     numRate = 10000 * (numRate + 1) + numSRate;
@@ -1494,7 +1494,7 @@ void PhylogeneticsApplicationTools::addSubstitutionProcessCollectionMember(
     size_t numModel = (size_t) ApplicationTools::getIntParameter("model", args, 1, "", true, warn);
 
     if (!SubProColl->hasModelNumber(numModel))
-      throw BadIntegerException("PhylogeneticsApplicationTools::addSubstitutionProcessCollectionMember : unknown model number", (unsigned int)numModel);
+      throw BadIntegerException("PhylogeneticsApplicationTools::addSubstitutionProcessCollectionMember : unknown model number", static_cast<int> (numModel));
 
     vector<unsigned int> vNodes = SubProColl->getTree(numTree).getAllNodesIndexes();
     vNodes.erase(std::find(vNodes.begin(),vNodes.end(), SubProColl->getTree(numTree).getNodeIndex(SubProColl->getTree(numTree).getRoot())));
@@ -2153,7 +2153,7 @@ PhyloLikelihoodContainer* PhylogeneticsApplicationTools::getPhyloLikelihoodConta
     {
       std::vector<size_t>::iterator posp = find(usedPhylo.begin(), usedPhylo.end(), vphyl[i - 1]);
       if (posp != usedPhylo.end())
-        vphyl.erase(vphyl.begin() + i - 1);
+        vphyl.erase(vphyl.begin() + static_cast<std::ptrdiff_t> (i - 1));
     }
     ++it;
   }
@@ -2295,7 +2295,7 @@ PhyloLikelihoodContainer* PhylogeneticsApplicationTools::getPhyloLikelihoodConta
       {
         std::vector<size_t>::iterator posp = find(usedPhylo.begin(), usedPhylo.end(), vphyl[i - 1]);
         if (posp != usedPhylo.end())
-          vphyl.erase(vphyl.begin() + i - 1);
+          vphyl.erase(vphyl.begin() + static_cast<std::ptrdiff_t> (i - 1));
       }
       ++it;
     }
@@ -2581,12 +2581,12 @@ void PhylogeneticsApplicationTools::completeMixedSubstitutionModelSet(
       int num = TextTools::toInt(submodel.substr(5, indexo - 5));
       string p2 = submodel.substr(indexo + 1, indexf - indexo - 1);
 
-      const MixedSubstitutionModel* pSM = dynamic_cast<const MixedSubstitutionModel*>(mixedModelSet.getModel(num - 1));
+      const MixedSubstitutionModel* pSM = dynamic_cast<const MixedSubstitutionModel*>(mixedModelSet.getModel(static_cast<std::size_t> (num - 1)));
       if (pSM == NULL)
         throw BadIntegerException("PhylogeneticsApplicationTools::setMixedSubstitutionModelSet: Wron gmodel for number", num - 1);
       Vint submodnb = pSM->getSubmodelNumbers(p2);
 
-      mixedModelSet.addToHyperNode(num - 1, submodnb);
+      mixedModelSet.addToHyperNode(static_cast<std::size_t> (num - 1), submodnb);
     }
 
     if (!mixedModelSet.getHyperNode(mixedModelSet.getNumberOfHyperNodes() - 1).isComplete())
@@ -2649,7 +2649,7 @@ MultipleDiscreteDistribution* PhylogeneticsApplicationTools::getMultipleDistribu
     rf = args["classes"];
     StringTokenizer strtok2(rf.substr(1, rf.length() - 2), ",");
     while (strtok2.hasMoreToken())
-      classes.push_back(TextTools::toInt(strtok2.nextToken()));
+      classes.push_back(static_cast<std::size_t> (TextTools::toInt(strtok2.nextToken())));
 
     pMDD = new DirichletDiscreteDistribution(classes, alphas);
     vector<string> v = pMDD->getParameters().getParameterNames();

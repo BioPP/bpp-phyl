@@ -270,8 +270,7 @@ shared_ptr<PhyloNode>  Newick::parenthesisToNode(PhyloTree& tree, shared_ptr<Phy
   {
     if (withId)
     {
-      unsigned int id=TextTools::toInt(elt.annotation);
-      
+      auto id = static_cast<PhyloTree::NodeIndex> (TextTools::toInt(elt.annotation));
       tree.setNodeIndex(node, id);
       if (branch)
         tree.setEdgeIndex(branch, id);
@@ -316,9 +315,11 @@ shared_ptr<PhyloNode>  Newick::parenthesisToNode(PhyloTree& tree, shared_ptr<Phy
         realName << st.getToken(i);
       }
       node->setName(realName.str());
-      tree.setNodeIndex(node,TextTools::toInt(st.getToken(st.numberOfRemainingTokens() - 1)));
+      tree.setNodeIndex(node, static_cast<PhyloTree::NodeIndex> (
+            TextTools::toInt(st.getToken(st.numberOfRemainingTokens() - 1))));
       if (branch)
-        tree.setEdgeIndex(branch,TextTools::toInt(st.getToken(st.numberOfRemainingTokens() - 1)));
+        tree.setEdgeIndex(branch, static_cast<PhyloTree::NodeIndex> (
+              TextTools::toInt(st.getToken(st.numberOfRemainingTokens() - 1))));
     }
     else
       node->setName(name);
