@@ -51,6 +51,15 @@
 #include <utility>
 
 namespace bpp {
+
+// FIXME improve
+template <typename T> struct NumericInfo { using Derivable = std::false_type; };
+template <> struct NumericInfo<double> {
+	using Derivable = std::true_type;
+	static double zero () noexcept { return 0.0; }
+	static double one () noexcept { return 1.0; }
+};
+
 namespace DF {
 
 	// Fwd declaration
@@ -80,6 +89,7 @@ namespace DF {
 		Impl & getImpl () const noexcept { return *pImpl_; }
 
 		bool operator== (const Node & other) const noexcept { return pImpl_ == other.pImpl_; }
+		bool operator== (const Node::Impl * other) const noexcept { return pImpl_.get () == other; }
 		std::size_t hashCode () const noexcept { return std::hash<std::shared_ptr<Impl>>{}(pImpl_); }
 
 	private:
@@ -158,8 +168,9 @@ namespace DF {
 	};
 
 	// Error functions
-	void failureComputeWasCalled (const std::type_info & paramType);
-	void failureNodeHandleConversion (const std::type_info & handleType, const Node::Impl & node);
+	[[noreturn]] void failureComputeWasCalled (const std::type_info & paramType);
+	[[noreturn]] void failureNodeHandleConversion (const std::type_info & handleType, const Node::Impl & node);
+	[[noreturn]] void failureDerivationNotSupportedForType (const std::type_info & type);
 
 	/* Valued node.
 	 */
@@ -214,6 +225,30 @@ namespace DF {
 		T value_;
 	};
 
+	/* Constant value.
+	 */
+	template <typename T> class Constant : public Value<T>::Impl {
+	public:
+		template <typename... Args>
+		Constant (Args &&... args) : Value<T>::Impl (std::forward<Args> (args)...) {
+			this->makeValid ();
+		}
+
+		bool isConstant () const override final { return true; }
+
+		// Create a constant of default value (usually zeroes for must numeric types).
+		Node derive (const Node &) override final {
+			return Node::create<Constant<T>> (NumericInfo<T>::zero ());
+		}
+
+		std::string description () const override final {
+			return "Constant<" + prettyTypeName<T> () + ">(" + debug_to_string (this->getValue ()) + ")";
+		}
+
+	private:
+		void compute () override final { failureComputeWasCalled (typeid (Constant<T>)); }
+	};
+
 	/* Param node.
 	 */
 	template <typename T> class Parameter {
@@ -250,33 +285,29 @@ namespace DF {
 			this->makeValid ();
 		}
 
+		Node derive (const Node & variable) override final;
+
 		std::string description () const final { return "Parameter<" + prettyTypeName<T> () + ">"; }
 
 	private:
 		void compute () override final { failureComputeWasCalled (typeid (Parameter<T>)); }
 	};
 
-	/* Constant value.
-	 */
-	template <typename T> class Constant : public Value<T>::Impl {
-	public:
-		template <typename... Args>
-		Constant (Args &&... args) : Value<T>::Impl (std::forward<Args> (args)...) {
-			this->makeValid ();
-		}
-
-		bool isConstant () const override final { return true; }
-
-		// Create a constant of default value (usually zeroes for must numeric types).
-		Node derive (const Node &) override final { return Node::create<Constant> (); }
-
-		std::string description () const override final {
-			return "Constant<" + prettyTypeName<T> () + ">(" + debug_to_string (this->getValue ()) + ")";
-		}
-
-	private:
-		void compute () override final { failureComputeWasCalled (typeid (Constant<T>)); }
-	};
+	// Derivation only make sense for some types (like not for Sequence*)
+	// Use template trick to only generate an error for unsupported types
+	template <typename T>
+	Node deriveParameterHelper (const typename Parameter<T>::Impl * param, const Node & variable,
+	                            std::true_type) {
+		auto v = (variable == param) ? NumericInfo<T>::one () : NumericInfo<T>::zero ();
+		return Node::create<Constant<T>> (v);
+	}
+	template <typename T>
+	Node deriveParameterHelper (const typename Parameter<T>::Impl *, const Node &, std::false_type) {
+		failureDerivationNotSupportedForType (typeid (T));
+	}
+	template <typename T> Node Parameter<T>::Impl::derive (const Node & variable) {
+		return deriveParameterHelper<T> (this, variable, typename NumericInfo<T>::Derivable{});
+	}
 
 	/* Conversion constructors
 	 */

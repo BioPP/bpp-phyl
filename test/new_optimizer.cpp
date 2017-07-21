@@ -80,6 +80,20 @@ TEST_CASE("derive constant")
   CHECK(derived.getValue() == 0);
 }
 
+TEST_CASE("derive parameter")
+{
+  auto x = bpp::DF::Parameter<double>::create(42.0);
+  auto dummy = bpp::DF::Parameter<double>::create(3);
+
+  auto dx_dx = bpp::DF::Value<double>(x.getImpl().derive(x));
+  CHECK(dx_dx.getImpl().isConstant());
+  CHECK(dx_dx.getValue() == 1.0);
+
+  auto dx_dummy = bpp::DF::Value<double>(x.getImpl().derive(dummy));
+  CHECK(dx_dummy.getImpl().isConstant());
+  CHECK(dx_dummy.getValue() == 0.0);
+}
+
 TEST_CASE("test")
 {
   bpp::DataFlowParameter xp{"x", 42.0};

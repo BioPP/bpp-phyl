@@ -59,6 +59,10 @@ namespace DF {
 		                 " cannot store: " + prettyTypeName (typeid (node)));
 	}
 
+	void failureDerivationNotSupportedForType (const std::type_info & type) {
+		throw Exception ("derivation requested for unsupported type: " + prettyTypeName (type));
+	}
+
 	static void failureDependencyNumberMismatch (const std::type_info & computeNodeType,
 	                                             SizeType expectedSize, SizeType givenSize) {
 		throw Exception (prettyTypeName (computeNodeType) + ": expected " +
