@@ -68,6 +68,18 @@ struct PairProductOp
 // TODO define a bpp::Function to represent a DF::Value<double>
 // +manually set its ParameterList of DFParameter
 
+TEST_CASE("derive constant")
+{
+  auto konst = bpp::DF::Value<double>::create<bpp::DF::Constant<double>>(42.0);
+  CHECK(konst.getValue() == 42.0);
+  CHECK(konst.getImpl().isConstant());
+
+  auto dummy = bpp::DF::Parameter<double>::create(0);
+  auto derived = bpp::DF::Value<double>(konst.getImpl().derive(dummy));
+  CHECK(derived.getImpl().isConstant());
+  CHECK(derived.getValue() == 0);
+}
+
 TEST_CASE("test")
 {
   bpp::DataFlowParameter xp{"x", 42.0};

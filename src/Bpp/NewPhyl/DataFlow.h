@@ -113,8 +113,10 @@ namespace DF {
 
 		virtual void compute () = 0;
 		void computeRecursively ();
-    
-    virtual Node derive (const Node & variable);
+
+		// Derivation stuff
+		virtual Node derive (const Node & variable); // Defaults to error
+		virtual bool isConstant () const { return false; }
 
 		// TODO Remove ?
 		template <typename F> void foreachDependentNode (F f) const {
@@ -154,6 +156,10 @@ namespace DF {
 	private:
 		bool isValid_{false};
 	};
+
+	// Error functions
+	void failureComputeWasCalled (const std::type_info & paramType);
+	void failureNodeHandleConversion (const std::type_info & handleType, const Node::Impl & node);
 
 	/* Valued node.
 	 */
@@ -231,8 +237,6 @@ namespace DF {
 		std::shared_ptr<Impl> pImpl_;
 	};
 
-	void failureParameterComputeWasCalled (const std::type_info & paramType);
-
 	template <typename T> class Parameter<T>::Impl : public Value<T>::Impl {
 	public:
 		template <typename... Args>
@@ -249,13 +253,33 @@ namespace DF {
 		std::string description () const final { return "Parameter<" + prettyTypeName<T> () + ">"; }
 
 	private:
-		void compute () override final { failureParameterComputeWasCalled (typeid (Parameter<T>)); }
+		void compute () override final { failureComputeWasCalled (typeid (Parameter<T>)); }
+	};
+
+	/* Constant value.
+	 */
+	template <typename T> class Constant : public Value<T>::Impl {
+	public:
+		template <typename... Args>
+		Constant (Args &&... args) : Value<T>::Impl (std::forward<Args> (args)...) {
+			this->makeValid ();
+		}
+
+		bool isConstant () const override final { return true; }
+
+		// Create a constant of default value (usually zeroes for must numeric types).
+		Node derive (const Node &) override final { return Node::create<Constant> (); }
+
+		std::string description () const override final {
+			return "Constant<" + prettyTypeName<T> () + ">(" + debug_to_string (this->getValue ()) + ")";
+		}
+
+	private:
+		void compute () override final { failureComputeWasCalled (typeid (Constant<T>)); }
 	};
 
 	/* Conversion constructors
 	 */
-	void failureNodeHandleConversion (const std::type_info & handleType, const Node::Impl & node);
-
 	template <typename T> Node::Node (const Value<T> & v) noexcept : pImpl_ (v.getShared ()) {}
 	template <typename T> Node::Node (const Parameter<T> & p) noexcept : pImpl_ (p.getShared ()) {}
 

@@ -50,8 +50,8 @@
 namespace bpp {
 namespace DF {
 	// Error functions
-	void failureParameterComputeWasCalled (const std::type_info & paramType) {
-		throw Exception (prettyTypeName (paramType) + ": compute() was called on a Parameter node");
+	void failureComputeWasCalled (const std::type_info & paramType) {
+		throw Exception (prettyTypeName (paramType) + ": compute() was called");
 	}
 
 	void failureNodeHandleConversion (const std::type_info & handleType, const Node::Impl & node) {
