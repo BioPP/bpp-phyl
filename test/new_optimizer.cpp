@@ -42,9 +42,22 @@
 #define DOCTEST_CONFIG_IMPLEMENT_WITH_MAIN
 #include "doctest.h"
 
+#include <Bpp/NewPhyl/DataFlowTemplates.h>
 #include <Bpp/NewPhyl/Optimizer.h>
+#include <Bpp/Numeric/Function/Optimizer.h>
+
+struct MyOp
+{
+  using ArgumentTypes = std::tuple<double>;
+  using ResultType = double;
+  static void compute(ResultType& r, const double& d) { r = d * d; }
+};
+using MyNode = bpp::DF::GenericFunctionComputation<MyOp>;
+
+// TODO define a bpp::Function to represent a DF::Value<double>
+// +manually set its ParameterList of DFParameter
 
 TEST_CASE("test")
 {
-  bpp::DFParameter p1{"blah", 42.0};
+  bpp::DataFlowParameter p1{"blah", 42.0};
 }

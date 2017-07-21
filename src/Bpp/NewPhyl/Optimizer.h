@@ -47,14 +47,14 @@
 
 namespace bpp {
 
-class DFParameter : public Parameter {
+class DataFlowParameter : public Parameter {
 public:
-	DFParameter (const std::string & name, DF::Parameter<double> existingParam)
+	DataFlowParameter (const std::string & name, DF::Parameter<double> existingParam)
 	    : Parameter (name, {}), dfParam_ (std::move (existingParam)) {}
-	DFParameter (const std::string & name, double initialValue)
-	    : DFParameter (name, DF::Parameter<double>::create (initialValue)) {}
+	DataFlowParameter (const std::string & name, double initialValue)
+	    : DataFlowParameter (name, DF::Parameter<double>::create (initialValue)) {}
 
-  // TODO care about the listeners thingies
+	// TODO care about the listeners thingies
 	double getValue () const override { return dfParam_.getValue (); }
 	void setValue (double v) override { dfParam_.setValue (v); }
 

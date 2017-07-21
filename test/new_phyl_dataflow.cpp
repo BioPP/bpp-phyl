@@ -261,8 +261,8 @@ TEST_CASE("df")
   timingEnd(ts, "df_init_value");
   printLik(logLik, "df_init_value");
 
-  // std::ofstream fd("df_debug");
-  // bpp::DF::debugDag(fd, logLikNode);
+  std::ofstream fd("df_debug");
+  bpp::DF::debugDag(fd, logLikNode);
 
   // Change parameters
   auto& modelNode = dynamic_cast<bpp::Phyl::ModelNode&>(model.getImpl());
