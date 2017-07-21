@@ -122,6 +122,10 @@ namespace DF {
 		}
 	}
 
+	Node Node::Impl::derive (const Node & variable) {
+		throw Exception ("Node does not support derivation: " + description ());
+	}
+
 	void Node::Impl::registerNode (Impl * n) { dependentNodes_.emplace_back (n); }
 	void Node::Impl::unregisterNode (const Impl * n) {
 		dependentNodes_.erase (std::remove (dependentNodes_.begin (), dependentNodes_.end (), n),

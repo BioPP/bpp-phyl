@@ -43,21 +43,44 @@
 #include "doctest.h"
 
 #include <Bpp/NewPhyl/DataFlowTemplates.h>
+#include <Bpp/NewPhyl/Debug.h>
 #include <Bpp/NewPhyl/Optimizer.h>
 #include <Bpp/Numeric/Function/Optimizer.h>
 
-struct MyOp
+#include <fstream>
+#include <iostream>
+
+struct SquareOp
 {
   using ArgumentTypes = std::tuple<double>;
   using ResultType = double;
   static void compute(ResultType& r, const double& d) { r = d * d; }
 };
-using MyNode = bpp::DF::GenericFunctionComputation<MyOp>;
+using SquareNode = bpp::DF::GenericFunctionComputation<SquareOp>;
+
+struct PairProductOp
+{
+  using ArgumentTypes = std::tuple<double, double>;
+  using ResultType = double;
+  static void compute(ResultType& r, const double& lhs, const double& rhs) { r = lhs * rhs; }
+};
 
 // TODO define a bpp::Function to represent a DF::Value<double>
 // +manually set its ParameterList of DFParameter
 
 TEST_CASE("test")
 {
-  bpp::DataFlowParameter p1{"blah", 42.0};
+  bpp::DataFlowParameter xp{"x", 42.0};
+  bpp::DataFlowParameter yp{"y", 3.14};
+
+  auto& x = xp.getDataFlowParameter();
+  auto& y = yp.getDataFlowParameter();
+
+  auto v = bpp::DF::Value<double>::create<SquareNode>({x});
+  std::cout << "v = " << v.getValue() << "\n";
+
+  std::ofstream fd("df_debug");
+  bpp::DF::debugDag(fd, v);
+
+  auto n = v.getImpl().derive(x);
 }

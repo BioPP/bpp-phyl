@@ -58,6 +58,8 @@ public:
 	double getValue () const override { return dfParam_.getValue (); }
 	void setValue (double v) override { dfParam_.setValue (v); }
 
+	DF::Parameter<double> & getDataFlowParameter () { return dfParam_; }
+
 private:
 	DF::Parameter<double> dfParam_;
 };

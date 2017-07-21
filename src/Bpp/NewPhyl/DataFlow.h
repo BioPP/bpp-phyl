@@ -113,6 +113,8 @@ namespace DF {
 
 		virtual void compute () = 0;
 		void computeRecursively ();
+    
+    virtual Node derive (const Node & variable);
 
 		// TODO Remove ?
 		template <typename F> void foreachDependentNode (F f) const {
