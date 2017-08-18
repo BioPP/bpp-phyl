@@ -61,6 +61,7 @@ set (CPP_FILES
   Bpp/Phyl/Likelihood/RNonHomogeneousMixedTreeLikelihood.cpp
   Bpp/Phyl/Likelihood/RNonHomogeneousTreeLikelihood.cpp
   Bpp/Phyl/Likelihood/TreeLikelihoodTools.cpp
+  Bpp/Phyl/Mapping/DecompositionMethods.cpp
   Bpp/Phyl/Mapping/DecompositionReward.cpp
   Bpp/Phyl/Mapping/DecompositionSubstitutionCount.cpp
   Bpp/Phyl/Mapping/LaplaceSubstitutionCount.cpp
@@ -134,6 +135,7 @@ set (CPP_FILES
   Bpp/Phyl/Model/Nucleotide/YpR.cpp
   Bpp/Phyl/Model/Nucleotide/gBGC.cpp
   Bpp/Phyl/Model/OneChangeTransitionModel.cpp
+  Bpp/Phyl/Model/OneChangeRegisterTransitionModel.cpp
   Bpp/Phyl/Model/Protein/Coala.cpp
   Bpp/Phyl/Model/Protein/CoalaCore.cpp
   Bpp/Phyl/Model/Protein/DSO78.cpp

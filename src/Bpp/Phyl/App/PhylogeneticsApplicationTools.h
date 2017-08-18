@@ -573,6 +573,18 @@ public:
     int warn = 1);
 
   /**
+   * @brief Get a Register instance.
+   *
+   * @param regTypeDesc The description of the register.
+   * @param model The model to use.
+   * @param verbose if outputs  reading
+   * @return A SubstitutionRegister object.
+   */
+  
+  static SubstitutionRegister* getSubstitutionRegister(const std::string& regTypeDesc, const SubstitutionModel* model, bool verbose = true);
+  
+
+  /**
    * @brief Write a tree according to options.
    *
    * See the Bio++ Program Suite manual for a descriptio of all available options.

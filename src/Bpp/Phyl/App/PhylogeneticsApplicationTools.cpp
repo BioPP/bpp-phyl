@@ -1612,4 +1612,120 @@ SubstitutionCount* PhylogeneticsApplicationTools::getSubstitutionCount(
   return substitutionCount;
 }
 
-/******************************************************************************/
+/****************************************************************************/
+
+
+SubstitutionRegister* PhylogeneticsApplicationTools::getSubstitutionRegister(const std::string& regTypeDesc, const SubstitutionModel* model, bool verbose)
+{
+  string regType = "";
+  map<string, string> regArgs;
+  KeyvalTools::parseProcedure(regTypeDesc, regType, regArgs);
+  
+  SubstitutionRegister* reg = 0;
+
+  if (regType=="Combination")
+  {
+    VectorOfSubstitionRegisters* vreg= new VectorOfSubstitionRegisters(model);
+
+    size_t i = 0;
+    while (++i)
+    {
+      string regDesc = ApplicationTools::getStringParameter("reg" + TextTools::toString(i), regArgs, "", "", false, 1);
+      if (regDesc=="")
+        break;
+      
+      SubstitutionRegister* sreg=getSubstitutionRegister(regDesc, model);
+
+      vreg->addRegister(sreg);
+    }
+    
+    reg=vreg;
+  }
+  else if (regType == "All")
+  {
+    reg = new ComprehensiveSubstitutionRegister(model, false);
+  }
+  else if (regType == "Total")
+  {
+    reg = new TotalSubstitutionRegister(model);
+  }    
+  else if (regType == "Selected"){  
+    string subsList = ApplicationTools::getStringParameter("substitution.list", regArgs, "All", "", true, false);
+    reg = new SelectedSubstitutionRegister(model, subsList);  
+  }
+  else if (regType == "IntraAA")
+  {
+    if (AlphabetTools::isCodonAlphabet(model->getAlphabet()))
+    {
+      reg = new AAInteriorSubstitutionRegister(dynamic_cast<const CodonSubstitutionModel*>(model)); 
+    }
+    else
+      throw Exception("Internal amino-acid categorization is only available for codon alphabet!");
+  }
+  else if (regType == "InterAA")
+  {
+    if (AlphabetTools::isCodonAlphabet(model->getAlphabet()))
+    {
+      reg = new AAExteriorSubstitutionRegister(dynamic_cast<const CodonSubstitutionModel*>(model)); 
+    }
+    else
+      throw Exception("External amino-acid categorization is only available for codon alphabet!");
+  }
+  else if (regType == "GC")
+  {
+    if (AlphabetTools::isNucleicAlphabet(model->getAlphabet()))
+      reg = new GCSubstitutionRegister(dynamic_cast<const NucleotideSubstitutionModel*>(model), false);
+    else if (AlphabetTools::isCodonAlphabet(model->getAlphabet()))
+      reg = new GCSynonymousSubstitutionRegister(dynamic_cast<const CodonSubstitutionModel*>(model));
+    else
+      throw Exception("GC categorization is only available for nucleotide or codon alphabets!");
+  }
+  else if (regType == "TsTv")
+  {
+    if (AlphabetTools::isNucleicAlphabet(model->getAlphabet()))
+      reg = new TsTvSubstitutionRegister(dynamic_cast<const NucleotideSubstitutionModel*>(model));
+    else if (AlphabetTools::isCodonAlphabet(model->getAlphabet()))
+      reg = new TsTvSubstitutionRegister(dynamic_cast<const CodonSubstitutionModel*>(model));
+    else
+      throw Exception("TsTv categorization is only available for nucleotide or codon alphabet!");
+  }
+  else if (regType == "SW")
+  {
+    if (AlphabetTools::isNucleicAlphabet(model->getAlphabet()))
+      reg = new SWSubstitutionRegister(dynamic_cast<const NucleotideSubstitutionModel*>(model));
+    else if (AlphabetTools::isCodonAlphabet(model->getAlphabet()))
+      reg = new SWSubstitutionRegister(dynamic_cast<const CodonSubstitutionModel*>(model));
+    else
+      throw Exception("SW categorization is only available for nucleotide or codon alphabet!");
+  }
+  else if (regType == "KrKc")
+  {
+    if (AlphabetTools::isProteicAlphabet(model->getAlphabet()))
+      reg = new KrKcSubstitutionRegister(dynamic_cast<const ProteinSubstitutionModel*>(model));
+    else if (AlphabetTools::isCodonAlphabet(model->getAlphabet()))
+      reg = new KrKcSubstitutionRegister(dynamic_cast<const CodonSubstitutionModel*>(model));
+    else
+      throw Exception("KrKc categorization is only available for protein or amino acid alphabet!");
+  }
+  else if (regType == "DnDs")
+  {
+    if (AlphabetTools::isCodonAlphabet(model->getAlphabet()))
+    {
+      reg = new DnDsSubstitutionRegister(dynamic_cast<const CodonSubstitutionModel*>(model), false);
+    }
+    else
+      throw Exception("DnDs categorization is only available for codon alphabet!");
+  }
+  else
+    throw Exception("Unsupported substitution categorization: " + regType);
+
+  CategorySubstitutionRegister* csr=dynamic_cast<CategorySubstitutionRegister*>(reg);
+  if (csr)
+    csr->setStationarity(ApplicationTools::getBooleanParameter("stationarity", regArgs, true));
+
+  if (verbose)
+    ApplicationTools::displayResult("Substitution Register", regType);
+
+  return reg;
+}
+

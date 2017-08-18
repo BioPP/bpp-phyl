@@ -22,6 +22,6 @@ foreach (test_cpp_file ${test_cpp_files})
     WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
     COMMAND ${test_name}
     )
-  set_tests_properties (${test_name} PROPERTIES TIMEOUT 10000)
+  set_tests_properties (${test_name} PROPERTIES TIMEOUT 60000)
 endforeach (test_cpp_file)
 

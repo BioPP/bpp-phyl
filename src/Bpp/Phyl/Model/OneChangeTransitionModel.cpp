@@ -117,7 +117,7 @@ double OneChangeTransitionModel::d2Pij_dt2(size_t i, size_t j, double t) const
     double q2ik,q2ij=0,q3ij=0;
     
     for (size_t k = 0; k < size_; ++k)
-    {
+    { 
       q2ik=0;
       for (size_t l = 0; l < size_; ++l)
         q2ik+=Q(i,l)*Q(l,k);

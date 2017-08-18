@@ -88,7 +88,7 @@ protected:
   /**
    * @brief The map of model states with alphabet states.
    */
-  std::unique_ptr<StateMap> stateMap_;
+  std::shared_ptr<const StateMap> stateMap_;
 
   /**
    * @brief The size of the generator, i.e. the number of states.
@@ -182,12 +182,12 @@ protected:
   mutable RowMatrix<double> tmpMat_;
   
 public:
-  AbstractSubstitutionModel(const Alphabet* alpha, StateMap* stateMap, const std::string& prefix);
+  AbstractSubstitutionModel(const Alphabet* alpha, const StateMap* stateMap, const std::string& prefix);
 
   AbstractSubstitutionModel(const AbstractSubstitutionModel& model) :
     AbstractParameterAliasable(model),
     alphabet_(model.alphabet_),
-    stateMap_(model.stateMap_->clone()),
+    stateMap_(model.stateMap_),
     size_(model.size_),
     isScalable_(model.isScalable_),
     rate_(model.rate_),
@@ -394,6 +394,7 @@ public:
   virtual void setRate(double rate);
 
   friend class AbstractBiblioSubstitutionModel;
+  friend class OneChangeRegisterTransitionModel;
 
 };
 
@@ -426,7 +427,7 @@ class AbstractReversibleSubstitutionModel :
   public virtual ReversibleSubstitutionModel
 {
 public:
-  AbstractReversibleSubstitutionModel(const Alphabet* alpha, StateMap* stateMap, const std::string& prefix) :
+  AbstractReversibleSubstitutionModel(const Alphabet* alpha, const StateMap* stateMap, const std::string& prefix) :
     AbstractParameterAliasable(prefix),
     AbstractSubstitutionModel(alpha, stateMap, prefix)
   {
@@ -462,6 +463,9 @@ protected:
    * eigenValues_, rightEigenVectors_ and leftEigenVectors_ variables.
    */
   virtual void updateMatrices();
+
+  friend class OneChangeRegisterTransitionModel;
+  
 };
 
 } //end of namespace bpp.

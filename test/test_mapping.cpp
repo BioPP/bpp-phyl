@@ -64,7 +64,8 @@ using namespace bpp;
 using namespace std;
 
 int main() {
-  TreeTemplate<Node>* tree = TreeTemplateTools::parenthesisToTree("((A:0.001, B:0.002):0.008,C:0.01,D:0.1);");
+  try {
+  TreeTemplate<Node>* tree = TreeTemplateTools::parenthesisToTree("((A:0.001, B:0.002):0.008,C:0.01,D:0.02);");
   vector<int> ids = tree->getNodesId();
   ids.pop_back(); //Ignore root
 
@@ -79,23 +80,12 @@ int main() {
   TotalSubstitutionRegister* totReg = new TotalSubstitutionRegister(model);
   ComprehensiveSubstitutionRegister* detReg = new ComprehensiveSubstitutionRegister(model);
 
-
-  cout << "test mem" << endl;
-  ProteicAlphabet* alphabet2 = new ProteicAlphabet();
-  ReversibleSubstitutionModel* model2 = new JTT92(alphabet2);
-  AlphabetIndex1* ind = new GranthamAAVolumeIndex();
-  for (size_t i = 0; i < 1000000; i++) {
-    cout << i << endl;
-    unique_ptr<DecompositionReward> d(new DecompositionReward(model2, ind));
-  }
-  cout << "done" << endl;
-
-  unsigned int n = 20000;
+  size_t n = 50000;
   vector< vector<double> > realMap(n);
   vector< vector< vector<double> > > realMapTotal(n);
   vector< vector< vector<double> > > realMapDetailed(n);
   VectorSiteContainer sites(tree->getLeavesNames(), alphabet);
-  for (unsigned int i = 0; i < n; ++i) {
+  for (size_t i = 0; i < n; ++i) {
     ApplicationTools::displayGauge(i, n - 1, '=');
     unique_ptr<RASiteSimulationResult> result(simulator.dSimulateSite());
     realMap[i].resize(ids.size());
@@ -108,11 +98,11 @@ int main() {
       result->getSubstitutionCount(ids[j], *totReg, realMapTotal[i][j]);
       result->getSubstitutionCount(ids[j], *detReg, realMapDetailed[i][j]);
       if (realMapTotal[i][j][0] != realMap[i][j]) {
-        cerr << "Error, total substitution register provides wrong result." << endl;
+        throw Exception("Error, total substitution register provides wrong result.");
         return 1;
       }
       if (abs(VectorTools::sum(realMapDetailed[i][j]) - realMap[i][j]) > 0.000001) {
-        cerr << "Error, detailed substitution register provides wrong result." << endl;
+        throw Exception("Error, detailed substitution register provides wrong result.");
         return 1;
       }
     }
@@ -132,7 +122,7 @@ int main() {
 
   SubstitutionCount* sCountAna = new LaplaceSubstitutionCount(model, 10);
   Matrix<double>* m = sCountAna->getAllNumbersOfSubstitutions(0.001, 1);
-  cout << "Analytical total count:" << endl;
+  cout << "Analytical (Laplace) total count:" << endl;
   MatrixTools::print(*m);
   delete m;
   ProbabilisticSubstitutionMapping* probMapAna = 
@@ -191,53 +181,22 @@ int main() {
 
   //Check saturation:
   cout << "checking saturation..." << endl;
-  m = sCountUniDet->getAllNumbersOfSubstitutions(0.001,1);
-  cout << "Total count, uniformization method:" << endl;
-  MatrixTools::print(*m);
-  cout << MatrixTools::sumElements(*m) << endl;
-  delete m;
-  m = sCountUniDet->getAllNumbersOfSubstitutions(0.01,1);
-  cout << "Total count, uniformization method:" << endl;
-  MatrixTools::print(*m);
-  cout << MatrixTools::sumElements(*m) << endl;
-  delete m;
-  m = sCountUniDet->getAllNumbersOfSubstitutions(0.1,1);
-  cout << "Total count, uniformization method:" << endl;
-  MatrixTools::print(*m);
-  cout << MatrixTools::sumElements(*m) << endl;
-  delete m;
-  m = sCountUniDet->getAllNumbersOfSubstitutions(1,1);
-  cout << "Total count, uniformization method:" << endl;
-  MatrixTools::print(*m);
-  cout << MatrixTools::sumElements(*m) << endl;
-  delete m;
-  m = sCountUniDet->getAllNumbersOfSubstitutions(2,1);
-  cout << "Total count, uniformization method:" << endl;
-  MatrixTools::print(*m);
-  cout << MatrixTools::sumElements(*m) << endl;
-  delete m;
-  m = sCountUniDet->getAllNumbersOfSubstitutions(3,1);
-  cout << "Total count, uniformization method:" << endl;
-  MatrixTools::print(*m);
-  cout << MatrixTools::sumElements(*m) << endl;
-  delete m;
-  m = sCountUniDet->getAllNumbersOfSubstitutions(4,1);
-  cout << "Total count, uniformization method:" << endl;
-  MatrixTools::print(*m);
-  cout << MatrixTools::sumElements(*m) << endl;
-  delete m;
-  m = sCountUniDet->getAllNumbersOfSubstitutions(10,1);
-  cout << "Total count, uniformization method:" << endl;
-  MatrixTools::print(*m);
-  cout << MatrixTools::sumElements(*m) << endl;
-  delete m;
+  double td[] = {0.001, 0.01, 0.1, 1, 2, 3, 4, 10};
+  Vdouble vd(td, td+sizeof(td)/sizeof(double));
 
-
+  for (auto d : vd)
+  {
+    m = sCountUniDet->getAllNumbersOfSubstitutions(d,1);
+    cout << "Total count, uniformization method for " << d << endl;
+    MatrixTools::print(*m);
+    cout << MatrixTools::sumElements(*m) << endl;
+    delete m;
+  }
 
   //Check per branch:
   
   //1. Total:
-  for (unsigned int j = 0; j < ids.size(); ++j) {
+  for (size_t j = 0; j < ids.size(); ++j) {
     double totalReal = 0;
     double totalObs1 = 0;
     double totalObs2 = 0;
@@ -246,7 +205,7 @@ int main() {
     double totalObs5 = 0;
     double totalObs6 = 0;
     double totalObs7 = 0;
-    for (unsigned int i = 0; i < n; ++i) {
+    for (size_t i = 0; i < n; ++i) {
       totalReal += realMap[i][j];
       totalObs1 += probMapAna->getNumberOfSubstitutions(ids[j], i, 0);
       totalObs2 += probMapTot->getNumberOfSubstitutions(ids[j], i, 0);
@@ -258,21 +217,21 @@ int main() {
     }
     if (tree->isLeaf(ids[j])) cout << tree->getNodeName(ids[j]) << "\t";
     cout << tree->getDistanceToFather(ids[j]) << "\t" << totalReal << "\t" << totalObs1 << "\t" << totalObs2 << "\t" << totalObs3 << "\t" << totalObs4 << "\t" << totalObs5 << "\t" << totalObs6 << "\t" << totalObs7 << endl;
-    if (abs(totalReal - totalObs1) / totalReal > 0.1) return 1;
-    if (abs(totalReal - totalObs2) / totalReal > 0.1) return 1;
-    if (abs(totalReal - totalObs3) / totalReal > 0.1) return 1;
-    if (abs(totalReal - totalObs4) / totalReal > 0.1) return 1;
-    if (abs(totalReal - totalObs5) / totalReal > 0.1) return 1;
-    if (abs(totalReal - totalObs6) / totalReal > 0.1) return 1;
-    if (abs(totalReal - totalObs7) / totalReal > 0.1) return 1;
+    if (abs(totalReal - totalObs1) / totalReal > 0.1) throw Exception("Laplace substitution mapping failed, observed: " + TextTools::toString(totalObs1) + ", expected " + TextTools::toString(totalReal));
+    //if (abs(totalReal - totalObs2) / totalReal > 0.1) return 1; //We do not expect the naive mapping to actually give an accurate result!
+    //if (abs(totalReal - totalObs3) / totalReal > 0.1) return 1;
+    if (abs(totalReal - totalObs4) / totalReal > 0.1) throw Exception("Uniformization (total) substitution mapping failed, observed: " + TextTools::toString(totalObs4) + ", expected " + TextTools::toString(totalReal));
+    if (abs(totalReal - totalObs5) / totalReal > 0.1) throw Exception("Uniformization (detailed) substitution mapping failed, observed: " + TextTools::toString(totalObs5) + ", expected " + TextTools::toString(totalReal));
+    if (abs(totalReal - totalObs6) / totalReal > 0.1) throw Exception("Decomposition (total) substitution mapping failed, observed: " + TextTools::toString(totalObs6) + ", expected " + TextTools::toString(totalReal));
+    if (abs(totalReal - totalObs7) / totalReal > 0.1) throw Exception("Decomposition (detailed) substitution mapping failed, observed: " + TextTools::toString(totalObs7) + ", expected " + TextTools::toString(totalReal));
   }
   //2. Detail:
-  for (unsigned int j = 0; j < ids.size(); ++j) {
+  for (size_t j = 0; j < ids.size(); ++j) {
     vector<double> real(4, 0);
     vector<double> obs1(4, 0);
     vector<double> obs2(4, 0);
     vector<double> obs3(4, 0);
-    for (unsigned int i = 0; i < n; ++i) {
+    for (size_t i = 0; i < n; ++i) {
       real += realMapDetailed[i][j];
       //VectorTools::print(real);
       vector<double> c = probMapDet->getNumberOfSubstitutions(ids[j], i);
@@ -306,5 +265,11 @@ int main() {
   delete probMapUniTot;
   delete probMapUniDet;
   //return (abs(obs - 0.001) < 0.001 ? 0 : 1);
+  } catch (exception& e) {
+    cout << "Test failed. Reason:" << endl;
+    cout << e.what() << endl;
+    return 1;
+  }
+
   return 0;
 }

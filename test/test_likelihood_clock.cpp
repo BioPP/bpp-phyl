@@ -41,7 +41,7 @@ knowledge of the CeCILL license and that you accept its terms.
 #include <Bpp/Seq/Alphabet/AlphabetTools.h>
 #include <Bpp/Phyl/TreeTemplate.h>
 #include <Bpp/Phyl/Model/Nucleotide/T92.h>
-#include <Bpp/Phyl/Model/RateDistribution/GammaDiscreteRateDistribution.h>
+#include <Bpp/Phyl/Model/RateDistribution/ConstantRateDistribution.h>
 #include <Bpp/Phyl/Simulation/HomogeneousSequenceSimulator.h>
 #include <Bpp/Phyl/Likelihood/RHomogeneousTreeLikelihood.h>
 #include <Bpp/Phyl/Likelihood/RHomogeneousClockTreeLikelihood.h>
@@ -60,8 +60,8 @@ void fitModelH(SubstitutionModel* model, DiscreteDistribution* rdist, const Tree
   ApplicationTools::displayResult("Test model", model->getName());
   cout << setprecision(20) << tl.getValue() << endl;
   ApplicationTools::displayResult("* initial likelihood", tl.getValue());
-  if (abs(tl.getValue() - initialValue) > 0.0001)
-    throw Exception("Incorrect initial value.");
+  if (abs(tl.getValue() - initialValue) > 0.001)
+    throw Exception("Incorrect initial value:" + TextTools::toString(tl.getValue()) + "<>" + TextTools::toString(initialValue));
   unique_ptr<OutputStream> messenger(new StlOutputStream(new ofstream("messages.txt", ios::out)));
   unique_ptr<OutputStream> profiler(new StlOutputStream(new ofstream("profile.txt", ios::out)));
   profiler->setPrecision(20);
@@ -70,7 +70,11 @@ void fitModelH(SubstitutionModel* model, DiscreteDistribution* rdist, const Tree
   ApplicationTools::displayResult("* likelihood after full optimization", tl.getValue());
   tl.getParameters().printParameters(cout);
   if (abs(tl.getValue() - finalValue) > 0.001)
+<<<<<<< HEAD
     throw Exception("Incorrect final value.");
+=======
+    throw Exception("Incorrect final value:" + TextTools::toString(tl.getValue()) + "<>" + TextTools::toString(finalValue));
+>>>>>>> ed6c8d70abd74f382a88bcb90c064b90152b44e6
 }
 
 void fitModelHClock(SubstitutionModel* model, DiscreteDistribution* rdist, const Tree& tree, const SiteContainer& sites,
@@ -83,7 +87,7 @@ void fitModelHClock(SubstitutionModel* model, DiscreteDistribution* rdist, const
   cout << setprecision(20) << tl.getValue() << endl;
   ApplicationTools::displayResult("* initial likelihood", tl.getValue());
   if (abs(tl.getValue() - initialValue) > 0.001)
-    throw Exception("Incorrect initial value.");
+    throw Exception("Incorrect initial value:" + TextTools::toString(tl.getValue()) + "<>" + TextTools::toString(initialValue));
   unique_ptr<OutputStream> messenger(new StlOutputStream(new ofstream("messages.txt", ios::out)));
   unique_ptr<OutputStream> profiler(new StlOutputStream(new ofstream("profile.txt", ios::out)));
   profiler->setPrecision(20);
@@ -92,7 +96,7 @@ void fitModelHClock(SubstitutionModel* model, DiscreteDistribution* rdist, const
   ApplicationTools::displayResult("* likelihood after full optimization", tl.getValue());
   tl.getParameters().printParameters(cout);
   if (abs(tl.getValue() - finalValue) > 0.001)
-    throw Exception("Incorrect final value.");
+    throw Exception("Incorrect final value:" + TextTools::toString(tl.getValue()) + "<>" + TextTools::toString(finalValue));
 }
 
 int main() {
@@ -103,7 +107,7 @@ int main() {
 
   const NucleicAlphabet* alphabet = &AlphabetTools::DNA_ALPHABET;
   SubstitutionModel* model = new T92(alphabet, 3.);
-  DiscreteDistribution* rdist = new GammaDiscreteRateDistribution(4, 1.0);
+  DiscreteDistribution* rdist = new ConstantRateDistribution();
 
   VectorSiteContainer sites(alphabet);
   sites.addSequence(BasicSequence("A", "AAATGGCTGTGCACGTC", alphabet));
@@ -112,13 +116,13 @@ int main() {
   sites.addSequence(BasicSequence("D", "CAACGGGAGTGCGCCTA", alphabet));
 
   try {
-    fitModelH(model, rdist, *tree, sites, 93.017264552603336369, 71.265543199977557265);
+    fitModelH(model, rdist, *tree, sites, 94.3957, 71.2657);
   } catch (Exception& ex) {
     cerr << ex.what() << endl;
     return 1;
   }
   try {
-    fitModelHClock(model, rdist, *tree, sites, 92.27912072473920090943, 71.26554020984087856050);
+    fitModelHClock(model, rdist, *tree, sites, 92.3295, 71.2657);
   } catch (Exception& ex) {
     cerr << ex.what() << endl;
     return 1;

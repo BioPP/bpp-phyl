@@ -97,6 +97,14 @@ namespace bpp
     virtual size_t getNumberOfSubstitutionTypes() const = 0;
 
     /**
+     * @brief Get the name of the register.
+     *
+     * @return A string describing the register.
+     */
+    
+    virtual const std::string& getName() const = 0;
+
+    /**
      * @brief Get the substitution type far a given pair of model states.
      *
      * @param fromState Initial state (should be a state supported by the specified alphabet).
@@ -123,19 +131,21 @@ namespace bpp
   {
   protected:
     const SubstitutionModel* model_;
-
+    std::string name_;
+    
   public:
-    AbstractSubstitutionRegister(const SubstitutionModel* model) :
-      model_(model)
+    AbstractSubstitutionRegister(const SubstitutionModel* model, const std::string& name) :
+      model_(model), name_(name)
     {}
 
     AbstractSubstitutionRegister(const AbstractSubstitutionRegister& asr) :
-      model_(asr.model_)
+      model_(asr.model_), name_(asr.name_)
     {}
 
     AbstractSubstitutionRegister& operator=(const AbstractSubstitutionRegister& asr)
     {
       model_ = asr.model_;
+      name_ = asr.name_;
       return *this;
     }
 
@@ -145,6 +155,12 @@ namespace bpp
     const SubstitutionModel* getSubstitutionModel() const { return model_; }
 
     const Alphabet* getAlphabet() const { return model_->getAlphabet(); }
+
+    const std::string& getName() const
+    {
+      return name_;
+    }
+    
   };
 
 /**
@@ -159,7 +175,7 @@ namespace bpp
   {
   public:
     TotalSubstitutionRegister(const SubstitutionModel* model) :
-      AbstractSubstitutionRegister(model)
+      AbstractSubstitutionRegister(model,"Total")
     {}
 
     TotalSubstitutionRegister* clone() const { return new TotalSubstitutionRegister(*this); }
@@ -176,7 +192,7 @@ namespace bpp
     {
       if (type == 0)
       {
-        return "no substitution";
+        return "nosub";
       }
       else if (type == 1)
       {
@@ -194,6 +210,7 @@ namespace bpp
  * all substitutions. The new substitutions are considered in an
  * additional type.
  */
+  
   class CompleteSubstitutionRegister :
     public AbstractSubstitutionRegister
   {
@@ -204,7 +221,7 @@ namespace bpp
 
   public:
     CompleteSubstitutionRegister(const SubstitutionRegister& reg) :
-      AbstractSubstitutionRegister(reg.getSubstitutionModel()),
+      AbstractSubstitutionRegister(reg.getSubstitutionModel(),reg.getName()),
       preg_(reg.clone()),
       isRegComplete_(true)
     {
@@ -272,7 +289,7 @@ namespace bpp
       catch (Exception& e)
       {
         if (type == getNumberOfSubstitutionTypes())
-          return "Completion substitution";
+          return "Completion_substitution";
         else
           throw Exception("CompleteSubstitutionRegister::getTypeName. Bad substitution type.");
       }
@@ -303,7 +320,7 @@ namespace bpp
   public:
 
     VectorOfSubstitionRegisters(const SubstitutionModel* model) :
-      AbstractSubstitutionRegister(model),
+      AbstractSubstitutionRegister(model, "Combination"),
       vSubReg_()
     {}
 
@@ -395,19 +412,19 @@ namespace bpp
     std::string getTypeName(size_t type) const
     {
       if (type == 0)
-        return "no substitution";
+        return "nosub";
 
       std::string res="";
       size_t ty=type-1;
       
       for (size_t p=vSubReg_.size(); p>0; p--)
       {
-        res+=vSubReg_[p-1]->getTypeName((ty%vSubReg_[p-1]->getNumberOfSubstitutionTypes())+1);
+        if (p!=vSubReg_.size())
+          res="_X_" + res;
+        res=vSubReg_[p-1]->getTypeName((ty%vSubReg_[p-1]->getNumberOfSubstitutionTypes())+1) + res;
 
         ty/=vSubReg_[p-1]->getNumberOfSubstitutionTypes();
         
-        if (p!=1)
-          res+="_";
       }
 
       return res;
@@ -450,14 +467,14 @@ namespace bpp
 
   public:
     GeneralSubstitutionRegister(const SubstitutionModel* model) :
-      AbstractSubstitutionRegister(model),
+      AbstractSubstitutionRegister(model,"General"),
       size_(model->getNumberOfStates()),
       matrix_(size_, size_),
       types_()
     {}
 
     GeneralSubstitutionRegister(const SubstitutionModel* model, const RowMatrix<size_t>& matrix) :
-      AbstractSubstitutionRegister(model),
+      AbstractSubstitutionRegister(model,"General"),
       size_(model->getNumberOfStates()),
       matrix_(matrix),
       types_()
@@ -744,12 +761,12 @@ namespace bpp
 
   public:
     TsTvSubstitutionRegister(const NucleotideSubstitutionModel* model) :
-      AbstractSubstitutionRegister(model),
+      AbstractSubstitutionRegister(model,"TsTv"),
       code_()
     {}
 
     TsTvSubstitutionRegister(const CodonSubstitutionModel* model) :
-      AbstractSubstitutionRegister(model),
+      AbstractSubstitutionRegister(model,"TsTv"),
       code_(model->getGeneticCode())
     {}
 
@@ -814,15 +831,15 @@ namespace bpp
     {
       if (type == 0)
       {
-        return "no substitution";
+        return "nosub";
       }
       else if (type == 1)
       {
-        return "transition";
+        return "Ts";
       }
       else if (type == 2)
       {
-        return "transversion";
+        return "Tv";
       }
       else
       {
@@ -830,6 +847,142 @@ namespace bpp
       }
     }
   };
+
+  /**
+   * @brief Distinguishes substitutions given the link between the
+   * changed nucleotides : S for strong (GC) and W for weak (AT).
+   *
+   * This register has 4 substitution types, mapped as:
+   * - 0 not a substitution
+   * - 1 S->S
+   * - 2 S->W
+   * - 3 W->S
+   * - 4 W->W
+   */
+
+  class SWSubstitutionRegister :
+    public AbstractSubstitutionRegister
+  {
+  private:
+    /**
+     *  @brief useful for codon alphabet
+     *
+     */
+    
+    const GeneticCode* code_;
+
+  public:
+    SWSubstitutionRegister(const NucleotideSubstitutionModel* model) :
+      AbstractSubstitutionRegister(model,"SW"),
+      code_()
+    {}
+
+    SWSubstitutionRegister(const CodonSubstitutionModel* model) :
+      AbstractSubstitutionRegister(model,"SW"),
+      code_(model->getGeneticCode())
+    {}
+
+    SWSubstitutionRegister(const SWSubstitutionRegister& reg) :
+      AbstractSubstitutionRegister(reg),
+      code_(reg.code_)
+    {}
+
+    SWSubstitutionRegister& operator=(const SWSubstitutionRegister& reg)
+    {
+      AbstractSubstitutionRegister::operator=(reg);
+      code_ = reg.code_;
+      return *this;
+    }
+
+    SWSubstitutionRegister* clone() const { return new SWSubstitutionRegister(*this); }
+
+  public:
+    size_t getNumberOfSubstitutionTypes() const { return 4; }
+
+    size_t getType(size_t fromState, size_t toState) const
+    {
+      int x = model_->getAlphabetStateAsInt(fromState);
+      int y = model_->getAlphabetStateAsInt(toState);
+      if (x == y)
+        return 0;                     // nothing happens
+
+      const CodonAlphabet* cAlpha = dynamic_cast<const CodonAlphabet*>(model_->getAlphabet());
+      int nd, na;
+      
+      if (cAlpha)
+      {
+        if (code_->getSourceAlphabet()->isGap(x)
+            || code_->getSourceAlphabet()->isGap(y)
+            || code_->isStop(x)
+            || code_->isStop(y))
+          return 0;
+        
+        nd=cAlpha->getFirstPosition(x);
+        na=cAlpha->getFirstPosition(y);
+        if (na!=nd)
+        {
+          if (cAlpha->getSecondPosition(x) != cAlpha->getSecondPosition(y)
+              || (cAlpha->getThirdPosition(x) != cAlpha->getThirdPosition(y)))
+            return 0;
+        }
+        else
+        {
+          nd=cAlpha->getSecondPosition(x);
+          na=cAlpha->getSecondPosition(y);
+          if (na!=nd)
+          {
+            if (cAlpha->getThirdPosition(x) != cAlpha->getThirdPosition(y))
+              return 0;
+          }
+          else
+          {
+            nd=cAlpha->getThirdPosition(x);
+            na=cAlpha->getThirdPosition(y);
+          }
+        }
+      }
+      else
+      {
+        nd=x;
+        na=y;
+      }
+      
+      switch(nd)
+      {
+      case 0:
+        return (na==3)?4:3;
+      case 1:
+        return (na==2)?1:2;
+      case 2:
+        return (na==1)?1:2;
+      case 3:
+        return (na==0)?4:3;
+      default:
+        return 0;
+      }
+    }
+
+    std::string getTypeName(size_t type) const
+    {
+      switch(type)
+      {
+      case 0:
+        return "nosub";
+      case 1:
+        return "S->S";
+      case 2:
+        return "S->W";
+      case 3:
+        return "W->S";
+      case 4:
+        return "W->W";
+      default:
+        throw Exception("SWSubstitutionRegister::getTypeName. Bad substitution type.");
+      }
+    }
+    
+  };
+
 
 /**
  * @brief Distinguishes synonymous from non-synonymous substitutions.
@@ -848,7 +1001,7 @@ namespace bpp
 
   public:
     DnDsSubstitutionRegister(const CodonSubstitutionModel* model, bool countMultiple = false) :
-      AbstractSubstitutionRegister(model),
+      AbstractSubstitutionRegister(model,"DnDs"),
       code_(model->getGeneticCode()),
       countMultiple_(countMultiple)
     {}
@@ -876,7 +1029,7 @@ namespace bpp
     {
       int x = model_->getAlphabetStateAsInt(fromState);
       int y = model_->getAlphabetStateAsInt(toState);
-      const CodonAlphabet* cAlpha = dynamic_cast<const CodonAlphabet*>(model_->getAlphabet());
+      const CodonAlphabet* cAlpha = static_cast<const CodonAlphabet*>(model_->getAlphabet());
       if (code_->getSourceAlphabet()->isGap(x)
           || code_->getSourceAlphabet()->isGap(y)
           || code_->isStop(x)
@@ -903,7 +1056,7 @@ namespace bpp
     {
       if (type == 0)
       {
-        return "no substitution";
+        return "nosub";
       }
       else if (type == 1)
       {
@@ -935,10 +1088,43 @@ namespace bpp
   private:
     std::vector< std::vector<bool> > types_;
 
+    // In case of codon model
+    const GeneticCode* code_;
+
   public:
     KrKcSubstitutionRegister(const ProteinSubstitutionModel* model) :
-      AbstractSubstitutionRegister(model),
-      types_(20)
+      AbstractSubstitutionRegister(model,"KrKc"),
+      types_(20),
+      code_(0)
+    {
+      init();
+    }
+
+    KrKcSubstitutionRegister(const CodonSubstitutionModel* model) :
+      AbstractSubstitutionRegister(model,"KrKc"),
+      types_(20),
+      code_(model->getGeneticCode())
+    {
+      init();
+    }
+
+    KrKcSubstitutionRegister(const KrKcSubstitutionRegister& kreg) :
+      AbstractSubstitutionRegister(kreg),
+      types_(kreg.types_),
+      code_(kreg.code_)
+    {
+    }
+
+    KrKcSubstitutionRegister& operator=(const KrKcSubstitutionRegister& kreg)
+    {
+      AbstractSubstitutionRegister::operator=(kreg);
+      types_=kreg.types_;
+      code_=kreg.code_;
+
+      return *this;
+    }
+
+    void init()
     {
       for (size_t i = 0; i < 20; ++i) {
         types_[i].resize(20);
@@ -1049,6 +1235,34 @@ namespace bpp
         return 0;  // nothing happens
       int x = model_->getAlphabetStateAsInt(fromState);
       int y = model_->getAlphabetStateAsInt(toState);
+
+      if (code_) //Codon model
+      {
+        if (code_->getSourceAlphabet()->isGap(x)
+            || code_->getSourceAlphabet()->isGap(y)
+            || code_->isStop(x)
+            || code_->isStop(y))
+          return 0;
+        if (code_->areSynonymous(x, y))
+          return 0;
+
+        // avoid multiple substitutions
+        const CodonAlphabet* cAlpha = static_cast<const CodonAlphabet*>(model_->getAlphabet());
+        
+        size_t countPos = 0;
+        if (cAlpha->getFirstPosition(x) != cAlpha->getFirstPosition(y))
+          countPos++;
+        if (cAlpha->getSecondPosition(x) != cAlpha->getSecondPosition(y))
+          countPos++;
+        if (cAlpha->getThirdPosition(x) != cAlpha->getThirdPosition(y))
+          countPos++;
+        if (countPos > 1)
+          return 0;
+
+        x=code_->translate(x);
+        y=code_->translate(y);
+      }
+
       return types_[static_cast<size_t>(x)][static_cast<size_t>(y)] ? 1 : 2;
     }
 
@@ -1056,15 +1270,15 @@ namespace bpp
     {
       if (type == 0)
       {
-        return "no substitution";
+        return "nosub";
       }
       else if (type == 1)
       {
-        return "conservative";
+        return "Kc";
       }
       else if (type == 2)
       {
-        return "radical";
+        return "Kr";
       }
       else
       {
