@@ -70,11 +70,7 @@ void fitModelH(SubstitutionModel* model, DiscreteDistribution* rdist, const Tree
   ApplicationTools::displayResult("* likelihood after full optimization", tl.getValue());
   tl.getParameters().printParameters(cout);
   if (abs(tl.getValue() - finalValue) > 0.001)
-<<<<<<< HEAD
-    throw Exception("Incorrect final value.");
-=======
     throw Exception("Incorrect final value:" + TextTools::toString(tl.getValue()) + "<>" + TextTools::toString(finalValue));
->>>>>>> ed6c8d70abd74f382a88bcb90c064b90152b44e6
 }
 
 void fitModelHClock(SubstitutionModel* model, DiscreteDistribution* rdist, const Tree& tree, const SiteContainer& sites,
