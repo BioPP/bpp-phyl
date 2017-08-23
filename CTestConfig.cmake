@@ -11,3 +11,4 @@ set(CTEST_DROP_METHOD "http")
 set(CTEST_DROP_SITE "biopp.univ-montp2.fr")
 set(CTEST_DROP_LOCATION "/dashboard/submit.php?project=bpp-phyl")
 set(CTEST_DROP_SITE_CDASH TRUE)
+
