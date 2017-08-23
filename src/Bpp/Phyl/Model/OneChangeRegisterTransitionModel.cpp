@@ -58,7 +58,7 @@ OneChangeRegisterTransitionModel::OneChangeRegisterTransitionModel(const Substit
       if (reg.getType(i,j)!=numReg)
         otherChanges_[i].push_back(j);
       else
-        modelChanged_->getGenerator()(i,j)=0;
+        modelChanged_->setGenerator()(i,j)=0;
 
   updateMatrices();
   
@@ -92,7 +92,7 @@ OneChangeRegisterTransitionModel::OneChangeRegisterTransitionModel(const Substit
       if (othCh)
         otherChanges_[i].push_back(j);
       else
-        modelChanged_->getGenerator()(i,j)=0;
+        modelChanged_->setGenerator()(i,j)=0;
     }
 
   updateMatrices();  
@@ -106,7 +106,7 @@ void OneChangeRegisterTransitionModel::updateMatrices()
   
   for (size_t i = 0; i < size_; i++)
     for (auto j : otherChanges_[i])
-      modelChanged_->getGenerator()(i,j)=gen(i, j);
+      modelChanged_->setGenerator()(i,j)=gen(i, j);
 
   modelChanged_->updateMatrices();
 }
