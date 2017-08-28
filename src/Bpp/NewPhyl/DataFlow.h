@@ -52,7 +52,7 @@
 
 namespace bpp {
 
-// FIXME improve
+// FIXME improve (test with eigen::vec to decide impl)
 template <typename T> struct NumericInfo { using Derivable = std::false_type; };
 template <> struct NumericInfo<double> {
 	using Derivable = std::true_type;
@@ -61,6 +61,9 @@ template <> struct NumericInfo<double> {
 };
 
 namespace DF {
+  /* TODO reorganize
+   * Separate Handle types from node types.
+   */
 
 	// Fwd declaration
 	class Node;
@@ -295,6 +298,7 @@ namespace DF {
 
 	// Derivation only make sense for some types (like not for Sequence*)
 	// Use template trick to only generate an error for unsupported types
+  // FIXME improve too
 	template <typename T>
 	Node deriveParameterHelper (const typename Parameter<T>::Impl * param, const Node & variable,
 	                            std::true_type) {

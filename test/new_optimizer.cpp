@@ -50,6 +50,8 @@
 #include <fstream>
 #include <iostream>
 
+// x -> x^2 and its derivatives
+
 struct SquareOp
 {
   using ArgumentTypes = std::tuple<double>;
@@ -58,6 +60,17 @@ struct SquareOp
 };
 using SquareNode = bpp::DF::GenericFunctionComputation<SquareOp>;
 
+struct DSquareOp
+{
+  using ArgumentTypes = std::tuple<double>;
+  using ResultType = double;
+  static void compute(ResultType& r, const double& d) { r = 2 * d; }
+};
+using DSquareNode = bpp::DF::GenericFunctionComputation<DSquareOp>;
+
+// DDSquareOp == Constant<double>(2)
+
+// A product
 struct PairProductOp
 {
   using ArgumentTypes = std::tuple<double, double>;
@@ -108,5 +121,5 @@ TEST_CASE("test")
   std::ofstream fd("df_debug");
   bpp::DF::debugDag(fd, v);
 
-  auto n = v.getImpl().derive(x);
+  auto n = v.getImpl().derive(x); // Make this work
 }

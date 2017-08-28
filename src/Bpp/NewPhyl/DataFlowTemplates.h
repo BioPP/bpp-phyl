@@ -57,12 +57,13 @@ namespace DF {
 	// Error utils
 	void checkDependencyNumber (const std::type_info & computeNodeType, SizeType expectedSize,
 	                            SizeType givenSize);
-	void failureDependencyTypeMismatch (const std::type_info & computeNodeType, IndexType depIndex,
-	                                    const std::type_info & expectedType,
-	                                    const Node::Impl & givenNode);
+	[[noreturn]] void failureDependencyTypeMismatch (const std::type_info & computeNodeType,
+	                                                 IndexType depIndex,
+	                                                 const std::type_info & expectedType,
+	                                                 const Node::Impl & givenNode);
 
 	// Description utils (hidden as a private member of a class)
-	struct OpDescription {
+	struct OpDescriptionHelper {
 	private:
 		// FIXME doc this ? keep ? I don't like exposing this...
 		template <typename Op> static auto test (Op) -> decltype (Op::description (), std::true_type{});
@@ -75,7 +76,16 @@ namespace DF {
 		}
 
 	public:
-		template <typename Op> static std::string make () { return helper<Op> (HasDescription<Op>{}); }
+		template <typename Op> static std::string description () {
+			return helper<Op> (HasDescription<Op>{});
+		}
+	};
+
+	// Derivation utils
+	struct OpDerivationHelper {
+	public:
+		// FIXME same as the other one, default is failure(), success is forward
+		template <typename Op> static Node derive (const Node::Impl * node, const Node & variable) {}
 	};
 
 	/** Generic function computation.
@@ -109,7 +119,9 @@ namespace DF {
 			checkDependencies (Cpp14::MakeIndexSequence<nbDependencies>{});
 		}
 
-		std::string description () const final { return "Func(" + OpDescription::make<Op> () + ")"; }
+		std::string description () const final {
+			return "Func(" + OpDescriptionHelper::description<Op> () + ")";
+		}
 
 	private:
 		/** Runtime checks the dependency for type / number mismatch.
@@ -174,7 +186,9 @@ namespace DF {
 					                               this->dependencies ()[i].getImpl ());
 		}
 
-		std::string description () const final { return "Reduce(" + OpDescription::make<Op> () + ")"; }
+		std::string description () const final {
+			return "Reduce(" + OpDescriptionHelper::description<Op> () + ")";
+		}
 
 	private:
 		void compute () override final {
