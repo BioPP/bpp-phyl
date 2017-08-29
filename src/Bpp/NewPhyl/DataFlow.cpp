@@ -54,7 +54,7 @@ namespace DF {
 		throw Exception (prettyTypeName (paramType) + ": compute() was called");
 	}
 
-	void failureNodeHandleConversion (const std::type_info & handleType, const Node::Impl & node) {
+	void failureNodeConversion (const std::type_info & handleType, const Node & node) {
 		throw Exception (prettyTypeName (handleType) +
 		                 " cannot store: " + prettyTypeName (typeid (node)));
 	}
@@ -76,39 +76,48 @@ namespace DF {
 	}
 
 	void failureDependencyTypeMismatch (const std::type_info & computeNodeType, IndexType depIndex,
-	                                    const std::type_info & expectedType,
-	                                    const Node::Impl & givenNode) {
+	                                    const std::type_info & expectedType, const Node & givenNode) {
 		throw Exception (prettyTypeName (computeNodeType) + ": expected class derived from " +
 		                 prettyTypeName (expectedType) + " as " + std::to_string (depIndex) +
 		                 "-th dependency, got " + prettyTypeName (typeid (givenNode)));
 	}
 
-	//
+	// Node impls
 
-	void Node::Impl::invalidate () noexcept {
+	Node::Node (NodeRefVec dependencies) : dependencyNodes_ (std::move (dependencies)) {
+		for (auto & n : dependencyNodes_)
+			n->registerNode (this);
+	}
+
+	Node::~Node () {
+		for (auto & n : dependencyNodes_)
+			n->unregisterNode (this);
+	}
+
+	void Node::invalidate () noexcept {
 		if (!isValid ())
 			return;
-		std::stack<Impl *> nodesToInvalidate;
+		std::stack<Node *> nodesToInvalidate;
 		nodesToInvalidate.push (this);
 		while (!nodesToInvalidate.empty ()) {
 			auto * n = nodesToInvalidate.top ();
 			nodesToInvalidate.pop ();
 			if (n->isValid ()) {
 				n->isValid_ = false;
-				for (auto * impl : n->dependentNodes_)
-					nodesToInvalidate.push (impl);
+				for (auto * dependent : n->dependentNodes_)
+					nodesToInvalidate.push (dependent);
 			}
 		}
 	}
 
-	void Node::Impl::computeRecursively () {
+	void Node::computeRecursively () {
 		// Compute the current node (and dependencies recursively) if needed
 		if (isValid ())
 			return;
 
 		// Discover then recompute needed nodes
-		std::stack<Impl *> nodesToVisit;
-		std::stack<Impl *> nodesToRecompute;
+		std::stack<Node *> nodesToVisit;
+		std::stack<Node *> nodesToRecompute;
 		nodesToVisit.push (this);
 		while (!nodesToVisit.empty ()) {
 			auto * n = nodesToVisit.top ();
@@ -116,7 +125,7 @@ namespace DF {
 			if (!n->isValid ())
 				nodesToRecompute.push (n);
 			for (auto & dep : n->dependencies ())
-				nodesToVisit.push (&dep.getImpl ());
+				nodesToVisit.push (dep.get ());
 		}
 		while (!nodesToRecompute.empty ()) {
 			auto * n = nodesToRecompute.top ();
@@ -126,12 +135,18 @@ namespace DF {
 		}
 	}
 
-	Node Node::Impl::derive (const Node & variable) {
+	NodeRef Node::derive (const Node & variable) {
 		throw Exception ("Node does not support derivation: " + description ());
 	}
 
-	void Node::Impl::registerNode (Impl * n) { dependentNodes_.emplace_back (n); }
-	void Node::Impl::unregisterNode (const Impl * n) {
+	void Node::appendDependency (NodeRef node) {
+		node->registerNode (this);
+		dependencyNodes_.emplace_back (std::move (node));
+		invalidate ();
+	}
+
+	void Node::registerNode (Node * n) { dependentNodes_.emplace_back (n); }
+	void Node::unregisterNode (const Node * n) {
 		dependentNodes_.erase (std::remove (dependentNodes_.begin (), dependentNodes_.end (), n),
 		                       dependentNodes_.end ());
 	}

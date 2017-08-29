@@ -60,7 +60,7 @@ namespace DF {
 	[[noreturn]] void failureDependencyTypeMismatch (const std::type_info & computeNodeType,
 	                                                 IndexType depIndex,
 	                                                 const std::type_info & expectedType,
-	                                                 const Node::Impl & givenNode);
+	                                                 const Node & givenNode);
 
 	// Description utils (hidden as a private member of a class)
 	struct OpDescriptionHelper {
@@ -84,25 +84,23 @@ namespace DF {
 	// Derivation utils
 	struct OpDerivationHelper {
 	private:
-  public:
+	public:
 		template <typename Op>
 		static auto test (Op)
-		    -> decltype (Op::derive (std::declval<Node::Impl &> (), std::declval<const Node &> ()),
+		    -> decltype (Op::derive (std::declval<Node &> (), std::declval<const Node &> ()),
 		                 std::true_type{});
 		static auto test (...) -> std::false_type;
 		template <typename Op> using HasDerivation = decltype (test (std::declval<Op> ()));
 
-		template <typename Op>
-		static Node helper (Node::Impl & self, const Node & var, std::true_type) {
+		template <typename Op> static NodeRef helper (Node & self, const Node & var, std::true_type) {
 			return Op::derive (self, var);
 		}
-		template <typename Op>
-		static Node helper (Node::Impl & self, const Node & var, std::false_type) {
-			return self.Node::Impl::derive (var);
+		template <typename Op> static NodeRef helper (Node & self, const Node & var, std::false_type) {
+			return self.Node::derive (var);
 		}
 
 	public:
-		template <typename Op> static Node derive (Node::Impl & self, const Node & variable) {
+		template <typename Op> static NodeRef derive (Node & self, const Node & variable) {
 			return helper<Op> (self, variable, HasDerivation<Op>{});
 		}
 	};
@@ -123,8 +121,7 @@ namespace DF {
 	 * Each dependency must be connected to a Value<T> of the matching type.
 	 * Dependencies given to the constructor must match.
 	 */
-	template <typename Op>
-	class GenericFunctionComputation : public Value<typename Op::ResultType>::Impl {
+	template <typename Op> class GenericFunctionComputation : public Value<typename Op::ResultType> {
 	public:
 		using ResultType = typename Op::ResultType;
 		using ArgumentTypes = typename Op::ArgumentTypes;
@@ -133,34 +130,34 @@ namespace DF {
 		using ArgumentType = typename std::tuple_element<Index, ArgumentTypes>::type;
 
 		template <typename... Args>
-		GenericFunctionComputation (NodeVec deps, Args &&... args)
-		    : Value<ResultType>::Impl (std::move (deps), std::forward<Args> (args)...) {
+		GenericFunctionComputation (NodeRefVec deps, Args &&... args)
+		    : Value<ResultType> (std::move (deps), std::forward<Args> (args)...) {
 			checkDependencies (Cpp14::MakeIndexSequence<nbDependencies>{});
-		}
-
-		std::string description () const override final {
-			return "Func(" + OpDescriptionHelper::description<Op> () + ")";
 		}
 
 		Node derive (const Node & variable) override final {
 			return OpDerivationHelper::derive<Op> (*this, variable);
 		}
 
+		std::string description () const override final {
+			return "Func(" + OpDescriptionHelper::description<Op> () + ")";
+		}
+
 	private:
 		/** Runtime checks the dependency for type / number mismatch.
 		 */
-		template <SizeType... Is> void checkDependencies (Cpp14::IndexSequence<Is...>) {
+		template <SizeType... Is> void checkDependencies (Cpp14::IndexSequence<Is...>) const {
 			checkDependencyNumber (typeid (GenericFunctionComputation), nbDependencies,
 			                       this->dependencies ().size ());
 			// check dependency type for each required argument (uses IndexSequence for tuple unpacking)
 			static_cast<void> (std::initializer_list<int>{checkDependencyType<Is> ()...});
 		}
-		template <SizeType Index> int checkDependencyType () {
+		template <SizeType Index> int checkDependencyType () const {
 			using ArgType = ArgumentType<Index>;
-			if (!isValueNode<ArgType> (this->dependencies ()[Index]))
+			auto & dep = *this->dependencies ()[Index];
+			if (!isValueNode<ArgType> (dep))
 				failureDependencyTypeMismatch (typeid (GenericFunctionComputation), Index,
-				                               typeid (typename Value<ArgType>::Impl),
-				                               this->dependencies ()[Index].getImpl ());
+				                               typeid (Value<ArgType>), dep);
 			return 0; // Dummy int for the initializer_list<int>
 		}
 
@@ -172,7 +169,8 @@ namespace DF {
 		}
 		template <SizeType... Is> void computeWithUnpackedIndexSequence (Cpp14::IndexSequence<Is...>) {
 			// Helper function : unpack and cast each dependency to its type, feed values to compute.
-			Op::compute (this->value_, getValueUnsafe<ArgumentType<Is>> (this->dependencies ()[Is])...);
+			Op::compute (this->value_,
+			             accessValueUnsafe<ArgumentType<Is>> (*this->dependencies ()[Is])...);
 		}
 	};
 
@@ -193,20 +191,20 @@ namespace DF {
 	 * };
 	 * @endcode
 	 */
-	template <typename Op>
-	class GenericReductionComputation : public Value<typename Op::ResultType>::Impl {
+	template <typename Op> class GenericReductionComputation : public Value<typename Op::ResultType> {
 	public:
 		using ResultType = typename Op::ResultType;
 		using ArgumentType = typename Op::ArgumentType;
 
 		template <typename... Args>
-		GenericReductionComputation (NodeVec deps, Args &&... args)
-		    : Value<ResultType>::Impl (std::move (deps), std::forward<Args> (args)...) {
-			for (auto i : index_range (this->dependencies ()))
-				if (!isValueNode<ArgumentType> (this->dependencies ()[i]))
+		GenericReductionComputation (NodeRefVec deps, Args &&... args)
+		    : Value<ResultType> (std::move (deps), std::forward<Args> (args)...) {
+			for (auto i : index_range (this->dependencies ())) {
+				auto & dep = *this->dependencies ()[i];
+				if (!isValueNode<ArgumentType> (dep))
 					failureDependencyTypeMismatch (typeid (GenericReductionComputation), i,
-					                               typeid (typename Value<ArgumentType>::Impl),
-					                               this->dependencies ()[i].getImpl ());
+					                               typeid (Value<ArgumentType>), dep);
+			}
 		}
 
 		std::string description () const final {
@@ -217,7 +215,7 @@ namespace DF {
 		void compute () override final {
 			Op::reset (this->value_);
 			for (const auto & dep : this->dependencies ())
-				Op::reduce (this->value_, getValueUnsafe<ArgumentType> (dep));
+				Op::reduce (this->value_, accessValueUnsafe<ArgumentType> (*dep));
 		}
 	};
 }

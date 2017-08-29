@@ -61,88 +61,47 @@ template <> struct NumericInfo<double> {
 };
 
 namespace DF {
-  /* TODO reorganize
-   * Separate Handle types from node types.
-   */
-
 	// Fwd declaration
 	class Node;
-	template <typename T> class Value;
-	template <typename T> class Parameter;
 
-	/* Base Node.
-	 * Always contains a node (as do all handle classes.
+	// Error functions
+	[[noreturn]] void failureComputeWasCalled (const std::type_info & paramType);
+	[[noreturn]] void failureNodeConversion (const std::type_info & handleType, const Node & node);
+	[[noreturn]] void failureDerivationNotSupportedForType (const std::type_info & type);
+
+	// Convenient typedefs : Node is supposed to be used as shared_ptr instances.
+	using NodeRef = std::shared_ptr<Node>;
+	using NodeRefVec = Vector<NodeRef>;
+
+	/* Base Node class.
+	 * Abstract : compute() needs to be defined to the actual computation.
+	 * TODO determine what to remove from the class API (computeRecursively ?)
+	 * → depends if Node is high level (safe) or low level
+	 * → choose invariants carefully : tend to think these are low level classes
 	 */
 	class Node {
 	public:
-		class Impl;
+		Node () = default;
+		Node (const Node &) = delete;
+		Node (Node &&) = delete;
+		Node & operator= (const Node &) = delete;
+		Node & operator= (Node &&) = delete;
+		Node (NodeRefVec dependencies); // Sets dependencies + register
+		virtual ~Node ();               // Deregisters from dependencies
 
-		template <typename T> Node (const Value<T> & v) noexcept;
-		template <typename T> Node (const Parameter<T> & p) noexcept;
-		const std::shared_ptr<Impl> & getShared () const noexcept { return pImpl_; }
-
-		template <typename T, typename... Args> static Node create (Args &&... args) {
-			return Node (std::make_shared<T> (std::forward<Args> (args)...));
-		}
-		template <typename T, typename... Args>
-		static Node create (std::initializer_list<Node> deps, Args &&... args) {
-			return Node (std::make_shared<T> (std::move (deps), std::forward<Args> (args)...));
-		}
-
-		Impl & getImpl () const noexcept { return *pImpl_; }
-
-		bool operator== (const Node & other) const noexcept { return pImpl_ == other.pImpl_; }
-		bool operator== (const Node::Impl * other) const noexcept { return pImpl_.get () == other; }
-		std::size_t hashCode () const noexcept { return std::hash<std::shared_ptr<Impl>>{}(pImpl_); }
-
-	private:
-		explicit Node (std::shared_ptr<Impl> p) noexcept : pImpl_ (std::move (p)) {}
-		std::shared_ptr<Impl> pImpl_;
-	};
-
-	using NodeVec = Vector<Node>;
-
-	class Node::Impl {
-	public:
-		Impl () = default;
-		Impl (const Impl &) = delete;
-		Impl (Impl &&) = delete;
-		Impl & operator= (const Impl &) = delete;
-		Impl & operator= (Impl &&) = delete;
-
-		// Constructor that sets the dependencies
-		Impl (NodeVec dependencies) : dependencyNodes_ (std::move (dependencies)) {
-			for (auto & n : dependencyNodes_)
-				n.getImpl ().registerNode (this);
-		}
-
-		virtual ~Impl () {
-			for (auto & n : dependencyNodes_)
-				n.getImpl ().unregisterNode (this);
-		}
-
+		// Accessors
+		const Vector<Node *> & dependentNodes () const noexcept { return dependentNodes_; }
+		const NodeRefVec & dependencies () const noexcept { return dependencyNodes_; }
 		bool isValid () const noexcept { return isValid_; }
-		void invalidate () noexcept;
 
+		// Computation
+		void invalidate () noexcept;
 		virtual void compute () = 0;
 		void computeRecursively ();
 
 		// Derivation stuff
-		virtual Node derive (const Node & variable); // Defaults to error
+		virtual NodeRef derive (const Node & variable); // Defaults to error
 		virtual bool isConstant () const { return false; }
-
-		// TODO Remove ?
-		template <typename F> void foreachDependentNode (F f) const {
-			for (auto & p : dependentNodes_)
-				f (p);
-		}
-		template <typename F> void foreachDependencyNode (F f) const {
-			for (auto & p : dependencyNodes_)
-				f (&p.getImpl ());
-		}
-
-		const Vector<Impl *> & dependentNodes () const noexcept { return dependentNodes_; }
-		const NodeVec & dependencies () const noexcept { return dependencyNodes_; }
 
 		// Debug information (smaller graph)
 		virtual std::string description () const { return "Node"; }
@@ -150,74 +109,37 @@ namespace DF {
 	protected:
 		void makeValid () noexcept { isValid_ = true; }
 
-		// FIXME replace ? This should only be used for complex initialisation !
-		void appendDependency (Node node) noexcept {
-			node.getImpl ().registerNode (this);
-			dependencyNodes_.emplace_back (std::move (node));
-			invalidate ();
-		}
+		// FIXME replace ? Only for complex init
+		void appendDependency (NodeRef node);
 
 	private:
-		void registerNode (Impl * n);
-		void unregisterNode (const Impl * n);
+		void registerNode (Node * n);
+		void unregisterNode (const Node * n);
 
 	protected:
 		// TODO small opt vector ?
-		Vector<Impl *> dependentNodes_{}; // Nodes that depend on us.
-		NodeVec dependencyNodes_{};       // Nodes that we depend on.
+		Vector<Node *> dependentNodes_{}; // Nodes that depend on us.
+		NodeRefVec dependencyNodes_{};    // Nodes that we depend on.
 
 	private:
 		bool isValid_{false};
 	};
 
-	// Error functions
-	[[noreturn]] void failureComputeWasCalled (const std::type_info & paramType);
-	[[noreturn]] void failureNodeHandleConversion (const std::type_info & handleType, const Node::Impl & node);
-	[[noreturn]] void failureDerivationNotSupportedForType (const std::type_info & type);
-
 	/* Valued node.
 	 */
-	template <typename T> class Value {
-	public:
-		class Impl;
-
-		explicit Value (const Node & n);
-		Value (const Parameter<T> & p) noexcept;
-		const std::shared_ptr<Impl> & getShared () const noexcept { return pImpl_; }
-
-		template <typename U, typename... Args> static Value create (Args &&... args) {
-			return Value (std::make_shared<U> (std::forward<Args> (args)...));
-		}
-		template <typename U, typename... Args>
-		static Value create (std::initializer_list<Node> deps, Args &&... args) {
-			return Value (std::make_shared<U> (std::move (deps), std::forward<Args> (args)...));
-		}
-
-		Impl & getImpl () const noexcept { return *pImpl_; }
-		const T & getValue () {
-			// The value class is the interface, perform the recomputation.
-			pImpl_->computeRecursively ();
-			return pImpl_->getValue ();
-		}
-
-	private:
-		explicit Value (std::shared_ptr<Impl> p) noexcept : pImpl_ (std::move (p)) {}
-		std::shared_ptr<Impl> pImpl_;
-	};
-
-	template <typename T> class Value<T>::Impl : public Node::Impl {
+	template <typename T> class Value : public Node {
 	public:
 		// Init deps
 		template <typename... Args>
-		Impl (NodeVec deps, Args &&... args)
-		    : Node::Impl (std::move (deps)), value_ (std::forward<Args> (args)...) {}
+		Value (NodeRefVec deps, Args &&... args)
+		    : Node (std::move (deps)), value_ (std::forward<Args> (args)...) {}
 
 		// No deps TODO add type tag to guarantee template choice ?
 		template <typename... Args>
-		Impl (Args &&... args) : Node::Impl (), value_ (std::forward<Args> (args)...) {}
+		Value (Args &&... args) : Node (), value_ (std::forward<Args> (args)...) {}
 
-		const T & getValue () const noexcept {
-			// Implementation, do not recompute (should be done using Node::Impl functions before).
+		// Access the stored value (no recomputation !)
+		const T & value () const noexcept {
 			assert (this->isValid ());
 			return value_;
 		}
@@ -230,55 +152,32 @@ namespace DF {
 
 	/* Constant value.
 	 */
-	template <typename T> class Constant : public Value<T>::Impl {
+	template <typename T> class Constant : public Value<T> {
 	public:
 		template <typename... Args>
-		Constant (Args &&... args) : Value<T>::Impl (std::forward<Args> (args)...) {
+		Constant (Args &&... args) : Value<T> (std::forward<Args> (args)...) {
 			this->makeValid ();
 		}
 
-		bool isConstant () const override final { return true; }
+		void compute () override final { failureComputeWasCalled (typeid (Constant<T>)); }
 
-		// Create a constant of default value (usually zeroes for must numeric types).
-		Node derive (const Node &) override final {
-			return Node::create<Constant<T>> (NumericInfo<T>::zero ());
+		// Deriving a constant returns 0
+		NodeRef derive (const Node &) override final {
+			return std::make_shared<Constant<T>> (NumericInfo<T>::zero ());
 		}
+		bool isConstant () const override final { return true; }
 
 		std::string description () const override final {
 			return "Constant<" + prettyTypeName<T> () + ">(" + debug_to_string (this->getValue ()) + ")";
 		}
-
-	private:
-		void compute () override final { failureComputeWasCalled (typeid (Constant<T>)); }
 	};
 
 	/* Param node.
 	 */
-	template <typename T> class Parameter {
-	public:
-		class Impl;
-
-		explicit Parameter (const Node & n);
-		explicit Parameter (const Value<T> & v);
-		const std::shared_ptr<Impl> & getShared () const noexcept { return pImpl_; }
-
-		template <typename... Args> static Parameter create (Args &&... args) {
-			return Parameter (std::make_shared<Impl> (std::forward<Args> (args)...));
-		}
-
-		Impl & getImpl () const noexcept { return *pImpl_; }
-		const T & getValue () const noexcept { return pImpl_->getValue (); }
-		void setValue (T t) noexcept { pImpl_->setValue (std::move (t)); }
-
-	private:
-		explicit Parameter (std::shared_ptr<Impl> p) noexcept : pImpl_ (std::move (p)) {}
-		std::shared_ptr<Impl> pImpl_;
-	};
-
-	template <typename T> class Parameter<T>::Impl : public Value<T>::Impl {
+	template <typename T> class Parameter : public Value<T> {
 	public:
 		template <typename... Args>
-		Impl (Args &&... args) : Value<T>::Impl (std::forward<Args> (args)...) {
+		Parameter (Args &&... args) : Value<T> (std::forward<Args> (args)...) {
 			this->makeValid ();
 		}
 
@@ -288,7 +187,7 @@ namespace DF {
 			this->makeValid ();
 		}
 
-		Node derive (const Node & variable) override final;
+		NodeRef derive (const Node & variable) override final;
 
 		std::string description () const final { return "Parameter<" + prettyTypeName<T> () + ">"; }
 
@@ -298,65 +197,40 @@ namespace DF {
 
 	// Derivation only make sense for some types (like not for Sequence*)
 	// Use template trick to only generate an error for unsupported types
-  // FIXME improve too
+	// FIXME improve too
 	template <typename T>
-	Node deriveParameterHelper (const typename Parameter<T>::Impl * param, const Node & variable,
-	                            std::true_type) {
-		auto v = (variable == param) ? NumericInfo<T>::one () : NumericInfo<T>::zero ();
-		return Node::create<Constant<T>> (v);
+	NodeRef deriveParameterHelper (const Parameter<T> & param, const Node & variable,
+	                               std::true_type) {
+		auto && v = (&variable == &param) ? NumericInfo<T>::one () : NumericInfo<T>::zero ();
+		return std::make_shared<Constant<T>> (v);
 	}
 	template <typename T>
-	Node deriveParameterHelper (const typename Parameter<T>::Impl *, const Node &, std::false_type) {
+	NodeRef deriveParameterHelper (const Parameter<T> &, const Node &, std::false_type) {
 		failureDerivationNotSupportedForType (typeid (T));
 	}
-	template <typename T> Node Parameter<T>::Impl::derive (const Node & variable) {
-		return deriveParameterHelper<T> (this, variable, typename NumericInfo<T>::Derivable{});
+	template <typename T> NodeRef Parameter<T>::derive (const Node & variable) {
+		return deriveParameterHelper<T> (*this, variable, typename NumericInfo<T>::Derivable{});
 	}
 
-	/* Conversion constructors
-	 */
-	template <typename T> Node::Node (const Value<T> & v) noexcept : pImpl_ (v.getShared ()) {}
-	template <typename T> Node::Node (const Parameter<T> & p) noexcept : pImpl_ (p.getShared ()) {}
-
-	template <typename T>
-	Value<T>::Value (const Node & n) : pImpl_ (std::dynamic_pointer_cast<Impl> (n.getShared ())) {
-		if (!pImpl_)
-			failureNodeHandleConversion (typeid (Value<T>), n.getImpl ());
-	}
-	template <typename T>
-	Value<T>::Value (const Parameter<T> & p) noexcept : pImpl_ (p.getShared ()) {}
-
-	template <typename T>
-	Parameter<T>::Parameter (const Node & n)
-	    : pImpl_ (std::dynamic_pointer_cast<Impl> (n.getShared ())) {
-		if (!pImpl_)
-			failureNodeHandleConversion (typeid (Parameter<T>), n.getImpl ());
-	}
-	template <typename T>
-	Parameter<T>::Parameter (const Value<T> & v)
-	    : pImpl_ (std::dynamic_pointer_cast<Impl> (v.getShared ())) {
-		if (!pImpl_)
-			failureNodeHandleConversion (typeid (Parameter<T>), v.getImpl ());
+	// Convert handles
+	template <typename T, typename U> std::shared_ptr<T> convert (const std::shared_ptr<U> & from) {
+		auto p = std::dynamic_pointer_cast<T> (from);
+		if (!p)
+			failureNodeConversion (typeid (T), *from);
+		return p;
 	}
 
 	/* Node value access.
+	 * TODO improve
 	 */
 	template <typename T> bool isValueNode (const Node & n) noexcept {
-		return dynamic_cast<const typename Value<T>::Impl *> (&n.getImpl ()) != nullptr;
+		return dynamic_cast<const Value<T> *> (&n) != nullptr;
 	}
-	template <typename T> const T & getValueUnsafe (const Node & n) noexcept {
+	template <typename T> const T & accessValueUnsafe (const Node & n) noexcept {
 		assert (isValueNode<T> (n));
-		return static_cast<const typename Value<T>::Impl &> (n.getImpl ()).getValue ();
+		return static_cast<const Value<T> &> (n).value ();
 	}
 }
-}
-
-namespace std {
-template <> struct hash<bpp::DF::Node> {
-	using argument_type = bpp::DF::Node;
-	using result_type = std::size_t;
-	result_type operator() (const argument_type & node) const { return node.hashCode (); }
-};
 }
 
 #endif // BPP_NEWPHYL_DATAFLOW_H
