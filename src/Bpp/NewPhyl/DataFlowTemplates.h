@@ -83,9 +83,28 @@ namespace DF {
 
 	// Derivation utils
 	struct OpDerivationHelper {
+	private:
+  public:
+		template <typename Op>
+		static auto test (Op)
+		    -> decltype (Op::derive (std::declval<Node::Impl &> (), std::declval<const Node &> ()),
+		                 std::true_type{});
+		static auto test (...) -> std::false_type;
+		template <typename Op> using HasDerivation = decltype (test (std::declval<Op> ()));
+
+		template <typename Op>
+		static Node helper (Node::Impl & self, const Node & var, std::true_type) {
+			return Op::derive (self, var);
+		}
+		template <typename Op>
+		static Node helper (Node::Impl & self, const Node & var, std::false_type) {
+			return self.Node::Impl::derive (var);
+		}
+
 	public:
-		// FIXME same as the other one, default is failure(), success is forward
-		template <typename Op> static Node derive (const Node::Impl * node, const Node & variable) {}
+		template <typename Op> static Node derive (Node::Impl & self, const Node & variable) {
+			return helper<Op> (self, variable, HasDerivation<Op>{});
+		}
 	};
 
 	/** Generic function computation.
@@ -119,8 +138,12 @@ namespace DF {
 			checkDependencies (Cpp14::MakeIndexSequence<nbDependencies>{});
 		}
 
-		std::string description () const final {
+		std::string description () const override final {
 			return "Func(" + OpDescriptionHelper::description<Op> () + ")";
+		}
+
+		Node derive (const Node & variable) override final {
+			return OpDerivationHelper::derive<Op> (*this, variable);
 		}
 
 	private:

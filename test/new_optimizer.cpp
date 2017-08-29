@@ -57,16 +57,23 @@ struct SquareOp
   using ArgumentTypes = std::tuple<double>;
   using ResultType = double;
   static void compute(ResultType& r, const double& d) { r = d * d; }
+  static bpp::DF::Node derive(bpp::DF::Node::Impl& self, const bpp::DF::Node& variable);
 };
 using SquareNode = bpp::DF::GenericFunctionComputation<SquareOp>;
 
 struct DSquareOp
 {
-  using ArgumentTypes = std::tuple<double>;
+  using ArgumentTypes = std::tuple<double, double>;
   using ResultType = double;
-  static void compute(ResultType& r, const double& d) { r = 2 * d; }
+  static void compute(ResultType& r, const double& d, const double& dd_dx) { r = 2 * d * dd_dx; }
 };
 using DSquareNode = bpp::DF::GenericFunctionComputation<DSquareOp>;
+
+bpp::DF::Node SquareOp::derive(bpp::DF::Node::Impl& self, const bpp::DF::Node& variable)
+{
+  auto d = self.dependencies()[0];
+  return bpp::DF::Node::create<DSquareNode>({d, d.getImpl().derive(variable)});
+}
 
 // DDSquareOp == Constant<double>(2)
 
@@ -118,8 +125,8 @@ TEST_CASE("test")
   auto v = bpp::DF::Value<double>::create<SquareNode>({x});
   std::cout << "v = " << v.getValue() << "\n";
 
-  std::ofstream fd("df_debug");
-  bpp::DF::debugDag(fd, v);
+  auto dv_dx = v.getImpl().derive(x);
 
-  auto n = v.getImpl().derive(x); // Make this work
+  std::ofstream fd("df_debug");
+  bpp::DF::debugDag(fd, dv_dx);
 }
