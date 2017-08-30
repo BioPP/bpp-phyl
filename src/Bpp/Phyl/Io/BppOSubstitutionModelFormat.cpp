@@ -473,10 +473,15 @@ SubstitutionModel* BppOSubstitutionModelFormat::read(
         if (verbose_)
           ApplicationTools::displayResult("Biased gene conversion for", subModName);
 
-        string::size_type begin = modelDescription.find_first_of("(");
-        string::size_type end = modelDescription.find_last_of(")");
+        string nestedModelDescription = subModName;
+        
+        if (modelDescription.find_first_of("(")!=string::npos)
+        {
+          string::size_type begin = modelDescription.find_first_of("(");
+          string::size_type end = modelDescription.find_last_of(")");
 
-        string nestedModelDescription = subModName+modelDescription.substr(begin,end-begin+1);
+          nestedModelDescription += modelDescription.substr(begin,end-begin+1);
+        }
         
         BppOSubstitutionModelFormat nestedReader(NUCLEOTIDE, true, true, false, verbose_, warningLevel_);
         unique_ptr<NucleotideSubstitutionModel> nestedModel(dynamic_cast<NucleotideSubstitutionModel*>(nestedReader.read(alphabet, nestedModelDescription, data, false)));
