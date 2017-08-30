@@ -62,6 +62,8 @@ namespace DF {
 	                                                 const std::type_info & expectedType,
 	                                                 const Node & givenNode);
 
+  // TODO use base ops which defines default description / derive (instead of SFINAE trickery)
+
 	// Description utils (hidden as a private member of a class)
 	struct OpDescriptionHelper {
 	private:
