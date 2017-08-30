@@ -129,11 +129,11 @@ int main() {
     cout << c1 << ": " << tl.getValue() << "\t" << c2 << ": " << tl2.getValue() << endl;
       
     for (size_t i = 0; i < nmodels; ++i) {
-      cout << modelSet2->getModel(i)->getParameter("theta").getValue() << "\t" << modelSet3->getModel(i)->getParameter("theta").getValue() << endl;
+      cout << modelSet2->getTransitionModel(i)->getParameter("theta").getValue() << "\t" << modelSet3->getTransitionModel(i)->getParameter("theta").getValue() << endl;
       //if (abs(modelSet2->getModel(i)->getParameter("theta").getValue() - modelSet3->getModel(i)->getParameter("theta").getValue()) > 0.1)
       //  return 1;
-      thetasEst1[i] +=  modelSet2->getModel(i)->getParameter("theta").getValue();
-      thetasEst2[i] +=  modelSet3->getModel(i)->getParameter("theta").getValue();
+      thetasEst1[i] +=  modelSet2->getTransitionModel(i)->getParameter("theta").getValue();
+      thetasEst2[i] +=  modelSet3->getTransitionModel(i)->getParameter("theta").getValue();
     }
   }
   thetasEst1 /= static_cast<double>(nrep);
