@@ -125,6 +125,15 @@ namespace DF {
 		bool isValid_{false};
 	};
 
+	// Create node with make shared.
+	template <typename T, typename... Args> std::shared_ptr<T> createNode (Args &&... args) {
+		return std::make_shared<T> (std::forward<Args> (args)...);
+	}
+	template <typename T, typename... Args>
+	std::shared_ptr<T> createNode (std::initializer_list<NodeRef> ilist, Args &&... args) {
+		return std::make_shared<T> (std::move (ilist), std::forward<Args> (args)...);
+	}
+
 	/* Valued node.
 	 */
 	template <typename T> class Value : public Node {
@@ -163,16 +172,16 @@ namespace DF {
 
 		// Deriving a constant returns 0
 		NodeRef derive (const Node &) override final {
-			return std::make_shared<Constant<T>> (NumericInfo<T>::zero ());
+			return createNode<Constant<T>> (NumericInfo<T>::zero ());
 		}
 		bool isConstant () const override final { return true; }
 
 		std::string description () const override final {
-			return "Constant<" + prettyTypeName<T> () + ">(" + debug_to_string (this->getValue ()) + ")";
+			return "Constant<" + prettyTypeName<T> () + ">(" + debug_to_string (this->value ()) + ")";
 		}
 	};
 
-	/* Param node.
+	/* Parameter node.
 	 */
 	template <typename T> class Parameter : public Value<T> {
 	public:
@@ -202,7 +211,7 @@ namespace DF {
 	NodeRef deriveParameterHelper (const Parameter<T> & param, const Node & variable,
 	                               std::true_type) {
 		auto && v = (&variable == &param) ? NumericInfo<T>::one () : NumericInfo<T>::zero ();
-		return std::make_shared<Constant<T>> (v);
+		return createNode<Constant<T>> (v);
 	}
 	template <typename T>
 	NodeRef deriveParameterHelper (const Parameter<T> &, const Node &, std::false_type) {
@@ -212,8 +221,12 @@ namespace DF {
 		return deriveParameterHelper<T> (*this, variable, typename NumericInfo<T>::Derivable{});
 	}
 
-	// Convert handles
-	template <typename T, typename U> std::shared_ptr<T> convert (const std::shared_ptr<U> & from) {
+	// More convenient typedefs
+	template <typename T> using ValueRef = std::shared_ptr<Value<T>>;
+	template <typename T> using ParameterRef = std::shared_ptr<Parameter<T>>;
+
+	// Convert handles with check
+	template <typename T, typename U> std::shared_ptr<T> convertRef (const std::shared_ptr<U> & from) {
 		auto p = std::dynamic_pointer_cast<T> (from);
 		if (!p)
 			failureNodeConversion (typeid (T), *from);
@@ -229,6 +242,16 @@ namespace DF {
 	template <typename T> const T & accessValueUnsafe (const Node & n) noexcept {
 		assert (isValueNode<T> (n));
 		return static_cast<const Value<T> &> (n).value ();
+	}
+
+	// Get Value<T> value with recompute TODO improve
+	template <typename T> const T & getUpToDateValue (Value<T> & node) {
+		node.computeRecursively ();
+		return node.value ();
+	}
+	template <typename T>
+	auto getUpToDateValue (const std::shared_ptr<T> & node) -> decltype (getUpToDateValue (*node)) {
+		return getUpToDateValue (*node);
 	}
 }
 }

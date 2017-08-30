@@ -60,13 +60,14 @@ namespace Phyl {
 
 	struct Process {
 		const FrozenPtr<Topology::Tree> tree;
-		const FrozenPtr<Topology::BranchValueMap<DF::Parameter<double>>> branchLengths;
-		const FrozenPtr<Topology::BranchValueMap<DF::Value<const SubstitutionModel *>>> modelByBranch;
+		const FrozenPtr<Topology::BranchValueMap<DF::ParameterRef<double>>> branchLengths;
+		const FrozenPtr<Topology::BranchValueMap<DF::ValueRef<const SubstitutionModel *>>>
+		    modelByBranch;
 		const SizeType nbStates;
 	};
 
 	struct SequenceMap {
-		const FrozenPtr<Topology::NodeValueMap<DF::Parameter<const Sequence *>>> sequences;
+		const FrozenPtr<Topology::NodeValueMap<DF::ParameterRef<const Sequence *>>> sequences;
 		const SizeType nbSites;
 	};
 
@@ -83,7 +84,7 @@ namespace Phyl {
 
 		bool computed_from_data () const;
 		DF::NodeSpecificationVec computeDependencies () const;
-		DF::Node buildNode (DF::NodeVec deps) const;
+		DF::NodeRef buildNode (DF::NodeRefVec deps) const;
 		std::type_index nodeType () const;
 		static std::string description ();
 	};
@@ -93,7 +94,7 @@ namespace Phyl {
 		const Topology::Branch branch;
 
 		DF::NodeSpecificationVec computeDependencies () const;
-		DF::Node buildNode (DF::NodeVec deps) const;
+		DF::NodeRef buildNode (DF::NodeRefVec deps) const;
 		static std::type_index nodeType ();
 		static std::string description ();
 	};
@@ -102,7 +103,7 @@ namespace Phyl {
 		const LikelihoodParameters likParams;
 
 		DF::NodeSpecificationVec computeDependencies () const;
-		static DF::Node buildNode (DF::NodeVec deps);
+		static DF::NodeRef buildNode (DF::NodeRefVec deps);
 		static std::type_index nodeType ();
 		static std::string description ();
 	};

@@ -69,7 +69,7 @@ namespace DF {
 			 * The Key will be destroyed at the same time as the Node.
 			 */
 		public:
-			Key (std::type_index nodeType, const NodeVec & dependencies)
+			Key (std::type_index nodeType, const NodeRefVec & dependencies)
 			    : nodeType_ (nodeType), dependencies_ (dependencies) {}
 
 			bool operator== (const Key & other) const noexcept {
@@ -77,19 +77,19 @@ namespace DF {
 			}
 			std::size_t hashCode () const noexcept {
 				auto nodeTypeHash = std::hash<std::type_index>{}(nodeType_);
-				auto vecHash = std::hash<NodeVec>{}(dependencies_);
+				auto vecHash = std::hash<NodeRefVec>{}(dependencies_);
 				return vecHash ^ (nodeTypeHash << 1);
 			}
 
 			std::type_index operation () const noexcept { return nodeType_; }
-			const NodeVec & dependencies () const noexcept { return dependencies_; }
+			const NodeRefVec & dependencies () const noexcept { return dependencies_; }
 
 		private:
 			std::type_index nodeType_;
-			const NodeVec & dependencies_;
+			const NodeRefVec & dependencies_;
 		};
 
-		Optional<Node> get (const Key & key) const {
+		Optional<NodeRef> get (const Key & key) const {
 			auto it = nodes_.find (key);
 			if (it != nodes_.end ())
 				return {in_place, it->second};
@@ -97,11 +97,11 @@ namespace DF {
 				return {};
 		}
 
-		void set (Node node) {
-			// Impl is independent of Node moves, so we can build a key referencing its dependencies.
-			auto & impl = node.getImpl ();
-			// By definition of the standard, typeid (impl) performs lookup to derived type.
-			auto result = nodes_.emplace (Key{typeid (impl), impl.dependencies ()}, std::move (node));
+		void set (NodeRef nodeRef) {
+			// Node is independent of NodeRef moves, so we can build a key referencing its dependencies.
+			auto & node = *nodeRef;
+			// By definition of the standard, typeid (node) performs lookup to derived type.
+			auto result = nodes_.emplace (Key{typeid (node), node.dependencies ()}, std::move (nodeRef));
 			if (!result.second)
 				throw std::runtime_error ("Registry::set: key already used");
 		}
@@ -115,7 +115,7 @@ namespace DF {
 		struct Hash {
 			std::size_t operator() (const Key & k) const noexcept { return k.hashCode (); }
 		};
-		std::unordered_map<Key, Node, Hash> nodes_;
+		std::unordered_map<Key, NodeRef, Hash> nodes_;
 	};
 
 	/* Node specifications are structs that describe a phylogenetic value in a context.
@@ -151,7 +151,7 @@ namespace DF {
 		Vector<NodeSpecification> computeDependencies () const {
 			return specification_->computeDependencies ();
 		}
-		Node buildNode (NodeVec dependencies) const {
+		NodeRef buildNode (NodeRefVec dependencies) const {
 			return specification_->buildNode (std::move (dependencies));
 		}
 		std::type_index nodeType () const noexcept { return specification_->nodeType (); }
@@ -170,7 +170,7 @@ namespace DF {
 			virtual ~Interface () = default;
 			virtual Interface * clone () const = 0;
 			virtual Vector<NodeSpecification> computeDependencies () const = 0;
-			virtual Node buildNode (NodeVec dependencies) const = 0;
+			virtual NodeRef buildNode (NodeRefVec dependencies) const = 0;
 			virtual std::type_index nodeType () const noexcept = 0;
 			virtual std::string description () const = 0;
 		};
@@ -182,7 +182,7 @@ namespace DF {
 			Vector<NodeSpecification> computeDependencies () const override {
 				return spec_.computeDependencies ();
 			}
-			Node buildNode (NodeVec dependencies) const override {
+			NodeRef buildNode (NodeRefVec dependencies) const override {
 				return spec_.buildNode (std::move (dependencies));
 			}
 			std::type_index nodeType () const noexcept override { return spec_.nodeType (); }
@@ -192,35 +192,10 @@ namespace DF {
 	};
 
 	// Build DF graph recursively without merging
-	inline Node instantiateNodeSpec (const NodeSpecification & nodeSpec) {
-		NodeVec deps;
-		for (auto & depSpec : nodeSpec.computeDependencies ())
-			deps.emplace_back (instantiateNodeSpec (depSpec));
-		return nodeSpec.buildNode (std::move (deps));
-	}
+	NodeRef instantiateNodeSpec (const NodeSpecification & nodeSpec);
 
 	// Build DF graph while merging using the given registry
-	inline Node instantiateNodeSpecWithReuse (const NodeSpecification & nodeSpec,
-	                                          Registry & registry) {
-		auto depSpecs = nodeSpec.computeDependencies ();
-		if (depSpecs.empty ()) {
-			// Parameters are not stored in the registry.
-			// buildNode should just create a new reference.
-			return nodeSpec.buildNode ({});
-		} else {
-			// Instantiate dependencies
-			NodeVec deps;
-			for (auto & depSpec : depSpecs)
-				deps.emplace_back (instantiateNodeSpecWithReuse (depSpec, registry));
-			// Check the registry
-			Registry::Key key{nodeSpec.nodeType (), deps};
-			return registry.get (key).value_or_generate ([&nodeSpec, &registry, &deps] {
-				Node n = nodeSpec.buildNode (std::move (deps));
-				registry.set (n);
-				return n;
-			});
-		}
-	}
+	NodeRef instantiateNodeSpecWithReuse (const NodeSpecification & nodeSpec, Registry & registry);
 
 	// Convenience typedef / functions.
 	using NodeSpecificationVec = Vector<NodeSpecification>;
@@ -231,7 +206,9 @@ namespace DF {
 	/* Defines all but computeDependencies () for a Spec that always generates the same node type.
 	 */
 	template <typename NodeType> struct NodeSpecAlwaysGenerate {
-		static Node buildNode (NodeVec deps) { return Node::create<NodeType> (std::move (deps)); }
+		static NodeRef buildNode (NodeRefVec deps) {
+			return createNode<NodeType> (std::move (deps));
+		}
 		static std::type_index nodeType () { return typeid (NodeType); }
 		static std::string description () { return prettyTypeName<NodeSpecAlwaysGenerate> (); }
 	};
@@ -241,17 +218,16 @@ namespace DF {
 	 */
 	class NodeSpecReturnParameter {
 	public:
-		template <typename N> NodeSpecReturnParameter (N && n) : node_ (std::forward<N> (n)) {}
-
+		NodeSpecReturnParameter (NodeRef n) : node_ (std::move (n)) {}
 		static NodeSpecificationVec computeDependencies () { return {}; }
-		Node buildNode (NodeVec) const { return node_; }
+		NodeRef buildNode (NodeRefVec) const { return node_; }
 		static std::type_index nodeType () { return typeid (void); }
 		std::string description () const {
-			return std::string ("Parameter(") + node_.getImpl ().description () + ")";
+			return std::string ("Parameter(") + node_->description () + ")";
 		}
 
 	private:
-		Node node_;
+		NodeRef node_;
 	};
 }
 }

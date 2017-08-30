@@ -124,22 +124,22 @@ namespace
     });
   }
 #ifdef ENABLE_DF
-  void do_param_changes_multiple_times_df(bpp::DF::Value<double>& lik,
+  void do_param_changes_multiple_times_df(const bpp::DF::ValueRef<double>& lik,
                                           const std::string& timePrefix,
-                                          bpp::DF::Parameter<double> param,
+                                          bpp::DF::ParameterRef<double> param,
                                           double v1,
                                           double v2)
   {
-    param.setValue(v1);
-    printLik(lik.getValue(), timePrefix);
-    param.setValue(v2);
-    printLik(lik.getValue(), timePrefix);
+    param->setValue(v1);
+    printLik(getUpToDateValue(lik), timePrefix);
+    param->setValue(v2);
+    printLik(getUpToDateValue(lik), timePrefix);
 
     do_func_multiple_times(timePrefix, [&]() {
-      param.setValue(v1);
-      lik.getValue();
-      param.setValue(v2);
-      lik.getValue();
+      param->setValue(v1);
+      getUpToDateValue(lik);
+      param->setValue(v2);
+      getUpToDateValue(lik);
     });
   }
 #endif
@@ -243,21 +243,23 @@ TEST_CASE("df")
   auto treeData = bpp::Phyl::convertTreeTemplate(*tree);
 
   // Model
-  auto model = bpp::DF::Value<const bpp::SubstitutionModel*>::create<bpp::Phyl::ModelNode>(
-    std::unique_ptr<bpp::SubstitutionModel>(new bpp::T92(&c.alphabet, 3.)));
+  auto model =
+    bpp::DF::createNode<bpp::Phyl::ModelNode>(std::unique_ptr<bpp::SubstitutionModel>(new bpp::T92(&c.alphabet, 3.)));
 
   // Create a specification
   auto branchLengthMap =
     bpp::make_frozen(bpp::Topology::make_branch_parameter_map_from_value_map(*treeData.branchLengths));
-  auto modelMap = bpp::make_frozen(bpp::Topology::make_uniform_branch_value_map(treeData.topology, model));
+  auto modelMap = bpp::make_frozen(bpp::Topology::make_uniform_branch_value_map(
+    treeData.topology, bpp::DF::convertRef<bpp::DF::Value<const bpp::SubstitutionModel*>>(model)));
   auto process = bpp::Phyl::Process{treeData.topology, branchLengthMap, modelMap, c.alphabet.getSize()};
   auto sequenceMap = bpp::Phyl::makeSequenceMap(*treeData.nodeNames, c.sites);
   auto likParams = bpp::Phyl::LikelihoodParameters{process, sequenceMap};
 
-  bpp::DF::Value<double> logLikNode{bpp::DF::instantiateNodeSpec(bpp::Phyl::LogLikelihoodSpec{likParams})};
+  auto logLikNode =
+    bpp::DF::convertRef<bpp::DF::Value<double>>(bpp::DF::instantiateNodeSpec(bpp::Phyl::LogLikelihoodSpec{likParams}));
   timingEnd(ts, "df_setup");
   ts = timingStart();
-  auto logLik = logLikNode.getValue();
+  auto logLik = getUpToDateValue(logLikNode);
   timingEnd(ts, "df_init_value");
   printLik(logLik, "df_init_value");
 
@@ -265,8 +267,7 @@ TEST_CASE("df")
   bpp::DF::debugDag(fd, logLikNode);
 
   // Change parameters
-  auto& modelNode = dynamic_cast<bpp::Phyl::ModelNode&>(model.getImpl());
-  do_param_changes_multiple_times_df(logLikNode, "df_param_model_change", modelNode.getParameter("kappa"), 0.1, 0.2);
+  do_param_changes_multiple_times_df(logLikNode, "df_param_model_change", model->getParameter("kappa"), 0.1, 0.2);
 
   auto topologyIdOfPhyloNode1 = treeData.treeTemplateNodeIndexes->index(1).value();
   auto& brlen1Param = branchLengthMap->access(treeData.topology->node(topologyIdOfPhyloNode1).fatherBranch()).value();

@@ -51,22 +51,21 @@ namespace Phyl {
 	// Model DF Node
 
 	ModelNode::ModelNode (std::unique_ptr<SubstitutionModel> model)
-	    : DF::Value<const SubstitutionModel *>::Impl (model.get ()), model_ (std::move (model)) {
-
+	    : DF::Value<const SubstitutionModel *> (model.get ()), model_ (std::move (model)) {
+		// TODO support already built paramater nodes
 		model_->setNamespace ({}); // Delete namespace prefix
 		const auto & parameters = model_->getParameters ();
 		for (auto i : index_range (parameters))
-			this->appendDependency (DF::Parameter<double>::create (parameters[i].getValue ()));
-
+			this->appendDependency (DF::createNode<DF::Parameter<double>> (parameters[i].getValue ()));
 		this->makeValid (); // Initially valid
 	}
 
 	ModelNode::~ModelNode () = default;
 
-	DF::Parameter<double> ModelNode::getParameter (SizeType index) {
-		return DF::Parameter<double>{this->dependencies ().at (index)};
+	DF::ParameterRef<double> ModelNode::getParameter (SizeType index) {
+		return DF::convertRef<DF::Parameter<double>> (this->dependencies ().at (index));
 	}
-	DF::Parameter<double> ModelNode::getParameter (const std::string & name) {
+	DF::ParameterRef<double> ModelNode::getParameter (const std::string & name) {
 		return getParameter (
 		    static_cast<SizeType> (model_->getParameters ().whichParameterHasName (name)));
 	}
@@ -78,7 +77,7 @@ namespace Phyl {
 		// Update current model params with ours
 		auto & modelParams = model_->getParameters ();
 		for (auto i : index_range (this->dependencies ())) {
-			auto v = DF::getValueUnsafe<double> (this->dependencies ()[i]);
+			auto v = DF::accessValueUnsafe<double> (*this->dependencies ()[i]);
 			auto & p = modelParams[static_cast<std::size_t> (i)];
 			if (p.getValue () != v)
 				model_->setParameterValue (p.getName (), v);
@@ -144,19 +143,18 @@ namespace Phyl {
 
 	// Specs
 
-	ModelEquilibriumFrequenciesSpec::ModelEquilibriumFrequenciesSpec (DF::Node modelParameter,
+	ModelEquilibriumFrequenciesSpec::ModelEquilibriumFrequenciesSpec (DF::NodeRef modelParameter,
 	                                                                  SizeType nbStates)
 	    : modelParameter_ (std::move (modelParameter)), nbStates_ (nbStates) {}
 	DF::NodeSpecificationVec ModelEquilibriumFrequenciesSpec::computeDependencies () const {
 		return DF::makeNodeSpecVec (DF::NodeSpecReturnParameter (modelParameter_));
 	}
-	DF::Node ModelEquilibriumFrequenciesSpec::buildNode (DF::NodeVec deps) const {
-		return DF::Node::create<ComputeEquilibriumFrequenciesFromModelNode> (std::move (deps),
-		                                                                     nbStates_);
+	DF::NodeRef ModelEquilibriumFrequenciesSpec::buildNode (DF::NodeRefVec deps) const {
+		return DF::createNode<ComputeEquilibriumFrequenciesFromModelNode> (std::move (deps), nbStates_);
 	}
 
-	ModelTransitionMatrixSpec::ModelTransitionMatrixSpec (DF::Node modelParameter,
-	                                                      DF::Node branchLengthParameter,
+	ModelTransitionMatrixSpec::ModelTransitionMatrixSpec (DF::NodeRef modelParameter,
+	                                                      DF::NodeRef branchLengthParameter,
 	                                                      SizeType nbStates)
 	    : modelParameter_ (std::move (modelParameter)),
 	      branchLengthParameter_ (std::move (branchLengthParameter)),
@@ -165,13 +163,13 @@ namespace Phyl {
 		return DF::makeNodeSpecVec (DF::NodeSpecReturnParameter (modelParameter_),
 		                            DF::NodeSpecReturnParameter (branchLengthParameter_));
 	}
-	DF::Node ModelTransitionMatrixSpec::buildNode (DF::NodeVec deps) const {
-		return DF::Node::create<ComputeTransitionMatrixFromModelNode> (std::move (deps), nbStates_,
-		                                                               nbStates_);
+	DF::NodeRef ModelTransitionMatrixSpec::buildNode (DF::NodeRefVec deps) const {
+		return DF::createNode<ComputeTransitionMatrixFromModelNode> (std::move (deps), nbStates_,
+		                                                             nbStates_);
 	}
 
 	ModelTransitionMatrixFirstDerivativeSpec::ModelTransitionMatrixFirstDerivativeSpec (
-	    DF::Node modelParameter, DF::Node branchLengthParameter, SizeType nbStates)
+	    DF::NodeRef modelParameter, DF::NodeRef branchLengthParameter, SizeType nbStates)
 	    : modelParameter_ (std::move (modelParameter)),
 	      branchLengthParameter_ (std::move (branchLengthParameter)),
 	      nbStates_ (nbStates) {}
@@ -179,13 +177,13 @@ namespace Phyl {
 		return DF::makeNodeSpecVec (DF::NodeSpecReturnParameter (modelParameter_),
 		                            DF::NodeSpecReturnParameter (branchLengthParameter_));
 	}
-	DF::Node ModelTransitionMatrixFirstDerivativeSpec::buildNode (DF::NodeVec deps) const {
-		return DF::Node::create<ComputeTransitionMatrixFirstDerivativeFromModelNode> (
+	DF::NodeRef ModelTransitionMatrixFirstDerivativeSpec::buildNode (DF::NodeRefVec deps) const {
+		return DF::createNode<ComputeTransitionMatrixFirstDerivativeFromModelNode> (
 		    std::move (deps), nbStates_, nbStates_);
 	}
 
 	ModelTransitionMatrixSecondDerivativeSpec::ModelTransitionMatrixSecondDerivativeSpec (
-	    DF::Node modelParameter, DF::Node branchLengthParameter, SizeType nbStates)
+	    DF::NodeRef modelParameter, DF::NodeRef branchLengthParameter, SizeType nbStates)
 	    : modelParameter_ (std::move (modelParameter)),
 	      branchLengthParameter_ (std::move (branchLengthParameter)),
 	      nbStates_ (nbStates) {}
@@ -193,8 +191,8 @@ namespace Phyl {
 		return DF::makeNodeSpecVec (DF::NodeSpecReturnParameter (modelParameter_),
 		                            DF::NodeSpecReturnParameter (branchLengthParameter_));
 	}
-	DF::Node ModelTransitionMatrixSecondDerivativeSpec::buildNode (DF::NodeVec deps) const {
-		return DF::Node::create<ComputeTransitionMatrixSecondDerivativeFromModelNode> (
+	DF::NodeRef ModelTransitionMatrixSecondDerivativeSpec::buildNode (DF::NodeRefVec deps) const {
+		return DF::createNode<ComputeTransitionMatrixSecondDerivativeFromModelNode> (
 		    std::move (deps), nbStates_, nbStates_);
 	}
 }

@@ -214,23 +214,23 @@ namespace Topology {
 	 * Parameters are only created for existing values.
 	 */
 	template <typename T>
-	ValueMapBase<DF::Parameter<T>>
+	ValueMapBase<DF::ParameterRef<T>>
 	make_parameter_map_from_value_map (const ValueMapBase<T> & valueMap) {
-		ValueMapBase<DF::Parameter<T>> map (valueMap.size ());
+		ValueMapBase<DF::ParameterRef<T>> map (valueMap.size ());
 		for (auto i : index_range (map))
-			map.access (i) =
-			    valueMap.access (i).map ([](const T & t) { return DF::Parameter<T>::create (t); });
+			map.access (i) = valueMap.access (i).map (
+			    [](const T & t) { return DF::createNode<DF::Parameter<T>> (t); });
 		return map;
 	}
 	template <typename T>
-	NodeValueMap<DF::Parameter<T>>
+	NodeValueMap<DF::ParameterRef<T>>
 	make_node_parameter_map_from_value_map (const NodeValueMap<T> & valueMap) {
-		return NodeValueMap<DF::Parameter<T>>{make_parameter_map_from_value_map (valueMap)};
+		return NodeValueMap<DF::ParameterRef<T>>{make_parameter_map_from_value_map (valueMap)};
 	}
 	template <typename T>
-	BranchValueMap<DF::Parameter<T>>
+	BranchValueMap<DF::ParameterRef<T>>
 	make_branch_parameter_map_from_value_map (const BranchValueMap<T> & valueMap) {
-		return BranchValueMap<DF::Parameter<T>>{make_parameter_map_from_value_map (valueMap)};
+		return BranchValueMap<DF::ParameterRef<T>>{make_parameter_map_from_value_map (valueMap)};
 	}
 
 	/* Create a uniform map from a value, filling all possible value slots.

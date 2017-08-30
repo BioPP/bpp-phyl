@@ -50,6 +50,8 @@
 #include <fstream>
 #include <iostream>
 
+using namespace bpp::DF;
+
 // x -> x^2 and its derivatives
 
 struct SquareOp
@@ -57,9 +59,9 @@ struct SquareOp
   using ArgumentTypes = std::tuple<double>;
   using ResultType = double;
   static void compute(ResultType& r, const double& d) { r = d * d; }
-  static bpp::DF::Node derive(bpp::DF::Node::Impl& self, const bpp::DF::Node& variable);
+  static NodeRef derive(Node& self, const Node& variable);
 };
-using SquareNode = bpp::DF::GenericFunctionComputation<SquareOp>;
+using SquareNode = GenericFunctionComputation<SquareOp>;
 
 struct DSquareOp
 {
@@ -67,12 +69,12 @@ struct DSquareOp
   using ResultType = double;
   static void compute(ResultType& r, const double& d, const double& dd_dx) { r = 2 * d * dd_dx; }
 };
-using DSquareNode = bpp::DF::GenericFunctionComputation<DSquareOp>;
+using DSquareNode = GenericFunctionComputation<DSquareOp>;
 
-bpp::DF::Node SquareOp::derive(bpp::DF::Node::Impl& self, const bpp::DF::Node& variable)
+NodeRef SquareOp::derive(Node& self, const Node& variable)
 {
-  auto d = self.dependencies()[0];
-  return bpp::DF::Node::create<DSquareNode>({d, d.getImpl().derive(variable)});
+  auto& d = self.dependencies()[0];
+  return createNode<DSquareNode>({d, d->derive(variable)});
 }
 
 // DDSquareOp == Constant<double>(2)
@@ -88,30 +90,33 @@ struct PairProductOp
 // TODO define a bpp::Function to represent a DF::Value<double>
 // +manually set its ParameterList of DFParameter
 
+template<typename T>
+class TD;
+
 TEST_CASE("derive constant")
 {
-  auto konst = bpp::DF::Value<double>::create<bpp::DF::Constant<double>>(42.0);
-  CHECK(konst.getValue() == 42.0);
-  CHECK(konst.getImpl().isConstant());
+  auto konst = createNode<Constant<double>>(42.0); // FIXME check type out of createNode
+  CHECK(getUpToDateValue(konst) == 42.0);
+  CHECK(konst->isConstant());
 
-  auto dummy = bpp::DF::Parameter<double>::create(0);
-  auto derived = bpp::DF::Value<double>(konst.getImpl().derive(dummy));
-  CHECK(derived.getImpl().isConstant());
-  CHECK(derived.getValue() == 0);
+  auto dummy = createNode<Parameter<double>>(0);
+  auto derived = convertRef<Value<double>>(konst->derive(*dummy));
+  CHECK(derived->isConstant());
+  CHECK(getUpToDateValue(derived) == 0);
 }
 
 TEST_CASE("derive parameter")
 {
-  auto x = bpp::DF::Parameter<double>::create(42.0);
-  auto dummy = bpp::DF::Parameter<double>::create(3);
+  auto x = createNode<Parameter<double>>(42.0);
+  auto dummy = createNode<Parameter<double>>(3);
 
-  auto dx_dx = bpp::DF::Value<double>(x.getImpl().derive(x));
-  CHECK(dx_dx.getImpl().isConstant());
-  CHECK(dx_dx.getValue() == 1.0);
+  auto dx_dx = convertRef<Value<double>>(x->derive(*x));
+  CHECK(dx_dx->isConstant());
+  CHECK(getUpToDateValue(dx_dx) == 1.0);
 
-  auto dx_dummy = bpp::DF::Value<double>(x.getImpl().derive(dummy));
-  CHECK(dx_dummy.getImpl().isConstant());
-  CHECK(dx_dummy.getValue() == 0.0);
+  auto dx_dummy = convertRef<Value<double>>(x->derive(*dummy));
+  CHECK(dx_dummy->isConstant());
+  CHECK(getUpToDateValue(dx_dummy) == 0.0);
 }
 
 TEST_CASE("test")
@@ -122,11 +127,11 @@ TEST_CASE("test")
   auto& x = xp.getDataFlowParameter();
   auto& y = yp.getDataFlowParameter();
 
-  auto v = bpp::DF::Value<double>::create<SquareNode>({x});
-  std::cout << "v = " << v.getValue() << "\n";
+  auto v = createNode<SquareNode>({x});
+  std::cout << "v = " << getUpToDateValue(v) << "\n";
 
-  auto dv_dx = v.getImpl().derive(x);
+  auto dv_dx = v->derive(*x);
 
   std::ofstream fd("df_debug");
-  bpp::DF::debugDag(fd, dv_dx);
+  debugDag(fd, dv_dx);
 }

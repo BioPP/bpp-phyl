@@ -48,6 +48,7 @@
 #include <string>
 #include <typeindex>
 #include <typeinfo>
+#include <utility>
 
 namespace bpp {
 // Demangle a C++ symbol name
@@ -87,7 +88,7 @@ namespace DF {
 	class Registry;
 
 	// Output a dot format graph representing the dataflow dag
-	void debugDag (std::ostream & os, const Node & entryPoint);
+	void debugDag (std::ostream & os, const std::shared_ptr<Node> & entryPoint);
 
 	// Outputs debugDag + registry pointers to dataflow dag
 	void debugRegistry (std::ostream & os, const Registry & registry);

@@ -135,7 +135,7 @@ namespace DF {
 			checkDependencies (Cpp14::MakeIndexSequence<nbDependencies>{});
 		}
 
-		Node derive (const Node & variable) override final {
+		NodeRef derive (const Node & variable) override final {
 			return OpDerivationHelper::derive<Op> (*this, variable);
 		}
 

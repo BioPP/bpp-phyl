@@ -68,9 +68,9 @@ using Sum = DF::GenericReductionComputation<SumOp>;
 struct SumSpec : DF::NodeSpecAlwaysGenerate<Sum>
 {
   Topology::Node node;
-  FrozenPtr<Topology::NodeValueMap<DF::Parameter<int>>> params;
+  FrozenPtr<Topology::NodeValueMap<DF::ParameterRef<int>>> params;
 
-  SumSpec(const Topology::Node& n, const FrozenPtr<Topology::NodeValueMap<DF::Parameter<int>>>& p)
+  SumSpec(const Topology::Node& n, const FrozenPtr<Topology::NodeValueMap<DF::ParameterRef<int>>>& p)
     : node(n)
     , params(p)
   {
@@ -109,20 +109,21 @@ TEST_CASE("test")
   std::ofstream ft("topology_debug");
   Topology::debugTree(ft, tree);
 
-  auto buildParams = make_freezable<Topology::NodeValueMap<DF::Parameter<int>>>(tree);
-  buildParams->access(tree->node(ta)) = DF::Parameter<int>::create(3);
-  buildParams->access(tree->node(tb)) = DF::Parameter<int>::create(42);
+  auto buildParams = make_freezable<Topology::NodeValueMap<DF::ParameterRef<int>>>(tree);
+  buildParams->access(tree->node(ta)) = DF::createNode<DF::Parameter<int>>(3);
+  buildParams->access(tree->node(tb)) = DF::createNode<DF::Parameter<int>>(42);
   auto params = std::move(buildParams).freeze();
 
   DF::Registry registry;
 
   auto sumSpec = SumSpec{tree->rootNode(), params};
-  Value<int> sum{DF::instantiateNodeSpecWithReuse(sumSpec, registry)};
-  CHECK(sum.getValue() == 45);
-  params->access(tree->node(ta))->setValue(-42);
-  CHECK(sum.getValue() == 0);
+  auto sum = DF::convertRef<Value<int>>(DF::instantiateNodeSpecWithReuse(sumSpec, registry));
+  CHECK(getUpToDateValue(sum) == 45);
+  params->access(tree->node(ta)).value()->setValue(-42);
+  CHECK(getUpToDateValue(sum) == 0);
 
-  Value<int> partialSum{DF::instantiateNodeSpecWithReuse(SumSpec{tree->node(0), params}, registry)};
+  auto partialSum =
+    DF::convertRef<Value<int>>(DF::instantiateNodeSpecWithReuse(SumSpec{tree->node(0), params}, registry));
 
   std::ofstream fd("df_debug");
   DF::debugNodeSpecInstantiationInRegistry(fd, sumSpec, registry, true);

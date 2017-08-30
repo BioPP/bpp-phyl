@@ -125,17 +125,17 @@ namespace DF {
 		std::string dotNodeKey (char type, std::size_t hash) {
 			return type + std::to_string (std::uint16_t (hash));
 		}
-		std::string dotNodeKey (const Node::Impl * p) {
-			return dotNodeKey ('N', std::hash<const Node::Impl *>{}(p));
+		std::string dotNodeKey (const Node * p) {
+			return dotNodeKey ('N', std::hash<const Node *>{}(p));
 		}
-		std::string dotNodeKey (const Node & n) { return dotNodeKey (&n.getImpl ()); }
+		std::string dotNodeKey (const NodeRef & p) { return dotNodeKey (p.get ()); }
 		std::string dotNodeKey (const Registry::Key & key) { return dotNodeKey ('K', key.hashCode ()); }
 		std::string dotNodeKey (const NodeSpecification & nodeSpec) {
 			return dotNodeKey ('S', nodeSpec.debugHashCode ());
 		}
 
 		// Dot pretty print of elements
-		void dotNodePretty (std::ostream & os, const Node::Impl * node) {
+		void dotNodePretty (std::ostream & os, const Node * node) {
 			os << '\t' << dotNodeKey (node) << " [color=blue,shape=record,label=\"" << dotNodeKey (node)
 			   << '|' << dotLabelEscape (node->description ()) << "\"];\n";
 		}
@@ -156,31 +156,31 @@ namespace DF {
 		                    const std::string & style) {
 			os << '\t' << dotNodeKey (from) << " -> " << dotNodeKey (to) << ' ' << style << ";\n";
 		}
-		void dotEdgePretty (std::ostream & os, const Node::Impl * from, const Node::Impl * to) {
+		void dotEdgePretty (std::ostream & os, const Node * from, const Node * to) {
 			dotEdgePretty (os, from, to, "[color=blue]");
 		}
-		void dotEdgePretty (std::ostream & os, const Registry::Key & from, const Node & to) {
+		void dotEdgePretty (std::ostream & os, const Registry::Key & from, const Node * to) {
 			dotEdgePretty (os, from, to, "");
 		}
 		void dotEdgePretty (std::ostream & os, const NodeSpecification & from,
 		                    const NodeSpecification & to) {
 			dotEdgePretty (os, from, to, "[color=red]");
 		}
-		void dotEdgePretty (std::ostream & os, const NodeSpecification & from, const Node & to) {
+		void dotEdgePretty (std::ostream & os, const NodeSpecification & from, const Node * to) {
 			dotEdgePretty (os, from, to, "[color=green]");
 		}
 
 		// Print the DF dag structure (in blue).
 		// Takes list of entry points.
-		void debugDagStructure (std::ostream & os, NodeVec entryPoints) {
-			std::queue<const Node::Impl *> nodesToVisit;
-			std::unordered_set<const Node::Impl *> nodesAlreadyVisited;
+		void debugDagStructure (std::ostream & os, NodeRefVec entryPoints) {
+			std::queue<const Node *> nodesToVisit;
+			std::unordered_set<const Node *> nodesAlreadyVisited;
 
 			for (auto & n : entryPoints)
-				nodesToVisit.emplace (&n.getImpl ());
+				nodesToVisit.emplace (n.get ());
 
 			while (!nodesToVisit.empty ()) {
-				auto node = nodesToVisit.front ();
+				auto * node = nodesToVisit.front ();
 				nodesToVisit.pop ();
 				if (nodesAlreadyVisited.count (node))
 					continue;
@@ -188,63 +188,65 @@ namespace DF {
 				dotNodePretty (os, node);
 				nodesAlreadyVisited.emplace (node);
 
-				node->foreachDependentNode ([&](const Node::Impl * p) {
+				for (auto * p : node->dependentNodes ()) {
 					if (nodesAlreadyVisited.count (p))
 						return;
 					dotEdgePretty (os, p, node);
 					nodesToVisit.emplace (p);
-				});
-				node->foreachDependencyNode ([&](const Node::Impl * p) {
+				}
+				for (auto & ref : node->dependencies ()) {
+					auto * p = ref.get ();
 					if (nodesAlreadyVisited.count (p))
 						return;
 					dotEdgePretty (os, node, p);
 					nodesToVisit.emplace (p);
-				});
+				}
 			}
 		}
 
 		// Print registry keys, and links to stored nodes (key only).
 		// Returns list of pointed-to nodes.
-		NodeVec debugRegistryLinks (std::ostream & os, const Registry & registry) {
-			NodeVec entryPoints;
-			registry.foreachKeyValue ([&entryPoints, &os](const Registry::Key & key, const Node & node) {
-				dotNodePretty (os, key);
-				dotEdgePretty (os, key, node);
-				entryPoints.emplace_back (node);
-			});
+		NodeRefVec debugRegistryLinks (std::ostream & os, const Registry & registry) {
+			NodeRefVec entryPoints;
+			registry.foreachKeyValue (
+			    [&entryPoints, &os](const Registry::Key & key, const NodeRef & node) {
+				    dotNodePretty (os, key);
+				    dotEdgePretty (os, key, node.get ());
+				    entryPoints.emplace_back (node);
+				  });
 			return entryPoints;
 		}
 
 		// Instantiate a NodeSpec (without registry), duplicate of NodeSpec.instantiate
 		// Print NodeSpec details, and links between NodeSpecs.
 		// Print links to node (key only).
-		Node debugPlayNodeSpecInstantiation (std::ostream & os, const NodeSpecification & nodeSpec) {
-			NodeVec deps;
+		NodeRef debugPlayNodeSpecInstantiation (std::ostream & os, const NodeSpecification & nodeSpec) {
+			NodeRefVec deps;
 			dotNodePretty (os, nodeSpec);
 			for (auto & depSpec : nodeSpec.computeDependencies ()) {
 				deps.emplace_back (debugPlayNodeSpecInstantiation (os, depSpec));
 				dotEdgePretty (os, nodeSpec, depSpec);
 			}
-			auto n = nodeSpec.buildNode (std::move (deps));
-			dotEdgePretty (os, nodeSpec, n);
+			NodeRef n = nodeSpec.buildNode (std::move (deps));
+			dotEdgePretty (os, nodeSpec, n.get ());
 			return n;
 		}
 
 		// Replay instantiation of a NodeSpec (with registry), must have already be build in registry.
 		// Print NodeSpec details, and links between NodeSpecs.
 		// Print links to node (key only).
-		Node debugReplayNodeSpecInstantiationInRegistry (std::ostream & os,
-		                                                 const NodeSpecification & nodeSpec,
-		                                                 const Registry & registry) {
+		NodeRef debugReplayNodeSpecInstantiationInRegistry (std::ostream & os,
+		                                                    const NodeSpecification & nodeSpec,
+		                                                    const Registry & registry) {
 			dotNodePretty (os, nodeSpec);
 			auto depSpecs = nodeSpec.computeDependencies ();
 			if (depSpecs.empty ()) {
-				Node n = nodeSpec.buildNode ({});
-				dotEdgePretty (os, nodeSpec, n);
+				NodeRef n = nodeSpec.buildNode ({});
+				dotEdgePretty (os, nodeSpec, n.get ());
 				return n;
 			} else {
 				// Instantiate dependencies
-				NodeVec deps;
+				NodeRefVec deps;
 				for (auto & depSpec : depSpecs) {
 					deps.emplace_back (debugReplayNodeSpecInstantiationInRegistry (os, depSpec, registry));
 					dotEdgePretty (os, nodeSpec, depSpec);
@@ -254,13 +256,13 @@ namespace DF {
 				if (!result)
 					throw std::runtime_error (
 					    "debugReplayNodeSpecInstantiationWithReuse: nodeSpec was not found in registry");
-				dotEdgePretty (os, nodeSpec, *result);
+				dotEdgePretty (os, nodeSpec, result->get ());
 				return std::move (result).value ();
 			}
 		}
 	}
 
-	void debugDag (std::ostream & os, const Node & entryPoint) {
+	void debugDag (std::ostream & os, const std::shared_ptr<Node> & entryPoint) {
 		os << "digraph {\n";
 		debugDagStructure (os, {entryPoint});
 		os << "}\n";
