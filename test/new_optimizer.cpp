@@ -60,6 +60,7 @@ struct SquareOp
   using ResultType = double;
   static void compute(ResultType& r, const double& d) { r = d * d; }
   static NodeRef derive(Node& self, const Node& variable);
+  static std::string description() { return "x^2"; }
 };
 using SquareNode = GenericFunctionComputation<SquareOp>;
 
@@ -68,6 +69,7 @@ struct DSquareOp
   using ArgumentTypes = std::tuple<double, double>;
   using ResultType = double;
   static void compute(ResultType& r, const double& d, const double& dd_dx) { r = 2 * d * dd_dx; }
+  static std::string description() { return "2 * x * dx/dvar"; }
 };
 using DSquareNode = GenericFunctionComputation<DSquareOp>;
 
@@ -121,17 +123,18 @@ TEST_CASE("derive parameter")
 
 TEST_CASE("test")
 {
-  bpp::DataFlowParameter xp{"x", 42.0};
+  bpp::DataFlowParameter xp{"x", 2.0};
   bpp::DataFlowParameter yp{"y", 3.14};
 
   auto& x = xp.getDataFlowParameter();
   auto& y = yp.getDataFlowParameter();
 
-  auto v = createNode<SquareNode>({x});
-  std::cout << "v = " << getUpToDateValue(v) << "\n";
+  auto x2 = createNode<SquareNode>({x});
+  auto x4 = createNode<SquareNode>({x2});
+  std::cout << "x4 = " << getUpToDateValue(x4) << "\n";
 
-  auto dv_dx = v->derive(*x);
+  auto dx4_dx = x4->derive(*x);
 
   std::ofstream fd("df_debug");
-  debugDag(fd, dv_dx);
+  debugDag(fd, dx4_dx);
 }

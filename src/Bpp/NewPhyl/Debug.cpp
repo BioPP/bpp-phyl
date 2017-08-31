@@ -189,17 +189,17 @@ namespace DF {
 				nodesAlreadyVisited.emplace (node);
 
 				for (auto * p : node->dependentNodes ()) {
-					if (nodesAlreadyVisited.count (p))
-						return;
-					dotEdgePretty (os, p, node);
-					nodesToVisit.emplace (p);
+					if (!nodesAlreadyVisited.count (p)) {
+						dotEdgePretty (os, p, node);
+						nodesToVisit.emplace (p);
+					}
 				}
 				for (auto & ref : node->dependencies ()) {
 					auto * p = ref.get ();
-					if (nodesAlreadyVisited.count (p))
-						return;
-					dotEdgePretty (os, node, p);
-					nodesToVisit.emplace (p);
+					if (!nodesAlreadyVisited.count (p)) {
+						dotEdgePretty (os, node, p);
+						nodesToVisit.emplace (p);
+					}
 				}
 			}
 		}
