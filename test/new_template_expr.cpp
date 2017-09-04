@@ -44,22 +44,29 @@
 
 #include <iostream>
 
+#include <Bpp/NewPhyl/Debug.h>
 #include <Bpp/NewPhyl/TemplateExpression.h>
 
-using Expr::var;
+using bpp::Expr::ref;
+using bpp::Expr::constant;
 
-void NOTICEME(int& r, const int& a, const int& d)
+void NOTICEME(int& r, const int& a, const int& b)
 {
-  auto op = var(a) + var(d);
-  op.compute(r);
+  r = (ref(a) + ref(b)).compute();
 }
 // -> est optimisé correctement
 
 TEST_CASE("test")
 {
   int a = 42;
-  int d = 10;
+  int b = 10;
   int r = 0;
-  NOTICEME (r, a, d);
+  NOTICEME(r, a, b);
   std::cout << r << '\n';
+
+  auto p = bpp::Expr::make_simplified_assignment<int>(ref(b) + constant(0));
+  int r2 = 0;
+  p->update(r2);
+  std::cout << "r2= " << r2 << '\n';
+  std::cout << "r2_expr= " << bpp::demangle(typeid(*p).name()) << '\n';
 }

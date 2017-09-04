@@ -42,52 +42,140 @@
 #ifndef BPP_NEWPHYL_TEMPLATEEXPRESSION_H
 #define BPP_NEWPHYL_TEMPLATEEXPRESSION_H
 
+#include <memory>
+#include <tuple>
 #include <type_traits>
 
-struct Ops {
-	using ArgumentTypes = std::tuple<double, double>;
-	using ResultType = double;
-	static void compute (ResultType & r, const double & a, const double & b) { r = a + b; }
-};
+#include <Bpp/NewPhyl/Debug.h>
+#include <iostream>
 
+namespace bpp {
 namespace Expr {
-template <typename T> struct Variable {
-	using ArgumentTypes = std::tuple<>;
-	using ResultType = T;
+	// Constant value
+	template <typename T> struct Constant {
+		using ArgumentTypes = std::tuple<>;
+		using ResultType = const T &;
 
-	Variable (const T & var) : var_ (var) {}
+		constexpr Constant (const T & value) : value_ (value) {}
 
-	void compute (ResultType & r) const noexcept { r = var_; }
+		constexpr ResultType compute () const noexcept { return value_; }
+		constexpr bool isConstant () const noexcept { return true; }
 
-	const T & var_;
-};
-template <typename T> Variable<T> var (const T & t) {
-	return {t};
-}
+		const T value_;
+	};
+	template <typename T> Constant<T> constant (const T & value) { return {value}; }
 
-template <typename Lhs, typename Rhs> struct Addition {
-	using LhsResultType = typename Lhs::ResultType;
-	using RhsResultType = typename Rhs::ResultType;
+	// Reference to an externally provided value
+	template <typename T> struct Ref {
+		using ArgumentTypes = std::tuple<>;
+		using ResultType = const T &;
 
-	using ArgumentTypes = std::tuple<LhsResultType, RhsResultType>;
-	using ResultType = decltype (std::declval<LhsResultType> () + std::declval<RhsResultType> ());
+		Ref (const T & value, bool isConstant = false) : value_ (value), isConstant_ (isConstant) {}
 
-	Addition (const Lhs & lhs, const Rhs & rhs) : lhs_ (lhs), rhs_ (rhs) {}
+		ResultType compute () const noexcept { return value_; }
+		bool isConstant () const noexcept { return isConstant_; }
 
-	void compute (ResultType & r) const {
-		LhsResultType lhs_r; // Pas pratique avec vector<...>.
-		RhsResultType rhs_r; // Eigen: utilise des template expr aussi, donc devrait être ok.
-		lhs_.compute (lhs_r);
-		rhs_.compute (rhs_r);
-		r = lhs_r + rhs_r;
+		const T & value_;
+		bool isConstant_;
+	};
+	template <typename T> Ref<T> ref (const T & value) { return {value}; }
+
+	// Addition of two sub expressions
+	template <typename Lhs, typename Rhs> struct Addition {
+		using LhsResultType = typename Lhs::ResultType;
+		using RhsResultType = typename Rhs::ResultType;
+
+		using ArgumentTypes = std::tuple<LhsResultType, RhsResultType>;
+		using ResultType = decltype (std::declval<LhsResultType> () + std::declval<RhsResultType> ());
+
+		Addition (const Lhs & lhs, const Rhs & rhs) : lhs_ (lhs), rhs_ (rhs) {}
+
+		ResultType compute () const { return lhs_.compute () + rhs_.compute (); }
+		bool isConstant () const { return lhs_.isConstant () && rhs_.isConstant (); }
+
+		const Lhs lhs_;
+		const Rhs rhs_;
+	};
+	template <typename Lhs, typename Rhs>
+	Addition<Lhs, Rhs> operator+ (const Lhs & lhs, const Rhs & rhs) {
+		return {lhs, rhs};
 	}
 
-	const Lhs lhs_;
-	const Rhs rhs_;
-};
-template <typename Lhs, typename Rhs>
-Addition<Lhs, Rhs> operator+ (const Lhs & lhs, const Rhs & rhs) {
-	return {lhs, rhs};
+	// Assignment
+	template <typename T> struct AbstractUpdateValue {
+		virtual ~AbstractUpdateValue () = default;
+		virtual void update (T & result) = 0;
+		virtual bool isConstant () const = 0;
+	};
+	template <typename T, typename Expr> struct Assignment : public AbstractUpdateValue<T> {
+		Assignment (const Expr & expr) : expr_ (expr) {}
+		void update (T & result) override final { result = expr_.compute (); }
+		bool isConstant () const override final { return expr_.isConstant (); }
+		const Expr expr_;
+	};
+
+	/* Simplification.
+   *
+   * Encoded as a list of possible simplification with guards.
+   * When simplifying, each sub expression
+   */
+	template <typename Expression, int opt_num> struct Simplified {
+		using Type = Expression;
+		static Type simplify (const Expression & expr) { return expr; }
+		static bool guard (const Expression &) { return true; }
+		using IsDefault = std::true_type;
+	};
+	template <typename Lhs, typename Rhs> struct Simplified<Addition<Lhs, Rhs>, 0> {
+		// If Lhs == const (0) : Lhs + Rhs => Rhs
+		using Type = Rhs;
+		static Type simplify (const Addition<Lhs, Rhs> & add) { return add.rhs_; }
+		static bool guard (const Addition<Lhs, Rhs> & add) {
+			return add.lhs_.isConstant () && add.lhs_.compute () == 0;
+		}
+		using IsDefault = std::false_type;
+	};
+	template <typename Lhs, typename Rhs> struct Simplified<Addition<Lhs, Rhs>, 1> {
+		// If Rhs == const (0) : Lhs + Rhs => Lhs
+		using Type = Lhs;
+		static Type simplify (const Addition<Lhs, Rhs> & add) { return add.lhs_; }
+		static bool guard (const Addition<Lhs, Rhs> & add) {
+			return add.rhs_.isConstant () && add.rhs_.compute () == 0;
+		}
+		using IsDefault = std::false_type;
+	};
+
+	template <typename T> using UPAssign = std::unique_ptr<AbstractUpdateValue<T>>;
+	template <typename T, typename Expr> UPAssign<T> make_assignment (const Expr & expr) {
+		return UPAssign<T> (new Assignment<T, Expr> (expr));
+	}
+
+	namespace detail {
+		template <typename T, typename Expr, int opt_num>
+		UPAssign<T> make_assignment_selector (const Expr & expr);
+
+		template <typename T, typename Expr, int opt_num>
+		UPAssign<T> make_assignment_select_default (const Expr & expr, std::true_type) {
+			return make_assignment<T> (expr); // Default case
+		}
+		template <typename T, typename Expr, int opt_num>
+		UPAssign<T> make_assignment_select_default (const Expr & expr, std::false_type) {
+			using Simpl = Simplified<Expr, opt_num>;
+			if (Simpl::guard (expr))
+				return make_assignment<T> (Simpl::simplify (expr));
+			else
+				return make_assignment_selector<T, Expr, opt_num + 1> (expr);
+		}
+
+		template <typename T, typename Expr, int opt_num>
+		UPAssign<T> make_assignment_selector (const Expr & expr) {
+			std::cout << "[selector] " << opt_num << " " << demangle (typeid (expr).name ()) << "\n";
+			return make_assignment_select_default<T, Expr, opt_num> (
+			    expr, typename Simplified<Expr, opt_num>::IsDefault{});
+		}
+	}
+	template <typename T, typename Expr> UPAssign<T> make_simplified_assignment (const Expr & expr) {
+		return detail::make_assignment_selector<T, Expr, 0> (expr);
+	}
 }
 }
 
