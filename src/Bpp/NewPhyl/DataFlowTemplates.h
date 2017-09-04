@@ -209,6 +209,10 @@ namespace DF {
 			}
 		}
 
+		NodeRef derive (const Node & variable) override final {
+			return OpDerivationHelper::derive<Op> (*this, variable);
+		}
+
 		std::string description () const final {
 			return "Reduce(" + OpDescriptionHelper::description<Op> () + ")";
 		}

@@ -144,6 +144,10 @@ namespace Expr {
 		using IsDefault = std::false_type;
 	};
 
+  /* TODO keep or trash ?
+   *
+   * Automatic simplification is complex and might be unmaintanable for normal people.
+   */
 	template <typename T> using UPAssign = std::unique_ptr<AbstractUpdateValue<T>>;
 	template <typename T, typename Expr> UPAssign<T> make_assignment (const Expr & expr) {
 		return UPAssign<T> (new Assignment<T, Expr> (expr));

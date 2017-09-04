@@ -211,6 +211,7 @@ namespace DF {
 	NodeRef deriveParameterHelper (const Parameter<T> & param, const Node & variable,
 	                               std::true_type) {
 		auto && v = (&variable == &param) ? NumericInfo<T>::one () : NumericInfo<T>::zero ();
+    // FIXME one / zero depends on dynamic size for vectors !
 		return createNode<Constant<T>> (v);
 	}
 	template <typename T>

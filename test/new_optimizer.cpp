@@ -81,23 +81,32 @@ NodeRef SquareOp::derive(Node& self, const Node& variable)
 
 // DDSquareOp == Constant<double>(2)
 
-// A product
-struct PairProductOp
+// Addition
+struct AdditionOp
 {
-  using ArgumentTypes = std::tuple<double, double>;
+  using ArgumentType = double;
   using ResultType = double;
-  static void compute(ResultType& r, const double& lhs, const double& rhs) { r = lhs * rhs; }
+  static void reset(ResultType& r) { r = 0; }
+  static void reduce(ResultType& r, const double& d) { r += d; }
+  static NodeRef derive(Node& self, const Node& variable);
+  static std::string description() { return "(+)"; }
 };
+using AdditionNode = GenericReductionComputation<AdditionOp>;
+
+NodeRef AdditionOp::derive(Node& self, const Node& variable)
+{
+  NodeRefVec derivatives;
+  for (auto& subExpr : self.dependencies())
+    derivatives.emplace_back(subExpr->derive(variable));
+  return createNode<AdditionNode>(std::move(derivatives));
+}
 
 // TODO define a bpp::Function to represent a DF::Value<double>
 // +manually set its ParameterList of DFParameter
 
-template<typename T>
-class TD;
-
 TEST_CASE("derive constant")
 {
-  auto konst = createNode<Constant<double>>(42.0); // FIXME check type out of createNode
+  auto konst = createNode<Constant<double>>(42.0);
   CHECK(getUpToDateValue(konst) == 42.0);
   CHECK(konst->isConstant());
 
@@ -124,17 +133,18 @@ TEST_CASE("derive parameter")
 TEST_CASE("test")
 {
   bpp::DataFlowParameter xp{"x", 2.0};
-  bpp::DataFlowParameter yp{"y", 3.14};
-
+  bpp::DataFlowParameter yp{"y", -3.0};
   auto& x = xp.getDataFlowParameter();
   auto& y = yp.getDataFlowParameter();
 
   auto x2 = createNode<SquareNode>({x});
-  auto x4 = createNode<SquareNode>({x2});
-  std::cout << "x4 = " << getUpToDateValue(x4) << "\n";
+  auto y2 = createNode<SquareNode>({y});
+  auto f = createNode<AdditionNode>({x2, y2});
 
-  auto dx4_dx = x4->derive(*x);
+  std::cout << "x2 + y2 = " << getUpToDateValue(f) << "\n";
+
+  auto df_dx = f->derive(*x);
 
   std::ofstream fd("df_debug");
-  debugDag(fd, dx4_dx);
+  debugDag(fd, df_dx);
 }
