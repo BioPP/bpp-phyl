@@ -62,48 +62,15 @@ namespace DF {
 	                                                 const std::type_info & expectedType,
 	                                                 const Node & givenNode);
 
-  // TODO use base ops which defines default description / derive (instead of SFINAE trickery)
-
-	// Description utils (hidden as a private member of a class)
-	struct OpDescriptionHelper {
-	private:
-		// FIXME doc this ? keep ? I don't like exposing this...
-		template <typename Op> static auto test (Op) -> decltype (Op::description (), std::true_type{});
-		static auto test (...) -> std::false_type;
-		template <typename Op> using HasDescription = decltype (test (std::declval<Op> ()));
-
-		template <typename Op> static std::string helper (std::true_type) { return Op::description (); }
-		template <typename Op> static std::string helper (std::false_type) {
-			return prettyTypeName<Op> ();
-		}
-
-	public:
-		template <typename Op> static std::string description () {
-			return helper<Op> (HasDescription<Op>{});
-		}
-	};
-
-	// Derivation utils
-	struct OpDerivationHelper {
-	private:
-	public:
-		template <typename Op>
-		static auto test (Op)
-		    -> decltype (Op::derive (std::declval<Node &> (), std::declval<const Node &> ()),
-		                 std::true_type{});
-		static auto test (...) -> std::false_type;
-		template <typename Op> using HasDerivation = decltype (test (std::declval<Op> ()));
-
-		template <typename Op> static NodeRef helper (Node & self, const Node & var, std::true_type) {
-			return Op::derive (self, var);
-		}
-		template <typename Op> static NodeRef helper (Node & self, const Node & var, std::false_type) {
-			return self.Node::derive (var);
-		}
-
-	public:
-		template <typename Op> static NodeRef derive (Node & self, const Node & variable) {
-			return helper<Op> (self, variable, HasDerivation<Op>{});
+	/* Operation type base.
+	 * Provide defaults for some required functions:
+	 * - debug description text
+	 * - derivation (throw exception)
+	 */
+	template <typename FinalOpType> struct OperationBase {
+		static std::string description () { return prettyTypeName<FinalOpType> (); }
+		static NodeRef derive (Node & self, const Node & variable) {
+			return self.Node::derive (variable); // Delegate to Node::derive (throws exception)
 		}
 	};
 
@@ -137,13 +104,9 @@ namespace DF {
 			checkDependencies (Cpp14::MakeIndexSequence<nbDependencies>{});
 		}
 
-		NodeRef derive (const Node & variable) override final {
-			return OpDerivationHelper::derive<Op> (*this, variable);
-		}
+		NodeRef derive (const Node & variable) override final { return Op::derive (*this, variable); }
 
-		std::string description () const override final {
-			return "Func(" + OpDescriptionHelper::description<Op> () + ")";
-		}
+		std::string description () const override final { return "Func(" + Op::description () + ")"; }
 
 	private:
 		/** Runtime checks the dependency for type / number mismatch.
@@ -209,13 +172,9 @@ namespace DF {
 			}
 		}
 
-		NodeRef derive (const Node & variable) override final {
-			return OpDerivationHelper::derive<Op> (*this, variable);
-		}
+		NodeRef derive (const Node & variable) override final { return Op::derive (*this, variable); }
 
-		std::string description () const final {
-			return "Reduce(" + OpDescriptionHelper::description<Op> () + ")";
-		}
+		std::string description () const final { return "Reduce(" + Op::description () + ")"; }
 
 	private:
 		void compute () override final {

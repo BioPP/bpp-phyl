@@ -56,7 +56,7 @@ using namespace bpp;
 using DF::Node;
 using DF::Value;
 
-struct SumOp
+struct SumOp : public DF::OperationBase<SumOp>
 {
   using ResultType = int;
   using ArgumentType = int;

@@ -81,7 +81,8 @@ namespace Phyl {
 
 	// Compute nodes
 
-	struct ComputeEquilibriumFrequenciesFromModelOp {
+	struct ComputeEquilibriumFrequenciesFromModelOp
+	    : public DF::OperationBase<ComputeEquilibriumFrequenciesFromModelOp> {
 		using ResultType = FrequencyVector;
 		using ArgumentTypes = std::tuple<const SubstitutionModel *>;
 		static void compute (FrequencyVector & freqs, const SubstitutionModel * model);
@@ -91,7 +92,8 @@ namespace Phyl {
 	using ComputeEquilibriumFrequenciesFromModelNode =
 	    DF::GenericFunctionComputation<ComputeEquilibriumFrequenciesFromModelOp>;
 
-	struct ComputeTransitionMatrixFromModelOp {
+	struct ComputeTransitionMatrixFromModelOp
+	    : public DF::OperationBase<ComputeTransitionMatrixFromModelOp> {
 		using ResultType = TransitionMatrix;
 		enum { Model, BrLen };
 		using ArgumentTypes = std::tuple<const SubstitutionModel *, double>;
@@ -102,7 +104,8 @@ namespace Phyl {
 	using ComputeTransitionMatrixFromModelNode =
 	    DF::GenericFunctionComputation<ComputeTransitionMatrixFromModelOp>;
 
-	struct ComputeTransitionMatrixFirstDerivativeFromModelOp {
+	struct ComputeTransitionMatrixFirstDerivativeFromModelOp
+	    : public DF::OperationBase<ComputeTransitionMatrixFirstDerivativeFromModelOp> {
 		using ResultType = TransitionMatrix;
 		enum { Model, BrLen };
 		using ArgumentTypes = std::tuple<const SubstitutionModel *, double>;
@@ -113,7 +116,8 @@ namespace Phyl {
 	using ComputeTransitionMatrixFirstDerivativeFromModelNode =
 	    DF::GenericFunctionComputation<ComputeTransitionMatrixFirstDerivativeFromModelOp>;
 
-	struct ComputeTransitionMatrixSecondDerivativeFromModelOp {
+	struct ComputeTransitionMatrixSecondDerivativeFromModelOp
+	    : public DF::OperationBase<ComputeTransitionMatrixSecondDerivativeFromModelOp> {
 		using ResultType = TransitionMatrix;
 		enum { Model, BrLen };
 		using ArgumentTypes = std::tuple<const SubstitutionModel *, double>;

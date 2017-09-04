@@ -51,7 +51,7 @@
 
 using namespace bpp;
 
-struct SumOp
+struct SumOp : public DF::OperationBase<SumOp>
 {
   using ResultType = int;
   using ArgumentType = int;
@@ -60,7 +60,7 @@ struct SumOp
 };
 using SumNode = DF::GenericReductionComputation<SumOp>;
 
-struct NegateOp
+struct NegateOp : public DF::OperationBase<NegateOp>
 {
   using ResultType = int;
   using ArgumentTypes = std::tuple<int>;

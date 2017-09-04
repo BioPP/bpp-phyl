@@ -61,42 +61,44 @@ namespace Phyl {
 	using LikelihoodVector = Eigen::VectorXd;
 	using LikelihoodVectorBySite = PackedVector<LikelihoodVector>;
 
-	struct ComputeConditionalLikelihoodFromDataOp {
+	struct ComputeConditionalLikelihoodFromDataOp
+	    : public DF::OperationBase<ComputeConditionalLikelihoodFromDataOp> {
 		using ResultType = LikelihoodVectorBySite;
 		using ArgumentTypes = std::tuple<const Sequence *>;
 		static void compute (LikelihoodVectorBySite & condLikBySite, const Sequence * sequence);
-    static std::string description () { return "CondLikFromData"; }
+		static std::string description () { return "CondLikFromData"; }
 	};
 	using ComputeConditionalLikelihoodFromDataNode =
 	    DF::GenericFunctionComputation<ComputeConditionalLikelihoodFromDataOp>;
 
-	struct ComputeConditionalLikelihoodFromChildrensOp {
+	struct ComputeConditionalLikelihoodFromChildrensOp
+	    : public DF::OperationBase<ComputeConditionalLikelihoodFromChildrensOp> {
 		using ResultType = LikelihoodVectorBySite;
 		using ArgumentType = LikelihoodVectorBySite;
 		static void reset (LikelihoodVectorBySite & condLikBySite);
 		static void reduce (LikelihoodVectorBySite & condLikBySite,
 		                    const LikelihoodVectorBySite & fwdLikBySite);
-    static std::string description () { return "CondLikFromChildrens"; }
+		static std::string description () { return "CondLikFromChildrens"; }
 	};
 	using ComputeConditionalLikelihoodFromChildrensNode =
 	    DF::GenericReductionComputation<ComputeConditionalLikelihoodFromChildrensOp>;
 
-	struct ComputeForwardLikelihoodOp {
+	struct ComputeForwardLikelihoodOp : public DF::OperationBase<ComputeForwardLikelihoodOp> {
 		using ResultType = LikelihoodVectorBySite;
 		using ArgumentTypes = std::tuple<LikelihoodVectorBySite, TransitionMatrix>;
 		static void compute (LikelihoodVectorBySite & fwdLikBySite,
 		                     const LikelihoodVectorBySite & condLikBySite,
 		                     const TransitionMatrix & transitionMatrix);
-    static std::string description () { return "FwdLik"; }
+		static std::string description () { return "FwdLik"; }
 	};
 	using ComputeForwardLikelihoodNode = DF::GenericFunctionComputation<ComputeForwardLikelihoodOp>;
 
-	struct ComputeLogLikelihoodOp {
+	struct ComputeLogLikelihoodOp : public DF::OperationBase<ComputeLogLikelihoodOp> {
 		using ResultType = double;
 		using ArgumentTypes = std::tuple<LikelihoodVectorBySite, FrequencyVector>;
 		static void compute (double & logLikelihood, const LikelihoodVectorBySite & condLikBySite,
 		                     const FrequencyVector & equilibriumFreqs);
-    static std::string description () { return "LogLikFromCondLik"; }
+		static std::string description () { return "LogLikFromCondLik"; }
 	};
 	using ComputeLogLikelihoodNode = DF::GenericFunctionComputation<ComputeLogLikelihoodOp>;
 }

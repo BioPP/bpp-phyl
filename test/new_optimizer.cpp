@@ -54,7 +54,7 @@ using namespace bpp::DF;
 
 // x -> x^2 and its derivatives
 
-struct SquareOp
+struct SquareOp : public OperationBase<SquareOp>
 {
   using ArgumentTypes = std::tuple<double>;
   using ResultType = double;
@@ -64,7 +64,7 @@ struct SquareOp
 };
 using SquareNode = GenericFunctionComputation<SquareOp>;
 
-struct DSquareOp
+struct DSquareOp : public OperationBase<DSquareOp>
 {
   using ArgumentTypes = std::tuple<double, double>;
   using ResultType = double;
@@ -82,14 +82,14 @@ NodeRef SquareOp::derive(Node& self, const Node& variable)
 // DDSquareOp == Constant<double>(2)
 
 // Addition
-struct AdditionOp
+struct AdditionOp : public OperationBase<AdditionOp>
 {
   using ArgumentType = double;
   using ResultType = double;
   static void reset(ResultType& r) { r = 0; }
   static void reduce(ResultType& r, const double& d) { r += d; }
   static NodeRef derive(Node& self, const Node& variable);
-  static std::string description() { return "(+)"; }
+  static std::string description() { return "+"; }
 };
 using AdditionNode = GenericReductionComputation<AdditionOp>;
 
