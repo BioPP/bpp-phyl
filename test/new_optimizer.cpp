@@ -58,7 +58,7 @@ struct SquareOp : public OperationBase<SquareOp>
 {
   using ArgumentTypes = std::tuple<double>;
   using ResultType = double;
-  static void compute(ResultType& r, const double& d) { r = d * d; }
+  static void compute(ResultType& r, const double& x) { r = x * x; }
   static NodeRef derive(Node& self, const Node& variable);
   static std::string description() { return "x^2"; }
 };
@@ -68,18 +68,34 @@ struct DSquareOp : public OperationBase<DSquareOp>
 {
   using ArgumentTypes = std::tuple<double, double>;
   using ResultType = double;
-  static void compute(ResultType& r, const double& d, const double& dd_dx) { r = 2 * d * dd_dx; }
+  static void compute(ResultType& r, const double& x, const double& dx_dv) { r = 2 * x * dx_dv; }
+  static NodeRef derive(Node& self, const Node& variable);
   static std::string description() { return "2 * x * dx/dvar"; }
 };
 using DSquareNode = GenericFunctionComputation<DSquareOp>;
 
+struct DDSquareOp : public OperationBase<DDSquareOp>
+{
+  using ArgumentTypes = std::tuple<double, double, double, double>;
+  using ResultType = double;
+  static void compute(ResultType& r, const double& x, const double& y, const double& dx_dv, const double& dy_dv)
+  {
+    r = 2 * (dx_dv * y + x * dy_dv);
+  }
+};
+using DDSquareNode = GenericFunctionComputation<DDSquareOp>;
+
 NodeRef SquareOp::derive(Node& self, const Node& variable)
 {
-  auto& d = self.dependencies()[0];
-  return createNode<DSquareNode>({d, d->derive(variable)});
+  auto& x = self.dependencies()[0];
+  return createNode<DSquareNode>({x, x->derive(variable)});
 }
-
-// DDSquareOp == Constant<double>(2)
+NodeRef DSquareOp::derive(Node& self, const Node& variable)
+{
+  auto& x = self.dependencies()[0];
+  auto& y = self.dependencies()[1];
+  return createNode<DDSquareNode>({x, y, x->derive(variable), y->derive(variable)});
+}
 
 // Addition
 struct AdditionOp : public OperationBase<AdditionOp>
@@ -87,7 +103,7 @@ struct AdditionOp : public OperationBase<AdditionOp>
   using ArgumentType = double;
   using ResultType = double;
   static void reset(ResultType& r) { r = 0; }
-  static void reduce(ResultType& r, const double& d) { r += d; }
+  static void reduce(ResultType& r, const double& x) { r += x; }
   static NodeRef derive(Node& self, const Node& variable);
   static std::string description() { return "+"; }
 };
@@ -144,6 +160,7 @@ TEST_CASE("test")
   std::cout << "x2 + y2 = " << getUpToDateValue(f) << "\n";
 
   auto df_dx = f->derive(*x);
+  auto df2_dx2 = df_dx->derive(*x);
 
   std::ofstream fd("df_debug");
   debugDag(fd, df_dx);
