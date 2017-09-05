@@ -126,5 +126,5 @@ TEST_CASE("test")
     DF::convertRef<Value<int>>(DF::instantiateNodeSpecWithReuse(SumSpec{tree->node(0), params}, registry));
 
   std::ofstream fd("df_debug");
-  DF::debugNodeSpecInstantiationInRegistry(fd, sumSpec, registry, true);
+  DF::debugNodeSpecInstantiationInRegistry(fd, sumSpec, registry, DF::DebugOptions::ShowRegistryLinks);
 }

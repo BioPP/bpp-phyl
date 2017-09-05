@@ -159,6 +159,9 @@ namespace DF {
 		void dotEdgePretty (std::ostream & os, const Node * from, const Node * to) {
 			dotEdgePretty (os, from, to, "[color=blue]");
 		}
+		void dotEdgePretty (std::ostream & os, const Node * from, const Node * to, SizeType num) {
+			dotEdgePretty (os, from, to, "[color=blue,label=\"" + debug_to_string (num) + "\"]");
+		}
 		void dotEdgePretty (std::ostream & os, const Registry::Key & from, const Node * to) {
 			dotEdgePretty (os, from, to, "");
 		}
@@ -172,7 +175,7 @@ namespace DF {
 
 		// Print the DF dag structure (in blue).
 		// Takes list of entry points.
-		void debugDagStructure (std::ostream & os, NodeRefVec entryPoints) {
+		void debugDagStructure (std::ostream & os, NodeRefVec entryPoints, DebugOptions opt) {
 			std::queue<const Node *> nodesToVisit;
 			std::unordered_set<const Node *> nodesAlreadyVisited;
 
@@ -188,18 +191,20 @@ namespace DF {
 				dotNodePretty (os, node);
 				nodesAlreadyVisited.emplace (node);
 
-				for (auto * p : node->dependentNodes ()) {
-					if (!nodesAlreadyVisited.count (p)) {
-						dotEdgePretty (os, p, node);
-						nodesToVisit.emplace (p);
+				if (opt & DebugOptions::FollowUpwardLinks)
+					for (auto * p : node->dependentNodes ())
+						if (!nodesAlreadyVisited.count (p))
+							nodesToVisit.emplace (p);
+
+				for (auto index : index_range (node->dependencies ())) {
+					auto * dep = node->dependencies ()[index].get ();
+					if (opt & DebugOptions::ShowDependencyIndex) {
+						dotEdgePretty (os, node, dep, index);
+					} else {
+						dotEdgePretty (os, node, dep);
 					}
-				}
-				for (auto & ref : node->dependencies ()) {
-					auto * p = ref.get ();
-					if (!nodesAlreadyVisited.count (p)) {
-						dotEdgePretty (os, node, p);
-						nodesToVisit.emplace (p);
-					}
+					if (!nodesAlreadyVisited.count (dep))
+						nodesToVisit.emplace (dep);
 				}
 			}
 		}
@@ -262,26 +267,28 @@ namespace DF {
 		}
 	}
 
-	void debugDag (std::ostream & os, const std::shared_ptr<Node> & entryPoint) {
+	void debugDag (std::ostream & os, const std::shared_ptr<Node> & entryPoint, DebugOptions opt) {
 		os << "digraph {\n";
-		debugDagStructure (os, {entryPoint});
+		debugDagStructure (os, {entryPoint}, opt);
 		os << "}\n";
 	}
-	void debugRegistry (std::ostream & os, const Registry & registry) {
+	void debugRegistry (std::ostream & os, const Registry & registry, DebugOptions opt) {
 		os << "digraph {\n";
-		debugDagStructure (os, debugRegistryLinks (os, registry));
+		debugDagStructure (os, debugRegistryLinks (os, registry), opt);
 		os << "}\n";
 	}
-	void debugNodeSpecInstantiation (std::ostream & os, const NodeSpecification & nodeSpec) {
+	void debugNodeSpecInstantiation (std::ostream & os, const NodeSpecification & nodeSpec,
+	                                 DebugOptions opt) {
 		os << "digraph {\n";
-		debugDagStructure (os, {debugPlayNodeSpecInstantiation (os, nodeSpec)});
+		debugDagStructure (os, {debugPlayNodeSpecInstantiation (os, nodeSpec)}, opt);
 		os << "}\n";
 	}
 	void debugNodeSpecInstantiationInRegistry (std::ostream & os, const NodeSpecification & nodeSpec,
-	                                           const Registry & registry, bool showRegistryLinks) {
+	                                           const Registry & registry, DebugOptions opt) {
 		os << "digraph {\n";
-		debugDagStructure (os, {debugReplayNodeSpecInstantiationInRegistry (os, nodeSpec, registry)});
-		if (showRegistryLinks)
+		debugDagStructure (os, {debugReplayNodeSpecInstantiationInRegistry (os, nodeSpec, registry)},
+		                   opt);
+		if (opt & DebugOptions::ShowRegistryLinks)
 			debugRegistryLinks (os, registry);
 		os << "}\n";
 	}

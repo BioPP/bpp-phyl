@@ -87,20 +87,38 @@ namespace DF {
 	class NodeSpecification;
 	class Registry;
 
+	enum class DebugOptions {
+		None = 0,
+		FollowUpwardLinks = 1 << 0,
+		ShowDependencyIndex = 1 << 1,
+		ShowRegistryLinks = 1 << 2,
+	};
+	inline DebugOptions operator| (DebugOptions a, DebugOptions b) {
+		using IntType = typename std::underlying_type<DebugOptions>::type;
+		return static_cast<DebugOptions> (static_cast<IntType> (a) | static_cast<IntType> (b));
+	}
+	inline bool operator& (DebugOptions a, DebugOptions b) {
+		using IntType = typename std::underlying_type<DebugOptions>::type;
+		return static_cast<IntType> (a) & static_cast<IntType> (b);
+	}
+
 	// Output a dot format graph representing the dataflow dag
-	void debugDag (std::ostream & os, const std::shared_ptr<Node> & entryPoint);
+	void debugDag (std::ostream & os, const std::shared_ptr<Node> & entryPoint,
+	               DebugOptions opt = DebugOptions::None);
 
 	// Outputs debugDag + registry pointers to dataflow dag
-	void debugRegistry (std::ostream & os, const Registry & registry);
+	void debugRegistry (std::ostream & os, const Registry & registry,
+	                    DebugOptions opt = DebugOptions::None);
 
 	// Instantiate a nodespec, prints nodespec hierarchy & DF graph
-	void debugNodeSpecInstantiation (std::ostream & os, const NodeSpecification & nodeSpec);
+	void debugNodeSpecInstantiation (std::ostream & os, const NodeSpecification & nodeSpec,
+	                                 DebugOptions opt = DebugOptions::None);
 
 	// Trace previous instantiation of a NodeSpec in a registry
 	// Prints: registry, nodespecs, df graph
 	void debugNodeSpecInstantiationInRegistry (std::ostream & os, const NodeSpecification & nodeSpec,
 	                                           const Registry & registry,
-	                                           bool showRegistryLinks = false);
+	                                           DebugOptions opt = DebugOptions::None);
 }
 }
 

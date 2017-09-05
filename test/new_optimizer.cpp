@@ -163,5 +163,5 @@ TEST_CASE("test")
   auto df2_dx2 = df_dx->derive(*x);
 
   std::ofstream fd("df_debug");
-  debugDag(fd, df_dx);
+  debugDag(fd, df2_dx2, DebugOptions::ShowDependencyIndex);
 }
