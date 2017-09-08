@@ -43,10 +43,16 @@
 #define BPP_NEWPHYL_OPTIMIZER_H
 
 #include <Bpp/NewPhyl/DataFlow.h>
+#include <Bpp/NewPhyl/Optional.h>
+#include <Bpp/Numeric/Function/Functions.h>
 #include <Bpp/Numeric/Parameter.h>
+#include <Bpp/Numeric/ParameterList.h>
+#include <unordered_map>
+#include <utility>
 
 namespace bpp {
 
+// Wraps a DF::Parameter<double> data flow node as a bpp::Parameter
 class DataFlowParameter : public Parameter {
 public:
 	DataFlowParameter (const std::string & name, DF::ParameterRef<double> existingParam)
@@ -54,14 +60,124 @@ public:
 	DataFlowParameter (const std::string & name, double initialValue)
 	    : DataFlowParameter (name, DF::createNode<DF::Parameter<double>> (initialValue)) {}
 
-	// TODO care about the listeners thingies
+	// Parameter boilerplate
+	DataFlowParameter * clone () const override { return new DataFlowParameter (*this); }
+
+	// Override value access
 	double getValue () const override { return dfParam_->value (); }
 	void setValue (double v) override { dfParam_->setValue (v); }
+	// TODO care about the listeners
 
 	const DF::ParameterRef<double> & getDataFlowParameter () const noexcept { return dfParam_; }
 
 private:
 	DF::ParameterRef<double> dfParam_;
+};
+
+/*
+ * TODO use AbstractParametrizable (provides no way of adding parameters)
+ */
+class DataFlowFunction : public DerivableSecondOrder {
+private:
+	DF::ValueRef<double> dfFunction_;
+	ParameterList variables_;
+
+	struct StringPairHash {
+		std::size_t operator() (const std::pair<std::string, std::string> & p) const {
+			std::hash<std::string> strHash{};
+			return strHash (p.first) ^ (strHash (p.second) << 1);
+		}
+	};
+	mutable std::unordered_map<std::string, DF::ValueRef<double>> firstOrderDerivativeNodes_;
+	mutable std::unordered_map<std::pair<std::string, std::string>, DF::ValueRef<double>,
+	                           StringPairHash>
+	    secondOrderDerivativeNodes_;
+
+public:
+	DataFlowFunction (DF::ValueRef<double> dfNode, const ParameterList & variables)
+	    : dfFunction_ (std::move (dfNode)), variables_ (variables) {}
+
+	// Boilerplate
+	DataFlowFunction * clone () const override { return new DataFlowFunction (*this); }
+
+	// bpp::Parametrizable (prefix unused FIXME?)
+	bool hasParameter (const std::string & name) const override {
+		return variables_.hasParameter (name);
+	}
+	const ParameterList & getParameters () const override { return variables_; }
+	const Parameter & getParameter (const std::string & name) const override {
+		return variables_.getParameter (name);
+	}
+	double getParameterValue (const std::string & name) const override {
+		return variables_.getParameterValue (name);
+	}
+	void setAllParametersValues (const ParameterList & params) override {
+		return variables_.setAllParametersValues (params);
+	}
+	void setParameterValue (const std::string & name, double value) override {
+		variables_.setParameterValue (name, value);
+	}
+	void setParametersValues (const ParameterList & params) override {
+		variables_.setParametersValues (params);
+	}
+	bool matchParametersValues (const ParameterList & params) override {
+		return variables_.matchParametersValues (params);
+	}
+	std::size_t getNumberOfParameters () const override { return variables_.size (); }
+	void setNamespace (const std::string &) override {}
+	std::string getNamespace () const override { return {}; }
+	std::string getParameterNameWithoutNamespace (const std::string & name) const override {
+		return name;
+	}
+
+	// bpp::Function
+	void setParameters (const ParameterList & params) override {
+		variables_.setParametersValues (params);
+	}
+	double getValue () const override { return getUpToDateValue (dfFunction_); }
+
+	// bpp::DerivableFirstOrder
+	void enableFirstOrderDerivatives (bool) override {}
+	bool enableFirstOrderDerivatives () const override { return true; }
+	double getFirstOrderDerivative (const std::string & variable) const override {
+		auto it = firstOrderDerivativeNodes_.find (variable);
+		DF::ValueRef<double> node;
+		if (it != firstOrderDerivativeNodes_.end ()) {
+			node = it->second;
+		} else {
+			node = DF::convertRef<DF::Value<double>> (
+			    dfFunction_->derive (*getDataFlowParameter (variable)));
+			firstOrderDerivativeNodes_.insert (std::make_pair (variable, node));
+		}
+		return DF::getUpToDateValue (node);
+	}
+
+	// bpp::DerivableSecondOrder
+	void enableSecondOrderDerivatives (bool) override {}
+	bool enableSecondOrderDerivatives () const override { return true; }
+	double getSecondOrderDerivative (const std::string & variable) const override {
+		return getSecondOrderDerivative (variable, variable);
+	}
+	double getSecondOrderDerivative (const std::string & variable1,
+	                                 const std::string & variable2) const override {
+		auto mapKey = std::make_pair (variable1, variable2);
+		auto it = secondOrderDerivativeNodes_.find (mapKey);
+		DF::ValueRef<double> node;
+		if (it != secondOrderDerivativeNodes_.end ()) {
+			node = it->second;
+		} else {
+			node =
+			    DF::convertRef<DF::Value<double>> (dfFunction_->derive (*getDataFlowParameter (variable1))
+			                                           ->derive (*getDataFlowParameter (variable2)));
+			secondOrderDerivativeNodes_.insert (std::make_pair (mapKey, node));
+		}
+		return DF::getUpToDateValue (node);
+	}
+
+private:
+	const DF::ParameterRef<double> & getDataFlowParameter (const std::string & name) const {
+		return dynamic_cast<const DataFlowParameter &> (getParameter (name)).getDataFlowParameter ();
+	}
 };
 }
 

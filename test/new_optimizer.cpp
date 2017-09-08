@@ -156,12 +156,20 @@ TEST_CASE("test")
   auto x2 = createNode<SquareNode>({x});
   auto y2 = createNode<SquareNode>({y});
   auto f = createNode<AdditionNode>({x2, y2});
-
   std::cout << "x2 + y2 = " << getUpToDateValue(f) << "\n";
 
   auto df_dx = f->derive(*x);
   auto df2_dx2 = df_dx->derive(*x);
+  std::cout << "d2(x2 + y2)/dx2 = " << getUpToDateValue(convertRef<Value<double>>(df2_dx2)) << "\n";
 
   std::ofstream fd("df_debug");
-  debugDag(fd, df2_dx2, DebugOptions::ShowDependencyIndex);
+  debugDag(fd, df2_dx2, DebugOptions::ShowDependencyIndex | DebugOptions::FollowUpwardLinks);
+
+  bpp::ParameterList params;
+  params.addParameter(xp);
+  params.addParameter(yp);
+  bpp::DataFlowFunction dfFunc{f, params};
+
+  std::cout << "L d2f/dx2 = " << dfFunc.getSecondOrderDerivative("x") << "\n";
+  std::cout << "L d2f/dy2 = " << dfFunc.getSecondOrderDerivative("y") << "\n";
 }
