@@ -108,11 +108,7 @@ namespace Topology {
 		const Optional<const T> & access (Index id) const noexcept { return valueMap_.access (id); }
 
 		Optional<Index> index (const T & value) const noexcept {
-			auto it = indexMap_.find (value);
-			if (it != indexMap_.end ())
-				return it->second;
-			else
-				return {};
+			return optional_find (indexMap_, value).template cast<Index> ();
 		}
 
 		using value_iterator = typename ValueMapBase<const T>::value_const_iterator;

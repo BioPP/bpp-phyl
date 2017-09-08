@@ -90,11 +90,7 @@ namespace DF {
 		};
 
 		Optional<NodeRef> get (const Key & key) const {
-			auto it = nodes_.find (key);
-			if (it != nodes_.end ())
-				return {in_place, it->second};
-			else
-				return {};
+			return optional_find (nodes_, key).cast<NodeRef> ();
 		}
 
 		void set (NodeRef nodeRef) {
@@ -206,9 +202,7 @@ namespace DF {
 	/* Defines all but computeDependencies () for a Spec that always generates the same node type.
 	 */
 	template <typename NodeType> struct NodeSpecAlwaysGenerate {
-		static NodeRef buildNode (NodeRefVec deps) {
-			return createNode<NodeType> (std::move (deps));
-		}
+		static NodeRef buildNode (NodeRefVec deps) { return createNode<NodeType> (std::move (deps)); }
 		static std::type_index nodeType () { return typeid (NodeType); }
 		static std::string description () { return prettyTypeName<NodeSpecAlwaysGenerate> (); }
 	};
