@@ -136,6 +136,11 @@ namespace DF {
 
 	/* Valued node.
 	 */
+	struct NoDependencyTag {
+		constexpr NoDependencyTag () = default;
+	};
+	constexpr NoDependencyTag noDependency{};
+
 	template <typename T> class Value : public Node {
 	public:
 		// Init deps
@@ -143,9 +148,9 @@ namespace DF {
 		Value (NodeRefVec deps, Args &&... args)
 		    : Node (std::move (deps)), value_ (std::forward<Args> (args)...) {}
 
-		// No deps TODO add type tag to guarantee template choice ?
+		// Without dependencies
 		template <typename... Args>
-		Value (Args &&... args) : Node (), value_ (std::forward<Args> (args)...) {}
+		Value (NoDependencyTag, Args &&... args) : Node (), value_ (std::forward<Args> (args)...) {}
 
 		// Access the stored value (no recomputation !)
 		const T & value () const noexcept {
@@ -164,7 +169,7 @@ namespace DF {
 	template <typename T> class Constant : public Value<T> {
 	public:
 		template <typename... Args>
-		Constant (Args &&... args) : Value<T> (std::forward<Args> (args)...) {
+		Constant (Args &&... args) : Value<T> (noDependency, std::forward<Args> (args)...) {
 			this->makeValid ();
 		}
 
@@ -186,7 +191,7 @@ namespace DF {
 	template <typename T> class Parameter : public Value<T> {
 	public:
 		template <typename... Args>
-		Parameter (Args &&... args) : Value<T> (std::forward<Args> (args)...) {
+		Parameter (Args &&... args) : Value<T> (noDependency, std::forward<Args> (args)...) {
 			this->makeValid ();
 		}
 
@@ -211,7 +216,7 @@ namespace DF {
 	NodeRef deriveParameterHelper (const Parameter<T> & param, const Node & variable,
 	                               std::true_type) {
 		auto && v = (&variable == &param) ? NumericInfo<T>::one () : NumericInfo<T>::zero ();
-    // FIXME one / zero depends on dynamic size for vectors !
+		// FIXME one / zero depends on dynamic size for vectors !
 		return createNode<Constant<T>> (v);
 	}
 	template <typename T>
@@ -227,7 +232,8 @@ namespace DF {
 	template <typename T> using ParameterRef = std::shared_ptr<Parameter<T>>;
 
 	// Convert handles with check
-	template <typename T, typename U> std::shared_ptr<T> convertRef (const std::shared_ptr<U> & from) {
+	template <typename T, typename U>
+	std::shared_ptr<T> convertRef (const std::shared_ptr<U> & from) {
 		auto p = std::dynamic_pointer_cast<T> (from);
 		if (!p)
 			failureNodeConversion (typeid (T), *from);

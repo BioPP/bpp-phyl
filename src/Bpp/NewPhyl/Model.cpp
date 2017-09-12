@@ -51,7 +51,8 @@ namespace Phyl {
 	// Model DF Node
 
 	ModelNode::ModelNode (std::unique_ptr<SubstitutionModel> model)
-	    : DF::Value<const SubstitutionModel *> (model.get ()), model_ (std::move (model)) {
+	    : DF::Value<const SubstitutionModel *> (DF::noDependency, model.get ()),
+	      model_ (std::move (model)) {
 		// TODO support already built paramater nodes
 		model_->setNamespace ({}); // Delete namespace prefix
 		const auto & parameters = model_->getParameters ();

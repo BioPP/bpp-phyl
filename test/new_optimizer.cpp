@@ -45,10 +45,6 @@
 #include <Bpp/NewPhyl/DataFlowTemplates.h>
 #include <Bpp/NewPhyl/Debug.h>
 #include <Bpp/NewPhyl/Optimizer.h>
-#include <Bpp/Numeric/Function/Optimizer.h>
-
-#include <fstream>
-#include <iostream>
 
 using namespace bpp::DF;
 
@@ -146,30 +142,49 @@ TEST_CASE("derive parameter")
   CHECK(getUpToDateValue(dx_dummy) == 0.0);
 }
 
+#include <Bpp/Numeric/AutoParameter.h>
+#include <Bpp/Numeric/Function/ConjugateGradientMultiDimensions.h>
+#include <Bpp/Numeric/Function/Optimizer.h>
+#include <fstream>
+#include <iostream>
+
 TEST_CASE("test")
 {
+  // x^2 + (y - 3)^2
   bpp::DataFlowParameter xp{"x", 2.0};
   bpp::DataFlowParameter yp{"y", -3.0};
+
   auto& x = xp.getDataFlowParameter();
   auto& y = yp.getDataFlowParameter();
-
   auto x2 = createNode<SquareNode>({x});
-  auto y2 = createNode<SquareNode>({y});
+  auto konst3 = createNode<Constant<double>> (-3.);
+  auto sy = createNode<AdditionNode> ({y, konst3});
+  auto y2 = createNode<SquareNode>({sy});
   auto f = createNode<AdditionNode>({x2, y2});
-  std::cout << "x2 + y2 = " << getUpToDateValue(f) << "\n";
 
+#if 0
+  std::cout << "x2 + y2 = " << getUpToDateValue(f) << "\n";
   auto df_dx = f->derive(*x);
   auto df2_dx2 = df_dx->derive(*x);
   std::cout << "d2(x2 + y2)/dx2 = " << getUpToDateValue(convertRef<Value<double>>(df2_dx2)) << "\n";
-
   std::ofstream fd("df_debug");
   debugDag(fd, df2_dx2, DebugOptions::ShowDependencyIndex | DebugOptions::FollowUpwardLinks);
+#endif
 
   bpp::ParameterList params;
   params.addParameter(xp);
   params.addParameter(yp);
   bpp::DataFlowFunction dfFunc{f, params};
 
-  std::cout << "L d2f/dx2 = " << dfFunc.getSecondOrderDerivative("x") << "\n";
-  std::cout << "L d2f/dy2 = " << dfFunc.getSecondOrderDerivative("y") << "\n";
+  bpp::ConjugateGradientMultiDimensions optimizer(&dfFunc);
+  optimizer.setVerbose(1);
+  optimizer.setProfiler(bpp::ApplicationTools::message);
+  optimizer.setMessageHandler(bpp::ApplicationTools::message);
+  optimizer.setMaximumNumberOfEvaluations(1000000);
+  optimizer.getStopCondition()->setTolerance(0.000001);
+  optimizer.setConstraintPolicy(bpp::AutoParameter::CONSTRAINTS_AUTO);
+  optimizer.init(dfFunc.getParameters());
+  optimizer.optimize();
+
+  std::cout << "(x, y) == (" << xp.getValue() << ", " << yp.getValue() << ")\n";
 }
