@@ -40,7 +40,7 @@
 */
 
 #include <Bpp/Exceptions.h>
-#include <Bpp/NewPhyl/DataFlow.h>
+#include <Bpp/NewPhyl/DataFlowNumeric.h>
 #include <Bpp/NewPhyl/DataFlowTemplates.h>
 #include <Bpp/NewPhyl/Debug.h>
 #include <algorithm>
@@ -137,6 +137,12 @@ namespace DF {
 
 	NodeRef Node::derive (const Node & variable) {
 		throw Exception ("Node does not support derivation: " + description ());
+	}
+	void Node::numericProperties (NumericProperties &) const {}
+	bool Node::isConstant () const {
+		NumericProperties props;
+		numericProperties (props);
+		return props.isConstant;
 	}
 
 	void Node::appendDependency (NodeRef node) {

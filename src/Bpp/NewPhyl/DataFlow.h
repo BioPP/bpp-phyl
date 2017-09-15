@@ -51,18 +51,11 @@
 #include <utility>
 
 namespace bpp {
-
-// FIXME improve (test with eigen::vec to decide impl)
-template <typename T> struct NumericInfo { using Derivable = std::false_type; };
-template <> struct NumericInfo<double> {
-	using Derivable = std::true_type;
-	static double zero () noexcept { return 0.0; }
-	static double one () noexcept { return 1.0; }
-};
-
 namespace DF {
 	// Fwd declaration
 	class Node;
+  template<typename T> class Value;
+  struct NumericProperties; // In DataFlowNumeric.h
 
 	// Error functions
 	[[noreturn]] void failureComputeWasCalled (const std::type_info & paramType);
@@ -72,6 +65,7 @@ namespace DF {
 	// Convenient typedefs : Node is supposed to be used as shared_ptr instances.
 	using NodeRef = std::shared_ptr<Node>;
 	using NodeRefVec = Vector<NodeRef>;
+	template <typename T> using ValueRef = std::shared_ptr<Value<T>>;
 
 	/* Base Node class.
 	 * Abstract : compute() needs to be defined to the actual computation.
@@ -101,7 +95,8 @@ namespace DF {
 
 		// Derivation stuff
 		virtual NodeRef derive (const Node & variable); // Defaults to error
-		virtual bool isConstant () const { return false; }
+    virtual void numericProperties (NumericProperties &) const;
+    bool isConstant () const;
 
 		// Debug information (smaller graph)
 		virtual std::string description () const { return "Node"; }
@@ -163,73 +158,6 @@ namespace DF {
 	protected:
 		T value_;
 	};
-
-	/* Constant value.
-	 */
-	template <typename T> class Constant : public Value<T> {
-	public:
-		template <typename... Args>
-		Constant (Args &&... args) : Value<T> (noDependency, std::forward<Args> (args)...) {
-			this->makeValid ();
-		}
-
-		void compute () override final { failureComputeWasCalled (typeid (Constant<T>)); }
-
-		// Deriving a constant returns 0
-		NodeRef derive (const Node &) override final {
-			return createNode<Constant<T>> (NumericInfo<T>::zero ());
-		}
-		bool isConstant () const override final { return true; }
-
-		std::string description () const override final {
-			return "Constant<" + prettyTypeName<T> () + ">(" + debug_to_string (this->value ()) + ")";
-		}
-	};
-
-	/* Parameter node.
-	 */
-	template <typename T> class Parameter : public Value<T> {
-	public:
-		template <typename... Args>
-		Parameter (Args &&... args) : Value<T> (noDependency, std::forward<Args> (args)...) {
-			this->makeValid ();
-		}
-
-		void setValue (T t) noexcept {
-			this->invalidate ();
-			this->value_ = std::move (t);
-			this->makeValid ();
-		}
-
-		NodeRef derive (const Node & variable) override final;
-
-		std::string description () const final { return "Parameter<" + prettyTypeName<T> () + ">"; }
-
-	private:
-		void compute () override final { failureComputeWasCalled (typeid (Parameter<T>)); }
-	};
-
-	// Derivation only make sense for some types (like not for Sequence*)
-	// Use template trick to only generate an error for unsupported types
-	// FIXME improve too
-	template <typename T>
-	NodeRef deriveParameterHelper (const Parameter<T> & param, const Node & variable,
-	                               std::true_type) {
-		auto && v = (&variable == &param) ? NumericInfo<T>::one () : NumericInfo<T>::zero ();
-		// FIXME one / zero depends on dynamic size for vectors !
-		return createNode<Constant<T>> (v);
-	}
-	template <typename T>
-	NodeRef deriveParameterHelper (const Parameter<T> &, const Node &, std::false_type) {
-		failureDerivationNotSupportedForType (typeid (T));
-	}
-	template <typename T> NodeRef Parameter<T>::derive (const Node & variable) {
-		return deriveParameterHelper<T> (*this, variable, typename NumericInfo<T>::Derivable{});
-	}
-
-	// More convenient typedefs
-	template <typename T> using ValueRef = std::shared_ptr<Value<T>>;
-	template <typename T> using ParameterRef = std::shared_ptr<Parameter<T>>;
 
 	// Convert handles with check
 	template <typename T, typename U>

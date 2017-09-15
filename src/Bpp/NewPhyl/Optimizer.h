@@ -42,7 +42,7 @@
 #ifndef BPP_NEWPHYL_OPTIMIZER_H
 #define BPP_NEWPHYL_OPTIMIZER_H
 
-#include <Bpp/NewPhyl/DataFlow.h>
+#include <Bpp/NewPhyl/DataFlowNumeric.h>
 #include <Bpp/NewPhyl/Optional.h>
 #include <Bpp/Numeric/Function/Functions.h>
 #include <Bpp/Numeric/Parameter.h>

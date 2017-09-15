@@ -43,7 +43,7 @@
 #ifndef BPP_NEWPHYL_MODEL_H
 #define BPP_NEWPHYL_MODEL_H
 
-#include <Bpp/NewPhyl/DataFlow.h>
+#include <Bpp/NewPhyl/DataFlowNumeric.h>
 #include <Bpp/NewPhyl/DataFlowTemplates.h>
 #include <Bpp/NewPhyl/NodeSpecification.h>
 #include <Bpp/NewPhyl/Signed.h>

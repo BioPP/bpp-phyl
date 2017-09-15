@@ -42,7 +42,7 @@
 #ifndef BPP_NEWPHYL_PHYLOGENY_H
 #define BPP_NEWPHYL_PHYLOGENY_H
 
-#include <Bpp/NewPhyl/DataFlow.h>
+#include <Bpp/NewPhyl/DataFlowNumeric.h>
 #include <Bpp/NewPhyl/FrozenPtr.h>
 #include <Bpp/NewPhyl/NodeSpecification.h>
 #include <Bpp/NewPhyl/Signed.h>

@@ -41,7 +41,7 @@
 #ifndef BPP_NEWPHYL_TOPOLOGYMAP_H
 #define BPP_NEWPHYL_TOPOLOGYMAP_H
 
-#include <Bpp/NewPhyl/DataFlow.h>
+#include <Bpp/NewPhyl/DataFlowNumeric.h>
 #include <Bpp/NewPhyl/Debug.h>
 #include <Bpp/NewPhyl/FrozenPtr.h>
 #include <Bpp/NewPhyl/Optional.h>
