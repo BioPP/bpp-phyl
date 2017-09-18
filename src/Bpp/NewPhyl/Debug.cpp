@@ -133,6 +133,9 @@ namespace DF {
 		std::string dotNodeKey (const NodeSpecification & nodeSpec) {
 			return dotNodeKey ('S', nodeSpec.debugHashCode ());
 		}
+		std::string dotNodeKey (const NamedNodeRef & namedNode) {
+			return dotNodeKey ('T', std::hash<std::string>{}(namedNode.name));
+		}
 
 		// Dot pretty print of elements
 		void dotNodePretty (std::ostream & os, const Node * node) {
@@ -149,6 +152,10 @@ namespace DF {
 		void dotNodePretty (std::ostream & os, const NodeSpecification & spec) {
 			os << '\t' << dotNodeKey (spec) << " [color=red,shape=record,label=\"{" << dotNodeKey (spec)
 			   << "|" << dotLabelEscape (spec.description ()) << "}\"];\n";
+		}
+		void dotNodePretty (std::ostream & os, const NamedNodeRef & namedNode) {
+			os << '\t' << dotNodeKey (namedNode) << " [color=orange,shape=record,label=\""
+			   << dotLabelEscape (namedNode.name) << "\"];\n";
 		}
 
 		template <typename T, typename U>
@@ -171,6 +178,9 @@ namespace DF {
 		}
 		void dotEdgePretty (std::ostream & os, const NodeSpecification & from, const Node * to) {
 			dotEdgePretty (os, from, to, "[color=green]");
+		}
+		void dotEdgePretty (std::ostream & os, const NamedNodeRef & from, const Node * to) {
+			dotEdgePretty (os, from, to, "[color=orange]");
 		}
 
 		// Print the DF dag structure (in blue).
@@ -207,6 +217,18 @@ namespace DF {
 						nodesToVisit.emplace (dep);
 				}
 			}
+		}
+
+		// Print name tags pointing to nodes.
+		// Returns list of nodes.
+		NodeRefVec debugNamedNodeRefs (std::ostream & os, const Vector<NamedNodeRef> & namedNodes) {
+			NodeRefVec nodes;
+			for (auto & namedNodeRef : namedNodes) {
+				dotNodePretty (os, namedNodeRef);
+				dotEdgePretty (os, namedNodeRef, namedNodeRef.nodeRef.get ());
+				nodes.emplace_back (namedNodeRef.nodeRef);
+			}
+			return nodes;
 		}
 
 		// Print registry keys, and links to stored nodes (key only).
@@ -270,6 +292,11 @@ namespace DF {
 	void debugDag (std::ostream & os, const std::shared_ptr<Node> & entryPoint, DebugOptions opt) {
 		os << "digraph {\n";
 		debugDagStructure (os, {entryPoint}, opt);
+		os << "}\n";
+	}
+	void debugDag (std::ostream & os, const Vector<NamedNodeRef> & namedNodes, DebugOptions opt) {
+		os << "digraph {\n";
+		debugDagStructure (os, debugNamedNodeRefs (os, namedNodes), opt);
 		os << "}\n";
 	}
 	void debugRegistry (std::ostream & os, const Registry & registry, DebugOptions opt) {

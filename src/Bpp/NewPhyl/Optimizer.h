@@ -43,6 +43,7 @@
 #define BPP_NEWPHYL_OPTIMIZER_H
 
 #include <Bpp/NewPhyl/DataFlowNumeric.h>
+#include <Bpp/NewPhyl/Debug.h>
 #include <Bpp/NewPhyl/Optional.h>
 #include <Bpp/Numeric/Function/Functions.h>
 #include <Bpp/Numeric/Parameter.h>
@@ -172,6 +173,20 @@ public:
 			secondOrderDerivativeNodes_.insert (std::make_pair (mapKey, node));
 		}
 		return DF::getUpToDateValue (node);
+	}
+
+	// Debug introspection FIXME
+	Vector<DF::NamedNodeRef> getAllNamedNodes (const std::string & funcName) const {
+		Vector<DF::NamedNodeRef> namedNodes;
+		namedNodes.emplace_back (DF::NamedNodeRef{dfFunction_, funcName});
+		for (auto & derivative : firstOrderDerivativeNodes_)
+			namedNodes.emplace_back (
+			    DF::NamedNodeRef{derivative.second, "d(" + funcName + ")/d(" + derivative.first + ")"});
+		for (auto & derivative : secondOrderDerivativeNodes_)
+			namedNodes.emplace_back (DF::NamedNodeRef{derivative.second,
+			                                          "d2(" + funcName + ")/d(" + derivative.first.first +
+			                                              ")d(" + derivative.first.second + ")"});
+		return namedNodes;
 	}
 
 private:

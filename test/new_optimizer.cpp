@@ -157,8 +157,8 @@ TEST_CASE("test")
   auto& x = xp.getDataFlowParameter();
   auto& y = yp.getDataFlowParameter();
   auto x2 = createNode<SquareNode>({x});
-  auto konst3 = createNode<Constant<double>> (-3.);
-  auto sy = createNode<AdditionNode> ({y, konst3});
+  auto konst3 = createNode<Constant<double>>(-3.);
+  auto sy = createNode<AdditionNode>({y, konst3});
   auto y2 = createNode<SquareNode>({sy});
   auto f = createNode<AdditionNode>({x2, y2});
 
@@ -187,4 +187,7 @@ TEST_CASE("test")
   optimizer.optimize();
 
   std::cout << "(x, y) == (" << xp.getValue() << ", " << yp.getValue() << ")\n";
+
+  std::ofstream fd("df_debug");
+  debugDag(fd, dfFunc.getAllNamedNodes("f"), DebugOptions::ShowDependencyIndex);
 }

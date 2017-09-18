@@ -44,6 +44,7 @@
 #define BPP_NEWPHYL_DEBUG_H
 
 #include <Bpp/NewPhyl/FrozenPtr.h>
+#include <Bpp/NewPhyl/Vector.h>
 #include <iosfwd>
 #include <string>
 #include <typeindex>
@@ -87,6 +88,8 @@ namespace DF {
 	class NodeSpecification;
 	class Registry;
 
+	/* Small flag class that defines various debug output options.
+	 */
 	enum class DebugOptions {
 		None = 0,
 		FollowUpwardLinks = 1 << 0,
@@ -104,6 +107,14 @@ namespace DF {
 
 	// Output a dot format graph representing the dataflow dag
 	void debugDag (std::ostream & os, const std::shared_ptr<Node> & entryPoint,
+	               DebugOptions opt = DebugOptions::None);
+
+	// Output debugDag + named node references (tags) to nodes.
+	struct NamedNodeRef {
+		std::shared_ptr<Node> nodeRef;
+		std::string name;
+	};
+	void debugDag (std::ostream & os, const Vector<NamedNodeRef> & namedNodes,
 	               DebugOptions opt = DebugOptions::None);
 
 	// Outputs debugDag + registry pointers to dataflow dag
