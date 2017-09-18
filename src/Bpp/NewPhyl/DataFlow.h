@@ -60,7 +60,6 @@ namespace DF {
 	// Error functions
 	[[noreturn]] void failureComputeWasCalled (const std::type_info & paramType);
 	[[noreturn]] void failureNodeConversion (const std::type_info & handleType, const Node & node);
-	[[noreturn]] void failureDerivationNotSupportedForType (const std::type_info & type);
 
 	// Convenient typedefs : Node is supposed to be used as shared_ptr instances.
 	using NodeRef = std::shared_ptr<Node>;

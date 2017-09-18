@@ -45,6 +45,7 @@
 #include <Bpp/NewPhyl/DataFlow.h>
 #include <Bpp/NewPhyl/Debug.h> // description
 #include <string>              // description
+#include <type_traits>
 #include <typeinfo>
 #include <utility>
 
@@ -61,13 +62,36 @@ namespace DF {
 	// Fwd declaration
 	template <typename T> class Parameter;
 
+	// Error functions
+	[[noreturn]] void failureDerivationNotSupportedForParameterType (const std::type_info & type);
+
 	// Typedefs
 	template <typename T> using ParameterRef = std::shared_ptr<Parameter<T>>;
 
+	/* Numeric info.
+	 *
+	 * struct NumericProperties is used by node to give numeric properties about them.
+	 * Compute class can override their numericProperties() method.
+	 *
+	 * T createZeroValue (const T&) is used to create a "0" for type T.
+	 * This is useful for vector<T>, to create a vector of 0s with the same size as the source vector.
+	 */
 	struct NumericProperties {
 		bool isConstant{false};
 		bool isConstantZero{false};
 	};
+
+	template <typename T> using IsParameterTypeDerivable = std::is_floating_point<T>;
+
+	template <typename T, typename = typename std::enable_if<std::is_floating_point<T>::value>::type>
+	inline T createZeroValue (const T &) {
+		return 0.;
+	}
+
+	template <typename T, typename = typename std::enable_if<std::is_floating_point<T>::value>::type>
+	inline T createOneValue (const T &) {
+		return 1.;
+	}
 
 	/* Constant value.
 	 */
@@ -82,12 +106,12 @@ namespace DF {
 
 		// Deriving a constant returns 0
 		NodeRef derive (const Node &) override final {
-			return createNode<Constant<T>> (NumericInfo<T>::zero ());
+			return createNode<Constant<T>> (createZeroValue (this->value ()));
 		}
-    void numericProperties (NumericProperties & props) const override {
-      Value<T>::numericProperties (props);
-      props.isConstant = true;
-    }
+		void numericProperties (NumericProperties & props) const override {
+			Value<T>::numericProperties (props);
+			props.isConstant = true;
+		}
 
 		std::string description () const override final {
 			return "Constant<" + prettyTypeName<T> () + ">(" + debug_to_string (this->value ()) + ")";
@@ -117,22 +141,26 @@ namespace DF {
 		void compute () override final { failureComputeWasCalled (typeid (Parameter<T>)); }
 	};
 
-	// Derivation only make sense for some types (like not for Sequence*)
-	// Use template trick to only generate an error for unsupported types
-	// FIXME improve too
+  /* Derive for parameters is special.
+   * It is only defined for real types (double, floats).
+   * Deriving a parameter should return a 1 if we derive from self, or 0 (derivation of constant).
+   * For other types, the function should throw an exception.
+   * Thus tag dispatching is done to route the call to derive() to the right implementation.
+   */
 	template <typename T>
-	NodeRef deriveParameterHelper (const Parameter<T> & param, const Node & variable,
-	                               std::true_type) {
-		auto && v = (&variable == &param) ? NumericInfo<T>::one () : NumericInfo<T>::zero ();
-		// FIXME one / zero depends on dynamic size for vectors !
-		return createNode<Constant<T>> (v);
+	NodeRef deriveParameterImpl (const Parameter<T> & parameter, const Node & variable,
+	                             std::true_type) {
+		if (&parameter == &variable)
+			return createNode<Constant<T>> (createOneValue (parameter.value ()));
+		else
+			return createNode<Constant<T>> (createZeroValue (parameter.value ()));
 	}
 	template <typename T>
-	NodeRef deriveParameterHelper (const Parameter<T> &, const Node &, std::false_type) {
-		failureDerivationNotSupportedForType (typeid (T));
+	NodeRef deriveParameterImpl (const Parameter<T> &, const Node &, std::false_type) {
+		failureDerivationNotSupportedForParameterType (typeid (T));
 	}
 	template <typename T> NodeRef Parameter<T>::derive (const Node & variable) {
-		return deriveParameterHelper<T> (*this, variable, typename NumericInfo<T>::Derivable{});
+		return deriveParameterImpl (*this, variable, IsParameterTypeDerivable<T>{});
 	}
 }
 }
