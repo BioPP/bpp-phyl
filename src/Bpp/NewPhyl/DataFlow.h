@@ -94,8 +94,7 @@ namespace DF {
 
 		// Derivation stuff
 		virtual NodeRef derive (const Node & variable); // Defaults to error
-    virtual void numericProperties (NumericProperties &) const;
-    bool isConstant () const;
+    virtual NumericProperties numericProperties () const;
 
 		// Debug information (smaller graph)
 		virtual std::string description () const { return "Node"; }

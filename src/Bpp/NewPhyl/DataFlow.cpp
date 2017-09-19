@@ -60,7 +60,8 @@ namespace DF {
 	}
 
 	void failureDerivationNotSupportedForParameterType (const std::type_info & type) {
-		throw Exception ("derivation requested for unsupported parameter type: " + prettyTypeName (type));
+		throw Exception ("derivation requested for unsupported parameter type: " +
+		                 prettyTypeName (type));
 	}
 
 	static void failureDependencyNumberMismatch (const std::type_info & computeNodeType,
@@ -138,12 +139,7 @@ namespace DF {
 	NodeRef Node::derive (const Node & variable) {
 		throw Exception ("Node does not support derivation: " + description ());
 	}
-	void Node::numericProperties (NumericProperties &) const {}
-	bool Node::isConstant () const {
-		NumericProperties props;
-		numericProperties (props);
-		return props.isConstant;
-	}
+	NumericProperties Node::numericProperties () const { return NumericProperties{}; }
 
 	void Node::appendDependency (NodeRef node) {
 		node->registerNode (this);

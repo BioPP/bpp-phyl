@@ -75,22 +75,31 @@ namespace DF {
 	 *
 	 * T createZeroValue (const T&) is used to create a "0" for type T.
 	 * This is useful for vector<T>, to create a vector of 0s with the same size as the source vector.
+	 * TODO work in progress, may need refactoring
 	 */
 	struct NumericProperties {
 		bool isConstant{false};
 		bool isConstantZero{false};
+		bool isConstantOne{false};
 	};
 
 	template <typename T> using IsParameterTypeDerivable = std::is_floating_point<T>;
 
 	template <typename T, typename = typename std::enable_if<std::is_floating_point<T>::value>::type>
-	inline T createZeroValue (const T &) {
+	T createZeroValue (const T &) {
 		return 0.;
 	}
-
 	template <typename T, typename = typename std::enable_if<std::is_floating_point<T>::value>::type>
-	inline T createOneValue (const T &) {
+	T createOneValue (const T &) {
 		return 1.;
+	}
+	template <typename T, typename = typename std::enable_if<std::is_floating_point<T>::value>::type>
+	bool isZeroValue (const T & v) {
+		return v == T (0.);
+	}
+	template <typename T, typename = typename std::enable_if<std::is_floating_point<T>::value>::type>
+	bool isOneValue (const T & v) {
+		return v == T (1.);
 	}
 
 	/* Constant value.
@@ -108,9 +117,12 @@ namespace DF {
 		NodeRef derive (const Node &) override final {
 			return createNode<Constant<T>> (createZeroValue (this->value ()));
 		}
-		void numericProperties (NumericProperties & props) const override {
-			Value<T>::numericProperties (props);
+		NumericProperties numericProperties () const override {
+			auto props = Value<T>::numericProperties ();
 			props.isConstant = true;
+			props.isConstantZero = isZeroValue (this->value ());
+			props.isConstantOne = isOneValue (this->value ());
+			return props;
 		}
 
 		std::string description () const override final {
@@ -141,12 +153,12 @@ namespace DF {
 		void compute () override final { failureComputeWasCalled (typeid (Parameter<T>)); }
 	};
 
-  /* Derive for parameters is special.
-   * It is only defined for real types (double, floats).
-   * Deriving a parameter should return a 1 if we derive from self, or 0 (derivation of constant).
-   * For other types, the function should throw an exception.
-   * Thus tag dispatching is done to route the call to derive() to the right implementation.
-   */
+	/* Derive for parameters is special.
+	 * It is only defined for real types (double, floats).
+	 * Deriving a parameter should return a 1 if we derive from self, or 0 (derivation of constant).
+	 * For other types, the function should throw an exception.
+	 * Thus tag dispatching is done to route the call to derive() to the right implementation.
+	 */
 	template <typename T>
 	NodeRef deriveParameterImpl (const Parameter<T> & parameter, const Node & variable,
 	                             std::true_type) {
