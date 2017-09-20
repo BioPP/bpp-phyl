@@ -95,7 +95,7 @@ void DecompositionReward::computeRewards_(double length) const
   for (size_t j = 0; j < nbStates_; j++) {
     for (size_t k = 0; k < nbStates_; k++) {
       rewards_(j, k) /= P(j, k);
-      if (std::isnan(rewards_(j, k)))
+      if (std::isnan(rewards_(j, k)) || std::isnan(-rewards_(j, k)) || std::isinf(rewards_(j, k)))
         rewards_(j, k) = 0.;
     }
   }

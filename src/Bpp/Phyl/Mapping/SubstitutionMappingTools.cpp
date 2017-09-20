@@ -288,6 +288,7 @@ ProbabilisticSubstitutionMapping* SubstitutionMappingTools::computeSubstitutionV
         {
           VVdouble* nxy_c_t = &(*nxy_c)[t];
           Matrix<double>* nijt = substitutionCount.getAllNumbersOfSubstitutions(d * rc, t + 1);
+           
           nxy_c_t->resize(nbStates);
           for (size_t x = 0; x < nbStates; ++x)
           {
@@ -345,6 +346,7 @@ ProbabilisticSubstitutionMapping* SubstitutionMappingTools::computeSubstitutionV
               }
             }
           }
+          
         }
       }
     }
@@ -1356,9 +1358,8 @@ vector<double> SubstitutionMappingTools::computeTotalSubstitutionVectorForSitePe
   {
     v[t] = 0;
     for (size_t l = 0; l < nbBranches; ++l)
-    {
       v[t] += smap(l, siteIndex, t);
-    }
+
   }
   return v;
 }
@@ -1738,6 +1739,7 @@ vector< vector<double> > SubstitutionMappingTools::getNormalizationsPerBranch(
     }
   }
 
+
   return rewards;
 }
 
@@ -1797,7 +1799,7 @@ vector< vector<double> > SubstitutionMappingTools::getNormalizedCountsPerBranch(
   vector< vector<double> > counts;
   vector< vector<double> > factors;
 
-  counts = getCountsPerBranch(drtl, ids, modelSet->getSubstitutionModel(0), reg, -1, verbose);
+  counts = getCountsPerBranch(drtl, ids, *modelSet, reg, -1, verbose);
   factors = getNormalizationsPerBranch(drtl, ids, nullModelSet, reg, verbose);
 
   size_t nbTypes = counts[0].size();
@@ -1927,11 +1929,14 @@ void SubstitutionMappingTools::outputTotalCountsPerTypePerSite(
   unique_ptr<SubstitutionCount> count(new UniformizationSubstitutionCount(model, reg.clone()));
   unique_ptr<ProbabilisticSubstitutionMapping> smap(SubstitutionMappingTools::computeSubstitutionVectors(drtl, ids, *count, false));
 
+  size_t nbSites = smap->getNumberOfSites();
+  size_t nbTypes = smap->getNumberOfSubstitutionTypes();
+
+  vector<unique_ptr<ProbabilisticRewardMapping> > rmap;
+
   ofstream file;
   file.open(filename.c_str());
 
-  size_t nbSites = smap->getNumberOfSites();
-  size_t nbTypes = smap->getNumberOfSubstitutionTypes();
 
   file << "sites";
   for (size_t i = 0; i < nbTypes; ++i)
@@ -1943,6 +1948,7 @@ void SubstitutionMappingTools::outputTotalCountsPerTypePerSite(
   for (size_t k = 0; k < nbSites; ++k)
   {
     vector<double> countsf = SubstitutionMappingTools::computeTotalSubstitutionVectorForSitePerType(*smap, k);
+    
     file << k;
     for (size_t i = 0; i < nbTypes; ++i)
     {
@@ -1950,6 +1956,243 @@ void SubstitutionMappingTools::outputTotalCountsPerTypePerSite(
     }
     file << endl;
   }
+  file.close();
+}
+
+/**************************************************************************************************/
+
+void SubstitutionMappingTools::outputTotalCountsPerTypePerSite(
+  string& filename,
+  DRTreeLikelihood& drtl,
+  const vector<int>& ids,
+  SubstitutionModel* model,
+  SubstitutionModel* nullModel,
+  const SubstitutionRegister& reg)
+{
+  
+  unique_ptr<SubstitutionCount> count(new UniformizationSubstitutionCount(model, reg.clone()));
+
+  unique_ptr<ProbabilisticSubstitutionMapping> smap(SubstitutionMappingTools::computeSubstitutionVectors(drtl, ids, *count, false));
+
+  size_t nbSites = smap->getNumberOfSites();
+  size_t nbTypes = smap->getNumberOfSubstitutionTypes();
+  size_t nbStates = nullModel->getAlphabet()->getSize();
+  vector<int> supportedStates = nullModel->getAlphabetStates();
+
+  // compute the AlphabetIndex for each substitutionType
+  vector<UserAlphabetIndex1 > usai(nbTypes, UserAlphabetIndex1(nullModel->getAlphabet()));
+
+  for (size_t nbt = 0; nbt < nbTypes; nbt++)
+    for (size_t i = 0; i < nbStates; i++)
+      usai[nbt].setIndex(supportedStates[i], 0);
+
+  for (size_t i = 0; i < nbStates; i++)
+  {
+    for (size_t j = 0; j < nbStates; j++)
+    {
+      if (i != j)
+      {
+        size_t nbt = reg.getType(i, j);
+        if (nbt != 0)
+          usai[nbt - 1].setIndex(supportedStates[i], usai[nbt - 1].getIndex(supportedStates[i]) + nullModel->Qij(i, j));
+      }
+    }
+  }
+
+  const WordAlphabet* wAlp=dynamic_cast<const WordAlphabet*>(nullModel->getAlphabet());
+  
+  // compute the normalization for each site for each substitutionType
+  vector< vector<double> > rewards(nbSites);
+
+  for (size_t k = 0; k < nbSites; ++k)
+  {
+    rewards[k].resize(nbTypes);
+  }
+  
+  float sizeWord=float(wAlp?wAlp->getLength():1);
+  
+  for (size_t nbt = 0; nbt < nbTypes; nbt++)
+  {
+    unique_ptr<Reward> reward(new DecompositionReward(nullModel, &usai[nbt]));
+
+    unique_ptr<ProbabilisticRewardMapping> mapping(RewardMappingTools::computeRewardVectors(drtl, ids, *reward, false));
+
+    for (size_t i = 0; i < nbSites; ++i)
+    {
+      double s = 0;
+      for (size_t k = 0; k < ids.size(); ++k)
+      {
+        double tmp = (*mapping)(mapping->getNodeIndex(ids[k]), i);
+        if (std::isnan(tmp))
+        {
+          s = 0;
+          break;
+        }
+        s += tmp;
+      }
+      rewards[i][nbt] = s*sizeWord;
+    }
+    
+    reward.reset();
+    mapping.reset();
+  }
+
+  // Compute the sum of lengths of concerned branchs
+  
+  const TreeTemplate<Node> tree(drtl.getTree());
+
+  double brlen=0;
+  
+  for (size_t k = 0; k < ids.size(); ++k)
+    brlen += tree.getNode(ids[k])->getDistanceToFather();
+  
+  // output
+  
+  ofstream file;
+  file.open(filename.c_str());
+
+  file << "sites";
+  for (size_t i = 0; i < nbTypes; ++i)
+  {
+    file << "\t" << reg.getTypeName(i + 1);
+  }
+  file << endl;
+
+  for (size_t k = 0; k < nbSites; ++k)
+  {
+    vector<double> countsf = SubstitutionMappingTools::computeTotalSubstitutionVectorForSitePerType(*smap, k);
+
+    file << k;
+    for (size_t i = 0; i < nbTypes; ++i)
+    {
+      file << "\t" << countsf[i]/rewards[k][i]*brlen;
+    }
+    file << endl;
+  }
+  file.close();
+}
+
+/**************************************************************************************************/
+
+void SubstitutionMappingTools::outputTotalCountsPerTypePerSite(
+  string& filename,
+  DRTreeLikelihood& drtl,
+  const vector<int>& ids,
+  SubstitutionModelSet* modelSet,
+  SubstitutionModelSet* nullModelSet,
+  const SubstitutionRegister& reg)
+{
+  unique_ptr<SubstitutionCount> count(new UniformizationSubstitutionCount(modelSet->getSubstitutionModel(0), reg.clone()));
+
+  unique_ptr<ProbabilisticSubstitutionMapping> smap(SubstitutionMappingTools::computeSubstitutionVectors(drtl, ids, *count, false));
+
+  size_t nbSites = smap->getNumberOfSites();
+  size_t nbTypes = smap->getNumberOfSubstitutionTypes();
+  size_t nbStates = nullModelSet->getAlphabet()->getSize();
+  size_t nbModels = nullModelSet->getNumberOfModels();
+
+  
+  // compute the normalization for each site for each substitutionType
+  vector< vector<double> > rewards(nbSites);
+
+  for (size_t k = 0; k < nbSites; ++k)
+  {
+    rewards[k].resize(nbTypes);
+  }
+  
+  vector<UserAlphabetIndex1 >  usai(nbTypes, UserAlphabetIndex1(nullModelSet->getAlphabet()));
+
+  const WordAlphabet* wAlp=dynamic_cast<const WordAlphabet*>(nullModelSet->getAlphabet());
+  float sizeWord=float(wAlp?wAlp->getLength():1);
+
+  for (size_t nbm = 0; nbm < nbModels; nbm++)
+  {
+    vector<int> mids = VectorTools::vectorIntersection(ids, nullModelSet->getNodesWithModel(nbm));
+    
+    if (mids.size()>0)
+    {
+      const SubstitutionModel* modn = nullModelSet->getSubstitutionModel(nbm);
+      vector<int> supportedStates = modn->getAlphabetStates();
+      
+      for (size_t nbt = 0; nbt < nbTypes; nbt++)
+        for (size_t i = 0; i < nbStates; i++)
+          usai[nbt].setIndex(supportedStates[i], 0);
+      
+      for (size_t i = 0; i < nbStates; i++)
+      {
+        for (size_t j = 0; j < nbStates; j++)
+        {
+          if (i != j)
+          {
+            size_t nbt = reg.getType(i, j);
+            if (nbt != 0)
+              usai[nbt - 1].setIndex(supportedStates[i], usai[nbt - 1].getIndex(supportedStates[i]) + modn->Qij(i, j));
+          }
+        }
+      }
+
+      for (size_t nbt = 0; nbt < nbTypes; nbt++)
+      {
+        unique_ptr<Reward> reward(new DecompositionReward(nullModelSet->getSubstitutionModel(nbm), &usai[nbt]));
+        
+        unique_ptr<ProbabilisticRewardMapping> mapping(RewardMappingTools::computeRewardVectors(drtl, mids, *reward, false));
+        
+        for (size_t i = 0; i < nbSites; ++i)
+        {
+          double s = 0;
+          for (size_t k = 0; k < mids.size(); k++)
+          {
+            double tmp = (*mapping)(mapping->getNodeIndex(mids[k]), i);
+
+            if (std::isnan(tmp))
+            {
+              s = 0;
+              break;
+            }
+            else
+              s += tmp;
+          }
+          rewards[i][nbt] += s * sizeWord;
+        }
+        reward.reset();
+        mapping.reset();
+      }
+    }
+  }
+  
+  // Compute the sum of lengths of concerned branchs
+  
+  const TreeTemplate<Node> tree(drtl.getTree());
+
+  double brlen=0;
+  
+  for (size_t k = 0; k < ids.size(); ++k)
+    brlen += tree.getNode(ids[k])->getDistanceToFather();
+  
+  // output
+  
+  ofstream file;
+  file.open(filename.c_str());
+
+  file << "sites";
+  for (size_t i = 0; i < nbTypes; ++i)
+  {
+    file << "\t" << reg.getTypeName(i + 1);
+  }
+  file << endl;
+
+  for (size_t k = 0; k < nbSites; ++k)
+  {
+    vector<double> countsf = SubstitutionMappingTools::computeTotalSubstitutionVectorForSitePerType(*smap, k);
+
+    file << k;
+    for (size_t i = 0; i < nbTypes; ++i)
+    {
+      file << "\t" << countsf[i]/rewards[k][i]*brlen;
+    }
+    file << endl;
+  }
+    
   file.close();
 }
 
@@ -1985,7 +2228,7 @@ void SubstitutionMappingTools::outputIndividualCountsPerBranchPerSite(
     file << "sites";
     for (size_t k = 0; k < nbBr; ++k)
     {
-      file << "\t" << k;
+      file << "\t" << ids[k];
     }
     file << endl;
 
@@ -2003,3 +2246,240 @@ void SubstitutionMappingTools::outputIndividualCountsPerBranchPerSite(
 }
 
 /**************************************************************************************************/
+
+void SubstitutionMappingTools::outputIndividualCountsPerBranchPerSite(
+  const string& filenamePrefix,
+  DRTreeLikelihood& drtl,
+  const vector<int>& ids,
+  SubstitutionModel* model,
+  SubstitutionModel* nullModel,
+  const SubstitutionRegister& reg)
+{
+  unique_ptr<SubstitutionCount> count(new UniformizationSubstitutionCount(model, reg.clone()));
+
+  unique_ptr<ProbabilisticSubstitutionMapping> smap(SubstitutionMappingTools::computeSubstitutionVectors(drtl, ids, *count, false));
+  
+  size_t nbSites = smap->getNumberOfSites();
+  size_t nbTypes = smap->getNumberOfSubstitutionTypes();
+  size_t nbStates = nullModel->getAlphabet()->getSize();
+  size_t nbBr = ids.size();
+  
+  // compute the normalization for each site for each substitutionType
+  map<int, vector< vector<double> > > rewards;
+
+  for (auto id : ids)
+  {
+    rewards[id].resize(nbSites);
+    for (size_t k = 0; k < nbSites; ++k)
+    {
+      rewards[id][k].resize(nbTypes);
+    }
+  }  
+
+  vector<int> supportedStates = nullModel->getAlphabetStates();
+
+  // compute the AlphabetIndex for each substitutionType
+  vector<UserAlphabetIndex1 > usai(nbTypes, UserAlphabetIndex1(nullModel->getAlphabet()));
+  const WordAlphabet* wAlp=dynamic_cast<const WordAlphabet*>(nullModel->getAlphabet());
+  float sizeWord=float(wAlp?wAlp->getLength():1);
+
+  for (size_t nbt = 0; nbt < nbTypes; nbt++)
+    for (size_t i = 0; i < nbStates; i++)
+      usai[nbt].setIndex(supportedStates[i], 0);
+
+  for (size_t i = 0; i < nbStates; i++)
+  {
+    for (size_t j = 0; j < nbStates; j++)
+    {
+      if (i != j)
+      {
+        size_t nbt = reg.getType(i, j);
+        if (nbt != 0)
+          usai[nbt - 1].setIndex(supportedStates[i], usai[nbt - 1].getIndex(supportedStates[i]) + nullModel->Qij(i, j));
+      }
+    }
+  }
+
+  for (size_t nbt = 0; nbt < nbTypes; nbt++)
+  {
+    unique_ptr<Reward> reward(new DecompositionReward(nullModel, &usai[nbt]));
+
+    unique_ptr<ProbabilisticRewardMapping> mapping(RewardMappingTools::computeRewardVectors(drtl, ids, *reward, false));
+
+    for (size_t i = 0; i < nbSites; ++i)
+    {
+      for (size_t k = 0; k < ids.size(); ++k)
+      {
+        double tmp = (*mapping)(mapping->getNodeIndex(ids[k]), i);
+
+        if (std::isnan(tmp))
+          tmp = 0;
+        
+        rewards[ids[k]][i][nbt] = tmp * sizeWord;
+      }
+    }
+        
+    reward.reset();
+    mapping.reset();
+  }
+
+  // output
+  const TreeTemplate<Node>& tree=drtl.getTree();
+  ofstream file;
+
+  for (size_t i = 0; i < reg.getNumberOfSubstitutionTypes(); ++i)
+  {
+    string name=reg.getTypeName(i+1);
+    if (name=="")
+      name=TextTools::toString(i + 1);
+
+    string path = filenamePrefix + name + string(".count");
+    
+    ApplicationTools::displayResult(string("Output counts of type ") + TextTools::toString(i + 1) + string(" to file"), path);
+    file.open(path.c_str());
+
+    file << "sites";
+    for (size_t k = 0; k < nbBr; ++k)
+    {
+      file << "\t" << ids[k];
+    }
+    file << endl;
+    
+    for (size_t j = 0; j < nbSites; ++j)
+    {
+      file << j;
+      for (size_t k = 0; k < nbBr; ++k)
+      {
+        file << "\t" << (*smap)(smap->getNodeIndex(ids[k]), j, i)/rewards[ids[k]][j][i]*tree.getNode(ids[k])->getDistanceToFather();
+      }
+      file << endl;
+    }
+    file.close();
+  }
+}
+/**************************************************************************************************/
+
+void SubstitutionMappingTools::outputIndividualCountsPerBranchPerSite(
+  const string& filenamePrefix,
+  DRTreeLikelihood& drtl,
+  const vector<int>& ids,
+  SubstitutionModelSet* modelSet,
+  SubstitutionModelSet* nullModelSet,
+  const SubstitutionRegister& reg)
+{
+  unique_ptr<SubstitutionCount> count(new UniformizationSubstitutionCount(modelSet->getSubstitutionModel(0), reg.clone()));
+
+  unique_ptr<ProbabilisticSubstitutionMapping> smap(SubstitutionMappingTools::computeSubstitutionVectors(drtl, ids, *count, false));
+  
+  size_t nbSites = smap->getNumberOfSites();
+  size_t nbTypes = smap->getNumberOfSubstitutionTypes();
+  size_t nbStates = nullModelSet->getAlphabet()->getSize();
+  size_t nbModels = nullModelSet->getNumberOfModels();
+  size_t nbBr = ids.size();
+  
+  // compute the normalization for each site for each substitutionType
+  map<int, vector< vector<double> > > rewards;
+
+  for (auto id : ids)
+  {
+    rewards[id].resize(nbSites);
+    for (size_t k = 0; k < nbSites; ++k)
+    {
+      rewards[id][k].resize(nbTypes);
+    }
+  }
+  
+  
+  vector<UserAlphabetIndex1 > usai(nbTypes, UserAlphabetIndex1(nullModelSet->getAlphabet()));
+
+  const WordAlphabet* wAlp=dynamic_cast<const WordAlphabet*>(nullModelSet->getAlphabet());
+  float sizeWord=float(wAlp?wAlp->getLength():1);
+
+  for (size_t nbm = 0; nbm < nbModels; nbm++)
+  {
+    vector<int> mids = VectorTools::vectorIntersection(ids, nullModelSet->getNodesWithModel(nbm));
+    
+    if (mids.size()>0)
+    {
+      const SubstitutionModel* modn = nullModelSet->getSubstitutionModel(nbm);
+      vector<int> supportedStates = modn->getAlphabetStates();
+      
+      for (size_t nbt = 0; nbt < nbTypes; nbt++)
+        for (size_t i = 0; i < nbStates; i++)
+          usai[nbt].setIndex(supportedStates[i], 0);
+      
+      for (size_t i = 0; i < nbStates; i++)
+      {
+        for (size_t j = 0; j < nbStates; j++)
+        {
+          if (i != j)
+          {
+            size_t nbt = reg.getType(i, j);
+            if (nbt != 0)
+              usai[nbt - 1].setIndex(supportedStates[i], usai[nbt - 1].getIndex(supportedStates[i]) + modn->Qij(i, j));
+          }
+        }
+      }
+
+      for (size_t nbt = 0; nbt < nbTypes; nbt++)
+      {
+        unique_ptr<Reward> reward(new DecompositionReward(nullModelSet->getSubstitutionModel(nbm), &usai[nbt]));
+        
+        unique_ptr<ProbabilisticRewardMapping> mapping(RewardMappingTools::computeRewardVectors(drtl, mids, *reward, false));
+        
+        for (size_t i = 0; i < nbSites; ++i)
+        {
+          for (size_t k = 0; k < mids.size(); k++)
+          {
+            double tmp =  (*mapping)(mapping->getNodeIndex(mids[k]), i);
+
+            if (std::isnan(tmp))
+              tmp = 0;
+
+            rewards[mids[k]][i][nbt] = tmp * sizeWord;
+          }
+        }
+        
+        reward.reset();
+        mapping.reset();
+      }
+    }
+  }
+
+  // output
+  const TreeTemplate<Node>& tree=drtl.getTree();
+  ofstream file;
+
+  for (size_t i = 0; i < reg.getNumberOfSubstitutionTypes(); ++i)
+  {
+    string name=reg.getTypeName(i+1);
+    if (name=="")
+      name=TextTools::toString(i + 1);
+
+    string path = filenamePrefix + name + string(".count");
+    
+    ApplicationTools::displayResult(string("Output counts of type ") + TextTools::toString(i + 1) + string(" to file"), path);
+    file.open(path.c_str());
+
+    file << "sites";
+    for (size_t k = 0; k < nbBr; ++k)
+    {
+      file << "\t" << ids[k];
+    }
+    file << endl;
+    
+    for (size_t j = 0; j < nbSites; ++j)
+    {
+      file << j;
+      for (size_t k = 0; k < nbBr; ++k)
+      {
+        file << "\t" << (*smap)(smap->getNodeIndex(ids[k]), j, i)/rewards[ids[k]][j][i]*tree.getNode(ids[k])->getDistanceToFather();
+      }
+      file << endl;
+    }
+    file.close();
+  }
+}
+
+/**************************************************************************************************/
+
