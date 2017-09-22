@@ -51,6 +51,36 @@
 
 using namespace bpp::DF;
 
+// Builder
+#include <memory>
+class AbstractBuilder : public std::enable_shared_from_this<AbstractBuilder>
+{
+public:
+  virtual ~AbstractBuilder() = default;
+  virtual std::shared_ptr<const AbstractBuilder> simplify() const = 0;
+  virtual NodeRef build() const = 0;
+};
+
+class ExistingNode : public AbstractBuilder
+{
+public:
+  ExistingNode(NodeRef node)
+    : node_(std::move(node))
+  {
+  }
+  std::shared_ptr<const AbstractBuilder> simplify() const override { return this->shared_from_this(); }
+  NodeRef build() const override { return node_; }
+
+private:
+  NodeRef node_;
+};
+
+template<typename NodeType>
+class Builder : public AbstractBuilder
+{
+  // How to store build args ??
+};
+
 // Addition
 template<typename T>
 struct AdditionOp : public OperationBase<AdditionOp<T>>
@@ -217,6 +247,7 @@ TEST_CASE("derive parameter")
 #include <Bpp/Numeric/AutoParameter.h>
 #include <Bpp/Numeric/Function/ConjugateGradientMultiDimensions.h>
 #include <Bpp/Numeric/Function/Optimizer.h>
+#include <Bpp/Numeric/Function/SimpleNewtonMultiDimensions.h>
 #include <fstream>
 #include <iostream>
 
@@ -248,7 +279,8 @@ TEST_CASE("test")
   params.addParameter(yp);
   bpp::DataFlowFunction dfFunc{convertRef<Value<double>>(f), params};
 
-  bpp::ConjugateGradientMultiDimensions optimizer(&dfFunc);
+  // bpp::ConjugateGradientMultiDimensions optimizer(&dfFunc);
+  bpp::SimpleNewtonMultiDimensions optimizer(&dfFunc);
   optimizer.setVerbose(1);
   optimizer.setProfiler(bpp::ApplicationTools::message);
   optimizer.setMessageHandler(bpp::ApplicationTools::message);
