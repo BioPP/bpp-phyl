@@ -172,7 +172,7 @@ public:
      *mixture that match a description.
    *
    */
-  Vint getSubmodelNumbers(std::string& desc) const;
+  Vint getSubmodelNumbers(const std::string& desc) const;
   
 private:
   virtual MixedSubstitutionModel& getMixedModel() = 0;

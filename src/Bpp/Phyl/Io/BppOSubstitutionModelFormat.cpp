@@ -103,6 +103,7 @@
 #include "../Model/Protein/LG10_EX_EHO.h"
 #include "../Model/BinarySubstitutionModel.h"
 #include "../Model/FromMixtureSubstitutionModel.h"
+#include "../Model/InMixedSubstitutionModel.h"
 #include "../Model/OneChangeTransitionModel.h"
 #include "../Model/OneChangeRegisterTransitionModel.h"
 
@@ -171,6 +172,60 @@ SubstitutionModel* BppOSubstitutionModelFormat::read(
   else if ((modelName == "Word") || (modelName.substr(0,4) == "Kron") || (modelName == "Triplet") || (modelName.substr(0, 5) == "Codon") || (modelName == "SENCA") )
     model.reset(readWord_(alphabet, modelDescription, data));
 
+  else if (modelName == "InMixed")
+  {
+    if (args.find("model") == args.end())
+      throw Exception("'model' argument missing to define the InMixed model.");
+
+    string nameMod="";
+    size_t numMod=0;
+    
+    if (args.find("numMod") == args.end())
+    {
+      if (args.find("nameMod") == args.end())
+        throw Exception("'numMod' and 'nameMod' arguments missing to define the InMixed submodel.");
+      else
+        nameMod=args["nameMod"];
+    }
+    else
+      numMod=(size_t)TextTools::toInt(args["numMod"]);
+    
+    string modelDesc2=args["model"];
+    BppOSubstitutionModelFormat nestedReader(alphabetCode_, false, true, false, false, warningLevel_);
+    nestedReader.setGeneticCode(geneticCode_); //This uses the same instance as the o
+
+    MixedSubstitutionModel* nestedModel=dynamic_cast<MixedSubstitutionModel*>(nestedReader.read(alphabet, modelDesc2, data, false));
+
+    // Check that nestedModel is fine and has subModel of given name
+    // or number
+    
+    if (nestedModel==NULL)
+      throw Exception("Unknown mixed model " + modelDesc2 + ".");
+    
+    if (nameMod!="")
+    {
+      if (nestedModel->getSubModelWithName(nameMod)==NULL)
+        throw Exception("BppOSubstitutionModelFormat::read. " + nestedModel->getName() + "argument for model 'InMixed' has no submodel with name " + nameMod + ".");
+      model.reset(new InMixedSubstitutionModel(*nestedModel, nameMod, modelDesc2));
+    }
+    else
+    {
+      if (numMod==0 || (nestedModel->getNumberOfModels()<numMod))
+        throw Exception("BppOSubstitutionModelFormat::read. " + nestedModel->getName() + "argument for model 'InMixed' has no submodel with number " + TextTools::toString(numMod) + ".");
+      model.reset(new InMixedSubstitutionModel(*nestedModel, numMod-1, modelDesc2));      
+    }
+
+    map<string, string> unparsedParameterValuesNested(nestedReader.getUnparsedArguments());
+    for (map<string, string>::iterator it = unparsedParameterValuesNested.begin(); it != unparsedParameterValuesNested.end(); it++)
+    {
+      unparsedArguments_[it->first] = it->second;
+    }
+
+    if (verbose_)
+      ApplicationTools::displayResult("Number of submodel", TextTools::toString(numMod));
+
+    delete nestedModel;
+  }      
 
   // //////////////////////////////////////
   // PREDEFINED CODON MODELS
@@ -689,9 +744,9 @@ SubstitutionModel* BppOSubstitutionModelFormat::read(
           throw Exception("Unknown model " + modelName + ".");
         
         if (nestedModel->getSubModelWithName(subModelName)==NULL)
-          throw Exception("BppOSubstitutionModelFormat::read. " + nestedModel->getName() + "argument for model 'FromModel' has no submodel with name " + subModelName + ".");
+          throw Exception("BppOSubstitutionModelFormat::read. " + nestedModel->getName() + "argument for model 'FromMixture' has no submodel with name " + subModelName + ".");
 
-        // Now we create the FromModel substitution model:
+        // Now we create the FromMixture substitution model:
         model.reset(new FromMixtureSubstitutionModel(*nestedModel, subModelName, modelDesc2));
         
         delete nestedModel;
@@ -1548,14 +1603,16 @@ void BppOSubstitutionModelFormat::write(const TransitionModel& model,
     comma = true;
   }
 
-  // // Is it a FromMixture model?
+  // Is it a InMixed model?
 
-  // const FromMixtureSubstitutionModel* fromModel = dynamic_cast<const FromMixtureSubstitutionModel*>(&model);
-  // if (fromModel)
-  // {
-  //   out << "exch=" << coalaModel->getExch() << ",nbrAxes=" << coalaModel->getNbrOfAxes();
-  //   comma = true;
-  // }
+  const InMixedSubstitutionModel* inModel = dynamic_cast<const InMixedSubstitutionModel*>(&model);
+  if (inModel)
+  {
+    out << "model=";
+    write(inModel->getMixedModel(), out, globalAliases, writtenNames);
+    out << ", numMod=" << TextTools::toString(inModel->getSubModelNumber());
+    comma = true;
+  }
   
   // Regular model
   const FrequenciesSet* pfs = model.getFrequenciesSet();

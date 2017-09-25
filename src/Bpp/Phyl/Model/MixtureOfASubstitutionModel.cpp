@@ -287,7 +287,7 @@ const SubstitutionModel* MixtureOfASubstitutionModel::getSubModelWithName(const 
   return NULL;
 }
 
-Vint MixtureOfASubstitutionModel::getSubmodelNumbers(string& desc) const
+Vint MixtureOfASubstitutionModel::getSubmodelNumbers(const string& desc) const
 {
   vector<string> parnames = modelsContainer_[0]->getParameters().getParameterNames();
   std::map<std::string, size_t> msubn;

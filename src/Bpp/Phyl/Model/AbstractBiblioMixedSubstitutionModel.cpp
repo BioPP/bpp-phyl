@@ -59,7 +59,7 @@ AbstractBiblioMixedSubstitutionModel& AbstractBiblioMixedSubstitutionModel::oper
 AbstractBiblioMixedSubstitutionModel::~AbstractBiblioMixedSubstitutionModel()
 {}
 
-Vint AbstractBiblioMixedSubstitutionModel::getSubmodelNumbers(std::string& desc) const
+Vint AbstractBiblioMixedSubstitutionModel::getSubmodelNumbers(const std::string& desc) const
 {
   std::string desc2;
 

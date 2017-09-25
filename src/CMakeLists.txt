@@ -116,6 +116,7 @@ set (CPP_FILES
   Bpp/Phyl/Model/FrequenciesSet/NucleotideFrequenciesSet.cpp
   Bpp/Phyl/Model/FrequenciesSet/WordFrequenciesSet.cpp
   Bpp/Phyl/Model/FromMixtureSubstitutionModel.cpp
+  Bpp/Phyl/Model/InMixedSubstitutionModel.cpp
   Bpp/Phyl/Model/KroneckerWordSubstitutionModel.cpp
   Bpp/Phyl/Model/MarkovModulatedSubstitutionModel.cpp
   Bpp/Phyl/Model/MixedSubstitutionModelSet.cpp

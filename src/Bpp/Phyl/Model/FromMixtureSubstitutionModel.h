@@ -41,13 +41,13 @@
 #define _FROM_MIXTURE_SUBSTITUTIONMODEL_H_
 
 #include "AbstractSubstitutionModel.h"
-#include "MixtureOfSubstitutionModels.h"
+#include "MixedSubstitutionModel.h"
 
 namespace bpp
 {
 /**
  * @brief Model taken from a SubModel of a
- * MixtureOfSubstitutionModels.
+ * Mixture of SubstitutionModels.
  *
  * It has the same parameters as the SubModel.
  */
@@ -73,6 +73,8 @@ private:
 
 public:
   FromMixtureSubstitutionModel(const MixedSubstitutionModel& mixedModel, const std::string& subModelName, const std::string& mixtDesc);
+
+  FromMixtureSubstitutionModel(const MixedSubstitutionModel& mixedModel, size_t subModelNumber, const std::string& mixtDesc);
 
   FromMixtureSubstitutionModel(const FromMixtureSubstitutionModel& fmsm);
 

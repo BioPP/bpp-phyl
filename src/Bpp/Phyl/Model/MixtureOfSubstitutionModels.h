@@ -188,7 +188,7 @@ public:
    * @param desc is the description of the class indexes of the mixed
    * parameters. Syntax is like: kappa_1,gamma_3,delta_2
    */
-  Vint getSubmodelNumbers(std::string& desc) const;
+  Vint getSubmodelNumbers(const std::string& desc) const;
 
   /**
    * @brief applies setFreq to all the models of the mixture and

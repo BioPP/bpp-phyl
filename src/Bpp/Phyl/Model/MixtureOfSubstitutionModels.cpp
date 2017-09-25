@@ -305,7 +305,7 @@ void MixtureOfSubstitutionModels::setVRates(const Vdouble& vd)
   }
 }
 
-Vint MixtureOfSubstitutionModels::getSubmodelNumbers(string& desc) const
+Vint MixtureOfSubstitutionModels::getSubmodelNumbers(const string& desc) const
 {
   size_t i;
   for (i = 0; i < getNumberOfModels(); i++)
