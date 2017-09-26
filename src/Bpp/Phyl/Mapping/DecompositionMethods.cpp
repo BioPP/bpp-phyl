@@ -149,13 +149,13 @@ void DecompositionMethods::computeExpectations(RowMatrix<double>& mapping, doubl
     MatrixTools::copyDown(Ui, Uim);
     
     jFunction_(model_->getEigenValues(), model_->getIEigenValues(), length, vjMat_);
-
+    
     double un(-1.);
     
     const RowMatrix<double>& inside(insideProducts_[0]);      
     MatrixTools::copyUp(inside, insidep);
     MatrixTools::copyDown(inside, insidem);
-    
+
     MatrixTools::hadamardMult(vjMat_[0][0], inside,  tmp[0][0]);
     MatrixTools::hadamardMult(vjMat_[0][1], insidem, tmp[0][1]);
     MatrixTools::hadamardMult(vjMat_[0][2], insidep, tmp[0][2]);
@@ -179,7 +179,7 @@ void DecompositionMethods::computeExpectations(RowMatrix<double>& mapping, doubl
     MatrixTools::add(tmp[2][0],un,tmp[2][1]);
     MatrixTools::add(tmp[2][0],tmp[2][2]);
     
-    
+
     MatrixTools::mult(tmp[0][0], Ui, tmp[0][1]);
     MatrixTools::mult(tmp[1][0], Uim,tmp[1][1]);
     MatrixTools::mult(tmp[2][0], Uip,tmp[2][1]);
@@ -187,7 +187,7 @@ void DecompositionMethods::computeExpectations(RowMatrix<double>& mapping, doubl
     
     MatrixTools::add(tmp[0][1],tmp[1][1]);
     MatrixTools::add(tmp[0][1],tmp[2][1]);
-    
+
     MatrixTools::mult(model_->getColumnRightEigenVectors(), tmp[0][1], mapping);
   }
   else
@@ -502,8 +502,6 @@ void DecompositionMethods::jFunction_(const std::vector<double>& lambda, const s
   // 1st block
   // 1st matrice
 
-  RowMatrix<double>& result=vresult[0][0];
-  
   for (unsigned int i = 0; i < nbStates_; ++i) {
     vfunc_[0]=expLam[i];
     fact_[0]=lambda[i];
@@ -513,13 +511,13 @@ void DecompositionMethods::jFunction_(const std::vector<double>& lambda, const s
         vfunc_[1]=expLam[j];
         fact_[1]=lambda[j];
         if (ilambda[j]==0)
-          result(i, j) = computeD_(fact_, vfunc_, t);
+          vresult[0][0](i, j) = computeD_(fact_, vfunc_, t);
         else
         {
           vfunc_[2]=cosLam[j];
           vfunc_[3]=sinLam[j];
           fact_[2]=ilambda[j];
-          result(i,j) = computeJc_(fact_, vfunc_, t);
+          vresult[0][0](i,j) = computeJc_(fact_, vfunc_, t);
         }
       }
     }
@@ -533,13 +531,13 @@ void DecompositionMethods::jFunction_(const std::vector<double>& lambda, const s
         vfunc_[3]=expLam[j];
         fact_[2]=lambda[j];
         if (ilambda[j]==0)
-          result(i, j) = computeKc_(fact_, vfunc_, t);
+          vresult[0][0](i, j) = computeKc_(fact_, vfunc_, t);
         else
         {
           vfunc_[4]=cosLam[j];
           vfunc_[5]=sinLam[j];
           fact_[3]=ilambda[j];
-          result(i,j) = computeJcc_(fact_, vfunc_, t);
+          vresult[0][0](i,j) = computeJcc_(fact_, vfunc_, t);
         }
       }
     }
@@ -547,13 +545,11 @@ void DecompositionMethods::jFunction_(const std::vector<double>& lambda, const s
 
   // 2nd matrice
 
-  result=vresult[0][1];
-  
   for (unsigned int i = 0; i < nbStates_; ++i) {
     if (ilambda[i]>=0)
     {
       for (unsigned int j = 0; j < nbStates_; ++j) 
-        result(i,j)=0;
+        vresult[0][1](i,j)=0;
     }
     else
     {
@@ -568,13 +564,13 @@ void DecompositionMethods::jFunction_(const std::vector<double>& lambda, const s
         fact_[2]=lambda[j];
         
         if (ilambda[j]==0)
-          result(i, j) = computeKs_(fact_, vfunc_, t);
+          vresult[0][1](i, j) = computeKs_(fact_, vfunc_, t);
         else
         {
           vfunc_[4]=cosLam[j];
           vfunc_[5]=sinLam[j];
           fact_[3]=ilambda[j];
-          result(i,j) = computeJsc_(fact_, vfunc_, t);
+          vresult[0][1](i,j) = computeJsc_(fact_, vfunc_, t);
         }
       }
     }
@@ -583,13 +579,11 @@ void DecompositionMethods::jFunction_(const std::vector<double>& lambda, const s
 
   // 3rd matrice
 
-  result=vresult[0][2];
-  
   for (unsigned int i = 0; i < nbStates_; ++i) {
     if (ilambda[i]<=0)
     {
       for (unsigned int j = 0; j < nbStates_; ++j) 
-        result(i,j)=0;
+        vresult[0][2](i,j)=0;
     }
     else
     {
@@ -604,13 +598,13 @@ void DecompositionMethods::jFunction_(const std::vector<double>& lambda, const s
         fact_[2]=lambda[j];
         
         if (ilambda[j]==0)
-          result(i, j) = computeKs_(fact_, vfunc_, t);
+          vresult[0][2](i, j) = computeKs_(fact_, vfunc_, t);
         else
         {
           vfunc_[4]=cosLam[j];
           vfunc_[5]=sinLam[j];
           fact_[3]=ilambda[j];
-          result(i,j) = computeJsc_(fact_, vfunc_, t);
+          vresult[0][2](i,j) = computeJsc_(fact_, vfunc_, t);
         }
       }
     }
@@ -619,8 +613,6 @@ void DecompositionMethods::jFunction_(const std::vector<double>& lambda, const s
   // 2nd block
   // 1st matrice
 
-  result=vresult[1][0];
-  
   for (unsigned int i = 0; i < nbStates_; ++i) {
     vfunc_[0]=expLam[i];
     fact_[0]=lambda[i];
@@ -628,7 +620,7 @@ void DecompositionMethods::jFunction_(const std::vector<double>& lambda, const s
     {
       for (unsigned int j = 0; j < nbStates_; ++j) {
         if (ilambda[j]>=0)
-          result(i, j) = 0;
+          vresult[1][0](i, j) = 0;
         else
         {
           fact_[1]=lambda[j];
@@ -636,7 +628,7 @@ void DecompositionMethods::jFunction_(const std::vector<double>& lambda, const s
           vfunc_[1]=expLam[j];
           vfunc_[2]=cosLam[j];
           vfunc_[3]=sinLam[j];
-          result(i,j) = computeJs_(fact_, vfunc_, t);
+          vresult[1][0](i,j) = computeJs_(fact_, vfunc_, t);
         }
       }
     }
@@ -648,7 +640,7 @@ void DecompositionMethods::jFunction_(const std::vector<double>& lambda, const s
 
       for (unsigned int j = 0; j < nbStates_; ++j) {
         if (ilambda[j]>=0)
-          result(i, j) = 0;
+          vresult[1][0](i, j) = 0;
         else
         {
           fact_[2]=lambda[j];
@@ -656,7 +648,7 @@ void DecompositionMethods::jFunction_(const std::vector<double>& lambda, const s
           vfunc_[3]=expLam[j];
           vfunc_[4]=cosLam[j];
           vfunc_[5]=sinLam[j];
-          result(i,j) = computeJcs_(fact_, vfunc_, t);
+          vresult[1][0](i,j) = computeJcs_(fact_, vfunc_, t);
         }
       }
     }
@@ -664,13 +656,11 @@ void DecompositionMethods::jFunction_(const std::vector<double>& lambda, const s
 
   // 2nd matrice
 
-  result=vresult[1][1];
-  
   for (unsigned int i = 0; i < nbStates_; ++i) {
     if (ilambda[i]>=0)
     {
       for (unsigned int j = 0; j < nbStates_; ++j) 
-        result(i,j)=0;
+        vresult[1][1](i,j)=0;
     }
     else
     {
@@ -683,7 +673,7 @@ void DecompositionMethods::jFunction_(const std::vector<double>& lambda, const s
       for (unsigned int j = 0; j < nbStates_; ++j) 
       {
         if (ilambda[j]>=0)
-          result(i, j) = 0;
+          vresult[1][1](i, j) = 0;
         else
         {
           fact_[2]=lambda[j];
@@ -692,7 +682,7 @@ void DecompositionMethods::jFunction_(const std::vector<double>& lambda, const s
           vfunc_[3]=expLam[j];
           vfunc_[4]=cosLam[j];
           vfunc_[5]=sinLam[j];
-          result(i,j) = computeJss_(fact_, vfunc_, t);
+          vresult[1][1](i,j) = computeJss_(fact_, vfunc_, t);
         }
       }
     }
@@ -701,13 +691,11 @@ void DecompositionMethods::jFunction_(const std::vector<double>& lambda, const s
 
   // 3rd matrice
 
-  result=vresult[1][2];
-  
   for (unsigned int i = 0; i < nbStates_; ++i) {
     if (ilambda[i]<=0)
     {
       for (unsigned int j = 0; j < nbStates_; ++j) 
-        result(i,j)=0;
+        vresult[1][2](i,j)=0;
     }
     else
     {
@@ -719,7 +707,7 @@ void DecompositionMethods::jFunction_(const std::vector<double>& lambda, const s
       for (unsigned int j = 0; j < nbStates_; ++j) 
       {
         if (ilambda[j]>=0)
-          result(i, j) = 0;
+          vresult[1][2](i, j) = 0;
         else
         {
           fact_[2]=lambda[j];
@@ -728,7 +716,7 @@ void DecompositionMethods::jFunction_(const std::vector<double>& lambda, const s
           vfunc_[3]=expLam[j];
           vfunc_[4]=cosLam[j];
           vfunc_[5]=sinLam[j];
-          result(i,j) = computeJss_(fact_, vfunc_, t);
+          vresult[1][2](i,j) = computeJss_(fact_, vfunc_, t);
         }
       }
     }
@@ -737,8 +725,6 @@ void DecompositionMethods::jFunction_(const std::vector<double>& lambda, const s
   // 3rd block
   // 1st matrice
 
-  result=vresult[2][0];
-  
   for (unsigned int i = 0; i < nbStates_; ++i) {
     vfunc_[0]=expLam[i];
     fact_[0]=lambda[i];
@@ -746,7 +732,7 @@ void DecompositionMethods::jFunction_(const std::vector<double>& lambda, const s
     {
       for (unsigned int j = 0; j < nbStates_; ++j) {
         if (ilambda[j]<=0)
-          result(i, j) = 0;
+          vresult[2][0](i, j) = 0;
         else
         {
           fact_[1]=lambda[j];
@@ -754,7 +740,7 @@ void DecompositionMethods::jFunction_(const std::vector<double>& lambda, const s
           vfunc_[1]=expLam[j];
           vfunc_[2]=cosLam[j];
           vfunc_[3]=sinLam[j];
-          result(i,j) = computeJs_(fact_, vfunc_, t);
+          vresult[2][0](i,j) = computeJs_(fact_, vfunc_, t);
         }
       }
     }
@@ -766,7 +752,7 @@ void DecompositionMethods::jFunction_(const std::vector<double>& lambda, const s
 
       for (unsigned int j = 0; j < nbStates_; ++j) {
         if (ilambda[j]<=0)
-          result(i, j) = 0;
+          vresult[2][0](i, j) = 0;
         else
         {
           fact_[2]=lambda[j];
@@ -774,7 +760,7 @@ void DecompositionMethods::jFunction_(const std::vector<double>& lambda, const s
           vfunc_[3]=expLam[j];
           vfunc_[4]=cosLam[j];
           vfunc_[5]=sinLam[j];
-          result(i,j) = computeJcs_(fact_, vfunc_, t);
+          vresult[2][0](i,j) = computeJcs_(fact_, vfunc_, t);
         }
       }
     }
@@ -782,13 +768,11 @@ void DecompositionMethods::jFunction_(const std::vector<double>& lambda, const s
 
   // 2nd matrice
 
-  result=vresult[2][1];
-  
   for (unsigned int i = 0; i < nbStates_; ++i) {
     if (ilambda[i]>=0)
     {
       for (unsigned int j = 0; j < nbStates_; ++j) 
-        result(i,j)=0;
+        vresult[2][1](i,j)=0;
     }
     else
     {
@@ -801,7 +785,7 @@ void DecompositionMethods::jFunction_(const std::vector<double>& lambda, const s
       for (unsigned int j = 0; j < nbStates_; ++j) 
       {
         if (ilambda[j]<=0)
-          result(i, j) = 0;
+          vresult[2][1](i, j) = 0;
         else
         {
           fact_[2]=lambda[j];
@@ -810,7 +794,7 @@ void DecompositionMethods::jFunction_(const std::vector<double>& lambda, const s
           vfunc_[3]=expLam[j];
           vfunc_[4]=cosLam[j];
           vfunc_[5]=sinLam[j];
-          result(i,j) = computeJss_(fact_, vfunc_, t);
+          vresult[2][1](i,j) = computeJss_(fact_, vfunc_, t);
         }
       }
     }
@@ -819,13 +803,11 @@ void DecompositionMethods::jFunction_(const std::vector<double>& lambda, const s
 
   // 3rd matrice
 
-  result=vresult[2][2];
-  
   for (unsigned int i = 0; i < nbStates_; ++i) {
     if (ilambda[i]<=0)
     {
       for (unsigned int j = 0; j < nbStates_; ++j) 
-        result(i,j)=0;
+        vresult[2][2](i,j)=0;
     }
     else
     {
@@ -837,7 +819,7 @@ void DecompositionMethods::jFunction_(const std::vector<double>& lambda, const s
       for (unsigned int j = 0; j < nbStates_; ++j) 
       {
         if (ilambda[j]<=0)
-          result(i, j) = 0;
+          vresult[2][2](i, j) = 0;
         else
         {
           fact_[2]=lambda[j];
@@ -846,7 +828,7 @@ void DecompositionMethods::jFunction_(const std::vector<double>& lambda, const s
           vfunc_[3]=expLam[j];
           vfunc_[4]=cosLam[j];
           vfunc_[5]=sinLam[j];
-          result(i,j) = computeJss_(fact_, vfunc_, t);
+          vresult[2][2](i,j) = computeJss_(fact_, vfunc_, t);
         }
       }
     }
