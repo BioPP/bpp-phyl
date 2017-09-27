@@ -101,8 +101,3 @@ InMixedSubstitutionModel& InMixedSubstitutionModel::operator=(const InMixedSubst
   return *this;
 }
 
-
-std::string InMixedSubstitutionModel::getName() const
-{
-  return mixedModel_->getName();
-}

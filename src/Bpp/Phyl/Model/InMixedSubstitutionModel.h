@@ -42,6 +42,7 @@
 
 #include "AbstractSubstitutionModel.h"
 #include "MixedSubstitutionModel.h"
+#include "WrappedModel.h"
 
 namespace bpp
 {
@@ -59,7 +60,7 @@ namespace bpp
  */
   
   class InMixedSubstitutionModel :
-    public virtual SubstitutionModel,
+    public virtual WrappedSubstitutionModel,
     public AbstractParameterAliasable
   {
   private:
@@ -92,8 +93,6 @@ namespace bpp
 
     InMixedSubstitutionModel& operator=(const InMixedSubstitutionModel& fmsm);
 
-    ~InMixedSubstitutionModel() {}
-
     InMixedSubstitutionModel* clone() const { return new InMixedSubstitutionModel(*this); }
 
   public:
@@ -102,7 +101,12 @@ namespace bpp
       return *mixedModel_.get();
     }
 
-    const SubstitutionModel& getSubModel() const
+    const SubstitutionModel& getSubstitutionModel() const
+    {
+      return *mixedModel_->getNModel(subModelNumber_);
+    }
+
+    const TransitionModel& getModel() const
     {
       return *mixedModel_->getNModel(subModelNumber_);
     }
@@ -118,64 +122,26 @@ namespace bpp
       return *mixedModel_.get();
     }
 
+    SubstitutionModel& getSubstitutionModel()
+    {
+      return *mixedModel_->getNModel(subModelNumber_);
+    }
+
+    TransitionModel& getModel()
+    {
+      return *mixedModel_->getNModel(subModelNumber_);
+    }
+
   public:
     /*
-     *@ brief Methods to supersede SubstitutionModel methods.
+     *@ brief Methods to supersede WrappedSubstitutionModel methods.
      *
      * @{
      */
 
-    const std::vector<int>& getAlphabetStates() const { return getSubModel().getAlphabetStates(); }
-
-    const StateMap& getStateMap() const { return getSubModel().getStateMap(); }
-
-    int getAlphabetStateAsInt(size_t i) const { return getSubModel().getAlphabetStateAsInt(i); }
-
-    std::string getAlphabetStateAsChar(size_t i) const { return getSubModel().getAlphabetStateAsChar(i); }
-
-    std::vector<size_t> getModelStates(int code) const { return getSubModel().getModelStates(code); }
-
-    std::vector<size_t> getModelStates(const std::string& code) const { return getSubModel().getModelStates(code); }
-
-    double freq(size_t i) const { return getSubModel().freq(i); }
-
-    double Qij(size_t i, size_t j) const { return getSubModel().Qij(i, j); }
-
-    double Pij_t    (size_t i, size_t j, double t) const { return getSubModel().Pij_t(i, j, t); }
-    double dPij_dt  (size_t i, size_t j, double t) const { return getSubModel().dPij_dt (i, j, t); }
-    double d2Pij_dt2(size_t i, size_t j, double t) const { return getSubModel().d2Pij_dt2(i, j, t); }
-
-    const Vdouble& getFrequencies() const { return getSubModel().getFrequencies(); }
-
-    const Matrix<double>& getGenerator() const { return getSubModel().getGenerator(); }
-
-    const Matrix<double>& getExchangeabilityMatrix() const { return getSubModel().getExchangeabilityMatrix(); }
-
-    double Sij(size_t i, size_t j) const { return getSubModel().Sij(i, j); }
-
-    const Matrix<double>& getPij_t(double t) const { return getSubModel().getPij_t(t); }
-
-    const Matrix<double>& getdPij_dt(double t) const { return getSubModel().getdPij_dt(t); }
-
-    const Matrix<double>& getd2Pij_dt2(double t) const { return getSubModel().getd2Pij_dt2(t); }
-
     void enableEigenDecomposition(bool yn) { getMixedModel().enableEigenDecomposition(yn); }
 
     bool enableEigenDecomposition() { return getMixedModel().enableEigenDecomposition(); }
-
-    bool isDiagonalizable() const { return getSubModel().isDiagonalizable(); }
-
-    bool isNonSingular() const { return getSubModel().isNonSingular(); }
-
-    const Vdouble& getEigenValues() const { return getSubModel().getEigenValues(); }
-
-    const Vdouble& getIEigenValues() const { return getSubModel().getIEigenValues(); }
-
-    const Matrix<double>& getRowLeftEigenVectors() const { return getSubModel().getRowLeftEigenVectors(); }
-
-    const Matrix<double>& getColumnRightEigenVectors() const { return getSubModel().getColumnRightEigenVectors(); }
-
-    double getRate() const { return getSubModel().getRate(); }
 
     void setRate(double rate) { return getMixedModel().setRate(rate); }
 
@@ -188,14 +154,6 @@ namespace bpp
     void setFreqFromData(const SequenceContainer& data, double pseudoCount = 0){getMixedModel().setFreqFromData(data, pseudoCount); }
 
     void setFreq(std::map<int, double>& frequ) {getMixedModel().setFreq(frequ); }
-
-    const Alphabet* getAlphabet() const { return getSubModel().getAlphabet(); }
-
-    size_t getNumberOfStates() const { return getSubModel().getNumberOfStates(); }
-
-    double getInitValue(size_t i, int state) const throw (BadIntException) { return getSubModel().getInitValue(i, state); }
-
-    const FrequenciesSet* getFrequenciesSet() const {return getSubModel().getFrequenciesSet(); }
 
     /*
      * @}
@@ -249,7 +207,11 @@ namespace bpp
      * @}
      */
 
-    std::string getName() const;
+    std::string getName() const
+    {
+      return mixedModel_->getName();
+    }
+
 
   };
 } // end of namespace bpp.

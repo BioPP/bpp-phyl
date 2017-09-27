@@ -107,12 +107,6 @@ namespace bpp
 
     void setRate(double rate) { return getModel().setRate(rate); }
 
-    // virtual void addRateParameter()
-    // {
-    //   getModel().addRateParameter();
-    //   addParameter_(new Parameter(getNamespace() + "rate", getModel().getRate(), &Parameter::R_PLUS_STAR));
-    // }
-
     virtual void setFreq(std::map<int, double>& m)
     {  
       getModel().setFreq(m);
@@ -122,18 +116,6 @@ namespace bpp
     {
       getModel().setFreqFromData(data, pseudoCount);
     }
-
-    // virtual void fireParameterChanged(const ParameterList& parameters)
-    // {
-    //   AbstractParameterAliasable::fireParameterChanged(parameters);
-    //   getModel().matchParametersValues(parameters);
-    // }
-
-    // virtual void setNamespace(const std::string& name)
-    // {
-    //   AbstractParameterAliasable::setNamespace(name);
-    //   getModel().setNamespace(name);
-    // }
 
     /*
      * @}
