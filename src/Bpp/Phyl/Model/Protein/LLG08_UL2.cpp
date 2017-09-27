@@ -38,6 +38,7 @@
 
 #include "LLG08_UL2.h"
 #include "../FrequenciesSet/ProteinFrequenciesSet.h"
+#include "../MixtureOfSubstitutionModels.h"
 
 #include <Bpp/Numeric/Prob/SimpleDiscreteDistribution.h>
 
@@ -48,7 +49,7 @@ using namespace std;
 /******************************************************************************/
 
 LLG08_UL2::LLG08_UL2(const ProteicAlphabet* alpha) :
-  AbstractBiblioMixtureOfSubstitutionModels("LLG08_UL2.")
+  AbstractBiblioMixedSubstitutionModel("LLG08_UL2.")
 {
   // build the submodel
 

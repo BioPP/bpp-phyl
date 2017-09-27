@@ -76,7 +76,7 @@ namespace bpp
  */
 
   class LLG08_EHO :
-    public AbstractBiblioMixtureOfSubstitutionModels
+    public AbstractBiblioMixedSubstitutionModel
   {
   public:
     class EmbeddedModel :
@@ -107,12 +107,12 @@ namespace bpp
     LLG08_EHO* clone() const { return new LLG08_EHO(*this); }
 
     LLG08_EHO(const LLG08_EHO& mod2) :
-      AbstractBiblioMixtureOfSubstitutionModels(mod2)
+      AbstractBiblioMixedSubstitutionModel(mod2)
     {}
 
     LLG08_EHO& operator=(const LLG08_EHO& mod2)
     {
-      AbstractBiblioMixtureOfSubstitutionModels::operator=(mod2);
+      AbstractBiblioMixedSubstitutionModel::operator=(mod2);
 
       return *this;
     }

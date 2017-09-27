@@ -40,6 +40,7 @@
 
 #include "PhylogeneticsApplicationTools.h"
 #include "../Model/SubstitutionModel.h"
+#include "../Model/WrappedModel.h"
 #include "../Model/Protein/Coala.h"
 #include "../Model/FrequenciesSet/MvaFrequenciesSet.h"
 #include "../Likelihood/TreeLikelihood.h"
@@ -1657,16 +1658,22 @@ SubstitutionRegister* PhylogeneticsApplicationTools::getSubstitutionRegister(con
   else if (regType == "IntraAA")
   {
     if (AlphabetTools::isCodonAlphabet(model->getAlphabet()))
-     {
+    {
       const CodonSubstitutionModel* cmodel=dynamic_cast<const CodonSubstitutionModel*>(model);
-    //   if (cmodel)
+      if (!cmodel)
+      {
+        const WrappedSubstitutionModel* wmodel=dynamic_cast<const WrappedSubstitutionModel*>(model);
+        if (wmodel)
+        {
+          cmodel=dynamic_cast<const CodonSubstitutionModel*>(&wmodel->getSubstitutionModel());
+        }
+      }
+      if (cmodel)
         reg = new AAInteriorSubstitutionRegister(cmodel);
-    //   else
-    //   {
-       }
-      
-    // }
-    else 
+      else
+        throw Exception("Internal amino-acid categorization is only available for codon models : " + model->getName());
+    }
+    else
       throw Exception("Internal amino-acid categorization is only available for codon alphabet!");
   }
   else if (regType == "InterAA")

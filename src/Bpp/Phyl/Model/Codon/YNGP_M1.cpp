@@ -42,6 +42,8 @@
 #include <Bpp/Numeric/NumConstants.h>
 #include <Bpp/Numeric/Prob/SimpleDiscreteDistribution.h>
 
+#include "../MixtureOfASubstitutionModel.h"
+
 using namespace bpp;
 
 using namespace std;

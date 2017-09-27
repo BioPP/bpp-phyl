@@ -38,6 +38,7 @@
 
 #include "YNGP_M8.h"
 #include "YN98.h"
+#include "../MixtureOfASubstitutionModel.h"
 
 #include <Bpp/Numeric/Prob/MixtureOfDiscreteDistributions.h>
 #include <Bpp/Numeric/Prob/SimpleDiscreteDistribution.h>

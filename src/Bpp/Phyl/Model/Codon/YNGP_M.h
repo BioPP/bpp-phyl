@@ -62,7 +62,7 @@ namespace bpp
  */
 
   class YNGP_M:
-    public AbstractBiblioMixtureOfASubstitutionModel,
+    public AbstractBiblioMixedSubstitutionModel,
     virtual public ReversibleSubstitutionModel
   {
   protected:
@@ -75,14 +75,14 @@ namespace bpp
   
   public:
     YNGP_M(const std::string& name) :
-      AbstractBiblioMixtureOfASubstitutionModel(name),
+      AbstractBiblioMixedSubstitutionModel(name),
       synfrom_(),
       synto_()
     {
     }
     
     YNGP_M(const YNGP_M& mod2) :
-      AbstractBiblioMixtureOfASubstitutionModel(mod2),
+      AbstractBiblioMixedSubstitutionModel(mod2),
       synfrom_(mod2.synfrom_),
       synto_(mod2.synto_)
     {}
@@ -91,7 +91,7 @@ namespace bpp
     
     YNGP_M& operator=(const YNGP_M& mod2)
     {
-      AbstractBiblioMixtureOfASubstitutionModel::operator=(mod2);
+      AbstractBiblioMixedSubstitutionModel::operator=(mod2);
 
       synfrom_ = mod2.synfrom_;
       synto_ = mod2.synto_;

@@ -77,7 +77,7 @@ namespace bpp
  */
 
   class LLG08_EX3 :
-    public AbstractBiblioMixtureOfSubstitutionModels
+    public AbstractBiblioMixedSubstitutionModel
   {
   public:
     class EmbeddedModel :
@@ -107,12 +107,12 @@ namespace bpp
 
     LLG08_EX3* clone() const { return new LLG08_EX3(*this); }
 
-    LLG08_EX3(const LLG08_EX3& mod2) : AbstractBiblioMixtureOfSubstitutionModels(mod2)
+    LLG08_EX3(const LLG08_EX3& mod2) : AbstractBiblioMixedSubstitutionModel(mod2)
     {}
 
     LLG08_EX3& operator=(const LLG08_EX3& mod2)
     {
-      AbstractBiblioMixtureOfSubstitutionModels::operator=(mod2);
+      AbstractBiblioMixedSubstitutionModel::operator=(mod2);
       return *this;
     }
 

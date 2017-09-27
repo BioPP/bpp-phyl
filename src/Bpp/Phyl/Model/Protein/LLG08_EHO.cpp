@@ -38,6 +38,7 @@
 
 #include "LLG08_EHO.h"
 #include "../FrequenciesSet/ProteinFrequenciesSet.h"
+#include "../MixtureOfSubstitutionModels.h"
 
 #include <Bpp/Numeric/Prob/SimpleDiscreteDistribution.h>
 
@@ -48,7 +49,7 @@ using namespace std;
 /******************************************************************************/
 
 LLG08_EHO::LLG08_EHO(const ProteicAlphabet* alpha) :
-  AbstractBiblioMixtureOfSubstitutionModels("LLG08_EHO.")
+  AbstractBiblioMixedSubstitutionModel("LLG08_EHO.")
 {
   // build the submodel
 

@@ -42,8 +42,6 @@
 
 #include "AbstractBiblioSubstitutionModel.h"
 #include "MixedSubstitutionModel.h"
-#include "MixtureOfASubstitutionModel.h"
-#include "MixtureOfSubstitutionModels.h"
 
 namespace bpp
 {
@@ -56,6 +54,9 @@ namespace bpp
     public virtual MixedSubstitutionModel,
     public AbstractBiblioSubstitutionModel
   {
+  protected:
+    std::unique_ptr<MixedSubstitutionModel> pmixmodel_;
+    
   public:
     AbstractBiblioMixedSubstitutionModel(const std::string& prefix);
 
@@ -65,11 +66,13 @@ namespace bpp
 
     virtual ~AbstractBiblioMixedSubstitutionModel();
 
-    virtual AbstractBiblioMixedSubstitutionModel* clone() const = 0;
+    virtual AbstractBiblioMixedSubstitutionModel* clone() const
+    {
+      return new AbstractBiblioMixedSubstitutionModel(*this);
+    }
+    
 
   public:
-    virtual const MixedSubstitutionModel& getMixedModel() const = 0;
-
     /*
      *@brief Returns the submodel from the mixture.
      *
@@ -175,47 +178,7 @@ namespace bpp
      *
      */
     Vint getSubmodelNumbers(const std::string& desc) const;
-  
-  private:
-    virtual MixedSubstitutionModel& getMixedModel() = 0;
 
-  };
-
-
-  class AbstractBiblioMixtureOfASubstitutionModel:
-    public AbstractBiblioMixedSubstitutionModel
-  {
-  protected:
-    std::unique_ptr<MixtureOfASubstitutionModel> pmixmodel_;
-    
-  public:
-    AbstractBiblioMixtureOfASubstitutionModel(const std::string& name) :
-      AbstractBiblioMixedSubstitutionModel(name),
-      pmixmodel_()
-    {
-    }
-    
-    AbstractBiblioMixtureOfASubstitutionModel(const AbstractBiblioMixtureOfASubstitutionModel& mod2) :
-      AbstractBiblioMixedSubstitutionModel(mod2),
-      pmixmodel_(new MixtureOfASubstitutionModel(*mod2.pmixmodel_))
-    {}
-
-    AbstractBiblioMixtureOfASubstitutionModel& operator=(const AbstractBiblioMixtureOfASubstitutionModel& mod2)
-    {
-      AbstractBiblioMixtureOfASubstitutionModel::operator=(mod2);
-
-      pmixmodel_.reset(new MixtureOfASubstitutionModel(*mod2.pmixmodel_));
-
-      return *this;
-    }
-
-    virtual AbstractBiblioMixtureOfASubstitutionModel* clone() const = 0;
-    
-    virtual ~AbstractBiblioMixtureOfASubstitutionModel() 
-    {
-    }
-    
-      
     const SubstitutionModel& getSubstitutionModel() const { return *pmixmodel_.get(); }
 
     const TransitionModel& getModel() const { return *pmixmodel_.get(); }
@@ -232,53 +195,6 @@ namespace bpp
     const FrequenciesSet* getFrequenciesSet() const {return pmixmodel_->getNModel(1)->getFrequenciesSet();}
   };
 
-
-
-  class AbstractBiblioMixtureOfSubstitutionModels :
-    public AbstractBiblioMixedSubstitutionModel
-  {
-  protected:
-    std::unique_ptr<MixtureOfSubstitutionModels> pmixmodel_;
-
-  public:
-    AbstractBiblioMixtureOfSubstitutionModels(const std::string& name) :
-      AbstractBiblioMixedSubstitutionModel(name),
-      pmixmodel_()
-    {
-    }
-    
-    AbstractBiblioMixtureOfSubstitutionModels(const AbstractBiblioMixtureOfSubstitutionModels& mod2) :
-      AbstractBiblioMixedSubstitutionModel(mod2),
-      pmixmodel_(new MixtureOfSubstitutionModels(*mod2.pmixmodel_))
-    {
-    }
-    
-    AbstractBiblioMixtureOfSubstitutionModels& operator=(const AbstractBiblioMixtureOfSubstitutionModels& mod2)
-    {
-      AbstractBiblioMixedSubstitutionModel::operator=(mod2);
-      pmixmodel_.reset(new MixtureOfSubstitutionModels(*mod2.pmixmodel_));
-
-      return *this;
-    }
-
-    virtual AbstractBiblioMixtureOfSubstitutionModels* clone() const = 0;
-     
-    const SubstitutionModel& getSubstitutionModel() const { return *pmixmodel_.get(); }
-
-    const TransitionModel& getModel() const { return *pmixmodel_.get(); }
-
-    const MixedSubstitutionModel& getMixedModel() const { return *pmixmodel_.get(); }
-
-  protected:
-    SubstitutionModel& getSubstitutionModel() { return *pmixmodel_.get(); }
-
-    MixedSubstitutionModel& getMixedModel() { return *pmixmodel_.get(); }
-
-    TransitionModel& getModel() { return *pmixmodel_.get(); }
-
-  };
-
-  
 } // end of namespace bpp.
 
 #endif  // _AbstractBiblioMixedSubstitutionModel_H_

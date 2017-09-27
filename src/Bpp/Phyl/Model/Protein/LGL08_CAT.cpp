@@ -38,6 +38,7 @@
 
 #include "LGL08_CAT.h"
 #include "../FrequenciesSet/ProteinFrequenciesSet.h"
+#include "../MixtureOfSubstitutionModels.h"
 
 #include <Bpp/Numeric/Prob/SimpleDiscreteDistribution.h>
 
@@ -48,7 +49,7 @@ using namespace std;
 /******************************************************************************/
 
 LGL08_CAT::LGL08_CAT(const ProteicAlphabet* alpha, unsigned int nbCat) :
-  AbstractBiblioMixtureOfSubstitutionModels("LGL08_CAT.")
+  AbstractBiblioMixedSubstitutionModel("LGL08_CAT.")
 {
   // build the submodel
 

@@ -38,6 +38,7 @@
 
 #include "YNGP_M7.h"
 #include "YN98.h"
+#include "../MixtureOfASubstitutionModel.h"
 
 #include <Bpp/Numeric/NumConstants.h>
 #include <Bpp/Numeric/Prob/BetaDiscreteDistribution.h>

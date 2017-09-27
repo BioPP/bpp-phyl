@@ -37,11 +37,13 @@
   knowledge of the CeCILL license and that you accept its terms.
 */
 
-#ifndef _BPPOSUBSTITUTIONMODELFORMAT_H_
-#define _BPPOSUBSTITUTIONMODELFORMAT_H_
+#ifndef _BPP_OSUBSTITUTION_MODEL_FORMAT_H_
+#define _BPP_OSUBSTITUTION_MODEL_FORMAT_H_
 
 #include "IoSubstitutionModelFactory.h"
 #include "../Model/MixedSubstitutionModel.h"
+#include "../Model/MixtureOfASubstitutionModel.h"
+#include "../Model/MixtureOfSubstitutionModels.h"
 
 // From bpp-seq
 #include <Bpp/Seq/GeneticCode/GeneticCode.h>

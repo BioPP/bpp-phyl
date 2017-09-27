@@ -72,7 +72,7 @@ namespace bpp
  */
 
   class LGL08_CAT :
-    public AbstractBiblioMixtureOfSubstitutionModels
+    public AbstractBiblioMixedSubstitutionModel
   {
   public:
     class EmbeddedModel :
@@ -103,12 +103,12 @@ namespace bpp
     LGL08_CAT* clone() const { return new LGL08_CAT(*this); }
 
     LGL08_CAT(const LGL08_CAT& mod2) :
-      AbstractBiblioMixtureOfSubstitutionModels(mod2)
+      AbstractBiblioMixedSubstitutionModel(mod2)
     {}
 
     LGL08_CAT& operator=(const LGL08_CAT& mod2)
     {
-      AbstractBiblioMixtureOfSubstitutionModels::operator=(mod2);
+      AbstractBiblioMixedSubstitutionModel::operator=(mod2);
       return *this;
     }
 
