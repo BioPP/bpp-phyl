@@ -51,10 +51,7 @@ using namespace std;
 /******************************************************************************/
 
 YNGP_M7::YNGP_M7(const GeneticCode* gc, FrequenciesSet* codonFreqs, unsigned int nclass) :
-  AbstractBiblioMixedSubstitutionModel("YNGP_M7."),
-  pmixmodel_(),
-  synfrom_(),
-  synto_()
+  YNGP_M("YNGP_M7.")
 {
   if (nclass <= 0)
     throw Exception("Bad number of classes for model YNGP_M7: " + TextTools::toString(nclass));
@@ -124,25 +121,6 @@ YNGP_M7::YNGP_M7(const GeneticCode* gc, FrequenciesSet* codonFreqs, unsigned int
 
   updateMatrices();
 }
-
-YNGP_M7::YNGP_M7(const YNGP_M7& mod2) : AbstractBiblioMixedSubstitutionModel(mod2),
-  pmixmodel_(new MixtureOfASubstitutionModel(*mod2.pmixmodel_)),
-  synfrom_(mod2.synfrom_),
-  synto_(mod2.synto_)
-{}
-
-YNGP_M7& YNGP_M7::operator=(const YNGP_M7& mod2)
-{
-  AbstractBiblioMixedSubstitutionModel::operator=(mod2);
-
-  pmixmodel_.reset(new MixtureOfASubstitutionModel(*mod2.pmixmodel_));
-  synfrom_ = mod2.synfrom_;
-  synto_ = mod2.synto_;
-
-  return *this;
-}
-
-YNGP_M7::~YNGP_M7() {}
 
 void YNGP_M7::updateMatrices()
 {

@@ -48,8 +48,7 @@ using namespace std;
 /******************************************************************************/
 
 LLG08_UL2::LLG08_UL2(const ProteicAlphabet* alpha) :
-  AbstractBiblioMixedSubstitutionModel("LLG08_UL2."),
-  pmixmodel_()
+  AbstractBiblioMixtureOfSubstitutionModels("LLG08_UL2.")
 {
   // build the submodel
 
@@ -82,21 +81,6 @@ LLG08_UL2::LLG08_UL2(const ProteicAlphabet* alpha) :
 
   updateMatrices();
 }
-
-LLG08_UL2::LLG08_UL2(const LLG08_UL2& mod2) : AbstractBiblioMixedSubstitutionModel(mod2),
-  pmixmodel_(new MixtureOfSubstitutionModels(*mod2.pmixmodel_))
-{}
-
-LLG08_UL2& LLG08_UL2::operator=(const LLG08_UL2& mod2)
-{
-  AbstractBiblioMixedSubstitutionModel::operator=(mod2);
-
-  pmixmodel_.reset(new MixtureOfSubstitutionModels(*mod2.pmixmodel_));
-
-  return *this;
-}
-
-LLG08_UL2::~LLG08_UL2() {}
 
 /**************** sub model classes */ // ////////
 

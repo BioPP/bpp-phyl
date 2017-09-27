@@ -51,10 +51,7 @@ using namespace std;
 /******************************************************************************/
 
 YNGP_M9::YNGP_M9(const GeneticCode* gc, FrequenciesSet* codonFreqs, unsigned int nbBeta, unsigned int nbGamma) :
-  AbstractBiblioMixedSubstitutionModel("YNGP_M9."),
-  pmixmodel_(),
-  synfrom_(),
-  synto_(),
+  YNGP_M("YNGP_M9."),
   nBeta_(nbBeta),
   nGamma_(nbGamma)
 {
@@ -137,31 +134,6 @@ YNGP_M9::YNGP_M9(const GeneticCode* gc, FrequenciesSet* codonFreqs, unsigned int
   // update Matrices
   updateMatrices();
 }
-
-YNGP_M9::YNGP_M9(const YNGP_M9& mod2) : AbstractBiblioMixedSubstitutionModel(mod2),
-                                           pmixmodel_(new MixtureOfASubstitutionModel(*mod2.pmixmodel_)),
-                                           synfrom_(mod2.synfrom_),
-                                           synto_(mod2.synto_),
-                                           nBeta_(mod2.nBeta_),
-                                           nGamma_(mod2.nGamma_)
-
-{}
-
-
-YNGP_M9& YNGP_M9::operator=(const YNGP_M9& mod2)
-{
-  AbstractBiblioMixedSubstitutionModel::operator=(mod2);
-
-  pmixmodel_.reset(new MixtureOfASubstitutionModel(*mod2.pmixmodel_));
-  synfrom_ = mod2.synfrom_;
-  synto_ = mod2.synto_;
-  nBeta_ = mod2.nBeta_;
-  nGamma_ = mod2.nGamma_;
-  
-  return *this;
-}
-
-YNGP_M9::~YNGP_M9() {}
 
 void YNGP_M9::updateMatrices()
 {

@@ -48,8 +48,7 @@ using namespace std;
 /******************************************************************************/
 
 LGL08_CAT::LGL08_CAT(const ProteicAlphabet* alpha, unsigned int nbCat) :
-  AbstractBiblioMixedSubstitutionModel("LGL08_CAT."),
-  pmixmodel_()
+  AbstractBiblioMixtureOfSubstitutionModels("LGL08_CAT.")
 {
   // build the submodel
 
@@ -82,21 +81,6 @@ LGL08_CAT::LGL08_CAT(const ProteicAlphabet* alpha, unsigned int nbCat) :
 
   updateMatrices();
 }
-
-LGL08_CAT::LGL08_CAT(const LGL08_CAT& mod2) : AbstractBiblioMixedSubstitutionModel(mod2),
-  pmixmodel_(new MixtureOfSubstitutionModels(*mod2.pmixmodel_))
-{}
-
-LGL08_CAT& LGL08_CAT::operator=(const LGL08_CAT& mod2)
-{
-  AbstractBiblioMixedSubstitutionModel::operator=(mod2);
-
-  pmixmodel_.reset(new MixtureOfSubstitutionModels(*mod2.pmixmodel_));
-
-  return *this;
-}
-
-LGL08_CAT::~LGL08_CAT() {}
 
 /**************** sub model classes */ // ////////
 

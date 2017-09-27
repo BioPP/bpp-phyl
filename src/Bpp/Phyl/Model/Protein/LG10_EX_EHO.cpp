@@ -48,8 +48,7 @@ using namespace std;
 /******************************************************************************/
 
 LG10_EX_EHO::LG10_EX_EHO(const ProteicAlphabet* alpha) : 
-  AbstractBiblioMixedSubstitutionModel("LG10_EX_EHO."),
-  pmixmodel_()
+  AbstractBiblioMixtureOfSubstitutionModels("LG10_EX_EHO.")
 {
   // build the submodel
 	
@@ -86,22 +85,6 @@ LG10_EX_EHO::LG10_EX_EHO(const ProteicAlphabet* alpha) :
 	
   updateMatrices();	
 }
-
-LG10_EX_EHO::LG10_EX_EHO(const LG10_EX_EHO& mod2) : AbstractBiblioMixedSubstitutionModel(mod2),
-pmixmodel_(new MixtureOfSubstitutionModels(*mod2.pmixmodel_))
-{}
-
-LG10_EX_EHO& LG10_EX_EHO::operator=(const LG10_EX_EHO& mod2)
-{
-  AbstractBiblioMixedSubstitutionModel::operator=(mod2);
-  
-  pmixmodel_.reset(new MixtureOfSubstitutionModels(*mod2.pmixmodel_));	
-	
-  return *this;
-}
-
-LG10_EX_EHO::~LG10_EX_EHO()
-{}
 
 /**************** sub model classes *///////////
 

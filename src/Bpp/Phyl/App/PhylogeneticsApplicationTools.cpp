@@ -1552,6 +1552,7 @@ void PhylogeneticsApplicationTools::printParameters(const DiscreteDistribution* 
 /************************
 * Substitution Mapping *
 ************************/
+
 SubstitutionCount* PhylogeneticsApplicationTools::getSubstitutionCount(
   const Alphabet* alphabet,
   const SubstitutionModel* model,
@@ -1656,10 +1657,16 @@ SubstitutionRegister* PhylogeneticsApplicationTools::getSubstitutionRegister(con
   else if (regType == "IntraAA")
   {
     if (AlphabetTools::isCodonAlphabet(model->getAlphabet()))
-    {
-      reg = new AAInteriorSubstitutionRegister(dynamic_cast<const CodonSubstitutionModel*>(model)); 
-    }
-    else
+     {
+      const CodonSubstitutionModel* cmodel=dynamic_cast<const CodonSubstitutionModel*>(model);
+    //   if (cmodel)
+        reg = new AAInteriorSubstitutionRegister(cmodel);
+    //   else
+    //   {
+       }
+      
+    // }
+    else 
       throw Exception("Internal amino-acid categorization is only available for codon alphabet!");
   }
   else if (regType == "InterAA")
@@ -1676,7 +1683,16 @@ SubstitutionRegister* PhylogeneticsApplicationTools::getSubstitutionRegister(con
     if (AlphabetTools::isNucleicAlphabet(model->getAlphabet()))
       reg = new GCSubstitutionRegister(dynamic_cast<const NucleotideSubstitutionModel*>(model), false);
     else if (AlphabetTools::isCodonAlphabet(model->getAlphabet()))
-      reg = new GCSynonymousSubstitutionRegister(dynamic_cast<const CodonSubstitutionModel*>(model));
+    {
+      const CodonSubstitutionModel* cmodel=dynamic_cast<const CodonSubstitutionModel*>(model);
+//      if (cmodel)
+        reg = new GCSynonymousSubstitutionRegister(cmodel);
+      // else
+      //   reg = new GCSynonymousSubstitutionRegister(model, m);
+        
+    }
+    
+      
     else
       throw Exception("GC categorization is only available for nucleotide or codon alphabets!");
   }

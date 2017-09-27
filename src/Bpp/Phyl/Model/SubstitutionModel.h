@@ -532,19 +532,6 @@ namespace bpp
   
     virtual void normalize() = 0;
   
-    /**
-     * @brief Get the rate
-     */
-    virtual double getRate() const = 0;
-
-    /**
-     * @brief Set the rate of the model (must be positive).
-     * @param rate must be positive.
-     */
-    virtual void setRate(double rate) = 0;
-
-    virtual void addRateParameter() = 0;
-
   };
 
 

@@ -5,47 +5,42 @@
 //
 
 /*
-Copyright or © or Copr. Bio++ Development Team, (November 16, 2004)
+  Copyright or © or Copr. Bio++ Development Team, (November 16, 2004)
 
-This software is a computer program whose purpose is to provide classes
-for phylogenetic data analysis.
+  This software is a computer program whose purpose is to provide classes
+  for phylogenetic data analysis.
 
-This software is governed by the CeCILL  license under French law and
-abiding by the rules of distribution of free software.  You can  use, 
-modify and/ or redistribute the software under the terms of the CeCILL
-license as circulated by CEA, CNRS and INRIA at the following URL
-"http://www.cecill.info". 
+  This software is governed by the CeCILL  license under French law and
+  abiding by the rules of distribution of free software.  You can  use, 
+  modify and/ or redistribute the software under the terms of the CeCILL
+  license as circulated by CEA, CNRS and INRIA at the following URL
+  "http://www.cecill.info". 
 
-As a counterpart to the access to the source code and  rights to copy,
-modify and redistribute granted by the license, users are provided only
-with a limited warranty  and the software's author,  the holder of the
-economic rights,  and the successive licensors  have only  limited
-liability. 
+  As a counterpart to the access to the source code and  rights to copy,
+  modify and redistribute granted by the license, users are provided only
+  with a limited warranty  and the software's author,  the holder of the
+  economic rights,  and the successive licensors  have only  limited
+  liability. 
 
-In this respect, the user's attention is drawn to the risks associated
-with loading,  using,  modifying and/or developing or reproducing the
-software by the user in light of its specific status of free software,
-that may mean  that it is complicated to manipulate,  and  that  also
-therefore means  that it is reserved for developers  and  experienced
-professionals having in-depth computer knowledge. Users are therefore
-encouraged to load and test the software's suitability as regards their
-requirements in conditions enabling the security of their systems and/or 
-data to be ensured and,  more generally, to use and operate it in the 
-same conditions as regards security. 
+  In this respect, the user's attention is drawn to the risks associated
+  with loading,  using,  modifying and/or developing or reproducing the
+  software by the user in light of its specific status of free software,
+  that may mean  that it is complicated to manipulate,  and  that  also
+  therefore means  that it is reserved for developers  and  experienced
+  professionals having in-depth computer knowledge. Users are therefore
+  encouraged to load and test the software's suitability as regards their
+  requirements in conditions enabling the security of their systems and/or 
+  data to be ensured and,  more generally, to use and operate it in the 
+  same conditions as regards security. 
 
-The fact that you are presently reading this means that you have had
-knowledge of the CeCILL license and that you accept its terms.
+  The fact that you are presently reading this means that you have had
+  knowledge of the CeCILL license and that you accept its terms.
 */
 
 #ifndef _YNGP_M1_H_
 #define _YNGP_M1_H_
 
-#include "../AbstractBiblioMixedSubstitutionModel.h"
-#include "../MixtureOfASubstitutionModel.h"
-#include "../FrequenciesSet/CodonFrequenciesSet.h"
-
-#include <Bpp/Seq/GeneticCode/GeneticCode.h>
-
+#include "YNGP_M.h"
 namespace bpp
 {
 
@@ -76,49 +71,32 @@ namespace bpp
  * Wong, W. S. W., Z. Yang, N. Goldman, and R. Nielsen. (2004)
  * Genetics 168:1041--1051.
  */
-class YNGP_M1:
-    public AbstractBiblioMixedSubstitutionModel,
-    virtual public ReversibleSubstitutionModel
-{
-private:
-  std::unique_ptr<MixtureOfASubstitutionModel> pmixmodel_;
+  class YNGP_M1:
+    public YNGP_M
+  {
+  public:
+    YNGP_M1(const GeneticCode* gc, FrequenciesSet* codonFreqs);
 
+    YNGP_M1* clone() const { return new YNGP_M1(*this); }
 
-  /**
-   * @brief indexes of 2 codons states between which the substitution is
-   * synonymous, to set a basis to the homogeneization of the rates.
-   *
-   */
-  size_t synfrom_, synto_;
-  
-public:
-  YNGP_M1(const GeneticCode* gc, FrequenciesSet* codonFreqs);
+    YNGP_M1(const YNGP_M1& mod2) :
+      YNGP_M(mod2)
+    {
+    }
 
-  virtual ~YNGP_M1();
-  
-  YNGP_M1* clone() const { return new YNGP_M1(*this); }
+    YNGP_M1& operator=(const YNGP_M1& mod2)
+    {
+      YNGP_M::operator=(mod2);
+      return *this;
+    }
+    
+  protected:
+    void updateMatrices();
 
-  YNGP_M1(const YNGP_M1&);
+  public:
+    std::string getName() const { return "YNGP_M1"; }
 
-  YNGP_M1& operator=(const YNGP_M1&);
-
-protected:
-  void updateMatrices();
-
-public:
-  const SubstitutionModel& getModel() const { return *pmixmodel_.get(); }
-
-  const MixedSubstitutionModel& getMixedModel() const { return *pmixmodel_.get(); }
-
-  std::string getName() const { return "YNGP_M1"; }
-
-private:
-  SubstitutionModel& getModel() { return *pmixmodel_.get(); }
-  
-  MixedSubstitutionModel& getMixedModel() { return *pmixmodel_.get(); }
-
-  const FrequenciesSet* getFrequenciesSet() const {return pmixmodel_->getNModel(1)->getFrequenciesSet();}
-};
+  };
 
 } //end of namespace bpp.
 

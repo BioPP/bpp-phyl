@@ -49,10 +49,7 @@ using namespace std;
 /******************************************************************************/
 
 YNGP_M1::YNGP_M1(const GeneticCode* gc, FrequenciesSet* codonFreqs) :
-  AbstractBiblioMixedSubstitutionModel("YNGP_M1."),
-  pmixmodel_(),
-  synfrom_(),
-  synto_()
+  YNGP_M("YNGP_M1.")
 {
   // build the submodel
 
@@ -123,25 +120,6 @@ YNGP_M1::YNGP_M1(const GeneticCode* gc, FrequenciesSet* codonFreqs) :
 
   updateMatrices();
 }
-
-YNGP_M1::YNGP_M1(const YNGP_M1& mod2) : AbstractBiblioMixedSubstitutionModel(mod2),
-  pmixmodel_(new MixtureOfASubstitutionModel(*mod2.pmixmodel_)),
-  synfrom_(mod2.synfrom_),
-  synto_(mod2.synto_)
-{}
-
-YNGP_M1& YNGP_M1::operator=(const YNGP_M1& mod2)
-{
-  AbstractBiblioSubstitutionModel::operator=(mod2);
-
-  pmixmodel_.reset(new MixtureOfASubstitutionModel(*mod2.pmixmodel_));
-  synfrom_ = mod2.synfrom_;
-  synto_ = mod2.synto_;
-
-  return *this;
-}
-
-YNGP_M1::~YNGP_M1() {}
 
 void YNGP_M1::updateMatrices()
 {

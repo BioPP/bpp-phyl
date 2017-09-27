@@ -1524,7 +1524,7 @@ void BppOSubstitutionModelFormat::write(const TransitionModel& model,
   if (onechangetransitionmodel)
   {
     out << "model=";
-    const SubstitutionModel& nestedModel = onechangetransitionmodel->getModel();
+    const TransitionModel& nestedModel = onechangetransitionmodel->getModel();
     write(nestedModel, out, globalAliases, writtenNames);
     comma = true;
   }
@@ -1534,7 +1534,7 @@ void BppOSubstitutionModelFormat::write(const TransitionModel& model,
     if (onechangeregistertransitionmodel)
     {
       out << "model=";
-      const SubstitutionModel& nestedModel = onechangeregistertransitionmodel->getModel();
+      const TransitionModel& nestedModel = onechangeregistertransitionmodel->getModel();
       write(nestedModel, out, globalAliases, writtenNames);
       comma = true;
       out << ", register=" << onechangeregistertransitionmodel->getRegisterName();
