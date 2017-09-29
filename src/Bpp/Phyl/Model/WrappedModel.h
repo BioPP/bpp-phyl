@@ -142,16 +142,20 @@ namespace bpp
     
     virtual ~WrappedSubstitutionModel() {}
     
-    virtual const SubstitutionModel& getSubstitutionModel() const
+    virtual const SubstitutionModel& getSubstitutionModel() const = 0;
+
+    const TransitionModel& getModel() const
     {
-      return dynamic_cast<const SubstitutionModel&>(getModel());
+      return getSubstitutionModel();
     }
     
 
   protected:
-    virtual SubstitutionModel& getSubstitutionModel()
+    virtual SubstitutionModel& getSubstitutionModel() = 0;
+    
+    TransitionModel& getModel()
     {
-      return dynamic_cast<SubstitutionModel&>(getModel());
+      return getSubstitutionModel();
     }
 
   public:
