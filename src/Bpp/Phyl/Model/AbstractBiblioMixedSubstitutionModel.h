@@ -181,15 +181,11 @@ namespace bpp
 
     const SubstitutionModel& getSubstitutionModel() const { return *pmixmodel_.get(); }
 
-    const TransitionModel& getModel() const { return *pmixmodel_.get(); }
-    
     const MixedSubstitutionModel& getMixedModel() const { return *pmixmodel_.get(); }
     
   protected:
     SubstitutionModel& getSubstitutionModel() { return *pmixmodel_.get(); }
     
-    TransitionModel& getModel() { return *pmixmodel_.get(); }
-  
     MixedSubstitutionModel& getMixedModel() { return *pmixmodel_.get(); }
 
     const FrequenciesSet* getFrequenciesSet() const {return pmixmodel_->getNModel(1)->getFrequenciesSet();}
