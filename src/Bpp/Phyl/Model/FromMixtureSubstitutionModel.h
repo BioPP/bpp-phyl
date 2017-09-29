@@ -91,18 +91,8 @@ namespace bpp
       return *subModel_.get();
     }
 
-    const TransitionModel& getModel() const
-    {
-      return *subModel_.get();
-    }
-
   protected:
     SubstitutionModel& getSubstitutionModel()
-    {
-      return *subModel_.get();
-    }
-
-    TransitionModel& getModel()
     {
       return *subModel_.get();
     }
