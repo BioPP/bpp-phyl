@@ -97,16 +97,12 @@ namespace bpp
 
     const SubstitutionModel& getSubstitutionModel() const { return *pmodel_.get(); }
 
-    const TransitionModel& getModel() const { return *pmodel_.get(); }
-  
     const GeneticCode* getGeneticCode() const { return pmodel_->getGeneticCode(); }
   
     double getCodonsMulRate(size_t i, size_t j) const { return pmodel_->getCodonsMulRate(i, j); }
 
   protected:
     SubstitutionModel& getSubstitutionModel() { return *pmodel_.get(); }
-  
-    TransitionModel& getModel() { return *pmodel_.get(); }
 
   };
 
