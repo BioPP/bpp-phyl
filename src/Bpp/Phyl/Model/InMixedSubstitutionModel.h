@@ -106,11 +106,6 @@ namespace bpp
       return *mixedModel_->getNModel(subModelNumber_);
     }
 
-    const TransitionModel& getModel() const
-    {
-      return *mixedModel_->getNModel(subModelNumber_);
-    }
-
     size_t getSubModelNumber() const
     {
       return subModelNumber_;
@@ -123,11 +118,6 @@ namespace bpp
     }
 
     SubstitutionModel& getSubstitutionModel()
-    {
-      return *mixedModel_->getNModel(subModelNumber_);
-    }
-
-    TransitionModel& getModel()
     {
       return *mixedModel_->getNModel(subModelNumber_);
     }
