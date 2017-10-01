@@ -42,10 +42,9 @@
 #include <vector>
 #include <typeinfo>
 
-using namespace bpp;
 using namespace std;
 
-
+using namespace bpp;
 
 /******************************************************************************/
 
@@ -54,10 +53,16 @@ DecompositionMethods::DecompositionMethods(const SubstitutionModel* model, Subst
   nbStates_(model->getNumberOfStates()),
   nbTypes_(reg->getNumberOfSubstitutionTypes()),
   jMat_(nbStates_, nbStates_),
-  vjMat_(0), // will be initialized only if needed
+  jIMat_(0,0),
+  rightEigenVectors_(0,0),
+  rightIEigenVectors_(0,0),
+  leftEigenVectors_(0,0),
+  leftIEigenVectors_(0,0),
   bMatrices_(reg->getNumberOfSubstitutionTypes()),
-  insideProducts_(reg->getNumberOfSubstitutionTypes())
+  insideProducts_(reg->getNumberOfSubstitutionTypes()),
+  insideIProducts_(0)
 {
+  setSubstitutionModel(model);
 }				
 
 
@@ -66,40 +71,41 @@ DecompositionMethods::DecompositionMethods(const SubstitutionModel* model) :
   nbStates_(model->getNumberOfStates()),
   nbTypes_(1),
   jMat_(nbStates_, nbStates_),
-  vjMat_(0), // will be initialized only if needed
+  jIMat_(0,0),
+  rightEigenVectors_(0,0),
+  rightIEigenVectors_(0,0),
+  leftEigenVectors_(0,0),
+  leftIEigenVectors_(0,0),
   bMatrices_(1),
-  insideProducts_(1)
+  insideProducts_(1),
+  insideIProducts_(0)
 {
+  setSubstitutionModel(model);
 }				
 
 void DecompositionMethods::computeProducts_()
 {
-  for (size_t i = 0; i < nbTypes_; ++i) {
-    //vInv_ %*% bMatrices_[i] %*% v_;
-    RowMatrix<double> tmp(nbStates_, nbStates_);
-    MatrixTools::mult(model_->getRowLeftEigenVectors(), bMatrices_[i], tmp);
-    MatrixTools::mult(tmp, model_->getColumnRightEigenVectors(), insideProducts_[i]);
+  //vInv_ %*% bMatrices_[i] %*% v_;
+  if (model_->isDiagonalizable())
+  {
+    for (size_t i = 0; i < nbTypes_; ++i) {
+      RowMatrix<double> tmp(nbStates_, nbStates_);
+      MatrixTools::mult(model_->getRowLeftEigenVectors(), bMatrices_[i], tmp);
+      MatrixTools::mult(tmp, model_->getColumnRightEigenVectors(), insideProducts_[i]);
+    }
+  }
+  else
+  {
+    for (size_t i = 0; i < nbTypes_; ++i) {
+      //vInv_ %*% bMatrices_[i] %*% v_;
+      RowMatrix<double> tmp(nbStates_, nbStates_), itmp(nbStates_, nbStates_);
+      
+      MatrixTools::mult(leftEigenVectors_, bMatrices_[i], tmp);
+      MatrixTools::mult(leftIEigenVectors_, bMatrices_[i], itmp);
+      MatrixTools::mult(tmp, itmp, rightEigenVectors_, rightIEigenVectors_, insideProducts_[i], insideIProducts_[i]);
+    }
   }
 }
-
-void DecompositionMethods::initStates_()
-{
-  jMat_.resize(nbStates_, nbStates_);
-  vjMat_.clear();
-}
-
-void DecompositionMethods::initBMatrices_()
-{
-  //Re-initialize all B matrices according to substitution register.
-  bMatrices_.resize(nbTypes_);
-  insideProducts_.resize(nbTypes_);
-
-  for (size_t i = 0; i < nbTypes_; ++i) {
-    bMatrices_[i].resize(nbStates_, nbStates_);
-    insideProducts_[i].resize(nbStates_, nbStates_);
-  }
-}
-
 
 void DecompositionMethods::jFunction_(const std::vector<double>& lambda, double t, RowMatrix<double>& result) const
 {
@@ -116,79 +122,55 @@ void DecompositionMethods::jFunction_(const std::vector<double>& lambda, double 
   }
 }
 
+void DecompositionMethods::jFunction_(const std::vector<double>& lambda, const std::vector<double>& ilambda, double t, RowMatrix<double>& result, RowMatrix<double>& iresult) const
+{
+  vector<double> expLam = VectorTools::exp(lambda * t);
+  vector<double> cosLam = expLam * VectorTools::cos(ilambda * t);
+  vector<double> sinLam = expLam * VectorTools::sin(ilambda * t);
+
+  for (unsigned int i = 0; i < nbStates_; ++i) {
+    for (unsigned int j = 0; j < nbStates_; ++j) {
+      double dd = lambda[i] - lambda[j];
+      double idd = ilambda[i] - ilambda[j];
+      if (dd == 0 && idd == 0) {
+        result(i, j) = t * cosLam[i];
+        iresult(i, j) = t * sinLam[i];
+      }
+      else
+      {
+        double es = sinLam[i] - sinLam[j];
+        double ec = cosLam[i] - cosLam[j];
+        double num = dd * dd + idd * idd;
+        
+        result(i, j) = (dd * ec + idd * es) / num;
+        iresult(i, j) = (dd * es - idd * ec) / num;
+      }
+    }
+  }
+}
+
+
 void DecompositionMethods::computeExpectations(RowMatrix<double>& mapping, double length) const
 {
+  RowMatrix<double> tmp1(nbStates_, nbStates_), tmp2(nbStates_, nbStates_);
   if (model_->isDiagonalizable())
   {
     jFunction_(model_->getEigenValues(), length, jMat_);
     
-    RowMatrix<double> tmp1(nbStates_, nbStates_), tmp2(nbStates_, nbStates_);
     MatrixTools::hadamardMult(jMat_, insideProducts_[0], tmp1);
     MatrixTools::mult(model_->getColumnRightEigenVectors(), tmp1, tmp2);
     MatrixTools::mult(tmp2, model_->getRowLeftEigenVectors(), mapping);
   }
   else if (model_->isNonSingular())
   {
-    vector<vector<RowMatrix<double> > > tmp(3);
-    for (size_t i=0;i<3;i++)
-    {
-      tmp[i].resize(3);
-      for (size_t j=0;j<3;j++)
-        tmp[i][j].resize(nbStates_, nbStates_);
-    }
+    jFunction_(model_->getEigenValues(), model_->getIEigenValues(), length, jMat_, jIMat_);
     
-    const RowMatrix<double>& Ui=model_->getRowLeftEigenVectors();
-    const RowMatrix<double>& U=model_->getColumnRightEigenVectors();
-
-    // Matrices "row translated" up and down
+    RowMatrix<double> itmp1(nbStates_, nbStates_), itmp2(nbStates_, nbStates_);
+    RowMatrix<double> imat(nbStates_, nbStates_);
     
-    RowMatrix<double> Uip(nbStates_, nbStates_), Uim(nbStates_, nbStates_);
-    RowMatrix<double> insidep(nbStates_, nbStates_), insidem(nbStates_, nbStates_);
-
-    MatrixTools::copyUp(Ui, Uip);
-    MatrixTools::copyDown(Ui, Uim);
-    
-    jFunction_(model_->getEigenValues(), model_->getIEigenValues(), length, vjMat_);
-    
-    double un(-1.);
-    
-    const RowMatrix<double>& inside(insideProducts_[0]);      
-    MatrixTools::copyUp(inside, insidep);
-    MatrixTools::copyDown(inside, insidem);
-
-    MatrixTools::hadamardMult(vjMat_[0][0], inside,  tmp[0][0]);
-    MatrixTools::hadamardMult(vjMat_[0][1], insidem, tmp[0][1]);
-    MatrixTools::hadamardMult(vjMat_[0][2], insidep, tmp[0][2]);
-    
-    MatrixTools::add(tmp[0][0],un,tmp[0][1]);
-    MatrixTools::add(tmp[0][0],tmp[0][2]);
-    
-    MatrixTools::hadamardMult(vjMat_[1][0], inside,  tmp[1][0]);
-    MatrixTools::hadamardMult(vjMat_[1][1], insidem, tmp[1][1]);
-    MatrixTools::hadamardMult(vjMat_[1][2], insidep, tmp[1][2]);
-    
-    
-    MatrixTools::scale(tmp[1][0],un);      
-    MatrixTools::add(tmp[1][0],tmp[1][1]);
-    MatrixTools::add(tmp[1][0],un,tmp[1][2]);
-    
-    MatrixTools::hadamardMult(vjMat_[2][0], inside,  tmp[2][0]);
-    MatrixTools::hadamardMult(vjMat_[2][1], insidem, tmp[2][1]);
-    MatrixTools::hadamardMult(vjMat_[2][2], insidep, tmp[2][2]);
-    
-    MatrixTools::add(tmp[2][0],un,tmp[2][1]);
-    MatrixTools::add(tmp[2][0],tmp[2][2]);
-    
-
-    MatrixTools::mult(tmp[0][0], Ui, tmp[0][1]);
-    MatrixTools::mult(tmp[1][0], Uim,tmp[1][1]);
-    MatrixTools::mult(tmp[2][0], Uip,tmp[2][1]);
-    
-    
-    MatrixTools::add(tmp[0][1],tmp[1][1]);
-    MatrixTools::add(tmp[0][1],tmp[2][1]);
-
-    MatrixTools::mult(model_->getColumnRightEigenVectors(), tmp[0][1], mapping);
+    MatrixTools::hadamardMult(jMat_, jIMat_, insideProducts_[0], insideIProducts_[0], tmp1, itmp1);
+    MatrixTools::mult(rightEigenVectors_, rightIEigenVectors_, tmp1, itmp1, tmp2, itmp2);
+    MatrixTools::mult(tmp2, itmp2, leftEigenVectors_, leftIEigenVectors_, mapping, imat);
   }
   else
     throw Exception("void DecompositionMethods::computeMappings : substitution mapping is not implemented for singular generators.");
@@ -197,12 +179,13 @@ void DecompositionMethods::computeExpectations(RowMatrix<double>& mapping, doubl
 
 void DecompositionMethods::computeExpectations(std::vector< RowMatrix<double> >& mappings, double length) const
 {
+  RowMatrix<double> tmp1(nbStates_, nbStates_), tmp2(nbStates_, nbStates_);
+
   if (model_->isDiagonalizable())
   {
     jFunction_(model_->getEigenValues(), length, jMat_);
-    
+
     for (size_t i = 0; i < nbTypes_; ++i) {
-      RowMatrix<double> tmp1(nbStates_, nbStates_), tmp2(nbStates_, nbStates_);
       MatrixTools::hadamardMult(jMat_, insideProducts_[i], tmp1);
       MatrixTools::mult(model_->getColumnRightEigenVectors(), tmp1, tmp2);
       MatrixTools::mult(tmp2, model_->getRowLeftEigenVectors(), mappings[i]);
@@ -210,629 +193,26 @@ void DecompositionMethods::computeExpectations(std::vector< RowMatrix<double> >&
   }
   else if (model_->isNonSingular())
   {
-    vector<vector<RowMatrix<double> > > tmp(3);
-    for (size_t i=0;i<3;i++)
-    {
-      tmp[i].resize(3);
-      for (size_t j=0;j<3;j++)
-        tmp[i][j].resize(nbStates_, nbStates_);
-    }
+    jFunction_(model_->getEigenValues(), model_->getIEigenValues(), length, jMat_, jIMat_);
     
-    const RowMatrix<double>& Ui=model_->getRowLeftEigenVectors();
-    const RowMatrix<double>& U=model_->getColumnRightEigenVectors();
+    RowMatrix<double> itmp1(nbStates_, nbStates_), itmp2(nbStates_, nbStates_);
+    RowMatrix<double> imat(nbStates_, nbStates_);
 
-    // Matrices "row translated" up and down
-    
-    RowMatrix<double> Uip(nbStates_, nbStates_), Uim(nbStates_, nbStates_);
-    RowMatrix<double> insidep(nbStates_, nbStates_), insidem(nbStates_, nbStates_);
-
-    MatrixTools::copyUp(Ui, Uip);
-    MatrixTools::copyDown(Ui, Uim);
-    
-    jFunction_(model_->getEigenValues(), model_->getIEigenValues(), length, vjMat_);
-
-    double un(-1.);
-    
     for (size_t i = 0; i < nbTypes_; ++i) {
-
-      const RowMatrix<double>& inside(insideProducts_[i]);      
-      MatrixTools::copyUp(inside, insidep);
-      MatrixTools::copyDown(inside, insidem);
-
-      MatrixTools::hadamardMult(vjMat_[0][0], inside,  tmp[0][0]);
-      MatrixTools::hadamardMult(vjMat_[0][1], insidem, tmp[0][1]);
-      MatrixTools::hadamardMult(vjMat_[0][2], insidep, tmp[0][2]);
-
-      MatrixTools::add(tmp[0][0],un,tmp[0][1]);
-      MatrixTools::add(tmp[0][0],tmp[0][2]);
-
-      MatrixTools::hadamardMult(vjMat_[1][0], inside,  tmp[1][0]);
-      MatrixTools::hadamardMult(vjMat_[1][1], insidem, tmp[1][1]);
-      MatrixTools::hadamardMult(vjMat_[1][2], insidep, tmp[1][2]);
-
-      
-      MatrixTools::scale(tmp[1][0],un);      
-      MatrixTools::add(tmp[1][0],tmp[1][1]);
-      MatrixTools::add(tmp[1][0],un,tmp[1][2]);
-
-      MatrixTools::hadamardMult(vjMat_[2][0], inside,  tmp[2][0]);
-      MatrixTools::hadamardMult(vjMat_[2][1], insidem, tmp[2][1]);
-      MatrixTools::hadamardMult(vjMat_[2][2], insidep, tmp[2][2]);
-
-      MatrixTools::add(tmp[2][0],un,tmp[2][1]);
-      MatrixTools::add(tmp[2][0],tmp[2][2]);
-
-      
-      MatrixTools::mult(tmp[0][0], Ui, tmp[0][1]);
-      MatrixTools::mult(tmp[1][0], Uim,tmp[1][1]);
-      MatrixTools::mult(tmp[2][0], Uip,tmp[2][1]);
-      
-                        
-      MatrixTools::add(tmp[0][1],tmp[1][1]);
-      MatrixTools::add(tmp[0][1],tmp[2][1]);
-      
-      MatrixTools::mult(model_->getColumnRightEigenVectors(), tmp[0][1], mappings[i]);
+      MatrixTools::hadamardMult(jMat_, jIMat_, insideProducts_[i], insideIProducts_[i], tmp1, itmp1);
+      MatrixTools::mult(rightEigenVectors_, rightIEigenVectors_, tmp1, itmp1, tmp2, itmp2);
+      MatrixTools::mult(tmp2, itmp2, leftEigenVectors_, leftIEigenVectors_, mappings[i], imat);
     }
-    
   }
   else
     throw Exception("void DecompositionMethods::computeMappings : substitution mapping is not implemented for singular generators.");
-}
+
+} 
 
 
-/******************************************************************************/
-
-double DecompositionMethods::computeJcc_(const std::vector<double>& fact, const std::vector<double>& vfonc, double t) const
+void DecompositionMethods::initStates_()
 {
-  double alpha(fact[0]),beta(fact[1]),gamma(fact[2]),delta(fact[3]);
-  double epsilon(alpha-gamma);
-  double f1(vfonc[0]*vfonc[1]-vfonc[3]*vfonc[4]),f2(-vfonc[3]*vfonc[5]), f3(vfonc[0]*vfonc[2]);
-  
-  if (epsilon!=0)
-  {
-    double beta2(beta*beta),delta2(delta*delta),eps2(epsilon*epsilon);
-
-    return (epsilon*(eps2+delta2+beta2)*f1
-            -delta*(eps2+delta2-beta2)*f2
-            +beta*(eps2-delta2+beta2)*f3)/((eps2+(beta+delta)*(beta+delta))*(eps2+(beta-delta)*(beta-delta)));
-  }
-  else
-  {
-    if (abs(beta)!=abs(delta))
-      return (-delta*f2-beta*f3)/(delta*delta-beta*beta);
-    else
-    {
-      if (delta!=0)
-        return vfonc[0]*(vfonc[5]/delta+t*vfonc[4])/2;
-      else
-        return t*vfonc[0];
-    }
-  }
-}
-
-double DecompositionMethods::computeJcs_(const std::vector<double>& fact, const std::vector<double>& vfonc, double t) const
-{
-  double alpha(fact[0]),beta(fact[1]),gamma(fact[2]),delta(fact[3]);
-  double epsilon(alpha-gamma);
-  double f1(vfonc[0]*vfonc[1]-vfonc[3]*vfonc[4]),f2(-vfonc[3]*vfonc[5]), f3(vfonc[0]*vfonc[2]);
-  
-  if (epsilon!=0)
-  {
-    double beta2(beta*beta),delta2(delta*delta),eps2(epsilon*epsilon);
-
-    return (delta*(eps2+delta2-beta2)*f1
-            +epsilon*(eps2+delta2+beta2)*f2
-            +2*beta*delta*epsilon*f3)/((eps2+(beta+delta)*(beta+delta))*(eps2+(beta-delta)*(beta-delta)));
-
-  }
-  else
-  {
-    if (abs(beta)!=abs(delta))
-      return delta*f1/(delta*delta-beta*beta);
-    else
-    {
-      if (delta!=0)
-        return vfonc[0]*t*vfonc[5]/2;
-      else
-        return 0;
-    }
-  }
-}
-
-double DecompositionMethods::computeJsc_(const std::vector<double>& fact, const std::vector<double>& vfonc, double t) const
-{
-  double alpha(fact[0]),beta(fact[1]),gamma(fact[2]),delta(fact[3]);
-  double epsilon(alpha-gamma);
-  double f1(vfonc[0]*vfonc[1]-vfonc[3]*vfonc[4]),f2(-vfonc[3]*vfonc[5]), f3(vfonc[0]*vfonc[2]);
-  
-  if (epsilon!=0)
-  {
-    double beta2(beta*beta),delta2(delta*delta),eps2(epsilon*epsilon);
-
-    return (-beta*(eps2-delta2+beta2)*f1
-            +2*beta*delta*epsilon*f2
-            +epsilon*(eps2+delta2+beta2)*f3)/((eps2+(beta+delta)*(beta+delta))*(eps2+(beta-delta)*(beta-delta)));
-  }
-  else
-  {
-    if (abs(beta)!=abs(delta))
-      return beta*f1/(delta*delta-beta*beta);
-    else
-    {
-      if (delta!=0)
-        return vfonc[0]*t*vfonc[5]/2;
-      else
-        return 0;
-    }
-  }
-}
-
-double DecompositionMethods::computeJss_(const std::vector<double>& fact, const std::vector<double>& vfonc, double t) const
-{
-  double alpha(fact[0]),beta(fact[1]),gamma(fact[2]),delta(fact[3]);
-  double epsilon(alpha-gamma);
-  double f1(vfonc[0]*vfonc[1]-vfonc[3]*vfonc[4]),f2(-vfonc[3]*vfonc[5]), f3(vfonc[0]*vfonc[2]);
-  
-  if (epsilon!=0)
-  {
-    double beta2(beta*beta),delta2(delta*delta),eps2(epsilon*epsilon);
-
-    return (-2*beta*delta*epsilon*f1
-            -beta*(eps2-delta2+beta2)*f2
-            +delta*(eps2+delta2-beta2)*f3)/((eps2+(beta+delta)*(beta+delta))*(eps2+(beta-delta)*(beta-delta)));
-  }
-  else
-  {
-    if (abs(beta)!=abs(delta))
-      return (-beta*f2+delta*f3)/(delta*delta-beta*beta);
-    else
-    {
-      if (delta!=0)
-         return vfonc[0]*(vfonc[5]/delta-t*vfonc[4])/2;
-      else
-        return 0;
-    }
-  }
-}
-
-double DecompositionMethods::computeJc_(const std::vector<double>& fact, const std::vector<double>& vfonc, double t) const
-{
-  double alpha(fact[0]),gamma(fact[1]),delta(fact[2]);
-  double epsilon(alpha-gamma);
-  double f1(vfonc[0]-vfonc[1]*vfonc[2]),f2(vfonc[1]*vfonc[3]);
-  
-  if (epsilon!=0)
-    return (epsilon*f1+delta*f2)/(delta*delta+epsilon*epsilon);
-  else
-  {
-    if (delta!=0)
-      return f2/delta;
-    else
-      return t*vfonc[0];
-  }
-}
-
-double DecompositionMethods::computeJs_(const std::vector<double>& fact, const std::vector<double>& vfonc, double t) const
-{
-  double alpha(fact[0]),gamma(fact[1]),delta(fact[2]);
-  double epsilon(alpha-gamma);
-  double f1(vfonc[0]-vfonc[1]*vfonc[2]),f2(vfonc[1]*vfonc[3]);
-  
-  if (epsilon!=0)
-    return (delta*f1-epsilon*f2)/(delta*delta+epsilon*epsilon);
-  else
-  {
-    if (delta!=0)
-      return f1/delta;
-    else
-      return 0;
-  }
-}
-
-double DecompositionMethods::computeKc_(const std::vector<double>& fact, const std::vector<double>& vfonc, double t) const
-{
-  double alpha(fact[0]),beta(fact[1]),gamma(fact[2]);
-  double epsilon(alpha-gamma);
-  double f3(vfonc[0]*vfonc[1]-vfonc[3]), f4(vfonc[0]*vfonc[2]);
-  
-  if (epsilon!=0)
-    return (epsilon*f3+beta*f4)/(beta*beta+epsilon*epsilon);
-  else
-  {
-    if (beta!=0)
-      return f4/beta;
-    else
-      return t*vfonc[0];
-  }
-}
-
-double DecompositionMethods::computeKs_(const std::vector<double>& fact, const std::vector<double>& vfonc, double t) const
-{
-  double alpha(fact[0]),beta(fact[1]),gamma(fact[2]);
-  double epsilon(alpha-gamma);
-  double f3(vfonc[0]*vfonc[1]-vfonc[3]), f4(vfonc[0]*vfonc[2]);
-  
-  if (epsilon!=0)
-    return (-beta*f3+epsilon*f4)/(beta*beta+epsilon*epsilon);
-  else
-  {
-    if (beta!=0)
-      return -f3/beta;
-    else
-      return 0;
-  }
-}
-
-double DecompositionMethods::computeD_(const std::vector<double>& fact, const std::vector<double>& vfonc, double t) const
-{
-  double dd = fact[1]-fact[0];
-  if (dd == 0) 
-    return t * vfonc[0];
-  else 
-    return (vfonc[1] - vfonc[0]) / dd;
-}
-
-void DecompositionMethods::jFunction_(const std::vector<double>& lambda, const std::vector<double>& ilambda, double t, vector< vector<RowMatrix<double> > >& vresult) const
-{
-  // Initialized here if needed
-  if (vresult.size()!=3)
-  {
-    vresult.resize(3);
-    for (size_t i=0;i<3;i++)
-    {
-      vresult[i].resize(3);
-      for (size_t j=0;j<3;j++)
-        vresult[i][j].resize(nbStates_, nbStates_);
-    }
-  }
-  
-  vector<double> expLam = VectorTools::exp(lambda * t);
-  vector<double> cosLam(nbStates_), sinLam(nbStates_);
-
-  vector<double> fact_(4), vfunc_(6);
-  
-  for (unsigned int i = 0; i < nbStates_; ++i) {
-    if (ilambda[i]!=0)
-    {
-      cosLam[i]=cos(ilambda[i]*t);
-      sinLam[i]=sin(ilambda[i]*t);
-    }
-  }
-
-  // 1st block
-  // 1st matrice
-
-  for (unsigned int i = 0; i < nbStates_; ++i) {
-    vfunc_[0]=expLam[i];
-    fact_[0]=lambda[i];
-    if (ilambda[i]==0)
-    {
-      for (unsigned int j = 0; j < nbStates_; ++j) {
-        vfunc_[1]=expLam[j];
-        fact_[1]=lambda[j];
-        if (ilambda[j]==0)
-          vresult[0][0](i, j) = computeD_(fact_, vfunc_, t);
-        else
-        {
-          vfunc_[2]=cosLam[j];
-          vfunc_[3]=sinLam[j];
-          fact_[2]=ilambda[j];
-          vresult[0][0](i,j) = computeJc_(fact_, vfunc_, t);
-        }
-      }
-    }
-    else
-    {
-      vfunc_[1]=cosLam[i];
-      vfunc_[2]=sinLam[i];
-      fact_[1]=ilambda[i];
-
-      for (unsigned int j = 0; j < nbStates_; ++j) {
-        vfunc_[3]=expLam[j];
-        fact_[2]=lambda[j];
-        if (ilambda[j]==0)
-          vresult[0][0](i, j) = computeKc_(fact_, vfunc_, t);
-        else
-        {
-          vfunc_[4]=cosLam[j];
-          vfunc_[5]=sinLam[j];
-          fact_[3]=ilambda[j];
-          vresult[0][0](i,j) = computeJcc_(fact_, vfunc_, t);
-        }
-      }
-    }
-  }
-
-  // 2nd matrice
-
-  for (unsigned int i = 0; i < nbStates_; ++i) {
-    if (ilambda[i]>=0)
-    {
-      for (unsigned int j = 0; j < nbStates_; ++j) 
-        vresult[0][1](i,j)=0;
-    }
-    else
-    {
-      vfunc_[0]=expLam[i];
-      vfunc_[1]=cosLam[i];
-      vfunc_[2]=sinLam[i];
-      fact_[0]=lambda[i];
-      fact_[1]=ilambda[i];
-      for (unsigned int j = 0; j < nbStates_; ++j) 
-      {
-        vfunc_[3]=expLam[j];
-        fact_[2]=lambda[j];
-        
-        if (ilambda[j]==0)
-          vresult[0][1](i, j) = computeKs_(fact_, vfunc_, t);
-        else
-        {
-          vfunc_[4]=cosLam[j];
-          vfunc_[5]=sinLam[j];
-          fact_[3]=ilambda[j];
-          vresult[0][1](i,j) = computeJsc_(fact_, vfunc_, t);
-        }
-      }
-    }
-  }
-  
-
-  // 3rd matrice
-
-  for (unsigned int i = 0; i < nbStates_; ++i) {
-    if (ilambda[i]<=0)
-    {
-      for (unsigned int j = 0; j < nbStates_; ++j) 
-        vresult[0][2](i,j)=0;
-    }
-    else
-    {
-      vfunc_[0]=expLam[i];
-      vfunc_[1]=cosLam[i];
-      vfunc_[2]=sinLam[i];
-      fact_[0]=lambda[i];
-      fact_[1]=ilambda[i];
-      for (unsigned int j = 0; j < nbStates_; ++j) 
-      {
-        vfunc_[3]=expLam[j];
-        fact_[2]=lambda[j];
-        
-        if (ilambda[j]==0)
-          vresult[0][2](i, j) = computeKs_(fact_, vfunc_, t);
-        else
-        {
-          vfunc_[4]=cosLam[j];
-          vfunc_[5]=sinLam[j];
-          fact_[3]=ilambda[j];
-          vresult[0][2](i,j) = computeJsc_(fact_, vfunc_, t);
-        }
-      }
-    }
-  }
-
-  // 2nd block
-  // 1st matrice
-
-  for (unsigned int i = 0; i < nbStates_; ++i) {
-    vfunc_[0]=expLam[i];
-    fact_[0]=lambda[i];
-    if (ilambda[i]==0)
-    {
-      for (unsigned int j = 0; j < nbStates_; ++j) {
-        if (ilambda[j]>=0)
-          vresult[1][0](i, j) = 0;
-        else
-        {
-          fact_[1]=lambda[j];
-          fact_[2]=ilambda[j];
-          vfunc_[1]=expLam[j];
-          vfunc_[2]=cosLam[j];
-          vfunc_[3]=sinLam[j];
-          vresult[1][0](i,j) = computeJs_(fact_, vfunc_, t);
-        }
-      }
-    }
-    else
-    {
-      vfunc_[1]=cosLam[i];
-      vfunc_[2]=sinLam[i];
-      fact_[1]=ilambda[i];
-
-      for (unsigned int j = 0; j < nbStates_; ++j) {
-        if (ilambda[j]>=0)
-          vresult[1][0](i, j) = 0;
-        else
-        {
-          fact_[2]=lambda[j];
-          fact_[3]=ilambda[j];
-          vfunc_[3]=expLam[j];
-          vfunc_[4]=cosLam[j];
-          vfunc_[5]=sinLam[j];
-          vresult[1][0](i,j) = computeJcs_(fact_, vfunc_, t);
-        }
-      }
-    }
-  }
-
-  // 2nd matrice
-
-  for (unsigned int i = 0; i < nbStates_; ++i) {
-    if (ilambda[i]>=0)
-    {
-      for (unsigned int j = 0; j < nbStates_; ++j) 
-        vresult[1][1](i,j)=0;
-    }
-    else
-    {
-      fact_[0]=lambda[i];
-      fact_[1]=ilambda[i];
-
-      vfunc_[0]=expLam[i];
-      vfunc_[1]=cosLam[i];
-      vfunc_[2]=sinLam[i];
-      for (unsigned int j = 0; j < nbStates_; ++j) 
-      {
-        if (ilambda[j]>=0)
-          vresult[1][1](i, j) = 0;
-        else
-        {
-          fact_[2]=lambda[j];
-          fact_[3]=ilambda[j];
-        
-          vfunc_[3]=expLam[j];
-          vfunc_[4]=cosLam[j];
-          vfunc_[5]=sinLam[j];
-          vresult[1][1](i,j) = computeJss_(fact_, vfunc_, t);
-        }
-      }
-    }
-  }
-  
-
-  // 3rd matrice
-
-  for (unsigned int i = 0; i < nbStates_; ++i) {
-    if (ilambda[i]<=0)
-    {
-      for (unsigned int j = 0; j < nbStates_; ++j) 
-        vresult[1][2](i,j)=0;
-    }
-    else
-    {
-      vfunc_[0]=expLam[i];
-      vfunc_[1]=cosLam[i];
-      vfunc_[2]=sinLam[i];
-      fact_[0]=lambda[i];
-      fact_[1]=ilambda[i];
-      for (unsigned int j = 0; j < nbStates_; ++j) 
-      {
-        if (ilambda[j]>=0)
-          vresult[1][2](i, j) = 0;
-        else
-        {
-          fact_[2]=lambda[j];
-          fact_[3]=ilambda[j];
-        
-          vfunc_[3]=expLam[j];
-          vfunc_[4]=cosLam[j];
-          vfunc_[5]=sinLam[j];
-          vresult[1][2](i,j) = computeJss_(fact_, vfunc_, t);
-        }
-      }
-    }
-  }
-  
-  // 3rd block
-  // 1st matrice
-
-  for (unsigned int i = 0; i < nbStates_; ++i) {
-    vfunc_[0]=expLam[i];
-    fact_[0]=lambda[i];
-    if (ilambda[i]==0)
-    {
-      for (unsigned int j = 0; j < nbStates_; ++j) {
-        if (ilambda[j]<=0)
-          vresult[2][0](i, j) = 0;
-        else
-        {
-          fact_[1]=lambda[j];
-          fact_[2]=ilambda[j];
-          vfunc_[1]=expLam[j];
-          vfunc_[2]=cosLam[j];
-          vfunc_[3]=sinLam[j];
-          vresult[2][0](i,j) = computeJs_(fact_, vfunc_, t);
-        }
-      }
-    }
-    else
-    {
-      vfunc_[1]=cosLam[i];
-      vfunc_[2]=sinLam[i];
-      fact_[1]=ilambda[i];
-
-      for (unsigned int j = 0; j < nbStates_; ++j) {
-        if (ilambda[j]<=0)
-          vresult[2][0](i, j) = 0;
-        else
-        {
-          fact_[2]=lambda[j];
-          fact_[3]=ilambda[j];
-          vfunc_[3]=expLam[j];
-          vfunc_[4]=cosLam[j];
-          vfunc_[5]=sinLam[j];
-          vresult[2][0](i,j) = computeJcs_(fact_, vfunc_, t);
-        }
-      }
-    }
-  }
-
-  // 2nd matrice
-
-  for (unsigned int i = 0; i < nbStates_; ++i) {
-    if (ilambda[i]>=0)
-    {
-      for (unsigned int j = 0; j < nbStates_; ++j) 
-        vresult[2][1](i,j)=0;
-    }
-    else
-    {
-      fact_[0]=lambda[i];
-      fact_[1]=ilambda[i];
-
-      vfunc_[0]=expLam[i];
-      vfunc_[1]=cosLam[i];
-      vfunc_[2]=sinLam[i];
-      for (unsigned int j = 0; j < nbStates_; ++j) 
-      {
-        if (ilambda[j]<=0)
-          vresult[2][1](i, j) = 0;
-        else
-        {
-          fact_[2]=lambda[j];
-          fact_[3]=ilambda[j];
-        
-          vfunc_[3]=expLam[j];
-          vfunc_[4]=cosLam[j];
-          vfunc_[5]=sinLam[j];
-          vresult[2][1](i,j) = computeJss_(fact_, vfunc_, t);
-        }
-      }
-    }
-  }
-  
-
-  // 3rd matrice
-
-  for (unsigned int i = 0; i < nbStates_; ++i) {
-    if (ilambda[i]<=0)
-    {
-      for (unsigned int j = 0; j < nbStates_; ++j) 
-        vresult[2][2](i,j)=0;
-    }
-    else
-    {
-      vfunc_[0]=expLam[i];
-      vfunc_[1]=cosLam[i];
-      vfunc_[2]=sinLam[i];
-      fact_[0]=lambda[i];
-      fact_[1]=ilambda[i];
-      for (unsigned int j = 0; j < nbStates_; ++j) 
-      {
-        if (ilambda[j]<=0)
-          vresult[2][2](i, j) = 0;
-        else
-        {
-          fact_[2]=lambda[j];
-          fact_[3]=ilambda[j];
-        
-          vfunc_[3]=expLam[j];
-          vfunc_[4]=cosLam[j];
-          vfunc_[5]=sinLam[j];
-          vresult[2][2](i,j) = computeJss_(fact_, vfunc_, t);
-        }
-      }
-    }
-  }
+  jMat_.resize(nbStates_, nbStates_);
 }
 
 /******************************************************************************/
@@ -841,11 +221,78 @@ void DecompositionMethods::setSubstitutionModel(const SubstitutionModel* model)
 {
   model_ = model;
   size_t n = model->getNumberOfStates();
-  if (n != nbStates_) {
+  if (n != nbStates_)
+  {
     nbStates_ = n;
-    initStates_();
+    jMat_.resize(nbStates_, nbStates_);
     initBMatrices_();
   }
+  
+  if (!model_->isDiagonalizable())
+  {
+    jIMat_.resize(nbStates_, nbStates_);
+    insideIProducts_.resize(nbTypes_);
+    for (size_t i = 0; i < nbTypes_; ++i) 
+      insideIProducts_[i].resize(nbStates_, nbStates_);
+
+    // sets the imaginary parts of the eigenvectors
+    if (rightEigenVectors_.getNumberOfRows()!=nbStates_)
+    {
+      rightEigenVectors_.resize(nbStates_,nbStates_);
+      leftEigenVectors_.resize(nbStates_,nbStates_);
+      rightIEigenVectors_.resize(nbStates_,nbStates_);
+      leftIEigenVectors_.resize(nbStates_,nbStates_);
+    }
+
+    const ColMatrix<double>& rEV=model_->getColumnRightEigenVectors();
+    const RowMatrix<double>& lEV=model_->getRowLeftEigenVectors();
+    const vector<double>& vi=model_->getIEigenValues();
+
+    for (size_t i=0; i<nbStates_; i++)
+    {
+      if (vi[i]==0)
+      {
+        rightEigenVectors_.getCol(i)=rEV.col(i);
+        VectorTools::fill(rightIEigenVectors_.getCol(i),0.);
+        leftEigenVectors_.getRow(i)=lEV.row(i);
+        VectorTools::fill(leftIEigenVectors_.getRow(i),0.);
+      }
+      else if (vi[i]>0)
+      {
+        rightEigenVectors_.getCol(i)=rEV.col(i);
+        rightIEigenVectors_.getCol(i)=rEV.col(i+1);
+        leftEigenVectors_.getRow(i)=lEV.row(i)/2;
+        leftIEigenVectors_.getRow(i)=lEV.row(i+1)*(-1./2);
+      }
+      else
+      {
+        rightEigenVectors_.getCol(i)=rEV.col(i-1);
+        rightIEigenVectors_.getCol(i)=rEV.col(i)*(-1);
+        leftEigenVectors_.getRow(i)=lEV.row(i-1)/2;
+        leftIEigenVectors_.getRow(i)=lEV.row(i)/2;
+      }
+    }
+  }
 }
+
+void DecompositionMethods::initBMatrices_()
+{
+  //Re-initialize all B matrices according to substitution register.
+  bMatrices_.resize(nbTypes_);
+  insideProducts_.resize(nbTypes_);
+  
+  for (size_t i = 0; i < nbTypes_; ++i) {
+    bMatrices_[i].resize(nbStates_, nbStates_);
+    insideProducts_[i].resize(nbStates_, nbStates_);
+  }
+
+  if (!model_->isDiagonalizable())
+  {
+    insideIProducts_.resize(nbTypes_);
+    for (size_t i = 0; i < nbTypes_; ++i) 
+      insideIProducts_[i].resize(nbStates_, nbStates_);
+  }
+}
+
 
 

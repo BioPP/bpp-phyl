@@ -52,7 +52,6 @@ namespace bpp
  * @brief Analytical substitution count using the eigen decomposition method.
  *
  * The codes is adapted from the original R code by Paula Tataru and Asger Hobolth.
- * Only reversible models are supported for now.
  *
  * @author Julien Dutheil
  */
