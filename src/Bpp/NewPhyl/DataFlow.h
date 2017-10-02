@@ -54,11 +54,10 @@ namespace bpp {
 namespace DF {
 	// Fwd declaration
 	class Node;
-  template<typename T> class Value;
-  struct NumericProperties; // In DataFlowNumeric.h
+	template <typename T> class Value;
+	struct NumericProperties; // In DataFlowNumeric.h
 
 	// Error functions
-	[[noreturn]] void failureComputeWasCalled (const std::type_info & paramType);
 	[[noreturn]] void failureNodeConversion (const std::type_info & handleType, const Node & node);
 
 	// Convenient typedefs : Node is supposed to be used as shared_ptr instances.
@@ -94,7 +93,7 @@ namespace DF {
 
 		// Derivation stuff
 		virtual NodeRef derive (const Node & variable); // Defaults to error
-    virtual NumericProperties numericProperties () const;
+		virtual NumericProperties numericProperties () const;
 
 		// Debug information (smaller graph)
 		virtual std::string description () const { return "Node"; }

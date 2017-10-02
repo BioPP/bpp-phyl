@@ -50,19 +50,12 @@
 #include <utility>
 
 namespace bpp {
-// FIXME improve (test with eigen::vec to decide impl)
-template <typename T> struct NumericInfo { using Derivable = std::false_type; };
-template <> struct NumericInfo<double> {
-	using Derivable = std::true_type;
-	static double zero () noexcept { return 0.0; }
-	static double one () noexcept { return 1.0; }
-};
-
 namespace DF {
 	// Fwd declaration
 	template <typename T> class Parameter;
 
 	// Error functions
+	[[noreturn]] void failureComputeWasCalled (const std::type_info & paramType);
 	[[noreturn]] void failureDerivationNotSupportedForParameterType (const std::type_info & type);
 
 	// Typedefs
