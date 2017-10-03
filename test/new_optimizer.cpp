@@ -42,12 +42,12 @@
 #define DOCTEST_CONFIG_IMPLEMENT_WITH_MAIN
 #include "doctest.h"
 
+#include <Bpp/NewPhyl/DataFlowBuilder.h>
 #include <Bpp/NewPhyl/DataFlowTemplates.h>
 #include <Bpp/NewPhyl/Debug.h>
 #include <Bpp/NewPhyl/Optimizer.h>
 
 #include <algorithm> // remove_if for Add optimisation
-#include <cassert>
 
 using namespace bpp::DF;
 

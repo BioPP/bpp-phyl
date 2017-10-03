@@ -85,7 +85,11 @@ namespace DF {
 
 	// Node impls
 
-	Node::Node (NodeRefVec dependencies) : dependencyNodes_ (std::move (dependencies)) {
+	Node::Node (const NodeRefVec & dependencies) : dependencyNodes_ (dependencies) {
+		for (auto & n : dependencyNodes_)
+			n->registerNode (this);
+	}
+	Node::Node (NodeRefVec && dependencies) : dependencyNodes_ (std::move (dependencies)) {
 		for (auto & n : dependencyNodes_)
 			n->registerNode (this);
 	}

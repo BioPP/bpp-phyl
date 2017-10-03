@@ -43,6 +43,7 @@
 #define BPP_NEWPHYL_DATAFLOWNUMERIC_H
 
 #include <Bpp/NewPhyl/DataFlow.h>
+#include <Bpp/NewPhyl/DataFlowBuilder.h>
 #include <Bpp/NewPhyl/Debug.h> // description
 #include <string>              // description
 #include <type_traits>
@@ -121,6 +122,12 @@ namespace DF {
 		std::string description () const override final {
 			return "Constant<" + prettyTypeName<T> () + ">(" + debug_to_string (this->value ()) + ")";
 		}
+
+		struct Builder : public AbstractBuilder {
+			NodeRef build () const override { return createNode<Constant<T>> (constant); }
+
+			T constant;
+		};
 	};
 
 	/* Parameter node.
@@ -167,6 +174,67 @@ namespace DF {
 	template <typename T> NodeRef Parameter<T>::derive (const Node & variable) {
 		return deriveParameterImpl (*this, variable, IsParameterTypeDerivable<T>{});
 	}
+
+	////////////////////////////////////// FIXME structures for double
+  // Move away later !
+
+	// Add double
+	class AddDouble : public Value<double> {
+	public:
+		AddDouble (NodeRefVec && deps) : Value<double> (std::move (deps)) {
+			for (auto & dep : this->dependencies ())
+				assert (isValueNode<double> (*dep));
+		}
+
+		std::string description () const final { return "+"; }
+
+		class Builder;
+
+	private:
+		void compute () override final {
+			double a = 0.;
+			for (const auto & dep : this->dependencies ())
+				a += accessValueUnsafe<double> (*dep);
+			this->value_ = a;
+		}
+	};
+	class AddDouble::Builder : public AbstractBuilder {
+		NodeRef build () const override final {
+			NodeRefVec deps;
+			for (auto & builder : this->dependencies)
+				deps.emplace_back (builder->build ());
+			return createNode<AddDouble> (std::move (deps));
+		}
+	};
+
+	// Multiply double
+	class MulDouble : public Value<double> {
+	public:
+		MulDouble (NodeRefVec && deps) : Value<double> (std::move (deps)) {
+			for (auto & dep : this->dependencies ())
+				assert (isValueNode<double> (*dep));
+		}
+
+		std::string description () const final { return "*"; }
+
+		class Builder;
+
+	private:
+		void compute () override final {
+			double a = 1.;
+			for (const auto & dep : this->dependencies ())
+				a *= accessValueUnsafe<double> (*dep);
+			this->value_ = a;
+		}
+	};
+	class MulDouble::Builder : public AbstractBuilder {
+		NodeRef build () const override final {
+			NodeRefVec deps;
+			for (auto & builder : this->dependencies)
+				deps.emplace_back (builder->build ());
+			return createNode<MulDouble> (std::move (deps));
+		}
+	};
 }
 }
 

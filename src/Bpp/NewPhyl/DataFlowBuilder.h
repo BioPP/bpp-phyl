@@ -43,25 +43,31 @@
 #define BPP_NEWPHYL_DATAFLOWBUILDER_H
 
 #include <Bpp/NewPhyl/DataFlow.h>
+#include <Bpp/NewPhyl/Vector.h>
+#include <algorithm>
 #include <memory>
+#include <utility>
 
 namespace bpp {
 namespace DF {
 
-	class AbstractBuilder : public std::enable_shared_from_this<AbstractBuilder> {
-	public:
+	struct AbstractBuilder : public std::enable_shared_from_this<AbstractBuilder> {
+    AbstractBuilder () = default;
+
 		virtual ~AbstractBuilder () = default;
-		virtual std::shared_ptr<const AbstractBuilder> simplify () const = 0;
+		virtual std::shared_ptr<const AbstractBuilder> simplify () const {
+			return this->shared_from_this ();
+		}
 		virtual NodeRef build () const = 0;
+
+		Vector<std::shared_ptr<const AbstractBuilder>> dependencies;
 	};
+
 
 	class ExistingNodeBuilder : public AbstractBuilder {
 	public:
 		ExistingNodeBuilder (NodeRef node) : node_ (std::move (node)) {}
 
-		std::shared_ptr<const AbstractBuilder> simplify () const override {
-			return this->shared_from_this ();
-		}
 		NodeRef build () const override { return node_; }
 
 	private:

@@ -78,8 +78,11 @@ namespace DF {
 		Node (Node &&) = delete;
 		Node & operator= (const Node &) = delete;
 		Node & operator= (Node &&) = delete;
-		Node (NodeRefVec dependencies); // Sets dependencies + register
-		virtual ~Node ();               // Deregisters from dependencies
+		virtual ~Node (); // Deregisters from dependencies
+
+		// Sets dependencies + register
+		Node (const NodeRefVec & dependencies);
+		Node (NodeRefVec && dependencies);
 
 		// Accessors
 		const Vector<Node *> & dependentNodes () const noexcept { return dependentNodes_; }
@@ -137,7 +140,10 @@ namespace DF {
 	public:
 		// Init deps
 		template <typename... Args>
-		Value (NodeRefVec deps, Args &&... args)
+		Value (const NodeRefVec & deps, Args &&... args)
+		    : Node (deps), value_ (std::forward<Args> (args)...) {}
+		template <typename... Args>
+		Value (NodeRefVec && deps, Args &&... args)
 		    : Node (std::move (deps)), value_ (std::forward<Args> (args)...) {}
 
 		// Without dependencies
