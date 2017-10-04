@@ -357,44 +357,6 @@ namespace bpp
 
 
     /**
-     * @brief Returns the counts normalized by a null model
-     *
-     * @param drtl              A DRTreeLikelihood object.
-     * @param ids               The numbers of the nodes of the tree
-     * @param model             The model on which the SubstitutionCount is built
-     * @param nullModel         The null model used for normalization.
-     * @param reg               the Substitution Register
-     * @param verbose           Display progress messages.
-     */
-
-    static std::vector< std::vector<double> >  getNormalizedCountsPerBranch(
-      DRTreeLikelihood& drtl,
-      const std::vector<int>& ids,
-      SubstitutionModel* model,
-      SubstitutionModel* nullModel,
-      const SubstitutionRegister& reg,
-      bool verbose = true);
-
-    /**
-     * @brief Returns the counts normalized by a null model set
-     *
-     * @param drtl              A DRTreeLikelihood object.
-     * @param ids               The numbers of the nodes of the tree
-     * @param modelSet          The model set on which the SubstitutionCount is built
-     * @param nullModelSet      The null model set used for normalization.
-     * @param reg               the Substitution Register
-     * @param verbose           Display progress messages.
-     */
-
-    static std::vector< std::vector<double> > getNormalizedCountsPerBranch(
-      DRTreeLikelihood& drtl,
-      const std::vector<int>& ids,
-      SubstitutionModelSet* modelSet,
-      SubstitutionModelSet* nullModelSet,
-      const SubstitutionRegister& reg,
-      bool verbose = true);
-
-    /**
      * @brief Returns the counts relative to the frequency of the
      * states in case of non-stationarity.
      *
@@ -409,6 +371,7 @@ namespace bpp
      * @param threshold         value above which counts are considered saturated
      *                                        (default: -1 means no threshold).
      *
+     * @param verbose           Display progress messages.
      */
 
     static std::vector< std::vector<double> > getRelativeCountsPerBranch(
@@ -416,7 +379,77 @@ namespace bpp
       const std::vector<int>& ids,
       SubstitutionModel* model,
       const SubstitutionRegister& reg,
-      double threshold = -1);
+      double threshold = -1,
+      bool verbose= true)
+    {
+      std::vector< std::vector<double> > result;
+      computeCountsPerTypePerBranch(drtl, ids, model, reg, result, threshold, verbose);
+      return result;
+    }
+
+    /**
+     * @brief Returns the counts normalized by a null model
+     *
+     * @param drtl              A DRTreeLikelihood object.
+     * @param ids               The numbers of the nodes of the tree
+     * @param model             The model on which the SubstitutionCount is built
+     * @param nullModel         The null model used for normalization.
+     * @param reg               the Substitution Register
+     * @param perTime           If true, normalized counts are per unit of
+     *                          time (otherwise they are multiplied by
+     *                          the length of the branches).
+     * @param perWord           If true, normalized counts are per unit of
+     *                          length (otherwise they are divided per
+     *                          word length).
+     * @param verbose           Display progress messages.
+     */
+
+    static std::vector< std::vector<double> >  getNormalizedCountsPerBranch(
+      DRTreeLikelihood& drtl,
+      const std::vector<int>& ids,
+      SubstitutionModel* model,
+      SubstitutionModel* nullModel,
+      const SubstitutionRegister& reg,
+      bool perTime,
+      bool perWord,
+      bool verbose = true)
+    {
+      std::vector< std::vector<double> > result;
+      computeCountsPerTypePerBranch(drtl, ids, model, nullModel, reg, result, perTime, perWord, verbose);
+      return result;
+    }
+
+    /**
+     * @brief Returns the counts normalized by a null model set
+     *
+     * @param drtl              A DRTreeLikelihood object.
+     * @param ids               The numbers of the nodes of the tree
+     * @param modelSet          The model set on which the SubstitutionCount is built
+     * @param nullModelSet      The null model set used for normalization.
+     * @param reg               the Substitution Register
+     * @param perTime           If true, normalized counts are per unit of
+     *                          time (otherwise they are multiplied by
+     *                          the length of the branches).
+     * @param perWord           If true, normalized counts are per unit of
+     *                          length (otherwise they are divided per
+     *                          word length).
+     * @param verbose           Display progress messages.
+     */
+
+    static std::vector< std::vector<double> > getNormalizedCountsPerBranch(
+      DRTreeLikelihood& drtl,
+      const std::vector<int>& ids,
+      SubstitutionModelSet* modelSet,
+      SubstitutionModelSet* nullModelSet,
+      const SubstitutionRegister& reg,
+      bool perTime,
+      bool perWord,
+      bool verbose = true)
+    {
+      std::vector< std::vector<double> > result;
+      computeCountsPerTypePerBranch(drtl, ids, modelSet, nullModelSet, reg, result, perTime, perWord, verbose);
+      return result;
+    }
 
     /**
      *@}
@@ -431,24 +464,127 @@ namespace bpp
      */
 
     /**
-     * @brief Output the sum over all types of the counts per branch per
-     * site, in a file.
+     * @brief Compute the sum over all types of the counts per site
+     * per branch.
      *
-     * @param filename          The name of the output file
      * @param drtl              A DRTreeLikelihood object.
      * @param ids               The numbers of the nodes of the tree
      * @param model             The model on which the SubstitutionCount is built
      * @param reg               the Substitution Register
+     * @param result            the resulted counts as an tabular
+     *                          site X branchid 
      *
      */
 
-    static void outputTotalCountsPerBranchPerSite(
-      std::string& filename,
+    static void computeCountsPerSitePerBranch(
       DRTreeLikelihood& drtl,
       const std::vector<int>& ids,
       SubstitutionModel* model,
-      const SubstitutionRegister& reg);
+      const SubstitutionRegister& reg,
+      VVdouble& array);
 
+
+    /**
+     *@}
+     *
+     */
+
+    /**
+     *@ brief Per Type Per Branch methods
+     *
+     *@{
+     *
+     */
+
+    /**
+     * @brief Compute the sum over all branches of the counts per type
+     * per branch. 
+     *
+     * @param drtl              A DRTreeLikelihood object.
+     * @param ids               The numbers of the nodes of the tree
+     * @param model             The model on which the SubstitutionCount is built
+     * @param reg               the Substitution Register
+     * @param result            the resulted counts as an tabular
+     *                          TypeId X branchId
+     * @param threshold         value above which counts are considered saturated
+     *                                        (default: -1 means no threshold).
+     * @param verbose           Display progress messages.
+     *
+     */
+
+    static void computeCountsPerTypePerBranch(
+      DRTreeLikelihood& drtl,
+      const std::vector<int>& ids,
+      SubstitutionModel* model,
+      const SubstitutionRegister& reg,
+      VVdouble& result,
+      double threshold = -1,
+      bool verbose = true);
+
+    /**
+     * @brief Compute the sum over all branches of the normalized
+     * counts per type per branch.
+     *
+     * @param drtl              A DRTreeLikelihood object.
+     * @param ids               The numbers of the nodes of the tree
+     * @param model             The model on which the SubstitutionCount is built
+     * @param nullModel         The null model used for normalization.
+     * @param reg               the Substitution Register
+     * @param result            the resulted counts as an tabular
+     *                          TypeId X branchId
+     * @param perTime           If true, normalized counts are per unit of
+     *                          time (otherwise they are multiplied by
+     *                          the length of the branches).
+     * @param perWord           If true, normalized counts are per unit of
+     *                          length (otherwise they are divided per
+     *                          word length).
+     * @param verbose           Display progress messages.
+     *
+     */
+
+    static void computeCountsPerTypePerBranch(
+      DRTreeLikelihood& drtl,
+      const std::vector<int>& ids,
+      SubstitutionModel* model,
+      SubstitutionModel* nullModel,
+      const SubstitutionRegister& reg,
+      VVdouble& result,
+      bool perTime,
+      bool perWord,
+      bool verbose = true);
+
+    /**
+     * @brief Compute the sum over all branches of the normalized
+     * counts per type per branch.
+     *
+     * @param drtl              A DRTreeLikelihood object.
+     * @param ids               The numbers of the nodes of the tree
+     * @param modelSet          The modelset on which the SubstitutionCount is built
+     * @param nullModelSet      The null modelSet used for normalization.
+     * @param reg               the Substitution Register
+     * @param result            the resulted counts as an tabular     
+     *                          TypeId X branchId
+     * @param perTime           If true, normalized counts are per unit of
+     *                          time (otherwise they are multiplied by
+     *                          the length of the branches).
+     *                          time (otherwise they are multiplied by
+     * @param perWord           If true, normalized counts are per unit of
+     *                          length (otherwise they are divided per
+     *                          word length).
+     * @param verbose           Display progress messages.
+     *
+     */
+
+    static void computeCountsPerTypePerBranch(
+      DRTreeLikelihood& drtl,
+      const std::vector<int>& ids,
+      SubstitutionModelSet* modelSet,
+      SubstitutionModelSet* nullModelSet,
+      const SubstitutionRegister& reg,
+      VVdouble& result,
+      bool perTime,
+      bool perWord,
+      bool verbose = true);
 
     /**
      *@}
@@ -463,65 +599,83 @@ namespace bpp
      */
 
     /**
-     * @brief Output the sum over all branches of the counts per type per site,
-     * in a file.
+     * @brief Compute the sum over all branches of the counts per type per site,
      *
-     * @param filename          The name of the output file
      * @param drtl              A DRTreeLikelihood object.
      * @param ids               The numbers of the nodes of the tree
      * @param model             The model on which the SubstitutionCount is built
      * @param reg               the Substitution Register
+     * @param result            the resulted counts as an tabular
+     *                          site X TypeId 
      *
      */
 
-    static void outputTotalCountsPerTypePerSite(
-      std::string& filename,
+    static void computeCountsPerSitePerType(
       DRTreeLikelihood& drtl,
       const std::vector<int>& ids,
       SubstitutionModel* model,
-      const SubstitutionRegister& reg);
+      const SubstitutionRegister& reg,
+      VVdouble& result);
 
     /**
-     * @brief Output the sum over all branches of the normalized
-     * counts per type per site, in a file.
+     * @brief Compute the sum over all branches of the normalized
+     * counts per site per type.
      *
-     * @param filename          The name of the output file
      * @param drtl              A DRTreeLikelihood object.
      * @param ids               The numbers of the nodes of the tree
      * @param model             The model on which the SubstitutionCount is built
      * @param nullModel         The null model used for normalization.
      * @param reg               the Substitution Register
+     * @param result            the resulted counts as an tabular
+     *                          site X TypeId 
+     * @param perTime           If true, normalized counts are per unit of
+     *                          time (otherwise they are multiplied by
+     *                          the length of the branches).
+     * @param perWord           If true, normalized counts are per unit of
+     *                          length (otherwise they are divided per
+     *                          word length).
      *
      */
 
-    static void outputTotalCountsPerTypePerSite(
-      std::string& filename,
+    static void computeCountsPerSitePerType(
       DRTreeLikelihood& drtl,
       const std::vector<int>& ids,
       SubstitutionModel* model,
       SubstitutionModel* nullModel,
-      const SubstitutionRegister& reg);
+      const SubstitutionRegister& reg,
+      VVdouble& result,
+      bool perTime,
+      bool perWord);
 
     /**
-     * @brief Output the sum over all branches of the normalized
-     * counts per type per site, in a file.
+     * @brief Compute the sum over all branches of the normalized
+     * counts per site per type.
      *
-     * @param filename          The name of the output file
      * @param drtl              A DRTreeLikelihood object.
      * @param ids               The numbers of the nodes of the tree
      * @param modelSet          The modelset on which the SubstitutionCount is built
      * @param nullModelSet      The null modelSet used for normalization.
      * @param reg               the Substitution Register
+     * @param result            the resulted counts as an tabular
+     *                          site X TypeId 
+     * @param perTime           If true, normalized counts are per unit of
+     *                          time (otherwise they are multiplied by
+     *                          the length of the branches).
+     * @param perWord           If true, normalized counts are per unit of
+     *                          length (otherwise they are divided per
+     *                          word length).
      *
      */
 
-    static void outputTotalCountsPerTypePerSite(
-      std::string& filename,
+    static void computeCountsPerSitePerType(
       DRTreeLikelihood& drtl,
       const std::vector<int>& ids,
       SubstitutionModelSet* modelSet,
       SubstitutionModelSet* nullModelSet,
-      const SubstitutionRegister& reg);
+      const SubstitutionRegister& reg,
+      VVdouble& result,
+      bool perTime,
+      bool perWord);
 
     /**
      *@}
@@ -536,65 +690,125 @@ namespace bpp
      */
 
     /**
-     * @brief Output individual counts par branch per site, in files.
+     * @brief Compute counts per site per branch per type.
      *
      * @param filenamePrefix    The filename prefix
      * @param drtl              A DRTreeLikelihood object.
      * @param ids               The numbers of the nodes of the tree
      * @param model             The model on which the SubstitutionCount is built
      * @param reg               the Substitution Register
+     * @param result            the resulted counts as an tabular
+     *                          site X branchid X typeId
      * @author Iakov Davydov
      */
-
-    static void outputIndividualCountsPerBranchPerSite(
-      const std::string& filenamePrefix,
+    
+    static void computeCountsPerSitePerBranchPerType(
       DRTreeLikelihood& drtl,
       const std::vector<int>& ids,
       SubstitutionModel* model,
-      const SubstitutionRegister& reg);
+      const SubstitutionRegister& reg,
+      VVVdouble& result);
 
     /** 
-     * @brief Output individual counts per branch per site of the normalized
-     * counts, in files.
+     * @brief Compute normalized counts per site per branch per type.
      *
-     * @param filename          The name of the output file
      * @param drtl              A DRTreeLikelihood object.
      * @param ids               The numbers of the nodes of the tree
      * @param model             The model on which the SubstitutionCount is built
      * @param nullModel         The null model used for normalization.
      * @param reg               the Substitution Register
+     * @param result            the resulted counts as an tabular
+     *                          site X branchid * Typeid
+     * @param perTime           If true, normalized counts are per unit of
+     *                          time (otherwise they are multiplied by
+     *                          the length of the branches).
+     * @param perWord           If true, normalized counts are per unit of
+     *                          length (otherwise they are divided per
+     *                          word length).
      *
      */
 
-    static void outputIndividualCountsPerBranchPerSite(
-      const std::string& filenamePrefix,
+    static void computeCountsPerSitePerBranchPerType(
       DRTreeLikelihood& drtl,
       const std::vector<int>& ids,
       SubstitutionModel* model,
       SubstitutionModel* nullModel,
-      const SubstitutionRegister& reg);
+      const SubstitutionRegister& reg,
+      VVVdouble& result,
+      bool perTime,
+      bool perWord);
 
     /**
-     * @brief Output individual counts per branch per site of the normalized
-     * counts, in files.
+     * @brief Compute normalized counts per site per branch per type.
      *
-     * @param filename          The name of the output file
      * @param drtl              A DRTreeLikelihood object.
      * @param ids               The numbers of the nodes of the tree
      * @param modelSet          The modelset on which the SubstitutionCount is built
      * @param nullModelSet      The null modelSet used for normalization.
      * @param reg               the Substitution Register
+     * @param result            the resulted counts as an tabular
+     *                          site X branchid * Typeid
+     * @param perTime           If true, normalized counts are per unit of
+     *                          time (otherwise they are multiplied by
+     *                          the length of the branches).
+     * @param perWord           If true, normalized counts are per unit of
+     *                          length (otherwise they are divided per
+     *                          word length).
      *
      */
 
-    static void outputIndividualCountsPerBranchPerSite(
-      const std::string& filenamePrefix,
+    static void computeCountsPerSitePerBranchPerType(
       DRTreeLikelihood& drtl,
       const std::vector<int>& ids,
       SubstitutionModelSet* modelSet,
       SubstitutionModelSet* nullModelSet,
-      const SubstitutionRegister& reg);
+      const SubstitutionRegister& reg,
+      VVVdouble& result,
+      bool perTime,
+      bool perWord);
 
+    /*
+     *
+     * @brief Outputs of counts
+     *
+     * @{
+     */
+
+    /**
+     * @brief Output Per Site Per Branch
+     *
+     */
+    
+    static void outputPerSitePerBranch(const std::string& filename,
+                                       const std::vector<int>& ids,
+                                       const VVdouble& counts);
+
+    /**
+     * @brief Output Per Site Per Type
+     *
+     */
+    
+    static void outputPerSitePerType(const std::string& filename,
+                                     const SubstitutionRegister& reg,
+                                     const VVdouble& counts);
+    
+    /**
+     * @brief Output Per Site Per Branch Per Type
+     *
+     */
+    
+    static void outputPerSitePerBranchPerType(const std::string& filenamePrefix,
+                                              const std::vector<int>& ids,
+                                              const SubstitutionRegister& reg,
+                                              const VVVdouble& counts);
+    
+
+    /*
+     *
+     *@}
+     */
+
+     
     /**
      *@}
      *
