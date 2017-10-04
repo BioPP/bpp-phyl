@@ -200,13 +200,14 @@ public:
    *
    * @{
    */
-  const TransitionModel* getSubstitutionModel() const { return model_; }
-  const TransitionModel* getSubstitutionModel(int nodeId, size_t siteIndex) const throw (NodeNotFoundException) { return model_; }
+  const TransitionModel* getModel() const { return model_; }
+  const TransitionModel* getModel(int nodeId, size_t siteIndex) const throw (NodeNotFoundException) { return model_; }
 
-  TransitionModel* getSubstitutionModel() { return model_; }
-  TransitionModel* getSubstitutionModel(int nodeId, size_t siteIndex) throw (NodeNotFoundException) { return model_; }
+  TransitionModel* getModel() { return model_; }
+  TransitionModel* getModel(int nodeId, size_t siteIndex) throw (NodeNotFoundException) { return model_; }
 
-  void setSubstitutionModel(TransitionModel* model) throw (Exception);
+  void setModel(TransitionModel* model) throw (Exception);
+  
   /** @} */
 
 public:
