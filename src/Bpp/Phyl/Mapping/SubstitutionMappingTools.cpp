@@ -1769,7 +1769,7 @@ void SubstitutionMappingTools::computeCountsPerTypePerBranch(
     for (size_t t = 0; t < nbTypes; ++t)
     {
       if (factors[k][t] != 0)
-        result[k][t] /= factors[k][t]/sizeWord;
+        result[k][t] /= (factors[k][t]*sizeWord);
     }
   }
 
@@ -1823,7 +1823,7 @@ void SubstitutionMappingTools::computeCountsPerTypePerBranch(
     for (size_t t = 0; t < nbTypes; ++t)
     {
       if (factors[k][t] != 0)
-        result[k][t] /= factors[k][t]/sizeWord;
+        result[k][t] /= (factors[k][t]*sizeWord);
     }
   }
 
