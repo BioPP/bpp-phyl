@@ -42,26 +42,17 @@
 #ifndef BPP_NEWPHYL_DATAFLOWTEMPLATES_H
 #define BPP_NEWPHYL_DATAFLOWTEMPLATES_H
 
-#include <Bpp/NewPhyl/Cpp14.h>
+#include <Bpp/NewPhyl/Cpp14.h> // For checkDependenciesAreValueNodes
 #include <Bpp/NewPhyl/DataFlow.h>
+#include <Bpp/NewPhyl/DataFlowUtils.h>
 #include <Bpp/NewPhyl/Debug.h> // description
-#include <Bpp/NewPhyl/Range.h>
-#include <Bpp/NewPhyl/Signed.h>
-#include <string> // description
+#include <string>              // description
 #include <tuple>
 #include <type_traits> // description
 #include <typeinfo>
 
 namespace bpp {
 namespace DF {
-	// Error utils
-	void checkDependencyNumber (const std::type_info & computeNodeType, SizeType expectedSize,
-	                            SizeType givenSize);
-	[[noreturn]] void failureDependencyTypeMismatch (const std::type_info & computeNodeType,
-	                                                 IndexType depIndex,
-	                                                 const std::type_info & expectedType,
-	                                                 const Node & givenNode);
-
 	/* Operation type base.
 	 * Provide defaults for some required functions:
 	 * - debug description text
@@ -164,12 +155,9 @@ namespace DF {
 		template <typename... Args>
 		GenericReductionComputation (NodeRefVec deps, Args &&... args)
 		    : Value<ResultType> (std::move (deps), std::forward<Args> (args)...) {
-			for (auto i : index_range (this->dependencies ())) {
-				auto & dep = *this->dependencies ()[i];
-				if (!isValueNode<ArgumentType> (dep))
-					failureDependencyTypeMismatch (typeid (GenericReductionComputation), i,
-					                               typeid (Value<ArgumentType>), dep);
-			}
+			using namespace DependencyCheck;
+			check (this->dependencies (), typeid (GenericReductionComputation),
+			       AllValueNode<ArgumentType>{});
 		}
 
 		NodeRef derive (const Node & variable) override final { return Op::derive (*this, variable); }

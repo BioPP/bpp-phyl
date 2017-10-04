@@ -40,8 +40,9 @@
 */
 
 #include <Bpp/Exceptions.h>
+#include <Bpp/NewPhyl/DataFlow.h>
 #include <Bpp/NewPhyl/DataFlowNumeric.h>
-#include <Bpp/NewPhyl/DataFlowTemplates.h>
+#include <Bpp/NewPhyl/DataFlowUtils.h>
 #include <Bpp/NewPhyl/Debug.h>
 #include <algorithm>
 #include <stack>
@@ -49,21 +50,13 @@
 
 namespace bpp {
 namespace DF {
-	// Error functions
-	void failureComputeWasCalled (const std::type_info & paramType) {
-		throw Exception (prettyTypeName (paramType) + ": compute() was called");
-	}
-
+	// Error functions DataFlow.h
 	void failureNodeConversion (const std::type_info & handleType, const Node & node) {
 		throw Exception (prettyTypeName (handleType) +
 		                 " cannot store: " + prettyTypeName (typeid (node)));
 	}
 
-	void failureDerivationNotSupportedForParameterType (const std::type_info & type) {
-		throw Exception ("derivation requested for unsupported parameter type: " +
-		                 prettyTypeName (type));
-	}
-
+	// Error functions DataFlowUtils.h
 	static void failureDependencyNumberMismatch (const std::type_info & computeNodeType,
 	                                             SizeType expectedSize, SizeType givenSize) {
 		throw Exception (prettyTypeName (computeNodeType) + ": expected " +
@@ -81,6 +74,16 @@ namespace DF {
 		throw Exception (prettyTypeName (computeNodeType) + ": expected class derived from " +
 		                 prettyTypeName (expectedType) + " as " + std::to_string (depIndex) +
 		                 "-th dependency, got " + prettyTypeName (typeid (givenNode)));
+	}
+
+	// Error functions DataFlowNumeric.h
+	void failureComputeWasCalled (const std::type_info & paramType) {
+		throw Exception (prettyTypeName (paramType) + ": compute() was called");
+	}
+
+	void failureDerivationNotSupportedForParameterType (const std::type_info & type) {
+		throw Exception ("derivation requested for unsupported parameter type: " +
+		                 prettyTypeName (type));
 	}
 
 	// Node impls

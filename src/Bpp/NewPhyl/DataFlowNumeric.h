@@ -44,6 +44,7 @@
 
 #include <Bpp/NewPhyl/DataFlow.h>
 #include <Bpp/NewPhyl/DataFlowBuilder.h>
+#include <Bpp/NewPhyl/DataFlowUtils.h>
 #include <Bpp/NewPhyl/Debug.h> // description
 #include <string>              // description
 #include <type_traits>
@@ -176,14 +177,14 @@ namespace DF {
 	}
 
 	////////////////////////////////////// FIXME structures for double
-  // Move away later !
+	// Move away later !
 
 	// Add double
 	class AddDouble : public Value<double> {
 	public:
 		AddDouble (NodeRefVec && deps) : Value<double> (std::move (deps)) {
-			for (auto & dep : this->dependencies ())
-				assert (isValueNode<double> (*dep));
+			using namespace DependencyCheck;
+			check (this->dependencies (), typeid (AddDouble), AllValueNode<double>{});
 		}
 
 		std::string description () const final { return "+"; }
@@ -211,8 +212,8 @@ namespace DF {
 	class MulDouble : public Value<double> {
 	public:
 		MulDouble (NodeRefVec && deps) : Value<double> (std::move (deps)) {
-			for (auto & dep : this->dependencies ())
-				assert (isValueNode<double> (*dep));
+			using namespace DependencyCheck;
+			check (this->dependencies (), typeid (MulDouble), AllValueNode<double>{});
 		}
 
 		std::string description () const final { return "*"; }

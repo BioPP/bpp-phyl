@@ -52,13 +52,14 @@
 
 namespace bpp {
 namespace DF {
+	/* In this file:
+	 * - Basic node class definition.
+	 */
+
 	// Fwd declaration
 	class Node;
 	template <typename T> class Value;
 	struct NumericProperties; // In DataFlowNumeric.h
-
-	// Error functions
-	[[noreturn]] void failureNodeConversion (const std::type_info & handleType, const Node & node);
 
 	// Convenient typedefs : Node is supposed to be used as shared_ptr instances.
 	using NodeRef = std::shared_ptr<Node>;
@@ -120,15 +121,6 @@ namespace DF {
 		bool isValid_{false};
 	};
 
-	// Create node with make shared.
-	template <typename T, typename... Args> std::shared_ptr<T> createNode (Args &&... args) {
-		return std::make_shared<T> (std::forward<Args> (args)...);
-	}
-	template <typename T, typename... Args>
-	std::shared_ptr<T> createNode (std::initializer_list<NodeRef> ilist, Args &&... args) {
-		return std::make_shared<T> (std::move (ilist), std::forward<Args> (args)...);
-	}
-
 	/* Valued node.
 	 */
 	struct NoDependencyTag {
@@ -162,6 +154,18 @@ namespace DF {
 		T value_;
 	};
 
+	// Error function
+	[[noreturn]] void failureNodeConversion (const std::type_info & handleType, const Node & node);
+
+	// Create node with make shared.
+	template <typename T, typename... Args> std::shared_ptr<T> createNode (Args &&... args) {
+		return std::make_shared<T> (std::forward<Args> (args)...);
+	}
+	template <typename T, typename... Args>
+	std::shared_ptr<T> createNode (std::initializer_list<NodeRef> ilist, Args &&... args) {
+		return std::make_shared<T> (std::move (ilist), std::forward<Args> (args)...);
+	}
+
 	// Convert handles with check
 	template <typename T, typename U>
 	std::shared_ptr<T> convertRef (const std::shared_ptr<U> & from) {
@@ -169,17 +173,6 @@ namespace DF {
 		if (!p)
 			failureNodeConversion (typeid (T), *from);
 		return p;
-	}
-
-	/* Node value access.
-	 * TODO improve
-	 */
-	template <typename T> bool isValueNode (const Node & n) noexcept {
-		return dynamic_cast<const Value<T> *> (&n) != nullptr;
-	}
-	template <typename T> const T & accessValueUnsafe (const Node & n) noexcept {
-		assert (isValueNode<T> (n));
-		return static_cast<const Value<T> &> (n).value ();
 	}
 
 	// Get Value<T> value with recompute TODO improve
