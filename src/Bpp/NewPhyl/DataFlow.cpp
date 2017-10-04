@@ -42,7 +42,7 @@
 #include <Bpp/Exceptions.h>
 #include <Bpp/NewPhyl/DataFlow.h>
 #include <Bpp/NewPhyl/DataFlowNumeric.h>
-#include <Bpp/NewPhyl/DataFlowUtils.h>
+#include <Bpp/NewPhyl/DataFlowTemplateUtils.h>
 #include <Bpp/NewPhyl/Debug.h>
 #include <algorithm>
 #include <stack>

@@ -1,8 +1,8 @@
 //
-// File: DataFlowUtils.h
+// File: DataFlowTemplateUtils.h
 // Authors:
 //   Francois Gindraud (2017)
-// Created: 2017-10-04
+// Created: 2017-10-04 00:00:00
 // Last modified: 2017-10-04
 //
 
@@ -39,8 +39,8 @@
   knowledge of the CeCILL license and that you accept its terms.
 */
 
-#ifndef BPP_NEWPHYL_DATAFLOWUTILS_H
-#define BPP_NEWPHYL_DATAFLOWUTILS_H
+#ifndef BPP_NEWPHYL_DATAFLOWTEMPLATEUTILS_H
+#define BPP_NEWPHYL_DATAFLOWTEMPLATEUTILS_H
 
 #include <Bpp/NewPhyl/DataFlow.h>
 #include <Bpp/NewPhyl/Range.h> // For checkDependenciesAreAllValueNode
@@ -68,24 +68,18 @@ namespace DF {
 		return static_cast<const Value<T> &> (n).value ();
 	}
 
-	/* Dependency type checking.
-	 * In a separate namespace to not clutter the DF namespace with small names.
-	 *
-	 * Usage is to call check(dependencyVector, typeid(NodeType), CheckTag{});
-	 * dependencyVector: NodeRefVec containing dependencies of the checked node.
-	 * NodeType: type of the checked node.
-	 * CheckTag: a type describing what type dependencies should have, see below.
+	/* Dependency structure description.
+	 * These type tags are used to specify compute node dependency types.
 	 */
-	namespace DependencyCheck {
-		// Available check tags
-		template <typename T> struct AllValueNode {};      // Dynamic sized list of Value<T>
-		template <typename... Types> struct ValueNodes {}; // Tuple of Value<T0>,Value<T1>, ...
+	template <typename T> struct ReductionOfValue {};        // Dynamic sized list of Value<T>
+	template <typename... Types> struct FunctionOfValues {}; // Tuple of Value<T0>, Value<T1>, ...
 
-		// Impl of check for AllValueNode
+	namespace Impl {
+		// Impl of checkDependencies for ReductionOfValue
 
 		template <typename T>
-		void check (const NodeRefVec & dependencies, const std::type_info & inNodeType,
-		            AllValueNode<T>) {
+		void checkDependencies (const NodeRefVec & dependencies, const std::type_info & inNodeType,
+		                        ReductionOfValue<T>) {
 			for (auto i : index_range (dependencies)) {
 				auto & dep = *dependencies[i];
 				if (!isValueNode<T> (dep))
@@ -93,28 +87,41 @@ namespace DF {
 			}
 		}
 
-		// Impl of check for ValueNodes
+		// Impl of checkDependencies for FunctionOfValues
 
-		inline void check (const NodeRefVec &, const std::type_info &, SizeType, ValueNodes<>) {}
+		inline void checkDependenciesRecursive (const NodeRefVec &, const std::type_info &, SizeType,
+		                                        FunctionOfValues<>) {}
 
 		template <typename FirstType, typename... OtherTypes>
-		void check (const NodeRefVec & dependencies, const std::type_info & inNodeType, SizeType index,
-		            ValueNodes<FirstType, OtherTypes...>) {
+		void checkDependenciesRecursive (const NodeRefVec & dependencies,
+		                                 const std::type_info & inNodeType, SizeType index,
+		                                 FunctionOfValues<FirstType, OtherTypes...>) {
 			auto & dep = *dependencies[index];
 			if (!isValueNode<FirstType> (dep))
 				failureDependencyTypeMismatch (inNodeType, index, typeid (Value<FirstType>), dep);
 
-			check (dependencies, inNodeType, index + 1, ValueNodes<OtherTypes...>{});
+			checkDependenciesRecursive (dependencies, inNodeType, index + 1,
+			                            FunctionOfValues<OtherTypes...>{});
 		}
 
 		template <typename... Types>
-		void check (const NodeRefVec & dependencies, const std::type_info & inNodeType,
-		            ValueNodes<Types...>) {
+		void checkDependencies (const NodeRefVec & dependencies, const std::type_info & inNodeType,
+		                        FunctionOfValues<Types...>) {
 			checkDependencyNumber (inNodeType, sizeof...(Types), dependencies.size ());
-			check (dependencies, inNodeType, 0, ValueNodes<Types...>{});
+			checkDependenciesRecursive (dependencies, inNodeType, 0, FunctionOfValues<Types...>{});
 		}
 	}
-}
-}
 
-#endif // BPP_NEWPHYL_DATAFLOWUTILS_H
+	/* Interface for auto generated dependency type checking.
+	 *
+	 * Usage: call checkDependencies<DependencyStructureType> (depVector, typeid(CurrentNodeType));
+	 */
+	template <typename DependencyStructure>
+	void checkDependencies (const NodeRefVec & dependencies, const std::type_info & inNodeType) {
+		Impl::checkDependencies (dependencies, inNodeType, DependencyStructure{});
+	}
+
+  // TODO wrap function call for FunctionOfValues
+}
+}
+#endif // BPP_NEWPHYL_DATAFLOWTEMPLATEUTILS_H

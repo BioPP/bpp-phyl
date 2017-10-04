@@ -44,7 +44,7 @@
 
 #include <Bpp/NewPhyl/Cpp14.h> // For checkDependenciesAreValueNodes
 #include <Bpp/NewPhyl/DataFlow.h>
-#include <Bpp/NewPhyl/DataFlowUtils.h>
+#include <Bpp/NewPhyl/DataFlowTemplateUtils.h>
 #include <Bpp/NewPhyl/Debug.h> // description
 #include <string>              // description
 #include <tuple>
@@ -155,9 +155,8 @@ namespace DF {
 		template <typename... Args>
 		GenericReductionComputation (NodeRefVec deps, Args &&... args)
 		    : Value<ResultType> (std::move (deps), std::forward<Args> (args)...) {
-			using namespace DependencyCheck;
-			check (this->dependencies (), typeid (GenericReductionComputation),
-			       AllValueNode<ArgumentType>{});
+			checkDependencies<ReductionOfValue<ArgumentType>> (this->dependencies (),
+			                                                   typeid (GenericReductionComputation));
 		}
 
 		NodeRef derive (const Node & variable) override final { return Op::derive (*this, variable); }

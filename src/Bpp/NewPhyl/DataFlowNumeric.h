@@ -44,7 +44,7 @@
 
 #include <Bpp/NewPhyl/DataFlow.h>
 #include <Bpp/NewPhyl/DataFlowBuilder.h>
-#include <Bpp/NewPhyl/DataFlowUtils.h>
+#include <Bpp/NewPhyl/DataFlowTemplateUtils.h>
 #include <Bpp/NewPhyl/Debug.h> // description
 #include <string>              // description
 #include <type_traits>
@@ -183,8 +183,7 @@ namespace DF {
 	class AddDouble : public Value<double> {
 	public:
 		AddDouble (NodeRefVec && deps) : Value<double> (std::move (deps)) {
-			using namespace DependencyCheck;
-			check (this->dependencies (), typeid (AddDouble), AllValueNode<double>{});
+			checkDependencies<ReductionOfValue<double>> (this->dependencies (), typeid (AddDouble));
 		}
 
 		std::string description () const final { return "+"; }
@@ -212,8 +211,7 @@ namespace DF {
 	class MulDouble : public Value<double> {
 	public:
 		MulDouble (NodeRefVec && deps) : Value<double> (std::move (deps)) {
-			using namespace DependencyCheck;
-			check (this->dependencies (), typeid (MulDouble), AllValueNode<double>{});
+			checkDependencies<ReductionOfValue<double>> (this->dependencies (), typeid (MulDouble));
 		}
 
 		std::string description () const final { return "*"; }
