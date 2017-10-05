@@ -44,12 +44,11 @@
 #define BPP_NEWPHYL_LIKELIHOOD_H
 
 #include <Bpp/NewPhyl/DataFlow.h>
-#include <Bpp/NewPhyl/DataFlowTemplates.h>
 #include <Bpp/NewPhyl/Model.h>
 #include <Bpp/NewPhyl/PackedVector.h>
 #include <Bpp/NewPhyl/Signed.h>
 #include <Eigen/Core>
-#include <string> // description
+#include <string>
 
 namespace bpp {
 
@@ -59,48 +58,39 @@ class Sequence;
 namespace Phyl {
 
 	// TODO small classes with nice constructor arguments (like nbStates / nbSite)
-  // TODO hide eigen ?
+	// TODO hide eigen ?
 	using LikelihoodVector = Eigen::VectorXd;
 	using LikelihoodVectorBySite = PackedVector<LikelihoodVector>;
 
 	struct ComputeConditionalLikelihoodFromDataNode : public DF::Value<LikelihoodVectorBySite> {
 		using Dependencies = DF::FunctionOfValues<const Sequence *>;
-		ComputeConditionalLikelihoodFromDataNode (DF::NodeRefVec && dependencies, SizeType nbSites,
+		ComputeConditionalLikelihoodFromDataNode (DF::NodeRefVec && deps, SizeType nbSites,
 		                                          SizeType nbStates);
 		void compute () override final;
 		std::string description () const override final;
 	};
 
-	struct ComputeConditionalLikelihoodFromChildrensOp
-	    : public DF::OperationBase<ComputeConditionalLikelihoodFromChildrensOp> {
-		using ResultType = LikelihoodVectorBySite;
-		using ArgumentType = LikelihoodVectorBySite;
-		static void reset (LikelihoodVectorBySite & condLikBySite);
-		static void reduce (LikelihoodVectorBySite & condLikBySite,
-		                    const LikelihoodVectorBySite & fwdLikBySite);
-		static std::string description () { return "CondLikFromChildrens"; }
+	struct ComputeConditionalLikelihoodFromChildrensNode : public DF::Value<LikelihoodVectorBySite> {
+		using Dependencies = DF::ReductionOfValue<LikelihoodVectorBySite>;
+		ComputeConditionalLikelihoodFromChildrensNode (DF::NodeRefVec && deps, SizeType nbSites,
+		                                               SizeType nbStates);
+		void compute () override final;
+		std::string description () const override final;
 	};
-	using ComputeConditionalLikelihoodFromChildrensNode =
-	    DF::GenericReductionComputation<ComputeConditionalLikelihoodFromChildrensOp>;
 
-	struct ComputeForwardLikelihoodOp : public DF::OperationBase<ComputeForwardLikelihoodOp> {
-		using ResultType = LikelihoodVectorBySite;
-		using ArgumentTypes = std::tuple<LikelihoodVectorBySite, TransitionMatrix>;
-		static void compute (LikelihoodVectorBySite & fwdLikBySite,
-		                     const LikelihoodVectorBySite & condLikBySite,
-		                     const TransitionMatrix & transitionMatrix);
-		static std::string description () { return "FwdLik"; }
+	struct ComputeForwardLikelihoodNode : public DF::Value<LikelihoodVectorBySite> {
+		using Dependencies = DF::FunctionOfValues<LikelihoodVectorBySite, TransitionMatrix>;
+		ComputeForwardLikelihoodNode (DF::NodeRefVec && deps, SizeType nbSites, SizeType nbStates);
+		void compute () override final;
+		std::string description () const override final;
 	};
-	using ComputeForwardLikelihoodNode = DF::GenericFunctionComputation<ComputeForwardLikelihoodOp>;
 
-	struct ComputeLogLikelihoodOp : public DF::OperationBase<ComputeLogLikelihoodOp> {
-		using ResultType = double;
-		using ArgumentTypes = std::tuple<LikelihoodVectorBySite, FrequencyVector>;
-		static void compute (double & logLikelihood, const LikelihoodVectorBySite & condLikBySite,
-		                     const FrequencyVector & equilibriumFreqs);
-		static std::string description () { return "LogLikFromCondLik"; }
+	struct ComputeLogLikelihoodNode : public DF::Value<double> {
+		using Dependencies = DF::FunctionOfValues<LikelihoodVectorBySite, FrequencyVector>;
+		ComputeLogLikelihoodNode (DF::NodeRefVec && deps);
+		void compute () override final;
+		std::string description () const override final;
 	};
-	using ComputeLogLikelihoodNode = DF::GenericFunctionComputation<ComputeLogLikelihoodOp>;
 }
 }
 

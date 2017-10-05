@@ -39,6 +39,7 @@
   knowledge of the CeCILL license and that you accept its terms.
 */
 
+#include <Bpp/NewPhyl/DataFlowTemplateUtils.h>
 #include <Bpp/NewPhyl/Debug.h>
 #include <Bpp/NewPhyl/Model.h>
 #include <Bpp/NewPhyl/Range.h>
@@ -89,14 +90,20 @@ namespace Phyl {
 
 	// Compute node functions
 
-	void ComputeEquilibriumFrequenciesFromModelOp::compute (FrequencyVector & freqs,
-	                                                        const SubstitutionModel * model) {
-		auto & freqsFromModel = model->getFrequencies ();
-		freqs = Eigen::Map<const FrequencyVector> (freqsFromModel.data (),
-		                                           Eigen::Index (freqsFromModel.size ()));
+	ComputeEquilibriumFrequenciesFromModelNode::ComputeEquilibriumFrequenciesFromModelNode (
+	    DF::NodeRefVec && deps, SizeType nbStates)
+	    : DF::Value<FrequencyVector> (std::move (deps), nbStates) {
+		DF::checkDependencies (*this);
 	}
-
-	std::string ComputeEquilibriumFrequenciesFromModelOp::description () {
+	void ComputeEquilibriumFrequenciesFromModelNode::compute () {
+		auto & freqs = this->value_;
+		DF::callWithValues (*this, [&freqs](const SubstitutionModel * model) {
+			auto & freqsFromModel = model->getFrequencies ();
+			freqs = Eigen::Map<const FrequencyVector> (freqsFromModel.data (),
+			                                           Eigen::Index (freqsFromModel.size ()));
+		});
+	}
+	std::string ComputeEquilibriumFrequenciesFromModelNode::description () const {
 		return "EquilibriumFreqs";
 	}
 
@@ -115,30 +122,50 @@ namespace Phyl {
 		}
 	}
 
-	void ComputeTransitionMatrixFromModelOp::compute (TransitionMatrix & matrix,
-	                                                  const SubstitutionModel * model, double brlen) {
-		bppToEigen (model->getPij_t (brlen), matrix);
+	ComputeTransitionMatrixFromModelNode::ComputeTransitionMatrixFromModelNode (
+	    DF::NodeRefVec && deps, SizeType nbStates)
+	    : DF::Value<TransitionMatrix> (std::move (deps), nbStates, nbStates) {
+		DF::checkDependencies (*this);
+	}
+	void ComputeTransitionMatrixFromModelNode::compute () {
+		auto & matrix = this->value_;
+		DF::callWithValues (*this, [&matrix](const SubstitutionModel * model, double brlen) {
+			bppToEigen (model->getPij_t (brlen), matrix);
+		});
+	}
+	std::string ComputeTransitionMatrixFromModelNode::description () const {
+		return "TransitionMatrix";
 	}
 
-	std::string ComputeTransitionMatrixFromModelOp::description () { return "TransitionMatrix"; }
-
-	void ComputeTransitionMatrixFirstDerivativeFromModelOp::compute (TransitionMatrix & matrix,
-	                                                                 const SubstitutionModel * model,
-	                                                                 double brlen) {
-		bppToEigen (model->getdPij_dt (brlen), matrix);
+	ComputeTransitionMatrixFirstDerivativeFromModelNode::
+	    ComputeTransitionMatrixFirstDerivativeFromModelNode (DF::NodeRefVec && deps,
+	                                                         SizeType nbStates)
+	    : DF::Value<TransitionMatrix> (std::move (deps), nbStates, nbStates) {
+		DF::checkDependencies (*this);
 	}
-
-	std::string ComputeTransitionMatrixFirstDerivativeFromModelOp::description () {
+	void ComputeTransitionMatrixFirstDerivativeFromModelNode::compute () {
+		auto & matrix = this->value_;
+		DF::callWithValues (*this, [&matrix](const SubstitutionModel * model, double brlen) {
+			bppToEigen (model->getdPij_dt (brlen), matrix);
+		});
+	}
+	std::string ComputeTransitionMatrixFirstDerivativeFromModelNode::description () const {
 		return "d(TransitionMatrix)/dt";
 	}
 
-	void ComputeTransitionMatrixSecondDerivativeFromModelOp::compute (TransitionMatrix & matrix,
-	                                                                  const SubstitutionModel * model,
-	                                                                  double brlen) {
-		bppToEigen (model->getd2Pij_dt2 (brlen), matrix);
+	ComputeTransitionMatrixSecondDerivativeFromModelNode::
+	    ComputeTransitionMatrixSecondDerivativeFromModelNode (DF::NodeRefVec && deps,
+	                                                          SizeType nbStates)
+	    : DF::Value<TransitionMatrix> (std::move (deps), nbStates, nbStates) {
+		DF::checkDependencies (*this);
 	}
-
-	std::string ComputeTransitionMatrixSecondDerivativeFromModelOp::description () {
+	void ComputeTransitionMatrixSecondDerivativeFromModelNode::compute () {
+		auto & matrix = this->value_;
+		DF::callWithValues (*this, [&matrix](const SubstitutionModel * model, double brlen) {
+			bppToEigen (model->getd2Pij_dt2 (brlen), matrix);
+		});
+	}
+	std::string ComputeTransitionMatrixSecondDerivativeFromModelNode::description () const {
 		return "d2(TransitionMatrix)/dt2";
 	}
 
@@ -165,8 +192,7 @@ namespace Phyl {
 		                            DF::NodeSpecReturnParameter (branchLengthParameter_));
 	}
 	DF::NodeRef ModelTransitionMatrixSpec::buildNode (DF::NodeRefVec deps) const {
-		return DF::createNode<ComputeTransitionMatrixFromModelNode> (std::move (deps), nbStates_,
-		                                                             nbStates_);
+		return DF::createNode<ComputeTransitionMatrixFromModelNode> (std::move (deps), nbStates_);
 	}
 
 	ModelTransitionMatrixFirstDerivativeSpec::ModelTransitionMatrixFirstDerivativeSpec (
@@ -179,8 +205,8 @@ namespace Phyl {
 		                            DF::NodeSpecReturnParameter (branchLengthParameter_));
 	}
 	DF::NodeRef ModelTransitionMatrixFirstDerivativeSpec::buildNode (DF::NodeRefVec deps) const {
-		return DF::createNode<ComputeTransitionMatrixFirstDerivativeFromModelNode> (
-		    std::move (deps), nbStates_, nbStates_);
+		return DF::createNode<ComputeTransitionMatrixFirstDerivativeFromModelNode> (std::move (deps),
+		                                                                            nbStates_);
 	}
 
 	ModelTransitionMatrixSecondDerivativeSpec::ModelTransitionMatrixSecondDerivativeSpec (
@@ -193,8 +219,8 @@ namespace Phyl {
 		                            DF::NodeSpecReturnParameter (branchLengthParameter_));
 	}
 	DF::NodeRef ModelTransitionMatrixSecondDerivativeSpec::buildNode (DF::NodeRefVec deps) const {
-		return DF::createNode<ComputeTransitionMatrixSecondDerivativeFromModelNode> (
-		    std::move (deps), nbStates_, nbStates_);
+		return DF::createNode<ComputeTransitionMatrixSecondDerivativeFromModelNode> (std::move (deps),
+		                                                                             nbStates_);
 	}
 }
 }

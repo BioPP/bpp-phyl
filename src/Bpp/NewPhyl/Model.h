@@ -44,7 +44,6 @@
 #define BPP_NEWPHYL_MODEL_H
 
 #include <Bpp/NewPhyl/DataFlowNumeric.h>
-#include <Bpp/NewPhyl/DataFlowTemplates.h>
 #include <Bpp/NewPhyl/NodeSpecification.h>
 #include <Bpp/NewPhyl/Signed.h>
 #include <Eigen/Core>
@@ -80,52 +79,34 @@ namespace Phyl {
 
 	// Compute nodes
 
-	struct ComputeEquilibriumFrequenciesFromModelOp
-	    : public DF::OperationBase<ComputeEquilibriumFrequenciesFromModelOp> {
-		using ResultType = FrequencyVector;
-		using ArgumentTypes = std::tuple<const SubstitutionModel *>;
-		static void compute (FrequencyVector & freqs, const SubstitutionModel * model);
-		static std::string description ();
-		// Should init with freq vector size (nb states)
+	struct ComputeEquilibriumFrequenciesFromModelNode : public DF::Value<FrequencyVector> {
+		using Dependencies = DF::FunctionOfValues<const SubstitutionModel *>;
+		ComputeEquilibriumFrequenciesFromModelNode (DF::NodeRefVec && deps, SizeType nbStates);
+		void compute () override final;
+		std::string description () const override final;
 	};
-	using ComputeEquilibriumFrequenciesFromModelNode =
-	    DF::GenericFunctionComputation<ComputeEquilibriumFrequenciesFromModelOp>;
 
-	struct ComputeTransitionMatrixFromModelOp
-	    : public DF::OperationBase<ComputeTransitionMatrixFromModelOp> {
-		using ResultType = TransitionMatrix;
-		enum { Model, BrLen };
-		using ArgumentTypes = std::tuple<const SubstitutionModel *, double>;
-		static void compute (TransitionMatrix & matrix, const SubstitutionModel * model, double brlen);
-		static std::string description ();
-		// Should init with (nb_state, nb_state)
+	struct ComputeTransitionMatrixFromModelNode : public DF::Value<TransitionMatrix> {
+		using Dependencies = DF::FunctionOfValues<const SubstitutionModel *, double>;
+		ComputeTransitionMatrixFromModelNode (DF::NodeRefVec && deps, SizeType nbStates);
+		void compute () override final;
+		std::string description () const override final;
 	};
-	using ComputeTransitionMatrixFromModelNode =
-	    DF::GenericFunctionComputation<ComputeTransitionMatrixFromModelOp>;
 
-	struct ComputeTransitionMatrixFirstDerivativeFromModelOp
-	    : public DF::OperationBase<ComputeTransitionMatrixFirstDerivativeFromModelOp> {
-		using ResultType = TransitionMatrix;
-		enum { Model, BrLen };
-		using ArgumentTypes = std::tuple<const SubstitutionModel *, double>;
-		static void compute (TransitionMatrix & matrix, const SubstitutionModel * model, double brlen);
-		static std::string description ();
-		// Should init with (nb_state, nb_state)
+	struct ComputeTransitionMatrixFirstDerivativeFromModelNode : public DF::Value<TransitionMatrix> {
+		using Dependencies = DF::FunctionOfValues<const SubstitutionModel *, double>;
+		ComputeTransitionMatrixFirstDerivativeFromModelNode (DF::NodeRefVec && deps, SizeType nbStates);
+		void compute () override final;
+		std::string description () const override final;
 	};
-	using ComputeTransitionMatrixFirstDerivativeFromModelNode =
-	    DF::GenericFunctionComputation<ComputeTransitionMatrixFirstDerivativeFromModelOp>;
 
-	struct ComputeTransitionMatrixSecondDerivativeFromModelOp
-	    : public DF::OperationBase<ComputeTransitionMatrixSecondDerivativeFromModelOp> {
-		using ResultType = TransitionMatrix;
-		enum { Model, BrLen };
-		using ArgumentTypes = std::tuple<const SubstitutionModel *, double>;
-		static void compute (TransitionMatrix & matrix, const SubstitutionModel * model, double brlen);
-		static std::string description ();
-		// Should init with (nb_state, nb_state)
+	struct ComputeTransitionMatrixSecondDerivativeFromModelNode : public DF::Value<TransitionMatrix> {
+		using Dependencies = DF::FunctionOfValues<const SubstitutionModel *, double>;
+		ComputeTransitionMatrixSecondDerivativeFromModelNode (DF::NodeRefVec && deps,
+		                                                      SizeType nbStates);
+		void compute () override final;
+		std::string description () const override final;
 	};
-	using ComputeTransitionMatrixSecondDerivativeFromModelNode =
-	    DF::GenericFunctionComputation<ComputeTransitionMatrixSecondDerivativeFromModelOp>;
 
 	// Specs
 
