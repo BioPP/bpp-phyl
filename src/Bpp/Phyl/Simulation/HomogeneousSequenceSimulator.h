@@ -66,7 +66,7 @@ namespace bpp
   public:
     const TransitionModel* getModel() const
     {
-      return getSubstitutionModelSet()->getTransitionModel(0);
+      return getSubstitutionModelSet()->getModel(0);
     }
 	
   };

@@ -1470,7 +1470,7 @@ void PhylogeneticsApplicationTools::printParameters(const SubstitutionModelSet* 
   // Loop over all models:
   for (size_t i = 0; i < modelSet->getNumberOfModels(); i++)
   {
-    const TransitionModel* model = modelSet->getTransitionModel(i);
+    const TransitionModel* model = modelSet->getModel(i);
 
     map<string, string> aliases;
 

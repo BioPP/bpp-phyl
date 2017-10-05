@@ -142,7 +142,7 @@ void DRNonHomogeneousTreeLikelihood::setData(const SiteContainer& sites) throw (
   data_ = PatternTools::getSequenceSubset(sites, *tree_->getRootNode());
   if (verbose_)
     ApplicationTools::displayTask("Initializing data structure");
-  likelihoodData_->initLikelihoods(*data_, *modelSet_->getTransitionModel(0)); // We assume here that all models have the same number of states, and that they have the same 'init' method,
+  likelihoodData_->initLikelihoods(*data_, *modelSet_->getModel(0)); // We assume here that all models have the same number of states, and that they have the same 'init' method,
                                                                      // Which is a reasonable assumption as long as they share the same alphabet.
   if (verbose_)
     ApplicationTools::displayTaskDone();
