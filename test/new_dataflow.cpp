@@ -44,6 +44,7 @@
 
 #include <Bpp/Exceptions.h>
 #include <Bpp/NewPhyl/DataFlowNumeric.h>
+#include <Bpp/NewPhyl/DataFlowTemplateUtils.h>
 #include <Bpp/NewPhyl/DataFlowTemplates.h>
 #include <Bpp/NewPhyl/Debug.h>
 #include <cassert>
@@ -51,22 +52,32 @@
 
 using namespace bpp;
 
-struct SumOp : public DF::OperationBase<SumOp>
+struct SumNode : public DF::Value<int>
 {
-  using ResultType = int;
-  using ArgumentType = int;
-  static void reset(int& r) { r = 0; }
-  static void reduce(int& acc, int i) { acc += i; }
+  using Dependencies = DF::ReductionOfValue<int>;
+  SumNode(DF::NodeRefVec&& deps)
+    : DF::Value<int>(std::move(deps))
+  {
+    DF::checkDependencies(*this);
+  }
+  void compute() override final
+  {
+    this->value_ = 0;
+    for (auto& dep : this->dependencies())
+      this->value_ += DF::accessValueUnsafe<int>(*dep);
+  }
 };
-using SumNode = DF::GenericReductionComputation<SumOp>;
 
-struct NegateOp : public DF::OperationBase<NegateOp>
+struct NegateNode : public DF::Value<int>
 {
-  using ResultType = int;
-  using ArgumentTypes = std::tuple<int>;
-  static void compute(int& r, int a) { r = -a; }
+  using Dependencies = DF::FunctionOfValues<int>;
+  NegateNode(DF::NodeRefVec&& deps)
+    : DF::Value<int>(std::move(deps))
+  {
+    DF::checkDependencies(*this);
+  }
+  void compute() override final { this->value_ = -DF::accessValueUnsafe<int>(*this->dependencies()[0]); }
 };
-using NegateNode = DF::GenericFunctionComputation<NegateOp>;
 
 TEST_CASE("Testing data flow system on simple int reduction tree")
 {

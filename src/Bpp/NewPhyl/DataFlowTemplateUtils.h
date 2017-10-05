@@ -128,7 +128,16 @@ namespace DF {
 		checkDependencies<typename NodeType::Dependencies> (node.dependencies (), typeid (NodeType));
 	}
 
-	// TODO wrap function call for FunctionOfValues
+	// Wrap compute function
+
+	namespace Impl {
+		template<typename Callable, typename ... Types> void callWithValues (const NodeRefVec & dependencies, Callable && callable) {
+//TODO WIP
+    }
+	}
+
+	template <typename DependencyTag, typename Callable>
+	void callWithValues (const NodeRefVec & dependencies, Callable && callable);
 }
 }
 #endif // BPP_NEWPHYL_DATAFLOWTEMPLATEUTILS_H

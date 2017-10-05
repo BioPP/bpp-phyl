@@ -148,6 +148,8 @@ namespace DF {
 	}
 	NumericProperties Node::numericProperties () const { return NumericProperties{}; }
 
+	std::string Node::description () const { return prettyTypeName (typeid (*this)); }
+
 	void Node::appendDependency (NodeRef node) {
 		node->registerNode (this);
 		dependencyNodes_.emplace_back (std::move (node));

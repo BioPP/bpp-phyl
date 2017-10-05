@@ -42,7 +42,6 @@
 #ifndef BPP_NEWPHYL_DATAFLOW_H
 #define BPP_NEWPHYL_DATAFLOW_H
 
-#include <Bpp/NewPhyl/Debug.h> // description
 #include <Bpp/NewPhyl/Vector.h>
 #include <cassert>
 #include <memory>
@@ -99,8 +98,8 @@ namespace DF {
 		virtual NodeRef derive (const Node & variable); // Defaults to error
 		virtual NumericProperties numericProperties () const;
 
-		// Debug information (smaller graph)
-		virtual std::string description () const { return "Node"; }
+		// Debug information: by default returns the type name.
+		virtual std::string description () const;
 
 	protected:
 		void makeValid () noexcept { isValid_ = true; }
@@ -148,16 +147,14 @@ namespace DF {
 			return value_;
 		}
 
-		std::string description () const override { return "Value<" + prettyTypeName<T> () + ">"; }
-
 	protected:
 		T value_;
 	};
-	
-  /* Dependency structure description.
+
+	/* Dependency structure description.
 	 * These type tags are used to specify compute node dependency types.
-   * This can serve as documentation about what arguments node expect.
-   * Helper functions in DataFlowTemplateUtils.h act depending on these type tags.
+	 * This can serve as documentation about what arguments node expect.
+	 * Helper functions in DataFlowTemplateUtils.h act depending on these type tags.
 	 */
 	template <typename T> struct ReductionOfValue {};        // Dynamic sized list of Value<T>
 	template <typename... Types> struct FunctionOfValues {}; // Tuple of Value<T0>, Value<T1>, ...

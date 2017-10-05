@@ -72,8 +72,7 @@ namespace Phyl {
 		const std::string & getParameterName (SizeType index);
 
 		void compute () override final;
-
-		std::string description () const override;
+		std::string description () const override final;
 
 	private:
 		std::unique_ptr<SubstitutionModel> model_;

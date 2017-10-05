@@ -148,8 +148,6 @@ namespace DF {
 
 		NodeRef derive (const Node & variable) override final;
 
-		std::string description () const final { return "Parameter<" + prettyTypeName<T> () + ">"; }
-
 	private:
 		void compute () override final { failureComputeWasCalled (typeid (Parameter<T>)); }
 	};
