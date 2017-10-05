@@ -42,8 +42,9 @@
 #ifndef BPP_NEWPHYL_DATAFLOWTEMPLATEUTILS_H
 #define BPP_NEWPHYL_DATAFLOWTEMPLATEUTILS_H
 
+#include <Bpp/NewPhyl/Cpp14.h>
 #include <Bpp/NewPhyl/DataFlow.h>
-#include <Bpp/NewPhyl/Range.h> // For checkDependenciesAreAllValueNode
+#include <Bpp/NewPhyl/Range.h>
 #include <Bpp/NewPhyl/Signed.h>
 #include <cassert>
 #include <typeinfo>
@@ -71,7 +72,9 @@ namespace DF {
 	// Dependency check
 
 	namespace Impl {
-		// Impl of checkDependencies for ReductionOfValue
+		/* Impl of checkDependencies for ReductionOfValue.
+		 * Check that each dependency is a Value<T> node.
+		 */
 		template <typename T>
 		void checkDependencies (const NodeRefVec & dependencies, const std::type_info & inNodeType,
 		                        ReductionOfValue<T>) {
@@ -82,27 +85,31 @@ namespace DF {
 			}
 		}
 
-		// Impl of checkDependencies for FunctionOfValues
-		inline void checkDependenciesRecursive (const NodeRefVec &, const std::type_info &, SizeType,
-		                                        FunctionOfValues<>) {}
+		/* Impl of checkDependencies for FunctionOfValues.
+		 * Check that the dependency vector has the required number of dependencies.
+		 * Check each dependency is a Value<Types[i]> node (recursively).
+		 */
+		inline void checkDependencyTypesRecursively (const NodeRefVec &, const std::type_info &,
+		                                             FunctionOfValues<>, SizeType) {}
 
 		template <typename FirstType, typename... OtherTypes>
-		void checkDependenciesRecursive (const NodeRefVec & dependencies,
-		                                 const std::type_info & inNodeType, SizeType index,
-		                                 FunctionOfValues<FirstType, OtherTypes...>) {
+		void checkDependencyTypesRecursively (const NodeRefVec & dependencies,
+		                                      const std::type_info & inNodeType,
+		                                      FunctionOfValues<FirstType, OtherTypes...>,
+		                                      SizeType index) {
 			auto & dep = *dependencies[index];
 			if (!isValueNode<FirstType> (dep))
 				failureDependencyTypeMismatch (inNodeType, index, typeid (Value<FirstType>), dep);
 
-			checkDependenciesRecursive (dependencies, inNodeType, index + 1,
-			                            FunctionOfValues<OtherTypes...>{});
+			checkDependencyTypesRecursively (dependencies, inNodeType, FunctionOfValues<OtherTypes...>{},
+			                                 index + 1);
 		}
 
 		template <typename... Types>
 		void checkDependencies (const NodeRefVec & dependencies, const std::type_info & inNodeType,
 		                        FunctionOfValues<Types...>) {
 			checkDependencyNumber (inNodeType, sizeof...(Types), dependencies.size ());
-			checkDependenciesRecursive (dependencies, inNodeType, 0, FunctionOfValues<Types...>{});
+			checkDependencyTypesRecursively (dependencies, inNodeType, FunctionOfValues<Types...>{}, 0);
 		}
 	}
 
@@ -111,33 +118,76 @@ namespace DF {
 	 * Thow exceptions on type mismatch, with a detailed message.
 	 *
 	 * Manual interface:
-	 * $ checkDependencies<DependencyTag> (depVector, typeid(CurrentNodeType));
+	 * Usage: checkDependencies<DependencyTag> (depVector, typeid(CurrentNodeType));
 	 * DependencyTag is one of the dependency structure type tags.
 	 *
 	 * Simplified interface:
-	 * $ checkDependencies (*this);
-	 * The node class must contain a typedef "Dependencies" pointing to a dependency structure
-	 * type tag.
+	 * Usage: checkDependencies (*this);
+	 * The node class (for 'this') must contain a typedef "Dependencies" pointing to a dependency
+	 * structure type tag.
 	 * Simply calls the manual interface.
+   *
+   * See tests/new_dataflow.cpp
 	 */
 	template <typename DependencyTag>
 	void checkDependencies (const NodeRefVec & dependencies, const std::type_info & inNodeType) {
+		// The DependencyTag argument is used to select the correct implementation by overloading.
 		Impl::checkDependencies (dependencies, inNodeType, DependencyTag{});
 	}
 	template <typename NodeType> void checkDependencies (const NodeType & node) {
 		checkDependencies<typename NodeType::Dependencies> (node.dependencies (), typeid (NodeType));
 	}
 
-	// Wrap compute function
+	// Call function(s) with values from Value<T> dependencies (wrapper).
 
 	namespace Impl {
-		template<typename Callable, typename ... Types> void callWithValues (const NodeRefVec & dependencies, Callable && callable) {
-//TODO WIP
-    }
+		/* Impl of callWithValues for ReductionOfValue.
+		 * TODO doc
+     * TODO alternative APIs:
+     * - init,reduce : init(), foreach { reduce() }
+     * - init,first,reduce : if 0 { init } else { first,reduce() }
+     * - consume args N by N ?
+		 */
+		template <typename ReduceFunctionType, typename T>
+		void callWithValues (const NodeRefVec & dependencies, ReductionOfValue<T>,
+		                     ReduceFunctionType reduce) {
+			for (const auto & dep : dependencies)
+				reduce (accessValueUnsafe<T> (*dep));
+		}
+
+		/* Impl of callWithValues for FunctionOfValues.
+		 * Takes a single "function" f(const T0&, const T1&, ...).
+		 * TODO doc
+		 */
+		template <typename FunctionType, typename... Types, SizeType... Indexes>
+		void
+		callWithValuesWithIndexSequence (const NodeRefVec & dependencies, FunctionOfValues<Types...>,
+		                                 Cpp14::IndexSequence<Indexes...>, FunctionType && function) {
+			function (accessValueUnsafe<Types> (*dependencies[Indexes])...);
+		}
+
+		template <typename FunctionType, typename... Types>
+		void callWithValues (const NodeRefVec & dependencies, FunctionOfValues<Types...>,
+		                     FunctionType && function) {
+			callWithValuesWithIndexSequence (dependencies, FunctionOfValues<Types...>{},
+			                                 Cpp14::MakeIndexSequence<sizeof...(Types)>{},
+			                                 std::forward<FunctionType> (function));
+		}
 	}
 
-	template <typename DependencyTag, typename Callable>
-	void callWithValues (const NodeRefVec & dependencies, Callable && callable);
+	/* Interfaces.
+	 * TODO doc
+   * See tests/new_dataflow.cpp
+	 */
+	template <typename DependencyTag, typename... Callables>
+	void callWithValues (const NodeRefVec & dependencies, Callables &&... callables) {
+		Impl::callWithValues (dependencies, DependencyTag{}, std::forward<Callables> (callables)...);
+	}
+	template <typename NodeType, typename... Callables>
+	void callWithValues (const NodeType & node, Callables &&... callables) {
+		callWithValues<typename NodeType::Dependencies> (node.dependencies (),
+		                                                 std::forward<Callables> (callables)...);
+	}
 }
 }
 #endif // BPP_NEWPHYL_DATAFLOWTEMPLATEUTILS_H

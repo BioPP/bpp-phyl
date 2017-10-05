@@ -45,7 +45,6 @@
 #include <Bpp/Exceptions.h>
 #include <Bpp/NewPhyl/DataFlowNumeric.h>
 #include <Bpp/NewPhyl/DataFlowTemplateUtils.h>
-#include <Bpp/NewPhyl/DataFlowTemplates.h>
 #include <Bpp/NewPhyl/Debug.h>
 #include <cassert>
 #include <fstream>
@@ -63,8 +62,7 @@ struct SumNode : public DF::Value<int>
   void compute() override final
   {
     this->value_ = 0;
-    for (auto& dep : this->dependencies())
-      this->value_ += DF::accessValueUnsafe<int>(*dep);
+    DF::callWithValues(*this, [this](int i) { this->value_ += i; });
   }
 };
 
@@ -76,7 +74,10 @@ struct NegateNode : public DF::Value<int>
   {
     DF::checkDependencies(*this);
   }
-  void compute() override final { this->value_ = -DF::accessValueUnsafe<int>(*this->dependencies()[0]); }
+  void compute() override final
+  {
+    DF::callWithValues(*this, [this](int i) { this->value_ = -i; });
+  }
 };
 
 TEST_CASE("Testing data flow system on simple int reduction tree")
