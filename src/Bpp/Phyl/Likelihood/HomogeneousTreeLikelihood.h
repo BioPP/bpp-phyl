@@ -63,12 +63,11 @@ namespace bpp
     HomogeneousTreeLikelihood* clone() const = 0;
 
   public:
-    const TransitionModel* getModel(int nodeId, size_t siteIndex) const throw (NodeNotFoundException)
-    {
+    const TransitionModel* getModelForSite(int nodeId, size_t siteIndex) const    {
       return getModel();
     }
 
-    TransitionModel* getModel(int nodeId, size_t siteIndex) throw (NodeNotFoundException)
+    TransitionModel* getModelForSite(int nodeId, size_t siteIndex)
     {
       return getModel();
     }

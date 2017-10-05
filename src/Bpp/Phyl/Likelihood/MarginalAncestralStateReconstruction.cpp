@@ -115,7 +115,7 @@ Sequence* MarginalAncestralStateReconstruction::getAncestralSequenceForNode(int 
 {
   string name = tree_.hasNodeName(nodeId) ? tree_.getNodeName(nodeId) : ("" + TextTools::toString(nodeId));
   const vector<size_t>* rootPatternLinks = &likelihood_->getLikelihoodData()->getRootArrayPositions();
-  const TransitionModel* model = likelihood_->getModel(tree_.getNodesId()[0], 0); // We assume all nodes have a model with the same number of states.
+  const TransitionModel* model = likelihood_->getModelForSite(tree_.getNodesId()[0], 0); // We assume all nodes have a model with the same number of states.
   vector<size_t> states;
   vector<int> allStates(nbSites_);
   VVdouble patternedProbs;
@@ -153,7 +153,7 @@ void MarginalAncestralStateReconstruction::recursiveMarginalAncestralStates(
     // This is a tricky way to store the real sequence as an ancestral one...
     // In case of Markov Modulated models, we consider that the real sequences
     // Are all in the first category.
-    const TransitionModel* model = likelihood_->getModel(tree_.getNodesId()[0], 0); // We assume all nodes have a model with the same number of states.
+    const TransitionModel* model = likelihood_->getModelForSite(tree_.getNodesId()[0], 0); // We assume all nodes have a model with the same number of states.
     for (size_t i = 0; i < seq.size(); i++)
     {
       (*v)[i] = model->getModelStates(seq[i])[0];

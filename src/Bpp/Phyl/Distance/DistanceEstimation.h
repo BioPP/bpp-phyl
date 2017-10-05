@@ -163,13 +163,9 @@ namespace bpp
     ParameterList getBranchLengthsParameters() const;
     ParameterList getSubstitutionModelParameters() const;
   
-    SubstitutionModel* getSubstitutionModel(int nodeId, size_t siteIndex) throw (NodeNotFoundException) { return dynamic_cast<SubstitutionModel*>(model_); }
+    TransitionModel* getModelForSite(int nodeId, size_t siteIndex) { return model_; }
   
-    const SubstitutionModel* getSubstitutionModel(int nodeId, size_t siteIndex) const throw (NodeNotFoundException) { return dynamic_cast<const SubstitutionModel*>(model_); }
-
-    TransitionModel* getModel(int nodeId, size_t siteIndex) throw (NodeNotFoundException) { return model_; }
-  
-    const TransitionModel* getModel(int nodeId, size_t siteIndex) const throw (NodeNotFoundException) { return model_; }
+    const TransitionModel* getModelForSite(int nodeId, size_t siteIndex) const { return model_; }
 
     const std::vector<double>& getRootFrequencies(size_t siteIndex) const { return model_->getFrequencies(); }
     size_t getSiteIndex(size_t site) const throw (IndexOutOfBoundsException) { return rootPatternLinks_[site]; }
@@ -191,14 +187,6 @@ namespace bpp
     double getLikelihoodForASiteForARateClassForAState(size_t site, size_t rateClass, int state) const;
     double getLogLikelihoodForASiteForARateClassForAState(size_t site, size_t rateClass, int state) const;
     /** @} */
-
-    /**
-     * @brief Get the substitution model used for the computation.
-     *
-     * @return A const pointer toward the substitution model of this instance.
-     */
-
-    const SubstitutionModel* getSubstitutionModel() const { return dynamic_cast<const SubstitutionModel*>(model_); }
 
     const TransitionModel* getModel() const { return model_; }
 

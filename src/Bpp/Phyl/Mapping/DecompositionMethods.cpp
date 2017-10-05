@@ -39,6 +39,8 @@
 
 #include "DecompositionMethods.h"
 
+#include <Bpp/Numeric/Matrix/MatrixTools.h>
+
 #include <vector>
 #include <typeinfo>
 
