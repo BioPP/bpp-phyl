@@ -38,6 +38,7 @@
   knowledge of the CeCILL license and that you accept its terms.
 */
 
+#include <Bpp/NewPhyl/DataFlowTemplateUtils.h>
 #include <Bpp/NewPhyl/ExtendedFloat.h>
 #include <Bpp/NewPhyl/Likelihood.h>
 #include <Bpp/NewPhyl/Range.h>
@@ -47,8 +48,17 @@
 
 namespace bpp {
 namespace Phyl {
-	void ComputeConditionalLikelihoodFromDataOp::compute (LikelihoodVectorBySite & condLikBySite,
-	                                                      const Sequence * sequence) {
+	ComputeConditionalLikelihoodFromDataNode::ComputeConditionalLikelihoodFromDataNode (
+	    DF::NodeRefVec && dependencies, SizeType nbSites, SizeType nbStates)
+	    : DF::Value<LikelihoodVectorBySite> (std::move (dependencies), nbSites, nbStates) {
+		DF::checkDependencies (*this);
+	}
+
+	void ComputeConditionalLikelihoodFromDataNode::compute () {
+    // FIXME add wrapper
+		auto & condLikBySite = this->value_;
+		auto & sequence = DF::accessValueUnsafe<const Sequence *> (*this->dependencies ()[0]);
+
 		assert (sequence != nullptr);
 		assert (condLikBySite.size () == sequence->size ());
 		for (auto siteIndex : index_range (condLikBySite)) {
@@ -59,6 +69,9 @@ namespace Phyl {
 			    static_cast<IndexType> (sequence->getValue (static_cast<std::size_t> (siteIndex)));
 			lik[siteValue] = 1.;
 		}
+	}
+	std::string ComputeConditionalLikelihoodFromDataNode::description () const {
+		return "CondLikFromData";
 	}
 
 	void ComputeConditionalLikelihoodFromChildrensOp::reset (LikelihoodVectorBySite & condLikBySite) {

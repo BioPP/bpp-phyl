@@ -47,6 +47,7 @@
 #include <Bpp/NewPhyl/DataFlowTemplates.h>
 #include <Bpp/NewPhyl/Model.h>
 #include <Bpp/NewPhyl/PackedVector.h>
+#include <Bpp/NewPhyl/Signed.h>
 #include <Eigen/Core>
 #include <string> // description
 
@@ -58,18 +59,17 @@ class Sequence;
 namespace Phyl {
 
 	// TODO small classes with nice constructor arguments (like nbStates / nbSite)
+  // TODO hide eigen ?
 	using LikelihoodVector = Eigen::VectorXd;
 	using LikelihoodVectorBySite = PackedVector<LikelihoodVector>;
 
-	struct ComputeConditionalLikelihoodFromDataOp
-	    : public DF::OperationBase<ComputeConditionalLikelihoodFromDataOp> {
-		using ResultType = LikelihoodVectorBySite;
-		using ArgumentTypes = std::tuple<const Sequence *>;
-		static void compute (LikelihoodVectorBySite & condLikBySite, const Sequence * sequence);
-		static std::string description () { return "CondLikFromData"; }
+	struct ComputeConditionalLikelihoodFromDataNode : public DF::Value<LikelihoodVectorBySite> {
+		using Dependencies = DF::FunctionOfValues<const Sequence *>;
+		ComputeConditionalLikelihoodFromDataNode (DF::NodeRefVec && dependencies, SizeType nbSites,
+		                                          SizeType nbStates);
+		void compute () override final;
+		std::string description () const override final;
 	};
-	using ComputeConditionalLikelihoodFromDataNode =
-	    DF::GenericFunctionComputation<ComputeConditionalLikelihoodFromDataOp>;
 
 	struct ComputeConditionalLikelihoodFromChildrensOp
 	    : public DF::OperationBase<ComputeConditionalLikelihoodFromChildrensOp> {

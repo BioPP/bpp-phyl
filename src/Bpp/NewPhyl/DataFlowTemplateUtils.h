@@ -68,15 +68,10 @@ namespace DF {
 		return static_cast<const Value<T> &> (n).value ();
 	}
 
-	/* Dependency structure description.
-	 * These type tags are used to specify compute node dependency types.
-	 */
-	template <typename T> struct ReductionOfValue {};        // Dynamic sized list of Value<T>
-	template <typename... Types> struct FunctionOfValues {}; // Tuple of Value<T0>, Value<T1>, ...
+	// Dependency check
 
 	namespace Impl {
 		// Impl of checkDependencies for ReductionOfValue
-
 		template <typename T>
 		void checkDependencies (const NodeRefVec & dependencies, const std::type_info & inNodeType,
 		                        ReductionOfValue<T>) {
@@ -88,7 +83,6 @@ namespace DF {
 		}
 
 		// Impl of checkDependencies for FunctionOfValues
-
 		inline void checkDependenciesRecursive (const NodeRefVec &, const std::type_info &, SizeType,
 		                                        FunctionOfValues<>) {}
 
@@ -113,15 +107,28 @@ namespace DF {
 	}
 
 	/* Interface for auto generated dependency type checking.
+	 * Should be used in node constructors to verify type of dependency nodes.
+	 * Thow exceptions on type mismatch, with a detailed message.
 	 *
-	 * Usage: call checkDependencies<DependencyStructureType> (depVector, typeid(CurrentNodeType));
+	 * Manual interface:
+	 * $ checkDependencies<DependencyTag> (depVector, typeid(CurrentNodeType));
+	 * DependencyTag is one of the dependency structure type tags.
+	 *
+	 * Simplified interface:
+	 * $ checkDependencies (*this);
+	 * The node class must contain a typedef "Dependencies" pointing to a dependency structure
+	 * type tag.
+	 * Simply calls the manual interface.
 	 */
-	template <typename DependencyStructure>
+	template <typename DependencyTag>
 	void checkDependencies (const NodeRefVec & dependencies, const std::type_info & inNodeType) {
-		Impl::checkDependencies (dependencies, inNodeType, DependencyStructure{});
+		Impl::checkDependencies (dependencies, inNodeType, DependencyTag{});
+	}
+	template <typename NodeType> void checkDependencies (const NodeType & node) {
+		checkDependencies<typename NodeType::Dependencies> (node.dependencies (), typeid (NodeType));
 	}
 
-  // TODO wrap function call for FunctionOfValues
+	// TODO wrap function call for FunctionOfValues
 }
 }
 #endif // BPP_NEWPHYL_DATAFLOWTEMPLATEUTILS_H

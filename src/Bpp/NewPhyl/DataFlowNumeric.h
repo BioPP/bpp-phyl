@@ -180,17 +180,12 @@ namespace DF {
 	// Move away later !
 
 	// Add double
-	class AddDouble : public Value<double> {
-	public:
-		AddDouble (NodeRefVec && deps) : Value<double> (std::move (deps)) {
-			checkDependencies<ReductionOfValue<double>> (this->dependencies (), typeid (AddDouble));
-		}
+	struct AddDouble : public Value<double> {
+		using Dependencies = ReductionOfValue<double>;
+		struct Builder;
 
-		std::string description () const final { return "+"; }
-
-		class Builder;
-
-	private:
+		AddDouble (NodeRefVec && deps) : Value<double> (std::move (deps)) { checkDependencies (*this); }
+		std::string description () const override final { return "+"; }
 		void compute () override final {
 			double a = 0.;
 			for (const auto & dep : this->dependencies ())
@@ -198,7 +193,7 @@ namespace DF {
 			this->value_ = a;
 		}
 	};
-	class AddDouble::Builder : public AbstractBuilder {
+	struct AddDouble::Builder : public AbstractBuilder {
 		NodeRef build () const override final {
 			NodeRefVec deps;
 			for (auto & builder : this->dependencies)
@@ -208,17 +203,12 @@ namespace DF {
 	};
 
 	// Multiply double
-	class MulDouble : public Value<double> {
-	public:
-		MulDouble (NodeRefVec && deps) : Value<double> (std::move (deps)) {
-			checkDependencies<ReductionOfValue<double>> (this->dependencies (), typeid (MulDouble));
-		}
+	struct MulDouble : public Value<double> {
+		using Dependencies = ReductionOfValue<double>;
+		struct Builder;
 
+		MulDouble (NodeRefVec && deps) : Value<double> (std::move (deps)) { checkDependencies (*this); }
 		std::string description () const final { return "*"; }
-
-		class Builder;
-
-	private:
 		void compute () override final {
 			double a = 1.;
 			for (const auto & dep : this->dependencies ())
@@ -226,7 +216,7 @@ namespace DF {
 			this->value_ = a;
 		}
 	};
-	class MulDouble::Builder : public AbstractBuilder {
+	struct MulDouble::Builder : public AbstractBuilder {
 		NodeRef build () const override final {
 			NodeRefVec deps;
 			for (auto & builder : this->dependencies)

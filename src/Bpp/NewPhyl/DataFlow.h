@@ -153,6 +153,14 @@ namespace DF {
 	protected:
 		T value_;
 	};
+	
+  /* Dependency structure description.
+	 * These type tags are used to specify compute node dependency types.
+   * This can serve as documentation about what arguments node expect.
+   * Helper functions in DataFlowTemplateUtils.h act depending on these type tags.
+	 */
+	template <typename T> struct ReductionOfValue {};        // Dynamic sized list of Value<T>
+	template <typename... Types> struct FunctionOfValues {}; // Tuple of Value<T0>, Value<T1>, ...
 
 	// Error function
 	[[noreturn]] void failureNodeConversion (const std::type_info & handleType, const Node & node);
