@@ -625,31 +625,18 @@ namespace bpp
       GeneralSubstitutionRegister(model),
       categoryCorrespondance_()
     {
-      size_t categoryIndex = 1;
-      for (size_t i = 1; i <= model->getAlphabet()->getSize(); ++i)
-      {
-        int state1 = model->getAlphabet()->getStateAt(i).getNum();
-        for (size_t j = i + 1; j <= model->getAlphabet()->getSize(); ++j)
-        {
-          int state2 = model->getAlphabet()->getStateAt(j).getNum();
-          if (!(model->getGeneticCode()->isStop(state1)) && !(model->getGeneticCode()->isStop(state2)))
-          {
-            if (model->getGeneticCode()->translate(state1) == model->getGeneticCode()->translate(state2))
-            {
-              std::string aminoAcid = model->getGeneticCode()->getTargetAlphabet()->intToChar(model->getGeneticCode()->translate(state1));
-              if (categoryCorrespondance_.find(aminoAcid) == categoryCorrespondance_.end())
-              {
-                categoryCorrespondance_[aminoAcid] = categoryIndex;
-                categoryIndex++;
-              }
-              matrix_(i, j) = categoryCorrespondance_[aminoAcid];
-              matrix_(j, i) = categoryCorrespondance_[aminoAcid];
-            }
-          }
-        }
-      }
+      updateMatrix_(model, *model->getGeneticCode());
       updateTypes_();
     }
+
+    AAInteriorSubstitutionRegister(const SubstitutionModel* model, const GeneticCode& gencod) :
+      GeneralSubstitutionRegister(model),
+      categoryCorrespondance_()
+    {
+      updateMatrix_(model, gencod);
+      updateTypes_();
+    }
+
 
     AAInteriorSubstitutionRegister* clone() const { return new AAInteriorSubstitutionRegister(*this); }
 
@@ -668,6 +655,35 @@ namespace bpp
       }
       throw Exception("Bad type number " + TextTools::toString(type) + " in GeneralSubstitutionRegister::getTypeName.");
     }
+
+  protected:    
+    void updateMatrix_(const SubstitutionModel* model, const GeneticCode& gencod)
+    {
+      size_t categoryIndex = 1;
+      for (size_t i = 1; i <= model->getAlphabet()->getSize(); ++i)
+      {
+        int state1 = model->getAlphabet()->getStateAt(i).getNum();
+        for (size_t j = i + 1; j <= model->getAlphabet()->getSize(); ++j)
+        {
+          int state2 = model->getAlphabet()->getStateAt(j).getNum();
+          if (!(gencod.isStop(state1)) && !(gencod.isStop(state2)))
+          {
+            if (gencod.translate(state1) == gencod.translate(state2))
+            {
+              std::string aminoAcid = gencod.getTargetAlphabet()->intToChar(gencod.translate(state1));
+              if (categoryCorrespondance_.find(aminoAcid) == categoryCorrespondance_.end())
+              {
+                categoryCorrespondance_[aminoAcid] = categoryIndex;
+                categoryIndex++;
+              }
+              matrix_(i, j) = categoryCorrespondance_[aminoAcid];
+              matrix_(j, i) = categoryCorrespondance_[aminoAcid];
+            }
+          }
+        }
+      }
+    }
+
   };
 
 /**
@@ -687,6 +703,40 @@ namespace bpp
       GeneralSubstitutionRegister(model),
       categoryCorrespondance_()
     {
+      updateMatrix_(model, *model->getGeneticCode());
+      updateTypes_();
+    }
+
+    AAExteriorSubstitutionRegister (const SubstitutionModel* model, const GeneticCode& gencod) :
+      GeneralSubstitutionRegister(model),
+      categoryCorrespondance_()
+    {
+      updateMatrix_(model, gencod);
+      updateTypes_();
+    }
+
+    
+    AAExteriorSubstitutionRegister* clone() const { return new AAExteriorSubstitutionRegister(*this); }
+
+    ~AAExteriorSubstitutionRegister() {}
+
+    std::string getTypeName(size_t type) const
+    {
+      if (types_.find(type) != types_.end())
+      {
+        for (std::map<std::string, size_t>::const_iterator it = categoryCorrespondance_.begin(); it != categoryCorrespondance_.end(); it++)
+        {
+          if (it->second == type)
+            return TextTools::toString(it->first);
+        }
+      }
+      throw Exception("Bad type number " + TextTools::toString(type) + " in GeneralSubstitutionRegister::getTypeName.");
+    }
+
+  protected:
+    void updateMatrix_(const SubstitutionModel* model, const GeneticCode& gencod)
+    {
+      
       size_t categoryIndex = 1;
       for (size_t i = 1; i <= model->getAlphabet()->getSize(); ++i)
       {
@@ -694,12 +744,12 @@ namespace bpp
         for (size_t j = i + 1; j <= model->getAlphabet()->getSize(); ++j)
         {
           int state2 = model->getAlphabet()->getStateAt(j).getNum();
-          if (!(model->getGeneticCode()->isStop(state1)) && !(model->getGeneticCode()->isStop(state2)))
+          if (!(gencod.isStop(state1)) && !(gencod.isStop(state2)))
           {
-            if (model->getGeneticCode()->translate(state1) != model->getGeneticCode()->translate(state2))
+            if (gencod.translate(state1) != gencod.translate(state2))
             {
-              std::string aminoAcid1 = model->getGeneticCode()->getTargetAlphabet()->intToChar(model->getGeneticCode()->translate(state1));
-              std::string aminoAcid2 = model->getGeneticCode()->getTargetAlphabet()->intToChar(model->getGeneticCode()->translate(state2));
+              std::string aminoAcid1 = gencod.getTargetAlphabet()->intToChar(gencod.translate(state1));
+              std::string aminoAcid2 = gencod.getTargetAlphabet()->intToChar(gencod.translate(state2));
               bool AA1IsNotInGroup = ((categoryCorrespondance_.find(aminoAcid1 + "->" + aminoAcid2) == categoryCorrespondance_.end()));
               bool AA2IsNotInGroup = ((categoryCorrespondance_.find(aminoAcid2 + "->" + aminoAcid1) == categoryCorrespondance_.end()));
               if (AA1IsNotInGroup)
@@ -718,25 +768,8 @@ namespace bpp
           }
         }
       }
-      updateTypes_();
     }
 
-    AAExteriorSubstitutionRegister* clone() const { return new AAExteriorSubstitutionRegister(*this); }
-
-    ~AAExteriorSubstitutionRegister() {}
-
-    std::string getTypeName(size_t type) const
-    {
-      if (types_.find(type) != types_.end())
-      {
-        for (std::map<std::string, size_t>::const_iterator it = categoryCorrespondance_.begin(); it != categoryCorrespondance_.end(); it++)
-        {
-          if (it->second == type)
-            return TextTools::toString(it->first);
-        }
-      }
-      throw Exception("Bad type number " + TextTools::toString(type) + " in GeneralSubstitutionRegister::getTypeName.");
-    }
   };
 
 /**
@@ -768,6 +801,11 @@ namespace bpp
     TsTvSubstitutionRegister(const CodonSubstitutionModel* model) :
       AbstractSubstitutionRegister(model,"TsTv"),
       code_(model->getGeneticCode())
+    {}
+
+    TsTvSubstitutionRegister(const SubstitutionModel* model, const GeneticCode& gencod) :
+      AbstractSubstitutionRegister(model,"TsTv"),
+      code_(&gencod)
     {}
 
     TsTvSubstitutionRegister(const TsTvSubstitutionRegister& reg) :
@@ -880,6 +918,11 @@ namespace bpp
     SWSubstitutionRegister(const CodonSubstitutionModel* model) :
       AbstractSubstitutionRegister(model,"SW"),
       code_(model->getGeneticCode())
+    {}
+
+    SWSubstitutionRegister(const SubstitutionModel* model, const GeneticCode& gencod) :
+      AbstractSubstitutionRegister(model,"SW"),
+      code_(&gencod)
     {}
 
     SWSubstitutionRegister(const SWSubstitutionRegister& reg) :
@@ -1006,6 +1049,12 @@ namespace bpp
       countMultiple_(countMultiple)
     {}
 
+    DnDsSubstitutionRegister(const SubstitutionModel* model, const GeneticCode& gencod, bool countMultiple = false) :
+      AbstractSubstitutionRegister(model,"DnDs"),
+      code_(&gencod),
+      countMultiple_(countMultiple)
+    {}
+
     DnDsSubstitutionRegister(const DnDsSubstitutionRegister& reg) :
       AbstractSubstitutionRegister(reg),
       code_(reg.code_),
@@ -1104,6 +1153,14 @@ namespace bpp
       AbstractSubstitutionRegister(model,"KrKc"),
       types_(20),
       code_(model->getGeneticCode())
+    {
+      init();
+    }
+
+    KrKcSubstitutionRegister(const SubstitutionModel* model, const GeneticCode& gencod) :
+      AbstractSubstitutionRegister(model,"KrKc"),
+      types_(20),
+      code_(&gencod)
     {
       init();
     }

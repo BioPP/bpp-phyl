@@ -41,39 +41,41 @@
 
 #include "Bpp/Numeric/Matrix/MatrixTools.h"
 #include <vector>
+#include <typeinfo>
 
 using namespace bpp;
 using namespace std;
 
 /******************************************************************************/
 
-DecompositionSubstitutionCount::DecompositionSubstitutionCount(const ReversibleSubstitutionModel* model, SubstitutionRegister* reg, const AlphabetIndex2* weights) :
+DecompositionSubstitutionCount::DecompositionSubstitutionCount(const SubstitutionModel* model, SubstitutionRegister* reg, const AlphabetIndex2* weights) :
   AbstractSubstitutionCount(reg),
   AbstractWeightedSubstitutionCount(weights, true),
-  model_(model),
-  nbStates_(model->getNumberOfStates()),
-  jMat_(nbStates_, nbStates_),
-  v_(nbStates_, nbStates_),
-  vInv_(nbStates_, nbStates_),
-  lambda_(nbStates_),
-  bMatrices_(reg->getNumberOfSubstitutionTypes()),
-  insideProducts_(reg->getNumberOfSubstitutionTypes()),
+  DecompositionMethods(model, reg),
   counts_(reg->getNumberOfSubstitutionTypes()),
-  currentLength_(-1.)
+  currentLength_(0)
 {
   //Check compatiblity between model and substitution register:
-  if (model->getAlphabet()->getAlphabetType() != reg->getAlphabet()->getAlphabetType())
+  if (typeid(model->getAlphabet())!=typeid(reg->getAlphabet()))
     throw Exception("DecompositionSubstitutionCount (constructor): alphabets do not match between register and model.");
 
-  //Initialize all B matrices according to substitution register. This is done once for all,
-  //unless the number of states changes:
   initBMatrices_();
+  initCounts_();
+
   fillBMatrices_();
-  computeEigen_();
   computeProducts_();
-}				
-    
-/******************************************************************************/
+}
+
+void DecompositionSubstitutionCount::initCounts_()
+{
+  counts_.resize(register_->getNumberOfSubstitutionTypes());
+  //Re-initialize all count matrices according to substitution register.
+  for (size_t i = 0; i < register_->getNumberOfSubstitutionTypes(); ++i) {
+    counts_[i].resize(nbStates_, nbStates_);
+  }
+}
+
+/*************************************************/
 
 void DecompositionSubstitutionCount::fillBMatrices_()
 {
@@ -82,91 +84,27 @@ void DecompositionSubstitutionCount::fillBMatrices_()
     for (size_t k = 0; k < nbStates_; ++k) {
       size_t i = register_->getType(j, k);
       if (i > 0 && k != j) {
-        //jdutheil on 25/07/14: I think this is incorrect, weights should only come at the end.
-        //bMatrices_[i - 1](j, k) = model_->Qij(j, k) * (weights_ ? weights_->getIndex(fromState, toState) : 1);
         bMatrices_[i - 1](j, k) = model_->Qij(j, k);
       }
     }
   }
 }
 
-void DecompositionSubstitutionCount::computeEigen_()
-{
-  v_      = model_->getColumnRightEigenVectors();
-  vInv_   = model_->getRowLeftEigenVectors();
-  lambda_ = model_->getEigenValues();
-}
-
-void DecompositionSubstitutionCount::computeProducts_()
-{
-  for (size_t i = 0; i < register_->getNumberOfSubstitutionTypes(); ++i) {
-    //vInv_ %*% bMatrices_[i] %*% v_;
-    RowMatrix<double> tmp(nbStates_, nbStates_);
-    MatrixTools::mult(vInv_, bMatrices_[i], tmp);
-    MatrixTools::mult(tmp, v_, insideProducts_[i]);
-  }
-}
-
-void DecompositionSubstitutionCount::resetBMatrices_()
-{
-  size_t nbTypes = register_->getNumberOfSubstitutionTypes();
-  bMatrices_.resize(nbTypes);
-  insideProducts_.resize(nbTypes);
-  counts_.resize(nbTypes);
-}
-
-void DecompositionSubstitutionCount::resetStates_()
-{
-  jMat_.resize(nbStates_, nbStates_);
-  v_.resize(nbStates_, nbStates_);
-  vInv_.resize(nbStates_, nbStates_);
-  lambda_.resize(nbStates_);
-}
-
-void DecompositionSubstitutionCount::initBMatrices_()
-{
-  //Re-initialize all B matrices according to substitution register.
-  for (size_t i = 0; i < register_->getNumberOfSubstitutionTypes(); ++i) {
-    bMatrices_[i].resize(nbStates_, nbStates_);
-    insideProducts_[i].resize(nbStates_, nbStates_);
-    counts_[i].resize(nbStates_, nbStates_);
-  }
-}
-
-void DecompositionSubstitutionCount::jFunction_(const std::vector<double>& lambda, double t, RowMatrix<double>& result) const
-{
-  vector<double> expLam = VectorTools::exp(lambda * t);
-  for (unsigned int i = 0; i < nbStates_; ++i) {
-    for (unsigned int j = 0; j < nbStates_; ++j) {
-      double dd = lambda[i] - lambda[j];
-      if (dd == 0) {
-        result(i, j) = t * expLam[i];
-      } else {
-        result(i, j) = (expLam[i] - expLam[j]) / dd;
-      }
-    }
-  }
-}
 
 /******************************************************************************/
 
 void DecompositionSubstitutionCount::computeCounts_(double length) const
 {
-  jFunction_(lambda_, length, jMat_);
-  for (size_t i = 0; i < register_->getNumberOfSubstitutionTypes(); ++i) {
-    RowMatrix<double> tmp1(nbStates_, nbStates_), tmp2(nbStates_, nbStates_);
-    MatrixTools::hadamardMult(jMat_, insideProducts_[i], tmp1);
-    MatrixTools::mult(v_, tmp1, tmp2);
-    MatrixTools::mult(tmp2, vInv_, counts_[i]);
-  }
+  computeExpectations(counts_, length);
+
   // Now we must divide by pijt and account for putative weights:
   vector<int> supportedStates = model_->getAlphabetStates();
   RowMatrix<double> P = model_->getPij_t(length);
-  for (size_t i = 0; i < register_->getNumberOfSubstitutionTypes(); i++) {
+  for (size_t i = 0; i < nbTypes_; i++) {
     for (size_t j = 0; j < nbStates_; j++) {
       for (size_t k = 0; k < nbStates_; k++) {
         counts_[i](j, k) /= P(j, k);
-        if (std::isnan(counts_[i](j, k)) || counts_[i](j, k) < 0.) {
+        if (std::isinf(counts_[i](j, k)) || std::isnan(counts_[i](j, k)) || counts_[i](j, k) < 0.) {
           counts_[i](j, k) = 0.;
           //Weights:
           if (weights_)
@@ -185,23 +123,7 @@ Matrix<double>* DecompositionSubstitutionCount::getAllNumbersOfSubstitutions(dou
     throw Exception("DecompositionSubstitutionCount::getAllNumbersOfSubstitutions. Negative branch length: " + TextTools::toString(length) + ".");
   if (length != currentLength_)
   {
-    //if (length < 0.000001) // Limit case!
-    //{ 
-    //  unsigned int s = model_->getAlphabet()->getSize();
-    //  for (unsigned int i = 0; i < s; i++)
-    //  {
-    //    for (unsigned int j = 0; j < s; j++)
-    //    {
-    //      m_(i, j) = i == j ? 0. : 1.;
-    //    }
-    //  }
-    //}
-    //else
-    //{
-    // Else we need to recompute M:
     computeCounts_(length);
-    //}
-
     currentLength_ = length;
   }
   return new RowMatrix<double>(counts_[type - 1]);
@@ -243,24 +165,17 @@ std::vector<double> DecompositionSubstitutionCount::getNumberOfSubstitutionsForE
 
 void DecompositionSubstitutionCount::setSubstitutionModel(const SubstitutionModel* model)
 {
-  const ReversibleSubstitutionModel* rModel = dynamic_cast<const ReversibleSubstitutionModel*>(model);
-  if (!rModel)
-    throw Exception("DecompositionSubstitutionCount::setSubstitutionModel. Only works with reversible models for now.");
-
   //Check compatiblity between model and substitution register:
-  if (model->getAlphabet()->getAlphabetType() != register_->getAlphabet()->getAlphabetType())
-    throw Exception("DecompositionSubstitutionCount::setSubstitutionModel: alphabets do not match between register and model.");
-  model_ = rModel;
-  size_t n = model->getNumberOfStates();
-  if (n != nbStates_) {
-    nbStates_ = n;
-    resetStates_();
-    initBMatrices_();
-  }
-  fillBMatrices_();
-  computeEigen_();
-  computeProducts_();
+  if (typeid(model->getAlphabet()) != typeid(register_->getAlphabet()))
+    throw Exception("DecompositionMethods::setSubstitutionModel: alphabets do not match between register and model.");
 
+  DecompositionMethods::setSubstitutionModel(model);
+
+  initCounts_();
+  
+  fillBMatrices_();
+  computeProducts_();
+  
   //Recompute counts:
   computeCounts_(currentLength_);
 }
@@ -269,15 +184,18 @@ void DecompositionSubstitutionCount::setSubstitutionModel(const SubstitutionMode
 
 void DecompositionSubstitutionCount::substitutionRegisterHasChanged() throw (Exception)
 {
-  //Check compatiblity between model and substitution register:
+//Check compatiblity between model and substitution register:
   if (model_->getAlphabet()->getAlphabetType() != register_->getAlphabet()->getAlphabetType())
-    throw Exception("DecompositionSubstitutionCount::substitutionRegisterHasChanged: alphabets do not match between register and model.");
+    throw Exception("DecompositionMethods::substitutionRegisterHasChanged: alphabets do not match between register and model.");
 
-  resetBMatrices_();
   initBMatrices_();
+  initStates_();
+  
+  initCounts_();
+
   fillBMatrices_();
   computeProducts_();
-
+  
   //Recompute counts:
   if (currentLength_ > 0)
     computeCounts_(currentLength_);
@@ -287,12 +205,9 @@ void DecompositionSubstitutionCount::substitutionRegisterHasChanged() throw (Exc
 
 void DecompositionSubstitutionCount::weightsHaveChanged() throw (Exception)
 {
-  if (weights_->getAlphabet()->getAlphabetType() != register_->getAlphabet()->getAlphabetType())
+  if (typeid(weights_->getAlphabet()) != typeid(register_->getAlphabet()))
     throw Exception("DecompositionSubstitutionCount::weightsHaveChanged. Incorrect alphabet type.");
 
-  //jdutheil on 25/07/14: not necessary if weights are only accounted for in the end.
-  //fillBMatrices_();
-  
   //Recompute counts:
   if (currentLength_ > 0)
     computeCounts_(currentLength_);

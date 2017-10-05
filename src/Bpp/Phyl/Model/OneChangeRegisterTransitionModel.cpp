@@ -58,7 +58,7 @@ OneChangeRegisterTransitionModel::OneChangeRegisterTransitionModel(const Substit
       if (reg.getType(i,j)!=numReg)
         otherChanges_[i].push_back(j);
       else
-        modelChanged_->getGenerator()(i,j)=0;
+        modelChanged_->setGenerator()(i,j)=0;
 
   updateMatrices();
   
@@ -92,7 +92,7 @@ OneChangeRegisterTransitionModel::OneChangeRegisterTransitionModel(const Substit
       if (othCh)
         otherChanges_[i].push_back(j);
       else
-        modelChanged_->getGenerator()(i,j)=0;
+        modelChanged_->setGenerator()(i,j)=0;
     }
 
   updateMatrices();  
@@ -102,11 +102,11 @@ OneChangeRegisterTransitionModel::OneChangeRegisterTransitionModel(const Substit
 
 void OneChangeRegisterTransitionModel::updateMatrices()
 {
-  const RowMatrix<double>& gen=getModel().getGenerator();
+  const RowMatrix<double>& gen=getSubstitutionModel().getGenerator();
   
   for (size_t i = 0; i < size_; i++)
     for (auto j : otherChanges_[i])
-      modelChanged_->getGenerator()(i,j)=gen(i, j);
+      modelChanged_->setGenerator()(i,j)=gen(i, j);
 
   modelChanged_->updateMatrices();
 }
@@ -115,10 +115,10 @@ double OneChangeRegisterTransitionModel::Pij_t(size_t i, size_t j, double t) con
 {
   if (t==0)
   {
-    const RowMatrix<double>& gen=getModel().getGenerator();
+    const RowMatrix<double>& gen=getSubstitutionModel().getGenerator();
     double si=-VectorTools::sum(gen.getRow(i));
     if (si!=0)
-      return (getModel().getGenerator()(i,j)-modelChanged_->getGenerator()(i,j))/si;
+      return (getSubstitutionModel().getGenerator()(i,j)-modelChanged_->getGenerator()(i,j))/si;
     else
       return (i==j)?1:0;
   }
@@ -148,7 +148,7 @@ double OneChangeRegisterTransitionModel::dPij_dt  (size_t i, size_t j, double t)
     MatrixTools::mult<double>(Qch,Qch,Qch2);
     double dsi=VectorTools::sum(Qch2.getRow(i));
 
-    const RowMatrix<double>& Q=getModel().getGenerator();
+    const RowMatrix<double>& Q=getSubstitutionModel().getGenerator();
     double q2ij(0);
 
     for (size_t k = 0; k < size_; ++k)
@@ -173,7 +173,7 @@ double OneChangeRegisterTransitionModel::d2Pij_dt2(size_t i, size_t j, double t)
 {
   if (t==0)
   {
-    const RowMatrix<double>& Q=getModel().getGenerator();
+    const RowMatrix<double>& Q=getSubstitutionModel().getGenerator();
     const RowMatrix<double>& Qch=modelChanged_->getGenerator();
     double si=VectorTools::sum(Qch.getRow(i));
 
@@ -221,7 +221,7 @@ const Matrix<double>& OneChangeRegisterTransitionModel::getPij_t(double t) const
 {
   if (t==0)
   {
-    const RowMatrix<double>& Q=getModel().getGenerator();
+    const RowMatrix<double>& Q=getSubstitutionModel().getGenerator();
     const RowMatrix<double>& Qch=modelChanged_->getGenerator();
 
     for (size_t i=0;i<size_;i++)
@@ -270,7 +270,7 @@ const Matrix<double>& OneChangeRegisterTransitionModel::getdPij_dt(double t) con
 {
   if (t==0)
   {
-    const RowMatrix<double>& Q=getModel().getGenerator();
+    const RowMatrix<double>& Q=getSubstitutionModel().getGenerator();
     const RowMatrix<double>& Qch=modelChanged_->getGenerator();
     
     RowMatrix<double> Qch2;
@@ -337,7 +337,7 @@ const Matrix<double>& OneChangeRegisterTransitionModel::getd2Pij_dt2(double t) c
 {
   if (t==0)
   {
-    const RowMatrix<double>& Q=getModel().getGenerator();
+    const RowMatrix<double>& Q=getSubstitutionModel().getGenerator();
     const RowMatrix<double>& Qch=modelChanged_->getGenerator();
     
     RowMatrix<double> Qch2, Qch3;

@@ -47,7 +47,7 @@ namespace bpp
 
   /*
    * @brief Substitution Model with no name nor predefined generator
-   * sets, and provides a non-const getGenerator() function to fill
+   * sets, and provides a non-const setGenerator() function to fill
    * the generator directly.
    *
    * Directly inherits from AbstractSubstitutionModel, hence uses the
@@ -76,7 +76,7 @@ namespace bpp
     
     size_t getNumberOfStates() const { return getAlphabet()->getSize(); }
 
-    Matrix<double>& getGenerator() { return generator_; }
+    Matrix<double>& setGenerator() { return generator_; }
   };
 } // end of namespace bpp.
 

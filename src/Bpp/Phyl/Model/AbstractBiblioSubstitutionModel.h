@@ -37,10 +37,11 @@
   knowledge of the CeCILL license and that you accept its terms.
 */
 
-#ifndef _ABSTRACTBIBLIOSUBSTITUTIONMODEL_H_
-#define _ABSTRACTBIBLIOSUBSTITUTIONMODEL_H_
+#ifndef _ABSTRACT_BIBLIO_SUBSTITUTIONMODEL_H_
+#define _ABSTRACT_BIBLIO_SUBSTITUTIONMODEL_H_
 
 #include "SubstitutionModel.h"
+#include "WrappedModel.h"
 
 #include <Bpp/Numeric/AbstractParameterAliasable.h>
 
@@ -54,7 +55,7 @@ namespace bpp
  */
 
   class AbstractBiblioSubstitutionModel :
-    public virtual SubstitutionModel,
+    public virtual WrappedSubstitutionModel,
     public AbstractParameterAliasable
   {
   protected:
@@ -79,14 +80,9 @@ namespace bpp
 
     virtual AbstractBiblioSubstitutionModel* clone() const = 0;
 
-  public:
-    virtual const SubstitutionModel& getModel() const = 0;
-
   protected:
     virtual void updateMatrices();
 
-    virtual SubstitutionModel& getModel() = 0;
-    
   public:
 
     
@@ -105,72 +101,11 @@ namespace bpp
      * @{
      */
 
-    const std::vector<int>& getAlphabetStates() const { return getModel().getAlphabetStates(); }
-
-    const StateMap& getStateMap() const { return getModel().getStateMap(); }
-
-    int getAlphabetStateAsInt(size_t i) const { return getModel().getAlphabetStateAsInt(i); }
-  
-    std::string getAlphabetStateAsChar(size_t i) const { return getModel().getAlphabetStateAsChar(i); }
-
-    std::vector<size_t> getModelStates(int code) const { return getModel().getModelStates(code); }
-  
-    std::vector<size_t> getModelStates(const std::string& code) const { return getModel().getModelStates(code); }
-
-    virtual double freq(size_t i) const { return getModel().freq(i); }
-
-    virtual double Qij(size_t i, size_t j) const { return getModel().Qij(i, j); }
-
-    virtual double Pij_t    (size_t i, size_t j, double t) const { return getModel().Pij_t(i, j, t); }
-    virtual double dPij_dt  (size_t i, size_t j, double t) const { return getModel().dPij_dt (i, j, t); }
-    virtual double d2Pij_dt2(size_t i, size_t j, double t) const { return getModel().d2Pij_dt2(i, j, t); }
-
-    virtual const Vdouble& getFrequencies() const { return getModel().getFrequencies(); }
-
-    const Matrix<double>& getGenerator() const { return getModel().getGenerator(); }
-
-    const Matrix<double>& getExchangeabilityMatrix() const { return getModel().getExchangeabilityMatrix(); }
-
-    double Sij(size_t i, size_t j) const { return getModel().Sij(i, j); }
-
-    const Matrix<double>& getPij_t(double t) const { return getModel().getPij_t(t); }
-
-    const Matrix<double>& getdPij_dt(double t) const { return getModel().getdPij_dt(t); }
-
-    const Matrix<double>& getd2Pij_dt2(double t) const { return getModel().getd2Pij_dt2(t); }
-
-    void enableEigenDecomposition(bool yn) { getModel().enableEigenDecomposition(yn); }
-
-    bool enableEigenDecomposition() { return getModel().enableEigenDecomposition(); }
-
-    bool isDiagonalizable() const { return getModel().isDiagonalizable(); }
-
-    bool isNonSingular() const { return getModel().isNonSingular(); }
-
-    const Vdouble& getEigenValues() const { return getModel().getEigenValues(); }
-
-    const Vdouble& getIEigenValues() const { return getModel().getIEigenValues(); }
-
-    const Matrix<double>& getRowLeftEigenVectors() const { return getModel().getRowLeftEigenVectors(); }
-    const Matrix<double>& getColumnRightEigenVectors() const { return getModel().getColumnRightEigenVectors(); }
-
-    double getRate() const { return getModel().getRate(); }
-
-    void setRate(double rate) { return getModel().setRate(rate); }
-
     void addRateParameter();
 
     void setFreqFromData(const SequencedValuesContainer& data, double pseudoCount = 0);
 
     void setFreq(std::map<int, double>& frequ);
-
-    const Alphabet* getAlphabet() const { return getModel().getAlphabet(); }
-
-    size_t getNumberOfStates() const { return getModel().getNumberOfStates(); }
-
-    double getInitValue(size_t i, int state) const throw (BadIntException) { return getModel().getInitValue(i, state); }
-
-    const FrequenciesSet* getFrequenciesSet() const {return getModel().getFrequenciesSet(); }
 
     /*
      * @}
@@ -182,7 +117,7 @@ namespace bpp
      *
      * @{
      */
-
+    
     /**
      * @brief Tells the model that a parameter value has changed.
      *
@@ -202,26 +137,6 @@ namespace bpp
 
     void setNamespace(const std::string& name);
   
-  public:
-    bool isScalable() const 
-    {
-      return getModel().isScalable();
-    }
-
-    void setScalable(bool scalable)
-    {
-      getModel().setScalable(scalable);
-    }
-
-    void normalize()
-    {
-      getModel().normalize();
-    }
-    
-    double getScale() const { return getModel().getScale(); }
-
-    void setScale(double scale) { getModel().setScale(scale); }
-
     /*
      * @}
      */

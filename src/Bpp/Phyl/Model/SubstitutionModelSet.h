@@ -247,7 +247,6 @@ public:
    * @param i Index of the model in the set.
    * @return A pointer toward the corresponding model.
    */
-  
   const SubstitutionModel* getModel(size_t i) const throw (IndexOutOfBoundsException)
   {
     std::cerr << "#warning : SubstitutionModelSet::getModel function is deprecated in Bio++ 2.3.0. Replace it with SubstitutionModelSet::getSubstitutionModel." << std::endl;
@@ -274,11 +273,9 @@ public:
     return modelSet_[i];
   }
 
-  /*
-   * @brief Return a markovian substitution model (or null)
-   *
+  /**
+   *@brief Return a markovian substitution model (or null)
    */
-  
   const SubstitutionModel* getSubstitutionModel(size_t i) const throw (IndexOutOfBoundsException)
   {
     try

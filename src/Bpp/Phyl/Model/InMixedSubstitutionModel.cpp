@@ -1,7 +1,7 @@
 //
-// File: FromMixtureSubstitutionModel.cpp
+// File: InMixedSubstitutionModel.cpp
 // Created by: Laurent Gueguen
-// Created on: samedi 24 octobre 2015, à 18h 50
+// Created on: vendredi 22 septembre 2017, à 09h 57
 //
 
 /*
@@ -37,68 +37,67 @@
    knowledge of the CeCILL license and that you accept its terms.
  */
 
-#include "FromMixtureSubstitutionModel.h"
+#include "InMixedSubstitutionModel.h"
 
 using namespace bpp;
 using namespace std;
 
 /******************************************************************************/
 
-FromMixtureSubstitutionModel::FromMixtureSubstitutionModel(const MixedSubstitutionModel& mixedModel, const std::string& subModelName, const std::string& mixtDesc) :
-  AbstractParameterAliasable(mixedModel.getName() + "_" + subModelName + "."),
-  subModel_(),
+InMixedSubstitutionModel::InMixedSubstitutionModel(const MixedSubstitutionModel& mixedModel, const std::string& subModelName, const std::string& mixtDesc) :
+  AbstractParameterAliasable(mixedModel.getNamespace()),
+  mixedModel_(mixedModel.clone()),
+  subModelNumber_(0),
   mixtName_(mixtDesc)
 {
   const SubstitutionModel* sm = mixedModel.getSubModelWithName(subModelName);
 
   if (sm == 0)
-    throw ParameterNotFoundException("FromMixtureSubstitutionModel::FromMixtureSubstitutionModel : unknown model name", subModelName);
-
-  subModel_ = std::unique_ptr<SubstitutionModel>(sm->clone());
-  subModel_->setNamespace(getNamespace());
-
-  subModel_->setRate(1);
-  addParameters_(subModel_->getParameters());
+    throw ParameterNotFoundException("InMixedSubstitutionModel::InMixedSubstitutionModel : unknown model name", subModelName);
+  else
+  {
+    Vint vn=mixedModel_->getSubmodelNumbers(subModelName);
+    subModelNumber_=(size_t)vn[0];
+  }
+  
+  addParameters_(mixedModel_->getParameters());
 }
 
-FromMixtureSubstitutionModel::FromMixtureSubstitutionModel(const MixedSubstitutionModel& mixedModel, size_t subModelNumber, const std::string& mixtDesc) :
-  AbstractParameterAliasable(mixedModel.getName() + "_" + TextTools::toString(subModelNumber) + "."),
-  subModel_(),
+InMixedSubstitutionModel::InMixedSubstitutionModel(const MixedSubstitutionModel& mixedModel, size_t subModelNumber, const std::string& mixtDesc) :
+  AbstractParameterAliasable(mixedModel.getNamespace()),
+  mixedModel_(mixedModel.clone()),
+  subModelNumber_(subModelNumber),
   mixtName_(mixtDesc)
 {
   if (subModelNumber>=mixedModel.getNumberOfModels())
-    throw ParameterNotFoundException("FromMixtureSubstitutionModel::FromMixtureSubstitutionModel : bad model number", TextTools::toString(subModelNumber));
+    throw ParameterNotFoundException("InMixedSubstitutionModel::InMixedSubstitutionModel : bad model number", TextTools::toString(subModelNumber));
 
-  const SubstitutionModel* sm = mixedModel.getNModel(subModelNumber);
-
-  subModel_ = std::unique_ptr<SubstitutionModel>(sm->clone());
-  subModel_->setNamespace(getNamespace());
-
-  subModel_->setRate(1);
-  addParameters_(subModel_->getParameters());
+  addParameters_(mixedModel_->getParameters());
 }
 
 
 /******************************************************************************/
 
-FromMixtureSubstitutionModel::FromMixtureSubstitutionModel(const FromMixtureSubstitutionModel& fmsm) :
+InMixedSubstitutionModel::InMixedSubstitutionModel(const InMixedSubstitutionModel& fmsm) :
   AbstractParameterAliasable(fmsm),
-  subModel_(fmsm.subModel_->clone()),
+  mixedModel_(fmsm.mixedModel_->clone()),
+  subModelNumber_(fmsm.subModelNumber_),
   mixtName_(fmsm.mixtName_)
 {}
 
 
 /******************************************************************************/
 
-FromMixtureSubstitutionModel& FromMixtureSubstitutionModel::operator=(const FromMixtureSubstitutionModel& fmsm)
+InMixedSubstitutionModel& InMixedSubstitutionModel::operator=(const InMixedSubstitutionModel& fmsm)
 {
   AbstractParameterAliasable::operator=(fmsm);
 
-  subModel_ = std::unique_ptr<SubstitutionModel>(fmsm.subModel_->clone());
+  mixedModel_ = std::unique_ptr<MixedSubstitutionModel>(fmsm.mixedModel_->clone());
 
+  subModelNumber_ = fmsm.subModelNumber_;
+  
   mixtName_ = fmsm.mixtName_;
 
   return *this;
 }
-
 

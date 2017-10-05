@@ -332,9 +332,8 @@ ProbabilisticRewardMapping* RewardMappingTools::computeRewardVectors(
 
     // Now we just have to copy the substitutions into the result vector:
     for (size_t i = 0; i < nbSites; ++i)
-    {
       (*rewards)(l, i) = rewardsForCurrentNode[(*rootPatternLinks)[i]] / Lr[(*rootPatternLinks)[i]];
-    }
+
   }
   if (verbose)
   {

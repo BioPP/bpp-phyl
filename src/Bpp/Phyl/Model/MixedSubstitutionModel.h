@@ -137,7 +137,7 @@ namespace bpp
      *
      */
   
-    virtual Vint getSubmodelNumbers(std::string& desc) const = 0;
+    virtual Vint getSubmodelNumbers(const std::string& desc) const = 0;
 
 
   };

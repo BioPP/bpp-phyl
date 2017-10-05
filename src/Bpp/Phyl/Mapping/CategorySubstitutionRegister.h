@@ -338,6 +338,31 @@ namespace bpp
       setAlphabetCategories<int>(categories);
     }
 
+    GCSynonymousSubstitutionRegister(const SubstitutionModel* model, const GeneticCode& gencod, bool within = false) :
+      CategorySubstitutionRegister(model, within),
+      code_(&gencod)
+    {
+      const CodonAlphabet* pCA = dynamic_cast<const CodonAlphabet*>(code_->getSourceAlphabet());
+
+      std::map<int, int> categories;
+      for (int i = 0; i < static_cast<int>(pCA->getSize()); i++)
+      {
+        int n = pCA->getThirdPosition(i);
+        switch (n)
+        {
+        case 0:
+        case 3:
+          categories[i] = 1;
+          break;
+        case 1:
+        case 2:
+          categories[i] = 2;
+          break;
+        }
+      }
+      setAlphabetCategories<int>(categories);
+    }
+
     GCSynonymousSubstitutionRegister(const GCSynonymousSubstitutionRegister& reg) :
       CategorySubstitutionRegister(reg),
       code_(reg.code_)

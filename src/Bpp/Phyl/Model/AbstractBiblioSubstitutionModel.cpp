@@ -97,6 +97,7 @@ void AbstractBiblioSubstitutionModel::addRateParameter()
 {
   getModel().addRateParameter();
   addParameter_(new Parameter(getNamespace() + "rate", getModel().getRate(), &Parameter::R_PLUS_STAR));
+  
   mapParNamesFromPmodel_[getNamespace() + "rate"] = "rate";
   lParPmodel_.reset();
   lParPmodel_.addParameters(getModel().getParameters());
@@ -127,7 +128,7 @@ void AbstractBiblioSubstitutionModel::setNamespace(const std::string& name)
 
 void AbstractBiblioSubstitutionModel::setFreq(std::map<int, double>& m)
 {
-  getModel().setFreq(m);
+  WrappedSubstitutionModel::setFreq(m);
 
   ParameterList pl;
   for (auto it = mapParNamesFromPmodel_.begin(); it != mapParNamesFromPmodel_.end(); it++)
@@ -141,7 +142,8 @@ void AbstractBiblioSubstitutionModel::setFreq(std::map<int, double>& m)
 
 void AbstractBiblioSubstitutionModel::setFreqFromData(const SequencedValuesContainer& data, double pseudoCount)
 {
-  getModel().setFreqFromData(data, pseudoCount);
+  WrappedSubstitutionModel::setFreqFromData(data, pseudoCount);
+  
   ParameterList pl;
   for (auto it = mapParNamesFromPmodel_.begin(); it != mapParNamesFromPmodel_.end(); it++)
   {

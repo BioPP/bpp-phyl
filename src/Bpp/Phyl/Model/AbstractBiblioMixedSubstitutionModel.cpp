@@ -44,22 +44,27 @@ using namespace std;
 /******************************************************************************/
 
 AbstractBiblioMixedSubstitutionModel::AbstractBiblioMixedSubstitutionModel(const std::string& prefix):
-  AbstractBiblioSubstitutionModel(prefix)
+  AbstractBiblioSubstitutionModel(prefix),
+  pmixmodel_()
 {}
   
-AbstractBiblioMixedSubstitutionModel::AbstractBiblioMixedSubstitutionModel(const AbstractBiblioMixedSubstitutionModel& mod2) : AbstractBiblioSubstitutionModel(mod2)
-{}
+AbstractBiblioMixedSubstitutionModel::AbstractBiblioMixedSubstitutionModel(const AbstractBiblioMixedSubstitutionModel& mod2) :
+  AbstractBiblioSubstitutionModel(mod2),
+  pmixmodel_(mod2.pmixmodel_->clone())
+{
+}
 
 AbstractBiblioMixedSubstitutionModel& AbstractBiblioMixedSubstitutionModel::operator=(const AbstractBiblioMixedSubstitutionModel& mod2)
 {
   AbstractBiblioSubstitutionModel::operator=(mod2);
+  pmixmodel_.reset(mod2.pmixmodel_->clone());
   return *this;
 }
 
 AbstractBiblioMixedSubstitutionModel::~AbstractBiblioMixedSubstitutionModel()
 {}
 
-Vint AbstractBiblioMixedSubstitutionModel::getSubmodelNumbers(std::string& desc) const
+Vint AbstractBiblioMixedSubstitutionModel::getSubmodelNumbers(const std::string& desc) const
 {
   std::string desc2;
 

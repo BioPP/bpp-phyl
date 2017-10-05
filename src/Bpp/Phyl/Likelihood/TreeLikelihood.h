@@ -354,7 +354,8 @@ namespace bpp
      * @return A pointer toward the corresponding model.
      * @throw NodeNotFoundException This exception may be thrown if the node is not found (depending on the implementation).
      */
-    virtual const TransitionModel* getSubstitutionModel(int nodeId, size_t siteIndex) const throw (NodeNotFoundException) = 0;
+
+    virtual const TransitionModel* getModel(int nodeId, size_t siteIndex) const throw (NodeNotFoundException) = 0;
 
     /**
      * @brief Get the substitution model associated to a given node and alignment column.
@@ -365,7 +366,8 @@ namespace bpp
      * @return A pointer toward the corresponding model.
      * @throw NodeNotFoundException This exception may be thrown if the node is not found (depending on the implementation).
      */
-    virtual TransitionModel* getSubstitutionModel(int nodeId, size_t siteIndex) throw (NodeNotFoundException) = 0;
+    
+    virtual TransitionModel* getModel(int nodeId, size_t siteIndex) throw (NodeNotFoundException) = 0;
 
     /**
      * @brief Retrieves all Pij(t) for a particular branch, defined by the upper node and site.

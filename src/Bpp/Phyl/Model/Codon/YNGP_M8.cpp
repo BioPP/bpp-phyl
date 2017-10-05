@@ -38,6 +38,7 @@
 
 #include "YNGP_M8.h"
 #include "YN98.h"
+#include "../MixtureOfASubstitutionModel.h"
 
 #include <Bpp/Numeric/Prob/MixtureOfDiscreteDistributions.h>
 #include <Bpp/Numeric/Prob/SimpleDiscreteDistribution.h>
@@ -51,10 +52,7 @@ using namespace std;
 /******************************************************************************/
 
 YNGP_M8::YNGP_M8(const GeneticCode* gc, FrequenciesSet* codonFreqs, unsigned int nclass) :
-  AbstractBiblioMixedSubstitutionModel("YNGP_M8."),
-  pmixmodel_(),
-  synfrom_(),
-  synto_()
+  YNGP_M("YNGP_M8.")
 {
   if (nclass <= 0)
     throw Exception("Bad number of classes for model YNGP_M8: " + TextTools::toString(nclass));
@@ -137,25 +135,6 @@ YNGP_M8::YNGP_M8(const GeneticCode* gc, FrequenciesSet* codonFreqs, unsigned int
   // update Matrices
   updateMatrices();
 }
-
-YNGP_M8::YNGP_M8(const YNGP_M8& mod2) : AbstractBiblioMixedSubstitutionModel(mod2),
-  pmixmodel_(new MixtureOfASubstitutionModel(*mod2.pmixmodel_)),
-  synfrom_(mod2.synfrom_),
-  synto_(mod2.synto_)
-{}
-
-YNGP_M8& YNGP_M8::operator=(const YNGP_M8& mod2)
-{
-  AbstractBiblioMixedSubstitutionModel::operator=(mod2);
-
-  pmixmodel_.reset(new MixtureOfASubstitutionModel(*mod2.pmixmodel_));
-  synfrom_ = mod2.synfrom_;
-  synto_ = mod2.synto_;
-
-  return *this;
-}
-
-YNGP_M8::~YNGP_M8() {}
 
 void YNGP_M8::updateMatrices()
 {

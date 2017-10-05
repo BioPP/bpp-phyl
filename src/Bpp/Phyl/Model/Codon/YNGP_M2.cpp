@@ -38,6 +38,7 @@
 
 #include "YNGP_M2.h"
 #include "YN98.h"
+#include "../MixtureOfASubstitutionModel.h"
 
 #include <Bpp/Numeric/NumConstants.h>
 #include <Bpp/Numeric/Prob/SimpleDiscreteDistribution.h>
@@ -49,10 +50,7 @@ using namespace std;
 /******************************************************************************/
 
 YNGP_M2::YNGP_M2(const GeneticCode* gc, FrequenciesSet* codonFreqs) :
-  AbstractBiblioMixedSubstitutionModel("YNGP_M2."),
-  pmixmodel_(),
-  synfrom_(),
-  synto_()
+  YNGP_M("YNGP_M2.")
 {
   // build the submodel
 
@@ -129,25 +127,6 @@ YNGP_M2::YNGP_M2(const GeneticCode* gc, FrequenciesSet* codonFreqs) :
 
   updateMatrices();
 }
-
-YNGP_M2::YNGP_M2(const YNGP_M2& mod2) : AbstractBiblioMixedSubstitutionModel(mod2),
-  pmixmodel_(new MixtureOfASubstitutionModel(*mod2.pmixmodel_)),
-  synfrom_(mod2.synfrom_),
-  synto_(mod2.synto_)
-{}
-
-YNGP_M2& YNGP_M2::operator=(const YNGP_M2& mod2)
-{
-  AbstractBiblioMixedSubstitutionModel::operator=(mod2);
-
-  pmixmodel_.reset(new MixtureOfASubstitutionModel(*mod2.pmixmodel_));
-  synfrom_ = mod2.synfrom_;
-  synto_ = mod2.synto_;
-
-  return *this;
-}
-
-YNGP_M2::~YNGP_M2() {}
 
 void YNGP_M2::updateMatrices()
 {

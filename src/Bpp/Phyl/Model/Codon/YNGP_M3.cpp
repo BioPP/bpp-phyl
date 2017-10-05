@@ -38,6 +38,7 @@
 
 #include "YNGP_M3.h"
 #include "YN98.h"
+#include "../MixtureOfASubstitutionModel.h"
 
 #include <Bpp/Numeric/NumConstants.h>
 #include <Bpp/Numeric/Prob/SimpleDiscreteDistribution.h>
@@ -49,10 +50,7 @@ using namespace std;
 /******************************************************************************/
 
 YNGP_M3::YNGP_M3(const GeneticCode* gc, FrequenciesSet* codonFreqs, unsigned int nbOmega) :
-  AbstractBiblioMixedSubstitutionModel("YNGP_M3."),
-  pmixmodel_(),
-  synfrom_(),
-  synto_()
+  YNGP_M("YNGP_M3.")
 {
   if (nbOmega < 1)
     throw Exception("At least one omega is necessary in the YNGP_M3 model");
@@ -147,25 +145,6 @@ YNGP_M3::YNGP_M3(const GeneticCode* gc, FrequenciesSet* codonFreqs, unsigned int
   // update Matrices
   updateMatrices();
 }
-
-YNGP_M3::YNGP_M3(const YNGP_M3& mod2) : AbstractBiblioMixedSubstitutionModel(mod2),
-  pmixmodel_(new MixtureOfASubstitutionModel(*mod2.pmixmodel_)),
-  synfrom_(mod2.synfrom_),
-  synto_(mod2.synto_)
-{}
-
-YNGP_M3& YNGP_M3::operator=(const YNGP_M3& mod2)
-{
-  AbstractBiblioMixedSubstitutionModel::operator=(mod2);
-
-  pmixmodel_.reset(new MixtureOfASubstitutionModel(*mod2.pmixmodel_));
-  synfrom_ = mod2.synfrom_;
-  synto_ = mod2.synto_;
-
-  return *this;
-}
-
-YNGP_M3::~YNGP_M3() {}
 
 void YNGP_M3::updateMatrices()
 {

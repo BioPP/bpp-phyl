@@ -103,14 +103,15 @@ namespace bpp
   public:
     std::string getName() const { return "KCM"+std::string(oneModel_?"7":"19")+".";}
 
-    const SubstitutionModel& getModel() const { return *pmodel_.get(); }
+    const SubstitutionModel& getSubstitutionModel() const { return *pmodel_.get(); }
 
     const GeneticCode* getGeneticCode() const { return pmodel_->getGeneticCode(); }
   
     double getCodonsMulRate(size_t i, size_t j) const { return pmodel_->getCodonsMulRate(i, j); }
 
-  private:
-    SubstitutionModel& getModel() { return *pmodel_.get(); }
+  protected:
+    SubstitutionModel& getSubstitutionModel() { return *pmodel_.get(); }
+
   };
 
 } // end of namespace bpp.

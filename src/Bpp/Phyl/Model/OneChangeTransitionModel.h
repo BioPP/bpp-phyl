@@ -77,16 +77,10 @@ namespace bpp
     OneChangeTransitionModel* clone() const { return new OneChangeTransitionModel(*this); }
 
   public:
-    double freq(size_t i) const { return getModel().freq(i); }
-
     double Pij_t    (size_t i, size_t j, double t) const;
     double dPij_dt  (size_t i, size_t j, double t) const;
     double d2Pij_dt2(size_t i, size_t j, double t) const;
     
-    const Vdouble& getFrequencies() const { return getModel().getFrequencies(); }
-
-    const FrequenciesSet* getFrequenciesSet() const {return getModel().getFrequenciesSet(); }
-
     const Matrix<double>& getPij_t(double t) const;
     
     const Matrix<double>& getdPij_dt(double t) const;

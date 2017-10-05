@@ -140,7 +140,6 @@ int main() {
   for (size_t i = 0; i < thetas.size(); ++i) {
     cout << thetas[i] << "\t" << modelSet3->getTransitionModel(i)->getParameter("theta").getValue() << endl;
     double diff = abs(thetas[i] - modelSet3->getTransitionModel(i)->getParameter("theta").getValue());
-    
     if (diff > 0.1)
     {
       cout << "difference too large" << endl;

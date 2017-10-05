@@ -59,8 +59,6 @@ set (CPP_FILES
   Bpp/Phyl/Likelihood/RNonHomogeneousMixedTreeLikelihood.cpp
   Bpp/Phyl/Likelihood/RNonHomogeneousTreeLikelihood.cpp
   Bpp/Phyl/Likelihood/TreeLikelihoodTools.cpp
-  Bpp/Phyl/Likelihood/PairedSiteLikelihoods.cpp
-  Bpp/Phyl/Likelihood/GlobalClockTreeLikelihoodFunctionWrapper.cpp
   Bpp/Phyl/NewLikelihood/AbstractSubstitutionProcess.cpp
   Bpp/Phyl/NewLikelihood/SimpleSubstitutionProcess.cpp
   Bpp/Phyl/NewLikelihood/NonHomogeneousSubstitutionProcess.cpp
@@ -100,6 +98,7 @@ set (CPP_FILES
   Bpp/Phyl/NewLikelihood/PhyloLikelihoods/HmmProcessPhyloLikelihood.cpp
   Bpp/Phyl/NewLikelihood/PhyloLikelihoods/AutoCorrelationProcessPhyloLikelihood.cpp
   Bpp/Phyl/NewLikelihood/MarginalAncestralReconstruction.cpp
+  Bpp/Phyl/Mapping/DecompositionMethods.cpp
   Bpp/Phyl/Mapping/DecompositionReward.cpp
   Bpp/Phyl/Mapping/DecompositionSubstitutionCount.cpp
   Bpp/Phyl/Mapping/LaplaceSubstitutionCount.cpp
@@ -165,6 +164,13 @@ set (CPP_FILES
   Bpp/Phyl/Model/FrequenciesSet/MvaFrequenciesSet.cpp
   Bpp/Phyl/Model/FrequenciesSet/NucleotideFrequenciesSet.cpp
   Bpp/Phyl/Model/FrequenciesSet/WordFrequenciesSet.cpp
+  Bpp/Phyl/Model/FromMixtureSubstitutionModel.cpp
+  Bpp/Phyl/Model/InMixedSubstitutionModel.cpp
+  Bpp/Phyl/Model/KroneckerWordSubstitutionModel.cpp
+  Bpp/Phyl/Model/MarkovModulatedSubstitutionModel.cpp
+  Bpp/Phyl/Model/MixedSubstitutionModelSet.cpp
+  Bpp/Phyl/Model/MixtureOfASubstitutionModel.cpp
+  Bpp/Phyl/Model/MixtureOfSubstitutionModels.cpp
   Bpp/Phyl/Model/Nucleotide/F81.cpp
   Bpp/Phyl/Model/Nucleotide/F84.cpp
   Bpp/Phyl/Model/Nucleotide/GTR.cpp

@@ -40,7 +40,7 @@
 #ifndef _ABSTRACT_FROM_SUBSTITUTION_MODEL_TRANSITION_MODEL_H_
 #define _ABSTRACT_FROM_SUBSTITUTION_MODEL_TRANSITION_MODEL_H_
 
-#include "SubstitutionModel.h"
+#include "WrappedModel.h"
 
 namespace bpp
 {
@@ -52,7 +52,7 @@ namespace bpp
  */
 
   class AbstractFromSubstitutionModelTransitionModel :
-    public virtual TransitionModel,
+    public virtual WrappedModel,
     public AbstractParameterAliasable
   {
   protected:
@@ -89,91 +89,35 @@ namespace bpp
     virtual AbstractFromSubstitutionModelTransitionModel* clone() const = 0;
     
   public:
-    const SubstitutionModel& getModel() const
+    const SubstitutionModel& getSubstitutionModel() const
+    {
+      return *subModel_.get();
+    }
+
+    const TransitionModel& getModel() const
     {
       return *subModel_.get();
     }
 
   protected:
-    SubstitutionModel& getModel()
+    SubstitutionModel& getSubstitutionModel()
     {
       return *subModel_.get();
     }
+
     
+    TransitionModel& getModel()
+    {
+      return *subModel_.get();
+    }
+
   public:
-    /*
-     *@ brief Methods to supersede SubstitutionModel methods.
-     *
-     * @{
-     */
-
-    const Alphabet* getAlphabet() const { return getModel().getAlphabet(); }
-
-    size_t getNumberOfStates() const { return getModel().getNumberOfStates(); }
-
-    const std::vector<int>& getAlphabetStates() const { return getModel().getAlphabetStates(); }
-
-    const StateMap& getStateMap() const { return getModel().getStateMap(); }
-
-    int getAlphabetStateAsInt(size_t i) const { return getModel().getAlphabetStateAsInt(i); }
-
-    std::string getAlphabetStateAsChar(size_t i) const { return getModel().getAlphabetStateAsChar(i); }
-
-    std::vector<size_t> getModelStates(int code) const { return getModel().getModelStates(code); }
-
-    std::vector<size_t> getModelStates(const std::string& code) const { return getModel().getModelStates(code); }
-
-    virtual double freq(size_t i) const = 0;
-
-    virtual double Pij_t (size_t i, size_t j, double t) const = 0;
-    
-    virtual double dPij_dt (size_t i, size_t j, double t) const = 0;
-    
-    virtual double d2Pij_dt2(size_t i, size_t j, double t) const = 0;
-
-    virtual const Vdouble& getFrequencies() const = 0;
-
-    virtual const Matrix<double>& getPij_t(double t) const = 0;
-
-    virtual const Matrix<double>& getdPij_dt(double t) const = 0;
-
-    virtual const Matrix<double>& getd2Pij_dt2(double t) const = 0;
-
-    double getRate() const { return getModel().getRate(); }
-
-    void setRate(double rate) { return getModel().setRate(rate); }
-
-    void addRateParameter()
+    virtual void addRateParameter()
     {
       getModel().addRateParameter();
       addParameter_(new Parameter(getNamespace() + "rate", getModel().getRate(), &Parameter::R_PLUS_STAR));
     }
 
-    void setFreqFromData(const SequencedValuesContainer& data, double pseudoCount = 0){getModel().setFreqFromData(data, pseudoCount); }
-
-    void setFreq(std::map<int, double>& frequ) {getModel().setFreq(frequ); }
-
-    double getInitValue(size_t i, int state) const throw (BadIntException) { return getModel().getInitValue(i, state); }
-
-    virtual const FrequenciesSet* getFrequenciesSet() const = 0;
-
-    /*
-     * @}
-     *
-     */
-
-    /*
-     *@ brief Methods to supersede AbstractSubstitutionModel methods.
-     *
-     * @{
-     */
-
-    /**
-     * @brief Tells the model that a parameter value has changed.
-     *
-     * This updates the matrices consequently.
-     */
-    
     virtual void fireParameterChanged(const ParameterList& parameters)
     {
       AbstractParameterAliasable::fireParameterChanged(parameters);
@@ -186,15 +130,6 @@ namespace bpp
       getModel().setNamespace(name);
     }
 
-    /*
-     * @}
-     */
-
-    virtual std::string getName() const
-    {
-      return getModel().getName();
-    }
-    
   };
 } // end of namespace bpp.
 

@@ -234,7 +234,7 @@ void RecursiveLikelihoodTree::initLikelihoodsWithoutPatterns_(const RecursiveLik
     for (size_t l = 0; l < nbSonNodes; ++l)
     {
       // For each son node,
-      const RecursiveLikelihoodNode* son = dynamic_cast<const RecursiveLikelihoodNode*>((*node)[l]);
+      const RecursiveLikelihoodNode* son = dynamic_cast<const RecursiveLikelihoodNode*>((*node)[(int)l]);
       initLikelihoodsWithoutPatterns_(son, sequences, process);
       std::vector<size_t>* patternLinks_node_son = &(*patternLinks_node)[son->getId()];
 

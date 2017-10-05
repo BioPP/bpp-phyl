@@ -1,11 +1,11 @@
 //
-// File: YNGP_M8.h
+// File: YNGP_M.h
 // Created by: Laurent Gueguen
-// Created on: May 2010
+// Created on: mardi 26 septembre 2017, à 23h 06
 //
 
 /*
-  Copyright or © or Copr. CNRS, (November 16, 2004)
+  Copyright or © or Copr. Bio++ Development Team, (November 16, 2004)
 
   This software is a computer program whose purpose is to provide classes
   for phylogenetic data analysis.
@@ -37,10 +37,11 @@
   knowledge of the CeCILL license and that you accept its terms.
 */
 
-#ifndef _YNGP_M8_H_
-#define _YNGP_M8_H_
+#ifndef _YNGP_M_H_
+#define _YNGP_M_H_
 
-#include "YNGP_M.h"
+#include "../AbstractBiblioMixedSubstitutionModel.h"
+#include "../FrequenciesSet/CodonFrequenciesSet.h"
 
 #include <Bpp/Seq/GeneticCode/GeneticCode.h>
 
@@ -48,60 +49,59 @@ namespace bpp
 {
 
 /**
- * @brief The Yang et al (2000) M8 substitution model for codons.
- * @author Laurent Guéguen
- *
- * This model is a mixture of models as described in YN98 class, the
- * mixture being defined on the selection parameter oomega to allow it
- * to vary among sites, following a mixture of a Beta distribution and
- * of another value above 1.
- *
- * This model includes 5 parameters (@f$\kappa@f$, @f$ p @f$ and
- * @f$q@f$ of the @f$ Beta(p,q) @f$ distribution, @f$p0@f$ the weight of the
- * Beta distribution and @f$\omega @f$ the selection parameter above 1
- * (with weight @f$ 1-p0 @f$)). The codon frequencies @f$ \pi_j @f$ are
- * either observed or infered.
+ * @brief Abstract generic class for The Yang et al (2000) M
+ * substitution models for codons. al (2004). @author Laurent Guéguen
  *
  * References:
  *
  * Yang, Z., R. Nielsen, N. Goldman, and A.-M. K. Pedersen (2000)
  * Genetics 155:431-449.
  * 
+ * Wong, W. S. W., Z. Yang, N. Goldman, and R. Nielsen. (2004)
+ * Genetics 168:1041--1051.
  */
-  class YNGP_M8:
-    public YNGP_M
+
+  class YNGP_M:
+    public AbstractBiblioMixedSubstitutionModel,
+    virtual public ReversibleSubstitutionModel
   {
-  public:
-    /*
-     *@brief Constructor that requires the number of classes of the
-     * BetaDiscreteDistribution.
+  protected:
+    /**
+     * @brief indexes of 2 codons states between which the substitution is
+     * synonymous, to set a basis to the homogeneization of the rates.
      *
      */
+    size_t synfrom_, synto_;
   
-    YNGP_M8(const GeneticCode* gc, FrequenciesSet* codonFreqs, unsigned int nbclass);
-
-    YNGP_M8* clone() const { return new YNGP_M8(*this); }
-
-    YNGP_M8(const YNGP_M8& mod2) :
-      YNGP_M(mod2)
+  public:
+    YNGP_M(const std::string& name) :
+      AbstractBiblioMixedSubstitutionModel(name),
+      synfrom_(),
+      synto_()
     {
     }
-  
-    YNGP_M8& operator=(const YNGP_M8& mod2)
+    
+    YNGP_M(const YNGP_M& mod2) :
+      AbstractBiblioMixedSubstitutionModel(mod2),
+      synfrom_(mod2.synfrom_),
+      synto_(mod2.synto_)
+    {}
+
+    virtual YNGP_M* clone() const = 0;
+    
+    YNGP_M& operator=(const YNGP_M& mod2)
     {
-      YNGP_M::operator=(mod2);
+      AbstractBiblioMixedSubstitutionModel::operator=(mod2);
+
+      synfrom_ = mod2.synfrom_;
+      synto_ = mod2.synto_;
+
       return *this;
     }
-  
-  protected:
-    void updateMatrices();
-
-  public:
-    std::string getName() const { return "YNGP_M8"; }
-
+    
   };
 
 } //end of namespace bpp.
 
-#endif	//_YNGP_M8_H_
+#endif	//_YNGP_M_H_
 
