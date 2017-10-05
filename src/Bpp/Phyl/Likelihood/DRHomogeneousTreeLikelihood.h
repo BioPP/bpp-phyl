@@ -122,7 +122,7 @@ class DRHomogeneousTreeLikelihood:
      */ 
     DRHomogeneousTreeLikelihood(const DRHomogeneousTreeLikelihood& lik);
     
-    DRHomogeneousTreeLikelihood & operator=(const DRHomogeneousTreeLikelihood& lik);
+    DRHomogeneousTreeLikelihood& operator=(const DRHomogeneousTreeLikelihood& lik);
 
     virtual ~DRHomogeneousTreeLikelihood();
 

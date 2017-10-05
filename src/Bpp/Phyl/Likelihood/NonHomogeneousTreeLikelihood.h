@@ -66,12 +66,12 @@ namespace bpp
     NonHomogeneousTreeLikelihood* clone() const = 0;
 
   public:
-    const TransitionModel* getModel(int nodeId, size_t siteIndex) const throw (NodeNotFoundException)
+    const TransitionModel* getModelForSite(int nodeId, size_t siteIndex) const
     {
       return getModelForNode(nodeId);
     }
 
-    TransitionModel* getModel(int nodeId, size_t siteIndex) throw (NodeNotFoundException)
+    TransitionModel* getModelForSite(int nodeId, size_t siteIndex)
     {
       return getModelForNode(nodeId);
     }
@@ -83,7 +83,6 @@ namespace bpp
      * @return A pointer toward the corresponding model.
      * @throw NodeNotFoundException This exception may be thrown if the node is not found (depending on the implementation).
      */
-  
     virtual const TransitionModel* getModelForNode(int nodeId) const throw (NodeNotFoundException) = 0;
 
     /**
@@ -93,13 +92,11 @@ namespace bpp
      * @return A pointer toward the corresponding model.
      * @throw NodeNotFoundException This exception may be thrown if the node is not found (depending on the implementation).
      */
-
     virtual TransitionModel* getModelForNode(int nodeId) throw (NodeNotFoundException) = 0;
 
     /**
      * @return The set of substitution models associated to this instance.
      */
-
     virtual const SubstitutionModelSet* getSubstitutionModelSet() const = 0;
 
     /**

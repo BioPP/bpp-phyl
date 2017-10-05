@@ -201,14 +201,32 @@ public:
    * @{
    */
   const TransitionModel* getModel() const { return model_; }
-  const TransitionModel* getModel(int nodeId, size_t siteIndex) const throw (NodeNotFoundException) { return model_; }
+  const TransitionModel* getModel(int nodeId, size_t siteIndex) const { return model_; }
 
   TransitionModel* getModel() { return model_; }
-  TransitionModel* getModel(int nodeId, size_t siteIndex) throw (NodeNotFoundException) { return model_; }
+  TransitionModel* getModel(int nodeId, size_t siteIndex) { return model_; }
 
   void setModel(TransitionModel* model) throw (Exception);
-  
   /** @} */
+
+  /**
+   * @brief Get a SubstitutionModel pointer toward the model associated to this instance, if possible.
+   *
+   * Performs a cast operation on the pointer. Return NULL if cast failed.
+   * @return A SubstitutionModel pointer toward the model associated to this instance.
+   */
+  virtual const SubstitutionModel* getSubstitutionModel() const { return dynamic_cast<const SubstitutionModel*>(model_); }
+  
+  /**
+   * @brief Get a SubstitutionModel pointer toward the model associated to this instance, if possible.
+   *
+   * Performs a cast operation on the pointer. Return NULL if cast failed.
+   * @return A SubstitutionModel pointer toward the model associated to this instance.
+   *
+   * @param nodeId Id of the node
+   * @param siteIndex Position of the site
+   */
+  virtual const SubstitutionModel* getSubstitutionModel(int nodeId, size_t siteIndex) const { return dynamic_cast<const SubstitutionModel*>(model_); }
 
 public:
   // Specific methods:
