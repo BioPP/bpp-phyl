@@ -511,7 +511,7 @@ namespace bpp
      * @param classIndex The model class index.
      */
 
-    const TransitionModel& getTransitionModel(unsigned int nodeId, size_t classIndex) const
+    const TransitionModel& getModel(unsigned int nodeId, size_t classIndex) const
     {
       return *modelSet_[nodeToModel_[nodeId]];
     }

@@ -390,7 +390,7 @@ public:
    * @param classIndex The model class index.
    */
 
-  const TransitionModel& getTransitionModel(unsigned int nodeId, size_t classIndex) const;
+  const TransitionModel& getModel(unsigned int nodeId, size_t classIndex) const;
 
   /**
    * @brief Get the parameters of the substitution models.

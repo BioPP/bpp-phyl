@@ -160,7 +160,7 @@ void RecursiveLikelihoodTree::initLikelihoodsWithoutPatterns_(const RecursiveLik
   int nId = node->getId();
 
   // for Model specific Alphabet State
-  const TransitionModel& model = process.getTransitionModel(0,0);
+  const TransitionModel& model = process.getModel(0,0);
 
   // Initialize likelihood vector:
   if (!node->hasFather())
@@ -266,7 +266,7 @@ SitePatterns* RecursiveLikelihoodTree::initLikelihoodsWithPatterns_(const Recurs
   int nId = node->getId();
 
   // for Model specific Alphabet State
-  const TransitionModel& model = process.getTransitionModel(0,0);
+  const TransitionModel& model = process.getModel(0,0);
 
   // Initialize likelihood vectors:
 

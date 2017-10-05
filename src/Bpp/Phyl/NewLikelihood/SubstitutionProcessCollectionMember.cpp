@@ -359,7 +359,7 @@ inline size_t SubstitutionProcessCollectionMember::getNumberOfStates() const
     return getModel(modelToNodes_.begin()->first)->getNumberOfStates();
 }
 
-inline const TransitionModel& SubstitutionProcessCollectionMember::getTransitionModel(unsigned int nodeId, size_t classIndex) const
+inline const TransitionModel& SubstitutionProcessCollectionMember::getModel(unsigned int nodeId, size_t classIndex) const
 {
   return *getModel(nodeToModel_.at(nodeId));
 }

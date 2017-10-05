@@ -247,27 +247,14 @@ public:
    * @param i Index of the model in the set.
    * @return A pointer toward the corresponding model.
    */
-  const SubstitutionModel* getModel(size_t i) const throw (IndexOutOfBoundsException)
-  {
-    std::cerr << "#warning : SubstitutionModelSet::getModel function is deprecated in Bio++ 2.3.0. Replace it with SubstitutionModelSet::getSubstitutionModel." << std::endl;
 
-    return getSubstitutionModel(i);
-  }
-
-  SubstitutionModel* getModel(size_t i) throw (IndexOutOfBoundsException)
-  {
-    std::cerr << "#warning : SubstitutionModelSet::getModel function is deprecated in Bio++ 2.3.0. Replace it with SubstitutionModelSet::getSubstitutionModel." << std::endl;
-
-    return getSubstitutionModel(i);
-  }
-
-  const TransitionModel* getTransitionModel(size_t i) const throw (IndexOutOfBoundsException)
+  const TransitionModel* getModel(size_t i) const throw (IndexOutOfBoundsException)
   {
     if (i >= modelSet_.size()) throw IndexOutOfBoundsException("SubstitutionModelSet::getNumberOfModels().", 0, modelSet_.size() - 1, i);
     return modelSet_[i];
   }
 
-  TransitionModel* getTransitionModel(size_t i) throw (IndexOutOfBoundsException)
+  TransitionModel* getModel(size_t i) throw (IndexOutOfBoundsException)
   {
     if (i >= modelSet_.size()) throw IndexOutOfBoundsException("SubstitutionModelSet::getNumberOfModels().", 0, modelSet_.size() - 1, i);
     return modelSet_[i];
@@ -280,11 +267,11 @@ public:
   {
     try
     {
-      return dynamic_cast<const SubstitutionModel*>(getTransitionModel(i));
+      return dynamic_cast<const SubstitutionModel*>(getModel(i));
     }
     catch (std::bad_cast& bc)
     {
-      throw Exception("SubstitutionModelSet::getSubstitutionModel : model is not a sustitution model " + getTransitionModel(i)->getName());
+      throw Exception("SubstitutionModelSet::getSubstitutionModel : model is not a sustitution model " + getModel(i)->getName());
     }
   }
   
@@ -293,11 +280,11 @@ public:
   {
     try
     {
-      return dynamic_cast<SubstitutionModel*>(getTransitionModel(i));
+      return dynamic_cast<SubstitutionModel*>(getModel(i));
     }
     catch (std::bad_cast& bc)
     {
-      throw Exception("SubstitutionModelSet::getSubstitutionModel : model is not a sustitution model " + getTransitionModel(i)->getName());
+      throw Exception("SubstitutionModelSet::getSubstitutionModel : model is not a sustitution model " + getModel(i)->getName());
     }
   }
 
@@ -480,19 +467,19 @@ public:
    * @see Alphabet
    */
   virtual const std::vector<int>& getAlphabetStates() const {
-    return getTransitionModel(0)->getAlphabetStates();
+    return getModel(0)->getAlphabetStates();
   }
 
   virtual const StateMap& getStateMap() const {
-    return getTransitionModel(0)->getStateMap();
+    return getModel(0)->getStateMap();
   }
 
   virtual std::vector<size_t> getModelStates(int code) const {
-    return getTransitionModel(0)->getModelStates(code);
+    return getModel(0)->getModelStates(code);
   }
 
   virtual std::vector<size_t> getModelStates(const std::string& code) const {
-    return getTransitionModel(0)->getModelStates(code);
+    return getModel(0)->getModelStates(code);
   }
 
   /**
@@ -500,7 +487,7 @@ public:
    * @return The corresponding alphabet state as character code.
    */
   virtual int getAlphabetStateAsInt(size_t index) const {
-    return getTransitionModel(0)->getAlphabetStateAsInt(index);
+    return getModel(0)->getAlphabetStateAsInt(index);
   }
   
   /**
@@ -508,7 +495,7 @@ public:
    * @return The corresponding alphabet state as character code.
    */
   virtual std::string getAlphabetStateAsChar(size_t index) const {
-    return getTransitionModel(0)->getAlphabetStateAsChar(index);
+    return getModel(0)->getAlphabetStateAsChar(index);
   }
 
   /**

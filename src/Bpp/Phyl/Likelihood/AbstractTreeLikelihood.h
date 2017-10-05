@@ -302,17 +302,6 @@ namespace bpp
     void initialize() throw (Exception) { initialized_ = true; }
     /** @} */
 
-//  protected:
-//    
-//    /**
-//     * @brief Recompute pxy_, dpxy_ and d2pxy_ arrays, and derivatives if needed.
-//     *
-//     * This method is called when some parameter has changed.
-//     *
-//     * @param params The parameters that changed.
-//     */
-//    virtual void fireParameterChanged(const ParameterList & params) = 0;
-    
   };
 
 } //end of namespace bpp.

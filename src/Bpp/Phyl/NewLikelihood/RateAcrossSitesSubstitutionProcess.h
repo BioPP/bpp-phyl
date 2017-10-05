@@ -84,7 +84,7 @@ public:
     return data.getAlphabet()->getAlphabetType() == model_->getAlphabet()->getAlphabetType();
   }
  
-  const TransitionModel& getTransitionModel(unsigned int nodeId, size_t classIndex) const
+  const TransitionModel& getModel(unsigned int nodeId, size_t classIndex) const
   {
     return *model_;
   }

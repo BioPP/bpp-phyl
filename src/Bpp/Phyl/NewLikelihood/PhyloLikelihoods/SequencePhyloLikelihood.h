@@ -127,7 +127,7 @@ namespace bpp
         if (seqEvol_->getSubstitutionProcessNumbers().size()==0)
           return NULL;
         else 
-          return seqEvol_->getSubstitutionProcess(seqEvol_->getSubstitutionProcessNumbers()[0]).getTransitionModel(0,0).getAlphabet();
+          return seqEvol_->getSubstitutionProcess(seqEvol_->getSubstitutionProcessNumbers()[0]).getModel(0,0).getAlphabet();
       }
 
 

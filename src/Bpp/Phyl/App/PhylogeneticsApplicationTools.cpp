@@ -3914,7 +3914,7 @@ void PhylogeneticsApplicationTools::printParameters(const SubstitutionProcess* p
     map<string, string> globalAliases;
     vector<string> writtenNames;
     BppOTransitionModelFormat bIO(BppOSubstitutionModelFormat::ALL, true, true, true, false, warn);
-    bIO.write(process->getTransitionModel(0, 0), out, globalAliases, writtenNames);
+    bIO.write(process->getModel(0, 0), out, globalAliases, writtenNames);
     out.endLine();
   }
 
@@ -3928,7 +3928,7 @@ void PhylogeneticsApplicationTools::printParameters(const SubstitutionProcess* p
     map<string, string> globalAliases;
     vector<string> writtenNames;
     BppOTransitionModelFormat bIO(BppOSubstitutionModelFormat::ALL, true, true, true, false, warn);
-    bIO.write(process->getTransitionModel(0, 0), out, globalAliases, writtenNames);
+    bIO.write(process->getModel(0, 0), out, globalAliases, writtenNames);
     out.endLine();
     out.endLine();
 
@@ -4770,7 +4770,7 @@ void PhylogeneticsApplicationTools::printParameters(const SubstitutionModelSet* 
   // Loop over all models:
   for (size_t i = 0; i < modelSet->getNumberOfModels(); i++)
   {
-    const TransitionModel* model = modelSet->getTransitionModel(i);
+    const TransitionModel* model = modelSet->getModel(i);
 
     // First get the aliases for this model:
 

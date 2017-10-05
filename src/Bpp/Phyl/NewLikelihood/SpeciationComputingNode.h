@@ -121,7 +121,7 @@ namespace bpp
       update();
     }
 
-    const TransitionModel* getTransitionModel() const
+    const TransitionModel* getModel() const
     {
       return model_;      
     }

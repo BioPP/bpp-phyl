@@ -108,7 +108,7 @@ namespace bpp
      * @param classIndex The model class index.
      */
 
-    virtual const TransitionModel& getTransitionModel(unsigned int nodeId, size_t classIndex) const = 0;
+    virtual const TransitionModel& getModel(unsigned int nodeId, size_t classIndex) const = 0;
 
     /**
      * @brief Get a pointer to the rate distribution (or null if there

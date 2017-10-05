@@ -303,7 +303,7 @@ bool SubstitutionModelSet::hasMixedSubstitutionModel() const
 {
   for (size_t i = 0; i < getNumberOfModels(); i++)
     {
-      if ((dynamic_cast<const MixedSubstitutionModel*>(getTransitionModel(i)) != NULL) && (modelToNodes_[i].size()>1))
+      if ((dynamic_cast<const MixedSubstitutionModel*>(getModel(i)) != NULL) && (modelToNodes_[i].size()>1))
         return true;
     }
   return false;

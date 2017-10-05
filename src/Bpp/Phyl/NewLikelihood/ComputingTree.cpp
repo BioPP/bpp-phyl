@@ -216,7 +216,7 @@ void ComputingTree::checkModelOnEachNode()
 
       if (dynamic_cast<SpeciationComputingNode*>(vn[j].get()))
       {
-        if (dynamic_cast<SpeciationComputingNode&>(*vn[j]).getTransitionModel()==NULL)
+        if (dynamic_cast<SpeciationComputingNode&>(*vn[j]).getModel()==NULL)
         {
           isReadyToCompute_=false;
           return;
