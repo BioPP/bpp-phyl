@@ -87,6 +87,25 @@ namespace bpp
      * @throw Exception If the model could not be set (for instance, because of a wrong alphabet type).
      */
     virtual void setModel(TransitionModel* model) throw (Exception) = 0;
+
+    /**
+     * @brief Get a SubstitutionModel pointer toward the model associated to this instance, if possible.
+     *
+     * Performs a cast operation on the pointer. Return NULL if cast failed.
+     * @return A SubstitutionModel pointer toward the model associated to this instance.
+     */
+    virtual const SubstitutionModel* getSubstitutionModel() const = 0;
+  
+    /**
+     * @brief Get a SubstitutionModel pointer toward the model associated to this instance, if possible.
+     *
+     * Performs a cast operation on the pointer. Return NULL if cast failed.
+     * @return A SubstitutionModel pointer toward the model associated to this instance.
+     *
+     * @param nodeId Id of the node
+     * @param siteIndex Position of the site
+     */
+    virtual const SubstitutionModel* getSubstitutionModel(int nodeId, size_t siteIndex) const = 0;
     
   };
 
