@@ -58,6 +58,7 @@ namespace DF {
 	                                                 const Node & givenNode);
 	void checkDependencyNumber (const std::type_info & computeNodeType, SizeType expectedSize,
 	                            SizeType givenSize);
+	[[noreturn]] void failureEmptyDependency (const std::type_info & inNodeType, IndexType depIndex);
 
 	/* Node value access.
 	 */
@@ -79,9 +80,11 @@ namespace DF {
 		void checkDependencies (const NodeRefVec & dependencies, const std::type_info & inNodeType,
 		                        ReductionOfValue<T>) {
 			for (auto i : index_range (dependencies)) {
-				auto & dep = *dependencies[i];
-				if (!isValueNode<T> (dep))
-					failureDependencyTypeMismatch (inNodeType, i, typeid (Value<T>), dep);
+				auto & dep = dependencies[i];
+				if (!dep)
+					failureEmptyDependency (inNodeType, i);
+				if (!isValueNode<T> (*dep))
+					failureDependencyTypeMismatch (inNodeType, i, typeid (Value<T>), *dep);
 			}
 		}
 
@@ -97,9 +100,11 @@ namespace DF {
 		                                      const std::type_info & inNodeType,
 		                                      FunctionOfValues<FirstType, OtherTypes...>,
 		                                      SizeType index) {
-			auto & dep = *dependencies[index];
-			if (!isValueNode<FirstType> (dep))
-				failureDependencyTypeMismatch (inNodeType, index, typeid (Value<FirstType>), dep);
+			auto & dep = dependencies[index];
+			if (!dep)
+				failureEmptyDependency (inNodeType, index);
+			if (!isValueNode<FirstType> (*dep))
+				failureDependencyTypeMismatch (inNodeType, index, typeid (Value<FirstType>), *dep);
 
 			checkDependencyTypesRecursively (dependencies, inNodeType, FunctionOfValues<OtherTypes...>{},
 			                                 index + 1);
@@ -113,29 +118,16 @@ namespace DF {
 		}
 	}
 
-	/* Interface for auto generated dependency type checking.
-	 * Should be used in node constructors to verify type of dependency nodes.
-	 * Thow exceptions on type mismatch, with a detailed message.
-	 *
-	 * Manual interface:
-	 * Usage: checkDependencies<DependencyTag> (depVector, typeid(CurrentNodeType));
-	 * DependencyTag is one of the dependency structure type tags.
-	 *
-	 * Simplified interface:
-	 * Usage: checkDependencies (*this);
-	 * The node class (for 'this') must contain a typedef "Dependencies" pointing to a dependency
-	 * structure type tag.
-	 * Simply calls the manual interface.
-   *
-   * See tests/new_dataflow.cpp
+	/* Dependency check : interface.
+	 * Usage: call checkDependencies(*this) in node constructor.
+	 * Checks that dependencies match what the node excepts (number, types, non-empty).
+	 * The node class must contain a typedef "Dependencies" pointing to a dependency structure type
+	 * tag.
+	 * See tests/new_dataflow.cpp
 	 */
-	template <typename DependencyTag>
-	void checkDependencies (const NodeRefVec & dependencies, const std::type_info & inNodeType) {
-		// The DependencyTag argument is used to select the correct implementation by overloading.
-		Impl::checkDependencies (dependencies, inNodeType, DependencyTag{});
-	}
 	template <typename NodeType> void checkDependencies (const NodeType & node) {
-		checkDependencies<typename NodeType::Dependencies> (node.dependencies (), typeid (NodeType));
+		Impl::checkDependencies (node.dependencies (), typeid (NodeType),
+		                         typename NodeType::Dependencies{});
 	}
 
 	// Call function(s) with values from Value<T> dependencies (wrapper).
@@ -143,10 +135,10 @@ namespace DF {
 	namespace Impl {
 		/* Impl of callWithValues for ReductionOfValue.
 		 * TODO doc
-     * TODO alternative APIs:
-     * - init,reduce : init(), foreach { reduce() }
-     * - init,first,reduce : if 0 { init } else { first,reduce() }
-     * - consume args N by N ?
+		 * TODO alternative APIs:
+		 * - init,reduce : init(), foreach { reduce() }
+		 * - init,first,reduce : if 0 { init } else { first,reduce() }
+		 * - consume args N by N ?
 		 */
 		template <typename ReduceFunctionType, typename T>
 		void callWithValues (const NodeRefVec & dependencies, ReductionOfValue<T>,
@@ -177,7 +169,7 @@ namespace DF {
 
 	/* Interfaces.
 	 * TODO doc
-   * See tests/new_dataflow.cpp
+	 * See tests/new_dataflow.cpp
 	 */
 	template <typename DependencyTag, typename... Callables>
 	void callWithValues (const NodeRefVec & dependencies, Callables &&... callables) {

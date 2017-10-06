@@ -56,22 +56,26 @@ namespace DF {
 		                 " cannot store: " + prettyTypeName (typeid (node)));
 	}
 
-	// Error functions DataFlowUtils.h
-	static void failureDependencyNumberMismatch (const std::type_info & computeNodeType,
+	// Error functions DataFlowTemplateUtils.h
+	static void failureDependencyNumberMismatch (const std::type_info & inNodeType,
 	                                             SizeType expectedSize, SizeType givenSize) {
-		throw Exception (prettyTypeName (computeNodeType) + ": expected " +
-		                 std::to_string (expectedSize) + " dependencies, got " +
-		                 std::to_string (givenSize));
+		throw Exception (prettyTypeName (inNodeType) + ": expected " + std::to_string (expectedSize) +
+		                 " dependencies, got " + std::to_string (givenSize));
 	}
-	void checkDependencyNumber (const std::type_info & computeNodeType, SizeType expectedSize,
+	void checkDependencyNumber (const std::type_info & inNodeType, SizeType expectedSize,
 	                            SizeType givenSize) {
 		if (expectedSize != givenSize)
-			failureDependencyNumberMismatch (computeNodeType, expectedSize, givenSize);
+			failureDependencyNumberMismatch (inNodeType, expectedSize, givenSize);
 	}
 
-	void failureDependencyTypeMismatch (const std::type_info & computeNodeType, IndexType depIndex,
+	void failureEmptyDependency (const std::type_info & inNodeType, IndexType depIndex) {
+		throw Exception (prettyTypeName (inNodeType) + ": " + std::to_string (depIndex) +
+		                 "-th dependency is empty (nullptr)");
+	}
+
+	void failureDependencyTypeMismatch (const std::type_info & inNodeType, IndexType depIndex,
 	                                    const std::type_info & expectedType, const Node & givenNode) {
-		throw Exception (prettyTypeName (computeNodeType) + ": expected class derived from " +
+		throw Exception (prettyTypeName (inNodeType) + ": expected class derived from " +
 		                 prettyTypeName (expectedType) + " as " + std::to_string (depIndex) +
 		                 "-th dependency, got " + prettyTypeName (typeid (givenNode)));
 	}
