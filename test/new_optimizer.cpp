@@ -43,86 +43,96 @@
 #include "doctest.h"
 
 #include <Bpp/NewPhyl/DataFlowBuilder.h>
-#include <Bpp/NewPhyl/DataFlowTemplates.h>
+#include <Bpp/NewPhyl/DataFlowTemplateUtils.h>
 #include <Bpp/NewPhyl/Debug.h>
 #include <Bpp/NewPhyl/Optimizer.h>
 
 #include <algorithm> // remove_if for Add optimisation
 
+using namespace bpp;
 using namespace bpp::DF;
 
 // Addition
 template<typename T>
-struct AdditionOp : public OperationBase<AdditionOp<T>>
-{
-  using ArgumentType = T;
-  using ResultType = T;
-  static void reset(ResultType& r) { r = 0.; }
-  static void reduce(ResultType& r, const ArgumentType& x) { r += x; }
-  static NodeRef derive(Node& self, const Node& variable);
-  static std::string description() { return "+"; }
-};
-template<typename T>
-using AdditionNode = GenericReductionComputation<AdditionOp<T>>;
-template<typename T>
 NodeRef makeAdditionNode(NodeRefVec deps);
 
 template<typename T>
-NodeRef AdditionOp<T>::derive(Node& self, const Node& variable)
+struct Add : public Value<T>
 {
-  NodeRefVec derivatives;
-  for (auto& subExpr : self.dependencies())
-    derivatives.emplace_back(subExpr->derive(variable));
-  return makeAdditionNode<T>(std::move(derivatives));
-}
+  using Dependencies = ReductionOfValue<T>;
+  Add(NodeRefVec&& deps)
+    : Value<T>(std::move(deps))
+  {
+    checkDependencies(*this);
+  }
+  void compute() override final
+  {
+    this->value_ = 0.;
+    DF::callWithValues(*this, [this](const T& t) { this->value_ += t; });
+  }
+  std::string description() const override final { return "+"; }
+  NodeRef derive(const Node& variable) override final
+  {
+    NodeRefVec derivatives;
+    for (auto& subExpr : this->dependencies())
+      derivatives.emplace_back(subExpr->derive(variable));
+    return makeAdditionNode<T>(std::move(derivatives));
+  }
+};
 
 // Multiplication
-template<typename T>
-struct MultiplicationOp : public OperationBase<MultiplicationOp<T>>
-{
-  using ArgumentType = T;
-  using ResultType = T;
-  static void reset(ResultType& r) { r = 1.; }
-  static void reduce(ResultType& r, const ArgumentType& x) { r *= x; }
-  static NodeRef derive(Node& self, const Node& variable);
-  static std::string description() { return "*"; }
-};
-template<typename T>
-using MultiplicationNode = GenericReductionComputation<MultiplicationOp<T>>;
 template<typename T>
 NodeRef makeMultiplicationNode(NodeRefVec deps);
 
 template<typename T>
-NodeRef MultiplicationOp<T>::derive(Node& self, const Node& variable)
+struct Mul : public Value<T>
 {
-  NodeRefVec additionDeps;
-  for (auto i : bpp::index_range(self.dependencies()))
+  using Dependencies = ReductionOfValue<T>;
+  Mul(NodeRefVec&& deps)
+    : Value<T>(std::move(deps))
   {
-    NodeRefVec mulDeps = self.dependencies();
-    mulDeps[i] = self.dependencies()[i]->derive(variable);
-    additionDeps.emplace_back(makeMultiplicationNode<T>(std::move(mulDeps)));
+    checkDependencies(*this);
   }
-  return makeAdditionNode<T>(std::move(additionDeps));
-}
+  void compute() override final
+  {
+    this->value_ = 1.;
+    DF::callWithValues(*this, [this](const T& t) { this->value_ *= t; });
+  }
+  std::string description() const override final { return "*"; }
+  NodeRef derive(const Node& variable) override final
+  {
+    NodeRefVec additionDeps;
+    for (auto i : bpp::index_range(this->dependencies()))
+    {
+      NodeRefVec mulDeps = this->dependencies();
+      mulDeps[i] = this->dependencies()[i]->derive(variable);
+      additionDeps.emplace_back(makeMultiplicationNode<T>(std::move(mulDeps)));
+    }
+    return makeAdditionNode<T>(std::move(additionDeps));
+  }
+};
 
 // Square
 template<typename T>
-struct SquareOp : public OperationBase<SquareOp<T>>
+struct Square : public Value<T>
 {
-  using ArgumentTypes = std::tuple<T>;
-  using ResultType = T;
-  static void compute(ResultType& r, const T& x) { r = x * x; }
-  static NodeRef derive(Node& self, const Node& variable);
-  static std::string description() { return "x^2"; }
+  using Dependencies = FunctionOfValues<T>;
+  Square(NodeRefVec&& deps)
+    : Value<T>(std::move(deps))
+  {
+    checkDependencies(*this);
+  }
+  void compute() override final
+  {
+    DF::callWithValues(*this, [this](const T& t) { this->value_ = t * t; });
+  }
+  std::string description() const override final { return "x^2"; }
+  NodeRef derive(const Node& variable) override final
+  {
+    auto& x = this->dependencies()[0];
+    return makeMultiplicationNode<T>({createNode<Constant<T>>(2.0), x, x->derive(variable)});
+  }
 };
-template<typename T>
-using SquareNode = GenericFunctionComputation<SquareOp<T>>;
-template<typename T>
-NodeRef SquareOp<T>::derive(Node& self, const Node& variable)
-{
-  auto& x = self.dependencies()[0];
-  return makeMultiplicationNode<T>({createNode<Constant<T>>(2.0), x, x->derive(variable)});
-}
 
 // Optimisations
 template<typename T>
@@ -147,7 +157,7 @@ NodeRef makeAdditionNode(NodeRefVec deps)
   }
   else
   {
-    return createNode<AdditionNode<T>>(std::move(deps));
+    return createNode<Add<T>>(std::move(deps));
   }
 }
 
@@ -179,7 +189,7 @@ NodeRef makeMultiplicationNode(NodeRefVec deps)
   }
   else
   {
-    return createNode<MultiplicationNode<T>>(std::move(deps));
+    return createNode<Mul<T>>(std::move(deps));
   }
 }
 
@@ -229,10 +239,10 @@ TEST_CASE("test")
 
   auto& x = xp.getDataFlowParameter();
   auto& y = yp.getDataFlowParameter();
-  auto x2 = createNode<SquareNode<double>>({x});
+  auto x2 = createNode<Square<double>>({x});
   auto konst3 = createNode<Constant<double>>(-3.);
   auto sy = makeAdditionNode<double>({y, konst3});
-  auto y2 = createNode<SquareNode<double>>({sy});
+  auto y2 = createNode<Square<double>>({sy});
   auto f = makeAdditionNode<double>({x2, y2});
 
 #if 0

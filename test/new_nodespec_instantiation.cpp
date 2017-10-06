@@ -43,7 +43,7 @@
 #include "doctest.h"
 
 #include <Bpp/NewPhyl/DataFlow.h>
-#include <Bpp/NewPhyl/DataFlowTemplates.h>
+#include <Bpp/NewPhyl/DataFlowTemplateUtils.h>
 #include <Bpp/NewPhyl/Debug.h>
 #include <Bpp/NewPhyl/FrozenPtr.h>
 #include <Bpp/NewPhyl/NodeSpecification.h>
@@ -56,14 +56,20 @@ using namespace bpp;
 using DF::Node;
 using DF::Value;
 
-struct SumOp : public DF::OperationBase<SumOp>
+struct Sum : public DF::Value<int>
 {
-  using ResultType = int;
-  using ArgumentType = int;
-  static void reset(int& r) { r = 0; }
-  static void reduce(int& acc, int i) { acc += i; }
+  using Dependencies = DF::ReductionOfValue<int>;
+  Sum(DF::NodeRefVec&& deps)
+    : DF::Value<int>(std::move(deps))
+  {
+    DF::checkDependencies(*this);
+  }
+  void compute() override final
+  {
+    this->value_ = 0;
+    DF::callWithValues(*this, [this](int i) { this->value_ += i; });
+  }
 };
-using Sum = DF::GenericReductionComputation<SumOp>;
 
 struct SumSpec : DF::NodeSpecAlwaysGenerate<Sum>
 {
