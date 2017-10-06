@@ -67,8 +67,7 @@ struct Add : public Value<T>
   }
   void compute() override final
   {
-    this->value_ = 0.;
-    DF::callWithValues(*this, [this](const T& t) { this->value_ += t; });
+    DF::callWithValues(*this, [](T& r) { r = 0.; }, [](T& r, const T& t) { r += t; });
   }
   std::string description() const override final { return "+"; }
   NodeRef derive(const Node& variable) override final
@@ -95,8 +94,7 @@ struct Mul : public Value<T>
   }
   void compute() override final
   {
-    this->value_ = 1.;
-    DF::callWithValues(*this, [this](const T& t) { this->value_ *= t; });
+    DF::callWithValues(*this, [](T& r) { r = 1.; }, [](T& r, const T& t) { r *= t; });
   }
   std::string description() const override final { return "*"; }
   NodeRef derive(const Node& variable) override final
@@ -124,7 +122,7 @@ struct Square : public Value<T>
   }
   void compute() override final
   {
-    DF::callWithValues(*this, [this](const T& t) { this->value_ = t * t; });
+    DF::callWithValues(*this, [](T& r, const T& t) { r = t * t; });
   }
   std::string description() const override final { return "x^2"; }
   NodeRef derive(const Node& variable) override final

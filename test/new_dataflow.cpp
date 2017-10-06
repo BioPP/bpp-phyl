@@ -61,8 +61,7 @@ struct SumNode : public DF::Value<int>
   }
   void compute() override final
   {
-    this->value_ = 0;
-    DF::callWithValues(*this, [this](int i) { this->value_ += i; });
+    DF::callWithValues(*this, [](int& r) { r = 0; }, [](int& r, int i) { r += i; });
   }
 };
 
@@ -76,7 +75,7 @@ struct NegateNode : public DF::Value<int>
   }
   void compute() override final
   {
-    DF::callWithValues(*this, [this](int i) { this->value_ = -i; });
+    DF::callWithValues(*this, [](int& r, int i) { r = -i; });
   }
 };
 

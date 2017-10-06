@@ -60,14 +60,19 @@ namespace DF {
 	                            SizeType givenSize);
 	[[noreturn]] void failureEmptyDependency (const std::type_info & inNodeType, IndexType depIndex);
 
-	/* Node value access.
-	 */
+	/// Dynamic test that node inherits from Value<T>.
 	template <typename T> bool isValueNode (const Node & n) noexcept {
 		return dynamic_cast<const Value<T> *> (&n) != nullptr;
 	}
-	template <typename T> const T & accessValueUnsafe (const Node & n) noexcept {
+	/// Access the value in node assuming this is a Value<T>.
+	template <typename T> const T & accessValueUncheckedCast (const Node & n) noexcept {
 		assert (isValueNode<T> (n));
 		return static_cast<const Value<T> &> (n).accessValue ();
+	}
+
+	/// Mutable access to a Value<T> value. Only intended for callWithValues.
+	template <typename T> T & accessMutableValue (Value<T> & valueNode) noexcept {
+		return valueNode.value_;
 	}
 
 	// Dependency check
@@ -118,7 +123,7 @@ namespace DF {
 		}
 	}
 
-	/* Dependency check : interface.
+	/** Dependency check interface.
 	 * Usage: call checkDependencies(*this) in node constructor.
 	 * Checks that dependencies match what the node excepts (number, types, non-empty).
 	 * The node class must contain a typedef "Dependencies" pointing to a dependency structure type
@@ -134,51 +139,50 @@ namespace DF {
 
 	namespace Impl {
 		/* Impl of callWithValues for ReductionOfValue.
+		 * Takes:
+		 * - init(ResultType & value): sets the initial value
+		 * - reduce(ResultType & value, const ArgType & arg): called for each argument
 		 * TODO doc
-		 * TODO alternative APIs:
-		 * - init,reduce : init(), foreach { reduce() }
-		 * - init,first,reduce : if 0 { init } else { first,reduce() }
-		 * - consume args N by N ?
+		 * TODO alternative APIs reducing with packing
 		 */
-		template <typename ReduceFunctionType, typename T>
-		void callWithValues (const NodeRefVec & dependencies, ReductionOfValue<T>,
-		                     ReduceFunctionType reduce) {
+		template <typename ResultType, typename ArgumentType, typename InitFunc, typename ReduceFunc>
+		void callWithValues (ResultType & value, const NodeRefVec & dependencies,
+		                     ReductionOfValue<ArgumentType>, InitFunc && init, ReduceFunc reduce) {
+			std::forward<InitFunc> (init) (value);
 			for (const auto & dep : dependencies)
-				reduce (accessValueUnsafe<T> (*dep));
+				reduce (value, accessValueUncheckedCast<ArgumentType> (*dep));
 		}
 
 		/* Impl of callWithValues for FunctionOfValues.
-		 * Takes a single "function" f(const T0&, const T1&, ...).
+		 * Takes a single "function" f(ResultType & value, const T0&, const T1&, ...).
 		 * TODO doc
 		 */
-		template <typename FunctionType, typename... Types, SizeType... Indexes>
-		void
-		callWithValuesWithIndexSequence (const NodeRefVec & dependencies, FunctionOfValues<Types...>,
-		                                 Cpp14::IndexSequence<Indexes...>, FunctionType && function) {
-			function (accessValueUnsafe<Types> (*dependencies[Indexes])...);
+		template <typename ResultType, typename FunctionType, typename... Types, SizeType... Indexes>
+		void callWithValuesWithIndexSequence (ResultType & value, const NodeRefVec & dependencies,
+		                                      FunctionOfValues<Types...>,
+		                                      Cpp14::IndexSequence<Indexes...>,
+		                                      FunctionType && function) {
+			std::forward<FunctionType> (function) (
+			    value, accessValueUncheckedCast<Types> (*dependencies[Indexes])...);
 		}
 
-		template <typename FunctionType, typename... Types>
-		void callWithValues (const NodeRefVec & dependencies, FunctionOfValues<Types...>,
-		                     FunctionType && function) {
-			callWithValuesWithIndexSequence (dependencies, FunctionOfValues<Types...>{},
+		template <typename ResultType, typename FunctionType, typename... Types>
+		void callWithValues (ResultType & value, const NodeRefVec & dependencies,
+		                     FunctionOfValues<Types...>, FunctionType && function) {
+			callWithValuesWithIndexSequence (value, dependencies, FunctionOfValues<Types...>{},
 			                                 Cpp14::MakeIndexSequence<sizeof...(Types)>{},
 			                                 std::forward<FunctionType> (function));
 		}
 	}
 
-	/* Interfaces.
+	/** CallWithValues interface.
 	 * TODO doc
-	 * See tests/new_dataflow.cpp
 	 */
-	template <typename DependencyTag, typename... Callables>
-	void callWithValues (const NodeRefVec & dependencies, Callables &&... callables) {
-		Impl::callWithValues (dependencies, DependencyTag{}, std::forward<Callables> (callables)...);
-	}
 	template <typename NodeType, typename... Callables>
-	void callWithValues (const NodeType & node, Callables &&... callables) {
-		callWithValues<typename NodeType::Dependencies> (node.dependencies (),
-		                                                 std::forward<Callables> (callables)...);
+	void callWithValues (NodeType & node, Callables &&... callables) {
+		Impl::callWithValues (accessMutableValue (node), node.dependencies (),
+		                      typename NodeType::Dependencies{},
+		                      std::forward<Callables> (callables)...);
 	}
 }
 }

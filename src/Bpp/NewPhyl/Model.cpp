@@ -79,7 +79,7 @@ namespace Phyl {
 		// Update current model params with ours
 		auto & modelParams = model_->getParameters ();
 		for (auto i : index_range (this->dependencies ())) {
-			auto v = DF::accessValueUnsafe<double> (*this->dependencies ()[i]);
+			auto v = DF::accessValueUncheckedCast<double> (*this->dependencies ()[i]);
 			auto & p = modelParams[static_cast<std::size_t> (i)];
 			if (p.getValue () != v)
 				model_->setParameterValue (p.getName (), v);
@@ -96,8 +96,7 @@ namespace Phyl {
 		DF::checkDependencies (*this);
 	}
 	void ComputeEquilibriumFrequenciesFromModelNode::compute () {
-		auto & freqs = this->value_;
-		DF::callWithValues (*this, [&freqs](const SubstitutionModel * model) {
+		DF::callWithValues (*this, [](FrequencyVector & freqs, const SubstitutionModel * model) {
 			auto & freqsFromModel = model->getFrequencies ();
 			freqs = Eigen::Map<const FrequencyVector> (freqsFromModel.data (),
 			                                           Eigen::Index (freqsFromModel.size ()));
@@ -128,10 +127,8 @@ namespace Phyl {
 		DF::checkDependencies (*this);
 	}
 	void ComputeTransitionMatrixFromModelNode::compute () {
-		auto & matrix = this->value_;
-		DF::callWithValues (*this, [&matrix](const SubstitutionModel * model, double brlen) {
-			bppToEigen (model->getPij_t (brlen), matrix);
-		});
+		DF::callWithValues (*this, [](TransitionMatrix & matrix, const SubstitutionModel * model,
+		                              double brlen) { bppToEigen (model->getPij_t (brlen), matrix); });
 	}
 	std::string ComputeTransitionMatrixFromModelNode::description () const {
 		return "TransitionMatrix";
@@ -144,10 +141,9 @@ namespace Phyl {
 		DF::checkDependencies (*this);
 	}
 	void ComputeTransitionMatrixFirstDerivativeFromModelNode::compute () {
-		auto & matrix = this->value_;
-		DF::callWithValues (*this, [&matrix](const SubstitutionModel * model, double brlen) {
-			bppToEigen (model->getdPij_dt (brlen), matrix);
-		});
+		DF::callWithValues (*this,
+		                    [](TransitionMatrix & matrix, const SubstitutionModel * model,
+		                       double brlen) { bppToEigen (model->getdPij_dt (brlen), matrix); });
 	}
 	std::string ComputeTransitionMatrixFirstDerivativeFromModelNode::description () const {
 		return "d(TransitionMatrix)/dt";
@@ -160,10 +156,9 @@ namespace Phyl {
 		DF::checkDependencies (*this);
 	}
 	void ComputeTransitionMatrixSecondDerivativeFromModelNode::compute () {
-		auto & matrix = this->value_;
-		DF::callWithValues (*this, [&matrix](const SubstitutionModel * model, double brlen) {
-			bppToEigen (model->getd2Pij_dt2 (brlen), matrix);
-		});
+		DF::callWithValues (*this,
+		                    [](TransitionMatrix & matrix, const SubstitutionModel * model,
+		                       double brlen) { bppToEigen (model->getd2Pij_dt2 (brlen), matrix); });
 	}
 	std::string ComputeTransitionMatrixSecondDerivativeFromModelNode::description () const {
 		return "d2(TransitionMatrix)/dt2";

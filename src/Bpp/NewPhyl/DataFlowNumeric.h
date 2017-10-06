@@ -186,10 +186,7 @@ namespace DF {
 		AddDouble (NodeRefVec && deps) : Value<double> (std::move (deps)) { checkDependencies (*this); }
 		std::string description () const override final { return "+"; }
 		void compute () override final {
-			double a = 0.;
-			for (const auto & dep : this->dependencies ())
-				a += accessValueUnsafe<double> (*dep);
-			this->value_ = a;
+			callWithValues (*this, [](double & r) { r = 0.; }, [](double & r, double d) { r += d; });
 		}
 	};
 	struct AddDouble::Builder : public AbstractBuilder {
@@ -209,10 +206,7 @@ namespace DF {
 		MulDouble (NodeRefVec && deps) : Value<double> (std::move (deps)) { checkDependencies (*this); }
 		std::string description () const final { return "*"; }
 		void compute () override final {
-			double a = 1.;
-			for (const auto & dep : this->dependencies ())
-				a *= accessValueUnsafe<double> (*dep);
-			this->value_ = a;
+			callWithValues (*this, [](double & r) { r = 1.; }, [](double & r, double d) { r *= d; });
 		}
 	};
 	struct MulDouble::Builder : public AbstractBuilder {

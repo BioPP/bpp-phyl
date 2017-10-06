@@ -147,18 +147,19 @@ namespace DF {
 			return value_;
 		}
 
-    // Get updated value
-    // TODO support for // computation... type tags ?
-    const T & getValue () {
-      this->computeRecursively ();
-      return accessValue ();
-    }
+		// Get updated value
+		// TODO support for // computation... type tags ?
+		const T & getValue () {
+			this->computeRecursively ();
+			return accessValue ();
+		}
 
 	protected:
 		T value_;
 
 	private:
-		friend T & accessMutableValue (Value<T> &);
+		// Allow wrappers in DataFlowTemplateUtils write access to the value through this function.
+		template <typename U> friend U & accessMutableValue (Value<U> &) noexcept;
 	};
 
 	/* Dependency structure description.
