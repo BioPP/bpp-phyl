@@ -153,7 +153,7 @@ NodeRef makeAdditionNode(NodeRefVec deps)
   }
   else if (deps.size() == 0)
   {
-    return createNode<Constant<T>>(createZeroValue(savedRef->value()));
+    return createNode<Constant<T>>(createZeroValue(savedRef->accessValue()));
   }
   else
   {
@@ -171,7 +171,7 @@ NodeRef makeMultiplicationNode(NodeRefVec deps)
   if (std::any_of(
         deps.begin(), deps.end(), [](const NodeRef& nodeRef) { return nodeRef->numericProperties().isConstantZero; }))
   {
-    return createNode<Constant<T>>(createZeroValue(savedRef->value()));
+    return createNode<Constant<T>>(createZeroValue(savedRef->accessValue()));
   }
   // Remove any 1s
   deps.erase(std::remove_if(deps.begin(),
@@ -185,7 +185,7 @@ NodeRef makeMultiplicationNode(NodeRefVec deps)
   }
   else if (deps.size() == 0)
   {
-    return createNode<Constant<T>>(createOneValue(savedRef->value()));
+    return createNode<Constant<T>>(createOneValue(savedRef->accessValue()));
   }
   else
   {
@@ -200,13 +200,13 @@ NodeRef makeMultiplicationNode(NodeRefVec deps)
 TEST_CASE("derive constant")
 {
   auto konst = createNode<Constant<double>>(42.0);
-  CHECK(getUpToDateValue(konst) == 42.0);
+  CHECK(konst->getValue () == 42.0);
   CHECK(konst->isConstant());
 
   auto dummy = createNode<Parameter<double>>(0);
   auto derived = convertRef<Value<double>>(konst->derive(*dummy));
   CHECK(derived->isConstant());
-  CHECK(getUpToDateValue(derived) == 0);
+  CHECK(derived->getValue () == 0);
 }
 
 TEST_CASE("derive parameter")
@@ -216,11 +216,11 @@ TEST_CASE("derive parameter")
 
   auto dx_dx = convertRef<Value<double>>(x->derive(*x));
   CHECK(dx_dx->isConstant());
-  CHECK(getUpToDateValue(dx_dx) == 1.0);
+  CHECK(dx_dx->getValue () == 1.0);
 
   auto dx_dummy = convertRef<Value<double>>(x->derive(*dummy));
   CHECK(dx_dummy->isConstant());
-  CHECK(getUpToDateValue(dx_dummy) == 0.0);
+  CHECK(dx_dummy->getValue () == 0.0);
 }
 #endif
 
@@ -246,10 +246,10 @@ TEST_CASE("test")
   auto f = makeAdditionNode<double>({x2, y2});
 
 #if 0
-  std::cout << "x2 + y2 = " << getUpToDateValue(f) << "\n";
+  std::cout << "x2 + y2 = " << f->getValue () << "\n";
   auto df_dx = f->derive(*x);
   auto df2_dx2 = df_dx->derive(*x);
-  std::cout << "d2(x2 + y2)/dx2 = " << getUpToDateValue(convertRef<Value<double>>(df2_dx2)) << "\n";
+  std::cout << "d2(x2 + y2)/dx2 = " << convertRef<Value<double>>(df2_dx2)->getValue () << "\n";
   std::ofstream fd("df_debug");
   debugDag(fd, df2_dx2, DebugOptions::ShowDependencyIndex | DebugOptions::FollowUpwardLinks);
 #endif

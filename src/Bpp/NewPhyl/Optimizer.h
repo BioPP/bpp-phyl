@@ -65,7 +65,7 @@ public:
 	DataFlowParameter * clone () const override { return new DataFlowParameter (*this); }
 
 	// Override value access
-	double getValue () const override { return dfParam_->value (); }
+	double getValue () const override { return dfParam_->accessValue (); }
 	void setValue (double v) override { dfParam_->setValue (v); }
 	// TODO care about the listeners
 
@@ -135,7 +135,7 @@ public:
 	void setParameters (const ParameterList & params) override {
 		variables_.setParametersValues (params);
 	}
-	double getValue () const override { return getUpToDateValue (dfFunction_); }
+	double getValue () const override { return dfFunction_->getValue (); }
 
 	// bpp::DerivableFirstOrder
 	void enableFirstOrderDerivatives (bool) override {}
@@ -150,7 +150,7 @@ public:
 			    dfFunction_->derive (*getDataFlowParameter (variable)));
 			firstOrderDerivativeNodes_.insert (std::make_pair (variable, node));
 		}
-		return DF::getUpToDateValue (node);
+		return node->getValue ();
 	}
 
 	// bpp::DerivableSecondOrder
@@ -172,7 +172,7 @@ public:
 			                                           ->derive (*getDataFlowParameter (variable2)));
 			secondOrderDerivativeNodes_.insert (std::make_pair (mapKey, node));
 		}
-		return DF::getUpToDateValue (node);
+		return node->getValue ();
 	}
 
 	// Debug introspection FIXME

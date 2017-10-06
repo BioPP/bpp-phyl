@@ -142,13 +142,23 @@ namespace DF {
 		Value (NoDependencyTag, Args &&... args) : Node (), value_ (std::forward<Args> (args)...) {}
 
 		// Access the stored value (no recomputation !)
-		const T & value () const noexcept {
+		const T & accessValue () const noexcept {
 			assert (this->isValid ());
 			return value_;
 		}
 
+    // Get updated value
+    // TODO support for // computation... type tags ?
+    const T & getValue () {
+      this->computeRecursively ();
+      return accessValue ();
+    }
+
 	protected:
 		T value_;
+
+	private:
+		friend T & accessMutableValue (Value<T> &);
 	};
 
 	/* Dependency structure description.
@@ -167,7 +177,7 @@ namespace DF {
 		return std::make_shared<T> (std::forward<Args> (args)...);
 	}
 	template <typename T, typename... Args>
-	std::shared_ptr<T> createNode (std::initializer_list<NodeRef> ilist, Args &&... args) {
+	std::shared_ptr<T> createNode (std::initializer_list<NodeRef> && ilist, Args &&... args) {
 		return std::make_shared<T> (std::move (ilist), std::forward<Args> (args)...);
 	}
 
@@ -178,16 +188,6 @@ namespace DF {
 		if (!p)
 			failureNodeConversion (typeid (T), *from);
 		return p;
-	}
-
-	// Get Value<T> value with recompute TODO improve
-	template <typename T> const T & getUpToDateValue (Value<T> & node) {
-		node.computeRecursively ();
-		return node.value ();
-	}
-	template <typename T>
-	auto getUpToDateValue (const std::shared_ptr<T> & node) -> decltype (getUpToDateValue (*node)) {
-		return getUpToDateValue (*node);
 	}
 }
 }

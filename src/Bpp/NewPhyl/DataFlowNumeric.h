@@ -110,18 +110,19 @@ namespace DF {
 
 		// Deriving a constant returns 0
 		NodeRef derive (const Node &) override final {
-			return createNode<Constant<T>> (createZeroValue (this->value ()));
+			return createNode<Constant<T>> (createZeroValue (this->accessValue ()));
 		}
 		NumericProperties numericProperties () const override {
 			auto props = Value<T>::numericProperties ();
 			props.isConstant = true;
-			props.isConstantZero = isZeroValue (this->value ());
-			props.isConstantOne = isOneValue (this->value ());
+			props.isConstantZero = isZeroValue (this->accessValue ());
+			props.isConstantOne = isOneValue (this->accessValue ());
 			return props;
 		}
 
 		std::string description () const override final {
-			return "Constant<" + prettyTypeName<T> () + ">(" + debug_to_string (this->value ()) + ")";
+			return "Constant<" + prettyTypeName<T> () + ">(" + debug_to_string (this->accessValue ()) +
+			       ")";
 		}
 
 		struct Builder : public AbstractBuilder {
@@ -162,9 +163,9 @@ namespace DF {
 	NodeRef deriveParameterImpl (const Parameter<T> & parameter, const Node & variable,
 	                             std::true_type) {
 		if (&parameter == &variable)
-			return createNode<Constant<T>> (createOneValue (parameter.value ()));
+			return createNode<Constant<T>> (createOneValue (parameter.accessValue ()));
 		else
-			return createNode<Constant<T>> (createZeroValue (parameter.value ()));
+			return createNode<Constant<T>> (createZeroValue (parameter.accessValue ()));
 	}
 	template <typename T>
 	NodeRef deriveParameterImpl (const Parameter<T> &, const Node &, std::false_type) {

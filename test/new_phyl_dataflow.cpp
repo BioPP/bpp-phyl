@@ -131,15 +131,15 @@ namespace
                                           double v2)
   {
     param->setValue(v1);
-    printLik(getUpToDateValue(lik), timePrefix);
+    printLik(lik->getValue(), timePrefix);
     param->setValue(v2);
-    printLik(getUpToDateValue(lik), timePrefix);
+    printLik(lik->getValue(), timePrefix);
 
     do_func_multiple_times(timePrefix, [&]() {
       param->setValue(v1);
-      getUpToDateValue(lik);
+      lik->getValue();
       param->setValue(v2);
-      getUpToDateValue(lik);
+      lik->getValue();
     });
   }
 #endif
@@ -259,7 +259,7 @@ TEST_CASE("df")
     bpp::DF::convertRef<bpp::DF::Value<double>>(bpp::DF::instantiateNodeSpec(bpp::Phyl::LogLikelihoodSpec{likParams}));
   timingEnd(ts, "df_setup");
   ts = timingStart();
-  auto logLik = getUpToDateValue(logLikNode);
+  auto logLik = logLikNode->getValue();
   timingEnd(ts, "df_init_value");
   printLik(logLik, "df_init_value");
 

@@ -67,7 +67,7 @@ namespace DF {
 	}
 	template <typename T> const T & accessValueUnsafe (const Node & n) noexcept {
 		assert (isValueNode<T> (n));
-		return static_cast<const Value<T> &> (n).value ();
+		return static_cast<const Value<T> &> (n).accessValue ();
 	}
 
 	// Dependency check

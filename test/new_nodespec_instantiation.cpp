@@ -124,9 +124,9 @@ TEST_CASE("test")
 
   auto sumSpec = SumSpec{tree->rootNode(), params};
   auto sum = DF::convertRef<Value<int>>(DF::instantiateNodeSpecWithReuse(sumSpec, registry));
-  CHECK(getUpToDateValue(sum) == 45);
+  CHECK(sum->getValue() == 45);
   params->access(tree->node(ta)).value()->setValue(-42);
-  CHECK(getUpToDateValue(sum) == 0);
+  CHECK(sum->getValue() == 0);
 
   auto partialSum =
     DF::convertRef<Value<int>>(DF::instantiateNodeSpecWithReuse(SumSpec{tree->node(0), params}, registry));

@@ -111,18 +111,18 @@ TEST_CASE("Testing data flow system on simple int reduction tree")
   CHECK_FALSE(n3->isValid());
 
   // Get an intermediate value
-  CHECK(getUpToDateValue(n2) == 43);
+  CHECK(n2->getValue() == 43);
   CHECK(n2->isValid());
   CHECK_FALSE(root->isValid());
   CHECK_FALSE(n3->isValid());
 
   // Get root
-  CHECK(getUpToDateValue(root) == -43);
+  CHECK(root->getValue() == -43);
   CHECK(root->isValid());
   CHECK_FALSE(n3->isValid());
 
   // Get n3
-  CHECK(getUpToDateValue(n3) == 3);
+  CHECK(n3->getValue() == 3);
   CHECK(root->isValid());
   CHECK(n3->isValid());
 
@@ -134,12 +134,12 @@ TEST_CASE("Testing data flow system on simple int reduction tree")
   CHECK(n1->isValid()); // Not dependent on p3
 
   // Recompute root
-  CHECK(getUpToDateValue(root) == -53);
+  CHECK(root->getValue() == -53);
   CHECK(root->isValid());
   CHECK_FALSE(n3->isValid());
 
   // Recompute n3
-  CHECK(getUpToDateValue(n3) == 13);
+  CHECK(n3->getValue() == 13);
   CHECK(n3->isValid());
 
   // Print DF graph
