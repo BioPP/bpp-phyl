@@ -51,10 +51,10 @@
 
 using namespace bpp;
 
-struct SumNode : public DF::Value<int>
+struct AddInt : public DF::Value<int>
 {
   using Dependencies = DF::ReductionOfValue<int>;
-  SumNode(DF::NodeRefVec&& deps)
+  AddInt(DF::NodeRefVec&& deps)
     : DF::Value<int>(std::move(deps))
   {
     DF::checkDependencies(*this);
@@ -63,12 +63,13 @@ struct SumNode : public DF::Value<int>
   {
     DF::callWithValues(*this, [](int& r) { r = 0; }, [](int& r, int i) { r += i; });
   }
+  static std::shared_ptr<AddInt> create(DF::NodeRefVec&& deps) { return std::make_shared<AddInt>(std::move(deps)); }
 };
 
-struct NegateNode : public DF::Value<int>
+struct NegInt : public DF::Value<int>
 {
   using Dependencies = DF::FunctionOfValues<int>;
-  NegateNode(DF::NodeRefVec&& deps)
+  NegInt(DF::NodeRefVec&& deps)
     : DF::Value<int>(std::move(deps))
   {
     DF::checkDependencies(*this);
@@ -77,6 +78,7 @@ struct NegateNode : public DF::Value<int>
   {
     DF::callWithValues(*this, [](int& r, int i) { r = -i; });
   }
+  static std::shared_ptr<NegInt> create(DF::NodeRefVec&& deps) { return std::make_shared<NegInt>(std::move(deps)); }
 };
 
 TEST_CASE("Testing data flow system on simple int reduction tree")
@@ -97,11 +99,11 @@ TEST_CASE("Testing data flow system on simple int reduction tree")
   auto p3 = createNode<Parameter<int>>(0);
   auto p4 = createNode<Parameter<int>>(3);
 
-  auto n1 = createNode<SumNode>({p1, p2});
-  auto n2 = createNode<SumNode>({n1, p3});
-  auto n3 = createNode<SumNode>({p3, p4});
+  auto n1 = createNode<AddInt>({p1, p2});
+  auto n2 = createNode<AddInt>({n1, p3});
+  auto n3 = createNode<AddInt>({p3, p4});
 
-  auto root = createNode<NegateNode>({n2});
+  auto root = createNode<NegInt>({n2});
 
   // Initial state
   CHECK(p1->isValid());
@@ -162,12 +164,12 @@ TEST_CASE("Exceptions")
   CHECK_THROWS_AS((void)convertRef<Value<bool>>(param), const bpp::Exception&);
 
   // GenericFunctionComputation: bad dep vec len
-  CHECK_THROWS_AS(createNode<NegateNode>({}), const bpp::Exception&);
+  CHECK_THROWS_AS(createNode<NegInt>({}), const bpp::Exception&);
 
   // GenericFunctionComputation: type mismatch
   auto p = createNode<Parameter<bool>>();
-  CHECK_THROWS_AS(createNode<NegateNode>({p}), const bpp::Exception&);
+  CHECK_THROWS_AS(createNode<NegInt>({p}), const bpp::Exception&);
 
   // GenericReductionComputation: type mismatch
-  CHECK_THROWS_AS(createNode<SumNode>({p}), const bpp::Exception&);
+  CHECK_THROWS_AS(createNode<AddInt>({p}), const bpp::Exception&);
 }

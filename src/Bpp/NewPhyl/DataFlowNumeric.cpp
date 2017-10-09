@@ -42,11 +42,17 @@
 #include <Bpp/NewPhyl/DataFlowDouble.h>
 #include <Bpp/NewPhyl/DataFlowNumeric.h> // Temporary, for failure funcs and Properties type FIXME
 #include <Bpp/NewPhyl/DataFlowTemplateUtils.h>
+#include <Bpp/NewPhyl/Range.h>
 #include <memory>
+#include <string>
 #include <typeinfo>
+#include <utility>
+
+#include <algorithm>
 
 namespace bpp {
 namespace DF {
+	// ConstantDouble
 	ConstantDouble::ConstantDouble (double d) : Value<double> (noDependency, d) {
 		this->makeValid ();
 	}
@@ -60,7 +66,6 @@ namespace DF {
 		props.isConstant = true;
 		return props;
 	}
-
 	std::shared_ptr<ConstantDouble> ConstantDouble::zero = std::make_shared<ConstantDouble> (0.);
 	std::shared_ptr<ConstantDouble> ConstantDouble::one = std::make_shared<ConstantDouble> (1.);
 	std::shared_ptr<ConstantDouble> ConstantDouble::create (double d) {
@@ -73,6 +78,7 @@ namespace DF {
 		}
 	}
 
+	// ParameterDouble
 	ParameterDouble::ParameterDouble (double d) : Value<double> (noDependency, d) {
 		this->makeValid ();
 	}
@@ -90,9 +96,84 @@ namespace DF {
 		this->value_ = d;
 		this->makeValid ();
 	}
-
 	std::shared_ptr<ParameterDouble> ParameterDouble::create (double d) {
 		return std::make_shared<ParameterDouble> (d);
+	}
+
+	// AddDouble
+	AddDouble::AddDouble (NodeRefVec && deps) : Value<double> (std::move (deps)) {
+		checkDependencies (*this);
+	}
+	void AddDouble::compute () {
+		callWithValues (*this, [](double & r) { r = 0.; }, [](double & r, double d) { r += d; });
+	}
+	std::string AddDouble::description () const { return "double + double"; }
+	NodeRef AddDouble::derive (const Node & node) {
+		NodeRefVec derivatives;
+		for (auto & subExpr : this->dependencies ())
+			derivatives.emplace_back (subExpr->derive (node));
+		return AddDouble::create (std::move (derivatives));
+	}
+	std::shared_ptr<Value<double>> AddDouble::create (NodeRefVec && deps) {
+		// Remove '0s' from deps
+		deps.erase (std::remove_if (
+		                deps.begin (), deps.end (),
+		                [](const NodeRef & nodeRef) {
+			                return nodeRef->properties ().isConstant &&
+			                       dynamic_cast<const Value<double> &> (*nodeRef).accessValue () == 0.;
+			              }),
+		            deps.end ());
+		// Node choice
+		if (deps.size () == 1) {
+			return convertRef<Value<double>> (deps[0]);
+		} else if (deps.size () == 0) {
+			return ConstantDouble::zero;
+		} else {
+			return std::make_shared<AddDouble> (std::move (deps));
+		}
+	}
+
+	// MulDouble
+	MulDouble::MulDouble (NodeRefVec && deps) : Value<double> (std::move (deps)) {
+		checkDependencies (*this);
+	}
+	void MulDouble::compute () {
+		callWithValues (*this, [](double & r) { r = 0.; }, [](double & r, double d) { r *= d; });
+	}
+	std::string MulDouble::description () const { return "double * double"; }
+	NodeRef MulDouble::derive (const Node & node) {
+		NodeRefVec additionDeps;
+		for (auto i : bpp::index_range (this->dependencies ())) {
+			NodeRefVec mulDeps = this->dependencies ();
+			mulDeps[i] = this->dependencies ()[i]->derive (node);
+			additionDeps.emplace_back (MulDouble::create (std::move (mulDeps)));
+		}
+		return AddDouble::create (std::move (additionDeps));
+	}
+	std::shared_ptr<Value<double>> MulDouble::create (NodeRefVec && deps) {
+		// Return 0 if any dep is 0
+		if (std::any_of (deps.begin (), deps.end (), [](const NodeRef & nodeRef) {
+			    return nodeRef->properties ().isConstant &&
+			           dynamic_cast<const Value<double> &> (*nodeRef).accessValue () == 0.;
+			  })) {
+			return ConstantDouble::zero;
+		}
+		// Remove any 1s
+		deps.erase (std::remove_if (
+		                deps.begin (), deps.end (),
+		                [](const NodeRef & nodeRef) {
+			                return nodeRef->properties ().isConstant &&
+			                       dynamic_cast<const Value<double> &> (*nodeRef).accessValue () == 1.;
+			              }),
+		            deps.end ());
+		// Node choice
+		if (deps.size () == 1) {
+			return convertRef<Value<double>> (deps[0]);
+		} else if (deps.size () == 0) {
+			return ConstantDouble::one;
+		} else {
+			return std::make_shared<MulDouble> (std::move (deps));
+		}
 	}
 }
 }

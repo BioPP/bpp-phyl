@@ -202,7 +202,9 @@ namespace DF {
 	/* Defines all but computeDependencies () for a Spec that always generates the same node type.
 	 */
 	template <typename NodeType> struct NodeSpecAlwaysGenerate {
-		static NodeRef buildNode (NodeRefVec deps) { return createNode<NodeType> (std::move (deps)); }
+		static NodeRef buildNode (NodeRefVec deps) {
+			return std::make_shared<NodeType> (std::move (deps));
+		}
 		static std::type_index nodeType () { return typeid (NodeType); }
 		static std::string description () { return prettyTypeName<NodeSpecAlwaysGenerate> (); }
 	};

@@ -43,7 +43,6 @@
 #include "doctest.h"
 
 #include <Bpp/NewPhyl/DataFlowDouble.h>
-#include <Bpp/NewPhyl/DataFlowNumeric.h>
 #include <Bpp/NewPhyl/DataFlowTemplateUtils.h>
 #include <Bpp/NewPhyl/Debug.h>
 #include <Bpp/NewPhyl/Optimizer.h>
@@ -52,60 +51,6 @@
 
 using namespace bpp;
 using namespace bpp::DF;
-
-// Addition
-NodeRef makeAdditionNode(NodeRefVec deps);
-
-struct Add : public Value<double>
-{
-  using Dependencies = ReductionOfValue<double>;
-  Add(NodeRefVec&& deps)
-    : Value<double>(std::move(deps))
-  {
-    checkDependencies(*this);
-  }
-  void compute() override final
-  {
-    DF::callWithValues(*this, [](double& r) { r = 0.; }, [](double& r, const double& t) { r += t; });
-  }
-  std::string description() const override final { return "+"; }
-  NodeRef derive(const Node& variable) override final
-  {
-    NodeRefVec derivatives;
-    for (auto& subExpr : this->dependencies())
-      derivatives.emplace_back(subExpr->derive(variable));
-    return makeAdditionNode(std::move(derivatives));
-  }
-};
-
-// Multiplication
-NodeRef makeMultiplicationNode(NodeRefVec deps);
-
-struct Mul : public Value<double>
-{
-  using Dependencies = ReductionOfValue<double>;
-  Mul(NodeRefVec&& deps)
-    : Value<double>(std::move(deps))
-  {
-    checkDependencies(*this);
-  }
-  void compute() override final
-  {
-    DF::callWithValues(*this, [](double& r) { r = 1.; }, [](double& r, const double& t) { r *= t; });
-  }
-  std::string description() const override final { return "*"; }
-  NodeRef derive(const Node& variable) override final
-  {
-    NodeRefVec additionDeps;
-    for (auto i : bpp::index_range(this->dependencies()))
-    {
-      NodeRefVec mulDeps = this->dependencies();
-      mulDeps[i] = this->dependencies()[i]->derive(variable);
-      additionDeps.emplace_back(makeMultiplicationNode(std::move(mulDeps)));
-    }
-    return makeAdditionNode(std::move(additionDeps));
-  }
-};
 
 // Square
 struct Square : public Value<double>
@@ -124,64 +69,10 @@ struct Square : public Value<double>
   NodeRef derive(const Node& variable) override final
   {
     auto& x = this->dependencies()[0];
-    return makeMultiplicationNode({createNode<ConstantDouble>(2.0), x, x->derive(variable)});
+    return createNode<MulDouble>({createNode<ConstantDouble>(2.0), x, x->derive(variable)});
   }
+  static std::shared_ptr<Square> create(NodeRefVec&& deps) { return std::make_shared<Square>(std::move(deps)); }
 };
-
-// Optimisations
-NodeRef makeAdditionNode(NodeRefVec deps)
-{
-  // FIXME crutch. need to store a ref to have at least one node to get build arguments from.
-  assert(deps.size() > 0);
-  auto savedRef = convertRef<Value<double>>(deps[0]);
-  // Remove '0s' from deps
-  deps.erase(std::remove_if(
-               deps.begin(), deps.end(), [](const NodeRef& nodeRef) { return nodeRef->properties().isConstantZero; }),
-             deps.end());
-  // Node choice
-  if (deps.size() == 1)
-  {
-    return deps[0];
-  }
-  else if (deps.size() == 0)
-  {
-    return createNode<ConstantDouble>(createZeroValue(savedRef->accessValue()));
-  }
-  else
-  {
-    return createNode<Add>(std::move(deps));
-  }
-}
-
-NodeRef makeMultiplicationNode(NodeRefVec deps)
-{
-  // Same crutch again
-  assert(deps.size() > 0);
-  auto savedRef = convertRef<Value<double>>(deps[0]);
-  // Return 0 if any dep is 0
-  if (std::any_of(
-        deps.begin(), deps.end(), [](const NodeRef& nodeRef) { return nodeRef->properties().isConstantZero; }))
-  {
-    return createNode<ConstantDouble>(createZeroValue(savedRef->accessValue()));
-  }
-  // Remove any 1s
-  deps.erase(std::remove_if(
-               deps.begin(), deps.end(), [](const NodeRef& nodeRef) { return nodeRef->properties().isConstantOne; }),
-             deps.end());
-  // Node choice
-  if (deps.size() == 1)
-  {
-    return deps[0];
-  }
-  else if (deps.size() == 0)
-  {
-    return createNode<ConstantDouble>(createOneValue(savedRef->accessValue()));
-  }
-  else
-  {
-    return createNode<Mul>(std::move(deps));
-  }
-}
 
 ///////////////// TESTS /////////////////::
 
@@ -231,9 +122,9 @@ TEST_CASE("test")
   auto& y = yp.getDataFlowParameter();
   auto x2 = createNode<Square>({x});
   auto konst3 = createNode<ConstantDouble>(-3.);
-  auto sy = makeAdditionNode({y, konst3});
+  auto sy = createNode<AddDouble>({y, konst3});
   auto y2 = createNode<Square>({sy});
-  auto f = makeAdditionNode({x2, y2});
+  auto f = createNode<AddDouble>({x2, y2});
 
 #if 0
   std::cout << "x2 + y2 = " << f->getValue () << "\n";

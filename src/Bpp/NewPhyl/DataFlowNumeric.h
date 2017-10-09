@@ -43,17 +43,13 @@
 #define BPP_NEWPHYL_DATAFLOWNUMERIC_H
 
 #include <Bpp/NewPhyl/DataFlow.h>
-#include <Bpp/NewPhyl/DataFlowTemplateUtils.h>
-#include <Bpp/NewPhyl/Debug.h> // description
-#include <string>              // description
-#include <type_traits>
 #include <typeinfo>
 #include <utility>
 
 namespace bpp {
 namespace DF {
 	// Fwd declaration
-	template <typename T> class Parameter;
+	template <typename T> struct Parameter;
 
 	// Error functions
 	[[noreturn]] void failureComputeWasCalled (const std::type_info & paramType);
@@ -62,73 +58,27 @@ namespace DF {
 	// Typedefs
 	template <typename T> using ParameterRef = std::shared_ptr<Parameter<T>>;
 
-	/* Numeric info.
-	 *
-	 * struct NumericProperties is used by node to give numeric properties about them.
-	 * Compute class can override their numericProperties() method.
-	 *
-	 * T createZeroValue (const T&) is used to create a "0" for type T.
-	 * This is useful for vector<T>, to create a vector of 0s with the same size as the source vector.
-	 * TODO work in progress, may need refactoring
-	 */
 	struct Properties {
 		bool isConstant{false};
-		bool isConstantZero{false};
-		bool isConstantOne{false};
 	};
-
-	template <typename T> using IsParameterTypeDerivable = std::is_floating_point<T>;
-
-	template <typename T, typename = typename std::enable_if<std::is_floating_point<T>::value>::type>
-	T createZeroValue (const T &) {
-		return 0.;
-	}
-	template <typename T, typename = typename std::enable_if<std::is_floating_point<T>::value>::type>
-	T createOneValue (const T &) {
-		return 1.;
-	}
-	template <typename T, typename = typename std::enable_if<std::is_floating_point<T>::value>::type>
-	bool isZeroValue (const T & v) {
-		return v == T (0.);
-	}
-	template <typename T, typename = typename std::enable_if<std::is_floating_point<T>::value>::type>
-	bool isOneValue (const T & v) {
-		return v == T (1.);
-	}
 
 	/* Constant value.
 	 */
-	template <typename T> class Constant : public Value<T> {
-	public:
+	template <typename T> struct Constant : public Value<T> {
 		template <typename... Args>
 		Constant (Args &&... args) : Value<T> (noDependency, std::forward<Args> (args)...) {
 			this->makeValid ();
 		}
-
 		void compute () override final { failureComputeWasCalled (typeid (Constant<T>)); }
 
-		// Deriving a constant returns 0
-		NodeRef derive (const Node &) override final {
-			return createNode<Constant<T>> (createZeroValue (this->accessValue ()));
-		}
-		Properties properties () const override {
-			auto props = Value<T>::properties ();
-			props.isConstant = true;
-			props.isConstantZero = isZeroValue (this->accessValue ());
-			props.isConstantOne = isOneValue (this->accessValue ());
-			return props;
-		}
-
-		std::string description () const override final {
-			return "Constant<" + prettyTypeName<T> () + ">(" + debug_to_string (this->accessValue ()) +
-			       ")";
+		template <typename... Args> static std::shared_ptr<Constant<T>> create (Args &&... args) {
+			return std::make_shared<Constant<T>> (std::forward<Args> (args)...);
 		}
 	};
 
 	/* Parameter node.
 	 */
-	template <typename T> class Parameter : public Value<T> {
-	public:
+	template <typename T> struct Parameter : public Value<T> {
 		template <typename... Args>
 		Parameter (Args &&... args) : Value<T> (noDependency, std::forward<Args> (args)...) {
 			this->makeValid ();
@@ -140,54 +90,10 @@ namespace DF {
 			this->makeValid ();
 		}
 
-		NodeRef derive (const Node & variable) override final;
-
-	private:
 		void compute () override final { failureComputeWasCalled (typeid (Parameter<T>)); }
-	};
 
-	/* Derive for parameters is special.
-	 * It is only defined for real types (double, floats).
-	 * Deriving a parameter should return a 1 if we derive from self, or 0 (derivation of constant).
-	 * For other types, the function should throw an exception.
-	 * Thus tag dispatching is done to route the call to derive() to the right implementation.
-	 */
-	template <typename T>
-	NodeRef deriveParameterImpl (const Parameter<T> & parameter, const Node & variable,
-	                             std::true_type) {
-		if (&parameter == &variable)
-			return createNode<Constant<T>> (createOneValue (parameter.accessValue ()));
-		else
-			return createNode<Constant<T>> (createZeroValue (parameter.accessValue ()));
-	}
-	template <typename T>
-	NodeRef deriveParameterImpl (const Parameter<T> &, const Node &, std::false_type) {
-		failureDerivationNotSupportedForParameterType (typeid (T));
-	}
-	template <typename T> NodeRef Parameter<T>::derive (const Node & variable) {
-		return deriveParameterImpl (*this, variable, IsParameterTypeDerivable<T>{});
-	}
-
-	////////////////////////////////////// FIXME structures for double
-	// Move away later !
-
-	// Add double
-	struct AddDouble : public Value<double> {
-		using Dependencies = ReductionOfValue<double>;
-		AddDouble (NodeRefVec && deps) : Value<double> (std::move (deps)) { checkDependencies (*this); }
-		std::string description () const override final { return "+"; }
-		void compute () override final {
-			callWithValues (*this, [](double & r) { r = 0.; }, [](double & r, double d) { r += d; });
-		}
-	};
-
-	// Multiply double
-	struct MulDouble : public Value<double> {
-		using Dependencies = ReductionOfValue<double>;
-		MulDouble (NodeRefVec && deps) : Value<double> (std::move (deps)) { checkDependencies (*this); }
-		std::string description () const final { return "*"; }
-		void compute () override final {
-			callWithValues (*this, [](double & r) { r = 1.; }, [](double & r, double d) { r *= d; });
+		template <typename... Args> static std::shared_ptr<Parameter<T>> create (Args &&... args) {
+			return std::make_shared<Parameter<T>> (std::forward<Args> (args)...);
 		}
 	};
 }

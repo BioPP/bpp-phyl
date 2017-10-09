@@ -65,10 +65,10 @@ namespace Phyl {
 	}
 	DF::NodeRef ConditionalLikelihoodSpec::buildNode (DF::NodeRefVec deps) const {
 		if (computed_from_data ())
-			return DF::createNode<ComputeConditionalLikelihoodFromDataNode> (
+			return std::make_shared<ComputeConditionalLikelihoodFromDataNode> (
 			    std::move (deps), likParams.leafData.nbSites, likParams.process.nbStates);
 		else
-			return DF::createNode<ComputeConditionalLikelihoodFromChildrensNode> (
+			return std::make_shared<ComputeConditionalLikelihoodFromChildrensNode> (
 			    std::move (deps), likParams.leafData.nbSites, likParams.process.nbStates);
 	}
 	std::type_index ConditionalLikelihoodSpec::nodeType () const {
@@ -89,7 +89,7 @@ namespace Phyl {
 		                               likParams.process.nbStates));
 	}
 	DF::NodeRef ForwardLikelihoodSpec::buildNode (DF::NodeRefVec deps) const {
-		return DF::createNode<ComputeForwardLikelihoodNode> (
+		return std::make_shared<ComputeForwardLikelihoodNode> (
 		    std::move (deps), likParams.leafData.nbSites, likParams.process.nbStates);
 	}
 	std::type_index ForwardLikelihoodSpec::nodeType () {
@@ -111,7 +111,7 @@ namespace Phyl {
 		        likParams.process.nbStates));
 	}
 	DF::NodeRef LogLikelihoodSpec::buildNode (DF::NodeRefVec deps) {
-		return DF::createNode<ComputeLogLikelihoodNode> (std::move (deps));
+		return std::make_shared<ComputeLogLikelihoodNode> (std::move (deps));
 	}
 	std::type_index LogLikelihoodSpec::nodeType () { return typeid (ComputeLogLikelihoodNode); }
 	std::string LogLikelihoodSpec::description () { return prettyTypeName<LogLikelihoodSpec> (); }

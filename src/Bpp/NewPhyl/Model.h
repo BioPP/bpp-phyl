@@ -62,7 +62,7 @@ namespace Phyl {
 	class ModelNode : public DF::Value<const SubstitutionModel *> {
 		// TODO wrap SubstitutionModel in a Pimpl ModelValue class.
 	public:
-		ModelNode (std::unique_ptr<SubstitutionModel> model);
+		ModelNode (std::unique_ptr<SubstitutionModel> && model);
 		~ModelNode ();
 
 		SizeType nbParameters () const noexcept { return this->dependencies ().size (); }
@@ -72,6 +72,7 @@ namespace Phyl {
 
 		void compute () override final;
 		std::string description () const override final;
+		static std::shared_ptr<ModelNode> create (std::unique_ptr<SubstitutionModel> && model);
 
 	private:
 		std::unique_ptr<SubstitutionModel> model_;

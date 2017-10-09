@@ -97,7 +97,7 @@ namespace Phyl {
 		    make_freezable<NodeValueMap<DF::ParameterRef<const Sequence *>>> (nodeNames.tree ());
 		for (auto i : bpp::index_range (*sequenceMap))
 			sequenceMap->access (i) = nodeNames.access (i).map ([&sequences](const std::string & name) {
-				return DF::createNode<DF::Parameter<const Sequence *>> (&sequences.getSequence (name));
+				return std::make_shared<DF::Parameter<const Sequence *>> (&sequences.getSequence (name));
 			});
 		return {std::move (sequenceMap).freeze (),
 		        static_cast<SizeType> (sequences.getNumberOfSites ())};

@@ -61,9 +61,27 @@ namespace DF {
 		ParameterDouble (double d);
 		void compute () override final;
 		std::string description () const override final;
-		NodeRef derive (const Node &) override final;
+		NodeRef derive (const Node & node) override final;
 		void setValue (double d);
 		static std::shared_ptr<ParameterDouble> create (double d);
+	};
+
+	struct AddDouble : public Value<double> {
+		using Dependencies = ReductionOfValue<double>;
+		AddDouble (NodeRefVec && deps);
+		void compute () override final;
+		std::string description () const override final;
+		NodeRef derive (const Node & node) override final;
+		static std::shared_ptr<Value<double>> create (NodeRefVec && deps);
+	};
+
+	struct MulDouble : public Value<double> {
+		using Dependencies = ReductionOfValue<double>;
+		MulDouble (NodeRefVec && deps);
+		void compute () override final;
+		std::string description () const override final;
+		NodeRef derive (const Node & node) override final;
+		static std::shared_ptr<Value<double>> create (NodeRefVec && deps);
 	};
 }
 }

@@ -215,7 +215,7 @@ namespace Topology {
 		ValueMapBase<DF::ParameterRef<T>> map (valueMap.size ());
 		for (auto i : index_range (map))
 			map.access (i) = valueMap.access (i).map (
-			    [](const T & t) { return DF::createNode<DF::Parameter<T>> (t); });
+			    [](const T & t) { return std::make_shared<DF::Parameter<T>> (t); });
 		return map;
 	}
 	template <typename T>

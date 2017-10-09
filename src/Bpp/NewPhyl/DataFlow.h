@@ -93,10 +93,10 @@ namespace DF {
 		void invalidate () noexcept;
 		virtual void compute () = 0;
 		void computeRecursively ();
-		
-    // Access properties of the node.
-    // Currently, only numerical properties.
-    virtual Properties properties () const;
+
+		// Access properties of the node.
+		// Currently, only numerical properties.
+		virtual Properties properties () const;
 
 		// Derivation stuff
 		virtual NodeRef derive (const Node & variable); // Defaults to error
@@ -176,13 +176,15 @@ namespace DF {
 	// Error function
 	[[noreturn]] void failureNodeConversion (const std::type_info & handleType, const Node & node);
 
-	// Create node with make shared.
-	template <typename T, typename... Args> std::shared_ptr<T> createNode (Args &&... args) {
-		return std::make_shared<T> (std::forward<Args> (args)...);
+	// Create node with make shared (useful as it catches initializer lists).
+	template <typename T, typename... Args>
+	auto createNode (Args &&... args) -> decltype (T::create (std::forward<Args> (args)...)) {
+		return T::create (std::forward<Args> (args)...);
 	}
 	template <typename T, typename... Args>
-	std::shared_ptr<T> createNode (std::initializer_list<NodeRef> && ilist, Args &&... args) {
-		return std::make_shared<T> (std::move (ilist), std::forward<Args> (args)...);
+	auto createNode (std::initializer_list<NodeRef> && ilist, Args &&... args)
+	    -> decltype (T::create (std::move (ilist), std::forward<Args> (args)...)) {
+		return T::create (std::move (ilist), std::forward<Args> (args)...);
 	}
 
 	// Convert handles with check
