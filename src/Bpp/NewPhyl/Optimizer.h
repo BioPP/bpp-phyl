@@ -42,7 +42,7 @@
 #ifndef BPP_NEWPHYL_OPTIMIZER_H
 #define BPP_NEWPHYL_OPTIMIZER_H
 
-#include <Bpp/NewPhyl/DataFlowNumeric.h>
+#include <Bpp/NewPhyl/DataFlowDouble.h>
 #include <Bpp/NewPhyl/Debug.h>
 #include <Bpp/NewPhyl/Optional.h>
 #include <Bpp/Numeric/Function/Functions.h>
@@ -56,10 +56,10 @@ namespace bpp {
 // Wraps a DF::Parameter<double> data flow node as a bpp::Parameter
 class DataFlowParameter : public Parameter {
 public:
-	DataFlowParameter (const std::string & name, DF::ParameterRef<double> existingParam)
+	DataFlowParameter (const std::string & name, std::shared_ptr<DF::ParameterDouble> existingParam)
 	    : Parameter (name, {}), dfParam_ (std::move (existingParam)) {}
 	DataFlowParameter (const std::string & name, double initialValue)
-	    : DataFlowParameter (name, DF::createNode<DF::Parameter<double>> (initialValue)) {}
+	    : DataFlowParameter (name, DF::ParameterDouble::create (initialValue)) {}
 
 	// Parameter boilerplate
 	DataFlowParameter * clone () const override { return new DataFlowParameter (*this); }
@@ -69,10 +69,12 @@ public:
 	void setValue (double v) override { dfParam_->setValue (v); }
 	// TODO care about the listeners
 
-	const DF::ParameterRef<double> & getDataFlowParameter () const noexcept { return dfParam_; }
+	const std::shared_ptr<DF::ParameterDouble> & getDataFlowParameter () const noexcept {
+		return dfParam_;
+	}
 
 private:
-	DF::ParameterRef<double> dfParam_;
+	std::shared_ptr<DF::ParameterDouble> dfParam_;
 };
 
 /*
@@ -190,7 +192,8 @@ public:
 	}
 
 private:
-	const DF::ParameterRef<double> & getDataFlowParameter (const std::string & name) const {
+	const std::shared_ptr<DF::ParameterDouble> &
+	getDataFlowParameter (const std::string & name) const {
 		return dynamic_cast<const DataFlowParameter &> (getParameter (name)).getDataFlowParameter ();
 	}
 };

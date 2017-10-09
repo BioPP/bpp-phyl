@@ -42,6 +42,8 @@
 #define DOCTEST_CONFIG_IMPLEMENT_WITH_MAIN
 #include "doctest.h"
 
+#include <Bpp/NewPhyl/DataFlowDouble.h>
+#include <Bpp/NewPhyl/DataFlowNumeric.h>
 #include <Bpp/NewPhyl/DataFlowTemplateUtils.h>
 #include <Bpp/NewPhyl/Debug.h>
 #include <Bpp/NewPhyl/Optimizer.h>
@@ -52,21 +54,19 @@ using namespace bpp;
 using namespace bpp::DF;
 
 // Addition
-template<typename T>
 NodeRef makeAdditionNode(NodeRefVec deps);
 
-template<typename T>
-struct Add : public Value<T>
+struct Add : public Value<double>
 {
-  using Dependencies = ReductionOfValue<T>;
+  using Dependencies = ReductionOfValue<double>;
   Add(NodeRefVec&& deps)
-    : Value<T>(std::move(deps))
+    : Value<double>(std::move(deps))
   {
     checkDependencies(*this);
   }
   void compute() override final
   {
-    DF::callWithValues(*this, [](T& r) { r = 0.; }, [](T& r, const T& t) { r += t; });
+    DF::callWithValues(*this, [](double& r) { r = 0.; }, [](double& r, const double& t) { r += t; });
   }
   std::string description() const override final { return "+"; }
   NodeRef derive(const Node& variable) override final
@@ -74,26 +74,24 @@ struct Add : public Value<T>
     NodeRefVec derivatives;
     for (auto& subExpr : this->dependencies())
       derivatives.emplace_back(subExpr->derive(variable));
-    return makeAdditionNode<T>(std::move(derivatives));
+    return makeAdditionNode(std::move(derivatives));
   }
 };
 
 // Multiplication
-template<typename T>
 NodeRef makeMultiplicationNode(NodeRefVec deps);
 
-template<typename T>
-struct Mul : public Value<T>
+struct Mul : public Value<double>
 {
-  using Dependencies = ReductionOfValue<T>;
+  using Dependencies = ReductionOfValue<double>;
   Mul(NodeRefVec&& deps)
-    : Value<T>(std::move(deps))
+    : Value<double>(std::move(deps))
   {
     checkDependencies(*this);
   }
   void compute() override final
   {
-    DF::callWithValues(*this, [](T& r) { r = 1.; }, [](T& r, const T& t) { r *= t; });
+    DF::callWithValues(*this, [](double& r) { r = 1.; }, [](double& r, const double& t) { r *= t; });
   }
   std::string description() const override final { return "*"; }
   NodeRef derive(const Node& variable) override final
@@ -103,41 +101,39 @@ struct Mul : public Value<T>
     {
       NodeRefVec mulDeps = this->dependencies();
       mulDeps[i] = this->dependencies()[i]->derive(variable);
-      additionDeps.emplace_back(makeMultiplicationNode<T>(std::move(mulDeps)));
+      additionDeps.emplace_back(makeMultiplicationNode(std::move(mulDeps)));
     }
-    return makeAdditionNode<T>(std::move(additionDeps));
+    return makeAdditionNode(std::move(additionDeps));
   }
 };
 
 // Square
-template<typename T>
-struct Square : public Value<T>
+struct Square : public Value<double>
 {
-  using Dependencies = FunctionOfValues<T>;
+  using Dependencies = FunctionOfValues<double>;
   Square(NodeRefVec&& deps)
-    : Value<T>(std::move(deps))
+    : Value<double>(std::move(deps))
   {
     checkDependencies(*this);
   }
   void compute() override final
   {
-    DF::callWithValues(*this, [](T& r, const T& t) { r = t * t; });
+    DF::callWithValues(*this, [](double& r, const double& t) { r = t * t; });
   }
   std::string description() const override final { return "x^2"; }
   NodeRef derive(const Node& variable) override final
   {
     auto& x = this->dependencies()[0];
-    return makeMultiplicationNode<T>({createNode<Constant<T>>(2.0), x, x->derive(variable)});
+    return makeMultiplicationNode({createNode<ConstantDouble>(2.0), x, x->derive(variable)});
   }
 };
 
 // Optimisations
-template<typename T>
 NodeRef makeAdditionNode(NodeRefVec deps)
 {
   // FIXME crutch. need to store a ref to have at least one node to get build arguments from.
   assert(deps.size() > 0);
-  auto savedRef = convertRef<Value<T>>(deps[0]);
+  auto savedRef = convertRef<Value<double>>(deps[0]);
   // Remove '0s' from deps
   deps.erase(std::remove_if(
                deps.begin(), deps.end(), [](const NodeRef& nodeRef) { return nodeRef->properties().isConstantZero; }),
@@ -149,25 +145,24 @@ NodeRef makeAdditionNode(NodeRefVec deps)
   }
   else if (deps.size() == 0)
   {
-    return createNode<Constant<T>>(createZeroValue(savedRef->accessValue()));
+    return createNode<ConstantDouble>(createZeroValue(savedRef->accessValue()));
   }
   else
   {
-    return createNode<Add<T>>(std::move(deps));
+    return createNode<Add>(std::move(deps));
   }
 }
 
-template<typename T>
 NodeRef makeMultiplicationNode(NodeRefVec deps)
 {
   // Same crutch again
   assert(deps.size() > 0);
-  auto savedRef = convertRef<Value<T>>(deps[0]);
+  auto savedRef = convertRef<Value<double>>(deps[0]);
   // Return 0 if any dep is 0
   if (std::any_of(
         deps.begin(), deps.end(), [](const NodeRef& nodeRef) { return nodeRef->properties().isConstantZero; }))
   {
-    return createNode<Constant<T>>(createZeroValue(savedRef->accessValue()));
+    return createNode<ConstantDouble>(createZeroValue(savedRef->accessValue()));
   }
   // Remove any 1s
   deps.erase(std::remove_if(
@@ -180,11 +175,11 @@ NodeRef makeMultiplicationNode(NodeRefVec deps)
   }
   else if (deps.size() == 0)
   {
-    return createNode<Constant<T>>(createOneValue(savedRef->accessValue()));
+    return createNode<ConstantDouble>(createOneValue(savedRef->accessValue()));
   }
   else
   {
-    return createNode<Mul<T>>(std::move(deps));
+    return createNode<Mul>(std::move(deps));
   }
 }
 
@@ -234,11 +229,11 @@ TEST_CASE("test")
 
   auto& x = xp.getDataFlowParameter();
   auto& y = yp.getDataFlowParameter();
-  auto x2 = createNode<Square<double>>({x});
-  auto konst3 = createNode<Constant<double>>(-3.);
-  auto sy = makeAdditionNode<double>({y, konst3});
-  auto y2 = createNode<Square<double>>({sy});
-  auto f = makeAdditionNode<double>({x2, y2});
+  auto x2 = createNode<Square>({x});
+  auto konst3 = createNode<ConstantDouble>(-3.);
+  auto sy = makeAdditionNode({y, konst3});
+  auto y2 = createNode<Square>({sy});
+  auto f = makeAdditionNode({x2, y2});
 
 #if 0
   std::cout << "x2 + y2 = " << f->getValue () << "\n";
