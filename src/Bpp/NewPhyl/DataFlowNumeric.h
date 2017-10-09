@@ -43,7 +43,6 @@
 #define BPP_NEWPHYL_DATAFLOWNUMERIC_H
 
 #include <Bpp/NewPhyl/DataFlow.h>
-#include <Bpp/NewPhyl/DataFlowBuilder.h>
 #include <Bpp/NewPhyl/DataFlowTemplateUtils.h>
 #include <Bpp/NewPhyl/Debug.h> // description
 #include <string>              // description
@@ -124,12 +123,6 @@ namespace DF {
 			return "Constant<" + prettyTypeName<T> () + ">(" + debug_to_string (this->accessValue ()) +
 			       ")";
 		}
-
-		struct Builder : public AbstractBuilder {
-			NodeRef build () const override { return createNode<Constant<T>> (constant); }
-
-			T constant;
-		};
 	};
 
 	/* Parameter node.
@@ -181,40 +174,20 @@ namespace DF {
 	// Add double
 	struct AddDouble : public Value<double> {
 		using Dependencies = ReductionOfValue<double>;
-		struct Builder;
-
 		AddDouble (NodeRefVec && deps) : Value<double> (std::move (deps)) { checkDependencies (*this); }
 		std::string description () const override final { return "+"; }
 		void compute () override final {
 			callWithValues (*this, [](double & r) { r = 0.; }, [](double & r, double d) { r += d; });
 		}
 	};
-	struct AddDouble::Builder : public AbstractBuilder {
-		NodeRef build () const override final {
-			NodeRefVec deps;
-			for (auto & builder : this->dependencies)
-				deps.emplace_back (builder->build ());
-			return createNode<AddDouble> (std::move (deps));
-		}
-	};
 
 	// Multiply double
 	struct MulDouble : public Value<double> {
 		using Dependencies = ReductionOfValue<double>;
-		struct Builder;
-
 		MulDouble (NodeRefVec && deps) : Value<double> (std::move (deps)) { checkDependencies (*this); }
 		std::string description () const final { return "*"; }
 		void compute () override final {
 			callWithValues (*this, [](double & r) { r = 1.; }, [](double & r, double d) { r *= d; });
-		}
-	};
-	struct MulDouble::Builder : public AbstractBuilder {
-		NodeRef build () const override final {
-			NodeRefVec deps;
-			for (auto & builder : this->dependencies)
-				deps.emplace_back (builder->build ());
-			return createNode<MulDouble> (std::move (deps));
 		}
 	};
 }
