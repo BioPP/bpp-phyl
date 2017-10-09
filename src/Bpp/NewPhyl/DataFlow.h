@@ -58,12 +58,18 @@ namespace DF {
 	// Fwd declaration
 	class Node;
 	template <typename T> class Value;
-	struct Properties; // In DataFlowNumeric.h
 
 	// Convenient typedefs : Node is supposed to be used as shared_ptr instances.
 	using NodeRef = std::shared_ptr<Node>;
 	using NodeRefVec = Vector<NodeRef>;
 	template <typename T> using ValueRef = std::shared_ptr<Value<T>>;
+
+	/* Node properties.
+	 * This structure defines useful node properties, that can be used by node manipulating functions.
+	 */
+	struct Properties {
+		bool isConstant{false}; // Used for numerical simplification (with node specific tests for 0/1).
+	};
 
 	/* Base Node class.
 	 * Abstract : compute() needs to be defined to the actual computation.
@@ -165,6 +171,17 @@ namespace DF {
 		template <typename U> friend U & accessMutableValue (Value<U> &) noexcept;
 	};
 
+	// Create node utilities (useful as it catches initializer lists).
+	template <typename T, typename... Args>
+	auto createNode (Args &&... args) -> decltype (T::create (std::forward<Args> (args)...)) {
+		return T::create (std::forward<Args> (args)...);
+	}
+	template <typename T, typename... Args>
+	auto createNode (std::initializer_list<NodeRef> && ilist, Args &&... args)
+	    -> decltype (T::create (std::move (ilist), std::forward<Args> (args)...)) {
+		return T::create (std::move (ilist), std::forward<Args> (args)...);
+	}
+
 	/* Dependency structure description.
 	 * These type tags are used to specify compute node dependency types.
 	 * This can serve as documentation about what arguments node expect.
@@ -175,17 +192,7 @@ namespace DF {
 
 	// Error function
 	[[noreturn]] void failureNodeConversion (const std::type_info & handleType, const Node & node);
-
-	// Create node with make shared (useful as it catches initializer lists).
-	template <typename T, typename... Args>
-	auto createNode (Args &&... args) -> decltype (T::create (std::forward<Args> (args)...)) {
-		return T::create (std::forward<Args> (args)...);
-	}
-	template <typename T, typename... Args>
-	auto createNode (std::initializer_list<NodeRef> && ilist, Args &&... args)
-	    -> decltype (T::create (std::move (ilist), std::forward<Args> (args)...)) {
-		return T::create (std::move (ilist), std::forward<Args> (args)...);
-	}
+	[[noreturn]] void failureComputeWasCalled (const std::type_info & nodeType);
 
 	// Convert handles with check
 	template <typename T, typename U>

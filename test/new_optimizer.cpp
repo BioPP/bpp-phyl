@@ -47,8 +47,6 @@
 #include <Bpp/NewPhyl/Debug.h>
 #include <Bpp/NewPhyl/Optimizer.h>
 
-#include <algorithm> // remove_if for Add optimisation
-
 using namespace bpp;
 using namespace bpp::DF;
 
@@ -74,36 +72,33 @@ struct Square : public Value<double>
   static std::shared_ptr<Square> create(NodeRefVec&& deps) { return std::make_shared<Square>(std::move(deps)); }
 };
 
-///////////////// TESTS /////////////////::
+///////////////// TESTS /////////////////
 
-// FIXME fix them later when API is stable
-#if 0
 TEST_CASE("derive constant")
 {
-  auto konst = createNode<Constant<double>>(42.0);
-  CHECK(konst->getValue () == 42.0);
-  CHECK(konst->isConstant());
+  auto konst = createNode<ConstantDouble>(42.0);
+  CHECK(konst->getValue() == 42.0);
+  CHECK(konst->properties().isConstant);
 
-  auto dummy = createNode<Parameter<double>>(0);
+  auto dummy = createNode<ParameterDouble>(0);
   auto derived = convertRef<Value<double>>(konst->derive(*dummy));
-  CHECK(derived->isConstant());
-  CHECK(derived->getValue () == 0);
+  CHECK(derived->properties().isConstant);
+  CHECK(derived->getValue() == 0.);
 }
 
 TEST_CASE("derive parameter")
 {
-  auto x = createNode<Parameter<double>>(42.0);
-  auto dummy = createNode<Parameter<double>>(3);
+  auto x = createNode<ParameterDouble>(42.0);
+  auto dummy = createNode<ParameterDouble>(3);
 
   auto dx_dx = convertRef<Value<double>>(x->derive(*x));
-  CHECK(dx_dx->isConstant());
-  CHECK(dx_dx->getValue () == 1.0);
+  CHECK(dx_dx->properties().isConstant);
+  CHECK(dx_dx->getValue() == 1.);
 
   auto dx_dummy = convertRef<Value<double>>(x->derive(*dummy));
-  CHECK(dx_dummy->isConstant());
-  CHECK(dx_dummy->getValue () == 0.0);
+  CHECK(dx_dummy->properties().isConstant);
+  CHECK(dx_dummy->getValue() == 0.);
 }
-#endif
 
 #include <Bpp/Numeric/AutoParameter.h>
 #include <Bpp/Numeric/Function/ConjugateGradientMultiDimensions.h>
@@ -112,7 +107,7 @@ TEST_CASE("derive parameter")
 #include <fstream>
 #include <iostream>
 
-TEST_CASE("test")
+TEST_CASE("optimizer test")
 {
   // x^2 + (y - 3)^2
   bpp::DataFlowParameter xp{"x", 2.0};
@@ -126,19 +121,10 @@ TEST_CASE("test")
   auto y2 = createNode<Square>({sy});
   auto f = createNode<AddDouble>({x2, y2});
 
-#if 0
-  std::cout << "x2 + y2 = " << f->getValue () << "\n";
-  auto df_dx = f->derive(*x);
-  auto df2_dx2 = df_dx->derive(*x);
-  std::cout << "d2(x2 + y2)/dx2 = " << convertRef<Value<double>>(df2_dx2)->getValue () << "\n";
-  std::ofstream fd("df_debug");
-  debugDag(fd, df2_dx2, DebugOptions::ShowDependencyIndex | DebugOptions::FollowUpwardLinks);
-#endif
-
   bpp::ParameterList params;
   params.addParameter(xp);
   params.addParameter(yp);
-  bpp::DataFlowFunction dfFunc{convertRef<Value<double>>(f), params};
+  bpp::DataFlowFunction dfFunc{f, params};
 
   // bpp::ConjugateGradientMultiDimensions optimizer(&dfFunc);
   bpp::SimpleNewtonMultiDimensions optimizer(&dfFunc);
@@ -155,4 +141,7 @@ TEST_CASE("test")
 
   std::ofstream fd("df_debug");
   debugDag(fd, dfFunc.getAllNamedNodes("f"), DebugOptions::ShowDependencyIndex);
+
+  CHECK(doctest::Approx(xp.getValue()) == 0.);
+  CHECK(doctest::Approx(yp.getValue()) == 3.);
 }

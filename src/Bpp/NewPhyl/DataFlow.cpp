@@ -41,7 +41,6 @@
 
 #include <Bpp/Exceptions.h>
 #include <Bpp/NewPhyl/DataFlow.h>
-#include <Bpp/NewPhyl/DataFlowNumeric.h>
 #include <Bpp/NewPhyl/DataFlowTemplateUtils.h>
 #include <Bpp/NewPhyl/Debug.h>
 #include <algorithm>
@@ -54,6 +53,10 @@ namespace DF {
 	void failureNodeConversion (const std::type_info & handleType, const Node & node) {
 		throw Exception (prettyTypeName (handleType) +
 		                 " cannot store: " + prettyTypeName (typeid (node)));
+	}
+
+	void failureComputeWasCalled (const std::type_info & nodeType) {
+		throw Exception (prettyTypeName (nodeType) + ": compute() was called");
 	}
 
 	// Error functions DataFlowTemplateUtils.h
@@ -78,16 +81,6 @@ namespace DF {
 		throw Exception (prettyTypeName (inNodeType) + ": expected class derived from " +
 		                 prettyTypeName (expectedType) + " as " + std::to_string (depIndex) +
 		                 "-th dependency, got " + prettyTypeName (typeid (givenNode)));
-	}
-
-	// Error functions DataFlowNumeric.h
-	void failureComputeWasCalled (const std::type_info & paramType) {
-		throw Exception (prettyTypeName (paramType) + ": compute() was called");
-	}
-
-	void failureDerivationNotSupportedForParameterType (const std::type_info & type) {
-		throw Exception ("derivation requested for unsupported parameter type: " +
-		                 prettyTypeName (type));
 	}
 
 	// Node impls

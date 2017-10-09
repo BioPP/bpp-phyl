@@ -51,16 +51,8 @@ namespace DF {
 	// Fwd declaration
 	template <typename T> struct Parameter;
 
-	// Error functions
-	[[noreturn]] void failureComputeWasCalled (const std::type_info & paramType);
-	[[noreturn]] void failureDerivationNotSupportedForParameterType (const std::type_info & type);
-
 	// Typedefs
 	template <typename T> using ParameterRef = std::shared_ptr<Parameter<T>>;
-
-	struct Properties {
-		bool isConstant{false};
-	};
 
 	/* Constant value.
 	 */

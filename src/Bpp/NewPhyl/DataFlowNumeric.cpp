@@ -40,7 +40,6 @@
 */
 
 #include <Bpp/NewPhyl/DataFlowDouble.h>
-#include <Bpp/NewPhyl/DataFlowNumeric.h> // Temporary, for failure funcs and Properties type FIXME
 #include <Bpp/NewPhyl/DataFlowTemplateUtils.h>
 #include <Bpp/NewPhyl/Range.h>
 #include <memory>
@@ -138,7 +137,7 @@ namespace DF {
 		checkDependencies (*this);
 	}
 	void MulDouble::compute () {
-		callWithValues (*this, [](double & r) { r = 0.; }, [](double & r, double d) { r *= d; });
+		callWithValues (*this, [](double & r) { r = 1.; }, [](double & r, double d) { r *= d; });
 	}
 	std::string MulDouble::description () const { return "double * double"; }
 	NodeRef MulDouble::derive (const Node & node) {
