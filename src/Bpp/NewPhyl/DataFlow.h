@@ -171,7 +171,15 @@ namespace DF {
 		template <typename U> friend U & accessMutableValue (Value<U> &) noexcept;
 	};
 
-	// Create node utilities (useful as it catches initializer lists).
+	/* Create node.
+   * All node implementation classes are supposed to provide a create() static function.
+   * This function should return a shared_ptr<?> pointing to a node with the requested value.
+   * The function is allowed to perform optimisations : numeric simplification, merging, ...
+   *
+   * createNode<T> just calls the T::create function (forwarding).
+   * Its only usefulness is to catches initializer lists for simple examples.
+   * TODO keep ?
+   */
 	template <typename T, typename... Args>
 	auto createNode (Args &&... args) -> decltype (T::create (std::forward<Args> (args)...)) {
 		return T::create (std::forward<Args> (args)...);

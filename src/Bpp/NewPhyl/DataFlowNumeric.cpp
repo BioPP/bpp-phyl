@@ -108,10 +108,8 @@ namespace DF {
 	}
 	std::string AddDouble::description () const { return "double + double"; }
 	NodeRef AddDouble::derive (const Node & node) {
-		NodeRefVec derivatives;
-		for (auto & subExpr : this->dependencies ())
-			derivatives.emplace_back (subExpr->derive (node));
-		return AddDouble::create (std::move (derivatives));
+		return AddDouble::create (this->dependencies ().map (
+		    [&node](const NodeRef & nodeRef) { return nodeRef->derive (node); }));
 	}
 	std::shared_ptr<Value<double>> AddDouble::create (NodeRefVec && deps) {
 		// Remove '0s' from deps
