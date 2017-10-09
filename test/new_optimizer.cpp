@@ -139,9 +139,8 @@ NodeRef makeAdditionNode(NodeRefVec deps)
   assert(deps.size() > 0);
   auto savedRef = convertRef<Value<T>>(deps[0]);
   // Remove '0s' from deps
-  deps.erase(std::remove_if(deps.begin(),
-                            deps.end(),
-                            [](const NodeRef& nodeRef) { return nodeRef->numericProperties().isConstantZero; }),
+  deps.erase(std::remove_if(
+               deps.begin(), deps.end(), [](const NodeRef& nodeRef) { return nodeRef->properties().isConstantZero; }),
              deps.end());
   // Node choice
   if (deps.size() == 1)
@@ -166,14 +165,13 @@ NodeRef makeMultiplicationNode(NodeRefVec deps)
   auto savedRef = convertRef<Value<T>>(deps[0]);
   // Return 0 if any dep is 0
   if (std::any_of(
-        deps.begin(), deps.end(), [](const NodeRef& nodeRef) { return nodeRef->numericProperties().isConstantZero; }))
+        deps.begin(), deps.end(), [](const NodeRef& nodeRef) { return nodeRef->properties().isConstantZero; }))
   {
     return createNode<Constant<T>>(createZeroValue(savedRef->accessValue()));
   }
   // Remove any 1s
-  deps.erase(std::remove_if(deps.begin(),
-                            deps.end(),
-                            [](const NodeRef& nodeRef) { return nodeRef->numericProperties().isConstantOne; }),
+  deps.erase(std::remove_if(
+               deps.begin(), deps.end(), [](const NodeRef& nodeRef) { return nodeRef->properties().isConstantOne; }),
              deps.end());
   // Node choice
   if (deps.size() == 1)

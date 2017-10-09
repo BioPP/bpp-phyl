@@ -58,7 +58,7 @@ namespace DF {
 	// Fwd declaration
 	class Node;
 	template <typename T> class Value;
-	struct NumericProperties; // In DataFlowNumeric.h
+	struct Properties; // In DataFlowNumeric.h
 
 	// Convenient typedefs : Node is supposed to be used as shared_ptr instances.
 	using NodeRef = std::shared_ptr<Node>;
@@ -93,10 +93,13 @@ namespace DF {
 		void invalidate () noexcept;
 		virtual void compute () = 0;
 		void computeRecursively ();
+		
+    // Access properties of the node.
+    // Currently, only numerical properties.
+    virtual Properties properties () const;
 
 		// Derivation stuff
 		virtual NodeRef derive (const Node & variable); // Defaults to error
-		virtual NumericProperties numericProperties () const;
 
 		// Debug information: by default returns the type name.
 		virtual std::string description () const;

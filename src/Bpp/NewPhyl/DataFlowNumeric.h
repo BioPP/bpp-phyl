@@ -71,7 +71,7 @@ namespace DF {
 	 * This is useful for vector<T>, to create a vector of 0s with the same size as the source vector.
 	 * TODO work in progress, may need refactoring
 	 */
-	struct NumericProperties {
+	struct Properties {
 		bool isConstant{false};
 		bool isConstantZero{false};
 		bool isConstantOne{false};
@@ -111,8 +111,8 @@ namespace DF {
 		NodeRef derive (const Node &) override final {
 			return createNode<Constant<T>> (createZeroValue (this->accessValue ()));
 		}
-		NumericProperties numericProperties () const override {
-			auto props = Value<T>::numericProperties ();
+		Properties properties () const override {
+			auto props = Value<T>::properties ();
 			props.isConstant = true;
 			props.isConstantZero = isZeroValue (this->accessValue ());
 			props.isConstantOne = isOneValue (this->accessValue ());

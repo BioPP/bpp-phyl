@@ -147,10 +147,11 @@ namespace DF {
 		}
 	}
 
+	Properties Node::properties () const { return Properties{}; }
+
 	NodeRef Node::derive (const Node & variable) {
 		throw Exception ("Node does not support derivation: " + description ());
 	}
-	NumericProperties Node::numericProperties () const { return NumericProperties{}; }
 
 	std::string Node::description () const { return prettyTypeName (typeid (*this)); }
 
