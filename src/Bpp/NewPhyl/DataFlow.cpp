@@ -140,13 +140,13 @@ namespace DF {
 		}
 	}
 
-	Properties Node::properties () const { return Properties{}; }
-
 	NodeRef Node::derive (const Node & variable) {
 		throw Exception ("Node does not support derivation: " + description ());
 	}
 
 	std::string Node::description () const { return prettyTypeName (typeid (*this)); }
+
+	bool Node::isConstant () const { return false; }
 
 	void Node::appendDependency (NodeRef node) {
 		node->registerNode (this);
@@ -159,5 +159,5 @@ namespace DF {
 		dependentNodes_.erase (std::remove (dependentNodes_.begin (), dependentNodes_.end (), n),
 		                       dependentNodes_.end ());
 	}
-}
-}
+} // namespace DF
+} // namespace bpp

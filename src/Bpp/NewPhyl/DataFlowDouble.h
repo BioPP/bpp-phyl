@@ -50,8 +50,8 @@ namespace DF {
 		ConstantDouble (double d);
 		void compute () override final;
 		std::string description () const override final;
+    bool isConstant () const override final;
 		NodeRef derive (const Node &) override final;
-		Properties properties () const override final;
 		static std::shared_ptr<ConstantDouble> zero;
 		static std::shared_ptr<ConstantDouble> one;
 		static std::shared_ptr<ConstantDouble> create (double d);

@@ -64,18 +64,13 @@ namespace DF {
 	using NodeRefVec = Vector<NodeRef>;
 	template <typename T> using ValueRef = std::shared_ptr<Value<T>>;
 
-	/* Node properties.
-	 * This structure defines useful node properties, that can be used by node manipulating functions.
-	 */
-	struct Properties {
-		bool isConstant{false}; // Used for numerical simplification (with node specific tests for 0/1).
-	};
-
 	/* Base Node class.
 	 * Abstract : compute() needs to be defined to the actual computation.
 	 * TODO determine what to remove from the class API (computeRecursively ?)
-	 * → depends if Node is high level (safe) or low level
-	 * → choose invariants carefully : tend to think these are low level classes
+   *
+   * All node implementation classes are supposed to provide a create() static function.
+   * This function should return a shared_ptr<?> pointing to a node with the requested value.
+   * The function is allowed to perform optimisations : numeric simplification, merging, ...
 	 */
 	class Node {
 	public:
@@ -100,15 +95,14 @@ namespace DF {
 		virtual void compute () = 0;
 		void computeRecursively ();
 
-		// Access properties of the node.
-		// Currently, only numerical properties.
-		virtual Properties properties () const;
-
-		// Derivation stuff
-		virtual NodeRef derive (const Node & variable); // Defaults to error
-
-		// Debug information: by default returns the type name.
+		// Node string description (default = type name)
 		virtual std::string description () const;
+
+    // Is the node returning a constant value ? (default = false)
+    virtual bool isConstant () const;
+		
+    // Derive with respect to node (default = error)
+		virtual NodeRef derive (const Node & node);
 
 	protected:
 		void makeValid () noexcept { isValid_ = true; }
@@ -170,25 +164,6 @@ namespace DF {
 		// Allow wrappers in DataFlowTemplateUtils write access to the value through this function.
 		template <typename U> friend U & accessMutableValue (Value<U> &) noexcept;
 	};
-
-	/* Create node.
-   * All node implementation classes are supposed to provide a create() static function.
-   * This function should return a shared_ptr<?> pointing to a node with the requested value.
-   * The function is allowed to perform optimisations : numeric simplification, merging, ...
-   *
-   * createNode<T> just calls the T::create function (forwarding).
-   * Its only usefulness is to catches initializer lists for simple examples.
-   * TODO keep ?
-   */
-	template <typename T, typename... Args>
-	auto createNode (Args &&... args) -> decltype (T::create (std::forward<Args> (args)...)) {
-		return T::create (std::forward<Args> (args)...);
-	}
-	template <typename T, typename... Args>
-	auto createNode (std::initializer_list<NodeRef> && ilist, Args &&... args)
-	    -> decltype (T::create (std::move (ilist), std::forward<Args> (args)...)) {
-		return T::create (std::move (ilist), std::forward<Args> (args)...);
-	}
 
 	/* Dependency structure description.
 	 * These type tags are used to specify compute node dependency types.

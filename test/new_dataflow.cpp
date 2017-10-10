@@ -50,36 +50,49 @@
 #include <cassert>
 #include <fstream>
 
-using namespace bpp;
+using namespace bpp::DF;
 
-struct AddInt : public DF::Value<int>
+// Support initializer list input
+template<typename T, typename... Args>
+auto createNode(Args&&... args) -> decltype(T::create(std::forward<Args>(args)...))
 {
-  using Dependencies = DF::ReductionOfValue<int>;
-  AddInt(DF::NodeRefVec&& deps)
-    : DF::Value<int>(std::move(deps))
+  return T::create(std::forward<Args>(args)...);
+}
+template<typename T, typename... Args>
+auto createNode(std::initializer_list<NodeRef>&& ilist, Args&&... args)
+  -> decltype(T::create(std::move(ilist), std::forward<Args>(args)...))
+{
+  return T::create(std::move(ilist), std::forward<Args>(args)...);
+}
+
+struct AddInt : public Value<int>
+{
+  using Dependencies = ReductionOfValue<int>;
+  AddInt(NodeRefVec&& deps)
+    : Value<int>(std::move(deps))
   {
-    DF::checkDependencies(*this);
+    checkDependencies(*this);
   }
   void compute() override final
   {
-    DF::callWithValues(*this, [](int& r) { r = 0; }, [](int& r, int i) { r += i; });
+    callWithValues(*this, [](int& r) { r = 0; }, [](int& r, int i) { r += i; });
   }
-  static std::shared_ptr<AddInt> create(DF::NodeRefVec&& deps) { return std::make_shared<AddInt>(std::move(deps)); }
+  static std::shared_ptr<AddInt> create(NodeRefVec&& deps) { return std::make_shared<AddInt>(std::move(deps)); }
 };
 
-struct NegInt : public DF::Value<int>
+struct NegInt : public Value<int>
 {
-  using Dependencies = DF::FunctionOfValues<int>;
-  NegInt(DF::NodeRefVec&& deps)
-    : DF::Value<int>(std::move(deps))
+  using Dependencies = FunctionOfValues<int>;
+  NegInt(NodeRefVec&& deps)
+    : Value<int>(std::move(deps))
   {
-    DF::checkDependencies(*this);
+    checkDependencies(*this);
   }
   void compute() override final
   {
-    DF::callWithValues(*this, [](int& r, int i) { r = -i; });
+    callWithValues(*this, [](int& r, int i) { r = -i; });
   }
-  static std::shared_ptr<NegInt> create(DF::NodeRefVec&& deps) { return std::make_shared<NegInt>(std::move(deps)); }
+  static std::shared_ptr<NegInt> create(NodeRefVec&& deps) { return std::make_shared<NegInt>(std::move(deps)); }
 };
 
 TEST_CASE("Testing data flow system on simple int reduction tree")

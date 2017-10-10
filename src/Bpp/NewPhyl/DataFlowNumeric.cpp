@@ -59,12 +59,8 @@ namespace DF {
 	std::string ConstantDouble::description () const {
 		return "double(" + std::to_string (this->accessValue ()) + ")";
 	}
+	bool ConstantDouble::isConstant () const { return true; }
 	NodeRef ConstantDouble::derive (const Node &) { return zero; }
-	Properties ConstantDouble::properties () const {
-		auto props = Value<double>::properties ();
-		props.isConstant = true;
-		return props;
-	}
 	std::shared_ptr<ConstantDouble> ConstantDouble::zero = std::make_shared<ConstantDouble> (0.);
 	std::shared_ptr<ConstantDouble> ConstantDouble::one = std::make_shared<ConstantDouble> (1.);
 	std::shared_ptr<ConstantDouble> ConstantDouble::create (double d) {
@@ -116,9 +112,9 @@ namespace DF {
 		deps.erase (std::remove_if (
 		                deps.begin (), deps.end (),
 		                [](const NodeRef & nodeRef) {
-			                return nodeRef->properties ().isConstant &&
+			                return nodeRef->isConstant () &&
 			                       dynamic_cast<const Value<double> &> (*nodeRef).accessValue () == 0.;
-			              }),
+		                }),
 		            deps.end ());
 		// Node choice
 		if (deps.size () == 1) {
@@ -150,18 +146,18 @@ namespace DF {
 	std::shared_ptr<Value<double>> MulDouble::create (NodeRefVec && deps) {
 		// Return 0 if any dep is 0
 		if (std::any_of (deps.begin (), deps.end (), [](const NodeRef & nodeRef) {
-			    return nodeRef->properties ().isConstant &&
+			    return nodeRef->isConstant () &&
 			           dynamic_cast<const Value<double> &> (*nodeRef).accessValue () == 0.;
-			  })) {
+		    })) {
 			return ConstantDouble::zero;
 		}
 		// Remove any 1s
 		deps.erase (std::remove_if (
 		                deps.begin (), deps.end (),
 		                [](const NodeRef & nodeRef) {
-			                return nodeRef->properties ().isConstant &&
+			                return nodeRef->isConstant () &&
 			                       dynamic_cast<const Value<double> &> (*nodeRef).accessValue () == 1.;
-			              }),
+		                }),
 		            deps.end ());
 		// Node choice
 		if (deps.size () == 1) {
@@ -172,5 +168,5 @@ namespace DF {
 			return std::make_shared<MulDouble> (std::move (deps));
 		}
 	}
-}
-}
+} // namespace DF
+} // namespace bpp

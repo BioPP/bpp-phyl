@@ -47,8 +47,20 @@
 #include <Bpp/NewPhyl/Debug.h>
 #include <Bpp/NewPhyl/Optimizer.h>
 
-using namespace bpp;
 using namespace bpp::DF;
+
+// Support initializer lists
+template<typename T, typename... Args>
+auto createNode(Args&&... args) -> decltype(T::create(std::forward<Args>(args)...))
+{
+  return T::create(std::forward<Args>(args)...);
+}
+template<typename T, typename... Args>
+auto createNode(std::initializer_list<NodeRef>&& ilist, Args&&... args)
+  -> decltype(T::create(std::move(ilist), std::forward<Args>(args)...))
+{
+  return T::create(std::move(ilist), std::forward<Args>(args)...);
+}
 
 // Square
 struct Square : public Value<double>
@@ -61,7 +73,7 @@ struct Square : public Value<double>
   }
   void compute() override final
   {
-    DF::callWithValues(*this, [](double& r, const double& t) { r = t * t; });
+    callWithValues(*this, [](double& r, const double& t) { r = t * t; });
   }
   std::string description() const override final { return "x^2"; }
   NodeRef derive(const Node& variable) override final
@@ -78,11 +90,11 @@ TEST_CASE("derive constant")
 {
   auto konst = createNode<ConstantDouble>(42.0);
   CHECK(konst->getValue() == 42.0);
-  CHECK(konst->properties().isConstant);
+  CHECK(konst->isConstant());
 
   auto dummy = createNode<ParameterDouble>(0);
   auto derived = convertRef<Value<double>>(konst->derive(*dummy));
-  CHECK(derived->properties().isConstant);
+  CHECK(derived->isConstant());
   CHECK(derived->getValue() == 0.);
 }
 
@@ -92,11 +104,11 @@ TEST_CASE("derive parameter")
   auto dummy = createNode<ParameterDouble>(3);
 
   auto dx_dx = convertRef<Value<double>>(x->derive(*x));
-  CHECK(dx_dx->properties().isConstant);
+  CHECK(dx_dx->isConstant());
   CHECK(dx_dx->getValue() == 1.);
 
   auto dx_dummy = convertRef<Value<double>>(x->derive(*dummy));
-  CHECK(dx_dummy->properties().isConstant);
+  CHECK(dx_dummy->isConstant());
   CHECK(dx_dummy->getValue() == 0.);
 }
 

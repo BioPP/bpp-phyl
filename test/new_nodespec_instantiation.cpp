@@ -115,8 +115,8 @@ TEST_CASE("test")
   Topology::debugTree(ft, tree);
 
   auto buildParams = make_freezable<Topology::NodeValueMap<DF::ParameterRef<int>>>(tree);
-  buildParams->access(tree->node(ta)) = DF::createNode<DF::Parameter<int>>(3);
-  buildParams->access(tree->node(tb)) = DF::createNode<DF::Parameter<int>>(42);
+  buildParams->access(tree->node(ta)) = DF::Parameter<int>::create(3);
+  buildParams->access(tree->node(tb)) = DF::Parameter<int>::create(42);
   auto params = std::move(buildParams).freeze();
 
   DF::Registry registry;
