@@ -42,7 +42,7 @@
 #ifndef BPP_NEWPHYL_OPTIMIZER_H
 #define BPP_NEWPHYL_OPTIMIZER_H
 
-#include <Bpp/NewPhyl/DataFlowDouble.h>
+#include <Bpp/NewPhyl/DataFlowNumeric.h>
 #include <Bpp/NewPhyl/Debug.h>
 #include <Bpp/NewPhyl/Optional.h>
 #include <Bpp/Numeric/Function/Functions.h>
@@ -185,9 +185,9 @@ public:
 			namedNodes.emplace_back (
 			    DF::NamedNodeRef{derivative.second, "d(" + funcName + ")/d(" + derivative.first + ")"});
 		for (auto & derivative : secondOrderDerivativeNodes_)
-			namedNodes.emplace_back (DF::NamedNodeRef{derivative.second,
-			                                          "d2(" + funcName + ")/d(" + derivative.first.first +
-			                                              ")d(" + derivative.first.second + ")"});
+			namedNodes.emplace_back (
+			    DF::NamedNodeRef{derivative.second, "d2(" + funcName + ")/d(" + derivative.first.first +
+			                                            ")d(" + derivative.first.second + ")"});
 		return namedNodes;
 	}
 
@@ -197,6 +197,6 @@ private:
 		return dynamic_cast<const DataFlowParameter &> (getParameter (name)).getDataFlowParameter ();
 	}
 };
-}
+} // namespace bpp
 
 #endif // BPP_NEWPHYL_OPTIMIZER_H
