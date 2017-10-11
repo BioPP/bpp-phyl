@@ -46,7 +46,10 @@
 #include <Bpp/NewPhyl/DataFlow.h>
 #include <Bpp/NewPhyl/Range.h>
 #include <Bpp/NewPhyl/Signed.h>
+#include <algorithm>
 #include <cassert>
+#include <functional>
+#include <type_traits>
 #include <typeinfo>
 
 namespace bpp {
@@ -59,6 +62,8 @@ namespace DF {
 	void checkDependencyNumber (const std::type_info & computeNodeType, SizeType expectedSize,
 	                            SizeType givenSize);
 	[[noreturn]] void failureEmptyDependency (const std::type_info & inNodeType, IndexType depIndex);
+
+	/******************************* Value<T> access *******************************/
 
 	/// Dynamic test that node inherits from Value<T>.
 	template <typename T> bool isValueNode (const Node & n) noexcept {
@@ -75,7 +80,7 @@ namespace DF {
 		return valueNode.value_;
 	}
 
-	// Dependency check
+	/******************************* Dependency check *******************************/
 
 	namespace Impl {
 		/* Impl of checkDependencies for ReductionOfValue.
@@ -121,7 +126,7 @@ namespace DF {
 			checkDependencyNumber (inNodeType, sizeof...(Types), dependencies.size ());
 			checkDependencyTypesRecursively (dependencies, inNodeType, FunctionOfValues<Types...>{}, 0);
 		}
-	}
+	} // namespace Impl
 
 	/** Dependency check interface.
 	 * Usage: call checkDependencies(*this) in node constructor.
@@ -135,7 +140,7 @@ namespace DF {
 		                         typename NodeType::Dependencies{});
 	}
 
-	// Call function(s) with values from Value<T> dependencies (wrapper).
+	/************************ Unpack Value<T> and call function **************************/
 
 	namespace Impl {
 		/* Impl of callWithValues for ReductionOfValue.
@@ -173,7 +178,7 @@ namespace DF {
 			                                 Cpp14::MakeIndexSequence<sizeof...(Types)>{},
 			                                 std::forward<FunctionType> (function));
 		}
-	}
+	} // namespace Impl
 
 	/** CallWithValues interface.
 	 * TODO doc
@@ -184,6 +189,31 @@ namespace DF {
 		                      typename NodeType::Dependencies{},
 		                      std::forward<Callables> (callables)...);
 	}
-}
-}
+
+	/******************************* Optimizations *******************************/
+
+	// Predicate : const NodeRef & -> bool
+	template <typename Predicate>
+	void removeDependenciesIf (NodeRefVec & deps, Predicate && predicate) {
+		deps.erase (std::remove_if (deps.begin (), deps.end (), std::forward<Predicate> (predicate)),
+		            deps.end ());
+	}
+
+	// Predicate : const T & -> bool
+	// FIXME rename makePredicate....
+	template <typename T, typename Predicate,
+	          typename = typename std::enable_if<!std::is_same<T, Predicate>::value>::type>
+	std::function<bool(const NodeRef &)> predicateIsConstantValueMatching (Predicate predicate) {
+		return [predicate](const NodeRef & nodeRef) {
+			return nodeRef && nodeRef->isConstant () && isValueNode<T> (*nodeRef) &&
+			       predicate (accessValueUncheckedCast<T> (*nodeRef));
+		};
+	}
+	template <typename T>
+	std::function<bool(const NodeRef &)> predicateIsConstantValueMatching (T t) {
+		return predicateIsConstantValueMatching<T> ([t](const T & o) { return t == o; });
+	}
+
+} // namespace DF
+} // namespace bpp
 #endif // BPP_NEWPHYL_DATAFLOWTEMPLATEUTILS_H
