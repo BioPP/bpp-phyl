@@ -1,9 +1,9 @@
 //
-// File: DataFlowNumeric.h
+// File: DataFlowMatrix.h
 // Authors:
 //   Francois Gindraud (2017)
-// Created: 2017-09-15 00:00:00
-// Last modified: 2017-10-10
+// Created: 2017-10-11
+// Last modified: 2017-10-11
 //
 
 /*
@@ -39,75 +39,58 @@
   knowledge of the CeCILL license and that you accept its terms.
 */
 
-#ifndef BPP_NEWPHYL_DATAFLOWNUMERIC_H
-#define BPP_NEWPHYL_DATAFLOWNUMERIC_H
+#ifndef BPP_NEWPHYL_DATAFLOWMATRIX_H
+#define BPP_NEWPHYL_DATAFLOWMATRIX_H
 
 #include <Bpp/NewPhyl/DataFlow.h>
-#include <typeinfo>
-#include <utility>
+#include <Bpp/NewPhyl/Signed.h>
+#include <Eigen/Core>
 
 namespace bpp {
 namespace DF {
-	/* Parameter node.
-	 * TODO merge with ParameterDouble ? Specialisation ?
-	 */
-	template <typename T> struct Parameter : public Value<T> {
-		template <typename... Args>
-		Parameter (Args &&... args) : Value<T> (noDependency, std::forward<Args> (args)...) {
-			this->makeValid ();
-		}
+	// Explicit template declaration TODO test usefulness
+	// extern template class Value<Eigen::MatrixXd>;
 
-		void setValue (T t) noexcept {
-			this->invalidate ();
-			this->value_ = std::move (t);
-			this->makeValid ();
-		}
+	using VectorDouble = Eigen::VectorXd;
+	using MatrixDouble = Eigen::MatrixXd;
 
-		void compute () override final { failureComputeWasCalled (typeid (Parameter<T>)); }
-
-		template <typename... Args> static std::shared_ptr<Parameter<T>> create (Args &&... args) {
-			return std::make_shared<Parameter<T>> (std::forward<Args> (args)...);
+	struct ConstantMatrixDouble : public Value<MatrixDouble> {
+		template <typename Derived>
+		ConstantMatrixDouble (const Eigen::EigenBase<Derived> & expr)
+		    : Value<MatrixDouble> (noDependency, expr) {}
+		void compute () override final;
+		NodeRef derive (const Node & node) override final;
+		template <typename Derived>
+		static std::shared_ptr<ConstantMatrixDouble> create (const Eigen::EigenBase<Derived> & expr) {
+			return std::make_shared<ConstantMatrixDouble> (expr);
 		}
 	};
-	template <typename T> using ParameterRef = std::shared_ptr<Parameter<T>>;
 
-	struct ConstantDouble : public Value<double> {
-		ConstantDouble (double d);
+	struct AddMatrixDouble : public Value<MatrixDouble> {
+		using Dependencies = ReductionOfValue<MatrixDouble>;
+		AddMatrixDouble (NodeRefVec && deps, SizeType nbRows, SizeType nbCols);
 		void compute () override final;
-		std::string description () const override final;
-		bool isConstant () const override final;
-		NodeRef derive (const Node &) override final;
-		static std::shared_ptr<ConstantDouble> zero;
-		static std::shared_ptr<ConstantDouble> one;
-		static std::shared_ptr<ConstantDouble> create (double d);
+		NodeRef derive (const Node & node) override final;
+		static ValueRef<MatrixDouble> create (NodeRefVec && deps, SizeType nbRows, SizeType nbCols);
 	};
 
-	struct ParameterDouble : public Value<double> {
-		ParameterDouble (double d);
+	struct MulMatrixDouble : public Value<MatrixDouble> {
+		using Dependencies = FunctionOfValues<MatrixDouble, MatrixDouble>;
+		MulMatrixDouble (NodeRefVec && deps, SizeType nbRows, SizeType nbCols);
 		void compute () override final;
-		std::string description () const override final;
 		NodeRef derive (const Node & node) override final;
-		void setValue (double d);
-		static std::shared_ptr<ParameterDouble> create (double d);
+		static ValueRef<MatrixDouble> create (NodeRefVec && deps, SizeType nbRows, SizeType nbCols);
 	};
 
-	struct AddDouble : public Value<double> {
-		using Dependencies = ReductionOfValue<double>;
-		AddDouble (NodeRefVec && deps);
+	// TODO
+	struct CWiseMulMatrixDouble : public Value<MatrixDouble> {
+		using Dependencies = ReductionOfValue<MatrixDouble>;
+		CWiseMulMatrixDouble (NodeRefVec && deps, SizeType nbRows, SizeType nbCols);
 		void compute () override final;
-		std::string description () const override final;
 		NodeRef derive (const Node & node) override final;
-		static ValueRef<double> create (NodeRefVec && deps);
-	};
-
-	struct MulDouble : public Value<double> {
-		using Dependencies = ReductionOfValue<double>;
-		MulDouble (NodeRefVec && deps);
-		void compute () override final;
-		std::string description () const override final;
-		NodeRef derive (const Node & node) override final;
-		static ValueRef<double> create (NodeRefVec && deps);
+		static ValueRef<MatrixDouble> create (NodeRefVec && deps, SizeType nbRows, SizeType nbCols);
 	};
 } // namespace DF
 } // namespace bpp
-#endif // BPP_NEWPHYL_DATAFLOWNUMERIC_H
+
+#endif // BPP_NEWPHYL_DATAFLOWMATRIX_H

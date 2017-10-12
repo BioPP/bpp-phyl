@@ -103,9 +103,9 @@ namespace DF {
 	std::string AddDouble::description () const { return "double + double"; }
 	NodeRef AddDouble::derive (const Node & node) {
 		return AddDouble::create (this->dependencies ().map (
-		    [&node](const NodeRef & nodeRef) { return nodeRef->derive (node); }));
+		    [&node](const NodeRef & dep) { return dep->derive (node); }));
 	}
-	std::shared_ptr<Value<double>> AddDouble::create (NodeRefVec && deps) {
+	ValueRef<double> AddDouble::create (NodeRefVec && deps) {
 		// Remove '0s' from deps
 		removeDependenciesIf (deps, predicateIsConstantValueMatching<double> (0.));
 		// Node choice
@@ -135,7 +135,7 @@ namespace DF {
 		}
 		return AddDouble::create (std::move (additionDeps));
 	}
-	std::shared_ptr<Value<double>> MulDouble::create (NodeRefVec && deps) {
+	ValueRef<double> MulDouble::create (NodeRefVec && deps) {
 		// Return 0 if any dep is 0
 		if (std::any_of (deps.begin (), deps.end (), predicateIsConstantValueMatching<double> (0.))) {
 			return ConstantDouble::zero;
