@@ -543,8 +543,8 @@ string Newick::nodeToParenthesis(const PhyloTree& tree, const std::shared_ptr<Ph
     {
       if (it!=vSons.begin())
         s << ",";
-      
-      s << nodeToParenthesis(tree, *it);
+
+      s << nodeToParenthesis(tree, *it, bootstrap, propertyName);
     }
 
     s << ")";
