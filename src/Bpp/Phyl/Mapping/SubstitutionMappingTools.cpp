@@ -2544,7 +2544,7 @@ void SubstitutionMappingTools::outputPerSitePerBranchPerType(
       file << j;
       for (size_t k = 0; k < nbBr; ++k)
       {
-        file << resS[k][i];
+        file << "\t" << resS[k][i];
       }
       file << endl;
     }
