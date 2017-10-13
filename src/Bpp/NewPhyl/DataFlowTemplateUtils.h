@@ -128,7 +128,16 @@ namespace DF {
 		}
 	} // namespace Impl
 
-	/** Dependency check interface.
+	/** Dependency check interface: standalone.
+	 * Usage: call checkDependencies<DependencyStructure> (deps, typeid (NodeTypeForErrorMessage));
+	 * Used to check if a dependency vector matches a pattern described by DependencyStructure.
+	 */
+	template <typename DependencyStructure>
+	void checkDependencies (const NodeRefVec & deps, const std::type_info & inNodeType) {
+		Impl::checkDependencies (deps, inNodeType, DependencyStructure{});
+	}
+
+	/** Dependency check interface: for node constructor.
 	 * Usage: call checkDependencies(*this) in node constructor.
 	 * Checks that dependencies match what the node excepts (number, types, non-empty).
 	 * The node class must contain a typedef "Dependencies" pointing to a dependency structure type
@@ -136,8 +145,7 @@ namespace DF {
 	 * See tests/new_dataflow.cpp
 	 */
 	template <typename NodeType> void checkDependencies (const NodeType & node) {
-		Impl::checkDependencies (node.dependencies (), typeid (NodeType),
-		                         typename NodeType::Dependencies{});
+		checkDependencies<typename NodeType::Dependencies> (node.dependencies (), typeid (NodeType));
 	}
 
 	/************************ Unpack Value<T> and call function **************************/

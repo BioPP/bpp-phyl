@@ -106,6 +106,7 @@ namespace DF {
 		    [&node](const NodeRef & dep) { return dep->derive (node); }));
 	}
 	ValueRef<double> AddDouble::create (NodeRefVec && deps) {
+    checkDependencies<Dependencies> (deps, typeid (AddDouble));
 		// Remove '0s' from deps
 		removeDependenciesIf (deps, predicateIsConstantValueMatching<double> (0.));
 		// Node choice
@@ -127,15 +128,16 @@ namespace DF {
 	}
 	std::string MulDouble::description () const { return "double * double"; }
 	NodeRef MulDouble::derive (const Node & node) {
-		NodeRefVec additionDeps;
+		NodeRefVec addDeps;
 		for (auto i : bpp::index_range (this->dependencies ())) {
 			NodeRefVec mulDeps = this->dependencies ();
 			mulDeps[i] = this->dependencies ()[i]->derive (node);
-			additionDeps.emplace_back (MulDouble::create (std::move (mulDeps)));
+			addDeps.emplace_back (MulDouble::create (std::move (mulDeps)));
 		}
-		return AddDouble::create (std::move (additionDeps));
+		return AddDouble::create (std::move (addDeps));
 	}
 	ValueRef<double> MulDouble::create (NodeRefVec && deps) {
+    checkDependencies<Dependencies> (deps, typeid (MulDouble));
 		// Return 0 if any dep is 0
 		if (std::any_of (deps.begin (), deps.end (), predicateIsConstantValueMatching<double> (0.))) {
 			return ConstantDouble::zero;

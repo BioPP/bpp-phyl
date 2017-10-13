@@ -54,6 +54,27 @@ namespace DF {
 	using VectorDouble = Eigen::VectorXd;
 	using MatrixDouble = Eigen::MatrixXd;
 
+	// Dimensions
+	struct MatrixDimension {
+		SizeType rows;
+		SizeType cols;
+		constexpr MatrixDimension (SizeType rows, SizeType cols) noexcept : rows (rows), cols (cols) {}
+		std::string toString () const;
+	};
+	constexpr bool operator== (const MatrixDimension & lhs, const MatrixDimension & rhs) noexcept {
+		return lhs.rows == rhs.rows && lhs.cols == rhs.cols;
+	}
+	constexpr bool operator!= (const MatrixDimension & lhs, const MatrixDimension & rhs) noexcept {
+		return !(lhs == rhs);
+	}
+
+	inline MatrixDimension dimensions (const MatrixDouble & m) noexcept {
+		return {m.rows (), m.cols ()};
+	}
+	inline MatrixDimension dimensions (const Value<MatrixDouble> & node) noexcept {
+		return dimensions (node.accessValue ());
+	}
+
 	struct ConstantMatrixDouble : public Value<MatrixDouble> {
 		template <typename Derived>
 		ConstantMatrixDouble (const Eigen::EigenBase<Derived> & expr)
@@ -68,27 +89,26 @@ namespace DF {
 
 	struct AddMatrixDouble : public Value<MatrixDouble> {
 		using Dependencies = ReductionOfValue<MatrixDouble>;
-		AddMatrixDouble (NodeRefVec && deps, SizeType nbRows, SizeType nbCols);
+		AddMatrixDouble (NodeRefVec && deps, MatrixDimension dim);
 		void compute () override final;
 		NodeRef derive (const Node & node) override final;
-		static ValueRef<MatrixDouble> create (NodeRefVec && deps, SizeType nbRows, SizeType nbCols);
+		static ValueRef<MatrixDouble> create (NodeRefVec && deps, MatrixDimension dim);
 	};
 
 	struct MulMatrixDouble : public Value<MatrixDouble> {
 		using Dependencies = FunctionOfValues<MatrixDouble, MatrixDouble>;
-		MulMatrixDouble (NodeRefVec && deps, SizeType nbRows, SizeType nbCols);
+		MulMatrixDouble (NodeRefVec && deps, MatrixDimension dim);
 		void compute () override final;
 		NodeRef derive (const Node & node) override final;
-		static ValueRef<MatrixDouble> create (NodeRefVec && deps, SizeType nbRows, SizeType nbCols);
+		static ValueRef<MatrixDouble> create (NodeRefVec && deps, MatrixDimension dim);
 	};
 
-	// TODO
 	struct CWiseMulMatrixDouble : public Value<MatrixDouble> {
 		using Dependencies = ReductionOfValue<MatrixDouble>;
-		CWiseMulMatrixDouble (NodeRefVec && deps, SizeType nbRows, SizeType nbCols);
+		CWiseMulMatrixDouble (NodeRefVec && deps, MatrixDimension dim);
 		void compute () override final;
 		NodeRef derive (const Node & node) override final;
-		static ValueRef<MatrixDouble> create (NodeRefVec && deps, SizeType nbRows, SizeType nbCols);
+		static ValueRef<MatrixDouble> create (NodeRefVec && deps, MatrixDimension dim);
 	};
 } // namespace DF
 } // namespace bpp

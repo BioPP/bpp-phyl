@@ -39,9 +39,12 @@
   knowledge of the CeCILL license and that you accept its terms.
 */
 
+#include <Bpp/Exceptions.h> // checks
 #include <Bpp/NewPhyl/DataFlow.h>
 #include <Bpp/NewPhyl/DataFlowMatrix.h>
 #include <Bpp/NewPhyl/DataFlowTemplateUtils.h>
+#include <Bpp/NewPhyl/Debug.h> // checks
+#include <Bpp/NewPhyl/Range.h> // checks
 #include <Eigen/Core>
 #include <typeinfo>
 
@@ -50,90 +53,150 @@ namespace DF {
 	// Explicit template instantiation TODO test usefulness
 	// template class Value<Eigen::MatrixXd>;
 
+	// Dimensions
+	std::string MatrixDimension::toString () const {
+		return "(" + std::to_string (rows) + "," + std::to_string (cols) + ")";
+	}
+
 	namespace {
-		bool isExactZeroMatrix (const MatrixDouble & m) {
-			return m == MatrixDouble::Zero (m.rows (), m.cols ());
+		auto zeroMatrix (MatrixDimension dim) -> decltype (MatrixDouble::Zero (dim.rows, dim.cols)) {
+			return MatrixDouble::Zero (dim.rows, dim.cols);
 		}
-		auto zeroMatrix (SizeType nbRows, SizeType nbCols)
-		    -> decltype (MatrixDouble::Zero (nbRows, nbCols)) {
-			return MatrixDouble::Zero (nbRows, nbCols);
+		auto onesMatrix (MatrixDimension dim) -> decltype (MatrixDouble::Ones (dim.rows, dim.cols)) {
+			return MatrixDouble::Ones (dim.rows, dim.cols);
 		}
-		auto zeroMatrix (const MatrixDouble & m) -> decltype (zeroMatrix (m.rows (), m.cols ())) {
-			return zeroMatrix (m.rows (), m.cols ());
+
+		bool isExactZeroMatrix (const MatrixDouble & m) { return m == zeroMatrix (dimensions (m)); }
+		bool isExactOnesMatrix (const MatrixDouble & m) { return m == onesMatrix (dimensions (m)); }
+		bool isExactIdentity (const MatrixDouble & m) {
+			return m.rows () == m.cols () && m == MatrixDouble::Identity (m.rows (), m.cols ());
+		}
+
+		void checkDepsHaveRequiredDimension (const std::type_info & inNodeType, const NodeRefVec & deps,
+		                                     MatrixDimension dim) {
+			for (auto i : index_range (deps)) {
+				auto depDim = dimensions (dynamic_cast<const Value<MatrixDouble> &> (*deps[i]));
+				if (dim != depDim)
+					throw Exception (prettyTypeName (inNodeType) + ": matrix size mismatch for " +
+					                 std::to_string (i) + "-th argument: expected " + dim.toString () +
+					                 ", got " + depDim.toString ());
+			}
+		}
+		template <typename NodeType>
+		void checkDepsHaveRequiredDimension (const NodeType & node, MatrixDimension dim) {
+			checkDepsHaveRequiredDimension (typeid (NodeType), node.dependencies (), dim);
 		}
 	} // namespace
 
 	// ConstantMatrixDouble
 	void ConstantMatrixDouble::compute () { failureComputeWasCalled (typeid (ConstantMatrixDouble)); }
 	NodeRef ConstantMatrixDouble::derive (const Node &) {
-		return ConstantMatrixDouble::create (zeroMatrix (this->accessValue ()));
+		return ConstantMatrixDouble::create (zeroMatrix (dimensions (*this)));
 	}
 
 	// AddMatrixDouble
-	AddMatrixDouble::AddMatrixDouble (NodeRefVec && deps, SizeType nbRows, SizeType nbCols)
-	    : Value<MatrixDouble> (std::move (deps), nbRows, nbCols) {
+	AddMatrixDouble::AddMatrixDouble (NodeRefVec && deps, MatrixDimension dim)
+	    : Value<MatrixDouble> (std::move (deps), dim.rows, dim.cols) {
 		checkDependencies (*this);
-    // TODO check dimensions
+		checkDepsHaveRequiredDimension (*this, dim);
 	}
 	void AddMatrixDouble::compute () {
 		callWithValues (*this, [](MatrixDouble & r) { r.fill (0.); },
 		                [](MatrixDouble & r, const MatrixDouble & m) { r += m; });
 	}
 	NodeRef AddMatrixDouble::derive (const Node & node) {
-		const auto & m = this->accessValue ();
 		return AddMatrixDouble::create (
 		    this->dependencies ().map ([&node](const NodeRef & dep) { return dep->derive (node); }),
-		    m.rows (), m.cols ());
+		    dimensions (*this));
 	}
-	ValueRef<MatrixDouble> AddMatrixDouble::create (NodeRefVec && deps, SizeType nbRows,
-	                                                SizeType nbCols) {
+	ValueRef<MatrixDouble> AddMatrixDouble::create (NodeRefVec && deps, MatrixDimension dim) {
+		checkDependencies<Dependencies> (deps, typeid (AddMatrixDouble));
 		// Remove Os
 		removeDependenciesIf (deps, predicateIsConstantValueMatching<MatrixDouble> (isExactZeroMatrix));
 		// Select node impl
 		if (deps.size () == 1) {
 			return convertRef<Value<MatrixDouble>> (deps[0]);
 		} else if (deps.size () == 0) {
-			return ConstantMatrixDouble::create (zeroMatrix (nbRows, nbCols));
+			return ConstantMatrixDouble::create (zeroMatrix (dim));
 		} else {
-			return std::make_shared<AddMatrixDouble> (std::move (deps), nbRows, nbCols);
+			return std::make_shared<AddMatrixDouble> (std::move (deps), dim);
 		}
 	}
 
 	// MulMatrixDouble
-	MulMatrixDouble::MulMatrixDouble (NodeRefVec && deps, SizeType nbRows, SizeType nbCols)
-	    : Value<MatrixDouble> (std::move (deps), nbRows, nbCols) {
+	MulMatrixDouble::MulMatrixDouble (NodeRefVec && deps, MatrixDimension dim)
+	    : Value<MatrixDouble> (std::move (deps), dim.rows, dim.cols) {
 		checkDependencies (*this);
-    // TODO check dimensions
+		// TODO check dimensions (mult rules)
 	}
 	void MulMatrixDouble::compute () {
 		callWithValues (*this, [](MatrixDouble & r, const MatrixDouble & lhs,
 		                          const MatrixDouble & rhs) { r = lhs * rhs; });
 	}
 	NodeRef MulMatrixDouble::derive (const Node & node) {
-		auto rows = this->accessValue ().rows ();
-		auto cols = this->accessValue ().cols ();
+		auto dim = dimensions (*this);
 		auto & lhs = this->dependencies ()[0];
 		auto & rhs = this->dependencies ()[1];
-		auto lhsDerived = MulMatrixDouble::create (NodeRefVec{lhs->derive (node), rhs}, rows, cols);
-		auto rhsDerived = MulMatrixDouble::create (NodeRefVec{lhs, rhs->derive (node)}, rows, cols);
+		auto lhsDerived = MulMatrixDouble::create (NodeRefVec{lhs->derive (node), rhs}, dim);
+		auto rhsDerived = MulMatrixDouble::create (NodeRefVec{lhs, rhs->derive (node)}, dim);
 		return AddMatrixDouble::create (NodeRefVec{std::move (lhsDerived), std::move (rhsDerived)},
-		                                rows, cols);
+		                                dim);
 	}
-	ValueRef<MatrixDouble> MulMatrixDouble::create (NodeRefVec && deps, SizeType nbRows,
-	                                                SizeType nbCols) {
+	ValueRef<MatrixDouble> MulMatrixDouble::create (NodeRefVec && deps, MatrixDimension dim) {
+		checkDependencies<Dependencies> (deps, typeid (MulMatrixDouble));
+		auto & lhs = deps[0];
+		auto & rhs = deps[1];
 		// Return O if any matrix is 0
-		if (std::any_of (deps.begin (), deps.end (),
-		                 predicateIsConstantValueMatching<MatrixDouble> (isExactZeroMatrix))) {
-			return ConstantMatrixDouble::create (zeroMatrix (nbRows, nbCols));
-		} else {
-			return std::make_shared<MulMatrixDouble> (std::move (deps), nbRows, nbCols);
+		if (isExactZeroMatrix (accessValueUncheckedCast<MatrixDouble> (*lhs)) ||
+		    isExactZeroMatrix (accessValueUncheckedCast<MatrixDouble> (*rhs))) {
+			return ConstantMatrixDouble::create (zeroMatrix (dim));
 		}
-    // TODO improve
-    // only 2 args -> check deps beforehand
-    // if one of them is 0, return 0
-    // if one of them is identity, return other
-    // default : return mul
+		// Return the other if one is identity
+		if (isExactIdentity (accessValueUncheckedCast<MatrixDouble> (*lhs))) {
+			return convertRef<Value<MatrixDouble>> (rhs);
+		}
+		if (isExactIdentity (accessValueUncheckedCast<MatrixDouble> (*rhs))) {
+			return convertRef<Value<MatrixDouble>> (lhs);
+		}
+		return std::make_shared<MulMatrixDouble> (std::move (deps), dim);
 	}
 
+	CWiseMulMatrixDouble::CWiseMulMatrixDouble (NodeRefVec && deps, MatrixDimension dim)
+	    : Value<MatrixDouble> (std::move (deps), dim.rows, dim.cols) {
+		checkDependencies (*this);
+		checkDepsHaveRequiredDimension (*this, dim);
+	}
+	void CWiseMulMatrixDouble::compute () {
+		callWithValues (*this, [](MatrixDouble & r) { r.fill (1.); },
+		                [](MatrixDouble & r, const MatrixDouble & m) { r = r.cwiseProduct (m); });
+	}
+	NodeRef CWiseMulMatrixDouble::derive (const Node & node) {
+		auto dim = dimensions (*this);
+		NodeRefVec addDeps;
+		for (auto i : bpp::index_range (this->dependencies ())) {
+			NodeRefVec mulDeps = this->dependencies ();
+			mulDeps[i] = this->dependencies ()[i]->derive (node);
+			addDeps.emplace_back (CWiseMulMatrixDouble::create (std::move (mulDeps), dim));
+		}
+		return AddMatrixDouble::create (std::move (addDeps), dim);
+	}
+	ValueRef<MatrixDouble> CWiseMulMatrixDouble::create (NodeRefVec && deps, MatrixDimension dim) {
+		checkDependencies<Dependencies> (deps, typeid (CWiseMulMatrixDouble));
+		// Return 0 if any 0 dep
+		if (std::any_of (deps.begin (), deps.end (),
+		                 predicateIsConstantValueMatching<MatrixDouble> (isExactZeroMatrix))) {
+			return ConstantMatrixDouble::create (zeroMatrix (dim));
+		}
+		// Remove 1s
+		removeDependenciesIf (deps, predicateIsConstantValueMatching<MatrixDouble> (isExactOnesMatrix));
+		// Select node
+		if (deps.size () == 1) {
+			return convertRef<Value<MatrixDouble>> (deps[0]);
+		} else if (deps.size () == 0) {
+			return ConstantMatrixDouble::create (onesMatrix (dim));
+		} else {
+			return std::make_shared<CWiseMulMatrixDouble> (std::move (deps), dim);
+		}
+	}
 } // namespace DF
 } // namespace bpp
