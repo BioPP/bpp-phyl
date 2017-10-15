@@ -43,10 +43,10 @@
 #ifndef BPP_NEWPHYL_MODEL_H
 #define BPP_NEWPHYL_MODEL_H
 
-#include <Bpp/NewPhyl/DataFlowNumeric.h>
-#include <Bpp/NewPhyl/NodeSpecification.h>
+#include <Bpp/NewPhyl/DataFlow.h>
+#include <Bpp/NewPhyl/DataFlowMatrix.h>
+#include <Bpp/NewPhyl/DataFlowNumeric.h> // ParameterDouble
 #include <Bpp/NewPhyl/Signed.h>
-#include <Eigen/Core>
 #include <memory>
 #include <string> // description
 
@@ -54,118 +54,51 @@ namespace bpp {
 class SubstitutionModel;
 
 namespace Phyl {
-	using TransitionMatrix = Eigen::MatrixXd;
-	using FrequencyVector = Eigen::VectorXd;
+	namespace DF {
+		using namespace bpp::DF;
 
-	// DF Node representing a model with its parameter (wrapper to master code).
+		// DF Node representing a model with its parameter (wrapper to master code).
+		class Model : public Value<const SubstitutionModel *> {
+		public:
+			Model (std::unique_ptr<SubstitutionModel> && model);
+			~Model ();
 
-	class ModelNode : public DF::Value<const SubstitutionModel *> {
-		// TODO wrap SubstitutionModel in a Pimpl ModelValue class.
-	public:
-		ModelNode (std::unique_ptr<SubstitutionModel> && model);
-		~ModelNode ();
+			SizeType nbParameters () const noexcept;
+			std::shared_ptr<ParameterDouble> getParameter (SizeType index);
+			std::shared_ptr<ParameterDouble> getParameter (const std::string & name);
+			const std::string & getParameterName (SizeType index);
 
-		SizeType nbParameters () const noexcept { return this->dependencies ().size (); }
-		DF::ParameterRef<double> getParameter (SizeType index);
-		DF::ParameterRef<double> getParameter (const std::string & name);
-		const std::string & getParameterName (SizeType index);
+			void compute () override final;
+			std::string description () const override final;
 
-		void compute () override final;
-		std::string description () const override final;
-		static std::shared_ptr<ModelNode> create (std::unique_ptr<SubstitutionModel> && model);
+			static std::shared_ptr<Model> create (std::unique_ptr<SubstitutionModel> && model);
 
-	private:
-		std::unique_ptr<SubstitutionModel> model_;
-	};
+		private:
+			std::unique_ptr<SubstitutionModel> model_;
+		};
 
-	// Compute nodes
+		// Compute nodes
 
-	struct ComputeEquilibriumFrequenciesFromModelNode : public DF::Value<FrequencyVector> {
-		using Dependencies = DF::FunctionOfValues<const SubstitutionModel *>;
-		ComputeEquilibriumFrequenciesFromModelNode (DF::NodeRefVec && deps, SizeType nbStates);
-		void compute () override final;
-		std::string description () const override final;
-	};
+		struct EquilibriumFrequenciesFromModel : public Value<VectorDouble> {
+			// -> vector of equilibrium frequencies by state
+			using Dependencies = FunctionOfValues<const SubstitutionModel *>;
+			EquilibriumFrequenciesFromModel (NodeRefVec && deps, SizeType nbStates);
+			void compute () override final;
+			static std::shared_ptr<EquilibriumFrequenciesFromModel> create (NodeRefVec && deps,
+			                                                                SizeType nbStates);
+		};
 
-	struct ComputeTransitionMatrixFromModelNode : public DF::Value<TransitionMatrix> {
-		using Dependencies = DF::FunctionOfValues<const SubstitutionModel *, double>;
-		ComputeTransitionMatrixFromModelNode (DF::NodeRefVec && deps, SizeType nbStates);
-		void compute () override final;
-		std::string description () const override final;
-	};
-
-	struct ComputeTransitionMatrixFirstDerivativeFromModelNode : public DF::Value<TransitionMatrix> {
-		using Dependencies = DF::FunctionOfValues<const SubstitutionModel *, double>;
-		ComputeTransitionMatrixFirstDerivativeFromModelNode (DF::NodeRefVec && deps, SizeType nbStates);
-		void compute () override final;
-		std::string description () const override final;
-	};
-
-	struct ComputeTransitionMatrixSecondDerivativeFromModelNode : public DF::Value<TransitionMatrix> {
-		using Dependencies = DF::FunctionOfValues<const SubstitutionModel *, double>;
-		ComputeTransitionMatrixSecondDerivativeFromModelNode (DF::NodeRefVec && deps,
-		                                                      SizeType nbStates);
-		void compute () override final;
-		std::string description () const override final;
-	};
-
-	// Specs
-
-	class ModelEquilibriumFrequenciesSpec
-	    : public DF::NodeSpecAlwaysGenerate<ComputeEquilibriumFrequenciesFromModelNode> {
-	public:
-		ModelEquilibriumFrequenciesSpec (DF::NodeRef modelParameter, SizeType nbStates);
-		DF::NodeSpecificationVec computeDependencies () const;
-		DF::NodeRef buildNode (DF::NodeRefVec deps) const;
-
-	private:
-		DF::NodeRef modelParameter_;
-		SizeType nbStates_;
-	};
-
-	class ModelTransitionMatrixSpec
-	    : public DF::NodeSpecAlwaysGenerate<ComputeTransitionMatrixFromModelNode> {
-	public:
-		ModelTransitionMatrixSpec (DF::NodeRef modelParameter, DF::NodeRef branchLengthParameter,
-		                           SizeType nbStates);
-		DF::NodeSpecificationVec computeDependencies () const;
-		DF::NodeRef buildNode (DF::NodeRefVec deps) const;
-
-	private:
-		DF::NodeRef modelParameter_;
-		DF::NodeRef branchLengthParameter_;
-		SizeType nbStates_;
-	};
-
-	class ModelTransitionMatrixFirstDerivativeSpec
-	    : public DF::NodeSpecAlwaysGenerate<ComputeTransitionMatrixFirstDerivativeFromModelNode> {
-	public:
-		ModelTransitionMatrixFirstDerivativeSpec (DF::NodeRef modelParameter,
-		                                          DF::NodeRef branchLengthParameter, SizeType nbStates);
-		DF::NodeSpecificationVec computeDependencies () const;
-		DF::NodeRef buildNode (DF::NodeRefVec deps) const;
-
-	private:
-		DF::NodeRef modelParameter_;
-		DF::NodeRef branchLengthParameter_;
-		SizeType nbStates_;
-	};
-
-	class ModelTransitionMatrixSecondDerivativeSpec
-	    : public DF::NodeSpecAlwaysGenerate<ComputeTransitionMatrixSecondDerivativeFromModelNode> {
-	public:
-		ModelTransitionMatrixSecondDerivativeSpec (DF::NodeRef modelParameter,
-		                                           DF::NodeRef branchLengthParameter,
-		                                           SizeType nbStates);
-		DF::NodeSpecificationVec computeDependencies () const;
-		DF::NodeRef buildNode (DF::NodeRefVec deps) const;
-
-	private:
-		DF::NodeRef modelParameter_;
-		DF::NodeRef branchLengthParameter_;
-		SizeType nbStates_;
-	};
-}
-}
+		struct TransitionMatrixFromModel : public Value<MatrixDouble> {
+			// (model, branch length)
+			using Dependencies = FunctionOfValues<const SubstitutionModel *, double>;
+			TransitionMatrixFromModel (NodeRefVec && deps, SizeType nbStates);
+			void compute () override final;
+			// TODO add derive, and derivatives classes
+			static std::shared_ptr<TransitionMatrixFromModel> create (NodeRefVec && deps,
+			                                                          SizeType nbStates);
+		};
+	} // namespace DF
+} // namespace Phyl
+} // namespace bpp
 
 #endif // BPP_NEWPHYL_MODEL_H

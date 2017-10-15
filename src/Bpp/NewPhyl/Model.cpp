@@ -40,7 +40,6 @@
 */
 
 #include <Bpp/NewPhyl/DataFlowTemplateUtils.h>
-#include <Bpp/NewPhyl/Debug.h>
 #include <Bpp/NewPhyl/Model.h>
 #include <Bpp/NewPhyl/Range.h>
 #include <Bpp/Numeric/Parameter.h>
@@ -49,178 +48,101 @@
 
 namespace bpp {
 namespace Phyl {
-	// Model DF Node
+	namespace DF {
+		// Model DF Node
 
-	ModelNode::ModelNode (std::unique_ptr<SubstitutionModel> && model)
-	    : DF::Value<const SubstitutionModel *> (DF::noDependency, model.get ()),
-	      model_ (std::move (model)) {
-		// TODO support already built paramater nodes
-		model_->setNamespace ({}); // Delete namespace prefix
-		const auto & parameters = model_->getParameters ();
-		for (auto i : index_range (parameters))
-			this->appendDependency (std::make_shared<DF::Parameter<double>> (parameters[i].getValue ()));
-		this->makeValid (); // Initially valid
-	}
-
-	ModelNode::~ModelNode () = default;
-
-	DF::ParameterRef<double> ModelNode::getParameter (SizeType index) {
-		return DF::convertRef<DF::Parameter<double>> (this->dependencies ().at (index));
-	}
-	DF::ParameterRef<double> ModelNode::getParameter (const std::string & name) {
-		return getParameter (
-		    static_cast<SizeType> (model_->getParameters ().whichParameterHasName (name)));
-	}
-	const std::string & ModelNode::getParameterName (SizeType index) {
-		return model_->getParameters ()[static_cast<std::size_t> (index)].getName ();
-	}
-
-	void ModelNode::compute () {
-		// Update current model params with ours
-		auto & modelParams = model_->getParameters ();
-		for (auto i : index_range (this->dependencies ())) {
-			auto v = DF::accessValueUncheckedCast<double> (*this->dependencies ()[i]);
-			auto & p = modelParams[static_cast<std::size_t> (i)];
-			if (p.getValue () != v)
-				model_->setParameterValue (p.getName (), v);
+		Model::Model (std::unique_ptr<SubstitutionModel> && model)
+		    : Value<const SubstitutionModel *> (noDependency, model.get ()),
+		      model_ (std::move (model)) {
+			// TODO support already built paramater nodes
+			model_->setNamespace ({}); // Delete namespace prefix
+			const auto & parameters = model_->getParameters ();
+			for (auto i : index_range (parameters))
+				this->appendDependency (std::make_shared<ParameterDouble> (parameters[i].getValue ()));
+			this->makeValid (); // Initially valid
 		}
-	}
 
-	std::string ModelNode::description () const { return "Model(" + model_->getName () + ")"; }
+		Model::~Model () = default;
 
-	std::shared_ptr<ModelNode> ModelNode::create (std::unique_ptr<SubstitutionModel> && model) {
-		return std::make_shared<ModelNode> (std::move (model));
-	}
-
-	// Compute node functions
-
-	ComputeEquilibriumFrequenciesFromModelNode::ComputeEquilibriumFrequenciesFromModelNode (
-	    DF::NodeRefVec && deps, SizeType nbStates)
-	    : DF::Value<FrequencyVector> (std::move (deps), nbStates) {
-		DF::checkDependencies (*this);
-	}
-	void ComputeEquilibriumFrequenciesFromModelNode::compute () {
-		DF::callWithValues (*this, [](FrequencyVector & freqs, const SubstitutionModel * model) {
-			auto & freqsFromModel = model->getFrequencies ();
-			freqs = Eigen::Map<const FrequencyVector> (freqsFromModel.data (),
-			                                           Eigen::Index (freqsFromModel.size ()));
-		});
-	}
-	std::string ComputeEquilibriumFrequenciesFromModelNode::description () const {
-		return "EquilibriumFreqs";
-	}
-
-	namespace {
-		/* For now copy matrix cell by cell.
-		 * TODO use eigen internally in SubsitutionModel ! (not perf critical for now though)
-		 * FIXME if multithreading, internal model state may be a problem !
-		 */
-		void bppToEigen (const Matrix<double> & bppMatrix, TransitionMatrix & eigenMatrix) {
-			assert (eigenMatrix.rows () == bppMatrix.getNumberOfRows ());
-			assert (eigenMatrix.cols () == bppMatrix.getNumberOfColumns ());
-			for (auto i : range (eigenMatrix.rows ()))
-				for (auto j : range (eigenMatrix.cols ()))
-					eigenMatrix (i, j) =
-					    bppMatrix (static_cast<std::size_t> (i), static_cast<std::size_t> (j));
+		SizeType Model::nbParameters () const noexcept { return this->dependencies ().size (); }
+		std::shared_ptr<ParameterDouble> Model::getParameter (SizeType index) {
+			return convertRef<ParameterDouble> (this->dependencies ().at (index));
 		}
-	}
+		std::shared_ptr<ParameterDouble> Model::getParameter (const std::string & name) {
+			return getParameter (
+			    static_cast<SizeType> (model_->getParameters ().whichParameterHasName (name)));
+		}
+		const std::string & Model::getParameterName (SizeType index) {
+			return model_->getParameters ()[static_cast<std::size_t> (index)].getName ();
+		}
 
-	ComputeTransitionMatrixFromModelNode::ComputeTransitionMatrixFromModelNode (
-	    DF::NodeRefVec && deps, SizeType nbStates)
-	    : DF::Value<TransitionMatrix> (std::move (deps), nbStates, nbStates) {
-		DF::checkDependencies (*this);
-	}
-	void ComputeTransitionMatrixFromModelNode::compute () {
-		DF::callWithValues (*this, [](TransitionMatrix & matrix, const SubstitutionModel * model,
-		                              double brlen) { bppToEigen (model->getPij_t (brlen), matrix); });
-	}
-	std::string ComputeTransitionMatrixFromModelNode::description () const {
-		return "TransitionMatrix";
-	}
+		void Model::compute () {
+			// Update current model params with ours
+			auto & modelParams = model_->getParameters ();
+			for (auto i : index_range (this->dependencies ())) {
+				auto v = accessValueUncheckedCast<double> (*this->dependencies ()[i]);
+				auto & p = modelParams[static_cast<std::size_t> (i)];
+				if (p.getValue () != v)
+					model_->setParameterValue (p.getName (), v);
+			}
+		}
 
-	ComputeTransitionMatrixFirstDerivativeFromModelNode::
-	    ComputeTransitionMatrixFirstDerivativeFromModelNode (DF::NodeRefVec && deps,
-	                                                         SizeType nbStates)
-	    : DF::Value<TransitionMatrix> (std::move (deps), nbStates, nbStates) {
-		DF::checkDependencies (*this);
-	}
-	void ComputeTransitionMatrixFirstDerivativeFromModelNode::compute () {
-		DF::callWithValues (*this,
-		                    [](TransitionMatrix & matrix, const SubstitutionModel * model,
-		                       double brlen) { bppToEigen (model->getdPij_dt (brlen), matrix); });
-	}
-	std::string ComputeTransitionMatrixFirstDerivativeFromModelNode::description () const {
-		return "d(TransitionMatrix)/dt";
-	}
+		std::string Model::description () const { return "Model(" + model_->getName () + ")"; }
 
-	ComputeTransitionMatrixSecondDerivativeFromModelNode::
-	    ComputeTransitionMatrixSecondDerivativeFromModelNode (DF::NodeRefVec && deps,
-	                                                          SizeType nbStates)
-	    : DF::Value<TransitionMatrix> (std::move (deps), nbStates, nbStates) {
-		DF::checkDependencies (*this);
-	}
-	void ComputeTransitionMatrixSecondDerivativeFromModelNode::compute () {
-		DF::callWithValues (*this,
-		                    [](TransitionMatrix & matrix, const SubstitutionModel * model,
-		                       double brlen) { bppToEigen (model->getd2Pij_dt2 (brlen), matrix); });
-	}
-	std::string ComputeTransitionMatrixSecondDerivativeFromModelNode::description () const {
-		return "d2(TransitionMatrix)/dt2";
-	}
+		std::shared_ptr<Model> Model::create (std::unique_ptr<SubstitutionModel> && model) {
+			return std::make_shared<Model> (std::move (model));
+		}
 
-	// Specs
+		// Compute node functions
 
-	ModelEquilibriumFrequenciesSpec::ModelEquilibriumFrequenciesSpec (DF::NodeRef modelParameter,
-	                                                                  SizeType nbStates)
-	    : modelParameter_ (std::move (modelParameter)), nbStates_ (nbStates) {}
-	DF::NodeSpecificationVec ModelEquilibriumFrequenciesSpec::computeDependencies () const {
-		return DF::makeNodeSpecVec (DF::NodeSpecReturnParameter (modelParameter_));
-	}
-	DF::NodeRef ModelEquilibriumFrequenciesSpec::buildNode (DF::NodeRefVec deps) const {
-		return std::make_shared<ComputeEquilibriumFrequenciesFromModelNode> (std::move (deps),
-		                                                                     nbStates_);
-	}
+		EquilibriumFrequenciesFromModel::EquilibriumFrequenciesFromModel (NodeRefVec && deps,
+		                                                                  SizeType nbStates)
+		    : Value<VectorDouble> (std::move (deps), nbStates) {
+			checkDependencies (*this);
+		}
+		void EquilibriumFrequenciesFromModel::compute () {
+			callWithValues (*this, [](VectorDouble & freqs, const SubstitutionModel * model) {
+				auto & freqsFromModel = model->getFrequencies ();
+				freqs = Eigen::Map<const VectorDouble> (freqsFromModel.data (),
+				                                        static_cast<Eigen::Index> (freqsFromModel.size ()));
+			});
+		}
+		std::shared_ptr<EquilibriumFrequenciesFromModel>
+		EquilibriumFrequenciesFromModel::create (NodeRefVec && deps, SizeType nbStates) {
+			return std::make_shared<EquilibriumFrequenciesFromModel> (std::move (deps), nbStates);
+		}
 
-	ModelTransitionMatrixSpec::ModelTransitionMatrixSpec (DF::NodeRef modelParameter,
-	                                                      DF::NodeRef branchLengthParameter,
-	                                                      SizeType nbStates)
-	    : modelParameter_ (std::move (modelParameter)),
-	      branchLengthParameter_ (std::move (branchLengthParameter)),
-	      nbStates_ (nbStates) {}
-	DF::NodeSpecificationVec ModelTransitionMatrixSpec::computeDependencies () const {
-		return DF::makeNodeSpecVec (DF::NodeSpecReturnParameter (modelParameter_),
-		                            DF::NodeSpecReturnParameter (branchLengthParameter_));
-	}
-	DF::NodeRef ModelTransitionMatrixSpec::buildNode (DF::NodeRefVec deps) const {
-		return std::make_shared<ComputeTransitionMatrixFromModelNode> (std::move (deps), nbStates_);
-	}
+		namespace {
+			/* For now copy matrix cell by cell.
+			 * TODO use eigen internally in SubsitutionModel ! (not perf critical for now though)
+			 * FIXME if multithreading, internal model state may be a problem !
+			 */
+			void bppToEigen (const Matrix<double> & bppMatrix, MatrixDouble & eigenMatrix) {
+				assert (eigenMatrix.rows () == bppMatrix.getNumberOfRows ());
+				assert (eigenMatrix.cols () == bppMatrix.getNumberOfColumns ());
+				for (auto i : range (eigenMatrix.rows ()))
+					for (auto j : range (eigenMatrix.cols ()))
+						eigenMatrix (i, j) =
+						    bppMatrix (static_cast<std::size_t> (i), static_cast<std::size_t> (j));
+			}
+		} // namespace
 
-	ModelTransitionMatrixFirstDerivativeSpec::ModelTransitionMatrixFirstDerivativeSpec (
-	    DF::NodeRef modelParameter, DF::NodeRef branchLengthParameter, SizeType nbStates)
-	    : modelParameter_ (std::move (modelParameter)),
-	      branchLengthParameter_ (std::move (branchLengthParameter)),
-	      nbStates_ (nbStates) {}
-	DF::NodeSpecificationVec ModelTransitionMatrixFirstDerivativeSpec::computeDependencies () const {
-		return DF::makeNodeSpecVec (DF::NodeSpecReturnParameter (modelParameter_),
-		                            DF::NodeSpecReturnParameter (branchLengthParameter_));
-	}
-	DF::NodeRef ModelTransitionMatrixFirstDerivativeSpec::buildNode (DF::NodeRefVec deps) const {
-		return std::make_shared<ComputeTransitionMatrixFirstDerivativeFromModelNode> (std::move (deps),
-		                                                                              nbStates_);
-	}
+		TransitionMatrixFromModel::TransitionMatrixFromModel (NodeRefVec && deps, SizeType nbStates)
+		    : Value<MatrixDouble> (std::move (deps), nbStates, nbStates) {
+			checkDependencies (*this);
+		}
+		void TransitionMatrixFromModel::compute () {
+			callWithValues (*this, [](MatrixDouble & matrix, const SubstitutionModel * model,
+			                          double brlen) { bppToEigen (model->getPij_t (brlen), matrix); });
+		}
+		std::shared_ptr<TransitionMatrixFromModel>
+		TransitionMatrixFromModel::create (NodeRefVec && deps, SizeType nbStates) {
+			return std::make_shared<TransitionMatrixFromModel> (std::move (deps), nbStates);
+		}
 
-	ModelTransitionMatrixSecondDerivativeSpec::ModelTransitionMatrixSecondDerivativeSpec (
-	    DF::NodeRef modelParameter, DF::NodeRef branchLengthParameter, SizeType nbStates)
-	    : modelParameter_ (std::move (modelParameter)),
-	      branchLengthParameter_ (std::move (branchLengthParameter)),
-	      nbStates_ (nbStates) {}
-	DF::NodeSpecificationVec ModelTransitionMatrixSecondDerivativeSpec::computeDependencies () const {
-		return DF::makeNodeSpecVec (DF::NodeSpecReturnParameter (modelParameter_),
-		                            DF::NodeSpecReturnParameter (branchLengthParameter_));
-	}
-	DF::NodeRef ModelTransitionMatrixSecondDerivativeSpec::buildNode (DF::NodeRefVec deps) const {
-		return std::make_shared<ComputeTransitionMatrixSecondDerivativeFromModelNode> (std::move (deps),
-		                                                                               nbStates_);
-	}
-}
-}
+    // TODO restore
+		// bppToEigen (model->getdPij_dt (brlen), matrix);
+		// bppToEigen (model->getd2Pij_dt2 (brlen), matrix);
+	} // namespace DF
+} // namespace Phyl
+} // namespace bpp

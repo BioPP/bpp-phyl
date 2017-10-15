@@ -40,19 +40,14 @@
 */
 
 #include <Bpp/Exceptions.h> // checks
-#include <Bpp/NewPhyl/DataFlow.h>
 #include <Bpp/NewPhyl/DataFlowMatrix.h>
 #include <Bpp/NewPhyl/DataFlowTemplateUtils.h>
 #include <Bpp/NewPhyl/Debug.h> // checks
 #include <Bpp/NewPhyl/Range.h> // checks
-#include <Eigen/Core>
 #include <typeinfo>
 
 namespace bpp {
 namespace DF {
-	// Explicit template instantiation TODO test usefulness
-	// template class Value<Eigen::MatrixXd>;
-
 	// Dimensions
 	std::string MatrixDimension::toString () const {
 		return "(" + std::to_string (rows) + "," + std::to_string (cols) + ")";
@@ -131,7 +126,7 @@ namespace DF {
 	}
 	void MulMatrixDouble::compute () {
 		callWithValues (*this, [](MatrixDouble & r, const MatrixDouble & lhs,
-		                          const MatrixDouble & rhs) { r = lhs * rhs; });
+		                          const MatrixDouble & rhs) { r.noalias () = lhs * rhs; });
 	}
 	NodeRef MulMatrixDouble::derive (const Node & node) {
 		auto dim = dimensions (*this);

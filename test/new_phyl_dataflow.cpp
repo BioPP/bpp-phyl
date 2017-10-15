@@ -44,7 +44,7 @@
 
 #define ENABLE_OLD
 #define ENABLE_NEW
-#define ENABLE_DF
+//#define ENABLE_DF
 
 // Common stuff
 #include <Bpp/NewPhyl/Range.h>

@@ -48,82 +48,57 @@
 
 namespace bpp {
 namespace Phyl {
-	ComputeConditionalLikelihoodFromDataNode::ComputeConditionalLikelihoodFromDataNode (
-	    DF::NodeRefVec && deps, SizeType nbSites, SizeType nbStates)
-	    : DF::Value<LikelihoodVectorBySite> (std::move (deps), nbSites, nbStates) {
-		DF::checkDependencies (*this);
-	}
-	void ComputeConditionalLikelihoodFromDataNode::compute () {
-		DF::callWithValues (
-		    *this, [](LikelihoodVectorBySite & condLikBySite, const Sequence * sequence) {
-			    assert (sequence != nullptr);
-			    assert (condLikBySite.size () == sequence->size ());
-			    for (auto siteIndex : index_range (condLikBySite)) {
-				    LikelihoodVectorBySite::reference lik = condLikBySite[siteIndex];
-				    assert (lik.size () == sequence->getAlphabet ()->getSize ());
-				    lik.fill (0.);
-				    auto siteValue =
-				        static_cast<IndexType> (sequence->getValue (static_cast<std::size_t> (siteIndex)));
-				    lik[siteValue] = 1.;
-			    }
-			  });
-	}
-	std::string ComputeConditionalLikelihoodFromDataNode::description () const {
-		return "CondLikFromData";
-	}
+	namespace DF {
+		ConditionalLikelihoodFromSequence::ConditionalLikelihoodFromSequence (NodeRefVec && deps,
+		                                                                      MatrixDimension dim)
+		    : Value<MatrixDouble> (std::move (deps), dim.rows, dim.cols) {
+			checkDependencies (*this);
+		}
+		void ConditionalLikelihoodFromSequence::compute () {
+			callWithValues (*this, [](MatrixDouble & condLikBySite, const Sequence * sequence) {
+				// Check sizes
+				assert (sequence != nullptr);
+				assert (condLikBySite.cols () == static_cast<Eigen::Index> (sequence->size ()));
+				assert (sequence->size () == 0 ||
+				        condLikBySite.rows () ==
+				            static_cast<Eigen::Index> (sequence->getAlphabet ()->getSize ()));
+				// Put 1s at the right places, 0s elsewhere
+				condLikBySite.fill (0.);
+				for (auto siteIndex : range (condLikBySite.cols ())) {
+					auto siteValue =
+					    static_cast<IndexType> (sequence->getValue (static_cast<std::size_t> (siteIndex)));
+					condLikBySite (siteValue, siteIndex) = 1.;
+				}
+			});
+		}
+		std::shared_ptr<ConditionalLikelihoodFromSequence>
+		ConditionalLikelihoodFromSequence::create (NodeRefVec && deps, MatrixDimension dim) {
+			return std::make_shared<ConditionalLikelihoodFromSequence> (std::move (deps), dim);
+		}
 
-	ComputeConditionalLikelihoodFromChildrensNode::ComputeConditionalLikelihoodFromChildrensNode (
-	    DF::NodeRefVec && deps, SizeType nbSites, SizeType nbStates)
-	    : DF::Value<LikelihoodVectorBySite> (std::move (deps), nbSites, nbStates) {
-		DF::checkDependencies (*this);
-	}
-	void ComputeConditionalLikelihoodFromChildrensNode::compute () {
-		DF::callWithValues (
-		    *this, [](LikelihoodVectorBySite & condLikBySite) { condLikBySite.asMatrix ().fill (1.); },
-		    [](LikelihoodVectorBySite & condLikBySite, const LikelihoodVectorBySite & fwdLikBySite) {
-			    condLikBySite.asMatrix () =
-			        condLikBySite.asMatrix ().cwiseProduct (fwdLikBySite.asMatrix ());
-			  });
-	}
-	std::string ComputeConditionalLikelihoodFromChildrensNode::description () const {
-		return "CondLikFromChildrens";
-	}
-
-	ComputeForwardLikelihoodNode::ComputeForwardLikelihoodNode (DF::NodeRefVec && deps,
-	                                                            SizeType nbSites, SizeType nbStates)
-	    : DF::Value<LikelihoodVectorBySite> (std::move (deps), nbSites, nbStates) {
-		DF::checkDependencies (*this);
-	}
-	void ComputeForwardLikelihoodNode::compute () {
-		DF::callWithValues (*this, [](LikelihoodVectorBySite & fwdLikBySite,
-		                              const LikelihoodVectorBySite & condLikBySite,
-		                              const TransitionMatrix & transitionMatrix) {
-			fwdLikBySite.asMatrix ().noalias () = transitionMatrix * condLikBySite.asMatrix ();
-		});
-	}
-	std::string ComputeForwardLikelihoodNode::description () const { return "FwdLik"; }
-
-	ComputeLogLikelihoodNode::ComputeLogLikelihoodNode (DF::NodeRefVec && deps)
-	    : DF::Value<double> (std::move (deps)) {
-		DF::checkDependencies (*this);
-	}
-	void ComputeLogLikelihoodNode::compute () {
-		DF::callWithValues (*this, [](double & logLik, const LikelihoodVectorBySite & condLikBySite,
-		                              const FrequencyVector & equilibriumFreqs) {
-			auto lik = (equilibriumFreqs.transpose () * condLikBySite.asMatrix ())
-			               .unaryExpr ([](double d) {
-				               ExtendedFloat ef{d};
-				               ef.normalize_small ();
-				               return ef;
-				             })
-			               .redux ([](const ExtendedFloat & lhs, const ExtendedFloat & rhs) {
-				               auto r = denorm_mul (lhs, rhs);
-				               r.normalize_small ();
-				               return r;
-				             });
-			logLik = log (lik);
-		});
-	}
-	std::string ComputeLogLikelihoodNode::description () const { return "LogLikFromCondLik"; }
-}
-}
+		LogLikelihood::LogLikelihood (NodeRefVec && deps) : Value<double> (std::move (deps)) {
+			checkDependencies (*this);
+		}
+		void LogLikelihood::compute () {
+			callWithValues (*this, [](double & logLik, const MatrixDouble & condLikBySite,
+			                          const VectorDouble & equilibriumFreqs) {
+				auto lik = (equilibriumFreqs.transpose () * condLikBySite)
+				               .unaryExpr ([](double d) {
+					               ExtendedFloat ef{d};
+					               ef.normalize_small ();
+					               return ef;
+				               })
+				               .redux ([](const ExtendedFloat & lhs, const ExtendedFloat & rhs) {
+					               auto r = denorm_mul (lhs, rhs);
+					               r.normalize_small ();
+					               return r;
+				               });
+				logLik = log (lik);
+			});
+		}
+		std::shared_ptr<LogLikelihood> LogLikelihood::create (NodeRefVec && deps) {
+			return std::make_shared<LogLikelihood> (std::move (deps));
+		}
+	} // namespace DF
+} // namespace Phyl
+} // namespace bpp

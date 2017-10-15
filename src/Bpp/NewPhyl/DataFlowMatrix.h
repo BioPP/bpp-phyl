@@ -48,9 +48,6 @@
 
 namespace bpp {
 namespace DF {
-	// Explicit template declaration TODO test usefulness
-	// extern template class Value<Eigen::MatrixXd>;
-
 	using VectorDouble = Eigen::VectorXd;
 	using MatrixDouble = Eigen::MatrixXd;
 
@@ -75,6 +72,7 @@ namespace DF {
 		return dimensions (node.accessValue ());
 	}
 
+	// Nodes
 	struct ConstantMatrixDouble : public Value<MatrixDouble> {
 		template <typename Derived>
 		ConstantMatrixDouble (const Eigen::EigenBase<Derived> & expr)

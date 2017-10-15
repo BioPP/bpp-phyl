@@ -44,54 +44,56 @@
 #define BPP_NEWPHYL_LIKELIHOOD_H
 
 #include <Bpp/NewPhyl/DataFlow.h>
-#include <Bpp/NewPhyl/Model.h>
-#include <Bpp/NewPhyl/PackedVector.h>
+#include <Bpp/NewPhyl/DataFlowMatrix.h>
 #include <Bpp/NewPhyl/Signed.h>
-#include <Eigen/Core>
-#include <string>
 
 namespace bpp {
-
-// Forward declare
 class Sequence;
 
 namespace Phyl {
+	namespace DF {
+		using namespace bpp::DF;
+	}
 
-	// TODO small classes with nice constructor arguments (like nbStates / nbSite)
-	// TODO hide eigen ?
-	using LikelihoodVector = Eigen::VectorXd;
-	using LikelihoodVectorBySite = PackedVector<LikelihoodVector>;
+	/* Likelihood probabilities (final or intermediate) are stored in a matrix.
+	 * Frequencies for site k are stored in column k.
+	 * TODO accessors ?
+	 */
+	using LikelihoodData = DF::MatrixDouble;
 
-	struct ComputeConditionalLikelihoodFromDataNode : public DF::Value<LikelihoodVectorBySite> {
-		using Dependencies = DF::FunctionOfValues<const Sequence *>;
-		ComputeConditionalLikelihoodFromDataNode (DF::NodeRefVec && deps, SizeType nbSites,
-		                                          SizeType nbStates);
-		void compute () override final;
-		std::string description () const override final;
+  // defines a MatrixDimension compatible struct.
+	struct LikelihoodDataDimension : public DF::MatrixDimension {
+		constexpr LikelihoodDataDimension (SizeType nbSites, SizeType nbStates) noexcept
+		    : DF::MatrixDimension (nbStates, nbSites) {}
+		constexpr LikelihoodDataDimension (const DF::MatrixDimension & matDim) noexcept
+		    : DF::MatrixDimension (matDim) {}
+
+		SizeType nbSites () const { return cols; }
+		SizeType nbStates () const { return rows; }
 	};
 
-	struct ComputeConditionalLikelihoodFromChildrensNode : public DF::Value<LikelihoodVectorBySite> {
-		using Dependencies = DF::ReductionOfValue<LikelihoodVectorBySite>;
-		ComputeConditionalLikelihoodFromChildrensNode (DF::NodeRefVec && deps, SizeType nbSites,
-		                                               SizeType nbStates);
-		void compute () override final;
-		std::string description () const override final;
-	};
+	namespace DF {
+		struct ConditionalLikelihoodFromSequence : public DF::Value<MatrixDouble> {
+			// (sequence) -> MatrixDouble
+			using Dependencies = FunctionOfValues<const Sequence *>;
+			ConditionalLikelihoodFromSequence (NodeRefVec && deps, MatrixDimension dim);
+			void compute () override final;
+			static std::shared_ptr<ConditionalLikelihoodFromSequence> create (NodeRefVec && deps,
+			                                                                  MatrixDimension dim);
+		};
 
-	struct ComputeForwardLikelihoodNode : public DF::Value<LikelihoodVectorBySite> {
-		using Dependencies = DF::FunctionOfValues<LikelihoodVectorBySite, TransitionMatrix>;
-		ComputeForwardLikelihoodNode (DF::NodeRefVec && deps, SizeType nbSites, SizeType nbStates);
-		void compute () override final;
-		std::string description () const override final;
-	};
+		using ConditionalLikelihoodFromChildrens = CWiseMulMatrixDouble;
+		using ForwardLikelihoodFromChild = MulMatrixDouble;
 
-	struct ComputeLogLikelihoodNode : public DF::Value<double> {
-		using Dependencies = DF::FunctionOfValues<LikelihoodVectorBySite, FrequencyVector>;
-		ComputeLogLikelihoodNode (DF::NodeRefVec && deps);
-		void compute () override final;
-		std::string description () const override final;
-	};
-}
-}
+		struct LogLikelihood : public Value<double> {
+			// (likelihoodData, equilibriumFrequencyVector)
+			using Dependencies = FunctionOfValues<MatrixDouble, VectorDouble>;
+			LogLikelihood (NodeRefVec && deps);
+			void compute () override final;
+			static std::shared_ptr<LogLikelihood> create (NodeRefVec && deps);
+		};
+	} // namespace DF
+} // namespace Phyl
+} // namespace bpp
 
 #endif // BPP_NEWPHYL_LIKELIHOOD_H
