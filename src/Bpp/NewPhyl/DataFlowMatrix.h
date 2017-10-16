@@ -90,6 +90,7 @@ namespace DF {
 		static std::shared_ptr<ConstantMatrixDouble> create (const Eigen::EigenBase<Derived> & expr) {
 			return std::make_shared<ConstantMatrixDouble> (expr);
 		}
+		static std::shared_ptr<ConstantMatrixDouble> createZero (MatrixDimension dim);
 	};
 
 	struct AddMatrixDouble : public Value<MatrixDouble> {

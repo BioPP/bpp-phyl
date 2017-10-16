@@ -99,8 +99,9 @@ namespace DF {
 	std::string ConstantMatrixDouble::debugInfo () const {
 		return debugInfoFor (this->accessValue ());
 	}
-	NodeRef ConstantMatrixDouble::derive (const Node &) {
-		return ConstantMatrixDouble::create (zeroMatrix (dimensions (*this)));
+	NodeRef ConstantMatrixDouble::derive (const Node &) { return createZero (dimensions (*this)); }
+	std::shared_ptr<ConstantMatrixDouble> ConstantMatrixDouble::createZero (MatrixDimension dim) {
+		return create (zeroMatrix (dim));
 	}
 
 	// AddMatrixDouble
@@ -127,7 +128,7 @@ namespace DF {
 		if (deps.size () == 1) {
 			return convertRef<Value<MatrixDouble>> (deps[0]);
 		} else if (deps.size () == 0) {
-			return ConstantMatrixDouble::create (zeroMatrix (dim));
+			return ConstantMatrixDouble::createZero (dim);
 		} else {
 			return std::make_shared<AddMatrixDouble> (std::move (deps), dim);
 		}
@@ -168,7 +169,7 @@ namespace DF {
 		auto & rhs = deps[1];
 		// Return O if any matrix is 0
 		if (isConstantZeroMatrix (lhs) || isConstantZeroMatrix (rhs)) {
-			return ConstantMatrixDouble::create (zeroMatrix (dim));
+			return ConstantMatrixDouble::createZero (dim);
 		}
 		// Return the other if one is identity
 		if (isConstantIdentityMatrix (lhs)) {
@@ -212,7 +213,7 @@ namespace DF {
 		// Return 0 if any 0 dep
 		if (std::any_of (deps.begin (), deps.end (),
 		                 predicateIsConstantValueMatching<MatrixDouble> (isExactZeroMatrix))) {
-			return ConstantMatrixDouble::create (zeroMatrix (dim));
+			return ConstantMatrixDouble::createZero (dim);
 		}
 		// Remove 1s
 		removeDependenciesIf (deps, predicateIsConstantValueMatching<MatrixDouble> (isExactOnesMatrix));

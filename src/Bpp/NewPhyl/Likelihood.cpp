@@ -86,6 +86,10 @@ namespace Phyl {
 		std::string ConditionalLikelihoodFromSequence::debugInfo () const {
 			return debugInfoFor (this->accessValue ());
 		}
+		NodeRef ConditionalLikelihoodFromSequence::derive (const Node &) {
+			// Sequence is a constant with respect to all parameters.
+			return ConstantMatrixDouble::createZero (dimensions (*this));
+		}
 		std::shared_ptr<ConditionalLikelihoodFromSequence>
 		ConditionalLikelihoodFromSequence::create (NodeRefVec && deps, MatrixDimension dim) {
 			return std::make_shared<ConditionalLikelihoodFromSequence> (std::move (deps), dim);
@@ -96,13 +100,36 @@ namespace Phyl {
 			return create (NodeRefVec{std::move (sequence)}, dim);
 		}
 
-		LogLikelihood::LogLikelihood (NodeRefVec && deps) : Value<double> (std::move (deps)) {
+		Likelihood::Likelihood (NodeRefVec && deps, SizeType nbSites)
+		    : Value<VectorDouble> (std::move (deps), nbSites) {
 			checkDependencies (*this);
 		}
-		void LogLikelihood::compute () {
-			callWithValues (*this, [](double & logLik, const MatrixDouble & condLikBySite,
+		void Likelihood::compute () {
+			callWithValues (*this, [](VectorDouble & likelihood, const MatrixDouble & condLikBySite,
 			                          const VectorDouble & equilibriumFreqs) {
-				auto lik = (equilibriumFreqs.transpose () * condLikBySite)
+				likelihood = condLikBySite.transpose () * equilibriumFreqs;
+			});
+		}
+		std::string Likelihood::debugInfo () const {
+			return "nbSites=" + std::to_string (this->accessValue ().rows ());
+		}
+		std::shared_ptr<Likelihood> Likelihood::create (NodeRefVec && deps, SizeType nbSites) {
+			return std::make_shared<Likelihood> (std::move (deps), nbSites);
+		}
+		std::shared_ptr<Likelihood> Likelihood::create (ValueRef<MatrixDouble> conditionalLikelihood,
+		                                                ValueRef<VectorDouble> equilibriumFrequencies,
+		                                                SizeType nbSites) {
+			return create (
+			    NodeRefVec{std::move (conditionalLikelihood), std::move (equilibriumFrequencies)},
+			    nbSites);
+		}
+
+		TotalLogLikelihood::TotalLogLikelihood (NodeRefVec && deps) : Value<double> (std::move (deps)) {
+			checkDependencies (*this);
+		}
+		void TotalLogLikelihood::compute () {
+			callWithValues (*this, [](double & logLik, const VectorDouble & likelihood) {
+				auto lik = likelihood
 				               .unaryExpr ([](double d) {
 					               ExtendedFloat ef{d};
 					               ef.normalize_small ();
@@ -116,15 +143,15 @@ namespace Phyl {
 				logLik = log (lik);
 			});
 		}
-		std::string LogLikelihood::debugInfo () const { return debugInfoFor (this->accessValue ()); }
-		std::shared_ptr<LogLikelihood> LogLikelihood::create (NodeRefVec && deps) {
-			return std::make_shared<LogLikelihood> (std::move (deps));
+		std::string TotalLogLikelihood::debugInfo () const {
+			return debugInfoFor (this->accessValue ());
 		}
-		std::shared_ptr<LogLikelihood>
-		LogLikelihood::create (ValueRef<MatrixDouble> conditionalLikelihood,
-		                       ValueRef<VectorDouble> equilibriumFrequencies) {
-			return create (
-			    NodeRefVec{std::move (conditionalLikelihood), std::move (equilibriumFrequencies)});
+		std::shared_ptr<TotalLogLikelihood> TotalLogLikelihood::create (NodeRefVec && deps) {
+			return std::make_shared<TotalLogLikelihood> (std::move (deps));
+		}
+		std::shared_ptr<TotalLogLikelihood>
+		TotalLogLikelihood::create (ValueRef<VectorDouble> likelihood) {
+			return create (NodeRefVec{std::move (likelihood)});
 		}
 	} // namespace DF
 } // namespace Phyl

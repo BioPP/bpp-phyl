@@ -52,15 +52,16 @@ namespace Phyl {
 	} // namespace
 
 	DF::ValueRef<double> makeLogLikelihoodNode (const LikelihoodParameters & params) {
+		auto dim = dimensions (params);
 		auto & rootBranchModel =
 		    params.process.modelByBranch->access (params.process.tree->rootNode ().fatherBranch ())
 		        .value ();
-		auto rootEquilibriumFrequencies = DF::EquilibriumFrequenciesFromModel::create (
-		    rootBranchModel, dimensions (params).nbStates ());
-
-		return DF::LogLikelihood::create (
+		auto rootEquilibriumFrequencies =
+		    DF::EquilibriumFrequenciesFromModel::create (rootBranchModel, dim.nbStates ());
+		auto likelihood = DF::Likelihood::create (
 		    makeConditionalLikelihoodNode (params, params.process.tree->rootNode ()),
-		    std::move (rootEquilibriumFrequencies));
+		    std::move (rootEquilibriumFrequencies), dim.nbSites ());
+		return DF::TotalLogLikelihood::create (std::move (likelihood));
 	}
 
 	DF::ValueRef<DF::MatrixDouble> makeConditionalLikelihoodNode (const LikelihoodParameters & params,

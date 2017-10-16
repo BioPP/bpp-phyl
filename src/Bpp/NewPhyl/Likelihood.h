@@ -71,7 +71,7 @@ namespace Phyl {
 
 		SizeType nbStates () const { return rows; }
 		SizeType nbSites () const { return cols; }
-    std::string toString () const;
+		std::string toString () const;
 	};
 
 	namespace DF {
@@ -80,25 +80,40 @@ namespace Phyl {
 			using Dependencies = FunctionOfValues<const Sequence *>;
 			ConditionalLikelihoodFromSequence (NodeRefVec && deps, MatrixDimension dim);
 			void compute () override final;
-      std::string debugInfo () const override final;
+			std::string debugInfo () const override final;
+			NodeRef derive (const Node &) override final;
 			static std::shared_ptr<ConditionalLikelihoodFromSequence> create (NodeRefVec && deps,
 			                                                                  MatrixDimension dim);
 			static std::shared_ptr<ConditionalLikelihoodFromSequence>
 			create (ValueRef<const Sequence *> sequence, MatrixDimension dim);
 		};
 
+		// vec<fwdLik> -> condLik
 		using ConditionalLikelihoodFromChildrens = CWiseMulMatrixDouble;
+
+		// (transitionMatrix, condLik) -> fwdLik
 		using ForwardLikelihoodFromChild = MulMatrixDouble;
 
-		struct LogLikelihood : public Value<double> {
-			// (likelihoodData, equilibriumFrequencyVector)
+		struct Likelihood : public Value<VectorDouble> {
+			// (likelihoodData, equilibriumFrequencyVector) -> final likelihood by site
 			using Dependencies = FunctionOfValues<MatrixDouble, VectorDouble>;
-			LogLikelihood (NodeRefVec && deps);
+			Likelihood (NodeRefVec && deps, SizeType nbSites);
 			void compute () override final;
-      std::string debugInfo () const override final;
-			static std::shared_ptr<LogLikelihood> create (NodeRefVec && deps);
-			static std::shared_ptr<LogLikelihood> create (ValueRef<MatrixDouble> conditionalLikelihood,
-			                                              ValueRef<VectorDouble> equilibriumFrequencies);
+			std::string debugInfo () const override final;
+			static std::shared_ptr<Likelihood> create (NodeRefVec && deps, SizeType nbSites);
+			static std::shared_ptr<Likelihood> create (ValueRef<MatrixDouble> conditionalLikelihood,
+			                                           ValueRef<VectorDouble> equilibriumFrequencies,
+			                                           SizeType nbSites);
+		};
+
+		struct TotalLogLikelihood : public Value<double> {
+			// likelihood by site -> total log likelihood
+			using Dependencies = FunctionOfValues<VectorDouble>;
+			TotalLogLikelihood (NodeRefVec && deps);
+			void compute () override final;
+			std::string debugInfo () const override final;
+			static std::shared_ptr<TotalLogLikelihood> create (NodeRefVec && deps);
+			static std::shared_ptr<TotalLogLikelihood> create (ValueRef<VectorDouble> likelihood);
 		};
 	} // namespace DF
 } // namespace Phyl

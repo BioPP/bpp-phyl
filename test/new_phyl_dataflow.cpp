@@ -96,7 +96,7 @@ namespace
   template<typename Func>
   void do_func_multiple_times(const std::string& timePrefix, Func f)
   {
-    constexpr std::size_t updatesNbIterations = 100000;
+    constexpr std::size_t updatesNbIterations = 1000;
     auto ts = timingStart();
     for (auto i : bpp::range(updatesNbIterations))
     {
@@ -178,7 +178,7 @@ namespace
 #ifndef NO_WARMUP
       // Warm up with eigen dummy computation
       double d = 0;
-      for (int i = 0; i < 500; ++i)
+      for (int i = 0; i < 100; ++i)
         d += (Eigen::MatrixXd::Random(200, 200) * Eigen::MatrixXd::Random(200, 200)).determinant();
       static_cast<void>(d);
 #endif
