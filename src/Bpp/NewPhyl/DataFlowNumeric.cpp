@@ -43,20 +43,19 @@
 #include <Bpp/NewPhyl/DataFlowTemplateUtils.h>
 #include <Bpp/NewPhyl/Range.h>
 #include <memory>
-#include <string>
 #include <typeinfo>
 #include <utility>
 
 namespace bpp {
 namespace DF {
+	std::string debugInfoFor (const double & d) { return std::to_string (d); }
+
 	// ConstantDouble
 	ConstantDouble::ConstantDouble (double d) : Value<double> (noDependency, d) {
 		this->makeValid ();
 	}
 	void ConstantDouble::compute () { failureComputeWasCalled (typeid (ConstantDouble)); }
-	std::string ConstantDouble::description () const {
-		return "double(" + std::to_string (this->accessValue ()) + ")";
-	}
+	std::string ConstantDouble::debugInfo () const { return debugInfoFor (this->accessValue ()); }
 	bool ConstantDouble::isConstant () const { return true; }
 	NodeRef ConstantDouble::derive (const Node &) { return zero; }
 	std::shared_ptr<ConstantDouble> ConstantDouble::zero = std::make_shared<ConstantDouble> (0.);
@@ -72,11 +71,9 @@ namespace DF {
 	}
 
 	// ParameterDouble
-	Parameter<double>::Parameter (double d) : Value<double> (noDependency, d) {
-		this->makeValid ();
-	}
+	Parameter<double>::Parameter (double d) : Value<double> (noDependency, d) { this->makeValid (); }
 	void Parameter<double>::compute () { failureComputeWasCalled (typeid (Parameter<double>)); }
-	std::string Parameter<double>::description () const { return "Parameter<double>"; }
+	std::string Parameter<double>::debugInfo () const { return debugInfoFor (this->accessValue ()); }
 	NodeRef Parameter<double>::derive (const Node & node) {
 		if (&node == static_cast<const Node *> (this)) {
 			return ConstantDouble::one;
@@ -100,7 +97,7 @@ namespace DF {
 	void AddDouble::compute () {
 		callWithValues (*this, [](double & r) { r = 0.; }, [](double & r, double d) { r += d; });
 	}
-	std::string AddDouble::description () const { return "double + double"; }
+	std::string AddDouble::debugInfo () const { return debugInfoFor (this->accessValue ()); }
 	NodeRef AddDouble::derive (const Node & node) {
 		return AddDouble::create (
 		    this->dependencies ().map ([&node](const NodeRef & dep) { return dep->derive (node); }));
@@ -126,7 +123,7 @@ namespace DF {
 	void MulDouble::compute () {
 		callWithValues (*this, [](double & r) { r = 1.; }, [](double & r, double d) { r *= d; });
 	}
-	std::string MulDouble::description () const { return "double * double"; }
+	std::string MulDouble::debugInfo () const { return debugInfoFor (this->accessValue ()); }
 	NodeRef MulDouble::derive (const Node & node) {
 		NodeRefVec addDeps;
 		for (auto i : bpp::index_range (this->dependencies ())) {

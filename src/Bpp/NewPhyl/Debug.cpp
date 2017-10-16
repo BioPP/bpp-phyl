@@ -139,9 +139,10 @@ namespace DF {
 			   << '|' << dotLabelEscape (node->description ()) << "\"];\n";
 		}
 		void dotNodePrettyDetailed (std::ostream & os, const Node * node) {
+			auto debugInfo = (node->isValid () ? "valid " : "invalid ") + node->debugInfo ();
 			os << '\t' << dotNodeKey (node) << " [color=blue,shape=Mrecord,label=\"{{"
 			   << dotNodeKey (node) << '|' << dotLabelEscape (node->description ()) << "}|"
-			   << dotLabelEscape (node->debugInfo ()) << "}\"];\n";
+			   << dotLabelEscape (debugInfo) << "}\"];\n";
 		}
 		/*void dotNodePretty (std::ostream & os, const Registry::Key & key) {
 		  os << '\t' << dotNodeKey (key) << " [shape=Mrecord,label=\"{" << dotNodeKey (key) << "|{"

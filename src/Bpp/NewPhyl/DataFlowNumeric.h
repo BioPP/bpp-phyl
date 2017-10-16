@@ -43,11 +43,15 @@
 #define BPP_NEWPHYL_DATAFLOWNUMERIC_H
 
 #include <Bpp/NewPhyl/DataFlow.h>
+#include <string>
 #include <typeinfo>
 #include <utility>
 
 namespace bpp {
 namespace DF {
+	// Debug info
+	std::string debugInfoFor (const double & d);
+
 	/* Parameter node.
 	 * TODO merge with ParameterDouble ? Specialisation ?
 	 */
@@ -74,7 +78,7 @@ namespace DF {
 	struct ConstantDouble : public Value<double> {
 		ConstantDouble (double d);
 		void compute () override final;
-		std::string description () const override final;
+		std::string debugInfo () const override final;
 		bool isConstant () const override final;
 		NodeRef derive (const Node &) override final;
 		static std::shared_ptr<ConstantDouble> zero;
@@ -86,7 +90,7 @@ namespace DF {
 	template <> struct Parameter<double> : public Value<double> {
 		Parameter (double d);
 		void compute () override final;
-		std::string description () const override final;
+		std::string debugInfo () const override final;
 		NodeRef derive (const Node & node) override final;
 		void setValue (double d);
 		static std::shared_ptr<Parameter<double>> create (double d);
@@ -97,7 +101,7 @@ namespace DF {
 		using Dependencies = ReductionOfValue<double>;
 		AddDouble (NodeRefVec && deps);
 		void compute () override final;
-		std::string description () const override final;
+		std::string debugInfo () const override final;
 		NodeRef derive (const Node & node) override final;
 		static ValueRef<double> create (NodeRefVec && deps);
 	};
@@ -106,7 +110,7 @@ namespace DF {
 		using Dependencies = ReductionOfValue<double>;
 		MulDouble (NodeRefVec && deps);
 		void compute () override final;
-		std::string description () const override final;
+		std::string debugInfo () const override final;
 		NodeRef derive (const Node & node) override final;
 		static ValueRef<double> create (NodeRefVec && deps);
 	};

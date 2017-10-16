@@ -83,8 +83,22 @@ namespace DF {
 		}
 	} // namespace
 
+	std::string debugInfoFor (const MatrixDouble & m) {
+		auto s = std::string ("dim=") + dimensions (m).toString () + " props=";
+		if (isExactZeroMatrix (m))
+			s += '0';
+		if (isExactOnesMatrix (m))
+			s += '1';
+		if (isExactIdentity (m))
+			s += 'I';
+		return s;
+	}
+
 	// ConstantMatrixDouble
 	void ConstantMatrixDouble::compute () { failureComputeWasCalled (typeid (ConstantMatrixDouble)); }
+	std::string ConstantMatrixDouble::debugInfo () const {
+		return debugInfoFor (this->accessValue ());
+	}
 	NodeRef ConstantMatrixDouble::derive (const Node &) {
 		return ConstantMatrixDouble::create (zeroMatrix (dimensions (*this)));
 	}
@@ -99,6 +113,7 @@ namespace DF {
 		callWithValues (*this, [](MatrixDouble & r) { r.fill (0.); },
 		                [](MatrixDouble & r, const MatrixDouble & m) { r += m; });
 	}
+	std::string AddMatrixDouble::debugInfo () const { return debugInfoFor (this->accessValue ()); }
 	NodeRef AddMatrixDouble::derive (const Node & node) {
 		return AddMatrixDouble::create (
 		    this->dependencies ().map ([&node](const NodeRef & dep) { return dep->derive (node); }),
@@ -134,6 +149,7 @@ namespace DF {
 		callWithValues (*this, [](MatrixDouble & r, const MatrixDouble & lhs,
 		                          const MatrixDouble & rhs) { r.noalias () = lhs * rhs; });
 	}
+	std::string MulMatrixDouble::debugInfo () const { return debugInfoFor (this->accessValue ()); }
 	NodeRef MulMatrixDouble::derive (const Node & node) {
 		auto dim = dimensions (*this);
 		auto & lhs = this->dependencies ()[0];
@@ -166,6 +182,7 @@ namespace DF {
 		return create (NodeRefVec{std::move (lhs), std::move (rhs)}, dim);
 	}
 
+	// CWiseMulMatrixDouble
 	CWiseMulMatrixDouble::CWiseMulMatrixDouble (NodeRefVec && deps, MatrixDimension dim)
 	    : Value<MatrixDouble> (std::move (deps), dim.rows, dim.cols) {
 		checkDependencies (*this);
@@ -174,6 +191,9 @@ namespace DF {
 	void CWiseMulMatrixDouble::compute () {
 		callWithValues (*this, [](MatrixDouble & r) { r.fill (1.); },
 		                [](MatrixDouble & r, const MatrixDouble & m) { r = r.cwiseProduct (m); });
+	}
+	std::string CWiseMulMatrixDouble::debugInfo () const {
+		return debugInfoFor (this->accessValue ());
 	}
 	NodeRef CWiseMulMatrixDouble::derive (const Node & node) {
 		auto dim = dimensions (*this);

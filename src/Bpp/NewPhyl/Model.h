@@ -45,10 +45,10 @@
 
 #include <Bpp/NewPhyl/DataFlow.h>
 #include <Bpp/NewPhyl/DataFlowMatrix.h>
-#include <Bpp/NewPhyl/DataFlowNumeric.h> // ParameterDouble
+#include <Bpp/NewPhyl/DataFlowNumeric.h> // Parameter<double>
 #include <Bpp/NewPhyl/Signed.h>
 #include <memory>
-#include <string> // description
+#include <string>
 
 namespace bpp {
 class SubstitutionModel;
@@ -64,12 +64,13 @@ namespace Phyl {
 			~Model ();
 
 			SizeType nbParameters () const noexcept;
-			std::shared_ptr<ParameterDouble> getParameter (SizeType index);
-			std::shared_ptr<ParameterDouble> getParameter (const std::string & name);
+			ParameterRef<double> getParameter (SizeType index);
+			ParameterRef<double> getParameter (const std::string & name);
 			const std::string & getParameterName (SizeType index);
 
 			void compute () override final;
 			std::string description () const override final;
+			std::string debugInfo () const override final;
 
 			static std::shared_ptr<Model> create (std::unique_ptr<SubstitutionModel> && model);
 
@@ -84,6 +85,7 @@ namespace Phyl {
 			using Dependencies = FunctionOfValues<const SubstitutionModel *>;
 			EquilibriumFrequenciesFromModel (NodeRefVec && deps, SizeType nbStates);
 			void compute () override final;
+			std::string debugInfo () const override final;
 			static std::shared_ptr<EquilibriumFrequenciesFromModel> create (NodeRefVec && deps,
 			                                                                SizeType nbStates);
 			static std::shared_ptr<EquilibriumFrequenciesFromModel>
@@ -95,6 +97,7 @@ namespace Phyl {
 			using Dependencies = FunctionOfValues<const SubstitutionModel *, double>;
 			TransitionMatrixFromModel (NodeRefVec && deps, SizeType nbStates);
 			void compute () override final;
+			std::string debugInfo () const override final;
 			// TODO add derive, and derivatives classes
 			static std::shared_ptr<TransitionMatrixFromModel> create (NodeRefVec && deps,
 			                                                          SizeType nbStates);

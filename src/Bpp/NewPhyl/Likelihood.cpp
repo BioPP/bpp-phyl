@@ -39,6 +39,7 @@
 */
 
 #include <Bpp/Exceptions.h>
+#include <Bpp/NewPhyl/DataFlowNumeric.h>
 #include <Bpp/NewPhyl/DataFlowTemplateUtils.h>
 #include <Bpp/NewPhyl/Debug.h>
 #include <Bpp/NewPhyl/ExtendedFloat.h>
@@ -49,6 +50,11 @@
 
 namespace bpp {
 namespace Phyl {
+	std::string LikelihoodDataDimension::toString () const {
+		return "(sites=" + std::to_string (nbSites ()) + ",states=" + std::to_string (nbStates ()) +
+		       ")";
+	}
+
 	namespace DF {
 		ConditionalLikelihoodFromSequence::ConditionalLikelihoodFromSequence (NodeRefVec && deps,
 		                                                                      MatrixDimension dim)
@@ -76,6 +82,9 @@ namespace Phyl {
 					condLikBySite (siteValue, siteIndex) = 1.;
 				}
 			});
+		}
+		std::string ConditionalLikelihoodFromSequence::debugInfo () const {
+			return debugInfoFor (this->accessValue ());
 		}
 		std::shared_ptr<ConditionalLikelihoodFromSequence>
 		ConditionalLikelihoodFromSequence::create (NodeRefVec && deps, MatrixDimension dim) {
@@ -107,6 +116,7 @@ namespace Phyl {
 				logLik = log (lik);
 			});
 		}
+		std::string LogLikelihood::debugInfo () const { return debugInfoFor (this->accessValue ()); }
 		std::shared_ptr<LogLikelihood> LogLikelihood::create (NodeRefVec && deps) {
 			return std::make_shared<LogLikelihood> (std::move (deps));
 		}

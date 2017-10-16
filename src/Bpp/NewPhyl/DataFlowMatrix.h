@@ -45,11 +45,15 @@
 #include <Bpp/NewPhyl/DataFlow.h>
 #include <Bpp/NewPhyl/Signed.h>
 #include <Eigen/Core>
+#include <string>
 
 namespace bpp {
 namespace DF {
 	using VectorDouble = Eigen::VectorXd;
 	using MatrixDouble = Eigen::MatrixXd;
+
+	// Debug
+	std::string debugInfoFor (const MatrixDouble & m);
 
 	// Dimensions
 	struct MatrixDimension {
@@ -80,6 +84,7 @@ namespace DF {
 			this->makeValid ();
 		}
 		void compute () override final;
+		std::string debugInfo () const override final;
 		NodeRef derive (const Node & node) override final;
 		template <typename Derived>
 		static std::shared_ptr<ConstantMatrixDouble> create (const Eigen::EigenBase<Derived> & expr) {
@@ -91,6 +96,7 @@ namespace DF {
 		using Dependencies = ReductionOfValue<MatrixDouble>;
 		AddMatrixDouble (NodeRefVec && deps, MatrixDimension dim);
 		void compute () override final;
+		std::string debugInfo () const override final;
 		NodeRef derive (const Node & node) override final;
 		static ValueRef<MatrixDouble> create (NodeRefVec && deps, MatrixDimension dim);
 	};
@@ -99,6 +105,7 @@ namespace DF {
 		using Dependencies = FunctionOfValues<MatrixDouble, MatrixDouble>;
 		MulMatrixDouble (NodeRefVec && deps, MatrixDimension dim);
 		void compute () override final;
+		std::string debugInfo () const override final;
 		NodeRef derive (const Node & node) override final;
 		static ValueRef<MatrixDouble> create (NodeRefVec && deps, MatrixDimension dim);
 		static ValueRef<MatrixDouble> create (ValueRef<MatrixDouble> lhs, ValueRef<MatrixDouble> rhs,
@@ -109,6 +116,7 @@ namespace DF {
 		using Dependencies = ReductionOfValue<MatrixDouble>;
 		CWiseMulMatrixDouble (NodeRefVec && deps, MatrixDimension dim);
 		void compute () override final;
+		std::string debugInfo () const override final;
 		NodeRef derive (const Node & node) override final;
 		static ValueRef<MatrixDouble> create (NodeRefVec && deps, MatrixDimension dim);
 	};

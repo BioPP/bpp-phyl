@@ -59,16 +59,15 @@ namespace Phyl {
 			const auto & parameters = model_->getParameters ();
 			for (auto i : index_range (parameters))
 				this->appendDependency (std::make_shared<ParameterDouble> (parameters[i].getValue ()));
-			this->makeValid (); // Initially valid
 		}
 
 		Model::~Model () = default;
 
 		SizeType Model::nbParameters () const noexcept { return this->dependencies ().size (); }
-		std::shared_ptr<ParameterDouble> Model::getParameter (SizeType index) {
-			return convertRef<ParameterDouble> (this->dependencies ().at (index));
+		ParameterRef<double> Model::getParameter (SizeType index) {
+			return convertRef<Parameter<double>> (this->dependencies ().at (index));
 		}
-		std::shared_ptr<ParameterDouble> Model::getParameter (const std::string & name) {
+		ParameterRef<double> Model::getParameter (const std::string & name) {
 			return getParameter (
 			    static_cast<SizeType> (model_->getParameters ().whichParameterHasName (name)));
 		}
@@ -88,6 +87,9 @@ namespace Phyl {
 		}
 
 		std::string Model::description () const { return "Model(" + model_->getName () + ")"; }
+		std::string Model::debugInfo () const {
+			return "nbState=" + std::to_string (model_->getAlphabet ()->getSize ());
+		}
 
 		std::shared_ptr<Model> Model::create (std::unique_ptr<SubstitutionModel> && model) {
 			return std::make_shared<Model> (std::move (model));
@@ -106,6 +108,16 @@ namespace Phyl {
 				freqs = Eigen::Map<const VectorDouble> (freqsFromModel.data (),
 				                                        static_cast<Eigen::Index> (freqsFromModel.size ()));
 			});
+		}
+		std::string EquilibriumFrequenciesFromModel::debugInfo () const {
+			// TODO VectorDoubledebugInfo overload in Matrix.h
+			auto & v = this->accessValue ();
+			auto s = "nbState=" + std::to_string (v.rows ()) + " props=";
+			if (v == VectorDouble::Zero (v.rows ()))
+				s += '0';
+			if (v == VectorDouble::Ones (v.rows ()))
+				s += '1';
+			return s;
 		}
 		std::shared_ptr<EquilibriumFrequenciesFromModel>
 		EquilibriumFrequenciesFromModel::create (NodeRefVec && deps, SizeType nbStates) {
@@ -139,6 +151,9 @@ namespace Phyl {
 		void TransitionMatrixFromModel::compute () {
 			callWithValues (*this, [](MatrixDouble & matrix, const SubstitutionModel * model,
 			                          double brlen) { bppToEigen (model->getPij_t (brlen), matrix); });
+		}
+		std::string TransitionMatrixFromModel::debugInfo () const {
+			return debugInfoFor (this->accessValue ());
 		}
 		std::shared_ptr<TransitionMatrixFromModel>
 		TransitionMatrixFromModel::create (NodeRefVec && deps, SizeType nbStates) {

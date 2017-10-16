@@ -67,10 +67,10 @@ namespace DF {
 	/* Base Node class.
 	 * Abstract : compute() needs to be defined to the actual computation.
 	 * TODO determine what to remove from the class API (computeRecursively ?)
-   *
-   * All node implementation classes are supposed to provide a create() static function.
-   * This function should return a shared_ptr<?> pointing to a node with the requested value.
-   * The function is allowed to perform optimisations : numeric simplification, merging, ...
+	 *
+	 * All node implementation classes are supposed to provide a create() static function.
+	 * This function should return a shared_ptr<?> pointing to a node with the requested value.
+	 * The function is allowed to perform optimisations : numeric simplification, merging, ...
 	 */
 	class Node {
 	public:
@@ -95,16 +95,16 @@ namespace DF {
 		virtual void compute () = 0;
 		void computeRecursively ();
 
-		// Node string description (default = type name)
+		// Node string description (default = type name): shorter name for in debug.
 		virtual std::string description () const;
 
-    // Node debug info (default = "") : user defined detailed info.
-    virtual std::string debugInfo () const;
+		// Node debug info (default = ""): user defined detailed info for DF graph debug.
+		virtual std::string debugInfo () const;
 
-    // Is the node returning a constant value ? (default = false)
-    virtual bool isConstant () const;
-		
-    // Derive with respect to node (default = error)
+		// Is the node returning a constant value ? (default = false)
+		virtual bool isConstant () const;
+
+		// Derive with respect to node (default = error)
 		virtual NodeRef derive (const Node & node);
 
 	protected:
@@ -188,7 +188,7 @@ namespace DF {
 			failureNodeConversion (typeid (T), *from);
 		return p;
 	}
-}
-}
+} // namespace DF
+} // namespace bpp
 
 #endif // BPP_NEWPHYL_DATAFLOW_H

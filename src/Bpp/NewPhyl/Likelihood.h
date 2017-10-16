@@ -46,6 +46,7 @@
 #include <Bpp/NewPhyl/DataFlow.h>
 #include <Bpp/NewPhyl/DataFlowMatrix.h>
 #include <Bpp/NewPhyl/Signed.h>
+#include <string>
 
 namespace bpp {
 class Sequence;
@@ -70,6 +71,7 @@ namespace Phyl {
 
 		SizeType nbStates () const { return rows; }
 		SizeType nbSites () const { return cols; }
+    std::string toString () const;
 	};
 
 	namespace DF {
@@ -78,6 +80,7 @@ namespace Phyl {
 			using Dependencies = FunctionOfValues<const Sequence *>;
 			ConditionalLikelihoodFromSequence (NodeRefVec && deps, MatrixDimension dim);
 			void compute () override final;
+      std::string debugInfo () const override final;
 			static std::shared_ptr<ConditionalLikelihoodFromSequence> create (NodeRefVec && deps,
 			                                                                  MatrixDimension dim);
 			static std::shared_ptr<ConditionalLikelihoodFromSequence>
@@ -92,6 +95,7 @@ namespace Phyl {
 			using Dependencies = FunctionOfValues<MatrixDouble, VectorDouble>;
 			LogLikelihood (NodeRefVec && deps);
 			void compute () override final;
+      std::string debugInfo () const override final;
 			static std::shared_ptr<LogLikelihood> create (NodeRefVec && deps);
 			static std::shared_ptr<LogLikelihood> create (ValueRef<MatrixDouble> conditionalLikelihood,
 			                                              ValueRef<VectorDouble> equilibriumFrequencies);
