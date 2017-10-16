@@ -155,6 +155,10 @@ namespace DF {
 		}
 		return std::make_shared<MulMatrixDouble> (std::move (deps), dim);
 	}
+	ValueRef<MatrixDouble> MulMatrixDouble::create (ValueRef<MatrixDouble> lhs,
+	                                                ValueRef<MatrixDouble> rhs, MatrixDimension dim) {
+		return create (NodeRefVec{std::move (lhs), std::move (rhs)}, dim);
+	}
 
 	CWiseMulMatrixDouble::CWiseMulMatrixDouble (NodeRefVec && deps, MatrixDimension dim)
 	    : Value<MatrixDouble> (std::move (deps), dim.rows, dim.cols) {

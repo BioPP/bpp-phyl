@@ -99,6 +99,8 @@ namespace DF {
 		void compute () override final;
 		NodeRef derive (const Node & node) override final;
 		static ValueRef<MatrixDouble> create (NodeRefVec && deps, MatrixDimension dim);
+		static ValueRef<MatrixDouble> create (ValueRef<MatrixDouble> lhs, ValueRef<MatrixDouble> rhs,
+		                                      MatrixDimension dim);
 	};
 
 	struct CWiseMulMatrixDouble : public Value<MatrixDouble> {

@@ -42,9 +42,10 @@
 #ifndef BPP_NEWPHYL_PHYLOGENY_H
 #define BPP_NEWPHYL_PHYLOGENY_H
 
+#include <Bpp/NewPhyl/DataFlow.h>
+#include <Bpp/NewPhyl/DataFlowMatrix.h>
 #include <Bpp/NewPhyl/DataFlowNumeric.h>
 #include <Bpp/NewPhyl/FrozenPtr.h>
-#include <Bpp/NewPhyl/NodeSpecification.h>
 #include <Bpp/NewPhyl/Signed.h>
 #include <Bpp/NewPhyl/Topology.h>
 #include <Bpp/NewPhyl/TopologyMap.h>
@@ -58,9 +59,11 @@ class SubstitutionModel;
 
 namespace Phyl {
 
+  // Phylogeny encoding structs
+  // TODO remove frozen ptr, just bundle values
 	struct Process {
 		const FrozenPtr<Topology::Tree> tree;
-		const FrozenPtr<Topology::BranchValueMap<DF::ParameterRef<double>>> branchLengths;
+		const FrozenPtr<Topology::BranchValueMap<std::shared_ptr<DF::ParameterDouble>>> branchLengths;
 		const FrozenPtr<Topology::BranchValueMap<DF::ValueRef<const SubstitutionModel *>>>
 		    modelByBranch;
 		const SizeType nbStates;
@@ -76,38 +79,14 @@ namespace Phyl {
 		const SequenceMap leafData;
 	};
 
-	// SPECS
+	// Build functions
 
-	struct ConditionalLikelihoodSpec {
-		const LikelihoodParameters likParams;
-		const Topology::Node node;
-
-		bool computed_from_data () const;
-		DF::NodeSpecificationVec computeDependencies () const;
-		DF::NodeRef buildNode (DF::NodeRefVec deps) const;
-		std::type_index nodeType () const;
-		static std::string description ();
-	};
-
-	struct ForwardLikelihoodSpec {
-		const LikelihoodParameters likParams;
-		const Topology::Branch branch;
-
-		DF::NodeSpecificationVec computeDependencies () const;
-		DF::NodeRef buildNode (DF::NodeRefVec deps) const;
-		static std::type_index nodeType ();
-		static std::string description ();
-	};
-
-	struct LogLikelihoodSpec {
-		const LikelihoodParameters likParams;
-
-		DF::NodeSpecificationVec computeDependencies () const;
-		static DF::NodeRef buildNode (DF::NodeRefVec deps);
-		static std::type_index nodeType ();
-		static std::string description ();
-	};
-}
-}
+	DF::ValueRef<double> makeLogLikelihoodNode (const LikelihoodParameters & params);
+	DF::ValueRef<DF::MatrixDouble> makeConditionalLikelihoodNode (const LikelihoodParameters & params,
+	                                                              Topology::Node node);
+	DF::ValueRef<DF::MatrixDouble> makeForwardLikelihoodNode (const LikelihoodParameters & params,
+	                                                          Topology::Branch branch);
+} // namespace Phyl
+} // namespace bpp
 
 #endif // BPP_NEWPHYL_PHYLOGENY_H

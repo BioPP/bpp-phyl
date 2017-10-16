@@ -82,14 +82,16 @@ namespace DF {
 		static std::shared_ptr<ConstantDouble> create (double d);
 	};
 
-	struct ParameterDouble : public Value<double> {
-		ParameterDouble (double d);
+	// TODO clean parameter situation
+	template <> struct Parameter<double> : public Value<double> {
+		Parameter (double d);
 		void compute () override final;
 		std::string description () const override final;
 		NodeRef derive (const Node & node) override final;
 		void setValue (double d);
-		static std::shared_ptr<ParameterDouble> create (double d);
+		static std::shared_ptr<Parameter<double>> create (double d);
 	};
+	using ParameterDouble = Parameter<double>;
 
 	struct AddDouble : public Value<double> {
 		using Dependencies = ReductionOfValue<double>;

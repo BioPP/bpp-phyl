@@ -86,6 +86,8 @@ namespace Phyl {
 			void compute () override final;
 			static std::shared_ptr<EquilibriumFrequenciesFromModel> create (NodeRefVec && deps,
 			                                                                SizeType nbStates);
+			static std::shared_ptr<EquilibriumFrequenciesFromModel>
+			create (ValueRef<const SubstitutionModel *> model, SizeType nbStates);
 		};
 
 		struct TransitionMatrixFromModel : public Value<MatrixDouble> {
@@ -96,6 +98,8 @@ namespace Phyl {
 			// TODO add derive, and derivatives classes
 			static std::shared_ptr<TransitionMatrixFromModel> create (NodeRefVec && deps,
 			                                                          SizeType nbStates);
+			static std::shared_ptr<TransitionMatrixFromModel>
+			create (ValueRef<const SubstitutionModel *> model, ValueRef<double> brlen, SizeType nbStates);
 		};
 	} // namespace DF
 } // namespace Phyl

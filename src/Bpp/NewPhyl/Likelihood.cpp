@@ -75,6 +75,11 @@ namespace Phyl {
 		ConditionalLikelihoodFromSequence::create (NodeRefVec && deps, MatrixDimension dim) {
 			return std::make_shared<ConditionalLikelihoodFromSequence> (std::move (deps), dim);
 		}
+		std::shared_ptr<ConditionalLikelihoodFromSequence>
+		ConditionalLikelihoodFromSequence::create (ValueRef<const Sequence *> sequence,
+		                                           MatrixDimension dim) {
+			return create (NodeRefVec{std::move (sequence)}, dim);
+		}
 
 		LogLikelihood::LogLikelihood (NodeRefVec && deps) : Value<double> (std::move (deps)) {
 			checkDependencies (*this);
@@ -98,6 +103,12 @@ namespace Phyl {
 		}
 		std::shared_ptr<LogLikelihood> LogLikelihood::create (NodeRefVec && deps) {
 			return std::make_shared<LogLikelihood> (std::move (deps));
+		}
+		std::shared_ptr<LogLikelihood>
+		LogLikelihood::create (ValueRef<MatrixDouble> conditionalLikelihood,
+		                       ValueRef<VectorDouble> equilibriumFrequencies) {
+			return create (
+			    NodeRefVec{std::move (conditionalLikelihood), std::move (equilibriumFrequencies)});
 		}
 	} // namespace DF
 } // namespace Phyl

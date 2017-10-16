@@ -44,7 +44,7 @@
 
 #define ENABLE_OLD
 #define ENABLE_NEW
-//#define ENABLE_DF
+#define ENABLE_DF
 
 // Common stuff
 #include <Bpp/NewPhyl/Range.h>
@@ -243,9 +243,9 @@ TEST_CASE("df")
   auto treeData = bpp::Phyl::convertTreeTemplate(*tree);
 
   // Model
-  auto model = bpp::Phyl::ModelNode::create(std::unique_ptr<bpp::SubstitutionModel>(new bpp::T92(&c.alphabet, 3.)));
+  auto model = bpp::Phyl::DF::Model::create(std::unique_ptr<bpp::SubstitutionModel>(new bpp::T92(&c.alphabet, 3.)));
 
-  // Create a specification
+  // Create a specification TODO simplify this mess
   auto branchLengthMap =
     bpp::make_frozen(bpp::Topology::make_branch_parameter_map_from_value_map(*treeData.branchLengths));
   auto modelMap = bpp::make_frozen(bpp::Topology::make_uniform_branch_value_map(
@@ -254,8 +254,7 @@ TEST_CASE("df")
   auto sequenceMap = bpp::Phyl::makeSequenceMap(*treeData.nodeNames, c.sites);
   auto likParams = bpp::Phyl::LikelihoodParameters{process, sequenceMap};
 
-  auto logLikNode =
-    bpp::DF::convertRef<bpp::DF::Value<double>>(bpp::DF::instantiateNodeSpec(bpp::Phyl::LogLikelihoodSpec{likParams}));
+  auto logLikNode = bpp::Phyl::makeLogLikelihoodNode(likParams);
   timingEnd(ts, "df_setup");
   ts = timingStart();
   auto logLik = logLikNode->getValue();

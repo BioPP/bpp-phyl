@@ -72,25 +72,25 @@ namespace DF {
 	}
 
 	// ParameterDouble
-	ParameterDouble::ParameterDouble (double d) : Value<double> (noDependency, d) {
+	Parameter<double>::Parameter (double d) : Value<double> (noDependency, d) {
 		this->makeValid ();
 	}
-	void ParameterDouble::compute () { failureComputeWasCalled (typeid (ParameterDouble)); }
-	std::string ParameterDouble::description () const { return "Parameter<double>"; }
-	NodeRef ParameterDouble::derive (const Node & node) {
+	void Parameter<double>::compute () { failureComputeWasCalled (typeid (Parameter<double>)); }
+	std::string Parameter<double>::description () const { return "Parameter<double>"; }
+	NodeRef Parameter<double>::derive (const Node & node) {
 		if (&node == static_cast<const Node *> (this)) {
 			return ConstantDouble::one;
 		} else {
 			return ConstantDouble::zero;
 		}
 	}
-	void ParameterDouble::setValue (double d) {
+	void Parameter<double>::setValue (double d) {
 		this->invalidate ();
 		this->value_ = d;
 		this->makeValid ();
 	}
-	std::shared_ptr<ParameterDouble> ParameterDouble::create (double d) {
-		return std::make_shared<ParameterDouble> (d);
+	std::shared_ptr<Parameter<double>> Parameter<double>::create (double d) {
+		return std::make_shared<Parameter<double>> (d);
 	}
 
 	// AddDouble
@@ -102,11 +102,11 @@ namespace DF {
 	}
 	std::string AddDouble::description () const { return "double + double"; }
 	NodeRef AddDouble::derive (const Node & node) {
-		return AddDouble::create (this->dependencies ().map (
-		    [&node](const NodeRef & dep) { return dep->derive (node); }));
+		return AddDouble::create (
+		    this->dependencies ().map ([&node](const NodeRef & dep) { return dep->derive (node); }));
 	}
 	ValueRef<double> AddDouble::create (NodeRefVec && deps) {
-    checkDependencies<Dependencies> (deps, typeid (AddDouble));
+		checkDependencies<Dependencies> (deps, typeid (AddDouble));
 		// Remove '0s' from deps
 		removeDependenciesIf (deps, predicateIsConstantValueMatching<double> (0.));
 		// Node choice
@@ -137,7 +137,7 @@ namespace DF {
 		return AddDouble::create (std::move (addDeps));
 	}
 	ValueRef<double> MulDouble::create (NodeRefVec && deps) {
-    checkDependencies<Dependencies> (deps, typeid (MulDouble));
+		checkDependencies<Dependencies> (deps, typeid (MulDouble));
 		// Return 0 if any dep is 0
 		if (std::any_of (deps.begin (), deps.end (), predicateIsConstantValueMatching<double> (0.))) {
 			return ConstantDouble::zero;

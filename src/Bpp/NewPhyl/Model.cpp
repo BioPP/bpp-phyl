@@ -111,6 +111,11 @@ namespace Phyl {
 		EquilibriumFrequenciesFromModel::create (NodeRefVec && deps, SizeType nbStates) {
 			return std::make_shared<EquilibriumFrequenciesFromModel> (std::move (deps), nbStates);
 		}
+		std::shared_ptr<EquilibriumFrequenciesFromModel>
+		EquilibriumFrequenciesFromModel::create (ValueRef<const SubstitutionModel *> model,
+		                                         SizeType nbStates) {
+			return create (NodeRefVec{std::move (model)}, nbStates);
+		}
 
 		namespace {
 			/* For now copy matrix cell by cell.
@@ -139,8 +144,13 @@ namespace Phyl {
 		TransitionMatrixFromModel::create (NodeRefVec && deps, SizeType nbStates) {
 			return std::make_shared<TransitionMatrixFromModel> (std::move (deps), nbStates);
 		}
+		std::shared_ptr<TransitionMatrixFromModel>
+		TransitionMatrixFromModel::create (ValueRef<const SubstitutionModel *> model,
+		                                   ValueRef<double> brlen, SizeType nbStates) {
+			return create (NodeRefVec{std::move (model), std::move (brlen)}, nbStates);
+		}
 
-    // TODO restore
+		// TODO restore
 		// bppToEigen (model->getdPij_dt (brlen), matrix);
 		// bppToEigen (model->getd2Pij_dt2 (brlen), matrix);
 	} // namespace DF

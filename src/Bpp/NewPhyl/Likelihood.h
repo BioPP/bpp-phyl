@@ -61,7 +61,7 @@ namespace Phyl {
 	 */
 	using LikelihoodData = DF::MatrixDouble;
 
-  // defines a MatrixDimension compatible struct.
+	// defines a MatrixDimension compatible struct.
 	struct LikelihoodDataDimension : public DF::MatrixDimension {
 		constexpr LikelihoodDataDimension (SizeType nbSites, SizeType nbStates) noexcept
 		    : DF::MatrixDimension (nbStates, nbSites) {}
@@ -80,6 +80,8 @@ namespace Phyl {
 			void compute () override final;
 			static std::shared_ptr<ConditionalLikelihoodFromSequence> create (NodeRefVec && deps,
 			                                                                  MatrixDimension dim);
+			static std::shared_ptr<ConditionalLikelihoodFromSequence>
+			create (ValueRef<const Sequence *> sequence, MatrixDimension dim);
 		};
 
 		using ConditionalLikelihoodFromChildrens = CWiseMulMatrixDouble;
@@ -91,6 +93,8 @@ namespace Phyl {
 			LogLikelihood (NodeRefVec && deps);
 			void compute () override final;
 			static std::shared_ptr<LogLikelihood> create (NodeRefVec && deps);
+			static std::shared_ptr<LogLikelihood> create (ValueRef<MatrixDouble> conditionalLikelihood,
+			                                              ValueRef<VectorDouble> equilibriumFrequencies);
 		};
 	} // namespace DF
 } // namespace Phyl
