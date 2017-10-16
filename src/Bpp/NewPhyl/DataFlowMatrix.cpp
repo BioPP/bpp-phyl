@@ -122,7 +122,13 @@ namespace DF {
 	MulMatrixDouble::MulMatrixDouble (NodeRefVec && deps, MatrixDimension dim)
 	    : Value<MatrixDouble> (std::move (deps), dim.rows, dim.cols) {
 		checkDependencies (*this);
-		// TODO check dimensions (mult rules)
+		// TODO extract as func & improve
+		auto & lhs = accessValueUncheckedCast<MatrixDouble> (*this->dependencies ()[0]);
+		auto & rhs = accessValueUncheckedCast<MatrixDouble> (*this->dependencies ()[1]);
+		if (!(lhs.cols () == rhs.rows () && lhs.rows () == dim.rows && rhs.cols () == dim.cols))
+			throw Exception (prettyTypeName<MulMatrixDouble> () +
+			                 ": matrix size mismatch: " + dimensions (lhs).toString () + " * " +
+			                 dimensions (rhs).toString () + " = " + dimensions (*this).toString ());
 	}
 	void MulMatrixDouble::compute () {
 		callWithValues (*this, [](MatrixDouble & r, const MatrixDouble & lhs,

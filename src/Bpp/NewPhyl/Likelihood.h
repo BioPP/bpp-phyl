@@ -68,8 +68,8 @@ namespace Phyl {
 		constexpr LikelihoodDataDimension (const DF::MatrixDimension & matDim) noexcept
 		    : DF::MatrixDimension (matDim) {}
 
-		SizeType nbSites () const { return cols; }
 		SizeType nbStates () const { return rows; }
+		SizeType nbSites () const { return cols; }
 	};
 
 	namespace DF {

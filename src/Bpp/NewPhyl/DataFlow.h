@@ -146,7 +146,7 @@ namespace DF {
 
 		// Access the stored value (no recomputation !)
 		const T & accessValue () const noexcept {
-			assert (this->isValid ());
+			// FIXME accessValue used for DF manipulation, node invalid then. assert (this->isValid ());
 			return value_;
 		}
 

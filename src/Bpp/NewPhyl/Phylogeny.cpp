@@ -88,8 +88,8 @@ namespace Phyl {
 		auto modelTransitionMatrix =
 		    DF::TransitionMatrixFromModel::create (branchModel, brlen, dim.nbStates ());
 
-		return DF::ForwardLikelihoodFromChild::create (std::move (conditionalLikelihood),
-		                                               std::move (modelTransitionMatrix), dim);
+		return DF::ForwardLikelihoodFromChild::create (std::move (modelTransitionMatrix),
+		                                               std::move (conditionalLikelihood), dim);
 	}
 } // namespace Phyl
 } // namespace bpp

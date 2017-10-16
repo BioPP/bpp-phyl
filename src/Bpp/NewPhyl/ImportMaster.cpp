@@ -85,8 +85,7 @@ namespace Phyl {
 				nodeNames->set (node, fromTree.getNodeName (i));
 		}
 
-		return {std::move (tree),
-		        make_frozen<Topology::NodeIndexMap<IndexType>> (tree, std::move (fromNodeIdMap)),
+		return {tree, make_frozen<Topology::NodeIndexMap<IndexType>> (tree, std::move (fromNodeIdMap)),
 		        std::move (brLens).freeze (), std::move (nodeNames).freeze ()};
 	}
 
@@ -102,5 +101,5 @@ namespace Phyl {
 		return {std::move (sequenceMap).freeze (),
 		        static_cast<SizeType> (sequences.getNumberOfSites ())};
 	}
-}
-}
+} // namespace Phyl
+} // namespace bpp

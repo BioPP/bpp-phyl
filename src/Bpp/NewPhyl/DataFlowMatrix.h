@@ -76,7 +76,9 @@ namespace DF {
 	struct ConstantMatrixDouble : public Value<MatrixDouble> {
 		template <typename Derived>
 		ConstantMatrixDouble (const Eigen::EigenBase<Derived> & expr)
-		    : Value<MatrixDouble> (noDependency, expr) {}
+		    : Value<MatrixDouble> (noDependency, expr) {
+			this->makeValid ();
+		}
 		void compute () override final;
 		NodeRef derive (const Node & node) override final;
 		template <typename Derived>

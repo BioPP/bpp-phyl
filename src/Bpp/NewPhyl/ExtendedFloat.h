@@ -52,6 +52,7 @@ template <typename T> constexpr T constexpr_power (T d, int n) {
 }
 
 class ExtendedFloat {
+	// Assumes positive integer
 public:
 	using FloatType = double;
 	using ExtType = int;
@@ -98,9 +99,11 @@ public:
 		}
 	}
 	void normalize_small () noexcept {
-		while (f_ < smallest_normalized_value) {
-			f_ *= normalize_small_factor;
-			exp_ += smallest_normalized_radix_power;
+		if (f_ != 0.) {
+			while (f_ < smallest_normalized_value) {
+				f_ *= normalize_small_factor;
+				exp_ += smallest_normalized_radix_power;
+			}
 		}
 	}
 	void normalize () noexcept {
@@ -129,6 +132,6 @@ inline double log (const ExtendedFloat & ef) {
 
 // TODO add Vector<EF> = Vector<double> + one exp (for lik vectors for one site, big tree case)
 // TODO add Vector<EF> = Vector<double> + Vector<exps> (for lik vec by site, eigen, delayed_norm)
-}
+} // namespace bpp
 
 #endif // BPP_NEWPHYL_EXTENDEDFLOAT_H

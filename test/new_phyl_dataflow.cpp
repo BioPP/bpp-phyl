@@ -45,6 +45,7 @@
 #define ENABLE_OLD
 #define ENABLE_NEW
 #define ENABLE_DF
+#define NO_WARMUP
 
 // Common stuff
 #include <Bpp/NewPhyl/Range.h>
@@ -256,13 +257,16 @@ TEST_CASE("df")
 
   auto logLikNode = bpp::Phyl::makeLogLikelihoodNode(likParams);
   timingEnd(ts, "df_setup");
+
+  {
+    std::ofstream fd("df_debug");
+    bpp::DF::debugDag(fd, logLikNode);
+  }
+
   ts = timingStart();
   auto logLik = logLikNode->getValue();
   timingEnd(ts, "df_init_value");
   printLik(logLik, "df_init_value");
-
-  std::ofstream fd("df_debug");
-  bpp::DF::debugDag(fd, logLikNode);
 
   // Change parameters
   do_param_changes_multiple_times_df(logLikNode, "df_param_model_change", model->getParameter("kappa"), 0.1, 0.2);

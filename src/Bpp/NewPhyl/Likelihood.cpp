@@ -38,12 +38,13 @@
   knowledge of the CeCILL license and that you accept its terms.
 */
 
+#include <Bpp/Exceptions.h>
 #include <Bpp/NewPhyl/DataFlowTemplateUtils.h>
+#include <Bpp/NewPhyl/Debug.h>
 #include <Bpp/NewPhyl/ExtendedFloat.h>
 #include <Bpp/NewPhyl/Likelihood.h>
 #include <Bpp/NewPhyl/Range.h>
 #include <Bpp/Seq/Sequence.h>
-#include <cassert>
 #include <cmath>
 
 namespace bpp {
@@ -57,11 +58,16 @@ namespace Phyl {
 		void ConditionalLikelihoodFromSequence::compute () {
 			callWithValues (*this, [](MatrixDouble & condLikBySite, const Sequence * sequence) {
 				// Check sizes
-				assert (sequence != nullptr);
-				assert (condLikBySite.cols () == static_cast<Eigen::Index> (sequence->size ()));
-				assert (sequence->size () == 0 ||
-				        condLikBySite.rows () ==
-				            static_cast<Eigen::Index> (sequence->getAlphabet ()->getSize ()));
+				if (sequence == nullptr)
+					throw Exception (prettyTypeName<ConditionalLikelihoodFromSequence> () +
+					                 ": null sequence");
+				auto matDim = LikelihoodDataDimension (dimensions (condLikBySite));
+				auto seqDim = LikelihoodDataDimension (static_cast<SizeType> (sequence->size ()),
+				                                       sequence->getAlphabet ()->getSize ());
+				if (matDim != seqDim)
+					throw Exception (prettyTypeName<ConditionalLikelihoodFromSequence> () +
+					                 ": size mismatch: sequence " + seqDim.toString () + " -> " +
+					                 matDim.toString ());
 				// Put 1s at the right places, 0s elsewhere
 				condLikBySite.fill (0.);
 				for (auto siteIndex : range (condLikBySite.cols ())) {
