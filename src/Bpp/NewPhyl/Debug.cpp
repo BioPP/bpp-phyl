@@ -138,6 +138,11 @@ namespace DF {
 			os << '\t' << dotNodeKey (node) << " [color=blue,shape=record,label=\"" << dotNodeKey (node)
 			   << '|' << dotLabelEscape (node->description ()) << "\"];\n";
 		}
+		void dotNodePrettyDetailed (std::ostream & os, const Node * node) {
+			os << '\t' << dotNodeKey (node) << " [color=blue,shape=Mrecord,label=\"{{"
+			   << dotNodeKey (node) << '|' << dotLabelEscape (node->description ()) << "}|"
+			   << dotLabelEscape (node->debugInfo ()) << "}\"];\n";
+		}
 		/*void dotNodePretty (std::ostream & os, const Registry::Key & key) {
 		  os << '\t' << dotNodeKey (key) << " [shape=Mrecord,label=\"{" << dotNodeKey (key) << "|{"
 		     << typeToDotLabel (key.operation ()) << '|';
@@ -159,7 +164,7 @@ namespace DF {
 			dotEdgePretty (os, from, to, "[color=blue]");
 		}
 		void dotEdgePretty (std::ostream & os, const Node * from, const Node * to, SizeType num) {
-			dotEdgePretty (os, from, to, "[color=blue,label=\"" + debug_to_string (num) + "\"]");
+			dotEdgePretty (os, from, to, "[color=blue,label=\"" + std::to_string (num) + "\"]");
 		}
 		/*void dotEdgePretty (std::ostream & os, const Registry::Key & from, const Node * to) {
 		  dotEdgePretty (os, from, to, "");
@@ -183,7 +188,11 @@ namespace DF {
 				if (nodesAlreadyVisited.count (node))
 					continue;
 
-				dotNodePretty (os, node);
+				if (opt & DebugOptions::DetailedNodeInfo) {
+					dotNodePrettyDetailed (os, node);
+				} else {
+					dotNodePretty (os, node);
+				}
 				nodesAlreadyVisited.emplace (node);
 
 				if (opt & DebugOptions::FollowUpwardLinks)

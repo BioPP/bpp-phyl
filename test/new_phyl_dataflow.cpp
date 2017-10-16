@@ -260,7 +260,7 @@ TEST_CASE("df")
 
   {
     std::ofstream fd("df_debug");
-    bpp::DF::debugDag(fd, logLikNode);
+    bpp::DF::debugDag(fd, logLikNode, bpp::DF::DebugOptions::DetailedNodeInfo);
   }
 
   ts = timingStart();

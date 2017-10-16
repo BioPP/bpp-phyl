@@ -146,6 +146,8 @@ namespace DF {
 
 	std::string Node::description () const { return prettyTypeName (typeid (*this)); }
 
+	std::string Node::debugInfo () const { return {}; }
+
 	bool Node::isConstant () const { return false; }
 
 	void Node::appendDependency (NodeRef node) {
@@ -160,7 +162,7 @@ namespace DF {
 		                       dependentNodes_.end ());
 	}
 
-  // TODO use in TemplateUtils for merging
+		// TODO use in TemplateUtils for merging
 #if 0
 #include <Bpp/NewPhyl/Optional.h>
 #include <typeindex>

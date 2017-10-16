@@ -82,7 +82,7 @@ namespace Topology {
 
 	// Output a dot format graph representing the tree
 	void debugTree (std::ostream & os, FrozenPtr<Tree> tree);
-}
+} // namespace Topology
 namespace DF {
 	class Node;
 
@@ -93,6 +93,7 @@ namespace DF {
 		FollowUpwardLinks = 1 << 0,
 		ShowDependencyIndex = 1 << 1,
 		ShowRegistryLinks = 1 << 2,
+		DetailedNodeInfo = 1 << 3,
 	};
 	inline DebugOptions operator| (DebugOptions a, DebugOptions b) {
 		using IntType = typename std::underlying_type<DebugOptions>::type;
@@ -114,7 +115,7 @@ namespace DF {
 	};
 	void debugDag (std::ostream & os, const Vector<NamedNodeRef> & namedNodes,
 	               DebugOptions opt = DebugOptions::None);
-}
-}
+} // namespace DF
+} // namespace bpp
 
 #endif // BPP_NEWPHYL_DEBUG_H

@@ -98,6 +98,9 @@ namespace DF {
 		// Node string description (default = type name)
 		virtual std::string description () const;
 
+    // Node debug info (default = "") : user defined detailed info.
+    virtual std::string debugInfo () const;
+
     // Is the node returning a constant value ? (default = false)
     virtual bool isConstant () const;
 		
