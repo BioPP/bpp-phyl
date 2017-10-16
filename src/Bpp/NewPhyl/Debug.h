@@ -85,8 +85,6 @@ namespace Topology {
 }
 namespace DF {
 	class Node;
-	class NodeSpecification;
-	class Registry;
 
 	/* Small flag class that defines various debug output options.
 	 */
@@ -116,20 +114,6 @@ namespace DF {
 	};
 	void debugDag (std::ostream & os, const Vector<NamedNodeRef> & namedNodes,
 	               DebugOptions opt = DebugOptions::None);
-
-	// Outputs debugDag + registry pointers to dataflow dag
-	void debugRegistry (std::ostream & os, const Registry & registry,
-	                    DebugOptions opt = DebugOptions::None);
-
-	// Instantiate a nodespec, prints nodespec hierarchy & DF graph
-	void debugNodeSpecInstantiation (std::ostream & os, const NodeSpecification & nodeSpec,
-	                                 DebugOptions opt = DebugOptions::None);
-
-	// Trace previous instantiation of a NodeSpec in a registry
-	// Prints: registry, nodespecs, df graph
-	void debugNodeSpecInstantiationInRegistry (std::ostream & os, const NodeSpecification & nodeSpec,
-	                                           const Registry & registry,
-	                                           DebugOptions opt = DebugOptions::None);
 }
 }
 

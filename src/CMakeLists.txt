@@ -15,7 +15,6 @@ set (CPP_FILES
   Bpp/NewPhyl/ImportNewlik.cpp
   Bpp/NewPhyl/Likelihood.cpp
   Bpp/NewPhyl/Model.cpp
-  Bpp/NewPhyl/NodeSpecification.cpp
   Bpp/NewPhyl/Phylogeny.cpp
   Bpp/NewPhyl/Topology.cpp
   Bpp/Phyl/App/PhylogeneticsApplicationTools.cpp
