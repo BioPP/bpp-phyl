@@ -63,7 +63,7 @@ namespace DF {
 
 		bool isExactZeroMatrix (const MatrixDouble & m) { return m == zeroMatrix (dimensions (m)); }
 		bool isExactOnesMatrix (const MatrixDouble & m) { return m == onesMatrix (dimensions (m)); }
-		bool isExactIdentity (const MatrixDouble & m) {
+		bool isExactIdentityMatrix (const MatrixDouble & m) {
 			return m.rows () == m.cols () && m == MatrixDouble::Identity (m.rows (), m.cols ());
 		}
 
@@ -89,7 +89,7 @@ namespace DF {
 			s += '0';
 		if (isExactOnesMatrix (m))
 			s += '1';
-		if (isExactIdentity (m))
+		if (isExactIdentityMatrix (m))
 			s += 'I';
 		return s;
 	}
@@ -161,18 +161,20 @@ namespace DF {
 	}
 	ValueRef<MatrixDouble> MulMatrixDouble::create (NodeRefVec && deps, MatrixDimension dim) {
 		checkDependencies<Dependencies> (deps, typeid (MulMatrixDouble));
+		auto isConstantZeroMatrix = predicateIsConstantValueMatching<MatrixDouble> (isExactZeroMatrix);
+		auto isConstantIdentityMatrix =
+		    predicateIsConstantValueMatching<MatrixDouble> (isExactIdentityMatrix);
 		auto & lhs = deps[0];
 		auto & rhs = deps[1];
 		// Return O if any matrix is 0
-		if (isExactZeroMatrix (accessValueUncheckedCast<MatrixDouble> (*lhs)) ||
-		    isExactZeroMatrix (accessValueUncheckedCast<MatrixDouble> (*rhs))) {
+		if (isConstantZeroMatrix (lhs) || isConstantZeroMatrix (rhs)) {
 			return ConstantMatrixDouble::create (zeroMatrix (dim));
 		}
 		// Return the other if one is identity
-		if (isExactIdentity (accessValueUncheckedCast<MatrixDouble> (*lhs))) {
+		if (isConstantIdentityMatrix (lhs)) {
 			return convertRef<Value<MatrixDouble>> (rhs);
 		}
-		if (isExactIdentity (accessValueUncheckedCast<MatrixDouble> (*rhs))) {
+		if (isConstantIdentityMatrix (rhs)) {
 			return convertRef<Value<MatrixDouble>> (lhs);
 		}
 		return std::make_shared<MulMatrixDouble> (std::move (deps), dim);

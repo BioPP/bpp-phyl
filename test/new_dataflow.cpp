@@ -47,7 +47,6 @@
 #include <Bpp/NewPhyl/DataFlowNumeric.h>
 #include <Bpp/NewPhyl/DataFlowTemplateUtils.h>
 #include <Bpp/NewPhyl/Debug.h>
-#include <cassert>
 #include <fstream>
 
 using namespace bpp::DF;

@@ -45,7 +45,6 @@
 #define ENABLE_OLD
 #define ENABLE_NEW
 #define ENABLE_DF
-#define NO_WARMUP
 
 // Common stuff
 #include <Bpp/NewPhyl/Range.h>
@@ -261,6 +260,7 @@ TEST_CASE("df")
   {
     std::ofstream fd("df_debug");
     bpp::DF::debugDag(fd, logLikNode, bpp::DF::DebugOptions::DetailedNodeInfo);
+    // bpp::Topology::debugTree(fd, treeData.topology);
   }
 
   ts = timingStart();
