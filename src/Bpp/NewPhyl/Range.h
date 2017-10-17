@@ -99,7 +99,7 @@ namespace Iterator {
 	private:
 		Int n_{};
 	};
-}
+} // namespace Iterator
 namespace Range {
 	template <typename It> class Base {
 		/* Stores a pair of iterators (no iterator requirements except copy).
@@ -195,7 +195,7 @@ namespace Range {
 		using std::begin;
 		template <typename T> auto call_begin (const T & t) -> decltype (begin (t));
 		template <typename T> auto call_begin (T & t) -> decltype (begin (t));
-	}
+	} // namespace Detail
 	template <typename Container,
 	          typename It = decltype (Detail::call_begin (std::declval<Container> ())),
 	          typename = typename std::enable_if<std::is_lvalue_reference<Container>::value>::type>
@@ -220,9 +220,9 @@ namespace Range {
 	Range<Iterator::Integer<SizeType>> index_range (const Container & container) {
 		return range (container.size ());
 	}
-}
-using Range::range;
+} // namespace Range
 using Range::index_range;
-}
+using Range::range;
+} // namespace bpp
 
 #endif // BPP_NEWPHYL_RANGE_H

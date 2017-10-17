@@ -164,14 +164,14 @@ namespace DF {
 		T value_;
 
 	private:
-		// Allow wrappers in DataFlowTemplateUtils write access to the value through this function.
+		// Allow wrappers in DataFlowInternalTemplates write access to the value through this function.
 		template <typename U> friend U & accessMutableValue (Value<U> &) noexcept;
 	};
 
 	/* Dependency structure description.
 	 * These type tags are used to specify compute node dependency types.
 	 * This can serve as documentation about what arguments node expect.
-	 * Helper functions in DataFlowTemplateUtils.h act depending on these type tags.
+	 * Helper functions in DataFlowInternalTemplates.h act depending on these type tags.
 	 */
 	template <typename T> struct ReductionOfValue {};        // Dynamic sized list of Value<T>
 	template <typename... Types> struct FunctionOfValues {}; // Tuple of Value<T0>, Value<T1>, ...

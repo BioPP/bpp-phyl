@@ -427,6 +427,6 @@ Optional<const typename Container::mapped_type &> optional_find (const Container
 	else
 		return {};
 }
-}
+} // namespace bpp
 
 #endif // BPP_NEWPHYL_OPTIONAL_H

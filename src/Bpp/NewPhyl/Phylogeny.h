@@ -59,8 +59,8 @@ class SubstitutionModel;
 
 namespace Phyl {
 
-  // Phylogeny encoding structs
-  // TODO remove frozen ptr, just bundle values
+	// Phylogeny encoding structs
+	// TODO remove frozen ptr, just bundle values
 	struct Process {
 		const FrozenPtr<Topology::Tree> tree;
 		const FrozenPtr<Topology::BranchValueMap<std::shared_ptr<DF::ParameterDouble>>> branchLengths;

@@ -116,7 +116,7 @@ public:
 	Container & asVector () noexcept { return vec_; }
 	const Container & asVector () const noexcept { return vec_; }
 
-  // Map : build a new vector by applying callable on each element of the current vector
+	// Map : build a new vector by applying callable on each element of the current vector
 	template <typename Callable,
 	          typename ReturnType = decltype (std::declval<Callable> () (std::declval<const T &> ()))>
 	Vector<ReturnType> map (Callable callable) const & {
@@ -143,7 +143,7 @@ private:
 template <typename T> bool operator== (const Vector<T> & lhs, const Vector<T> & rhs) {
 	return lhs.asVector () == rhs.asVector ();
 }
-}
+} // namespace bpp
 
 namespace std {
 // Enable hash_map support (the vector should be const, as changing it changes the hash value !)
@@ -158,6 +158,6 @@ template <typename T> struct hash<bpp::Vector<T>> {
 		return h;
 	}
 };
-}
+} // namespace std
 
 #endif // BPP_NEWPHYL_VECTOR_H

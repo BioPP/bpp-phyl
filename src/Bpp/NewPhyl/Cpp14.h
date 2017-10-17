@@ -96,7 +96,7 @@ namespace Cpp14 {
 		};
 		template <> struct MakeIndexSequenceImpl<0> { using Type = IndexSequence<>; };
 		template <> struct MakeIndexSequenceImpl<1> { using Type = IndexSequence<0>; };
-	}
+	} // namespace detail
 	template <SizeType N> using MakeIndexSequence = detail::MakeIndexSequence<N>;
 	template <typename... Types> using IndexSequenceFor = MakeIndexSequence<sizeof...(Types)>;
 } // end namespace Cpp14

@@ -223,7 +223,7 @@ namespace Topology {
 	inline Node Branch::childNode () && { return std::move (*this).buildNode (childNodeId ()); }
 	inline Node Branch::buildNode (Index nodeId) const & { return Node (tree_, nodeId); }
 	inline Node Branch::buildNode (Index nodeId) && { return Node (std::move (tree_), nodeId); }
-}
-}
+} // namespace Topology
+} // namespace bpp
 
 #endif // BPP_NEWPHYL_TOPOLOGY_H

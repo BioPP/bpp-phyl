@@ -189,6 +189,6 @@ template <typename T> FrozenPtr<T> make_frozen (T && t) {
 template <typename T> FrozenPtr<T> FreezablePtr<T>::freeze () && {
 	return FrozenPtr<T>{std::move (*this)};
 }
-}
+} // namespace bpp
 
 #endif // BPP_NEWPHYL_FROZENPTR_H

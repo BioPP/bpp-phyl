@@ -39,7 +39,7 @@
   knowledge of the CeCILL license and that you accept its terms.
 */
 
-#include <Bpp/NewPhyl/DataFlowTemplateUtils.h>
+#include <Bpp/NewPhyl/DataFlowInternalTemplates.h>
 #include <Bpp/NewPhyl/Model.h>
 #include <Bpp/NewPhyl/Range.h>
 #include <Bpp/Numeric/Parameter.h>

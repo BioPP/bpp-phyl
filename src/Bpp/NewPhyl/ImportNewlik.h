@@ -63,7 +63,7 @@ namespace Phyl {
 		const FrozenPtr<Topology::NodeIndexMap<std::string>> nodeNames;
 	};
 	ConvertedPhyloTreeData convertPhyloTree (const bpp::PhyloTree & phyloTree);
-}
-}
+} // namespace Phyl
+} // namespace bpp
 
 #endif // BPP_NEWPHYL_IMPORTNEWLIK_H

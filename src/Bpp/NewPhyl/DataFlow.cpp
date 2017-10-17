@@ -41,7 +41,7 @@
 
 #include <Bpp/Exceptions.h>
 #include <Bpp/NewPhyl/DataFlow.h>
-#include <Bpp/NewPhyl/DataFlowTemplateUtils.h>
+#include <Bpp/NewPhyl/DataFlowInternalTemplates.h>
 #include <Bpp/NewPhyl/Debug.h>
 #include <algorithm>
 #include <stack>
@@ -59,7 +59,7 @@ namespace DF {
 		throw Exception (prettyTypeName (nodeType) + ": compute() was called");
 	}
 
-	// Error functions DataFlowTemplateUtils.h
+	// Error functions DataFlowInternalTemplates.h
 	static void failureDependencyNumberMismatch (const std::type_info & inNodeType,
 	                                             SizeType expectedSize, SizeType givenSize) {
 		throw Exception (prettyTypeName (inNodeType) + ": expected " + std::to_string (expectedSize) +
@@ -162,7 +162,7 @@ namespace DF {
 		                       dependentNodes_.end ());
 	}
 
-		// TODO use in TemplateUtils for merging
+		// TODO use in InternalTemplates for merging
 #if 0
 #include <Bpp/NewPhyl/Optional.h>
 #include <typeindex>

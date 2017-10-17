@@ -40,8 +40,8 @@
 */
 
 #include <Bpp/Exceptions.h> // checks
+#include <Bpp/NewPhyl/DataFlowInternalTemplates.h>
 #include <Bpp/NewPhyl/DataFlowMatrix.h>
-#include <Bpp/NewPhyl/DataFlowTemplateUtils.h>
 #include <Bpp/NewPhyl/Debug.h> // checks
 #include <Bpp/NewPhyl/Range.h> // checks
 #include <typeinfo>

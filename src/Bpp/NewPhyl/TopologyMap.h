@@ -245,6 +245,6 @@ namespace Topology {
 	BranchValueMap<T> make_uniform_branch_value_map (const FrozenPtr<Tree> & tree, const T & t) {
 		return BranchValueMap<T>{make_uniform_value_map (tree->nbBranches (), t)};
 	}
-}
-}
+} // namespace Topology
+} // namespace bpp
 #endif // BPP_NEWPHYL_TOPOLOGYMAP_H

@@ -56,5 +56,5 @@ namespace Topology {
 		throw Exception (prettyTypeName (mapType) + ": set(" + std::move (value) +
 		                 ") tries to set an already used value");
 	}
-}
-}
+} // namespace Topology
+} // namespace bpp

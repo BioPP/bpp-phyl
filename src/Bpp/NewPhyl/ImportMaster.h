@@ -68,7 +68,7 @@ namespace Phyl {
 	// Create sequence map from bpp VectorSiteContainer and a name mapping.
 	SequenceMap makeSequenceMap (const Topology::NodeIndexMap<std::string> & nodeNames,
 	                             const VectorSiteContainer & sequences);
-}
-}
+} // namespace Phyl
+} // namespace bpp
 
 #endif // BPP_NEWPHYL_IMPORTMASTER_H

@@ -1,9 +1,9 @@
 //
-// File: DataFlowTemplateUtils.h
+// File: DataFlowInternalTemplates.h
 // Authors:
 //   Francois Gindraud (2017)
 // Created: 2017-10-04 00:00:00
-// Last modified: 2017-10-04
+// Last modified: 2017-10-17
 //
 
 /*
@@ -39,8 +39,8 @@
   knowledge of the CeCILL license and that you accept its terms.
 */
 
-#ifndef BPP_NEWPHYL_DATAFLOWTEMPLATEUTILS_H
-#define BPP_NEWPHYL_DATAFLOWTEMPLATEUTILS_H
+#ifndef BPP_NEWPHYL_DATAFLOWINTERNALTEMPLATES_H
+#define BPP_NEWPHYL_DATAFLOWINTERNALTEMPLATES_H
 
 #include <Bpp/NewPhyl/Cpp14.h>
 #include <Bpp/NewPhyl/DataFlow.h>
@@ -200,15 +200,20 @@ namespace DF {
 
 	/******************************* Optimizations *******************************/
 
-	// Predicate : const NodeRef & -> bool
+	/** Remove dependencies from the list according to a predicate.
+	 * Input predicate : const NodeRef & -> bool
+	 */
 	template <typename Predicate>
 	void removeDependenciesIf (NodeRefVec & deps, Predicate && predicate) {
 		deps.erase (std::remove_if (deps.begin (), deps.end (), std::forward<Predicate> (predicate)),
 		            deps.end ());
 	}
 
-	// Predicate : const T & -> bool
-	// FIXME rename makePredicate....
+	/** Build a predicate testing if a NodeRef is a constant value<T> matching the input predicate.
+	 * Input predicate: const T & -> bool
+	 * Output predicate: const NodeRef & -> bool
+	 * A specialized version takes a T value and compare against it.
+	 */
 	template <typename T, typename Predicate,
 	          typename = typename std::enable_if<!std::is_same<T, Predicate>::value>::type>
 	std::function<bool(const NodeRef &)> predicateIsConstantValueMatching (Predicate predicate) {
@@ -224,4 +229,4 @@ namespace DF {
 
 } // namespace DF
 } // namespace bpp
-#endif // BPP_NEWPHYL_DATAFLOWTEMPLATEUTILS_H
+#endif // BPP_NEWPHYL_DATAFLOWINTERNALTEMPLATES_H

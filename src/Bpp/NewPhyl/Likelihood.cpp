@@ -39,8 +39,8 @@
 */
 
 #include <Bpp/Exceptions.h>
+#include <Bpp/NewPhyl/DataFlowInternalTemplates.h>
 #include <Bpp/NewPhyl/DataFlowNumeric.h>
-#include <Bpp/NewPhyl/DataFlowTemplateUtils.h>
 #include <Bpp/NewPhyl/Debug.h>
 #include <Bpp/NewPhyl/ExtendedFloat.h>
 #include <Bpp/NewPhyl/Likelihood.h>

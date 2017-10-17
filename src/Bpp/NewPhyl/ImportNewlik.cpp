@@ -91,5 +91,5 @@ namespace Phyl {
 		        make_frozen<Topology::NodeIndexMap<IndexType>> (tree, std::move (fromNodeIdMap)),
 		        std::move (brLens).freeze (), std::move (nodeNames).freeze ()};
 	}
-}
-}
+} // namespace Phyl
+} // namespace bpp
