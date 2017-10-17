@@ -62,7 +62,7 @@ public:
 	using const_iterator = typename Container::const_iterator;
 
 	Vector () : vec_ () {}
-	explicit Vector (size_type size) : vec_ (static_cast<typename Container::size_type> (size)) {}
+	explicit Vector (size_type size_) : vec_ (static_cast<typename Container::size_type> (size_)) {}
 	Vector (std::initializer_list<T> ilist) : vec_ (std::move (ilist)) {}
 
 	reference at (size_type i) {
@@ -106,10 +106,12 @@ public:
 		vec_.emplace_back (std::forward<Args> (args)...);
 		return back ();
 	}
-	void reserve (size_type size) {
-		vec_.reserve (static_cast<typename Container::size_type> (size));
+	void reserve (size_type size_) {
+		vec_.reserve (static_cast<typename Container::size_type> (size_));
 	}
-	void resize (size_type size) { vec_.resize (static_cast<typename Container::size_type> (size)); }
+	void resize (size_type size_) {
+		vec_.resize (static_cast<typename Container::size_type> (size_));
+	}
 
 	iterator erase (iterator first, iterator last) { return vec_.erase (first, last); }
 

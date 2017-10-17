@@ -54,11 +54,11 @@ namespace DF {
 	// Forward declaration
 	template <typename T> struct Parameter;
 
-  // Typedefs TODO use wrapper types that can be forward declared
+	// Typedefs TODO use wrapper types that can be forward declared
 	using VectorDouble = Eigen::VectorXd;
 	using MatrixDouble = Eigen::MatrixXd;
-	
-  // Debug info
+
+	// Debug info
 	std::string debugInfoFor (const double & d);
 	std::string debugInfoFor (const MatrixDouble & m);
 
@@ -66,7 +66,8 @@ namespace DF {
 	struct MatrixDimension {
 		SizeType rows;
 		SizeType cols;
-		constexpr MatrixDimension (SizeType rows, SizeType cols) noexcept : rows (rows), cols (cols) {}
+		constexpr MatrixDimension (SizeType rows_, SizeType cols_) noexcept
+		    : rows (rows_), cols (cols_) {}
 		std::string toString () const;
 	};
 	constexpr bool operator== (const MatrixDimension & lhs, const MatrixDimension & rhs) noexcept {
@@ -82,8 +83,8 @@ namespace DF {
 		return dimensions (node.accessValue ());
 	}
 
-  /* Double nodes.
-   */
+	/* Double nodes.
+	 */
 	struct ConstantDouble : public Value<double> {
 		ConstantDouble (double d);
 		void compute () override final;
@@ -123,8 +124,8 @@ namespace DF {
 		static ValueRef<double> create (NodeRefVec && deps);
 	};
 
-  /* Matrix nodes.
-   */
+	/* Matrix nodes.
+	 */
 	struct ConstantMatrixDouble : public Value<MatrixDouble> {
 		template <typename Derived>
 		ConstantMatrixDouble (const Eigen::EigenBase<Derived> & expr)
