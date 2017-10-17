@@ -43,38 +43,47 @@
 #define BPP_NEWPHYL_DATAFLOWNUMERIC_H
 
 #include <Bpp/NewPhyl/DataFlow.h>
+#include <Bpp/NewPhyl/Signed.h>
+#include <Eigen/Core>
 #include <string>
 #include <typeinfo>
 #include <utility>
 
 namespace bpp {
 namespace DF {
-	// Debug info
+	// Forward declaration
+	template <typename T> struct Parameter;
+
+  // Typedefs TODO use wrapper types that can be forward declared
+	using VectorDouble = Eigen::VectorXd;
+	using MatrixDouble = Eigen::MatrixXd;
+	
+  // Debug info
 	std::string debugInfoFor (const double & d);
+	std::string debugInfoFor (const MatrixDouble & m);
 
-	/* Parameter node.
-	 * TODO merge with ParameterDouble ? Specialisation ?
-	 */
-	template <typename T> struct Parameter : public Value<T> {
-		template <typename... Args>
-		Parameter (Args &&... args) : Value<T> (noDependency, std::forward<Args> (args)...) {
-			this->makeValid ();
-		}
-
-		void setValue (T t) noexcept {
-			this->invalidate ();
-			this->value_ = std::move (t);
-			this->makeValid ();
-		}
-
-		void compute () override final { failureComputeWasCalled (typeid (Parameter<T>)); }
-
-		template <typename... Args> static std::shared_ptr<Parameter<T>> create (Args &&... args) {
-			return std::make_shared<Parameter<T>> (std::forward<Args> (args)...);
-		}
+	// Dimensions
+	struct MatrixDimension {
+		SizeType rows;
+		SizeType cols;
+		constexpr MatrixDimension (SizeType rows, SizeType cols) noexcept : rows (rows), cols (cols) {}
+		std::string toString () const;
 	};
-	template <typename T> using ParameterRef = std::shared_ptr<Parameter<T>>;
+	constexpr bool operator== (const MatrixDimension & lhs, const MatrixDimension & rhs) noexcept {
+		return lhs.rows == rhs.rows && lhs.cols == rhs.cols;
+	}
+	constexpr bool operator!= (const MatrixDimension & lhs, const MatrixDimension & rhs) noexcept {
+		return !(lhs == rhs);
+	}
+	inline MatrixDimension dimensions (const MatrixDouble & m) noexcept {
+		return {m.rows (), m.cols ()};
+	}
+	inline MatrixDimension dimensions (const Value<MatrixDouble> & node) noexcept {
+		return dimensions (node.accessValue ());
+	}
 
+  /* Double nodes.
+   */
 	struct ConstantDouble : public Value<double> {
 		ConstantDouble (double d);
 		void compute () override final;
@@ -86,7 +95,6 @@ namespace DF {
 		static std::shared_ptr<ConstantDouble> create (double d);
 	};
 
-	// TODO clean parameter situation
 	template <> struct Parameter<double> : public Value<double> {
 		Parameter (double d);
 		void compute () override final;
@@ -113,6 +121,53 @@ namespace DF {
 		std::string debugInfo () const override final;
 		NodeRef derive (const Node & node) override final;
 		static ValueRef<double> create (NodeRefVec && deps);
+	};
+
+  /* Matrix nodes.
+   */
+	struct ConstantMatrixDouble : public Value<MatrixDouble> {
+		template <typename Derived>
+		ConstantMatrixDouble (const Eigen::EigenBase<Derived> & expr)
+		    : Value<MatrixDouble> (noDependency, expr) {
+			this->makeValid ();
+		}
+		void compute () override final;
+		std::string debugInfo () const override final;
+		NodeRef derive (const Node & node) override final;
+		template <typename Derived>
+		static std::shared_ptr<ConstantMatrixDouble> create (const Eigen::EigenBase<Derived> & expr) {
+			return std::make_shared<ConstantMatrixDouble> (expr);
+		}
+		static std::shared_ptr<ConstantMatrixDouble> createZero (MatrixDimension dim);
+	};
+
+	struct AddMatrixDouble : public Value<MatrixDouble> {
+		using Dependencies = ReductionOfValue<MatrixDouble>;
+		AddMatrixDouble (NodeRefVec && deps, MatrixDimension dim);
+		void compute () override final;
+		std::string debugInfo () const override final;
+		NodeRef derive (const Node & node) override final;
+		static ValueRef<MatrixDouble> create (NodeRefVec && deps, MatrixDimension dim);
+	};
+
+	struct MulMatrixDouble : public Value<MatrixDouble> {
+		using Dependencies = FunctionOfValues<MatrixDouble, MatrixDouble>;
+		MulMatrixDouble (NodeRefVec && deps, MatrixDimension dim);
+		void compute () override final;
+		std::string debugInfo () const override final;
+		NodeRef derive (const Node & node) override final;
+		static ValueRef<MatrixDouble> create (NodeRefVec && deps, MatrixDimension dim);
+		static ValueRef<MatrixDouble> create (ValueRef<MatrixDouble> lhs, ValueRef<MatrixDouble> rhs,
+		                                      MatrixDimension dim);
+	};
+
+	struct CWiseMulMatrixDouble : public Value<MatrixDouble> {
+		using Dependencies = ReductionOfValue<MatrixDouble>;
+		CWiseMulMatrixDouble (NodeRefVec && deps, MatrixDimension dim);
+		void compute () override final;
+		std::string debugInfo () const override final;
+		NodeRef derive (const Node & node) override final;
+		static ValueRef<MatrixDouble> create (NodeRefVec && deps, MatrixDimension dim);
 	};
 } // namespace DF
 } // namespace bpp

@@ -8,7 +8,6 @@
 # File list
 set (CPP_FILES
   Bpp/NewPhyl/DataFlow.cpp
-  Bpp/NewPhyl/DataFlowMatrix.cpp
   Bpp/NewPhyl/DataFlowNumeric.cpp
   Bpp/NewPhyl/Debug.cpp
   Bpp/NewPhyl/ImportMaster.cpp

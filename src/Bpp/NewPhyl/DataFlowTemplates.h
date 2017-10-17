@@ -1,9 +1,9 @@
 //
-// File: Phylogeny.h
+// File: DataFlowTemplates.h
 // Authors:
 //   Francois Gindraud (2017)
-// Created: 2017-05-12
-// Last modified: 2017-05-12
+// Created: 2017-10-17
+// Last modified: 2017-10-17
 //
 
 /*
@@ -39,54 +39,51 @@
   knowledge of the CeCILL license and that you accept its terms.
 */
 
-#ifndef BPP_NEWPHYL_PHYLOGENY_H
-#define BPP_NEWPHYL_PHYLOGENY_H
+#ifndef BPP_NEWPHYL_DATAFLOWTEMPLATES_H
+#define BPP_NEWPHYL_DATAFLOWTEMPLATES_H
 
 #include <Bpp/NewPhyl/DataFlow.h>
-#include <Bpp/NewPhyl/DataFlowNumeric.h> // TODO rm if forward decl matrix
-#include <Bpp/NewPhyl/DataFlowTemplates.h>
-#include <Bpp/NewPhyl/FrozenPtr.h>
-#include <Bpp/NewPhyl/Signed.h>
-#include <Bpp/NewPhyl/Topology.h>
-#include <Bpp/NewPhyl/TopologyMap.h>
+#include <memory>
 #include <string>
+#include <typeinfo>
+#include <utility>
 
 namespace bpp {
+namespace DF {
+	// TODO move Value (and maybe later value alternatives like SiteValue) here ?
 
-// Forward declarations
-class Sequence;
-class SubstitutionModel;
+	/* Parameter node.
+	 */
+	template <typename T> struct Parameter : public Value<T> {
+		template <typename... Args>
+		Parameter (Args &&... args) : Value<T> (noDependency, std::forward<Args> (args)...) {
+			this->makeValid ();
+		}
 
-namespace Phyl {
+		void setValue (T t) noexcept {
+			this->invalidate ();
+			this->value_ = std::move (t);
+			this->makeValid ();
+		}
 
-	// Phylogeny encoding structs
-	// TODO remove frozen ptr, just bundle values
-	struct Process {
-		const FrozenPtr<Topology::Tree> tree;
-		const FrozenPtr<Topology::BranchValueMap<std::shared_ptr<DF::ParameterDouble>>> branchLengths;
-		const FrozenPtr<Topology::BranchValueMap<DF::ValueRef<const SubstitutionModel *>>>
-		    modelByBranch;
-		const SizeType nbStates;
+		void compute () override final { failureComputeWasCalled (typeid (Parameter<T>)); }
+
+		template <typename... Args> static std::shared_ptr<Parameter<T>> create (Args &&... args) {
+			return std::make_shared<Parameter<T>> (std::forward<Args> (args)...);
+		}
 	};
+	template <typename T> using ParameterRef = std::shared_ptr<Parameter<T>>;
 
-	struct SequenceMap {
-		const FrozenPtr<Topology::NodeValueMap<DF::ParameterRef<const Sequence *>>> sequences;
-		const SizeType nbSites;
-	};
+	// Specializations in DataFlowNumeric
+	template <> struct Parameter<double>;
+	// TODO try to use member specialisation
 
-	struct LikelihoodParameters {
-		const Process process;
-		const SequenceMap leafData;
-	};
-
-	// Build functions
-
-	DF::ValueRef<double> makeLogLikelihoodNode (const LikelihoodParameters & params);
-	DF::ValueRef<DF::MatrixDouble> makeConditionalLikelihoodNode (const LikelihoodParameters & params,
-	                                                              Topology::Node node);
-	DF::ValueRef<DF::MatrixDouble> makeForwardLikelihoodNode (const LikelihoodParameters & params,
-	                                                          Topology::Branch branch);
-} // namespace Phyl
+	/* Constant node declaration.
+	 * Definitions are in their respective headers.
+	 * TODO use member specialisation with forward declared wrapper types for vector/matrix
+	 */
+	// template <typename T> struct Constant;
+} // namespace DF
 } // namespace bpp
 
-#endif // BPP_NEWPHYL_PHYLOGENY_H
+#endif // BPP_NEWPHYL_DATAFLOWTEMPLATES_H

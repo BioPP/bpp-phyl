@@ -44,7 +44,7 @@
 #define BPP_NEWPHYL_LIKELIHOOD_H
 
 #include <Bpp/NewPhyl/DataFlow.h>
-#include <Bpp/NewPhyl/DataFlowMatrix.h>
+#include <Bpp/NewPhyl/DataFlowNumeric.h>
 #include <Bpp/NewPhyl/Signed.h>
 #include <string>
 
@@ -73,6 +73,13 @@ namespace Phyl {
 		SizeType nbSites () const { return cols; }
 		std::string toString () const;
 	};
+
+  /* TODO: <list>
+   * - wrapper classes.
+   * - take LikelihoodDataDimension as dims.
+   * - override debugInfo
+   * - externalize Likelihood as a numeric op
+   */
 
 	namespace DF {
 		struct ConditionalLikelihoodFromSequence : public DF::Value<MatrixDouble> {
