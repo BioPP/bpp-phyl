@@ -55,6 +55,7 @@ namespace DF {
 		                 " cannot store: " + prettyTypeName (typeid (node)));
 	}
 
+	// Error functions DataFlowTemplates.h
 	void failureComputeWasCalled (const std::type_info & nodeType) {
 		throw Exception (prettyTypeName (nodeType) + ": compute() was called");
 	}

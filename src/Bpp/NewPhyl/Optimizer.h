@@ -56,10 +56,10 @@ namespace bpp {
 // Wraps a DF::Parameter<double> data flow node as a bpp::Parameter
 class DataFlowParameter : public Parameter {
 public:
-	DataFlowParameter (const std::string & name, std::shared_ptr<DF::ParameterDouble> existingParam)
+	DataFlowParameter (const std::string & name, DF::ParameterRef<double> existingParam)
 	    : Parameter (name, {}), dfParam_ (std::move (existingParam)) {}
 	DataFlowParameter (const std::string & name, double initialValue)
-	    : DataFlowParameter (name, DF::ParameterDouble::create (initialValue)) {}
+	    : DataFlowParameter (name, DF::Parameter<double>::create (initialValue)) {}
 
 	// Parameter boilerplate
 	DataFlowParameter * clone () const override { return new DataFlowParameter (*this); }
@@ -69,12 +69,10 @@ public:
 	void setValue (double v) override { dfParam_->setValue (v); }
 	// TODO care about the listeners
 
-	const std::shared_ptr<DF::ParameterDouble> & getDataFlowParameter () const noexcept {
-		return dfParam_;
-	}
+	const DF::ParameterRef<double> & getDataFlowParameter () const noexcept { return dfParam_; }
 
 private:
-	std::shared_ptr<DF::ParameterDouble> dfParam_;
+	DF::ParameterRef<double> dfParam_;
 };
 
 /*
@@ -192,8 +190,7 @@ public:
 	}
 
 private:
-	const std::shared_ptr<DF::ParameterDouble> &
-	getDataFlowParameter (const std::string & name) const {
+	const DF::ParameterRef<double> & getDataFlowParameter (const std::string & name) const {
 		return dynamic_cast<const DataFlowParameter &> (getParameter (name)).getDataFlowParameter ();
 	}
 };

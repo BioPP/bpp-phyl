@@ -58,7 +58,7 @@ namespace Phyl {
 			model_->setNamespace ({}); // Delete namespace prefix
 			const auto & parameters = model_->getParameters ();
 			for (auto i : index_range (parameters))
-				this->appendDependency (std::make_shared<ParameterDouble> (parameters[i].getValue ()));
+				this->appendDependency (Parameter<double>::create (parameters[i].getValue ()));
 		}
 
 		Model::~Model () = default;

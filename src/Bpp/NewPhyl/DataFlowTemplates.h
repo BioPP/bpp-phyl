@@ -52,6 +52,9 @@ namespace bpp {
 namespace DF {
 	// TODO move Value (and maybe later value alternatives like SiteValue) here ?
 
+  // Error function
+  [[noreturn]] void failureComputeWasCalled (const std::type_info & nodeType);
+
 	/* Parameter node.
 	 */
 	template <typename T> struct Parameter : public Value<T> {

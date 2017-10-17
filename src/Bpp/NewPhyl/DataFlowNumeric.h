@@ -43,6 +43,7 @@
 #define BPP_NEWPHYL_DATAFLOWNUMERIC_H
 
 #include <Bpp/NewPhyl/DataFlow.h>
+#include <Bpp/NewPhyl/DataFlowTemplates.h>
 #include <Bpp/NewPhyl/Signed.h>
 #include <Eigen/Core>
 #include <string>
@@ -51,8 +52,6 @@
 
 namespace bpp {
 namespace DF {
-	// Forward declaration
-	template <typename T> struct Parameter;
 
 	// Typedefs TODO use wrapper types that can be forward declared
 	using VectorDouble = Eigen::VectorXd;
@@ -104,7 +103,6 @@ namespace DF {
 		void setValue (double d);
 		static std::shared_ptr<Parameter<double>> create (double d);
 	};
-	using ParameterDouble = Parameter<double>;
 
 	struct AddDouble : public Value<double> {
 		using Dependencies = ReductionOfValue<double>;

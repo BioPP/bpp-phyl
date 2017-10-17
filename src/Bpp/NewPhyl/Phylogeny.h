@@ -63,7 +63,7 @@ namespace Phyl {
 	// TODO remove frozen ptr, just bundle values
 	struct Process {
 		const FrozenPtr<Topology::Tree> tree;
-		const FrozenPtr<Topology::BranchValueMap<std::shared_ptr<DF::ParameterDouble>>> branchLengths;
+		const FrozenPtr<Topology::BranchValueMap<DF::ParameterRef<double>>> branchLengths;
 		const FrozenPtr<Topology::BranchValueMap<DF::ValueRef<const SubstitutionModel *>>>
 		    modelByBranch;
 		const SizeType nbStates;
