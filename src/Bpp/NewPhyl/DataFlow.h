@@ -55,18 +55,19 @@ namespace DF {
 	 * - Basic node class definition.
 	 */
 
-	// Fwd declaration
+	// Declarations
 	class Node;
 	template <typename T> class Value;
-
-	// Convenient typedefs : Node is supposed to be used as shared_ptr instances.
 	using NodeRef = std::shared_ptr<Node>;
 	using NodeRefVec = Vector<NodeRef>;
 	template <typename T> using ValueRef = std::shared_ptr<Value<T>>;
 
 	/* Base Node class.
 	 * Abstract : compute() needs to be defined to the actual computation.
+   * It is supposed to be used with std::shared_ptr for node class ownership.
+   *
 	 * TODO determine what to remove from the class API (computeRecursively ?)
+   * TODO move most stuff to protected, use an InternalAccessor ?
 	 *
 	 * All node implementation classes are supposed to provide a create() static function.
 	 * This function should return a shared_ptr<?> pointing to a node with the requested value.

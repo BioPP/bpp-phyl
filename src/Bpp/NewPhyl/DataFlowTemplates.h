@@ -52,8 +52,12 @@ namespace bpp {
 namespace DF {
 	// TODO move Value (and maybe later value alternatives like SiteValue) here ?
 
-  // Error function
-  [[noreturn]] void failureComputeWasCalled (const std::type_info & nodeType);
+	// Declarations
+	template <typename T> struct Parameter;
+	template <typename T> using ParameterRef = std::shared_ptr<Parameter<T>>;
+
+	// Error function
+	[[noreturn]] void failureComputeWasCalled (const std::type_info & nodeType);
 
 	/* Parameter node.
 	 */
@@ -74,12 +78,18 @@ namespace DF {
 		template <typename... Args> static std::shared_ptr<Parameter<T>> create (Args &&... args) {
 			return std::make_shared<Parameter<T>> (std::forward<Args> (args)...);
 		}
-	};
-	template <typename T> using ParameterRef = std::shared_ptr<Parameter<T>>;
 
-	// Specializations in DataFlowNumeric
-	template <> struct Parameter<double>;
-	// TODO try to use member specialisation
+		/* Specialisable functions.
+		 * They can be specialised for specific T types (require existing declaration).
+		 * We must provide a default version for the declaration: same as parent.
+		 */
+		std::string debugInfo () const override final { return Value<T>::debugInfo (); }
+		NodeRef derive (const Node & node) override final { return Value<T>::derive (node); }
+	};
+
+	// Specialisations in DataFlowNumeric.cpp
+	template <> std::string Parameter<double>::debugInfo () const;
+	template <> NodeRef Parameter<double>::derive (const Node & node);
 
 	/* Constant node declaration.
 	 * Definitions are in their respective headers.

@@ -42,6 +42,7 @@
 #include <Bpp/Exceptions.h> // checks
 #include <Bpp/NewPhyl/DataFlowInternalTemplates.h>
 #include <Bpp/NewPhyl/DataFlowNumeric.h>
+#include <Bpp/NewPhyl/DataFlowTemplates.h>
 #include <Bpp/NewPhyl/Debug.h> // checks
 #include <Bpp/NewPhyl/Range.h>
 #include <memory>
@@ -81,7 +82,7 @@ namespace DF {
 		}
 	} // namespace
 
-	//
+	// Debug info
 	std::string debugInfoFor (const double & d) { return std::to_string (d); }
 	std::string debugInfoFor (const MatrixDouble & m) {
 		auto s = std::string ("dim=") + dimensions (m).toString () + " props=";
@@ -119,24 +120,16 @@ namespace DF {
 		}
 	}
 
-	// ParameterDouble
-	Parameter<double>::Parameter (double d) : Value<double> (noDependency, d) { this->makeValid (); }
-	void Parameter<double>::compute () { failureComputeWasCalled (typeid (Parameter<double>)); }
-	std::string Parameter<double>::debugInfo () const { return debugInfoFor (this->accessValue ()); }
-	NodeRef Parameter<double>::derive (const Node & node) {
+	// Parameter<double>
+	template <> std::string Parameter<double>::debugInfo () const {
+		return debugInfoFor (this->accessValue ());
+	}
+	template <> NodeRef Parameter<double>::derive (const Node & node) {
 		if (&node == static_cast<const Node *> (this)) {
 			return ConstantDouble::one;
 		} else {
 			return ConstantDouble::zero;
 		}
-	}
-	void Parameter<double>::setValue (double d) {
-		this->invalidate ();
-		this->value_ = d;
-		this->makeValid ();
-	}
-	std::shared_ptr<Parameter<double>> Parameter<double>::create (double d) {
-		return std::make_shared<Parameter<double>> (d);
 	}
 
 	// AddDouble

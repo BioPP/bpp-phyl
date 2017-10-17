@@ -43,7 +43,7 @@
 #define BPP_NEWPHYL_PHYLOGENY_H
 
 #include <Bpp/NewPhyl/DataFlow.h>
-#include <Bpp/NewPhyl/DataFlowNumeric.h> // TODO rm if forward decl matrix
+#include <Bpp/NewPhyl/DataFlowNumeric.h> // Matrix types
 #include <Bpp/NewPhyl/DataFlowTemplates.h>
 #include <Bpp/NewPhyl/FrozenPtr.h>
 #include <Bpp/NewPhyl/Signed.h>

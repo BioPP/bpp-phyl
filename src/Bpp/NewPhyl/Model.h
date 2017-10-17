@@ -44,7 +44,7 @@
 #define BPP_NEWPHYL_MODEL_H
 
 #include <Bpp/NewPhyl/DataFlow.h>
-#include <Bpp/NewPhyl/DataFlowNumeric.h> // Parameter<double> & matrices
+#include <Bpp/NewPhyl/DataFlowNumeric.h> // Matrice types
 #include <Bpp/NewPhyl/DataFlowTemplates.h>
 #include <Bpp/NewPhyl/Signed.h>
 #include <memory>

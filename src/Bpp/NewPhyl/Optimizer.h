@@ -42,7 +42,7 @@
 #ifndef BPP_NEWPHYL_OPTIMIZER_H
 #define BPP_NEWPHYL_OPTIMIZER_H
 
-#include <Bpp/NewPhyl/DataFlowNumeric.h> // TODO only Templates later
+#include <Bpp/NewPhyl/DataFlowTemplates.h>
 #include <Bpp/NewPhyl/Debug.h>
 #include <Bpp/NewPhyl/Optional.h>
 #include <Bpp/Numeric/Function/Functions.h>

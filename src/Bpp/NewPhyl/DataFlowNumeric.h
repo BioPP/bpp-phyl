@@ -43,7 +43,6 @@
 #define BPP_NEWPHYL_DATAFLOWNUMERIC_H
 
 #include <Bpp/NewPhyl/DataFlow.h>
-#include <Bpp/NewPhyl/DataFlowTemplates.h>
 #include <Bpp/NewPhyl/Signed.h>
 #include <Eigen/Core>
 #include <string>
@@ -93,15 +92,6 @@ namespace DF {
 		static std::shared_ptr<ConstantDouble> zero;
 		static std::shared_ptr<ConstantDouble> one;
 		static std::shared_ptr<ConstantDouble> create (double d);
-	};
-
-	template <> struct Parameter<double> : public Value<double> {
-		Parameter (double d);
-		void compute () override final;
-		std::string debugInfo () const override final;
-		NodeRef derive (const Node & node) override final;
-		void setValue (double d);
-		static std::shared_ptr<Parameter<double>> create (double d);
 	};
 
 	struct AddDouble : public Value<double> {
