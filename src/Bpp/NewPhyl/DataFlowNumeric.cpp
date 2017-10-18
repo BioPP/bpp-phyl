@@ -67,6 +67,8 @@ namespace DF {
 			return VectorDouble::Ones (size);
 		}
 
+		bool isExactZeroVector (const VectorDouble & v) { return v == zeroVector (dimensions (v)); }
+
 		auto zeroMatrix (MatrixDimension dim) -> decltype (MatrixDouble::Zero (dim.rows, dim.cols)) {
 			return MatrixDouble::Zero (dim.rows, dim.cols);
 		}
@@ -223,6 +225,32 @@ namespace DF {
 	}
 
 	// AddVectorDouble
+	AddVectorDouble::AddVectorDouble (NodeRefVec && deps, SizeType size)
+	    : Value<VectorDouble> (std::move (deps), size) {
+		checkDependencies (*this);
+	}
+	void AddVectorDouble::compute () {
+		callWithValues (*this, [](VectorDouble & r) { r.fill (0.); },
+		                [](VectorDouble & r, const VectorDouble & m) { r += m; });
+	}
+	NodeRef AddVectorDouble::derive (const Node & node) {
+		return AddVectorDouble::create (
+		    this->dependencies ().map ([&node](const NodeRef & dep) { return dep->derive (node); }),
+		    dimensions (*this));
+	}
+	ValueRef<VectorDouble> AddVectorDouble::create (NodeRefVec && deps, SizeType size) {
+		checkDependencies<Dependencies> (deps, typeid (AddVectorDouble));
+		// Remove Os
+		removeDependenciesIf (deps, predicateIsConstantValueMatching<VectorDouble> (isExactZeroVector));
+		// Select node impl
+		if (deps.size () == 1) {
+			return convertRef<Value<VectorDouble>> (deps[0]);
+		} else if (deps.size () == 0) {
+			return ConstantVectorDouble::createZero (size);
+		} else {
+			return std::make_shared<AddVectorDouble> (std::move (deps), size);
+		}
+	}
 
 	// ConstantMatrixDouble
 	void ConstantMatrixDouble::compute () { failureComputeWasCalled (typeid (ConstantMatrixDouble)); }
