@@ -58,14 +58,14 @@ namespace Phyl {
 			model_->setNamespace ({}); // Delete namespace prefix
 			const auto & parameters = model_->getParameters ();
 			for (auto i : index_range (parameters))
-				this->appendDependency (Parameter<double>::create (parameters[i].getValue ()));
+				this->appendDependency (DF::Parameter<double>::create (parameters[i].getValue ()));
 		}
 
 		Model::~Model () = default;
 
 		SizeType Model::nbParameters () const noexcept { return this->dependencies ().size (); }
 		ParameterRef<double> Model::getParameter (SizeType index) {
-			return convertRef<bpp::DF::Parameter<double>> (this->dependencies ().at (index));
+			return convertRef<DF::Parameter<double>> (this->dependencies ().at (index));
 		}
 		ParameterRef<double> Model::getParameter (const std::string & name) {
 			return getParameter (
