@@ -65,7 +65,7 @@ namespace Phyl {
 
 		SizeType Model::nbParameters () const noexcept { return this->dependencies ().size (); }
 		ParameterRef<double> Model::getParameter (SizeType index) {
-			return convertRef<Parameter<double>> (this->dependencies ().at (index));
+			return convertRef<bpp::DF::Parameter<double>> (this->dependencies ().at (index));
 		}
 		ParameterRef<double> Model::getParameter (const std::string & name) {
 			return getParameter (

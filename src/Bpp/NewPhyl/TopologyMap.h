@@ -154,21 +154,21 @@ namespace Topology {
 	template <typename T, typename Hash = std::hash<T>>
 	class NodeIndexMap : public IndexMapBase<T, Hash> {
 	public:
-		explicit NodeIndexMap (FrozenPtr<Tree> tree)
-		    : IndexMapBase<T, Hash> (tree->nbNodes ()), tree_ (std::move (tree)) {}
-		explicit NodeIndexMap (FrozenPtr<Tree> tree, IndexMapBase<T, Hash> && map)
-		    : IndexMapBase<T, Hash> (std::move (map)), tree_ (std::move (tree)) {
+		explicit NodeIndexMap (FrozenPtr<Tree> treeArg)
+		    : IndexMapBase<T, Hash> (treeArg->nbNodes ()), tree_ (std::move (treeArg)) {}
+		explicit NodeIndexMap (FrozenPtr<Tree> treeArg, IndexMapBase<T, Hash> && map)
+		    : IndexMapBase<T, Hash> (std::move (map)), tree_ (std::move (treeArg)) {
 			assert (this->size () == tree_->nbNodes ());
 		}
 
 		using IndexMapBase<T, Hash>::set;
 		using IndexMapBase<T, Hash>::access;
 		using IndexMapBase<T, Hash>::index;
-		template <typename... Args> void set (const Node & node, Args &&... args) {
-			set (node.nodeId (), std::forward<Args> (args)...);
+		template <typename... Args> void set (const Node & nodeArg, Args &&... args) {
+			set (nodeArg.nodeId (), std::forward<Args> (args)...);
 		}
-		const Optional<const T> & access (const Node & node) const noexcept {
-			return access (node.nodeId ());
+		const Optional<const T> & access (const Node & nodeArg) const noexcept {
+			return access (nodeArg.nodeId ());
 		}
 		Optional<Node> node (const T & value) const noexcept {
 			return index (value).map ([this](Index id) { return Node{tree_, id}; });
@@ -182,20 +182,20 @@ namespace Topology {
 	template <typename T, typename Hash = std::hash<T>>
 	class BranchIndexMap : public IndexMapBase<T, Hash> {
 	public:
-		explicit BranchIndexMap (FrozenPtr<Tree> tree)
-		    : IndexMapBase<T, Hash> (tree->nbBranches ()), tree_ (std::move (tree)) {}
-		explicit BranchIndexMap (FrozenPtr<Tree> tree, IndexMapBase<T, Hash> && map)
-		    : IndexMapBase<T, Hash> (std::move (map)), tree_ (std::move (tree)) {
+		explicit BranchIndexMap (FrozenPtr<Tree> treeArg)
+		    : IndexMapBase<T, Hash> (treeArg->nbBranches ()), tree_ (std::move (treeArg)) {}
+		explicit BranchIndexMap (FrozenPtr<Tree> treeArg, IndexMapBase<T, Hash> && map)
+		    : IndexMapBase<T, Hash> (std::move (map)), tree_ (std::move (treeArg)) {
 			assert (this->size () == tree_->nbBranches ());
 		}
 		using IndexMapBase<T, Hash>::set;
 		using IndexMapBase<T, Hash>::access;
 		using IndexMapBase<T, Hash>::index;
-		template <typename... Args> void set (const Branch & branch, Args &&... args) {
-			set (branch.branchId (), std::forward<Args> (args)...);
+		template <typename... Args> void set (const Branch & branchArg, Args &&... args) {
+			set (branchArg.branchId (), std::forward<Args> (args)...);
 		}
-		const Optional<const T> & access (const Branch & branch) const noexcept {
-			return access (branch.branchId ());
+		const Optional<const T> & access (const Branch & branchArg) const noexcept {
+			return access (branchArg.branchId ());
 		}
 		Optional<Branch> branch (const T & value) const noexcept {
 			return index (value).map ([this](Index id) { return Branch{tree_, id}; });

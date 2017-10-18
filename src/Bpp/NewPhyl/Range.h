@@ -107,7 +107,7 @@ namespace Range {
 		 * For simplicity, has value semantics and should be passed by value.
 		 */
 	public:
-		constexpr Base (It begin, It end) noexcept : begin_ (begin), end_ (end) {}
+		constexpr Base (It beginArg, It endArg) noexcept : begin_ (beginArg), end_ (endArg) {}
 
 		constexpr It begin () const noexcept { return begin_; }
 		constexpr It end () const noexcept { return end_; }

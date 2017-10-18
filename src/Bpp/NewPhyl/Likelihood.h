@@ -64,8 +64,8 @@ namespace Phyl {
 
 	// defines a MatrixDimension compatible struct.
 	struct LikelihoodDataDimension : public DF::MatrixDimension {
-		constexpr LikelihoodDataDimension (SizeType nbSites, SizeType nbStates) noexcept
-		    : DF::MatrixDimension (nbStates, nbSites) {}
+		constexpr LikelihoodDataDimension (SizeType nbSitesArg, SizeType nbStatesArg) noexcept
+		    : DF::MatrixDimension (nbStatesArg, nbSitesArg) {}
 		constexpr LikelihoodDataDimension (const DF::MatrixDimension & matDim) noexcept
 		    : DF::MatrixDimension (matDim) {}
 
