@@ -68,7 +68,7 @@ namespace Topology {
 	 */
 	template <typename T> class ValueMapBase {
 	public:
-		explicit ValueMapBase (SizeType size) : data_ (size) {}
+		explicit ValueMapBase (SizeType sizeArg) : data_ (sizeArg) {}
 
 		Optional<T> & access (Index id) noexcept { return data_[id]; }
 		const Optional<T> & access (Index id) const noexcept { return data_[id]; }
@@ -91,9 +91,10 @@ namespace Topology {
 	 */
 	template <typename T, typename Hash = std::hash<T>> class IndexMapBase {
 	public:
-		explicit IndexMapBase (SizeType size)
-		    : valueMap_ (size),
-		      indexMap_ (static_cast<typename std::unordered_map<T, Index, Hash>::size_type> (size)) {}
+		explicit IndexMapBase (SizeType sizeArg)
+		    : valueMap_ (sizeArg),
+		      indexMap_ (
+		          static_cast<typename std::unordered_map<T, Index, Hash>::size_type> (sizeArg)) {}
 
 		template <typename... Args> void set (Index id, Args &&... args) {
 			auto & opt = valueMap_.access (id);

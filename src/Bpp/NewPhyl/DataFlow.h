@@ -83,8 +83,8 @@ namespace DF {
 		virtual ~Node (); // Deregisters from dependencies
 
 		// Sets dependencies + register
-		Node (const NodeRefVec & dependencies);
-		Node (NodeRefVec && dependencies);
+		Node (const NodeRefVec & dependenciesArg);
+		Node (NodeRefVec && dependenciesArg);
 
 		// Accessors
 		const Vector<Node *> & dependentNodes () const noexcept { return dependentNodes_; }

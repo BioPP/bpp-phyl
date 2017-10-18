@@ -76,13 +76,12 @@ namespace DF {
 		return !(lhs == rhs);
 	}
 
-	SizeType dimensions (const VectorDouble & v) noexcept { return v.rows (); }
-	MatrixDimension dimensions (const MatrixDouble & m) noexcept {
+	inline SizeType dimensions (const VectorDouble & v) noexcept { return v.rows (); }
+	inline MatrixDimension dimensions (const MatrixDouble & m) noexcept {
 		return {m.rows (), m.cols ()};
 	}
 	template <typename T>
-	auto dimensions (const Value<T> & node) noexcept
-	    -> decltype (dimensions (node.accessValue ())) {
+	auto dimensions (const Value<T> & node) noexcept -> decltype (dimensions (node.accessValue ())) {
 		return dimensions (node.accessValue ());
 	}
 

@@ -135,8 +135,8 @@ namespace Topology {
 	 */
 	class Node {
 	public:
-		Node (FrozenPtr<Tree> tree, Index nodeId) noexcept
-		    : tree_ (std::move (tree)), nodeId_ (nodeId) {}
+		Node (FrozenPtr<Tree> treeArg, Index nodeIdArg) noexcept
+		    : tree_ (std::move (treeArg)), nodeId_ (nodeIdArg) {}
 
 		Index nodeId () const noexcept { return nodeId_; }
 		Index fatherBranchId () const { return tree_->nodeFatherBranch (nodeId ()); }
@@ -163,8 +163,8 @@ namespace Topology {
 
 	class Branch {
 	public:
-		Branch (FrozenPtr<Tree> tree, Index branchId) noexcept
-		    : tree_ (std::move (tree)), branchId_ (branchId) {}
+		Branch (FrozenPtr<Tree> treeArg, Index branchIdArg) noexcept
+		    : tree_ (std::move (treeArg)), branchId_ (branchIdArg) {}
 
 		Index branchId () const noexcept { return branchId_; }
 		Index fatherNodeId () const { return tree_->branchFatherNode (branchId ()); }
