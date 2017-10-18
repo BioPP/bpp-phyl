@@ -49,14 +49,6 @@
 
 namespace bpp {
 namespace Phyl {
-	// Utils
-	namespace {
-		std::string likelihoodDataDebugInfo (const DF::MatrixDouble & data) {
-			auto dim = LikelihoodDataDimension (DF::dimensions (data));
-			return DF::debugInfoFor (data) + " " + dim.toString ();
-		}
-	} // namespace
-
 	std::string LikelihoodDataDimension::toString () const {
 		return "(sites=" + std::to_string (nbSites ()) + ",states=" + std::to_string (nbStates ()) +
 		       ")";
@@ -91,7 +83,9 @@ namespace Phyl {
 			});
 		}
 		std::string ConditionalLikelihoodFromSequence::debugInfo () const {
-			return likelihoodDataDebugInfo (this->accessValue ());
+			// TODO add a common LikelihoodDataValue class that overrides this
+			auto dim = LikelihoodDataDimension (dimensions (*this));
+			return Value<MatrixDouble>::debugInfo () + " " + dim.toString ();
 		}
 		NodeRef ConditionalLikelihoodFromSequence::derive (const Node &) {
 			// Sequence is a constant with respect to all parameters.
@@ -118,7 +112,7 @@ namespace Phyl {
 			});
 		}
 		std::string Likelihood::debugInfo () const {
-			return "nbSites=" + std::to_string (this->accessValue ().rows ());
+			return "nbSites=" + std::to_string (dimensions (*this));
 		}
 		std::shared_ptr<Likelihood> Likelihood::create (NodeRefVec && deps, SizeType nbSites) {
 			return std::make_shared<Likelihood> (std::move (deps), nbSites);
@@ -149,9 +143,6 @@ namespace Phyl {
 				               });
 				logLik = log (lik);
 			});
-		}
-		std::string TotalLogLikelihood::debugInfo () const {
-			return debugInfoFor (this->accessValue ());
 		}
 		std::shared_ptr<TotalLogLikelihood> TotalLogLikelihood::create (NodeRefVec && deps) {
 			return std::make_shared<TotalLogLikelihood> (std::move (deps));

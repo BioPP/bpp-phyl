@@ -64,10 +64,10 @@ namespace DF {
 
 	/* Base Node class.
 	 * Abstract : compute() needs to be defined to the actual computation.
-   * It is supposed to be used with std::shared_ptr for node class ownership.
-   *
+	 * It is supposed to be used with std::shared_ptr for node class ownership.
+	 *
 	 * TODO determine what to remove from the class API (computeRecursively ?)
-   * TODO move most stuff to protected, use an InternalAccessor ?
+	 * TODO move most stuff to protected, use an InternalAccessor ?
 	 *
 	 * All node implementation classes are supposed to provide a create() static function.
 	 * This function should return a shared_ptr<?> pointing to a node with the requested value.
@@ -161,6 +161,12 @@ namespace DF {
 			return accessValue ();
 		}
 
+		/* Specialisable functions.
+		 * They can be specialised for specific T types (require existing declaration).
+		 * We must provide a default version for the declaration: same as parent.
+		 */
+		std::string debugInfo () const override { return Node::debugInfo (); }
+
 	protected:
 		T value_;
 
@@ -177,7 +183,7 @@ namespace DF {
 	template <typename T> struct ReductionOfValue {};        // Dynamic sized list of Value<T>
 	template <typename... Types> struct FunctionOfValues {}; // Tuple of Value<T0>, Value<T1>, ...
 
-  // Error function
+	// Error function
 	[[noreturn]] void failureNodeConversion (const std::type_info & handleType, const Node & node);
 
 	// Convert handles with check

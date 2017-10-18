@@ -56,9 +56,10 @@ namespace DF {
 	using VectorDouble = Eigen::VectorXd;
 	using MatrixDouble = Eigen::MatrixXd;
 
-	// Debug info
-	std::string debugInfoFor (const double & d);
-	std::string debugInfoFor (const MatrixDouble & m);
+	// Debug info defined as overrides by types
+	template <> std::string Value<double>::debugInfo () const;
+	template <> std::string Value<VectorDouble>::debugInfo () const;
+	template <> std::string Value<MatrixDouble>::debugInfo () const;
 
 	// Dimensions
 	struct MatrixDimension {
@@ -74,10 +75,14 @@ namespace DF {
 	constexpr bool operator!= (const MatrixDimension & lhs, const MatrixDimension & rhs) noexcept {
 		return !(lhs == rhs);
 	}
-	inline MatrixDimension dimensions (const MatrixDouble & m) noexcept {
+
+	constexpr SizeType dimensions (const VectorDouble & v) noexcept { return v.rows (); }
+	constexpr MatrixDimension dimensions (const MatrixDouble & m) noexcept {
 		return {m.rows (), m.cols ()};
 	}
-	inline MatrixDimension dimensions (const Value<MatrixDouble> & node) noexcept {
+	template <typename T>
+	constexpr auto dimensions (const Value<T> & node) noexcept
+	    -> decltype (dimensions (node.accessValue ())) {
 		return dimensions (node.accessValue ());
 	}
 
@@ -86,7 +91,6 @@ namespace DF {
 	struct ConstantDouble : public Value<double> {
 		ConstantDouble (double d);
 		void compute () override final;
-		std::string debugInfo () const override final;
 		bool isConstant () const override final;
 		NodeRef derive (const Node &) override final;
 		static std::shared_ptr<ConstantDouble> zero;
@@ -98,7 +102,6 @@ namespace DF {
 		using Dependencies = ReductionOfValue<double>;
 		AddDouble (NodeRefVec && deps);
 		void compute () override final;
-		std::string debugInfo () const override final;
 		NodeRef derive (const Node & node) override final;
 		static ValueRef<double> create (NodeRefVec && deps);
 	};
@@ -107,9 +110,33 @@ namespace DF {
 		using Dependencies = ReductionOfValue<double>;
 		MulDouble (NodeRefVec && deps);
 		void compute () override final;
-		std::string debugInfo () const override final;
 		NodeRef derive (const Node & node) override final;
 		static ValueRef<double> create (NodeRefVec && deps);
+	};
+
+	/* Vector nodes.
+	 */
+	struct ConstantVectorDouble : public Value<VectorDouble> {
+		template <typename Derived>
+		ConstantVectorDouble (const Eigen::EigenBase<Derived> & expr)
+		    : Value<VectorDouble> (noDependency, expr) {
+			this->makeValid ();
+		}
+		void compute () override final;
+		NodeRef derive (const Node & node) override final;
+		template <typename Derived>
+		static std::shared_ptr<ConstantVectorDouble> create (const Eigen::EigenBase<Derived> & expr) {
+			return std::make_shared<ConstantVectorDouble> (expr);
+		}
+		static std::shared_ptr<ConstantVectorDouble> createZero (SizeType size);
+	};
+
+	struct AddVectorDouble : public Value<VectorDouble> {
+		using Dependencies = ReductionOfValue<VectorDouble>;
+		AddVectorDouble (NodeRefVec && deps, SizeType size);
+		void compute () override final;
+		NodeRef derive (const Node & node) override final;
+		static ValueRef<VectorDouble> create (NodeRefVec && deps, SizeType size);
 	};
 
 	/* Matrix nodes.
@@ -121,7 +148,6 @@ namespace DF {
 			this->makeValid ();
 		}
 		void compute () override final;
-		std::string debugInfo () const override final;
 		NodeRef derive (const Node & node) override final;
 		template <typename Derived>
 		static std::shared_ptr<ConstantMatrixDouble> create (const Eigen::EigenBase<Derived> & expr) {
@@ -134,7 +160,6 @@ namespace DF {
 		using Dependencies = ReductionOfValue<MatrixDouble>;
 		AddMatrixDouble (NodeRefVec && deps, MatrixDimension dim);
 		void compute () override final;
-		std::string debugInfo () const override final;
 		NodeRef derive (const Node & node) override final;
 		static ValueRef<MatrixDouble> create (NodeRefVec && deps, MatrixDimension dim);
 	};
@@ -143,7 +168,6 @@ namespace DF {
 		using Dependencies = FunctionOfValues<MatrixDouble, MatrixDouble>;
 		MulMatrixDouble (NodeRefVec && deps, MatrixDimension dim);
 		void compute () override final;
-		std::string debugInfo () const override;
 		NodeRef derive (const Node & node) override final;
 		static ValueRef<MatrixDouble> create (NodeRefVec && deps, MatrixDimension dim);
 		static ValueRef<MatrixDouble> create (ValueRef<MatrixDouble> lhs, ValueRef<MatrixDouble> rhs,
@@ -154,7 +178,6 @@ namespace DF {
 		using Dependencies = ReductionOfValue<MatrixDouble>;
 		CWiseMulMatrixDouble (NodeRefVec && deps, MatrixDimension dim);
 		void compute () override final;
-		std::string debugInfo () const override;
 		NodeRef derive (const Node & node) override final;
 		static ValueRef<MatrixDouble> create (NodeRefVec && deps, MatrixDimension dim);
 	};

@@ -118,7 +118,6 @@ namespace Phyl {
 			using Dependencies = FunctionOfValues<VectorDouble>;
 			TotalLogLikelihood (NodeRefVec && deps);
 			void compute () override final;
-			std::string debugInfo () const override final;
 			static std::shared_ptr<TotalLogLikelihood> create (NodeRefVec && deps);
 			static std::shared_ptr<TotalLogLikelihood> create (ValueRef<VectorDouble> likelihood);
 		};

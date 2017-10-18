@@ -110,14 +110,7 @@ namespace Phyl {
 			});
 		}
 		std::string EquilibriumFrequenciesFromModel::debugInfo () const {
-			// TODO VectorDoubledebugInfo overload in Matrix.h
-			auto & v = this->accessValue ();
-			auto s = "nbState=" + std::to_string (v.rows ()) + " props=";
-			if (v == VectorDouble::Zero (v.rows ()))
-				s += '0';
-			if (v == VectorDouble::Ones (v.rows ()))
-				s += '1';
-			return s;
+			return Value<VectorDouble>::debugInfo () + " nbState=" + std::to_string (dimensions (*this));
 		}
 		std::shared_ptr<EquilibriumFrequenciesFromModel>
 		EquilibriumFrequenciesFromModel::create (NodeRefVec && deps, SizeType nbStates) {
@@ -153,7 +146,8 @@ namespace Phyl {
 			                          double brlen) { bppToEigen (model->getPij_t (brlen), matrix); });
 		}
 		std::string TransitionMatrixFromModel::debugInfo () const {
-			return debugInfoFor (this->accessValue ());
+			return Value<MatrixDouble>::debugInfo () +
+			       " nbStates=" + std::to_string (dimensions (*this).rows);
 		}
 		std::shared_ptr<TransitionMatrixFromModel>
 		TransitionMatrixFromModel::create (NodeRefVec && deps, SizeType nbStates) {

@@ -83,12 +83,10 @@ namespace DF {
 		 * They can be specialised for specific T types (require existing declaration).
 		 * We must provide a default version for the declaration: same as parent.
 		 */
-		std::string debugInfo () const override final { return Value<T>::debugInfo (); }
 		NodeRef derive (const Node & node) override final { return Value<T>::derive (node); }
 	};
 
 	// Specialisations in DataFlowNumeric.cpp
-	template <> std::string Parameter<double>::debugInfo () const;
 	template <> NodeRef Parameter<double>::derive (const Node & node);
 
 	/* Constant node declaration.

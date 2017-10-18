@@ -51,8 +51,22 @@
 
 namespace bpp {
 namespace DF {
+	/* TODO
+	 * - opt: aggregate constants
+	 * - merge constants by type
+	 * - support for general register (reuse code in DF.cpp, declare in DFTinternal).
+	 * - opt: keep 0s instead of recreating them
+	 */
+
 	// Utils
 	namespace {
+		auto zeroVector (SizeType size) -> decltype (VectorDouble::Zero (size)) {
+			return VectorDouble::Zero (size);
+		}
+		auto onesVector (SizeType size) -> decltype (VectorDouble::Ones (size)) {
+			return VectorDouble::Ones (size);
+		}
+
 		auto zeroMatrix (MatrixDimension dim) -> decltype (MatrixDouble::Zero (dim.rows, dim.cols)) {
 			return MatrixDouble::Zero (dim.rows, dim.cols);
 		}
@@ -82,9 +96,22 @@ namespace DF {
 		}
 	} // namespace
 
-	// Debug info
-	std::string debugInfoFor (const double & d) { return std::to_string (d); }
-	std::string debugInfoFor (const MatrixDouble & m) {
+	// Debug info specialisations
+	template <> std::string Value<double>::debugInfo () const {
+		return std::to_string (this->accessValue ());
+	}
+	template <> std::string Value<VectorDouble>::debugInfo () const {
+		auto & v = this->accessValue ();
+		auto s = std::string ("size=") + std::to_string (dimensions (v)) + " props{";
+		if (isExactZeroMatrix (v))
+			s += '0';
+		if (isExactOnesMatrix (v))
+			s += '1';
+		s += "}";
+		return s;
+	}
+	template <> std::string Value<MatrixDouble>::debugInfo () const {
+		auto & m = this->accessValue ();
 		auto s = std::string ("dim") + dimensions (m).toString () + " props{";
 		if (isExactZeroMatrix (m))
 			s += '0';
@@ -101,12 +128,20 @@ namespace DF {
 		return "(" + std::to_string (rows) + "," + std::to_string (cols) + ")";
 	}
 
+	// Parameter specialisations
+	template <> NodeRef Parameter<double>::derive (const Node & node) {
+		if (&node == static_cast<const Node *> (this)) {
+			return ConstantDouble::one;
+		} else {
+			return ConstantDouble::zero;
+		}
+	}
+
 	// ConstantDouble
 	ConstantDouble::ConstantDouble (double d) : Value<double> (noDependency, d) {
 		this->makeValid ();
 	}
 	void ConstantDouble::compute () { failureComputeWasCalled (typeid (ConstantDouble)); }
-	std::string ConstantDouble::debugInfo () const { return debugInfoFor (this->accessValue ()); }
 	bool ConstantDouble::isConstant () const { return true; }
 	NodeRef ConstantDouble::derive (const Node &) { return zero; }
 	std::shared_ptr<ConstantDouble> ConstantDouble::zero = std::make_shared<ConstantDouble> (0.);
@@ -121,18 +156,6 @@ namespace DF {
 		}
 	}
 
-	// Parameter<double>
-	template <> std::string Parameter<double>::debugInfo () const {
-		return debugInfoFor (this->accessValue ());
-	}
-	template <> NodeRef Parameter<double>::derive (const Node & node) {
-		if (&node == static_cast<const Node *> (this)) {
-			return ConstantDouble::one;
-		} else {
-			return ConstantDouble::zero;
-		}
-	}
-
 	// AddDouble
 	AddDouble::AddDouble (NodeRefVec && deps) : Value<double> (std::move (deps)) {
 		checkDependencies (*this);
@@ -140,7 +163,6 @@ namespace DF {
 	void AddDouble::compute () {
 		callWithValues (*this, [](double & r) { r = 0.; }, [](double & r, double d) { r += d; });
 	}
-	std::string AddDouble::debugInfo () const { return debugInfoFor (this->accessValue ()); }
 	NodeRef AddDouble::derive (const Node & node) {
 		return AddDouble::create (
 		    this->dependencies ().map ([&node](const NodeRef & dep) { return dep->derive (node); }));
@@ -166,7 +188,6 @@ namespace DF {
 	void MulDouble::compute () {
 		callWithValues (*this, [](double & r) { r = 1.; }, [](double & r, double d) { r *= d; });
 	}
-	std::string MulDouble::debugInfo () const { return debugInfoFor (this->accessValue ()); }
 	NodeRef MulDouble::derive (const Node & node) {
 		NodeRefVec addDeps;
 		for (auto i : bpp::index_range (this->dependencies ())) {
@@ -194,11 +215,17 @@ namespace DF {
 		}
 	}
 
+	// ConstantVectorDouble
+	void ConstantVectorDouble::compute () { failureComputeWasCalled (typeid (ConstantVectorDouble)); }
+	NodeRef ConstantVectorDouble::derive (const Node &) { return createZero (dimensions (*this)); }
+	std::shared_ptr<ConstantVectorDouble> ConstantVectorDouble::createZero (SizeType size) {
+		return create (zeroVector (size));
+	}
+
+	// AddVectorDouble
+
 	// ConstantMatrixDouble
 	void ConstantMatrixDouble::compute () { failureComputeWasCalled (typeid (ConstantMatrixDouble)); }
-	std::string ConstantMatrixDouble::debugInfo () const {
-		return debugInfoFor (this->accessValue ());
-	}
 	NodeRef ConstantMatrixDouble::derive (const Node &) { return createZero (dimensions (*this)); }
 	std::shared_ptr<ConstantMatrixDouble> ConstantMatrixDouble::createZero (MatrixDimension dim) {
 		return create (zeroMatrix (dim));
@@ -214,7 +241,6 @@ namespace DF {
 		callWithValues (*this, [](MatrixDouble & r) { r.fill (0.); },
 		                [](MatrixDouble & r, const MatrixDouble & m) { r += m; });
 	}
-	std::string AddMatrixDouble::debugInfo () const { return debugInfoFor (this->accessValue ()); }
 	NodeRef AddMatrixDouble::derive (const Node & node) {
 		return AddMatrixDouble::create (
 		    this->dependencies ().map ([&node](const NodeRef & dep) { return dep->derive (node); }),
@@ -250,7 +276,6 @@ namespace DF {
 		callWithValues (*this, [](MatrixDouble & r, const MatrixDouble & lhs,
 		                          const MatrixDouble & rhs) { r.noalias () = lhs * rhs; });
 	}
-	std::string MulMatrixDouble::debugInfo () const { return debugInfoFor (this->accessValue ()); }
 	NodeRef MulMatrixDouble::derive (const Node & node) {
 		auto dim = dimensions (*this);
 		auto & lhs = this->dependencies ()[0];
@@ -294,9 +319,6 @@ namespace DF {
 	void CWiseMulMatrixDouble::compute () {
 		callWithValues (*this, [](MatrixDouble & r) { r.fill (1.); },
 		                [](MatrixDouble & r, const MatrixDouble & m) { r = r.cwiseProduct (m); });
-	}
-	std::string CWiseMulMatrixDouble::debugInfo () const {
-		return debugInfoFor (this->accessValue ());
 	}
 	NodeRef CWiseMulMatrixDouble::derive (const Node & node) {
 		auto dim = dimensions (*this);
