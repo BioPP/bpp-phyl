@@ -113,6 +113,14 @@ namespace DF {
 		static ValueRef<double> create (NodeRefVec && deps);
 	};
 
+  struct ScalarProdDouble : public Value<double> {
+    using Dependencies = FunctionOfValues<VectorDouble, VectorDouble>;
+    ScalarProdDouble (NodeRefVec && deps);
+    void compute () override final;
+		NodeRef derive (const Node & node) override final;
+		static ValueRef<double> create (NodeRefVec && deps);
+  };
+
 	/* Vector nodes.
 	 */
 	struct ConstantVectorDouble : public Value<VectorDouble> {
@@ -137,6 +145,7 @@ namespace DF {
 		NodeRef derive (const Node & node) override final;
 		static ValueRef<VectorDouble> create (NodeRefVec && deps, SizeType size);
 	};
+
 
 	/* Matrix nodes.
 	 */

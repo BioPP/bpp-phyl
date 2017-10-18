@@ -61,15 +61,10 @@ namespace DF {
 
 	// Utils
 	namespace {
+		// Constant builders
 		auto zeroVector (SizeType size) -> decltype (VectorDouble::Zero (size)) {
 			return VectorDouble::Zero (size);
 		}
-		auto onesVector (SizeType size) -> decltype (VectorDouble::Ones (size)) {
-			return VectorDouble::Ones (size);
-		}
-
-		bool isExactZeroVector (const VectorDouble & v) { return v == zeroVector (dimensions (v)); }
-
 		auto zeroMatrix (MatrixDimension dim) -> decltype (MatrixDouble::Zero (dim.rows, dim.cols)) {
 			return MatrixDouble::Zero (dim.rows, dim.cols);
 		}
@@ -77,12 +72,24 @@ namespace DF {
 			return MatrixDouble::Ones (dim.rows, dim.cols);
 		}
 
+		// Constant checking predicate (const T & -> bool)
+		bool isExactZeroVector (const VectorDouble & v) { return v == zeroVector (dimensions (v)); }
 		bool isExactZeroMatrix (const MatrixDouble & m) { return m == zeroMatrix (dimensions (m)); }
 		bool isExactOnesMatrix (const MatrixDouble & m) { return m == onesMatrix (dimensions (m)); }
 		bool isExactIdentityMatrix (const MatrixDouble & m) {
 			return m.rows () == m.cols () && m == MatrixDouble::Identity (m.rows (), m.cols ());
 		}
 
+		// Constant node checking predicates (const NodeRef & -> bool)
+		auto isConstantZeroDouble = predicateIsConstantValueMatching<double> (0.);
+		auto isConstantOneDouble = predicateIsConstantValueMatching<double> (1.);
+		auto isConstantZeroVector = predicateIsConstantValueMatching<VectorDouble> (isExactZeroVector);
+		auto isConstantZeroMatrix = predicateIsConstantValueMatching<MatrixDouble> (isExactZeroMatrix);
+		auto isConstantOnesMatrix = predicateIsConstantValueMatching<MatrixDouble> (isExactOnesMatrix);
+		auto isConstantIdentityMatrix =
+		    predicateIsConstantValueMatching<MatrixDouble> (isExactIdentityMatrix);
+
+		// Matrix dimension checking TODO drop ?
 		void checkDepsHaveRequiredDimension (const std::type_info & inNodeType, const NodeRefVec & deps,
 		                                     MatrixDimension dim) {
 			for (auto i : index_range (deps)) {
@@ -173,7 +180,7 @@ namespace DF {
 	ValueRef<double> AddDouble::create (NodeRefVec && deps) {
 		checkDependencies<Dependencies> (deps, typeid (AddDouble));
 		// Remove '0s' from deps
-		removeDependenciesIf (deps, predicateIsConstantValueMatching<double> (0.));
+		removeDependenciesIf (deps, isConstantZeroDouble);
 		// Node choice
 		if (deps.size () == 1) {
 			return convertRef<Value<double>> (deps[0]);
@@ -203,11 +210,11 @@ namespace DF {
 	ValueRef<double> MulDouble::create (NodeRefVec && deps) {
 		checkDependencies<Dependencies> (deps, typeid (MulDouble));
 		// Return 0 if any dep is 0
-		if (std::any_of (deps.begin (), deps.end (), predicateIsConstantValueMatching<double> (0.))) {
+		if (std::any_of (deps.begin (), deps.end (), isConstantZeroDouble)) {
 			return ConstantDouble::zero;
 		}
 		// Remove any 1s
-		removeDependenciesIf (deps, predicateIsConstantValueMatching<double> (1.));
+		removeDependenciesIf (deps, isConstantOneDouble);
 		// Node choice
 		if (deps.size () == 1) {
 			return convertRef<Value<double>> (deps[0]);
@@ -216,6 +223,33 @@ namespace DF {
 		} else {
 			return std::make_shared<MulDouble> (std::move (deps));
 		}
+	}
+
+	// ScalarProdDouble
+	ScalarProdDouble::ScalarProdDouble (NodeRefVec && deps) : Value<double> (std::move (deps)) {
+		checkDependencies (*this);
+	}
+	void ScalarProdDouble::compute () {
+		callWithValues (*this, [](double & r, const VectorDouble & lhs, const VectorDouble & rhs) {
+			r = lhs.dot (rhs);
+		});
+	}
+	NodeRef ScalarProdDouble::derive (const Node & node) {
+		auto & lhs = this->dependencies ()[0];
+		auto & rhs = this->dependencies ()[1];
+		auto dLhs = ScalarProdDouble::create (NodeRefVec{lhs->derive (node), rhs});
+		auto dRhs = ScalarProdDouble::create (NodeRefVec{lhs, rhs->derive (node)});
+		return AddDouble::create (NodeRefVec{std::move (dLhs), std::move (dRhs)});
+	}
+	ValueRef<double> ScalarProdDouble::create (NodeRefVec && deps) {
+		checkDependencies<Dependencies> (deps, typeid (ScalarProdDouble));
+		auto & lhs = deps[0];
+		auto & rhs = deps[1];
+		// Return 0 if any dep is 0
+		if (isConstantZeroVector (lhs) || isConstantZeroVector (rhs)) {
+			return ConstantDouble::zero;
+		}
+		return std::make_shared<ScalarProdDouble> (std::move (deps));
 	}
 
 	// ConstantVectorDouble
@@ -242,7 +276,7 @@ namespace DF {
 	ValueRef<VectorDouble> AddVectorDouble::create (NodeRefVec && deps, SizeType size) {
 		checkDependencies<Dependencies> (deps, typeid (AddVectorDouble));
 		// Remove Os
-		removeDependenciesIf (deps, predicateIsConstantValueMatching<VectorDouble> (isExactZeroVector));
+		removeDependenciesIf (deps, isConstantZeroVector);
 		// Select node impl
 		if (deps.size () == 1) {
 			return convertRef<Value<VectorDouble>> (deps[0]);
@@ -278,7 +312,7 @@ namespace DF {
 	ValueRef<MatrixDouble> AddMatrixDouble::create (NodeRefVec && deps, MatrixDimension dim) {
 		checkDependencies<Dependencies> (deps, typeid (AddMatrixDouble));
 		// Remove Os
-		removeDependenciesIf (deps, predicateIsConstantValueMatching<MatrixDouble> (isExactZeroMatrix));
+		removeDependenciesIf (deps, isConstantZeroMatrix);
 		// Select node impl
 		if (deps.size () == 1) {
 			return convertRef<Value<MatrixDouble>> (deps[0]);
@@ -293,13 +327,6 @@ namespace DF {
 	MulMatrixDouble::MulMatrixDouble (NodeRefVec && deps, MatrixDimension dim)
 	    : Value<MatrixDouble> (std::move (deps), dim.rows, dim.cols) {
 		checkDependencies (*this);
-		// TODO extract as func & improve
-		auto & lhs = accessValueUncheckedCast<MatrixDouble> (*this->dependencies ()[0]);
-		auto & rhs = accessValueUncheckedCast<MatrixDouble> (*this->dependencies ()[1]);
-		if (!(lhs.cols () == rhs.rows () && lhs.rows () == dim.rows && rhs.cols () == dim.cols))
-			throw Exception (prettyTypeName<MulMatrixDouble> () +
-			                 ": matrix size mismatch: " + dimensions (lhs).toString () + " * " +
-			                 dimensions (rhs).toString () + " = " + dimensions (*this).toString ());
 	}
 	void MulMatrixDouble::compute () {
 		callWithValues (*this, [](MatrixDouble & r, const MatrixDouble & lhs,
@@ -309,16 +336,12 @@ namespace DF {
 		auto dim = dimensions (*this);
 		auto & lhs = this->dependencies ()[0];
 		auto & rhs = this->dependencies ()[1];
-		auto lhsDerived = MulMatrixDouble::create (NodeRefVec{lhs->derive (node), rhs}, dim);
-		auto rhsDerived = MulMatrixDouble::create (NodeRefVec{lhs, rhs->derive (node)}, dim);
-		return AddMatrixDouble::create (NodeRefVec{std::move (lhsDerived), std::move (rhsDerived)},
-		                                dim);
+		auto dLhs = MulMatrixDouble::create (NodeRefVec{lhs->derive (node), rhs}, dim);
+		auto dRhs = MulMatrixDouble::create (NodeRefVec{lhs, rhs->derive (node)}, dim);
+		return AddMatrixDouble::create (NodeRefVec{std::move (dLhs), std::move (dRhs)}, dim);
 	}
 	ValueRef<MatrixDouble> MulMatrixDouble::create (NodeRefVec && deps, MatrixDimension dim) {
 		checkDependencies<Dependencies> (deps, typeid (MulMatrixDouble));
-		auto isConstantZeroMatrix = predicateIsConstantValueMatching<MatrixDouble> (isExactZeroMatrix);
-		auto isConstantIdentityMatrix =
-		    predicateIsConstantValueMatching<MatrixDouble> (isExactIdentityMatrix);
 		auto & lhs = deps[0];
 		auto & rhs = deps[1];
 		// Return O if any matrix is 0
@@ -362,12 +385,11 @@ namespace DF {
 	ValueRef<MatrixDouble> CWiseMulMatrixDouble::create (NodeRefVec && deps, MatrixDimension dim) {
 		checkDependencies<Dependencies> (deps, typeid (CWiseMulMatrixDouble));
 		// Return 0 if any 0 dep
-		if (std::any_of (deps.begin (), deps.end (),
-		                 predicateIsConstantValueMatching<MatrixDouble> (isExactZeroMatrix))) {
+		if (std::any_of (deps.begin (), deps.end (), isConstantZeroMatrix)) {
 			return ConstantMatrixDouble::createZero (dim);
 		}
 		// Remove 1s
-		removeDependenciesIf (deps, predicateIsConstantValueMatching<MatrixDouble> (isExactOnesMatrix));
+		removeDependenciesIf (deps, isConstantOnesMatrix);
 		// Select node
 		if (deps.size () == 1) {
 			return convertRef<Value<MatrixDouble>> (deps[0]);
@@ -383,8 +405,6 @@ namespace DF {
 	                                                                  SizeType size)
 	    : Value<VectorDouble> (std::move (deps), size) {
 		checkDependencies (*this);
-		// TODO extract as func & improve (std::tie on checkDeps ?)
-		// FIXME size check... or move to deduced sizes ?
 	}
 	void MulTransposedMatrixVectorDouble::compute () {
 		callWithValues (*this, [](VectorDouble & r, const MatrixDouble & lhs,
@@ -394,18 +414,13 @@ namespace DF {
 		auto dim = dimensions (*this);
 		auto & lhs = this->dependencies ()[0];
 		auto & rhs = this->dependencies ()[1];
-		auto lhsDerived =
-		    MulTransposedMatrixVectorDouble::create (NodeRefVec{lhs->derive (node), rhs}, dim);
-		auto rhsDerived =
-		    MulTransposedMatrixVectorDouble::create (NodeRefVec{lhs, rhs->derive (node)}, dim);
-		return AddVectorDouble::create (NodeRefVec{std::move (lhsDerived), std::move (rhsDerived)},
-		                                dim);
+		auto dLhs = MulTransposedMatrixVectorDouble::create (NodeRefVec{lhs->derive (node), rhs}, dim);
+		auto dRhs = MulTransposedMatrixVectorDouble::create (NodeRefVec{lhs, rhs->derive (node)}, dim);
+		return AddVectorDouble::create (NodeRefVec{std::move (dLhs), std::move (dRhs)}, dim);
 	}
 	ValueRef<VectorDouble> MulTransposedMatrixVectorDouble::create (NodeRefVec && deps,
 	                                                                SizeType size) {
 		checkDependencies<Dependencies> (deps, typeid (MulTransposedMatrixVectorDouble));
-		auto isConstantZeroMatrix = predicateIsConstantValueMatching<MatrixDouble> (isExactZeroMatrix);
-		auto isConstantZeroVector = predicateIsConstantValueMatching<MatrixDouble> (isExactZeroVector);
 		auto & lhs = deps[0];
 		auto & rhs = deps[1];
 		// Return O if any matrix is 0
