@@ -143,7 +143,7 @@ namespace DF {
 		using Dependencies = FunctionOfValues<MatrixDouble, MatrixDouble>;
 		MulMatrixDouble (NodeRefVec && deps, MatrixDimension dim);
 		void compute () override final;
-		std::string debugInfo () const override final;
+		std::string debugInfo () const override;
 		NodeRef derive (const Node & node) override final;
 		static ValueRef<MatrixDouble> create (NodeRefVec && deps, MatrixDimension dim);
 		static ValueRef<MatrixDouble> create (ValueRef<MatrixDouble> lhs, ValueRef<MatrixDouble> rhs,
@@ -154,7 +154,7 @@ namespace DF {
 		using Dependencies = ReductionOfValue<MatrixDouble>;
 		CWiseMulMatrixDouble (NodeRefVec && deps, MatrixDimension dim);
 		void compute () override final;
-		std::string debugInfo () const override final;
+		std::string debugInfo () const override;
 		NodeRef derive (const Node & node) override final;
 		static ValueRef<MatrixDouble> create (NodeRefVec && deps, MatrixDimension dim);
 	};

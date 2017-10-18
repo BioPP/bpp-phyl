@@ -49,14 +49,22 @@
 
 namespace bpp {
 namespace Phyl {
+	// Utils
+	namespace {
+		std::string likelihoodDataDebugInfo (const DF::MatrixDouble & data) {
+			auto dim = LikelihoodDataDimension (DF::dimensions (data));
+			return DF::debugInfoFor (data) + " " + dim.toString ();
+		}
+	} // namespace
+
 	std::string LikelihoodDataDimension::toString () const {
 		return "(sites=" + std::to_string (nbSites ()) + ",states=" + std::to_string (nbStates ()) +
 		       ")";
 	}
 
 	namespace DF {
-		ConditionalLikelihoodFromSequence::ConditionalLikelihoodFromSequence (NodeRefVec && deps,
-		                                                                      MatrixDimension dim)
+		ConditionalLikelihoodFromSequence::ConditionalLikelihoodFromSequence (
+		    NodeRefVec && deps, LikelihoodDataDimension dim)
 		    : Value<MatrixDouble> (std::move (deps), dim.rows, dim.cols) {
 			checkDependencies (*this);
 		}
@@ -83,19 +91,19 @@ namespace Phyl {
 			});
 		}
 		std::string ConditionalLikelihoodFromSequence::debugInfo () const {
-			return debugInfoFor (this->accessValue ());
+			return likelihoodDataDebugInfo (this->accessValue ());
 		}
 		NodeRef ConditionalLikelihoodFromSequence::derive (const Node &) {
 			// Sequence is a constant with respect to all parameters.
 			return ConstantMatrixDouble::createZero (dimensions (*this));
 		}
 		std::shared_ptr<ConditionalLikelihoodFromSequence>
-		ConditionalLikelihoodFromSequence::create (NodeRefVec && deps, MatrixDimension dim) {
+		ConditionalLikelihoodFromSequence::create (NodeRefVec && deps, LikelihoodDataDimension dim) {
 			return std::make_shared<ConditionalLikelihoodFromSequence> (std::move (deps), dim);
 		}
 		std::shared_ptr<ConditionalLikelihoodFromSequence>
 		ConditionalLikelihoodFromSequence::create (ValueRef<const Sequence *> sequence,
-		                                           MatrixDimension dim) {
+		                                           LikelihoodDataDimension dim) {
 			return create (NodeRefVec{std::move (sequence)}, dim);
 		}
 

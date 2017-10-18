@@ -74,25 +74,25 @@ namespace Phyl {
 		std::string toString () const;
 	};
 
-  /* TODO: <list>
-   * - wrapper classes.
-   * - take LikelihoodDataDimension as dims.
-   * - override debugInfo
-   * - externalize Likelihood as a numeric op
-   */
+	/* TODO: <list>
+	 * - wrapper classes.
+	 * - take LikelihoodDataDimension as dims.
+	 * - override debugInfo
+	 * - externalize Likelihood as a numeric op
+	 */
 
 	namespace DF {
 		struct ConditionalLikelihoodFromSequence : public DF::Value<MatrixDouble> {
 			// (sequence) -> MatrixDouble
 			using Dependencies = FunctionOfValues<const Sequence *>;
-			ConditionalLikelihoodFromSequence (NodeRefVec && deps, MatrixDimension dim);
+			ConditionalLikelihoodFromSequence (NodeRefVec && deps, LikelihoodDataDimension dim);
 			void compute () override final;
 			std::string debugInfo () const override final;
 			NodeRef derive (const Node &) override final;
-			static std::shared_ptr<ConditionalLikelihoodFromSequence> create (NodeRefVec && deps,
-			                                                                  MatrixDimension dim);
 			static std::shared_ptr<ConditionalLikelihoodFromSequence>
-			create (ValueRef<const Sequence *> sequence, MatrixDimension dim);
+			create (NodeRefVec && deps, LikelihoodDataDimension dim);
+			static std::shared_ptr<ConditionalLikelihoodFromSequence>
+			create (ValueRef<const Sequence *> sequence, LikelihoodDataDimension dim);
 		};
 
 		// vec<fwdLik> -> condLik

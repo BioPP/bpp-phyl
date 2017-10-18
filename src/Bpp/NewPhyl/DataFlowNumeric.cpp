@@ -85,13 +85,14 @@ namespace DF {
 	// Debug info
 	std::string debugInfoFor (const double & d) { return std::to_string (d); }
 	std::string debugInfoFor (const MatrixDouble & m) {
-		auto s = std::string ("dim=") + dimensions (m).toString () + " props=";
+		auto s = std::string ("dim") + dimensions (m).toString () + " props{";
 		if (isExactZeroMatrix (m))
 			s += '0';
 		if (isExactOnesMatrix (m))
 			s += '1';
 		if (isExactIdentityMatrix (m))
 			s += 'I';
+		s += "}";
 		return s;
 	}
 
