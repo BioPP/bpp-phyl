@@ -180,6 +180,18 @@ namespace DF {
 		NodeRef derive (const Node & node) override final;
 		static ValueRef<MatrixDouble> create (NodeRefVec && deps, MatrixDimension dim);
 	};
+
+	/* Combinations
+	 */
+	struct MulTransposedMatrixVectorDouble : public Value<VectorDouble> {
+		using Dependencies = FunctionOfValues<MatrixDouble, VectorDouble>;
+		MulTransposedMatrixVectorDouble (NodeRefVec && deps, SizeType size);
+		void compute () override final;
+		NodeRef derive (const Node & node) override final;
+		static ValueRef<VectorDouble> create (NodeRefVec && deps, SizeType size);
+		static ValueRef<VectorDouble> create (ValueRef<MatrixDouble> lhs, ValueRef<VectorDouble> rhs,
+		                                      SizeType type);
+	};
 } // namespace DF
 } // namespace bpp
 #endif // BPP_NEWPHYL_DATAFLOWNUMERIC_H

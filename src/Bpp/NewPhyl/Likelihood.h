@@ -82,7 +82,7 @@ namespace Phyl {
 	 */
 
 	namespace DF {
-		struct ConditionalLikelihoodFromSequence : public DF::Value<MatrixDouble> {
+		struct ConditionalLikelihoodFromSequence : public Value<MatrixDouble> {
 			// (sequence) -> MatrixDouble
 			using Dependencies = FunctionOfValues<const Sequence *>;
 			ConditionalLikelihoodFromSequence (NodeRefVec && deps, LikelihoodDataDimension dim);
@@ -101,17 +101,7 @@ namespace Phyl {
 		// (transitionMatrix, condLik) -> fwdLik
 		using ForwardLikelihoodFromChild = MulMatrixDouble;
 
-		struct Likelihood : public Value<VectorDouble> {
-			// (likelihoodData, equilibriumFrequencyVector) -> final likelihood by site
-			using Dependencies = FunctionOfValues<MatrixDouble, VectorDouble>;
-			Likelihood (NodeRefVec && deps, SizeType nbSites);
-			void compute () override final;
-			std::string debugInfo () const override final;
-			static std::shared_ptr<Likelihood> create (NodeRefVec && deps, SizeType nbSites);
-			static std::shared_ptr<Likelihood> create (ValueRef<MatrixDouble> conditionalLikelihood,
-			                                           ValueRef<VectorDouble> equilibriumFrequencies,
-			                                           SizeType nbSites);
-		};
+		using Likelihood = MulTransposedMatrixVectorDouble;
 
 		struct TotalLogLikelihood : public Value<double> {
 			// likelihood by site -> total log likelihood

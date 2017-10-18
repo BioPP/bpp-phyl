@@ -101,30 +101,6 @@ namespace Phyl {
 			return create (NodeRefVec{std::move (sequence)}, dim);
 		}
 
-		Likelihood::Likelihood (NodeRefVec && deps, SizeType nbSites)
-		    : Value<VectorDouble> (std::move (deps), nbSites) {
-			checkDependencies (*this);
-		}
-		void Likelihood::compute () {
-			callWithValues (*this, [](VectorDouble & likelihood, const MatrixDouble & condLikBySite,
-			                          const VectorDouble & equilibriumFreqs) {
-				likelihood = condLikBySite.transpose () * equilibriumFreqs;
-			});
-		}
-		std::string Likelihood::debugInfo () const {
-			return "nbSites=" + std::to_string (dimensions (*this));
-		}
-		std::shared_ptr<Likelihood> Likelihood::create (NodeRefVec && deps, SizeType nbSites) {
-			return std::make_shared<Likelihood> (std::move (deps), nbSites);
-		}
-		std::shared_ptr<Likelihood> Likelihood::create (ValueRef<MatrixDouble> conditionalLikelihood,
-		                                                ValueRef<VectorDouble> equilibriumFrequencies,
-		                                                SizeType nbSites) {
-			return create (
-			    NodeRefVec{std::move (conditionalLikelihood), std::move (equilibriumFrequencies)},
-			    nbSites);
-		}
-
 		TotalLogLikelihood::TotalLogLikelihood (NodeRefVec && deps) : Value<double> (std::move (deps)) {
 			checkDependencies (*this);
 		}

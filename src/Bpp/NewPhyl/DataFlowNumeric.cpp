@@ -56,6 +56,7 @@ namespace DF {
 	 * - merge constants by type
 	 * - support for general register (reuse code in DF.cpp, declare in DFTinternal).
 	 * - opt: keep 0s instead of recreating them
+	 * - deduce size (require 1 arg in reductions)
 	 */
 
 	// Utils
@@ -375,6 +376,49 @@ namespace DF {
 		} else {
 			return std::make_shared<CWiseMulMatrixDouble> (std::move (deps), dim);
 		}
+	}
+
+	// MulTransposedMatrixVectorDouble
+	MulTransposedMatrixVectorDouble::MulTransposedMatrixVectorDouble (NodeRefVec && deps,
+	                                                                  SizeType size)
+	    : Value<VectorDouble> (std::move (deps), size) {
+		checkDependencies (*this);
+		// TODO extract as func & improve (std::tie on checkDeps ?)
+		// FIXME size check... or move to deduced sizes ?
+	}
+	void MulTransposedMatrixVectorDouble::compute () {
+		callWithValues (*this, [](VectorDouble & r, const MatrixDouble & lhs,
+		                          const VectorDouble & rhs) { r.noalias () = lhs.transpose () * rhs; });
+	}
+	NodeRef MulTransposedMatrixVectorDouble::derive (const Node & node) {
+		auto dim = dimensions (*this);
+		auto & lhs = this->dependencies ()[0];
+		auto & rhs = this->dependencies ()[1];
+		auto lhsDerived =
+		    MulTransposedMatrixVectorDouble::create (NodeRefVec{lhs->derive (node), rhs}, dim);
+		auto rhsDerived =
+		    MulTransposedMatrixVectorDouble::create (NodeRefVec{lhs, rhs->derive (node)}, dim);
+		return AddVectorDouble::create (NodeRefVec{std::move (lhsDerived), std::move (rhsDerived)},
+		                                dim);
+	}
+	ValueRef<VectorDouble> MulTransposedMatrixVectorDouble::create (NodeRefVec && deps,
+	                                                                SizeType size) {
+		checkDependencies<Dependencies> (deps, typeid (MulTransposedMatrixVectorDouble));
+		auto isConstantZeroMatrix = predicateIsConstantValueMatching<MatrixDouble> (isExactZeroMatrix);
+		auto isConstantZeroVector = predicateIsConstantValueMatching<MatrixDouble> (isExactZeroVector);
+		auto & lhs = deps[0];
+		auto & rhs = deps[1];
+		// Return O if any matrix is 0
+		if (isConstantZeroMatrix (lhs) || isConstantZeroVector (rhs)) {
+			return ConstantVectorDouble::createZero (size);
+		}
+		// Return the other if one is identity
+		return std::make_shared<MulTransposedMatrixVectorDouble> (std::move (deps), size);
+	}
+	ValueRef<VectorDouble> MulTransposedMatrixVectorDouble::create (ValueRef<MatrixDouble> lhs,
+	                                                                ValueRef<VectorDouble> rhs,
+	                                                                SizeType size) {
+		return create (NodeRefVec{std::move (lhs), std::move (rhs)}, size);
 	}
 } // namespace DF
 } // namespace bpp
