@@ -45,6 +45,7 @@
 #include <Bpp/NewPhyl/DataFlowTemplates.h>
 #include <Bpp/NewPhyl/Debug.h>
 #include <Bpp/NewPhyl/Optional.h>
+#include <Bpp/NewPhyl/Range.h>
 #include <Bpp/Numeric/Function/Functions.h>
 #include <Bpp/Numeric/Parameter.h>
 #include <Bpp/Numeric/ParameterList.h>
@@ -186,12 +187,18 @@ public:
 			namedNodes.emplace_back (
 			    DF::NamedNodeRef{derivative.second, "d2(" + funcName + ")/d(" + derivative.first.first +
 			                                            ")d(" + derivative.first.second + ")"});
+		for (auto i : index_range (variables_))
+			namedNodes.emplace_back (
+			    DF::NamedNodeRef{getDataFlowParameter (variables_[i]), variables_[i].getName ()});
 		return namedNodes;
 	}
 
 private:
+	static const DF::ParameterRef<double> & getDataFlowParameter (const Parameter & param) {
+		return dynamic_cast<const DataFlowParameter &> (param).getDataFlowParameter ();
+	}
 	const DF::ParameterRef<double> & getDataFlowParameter (const std::string & name) const {
-		return dynamic_cast<const DataFlowParameter &> (getParameter (name)).getDataFlowParameter ();
+		return getDataFlowParameter (getParameter (name));
 	}
 };
 } // namespace bpp

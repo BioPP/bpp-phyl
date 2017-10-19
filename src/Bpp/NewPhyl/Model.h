@@ -60,7 +60,7 @@ namespace Phyl {
 		// DF Node representing a model with its parameter (wrapper to master code).
 		class Model : public Value<const SubstitutionModel *> {
 		public:
-			Model (std::unique_ptr<SubstitutionModel> && model);
+			Model (std::unique_ptr<SubstitutionModel> model);
 			~Model ();
 
 			SizeType nbParameters () const noexcept;
@@ -72,7 +72,7 @@ namespace Phyl {
 			std::string description () const override final;
 			std::string debugInfo () const override final;
 
-			static std::shared_ptr<Model> create (std::unique_ptr<SubstitutionModel> && model);
+			static std::shared_ptr<Model> create (std::unique_ptr<SubstitutionModel> model);
 
 		private:
 			std::unique_ptr<SubstitutionModel> model_;

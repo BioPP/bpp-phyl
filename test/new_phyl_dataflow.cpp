@@ -45,6 +45,7 @@
 #define ENABLE_OLD
 #define ENABLE_NEW
 #define ENABLE_DF
+#define NO_WARMUP
 
 // Common stuff
 #include <Bpp/NewPhyl/Range.h>
@@ -54,7 +55,6 @@
 #include <Bpp/Phyl/Tree/TreeTemplate.h>
 #include <Bpp/Seq/Alphabet/AlphabetTools.h>
 #include <Bpp/Seq/Container/VectorSiteContainer.h>
-#include <Eigen/Dense>
 #include <chrono>
 #include <fstream>
 
@@ -75,7 +75,9 @@
 #include <Bpp/NewPhyl/ImportMaster.h>
 #include <Bpp/NewPhyl/ImportNewlik.h>
 #include <Bpp/NewPhyl/Model.h>
+#include <Bpp/NewPhyl/Optimizer.h>
 #include <Bpp/NewPhyl/Phylogeny.h>
+#include <Bpp/NewPhyl/Range.h>
 #endif
 
 namespace
@@ -106,10 +108,10 @@ namespace
     timingEnd(ts, timePrefix);
   }
   template<typename Lik>
-  void do_param_changes_multiple_times_legacy(Lik& llh,
-                                              const std::string& timePrefix,
-                                              const bpp::ParameterList& p1,
-                                              const bpp::ParameterList& p2)
+  void do_param_changes_multiple_times(Lik& llh,
+                                       const std::string& timePrefix,
+                                       const bpp::ParameterList& p1,
+                                       const bpp::ParameterList& p2)
   {
     llh.matchParametersValues(p1);
     printLik(llh.getValue(), timePrefix);
@@ -123,26 +125,6 @@ namespace
       llh.getValue();
     });
   }
-#ifdef ENABLE_DF
-  void do_param_changes_multiple_times_df(const bpp::DF::ValueRef<double>& lik,
-                                          const std::string& timePrefix,
-                                          bpp::DF::ParameterRef<double> param,
-                                          double v1,
-                                          double v2)
-  {
-    param->setValue(v1);
-    printLik(lik->getValue(), timePrefix);
-    param->setValue(v2);
-    printLik(lik->getValue(), timePrefix);
-
-    do_func_multiple_times(timePrefix, [&]() {
-      param->setValue(v1);
-      lik->getValue();
-      param->setValue(v2);
-      lik->getValue();
-    });
-  }
-#endif
 
   struct CommonStuff
   {
@@ -174,14 +156,6 @@ namespace
       paramModel2.addParameter(bpp::Parameter("T92.kappa", 0.2));
       paramBrLen1.addParameter(bpp::Parameter("BrLen1", 0.1));
       paramBrLen2.addParameter(bpp::Parameter("BrLen1", 0.2));
-
-#ifndef NO_WARMUP
-      // Warm up with eigen dummy computation
-      double d = 0;
-      for (int i = 0; i < 100; ++i)
-        d += (Eigen::MatrixXd::Random(200, 200) * Eigen::MatrixXd::Random(200, 200)).determinant();
-      static_cast<void>(d);
-#endif
     }
   };
 }
@@ -202,8 +176,8 @@ TEST_CASE("old")
   timingEnd(ts, "old_init_value");
   printLik(logLik, "old_init_value");
 
-  do_param_changes_multiple_times_legacy(llh, "old_param_model_change", c.paramModel1, c.paramModel2);
-  do_param_changes_multiple_times_legacy(llh, "old_param_brlen_change", c.paramBrLen1, c.paramBrLen2);
+  do_param_changes_multiple_times(llh, "old_param_model_change", c.paramModel1, c.paramModel2);
+  do_param_changes_multiple_times(llh, "old_param_brlen_change", c.paramBrLen1, c.paramBrLen2);
 }
 #endif
 
@@ -228,8 +202,8 @@ TEST_CASE("new")
   timingEnd(ts, "new_init_value");
   printLik(logLik, "new_init_value");
 
-  do_param_changes_multiple_times_legacy(llh, "new_param_model_change", c.paramModel1, c.paramModel2);
-  do_param_changes_multiple_times_legacy(llh, "new_param_brlen_change", c.paramBrLen1, c.paramBrLen2);
+  do_param_changes_multiple_times(llh, "new_param_model_change", c.paramModel1, c.paramModel2);
+  do_param_changes_multiple_times(llh, "new_param_brlen_change", c.paramBrLen1, c.paramBrLen2);
 }
 #endif
 
@@ -245,7 +219,7 @@ TEST_CASE("df")
   // Model
   auto model = bpp::Phyl::DF::Model::create(std::unique_ptr<bpp::SubstitutionModel>(new bpp::T92(&c.alphabet, 3.)));
 
-  // Create a specification TODO simplify this mess
+  // Create phylogeny description structure TODO simplify this mess
   auto branchLengthMap =
     bpp::make_frozen(bpp::Topology::make_branch_parameter_map_from_value_map(*treeData.branchLengths));
   auto modelMap = bpp::make_frozen(bpp::Topology::make_uniform_branch_value_map(
@@ -254,28 +228,41 @@ TEST_CASE("df")
   auto sequenceMap = bpp::Phyl::makeSequenceMap(*treeData.nodeNames, c.sites);
   auto likParams = bpp::Phyl::LikelihoodParameters{process, sequenceMap};
 
+  // Build node
   auto logLikNode = bpp::Phyl::makeLogLikelihoodNode(likParams);
+
+  // Build bpp-compatible structure out of it
+  bpp::ParameterList params;
+  for (auto i : bpp::index_range(*treeData.branchLengths))
+  {
+    // for all brlen in init graph (i), add DFparam("Brlen<i>", paramNode);
+    auto& branchParamOpt = branchLengthMap->access(i);
+    if (branchParamOpt)
+    {
+      auto phyloBranchId = treeData.treeTemplateNodeIndexes->access(i).value();
+      params.addParameter(bpp::DataFlowParameter("BrLen" + std::to_string(phyloBranchId), *branchParamOpt));
+    }
+  }
+  for (auto i : bpp::range(model->nbParameters()))
+    params.addParameter(bpp::DataFlowParameter(model->getParameterName(i), model->getParameter(i)));
+
+  bpp::DataFlowFunction likFunc{logLikNode, params};
   timingEnd(ts, "df_setup");
 
   ts = timingStart();
-  auto logLik = logLikNode->getValue();
+  auto logLik = likFunc.getValue();
   timingEnd(ts, "df_init_value");
   printLik(logLik, "df_init_value");
 
   {
     std::ofstream fd("df_debug");
-    bpp::DF::debugDag(fd, logLikNode, bpp::DF::DebugOptions::DetailedNodeInfo);
+    // bpp::DF::debugDag(fd, logLikNode, bpp::DF::DebugOptions::DetailedNodeInfo);
+    bpp::DF::debugDag(fd, likFunc.getAllNamedNodes("f"));
     // bpp::Topology::debugTree(fd, treeData.topology);
   }
 
   // Change parameters
-  do_param_changes_multiple_times_df(logLikNode, "df_param_model_change", model->getParameter("kappa"), 0.1, 0.2);
-
-  auto topologyIdOfPhyloNode1 = treeData.treeTemplateNodeIndexes->index(1).value();
-  auto& brlen1Param = branchLengthMap->access(treeData.topology->node(topologyIdOfPhyloNode1).fatherBranch()).value();
-  do_param_changes_multiple_times_df(logLikNode, "df_param_brlen_change", brlen1Param, 0.1, 0.2);
-
-  // Test derivation
-  auto dlik_dbrlen1 = logLikNode->derive(*brlen1Param);
+  do_param_changes_multiple_times(likFunc, "df_param_model_change", c.paramModel1, c.paramModel2);
+  do_param_changes_multiple_times(likFunc, "df_param_brlen_change", c.paramBrLen1, c.paramBrLen2);
 }
 #endif

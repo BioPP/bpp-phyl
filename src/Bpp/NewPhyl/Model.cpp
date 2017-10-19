@@ -51,11 +51,10 @@ namespace Phyl {
 	namespace DF {
 		// Model DF Node
 
-		Model::Model (std::unique_ptr<SubstitutionModel> && model)
+		Model::Model (std::unique_ptr<SubstitutionModel> model)
 		    : Value<const SubstitutionModel *> (noDependency, model.get ()),
 		      model_ (std::move (model)) {
 			// TODO support already built paramater nodes
-			model_->setNamespace ({}); // Delete namespace prefix
 			const auto & parameters = model_->getParameters ();
 			for (auto i : index_range (parameters))
 				this->appendDependency (DF::Parameter<double>::create (parameters[i].getValue ()));
@@ -82,7 +81,7 @@ namespace Phyl {
 				auto v = accessValueUncheckedCast<double> (*this->dependencies ()[i]);
 				auto & p = modelParams[static_cast<std::size_t> (i)];
 				if (p.getValue () != v)
-					model_->setParameterValue (p.getName (), v);
+					model_->setParameterValue (model_->getParameterNameWithoutNamespace (p.getName ()), v);
 			}
 		}
 
@@ -91,7 +90,7 @@ namespace Phyl {
 			return "nbState=" + std::to_string (model_->getAlphabet ()->getSize ());
 		}
 
-		std::shared_ptr<Model> Model::create (std::unique_ptr<SubstitutionModel> && model) {
+		std::shared_ptr<Model> Model::create (std::unique_ptr<SubstitutionModel> model) {
 			return std::make_shared<Model> (std::move (model));
 		}
 
