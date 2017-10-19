@@ -120,6 +120,16 @@ namespace Phyl {
 				logLik = log (lik);
 			});
 		}
+		NodeRef TotalLogLikelihood::derive (const Node & node) {
+			// TODO improve this case
+			auto likelihoodVector = convertRef<Value<VectorDouble>> (this->dependencies ()[0]);
+			return ScalarProdDouble::create (
+			    NodeRefVec{likelihoodVector->derive (node),
+			               CWiseInverseVectorDouble::create (NodeRefVec{likelihoodVector},
+			                                                 dimensions (*likelihoodVector))
+
+			    });
+		}
 		std::shared_ptr<TotalLogLikelihood> TotalLogLikelihood::create (NodeRefVec && deps) {
 			return std::make_shared<TotalLogLikelihood> (std::move (deps));
 		}

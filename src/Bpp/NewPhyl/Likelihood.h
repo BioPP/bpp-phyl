@@ -101,6 +101,7 @@ namespace Phyl {
 		// (transitionMatrix, condLik) -> fwdLik
 		using ForwardLikelihoodFromChild = MulMatrixDouble;
 
+    // (condLik, equFreqs) -> likBySiteVector
 		using Likelihood = MulTransposedMatrixVectorDouble;
 
 		struct TotalLogLikelihood : public Value<double> {
@@ -108,6 +109,7 @@ namespace Phyl {
 			using Dependencies = FunctionOfValues<VectorDouble>;
 			TotalLogLikelihood (NodeRefVec && deps);
 			void compute () override final;
+			NodeRef derive (const Node &) override final;
 			static std::shared_ptr<TotalLogLikelihood> create (NodeRefVec && deps);
 			static std::shared_ptr<TotalLogLikelihood> create (ValueRef<VectorDouble> likelihood);
 		};

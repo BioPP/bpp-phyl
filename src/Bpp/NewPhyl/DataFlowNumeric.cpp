@@ -56,7 +56,9 @@ namespace DF {
 	 * - merge constants by type
 	 * - support for general register (reuse code in DF.cpp, declare in DFTinternal).
 	 * - opt: keep 0s instead of recreating them
-	 * - deduce size (require 1 arg in reductions)
+	 * - deduce size (require 1 arg in reductions) ?
+	 * - opt: merge * of *, + of +, ... ?
+	 * - common template for *,+ opts ?
 	 */
 
 	// Utils
@@ -64,6 +66,9 @@ namespace DF {
 		// Constant builders
 		auto zeroVector (SizeType size) -> decltype (VectorDouble::Zero (size)) {
 			return VectorDouble::Zero (size);
+		}
+		auto onesVector (SizeType size) -> decltype (VectorDouble::Ones (size)) {
+			return VectorDouble::Ones (size);
 		}
 		auto zeroMatrix (MatrixDimension dim) -> decltype (MatrixDouble::Zero (dim.rows, dim.cols)) {
 			return MatrixDouble::Zero (dim.rows, dim.cols);
@@ -74,6 +79,7 @@ namespace DF {
 
 		// Constant checking predicate (const T & -> bool)
 		bool isExactZeroVector (const VectorDouble & v) { return v == zeroVector (dimensions (v)); }
+		bool isExactOnesVector (const VectorDouble & v) { return v == onesVector (dimensions (v)); }
 		bool isExactZeroMatrix (const MatrixDouble & m) { return m == zeroMatrix (dimensions (m)); }
 		bool isExactOnesMatrix (const MatrixDouble & m) { return m == onesMatrix (dimensions (m)); }
 		bool isExactIdentityMatrix (const MatrixDouble & m) {
@@ -84,6 +90,7 @@ namespace DF {
 		auto isConstantZeroDouble = predicateIsConstantValueMatching<double> (0.);
 		auto isConstantOneDouble = predicateIsConstantValueMatching<double> (1.);
 		auto isConstantZeroVector = predicateIsConstantValueMatching<VectorDouble> (isExactZeroVector);
+		auto isConstantOnesVector = predicateIsConstantValueMatching<VectorDouble> (isExactOnesVector);
 		auto isConstantZeroMatrix = predicateIsConstantValueMatching<MatrixDouble> (isExactZeroMatrix);
 		auto isConstantOnesMatrix = predicateIsConstantValueMatching<MatrixDouble> (isExactOnesMatrix);
 		auto isConstantIdentityMatrix =
@@ -113,9 +120,9 @@ namespace DF {
 	template <> std::string Value<VectorDouble>::debugInfo () const {
 		auto & v = this->accessValue ();
 		auto s = std::string ("size=") + std::to_string (dimensions (v)) + " props{";
-		if (isExactZeroMatrix (v))
+		if (isExactZeroVector (v))
 			s += '0';
-		if (isExactOnesMatrix (v))
+		if (isExactOnesVector (v))
 			s += '1';
 		s += "}";
 		return s;
@@ -266,7 +273,7 @@ namespace DF {
 	}
 	void AddVectorDouble::compute () {
 		callWithValues (*this, [](VectorDouble & r) { r.fill (0.); },
-		                [](VectorDouble & r, const VectorDouble & m) { r += m; });
+		                [](VectorDouble & r, const VectorDouble & v) { r += v; });
 	}
 	NodeRef AddVectorDouble::derive (const Node & node) {
 		return AddVectorDouble::create (
@@ -284,6 +291,24 @@ namespace DF {
 			return ConstantVectorDouble::createZero (size);
 		} else {
 			return std::make_shared<AddVectorDouble> (std::move (deps), size);
+		}
+	}
+
+	// CWiseInverseVectorDouble
+	CWiseInverseVectorDouble::CWiseInverseVectorDouble (NodeRefVec && deps, SizeType size)
+	    : Value<VectorDouble> (std::move (deps), size) {
+		checkDependencies (*this);
+	}
+	void CWiseInverseVectorDouble::compute () {
+		callWithValues (*this, [](VectorDouble & r, const VectorDouble & v) { r = v.cwiseInverse (); });
+	}
+	ValueRef<VectorDouble> CWiseInverseVectorDouble::create (NodeRefVec && deps, SizeType size) {
+		checkDependencies<Dependencies> (deps, typeid (CWiseInverseVectorDouble));
+		auto & arg = deps[0];
+		if (isConstantOnesVector (arg)) {
+			return convertRef<Value<VectorDouble>> (arg);
+		} else {
+			return std::make_shared<CWiseInverseVectorDouble> (std::move (deps), size);
 		}
 	}
 
