@@ -112,6 +112,10 @@ namespace Phyl {
 		std::string EquilibriumFrequenciesFromModel::debugInfo () const {
 			return Value<VectorDouble>::debugInfo () + " nbState=" + std::to_string (dimensions (*this));
 		}
+		NodeRef EquilibriumFrequenciesFromModel::derive (const Node & node) {
+			// TODO supports model derivation
+			return ConstantVectorDouble::createZero (dimensions (*this));
+		}
 		std::shared_ptr<EquilibriumFrequenciesFromModel>
 		EquilibriumFrequenciesFromModel::create (NodeRefVec && deps, SizeType nbStates) {
 			return std::make_shared<EquilibriumFrequenciesFromModel> (std::move (deps), nbStates);
@@ -149,6 +153,18 @@ namespace Phyl {
 			return Value<MatrixDouble>::debugInfo () +
 			       " nbStates=" + std::to_string (dimensions (*this).rows);
 		}
+		NodeRef TransitionMatrixFromModel::derive (const Node & node) {
+			/* TODO more general version.
+			 * Only supports brlen derivation for now
+			 */
+			auto dim = dimensions (*this);
+			auto & modelNode = this->dependencies ()[0];
+			auto & brlenNode = this->dependencies ()[1];
+			auto dTransMat_dBrlen = TransitionMatrixFromModelBrlenDerivative::create (
+			    NodeRefVec{modelNode, brlenNode}, dim.rows);
+			return MulScalarMatrixDouble::create (
+			    NodeRefVec{brlenNode->derive (node), std::move (dTransMat_dBrlen)}, dim);
+		}
 		std::shared_ptr<TransitionMatrixFromModel>
 		TransitionMatrixFromModel::create (NodeRefVec && deps, SizeType nbStates) {
 			return std::make_shared<TransitionMatrixFromModel> (std::move (deps), nbStates);
@@ -157,6 +173,25 @@ namespace Phyl {
 		TransitionMatrixFromModel::create (ValueRef<const SubstitutionModel *> model,
 		                                   ValueRef<double> brlen, SizeType nbStates) {
 			return create (NodeRefVec{std::move (model), std::move (brlen)}, nbStates);
+		}
+
+		TransitionMatrixFromModelBrlenDerivative::TransitionMatrixFromModelBrlenDerivative (
+		    NodeRefVec && deps, SizeType nbStates)
+		    : Value<MatrixDouble> (std::move (deps), nbStates, nbStates) {
+			checkDependencies (*this);
+		}
+		void TransitionMatrixFromModelBrlenDerivative::compute () {
+			callWithValues (*this, [](MatrixDouble & matrix, const SubstitutionModel * model,
+			                          double brlen) { bppToEigen (model->getdPij_dt (brlen), matrix); });
+		}
+		std::string TransitionMatrixFromModelBrlenDerivative::debugInfo () const {
+			return Value<MatrixDouble>::debugInfo () +
+			       " nbStates=" + std::to_string (dimensions (*this).rows);
+		}
+		std::shared_ptr<TransitionMatrixFromModelBrlenDerivative>
+		TransitionMatrixFromModelBrlenDerivative::create (NodeRefVec && deps, SizeType nbStates) {
+			return std::make_shared<TransitionMatrixFromModelBrlenDerivative> (std::move (deps),
+			                                                                   nbStates);
 		}
 
 		// TODO restore

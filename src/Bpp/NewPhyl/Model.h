@@ -86,6 +86,7 @@ namespace Phyl {
 			EquilibriumFrequenciesFromModel (NodeRefVec && deps, SizeType nbStates);
 			void compute () override final;
 			std::string debugInfo () const override final;
+			NodeRef derive (const Node & node) override final;
 			static std::shared_ptr<EquilibriumFrequenciesFromModel> create (NodeRefVec && deps,
 			                                                                SizeType nbStates);
 			static std::shared_ptr<EquilibriumFrequenciesFromModel>
@@ -93,16 +94,25 @@ namespace Phyl {
 		};
 
 		struct TransitionMatrixFromModel : public Value<MatrixDouble> {
-			// (model, branch length)
+			// (model, branch length) -> transition matrix
 			using Dependencies = FunctionOfValues<const SubstitutionModel *, double>;
 			TransitionMatrixFromModel (NodeRefVec && deps, SizeType nbStates);
 			void compute () override final;
 			std::string debugInfo () const override final;
-			// TODO add derive, and derivatives classes
+			NodeRef derive (const Node & node) override final;
 			static std::shared_ptr<TransitionMatrixFromModel> create (NodeRefVec && deps,
 			                                                          SizeType nbStates);
 			static std::shared_ptr<TransitionMatrixFromModel>
 			create (ValueRef<const SubstitutionModel *> model, ValueRef<double> brlen, SizeType nbStates);
+		};
+
+		struct TransitionMatrixFromModelBrlenDerivative : public Value<MatrixDouble> {
+			using Dependencies = FunctionOfValues<const SubstitutionModel *, double>;
+			TransitionMatrixFromModelBrlenDerivative (NodeRefVec && deps, SizeType nbStates);
+			void compute () override final;
+			std::string debugInfo () const override final;
+			static std::shared_ptr<TransitionMatrixFromModelBrlenDerivative> create (NodeRefVec && deps,
+			                                                                         SizeType nbStates);
 		};
 	} // namespace DF
 } // namespace Phyl

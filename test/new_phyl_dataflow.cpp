@@ -257,16 +257,16 @@ TEST_CASE("df")
   auto logLikNode = bpp::Phyl::makeLogLikelihoodNode(likParams);
   timingEnd(ts, "df_setup");
 
+  ts = timingStart();
+  auto logLik = logLikNode->getValue();
+  timingEnd(ts, "df_init_value");
+  printLik(logLik, "df_init_value");
+
   {
     std::ofstream fd("df_debug");
     bpp::DF::debugDag(fd, logLikNode, bpp::DF::DebugOptions::DetailedNodeInfo);
     // bpp::Topology::debugTree(fd, treeData.topology);
   }
-
-  ts = timingStart();
-  auto logLik = logLikNode->getValue();
-  timingEnd(ts, "df_init_value");
-  printLik(logLik, "df_init_value");
 
   // Change parameters
   do_param_changes_multiple_times_df(logLikNode, "df_param_model_change", model->getParameter("kappa"), 0.1, 0.2);
@@ -274,5 +274,8 @@ TEST_CASE("df")
   auto topologyIdOfPhyloNode1 = treeData.treeTemplateNodeIndexes->index(1).value();
   auto& brlen1Param = branchLengthMap->access(treeData.topology->node(topologyIdOfPhyloNode1).fatherBranch()).value();
   do_param_changes_multiple_times_df(logLikNode, "df_param_brlen_change", brlen1Param, 0.1, 0.2);
+
+  // Test derivation
+  auto dlik_dbrlen1 = logLikNode->derive(*brlen1Param);
 }
 #endif

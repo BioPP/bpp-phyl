@@ -208,6 +208,14 @@ namespace DF {
 		static ValueRef<VectorDouble> create (ValueRef<MatrixDouble> lhs, ValueRef<VectorDouble> rhs,
 		                                      SizeType type);
 	};
+
+	struct MulScalarMatrixDouble : public Value<MatrixDouble> {
+		using Dependencies = FunctionOfValues<double, MatrixDouble>;
+		MulScalarMatrixDouble (NodeRefVec && deps, MatrixDimension dim);
+		void compute () override final;
+		NodeRef derive (const Node & node) override final;
+		static ValueRef<MatrixDouble> create (NodeRefVec && deps, MatrixDimension dim);
+	};
 } // namespace DF
 } // namespace bpp
 #endif // BPP_NEWPHYL_DATAFLOWNUMERIC_H

@@ -107,6 +107,7 @@ namespace DF {
 
 		// Derive with respect to node (default = error)
 		virtual NodeRef derive (const Node & node);
+    // TODO add non virtual "nice" overloads for const sp<T> & if T:Node ?
 
 	protected:
 		void makeValid () noexcept { isValid_ = true; }

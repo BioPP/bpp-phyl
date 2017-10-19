@@ -252,11 +252,11 @@ namespace DF {
 		checkDependencies<Dependencies> (deps, typeid (ScalarProdDouble));
 		auto & lhs = deps[0];
 		auto & rhs = deps[1];
-		// Return 0 if any dep is 0
 		if (isConstantZeroVector (lhs) || isConstantZeroVector (rhs)) {
 			return ConstantDouble::zero;
+		} else {
+			return std::make_shared<ScalarProdDouble> (std::move (deps));
 		}
-		return std::make_shared<ScalarProdDouble> (std::move (deps));
 	}
 
 	// ConstantVectorDouble
@@ -369,18 +369,15 @@ namespace DF {
 		checkDependencies<Dependencies> (deps, typeid (MulMatrixDouble));
 		auto & lhs = deps[0];
 		auto & rhs = deps[1];
-		// Return O if any matrix is 0
 		if (isConstantZeroMatrix (lhs) || isConstantZeroMatrix (rhs)) {
 			return ConstantMatrixDouble::createZero (dim);
-		}
-		// Return the other if one is identity
-		if (isConstantIdentityMatrix (lhs)) {
+		} else if (isConstantIdentityMatrix (lhs)) {
 			return convertRef<Value<MatrixDouble>> (rhs);
-		}
-		if (isConstantIdentityMatrix (rhs)) {
+		} else if (isConstantIdentityMatrix (rhs)) {
 			return convertRef<Value<MatrixDouble>> (lhs);
+		} else {
+			return std::make_shared<MulMatrixDouble> (std::move (deps), dim);
 		}
-		return std::make_shared<MulMatrixDouble> (std::move (deps), dim);
 	}
 	ValueRef<MatrixDouble> MulMatrixDouble::create (ValueRef<MatrixDouble> lhs,
 	                                                ValueRef<MatrixDouble> rhs, MatrixDimension dim) {
@@ -448,17 +445,48 @@ namespace DF {
 		checkDependencies<Dependencies> (deps, typeid (MulTransposedMatrixVectorDouble));
 		auto & lhs = deps[0];
 		auto & rhs = deps[1];
-		// Return O if any matrix is 0
 		if (isConstantZeroMatrix (lhs) || isConstantZeroVector (rhs)) {
 			return ConstantVectorDouble::createZero (size);
+		} else if (isConstantIdentityMatrix (lhs)) {
+			return convertRef<Value<VectorDouble>> (rhs);
+		} else {
+			return std::make_shared<MulTransposedMatrixVectorDouble> (std::move (deps), size);
 		}
-		// Return the other if one is identity
-		return std::make_shared<MulTransposedMatrixVectorDouble> (std::move (deps), size);
 	}
 	ValueRef<VectorDouble> MulTransposedMatrixVectorDouble::create (ValueRef<MatrixDouble> lhs,
 	                                                                ValueRef<VectorDouble> rhs,
 	                                                                SizeType size) {
 		return create (NodeRefVec{std::move (lhs), std::move (rhs)}, size);
+	}
+
+	// MulScalarMatrixDouble
+	MulScalarMatrixDouble::MulScalarMatrixDouble (NodeRefVec && deps, MatrixDimension dim)
+	    : Value<MatrixDouble> (std::move (deps), dim.rows, dim.cols) {
+		checkDependencies (*this);
+	}
+	void MulScalarMatrixDouble::compute () {
+		callWithValues (
+		    *this, [](MatrixDouble & r, double d, const MatrixDouble & m) { r.noalias () = d * m; });
+	}
+	NodeRef MulScalarMatrixDouble::derive (const Node & node) {
+		auto dim = dimensions (*this);
+		auto & lhs = this->dependencies ()[0];
+		auto & rhs = this->dependencies ()[1];
+		auto dLhs = MulScalarMatrixDouble::create (NodeRefVec{lhs->derive (node), rhs}, dim);
+		auto dRhs = MulScalarMatrixDouble::create (NodeRefVec{lhs, rhs->derive (node)}, dim);
+		return AddMatrixDouble::create (NodeRefVec{std::move (dLhs), std::move (dRhs)}, dim);
+	}
+	ValueRef<MatrixDouble> MulScalarMatrixDouble::create (NodeRefVec && deps, MatrixDimension dim) {
+		checkDependencies<Dependencies> (deps, typeid (MulScalarMatrixDouble));
+		auto & lhs = deps[0];
+		auto & rhs = deps[1];
+		if (isConstantZeroDouble (lhs) || isConstantZeroMatrix (rhs)) {
+			return ConstantMatrixDouble::createZero (dim);
+		} else if (isConstantOneDouble (lhs)) {
+			return convertRef<Value<MatrixDouble>> (rhs);
+		} else {
+			return std::make_shared<MulScalarMatrixDouble> (std::move (deps), dim);
+		}
 	}
 } // namespace DF
 } // namespace bpp
