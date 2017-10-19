@@ -261,6 +261,7 @@ namespace DF {
 
 	// ConstantVectorDouble
 	void ConstantVectorDouble::compute () { failureComputeWasCalled (typeid (ConstantVectorDouble)); }
+	bool ConstantVectorDouble::isConstant () const { return true; }
 	NodeRef ConstantVectorDouble::derive (const Node &) { return createZero (dimensions (*this)); }
 	std::shared_ptr<ConstantVectorDouble> ConstantVectorDouble::createZero (SizeType size) {
 		return create (zeroVector (size));
@@ -314,6 +315,7 @@ namespace DF {
 
 	// ConstantMatrixDouble
 	void ConstantMatrixDouble::compute () { failureComputeWasCalled (typeid (ConstantMatrixDouble)); }
+	bool ConstantMatrixDouble::isConstant () const { return true; }
 	NodeRef ConstantMatrixDouble::derive (const Node &) { return createZero (dimensions (*this)); }
 	std::shared_ptr<ConstantMatrixDouble> ConstantMatrixDouble::createZero (MatrixDimension dim) {
 		return create (zeroMatrix (dim));

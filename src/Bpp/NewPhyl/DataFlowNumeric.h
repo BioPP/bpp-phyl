@@ -130,6 +130,7 @@ namespace DF {
 			this->makeValid ();
 		}
 		void compute () override final;
+		bool isConstant () const override final;
 		NodeRef derive (const Node & node) override final;
 		template <typename Derived>
 		static std::shared_ptr<ConstantVectorDouble> create (const Eigen::EigenBase<Derived> & expr) {
@@ -163,6 +164,7 @@ namespace DF {
 			this->makeValid ();
 		}
 		void compute () override final;
+		bool isConstant () const override final;
 		NodeRef derive (const Node & node) override final;
 		template <typename Derived>
 		static std::shared_ptr<ConstantMatrixDouble> create (const Eigen::EigenBase<Derived> & expr) {
