@@ -38,6 +38,7 @@
   knowledge of the CeCILL license and that you accept its terms.
 */
 
+#include <Bpp/NewPhyl/DataFlowNumeric.h>
 #include <Bpp/NewPhyl/Likelihood.h>
 #include <Bpp/NewPhyl/Model.h>
 #include <Bpp/NewPhyl/Phylogeny.h>
@@ -46,8 +47,42 @@
 namespace bpp {
 namespace Phyl {
 	namespace {
+		DF::ValueRef<DF::MatrixDouble>
+		makeConditionalLikelihoodNode (const LikelihoodParameters & params, Topology::Node node);
+		DF::ValueRef<DF::MatrixDouble> makeForwardLikelihoodNode (const LikelihoodParameters & params,
+		                                                          Topology::Branch branch);
+
 		LikelihoodDataDimension dimensions (const LikelihoodParameters & params) {
 			return {params.leafData.nbSites, params.process.nbStates};
+		}
+
+		DF::ValueRef<DF::MatrixDouble>
+		makeConditionalLikelihoodNode (const LikelihoodParameters & params, Topology::Node node) {
+			auto dim = dimensions (params);
+			if (node.nbChildBranches () == 0) {
+				auto & sequence = params.leafData.sequences->access (node).value ();
+				return DF::ConditionalLikelihoodFromSequence::create (sequence, dim);
+			} else {
+				DF::NodeRefVec deps;
+				node.foreachChildBranch ([&deps, &params](Topology::Branch && branch) {
+					deps.emplace_back (makeForwardLikelihoodNode (params, std::move (branch)));
+				});
+				return DF::ConditionalLikelihoodFromChildrens::create (std::move (deps), dim);
+			}
+		}
+
+		DF::ValueRef<DF::MatrixDouble> makeForwardLikelihoodNode (const LikelihoodParameters & params,
+		                                                          Topology::Branch branch) {
+			auto dim = dimensions (params);
+			auto conditionalLikelihood = makeConditionalLikelihoodNode (params, branch.childNode ());
+
+			auto & branchModel = params.process.modelByBranch->access (branch).value ();
+			auto & brlen = params.process.branchLengths->access (branch).value ();
+			auto modelTransitionMatrix =
+			    DF::TransitionMatrixFromModel::create (branchModel, brlen, dim.nbStates ());
+
+			return DF::ForwardLikelihoodFromChild::create (std::move (modelTransitionMatrix),
+			                                               std::move (conditionalLikelihood), dim);
 		}
 	} // namespace
 
@@ -64,33 +99,5 @@ namespace Phyl {
 		return DF::TotalLogLikelihood::create (std::move (likelihood));
 	}
 
-	DF::ValueRef<DF::MatrixDouble> makeConditionalLikelihoodNode (const LikelihoodParameters & params,
-	                                                              Topology::Node node) {
-		auto dim = dimensions (params);
-		if (node.nbChildBranches () == 0) {
-			auto & sequence = params.leafData.sequences->access (node).value ();
-			return DF::ConditionalLikelihoodFromSequence::create (sequence, dim);
-		} else {
-			DF::NodeRefVec deps;
-			node.foreachChildBranch ([&deps, &params](Topology::Branch && branch) {
-				deps.emplace_back (makeForwardLikelihoodNode (params, std::move (branch)));
-			});
-			return DF::ConditionalLikelihoodFromChildrens::create (std::move (deps), dim);
-		}
-	}
-
-	DF::ValueRef<DF::MatrixDouble> makeForwardLikelihoodNode (const LikelihoodParameters & params,
-	                                                          Topology::Branch branch) {
-		auto dim = dimensions (params);
-		auto conditionalLikelihood = makeConditionalLikelihoodNode (params, branch.childNode ());
-
-		auto & branchModel = params.process.modelByBranch->access (branch).value ();
-		auto & brlen = params.process.branchLengths->access (branch).value ();
-		auto modelTransitionMatrix =
-		    DF::TransitionMatrixFromModel::create (branchModel, brlen, dim.nbStates ());
-
-		return DF::ForwardLikelihoodFromChild::create (std::move (modelTransitionMatrix),
-		                                               std::move (conditionalLikelihood), dim);
-	}
 } // namespace Phyl
 } // namespace bpp

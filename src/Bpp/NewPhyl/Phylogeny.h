@@ -43,7 +43,6 @@
 #define BPP_NEWPHYL_PHYLOGENY_H
 
 #include <Bpp/NewPhyl/DataFlow.h>
-#include <Bpp/NewPhyl/DataFlowNumeric.h> // Matrix types
 #include <Bpp/NewPhyl/DataFlowTemplates.h>
 #include <Bpp/NewPhyl/FrozenPtr.h>
 #include <Bpp/NewPhyl/Signed.h>
@@ -80,12 +79,7 @@ namespace Phyl {
 	};
 
 	// Build functions
-
 	DF::ValueRef<double> makeLogLikelihoodNode (const LikelihoodParameters & params);
-	DF::ValueRef<DF::MatrixDouble> makeConditionalLikelihoodNode (const LikelihoodParameters & params,
-	                                                              Topology::Node node);
-	DF::ValueRef<DF::MatrixDouble> makeForwardLikelihoodNode (const LikelihoodParameters & params,
-	                                                          Topology::Branch branch);
 } // namespace Phyl
 } // namespace bpp
 
