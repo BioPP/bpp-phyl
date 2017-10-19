@@ -112,7 +112,8 @@ namespace DF {
 	protected:
 		void makeValid () noexcept { isValid_ = true; }
 
-		// FIXME replace ? Only for complex init
+		// FIXME delete later
+    // Only use is in model, but auto creation of Parameters will move to create.
 		void appendDependency (NodeRef node);
 
 	private:
@@ -128,13 +129,14 @@ namespace DF {
 		bool isValid_{false};
 	};
 
-	/* Valued node.
-	 */
 	struct NoDependencyTag {
 		constexpr NoDependencyTag () = default;
 	};
 	constexpr NoDependencyTag noDependency{};
 
+	/* Valued node.
+   * Represents a DataFlow node containing a T value, but still abstract (no compute()).
+	 */
 	template <typename T> class Value : public Node {
 	public:
 		// Init deps
@@ -162,10 +164,7 @@ namespace DF {
 			return accessValue ();
 		}
 
-		/* Specialisable functions.
-		 * They can be specialised for specific T types (require existing declaration).
-		 * We must provide a default version for the declaration: same as parent.
-		 */
+		// Defined as default to enable specialisation
 		std::string debugInfo () const override { return Node::debugInfo (); }
 
 	protected:
@@ -173,6 +172,7 @@ namespace DF {
 
 	private:
 		// Allow wrappers in DataFlowInternalTemplates write access to the value through this function.
+    // TODO use InternalAccessor
 		template <typename U> friend U & accessMutableValue (Value<U> &) noexcept;
 	};
 

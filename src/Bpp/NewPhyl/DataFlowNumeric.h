@@ -43,6 +43,7 @@
 #define BPP_NEWPHYL_DATAFLOWNUMERIC_H
 
 #include <Bpp/NewPhyl/DataFlow.h>
+#include <Bpp/NewPhyl/DataFlowTemplates.h> // TODO rm when constant is moved away
 #include <Bpp/NewPhyl/Signed.h>
 #include <Eigen/Core>
 #include <string>
@@ -60,6 +61,10 @@ namespace DF {
 	template <> std::string Value<double>::debugInfo () const;
 	template <> std::string Value<VectorDouble>::debugInfo () const;
 	template <> std::string Value<MatrixDouble>::debugInfo () const;
+
+	// Additional Constant<T> specialisation (TODO move to DFT.h, with forward declaration)
+	template <> NodeRef Constant<VectorDouble>::derive (const Node & node);
+	template <> NodeRef Constant<MatrixDouble>::derive (const Node & node);
 
 	// Dimensions
 	struct MatrixDimension {
@@ -87,14 +92,9 @@ namespace DF {
 
 	/* Double nodes.
 	 */
-	struct ConstantDouble : public Value<double> {
-		ConstantDouble (double d);
-		void compute () override final;
-		bool isConstant () const override final;
-		NodeRef derive (const Node &) override final;
-		static std::shared_ptr<ConstantDouble> zero;
-		static std::shared_ptr<ConstantDouble> one;
-		static std::shared_ptr<ConstantDouble> create (double d);
+	struct ConstantDouble {
+		// TODO remove
+		static std::shared_ptr<Constant<double>> create (double d);
 	};
 
 	struct AddDouble : public Value<double> {
@@ -123,20 +123,13 @@ namespace DF {
 
 	/* Vector nodes.
 	 */
-	struct ConstantVectorDouble : public Value<VectorDouble> {
+	struct ConstantVectorDouble {
+		// TODO remove
 		template <typename Derived>
-		ConstantVectorDouble (const Eigen::EigenBase<Derived> & expr)
-		    : Value<VectorDouble> (noDependency, expr) {
-			this->makeValid ();
+		static std::shared_ptr<Constant<VectorDouble>> create (const Eigen::EigenBase<Derived> & expr) {
+			return std::make_shared<Constant<VectorDouble>> (expr);
 		}
-		void compute () override final;
-		bool isConstant () const override final;
-		NodeRef derive (const Node & node) override final;
-		template <typename Derived>
-		static std::shared_ptr<ConstantVectorDouble> create (const Eigen::EigenBase<Derived> & expr) {
-			return std::make_shared<ConstantVectorDouble> (expr);
-		}
-		static std::shared_ptr<ConstantVectorDouble> createZero (SizeType size);
+		static std::shared_ptr<Constant<VectorDouble>> createZero (SizeType size);
 	};
 
 	struct AddVectorDouble : public Value<VectorDouble> {
@@ -157,20 +150,13 @@ namespace DF {
 
 	/* Matrix nodes.
 	 */
-	struct ConstantMatrixDouble : public Value<MatrixDouble> {
+	struct ConstantMatrixDouble {
+		// TODO remove
 		template <typename Derived>
-		ConstantMatrixDouble (const Eigen::EigenBase<Derived> & expr)
-		    : Value<MatrixDouble> (noDependency, expr) {
-			this->makeValid ();
+		static std::shared_ptr<Constant<MatrixDouble>> create (const Eigen::EigenBase<Derived> & expr) {
+			return std::make_shared<Constant<MatrixDouble>> (expr);
 		}
-		void compute () override final;
-		bool isConstant () const override final;
-		NodeRef derive (const Node & node) override final;
-		template <typename Derived>
-		static std::shared_ptr<ConstantMatrixDouble> create (const Eigen::EigenBase<Derived> & expr) {
-			return std::make_shared<ConstantMatrixDouble> (expr);
-		}
-		static std::shared_ptr<ConstantMatrixDouble> createZero (MatrixDimension dim);
+		static std::shared_ptr<Constant<MatrixDouble>> createZero (MatrixDimension dim);
 	};
 
 	struct AddMatrixDouble : public Value<MatrixDouble> {

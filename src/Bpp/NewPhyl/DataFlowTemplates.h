@@ -53,47 +53,74 @@ namespace DF {
 	// TODO move Value (and maybe later value alternatives like SiteValue) here ?
 
 	// Declarations
-	template <typename T> struct Parameter;
+	template <typename T> class Parameter;
+	template <typename T> class Constant;
 	template <typename T> using ParameterRef = std::shared_ptr<Parameter<T>>;
 
 	// Error function
 	[[noreturn]] void failureComputeWasCalled (const std::type_info & nodeType);
 
 	/* Parameter node.
+	 * Leaf of the DataFlow graph, has no dependency.
+	 * Represents a mutable value.
 	 */
-	template <typename T> struct Parameter : public Value<T> {
+	template <typename T> class Parameter : public Value<T> {
+	public:
 		template <typename... Args>
 		Parameter (Args &&... args) : Value<T> (noDependency, std::forward<Args> (args)...) {
 			this->makeValid ();
 		}
 
-		void setValue (T t) noexcept {
+		template <typename Callable> void modify (Callable && modifier) {
 			this->invalidate ();
-			this->value_ = std::move (t);
+			std::forward<Callable> (modifier) (this->value_);
 			this->makeValid ();
 		}
+		void setValue (const T & t) {
+			modify ([&t](T & v) { v = t; });
+		}
+		void setValue (T && t) {
+			modify ([&t](T & v) { v = std::move (t); });
+		}
 
-		void compute () override final { failureComputeWasCalled (typeid (Parameter<T>)); }
+		// Defined as default to enable specialisation
+		NodeRef derive (const Node & node) override final { return Value<T>::derive (node); }
 
 		template <typename... Args> static std::shared_ptr<Parameter<T>> create (Args &&... args) {
 			return std::make_shared<Parameter<T>> (std::forward<Args> (args)...);
 		}
 
-		/* Specialisable functions.
-		 * They can be specialised for specific T types (require existing declaration).
-		 * We must provide a default version for the declaration: same as parent.
-		 */
+	private:
+		void compute () override final { failureComputeWasCalled (typeid (Parameter<T>)); }
+	};
+
+	/* Constant node.
+	 * DataFlow graph leaf, but for an immutable value.
+	 */
+	template <typename T> class Constant : public Value<T> {
+	public:
+		template <typename... Args>
+		Constant (Args &&... args) : Value<T> (noDependency, std::forward<Args> (args)...) {
+			this->makeValid ();
+		}
+
+		bool isConstant () const override final { return true; }
+
+		// Defined as default to enable specialisation
 		NodeRef derive (const Node & node) override final { return Value<T>::derive (node); }
+
+		template <typename... Args> static std::shared_ptr<Constant<T>> create (Args &&... args) {
+			return std::make_shared<Constant<T>> (std::forward<Args> (args)...);
+		}
+
+	private:
+		void compute () override final { failureComputeWasCalled (typeid (Constant<T>)); }
 	};
 
 	// Specialisations in DataFlowNumeric.cpp
 	template <> NodeRef Parameter<double>::derive (const Node & node);
-
-	/* Constant node declaration.
-	 * Definitions are in their respective headers.
-	 * TODO use member specialisation with forward declared wrapper types for vector/matrix
-	 */
-	// template <typename T> struct Constant;
+	template <> NodeRef Constant<double>::derive (const Node & node);
+	// TODO forward declare the ones for Vector & Matrix, for not in DFNumeric.h
 } // namespace DF
 } // namespace bpp
 

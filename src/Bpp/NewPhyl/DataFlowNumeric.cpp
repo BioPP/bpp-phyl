@@ -111,6 +111,10 @@ namespace DF {
 		void checkDepsHaveRequiredDimension (const NodeType & node, MatrixDimension dim) {
 			checkDepsHaveRequiredDimension (typeid (NodeType), node.dependencies (), dim);
 		}
+
+		// TODO improve
+		auto constDouble0 = std::make_shared<Constant<double>> (0.);
+		auto constDouble1 = std::make_shared<Constant<double>> (1.);
 	} // namespace
 
 	// Debug info specialisations
@@ -148,28 +152,29 @@ namespace DF {
 	// Parameter specialisations
 	template <> NodeRef Parameter<double>::derive (const Node & node) {
 		if (&node == static_cast<const Node *> (this)) {
-			return ConstantDouble::one;
+			return constDouble1;
 		} else {
-			return ConstantDouble::zero;
+			return constDouble0;
 		}
 	}
 
-	// ConstantDouble
-	ConstantDouble::ConstantDouble (double d) : Value<double> (noDependency, d) {
-		this->makeValid ();
+	// Constant<T> specialisations
+	template <> NodeRef Constant<double>::derive (const Node &) { return constDouble0; }
+	template <> NodeRef Constant<VectorDouble>::derive (const Node &) {
+		return ConstantVectorDouble::createZero (dimensions (*this));
 	}
-	void ConstantDouble::compute () { failureComputeWasCalled (typeid (ConstantDouble)); }
-	bool ConstantDouble::isConstant () const { return true; }
-	NodeRef ConstantDouble::derive (const Node &) { return zero; }
-	std::shared_ptr<ConstantDouble> ConstantDouble::zero = std::make_shared<ConstantDouble> (0.);
-	std::shared_ptr<ConstantDouble> ConstantDouble::one = std::make_shared<ConstantDouble> (1.);
-	std::shared_ptr<ConstantDouble> ConstantDouble::create (double d) {
+	template <> NodeRef Constant<MatrixDouble>::derive (const Node &) {
+		return ConstantMatrixDouble::createZero (dimensions (*this));
+	}
+
+	// TODO place in Constant<double>
+	std::shared_ptr<Constant<double>> ConstantDouble::create (double d) {
 		if (d == 0.) {
-			return zero;
+			return constDouble0;
 		} else if (d == 1.) {
-			return one;
+			return constDouble1;
 		} else {
-			return std::make_shared<ConstantDouble> (d);
+			return Constant<double>::create (d);
 		}
 	}
 
@@ -192,7 +197,7 @@ namespace DF {
 		if (deps.size () == 1) {
 			return convertRef<Value<double>> (deps[0]);
 		} else if (deps.size () == 0) {
-			return ConstantDouble::zero;
+			return ConstantDouble::create (0.);
 		} else {
 			return std::make_shared<AddDouble> (std::move (deps));
 		}
@@ -218,7 +223,7 @@ namespace DF {
 		checkDependencies<Dependencies> (deps, typeid (MulDouble));
 		// Return 0 if any dep is 0
 		if (std::any_of (deps.begin (), deps.end (), isConstantZeroDouble)) {
-			return ConstantDouble::zero;
+			return ConstantDouble::create (0.);
 		}
 		// Remove any 1s
 		removeDependenciesIf (deps, isConstantOneDouble);
@@ -226,7 +231,7 @@ namespace DF {
 		if (deps.size () == 1) {
 			return convertRef<Value<double>> (deps[0]);
 		} else if (deps.size () == 0) {
-			return ConstantDouble::one;
+			return ConstantDouble::create (1.);
 		} else {
 			return std::make_shared<MulDouble> (std::move (deps));
 		}
@@ -253,17 +258,14 @@ namespace DF {
 		auto & lhs = deps[0];
 		auto & rhs = deps[1];
 		if (isConstantZeroVector (lhs) || isConstantZeroVector (rhs)) {
-			return ConstantDouble::zero;
+			return ConstantDouble::create (0.);
 		} else {
 			return std::make_shared<ScalarProdDouble> (std::move (deps));
 		}
 	}
 
 	// ConstantVectorDouble
-	void ConstantVectorDouble::compute () { failureComputeWasCalled (typeid (ConstantVectorDouble)); }
-	bool ConstantVectorDouble::isConstant () const { return true; }
-	NodeRef ConstantVectorDouble::derive (const Node &) { return createZero (dimensions (*this)); }
-	std::shared_ptr<ConstantVectorDouble> ConstantVectorDouble::createZero (SizeType size) {
+	std::shared_ptr<Constant<VectorDouble>> ConstantVectorDouble::createZero (SizeType size) {
 		return create (zeroVector (size));
 	}
 
@@ -314,10 +316,7 @@ namespace DF {
 	}
 
 	// ConstantMatrixDouble
-	void ConstantMatrixDouble::compute () { failureComputeWasCalled (typeid (ConstantMatrixDouble)); }
-	bool ConstantMatrixDouble::isConstant () const { return true; }
-	NodeRef ConstantMatrixDouble::derive (const Node &) { return createZero (dimensions (*this)); }
-	std::shared_ptr<ConstantMatrixDouble> ConstantMatrixDouble::createZero (MatrixDimension dim) {
+	std::shared_ptr<Constant<MatrixDouble>> ConstantMatrixDouble::createZero (MatrixDimension dim) {
 		return create (zeroMatrix (dim));
 	}
 
