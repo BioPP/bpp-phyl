@@ -89,10 +89,6 @@ namespace Phyl {
 			void compute () override final;
 			std::string debugInfo () const override final;
 			NodeRef derive (const Node &) override final;
-			static std::shared_ptr<ConditionalLikelihoodFromSequence>
-			create (NodeRefVec && deps, LikelihoodDataDimension dim);
-			static std::shared_ptr<ConditionalLikelihoodFromSequence>
-			create (ValueRef<const Sequence *> sequence, LikelihoodDataDimension dim);
 		};
 
 		// vec<fwdLik> -> condLik
@@ -101,7 +97,7 @@ namespace Phyl {
 		// (transitionMatrix, condLik) -> fwdLik
 		using ForwardLikelihoodFromChild = MulMatrixDouble;
 
-    // (condLik, equFreqs) -> likBySiteVector
+		// (condLik, equFreqs) -> likBySiteVector
 		using Likelihood = MulTransposedMatrixVectorDouble;
 
 		struct TotalLogLikelihood : public Value<double> {
@@ -110,8 +106,6 @@ namespace Phyl {
 			TotalLogLikelihood (NodeRefVec && deps);
 			void compute () override final;
 			NodeRef derive (const Node &) override final;
-			static std::shared_ptr<TotalLogLikelihood> create (NodeRefVec && deps);
-			static std::shared_ptr<TotalLogLikelihood> create (ValueRef<VectorDouble> likelihood);
 		};
 	} // namespace DF
 } // namespace Phyl

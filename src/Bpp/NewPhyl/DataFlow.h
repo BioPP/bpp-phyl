@@ -131,7 +131,7 @@ namespace DF {
 	 * However it can be specialised for some node types.
 	 * Specialisations may perform merging, numeric optimisation / simplification.
 	 *
-	 * The shorter make<NodeType> (...) function is provided (it calls Builder<NodeType>::make).
+	 * The shorter makeNode<NodeType> (...) function is provided (it calls Builder<NodeType>::make).
 	 */
 	template <typename NodeType> struct Builder {
 		template <typename... Args> static std::shared_ptr<NodeType> make (Args &&... args) {
@@ -141,12 +141,13 @@ namespace DF {
 
 	// Defers to the Builder<NodeType>::make.
 	template <typename NodeType, typename... Args>
-	auto make (Args &&... args) -> decltype (Builder<NodeType>::make (std::forward<Args> (args)...)) {
+	auto makeNode (Args &&... args)
+	    -> decltype (Builder<NodeType>::make (std::forward<Args> (args)...)) {
 		return Builder<NodeType>::make (std::forward<Args> (args)...);
 	}
 	// Overload that accepts a NodeRef initializer list (commonly used)
 	template <typename NodeType, typename... Args>
-	auto make (std::initializer_list<NodeRef> && deps, Args &&... args)
+	auto makeNode (std::initializer_list<NodeRef> && deps, Args &&... args)
 	    -> decltype (Builder<NodeType>::make (std::move (deps), std::forward<Args> (args)...)) {
 		return Builder<NodeType>::make (std::move (deps), std::forward<Args> (args)...);
 	}

@@ -61,7 +61,7 @@ namespace DF {
 	 * - common template for *,+ opts ?
 	 */
 
-	// Utils
+	/******************************** Utils *******************************/
 	namespace {
 		// Constant builders
 		auto zeroVector (SizeType size) -> decltype (VectorDouble::Zero (size)) {
@@ -113,6 +113,13 @@ namespace DF {
 		}
 	} // namespace
 
+	// Dimensions
+	std::string MatrixDimension::toString () const {
+		return "(" + std::to_string (rows) + "," + std::to_string (cols) + ")";
+	}
+
+	/******************************** External specialisations *******************************/
+
 	// Debug info specialisations
 	template <> std::string Value<double>::debugInfo () const {
 		return std::to_string (this->accessValue ());
@@ -140,12 +147,7 @@ namespace DF {
 		return s;
 	}
 
-	// Dimensions
-	std::string MatrixDimension::toString () const {
-		return "(" + std::to_string (rows) + "," + std::to_string (cols) + ")";
-	}
-
-	// Parameter specialisations
+	// Parameter<double> specialisation
 	template <> NodeRef Parameter<double>::derive (const Node & node) {
 		if (&node == static_cast<const Node *> (this)) {
 			return Builder<Constant<double>>::makeOne ();
@@ -154,7 +156,7 @@ namespace DF {
 		}
 	}
 
-	// Constant<T> specialisations
+	// Constant<double> specialisation
 	template <> NodeRef Constant<double>::derive (const Node &) {
 		return Builder<Constant<double>>::makeZero ();
 	}
@@ -176,6 +178,7 @@ namespace DF {
 		return one;
 	}
 
+	// Constant<VectorDouble> specialisation
 	template <> NodeRef Constant<VectorDouble>::derive (const Node &) {
 		return Builder<Constant<VectorDouble>>::makeZero (dimensions (*this));
 	}
@@ -184,6 +187,7 @@ namespace DF {
 		return make (zeroVector (size));
 	}
 
+	// Constant<MatrixDouble> specialisation
 	template <> NodeRef Constant<MatrixDouble>::derive (const Node &) {
 		return Builder<Constant<MatrixDouble>>::makeZero (dimensions (*this));
 	}
@@ -196,6 +200,11 @@ namespace DF {
 		return make (oneMatrix (dim));
 	}
 
+	/******************************** New Nodes *******************************/
+	// TODO templatize impls
+
+	/******************************** Old nodes *******************************/
+
 	// AddDouble
 	AddDouble::AddDouble (NodeRefVec && deps) : Value<double> (std::move (deps)) {
 		checkDependencies (*this);
@@ -204,18 +213,18 @@ namespace DF {
 		callWithValues (*this, [](double & r) { r = 0.; }, [](double & r, double d) { r += d; });
 	}
 	NodeRef AddDouble::derive (const Node & node) {
-		return AddDouble::create (
+		return makeNode<AddDouble> (
 		    this->dependencies ().map ([&node](const NodeRef & dep) { return dep->derive (node); }));
 	}
-	ValueRef<double> AddDouble::create (NodeRefVec && deps) {
-		checkDependencies<Dependencies> (deps, typeid (AddDouble));
+	ValueRef<double> Builder<AddDouble>::make (NodeRefVec && deps) {
+		checkDependencies<AddDouble> (deps);
 		// Remove '0s' from deps
 		removeDependenciesIf (deps, isConstantZeroDouble);
 		// Node choice
 		if (deps.size () == 1) {
 			return convertRef<Value<double>> (deps[0]);
 		} else if (deps.size () == 0) {
-			return make<Constant<double>> (0.);
+			return makeNode<Constant<double>> (0.);
 		} else {
 			return std::make_shared<AddDouble> (std::move (deps));
 		}
@@ -233,15 +242,15 @@ namespace DF {
 		for (auto i : bpp::index_range (this->dependencies ())) {
 			NodeRefVec mulDeps = this->dependencies ();
 			mulDeps[i] = this->dependencies ()[i]->derive (node);
-			addDeps.emplace_back (MulDouble::create (std::move (mulDeps)));
+			addDeps.emplace_back (makeNode<MulDouble> (std::move (mulDeps)));
 		}
-		return AddDouble::create (std::move (addDeps));
+		return makeNode<AddDouble> (std::move (addDeps));
 	}
-	ValueRef<double> MulDouble::create (NodeRefVec && deps) {
-		checkDependencies<Dependencies> (deps, typeid (MulDouble));
+	ValueRef<double> Builder<MulDouble>::make (NodeRefVec && deps) {
+		checkDependencies<MulDouble> (deps);
 		// Return 0 if any dep is 0
 		if (std::any_of (deps.begin (), deps.end (), isConstantZeroDouble)) {
-			return make<Constant<double>> (0.);
+			return makeNode<Constant<double>> (0.);
 		}
 		// Remove any 1s
 		removeDependenciesIf (deps, isConstantOneDouble);
@@ -249,7 +258,7 @@ namespace DF {
 		if (deps.size () == 1) {
 			return convertRef<Value<double>> (deps[0]);
 		} else if (deps.size () == 0) {
-			return make<Constant<double>> (1.);
+			return makeNode<Constant<double>> (1.);
 		} else {
 			return std::make_shared<MulDouble> (std::move (deps));
 		}
@@ -267,16 +276,16 @@ namespace DF {
 	NodeRef ScalarProdDouble::derive (const Node & node) {
 		auto & lhs = this->dependencies ()[0];
 		auto & rhs = this->dependencies ()[1];
-		auto dLhs = ScalarProdDouble::create (NodeRefVec{lhs->derive (node), rhs});
-		auto dRhs = ScalarProdDouble::create (NodeRefVec{lhs, rhs->derive (node)});
-		return AddDouble::create (NodeRefVec{std::move (dLhs), std::move (dRhs)});
+		auto dLhs = makeNode<ScalarProdDouble> ({lhs->derive (node), rhs});
+		auto dRhs = makeNode<ScalarProdDouble> ({lhs, rhs->derive (node)});
+		return makeNode<AddDouble> ({std::move (dLhs), std::move (dRhs)});
 	}
-	ValueRef<double> ScalarProdDouble::create (NodeRefVec && deps) {
-		checkDependencies<Dependencies> (deps, typeid (ScalarProdDouble));
+	ValueRef<double> Builder<ScalarProdDouble>::make (NodeRefVec && deps) {
+		checkDependencies<ScalarProdDouble> (deps);
 		auto & lhs = deps[0];
 		auto & rhs = deps[1];
 		if (isConstantZeroVector (lhs) || isConstantZeroVector (rhs)) {
-			return make<Constant<double>> (0.);
+			return makeNode<Constant<double>> (0.);
 		} else {
 			return std::make_shared<ScalarProdDouble> (std::move (deps));
 		}
@@ -292,12 +301,12 @@ namespace DF {
 		                [](VectorDouble & r, const VectorDouble & v) { r += v; });
 	}
 	NodeRef AddVectorDouble::derive (const Node & node) {
-		return AddVectorDouble::create (
+		return makeNode<AddVectorDouble> (
 		    this->dependencies ().map ([&node](const NodeRef & dep) { return dep->derive (node); }),
 		    dimensions (*this));
 	}
-	ValueRef<VectorDouble> AddVectorDouble::create (NodeRefVec && deps, SizeType size) {
-		checkDependencies<Dependencies> (deps, typeid (AddVectorDouble));
+	ValueRef<VectorDouble> Builder<AddVectorDouble>::make (NodeRefVec && deps, SizeType size) {
+		checkDependencies<AddVectorDouble> (deps);
 		// Remove Os
 		removeDependenciesIf (deps, isConstantZeroVector);
 		// Select node impl
@@ -318,8 +327,9 @@ namespace DF {
 	void CWiseInverseVectorDouble::compute () {
 		callWithValues (*this, [](VectorDouble & r, const VectorDouble & v) { r = v.cwiseInverse (); });
 	}
-	ValueRef<VectorDouble> CWiseInverseVectorDouble::create (NodeRefVec && deps, SizeType size) {
-		checkDependencies<Dependencies> (deps, typeid (CWiseInverseVectorDouble));
+	ValueRef<VectorDouble> Builder<CWiseInverseVectorDouble>::make (NodeRefVec && deps,
+	                                                                SizeType size) {
+		checkDependencies<CWiseInverseVectorDouble> (deps);
 		auto & arg = deps[0];
 		if (isConstantOnesVector (arg)) {
 			return convertRef<Value<VectorDouble>> (arg);
@@ -339,12 +349,12 @@ namespace DF {
 		                [](MatrixDouble & r, const MatrixDouble & m) { r += m; });
 	}
 	NodeRef AddMatrixDouble::derive (const Node & node) {
-		return AddMatrixDouble::create (
+		return makeNode<AddMatrixDouble> (
 		    this->dependencies ().map ([&node](const NodeRef & dep) { return dep->derive (node); }),
 		    dimensions (*this));
 	}
-	ValueRef<MatrixDouble> AddMatrixDouble::create (NodeRefVec && deps, MatrixDimension dim) {
-		checkDependencies<Dependencies> (deps, typeid (AddMatrixDouble));
+	ValueRef<MatrixDouble> Builder<AddMatrixDouble>::make (NodeRefVec && deps, MatrixDimension dim) {
+		checkDependencies<AddMatrixDouble> (deps);
 		// Remove Os
 		removeDependenciesIf (deps, isConstantZeroMatrix);
 		// Select node impl
@@ -370,12 +380,12 @@ namespace DF {
 		auto dim = dimensions (*this);
 		auto & lhs = this->dependencies ()[0];
 		auto & rhs = this->dependencies ()[1];
-		auto dLhs = MulMatrixDouble::create (NodeRefVec{lhs->derive (node), rhs}, dim);
-		auto dRhs = MulMatrixDouble::create (NodeRefVec{lhs, rhs->derive (node)}, dim);
-		return AddMatrixDouble::create (NodeRefVec{std::move (dLhs), std::move (dRhs)}, dim);
+		auto dLhs = makeNode<MulMatrixDouble> ({lhs->derive (node), rhs}, dim);
+		auto dRhs = makeNode<MulMatrixDouble> ({lhs, rhs->derive (node)}, dim);
+		return makeNode<AddMatrixDouble> ({std::move (dLhs), std::move (dRhs)}, dim);
 	}
-	ValueRef<MatrixDouble> MulMatrixDouble::create (NodeRefVec && deps, MatrixDimension dim) {
-		checkDependencies<Dependencies> (deps, typeid (MulMatrixDouble));
+	ValueRef<MatrixDouble> Builder<MulMatrixDouble>::make (NodeRefVec && deps, MatrixDimension dim) {
+		checkDependencies<MulMatrixDouble> (deps);
 		auto & lhs = deps[0];
 		auto & rhs = deps[1];
 		if (isConstantZeroMatrix (lhs) || isConstantZeroMatrix (rhs)) {
@@ -387,10 +397,6 @@ namespace DF {
 		} else {
 			return std::make_shared<MulMatrixDouble> (std::move (deps), dim);
 		}
-	}
-	ValueRef<MatrixDouble> MulMatrixDouble::create (ValueRef<MatrixDouble> lhs,
-	                                                ValueRef<MatrixDouble> rhs, MatrixDimension dim) {
-		return create (NodeRefVec{std::move (lhs), std::move (rhs)}, dim);
 	}
 
 	// CWiseMulMatrixDouble
@@ -409,12 +415,13 @@ namespace DF {
 		for (auto i : bpp::index_range (this->dependencies ())) {
 			NodeRefVec mulDeps = this->dependencies ();
 			mulDeps[i] = this->dependencies ()[i]->derive (node);
-			addDeps.emplace_back (CWiseMulMatrixDouble::create (std::move (mulDeps), dim));
+			addDeps.emplace_back (makeNode<CWiseMulMatrixDouble> (std::move (mulDeps), dim));
 		}
-		return AddMatrixDouble::create (std::move (addDeps), dim);
+		return makeNode<AddMatrixDouble> (std::move (addDeps), dim);
 	}
-	ValueRef<MatrixDouble> CWiseMulMatrixDouble::create (NodeRefVec && deps, MatrixDimension dim) {
-		checkDependencies<Dependencies> (deps, typeid (CWiseMulMatrixDouble));
+	ValueRef<MatrixDouble> Builder<CWiseMulMatrixDouble>::make (NodeRefVec && deps,
+	                                                            MatrixDimension dim) {
+		checkDependencies<CWiseMulMatrixDouble> (deps);
 		// Return 0 if any 0 dep
 		if (std::any_of (deps.begin (), deps.end (), isConstantZeroMatrix)) {
 			return Builder<Constant<MatrixDouble>>::makeZero (dim);
@@ -445,13 +452,13 @@ namespace DF {
 		auto dim = dimensions (*this);
 		auto & lhs = this->dependencies ()[0];
 		auto & rhs = this->dependencies ()[1];
-		auto dLhs = MulTransposedMatrixVectorDouble::create (NodeRefVec{lhs->derive (node), rhs}, dim);
-		auto dRhs = MulTransposedMatrixVectorDouble::create (NodeRefVec{lhs, rhs->derive (node)}, dim);
-		return AddVectorDouble::create (NodeRefVec{std::move (dLhs), std::move (dRhs)}, dim);
+		auto dLhs = makeNode<MulTransposedMatrixVectorDouble> ({lhs->derive (node), rhs}, dim);
+		auto dRhs = makeNode<MulTransposedMatrixVectorDouble> ({lhs, rhs->derive (node)}, dim);
+		return makeNode<AddVectorDouble> ({std::move (dLhs), std::move (dRhs)}, dim);
 	}
-	ValueRef<VectorDouble> MulTransposedMatrixVectorDouble::create (NodeRefVec && deps,
-	                                                                SizeType size) {
-		checkDependencies<Dependencies> (deps, typeid (MulTransposedMatrixVectorDouble));
+	ValueRef<VectorDouble> Builder<MulTransposedMatrixVectorDouble>::make (NodeRefVec && deps,
+	                                                                       SizeType size) {
+		checkDependencies<MulTransposedMatrixVectorDouble> (deps);
 		auto & lhs = deps[0];
 		auto & rhs = deps[1];
 		if (isConstantZeroMatrix (lhs) || isConstantZeroVector (rhs)) {
@@ -461,11 +468,6 @@ namespace DF {
 		} else {
 			return std::make_shared<MulTransposedMatrixVectorDouble> (std::move (deps), size);
 		}
-	}
-	ValueRef<VectorDouble> MulTransposedMatrixVectorDouble::create (ValueRef<MatrixDouble> lhs,
-	                                                                ValueRef<VectorDouble> rhs,
-	                                                                SizeType size) {
-		return create (NodeRefVec{std::move (lhs), std::move (rhs)}, size);
 	}
 
 	// MulScalarMatrixDouble
@@ -481,12 +483,13 @@ namespace DF {
 		auto dim = dimensions (*this);
 		auto & lhs = this->dependencies ()[0];
 		auto & rhs = this->dependencies ()[1];
-		auto dLhs = MulScalarMatrixDouble::create (NodeRefVec{lhs->derive (node), rhs}, dim);
-		auto dRhs = MulScalarMatrixDouble::create (NodeRefVec{lhs, rhs->derive (node)}, dim);
-		return AddMatrixDouble::create (NodeRefVec{std::move (dLhs), std::move (dRhs)}, dim);
+		auto dLhs = makeNode<MulScalarMatrixDouble> ({lhs->derive (node), rhs}, dim);
+		auto dRhs = makeNode<MulScalarMatrixDouble> ({lhs, rhs->derive (node)}, dim);
+		return makeNode<AddMatrixDouble> ({std::move (dLhs), std::move (dRhs)}, dim);
 	}
-	ValueRef<MatrixDouble> MulScalarMatrixDouble::create (NodeRefVec && deps, MatrixDimension dim) {
-		checkDependencies<Dependencies> (deps, typeid (MulScalarMatrixDouble));
+	ValueRef<MatrixDouble> Builder<MulScalarMatrixDouble>::make (NodeRefVec && deps,
+	                                                             MatrixDimension dim) {
+		checkDependencies<MulScalarMatrixDouble> (deps);
 		auto & lhs = deps[0];
 		auto & rhs = deps[1];
 		if (isConstantZeroDouble (lhs) || isConstantZeroMatrix (rhs)) {

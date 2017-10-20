@@ -217,7 +217,8 @@ TEST_CASE("df")
   auto treeData = bpp::Phyl::convertTreeTemplate(*tree);
 
   // Model
-  auto model = bpp::Phyl::DF::Model::create(std::unique_ptr<bpp::SubstitutionModel>(new bpp::T92(&c.alphabet, 3.)));
+  auto model =
+    bpp::DF::makeNode<bpp::Phyl::DF::Model>(std::unique_ptr<bpp::SubstitutionModel>(new bpp::T92(&c.alphabet, 3.)));
 
   // Create phylogeny description structure TODO simplify this mess
   auto branchLengthMap =

@@ -57,7 +57,7 @@ namespace Phyl {
 			// TODO support already built paramater nodes
 			const auto & parameters = model_->getParameters ();
 			for (auto i : index_range (parameters))
-				this->appendDependency (DF::make<DF::Parameter<double>> (parameters[i].getValue ()));
+				this->appendDependency (DF::makeNode<DF::Parameter<double>> (parameters[i].getValue ()));
 		}
 
 		Model::~Model () = default;
@@ -90,10 +90,6 @@ namespace Phyl {
 			return "nbState=" + std::to_string (model_->getAlphabet ()->getSize ());
 		}
 
-		std::shared_ptr<Model> Model::create (std::unique_ptr<SubstitutionModel> model) {
-			return std::make_shared<Model> (std::move (model));
-		}
-
 		// Compute node functions
 
 		EquilibriumFrequenciesFromModel::EquilibriumFrequenciesFromModel (NodeRefVec && deps,
@@ -114,15 +110,6 @@ namespace Phyl {
 		NodeRef EquilibriumFrequenciesFromModel::derive (const Node & node) {
 			// TODO supports model derivation
 			return Builder<Constant<VectorDouble>>::makeZero (dimensions (*this));
-		}
-		std::shared_ptr<EquilibriumFrequenciesFromModel>
-		EquilibriumFrequenciesFromModel::create (NodeRefVec && deps, SizeType nbStates) {
-			return std::make_shared<EquilibriumFrequenciesFromModel> (std::move (deps), nbStates);
-		}
-		std::shared_ptr<EquilibriumFrequenciesFromModel>
-		EquilibriumFrequenciesFromModel::create (ValueRef<const SubstitutionModel *> model,
-		                                         SizeType nbStates) {
-			return create (NodeRefVec{std::move (model)}, nbStates);
 		}
 
 		namespace {
@@ -159,19 +146,10 @@ namespace Phyl {
 			auto dim = dimensions (*this);
 			auto & modelNode = this->dependencies ()[0];
 			auto & brlenNode = this->dependencies ()[1];
-			auto dTransMat_dBrlen = TransitionMatrixFromModelBrlenDerivative::create (
-			    NodeRefVec{modelNode, brlenNode}, dim.rows);
-			return MulScalarMatrixDouble::create (
-			    NodeRefVec{brlenNode->derive (node), std::move (dTransMat_dBrlen)}, dim);
-		}
-		std::shared_ptr<TransitionMatrixFromModel>
-		TransitionMatrixFromModel::create (NodeRefVec && deps, SizeType nbStates) {
-			return std::make_shared<TransitionMatrixFromModel> (std::move (deps), nbStates);
-		}
-		std::shared_ptr<TransitionMatrixFromModel>
-		TransitionMatrixFromModel::create (ValueRef<const SubstitutionModel *> model,
-		                                   ValueRef<double> brlen, SizeType nbStates) {
-			return create (NodeRefVec{std::move (model), std::move (brlen)}, nbStates);
+			auto dTransMat_dBrlen =
+			    makeNode<TransitionMatrixFromModelBrlenDerivative> ({modelNode, brlenNode}, dim.rows);
+			return makeNode<MulScalarMatrixDouble> (
+			    {brlenNode->derive (node), std::move (dTransMat_dBrlen)}, dim);
 		}
 
 		TransitionMatrixFromModelBrlenDerivative::TransitionMatrixFromModelBrlenDerivative (
@@ -187,15 +165,8 @@ namespace Phyl {
 			return Value<MatrixDouble>::debugInfo () +
 			       " nbStates=" + std::to_string (dimensions (*this).rows);
 		}
-		std::shared_ptr<TransitionMatrixFromModelBrlenDerivative>
-		TransitionMatrixFromModelBrlenDerivative::create (NodeRefVec && deps, SizeType nbStates) {
-			return std::make_shared<TransitionMatrixFromModelBrlenDerivative> (std::move (deps),
-			                                                                   nbStates);
-		}
 
-		// TODO restore
-		// bppToEigen (model->getdPij_dt (brlen), matrix);
-		// bppToEigen (model->getd2Pij_dt2 (brlen), matrix);
+		// TODO restore bppToEigen (model->getd2Pij_dt2 (brlen), matrix);
 	} // namespace DF
 } // namespace Phyl
 } // namespace bpp

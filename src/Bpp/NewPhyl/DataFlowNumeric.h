@@ -114,23 +114,25 @@ namespace DF {
 		AddDouble (NodeRefVec && deps);
 		void compute () override final;
 		NodeRef derive (const Node & node) override final;
-		static ValueRef<double> create (NodeRefVec && deps);
 	};
+	template <> struct Builder<AddDouble> { static ValueRef<double> make (NodeRefVec && deps); };
 
 	struct MulDouble : public Value<double> {
 		using Dependencies = ReductionOfValue<double>;
 		MulDouble (NodeRefVec && deps);
 		void compute () override final;
 		NodeRef derive (const Node & node) override final;
-		static ValueRef<double> create (NodeRefVec && deps);
 	};
+	template <> struct Builder<MulDouble> { static ValueRef<double> make (NodeRefVec && deps); };
 
 	struct ScalarProdDouble : public Value<double> {
 		using Dependencies = FunctionOfValues<VectorDouble, VectorDouble>;
 		ScalarProdDouble (NodeRefVec && deps);
 		void compute () override final;
 		NodeRef derive (const Node & node) override final;
-		static ValueRef<double> create (NodeRefVec && deps);
+	};
+	template <> struct Builder<ScalarProdDouble> {
+		static ValueRef<double> make (NodeRefVec && deps);
 	};
 
 	/* Vector nodes.
@@ -140,7 +142,9 @@ namespace DF {
 		AddVectorDouble (NodeRefVec && deps, SizeType size);
 		void compute () override final;
 		NodeRef derive (const Node & node) override final;
-		static ValueRef<VectorDouble> create (NodeRefVec && deps, SizeType size);
+	};
+	template <> struct Builder<AddVectorDouble> {
+		static ValueRef<VectorDouble> make (NodeRefVec && deps, SizeType type);
 	};
 
 	struct CWiseInverseVectorDouble : public Value<VectorDouble> {
@@ -148,7 +152,9 @@ namespace DF {
 		CWiseInverseVectorDouble (NodeRefVec && deps, SizeType size);
 		void compute () override final;
 		// TODO NodeRef derive (const Node & node) override final;
-		static ValueRef<VectorDouble> create (NodeRefVec && deps, SizeType size);
+	};
+	template <> struct Builder<CWiseInverseVectorDouble> {
+		static ValueRef<VectorDouble> make (NodeRefVec && deps, SizeType type);
 	};
 
 	/* Matrix nodes.
@@ -158,7 +164,9 @@ namespace DF {
 		AddMatrixDouble (NodeRefVec && deps, MatrixDimension dim);
 		void compute () override final;
 		NodeRef derive (const Node & node) override final;
-		static ValueRef<MatrixDouble> create (NodeRefVec && deps, MatrixDimension dim);
+	};
+	template <> struct Builder<AddMatrixDouble> {
+		static ValueRef<MatrixDouble> make (NodeRefVec && deps, MatrixDimension dim);
 	};
 
 	struct MulMatrixDouble : public Value<MatrixDouble> {
@@ -166,9 +174,9 @@ namespace DF {
 		MulMatrixDouble (NodeRefVec && deps, MatrixDimension dim);
 		void compute () override final;
 		NodeRef derive (const Node & node) override final;
-		static ValueRef<MatrixDouble> create (NodeRefVec && deps, MatrixDimension dim);
-		static ValueRef<MatrixDouble> create (ValueRef<MatrixDouble> lhs, ValueRef<MatrixDouble> rhs,
-		                                      MatrixDimension dim);
+	};
+	template <> struct Builder<MulMatrixDouble> {
+		static ValueRef<MatrixDouble> make (NodeRefVec && deps, MatrixDimension dim);
 	};
 
 	struct CWiseMulMatrixDouble : public Value<MatrixDouble> {
@@ -176,7 +184,9 @@ namespace DF {
 		CWiseMulMatrixDouble (NodeRefVec && deps, MatrixDimension dim);
 		void compute () override final;
 		NodeRef derive (const Node & node) override final;
-		static ValueRef<MatrixDouble> create (NodeRefVec && deps, MatrixDimension dim);
+	};
+	template <> struct Builder<CWiseMulMatrixDouble> {
+		static ValueRef<MatrixDouble> make (NodeRefVec && deps, MatrixDimension dim);
 	};
 
 	/* Combinations
@@ -186,9 +196,9 @@ namespace DF {
 		MulTransposedMatrixVectorDouble (NodeRefVec && deps, SizeType size);
 		void compute () override final;
 		NodeRef derive (const Node & node) override final;
-		static ValueRef<VectorDouble> create (NodeRefVec && deps, SizeType size);
-		static ValueRef<VectorDouble> create (ValueRef<MatrixDouble> lhs, ValueRef<VectorDouble> rhs,
-		                                      SizeType type);
+	};
+	template <> struct Builder<MulTransposedMatrixVectorDouble> {
+		static ValueRef<VectorDouble> make (NodeRefVec && deps, SizeType type);
 	};
 
 	struct MulScalarMatrixDouble : public Value<MatrixDouble> {
@@ -196,7 +206,9 @@ namespace DF {
 		MulScalarMatrixDouble (NodeRefVec && deps, MatrixDimension dim);
 		void compute () override final;
 		NodeRef derive (const Node & node) override final;
-		static ValueRef<MatrixDouble> create (NodeRefVec && deps, MatrixDimension dim);
+	};
+	template <> struct Builder<MulScalarMatrixDouble> {
+		static ValueRef<MatrixDouble> make (NodeRefVec && deps, MatrixDimension dim);
 	};
 } // namespace DF
 } // namespace bpp

@@ -60,7 +60,7 @@ public:
 	DataFlowParameter (const std::string & name, DF::ParameterRef<double> existingParam)
 	    : Parameter (name, {}), dfParam_ (std::move (existingParam)) {}
 	DataFlowParameter (const std::string & name, double initialValue)
-	    : DataFlowParameter (name, DF::make<DF::Parameter<double>> (initialValue)) {}
+	    : DataFlowParameter (name, DF::makeNode<DF::Parameter<double>> (initialValue)) {}
 
 	// Parameter boilerplate
 	DataFlowParameter * clone () const override { return new DataFlowParameter (*this); }

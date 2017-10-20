@@ -66,7 +66,7 @@ struct Square : public Value<double>
   NodeRef derive(const Node& variable) override final
   {
     auto& x = this->dependencies()[0];
-    return make<MulDouble>({make<Constant<double>>(2.0), x, x->derive(variable)});
+    return makeNode<MulDouble>({makeNode<Constant<double>>(2.0), x, x->derive(variable)});
   }
 };
 
@@ -74,11 +74,11 @@ struct Square : public Value<double>
 
 TEST_CASE("derive constant")
 {
-  auto konst = make<Constant<double>>(42.0);
+  auto konst = makeNode<Constant<double>>(42.0);
   CHECK(konst->getValue() == 42.0);
   CHECK(konst->isConstant());
 
-  auto dummy = make<Parameter<double>>(0);
+  auto dummy = makeNode<Parameter<double>>(0);
   auto derived = convertRef<Value<double>>(konst->derive(*dummy));
   CHECK(derived->isConstant());
   CHECK(derived->getValue() == 0.);
@@ -86,8 +86,8 @@ TEST_CASE("derive constant")
 
 TEST_CASE("derive parameter")
 {
-  auto x = make<Parameter<double>>(42.0);
-  auto dummy = make<Parameter<double>>(3);
+  auto x = makeNode<Parameter<double>>(42.0);
+  auto dummy = makeNode<Parameter<double>>(3);
 
   auto dx_dx = convertRef<Value<double>>(x->derive(*x));
   CHECK(dx_dx->isConstant());
@@ -113,11 +113,11 @@ TEST_CASE("optimizer test")
 
   auto& x = xp.getDataFlowParameter();
   auto& y = yp.getDataFlowParameter();
-  auto x2 = make<Square>({x});
-  auto konst3 = make<Constant<double>>(-3.);
-  auto sy = make<AddDouble>({y, konst3});
-  auto y2 = make<Square>({sy});
-  auto f = make<AddDouble>({x2, y2});
+  auto x2 = makeNode<Square>({x});
+  auto konst3 = makeNode<Constant<double>>(-3.);
+  auto sy = makeNode<AddDouble>({y, konst3});
+  auto y2 = makeNode<Square>({sy});
+  auto f = makeNode<AddDouble>({x2, y2});
 
   bpp::ParameterList params;
   params.addParameter(xp);

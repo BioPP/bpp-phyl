@@ -91,15 +91,6 @@ namespace Phyl {
 			// Sequence is a constant with respect to all parameters.
 			return Builder<Constant<MatrixDouble>>::makeZero (dimensions (*this));
 		}
-		std::shared_ptr<ConditionalLikelihoodFromSequence>
-		ConditionalLikelihoodFromSequence::create (NodeRefVec && deps, LikelihoodDataDimension dim) {
-			return std::make_shared<ConditionalLikelihoodFromSequence> (std::move (deps), dim);
-		}
-		std::shared_ptr<ConditionalLikelihoodFromSequence>
-		ConditionalLikelihoodFromSequence::create (ValueRef<const Sequence *> sequence,
-		                                           LikelihoodDataDimension dim) {
-			return create (NodeRefVec{std::move (sequence)}, dim);
-		}
 
 		TotalLogLikelihood::TotalLogLikelihood (NodeRefVec && deps) : Value<double> (std::move (deps)) {
 			checkDependencies (*this);
@@ -123,19 +114,9 @@ namespace Phyl {
 		NodeRef TotalLogLikelihood::derive (const Node & node) {
 			// TODO improve this case
 			auto likelihoodVector = convertRef<Value<VectorDouble>> (this->dependencies ()[0]);
-			return ScalarProdDouble::create (
-			    NodeRefVec{likelihoodVector->derive (node),
-			               CWiseInverseVectorDouble::create (NodeRefVec{likelihoodVector},
-			                                                 dimensions (*likelihoodVector))
-
-			    });
-		}
-		std::shared_ptr<TotalLogLikelihood> TotalLogLikelihood::create (NodeRefVec && deps) {
-			return std::make_shared<TotalLogLikelihood> (std::move (deps));
-		}
-		std::shared_ptr<TotalLogLikelihood>
-		TotalLogLikelihood::create (ValueRef<VectorDouble> likelihood) {
-			return create (NodeRefVec{std::move (likelihood)});
+			return makeNode<ScalarProdDouble> ({likelihoodVector->derive (node),
+			                                    makeNode<CWiseInverseVectorDouble> (
+			                                        {likelihoodVector}, dimensions (*likelihoodVector))});
 		}
 	} // namespace DF
 } // namespace Phyl

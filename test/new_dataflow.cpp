@@ -92,16 +92,16 @@ TEST_CASE("Testing data flow system on simple int reduction tree")
    * With p_i parameters, n_i sum nodes, root a neg node.
    */
 
-  auto p1 = make<Parameter<int>>(42);
-  auto p2 = make<Parameter<int>>(1);
-  auto p3 = make<Parameter<int>>(0);
-  auto p4 = make<Parameter<int>>(3);
+  auto p1 = makeNode<Parameter<int>>(42);
+  auto p2 = makeNode<Parameter<int>>(1);
+  auto p3 = makeNode<Parameter<int>>(0);
+  auto p4 = makeNode<Parameter<int>>(3);
 
-  auto n1 = make<AddInt>({p1, p2});
-  auto n2 = make<AddInt>({n1, p3});
-  auto n3 = make<AddInt>({p3, p4});
+  auto n1 = makeNode<AddInt>({p1, p2});
+  auto n2 = makeNode<AddInt>({n1, p3});
+  auto n3 = makeNode<AddInt>({p3, p4});
 
-  auto root = make<NegInt>({n2});
+  auto root = makeNode<NegInt>({n2});
 
   // Initial state
   CHECK(p1->isValid());
@@ -153,7 +153,7 @@ TEST_CASE("Exceptions")
   using namespace bpp::DF;
 
   // Check that param should crash if made invalid
-  auto param = make<Parameter<int>>(42);
+  auto param = makeNode<Parameter<int>>(42);
   param->invalidate(); // Bad !
   auto asValue = convertRef<Value<int>>(param);
   CHECK_THROWS_AS(asValue->computeRecursively(), const bpp::Exception&);
@@ -162,12 +162,12 @@ TEST_CASE("Exceptions")
   CHECK_THROWS_AS((void)convertRef<Value<bool>>(param), const bpp::Exception&);
 
   // GenericFunctionComputation: bad dep vec len
-  CHECK_THROWS_AS(make<NegInt>({}), const bpp::Exception&);
+  CHECK_THROWS_AS(makeNode<NegInt>({}), const bpp::Exception&);
 
   // GenericFunctionComputation: type mismatch
-  auto p = make<Parameter<bool>>();
-  CHECK_THROWS_AS(make<NegInt>({p}), const bpp::Exception&);
+  auto p = makeNode<Parameter<bool>>();
+  CHECK_THROWS_AS(makeNode<NegInt>({p}), const bpp::Exception&);
 
   // GenericReductionComputation: type mismatch
-  CHECK_THROWS_AS(make<AddInt>({p}), const bpp::Exception&);
+  CHECK_THROWS_AS(makeNode<AddInt>({p}), const bpp::Exception&);
 }

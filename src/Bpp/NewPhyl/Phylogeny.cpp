@@ -61,13 +61,13 @@ namespace Phyl {
 			auto dim = dimensions (params);
 			if (node.nbChildBranches () == 0) {
 				auto & sequence = params.leafData.sequences->access (node).value ();
-				return DF::ConditionalLikelihoodFromSequence::create (sequence, dim);
+				return DF::makeNode<DF::ConditionalLikelihoodFromSequence> ({sequence}, dim);
 			} else {
 				DF::NodeRefVec deps;
 				node.foreachChildBranch ([&deps, &params](Topology::Branch && branch) {
 					deps.emplace_back (makeForwardLikelihoodNode (params, std::move (branch)));
 				});
-				return DF::ConditionalLikelihoodFromChildrens::create (std::move (deps), dim);
+				return DF::makeNode<DF::ConditionalLikelihoodFromChildrens> (std::move (deps), dim);
 			}
 		}
 
@@ -79,10 +79,10 @@ namespace Phyl {
 			auto & branchModel = params.process.modelByBranch->access (branch).value ();
 			auto & brlen = params.process.branchLengths->access (branch).value ();
 			auto modelTransitionMatrix =
-			    DF::TransitionMatrixFromModel::create (branchModel, brlen, dim.nbStates ());
+			    DF::makeNode<DF::TransitionMatrixFromModel> ({branchModel, brlen}, dim.nbStates ());
 
-			return DF::ForwardLikelihoodFromChild::create (std::move (modelTransitionMatrix),
-			                                               std::move (conditionalLikelihood), dim);
+			return DF::makeNode<DF::ForwardLikelihoodFromChild> (
+			    {std::move (modelTransitionMatrix), std::move (conditionalLikelihood)}, dim);
 		}
 	} // namespace
 
@@ -92,11 +92,12 @@ namespace Phyl {
 		    params.process.modelByBranch->access (params.process.tree->rootNode ().fatherBranch ())
 		        .value ();
 		auto rootEquilibriumFrequencies =
-		    DF::EquilibriumFrequenciesFromModel::create (rootBranchModel, dim.nbStates ());
-		auto likelihood = DF::Likelihood::create (
-		    makeConditionalLikelihoodNode (params, params.process.tree->rootNode ()),
-		    std::move (rootEquilibriumFrequencies), dim.nbSites ());
-		return DF::TotalLogLikelihood::create (std::move (likelihood));
+		    DF::makeNode<DF::EquilibriumFrequenciesFromModel> ({rootBranchModel}, dim.nbStates ());
+		auto likelihood = DF::makeNode<DF::Likelihood> (
+		    {makeConditionalLikelihoodNode (params, params.process.tree->rootNode ()),
+		     std::move (rootEquilibriumFrequencies)},
+		    dim.nbSites ());
+		return DF::makeNode<DF::TotalLogLikelihood> ({std::move (likelihood)});
 	}
 
 } // namespace Phyl
