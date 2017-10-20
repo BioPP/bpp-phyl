@@ -257,6 +257,7 @@ TEST_CASE("df")
   {
     std::ofstream fd("df_debug");
     // bpp::DF::debugDag(fd, logLikNode, bpp::DF::DebugOptions::DetailedNodeInfo);
+    likFunc.getFirstOrderDerivative("BrLen1");
     bpp::DF::debugDag(fd, likFunc.getAllNamedNodes("f"));
     // bpp::Topology::debugTree(fd, treeData.topology);
   }

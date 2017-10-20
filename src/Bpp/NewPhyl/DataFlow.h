@@ -131,7 +131,7 @@ namespace DF {
 	 * However it can be specialised for some node types.
 	 * Specialisations may perform merging, numeric optimisation / simplification.
 	 *
-	 * The shorter make<NodeType> (...) function is provided (it simply calls the Builder one).
+	 * The shorter make<NodeType> (...) function is provided (it calls Builder<NodeType>::make).
 	 */
 	template <typename NodeType> struct Builder {
 		template <typename... Args> static std::shared_ptr<NodeType> make (Args &&... args) {

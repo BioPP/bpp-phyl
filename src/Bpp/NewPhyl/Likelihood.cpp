@@ -89,7 +89,7 @@ namespace Phyl {
 		}
 		NodeRef ConditionalLikelihoodFromSequence::derive (const Node &) {
 			// Sequence is a constant with respect to all parameters.
-			return ConstantMatrixDouble::createZero (dimensions (*this));
+			return Builder<Constant<MatrixDouble>>::makeZero (dimensions (*this));
 		}
 		std::shared_ptr<ConditionalLikelihoodFromSequence>
 		ConditionalLikelihoodFromSequence::create (NodeRefVec && deps, LikelihoodDataDimension dim) {

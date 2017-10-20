@@ -57,14 +57,31 @@ namespace DF {
 	using VectorDouble = Eigen::VectorXd;
 	using MatrixDouble = Eigen::MatrixXd;
 
-	// Debug info defined as overrides by types
+	// Debug info defined as overrides by types TODO move DF.h
 	template <> std::string Value<double>::debugInfo () const;
 	template <> std::string Value<VectorDouble>::debugInfo () const;
 	template <> std::string Value<MatrixDouble>::debugInfo () const;
 
 	// Additional Constant<T> specialisation (TODO move to DFT.h, with forward declaration)
 	template <> NodeRef Constant<VectorDouble>::derive (const Node & node);
+	template <> struct Builder<Constant<VectorDouble>> {
+		template <typename EigenVector>
+		static std::shared_ptr<Constant<VectorDouble>> make (const EigenVector & v) {
+			return std::make_shared<Constant<VectorDouble>> (v);
+		}
+		static std::shared_ptr<Constant<VectorDouble>> makeZero (SizeType size);
+	};
+
+	struct MatrixDimension;
 	template <> NodeRef Constant<MatrixDouble>::derive (const Node & node);
+	template <> struct Builder<Constant<MatrixDouble>> {
+		template <typename EigenMatrix>
+		static std::shared_ptr<Constant<MatrixDouble>> make (const EigenMatrix & m) {
+			return std::make_shared<Constant<MatrixDouble>> (m);
+		}
+		static std::shared_ptr<Constant<MatrixDouble>> makeZero (const MatrixDimension & dim);
+		static std::shared_ptr<Constant<MatrixDouble>> makeOne (const MatrixDimension & dim);
+	};
 
 	// Dimensions
 	struct MatrixDimension {
@@ -118,15 +135,6 @@ namespace DF {
 
 	/* Vector nodes.
 	 */
-	struct ConstantVectorDouble {
-		// TODO remove
-		template <typename Derived>
-		static std::shared_ptr<Constant<VectorDouble>> create (const Eigen::EigenBase<Derived> & expr) {
-			return std::make_shared<Constant<VectorDouble>> (expr);
-		}
-		static std::shared_ptr<Constant<VectorDouble>> createZero (SizeType size);
-	};
-
 	struct AddVectorDouble : public Value<VectorDouble> {
 		using Dependencies = ReductionOfValue<VectorDouble>;
 		AddVectorDouble (NodeRefVec && deps, SizeType size);
@@ -145,15 +153,6 @@ namespace DF {
 
 	/* Matrix nodes.
 	 */
-	struct ConstantMatrixDouble {
-		// TODO remove
-		template <typename Derived>
-		static std::shared_ptr<Constant<MatrixDouble>> create (const Eigen::EigenBase<Derived> & expr) {
-			return std::make_shared<Constant<MatrixDouble>> (expr);
-		}
-		static std::shared_ptr<Constant<MatrixDouble>> createZero (MatrixDimension dim);
-	};
-
 	struct AddMatrixDouble : public Value<MatrixDouble> {
 		using Dependencies = ReductionOfValue<MatrixDouble>;
 		AddMatrixDouble (NodeRefVec && deps, MatrixDimension dim);

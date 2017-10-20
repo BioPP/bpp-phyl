@@ -113,7 +113,7 @@ namespace Phyl {
 		}
 		NodeRef EquilibriumFrequenciesFromModel::derive (const Node & node) {
 			// TODO supports model derivation
-			return ConstantVectorDouble::createZero (dimensions (*this));
+			return Builder<Constant<VectorDouble>>::makeZero (dimensions (*this));
 		}
 		std::shared_ptr<EquilibriumFrequenciesFromModel>
 		EquilibriumFrequenciesFromModel::create (NodeRefVec && deps, SizeType nbStates) {

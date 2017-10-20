@@ -115,6 +115,8 @@ namespace DF {
 	template <> NodeRef Constant<double>::derive (const Node & node);
 	template <> struct Builder<Constant<double>> {
 		static std::shared_ptr<Constant<double>> make (double d);
+		static std::shared_ptr<Constant<double>> makeZero ();
+		static std::shared_ptr<Constant<double>> makeOne ();
 	};
 
 	// TODO forward declare the ones for Vector & Matrix, for not in DFNumeric.h
