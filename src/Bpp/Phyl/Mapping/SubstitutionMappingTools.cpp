@@ -2172,7 +2172,7 @@ void SubstitutionMappingTools::computeCountsPerSitePerType(
    
   const WordAlphabet* wAlp=dynamic_cast<const WordAlphabet*>(nullModelSet->getAlphabet());
 
-  float sizeWord=float((wAlp!=NULL) & perWord?wAlp->getLength():1);
+  float sizeWord=float((wAlp!=NULL) & !perWord?wAlp->getLength():1);
  
   // output
   
