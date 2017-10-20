@@ -51,19 +51,6 @@
 
 using namespace bpp::DF;
 
-// Support initializer list input
-template<typename T, typename... Args>
-auto createNode(Args&&... args) -> decltype(T::create(std::forward<Args>(args)...))
-{
-  return T::create(std::forward<Args>(args)...);
-}
-template<typename T, typename... Args>
-auto createNode(std::initializer_list<NodeRef>&& ilist, Args&&... args)
-  -> decltype(T::create(std::move(ilist), std::forward<Args>(args)...))
-{
-  return T::create(std::move(ilist), std::forward<Args>(args)...);
-}
-
 struct AddInt : public Value<int>
 {
   using Dependencies = ReductionOfValue<int>;
@@ -76,7 +63,6 @@ struct AddInt : public Value<int>
   {
     callWithValues(*this, [](int& r) { r = 0; }, [](int& r, int i) { r += i; });
   }
-  static std::shared_ptr<AddInt> create(NodeRefVec&& deps) { return std::make_shared<AddInt>(std::move(deps)); }
 };
 
 struct NegInt : public Value<int>
@@ -91,7 +77,6 @@ struct NegInt : public Value<int>
   {
     callWithValues(*this, [](int& r, int i) { r = -i; });
   }
-  static std::shared_ptr<NegInt> create(NodeRefVec&& deps) { return std::make_shared<NegInt>(std::move(deps)); }
 };
 
 TEST_CASE("Testing data flow system on simple int reduction tree")
@@ -107,16 +92,16 @@ TEST_CASE("Testing data flow system on simple int reduction tree")
    * With p_i parameters, n_i sum nodes, root a neg node.
    */
 
-  auto p1 = createNode<Parameter<int>>(42);
-  auto p2 = createNode<Parameter<int>>(1);
-  auto p3 = createNode<Parameter<int>>(0);
-  auto p4 = createNode<Parameter<int>>(3);
+  auto p1 = make<Parameter<int>>(42);
+  auto p2 = make<Parameter<int>>(1);
+  auto p3 = make<Parameter<int>>(0);
+  auto p4 = make<Parameter<int>>(3);
 
-  auto n1 = createNode<AddInt>({p1, p2});
-  auto n2 = createNode<AddInt>({n1, p3});
-  auto n3 = createNode<AddInt>({p3, p4});
+  auto n1 = make<AddInt>({p1, p2});
+  auto n2 = make<AddInt>({n1, p3});
+  auto n3 = make<AddInt>({p3, p4});
 
-  auto root = createNode<NegInt>({n2});
+  auto root = make<NegInt>({n2});
 
   // Initial state
   CHECK(p1->isValid());
@@ -168,7 +153,7 @@ TEST_CASE("Exceptions")
   using namespace bpp::DF;
 
   // Check that param should crash if made invalid
-  auto param = createNode<Parameter<int>>(42);
+  auto param = make<Parameter<int>>(42);
   param->invalidate(); // Bad !
   auto asValue = convertRef<Value<int>>(param);
   CHECK_THROWS_AS(asValue->computeRecursively(), const bpp::Exception&);
@@ -177,12 +162,12 @@ TEST_CASE("Exceptions")
   CHECK_THROWS_AS((void)convertRef<Value<bool>>(param), const bpp::Exception&);
 
   // GenericFunctionComputation: bad dep vec len
-  CHECK_THROWS_AS(createNode<NegInt>({}), const bpp::Exception&);
+  CHECK_THROWS_AS(make<NegInt>({}), const bpp::Exception&);
 
   // GenericFunctionComputation: type mismatch
-  auto p = createNode<Parameter<bool>>();
-  CHECK_THROWS_AS(createNode<NegInt>({p}), const bpp::Exception&);
+  auto p = make<Parameter<bool>>();
+  CHECK_THROWS_AS(make<NegInt>({p}), const bpp::Exception&);
 
   // GenericReductionComputation: type mismatch
-  CHECK_THROWS_AS(createNode<AddInt>({p}), const bpp::Exception&);
+  CHECK_THROWS_AS(make<AddInt>({p}), const bpp::Exception&);
 }

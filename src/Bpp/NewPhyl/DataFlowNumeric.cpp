@@ -160,22 +160,21 @@ namespace DF {
 
 	// Constant<T> specialisations
 	template <> NodeRef Constant<double>::derive (const Node &) { return constDouble0; }
-	template <> NodeRef Constant<VectorDouble>::derive (const Node &) {
-		return ConstantVectorDouble::createZero (dimensions (*this));
-	}
-	template <> NodeRef Constant<MatrixDouble>::derive (const Node &) {
-		return ConstantMatrixDouble::createZero (dimensions (*this));
-	}
-
-	// TODO place in Constant<double>
-	std::shared_ptr<Constant<double>> ConstantDouble::create (double d) {
+	std::shared_ptr<Constant<double>> Builder<Constant<double>>::make (double d) {
 		if (d == 0.) {
 			return constDouble0;
 		} else if (d == 1.) {
 			return constDouble1;
 		} else {
-			return Constant<double>::create (d);
+			return std::make_shared<Constant<double>> (d);
 		}
+	}
+
+	template <> NodeRef Constant<VectorDouble>::derive (const Node &) {
+		return ConstantVectorDouble::createZero (dimensions (*this));
+	}
+	template <> NodeRef Constant<MatrixDouble>::derive (const Node &) {
+		return ConstantMatrixDouble::createZero (dimensions (*this));
 	}
 
 	// AddDouble
@@ -197,7 +196,7 @@ namespace DF {
 		if (deps.size () == 1) {
 			return convertRef<Value<double>> (deps[0]);
 		} else if (deps.size () == 0) {
-			return ConstantDouble::create (0.);
+			return make<Constant<double>> (0.);
 		} else {
 			return std::make_shared<AddDouble> (std::move (deps));
 		}
@@ -223,7 +222,7 @@ namespace DF {
 		checkDependencies<Dependencies> (deps, typeid (MulDouble));
 		// Return 0 if any dep is 0
 		if (std::any_of (deps.begin (), deps.end (), isConstantZeroDouble)) {
-			return ConstantDouble::create (0.);
+			return make<Constant<double>> (0.);
 		}
 		// Remove any 1s
 		removeDependenciesIf (deps, isConstantOneDouble);
@@ -231,7 +230,7 @@ namespace DF {
 		if (deps.size () == 1) {
 			return convertRef<Value<double>> (deps[0]);
 		} else if (deps.size () == 0) {
-			return ConstantDouble::create (1.);
+			return make<Constant<double>> (1.);
 		} else {
 			return std::make_shared<MulDouble> (std::move (deps));
 		}
@@ -258,7 +257,7 @@ namespace DF {
 		auto & lhs = deps[0];
 		auto & rhs = deps[1];
 		if (isConstantZeroVector (lhs) || isConstantZeroVector (rhs)) {
-			return ConstantDouble::create (0.);
+			return make<Constant<double>> (0.);
 		} else {
 			return std::make_shared<ScalarProdDouble> (std::move (deps));
 		}

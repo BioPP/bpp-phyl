@@ -57,7 +57,7 @@ namespace Phyl {
 			// TODO support already built paramater nodes
 			const auto & parameters = model_->getParameters ();
 			for (auto i : index_range (parameters))
-				this->appendDependency (DF::Parameter<double>::create (parameters[i].getValue ()));
+				this->appendDependency (DF::make<DF::Parameter<double>> (parameters[i].getValue ()));
 		}
 
 		Model::~Model () = default;

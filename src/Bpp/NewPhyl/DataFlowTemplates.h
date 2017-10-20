@@ -86,10 +86,6 @@ namespace DF {
 		// Defined as default to enable specialisation
 		NodeRef derive (const Node & node) override final { return Value<T>::derive (node); }
 
-		template <typename... Args> static std::shared_ptr<Parameter<T>> create (Args &&... args) {
-			return std::make_shared<Parameter<T>> (std::forward<Args> (args)...);
-		}
-
 	private:
 		void compute () override final { failureComputeWasCalled (typeid (Parameter<T>)); }
 	};
@@ -109,17 +105,18 @@ namespace DF {
 		// Defined as default to enable specialisation
 		NodeRef derive (const Node & node) override final { return Value<T>::derive (node); }
 
-		template <typename... Args> static std::shared_ptr<Constant<T>> create (Args &&... args) {
-			return std::make_shared<Constant<T>> (std::forward<Args> (args)...);
-		}
-
 	private:
 		void compute () override final { failureComputeWasCalled (typeid (Constant<T>)); }
 	};
 
 	// Specialisations in DataFlowNumeric.cpp
 	template <> NodeRef Parameter<double>::derive (const Node & node);
+
 	template <> NodeRef Constant<double>::derive (const Node & node);
+	template <> struct Builder<Constant<double>> {
+		static std::shared_ptr<Constant<double>> make (double d);
+	};
+
 	// TODO forward declare the ones for Vector & Matrix, for not in DFNumeric.h
 } // namespace DF
 } // namespace bpp

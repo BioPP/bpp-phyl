@@ -92,11 +92,6 @@ namespace DF {
 
 	/* Double nodes.
 	 */
-	struct ConstantDouble {
-		// TODO remove
-		static std::shared_ptr<Constant<double>> create (double d);
-	};
-
 	struct AddDouble : public Value<double> {
 		using Dependencies = ReductionOfValue<double>;
 		AddDouble (NodeRefVec && deps);

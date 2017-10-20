@@ -68,10 +68,6 @@ namespace DF {
 	 *
 	 * TODO determine what to remove from the class API (computeRecursively ?)
 	 * TODO move most stuff to protected, use an InternalAccessor ?
-	 *
-	 * All node implementation classes are supposed to provide a create() static function.
-	 * This function should return a shared_ptr<?> pointing to a node with the requested value.
-	 * The function is allowed to perform optimisations : numeric simplification, merging, ...
 	 */
 	class Node {
 	public:
@@ -107,13 +103,13 @@ namespace DF {
 
 		// Derive with respect to node (default = error)
 		virtual NodeRef derive (const Node & node);
-    // TODO add non virtual "nice" overloads for const sp<T> & if T:Node ?
+		// TODO add non virtual "nice" overloads for const sp<T> & if T:Node ?
 
 	protected:
 		void makeValid () noexcept { isValid_ = true; }
 
 		// FIXME delete later
-    // Only use is in model, but auto creation of Parameters will move to create.
+		// Only use is in model, but auto creation of Parameters will move to create.
 		void appendDependency (NodeRef node);
 
 	private:
@@ -129,13 +125,40 @@ namespace DF {
 		bool isValid_{false};
 	};
 
+	/* Node are by convention manipulated as shared_ptr<NodeType>.
+	 * Node construction should always be done through the Builder<NodeType>::make function.
+	 * This class defaults to simply using std::make_shared.
+	 * However it can be specialised for some node types.
+	 * Specialisations may perform merging, numeric optimisation / simplification.
+	 *
+	 * The shorter make<NodeType> (...) function is provided (it simply calls the Builder one).
+	 */
+	template <typename NodeType> struct Builder {
+		template <typename... Args> static std::shared_ptr<NodeType> make (Args &&... args) {
+			return std::make_shared<NodeType> (std::forward<Args> (args)...);
+		}
+	};
+
+	// Defers to the Builder<NodeType>::make.
+	template <typename NodeType, typename... Args>
+	auto make (Args &&... args) -> decltype (Builder<NodeType>::make (std::forward<Args> (args)...)) {
+		return Builder<NodeType>::make (std::forward<Args> (args)...);
+	}
+	// Overload that accepts a NodeRef initializer list (commonly used)
+	template <typename NodeType, typename... Args>
+	auto make (std::initializer_list<NodeRef> && deps, Args &&... args)
+	    -> decltype (Builder<NodeType>::make (std::move (deps), std::forward<Args> (args)...)) {
+		return Builder<NodeType>::make (std::move (deps), std::forward<Args> (args)...);
+	}
+
+	// Used in Value<T> to select constructors
 	struct NoDependencyTag {
 		constexpr NoDependencyTag () = default;
 	};
 	constexpr NoDependencyTag noDependency{};
 
 	/* Valued node.
-   * Represents a DataFlow node containing a T value, but still abstract (no compute()).
+	 * Represents a DataFlow node containing a T value, but still abstract (no compute()).
 	 */
 	template <typename T> class Value : public Node {
 	public:
@@ -172,7 +195,7 @@ namespace DF {
 
 	private:
 		// Allow wrappers in DataFlowInternalTemplates write access to the value through this function.
-    // TODO use InternalAccessor
+		// TODO use InternalAccessor
 		template <typename U> friend U & accessMutableValue (Value<U> &) noexcept;
 	};
 
