@@ -119,10 +119,10 @@ namespace DF {
 	}
 
 	SizeType dimensions (const Value<VectorDouble> & node) noexcept {
-		return dimensions (InternalAccessor::accessValueConst (node));
+		return dimensions (accessValueConst (node));
 	}
 	MatrixDimension dimensions (const Value<MatrixDouble> & node) noexcept {
-		return dimensions (InternalAccessor::accessValueConst (node));
+		return dimensions (accessValueConst (node));
 	}
 
 	/******************************** External specialisations *******************************/

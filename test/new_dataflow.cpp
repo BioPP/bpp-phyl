@@ -146,17 +146,22 @@ TEST_CASE("Testing data flow system on simple int reduction tree")
   debugDag(fd, root);
 }
 
-#include <iostream>
+template<typename T>
+struct MyParam : bpp::DF::Parameter<T>
+{
+  using bpp::DF::Parameter<T>::Parameter;
+  using bpp::DF::Parameter<T>::invalidateRecursively;
+  using bpp::DF::Parameter<T>::computeRecursively;
+};
 
 TEST_CASE("Exceptions")
 {
   using namespace bpp::DF;
 
   // Check that param should crash if made invalid
-  auto param = makeNode<Parameter<int>>(42);
+  auto param = makeNode<MyParam<int>>(42);
   param->invalidateRecursively(); // Bad !
-  auto asValue = convertRef<Value<int>>(param);
-  CHECK_THROWS_AS(asValue->computeRecursively(), const bpp::Exception&);
+  CHECK_THROWS_AS(param->computeRecursively(), const bpp::Exception&);
 
   // Bad node dynamic downcast
   CHECK_THROWS_AS((void)convertRef<Value<bool>>(param), const bpp::Exception&);
