@@ -102,10 +102,9 @@ namespace DF {
 	inline MatrixDimension dimensions (const MatrixDouble & m) noexcept {
 		return {m.rows (), m.cols ()};
 	}
-	template <typename T>
-	auto dimensions (const Value<T> & node) noexcept -> decltype (dimensions (node.accessValue ())) {
-		return dimensions (node.accessValue ());
-	}
+
+	SizeType dimensions (const Value<VectorDouble> & node) noexcept;
+	MatrixDimension dimensions (const Value<MatrixDouble> & node) noexcept;
 
 	/* Double nodes.
 	 */

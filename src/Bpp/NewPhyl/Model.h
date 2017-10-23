@@ -68,39 +68,48 @@ namespace Phyl {
 			ParameterRef<double> getParameter (const std::string & name);
 			const std::string & getParameterName (SizeType index);
 
-			void compute () override final;
 			std::string description () const override final;
 			std::string debugInfo () const override final;
 
 		private:
+			void compute () override final;
 			std::unique_ptr<SubstitutionModel> model_;
 		};
 
 		// Compute nodes
 
-		struct EquilibriumFrequenciesFromModel : public Value<VectorDouble> {
+		class EquilibriumFrequenciesFromModel : public Value<VectorDouble> {
+		public:
 			// -> vector of equilibrium frequencies by state
 			using Dependencies = FunctionOfValues<const SubstitutionModel *>;
 			EquilibriumFrequenciesFromModel (NodeRefVec && deps, SizeType nbStates);
-			void compute () override final;
 			std::string debugInfo () const override final;
 			NodeRef derive (const Node & node) override final;
+
+		private:
+			void compute () override final;
 		};
 
-		struct TransitionMatrixFromModel : public Value<MatrixDouble> {
+		class TransitionMatrixFromModel : public Value<MatrixDouble> {
+		public:
 			// (model, branch length) -> transition matrix
 			using Dependencies = FunctionOfValues<const SubstitutionModel *, double>;
 			TransitionMatrixFromModel (NodeRefVec && deps, SizeType nbStates);
-			void compute () override final;
 			std::string debugInfo () const override final;
 			NodeRef derive (const Node & node) override final;
+
+		private:
+			void compute () override final;
 		};
 
-		struct TransitionMatrixFromModelBrlenDerivative : public Value<MatrixDouble> {
+		class TransitionMatrixFromModelBrlenDerivative : public Value<MatrixDouble> {
+		public:
 			using Dependencies = FunctionOfValues<const SubstitutionModel *, double>;
 			TransitionMatrixFromModelBrlenDerivative (NodeRefVec && deps, SizeType nbStates);
-			void compute () override final;
 			std::string debugInfo () const override final;
+
+		private:
+			void compute () override final;
 		};
 	} // namespace DF
 } // namespace Phyl

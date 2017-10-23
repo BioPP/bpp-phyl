@@ -154,7 +154,7 @@ TEST_CASE("Exceptions")
 
   // Check that param should crash if made invalid
   auto param = makeNode<Parameter<int>>(42);
-  param->invalidate(); // Bad !
+  param->invalidateRecursively(); // Bad !
   auto asValue = convertRef<Value<int>>(param);
   CHECK_THROWS_AS(asValue->computeRecursively(), const bpp::Exception&);
 

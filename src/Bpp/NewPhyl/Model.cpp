@@ -64,7 +64,9 @@ namespace Phyl {
 
 		SizeType Model::nbParameters () const noexcept { return this->dependencies ().size (); }
 		ParameterRef<double> Model::getParameter (SizeType index) {
-			return convertRef<DF::Parameter<double>> (this->dependencies ().at (index));
+			assert (0 <= index);
+			assert (index < this->nbDependencies ());
+			return convertRef<DF::Parameter<double>> (this->dependency (index));
 		}
 		ParameterRef<double> Model::getParameter (const std::string & name) {
 			return getParameter (
@@ -74,20 +76,20 @@ namespace Phyl {
 			return model_->getParameters ()[static_cast<std::size_t> (index)].getName ();
 		}
 
+		std::string Model::description () const { return "Model(" + model_->getName () + ")"; }
+		std::string Model::debugInfo () const {
+			return "nbState=" + std::to_string (model_->getAlphabet ()->getSize ());
+		}
+
 		void Model::compute () {
 			// Update current model params with ours
 			auto & modelParams = model_->getParameters ();
 			for (auto i : index_range (this->dependencies ())) {
-				auto v = accessValueUncheckedCast<double> (*this->dependencies ()[i]);
+				auto v = accessValidValueConstCast<double> (this->dependency (i));
 				auto & p = modelParams[static_cast<std::size_t> (i)];
 				if (p.getValue () != v)
 					model_->setParameterValue (model_->getParameterNameWithoutNamespace (p.getName ()), v);
 			}
-		}
-
-		std::string Model::description () const { return "Model(" + model_->getName () + ")"; }
-		std::string Model::debugInfo () const {
-			return "nbState=" + std::to_string (model_->getAlphabet ()->getSize ());
 		}
 
 		// Compute node functions
@@ -144,8 +146,8 @@ namespace Phyl {
 			 * Only supports brlen derivation for now
 			 */
 			auto dim = dimensions (*this);
-			auto & modelNode = this->dependencies ()[0];
-			auto & brlenNode = this->dependencies ()[1];
+			auto & modelNode = this->dependency (0);
+			auto & brlenNode = this->dependency (1);
 			auto dTransMat_dBrlen =
 			    makeNode<TransitionMatrixFromModelBrlenDerivative> ({modelNode, brlenNode}, dim.rows);
 			return makeNode<MulScalarMatrixDouble> (

@@ -118,14 +118,21 @@ namespace DF {
 		return "(" + std::to_string (rows) + "," + std::to_string (cols) + ")";
 	}
 
+	SizeType dimensions (const Value<VectorDouble> & node) noexcept {
+		return dimensions (InternalAccessor::accessValueConst (node));
+	}
+	MatrixDimension dimensions (const Value<MatrixDouble> & node) noexcept {
+		return dimensions (InternalAccessor::accessValueConst (node));
+	}
+
 	/******************************** External specialisations *******************************/
 
 	// Debug info specialisations
 	template <> std::string Value<double>::debugInfo () const {
-		return std::to_string (this->accessValue ());
+		return std::to_string (this->value_);
 	}
 	template <> std::string Value<VectorDouble>::debugInfo () const {
-		auto & v = this->accessValue ();
+		auto & v = this->value_;
 		auto s = std::string ("size=") + std::to_string (dimensions (v)) + " props{";
 		if (isExactZeroVector (v))
 			s += '0';
@@ -135,7 +142,7 @@ namespace DF {
 		return s;
 	}
 	template <> std::string Value<MatrixDouble>::debugInfo () const {
-		auto & m = this->accessValue ();
+		auto & m = this->value_;
 		auto s = std::string ("dim") + dimensions (m).toString () + " props{";
 		if (isExactZeroMatrix (m))
 			s += '0';
@@ -239,9 +246,9 @@ namespace DF {
 	}
 	NodeRef MulDouble::derive (const Node & node) {
 		NodeRefVec addDeps;
-		for (auto i : bpp::index_range (this->dependencies ())) {
+		for (auto i : bpp::range (this->nbDependencies ())) {
 			NodeRefVec mulDeps = this->dependencies ();
-			mulDeps[i] = this->dependencies ()[i]->derive (node);
+			mulDeps[i] = this->dependency (i)->derive (node);
 			addDeps.emplace_back (makeNode<MulDouble> (std::move (mulDeps)));
 		}
 		return makeNode<AddDouble> (std::move (addDeps));
@@ -274,8 +281,8 @@ namespace DF {
 		});
 	}
 	NodeRef ScalarProdDouble::derive (const Node & node) {
-		auto & lhs = this->dependencies ()[0];
-		auto & rhs = this->dependencies ()[1];
+		auto & lhs = this->dependency (0);
+		auto & rhs = this->dependency (1);
 		auto dLhs = makeNode<ScalarProdDouble> ({lhs->derive (node), rhs});
 		auto dRhs = makeNode<ScalarProdDouble> ({lhs, rhs->derive (node)});
 		return makeNode<AddDouble> ({std::move (dLhs), std::move (dRhs)});
@@ -378,8 +385,8 @@ namespace DF {
 	}
 	NodeRef MulMatrixDouble::derive (const Node & node) {
 		auto dim = dimensions (*this);
-		auto & lhs = this->dependencies ()[0];
-		auto & rhs = this->dependencies ()[1];
+		auto & lhs = this->dependency (0);
+		auto & rhs = this->dependency (1);
 		auto dLhs = makeNode<MulMatrixDouble> ({lhs->derive (node), rhs}, dim);
 		auto dRhs = makeNode<MulMatrixDouble> ({lhs, rhs->derive (node)}, dim);
 		return makeNode<AddMatrixDouble> ({std::move (dLhs), std::move (dRhs)}, dim);
@@ -412,9 +419,9 @@ namespace DF {
 	NodeRef CWiseMulMatrixDouble::derive (const Node & node) {
 		auto dim = dimensions (*this);
 		NodeRefVec addDeps;
-		for (auto i : bpp::index_range (this->dependencies ())) {
+		for (auto i : bpp::range (this->nbDependencies ())) {
 			NodeRefVec mulDeps = this->dependencies ();
-			mulDeps[i] = this->dependencies ()[i]->derive (node);
+			mulDeps[i] = this->dependency (i)->derive (node);
 			addDeps.emplace_back (makeNode<CWiseMulMatrixDouble> (std::move (mulDeps), dim));
 		}
 		return makeNode<AddMatrixDouble> (std::move (addDeps), dim);
@@ -450,8 +457,8 @@ namespace DF {
 	}
 	NodeRef MulTransposedMatrixVectorDouble::derive (const Node & node) {
 		auto dim = dimensions (*this);
-		auto & lhs = this->dependencies ()[0];
-		auto & rhs = this->dependencies ()[1];
+		auto & lhs = this->dependency (0);
+		auto & rhs = this->dependency (1);
 		auto dLhs = makeNode<MulTransposedMatrixVectorDouble> ({lhs->derive (node), rhs}, dim);
 		auto dRhs = makeNode<MulTransposedMatrixVectorDouble> ({lhs, rhs->derive (node)}, dim);
 		return makeNode<AddVectorDouble> ({std::move (dLhs), std::move (dRhs)}, dim);
@@ -481,8 +488,8 @@ namespace DF {
 	}
 	NodeRef MulScalarMatrixDouble::derive (const Node & node) {
 		auto dim = dimensions (*this);
-		auto & lhs = this->dependencies ()[0];
-		auto & rhs = this->dependencies ()[1];
+		auto & lhs = this->dependency (0);
+		auto & rhs = this->dependency (1);
 		auto dLhs = makeNode<MulScalarMatrixDouble> ({lhs->derive (node), rhs}, dim);
 		auto dRhs = makeNode<MulScalarMatrixDouble> ({lhs, rhs->derive (node)}, dim);
 		return makeNode<AddMatrixDouble> ({std::move (dLhs), std::move (dRhs)}, dim);

@@ -42,8 +42,8 @@
 #ifndef BPP_NEWPHYL_DATAFLOW_H
 #define BPP_NEWPHYL_DATAFLOW_H
 
+#include <Bpp/NewPhyl/Signed.h>
 #include <Bpp/NewPhyl/Vector.h>
-#include <cassert>
 #include <memory>
 #include <string> // description
 #include <typeinfo>
@@ -58,6 +58,7 @@ namespace DF {
 	// Declarations
 	class Node;
 	template <typename T> class Value;
+	class InternalAccessor;
 	using NodeRef = std::shared_ptr<Node>;
 	using NodeRefVec = Vector<NodeRef>;
 	template <typename T> using ValueRef = std::shared_ptr<Value<T>>;
@@ -65,9 +66,6 @@ namespace DF {
 	/* Base Node class.
 	 * Abstract : compute() needs to be defined to the actual computation.
 	 * It is supposed to be used with std::shared_ptr for node class ownership.
-	 *
-	 * TODO determine what to remove from the class API (computeRecursively ?)
-	 * TODO move most stuff to protected, use an InternalAccessor ?
 	 */
 	class Node {
 	public:
@@ -83,14 +81,11 @@ namespace DF {
 		Node (NodeRefVec && dependenciesArg);
 
 		// Accessors
-		const Vector<Node *> & dependentNodes () const noexcept { return dependentNodes_; }
-		const NodeRefVec & dependencies () const noexcept { return dependencyNodes_; }
 		bool isValid () const noexcept { return isValid_; }
-
-		// Computation
-		void invalidate () noexcept;
-		virtual void compute () = 0;
-		void computeRecursively ();
+		const NodeRefVec & dependencies () const noexcept { return dependencyNodes_; }
+		const Vector<Node *> & dependentNodes () const noexcept { return dependentNodes_; }
+		SizeType nbDependencies () const noexcept { return dependencyNodes_.size (); }
+		const NodeRef & dependency (SizeType i) const noexcept { return dependencyNodes_[i]; }
 
 		// Node string description (default = type name): shorter name for in debug.
 		virtual std::string description () const;
@@ -106,6 +101,13 @@ namespace DF {
 		// TODO add non virtual "nice" overloads for const sp<T> & if T:Node ?
 
 	protected:
+		// Computation implementation
+		virtual void compute () = 0;
+
+		void invalidateRecursively () noexcept;
+		void computeRecursively ();
+
+		void makeInvalid () noexcept { isValid_ = false; }
 		void makeValid () noexcept { isValid_ = true; }
 
 		// FIXME delete later
@@ -118,11 +120,13 @@ namespace DF {
 
 	protected:
 		// TODO small opt vector ?
-		Vector<Node *> dependentNodes_{}; // Nodes that depend on us.
 		NodeRefVec dependencyNodes_{};    // Nodes that we depend on.
+		Vector<Node *> dependentNodes_{}; // Nodes that depend on us.
 
 	private:
 		bool isValid_{false};
+
+		friend class InternalAccessor;
 	};
 
 	/* Node are by convention manipulated as shared_ptr<NodeType>.
@@ -175,18 +179,12 @@ namespace DF {
 		template <typename... Args>
 		Value (NoDependencyTag, Args &&... args) : Node (), value_ (std::forward<Args> (args)...) {}
 
-		// Access the stored value (no recomputation !)
-		const T & accessValue () const noexcept {
-			// FIXME accessValue used for DF manipulation, node invalid then. assert (this->isValid ());
-			return value_;
-		}
-
 		// Get updated value
-		// TODO support for // computation... type tags ?
 		const T & getValue () {
 			this->computeRecursively ();
-			return accessValue ();
+			return value_;
 		}
+		// TODO support for // computation... type tags ?
 
 		// Defined as default to enable specialisation
 		std::string debugInfo () const override { return Node::debugInfo (); }
@@ -195,9 +193,7 @@ namespace DF {
 		T value_;
 
 	private:
-		// Allow wrappers in DataFlowInternalTemplates write access to the value through this function.
-		// TODO use InternalAccessor
-		template <typename U> friend U & accessMutableValue (Value<U> &) noexcept;
+		friend class InternalAccessor;
 	};
 
 	/* Dependency structure description.

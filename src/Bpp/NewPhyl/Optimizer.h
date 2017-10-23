@@ -66,8 +66,8 @@ public:
 	DataFlowParameter * clone () const override { return new DataFlowParameter (*this); }
 
 	// Override value access
-	double getValue () const override { return dfParam_->accessValue (); }
-	void setValue (double v) override { dfParam_->setValue (v); }
+	double getValue () const override;
+	void setValue (double v) override;
 	// TODO care about the listeners
 
 	const DF::ParameterRef<double> & getDataFlowParameter () const noexcept { return dfParam_; }

@@ -63,21 +63,59 @@ namespace DF {
 	                            SizeType givenSize);
 	[[noreturn]] void failureEmptyDependency (const std::type_info & inNodeType, IndexType depIndex);
 
-	/******************************* Value<T> access *******************************/
+	/******************************* InternalAccessor *******************************/
 
 	/// Dynamic test that node inherits from Value<T>.
 	template <typename T> bool isValueNode (const Node & n) noexcept {
 		return dynamic_cast<const Value<T> *> (&n) != nullptr;
 	}
-	/// Access the value in node assuming this is a Value<T>.
-	template <typename T> const T & accessValueUncheckedCast (const Node & n) noexcept {
-		assert (isValueNode<T> (n));
-		return static_cast<const Value<T> &> (n).accessValue ();
+
+	/// Unsafe cast from Node to Value<T> (faster than dynamic cast).
+	template <typename T> const Value<T> & nodeValueCast (const Node & node) noexcept {
+		assert (isValueNode<T> (node));
+		return static_cast<const Value<T> &> (node);
 	}
 
-	/// Mutable access to a Value<T> value. Only intended for callWithValues.
-	template <typename T> T & accessMutableValue (Value<T> & valueNode) noexcept {
-		return valueNode.value_;
+	/** Class used to access protected value_ in Value<T>.
+	 * Should only be used for DataFlow internal code.
+	 * Friend of node classes, bypasses encapsulation.
+	 * Used for wrappers, for manipulating possibly invalid values.
+	 */
+	class InternalAccessor {
+	public:
+		/// Access as const.
+		template <typename T> static const T & accessValueConst (const Value<T> & node) noexcept {
+			return node.value_;
+		}
+		/// Access as mutable.
+		template <typename T> static T & accessValueMutable (Value<T> & node) noexcept {
+			return node.value_;
+		}
+	};
+
+	/** Access maybe invalid const from raw Node &.
+	 * Typically used to get matrix dimensions during DF graph transformations.
+	 * Dimensions are preset in DFNumeric, so they are always valid.
+	 */
+	template <typename T> const T & accessValueConstCast (const Node & node) {
+		return InternalAccessor::accessValueConst (nodeValueCast<T> (node));
+	}
+
+	/// Access const with assert checking validity.
+	template <typename T> const T & accessValidValueConst (const Value<T> & node) {
+		assert (node.isValid ());
+		return InternalAccessor::accessValueConst (node);
+	}
+
+	/// Access valid const while casting from a raw Node &.
+	template <typename T> const T & accessValidValueConstCast (const Node & node) {
+		return accessValidValueConst (nodeValueCast<T> (node));
+	}
+
+	/// Access valid const while casting from NodeRef &.
+	template <typename T> const T & accessValidValueConstCast (const NodeRef & nodeRef) {
+		assert (nodeRef);
+		return accessValidValueConstCast<T> (*nodeRef);
 	}
 
 	/******************************* Dependency check *******************************/
@@ -101,6 +139,7 @@ namespace DF {
 		/* Impl of checkDependencies for FunctionOfValues.
 		 * Check that the dependency vector has the required number of dependencies.
 		 * Check each dependency is a Value<Types[i]> node (recursively).
+		 * Assumes dependency number is correct.
 		 */
 		inline void checkDependencyTypesRecursively (const NodeRefVec &, const std::type_info &,
 		                                             FunctionOfValues<>, SizeType) {}
@@ -159,7 +198,7 @@ namespace DF {
 		                     ReductionOfValue<ArgumentType>, InitFunc && init, ReduceFunc reduce) {
 			std::forward<InitFunc> (init) (value);
 			for (const auto & dep : dependencies)
-				reduce (value, accessValueUncheckedCast<ArgumentType> (*dep));
+				reduce (value, accessValidValueConstCast<ArgumentType> (*dep));
 		}
 
 		/* Impl of callWithValues for FunctionOfValues.
@@ -172,7 +211,7 @@ namespace DF {
 		                                      Cpp14::IndexSequence<Indexes...>,
 		                                      FunctionType && function) {
 			std::forward<FunctionType> (function) (
-			    value, accessValueUncheckedCast<Types> (*dependencies[Indexes])...);
+			    value, accessValidValueConstCast<Types> (*dependencies[Indexes])...);
 		}
 
 		template <typename ResultType, typename FunctionType, typename... Types>
@@ -189,7 +228,7 @@ namespace DF {
 	 */
 	template <typename NodeType, typename... Callables>
 	void callWithValues (NodeType & node, Callables &&... callables) {
-		Impl::callWithValues (accessMutableValue (node), node.dependencies (),
+		Impl::callWithValues (InternalAccessor::accessValueMutable (node), node.dependencies (),
 		                      typename NodeType::Dependencies{},
 		                      std::forward<Callables> (callables)...);
 	}
@@ -205,6 +244,7 @@ namespace DF {
 		            deps.end ());
 	}
 
+	// TODO explicit variants taking already checked deps
 	/** Build a predicate testing if a NodeRef is a constant value<T> matching the input predicate.
 	 * Input predicate: const T & -> bool
 	 * Output predicate: const NodeRef & -> bool
@@ -215,7 +255,7 @@ namespace DF {
 	std::function<bool(const NodeRef &)> predicateIsConstantValueMatching (Predicate predicate) {
 		return [predicate](const NodeRef & nodeRef) {
 			return nodeRef && nodeRef->isConstant () && isValueNode<T> (*nodeRef) &&
-			       predicate (accessValueUncheckedCast<T> (*nodeRef));
+			       predicate (accessValueConstCast<T> (*nodeRef));
 		};
 	}
 	template <typename T>

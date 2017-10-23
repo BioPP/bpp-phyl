@@ -113,7 +113,7 @@ namespace Phyl {
 		}
 		NodeRef TotalLogLikelihood::derive (const Node & node) {
 			// TODO improve this case
-			auto likelihoodVector = convertRef<Value<VectorDouble>> (this->dependencies ()[0]);
+			auto likelihoodVector = convertRef<Value<VectorDouble>> (this->dependency (0));
 			return makeNode<ScalarProdDouble> ({likelihoodVector->derive (node),
 			                                    makeNode<CWiseInverseVectorDouble> (
 			                                        {likelihoodVector}, dimensions (*likelihoodVector))});

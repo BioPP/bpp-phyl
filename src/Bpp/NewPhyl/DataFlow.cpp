@@ -100,7 +100,17 @@ namespace DF {
 			n->unregisterNode (this);
 	}
 
-	void Node::invalidate () noexcept {
+	std::string Node::description () const { return prettyTypeName (typeid (*this)); }
+
+	std::string Node::debugInfo () const { return {}; }
+
+	bool Node::isConstant () const { return false; }
+
+	NodeRef Node::derive (const Node & variable) {
+		throw Exception ("Node does not support derivation: " + description ());
+	}
+
+	void Node::invalidateRecursively () noexcept {
 		if (!isValid ())
 			return;
 		std::stack<Node *> nodesToInvalidate;
@@ -109,7 +119,7 @@ namespace DF {
 			auto * n = nodesToInvalidate.top ();
 			nodesToInvalidate.pop ();
 			if (n->isValid ()) {
-				n->isValid_ = false;
+				n->makeInvalid ();
 				for (auto * dependent : n->dependentNodes_)
 					nodesToInvalidate.push (dependent);
 			}
@@ -141,20 +151,10 @@ namespace DF {
 		}
 	}
 
-	NodeRef Node::derive (const Node & variable) {
-		throw Exception ("Node does not support derivation: " + description ());
-	}
-
-	std::string Node::description () const { return prettyTypeName (typeid (*this)); }
-
-	std::string Node::debugInfo () const { return {}; }
-
-	bool Node::isConstant () const { return false; }
-
 	void Node::appendDependency (NodeRef node) {
 		node->registerNode (this);
 		dependencyNodes_.emplace_back (std::move (node));
-		invalidate ();
+		invalidateRecursively ();
 	}
 
 	void Node::registerNode (Node * n) { dependentNodes_.emplace_back (n); }
