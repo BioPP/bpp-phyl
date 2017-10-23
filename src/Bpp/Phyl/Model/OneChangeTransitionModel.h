@@ -56,11 +56,13 @@ namespace bpp
   {
   public:
     OneChangeTransitionModel(const SubstitutionModel& originalModel) :
+      AbstractParameterAliasable("OneChange."),
       AbstractFromSubstitutionModelTransitionModel(originalModel, "OneChange.")
     {
     }
     
     OneChangeTransitionModel(const OneChangeTransitionModel& fmsm) :
+      AbstractParameterAliasable(fmsm),
       AbstractFromSubstitutionModelTransitionModel(fmsm)
     {
     }
