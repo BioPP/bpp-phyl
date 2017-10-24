@@ -70,13 +70,15 @@ AbstractCodonFrequenciesSubstitutionModel::~AbstractCodonFrequenciesSubstitution
 
 void AbstractCodonFrequenciesSubstitutionModel::fireParameterChanged(const ParameterList& parameters)
 {
-  pfreqset_->matchParametersValues(parameters);
+  pfreqset_->matchParametersValues(parameters);  
+  getFrequencies_()=pfreqset_->getFrequencies();
 }
 
 
 void AbstractCodonFrequenciesSubstitutionModel::setFreq(map<int, double>& frequencies)
 {
   pfreqset_->setFrequenciesFromAlphabetStatesFrequencies(frequencies);
+  getFrequencies_()=pfreqset_->getFrequencies();
   matchParametersValues(pfreqset_->getParameters());
 }
 

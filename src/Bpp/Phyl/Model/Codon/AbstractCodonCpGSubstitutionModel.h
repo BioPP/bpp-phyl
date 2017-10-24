@@ -49,12 +49,13 @@ namespace bpp
 /**
  * @brief Abstract class for modelling of CpG -> CpA or TpG (symetric)
  *  hypermutability substitution rate inside codons. Note that the
- *  neihbouring effects between codons is note considered.
+ *  neihbouring effects between codons are not considered.
  *
  * @author Laurent Guéguen
  *
- * Substitution rate from C to T (resp. from G to A) is multiplied by a factor @f$\rho@f$
- *  if C is followed by a G (resp. if G is following a C).
+ * Substitution rate from C to T (resp. from G to A) is multiplied by
+ *  a factor @f$\rho@f$ if C is followed by a G (resp. if G is
+ *  following a C).
  *
  * Hypermutability parameter is named \c "rho".
  *

@@ -114,6 +114,7 @@ RN95::RN95(
   addParameter_(new Parameter("RN95.alphaP", alphaP, new IntervalConstraint(1, 1, false), true));
   addParameter_(new Parameter("RN95.sigmaP", sigmaP, new IntervalConstraint(1, 1, false), true));
 
+  computeFrequencies(false);
   updateMatrices();
 }
 

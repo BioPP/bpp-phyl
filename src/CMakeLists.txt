@@ -153,6 +153,7 @@ set (CPP_FILES
   Bpp/Phyl/Model/Protein/UserProteinSubstitutionModel.cpp
   Bpp/Phyl/Model/Protein/WAG01.cpp
   Bpp/Phyl/Model/RE08.cpp
+  Bpp/Phyl/Model/RegisterRatesSubstitutionModel.cpp
   Bpp/Phyl/Model/StateMap.cpp
   Bpp/Phyl/Model/SubstitutionModelSet.cpp
   Bpp/Phyl/Model/SubstitutionModelSetTools.cpp

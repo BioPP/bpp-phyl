@@ -52,6 +52,7 @@ CodonRateFrequenciesSubstitutionModel::CodonRateFrequenciesSubstitutionModel(
   AbstractCodonSubstitutionModel(gCode, pmod, "CodonRateFreq.", true),
   AbstractCodonFrequenciesSubstitutionModel(pfreq, "CodonRateFreq.")
 {
+  computeFrequencies(false);
   updateMatrices();
 }
 
@@ -65,6 +66,7 @@ CodonRateFrequenciesSubstitutionModel::CodonRateFrequenciesSubstitutionModel(
   AbstractCodonSubstitutionModel(gCode, pmod1, pmod2, pmod3, "CodonRateFreq.", true),
   AbstractCodonFrequenciesSubstitutionModel(pfreq, "CodonRateFreq.")
 {
+  computeFrequencies(false);
   updateMatrices();
 }
 

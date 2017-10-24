@@ -53,6 +53,7 @@ CodonDistanceCpGSubstitutionModel::CodonDistanceCpGSubstitutionModel(
   AbstractCodonDistanceSubstitutionModel(pdist, "CodonDistCpG."),
   AbstractCodonCpGSubstitutionModel("CodonDistCpG.")
 {
+  computeFrequencies(true);
   updateMatrices();
 }
 
@@ -67,6 +68,7 @@ CodonDistanceCpGSubstitutionModel::CodonDistanceCpGSubstitutionModel(
   AbstractCodonDistanceSubstitutionModel(pdist, "CodonDistCpG."),
   AbstractCodonCpGSubstitutionModel("CodonDistCpG.")
 {
+  computeFrequencies(true);
   updateMatrices();
 }
 

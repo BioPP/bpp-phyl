@@ -58,9 +58,12 @@ gBGC::gBGC(const NucleicAlphabet* alph, NucleotideSubstitutionModel* const pm, d
 {
   model_->setNamespace("gBGC." + nestedPrefix_);
   model_->enableEigenDecomposition(0);
+  model_->computeFrequencies(false);
+  
   addParameters_(model_->getParameters());
   addParameter_(new Parameter("gBGC.B", B_, new IntervalConstraint(-999, 10, true, true), true));
 
+  computeFrequencies(true);
   updateMatrices();
 }
 

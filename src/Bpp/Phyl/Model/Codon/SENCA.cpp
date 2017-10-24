@@ -52,6 +52,7 @@ SENCA::SENCA(
   AbstractCodonDistanceSubstitutionModel(pdist, "SENCA."),
   AbstractCodonFitnessSubstitutionModel(pfit, "SENCA.")
 {
+  computeFrequencies(false);  
   updateMatrices();
 }
 
@@ -67,6 +68,7 @@ SENCA::SENCA(
   AbstractCodonDistanceSubstitutionModel(pdist, "SENCA."),
   AbstractCodonFitnessSubstitutionModel(pfit,"SENCA.")
 {
+  computeFrequencies(false);
   updateMatrices();
 }
 

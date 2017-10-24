@@ -72,8 +72,11 @@ namespace bpp
    * FrequenciesSet object. The parameters are named \c
    * "fit_NameOfTheParameterInTheFrequenciesSet".
    *
+   * Note: equilibrium frequencies are computed from the generator. To
+   * be done : implement analytic computation.
+   *
    * Reference:
-   * -  Yang Z. and Nielsen R. (2008), _Molecular Biology and Evolution_ 25(3):568--579.
+   * - Pouyet & al, Genome Biology and Evolution, 2016
    */
   
   class SENCA :

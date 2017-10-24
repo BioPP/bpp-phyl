@@ -54,7 +54,7 @@ namespace bpp
  *
  * It has the same parameters as the SubModel.
  *
- * @see SubstitutionRgister
+ * @see SubstitutionRegister
  */
 
   class OneChangeRegisterTransitionModel :
@@ -71,20 +71,27 @@ namespace bpp
     std::vector<std::vector<size_t> > otherChanges_;
 
     /*
-     * The SubstitutionModel in which generator as
-     * considered changes set to 0.
+     * The SubstitutionModel in which generator has registered changes
+     * set to 0.
      */
 
     std::unique_ptr<AnonymousSubstitutionModel> modelChanged_;
 
     /*
-     * For ouput
+     * For output
      *
      */
 
     std::string registerName_;
+
+    /*
+     *
+     * Vector of considered categories numbers in the register
+     *
+     */
+
     std::vector<size_t> vNumRegs_;
-    
+
   public:
     /*
      * @brief Constructor
@@ -113,12 +120,14 @@ namespace bpp
     OneChangeRegisterTransitionModel(const SubstitutionModel& originalModel, const SubstitutionRegister& reg, std::vector<size_t> vNumRegs);
 
     OneChangeRegisterTransitionModel(const OneChangeRegisterTransitionModel& fmsm) :
+      AbstractParameterAliasable(fmsm),
       AbstractFromSubstitutionModelTransitionModel(fmsm),
       otherChanges_(fmsm.otherChanges_),
       modelChanged_(std::unique_ptr<AnonymousSubstitutionModel>(fmsm.modelChanged_->clone())),
       registerName_(fmsm.registerName_),
       vNumRegs_(fmsm.vNumRegs_)
-    {}
+    {
+    }
     
 
     OneChangeRegisterTransitionModel& operator=(const OneChangeRegisterTransitionModel& fmsm)
@@ -132,7 +141,8 @@ namespace bpp
       return *this;
     }
     
-    ~OneChangeRegisterTransitionModel() {}
+    ~OneChangeRegisterTransitionModel() {
+    }
 
     OneChangeRegisterTransitionModel* clone() const { return new OneChangeRegisterTransitionModel(*this); }
 
@@ -144,21 +154,38 @@ namespace bpp
       updateMatrices();
     }
 
-    double freq(size_t i) const { return getModel().freq(i); }
-
     double Pij_t    (size_t i, size_t j, double t) const;
     double dPij_dt  (size_t i, size_t j, double t) const;
     double d2Pij_dt2(size_t i, size_t j, double t) const;
     
-    const Vdouble& getFrequencies() const { return getModel().getFrequencies(); }
-
-    const FrequenciesSet* getFrequenciesSet() const {return getModel().getFrequenciesSet(); }
-
     const Matrix<double>& getPij_t(double t) const;
     
     const Matrix<double>& getdPij_dt(double t) const;
 
     const Matrix<double>& getd2Pij_dt2(double t) const;
+
+    
+    double freq(size_t i) const { return modelChanged_->freq(i); }
+
+    const Vdouble& getFrequencies() const { return modelChanged_->getFrequencies(); }
+
+    const FrequenciesSet* getFrequenciesSet() const {return modelChanged_->getFrequenciesSet(); }
+
+    void setFreqFromData(const SequenceContainer& data, double pseudoCount)
+    {
+      getModel().setFreqFromData(data, pseudoCount);
+    }
+
+    virtual void setFreq(std::map<int, double>& m)
+    {  
+      getModel().setFreq(m);
+    }
+
+    double getRate() const { return getModel().getRate(); }
+
+    void setRate(double rate) { return getModel().setRate(rate); }
+
+    double getInitValue(size_t i, int state) const throw (BadIntException) { return modelChanged_->getInitValue(i, state); }
 
     void updateMatrices();
     

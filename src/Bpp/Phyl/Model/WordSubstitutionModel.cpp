@@ -71,6 +71,10 @@ WordSubstitutionModel::WordSubstitutionModel(
     addParameter_(new Parameter("Word.relrate" + TextTools::toString(i + 1), 1.0 / static_cast<int>(nbmod - i), &Parameter::PROP_CONSTRAINT_EX));
   }
 
+  enableEigenDecomposition(false); // the product of the position
+                                   // specific transition probabilities
+  
+  computeFrequencies(false); // it is done in AbstractWordSubstitutionModel
   WordSubstitutionModel::updateMatrices();
 }
 
@@ -80,7 +84,11 @@ WordSubstitutionModel::WordSubstitutionModel(
   const std::string& prefix) :
   AbstractParameterAliasable((prefix == "") ? "Word." : prefix),
   AbstractWordSubstitutionModel(alph, stateMap, (prefix == "") ? "Word." : prefix)
-{}
+{
+  enableEigenDecomposition(false); // the product of the position
+                                   // specific transition probabilities
+  computeFrequencies(false); // it is done in AbstractWordSubstitutionModel
+}
 
 WordSubstitutionModel::WordSubstitutionModel(
   SubstitutionModel* pmodel,
@@ -99,6 +107,9 @@ WordSubstitutionModel::WordSubstitutionModel(
     addParameter_(new Parameter("Word.relrate" + TextTools::toString(i + 1), 1.0 / static_cast<int>(num - i ), &Parameter::PROP_CONSTRAINT_EX));
   }
 
+  enableEigenDecomposition(false); // the product of the position
+                                   // specific transition probabilities
+  computeFrequencies(false); // it is done in AbstractWordSubstitutionModel
   WordSubstitutionModel::updateMatrices();
 }
 

@@ -54,6 +54,7 @@ KroneckerCodonDistanceFrequenciesSubstitutionModel::KroneckerCodonDistanceFreque
   AbstractCodonDistanceSubstitutionModel(pdist, "KronCodonDistFreq."),
   AbstractCodonFrequenciesSubstitutionModel(pfreq, "KronCodonDistFreq.")
 {
+  computeFrequencies(false);
   updateMatrices();
 }
 
@@ -68,6 +69,7 @@ KroneckerCodonDistanceFrequenciesSubstitutionModel::KroneckerCodonDistanceFreque
   AbstractCodonDistanceSubstitutionModel(pdist, "KronCodonDistFreq."),
   AbstractCodonFrequenciesSubstitutionModel(pfreq, "KronCodonDistFreq.")
 {
+  computeFrequencies(false);
   updateMatrices();
 }
 
@@ -83,6 +85,7 @@ KroneckerCodonDistanceFrequenciesSubstitutionModel::KroneckerCodonDistanceFreque
   AbstractCodonDistanceSubstitutionModel(pdist, "KronCodonDistFreq."),
   AbstractCodonFrequenciesSubstitutionModel(pfreq, "KronCodonDistFreq.")
 {
+  computeFrequencies(false);
   updateMatrices();
 }
 
@@ -99,6 +102,7 @@ KroneckerCodonDistanceFrequenciesSubstitutionModel::KroneckerCodonDistanceFreque
   AbstractCodonDistanceSubstitutionModel(pdist, "KronCodonDistFreq."),
   AbstractCodonFrequenciesSubstitutionModel(pfreq, "KronCodonDistFreq.")
 {
+  computeFrequencies(false);
   updateMatrices();
 }
 

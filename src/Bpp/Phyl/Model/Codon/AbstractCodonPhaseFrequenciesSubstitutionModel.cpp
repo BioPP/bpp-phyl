@@ -83,8 +83,8 @@ AbstractCodonPhaseFrequenciesSubstitutionModel::AbstractCodonPhaseFrequenciesSub
 
   freqName_ = pfreq->getNamespace();
   posfreqset_->setNamespace(prefix + pfreq->getNamespace());
-  //  if (dynamic_cast<FixedCodonFrequenciesSet*>(pCFS)!=NULL)
   addParameters_(posfreqset_->getParameters());
+  fireParameterChanged(posfreqset_->getParameters());
 }
 
 AbstractCodonPhaseFrequenciesSubstitutionModel::~AbstractCodonPhaseFrequenciesSubstitutionModel()
@@ -96,12 +96,14 @@ AbstractCodonPhaseFrequenciesSubstitutionModel::~AbstractCodonPhaseFrequenciesSu
 void AbstractCodonPhaseFrequenciesSubstitutionModel::fireParameterChanged(const ParameterList& parameters)
 {
   posfreqset_->matchParametersValues(parameters);
+  getFrequencies_()=posfreqset_->getFrequencies();
 }
 
 
 void AbstractCodonPhaseFrequenciesSubstitutionModel::setFreq(map<int, double>& frequencies)
 {
   posfreqset_->setFrequenciesFromAlphabetStatesFrequencies(frequencies);
+  getFrequencies_()=posfreqset_->getFrequencies();
   matchParametersValues(posfreqset_->getParameters());
 }
 

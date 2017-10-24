@@ -206,7 +206,10 @@ public:
 
   virtual ~SubstitutionModelSet()
   {
-    for (auto model : modelSet_) { delete model; }
+    for (auto& model : modelSet_)
+    {
+      delete model;
+    }
   }
 
   SubstitutionModelSet* clone() const { return new SubstitutionModelSet(*this); }
@@ -295,7 +298,7 @@ public:
  
   bool hasOnlySubstitutionModels() const
   {
-    for (auto mod : modelSet_)
+    for (const auto& mod : modelSet_)
       if (dynamic_cast<const SubstitutionModel*>(mod)==0)
         return false;
 

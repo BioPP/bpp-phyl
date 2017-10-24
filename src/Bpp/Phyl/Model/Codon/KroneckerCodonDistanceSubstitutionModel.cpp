@@ -52,6 +52,7 @@ KroneckerCodonDistanceSubstitutionModel::KroneckerCodonDistanceSubstitutionModel
   AbstractKroneckerCodonSubstitutionModel(gCode, pmod, "KronCodonDist."),
   AbstractCodonDistanceSubstitutionModel(pdist, "KronCodonDist.")
 {
+  computeFrequencies(true);
   updateMatrices();
 }
 
@@ -65,6 +66,7 @@ KroneckerCodonDistanceSubstitutionModel::KroneckerCodonDistanceSubstitutionModel
   AbstractKroneckerCodonSubstitutionModel(gCode, pmod1, pmod2, pmod3, "KronCodonDist."),
   AbstractCodonDistanceSubstitutionModel(pdist, "KronCodonDist.")
 {
+  computeFrequencies(true);
   updateMatrices();
 }
 
@@ -77,6 +79,7 @@ KroneckerCodonDistanceSubstitutionModel::KroneckerCodonDistanceSubstitutionModel
   AbstractKroneckerCodonSubstitutionModel(gCode, pmod, vPos, "KronCodonDist."),
   AbstractCodonDistanceSubstitutionModel(pdist, "KronCodonDist.")
 {
+  computeFrequencies(true);
   updateMatrices();
 }
 
@@ -91,6 +94,7 @@ KroneckerCodonDistanceSubstitutionModel::KroneckerCodonDistanceSubstitutionModel
   AbstractKroneckerCodonSubstitutionModel(gCode, pmod1, pmod2, pmod3, vPos, "KronCodonDist."),
   AbstractCodonDistanceSubstitutionModel(pdist, "KronCodonDist.")
 {
+  computeFrequencies(true);
   updateMatrices();
 }
 std::string KroneckerCodonDistanceSubstitutionModel::getName() const

@@ -54,6 +54,7 @@ CodonDistancePhaseFrequenciesSubstitutionModel::CodonDistancePhaseFrequenciesSub
   AbstractCodonDistanceSubstitutionModel(pdist, "CodonDistPhasFreq."),
   AbstractCodonPhaseFrequenciesSubstitutionModel(pfreq, "CodonDistPhasFreq.")
 {
+  computeFrequencies(false);
   updateMatrices();
 }
 
@@ -69,6 +70,7 @@ CodonDistancePhaseFrequenciesSubstitutionModel::CodonDistancePhaseFrequenciesSub
   AbstractCodonDistanceSubstitutionModel(pdist, "CodonDistPhasFreq."),
   AbstractCodonPhaseFrequenciesSubstitutionModel(pfreq, "CodonDistPhasFreq.")
 {
+  computeFrequencies(false);
   updateMatrices();
 }
 

@@ -76,8 +76,10 @@ int main() {
   //SubstitutionModel* model = new CodonRateSubstitutionModel(
   //      gc,
   //      new JCnuc(dynamic_cast<CodonAlphabet*>(alphabet)->getNucleicAlphabet()));
-  cout << model->getNumberOfStates() << endl;
-  MatrixTools::printForR(model->getGenerator(), "g");
+  //cout << model->getNumberOfStates() << endl;
+  //MatrixTools::printForR(model->getGenerator(), "g");
+  //VectorTools::printForR(model->getFrequencies(), "eq");
+  
   DiscreteDistribution* rdist = new ConstantDistribution(1.0);
   HomogeneousSequenceSimulator simulator(model, rdist, tree);
   TotalSubstitutionRegister* totReg = new TotalSubstitutionRegister(model);

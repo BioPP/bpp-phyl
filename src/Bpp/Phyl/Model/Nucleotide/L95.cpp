@@ -66,6 +66,7 @@ L95::L95(
   addParameter_(new Parameter("L95.kappa", kappa, new IntervalConstraint(0, 1000, false, false, NumConstants::MILLI()), true));
   addParameter_(new Parameter("L95.theta", theta, new IntervalConstraint(0, 1, false, false, NumConstants::MILLI()), true));
 
+  computeFrequencies(false);  
   updateMatrices();
 }
 

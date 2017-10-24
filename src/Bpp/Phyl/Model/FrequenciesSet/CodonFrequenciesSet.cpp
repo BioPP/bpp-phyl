@@ -575,7 +575,7 @@ void CodonFromUniqueFrequenciesSet::updateFrequencies()
     // neighbour non-stop codons
     double f[64] = {0};
     
-    for (auto mStopNeigh_it : mStopNeigh_)
+    for (const auto& mStopNeigh_it : mStopNeigh_)
     {
       int stNb = mStopNeigh_it.first;
       Vint vneigh = mStopNeigh_it.second;

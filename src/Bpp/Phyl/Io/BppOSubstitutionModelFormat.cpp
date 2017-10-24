@@ -106,6 +106,7 @@
 #include "../Model/InMixedSubstitutionModel.h"
 #include "../Model/OneChangeTransitionModel.h"
 #include "../Model/OneChangeRegisterTransitionModel.h"
+#include "../Model/RegisterRatesSubstitutionModel.h"
 
 #include "../App/PhylogeneticsApplicationTools.h"
 
@@ -164,14 +165,10 @@ SubstitutionModel* BppOSubstitutionModelFormat::read(
   if ((modelName == "MixedModel" || (modelName == "Mixture")) && allowMixed_)
     model.reset(readMixed_(alphabet, modelDescription, data));
 
-
-  // /////////////////////////////////
-  // / WORDS and CODONS
   // ///////////////////////////////
-
-  else if ((modelName == "Word") || (modelName.substr(0,4) == "Kron") || (modelName == "Triplet") || (modelName.substr(0, 5) == "Codon") || (modelName == "SENCA") )
-    model.reset(readWord_(alphabet, modelDescription, data));
-
+  // LINKED WITH MIXTURES
+  // //////////////////////////////
+  
   else if (modelName == "InMixed")
   {
     if (args.find("model") == args.end())
@@ -227,10 +224,60 @@ SubstitutionModel* BppOSubstitutionModelFormat::read(
     delete nestedModel;
   }      
 
-  // //////////////////////////////////////
-  // PREDEFINED CODON MODELS
-  // //////////////////////////////////////
 
+  if (modelName == "FromRegister")
+  {
+    // We have to parse the nested model first:
+    if (args.find("model")==args.end())
+      throw Exception("BppOSubstitutionModelFormat::read. Missing argument 'model' for model 'FromRegister'.");
+
+    string nestedModelDescription = args["model"];
+    BppOSubstitutionModelFormat nestedReader(ALL, false, allowMixed_, allowGaps_, verbose_, warningLevel_);
+    if (geneticCode_)
+      nestedReader.setGeneticCode(geneticCode_);
+    
+    SubstitutionModel* nestedModel=nestedReader.read(alphabet, nestedModelDescription, data, false);
+    map<string, string> unparsedParameterValuesNested(nestedReader.getUnparsedArguments());
+
+    // We look for the register:
+    if (args.find("register")==args.end())
+      throw Exception("BppOSubstitutionModelFormat::read. Missing argument 'register' for model 'FromRegister'.");
+    
+    string registerDescription = args["register"];
+    SubstitutionRegister* reg=PhylogeneticsApplicationTools::getSubstitutionRegister(registerDescription, nestedModel);
+
+    // is it normalized (default : false)
+    bool isNorm=false;
+    
+    if (args.find("isNormalized")!=args.end() && args["isNormalized"]=="true")
+      isNorm=true;
+
+    model.reset(new RegisterRatesSubstitutionModel(*nestedModel, *reg, isNorm));
+    
+    if (TextTools::isEmpty(registerDescription))
+      throw Exception("BppOSubstitutionModelFormat::read. Missing argument 'register' for model 'FromRegister'.");
+
+    // Then we update the parameter set:
+    for (map<string, string>::iterator it = unparsedParameterValuesNested.begin(); it != unparsedParameterValuesNested.end(); it++)
+    {
+      unparsedArguments_["FromRegister."+it->first] = it->second;
+    }
+    
+    delete nestedModel;
+  }
+  
+  
+  // /////////////////////////////////
+  // / WORDS and CODONS
+  // ///////////////////////////////
+
+  else if ((modelName == "Word") || (modelName.substr(0,4) == "Kron") || (modelName == "Triplet") || (modelName.substr(0, 5) == "Codon") || (modelName == "SENCA") )
+    model.reset(readWord_(alphabet, modelDescription, data));
+
+  
+  // //////////////////
+  // PREDEFINED CODON MODELS
+  
   else if (((modelName == "MG94") || (modelName == "YN98") ||
             (modelName == "GY94") || (modelName.substr(0, 4) == "YNGP") ||
             (modelName.substr(0,3) == "KCM")
@@ -1530,15 +1577,24 @@ void BppOSubstitutionModelFormat::write(const TransitionModel& model,
   }
   else
   {
+    // Is it a model with register?
     const OneChangeRegisterTransitionModel* onechangeregistertransitionmodel = dynamic_cast<const OneChangeRegisterTransitionModel*>(&model);
-    if (onechangeregistertransitionmodel)
+    const RegisterRatesSubstitutionModel* regratessubsmodel = dynamic_cast<const RegisterRatesSubstitutionModel*>(&model);
+    if (onechangeregistertransitionmodel || regratessubsmodel)
     {
       out << "model=";
-      const TransitionModel& nestedModel = onechangeregistertransitionmodel->getModel();
+      const TransitionModel& nestedModel = onechangeregistertransitionmodel?onechangeregistertransitionmodel->getModel():regratessubsmodel->getModel();
+      
       write(nestedModel, out, globalAliases, writtenNames);
       comma = true;
-      out << ", register=" << onechangeregistertransitionmodel->getRegisterName();
-      out << ", numReg=" << VectorTools::paste(onechangeregistertransitionmodel->getRegisterNumbers(),"+");
+      out << ", register=";
+      if (onechangeregistertransitionmodel)
+        out << onechangeregistertransitionmodel->getRegisterName();
+      else
+        out << regratessubsmodel->getRegisterName();
+      
+      if (onechangeregistertransitionmodel)
+        out << ", numReg=" << VectorTools::paste(onechangeregistertransitionmodel->getRegisterNumbers(),"+");
     }
   }
   

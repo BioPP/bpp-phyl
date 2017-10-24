@@ -85,6 +85,7 @@ RN95s::RN95s(const NucleicAlphabet* alphabet,
   addParameter_(new Parameter("RN95s.gamma", gamma_, new IntervalConstraint(0, 0.5, false, false), true));
   addParameter_(new Parameter("RN95s.alphaP", alphaP, new IntervalConstraint(1, 1, false), true));
 
+  computeFrequencies(false);
   updateMatrices();
 }
 

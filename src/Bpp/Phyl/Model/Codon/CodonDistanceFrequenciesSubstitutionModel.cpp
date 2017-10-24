@@ -55,7 +55,9 @@ CodonDistanceFrequenciesSubstitutionModel::CodonDistanceFrequenciesSubstitutionM
   AbstractCodonDistanceSubstitutionModel(pdist, "CodonDistFreq.", paramSynRate),
   AbstractCodonFrequenciesSubstitutionModel(pfreq, "CodonDistFreq.")
 {
+  computeFrequencies(true); // for initialization
   updateMatrices();
+  computeFrequencies(false);
 }
 
 CodonDistanceFrequenciesSubstitutionModel::CodonDistanceFrequenciesSubstitutionModel(
@@ -71,7 +73,9 @@ CodonDistanceFrequenciesSubstitutionModel::CodonDistanceFrequenciesSubstitutionM
   AbstractCodonDistanceSubstitutionModel(pdist, "CodonDistFreq.", paramSynRate),
   AbstractCodonFrequenciesSubstitutionModel(pfreq, "CodonDistFreq.")
 {
+  computeFrequencies(true); // for initialization
   updateMatrices();
+  computeFrequencies(false);
 }
 
 std::string CodonDistanceFrequenciesSubstitutionModel::getName() const

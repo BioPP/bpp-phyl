@@ -120,6 +120,7 @@ int main() {
   const CodonAlphabet* codonAlphabet = new CodonAlphabet(&AlphabetTools::DNA_ALPHABET);
   FrequenciesSet* fset = CodonFrequenciesSet::getFrequenciesSetForCodons(CodonFrequenciesSet::F3X4, &gc);
   YN98 yn98(&gc, fset);
+  
   if (!testModel(yn98)) return 1;
 
   delete codonAlphabet;

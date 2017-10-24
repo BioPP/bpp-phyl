@@ -40,7 +40,7 @@
 #ifndef _ABSTRACT_FROM_SUBSTITUTION_MODEL_TRANSITION_MODEL_H_
 #define _ABSTRACT_FROM_SUBSTITUTION_MODEL_TRANSITION_MODEL_H_
 
-#include "WrappedModel.h"
+#include "AbstractWrappedModel.h"
 
 namespace bpp
 {
@@ -52,8 +52,8 @@ namespace bpp
  */
 
   class AbstractFromSubstitutionModelTransitionModel :
-    public virtual WrappedModel,
-    public AbstractParameterAliasable
+    public virtual AbstractWrappedModel,
+    virtual public AbstractParameterAliasable
   {
   protected:
     /*
@@ -99,7 +99,33 @@ namespace bpp
       return *subModel_.get();
     }
 
+    bool computeFrequencies() const
+    {
+      return subModel_->computeFrequencies();
+    }
+
+    /**
+     * @return Set if equilibrium frequencies should be computed from
+     * the generator
+     */
+    
+    void computeFrequencies(bool yn)
+    {
+      subModel_->computeFrequencies(yn);
+    }
+
+    /*
+     * @}
+     *
+     */
+
   protected:
+
+    Vdouble& getFrequencies_()
+    {
+      return subModel_->getFrequencies_();
+    }
+
     SubstitutionModel& getSubstitutionModel()
     {
       return *subModel_.get();

@@ -61,75 +61,6 @@ namespace bpp
 
   protected:
     virtual TransitionModel& getModel() = 0;
-
-  public:
-    /*
-     *@ brief Methods to supersede TransitionModel methods.
-     *
-     * @{
-     */
-
-    const std::vector<int>& getAlphabetStates() const { return getModel().getAlphabetStates(); }
-
-    const StateMap& getStateMap() const { return getModel().getStateMap(); }
-
-    int getAlphabetStateAsInt(size_t i) const { return getModel().getAlphabetStateAsInt(i); }
-  
-    std::string getAlphabetStateAsChar(size_t i) const { return getModel().getAlphabetStateAsChar(i); }
-
-    std::vector<size_t> getModelStates(int code) const { return getModel().getModelStates(code); }
-  
-    std::vector<size_t> getModelStates(const std::string& code) const { return getModel().getModelStates(code); }
-
-    double freq(size_t i) const { return getModel().freq(i); }
-
-    double Pij_t    (size_t i, size_t j, double t) const { return getModel().Pij_t(i, j, t); }
-    double dPij_dt  (size_t i, size_t j, double t) const { return getModel().dPij_dt (i, j, t); }
-    double d2Pij_dt2(size_t i, size_t j, double t) const { return getModel().d2Pij_dt2(i, j, t); }
-
-    const Vdouble& getFrequencies() const { return getModel().getFrequencies(); }
-
-    const Matrix<double>& getPij_t(double t) const { return getModel().getPij_t(t); }
-
-    const Matrix<double>& getdPij_dt(double t) const { return getModel().getdPij_dt(t); }
-
-    const Matrix<double>& getd2Pij_dt2(double t) const { return getModel().getd2Pij_dt2(t); }
-
-    const Alphabet* getAlphabet() const { return getModel().getAlphabet(); }
-
-    size_t getNumberOfStates() const { return getModel().getNumberOfStates(); }
-
-    double getInitValue(size_t i, int state) const throw (BadIntException) { return getModel().getInitValue(i, state); }
-
-    const FrequenciesSet* getFrequenciesSet() const {return getModel().getFrequenciesSet(); }
-
-    double getRate() const { return getModel().getRate(); }
-
-    void setRate(double rate) { return getModel().setRate(rate); }
-
-    virtual void setFreq(std::map<int, double>& m)
-    {  
-      getModel().setFreq(m);
-    }
-
-    void setFreqFromData(const SequenceContainer& data, double pseudoCount)
-    {
-      getModel().setFreqFromData(data, pseudoCount);
-    }
-
-    /*
-     * @}
-     */
-
-    virtual std::string getName() const
-    {
-      return getModel().getName();
-    }
-
-    /*
-     * @}
-     *
-     */
   };
   
     
@@ -144,79 +75,8 @@ namespace bpp
     
     virtual const SubstitutionModel& getSubstitutionModel() const = 0;
 
-    const TransitionModel& getModel() const
-    {
-      return getSubstitutionModel();
-    }
-    
-
   protected:
     virtual SubstitutionModel& getSubstitutionModel() = 0;
-    
-    TransitionModel& getModel()
-    {
-      return getSubstitutionModel();
-    }
-
-  public:
-
-    /*
-     *@ brief Methods to supersede SubstitutionModel methods.
-     *
-     * @{
-     */
-
-    double Qij(size_t i, size_t j) const { return getSubstitutionModel().Qij(i, j); }
-
-    const Matrix<double>& getGenerator() const { return getSubstitutionModel().getGenerator(); }
-
-    const Matrix<double>& getExchangeabilityMatrix() const { return getSubstitutionModel().getExchangeabilityMatrix(); }
-
-    double Sij(size_t i, size_t j) const { return getSubstitutionModel().Sij(i, j); }
-
-    void enableEigenDecomposition(bool yn) { getSubstitutionModel().enableEigenDecomposition(yn); }
-
-    bool enableEigenDecomposition() { return getSubstitutionModel().enableEigenDecomposition(); }
-
-    bool isDiagonalizable() const { return getSubstitutionModel().isDiagonalizable(); }
-
-    bool isNonSingular() const { return getSubstitutionModel().isNonSingular(); }
-
-    const Vdouble& getEigenValues() const { return getSubstitutionModel().getEigenValues(); }
-
-    const Vdouble& getIEigenValues() const { return getSubstitutionModel().getIEigenValues(); }
-
-    const Matrix<double>& getRowLeftEigenVectors() const { return getSubstitutionModel().getRowLeftEigenVectors(); }
-
-    const Matrix<double>& getColumnRightEigenVectors() const { return getSubstitutionModel().getColumnRightEigenVectors(); }
-
-    /*
-     * @}
-     *
-     */
-
-    bool isScalable() const 
-    {
-      return getSubstitutionModel().isScalable();
-    }
-
-    void setScalable(bool scalable)
-    {
-      getSubstitutionModel().setScalable(scalable);
-    }
-
-    void normalize()
-    {
-      getSubstitutionModel().normalize();
-    }
-    
-    double getScale() const { return getSubstitutionModel().getScale(); }
-
-    void setScale(double scale) { getSubstitutionModel().setScale(scale); }
-
-    /*
-     * @}
-     */
   };
 } // end of namespace bpp.
 

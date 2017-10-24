@@ -89,11 +89,35 @@ namespace bpp
 
     const Matrix<double>& getd2Pij_dt2(double t) const;
 
+    
+    double freq(size_t i) const { return getModel().freq(i); }
+
+    const Vdouble& getFrequencies() const { return getModel().getFrequencies(); }
+
+    const FrequenciesSet* getFrequenciesSet() const {return getModel().getFrequenciesSet(); }
+
+    void setFreqFromData(const SequenceContainer& data, double pseudoCount)
+    {
+      getModel().setFreqFromData(data, pseudoCount);
+    }
+
+    virtual void setFreq(std::map<int, double>& m)
+    {  
+      getModel().setFreq(m);
+    }
+
+    double getRate() const { return getModel().getRate(); }
+
+    void setRate(double rate) { return getModel().setRate(rate); }
+
+    double getInitValue(size_t i, int state) const throw (BadIntException) { return getModel().getInitValue(i, state); }
+
     std::string getName() const
     {
       return "OneChange";
     }
 
+    
     /*
      * @}
      *

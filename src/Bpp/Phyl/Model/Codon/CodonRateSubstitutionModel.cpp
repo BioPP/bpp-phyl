@@ -51,6 +51,7 @@ CodonRateSubstitutionModel::CodonRateSubstitutionModel(
   AbstractParameterAliasable("CodonRate."),
   AbstractCodonSubstitutionModel(gCode, pmod, "CodonRate.", true)
 {
+  computeFrequencies(true);
   updateMatrices();
 }
 
@@ -62,6 +63,7 @@ CodonRateSubstitutionModel::CodonRateSubstitutionModel(
   AbstractParameterAliasable("CodonRate."),
   AbstractCodonSubstitutionModel(gCode, pmod1, pmod2, pmod3, "CodonRate.", true)
 {
+  computeFrequencies(true);
   updateMatrices();
 }
 

@@ -42,7 +42,7 @@
 
 #include "AbstractSubstitutionModel.h"
 #include "MixedSubstitutionModel.h"
-#include "WrappedModel.h"
+#include "AbstractWrappedModel.h"
 
 namespace bpp
 {
@@ -60,7 +60,7 @@ namespace bpp
  */
   
   class InMixedSubstitutionModel :
-    public virtual WrappedSubstitutionModel,
+    public virtual AbstractWrappedSubstitutionModel,
     public AbstractParameterAliasable
   {
   private:
@@ -96,6 +96,7 @@ namespace bpp
     InMixedSubstitutionModel* clone() const { return new InMixedSubstitutionModel(*this); }
 
   public:
+    
     const MixedSubstitutionModel& getMixedModel() const
     {
       return *mixedModel_.get();
@@ -110,8 +111,34 @@ namespace bpp
     {
       return subModelNumber_;
     }
+
+    bool computeFrequencies() const
+    {
+      return getMixedModel().computeFrequencies();
+    }
+
+    /**
+     * @return Set if equilibrium frequencies should be computed from
+     * the generator
+     */
     
+    void computeFrequencies(bool yn)
+    {
+      getMixedModel().computeFrequencies(yn);
+    }
+
   protected:
+
+    Vdouble& getFrequencies_()
+    {
+      return getMixedModel().getFrequencies_();
+    }
+
+    /*
+     * @}
+     *
+     */
+
     MixedSubstitutionModel& getMixedModel()
     {
       return *mixedModel_.get();
@@ -123,27 +150,120 @@ namespace bpp
     }
 
   public:
+
+    
     /*
      *@ brief Methods to supersede WrappedSubstitutionModel methods.
      *
      * @{
      */
 
+    double freq(size_t i) const { return getModel().freq(i); }
+
+    double Pij_t    (size_t i, size_t j, double t) const { return getModel().Pij_t(i, j, t); }
+    double dPij_dt  (size_t i, size_t j, double t) const { return getModel().dPij_dt (i, j, t); }
+    double d2Pij_dt2(size_t i, size_t j, double t) const { return getModel().d2Pij_dt2(i, j, t); }
+
+    const Vdouble& getFrequencies() const { return getModel().getFrequencies(); }
+
+    const Matrix<double>& getPij_t(double t) const { return getModel().getPij_t(t); }
+
+    const Matrix<double>& getdPij_dt(double t) const { return getModel().getdPij_dt(t); }
+
+    const Matrix<double>& getd2Pij_dt2(double t) const { return getModel().getd2Pij_dt2(t); }
+
+    double getInitValue(size_t i, int state) const throw (IndexOutOfBoundsException, BadIntException)
+    {
+      return getModel().getInitValue(i,state);
+    }
+    
+    void setFreqFromData(const SequenceContainer& data, double pseudoCount = 0)
+    {
+      getMixedModel().setFreqFromData(data, pseudoCount);
+    }
+    
+    void setFreq(std::map<int, double>& frequencies)
+    {
+      getMixedModel().setFreq(frequencies);
+    }
+
+    /*
+     *@ brief Methods to supersede SubstitutionModel methods.
+     *
+     * @{
+     */
+
+    double Qij(size_t i, size_t j) const { return getSubstitutionModel().Qij(i, j); }
+
+    const Matrix<double>& getGenerator() const { return getSubstitutionModel().getGenerator(); }
+
+    const Matrix<double>& getExchangeabilityMatrix() const { return getSubstitutionModel().getExchangeabilityMatrix(); }
+
+    double Sij(size_t i, size_t j) const { return getSubstitutionModel().Sij(i, j); }
+
     void enableEigenDecomposition(bool yn) { getMixedModel().enableEigenDecomposition(yn); }
 
     bool enableEigenDecomposition() { return getMixedModel().enableEigenDecomposition(); }
 
-    void setRate(double rate) { return getMixedModel().setRate(rate); }
+    bool isDiagonalizable() const { return getSubstitutionModel().isDiagonalizable(); }
 
+    bool isNonSingular() const { return getSubstitutionModel().isNonSingular(); }
+
+    const Vdouble& getEigenValues() const { return getSubstitutionModel().getEigenValues(); }
+
+    const Vdouble& getIEigenValues() const { return getSubstitutionModel().getIEigenValues(); }
+
+    const Matrix<double>& getRowLeftEigenVectors() const { return getSubstitutionModel().getRowLeftEigenVectors(); }
+
+    const Matrix<double>& getColumnRightEigenVectors() const { return getSubstitutionModel().getColumnRightEigenVectors(); }
+
+
+    /*
+     * @}
+     *
+     */
+
+    bool isScalable() const 
+    {
+      return getMixedModel().isScalable();
+    }
+
+    void setScalable(bool scalable)
+    {
+      getMixedModel().setScalable(scalable);
+    }
+
+ 
+    double getScale() const { return getMixedModel().getScale(); }
+
+    void setScale(double scale) { getMixedModel().setScale(scale); }
+
+
+    void normalize()
+    {
+      getMixedModel().normalize();
+    }
+
+    void setDiagonal()
+    {
+      getMixedModel().setDiagonal();
+    }
+
+    double getRate() const
+    {
+      return getModel().getRate();
+    }
+
+    void setRate(double rate)
+    {
+      return getMixedModel().setRate(rate);
+    }
+    
     void addRateParameter()
     {
       getMixedModel().addRateParameter();
       addParameter_(new Parameter(getNamespace() + "rate", getMixedModel().getRate(), &Parameter::R_PLUS_STAR));
     }
-
-    void setFreqFromData(const SequenceContainer& data, double pseudoCount = 0){getMixedModel().setFreqFromData(data, pseudoCount); }
-
-    void setFreq(std::map<int, double>& frequ) {getMixedModel().setFreq(frequ); }
 
     /*
      * @}
@@ -163,7 +283,6 @@ namespace bpp
      */
     void fireParameterChanged(const ParameterList& parameters)
     {
-      AbstractParameterAliasable::fireParameterChanged(parameters);
       getMixedModel().matchParametersValues(parameters);
     }
 
@@ -173,25 +292,6 @@ namespace bpp
       getMixedModel().setNamespace(name);
     }
 
-  public:
-    bool isScalable() const 
-    {
-      return getMixedModel().isScalable();
-    }
-
-    void setScalable(bool scalable)
-    {
-      getMixedModel().setScalable(scalable);
-    }
-
-    void normalize()
-    {
-      getMixedModel().normalize();
-    }
-    
-    double getScale() const { return getMixedModel().getScale(); }
-
-    void setScale(double scale) { getMixedModel().setScale(scale); }
 
     /*
      * @}
@@ -202,8 +302,13 @@ namespace bpp
       return mixedModel_->getName();
     }
 
+  protected:
 
+    void updateMatrices() 
+    {
+    }
   };
+  
 } // end of namespace bpp.
 
 #endif  // _IN_MIXED_SUBSTITUTIONMODEL_H_

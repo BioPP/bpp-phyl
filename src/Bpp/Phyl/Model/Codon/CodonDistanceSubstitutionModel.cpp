@@ -52,6 +52,7 @@ CodonDistanceSubstitutionModel::CodonDistanceSubstitutionModel(
   AbstractCodonSubstitutionModel(gCode, pmod, "CodonDist."),
   AbstractCodonDistanceSubstitutionModel(pdist, "CodonDist.")
 {
+  computeFrequencies(true);
   updateMatrices();
 }
 
@@ -65,6 +66,7 @@ CodonDistanceSubstitutionModel::CodonDistanceSubstitutionModel(
   AbstractCodonSubstitutionModel(gCode, pmod1, pmod2, pmod3, "CodonDist."),
   AbstractCodonDistanceSubstitutionModel(pdist, "CodonDist.")
 {
+  computeFrequencies(true);
   updateMatrices();
 }
 

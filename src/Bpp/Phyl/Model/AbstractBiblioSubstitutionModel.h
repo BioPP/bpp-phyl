@@ -41,7 +41,7 @@
 #define _ABSTRACT_BIBLIO_SUBSTITUTIONMODEL_H_
 
 #include "SubstitutionModel.h"
-#include "WrappedModel.h"
+#include "AbstractWrappedModel.h"
 
 #include <Bpp/Numeric/AbstractParameterAliasable.h>
 
@@ -55,7 +55,7 @@ namespace bpp
  */
 
   class AbstractBiblioSubstitutionModel :
-    public virtual WrappedSubstitutionModel,
+    public virtual AbstractTotallyWrappedSubstitutionModel,
     public AbstractParameterAliasable
   {
   protected:

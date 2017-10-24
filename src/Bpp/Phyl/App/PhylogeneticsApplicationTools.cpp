@@ -464,6 +464,7 @@ void PhylogeneticsApplicationTools::setSubstitutionModelSet(
 
   unique_ptr<TransitionModel> tmp(bIO.readTransitionModel(alphabet, tmpDesc, data, false));
 
+
   if (tmp->getNumberOfStates() != alphabet->getSize())
   {
     // Markov-Modulated Markov Model...

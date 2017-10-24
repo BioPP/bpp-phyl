@@ -66,6 +66,7 @@ MarkovModulatedSubstitutionModel::MarkovModulatedSubstitutionModel(
   eigenValues_         (model.eigenValues_),
   iEigenValues_        (model.iEigenValues_),
   eigenDecompose_      (model.eigenDecompose_),
+  compFreq_            (model.compFreq_),
   pijt_                (model.pijt_),
   dpijt_               (model.dpijt_),
   d2pijt_              (model.d2pijt_),
@@ -93,6 +94,7 @@ MarkovModulatedSubstitutionModel& MarkovModulatedSubstitutionModel::operator=(
   eigenValues_          = model.eigenValues_;
   iEigenValues_         = model.iEigenValues_;
   eigenDecompose_       = model.eigenDecompose_;
+  compFreq_             = model.compFreq_;
   pijt_                 = model.pijt_;
   dpijt_                = model.dpijt_;
   d2pijt_               = model.d2pijt_;
@@ -172,6 +174,22 @@ void MarkovModulatedSubstitutionModel::updateMatrices()
   }
   // Now compute left eigen vectors by inversion:
   MatrixTools::inv(rightEigenVectors_, leftEigenVectors_);
+}
+
+void MarkovModulatedSubstitutionModel::setDiagonal()
+{
+  for (size_t i = 0; i < getNumberOfStates(); i++)
+  {
+    double lambda=0;
+    Vdouble& row=generator_.getRow(i);
+    
+    for (size_t j = 0; j < getNumberOfStates(); j++)
+    {
+      if (j != i)
+        lambda += row[j];
+    }
+    row[i] = -lambda;
+  }
 }
 
 /******************************************************************************/
