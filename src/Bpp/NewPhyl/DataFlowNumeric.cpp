@@ -289,6 +289,31 @@ namespace DF {
 		}
 	}
 
+	// NegDouble
+	class NegDouble : public Value<double> {
+	public:
+		using Dependencies = FunctionOfValues<double>;
+
+		NegDouble (NodeRefVec && deps) : Value<double> (std::move (deps)) { checkDependencies (*this); }
+		NodeRef derive (const Node & node) override final {
+			return makeNode<NegDouble> ({this->dependency (0)->derive (node)});
+		}
+
+	private:
+		void compute () override final {
+			callWithValues (*this, [](double & r, double d) { r = -d; });
+		}
+	};
+	ValueRef<double> Builder<NegDouble>::make (NodeRefVec && deps) {
+		checkDependencies<NegDouble> (deps);
+		auto & dep = deps[0];
+		if (dep->isConstant ()) {
+			return makeNode<Constant<double>> (-accessValidValueConstCast<double> (dep));
+		} else {
+			return std::make_shared<NegDouble> (std::move (deps));
+		}
+	}
+
 	// ScalarProdDouble
 	class ScalarProdDouble : public Value<double> {
 	public:

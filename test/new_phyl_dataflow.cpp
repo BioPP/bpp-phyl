@@ -107,8 +107,7 @@ namespace
     }
     timingEnd(ts, timePrefix);
   }
-  template<typename Lik>
-  void do_param_changes_multiple_times(Lik& llh,
+  void do_param_changes_multiple_times(bpp::DerivableSecondOrder & llh,
                                        const std::string& timePrefix,
                                        const bpp::ParameterList& p1,
                                        const bpp::ParameterList& p2)

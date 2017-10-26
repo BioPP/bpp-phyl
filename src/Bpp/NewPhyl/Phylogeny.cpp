@@ -97,7 +97,8 @@ namespace Phyl {
 		    {makeConditionalLikelihoodNode (params, params.process.tree->rootNode ()),
 		     std::move (rootEquilibriumFrequencies)},
 		    dim.nbSites ());
-		return DF::makeNode<DF::TotalLogLikelihood> ({std::move (likelihood)});
+		auto logLik = DF::makeNode<DF::TotalLogLikelihood> ({std::move (likelihood)});
+		return DF::makeNode<DF::NegDouble> ({std::move (logLik)});
 	}
 
 } // namespace Phyl

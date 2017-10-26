@@ -59,6 +59,9 @@ namespace DF {
 	class MulDouble;
 	template <> struct Builder<MulDouble> { static ValueRef<double> make (NodeRefVec && deps); };
 
+	class NegDouble;
+	template <> struct Builder<NegDouble> { static ValueRef<double> make (NodeRefVec && deps); };
+
 	class ScalarProdDouble;
 	template <> struct Builder<ScalarProdDouble> {
 		static ValueRef<double> make (NodeRefVec && deps);
