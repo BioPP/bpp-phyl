@@ -47,17 +47,17 @@
 namespace bpp {
 namespace Phyl {
 	namespace {
-		DF::ValueRef<DF::MatrixDouble>
-		makeConditionalLikelihoodNode (const LikelihoodParameters & params, Topology::Node node);
-		DF::ValueRef<DF::MatrixDouble> makeForwardLikelihoodNode (const LikelihoodParameters & params,
-		                                                          Topology::Branch branch);
+		DF::ValueRef<MatrixDouble> makeConditionalLikelihoodNode (const LikelihoodParameters & params,
+		                                                          Topology::Node node);
+		DF::ValueRef<MatrixDouble> makeForwardLikelihoodNode (const LikelihoodParameters & params,
+		                                                      Topology::Branch branch);
 
 		LikelihoodDataDimension dimensions (const LikelihoodParameters & params) {
 			return {params.leafData.nbSites, params.process.nbStates};
 		}
 
-		DF::ValueRef<DF::MatrixDouble>
-		makeConditionalLikelihoodNode (const LikelihoodParameters & params, Topology::Node node) {
+		DF::ValueRef<MatrixDouble> makeConditionalLikelihoodNode (const LikelihoodParameters & params,
+		                                                          Topology::Node node) {
 			auto dim = dimensions (params);
 			if (node.nbChildBranches () == 0) {
 				auto & sequence = params.leafData.sequences->access (node).value ();
@@ -71,8 +71,8 @@ namespace Phyl {
 			}
 		}
 
-		DF::ValueRef<DF::MatrixDouble> makeForwardLikelihoodNode (const LikelihoodParameters & params,
-		                                                          Topology::Branch branch) {
+		DF::ValueRef<MatrixDouble> makeForwardLikelihoodNode (const LikelihoodParameters & params,
+		                                                      Topology::Branch branch) {
 			auto dim = dimensions (params);
 			auto conditionalLikelihood = makeConditionalLikelihoodNode (params, branch.childNode ());
 

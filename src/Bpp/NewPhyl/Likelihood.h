@@ -45,6 +45,7 @@
 
 #include <Bpp/NewPhyl/DataFlow.h>
 #include <Bpp/NewPhyl/DataFlowNumeric.h>
+#include <Bpp/NewPhyl/LinearAlgebra.h>
 #include <Bpp/NewPhyl/Signed.h>
 #include <string>
 
@@ -60,14 +61,14 @@ namespace Phyl {
 	 * Frequencies for site k are stored in column k.
 	 * TODO accessors ?
 	 */
-	using LikelihoodData = DF::MatrixDouble;
+	using LikelihoodData = MatrixDouble;
 
 	// defines a MatrixDimension compatible struct.
-	struct LikelihoodDataDimension : public DF::MatrixDimension {
+	struct LikelihoodDataDimension : public MatrixDimension {
 		constexpr LikelihoodDataDimension (SizeType nbSitesArg, SizeType nbStatesArg) noexcept
-		    : DF::MatrixDimension (nbStatesArg, nbSitesArg) {}
-		constexpr LikelihoodDataDimension (const DF::MatrixDimension & matDim) noexcept
-		    : DF::MatrixDimension (matDim) {}
+		    : MatrixDimension (nbStatesArg, nbSitesArg) {}
+		constexpr LikelihoodDataDimension (const MatrixDimension & matDim) noexcept
+		    : MatrixDimension (matDim) {}
 
 		SizeType nbStates () const { return rows; }
 		SizeType nbSites () const { return cols; }

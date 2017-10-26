@@ -43,69 +43,14 @@
 #define BPP_NEWPHYL_DATAFLOWNUMERIC_H
 
 #include <Bpp/NewPhyl/DataFlow.h>
-#include <Bpp/NewPhyl/DataFlowTemplates.h> // TODO rm when constant is moved away
+#include <Bpp/NewPhyl/LinearAlgebra.h>
 #include <Bpp/NewPhyl/Signed.h>
-#include <Eigen/Core>
 #include <string>
 #include <typeinfo>
 #include <utility>
 
 namespace bpp {
 namespace DF {
-
-	// Typedefs TODO use wrapper types that can be forward declared
-	using VectorDouble = Eigen::VectorXd;
-	using MatrixDouble = Eigen::MatrixXd;
-
-	// Debug info defined as overrides by types TODO move DF.h
-	template <> std::string Value<double>::debugInfo () const;
-	template <> std::string Value<VectorDouble>::debugInfo () const;
-	template <> std::string Value<MatrixDouble>::debugInfo () const;
-
-	// Additional Constant<T> specialisation (TODO move to DFT.h, with forward declaration)
-	template <> NodeRef Constant<VectorDouble>::derive (const Node & node);
-	template <> struct Builder<Constant<VectorDouble>> {
-		template <typename EigenVector>
-		static std::shared_ptr<Constant<VectorDouble>> make (const EigenVector & v) {
-			return std::make_shared<Constant<VectorDouble>> (v);
-		}
-		static std::shared_ptr<Constant<VectorDouble>> makeZero (SizeType size);
-	};
-
-	struct MatrixDimension;
-	template <> NodeRef Constant<MatrixDouble>::derive (const Node & node);
-	template <> struct Builder<Constant<MatrixDouble>> {
-		template <typename EigenMatrix>
-		static std::shared_ptr<Constant<MatrixDouble>> make (const EigenMatrix & m) {
-			return std::make_shared<Constant<MatrixDouble>> (m);
-		}
-		static std::shared_ptr<Constant<MatrixDouble>> makeZero (const MatrixDimension & dim);
-		static std::shared_ptr<Constant<MatrixDouble>> makeOne (const MatrixDimension & dim);
-	};
-
-	// Dimensions
-	struct MatrixDimension {
-		SizeType rows;
-		SizeType cols;
-		constexpr MatrixDimension (SizeType rows_, SizeType cols_) noexcept
-		    : rows (rows_), cols (cols_) {}
-		std::string toString () const;
-	};
-	constexpr bool operator== (const MatrixDimension & lhs, const MatrixDimension & rhs) noexcept {
-		return lhs.rows == rhs.rows && lhs.cols == rhs.cols;
-	}
-	constexpr bool operator!= (const MatrixDimension & lhs, const MatrixDimension & rhs) noexcept {
-		return !(lhs == rhs);
-	}
-
-	inline SizeType dimensions (const VectorDouble & v) noexcept { return v.rows (); }
-	inline MatrixDimension dimensions (const MatrixDouble & m) noexcept {
-		return {m.rows (), m.cols ()};
-	}
-
-	SizeType dimensions (const Value<VectorDouble> & node) noexcept;
-	MatrixDimension dimensions (const Value<MatrixDouble> & node) noexcept;
-
 	/* Double nodes.
 	 */
 	struct AddDouble : public Value<double> {

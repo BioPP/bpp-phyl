@@ -46,7 +46,7 @@
 #include <Bpp/NewPhyl/Vector.h>
 #include <memory>
 #include <string> // description
-#include <typeinfo>
+#include <typeinfo> // convertRef
 #include <utility>
 
 namespace bpp {
@@ -98,7 +98,6 @@ namespace DF {
 
 		// Derive with respect to node (default = error)
 		virtual NodeRef derive (const Node & node);
-		// TODO add non virtual "nice" overloads for const sp<T> & if T:Node ?
 
 	protected:
 		// Computation implementation
@@ -195,6 +194,10 @@ namespace DF {
 	private:
 		friend class InternalAccessor;
 	};
+
+	// Debug info override for double (in DataFlowNumeric.cpp)
+	template <> std::string Value<double>::debugInfo () const;
+  // overrides for VectorDouble and MatrixDouble are declared in LinearAlgebra.h
 
 	/* Dependency structure description.
 	 * These type tags are used to specify compute node dependency types.

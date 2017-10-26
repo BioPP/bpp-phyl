@@ -118,8 +118,6 @@ namespace DF {
 		static std::shared_ptr<Constant<double>> makeZero ();
 		static std::shared_ptr<Constant<double>> makeOne ();
 	};
-
-	// TODO forward declare the ones for Vector & Matrix, for not in DFNumeric.h
 } // namespace DF
 } // namespace bpp
 

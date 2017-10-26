@@ -50,81 +50,81 @@
 #include <utility>
 
 namespace bpp {
+/* TODO
+ * - opt: aggregate constants
+ * - merge constants by type
+ * - support for general register (reuse code in DF.cpp, declare in DFTinternal).
+ * - opt: keep 0s instead of recreating them
+ * - deduce size (require 1 arg in reductions) ?
+ * - opt: merge * of *, + of +, ... ?
+ * - common template for *,+ opts ?
+ */
+
+/******************************** Utils *******************************/
+namespace {
+	// Constant builders
+	auto zeroVector (SizeType size) -> decltype (VectorDouble::Zero (size)) {
+		return VectorDouble::Zero (size);
+	}
+	auto oneVector (SizeType size) -> decltype (VectorDouble::Ones (size)) {
+		return VectorDouble::Ones (size);
+	}
+	auto zeroMatrix (MatrixDimension dim) -> decltype (MatrixDouble::Zero (dim.rows, dim.cols)) {
+		return MatrixDouble::Zero (dim.rows, dim.cols);
+	}
+	auto oneMatrix (MatrixDimension dim) -> decltype (MatrixDouble::Ones (dim.rows, dim.cols)) {
+		return MatrixDouble::Ones (dim.rows, dim.cols);
+	}
+
+	// Constant checking predicate (const T & -> bool)
+	bool isExactZeroVector (const VectorDouble & v) { return v == zeroVector (dimensions (v)); }
+	bool isExactOnesVector (const VectorDouble & v) { return v == oneVector (dimensions (v)); }
+	bool isExactZeroMatrix (const MatrixDouble & m) { return m == zeroMatrix (dimensions (m)); }
+	bool isExactOnesMatrix (const MatrixDouble & m) { return m == oneMatrix (dimensions (m)); }
+	bool isExactIdentityMatrix (const MatrixDouble & m) {
+		return m.rows () == m.cols () && m == MatrixDouble::Identity (m.rows (), m.cols ());
+	}
+
+	// Constant node checking predicates (const NodeRef & -> bool)
+	using DF::predicateIsConstantValueMatching;
+	auto isConstantZeroDouble = predicateIsConstantValueMatching<double> (0.);
+	auto isConstantOneDouble = predicateIsConstantValueMatching<double> (1.);
+	auto isConstantZeroVector = predicateIsConstantValueMatching<VectorDouble> (isExactZeroVector);
+	auto isConstantOnesVector = predicateIsConstantValueMatching<VectorDouble> (isExactOnesVector);
+	auto isConstantZeroMatrix = predicateIsConstantValueMatching<MatrixDouble> (isExactZeroMatrix);
+	auto isConstantOnesMatrix = predicateIsConstantValueMatching<MatrixDouble> (isExactOnesMatrix);
+	auto isConstantIdentityMatrix =
+	    predicateIsConstantValueMatching<MatrixDouble> (isExactIdentityMatrix);
+
+	// Matrix dimension checking TODO drop ?
+	void checkDepsHaveRequiredDimension (const std::type_info & inNodeType,
+	                                     const DF::NodeRefVec & deps, MatrixDimension dim) {
+		for (auto i : index_range (deps)) {
+			auto depDim = dimensions (dynamic_cast<const DF::Value<MatrixDouble> &> (*deps[i]));
+			if (dim != depDim)
+				throw Exception (prettyTypeName (inNodeType) + ": matrix size mismatch for " +
+				                 std::to_string (i) + "-th argument: expected " + dim.toString () +
+				                 ", got " + depDim.toString ());
+		}
+	}
+	template <typename NodeType>
+	void checkDepsHaveRequiredDimension (const NodeType & node, MatrixDimension dim) {
+		checkDepsHaveRequiredDimension (typeid (NodeType), node.dependencies (), dim);
+	}
+} // namespace
+
+// Dimensions
+std::string MatrixDimension::toString () const {
+	return "(" + std::to_string (rows) + "," + std::to_string (cols) + ")";
+}
+SizeType dimensions (const DF::Value<VectorDouble> & node) noexcept {
+	return dimensions (accessValueConst (node));
+}
+MatrixDimension dimensions (const DF::Value<MatrixDouble> & node) noexcept {
+	return dimensions (accessValueConst (node));
+}
+
 namespace DF {
-	/* TODO
-	 * - opt: aggregate constants
-	 * - merge constants by type
-	 * - support for general register (reuse code in DF.cpp, declare in DFTinternal).
-	 * - opt: keep 0s instead of recreating them
-	 * - deduce size (require 1 arg in reductions) ?
-	 * - opt: merge * of *, + of +, ... ?
-	 * - common template for *,+ opts ?
-	 */
-
-	/******************************** Utils *******************************/
-	namespace {
-		// Constant builders
-		auto zeroVector (SizeType size) -> decltype (VectorDouble::Zero (size)) {
-			return VectorDouble::Zero (size);
-		}
-		auto oneVector (SizeType size) -> decltype (VectorDouble::Ones (size)) {
-			return VectorDouble::Ones (size);
-		}
-		auto zeroMatrix (MatrixDimension dim) -> decltype (MatrixDouble::Zero (dim.rows, dim.cols)) {
-			return MatrixDouble::Zero (dim.rows, dim.cols);
-		}
-		auto oneMatrix (MatrixDimension dim) -> decltype (MatrixDouble::Ones (dim.rows, dim.cols)) {
-			return MatrixDouble::Ones (dim.rows, dim.cols);
-		}
-
-		// Constant checking predicate (const T & -> bool)
-		bool isExactZeroVector (const VectorDouble & v) { return v == zeroVector (dimensions (v)); }
-		bool isExactOnesVector (const VectorDouble & v) { return v == oneVector (dimensions (v)); }
-		bool isExactZeroMatrix (const MatrixDouble & m) { return m == zeroMatrix (dimensions (m)); }
-		bool isExactOnesMatrix (const MatrixDouble & m) { return m == oneMatrix (dimensions (m)); }
-		bool isExactIdentityMatrix (const MatrixDouble & m) {
-			return m.rows () == m.cols () && m == MatrixDouble::Identity (m.rows (), m.cols ());
-		}
-
-		// Constant node checking predicates (const NodeRef & -> bool)
-		auto isConstantZeroDouble = predicateIsConstantValueMatching<double> (0.);
-		auto isConstantOneDouble = predicateIsConstantValueMatching<double> (1.);
-		auto isConstantZeroVector = predicateIsConstantValueMatching<VectorDouble> (isExactZeroVector);
-		auto isConstantOnesVector = predicateIsConstantValueMatching<VectorDouble> (isExactOnesVector);
-		auto isConstantZeroMatrix = predicateIsConstantValueMatching<MatrixDouble> (isExactZeroMatrix);
-		auto isConstantOnesMatrix = predicateIsConstantValueMatching<MatrixDouble> (isExactOnesMatrix);
-		auto isConstantIdentityMatrix =
-		    predicateIsConstantValueMatching<MatrixDouble> (isExactIdentityMatrix);
-
-		// Matrix dimension checking TODO drop ?
-		void checkDepsHaveRequiredDimension (const std::type_info & inNodeType, const NodeRefVec & deps,
-		                                     MatrixDimension dim) {
-			for (auto i : index_range (deps)) {
-				auto depDim = dimensions (dynamic_cast<const Value<MatrixDouble> &> (*deps[i]));
-				if (dim != depDim)
-					throw Exception (prettyTypeName (inNodeType) + ": matrix size mismatch for " +
-					                 std::to_string (i) + "-th argument: expected " + dim.toString () +
-					                 ", got " + depDim.toString ());
-			}
-		}
-		template <typename NodeType>
-		void checkDepsHaveRequiredDimension (const NodeType & node, MatrixDimension dim) {
-			checkDepsHaveRequiredDimension (typeid (NodeType), node.dependencies (), dim);
-		}
-	} // namespace
-
-	// Dimensions
-	std::string MatrixDimension::toString () const {
-		return "(" + std::to_string (rows) + "," + std::to_string (cols) + ")";
-	}
-
-	SizeType dimensions (const Value<VectorDouble> & node) noexcept {
-		return dimensions (accessValueConst (node));
-	}
-	MatrixDimension dimensions (const Value<MatrixDouble> & node) noexcept {
-		return dimensions (accessValueConst (node));
-	}
-
 	/******************************** External specialisations *******************************/
 
 	// Debug info specialisations
