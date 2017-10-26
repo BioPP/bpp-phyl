@@ -49,6 +49,10 @@
 
 // Common stuff
 #include <Bpp/NewPhyl/Range.h>
+#include <Bpp/Numeric/AutoParameter.h>
+#include <Bpp/Numeric/Function/ConjugateGradientMultiDimensions.h>
+#include <Bpp/Numeric/Function/Optimizer.h>
+#include <Bpp/Numeric/Function/SimpleNewtonMultiDimensions.h>
 #include <Bpp/Numeric/Parameter.h>
 #include <Bpp/Numeric/ParameterList.h>
 #include <Bpp/Phyl/Model/Nucleotide/T92.h>
@@ -107,7 +111,7 @@ namespace
     }
     timingEnd(ts, timePrefix);
   }
-  void do_param_changes_multiple_times(bpp::DerivableSecondOrder & llh,
+  void do_param_changes_multiple_times(bpp::DerivableSecondOrder& llh,
                                        const std::string& timePrefix,
                                        const bpp::ParameterList& p1,
                                        const bpp::ParameterList& p2)
@@ -123,6 +127,25 @@ namespace
       llh.matchParametersValues(p2);
       llh.getValue();
     });
+  }
+
+  void optimize_branch_params(bpp::DerivableSecondOrder& llh,
+                              const std::string& prefix,
+                              const bpp::ParameterList& branchParams)
+  {
+    auto ts = timingStart();
+    bpp::ConjugateGradientMultiDimensions optimizer(&llh);
+    // bpp::SimpleNewtonMultiDimensions optimizer(&llh);
+    optimizer.setVerbose(0);
+    optimizer.setProfiler(nullptr);
+    optimizer.setMessageHandler(nullptr);
+    optimizer.setMaximumNumberOfEvaluations(1000);
+    optimizer.getStopCondition()->setTolerance(0.000001);
+    optimizer.setConstraintPolicy(bpp::AutoParameter::CONSTRAINTS_AUTO);
+    optimizer.init(branchParams);
+    optimizer.optimize();
+    timingEnd(ts, prefix);
+    printLik(llh.getValue(), prefix);
   }
 
   struct CommonStuff
@@ -177,6 +200,7 @@ TEST_CASE("old")
 
   do_param_changes_multiple_times(llh, "old_param_model_change", c.paramModel1, c.paramModel2);
   do_param_changes_multiple_times(llh, "old_param_brlen_change", c.paramBrLen1, c.paramBrLen2);
+  optimize_branch_params(llh, "old_brlends_opt", llh.getBranchLengthsParameters());
 }
 #endif
 
@@ -203,6 +227,7 @@ TEST_CASE("new")
 
   do_param_changes_multiple_times(llh, "new_param_model_change", c.paramModel1, c.paramModel2);
   do_param_changes_multiple_times(llh, "new_param_brlen_change", c.paramBrLen1, c.paramBrLen2);
+  optimize_branch_params(llh, "new_brlens_opt", llh.getBranchLengthParameters());
 }
 #endif
 
@@ -232,7 +257,7 @@ TEST_CASE("df")
   auto logLikNode = bpp::Phyl::makeLogLikelihoodNode(likParams);
 
   // Build bpp-compatible structure out of it
-  bpp::ParameterList params;
+  bpp::ParameterList brlenParams;
   for (auto i : bpp::index_range(*treeData.branchLengths))
   {
     // for all brlen in init graph (i), add DFparam("Brlen<i>", paramNode);
@@ -240,9 +265,10 @@ TEST_CASE("df")
     if (branchParamOpt)
     {
       auto phyloBranchId = treeData.treeTemplateNodeIndexes->access(i).value();
-      params.addParameter(bpp::DataFlowParameter("BrLen" + std::to_string(phyloBranchId), *branchParamOpt));
+      brlenParams.addParameter(bpp::DataFlowParameter("BrLen" + std::to_string(phyloBranchId), *branchParamOpt));
     }
   }
+  bpp::ParameterList params{brlenParams};
   for (auto i : bpp::range(model->nbParameters()))
     params.addParameter(bpp::DataFlowParameter(model->getParameterName(i), model->getParameter(i)));
 
@@ -265,5 +291,8 @@ TEST_CASE("df")
   // Change parameters
   do_param_changes_multiple_times(likFunc, "df_param_model_change", c.paramModel1, c.paramModel2);
   do_param_changes_multiple_times(likFunc, "df_param_brlen_change", c.paramBrLen1, c.paramBrLen2);
+
+  // Optimize
+  optimize_branch_params(likFunc, "df_brlens_opt", brlenParams);
 }
 #endif
