@@ -43,6 +43,46 @@
 #include <Bpp/NewPhyl/LinearAlgebra.h>
 
 namespace bpp {
+// Utils
+namespace {
+	auto zeroValue (const VectorDimension & dim) -> decltype (VectorDouble::Zero (dim.size)) {
+		return VectorDouble::Zero (dim.size);
+	}
+	auto zeroValue (const MatrixDimension & dim)
+	    -> decltype (MatrixDouble::Zero (dim.rows, dim.cols)) {
+		return MatrixDouble::Zero (dim.rows, dim.cols);
+	}
+
+	// Needed for numericProps, always false.
+	constexpr bool isExactIdentity (const VectorDouble &) { return false; }
+
+	// Generate a string describing useful numeric props of Vector/Matrix
+	template <typename T> std::string numericProps (const T & t) {
+		std::string s{"props{"};
+		auto zero = zeroValue (dimensions (t));
+		// Property for all elements
+		if (isExactZero (t))
+			s += "[0]";
+		if (isExactOne (t))
+			s += "[1]";
+		if (isExactIdentity (t))
+			s += "[I]";
+		// Property on any element
+		if (t.array ().isNaN ().any ())
+			s += "N";
+		if (t.array ().isInf ().any ())
+			s += "i";
+		if ((t.array () == zero.array ()).any ())
+			s += "0";
+		if ((t.array () > zero.array ()).any ())
+			s += "+";
+		if ((t.array () < zero.array ()).any ())
+			s += "-";
+		s += "}";
+		return s;
+	}
+} // namespace
+
 // Dimensions
 std::string to_string (const NoDimension &) {
 	return {};
@@ -102,41 +142,12 @@ namespace DF {
 	template <> std::string Value<VectorDouble>::debugInfo () const {
 		using std::to_string;
 		auto & v = this->value_;
-		auto s = "size=" + to_string (dimensions (v)) + " props{";
-		if (isExactZero (v))
-			s += "[0]";
-		if (isExactOne (v))
-			s += "[1]";
-		if (v.array ().isNaN ().any ())
-			s += "N";
-		if (v.array ().isInf ().any ())
-			s += "i";
-		if ((v.array () == VectorDouble::Zero (dimensions (v).size).array ()).any ())
-			s += "0";
-		s += "}";
-		return s;
+		return "size=" + to_string (dimensions (v)) + " " + numericProps (v);
 	}
 	template <> std::string Value<MatrixDouble>::debugInfo () const {
 		using std::to_string;
 		auto & m = this->value_;
-		auto dim = dimensions (m);
-		auto s = "dim" + to_string (dim) + " props{";
-		if (isExactZero (m))
-			s += "[0]";
-		if (isExactOne (m))
-			s += "[1]";
-		if (isExactIdentity (m))
-			s += "[I]";
-		if (m.hasNaN ())
-			s += "N";
-		if (m.array ().isNaN ().any ())
-			s += "N";
-		if (m.array ().isInf ().any ())
-			s += "i";
-		if ((m.array () == MatrixDouble::Zero (dim.rows, dim.cols).array ()).any ())
-			s += "0";
-		s += "}";
-		return s;
+		return "dim" + to_string (dimensions (m)) + " " + numericProps (m);
 	}
 
 	// Constant<VectorDouble> specialisation
@@ -145,7 +156,7 @@ namespace DF {
 	}
 	std::shared_ptr<Constant<VectorDouble>>
 	Builder<Constant<VectorDouble>>::makeZero (const VectorDimension & dim) {
-		return make (VectorDouble::Zero (dim.size));
+		return make (zeroValue (dim));
 	}
 
 	// Constant<MatrixDouble> specialisation
@@ -154,7 +165,7 @@ namespace DF {
 	}
 	std::shared_ptr<Constant<MatrixDouble>>
 	Builder<Constant<MatrixDouble>>::makeZero (const MatrixDimension & dim) {
-		return make (MatrixDouble::Zero (dim.rows, dim.cols));
+		return make (zeroValue (dim));
 	}
 	std::shared_ptr<Constant<MatrixDouble>>
 	Builder<Constant<MatrixDouble>>::makeOne (const MatrixDimension & dim) {

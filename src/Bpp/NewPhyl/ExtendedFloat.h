@@ -44,6 +44,7 @@
 
 #include <cmath>
 #include <limits>
+#include <string>
 
 namespace bpp {
 
@@ -82,8 +83,8 @@ public:
 	    constexpr_power (FloatType (radix), smallest_normalized_radix_power);
 
 	// factors to scale f_ to renormalize.
-	static constexpr FloatType normalize_big_factor = 1 / biggest_normalized_value;
-	static constexpr FloatType normalize_small_factor = 1 / smallest_normalized_value;
+	static constexpr FloatType normalize_big_factor = 1. / biggest_normalized_value;
+	static constexpr FloatType normalize_small_factor = 1. / smallest_normalized_value;
 
 	// TODO add denorm info for sum
 
@@ -93,19 +94,18 @@ public:
 	const ExtType & exponent_part () const noexcept { return exp_; }
 
 	void normalize_big () noexcept {
-		while (f_ > biggest_normalized_value) {
-			f_ *= normalize_big_factor;
-			exp_ += biggest_normalized_radix_power;
+		if (std::isfinite (f_)) {
+			while (f_ > biggest_normalized_value) {
+				f_ *= normalize_big_factor;
+				exp_ += biggest_normalized_radix_power;
+			}
 		}
 	}
 	void normalize_small () {
-		int i = 0; // DEBUG
-		if (f_ != 0.) {
+		if (f_ > 0.) {
 			while (f_ < smallest_normalized_value) {
 				f_ *= normalize_small_factor;
 				exp_ += smallest_normalized_radix_power;
-				if (++i > 5)                             // DEBUG
-					throw std::string ("normalize_small"); // DEBUG
 			}
 		}
 	}
@@ -131,6 +131,11 @@ inline ExtendedFloat operator* (const ExtendedFloat & lhs, const ExtendedFloat &
 inline double log (const ExtendedFloat & ef) {
 	static const auto ln_radix = std::log (static_cast<double> (ExtendedFloat::radix));
 	return std::log (ef.float_part ()) + static_cast<double> (ef.exponent_part ()) * ln_radix;
+}
+
+inline std::string to_string (const ExtendedFloat & ef) {
+	using std::to_string;
+	return "double(" + to_string (ef.float_part ()) + " * 2^" + to_string (ef.exponent_part ()) + ")";
 }
 
 // TODO add Vector<EF> = Vector<double> + one exp (for lik vectors for one site, big tree case)

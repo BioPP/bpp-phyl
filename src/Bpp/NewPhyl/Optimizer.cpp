@@ -43,10 +43,20 @@
 #include <Bpp/NewPhyl/Optimizer.h>
 
 namespace bpp {
+
+DataFlowParameter::DataFlowParameter (const std::string & name,
+                                      DF::ParameterRef<double> existingParam)
+    : Parameter (name, DF::accessValidValueConst (*existingParam)),
+      dfParam_ (std::move (existingParam)) {}
+
+DataFlowParameter::DataFlowParameter (const std::string & name, double initialValue)
+    : DataFlowParameter (name, DF::makeNode<DF::Parameter<double>> (initialValue)) {}
+
 double DataFlowParameter::getValue () const {
 	return DF::accessValidValueConst (*dfParam_);
 }
 void DataFlowParameter::setValue (double v) {
-	dfParam_->setValue (v);
+	Parameter::setValue (v);
+	dfParam_->setValue (Parameter::getValue ());
 }
 } // namespace bpp

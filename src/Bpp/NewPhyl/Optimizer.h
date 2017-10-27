@@ -57,10 +57,8 @@ namespace bpp {
 // Wraps a DF::Parameter<double> data flow node as a bpp::Parameter
 class DataFlowParameter : public Parameter {
 public:
-	DataFlowParameter (const std::string & name, DF::ParameterRef<double> existingParam)
-	    : Parameter (name, {}), dfParam_ (std::move (existingParam)) {}
-	DataFlowParameter (const std::string & name, double initialValue)
-	    : DataFlowParameter (name, DF::makeNode<DF::Parameter<double>> (initialValue)) {}
+	DataFlowParameter (const std::string & name, DF::ParameterRef<double> existingParam);
+	DataFlowParameter (const std::string & name, double initialValue);
 
 	// Parameter boilerplate
 	DataFlowParameter * clone () const override { return new DataFlowParameter (*this); }
@@ -74,6 +72,7 @@ public:
 
 private:
 	DF::ParameterRef<double> dfParam_;
+  // FIXME improve sync between DF::Parameter value and bpp::Parameter
 };
 
 /*

@@ -136,9 +136,9 @@ namespace
     bpp::ConjugateGradientMultiDimensions optimizer(&llh);
     // bpp::SimpleNewtonMultiDimensions optimizer(&llh);
     optimizer.setVerbose(0);
-    optimizer.setProfiler(nullptr);
-    optimizer.setMessageHandler(nullptr);
-    optimizer.setMaximumNumberOfEvaluations(1000);
+    optimizer.setProfiler(nullptr);       // bpp::ApplicationTools::message);
+    optimizer.setMessageHandler(nullptr); // bpp::ApplicationTools::message);
+    optimizer.setMaximumNumberOfEvaluations(100);
     optimizer.getStopCondition()->setTolerance(0.000001);
     optimizer.setConstraintPolicy(bpp::AutoParameter::CONSTRAINTS_AUTO);
     optimizer.init(branchParams);
@@ -266,7 +266,9 @@ TEST_CASE("df")
     if (branchParamOpt)
     {
       auto phyloBranchId = treeData.treeTemplateNodeIndexes->access(i).value();
-      brlenParams.addParameter(bpp::DataFlowParameter("BrLen" + std::to_string(phyloBranchId), *branchParamOpt));
+      auto p = bpp::DataFlowParameter("BrLen" + std::to_string(phyloBranchId), *branchParamOpt);
+      p.setConstraint(bpp::Parameter::R_PLUS.clone(), true);
+      brlenParams.addParameter(std::move(p));
     }
   }
   bpp::ParameterList params{brlenParams};
@@ -286,7 +288,7 @@ TEST_CASE("df")
   {
     std::ofstream fd("df_debug");
     // bpp::DF::debugDag(fd, logLikNode, bpp::DF::DebugOptions::DetailedNodeInfo);
-    bpp::DF::debugDag(fd, likFunc.getAllNamedNodes("f"));
+    bpp::DF::debugDag(fd, likFunc.getAllNamedNodes("f"), bpp::DF::DebugOptions::DetailedNodeInfo);
     // bpp::Topology::debugTree(fd, treeData.topology);
   }
 
