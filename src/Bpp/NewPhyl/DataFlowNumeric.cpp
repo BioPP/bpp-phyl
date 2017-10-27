@@ -42,7 +42,6 @@
 #include <Bpp/Exceptions.h> // checks
 #include <Bpp/NewPhyl/DataFlowInternalTemplates.h>
 #include <Bpp/NewPhyl/DataFlowNumeric.h>
-#include <Bpp/NewPhyl/DataFlowTemplates.h>
 #include <Bpp/NewPhyl/Debug.h> // checks
 #include <Bpp/NewPhyl/LinearAlgebra.h>
 #include <Bpp/NewPhyl/Range.h>
@@ -61,159 +60,21 @@ namespace bpp {
  * - common template for *,+ opts ?
  */
 
-// TODO move (zero|one)(Vector|Matrix) utils to LinAl.h
-// TODO move MatrixDim def to linAlFwd.h, and impl to LinAl.cpp
-// TODO move specialisations to .cpp of their declarations
 // TODO fwd decl: cannot convert sp<Value<T>> to sp<Node>: provide make(Value<T>, ...) ?
 
-/******************************** Utils *******************************/
-namespace {
-	// Constant builders
-	auto zeroVector (SizeType size) -> decltype (VectorDouble::Zero (size)) {
-		return VectorDouble::Zero (size);
-	}
-	auto oneVector (SizeType size) -> decltype (VectorDouble::Ones (size)) {
-		return VectorDouble::Ones (size);
-	}
-	auto zeroMatrix (const MatrixDimension & dim)
-	    -> decltype (MatrixDouble::Zero (dim.rows, dim.cols)) {
-		return MatrixDouble::Zero (dim.rows, dim.cols);
-	}
-	auto oneMatrix (const MatrixDimension & dim)
-	    -> decltype (MatrixDouble::Ones (dim.rows, dim.cols)) {
-		return MatrixDouble::Ones (dim.rows, dim.cols);
-	}
-
-	// Constant checking predicate (const T & -> bool)
-	bool isExactZeroVector (const VectorDouble & v) { return v == zeroVector (dimensions (v)); }
-	bool isExactOnesVector (const VectorDouble & v) { return v == oneVector (dimensions (v)); }
-	bool isExactZeroMatrix (const MatrixDouble & m) { return m == zeroMatrix (dimensions (m)); }
-	bool isExactOnesMatrix (const MatrixDouble & m) { return m == oneMatrix (dimensions (m)); }
-	bool isExactIdentityMatrix (const MatrixDouble & m) {
-		return m.rows () == m.cols () && m == MatrixDouble::Identity (m.rows (), m.cols ());
-	}
-
-	// Constant node checking predicates (const NodeRef & -> bool)
-	using DF::predicateIsConstantValueMatching;
-	auto isConstantZeroDouble = predicateIsConstantValueMatching<double> (0.);
-	auto isConstantOneDouble = predicateIsConstantValueMatching<double> (1.);
-	auto isConstantZeroVector = predicateIsConstantValueMatching<VectorDouble> (isExactZeroVector);
-	auto isConstantOnesVector = predicateIsConstantValueMatching<VectorDouble> (isExactOnesVector);
-	auto isConstantZeroMatrix = predicateIsConstantValueMatching<MatrixDouble> (isExactZeroMatrix);
-	auto isConstantOnesMatrix = predicateIsConstantValueMatching<MatrixDouble> (isExactOnesMatrix);
-	auto isConstantIdentityMatrix =
-	    predicateIsConstantValueMatching<MatrixDouble> (isExactIdentityMatrix);
-
-	// Matrix dimension checking TODO drop ?
-	void checkDepsHaveRequiredDimension (const std::type_info & inNodeType,
-	                                     const DF::NodeRefVec & deps, const MatrixDimension & dim) {
-		for (auto i : index_range (deps)) {
-			auto depDim = dimensions (dynamic_cast<const DF::Value<MatrixDouble> &> (*deps[i]));
-			if (dim != depDim)
-				throw Exception (prettyTypeName (inNodeType) + ": matrix size mismatch for " +
-				                 std::to_string (i) + "-th argument: expected " + dim.toString () +
-				                 ", got " + depDim.toString ());
-		}
-	}
-	template <typename NodeType>
-	void checkDepsHaveRequiredDimension (const NodeType & node, const MatrixDimension & dim) {
-		checkDepsHaveRequiredDimension (typeid (NodeType), node.dependencies (), dim);
-	}
-} // namespace
-
-// Dimensions
-std::string MatrixDimension::toString () const {
-	return "(" + std::to_string (rows) + "," + std::to_string (cols) + ")";
-}
-SizeType dimensions (const DF::Value<VectorDouble> & node) noexcept {
-	return dimensions (accessValueConst (node));
-}
-MatrixDimension dimensions (const DF::Value<MatrixDouble> & node) noexcept {
-	return dimensions (accessValueConst (node));
-}
-
 namespace DF {
-	/******************************** External specialisations *******************************/
-
-	// Debug info specialisations
-	template <> std::string Value<double>::debugInfo () const {
-		return std::to_string (this->value_);
-	}
-	template <> std::string Value<VectorDouble>::debugInfo () const {
-		auto & v = this->value_;
-		auto s = std::string ("size=") + std::to_string (dimensions (v)) + " props{";
-		if (isExactZeroVector (v))
-			s += '0';
-		if (isExactOnesVector (v))
-			s += '1';
-		s += "}";
-		return s;
-	}
-	template <> std::string Value<MatrixDouble>::debugInfo () const {
-		auto & m = this->value_;
-		auto s = std::string ("dim") + dimensions (m).toString () + " props{";
-		if (isExactZeroMatrix (m))
-			s += '0';
-		if (isExactOnesMatrix (m))
-			s += '1';
-		if (isExactIdentityMatrix (m))
-			s += 'I';
-		s += "}";
-		return s;
-	}
-
-	// Parameter<double> specialisation
-	template <> NodeRef Parameter<double>::derive (const Node & node) {
-		if (&node == static_cast<const Node *> (this)) {
-			return Builder<Constant<double>>::makeOne ();
-		} else {
-			return Builder<Constant<double>>::makeZero ();
-		}
-	}
-
-	// Constant<double> specialisation
-	template <> NodeRef Constant<double>::derive (const Node &) {
-		return Builder<Constant<double>>::makeZero ();
-	}
-	std::shared_ptr<Constant<double>> Builder<Constant<double>>::make (double d) {
-		if (d == 0.) {
-			return makeZero ();
-		} else if (d == 1.) {
-			return makeOne ();
-		} else {
-			return std::make_shared<Constant<double>> (d);
-		}
-	}
-	std::shared_ptr<Constant<double>> Builder<Constant<double>>::makeZero () {
-		static auto zero = std::make_shared<Constant<double>> (0.);
-		return zero;
-	}
-	std::shared_ptr<Constant<double>> Builder<Constant<double>>::makeOne () {
-		static auto one = std::make_shared<Constant<double>> (1.);
-		return one;
-	}
-
-	// Constant<VectorDouble> specialisation
-	template <> NodeRef Constant<VectorDouble>::derive (const Node &) {
-		return Builder<Constant<VectorDouble>>::makeZero (dimensions (*this));
-	}
-	std::shared_ptr<Constant<VectorDouble>>
-	Builder<Constant<VectorDouble>>::makeZero (SizeType size) {
-		return make (zeroVector (size));
-	}
-
-	// Constant<MatrixDouble> specialisation
-	template <> NodeRef Constant<MatrixDouble>::derive (const Node &) {
-		return Builder<Constant<MatrixDouble>>::makeZero (dimensions (*this));
-	}
-	std::shared_ptr<Constant<MatrixDouble>>
-	Builder<Constant<MatrixDouble>>::makeZero (const MatrixDimension & dim) {
-		return make (zeroMatrix (dim));
-	}
-	std::shared_ptr<Constant<MatrixDouble>>
-	Builder<Constant<MatrixDouble>>::makeOne (const MatrixDimension & dim) {
-		return make (oneMatrix (dim));
-	}
+	/******************************** Utils *******************************/
+	namespace {
+		// Constant node checking predicates (const NodeRef & -> bool)
+		auto isConstantZeroDouble = predicateIsConstantValueMatching<double> (isExactZero);
+		auto isConstantOneDouble = predicateIsConstantValueMatching<double> (isExactOne);
+		auto isConstantZeroVector = predicateIsConstantValueMatching<VectorDouble> (isExactZero);
+		auto isConstantOnesVector = predicateIsConstantValueMatching<VectorDouble> (isExactOne);
+		auto isConstantZeroMatrix = predicateIsConstantValueMatching<MatrixDouble> (isExactZero);
+		auto isConstantOnesMatrix = predicateIsConstantValueMatching<MatrixDouble> (isExactOne);
+		auto isConstantIdentityMatrix =
+		    predicateIsConstantValueMatching<MatrixDouble> (isExactIdentity);
+	} // namespace
 
 	/******************************** New Nodes *******************************/
 	// TODO templatize impls
@@ -351,8 +212,8 @@ namespace DF {
 	public:
 		using Dependencies = ReductionOfValue<VectorDouble>;
 
-		AddVectorDouble (NodeRefVec && deps, SizeType size)
-		    : Value<VectorDouble> (std::move (deps), size) {}
+		AddVectorDouble (NodeRefVec && deps, const VectorDimension & dim)
+		    : Value<VectorDouble> (std::move (deps), dim.size) {}
 		NodeRef derive (const Node & node) override final {
 			return makeNode<AddVectorDouble> (
 			    this->dependencies ().map ([&node](const NodeRef & dep) { return dep->derive (node); }),
@@ -365,7 +226,8 @@ namespace DF {
 			                [](VectorDouble & r, const VectorDouble & v) { r += v; });
 		}
 	};
-	ValueRef<VectorDouble> Builder<AddVectorDouble>::make (NodeRefVec && deps, SizeType size) {
+	ValueRef<VectorDouble> Builder<AddVectorDouble>::make (NodeRefVec && deps,
+	                                                       const VectorDimension & dim) {
 		checkDependencies<AddVectorDouble> (deps);
 		// Remove Os
 		removeDependenciesIf (deps, isConstantZeroVector);
@@ -373,9 +235,9 @@ namespace DF {
 		if (deps.size () == 1) {
 			return convertRef<Value<VectorDouble>> (deps[0]);
 		} else if (deps.size () == 0) {
-			return Builder<Constant<VectorDouble>>::makeZero (size);
+			return Builder<Constant<VectorDouble>>::makeZero (dim);
 		} else {
-			return std::make_shared<AddVectorDouble> (std::move (deps), size);
+			return std::make_shared<AddVectorDouble> (std::move (deps), dim);
 		}
 	}
 
@@ -384,8 +246,8 @@ namespace DF {
 	public:
 		using Dependencies = FunctionOfValues<VectorDouble>;
 
-		CWiseInverseVectorDouble (NodeRefVec && deps, SizeType size)
-		    : Value<VectorDouble> (std::move (deps), size) {}
+		CWiseInverseVectorDouble (NodeRefVec && deps, const VectorDimension & dim)
+		    : Value<VectorDouble> (std::move (deps), dim.size) {}
 		// TODO NodeRef derive (const Node & node) override final;
 	private:
 		void compute () override final {
@@ -394,13 +256,13 @@ namespace DF {
 		}
 	};
 	ValueRef<VectorDouble> Builder<CWiseInverseVectorDouble>::make (NodeRefVec && deps,
-	                                                                SizeType size) {
+	                                                                const VectorDimension & dim) {
 		checkDependencies<CWiseInverseVectorDouble> (deps);
 		auto & arg = deps[0];
 		if (isConstantOnesVector (arg)) {
 			return convertRef<Value<VectorDouble>> (arg);
 		} else {
-			return std::make_shared<CWiseInverseVectorDouble> (std::move (deps), size);
+			return std::make_shared<CWiseInverseVectorDouble> (std::move (deps), dim);
 		}
 	}
 
@@ -410,9 +272,7 @@ namespace DF {
 		using Dependencies = ReductionOfValue<MatrixDouble>;
 
 		AddMatrixDouble (NodeRefVec && deps, const MatrixDimension & dim)
-		    : Value<MatrixDouble> (std::move (deps), dim.rows, dim.cols) {
-			checkDepsHaveRequiredDimension (*this, dim);
-		}
+		    : Value<MatrixDouble> (std::move (deps), dim.rows, dim.cols) {}
 		NodeRef derive (const Node & node) override final {
 			return makeNode<AddMatrixDouble> (
 			    this->dependencies ().map ([&node](const NodeRef & dep) { return dep->derive (node); }),
@@ -484,9 +344,7 @@ namespace DF {
 		using Dependencies = ReductionOfValue<MatrixDouble>;
 
 		CWiseMulMatrixDouble (NodeRefVec && deps, const MatrixDimension & dim)
-		    : Value<MatrixDouble> (std::move (deps), dim.rows, dim.cols) {
-			checkDepsHaveRequiredDimension (*this, dim);
-		}
+		    : Value<MatrixDouble> (std::move (deps), dim.rows, dim.cols) {}
 		NodeRef derive (const Node & node) override final {
 			auto dim = dimensions (*this);
 			NodeRefVec addDeps;
@@ -528,8 +386,8 @@ namespace DF {
 	public:
 		using Dependencies = FunctionOfValues<MatrixDouble, VectorDouble>;
 
-		MulTransposedMatrixVectorDouble (NodeRefVec && deps, SizeType size)
-		    : Value<VectorDouble> (std::move (deps), size) {}
+		MulTransposedMatrixVectorDouble (NodeRefVec && deps, const VectorDimension & dim)
+		    : Value<VectorDouble> (std::move (deps), dim.size) {}
 		NodeRef derive (const Node & node) override final {
 			auto dim = dimensions (*this);
 			auto & lhs = this->dependency (0);
@@ -547,17 +405,17 @@ namespace DF {
 			                });
 		}
 	};
-	ValueRef<VectorDouble> Builder<MulTransposedMatrixVectorDouble>::make (NodeRefVec && deps,
-	                                                                       SizeType size) {
+	ValueRef<VectorDouble>
+	Builder<MulTransposedMatrixVectorDouble>::make (NodeRefVec && deps, const VectorDimension & dim) {
 		checkDependencies<MulTransposedMatrixVectorDouble> (deps);
 		auto & lhs = deps[0];
 		auto & rhs = deps[1];
 		if (isConstantZeroMatrix (lhs) || isConstantZeroVector (rhs)) {
-			return Builder<Constant<VectorDouble>>::makeZero (size);
+			return Builder<Constant<VectorDouble>>::makeZero (dim);
 		} else if (isConstantIdentityMatrix (lhs)) {
 			return convertRef<Value<VectorDouble>> (rhs);
 		} else {
-			return std::make_shared<MulTransposedMatrixVectorDouble> (std::move (deps), size);
+			return std::make_shared<MulTransposedMatrixVectorDouble> (std::move (deps), dim);
 		}
 	}
 

@@ -108,7 +108,8 @@ namespace Phyl {
 			});
 		}
 		std::string EquilibriumFrequenciesFromModel::debugInfo () const {
-			return Value<VectorDouble>::debugInfo () + " nbState=" + std::to_string (dimensions (*this));
+			using std::to_string;
+			return Value<VectorDouble>::debugInfo () + " nbState=" + to_string (dimensions (*this));
 		}
 		NodeRef EquilibriumFrequenciesFromModel::derive (const Node & node) {
 			// TODO supports model derivation

@@ -44,9 +44,9 @@
 
 #include <Bpp/NewPhyl/DataFlow.h>          // Value<T> override declarations
 #include <Bpp/NewPhyl/DataFlowTemplates.h> // Constant<T> override declarations
-#include <Bpp/NewPhyl/Signed.h>
+#include <Bpp/NewPhyl/LinearAlgebraFwd.h>
 #include <Eigen/Core>
-#include <string>
+#include <memory>
 
 namespace bpp {
 /** Define wrapper types to eigen matrix / vector.
@@ -62,33 +62,6 @@ public:
 	using Eigen::MatrixXd::Base;
 	using Eigen::MatrixXd::Matrix; // Constructors
 };
-
-// Dimensions
-class MatrixDimension {
-public:
-	SizeType rows;
-	SizeType cols;
-	constexpr MatrixDimension (SizeType rows_, SizeType cols_) noexcept
-	    : rows (rows_), cols (cols_) {}
-	std::string toString () const;
-};
-constexpr bool operator== (const MatrixDimension & lhs, const MatrixDimension & rhs) noexcept {
-	return lhs.rows == rhs.rows && lhs.cols == rhs.cols;
-}
-constexpr bool operator!= (const MatrixDimension & lhs, const MatrixDimension & rhs) noexcept {
-	return !(lhs == rhs);
-}
-
-inline SizeType dimensions (const VectorDouble & v) noexcept {
-	return v.rows ();
-}
-inline MatrixDimension dimensions (const MatrixDouble & m) noexcept {
-	return {m.rows (), m.cols ()};
-}
-
-// Defined in DataFlowNumeric.cpp
-SizeType dimensions (const DF::Value<VectorDouble> & node) noexcept;
-MatrixDimension dimensions (const DF::Value<MatrixDouble> & node) noexcept;
 } // namespace bpp
 
 namespace Eigen {
@@ -109,7 +82,6 @@ namespace internal {
 namespace bpp {
 namespace DF {
 	/* Declare overrides of Value<T>, Constant<T>.
-	 * Defined in DataFlowNumeric.cpp
 	 *
 	 * These overrides cannot be declared without a complete type.
 	 * Thus no nice declaration with forward declared types in the headers of bpp::DF.
@@ -126,7 +98,7 @@ namespace DF {
 		static std::shared_ptr<Constant<VectorDouble>> make (const EigenVector & v) {
 			return std::make_shared<Constant<VectorDouble>> (v);
 		}
-		static std::shared_ptr<Constant<VectorDouble>> makeZero (SizeType size);
+		static std::shared_ptr<Constant<VectorDouble>> makeZero (const VectorDimension & dim);
 	};
 
 	template <> NodeRef Constant<MatrixDouble>::derive (const Node & node);

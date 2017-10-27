@@ -45,7 +45,6 @@
 #define ENABLE_OLD
 #define ENABLE_NEW
 #define ENABLE_DF
-#define NO_WARMUP
 
 // Common stuff
 #include <Bpp/NewPhyl/Range.h>

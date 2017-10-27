@@ -42,14 +42,74 @@
 #ifndef BPP_NEWPHYL_LINEARALGEBRAFWD_H
 #define BPP_NEWPHYL_LINEARALGEBRAFWD_H
 
+#include <Bpp/NewPhyl/Signed.h>
+#include <string>
+
 namespace bpp {
 // Forward declarations of eigen types
 class VectorDouble;
 class MatrixDouble;
 
 // Dimensions types
-// SizeType for VectorDouble
-class MatrixDimension; // MatrixDouble
+struct NoDimension {};
+struct VectorDimension {
+	SizeType size;
+	constexpr VectorDimension (SizeType size_) noexcept : size (size_) {}
+};
+struct MatrixDimension {
+	SizeType rows;
+	SizeType cols;
+	constexpr MatrixDimension (SizeType rows_, SizeType cols_) noexcept
+	    : rows (rows_), cols (cols_) {}
+};
+
+// Comparisons
+constexpr bool operator== (const NoDimension &, const NoDimension &) noexcept {
+	return true;
+}
+constexpr bool operator!= (const NoDimension &, const NoDimension &) noexcept {
+	return false;
+}
+constexpr bool operator== (const VectorDimension & lhs, const VectorDimension & rhs) noexcept {
+	return lhs.size == rhs.size;
+}
+constexpr bool operator!= (const VectorDimension & lhs, const VectorDimension & rhs) noexcept {
+	return !(lhs == rhs);
+}
+constexpr bool operator== (const MatrixDimension & lhs, const MatrixDimension & rhs) noexcept {
+	return lhs.rows == rhs.rows && lhs.cols == rhs.cols;
+}
+constexpr bool operator!= (const MatrixDimension & lhs, const MatrixDimension & rhs) noexcept {
+	return !(lhs == rhs);
+}
+
+// Pretty printing (overloading std::to_string out of namespace std::)
+std::string to_string (const NoDimension &);
+std::string to_string (const VectorDimension & dim);
+std::string to_string (const MatrixDimension & dim);
+
+// Get dimensions (overloaded)
+NoDimension dimensions (const double &) noexcept;
+VectorDimension dimensions (const VectorDouble & v) noexcept;
+MatrixDimension dimensions (const MatrixDouble & m) noexcept;
+
+// Get dimensions for DF nodes
+namespace DF {
+	template <typename T> class Value;
+}
+NoDimension dimensions (const DF::Value<double> &) noexcept;
+VectorDimension dimensions (const DF::Value<VectorDouble> & node) noexcept;
+MatrixDimension dimensions (const DF::Value<MatrixDouble> & node) noexcept;
+
+// Exact predicates (not a fuzzy comparison)
+bool isExactZero (const double & d);
+bool isExactZero (const VectorDouble &);
+bool isExactZero (const MatrixDouble &);
+bool isExactOne (const double & d);
+bool isExactOne (const VectorDouble &);
+bool isExactOne (const MatrixDouble &);
+bool isExactIdentity (const MatrixDouble &);
+
 } // namespace bpp
 
 #endif // BPP_NEWPHYL_LINEARALGEBRAFWD_H

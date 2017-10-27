@@ -42,8 +42,11 @@
 #ifndef BPP_NEWPHYL_DATAFLOWINTERNALTEMPLATES_H
 #define BPP_NEWPHYL_DATAFLOWINTERNALTEMPLATES_H
 
+// More complex
+
 #include <Bpp/NewPhyl/Cpp14.h>
 #include <Bpp/NewPhyl/DataFlow.h>
+#include <Bpp/NewPhyl/DataFlowInternal.h>
 #include <Bpp/NewPhyl/Range.h>
 #include <Bpp/NewPhyl/Signed.h>
 #include <algorithm>
@@ -62,67 +65,6 @@ namespace DF {
 	void checkDependencyNumber (const std::type_info & computeNodeType, SizeType expectedSize,
 	                            SizeType givenSize);
 	[[noreturn]] void failureEmptyDependency (const std::type_info & inNodeType, IndexType depIndex);
-
-	/******************************* InternalAccessor *******************************/
-
-	/// Dynamic test that node inherits from Value<T>.
-	template <typename T> bool isValueNode (const Node & n) noexcept {
-		return dynamic_cast<const Value<T> *> (&n) != nullptr;
-	}
-
-	/// Unsafe cast from Node to Value<T> (faster than dynamic cast).
-	template <typename T> const Value<T> & nodeValueCast (const Node & node) noexcept {
-		assert (isValueNode<T> (node));
-		return static_cast<const Value<T> &> (node);
-	}
-
-	/** Class used to access protected value_ in Value<T>.
-	 * Should only be used for DataFlow internal code.
-	 * Friend of node classes, bypasses encapsulation.
-	 * Used for wrappers, for manipulating possibly invalid values.
-	 */
-	class InternalAccessor {
-	public:
-		template <typename T> static const T & value (const Value<T> & node) noexcept {
-			return node.value_;
-		}
-		template <typename T> static T & value (Value<T> & node) noexcept { return node.value_; }
-	};
-
-	/// Access maybe invalid value as const.
-	template <typename T> const T & accessValueConst (const Value<T> & node) noexcept {
-		return InternalAccessor::value (node);
-	}
-
-	/// Access maybe invalid value as mutable.
-	template <typename T> T & accessValueMutable (Value<T> & node) noexcept {
-		return InternalAccessor::value (node);
-	}
-
-	/** Access maybe invalid const from raw Node &.
-	 * Typically used to get matrix dimensions during DF graph transformations.
-	 * Dimensions are preset in DFNumeric, so they are always valid.
-	 */
-	template <typename T> const T & accessValueConstCast (const Node & node) {
-		return accessValueConst (nodeValueCast<T> (node));
-	}
-
-	/// Access const with assert checking validity.
-	template <typename T> const T & accessValidValueConst (const Value<T> & node) {
-		assert (node.isValid ());
-		return accessValueConst (node);
-	}
-
-	/// Access valid const while casting from a raw Node &.
-	template <typename T> const T & accessValidValueConstCast (const Node & node) {
-		return accessValidValueConst (nodeValueCast<T> (node));
-	}
-
-	/// Access valid const while casting from NodeRef &.
-	template <typename T> const T & accessValidValueConstCast (const NodeRef & nodeRef) {
-		assert (nodeRef);
-		return accessValidValueConstCast<T> (*nodeRef);
-	}
 
 	/******************************* Dependency check *******************************/
 
@@ -250,25 +192,18 @@ namespace DF {
 		            deps.end ());
 	}
 
-	// TODO explicit variants taking already checked deps
 	/** Build a predicate testing if a NodeRef is a constant value<T> matching the input predicate.
 	 * Input predicate: const T & -> bool
 	 * Output predicate: const NodeRef & -> bool
-	 * A specialized version takes a T value and compare against it.
 	 */
-	template <typename T, typename Predicate,
-	          typename = typename std::enable_if<!std::is_same<T, Predicate>::value>::type>
-	std::function<bool(const NodeRef &)> predicateIsConstantValueMatching (Predicate predicate) {
+	template <typename T>
+	std::function<bool(const NodeRef &)>
+	predicateIsConstantValueMatching (bool (&predicate) (const T &)) {
 		return [predicate](const NodeRef & nodeRef) {
 			return nodeRef && nodeRef->isConstant () && isValueNode<T> (*nodeRef) &&
 			       predicate (accessValueConstCast<T> (*nodeRef));
 		};
-	}
-	template <typename T>
-	std::function<bool(const NodeRef &)> predicateIsConstantValueMatching (T t) {
-		return predicateIsConstantValueMatching<T> ([t](const T & o) { return t == o; });
-	}
-
+	} // TODO rename & make unsafe variant (only used in dep-checked context)
 } // namespace DF
 } // namespace bpp
 #endif // BPP_NEWPHYL_DATAFLOWINTERNALTEMPLATES_H

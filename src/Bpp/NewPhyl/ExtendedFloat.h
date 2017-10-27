@@ -98,11 +98,14 @@ public:
 			exp_ += biggest_normalized_radix_power;
 		}
 	}
-	void normalize_small () noexcept {
+	void normalize_small () {
+		int i = 0; // DEBUG
 		if (f_ != 0.) {
 			while (f_ < smallest_normalized_value) {
 				f_ *= normalize_small_factor;
 				exp_ += smallest_normalized_radix_power;
+				if (++i > 5)                             // DEBUG
+					throw std::string ("normalize_small"); // DEBUG
 			}
 		}
 	}

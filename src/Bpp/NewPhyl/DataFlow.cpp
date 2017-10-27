@@ -42,13 +42,17 @@
 #include <Bpp/Exceptions.h>
 #include <Bpp/NewPhyl/DataFlow.h>
 #include <Bpp/NewPhyl/DataFlowInternalTemplates.h>
+#include <Bpp/NewPhyl/DataFlowTemplates.h>
 #include <Bpp/NewPhyl/Debug.h>
+#include <Bpp/NewPhyl/LinearAlgebraFwd.h>
 #include <algorithm>
 #include <stack>
 #include <typeinfo>
 
 namespace bpp {
 namespace DF {
+	/************************************ Error functions *******************************/
+
 	// Error functions DataFlow.h
 	void failureNodeConversion (const std::type_info & handleType, const Node & node) {
 		throw Exception (prettyTypeName (handleType) +
@@ -84,7 +88,7 @@ namespace DF {
 		                 "-th dependency, got " + prettyTypeName (typeid (givenNode)));
 	}
 
-	// Node impls
+	/************************************ Base DF::Node impl *******************************/
 
 	Node::Node (const NodeRefVec & dependenciesArg) : dependencyNodes_ (dependenciesArg) {
 		for (auto & n : dependencyNodes_)
@@ -161,6 +165,45 @@ namespace DF {
 	void Node::unregisterNode (const Node * n) {
 		dependentNodes_.erase (std::remove (dependentNodes_.begin (), dependentNodes_.end (), n),
 		                       dependentNodes_.end ());
+	}
+	/********************************* Specialisations for templates ****************************/
+
+	// Debug info of Value<double>
+	template <> std::string Value<double>::debugInfo () const {
+		return std::to_string (this->value_);
+	}
+
+	// Parameter<double> specialisation
+	template <> NodeRef Parameter<double>::derive (const Node & node) {
+		if (&node == static_cast<const Node *> (this)) {
+			return Builder<Constant<double>>::makeOne ();
+		} else {
+			return Builder<Constant<double>>::makeZero ();
+		}
+	}
+
+	// Constant<double> specialisation
+	template <> NodeRef Constant<double>::derive (const Node &) {
+		return Builder<Constant<double>>::makeZero ();
+	}
+	std::shared_ptr<Constant<double>> Builder<Constant<double>>::make (double d) {
+		if (isExactZero (d)) {
+			return makeZero ();
+		} else if (isExactOne (d)) {
+			return makeOne ();
+		} else {
+			return std::make_shared<Constant<double>> (d);
+		}
+	}
+	namespace {
+		auto constantNodeZeroDouble = std::make_shared<Constant<double>> (0.);
+		auto constantNodeOneDouble = std::make_shared<Constant<double>> (1.);
+	} // namespace
+	std::shared_ptr<Constant<double>> Builder<Constant<double>>::makeZero () {
+		return constantNodeZeroDouble;
+	}
+	std::shared_ptr<Constant<double>> Builder<Constant<double>>::makeOne () {
+		return constantNodeOneDouble;
 	}
 
 		// TODO use in InternalTemplates for merging

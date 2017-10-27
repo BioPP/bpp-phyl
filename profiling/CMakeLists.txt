@@ -41,7 +41,6 @@ target_compile_options (${PROF_EXEC_TARGET}
   #gcc:  -fno-inline-functions-called-once
   #-fno-optimize-sibling-calls
   )
-target_compile_definitions (${PROF_EXEC_TARGET} PRIVATE NO_WARMUP)
 
 # Convenience targets
 add_custom_target (

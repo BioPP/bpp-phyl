@@ -13,6 +13,7 @@ set (CPP_FILES
   Bpp/NewPhyl/ImportMaster.cpp
   Bpp/NewPhyl/ImportNewlik.cpp
   Bpp/NewPhyl/Likelihood.cpp
+  Bpp/NewPhyl/LinearAlgebra.cpp
   Bpp/NewPhyl/Model.cpp
   Bpp/NewPhyl/Optimizer.cpp
   Bpp/NewPhyl/Phylogeny.cpp

@@ -44,10 +44,6 @@
 
 #include <Bpp/NewPhyl/DataFlow.h>
 #include <Bpp/NewPhyl/LinearAlgebraFwd.h>
-#include <Bpp/NewPhyl/Signed.h>
-#include <string>
-#include <typeinfo>
-#include <utility>
 
 namespace bpp {
 namespace DF {
@@ -71,12 +67,12 @@ namespace DF {
 	 */
 	class AddVectorDouble;
 	template <> struct Builder<AddVectorDouble> {
-		static ValueRef<VectorDouble> make (NodeRefVec && deps, SizeType type);
+		static ValueRef<VectorDouble> make (NodeRefVec && deps, const VectorDimension & dim);
 	};
 
 	class CWiseInverseVectorDouble;
 	template <> struct Builder<CWiseInverseVectorDouble> {
-		static ValueRef<VectorDouble> make (NodeRefVec && deps, SizeType type);
+		static ValueRef<VectorDouble> make (NodeRefVec && deps, const VectorDimension & dim);
 	};
 
 	/* Matrix nodes.
@@ -100,7 +96,7 @@ namespace DF {
 	 */
 	class MulTransposedMatrixVectorDouble;
 	template <> struct Builder<MulTransposedMatrixVectorDouble> {
-		static ValueRef<VectorDouble> make (NodeRefVec && deps, SizeType type);
+		static ValueRef<VectorDouble> make (NodeRefVec && deps, const VectorDimension & dim);
 	};
 
 	class MulScalarMatrixDouble;
