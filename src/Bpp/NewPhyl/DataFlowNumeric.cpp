@@ -222,7 +222,7 @@ namespace DF {
 
 	private:
 		void compute () override final {
-			callWithValues (*this, [](VectorDouble & r) { r.fill (0.); },
+			callWithValues (*this, [](VectorDouble & r) { r.setZero (); },
 			                [](VectorDouble & r, const VectorDouble & v) { r += v; });
 		}
 	};
@@ -281,7 +281,7 @@ namespace DF {
 
 	private:
 		void compute () override final {
-			callWithValues (*this, [](MatrixDouble & r) { r.fill (0.); },
+			callWithValues (*this, [](MatrixDouble & r) { r.setZero (); },
 			                [](MatrixDouble & r, const MatrixDouble & m) { r += m; });
 		}
 	};
@@ -358,7 +358,7 @@ namespace DF {
 
 	private:
 		void compute () override final {
-			callWithValues (*this, [](MatrixDouble & r) { r.fill (1.); },
+			callWithValues (*this, [](MatrixDouble & r) { r.setOnes (); },
 			                [](MatrixDouble & r, const MatrixDouble & m) { r = r.cwiseProduct (m); });
 		}
 	};
