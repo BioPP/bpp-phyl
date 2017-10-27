@@ -225,7 +225,7 @@ namespace DF {
 	public:
 		using Dependencies = ReductionOfValue<double>;
 
-		AddDouble (NodeRefVec && deps) : Value<double> (std::move (deps)) { checkDependencies (*this); }
+		AddDouble (NodeRefVec && deps) : Value<double> (std::move (deps)) {}
 		NodeRef derive (const Node & node) override final {
 			return makeNode<AddDouble> (
 			    this->dependencies ().map ([&node](const NodeRef & dep) { return dep->derive (node); }));
@@ -255,7 +255,7 @@ namespace DF {
 	public:
 		using Dependencies = ReductionOfValue<double>;
 
-		MulDouble (NodeRefVec && deps) : Value<double> (std::move (deps)) { checkDependencies (*this); }
+		MulDouble (NodeRefVec && deps) : Value<double> (std::move (deps)) {}
 		NodeRef derive (const Node & node) override final {
 			NodeRefVec addDeps;
 			for (auto i : bpp::range (this->nbDependencies ())) {
@@ -294,7 +294,7 @@ namespace DF {
 	public:
 		using Dependencies = FunctionOfValues<double>;
 
-		NegDouble (NodeRefVec && deps) : Value<double> (std::move (deps)) { checkDependencies (*this); }
+		NegDouble (NodeRefVec && deps) : Value<double> (std::move (deps)) {}
 		NodeRef derive (const Node & node) override final {
 			return makeNode<NegDouble> ({this->dependency (0)->derive (node)});
 		}
@@ -319,9 +319,7 @@ namespace DF {
 	public:
 		using Dependencies = FunctionOfValues<VectorDouble, VectorDouble>;
 
-		ScalarProdDouble (NodeRefVec && deps) : Value<double> (std::move (deps)) {
-			checkDependencies (*this);
-		}
+		ScalarProdDouble (NodeRefVec && deps) : Value<double> (std::move (deps)) {}
 		NodeRef derive (const Node & node) override final {
 			auto & lhs = this->dependency (0);
 			auto & rhs = this->dependency (1);
@@ -354,9 +352,7 @@ namespace DF {
 		using Dependencies = ReductionOfValue<VectorDouble>;
 
 		AddVectorDouble (NodeRefVec && deps, SizeType size)
-		    : Value<VectorDouble> (std::move (deps), size) {
-			checkDependencies (*this);
-		}
+		    : Value<VectorDouble> (std::move (deps), size) {}
 		NodeRef derive (const Node & node) override final {
 			return makeNode<AddVectorDouble> (
 			    this->dependencies ().map ([&node](const NodeRef & dep) { return dep->derive (node); }),
@@ -389,9 +385,7 @@ namespace DF {
 		using Dependencies = FunctionOfValues<VectorDouble>;
 
 		CWiseInverseVectorDouble (NodeRefVec && deps, SizeType size)
-		    : Value<VectorDouble> (std::move (deps), size) {
-			checkDependencies (*this);
-		}
+		    : Value<VectorDouble> (std::move (deps), size) {}
 		// TODO NodeRef derive (const Node & node) override final;
 	private:
 		void compute () override final {
@@ -417,7 +411,6 @@ namespace DF {
 
 		AddMatrixDouble (NodeRefVec && deps, const MatrixDimension & dim)
 		    : Value<MatrixDouble> (std::move (deps), dim.rows, dim.cols) {
-			checkDependencies (*this);
 			checkDepsHaveRequiredDimension (*this, dim);
 		}
 		NodeRef derive (const Node & node) override final {
@@ -453,9 +446,7 @@ namespace DF {
 		using Dependencies = FunctionOfValues<MatrixDouble, MatrixDouble>;
 
 		MulMatrixDouble (NodeRefVec && deps, const MatrixDimension & dim)
-		    : Value<MatrixDouble> (std::move (deps), dim.rows, dim.cols) {
-			checkDependencies (*this);
-		}
+		    : Value<MatrixDouble> (std::move (deps), dim.rows, dim.cols) {}
 		NodeRef derive (const Node & node) override final {
 			auto dim = dimensions (*this);
 			auto & lhs = this->dependency (0);
@@ -494,7 +485,6 @@ namespace DF {
 
 		CWiseMulMatrixDouble (NodeRefVec && deps, const MatrixDimension & dim)
 		    : Value<MatrixDouble> (std::move (deps), dim.rows, dim.cols) {
-			checkDependencies (*this);
 			checkDepsHaveRequiredDimension (*this, dim);
 		}
 		NodeRef derive (const Node & node) override final {
@@ -539,9 +529,7 @@ namespace DF {
 		using Dependencies = FunctionOfValues<MatrixDouble, VectorDouble>;
 
 		MulTransposedMatrixVectorDouble (NodeRefVec && deps, SizeType size)
-		    : Value<VectorDouble> (std::move (deps), size) {
-			checkDependencies (*this);
-		}
+		    : Value<VectorDouble> (std::move (deps), size) {}
 		NodeRef derive (const Node & node) override final {
 			auto dim = dimensions (*this);
 			auto & lhs = this->dependency (0);
@@ -579,9 +567,7 @@ namespace DF {
 		using Dependencies = FunctionOfValues<double, MatrixDouble>;
 
 		MulScalarMatrixDouble (NodeRefVec && deps, const MatrixDimension & dim)
-		    : Value<MatrixDouble> (std::move (deps), dim.rows, dim.cols) {
-			checkDependencies (*this);
-		}
+		    : Value<MatrixDouble> (std::move (deps), dim.rows, dim.cols) {}
 		NodeRef derive (const Node & node) override final {
 			auto dim = dimensions (*this);
 			auto & lhs = this->dependency (0);

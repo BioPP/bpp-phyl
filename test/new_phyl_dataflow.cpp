@@ -198,6 +198,7 @@ TEST_CASE("old")
   timingEnd(ts, "old_init_value");
   printLik(logLik, "old_init_value");
 
+  std::cout << "[dbrlen1] " << llh.getFirstOrderDerivative("BrLen1") << "\n";
   do_param_changes_multiple_times(llh, "old_param_model_change", c.paramModel1, c.paramModel2);
   do_param_changes_multiple_times(llh, "old_param_brlen_change", c.paramBrLen1, c.paramBrLen2);
   optimize_branch_params(llh, "old_brlends_opt", llh.getBranchLengthsParameters());
@@ -225,6 +226,7 @@ TEST_CASE("new")
   timingEnd(ts, "new_init_value");
   printLik(logLik, "new_init_value");
 
+  std::cout << "[dbrlen1] " << llh.getFirstOrderDerivative("BrLen1") << "\n";
   do_param_changes_multiple_times(llh, "new_param_model_change", c.paramModel1, c.paramModel2);
   do_param_changes_multiple_times(llh, "new_param_brlen_change", c.paramBrLen1, c.paramBrLen2);
   optimize_branch_params(llh, "new_brlens_opt", llh.getBranchLengthParameters());
@@ -280,19 +282,17 @@ TEST_CASE("df")
   timingEnd(ts, "df_init_value");
   printLik(logLik, "df_init_value");
 
+  std::cout << "[dbrlen1] " << likFunc.getFirstOrderDerivative("BrLen1") << "\n";
+
   {
     std::ofstream fd("df_debug");
     // bpp::DF::debugDag(fd, logLikNode, bpp::DF::DebugOptions::DetailedNodeInfo);
-    likFunc.getFirstOrderDerivative("BrLen1");
     bpp::DF::debugDag(fd, likFunc.getAllNamedNodes("f"));
     // bpp::Topology::debugTree(fd, treeData.topology);
   }
 
-  // Change parameters
   do_param_changes_multiple_times(likFunc, "df_param_model_change", c.paramModel1, c.paramModel2);
   do_param_changes_multiple_times(likFunc, "df_param_brlen_change", c.paramBrLen1, c.paramBrLen2);
-
-  // Optimize
   optimize_branch_params(likFunc, "df_brlens_opt", brlenParams);
 }
 #endif
