@@ -94,7 +94,7 @@ bool isExactOne (const MatrixDouble & m) {
 	return m.isOnes (0.);
 }
 bool isExactIdentity (const MatrixDouble & m) {
-	return m.rows () == m.cols () && m == MatrixDouble::Identity (m.rows (), m.cols ());
+	return m.rows () == m.cols () && m.isIdentity (0.);
 }
 
 namespace DF {
@@ -107,19 +107,34 @@ namespace DF {
 			s += "[0]";
 		if (isExactOne (v))
 			s += "[1]";
+		if (v.array ().isNaN ().any ())
+			s += "N";
+		if (v.array ().isInf ().any ())
+			s += "i";
+		if ((v.array () == VectorDouble::Zero (dimensions (v).size).array ()).any ())
+			s += "0";
 		s += "}";
 		return s;
 	}
 	template <> std::string Value<MatrixDouble>::debugInfo () const {
 		using std::to_string;
 		auto & m = this->value_;
-		auto s = "dim" + to_string (dimensions (m)) + " props{";
+		auto dim = dimensions (m);
+		auto s = "dim" + to_string (dim) + " props{";
 		if (isExactZero (m))
 			s += "[0]";
 		if (isExactOne (m))
 			s += "[1]";
 		if (isExactIdentity (m))
 			s += "[I]";
+		if (m.hasNaN ())
+			s += "N";
+		if (m.array ().isNaN ().any ())
+			s += "N";
+		if (m.array ().isInf ().any ())
+			s += "i";
+		if ((m.array () == MatrixDouble::Zero (dim.rows, dim.cols).array ()).any ())
+			s += "0";
 		s += "}";
 		return s;
 	}
