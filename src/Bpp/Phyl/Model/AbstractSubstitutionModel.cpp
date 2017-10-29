@@ -87,6 +87,10 @@ AbstractSubstitutionModel::AbstractSubstitutionModel(const Alphabet* alpha, cons
 
 void AbstractSubstitutionModel::updateMatrices()
 {
+  cerr << "ASM::uM " << getName() << endl;
+  cerr << enableEigenDecomposition() << endl;
+  
+  
   // Compute eigen values and vectors:
   if (enableEigenDecomposition())
   {

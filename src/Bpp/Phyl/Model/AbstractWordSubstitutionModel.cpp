@@ -72,7 +72,6 @@ AbstractWordSubstitutionModel::AbstractWordSubstitutionModel(
   VnestedPrefix_(),
   Vrate_        (modelList.size())
 {
-  enableEigenDecomposition(false);
   size_t i, j;
   size_t n = modelList.size();
 
@@ -137,7 +136,6 @@ AbstractWordSubstitutionModel::AbstractWordSubstitutionModel(
   VnestedPrefix_(),
   Vrate_        (0)
 {
-  enableEigenDecomposition(false);
 }
 
 AbstractWordSubstitutionModel::AbstractWordSubstitutionModel(
@@ -153,7 +151,6 @@ AbstractWordSubstitutionModel::AbstractWordSubstitutionModel(
 {
   stateMap_=std::unique_ptr<StateMap>(new CanonicalStateMap(getAlphabet(), false));
 
-  enableEigenDecomposition(false);
   size_t i;
 
   string t = "";

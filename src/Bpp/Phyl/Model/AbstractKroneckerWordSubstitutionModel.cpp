@@ -56,6 +56,9 @@ AbstractKroneckerWordSubstitutionModel::AbstractKroneckerWordSubstitutionModel(
   vGenerators_()
 {
   enableEigenDecomposition(true);
+  for (auto& submod : VSubMod_)
+    submod->enableEigenDecomposition(false);
+
   initGenerators_();
 }
 
@@ -72,6 +75,9 @@ AbstractKroneckerWordSubstitutionModel::AbstractKroneckerWordSubstitutionModel(
     throw Exception("AbstractKroneckerWordSubstitutionModel::AbstractKroneckerWordSubstitutionModel: Bad set of changing positions ");
 
   enableEigenDecomposition(true);
+  for (auto& submod : VSubMod_)
+    submod->enableEigenDecomposition(false);
+
   initGenerators_();
 }
 
@@ -85,6 +91,9 @@ AbstractKroneckerWordSubstitutionModel::AbstractKroneckerWordSubstitutionModel(
   vGenerators_()
 {
   enableEigenDecomposition(true);
+  for (auto& submod : VSubMod_)
+    submod->enableEigenDecomposition(false);
+
   initGenerators_();  
 }
 
@@ -102,6 +111,9 @@ AbstractKroneckerWordSubstitutionModel::AbstractKroneckerWordSubstitutionModel(
     throw Exception("AbstractKroneckerWordSubstitutionModel::AbstractKroneckerWordSubstitutionModel: Bad set of changing positions ");
 
   enableEigenDecomposition(true);
+  for (auto& submod : VSubMod_)
+    submod->enableEigenDecomposition(false);
+
   initGenerators_();
 }
 
@@ -115,6 +127,8 @@ AbstractKroneckerWordSubstitutionModel::AbstractKroneckerWordSubstitutionModel(
   vGenerators_()
 {
   enableEigenDecomposition(true);
+  for (auto& submod : VSubMod_)
+    submod->enableEigenDecomposition(false);
 }
 
 AbstractKroneckerWordSubstitutionModel::AbstractKroneckerWordSubstitutionModel(
