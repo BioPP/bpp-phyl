@@ -41,7 +41,7 @@ using namespace bpp;
 using namespace std;
 /****************************************************************************************/
 AbstractCodonFitnessSubstitutionModel::AbstractCodonFitnessSubstitutionModel(FrequenciesSet* pfitset, const string& prefix):
-  CodonSubstitutionModel(), AbstractParameterAliasable(prefix), pfitset_(pfitset), fitName_("")
+  AbstractParameterAliasable(prefix), pfitset_(pfitset), fitName_("")
 {
   if (dynamic_cast<CodonFrequenciesSet*>(pfitset) == NULL)
     throw Exception ("Bad type for fitness parameters"+ pfitset ->getName() );

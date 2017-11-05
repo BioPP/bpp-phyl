@@ -1,5 +1,5 @@
 //
-// File: AbstractCodonDistanceSubstitutionModel.h
+// File: AbstractCodonAARateSubstitutionModel.h
 // Created by: Laurent Gueguen
 // Created on: jeudi 15 septembre 2011, à 21h 11
 //
@@ -37,12 +37,11 @@
   knowledge of the CeCILL license and that you accept its terms.
 */
 
-#ifndef _ABSTRACTCODONDISTANCESUBSTITUTIONMODEL_H_
-#define _ABSTRACTCODONDISTANCESUBSTITUTIONMODEL_H_
+#ifndef _ABSTRACTCODON_AARATE_SUBSTITUTIONMODEL_H_
+#define _ABSTRACTCODON_AARATE_SUBSTITUTIONMODEL_H_
 
 #include "CodonSubstitutionModel.h"
-#include <Bpp/Numeric/AbstractParameterAliasable.h>
-
+#include "../Protein/ProteinSubstitutionModel.h"
 
 // From bpp-seq:
 #include <Bpp/Seq/GeneticCode/GeneticCode.h>
@@ -52,92 +51,102 @@ namespace bpp
 {
 /**
  * @brief Abstract class for modelling of non-synonymous and
- *  synonymous substitution rates in codon models.
+ *  synonymous substitution rates in codon models, given an amino acid
+ *  rate matrix (from a shared_ptr model).
  *
  * @author Laurent Guéguen
  *
- * If a distance @f$d@f$ between amino-acids is defined, the
- *  non-synonymous rate is multiplied with, if the coded amino-acids
- *  are @f$x@f$ and @f$y@f$, @f$\beta*\exp(-\alpha.d(x,y))@f$ with
- *  non-negative parameter \c "alpha" and positive parameter \c
- *  "beta".
- *
- * If such a distance is not defined, the non-synonymous substitution
- *  rate is multiplied with @f$\beta@f$ with positive parameter \c
- *  "beta" (ie @f$d=0@f$).
+ * From the generator @f$g@f$ between amino-acids, the non-synonymous
+ *  rate is multiplied with, if the coded amino-acids are @f$x@f$ and
+ *  @f$y@f$, @f$\beta*g(x,y)@f$ with positive parameter \c "beta".
  *
  * If paramSynRate is true, the synonymous substitution rate is
  *  multiplied with @f$\gamma@f$ (with optional positive parameter \c
  *  "gamma"), else it is multiplied with 1.
  *
- * References:
- * - Goldman N. and Yang Z. (1994), _Molecular Biology And Evolution_ 11(5) 725--736. 
- * - Kosakovsky Pond, S. and Muse, S.V. (2005), _Molecular Biology And Evolution_,
- *   22(12), 2375--2385.
- * - Mayrose, I. and Doron-Faigenboim, A. and Bacharach, E. and Pupko T.
- *   (2007), Bioinformatics, 23, i319--i327.
+ *
  */
 
-  class AbstractCodonDistanceSubstitutionModel :
+  class AbstractCodonAARateSubstitutionModel :
     public virtual CoreCodonSubstitutionModel,
     public virtual AbstractParameterAliasable
   {
   private:
-    const AlphabetIndex2* pdistance_;
+    std::shared_ptr<ProteinSubstitutionModel> pAAmodel_;
 
     const GeneticCode* pgencode_;
-  
-    double alpha_, beta_;
+    
+    double beta_;
 
     double gamma_;
   public:
     /**
-     * @brief Build a new AbstractCodonDistanceSubstitutionModel object from
+     * @brief Build a new AbstractCodonAARateSubstitutionModel object from
      *  a pointer to NucleotideSubstitutionModel.
      *
-     * @param pdist optional pointer to a distance between amino-acids
+     * @param pmodel shared_ptr to an amino_acid generator
      * @param prefix the Namespace
-     * @param paramSynRate is true iff synonymous rate is parametrised
+     * @param paramSynRate is true iff synonymous rate is parameterised
      *       (default=false).
      */
-    AbstractCodonDistanceSubstitutionModel(
-      const AlphabetIndex2* pdist,
+    
+    AbstractCodonAARateSubstitutionModel(
+      std::shared_ptr<ProteinSubstitutionModel> pmodel,
       const GeneticCode* pgencode,
       const std::string& prefix,
       bool paramSynRate = false);
 
-    AbstractCodonDistanceSubstitutionModel(const AbstractCodonDistanceSubstitutionModel& model) :
+    AbstractCodonAARateSubstitutionModel(const AbstractCodonAARateSubstitutionModel& model) :
       AbstractParameterAliasable(model),
-      pdistance_(model.pdistance_),
+      pAAmodel_(model.pAAmodel_),
       pgencode_(model.pgencode_),
-      alpha_(model.alpha_),
       beta_(model.beta_),
       gamma_(model.gamma_)
     {}
 
-    AbstractCodonDistanceSubstitutionModel& operator=(
-      const AbstractCodonDistanceSubstitutionModel& model)
+    AbstractCodonAARateSubstitutionModel& operator=(
+      const AbstractCodonAARateSubstitutionModel& model)
     {
       AbstractParameterAliasable::operator=(model);
-      pdistance_ = model.pdistance_;
+      pAAmodel_ = model.pAAmodel_;
       pgencode_ = model.pgencode_;
-      alpha_ = model.alpha_;
       beta_ = model.beta_;
       gamma_ = model.gamma_;
       return *this;
     }
 
-    AbstractCodonDistanceSubstitutionModel* clone() const
+    AbstractCodonAARateSubstitutionModel* clone() const
     {
-      return new AbstractCodonDistanceSubstitutionModel(*this);
+      return new AbstractCodonAARateSubstitutionModel(*this);
     }
-  
-    virtual ~AbstractCodonDistanceSubstitutionModel() {}
+
+    virtual ~AbstractCodonAARateSubstitutionModel() {}
 
   public:
     void fireParameterChanged(const ParameterList& parameters);
 
     double getCodonsMulRate(size_t i, size_t j) const;
+
+    void setNamespace(const std::string& prefix)
+    {
+      AbstractParameterAliasable::setNamespace(prefix);
+      pAAmodel_->setNamespace(prefix + pAAmodel_->getNamespace());
+    }
+
+    /*
+     * @brief links to a new AA model
+     *
+     */
+    
+    void setAAModel(std::shared_ptr<ProteinSubstitutionModel> model)
+    {
+      pAAmodel_=model;
+    }
+
+    const std::shared_ptr<ProteinSubstitutionModel>  getAAModel() const
+    {
+      return pAAmodel_;
+    }
 
     const FrequenciesSet* getFrequenciesSet() const 
     {
@@ -148,5 +157,5 @@ namespace bpp
 
 } // end of namespace bpp.
 
-#endif
+#endif // _ABSTRACTCODON_AARATE_SUBSTITUTIONMODEL_H_
 

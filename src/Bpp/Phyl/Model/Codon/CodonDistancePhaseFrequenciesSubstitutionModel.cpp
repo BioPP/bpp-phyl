@@ -51,11 +51,12 @@ CodonDistancePhaseFrequenciesSubstitutionModel::CodonDistancePhaseFrequenciesSub
     const AlphabetIndex2* pdist) :
   AbstractParameterAliasable("CodonDistPhasFreq."),
   AbstractCodonSubstitutionModel(gCode, pmod, "CodonDistPhasFreq."),
-  AbstractCodonDistanceSubstitutionModel(pdist, "CodonDistPhasFreq."),
+  AbstractCodonDistanceSubstitutionModel(pdist, gCode, "CodonDistPhasFreq."),
   AbstractCodonPhaseFrequenciesSubstitutionModel(pfreq, "CodonDistPhasFreq.")
 {
-  computeFrequencies(false);
+  computeFrequencies(true); //for init
   updateMatrices();
+  computeFrequencies(false);
 }
 
 CodonDistancePhaseFrequenciesSubstitutionModel::CodonDistancePhaseFrequenciesSubstitutionModel(
@@ -67,11 +68,12 @@ CodonDistancePhaseFrequenciesSubstitutionModel::CodonDistancePhaseFrequenciesSub
     const AlphabetIndex2* pdist) :
   AbstractParameterAliasable("CodonDistPhasFreq."),
   AbstractCodonSubstitutionModel(gCode, pmod1, pmod2, pmod3, "CodonDistPhasFreq."),
-  AbstractCodonDistanceSubstitutionModel(pdist, "CodonDistPhasFreq."),
+  AbstractCodonDistanceSubstitutionModel(pdist, gCode, "CodonDistPhasFreq."),
   AbstractCodonPhaseFrequenciesSubstitutionModel(pfreq, "CodonDistPhasFreq.")
 {
-  computeFrequencies(false);
+  computeFrequencies(true);
   updateMatrices();
+  computeFrequencies(false);
 }
 
 std::string CodonDistancePhaseFrequenciesSubstitutionModel::getName() const
@@ -83,7 +85,8 @@ void CodonDistancePhaseFrequenciesSubstitutionModel::fireParameterChanged(const 
 {
   AbstractCodonDistanceSubstitutionModel::fireParameterChanged(parameters);
   AbstractCodonPhaseFrequenciesSubstitutionModel::fireParameterChanged(parameters);
-  
+  getFrequencies_()=AbstractCodonPhaseFrequenciesSubstitutionModel::getFrequenciesSet()->getFrequencies();
+
   // Beware: must be call at the end
   AbstractCodonSubstitutionModel::fireParameterChanged(parameters);
 }
@@ -106,4 +109,5 @@ void CodonDistancePhaseFrequenciesSubstitutionModel::setNamespace(const std::str
 void CodonDistancePhaseFrequenciesSubstitutionModel::setFreq(map<int,double>& frequencies)
 {
   AbstractCodonPhaseFrequenciesSubstitutionModel::setFreq(frequencies);
+  getFrequencies_()=AbstractCodonPhaseFrequenciesSubstitutionModel::getFrequenciesSet()->getFrequencies();
 }

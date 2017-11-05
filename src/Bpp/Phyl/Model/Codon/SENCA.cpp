@@ -49,10 +49,10 @@ SENCA::SENCA(
     const AlphabetIndex2* pdist) :
   AbstractParameterAliasable("SENCA."),
   AbstractCodonSubstitutionModel(gCode, pmod, "SENCA."),
-  AbstractCodonDistanceSubstitutionModel(pdist, "SENCA."),
+  AbstractCodonDistanceSubstitutionModel(pdist, gCode, "SENCA."),
   AbstractCodonFitnessSubstitutionModel(pfit, "SENCA.")
 {
-  computeFrequencies(false);  
+  computeFrequencies(true);  
   updateMatrices();
 }
 
@@ -65,10 +65,10 @@ SENCA::SENCA(
     const AlphabetIndex2* pdist) :
   AbstractParameterAliasable("SENCA."),
   AbstractCodonSubstitutionModel(gCode, pmod1, pmod2, pmod3, "SENCA."),
-  AbstractCodonDistanceSubstitutionModel(pdist, "SENCA."),
+  AbstractCodonDistanceSubstitutionModel(pdist, gCode, "SENCA."),
   AbstractCodonFitnessSubstitutionModel(pfit,"SENCA.")
 {
-  computeFrequencies(false);
+  computeFrequencies(true);
   updateMatrices();
 }
 

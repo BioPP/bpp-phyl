@@ -52,7 +52,7 @@ CodonDistanceFrequenciesSubstitutionModel::CodonDistanceFrequenciesSubstitutionM
     bool paramSynRate) :
   AbstractParameterAliasable("CodonDistFreq."),
   AbstractCodonSubstitutionModel(gCode, pmod, "CodonDistFreq."),
-  AbstractCodonDistanceSubstitutionModel(pdist, "CodonDistFreq.", paramSynRate),
+  AbstractCodonDistanceSubstitutionModel(pdist, gCode, "CodonDistFreq.", paramSynRate),
   AbstractCodonFrequenciesSubstitutionModel(pfreq, "CodonDistFreq.")
 {
   computeFrequencies(true); // for initialization
@@ -70,7 +70,7 @@ CodonDistanceFrequenciesSubstitutionModel::CodonDistanceFrequenciesSubstitutionM
     bool paramSynRate) :
   AbstractParameterAliasable("CodonDistFreq."),
   AbstractCodonSubstitutionModel(gCode, pmod1, pmod2, pmod3, "CodonDistFreq."),
-  AbstractCodonDistanceSubstitutionModel(pdist, "CodonDistFreq.", paramSynRate),
+  AbstractCodonDistanceSubstitutionModel(pdist, gCode, "CodonDistFreq.", paramSynRate),
   AbstractCodonFrequenciesSubstitutionModel(pfreq, "CodonDistFreq.")
 {
   computeFrequencies(true); // for initialization
@@ -87,6 +87,7 @@ void CodonDistanceFrequenciesSubstitutionModel::fireParameterChanged(const Param
 {
   AbstractCodonDistanceSubstitutionModel::fireParameterChanged(parameters);
   AbstractCodonFrequenciesSubstitutionModel::fireParameterChanged(parameters);
+  getFrequencies_()=AbstractCodonFrequenciesSubstitutionModel::getFrequenciesSet()->getFrequencies();
 
   // Beware: must be call at the end
   AbstractCodonSubstitutionModel::fireParameterChanged(parameters);
@@ -110,4 +111,5 @@ void CodonDistanceFrequenciesSubstitutionModel::setNamespace(const std::string& 
 void CodonDistanceFrequenciesSubstitutionModel::setFreq(map<int,double>& frequencies)
 {
   AbstractCodonFrequenciesSubstitutionModel::setFreq(frequencies);
+  getFrequencies_()=AbstractCodonFrequenciesSubstitutionModel::getFrequenciesSet()->getFrequencies();
 }

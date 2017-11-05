@@ -202,6 +202,11 @@ public:
 
   void setFreq(std::map<int,double>& frequencies);
 
+  const FrequenciesSet* getFrequenciesSet() const {
+    return AbstractCodonFrequenciesSubstitutionModel::getFrequenciesSet();
+  }
+
+
 };
 
 } // end of namespace bpp.

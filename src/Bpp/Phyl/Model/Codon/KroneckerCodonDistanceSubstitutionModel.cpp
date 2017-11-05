@@ -50,7 +50,7 @@ KroneckerCodonDistanceSubstitutionModel::KroneckerCodonDistanceSubstitutionModel
     const AlphabetIndex2* pdist) :
   AbstractParameterAliasable("KronCodonDist."),
   AbstractKroneckerCodonSubstitutionModel(gCode, pmod, "KronCodonDist."),
-  AbstractCodonDistanceSubstitutionModel(pdist, "KronCodonDist.")
+  AbstractCodonDistanceSubstitutionModel(pdist, gCode, "KronCodonDist.")
 {
   computeFrequencies(true);
   updateMatrices();
@@ -64,7 +64,7 @@ KroneckerCodonDistanceSubstitutionModel::KroneckerCodonDistanceSubstitutionModel
     const AlphabetIndex2* pdist) :
   AbstractParameterAliasable("KronCodonDist."),
   AbstractKroneckerCodonSubstitutionModel(gCode, pmod1, pmod2, pmod3, "KronCodonDist."),
-  AbstractCodonDistanceSubstitutionModel(pdist, "KronCodonDist.")
+  AbstractCodonDistanceSubstitutionModel(pdist, gCode, "KronCodonDist.")
 {
   computeFrequencies(true);
   updateMatrices();
@@ -77,7 +77,7 @@ KroneckerCodonDistanceSubstitutionModel::KroneckerCodonDistanceSubstitutionModel
   const AlphabetIndex2* pdist) :
   AbstractParameterAliasable("KronCodonDist."),
   AbstractKroneckerCodonSubstitutionModel(gCode, pmod, vPos, "KronCodonDist."),
-  AbstractCodonDistanceSubstitutionModel(pdist, "KronCodonDist.")
+  AbstractCodonDistanceSubstitutionModel(pdist, gCode, "KronCodonDist.")
 {
   computeFrequencies(true);
   updateMatrices();
@@ -92,7 +92,7 @@ KroneckerCodonDistanceSubstitutionModel::KroneckerCodonDistanceSubstitutionModel
   const AlphabetIndex2* pdist) :
   AbstractParameterAliasable("KronCodonDist."),
   AbstractKroneckerCodonSubstitutionModel(gCode, pmod1, pmod2, pmod3, vPos, "KronCodonDist."),
-  AbstractCodonDistanceSubstitutionModel(pdist, "KronCodonDist.")
+  AbstractCodonDistanceSubstitutionModel(pdist, gCode, "KronCodonDist.")
 {
   computeFrequencies(true);
   updateMatrices();

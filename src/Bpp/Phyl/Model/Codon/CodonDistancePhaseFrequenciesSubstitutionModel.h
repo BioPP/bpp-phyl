@@ -135,6 +135,13 @@ public:
   void setNamespace(const std::string&);
 
   void setFreq(std::map<int,double>& frequencies);
+
+  const FrequenciesSet* getFrequenciesSet() const
+  {
+    return AbstractCodonPhaseFrequenciesSubstitutionModel::getFrequenciesSet();
+  }
+  
+  
 };
 
 } // end of namespace bpp.

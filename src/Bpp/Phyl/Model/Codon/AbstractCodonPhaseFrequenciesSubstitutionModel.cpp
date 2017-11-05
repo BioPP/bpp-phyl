@@ -48,7 +48,6 @@ using namespace std;
 AbstractCodonPhaseFrequenciesSubstitutionModel::AbstractCodonPhaseFrequenciesSubstitutionModel(
   FrequenciesSet* pfreq,
   const std::string& prefix) :
-  CodonSubstitutionModel(),
   AbstractParameterAliasable(prefix),
   posfreqset_(),
   freqName_("")
@@ -96,14 +95,12 @@ AbstractCodonPhaseFrequenciesSubstitutionModel::~AbstractCodonPhaseFrequenciesSu
 void AbstractCodonPhaseFrequenciesSubstitutionModel::fireParameterChanged(const ParameterList& parameters)
 {
   posfreqset_->matchParametersValues(parameters);
-  getFrequencies_()=posfreqset_->getFrequencies();
 }
 
 
 void AbstractCodonPhaseFrequenciesSubstitutionModel::setFreq(map<int, double>& frequencies)
 {
   posfreqset_->setFrequenciesFromAlphabetStatesFrequencies(frequencies);
-  getFrequencies_()=posfreqset_->getFrequencies();
   matchParametersValues(posfreqset_->getParameters());
 }
 

@@ -87,10 +87,6 @@ AbstractSubstitutionModel::AbstractSubstitutionModel(const Alphabet* alpha, cons
 
 void AbstractSubstitutionModel::updateMatrices()
 {
-  cerr << "ASM::uM " << getName() << endl;
-  cerr << enableEigenDecomposition() << endl;
-  
-  
   // Compute eigen values and vectors:
   if (enableEigenDecomposition())
   {
@@ -312,6 +308,7 @@ void AbstractSubstitutionModel::updateMatrices()
     if (!isNonSingular_)
       MatrixTools::Taylor(generator_, 30, vPowGen_);
   }
+
 }
 
 
@@ -665,20 +662,11 @@ void AbstractSubstitutionModel::addRateParameter()
 
 void AbstractReversibleSubstitutionModel::updateMatrices()
 {
-  RowMatrix<double> Pi;
-  MatrixTools::diag(freq_, Pi);
-  MatrixTools::mult(exchangeability_, Pi, generator_); // Diagonal elements of the exchangeability matrix will be ignored.
+  MatrixTools::hadamardMult(exchangeability_, freq_, generator_, false); // Diagonal elements of the exchangeability matrix will be ignored.
 
   // Normalization:
   normalize();
   
-  // Compute diagonal elements of the exchangeability matrix:
-  for (size_t i = 0; i < size_; i++)
-    for (size_t j = 0; j < size_; j++)
-    {
-      exchangeability_(i, j) = generator_(i, j) / freq_[i];
-    }
-
   AbstractSubstitutionModel::updateMatrices();
 }
 

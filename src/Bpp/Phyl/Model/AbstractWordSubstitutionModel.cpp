@@ -303,7 +303,7 @@ void AbstractWordSubstitutionModel::updateMatrices()
   // sets diagonal terms
 
   setDiagonal();
-  
+
   // at that point generator_ (and possibly freq_) are done for models
   // without enableEigenDecomposition
 

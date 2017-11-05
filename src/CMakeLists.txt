@@ -82,6 +82,7 @@ set (CPP_FILES
   Bpp/Phyl/Model/AbstractSubstitutionModel.cpp
   Bpp/Phyl/Model/AbstractWordSubstitutionModel.cpp
   Bpp/Phyl/Model/BinarySubstitutionModel.cpp
+  Bpp/Phyl/Model/Codon/AbstractCodonAARateSubstitutionModel.cpp
   Bpp/Phyl/Model/Codon/AbstractCodonCpGSubstitutionModel.cpp
   Bpp/Phyl/Model/Codon/AbstractCodonDistanceSubstitutionModel.cpp
   Bpp/Phyl/Model/Codon/AbstractCodonFitnessSubstitutionModel.cpp
@@ -89,12 +90,10 @@ set (CPP_FILES
   Bpp/Phyl/Model/Codon/AbstractCodonPhaseFrequenciesSubstitutionModel.cpp
   Bpp/Phyl/Model/Codon/AbstractCodonSubstitutionModel.cpp
   Bpp/Phyl/Model/Codon/AbstractKroneckerCodonSubstitutionModel.cpp
-  Bpp/Phyl/Model/Codon/CodonDistanceCpGSubstitutionModel.cpp
+  Bpp/Phyl/Model/Codon/CodonAdHocSubstitutionModel.cpp
   Bpp/Phyl/Model/Codon/CodonDistanceFrequenciesSubstitutionModel.cpp
   Bpp/Phyl/Model/Codon/CodonDistancePhaseFrequenciesSubstitutionModel.cpp
   Bpp/Phyl/Model/Codon/CodonDistanceSubstitutionModel.cpp
-  Bpp/Phyl/Model/Codon/CodonRateFrequenciesSubstitutionModel.cpp
-  Bpp/Phyl/Model/Codon/CodonRateSubstitutionModel.cpp
   Bpp/Phyl/Model/Codon/GY94.cpp
   Bpp/Phyl/Model/Codon/KCM.cpp
   Bpp/Phyl/Model/Codon/KroneckerCodonDistanceFrequenciesSubstitutionModel.cpp 

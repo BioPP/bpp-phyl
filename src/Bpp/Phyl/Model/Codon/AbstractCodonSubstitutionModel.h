@@ -69,6 +69,7 @@ namespace bpp
  * used. Their names have a new prefix, "i_" where i stands for the
  * the phase (1,2 or 3) in the codon.
  */
+
   class AbstractCodonSubstitutionModel :
     public virtual CodonSubstitutionModel,
     public AbstractWordSubstitutionModel

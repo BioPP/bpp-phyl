@@ -47,11 +47,12 @@ using namespace std;
 
 AbstractCodonDistanceSubstitutionModel::AbstractCodonDistanceSubstitutionModel(
   const AlphabetIndex2* pdist,
+  const GeneticCode* pgencode,
   const std::string& prefix,
   bool paramSynRate) :
-  CodonSubstitutionModel(),
   AbstractParameterAliasable(prefix),
   pdistance_(pdist),
+  pgencode_(pgencode),
   alpha_(10000),
   beta_(1),
   gamma_(1)
@@ -77,9 +78,9 @@ void AbstractCodonDistanceSubstitutionModel::fireParameterChanged(const Paramete
 
 double AbstractCodonDistanceSubstitutionModel::getCodonsMulRate(size_t i, size_t j) const
 {
-  return getGeneticCode()->areSynonymous(static_cast<int>(i), static_cast<int>(j)) ? gamma_ :
+  return pgencode_->areSynonymous(static_cast<int>(i), static_cast<int>(j)) ? gamma_ :
          beta_ * (pdistance_ ? exp(-pdistance_->getIndex(
-                 getGeneticCode()->translate(static_cast<int>(i)),
-                 getGeneticCode()->translate(static_cast<int>(j))) / alpha_) : 1);
+                                     pgencode_->translate(static_cast<int>(i)),
+                                     pgencode_->translate(static_cast<int>(j))) / alpha_) : 1);
 }
 
