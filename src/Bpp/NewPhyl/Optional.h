@@ -97,7 +97,7 @@ public:
 	}
 	template <typename U, typename... Args>
 	Optional (InPlace<void>, std::initializer_list<U> ilist, Args &&... args) : Optional () {
-		create (std::move (ilist), std::forward<Args> (args)...);
+		create (ilist, std::forward<Args> (args)...);
 	}
 
 	~Optional () { reset (); }
@@ -170,7 +170,7 @@ public:
 	template <typename U, typename... Args>
 	T & emplace (std::initializer_list<U> ilist, Args &&... args) {
 		reset ();
-		create (std::move (ilist), std::forward<Args> (args)...);
+		create (ilist, std::forward<Args> (args)...);
 		return value ();
 	}
 	void swap (Optional & other) noexcept {

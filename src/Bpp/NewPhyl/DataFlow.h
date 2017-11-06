@@ -45,7 +45,7 @@
 #include <Bpp/NewPhyl/Signed.h>
 #include <Bpp/NewPhyl/Vector.h>
 #include <memory>
-#include <string> // description
+#include <string>   // description
 #include <typeinfo> // convertRef
 #include <utility>
 
@@ -150,9 +150,9 @@ namespace DF {
 	}
 	// Overload that accepts a NodeRef initializer list (commonly used)
 	template <typename NodeType, typename... Args>
-	auto makeNode (std::initializer_list<NodeRef> && deps, Args &&... args)
-	    -> decltype (Builder<NodeType>::make (std::move (deps), std::forward<Args> (args)...)) {
-		return Builder<NodeType>::make (std::move (deps), std::forward<Args> (args)...);
+	auto makeNode (std::initializer_list<NodeRef> deps, Args &&... args)
+	    -> decltype (Builder<NodeType>::make (deps, std::forward<Args> (args)...)) {
+		return Builder<NodeType>::make (deps, std::forward<Args> (args)...);
 	}
 
 	// Used in Value<T> to select constructors
@@ -197,7 +197,7 @@ namespace DF {
 
 	// Debug info override for double (in DataFlowNumeric.cpp)
 	template <> std::string Value<double>::debugInfo () const;
-  // overrides for VectorDouble and MatrixDouble are declared in LinearAlgebra.h
+	// overrides for VectorDouble and MatrixDouble are declared in LinearAlgebra.h
 
 	/* Dependency structure description.
 	 * These type tags are used to specify compute node dependency types.

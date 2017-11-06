@@ -63,7 +63,7 @@ public:
 
 	Vector () : vec_ () {}
 	explicit Vector (size_type size_) : vec_ (static_cast<typename Container::size_type> (size_)) {}
-	Vector (std::initializer_list<T> ilist) : vec_ (std::move (ilist)) {}
+	Vector (std::initializer_list<T> ilist) : vec_ (ilist) {}
 
 	reference at (size_type i) {
 		assert (0 <= i);
