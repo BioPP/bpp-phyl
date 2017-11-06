@@ -65,12 +65,12 @@ AbstractCodonPhaseFrequenciesSubstitutionModel::AbstractCodonPhaseFrequenciesSub
     if (dynamic_cast<FixedCodonFrequenciesSet*>(pCFS)) {
       for (unsigned int i = 0; i < 3; i++)
       {
-        vFS.push_back(new FixedNucleotideFrequenciesSet(pCFS->getAlphabet()->getNucleicAlphabet()));
+        vFS.push_back(new FixedNucleotideFrequenciesSet(pCFS->getCodonAlphabet()->getNucleicAlphabet()));
       }
     } else {
       for (unsigned int i = 0; i < 3; i++)
       {
-        vFS.push_back(new FullNucleotideFrequenciesSet(pCFS->getAlphabet()->getNucleicAlphabet()));
+        vFS.push_back(new FullNucleotideFrequenciesSet(pCFS->getCodonAlphabet()->getNucleicAlphabet()));
       }
     }
     posfreqset_ = new CodonFromIndependentFrequenciesSet(

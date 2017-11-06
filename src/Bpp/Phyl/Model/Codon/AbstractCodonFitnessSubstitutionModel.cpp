@@ -40,14 +40,17 @@
 using namespace bpp;
 using namespace std;
 /****************************************************************************************/
-AbstractCodonFitnessSubstitutionModel::AbstractCodonFitnessSubstitutionModel(FrequenciesSet* pfitset, const string& prefix):
-  AbstractParameterAliasable(prefix), pfitset_(pfitset), fitName_("")
+AbstractCodonFitnessSubstitutionModel::AbstractCodonFitnessSubstitutionModel(FrequenciesSet* pfitset, const GeneticCode* pgencode, const string& prefix, bool bgc):
+  AbstractParameterAliasable(prefix), pfitset_(pfitset), pgencode_(pgencode), fitName_(""), bgc_(0)
 {
   if (dynamic_cast<CodonFrequenciesSet*>(pfitset) == NULL)
-    throw Exception ("Bad type for fitness parameters"+ pfitset ->getName() );
+    throw Exception ("Bad type for fitness parameters"+ pfitset ->getName());
   fitName_="fit_"+ pfitset_->getNamespace();
   pfitset_->setNamespace(prefix + fitName_);
-  addParameters_(pfitset_->getParameters() );
+  addParameters_(pfitset_->getParameters());
+  if (bgc == true)
+    addParameter_(new Parameter(prefix + "bgc", 0));
+  
 }
 
 AbstractCodonFitnessSubstitutionModel::~AbstractCodonFitnessSubstitutionModel()
@@ -58,6 +61,8 @@ AbstractCodonFitnessSubstitutionModel::~AbstractCodonFitnessSubstitutionModel()
 void AbstractCodonFitnessSubstitutionModel::fireParameterChanged (const ParameterList& parameters)
 {
   pfitset_->matchParametersValues(parameters);
+  if (hasParameter("bgc"))
+    bgc_ = getParameterValue("bgc");
 }
 
 void AbstractCodonFitnessSubstitutionModel::setFreq(map<int, double>& frequencies)
@@ -71,6 +76,12 @@ double AbstractCodonFitnessSubstitutionModel::getCodonsMulRate(size_t i, size_t 
   double mu;
   double phi_j= pfitset_->getFrequencies() [j];
   double phi_i= pfitset_->getFrequencies() [i];
+  if (bgc_ != 0)
+  {
+    phi_j*=exp(bgc_*pgencode_->getSourceAlphabet()->getGCinCodon(static_cast<int>(j)));
+    phi_i*=exp(bgc_*pgencode_->getSourceAlphabet()->getGCinCodon(static_cast<int>(i)));
+  }
+
   if (phi_i == phi_j) mu=1;
   else if (phi_i==0)
     mu=100;

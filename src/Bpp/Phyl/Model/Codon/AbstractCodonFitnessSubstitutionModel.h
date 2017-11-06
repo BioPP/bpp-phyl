@@ -68,20 +68,38 @@ namespace bpp
   {
   private:
     FrequenciesSet* pfitset_;
+
+    const GeneticCode* pgencode_;
+  
     std::string fitName_;
+    /*
+     *@ brief double as BGC parameter
+     *
+     */
+
+    double bgc_;
   public:
-    AbstractCodonFitnessSubstitutionModel(FrequenciesSet* pfitset, const std::string& prefix);
+    AbstractCodonFitnessSubstitutionModel(
+      FrequenciesSet* pfitset,
+      const GeneticCode* pgencode,
+      const std::string& prefix,
+      bool bgc = false);
+    
     AbstractCodonFitnessSubstitutionModel(const AbstractCodonFitnessSubstitutionModel& model):
       AbstractParameterAliasable(model),
       pfitset_(model.pfitset_->clone()),
-      fitName_(model.fitName_)
+      pgencode_(model.pgencode_),
+      fitName_(model.fitName_),
+      bgc_(model.bgc_)
     {}
 
     AbstractCodonFitnessSubstitutionModel& operator=(const AbstractCodonFitnessSubstitutionModel& model){
       AbstractParameterAliasable::operator=(model);
       if (pfitset_) delete pfitset_;
       pfitset_ = model.pfitset_->clone();
+      pgencode_ = model.pgencode_;
       fitName_ = model.fitName_ ;
+      bgc_ = model.bgc_;
       return *this;
     }
 
@@ -107,6 +125,8 @@ namespace bpp
     double getCodonsMulRate(size_t i, size_t j) const;
 
     const FrequenciesSet* getFitness() const { return pfitset_;}
+
+    const double getBgc() const { return bgc_;}
 
     const FrequenciesSet* getFrequenciesSet() const 
     {

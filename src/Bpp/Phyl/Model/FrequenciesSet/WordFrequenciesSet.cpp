@@ -64,7 +64,7 @@ AbstractWordFrequenciesSet::AbstractWordFrequenciesSet(StateMap* stateMap, const
 
 size_t AbstractWordFrequenciesSet::getLength() const
 {
-  return dynamic_cast<const WordAlphabet*>(getAlphabet())->getLength();
+  return getWordAlphabet()->getLength();
 }
 
 AbstractWordFrequenciesSet::~AbstractWordFrequenciesSet()
@@ -78,6 +78,31 @@ WordFromIndependentFrequenciesSet::WordFromIndependentFrequenciesSet(
     const WordAlphabet* pWA,
     const std::vector<FrequenciesSet*>& freqVector,
     const string& prefix, const string& name) :
+  AbstractWordFrequenciesSet(new CanonicalStateMap(pWA, false), prefix, name),
+  vFreq_(),
+  vNestedPrefix_()
+{
+  size_t sf = getSizeFromVector(freqVector);
+  if (pWA->getSize() !=  sf)
+    throw Exception("WordFromIndependentFrequenciesSet: Size of the frequencies does not match size of the alphabet : " + TextTools::toString(sf) + " vs " + TextTools::toString(pWA->getSize()));
+
+  size_t l = freqVector.size();
+
+  for (size_t i = 0; i < l; i++)
+  {
+    vFreq_.push_back(freqVector[i]);
+    vNestedPrefix_.push_back(freqVector[i]->getNamespace());
+    vFreq_[i]->setNamespace(prefix + TextTools::toString(i + 1) + "_" + vNestedPrefix_[i]);
+    addParameters_(vFreq_[i]->getParameters());
+  }
+
+  updateFrequencies();
+}
+
+WordFromIndependentFrequenciesSet::WordFromIndependentFrequenciesSet(
+  const CodonAlphabet* pWA,
+  const std::vector<FrequenciesSet*>& freqVector,
+  const string& prefix, const string& name) :
   AbstractWordFrequenciesSet(new CanonicalStateMap(pWA, false), prefix, name),
   vFreq_(),
   vNestedPrefix_()
@@ -158,7 +183,7 @@ void WordFromIndependentFrequenciesSet::fireParameterChanged(const ParameterList
 void WordFromIndependentFrequenciesSet::updateFrequencies()
 {
   size_t l = vFreq_.size();
-  size_t s = getAlphabet()->getSize();
+  size_t s = getWordAlphabet()->getSize();
   vector< vector<double> >f(l);
 
   size_t i, p, t, i2;
@@ -183,8 +208,8 @@ void WordFromIndependentFrequenciesSet::updateFrequencies()
 
 void WordFromIndependentFrequenciesSet::setFrequencies(const vector<double>& frequencies) 
 {
-  if (frequencies.size() != getAlphabet()->getSize())
-    throw DimensionException("WordFromIndependentFrequenciesSet::setFrequencies", frequencies.size(), getAlphabet()->getSize());
+  if (frequencies.size() != getWordAlphabet()->getSize())
+    throw DimensionException("WordFromIndependentFrequenciesSet::setFrequencies", frequencies.size(), getWordAlphabet()->getSize());
   double sum = 0.0;
   size_t size = frequencies.size();
   for (size_t i = 0; i < size; i++)
@@ -275,6 +300,30 @@ WordFromUniqueFrequenciesSet::WordFromUniqueFrequenciesSet(
   updateFrequencies();
 }
 
+WordFromUniqueFrequenciesSet::WordFromUniqueFrequenciesSet(
+  const CodonAlphabet* pWA,
+  FrequenciesSet* pabsfreq,
+  const string& prefix,
+  const string& name) :
+  AbstractWordFrequenciesSet(new CanonicalStateMap(pWA, false), prefix, name),
+  pFreq_(pabsfreq),
+  NestedPrefix_(pabsfreq->getNamespace()),
+  length_(pWA->getLength())
+{
+  size_t i;
+
+  string st = "";
+  for (i = 0; i < length_; i++)
+  {
+    st += TextTools::toString(i + 1);
+  }
+
+  pFreq_->setNamespace(prefix+ st + "_" + NestedPrefix_);
+  addParameters_(pFreq_->getParameters());
+
+  updateFrequencies();
+}
+
 WordFromUniqueFrequenciesSet::WordFromUniqueFrequenciesSet(const WordFromUniqueFrequenciesSet& iwfs) :
   AbstractWordFrequenciesSet(iwfs),
   pFreq_(iwfs.pFreq_->clone()),
@@ -313,7 +362,7 @@ void WordFromUniqueFrequenciesSet::fireParameterChanged(const ParameterList& pl)
 
 void WordFromUniqueFrequenciesSet::updateFrequencies()
 {
-  size_t s = getAlphabet()->getSize();
+  size_t s = getWordAlphabet()->getSize();
   vector<double> f;
   size_t letsi = pFreq_->getAlphabet()->getSize();
 
@@ -335,8 +384,8 @@ void WordFromUniqueFrequenciesSet::updateFrequencies()
 
 void WordFromUniqueFrequenciesSet::setFrequencies(const vector<double>& frequencies) 
 {
-  if (frequencies.size() != getAlphabet()->getSize())
-    throw DimensionException("WordFromUniqueFrequenciesSet::setFrequencies", frequencies.size(), getAlphabet()->getSize());
+  if (frequencies.size() != getWordAlphabet()->getSize())
+    throw DimensionException("WordFromUniqueFrequenciesSet::setFrequencies", frequencies.size(), getWordAlphabet()->getSize());
   double sum = 0.0;
   size_t size = frequencies.size();
   for (size_t i = 0; i < size; i++)

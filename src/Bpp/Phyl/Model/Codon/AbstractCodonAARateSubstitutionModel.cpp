@@ -53,7 +53,7 @@ AbstractCodonAARateSubstitutionModel::AbstractCodonAARateSubstitutionModel(
   AbstractParameterAliasable(prefix),
   pAAmodel_(pmodel),
   pgencode_(pgencode),
-  beta_(1),
+  beta_(19),
   gamma_(1)
 {
   if (paramSynRate)

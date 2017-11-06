@@ -1308,6 +1308,8 @@ SubstitutionModel* BppOSubstitutionModelFormat::readWord_(const Alphabet* alphab
       if (args.find("fitness") == args.end())
         throw Exception("Missing fitness in model " + modelName + ".");
 
+      bool bgc=(args.find("bgc") != args.end());
+
       BppOFrequenciesSetFormat bIOFreq(alphabetCode_, verbose_, warningLevel_);
       bIOFreq.setGeneticCode(geneticCode_);
       
@@ -1324,7 +1326,7 @@ SubstitutionModel* BppOSubstitutionModelFormat::readWord_(const Alphabet* alphab
         model.reset(new SENCA(geneticCode_,
                               dynamic_cast<NucleotideSubstitutionModel*>(v_pSM[0]),
                               pFit.release(),
-                              pai2.release()));
+                              pai2.release(), bgc));
       }
       else
         model.reset(new SENCA(
@@ -1333,7 +1335,7 @@ SubstitutionModel* BppOSubstitutionModelFormat::readWord_(const Alphabet* alphab
                       dynamic_cast<NucleotideSubstitutionModel*>(v_pSM[1]),
                       dynamic_cast<NucleotideSubstitutionModel*>(v_pSM[2]),
                       pFit.release(),
-                      pai2.release()));
+                      pai2.release(), bgc));
     }
   }
 

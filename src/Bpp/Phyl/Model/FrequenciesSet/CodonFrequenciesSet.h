@@ -60,7 +60,7 @@ public:
   
   CodonFrequenciesSet* clone() const = 0;
 
-  const CodonAlphabet* getAlphabet() const = 0;
+  virtual const CodonAlphabet* getCodonAlphabet() const = 0;
 
 public:
   /**
@@ -142,7 +142,7 @@ public:
    */
   void setFrequencies(const std::vector<double>& frequencies);
 
-  const CodonAlphabet* getAlphabet() const
+  const CodonAlphabet* getCodonAlphabet() const
   {
     return dynamic_cast<const CodonAlphabet*>(AbstractFrequenciesSet::getAlphabet());
   }
@@ -199,7 +199,7 @@ public:
 public:
   const GeneticCode* getGeneticCode() const { return pgc_; }
 
-  const CodonAlphabet* getAlphabet() const
+  const CodonAlphabet* getCodonAlphabet() const
   {
     return dynamic_cast<const CodonAlphabet*>(AbstractFrequenciesSet::getAlphabet());
   }
@@ -274,7 +274,7 @@ public:
 
 public:
   
-  const CodonAlphabet* getAlphabet() const
+  const CodonAlphabet* getCodonAlphabet() const
   {
     return dynamic_cast<const CodonAlphabet*>(AbstractFrequenciesSet::getAlphabet());
   }
@@ -354,7 +354,7 @@ public:
 
   CodonFromIndependentFrequenciesSet* clone() const { return new CodonFromIndependentFrequenciesSet(*this); }
 
-  const CodonAlphabet* getAlphabet() const;
+  const CodonAlphabet* getCodonAlphabet() const;
 
   const GeneticCode* getGeneticCode() const { return pgc_; }
 
@@ -435,7 +435,7 @@ public:
 
   CodonFromUniqueFrequenciesSet* clone() const { return new CodonFromUniqueFrequenciesSet(*this); }
 
-  const CodonAlphabet* getAlphabet() const;
+  const CodonAlphabet* getCodonAlphabet() const;
 
   const GeneticCode* getGeneticCode() const { return pgc_; }
 

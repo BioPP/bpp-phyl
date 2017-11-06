@@ -266,7 +266,7 @@ FrequenciesSet* BppOFrequenciesSetFormat::read(const Alphabet* alphabet, const s
       string sAFS = args["frequency"];
 
       BppOFrequenciesSetFormat nestedReader(alphabetCode_, false, warningLevel_);
-      unique_ptr<FrequenciesSet> pFS2(nestedReader.read(pWA->getNAlphabet(0), sAFS, data, false));
+      unique_ptr<FrequenciesSet> pFS2(nestedReader.read(pWA->getNucleicAlphabet(), sAFS, data, false));
       map<string, string> unparsedParameterValuesNested(nestedReader.getUnparsedArguments());
 
       for (map<string, string>::iterator it = unparsedParameterValuesNested.begin(); it != unparsedParameterValuesNested.end(); it++)
@@ -295,7 +295,7 @@ FrequenciesSet* BppOFrequenciesSetFormat::read(const Alphabet* alphabet, const s
       for (size_t i = 0; i < v_sAFS.size(); ++i)
       {
         BppOFrequenciesSetFormat nestedReader(alphabetCode_, false, warningLevel_);
-        pFS.reset(nestedReader.read(pWA->getNAlphabet(i), v_sAFS[i], data, false));
+        pFS.reset(nestedReader.read(pWA->getNucleicAlphabet(), v_sAFS[i], data, false));
         map<string, string> unparsedParameterValuesNested(nestedReader.getUnparsedArguments());
         for (map<string, string>::iterator it = unparsedParameterValuesNested.begin(); it != unparsedParameterValuesNested.end(); it++)
         {
@@ -388,7 +388,7 @@ FrequenciesSet* BppOFrequenciesSetFormat::read(const Alphabet* alphabet, const s
         string sAFS = args["frequency"];
         
         BppOFrequenciesSetFormat nestedReader(alphabetCode_, false, warningLevel_);
-        unique_ptr<FrequenciesSet> pFS2(nestedReader.read(pWA->getNAlphabet(0), sAFS, data, false));
+        unique_ptr<FrequenciesSet> pFS2(nestedReader.read(pWA->getNucleicAlphabet(), sAFS, data, false));
         if (pFS2->getName()!="Full")
           throw Exception("BppOFrequenciesSetFormat::read. The frequency option in F1X4 can only be Full");
         
@@ -440,7 +440,7 @@ FrequenciesSet* BppOFrequenciesSetFormat::read(const Alphabet* alphabet, const s
           {
             BppOFrequenciesSetFormat nestedReader(alphabetCode_, false, warningLevel_);
             if (v_sAFS[i]!=""){
-              pFS.reset(nestedReader.read(pWA->getNAlphabet(i), v_sAFS[i], data, false));
+              pFS.reset(nestedReader.read(pWA->getNucleicAlphabet(), v_sAFS[i], data, false));
               if (pFS->getName()!="Full")
                 throw Exception("BppOFrequenciesSetFormat::read. The frequency options in F3X4 can only be Full");
 

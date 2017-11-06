@@ -87,17 +87,19 @@ namespace bpp
   {
   public:
     SENCA(
-        const GeneticCode* gCode,
-        NucleotideSubstitutionModel* pmod,
-        FrequenciesSet* pfit,
-        const AlphabetIndex2* pdist = 0);
+      const GeneticCode* gCode,
+      NucleotideSubstitutionModel* pmod,
+      FrequenciesSet* pfit,
+      const AlphabetIndex2* pdist = 0,
+      bool bgc = 0);
     SENCA(
-        const GeneticCode* gCode,
-        NucleotideSubstitutionModel* pmod1,
-        NucleotideSubstitutionModel* pmod2,
-        NucleotideSubstitutionModel* pmod3,
-        FrequenciesSet* pfit,
-        const AlphabetIndex2* pdist = 0);
+      const GeneticCode* gCode,
+      NucleotideSubstitutionModel* pmod1,
+      NucleotideSubstitutionModel* pmod2,
+      NucleotideSubstitutionModel* pmod3,
+      FrequenciesSet* pfit,
+      const AlphabetIndex2* pdist = 0,
+      bool bgc = 0);
 
     virtual ~SENCA() {}
 
