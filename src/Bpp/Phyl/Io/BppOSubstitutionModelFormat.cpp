@@ -933,7 +933,7 @@ SubstitutionModel* BppOSubstitutionModelFormat::readWord_(const Alphabet* alphab
 
   vector<string> v_nestedModelDescription;
   vector<SubstitutionModel*> v_pSM;
-  const WordAlphabet* pWA;
+  const CoreWordAlphabet* pWA;
 
   string s, nestedModelDescription;
   unsigned int nbmodels;
@@ -943,7 +943,7 @@ SubstitutionModel* BppOSubstitutionModelFormat::readWord_(const Alphabet* alphab
     throw Exception("Bad alphabet type "
                     + alphabet->getAlphabetType() + " for  model " + modelName + ".");
 
-  pWA = dynamic_cast<const WordAlphabet*>(alphabet);
+  pWA = dynamic_cast<const CoreWordAlphabet*>(alphabet);
 
   
   ////////////////////////////////////
@@ -1212,7 +1212,6 @@ SubstitutionModel* BppOSubstitutionModelFormat::readWord_(const Alphabet* alphab
         unparsedArguments_[name+"."+it->first] = it->second;
       }
     
-
       model.reset((v_nestedModelDescription.size() != 3)
                   ? new CodonAdHocSubstitutionModel(
                     geneticCode_,

@@ -69,7 +69,6 @@ CodonAdHocSubstitutionModel::CodonAdHocSubstitutionModel(
       vModel_.push_back(unique_ptr<CoreCodonSubstitutionModel>(model));
       addParameters_(model->getParameters());
     }
-
   computeFrequencies(true);
   updateMatrices();
 }

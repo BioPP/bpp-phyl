@@ -1757,7 +1757,7 @@ void SubstitutionMappingTools::computeCountsPerTypePerBranch(
 
   // check if perWord
 
-  const WordAlphabet* wAlp=dynamic_cast<const WordAlphabet*>(nullModel->getAlphabet());
+  const CoreWordAlphabet* wAlp=dynamic_cast<const CoreWordAlphabet*>(nullModel->getAlphabet());
 
   float sizeWord=float((wAlp!=NULL) & !perWord ?wAlp->getLength():1);
   
@@ -1813,7 +1813,7 @@ void SubstitutionMappingTools::computeCountsPerTypePerBranch(
 
   // check if perWord
 
-  const WordAlphabet* wAlp=dynamic_cast<const WordAlphabet*>(nullModelSet->getAlphabet());
+  const CoreWordAlphabet* wAlp=dynamic_cast<const CoreWordAlphabet*>(nullModelSet->getAlphabet());
 
   float sizeWord=float((wAlp!=NULL) & !perWord?wAlp->getLength():1);
   
@@ -2046,7 +2046,7 @@ void SubstitutionMappingTools::computeCountsPerSitePerType(
 
   // check if perWord
 
-  const WordAlphabet* wAlp=dynamic_cast<const WordAlphabet*>(nullModel->getAlphabet());
+  const CoreWordAlphabet* wAlp=dynamic_cast<const CoreWordAlphabet*>(nullModel->getAlphabet());
 
   float sizeWord=float((wAlp!=NULL) & !perWord?wAlp->getLength():1);
   
@@ -2170,7 +2170,7 @@ void SubstitutionMappingTools::computeCountsPerSitePerType(
   // check if perWord
 
    
-  const WordAlphabet* wAlp=dynamic_cast<const WordAlphabet*>(nullModelSet->getAlphabet());
+  const CoreWordAlphabet* wAlp=dynamic_cast<const CoreWordAlphabet*>(nullModelSet->getAlphabet());
 
   float sizeWord=float((wAlp!=NULL) & !perWord?wAlp->getLength():1);
  
@@ -2298,7 +2298,7 @@ void SubstitutionMappingTools::computeCountsPerSitePerBranchPerType(
 
   // check if perWord
 
-  const WordAlphabet* wAlp=dynamic_cast<const WordAlphabet*>(nullModel->getAlphabet());
+  const CoreWordAlphabet* wAlp=dynamic_cast<const CoreWordAlphabet*>(nullModel->getAlphabet());
 
   float sizeWord=float((wAlp!=NULL) & !perWord?wAlp->getLength():1);
   
@@ -2405,7 +2405,7 @@ void SubstitutionMappingTools::computeCountsPerSitePerBranchPerType(
 
   // check if perWord
 
-  const WordAlphabet* wAlp=dynamic_cast<const WordAlphabet*>(nullModelSet->getAlphabet());
+  const CoreWordAlphabet* wAlp=dynamic_cast<const CoreWordAlphabet*>(nullModelSet->getAlphabet());
 
   float sizeWord=float((wAlp!=NULL) & !perWord?wAlp->getLength():1);
   

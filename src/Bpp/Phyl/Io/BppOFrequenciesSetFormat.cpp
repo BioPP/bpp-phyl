@@ -177,6 +177,9 @@ FrequenciesSet* BppOFrequenciesSetFormat::read(const Alphabet* alphabet, const s
 
     const WordAlphabet* pWA = dynamic_cast<const WordAlphabet*>(alphabet);
 
+    if (pWA==NULL)
+      throw Exception("BppOFrequenciesSetFormat::read : Word freq name is from WordAlphabet.");
+    
     if (args.find("frequency") != args.end())
     {
       string sAFS = args["frequency"];
