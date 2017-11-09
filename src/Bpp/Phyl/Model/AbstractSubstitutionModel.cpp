@@ -95,7 +95,8 @@ void AbstractSubstitutionModel::updateMatrices()
 
     size_t nbStop=0;
     size_t salph = getNumberOfStates();
-    vector<bool> vnull(salph); // vector of the indices of lines with only zeros
+    vector<bool> vnull(salph); // vector of the indices of lines with
+                               // only zeros
 
     for (size_t i = 0; i < salph; i++)
     {
@@ -108,7 +109,6 @@ void AbstractSubstitutionModel::updateMatrices()
         vnull[i]=false;
     }
         
-    
     if (nbStop != 0)
     {
       size_t salphok=salph - nbStop;
@@ -203,47 +203,53 @@ void AbstractSubstitutionModel::updateMatrices()
         }
       }
       
-      // is it singular?
+      // looking for the vector of 0 eigenvalues
 
-      // looking for the 0 eigenvector for which the non-stop right
-      // eigen vector elements are equal.
-      //
+      vector<size_t> vNullEv;
+      for (size_t i = 0; i< salph - nbStop; i++)
+        if ((abs(eigenValues_[i]) < NumConstants::SMALL()) && (abs(iEigenValues_[i]) < NumConstants::SMALL()))
+          vNullEv.push_back(i);
+      
 
-      size_t nulleigen = 0;
+      // pb to find unique null eigenvalue      
+      isNonSingular_=(vNullEv.size()==1);
+
+      size_t nulleigen;
+      
       double val;
-
-      isNonSingular_ = false;
-      while (nulleigen < salph - nbStop)
+      if (!isNonSingular_)
       {
-        if ((abs(eigenValues_[nulleigen]) < NumConstants::SMALL()) && (abs(iEigenValues_[nulleigen]) < NumConstants::SMALL()))
+        //look or check which non-stop right eigen vector elements are
+        //equal.
+        for (auto cnull : vNullEv)
         {
           size_t i = 0;
           while (vnull[i])
             i++;
           
-          val = rightEigenVectors_(i, nulleigen);
+          val = rightEigenVectors_(i, cnull);
           i++;
+          
           while (i < salph)
           {
             if (!vnull[i])
             {
-              if (abs(rightEigenVectors_(i, nulleigen) - val) > NumConstants::SMALL())
+              if (abs(rightEigenVectors_(i, cnull) - val) > NumConstants::SMALL())
                 break;
             }
             i++;
           }
           
-          if (i < salph)
-            nulleigen++;
-          else
+          if (i >= salph)
           {
             isNonSingular_ = true;
+            nulleigen=cnull;
             break;
           }
         }
-        else
-          nulleigen++;
       }
+      else
+        nulleigen=vNullEv[0];
       
       if (isNonSingular_)
       {
@@ -255,8 +261,7 @@ void AbstractSubstitutionModel::updateMatrices()
           for (size_t i = 0; i < salph; i++)
             freq_[i] = leftEigenVectors_(nulleigen, i);
         
-          double x = VectorTools::sum(freq_);
-        
+          double x = VectorTools::sum(freq_);        
           freq_ /= x;
         }
       }
