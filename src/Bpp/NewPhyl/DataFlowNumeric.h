@@ -47,6 +47,9 @@
 
 namespace bpp {
 namespace DF {
+	// Utils
+	bool derivableIfAllDepsAre (const Node & toDerive, const Node & node);
+
 	/* Double nodes.
 	 */
 	class AddDouble;

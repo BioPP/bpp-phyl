@@ -112,7 +112,6 @@ namespace Phyl {
 			return Value<VectorDouble>::debugInfo () + " nbState=" + to_string (dimensions (*this));
 		}
 		NodeRef EquilibriumFrequenciesFromModel::derive (const Node & node) {
-			// TODO supports model derivation
 			return Builder<Constant<VectorDouble>>::makeZero (dimensions (*this));
 		}
 

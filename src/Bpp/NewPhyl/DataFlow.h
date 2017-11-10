@@ -98,6 +98,7 @@ namespace DF {
 
 		// Derive with respect to node (default = error)
 		virtual NodeRef derive (const Node & node);
+		virtual bool isDerivable (const Node & node);
 
 	protected:
 		// Computation implementation

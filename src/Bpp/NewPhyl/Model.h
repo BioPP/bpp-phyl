@@ -77,6 +77,7 @@ namespace Phyl {
 		};
 
 		// Compute nodes
+    // TODO support isDerivable properly
 
 		class EquilibriumFrequenciesFromModel : public Value<VectorDouble> {
 		public:

@@ -90,6 +90,7 @@ namespace Phyl {
 			void compute () override final;
 			std::string debugInfo () const override final;
 			NodeRef derive (const Node &) override final;
+      bool isDerivable (const Node &) override final;
 		};
 
 		// vec<fwdLik> -> condLik
@@ -107,6 +108,7 @@ namespace Phyl {
 			TotalLogLikelihood (NodeRefVec && deps);
 			void compute () override final;
 			NodeRef derive (const Node &) override final;
+      bool isDerivable (const Node &) override final;
 		};
 	} // namespace DF
 } // namespace Phyl
