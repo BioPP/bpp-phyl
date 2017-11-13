@@ -1,7 +1,7 @@
 //
-// File: AbstractCodonFitnessSubstitutionModel.cpp
-// Created by:  Fanny Pouyet
-// Created on: mars 2012
+// File: AbstractCodonAAFitnessSubstitutionModel.cpp
+// Created by: Laurent Guéguen
+// Created on: mercredi 8 novembre 2017, à 21h 10
 //
 
 /*
@@ -36,43 +36,46 @@
   knowledge of the CeCILL license and that you accept its terms.
 */
 
-# include "AbstractCodonFitnessSubstitutionModel.h"
+# include "AbstractCodonAAFitnessSubstitutionModel.h"
 using namespace bpp;
 using namespace std;
 /****************************************************************************************/
-AbstractCodonFitnessSubstitutionModel::AbstractCodonFitnessSubstitutionModel(FrequenciesSet* pfitset, const GeneticCode* pgencode, const string& prefix):
+AbstractCodonAAFitnessSubstitutionModel::AbstractCodonAAFitnessSubstitutionModel(FrequenciesSet* pfitset, const GeneticCode* pgencode, const string& prefix):
   AbstractParameterAliasable(prefix), pfitset_(pfitset), pgencode_(pgencode), fitName_("")
 {
-  if (dynamic_cast<CodonFrequenciesSet*>(pfitset) == NULL)
-    throw Exception ("Bad type for fitness parameters"+ pfitset ->getName());
+  if (pfitset_->getAlphabet()->getAlphabetType()!="Proteic")
+    throw Exception("AbstractCodonAAFitnessSubstitutionModel::AbstractCodonAAFitnessSubstitutionModel need Proteic Fitness.");
+  
   fitName_="fit_"+ pfitset_->getNamespace();
   pfitset_->setNamespace(prefix + fitName_);
   addParameters_(pfitset_->getParameters());
 }
 
-AbstractCodonFitnessSubstitutionModel::~AbstractCodonFitnessSubstitutionModel()
+AbstractCodonAAFitnessSubstitutionModel::~AbstractCodonAAFitnessSubstitutionModel()
 {
-  if (pfitset_) delete pfitset_;
 }
 
-void AbstractCodonFitnessSubstitutionModel::fireParameterChanged (const ParameterList& parameters)
+void AbstractCodonAAFitnessSubstitutionModel::fireParameterChanged (const ParameterList& parameters)
 {
   pfitset_->matchParametersValues(parameters);
 }
 
-void AbstractCodonFitnessSubstitutionModel::setFreq(map<int, double>& frequencies)
+void AbstractCodonAAFitnessSubstitutionModel::setFreq(map<int, double>& frequencies)
 {
   pfitset_->setFrequenciesFromAlphabetStatesFrequencies(frequencies);
   matchParametersValues(pfitset_->getParameters() );
 }
 
-double AbstractCodonFitnessSubstitutionModel::getCodonsMulRate(size_t i, size_t j) const
+double AbstractCodonAAFitnessSubstitutionModel::getCodonsMulRate(size_t i, size_t j) const
 {
   double mu;
 
-  double phi_j= pfitset_->getFrequencies() [j];
-  double phi_i= pfitset_->getFrequencies() [i];
-  
+  int aai = pgencode_->translate(static_cast<int>(i));
+  int aaj = pgencode_->translate(static_cast<int>(j));
+
+  double phi_j= pfitset_->getFrequencies() [aai];
+  double phi_i= pfitset_->getFrequencies() [aaj];
+
   if (phi_i == phi_j) mu=1;
   else if (phi_i==0)
     mu=100;

@@ -1,7 +1,7 @@
 //
-// File: AbstractCodonFitnessSubstitutionModel.h
-// Created by:  Fanny Pouyet
-// Created on: mars 2012
+// File: AbstractCodonAAFitnessSubstitutionModel.h
+// Created by: Laurent Guéguen
+// Created on: mercredi 8 novembre 2017, à 21h 11
 //
 
 /*
@@ -36,78 +36,79 @@
   knowledge of the CeCILL license and that you accept its terms.
 */
 
-# ifndef _ABSTRACTCODONFITNESSSUBSTITUTIONMODEL_H_
-# define _ABSTRACTCODONFITNESSSUBSTITUTIONMODEL_H_
+# ifndef _ABSTRACTCODON_AA_FITNESSSUBSTITUTIONMODEL_H_
+# define _ABSTRACTCODON_AA_FITNESSSUBSTITUTIONMODEL_H_
 
 # include "CodonSubstitutionModel.h"
-#include "../FrequenciesSet/CodonFrequenciesSet.h"
+
+#include "../FrequenciesSet/ProteinFrequenciesSet.h"
+
 namespace bpp
 {
   /**
    * @brief Abstract class for modelling of ratios of substitution
    * rates between codons, whatever they are synonymous or not.
    *
-   * @author Fanny Pouyet, Laurent Guéguen
+   * @author Laurent Guéguen
    *
-   * The fitness of a codon is a value between 0 and 1 defining the
-   * relative advantage of a codon, compared to others. If a codon
-   * @f$i@f$ has a fitness @f$\phi_i@f$ and another one (@f$j@f$) has
-   * a fitness @f$\phi_j@f$, the substitution rate from codon @f$i@f$
-   * to codon @f$j@f$ is multiplied by
+   * The fitness of an amino acid is a value between 0 and 1 defining
+   * the relative advantage of an amino acid, compared to others. If
+   * an amino acid @f$i@f$ has a fitness @f$\phi_i@f$ and another one
+   * (@f$j@f$) has a fitness @f$\phi_j@f$, the substitution rate from
+   * codon @f$i@f$ to codon @f$j@f$ is multiplied by
    * \f[-\frac{\log(\frac{\phi_i}{\phi_j})}{1-\frac{\phi_i}{\phi_j}}\f]
    *
-   * The set of fitnesses is implemented through a Codon
+   * The set of fitnesses is implemented through a Protein
    * FrequenciesSet object. The parameters are named \c
    * "fit_NameOfTheParameterInTheFrequenciesSet".
    */
 
 
-  class AbstractCodonFitnessSubstitutionModel :
+  class AbstractCodonAAFitnessSubstitutionModel :
     public virtual CoreCodonSubstitutionModel,
     public virtual AbstractParameterAliasable
   {
   private:
-    FrequenciesSet* pfitset_;
+    std::unique_ptr<FrequenciesSet> pfitset_;
 
     const GeneticCode* pgencode_;
   
     std::string fitName_;
 
-  public:
-    AbstractCodonFitnessSubstitutionModel(
+public:
+    AbstractCodonAAFitnessSubstitutionModel(
       FrequenciesSet* pfitset,
       const GeneticCode* pgencode,
       const std::string& prefix);
     
-    AbstractCodonFitnessSubstitutionModel(const AbstractCodonFitnessSubstitutionModel& model):
+    AbstractCodonAAFitnessSubstitutionModel(const AbstractCodonAAFitnessSubstitutionModel& model):
       AbstractParameterAliasable(model),
       pfitset_(model.pfitset_->clone()),
       pgencode_(model.pgencode_),
       fitName_(model.fitName_)
     {}
 
-    AbstractCodonFitnessSubstitutionModel& operator=(const AbstractCodonFitnessSubstitutionModel& model){
+    AbstractCodonAAFitnessSubstitutionModel& operator=(const AbstractCodonAAFitnessSubstitutionModel& model){
       AbstractParameterAliasable::operator=(model);
-      if (pfitset_) delete pfitset_;
-      pfitset_ = model.pfitset_->clone();
+      pfitset_.reset(model.pfitset_->clone());
       pgencode_ = model.pgencode_;
       fitName_ = model.fitName_ ;
       return *this;
     }
 
-    AbstractCodonFitnessSubstitutionModel* clone() const
+    AbstractCodonAAFitnessSubstitutionModel* clone() const
     {
-      return new AbstractCodonFitnessSubstitutionModel(*this);
+      return new AbstractCodonAAFitnessSubstitutionModel(*this);
     }
 
-    virtual ~AbstractCodonFitnessSubstitutionModel();
+    virtual ~AbstractCodonAAFitnessSubstitutionModel();
 
   public:
     void fireParameterChanged (const ParameterList& parameters);
 
     void setFreq(std::map<int, double>& frequencies);
 
-    const FrequenciesSet& getFreq() const { return *pfitset_; }
+    const FrequenciesSet& getFreq() const { return *pfitset_.get(); }
 
     void setNamespace (const std::string& prefix){
       AbstractParameterAliasable::setNamespace(prefix);
@@ -116,7 +117,7 @@ namespace bpp
 
     double getCodonsMulRate(size_t i, size_t j) const;
 
-    const FrequenciesSet* getFitness() const { return pfitset_;}
+    const FrequenciesSet& getAAFitness() const { return *pfitset_.get();}
 
     const FrequenciesSet* getFrequenciesSet() const 
     {

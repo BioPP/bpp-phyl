@@ -60,6 +60,7 @@
 #include "../Model/Codon/TripletSubstitutionModel.h"
 #include "../Model/Codon/AbstractCodonDistanceSubstitutionModel.h"
 #include "../Model/Codon/AbstractCodonAARateSubstitutionModel.h"
+#include "../Model/Codon/AbstractCodonAAFitnessSubstitutionModel.h"
 #include "../Model/Codon/AbstractCodonCpGSubstitutionModel.h"
 #include "../Model/Codon/AbstractCodonDistanceSubstitutionModel.h"
 #include "../Model/Codon/AbstractCodonFitnessSubstitutionModel.h"
@@ -1163,10 +1164,11 @@ SubstitutionModel* BppOSubstitutionModelFormat::readWord_(const Alphabet* alphab
       vector<CoreCodonSubstitutionModel*> vCSM;
       string name="Codon";
       map<string, string> unparsedParameterValuesNested;
-      
+
       if (modelName.find("Dist")!=string::npos)
       {
-        name+="Dist";
+        name +="Dist";
+        
         vCSM.push_back(new AbstractCodonDistanceSubstitutionModel(pai2.release(), geneticCode_, ""));
       }
       else if (modelName.find("Prot")!=string::npos)
@@ -1185,7 +1187,7 @@ SubstitutionModel* BppOSubstitutionModelFormat::readWord_(const Alphabet* alphab
 
         vCSM.push_back(new AbstractCodonAARateSubstitutionModel(nestedModel, geneticCode_, ""));
       }
-
+      
       if (vCSM.size()==0)
         name+="Rate";
       
@@ -1195,6 +1197,40 @@ SubstitutionModel* BppOSubstitutionModelFormat::readWord_(const Alphabet* alphab
         vCSM.push_back(new AbstractCodonCpGSubstitutionModel(""));
       }
       
+      if (modelName.find("AAFit")!=string::npos)
+      {
+        name+="AAFit";
+
+        if (args.find("fitness")==args.end())
+          throw Exception("BppOSubstitutionModelFormat::read. Missing argument 'fitness' for codon model argument 'AAFit'.");
+
+        string nestedFreqDescription = args["fitness"];
+        BppOFrequenciesSetFormat nestedReader(PROTEIN, verbose_, warningLevel_);
+
+        FrequenciesSet* nestedFreq=nestedReader.read(geneticCode_->getTargetAlphabet(), nestedFreqDescription, data, false);
+        
+        for (auto  it : nestedReader.getUnparsedArguments())
+          unparsedParameterValuesNested["fit_" + it.first] = it.second;
+
+        vCSM.push_back(new AbstractCodonAAFitnessSubstitutionModel(nestedFreq, geneticCode_, ""));
+      }
+      else if (modelName.find("Fit")!=string::npos)
+      {
+        if (args.find("fitness") == args.end())
+          throw Exception("BppOSubstitutionModelFormat::read. Missing argument 'fitness' for codon model argument 'Fit'.");
+        string nestedFreqDescription = args["fitness"];
+        
+        BppOFrequenciesSetFormat nestedReader(alphabetCode_, verbose_, warningLevel_);
+        nestedReader.setGeneticCode(geneticCode_);
+      
+        FrequenciesSet* nestedFreq=nestedReader.read(alphabet, nestedFreqDescription, data, false);
+        
+        for (auto  it : nestedReader.getUnparsedArguments())
+          unparsedParameterValuesNested["fit_" + it.first] = it.second;
+        
+        vCSM.push_back(new AbstractCodonFitnessSubstitutionModel(nestedFreq, geneticCode_, ""));
+      }
+
       if (modelName.find("PhasFreq")!=string::npos)
       {
         name+="PhasFreq";
@@ -1307,8 +1343,6 @@ SubstitutionModel* BppOSubstitutionModelFormat::readWord_(const Alphabet* alphab
       if (args.find("fitness") == args.end())
         throw Exception("Missing fitness in model " + modelName + ".");
 
-      bool bgc=(args.find("bgc") != args.end());
-
       BppOFrequenciesSetFormat bIOFreq(alphabetCode_, verbose_, warningLevel_);
       bIOFreq.setGeneticCode(geneticCode_);
       
@@ -1325,7 +1359,7 @@ SubstitutionModel* BppOSubstitutionModelFormat::readWord_(const Alphabet* alphab
         model.reset(new SENCA(geneticCode_,
                               dynamic_cast<NucleotideSubstitutionModel*>(v_pSM[0]),
                               pFit.release(),
-                              pai2.release(), bgc));
+                              pai2.release()));
       }
       else
         model.reset(new SENCA(
@@ -1334,7 +1368,7 @@ SubstitutionModel* BppOSubstitutionModelFormat::readWord_(const Alphabet* alphab
                       dynamic_cast<NucleotideSubstitutionModel*>(v_pSM[1]),
                       dynamic_cast<NucleotideSubstitutionModel*>(v_pSM[2]),
                       pFit.release(),
-                      pai2.release(), bgc));
+                      pai2.release()));
     }
   }
 
