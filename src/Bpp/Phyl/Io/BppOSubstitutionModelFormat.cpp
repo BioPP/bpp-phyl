@@ -225,10 +225,10 @@ SubstitutionModel* BppOSubstitutionModelFormat::read(
       ApplicationTools::displayResult("Number of submodel", TextTools::toString(numMod));
 
     delete nestedModel;
-  }      
+  }
 
 
-  if (modelName == "FromRegister")
+  else if (modelName == "FromRegister")
   {
     // We have to parse the nested model first:
     if (args.find("model")==args.end())
@@ -704,7 +704,7 @@ SubstitutionModel* BppOSubstitutionModelFormat::read(
         model.reset(new JCnuc(alpha));
       }
       else
-        throw Exception("Model '" + modelName + "' unknown, or does not fit alphabet.");
+        throw Exception("Model '" + modelName + "' unknown, or does not fit nucleic alphabet.");
     }
     else if (AlphabetTools::isProteicAlphabet(alphabet))
     {
@@ -824,7 +824,7 @@ SubstitutionModel* BppOSubstitutionModelFormat::read(
         model->setFreqFromData(*data);
       }
       else
-        throw Exception("Model '" + modelName + "' unknown, or does not fit alphabet.");      
+        throw Exception("Model '" + modelName + "' is unknown, or does not fit proteic alphabet.");      
     }
     else if (AlphabetTools::isBinaryAlphabet(alphabet))
     {
@@ -836,10 +836,10 @@ SubstitutionModel* BppOSubstitutionModelFormat::read(
       if (modelName == "Binary")
         model.reset(new BinarySubstitutionModel(balpha));
       else
-        throw Exception("Model '" + modelName + "' unknown, or does not fit alphabet.");
+        throw Exception("Model '" + modelName + "' unknown, or does not fit binary alphabet.");
     }
     else
-      throw Exception("Model '" + modelName + "' unknown, or does not fit alphabet.");
+      throw Exception("Model '" + modelName + "' unknown, or does not fit " + alphabet->getAlphabetType() + " alphabet.");
     
   }
     
@@ -1176,7 +1176,7 @@ SubstitutionModel* BppOSubstitutionModelFormat::readWord_(const Alphabet* alphab
         name+="Prot";
 
         if (args.find("protmodel")==args.end())
-          throw Exception("BppOSubstitutionModelFormat::read. Missing argument 'protmodel' for codon model argument 'ProtFromRegister'.");
+          throw Exception("BppOSubstitutionModelFormat::read. Missing argument 'protmodel' for codon model argument 'Prot'.");
 
         nestedModelDescription = args["protmodel"];
         BppOSubstitutionModelFormat nestedReader(PROTEIN, false, false, allowGaps_, verbose_, warningLevel_);
@@ -1719,6 +1719,17 @@ void BppOSubstitutionModelFormat::write(const TransitionModel& model,
         out << "protmodel=";
     
         write(*acr->getAAModel().get(), out, globalAliases, writtenNames);
+        comma = true;
+      }
+      const AbstractCodonAAFitnessSubstitutionModel* acf=dynamic_cast<const AbstractCodonAAFitnessSubstitutionModel*>(casm->getNModel(i).get());
+      if (acf)
+      {
+        if (comma)
+          out << ",";
+        out << "fitness=";
+    
+        BppOFrequenciesSetFormat bIOFreq(PROTEIN, false, warningLevel_);
+        bIOFreq.write(&acf->getAAFitness(), out, globalAliases, writtenNames);
         comma = true;
       }
     }

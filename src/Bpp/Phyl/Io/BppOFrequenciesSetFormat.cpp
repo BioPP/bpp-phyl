@@ -523,7 +523,6 @@ FrequenciesSet* BppOFrequenciesSetFormat::read(const Alphabet* alphabet, const s
     {
       pname2 = pFS->getParameterNameWithoutNamespace(pl[j].getName());
 
-      // if (j == i || args.find(pname2) == args.end()) continue; Julien 03/03/2010: This extra condition prevents complicated (nested) models to work properly...
       if (j == i)
         continue;
       if (pval == pname2)
