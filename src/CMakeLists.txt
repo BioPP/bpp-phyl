@@ -85,6 +85,7 @@ set (CPP_FILES
   Bpp/Phyl/Model/Codon/AbstractCodonAARateSubstitutionModel.cpp
   Bpp/Phyl/Model/Codon/AbstractCodonAAFitnessSubstitutionModel.cpp
   Bpp/Phyl/Model/Codon/AbstractCodonCpGSubstitutionModel.cpp
+  Bpp/Phyl/Model/Codon/AbstractCodonBGCSubstitutionModel.cpp
   Bpp/Phyl/Model/Codon/AbstractCodonDistanceSubstitutionModel.cpp
   Bpp/Phyl/Model/Codon/AbstractCodonFitnessSubstitutionModel.cpp
   Bpp/Phyl/Model/Codon/AbstractCodonFrequenciesSubstitutionModel.cpp

@@ -62,6 +62,7 @@
 #include "../Model/Codon/AbstractCodonAARateSubstitutionModel.h"
 #include "../Model/Codon/AbstractCodonAAFitnessSubstitutionModel.h"
 #include "../Model/Codon/AbstractCodonCpGSubstitutionModel.h"
+#include "../Model/Codon/AbstractCodonBGCSubstitutionModel.h"
 #include "../Model/Codon/AbstractCodonDistanceSubstitutionModel.h"
 #include "../Model/Codon/AbstractCodonFitnessSubstitutionModel.h"
 #include "../Model/Codon/AbstractCodonFrequenciesSubstitutionModel.h"
@@ -1170,6 +1171,12 @@ SubstitutionModel* BppOSubstitutionModelFormat::readWord_(const Alphabet* alphab
         name +="Dist";
         
         vCSM.push_back(new AbstractCodonDistanceSubstitutionModel(pai2.release(), geneticCode_, ""));
+      }
+      else if (modelName.find("BGC")!=string::npos)
+      {
+        name +="BGC";
+        
+        vCSM.push_back(new AbstractCodonBGCSubstitutionModel(geneticCode_, ""));
       }
       else if (modelName.find("Prot")!=string::npos)
       {

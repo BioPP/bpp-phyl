@@ -37,8 +37,8 @@
   knowledge of the CeCILL license and that you accept its terms.
 */
 
-#ifndef _ABSTRACTCODONDISTANCESUBSTITUTIONMODEL_H_
-#define _ABSTRACTCODONDISTANCESUBSTITUTIONMODEL_H_
+#ifndef _ABSTRACTCODON_BGC_SUBSTITUTIONMODEL_H_
+#define _ABSTRACTCODON_BGC_SUBSTITUTIONMODEL_H_
 
 #include "CodonSubstitutionModel.h"
 #include <Bpp/Numeric/AbstractParameterAliasable.h>
@@ -52,86 +52,75 @@ namespace bpp
 {
 /**
  * @brief Abstract class for modelling of non-synonymous and
- *  synonymous substitution rates in codon models.
+ * synonymous substitution rates in codon models, with gBGC.
  *
  * @author Laurent Guéguen
  *
- * If a distance @f$d@f$ between amino-acids is defined, the
- *  non-synonymous rate is multiplied with, if the coded amino-acids
- *  are @f$x@f$ and @f$y@f$, @f$\beta*\exp(-\alpha.d(x,y))@f$ with
- *  non-negative parameter \c "alpha" and positive parameter \c
- *  "beta".
+ * The non-synonymous substitution rate is multiplied with
+ * @f$\frac{\epsilon B+S}{1-e^{-(\epsilon B+S)}}@f$.
  *
- * If such a distance is not defined, the non-synonymous substitution
- *  rate is multiplied with @f$\beta@f$ with positive parameter \c
- *  "beta" (ie @f$d=0@f$).
+ * The synonymous substitution rate is multiplied with @f$\frac{\epsilon
+ * B}{1-e^{-\epsilon B}}@f$.
  *
- * If paramSynRate is true, the synonymous substitution rate is
- *  multiplied with @f$\gamma@f$ (with optional positive parameter \c
- *  "gamma"), else it is multiplied with 1.
+ * 
+ * with positive parameter @f$S@f$ that stands for selection, and real
+ * parameter @f$B@f$ for biased gene conversion. In the formula,
+ * @f$\epsilon = 1@f$ for AT->GC substitutions, @f$\epsilon = -1@f$
+ * for GC->AT substitution, and  @f$\epsilon = 0@f$ otherwise.
+ *
  *
  * References:
- * - Goldman N. and Yang Z. (1994), _Molecular Biology And Evolution_ 11(5) 725--736. 
- * - Kosakovsky Pond, S. and Muse, S.V. (2005), _Molecular Biology And Evolution_,
- *   22(12), 2375--2385.
- * - Mayrose, I. and Doron-Faigenboim, A. and Bacharach, E. and Pupko T.
- *   (2007), Bioinformatics, 23, i319--i327.
+ * - Galtier N, Duret L, Glémin S, Ranwez V (2009) GC-biased gene
+ * conversion promotes the fixation of deleterious amino acid changes
+ * in primates, Trends in Genetics, vol. 25(1) pp.1-5.
+ *
  */
 
-  class AbstractCodonDistanceSubstitutionModel :
+  class AbstractCodonBGCSubstitutionModel :
     public virtual CoreCodonSubstitutionModel,
     public virtual AbstractParameterAliasable
   {
   private:
-    const AlphabetIndex2* pdistance_;
-
     const GeneticCode* pgencode_;
   
-    double alpha_, beta_;
+    double B_, S_;
 
-    double gamma_;
   public:
     /**
-     * @brief Build a new AbstractCodonDistanceSubstitutionModel object.
+     * @brief Build a new AbstractCodonBGCSubstitutionModel object.
      *
      * @param pdist optional pointer to a distance between amino-acids
      * @param prefix the Namespace
      * @param paramSynRate is true iff synonymous rate is parametrised
      *       (default=false).
      */
-    AbstractCodonDistanceSubstitutionModel(
-      const AlphabetIndex2* pdist,
+    AbstractCodonBGCSubstitutionModel(
       const GeneticCode* pgencode,
-      const std::string& prefix,
-      bool paramSynRate = false);
+      const std::string& prefix);
 
-    AbstractCodonDistanceSubstitutionModel(const AbstractCodonDistanceSubstitutionModel& model) :
+    AbstractCodonBGCSubstitutionModel(const AbstractCodonBGCSubstitutionModel& model) :
       AbstractParameterAliasable(model),
-      pdistance_(model.pdistance_),
       pgencode_(model.pgencode_),
-      alpha_(model.alpha_),
-      beta_(model.beta_),
-      gamma_(model.gamma_)
+      B_(model.B_),
+      S_(model.S_)
     {}
 
-    AbstractCodonDistanceSubstitutionModel& operator=(
-      const AbstractCodonDistanceSubstitutionModel& model)
+    AbstractCodonBGCSubstitutionModel& operator=(
+      const AbstractCodonBGCSubstitutionModel& model)
     {
       AbstractParameterAliasable::operator=(model);
-      pdistance_ = model.pdistance_;
       pgencode_ = model.pgencode_;
-      alpha_ = model.alpha_;
-      beta_ = model.beta_;
-      gamma_ = model.gamma_;
+      B_ = model.B_;
+      S_ = model.S_;
       return *this;
     }
 
-    AbstractCodonDistanceSubstitutionModel* clone() const
+    AbstractCodonBGCSubstitutionModel* clone() const
     {
-      return new AbstractCodonDistanceSubstitutionModel(*this);
+      return new AbstractCodonBGCSubstitutionModel(*this);
     }
   
-    virtual ~AbstractCodonDistanceSubstitutionModel() {}
+    virtual ~AbstractCodonBGCSubstitutionModel() {}
 
   public:
     void fireParameterChanged(const ParameterList& parameters);
