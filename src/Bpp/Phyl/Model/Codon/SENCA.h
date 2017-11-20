@@ -72,8 +72,11 @@ namespace bpp
    * FrequenciesSet object. The parameters are named \c
    * "fit_NameOfTheParameterInTheFrequenciesSet".
    *
+   * Note: equilibrium frequencies are computed from the generator. To
+   * be done : implement analytic computation.
+   *
    * Reference:
-   * -  Yang Z. and Nielsen R. (2008), _Molecular Biology and Evolution_ 25(3):568--579.
+   * - Pouyet & al, Genome Biology and Evolution, 2016
    */
   
   class SENCA :
@@ -84,17 +87,17 @@ namespace bpp
   {
   public:
     SENCA(
-        const GeneticCode* gCode,
-        NucleotideSubstitutionModel* pmod,
-        FrequenciesSet* pfit,
-        const AlphabetIndex2* pdist = 0);
+      const GeneticCode* gCode,
+      NucleotideSubstitutionModel* pmod,
+      FrequenciesSet* pfit,
+      const AlphabetIndex2* pdist = 0);
     SENCA(
-        const GeneticCode* gCode,
-        NucleotideSubstitutionModel* pmod1,
-        NucleotideSubstitutionModel* pmod2,
-        NucleotideSubstitutionModel* pmod3,
-        FrequenciesSet* pfit,
-        const AlphabetIndex2* pdist = 0);
+      const GeneticCode* gCode,
+      NucleotideSubstitutionModel* pmod1,
+      NucleotideSubstitutionModel* pmod2,
+      NucleotideSubstitutionModel* pmod3,
+      FrequenciesSet* pfit,
+      const AlphabetIndex2* pdist = 0);
 
     virtual ~SENCA() {}
 
@@ -125,6 +128,10 @@ namespace bpp
      * @ param frequencies  the frequencies to match on.
      */
     void setFreq(std::map<int,double>& frequencies);
+
+    const FrequenciesSet* getFrequenciesSet() const {
+      return AbstractCodonFitnessSubstitutionModel::getFrequenciesSet();
+    }
 
   };
 

@@ -42,30 +42,28 @@
 
 //From bpp-seq:
 #include <Bpp/Seq/GeneticCode/GeneticCode.h>
-
-#include "../WordSubstitutionModel.h"
+#include "../SubstitutionModel.h"
 
 namespace bpp
 {
   /**
-   * @brief Abstract class for codon models
+   * @brief Abstract classes for codon models
    * @author Laurent Guéguen
    *
    * This class aims at defining methods needed for inheriting codon.
    *
    */
-  class CodonSubstitutionModel:
-    public virtual SubstitutionModel
+
+  class CoreCodonSubstitutionModel:
+    public virtual ParameterAliasable
   {
   public:
-    CodonSubstitutionModel() {}
-    virtual ~CodonSubstitutionModel() {}
+    CoreCodonSubstitutionModel() {}
+    virtual ~CoreCodonSubstitutionModel() {}
 
-    virtual CodonSubstitutionModel* clone() const = 0;
+    virtual CoreCodonSubstitutionModel* clone() const = 0;
 
   public:
-
-    virtual const GeneticCode* getGeneticCode() const = 0;
 
     /**
      * @brief Returns the multiplicative rate specific to two codons
@@ -74,6 +72,22 @@ namespace bpp
      * nucleotides.
      */
     virtual double getCodonsMulRate(size_t, size_t) const = 0;
+
+    virtual const FrequenciesSet* getFrequenciesSet() const = 0;
+  };
+
+
+  class CodonSubstitutionModel:
+    public virtual CoreCodonSubstitutionModel,
+    public virtual SubstitutionModel
+  {
+  public:
+    CodonSubstitutionModel() {}
+    virtual ~CodonSubstitutionModel() {}
+
+    virtual CodonSubstitutionModel* clone() const = 0;
+    
+    virtual const GeneticCode* getGeneticCode() const = 0;
   };
   
   

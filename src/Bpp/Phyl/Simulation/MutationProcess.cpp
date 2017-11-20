@@ -43,6 +43,7 @@
 #include <Bpp/Numeric/Random/RandomTools.h>
 
 using namespace bpp;
+using namespace std;
 
 /******************************************************************************/
 
@@ -105,6 +106,7 @@ MutationPath AbstractMutationProcess::detailedEvolve(size_t initialState, double
   MutationPath mp(model_->getAlphabet(), initialState, time);
   double t = 0;
   size_t currentState = initialState;
+    
   t += getTimeBeforeNextMutationEvent(currentState);
   while (t < time)
   {
@@ -128,24 +130,29 @@ SimpleMutationProcess::SimpleMutationProcess(const SubstitutionModel* model) :
   RowMatrix<double> Q = model->getGenerator();
   for (size_t i = 0; i < size_; i++)
   {
-    repartition_[i] = Vdouble(size_);
-    double cum = 0;
-    double sum_Q = 0;
-    for (size_t j = 0; j < size_; j++)
+    repartition_[i] = Vdouble(size_,0);
+    if (abs(Q(i,i))> NumConstants::TINY())
     {
-      if (j != i) sum_Q += Q(i, j);
-    }
-    for (size_t j = 0; j < size_; j++)
-    {
-      if (j != i)
+      double cum = 0;
+      double sum_Q = 0;
+      for (size_t j = 0; j < size_; j++)
       {
-        cum += model->Qij(i, j) / sum_Q;
-        repartition_[i][j] = cum;
+        if (j != i) sum_Q += Q(i, j);
       }
-      else repartition_[i][j] = -1;
-      // Forbiden value: does not correspond to a change.
+      
+      for (size_t j = 0; j < size_; j++)
+      {
+        if (j != i)
+        {
+          cum += model->Qij(i, j) / sum_Q;
+          repartition_[i][j] = cum;
+        }
+        else repartition_[i][j] = -1;
+        // Forbiden value: does not correspond to a change.
+      }
     }
   }
+  
   // Note that I use cumulative probabilities in repartition_ (hence the name).
   // These cumulative probabilities are useful for the 'mutate(...)' function.
 }

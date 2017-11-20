@@ -112,6 +112,10 @@ namespace bpp
   protected:
     SubstitutionModel& getSubstitutionModel() { return *pmodel_.get(); }
 
+    const FrequenciesSet* getFrequenciesSet() const {
+      return 0;
+    }
+
   };
 
 } // end of namespace bpp.

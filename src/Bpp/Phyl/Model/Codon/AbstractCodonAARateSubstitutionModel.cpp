@@ -1,7 +1,7 @@
 //
-// File: CodonSubstitutionModel.cpp
+// File: AbstractCodonAARateSubstitutionModel.cpp
 // Created by:  Laurent Gueguen
-// Created on: Feb 2009
+// Created on: lundi 30 octobre 2017, à 06h 07
 //
 
 /*
@@ -36,8 +36,8 @@
    knowledge of the CeCILL license and that you accept its terms.
  */
 
-#include "CodonRateSubstitutionModel.h"
-
+#include "AbstractCodonAARateSubstitutionModel.h"
+#include <Bpp/Numeric/NumConstants.h>
 
 using namespace bpp;
 
@@ -45,29 +45,42 @@ using namespace std;
 
 /******************************************************************************/
 
-CodonRateSubstitutionModel::CodonRateSubstitutionModel(
-    const GeneticCode* gCode,
-    NucleotideSubstitutionModel* pmod) :
-  AbstractParameterAliasable("CodonRate."),
-  AbstractCodonSubstitutionModel(gCode, pmod, "CodonRate.", true)
+AbstractCodonAARateSubstitutionModel::AbstractCodonAARateSubstitutionModel(
+  std::shared_ptr<ProteinSubstitutionModel> pmodel,
+  const GeneticCode* pgencode,
+  const std::string& prefix,
+  bool paramSynRate) :
+  AbstractParameterAliasable(prefix),
+  pAAmodel_(pmodel),
+  pgencode_(pgencode),
+  beta_(19),
+  gamma_(1)
 {
-  updateMatrices();
+  if (paramSynRate)
+    addParameter_(new Parameter(prefix + "gamma", 1, new IntervalConstraint(NumConstants::SMALL(), 999, true, true), true));
+
+  addParameter_(new Parameter(prefix + "beta", 1, new IntervalConstraint(NumConstants::SMALL(), 999, true, true), true));
+
+  pAAmodel_->enableEigenDecomposition(false);
+  
+  pAAmodel_->setNamespace(prefix + pAAmodel_->getNamespace());
+  addParameters_(pAAmodel_->getParameters());
 }
 
-CodonRateSubstitutionModel::CodonRateSubstitutionModel(
-    const GeneticCode* gCode,
-    NucleotideSubstitutionModel* pmod1,
-    NucleotideSubstitutionModel* pmod2,
-    NucleotideSubstitutionModel* pmod3) :
-  AbstractParameterAliasable("CodonRate."),
-  AbstractCodonSubstitutionModel(gCode, pmod1, pmod2, pmod3, "CodonRate.", true)
+void AbstractCodonAARateSubstitutionModel::fireParameterChanged(const ParameterList& parameters)
 {
-  updateMatrices();
+  pAAmodel_->matchParametersValues(parameters);
+
+  if (hasParameter("gamma"))
+    gamma_ = getParameterValue("gamma");
+
+  beta_ = getParameterValue("beta");
 }
 
-std::string CodonRateSubstitutionModel::getName() const
+double AbstractCodonAARateSubstitutionModel::getCodonsMulRate(size_t i, size_t j) const
 {
-  return "CodonRate";
+  return pgencode_->areSynonymous(static_cast<int>(i), static_cast<int>(j)) ? gamma_ :
+    beta_ * pAAmodel_->Qij(pgencode_->translate(static_cast<int>(i)),
+                           pgencode_->translate(static_cast<int>(j)));
 }
-
 

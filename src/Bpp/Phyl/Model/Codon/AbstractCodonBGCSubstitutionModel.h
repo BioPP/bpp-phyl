@@ -1,5 +1,5 @@
 //
-// File: AbstractCodonCpGSubstitutionModel.h
+// File: AbstractCodonDistanceSubstitutionModel.h
 // Created by: Laurent Gueguen
 // Created on: jeudi 15 septembre 2011, à 21h 11
 //
@@ -37,66 +37,90 @@
   knowledge of the CeCILL license and that you accept its terms.
 */
 
-#ifndef _ABSTRACTCODONCPGSUBSTITUTIONMODEL_H_
-#define _ABSTRACTCODONCPGSUBSTITUTIONMODEL_H_
+#ifndef _ABSTRACTCODON_BGC_SUBSTITUTIONMODEL_H_
+#define _ABSTRACTCODON_BGC_SUBSTITUTIONMODEL_H_
 
 #include "CodonSubstitutionModel.h"
 #include <Bpp/Numeric/AbstractParameterAliasable.h>
 
 
+// From bpp-seq:
+#include <Bpp/Seq/GeneticCode/GeneticCode.h>
+#include <Bpp/Seq/AlphabetIndex/AlphabetIndex2.h>
+
 namespace bpp
 {
 /**
- * @brief Abstract class for modelling of CpG -> CpA or TpG (symetric)
- *  hypermutability substitution rate inside codons. Note that the
- *  neihbouring effects between codons are not considered.
+ * @brief Abstract class for modelling of non-synonymous and
+ * synonymous substitution rates in codon models, with gBGC.
  *
  * @author Laurent Guéguen
  *
- * Substitution rate from C to T (resp. from G to A) is multiplied by
- *  a factor @f$\rho@f$ if C is followed by a G (resp. if G is
- *  following a C).
+ * The non-synonymous substitution rate is multiplied with
+ * @f$\frac{\epsilon B+S}{1-e^{-(\epsilon B+S)}}@f$.
  *
- * Hypermutability parameter is named \c "rho".
+ * The synonymous substitution rate is multiplied with @f$\frac{\epsilon
+ * B}{1-e^{-\epsilon B}}@f$.
+ *
+ * 
+ * with positive parameter @f$S@f$ that stands for selection, and real
+ * parameter @f$B@f$ for biased gene conversion. In the formula,
+ * @f$\epsilon = 1@f$ for AT->GC substitutions, @f$\epsilon = -1@f$
+ * for GC->AT substitution, and  @f$\epsilon = 0@f$ otherwise.
+ *
+ *
+ * References:
+ * - Galtier N, Duret L, Glémin S, Ranwez V (2009) GC-biased gene
+ * conversion promotes the fixation of deleterious amino acid changes
+ * in primates, Trends in Genetics, vol. 25(1) pp.1-5.
  *
  */
 
-  class AbstractCodonCpGSubstitutionModel :
+  class AbstractCodonBGCSubstitutionModel :
     public virtual CoreCodonSubstitutionModel,
     public virtual AbstractParameterAliasable
   {
   private:
-    double rho_;
+    const GeneticCode* pgencode_;
+  
+    double B_, S_;
 
   public:
     /**
-     * @brief Build a new AbstractCodonCpGSubstitutionModel object from
-     *  a pointer to NucleotideSubstitutionModel.
+     * @brief Build a new AbstractCodonBGCSubstitutionModel object.
      *
+     * @param pdist optional pointer to a distance between amino-acids
      * @param prefix the Namespace
+     * @param paramSynRate is true iff synonymous rate is parametrised
+     *       (default=false).
      */
-    AbstractCodonCpGSubstitutionModel(
+    AbstractCodonBGCSubstitutionModel(
+      const GeneticCode* pgencode,
       const std::string& prefix);
 
-    AbstractCodonCpGSubstitutionModel(const AbstractCodonCpGSubstitutionModel& model) :
+    AbstractCodonBGCSubstitutionModel(const AbstractCodonBGCSubstitutionModel& model) :
       AbstractParameterAliasable(model),
-      rho_(model.rho_)
+      pgencode_(model.pgencode_),
+      B_(model.B_),
+      S_(model.S_)
     {}
 
-    AbstractCodonCpGSubstitutionModel& operator=(
-      const AbstractCodonCpGSubstitutionModel& model)
+    AbstractCodonBGCSubstitutionModel& operator=(
+      const AbstractCodonBGCSubstitutionModel& model)
     {
       AbstractParameterAliasable::operator=(model);
-      rho_ = model.rho_;
+      pgencode_ = model.pgencode_;
+      B_ = model.B_;
+      S_ = model.S_;
       return *this;
     }
 
-    AbstractCodonCpGSubstitutionModel* clone() const
+    AbstractCodonBGCSubstitutionModel* clone() const
     {
-      return new AbstractCodonCpGSubstitutionModel(*this);
+      return new AbstractCodonBGCSubstitutionModel(*this);
     }
-
-    virtual ~AbstractCodonCpGSubstitutionModel() {}
+  
+    virtual ~AbstractCodonBGCSubstitutionModel() {}
 
   public:
     void fireParameterChanged(const ParameterList& parameters);

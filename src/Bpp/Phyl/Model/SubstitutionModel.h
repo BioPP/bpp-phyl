@@ -209,6 +209,20 @@ namespace bpp
     virtual const Vdouble& getFrequencies() const = 0;
 
     /**
+     * @return Says if equilibrium frequencies should be computed from
+     * the generator
+     */
+    
+    virtual bool computeFrequencies() const = 0;
+
+    /**
+     * @return Set if equilibrium frequencies should be computed from
+     * the generator
+     */
+    
+    virtual void computeFrequencies(bool yn) = 0;
+
+    /**
      * @return All probabilities of change from state i to state j during time t.
      * @see Pij_t()
      */
@@ -299,6 +313,14 @@ namespace bpp
      */
     
     virtual const FrequenciesSet* getFrequenciesSet() const {return NULL;}
+
+  protected:
+
+    virtual Vdouble& getFrequencies_() = 0;
+
+    friend class AbstractTotallyWrappedModel;
+    friend class AbstractFromSubstitutionModelTransitionModel;
+    friend class InMixedSubstitutionModel;
   };
 
   
@@ -408,8 +430,15 @@ namespace bpp
 
     SubstitutionModel* clone() const = 0;
 
-  public:
+  protected:
+    /**
+     * @brief A method for computing all necessary matrices
+     *
+     */
+    
+    virtual void updateMatrices() = 0;
 
+  public:
     /**
      * @return The rate in the generator of change from state i to state j.
      *
@@ -531,7 +560,14 @@ namespace bpp
      */
   
     virtual void normalize() = 0;
+
+    /**
+     * @brief set the diagonal of the generator such that sum on each
+     * line equals 0.
+     *
+     */
   
+    virtual void setDiagonal() = 0;
   };
 
 

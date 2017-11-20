@@ -126,6 +126,12 @@ namespace bpp
       AbstractReversibleSubstitutionModel::fireParameterChanged(parameters);
     }
 
+    void setNamespace(const std::string& prefix)
+    {
+      AbstractParameterAliasable::setNamespace(prefix);
+      freqSet_->setNamespace(prefix + freqSet_->getName() + ".");
+    }
+
     void setFrequenciesSet(const ProteinFrequenciesSet& freqSet)
     {
       delete freqSet_;

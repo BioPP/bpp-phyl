@@ -1,5 +1,5 @@
 //
-// File: AbstractCodonDistanceSubstitutionModel.cpp
+// File: AbstractCodonBGCSubstitutionModel.cpp
 // Created by:  Laurent Gueguen
 // Created on: Feb 2009
 //
@@ -36,7 +36,7 @@
    knowledge of the CeCILL license and that you accept its terms.
  */
 
-#include "AbstractCodonDistanceSubstitutionModel.h"
+#include "AbstractCodonBGCSubstitutionModel.h"
 #include <Bpp/Numeric/NumConstants.h>
 
 using namespace bpp;
@@ -45,42 +45,43 @@ using namespace std;
 
 /******************************************************************************/
 
-AbstractCodonDistanceSubstitutionModel::AbstractCodonDistanceSubstitutionModel(
-  const AlphabetIndex2* pdist,
+AbstractCodonBGCSubstitutionModel::AbstractCodonBGCSubstitutionModel(
   const GeneticCode* pgencode,
-  const std::string& prefix,
-  bool paramSynRate) :
+  const std::string& prefix) :
   AbstractParameterAliasable(prefix),
-  pdistance_(pdist),
   pgencode_(pgencode),
-  alpha_(10000),
-  beta_(1),
-  gamma_(1)
+  B_(0),
+  S_(0)
 {
-  if (pdistance_)
-    addParameter_(new Parameter(prefix + "alpha", 10000, &Parameter::R_PLUS_STAR));
-
-  if (paramSynRate)
-    addParameter_(new Parameter(prefix + "gamma", 1, new IntervalConstraint(NumConstants::SMALL(), 999, true, true), true));
-
-  addParameter_(new Parameter(prefix + "beta", 1, new IntervalConstraint(NumConstants::SMALL(), 999, true, true), true));
+  addParameter_(new Parameter(prefix + "S", 0));
+  addParameter_(new Parameter(prefix + "B", 0));
 }
 
-void AbstractCodonDistanceSubstitutionModel::fireParameterChanged(const ParameterList& parameters)
+void AbstractCodonBGCSubstitutionModel::fireParameterChanged(const ParameterList& parameters)
 {
-  if (pdistance_)
-    alpha_ = getParameterValue("alpha");
-
-  if (hasParameter("gamma"))
-    gamma_ = getParameterValue("gamma");
-  beta_ = getParameterValue("beta");
+  B_ = getParameterValue("B");
+  S_ = getParameterValue("S");
 }
 
-double AbstractCodonDistanceSubstitutionModel::getCodonsMulRate(size_t i, size_t j) const
+double AbstractCodonBGCSubstitutionModel::getCodonsMulRate(size_t i, size_t j) const
 {
-  return pgencode_->areSynonymous(static_cast<int>(i), static_cast<int>(j)) ? gamma_ :
-         beta_ * (pdistance_ ? exp(-pdistance_->getIndex(
-                                     pgencode_->translate(static_cast<int>(i)),
-                                     pgencode_->translate(static_cast<int>(j))) / alpha_) : 1);
+  int epsilon = pgencode_->getSourceAlphabet()->getGCinCodon(static_cast<int>(j))
+    - pgencode_->getSourceAlphabet()->getGCinCodon(static_cast<int>(i));
+
+  switch (epsilon)
+  {
+  case 0:
+    return (pgencode_->areSynonymous(static_cast<int>(i), static_cast<int>(j))?1.
+            :(S_==0?1.:S_/(1-exp(-S_))));
+  case 1:
+    return (pgencode_->areSynonymous(static_cast<int>(i), static_cast<int>(j))
+            ?(B_==0?1:B_/(1-exp(-B_)))
+            :(B_+S_==0?1.:(B_+S_)/(1-exp(-(B_+S_)))));
+  case -1:
+    return (pgencode_->areSynonymous(static_cast<int>(i), static_cast<int>(j))
+            ?(B_==0?1:-B_/(1-exp(B_)))
+            :(-B_+S_==0?1.:(-B_+S_)/(1-exp(B_-S_))));
+  }
+  return 0;
 }
 

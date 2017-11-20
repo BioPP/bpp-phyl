@@ -56,6 +56,9 @@ AbstractKroneckerWordSubstitutionModel::AbstractKroneckerWordSubstitutionModel(
   vGenerators_()
 {
   enableEigenDecomposition(true);
+  for (auto& submod : VSubMod_)
+    submod->enableEigenDecomposition(false);
+
   initGenerators_();
 }
 
@@ -72,6 +75,9 @@ AbstractKroneckerWordSubstitutionModel::AbstractKroneckerWordSubstitutionModel(
     throw Exception("AbstractKroneckerWordSubstitutionModel::AbstractKroneckerWordSubstitutionModel: Bad set of changing positions ");
 
   enableEigenDecomposition(true);
+  for (auto& submod : VSubMod_)
+    submod->enableEigenDecomposition(false);
+
   initGenerators_();
 }
 
@@ -85,6 +91,9 @@ AbstractKroneckerWordSubstitutionModel::AbstractKroneckerWordSubstitutionModel(
   vGenerators_()
 {
   enableEigenDecomposition(true);
+  for (auto& submod : VSubMod_)
+    submod->enableEigenDecomposition(false);
+
   initGenerators_();  
 }
 
@@ -102,6 +111,9 @@ AbstractKroneckerWordSubstitutionModel::AbstractKroneckerWordSubstitutionModel(
     throw Exception("AbstractKroneckerWordSubstitutionModel::AbstractKroneckerWordSubstitutionModel: Bad set of changing positions ");
 
   enableEigenDecomposition(true);
+  for (auto& submod : VSubMod_)
+    submod->enableEigenDecomposition(false);
+
   initGenerators_();
 }
 
@@ -115,6 +127,8 @@ AbstractKroneckerWordSubstitutionModel::AbstractKroneckerWordSubstitutionModel(
   vGenerators_()
 {
   enableEigenDecomposition(true);
+  for (auto& submod : VSubMod_)
+    submod->enableEigenDecomposition(false);
 }
 
 AbstractKroneckerWordSubstitutionModel::AbstractKroneckerWordSubstitutionModel(
@@ -168,9 +182,9 @@ bool AbstractKroneckerWordSubstitutionModel::checkChangingPositions_()
 {
   size_t nbmod = VSubMod_.size();
   
-  for (auto i=sChangingPos_.begin(); i!=sChangingPos_.end(); i++)
+  for (const auto& i : sChangingPos_)
   {
-    if (*(--((*i).end()))>nbmod || *((*i).begin())==0)
+    if (*(--(i.end()))>nbmod || *(i.begin())==0)
       return false;
   }
   
@@ -195,15 +209,15 @@ void AbstractKroneckerWordSubstitutionModel::fillBasicGenerator()
   }
   else
   {
-    for (auto i=sChangingPos_.begin(); i!=sChangingPos_.end(); i++)
+    bool begin(true);
+    
+    for (const auto& i : sChangingPos_)
     {
-      const set<size_t>& sPos=(*i);
-
       size_t pos=0;
 
-      for (auto iPos=sPos.begin(); iPos!=sPos.end(); iPos++)
+      for (const auto& iPos : i)
       {
-        size_t posok=(*iPos)-1; // position of the next generator to multiply
+        size_t posok=iPos-1; // position of the next generator to multiply
 
         if (pos==0)
         {
@@ -242,8 +256,11 @@ void AbstractKroneckerWordSubstitutionModel::fillBasicGenerator()
         pos++;
       }
 
-      if (i==sChangingPos_.begin())
+      if (begin)
+      {
+        begin=false;
         generator_=vGenerators_[nbmod-1];
+      }
       else
         MatrixTools::add(generator_, vGenerators_[nbmod-1]);
     }

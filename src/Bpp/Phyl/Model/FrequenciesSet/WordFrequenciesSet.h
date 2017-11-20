@@ -41,6 +41,7 @@
 #define _WORDFREQUENCIESSET_H_
 
 #include <Bpp/Seq/Alphabet/WordAlphabet.h>
+#include <Bpp/Seq/Alphabet/CodonAlphabet.h>
 #include "FrequenciesSet.h"
 
 namespace bpp
@@ -70,7 +71,7 @@ protected:
 public:
   WordFrequenciesSet* clone() const = 0;
 
-  const WordAlphabet* getAlphabet() const = 0;
+  virtual const CoreWordAlphabet* getWordAlphabet() const = 0;
 
   /**
    *@ brief Returns the n-th FrequenciesSet&
@@ -105,9 +106,9 @@ public:
     return *this;
   }
 
-  const WordAlphabet* getAlphabet() const
+  const CoreWordAlphabet* getWordAlphabet() const
   {
-    return dynamic_cast<const WordAlphabet*>(AbstractFrequenciesSet::getAlphabet());
+    return dynamic_cast<const CoreWordAlphabet*>(AbstractFrequenciesSet::getAlphabet());
   }
 
   virtual ~AbstractWordFrequenciesSet();
@@ -137,6 +138,8 @@ public:
    * Throws an Exception if their lengths do not match.
    */
   WordFromIndependentFrequenciesSet(const WordAlphabet* pWA, const std::vector<FrequenciesSet*>& freqVector, const std::string& prefix = "", const std::string& name="WordFromIndependent");
+
+  WordFromIndependentFrequenciesSet(const CodonAlphabet* pWA, const std::vector<FrequenciesSet*>& freqVector, const std::string& prefix = "", const std::string& name="WordFromIndependent");
 
   WordFromIndependentFrequenciesSet(const WordFromIndependentFrequenciesSet& iwfs);
 
@@ -189,6 +192,8 @@ public:
    *  repeated as many times as the length of the words.
    */
   WordFromUniqueFrequenciesSet(const WordAlphabet* pWA, FrequenciesSet* pabsfreq, const std::string& prefix = "", const std::string& name = "WordFromUnique");
+
+  WordFromUniqueFrequenciesSet(const CodonAlphabet* pWA, FrequenciesSet* pabsfreq, const std::string& prefix = "", const std::string& name = "WordFromUnique");
 
   WordFromUniqueFrequenciesSet(const WordFromUniqueFrequenciesSet& iwfs);
 

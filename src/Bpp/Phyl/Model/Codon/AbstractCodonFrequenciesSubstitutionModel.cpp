@@ -49,7 +49,6 @@ using namespace std;
 AbstractCodonFrequenciesSubstitutionModel::AbstractCodonFrequenciesSubstitutionModel(
   FrequenciesSet* pfreq,
   const std::string& prefix) :
-  CodonSubstitutionModel(),
   AbstractParameterAliasable(prefix),
   pfreqset_(pfreq),
   freqName_("")
@@ -70,7 +69,7 @@ AbstractCodonFrequenciesSubstitutionModel::~AbstractCodonFrequenciesSubstitution
 
 void AbstractCodonFrequenciesSubstitutionModel::fireParameterChanged(const ParameterList& parameters)
 {
-  pfreqset_->matchParametersValues(parameters);
+  pfreqset_->matchParametersValues(parameters);  
 }
 
 

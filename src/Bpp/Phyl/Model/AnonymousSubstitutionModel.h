@@ -77,6 +77,12 @@ namespace bpp
     size_t getNumberOfStates() const { return getAlphabet()->getSize(); }
 
     Matrix<double>& setGenerator() { return generator_; }
+
+    void updateMatrices()
+    {
+      AbstractSubstitutionModel::updateMatrices();
+    }
+    
   };
 } // end of namespace bpp.
 

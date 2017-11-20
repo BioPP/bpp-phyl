@@ -119,31 +119,20 @@ set (CPP_FILES
   Bpp/Phyl/Model/AbstractSubstitutionModel.cpp
   Bpp/Phyl/Model/AbstractWordSubstitutionModel.cpp
   Bpp/Phyl/Model/BinarySubstitutionModel.cpp
-  Bpp/Phyl/Model/EquiprobableSubstitutionModel.cpp
-  Bpp/Phyl/Model/FromMixtureSubstitutionModel.cpp
-  Bpp/Phyl/Model/KroneckerWordSubstitutionModel.cpp
-  Bpp/Phyl/Model/MarkovModulatedSubstitutionModel.cpp
-  Bpp/Phyl/Model/MixedSubstitutionModelSet.cpp
-  Bpp/Phyl/Model/MixtureOfASubstitutionModel.cpp
-  Bpp/Phyl/Model/MixtureOfSubstitutionModels.cpp
-  Bpp/Phyl/Model/RE08.cpp
-  Bpp/Phyl/Model/StateMap.cpp
-  Bpp/Phyl/Model/SubstitutionModelSet.cpp
-  Bpp/Phyl/Model/SubstitutionModelSetTools.cpp
-  Bpp/Phyl/Model/WordSubstitutionModel.cpp
+  Bpp/Phyl/Model/Codon/AbstractCodonAARateSubstitutionModel.cpp
+  Bpp/Phyl/Model/Codon/AbstractCodonAAFitnessSubstitutionModel.cpp
   Bpp/Phyl/Model/Codon/AbstractCodonCpGSubstitutionModel.cpp
+  Bpp/Phyl/Model/Codon/AbstractCodonBGCSubstitutionModel.cpp
   Bpp/Phyl/Model/Codon/AbstractCodonDistanceSubstitutionModel.cpp
   Bpp/Phyl/Model/Codon/AbstractCodonFitnessSubstitutionModel.cpp
   Bpp/Phyl/Model/Codon/AbstractCodonFrequenciesSubstitutionModel.cpp
   Bpp/Phyl/Model/Codon/AbstractCodonPhaseFrequenciesSubstitutionModel.cpp
   Bpp/Phyl/Model/Codon/AbstractCodonSubstitutionModel.cpp
   Bpp/Phyl/Model/Codon/AbstractKroneckerCodonSubstitutionModel.cpp
-  Bpp/Phyl/Model/Codon/CodonDistanceCpGSubstitutionModel.cpp
+  Bpp/Phyl/Model/Codon/CodonAdHocSubstitutionModel.cpp
   Bpp/Phyl/Model/Codon/CodonDistanceFrequenciesSubstitutionModel.cpp
   Bpp/Phyl/Model/Codon/CodonDistancePhaseFrequenciesSubstitutionModel.cpp
   Bpp/Phyl/Model/Codon/CodonDistanceSubstitutionModel.cpp
-  Bpp/Phyl/Model/Codon/CodonRateFrequenciesSubstitutionModel.cpp
-  Bpp/Phyl/Model/Codon/CodonRateSubstitutionModel.cpp
   Bpp/Phyl/Model/Codon/GY94.cpp
   Bpp/Phyl/Model/Codon/KCM.cpp
   Bpp/Phyl/Model/Codon/KroneckerCodonDistanceFrequenciesSubstitutionModel.cpp 
@@ -159,6 +148,7 @@ set (CPP_FILES
   Bpp/Phyl/Model/Codon/YNGP_M7.cpp
   Bpp/Phyl/Model/Codon/YNGP_M8.cpp
   Bpp/Phyl/Model/Codon/YNGP_M9.cpp
+  Bpp/Phyl/Model/EquiprobableSubstitutionModel.cpp
   Bpp/Phyl/Model/FrequenciesSet/CodonFrequenciesSet.cpp
   Bpp/Phyl/Model/FrequenciesSet/FrequenciesSet.cpp
   Bpp/Phyl/Model/FrequenciesSet/MvaFrequenciesSet.cpp
@@ -202,6 +192,12 @@ set (CPP_FILES
   Bpp/Phyl/Model/Protein/LLG08_UL3.cpp
   Bpp/Phyl/Model/Protein/UserProteinSubstitutionModel.cpp
   Bpp/Phyl/Model/Protein/WAG01.cpp
+  Bpp/Phyl/Model/RE08.cpp
+  Bpp/Phyl/Model/RegisterRatesSubstitutionModel.cpp
+  Bpp/Phyl/Model/StateMap.cpp
+  Bpp/Phyl/Model/SubstitutionModelSet.cpp
+  Bpp/Phyl/Model/SubstitutionModelSetTools.cpp
+  Bpp/Phyl/Model/WordSubstitutionModel.cpp
   Bpp/Phyl/OptimizationTools.cpp
   Bpp/Phyl/Parsimony/AbstractTreeParsimonyScore.cpp
   Bpp/Phyl/Parsimony/DRTreeParsimonyData.cpp

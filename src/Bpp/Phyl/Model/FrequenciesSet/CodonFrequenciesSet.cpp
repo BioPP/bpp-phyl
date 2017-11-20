@@ -81,18 +81,18 @@ FullCodonFrequenciesSet::FullCodonFrequenciesSet(
   pgc_(gCode),
   sFreq_(gCode->getSourceAlphabet()->getSize() - gCode->getNumberOfStopCodons(), method, allowNullFreqs, "Full.")
 {
-  if (initFreqs.size() != getAlphabet()->getSize())
+  if (initFreqs.size() != getCodonAlphabet()->getSize())
     throw Exception("FullCodonFrequenciesSet(constructor). There must be " + TextTools::toString(gCode->getSourceAlphabet()->getSize()) + " frequencies.");
 
   double sum = 0;
-  for (size_t i = 0; i < getAlphabet()->getSize(); i++)
+  for (size_t i = 0; i < getCodonAlphabet()->getSize(); i++)
   {
     if (!pgc_->isStop(static_cast<int>(i)))
       sum += initFreqs[i];
   }
 
   vector<double> vd;
-  for (size_t i = 0; i < getAlphabet()->getSize(); i++)
+  for (size_t i = 0; i < getCodonAlphabet()->getSize(); i++)
   {
     if (!gCode->isStop(static_cast<int>(i)))
       vd.push_back(initFreqs[i] / sum);
@@ -126,18 +126,18 @@ void FullCodonFrequenciesSet::setNamespace(const std::string& nameSpace)
 
 void FullCodonFrequenciesSet::setFrequencies(const vector<double>& frequencies)
 {
-  if (frequencies.size() != getAlphabet()->getSize())
+  if (frequencies.size() != getCodonAlphabet()->getSize())
     throw DimensionException("FullFrequenciesSet::setFrequencies", frequencies.size(), getAlphabet()->getSize());
 
   double sum = 0;
-  for (size_t i = 0; i < getAlphabet()->getSize(); i++)
+  for (size_t i = 0; i < getCodonAlphabet()->getSize(); i++)
   {
     if (!pgc_->isStop(static_cast<int>(i)))
       sum += frequencies[i];
   }
 
   vector<double> vd;
-  for (size_t i = 0; i < getAlphabet()->getSize(); i++)
+  for (size_t i = 0; i < getCodonAlphabet()->getSize(); i++)
   {
     if (!pgc_->isStop(static_cast<int>(i)))
       vd.push_back(frequencies[i] / sum);
@@ -158,7 +158,7 @@ void FullCodonFrequenciesSet::updateFreq_()
 {
   size_t nbstop = 0;
 
-  for (size_t j = 0; j < getAlphabet()->getSize(); j++)
+  for (size_t j = 0; j < getCodonAlphabet()->getSize(); j++)
   {
     if (pgc_->isStop(static_cast<int>(j)))
     {
@@ -276,8 +276,8 @@ void FullPerAACodonFrequenciesSet::updateFrequencies()
 
 void FullPerAACodonFrequenciesSet::setFrequencies(const vector<double>& frequencies)
 {
-  if (frequencies.size() != getAlphabet()->getSize())
-    throw DimensionException("FullPerAAFrequenciesSet::setFrequencies", frequencies.size(), getAlphabet()->getSize());
+  if (frequencies.size() != getCodonAlphabet()->getSize())
+    throw DimensionException("FullPerAAFrequenciesSet::setFrequencies", frequencies.size(), getCodonAlphabet()->getSize());
 
   double bigS = 0;
   Vdouble vaa;
@@ -352,7 +352,7 @@ FixedCodonFrequenciesSet::FixedCodonFrequenciesSet(const GeneticCode* gCode, con
 
 void FixedCodonFrequenciesSet::setFrequencies(const vector<double>& frequencies)
 {
-  const CodonAlphabet* ca = dynamic_cast<const CodonAlphabet*>(getAlphabet());
+  const CodonAlphabet* ca = getCodonAlphabet();
   if (frequencies.size() != ca->getSize())
     throw DimensionException("FixedFrequenciesSet::setFrequencies", frequencies.size(), ca->getSize());
   double sum = 0.0;
@@ -398,7 +398,7 @@ CodonFromIndependentFrequenciesSet::CodonFromIndependentFrequenciesSet(
     int nspcod = vspcod[ispcod];
     for (size_t ph = 0; ph < 3; ph++)
     {
-      size_t nspcod0 = static_cast<size_t>(nspcod) - pow * static_cast<size_t>(getAlphabet()->getNPosition(nspcod, 2 - ph));
+      size_t nspcod0 = static_cast<size_t>(nspcod) - pow * static_cast<size_t>(getCodonAlphabet()->getNPosition(nspcod, 2 - ph));
       for (size_t dec = 0; dec < 4; dec++)
       {
         size_t vois = nspcod0 + pow * dec;
@@ -411,7 +411,7 @@ CodonFromIndependentFrequenciesSet::CodonFromIndependentFrequenciesSet(
   updateFrequencies();
 }
 
-const CodonAlphabet* CodonFromIndependentFrequenciesSet::getAlphabet() const
+const CodonAlphabet* CodonFromIndependentFrequenciesSet::getCodonAlphabet() const
 {
   return dynamic_cast<const CodonAlphabet*>(WordFromIndependentFrequenciesSet::getAlphabet());
 }
@@ -438,7 +438,7 @@ void CodonFromIndependentFrequenciesSet::updateFrequencies()
 {
   WordFromIndependentFrequenciesSet::updateFrequencies();
 
-  size_t s = getAlphabet()->getSize();
+  size_t s = getCodonAlphabet()->getSize();
 
   if (mgmtStopCodon_ != 0)
   {
@@ -521,7 +521,7 @@ CodonFromUniqueFrequenciesSet::CodonFromUniqueFrequenciesSet(
     int nspcod = vspcod[ispcod];
     for (int ph = 0; ph < 3; ph++)
     {
-      size_t nspcod0 = static_cast<size_t>(nspcod) - pow * static_cast<size_t>(getAlphabet()->getNPosition(nspcod, static_cast<unsigned int>(2 - ph)));
+      size_t nspcod0 = static_cast<size_t>(nspcod) - pow * static_cast<size_t>(getCodonAlphabet()->getNPosition(nspcod, static_cast<unsigned int>(2 - ph)));
       for (size_t dec = 0; dec < 4; dec++)
       {
         size_t vois = nspcod0 + pow * dec;
@@ -535,9 +535,9 @@ CodonFromUniqueFrequenciesSet::CodonFromUniqueFrequenciesSet(
   updateFrequencies();
 }
 
-const CodonAlphabet* CodonFromUniqueFrequenciesSet::getAlphabet() const
+const CodonAlphabet* CodonFromUniqueFrequenciesSet::getCodonAlphabet() const
 {
-  return dynamic_cast<const CodonAlphabet*>(WordFromUniqueFrequenciesSet::getAlphabet());
+  return dynamic_cast<const CodonAlphabet*>(WordFromUniqueFrequenciesSet::getWordAlphabet());
 }
 
 
@@ -563,7 +563,7 @@ void CodonFromUniqueFrequenciesSet::updateFrequencies()
 {
   WordFromUniqueFrequenciesSet::updateFrequencies();
 
-  size_t s = getAlphabet()->getSize();
+  size_t s = getCodonAlphabet()->getSize();
 
   if (mgmtStopCodon_ != 0)
   {
@@ -571,7 +571,7 @@ void CodonFromUniqueFrequenciesSet::updateFrequencies()
     // neighbour non-stop codons
     double f[64] = {0};
     
-    for (auto mStopNeigh_it : mStopNeigh_)
+    for (const auto& mStopNeigh_it : mStopNeigh_)
     {
       int stNb = mStopNeigh_it.first;
       Vint vneigh = mStopNeigh_it.second;

@@ -42,7 +42,7 @@
 
 #include "AbstractSubstitutionModel.h"
 #include "MixedSubstitutionModel.h"
-#include "WrappedModel.h"
+#include "AbstractWrappedModel.h"
 
 namespace bpp
 {
@@ -53,7 +53,7 @@ namespace bpp
  * It has the same parameters as the SubModel.
  */
   class FromMixtureSubstitutionModel :
-    public virtual WrappedSubstitutionModel,
+    public virtual AbstractTotallyWrappedSubstitutionModel,
     public AbstractParameterAliasable
   {
   private:
@@ -111,7 +111,6 @@ namespace bpp
      */
     void fireParameterChanged(const ParameterList& parameters)
     {
-      AbstractParameterAliasable::fireParameterChanged(parameters);
       getModel().matchParametersValues(parameters);
     }
 
@@ -120,7 +119,7 @@ namespace bpp
       AbstractParameterAliasable::setNamespace(name);
       getModel().setNamespace(name);
     }
-    
+
     virtual void addRateParameter()
     {
       getModel().addRateParameter();
@@ -138,6 +137,13 @@ namespace bpp
       return mixtName_.substr(0, posp) + "_" + getModel().getName() + mixtName_.substr(posp);
     }
 
+  protected:
+
+    void updateMatrices() 
+    {
+    }
+    
+    
   };
 } // end of namespace bpp.
 

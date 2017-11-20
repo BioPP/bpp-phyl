@@ -1,7 +1,7 @@
 //
-// File: CodonDistanceCpGSubstitutionModel.h
+// File: CodonAdHocSubstitutionModel.h
 // Created by: Laurent Gueguen
-// Created on: Tue Dec 24 11:03:53 2003
+// Created on: lundi 30 octobre 2017, à 06h 31
 //
 
 /*
@@ -37,21 +37,16 @@
   knowledge of the CeCILL license and that you accept its terms.
 */
 
-#ifndef _CODONDISTANCECPGSUBSTITUTIONMODEL_H_
-#define _CODONDISTANCECPGSUBSTITUTIONMODEL_H_
+#ifndef _CODON_ADHOC_SUBSTITUTIONMODEL_H_
+#define _CODON_ADHOC_SUBSTITUTIONMODEL_H_
 
-#include "AbstractCodonDistanceSubstitutionModel.h"
-#include "AbstractCodonCpGSubstitutionModel.h"
 #include "AbstractCodonSubstitutionModel.h"
 
 namespace bpp
 {
   /**
    * @brief Class for substitution models of codons with
-   * non-synonymous/synonymous ratios of substitution rates defined
-   * through a distance between amino-acids, with additional INSIDE
-   * codons CpG hypermutability rate multiplier (parameter \c "rho").
-   *
+   * several layers of codon models
    *
    * @author Laurent Guéguen
    *
@@ -60,40 +55,47 @@ namespace bpp
    *
    * Only substitutions with one letter changed are accepted. </p>
    *
-   * If a distance @f$d@f$ between amino-acids is defined, the ratio between
-   * non-synonymous and synonymous substitutions rates is, if the codied
-   * amino-acids are @f$x@f$ and @f$y@f$, @f$\beta*\exp(-\alpha.d(x,y))@f$ with
-   * non-negative parameter \c "alpha" and positive parameter \c "beta".
-   *
-   * If such a distance is not defined, the ratio between non-synonymous
-   * and synonymous substitutions rates is @f$\beta@f$ with positive
-   * parameter \c "beta".
    *
    */
 
-  class CodonDistanceCpGSubstitutionModel :
-    public AbstractCodonSubstitutionModel,
-    public AbstractCodonDistanceSubstitutionModel,
-    public AbstractCodonCpGSubstitutionModel
+  class CodonAdHocSubstitutionModel :
+    public AbstractCodonSubstitutionModel
   {
+  private:
+
+    std::vector<std::unique_ptr<CoreCodonSubstitutionModel> > vModel_;
+
+    std::string name_;
+
+    /*
+     * @brief optional FrequenciesSet if model is defined through a
+     * FrequenciesSet.
+     *
+     */
+     
+    const FrequenciesSet* freqSet_;
+    
   public:
     /**
-     * @brief Build a new CodonDistanceCpGSubstitutionModel object from
+     * @brief Build a new CodonAdHocSubstitutionModel object from
      * a pointer to NucleotideSubstitutionModel.
      *
      * @param gCode pointer to a GeneticCode
      * @param pmod  pointer to the NucleotideSubstitutionModel to use in the three positions.
      * The instance will then own this substitution model.
-     * @param pdist optional pointer to a distance between amino-acids
+     * @param vmodel vector of codon models. They will be owned by the
+     * model.
+     * @param the name of the model
      */
 
-    CodonDistanceCpGSubstitutionModel(
-        const GeneticCode* gCode,
-        NucleotideSubstitutionModel* pmod,
-        const AlphabetIndex2* pdist);
+    CodonAdHocSubstitutionModel(
+      const GeneticCode* gCode,
+      NucleotideSubstitutionModel* pmod,
+      std::vector<CoreCodonSubstitutionModel*>& vpmodel,
+      const std::string& name);
 
     /**
-     * @brief Build a new CodonDistanceCpGSubstitutionModel object
+     * @brief Build a new CodonAdHocSubstitutionModel object
      * from three pointers to NucleotideSubstitutionModels.
      *
      * @param gCode pointer to a GeneticCode
@@ -102,32 +104,58 @@ namespace bpp
      *   Either all the models are different objects to avoid parameters
      *   redondancy, or only the first model is used in every position.
      *   The used models are owned by the instance.
-     * @param pdist optional pointer to the AlphabetIndex2 amino-acids distance object.
+     * @param vmodel vector of codon models. They will be owned by the
+     * model.
+     * @param the name of the model
      */
 
-    CodonDistanceCpGSubstitutionModel(
+    CodonAdHocSubstitutionModel(
         const GeneticCode* gCode,
         NucleotideSubstitutionModel* pmod1,
         NucleotideSubstitutionModel* pmod2,
         NucleotideSubstitutionModel* pmod3,
-        const AlphabetIndex2* pdist);
+        std::vector<CoreCodonSubstitutionModel*>& vpmodel,
+        const std::string& name);
 
-    virtual ~CodonDistanceCpGSubstitutionModel() {}
+    CodonAdHocSubstitutionModel(const CodonAdHocSubstitutionModel& model);
 
-    CodonDistanceCpGSubstitutionModel* clone() const
+    CodonAdHocSubstitutionModel& operator=(const CodonAdHocSubstitutionModel& model);
+
+    virtual ~CodonAdHocSubstitutionModel() {}
+
+    CodonAdHocSubstitutionModel* clone() const
     {
-      return new CodonDistanceCpGSubstitutionModel(*this);
+      return new CodonAdHocSubstitutionModel(*this);
     }
 
   public:
     void fireParameterChanged(const ParameterList& parameterlist);
   
-    std::string getName() const;
+    std::string getName() const
+    {
+      return name_;
+    }
 
+    size_t  getNumberOfModels() const
+    {
+      return vModel_.size();
+    }
+
+    const std::unique_ptr<CoreCodonSubstitutionModel>& getNModel(size_t i) const
+    {
+      return vModel_[i];
+    }
+    
     double getCodonsMulRate(size_t i, size_t j) const;
+
+    const FrequenciesSet* getFrequenciesSet() const
+    {
+      return freqSet_;
+    }
+    
   };
   
 } // end of namespace bpp.
 
-#endif //_CODONDISTANCECPGSUBSTITUTIONMODEL_H_
+#endif //_CODON_ADHOC_SUBSTITUTIONMODEL_H_
 

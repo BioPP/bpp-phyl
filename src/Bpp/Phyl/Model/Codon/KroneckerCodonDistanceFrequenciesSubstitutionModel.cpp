@@ -51,9 +51,10 @@ KroneckerCodonDistanceFrequenciesSubstitutionModel::KroneckerCodonDistanceFreque
     const AlphabetIndex2* pdist) :
   AbstractParameterAliasable("KronCodonDistFreq."),
   AbstractKroneckerCodonSubstitutionModel(gCode, pmod, "KronCodonDistFreq."),
-  AbstractCodonDistanceSubstitutionModel(pdist, "KronCodonDistFreq."),
+  AbstractCodonDistanceSubstitutionModel(pdist, gCode, "KronCodonDistFreq."),
   AbstractCodonFrequenciesSubstitutionModel(pfreq, "KronCodonDistFreq.")
 {
+  computeFrequencies(false);
   updateMatrices();
 }
 
@@ -65,9 +66,10 @@ KroneckerCodonDistanceFrequenciesSubstitutionModel::KroneckerCodonDistanceFreque
   const AlphabetIndex2* pdist) :
   AbstractParameterAliasable("KronCodonDistFreq."),
   AbstractKroneckerCodonSubstitutionModel(gCode, pmod, vPos, "KronCodonDistFreq."),
-  AbstractCodonDistanceSubstitutionModel(pdist, "KronCodonDistFreq."),
+  AbstractCodonDistanceSubstitutionModel(pdist, gCode, "KronCodonDistFreq."),
   AbstractCodonFrequenciesSubstitutionModel(pfreq, "KronCodonDistFreq.")
 {
+  computeFrequencies(false);
   updateMatrices();
 }
 
@@ -80,9 +82,10 @@ KroneckerCodonDistanceFrequenciesSubstitutionModel::KroneckerCodonDistanceFreque
     const AlphabetIndex2* pdist) :
   AbstractParameterAliasable("KronCodonDistFreq."),
   AbstractKroneckerCodonSubstitutionModel(gCode, pmod1, pmod2, pmod3, "KronCodonDistFreq."),
-  AbstractCodonDistanceSubstitutionModel(pdist, "KronCodonDistFreq."),
+  AbstractCodonDistanceSubstitutionModel(pdist, gCode, "KronCodonDistFreq."),
   AbstractCodonFrequenciesSubstitutionModel(pfreq, "KronCodonDistFreq.")
 {
+  computeFrequencies(false);
   updateMatrices();
 }
 
@@ -96,9 +99,10 @@ KroneckerCodonDistanceFrequenciesSubstitutionModel::KroneckerCodonDistanceFreque
   const AlphabetIndex2* pdist) :
   AbstractParameterAliasable("KronCodonDistFreq."),
   AbstractKroneckerCodonSubstitutionModel(gCode, pmod1, pmod2, pmod3, vPos, "KronCodonDistFreq."),
-  AbstractCodonDistanceSubstitutionModel(pdist, "KronCodonDistFreq."),
+  AbstractCodonDistanceSubstitutionModel(pdist, gCode, "KronCodonDistFreq."),
   AbstractCodonFrequenciesSubstitutionModel(pfreq, "KronCodonDistFreq.")
 {
+  computeFrequencies(false);
   updateMatrices();
 }
 

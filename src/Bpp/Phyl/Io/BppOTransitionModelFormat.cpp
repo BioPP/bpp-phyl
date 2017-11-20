@@ -90,9 +90,9 @@ TransitionModel* BppOTransitionModelFormat::readTransitionModel(
   if (modelName == "OneChange")
   {
     // We have to parse the nested model first:
-    string nestedModelDescription = args["model"];
-    if (TextTools::isEmpty(nestedModelDescription))
+    if (args.find("model")==args.end())
       throw Exception("BppOTransitionModelFormat::read. Missing argument 'model' for model 'OneChange'.");
+    string nestedModelDescription = args["model"];
     BppOSubstitutionModelFormat nestedReader(ALL, false, allowMixed_, allowGaps_, verbose_, warningLevel_);
     if (geneticCode_)
       nestedReader.setGeneticCode(geneticCode_);
@@ -101,12 +101,12 @@ TransitionModel* BppOTransitionModelFormat::readTransitionModel(
     map<string, string> unparsedParameterValuesNested(nestedReader.getUnparsedArguments());
 
     // We look for the register:
-    string registerDescription = args["register"];
-    if (TextTools::isEmpty(registerDescription))
+    if (args.find("register")==args.end())
       model.reset(new OneChangeTransitionModel(*nestedModel));
     else
     {
-      SubstitutionRegister* reg=PhylogeneticsApplicationTools::getSubstitutionRegister(registerDescription, nestedModel);
+      string registerDescription = args["register"];
+      unique_ptr<SubstitutionRegister> reg(PhylogeneticsApplicationTools::getSubstitutionRegister(registerDescription, nestedModel));
 
       if (args.find("numReg") == args.end())
         throw Exception("Missing argument 'numReg' (number of event for register in model " + modelName);
@@ -129,7 +129,6 @@ TransitionModel* BppOTransitionModelFormat::readTransitionModel(
       }
 
       model.reset(new OneChangeRegisterTransitionModel(*nestedModel, *reg, vNumRegs));
-      delete reg;
     }
 
     // Then we update the parameter set:

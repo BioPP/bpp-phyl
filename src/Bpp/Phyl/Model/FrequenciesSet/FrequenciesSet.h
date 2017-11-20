@@ -84,7 +84,7 @@ namespace bpp
      * @return The frequencies values of the set.
      */
 
-    virtual const std::vector<double>& getFrequencies() const = 0;
+    virtual const Vdouble& getFrequencies() const = 0;
 
     /**
      * @return The frequencies of each alphabet states according to this model.
@@ -170,8 +170,8 @@ namespace bpp
 
     const StateMap& getStateMap() const { return *stateMap_; }
 
-    const std::vector<double>& getFrequencies() const { return freq_; }
-
+    const Vdouble& getFrequencies() const { return freq_; }
+  
     const std::map<int, double> getAlphabetStatesFrequencies() const;
 
     /**

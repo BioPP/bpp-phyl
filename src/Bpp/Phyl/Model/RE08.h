@@ -324,6 +324,10 @@ namespace bpp
     }
 
     size_t getNumberOfStates() const { return RE08::getNumberOfStates(); }
+
+    const FrequenciesSet* getFrequenciesSet() const {
+      return ((AbstractSubstitutionModel*)getNestedModel())->getFrequenciesSet();
+    }
   };
 
 

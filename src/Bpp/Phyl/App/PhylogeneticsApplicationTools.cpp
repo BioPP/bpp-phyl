@@ -885,8 +885,7 @@ map<size_t, DiscreteDistribution*> PhylogeneticsApplicationTools::getRateDistrib
     string distDescription = ApplicationTools::getStringParameter(vratesName[i], paramDist, "", suffix, suffixIsOptional);
 
     unique_ptr<DiscreteDistribution> rDist(bIO.read(distDescription, true));
-
-
+    
     mDist[num] = rDist.release();
   }
 
@@ -1373,7 +1372,7 @@ SubstitutionProcess* PhylogeneticsApplicationTools::getSubstitutionProcess(
           unparsedParams[it->first + "_" + TextTools::toString(i + 1)] = it->second;
         }
 
-        vector<unsigned int> nodesId = ApplicationTools::getVectorParameter<unsigned int>(prefix + ".nodes_id", params, ',', ':', TextTools::toString(i), suffix, suffixIsOptional, warn);
+        vector<unsigned int> nodesId = ApplicationTools::getVectorParameter<unsigned int>(prefix + ".nodes_id", params, ',', ':', "", suffix, suffixIsOptional, warn);
 
         if (verbose)
           ApplicationTools::displayResult("Model" + TextTools::toString(i + 1) + " is associated to", TextTools::toString(nodesId.size()) + " node(s).");
@@ -1537,7 +1536,7 @@ void PhylogeneticsApplicationTools::addSubstitutionProcessCollectionMember(
       if (mModBr.find(numModel) != mModBr.end())
         throw BadIntegerException("PhylogeneticsApplicationTools::addSubstitutionProcessCollectionMember : model number seen twice.", (int)numModel);
 
-      vector<unsigned int> nodesId = ApplicationTools::getVectorParameter<unsigned int>("model" + TextTools::toString(indModel)  + ".nodes_id", args, ',', ':', "0", "", true, warn);
+      vector<unsigned int> nodesId = ApplicationTools::getVectorParameter<unsigned int>("model" + TextTools::toString(indModel)  + ".nodes_id", args, ',', ':', "", "", true, warn);
 
       mModBr[numModel] = nodesId;
 
@@ -2500,7 +2499,7 @@ void PhylogeneticsApplicationTools::setSubstitutionModelSet(
 
     unparsedParameters.insert(sharedParameters.begin(), sharedParameters.end());
 
-    vector<int> nodesId = ApplicationTools::getVectorParameter<int>(prefix + ".nodes_id", params, ',', ':', TextTools::toString(i), suffix, suffixIsOptional, warn);
+    vector<int> nodesId = ApplicationTools::getVectorParameter<int>(prefix + ".nodes_id", params, ',', ':', "", suffix, suffixIsOptional, warn);
 
     if (verbose)
       ApplicationTools::displayResult("Model" + TextTools::toString(i + 1) + " is associated to", TextTools::toString(nodesId.size()) + " node(s).");

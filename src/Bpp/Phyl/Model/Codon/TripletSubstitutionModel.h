@@ -75,7 +75,7 @@ public:
    */
   
   TripletSubstitutionModel(const CodonAlphabet* palph,
-                                     NucleotideSubstitutionModel* pmod);
+                           NucleotideSubstitutionModel* pmod);
   
   /**
    *@brief Build a new TripletSubstitutionModel object
@@ -90,10 +90,10 @@ public:
    */
 
   TripletSubstitutionModel(const CodonAlphabet* palph,
-                                     NucleotideSubstitutionModel* pmod1,
-                                     NucleotideSubstitutionModel* pmod2, 
-                                     NucleotideSubstitutionModel* pmod3);
-
+                           NucleotideSubstitutionModel* pmod1,
+                           NucleotideSubstitutionModel* pmod2, 
+                           NucleotideSubstitutionModel* pmod3);
+  
   ~TripletSubstitutionModel() {};
   
   TripletSubstitutionModel* clone() const { return new TripletSubstitutionModel(*this);}

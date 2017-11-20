@@ -101,6 +101,8 @@ namespace bpp
   
     double getCodonsMulRate(size_t i, size_t j) const { return pmodel_->getCodonsMulRate(i, j); }
 
+    const FrequenciesSet* getFrequenciesSet() const { return pmodel_->getFrequenciesSet();}
+
   protected:
     SubstitutionModel& getSubstitutionModel() { return *pmodel_.get(); }
 

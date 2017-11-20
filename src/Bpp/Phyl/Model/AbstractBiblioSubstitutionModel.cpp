@@ -111,8 +111,8 @@ void AbstractBiblioSubstitutionModel::setNamespace(const std::string& name)
 
   std::map<std::string, std::string> mapParNamesFromPmodel_new;
 
-  for (auto it=mapParNamesFromPmodel_.begin(); it!=mapParNamesFromPmodel_.end(); it++)
-    mapParNamesFromPmodel_new[name+getModel().getParameterNameWithoutNamespace(it->first)]=it->second;
+  for (const auto& it : mapParNamesFromPmodel_)
+    mapParNamesFromPmodel_new[name+getModel().getParameterNameWithoutNamespace(it.first)]=it.second;
   
   mapParNamesFromPmodel_.clear();
   mapParNamesFromPmodel_=mapParNamesFromPmodel_new;
@@ -128,12 +128,12 @@ void AbstractBiblioSubstitutionModel::setNamespace(const std::string& name)
 
 void AbstractBiblioSubstitutionModel::setFreq(std::map<int, double>& m)
 {
-  WrappedSubstitutionModel::setFreq(m);
+  AbstractTotallyWrappedSubstitutionModel::setFreq(m);
 
   ParameterList pl;
-  for (auto it = mapParNamesFromPmodel_.begin(); it != mapParNamesFromPmodel_.end(); it++)
+  for (const auto& it : mapParNamesFromPmodel_)
   {
-    pl.addParameter(Parameter(getNamespace() + it->second, getModel().getParameterValue(getModel().getParameterNameWithoutNamespace(it->first))));
+    pl.addParameter(Parameter(getNamespace() + it.second, getModel().getParameterValue(getModel().getParameterNameWithoutNamespace(it.first))));
   }
 
   matchParametersValues(pl);
@@ -142,12 +142,12 @@ void AbstractBiblioSubstitutionModel::setFreq(std::map<int, double>& m)
 
 void AbstractBiblioSubstitutionModel::setFreqFromData(const SequencedValuesContainer& data, double pseudoCount)
 {
-  WrappedSubstitutionModel::setFreqFromData(data, pseudoCount);
+  AbstractTotallyWrappedSubstitutionModel::setFreqFromData(data, pseudoCount);
   
   ParameterList pl;
-  for (auto it = mapParNamesFromPmodel_.begin(); it != mapParNamesFromPmodel_.end(); it++)
+  for (const auto& it : mapParNamesFromPmodel_)
   {
-    pl.addParameter(Parameter(getNamespace() + it->second, getModel().getParameterValue(getModel().getParameterNameWithoutNamespace(it->first))));
+    pl.addParameter(Parameter(getNamespace() + it.second, getModel().getParameterValue(getModel().getParameterNameWithoutNamespace(it.first))));
   }
 
   matchParametersValues(pl);

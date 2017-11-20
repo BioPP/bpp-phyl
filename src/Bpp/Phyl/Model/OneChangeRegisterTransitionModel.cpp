@@ -44,9 +44,10 @@ using namespace bpp;
 using namespace std;
 
 OneChangeRegisterTransitionModel::OneChangeRegisterTransitionModel(const SubstitutionModel& originalModel, const SubstitutionRegister& reg, size_t numReg) :
+  AbstractParameterAliasable("OneChange."),
   AbstractFromSubstitutionModelTransitionModel(originalModel, "OneChange."),
   otherChanges_(getNumberOfStates()),
-  modelChanged_(new AnonymousSubstitutionModel(getAlphabet(), &originalModel.getStateMap())),
+  modelChanged_(new AnonymousSubstitutionModel(getAlphabet(), originalModel.getStateMap().clone())),
   registerName_(reg.getName()),
   vNumRegs_(vector<size_t>(1,numReg))
 {
@@ -65,13 +66,14 @@ OneChangeRegisterTransitionModel::OneChangeRegisterTransitionModel(const Substit
 }
 
 OneChangeRegisterTransitionModel::OneChangeRegisterTransitionModel(const SubstitutionModel& originalModel, const SubstitutionRegister& reg, vector<size_t> vNumRegs) :
+  AbstractParameterAliasable("OneChange."),
   AbstractFromSubstitutionModelTransitionModel(originalModel, "OneChange."),
   otherChanges_(getNumberOfStates()),
-  modelChanged_(new AnonymousSubstitutionModel(getAlphabet(), &originalModel.getStateMap())),
+  modelChanged_(new AnonymousSubstitutionModel(getAlphabet(), originalModel.getStateMap().clone())),
   registerName_(reg.getName()),
   vNumRegs_(vNumRegs)
 {
-  for (auto numReg : vNumRegs_)
+  for (const auto& numReg : vNumRegs_)
     if ((numReg<=0) || (numReg>reg.getNumberOfSubstitutionTypes()))
       throw IndexOutOfBoundsException("OneChangeRegisterTransitionModel::OneChangeRegisterTransitionModel : wrong number for register category", numReg, 1, reg.getNumberOfSubstitutionTypes());
 
@@ -81,7 +83,7 @@ OneChangeRegisterTransitionModel::OneChangeRegisterTransitionModel(const Substit
       bool othCh=true;
       size_t regt=reg.getType(i,j);
       
-      for (auto numReg : vNumRegs_)
+      for (const auto& numReg : vNumRegs_)
       {
         if (regt==numReg)
         {
@@ -105,7 +107,7 @@ void OneChangeRegisterTransitionModel::updateMatrices()
   const RowMatrix<double>& gen=getSubstitutionModel().getGenerator();
   
   for (size_t i = 0; i < size_; i++)
-    for (auto j : otherChanges_[i])
+    for (const auto& j : otherChanges_[i])
       modelChanged_->setGenerator()(i,j)=gen(i, j);
 
   modelChanged_->updateMatrices();
