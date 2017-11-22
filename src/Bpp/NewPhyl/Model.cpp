@@ -151,7 +151,7 @@ namespace Phyl {
 			auto & brlenNode = this->dependency (1);
 			auto dTransMat_dBrlen =
 			    makeNode<TransitionMatrixFromModelBrlenDerivative> ({modelNode, brlenNode}, dim.rows);
-			return makeNode<MulScalarMatrixDouble> (
+			return makeNode<CWiseMulScalarMatrixDouble> (
 			    {brlenNode->derive (node), std::move (dTransMat_dBrlen)}, dim);
 		}
 

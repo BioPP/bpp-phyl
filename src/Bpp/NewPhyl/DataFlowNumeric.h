@@ -73,9 +73,25 @@ namespace DF {
 		static ValueRef<VectorDouble> make (NodeRefVec && deps, const VectorDimension & dim);
 	};
 
+	class CWiseMulVectorDouble;
+	template <> struct Builder<CWiseMulVectorDouble> {
+		static ValueRef<VectorDouble> make (NodeRefVec && deps, const VectorDimension & dim);
+	};
+
+	class CWiseNegVectorDouble;
+	template <> struct Builder<CWiseNegVectorDouble> {
+		static ValueRef<VectorDouble> make (NodeRefVec && deps, const VectorDimension & dim);
+	};
+
 	class CWiseInverseVectorDouble;
 	template <> struct Builder<CWiseInverseVectorDouble> {
 		static ValueRef<VectorDouble> make (NodeRefVec && deps, const VectorDimension & dim);
+	};
+
+	class CWiseConstantPowVectorDouble;
+	template <> struct Builder<CWiseConstantPowVectorDouble> {
+		static ValueRef<VectorDouble> make (NodeRefVec && deps, const VectorDimension & dim,
+		                                    double exp);
 	};
 
 	/* Matrix nodes.
@@ -102,10 +118,16 @@ namespace DF {
 		static ValueRef<VectorDouble> make (NodeRefVec && deps, const VectorDimension & dim);
 	};
 
-	class MulScalarMatrixDouble;
-	template <> struct Builder<MulScalarMatrixDouble> {
+	class CWiseMulScalarVectorDouble;
+	template <> struct Builder<CWiseMulScalarVectorDouble> {
+		static ValueRef<VectorDouble> make (NodeRefVec && deps, const VectorDimension & dim);
+	};
+
+	class CWiseMulScalarMatrixDouble;
+	template <> struct Builder<CWiseMulScalarMatrixDouble> {
 		static ValueRef<MatrixDouble> make (NodeRefVec && deps, const MatrixDimension & dim);
 	};
+
 } // namespace DF
 } // namespace bpp
 #endif // BPP_NEWPHYL_DATAFLOWNUMERIC_H

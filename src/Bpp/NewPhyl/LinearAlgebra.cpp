@@ -159,6 +159,10 @@ namespace DF {
 	Builder<Constant<VectorDouble>>::makeZero (const VectorDimension & dim) {
 		return make (zeroValue (dim));
 	}
+	std::shared_ptr<Constant<VectorDouble>>
+	Builder<Constant<VectorDouble>>::makeOne (const VectorDimension & dim) {
+		return make (VectorDouble::Ones (dim.size));
+	}
 
 	// Constant<MatrixDouble> specialisation
 	template <> NodeRef Constant<MatrixDouble>::derive (const Node &) {

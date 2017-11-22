@@ -264,6 +264,83 @@ namespace DF {
 		}
 	}
 
+	// CWiseMulVectorDouble
+	class CWiseMulVectorDouble : public Value<VectorDouble> {
+	public:
+		using Dependencies = ReductionOfValue<VectorDouble>;
+
+		CWiseMulVectorDouble (NodeRefVec && deps, const VectorDimension & dim)
+		    : Value<VectorDouble> (std::move (deps), dim.size) {}
+		NodeRef derive (const Node & node) override final {
+			auto dim = dimensions (*this);
+			NodeRefVec addDeps;
+			for (auto i : bpp::range (this->nbDependencies ())) {
+				NodeRefVec mulDeps = this->dependencies ();
+				mulDeps[i] = this->dependency (i)->derive (node);
+				addDeps.emplace_back (makeNode<CWiseMulVectorDouble> (std::move (mulDeps), dim));
+			}
+			return makeNode<AddVectorDouble> (std::move (addDeps), dim);
+		}
+		bool isDerivable (const Node & node) override final {
+			return derivableIfAllDepsAre (*this, node);
+		}
+
+	private:
+		void compute () override final {
+			callWithValues (*this, [](VectorDouble & r) { r.setOnes (); },
+			                [](VectorDouble & r, const VectorDouble & v) { r = r.cwiseProduct (v); });
+		}
+	};
+	ValueRef<VectorDouble> Builder<CWiseMulVectorDouble>::make (NodeRefVec && deps,
+	                                                            const VectorDimension & dim) {
+		checkDependencies<CWiseMulVectorDouble> (deps);
+		// Return 0 if any 0 dep
+		if (std::any_of (deps.begin (), deps.end (), isConstantZeroVector)) {
+			return Builder<Constant<VectorDouble>>::makeZero (dim);
+		}
+		// Remove 1s
+		removeDependenciesIf (deps, isConstantOnesVector);
+		// Select node
+		if (deps.size () == 1) {
+			return convertRef<Value<VectorDouble>> (deps[0]);
+		} else if (deps.size () == 0) {
+			return Builder<Constant<VectorDouble>>::makeOne (dim);
+		} else {
+			return std::make_shared<CWiseMulVectorDouble> (std::move (deps), dim);
+		}
+	}
+
+	// CWiseNegVectorDouble
+	class CWiseNegVectorDouble : public Value<VectorDouble> {
+	public:
+		using Dependencies = FunctionOfValues<VectorDouble>;
+
+		CWiseNegVectorDouble (NodeRefVec && deps, const VectorDimension & dim)
+		    : Value<VectorDouble> (std::move (deps), dim.size) {}
+		NodeRef derive (const Node & node) override final {
+			return makeNode<CWiseNegVectorDouble> ({this->dependency (0)->derive (node)},
+			                                       dimensions (*this));
+		}
+		bool isDerivable (const Node & node) override final {
+			return derivableIfAllDepsAre (*this, node);
+		}
+
+	private:
+		void compute () override final {
+			callWithValues (*this, [](VectorDouble & r, const VectorDouble & v) { r.noalias () = -v; });
+		}
+	};
+	ValueRef<VectorDouble> Builder<CWiseNegVectorDouble>::make (NodeRefVec && deps,
+	                                                            const VectorDimension & dim) {
+		checkDependencies<CWiseNegVectorDouble> (deps);
+		auto & dep = deps[0];
+		if (dep->isConstant ()) {
+			return makeNode<Constant<VectorDouble>> (-accessValidValueConstCast<VectorDouble> (dep));
+		} else {
+			return std::make_shared<CWiseNegVectorDouble> (std::move (deps), dim);
+		}
+	}
+
 	// CWiseInverseVectorDouble
 	class CWiseInverseVectorDouble : public Value<VectorDouble> {
 	public:
@@ -271,11 +348,21 @@ namespace DF {
 
 		CWiseInverseVectorDouble (NodeRefVec && deps, const VectorDimension & dim)
 		    : Value<VectorDouble> (std::move (deps), dim.size) {}
-		// TODO NodeRef derive (const Node & node) override final;
+		NodeRef derive (const Node & node) override final {
+			auto dim = dimensions (*this);
+			auto & arg = this->dependency (0);
+			return makeNode<CWiseNegVectorDouble> (
+			    {makeNode<CWiseConstantPowVectorDouble> ({arg}, dim, -2.), arg->derive (node)}, dim);
+		}
+		bool isDerivable (const Node & node) override final {
+			return derivableIfAllDepsAre (*this, node);
+		}
+
 	private:
 		void compute () override final {
-			callWithValues (*this,
-			                [](VectorDouble & r, const VectorDouble & v) { r = v.cwiseInverse (); });
+			callWithValues (*this, [](VectorDouble & r, const VectorDouble & v) {
+				r.noalias () = v.cwiseInverse ();
+			});
 		}
 	};
 	ValueRef<VectorDouble> Builder<CWiseInverseVectorDouble>::make (NodeRefVec && deps,
@@ -286,6 +373,52 @@ namespace DF {
 			return convertRef<Value<VectorDouble>> (arg);
 		} else {
 			return std::make_shared<CWiseInverseVectorDouble> (std::move (deps), dim);
+		}
+	}
+
+	// CWiseConstantPowVectorDouble
+	class CWiseConstantPowVectorDouble : public Value<VectorDouble> {
+	public:
+		using Dependencies = FunctionOfValues<VectorDouble>;
+
+		CWiseConstantPowVectorDouble (NodeRefVec && deps, const VectorDimension & dim, double exp)
+		    : Value<VectorDouble> (std::move (deps), dim.size), exp_ (exp) {}
+		NodeRef derive (const Node & node) override final {
+			auto dim = dimensions (*this);
+			auto & arg = this->dependency (0);
+			auto powDerivative = makeNode<CWiseMulScalarVectorDouble> (
+			    {makeNode<Constant<double>> (exp_),
+			     makeNode<CWiseConstantPowVectorDouble> ({arg}, dim, exp_ - 1.)},
+			    dim);
+			return makeNode<CWiseMulVectorDouble> ({std::move (powDerivative), arg->derive (node)}, dim);
+		}
+		bool isDerivable (const Node & node) override final {
+			return derivableIfAllDepsAre (*this, node);
+		}
+
+	private:
+		void compute () override final {
+			callWithValues (*this, [this](VectorDouble & r, const VectorDouble & v) {
+				r.noalias () = v.array ().pow (exp_).matrix ();
+			});
+		}
+		double exp_;
+	};
+	ValueRef<VectorDouble> Builder<CWiseConstantPowVectorDouble>::make (NodeRefVec && deps,
+	                                                                    const VectorDimension & dim,
+	                                                                    double exp) {
+		checkDependencies<CWiseConstantPowVectorDouble> (deps);
+		auto & arg = deps[0];
+		if (exp == 1.) {
+			return convertRef<Value<VectorDouble>> (arg);
+		} else if (exp == 0.) {
+			return Builder<Constant<VectorDouble>>::makeOne (dim);
+		} else if (exp == -1.) {
+			return makeNode<CWiseInverseVectorDouble> (std::move (deps), dim);
+		} else if (isConstantOnesVector (arg)) {
+			return convertRef<Value<VectorDouble>> (arg);
+		} else {
+			return std::make_shared<CWiseConstantPowVectorDouble> (std::move (deps), dim, exp);
 		}
 	}
 
@@ -454,19 +587,58 @@ namespace DF {
 		}
 	}
 
-	// MulScalarMatrixDouble
-	class MulScalarMatrixDouble : public Value<MatrixDouble> {
+	// CWiseMulScalarVectorDouble
+	class CWiseMulScalarVectorDouble : public Value<VectorDouble> {
+	public:
+		using Dependencies = FunctionOfValues<double, VectorDouble>;
+
+		CWiseMulScalarVectorDouble (NodeRefVec && deps, const VectorDimension & dim)
+		    : Value<VectorDouble> (std::move (deps), dim.size) {}
+		NodeRef derive (const Node & node) override final {
+			auto dim = dimensions (*this);
+			auto & lhs = this->dependency (0);
+			auto & rhs = this->dependency (1);
+			auto dLhs = makeNode<CWiseMulScalarVectorDouble> ({lhs->derive (node), rhs}, dim);
+			auto dRhs = makeNode<CWiseMulScalarVectorDouble> ({lhs, rhs->derive (node)}, dim);
+			return makeNode<AddVectorDouble> ({std::move (dLhs), std::move (dRhs)}, dim);
+		}
+		bool isDerivable (const Node & node) override final {
+			return derivableIfAllDepsAre (*this, node);
+		}
+
+	private:
+		void compute () override final {
+			callWithValues (
+			    *this, [](VectorDouble & r, double d, const VectorDouble & v) { r.noalias () = d * v; });
+		}
+	};
+	ValueRef<VectorDouble> Builder<CWiseMulScalarVectorDouble>::make (NodeRefVec && deps,
+	                                                                  const VectorDimension & dim) {
+		checkDependencies<CWiseMulScalarVectorDouble> (deps);
+		auto & lhs = deps[0];
+		auto & rhs = deps[1];
+		if (isConstantZeroDouble (lhs) || isConstantZeroVector (rhs)) {
+			return Builder<Constant<VectorDouble>>::makeZero (dim);
+		} else if (isConstantOneDouble (lhs)) {
+			return convertRef<Value<VectorDouble>> (rhs);
+		} else {
+			return std::make_shared<CWiseMulScalarVectorDouble> (std::move (deps), dim);
+		}
+	}
+
+	// CWiseMulScalarMatrixDouble
+	class CWiseMulScalarMatrixDouble : public Value<MatrixDouble> {
 	public:
 		using Dependencies = FunctionOfValues<double, MatrixDouble>;
 
-		MulScalarMatrixDouble (NodeRefVec && deps, const MatrixDimension & dim)
+		CWiseMulScalarMatrixDouble (NodeRefVec && deps, const MatrixDimension & dim)
 		    : Value<MatrixDouble> (std::move (deps), dim.rows, dim.cols) {}
 		NodeRef derive (const Node & node) override final {
 			auto dim = dimensions (*this);
 			auto & lhs = this->dependency (0);
 			auto & rhs = this->dependency (1);
-			auto dLhs = makeNode<MulScalarMatrixDouble> ({lhs->derive (node), rhs}, dim);
-			auto dRhs = makeNode<MulScalarMatrixDouble> ({lhs, rhs->derive (node)}, dim);
+			auto dLhs = makeNode<CWiseMulScalarMatrixDouble> ({lhs->derive (node), rhs}, dim);
+			auto dRhs = makeNode<CWiseMulScalarMatrixDouble> ({lhs, rhs->derive (node)}, dim);
 			return makeNode<AddMatrixDouble> ({std::move (dLhs), std::move (dRhs)}, dim);
 		}
 		bool isDerivable (const Node & node) override final {
@@ -479,9 +651,9 @@ namespace DF {
 			    *this, [](MatrixDouble & r, double d, const MatrixDouble & m) { r.noalias () = d * m; });
 		}
 	};
-	ValueRef<MatrixDouble> Builder<MulScalarMatrixDouble>::make (NodeRefVec && deps,
-	                                                             const MatrixDimension & dim) {
-		checkDependencies<MulScalarMatrixDouble> (deps);
+	ValueRef<MatrixDouble> Builder<CWiseMulScalarMatrixDouble>::make (NodeRefVec && deps,
+	                                                                  const MatrixDimension & dim) {
+		checkDependencies<CWiseMulScalarMatrixDouble> (deps);
 		auto & lhs = deps[0];
 		auto & rhs = deps[1];
 		if (isConstantZeroDouble (lhs) || isConstantZeroMatrix (rhs)) {
@@ -489,7 +661,7 @@ namespace DF {
 		} else if (isConstantOneDouble (lhs)) {
 			return convertRef<Value<MatrixDouble>> (rhs);
 		} else {
-			return std::make_shared<MulScalarMatrixDouble> (std::move (deps), dim);
+			return std::make_shared<CWiseMulScalarMatrixDouble> (std::move (deps), dim);
 		}
 	}
 } // namespace DF

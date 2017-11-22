@@ -100,6 +100,7 @@ namespace DF {
 			return std::make_shared<Constant<VectorDouble>> (v);
 		}
 		static std::shared_ptr<Constant<VectorDouble>> makeZero (const VectorDimension & dim);
+		static std::shared_ptr<Constant<VectorDouble>> makeOne (const VectorDimension & dim);
 	};
 
 	template <> NodeRef Constant<MatrixDouble>::derive (const Node & node);
