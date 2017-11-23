@@ -75,13 +75,6 @@ namespace Phyl {
 		std::string toString () const;
 	};
 
-	/* TODO: <list>
-	 * - wrapper classes.
-	 * - take LikelihoodDataDimension as dims.
-	 * - override debugInfo
-	 * - externalize Likelihood as a numeric op
-	 */
-
 	namespace DF {
 		struct ConditionalLikelihoodFromSequence : public Value<MatrixDouble> {
 			// (sequence) -> MatrixDouble
@@ -90,7 +83,7 @@ namespace Phyl {
 			void compute () override final;
 			std::string debugInfo () const override final;
 			NodeRef derive (const Node &) override final;
-      bool isDerivable (const Node &) override final;
+			bool isDerivable (const Node &) const override final;
 		};
 
 		// vec<fwdLik> -> condLik
@@ -108,7 +101,7 @@ namespace Phyl {
 			TotalLogLikelihood (NodeRefVec && deps);
 			void compute () override final;
 			NodeRef derive (const Node &) override final;
-      bool isDerivable (const Node &) override final;
+			bool isDerivable (const Node &) const override final;
 		};
 	} // namespace DF
 } // namespace Phyl

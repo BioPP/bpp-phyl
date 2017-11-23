@@ -98,7 +98,10 @@ namespace DF {
 
 		// Derive with respect to node (default = error)
 		virtual NodeRef derive (const Node & node);
-		virtual bool isDerivable (const Node & node);
+		virtual bool isDerivable (const Node & node) const;
+
+		// Check if node is part of transitive dependencies
+		bool isTransitivelyDependentOn (const Node & node) const;
 
 	protected:
 		// Computation implementation

@@ -154,7 +154,7 @@ namespace DF {
 	template <> NodeRef Constant<VectorDouble>::derive (const Node &) {
 		return Builder<Constant<VectorDouble>>::makeZero (dimensions (*this));
 	}
-	template <> bool Constant<VectorDouble>::isDerivable (const Node &) { return true; }
+	template <> bool Constant<VectorDouble>::isDerivable (const Node &) const { return true; }
 	std::shared_ptr<Constant<VectorDouble>>
 	Builder<Constant<VectorDouble>>::makeZero (const VectorDimension & dim) {
 		return make (zeroValue (dim));
@@ -168,7 +168,7 @@ namespace DF {
 	template <> NodeRef Constant<MatrixDouble>::derive (const Node &) {
 		return Builder<Constant<MatrixDouble>>::makeZero (dimensions (*this));
 	}
-	template <> bool Constant<MatrixDouble>::isDerivable (const Node &) { return true; }
+	template <> bool Constant<MatrixDouble>::isDerivable (const Node &) const { return true; }
 	std::shared_ptr<Constant<MatrixDouble>>
 	Builder<Constant<MatrixDouble>>::makeZero (const MatrixDimension & dim) {
 		return make (zeroValue (dim));

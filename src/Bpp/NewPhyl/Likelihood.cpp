@@ -91,7 +91,7 @@ namespace Phyl {
 			// Sequence is a constant with respect to all parameters.
 			return Builder<Constant<MatrixDouble>>::makeZero (dimensions (*this));
 		}
-		bool ConditionalLikelihoodFromSequence::isDerivable (const Node &) { return true; }
+		bool ConditionalLikelihoodFromSequence::isDerivable (const Node &) const { return true; }
 
 		TotalLogLikelihood::TotalLogLikelihood (NodeRefVec && deps) : Value<double> (std::move (deps)) {
 			checkDependencies (*this);
@@ -119,7 +119,7 @@ namespace Phyl {
 			                                    makeNode<CWiseInverseVectorDouble> (
 			                                        {likelihoodVector}, dimensions (*likelihoodVector))});
 		}
-		bool TotalLogLikelihood::isDerivable (const Node & node) {
+		bool TotalLogLikelihood::isDerivable (const Node & node) const {
 			return derivableIfAllDepsAre (*this, node);
 		}
 	} // namespace DF

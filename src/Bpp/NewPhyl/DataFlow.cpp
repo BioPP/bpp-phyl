@@ -113,7 +113,11 @@ namespace DF {
 	NodeRef Node::derive (const Node &) {
 		throw Exception ("Node does not support derivation: " + description ());
 	}
-	bool Node::isDerivable (const Node &) { return false; }
+	bool Node::isDerivable (const Node &) const { return false; }
+
+	bool Node::isTransitivelyDependentOn (const Node & node) const {
+		return false; // FIXME
+	}
 
 	void Node::invalidateRecursively () noexcept {
 		if (!isValid ())
@@ -182,13 +186,13 @@ namespace DF {
 			return Builder<Constant<double>>::makeZero ();
 		}
 	}
-	template <> bool Parameter<double>::isDerivable (const Node &) { return true; }
+	template <> bool Parameter<double>::isDerivable (const Node &) const { return true; }
 
 	// Constant<double> specialisation
 	template <> NodeRef Constant<double>::derive (const Node &) {
 		return Builder<Constant<double>>::makeZero ();
 	}
-	template <> bool Constant<double>::isDerivable (const Node &) { return true; }
+	template <> bool Constant<double>::isDerivable (const Node &) const { return true; }
 	std::shared_ptr<Constant<double>> Builder<Constant<double>>::make (double d) {
 		if (isExactZero (d)) {
 			return makeZero ();

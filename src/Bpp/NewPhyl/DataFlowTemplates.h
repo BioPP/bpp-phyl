@@ -85,7 +85,9 @@ namespace DF {
 
 		// Defined as default to enable specialisation
 		NodeRef derive (const Node & node) override final { return Value<T>::derive (node); }
-		bool isDerivable (const Node & node) override final { return Value<T>::isDerivable (node); }
+		bool isDerivable (const Node & node) const override final {
+			return Value<T>::isDerivable (node);
+		}
 
 	private:
 		void compute () override final { failureComputeWasCalled (typeid (Parameter<T>)); }
@@ -105,7 +107,9 @@ namespace DF {
 
 		// Defined as default to enable specialisation
 		NodeRef derive (const Node & node) override final { return Value<T>::derive (node); }
-		bool isDerivable (const Node & node) override final { return Value<T>::isDerivable (node); }
+		bool isDerivable (const Node & node) const override final {
+			return Value<T>::isDerivable (node);
+		}
 
 	private:
 		void compute () override final { failureComputeWasCalled (typeid (Constant<T>)); }
@@ -113,10 +117,10 @@ namespace DF {
 
 	// Specialisations in DataFlow.cpp
 	template <> NodeRef Parameter<double>::derive (const Node & node);
-	template <> bool Parameter<double>::isDerivable (const Node & node);
+	template <> bool Parameter<double>::isDerivable (const Node & node) const;
 
 	template <> NodeRef Constant<double>::derive (const Node & node);
-	template <> bool Constant<double>::isDerivable (const Node & node);
+	template <> bool Constant<double>::isDerivable (const Node & node) const;
 	template <> struct Builder<Constant<double>> {
 		static std::shared_ptr<Constant<double>> make (double d);
 		static std::shared_ptr<Constant<double>> makeZero ();
