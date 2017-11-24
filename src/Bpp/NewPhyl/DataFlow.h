@@ -103,6 +103,9 @@ namespace DF {
 		// Check if node is part of transitive dependencies
 		bool isTransitivelyDependentOn (const Node & node) const;
 
+		// Rebuild the node with different dependencies
+		virtual NodeRef rebuild (NodeRefVec && deps) const;
+
 	protected:
 		// Computation implementation
 		virtual void compute () = 0;

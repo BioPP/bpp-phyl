@@ -129,6 +129,10 @@ namespace DF {
 		return false;
 	}
 
+	NodeRef Node::rebuild (NodeRefVec &&) const {
+		throw Exception ("Node does not support rebuild(deps): " + description ());
+	}
+
 	void Node::invalidateRecursively () noexcept {
 		if (!isValid ())
 			return;
