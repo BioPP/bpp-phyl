@@ -132,26 +132,26 @@ class New_SiteSimulationResult
 
     virtual size_t getSubstitutionCount(size_t i) const { return paths_[i].getNumberOfEvents(); }
     
-    virtual void getSubstitutionCount(size_t i, const SubstitutionRegister& reg, std::vector<double>& counts) const {
-      paths_[i].getEventCounts(counts, reg);
-    }
+  virtual void getSubstitutionCount(size_t i, const SubstitutionRegister& reg, std::vector<double>& counts) const {
+    paths_[i].getEventCounts(counts, reg);
+  }
     
-    virtual size_t getSubstitutionCount(unsigned int nodeId) const { return paths_[indexes_[nodeId]].getNumberOfEvents(); }
+  virtual size_t getSubstitutionCount(unsigned int nodeId) const { return paths_[indexes_[nodeId]].getNumberOfEvents(); }
     
-    virtual void getSubstitutionCount(unsigned int nodeId, const SubstitutionRegister& reg, std::vector<double>& counts) const {
-      paths_[indexes_[nodeId]].getEventCounts(counts, reg);
+  virtual void getSubstitutionCount(unsigned int nodeId, const SubstitutionRegister& reg, std::vector<double>& counts) const {
+    paths_[indexes_[nodeId]].getEventCounts(counts, reg);
+  }
+  
+  virtual VVdouble getSubstitutionVector(const SubstitutionRegister& reg) const
+  {
+    size_t n = paths_.size();
+    VVdouble counts(n);
+    for (size_t i = 0; i < n; ++i) {
+      counts[i].resize(reg.getNumberOfSubstitutionTypes());
+      paths_[i].getEventCounts(counts[i], reg);
     }
-    
-    virtual VVdouble getSubstitutionVector(const SubstitutionRegister& reg) const
-    {
-      size_t n = paths_.size();
-      VVdouble counts(n);
-      for (size_t i = 0; i < n; ++i) {
-        counts[i].resize(reg.getNumberOfSubstitutionTypes());
-        paths_[i].getEventCounts(counts[i], reg);
-      }
-      return counts;
-    }
+    return counts;
+  }
 
     /**
      * @return The states at the leaves.

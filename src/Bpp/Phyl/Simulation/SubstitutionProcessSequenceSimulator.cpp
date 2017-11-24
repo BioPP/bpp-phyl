@@ -80,8 +80,13 @@ void SimpleSubstitutionProcessSequenceSimulator::init()
   std::vector<std::shared_ptr<SimProcessNode> > vCN=tree_.getAllNodes();
     
   for (size_t j=0; j<vCN.size(); j++)
-    vCN[j]->updateTree(&tree_, tree_.getNodeIndex(vCN[j]));
-
+  {
+    uint ni=tree_.getNodeIndex(vCN[j]);
+    vCN[j]->updateTree(&tree_, ni);
+    if (phyloTree_->hasFather(ni))
+      vCN[j]->setDistanceToFather(phyloTree_->getEdgeToFather(ni)->getLength());
+  }
+  
   // set sequence names
 
   if (outputInternalSequences_) {
@@ -596,7 +601,7 @@ void SimpleSubstitutionProcessSequenceSimulator::dEvolveInternal(SimProcessNode*
     throw Exception("SimpleSubstitutionProcessSequenceSimulator::dEvolveInternal : detailed simulation not possible for non-markovian model");
 
   SimpleMutationProcess process(dynamic_cast<const SubstitutionModel*>(tm));
-                                
+
   MutationPath mp = process.detailedEvolve(node->getFather()->state, node->getDistanceToFather() * rate);
   node->state = mp.getFinalState();
 
@@ -628,6 +633,7 @@ void SimpleSubstitutionProcessSequenceSimulator::dEvolveInternal(SimProcessNode*
   SimpleMutationProcess process(dynamic_cast<const SubstitutionModel*>(tm));
 
   MutationPath mp = process.detailedEvolve(node->getFather()->state, node->getDistanceToFather());
+  
   node->state = mp.getFinalState();
 
   // Now append infos in ssr:

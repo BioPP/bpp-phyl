@@ -106,7 +106,7 @@ MutationPath AbstractMutationProcess::detailedEvolve(size_t initialState, double
   MutationPath mp(model_->getAlphabet(), initialState, time);
   double t = 0;
   size_t currentState = initialState;
-    
+  
   t += getTimeBeforeNextMutationEvent(currentState);
   while (t < time)
   {
@@ -114,6 +114,7 @@ MutationPath AbstractMutationProcess::detailedEvolve(size_t initialState, double
     mp.addEvent(currentState, t);
     t += getTimeBeforeNextMutationEvent(currentState);
   }
+  
   return mp;
 }
 
