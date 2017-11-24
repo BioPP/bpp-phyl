@@ -43,24 +43,41 @@
 #include <Bpp/NewPhyl/Debug.h>
 #include <Bpp/NewPhyl/ExtendedFloat.h>
 #include <Bpp/NewPhyl/Likelihood.h>
+#include <Bpp/NewPhyl/LinearAlgebra.h>
 #include <Bpp/NewPhyl/Range.h>
 #include <Bpp/Seq/Sequence.h>
 #include <cmath>
 
 namespace bpp {
-namespace Phyl {
-	std::string LikelihoodDataDimension::toString () const {
-		return "(sites=" + std::to_string (nbSites ()) + ",states=" + std::to_string (nbStates ()) +
-		       ")";
-	}
 
-	namespace DF {
-		ConditionalLikelihoodFromSequence::ConditionalLikelihoodFromSequence (
-		    NodeRefVec && deps, LikelihoodDataDimension dim)
-		    : Value<MatrixDouble> (std::move (deps), dim.rows, dim.cols) {
-			checkDependencies (*this);
+std::string to_string (const LikelihoodDataDimension & dim) {
+	return "(sites=" + std::to_string (dim.nbSites ()) +
+	       ",states=" + std::to_string (dim.nbStates ()) + ")";
+}
+
+namespace DF {
+	class ConditionalLikelihoodFromSequence : public Value<MatrixDouble> {
+	public:
+		using Dependencies = FunctionOfValues<const Sequence *>;
+
+		ConditionalLikelihoodFromSequence (NodeRefVec && deps, const LikelihoodDataDimension & dim)
+		    : Value<MatrixDouble> (std::move (deps), dim.rows, dim.cols) {}
+
+		std::string debugInfo () const override final {
+			return Value<MatrixDouble>::debugInfo () + " " +
+			       to_string (LikelihoodDataDimension (dimensions (*this)));
 		}
-		void ConditionalLikelihoodFromSequence::compute () {
+		NodeRef derive (const Node &) override final {
+			// Sequence is a constant with respect to all parameters.
+			return Builder<Constant<MatrixDouble>>::makeZero (dimensions (*this));
+		}
+		bool isDerivable (const Node &) const override final { return true; }
+		NodeRef rebuild (NodeRefVec && deps) const override final {
+			return makeNode<ConditionalLikelihoodFromSequence> (std::move (deps), dimensions (*this));
+		}
+
+	private:
+		void compute () override final {
 			callWithValues (*this, [](MatrixDouble & condLikBySite, const Sequence * sequence) {
 				// Check sizes
 				if (sequence == nullptr)
@@ -71,10 +88,10 @@ namespace Phyl {
 				                                       sequence->getAlphabet ()->getSize ());
 				if (matDim != seqDim)
 					throw Exception (prettyTypeName<ConditionalLikelihoodFromSequence> () +
-					                 ": size mismatch: sequence " + seqDim.toString () + " -> " +
-					                 matDim.toString ());
+					                 ": size mismatch: sequence " + to_string (seqDim) + " -> " +
+					                 to_string (matDim));
 				// Put 1s at the right places, 0s elsewhere
-				condLikBySite.fill (0.);
+				condLikBySite.setZero ();
 				for (auto siteIndex : range (condLikBySite.cols ())) {
 					auto siteValue =
 					    static_cast<IndexType> (sequence->getValue (static_cast<std::size_t> (siteIndex)));
@@ -82,21 +99,33 @@ namespace Phyl {
 				}
 			});
 		}
-		std::string ConditionalLikelihoodFromSequence::debugInfo () const {
-			// TODO add a common LikelihoodDataValue class that overrides this
-			auto dim = LikelihoodDataDimension (dimensions (*this));
-			return Value<MatrixDouble>::debugInfo () + " " + dim.toString ();
-		}
-		NodeRef ConditionalLikelihoodFromSequence::derive (const Node &) {
-			// Sequence is a constant with respect to all parameters.
-			return Builder<Constant<MatrixDouble>>::makeZero (dimensions (*this));
-		}
-		bool ConditionalLikelihoodFromSequence::isDerivable (const Node &) const { return true; }
+	};
+	ValueRef<MatrixDouble>
+	Builder<ConditionalLikelihoodFromSequence>::make (NodeRefVec && deps,
+	                                                  const LikelihoodDataDimension & dim) {
+		checkDependencies<ConditionalLikelihoodFromSequence> (deps);
+		return std::make_shared<ConditionalLikelihoodFromSequence> (std::move (deps), dim);
+	}
 
-		TotalLogLikelihood::TotalLogLikelihood (NodeRefVec && deps) : Value<double> (std::move (deps)) {
-			checkDependencies (*this);
+	class TotalLogLikelihood : public Value<double> {
+	public:
+		using Dependencies = FunctionOfValues<VectorDouble>;
+		TotalLogLikelihood (NodeRefVec && deps) : Value<double> (std::move (deps)) {}
+		NodeRef derive (const Node & node) override final {
+			auto likelihoodVector = convertRef<Value<VectorDouble>> (this->dependency (0));
+			return makeNode<ScalarProdDouble> ({likelihoodVector->derive (node),
+			                                    makeNode<CWiseInverseVectorDouble> (
+			                                        {likelihoodVector}, dimensions (*likelihoodVector))});
 		}
-		void TotalLogLikelihood::compute () {
+		bool isDerivable (const Node & node) const override final {
+			return derivableIfAllDepsAre (*this, node);
+		}
+		NodeRef rebuild (NodeRefVec && deps) const override final {
+			return makeNode<TotalLogLikelihood> (std::move (deps));
+		}
+
+	private:
+		void compute () override final {
 			callWithValues (*this, [](double & logLik, const VectorDouble & likelihood) {
 				auto lik = likelihood
 				               .unaryExpr ([](double d) {
@@ -112,16 +141,10 @@ namespace Phyl {
 				logLik = log (lik);
 			});
 		}
-		NodeRef TotalLogLikelihood::derive (const Node & node) {
-			// TODO improve this case
-			auto likelihoodVector = convertRef<Value<VectorDouble>> (this->dependency (0));
-			return makeNode<ScalarProdDouble> ({likelihoodVector->derive (node),
-			                                    makeNode<CWiseInverseVectorDouble> (
-			                                        {likelihoodVector}, dimensions (*likelihoodVector))});
-		}
-		bool TotalLogLikelihood::isDerivable (const Node & node) const {
-			return derivableIfAllDepsAre (*this, node);
-		}
-	} // namespace DF
-} // namespace Phyl
+	};
+	ValueRef<double> Builder<TotalLogLikelihood>::make (NodeRefVec && deps) {
+		checkDependencies<TotalLogLikelihood> (deps);
+		return std::make_shared<TotalLogLikelihood> (std::move (deps));
+	}
+} // namespace DF
 } // namespace bpp

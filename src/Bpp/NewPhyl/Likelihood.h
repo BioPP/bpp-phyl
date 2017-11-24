@@ -45,66 +45,53 @@
 
 #include <Bpp/NewPhyl/DataFlow.h>
 #include <Bpp/NewPhyl/DataFlowNumeric.h>
-#include <Bpp/NewPhyl/LinearAlgebra.h>
+#include <Bpp/NewPhyl/LinearAlgebraFwd.h>
 #include <Bpp/NewPhyl/Signed.h>
 #include <string>
 
 namespace bpp {
 class Sequence;
 
-namespace Phyl {
-	namespace DF {
-		using namespace bpp::DF;
-	}
+/* Likelihood probabilities (final or intermediate) are stored in a matrix.
+ * Frequencies for site k are stored in column k.
+ * TODO accessors ?
+ */
+using LikelihoodData = MatrixDouble;
 
-	/* Likelihood probabilities (final or intermediate) are stored in a matrix.
-	 * Frequencies for site k are stored in column k.
-	 * TODO accessors ?
-	 */
-	using LikelihoodData = MatrixDouble;
+// defines a MatrixDimension compatible struct.
+struct LikelihoodDataDimension : public MatrixDimension {
+	constexpr LikelihoodDataDimension (SizeType nbSitesArg, SizeType nbStatesArg) noexcept
+	    : MatrixDimension (nbStatesArg, nbSitesArg) {}
+	constexpr LikelihoodDataDimension (const MatrixDimension & matDim) noexcept
+	    : MatrixDimension (matDim) {}
 
-	// defines a MatrixDimension compatible struct.
-	struct LikelihoodDataDimension : public MatrixDimension {
-		constexpr LikelihoodDataDimension (SizeType nbSitesArg, SizeType nbStatesArg) noexcept
-		    : MatrixDimension (nbStatesArg, nbSitesArg) {}
-		constexpr LikelihoodDataDimension (const MatrixDimension & matDim) noexcept
-		    : MatrixDimension (matDim) {}
+	SizeType nbStates () const { return rows; }
+	SizeType nbSites () const { return cols; }
+};
+std::string to_string (const LikelihoodDataDimension & dim);
 
-		SizeType nbStates () const { return rows; }
-		SizeType nbSites () const { return cols; }
-		std::string toString () const;
+namespace DF {
+	// (sequence) -> MatrixDouble
+	class ConditionalLikelihoodFromSequence;
+	template <> struct Builder<ConditionalLikelihoodFromSequence> {
+		static ValueRef<MatrixDouble> make (NodeRefVec && deps, const LikelihoodDataDimension & dim);
 	};
 
-	namespace DF {
-		struct ConditionalLikelihoodFromSequence : public Value<MatrixDouble> {
-			// (sequence) -> MatrixDouble
-			using Dependencies = FunctionOfValues<const Sequence *>;
-			ConditionalLikelihoodFromSequence (NodeRefVec && deps, LikelihoodDataDimension dim);
-			void compute () override final;
-			std::string debugInfo () const override final;
-			NodeRef derive (const Node &) override final;
-			bool isDerivable (const Node &) const override final;
-		};
+	// vec<fwdLik> -> condLik
+	using ConditionalLikelihoodFromChildrens = CWiseMulMatrixDouble;
 
-		// vec<fwdLik> -> condLik
-		using ConditionalLikelihoodFromChildrens = CWiseMulMatrixDouble;
+	// (transitionMatrix, condLik) -> fwdLik
+	using ForwardLikelihoodFromChild = MulMatrixDouble;
 
-		// (transitionMatrix, condLik) -> fwdLik
-		using ForwardLikelihoodFromChild = MulMatrixDouble;
+	// (condLik, equFreqs) -> likBySiteVector
+	using Likelihood = MulTransposedMatrixVectorDouble;
 
-		// (condLik, equFreqs) -> likBySiteVector
-		using Likelihood = MulTransposedMatrixVectorDouble;
-
-		struct TotalLogLikelihood : public Value<double> {
-			// likelihood by site -> total log likelihood
-			using Dependencies = FunctionOfValues<VectorDouble>;
-			TotalLogLikelihood (NodeRefVec && deps);
-			void compute () override final;
-			NodeRef derive (const Node &) override final;
-			bool isDerivable (const Node &) const override final;
-		};
-	} // namespace DF
-} // namespace Phyl
+	// (likelihood by site) -> total log likelihood
+	class TotalLogLikelihood;
+	template <> struct Builder<TotalLogLikelihood> {
+		static ValueRef<double> make (NodeRefVec && deps);
+	};
+} // namespace DF
 } // namespace bpp
 
 #endif // BPP_NEWPHYL_LIKELIHOOD_H
