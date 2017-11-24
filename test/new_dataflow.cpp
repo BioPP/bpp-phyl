@@ -161,18 +161,43 @@ TEST_CASE("Exceptions")
   // Check that param should crash if made invalid
   auto param = makeNode<MyParam<int>>(42);
   param->invalidateRecursively(); // Bad !
-  CHECK_THROWS_AS(param->computeRecursively(), const bpp::Exception&);
+  CHECK_THROWS_AS(param->computeRecursively(), bpp::Exception);
 
   // Bad node dynamic downcast
-  CHECK_THROWS_AS((void)convertRef<Value<bool>>(param), const bpp::Exception&);
+  CHECK_THROWS_AS((void)convertRef<Value<bool>>(param), bpp::Exception);
 
   // GenericFunctionComputation: bad dep vec len
-  CHECK_THROWS_AS(makeNode<NegInt>({}), const bpp::Exception&);
+  CHECK_THROWS_AS(makeNode<NegInt>({}), bpp::Exception);
 
   // GenericFunctionComputation: type mismatch
   auto p = makeNode<Parameter<bool>>();
-  CHECK_THROWS_AS(makeNode<NegInt>({p}), const bpp::Exception&);
+  CHECK_THROWS_AS(makeNode<NegInt>({p}), bpp::Exception);
 
   // GenericReductionComputation: type mismatch
-  CHECK_THROWS_AS(makeNode<AddInt>({p}), const bpp::Exception&);
+  CHECK_THROWS_AS(makeNode<AddInt>({p}), bpp::Exception);
+}
+
+TEST_CASE("Properties")
+{
+  using namespace bpp::DF;
+  auto konst = makeNode<Constant<int>>(42);
+  auto param = makeNode<Parameter<int>>(42);
+  auto add = makeNode<AddInt>({konst, param});
+
+  // int not derivable
+  CHECK_FALSE(param->isDerivable(*param));
+  CHECK_FALSE(param->isDerivable(*konst));
+  CHECK_FALSE(add->isDerivable(*param));
+  CHECK_THROWS_AS(param->derive(*param), bpp::Exception);
+
+  // isConstant
+  CHECK_FALSE(param->isConstant());
+  CHECK(konst->isConstant());
+  CHECK_FALSE(add->isConstant());
+
+  // isTransitivelyDependentOn
+  CHECK_FALSE(konst->isTransitivelyDependentOn(*param));
+  CHECK(konst->isTransitivelyDependentOn(*konst));
+  CHECK(add->isTransitivelyDependentOn(*konst));
+  CHECK_FALSE(konst->isTransitivelyDependentOn(*add));
 }

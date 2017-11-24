@@ -116,7 +116,17 @@ namespace DF {
 	bool Node::isDerivable (const Node &) const { return false; }
 
 	bool Node::isTransitivelyDependentOn (const Node & node) const {
-		return false; // FIXME
+		std::stack<const Node *> nodesToVisit;
+		nodesToVisit.push (this);
+		while (!nodesToVisit.empty ()) {
+			auto * current = nodesToVisit.top ();
+			nodesToVisit.pop ();
+			if (&node == current)
+				return true;
+			for (auto & dep : current->dependencies ())
+				nodesToVisit.push (dep.get ());
+		}
+		return false;
 	}
 
 	void Node::invalidateRecursively () noexcept {
