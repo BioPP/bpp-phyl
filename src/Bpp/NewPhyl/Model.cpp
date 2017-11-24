@@ -45,107 +45,139 @@
 #include <Bpp/NewPhyl/Range.h>
 #include <Bpp/Numeric/Parameter.h>
 #include <Bpp/Phyl/Model/SubstitutionModel.h>
+#include <algorithm>
 #include <cassert>
 
 namespace bpp {
-namespace Phyl {
-	namespace DF {
-		// Model DF Node
+namespace DF {
+	/* Model values derivation:
+	 *
+	 * We only have analytical derivation for transition matrix with respect to brlen.
+	 * A model is defined as "derivable(x)" if its parameters do not depend on "x".
+	 *
+	 * With a "derivable(x)" model:
+	 * - equilibrium frequencies are a constant (derive to 0s).
+	 * - transition matrices are only dependent on brlen (which may depend on "x", constant if not).
+	 *
+	 * derive(x) methods for model value compute nodes assume the model is derivable(x).
+	 * derive(x) will not fail is not the case, but the derivative will be wrong.
+	 * This is checked by an assert in debug mode.
+	 * derive(x) for these nodes should not be called if isDerivable(x) is false.
+	 * FIXME check anyway at derive(x), throw exception ?
+	 *
+	 * A non derivable(x) model is a model whose parameters depend on "x".
+	 * It can be derived numerically.
+	 */
 
-		Model::Model (std::unique_ptr<SubstitutionModel> model)
-		    : Value<const SubstitutionModel *> (noDependency, model.get ()),
-		      model_ (std::move (model)) {
-			// TODO support already built paramater nodes
-			const auto & parameters = model_->getParameters ();
-			for (auto i : index_range (parameters))
-				this->appendDependency (DF::makeNode<DF::Parameter<double>> (parameters[i].getValue ()));
+	// Model DF Node
+
+	Model::Model (std::unique_ptr<SubstitutionModel> model)
+	    : Value<const SubstitutionModel *> (noDependency, model.get ()), model_ (std::move (model)) {
+		// TODO support already built paramater nodes
+		const auto & parameters = model_->getParameters ();
+		for (auto i : index_range (parameters))
+			this->appendDependency (DF::makeNode<DF::Parameter<double>> (parameters[i].getValue ()));
+	}
+
+	Model::~Model () = default;
+
+	SizeType Model::nbParameters () const noexcept { return this->dependencies ().size (); }
+	ParameterRef<double> Model::getParameter (SizeType index) {
+		assert (0 <= index);
+		assert (index < this->nbDependencies ());
+		return convertRef<DF::Parameter<double>> (this->dependency (index));
+	}
+	ParameterRef<double> Model::getParameter (const std::string & name) {
+		return getParameter (
+		    static_cast<SizeType> (model_->getParameters ().whichParameterHasName (name)));
+	}
+	const std::string & Model::getParameterName (SizeType index) {
+		return model_->getParameters ()[static_cast<std::size_t> (index)].getName ();
+	}
+
+	std::string Model::description () const { return "Model(" + model_->getName () + ")"; }
+	std::string Model::debugInfo () const {
+		return "nbState=" + std::to_string (model_->getAlphabet ()->getSize ());
+	}
+
+	bool Model::isDerivable (const Node & node) const {
+		return std::none_of (
+		    this->dependencies ().begin (), this->dependencies ().end (),
+		    [&node](const NodeRef & dep) { return dep->isTransitivelyDependentOn (node); });
+	}
+
+	void Model::compute () {
+		// Update current model params with ours
+		auto & modelParams = model_->getParameters ();
+		for (auto i : index_range (this->dependencies ())) {
+			auto v = accessValidValueConstCast<double> (this->dependency (i));
+			auto & p = modelParams[static_cast<std::size_t> (i)];
+			if (p.getValue () != v)
+				model_->setParameterValue (model_->getParameterNameWithoutNamespace (p.getName ()), v);
+		}
+	}
+
+	// Compute node functions
+
+	class EquilibriumFrequenciesFromModel : public Value<VectorDouble> {
+	public:
+		using Dependencies = FunctionOfValues<const SubstitutionModel *>;
+		EquilibriumFrequenciesFromModel (NodeRefVec && deps, SizeType nbStates)
+		    : Value<VectorDouble> (std::move (deps), nbStates) {}
+		std::string debugInfo () const override final {
+			using std::to_string;
+			return Value<VectorDouble>::debugInfo () + " nbState=" + to_string (dimensions (*this));
+		}
+		NodeRef derive (const Node & node) override final {
+			assert (isDerivable (node));
+			return Builder<Constant<VectorDouble>>::makeZero (dimensions (*this));
+		}
+		bool isDerivable (const Node & node) const override final {
+			return derivableIfAllDepsAre (*this, node);
 		}
 
-		Model::~Model () = default;
-
-		SizeType Model::nbParameters () const noexcept { return this->dependencies ().size (); }
-		ParameterRef<double> Model::getParameter (SizeType index) {
-			assert (0 <= index);
-			assert (index < this->nbDependencies ());
-			return convertRef<DF::Parameter<double>> (this->dependency (index));
-		}
-		ParameterRef<double> Model::getParameter (const std::string & name) {
-			return getParameter (
-			    static_cast<SizeType> (model_->getParameters ().whichParameterHasName (name)));
-		}
-		const std::string & Model::getParameterName (SizeType index) {
-			return model_->getParameters ()[static_cast<std::size_t> (index)].getName ();
-		}
-
-		std::string Model::description () const { return "Model(" + model_->getName () + ")"; }
-		std::string Model::debugInfo () const {
-			return "nbState=" + std::to_string (model_->getAlphabet ()->getSize ());
-		}
-
-		void Model::compute () {
-			// Update current model params with ours
-			auto & modelParams = model_->getParameters ();
-			for (auto i : index_range (this->dependencies ())) {
-				auto v = accessValidValueConstCast<double> (this->dependency (i));
-				auto & p = modelParams[static_cast<std::size_t> (i)];
-				if (p.getValue () != v)
-					model_->setParameterValue (model_->getParameterNameWithoutNamespace (p.getName ()), v);
-			}
-		}
-
-		// Compute node functions
-
-		EquilibriumFrequenciesFromModel::EquilibriumFrequenciesFromModel (NodeRefVec && deps,
-		                                                                  SizeType nbStates)
-		    : Value<VectorDouble> (std::move (deps), nbStates) {
-			checkDependencies (*this);
-		}
-		void EquilibriumFrequenciesFromModel::compute () {
+	private:
+		void compute () override final {
 			callWithValues (*this, [](VectorDouble & freqs, const SubstitutionModel * model) {
 				auto & freqsFromModel = model->getFrequencies ();
 				freqs = Eigen::Map<const VectorDouble> (freqsFromModel.data (),
 				                                        static_cast<Eigen::Index> (freqsFromModel.size ()));
 			});
 		}
-		std::string EquilibriumFrequenciesFromModel::debugInfo () const {
-			using std::to_string;
-			return Value<VectorDouble>::debugInfo () + " nbState=" + to_string (dimensions (*this));
-		}
-		NodeRef EquilibriumFrequenciesFromModel::derive (const Node & node) {
-			return Builder<Constant<VectorDouble>>::makeZero (dimensions (*this));
-		}
+	};
+	ValueRef<VectorDouble> Builder<EquilibriumFrequenciesFromModel>::make (NodeRefVec && deps,
+	                                                                       SizeType nbStates) {
+		checkDependencies<EquilibriumFrequenciesFromModel> (deps);
+		return std::make_shared<EquilibriumFrequenciesFromModel> (std::move (deps), nbStates);
+	}
 
-		namespace {
-			/* For now copy matrix cell by cell.
-			 * TODO use eigen internally in SubsitutionModel ! (not perf critical for now though)
-			 * FIXME if multithreading, internal model state may be a problem !
-			 */
-			void bppToEigen (const Matrix<double> & bppMatrix, MatrixDouble & eigenMatrix) {
-				assert (eigenMatrix.rows () == bppMatrix.getNumberOfRows ());
-				assert (eigenMatrix.cols () == bppMatrix.getNumberOfColumns ());
-				for (auto i : range (eigenMatrix.rows ()))
-					for (auto j : range (eigenMatrix.cols ()))
-						eigenMatrix (i, j) =
-						    bppMatrix (static_cast<std::size_t> (i), static_cast<std::size_t> (j));
-			}
-		} // namespace
+	namespace {
+		/* For now copy matrix cell by cell.
+		 * TODO use eigen internally in SubsitutionModel ! (not perf critical for now though)
+		 * FIXME if multithreading, internal model state must be removed !
+		 */
+		void bppToEigen (const Matrix<double> & bppMatrix, MatrixDouble & eigenMatrix) {
+			assert (eigenMatrix.rows () == bppMatrix.getNumberOfRows ());
+			assert (eigenMatrix.cols () == bppMatrix.getNumberOfColumns ());
+			for (auto i : range (eigenMatrix.rows ()))
+				for (auto j : range (eigenMatrix.cols ()))
+					eigenMatrix (i, j) =
+					    bppMatrix (static_cast<std::size_t> (i), static_cast<std::size_t> (j));
+		}
+	} // namespace
 
-		TransitionMatrixFromModel::TransitionMatrixFromModel (NodeRefVec && deps, SizeType nbStates)
-		    : Value<MatrixDouble> (std::move (deps), nbStates, nbStates) {
-			checkDependencies (*this);
-		}
-		void TransitionMatrixFromModel::compute () {
-			callWithValues (*this, [](MatrixDouble & matrix, const SubstitutionModel * model,
-			                          double brlen) { bppToEigen (model->getPij_t (brlen), matrix); });
-		}
-		std::string TransitionMatrixFromModel::debugInfo () const {
+	class TransitionMatrixFromModel : public Value<MatrixDouble> {
+	public:
+		using Dependencies = FunctionOfValues<const SubstitutionModel *, double>;
+
+		TransitionMatrixFromModel (NodeRefVec && deps, SizeType nbStates)
+		    : Value<MatrixDouble> (std::move (deps), nbStates, nbStates) {}
+		std::string debugInfo () const override final {
 			return Value<MatrixDouble>::debugInfo () +
 			       " nbStates=" + std::to_string (dimensions (*this).rows);
 		}
-		NodeRef TransitionMatrixFromModel::derive (const Node & node) {
-			/* TODO more general version.
-			 * Only supports brlen derivation for now
-			 */
+		NodeRef derive (const Node & node) override final {
+			assert (isDerivable (node));
 			auto dim = dimensions (*this);
 			auto & modelNode = this->dependency (0);
 			auto & brlenNode = this->dependency (1);
@@ -154,22 +186,83 @@ namespace Phyl {
 			return makeNode<CWiseMulScalarMatrixDouble> (
 			    {brlenNode->derive (node), std::move (dTransMat_dBrlen)}, dim);
 		}
-
-		TransitionMatrixFromModelBrlenDerivative::TransitionMatrixFromModelBrlenDerivative (
-		    NodeRefVec && deps, SizeType nbStates)
-		    : Value<MatrixDouble> (std::move (deps), nbStates, nbStates) {
-			checkDependencies (*this);
+		bool isDerivable (const Node & node) const override final {
+			return derivableIfAllDepsAre (*this, node);
 		}
-		void TransitionMatrixFromModelBrlenDerivative::compute () {
+
+	private:
+		void compute () override final {
+			callWithValues (*this, [](MatrixDouble & matrix, const SubstitutionModel * model,
+			                          double brlen) { bppToEigen (model->getPij_t (brlen), matrix); });
+		}
+	};
+	ValueRef<MatrixDouble> Builder<TransitionMatrixFromModel>::make (NodeRefVec && deps,
+	                                                                 SizeType nbStates) {
+		checkDependencies<TransitionMatrixFromModel> (deps);
+		return std::make_shared<TransitionMatrixFromModel> (std::move (deps), nbStates);
+	}
+
+	class TransitionMatrixFromModelBrlenDerivative : public Value<MatrixDouble> {
+	public:
+		using Dependencies = FunctionOfValues<const SubstitutionModel *, double>;
+
+		TransitionMatrixFromModelBrlenDerivative (NodeRefVec && deps, SizeType nbStates)
+		    : Value<MatrixDouble> (std::move (deps), nbStates, nbStates) {}
+		std::string debugInfo () const override final {
+			return Value<MatrixDouble>::debugInfo () +
+			       " nbStates=" + std::to_string (dimensions (*this).rows);
+		}
+		NodeRef derive (const Node & node) override final {
+			assert (isDerivable (node));
+			auto dim = dimensions (*this);
+			auto & modelNode = this->dependency (0);
+			auto & brlenNode = this->dependency (1);
+			auto d2TransMat_dBrlen2 = makeNode<TransitionMatrixFromModelBrlenSecondDerivative> (
+			    {modelNode, brlenNode}, dim.rows);
+			return makeNode<CWiseMulScalarMatrixDouble> (
+			    {brlenNode->derive (node), std::move (d2TransMat_dBrlen2)}, dim);
+		}
+		bool isDerivable (const Node & node) const override final {
+			return derivableIfAllDepsAre (*this, node);
+		}
+
+	private:
+		void compute () override final {
 			callWithValues (*this, [](MatrixDouble & matrix, const SubstitutionModel * model,
 			                          double brlen) { bppToEigen (model->getdPij_dt (brlen), matrix); });
 		}
-		std::string TransitionMatrixFromModelBrlenDerivative::debugInfo () const {
+	};
+	ValueRef<MatrixDouble>
+	Builder<TransitionMatrixFromModelBrlenDerivative>::make (NodeRefVec && deps, SizeType nbStates) {
+		checkDependencies<TransitionMatrixFromModelBrlenDerivative> (deps);
+		return std::make_shared<TransitionMatrixFromModelBrlenDerivative> (std::move (deps), nbStates);
+	}
+
+	class TransitionMatrixFromModelBrlenSecondDerivative : public Value<MatrixDouble> {
+	public:
+		using Dependencies = FunctionOfValues<const SubstitutionModel *, double>;
+
+		TransitionMatrixFromModelBrlenSecondDerivative (NodeRefVec && deps, SizeType nbStates)
+		    : Value<MatrixDouble> (std::move (deps), nbStates, nbStates) {}
+		std::string debugInfo () const override final {
 			return Value<MatrixDouble>::debugInfo () +
 			       " nbStates=" + std::to_string (dimensions (*this).rows);
 		}
 
-		// TODO restore bppToEigen (model->getd2Pij_dt2 (brlen), matrix);
-	} // namespace DF
-} // namespace Phyl
+	private:
+		void compute () override final {
+			callWithValues (*this,
+			                [](MatrixDouble & matrix, const SubstitutionModel * model, double brlen) {
+				                bppToEigen (model->getd2Pij_dt2 (brlen), matrix);
+			                });
+		}
+	};
+	ValueRef<MatrixDouble>
+	Builder<TransitionMatrixFromModelBrlenSecondDerivative>::make (NodeRefVec && deps,
+	                                                               SizeType nbStates) {
+		checkDependencies<TransitionMatrixFromModelBrlenSecondDerivative> (deps);
+		return std::make_shared<TransitionMatrixFromModelBrlenSecondDerivative> (std::move (deps),
+		                                                                         nbStates);
+	}
+} // namespace DF
 } // namespace bpp

@@ -243,7 +243,7 @@ TEST_CASE("df")
 
   // Model
   auto model =
-    bpp::DF::makeNode<bpp::Phyl::DF::Model>(std::unique_ptr<bpp::SubstitutionModel>(new bpp::T92(&c.alphabet, 3.)));
+    bpp::DF::makeNode<bpp::DF::Model>(std::unique_ptr<bpp::SubstitutionModel>(new bpp::T92(&c.alphabet, 3.)));
 
   // Create phylogeny description structure TODO simplify this mess
   auto branchLengthMap =
@@ -268,12 +268,18 @@ TEST_CASE("df")
       auto phyloBranchId = treeData.treeTemplateNodeIndexes->access(i).value();
       auto p = bpp::DataFlowParameter("BrLen" + std::to_string(phyloBranchId), *branchParamOpt);
       p.setConstraint(bpp::Parameter::R_PLUS.clone(), true);
+
+      CHECK(logLikNode->isDerivable(*p.getDataFlowParameter()));
+
       brlenParams.addParameter(std::move(p));
     }
   }
   bpp::ParameterList params{brlenParams};
   for (auto i : bpp::range(model->nbParameters()))
+  {
     params.addParameter(bpp::DataFlowParameter(model->getParameterName(i), model->getParameter(i)));
+    CHECK_FALSE(logLikNode->isDerivable(*model->getParameter(i)));
+  }
 
   bpp::DataFlowFunction likFunc{logLikNode, params};
   timingEnd(ts, "df_setup");

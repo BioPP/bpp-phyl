@@ -44,8 +44,8 @@
 #define BPP_NEWPHYL_MODEL_H
 
 #include <Bpp/NewPhyl/DataFlow.h>
-#include <Bpp/NewPhyl/LinearAlgebra.h> // Matrix types
 #include <Bpp/NewPhyl/DataFlowTemplates.h>
+#include <Bpp/NewPhyl/LinearAlgebra.h> // Matrix types
 #include <Bpp/NewPhyl/Signed.h>
 #include <memory>
 #include <string>
@@ -53,67 +53,54 @@
 namespace bpp {
 class SubstitutionModel;
 
-namespace Phyl {
-	namespace DF {
-		using namespace bpp::DF;
+namespace DF {
+	// DF Node representing a model with its parameter (wrapper to master code).
+	class Model : public Value<const SubstitutionModel *> {
+	public:
+		Model (std::unique_ptr<SubstitutionModel> model);
+		~Model ();
 
-		// DF Node representing a model with its parameter (wrapper to master code).
-		class Model : public Value<const SubstitutionModel *> {
-		public:
-			Model (std::unique_ptr<SubstitutionModel> model);
-			~Model ();
+		SizeType nbParameters () const noexcept;
+		ParameterRef<double> getParameter (SizeType index);
+		ParameterRef<double> getParameter (const std::string & name);
+		const std::string & getParameterName (SizeType index);
 
-			SizeType nbParameters () const noexcept;
-			ParameterRef<double> getParameter (SizeType index);
-			ParameterRef<double> getParameter (const std::string & name);
-			const std::string & getParameterName (SizeType index);
+		std::string description () const override final;
+		std::string debugInfo () const override final;
 
-			std::string description () const override final;
-			std::string debugInfo () const override final;
+		bool isDerivable (const Node & node) const override final;
 
-		private:
-			void compute () override final;
-			std::unique_ptr<SubstitutionModel> model_;
-		};
+	private:
+		void compute () override final;
+		std::unique_ptr<SubstitutionModel> model_;
+	};
 
-		// Compute nodes
-    // TODO support isDerivable properly
+	// Compute nodes
 
-		class EquilibriumFrequenciesFromModel : public Value<VectorDouble> {
-		public:
-			// -> vector of equilibrium frequencies by state
-			using Dependencies = FunctionOfValues<const SubstitutionModel *>;
-			EquilibriumFrequenciesFromModel (NodeRefVec && deps, SizeType nbStates);
-			std::string debugInfo () const override final;
-			NodeRef derive (const Node & node) override final;
+	// (model) -> Vector of freqs
+	class EquilibriumFrequenciesFromModel;
+	template <> struct Builder<EquilibriumFrequenciesFromModel> {
+		static ValueRef<VectorDouble> make (NodeRefVec && deps, SizeType nbStates);
+	};
 
-		private:
-			void compute () override final;
-		};
+	// (model, branch length) -> transition matrix
+	class TransitionMatrixFromModel;
+	template <> struct Builder<TransitionMatrixFromModel> {
+		static ValueRef<MatrixDouble> make (NodeRefVec && deps, SizeType nbStates);
+	};
 
-		class TransitionMatrixFromModel : public Value<MatrixDouble> {
-		public:
-			// (model, branch length) -> transition matrix
-			using Dependencies = FunctionOfValues<const SubstitutionModel *, double>;
-			TransitionMatrixFromModel (NodeRefVec && deps, SizeType nbStates);
-			std::string debugInfo () const override final;
-			NodeRef derive (const Node & node) override final;
+	// (model, branch length) -> d(transition matrix)
+	class TransitionMatrixFromModelBrlenDerivative;
+	template <> struct Builder<TransitionMatrixFromModelBrlenDerivative> {
+		static ValueRef<MatrixDouble> make (NodeRefVec && deps, SizeType nbStates);
+	};
 
-		private:
-			void compute () override final;
-		};
-
-		class TransitionMatrixFromModelBrlenDerivative : public Value<MatrixDouble> {
-		public:
-			using Dependencies = FunctionOfValues<const SubstitutionModel *, double>;
-			TransitionMatrixFromModelBrlenDerivative (NodeRefVec && deps, SizeType nbStates);
-			std::string debugInfo () const override final;
-
-		private:
-			void compute () override final;
-		};
-	} // namespace DF
-} // namespace Phyl
+	// (model, branch length) -> d2(transition matrix)
+	class TransitionMatrixFromModelBrlenSecondDerivative;
+	template <> struct Builder<TransitionMatrixFromModelBrlenSecondDerivative> {
+		static ValueRef<MatrixDouble> make (NodeRefVec && deps, SizeType nbStates);
+	};
+} // namespace DF
 } // namespace bpp
 
 #endif // BPP_NEWPHYL_MODEL_H
