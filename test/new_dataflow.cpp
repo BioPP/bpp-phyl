@@ -63,6 +63,7 @@ struct AddInt : public Value<int>
   {
     callWithValues(*this, [](int& r) { r = 0; }, [](int& r, int i) { r += i; });
   }
+  NodeRef rebuild(NodeRefVec&& deps) const override final { return makeNode<AddInt>(std::move(deps)); }
 };
 
 struct NegInt : public Value<int>
@@ -200,4 +201,33 @@ TEST_CASE("Properties")
   CHECK(konst->isTransitivelyDependentOn(*konst));
   CHECK(add->isTransitivelyDependentOn(*konst));
   CHECK_FALSE(konst->isTransitivelyDependentOn(*add));
+}
+
+TEST_CASE("Rebuild")
+{
+  using namespace bpp::DF;
+  auto k1 = makeNode<Constant<int>>(42);
+  auto k2 = makeNode<Constant<int>>(-21);
+  auto k3 = makeNode<Constant<int>>(0);
+
+  auto a12 = makeNode<AddInt>({k1, k2});
+  auto a123 = makeNode<AddInt>({a12, k3});
+  auto na123 = makeNode<NegInt>({a123});
+
+  CHECK(na123->getValue() == -21);
+
+  auto p = makeNode<Parameter<int>>(-21);
+  std::map<const Node*, NodeRef> replace_k3_with_p = {{k3.get(), p}};
+
+  CHECK_THROWS_AS(rebuildWithSubstitution(na123, replace_k3_with_p),
+                  bpp::Exception); // NegInt has no support for rebuild
+
+  auto rebuilt_k1 = rebuildWithSubstitution(k1, replace_k3_with_p);
+  CHECK(rebuilt_k1 == k1); // Kept the same, leaves are unchanged
+  auto rebuilt_a12 = rebuildWithSubstitution(a12, replace_k3_with_p);
+  CHECK(rebuilt_a12 == a12); // Not rebuilt, did not depend on k3
+
+  auto rebuilt_a123 = rebuildWithSubstitution(a123, replace_k3_with_p);
+  CHECK(rebuilt_a123 != a123); // Rebuilt, did depend on k3
+  CHECK(convertRef<Value<int>>(rebuilt_a123)->getValue() == 0);
 }

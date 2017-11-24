@@ -185,6 +185,29 @@ namespace DF {
 		dependentNodes_.erase (std::remove (dependentNodes_.begin (), dependentNodes_.end (), n),
 		                       dependentNodes_.end ());
 	}
+
+	NodeRef rebuildWithSubstitution (const NodeRef & node,
+	                                 const std::map<const Node *, NodeRef> & substitutions) {
+		auto it = substitutions.find (node.get ());
+		if (it != substitutions.end ()) {
+			// Substitute sub tree.
+			return it->second;
+		} else if (node->dependencies ().empty ()) {
+			// Leaves do no support rebuild: just copy them
+			return node;
+		} else {
+			// Recursion : only rebuild if dependencies have changed
+			auto rebuiltDeps = node->dependencies ().map ([&substitutions](const NodeRef & dep) {
+				return rebuildWithSubstitution (dep, substitutions);
+			});
+			if (rebuiltDeps == node->dependencies ()) {
+				return node;
+			} else {
+				return node->rebuild (std::move (rebuiltDeps));
+			}
+		}
+	}
+
 	/********************************* Specialisations for templates ****************************/
 
 	// Debug info of Value<double>

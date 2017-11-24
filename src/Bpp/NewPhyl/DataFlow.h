@@ -44,6 +44,7 @@
 
 #include <Bpp/NewPhyl/Signed.h>
 #include <Bpp/NewPhyl/Vector.h>
+#include <map>
 #include <memory>
 #include <string>   // description
 #include <typeinfo> // convertRef
@@ -93,10 +94,10 @@ namespace DF {
 		// Node debug info (default = ""): user defined detailed info for DF graph debug.
 		virtual std::string debugInfo () const;
 
-		// Is the node returning a constant value ? (default = false)
+		// Is the node returning a constant value ? (default = false), non recursive
 		virtual bool isConstant () const;
 
-		// Derive with respect to node (default = error)
+		// Derive with respect to node (default = not implemented), recursive
 		virtual NodeRef derive (const Node & node);
 		virtual bool isDerivable (const Node & node) const;
 
@@ -125,7 +126,6 @@ namespace DF {
 		void unregisterNode (const Node * n);
 
 	protected:
-		// TODO small opt vector ?
 		NodeRefVec dependencyNodes_{};    // Nodes that we depend on.
 		Vector<Node *> dependentNodes_{}; // Nodes that depend on us.
 
@@ -134,6 +134,11 @@ namespace DF {
 
 		friend class InternalAccessor;
 	};
+
+	/* Free functions.
+	 */
+	NodeRef rebuildWithSubstitution (const NodeRef & node,
+	                                 const std::map<const Node *, NodeRef> & substitutions);
 
 	/* Node are by convention manipulated as shared_ptr<NodeType>.
 	 * Node construction should always be done through the Builder<NodeType>::make function.
