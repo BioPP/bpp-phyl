@@ -63,7 +63,13 @@ public:
 
 /**
  * @brief The LikelihoodTreeCalculation interface.
+ *
+ * Each site has a site Index, refered to from a pattern, for
+ * compressed data.
+ *
+ *
  */
+  
 class LikelihoodTreeCalculation:
   public virtual Clonable
 {
@@ -102,6 +108,7 @@ public:
    * @throw LikelihoodTreeCalculationNotInitializedException If this instance was not initialized.
    * @throw IndexOutOfBoundsException If the input position is invalid.
    */
+
   virtual size_t getSiteIndex(size_t site) const throw (LikelihoodTreeCalculationNotInitializedException, IndexOutOfBoundsException) = 0;
 
   /**
@@ -109,6 +116,7 @@ public:
    *
    * @return True if a data set is associated to this instance.
    */
+  
   virtual bool isInitialized() const  = 0;
 
   /**
@@ -152,25 +160,40 @@ public:
   virtual double getLogLikelihood() = 0;
   
   /**
-   * @brief Get the likelihood for a site.
+   * @brief Get the likelihood for a site INDEX.
    *
-   * @param site The site index to analyse.
+   * @param site The site INDEX to analyse.
    * @return The likelihood for site <i>site</i>.
    */
 
-  virtual double getLikelihoodForASite(size_t site) = 0;
+  virtual double getLikelihoodForASiteIndex(size_t siteindex) const = 0;
       
-  virtual double getLogLikelihoodForASite(size_t site) = 0;
+  virtual double getLogLikelihoodForASiteIndex(size_t siteindex) const = 0;
   
-  double getDLikelihoodForASite(size_t site);
+  virtual double getDLikelihoodForASiteIndex(size_t siteindex) const = 0;
+  
+  virtual double getD2LikelihoodForASiteIndex(size_t siteindex) const = 0;
+  
+  /**
+   * @brief Get the likelihood for a REAL site.
+   *
+   * @param site The site to analyse.
+   * @return The likelihood for site <i>site</i>.
+   */
 
-  double getD2LikelihoodForASite(size_t site);
-
+  virtual double getLikelihoodForASite(size_t site) const = 0;
+      
+  virtual double getLogLikelihoodForASite(size_t site) const = 0;
+  
+  virtual double getDLikelihoodForASite(size_t site) const = 0;
+  
+  virtual double getD2LikelihoodForASite(size_t site) const = 0;
+  
 
   /**
    * @brief Get the likelihood for a site and for a state.
    *
-   * @param site The site index to analyse.
+   * @param site The site to analyse.
    * @param state The state to consider.
    * @return The likelihood for site <i>site</i> and state <i>state</i>.
    */
@@ -180,15 +203,53 @@ public:
   virtual double getLogLikelihoodForASiteForAState(size_t site, int state) = 0;
 
   /**
+   * @brief Get the likelihood for a site index and for a state.
+   *
+   * @param site The site index to analyse.
+   * @param state The state to consider.
+   * @return The likelihood for site <i>site</i> and state <i>state</i>.
+   */
+
+  virtual double getLikelihoodForASiteIndexForAState(size_t siteindex, int state) = 0;
+
+  virtual double getLogLikelihoodForASiteIndexForAState(size_t siteindex, int state) = 0;
+
+  /**
    * @brief Get the logarithm of the likelihood for a site knowing its model class.
+   *
+   * @param site       The site.
+   * @param classIndex The model class index.
+   * @return The likelihood for the specified site and model class.
+   */
+
+  virtual double getLikelihoodForASiteForAClass(size_t site, size_t classIndex) = 0;
+
+  virtual double getLogLikelihoodForASiteForAClass(size_t site, size_t classIndex) = 0;
+
+  /**
+   * @brief Get the logarithm of the likelihood for a site index knowing its model class.
    *
    * @param site       The site index.
    * @param classIndex The model class index.
    * @return The likelihood for the specified site and model class.
    */
-  virtual double getLikelihoodForASiteForAClass(size_t site, size_t classIndex) = 0;
 
-  virtual double getLogLikelihoodForASiteForAClass(size_t site, size_t classIndex) = 0;
+  virtual double getLikelihoodForASiteIndexForAClass(size_t siteindex, size_t classIndex) = 0;
+
+  virtual double getLogLikelihoodForASiteIndexForAClass(size_t siteindex, size_t classIndex) = 0;
+
+  /**
+   * @brief Get the likelihood for a site knowing its model class and its ancestral state.
+   *
+   * @param site       The site.
+   * @param classIndex The model class index.
+   * @param state      The ancestral state.
+   * @return The likelihood for the specified site and model class and ancestral state..
+   */
+
+  virtual double getLikelihoodForASiteForAClassForAState(size_t site, size_t classIndex, int state) = 0;
+
+  virtual double getLogLikelihoodForASiteForAClassForAState(size_t site, size_t classIndex, int state) = 0;
 
   /**
    * @brief Get the likelihood for a site knowing its model class and its ancestral state.
@@ -199,10 +260,10 @@ public:
    * @return The likelihood for the specified site and model class and ancestral state..
    */
 
-  virtual double getLikelihoodForASiteForAClassForAState(size_t site, size_t classIndex, int state) = 0;
+  virtual double getLikelihoodForASiteIndexForAClassForAState(size_t siteindex, size_t classIndex, int state) = 0;
 
-  virtual double getLogLikelihoodForASiteForAClassForAState(size_t site, size_t classIndex, int state) = 0;
-  
+  virtual double getLogLikelihoodForASiteIndexForAClassForAState(size_t siteindex, size_t classIndex, int state) = 0;
+
   /**
    * @brief Get the derivate of log-likelihood for the data set.
    *
@@ -227,11 +288,20 @@ public:
   /**
    * @brief Get the derivative of the loglikelihood for a site.
    *
+   * @param site The site to analyse.
+   * @return The derivative of likelihood for site <i>site</i>.
+   */
+
+  virtual double getDLogLikelihoodForASite(size_t site) const = 0;
+  
+  /**
+   * @brief Get the derivative of the loglikelihood for a site.
+   *
    * @param site The site index to analyse.
    * @return The derivative of likelihood for site <i>site</i>.
    */
 
-  virtual double getDLogLikelihoodForASite(size_t site) = 0;
+  virtual double getDLogLikelihoodForASiteIndex(size_t siteindex) const = 0;
   
   /**
    * @brief Get the second-order derivative of the loglikelihood for a site.
@@ -240,7 +310,17 @@ public:
    * @return The second-order derivative of likelihood for site <i>site</i>.
    */
 
-  virtual double getD2LogLikelihoodForASite(size_t site) = 0;  
+  virtual double getD2LogLikelihoodForASite(size_t site) const = 0;  
+
+  /**
+   * @brief Get the second-order derivative of the loglikelihood for a
+   * site index.
+   *
+   * @param site The site index to analyse.
+   * @return The second-order derivative of likelihood for site <i>site</i>.
+   */
+
+  virtual double getD2LogLikelihoodForASiteIndex(size_t siteindex) const = 0;  
 
   /**
    * @brief update the likelihood dependencies (but does not compute).

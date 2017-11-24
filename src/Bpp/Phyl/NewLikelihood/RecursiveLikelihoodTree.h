@@ -61,7 +61,7 @@ namespace bpp
 class RecursiveLikelihoodTree :
   public AbstractLikelihoodTree
 {
-private:
+public:
   /*
    * a vector of trees of computing nodes
    *
@@ -69,7 +69,8 @@ private:
 
   typedef AssociationTreeGlobalGraphObserver<RecursiveLikelihoodNode, PhyloBranchParam>  LikTree;
   using NodeIndex = typename LikTree::NodeIndex;
-  
+
+private:
   std::vector<std::shared_ptr<LikTree> > vTree_;
 
 
@@ -124,6 +125,7 @@ public:
    * @brief the Node Data
    *
    */
+
   AbstractLikelihoodNode& getNodeData(int nodeId, size_t nClass)
   {
     return *(*this)[nClass].getNode(static_cast<NodeIndex>(nodeId));

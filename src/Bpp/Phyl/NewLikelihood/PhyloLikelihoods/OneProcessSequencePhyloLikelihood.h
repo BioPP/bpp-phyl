@@ -258,40 +258,40 @@ public:
     return tlComp_->getD2LogLikelihood();
   }
 
-  double getLikelihoodForASite(size_t siteIndex) const
+  double getLikelihoodForASite(size_t site) const
   {
     updateLikelihood();
     computeLikelihood();
 
-    return tlComp_->getLikelihoodForASite(siteIndex);
+    return tlComp_->getLikelihoodForASite(site);
   }
 
-  double getLogLikelihoodForASite(size_t siteIndex) const
+  double getLogLikelihoodForASite(size_t site) const
   {
     updateLikelihood();
     computeLikelihood();
 
-    return tlComp_->getLogLikelihoodForASite(siteIndex);
+    return tlComp_->getLogLikelihoodForASite(site);
   }
 
-  double getDLogLikelihoodForASite(const std::string& variable, size_t siteIndex) const
+  double getDLogLikelihoodForASite(const std::string& variable, size_t site) const
   {
     // check it is a "BrLen" variable
 
   if (!hasParameter(variable) || (variable.compare(0,5,"BrLen")!=0))
       return 0;
 
-    return tlComp_->getDLogLikelihoodForASite(siteIndex);
+    return tlComp_->getDLogLikelihoodForASite(site);
   }
 
-  double getD2LogLikelihoodForASite(const std::string& variable, size_t siteIndex) const
+  double getD2LogLikelihoodForASite(const std::string& variable, size_t site) const
   {
     // check it is a "BrLen" variable
 
   if (!hasParameter(variable) || (variable.compare(0,5,"BrLen")!=0))
       return 0;
 
-    return tlComp_->getD2LogLikelihoodForASite(siteIndex);
+    return tlComp_->getD2LogLikelihoodForASite(site);
   }
 
   /**
@@ -326,10 +326,10 @@ public:
    * @param site An alignment position.
    * @return The site index corresponding to the given input alignment position.
    */
-  size_t getSiteIndex(size_t site) const throw (IndexOutOfBoundsException)
-  {
-    return tlComp_->getSiteIndex(site);
-  }
+  // size_t getSiteIndex(size_t site) const throw (IndexOutOfBoundsException)
+  // {
+  //   return tlComp_->getSiteIndex(site);
+  // }
 
   /**
    * Utilities

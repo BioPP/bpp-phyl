@@ -245,40 +245,110 @@ namespace bpp
      *
      */
       
-    double getLikelihoodForASite(size_t site);
-
-    double getLikelihoodForASiteForAState(size_t site, int state);
-
-    double getLikelihoodForASiteForAClass(size_t site, size_t classIndex);
-
-    double getLikelihoodForASiteForAClassForAState(size_t site, size_t classIndex, int state);
-
-      
-
-    double getLogLikelihoodForASite(size_t site);
-
-    double getLogLikelihoodForASiteForAState(size_t site, int state);
-
-    double getLogLikelihoodForASiteForAClass(size_t site, size_t classIndex);
-
-    double getLogLikelihoodForASiteForAClassForAState(size_t site, size_t classIndex, int state);
-
-
-    double getDLikelihoodForASite(size_t site);
-
-    double getD2LikelihoodForASite(size_t site);
-
-      
-    double getDLogLikelihoodForASite(size_t site)
+    double getLikelihoodForASite(size_t site) const
     {
-      // d(f(g(x)))/dx = dg(x)/dx . df(g(x))/dg :
-      return getDLikelihoodForASite(site) / getLikelihoodForASite(site);
+      return getLikelihoodForASiteIndex(getLikelihoodData().getRootArrayPosition(site));
     }
 
-    double getD2LogLikelihoodForASite(size_t site)
+    double getLikelihoodForASiteForAState(size_t site, int state)
     {
-      return getD2LikelihoodForASite(site) / getLikelihoodForASite(site)
-        - pow( getDLikelihoodForASite(site) / getLikelihoodForASite(site), 2);
+      return getLikelihoodForASiteIndexForAState(getLikelihoodData().getRootArrayPosition(site),state);
+    }
+
+
+    double getLikelihoodForASiteForAClass(size_t site, size_t classIndex)
+    {
+      return getLikelihoodForASiteIndexForAClass(getLikelihoodData().getRootArrayPosition(site), classIndex);
+    }
+
+    double getLikelihoodForASiteForAClassForAState(size_t site, size_t classIndex, int state)
+    {
+      return getLikelihoodForASiteIndexForAClassForAState(getLikelihoodData().getRootArrayPosition(site), classIndex, state);
+    }
+    
+    double getLogLikelihoodForASite(size_t site) const
+    {
+      return getLogLikelihoodForASiteIndex(getLikelihoodData().getRootArrayPosition(site));
+    }
+
+    double getLogLikelihoodForASiteForAState(size_t site, int state)
+    {
+      return getLogLikelihoodForASiteIndexForAState(getLikelihoodData().getRootArrayPosition(site),state);
+    }
+
+    double getLogLikelihoodForASiteForAClass(size_t site, size_t classIndex)
+    {
+      return getLogLikelihoodForASiteIndexForAClass(getLikelihoodData().getRootArrayPosition(site), classIndex);
+    }
+
+    double getLogLikelihoodForASiteForAClassForAState(size_t site, size_t classIndex, int state)
+    {
+      return getLogLikelihoodForASiteIndexForAClassForAState(getLikelihoodData().getRootArrayPosition(site), classIndex, state);
+    }
+
+
+    double getDLikelihoodForASite(size_t site) const
+    {
+      return getDLikelihoodForASiteIndex(getLikelihoodData().getRootArrayPosition(site));
+    }
+    
+
+    double getD2LikelihoodForASite(size_t site) const
+    {
+      return getD2LikelihoodForASiteIndex(getLikelihoodData().getRootArrayPosition(site));
+    }
+    
+    double getDLogLikelihoodForASite(size_t site) const
+    {
+      return getDLogLikelihoodForASiteIndex(getLikelihoodData().getRootArrayPosition(site));
+    }
+
+    double getD2LogLikelihoodForASite(size_t site) const
+    {
+      return getD2LogLikelihoodForASiteIndex(getLikelihoodData().getRootArrayPosition(site));
+    }
+
+    /*
+     * @brief get DX(log-)likelihoods at sites indexes.
+     *
+     * !!!! These methods do not check that computations are up to
+     * date.
+     *
+     *
+     */
+    
+    double getLikelihoodForASiteIndex(size_t siteindex) const;
+
+    double getLikelihoodForASiteIndexForAState(size_t siteindex, int state);
+
+    double getLikelihoodForASiteIndexForAClass(size_t siteindex, size_t classIndex);
+
+    double getLikelihoodForASiteIndexForAClassForAState(size_t siteindex, size_t classIndex, int state);
+    
+    double getLogLikelihoodForASiteIndex(size_t siteindex) const;
+
+    double getLogLikelihoodForASiteIndexForAState(size_t siteindex, int state);
+
+    double getLogLikelihoodForASiteIndexForAClass(size_t siteindex, size_t classIndex);
+
+    double getLogLikelihoodForASiteIndexForAClassForAState(size_t siteindex, size_t classIndex, int state);
+
+
+    double getDLikelihoodForASiteIndex(size_t siteindex) const;
+
+    double getD2LikelihoodForASiteIndex(size_t siteindex) const;
+
+      
+    double getDLogLikelihoodForASiteIndex(size_t siteindex) const
+    {
+      // d(f(g(x)))/dx = dg(x)/dx . df(g(x))/dg :
+      return getDLikelihoodForASiteIndex(siteindex) / getLikelihoodForASiteIndex(siteindex);
+    }
+
+    double getD2LogLikelihoodForASiteIndex(size_t siteindex) const
+    {
+      return getD2LikelihoodForASiteIndex(siteindex) / getLikelihoodForASiteIndex(siteindex)
+        - pow( getDLikelihoodForASiteIndex(siteindex) / getLikelihoodForASiteIndex(siteindex), 2);
     }
 
     /**

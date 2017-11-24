@@ -227,6 +227,11 @@ public:
       return getNodeData(nodeId, nClass).getLikelihoodArray(DX);
     }
 
+    const VVdouble& getLikelihoodArray(int nodeId, size_t nClass, unsigned char DX) const
+    {
+      return getNodeData(nodeId, nClass).getLikelihoodArray(DX);
+    }
+
     /**
      * @brief returns if given node at given class uses log in arrays.
      *
@@ -272,7 +277,7 @@ public:
      *
      */
     
-    VVVdouble getPosteriorProbabilitiesForEachStateForEachClass(int nodeId);
+    VVVdouble getPosteriorProbabilitiesForEachStateForEachClass(int nodeId) const;
 
     /**
      * @brief Compute the posterior probabilities for each state for a
@@ -290,7 +295,7 @@ public:
      * node.
      */
     
-    Vdouble getPosteriorStateFrequencies(int nodeId);
+    Vdouble getPosteriorStateFrequencies(int nodeId) const;
 
   };
   

@@ -93,7 +93,7 @@ AbstractLikelihoodTree::~AbstractLikelihoodTree()
 
 /******************************************************************************/
 
-VVVdouble AbstractLikelihoodTree::getPosteriorProbabilitiesForEachStateForEachClass(int nodeId)
+VVVdouble AbstractLikelihoodTree::getPosteriorProbabilitiesForEachStateForEachClass(int nodeId) const
 {
   VVVdouble vRes(nbClasses_);
 
@@ -108,7 +108,7 @@ VVVdouble AbstractLikelihoodTree::getPosteriorProbabilitiesForEachStateForEachCl
 
 /******************************************************************************/
 
-Vdouble AbstractLikelihoodTree::getPosteriorStateFrequencies(int nodeId)
+Vdouble AbstractLikelihoodTree::getPosteriorStateFrequencies(int nodeId) const
 {
   VVVdouble probs = getPosteriorProbabilitiesForEachStateForEachClass(nodeId);
   Vdouble freqs(getNumberOfStates());
