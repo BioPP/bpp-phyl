@@ -45,7 +45,7 @@
 
 #include <Bpp/NewPhyl/DataFlow.h>
 #include <Bpp/NewPhyl/DataFlowTemplates.h>
-#include <Bpp/NewPhyl/LinearAlgebra.h> // Matrix types
+#include <Bpp/NewPhyl/PhylogenyTypes.h>
 #include <Bpp/NewPhyl/Signed.h>
 #include <memory>
 #include <string>
@@ -55,6 +55,7 @@ class SubstitutionModel;
 
 namespace DF {
 	// DF Node representing a model with its parameter (wrapper to master code).
+	// TODO constructors, derivation (customizable)
 	class Model : public Value<const SubstitutionModel *> {
 	public:
 		Model (std::unique_ptr<SubstitutionModel> model);
@@ -80,25 +81,25 @@ namespace DF {
 	// (model) -> Vector of freqs
 	class EquilibriumFrequenciesFromModel;
 	template <> struct Builder<EquilibriumFrequenciesFromModel> {
-		static ValueRef<VectorDouble> make (NodeRefVec && deps, SizeType nbStates);
+		static ValueRef<VectorDouble> make (NodeRefVec && deps, SizeType nbStates); // FIXME dimension
 	};
 
 	// (model, branch length) -> transition matrix
 	class TransitionMatrixFromModel;
 	template <> struct Builder<TransitionMatrixFromModel> {
-		static ValueRef<MatrixDouble> make (NodeRefVec && deps, SizeType nbStates);
+		static ValueRef<MatrixDouble> make (NodeRefVec && deps, const TransitionMatrixDimension & dim);
 	};
 
 	// (model, branch length) -> d(transition matrix)
 	class TransitionMatrixFromModelBrlenDerivative;
 	template <> struct Builder<TransitionMatrixFromModelBrlenDerivative> {
-		static ValueRef<MatrixDouble> make (NodeRefVec && deps, SizeType nbStates);
+		static ValueRef<MatrixDouble> make (NodeRefVec && deps, const TransitionMatrixDimension & dim);
 	};
 
 	// (model, branch length) -> d2(transition matrix)
 	class TransitionMatrixFromModelBrlenSecondDerivative;
 	template <> struct Builder<TransitionMatrixFromModelBrlenSecondDerivative> {
-		static ValueRef<MatrixDouble> make (NodeRefVec && deps, SizeType nbStates);
+		static ValueRef<MatrixDouble> make (NodeRefVec && deps, const TransitionMatrixDimension & dim);
 	};
 } // namespace DF
 } // namespace bpp

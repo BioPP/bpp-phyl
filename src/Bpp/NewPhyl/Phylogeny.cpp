@@ -40,6 +40,7 @@
 
 #include <Bpp/NewPhyl/DataFlowNumeric.h>
 #include <Bpp/NewPhyl/Likelihood.h>
+#include <Bpp/NewPhyl/LinearAlgebra.h> // allow conversion to nodeRef FIXME
 #include <Bpp/NewPhyl/Model.h>
 #include <Bpp/NewPhyl/Phylogeny.h>
 #include <utility>
@@ -78,8 +79,8 @@ namespace Phyl {
 
 			auto & branchModel = params.process.modelByBranch->access (branch).value ();
 			auto & brlen = params.process.branchLengths->access (branch).value ();
-			auto modelTransitionMatrix =
-			    DF::makeNode<DF::TransitionMatrixFromModel> ({branchModel, brlen}, dim.nbStates ());
+			auto modelTransitionMatrix = DF::makeNode<DF::TransitionMatrixFromModel> (
+			    {branchModel, brlen}, TransitionMatrixDimension (dim.nbStates ()));
 
 			return DF::makeNode<DF::ForwardLikelihoodFromChild> (
 			    {std::move (modelTransitionMatrix), std::move (conditionalLikelihood)}, dim);

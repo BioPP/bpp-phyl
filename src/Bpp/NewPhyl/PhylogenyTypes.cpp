@@ -1,9 +1,9 @@
 //
-// File: Likelihood.h
+// File: PhylogenyTypes.cpp
 // Authors:
 //   Francois Gindraud (2017)
-// Created: 2017-05-03
-// Last modified: 2017-05-03
+// Created: 2017-11-27
+// Last modified: 2017-11-27
 //
 
 /*
@@ -39,39 +39,14 @@
   knowledge of the CeCILL license and that you accept its terms.
 */
 
-#pragma once
-#ifndef BPP_NEWPHYL_LIKELIHOOD_H
-#define BPP_NEWPHYL_LIKELIHOOD_H
-
-#include <Bpp/NewPhyl/DataFlow.h>
-#include <Bpp/NewPhyl/DataFlowNumeric.h>
 #include <Bpp/NewPhyl/PhylogenyTypes.h>
 
 namespace bpp {
-class Sequence;
-
-namespace DF {
-	// (sequence) -> MatrixDouble
-	class ConditionalLikelihoodFromSequence;
-	template <> struct Builder<ConditionalLikelihoodFromSequence> {
-		static ValueRef<MatrixDouble> make (NodeRefVec && deps, const LikelihoodDataDimension & dim);
-	};
-
-	// vec<fwdLik> -> condLik
-	using ConditionalLikelihoodFromChildrens = CWiseMulMatrixDouble;
-
-	// (transitionMatrix, condLik) -> fwdLik
-	using ForwardLikelihoodFromChild = MulMatrixDouble;
-
-	// (condLik, equFreqs) -> likBySiteVector
-	using Likelihood = MulTransposedMatrixVectorDouble;
-
-	// (likelihood by site) -> total log likelihood
-	class TotalLogLikelihood;
-	template <> struct Builder<TotalLogLikelihood> {
-		static ValueRef<double> make (NodeRefVec && deps);
-	};
-} // namespace DF
+std::string to_string (const LikelihoodDataDimension & dim) {
+	return "(sites=" + std::to_string (dim.nbSites ()) +
+	       ",states=" + std::to_string (dim.nbStates ()) + ")";
+}
+std::string to_string (const TransitionMatrixDimension & dim) {
+	return "nbStates=" + std::to_string (dim.nbStates ());
+}
 } // namespace bpp
-
-#endif // BPP_NEWPHYL_LIKELIHOOD_H

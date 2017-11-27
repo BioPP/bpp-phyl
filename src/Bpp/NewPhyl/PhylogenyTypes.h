@@ -1,9 +1,9 @@
 //
-// File: Likelihood.h
+// File: PhylogenyTypes.h
 // Authors:
 //   Francois Gindraud (2017)
-// Created: 2017-05-03
-// Last modified: 2017-05-03
+// Created: 2017-11-27
+// Last modified: 2017-11-27
 //
 
 /*
@@ -39,39 +39,45 @@
   knowledge of the CeCILL license and that you accept its terms.
 */
 
-#pragma once
-#ifndef BPP_NEWPHYL_LIKELIHOOD_H
-#define BPP_NEWPHYL_LIKELIHOOD_H
+#ifndef BPP_NEWPHYL_PHYLOGENYTYPES_H
+#define BPP_NEWPHYL_PHYLOGENYTYPES_H
 
-#include <Bpp/NewPhyl/DataFlow.h>
-#include <Bpp/NewPhyl/DataFlowNumeric.h>
-#include <Bpp/NewPhyl/PhylogenyTypes.h>
+#include <Bpp/NewPhyl/LinearAlgebraFwd.h>
+#include <Bpp/NewPhyl/Signed.h>
+#include <cassert>
+#include <string>
 
 namespace bpp {
-class Sequence;
+/* Likelihood probabilities (final or intermediate) are stored in a matrix.
+ * Frequencies for site k are stored in column k.
+ * TODO accessors ?
+ */
+using LikelihoodData = MatrixDouble;
 
-namespace DF {
-	// (sequence) -> MatrixDouble
-	class ConditionalLikelihoodFromSequence;
-	template <> struct Builder<ConditionalLikelihoodFromSequence> {
-		static ValueRef<MatrixDouble> make (NodeRefVec && deps, const LikelihoodDataDimension & dim);
-	};
+// defines a MatrixDimension compatible struct.
+struct LikelihoodDataDimension : public MatrixDimension {
+	LikelihoodDataDimension (SizeType nbSitesArg, SizeType nbStatesArg) noexcept
+	    : MatrixDimension (nbStatesArg, nbSitesArg) {}
+	LikelihoodDataDimension (const MatrixDimension & matDim) noexcept : MatrixDimension (matDim) {}
 
-	// vec<fwdLik> -> condLik
-	using ConditionalLikelihoodFromChildrens = CWiseMulMatrixDouble;
+	SizeType nbStates () const noexcept { return rows; }
+	SizeType nbSites () const noexcept { return cols; }
+};
+std::string to_string (const LikelihoodDataDimension & dim);
 
-	// (transitionMatrix, condLik) -> fwdLik
-	using ForwardLikelihoodFromChild = MulMatrixDouble;
+// defines a MatrixDimension compatible struct.
+using TransitionMatrix = MatrixDouble;
+struct TransitionMatrixDimension : public MatrixDimension {
+	TransitionMatrixDimension (SizeType nbStatesArg) noexcept
+	    : MatrixDimension (nbStatesArg, nbStatesArg) {}
+	TransitionMatrixDimension (const MatrixDimension & matDim) noexcept : MatrixDimension (matDim) {
+		assert (rows == cols);
+	}
 
-	// (condLik, equFreqs) -> likBySiteVector
-	using Likelihood = MulTransposedMatrixVectorDouble;
+	SizeType nbStates () const noexcept { return rows; }
+};
+std::string to_string (const TransitionMatrixDimension & dim);
 
-	// (likelihood by site) -> total log likelihood
-	class TotalLogLikelihood;
-	template <> struct Builder<TotalLogLikelihood> {
-		static ValueRef<double> make (NodeRefVec && deps);
-	};
-} // namespace DF
 } // namespace bpp
 
-#endif // BPP_NEWPHYL_LIKELIHOOD_H
+#endif // BPP_NEWPHYL_PHYLOGENYTYPES_H

@@ -49,12 +49,6 @@
 #include <cmath>
 
 namespace bpp {
-
-std::string to_string (const LikelihoodDataDimension & dim) {
-	return "(sites=" + std::to_string (dim.nbSites ()) +
-	       ",states=" + std::to_string (dim.nbStates ()) + ")";
-}
-
 namespace DF {
 	class ConditionalLikelihoodFromSequence : public Value<MatrixDouble> {
 	public:

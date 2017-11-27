@@ -41,6 +41,7 @@
 
 #include <Bpp/NewPhyl/DataFlowInternalTemplates.h>
 #include <Bpp/NewPhyl/DataFlowNumeric.h>
+#include <Bpp/NewPhyl/LinearAlgebra.h>
 #include <Bpp/NewPhyl/Model.h>
 #include <Bpp/NewPhyl/Range.h>
 #include <Bpp/Numeric/Parameter.h>
@@ -170,19 +171,19 @@ namespace DF {
 	public:
 		using Dependencies = FunctionOfValues<const SubstitutionModel *, double>;
 
-		TransitionMatrixFromModel (NodeRefVec && deps, SizeType nbStates)
-		    : Value<MatrixDouble> (std::move (deps), nbStates, nbStates) {}
+		TransitionMatrixFromModel (NodeRefVec && deps, const TransitionMatrixDimension & dim)
+		    : Value<MatrixDouble> (std::move (deps), dim.rows, dim.cols) {}
 		std::string debugInfo () const override final {
-			return Value<MatrixDouble>::debugInfo () +
-			       " nbStates=" + std::to_string (dimensions (*this).rows);
+			return Value<MatrixDouble>::debugInfo () + " " +
+			       to_string (TransitionMatrixDimension (dimensions (*this)));
 		}
 		NodeRef derive (const Node & node) override final {
 			assert (isDerivable (node));
-			auto dim = dimensions (*this);
+			auto dim = TransitionMatrixDimension (dimensions (*this));
 			auto & modelNode = this->dependency (0);
 			auto & brlenNode = this->dependency (1);
 			auto dTransMat_dBrlen =
-			    makeNode<TransitionMatrixFromModelBrlenDerivative> ({modelNode, brlenNode}, dim.rows);
+			    makeNode<TransitionMatrixFromModelBrlenDerivative> ({modelNode, brlenNode}, dim);
 			return makeNode<CWiseMulScalarMatrixDouble> (
 			    {brlenNode->derive (node), std::move (dTransMat_dBrlen)}, dim);
 		}
@@ -196,29 +197,31 @@ namespace DF {
 			                          double brlen) { bppToEigen (model->getPij_t (brlen), matrix); });
 		}
 	};
-	ValueRef<MatrixDouble> Builder<TransitionMatrixFromModel>::make (NodeRefVec && deps,
-	                                                                 SizeType nbStates) {
+	ValueRef<MatrixDouble>
+	Builder<TransitionMatrixFromModel>::make (NodeRefVec && deps,
+	                                          const TransitionMatrixDimension & dim) {
 		checkDependencies<TransitionMatrixFromModel> (deps);
-		return std::make_shared<TransitionMatrixFromModel> (std::move (deps), nbStates);
+		return std::make_shared<TransitionMatrixFromModel> (std::move (deps), dim);
 	}
 
 	class TransitionMatrixFromModelBrlenDerivative : public Value<MatrixDouble> {
 	public:
 		using Dependencies = FunctionOfValues<const SubstitutionModel *, double>;
 
-		TransitionMatrixFromModelBrlenDerivative (NodeRefVec && deps, SizeType nbStates)
-		    : Value<MatrixDouble> (std::move (deps), nbStates, nbStates) {}
+		TransitionMatrixFromModelBrlenDerivative (NodeRefVec && deps,
+		                                          const TransitionMatrixDimension & dim)
+		    : Value<MatrixDouble> (std::move (deps), dim.rows, dim.cols) {}
 		std::string debugInfo () const override final {
-			return Value<MatrixDouble>::debugInfo () +
-			       " nbStates=" + std::to_string (dimensions (*this).rows);
+			return Value<MatrixDouble>::debugInfo () + " " +
+			       to_string (TransitionMatrixDimension (dimensions (*this)));
 		}
 		NodeRef derive (const Node & node) override final {
 			assert (isDerivable (node));
-			auto dim = dimensions (*this);
+			auto dim = TransitionMatrixDimension (dimensions (*this));
 			auto & modelNode = this->dependency (0);
 			auto & brlenNode = this->dependency (1);
-			auto d2TransMat_dBrlen2 = makeNode<TransitionMatrixFromModelBrlenSecondDerivative> (
-			    {modelNode, brlenNode}, dim.rows);
+			auto d2TransMat_dBrlen2 =
+			    makeNode<TransitionMatrixFromModelBrlenSecondDerivative> ({modelNode, brlenNode}, dim);
 			return makeNode<CWiseMulScalarMatrixDouble> (
 			    {brlenNode->derive (node), std::move (d2TransMat_dBrlen2)}, dim);
 		}
@@ -233,20 +236,22 @@ namespace DF {
 		}
 	};
 	ValueRef<MatrixDouble>
-	Builder<TransitionMatrixFromModelBrlenDerivative>::make (NodeRefVec && deps, SizeType nbStates) {
+	Builder<TransitionMatrixFromModelBrlenDerivative>::make (NodeRefVec && deps,
+	                                                         const TransitionMatrixDimension & dim) {
 		checkDependencies<TransitionMatrixFromModelBrlenDerivative> (deps);
-		return std::make_shared<TransitionMatrixFromModelBrlenDerivative> (std::move (deps), nbStates);
+		return std::make_shared<TransitionMatrixFromModelBrlenDerivative> (std::move (deps), dim);
 	}
 
 	class TransitionMatrixFromModelBrlenSecondDerivative : public Value<MatrixDouble> {
 	public:
 		using Dependencies = FunctionOfValues<const SubstitutionModel *, double>;
 
-		TransitionMatrixFromModelBrlenSecondDerivative (NodeRefVec && deps, SizeType nbStates)
-		    : Value<MatrixDouble> (std::move (deps), nbStates, nbStates) {}
+		TransitionMatrixFromModelBrlenSecondDerivative (NodeRefVec && deps,
+		                                                const TransitionMatrixDimension & dim)
+		    : Value<MatrixDouble> (std::move (deps), dim.rows, dim.cols) {}
 		std::string debugInfo () const override final {
-			return Value<MatrixDouble>::debugInfo () +
-			       " nbStates=" + std::to_string (dimensions (*this).rows);
+			return Value<MatrixDouble>::debugInfo () + " " +
+			       to_string (TransitionMatrixDimension (dimensions (*this)));
 		}
 
 	private:
@@ -257,12 +262,10 @@ namespace DF {
 			                });
 		}
 	};
-	ValueRef<MatrixDouble>
-	Builder<TransitionMatrixFromModelBrlenSecondDerivative>::make (NodeRefVec && deps,
-	                                                               SizeType nbStates) {
+	ValueRef<MatrixDouble> Builder<TransitionMatrixFromModelBrlenSecondDerivative>::make (
+	    NodeRefVec && deps, const TransitionMatrixDimension & dim) {
 		checkDependencies<TransitionMatrixFromModelBrlenSecondDerivative> (deps);
-		return std::make_shared<TransitionMatrixFromModelBrlenSecondDerivative> (std::move (deps),
-		                                                                         nbStates);
+		return std::make_shared<TransitionMatrixFromModelBrlenSecondDerivative> (std::move (deps), dim);
 	}
 } // namespace DF
 } // namespace bpp

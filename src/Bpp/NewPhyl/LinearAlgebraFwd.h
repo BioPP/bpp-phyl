@@ -110,6 +110,14 @@ bool isExactOne (const VectorDouble &);
 bool isExactOne (const MatrixDouble &);
 bool isExactIdentity (const MatrixDouble &);
 
+/* TODO accessor.
+ * These accessors cannot be inlined, and are thus of low performance.
+ * If high performance access is needed, include LinearAlgebra.h (and Eigen) for inlinable access.
+ *
+ * If values come out of a Data Flow node, you can implement your computation as a data flow node.
+ * You will get automatic caching of intermediates, derivation if supported by your node, ...
+ */
+
 } // namespace bpp
 
 #endif // BPP_NEWPHYL_LINEARALGEBRAFWD_H
