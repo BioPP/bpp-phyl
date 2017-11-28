@@ -113,15 +113,14 @@ namespace bpp
      * @param verbose          Print some info to the 'message' output stream.
      * @param warn             Set the warning level (0: always display warnings, >0 display warnings on demand).
      * @return A new Tree object according to the specified options.
-     * @throw Exception if an error occured.
      */
     static Tree* getTree(
-      std::map<std::string, std::string>& params,
+      const std::map<std::string, std::string>& params,
       const std::string& prefix = "input.",
       const std::string& suffix = "",
       bool suffixIsOptional = true,
       bool verbose = true,
-      int warn = 1) throw (Exception);
+      int warn = 1);
  
     /**
      * @brief Build a list ofTree objects according to options.
@@ -135,15 +134,14 @@ namespace bpp
      * @param verbose          Print some info to the 'message' output stream.
      * @param warn             Set the warning level (0: always display warnings, >0 display warnings on demand).
      * @return A new vector of Tree objects according to the specified options.
-     * @throw Exception if an error occured.
      */
     static std::vector<Tree*> getTrees(
-      std::map<std::string, std::string>& params,
+      const std::map<std::string, std::string>& params,
       const std::string& prefix = "input.",
       const std::string& suffix = "",
       bool suffixIsOptional = true,
       bool verbose = true,
-      int warn = 1) throw (Exception);
+      int warn = 1);
 
     /**
      * @brief Build a list ofTree objects according to options.
@@ -162,21 +160,20 @@ namespace bpp
      * @param verbose          Print some info to the 'message' output stream.
      * @param warn             Set the warning level (0: always display warnings, >0 display warnings on demand).
      * @return A new vector of Tree objects according to the specified options.
-     * @throw Exception if an error occured.
      */
     
     static std::map<size_t, Tree*> getTrees(
-      std::map<std::string, std::string>& params,
+      const std::map<std::string, std::string>& params,
       const std::map<size_t, AlignedValuesContainer*>& mSeq,
       std::map<std::string, std::string>& unparsedParams,
       const std::string& prefix = "input.",
       const std::string& suffix = "",
       bool suffixIsOptional = true,
       bool verbose = true,
-      int warn = 1) throw (Exception);
+      int warn = 1);
 
     static std::map<size_t, PhyloTree*> getPhyloTrees(
-      std::map<std::string, std::string>& params,
+      const std::map<std::string, std::string>& params,
       const std::map<size_t, AlignedValuesContainer*>& mSeq,
       std::map<std::string, std::string>& unparsedParams,
       const std::string& prefix = "input.",
@@ -209,31 +206,30 @@ namespace bpp
      * @param verbose          Print some info to the 'message' output stream.
      * @param warn             Set the warning level (0: always display warnings, >0 display warnings on demand).
      * @return A new SubstitutionModel object according to options specified.
-     * @throw Exception if an error occured.
      */
 
     static SubstitutionModel* getSubstitutionModel(
       const Alphabet* alphabet,
       const GeneticCode* gCode,
       const AlignedValuesContainer* data, 
-      std::map<std::string, std::string>& params,
+      const std::map<std::string, std::string>& params,
       std::map<std::string, std::string>& unparsedparams,
       const std::string& suffix = "",
       bool suffixIsOptional = true,
       bool verbose = true,
-      int warn = 1) throw (Exception);
+      int warn = 1);
     
     
     static TransitionModel* getTransitionModel(
       const Alphabet* alphabet,
       const GeneticCode* gCode,
       const AlignedValuesContainer* data,
-      std::map<std::string, std::string>& params,
+      const std::map<std::string, std::string>& params,
       std::map<std::string, std::string>& unparsedparams,
       const std::string& suffix = "",
       bool suffixIsOptional = true,
       bool verbose = true,
-      int warn = 1) throw (Exception);
+      int warn = 1);
 
     /*
      * @brief The same as before, but with several models.
@@ -244,12 +240,12 @@ namespace bpp
       const Alphabet* alphabet,
       const GeneticCode* gCode,
       const std::map<size_t, AlignedValuesContainer*>& mData, 
-      std::map<std::string, std::string>& params,
+      const std::map<std::string, std::string>& params,
       std::map<std::string, std::string>& unparsedparams,
       const std::string& suffix = "",
       bool suffixIsOptional = true,
       bool verbose = true,
-      int warn = 1) throw (Exception);
+      int warn = 1);
 
 
     /**
@@ -274,19 +270,18 @@ namespace bpp
      * @param verbose          Print some info to the 'message' output stream.
      * @param warn             Set the warning level (0: always display warnings, >0 display warnings on demand).
      * @return A new TransitionModel object according to options specified.
-     * @throw Exception if an error occured.
      */
     
     static std::map<size_t, SubstitutionProcess*> getSubstitutionProcesses(
       const Alphabet* alphabet,
       const GeneticCode* gCode,
       const std::map<size_t, AlignedValuesContainer*>& mData, 
-      std::map<std::string, std::string>& params,
+      const std::map<std::string, std::string>& params,
       std::map<std::string, std::string>& unparsedparams,
       const std::string& suffix = "",
       bool suffixIsOptional = true,
       bool verbose = true,
-      int warn = 1) throw (Exception);
+      int warn = 1);
 
     /**
      * @brief Set parameter initial values of a given model in a set according to options.
@@ -305,7 +300,6 @@ namespace bpp
      *               May be equal to NULL, but in this case use_observed_freq option will be unavailable.
      * @param sharedParams (out) remote parameters will be recorded here.
      * @param verbose Print some info to the 'message' output stream.
-     * @throw Exception if an error occured.
      */
 
     static void setSubstitutionModelParametersInitialValuesWithAliases(
@@ -314,7 +308,7 @@ namespace bpp
       size_t modelNumber,
       const AlignedValuesContainer* data,
       std::map<std::string, std::string>& sharedParams,
-      bool verbose) throw (Exception);
+      bool verbose);
 
     /**
      * @brief Get A FrequenciesSet object for root frequencies (NH models) according to options.
@@ -335,20 +329,19 @@ namespace bpp
      * @param verbose          Print some info to the 'message' output stream.
      * @param warn             Set the warning level (0: always display warnings, >0 display warnings on demand).
      * @return A new FrequenciesSet object according to options specified.
-     * @throw Exception if an error occured.
      */
     
     static FrequenciesSet* getRootFrequenciesSet(
       const Alphabet* alphabet,
       const GeneticCode* gCode,
       const AlignedValuesContainer* data, 
-      std::map<std::string, std::string>& params,
+      const std::map<std::string, std::string>& params,
       std::map<std::string, std::string>& sharedparams,
       const std::vector<double>& rateFreqs,
       const std::string& suffix = "",
       bool suffixIsOptional = true,
       bool verbose = true,
-      int warn = 1) throw (Exception);
+      int warn = 1);
 
     /*
      * @brief The same, but with several FrequenciesSet.
@@ -359,12 +352,12 @@ namespace bpp
       const Alphabet* alphabet,
       const GeneticCode* gCode,
       const std::map<size_t, AlignedValuesContainer*>& mData, 
-      std::map<std::string, std::string>& params,
+      const std::map<std::string, std::string>& params,
       std::map<std::string, std::string>& sharedparams,
       const std::string& suffix = "",
       bool suffixIsOptional = true,
       bool verbose = true,
-      int warn = 1) throw (Exception);
+      int warn = 1);
 
     /**
      * @brief Get A FrequenciesSet object according to options.
@@ -383,7 +376,6 @@ namespace bpp
      * @param verbose          Print some info to the 'message' output stream.
      * @param warn             Set the warning level (0: always display warnings, >0 display warnings on demand).
      * @return A new FrequenciesSet object according to options specified.
-     * @throw Exception if an error occured.
      */
 
     static FrequenciesSet* getFrequenciesSet(
@@ -394,8 +386,7 @@ namespace bpp
         std::map<std::string, std::string>& sharedParams,
         const std::vector<double>& rateFreqs,
         bool verbose = true,
-        int warn = 1)
-      throw (Exception);
+        int warn = 1);
 
     /**
      * @brief Get A FrequenciesSet object according to options.
@@ -413,7 +404,6 @@ namespace bpp
      * @param verbose          Print some info to the 'message' output stream.
      * @param warn             Set the warning level (0: always display warnings, >0 display warnings on demand).
      * @return A new FrequenciesSet object according to options specified.
-     * @throw Exception if an error occured.
      */
     static FrequenciesSet* getFrequenciesSet(
         const Alphabet* alphabet,
@@ -423,7 +413,6 @@ namespace bpp
         const std::vector<double>& rateFreqs,
         bool verbose = true,
         int warn = 1)
-      throw (Exception)
     {
       std::map<std::string, std::string> sharedParams;
       return getFrequenciesSet(alphabet, gCode, freqDescription, data, sharedParams, rateFreqs, verbose, warn);
@@ -440,7 +429,7 @@ namespace bpp
       const Alphabet* alphabet,
       const GeneticCode* gcode,
       const AlignedValuesContainer* data, 
-      std::map<std::string, std::string>& params,
+      const std::map<std::string, std::string>& params,
       const std::string& suffix = "",
       bool suffixIsOptional = true,
       bool verbose = true,
@@ -511,14 +500,13 @@ namespace bpp
      * @param suffixIsOptional Tell if the suffix is absolutely required.
      * @param verbose          Print some info to the 'message' output stream.
      * @param warn             Set the warning level (0: always display warnings, >0 display warnings on demand).
-     * @throw Exception if an error occured.
      */
     static void setSubstitutionModelSet(
       SubstitutionModelSet& modelSet,
       const Alphabet* alphabet,
       const GeneticCode* gcode,
       const AlignedValuesContainer* data, 
-      std::map<std::string, std::string>& params,
+      const std::map<std::string, std::string>& params,
       const std::string& suffix = "",
       bool suffixIsOptional = true,
       bool verbose = true,
@@ -586,7 +574,6 @@ namespace bpp
      * @param suffixIsOptional Tell if the suffix is absolutely required.
      * @param verbose Print some info to the 'message' output stream.
      * @param warn             Set the warning level (0: always display warnings, >0 display warnings on demand).
-     * @throw Exception if an error occured.
      */
     
     static SubstitutionProcess* getSubstitutionProcess(
@@ -594,7 +581,7 @@ namespace bpp
       const GeneticCode* gCode,
       const AlignedValuesContainer* pData, 
       const vector<PhyloTree*>& vTree, 
-      std::map<std::string, std::string>& params,
+      const std::map<std::string, std::string>& params,
       const std::string& suffix = "",
       bool suffixIsOptional = true,
       bool verbose = true,
@@ -607,7 +594,7 @@ namespace bpp
       const map<size_t, TransitionModel*>& mMod,
       const map<size_t, FrequenciesSet*>& mRootFreq,
       const map<size_t, DiscreteDistribution*>& mDist,
-      map<string, string>& params,
+      const std::map<std::string, std::string>& params,
       map<string, string>& unparsedparams,
       const string& suffix = "",
       bool suffixIsOptional  = true,
@@ -618,19 +605,19 @@ namespace bpp
     static void addSubstitutionProcessCollectionMember(
       SubstitutionProcessCollection* SubProColl, 
       size_t procNum,
-      map<string, string>& params,
+      const std::map<std::string, std::string>& params,
       bool verbose = true,
       int warn = 1);
 
 
     static std::map<size_t, SequenceEvolution*> getSequenceEvolutions(
       SubstitutionProcessCollection& SPC,
-      map<string, string>& params,
+      const std::map<std::string, std::string>& params,
       map<string, string>& unparsedParams,
       const string& suffix = "",
       bool suffixIsOptional = true,
       bool verbose = true,
-      int warn = 1) throw (Exception);
+      int warn = 1);
     
 
     /**
@@ -647,11 +634,11 @@ namespace bpp
       SubstitutionProcessCollection& SPC,
       std::map<size_t, SequenceEvolution*>& mSeqEvol,
       const std::map<size_t, AlignedValuesContainer*>& mData,
-      map<string, string>& params,
+      const std::map<std::string, std::string>& params,
       const string& suffix = "",
       bool suffixIsOptional = true,
       bool verbose = true,
-      int warn = 1) throw (Exception);
+      int warn = 1);
     
     /**
      * @brief Complete a MixedSubstitutionModelSet object according to
@@ -714,13 +701,13 @@ namespace bpp
      * @param suffixIsOptional Tell if the suffix is absolutely required.
      * @param verbose          Print some info to the 'message' output stream.
      * @param warn             Set the warning level (0: always display warnings, >0 display warnings on demand).
-     * @throw Exception if an error occured.
      */
+
     static void completeMixedSubstitutionModelSet(
       MixedSubstitutionModelSet& mixedModelSet,
       const Alphabet* alphabet,
       const AlignedValuesContainer* data, 
-      std::map<std::string, std::string>& params,
+      const std::map<std::string, std::string>& params,
       const std::string& suffix = "",
       bool suffixIsOptional = true,
       bool verbose = true,
@@ -739,7 +726,6 @@ namespace bpp
      *                                names and their corresponding unparsed value, if they were found.
      * @param verbose                 Print some info to the 'message' output stream.
      * @return A new MultipleDiscreteDistribution object according to options specified.
-     * @throw Exception if an error occured.
      */
     static MultipleDiscreteDistribution* getMultipleDistributionDefaultInstance(
       const std::string& distDescription,
@@ -758,14 +744,13 @@ namespace bpp
      * @param suffixIsOptional Tell if the suffix is absolutely required.
      * @param verbose Print some info to the 'message' output stream.
      * @return A new DiscreteDistribution object according to options specified.
-     * @throw Exception if an error occured.
      */
+
     static DiscreteDistribution* getRateDistribution(
-      std::map<std::string, std::string>& params,
+      const std::map<std::string, std::string>& params,
       const std::string& suffix = "",
       bool suffixIsOptional = true,
-      bool verbose = true)
-      throw (Exception);
+      bool verbose = true);
 
     /**
      * brief Same as before, but using several distributions.
@@ -773,11 +758,10 @@ namespace bpp
      */
     
     static std::map<size_t, DiscreteDistribution*> getRateDistributions(
-      map<string, string>& params,
+      const std::map<std::string, std::string>& params,
       const string& suffix = "",
       bool suffixIsOptional = true,
-      bool verbose = true)
-      throw (Exception);
+      bool verbose = true);
 
     /**
      * @brief Optimize parameters according to options.
@@ -790,7 +774,6 @@ namespace bpp
      * @param suffixIsOptional Tell if the suffix is absolutely required.
      * @param verbose          Print some info to the 'message' output stream.
      * @param warn             Set the warning level (0: always display warnings, >0 display warnings on demand).
-     * @throw Exception        Any exception that may happen during the optimization process.
      * @return A pointer toward the final likelihood object.
      * This pointer may be the same as passed in argument (tl), but in some cases the algorithm
      * clone this object. We may change this bahavior in the future...
@@ -803,22 +786,20 @@ namespace bpp
     static TreeLikelihood* optimizeParameters(
       TreeLikelihood* tl,
       const ParameterList& parameters,
-      std::map<std::string, std::string>& params,
+      const std::map<std::string, std::string>& params,
       const std::string& suffix = "",
       bool suffixIsOptional = true,
       bool verbose = true,
-      int warn = 1)
-      throw (Exception);
+      int warn = 1);
     
     static PhyloLikelihood* optimizeParameters(
       PhyloLikelihood* lik,
       const ParameterList& parameters,
-      std::map<std::string, std::string>& params,
+      const std::map<std::string, std::string>& params,
       const std::string& suffix = "",
       bool suffixIsOptional = true,
       bool verbose = true,
-      int warn = 1)
-      throw (Exception);
+      int warn = 1);
     
     /**
      * @brief Optimize parameters according to options, with a molecular clock.
@@ -831,17 +812,16 @@ namespace bpp
      * @param suffixIsOptional Tell if the suffix is absolutely required.
      * @param verbose          Print some info to the 'message' output stream.
      * @param warn             Set the warning level (0: always display warnings, >0 display warnings on demand).
-     * @throw Exception        Any exception that may happen during the optimization process.
      */
+
     static void optimizeParameters(
       DiscreteRatesAcrossSitesClockTreeLikelihood* tl,
       const ParameterList& parameters,
-      std::map<std::string, std::string>& params,
+      const std::map<std::string, std::string>& params,
       const std::string& suffix = "",
       bool suffixIsOptional = true,
       bool verbose = true,
-      int warn = 1)
-      throw (Exception);
+      int warn = 1);
     
     /**
      * @brief Check if parameter values are close to their definition boundary.
@@ -867,7 +847,7 @@ namespace bpp
     static SubstitutionCount* getSubstitutionCount(
       const Alphabet* alphabet,
       const SubstitutionModel* model,
-      map<string, string>& params,
+      const std::map<std::string, std::string>& params,
       string suffix = "",
       bool verbose = true,
       int warn = 1);
@@ -886,17 +866,17 @@ namespace bpp
      * @param checkOnly If this parameter is set to true, then all options are
      * checked and error messages sent, but no file is written.
      * @param warn             Set the warning level (0: always display warnings, >0 display warnings on demand).
-     * @throw Exception if an error occured.
      */
+
     static void writeTree(
       const TreeTemplate<Node>& tree,
-      std::map<std::string, std::string>& params,
+      const std::map<std::string, std::string>& params,
       const std::string& prefix = "output.",
       const std::string& suffix = "",
       bool suffixIsOptional = true,
       bool verbose = true,
       bool checkOnly = false,
-      int warn = 1) throw (Exception);
+      int warn = 1);
     
     /**
      * @brief Write a tree according to options.
@@ -912,47 +892,47 @@ namespace bpp
      * @param checkOnly        If this parameter is set to true, then all options are
      *                         checked and error messages sent, but no file is written.
      * @param warn             Set the warning level (0: always display warnings, >0 display warnings on demand).
-     * @throw Exception if an error occured.
      */
+
     static void writeTrees(
       const std::vector<const Tree*>& trees,
-      std::map<std::string, std::string>& params,
+      const std::map<std::string, std::string>& params,
       const std::string& prefix = "output.",
       const std::string& suffix = "",
       bool suffixIsOptional = true,
       bool verbose = true,
       bool checkOnly = false,
-      int warn = 1) throw (Exception);
+      int warn = 1);
 
     static void writeTrees(
       const std::vector<const PhyloTree*>& trees,
-      std::map<std::string, std::string>& params,
+      const std::map<std::string, std::string>& params,
       const std::string& prefix = "output.",
       const std::string& suffix = "",
       bool suffixIsOptional = true,
       bool verbose = true,
       bool checkOnly = false,
-      int warn = 1) throw (Exception);
+      int warn = 1);
 
     static void writeTrees(
       const std::vector<const TreeTemplate<Node>* >& trees,
-      std::map<std::string, std::string>& params,
+      const std::map<std::string, std::string>& params,
       const std::string& prefix = "output.",
       const std::string& suffix = "",
       bool suffixIsOptional = true,
       bool verbose = true,
       bool checkOnly = false,
-      int warn = 1) throw (Exception);
+      int warn = 1);
 
     static void writeTrees(
       const SubstitutionProcessCollection& spc,
-      std::map<std::string, std::string>& params,
+      const std::map<std::string, std::string>& params,
       const std::string& prefix = "output.",
       const std::string& suffix = "",
       bool suffixIsOptional = true,
       bool verbose = true,
       bool checkOnly = false,
-      int warn = 1) throw (Exception);
+      int warn = 1);
 
     
     /**
