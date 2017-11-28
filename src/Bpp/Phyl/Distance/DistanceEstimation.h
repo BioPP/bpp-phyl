@@ -369,7 +369,7 @@ namespace bpp
     DistanceEstimation(
       TransitionModel* model,
       DiscreteDistribution* rateDist,
-      const SiteContainer* sites,
+      const AlignedValuesContainer* sites,
       size_t verbose = 1,
       bool computeMat = true) :
       model_(model),
