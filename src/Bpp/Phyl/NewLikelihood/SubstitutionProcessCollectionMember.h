@@ -267,7 +267,7 @@ public:
    * @throw IndexOutOfBoundsException If the index is not valid.
    */
 
-  const std::vector<unsigned int>& getNodesWithModel(size_t i) const
+  const std::vector<unsigned int> getNodesWithModel(size_t i) const
   {
     std::map<size_t, std::vector<unsigned int> >::const_iterator it = modelToNodes_.find(i);
     if (it == modelToNodes_.end())
@@ -390,7 +390,7 @@ public:
    * @param classIndex The model class index.
    */
 
-  const TransitionModel& getModel(unsigned int nodeId, size_t classIndex) const;
+  const TransitionModel* getModel(unsigned int nodeId, size_t classIndex) const;
 
   /**
    * @brief Get the parameters of the substitution models.

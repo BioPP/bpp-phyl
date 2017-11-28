@@ -43,7 +43,7 @@
 #include "ProbabilisticSubstitutionMapping.h"
 #include "SubstitutionCount.h"
 #include "OneJumpSubstitutionCount.h"
-#include "../Likelihood/DRTreeLikelihood.h"
+#include "../NewLikelihood/RecursiveLikelihoodTreeCalculation.h"
 
 namespace bpp
 {
@@ -67,53 +67,187 @@ namespace bpp
     virtual ~SubstitutionMappingTools() {}
 
   public:
+
     /**
-     * @brief Compute the substitutions vectors for a particular dataset using the
-     * double-recursive likelihood computation.
+     * @brief Methods to compute mapping Trees
      *
-     * @param drtl              A DRTreeLikelihood object.
-     * @param substitutionCount The SubstitutionCount to use.
-     * @param verbose           Print info to screen.
-     * @return A vector of substitutions vectors (one for each site).
-     * @throw Exception If the likelihood object is not initialized.
+     * @{
      */
-    static ProbabilisticSubstitutionMapping* computeSubstitutionVectors(
-      const DRTreeLikelihood& drtl,
+    
+    /**
+     * @brief Compute the substitutions tree for a particular dataset
+     *
+     * @param rltc              A RecursiveLikelihoodTreeCalculation object.
+     * @param substitutionCount The SubstitutionCount to use.
+     * @param threshold         value above which counts are considered
+     *                          saturated (default: -1 means no threshold).
+     * @param verbose           Print info to screen.
+     * @return A tree <PhyloNode, PhyloBranchMapping>
+     */
+
+    static ProbabilisticSubstitutionMapping* computeCounts(
+      RecursiveLikelihoodTreeCalculation& rltc,
       SubstitutionCount& substitutionCount,
-      bool verbose = true) throw (Exception)
+      double threshold = -1,
+      bool verbose = true)
     {
       std::vector<int> nodeIds;
-      return computeSubstitutionVectors(drtl, nodeIds, substitutionCount, verbose);
+      return computeCounts(rltc, nodeIds, substitutionCount, threshold, verbose);
     }
 
     /**
-     * @brief Compute the substitutions vectors for a particular dataset using the
-     * double-recursive likelihood computation.
+     * @brief Compute the substitutions tree for a particular dataset
      *
-     * @param drtl              A DRTreeLikelihood object.
+     * @param rltc              A RecursiveLikelihoodTreeCalculation object.
+     * @param reg               The SubstitutionRegister to use.
+     * @param threshold         value above which counts are considered
+     *                          saturated (default: -1 means no threshold).
+     * @param verbose           Print info to screen.
+     * @return A tree <PhyloNode, PhyloBranchMapping>
+     */
+
+    static ProbabilisticSubstitutionMapping* computeCounts(
+      RecursiveLikelihoodTreeCalculation& rltc,
+      const SubstitutionRegister& reg,
+      double threshold = -1,
+      bool verbose = true)
+    {
+      std::vector<int> nodeIds;
+      return computeCounts(rltc, nodeIds, reg, threshold, verbose);
+    }
+
+    /**
+     * @brief Compute the substitutions tree for a particular dataset
+     *
+     * @param rltc              A RecursiveLikelihoodTreeCalculation object.
      * @param nodeIds           The Ids of the nodes the substitutions
      *                          are counted on. If empty, count substitutions
      *                          on all nodes.
      * @param substitutionCount The SubstitutionCount to use.
+     * @param threshold         value above which counts are considered
+     *                          saturated (default: -1 means no threshold).
      * @param verbose           Print info to screen.
-     * @return A vector of substitutions vectors (one for each site).
-     * @throw Exception If the likelihood object is not initialized.
+     * @return A tree <PhyloNode, PhyloBranchMapping>
      */
-    static ProbabilisticSubstitutionMapping* computeSubstitutionVectors(
-      const DRTreeLikelihood& drtl,
-      const std::vector<int>& nodeIds,
-      SubstitutionCount& substitutionCount,
-      bool verbose = true) throw (Exception);
 
-    static ProbabilisticSubstitutionMapping* computeSubstitutionVectors(
-      const DRTreeLikelihood& drtl,
-      const SubstitutionModelSet& modelSet,
+    static ProbabilisticSubstitutionMapping* computeCounts(
+      RecursiveLikelihoodTreeCalculation& rltc,
       const std::vector<int>& nodeIds,
       SubstitutionCount& substitutionCount,
-      bool verbose = true) throw (Exception);
+      double threshold = -1,
+      bool verbose = true);
 
     /**
-     * @brief Compute the substitutions vectors for a particular dataset using the
+     * @brief Compute the substitutions tree for a particular dataset
+     *
+     * @param rltc              A RecursiveLikelihoodTreeCalculation object.
+     * @param nodeIds           The Ids of the nodes the substitutions
+     *                          are counted on. If empty, count substitutions
+     *                          on all nodes.
+     * @param reg               The SubstitutionRegister to use.
+     * @param threshold         value above which counts are considered
+     *                          saturated (default: -1 means no threshold).
+     * @param verbose           Print info to screen.
+     * @return A tree <PhyloNode, PhyloBranchMapping>
+     */
+
+    static ProbabilisticSubstitutionMapping* computeCounts(
+      RecursiveLikelihoodTreeCalculation& rltc,
+      const std::vector<int>& nodeIds,
+      const SubstitutionRegister& reg,
+      double threshold = -1,
+      bool verbose = true);
+
+    /**
+     * @brief Compute the normalizations tree due to the models of "null"
+     * process on each branch, for each register.
+     *
+     * @param rltc              A RecursiveLikelihoodTreeCalculation object.
+     * @param nodeIds           The Ids of the nodes the substitutions
+     *                          are counted on. If empty, count substitutions
+     *                          on all nodes.
+     * @param nullProcess       The process on which the SubstitutionCount is built
+     * @param reg               the Substitution Register
+     * @param verbose           Display progress messages.
+     * @return A tree <PhyloNode, PhyloBranchMapping> of normalization factors.
+     */
+
+    static ProbabilisticSubstitutionMapping* computeNormalizations(
+      RecursiveLikelihoodTreeCalculation& rltc,
+      const std::vector<int>& nodeIds,
+      const SubstitutionProcess* nullProcess,
+      const SubstitutionRegister& reg,
+      bool verbose = true);
+
+    /**
+     * @brief Compute the normalizations tree due to the models of "null"
+     * process on each branch, for each register.
+     *
+     * @param rltc              A RecursiveLikelihoodTreeCalculation object.
+     * @param nullProcess       The process on which the SubstitutionCount is built
+     * @param reg               the Substitution Register
+     * @param verbose           Display progress messages.
+     * @return A tree <PhyloNode, PhyloBranchMapping> of normalization factors.
+     */
+
+    static ProbabilisticSubstitutionMapping* computeNormalizations(
+      RecursiveLikelihoodTreeCalculation& rltc,
+      const SubstitutionProcess* nullProcess,
+      const SubstitutionRegister& reg,
+      bool verbose = true)
+    {
+      std::vector<int> nodeIds;
+      return computeNormalizations(rltc, nodeIds, nullProcess, reg, verbose);
+    }
+
+    /**
+     * @brief Compute the substitution counts tree, normalized by the
+     * models of "null" process on each branch, for each register.
+     *
+     * @param rltc              A RecursiveLikelihoodTreeCalculation object.
+     * @param nodeIds           The Ids of the nodes the substitutions
+     *                          are counted on. If empty, count substitutions
+     *                          on all nodes.
+     * @param nullProcess       The process on which the SubstitutionCount is built
+     * @param reg               the Substitution Register
+     * @param perTime           If true, normalized counts are per unit of
+     *                          time (otherwise they are multiplied by
+     *                          the length of the branches).
+     * @param siteSize          The length of a site, as considered as
+     *                          a counting unit (default = 1)
+     * @param threshold         value above which non-normalized counts are
+     *                          considered saturated (default: -1
+     *                          means no threshold).
+     * @param verbose           Display progress messages.
+     * @return A tree <PhyloNode, PhyloBranchMapping> of normalized counts..
+     */
+
+    static ProbabilisticSubstitutionMapping* computeNormalizedCounts(
+      RecursiveLikelihoodTreeCalculation& rltc,
+      const std::vector<int>& nodeIds,
+      const SubstitutionProcess* nullProcess,
+      const SubstitutionRegister& reg,
+      bool perTime,
+      uint siteSize = 1,
+      double threshold = -1,
+      bool verbose = true);
+
+    static ProbabilisticSubstitutionMapping* computeNormalizedCounts(
+      RecursiveLikelihoodTreeCalculation& rltc,
+      const SubstitutionProcess* nullProcess,
+      const SubstitutionRegister& reg,
+      bool perTime,
+      uint siteSize = 1,
+      double threshold = -1,
+      bool verbose = true)
+    {
+      std::vector<int> nodeIds;
+      return computeNormalizedCounts(rltc, nodeIds, nullProcess, reg, perTime, siteSize, threshold, verbose);
+    }
+
+
+    /**
+     * @brief Compute the substitutions std::vectors for a particular dataset using the
      * double-recursive likelihood computation.
      *
      * In this method, substitution counts are computed using the pair of ancestral
@@ -129,41 +263,41 @@ namespace bpp
      * @param drtl              A DRTreeLikelihood object.
      * @param substitutionCount The substitutionsCount to use.
      * @param verbose           Print info to screen.
-     * @return A vector of substitutions vectors (one for each site).
+     * @return A std::vector of substitutions std::vectors (one for each site).
      * @throw Exception If the likelihood object is not initialized.
      */
-    static ProbabilisticSubstitutionMapping* computeSubstitutionVectorsNoAveraging(
-      const DRTreeLikelihood& drtl,
-      SubstitutionCount& substitutionCount,
-      bool verbose = true) throw (Exception);
+    // static ProbabilisticSubstitutionMapping* computeSubstitutionVectorsNoAveraging(
+    //   const DRTreeLikelihood& drtl,
+    //   SubstitutionCount& substitutionCount,
+    //   bool verbose = true) throw (Exception);
 
 
     /**
-     * @brief Compute the substitutions vectors for a particular dataset using the
+     * @brief Compute the substitutions std::vectors for a particular dataset using the
      * double-recursive likelihood computation.
      *
      * In this method, all ancestral states are estimated using marginal likelihoods,
      * putatively intregated over several rate classes.
      * For each branch, the number of substitution given marginal states is used.
      * This method, used with a SimpleSubstitutionCount objet is equivalent to
-     * Tufféry and Darlu's (2000) computation of substitution vectors.
+     * Tufféry and Darlu's (2000) computation of substitution std::vectors.
      *
      * Use with another substitution count objet is in most cases irrelevent.
      *
      * @param drtl              A DRTreeLikelihood object.
      * @param substitutionCount The substitutionsCount to use.
      * @param verbose           Print info to screen.
-     * @return A vector of substitutions vectors (one for each site).
+     * @return A std::vector of substitutions std::vectors (one for each site).
      * @throw Exception If the likelihood object is not initialized.
      */
-    static ProbabilisticSubstitutionMapping* computeSubstitutionVectorsNoAveragingMarginal(
-      const DRTreeLikelihood& drtl,
-      SubstitutionCount& substitutionCount,
-      bool verbose = true) throw (Exception);
+    // static ProbabilisticSubstitutionMapping* computeSubstitutionVectorsNoAveragingMarginal(
+    //   const DRTreeLikelihood& drtl,
+    //   SubstitutionCount& substitutionCount,
+    //   bool verbose = true) throw (Exception);
 
 
     /**
-     * @brief Compute the substitutions vectors for a particular dataset using the
+     * @brief Compute the substitutions std::vectors for a particular dataset using the
      * double-recursive likelihood computation.
      *
      * The marginal probability is used for weighting, i.e. the product of probabilities for the pair.
@@ -174,598 +308,282 @@ namespace bpp
      * @param drtl              A DRTreeLikelihood object.
      * @param substitutionCount The substitutionsCount to use.
      * @param verbose           Print info to screen.
-     * @return A vector of substitutions vectors (one for each site).
+     * @return A std::vector of substitutions std::vectors (one for each site).
      * @throw Exception If the likelihood object is not initialized.
      */
-    static ProbabilisticSubstitutionMapping* computeSubstitutionVectorsMarginal(
-      const DRTreeLikelihood& drtl,
-      SubstitutionCount& substitutionCount,
-      bool verbose = true) throw (Exception);
+    // static ProbabilisticSubstitutionMapping* computeSubstitutionVectorsMarginal(
+    //   const DRTreeLikelihood& drtl,
+    //   SubstitutionCount& substitutionCount,
+    //   bool verbose = true) throw (Exception);
 
 
     /**
-     * @brief This method computes for each site and for each branch the probability that
-     * at least one jump occurred.
+     * @brief This method computes for each site and for each branch
+     * the probability that at least one jump occurred.
      *
-     * Here 'jump' refer to a change in the model state. Depending on the model, this might
-     * not be the same as a substitution (an alphabet state change).
+     * Here 'jump' refer to a change in the model state. Depending on
+     * the model, this might not be the same as a substitution (an
+     * alphabet state change).
+     *
      */
-    static ProbabilisticSubstitutionMapping* computeOneJumpProbabilityVectors(
-      const DRTreeLikelihood& drtl,
-      bool verbose = true) throw (Exception)
+
+    static ProbabilisticSubstitutionMapping* computeOneJumpCounts(
+      RecursiveLikelihoodTreeCalculation& rltc,
+      bool verbose = true)
     {
       OneJumpSubstitutionCount ojsm(0);
-      return computeSubstitutionVectors(drtl, drtl.getTree().getNodesId(), ojsm, 0);
+      return computeCounts(rltc, ojsm, 0);
     }
 
 
     /**
-     * @brief Write the substitutions vectors to a stream.
+     * @}
      *
-     * @param substitutions The substitutions vectors to write.
-     * @param sites         The dataset associated to the vectors
-     * (needed to know the position of each site in the dataset).
-     * @param type          The type of substitutions to be output. See SubstitutionCount class.
-     * Only one type of substitution can be output at a time.
-     * @param out           The output stream where to write the vectors.
-     * @throw IOException If an output error happens.
-     */
-    static void writeToStream(
-      const ProbabilisticSubstitutionMapping& substitutions,
-      const AlignedValuesContainer& sites,
-      size_t type,
-      std::ostream& out)
-      throw (IOException);
+     **/
 
     /**
-     * @brief Read the substitutions vectors from a stream.
      *
-     * @param in            The input stream where to read the vectors.
-     * @param substitutions The mapping object to fill.
-     * @param type          The type of substitutions that are read. Should be in supported by the substittuion count obect assiciated to the mapping, if any.
-     * @throw IOException If an input error happens.
-     */
-    static void readFromStream(std::istream& in, ProbabilisticSubstitutionMapping& substitutions, size_t type)
-      throw (IOException);
+     * @brief Methods to get std::vectors of counts
+     *
+     * @{
+     **/
 
+    /**
+     * @brief PER BRANCH methods can use raw or normalized counting
+     * trees (ie computed with computeCounts and
+     * computeNormalizedCounts methods).
+     *
+     * @{
+     *
+     **/
+
+    /**
+     * @brief Sum all type of substitutions for each site for each
+     * branch for each type. 
+     *
+     * @param counts The substitution map to use.
+     * @param ids  The ids of the branches where the the substitutions
+     * are counted.
+     *
+     * @return A std::vector will all counts for all types of substitutions.
+     */
+    
+    VVVdouble getCountsPerSitePerBranchPerType(
+      const ProbabilisticSubstitutionMapping& counts, const std::vector<int>& ids);
+    
 
     /**
      * @brief Sum all type of substitutions for each branch of a given
-     * position (specified by its index). 
+     * position. 
      *
-     * @param smap The substitution map to use.
-     * @param siteIndex The index of the substitution vector for which
-     * the counts should be computed. 
-     * @return A vector will all counts for all types of substitutions summed.
+     * @param counts The substitution map to use.
+     * @param site The site  for which the counts should be computed.
+     *
+     * @return A std::vector will all counts for all types of substitutions summed.
      */
     
-    static std::vector<double> computeTotalSubstitutionVectorForSitePerBranch(const SubstitutionMapping& smap, size_t siteIndex);
+    static Vdouble getCountsForSitePerBranch(
+      const ProbabilisticSubstitutionMapping& counts, size_t site);
 
+    /**
+     * @brief Sum all type of substitutions for each site for each branch. 
+     *
+     * @param counts The substitution map to use.
+     * @param ids  The ids of the branches where the the substitutions
+     * are counted.
+     *
+     * @return A std::vector will all counts for all types of substitutions summed.
+     */
+    
+    static VVdouble getCountsPerSitePerBranch(
+      const ProbabilisticSubstitutionMapping& counts, const std::vector<int>& ids);
+
+    /**
+     * @brief Sum all substitutions for each type of a given branch.
+     *
+     * @param counts The substitution map to use.
+     * @param branchInd The id of the branch of the substitution tree for which the counts should be computed.
+     * @return A std::vector will all counts summed for each type of substitutions.
+     */
+    
+    static Vdouble getCountsForBranchPerType(
+      const ProbabilisticSubstitutionMapping& counts, uint branchId);
+
+    /**
+     * @brief Sum all type of substitutions for each branch for each type. 
+     *
+     * @param counts The substitution map to use.
+     * @param ids  The ids of the branches where the the substitutions
+     * are counted.
+     * @return A std::vector will all counts for all branches for all types
+     * of substitutions summed.
+     */
+    
+    static VVdouble getCountsPerBranchPerType(const ProbabilisticSubstitutionMapping& counts, const std::vector<int>& ids);
+
+    static VVdouble getCountsPerTypePerBranch(const ProbabilisticSubstitutionMapping& counts, const std::vector<int>& ids);
+
+    /**
+     * @brief Compute the sum over all branches of the counts per type
+     * per branch.
+     *
+     * @param drtl              A DRTreeLikelihood object.
+     * @param ids               The numbers of the nodes of the tree
+     * @param reg               the Substitution Register
+     *
+     *           If the SubstitutionRegister is a non-stationary
+     *           CategorySubstitutionRegister, a correction is made.     
+     *
+     * @param threshold         value above which counts are considered
+     *                          saturated (default: -1 means no threshold).
+     * @param verbose Display progress messages.
+     */
+
+    VVdouble computeCountsPerTypePerBranch(
+      RecursiveLikelihoodTreeCalculation& rltc,
+      const std::vector<int>& ids,
+      const SubstitutionRegister& reg,
+      double threshold = -1,
+      bool verbose = true);
+
+    /**
+     * @}
+     *
+     */
+
+    /**
+     * @brief Methods that sum on branchs need raw mapping trees, or
+     * raw mapping trees and normalization trees (ie computed with
+     * computeCounts and computeNormalizations).
+     *
+     * @{
+     *
+     */
+    
     /**
      * @brief Sum all type of substitutions for each type of a given
-     * position (specified by its index). 
+     * position. 
      *
-     * @param smap The substitution map to use.
-     * @param siteIndex The index of the substitution vector for which
-     * the counts should be computed. 
-     * @return A vector will all counts for all branches summed.
+     * @param counts The substitution map to use.
+     * @param site The site  for which the counts should be computed.
+     * @param ids  The ids of the branches where the the substitutions
+     *        are counted
+     * @return A std::vector will all counts for all types of substitutions summed.
      */
     
-    static std::vector<double> computeTotalSubstitutionVectorForSitePerType(const SubstitutionMapping& smap, size_t siteIndex);
+    static Vdouble getCountsForSitePerType(
+      const ProbabilisticSubstitutionMapping& counts,
+      size_t site);
+
+    static Vdouble getCountsForSitePerType(
+      const ProbabilisticSubstitutionMapping& counts,
+      size_t site,
+      const std::vector<int>& ids);
 
     /**
-     * @brief Compute the norm of a substitution vector for a given position (specified by its index).
+     * @brief Sum and normalize all type of substitutions for each
+     * type of a given position.
+     *
+     * @param counts The substitution map to use.
+     * @param factors The substitution normalization to use.
+     * @param site The site  for which the counts should be computed.
+     * @param ids  The ids of the branches where the the substitutions
+     *        are counted
+     * @param perTime           If true, normalized counts are per unit of
+     *                          time (otherwise they are multiplied by
+     *                          the length of the branches).
+     * @param siteSize          The length of a site, as considered as
+     *                          a counting unit (default = 1)
+     * @return A std::vector will all counts for all types of substitutions summed.
+     */
+    
+    static Vdouble getCountsForSitePerType(
+      const ProbabilisticSubstitutionMapping& counts,
+      const ProbabilisticSubstitutionMapping& factors,
+      size_t site,
+      bool perTime,
+      uint siteSize = 1);
+
+    static Vdouble getCountsForSitePerType(
+      const ProbabilisticSubstitutionMapping& counts,
+      const ProbabilisticSubstitutionMapping& factors,
+      size_t site,
+      const std::vector<int>& ids,
+      bool perTime,
+      uint siteSize = 1);
+
+    /**
+     * @brief Sum all type of substitutions for each site for each type. 
+     *
+     * @param counts The substitution map to use.
+     * @param factors The substitution normalization to use.
+     * @param ids  The ids of the branches where the the substitutions
+     *        are counted
+     * @return A std::vector will all counts for all types of substitutions summed.
+     */
+    
+    static VVdouble getCountsPerSitePerType(
+      const ProbabilisticSubstitutionMapping& counts);
+
+    static VVdouble getCountsPerSitePerType(
+      const ProbabilisticSubstitutionMapping& counts,
+      const std::vector<int>& ids);
+
+    /**
+     * @brief Sum and normalize all type of substitutions for each site for each type. 
+     *
+     * @param counts The substitution map to use.
+     * @param factors The substitution normalization to use.
+     * @param ids  The ids of the branches where the the substitutions
+     * are counted
+     * @param perTime           If true, normalized counts are per unit of
+     *                          time (otherwise they are multiplied by
+     *                          the length of the branches).
+     * @param siteSize          The length of a site, as considered as
+     *                          a counting unit (default = 1)
+     * @return A std::vector will all counts for all types of substitutions summed.
+     */
+    
+    static VVdouble getCountsPerSitePerType(
+      const ProbabilisticSubstitutionMapping& counts,
+      const ProbabilisticSubstitutionMapping& factors,
+      const std::vector<int>& ids,
+      bool perTime,
+      uint siteSize = 1);
+
+    static VVdouble getCountsPerSitePerType(
+      const ProbabilisticSubstitutionMapping& counts,
+      const ProbabilisticSubstitutionMapping& factors,
+      bool perTime,
+      uint siteSize = 1);
+
+    /**
+     * @brief Compute the norm of a substitution std::vector for a given position.
      *
      * The norm is computed as:
      * @f$ N_i = \sqrt{\left(\sum_l {\left(\sum_t n_{l, i, t}\right)}^2\right)}@f$,
      * where @f$n_{l, i, t}@f$ is the number of substitutions of type t on site i on branch l, obtained using the () operator for the SubstitutionMapping object.
      *
-     * @param smap The substitution map to use.
-     * @param siteIndex The index of the substitution vector for which the norm should be computed.
-     * @return The norm of the substitution vector.
+     * @param counts The substitution map to use.
+     * @param site The position for which the norm should be computed.
+     * @return The norm of the substitution std::vector.
      */
 
-    static double computeNormForSite(const SubstitutionMapping& smap, size_t siteIndex);
+    static double getNormForSite(
+      const ProbabilisticSubstitutionMapping& counts,
+      size_t site);
 
-    /**
-     * @brief Sum all substitutions for each type of a given branch (specified by its index).
+    /*
      *
-     * @param smap The substitution map to use.
-     * @param branchIndex The index of the substitution vector for which the counts should be computed.
-     * @return A vector will all counts summed for each types of substitutions.
-     */
-
-    static std::vector<double> computeSumForBranch(const SubstitutionMapping& smap, size_t branchIndex);
-
-
-    /**
-     * @brief Sum all substitutions for each type of a given site (specified by its index).
-     *
-     * @param smap The substitution map to use.
-     * @param siteIndex The index of the substitution vector for which the counts should be computed.
-     * @return A vector will all counts summed for each types of substitutions.
-     */
-  
-    static std::vector<double> computeSumForSite(const SubstitutionMapping& smap, size_t siteIndex);
-
-
-    /**
-     *@ brief Per Branch methods
-     *
-     *@{
-     *
-     */
-
-    static std::vector< std::vector<double> > getCountsPerBranch(
-      DRTreeLikelihood& drtl,
-      const std::vector<int>& ids,
-      SubstitutionModel* model,
-      const SubstitutionRegister& reg,
-      double threshold = -1,
-      bool verbose = true);
-
-    static std::vector< std::vector<double> > getCountsPerBranch(
-      DRTreeLikelihood& drtl,
-      const std::vector<int>& ids,
-      const SubstitutionModelSet& modelSet,
-      const SubstitutionRegister& reg,
-      double threshold = -1,
-      bool verbose = true);
-
-
-    /**
-     * @brief Returns the normalization factors due to the null model
-     * on each branch, for each register
-     *
-     *
-     * @param drtl              A DRTreeLikelihood object.
-     * @param ids               The numbers of the nodes of the tree
-     * @param nullModel         The model on which the SubstitutionCount is built
-     * @param reg               the Substitution Register
-     * @param verbose           Display progress messages.
-     * @return A vector of normalization vectors (one per branch per type).
-     */
-
-    static std::vector< std::vector<double> > getNormalizationsPerBranch(
-      DRTreeLikelihood& drtl,
-      const std::vector<int>& ids,
-      const SubstitutionModel* nullModel,
-      const SubstitutionRegister& reg,
-      bool verbose = true);
-
-
-    /**
-     * @brief Returns the normalization factors due to the set of null
-     * models on each branch, for each register.
-     *
-     *
-     * @param drtl              A DRTreeLikelihood object.
-     * @param ids               The numbers of the nodes of the tree
-     * @param nullModelSet      The model on which the SubstitutionCount is built
-     * @param reg               the Substitution Register
-     * @param verbose           Display progress messages.
-     * @return A vector of normalization vectors (one per branch per type).
-     */
-
-    static std::vector< std::vector<double> > getNormalizationsPerBranch(
-      DRTreeLikelihood& drtl,
-      const std::vector<int>& ids,
-      const SubstitutionModelSet* nullModelSet,
-      const SubstitutionRegister& reg,
-      bool verbose = true);
-
-
-    /**
-     * @brief Returns the counts relative to the frequency of the
-     * states in case of non-stationarity.
-     *
-     * @param drtl              A DRTreeLikelihood object.
-     * @param ids               The numbers of the nodes of the tree
-     * @param model             The model on which the SubstitutionCount is built
-     * @param reg               the Substitution Register
-     *
-     *           If the SubstitutionRegister is a non-stationary
-     *           CategorySubstitutionRegister, a correction is made.
-     *
-     * @param threshold         value above which counts are considered saturated
-     *                                        (default: -1 means no threshold).
-     *
-     * @param verbose           Display progress messages.
-     */
-
-    static std::vector< std::vector<double> > getRelativeCountsPerBranch(
-      DRTreeLikelihood& drtl,
-      const std::vector<int>& ids,
-      SubstitutionModel* model,
-      const SubstitutionRegister& reg,
-      double threshold = -1,
-      bool verbose= true)
-    {
-      std::vector< std::vector<double> > result;
-      computeCountsPerTypePerBranch(drtl, ids, model, reg, result, threshold, verbose);
-      return result;
-    }
-
-    /**
-     * @brief Returns the counts normalized by a null model
-     *
-     * @param drtl              A DRTreeLikelihood object.
-     * @param ids               The numbers of the nodes of the tree
-     * @param model             The model on which the SubstitutionCount is built
-     * @param nullModel         The null model used for normalization.
-     * @param reg               the Substitution Register
-     * @param perTime           If true, normalized counts are per unit of
-     *                          time (otherwise they are multiplied by
-     *                          the length of the branches).
-     * @param perWord           If true, normalized counts are per unit of
-     *                          length (otherwise they are divided per
-     *                          word length).
-     * @param verbose           Display progress messages.
-     */
-
-    static std::vector< std::vector<double> >  getNormalizedCountsPerBranch(
-      DRTreeLikelihood& drtl,
-      const std::vector<int>& ids,
-      SubstitutionModel* model,
-      SubstitutionModel* nullModel,
-      const SubstitutionRegister& reg,
-      bool perTime,
-      bool perWord,
-      bool verbose = true)
-    {
-      std::vector< std::vector<double> > result;
-      computeCountsPerTypePerBranch(drtl, ids, model, nullModel, reg, result, perTime, perWord, verbose);
-      return result;
-    }
-
-    /**
-     * @brief Returns the counts normalized by a null model set
-     *
-     * @param drtl              A DRTreeLikelihood object.
-     * @param ids               The numbers of the nodes of the tree
-     * @param modelSet          The model set on which the SubstitutionCount is built
-     * @param nullModelSet      The null model set used for normalization.
-     * @param reg               the Substitution Register
-     * @param perTime           If true, normalized counts are per unit of
-     *                          time (otherwise they are multiplied by
-     *                          the length of the branches).
-     * @param perWord           If true, normalized counts are per unit of
-     *                          length (otherwise they are divided per
-     *                          word length).
-     * @param verbose           Display progress messages.
-     */
-
-    static std::vector< std::vector<double> > getNormalizedCountsPerBranch(
-      DRTreeLikelihood& drtl,
-      const std::vector<int>& ids,
-      SubstitutionModelSet* modelSet,
-      SubstitutionModelSet* nullModelSet,
-      const SubstitutionRegister& reg,
-      bool perTime,
-      bool perWord,
-      bool verbose = true)
-    {
-      std::vector< std::vector<double> > result;
-      computeCountsPerTypePerBranch(drtl, ids, modelSet, nullModelSet, reg, result, perTime, perWord, verbose);
-      return result;
-    }
-
-    /**
-     *@}
-     *
-     */
-
-    /**
-     *@ brief Per Branch Per Site methods
-     *
-     *@{
-     *
-     */
-
-    /**
-     * @brief Compute the sum over all types of the counts per site
-     * per branch.
-     *
-     * @param drtl              A DRTreeLikelihood object.
-     * @param ids               The numbers of the nodes of the tree
-     * @param model             The model on which the SubstitutionCount is built
-     * @param reg               the Substitution Register
-     * @param result            the resulted counts as an tabular
-     *                          site X branchid 
-     *
-     */
-
-    static void computeCountsPerSitePerBranch(
-      DRTreeLikelihood& drtl,
-      const std::vector<int>& ids,
-      SubstitutionModel* model,
-      const SubstitutionRegister& reg,
-      VVdouble& array);
-
-
-    /**
-     *@}
-     *
-     */
-
-    /**
-     *@ brief Per Type Per Branch methods
-     *
-     *@{
-     *
-     */
-
-    /**
-     * @brief Compute the sum over all branches of the counts per type
-     * per branch. 
-     *
-     * @param drtl              A DRTreeLikelihood object.
-     * @param ids               The numbers of the nodes of the tree
-     * @param model             The model on which the SubstitutionCount is built
-     * @param reg               the Substitution Register
-     * @param result            the resulted counts as an tabular
-     *                          TypeId X branchId
-     * @param threshold         value above which counts are considered saturated
-     *                                        (default: -1 means no threshold).
-     * @param verbose           Display progress messages.
-     *
-     */
-
-    static void computeCountsPerTypePerBranch(
-      DRTreeLikelihood& drtl,
-      const std::vector<int>& ids,
-      SubstitutionModel* model,
-      const SubstitutionRegister& reg,
-      VVdouble& result,
-      double threshold = -1,
-      bool verbose = true);
-
-    /**
-     * @brief Compute the sum over all branches of the normalized
-     * counts per type per branch.
-     *
-     * @param drtl              A DRTreeLikelihood object.
-     * @param ids               The numbers of the nodes of the tree
-     * @param model             The model on which the SubstitutionCount is built
-     * @param nullModel         The null model used for normalization.
-     * @param reg               the Substitution Register
-     * @param result            the resulted counts as an tabular
-     *                          TypeId X branchId
-     * @param perTime           If true, normalized counts are per unit of
-     *                          time (otherwise they are multiplied by
-     *                          the length of the branches).
-     * @param perWord           If true, normalized counts are per unit of
-     *                          length (otherwise they are divided per
-     *                          word length).
-     * @param verbose           Display progress messages.
-     *
-     */
-
-    static void computeCountsPerTypePerBranch(
-      DRTreeLikelihood& drtl,
-      const std::vector<int>& ids,
-      SubstitutionModel* model,
-      SubstitutionModel* nullModel,
-      const SubstitutionRegister& reg,
-      VVdouble& result,
-      bool perTime,
-      bool perWord,
-      bool verbose = true);
-
-    /**
-     * @brief Compute the sum over all branches of the normalized
-     * counts per type per branch.
-     *
-     * @param drtl              A DRTreeLikelihood object.
-     * @param ids               The numbers of the nodes of the tree
-     * @param modelSet          The modelset on which the SubstitutionCount is built
-     * @param nullModelSet      The null modelSet used for normalization.
-     * @param reg               the Substitution Register
-     * @param result            the resulted counts as an tabular     
-     *                          TypeId X branchId
-     * @param perTime           If true, normalized counts are per unit of
-     *                          time (otherwise they are multiplied by
-     *                          the length of the branches).
-     *                          time (otherwise they are multiplied by
-     * @param perWord           If true, normalized counts are per unit of
-     *                          length (otherwise they are divided per
-     *                          word length).
-     * @param verbose           Display progress messages.
-     *
-     */
-
-    static void computeCountsPerTypePerBranch(
-      DRTreeLikelihood& drtl,
-      const std::vector<int>& ids,
-      SubstitutionModelSet* modelSet,
-      SubstitutionModelSet* nullModelSet,
-      const SubstitutionRegister& reg,
-      VVdouble& result,
-      bool perTime,
-      bool perWord,
-      bool verbose = true);
-
-    /**
-     *@}
-     *
-     */
-
-    /**
-     *@ brief Per Type Per Site methods
-     *
-     *@{
-     *
-     */
-
-    /**
-     * @brief Compute the sum over all branches of the counts per type per site,
-     *
-     * @param drtl              A DRTreeLikelihood object.
-     * @param ids               The numbers of the nodes of the tree
-     * @param model             The model on which the SubstitutionCount is built
-     * @param reg               the Substitution Register
-     * @param result            the resulted counts as an tabular
-     *                          site X TypeId 
-     *
-     */
-
-    static void computeCountsPerSitePerType(
-      DRTreeLikelihood& drtl,
-      const std::vector<int>& ids,
-      SubstitutionModel* model,
-      const SubstitutionRegister& reg,
-      VVdouble& result);
-
-    /**
-     * @brief Compute the sum over all branches of the normalized
-     * counts per site per type.
-     *
-     * @param drtl              A DRTreeLikelihood object.
-     * @param ids               The numbers of the nodes of the tree
-     * @param model             The model on which the SubstitutionCount is built
-     * @param nullModel         The null model used for normalization.
-     * @param reg               the Substitution Register
-     * @param result            the resulted counts as an tabular
-     *                          site X TypeId 
-     * @param perTime           If true, normalized counts are per unit of
-     *                          time (otherwise they are multiplied by
-     *                          the length of the branches).
-     * @param perWord           If true, normalized counts are per unit of
-     *                          length (otherwise they are divided per
-     *                          word length).
-     *
-     */
-
-    static void computeCountsPerSitePerType(
-      DRTreeLikelihood& drtl,
-      const std::vector<int>& ids,
-      SubstitutionModel* model,
-      SubstitutionModel* nullModel,
-      const SubstitutionRegister& reg,
-      VVdouble& result,
-      bool perTime,
-      bool perWord);
-
-    /**
-     * @brief Compute the sum over all branches of the normalized
-     * counts per site per type.
-     *
-     * @param drtl              A DRTreeLikelihood object.
-     * @param ids               The numbers of the nodes of the tree
-     * @param modelSet          The modelset on which the SubstitutionCount is built
-     * @param nullModelSet      The null modelSet used for normalization.
-     * @param reg               the Substitution Register
-     * @param result            the resulted counts as an tabular
-     *                          site X TypeId 
-     * @param perTime           If true, normalized counts are per unit of
-     *                          time (otherwise they are multiplied by
-     *                          the length of the branches).
-     * @param perWord           If true, normalized counts are per unit of
-     *                          length (otherwise they are divided per
-     *                          word length).
-     *
-     */
-
-    static void computeCountsPerSitePerType(
-      DRTreeLikelihood& drtl,
-      const std::vector<int>& ids,
-      SubstitutionModelSet* modelSet,
-      SubstitutionModelSet* nullModelSet,
-      const SubstitutionRegister& reg,
-      VVdouble& result,
-      bool perTime,
-      bool perWord);
-
-    /**
-     *@}
-     *
-     */
-
-    /**
-     *@ brief Per Branch Per Site Per Type methods
-     *
-     *@{
-     *
-     */
-
-    /**
-     * @brief Compute counts per site per branch per type.
-     *
-     * @param filenamePrefix    The filename prefix
-     * @param drtl              A DRTreeLikelihood object.
-     * @param ids               The numbers of the nodes of the tree
-     * @param model             The model on which the SubstitutionCount is built
-     * @param reg               the Substitution Register
-     * @param result            the resulted counts as an tabular
-     *                          site X branchid X typeId
-     * @author Iakov Davydov
+     * @}
      */
     
-    static void computeCountsPerSitePerBranchPerType(
-      DRTreeLikelihood& drtl,
-      const std::vector<int>& ids,
-      SubstitutionModel* model,
-      const SubstitutionRegister& reg,
-      VVVdouble& result);
-
-    /** 
-     * @brief Compute normalized counts per site per branch per type.
+    /*
      *
-     * @param drtl              A DRTreeLikelihood object.
-     * @param ids               The numbers of the nodes of the tree
-     * @param model             The model on which the SubstitutionCount is built
-     * @param nullModel         The null model used for normalization.
-     * @param reg               the Substitution Register
-     * @param result            the resulted counts as an tabular
-     *                          site X branchid * Typeid
-     * @param perTime           If true, normalized counts are per unit of
-     *                          time (otherwise they are multiplied by
-     *                          the length of the branches).
-     * @param perWord           If true, normalized counts are per unit of
-     *                          length (otherwise they are divided per
-     *                          word length).
+     * @}
      *
      */
-
-    static void computeCountsPerSitePerBranchPerType(
-      DRTreeLikelihood& drtl,
-      const std::vector<int>& ids,
-      SubstitutionModel* model,
-      SubstitutionModel* nullModel,
-      const SubstitutionRegister& reg,
-      VVVdouble& result,
-      bool perTime,
-      bool perWord);
-
-    /**
-     * @brief Compute normalized counts per site per branch per type.
-     *
-     * @param drtl              A DRTreeLikelihood object.
-     * @param ids               The numbers of the nodes of the tree
-     * @param modelSet          The modelset on which the SubstitutionCount is built
-     * @param nullModelSet      The null modelSet used for normalization.
-     * @param reg               the Substitution Register
-     * @param result            the resulted counts as an tabular
-     *                          site X branchid * Typeid
-     * @param perTime           If true, normalized counts are per unit of
-     *                          time (otherwise they are multiplied by
-     *                          the length of the branches).
-     * @param perWord           If true, normalized counts are per unit of
-     *                          length (otherwise they are divided per
-     *                          word length).
-     *
-     */
-
-    static void computeCountsPerSitePerBranchPerType(
-      DRTreeLikelihood& drtl,
-      const std::vector<int>& ids,
-      SubstitutionModelSet* modelSet,
-      SubstitutionModelSet* nullModelSet,
-      const SubstitutionRegister& reg,
-      VVVdouble& result,
-      bool perTime,
-      bool perWord);
-
+    
     /*
      *
      * @brief Outputs of counts
@@ -801,6 +619,35 @@ namespace bpp
                                               const SubstitutionRegister& reg,
                                               const VVVdouble& counts);
     
+
+    /**
+     * @brief Write the substitutions std::vectors to a stream.
+     *
+     * @param substitutions The substitutions std::vectors to write.
+     * @param sites         The dataset associated to the std::vectors
+     * (needed to know the position of each site in the dataset).
+     * @param type          The type of substitutions to be output. See SubstitutionCount class.
+     * Only one type of substitution can be output at a time.
+     * @param out           The output stream where to write the std::vectors.
+     * @throw IOException If an output error happens.
+     */
+
+    static void writeToStream(
+      const ProbabilisticSubstitutionMapping& substitutions,
+      const AlignedValuesContainer& sites,
+      size_t type,
+      std::ostream& out);
+
+    /**
+     * @brief Read the substitutions std::vectors from a stream.
+     *
+     * @param in            The input stream where to read the std::vectors.
+     * @param substitutions The mapping object to fill.
+     * @param type          The type of substitutions that are read. Should be in supported by the substittuion count obect assiciated to the mapping, if any.
+     * @throw IOException If an input error happens.
+     */
+
+    static void readFromStream(std::istream& in, ProbabilisticSubstitutionMapping& substitutions, size_t type);
 
     /*
      *

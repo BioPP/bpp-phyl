@@ -40,20 +40,21 @@ knowledge of the CeCILL license and that you accept its terms.
 #include "ProbabilisticRewardMapping.h"
 
 using namespace bpp;
-
-void ProbabilisticRewardMapping::setTree(const Tree& tree)
-{
-  AbstractRewardMapping::setTree(tree);
-  for (size_t i = 0; i < getNumberOfSites(); i++) 
-    mapping_[i].resize(getNumberOfBranches());
-}
+using namespace std;
 
 void ProbabilisticRewardMapping::setNumberOfSites(size_t numberOfSites)
 {
-  AbstractRewardMapping::setNumberOfSites(numberOfSites);
-  mapping_.resize(numberOfSites);
-  for (size_t i = 0; i < numberOfSites; i++) {
-    mapping_[i].resize(getNumberOfBranches());
+  if (numberOfSites!=getNumberOfSites() || (usePatterns_ && numberOfSites!=numberOfDistinctSites_))
+  {
+    AbstractRewardMapping::setNumberOfSites(numberOfSites);
+    
+    numberOfDistinctSites_=numberOfSites;
+    usePatterns_=false;
+  
+    unique_ptr<mapTree::EdgeIterator> nIT=allEdgesIterator();
+
+    for (;!nIT->end(); nIT->next())
+      (**nIT)->setNumberOfSites(numberOfSites);
   }
 }
  

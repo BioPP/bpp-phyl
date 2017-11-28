@@ -83,21 +83,27 @@ public:
   bool isCompatibleWith(const AlignedValuesContainer& data) const {
     return data.getAlphabet()->getAlphabetType() == model_->getAlphabet()->getAlphabetType();
   }
- 
-  const TransitionModel& getModel(unsigned int nodeId, size_t classIndex) const
+
+  const TransitionModel* getModel(size_t i) const
   {
-    return *model_;
+    return model_.get();
+  }
+
+  const TransitionModel* getModel(unsigned int nodeId, size_t classIndex) const
+  {
+    return model_.get();
+  }
+
+  const std::vector<unsigned int> getNodesWithModel(size_t i) const
+  {
+    std::vector<uint> innodes=(*computingTree_)[0]->getAllEdgesIndexes();
+    return innodes;
   }
 
   const DiscreteDistribution* getRateDistribution() const
   {
     return rDist_.get();
   }
-
-  // const Matrix<double>& getGenerator(unsigned int nodeId, size_t classIndex) const
-  // {
-  //   return model_->getGenerator();
-  // }
 
   ParameterList getSubstitutionModelParameters(bool independent) const
   {

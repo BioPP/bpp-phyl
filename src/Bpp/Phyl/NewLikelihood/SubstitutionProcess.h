@@ -99,7 +99,9 @@ namespace bpp
      */
 
     virtual size_t getNumberOfModels() const = 0;
-    
+
+    virtual const TransitionModel* getModel(size_t i) const = 0;
+
     /**
      * @brief Get the substitution model corresponding to a certain
      * branch, site pattern, and model class.
@@ -108,7 +110,17 @@ namespace bpp
      * @param classIndex The model class index.
      */
 
-    virtual const TransitionModel& getModel(unsigned int nodeId, size_t classIndex) const = 0;
+    virtual const TransitionModel* getModel(unsigned int nodeId, size_t classIndex) const = 0;
+
+    /**
+     * @brief Get a list of nodes id for which the given model is associated.
+     *
+     * @param i The index of the model in the set.
+     * @return A vector with the ids of the node associated to this model.
+     * @throw IndexOutOfBoundsException If the index is not valid.
+     */
+
+    virtual const std::vector<unsigned int> getNodesWithModel(size_t i) const = 0;
 
     /**
      * @brief Get a pointer to the rate distribution (or null if there

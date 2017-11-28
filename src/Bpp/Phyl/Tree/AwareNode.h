@@ -62,7 +62,7 @@
 namespace bpp
 {
 /**
- * @brief A node class aware of its neightbours.
+ * @brief A node class aware of its neighbours.
  *
  *
  * This class is made the more general as possible, while keeping it very simple. It contains:</p>
@@ -381,7 +381,7 @@ namespace bpp
 
     std::shared_ptr<N> thisN=tree->getNode(index);
     father_ = tree->hasFather(thisN)?dynamic_cast<AwareNode*>(tree->getFather(thisN).get()):0;
-
+    
     sons_.clear();
     std::vector< std::shared_ptr<N> > vS=tree->getSons(thisN);
 

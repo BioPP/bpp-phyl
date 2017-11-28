@@ -37,13 +37,15 @@
   knowledge of the CeCILL license and that you accept its terms.
 */
 
-#ifndef _MAPPING_H_
-#define _MAPPING_H_
+#ifndef MAPPING_H_
+#define MAPPING_H_
 
 #include <Bpp/Clonable.h>
 
-#include "../Tree/Tree.h"
-#include "../Tree/TreeTemplate.h"
+#include "../Tree/PhyloTree.h"
+#include "PhyloBranchMapping.h"
+
+#include <Bpp/Graph/AssociationTreeGraphImplObserver.h>
 
 //From the STL:
 #include <vector>
@@ -69,42 +71,34 @@ namespace bpp
   public:
     
     /**
-     * @return Get the phylogenetic tree associated to this mapping.
-     */
-    virtual const Tree& getTree() const = 0;
-    
-    /**
-     * @return True is the map is empty, that is, if no tree is associated to the map yet.
-     */
-    virtual bool isEmpty() const = 0;
-
-    /**
      * @return The number of sites mapped.
      */
     virtual size_t getNumberOfSites() const = 0;
+
+    /**
+     * @return The PhyloBranchMapping to a given index
+     *
+     */
+    
+    virtual const PhyloBranch& getBranch(unsigned int branchId) const = 0;
+
+    virtual PhyloBranch& getBranch(unsigned int branchId) = 0;
+
+    // virtual unsigned int getBranchIndex(const std::shared_ptr<PhyloBranch> branch) const = 0;
     
     /**
      * @return The number of branches mapped.
      */
+    
     virtual size_t getNumberOfBranches() const = 0;
     
     /**
      * @param index The site index.
      * @return The site position corresponding to the index.
      */
+    
     virtual int getSitePosition(size_t index) const = 0;
     
-    /**
-     * @return A vector with all tree branch lengths.
-     */
-    virtual std::vector<double> getBranchLengths() const = 0;
-    
-    /**
-     * @param nodeId An id of the node to look for in the map.
-     * @return The mapping index for the specified node id.
-     */
-    virtual size_t getNodeIndex(int nodeId) const throw (NodeNotFoundException) = 0;
-
     /**
      * @brief Set the position of a given site.
      *
@@ -112,58 +106,47 @@ namespace bpp
      * @param index The site index.
      * @param position The position of the site.
      */
+    
     virtual void setSitePosition(size_t index, int position) = 0;
   };
 
 
 
 
-
-
   /**
    * @brief Partial implementation of the mapping interface.
+   * 
+   *  Here, there is no information about site compression.
    *
-   * This implementation copies the input tree in a TreeTemplate<Node> object.
    */
+  
   class AbstractMapping:
     virtual public Mapping
   {
-  private:
-    std::unique_ptr<const TreeTemplate<Node> > tree_;
+  protected:
     std::vector<int> sitesPositions_;
-    std::vector<const Node *> nodes_;
     size_t nbSites_;
-    size_t nbBranches_;
 
   public:
-    //    AbstractMapping() : tree_(0), sitesPositions_(), nodes_(), nbSites_(0), nbBranches_(0) {}
-
-    AbstractMapping(const Tree& tree) : tree_(new TreeTemplate<Node>(tree)), sitesPositions_(), nodes_(), nbSites_(0), nbBranches_(0)
+    AbstractMapping(): sitesPositions_(), nbSites_(0)
     {
-      nodes_ = tree_->getNodes();
-      nodes_.pop_back(); // remove root node.
-      nbBranches_ = nodes_.size();
+    }
+
+    AbstractMapping(size_t nb): sitesPositions_(), nbSites_(nb)
+    {      
     }
 
     AbstractMapping(const AbstractMapping& absm):
-      tree_(dynamic_cast<const TreeTemplate<Node>*>(absm.tree_->clone())),
       sitesPositions_(absm.sitesPositions_),
-      nodes_(),
-      nbSites_(absm.nbSites_),
-      nbBranches_(absm.nbBranches_)
+      nbSites_(absm.nbSites_)
     {
-      nodes_ = tree_->getNodes();
-      nodes_.pop_back(); // remove root node.
     }
 
     AbstractMapping& operator=(const AbstractMapping& absm)
     {
-      tree_.reset(dynamic_cast<const TreeTemplate<Node>*>(absm.tree_->clone()));
       sitesPositions_ = absm.sitesPositions_;
       nbSites_        = absm.nbSites_;
-      nbBranches_     = absm.nbBranches_;
-      nodes_          = tree_->getNodes();
-      nodes_.pop_back(); // remove root node.
+      
       return *this;
     }
 
@@ -173,63 +156,26 @@ namespace bpp
   
   public:
   
-    bool isEmpty() const { return tree_.get() == 0; }
-
-    const TreeTemplate<Node>& getTree() const throw (Exception)
+    int getSitePosition(size_t index) const
     {
-      if (isEmpty()) throw Exception("AbstractSubstitutionMapping::getSitePosition. No tree is assigned to this map yet.");
-      return *tree_.get();
-    }
-  
-    void setTree(const Tree& tree)
-    {
-      tree_.reset(new TreeTemplate<Node>(tree));
-      nodes_ = tree_->getNodes();
-      nodes_.pop_back(); // remove root node.
-      nbBranches_ = nodes_.size();
-    }
- 
-    int getSitePosition(size_t index) const throw (Exception)
-    {
-      if (isEmpty()) throw Exception("AbstractMapping::getSitePosition. No tree is assigned to this map yet.");
-      return sitesPositions_[index];
+      return (sitesPositions_.size()==0?(int)(index+1):sitesPositions_[index]);
     }
     
-    void setSitePosition(size_t index, int position) throw (Exception)
+    void setSitePosition(size_t index, int position)
     {
-      if (isEmpty()) throw Exception("AbstractMapping::setSitePosition. No tree is assigned to this map yet.");
+      if (sitesPositions_.size()==0)
+        sitesPositions_.resize(nbSites_);
+      
       sitesPositions_[index] = position;
     }
 		
     size_t getNumberOfSites() const { return nbSites_; }
 
-    size_t getNumberOfBranches() const { return nbBranches_; }
-    
-    virtual const Node* getNode(size_t nodeIndex) const { return nodes_[nodeIndex]; }
-
     virtual void setNumberOfSites(size_t numberOfSites)
     {
       nbSites_ = numberOfSites;
-      sitesPositions_.resize(numberOfSites);
-      for (size_t i = 0; i < numberOfSites; i++)
-        sitesPositions_[i] = static_cast<int>(i + 1); //Default: all sizes numbered for 1 to n.
+      sitesPositions_.clear();
     }
-
-    virtual std::vector<double> getBranchLengths() const
-    {
-      std::vector<double> brLen(nbBranches_);
-      for (size_t i = 0; i < nbBranches_; i++)
-        brLen[i] = nodes_[i]->getDistanceToFather();
-      return brLen;
-    }
-
-    virtual size_t getNodeIndex(int nodeId) const throw (NodeNotFoundException)
-    {
-      for (size_t i = 0; i < nbBranches_; i++)
-        if(nodes_[i]->getId() == nodeId) return i;
-      throw NodeNotFoundException("AbstractMapping::getNodeIndex(nodeId).", TextTools::toString(nodeId));
-    }
-
 
   };
 

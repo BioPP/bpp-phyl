@@ -173,11 +173,11 @@ int main() {
     cout << "Thetas : " << endl;
 
     for (size_t i = 0; i < nmodels; ++i) {
-      cout << tl.getSubstitutionModelSet()->getModel((int)i)->getParameter("theta").getValue() << "\t" << ntl.getSubstitutionProcess().getModel((int)i,0).getParameter("theta").getValue() << endl;
+      cout << tl.getSubstitutionModelSet()->getModel((int)i)->getParameter("theta").getValue() << "\t" << ntl.getSubstitutionProcess().getModel((int)i,0)->getParameter("theta").getValue() << endl;
       //if (abs(modelSet2->getModel(i)->getParameter("theta").getValue() - modelSet3->getModel(i)->getParameter("theta").getValue()) > 0.1)
       //  return 1;
       thetasEst1[i] += tl.getSubstitutionModelSet()->getModel((int)i)->getParameter("theta").getValue();
-      thetasEst1n[i] += ntl.getSubstitutionProcess().getModel((int)i,0).getParameter("theta").getValue();
+      thetasEst1n[i] += ntl.getSubstitutionProcess().getModel((int)i,0)->getParameter("theta").getValue();
     }
   }
   thetasEst1 /= static_cast<double>(nrep);

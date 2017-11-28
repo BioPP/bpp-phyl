@@ -39,7 +39,6 @@
 
 #include "RewardMappingTools.h"
 #include "../Likelihood/DRTreeLikelihoodTools.h"
-#include "../Likelihood/MarginalAncestralStateReconstruction.h"
 
 #include <Bpp/Text/TextTools.h>
 #include <Bpp/App/ApplicationTools.h>
@@ -53,286 +52,150 @@ using namespace bpp;
 
 using namespace std;
 
+
 /******************************************************************************/
 
 ProbabilisticRewardMapping* RewardMappingTools::computeRewardVectors(
-  const DRTreeLikelihood& drtl,
+  RecursiveLikelihoodTreeCalculation& rltc,
   const vector<int>& nodeIds,
   Reward& reward,
-  bool verbose) throw (Exception)
+  bool verbose)
 {
   // Preamble:
-  if (!drtl.isInitialized())
-    throw Exception("RewardMappingTools::computeRewardVectors(). Likelihood object is not initialized.");
+  if (!rltc.isInitialized())
+    throw Exception("RewardMappingTools::computeSubstitutionVectors(). Likelihood object is not initialized.");
 
+  const SubstitutionProcess& sp=*rltc.getSubstitutionProcess();
+  const ParametrizablePhyloTree& ppt=sp.getParametrizablePhyloTree();
+  
   // A few variables we'll need:
 
-  const TreeTemplate<Node> tree(drtl.getTree());
-  const AlignedValuesContainer*    sequences = drtl.getData();
-  const DiscreteDistribution* rDist = drtl.getRateDistribution();
+  const RecursiveLikelihoodTree& rlt=dynamic_cast<const RecursiveLikelihoodTree&>(rltc.getLikelihoodData());
 
-  size_t nbSites         = sequences->getNumberOfSites();
-  size_t nbDistinctSites = drtl.getLikelihoodData()->getNumberOfDistinctSites();
-  size_t nbStates        = sequences->getAlphabet()->getSize();
-  size_t nbClasses       = rDist->getNumberOfCategories();
-  vector<const Node*> nodes    = tree.getNodes();
-  const vector<size_t>* rootPatternLinks
-    = &drtl.getLikelihoodData()->getRootArrayPositions();
-  nodes.pop_back(); // Remove root node.
-  size_t nbNodes         = nodes.size();
+  size_t nbDistinctSites = rlt.getNumberOfDistinctSites();
+  size_t nbStates        = sp.getNumberOfStates();
+  size_t nbClasses       = sp.getNumberOfClasses();
+  size_t nbNodes         = nodeIds.size();
+  
+  const vector<size_t>& rootPatternLinks = rlt.getRootArrayPositions();
 
   // We create a new ProbabilisticRewardMapping object:
-  ProbabilisticRewardMapping* rewards = new ProbabilisticRewardMapping(tree, &reward, nbSites);
+  unique_ptr<ProbabilisticRewardMapping> rewards(new ProbabilisticRewardMapping(ppt, rootPatternLinks, nbDistinctSites));
 
-  // Store likelihood for each rate for each site:
-  VVVdouble lik;
-  drtl.computeLikelihoodAtNode(tree.getRootId(), lik);
+  // Store likelihood for each site (here rootPatterns are managed):
   Vdouble Lr(nbDistinctSites, 0);
-  Vdouble rcProbs = rDist->getProbabilities();
-  Vdouble rcRates = rDist->getCategories();
+  
   for (size_t i = 0; i < nbDistinctSites; i++)
-  {
-    VVdouble* lik_i = &lik[i];
-    for (size_t c = 0; c < nbClasses; c++)
-    {
-      Vdouble* lik_i_c = &(*lik_i)[c];
-      double rc = rDist->getProbability(c);
-      for (size_t s = 0; s < nbStates; s++)
-      {
-        Lr[i] += (*lik_i_c)[s] * rc;
-      }
-    }
-  }
+    Lr[i]=rltc.getLikelihoodForASiteIndex(i);
 
   // Compute the reward for each class and each branch in the tree:
   if (verbose)
     ApplicationTools::displayTask("Compute joint node-pairs likelihood", true);
 
-  for (size_t l = 0; l < nbNodes; ++l)
+  unique_ptr<ProbabilisticRewardMapping::mapTree::EdgeIterator> brIt=rewards->allEdgesIterator();
+
+  size_t nn=0;
+  
+  for (;!brIt->end();brIt->next())
   {
-    // For each node,
-    const Node* currentNode = nodes[l];
-    if (nodeIds.size() > 0 && !VectorTools::contains(nodeIds, currentNode->getId()))
+    if (verbose)
+      ApplicationTools::displayGauge(nn++, nbNodes - 1);
+    
+    shared_ptr<PhyloBranchReward> br=**brIt;
+    
+    // For each branch
+    uint edid=rewards->getEdgeIndex(br);
+    
+    if (nodeIds.size() > 0 && !VectorTools::contains(nodeIds, (int)edid))
       continue;
 
-    const Node* father = currentNode->getFather();
+    uint fathid=rewards->getFather(edid);
+    uint icid=rewards->getSon(edid);
 
-    double d = currentNode->getDistanceToFather();
+    double d=br->getLength();
 
-    if (verbose)
-      ApplicationTools::displayGauge(l, nbNodes - 1);
     Vdouble rewardsForCurrentNode(nbDistinctSites);
 
-    // Now we've got to compute likelihoods in a smart manner... ;)
-    VVVdouble likelihoodsFatherConstantPart(nbDistinctSites);
-    for (size_t i = 0; i < nbDistinctSites; i++)
+    VVdouble likelihoodsFatherConstantPart;    
+    VectorTools::resize2(likelihoodsFatherConstantPart, nbDistinctSites, nbStates);
+
+    for (size_t ncl=0; ncl<nbClasses; ncl++)
     {
-      VVdouble* likelihoodsFatherConstantPart_i = &likelihoodsFatherConstantPart[i];
-      likelihoodsFatherConstantPart_i->resize(nbClasses);
-      for (size_t c = 0; c < nbClasses; c++)
+      const RecursiveLikelihoodTree::LikTree& rlt_c=rlt[ncl];
+      
+      double pr=sp.getProbabilityForModel(ncl);
+      double rate=sp.getRateForModel(ncl);
+      
+      for (size_t i=0; i<nbDistinctSites; i++)
+        VectorTools::fill(likelihoodsFatherConstantPart[i],pr);
+
+      rltc.computeLikelihoodsAtNode(fathid);
+
+      // up father
+      shared_ptr<RecursiveLikelihoodNode> father = rlt_c.getNode(fathid);
+
+      // down the brothers
+
+      unique_ptr<RecursiveLikelihoodTree::LikTree::EdgeIterator> brothIt=rlt_c.branchesIterator(father);
+
+      for (;!brothIt->end();brothIt->next())
       {
-        Vdouble* likelihoodsFatherConstantPart_i_c = &(*likelihoodsFatherConstantPart_i)[c];
-        likelihoodsFatherConstantPart_i_c->resize(nbStates);
-        double rc = rDist->getProbability(c);
-        for (size_t s = 0; s < nbStates; s++)
+        if (rlt_c.getEdgeIndex(**brothIt)!=edid)
         {
-          // (* likelihoodsFatherConstantPart_i_c)[s] = rc * model->freq(s);
-          // freq is already accounted in the array
-          (*likelihoodsFatherConstantPart_i_c)[s] = rc;
+          likelihoodsFatherConstantPart *= rlt_c.getSon(**brothIt)->getToFatherBelowLikelihoodArray(ComputingNode::D0);
         }
       }
-    }
+      
+      likelihoodsFatherConstantPart *= father->getAboveLikelihoodArray();
 
-    // First, what will remain constant:
-    size_t nbSons =  father->getNumberOfSons();
-    for (size_t n = 0; n < nbSons; n++)
-    {
-      const Node* currentSon = father->getSon(n);
-      if (currentSon->getId() != currentNode->getId())
-      {
-        const VVVdouble* likelihoodsFather_son = &drtl.getLikelihoodData()->getLikelihoodArray(father->getId(), currentSon->getId());
+     // Then, we deal with the node of interest.
+     // We first average upon 'y' to save computations, and then upon 'x'.
+     // ('y' is the state at 'node' and 'x' the state at 'father'.)
 
-        // Now iterate over all site partitions:
-        unique_ptr<TreeLikelihood::ConstBranchModelIterator> mit(drtl.getNewBranchModelIterator(currentSon->getId()));
-        VVVdouble pxy;
-        bool first;
-        while (mit->hasNext())
-        {
-          TreeLikelihood::ConstBranchModelDescription* bmd = mit->next();
-          unique_ptr<TreeLikelihood::SiteIterator> sit(bmd->getNewSiteIterator());
-          first = true;
-          while (sit->hasNext())
-          {
-            size_t i = sit->next();
-            // We retrieve the transition probabilities for this site partition:
-            if (first)
-            {
-              pxy = drtl.getTransitionProbabilitiesPerRateClass(currentSon->getId(), i);
-              first = false;
-            }
-            const VVdouble* likelihoodsFather_son_i = &(*likelihoodsFather_son)[i];
-            VVdouble* likelihoodsFatherConstantPart_i = &likelihoodsFatherConstantPart[i];
-            for (size_t c = 0; c < nbClasses; c++)
-            {
-              const Vdouble* likelihoodsFather_son_i_c = &(*likelihoodsFather_son_i)[c];
-              Vdouble* likelihoodsFatherConstantPart_i_c = &(*likelihoodsFatherConstantPart_i)[c];
-              VVdouble* pxy_c = &pxy[c];
-              for (size_t x = 0; x < nbStates; x++)
-              {
-                Vdouble* pxy_c_x = &(*pxy_c)[x];
-                double likelihood = 0.;
-                for (size_t y = 0; y < nbStates; y++)
-                {
-                  likelihood += (*pxy_c_x)[y] * (*likelihoodsFather_son_i_c)[y];
-                }
-                (*likelihoodsFatherConstantPart_i_c)[x] *= likelihood;
-              }
-            }
-          }
-        }
-      }
-    }
-    if (father->hasFather())
-    {
-      const Node* currentSon = father->getFather();
-      const VVVdouble* likelihoodsFather_son = &drtl.getLikelihoodData()->getLikelihoodArray(father->getId(), currentSon->getId());
-      // Now iterate over all site partitions:
-      unique_ptr<TreeLikelihood::ConstBranchModelIterator> mit(drtl.getNewBranchModelIterator(father->getId()));
-      VVVdouble pxy;
-      bool first;
-      while (mit->hasNext())
-      {
-        TreeLikelihood::ConstBranchModelDescription* bmd = mit->next();
-        unique_ptr<TreeLikelihood::SiteIterator> sit(bmd->getNewSiteIterator());
-        first = true;
-        while (sit->hasNext())
-        {
-          size_t i = sit->next();
-          // We retrieve the transition probabilities for this site partition:
-          if (first)
-          {
-            pxy = drtl.getTransitionProbabilitiesPerRateClass(father->getId(), i);
-            first = false;
-          }
-          const VVdouble* likelihoodsFather_son_i = &(*likelihoodsFather_son)[i];
-          VVdouble* likelihoodsFatherConstantPart_i = &likelihoodsFatherConstantPart[i];
-          for (size_t c = 0; c < nbClasses; c++)
-          {
-            const Vdouble* likelihoodsFather_son_i_c = &(*likelihoodsFather_son_i)[c];
-            Vdouble* likelihoodsFatherConstantPart_i_c = &(*likelihoodsFatherConstantPart_i)[c];
-            VVdouble* pxy_c = &pxy[c];
-            for (size_t x = 0; x < nbStates; x++)
-            {
-              double likelihood = 0.;
-              for (size_t y = 0; y < nbStates; y++)
-              {
-                Vdouble* pxy_c_x = &(*pxy_c)[y];
-                likelihood += (*pxy_c_x)[x] * (*likelihoodsFather_son_i_c)[y];
-              }
-              (*likelihoodsFatherConstantPart_i_c)[x] *= likelihood;
-            }
-          }
-        }
-      }
-    }
-    else
-    {
-      // Account for root frequencies:
-      for (size_t i = 0; i < nbDistinctSites; i++)
-      {
-        vector<double> freqs = drtl.getRootFrequencies(i);
-        VVdouble* likelihoodsFatherConstantPart_i = &likelihoodsFatherConstantPart[i];
-        for (size_t c = 0; c < nbClasses; c++)
-        {
-          Vdouble* likelihoodsFatherConstantPart_i_c = &(*likelihoodsFatherConstantPart_i)[c];
-          for (size_t x = 0; x < nbStates; x++)
-          {
-            (*likelihoodsFatherConstantPart_i_c)[x] *= freqs[x];
-          }
-        }
-      }
-    }
+      shared_ptr<RecursiveLikelihoodNode> ici = rlt_c.getNode(icid);
 
-    // Then, we deal with the node of interest.
-    // We first average upon 'y' to save computations, and then upon 'x'.
-    // ('y' is the state at 'node' and 'x' the state at 'father'.)
+      const VVdouble& likelihoodsFather_node = ici->getBelowLikelihoodArray(ComputingNode::D0);
 
-    // Iterate over all site partitions:
-    const VVVdouble* likelihoodsFather_node = &(drtl.getLikelihoodData()->getLikelihoodArray(father->getId(), currentNode->getId()));
-    unique_ptr<TreeLikelihood::ConstBranchModelIterator> mit(drtl.getNewBranchModelIterator(currentNode->getId()));
-    VVVdouble pxy;
-    bool first;
-    while (mit->hasNext())
-    {
-      TreeLikelihood::ConstBranchModelDescription* bmd = mit->next();
-      reward.setSubstitutionModel(bmd->getSubstitutionModel());
-      // compute all nxy first:
-      VVVdouble nxy(nbClasses);
-      for (size_t c = 0; c < nbClasses; ++c)
+      const SubstitutionModel* sm=dynamic_cast<const SubstitutionModel*>(sp.getModel(icid,ncl));
+      if (!sm)
+        throw Exception("RewardMappingTools:: non substitution model in node " + TextTools::toString(icid));
+      
+      reward.setSubstitutionModel(sm);
+      
+      // compute all nxy * pxy first:
+      
+      const Matrix<double>& pxy = sp.getTransitionProbabilities(icid,ncl);      
+      Matrix<double>* nij = reward.getAllRewards(d * rate);
+      MatrixTools::hadamardMult((*nij),pxy,(*nij));
+
+      for (size_t i=0; i< nbDistinctSites; i++)
       {
-        VVdouble* nxy_c = &nxy[c];
-        double rc = rcRates[c];
-        Matrix<double>* nij = reward.getAllRewards(d * rc);
-        nxy_c->resize(nbStates);
+        const Vdouble* likelihoodsFather_node_i = &(likelihoodsFather_node[i]);
+        const Vdouble* likelihoodsFatherConstantPart_i = &(likelihoodsFatherConstantPart[i]);
+        
         for (size_t x = 0; x < nbStates; ++x)
         {
-          Vdouble* nxy_c_x = &(*nxy_c)[x];
-          nxy_c_x->resize(nbStates);
+          double likelihoodsFatherConstantPart_i_x = (*likelihoodsFatherConstantPart_i)[x];
           for (size_t y = 0; y < nbStates; ++y)
           {
-            (*nxy_c_x)[y] = (*nij)(x, y);
-          }
-        }
-        delete nij;
-      }
+            double likelihood_xy = likelihoodsFatherConstantPart_i_x
+              * (*likelihoodsFather_node_i)[y];
 
-      // Now loop over sites:
-      unique_ptr<TreeLikelihood::SiteIterator> sit(bmd->getNewSiteIterator());
-      first = true;
-      while (sit->hasNext())
-      {
-        size_t i = sit->next();
-        // We retrieve the transition probabilities and substitution counts for this site partition:
-        if (first)
-        {
-          pxy = drtl.getTransitionProbabilitiesPerRateClass(currentNode->getId(), i);
-          first = false;
-        }
-        const VVdouble* likelihoodsFather_node_i = &(*likelihoodsFather_node)[i];
-        VVdouble* likelihoodsFatherConstantPart_i = &likelihoodsFatherConstantPart[i];
-        for (size_t c = 0; c < nbClasses; ++c)
-        {
-          const Vdouble* likelihoodsFather_node_i_c = &(*likelihoodsFather_node_i)[c];
-          Vdouble* likelihoodsFatherConstantPart_i_c = &(*likelihoodsFatherConstantPart_i)[c];
-          const VVdouble* pxy_c = &pxy[c];
-          VVdouble* nxy_c = &nxy[c];
-          for (size_t x = 0; x < nbStates; ++x)
-          {
-            double* likelihoodsFatherConstantPart_i_c_x = &(*likelihoodsFatherConstantPart_i_c)[x];
-            const Vdouble* pxy_c_x = &(*pxy_c)[x];
-            for (size_t y = 0; y < nbStates; ++y)
-            {
-              double likelihood_cxy = (*likelihoodsFatherConstantPart_i_c_x)
-                                      * (*pxy_c_x)[y]
-                                      * (*likelihoodsFather_node_i_c)[y];
-
-              // Now the vector computation:
-              rewardsForCurrentNode[i] += likelihood_cxy * (*nxy_c)[x][y];
-              //                       <------------>   <--------------->
-              // Posterior probability         |                 |
-              // for site i and rate class c * |                 |
-              // likelihood for this site------+                 |
-              //                                                 |
-              // Reward function for site i and rate class c------+
-            }
+            rewardsForCurrentNode[i] += likelihood_xy * (*nij)(x,y);
+            //                       <------------>   <--------------->
+            // Posterior probability         |                 |
+            // for site i and rate class c * |                 |
+            // likelihood for this site------+                 |
+            //                                                 |
+            // Reward function for site i and rate class c------+
           }
         }
       }
     }
-
+    
     // Now we just have to copy the substitutions into the result vector:
-    for (size_t i = 0; i < nbSites; ++i)
-      (*rewards)(l, i) = rewardsForCurrentNode[(*rootPatternLinks)[i]] / Lr[(*rootPatternLinks)[i]];
+    for (size_t i = 0; i < nbDistinctSites; ++i)
+      (*br)(i) = rewardsForCurrentNode[i] / Lr[i];
 
   }
   if (verbose)
@@ -341,7 +204,7 @@ ProbabilisticRewardMapping* RewardMappingTools::computeRewardVectors(
       *ApplicationTools::message << " ";
     ApplicationTools::displayTaskDone();
   }
-  return rewards;
+  return rewards.release();
 }
 
 /**************************************************************************************************/
@@ -350,7 +213,6 @@ void RewardMappingTools::writeToStream(
   const ProbabilisticRewardMapping& rewards,
   const AlignedValuesContainer& sites,
   ostream& out)
-throw (IOException)
 {
   if (!out)
     throw IOException("RewardMappingTools::writeToFile. Can't write to stream.");
@@ -362,13 +224,17 @@ throw (IOException)
   }
   out << endl;
 
-  for (size_t j = 0; j < rewards.getNumberOfBranches(); j++)
+  unique_ptr<ProbabilisticRewardMapping::mapTree::EdgeIterator> brIt=rewards.allEdgesIterator();
+
+  for (;!brIt->end();brIt->next())
   {
-    out << rewards.getNode(j)->getId() << "\t" << rewards.getNode(j)->getDistanceToFather();
+    const shared_ptr<PhyloBranchReward> br=**brIt;
+    
+    out << rewards.getEdgeIndex(br) << "\t" << br->getLength();
+    
     for (size_t i = 0; i < rewards.getNumberOfSites(); i++)
-    {
-      out << "\t" << rewards(j, i);
-    }
+      out << "\t" << br->getSiteReward(rewards.getSiteIndex(i));
+    
     out << endl;
   }
 }
@@ -376,7 +242,6 @@ throw (IOException)
 /**************************************************************************************************/
 
 void RewardMappingTools::readFromStream(istream& in, ProbabilisticRewardMapping& rewards)
-throw (IOException)
 {
   try
   {
@@ -387,16 +252,18 @@ throw (IOException)
     // Now parse the table:
     size_t nbSites = data->getNumberOfColumns();
     rewards.setNumberOfSites(nbSites);
-    size_t nbBranches = data->getNumberOfRows();
-    for (size_t i = 0; i < nbBranches; i++)
+
+    unique_ptr<ProbabilisticRewardMapping::mapTree::EdgeIterator> brIt=rewards.allEdgesIterator();
+
+    for (;!brIt->end();brIt->next())
     {
-      int id = TextTools::toInt(ids[i]);
-      size_t br = rewards.getNodeIndex(id);
+      const shared_ptr<PhyloBranchReward> br=**brIt;
+
+      uint brid = rewards.getEdgeIndex(br);
       for (size_t j = 0; j < nbSites; j++)
-      {
-        rewards(br, j) = TextTools::toDouble((*data)(i, j));
-      }
+        (*br)(j) = TextTools::toDouble((*data)(brid, j));
     }
+    
     // Parse the header:
     for (size_t i = 0; i < nbSites; i++)
     {
@@ -419,26 +286,31 @@ throw (IOException)
 
 /**************************************************************************************************/
 
-double RewardMappingTools::computeSumForBranch(const RewardMapping& smap, size_t branchIndex)
+double RewardMappingTools::computeSumForBranch(const ProbabilisticRewardMapping& smap, size_t branchIndex)
 {
   size_t nbSites = smap.getNumberOfSites();
   double v = 0;
+  shared_ptr<PhyloBranchReward> br=smap.getEdge((uint)branchIndex);
+  
   for (size_t i = 0; i < nbSites; ++i)
   {
-    v += smap(branchIndex, i);
+    v += br->getSiteReward(smap.getSiteIndex(i));
   }
   return v;
 }
 
 /**************************************************************************************************/
 
-double RewardMappingTools::computeSumForSite(const RewardMapping& smap, size_t siteIndex)
+double RewardMappingTools::computeSumForSite(const ProbabilisticRewardMapping& smap, size_t site)
 {
-  size_t nbBranches = smap.getNumberOfBranches();
   double v = 0;
-  for (size_t i = 0; i < nbBranches; ++i)
+  unique_ptr<ProbabilisticRewardMapping::mapTree::EdgeIterator> brIt=smap.allEdgesIterator();
+
+  size_t siteIndex=smap.getSiteIndex(site);
+  
+  for (;!brIt->end();brIt->next())
   {
-    v += smap(i, siteIndex);
+    v += (**brIt)->getSiteReward(siteIndex);
   }
   return v;
 }

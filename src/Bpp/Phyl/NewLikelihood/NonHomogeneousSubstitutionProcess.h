@@ -243,7 +243,7 @@ namespace bpp
      */
 
     size_t getNumberOfModels() const { return modelSet_.size(); }
-
+    
     /**
      * @return True iff there is a MixedSubstitutionModel in the NonHomogeneousSubstitutionProcess
      **/
@@ -317,7 +317,7 @@ namespace bpp
      * @throw IndexOutOfBoundsException If the index is not valid.
      */
 
-    const std::vector<unsigned int>& getNodesWithModel(size_t i) const
+    const std::vector<unsigned int> getNodesWithModel(size_t i) const
     {
       if (i >= modelSet_.size()) throw IndexOutOfBoundsException("NonHomogeneousSubstitutionProcess::getNodesWithModel().", i, 0, modelSet_.size());
       return modelToNodes_[i];
@@ -511,9 +511,9 @@ namespace bpp
      * @param classIndex The model class index.
      */
 
-    const TransitionModel& getModel(unsigned int nodeId, size_t classIndex) const
+    const TransitionModel* getModel(unsigned int nodeId, size_t classIndex) const
     {
-      return *modelSet_[nodeToModel_[nodeId]];
+      return modelSet_[nodeToModel_[nodeId]];
     }
     
     // const Matrix<double>& getGenerator(unsigned int nodeId, size_t classIndex) const

@@ -192,12 +192,7 @@ public:
     clear();
   }
 
-#ifndef NO_VIRTUAL_COV
-  SubstitutionProcessCollection*
-#else
-  Clonable*
-#endif
-  clone() const { return new SubstitutionProcessCollection(*this); }
+  SubstitutionProcessCollection* clone() const { return new SubstitutionProcessCollection(*this); }
 
 
   /**
@@ -269,14 +264,14 @@ public:
    * @return the got TransitionModel*. 
    */
   
-  TransitionModel& getModel(size_t modelIndex)
+  TransitionModel* getModel(size_t modelIndex)
   {
-    return *(dynamic_cast<TransitionModel*>(modelColl_[modelIndex]));
+    return dynamic_cast<TransitionModel*>(modelColl_[modelIndex]);
   }
 
-  const TransitionModel& getModel(size_t modelIndex) const
+  const TransitionModel* getModel(size_t modelIndex) const
   {
-    return *(dynamic_cast<const TransitionModel*>(modelColl_[modelIndex]));
+    return dynamic_cast<const TransitionModel*>(modelColl_[modelIndex]);
   }
 
   /**
