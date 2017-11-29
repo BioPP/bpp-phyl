@@ -118,26 +118,6 @@ public:
 	Container & asVector () noexcept { return vec_; }
 	const Container & asVector () const noexcept { return vec_; }
 
-	// Map : build a new vector by applying callable on each element of the current vector
-	template <typename Callable,
-	          typename ReturnType = decltype (std::declval<Callable> () (std::declval<const T &> ()))>
-	Vector<ReturnType> map (Callable callable) const & {
-		Vector<ReturnType> v;
-		v.reserve (size ());
-		for (const auto & element : *this)
-			v.emplace_back (callable (element));
-		return v;
-	}
-	template <typename Callable,
-	          typename ReturnType = decltype (std::declval<Callable> () (std::declval<T &&> ()))>
-	Vector<ReturnType> map (Callable callable) && {
-		Vector<ReturnType> v;
-		v.reserve (size ());
-		for (auto & element : *this)
-			v.emplace_back (callable (std::move (element)));
-		return v;
-	}
-
 private:
 	Container vec_;
 };

@@ -96,8 +96,8 @@ namespace DF {
 
 		AddDouble (NodeRefVec && deps) : Value<double> (std::move (deps)) {}
 		NodeRef derive (const Node & node) override final {
-			return makeNode<AddDouble> (
-			    this->dependencies ().map ([&node](const NodeRef & dep) { return dep->derive (node); }));
+			return makeNode<AddDouble> (mapToVector (
+			    this->dependencies (), [&node](const NodeRef & dep) { return dep->derive (node); }));
 		}
 		bool isDerivable (const Node & node) const override final {
 			return derivableIfAllDepsAre (*this, node);
@@ -248,7 +248,8 @@ namespace DF {
 		    : Value<VectorDouble> (std::move (deps), dim.size) {}
 		NodeRef derive (const Node & node) override final {
 			return makeNode<AddVectorDouble> (
-			    this->dependencies ().map ([&node](const NodeRef & dep) { return dep->derive (node); }),
+			    mapToVector (this->dependencies (),
+			                 [&node](const NodeRef & dep) { return dep->derive (node); }),
 			    dimensions (*this));
 		}
 		bool isDerivable (const Node & node) const override final {
@@ -458,7 +459,8 @@ namespace DF {
 		    : Value<MatrixDouble> (std::move (deps), dim.rows, dim.cols) {}
 		NodeRef derive (const Node & node) override final {
 			return makeNode<AddMatrixDouble> (
-			    this->dependencies ().map ([&node](const NodeRef & dep) { return dep->derive (node); }),
+			    mapToVector (this->dependencies (),
+			                 [&node](const NodeRef & dep) { return dep->derive (node); }),
 			    dimensions (*this));
 		}
 		bool isDerivable (const Node & node) const override final {

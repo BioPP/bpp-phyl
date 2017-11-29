@@ -197,7 +197,7 @@ namespace DF {
 			return node;
 		} else {
 			// Recursion : only rebuild if dependencies have changed
-			auto rebuiltDeps = node->dependencies ().map ([&substitutions](const NodeRef & dep) {
+			auto rebuiltDeps = mapToVector (node->dependencies (), [&substitutions](const NodeRef & dep) {
 				return rebuildWithSubstitution (dep, substitutions);
 			});
 			if (rebuiltDeps == node->dependencies ()) {
