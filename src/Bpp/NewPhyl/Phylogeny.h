@@ -58,11 +58,14 @@ namespace bpp {
 class Sequence;
 class SubstitutionModel;
 
+/* Virtual views/access classes.
+ *
+ * These classes are interface which describe capabilities used by DF graph construction methods.
+ */
 class TreeTopologyView {
+	// Allows to move around a tree topology through node/branch indexes.
 public:
 	virtual ~TreeTopologyView () = default;
-
-	// Navigation through indexes
 	virtual IndexType rootNode () const = 0;
 	virtual bool validBranchIndex (IndexType branchId) const = 0;
 	virtual IndexType branchFatherNode (IndexType branchId) const = 0;
@@ -71,6 +74,30 @@ public:
 	virtual IndexType nodeFatherBranch (IndexType nodeId) const = 0;
 	virtual Vector<IndexType> nodeChildBranches (IndexType nodeId) const = 0;
 };
+class BranchLengthNodeAccess {
+	// Can access Branch length value node by branch id
+public:
+	virtual ~BranchLengthNodeAccess () = default;
+	virtual const DF::ValueRef<double> & getBranchLengthNode (IndexType branchId) const = 0;
+};
+class ModelNodeAccess {
+	// Can access a Model node by branch id, has a defined number of states.
+public:
+	virtual ~ModelNodeAccess () = default;
+	virtual const DF::ValueRef<const SubstitutionModel *> &
+	getModelNode (IndexType branchId) const = 0;
+	virtual SizeType getNbStates () const = 0; // tree constant
+};
+class SequenceNodeAccess {
+	// Can access Sequence nodes at leaves, has a defined number of sites.
+public:
+	virtual ~SequenceNodeAccess () = default;
+	virtual const DF::ValueRef<const Sequence *> & getSequenceNode (IndexType nodeId) const = 0;
+	virtual SizeType getNbSites () const = 0;
+};
+
+/* Common useful access classes.
+ */
 
 namespace Phyl {
 
