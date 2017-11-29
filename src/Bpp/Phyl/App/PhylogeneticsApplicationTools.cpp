@@ -4855,6 +4855,8 @@ SubstitutionCount* PhylogeneticsApplicationTools::getSubstitutionCount(
   bool verbose,
   int warn)
 {
+  const StateMap& stateMap=model->getStateMap();
+  
   SubstitutionCount* substitutionCount = 0;
   string nijtOption;
   map<string, string> nijtParams;
@@ -4870,7 +4872,7 @@ SubstitutionCount* PhylogeneticsApplicationTools::getSubstitutionCount(
   {
     string weightOption = ApplicationTools::getStringParameter("weight", nijtParams, "None", "", true, warn + 1);
     AlphabetIndex2* weights = SequenceApplicationTools::getAlphabetIndex2(alphabet, weightOption, "Substitution weight scheme:");
-    substitutionCount = new UniformizationSubstitutionCount(model, new TotalSubstitutionRegister(model), weights);
+    substitutionCount = new UniformizationSubstitutionCount(model, new TotalSubstitutionRegister(stateMap), weights);
   }
   else if (nijtOption == "Decomposition")
   {
@@ -4878,7 +4880,7 @@ SubstitutionCount* PhylogeneticsApplicationTools::getSubstitutionCount(
     AlphabetIndex2* weights = SequenceApplicationTools::getAlphabetIndex2(alphabet, weightOption, "Substitution weight scheme:");
     const ReversibleSubstitutionModel* revModel = dynamic_cast<const ReversibleSubstitutionModel*>(model);
     if (revModel)
-      substitutionCount = new DecompositionSubstitutionCount(revModel, new TotalSubstitutionRegister(model), weights);
+      substitutionCount = new DecompositionSubstitutionCount(revModel, new TotalSubstitutionRegister(stateMap), weights);
     else
       throw Exception("Decomposition method can only be used with reversible substitution models.");
   }
@@ -4886,7 +4888,7 @@ SubstitutionCount* PhylogeneticsApplicationTools::getSubstitutionCount(
   {
     string weightOption = ApplicationTools::getStringParameter("weight", nijtParams, "None", "", true, warn + 1);
     AlphabetIndex2* weights = SequenceApplicationTools::getAlphabetIndex2(alphabet, weightOption, "Substitution weight scheme:");
-    substitutionCount = new NaiveSubstitutionCount(model, new TotalSubstitutionRegister(model), false, weights);
+    substitutionCount = new NaiveSubstitutionCount(model, new TotalSubstitutionRegister(stateMap), false, weights);
   }
   else if (nijtOption == "Label")
   {
@@ -4910,7 +4912,7 @@ SubstitutionCount* PhylogeneticsApplicationTools::getSubstitutionCount(
 /****************************************************************************/
 
 
-SubstitutionRegister* PhylogeneticsApplicationTools::getSubstitutionRegister(const string& regTypeDesc, const SubstitutionModel* model, bool verbose)
+SubstitutionRegister* PhylogeneticsApplicationTools::getSubstitutionRegister(const string& regTypeDesc, const StateMap& stateMap, const GeneticCode* genCode, bool verbose)
 {
   string regType = "";
   map<string, string> regArgs;
@@ -4920,7 +4922,7 @@ SubstitutionRegister* PhylogeneticsApplicationTools::getSubstitutionRegister(con
 
   if (regType=="Combination")
   {
-    VectorOfSubstitionRegisters* vreg= new VectorOfSubstitionRegisters(model);
+    VectorOfSubstitionRegisters* vreg= new VectorOfSubstitionRegisters(stateMap);
 
     size_t i = 0;
     while (++i)
@@ -4929,7 +4931,7 @@ SubstitutionRegister* PhylogeneticsApplicationTools::getSubstitutionRegister(con
       if (regDesc=="")
         break;
       
-      SubstitutionRegister* sreg=getSubstitutionRegister(regDesc, model);
+      SubstitutionRegister* sreg=getSubstitutionRegister(regDesc, stateMap);
 
       vreg->addRegister(sreg);
     }
@@ -4938,99 +4940,61 @@ SubstitutionRegister* PhylogeneticsApplicationTools::getSubstitutionRegister(con
   }
   else if (regType == "All")
   {
-    reg = new ComprehensiveSubstitutionRegister(model, false);
+    reg = new ComprehensiveSubstitutionRegister(stateMap, false);
   }
   else if (regType == "Total")
   {
-    reg = new TotalSubstitutionRegister(model);
+    reg = new TotalSubstitutionRegister(stateMap);
   }    
   else if (regType == "Selected"){  
     string subsList = ApplicationTools::getStringParameter("substitution.list", regArgs, "All", "", true, false);
-    reg = new SelectedSubstitutionRegister(model, subsList);  
+    reg = new SelectedSubstitutionRegister(stateMap, subsList);  
   }
 
   
   // Alphabet dependent registers
 
   
-  else if (AlphabetTools::isNucleicAlphabet(model->getAlphabet()))
-  {
-    const NucleotideSubstitutionModel* nmodel=dynamic_cast<const NucleotideSubstitutionModel*>(model);
-    if (!nmodel)
-    {
-      const WrappedSubstitutionModel* wmodel=dynamic_cast<const WrappedSubstitutionModel*>(model);
-      if (wmodel)
-      {
-        nmodel=dynamic_cast<const NucleotideSubstitutionModel*>(&wmodel->getSubstitutionModel());
-      }
-    }
-
-    if (!nmodel)
-      throw Exception("PhylogeneticsApplicationTools::getSubstitutionRegister : model and alphabet do not fit " + model->getAlphabet()->getAlphabetType() + " vs " + model->getName());
-
-    
+  else if (AlphabetTools::isNucleicAlphabet(stateMap.getAlphabet()))
+  {    
     if (regType == "GC")
-      reg = new GCSubstitutionRegister(nmodel, false);
+      reg = new GCSubstitutionRegister(stateMap, false);
     else if (regType == "TsTv")
-      reg = new TsTvSubstitutionRegister(nmodel);
+      reg = new TsTvSubstitutionRegister(stateMap);
     else if (regType == "SW")
-      reg = new SWSubstitutionRegister(nmodel);
+      reg = new SWSubstitutionRegister(stateMap);
     else
-      throw Exception("Unsupported substitution categorization: " + regType + " for alphabet " + model->getAlphabet()->getAlphabetType());
-  }
-  
-  else if (AlphabetTools::isCodonAlphabet(model->getAlphabet()))
+      throw Exception("PhylogeneticsApplicationTools::getSubstitutionRegister: unsupported substitution categorization:" + regType + " for alphabet " + stateMap.getAlphabet()->getAlphabetType());
+  }  
+  else if (AlphabetTools::isCodonAlphabet(stateMap.getAlphabet()))
   {
-    const CodonSubstitutionModel* cmodel=dynamic_cast<const CodonSubstitutionModel*>(model);
-    if (!cmodel)
-    {
-      const WrappedSubstitutionModel* wmodel=dynamic_cast<const WrappedSubstitutionModel*>(model);
-      if (wmodel)
-      {
-        cmodel=dynamic_cast<const CodonSubstitutionModel*>(&wmodel->getSubstitutionModel());
-      }
-    }
-
-    if (!cmodel)
-      throw Exception("PhylogeneticsApplicationTools::getSubstitutionRegister : model and alphabet do not fit " + model->getAlphabet()->getAlphabetType() + " vs " + model->getName());
-  
+    if (!genCode)
+      throw Exception("PhylogeneticsApplicationTools::getSubstitutionRegister: unknown genetic code for alphabet " + stateMap.getAlphabet()->getAlphabetType());
+    
     if (regType == "IntraAA")
-      reg = new AAInteriorSubstitutionRegister(cmodel);
+      reg = new AAInteriorSubstitutionRegister(stateMap, *genCode);
     else if (regType == "InterAA")
-      reg = new AAExteriorSubstitutionRegister(cmodel);
+      reg = new AAExteriorSubstitutionRegister(stateMap, *genCode);
     else if (regType == "GC")
-      reg = new GCSynonymousSubstitutionRegister(cmodel);
+      reg = new GCSynonymousSubstitutionRegister(stateMap, *genCode);
     else if (regType == "TsTv")
-      reg = new TsTvSubstitutionRegister(cmodel);
+      reg = new TsTvSubstitutionRegister(stateMap, *genCode);
     else if (regType == "SW")
-      reg = new SWSubstitutionRegister(cmodel);
+      reg = new SWSubstitutionRegister(stateMap, *genCode);
     else if (regType == "KrKc")
-      reg = new KrKcSubstitutionRegister(cmodel);
+      reg = new KrKcSubstitutionRegister(stateMap, *genCode);
     else if (regType == "DnDs")
-      reg = new DnDsSubstitutionRegister(cmodel, false);
+      reg = new DnDsSubstitutionRegister(stateMap, *genCode, false);
     else
-      throw Exception("Unsupported substitution categorization: " + regType + " for alphabet " + model->getAlphabet()->getAlphabetType());
+      throw Exception("Unsupported substitution categorization: " + regType + " for alphabet " + stateMap.getAlphabet()->getAlphabetType());
   }
   
-  else if (AlphabetTools::isProteicAlphabet(model->getAlphabet()))
-  {
-    const ProteinSubstitutionModel* pmodel=dynamic_cast<const ProteinSubstitutionModel*>(model);
-    if (!pmodel)
-    {
-      const WrappedSubstitutionModel* wmodel=dynamic_cast<const WrappedSubstitutionModel*>(model);
-      if (wmodel)
-      {
-        pmodel=dynamic_cast<const ProteinSubstitutionModel*>(&wmodel->getSubstitutionModel());
-      }
-    }
-
-    if (!pmodel)
-      throw Exception("PhylogeneticsApplicationTools::getSubstitutionRegister : model and alphabet do not fit " + model->getAlphabet()->getAlphabetType() + " vs " + model->getName());
-  
+  else if (AlphabetTools::isProteicAlphabet(stateMap.getAlphabet()))
+  {  
     if (regType == "KrKc")
-      reg = new KrKcSubstitutionRegister(pmodel);
+      reg = new KrKcSubstitutionRegister(stateMap);
     else
-      throw Exception("Unsupported substitution categorization: " + regType + " for alphabet " + model->getAlphabet()->getAlphabetType());
+      throw Exception("Unsupported substitution categorization: " + regType + " for alphabet " + stateMap.getAlphabet()->getAlphabetType());
   }
   
   CategorySubstitutionRegister* csr=dynamic_cast<CategorySubstitutionRegister*>(reg);

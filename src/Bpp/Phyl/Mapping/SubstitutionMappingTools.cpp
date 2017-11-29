@@ -118,7 +118,7 @@ ProbabilisticSubstitutionMapping* SubstitutionMappingTools::computeCounts(
   size_t nbDistinctSites = rlt.getNumberOfDistinctSites();
   size_t nbStates        = sp.getNumberOfStates();
   size_t nbClasses       = sp.getNumberOfClasses();
-  
+
   size_t nbTypes         = substitutionCount.getNumberOfSubstitutionTypes();
   size_t nbNodes         = nodeIds.size();
   
@@ -152,7 +152,7 @@ ProbabilisticSubstitutionMapping* SubstitutionMappingTools::computeCounts(
     
     // For each branch
     uint edid=substitutions->getEdgeIndex(br);
-    
+
     if (nodeIds.size() > 0 && !VectorTools::contains(nodeIds, (int)edid))
       continue;
 
@@ -222,7 +222,6 @@ ProbabilisticSubstitutionMapping* SubstitutionMappingTools::computeCounts(
       for (size_t t = 0; t < nbTypes; ++t)
       {
         VVdouble& npxy_t=npxy[t];
-        
         Matrix<double>* nijt = substitutionCount.getAllNumbersOfSubstitutions(d * rate, t + 1);
         MatrixTools::hadamardMult((*nijt),pxy,(*nijt));
 
@@ -232,7 +231,7 @@ ProbabilisticSubstitutionMapping* SubstitutionMappingTools::computeCounts(
         
         delete nijt;
       }
-
+      
       // Now loop over sites:
 
       for (size_t i=0; i< nbDistinctSites; i++)

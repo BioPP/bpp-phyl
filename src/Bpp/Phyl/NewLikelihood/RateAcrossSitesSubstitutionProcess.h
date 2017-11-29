@@ -84,6 +84,11 @@ public:
     return data.getAlphabet()->getAlphabetType() == model_->getAlphabet()->getAlphabetType();
   }
 
+  const StateMap& getStateMap() const
+  {
+    return model_->getStateMap();
+  }
+  
   const TransitionModel* getModel(size_t i) const
   {
     return model_.get();

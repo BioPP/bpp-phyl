@@ -238,6 +238,14 @@ namespace bpp
         return modelSet_[0]->getAlphabet();
     }
 
+    const StateMap& getStateMap() const
+    {
+      if (modelSet_.size()==0)
+        throw Exception("NonHomogeneousSubstitutionProcess::getStateMap : no model associated");
+      else
+        return modelSet_[0]->getStateMap();
+    }
+      
     /**
      * @return The current number of distinct substitution models in this set.
      */

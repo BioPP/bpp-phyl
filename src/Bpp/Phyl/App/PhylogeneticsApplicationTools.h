@@ -440,12 +440,14 @@ namespace bpp
    * @brief Get a Register instance.
    *
    * @param regTypeDesc The description of the register.
-   * @param model The model to use.
+   * @param stateMap The stateMap to use.
+   * @param genCode when codon Alphabet, the genetic Code (otherwise,
+   *                default : 0)
    * @param verbose if outputs  reading
    * @return A SubstitutionRegister object.
    */
   
-  static SubstitutionRegister* getSubstitutionRegister(const std::string& regTypeDesc, const SubstitutionModel* model, bool verbose = true);
+    static SubstitutionRegister* getSubstitutionRegister(const std::string& regTypeDesc, const StateMap& stateMap, const GeneticCode* genCode = 0, bool verbose = true);
   
 
     /**

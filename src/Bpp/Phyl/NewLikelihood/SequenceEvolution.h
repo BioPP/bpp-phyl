@@ -80,7 +80,12 @@ namespace bpp
     virtual const std::vector<size_t>& getSubstitutionProcessNumbers() const = 0;
     
     virtual const SubstitutionProcess& getSubstitutionProcess(size_t number) const = 0;
-    
+
+    const StateMap& getStateMap() const
+    {
+      return getSubstitutionProcess(getSubstitutionProcessNumbers()[0]).getStateMap();
+    }
+
     /**
      * @brief Get the branch lengths parameters.
      *

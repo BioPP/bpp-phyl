@@ -75,6 +75,11 @@ public:
 
   size_t getNumberOfStates() const { return model_->getNumberOfStates(); }
 
+  const StateMap& getStateMap() const
+  {
+    return model_->getStateMap();
+  }
+  
   size_t getNumberOfModels() const { return 1; }
 
   bool isCompatibleWith(const AlignedValuesContainer& data) const {

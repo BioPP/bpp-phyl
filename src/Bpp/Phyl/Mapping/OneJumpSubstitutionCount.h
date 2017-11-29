@@ -65,7 +65,7 @@ class OneJumpSubstitutionCount:
   
   public:
     OneJumpSubstitutionCount(const SubstitutionModel* model) :
-      AbstractSubstitutionCount(new TotalSubstitutionRegister(model)),
+      AbstractSubstitutionCount(new TotalSubstitutionRegister(model->getStateMap())),
       model_(model), tmp_() {}
     
     OneJumpSubstitutionCount(const OneJumpSubstitutionCount& ojsc) :

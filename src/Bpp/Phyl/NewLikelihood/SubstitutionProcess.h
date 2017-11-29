@@ -84,8 +84,14 @@ namespace bpp
     virtual SubstitutionProcess* clone() const = 0;
 
   public:
-    virtual bool isCompatibleWith(const AlignedValuesContainer& data) const = 0;
+    /**
+     * @return The state map associated with the models of this process
+     */
 
+    virtual const StateMap& getStateMap() const = 0;
+    
+    virtual bool isCompatibleWith(const AlignedValuesContainer& data) const = 0;
+    
     // virtual const TreeTemplate<Node>& getTree() const = 0;
   
     virtual const ParametrizablePhyloTree& getParametrizablePhyloTree() const = 0;

@@ -193,7 +193,11 @@ public:
     return pSubProColl_;
   }
 
-
+  const StateMap& getStateMap() const
+  {
+    return getModel(0)->getStateMap();
+  }
+  
   const Alphabet* getAlphabet() const;
 
   /**

@@ -106,7 +106,7 @@ TransitionModel* BppOTransitionModelFormat::readTransitionModel(
     else
     {
       string registerDescription = args["register"];
-      unique_ptr<SubstitutionRegister> reg(PhylogeneticsApplicationTools::getSubstitutionRegister(registerDescription, nestedModel));
+      unique_ptr<SubstitutionRegister> reg(PhylogeneticsApplicationTools::getSubstitutionRegister(registerDescription, nestedModel->getStateMap(), geneticCode_));
 
       if (args.find("numReg") == args.end())
         throw Exception("Missing argument 'numReg' (number of event for register in model " + modelName);

@@ -83,8 +83,8 @@ int main() {
 
   SimpleSubstitutionProcessSequenceSimulator simulator(*process);
 
-  TotalSubstitutionRegister* totReg = new TotalSubstitutionRegister(model);
-  DnDsSubstitutionRegister* dndsReg = new DnDsSubstitutionRegister(model);
+  TotalSubstitutionRegister* totReg = new TotalSubstitutionRegister(model->getStateMap());
+  DnDsSubstitutionRegister* dndsReg = new DnDsSubstitutionRegister(model->getStateMap(), *gc);
 
   unsigned int n = 10000;
   vector< vector<double> > realMap(n);
@@ -147,7 +147,7 @@ int main() {
   // delete m;
   ProbabilisticSubstitutionMapping* probMapDnDs = 
     SubstitutionMappingTools::computeCounts(*rltc, *sCountDnDs);
-
+  
   SubstitutionCount* sCountUniTot = new UniformizationSubstitutionCount(model, totReg);
   // m = sCountUniTot->getAllNumbersOfSubstitutions(0.001,1);
   // cout << "Total count, uniformization method:" << endl;

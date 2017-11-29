@@ -69,7 +69,7 @@ namespace bpp
 	
   public:
     LaplaceSubstitutionCount(const SubstitutionModel* model, size_t cutOff) :
-      AbstractSubstitutionCount(new TotalSubstitutionRegister(model)),
+      AbstractSubstitutionCount(new TotalSubstitutionRegister(model->getStateMap())),
       model_        (model),
       cutOff_       (cutOff),
       currentLength_(-1),

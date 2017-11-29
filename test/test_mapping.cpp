@@ -82,8 +82,8 @@ int main() {
 
   SimpleSubstitutionProcessSequenceSimulator simulator(*process);
   
-  TotalSubstitutionRegister* totReg = new TotalSubstitutionRegister(model);
-  ComprehensiveSubstitutionRegister* detReg = new ComprehensiveSubstitutionRegister(model);
+  TotalSubstitutionRegister* totReg = new TotalSubstitutionRegister(model->getStateMap());
+  ComprehensiveSubstitutionRegister* detReg = new ComprehensiveSubstitutionRegister(model->getStateMap());
 
   size_t n = 50000;
   vector< vector<double> > realMap(n);

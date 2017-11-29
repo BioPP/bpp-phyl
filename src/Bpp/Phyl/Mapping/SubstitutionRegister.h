@@ -40,10 +40,7 @@
 #ifndef _SUBSTITUTIONREGISTER_H_
 #define _SUBSTITUTIONREGISTER_H_
 
-#include "../Model/SubstitutionModel.h"
-#include "../Model/Nucleotide/NucleotideSubstitutionModel.h"
-#include "../Model/Protein/ProteinSubstitutionModel.h"
-#include "../Model/Codon/CodonSubstitutionModel.h"
+#include "../Model/StateMap.h"
 
 // From bpp-core:
 #include <Bpp/Clonable.h>
@@ -67,7 +64,8 @@ namespace bpp
  * @brief The SubstitutionRegister interface.
  *
  * Substitution registers are simple classes that define categories of substitutions, and assign an index to them.
- * Substitution registers are defined according to a given substitution model.
+ * Substitution registers are defined according to a given
+ * substitution state map.
  *
  * @author Julien Dutheil
  */
@@ -87,9 +85,9 @@ namespace bpp
     virtual const Alphabet* getAlphabet() const = 0;
 
     /**
-     * @return The substitution model associated to this instance.
+     * @return The state map associated to this instance.
      */
-    virtual const SubstitutionModel* getSubstitutionModel() const = 0;
+    virtual const StateMap& getStateMap() const = 0;
 
     /**
      * @return The number of substitution types supported by this class.
@@ -130,21 +128,21 @@ namespace bpp
     public virtual SubstitutionRegister
   {
   protected:
-    const SubstitutionModel* model_;
+    const StateMap* stateMap_;
     std::string name_;
     
   public:
-    AbstractSubstitutionRegister(const SubstitutionModel* model, const std::string& name) :
-      model_(model), name_(name)
+    AbstractSubstitutionRegister(const StateMap& stateMap, const std::string& name) :
+      stateMap_(&stateMap), name_(name)
     {}
 
     AbstractSubstitutionRegister(const AbstractSubstitutionRegister& asr) :
-      model_(asr.model_), name_(asr.name_)
+      stateMap_(asr.stateMap_), name_(asr.name_)
     {}
 
     AbstractSubstitutionRegister& operator=(const AbstractSubstitutionRegister& asr)
     {
-      model_ = asr.model_;
+      stateMap_ = asr.stateMap_;
       name_ = asr.name_;
       return *this;
     }
@@ -152,9 +150,9 @@ namespace bpp
     virtual ~AbstractSubstitutionRegister() {}
 
   public:
-    const SubstitutionModel* getSubstitutionModel() const { return model_; }
+    const StateMap& getStateMap() const { return *stateMap_; }
 
-    const Alphabet* getAlphabet() const { return model_->getAlphabet(); }
+    const Alphabet* getAlphabet() const { return stateMap_->getAlphabet(); }
 
     const std::string& getName() const
     {
@@ -174,8 +172,8 @@ namespace bpp
     public AbstractSubstitutionRegister
   {
   public:
-    TotalSubstitutionRegister(const SubstitutionModel* model) :
-      AbstractSubstitutionRegister(model,"Total")
+    TotalSubstitutionRegister(const StateMap& stateMap) :
+      AbstractSubstitutionRegister(stateMap,"Total")
     {}
 
     TotalSubstitutionRegister* clone() const { return new TotalSubstitutionRegister(*this); }
@@ -221,7 +219,7 @@ namespace bpp
 
   public:
     CompleteSubstitutionRegister(const SubstitutionRegister& reg) :
-      AbstractSubstitutionRegister(reg.getSubstitutionModel(),reg.getName()),
+      AbstractSubstitutionRegister(reg.getStateMap(),reg.getName()),
       preg_(reg.clone()),
       isRegComplete_(true)
     {
@@ -319,8 +317,8 @@ namespace bpp
 
   public:
 
-    VectorOfSubstitionRegisters(const SubstitutionModel* model) :
-      AbstractSubstitutionRegister(model, "Combination"),
+    VectorOfSubstitionRegisters(const StateMap& stateMap) :
+      AbstractSubstitutionRegister(stateMap, "Combination"),
       vSubReg_()
     {}
 
@@ -365,8 +363,8 @@ namespace bpp
     void addRegister(SubstitutionRegister* reg)
     {
       if (reg){
-        if (reg->getSubstitutionModel()!=getSubstitutionModel())
-          throw Exception("VectorOfSubstitionRegisters::addRegister : mismatch between models");
+        if (&reg->getStateMap()!=&getStateMap())
+          throw Exception("VectorOfSubstitionRegisters::addRegister : mismatch between state maps");
       
         vSubReg_.push_back(reg);
       }
@@ -466,16 +464,16 @@ namespace bpp
     std::map<size_t, std::map<size_t, std::vector<size_t> > > types_;
 
   public:
-    GeneralSubstitutionRegister(const SubstitutionModel* model) :
-      AbstractSubstitutionRegister(model,"General"),
-      size_(model->getNumberOfStates()),
+    GeneralSubstitutionRegister(const StateMap& stateMap) :
+      AbstractSubstitutionRegister(stateMap,"General"),
+      size_(stateMap.getNumberOfModelStates()),
       matrix_(size_, size_),
       types_()
     {}
 
-    GeneralSubstitutionRegister(const SubstitutionModel* model, const RowMatrix<size_t>& matrix) :
-      AbstractSubstitutionRegister(model,"General"),
-      size_(model->getNumberOfStates()),
+    GeneralSubstitutionRegister(const StateMap& stateMap, const RowMatrix<size_t>& matrix) :
+      AbstractSubstitutionRegister(stateMap,"General"),
+      size_(stateMap.getNumberOfModelStates()),
       matrix_(matrix),
       types_()
     {
@@ -546,8 +544,8 @@ namespace bpp
     std::map<size_t, std::string> categoryNames_;
 
   public:
-    SelectedSubstitutionRegister (const SubstitutionModel* model, std::string selectedSubstitutions) :
-      GeneralSubstitutionRegister(model),
+    SelectedSubstitutionRegister (const StateMap& stateMap, std::string selectedSubstitutions) :
+      GeneralSubstitutionRegister(stateMap),
       categoryNames_()
     {
       selectedSubstitutions.erase(std::remove(selectedSubstitutions.begin(), selectedSubstitutions.end(), ' '), selectedSubstitutions.end());
@@ -586,8 +584,8 @@ namespace bpp
           StringTokenizer coordinates(substitutions.nextToken(), "->");
           codon1 = coordinates.nextToken();
           codon2 = coordinates.nextToken();
-          coord1 = model_->getAlphabet()->getStateIndex(codon1);
-          coord2 = model_->getAlphabet()->getStateIndex(codon2);
+          coord1 = getStateMap().getAlphabet()->getStateIndex(codon1);
+          coord2 = getStateMap().getAlphabet()->getStateIndex(codon2);
           this->matrix_(coord1, coord2) = typeSubs;
         }
       }
@@ -619,24 +617,33 @@ namespace bpp
     public GeneralSubstitutionRegister
   {
     std::map<std::string, size_t> categoryCorrespondance_;
-
+    const GeneticCode* genCode_;
+    
   public:
-    AAInteriorSubstitutionRegister(const CodonSubstitutionModel* model) :
-      GeneralSubstitutionRegister(model),
-      categoryCorrespondance_()
+    AAInteriorSubstitutionRegister(const StateMap& stateMap, const GeneticCode& genCode) :
+      GeneralSubstitutionRegister(stateMap),
+      categoryCorrespondance_(),
+      genCode_(&genCode)
     {
-      updateMatrix_(model, *model->getGeneticCode());
+      updateMatrix_();
       updateTypes_();
     }
 
-    AAInteriorSubstitutionRegister(const SubstitutionModel* model, const GeneticCode& gencod) :
-      GeneralSubstitutionRegister(model),
-      categoryCorrespondance_()
+    AAInteriorSubstitutionRegister(const AAInteriorSubstitutionRegister& ais) :
+      GeneralSubstitutionRegister(ais),
+      categoryCorrespondance_(ais.categoryCorrespondance_),
+      genCode_(ais.genCode_)
     {
-      updateMatrix_(model, gencod);
-      updateTypes_();
     }
 
+    AAInteriorSubstitutionRegister& operator=(const AAInteriorSubstitutionRegister& ais)
+    {
+      GeneralSubstitutionRegister::operator=(ais);
+      genCode_ = ais.genCode_;
+      categoryCorrespondance_ = ais.categoryCorrespondance_;
+
+      return *this;
+    }
 
     AAInteriorSubstitutionRegister* clone() const { return new AAInteriorSubstitutionRegister(*this); }
 
@@ -657,20 +664,20 @@ namespace bpp
     }
 
   protected:    
-    void updateMatrix_(const SubstitutionModel* model, const GeneticCode& gencod)
+    void updateMatrix_()
     {
       size_t categoryIndex = 1;
-      for (size_t i = 1; i <= model->getAlphabet()->getSize(); ++i)
+      for (size_t i = 1; i <= getStateMap().getNumberOfModelStates(); ++i)
       {
-        int state1 = model->getAlphabet()->getStateAt(i).getNum();
-        for (size_t j = i + 1; j <= model->getAlphabet()->getSize(); ++j)
+        int state1 = getStateMap().getAlphabet()->getStateAt(i).getNum();
+        for (size_t j = i + 1; j <= getStateMap().getNumberOfModelStates(); ++j)
         {
-          int state2 = model->getAlphabet()->getStateAt(j).getNum();
-          if (!(gencod.isStop(state1)) && !(gencod.isStop(state2)))
+          int state2 = getStateMap().getAlphabet()->getStateAt(j).getNum();
+          if (!(genCode_->isStop(state1)) && !(genCode_->isStop(state2)))
           {
-            if (gencod.translate(state1) == gencod.translate(state2))
+            if (genCode_->translate(state1) == genCode_->translate(state2))
             {
-              std::string aminoAcid = gencod.getTargetAlphabet()->intToChar(gencod.translate(state1));
+              std::string aminoAcid = genCode_->getTargetAlphabet()->intToChar(genCode_->translate(state1));
               if (categoryCorrespondance_.find(aminoAcid) == categoryCorrespondance_.end())
               {
                 categoryCorrespondance_[aminoAcid] = categoryIndex;
@@ -697,25 +704,35 @@ namespace bpp
     public GeneralSubstitutionRegister
   {
     std::map<std::string, size_t> categoryCorrespondance_;
+    const GeneticCode* genCode_;
 
   public:
-    AAExteriorSubstitutionRegister (const CodonSubstitutionModel* model) :
-      GeneralSubstitutionRegister(model),
-      categoryCorrespondance_()
+
+    AAExteriorSubstitutionRegister (const StateMap& stateMap, const GeneticCode& gencod) :
+      GeneralSubstitutionRegister(stateMap),
+      categoryCorrespondance_(),
+      genCode_(&gencod)
     {
-      updateMatrix_(model, *model->getGeneticCode());
+      updateMatrix_();
       updateTypes_();
     }
 
-    AAExteriorSubstitutionRegister (const SubstitutionModel* model, const GeneticCode& gencod) :
-      GeneralSubstitutionRegister(model),
-      categoryCorrespondance_()
+    AAExteriorSubstitutionRegister(const AAExteriorSubstitutionRegister& ais) :
+      GeneralSubstitutionRegister(ais),
+      categoryCorrespondance_(ais.categoryCorrespondance_),
+      genCode_(ais.genCode_)
     {
-      updateMatrix_(model, gencod);
-      updateTypes_();
     }
 
-    
+    AAExteriorSubstitutionRegister& operator=(const AAExteriorSubstitutionRegister& ais)
+    {
+      GeneralSubstitutionRegister::operator=(ais);
+      categoryCorrespondance_ = ais.categoryCorrespondance_;
+      genCode_ = ais.genCode_;
+
+      return *this;
+    }
+
     AAExteriorSubstitutionRegister* clone() const { return new AAExteriorSubstitutionRegister(*this); }
 
     ~AAExteriorSubstitutionRegister() {}
@@ -734,22 +751,22 @@ namespace bpp
     }
 
   protected:
-    void updateMatrix_(const SubstitutionModel* model, const GeneticCode& gencod)
+    void updateMatrix_()
     {
       
       size_t categoryIndex = 1;
-      for (size_t i = 1; i <= model->getAlphabet()->getSize(); ++i)
+      for (size_t i = 1; i <= getStateMap().getNumberOfModelStates(); ++i)
       {
-        int state1 = model->getAlphabet()->getStateAt(i).getNum();
-        for (size_t j = i + 1; j <= model->getAlphabet()->getSize(); ++j)
+        int state1 = getStateMap().getAlphabet()->getStateAt(i).getNum();
+        for (size_t j = i + 1; j <= getStateMap().getNumberOfModelStates(); ++j)
         {
-          int state2 = model->getAlphabet()->getStateAt(j).getNum();
-          if (!(gencod.isStop(state1)) && !(gencod.isStop(state2)))
+          int state2 = getStateMap().getAlphabet()->getStateAt(j).getNum();
+          if (!(genCode_->isStop(state1)) && !(genCode_->isStop(state2)))
           {
-            if (gencod.translate(state1) != gencod.translate(state2))
+            if (genCode_->translate(state1) != genCode_->translate(state2))
             {
-              std::string aminoAcid1 = gencod.getTargetAlphabet()->intToChar(gencod.translate(state1));
-              std::string aminoAcid2 = gencod.getTargetAlphabet()->intToChar(gencod.translate(state2));
+              std::string aminoAcid1 = genCode_->getTargetAlphabet()->intToChar(genCode_->translate(state1));
+              std::string aminoAcid2 = genCode_->getTargetAlphabet()->intToChar(genCode_->translate(state2));
               bool AA1IsNotInGroup = ((categoryCorrespondance_.find(aminoAcid1 + "->" + aminoAcid2) == categoryCorrespondance_.end()));
               bool AA2IsNotInGroup = ((categoryCorrespondance_.find(aminoAcid2 + "->" + aminoAcid1) == categoryCorrespondance_.end()));
               if (AA1IsNotInGroup)
@@ -790,33 +807,28 @@ namespace bpp
      *
      */
     
-    const GeneticCode* code_;
+    const GeneticCode* genCode_;
 
   public:
-    TsTvSubstitutionRegister(const NucleotideSubstitutionModel* model) :
-      AbstractSubstitutionRegister(model,"TsTv"),
-      code_()
+    TsTvSubstitutionRegister(const StateMap& stateMap) :
+      AbstractSubstitutionRegister(stateMap,"TsTv"),
+      genCode_()
     {}
 
-    TsTvSubstitutionRegister(const CodonSubstitutionModel* model) :
-      AbstractSubstitutionRegister(model,"TsTv"),
-      code_(model->getGeneticCode())
-    {}
-
-    TsTvSubstitutionRegister(const SubstitutionModel* model, const GeneticCode& gencod) :
-      AbstractSubstitutionRegister(model,"TsTv"),
-      code_(&gencod)
+    TsTvSubstitutionRegister(const StateMap& stateMap, const GeneticCode& gencod) :
+      AbstractSubstitutionRegister(stateMap,"TsTv"),
+      genCode_(&gencod)
     {}
 
     TsTvSubstitutionRegister(const TsTvSubstitutionRegister& reg) :
       AbstractSubstitutionRegister(reg),
-      code_(reg.code_)
+      genCode_(reg.genCode_)
     {}
 
     TsTvSubstitutionRegister& operator=(const TsTvSubstitutionRegister& reg)
     {
       AbstractSubstitutionRegister::operator=(reg);
-      code_ = reg.code_;
+      genCode_ = reg.genCode_;
       return *this;
     }
 
@@ -827,18 +839,19 @@ namespace bpp
 
     size_t getType(size_t fromState, size_t toState) const
     {
-      int x = model_->getAlphabetStateAsInt(fromState);
-      int y = model_->getAlphabetStateAsInt(toState);
+      int x = getStateMap().getAlphabetStateAsInt(fromState);
+      int y = getStateMap().getAlphabetStateAsInt(toState);
       if (x == y)
         return 0;                     // nothing happens
 
-      const CodonAlphabet* cAlpha = dynamic_cast<const CodonAlphabet*>(model_->getAlphabet());
-      if (cAlpha)
+
+      if (genCode_)
       {
-        if (code_->getSourceAlphabet()->isGap(x)
-            || code_->getSourceAlphabet()->isGap(y)
-            || code_->isStop(x)
-            || code_->isStop(y))
+        const CodonAlphabet* cAlpha = genCode_->getSourceAlphabet();
+        if (genCode_->getSourceAlphabet()->isGap(x)
+            || genCode_->getSourceAlphabet()->isGap(y)
+            || genCode_->isStop(x)
+            || genCode_->isStop(y))
           return 0;
         
         size_t countPos = 0;
@@ -907,33 +920,28 @@ namespace bpp
      *
      */
     
-    const GeneticCode* code_;
+    const GeneticCode* genCode_;
 
   public:
-    SWSubstitutionRegister(const NucleotideSubstitutionModel* model) :
-      AbstractSubstitutionRegister(model,"SW"),
-      code_()
+    SWSubstitutionRegister(const StateMap& stateMap) :
+      AbstractSubstitutionRegister(stateMap,"SW"),
+      genCode_()
     {}
 
-    SWSubstitutionRegister(const CodonSubstitutionModel* model) :
-      AbstractSubstitutionRegister(model,"SW"),
-      code_(model->getGeneticCode())
-    {}
-
-    SWSubstitutionRegister(const SubstitutionModel* model, const GeneticCode& gencod) :
-      AbstractSubstitutionRegister(model,"SW"),
-      code_(&gencod)
+    SWSubstitutionRegister(const StateMap& stateMap, const GeneticCode& gencod) :
+      AbstractSubstitutionRegister(stateMap,"SW"),
+      genCode_(&gencod)
     {}
 
     SWSubstitutionRegister(const SWSubstitutionRegister& reg) :
       AbstractSubstitutionRegister(reg),
-      code_(reg.code_)
+      genCode_(reg.genCode_)
     {}
 
     SWSubstitutionRegister& operator=(const SWSubstitutionRegister& reg)
     {
       AbstractSubstitutionRegister::operator=(reg);
-      code_ = reg.code_;
+      genCode_ = reg.genCode_;
       return *this;
     }
 
@@ -944,20 +952,19 @@ namespace bpp
 
     size_t getType(size_t fromState, size_t toState) const
     {
-      int x = model_->getAlphabetStateAsInt(fromState);
-      int y = model_->getAlphabetStateAsInt(toState);
+      int x = getStateMap().getAlphabetStateAsInt(fromState);
+      int y = getStateMap().getAlphabetStateAsInt(toState);
       if (x == y)
         return 0;                     // nothing happens
 
-      const CodonAlphabet* cAlpha = dynamic_cast<const CodonAlphabet*>(model_->getAlphabet());
       int nd, na;
-      
-      if (cAlpha)
+      if (genCode_)
       {
-        if (code_->getSourceAlphabet()->isGap(x)
-            || code_->getSourceAlphabet()->isGap(y)
-            || code_->isStop(x)
-            || code_->isStop(y))
+        const CodonAlphabet* cAlpha = genCode_->getSourceAlphabet();
+        if (genCode_->getSourceAlphabet()->isGap(x)
+            || genCode_->getSourceAlphabet()->isGap(y)
+            || genCode_->isStop(x)
+            || genCode_->isStop(y))
           return 0;
         
         nd=cAlpha->getFirstPosition(x);
@@ -1039,32 +1046,26 @@ namespace bpp
     public AbstractSubstitutionRegister
   {
   private:
-    const GeneticCode* code_;
+    const GeneticCode* genCode_;
     bool countMultiple_;
 
   public:
-    DnDsSubstitutionRegister(const CodonSubstitutionModel* model, bool countMultiple = false) :
-      AbstractSubstitutionRegister(model,"DnDs"),
-      code_(model->getGeneticCode()),
-      countMultiple_(countMultiple)
-    {}
-
-    DnDsSubstitutionRegister(const SubstitutionModel* model, const GeneticCode& gencod, bool countMultiple = false) :
-      AbstractSubstitutionRegister(model,"DnDs"),
-      code_(&gencod),
+    DnDsSubstitutionRegister(const StateMap& stateMap, const GeneticCode& gencod, bool countMultiple = false) :
+      AbstractSubstitutionRegister(stateMap,"DnDs"),
+      genCode_(&gencod),
       countMultiple_(countMultiple)
     {}
 
     DnDsSubstitutionRegister(const DnDsSubstitutionRegister& reg) :
       AbstractSubstitutionRegister(reg),
-      code_(reg.code_),
+      genCode_(reg.genCode_),
       countMultiple_(reg.countMultiple_)
     {}
 
     DnDsSubstitutionRegister& operator=(const DnDsSubstitutionRegister& reg)
     {
       AbstractSubstitutionRegister::operator=(reg);
-      code_ = reg.code_;
+      genCode_ = reg.genCode_;
       countMultiple_ = reg.countMultiple_;
       return *this;
     }
@@ -1076,13 +1077,14 @@ namespace bpp
 
     size_t getType(size_t fromState, size_t toState) const
     {
-      int x = model_->getAlphabetStateAsInt(fromState);
-      int y = model_->getAlphabetStateAsInt(toState);
-      const CodonAlphabet* cAlpha = static_cast<const CodonAlphabet*>(model_->getAlphabet());
-      if (code_->getSourceAlphabet()->isGap(x)
-          || code_->getSourceAlphabet()->isGap(y)
-          || code_->isStop(x)
-          || code_->isStop(y))
+      int x = getStateMap().getAlphabetStateAsInt(fromState);
+      int y = getStateMap().getAlphabetStateAsInt(toState);
+
+      const CodonAlphabet* cAlpha = genCode_->getSourceAlphabet();
+      if (genCode_->getSourceAlphabet()->isGap(x)
+          || genCode_->getSourceAlphabet()->isGap(y)
+          || genCode_->isStop(x)
+          || genCode_->isStop(y))
         return 0;
       if (x == y)
         return 0;                     // nothing happens
@@ -1098,7 +1100,7 @@ namespace bpp
         if (countPos > 1)
           return 0;
       }
-      return code_->areSynonymous(x, y) ? 1 : 2;
+      return genCode_->areSynonymous(x, y) ? 1 : 2;
     }
 
     std::string getTypeName (size_t type) const
@@ -1138,29 +1140,21 @@ namespace bpp
     std::vector< std::vector<bool> > types_;
 
     // In case of codon model
-    const GeneticCode* code_;
+    const GeneticCode* genCode_;
 
   public:
-    KrKcSubstitutionRegister(const ProteinSubstitutionModel* model) :
-      AbstractSubstitutionRegister(model,"KrKc"),
+    KrKcSubstitutionRegister(const StateMap& stateMap) :
+      AbstractSubstitutionRegister(stateMap,"KrKc"),
       types_(20),
-      code_(0)
+      genCode_()
     {
       init();
     }
 
-    KrKcSubstitutionRegister(const CodonSubstitutionModel* model) :
-      AbstractSubstitutionRegister(model,"KrKc"),
+    KrKcSubstitutionRegister(const StateMap& stateMap, const GeneticCode& gencod) :
+      AbstractSubstitutionRegister(stateMap,"KrKc"),
       types_(20),
-      code_(model->getGeneticCode())
-    {
-      init();
-    }
-
-    KrKcSubstitutionRegister(const SubstitutionModel* model, const GeneticCode& gencod) :
-      AbstractSubstitutionRegister(model,"KrKc"),
-      types_(20),
-      code_(&gencod)
+      genCode_(&gencod)
     {
       init();
     }
@@ -1168,7 +1162,7 @@ namespace bpp
     KrKcSubstitutionRegister(const KrKcSubstitutionRegister& kreg) :
       AbstractSubstitutionRegister(kreg),
       types_(kreg.types_),
-      code_(kreg.code_)
+      genCode_(kreg.genCode_)
     {
     }
 
@@ -1176,7 +1170,7 @@ namespace bpp
     {
       AbstractSubstitutionRegister::operator=(kreg);
       types_=kreg.types_;
-      code_=kreg.code_;
+      genCode_=kreg.genCode_;
 
       return *this;
     }
@@ -1290,21 +1284,21 @@ namespace bpp
     {
       if (fromState == toState)
         return 0;  // nothing happens
-      int x = model_->getAlphabetStateAsInt(fromState);
-      int y = model_->getAlphabetStateAsInt(toState);
+      int x = getStateMap().getAlphabetStateAsInt(fromState);
+      int y = getStateMap().getAlphabetStateAsInt(toState);
 
-      if (code_) //Codon model
+      if (genCode_) //Codon model
       {
-        if (code_->getSourceAlphabet()->isGap(x)
-            || code_->getSourceAlphabet()->isGap(y)
-            || code_->isStop(x)
-            || code_->isStop(y))
+        if (genCode_->getSourceAlphabet()->isGap(x)
+            || genCode_->getSourceAlphabet()->isGap(y)
+            || genCode_->isStop(x)
+            || genCode_->isStop(y))
           return 0;
-        if (code_->areSynonymous(x, y))
+        if (genCode_->areSynonymous(x, y))
           return 0;
 
         // avoid multiple substitutions
-        const CodonAlphabet* cAlpha = static_cast<const CodonAlphabet*>(model_->getAlphabet());
+        const CodonAlphabet* cAlpha = genCode_->getSourceAlphabet();
         
         size_t countPos = 0;
         if (cAlpha->getFirstPosition(x) != cAlpha->getFirstPosition(y))
@@ -1316,8 +1310,8 @@ namespace bpp
         if (countPos > 1)
           return 0;
 
-        x=code_->translate(x);
-        y=code_->translate(y);
+        x=genCode_->translate(x);
+        y=genCode_->translate(y);
       }
 
       return types_[static_cast<size_t>(x)][static_cast<size_t>(y)] ? 1 : 2;
