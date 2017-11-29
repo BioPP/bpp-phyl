@@ -145,6 +145,17 @@ private:
 template <typename T> bool operator== (const Vector<T> & lhs, const Vector<T> & rhs) {
 	return lhs.asVector () == rhs.asVector ();
 }
+
+template <typename Container, typename Function>
+auto mapToVector (const Container & container, Function function)
+    -> Vector<decltype (function (container.front ()))> {
+	Vector<decltype (function (container.front ()))> r;
+	r.reserve (static_cast<SizeType> (container.size ()));
+	for (const auto & v : container)
+		r.emplace_back (function (v));
+	return r;
+}
+
 } // namespace bpp
 
 namespace std {

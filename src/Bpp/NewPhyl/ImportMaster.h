@@ -55,6 +55,23 @@ class Node;
 template <typename N> class TreeTemplate;
 class VectorSiteContainer;
 
+class TreeTemplateView : public TreeTopologyView {
+public:
+	TreeTemplateView (const TreeTemplate<Node> & tree) : tree_ (tree) {}
+
+	// TreeTopologyView
+	IndexType rootNode () const override;
+	bool validBranchIndex (IndexType branchId) const override;
+	IndexType branchFatherNode (IndexType branchId) const override;
+	IndexType branchChildNode (IndexType branchId) const override;
+	bool validNodeIndex (IndexType nodeId) const override;
+	IndexType nodeFatherBranch (IndexType nodeId) const override;
+	Vector<IndexType> nodeChildBranches (IndexType nodeId) const override;
+
+private:
+	const TreeTemplate<Node> & tree_;
+};
+
 namespace Phyl {
 	// Extract information from a TreeTemplate<Node> structure (master)
 	struct ConvertedTreeTemplateData {

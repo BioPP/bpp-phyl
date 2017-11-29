@@ -47,6 +47,37 @@
 #include <utility>
 
 namespace bpp {
+
+/* In TreeTemplate there is no notion of edges, only nodes.
+ * In this view class, the index of a branch is defined as the index of its child node.
+ */
+IndexType TreeTemplateView::rootNode () const {
+	// isRooted method checks if 2 sons, fails on newphyl example that has 3 sons...
+	if (tree_.getRootNode () == nullptr)
+		return -1;
+	else
+		return static_cast<IndexType> (tree_.getRootId ());
+}
+bool TreeTemplateView::validBranchIndex (IndexType branchId) const {
+	return branchId != -1;
+}
+IndexType TreeTemplateView::branchFatherNode (IndexType branchId) const {
+	return tree_.getFatherId (static_cast<int> (branchId));
+}
+IndexType TreeTemplateView::branchChildNode (IndexType branchId) const {
+	return branchId;
+}
+bool TreeTemplateView::validNodeIndex (IndexType nodeId) const {
+	return nodeId != -1;
+}
+IndexType TreeTemplateView::nodeFatherBranch (IndexType nodeId) const {
+	return nodeId;
+}
+Vector<IndexType> TreeTemplateView::nodeChildBranches (IndexType nodeId) const {
+	return mapToVector (tree_.getSonsId (static_cast<int> (nodeId)),
+	                    [](int i) { return static_cast<IndexType> (i); });
+}
+
 namespace Phyl {
 	ConvertedTreeTemplateData convertTreeTemplate (const TreeTemplate<Node> & fromTree) {
 		// isRooted method checks if 2 sons, fails on newphyl example that has 3 sons...

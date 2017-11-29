@@ -239,6 +239,9 @@ TEST_CASE("df")
   auto ts = timingStart();
   // Read tree structure
   auto tree = std::unique_ptr<bpp::TreeTemplate<bpp::Node>>(bpp::TreeTemplateTools::parenthesisToTree(c.treeStr));
+
+  auto treeView = bpp::TreeTemplateView (*tree);
+
   auto treeData = bpp::Phyl::convertTreeTemplate(*tree);
 
   // Model

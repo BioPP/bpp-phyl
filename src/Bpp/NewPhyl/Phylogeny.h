@@ -44,8 +44,10 @@
 
 #include <Bpp/NewPhyl/DataFlow.h>
 #include <Bpp/NewPhyl/DataFlowTemplates.h>
-#include <Bpp/NewPhyl/FrozenPtr.h>
 #include <Bpp/NewPhyl/Signed.h>
+#include <Bpp/NewPhyl/Vector.h>
+
+#include <Bpp/NewPhyl/FrozenPtr.h>
 #include <Bpp/NewPhyl/Topology.h>
 #include <Bpp/NewPhyl/TopologyMap.h>
 #include <string>
@@ -55,6 +57,20 @@ namespace bpp {
 // Forward declarations
 class Sequence;
 class SubstitutionModel;
+
+class TreeTopologyView {
+public:
+	virtual ~TreeTopologyView () = default;
+
+	// Navigation through indexes
+	virtual IndexType rootNode () const = 0;
+	virtual bool validBranchIndex (IndexType branchId) const = 0;
+	virtual IndexType branchFatherNode (IndexType branchId) const = 0;
+	virtual IndexType branchChildNode (IndexType branchId) const = 0;
+	virtual bool validNodeIndex (IndexType nodeId) const = 0;
+	virtual IndexType nodeFatherBranch (IndexType nodeId) const = 0;
+	virtual Vector<IndexType> nodeChildBranches (IndexType nodeId) const = 0;
+};
 
 namespace Phyl {
 
