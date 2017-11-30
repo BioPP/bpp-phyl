@@ -55,7 +55,7 @@ class Node;
 template <typename N> class TreeTemplate;
 class VectorSiteContainer;
 
-class TreeTemplateView : public TreeTopologyView {
+class TreeTemplateView : public TreeTopologyView, public BranchLengthValueAccess {
 public:
 	TreeTemplateView (const TreeTemplate<Node> & tree) : tree_ (tree) {}
 
@@ -67,6 +67,9 @@ public:
 	bool validNodeIndex (IndexType nodeId) const override;
 	IndexType nodeFatherBranch (IndexType nodeId) const override;
 	Vector<IndexType> nodeChildBranches (IndexType nodeId) const override;
+
+  // BranchLengthValueAccess
+  double getBranchLengthValue (IndexType branchId) const override;
 
 private:
 	const TreeTemplate<Node> & tree_;

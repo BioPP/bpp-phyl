@@ -43,9 +43,40 @@
 #include <Bpp/NewPhyl/LinearAlgebra.h> // allow conversion to nodeRef FIXME
 #include <Bpp/NewPhyl/Model.h>
 #include <Bpp/NewPhyl/Phylogeny.h>
+#include <Bpp/Phyl/Model/SubstitutionModel.h>
 #include <utility>
 
 namespace bpp {
+// Access classes
+
+SameModelForAllBranches::SameModelForAllBranches (DF::ValueRef<const SubstitutionModel *> model)
+    : model_ (std::move (model)) {}
+DF::ValueRef<const SubstitutionModel *> SameModelForAllBranches::getModelNode (IndexType) const {
+	return model_;
+}
+SizeType SameModelForAllBranches::getNbStates () const {
+	return static_cast<SizeType> (model_->getValue ()->getNumberOfStates ());
+}
+
+BranchLengthParametersInitializedFromValues::BranchLengthParametersInitializedFromValues (
+    const BranchLengthValueAccess & values)
+    : values_ (values) {}
+DF::ValueRef<double>
+BranchLengthParametersInitializedFromValues::getBranchLengthNode (IndexType branchId) const {
+	return getBranchLengthParameter (branchId);
+}
+DF::ParameterRef<double>
+BranchLengthParametersInitializedFromValues::getBranchLengthParameter (IndexType branchId) const {
+	auto it = parameterNodes_.find (branchId);
+	if (it != parameterNodes_.end ()) {
+		return it->second;
+	} else {
+		auto parameter = DF::makeNode<DF::Parameter<double>> (values_.getBranchLengthValue (branchId));
+		parameterNodes_.emplace (branchId, parameter);
+		return parameter;
+	}
+}
+
 namespace Phyl {
 	namespace {
 		DF::ValueRef<MatrixDouble> makeConditionalLikelihoodNode (const LikelihoodParameters & params,

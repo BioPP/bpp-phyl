@@ -46,6 +46,7 @@
 #include <Bpp/NewPhyl/DataFlowTemplates.h>
 #include <Bpp/NewPhyl/Signed.h>
 #include <Bpp/NewPhyl/Vector.h>
+#include <map>
 
 #include <Bpp/NewPhyl/FrozenPtr.h>
 #include <Bpp/NewPhyl/Topology.h>
@@ -74,30 +75,60 @@ public:
 	virtual IndexType nodeFatherBranch (IndexType nodeId) const = 0;
 	virtual Vector<IndexType> nodeChildBranches (IndexType nodeId) const = 0;
 };
+
+class BranchLengthValueAccess {
+	// Can access Branch length fixed value by branch id
+public:
+	virtual ~BranchLengthValueAccess () = default;
+	virtual double getBranchLengthValue (IndexType branchId) const = 0;
+};
+
 class BranchLengthNodeAccess {
-	// Can access Branch length value node by branch id
+	// Can access Branch length as a Value<double> DF node by branch id
 public:
 	virtual ~BranchLengthNodeAccess () = default;
-	virtual const DF::ValueRef<double> & getBranchLengthNode (IndexType branchId) const = 0;
+	virtual DF::ValueRef<double> getBranchLengthNode (IndexType branchId) const = 0;
 };
+
 class ModelNodeAccess {
-	// Can access a Model node by branch id, has a defined number of states.
+	// Can access a Model DF node by branch id, has a defined number of states.
 public:
 	virtual ~ModelNodeAccess () = default;
-	virtual const DF::ValueRef<const SubstitutionModel *> &
-	getModelNode (IndexType branchId) const = 0;
+	virtual DF::ValueRef<const SubstitutionModel *> getModelNode (IndexType branchId) const = 0;
 	virtual SizeType getNbStates () const = 0; // tree constant
 };
+
 class SequenceNodeAccess {
-	// Can access Sequence nodes at leaves, has a defined number of sites.
+	// Can access Sequence DF node at leaves, has a defined number of sites.
 public:
 	virtual ~SequenceNodeAccess () = default;
-	virtual const DF::ValueRef<const Sequence *> & getSequenceNode (IndexType nodeId) const = 0;
+	virtual DF::ValueRef<const Sequence *> getSequenceNode (IndexType nodeId) const = 0;
 	virtual SizeType getNbSites () const = 0;
 };
 
 /* Common useful access classes.
  */
+class SameModelForAllBranches : public ModelNodeAccess {
+	// Use a single model for all branches of a tree.
+public:
+	SameModelForAllBranches (DF::ValueRef<const SubstitutionModel *> model);
+	DF::ValueRef<const SubstitutionModel *> getModelNode (IndexType) const override;
+	SizeType getNbStates () const override;
+
+private:
+	DF::ValueRef<const SubstitutionModel *> model_;
+};
+
+class BranchLengthParametersInitializedFromValues : public BranchLengthNodeAccess {
+public:
+	BranchLengthParametersInitializedFromValues (const BranchLengthValueAccess & values);
+	DF::ValueRef<double> getBranchLengthNode (IndexType branchId) const override;
+	DF::ParameterRef<double> getBranchLengthParameter (IndexType branchId) const;
+
+private:
+	const BranchLengthValueAccess & values_;
+	mutable std::map<IndexType, DF::ParameterRef<double>> parameterNodes_;
+};
 
 namespace Phyl {
 

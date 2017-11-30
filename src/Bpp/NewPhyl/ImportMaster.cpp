@@ -78,6 +78,10 @@ Vector<IndexType> TreeTemplateView::nodeChildBranches (IndexType nodeId) const {
 	                    [](int i) { return static_cast<IndexType> (i); });
 }
 
+double TreeTemplateView::getBranchLengthValue (IndexType branchId) const {
+	return tree_.getDistanceToFather (static_cast<int> (branchChildNode (branchId)));
+}
+
 namespace Phyl {
 	ConvertedTreeTemplateData convertTreeTemplate (const TreeTemplate<Node> & fromTree) {
 		// isRooted method checks if 2 sons, fails on newphyl example that has 3 sons...

@@ -239,14 +239,18 @@ TEST_CASE("df")
   auto ts = timingStart();
   // Read tree structure
   auto tree = std::unique_ptr<bpp::TreeTemplate<bpp::Node>>(bpp::TreeTemplateTools::parenthesisToTree(c.treeStr));
-
-  auto treeView = bpp::TreeTemplateView (*tree);
-
   auto treeData = bpp::Phyl::convertTreeTemplate(*tree);
 
   // Model
   auto model =
     bpp::DF::makeNode<bpp::DF::Model>(std::unique_ptr<bpp::SubstitutionModel>(new bpp::T92(&c.alphabet, 3.)));
+
+  // TODO new view system
+  {
+    auto treeView = bpp::TreeTemplateView(*tree);
+    auto modelSetup = bpp::SameModelForAllBranches (model);
+    auto brlenParameters = bpp::BranchLengthParametersInitializedFromValues (treeView);
+  }
 
   // Create phylogeny description structure TODO simplify this mess
   auto branchLengthMap =
