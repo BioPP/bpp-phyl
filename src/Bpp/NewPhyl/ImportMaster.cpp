@@ -82,6 +82,10 @@ double TreeTemplateView::getBranchLengthValue (BranchIndex id) const {
 	return tree_.getDistanceToFather (convert (childNode (id)));
 }
 
+std::string TreeTemplateView::getSequenceName (NodeIndex id) const {
+	return tree_.getNodeName (convert (id));
+}
+
 namespace Phyl {
 	ConvertedTreeTemplateData convertTreeTemplate (const TreeTemplate<Node> & fromTree) {
 		// isRooted method checks if 2 sons, fails on newphyl example that has 3 sons...

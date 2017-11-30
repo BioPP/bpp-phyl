@@ -250,6 +250,7 @@ TEST_CASE("df")
     auto treeView = bpp::TreeTemplateView(*tree);
     auto modelSetup = bpp::SameModelForAllBranches (model);
     auto brlenParameters = bpp::BranchLengthParametersInitializedFromValues (treeView);
+    auto sequences = bpp::SequenceNodesInilialisedFromNames (treeView, c.sites);
   }
 
   // Create phylogeny description structure TODO simplify this mess

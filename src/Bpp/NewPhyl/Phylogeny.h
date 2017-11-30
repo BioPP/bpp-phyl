@@ -59,6 +59,7 @@ namespace bpp {
 // Forward declarations
 class Sequence;
 class SubstitutionModel;
+class VectorSiteContainer;
 
 /* Virtual views/access classes.
  *
@@ -92,6 +93,8 @@ public:
 	virtual BranchIndex fatherBranch (NodeIndex id) const = 0;
 	virtual Vector<BranchIndex> childBranches (NodeIndex id) const = 0;
 };
+bool operator== (TreeTopologyView::NodeIndex lhs, TreeTopologyView::NodeIndex rhs);
+bool operator< (TreeTopologyView::NodeIndex lhs, TreeTopologyView::NodeIndex rhs);
 bool operator== (TreeTopologyView::BranchIndex lhs, TreeTopologyView::BranchIndex rhs);
 bool operator< (TreeTopologyView::BranchIndex lhs, TreeTopologyView::BranchIndex rhs);
 
@@ -118,6 +121,13 @@ public:
 	virtual SizeType getNbStates () const = 0; // tree constant
 };
 
+class SequenceNameValueAccess {
+	// Can access Sequence names at leaves.
+public:
+	virtual ~SequenceNameValueAccess () = default;
+	virtual std::string getSequenceName (TreeTopologyView::NodeIndex id) const = 0;
+};
+
 class SequenceNodeAccess {
 	// Can access Sequence DF node at leaves, has a defined number of sites.
 public:
@@ -141,7 +151,10 @@ private:
 };
 
 class BranchLengthParametersInitializedFromValues : public BranchLengthNodeAccess {
-	// Associate a DF::Parameter to each branch, initialised by values
+	/* Associate a DF::Parameter<double> to each branch.
+	 * Parameters are initialised by values from a BranchLengthValueAccess object.
+	 * Parameters are created lazily (when accessed).
+	 */
 public:
 	BranchLengthParametersInitializedFromValues (const BranchLengthValueAccess & values);
 	DF::ValueRef<double> getBranchLengthNode (TreeTopologyView::BranchIndex id) const override;
@@ -150,6 +163,24 @@ public:
 private:
 	const BranchLengthValueAccess & values_;
 	mutable std::map<TreeTopologyView::BranchIndex, DF::ParameterRef<double>> parameterNodes_;
+};
+
+class SequenceNodesInilialisedFromNames : public SequenceNodeAccess {
+	/* Associate a DF::Constant<const Sequence*> to each leaf.
+	 * Sequence are selected from a VectorSiteContainer by names from a SequenceNameValueAccess.
+	 * DF::Constant nodes are created lazily (when accessed).
+	 * FIXME is VectorSiteContainer the right class to take (take lower ?)
+	 */
+public:
+	SequenceNodesInilialisedFromNames (const SequenceNameValueAccess & names,
+	                                   const VectorSiteContainer & sequences);
+	DF::ValueRef<const Sequence *> getSequenceNode (TreeTopologyView::NodeIndex id) const override;
+	SizeType getNbSites () const override;
+
+private:
+	const SequenceNameValueAccess & names_;
+	const VectorSiteContainer & sequences_;
+	mutable std::map<TreeTopologyView::NodeIndex, DF::ValueRef<const Sequence *>> sequenceNodes_;
 };
 
 namespace Phyl {

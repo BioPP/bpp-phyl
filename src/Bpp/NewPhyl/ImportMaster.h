@@ -55,7 +55,9 @@ class Node;
 template <typename N> class TreeTemplate;
 class VectorSiteContainer;
 
-class TreeTemplateView : public TreeTopologyView, public BranchLengthValueAccess {
+class TreeTemplateView : public TreeTopologyView,
+                         public BranchLengthValueAccess,
+                         public SequenceNameValueAccess {
 public:
 	TreeTemplateView (const TreeTemplate<Node> & tree) : tree_ (tree) {}
 
@@ -76,6 +78,9 @@ public:
 
 	// BranchLengthValueAccess
 	double getBranchLengthValue (BranchIndex id) const override final;
+
+  // SequenceNameValueAccess
+  std::string getSequenceName (NodeIndex id) const override final;
 
 private:
 	const TreeTemplate<Node> & tree_;

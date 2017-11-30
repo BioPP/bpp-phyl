@@ -44,11 +44,18 @@
 #include <Bpp/NewPhyl/Model.h>
 #include <Bpp/NewPhyl/Phylogeny.h>
 #include <Bpp/Phyl/Model/SubstitutionModel.h>
+#include <Bpp/Seq/Container/VectorSiteContainer.h>
 #include <utility>
 
 namespace bpp {
 // Access classes
 
+bool operator== (TreeTopologyView::NodeIndex lhs, TreeTopologyView::NodeIndex rhs) {
+	return lhs.value == rhs.value;
+}
+bool operator< (TreeTopologyView::NodeIndex lhs, TreeTopologyView::NodeIndex rhs) {
+	return lhs.value < rhs.value;
+}
 bool operator== (TreeTopologyView::BranchIndex lhs, TreeTopologyView::BranchIndex rhs) {
 	return lhs.value == rhs.value;
 }
@@ -83,6 +90,25 @@ DF::ParameterRef<double> BranchLengthParametersInitializedFromValues::getBranchL
 		parameterNodes_.emplace (id, parameter);
 		return parameter;
 	}
+}
+
+SequenceNodesInilialisedFromNames::SequenceNodesInilialisedFromNames (
+    const SequenceNameValueAccess & names, const VectorSiteContainer & sequences)
+    : names_ (names), sequences_ (sequences) {}
+DF::ValueRef<const Sequence *>
+SequenceNodesInilialisedFromNames::getSequenceNode (TreeTopologyView::NodeIndex id) const {
+	auto it = sequenceNodes_.find (id);
+	if (it != sequenceNodes_.end ()) {
+		return it->second;
+	} else {
+		auto sequence = DF::makeNode<DF::Constant<const Sequence *>> (
+		    &sequences_.getSequence (names_.getSequenceName (id)));
+		sequenceNodes_.emplace (id, sequence);
+		return sequence;
+	}
+}
+SizeType SequenceNodesInilialisedFromNames::getNbSites () const {
+	return static_cast<SizeType> (sequences_.getNumberOfSites ());
 }
 
 namespace Phyl {
