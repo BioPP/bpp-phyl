@@ -51,35 +51,34 @@ namespace bpp {
 /* In TreeTemplate there is no notion of edges, only nodes.
  * In this view class, the index of a branch is defined as the index of its child node.
  */
-IndexType TreeTemplateView::rootNode () const {
+TreeTopologyView::Index TreeTemplateView::rootNode () const {
 	// isRooted method checks if 2 sons, fails on newphyl example that has 3 sons...
 	if (tree_.getRootNode () == nullptr)
-		return -1;
+		return Index (-1);
 	else
-		return static_cast<IndexType> (tree_.getRootId ());
+		return toIndex (tree_.getRootId ());
 }
-bool TreeTemplateView::validBranchIndex (IndexType branchId) const {
-	return branchId != -1;
+bool TreeTemplateView::validBranchIndex (Index branchId) const {
+	return branchId.value != -1;
 }
-IndexType TreeTemplateView::branchFatherNode (IndexType branchId) const {
-	return tree_.getFatherId (static_cast<int> (branchId));
+TreeTopologyView::Index TreeTemplateView::branchFatherNode (Index branchId) const {
+	return toIndex (tree_.getFatherId (fromIndex (branchId)));
 }
-IndexType TreeTemplateView::branchChildNode (IndexType branchId) const {
+TreeTopologyView::Index TreeTemplateView::branchChildNode (Index branchId) const {
 	return branchId;
 }
-bool TreeTemplateView::validNodeIndex (IndexType nodeId) const {
-	return nodeId != -1;
+bool TreeTemplateView::validNodeIndex (Index nodeId) const {
+	return nodeId.value != -1;
 }
-IndexType TreeTemplateView::nodeFatherBranch (IndexType nodeId) const {
+TreeTopologyView::Index TreeTemplateView::nodeFatherBranch (Index nodeId) const {
 	return nodeId;
 }
-Vector<IndexType> TreeTemplateView::nodeChildBranches (IndexType nodeId) const {
-	return mapToVector (tree_.getSonsId (static_cast<int> (nodeId)),
-	                    [](int i) { return static_cast<IndexType> (i); });
+Vector<TreeTopologyView::Index> TreeTemplateView::nodeChildBranches (Index nodeId) const {
+	return mapToVector (tree_.getSonsId (fromIndex (nodeId)), toIndex);
 }
 
-double TreeTemplateView::getBranchLengthValue (IndexType branchId) const {
-	return tree_.getDistanceToFather (static_cast<int> (branchChildNode (branchId)));
+double TreeTemplateView::getBranchLengthValue (Index branchId) const {
+	return tree_.getDistanceToFather (fromIndex (branchChildNode (branchId)));
 }
 
 namespace Phyl {

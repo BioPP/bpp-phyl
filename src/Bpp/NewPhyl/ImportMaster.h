@@ -59,17 +59,21 @@ class TreeTemplateView : public TreeTopologyView, public BranchLengthValueAccess
 public:
 	TreeTemplateView (const TreeTemplate<Node> & tree) : tree_ (tree) {}
 
-	// TreeTopologyView
-	IndexType rootNode () const override;
-	bool validBranchIndex (IndexType branchId) const override;
-	IndexType branchFatherNode (IndexType branchId) const override;
-	IndexType branchChildNode (IndexType branchId) const override;
-	bool validNodeIndex (IndexType nodeId) const override;
-	IndexType nodeFatherBranch (IndexType nodeId) const override;
-	Vector<IndexType> nodeChildBranches (IndexType nodeId) const override;
+	// Convert between TreeTopologyView node Index and TreeTemplate node id
+	static inline int fromIndex (Index nodeId) { return static_cast<int> (nodeId.value); }
+	static inline Index toIndex (int nodeId) { return Index (static_cast<std::intptr_t> (nodeId)); }
 
-  // BranchLengthValueAccess
-  double getBranchLengthValue (IndexType branchId) const override;
+	// TreeTopologyView
+	Index rootNode () const override;
+	bool validBranchIndex (Index branchId) const override;
+	Index branchFatherNode (Index branchId) const override;
+	Index branchChildNode (Index branchId) const override;
+	bool validNodeIndex (Index nodeId) const override;
+	Index nodeFatherBranch (Index nodeId) const override;
+	Vector<Index> nodeChildBranches (Index nodeId) const override;
+
+	// BranchLengthValueAccess
+	double getBranchLengthValue (Index branchId) const override;
 
 private:
 	const TreeTemplate<Node> & tree_;

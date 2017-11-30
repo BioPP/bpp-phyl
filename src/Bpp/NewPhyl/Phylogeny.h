@@ -46,6 +46,7 @@
 #include <Bpp/NewPhyl/DataFlowTemplates.h>
 #include <Bpp/NewPhyl/Signed.h>
 #include <Bpp/NewPhyl/Vector.h>
+#include <cstdint> // intptr_t
 #include <map>
 
 #include <Bpp/NewPhyl/FrozenPtr.h>
@@ -64,37 +65,51 @@ class SubstitutionModel;
  * These classes are interface which describe capabilities used by DF graph construction methods.
  */
 class TreeTopologyView {
-	// Allows to move around a tree topology through node/branch indexes.
+	/* Allows to move around a tree topology through node/branch indexes.
+	 *
+	 * These indexes abstract away what the underlying data structure uses.
+	 * They are defined as a std::intptr_t.
+	 * This means they can store any integer or pointer, which should be general enough.
+	 * Indexes are represented by an Index struct, which prevents implicit conversions (error prone).
+	 */
 public:
+	struct Index {
+		std::intptr_t value;
+		explicit Index (std::intptr_t v) : value (v) {}
+	};
+
 	virtual ~TreeTopologyView () = default;
-	virtual IndexType rootNode () const = 0;
-	virtual bool validBranchIndex (IndexType branchId) const = 0;
-	virtual IndexType branchFatherNode (IndexType branchId) const = 0;
-	virtual IndexType branchChildNode (IndexType branchId) const = 0;
-	virtual bool validNodeIndex (IndexType nodeId) const = 0;
-	virtual IndexType nodeFatherBranch (IndexType nodeId) const = 0;
-	virtual Vector<IndexType> nodeChildBranches (IndexType nodeId) const = 0;
+	virtual Index rootNode () const = 0;
+	virtual bool validBranchIndex (Index branchId) const = 0;
+	virtual Index branchFatherNode (Index branchId) const = 0;
+	virtual Index branchChildNode (Index branchId) const = 0;
+	virtual bool validNodeIndex (Index nodeId) const = 0;
+	virtual Index nodeFatherBranch (Index nodeId) const = 0;
+	virtual Vector<Index> nodeChildBranches (Index nodeId) const = 0;
 };
+bool operator== (const TreeTopologyView::Index & lhs, const TreeTopologyView::Index & rhs);
+bool operator< (const TreeTopologyView::Index & lhs, const TreeTopologyView::Index & rhs);
 
 class BranchLengthValueAccess {
 	// Can access Branch length fixed value by branch id
 public:
 	virtual ~BranchLengthValueAccess () = default;
-	virtual double getBranchLengthValue (IndexType branchId) const = 0;
+	virtual double getBranchLengthValue (TreeTopologyView::Index branchId) const = 0;
 };
 
 class BranchLengthNodeAccess {
 	// Can access Branch length as a Value<double> DF node by branch id
 public:
 	virtual ~BranchLengthNodeAccess () = default;
-	virtual DF::ValueRef<double> getBranchLengthNode (IndexType branchId) const = 0;
+	virtual DF::ValueRef<double> getBranchLengthNode (TreeTopologyView::Index branchId) const = 0;
 };
 
 class ModelNodeAccess {
 	// Can access a Model DF node by branch id, has a defined number of states.
 public:
 	virtual ~ModelNodeAccess () = default;
-	virtual DF::ValueRef<const SubstitutionModel *> getModelNode (IndexType branchId) const = 0;
+	virtual DF::ValueRef<const SubstitutionModel *>
+	getModelNode (TreeTopologyView::Index branchId) const = 0;
 	virtual SizeType getNbStates () const = 0; // tree constant
 };
 
@@ -102,7 +117,7 @@ class SequenceNodeAccess {
 	// Can access Sequence DF node at leaves, has a defined number of sites.
 public:
 	virtual ~SequenceNodeAccess () = default;
-	virtual DF::ValueRef<const Sequence *> getSequenceNode (IndexType nodeId) const = 0;
+	virtual DF::ValueRef<const Sequence *> getSequenceNode (TreeTopologyView::Index nodeId) const = 0;
 	virtual SizeType getNbSites () const = 0;
 };
 
@@ -112,7 +127,7 @@ class SameModelForAllBranches : public ModelNodeAccess {
 	// Use a single model for all branches of a tree.
 public:
 	SameModelForAllBranches (DF::ValueRef<const SubstitutionModel *> model);
-	DF::ValueRef<const SubstitutionModel *> getModelNode (IndexType) const override;
+	DF::ValueRef<const SubstitutionModel *> getModelNode (TreeTopologyView::Index) const override;
 	SizeType getNbStates () const override;
 
 private:
@@ -122,12 +137,12 @@ private:
 class BranchLengthParametersInitializedFromValues : public BranchLengthNodeAccess {
 public:
 	BranchLengthParametersInitializedFromValues (const BranchLengthValueAccess & values);
-	DF::ValueRef<double> getBranchLengthNode (IndexType branchId) const override;
-	DF::ParameterRef<double> getBranchLengthParameter (IndexType branchId) const;
+	DF::ValueRef<double> getBranchLengthNode (TreeTopologyView::Index branchId) const override;
+	DF::ParameterRef<double> getBranchLengthParameter (TreeTopologyView::Index branchId) const;
 
 private:
 	const BranchLengthValueAccess & values_;
-	mutable std::map<IndexType, DF::ParameterRef<double>> parameterNodes_;
+	mutable std::map<TreeTopologyView::Index, DF::ParameterRef<double>> parameterNodes_;
 };
 
 namespace Phyl {
