@@ -49,17 +49,17 @@
 namespace bpp {
 // Access classes
 
-bool operator== (const TreeTopologyView::Index & lhs, const TreeTopologyView::Index & rhs) {
+bool operator== (TreeTopologyView::BranchIndex lhs, TreeTopologyView::BranchIndex rhs) {
 	return lhs.value == rhs.value;
 }
-bool operator< (const TreeTopologyView::Index & lhs, const TreeTopologyView::Index & rhs) {
+bool operator< (TreeTopologyView::BranchIndex lhs, TreeTopologyView::BranchIndex rhs) {
 	return lhs.value < rhs.value;
 }
 
 SameModelForAllBranches::SameModelForAllBranches (DF::ValueRef<const SubstitutionModel *> model)
     : model_ (std::move (model)) {}
 DF::ValueRef<const SubstitutionModel *>
-SameModelForAllBranches::getModelNode (TreeTopologyView::Index) const {
+SameModelForAllBranches::getModelNode (TreeTopologyView::BranchIndex) const {
 	return model_;
 }
 SizeType SameModelForAllBranches::getNbStates () const {
@@ -70,17 +70,17 @@ BranchLengthParametersInitializedFromValues::BranchLengthParametersInitializedFr
     const BranchLengthValueAccess & values)
     : values_ (values) {}
 DF::ValueRef<double> BranchLengthParametersInitializedFromValues::getBranchLengthNode (
-    TreeTopologyView::Index branchId) const {
-	return getBranchLengthParameter (branchId);
+    TreeTopologyView::BranchIndex id) const {
+	return getBranchLengthParameter (id);
 }
 DF::ParameterRef<double> BranchLengthParametersInitializedFromValues::getBranchLengthParameter (
-    TreeTopologyView::Index branchId) const {
-	auto it = parameterNodes_.find (branchId);
+    TreeTopologyView::BranchIndex id) const {
+	auto it = parameterNodes_.find (id);
 	if (it != parameterNodes_.end ()) {
 		return it->second;
 	} else {
-		auto parameter = DF::makeNode<DF::Parameter<double>> (values_.getBranchLengthValue (branchId));
-		parameterNodes_.emplace (branchId, parameter);
+		auto parameter = DF::makeNode<DF::Parameter<double>> (values_.getBranchLengthValue (id));
+		parameterNodes_.emplace (id, parameter);
 		return parameter;
 	}
 }

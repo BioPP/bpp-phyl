@@ -51,34 +51,35 @@ namespace bpp {
 /* In TreeTemplate there is no notion of edges, only nodes.
  * In this view class, the index of a branch is defined as the index of its child node.
  */
-TreeTopologyView::Index TreeTemplateView::rootNode () const {
+bool TreeTemplateView::valid (NodeIndex id) const {
+	return id.value != -1;
+}
+bool TreeTemplateView::valid (BranchIndex id) const {
+	return id.value != -1;
+}
+TreeTopologyView::NodeIndex TreeTemplateView::rootNode () const {
 	// isRooted method checks if 2 sons, fails on newphyl example that has 3 sons...
 	if (tree_.getRootNode () == nullptr)
-		return Index (-1);
+		return NodeIndex (-1);
 	else
-		return toIndex (tree_.getRootId ());
+		return convert (tree_.getRootId ());
 }
-bool TreeTemplateView::validBranchIndex (Index branchId) const {
-	return branchId.value != -1;
+TreeTopologyView::NodeIndex TreeTemplateView::fatherNode (BranchIndex id) const {
+	return convert (tree_.getFatherId (convert (childNode (id))));
 }
-TreeTopologyView::Index TreeTemplateView::branchFatherNode (Index branchId) const {
-	return toIndex (tree_.getFatherId (fromIndex (branchId)));
+TreeTopologyView::NodeIndex TreeTemplateView::childNode (BranchIndex id) const {
+	return NodeIndex (id.value);
 }
-TreeTopologyView::Index TreeTemplateView::branchChildNode (Index branchId) const {
-	return branchId;
+TreeTopologyView::BranchIndex TreeTemplateView::fatherBranch (NodeIndex id) const {
+	return BranchIndex (id.value);
 }
-bool TreeTemplateView::validNodeIndex (Index nodeId) const {
-	return nodeId.value != -1;
-}
-TreeTopologyView::Index TreeTemplateView::nodeFatherBranch (Index nodeId) const {
-	return nodeId;
-}
-Vector<TreeTopologyView::Index> TreeTemplateView::nodeChildBranches (Index nodeId) const {
-	return mapToVector (tree_.getSonsId (fromIndex (nodeId)), toIndex);
+Vector<TreeTopologyView::BranchIndex> TreeTemplateView::childBranches (NodeIndex id) const {
+	return mapToVector (tree_.getSonsId (convert (id)),
+	                    [](int i) { return BranchIndex (static_cast<std::intptr_t> (i)); });
 }
 
-double TreeTemplateView::getBranchLengthValue (Index branchId) const {
-	return tree_.getDistanceToFather (fromIndex (branchChildNode (branchId)));
+double TreeTemplateView::getBranchLengthValue (BranchIndex id) const {
+	return tree_.getDistanceToFather (convert (childNode (id)));
 }
 
 namespace Phyl {
