@@ -44,7 +44,7 @@
 #include <Bpp/NewPhyl/Model.h>
 #include <Bpp/NewPhyl/Phylogeny.h>
 #include <Bpp/Phyl/Model/SubstitutionModel.h>
-#include <Bpp/Seq/Container/VectorSiteContainer.h>
+#include <Bpp/Seq/Container/SiteContainer.h>
 #include <utility>
 
 namespace bpp {
@@ -93,7 +93,7 @@ DF::ParameterRef<double> BranchLengthParametersInitializedFromValues::getBranchL
 }
 
 SequenceNodesInilialisedFromNames::SequenceNodesInilialisedFromNames (
-    const SequenceNameValueAccess & names, const VectorSiteContainer & sequences)
+    const SequenceNameValueAccess & names, const SiteContainer & sequences)
     : names_ (names), sequences_ (sequences) {}
 DF::ValueRef<const Sequence *>
 SequenceNodesInilialisedFromNames::getSequenceNode (TreeTopologyView::NodeIndex id) const {

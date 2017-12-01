@@ -59,7 +59,7 @@ namespace bpp {
 // Forward declarations
 class Sequence;
 class SubstitutionModel;
-class VectorSiteContainer;
+class SiteContainer;
 
 /* Virtual views/access classes.
  *
@@ -167,19 +167,18 @@ private:
 
 class SequenceNodesInilialisedFromNames : public SequenceNodeAccess {
 	/* Associate a DF::Constant<const Sequence*> to each leaf.
-	 * Sequence are selected from a VectorSiteContainer by names from a SequenceNameValueAccess.
+	 * Sequence are selected from a SiteContainer by names from a SequenceNameValueAccess.
 	 * DF::Constant nodes are created lazily (when accessed).
-	 * FIXME is VectorSiteContainer the right class to take (take lower ?)
 	 */
 public:
 	SequenceNodesInilialisedFromNames (const SequenceNameValueAccess & names,
-	                                   const VectorSiteContainer & sequences);
+	                                   const SiteContainer & sequences);
 	DF::ValueRef<const Sequence *> getSequenceNode (TreeTopologyView::NodeIndex id) const override;
 	SizeType getNbSites () const override;
 
 private:
 	const SequenceNameValueAccess & names_;
-	const VectorSiteContainer & sequences_;
+	const SiteContainer & sequences_;
 	mutable std::map<TreeTopologyView::NodeIndex, DF::ValueRef<const Sequence *>> sequenceNodes_;
 };
 
