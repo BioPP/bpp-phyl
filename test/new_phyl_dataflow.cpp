@@ -232,6 +232,35 @@ TEST_CASE("new")
 #endif
 
 #ifdef ENABLE_DF
+#include <functional>
+#include <stack>
+namespace bpp
+{
+  ParameterList branchLengthParameterList(const TreeTopologyView& tree,
+                                          const BranchLengthParametersInitializedFromValues& brlens,
+                                          std::function<std::string(TreeTopologyView::BranchIndex)> branchName)
+  {
+    // TODO add getBrlenParameter interface + put this in lib ?
+    ParameterList params;
+
+    std::stack<TreeTopologyView::NodeIndex> nodesToVisit;
+    nodesToVisit.push(tree.rootNode());
+    while (!nodesToVisit.empty())
+    {
+      auto node = nodesToVisit.top();
+      nodesToVisit.pop();
+      for (auto branch : tree.childBranches(node))
+      {
+        auto p = DataFlowParameter(branchName(branch), brlens.getBranchLengthParameter(branch));
+        p.setConstraint(Parameter::R_PLUS.clone(), true);
+        params.addParameter(std::move(p));
+        nodesToVisit.push(tree.childNode(branch));
+      }
+    }
+    return params;
+  }
+}
+
 TEST_CASE("df")
 {
   const CommonStuff c;
@@ -253,19 +282,11 @@ TEST_CASE("df")
   auto logLikNode = bpp::makeLogLikelihoodNode(treeView, sequences, brlenParameters, modelSetup);
 
   // Build bpp-compatible structure out of it
-  bpp::ParameterList brlenParams;
-  for (auto i : tree->getBranchesId())
-  {
-    // for all brlen in init graph (i), add DFparam("Brlen<i>", paramNode); FIXME convert to new system
-    auto p = bpp::DataFlowParameter(
-      "BrLen" + std::to_string(i),
-      brlenParameters.getBranchLengthParameter(treeView.fatherBranch(bpp::TreeTemplateView::convert(i))));
-    p.setConstraint(bpp::Parameter::R_PLUS.clone(), true);
-
-    CHECK(logLikNode->isDerivable(*p.getDataFlowParameter()));
-    brlenParams.addParameter(std::move(p));
-  }
-  bpp::ParameterList params{brlenParams};
+  bpp::ParameterList brlenBppParams =
+    bpp::branchLengthParameterList(treeView, brlenParameters, [](bpp::TreeTopologyView::BranchIndex branch) {
+      return "BrLen" + std::to_string(branch.value);
+    });
+  bpp::ParameterList params{brlenBppParams};
   for (auto i : bpp::range(model->nbParameters()))
   {
     params.addParameter(bpp::DataFlowParameter(model->getParameterName(i), model->getParameter(i)));
@@ -281,16 +302,14 @@ TEST_CASE("df")
   printLik(logLik, "df_init_value");
 
   std::cout << "[dbrlen1] " << likFunc.getFirstOrderDerivative("BrLen1") << "\n";
-
   {
     std::ofstream fd("df_debug");
     // bpp::DF::debugDag(fd, logLikNode, bpp::DF::DebugOptions::DetailedNodeInfo);
     bpp::DF::debugDag(fd, likFunc.getAllNamedNodes("f"), bpp::DF::DebugOptions::DetailedNodeInfo);
     // bpp::Topology::debugTree(fd, treeData.topology);
   }
-
   do_param_changes_multiple_times(likFunc, "df_param_model_change", c.paramModel1, c.paramModel2);
   do_param_changes_multiple_times(likFunc, "df_param_brlen_change", c.paramBrLen1, c.paramBrLen2);
-  optimize_branch_params(likFunc, "df_brlens_opt", brlenParams);
+  optimize_branch_params(likFunc, "df_brlens_opt", brlenBppParams);
 }
 #endif
