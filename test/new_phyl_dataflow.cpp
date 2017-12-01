@@ -76,7 +76,6 @@
 #ifdef ENABLE_DF
 #include <Bpp/NewPhyl/Debug.h>
 #include <Bpp/NewPhyl/ImportMaster.h>
-#include <Bpp/NewPhyl/ImportNewlik.h>
 #include <Bpp/NewPhyl/Model.h>
 #include <Bpp/NewPhyl/Optimizer.h>
 #include <Bpp/NewPhyl/Phylogeny.h>
@@ -239,50 +238,32 @@ TEST_CASE("df")
   auto ts = timingStart();
   // Read tree structure
   auto tree = std::unique_ptr<bpp::TreeTemplate<bpp::Node>>(bpp::TreeTemplateTools::parenthesisToTree(c.treeStr));
-  auto treeData = bpp::Phyl::convertTreeTemplate(*tree);
 
   // Model
   auto model =
     bpp::DF::makeNode<bpp::DF::Model>(std::unique_ptr<bpp::SubstitutionModel>(new bpp::T92(&c.alphabet, 3.)));
 
-  // TODO new view system
-  {
-    auto treeView = bpp::TreeTemplateView(*tree);
-    auto modelSetup = bpp::SameModelForAllBranches (model);
-    auto brlenParameters = bpp::BranchLengthParametersInitializedFromValues (treeView);
-    auto sequences = bpp::SequenceNodesInilialisedFromNames (treeView, c.sites);
+  // Describe how to build a likelihood value
+  auto treeView = bpp::TreeTemplateView(*tree);
+  auto modelSetup = bpp::SameModelForAllBranches(model);
+  auto brlenParameters = bpp::BranchLengthParametersInitializedFromValues(treeView);
+  auto sequences = bpp::SequenceNodesInilialisedFromNames(treeView, c.sites);
 
-    auto logLikNode = bpp::makeLogLikelihoodNode(treeView, sequences, brlenParameters, modelSetup);
-  }
-
-  // Create phylogeny description structure TODO simplify this mess
-  auto branchLengthMap =
-    bpp::make_frozen(bpp::Topology::make_branch_parameter_map_from_value_map(*treeData.branchLengths));
-  auto modelMap = bpp::make_frozen(bpp::Topology::make_uniform_branch_value_map(
-    treeData.topology, bpp::DF::convertRef<bpp::DF::Value<const bpp::SubstitutionModel*>>(model)));
-  auto process = bpp::Phyl::Process{treeData.topology, branchLengthMap, modelMap, c.alphabet.getSize()};
-  auto sequenceMap = bpp::Phyl::makeSequenceMap(*treeData.nodeNames, c.sites);
-  auto likParams = bpp::Phyl::LikelihoodParameters{process, sequenceMap};
-
-  // Build node
-  auto logLikNode = bpp::Phyl::makeLogLikelihoodNode(likParams);
+  // Build DF node
+  auto logLikNode = bpp::makeLogLikelihoodNode(treeView, sequences, brlenParameters, modelSetup);
 
   // Build bpp-compatible structure out of it
   bpp::ParameterList brlenParams;
-  for (auto i : bpp::index_range(*treeData.branchLengths))
+  for (auto i : tree->getBranchesId())
   {
-    // for all brlen in init graph (i), add DFparam("Brlen<i>", paramNode);
-    auto& branchParamOpt = branchLengthMap->access(i);
-    if (branchParamOpt)
-    {
-      auto phyloBranchId = treeData.treeTemplateNodeIndexes->access(i).value();
-      auto p = bpp::DataFlowParameter("BrLen" + std::to_string(phyloBranchId), *branchParamOpt);
-      p.setConstraint(bpp::Parameter::R_PLUS.clone(), true);
+    // for all brlen in init graph (i), add DFparam("Brlen<i>", paramNode); FIXME convert to new system
+    auto p = bpp::DataFlowParameter(
+      "BrLen" + std::to_string(i),
+      brlenParameters.getBranchLengthParameter(treeView.fatherBranch(bpp::TreeTemplateView::convert(i))));
+    p.setConstraint(bpp::Parameter::R_PLUS.clone(), true);
 
-      CHECK(logLikNode->isDerivable(*p.getDataFlowParameter()));
-
-      brlenParams.addParameter(std::move(p));
-    }
+    CHECK(logLikNode->isDerivable(*p.getDataFlowParameter()));
+    brlenParams.addParameter(std::move(p));
   }
   bpp::ParameterList params{brlenParams};
   for (auto i : bpp::range(model->nbParameters()))

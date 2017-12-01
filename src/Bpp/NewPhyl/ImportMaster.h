@@ -42,18 +42,14 @@
 #ifndef BPP_NEWPHYL_IMPORTMASTER_H
 #define BPP_NEWPHYL_IMPORTMASTER_H
 
-#include <Bpp/NewPhyl/FrozenPtr.h>
 #include <Bpp/NewPhyl/Phylogeny.h>
 #include <Bpp/NewPhyl/Signed.h>
-#include <Bpp/NewPhyl/Topology.h>
-#include <Bpp/NewPhyl/TopologyMap.h>
 
 namespace bpp {
 
 // Forward declarations
 class Node;
 template <typename N> class TreeTemplate;
-class VectorSiteContainer;
 
 class TreeTemplateView : public TreeTopologyView,
                          public BranchLengthValueAccess,
@@ -79,27 +75,12 @@ public:
 	// BranchLengthValueAccess
 	double getBranchLengthValue (BranchIndex id) const override final;
 
-  // SequenceNameValueAccess
-  std::string getSequenceName (NodeIndex id) const override final;
+	// SequenceNameValueAccess
+	std::string getSequenceName (NodeIndex id) const override final;
 
 private:
 	const TreeTemplate<Node> & tree_;
 };
-
-namespace Phyl {
-	// Extract information from a TreeTemplate<Node> structure (master)
-	struct ConvertedTreeTemplateData {
-		const FrozenPtr<Topology::Tree> topology;
-		const FrozenPtr<Topology::NodeIndexMap<IndexType>> treeTemplateNodeIndexes;
-		const FrozenPtr<Topology::BranchValueMap<double>> branchLengths;
-		const FrozenPtr<Topology::NodeIndexMap<std::string>> nodeNames;
-	};
-	ConvertedTreeTemplateData convertTreeTemplate (const TreeTemplate<Node> & tree);
-
-	// Create sequence map from bpp VectorSiteContainer and a name mapping.
-	SequenceMap makeSequenceMap (const Topology::NodeIndexMap<std::string> & nodeNames,
-	                             const VectorSiteContainer & sequences);
-} // namespace Phyl
 } // namespace bpp
 
 #endif // BPP_NEWPHYL_IMPORTMASTER_H

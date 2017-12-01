@@ -39,12 +39,9 @@
   knowledge of the CeCILL license and that you accept its terms.
 */
 
-#include <Bpp/Exceptions.h>
 #include <Bpp/NewPhyl/ImportMaster.h>
 #include <Bpp/Phyl/Tree/Node.h>
 #include <Bpp/Phyl/Tree/TreeTemplate.h>
-#include <Bpp/Seq/Container/VectorSiteContainer.h>
-#include <utility>
 
 namespace bpp {
 
@@ -85,60 +82,4 @@ double TreeTemplateView::getBranchLengthValue (BranchIndex id) const {
 std::string TreeTemplateView::getSequenceName (NodeIndex id) const {
 	return tree_.getNodeName (convert (id));
 }
-
-namespace Phyl {
-	ConvertedTreeTemplateData convertTreeTemplate (const TreeTemplate<Node> & fromTree) {
-		// isRooted method checks if 2 sons, fails on newphyl example that has 3 sons...
-		if (fromTree.getRootNode () == nullptr)
-			throw Exception ("TreeTemplate is not rooted");
-
-		// Build topology : create nodes and an index conversion map
-		// Assumes our indexes are densely allocated (in sequence from 0)
-		Topology::IndexMapBase<IndexType> fromNodeIdMap{
-		    static_cast<SizeType> (fromTree.getNumberOfNodes ())};
-		auto convertId = [&fromNodeIdMap](int index) {
-			return fromNodeIdMap.index (static_cast<IndexType> (index)).value ();
-		};
-		auto tmpTree = make_freezable<Topology::Tree> ();
-		auto allNodeIds = fromTree.getNodesId ();
-		for (auto i : allNodeIds) {
-			auto ourId = tmpTree->createNode ();
-			fromNodeIdMap.set (ourId, i);
-		}
-		for (auto i : allNodeIds)
-			if (fromTree.hasFather (i))
-				tmpTree->createEdge (convertId (fromTree.getFatherId (i)), convertId (i));
-		tmpTree->setRootNodeId (convertId (fromTree.getRootId ()));
-		auto tree = std::move (tmpTree).freeze ();
-
-		// Data
-		auto brLens = make_freezable<Topology::BranchValueMap<double>> (tree);
-		auto nodeNames = make_freezable<Topology::NodeIndexMap<std::string>> (tree);
-		for (auto i : allNodeIds) {
-			auto node = tree->node (convertId (i));
-			// Branch length
-			if (fromTree.hasFather (i))
-				brLens->access (node.fatherBranch ()) = fromTree.getDistanceToFather (i);
-			// Leaf name
-			if (fromTree.hasNodeName (i))
-				nodeNames->set (node, fromTree.getNodeName (i));
-		}
-
-		return {tree, make_frozen<Topology::NodeIndexMap<IndexType>> (tree, std::move (fromNodeIdMap)),
-		        std::move (brLens).freeze (), std::move (nodeNames).freeze ()};
-	}
-
-	SequenceMap makeSequenceMap (const Topology::NodeIndexMap<std::string> & nodeNames,
-	                             const VectorSiteContainer & sequences) {
-		using namespace Topology;
-		auto sequenceMap =
-		    make_freezable<NodeValueMap<DF::ParameterRef<const Sequence *>>> (nodeNames.tree ());
-		for (auto i : bpp::index_range (*sequenceMap))
-			sequenceMap->access (i) = nodeNames.access (i).map ([&sequences](const std::string & name) {
-				return DF::makeNode<DF::Parameter<const Sequence *>> (&sequences.getSequence (name));
-			});
-		return {std::move (sequenceMap).freeze (),
-		        static_cast<SizeType> (sequences.getNumberOfSites ())};
-	}
-} // namespace Phyl
 } // namespace bpp

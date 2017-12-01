@@ -199,32 +199,6 @@ DF::ValueRef<double> makeLogLikelihoodNode (const TreeTopologyView & tree,
                                             const SequenceNodeAccess & sequenceNodes,
                                             const BranchLengthNodeAccess & brlenNodes,
                                             const ModelNodeAccess & modelNodes);
-
-namespace Phyl {
-
-	// Phylogeny encoding structs
-	// TODO remove frozen ptr, just bundle values
-	struct Process {
-		const FrozenPtr<Topology::Tree> tree;
-		const FrozenPtr<Topology::BranchValueMap<DF::ParameterRef<double>>> branchLengths;
-		const FrozenPtr<Topology::BranchValueMap<DF::ValueRef<const SubstitutionModel *>>>
-		    modelByBranch;
-		const SizeType nbStates;
-	};
-
-	struct SequenceMap {
-		const FrozenPtr<Topology::NodeValueMap<DF::ParameterRef<const Sequence *>>> sequences;
-		const SizeType nbSites;
-	};
-
-	struct LikelihoodParameters {
-		const Process process;
-		const SequenceMap leafData;
-	};
-
-	// Build functions
-	DF::ValueRef<double> makeLogLikelihoodNode (const LikelihoodParameters & params);
-} // namespace Phyl
 } // namespace bpp
 
 #endif // BPP_NEWPHYL_PHYLOGENY_H
