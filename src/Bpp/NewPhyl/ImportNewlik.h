@@ -42,28 +42,50 @@
 #ifndef BPP_NEWPHYL_IMPORTNEWLIK_H
 #define BPP_NEWPHYL_IMPORTNEWLIK_H
 
-#include <Bpp/NewPhyl/FrozenPtr.h>
-#include <Bpp/NewPhyl/Signed.h>
-#include <Bpp/NewPhyl/Topology.h>
-#include <Bpp/NewPhyl/TopologyMap.h>
-#include <string>
+#include <Bpp/NewPhyl/Phylogeny.h>
+#include <Bpp/Phyl/Tree/PhyloTree.h> // FIXME forward declare (use node/edge types ?)
 
 namespace bpp {
 
 // Forward declaration
 class PhyloTree;
 
-namespace Phyl {
+class PhyloTreeView : public TreeTopologyView,
+                      public BranchLengthValueAccess,
+                      public SequenceNameValueAccess {
+public:
+	PhyloTreeView (const PhyloTree & tree) : tree_ (tree) {}
 
-	// Extract information from a PhyloTree structure (NewLik)
-	struct ConvertedPhyloTreeData {
-		const FrozenPtr<Topology::Tree> topology;
-		const FrozenPtr<Topology::NodeIndexMap<IndexType>> phyloTreeNodeIndexes;
-		const FrozenPtr<Topology::BranchValueMap<double>> branchLengths;
-		const FrozenPtr<Topology::NodeIndexMap<std::string>> nodeNames;
-	};
-	ConvertedPhyloTreeData convertPhyloTree (const bpp::PhyloTree & phyloTree);
-} // namespace Phyl
+	// Convert between TreeTopologyView indexes and PhyloTree indexes
+	static inline PhyloTree::NodeIndex convertNode (NodeIndex id) {
+		return static_cast<PhyloTree::NodeIndex> (id.value);
+	}
+	static inline NodeIndex convertNode (PhyloTree::NodeIndex id) {
+		return NodeIndex (static_cast<std::intptr_t> (id));
+	}
+	static inline PhyloTree::EdgeIndex convertBranch (BranchIndex id) {
+		return static_cast<PhyloTree::EdgeIndex> (id.value);
+	}
+	static inline BranchIndex convertBranch (PhyloTree::EdgeIndex id) {
+		return BranchIndex (static_cast<std::intptr_t> (id));
+	}
+
+	// TreeTopologyView
+	NodeIndex rootNode () const override final;
+	NodeIndex fatherNode (BranchIndex id) const override final;
+	NodeIndex childNode (BranchIndex id) const override final;
+	BranchIndex fatherBranch (NodeIndex id) const override final;
+	Vector<BranchIndex> childBranches (NodeIndex id) const override final;
+
+	// BranchLengthValueAccess
+	double getBranchLengthValue (BranchIndex id) const override final;
+
+	// SequenceNameValueAccess
+	std::string getSequenceName (NodeIndex id) const override final;
+
+private:
+	const PhyloTree & tree_;
+};
 } // namespace bpp
 
 #endif // BPP_NEWPHYL_IMPORTNEWLIK_H

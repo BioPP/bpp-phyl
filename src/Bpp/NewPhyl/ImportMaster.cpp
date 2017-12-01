@@ -39,6 +39,7 @@
   knowledge of the CeCILL license and that you accept its terms.
 */
 
+#include <Bpp/Exceptions.h>
 #include <Bpp/NewPhyl/ImportMaster.h>
 #include <Bpp/Phyl/Tree/Node.h>
 #include <Bpp/Phyl/Tree/TreeTemplate.h>
@@ -48,18 +49,11 @@ namespace bpp {
 /* In TreeTemplate there is no notion of edges, only nodes.
  * In this view class, the index of a branch is defined as the index of its child node.
  */
-bool TreeTemplateView::valid (NodeIndex id) const {
-	return id.value != -1;
-}
-bool TreeTemplateView::valid (BranchIndex id) const {
-	return id.value != -1;
-}
 TreeTopologyView::NodeIndex TreeTemplateView::rootNode () const {
 	// isRooted method checks if 2 sons, fails on newphyl example that has 3 sons...
 	if (tree_.getRootNode () == nullptr)
-		return NodeIndex (-1);
-	else
-		return convert (tree_.getRootId ());
+		throw Exception ("TreeTemplateView: tree has no root node");
+	return convert (tree_.getRootId ());
 }
 TreeTopologyView::NodeIndex TreeTemplateView::fatherNode (BranchIndex id) const {
 	return convert (tree_.getFatherId (convert (childNode (id))));

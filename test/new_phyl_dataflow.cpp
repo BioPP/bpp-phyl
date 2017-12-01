@@ -79,7 +79,6 @@
 #include <Bpp/NewPhyl/Model.h>
 #include <Bpp/NewPhyl/Optimizer.h>
 #include <Bpp/NewPhyl/Phylogeny.h>
-#include <Bpp/NewPhyl/Range.h>
 #endif
 
 namespace

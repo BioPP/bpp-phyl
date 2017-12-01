@@ -86,8 +86,6 @@ public:
 	};
 
 	virtual ~TreeTopologyView () = default;
-	virtual bool valid (NodeIndex id) const = 0;
-	virtual bool valid (BranchIndex id) const = 0;
 	virtual NodeIndex rootNode () const = 0;
 	virtual NodeIndex fatherNode (BranchIndex id) const = 0;
 	virtual NodeIndex childNode (BranchIndex id) const = 0;

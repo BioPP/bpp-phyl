@@ -44,52 +44,38 @@
 #include <Bpp/Phyl/Tree/PhyloTree.h>
 
 namespace bpp {
-namespace Phyl {
-	ConvertedPhyloTreeData convertPhyloTree (const bpp::PhyloTree & fromTree) {
-		if (!fromTree.isRooted ())
-			throw Exception ("PhyloTree is not rooted");
 
-		// Build topology : create nodes and an index conversion map
-		// Assumes our indexes are densely allocated (in sequence from 0)
-		Topology::IndexMapBase<IndexType> fromNodeIdMap{
-		    static_cast<SizeType> (fromTree.getNumberOfNodes ())};
-		auto convertId = [&fromNodeIdMap](const bpp::PhyloTree::NodeIndex & index) {
-			return fromNodeIdMap.index (static_cast<IndexType> (index)).value ();
-		};
-		auto tmpTree = make_freezable<Topology::Tree> ();
-		auto allNodeIds = fromTree.getAllNodesIndexes ();
-		for (auto i : allNodeIds) {
-			auto ourId = tmpTree->createNode ();
-			fromNodeIdMap.set (ourId, static_cast<IndexType> (i));
-		}
-		for (auto i : allNodeIds) {
-			if (fromTree.hasFather (i)) {
-				auto fatherId = fromTree.getNodeIndex (fromTree.getFather (fromTree.getNode (i)));
-				tmpTree->createEdge (convertId (fatherId), convertId (i));
-			}
-		}
-		tmpTree->setRootNodeId (convertId (fromTree.getRootIndex ()));
-		auto tree = std::move (tmpTree).freeze ();
+/* Use PhyloTree (graph observer) indexes as our indexes.
+ *
+ * Some navigation methods for indexes are missing.
+ * Navigation with pointers is not possible:
+ * - PhyloTree navigates by taking shared_ptr<N/E>
+ * - we can only store a raw pointer
+ */
+TreeTopologyView::NodeIndex PhyloTreeView::rootNode () const {
+	if (!tree_.isRooted ())
+		throw Exception ("PhyloTreeView: PhyloTree is not rooted");
+	return convertNode (tree_.getRootIndex ());
+}
+TreeTopologyView::NodeIndex PhyloTreeView::fatherNode (BranchIndex id) const {
+	return convertNode (tree_.getFather (convertBranch (id)));
+}
+TreeTopologyView::NodeIndex PhyloTreeView::childNode (BranchIndex id) const {
+	return convertNode (tree_.getSon (convertBranch (id)));
+}
+TreeTopologyView::BranchIndex PhyloTreeView::fatherBranch (NodeIndex id) const {
+	return convertBranch (tree_.getEdgeIndex (tree_.getEdgeToFather (convertNode (id))));
+}
+Vector<TreeTopologyView::BranchIndex> PhyloTreeView::childBranches (NodeIndex id) const {
+	return mapToVector (tree_.getBranches (convertNode (id)),
+	                    [](PhyloTree::EdgeIndex i) { return convertBranch (i); });
+}
 
-		// Data
-		auto brLens = make_freezable<Topology::BranchValueMap<double>> (tree);
-		auto nodeNames = make_freezable<Topology::NodeIndexMap<std::string>> (tree);
-		for (auto i : allNodeIds) {
-			auto node = tree->node (convertId (i));
-			// Branch length
-			if (fromTree.hasFather (i)) {
-				auto branch = fromTree.getEdgeToFather (i);
-				brLens->access (node.fatherBranch ()) = branch->getLength ();
-			}
-			// Leaf name
-			auto phyloNode = fromTree.getNode (i);
-			if (phyloNode->hasName ())
-				nodeNames->set (node, phyloNode->getName ());
-		}
+double PhyloTreeView::getBranchLengthValue (BranchIndex id) const {
+	return tree_.getEdge (convertBranch (id))->getLength ();
+}
 
-		return {std::move (tree),
-		        make_frozen<Topology::NodeIndexMap<IndexType>> (tree, std::move (fromNodeIdMap)),
-		        std::move (brLens).freeze (), std::move (nodeNames).freeze ()};
-	}
-} // namespace Phyl
+std::string PhyloTreeView::getSequenceName (NodeIndex id) const {
+	return tree_.getNode (convertNode (id))->getName ();
+}
 } // namespace bpp

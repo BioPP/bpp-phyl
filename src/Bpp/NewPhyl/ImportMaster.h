@@ -43,7 +43,6 @@
 #define BPP_NEWPHYL_IMPORTMASTER_H
 
 #include <Bpp/NewPhyl/Phylogeny.h>
-#include <Bpp/NewPhyl/Signed.h>
 
 namespace bpp {
 
@@ -64,8 +63,6 @@ public:
 	}
 
 	// TreeTopologyView
-	bool valid (NodeIndex id) const override final;
-	bool valid (BranchIndex id) const override final;
 	NodeIndex rootNode () const override final;
 	NodeIndex fatherNode (BranchIndex id) const override final;
 	NodeIndex childNode (BranchIndex id) const override final;
