@@ -44,15 +44,16 @@
 
 #include <Bpp/NewPhyl/DataFlow.h>
 #include <Bpp/NewPhyl/DataFlowTemplates.h>
+#include <Bpp/NewPhyl/LinearAlgebraFwd.h>
 #include <Bpp/NewPhyl/Signed.h>
 #include <Bpp/NewPhyl/Vector.h>
 #include <cstdint> // intptr_t
 #include <map>
+#include <string>
 
 #include <Bpp/NewPhyl/FrozenPtr.h>
 #include <Bpp/NewPhyl/Topology.h>
 #include <Bpp/NewPhyl/TopologyMap.h>
-#include <string>
 
 namespace bpp {
 
@@ -181,6 +182,23 @@ private:
 	const SiteContainer & sequences_;
 	mutable std::map<TreeTopologyView::NodeIndex, DF::ValueRef<const Sequence *>> sequenceNodes_;
 };
+
+/* Phylogeny DF graph construction functions.
+ */
+DF::ValueRef<MatrixDouble> makeConditionalLikelihoodNode (const TreeTopologyView & tree,
+                                                          const SequenceNodeAccess & sequenceNodes,
+                                                          const BranchLengthNodeAccess & brlenNodes,
+                                                          const ModelNodeAccess & modelNodes,
+                                                          TreeTopologyView::NodeIndex node);
+DF::ValueRef<MatrixDouble> makeForwardLikelihoodNode (const TreeTopologyView & tree,
+                                                      const SequenceNodeAccess & sequenceNodes,
+                                                      const BranchLengthNodeAccess & brlenNodes,
+                                                      const ModelNodeAccess & modelNodes,
+                                                      TreeTopologyView::BranchIndex branch);
+DF::ValueRef<double> makeLogLikelihoodNode (const TreeTopologyView & tree,
+                                            const SequenceNodeAccess & sequenceNodes,
+                                            const BranchLengthNodeAccess & brlenNodes,
+                                            const ModelNodeAccess & modelNodes);
 
 namespace Phyl {
 

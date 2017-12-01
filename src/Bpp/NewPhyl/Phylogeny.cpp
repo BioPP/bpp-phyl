@@ -43,6 +43,7 @@
 #include <Bpp/NewPhyl/LinearAlgebra.h> // allow conversion to nodeRef FIXME
 #include <Bpp/NewPhyl/Model.h>
 #include <Bpp/NewPhyl/Phylogeny.h>
+#include <Bpp/NewPhyl/PhylogenyTypes.h>
 #include <Bpp/Phyl/Model/SubstitutionModel.h>
 #include <Bpp/Seq/Container/SiteContainer.h>
 #include <utility>
@@ -109,6 +110,69 @@ SequenceNodesInilialisedFromNames::getSequenceNode (TreeTopologyView::NodeIndex 
 }
 SizeType SequenceNodesInilialisedFromNames::getNbSites () const {
 	return static_cast<SizeType> (sequences_.getNumberOfSites ());
+}
+
+// DF graph construction functions
+
+LikelihoodDataDimension likelihoodDataDimension (const SequenceNodeAccess & sequences,
+                                                 const ModelNodeAccess & models) {
+	return {sequences.getNbSites (), models.getNbStates ()};
+}
+
+DF::ValueRef<MatrixDouble> makeConditionalLikelihoodNode (const TreeTopologyView & tree,
+                                                          const SequenceNodeAccess & sequenceNodes,
+                                                          const BranchLengthNodeAccess & brlenNodes,
+                                                          const ModelNodeAccess & modelNodes,
+                                                          TreeTopologyView::NodeIndex node) {
+	auto dim = likelihoodDataDimension (sequenceNodes, modelNodes);
+	auto childBranches = tree.childBranches (node);
+	if (childBranches.empty ()) {
+		// Leaf : lik data from sequences
+		return DF::makeNode<DF::ConditionalLikelihoodFromSequence> (
+		    {sequenceNodes.getSequenceNode (node)}, dim);
+	} else {
+		// Combine forward likelihoods
+		return DF::makeNode<DF::ConditionalLikelihoodFromChildrens> (
+		    mapToVector (childBranches,
+		                 [&](TreeTopologyView::BranchIndex branch) -> DF::NodeRef {
+			                 return makeForwardLikelihoodNode (tree, sequenceNodes, brlenNodes,
+			                                                   modelNodes, branch);
+		                 }),
+		    dim);
+	}
+}
+
+DF::ValueRef<MatrixDouble> makeForwardLikelihoodNode (const TreeTopologyView & tree,
+                                                      const SequenceNodeAccess & sequenceNodes,
+                                                      const BranchLengthNodeAccess & brlenNodes,
+                                                      const ModelNodeAccess & modelNodes,
+                                                      TreeTopologyView::BranchIndex branch) {
+	auto dim = likelihoodDataDimension (sequenceNodes, modelNodes);
+	auto transitionMatrix = DF::makeNode<DF::TransitionMatrixFromModel> (
+	    {modelNodes.getModelNode (branch), brlenNodes.getBranchLengthNode (branch)},
+	    TransitionMatrixDimension (modelNodes.getNbStates ()));
+	return DF::makeNode<DF::ForwardLikelihoodFromChild> (
+	    {std::move (transitionMatrix),
+	     makeConditionalLikelihoodNode (tree, sequenceNodes, brlenNodes, modelNodes,
+	                                    tree.childNode (branch))},
+	    dim);
+}
+
+DF::ValueRef<double> makeLogLikelihoodNode (const TreeTopologyView & tree,
+                                            const SequenceNodeAccess & sequenceNodes,
+                                            const BranchLengthNodeAccess & brlenNodes,
+                                            const ModelNodeAccess & modelNodes) {
+	auto dim = likelihoodDataDimension (sequenceNodes, modelNodes);
+	auto root = tree.rootNode ();
+	auto rootBranchModel = modelNodes.getModelNode (tree.fatherBranch (root));
+	auto rootEquilibriumFrequencies =
+	    DF::makeNode<DF::EquilibriumFrequenciesFromModel> ({rootBranchModel}, dim.nbStates ());
+	auto likelihood = DF::makeNode<DF::Likelihood> (
+	    {makeConditionalLikelihoodNode (tree, sequenceNodes, brlenNodes, modelNodes, root),
+	     std::move (rootEquilibriumFrequencies)},
+	    VectorDimension (dim.nbSites ()));
+	auto logLik = DF::makeNode<DF::TotalLogLikelihood> ({std::move (likelihood)});
+	return DF::makeNode<DF::NegDouble> ({std::move (logLik)});
 }
 
 namespace Phyl {

@@ -251,6 +251,8 @@ TEST_CASE("df")
     auto modelSetup = bpp::SameModelForAllBranches (model);
     auto brlenParameters = bpp::BranchLengthParametersInitializedFromValues (treeView);
     auto sequences = bpp::SequenceNodesInilialisedFromNames (treeView, c.sites);
+
+    auto logLikNode = bpp::makeLogLikelihoodNode(treeView, sequences, brlenParameters, modelSetup);
   }
 
   // Create phylogeny description structure TODO simplify this mess
