@@ -18,7 +18,6 @@ set (CPP_FILES
   Bpp/NewPhyl/Optimizer.cpp
   Bpp/NewPhyl/Phylogeny.cpp
   Bpp/NewPhyl/PhylogenyTypes.cpp
-  Bpp/NewPhyl/Topology.cpp
   Bpp/Phyl/App/PhylogeneticsApplicationTools.cpp
   Bpp/Phyl/Distance/AbstractAgglomerativeDistanceMethod.cpp
   Bpp/Phyl/Distance/BioNJ.cpp
