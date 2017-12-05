@@ -51,10 +51,6 @@
 #include <map>
 #include <string>
 
-#include <Bpp/NewPhyl/FrozenPtr.h>
-#include <Bpp/NewPhyl/Topology.h>
-#include <Bpp/NewPhyl/TopologyMap.h>
-
 namespace bpp {
 
 // Forward declarations

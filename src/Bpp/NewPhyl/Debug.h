@@ -43,13 +43,14 @@
 #ifndef BPP_NEWPHYL_DEBUG_H
 #define BPP_NEWPHYL_DEBUG_H
 
-#include <Bpp/NewPhyl/FrozenPtr.h>
 #include <Bpp/NewPhyl/Vector.h>
 #include <iosfwd>
 #include <string>
 #include <typeindex>
 #include <typeinfo>
 #include <utility>
+
+#include <memory>
 
 namespace bpp {
 // Demangle a C++ symbol name
@@ -65,7 +66,7 @@ template <typename T> std::string prettyTypeName (const T & t) {
 	return prettyTypeName (typeid (t));
 }
 
-// TODO more general to_string ? (duck::format ?)
+// TODO more general to_string ?
 inline const std::string & debug_to_string (const std::string & s) {
 	return s;
 }
@@ -77,14 +78,21 @@ std::string debug_to_string (T && t) {
 	return std::to_string (std::forward<T> (t));
 }
 
-namespace Topology {
-	class Tree;
-
-	// Output a dot format graph representing the tree
-	void debugTree (std::ostream & os, FrozenPtr<Tree> tree);
-} // namespace Topology
+// Forward declarations
+class TreeTopologyView;
 namespace DF {
 	class Node;
+} // namespace DF
+
+// Output a dot format graph representing the tree
+void debugTree (std::ostream & os, const TreeTopologyView & tree);
+
+namespace DF {
+	// FIXME remplace with DFParams
+	struct NamedNodeRef {
+		std::shared_ptr<DF::Node> nodeRef;
+		std::string name;
+	};
 
 	/* Small flag class that defines various debug output options.
 	 */
@@ -103,19 +111,15 @@ namespace DF {
 		using IntType = typename std::underlying_type<DebugOptions>::type;
 		return static_cast<IntType> (a) & static_cast<IntType> (b);
 	}
-
-	// Output a dot format graph representing the dataflow dag
-	void debugDag (std::ostream & os, const std::shared_ptr<Node> & entryPoint,
-	               DebugOptions opt = DebugOptions::None);
-
-	// Output debugDag + named node references (tags) to nodes.
-	struct NamedNodeRef {
-		std::shared_ptr<Node> nodeRef;
-		std::string name;
-	};
-	void debugDag (std::ostream & os, const Vector<NamedNodeRef> & namedNodes,
-	               DebugOptions opt = DebugOptions::None);
 } // namespace DF
+
+// Output a dot format graph representing the dataflow dag
+void debugDag (std::ostream & os, const std::shared_ptr<DF::Node> & entryPoint,
+               DF::DebugOptions opt = DF::DebugOptions::None);
+
+// Output debugDag + named node references (tags) to nodes.
+void debugDag (std::ostream & os, const Vector<DF::NamedNodeRef> & namedNodes,
+               DF::DebugOptions opt = DF::DebugOptions::None);
 } // namespace bpp
 
 #endif // BPP_NEWPHYL_DEBUG_H

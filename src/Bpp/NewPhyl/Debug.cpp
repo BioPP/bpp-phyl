@@ -42,8 +42,8 @@
 #include <Bpp/NewPhyl/Config.h>
 #include <Bpp/NewPhyl/DataFlow.h>
 #include <Bpp/NewPhyl/Debug.h>
+#include <Bpp/NewPhyl/Phylogeny.h>
 #include <Bpp/NewPhyl/Range.h>
-#include <Bpp/NewPhyl/Topology.h>
 #include <algorithm>
 #include <memory>
 #include <ostream>
@@ -79,181 +79,158 @@ std::string prettyTypeName (std::type_index ti) {
 	return demangle (ti.name ());
 }
 
-namespace Topology {
-	// Print tree structure
-	void debugTree (std::ostream & os, FrozenPtr<Tree> tree) {
-		os << "digraph {\n";
-		std::queue<Node> nodesToVisit;
-		if (tree->rootNodeId () != invalid)
-			nodesToVisit.emplace (Node (tree, tree->rootNodeId ()));
-
-		while (!nodesToVisit.empty ()) {
-			auto node = nodesToVisit.front ();
-			nodesToVisit.pop ();
-			os << '\t' << node.nodeId () << " [shape=box,label=\"" << node.nodeId () << "\"];\n";
-			node.foreachChildBranch ([&os, &node, &nodesToVisit](Branch && branch) {
-				auto childNode = std::move (branch).childNode ();
-				os << '\t' << node.nodeId () << " -> " << childNode.nodeId () << ";\n";
-				nodesToVisit.emplace (std::move (childNode));
-			});
+namespace {
+	// Escape text in a dot box label
+	std::string dotLabelEscape (std::string s) {
+		// Escapes characters in a record type dot node label.
+		const char toEscape[] = "<>|{} ";
+		std::string result;
+		for (auto c : s) {
+			if (std::any_of (std::begin (toEscape), std::end (toEscape),
+			                 [c](char c2) { return c == c2; }))
+				result.push_back ('\\');
+			result.push_back (c);
 		}
-		os << "}\n";
+		return result;
 	}
-} // namespace Topology
-namespace DF {
-	namespace {
-		// Dot utils
-		std::string dotLabelEscape (std::string s) {
-			// Escapes characters in a record type dot node label.
-			const char toEscape[] = "<>|{} ";
-			std::string result;
-			for (auto c : s) {
-				if (std::any_of (std::begin (toEscape), std::end (toEscape),
-				                 [c](char c2) { return c == c2; }))
-					result.push_back ('\\');
-				result.push_back (c);
-			}
-			return result;
-		}
-		std::string typeToDotLabel (const std::type_index & type) {
-			return dotLabelEscape (demangle (type.name ()));
-		}
 
-		// Dot node key: hash code reduced to a short
-		std::string dotNodeKey (char type, std::size_t hash) {
-			return type + std::to_string (std::uint16_t (hash));
-		}
-		std::string dotNodeKey (const Node * p) {
-			return dotNodeKey ('N', std::hash<const Node *>{}(p));
-		}
-		std::string dotNodeKey (const NodeRef & p) { return dotNodeKey (p.get ()); }
-		// std::string dotNodeKey (const Registry::Key & key) { return dotNodeKey ('K', key.hashCode
-		// ()); }
-		std::string dotNodeKey (const NamedNodeRef & namedNode) {
-			return dotNodeKey ('T', std::hash<std::string>{}(namedNode.name));
-		}
-
-		// Dot pretty print of elements
-		void dotNodePretty (std::ostream & os, const Node * node) {
-			os << '\t' << dotNodeKey (node) << " [color=blue,shape=record,label=\"" << dotNodeKey (node)
-			   << '|' << dotLabelEscape (node->description ()) << "\"];\n";
-		}
-		void dotNodePrettyDetailed (std::ostream & os, const Node * node) {
-			auto debugInfo = (node->isValid () ? "valid " : "invalid ") + node->debugInfo ();
-			os << '\t' << dotNodeKey (node) << " [color=blue,shape=Mrecord,label=\"{{"
-			   << dotNodeKey (node) << '|' << dotLabelEscape (node->description ()) << "}|"
-			   << dotLabelEscape (debugInfo) << "}\"];\n";
-		}
-		/*void dotNodePretty (std::ostream & os, const Registry::Key & key) {
-		  os << '\t' << dotNodeKey (key) << " [shape=Mrecord,label=\"{" << dotNodeKey (key) << "|{"
-		     << typeToDotLabel (key.operation ()) << '|';
-		  for (auto & dep : key.dependencies ())
-		    os << dotNodeKey (dep) << ' ';
-		  os << "}}\"];\n";
-		}*/
-		void dotNodePretty (std::ostream & os, const NamedNodeRef & namedNode) {
-			os << '\t' << dotNodeKey (namedNode) << " [color=orange,shape=record,label=\""
-			   << dotLabelEscape (namedNode.name) << "\"];\n";
-		}
-
-		template <typename T, typename U>
-		void dotEdgePretty (std::ostream & os, const T & from, const U & to,
-		                    const std::string & style) {
-			os << '\t' << dotNodeKey (from) << " -> " << dotNodeKey (to) << ' ' << style << ";\n";
-		}
-		void dotEdgePretty (std::ostream & os, const Node * from, const Node * to) {
-			dotEdgePretty (os, from, to, "[color=blue]");
-		}
-		void dotEdgePretty (std::ostream & os, const Node * from, const Node * to, SizeType num) {
-			dotEdgePretty (os, from, to, "[color=blue,label=\"" + std::to_string (num) + "\"]");
-		}
-		/*void dotEdgePretty (std::ostream & os, const Registry::Key & from, const Node * to) {
-		  dotEdgePretty (os, from, to, "");
-		}*/
-		void dotEdgePretty (std::ostream & os, const NamedNodeRef & from, const Node * to) {
-			dotEdgePretty (os, from, to, "[color=orange]");
-		}
-
-		// Print the DF dag structure (in blue).
-		// Takes list of entry points.
-		void debugDagStructure (std::ostream & os, NodeRefVec entryPoints, DebugOptions opt) {
-			std::queue<const Node *> nodesToVisit;
-			std::unordered_set<const Node *> nodesAlreadyVisited;
-
-			for (auto & n : entryPoints)
-				nodesToVisit.emplace (n.get ());
-
-			while (!nodesToVisit.empty ()) {
-				auto * node = nodesToVisit.front ();
-				nodesToVisit.pop ();
-				if (nodesAlreadyVisited.count (node))
-					continue;
-
-				if (opt & DebugOptions::DetailedNodeInfo) {
-					dotNodePrettyDetailed (os, node);
-				} else {
-					dotNodePretty (os, node);
-				}
-				nodesAlreadyVisited.emplace (node);
-
-				if (opt & DebugOptions::FollowUpwardLinks)
-					for (auto * p : node->dependentNodes ())
-						if (!nodesAlreadyVisited.count (p))
-							nodesToVisit.emplace (p);
-
-				for (auto index : index_range (node->dependencies ())) {
-					auto * dep = node->dependencies ()[index].get ();
-					if (opt & DebugOptions::ShowDependencyIndex) {
-						dotEdgePretty (os, node, dep, index);
-					} else {
-						dotEdgePretty (os, node, dep);
-					}
-					if (!nodesAlreadyVisited.count (dep))
-						nodesToVisit.emplace (dep);
-				}
-			}
-		}
-
-		// Print name tags pointing to nodes.
-		// Returns list of nodes.
-		NodeRefVec debugNamedNodeRefs (std::ostream & os, const Vector<NamedNodeRef> & namedNodes) {
-			NodeRefVec nodes;
-			for (auto & namedNodeRef : namedNodes) {
-				dotNodePretty (os, namedNodeRef);
-				dotEdgePretty (os, namedNodeRef, namedNodeRef.nodeRef.get ());
-				nodes.emplace_back (namedNodeRef.nodeRef);
-			}
-			return nodes;
-		}
-
-		// Print registry keys, and links to stored nodes (key only).
-		// Returns list of pointed-to nodes.
-		/*NodeRefVec debugRegistryLinks (std::ostream & os, const Registry & registry) {
-		  NodeRefVec entryPoints;
-		  registry.foreachKeyValue (
-		      [&entryPoints, &os](const Registry::Key & key, const NodeRef & node) {
-		        dotNodePretty (os, key);
-		        dotEdgePretty (os, key, node.get ());
-		        entryPoints.emplace_back (node);
-		      });
-		  return entryPoints;
-		}*/
-	} // namespace
-
-	void debugDag (std::ostream & os, const std::shared_ptr<Node> & entryPoint, DebugOptions opt) {
-		os << "digraph {\n";
-		debugDagStructure (os, {entryPoint}, opt);
-		os << "}\n";
+	// Generic dot node id generation: a char + a hash code as a uint16_t to keep it short
+	std::string dotNodeKey (char type, std::size_t hash) {
+		return type + std::to_string (std::uint16_t (hash));
 	}
-	void debugDag (std::ostream & os, const Vector<NamedNodeRef> & namedNodes, DebugOptions opt) {
-		os << "digraph {\n";
-		debugDagStructure (os, debugNamedNodeRefs (os, namedNodes), opt);
-		os << "}\n";
+
+	// Craft node keys
+	std::string dotNodeKey (TreeTopologyView::NodeIndex id) {
+		return 'n' + std::to_string (id.value);
 	}
-	/*void debugRegistry (std::ostream & os, const Registry & registry, DebugOptions opt) {
-	  os << "digraph {\n";
-	  debugDagStructure (os, debugRegistryLinks (os, registry), opt);
-	  os << "}\n";
-	}*/
-} // namespace DF
+	std::string dotNodeKey (const DF::Node * p) {
+		return dotNodeKey ('N', std::hash<const DF::Node *>{}(p));
+	}
+	std::string dotNodeKey (const DF::NamedNodeRef & namedNode) {
+		return dotNodeKey ('T', std::hash<std::string>{}(namedNode.name));
+	}
+
+	// Generic pretty print of edge (with a style argument)
+	template <typename T, typename U>
+	void dotEdgePretty (std::ostream & os, const T & from, const U & to, const std::string & style) {
+		os << '\t' << dotNodeKey (from) << " -> " << dotNodeKey (to) << ' ' << style << ";\n";
+	}
+
+	// Pretty print nodes
+	void dotNodePretty (std::ostream & os, TreeTopologyView::NodeIndex id) {
+		os << '\t' << dotNodeKey (id) << " [shape=box,label=\"" << id.value << "\"];\n";
+	}
+	void dotNodePretty (std::ostream & os, const DF::Node * node) {
+		os << '\t' << dotNodeKey (node) << " [color=blue,shape=record,label=\"" << dotNodeKey (node)
+		   << '|' << dotLabelEscape (node->description ()) << "\"];\n";
+	}
+	void dotNodePrettyDetailed (std::ostream & os, const DF::Node * node) {
+		auto debugInfo = (node->isValid () ? "valid " : "invalid ") + node->debugInfo ();
+		os << '\t' << dotNodeKey (node) << " [color=blue,shape=Mrecord,label=\"{{" << dotNodeKey (node)
+		   << '|' << dotLabelEscape (node->description ()) << "}|" << dotLabelEscape (debugInfo)
+		   << "}\"];\n";
+	}
+	void dotNodePretty (std::ostream & os, const DF::NamedNodeRef & namedNode) {
+		os << '\t' << dotNodeKey (namedNode) << " [color=orange,shape=record,label=\""
+		   << dotLabelEscape (namedNode.name) << "\"];\n";
+	}
+
+	// Pretty print edges
+	void dotEdgePretty (std::ostream & os, TreeTopologyView::NodeIndex parent,
+	                    TreeTopologyView::BranchIndex branch, TreeTopologyView::NodeIndex child) {
+		dotEdgePretty (os, parent, child, "[label=\"" + std::to_string (branch.value) + "\"]");
+	}
+	void dotEdgePretty (std::ostream & os, const DF::Node * from, const DF::Node * to) {
+		dotEdgePretty (os, from, to, "[color=blue]");
+	}
+	void dotEdgePretty (std::ostream & os, const DF::Node * from, const DF::Node * to, SizeType num) {
+		dotEdgePretty (os, from, to, "[color=blue,label=\"" + std::to_string (num) + "\"]");
+	}
+	void dotEdgePretty (std::ostream & os, const DF::NamedNodeRef & from, const DF::Node * to) {
+		dotEdgePretty (os, from, to, "[color=orange]");
+	}
+} // namespace
+
+// Print tree structure
+void debugTree (std::ostream & os, const TreeTopologyView & tree) {
+	os << "digraph {\n";
+	std::queue<TreeTopologyView::NodeIndex> nodesToVisit;
+	nodesToVisit.emplace (tree.rootNode ());
+	while (!nodesToVisit.empty ()) {
+		auto nodeId = nodesToVisit.front ();
+		nodesToVisit.pop ();
+		dotNodePretty (os, nodeId);
+		for (auto branch : tree.childBranches (nodeId)) {
+			auto child = tree.childNode (branch);
+			dotEdgePretty (os, nodeId, branch, child);
+			nodesToVisit.emplace (child);
+		}
+	}
+	os << "}\n";
+}
+
+// Print the DF dag structure (in blue).
+// Takes list of entry points.
+void debugDagStructure (std::ostream & os, DF::NodeRefVec entryPoints, DF::DebugOptions opt) {
+	std::queue<const DF::Node *> nodesToVisit;
+	std::unordered_set<const DF::Node *> nodesAlreadyVisited;
+
+	for (auto & n : entryPoints)
+		nodesToVisit.emplace (n.get ());
+
+	while (!nodesToVisit.empty ()) {
+		auto * node = nodesToVisit.front ();
+		nodesToVisit.pop ();
+		if (nodesAlreadyVisited.count (node))
+			continue;
+
+		if (opt & DF::DebugOptions::DetailedNodeInfo) {
+			dotNodePrettyDetailed (os, node);
+		} else {
+			dotNodePretty (os, node);
+		}
+		nodesAlreadyVisited.emplace (node);
+
+		if (opt & DF::DebugOptions::FollowUpwardLinks)
+			for (auto * p : node->dependentNodes ())
+				if (!nodesAlreadyVisited.count (p))
+					nodesToVisit.emplace (p);
+
+		for (auto index : index_range (node->dependencies ())) {
+			auto * dep = node->dependencies ()[index].get ();
+			if (opt & DF::DebugOptions::ShowDependencyIndex) {
+				dotEdgePretty (os, node, dep, index);
+			} else {
+				dotEdgePretty (os, node, dep);
+			}
+			if (!nodesAlreadyVisited.count (dep))
+				nodesToVisit.emplace (dep);
+		}
+	}
+}
+
+// Print name tags pointing to nodes.
+// Returns list of nodes.
+DF::NodeRefVec debugNamedNodeRefs (std::ostream & os, const Vector<DF::NamedNodeRef> & namedNodes) {
+	DF::NodeRefVec nodes;
+	for (auto & namedNodeRef : namedNodes) {
+		dotNodePretty (os, namedNodeRef);
+		dotEdgePretty (os, namedNodeRef, namedNodeRef.nodeRef.get ());
+		nodes.emplace_back (namedNodeRef.nodeRef);
+	}
+	return nodes;
+}
+
+void debugDag (std::ostream & os, const std::shared_ptr<DF::Node> & entryPoint,
+               DF::DebugOptions opt) {
+	os << "digraph {\n";
+	debugDagStructure (os, {entryPoint}, opt);
+	os << "}\n";
+}
+void debugDag (std::ostream & os, const Vector<DF::NamedNodeRef> & namedNodes,
+               DF::DebugOptions opt) {
+	os << "digraph {\n";
+	debugDagStructure (os, debugNamedNodeRefs (os, namedNodes), opt);
+	os << "}\n";
+}
 } // namespace bpp

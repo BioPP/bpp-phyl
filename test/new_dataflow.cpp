@@ -144,7 +144,7 @@ TEST_CASE("Testing data flow system on simple int reduction tree")
 
   // Print DF graph
   std::ofstream fd("df_debug");
-  debugDag(fd, root);
+  bpp::debugDag(fd, root);
 }
 
 template<typename T>
