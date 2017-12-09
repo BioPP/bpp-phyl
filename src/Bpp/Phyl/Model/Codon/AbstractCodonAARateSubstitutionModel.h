@@ -85,6 +85,7 @@ namespace bpp
      *  a pointer to NucleotideSubstitutionModel.
      *
      * @param pmodel shared_ptr to an amino_acid generator
+     * @param pgencode the genetic code
      * @param prefix the Namespace
      * @param paramSynRate is true iff synonymous rate is parameterised
      *       (default=false).

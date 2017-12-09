@@ -467,12 +467,11 @@ namespace bpp
      * @brief Compute the sum over all types of the counts per site
      * per branch.
      *
-     * @param drtl              A DRTreeLikelihood object.
-     * @param ids               The numbers of the nodes of the tree
-     * @param model             The model on which the SubstitutionCount is built
-     * @param reg               the Substitution Register
-     * @param result            the resulted counts as an tabular
-     *                          site X branchid 
+     * @param drtl        A DRTreeLikelihood object.
+     * @param ids         The numbers of the nodes of the tree
+     * @param model       The model on which the SubstitutionCount is built
+     * @param reg         The Substitution Register
+     * @param array       The resulted counts as an tabular site X branchid 
      *
      */
 
@@ -692,7 +691,6 @@ namespace bpp
     /**
      * @brief Compute counts per site per branch per type.
      *
-     * @param filenamePrefix    The filename prefix
      * @param drtl              A DRTreeLikelihood object.
      * @param ids               The numbers of the nodes of the tree
      * @param model             The model on which the SubstitutionCount is built
