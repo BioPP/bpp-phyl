@@ -218,6 +218,7 @@ namespace DF {
 	 */
 	template <typename T> struct ReductionOfValue {};        // Dynamic sized list of Value<T>
 	template <typename... Types> struct FunctionOfValues {}; // Tuple of Value<T0>, Value<T1>, ...
+	template <typename T> struct ArrayOfValues { int n; };   // n Value<T>
 
 	// Error function
 	[[noreturn]] void failureNodeConversion (const std::type_info & handleType, const Node & node);

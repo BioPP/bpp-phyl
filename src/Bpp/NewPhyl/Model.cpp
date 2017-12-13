@@ -76,7 +76,7 @@ namespace DF {
 	Model::Model (NodeRefVec && deps, std::unique_ptr<SubstitutionModel> && model)
 	    : Value<const SubstitutionModel *> (std::move (deps), model.get ()),
 	      model_ (std::move (model)) {
-		// TODO check deps
+		// TODO dependency check
 	}
 
 	NodeRefVec createDependencyVector (const SubstitutionModel & model,

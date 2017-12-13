@@ -57,71 +57,90 @@
 
 namespace bpp {
 namespace DF {
-	// Error functions / utils
-	[[noreturn]] void failureDependencyTypeMismatch (const std::type_info & inNodeType,
-	                                                 IndexType depIndex,
+	// Error functions
+	[[noreturn]] void failureDependencyNumberMismatch (const std::type_info & contextNodeType,
+	                                                   SizeType expectedSize, SizeType givenSize);
+	[[noreturn]] void failureEmptyDependency (const std::type_info & contextNodeType,
+	                                          SizeType depIndex);
+	[[noreturn]] void failureDependencyTypeMismatch (const std::type_info & contextNodeType,
+	                                                 SizeType depIndex,
 	                                                 const std::type_info & expectedType,
-	                                                 const Node & givenNode);
-	void checkDependencyNumber (const std::type_info & computeNodeType, SizeType expectedSize,
-	                            SizeType givenSize);
-	[[noreturn]] void failureEmptyDependency (const std::type_info & inNodeType, IndexType depIndex);
+	                                                 const std::type_info & givenNodeType);
 
 	/******************************* Dependency check *******************************/
 
-	namespace Impl {
-		/* Impl of checkDependencies for ReductionOfValue.
-		 * Check that each dependency is a Value<T> node.
-		 */
-		template <typename T>
-		void checkDependencies (const NodeRefVec & dependencies, const std::type_info & inNodeType,
-		                        ReductionOfValue<T>) {
-			for (auto i : index_range (dependencies)) {
-				auto & dep = dependencies[i];
-				if (!dep)
-					failureEmptyDependency (inNodeType, i);
-				if (!isValueNode<T> (*dep))
-					failureDependencyTypeMismatch (inNodeType, i, typeid (Value<T>), *dep);
-			}
+	/// Checks the size of a dependency vector, throws if mismatch.
+	void checkDependencyVectorSize (const std::type_info & contextNodeType, const NodeRefVec & deps,
+	                                SizeType expectedSize);
+
+	/// Checks that all dependencies are not null, throws if not.
+	void checkDependenciesNotNull (const std::type_info & contextNodeType, const NodeRefVec & deps);
+
+	/// Checks that deps[index] is a Value<T> node, throws if not.
+	template <typename T>
+	void checkNthDependencyIsValue (const std::type_info & contextNodeType, const NodeRefVec & deps,
+	                                SizeType index) {
+		const auto & dep = *deps[index];
+		if (!isValueNode<T> (dep)) {
+			failureDependencyTypeMismatch (contextNodeType, index, typeid (Value<T>), typeid (dep));
 		}
+	}
 
-		/* Impl of checkDependencies for FunctionOfValues.
-		 * Check that the dependency vector has the required number of dependencies.
-		 * Check each dependency is a Value<Types[i]> node (recursively).
-		 * Assumes dependency number is correct.
-		 */
-		inline void checkDependencyTypesRecursively (const NodeRefVec &, const std::type_info &,
-		                                             FunctionOfValues<>, SizeType) {}
+	/** Check that deps is a ReductionOfValue<T> (selected by type tag).
+	 * A reduction is any number of Value<T> nodes.
+	 */
+	template <typename T>
+	void checkDependencyPattern (const std::type_info & contextNodeType, const NodeRefVec & deps,
+	                             ReductionOfValue<T>) {
+		checkDependenciesNotNull (contextNodeType, deps);
+		for (auto i : range (deps.size ()))
+			checkNthDependencyIsValue<T> (contextNodeType, deps, i);
+	}
 
-		template <typename FirstType, typename... OtherTypes>
-		void checkDependencyTypesRecursively (const NodeRefVec & dependencies,
-		                                      const std::type_info & inNodeType,
-		                                      FunctionOfValues<FirstType, OtherTypes...>,
-		                                      SizeType index) {
-			auto & dep = dependencies[index];
-			if (!dep)
-				failureEmptyDependency (inNodeType, index);
-			if (!isValueNode<FirstType> (*dep))
-				failureDependencyTypeMismatch (inNodeType, index, typeid (Value<FirstType>), *dep);
+	// FunctionOfValues recursion base case
+	inline void checkDependencyPatternFunctionImpl (const std::type_info &, const NodeRefVec &,
+	                                                SizeType, FunctionOfValues<>) {}
 
-			checkDependencyTypesRecursively (dependencies, inNodeType, FunctionOfValues<OtherTypes...>{},
-			                                 index + 1);
-		}
+	// FunctionOfValues recursion iteration case
+	template <typename FirstType, typename... OtherTypes>
+	void checkDependencyPatternFunctionImpl (const std::type_info & contextNodeType,
+	                                         const NodeRefVec & deps, SizeType index,
+	                                         FunctionOfValues<FirstType, OtherTypes...>) {
+		checkNthDependencyIsValue<FirstType> (contextNodeType, deps, index);
+		checkDependencyPatternFunctionImpl (contextNodeType, deps, index + 1,
+		                                    FunctionOfValues<OtherTypes...>{});
+	}
 
-		template <typename... Types>
-		void checkDependencies (const NodeRefVec & dependencies, const std::type_info & inNodeType,
-		                        FunctionOfValues<Types...>) {
-			checkDependencyNumber (inNodeType, sizeof...(Types), dependencies.size ());
-			checkDependencyTypesRecursively (dependencies, inNodeType, FunctionOfValues<Types...>{}, 0);
-		}
-	} // namespace Impl
+	/** Check that deps is a FunctionOfValues<Types...> (selected by type tag).
+	 * A function of values take Value<T> nodes with the exact types specified in the list.
+	 * deps[i] must be a Value<Types[i]> node.
+	 */
+	template <typename... Types>
+	void checkDependencyPattern (const std::type_info & contextNodeType, const NodeRefVec & deps,
+	                             FunctionOfValues<Types...> tag) {
+		checkDependencyVectorSize (contextNodeType, deps, sizeof...(Types));
+		checkDependenciesNotNull (contextNodeType, deps);
+		checkDependencyPatternFunctionImpl (contextNodeType, deps, 0, tag);
+	}
+
+	/** Check that deps is an ArrayOfValues<T> (selected by type tag).
+	 * An array of values of size n is a reduction of fixed size.
+	 */
+	template <typename T>
+	void checkDependencyPattern (const std::type_info & contextNodeType, const NodeRefVec & deps,
+	                             ArrayOfValues<T> tag) {
+		checkDependencyVectorSize (contextNodeType, deps, tag.n);
+		checkDependencyPattern (contextNodeType, deps, ReductionOfValue<T>{});
+	}
 
 	/** Dependency check interface: out of node class.
 	 * Usage: call checkDependencies<NodeType> (deps);
 	 * Used to check if a dependency vector matches a pattern described by NodeType::Dependencies.
 	 * Checks that dependencies match what the node excepts (number, types, non-empty).
+	 * TODO revamp final interface
 	 */
 	template <typename NodeType> void checkDependencies (const NodeRefVec & deps) {
-		Impl::checkDependencies (deps, typeid (NodeType), typename NodeType::Dependencies{});
+		checkDependencyPattern (typeid (NodeType), deps, typename NodeType::Dependencies{});
 	}
 
 	/** Dependency check interface: for node constructor.

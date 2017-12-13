@@ -65,27 +65,40 @@ namespace DF {
 	}
 
 	// Error functions DataFlowInternalTemplates.h
-	static void failureDependencyNumberMismatch (const std::type_info & inNodeType,
-	                                             SizeType expectedSize, SizeType givenSize) {
-		throw Exception (prettyTypeName (inNodeType) + ": expected " + std::to_string (expectedSize) +
-		                 " dependencies, got " + std::to_string (givenSize));
-	}
-	void checkDependencyNumber (const std::type_info & inNodeType, SizeType expectedSize,
-	                            SizeType givenSize) {
-		if (expectedSize != givenSize)
-			failureDependencyNumberMismatch (inNodeType, expectedSize, givenSize);
+	void failureDependencyNumberMismatch (const std::type_info & contextNodeType,
+	                                      SizeType expectedSize, SizeType givenSize) {
+		throw Exception (prettyTypeName (contextNodeType) + ": expected " +
+		                 std::to_string (expectedSize) + " dependencies, got " +
+		                 std::to_string (givenSize));
 	}
 
-	void failureEmptyDependency (const std::type_info & inNodeType, IndexType depIndex) {
-		throw Exception (prettyTypeName (inNodeType) + ": " + std::to_string (depIndex) +
+	void failureEmptyDependency (const std::type_info & contextNodeType, SizeType depIndex) {
+		throw Exception (prettyTypeName (contextNodeType) + ": " + std::to_string (depIndex) +
 		                 "-th dependency is empty (nullptr)");
 	}
 
-	void failureDependencyTypeMismatch (const std::type_info & inNodeType, IndexType depIndex,
-	                                    const std::type_info & expectedType, const Node & givenNode) {
-		throw Exception (prettyTypeName (inNodeType) + ": expected class derived from " +
+	void failureDependencyTypeMismatch (const std::type_info & contextNodeType, SizeType depIndex,
+	                                    const std::type_info & expectedType,
+	                                    const std::type_info & givenNodeType) {
+		throw Exception (prettyTypeName (contextNodeType) + ": expected class derived from " +
 		                 prettyTypeName (expectedType) + " as " + std::to_string (depIndex) +
-		                 "-th dependency, got " + prettyTypeName (typeid (givenNode)));
+		                 "-th dependency, got " + prettyTypeName (givenNodeType));
+	}
+
+	void checkDependencyVectorSize (const std::type_info & contextNodeType, const NodeRefVec & deps,
+	                                SizeType expectedSize) {
+		auto size = deps.size ();
+		if (size != expectedSize) {
+			failureDependencyNumberMismatch (contextNodeType, expectedSize, size);
+		}
+	}
+
+	void checkDependenciesNotNull (const std::type_info & contextNodeType, const NodeRefVec & deps) {
+		for (auto i : range (deps.size ())) {
+			if (!deps[i]) {
+				failureEmptyDependency (contextNodeType, i);
+			}
+		}
 	}
 
 	/************************************ Base DF::Node impl *******************************/
