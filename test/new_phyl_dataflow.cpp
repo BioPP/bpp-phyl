@@ -304,11 +304,17 @@ TEST_CASE("df")
   {
     std::ofstream fd("df_debug");
     // bpp::DF::debugDag(fd, logLikNode, bpp::DF::DebugOptions::DetailedNodeInfo);
-    bpp::debugDag(fd, likFunc.getAllNamedNodes("f"), bpp::DF::DebugOptions::DetailedNodeInfo);
-    //bpp::debugTree(fd, treeView);
+    // bpp::debugDag(fd, likFunc.getAllNamedNodes("f"), bpp::DF::DebugOptions::DetailedNodeInfo);
+    bpp::debugTree(fd, treeView);
   }
   do_param_changes_multiple_times(likFunc, "df_param_model_change", c.paramModel1, c.paramModel2);
   do_param_changes_multiple_times(likFunc, "df_param_brlen_change", c.paramBrLen1, c.paramBrLen2);
   optimize_branch_params(likFunc, "df_brlens_opt", brlenBppParams);
+
+  {
+    // TESTS
+    std::cout << "--------------------------\n";
+    std::cout << "--------------------------\n";
+  }
 }
 #endif

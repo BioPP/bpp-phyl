@@ -47,6 +47,7 @@
 #include <Bpp/NewPhyl/DataFlowTemplates.h>
 #include <Bpp/NewPhyl/PhylogenyTypes.h>
 #include <Bpp/NewPhyl/Signed.h>
+#include <map>
 #include <memory>
 #include <string>
 
@@ -58,6 +59,13 @@ namespace DF {
 	// TODO constructors, derivation (customizable)
 	class Model : public Value<const SubstitutionModel *> {
 	public:
+		/* Create a new model node from a dependency vector.
+		 * Model parameters are given by a dependency vector of Value<double> nodes.
+		 * The number and order of parameters is given by the SubstitutionModel internal ParameterList.
+		 */
+		Model (NodeRefVec && deps, std::unique_ptr<SubstitutionModel> && model);
+
+		// Legacy FIXME
 		Model (std::unique_ptr<SubstitutionModel> model);
 		~Model ();
 
@@ -75,6 +83,15 @@ namespace DF {
 		void compute () override final;
 		std::unique_ptr<SubstitutionModel> model_;
 	};
+
+	/* Create a dependency vector suitable for a Model class constructor.
+	 * The vector is built from the model internal parameter names, and Value<double> nodes in a map.
+	 * For each named parameter in the model, a value node of the same node is taken from the map.
+	 * Both namespaced and non-namespaced names are tried.
+	 * If a node is not found, an exception is thrown.
+	 */
+	NodeRefVec createDependencyVector (const SubstitutionModel & model,
+	                                   const std::map<std::string, ValueRef<double>> & depsByName);
 
 	// Compute nodes
 

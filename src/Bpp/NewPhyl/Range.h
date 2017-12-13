@@ -46,6 +46,8 @@
 #include <iterator>
 #include <type_traits>
 
+// TODO reduce to a simple range for integers
+
 namespace bpp {
 namespace Iterator {
 	template <typename Int> class Integer {

@@ -39,6 +39,7 @@
   knowledge of the CeCILL license and that you accept its terms.
 */
 
+#include <Bpp/Exceptions.h>
 #include <Bpp/NewPhyl/DataFlowInternalTemplates.h>
 #include <Bpp/NewPhyl/DataFlowNumeric.h>
 #include <Bpp/NewPhyl/LinearAlgebra.h>
@@ -72,9 +73,48 @@ namespace DF {
 
 	// Model DF Node
 
+	Model::Model (NodeRefVec && deps, std::unique_ptr<SubstitutionModel> && model)
+	    : Value<const SubstitutionModel *> (std::move (deps), model.get ()),
+	      model_ (std::move (model)) {
+		// TODO check deps
+	}
+
+	NodeRefVec createDependencyVector (const SubstitutionModel & model,
+	                                   const std::map<std::string, ValueRef<double>> & depsByName) {
+		NodeRefVec deps;
+		const auto & modelParameters = model.getParameters ();
+		for (auto i : range (modelParameters.size ())) {
+			const auto & namespacedName = modelParameters[i].getName ();
+			auto names = {namespacedName, model.getParameterNameWithoutNamespace (namespacedName)};
+
+			auto findFirstFoundName = [&depsByName, &names]() {
+				for (const auto & name : names) {
+					auto it = depsByName.find (name);
+					if (it != depsByName.end ())
+						return it;
+				}
+				return depsByName.end ();
+			};
+			auto it = findFirstFoundName ();
+
+			if (it != depsByName.end ()) {
+				deps.emplace_back (it->second);
+			} else {
+				std::string msg =
+				    "createDependencyVector(model, depsByName): parameter name not found. tested: ";
+				for (const auto & name : names) {
+					msg += name;
+					msg += ", ";
+				}
+				throw Exception (std::move (msg));
+			}
+		}
+		return deps;
+	}
+
 	Model::Model (std::unique_ptr<SubstitutionModel> model)
 	    : Value<const SubstitutionModel *> (noDependency, model.get ()), model_ (std::move (model)) {
-		// TODO support already built paramater nodes
+		// TODO remove
 		const auto & parameters = model_->getParameters ();
 		for (auto i : index_range (parameters))
 			this->appendDependency (DF::makeNode<DF::Parameter<double>> (parameters[i].getValue ()));
@@ -82,6 +122,7 @@ namespace DF {
 
 	Model::~Model () = default;
 
+	// TODO remove too
 	SizeType Model::nbParameters () const noexcept { return this->dependencies ().size (); }
 	ParameterRef<double> Model::getParameter (SizeType index) {
 		assert (0 <= index);
