@@ -670,6 +670,7 @@ void AbstractReversibleSubstitutionModel::updateMatrices()
   MatrixTools::hadamardMult(exchangeability_, freq_, generator_, false); // Diagonal elements of the exchangeability matrix will be ignored.
 
   // Normalization:
+  setDiagonal();
   normalize();
   
   AbstractSubstitutionModel::updateMatrices();
