@@ -57,8 +57,8 @@ using namespace std;
 SimpleSubstitutionProcessSequenceSimulator::SimpleSubstitutionProcessSequenceSimulator(
   const SubstitutionProcess& process) throw (Exception) :
   process_(&process),
-  alphabet_(process_->getModel(0)->getAlphabet()),
-  supportedStates_(process_->getModel(0)->getAlphabetStates()),
+  alphabet_(process_->getStateMap().getAlphabet()),
+  supportedStates_(process_->getStateMap().getAlphabetStates()),
   phyloTree_(&process_->getParametrizablePhyloTree()),
   tree_(process_->getParametrizablePhyloTree()),
   leaves_(tree_.getAllLeaves()),
@@ -76,7 +76,7 @@ SimpleSubstitutionProcessSequenceSimulator::SimpleSubstitutionProcessSequenceSim
 
 void SimpleSubstitutionProcessSequenceSimulator::init()
 {
-  // Initialize sons & fathers of tree_ Nodes
+// Initialize sons & fathers of tree_ Nodes
   std::vector<std::shared_ptr<SimProcessNode> > vCN=tree_.getAllNodes();
     
   for (size_t j=0; j<vCN.size(); j++)

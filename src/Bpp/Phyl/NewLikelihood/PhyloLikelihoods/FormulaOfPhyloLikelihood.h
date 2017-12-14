@@ -60,7 +60,7 @@ namespace bpp
     public SetOfAbstractPhyloLikelihood
   {
   private:
-    std::shared_ptr<ComputationTree> compTree_;
+    std::unique_ptr<ComputationTree> compTree_;
 
   public:
     FormulaOfPhyloLikelihood(PhyloLikelihoodContainer* pC);

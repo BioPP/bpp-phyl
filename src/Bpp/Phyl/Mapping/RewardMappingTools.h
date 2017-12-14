@@ -80,7 +80,7 @@ namespace bpp
      */
     static ProbabilisticRewardMapping* computeRewardVectors(
       RecursiveLikelihoodTreeCalculation& rltc,
-      const std::vector<int>& nodeIds,
+      const std::vector<uint>& nodeIds,
       Reward& reward,
       bool verbose = true);
 

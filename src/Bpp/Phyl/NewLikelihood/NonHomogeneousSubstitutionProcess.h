@@ -258,6 +258,13 @@ namespace bpp
 
     bool hasMixedSubstitutionModel() const;
 
+    std::vector<size_t> getModelNumbers() const
+    {
+      std::vector<size_t> v(getNumberOfModels());
+      std::iota(std::begin(v),std::end(v),0);
+      return v;
+    }
+
     /**
      * @brief Get one model from the set knowing its index.
      *

@@ -38,7 +38,7 @@
  */
 
 #include "OptimizationTools.h"
-#include "Likelihood/PseudoNewtonOptimizer.h"
+#include "PseudoNewtonOptimizer.h"
 #include "Likelihood/GlobalClockTreeLikelihoodFunctionWrapper.h"
 #include "Tree/NNISearchable.h"
 #include "Tree/NNITopologySearch.h"

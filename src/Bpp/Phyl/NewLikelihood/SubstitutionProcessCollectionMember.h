@@ -195,7 +195,7 @@ public:
 
   const StateMap& getStateMap() const
   {
-    return getModel(0)->getStateMap();
+    return getModel(modelToNodes_.begin()->first)->getStateMap();
   }
   
   const Alphabet* getAlphabet() const;

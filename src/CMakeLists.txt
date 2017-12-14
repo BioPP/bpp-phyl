@@ -51,7 +51,7 @@ set (CPP_FILES
   Bpp/Phyl/Likelihood/MarginalAncestralStateReconstruction.cpp
   Bpp/Phyl/Likelihood/NNIHomogeneousTreeLikelihood.cpp
   Bpp/Phyl/Likelihood/PairedSiteLikelihoods.cpp
-  Bpp/Phyl/Likelihood/PseudoNewtonOptimizer.cpp
+  Bpp/Phyl/PseudoNewtonOptimizer.cpp
   Bpp/Phyl/Likelihood/RASTools.cpp
   Bpp/Phyl/Likelihood/RHomogeneousClockTreeLikelihood.cpp
   Bpp/Phyl/Likelihood/RHomogeneousMixedTreeLikelihood.cpp
@@ -104,6 +104,9 @@ set (CPP_FILES
   Bpp/Phyl/Mapping/LaplaceSubstitutionCount.cpp
   Bpp/Phyl/Mapping/NaiveSubstitutionCount.cpp
   Bpp/Phyl/Mapping/OneJumpSubstitutionCount.cpp
+  Bpp/Phyl/Mapping/PhyloMappings/AbstractSinglePhyloSubstitutionMapping.cpp
+  Bpp/Phyl/Mapping/PhyloMappings/OneProcessSequenceSubstitutionMapping.cpp
+  Bpp/Phyl/Mapping/PhyloMappings/SingleProcessSubstitutionMapping.cpp
   Bpp/Phyl/Mapping/ProbabilisticRewardMapping.cpp
   Bpp/Phyl/Mapping/ProbabilisticSubstitutionMapping.cpp
   Bpp/Phyl/Mapping/RewardMappingTools.cpp

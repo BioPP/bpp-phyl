@@ -3467,6 +3467,7 @@ PhyloLikelihood* PhylogeneticsApplicationTools::optimizeParameters(
     n = OptimizationTools::optimizeNumericalParameters2(
       lik, parametersToEstimate,
       backupListener.get(), tolerance, nbEvalMax, messageHandler, profiler, reparam, useClock, optVerbose, optMethodDeriv);
+
   }
   else
     throw Exception("Unknown optimization method: " + optName);

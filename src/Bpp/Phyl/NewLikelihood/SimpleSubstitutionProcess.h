@@ -85,7 +85,12 @@ public:
   bool isCompatibleWith(const AlignedValuesContainer& data) const {
     return data.getAlphabet()->getAlphabetType() == model_->getAlphabet()->getAlphabetType();
   }
- 
+
+  std::vector<size_t> getModelNumbers() const
+  {
+    return(std::vector<size_t>(1,0));
+  }
+
   const TransitionModel* getModel(unsigned int nodeId, size_t classIndex) const
   {
     return model_.get();

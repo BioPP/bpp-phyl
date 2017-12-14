@@ -44,7 +44,7 @@
 #include "../Model/SubstitutionModel.h"
 #include "../Likelihood/AbstractTreeLikelihood.h"
 #include "../Likelihood/DRHomogeneousTreeLikelihood.h"
-#include "../Likelihood/PseudoNewtonOptimizer.h"
+#include "../PseudoNewtonOptimizer.h"
 
 #include <Bpp/Clonable.h>
 #include <Bpp/Numeric/ParameterList.h>

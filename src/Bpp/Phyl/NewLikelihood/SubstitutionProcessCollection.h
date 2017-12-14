@@ -89,8 +89,9 @@ class SubstitutionProcessCollection :
 {
 private:
   /**
-   * A collection of Substitution Models
+   * A collection of Transition Models
    */
+  
   ParametrizableCollection<TransitionModel> modelColl_;
 
   /**
@@ -126,11 +127,11 @@ private:
    * categories that are used independently as ConstantDistributions.
    *
    * These ConstantDistributions are stored in distColl_ with numbers
+
    * 10000*(numberOfDiscreteDistribution+1) + numberOfTheCategory.
    */
 
   std::map<size_t, std::vector<size_t> > mVConstDist_;
-  
    
   /**
    * A map from each DiscreteDistribution number to the SubProcess

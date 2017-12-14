@@ -1,11 +1,11 @@
 //
-// File: PhyloTree.h
+// File: BranchedModelSet.h
 // Created by: Laurent Guéguen
-// Created on: dimanche 24 juillet 2016, à 19h 58
+// Created on: jeudi 7 décembre 2017, à 17h 41
 //
 
 /*
-  Copyright or © or Copr. CNRS, (November 16, 2004)
+  Copyright or (c) or Copr. Bio++ Development Team, (November 16, 2004)
 
   This software is a computer program whose purpose is to provide classes
   for phylogenetic data analysis.
@@ -37,94 +37,73 @@
   knowledge of the CeCILL license and that you accept its terms.
 */
 
-#ifndef _PHYLOTREE_H_
-#define _PHYLOTREE_H_
+#ifndef _BRANCHED_MODELS_H_
+#define _BRANCHED_MODELS_H_
 
-#include <Bpp/Graph/AssociationTreeGraphImplObserver.h>
-
-#include "PhyloNode.h"
-#include "PhyloBranch.h"
-
+#include "SubstitutionModel.h"
 
 namespace bpp
 {
-  /**
-   * @brief Defines a Phylogenetic Tree based on a TreeGraph & its
-   * associationObserver.
-   *
-   * @author Thomas Bigot
-   */
-  
-  class ParametrizablePhyloTree;
-    
-  class PhyloTree:
-    public AssociationTreeGlobalGraphObserver<PhyloNode,PhyloBranch>
+/**
+ *
+ * @brief An interface for classes where models are assigned to branch
+ * ids.
+ *
+ */
+
+
+  class BranchedModelSet 
   {
-  private:
-    std::string name_;
-      
   public:
 
-    PhyloTree(bool rooted = false);
-
-    PhyloTree(const ParametrizablePhyloTree& tree);
-
-    template<class T, class U>
-    PhyloTree(AssociationTreeGlobalGraphObserver<T,U> tree):
-      AssociationTreeGlobalGraphObserver<PhyloNode,PhyloBranch>(tree),
-      name_("")
-    {
-    }
-
-    PhyloTree* clone() const
-    {
-      return new PhyloTree(*this);
-    }
-      
-    /**
-     * @brief Tree name.
-     *
-     * @{
-     */
-
-    std::string getName() const
-    {
-      return name_;
-    }
-		
-    void setName(const std::string& name)
-    {
-      name_=name;
-    }
-
-    /** @} */
-
-    std::vector<std::string> getAllLeavesNames() const;
-
-    void resetNodesId();
-
-    void setBranchLengths(double l);
+    BranchedModelSet() {}
+    virtual ~BranchedModelSet() {}
 
     /**
-     * @brief Multiply all branch lengths by a given factor.
+     * @return The current number of distinct substitution models in this set.
      *
-     * @param factor The factor to multiply all branch lengths with.
      */
-
-
-    void scaleTree(double factor);
+  
+    virtual size_t getNumberOfModels() const = 0;
 
     /**
-     * @brief Multiply all branch lengths under a Node by a given factor.
+     * @return The vector of model indexes.
      *
-     * @param node The node defining the subtree.
-     * @param factor The factor to multiply all branch lengths with.
+     */
+  
+    virtual std::vector<size_t> getModelNumbers() const = 0;
+    
+    /**
+     * @brief Get the model with a ginev index.
+     *
+     * @param index The index of the query model.
+     * @return A pointer toward the corresponding model.
      */
 
-    void scaleTree(std::shared_ptr<PhyloNode> node, double factor);
+    virtual const TransitionModel* getModel(size_t index) const = 0;
+
+    /**
+     * @brief Get the model associated to a particular branch id.
+     *
+     * @param branchId The id of the query branch.
+     * @return A pointer toward the corresponding model.
+     * @throw Exception If no model is found for this branch.
+     */
+
+    virtual const TransitionModel* getModelForBranch(uint branchId) const = 0;
+
+    virtual TransitionModel* getModelForBranch(uint branchId) = 0;
+
+    /**
+     * @brief Get a list of branches id for which the given model is associated.
+     *
+     * @param index The index of the model.
+     * @return A vector with the ids of the branch associated to this model.
+     */
+
+    virtual std::vector<uint> getBranchesWithModel(size_t index) const = 0;
 
   };
-    
-}
+} // end of namespace bpp.
 
-#endif
+#endif // _BRANCHED_MODELS_H_

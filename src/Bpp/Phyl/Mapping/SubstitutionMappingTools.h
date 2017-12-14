@@ -44,6 +44,7 @@
 #include "SubstitutionCount.h"
 #include "OneJumpSubstitutionCount.h"
 #include "../NewLikelihood/RecursiveLikelihoodTreeCalculation.h"
+#include "../Model/BranchedModelSet.h"
 
 namespace bpp
 {
@@ -91,7 +92,7 @@ namespace bpp
       double threshold = -1,
       bool verbose = true)
     {
-      std::vector<int> nodeIds;
+      std::vector<uint> nodeIds=rltc.getSubstitutionProcess()->getParametrizablePhyloTree().getAllEdgesIndexes();
       return computeCounts(rltc, nodeIds, substitutionCount, threshold, verbose);
     }
 
@@ -112,7 +113,7 @@ namespace bpp
       double threshold = -1,
       bool verbose = true)
     {
-      std::vector<int> nodeIds;
+      std::vector<uint> nodeIds=rltc.getSubstitutionProcess()->getParametrizablePhyloTree().getAllEdgesIndexes();
       return computeCounts(rltc, nodeIds, reg, threshold, verbose);
     }
 
@@ -132,7 +133,7 @@ namespace bpp
 
     static ProbabilisticSubstitutionMapping* computeCounts(
       RecursiveLikelihoodTreeCalculation& rltc,
-      const std::vector<int>& nodeIds,
+      const std::vector<uint>& nodeIds,
       SubstitutionCount& substitutionCount,
       double threshold = -1,
       bool verbose = true);
@@ -153,7 +154,7 @@ namespace bpp
 
     static ProbabilisticSubstitutionMapping* computeCounts(
       RecursiveLikelihoodTreeCalculation& rltc,
-      const std::vector<int>& nodeIds,
+      const std::vector<uint>& nodeIds,
       const SubstitutionRegister& reg,
       double threshold = -1,
       bool verbose = true);
@@ -166,7 +167,7 @@ namespace bpp
      * @param nodeIds           The Ids of the nodes the substitutions
      *                          are counted on. If empty, count substitutions
      *                          on all nodes.
-     * @param nullProcess       The process on which the SubstitutionCount is built
+     * @param nullModels        The "null" models used for normalization
      * @param reg               the Substitution Register
      * @param verbose           Display progress messages.
      * @return A tree <PhyloNode, PhyloBranchMapping> of normalization factors.
@@ -174,8 +175,8 @@ namespace bpp
 
     static ProbabilisticSubstitutionMapping* computeNormalizations(
       RecursiveLikelihoodTreeCalculation& rltc,
-      const std::vector<int>& nodeIds,
-      const SubstitutionProcess* nullProcess,
+      const std::vector<uint>& nodeIds,
+      const BranchedModelSet* nullModels,
       const SubstitutionRegister& reg,
       bool verbose = true);
 
@@ -184,7 +185,7 @@ namespace bpp
      * process on each branch, for each register.
      *
      * @param rltc              A RecursiveLikelihoodTreeCalculation object.
-     * @param nullProcess       The process on which the SubstitutionCount is built
+     * @param nullModels        The "null" models used for normalization
      * @param reg               the Substitution Register
      * @param verbose           Display progress messages.
      * @return A tree <PhyloNode, PhyloBranchMapping> of normalization factors.
@@ -192,12 +193,12 @@ namespace bpp
 
     static ProbabilisticSubstitutionMapping* computeNormalizations(
       RecursiveLikelihoodTreeCalculation& rltc,
-      const SubstitutionProcess* nullProcess,
+      const BranchedModelSet* nullModels,
       const SubstitutionRegister& reg,
       bool verbose = true)
     {
-      std::vector<int> nodeIds;
-      return computeNormalizations(rltc, nodeIds, nullProcess, reg, verbose);
+      std::vector<uint> nodeIds=rltc.getSubstitutionProcess()->getParametrizablePhyloTree().getAllEdgesIndexes();
+      return computeNormalizations(rltc, nodeIds, nullModels, reg, verbose);
     }
 
     /**
@@ -208,9 +209,9 @@ namespace bpp
      * @param nodeIds           The Ids of the nodes the substitutions
      *                          are counted on. If empty, count substitutions
      *                          on all nodes.
-     * @param nullProcess       The process on which the SubstitutionCount is built
+     * @param nullModels        The "null" models used for normalization
      * @param reg               the Substitution Register
-     * @param perTime           If true, normalized counts are per unit of
+     * @param perTimeUnit           If true, normalized counts are per unit of
      *                          time (otherwise they are multiplied by
      *                          the length of the branches).
      * @param siteSize          The length of a site, as considered as
@@ -224,27 +225,43 @@ namespace bpp
 
     static ProbabilisticSubstitutionMapping* computeNormalizedCounts(
       RecursiveLikelihoodTreeCalculation& rltc,
-      const std::vector<int>& nodeIds,
-      const SubstitutionProcess* nullProcess,
+      const std::vector<uint>& nodeIds,
+      const BranchedModelSet* nullModels,
       const SubstitutionRegister& reg,
-      bool perTime,
+      bool perTimeUnit,
       uint siteSize = 1,
       double threshold = -1,
       bool verbose = true);
 
     static ProbabilisticSubstitutionMapping* computeNormalizedCounts(
+      const ProbabilisticSubstitutionMapping* counts,
+      const ProbabilisticSubstitutionMapping* factors,
+      const vector<uint>& nodeIds,
+      bool perTimeUnit,
+      uint siteSize = 1);
+
+    static ProbabilisticSubstitutionMapping* computeNormalizedCounts(
       RecursiveLikelihoodTreeCalculation& rltc,
-      const SubstitutionProcess* nullProcess,
+      const BranchedModelSet* nullModels,
       const SubstitutionRegister& reg,
-      bool perTime,
+      bool perTimeUnit,
       uint siteSize = 1,
       double threshold = -1,
       bool verbose = true)
     {
-      std::vector<int> nodeIds;
-      return computeNormalizedCounts(rltc, nodeIds, nullProcess, reg, perTime, siteSize, threshold, verbose);
+      std::vector<uint> nodeIds=rltc.getSubstitutionProcess()->getParametrizablePhyloTree().getAllEdgesIndexes();
+      return computeNormalizedCounts(rltc, nodeIds, nullModels, reg, perTimeUnit, siteSize, threshold, verbose);
     }
 
+    static ProbabilisticSubstitutionMapping* computeNormalizedCounts(
+      const ProbabilisticSubstitutionMapping* counts,
+      const ProbabilisticSubstitutionMapping* factors,
+      bool perTimeUnit,
+      uint siteSize = 1)
+    {
+      std::vector<uint> nodeIds=factors->getAllEdgesIndexes();
+      return computeNormalizedCounts(counts, factors, nodeIds, perTimeUnit, siteSize);
+    }
 
     /**
      * @brief Compute the substitutions std::vectors for a particular dataset using the
@@ -343,6 +360,27 @@ namespace bpp
 
     /**
      *
+     * @brief Methods to get trees of counts. These methods can use
+     * raw or normalized counting trees (ie computed with
+     * computeCounts and computeNormalizedCounts methods).
+     *
+     * @{
+     *
+     **/
+
+    /**
+     * @brief Sum all sites substitutions a given type.
+     *
+     * @param counts The substitution map to use.
+     *
+     * @return A PhyloTree where branch lengths carry the branch counts.
+     */
+
+    static PhyloTree* getTreeForType(const ProbabilisticSubstitutionMapping& counts,
+                              size_t type);
+
+    /**
+     *
      * @brief Methods to get std::vectors of counts
      *
      * @{
@@ -363,13 +401,13 @@ namespace bpp
      *
      * @param counts The substitution map to use.
      * @param ids  The ids of the branches where the the substitutions
-     * are counted.
+     * are counted (default : all ids)
      *
      * @return A std::vector will all counts for all types of substitutions.
      */
     
-    VVVdouble getCountsPerSitePerBranchPerType(
-      const ProbabilisticSubstitutionMapping& counts, const std::vector<int>& ids);
+    static VVVdouble getCountsPerSitePerBranchPerType(
+      const ProbabilisticSubstitutionMapping& counts, const std::vector<uint>& ids = Vuint(0));
     
 
     /**
@@ -390,16 +428,16 @@ namespace bpp
      *
      * @param counts The substitution map to use.
      * @param ids  The ids of the branches where the the substitutions
-     * are counted.
+     * are counted (default : all ids)
      *
      * @return A std::vector will all counts for all types of substitutions summed.
      */
     
     static VVdouble getCountsPerSitePerBranch(
-      const ProbabilisticSubstitutionMapping& counts, const std::vector<int>& ids);
+      const ProbabilisticSubstitutionMapping& counts, const std::vector<uint>& ids = Vuint(0));
 
     /**
-     * @brief Sum all substitutions for each type of a given branch.
+     * @brief Sum all sites substitutions for each type of a given branch.
      *
      * @param counts The substitution map to use.
      * @param branchInd The id of the branch of the substitution tree for which the counts should be computed.
@@ -410,18 +448,19 @@ namespace bpp
       const ProbabilisticSubstitutionMapping& counts, uint branchId);
 
     /**
-     * @brief Sum all type of substitutions for each branch for each type. 
+     * @brief Sum all sites substitutions for each branch for each type. 
      *
      * @param counts The substitution map to use.
      * @param ids  The ids of the branches where the the substitutions
-     * are counted.
+     * are counted (default : all ids)
+     *
      * @return A std::vector will all counts for all branches for all types
      * of substitutions summed.
      */
     
-    static VVdouble getCountsPerBranchPerType(const ProbabilisticSubstitutionMapping& counts, const std::vector<int>& ids);
+    static VVdouble getCountsPerBranchPerType(const ProbabilisticSubstitutionMapping& counts, const std::vector<uint>& ids = Vuint(0));
 
-    static VVdouble getCountsPerTypePerBranch(const ProbabilisticSubstitutionMapping& counts, const std::vector<int>& ids);
+    static VVdouble getCountsPerTypePerBranch(const ProbabilisticSubstitutionMapping& counts, const std::vector<uint>& ids = Vuint(0));
 
     /**
      * @brief Compute the sum over all branches of the counts per type
@@ -439,9 +478,9 @@ namespace bpp
      * @param verbose Display progress messages.
      */
 
-    VVdouble computeCountsPerTypePerBranch(
+    static VVdouble computeCountsPerTypePerBranch(
       RecursiveLikelihoodTreeCalculation& rltc,
-      const std::vector<int>& ids,
+      const std::vector<uint>& ids,
       const SubstitutionRegister& reg,
       double threshold = -1,
       bool verbose = true);
@@ -467,18 +506,15 @@ namespace bpp
      * @param counts The substitution map to use.
      * @param site The site  for which the counts should be computed.
      * @param ids  The ids of the branches where the the substitutions
-     *        are counted
+     *        are counted (default : all ids)
+     *
      * @return A std::vector will all counts for all types of substitutions summed.
      */
     
     static Vdouble getCountsForSitePerType(
       const ProbabilisticSubstitutionMapping& counts,
-      size_t site);
-
-    static Vdouble getCountsForSitePerType(
-      const ProbabilisticSubstitutionMapping& counts,
       size_t site,
-      const std::vector<int>& ids);
+      const std::vector<uint>& ids = Vuint(0));
 
     /**
      * @brief Sum and normalize all type of substitutions for each
@@ -488,8 +524,8 @@ namespace bpp
      * @param factors The substitution normalization to use.
      * @param site The site  for which the counts should be computed.
      * @param ids  The ids of the branches where the the substitutions
-     *        are counted
-     * @param perTime           If true, normalized counts are per unit of
+     *        are counted (default : all ids)
+     * @param perTimeUnit           If true, normalized counts are per unit of
      *                          time (otherwise they are multiplied by
      *                          the length of the branches).
      * @param siteSize          The length of a site, as considered as
@@ -501,15 +537,15 @@ namespace bpp
       const ProbabilisticSubstitutionMapping& counts,
       const ProbabilisticSubstitutionMapping& factors,
       size_t site,
-      bool perTime,
+      bool perTimeUnit,
       uint siteSize = 1);
 
     static Vdouble getCountsForSitePerType(
       const ProbabilisticSubstitutionMapping& counts,
       const ProbabilisticSubstitutionMapping& factors,
       size_t site,
-      const std::vector<int>& ids,
-      bool perTime,
+      const std::vector<uint>& ids,
+      bool perTimeUnit,
       uint siteSize = 1);
 
     /**
@@ -518,16 +554,13 @@ namespace bpp
      * @param counts The substitution map to use.
      * @param factors The substitution normalization to use.
      * @param ids  The ids of the branches where the the substitutions
-     *        are counted
+     *        are counted (default: all ids)
      * @return A std::vector will all counts for all types of substitutions summed.
      */
     
     static VVdouble getCountsPerSitePerType(
-      const ProbabilisticSubstitutionMapping& counts);
-
-    static VVdouble getCountsPerSitePerType(
       const ProbabilisticSubstitutionMapping& counts,
-      const std::vector<int>& ids);
+      const std::vector<uint>& ids = Vuint(0));
 
     /**
      * @brief Sum and normalize all type of substitutions for each site for each type. 
@@ -535,8 +568,8 @@ namespace bpp
      * @param counts The substitution map to use.
      * @param factors The substitution normalization to use.
      * @param ids  The ids of the branches where the the substitutions
-     * are counted
-     * @param perTime           If true, normalized counts are per unit of
+     * are counted (default: all ids)
+     * @param perTimeUnit       If true, normalized counts are per unit of
      *                          time (otherwise they are multiplied by
      *                          the length of the branches).
      * @param siteSize          The length of a site, as considered as
@@ -547,14 +580,14 @@ namespace bpp
     static VVdouble getCountsPerSitePerType(
       const ProbabilisticSubstitutionMapping& counts,
       const ProbabilisticSubstitutionMapping& factors,
-      const std::vector<int>& ids,
-      bool perTime,
+      const std::vector<uint>& ids,
+      bool perTimeUnit,
       uint siteSize = 1);
 
     static VVdouble getCountsPerSitePerType(
       const ProbabilisticSubstitutionMapping& counts,
       const ProbabilisticSubstitutionMapping& factors,
-      bool perTime,
+      bool perTimeUnit,
       uint siteSize = 1);
 
     /**
@@ -597,7 +630,7 @@ namespace bpp
      */
     
     static void outputPerSitePerBranch(const std::string& filename,
-                                       const std::vector<int>& ids,
+                                       const std::vector<uint>& ids,
                                        const VVdouble& counts);
 
     /**
@@ -615,7 +648,7 @@ namespace bpp
      */
     
     static void outputPerSitePerBranchPerType(const std::string& filenamePrefix,
-                                              const std::vector<int>& ids,
+                                              const std::vector<uint>& ids,
                                               const SubstitutionRegister& reg,
                                               const VVVdouble& counts);
     

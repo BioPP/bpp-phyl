@@ -57,13 +57,14 @@ using namespace std;
 
 ProbabilisticRewardMapping* RewardMappingTools::computeRewardVectors(
   RecursiveLikelihoodTreeCalculation& rltc,
-  const vector<int>& nodeIds,
+  const vector<uint>& nodeIds,
   Reward& reward,
   bool verbose)
 {
   // Preamble:
   if (!rltc.isInitialized())
     throw Exception("RewardMappingTools::computeSubstitutionVectors(). Likelihood object is not initialized.");
+  rltc.computeTreeLikelihood();
 
   const SubstitutionProcess& sp=*rltc.getSubstitutionProcess();
   const ParametrizablePhyloTree& ppt=sp.getParametrizablePhyloTree();
@@ -81,7 +82,7 @@ ProbabilisticRewardMapping* RewardMappingTools::computeRewardVectors(
 
   // We create a new ProbabilisticRewardMapping object:
   unique_ptr<ProbabilisticRewardMapping> rewards(new ProbabilisticRewardMapping(ppt, rootPatternLinks, nbDistinctSites));
-
+  
   // Store likelihood for each site (here rootPatterns are managed):
   Vdouble Lr(nbDistinctSites, 0);
   
@@ -105,7 +106,7 @@ ProbabilisticRewardMapping* RewardMappingTools::computeRewardVectors(
     
     // For each branch
     uint edid=rewards->getEdgeIndex(br);
-    
+
     if (nodeIds.size() > 0 && !VectorTools::contains(nodeIds, (int)edid))
       continue;
 
@@ -148,9 +149,9 @@ ProbabilisticRewardMapping* RewardMappingTools::computeRewardVectors(
       
       likelihoodsFatherConstantPart *= father->getAboveLikelihoodArray();
 
-     // Then, we deal with the node of interest.
-     // We first average upon 'y' to save computations, and then upon 'x'.
-     // ('y' is the state at 'node' and 'x' the state at 'father'.)
+      // Then, we deal with the node of interest.
+      // We first average upon 'y' to save computations, and then upon 'x'.
+      // ('y' is the state at 'node' and 'x' the state at 'father'.)
 
       shared_ptr<RecursiveLikelihoodNode> ici = rlt_c.getNode(icid);
 
@@ -164,10 +165,11 @@ ProbabilisticRewardMapping* RewardMappingTools::computeRewardVectors(
       
       // compute all nxy * pxy first:
       
-      const Matrix<double>& pxy = sp.getTransitionProbabilities(icid,ncl);      
+      const Matrix<double>& pxy = sp.getTransitionProbabilities(icid,ncl);
       Matrix<double>* nij = reward.getAllRewards(d * rate);
       MatrixTools::hadamardMult((*nij),pxy,(*nij));
 
+      
       for (size_t i=0; i< nbDistinctSites; i++)
       {
         const Vdouble* likelihoodsFather_node_i = &(likelihoodsFather_node[i]);
@@ -191,6 +193,8 @@ ProbabilisticRewardMapping* RewardMappingTools::computeRewardVectors(
           }
         }
       }
+
+      delete nij;
     }
     
     // Now we just have to copy the substitutions into the result vector:

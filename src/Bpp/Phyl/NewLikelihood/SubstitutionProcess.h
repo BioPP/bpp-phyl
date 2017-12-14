@@ -101,11 +101,21 @@ namespace bpp
     virtual size_t getNumberOfStates() const = 0;
 
     /**
-     * @return The current number of distinct substitution models.
+     * @return The current number of distinct models.
      */
 
     virtual size_t getNumberOfModels() const = 0;
 
+    /**
+     * @return The current indexes of models used in the process
+     */
+    
+    virtual std::vector<size_t> getModelNumbers() const = 0;
+
+    /**
+     * @return the model with given index.
+     */
+    
     virtual const TransitionModel* getModel(size_t i) const = 0;
 
     /**

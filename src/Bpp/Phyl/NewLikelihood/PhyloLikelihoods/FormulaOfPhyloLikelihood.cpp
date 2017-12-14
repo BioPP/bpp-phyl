@@ -63,14 +63,14 @@ FormulaOfPhyloLikelihood::FormulaOfPhyloLikelihood(PhyloLikelihoodContainer* pC,
 FormulaOfPhyloLikelihood::FormulaOfPhyloLikelihood(const FormulaOfPhyloLikelihood& sd) :
   AbstractPhyloLikelihood(sd),
   SetOfAbstractPhyloLikelihood(sd),
-  compTree_(sd.compTree_)
+  compTree_(sd.compTree_->clone())
 {
 }
 
 FormulaOfPhyloLikelihood& FormulaOfPhyloLikelihood::operator=(const FormulaOfPhyloLikelihood& sd)
 {
   SetOfAbstractPhyloLikelihood::operator=(sd);
-  compTree_ = sd.compTree_;
+  compTree_.reset(compTree_->clone());
 
   return *this;
 }
@@ -86,7 +86,7 @@ void FormulaOfPhyloLikelihood::readFormula(const std::string& formula)
     functionNames["phylo"+TextTools::toString(nPhyl[i])]=getAbstractPhyloLikelihood(nPhyl[i]);
   }
   
-  compTree_=shared_ptr<ComputationTree>(new ComputationTree(formula, functionNames));
+  compTree_=unique_ptr<ComputationTree>(new ComputationTree(formula, functionNames));
 
   // add used Phylolikelihoods
   

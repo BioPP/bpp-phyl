@@ -150,13 +150,6 @@ namespace bpp
 
     /** @} */
 
-    // TODO: need to acount for model classes
-    // ConstBranchModelIterator* getNewBranchModelIterator(int nodeId) const
-    // {
-    //  return new ConstNoPartitionBranchModelIterator(modelSet_->getModelForNode(nodeId), nbDistinctSites_);
-    // }
-
-
     /**
      * @name Handling of substitution process
      *

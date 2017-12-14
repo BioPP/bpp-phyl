@@ -56,6 +56,7 @@ knowledge of the CeCILL license and that you accept its terms.
 
 #include <Bpp/Phyl/NewLikelihood/PhyloLikelihoods/MixtureProcessPhyloLikelihood.h>
 #include <Bpp/Phyl/NewLikelihood/PhyloLikelihoods/SingleProcessPhyloLikelihood.h>
+#include <Bpp/Phyl/NewLikelihood/PhyloLikelihoods/FormulaOfPhyloLikelihood.h>
 
 #include <iostream>
 
@@ -148,31 +149,43 @@ int main() {
   sites.addSequence(BasicSequence("D", "TCGATCGAAAGCCAGGATCAACAATCTTTAACTTATATCGAAAATCATTTATGTGAAGGC", alphabet));
 
   // Likelihoods
+  PhyloLikelihoodContainer pc;
 
-  SubstitutionProcess* sP1c=subPro1->clone();
-  SubstitutionProcess* sP2c=subPro2->clone();
+  SubstitutionProcess* sP1c=subPro1;
+  SubstitutionProcess* sP2c=subPro2;
 
   RecursiveLikelihoodTreeCalculation* rtl1=new RecursiveLikelihoodTreeCalculation(*sites.clone(), sP1c, true, true);
-  SingleProcessPhyloLikelihood spl1(sP1c, rtl1, true);
-  spl1.computeLikelihood();
+
+  pc.addPhyloLikelihood(1, new SingleProcessPhyloLikelihood(subPro1, rtl1, true));
+  
   
   RecursiveLikelihoodTreeCalculation* rtl2=new RecursiveLikelihoodTreeCalculation(*sites.clone(), sP2c, true, true);
-  SingleProcessPhyloLikelihood spl2(sP2c, rtl2, true);
-  spl2.computeLikelihood();
-  
-  cerr << setprecision(10) << "TL1:"  << spl1.getValue() << "\tTL2:" << spl2.getValue() << endl;
+  pc.addPhyloLikelihood(2, new SingleProcessPhyloLikelihood(subPro2, rtl2, true));
 
+  
+  AlignedPhyloLikelihood* spl1=dynamic_cast<AlignedPhyloLikelihood*>(pc[1]);
+  AlignedPhyloLikelihood* spl2=dynamic_cast<AlignedPhyloLikelihood*>(pc[2]);
+
+  
+  spl1->computeLikelihood();
+  spl2->computeLikelihood();
+  
+  cerr << setprecision(10) << "TL1:"  << spl1->getValue() << "\tTL2:" << spl2->getValue() << endl;
+
+
+  //  Mixture
+  
   std::vector<size_t> vp(2);
   vp[0]=1; vp[1]=2;
-  
+
   MixtureSequenceEvolution mse(modelColl, vp);
 
   MixtureProcessPhyloLikelihood mlc(*sites.clone(), mse);
-
+  
   cerr << "Mlc: " << mlc.getValue() << endl;
 
   for (size_t pos=0; pos < sites.getNumberOfSites(); pos++){
-    double x=spl1.getLikelihoodForASite(pos) * mlc.getSubProcessProb(0) + spl2.getLikelihoodForASite(pos) * mlc.getSubProcessProb(1);
+    double x=spl1->getLikelihoodForASite(pos) * mlc.getSubProcessProb(0) + spl2->getLikelihoodForASite(pos) * mlc.getSubProcessProb(1);
     if (abs(x-mlc.getLikelihoodForASite(pos))>0.001)
       cerr << "Problem on site " << x << endl;
   }
@@ -190,13 +203,13 @@ int main() {
   OutputStream* messenger = new StlOutputStream(new ofstream("messages.txt", ios::out));
 
   unsigned int c1 = OptimizationTools::optimizeNumericalParameters2(
-   &spl1, spl1.getParameters(), 0,
-   0.0001, 10000, messenger, profiler, false, false, 1, OptimizationTools::OPTIMIZATION_NEWTON);
+    spl1, spl1->getParameters(), 0,
+    0.0001, 10000, messenger, profiler, false, false, 1, OptimizationTools::OPTIMIZATION_NEWTON);
 
   cerr << "Opt 1: rounds " << c1 << endl;
   unsigned int c2 = OptimizationTools::optimizeNumericalParameters2(
-         &spl2, spl2.getParameters(), 0,
-         0.0001, 10000, messenger, profiler, false, false, 1, OptimizationTools::OPTIMIZATION_NEWTON);
+    spl2, spl2->getParameters(), 0,
+    0.0001, 10000, messenger, profiler, false, false, 1, OptimizationTools::OPTIMIZATION_NEWTON);
 
   cerr << "Opt 2: rounds " << c2 << endl;
 
@@ -205,13 +218,31 @@ int main() {
                                                                     0.0001, 10000, messenger, profiler, false, false, 1, OptimizationTools::OPTIMIZATION_NEWTON);
 
   
-  cerr << setprecision(10) << "Ml1:"  << spl1.getValue() << "\tMl2:" << spl2.getValue() << endl;
+  cerr << setprecision(10) << "Ml1:"  << spl1->getValue() << "\tMl2:" << spl2->getValue() << endl;
   
   cerr << "Opt M rounds: " << cM << endl;
 
   cerr << "Mlc: " << mlc.getValue() << endl;
 
   mlc.getParameters().printParameters(std::cout);
+  
+// Formula
+  
+  string formula="phylo1";  
+    
+  unique_ptr<FormulaOfPhyloLikelihood> tl(new FormulaOfPhyloLikelihood(&pc,formula));
+
+  cerr << "tl " << tl->getValue() << endl;
+
+  unsigned int cMtl = OptimizationTools::optimizeNumericalParameters2(
+    tl.get(), tl->getParameters(), 0,
+    0.0001, 10000, messenger, profiler, false, false, 1, OptimizationTools::OPTIMIZATION_NEWTON);
+
+  cerr << "Opt tl rounds: " << cMtl << endl;
+
+  cerr << "tl " << tl->getValue() << endl;
+
+  tl.release();
   
 
   return 0;

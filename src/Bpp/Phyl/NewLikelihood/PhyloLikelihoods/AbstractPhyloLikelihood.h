@@ -150,7 +150,7 @@ namespace bpp
     bool enableFirstOrderDerivatives() const { return computeFirstOrderDerivatives_; }
     bool enableSecondOrderDerivatives() const { return computeSecondOrderDerivatives_; }
 
-    bool isInitialized() const { return initialized_; }
+    virtual bool isInitialized() const { return initialized_; }
 
     /*
      * @brief return the value, ie -loglikelihood
@@ -165,7 +165,6 @@ namespace bpp
         throw Exception("AbstractPhyloLikelihood::getValue(). Instance is not initialized.");
 
       minusLogLik_=-getLogLikelihood();
-
       return minusLogLik_;
     }
 

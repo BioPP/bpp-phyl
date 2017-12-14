@@ -80,6 +80,11 @@ public:
 
   size_t getNumberOfModels() const { return 1; }
 
+  std::vector<size_t> getModelNumbers() const
+  {
+    return(std::vector<size_t>(1,0));
+  }
+
   bool isCompatibleWith(const AlignedValuesContainer& data) const {
     return data.getAlphabet()->getAlphabetType() == model_->getAlphabet()->getAlphabetType();
   }

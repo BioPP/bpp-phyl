@@ -83,7 +83,7 @@ namespace bpp
       SetOfAbstractPhyloLikelihood(const SetOfAbstractPhyloLikelihood& sd);
         
       SetOfAbstractPhyloLikelihood& operator=(const SetOfAbstractPhyloLikelihood& sd);
-      
+
     public:
 
       PhyloLikelihoodContainer* getPhyloContainer()
@@ -186,7 +186,6 @@ namespace bpp
         for (size_t i=0; i<nPhylo_.size(); i++)
           if (!getAbstractPhyloLikelihood(nPhylo_[i])->isInitialized())
             return false;
-
         return true;
       }
       
