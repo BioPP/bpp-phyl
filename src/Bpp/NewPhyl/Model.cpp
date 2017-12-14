@@ -76,7 +76,8 @@ namespace DF {
 	Model::Model (NodeRefVec && deps, std::unique_ptr<SubstitutionModel> && model)
 	    : Value<const SubstitutionModel *> (std::move (deps), model.get ()),
 	      model_ (std::move (model)) {
-		// TODO dependency check
+		checkDependencyPattern (typeid (Model), dependencies (),
+		                        ArrayOfValues<double>{nbParameters ()});
 	}
 
 	NodeRefVec createDependencyVector (const SubstitutionModel & model,
@@ -116,15 +117,16 @@ namespace DF {
 	    : Value<const SubstitutionModel *> (noDependency, model.get ()), model_ (std::move (model)) {
 		// TODO remove
 		const auto & parameters = model_->getParameters ();
-		for (auto i : index_range (parameters))
+		for (auto i : range (parameters.size ()))
 			this->appendDependency (DF::makeNode<DF::Parameter<double>> (parameters[i].getValue ()));
 	}
 
 	Model::~Model () = default;
 
-	// TODO remove too
 	SizeType Model::nbParameters () const noexcept { return this->dependencies ().size (); }
-	ParameterRef<double> Model::getParameter (SizeType index) {
+
+	// TODO remove too
+	ParameterRef<double> Model::getParameter (IndexType index) {
 		assert (0 <= index);
 		assert (index < this->nbDependencies ());
 		return convertRef<DF::Parameter<double>> (this->dependency (index));
@@ -133,7 +135,7 @@ namespace DF {
 		return getParameter (
 		    static_cast<SizeType> (model_->getParameters ().whichParameterHasName (name)));
 	}
-	const std::string & Model::getParameterName (SizeType index) {
+	const std::string & Model::getParameterName (IndexType index) {
 		return model_->getParameters ()[static_cast<std::size_t> (index)].getName ();
 	}
 
@@ -149,10 +151,10 @@ namespace DF {
 	}
 
 	void Model::compute () {
-		// Update current model params with ours
+		// Update internal model bpp::Parameter with ours
 		auto & modelParams = model_->getParameters ();
-		for (auto i : index_range (this->dependencies ())) {
-			auto v = accessValidValueConstCast<double> (this->dependency (i));
+		for (auto i : range (nbParameters ())) {
+			auto & v = accessValidValueConstCast<double> (this->dependency (i));
 			auto & p = modelParams[static_cast<std::size_t> (i)];
 			if (p.getValue () != v)
 				model_->setParameterValue (model_->getParameterNameWithoutNamespace (p.getName ()), v);

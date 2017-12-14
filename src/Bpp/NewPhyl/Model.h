@@ -45,6 +45,7 @@
 
 #include <Bpp/NewPhyl/DataFlow.h>
 #include <Bpp/NewPhyl/DataFlowTemplates.h>
+#include <Bpp/NewPhyl/LinearAlgebraFwd.h>
 #include <Bpp/NewPhyl/PhylogenyTypes.h>
 #include <Bpp/NewPhyl/Signed.h>
 #include <map>
@@ -55,28 +56,37 @@ namespace bpp {
 class SubstitutionModel;
 
 namespace DF {
-	// DF Node representing a model with its parameter (wrapper to master code).
-	// TODO constructors, derivation (customizable)
+	/** Data flow node representing a Model configured with parameter values.
+	 * This class wraps a bpp::SubstitutionModel as a data flow node.
+	 * It depends on Value<double> nodes (one for each parameter declared in the model).
+	 * It provides a dummy value representing the "model configured by its parameters".
+	 * This dummy value is then used by other node types to compute equilibrium frequencies,
+	 * transition matrices and their derivatives.
+	 *
+	 * The dummy value is implemented as a pointer to the internal model for simplicity.
+	 */
 	class Model : public Value<const SubstitutionModel *> {
 	public:
-		/* Create a new model node from a dependency vector.
+		/** Create a new model node from a dependency vector.
 		 * Model parameters are given by a dependency vector of Value<double> nodes.
 		 * The number and order of parameters is given by the SubstitutionModel internal ParameterList.
 		 */
 		Model (NodeRefVec && deps, std::unique_ptr<SubstitutionModel> && model);
 
-		// Legacy FIXME
-		Model (std::unique_ptr<SubstitutionModel> model);
 		~Model ();
 
 		SizeType nbParameters () const noexcept;
-		ParameterRef<double> getParameter (SizeType index);
+
+		// Legacy FIXME
+		Model (std::unique_ptr<SubstitutionModel> model);
+		ParameterRef<double> getParameter (IndexType index);
 		ParameterRef<double> getParameter (const std::string & name);
-		const std::string & getParameterName (SizeType index);
+		const std::string & getParameterName (IndexType index);
 
 		std::string description () const override final;
 		std::string debugInfo () const override final;
 
+		// TODO  derivation (customizable)
 		bool isDerivable (const Node & node) const override final;
 
 	private:
@@ -84,11 +94,11 @@ namespace DF {
 		std::unique_ptr<SubstitutionModel> model_;
 	};
 
-	/* Create a dependency vector suitable for a Model class constructor.
+	/** Create a dependency vector suitable for a Model class constructor.
 	 * The vector is built from the model internal parameter names, and Value<double> nodes in a map.
 	 * For each named parameter in the model, a value node of the same node is taken from the map.
 	 * Both namespaced and non-namespaced names are tried.
-	 * If a node is not found, an exception is thrown.
+	 * If no node is found, an exception is thrown.
 	 */
 	NodeRefVec createDependencyVector (const SubstitutionModel & model,
 	                                   const std::map<std::string, ValueRef<double>> & depsByName);
