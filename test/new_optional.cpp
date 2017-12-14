@@ -92,62 +92,6 @@ TEST_CASE("basic operations")
   CHECK(!c);
 }
 
-template<typename T>
-using IsOptionalInt = std::is_same<T, bpp::Optional<int>>;
-
-TEST_CASE("value_or_*, map, filter")
-{
-  const bpp::Optional<int> valued{42};
-  const bpp::Optional<int> valued2{33};
-  const bpp::Optional<int> empty;
-
-  CHECK(valued.value_or(1) == 42);
-  CHECK(empty.value_or(1) == 1);
-
-  // Detect when lambda is called for value_or_generate
-  bool generate_triggered = false;
-  auto generate = [&generate_triggered] {
-    generate_triggered = true;
-    return 21;
-  };
-  CHECK(valued.value_or_generate(generate) == 42);
-  CHECK(!generate_triggered);
-  CHECK(empty.value_or_generate(generate) == 21);
-  CHECK(generate_triggered);
-
-  // Detect when lambda is called for map
-  bool map_func_triggered = false;
-  auto map_fun = [&map_func_triggered](int a) {
-    map_func_triggered = true;
-    return -a;
-  };
-  auto mapped_empty = empty.map(map_fun);
-  CHECK(IsOptionalInt<decltype(mapped_empty)>::value);
-  CHECK(!mapped_empty);
-  CHECK(!map_func_triggered);
-  auto mapped_valued = valued.map(map_fun);
-  CHECK(IsOptionalInt<decltype(mapped_valued)>::value);
-  CHECK(mapped_valued);
-  CHECK(*mapped_valued == -42);
-  CHECK(map_func_triggered);
-
-  // Chainable
-  auto double_input = [](int a) { return 2 * a; };
-  auto to_string = [](int a) { return std::to_string(a); };
-  auto chained_empty = empty.map(double_input).map(to_string);
-  CHECK(!chained_empty);
-  auto chained_valued = valued.map(double_input).map(to_string);
-  CHECK(chained_valued);
-  CHECK(*chained_valued == "84");
-
-  // Filter
-  auto predicate = [](int a) { return a >= 40; };
-  CHECK(!empty.filter(predicate));
-  CHECK(!valued2.filter(predicate));
-  CHECK(valued.filter(predicate));
-  CHECK(valued.filter(predicate).value() == 42);
-}
-
 // Non movable nor copyable type, shoud support emplace stuff
 struct OnlyConstructible
 {
@@ -173,17 +117,17 @@ TEST_CASE("non move/copy objects")
 // Movable only type
 TEST_CASE("move only objects")
 {
-  using UniqP = std::unique_ptr<int>;
-  bpp::Optional<UniqP> p;
+  using UPI = std::unique_ptr<int>;
+  bpp::Optional<UPI> p;
   CHECK(!p);
 
   // Move value in
-  p = UniqP{new int{42}};
+  p = UPI{new int{42}};
   CHECK(p);
   CHECK(**p == 42);
 
   // Move construct
-  bpp::Optional<UniqP> p2{std::move(p)};
+  bpp::Optional<UPI> p2{std::move(p)};
   CHECK(p);   // Still defined
   CHECK(!*p); // Moved from
   CHECK(p2);
@@ -197,7 +141,7 @@ TEST_CASE("move only objects")
   CHECK(**p == 42);
 
   // Move value out
-  UniqP up = *std::move(p);
+  UPI up = *std::move(p);
   CHECK(p);
   CHECK(!*p);
   CHECK(up);
@@ -208,32 +152,6 @@ TEST_CASE("move only objects")
   CHECK(!up);
   CHECK(*p);
   CHECK(**p == 42);
-
-  // Check value_or
-  p2.reset();
-  up = std::move(p2).value_or(UniqP{});
-  CHECK(!up); // Was empty
-  CHECK(p);
-  CHECK(*p);
-  up = std::move(p).value_or(UniqP{});
-  CHECK(up);
-  CHECK(*up == 42);
-
-  // Check map (chainable)
-  p = std::move(up);
-  CHECK(p);
-  CHECK(*p);
-  CHECK(**p == 42);
-  auto incr = [](UniqP&& tp) {
-    (*tp)++;
-    return std::move(tp);
-  };
-  p2 = std::move(p).map(incr).map(incr);
-  CHECK(p2);
-  CHECK(*p2);
-  CHECK(**p2 == 44);
-  CHECK(p);
-  CHECK(!*p);
 }
 
 TEST_CASE("constness")
@@ -255,32 +173,8 @@ TEST_CASE("constness")
   CHECK(!opt_const);
 }
 
-TEST_CASE("operator|")
-{
-  bpp::Optional<int> empty;
-  bpp::Optional<int> a{42};
-  bpp::Optional<int> b{24};
-
-  auto c = empty | a | b;
-  CHECK(c);
-  CHECK(*c == 42);
-
-  using Or_Of_LVRef_LVRef_is_LVRef = std::is_lvalue_reference<decltype(empty | a)>;
-  CHECK(Or_Of_LVRef_LVRef_is_LVRef::value);
-
-  using Or_Of_RVRef_RVRef_is_RVRef = std::is_rvalue_reference<decltype(std::move(empty) | std::move(a))>;
-  CHECK(Or_Of_RVRef_RVRef_is_RVRef::value);
-
-  // Default
-  CHECK((empty | 0) == 0);
-  CHECK((a | 0) == *a);
-  CHECK((empty | empty | 0) == 0);
-  CHECK((empty | a | 0) == *a);
-}
-
 TEST_CASE("reference optionals")
 {
-  //
   int a = 42;
   bpp::Optional<int&> ref{a};
   CHECK(ref);
@@ -289,7 +183,6 @@ TEST_CASE("reference optionals")
   CHECK(a == 32);
   ref = nullptr;
   CHECK(!ref);
-  CHECK(&ref.value_or(a) == &a);
   ref = a;
   CHECK(ref);
   CHECK(&ref.value() == &a);
@@ -298,18 +191,4 @@ TEST_CASE("reference optionals")
   ref = &a;
   CHECK(ref);
   CHECK(&ref.value() == &a);
-  auto b = ref.map([](int a) { return -a; });
-  CHECK(b);
-  CHECK(*b == -a);
-}
-
-TEST_CASE("optional_find")
-{
-  std::map<int, int> m;
-  m[12] = 42;
-  auto empty = bpp::optional_find(m, 0);
-  CHECK(!empty);
-  auto not_empty = bpp::optional_find(m, 12);
-  CHECK(not_empty);
-  CHECK(*not_empty == 42);
 }

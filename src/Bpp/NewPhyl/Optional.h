@@ -48,32 +48,36 @@
 #include <utility>
 
 namespace bpp {
+/* Implement a equivalent to std::optional<T> (C++17) right now.
+ * Remove and use a typedef for C++17.
+ */
 
-// Type tag and global value for in_place construction
-// TODO put in its own header when SmallVector arrives to NewPhyl
-template <typename T> struct InPlace { constexpr InPlace () = default; };
-constexpr InPlace<void> in_place{};
+/// Type tag and global value for in_place construction.
+struct InPlace {
+	constexpr InPlace () = default;
+};
+constexpr InPlace in_place{};
 
-// Type tag and global value for "No value"
+/// Type tag and global value for "No value".
 struct NullOpt {
 	constexpr NullOpt () = default;
 };
 constexpr NullOpt nullopt{};
 
+/** Optional<T> is similar to the c++17 std::optional<T>.
+ * It conditionally stores in place a T value.
+ *
+ * It behaves like a pointer to data, also for constness:
+ * A const Optional<T> cannot change its state ; however the stored value is mutable.
+ * An Optional<const T> can change its state but not the stored value after creation.
+ *
+ * Moves are considered to change state, so move overloads require a non const && *this.
+ * A moved-from Optional still contains a value (which is moved-from).
+ *
+ * Types that do not support copy/move assignments use destruction+copy/move construction instead.
+ * Non copyable and non movable object should only use emplace().
+ */
 template <typename T> class Optional {
-	/* Optional<T> is similar to the c++17 std::optional<T>.
-	 * It conditionally stores in place a T value.
-	 *
-	 * It behaves like a pointer to data, also for constness:
-	 * A const Optional cannot change its state ; however the stored value is mutable.
-	 * An Optional<const T> can change its state but not the stored value after creation.
-	 *
-	 * Moves are considered to change state, so move overloads require a non const && *this.
-	 * A moved-from Optional still contains a value (which is moved-from).
-	 *
-	 * Types that do not support copy/move assignments use destruction+copy/move construction instead.
-	 * Non copyable and non movable object should only use emplace().
-	 */
 	static_assert (!std::is_reference<T>::value, "base Optional<T> does not support references");
 
 public:
@@ -92,12 +96,8 @@ public:
 	}
 	Optional (const T & t) : Optional () { create (t); }
 	Optional (T && t) : Optional () { create (std::move (t)); }
-	template <typename... Args> Optional (InPlace<void>, Args &&... args) : Optional () {
+	template <typename... Args> Optional (InPlace, Args &&... args) : Optional () {
 		create (std::forward<Args> (args)...);
-	}
-	template <typename U, typename... Args>
-	Optional (InPlace<void>, std::initializer_list<U> ilist, Args &&... args) : Optional () {
-		create (ilist, std::forward<Args> (args)...);
 	}
 
 	~Optional () { reset (); }
@@ -167,12 +167,6 @@ public:
 		create (std::forward<Args> (args)...);
 		return value ();
 	}
-	template <typename U, typename... Args>
-	T & emplace (std::initializer_list<U> ilist, Args &&... args) {
-		reset ();
-		create (ilist, std::forward<Args> (args)...);
-		return value ();
-	}
 	void swap (Optional & other) noexcept {
 		using std::swap;
 		if (has_value () && other) {
@@ -184,68 +178,6 @@ public:
 			other.create (std::move (value ()));
 			destroy ();
 		}
-	}
-
-	// Access with default
-	template <typename U> constexpr T value_or (U && default_value) const & {
-		return has_value () ? value () : static_cast<T> (std::forward<U> (default_value));
-	}
-	template <typename U> T value_or (U && default_value) && {
-		return has_value () ? std::move (*this).value ()
-		                    : static_cast<T> (std::forward<U> (default_value));
-	}
-
-	// Access with generated default
-	template <typename Callable> T value_or_generate (Callable && callable) const & {
-		return has_value () ? value () : std::forward<Callable> (callable) ();
-	}
-	template <typename Callable> T value_or_generate (Callable && callable) && {
-		return has_value () ? std::move (*this).value () : std::forward<Callable> (callable) ();
-	}
-
-	// Map : Optional<T> -> Optional<U> with f : T -> U
-	template <typename Callable,
-	          typename ReturnType = typename std::result_of<Callable (const T &)>::type>
-	Optional<ReturnType> map (Callable && callable) const & {
-		if (has_value ())
-			return std::forward<Callable> (callable) (value ());
-		else
-			return {};
-	}
-	template <typename Callable, typename ReturnType = typename std::result_of<Callable (T &&)>::type>
-	Optional<ReturnType> map (Callable && callable) && {
-		if (has_value ())
-			return std::forward<Callable> (callable) (std::move (*this).value ());
-		else
-			return {};
-	}
-
-	// Filter : Optional<T> -> Optional<T>, propagate value if p(value), or return NullOpt
-	template <typename Predicate> Optional filter (Predicate && predicate) const & {
-		if (has_value () && std::forward<Predicate> (predicate) (value ()))
-			return *this;
-		else
-			return {};
-	}
-	template <typename Predicate> Optional filter (Predicate && predicate) && {
-		if (has_value () && std::forward<Predicate> (predicate) (value ()))
-			return std::move (*this);
-		else
-			return {};
-	}
-
-	// Cast : Optional<T> -> Optional<U>.
-	template <typename U> Optional<U> cast () const & {
-		if (has_value ())
-			return static_cast<U> (value ());
-		else
-			return {};
-	}
-	template <typename U> Optional<U> cast () && {
-		if (has_value ())
-			return static_cast<U> (std::move (*this).value ());
-		else
-			return {};
 	}
 
 private:
@@ -278,15 +210,15 @@ private:
 	bool has_value_;
 };
 
+/** Specialisation for references.
+ * This specialisation has the same semantics as a pointer.
+ *
+ * Copy and moves just copy the pointer/reference.
+ * Access returns the reference itself, so operator-> will modify the referenced object.
+ * The reference can be modified by assignment and the same modifiers as the main class.
+ * All modifiers bind to both T & and T * for convenience.
+ */
 template <typename T> class Optional<T &> {
-	/* Specialisation for references.
-	 * This specialisation has the same semantics as a pointer.
-	 *
-	 * Copy and moves just copy the pointer/reference.
-	 * Access returns the reference itself, so operator-> will modify the referenced object.
-	 * The reference can be modified by assignment and the same modifiers as the main class.
-	 * All modifiers bind to both T & and T * for convenience.
-	 */
 public:
 	using value_type = T &;
 
@@ -338,95 +270,9 @@ public:
 		swap (pointer_, other.pointer_);
 	}
 
-	// Access with default
-	constexpr T & value_or (T & default_ref) const { return has_value () ? value () : default_ref; }
-
-	// Access with generated default
-	template <typename Callable> constexpr T & value_or_generate (Callable && callable) const {
-		return has_value () ? value () : std::forward<Callable> (callable) ();
-	}
-
-	// Map : Optional<T &> -> Optional<U> with f : T & -> U
-	template <typename Callable, typename ReturnType = typename std::result_of<Callable (T &)>::type>
-	Optional<ReturnType> map (Callable && callable) const {
-		if (has_value ())
-			return std::forward<Callable> (callable) (value ());
-		else
-			return {};
-	}
-
-	// Filter : Optional<T &> -> Optional<T &>, propagate ref if p(ref), or return NullOpt
-	template <typename Predicate> Optional filter (Predicate && predicate) const {
-		if (has_value () && std::forward<Predicate> (predicate) (value ()))
-			return *this;
-		else
-			return {};
-	}
-
-	// Cast : Optional<T &> -> Optional<U>
-	template <typename U> Optional<U> cast () const {
-		if (has_value ())
-			return static_cast<U> (value ());
-		else
-			return {};
-	}
-
 private:
 	T * pointer_{nullptr};
 };
-
-/* a | b -> returns a if a, or b.
- * Both a and b are evaluated (no operator|| lazy semantics).
- * If both a and b are the same kind of reference (lvalue/rvalue), just return the reference.
- * If reference kind differs, an intermediate Optional<T> is built from the right refs.
- */
-template <typename T>
-const Optional<T> & operator| (const Optional<T> & a, const Optional<T> & b) noexcept {
-	return a ? a : b;
-}
-template <typename T> Optional<T> && operator| (Optional<T> && a, Optional<T> && b) noexcept {
-	return a ? std::move (a) : std::move (b);
-}
-template <typename T> Optional<T> operator| (const Optional<T> & a, Optional<T> && b) {
-	return a ? a : std::move (b);
-}
-template <typename T> Optional<T> operator| (Optional<T> && a, const Optional<T> & b) {
-	return a ? std::move (a) : b;
-}
-// Overloads ending with plain object ("true" optional)
-template <typename T> T operator| (const Optional<T> & a, const T & b) {
-	return a.value_or (b);
-}
-template <typename T> T operator| (Optional<T> && a, const T & b) {
-	return std::move (a).value_or (b);
-}
-template <typename T> T operator| (const Optional<T> & a, T && b) {
-	return a.value_or (std::move (b));
-}
-template <typename T> T operator| (Optional<T> && a, T && b) {
-	return std::move (a).value_or (std::move (b));
-}
-
-/* Call find(key) on an associative container, return the result as an optional.
- * Intended to avoid comparing the iterator with end().
- */
-template <typename Container, typename Key>
-Optional<typename Container::mapped_type &> optional_find (Container & container, const Key & key) {
-	auto it = container.find (key);
-	if (it != container.end ())
-		return it->second;
-	else
-		return {};
-}
-template <typename Container, typename Key>
-Optional<const typename Container::mapped_type &> optional_find (const Container & container,
-                                                                 const Key & key) {
-	auto it = container.find (key);
-	if (it != container.end ())
-		return it->second;
-	else
-		return {};
-}
 } // namespace bpp
 
 #endif // BPP_NEWPHYL_OPTIONAL_H
