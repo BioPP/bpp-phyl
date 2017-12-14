@@ -49,8 +49,19 @@
 #include <vector>
 
 namespace bpp {
+/** std::vector equivalent with signed integer API.
+ * Most uses of std::size_t come from interacting with std::vector.
+ * Mixing unsigned and signed integer is dangerous (implicit conversions of -1 to UINT_MAX).
+ * This class implements most of std::vector API, with all unsigned ints converted to signed.
+ *
+ * assert() has been used to ensure positive values for arguments (in debug mode).
+ * emplace_back () returns a reference to the created element (like in C++17).
+ * push_back () has not been implemented, use emplace_back instead.
+ * Other missing methods can be added if needed.
+ *
+ * The inner std::vector can be accessed with asVector() for compatibility.
+ */
 template <typename T> class Vector {
-	// Vector with signed indexing
 private:
 	using Container = std::vector<T>;
 
@@ -102,7 +113,7 @@ public:
 	size_type size () const noexcept { return static_cast<size_type> (vec_.size ()); }
 
 	void clear () noexcept { vec_.clear (); }
-	template <typename... Args> reference emplace_back (Args && ... args) {
+	template <typename... Args> reference emplace_back (Args &&... args) {
 		vec_.emplace_back (std::forward<Args> (args)...);
 		return back ();
 	}
@@ -122,10 +133,14 @@ private:
 	Container vec_;
 };
 
+/// Enables == comparison. Others can be added if needed.
 template <typename T> bool operator== (const Vector<T> & lhs, const Vector<T> & rhs) {
 	return lhs.asVector () == rhs.asVector ();
 }
 
+/** Create a new vector filled with results from calling a function on another vector.
+ * The type of the new vector is std::vector<T> for T the result type of the function.
+ */
 template <typename Container, typename Function>
 auto mapToVector (const Container & container, Function function)
     -> Vector<decltype (function (container.front ()))> {
@@ -135,16 +150,17 @@ auto mapToVector (const Container & container, Function function)
 		r.emplace_back (function (v));
 	return r;
 }
-
 } // namespace bpp
 
 namespace std {
-// Enable hash_map support (the vector should be const, as changing it changes the hash value !)
+/** hash capability for bpp::Vector<T>.
+ * bpp::Vector<T> can be used as a key for hash tables (std::unordered_map / set).
+ * The vector itself must be const after insertion in the table.
+ * If not, the key will change, which breaks the hash table invariants.
+ */
 template <typename T> struct hash<bpp::Vector<T>> {
-	using argument_type = bpp::Vector<T>;
-	using result_type = std::size_t;
-	result_type operator() (const argument_type & vec) const {
-		auto h = static_cast<result_type> (vec.size ());
+	size_t operator() (const bpp::Vector<T> & vec) const {
+		auto h = static_cast<size_t> (vec.size ());
 		std::hash<T> hasher{};
 		for (const auto & e : vec)
 			h ^= hasher (e) + 0x9e3779b9 + (h << 6) + (h >> 2);
