@@ -102,7 +102,7 @@ public:
 	size_type size () const noexcept { return static_cast<size_type> (vec_.size ()); }
 
 	void clear () noexcept { vec_.clear (); }
-	template <typename... Args> reference emplace_back (Args... args) {
+	template <typename... Args> reference emplace_back (Args && ... args) {
 		vec_.emplace_back (std::forward<Args> (args)...);
 		return back ();
 	}

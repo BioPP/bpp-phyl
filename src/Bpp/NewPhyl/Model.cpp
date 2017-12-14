@@ -126,7 +126,7 @@ namespace DF {
 	SizeType Model::nbParameters () const noexcept { return this->dependencies ().size (); }
 
 	// TODO remove too
-	ParameterRef<double> Model::getParameter (IndexType index) {
+	ParameterRef<double> Model::getParameter (SizeType index) {
 		assert (0 <= index);
 		assert (index < this->nbDependencies ());
 		return convertRef<DF::Parameter<double>> (this->dependency (index));
@@ -135,7 +135,7 @@ namespace DF {
 		return getParameter (
 		    static_cast<SizeType> (model_->getParameters ().whichParameterHasName (name)));
 	}
-	const std::string & Model::getParameterName (IndexType index) {
+	const std::string & Model::getParameterName (SizeType index) {
 		return model_->getParameters ()[static_cast<std::size_t> (index)].getName ();
 	}
 

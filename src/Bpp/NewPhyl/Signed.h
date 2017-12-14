@@ -47,6 +47,5 @@
 namespace bpp {
 // Use signed values for indexes and sizes instead of unsigned (CppCoreGuidelines)
 using SizeType = std::ptrdiff_t;
-using IndexType = std::ptrdiff_t;
 } // namespace bpp
 #endif // BPP_NEWPHYL_SIGNED_H

@@ -79,9 +79,9 @@ namespace DF {
 
 		// Legacy FIXME
 		Model (std::unique_ptr<SubstitutionModel> model);
-		ParameterRef<double> getParameter (IndexType index);
+		ParameterRef<double> getParameter (SizeType index);
 		ParameterRef<double> getParameter (const std::string & name);
-		const std::string & getParameterName (IndexType index);
+		const std::string & getParameterName (SizeType index);
 
 		std::string description () const override final;
 		std::string debugInfo () const override final;

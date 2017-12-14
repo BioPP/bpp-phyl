@@ -88,7 +88,7 @@ namespace DF {
 				condLikBySite.setZero ();
 				for (auto siteIndex : range (condLikBySite.cols ())) {
 					auto siteValue =
-					    static_cast<IndexType> (sequence->getValue (static_cast<std::size_t> (siteIndex)));
+					    static_cast<SizeType> (sequence->getValue (static_cast<std::size_t> (siteIndex)));
 					condLikBySite (siteValue, siteIndex) = 1.;
 				}
 			});
