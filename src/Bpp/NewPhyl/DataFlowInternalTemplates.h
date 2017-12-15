@@ -217,7 +217,7 @@ namespace DF {
 	 */
 	template <typename T>
 	std::function<bool(const NodeRef &)>
-	predicateIsConstantValueMatching (bool (&predicate) (const T &)) {
+	predicateIsConstantValueMatching (bool (*predicate) (const T &)) {
 		return [predicate](const NodeRef & nodeRef) {
 			return nodeRef && nodeRef->isConstant () && isValueNode<T> (*nodeRef) &&
 			       predicate (accessValueConstCast<T> (*nodeRef));
