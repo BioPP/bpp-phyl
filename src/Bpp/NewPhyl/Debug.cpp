@@ -42,8 +42,8 @@
 #include <Bpp/NewPhyl/Config.h>
 #include <Bpp/NewPhyl/DataFlow.h>
 #include <Bpp/NewPhyl/Debug.h>
+#include <Bpp/NewPhyl/IntegerRange.h>
 #include <Bpp/NewPhyl/Phylogeny.h>
-#include <Bpp/NewPhyl/Range.h>
 #include <algorithm>
 #include <memory>
 #include <ostream>
@@ -196,7 +196,7 @@ void debugDagStructure (std::ostream & os, DF::NodeRefVec entryPoints, DF::Debug
 				if (!nodesAlreadyVisited.count (p))
 					nodesToVisit.emplace (p);
 
-		for (auto index : index_range (node->dependencies ())) {
+		for (auto index : range (node->dependencies ().size ())) {
 			auto * dep = node->dependencies ()[index].get ();
 			if (opt & DF::DebugOptions::ShowDependencyIndex) {
 				dotEdgePretty (os, node, dep, index);

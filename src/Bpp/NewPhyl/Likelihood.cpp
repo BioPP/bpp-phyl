@@ -42,9 +42,9 @@
 #include <Bpp/NewPhyl/DataFlowInternalTemplates.h>
 #include <Bpp/NewPhyl/Debug.h>
 #include <Bpp/NewPhyl/ExtendedFloat.h>
+#include <Bpp/NewPhyl/IntegerRange.h>
 #include <Bpp/NewPhyl/Likelihood.h>
 #include <Bpp/NewPhyl/LinearAlgebra.h>
-#include <Bpp/NewPhyl/Range.h>
 #include <Bpp/Seq/Sequence.h>
 #include <cmath>
 

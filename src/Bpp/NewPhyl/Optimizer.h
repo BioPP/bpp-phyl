@@ -44,8 +44,8 @@
 
 #include <Bpp/NewPhyl/DataFlowTemplates.h>
 #include <Bpp/NewPhyl/Debug.h>
+#include <Bpp/NewPhyl/IntegerRange.h>
 #include <Bpp/NewPhyl/Optional.h>
-#include <Bpp/NewPhyl/Range.h>
 #include <Bpp/Numeric/Function/Functions.h>
 #include <Bpp/Numeric/Parameter.h>
 #include <Bpp/Numeric/ParameterList.h>
@@ -72,7 +72,7 @@ public:
 
 private:
 	DF::ParameterRef<double> dfParam_;
-  // FIXME improve sync between DF::Parameter value and bpp::Parameter
+	// FIXME improve sync between DF::Parameter value and bpp::Parameter
 };
 
 /*
@@ -186,7 +186,7 @@ public:
 			namedNodes.emplace_back (
 			    DF::NamedNodeRef{derivative.second, "d2(" + funcName + ")/d(" + derivative.first.first +
 			                                            ")d(" + derivative.first.second + ")"});
-		for (auto i : index_range (variables_))
+		for (auto i : range (variables_.size ()))
 			namedNodes.emplace_back (
 			    DF::NamedNodeRef{getDataFlowParameter (variables_[i]), variables_[i].getName ()});
 		return namedNodes;

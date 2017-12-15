@@ -47,7 +47,7 @@
 #define ENABLE_DF
 
 // Common stuff
-#include <Bpp/NewPhyl/Range.h>
+#include <Bpp/NewPhyl/IntegerRange.h>
 #include <Bpp/Numeric/AutoParameter.h>
 #include <Bpp/Numeric/Function/ConjugateGradientMultiDimensions.h>
 #include <Bpp/Numeric/Function/Optimizer.h>

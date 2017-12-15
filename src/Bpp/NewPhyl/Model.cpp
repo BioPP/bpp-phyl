@@ -42,9 +42,9 @@
 #include <Bpp/Exceptions.h>
 #include <Bpp/NewPhyl/DataFlowInternalTemplates.h>
 #include <Bpp/NewPhyl/DataFlowNumeric.h>
+#include <Bpp/NewPhyl/IntegerRange.h>
 #include <Bpp/NewPhyl/LinearAlgebra.h>
 #include <Bpp/NewPhyl/Model.h>
-#include <Bpp/NewPhyl/Range.h>
 #include <Bpp/Numeric/Parameter.h>
 #include <Bpp/Phyl/Model/SubstitutionModel.h>
 #include <algorithm>

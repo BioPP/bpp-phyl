@@ -47,7 +47,7 @@
 #include <Bpp/NewPhyl/Cpp14.h>
 #include <Bpp/NewPhyl/DataFlow.h>
 #include <Bpp/NewPhyl/DataFlowInternal.h>
-#include <Bpp/NewPhyl/Range.h>
+#include <Bpp/NewPhyl/IntegerRange.h>
 #include <Bpp/NewPhyl/Signed.h>
 #include <algorithm>
 #include <cassert>
