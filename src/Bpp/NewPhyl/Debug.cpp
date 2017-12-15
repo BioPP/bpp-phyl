@@ -100,9 +100,7 @@ namespace {
 	}
 
 	// Craft node keys
-	std::string dotNodeKey (TreeTopologyView::NodeIndex id) {
-		return 'n' + std::to_string (id.value);
-	}
+	std::string dotNodeKey (TopologyNodeIndex id) { return 'n' + std::to_string (id.value); }
 	std::string dotNodeKey (const DF::Node * p) {
 		return dotNodeKey ('N', std::hash<const DF::Node *>{}(p));
 	}
@@ -117,7 +115,7 @@ namespace {
 	}
 
 	// Pretty print nodes
-	void dotNodePretty (std::ostream & os, TreeTopologyView::NodeIndex id) {
+	void dotNodePretty (std::ostream & os, TopologyNodeIndex id) {
 		os << '\t' << dotNodeKey (id) << " [shape=box,label=\"" << id.value << "\"];\n";
 	}
 	void dotNodePretty (std::ostream & os, const DF::Node * node) {
@@ -136,8 +134,8 @@ namespace {
 	}
 
 	// Pretty print edges
-	void dotEdgePretty (std::ostream & os, TreeTopologyView::NodeIndex parent,
-	                    TreeTopologyView::BranchIndex branch, TreeTopologyView::NodeIndex child) {
+	void dotEdgePretty (std::ostream & os, TopologyNodeIndex parent, TopologyBranchIndex branch,
+	                    TopologyNodeIndex child) {
 		dotEdgePretty (os, parent, child, "[label=\"" + std::to_string (branch.value) + "\"]");
 	}
 	void dotEdgePretty (std::ostream & os, const DF::Node * from, const DF::Node * to) {
@@ -152,9 +150,9 @@ namespace {
 } // namespace
 
 // Print tree structure
-void debugTree (std::ostream & os, const TreeTopologyView & tree) {
+void debugTree (std::ostream & os, const TreeTopologyInterface & tree) {
 	os << "digraph {\n";
-	std::queue<TreeTopologyView::NodeIndex> nodesToVisit;
+	std::queue<TopologyNodeIndex> nodesToVisit;
 	nodesToVisit.emplace (tree.rootNode ());
 	while (!nodesToVisit.empty ()) {
 		auto nodeId = nodesToVisit.front ();

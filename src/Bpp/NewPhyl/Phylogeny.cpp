@@ -49,25 +49,26 @@
 #include <utility>
 
 namespace bpp {
-// Access classes
 
-bool operator== (TreeTopologyView::NodeIndex lhs, TreeTopologyView::NodeIndex rhs) {
+// Index comparisons
+bool operator== (TopologyNodeIndex lhs, TopologyNodeIndex rhs) {
 	return lhs.value == rhs.value;
 }
-bool operator< (TreeTopologyView::NodeIndex lhs, TreeTopologyView::NodeIndex rhs) {
+bool operator< (TopologyNodeIndex lhs, TopologyNodeIndex rhs) {
 	return lhs.value < rhs.value;
 }
-bool operator== (TreeTopologyView::BranchIndex lhs, TreeTopologyView::BranchIndex rhs) {
+bool operator== (TopologyBranchIndex lhs, TopologyBranchIndex rhs) {
 	return lhs.value == rhs.value;
 }
-bool operator< (TreeTopologyView::BranchIndex lhs, TreeTopologyView::BranchIndex rhs) {
+bool operator< (TopologyBranchIndex lhs, TopologyBranchIndex rhs) {
 	return lhs.value < rhs.value;
 }
 
+// Access class implementations
 SameModelForAllBranches::SameModelForAllBranches (DF::ValueRef<const SubstitutionModel *> model)
     : model_ (std::move (model)) {}
 DF::ValueRef<const SubstitutionModel *>
-SameModelForAllBranches::getModelNode (TreeTopologyView::BranchIndex) const {
+SameModelForAllBranches::getModelNode (TopologyBranchIndex) const {
 	return model_;
 }
 SizeType SameModelForAllBranches::getNbStates () const {
@@ -77,12 +78,12 @@ SizeType SameModelForAllBranches::getNbStates () const {
 BranchLengthParametersInitializedFromValues::BranchLengthParametersInitializedFromValues (
     const BranchLengthValueAccess & values)
     : values_ (values) {}
-DF::ValueRef<double> BranchLengthParametersInitializedFromValues::getBranchLengthNode (
-    TreeTopologyView::BranchIndex id) const {
+DF::ValueRef<double>
+BranchLengthParametersInitializedFromValues::getBranchLengthNode (TopologyBranchIndex id) const {
 	return getBranchLengthParameter (id);
 }
 DF::ParameterRef<double> BranchLengthParametersInitializedFromValues::getBranchLengthParameter (
-    TreeTopologyView::BranchIndex id) const {
+    TopologyBranchIndex id) const {
 	auto it = parameterNodes_.find (id);
 	if (it != parameterNodes_.end ()) {
 		return it->second;
@@ -97,7 +98,7 @@ SequenceNodesInilialisedFromNames::SequenceNodesInilialisedFromNames (
     const SequenceNameValueAccess & names, const SiteContainer & sequences)
     : names_ (names), sequences_ (sequences) {}
 DF::ValueRef<const Sequence *>
-SequenceNodesInilialisedFromNames::getSequenceNode (TreeTopologyView::NodeIndex id) const {
+SequenceNodesInilialisedFromNames::getSequenceNode (TopologyNodeIndex id) const {
 	auto it = sequenceNodes_.find (id);
 	if (it != sequenceNodes_.end ()) {
 		return it->second;
@@ -119,11 +120,11 @@ LikelihoodDataDimension likelihoodDataDimension (const SequenceNodeAccess & sequ
 	return {sequences.getNbSites (), models.getNbStates ()};
 }
 
-DF::ValueRef<MatrixDouble> makeConditionalLikelihoodNode (const TreeTopologyView & tree,
+DF::ValueRef<MatrixDouble> makeConditionalLikelihoodNode (const TreeTopologyInterface & tree,
                                                           const SequenceNodeAccess & sequenceNodes,
                                                           const BranchLengthNodeAccess & brlenNodes,
                                                           const ModelNodeAccess & modelNodes,
-                                                          TreeTopologyView::NodeIndex node) {
+                                                          TopologyNodeIndex node) {
 	auto dim = likelihoodDataDimension (sequenceNodes, modelNodes);
 	auto childBranches = tree.childBranches (node);
 	if (childBranches.empty ()) {
@@ -134,7 +135,7 @@ DF::ValueRef<MatrixDouble> makeConditionalLikelihoodNode (const TreeTopologyView
 		// Combine forward likelihoods
 		return DF::makeNode<DF::ConditionalLikelihoodFromChildrens> (
 		    mapToVector (childBranches,
-		                 [&](TreeTopologyView::BranchIndex branch) -> DF::NodeRef {
+		                 [&](TopologyBranchIndex branch) -> DF::NodeRef {
 			                 return makeForwardLikelihoodNode (tree, sequenceNodes, brlenNodes,
 			                                                   modelNodes, branch);
 		                 }),
@@ -142,11 +143,11 @@ DF::ValueRef<MatrixDouble> makeConditionalLikelihoodNode (const TreeTopologyView
 	}
 }
 
-DF::ValueRef<MatrixDouble> makeForwardLikelihoodNode (const TreeTopologyView & tree,
+DF::ValueRef<MatrixDouble> makeForwardLikelihoodNode (const TreeTopologyInterface & tree,
                                                       const SequenceNodeAccess & sequenceNodes,
                                                       const BranchLengthNodeAccess & brlenNodes,
                                                       const ModelNodeAccess & modelNodes,
-                                                      TreeTopologyView::BranchIndex branch) {
+                                                      TopologyBranchIndex branch) {
 	auto dim = likelihoodDataDimension (sequenceNodes, modelNodes);
 	auto transitionMatrix = DF::makeNode<DF::TransitionMatrixFromModel> (
 	    {modelNodes.getModelNode (branch), brlenNodes.getBranchLengthNode (branch)},
@@ -158,7 +159,7 @@ DF::ValueRef<MatrixDouble> makeForwardLikelihoodNode (const TreeTopologyView & t
 	    dim);
 }
 
-DF::ValueRef<double> makeLogLikelihoodNode (const TreeTopologyView & tree,
+DF::ValueRef<double> makeLogLikelihoodNode (const TreeTopologyInterface & tree,
                                             const SequenceNodeAccess & sequenceNodes,
                                             const BranchLengthNodeAccess & brlenNodes,
                                             const ModelNodeAccess & modelNodes) {

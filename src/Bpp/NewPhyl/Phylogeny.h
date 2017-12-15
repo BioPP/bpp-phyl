@@ -58,138 +58,139 @@ class Sequence;
 class SubstitutionModel;
 class SiteContainer;
 
-/* Virtual views/access classes.
- *
- * These classes are interface which describe capabilities used by DF graph construction methods.
+/** Data structure independent index for nodes in a topology.
+ * Implemented as a intptr_t to be able to hold both integers and pointer-like values.
+ * Requires an explicit conversion to avoid unintended implicit conversions.
  */
-class TreeTopologyView {
-	/* Allows to move around a tree topology through node/branch indexes.
-	 *
-	 * These indexes abstract away what the underlying data structure uses.
-	 * They are defined as a std::intptr_t.
-	 * This means they can store any integer or pointer, which should be general enough.
-	 * Indexes are represented by an *Index struct, which prevents implicit conversions (error prone).
-	 */
-
-public:
-	struct NodeIndex {
-		std::intptr_t value;
-		explicit NodeIndex (std::intptr_t v) : value (v) {}
-	};
-	struct BranchIndex {
-		std::intptr_t value;
-		explicit BranchIndex (std::intptr_t v) : value (v) {}
-	};
-
-	virtual ~TreeTopologyView () = default;
-	virtual NodeIndex rootNode () const = 0;
-	virtual NodeIndex fatherNode (BranchIndex id) const = 0;
-	virtual NodeIndex childNode (BranchIndex id) const = 0;
-	virtual BranchIndex fatherBranch (NodeIndex id) const = 0;
-	virtual Vector<BranchIndex> childBranches (NodeIndex id) const = 0;
+struct TopologyNodeIndex {
+	std::intptr_t value;
+	explicit TopologyNodeIndex (std::intptr_t v) : value (v) {}
 };
-bool operator== (TreeTopologyView::NodeIndex lhs, TreeTopologyView::NodeIndex rhs);
-bool operator< (TreeTopologyView::NodeIndex lhs, TreeTopologyView::NodeIndex rhs);
-bool operator== (TreeTopologyView::BranchIndex lhs, TreeTopologyView::BranchIndex rhs);
-bool operator< (TreeTopologyView::BranchIndex lhs, TreeTopologyView::BranchIndex rhs);
 
+/// Data structure independent index for branches. Equivalent to TopologyNodeIndex.
+struct TopologyBranchIndex {
+	std::intptr_t value;
+	explicit TopologyBranchIndex (std::intptr_t v) : value (v) {}
+};
+
+// Comparison operators
+bool operator== (TopologyNodeIndex lhs, TopologyNodeIndex rhs);
+bool operator< (TopologyNodeIndex lhs, TopologyNodeIndex rhs);
+bool operator== (TopologyBranchIndex lhs, TopologyBranchIndex rhs);
+bool operator< (TopologyBranchIndex lhs, TopologyBranchIndex rhs);
+
+/** Virtual interface to a structure representing a read-only tree topology.
+ * Describes how to navigate from root to leaves, and back up.
+ * Navigation is encoded with TopologyNodeIndex and TopologyBranchIndex types.
+ * Indexes have no "invalid" state: the tree topology must be valid and non empty.
+ */
+class TreeTopologyInterface {
+public:
+	virtual ~TreeTopologyInterface () = default;
+	virtual TopologyNodeIndex rootNode () const = 0;
+	virtual TopologyNodeIndex fatherNode (TopologyBranchIndex id) const = 0;
+	virtual TopologyNodeIndex childNode (TopologyBranchIndex id) const = 0;
+	virtual TopologyBranchIndex fatherBranch (TopologyNodeIndex id) const = 0;
+	virtual Vector<TopologyBranchIndex> childBranches (TopologyNodeIndex id) const = 0;
+};
+
+/// Interface: Can access Branch length fixed value by branch index.
 class BranchLengthValueAccess {
-	// Can access Branch length fixed value by branch id
 public:
 	virtual ~BranchLengthValueAccess () = default;
-	virtual double getBranchLengthValue (TreeTopologyView::BranchIndex id) const = 0;
+	virtual double getBranchLengthValue (TopologyBranchIndex id) const = 0;
 };
 
+/// Interface: Can access Branch length as a Value<double> DF node by branch index.
 class BranchLengthNodeAccess {
-	// Can access Branch length as a Value<double> DF node by branch id
 public:
 	virtual ~BranchLengthNodeAccess () = default;
-	virtual DF::ValueRef<double> getBranchLengthNode (TreeTopologyView::BranchIndex id) const = 0;
+	virtual DF::ValueRef<double> getBranchLengthNode (TopologyBranchIndex id) const = 0;
 };
 
+/// Interface: Can access a Model DF node by branch id, has a defined number of states.
 class ModelNodeAccess {
-	// Can access a Model DF node by branch id, has a defined number of states.
 public:
 	virtual ~ModelNodeAccess () = default;
-	virtual DF::ValueRef<const SubstitutionModel *>
-	getModelNode (TreeTopologyView::BranchIndex id) const = 0;
+	virtual DF::ValueRef<const SubstitutionModel *> getModelNode (TopologyBranchIndex id) const = 0;
 	virtual SizeType getNbStates () const = 0; // tree constant
 };
 
+/// Interface: Can access Sequence names at leaves.
 class SequenceNameValueAccess {
-	// Can access Sequence names at leaves.
 public:
 	virtual ~SequenceNameValueAccess () = default;
-	virtual std::string getSequenceName (TreeTopologyView::NodeIndex id) const = 0;
+	virtual std::string getSequenceName (TopologyNodeIndex id) const = 0;
 };
 
+/// Interface: Can access Sequence DF node at leaves, has a defined number of sites.
 class SequenceNodeAccess {
-	// Can access Sequence DF node at leaves, has a defined number of sites.
 public:
 	virtual ~SequenceNodeAccess () = default;
-	virtual DF::ValueRef<const Sequence *> getSequenceNode (TreeTopologyView::NodeIndex id) const = 0;
+	virtual DF::ValueRef<const Sequence *> getSequenceNode (TopologyNodeIndex id) const = 0;
 	virtual SizeType getNbSites () const = 0;
 };
 
-/* Common useful access classes.
+/** ModelNodeAccess implementation using one model node for all branches.
  */
 class SameModelForAllBranches : public ModelNodeAccess {
-	// Use a single model for all branches of a tree.
 public:
 	SameModelForAllBranches (DF::ValueRef<const SubstitutionModel *> model);
-	DF::ValueRef<const SubstitutionModel *>
-	    getModelNode (TreeTopologyView::BranchIndex) const override;
+	DF::ValueRef<const SubstitutionModel *> getModelNode (TopologyBranchIndex) const override;
 	SizeType getNbStates () const override;
 
 private:
 	DF::ValueRef<const SubstitutionModel *> model_;
 };
 
+/** BranchLengthNodeAccess impl: creates one DF::Parameter for each branch from values.
+ * Associate a DF::Parameter<double> to each branch.
+ * Parameters are initialised by values from a BranchLengthValueAccess object.
+ * Parameters are created lazily (when accessed).
+ */
 class BranchLengthParametersInitializedFromValues : public BranchLengthNodeAccess {
-	/* Associate a DF::Parameter<double> to each branch.
-	 * Parameters are initialised by values from a BranchLengthValueAccess object.
-	 * Parameters are created lazily (when accessed).
-	 */
 public:
 	BranchLengthParametersInitializedFromValues (const BranchLengthValueAccess & values);
-	DF::ValueRef<double> getBranchLengthNode (TreeTopologyView::BranchIndex id) const override;
-	DF::ParameterRef<double> getBranchLengthParameter (TreeTopologyView::BranchIndex id) const;
+	DF::ValueRef<double> getBranchLengthNode (TopologyBranchIndex id) const override;
+	DF::ParameterRef<double> getBranchLengthParameter (TopologyBranchIndex id) const;
 
 private:
 	const BranchLengthValueAccess & values_;
-	mutable std::map<TreeTopologyView::BranchIndex, DF::ParameterRef<double>> parameterNodes_;
+	mutable std::map<TopologyBranchIndex, DF::ParameterRef<double>> parameterNodes_;
 };
 
+/** SequenceNodeAccess impl: creates one sequence node for each leave from names.
+ * Associate a DF::Constant<const Sequence*> to each leaf.
+ * Sequence are selected from a SiteContainer by names from a SequenceNameValueAccess.
+ * DF::Constant nodes are created lazily (when accessed).
+ */
 class SequenceNodesInilialisedFromNames : public SequenceNodeAccess {
-	/* Associate a DF::Constant<const Sequence*> to each leaf.
-	 * Sequence are selected from a SiteContainer by names from a SequenceNameValueAccess.
-	 * DF::Constant nodes are created lazily (when accessed).
-	 */
 public:
 	SequenceNodesInilialisedFromNames (const SequenceNameValueAccess & names,
 	                                   const SiteContainer & sequences);
-	DF::ValueRef<const Sequence *> getSequenceNode (TreeTopologyView::NodeIndex id) const override;
+	DF::ValueRef<const Sequence *> getSequenceNode (TopologyNodeIndex id) const override;
 	SizeType getNbSites () const override;
 
 private:
 	const SequenceNameValueAccess & names_;
 	const SiteContainer & sequences_;
-	mutable std::map<TreeTopologyView::NodeIndex, DF::ValueRef<const Sequence *>> sequenceNodes_;
+	mutable std::map<TopologyNodeIndex, DF::ValueRef<const Sequence *>> sequenceNodes_;
 };
 
 /* Phylogeny DF graph construction functions.
+ * TODO doc
  */
-DF::ValueRef<MatrixDouble> makeConditionalLikelihoodNode (const TreeTopologyView & tree,
+DF::ValueRef<MatrixDouble> makeConditionalLikelihoodNode (const TreeTopologyInterface & tree,
                                                           const SequenceNodeAccess & sequenceNodes,
                                                           const BranchLengthNodeAccess & brlenNodes,
                                                           const ModelNodeAccess & modelNodes,
-                                                          TreeTopologyView::NodeIndex node);
-DF::ValueRef<MatrixDouble> makeForwardLikelihoodNode (const TreeTopologyView & tree,
+                                                          TopologyNodeIndex node);
+DF::ValueRef<MatrixDouble> makeForwardLikelihoodNode (const TreeTopologyInterface & tree,
                                                       const SequenceNodeAccess & sequenceNodes,
                                                       const BranchLengthNodeAccess & brlenNodes,
                                                       const ModelNodeAccess & modelNodes,
-                                                      TreeTopologyView::BranchIndex branch);
-DF::ValueRef<double> makeLogLikelihoodNode (const TreeTopologyView & tree,
+                                                      TopologyBranchIndex branch);
+DF::ValueRef<double> makeLogLikelihoodNode (const TreeTopologyInterface & tree,
                                             const SequenceNodeAccess & sequenceNodes,
                                             const BranchLengthNodeAccess & brlenNodes,
                                             const ModelNodeAccess & modelNodes);

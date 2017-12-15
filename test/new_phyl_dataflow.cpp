@@ -235,14 +235,14 @@ TEST_CASE("new")
 #include <stack>
 namespace bpp
 {
-  ParameterList branchLengthParameterList(const TreeTopologyView& tree,
+  ParameterList branchLengthParameterList(const TreeTopologyInterface& tree,
                                           const BranchLengthParametersInitializedFromValues& brlens,
-                                          std::function<std::string(TreeTopologyView::BranchIndex)> branchName)
+                                          std::function<std::string(TopologyBranchIndex)> branchName)
   {
     // TODO add getBrlenParameter interface + put this in lib ?
     ParameterList params;
 
-    std::stack<TreeTopologyView::NodeIndex> nodesToVisit;
+    std::stack<TopologyNodeIndex> nodesToVisit;
     nodesToVisit.push(tree.rootNode());
     while (!nodesToVisit.empty())
     {
@@ -281,10 +281,8 @@ TEST_CASE("df")
   auto logLikNode = bpp::makeLogLikelihoodNode(treeView, sequences, brlenParameters, modelSetup);
 
   // Build bpp-compatible structure out of it
-  bpp::ParameterList brlenBppParams =
-    bpp::branchLengthParameterList(treeView, brlenParameters, [](bpp::TreeTopologyView::BranchIndex branch) {
-      return "BrLen" + std::to_string(branch.value);
-    });
+  bpp::ParameterList brlenBppParams = bpp::branchLengthParameterList(
+    treeView, brlenParameters, [](bpp::TopologyBranchIndex branch) { return "BrLen" + std::to_string(branch.value); });
   bpp::ParameterList params{brlenBppParams};
   for (auto i : bpp::range(model->nbParameters()))
   {

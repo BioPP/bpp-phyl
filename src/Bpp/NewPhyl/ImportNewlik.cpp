@@ -52,30 +52,30 @@ namespace bpp {
  * - PhyloTree navigates by taking shared_ptr<N/E>
  * - we can only store a raw pointer
  */
-TreeTopologyView::NodeIndex PhyloTreeView::rootNode () const {
+TopologyNodeIndex PhyloTreeView::rootNode () const {
 	if (!tree_.isRooted ())
 		throw Exception ("PhyloTreeView: PhyloTree is not rooted");
 	return convertNode (tree_.getRootIndex ());
 }
-TreeTopologyView::NodeIndex PhyloTreeView::fatherNode (BranchIndex id) const {
+TopologyNodeIndex PhyloTreeView::fatherNode (TopologyBranchIndex id) const {
 	return convertNode (tree_.getFather (convertBranch (id)));
 }
-TreeTopologyView::NodeIndex PhyloTreeView::childNode (BranchIndex id) const {
+TopologyNodeIndex PhyloTreeView::childNode (TopologyBranchIndex id) const {
 	return convertNode (tree_.getSon (convertBranch (id)));
 }
-TreeTopologyView::BranchIndex PhyloTreeView::fatherBranch (NodeIndex id) const {
+TopologyBranchIndex PhyloTreeView::fatherBranch (TopologyNodeIndex id) const {
 	return convertBranch (tree_.getEdgeIndex (tree_.getEdgeToFather (convertNode (id))));
 }
-Vector<TreeTopologyView::BranchIndex> PhyloTreeView::childBranches (NodeIndex id) const {
+Vector<TopologyBranchIndex> PhyloTreeView::childBranches (TopologyNodeIndex id) const {
 	return mapToVector (tree_.getBranches (convertNode (id)),
 	                    [](PhyloTree::EdgeIndex i) { return convertBranch (i); });
 }
 
-double PhyloTreeView::getBranchLengthValue (BranchIndex id) const {
+double PhyloTreeView::getBranchLengthValue (TopologyBranchIndex id) const {
 	return tree_.getEdge (convertBranch (id))->getLength ();
 }
 
-std::string PhyloTreeView::getSequenceName (NodeIndex id) const {
+std::string PhyloTreeView::getSequenceName (TopologyNodeIndex id) const {
 	return tree_.getNode (convertNode (id))->getName ();
 }
 } // namespace bpp

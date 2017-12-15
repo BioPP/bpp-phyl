@@ -49,31 +49,31 @@ namespace bpp {
 /* In TreeTemplate there is no notion of edges, only nodes.
  * In this view class, the index of a branch is defined as the index of its child node.
  */
-TreeTopologyView::NodeIndex TreeTemplateView::rootNode () const {
+TopologyNodeIndex TreeTemplateView::rootNode () const {
 	// isRooted method checks if 2 sons, fails on newphyl example that has 3 sons...
 	if (tree_.getRootNode () == nullptr)
 		throw Exception ("TreeTemplateView: tree has no root node");
 	return convert (tree_.getRootId ());
 }
-TreeTopologyView::NodeIndex TreeTemplateView::fatherNode (BranchIndex id) const {
+TopologyNodeIndex TreeTemplateView::fatherNode (TopologyBranchIndex id) const {
 	return convert (tree_.getFatherId (convert (childNode (id))));
 }
-TreeTopologyView::NodeIndex TreeTemplateView::childNode (BranchIndex id) const {
-	return NodeIndex (id.value);
+TopologyNodeIndex TreeTemplateView::childNode (TopologyBranchIndex id) const {
+	return TopologyNodeIndex (id.value);
 }
-TreeTopologyView::BranchIndex TreeTemplateView::fatherBranch (NodeIndex id) const {
-	return BranchIndex (id.value);
+TopologyBranchIndex TreeTemplateView::fatherBranch (TopologyNodeIndex id) const {
+	return TopologyBranchIndex (id.value);
 }
-Vector<TreeTopologyView::BranchIndex> TreeTemplateView::childBranches (NodeIndex id) const {
+Vector<TopologyBranchIndex> TreeTemplateView::childBranches (TopologyNodeIndex id) const {
 	return mapToVector (tree_.getSonsId (convert (id)),
-	                    [](int i) { return BranchIndex (static_cast<std::intptr_t> (i)); });
+	                    [](int i) { return TopologyBranchIndex (static_cast<std::intptr_t> (i)); });
 }
 
-double TreeTemplateView::getBranchLengthValue (BranchIndex id) const {
+double TreeTemplateView::getBranchLengthValue (TopologyBranchIndex id) const {
 	return tree_.getDistanceToFather (convert (childNode (id)));
 }
 
-std::string TreeTemplateView::getSequenceName (NodeIndex id) const {
+std::string TreeTemplateView::getSequenceName (TopologyNodeIndex id) const {
 	return tree_.getNodeName (convert (id));
 }
 } // namespace bpp

@@ -79,13 +79,13 @@ std::string debug_to_string (T && t) {
 }
 
 // Forward declarations
-class TreeTopologyView;
+class TreeTopologyInterface;
 namespace DF {
 	class Node;
 } // namespace DF
 
 // Output a dot format graph representing the tree
-void debugTree (std::ostream & os, const TreeTopologyView & tree);
+void debugTree (std::ostream & os, const TreeTopologyInterface & tree);
 
 namespace DF {
 	// FIXME remplace with DFParams

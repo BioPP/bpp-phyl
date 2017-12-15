@@ -50,38 +50,38 @@ namespace bpp {
 // Forward declaration
 class PhyloTree;
 
-class PhyloTreeView : public TreeTopologyView,
+class PhyloTreeView : public TreeTopologyInterface,
                       public BranchLengthValueAccess,
                       public SequenceNameValueAccess {
 public:
 	PhyloTreeView (const PhyloTree & tree) : tree_ (tree) {}
 
-	// Convert between TreeTopologyView indexes and PhyloTree indexes
-	static inline PhyloTree::NodeIndex convertNode (NodeIndex id) {
+	// Convert between TreeTopologyInterface indexes and PhyloTree indexes
+	static inline PhyloTree::NodeIndex convertNode (TopologyNodeIndex id) {
 		return static_cast<PhyloTree::NodeIndex> (id.value);
 	}
-	static inline NodeIndex convertNode (PhyloTree::NodeIndex id) {
-		return NodeIndex (static_cast<std::intptr_t> (id));
+	static inline TopologyNodeIndex convertNode (PhyloTree::NodeIndex id) {
+		return TopologyNodeIndex (static_cast<std::intptr_t> (id));
 	}
-	static inline PhyloTree::EdgeIndex convertBranch (BranchIndex id) {
+	static inline PhyloTree::EdgeIndex convertBranch (TopologyBranchIndex id) {
 		return static_cast<PhyloTree::EdgeIndex> (id.value);
 	}
-	static inline BranchIndex convertBranch (PhyloTree::EdgeIndex id) {
-		return BranchIndex (static_cast<std::intptr_t> (id));
+	static inline TopologyBranchIndex convertBranch (PhyloTree::EdgeIndex id) {
+		return TopologyBranchIndex (static_cast<std::intptr_t> (id));
 	}
 
-	// TreeTopologyView
-	NodeIndex rootNode () const override final;
-	NodeIndex fatherNode (BranchIndex id) const override final;
-	NodeIndex childNode (BranchIndex id) const override final;
-	BranchIndex fatherBranch (NodeIndex id) const override final;
-	Vector<BranchIndex> childBranches (NodeIndex id) const override final;
+	// TreeTopologyInterface
+	TopologyNodeIndex rootNode () const override final;
+	TopologyNodeIndex fatherNode (TopologyBranchIndex id) const override final;
+	TopologyNodeIndex childNode (TopologyBranchIndex id) const override final;
+	TopologyBranchIndex fatherBranch (TopologyNodeIndex id) const override final;
+	Vector<TopologyBranchIndex> childBranches (TopologyNodeIndex id) const override final;
 
 	// BranchLengthValueAccess
-	double getBranchLengthValue (BranchIndex id) const override final;
+	double getBranchLengthValue (TopologyBranchIndex id) const override final;
 
 	// SequenceNameValueAccess
-	std::string getSequenceName (NodeIndex id) const override final;
+	std::string getSequenceName (TopologyNodeIndex id) const override final;
 
 private:
 	const PhyloTree & tree_;

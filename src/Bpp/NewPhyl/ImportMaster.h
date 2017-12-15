@@ -50,30 +50,30 @@ namespace bpp {
 class Node;
 template <typename N> class TreeTemplate;
 
-class TreeTemplateView : public TreeTopologyView,
+class TreeTemplateView : public TreeTopologyInterface,
                          public BranchLengthValueAccess,
                          public SequenceNameValueAccess {
 public:
 	TreeTemplateView (const TreeTemplate<Node> & tree) : tree_ (tree) {}
 
-	// Convert between TreeTopologyView node Index and TreeTemplate node id
-	static inline int convert (NodeIndex id) { return static_cast<int> (id.value); }
-	static inline NodeIndex convert (int nodeId) {
-		return NodeIndex (static_cast<std::intptr_t> (nodeId));
+	// Convert between TreeTopologyInterface node Index and TreeTemplate node id
+	static inline int convert (TopologyNodeIndex id) { return static_cast<int> (id.value); }
+	static inline TopologyNodeIndex convert (int nodeId) {
+		return TopologyNodeIndex (static_cast<std::intptr_t> (nodeId));
 	}
 
-	// TreeTopologyView
-	NodeIndex rootNode () const override final;
-	NodeIndex fatherNode (BranchIndex id) const override final;
-	NodeIndex childNode (BranchIndex id) const override final;
-	BranchIndex fatherBranch (NodeIndex id) const override final;
-	Vector<BranchIndex> childBranches (NodeIndex id) const override final;
+	// TreeTopologyInterface
+	TopologyNodeIndex rootNode () const override final;
+	TopologyNodeIndex fatherNode (TopologyBranchIndex id) const override final;
+	TopologyNodeIndex childNode (TopologyBranchIndex id) const override final;
+	TopologyBranchIndex fatherBranch (TopologyNodeIndex id) const override final;
+	Vector<TopologyBranchIndex> childBranches (TopologyNodeIndex id) const override final;
 
 	// BranchLengthValueAccess
-	double getBranchLengthValue (BranchIndex id) const override final;
+	double getBranchLengthValue (TopologyBranchIndex id) const override final;
 
 	// SequenceNameValueAccess
-	std::string getSequenceName (NodeIndex id) const override final;
+	std::string getSequenceName (TopologyNodeIndex id) const override final;
 
 private:
 	const TreeTemplate<Node> & tree_;
