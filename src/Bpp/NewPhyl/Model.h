@@ -88,6 +88,8 @@ namespace DF {
 
 		// TODO  derivation (customizable)
 		bool isDerivable (const Node & node) const override final;
+		
+    NodeRef rebuild (NodeRefVec && deps) const override final;
 
 	private:
 		void compute () override final;

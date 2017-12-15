@@ -150,6 +150,10 @@ namespace DF {
 		    [&node](const NodeRef & dep) { return dep->isTransitivelyDependentOn (node); });
 	}
 
+	NodeRef Model::rebuild (NodeRefVec && deps) const {
+		return makeNode<Model> (std::move (deps), std::unique_ptr<SubstitutionModel>{model_->clone ()});
+	}
+
 	void Model::compute () {
 		// Update internal model bpp::Parameter with ours
 		auto & modelParams = model_->getParameters ();
@@ -178,6 +182,9 @@ namespace DF {
 		}
 		bool isDerivable (const Node & node) const override final {
 			return derivableIfAllDepsAre (*this, node);
+		}
+		NodeRef rebuild (NodeRefVec && deps) const override final {
+			return makeNode<EquilibriumFrequenciesFromModel> (std::move (deps), dimensions (*this).size);
 		}
 
 	private:
@@ -233,6 +240,9 @@ namespace DF {
 		bool isDerivable (const Node & node) const override final {
 			return derivableIfAllDepsAre (*this, node);
 		}
+		NodeRef rebuild (NodeRefVec && deps) const override final {
+			return makeNode<TransitionMatrixFromModel> (std::move (deps), dimensions (*this));
+		}
 
 	private:
 		void compute () override final {
@@ -271,6 +281,10 @@ namespace DF {
 		bool isDerivable (const Node & node) const override final {
 			return derivableIfAllDepsAre (*this, node);
 		}
+		NodeRef rebuild (NodeRefVec && deps) const override final {
+			return makeNode<TransitionMatrixFromModelBrlenDerivative> (std::move (deps),
+			                                                           dimensions (*this));
+		}
 
 	private:
 		void compute () override final {
@@ -295,6 +309,10 @@ namespace DF {
 		std::string debugInfo () const override final {
 			return Value<MatrixDouble>::debugInfo () + " " +
 			       to_string (TransitionMatrixDimension (dimensions (*this)));
+		}
+		NodeRef rebuild (NodeRefVec && deps) const override final {
+			return makeNode<TransitionMatrixFromModelBrlenSecondDerivative> (std::move (deps),
+			                                                                 dimensions (*this));
 		}
 
 	private:
