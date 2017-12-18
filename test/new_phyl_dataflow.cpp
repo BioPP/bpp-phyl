@@ -236,7 +236,7 @@ TEST_CASE("new")
 namespace bpp
 {
   ParameterList branchLengthParameterList(const TreeTopologyInterface& tree,
-                                          const BranchLengthParametersInitializedFromValues& brlens,
+                                          const BranchLengthsInitializedFromValues& brlens,
                                           std::function<std::string(TopologyBranchIndex)> branchName)
   {
     // TODO add getBrlenParameter interface + put this in lib ?
@@ -250,7 +250,7 @@ namespace bpp
       nodesToVisit.pop();
       for (auto branch : tree.childBranches(node))
       {
-        auto p = DataFlowParameter(branchName(branch), brlens.getBranchLengthParameter(branch));
+        auto p = DataFlowParameter(branchName(branch), brlens.getBranchLengthMutableNode(branch));
         p.setConstraint(Parameter::R_PLUS.clone(), true);
         params.addParameter(std::move(p));
         nodesToVisit.push(tree.childNode(branch));
@@ -274,7 +274,7 @@ TEST_CASE("df")
   // Describe how to build a likelihood value
   auto treeView = bpp::TreeTemplateView(*tree);
   auto modelSetup = bpp::SameModelForAllBranches(model);
-  auto brlenParameters = bpp::BranchLengthParametersInitializedFromValues(treeView);
+  auto brlenParameters = bpp::BranchLengthsInitializedFromValues(treeView);
   auto sequences = bpp::SequenceNodesInilialisedFromNames(treeView, c.sites);
 
   // Build DF node

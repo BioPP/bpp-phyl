@@ -45,12 +45,12 @@
 namespace bpp {
 
 DataFlowParameter::DataFlowParameter (const std::string & name,
-                                      DF::ParameterRef<double> existingParam)
+                                      DF::MutableRef<double> existingParam)
     : Parameter (name, DF::accessValidValueConst (*existingParam)),
       dfParam_ (std::move (existingParam)) {}
 
 DataFlowParameter::DataFlowParameter (const std::string & name, double initialValue)
-    : DataFlowParameter (name, DF::makeNode<DF::Parameter<double>> (initialValue)) {}
+    : DataFlowParameter (name, DF::makeNode<DF::Mutable<double>> (initialValue)) {}
 
 double DataFlowParameter::getValue () const {
 	return DF::accessValidValueConst (*dfParam_);

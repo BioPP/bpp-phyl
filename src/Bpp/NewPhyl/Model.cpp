@@ -118,7 +118,7 @@ namespace DF {
 		// TODO remove
 		const auto & parameters = model_->getParameters ();
 		for (auto i : range (parameters.size ()))
-			this->appendDependency (DF::makeNode<DF::Parameter<double>> (parameters[i].getValue ()));
+			this->appendDependency (DF::makeNode<DF::Mutable<double>> (parameters[i].getValue ()));
 	}
 
 	Model::~Model () = default;
@@ -126,12 +126,12 @@ namespace DF {
 	SizeType Model::nbParameters () const noexcept { return this->dependencies ().size (); }
 
 	// TODO remove too
-	ParameterRef<double> Model::getParameter (SizeType index) {
+	MutableRef<double> Model::getParameter (SizeType index) {
 		assert (0 <= index);
 		assert (index < this->nbDependencies ());
-		return convertRef<DF::Parameter<double>> (this->dependency (index));
+		return convertRef<DF::Mutable<double>> (this->dependency (index));
 	}
-	ParameterRef<double> Model::getParameter (const std::string & name) {
+	MutableRef<double> Model::getParameter (const std::string & name) {
 		return getParameter (
 		    static_cast<SizeType> (model_->getParameters ().whichParameterHasName (name)));
 	}

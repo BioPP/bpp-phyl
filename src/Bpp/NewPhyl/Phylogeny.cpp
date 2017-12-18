@@ -75,22 +75,22 @@ SizeType SameModelForAllBranches::getNbStates () const {
 	return static_cast<SizeType> (model_->getValue ()->getNumberOfStates ());
 }
 
-BranchLengthParametersInitializedFromValues::BranchLengthParametersInitializedFromValues (
+BranchLengthsInitializedFromValues::BranchLengthsInitializedFromValues (
     const BranchLengthValueAccess & values)
     : values_ (values) {}
 DF::ValueRef<double>
-BranchLengthParametersInitializedFromValues::getBranchLengthNode (TopologyBranchIndex id) const {
-	return getBranchLengthParameter (id);
+BranchLengthsInitializedFromValues::getBranchLengthNode (TopologyBranchIndex id) const {
+	return getBranchLengthMutableNode (id);
 }
-DF::ParameterRef<double> BranchLengthParametersInitializedFromValues::getBranchLengthParameter (
-    TopologyBranchIndex id) const {
-	auto it = parameterNodes_.find (id);
-	if (it != parameterNodes_.end ()) {
+DF::MutableRef<double>
+BranchLengthsInitializedFromValues::getBranchLengthMutableNode (TopologyBranchIndex id) const {
+	auto it = mutableNodes_.find (id);
+	if (it != mutableNodes_.end ()) {
 		return it->second;
 	} else {
-		auto parameter = DF::makeNode<DF::Parameter<double>> (values_.getBranchLengthValue (id));
-		parameterNodes_.emplace (id, parameter);
-		return parameter;
+		auto mutableNode = DF::makeNode<DF::Mutable<double>> (values_.getBranchLengthValue (id));
+		mutableNodes_.emplace (id, mutableNode);
+		return mutableNode;
 	}
 }
 

@@ -228,15 +228,15 @@ namespace DF {
 		return std::to_string (this->value_);
 	}
 
-	// Parameter<double> specialisation
-	template <> NodeRef Parameter<double>::derive (const Node & node) {
+	// Mutable<double> specialisation
+	template <> NodeRef Mutable<double>::derive (const Node & node) {
 		if (&node == static_cast<const Node *> (this)) {
 			return Builder<Constant<double>>::makeOne ();
 		} else {
 			return Builder<Constant<double>>::makeZero ();
 		}
 	}
-	template <> bool Parameter<double>::isDerivable (const Node &) const { return true; }
+	template <> bool Mutable<double>::isDerivable (const Node &) const { return true; }
 
 	// Constant<double> specialisation
 	template <> NodeRef Constant<double>::derive (const Node &) {

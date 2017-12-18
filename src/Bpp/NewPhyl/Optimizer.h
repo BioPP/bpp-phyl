@@ -54,10 +54,10 @@
 
 namespace bpp {
 
-// Wraps a DF::Parameter<double> data flow node as a bpp::Parameter
+// Wraps a DF::Mutable<double> data flow node as a bpp::Parameter
 class DataFlowParameter : public Parameter {
 public:
-	DataFlowParameter (const std::string & name, DF::ParameterRef<double> existingParam);
+	DataFlowParameter (const std::string & name, DF::MutableRef<double> existingParam);
 	DataFlowParameter (const std::string & name, double initialValue);
 
 	// Parameter boilerplate
@@ -68,11 +68,11 @@ public:
 	void setValue (double v) override;
 	// TODO care about the listeners
 
-	const DF::ParameterRef<double> & getDataFlowParameter () const noexcept { return dfParam_; }
+	const DF::MutableRef<double> & getDataFlowParameter () const noexcept { return dfParam_; }
 
 private:
-	DF::ParameterRef<double> dfParam_;
-	// FIXME improve sync between DF::Parameter value and bpp::Parameter
+	DF::MutableRef<double> dfParam_;
+	// FIXME improve sync between DF::Mutable value and bpp::Parameter
 };
 
 /*
@@ -193,10 +193,10 @@ public:
 	}
 
 private:
-	static const DF::ParameterRef<double> & getDataFlowParameter (const Parameter & param) {
+	static const DF::MutableRef<double> & getDataFlowParameter (const Parameter & param) {
 		return dynamic_cast<const DataFlowParameter &> (param).getDataFlowParameter ();
 	}
-	const DF::ParameterRef<double> & getDataFlowParameter (const std::string & name) const {
+	const DF::MutableRef<double> & getDataFlowParameter (const std::string & name) const {
 		return getDataFlowParameter (getParameter (name));
 	}
 };

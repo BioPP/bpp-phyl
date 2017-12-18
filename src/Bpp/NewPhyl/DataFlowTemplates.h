@@ -53,21 +53,21 @@ namespace DF {
 	// TODO move Value (and maybe later value alternatives like SiteValue) here ?
 
 	// Declarations
-	template <typename T> class Parameter;
+	template <typename T> class Mutable;
 	template <typename T> class Constant;
-	template <typename T> using ParameterRef = std::shared_ptr<Parameter<T>>;
+	template <typename T> using MutableRef = std::shared_ptr<Mutable<T>>;
 
 	// Error function
 	[[noreturn]] void failureComputeWasCalled (const std::type_info & nodeType);
 
-	/* Parameter node.
+	/* Mutable node.
 	 * Leaf of the DataFlow graph, has no dependency.
 	 * Represents a mutable value.
 	 */
-	template <typename T> class Parameter : public Value<T> {
+	template <typename T> class Mutable : public Value<T> {
 	public:
 		template <typename... Args>
-		Parameter (Args &&... args) : Value<T> (noDependency, std::forward<Args> (args)...) {
+		Mutable (Args &&... args) : Value<T> (noDependency, std::forward<Args> (args)...) {
 			this->makeValid ();
 		}
 
@@ -90,7 +90,7 @@ namespace DF {
 		}
 
 	private:
-		void compute () override final { failureComputeWasCalled (typeid (Parameter<T>)); }
+		void compute () override final { failureComputeWasCalled (typeid (Mutable<T>)); }
 	};
 
 	/* Constant node.
@@ -116,8 +116,8 @@ namespace DF {
 	};
 
 	// Specialisations in DataFlow.cpp
-	template <> NodeRef Parameter<double>::derive (const Node & node);
-	template <> bool Parameter<double>::isDerivable (const Node & node) const;
+	template <> NodeRef Mutable<double>::derive (const Node & node);
+	template <> bool Mutable<double>::isDerivable (const Node & node) const;
 
 	template <> NodeRef Constant<double>::derive (const Node & node);
 	template <> bool Constant<double>::isDerivable (const Node & node) const;

@@ -78,7 +78,7 @@ TEST_CASE("derive constant")
   CHECK(konst->getValue() == 42.0);
   CHECK(konst->isConstant());
 
-  auto dummy = makeNode<Parameter<double>>(0);
+  auto dummy = makeNode<Mutable<double>>(0);
   auto derived = convertRef<Value<double>>(konst->derive(*dummy));
   CHECK(derived->isConstant());
   CHECK(derived->getValue() == 0.);
@@ -86,8 +86,8 @@ TEST_CASE("derive constant")
 
 TEST_CASE("derive parameter")
 {
-  auto x = makeNode<Parameter<double>>(42.0);
-  auto dummy = makeNode<Parameter<double>>(3);
+  auto x = makeNode<Mutable<double>>(42.0);
+  auto dummy = makeNode<Mutable<double>>(3);
 
   auto dx_dx = convertRef<Value<double>>(x->derive(*x));
   CHECK(dx_dx->isConstant());

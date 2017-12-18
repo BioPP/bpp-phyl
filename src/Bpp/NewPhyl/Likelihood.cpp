@@ -62,7 +62,7 @@ namespace DF {
 			       to_string (LikelihoodDataDimension (dimensions (*this)));
 		}
 		NodeRef derive (const Node &) override final {
-			// Sequence is a constant with respect to all parameters.
+			// Sequence is a constant.
 			return Builder<Constant<MatrixDouble>>::makeZero (dimensions (*this));
 		}
 		bool isDerivable (const Node &) const override final { return true; }

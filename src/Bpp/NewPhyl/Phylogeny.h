@@ -143,20 +143,20 @@ private:
 	DF::ValueRef<const SubstitutionModel *> model_;
 };
 
-/** BranchLengthNodeAccess impl: creates one DF::Parameter for each branch from values.
- * Associate a DF::Parameter<double> to each branch.
- * Parameters are initialised by values from a BranchLengthValueAccess object.
- * Parameters are created lazily (when accessed).
+/** BranchLengthNodeAccess impl: creates one DF::Mutable for each branch from values.
+ * Associate a DF::Mutable<double> to each branch.
+ * Mutables are initialised by values from a BranchLengthValueAccess object.
+ * Mutables are created lazily (when accessed).
  */
-class BranchLengthParametersInitializedFromValues : public BranchLengthNodeAccess {
+class BranchLengthsInitializedFromValues : public BranchLengthNodeAccess {
 public:
-	BranchLengthParametersInitializedFromValues (const BranchLengthValueAccess & values);
+	BranchLengthsInitializedFromValues (const BranchLengthValueAccess & values);
 	DF::ValueRef<double> getBranchLengthNode (TopologyBranchIndex id) const override;
-	DF::ParameterRef<double> getBranchLengthParameter (TopologyBranchIndex id) const;
+	DF::MutableRef<double> getBranchLengthMutableNode (TopologyBranchIndex id) const;
 
 private:
 	const BranchLengthValueAccess & values_;
-	mutable std::map<TopologyBranchIndex, DF::ParameterRef<double>> parameterNodes_;
+	mutable std::map<TopologyBranchIndex, DF::MutableRef<double>> mutableNodes_;
 };
 
 /** SequenceNodeAccess impl: creates one sequence node for each leave from names.

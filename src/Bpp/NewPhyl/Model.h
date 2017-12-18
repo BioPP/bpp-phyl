@@ -79,8 +79,8 @@ namespace DF {
 
 		// Legacy FIXME
 		Model (std::unique_ptr<SubstitutionModel> model);
-		ParameterRef<double> getParameter (SizeType index);
-		ParameterRef<double> getParameter (const std::string & name);
+		MutableRef<double> getParameter (SizeType index);
+		MutableRef<double> getParameter (const std::string & name);
 		const std::string & getParameterName (SizeType index);
 
 		std::string description () const override final;
@@ -88,8 +88,8 @@ namespace DF {
 
 		// TODO  derivation (customizable)
 		bool isDerivable (const Node & node) const override final;
-		
-    NodeRef rebuild (NodeRefVec && deps) const override final;
+
+		NodeRef rebuild (NodeRefVec && deps) const override final;
 
 	private:
 		void compute () override final;

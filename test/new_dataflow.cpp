@@ -93,10 +93,10 @@ TEST_CASE("Testing data flow system on simple int reduction tree")
    * With p_i parameters, n_i sum nodes, root a neg node.
    */
 
-  auto p1 = makeNode<Parameter<int>>(42);
-  auto p2 = makeNode<Parameter<int>>(1);
-  auto p3 = makeNode<Parameter<int>>(0);
-  auto p4 = makeNode<Parameter<int>>(3);
+  auto p1 = makeNode<Mutable<int>>(42);
+  auto p2 = makeNode<Mutable<int>>(1);
+  auto p3 = makeNode<Mutable<int>>(0);
+  auto p4 = makeNode<Mutable<int>>(3);
 
   auto n1 = makeNode<AddInt>({p1, p2});
   auto n2 = makeNode<AddInt>({n1, p3});
@@ -148,11 +148,11 @@ TEST_CASE("Testing data flow system on simple int reduction tree")
 }
 
 template<typename T>
-struct MyParam : bpp::DF::Parameter<T>
+struct MyParam : bpp::DF::Mutable<T>
 {
-  using bpp::DF::Parameter<T>::Parameter;
-  using bpp::DF::Parameter<T>::invalidateRecursively;
-  using bpp::DF::Parameter<T>::computeRecursively;
+  using bpp::DF::Mutable<T>::Mutable;
+  using bpp::DF::Mutable<T>::invalidateRecursively;
+  using bpp::DF::Mutable<T>::computeRecursively;
 };
 
 TEST_CASE("Exceptions")
@@ -171,7 +171,7 @@ TEST_CASE("Exceptions")
   CHECK_THROWS_AS(makeNode<NegInt>({}), bpp::Exception);
 
   // GenericFunctionComputation: type mismatch
-  auto p = makeNode<Parameter<bool>>();
+  auto p = makeNode<Mutable<bool>>();
   CHECK_THROWS_AS(makeNode<NegInt>({p}), bpp::Exception);
 
   // GenericReductionComputation: type mismatch
@@ -182,7 +182,7 @@ TEST_CASE("Properties")
 {
   using namespace bpp::DF;
   auto konst = makeNode<Constant<int>>(42);
-  auto param = makeNode<Parameter<int>>(42);
+  auto param = makeNode<Mutable<int>>(42);
   auto add = makeNode<AddInt>({konst, param});
 
   // int not derivable
@@ -216,7 +216,7 @@ TEST_CASE("Rebuild")
 
   CHECK(na123->getValue() == -21);
 
-  auto p = makeNode<Parameter<int>>(-21);
+  auto p = makeNode<Mutable<int>>(-21);
   std::map<const Node*, NodeRef> replace_k3_with_p = {{k3.get(), p}};
 
   CHECK_THROWS_AS(rebuildWithSubstitution(na123, replace_k3_with_p),
