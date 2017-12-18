@@ -56,6 +56,59 @@ namespace bpp {
 class SubstitutionModel;
 
 namespace DF {
+	/** Interface for accessing model parameters by their names.
+	 * Associates Value<double> nodes to names.
+	 */
+	class ModelParameterAccessByName {
+	public:
+		virtual ~ModelParameterAccessByName () = default;
+		virtual ValueRef<double> getModelParameter (const std::string & name) const = 0;
+	};
+
+	/** Impl for ModelParameterAccessByName: map of DF::Mutable<double>.
+	 * Represents the set of parameters for one SubstitutionModel.
+	 * Mutable nodes are created for each SubstitutionModel parameter.
+	 * They are registered under their non-namespaced names.
+	 * They can be changed to point to other Mutable<double> objects.
+	 */
+	class ModelParameterMap : public ModelParameterAccessByName {
+	public:
+		/** Creates a new ModelParameterMap.
+		 * One Mutable<double> object is created for each model parameter.
+		 * It is registered in the map with its non-namespaced name.
+		 */
+		ModelParameterMap (const SubstitutionModel & model);
+
+		/// Impl of ModelParameterAccessByName, returns the parameter or throws.
+		ValueRef<double> getModelParameter (const std::string & name) const override;
+
+		/** Access Mutable directly, or throws if not found (non-const version).
+		 * Can change which Mutable is associated to this name.
+		 * This is useful to have multiple models share a subset of parameter values.
+		 */
+		MutableRef<double> & operator[] (const std::string & name);
+
+		/** Access Mutable directly or throws if not found (const version).
+		 *  Mutable cannot be changed, but its value can.
+		 */
+		const MutableRef<double> & operator[] (const std::string & name) const;
+
+		/// Direct map access (for info, debug, iteration).
+		const std::map<std::string, MutableRef<double>> & getMap () const { return mutableNodeByName_; }
+
+	private:
+		std::map<std::string, MutableRef<double>> mutableNodeByName_;
+	};
+
+	/** Create a dependency vector suitable for a Model class constructor.
+	 * The vector is built from the model internal parameter names, and Value<double> nodes in a map.
+	 * For each named parameter in the model, a value node of the same node is taken from the map.
+	 * Both namespaced and non-namespaced names are tried.
+	 * If no node is found, an exception is thrown.
+	 */
+	NodeRefVec createDependencyVector (const SubstitutionModel & model,
+	                                   const std::map<std::string, ValueRef<double>> & depsByName);
+
 	/** Data flow node representing a Model configured with parameter values.
 	 * This class wraps a bpp::SubstitutionModel as a data flow node.
 	 * It depends on Value<double> nodes (one for each parameter declared in the model).
@@ -72,6 +125,10 @@ namespace DF {
 		 * The number and order of parameters is given by the SubstitutionModel internal ParameterList.
 		 */
 		Model (NodeRefVec && deps, std::unique_ptr<SubstitutionModel> && model);
+
+    // TODO
+		Model (const ModelParameterAccessByName & depsByName,
+		       std::unique_ptr<SubstitutionModel> && model);
 
 		~Model ();
 
@@ -95,15 +152,6 @@ namespace DF {
 		void compute () override final;
 		std::unique_ptr<SubstitutionModel> model_;
 	};
-
-	/** Create a dependency vector suitable for a Model class constructor.
-	 * The vector is built from the model internal parameter names, and Value<double> nodes in a map.
-	 * For each named parameter in the model, a value node of the same node is taken from the map.
-	 * Both namespaced and non-namespaced names are tried.
-	 * If no node is found, an exception is thrown.
-	 */
-	NodeRefVec createDependencyVector (const SubstitutionModel & model,
-	                                   const std::map<std::string, ValueRef<double>> & depsByName);
 
 	// Compute nodes
 

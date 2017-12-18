@@ -52,32 +52,36 @@
 
 namespace bpp {
 namespace DF {
-	/* Model values derivation:
-	 *
-	 * We only have analytical derivation for transition matrix with respect to brlen.
-	 * A model is defined as "derivable(x)" if its parameters do not depend on "x".
-	 *
-	 * With a "derivable(x)" model:
-	 * - equilibrium frequencies are a constant (derive to 0s).
-	 * - transition matrices are only dependent on brlen (which may depend on "x", constant if not).
-	 *
-	 * derive(x) methods for model value compute nodes assume the model is derivable(x).
-	 * derive(x) will not fail is not the case, but the derivative will be wrong.
-	 * This is checked by an assert in debug mode.
-	 * derive(x) for these nodes should not be called if isDerivable(x) is false.
-	 * FIXME check anyway at derive(x), throw exception ?
-	 *
-	 * A non derivable(x) model is a model whose parameters depend on "x".
-	 * It can be derived numerically.
-	 */
+	// ModelParameterMap
 
-	// Model DF Node
+	ModelParameterMap::ModelParameterMap (const SubstitutionModel & model) {
+		const auto & modelParameters = model.getParameters ();
+		for (auto i : range (modelParameters.size ())) {
+			const auto & param = modelParameters[i];
+			mutableNodeByName_.emplace (model.getParameterNameWithoutNamespace (param.getName ()),
+			                            makeNode<Mutable<double>> (param.getValue ()));
+		}
+	}
 
-	Model::Model (NodeRefVec && deps, std::unique_ptr<SubstitutionModel> && model)
-	    : Value<const SubstitutionModel *> (std::move (deps), model.get ()),
-	      model_ (std::move (model)) {
-		checkDependencyPattern (typeid (Model), dependencies (),
-		                        ArrayOfValues<double>{nbParameters ()});
+	ValueRef<double> ModelParameterMap::getModelParameter (const std::string & name) const {
+		return operator[] (name);
+	}
+
+	MutableRef<double> & ModelParameterMap::operator[] (const std::string & name) {
+		auto it = mutableNodeByName_.find (name);
+		if (it != mutableNodeByName_.end ()) {
+			return it->second;
+		} else {
+			throw Exception ("ModelParameterMap::operator[] parameter \"" + name + "\" not found");
+		}
+	}
+	const MutableRef<double> & ModelParameterMap::operator[] (const std::string & name) const {
+		auto it = mutableNodeByName_.find (name);
+		if (it != mutableNodeByName_.end ()) {
+			return it->second;
+		} else {
+			throw Exception ("ModelParameterMap::operator[] parameter \"" + name + "\" not found");
+		}
 	}
 
 	NodeRefVec createDependencyVector (const SubstitutionModel & model,
@@ -111,6 +115,34 @@ namespace DF {
 			}
 		}
 		return deps;
+	}
+
+	/* Model values derivation:
+	 *
+	 * We only have analytical derivation for transition matrix with respect to brlen.
+	 * A model is defined as "derivable(x)" if its parameters do not depend on "x".
+	 *
+	 * With a "derivable(x)" model:
+	 * - equilibrium frequencies are a constant (derive to 0s).
+	 * - transition matrices are only dependent on brlen (which may depend on "x", constant if not).
+	 *
+	 * derive(x) methods for model value compute nodes assume the model is derivable(x).
+	 * derive(x) will not fail is not the case, but the derivative will be wrong.
+	 * This is checked by an assert in debug mode.
+	 * derive(x) for these nodes should not be called if isDerivable(x) is false.
+	 * FIXME check anyway at derive(x), throw exception ?
+	 *
+	 * A non derivable(x) model is a model whose parameters depend on "x".
+	 * It can be derived numerically.
+	 */
+
+	// Model DF Node
+
+	Model::Model (NodeRefVec && deps, std::unique_ptr<SubstitutionModel> && model)
+	    : Value<const SubstitutionModel *> (std::move (deps), model.get ()),
+	      model_ (std::move (model)) {
+		checkDependencyPattern (typeid (Model), dependencies (),
+		                        ArrayOfValues<double>{nbParameters ()});
 	}
 
 	Model::Model (std::unique_ptr<SubstitutionModel> model)
