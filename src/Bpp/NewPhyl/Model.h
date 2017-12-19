@@ -76,6 +76,8 @@ namespace DF {
 		/** Creates a new ModelParameterMap.
 		 * One Mutable<double> object is created for each model parameter.
 		 * It is registered in the map with its non-namespaced name.
+		 * Mutable<double> nodes are initialized with values from the SubstitutionModel parameters.
+     * The reference to the model is only used in this constructor, not stored.
 		 */
 		ModelParameterMap (const SubstitutionModel & model);
 
@@ -101,13 +103,13 @@ namespace DF {
 	};
 
 	/** Create a dependency vector suitable for a Model class constructor.
-	 * The vector is built from the model internal parameter names, and Value<double> nodes in a map.
-	 * For each named parameter in the model, a value node of the same node is taken from the map.
-	 * Both namespaced and non-namespaced names are tried.
-	 * If no node is found, an exception is thrown.
+	 * The vector is built from model parameter names, and Value<double> nodes in a map-like object.
+	 * For each named parameter in the model, a value node of the same node is taken from the object.
+	 * Only non-namespaced names are tried.
+	 * If no node is found in the map-like object, an exception is thrown.
 	 */
 	NodeRefVec createDependencyVector (const SubstitutionModel & model,
-	                                   const std::map<std::string, ValueRef<double>> & depsByName);
+	                                   const ModelParameterAccessByName & depsByName);
 
 	/** Data flow node representing a Model configured with parameter values.
 	 * This class wraps a bpp::SubstitutionModel as a data flow node.
@@ -126,7 +128,7 @@ namespace DF {
 		 */
 		Model (NodeRefVec && deps, std::unique_ptr<SubstitutionModel> && model);
 
-    // TODO
+		// TODO
 		Model (const ModelParameterAccessByName & depsByName,
 		       std::unique_ptr<SubstitutionModel> && model);
 

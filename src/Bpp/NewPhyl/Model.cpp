@@ -85,34 +85,13 @@ namespace DF {
 	}
 
 	NodeRefVec createDependencyVector (const SubstitutionModel & model,
-	                                   const std::map<std::string, ValueRef<double>> & depsByName) {
+	                                   const ModelParameterAccessByName & depsByName) {
 		NodeRefVec deps;
 		const auto & modelParameters = model.getParameters ();
 		for (auto i : range (modelParameters.size ())) {
-			const auto & namespacedName = modelParameters[i].getName ();
-			auto names = {namespacedName, model.getParameterNameWithoutNamespace (namespacedName)};
-
-			auto findFirstFoundName = [&depsByName, &names]() {
-				for (const auto & name : names) {
-					auto it = depsByName.find (name);
-					if (it != depsByName.end ())
-						return it;
-				}
-				return depsByName.end ();
-			};
-			auto it = findFirstFoundName ();
-
-			if (it != depsByName.end ()) {
-				deps.emplace_back (it->second);
-			} else {
-				std::string msg =
-				    "createDependencyVector(model, depsByName): parameter name not found. tested: ";
-				for (const auto & name : names) {
-					msg += name;
-					msg += ", ";
-				}
-				throw Exception (std::move (msg));
-			}
+			auto nonNamespacedName =
+			    model.getParameterNameWithoutNamespace (modelParameters[i].getName ());
+			deps.emplace_back (depsByName.getModelParameter (nonNamespacedName));
 		}
 		return deps;
 	}
@@ -144,6 +123,10 @@ namespace DF {
 		checkDependencyPattern (typeid (Model), dependencies (),
 		                        ArrayOfValues<double>{nbParameters ()});
 	}
+
+	Model::Model (const ModelParameterAccessByName & depsByName,
+	              std::unique_ptr<SubstitutionModel> && model)
+	    : Model (createDependencyVector (*model, depsByName), std::move (model)) {}
 
 	Model::Model (std::unique_ptr<SubstitutionModel> model)
 	    : Value<const SubstitutionModel *> (noDependency, model.get ()), model_ (std::move (model)) {

@@ -268,8 +268,9 @@ TEST_CASE("df")
   auto tree = std::unique_ptr<bpp::TreeTemplate<bpp::Node>>(bpp::TreeTemplateTools::parenthesisToTree(c.treeStr));
 
   // Model
-  auto model =
-    bpp::DF::makeNode<bpp::DF::Model>(std::unique_ptr<bpp::SubstitutionModel>(new bpp::T92(&c.alphabet, 3.)));
+  auto substitutionModel = std::unique_ptr<bpp::SubstitutionModel>(new bpp::T92(&c.alphabet, 3.));
+  auto modelParameters = bpp::DF::ModelParameterMap (*substitutionModel);
+  auto model = bpp::DF::makeNode<bpp::DF::Model>(modelParameters, std::move(substitutionModel));
 
   // Describe how to build a likelihood value
   auto treeView = bpp::TreeTemplateView(*tree);
