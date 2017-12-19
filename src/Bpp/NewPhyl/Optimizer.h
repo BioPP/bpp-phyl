@@ -45,12 +45,16 @@
 #include <Bpp/NewPhyl/DataFlowTemplates.h>
 #include <Bpp/NewPhyl/Debug.h>
 #include <Bpp/NewPhyl/IntegerRange.h>
-#include <Bpp/NewPhyl/Optional.h>
 #include <Bpp/Numeric/Function/Functions.h>
 #include <Bpp/Numeric/Parameter.h>
 #include <Bpp/Numeric/ParameterList.h>
 #include <unordered_map>
 #include <utility>
+
+#include <Bpp/NewPhyl/Model.h>
+#include <Bpp/NewPhyl/Phylogeny.h>
+#include <functional>
+#include <stack>
 
 namespace bpp {
 
@@ -74,6 +78,46 @@ private:
 	DF::MutableRef<double> dfParam_;
 	// FIXME improve sync between DF::Mutable value and bpp::Parameter
 };
+
+/** Builds a bpp::ParameterList from a set of branch length Mutable nodes.
+ * Requires a naming convention function (branchName).
+ * Also add constraints (strict positive lengths).
+ */
+inline ParameterList
+branchLengthParameterList (const TreeTopologyInterface & tree,
+                           const BranchLengthsInitializedFromValues & brlens,
+                           std::function<std::string (TopologyBranchIndex)> branchName) {
+	ParameterList params;
+
+	std::stack<TopologyNodeIndex> nodesToVisit;
+	nodesToVisit.push (tree.rootNode ());
+	while (!nodesToVisit.empty ()) {
+		auto node = nodesToVisit.top ();
+		nodesToVisit.pop ();
+		for (auto branch : tree.childBranches (node)) {
+			auto p = DataFlowParameter (branchName (branch), brlens.getBranchLengthMutableNode (branch));
+			p.setConstraint (Parameter::R_PLUS.clone (), true);
+			params.addParameter (std::move (p));
+			nodesToVisit.push (tree.childNode (branch));
+		}
+	}
+	return params;
+}
+
+/** Builds a bpp::ParameterList from a set of model mutable nodes.
+ * bpp::Parameter objects are created with the non namespaced name, with an optional prefix.
+ * The prefix can be used to reintroduce a namespacing.
+ * TODO do this better (namespacing).
+ */
+inline ParameterList modelParameterList (const ModelParameterMap & modelParameters,
+                                         const std::string prefix = "") {
+	ParameterList params;
+	for (const auto & mapItem : modelParameters.getMap ()) {
+		auto p = DataFlowParameter (prefix + mapItem.first, mapItem.second);
+		params.addParameter (std::move (p));
+	}
+	return params;
+}
 
 /*
  * TODO use AbstractParametrizable (provides no way of adding parameters)

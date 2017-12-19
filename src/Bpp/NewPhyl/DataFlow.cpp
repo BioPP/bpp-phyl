@@ -187,12 +187,6 @@ namespace DF {
 		}
 	}
 
-	void Node::appendDependency (NodeRef node) {
-		node->registerNode (this);
-		dependencyNodes_.emplace_back (std::move (node));
-		invalidateRecursively ();
-	}
-
 	void Node::registerNode (Node * n) { dependentNodes_.emplace_back (n); }
 	void Node::unregisterNode (const Node * n) {
 		dependentNodes_.erase (std::remove (dependentNodes_.begin (), dependentNodes_.end (), n),

@@ -231,35 +231,6 @@ TEST_CASE("new")
 #endif
 
 #ifdef ENABLE_DF
-#include <functional>
-#include <stack>
-namespace bpp
-{
-  ParameterList branchLengthParameterList(const TreeTopologyInterface& tree,
-                                          const BranchLengthsInitializedFromValues& brlens,
-                                          std::function<std::string(TopologyBranchIndex)> branchName)
-  {
-    // TODO add getBrlenParameter interface + put this in lib ?
-    ParameterList params;
-
-    std::stack<TopologyNodeIndex> nodesToVisit;
-    nodesToVisit.push(tree.rootNode());
-    while (!nodesToVisit.empty())
-    {
-      auto node = nodesToVisit.top();
-      nodesToVisit.pop();
-      for (auto branch : tree.childBranches(node))
-      {
-        auto p = DataFlowParameter(branchName(branch), brlens.getBranchLengthMutableNode(branch));
-        p.setConstraint(Parameter::R_PLUS.clone(), true);
-        params.addParameter(std::move(p));
-        nodesToVisit.push(tree.childNode(branch));
-      }
-    }
-    return params;
-  }
-}
-
 TEST_CASE("df")
 {
   const CommonStuff c;
@@ -269,7 +240,7 @@ TEST_CASE("df")
 
   // Model
   auto substitutionModel = std::unique_ptr<bpp::SubstitutionModel>(new bpp::T92(&c.alphabet, 3.));
-  auto modelParameters = bpp::DF::ModelParameterMap (*substitutionModel);
+  auto modelParameters = bpp::ModelParameterMap (*substitutionModel);
   auto model = bpp::DF::makeNode<bpp::DF::Model>(modelParameters, std::move(substitutionModel));
 
   // Describe how to build a likelihood value
@@ -282,14 +253,14 @@ TEST_CASE("df")
   auto logLikNode = bpp::makeLogLikelihoodNode(treeView, sequences, brlenParameters, modelSetup);
 
   // Build bpp-compatible structure out of it
-  bpp::ParameterList brlenBppParams = bpp::branchLengthParameterList(
+  auto brlenBppParams = bpp::branchLengthParameterList(
     treeView, brlenParameters, [](bpp::TopologyBranchIndex branch) { return "BrLen" + std::to_string(branch.value); });
-  bpp::ParameterList params{brlenBppParams};
-  for (auto i : bpp::range(model->nbParameters()))
-  {
-    params.addParameter(bpp::DataFlowParameter(model->getParameterName(i), model->getParameter(i)));
-    CHECK_FALSE(logLikNode->isDerivable(*model->getParameter(i)));
-  }
+
+  auto modelBppParams = bpp::modelParameterList(modelParameters, "T92.");
+
+  bpp::ParameterList params;
+  params.addParameters (brlenBppParams);
+  params.addParameters (modelBppParams);
 
   bpp::DataFlowFunction likFunc{logLikNode, params};
   timingEnd(ts, "df_setup");

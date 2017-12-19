@@ -51,39 +51,39 @@
 #include <cassert>
 
 namespace bpp {
+// ModelParameterMap
+
+ModelParameterMap::ModelParameterMap (const SubstitutionModel & model) {
+	const auto & modelParameters = model.getParameters ();
+	for (auto i : range (modelParameters.size ())) {
+		const auto & param = modelParameters[i];
+		mutableNodeByName_.emplace (model.getParameterNameWithoutNamespace (param.getName ()),
+		                            DF::makeNode<DF::Mutable<double>> (param.getValue ()));
+	}
+}
+
+DF::ValueRef<double> ModelParameterMap::getModelParameter (const std::string & name) const {
+	return operator[] (name);
+}
+
+DF::MutableRef<double> & ModelParameterMap::operator[] (const std::string & name) {
+	auto it = mutableNodeByName_.find (name);
+	if (it != mutableNodeByName_.end ()) {
+		return it->second;
+	} else {
+		throw Exception ("ModelParameterMap::operator[] parameter \"" + name + "\" not found");
+	}
+}
+const DF::MutableRef<double> & ModelParameterMap::operator[] (const std::string & name) const {
+	auto it = mutableNodeByName_.find (name);
+	if (it != mutableNodeByName_.end ()) {
+		return it->second;
+	} else {
+		throw Exception ("ModelParameterMap::operator[] parameter \"" + name + "\" not found");
+	}
+}
+
 namespace DF {
-	// ModelParameterMap
-
-	ModelParameterMap::ModelParameterMap (const SubstitutionModel & model) {
-		const auto & modelParameters = model.getParameters ();
-		for (auto i : range (modelParameters.size ())) {
-			const auto & param = modelParameters[i];
-			mutableNodeByName_.emplace (model.getParameterNameWithoutNamespace (param.getName ()),
-			                            makeNode<Mutable<double>> (param.getValue ()));
-		}
-	}
-
-	ValueRef<double> ModelParameterMap::getModelParameter (const std::string & name) const {
-		return operator[] (name);
-	}
-
-	MutableRef<double> & ModelParameterMap::operator[] (const std::string & name) {
-		auto it = mutableNodeByName_.find (name);
-		if (it != mutableNodeByName_.end ()) {
-			return it->second;
-		} else {
-			throw Exception ("ModelParameterMap::operator[] parameter \"" + name + "\" not found");
-		}
-	}
-	const MutableRef<double> & ModelParameterMap::operator[] (const std::string & name) const {
-		auto it = mutableNodeByName_.find (name);
-		if (it != mutableNodeByName_.end ()) {
-			return it->second;
-		} else {
-			throw Exception ("ModelParameterMap::operator[] parameter \"" + name + "\" not found");
-		}
-	}
-
 	NodeRefVec createDependencyVector (const SubstitutionModel & model,
 	                                   const ModelParameterAccessByName & depsByName) {
 		NodeRefVec deps;
@@ -120,33 +120,20 @@ namespace DF {
 	Model::Model (NodeRefVec && deps, std::unique_ptr<SubstitutionModel> && model)
 	    : Value<const SubstitutionModel *> (std::move (deps), model.get ()),
 	      model_ (std::move (model)) {
+		// This constructor can be called directly by user code, so check deps here.
 		checkDependencyPattern (typeid (Model), dependencies (),
 		                        ArrayOfValues<double>{nbParameters ()});
-	}
-
-	Model::Model (const ModelParameterAccessByName & depsByName,
-	              std::unique_ptr<SubstitutionModel> && model)
-	    : Model (createDependencyVector (*model, depsByName), std::move (model)) {}
-
-	Model::Model (std::unique_ptr<SubstitutionModel> model)
-	    : Value<const SubstitutionModel *> (noDependency, model.get ()), model_ (std::move (model)) {
-		// TODO remove
-		const auto & parameters = model_->getParameters ();
-		for (auto i : range (parameters.size ()))
-			this->appendDependency (DF::makeNode<DF::Mutable<double>> (parameters[i].getValue ()));
 	}
 
 	Model::~Model () = default;
 
 	SizeType Model::nbParameters () const noexcept { return this->dependencies ().size (); }
-
-	// TODO remove too
-	MutableRef<double> Model::getParameter (SizeType index) {
+	ValueRef<double> Model::getParameter (SizeType index) {
 		assert (0 <= index);
 		assert (index < this->nbDependencies ());
-		return convertRef<DF::Mutable<double>> (this->dependency (index));
+		return convertRef<DF::Value<double>> (this->dependency (index));
 	}
-	MutableRef<double> Model::getParameter (const std::string & name) {
+	ValueRef<double> Model::getParameter (const std::string & name) {
 		return getParameter (
 		    static_cast<SizeType> (model_->getParameters ().whichParameterHasName (name)));
 	}
@@ -178,6 +165,19 @@ namespace DF {
 			if (p.getValue () != v)
 				model_->setParameterValue (model_->getParameterNameWithoutNamespace (p.getName ()), v);
 		}
+	}
+
+	// Model builder
+
+	std::shared_ptr<Model> Builder<Model>::make (NodeRefVec && deps,
+	                                             std::unique_ptr<SubstitutionModel> && model) {
+		return std::make_shared<Model> (std::move (deps), std::move (model));
+	}
+
+	std::shared_ptr<Model> Builder<Model>::make (const ModelParameterAccessByName & depsByName,
+	                                             std::unique_ptr<SubstitutionModel> && model) {
+		auto depVector = createDependencyVector (*model, depsByName);
+		return makeNode<Model> (std::move (depVector), std::move (model));
 	}
 
 	// Compute node functions

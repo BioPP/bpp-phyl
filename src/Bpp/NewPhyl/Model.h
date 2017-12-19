@@ -55,53 +55,55 @@
 namespace bpp {
 class SubstitutionModel;
 
+/** Interface for accessing model parameters by their names.
+ * Associates Value<double> nodes to names.
+ */
+class ModelParameterAccessByName {
+public:
+	virtual ~ModelParameterAccessByName () = default;
+	virtual DF::ValueRef<double> getModelParameter (const std::string & name) const = 0;
+};
+
+/** Impl for ModelParameterAccessByName: map of DF::Mutable<double>.
+ * Represents the set of parameters for one SubstitutionModel.
+ * Mutable nodes are created for each SubstitutionModel parameter.
+ * They are registered under their non-namespaced names.
+ * They can be changed to point to other Mutable<double> objects.
+ */
+class ModelParameterMap : public ModelParameterAccessByName {
+public:
+	/** Creates a new ModelParameterMap.
+	 * One Mutable<double> object is created for each model parameter.
+	 * It is registered in the map with its non-namespaced name.
+	 * Mutable<double> nodes are initialized with values from the SubstitutionModel parameters.
+	 * The reference to the model is only used in this constructor, not stored.
+	 */
+	ModelParameterMap (const SubstitutionModel & model);
+
+	/// Impl of ModelParameterAccessByName, returns the parameter or throws.
+	DF::ValueRef<double> getModelParameter (const std::string & name) const override;
+
+	/** Access Mutable directly, or throws if not found (non-const version).
+	 * Can change which Mutable is associated to this name.
+	 * This is useful to have multiple models share a subset of parameter values.
+	 */
+	DF::MutableRef<double> & operator[] (const std::string & name);
+
+	/** Access Mutable directly or throws if not found (const version).
+	 *  Mutable cannot be changed, but its value can.
+	 */
+	const DF::MutableRef<double> & operator[] (const std::string & name) const;
+
+	/// Direct map access (for info, debug, iteration).
+	const std::map<std::string, DF::MutableRef<double>> & getMap () const {
+		return mutableNodeByName_;
+	}
+
+private:
+	std::map<std::string, DF::MutableRef<double>> mutableNodeByName_;
+};
+
 namespace DF {
-	/** Interface for accessing model parameters by their names.
-	 * Associates Value<double> nodes to names.
-	 */
-	class ModelParameterAccessByName {
-	public:
-		virtual ~ModelParameterAccessByName () = default;
-		virtual ValueRef<double> getModelParameter (const std::string & name) const = 0;
-	};
-
-	/** Impl for ModelParameterAccessByName: map of DF::Mutable<double>.
-	 * Represents the set of parameters for one SubstitutionModel.
-	 * Mutable nodes are created for each SubstitutionModel parameter.
-	 * They are registered under their non-namespaced names.
-	 * They can be changed to point to other Mutable<double> objects.
-	 */
-	class ModelParameterMap : public ModelParameterAccessByName {
-	public:
-		/** Creates a new ModelParameterMap.
-		 * One Mutable<double> object is created for each model parameter.
-		 * It is registered in the map with its non-namespaced name.
-		 * Mutable<double> nodes are initialized with values from the SubstitutionModel parameters.
-     * The reference to the model is only used in this constructor, not stored.
-		 */
-		ModelParameterMap (const SubstitutionModel & model);
-
-		/// Impl of ModelParameterAccessByName, returns the parameter or throws.
-		ValueRef<double> getModelParameter (const std::string & name) const override;
-
-		/** Access Mutable directly, or throws if not found (non-const version).
-		 * Can change which Mutable is associated to this name.
-		 * This is useful to have multiple models share a subset of parameter values.
-		 */
-		MutableRef<double> & operator[] (const std::string & name);
-
-		/** Access Mutable directly or throws if not found (const version).
-		 *  Mutable cannot be changed, but its value can.
-		 */
-		const MutableRef<double> & operator[] (const std::string & name) const;
-
-		/// Direct map access (for info, debug, iteration).
-		const std::map<std::string, MutableRef<double>> & getMap () const { return mutableNodeByName_; }
-
-	private:
-		std::map<std::string, MutableRef<double>> mutableNodeByName_;
-	};
-
 	/** Create a dependency vector suitable for a Model class constructor.
 	 * The vector is built from model parameter names, and Value<double> nodes in a map-like object.
 	 * For each named parameter in the model, a value node of the same node is taken from the object.
@@ -122,24 +124,15 @@ namespace DF {
 	 */
 	class Model : public Value<const SubstitutionModel *> {
 	public:
-		/** Create a new model node from a dependency vector.
-		 * Model parameters are given by a dependency vector of Value<double> nodes.
-		 * The number and order of parameters is given by the SubstitutionModel internal ParameterList.
-		 */
+		/// Internal constructor, see Builder<Model>::make for doc.
 		Model (NodeRefVec && deps, std::unique_ptr<SubstitutionModel> && model);
-
-		// TODO
-		Model (const ModelParameterAccessByName & depsByName,
-		       std::unique_ptr<SubstitutionModel> && model);
 
 		~Model ();
 
+		// Access some node information TODO namespacing semantics !
 		SizeType nbParameters () const noexcept;
-
-		// Legacy FIXME
-		Model (std::unique_ptr<SubstitutionModel> model);
-		MutableRef<double> getParameter (SizeType index);
-		MutableRef<double> getParameter (const std::string & name);
+		ValueRef<double> getParameter (SizeType index);
+		ValueRef<double> getParameter (const std::string & name);
 		const std::string & getParameterName (SizeType index);
 
 		std::string description () const override final;
@@ -153,6 +146,23 @@ namespace DF {
 	private:
 		void compute () override final;
 		std::unique_ptr<SubstitutionModel> model_;
+	};
+
+	/// Always build Model nodes by using makeNode, which uses one of the make functions defined here.
+	template <> struct Builder<Model> {
+		/** Create a new model node from a dependency vector.
+		 * Model parameters are given by a dependency vector of Value<double> nodes.
+		 * The number and order of parameters is given by the SubstitutionModel internal ParameterList.
+		 */
+		static std::shared_ptr<Model> make (NodeRefVec && deps,
+		                                    std::unique_ptr<SubstitutionModel> && model);
+
+		/** Create a new model for an association from parameter names to Value<double> nodes.
+		 * Internally, this builds a dependency vector using createDependencyVector.
+		 * It will throw if some parameter names are node found in depsByName.
+		 */
+		static std::shared_ptr<Model> make (const ModelParameterAccessByName & depsByName,
+		                                    std::unique_ptr<SubstitutionModel> && model);
 	};
 
 	// Compute nodes

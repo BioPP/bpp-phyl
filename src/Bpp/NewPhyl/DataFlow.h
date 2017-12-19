@@ -117,10 +117,6 @@ namespace DF {
 		void makeInvalid () noexcept { isValid_ = false; }
 		void makeValid () noexcept { isValid_ = true; }
 
-		// FIXME delete later
-		// Only use is in model, but auto creation of Parameters will move to create.
-		void appendDependency (NodeRef node);
-
 	private:
 		void registerNode (Node * n);
 		void unregisterNode (const Node * n);
