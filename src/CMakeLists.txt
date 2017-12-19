@@ -15,6 +15,7 @@ set (CPP_FILES
   Bpp/NewPhyl/Likelihood.cpp
   Bpp/NewPhyl/LinearAlgebra.cpp
   Bpp/NewPhyl/Model.cpp
+  Bpp/NewPhyl/NumericalDerivation.cpp
   Bpp/NewPhyl/Optimizer.cpp
   Bpp/NewPhyl/Phylogeny.cpp
   Bpp/NewPhyl/PhylogenyTypes.cpp
