@@ -318,6 +318,15 @@ protected:
   protected:
     static std::string propertyToString_(const Clonable* pptObject, short type);
     static Clonable* stringToProperty_(const std::string& pptDesc, short type);
+
+    /*
+     * @brief check and fill all nodes ids.
+     *
+     */
+    
+    void checkNodesId_(PhyloTree& tree) const;
+    
+
   };
 
 } //end of namespace bpp.

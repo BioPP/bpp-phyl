@@ -787,13 +787,8 @@ SubstitutionModel* PhylogeneticsApplicationTools::getSubstitutionModel(
     modelDescription = ApplicationTools::getStringParameter("model", params, "JC69", suffix, suffixIsOptional, warn);
 
   SubstitutionModel* model = bIO.read(alphabet, modelDescription, data, true);
-  map<string, string> tmpUnparsedParameterValues(bIO.getUnparsedArguments());
 
-  map<string, string>::iterator it;
-  for (it = tmpUnparsedParameterValues.begin(); it != tmpUnparsedParameterValues.end(); it++)
-  {
-    unparsedParams[it->first] = it->second;
-  }
+  unparsedParams.insert(bIO.getUnparsedArguments().begin(), bIO.getUnparsedArguments().end());
 
   return model;
 }
@@ -827,11 +822,7 @@ TransitionModel* PhylogeneticsApplicationTools::getTransitionModel(
   TransitionModel* model = bIO.read(alphabet, modelDescription, data, true);
   map<string, string> tmpUnparsedParameterValues(bIO.getUnparsedArguments());
 
-  map<string, string>::iterator it;
-  for (it = tmpUnparsedParameterValues.begin(); it != tmpUnparsedParameterValues.end(); it++)
-  {
-    unparsedParams[it->first] = it->second;
-  }
+  unparsedParams.insert(tmpUnparsedParameterValues.begin(), tmpUnparsedParameterValues.end());
 
   return model;
 }
@@ -963,11 +954,8 @@ map<size_t, TransitionModel*> PhylogeneticsApplicationTools::getTransitionModels
     
     map<string, string> tmpUnparsedParameterValues(bIO.getUnparsedArguments());
 
-    map<string, string>::iterator it;
-    for (it = tmpUnparsedParameterValues.begin(); it != tmpUnparsedParameterValues.end(); it++)
-    {
-      unparsedParams[it->first + "_" + TextTools::toString(modelsNum[i])] = it->second;
-    }
+    for (auto& it : tmpUnparsedParameterValues)
+      unparsedParams[it.first + "_" + TextTools::toString(modelsNum[i])] = it.second;
 
     if (verbose)
     {
@@ -1125,11 +1113,8 @@ FrequenciesSet* PhylogeneticsApplicationTools::getRootFrequenciesSet(
     FrequenciesSet* freq = getFrequenciesSet(alphabet, gCode, freqDescription, data, unparams, rateFreqs, verbose, warn + 1);
     freq->setNamespace("root." + freq->getNamespace());
 
-    map<string, string>::iterator it;
-    for (it = unparams.begin(); it != unparams.end(); it++)
-    {
-      sharedparams["root." + it->first] = it->second;
-    }
+    for (auto& it : unparams)
+      sharedparams["root." + it.first] = it.second;
 
     if (verbose)
       ApplicationTools::displayResult("Root frequencies ", freq->getName());
@@ -1198,11 +1183,10 @@ map<size_t, FrequenciesSet*> PhylogeneticsApplicationTools::getRootFrequenciesSe
 
     unique_ptr<FrequenciesSet> rFS(bIO.read(alphabet, freqDescription, (args.find("data") != args.end()) ? mData.find(nData)->second : 0, true));
     rFS->setNamespace("root." + rFS->getNamespace());
-    map<string, string> unparsedparam = bIO.getUnparsedArguments();    map<string, string>::iterator it;
-    for (it = unparsedparam.begin(); it != unparsedparam.end(); it++)
-    {
-      sharedparams["root." + it->first + "_" + TextTools::toString(rfNum[i])] = it->second;
-    }
+    map<string, string> unparsedparam = bIO.getUnparsedArguments();
+
+    for (auto& it : unparsedparam)
+      sharedparams["root." + it.first + "_" + TextTools::toString(rfNum[i])] = it.second;
 
     if (verbose)
     {
@@ -1366,11 +1350,8 @@ SubstitutionProcess* PhylogeneticsApplicationTools::getSubstitutionProcess(
         unique_ptr<TransitionModel> model(bIO.read(alphabet, modelDesc, pData, true));
         map<string, string> tmpUnparsedParameterValues(bIO.getUnparsedArguments());
 
-        map<string, string>::iterator it;
-        for (it = tmpUnparsedParameterValues.begin(); it != tmpUnparsedParameterValues.end(); it++)
-        {
-          unparsedParams[it->first + "_" + TextTools::toString(i + 1)] = it->second;
-        }
+        for (auto& it : tmpUnparsedParameterValues)
+          unparsedParams[it.first + "_" + TextTools::toString(i + 1)] = it.second;
 
         vector<unsigned int> nodesId = ApplicationTools::getVectorParameter<unsigned int>(prefix + ".nodes_id", params, ',', ':', "", suffix, suffixIsOptional, warn);
 
@@ -1492,12 +1473,13 @@ void PhylogeneticsApplicationTools::addSubstitutionProcessCollectionMember(
       throw Exception("PhylogeneticsApplicationTools::addSubstitutionProcessCollectionMember. A model number is compulsory.");
 
     size_t numModel = (size_t) ApplicationTools::getIntParameter("model", args, 1, "", true, warn);
-
+    
     if (!SubProColl->hasModelNumber(numModel))
       throw BadIntegerException("PhylogeneticsApplicationTools::addSubstitutionProcessCollectionMember : unknown model number", static_cast<int> (numModel));
 
-    vector<unsigned int> vNodes = SubProColl->getTree(numTree).getAllNodesIndexes();
-    vNodes.erase(find(vNodes.begin(),vNodes.end(), SubProColl->getTree(numTree).getNodeIndex(SubProColl->getTree(numTree).getRoot())));
+    const PhyloTree& t=SubProColl->getTree(numTree);
+    
+    vector<uint> vNodes = SubProColl->getTree(numTree).getAllEdgesIndexes();
 
     map<size_t, vector<unsigned int> > mModBr;
     mModBr[numModel] = vNodes;
@@ -1546,10 +1528,10 @@ void PhylogeneticsApplicationTools::addSubstitutionProcessCollectionMember(
     if (verbose)
     {
       ApplicationTools::displayResult("Process type", string("NonHomogeneous"));
-      map<size_t, vector<unsigned int> >::const_iterator it;
-      for (it = mModBr.begin(); it != mModBr.end(); it++)
+
+      for (auto& it : mModBr)
       {
-        ApplicationTools::displayResult (" Model number" + TextTools::toString(it->first) + " associated to", TextTools::toString(it->second.size()) + " node(s).");
+        ApplicationTools::displayResult (" Model number" + TextTools::toString(it.first) + " associated to", TextTools::toString(it.second.size()) + " node(s).");
       }
       ApplicationTools::displayResult (" Tree number", TextTools::toString(numTree));
       ApplicationTools::displayResult (" Rate number", TextTools::toString(numRate));
@@ -1604,10 +1586,9 @@ SubstitutionProcessCollection* PhylogeneticsApplicationTools::getSubstitutionPro
   if (mTree.size() == 0)
     throw Exception("Missing tree in construction of SubstitutionProcessCollection.");
 
-  map<size_t, PhyloTree*>::const_iterator itt;
 
-  for (itt = mTree.begin(); itt != mTree.end(); itt++)
-    SPC->addTree(new ParametrizablePhyloTree(*(itt->second)), itt->first);
+  for (const auto& itt : mTree)
+    SPC->addTree(new ParametrizablePhyloTree(*(itt.second)), itt.first);
 
   // ///////////////////////
   // Rates
@@ -1615,12 +1596,8 @@ SubstitutionProcessCollection* PhylogeneticsApplicationTools::getSubstitutionPro
   if (mDist.size() == 0)
     throw Exception("Missing rate distribution in construction of SubstitutionProcessCollection.");
 
-  map<size_t, DiscreteDistribution*>::const_iterator itd;
-
-  for (itd = mDist.begin(); itd != mDist.end(); itd++)
-  {
-    SPC->addDistribution(itd->second, itd->first);
-  }
+  for (const auto& itd : mDist)
+    SPC->addDistribution(itd.second, itd.first);
 
   // ////////////////////////
   // Models
@@ -1628,24 +1605,14 @@ SubstitutionProcessCollection* PhylogeneticsApplicationTools::getSubstitutionPro
   if (mMod.size() == 0)
     throw Exception("Missing model in construction of SubstitutionProcessCollection.");
 
-  map<size_t, TransitionModel*>::const_iterator itm;
-
-  for (itm = mMod.begin(); itm != mMod.end(); itm++)
-  {
-    SPC->addModel(itm->second, itm->first);
-  }
-
+  for (const auto& itm : mMod)
+    SPC->addModel(itm.second, itm.first);
 
   // ///////////////////////////
   // Root Frequencies
 
-  map<size_t, FrequenciesSet*>::const_iterator itr;
-
-  for (itr = mRootFreq.begin(); itr != mRootFreq.end(); itr++)
-  {
-    SPC->addFrequencies(itr->second, itr->first);
-  }
-
+  for (const auto& itr : mRootFreq)
+    SPC->addFrequencies(itr.second, itr.first);
 
   // //////////////////////////////
   // Now processes
@@ -1994,12 +1961,12 @@ PhyloLikelihoodContainer* PhylogeneticsApplicationTools::getPhyloLikelihoodConta
   // //////////////////////////////////////////
   // First the phylos that do not depend on other phylos
 
-  for (map<size_t, vector<size_t> >::iterator it = phylosMap.begin(); it != phylosMap.end(); it++)
+  for (auto it : phylosMap)
   {
-    if (it->second.size() != 0)
+    if (it.second.size() != 0)
       continue;
 
-    size_t phylonum = it->first;
+    size_t phylonum = it.first;
 
     PhyloLikelihood* nPL;
     string phyloName = "";
