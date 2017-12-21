@@ -160,7 +160,7 @@ void RecursiveLikelihoodTree::initLikelihoodsWithoutPatterns_(const RecursiveLik
   int nId = node->getId();
 
   // for Model specific Alphabet State
-  const TransitionModel& model = *process.getModel(0,0);
+  const StateMap& statemap = process.getStateMap();
 
   // Initialize likelihood vector:
   if (!node->hasFather())
@@ -205,7 +205,7 @@ void RecursiveLikelihoodTree::initLikelihoodsWithoutPatterns_(const RecursiveLik
         double test = 0.;
         for (size_t s = 0; s < nbStates_; s++)
         {
-          double x = sequences.getStateValueAt(i, posSeq, model.getAlphabetStateAsInt(s));
+          double x = sequences.getStateValueAt(i, posSeq, statemap.getAlphabetStateAsInt(s));
           
           if (lNode.usesLog())
           {
@@ -258,7 +258,7 @@ SitePatterns* RecursiveLikelihoodTree::initLikelihoodsWithPatterns_(const Recurs
 {
   const ParametrizablePhyloTree& tree=process.getParametrizablePhyloTree();
   AlignedValuesContainer* tmp = PatternTools::getSequenceSubset(sequences, tree.getNode(node->getId()), tree);
-  
+
   SitePatterns* patterns = new SitePatterns(tmp, true); // Important: patterns own tmp, otherwise sizes will not be accessible outside this function.
   shared_ptr<AlignedValuesContainer> subSequences(patterns->getSites());
 
@@ -266,7 +266,7 @@ SitePatterns* RecursiveLikelihoodTree::initLikelihoodsWithPatterns_(const Recurs
   int nId = node->getId();
 
   // for Model specific Alphabet State
-  const TransitionModel& model = *process.getModel(0,0);
+  const StateMap& statemap = process.getStateMap();
 
   // Initialize likelihood vectors:
 
@@ -310,7 +310,7 @@ SitePatterns* RecursiveLikelihoodTree::initLikelihoodsWithPatterns_(const Recurs
         double test = 0.;
         for (size_t s = 0; s < nbStates_; s++)
         {
-          double x = subSequences->getStateValueAt(i, posSeq, model.getAlphabetStateAsInt(s));
+          double x = subSequences->getStateValueAt(i, posSeq, statemap.getAlphabetStateAsInt(s));
 
           if (lNode.usesLog())
           {

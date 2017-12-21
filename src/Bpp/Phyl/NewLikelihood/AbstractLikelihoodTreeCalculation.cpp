@@ -51,6 +51,7 @@ void AbstractLikelihoodTreeCalculation::setData(const AlignedValuesContainer& si
 
   if (verbose_)
     ApplicationTools::displayTask("Initializing data structure");
+
   getLikelihoodData().initLikelihoods(*data_, *process_);
 
 // We assume here that all models have the same number of states, and

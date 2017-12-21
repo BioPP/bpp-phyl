@@ -1887,10 +1887,12 @@ map<size_t, SequenceEvolution*> PhylogeneticsApplicationTools::getSequenceEvolut
       else
         throw Exception("Unknown Process description : " + evolName);
 
-      if (verbose)
+      if (verbose){
         ApplicationTools::displayResult (" Process numbers", VectorTools::paste(vproc, ","));
+        ApplicationTools::displayMessage("");
+      }
     }
-
+    
     mEvol[evolsNum[mPi]] = nEvol;
   }
 
@@ -1951,8 +1953,7 @@ PhyloLikelihoodContainer* PhylogeneticsApplicationTools::getPhyloLikelihoodConta
 
     phylosMap[phyln] = vphyl;
   }
-
-
+  
   PhyloLikelihoodContainer* mPhylo = new PhyloLikelihoodContainer();
 
   vector<size_t> usedPhylo;
@@ -2048,7 +2049,7 @@ PhyloLikelihoodContainer* PhylogeneticsApplicationTools::getPhyloLikelihoodConta
     if (SPC.hasSubstitutionProcessNumber(nProcess))
     {
       LikelihoodTreeCalculation* tlc = 0;
-
+      
       tlc = new RecursiveLikelihoodTreeCalculation(*data, &SPC.getSubstitutionProcess(nProcess), true, compression == 'R');
 
       nPL = new SingleProcessPhyloLikelihood(&SPC.getSubstitutionProcess(nProcess), tlc, nProcess, nData);
