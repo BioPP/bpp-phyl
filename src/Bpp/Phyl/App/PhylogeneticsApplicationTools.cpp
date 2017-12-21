@@ -4900,7 +4900,7 @@ SubstitutionRegister* PhylogeneticsApplicationTools::getSubstitutionRegister(con
       if (regDesc=="")
         break;
       
-      SubstitutionRegister* sreg=getSubstitutionRegister(regDesc, stateMap);
+      SubstitutionRegister* sreg=getSubstitutionRegister(regDesc, stateMap, genCode);
 
       vreg->addRegister(sreg);
     }
