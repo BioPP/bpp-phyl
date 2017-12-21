@@ -99,8 +99,8 @@ namespace DF {
 		static std::shared_ptr<Constant<VectorDouble>> make (const EigenVector & v) {
 			return std::make_shared<Constant<VectorDouble>> (v);
 		}
-		static std::shared_ptr<Constant<VectorDouble>> makeZero (const VectorDimension & dim);
-		static std::shared_ptr<Constant<VectorDouble>> makeOne (const VectorDimension & dim);
+		static std::shared_ptr<Constant<VectorDouble>> makeZero (const Dimension<VectorDouble> & dim);
+		static std::shared_ptr<Constant<VectorDouble>> makeOne (const Dimension<VectorDouble> & dim);
 	};
 
 	template <> NodeRef Constant<MatrixDouble>::derive (const Node & node);
@@ -110,8 +110,8 @@ namespace DF {
 		static std::shared_ptr<Constant<MatrixDouble>> make (const EigenMatrix & m) {
 			return std::make_shared<Constant<MatrixDouble>> (m);
 		}
-		static std::shared_ptr<Constant<MatrixDouble>> makeZero (const MatrixDimension & dim);
-		static std::shared_ptr<Constant<MatrixDouble>> makeOne (const MatrixDimension & dim);
+		static std::shared_ptr<Constant<MatrixDouble>> makeZero (const Dimension<MatrixDouble> & dim);
+		static std::shared_ptr<Constant<MatrixDouble>> makeOne (const Dimension<MatrixDouble> & dim);
 	};
 
 } // namespace DF

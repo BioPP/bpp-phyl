@@ -244,7 +244,7 @@ namespace DF {
 	public:
 		using Dependencies = ReductionOfValue<VectorDouble>;
 
-		AddVectorDouble (NodeRefVec && deps, const VectorDimension & dim)
+		AddVectorDouble (NodeRefVec && deps, const Dimension<VectorDouble> & dim)
 		    : Value<VectorDouble> (std::move (deps), dim.size) {}
 		NodeRef derive (const Node & node) override final {
 			return makeNode<AddVectorDouble> (
@@ -266,7 +266,7 @@ namespace DF {
 		}
 	};
 	ValueRef<VectorDouble> Builder<AddVectorDouble>::make (NodeRefVec && deps,
-	                                                       const VectorDimension & dim) {
+	                                                       const Dimension<VectorDouble> & dim) {
 		checkDependencies<AddVectorDouble> (deps);
 		// Remove Os
 		removeDependenciesIf (deps, isConstantZeroVector);
@@ -285,7 +285,7 @@ namespace DF {
 	public:
 		using Dependencies = ReductionOfValue<VectorDouble>;
 
-		CWiseMulVectorDouble (NodeRefVec && deps, const VectorDimension & dim)
+		CWiseMulVectorDouble (NodeRefVec && deps, const Dimension<VectorDouble> & dim)
 		    : Value<VectorDouble> (std::move (deps), dim.size) {}
 		NodeRef derive (const Node & node) override final {
 			auto dim = dimensions (*this);
@@ -311,7 +311,7 @@ namespace DF {
 		}
 	};
 	ValueRef<VectorDouble> Builder<CWiseMulVectorDouble>::make (NodeRefVec && deps,
-	                                                            const VectorDimension & dim) {
+	                                                            const Dimension<VectorDouble> & dim) {
 		checkDependencies<CWiseMulVectorDouble> (deps);
 		// Return 0 if any 0 dep
 		if (std::any_of (deps.begin (), deps.end (), isConstantZeroVector)) {
@@ -334,7 +334,7 @@ namespace DF {
 	public:
 		using Dependencies = FunctionOfValues<VectorDouble>;
 
-		CWiseNegVectorDouble (NodeRefVec && deps, const VectorDimension & dim)
+		CWiseNegVectorDouble (NodeRefVec && deps, const Dimension<VectorDouble> & dim)
 		    : Value<VectorDouble> (std::move (deps), dim.size) {}
 		NodeRef derive (const Node & node) override final {
 			return makeNode<CWiseNegVectorDouble> ({this->dependency (0)->derive (node)},
@@ -353,7 +353,7 @@ namespace DF {
 		}
 	};
 	ValueRef<VectorDouble> Builder<CWiseNegVectorDouble>::make (NodeRefVec && deps,
-	                                                            const VectorDimension & dim) {
+	                                                            const Dimension<VectorDouble> & dim) {
 		checkDependencies<CWiseNegVectorDouble> (deps);
 		auto & dep = deps[0];
 		if (dep->isConstant ()) {
@@ -368,7 +368,7 @@ namespace DF {
 	public:
 		using Dependencies = FunctionOfValues<VectorDouble>;
 
-		CWiseInverseVectorDouble (NodeRefVec && deps, const VectorDimension & dim)
+		CWiseInverseVectorDouble (NodeRefVec && deps, const Dimension<VectorDouble> & dim)
 		    : Value<VectorDouble> (std::move (deps), dim.size) {}
 		NodeRef derive (const Node & node) override final {
 			auto dim = dimensions (*this);
@@ -390,8 +390,9 @@ namespace DF {
 			});
 		}
 	};
-	ValueRef<VectorDouble> Builder<CWiseInverseVectorDouble>::make (NodeRefVec && deps,
-	                                                                const VectorDimension & dim) {
+	ValueRef<VectorDouble>
+	Builder<CWiseInverseVectorDouble>::make (NodeRefVec && deps,
+	                                         const Dimension<VectorDouble> & dim) {
 		checkDependencies<CWiseInverseVectorDouble> (deps);
 		auto & arg = deps[0];
 		if (isConstantOnesVector (arg)) {
@@ -406,7 +407,8 @@ namespace DF {
 	public:
 		using Dependencies = FunctionOfValues<VectorDouble>;
 
-		CWiseConstantPowVectorDouble (NodeRefVec && deps, const VectorDimension & dim, double exp)
+		CWiseConstantPowVectorDouble (NodeRefVec && deps, const Dimension<VectorDouble> & dim,
+		                              double exp)
 		    : Value<VectorDouble> (std::move (deps), dim.size), exp_ (exp) {}
 		NodeRef derive (const Node & node) override final {
 			auto dim = dimensions (*this);
@@ -432,9 +434,9 @@ namespace DF {
 		}
 		double exp_;
 	};
-	ValueRef<VectorDouble> Builder<CWiseConstantPowVectorDouble>::make (NodeRefVec && deps,
-	                                                                    const VectorDimension & dim,
-	                                                                    double exp) {
+	ValueRef<VectorDouble>
+	Builder<CWiseConstantPowVectorDouble>::make (NodeRefVec && deps,
+	                                             const Dimension<VectorDouble> & dim, double exp) {
 		checkDependencies<CWiseConstantPowVectorDouble> (deps);
 		auto & arg = deps[0];
 		if (exp == 1.) {
@@ -455,7 +457,7 @@ namespace DF {
 	public:
 		using Dependencies = ReductionOfValue<MatrixDouble>;
 
-		AddMatrixDouble (NodeRefVec && deps, const MatrixDimension & dim)
+		AddMatrixDouble (NodeRefVec && deps, const Dimension<MatrixDouble> & dim)
 		    : Value<MatrixDouble> (std::move (deps), dim.rows, dim.cols) {}
 		NodeRef derive (const Node & node) override final {
 			return makeNode<AddMatrixDouble> (
@@ -477,7 +479,7 @@ namespace DF {
 		}
 	};
 	ValueRef<MatrixDouble> Builder<AddMatrixDouble>::make (NodeRefVec && deps,
-	                                                       const MatrixDimension & dim) {
+	                                                       const Dimension<MatrixDouble> & dim) {
 		checkDependencies<AddMatrixDouble> (deps);
 		// Remove Os
 		removeDependenciesIf (deps, isConstantZeroMatrix);
@@ -496,7 +498,7 @@ namespace DF {
 	public:
 		using Dependencies = FunctionOfValues<MatrixDouble, MatrixDouble>;
 
-		MulMatrixDouble (NodeRefVec && deps, const MatrixDimension & dim)
+		MulMatrixDouble (NodeRefVec && deps, const Dimension<MatrixDouble> & dim)
 		    : Value<MatrixDouble> (std::move (deps), dim.rows, dim.cols) {}
 		NodeRef derive (const Node & node) override final {
 			auto dim = dimensions (*this);
@@ -520,7 +522,7 @@ namespace DF {
 		}
 	};
 	ValueRef<MatrixDouble> Builder<MulMatrixDouble>::make (NodeRefVec && deps,
-	                                                       const MatrixDimension & dim) {
+	                                                       const Dimension<MatrixDouble> & dim) {
 		checkDependencies<MulMatrixDouble> (deps);
 		auto & lhs = deps[0];
 		auto & rhs = deps[1];
@@ -540,7 +542,7 @@ namespace DF {
 	public:
 		using Dependencies = ReductionOfValue<MatrixDouble>;
 
-		CWiseMulMatrixDouble (NodeRefVec && deps, const MatrixDimension & dim)
+		CWiseMulMatrixDouble (NodeRefVec && deps, const Dimension<MatrixDouble> & dim)
 		    : Value<MatrixDouble> (std::move (deps), dim.rows, dim.cols) {}
 		NodeRef derive (const Node & node) override final {
 			auto dim = dimensions (*this);
@@ -566,7 +568,7 @@ namespace DF {
 		}
 	};
 	ValueRef<MatrixDouble> Builder<CWiseMulMatrixDouble>::make (NodeRefVec && deps,
-	                                                            const MatrixDimension & dim) {
+	                                                            const Dimension<MatrixDouble> & dim) {
 		checkDependencies<CWiseMulMatrixDouble> (deps);
 		// Return 0 if any 0 dep
 		if (std::any_of (deps.begin (), deps.end (), isConstantZeroMatrix)) {
@@ -589,7 +591,7 @@ namespace DF {
 	public:
 		using Dependencies = FunctionOfValues<MatrixDouble, VectorDouble>;
 
-		MulTransposedMatrixVectorDouble (NodeRefVec && deps, const VectorDimension & dim)
+		MulTransposedMatrixVectorDouble (NodeRefVec && deps, const Dimension<VectorDouble> & dim)
 		    : Value<VectorDouble> (std::move (deps), dim.size) {}
 		NodeRef derive (const Node & node) override final {
 			auto dim = dimensions (*this);
@@ -615,7 +617,8 @@ namespace DF {
 		}
 	};
 	ValueRef<VectorDouble>
-	Builder<MulTransposedMatrixVectorDouble>::make (NodeRefVec && deps, const VectorDimension & dim) {
+	Builder<MulTransposedMatrixVectorDouble>::make (NodeRefVec && deps,
+	                                                const Dimension<VectorDouble> & dim) {
 		checkDependencies<MulTransposedMatrixVectorDouble> (deps);
 		auto & lhs = deps[0];
 		auto & rhs = deps[1];
@@ -633,7 +636,7 @@ namespace DF {
 	public:
 		using Dependencies = FunctionOfValues<double, VectorDouble>;
 
-		CWiseMulScalarVectorDouble (NodeRefVec && deps, const VectorDimension & dim)
+		CWiseMulScalarVectorDouble (NodeRefVec && deps, const Dimension<VectorDouble> & dim)
 		    : Value<VectorDouble> (std::move (deps), dim.size) {}
 		NodeRef derive (const Node & node) override final {
 			auto dim = dimensions (*this);
@@ -656,8 +659,9 @@ namespace DF {
 			    *this, [](VectorDouble & r, double d, const VectorDouble & v) { r.noalias () = d * v; });
 		}
 	};
-	ValueRef<VectorDouble> Builder<CWiseMulScalarVectorDouble>::make (NodeRefVec && deps,
-	                                                                  const VectorDimension & dim) {
+	ValueRef<VectorDouble>
+	Builder<CWiseMulScalarVectorDouble>::make (NodeRefVec && deps,
+	                                           const Dimension<VectorDouble> & dim) {
 		checkDependencies<CWiseMulScalarVectorDouble> (deps);
 		auto & lhs = deps[0];
 		auto & rhs = deps[1];
@@ -675,7 +679,7 @@ namespace DF {
 	public:
 		using Dependencies = FunctionOfValues<double, MatrixDouble>;
 
-		CWiseMulScalarMatrixDouble (NodeRefVec && deps, const MatrixDimension & dim)
+		CWiseMulScalarMatrixDouble (NodeRefVec && deps, const Dimension<MatrixDouble> & dim)
 		    : Value<MatrixDouble> (std::move (deps), dim.rows, dim.cols) {}
 		NodeRef derive (const Node & node) override final {
 			auto dim = dimensions (*this);
@@ -698,8 +702,9 @@ namespace DF {
 			    *this, [](MatrixDouble & r, double d, const MatrixDouble & m) { r.noalias () = d * m; });
 		}
 	};
-	ValueRef<MatrixDouble> Builder<CWiseMulScalarMatrixDouble>::make (NodeRefVec && deps,
-	                                                                  const MatrixDimension & dim) {
+	ValueRef<MatrixDouble>
+	Builder<CWiseMulScalarMatrixDouble>::make (NodeRefVec && deps,
+	                                           const Dimension<MatrixDouble> & dim) {
 		checkDependencies<CWiseMulScalarMatrixDouble> (deps);
 		auto & lhs = deps[0];
 		auto & rhs = deps[1];

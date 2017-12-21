@@ -44,6 +44,26 @@
 
 namespace bpp {
 namespace DF {
-	int a;
-}
+
+	template <typename T> class NumericalDerivationShiftDelta : public Value<T> {
+	public:
+		using Dependencies = FunctionOfValues<double, T>;
+
+    NumericalDerivationShiftDelta (NodeRefVec && deps);
+
+
+	private:
+		int n_;
+
+		void compute () override final {
+			callWithValues (*this, [this](T & result, double & delta, const T & arg) {
+				result = static_cast<double> (this->n_ * delta) * arg;
+			});
+		}
+	};
+
+	template <> class NumericalDerivationShiftDelta<double>;
+	template <> class NumericalDerivationShiftDelta<VectorDouble>;
+	template <> class NumericalDerivationShiftDelta<MatrixDouble>;
+} // namespace DF
 } // namespace bpp

@@ -45,10 +45,10 @@
 namespace bpp {
 // Utils
 namespace {
-	auto zeroValue (const VectorDimension & dim) -> decltype (VectorDouble::Zero (dim.size)) {
+	auto zeroValue (const Dimension<VectorDouble> & dim) -> decltype (VectorDouble::Zero (dim.size)) {
 		return VectorDouble::Zero (dim.size);
 	}
-	auto zeroValue (const MatrixDimension & dim)
+	auto zeroValue (const Dimension<MatrixDouble> & dim)
 	    -> decltype (MatrixDouble::Zero (dim.rows, dim.cols)) {
 		return MatrixDouble::Zero (dim.rows, dim.cols);
 	}
@@ -84,33 +84,27 @@ namespace {
 } // namespace
 
 // Dimensions
-std::string to_string (const NoDimension &) {
-	return {};
-}
-std::string to_string (const VectorDimension & dim) {
+std::string to_string (const Dimension<VectorDouble> & dim) {
 	return std::to_string (dim.size);
 }
-std::string to_string (const MatrixDimension & dim) {
+std::string to_string (const Dimension<MatrixDouble> & dim) {
 	return "(" + std::to_string (dim.rows) + "," + std::to_string (dim.cols) + ")";
 }
 
-NoDimension dimensions (const double &) noexcept {
-	return {};
-}
-VectorDimension dimensions (const VectorDouble & v) noexcept {
+Dimension<VectorDouble> dimensions (const VectorDouble & v) noexcept {
 	return {v.rows ()};
 }
-MatrixDimension dimensions (const MatrixDouble & m) noexcept {
+Dimension<MatrixDouble> dimensions (const MatrixDouble & m) noexcept {
 	return {m.rows (), m.cols ()};
 }
 
-NoDimension dimensions (const DF::Value<double> &) noexcept {
+Dimension<double> dimensions (const DF::Value<double> &) noexcept {
 	return {};
 }
-VectorDimension dimensions (const DF::Value<VectorDouble> & node) noexcept {
+Dimension<VectorDouble> dimensions (const DF::Value<VectorDouble> & node) noexcept {
 	return dimensions (accessValueConst (node));
 }
-MatrixDimension dimensions (const DF::Value<MatrixDouble> & node) noexcept {
+Dimension<MatrixDouble> dimensions (const DF::Value<MatrixDouble> & node) noexcept {
 	return dimensions (accessValueConst (node));
 }
 
@@ -156,11 +150,11 @@ namespace DF {
 	}
 	template <> bool Constant<VectorDouble>::isDerivable (const Node &) const { return true; }
 	std::shared_ptr<Constant<VectorDouble>>
-	Builder<Constant<VectorDouble>>::makeZero (const VectorDimension & dim) {
+	Builder<Constant<VectorDouble>>::makeZero (const Dimension<VectorDouble> & dim) {
 		return make (zeroValue (dim));
 	}
 	std::shared_ptr<Constant<VectorDouble>>
-	Builder<Constant<VectorDouble>>::makeOne (const VectorDimension & dim) {
+	Builder<Constant<VectorDouble>>::makeOne (const Dimension<VectorDouble> & dim) {
 		return make (VectorDouble::Ones (dim.size));
 	}
 
@@ -170,11 +164,11 @@ namespace DF {
 	}
 	template <> bool Constant<MatrixDouble>::isDerivable (const Node &) const { return true; }
 	std::shared_ptr<Constant<MatrixDouble>>
-	Builder<Constant<MatrixDouble>>::makeZero (const MatrixDimension & dim) {
+	Builder<Constant<MatrixDouble>>::makeZero (const Dimension<MatrixDouble> & dim) {
 		return make (zeroValue (dim));
 	}
 	std::shared_ptr<Constant<MatrixDouble>>
-	Builder<Constant<MatrixDouble>>::makeOne (const MatrixDimension & dim) {
+	Builder<Constant<MatrixDouble>>::makeOne (const Dimension<MatrixDouble> & dim) {
 		return make (MatrixDouble::Ones (dim.rows, dim.cols));
 	}
 } // namespace DF

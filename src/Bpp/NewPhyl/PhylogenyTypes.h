@@ -54,23 +54,25 @@ namespace bpp {
  */
 using LikelihoodData = MatrixDouble;
 
-// defines a MatrixDimension compatible struct.
-struct LikelihoodDataDimension : public MatrixDimension {
+// defines a Dimension<MatrixDouble> compatible struct.
+struct LikelihoodDataDimension : public Dimension<MatrixDouble> {
 	LikelihoodDataDimension (SizeType nbSitesArg, SizeType nbStatesArg) noexcept
-	    : MatrixDimension (nbStatesArg, nbSitesArg) {}
-	LikelihoodDataDimension (const MatrixDimension & matDim) noexcept : MatrixDimension (matDim) {}
+	    : Dimension<MatrixDouble> (nbStatesArg, nbSitesArg) {}
+	LikelihoodDataDimension (const Dimension<MatrixDouble> & matDim) noexcept
+	    : Dimension<MatrixDouble> (matDim) {}
 
 	SizeType nbStates () const noexcept { return rows; }
 	SizeType nbSites () const noexcept { return cols; }
 };
 std::string to_string (const LikelihoodDataDimension & dim);
 
-// defines a MatrixDimension compatible struct.
+// defines a Dimension<MatrixDouble> compatible struct.
 using TransitionMatrix = MatrixDouble;
-struct TransitionMatrixDimension : public MatrixDimension {
+struct TransitionMatrixDimension : public Dimension<MatrixDouble> {
 	TransitionMatrixDimension (SizeType nbStatesArg) noexcept
-	    : MatrixDimension (nbStatesArg, nbStatesArg) {}
-	TransitionMatrixDimension (const MatrixDimension & matDim) noexcept : MatrixDimension (matDim) {
+	    : Dimension<MatrixDouble> (nbStatesArg, nbStatesArg) {}
+	TransitionMatrixDimension (const Dimension<MatrixDouble> & matDim) noexcept
+	    : Dimension<MatrixDouble> (matDim) {
 		assert (rows == cols);
 	}
 

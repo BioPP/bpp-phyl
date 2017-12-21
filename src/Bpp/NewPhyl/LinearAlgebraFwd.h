@@ -42,64 +42,70 @@
 #ifndef BPP_NEWPHYL_LINEARALGEBRAFWD_H
 #define BPP_NEWPHYL_LINEARALGEBRAFWD_H
 
+#include <Bpp/NewPhyl/Dimension.h>
 #include <Bpp/NewPhyl/Signed.h>
 #include <string>
 
 namespace bpp {
-// Forward declarations of eigen types
+///@{
+/** Forward declarations of eigen types.
+ * TODO doc forward decl scheme
+ */
 class VectorDouble;
 class MatrixDouble;
+///@}
 
-// Dimensions types
-struct NoDimension {};
-struct VectorDimension {
+///@{
+/// Specialisation of Dimension<T> for VectorDouble & MatrixDouble.
+template <> class Dimension<VectorDouble> {
+public:
 	SizeType size;
-	constexpr VectorDimension (SizeType size_) noexcept : size (size_) {}
+	constexpr Dimension (SizeType size_) noexcept : size (size_) {}
 };
-struct MatrixDimension {
+template <> class Dimension<MatrixDouble> {
+public:
 	SizeType rows;
 	SizeType cols;
-	constexpr MatrixDimension (SizeType rows_, SizeType cols_) noexcept
-	    : rows (rows_), cols (cols_) {}
+	constexpr Dimension (SizeType rows_, SizeType cols_) noexcept : rows (rows_), cols (cols_) {}
 };
+///@}
 
-// Comparisons
-constexpr bool operator== (const NoDimension &, const NoDimension &) noexcept {
-	return true;
-}
-constexpr bool operator!= (const NoDimension &, const NoDimension &) noexcept {
-	return false;
-}
-constexpr bool operator== (const VectorDimension & lhs, const VectorDimension & rhs) noexcept {
+///@{
+/// Specialisation of comparisons. operator!= uses the default for Dimension<T>.
+template <>
+constexpr bool operator== (const Dimension<VectorDouble> & lhs,
+                           const Dimension<VectorDouble> & rhs) noexcept {
 	return lhs.size == rhs.size;
 }
-constexpr bool operator!= (const VectorDimension & lhs, const VectorDimension & rhs) noexcept {
-	return !(lhs == rhs);
-}
-constexpr bool operator== (const MatrixDimension & lhs, const MatrixDimension & rhs) noexcept {
+template <>
+constexpr bool operator== (const Dimension<MatrixDouble> & lhs,
+                           const Dimension<MatrixDouble> & rhs) noexcept {
 	return lhs.rows == rhs.rows && lhs.cols == rhs.cols;
 }
-constexpr bool operator!= (const MatrixDimension & lhs, const MatrixDimension & rhs) noexcept {
-	return !(lhs == rhs);
-}
+///@}
 
-// Pretty printing (overloading std::to_string out of namespace std::)
-std::string to_string (const NoDimension &);
-std::string to_string (const VectorDimension & dim);
-std::string to_string (const MatrixDimension & dim);
+///@{
+/// Specialisations of to_string (pretty printing).
+std::string to_string (const Dimension<VectorDouble> & dim);
+std::string to_string (const Dimension<MatrixDouble> & dim);
+///@}
 
-// Get dimensions (overloaded)
-NoDimension dimensions (const double &) noexcept;
-VectorDimension dimensions (const VectorDouble & v) noexcept;
-MatrixDimension dimensions (const MatrixDouble & m) noexcept;
+///@{
+/// Get dimensions from objects.
+Dimension<double> dimensions (const double & d) noexcept; // TODO impl
+Dimension<VectorDouble> dimensions (const VectorDouble & v) noexcept;
+Dimension<MatrixDouble> dimensions (const MatrixDouble & m) noexcept;
+///@}
 
+// TODO doc. actual dim VS target dim ? add DIm<T> to value and setter/getters
 // Get dimensions for DF nodes
 namespace DF {
+	/// Forward declaration of DF::Value<T>.
 	template <typename T> class Value;
-}
-NoDimension dimensions (const DF::Value<double> &) noexcept;
-VectorDimension dimensions (const DF::Value<VectorDouble> & node) noexcept;
-MatrixDimension dimensions (const DF::Value<MatrixDouble> & node) noexcept;
+} // namespace DF
+Dimension<double> dimensions (const DF::Value<double> &) noexcept;
+Dimension<VectorDouble> dimensions (const DF::Value<VectorDouble> & node) noexcept;
+Dimension<MatrixDouble> dimensions (const DF::Value<MatrixDouble> & node) noexcept;
 
 // Exact predicates (not a fuzzy comparison)
 bool isExactZero (const double & d);

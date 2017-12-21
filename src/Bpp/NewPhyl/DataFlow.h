@@ -42,6 +42,7 @@
 #ifndef BPP_NEWPHYL_DATAFLOW_H
 #define BPP_NEWPHYL_DATAFLOW_H
 
+#include <Bpp/NewPhyl/Dimension.h>
 #include <Bpp/NewPhyl/Signed.h>
 #include <Bpp/NewPhyl/Vector.h>
 #include <map>

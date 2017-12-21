@@ -171,7 +171,7 @@ DF::ValueRef<double> makeLogLikelihoodNode (const TreeTopologyInterface & tree,
 	auto likelihood = DF::makeNode<DF::Likelihood> (
 	    {makeConditionalLikelihoodNode (tree, sequenceNodes, brlenNodes, modelNodes, root),
 	     std::move (rootEquilibriumFrequencies)},
-	    VectorDimension (dim.nbSites ()));
+	    Dimension<VectorDouble> (dim.nbSites ()));
 	auto logLik = DF::makeNode<DF::TotalLogLikelihood> ({std::move (likelihood)});
 	return DF::makeNode<DF::NegDouble> ({std::move (logLik)});
 }

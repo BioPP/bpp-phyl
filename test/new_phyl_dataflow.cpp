@@ -273,9 +273,9 @@ TEST_CASE("df")
   std::cout << "[dbrlen1] " << likFunc.getFirstOrderDerivative("BrLen1") << "\n";
   {
     std::ofstream fd("df_debug");
-    // bpp::DF::debugDag(fd, logLikNode, bpp::DF::DebugOptions::DetailedNodeInfo);
+    bpp::debugDag(fd, logLikNode, bpp::DF::DebugOptions::DetailedNodeInfo);
     // bpp::debugDag(fd, likFunc.getAllNamedNodes("f"), bpp::DF::DebugOptions::DetailedNodeInfo);
-    bpp::debugTree(fd, treeView);
+    // bpp::debugTree(fd, treeView);
   }
   do_param_changes_multiple_times(likFunc, "df_param_model_change", c.paramModel1, c.paramModel2);
   do_param_changes_multiple_times(likFunc, "df_param_brlen_change", c.paramBrLen1, c.paramBrLen2);
