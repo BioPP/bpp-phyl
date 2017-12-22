@@ -71,16 +71,22 @@ public:
 ///@}
 
 ///@{
-/// Specialisation of comparisons. operator!= uses the default for Dimension<T>.
-template <>
+/// Enable comparisons.
 constexpr bool operator== (const Dimension<VectorDouble> & lhs,
                            const Dimension<VectorDouble> & rhs) noexcept {
 	return lhs.size == rhs.size;
 }
-template <>
+constexpr bool operator!= (const Dimension<VectorDouble> & lhs,
+                           const Dimension<VectorDouble> & rhs) noexcept {
+	return !(lhs == rhs);
+}
 constexpr bool operator== (const Dimension<MatrixDouble> & lhs,
                            const Dimension<MatrixDouble> & rhs) noexcept {
 	return lhs.rows == rhs.rows && lhs.cols == rhs.cols;
+}
+constexpr bool operator!= (const Dimension<MatrixDouble> & lhs,
+                           const Dimension<MatrixDouble> & rhs) noexcept {
+	return !(lhs == rhs);
 }
 ///@}
 
