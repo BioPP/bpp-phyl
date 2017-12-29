@@ -251,7 +251,7 @@ SubstitutionModel* BppOSubstitutionModelFormat::read(
       throw Exception("BppOSubstitutionModelFormat::read. Missing argument 'register' for model 'FromRegister'.");
     
     string registerDescription = args["register"];
-    SubstitutionRegister* reg=PhylogeneticsApplicationTools::getSubstitutionRegister(registerDescription, nestedModel->getStateMap(), geneticCode_);
+    unique_ptr<SubstitutionRegister> reg(PhylogeneticsApplicationTools::getSubstitutionRegister(registerDescription, nestedModel->getStateMap(), geneticCode_, verbose_));
 
     // is it normalized (default : false)
     bool isNorm=false;
@@ -1552,7 +1552,7 @@ void BppOSubstitutionModelFormat::write(const TransitionModel& model,
     return;
   }
 
-  out << model.getName() + "(";
+   out << model.getName() + "(";
 
   // Is it a protein user defined model?
   const UserProteinSubstitutionModel* userModel = dynamic_cast<const UserProteinSubstitutionModel*>(&model);

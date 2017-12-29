@@ -130,6 +130,8 @@ public:
       std::map<std::string, std::string>& globalAliases,
       std::vector<std::string>& writtenNames) const;
 
+  void setVerbose(bool verbose) { verbose_=verbose;}  
+
 private:
   void initialize_(FrequenciesSet& freqSet, const AlignedValuesContainer* data);
 };

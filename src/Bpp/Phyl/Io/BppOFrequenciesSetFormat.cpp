@@ -382,8 +382,9 @@ FrequenciesSet* BppOFrequenciesSetFormat::read(const Alphabet* alphabet, const s
         mgmtStopCodon = args["mgmtStopCodons"];
       else if (args.find("mgmtStopCodon") != args.end())
         mgmtStopCodon = args["mgmtStopCodon"];
-      
-      ApplicationTools::displayResult("StopCodon frequencies distribution ", mgmtStopCodon);
+
+      if (verbose_)
+        ApplicationTools::displayResult("StopCodon frequencies distribution ", mgmtStopCodon);
 
       if (args.find("frequency") != args.end())
       {
@@ -423,8 +424,9 @@ FrequenciesSet* BppOFrequenciesSetFormat::read(const Alphabet* alphabet, const s
         mgmtStopCodon = args["mgmtStopCodons"];
       else if (args.find("mgmtStopCodon") != args.end())
           mgmtStopCodon = args["mgmtStopCodon"];
-      
-      ApplicationTools::displayResult("StopCodon frequencies distribution ", mgmtStopCodon);
+
+      if (verbose_)
+        ApplicationTools::displayResult("StopCodon frequencies distribution ", mgmtStopCodon);
 
       if (args.find("frequency1") != args.end() ||
           args.find("frequency2") != args.end() ||
