@@ -539,7 +539,8 @@ throw (Exception)
     optimizer->addOptimizationListener(listener);
   optimizer->init(pl);
   optimizer->optimize();
-
+  delete nanListener;
+  
   if (verbose > 0)
     ApplicationTools::displayMessage("\n");
 

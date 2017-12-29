@@ -49,7 +49,7 @@
 namespace bpp
 {
   /**
-   * @brief The PhyloLikelihoodContainer, assigns numbers to
+   * @brief The PhyloLikelihoodContainer, owns and assigns numbers to
    * Phylolikelihoods.
    *
    * It owns the PhyloLikelihoods
@@ -60,7 +60,7 @@ namespace bpp
     virtual public Clonable
   {
   protected:
-    std::map<size_t, PhyloLikelihood*>  mPhylo_;
+    std::map<size_t, std::shared_ptr<PhyloLikelihood> >  mPhylo_;
 
   public:
     PhyloLikelihoodContainer():
@@ -70,19 +70,16 @@ namespace bpp
     PhyloLikelihoodContainer(const PhyloLikelihoodContainer& lik):
     mPhylo_()
     {
-      for (std::map<size_t, PhyloLikelihood*>::const_iterator it=lik.mPhylo_.begin(); it!=lik.mPhylo_.end(); it++)
-        mPhylo_[it->first]=it->second->clone();
+      for (const auto& it : lik.mPhylo_)
+        mPhylo_[it.first]=std::shared_ptr<PhyloLikelihood>(it.second->clone());
     }
 
     PhyloLikelihoodContainer& operator=(const PhyloLikelihoodContainer& lik)
     {
-      for (std::map<size_t, PhyloLikelihood*>::const_iterator it=mPhylo_.begin(); it!=mPhylo_.end(); it++)
-        delete it->second;
-      
       mPhylo_.clear();
       
-      for (std::map<size_t, PhyloLikelihood*>::const_iterator it=lik.mPhylo_.begin(); it!=lik.mPhylo_.end(); it++)
-        mPhylo_[it->first]=it->second->clone();
+      for (const auto& it : lik.mPhylo_)
+        mPhylo_[it.first]=std::shared_ptr<PhyloLikelihood>(it.second->clone());
       
       return *this;
     }
@@ -99,14 +96,26 @@ namespace bpp
     
     virtual ~PhyloLikelihoodContainer()
     {
-      for (std::map<size_t, PhyloLikelihood*>::iterator it=mPhylo_.begin(); it!=mPhylo_.end(); it++)
-        delete it->second;
-      mPhylo_.clear();
     }
 
   public:
 
-    virtual void addPhyloLikelihood(size_t pos, PhyloLikelihood* Ap)
+    /*
+     * @brief add a PhyloLikelihood in the container, at a given
+     * position.
+     *
+     * Beware! Takes possession of the PhyloLikelihood through 
+     *
+     */
+     
+    void addPhyloLikelihood(size_t pos, PhyloLikelihood* Ap)
+    {
+      if (mPhylo_.find(pos)!=mPhylo_.end())
+        throw Exception("PhyloLikelihoodContainer::addPhylolikelihood: map number already used : " + TextTools::toString(pos));
+      mPhylo_[pos]=std::shared_ptr<PhyloLikelihood>(Ap);
+    }
+
+    void sharePhyloLikelihood(size_t pos, std::shared_ptr<PhyloLikelihood> Ap)
     {
       if (mPhylo_.find(pos)!=mPhylo_.end())
         throw Exception("PhyloLikelihoodContainer::addPhylolikelihood: map number already used : " + TextTools::toString(pos));
@@ -118,18 +127,24 @@ namespace bpp
       return (mPhylo_.find(pos)!=mPhylo_.end());
     }
 
-    virtual const PhyloLikelihood* operator[](size_t pos) const
+    const PhyloLikelihood* operator[](size_t pos) const
     {
-      std::map<size_t, PhyloLikelihood*>::const_iterator it=mPhylo_.find(pos);
+      std::map<size_t, std::shared_ptr<PhyloLikelihood> >::const_iterator it=mPhylo_.find(pos);
+      return (it!=mPhylo_.end()?it->second.get():0);
+    }
+
+    PhyloLikelihood* operator[](size_t pos)
+    {
+      std::map<size_t, std::shared_ptr<PhyloLikelihood> >::iterator it=mPhylo_.find(pos);
+      return (it!=mPhylo_.end()?it->second.get():0);
+    }
+
+    std::shared_ptr<PhyloLikelihood> getPhyloLikelihood(size_t pos)
+    {
+      std::map<size_t, std::shared_ptr<PhyloLikelihood> >::const_iterator it=mPhylo_.find(pos);
       return (it!=mPhylo_.end()?it->second:0);
     }
 
-    virtual PhyloLikelihood* operator[](size_t pos)
-    {
-      std::map<size_t, PhyloLikelihood*>::iterator it=mPhylo_.find(pos);
-      return (it!=mPhylo_.end()?it->second:0);
-    }
-    
     size_t getSize() const
     {
       return mPhylo_.size();
@@ -139,9 +154,9 @@ namespace bpp
     {
       std::vector<size_t> vnum;
       
-      for (std::map<size_t, PhyloLikelihood*>::const_iterator it=mPhylo_.begin(); it!=mPhylo_.end(); it++)
-        vnum.push_back(it->first);
-
+      for (const auto& it : mPhylo_)
+        vnum.push_back(it.first);
+      
       return vnum;
     }
     
@@ -155,10 +170,10 @@ namespace bpp
 
     void setData(const AlignedValuesContainer& sites, size_t nPhyl)
     {
-      std::map<size_t, PhyloLikelihood*>::iterator it=mPhylo_.find(nPhyl);
+      auto it=mPhylo_.find(nPhyl);
       if (it!=mPhylo_.end())
       {
-        SingleDataPhyloLikelihood* sdp=dynamic_cast<SingleDataPhyloLikelihood*>(it->second);
+        SingleDataPhyloLikelihood* sdp=dynamic_cast<SingleDataPhyloLikelihood*>(it->second.get());
         if (sdp)
           sdp->setData(sites);
       }
@@ -173,17 +188,16 @@ namespace bpp
 
     const AlignedValuesContainer* getData(size_t nPhyl) const
     {
-      std::map<size_t, PhyloLikelihood*>::const_iterator it=mPhylo_.find(nPhyl);
-      if (mPhylo_.find(nPhyl)!=mPhylo_.end())
+      const auto it=mPhylo_.find(nPhyl);
+      if (it!=mPhylo_.end())
       {
-        const SingleDataPhyloLikelihood* sdp=dynamic_cast<const SingleDataPhyloLikelihood*>(it->second);
+        const SingleDataPhyloLikelihood* sdp=dynamic_cast<const SingleDataPhyloLikelihood*>(it->second.get());
         if (sdp)
           sdp->getData();
       }
       return 0;
     }
-      
-
+    
   };
   
   
