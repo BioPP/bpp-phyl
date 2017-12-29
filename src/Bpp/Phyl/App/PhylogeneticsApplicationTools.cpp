@@ -935,9 +935,20 @@ map<size_t, TransitionModel*> PhylogeneticsApplicationTools::getTransitionModels
 
   for (size_t i = 0; i < modelsNum.size(); i++)
   {
-    ApplicationTools::displayMessage("");
-    ApplicationTools::displayMessage("Model " + TextTools::toString(modelsNum[i]));
-
+    if (i>=10)
+    {
+      bIO.setVerbose(false);
+      warn=10;
+      if (i==10)
+        ApplicationTools::displayMessage("");
+      ApplicationTools::displayResult("Model " + TextTools::toString(modelsNum[i]), string("..."));
+    }
+    else
+    {
+      ApplicationTools::displayMessage("");
+      ApplicationTools::displayMessage("Model " + TextTools::toString(modelsNum[i]));
+    }
+    
     string modelDescription = ApplicationTools::getStringParameter("model" + TextTools::toString(modelsNum[i]), paramModel, "", suffix, suffixIsOptional, warn);
 
     map<string, string> args;
@@ -1635,7 +1646,13 @@ SubstitutionProcessCollection* PhylogeneticsApplicationTools::getSubstitutionPro
     else
       num = 1;
 
-    addSubstitutionProcessCollectionMember(SPC, num, params, num);
+    if (nT==10)
+      ApplicationTools::displayMessage("");
+
+    if (nT>=10)
+      ApplicationTools::displayResult("Process" + TextTools::toString(num), string("..."));
+
+    addSubstitutionProcessCollectionMember(SPC, num, params, (nT<10?verbose:false), warn);
   }
 
 
@@ -1930,7 +1947,7 @@ PhyloLikelihoodContainer* PhylogeneticsApplicationTools::getPhyloLikelihoodConta
     size_t phyln = (size_t) TextTools::toInt(phylosName[i].substr(5, poseq - 5));
 
     if (phyln == 0)
-      throw BadIntegerException("PhylogeneticsApplicationTools::getPhyloLikelihoodContainer : Forbidden Phylo Number", TextTools::toInt(phylosName[i].substr(5, poseq - 5)));
+      throw BadIntegerException("PhylogeneticsApplicationTools::getPhyloLikelihoodContainer : Forbidden Phylo Number", 0);
 
     string phyloDesc = ApplicationTools::getStringParameter("phylo", params, "Single", TextTools::toString(phyln), 2);
 
@@ -1962,8 +1979,13 @@ PhyloLikelihoodContainer* PhylogeneticsApplicationTools::getPhyloLikelihoodConta
   // //////////////////////////////////////////
   // First the phylos that do not depend on other phylos
 
-  for (auto it : phylosMap)
+  uint nbPh(0);
+  bool verbhere(verbose);
+  
+  for (const auto& it : phylosMap)
   {
+    nbPh++;
+    
     if (it.second.size() != 0)
       continue;
 
@@ -1978,7 +2000,11 @@ PhyloLikelihoodContainer* PhylogeneticsApplicationTools::getPhyloLikelihoodConta
 
     if (verbose)
     {
-      ApplicationTools::displayMessage("");
+      if (nbPh<=20)
+        ApplicationTools::displayMessage("");
+      else
+        verbhere=false;
+      
       ApplicationTools::displayMessage("Phylolikelihood " + TextTools::toString(phylonum));
     }
 
@@ -2002,7 +2028,7 @@ PhyloLikelihoodContainer* PhylogeneticsApplicationTools::getPhyloLikelihoodConta
       throw Exception("PhylogeneticsApplicationTools::getPhyloLikelihoodContainer. Data " + TextTools::toString(nData) + " does not match with aligned sequences");
 
 
-    if (verbose)
+    if (verbhere)
       ApplicationTools::displayResult(" Data used ", TextTools::toString(nData));
 
     // Sequence Evolution or process
@@ -2025,13 +2051,13 @@ PhyloLikelihoodContainer* PhylogeneticsApplicationTools::getPhyloLikelihoodConta
     if (args.find("useLog") != args.end() && args["useLog"] == "yes")
       useLog = true;
 
-    if (verbose)
+    if (verbhere)
       ApplicationTools::displayResult(" Use log in computation ", (useLog ? "yes" : "no"));
 
 
     // Check this process has not been used before
 
-    if (verbose)
+    if (verbhere)
       ApplicationTools::displayResult(" Process ", TextTools::toString(nProcess));
 
     // Compression
@@ -2041,7 +2067,7 @@ PhyloLikelihoodContainer* PhylogeneticsApplicationTools::getPhyloLikelihoodConta
     if (args.find("compression") != args.end() && args["compression"] == "recursive")
       compression = 'R';
 
-    if (verbose)
+    if (verbhere)
       ApplicationTools::displayResult(" Compression ", (compression == 'R') ? "recursive" : "simple");
 
     // Construction
@@ -2140,6 +2166,8 @@ PhyloLikelihoodContainer* PhylogeneticsApplicationTools::getPhyloLikelihoodConta
 
     for (map<size_t, vector<size_t> >::iterator it = phylosMap.begin(); it != phylosMap.end(); it++)
     {
+      nbPh++;
+      
       if (it->second.size() == 0)
       {
         size_t phylonum = it->first;
@@ -2154,7 +2182,11 @@ PhyloLikelihoodContainer* PhylogeneticsApplicationTools::getPhyloLikelihoodConta
 
         if (verbose)
         {
-          ApplicationTools::displayMessage("");
+          if (nbPh<=20)
+            ApplicationTools::displayMessage("");
+          else
+            verbhere=false;
+      
           ApplicationTools::displayMessage("Phylolikelihood " + TextTools::toString(phylonum));
         }
 
@@ -2238,7 +2270,7 @@ PhyloLikelihoodContainer* PhylogeneticsApplicationTools::getPhyloLikelihoodConta
         else
           throw Exception("PhylogeneticsApplicationTools::getPhyloLikelihoodContainer : Unknown Phylo name " + phyloName);
 
-        if (verbose)
+        if (verbhere)
         {
           ApplicationTools::displayResult(" Phylolikelihood type", phyloName);
           ApplicationTools::displayResult(" Phylo numbers", VectorTools::paste(vPhylo, ","));
@@ -2293,17 +2325,36 @@ PhyloLikelihoodContainer* PhylogeneticsApplicationTools::getPhyloLikelihoodConta
   
   string resultDesc = ApplicationTools::getStringParameter("result", params, sumAll);
 
-  // map<string, string> args;
-  // string resultName;
-  // KeyvalTools::parseProcedure(resultDesc, resultName, args);
+  // check if really formula, or previous phylo
 
+  std::shared_ptr<PhyloLikelihood> nPL(0);
+  size_t nP(0);
   
-  FormulaOfPhyloLikelihood* nPL = new FormulaOfPhyloLikelihood(mPhylo, resultDesc);
+  if (resultDesc.substr(0,5)=="phylo")
+  {
+    try {
+      nP=(size_t)TextTools::toInt(resultDesc.substr(5));
+    }
+    catch (Exception& e)
+    {
+      nPL = shared_ptr<PhyloLikelihood>(new FormulaOfPhyloLikelihood(mPhylo, resultDesc));
+      if (verbose)
+        ApplicationTools::displayResult(" Result", dynamic_cast<FormulaOfPhyloLikelihood*>(nPL.get())->output());
+    }
 
-  if (verbose)
-    ApplicationTools::displayResult(" Result", nPL->output());
+    if (!nPL)
+    {
+      if (!mPhylo->hasPhyloLikelihood(nP))
+        throw BadIntegerException("Unknown Phylolikelihood number for result",(int)nP);
+      else
+        nPL=mPhylo->getPhyloLikelihood(nP);
 
-  mPhylo->addPhyloLikelihood(0, nPL);
+      if (verbose)
+        ApplicationTools::displayResult(" Result", resultDesc);
+    }
+  }
+  
+  mPhylo->sharePhyloLikelihood(0, nPL);
 
   return mPhylo;
 }
@@ -2774,15 +2825,30 @@ bpp::TreeLikelihood* PhylogeneticsApplicationTools::optimizeParameters(
         if (verbose)
           ApplicationTools::displayResult("Parameter ignored", string("Model"));
       }
+      else if (param == "*")
+      {
+        parametersToEstimate.reset();
+        if (verbose)
+          ApplicationTools::displayResult("Parameter ignored", string("All"));
+      }
       else if (param.find("*") != string::npos)
       {
         vector<string> vs = ApplicationTools::matchingParameters(param, parNames);
 
-        for (vector<string>::iterator it = vs.begin(); it != vs.end(); it++)
+        bool verbhere=verbose;
+        
+        if (vs.size()>=20)
         {
-          parametersToEstimate.deleteParameter(*it);
           if (verbose)
-            ApplicationTools::displayResult("Parameter ignored", *it);
+            ApplicationTools::displayResult("Number of parameters ignored", vs.size());
+          verbhere=false;
+        } 
+          
+        for (auto& it :  vs)
+        {
+          parametersToEstimate.deleteParameter(it);
+          if (verbhere)
+            ApplicationTools::displayResult("Parameter ignored", it);
         }
       }
       else
@@ -2831,10 +2897,7 @@ bpp::TreeLikelihood* PhylogeneticsApplicationTools::optimizeParameters(
         if (!nhtl)
           ApplicationTools::displayWarning("The 'Ancient' parameters do not exist in homogeneous models, and will be ignored.");
         else
-        {
-          parNames2 = nhtl->getRootFrequenciesParameters().getParameterNames();
-          ApplicationTools::displayResult("Parameter ignored", string("Root frequencies"));
-        }
+           parNames2 = nhtl->getRootFrequenciesParameters().getParameterNames();
       }
       else if (param == "Model")
       {
@@ -2848,11 +2911,12 @@ bpp::TreeLikelihood* PhylogeneticsApplicationTools::optimizeParameters(
         else
           parNames2 = vs1;
       }
+      else if (param == "*")
+        parNames2 = parToEstNames;
       else if (param.find("*") != string::npos)
         parNames2 = ApplicationTools::matchingParameters(param, parToEstNames);
       else
         parNames2.push_back(param);
-
 
       for (size_t i = 0; i < parNames2.size(); i++)
       {
@@ -3185,15 +3249,30 @@ PhyloLikelihood* PhylogeneticsApplicationTools::optimizeParameters(
         if (verbose)
           ApplicationTools::displayResult("Parameter ignored", string("Model"));
       }
+      else if (param == "*")
+      {
+        parametersToEstimate.reset();
+        if (verbose)
+          ApplicationTools::displayResult("Parameter ignored", string("All"));
+      }
       else if (param.find("*") != string::npos)
       {
         vector<string> vs = ApplicationTools::matchingParameters(param, parNames);
 
-        for (vector<string>::iterator it = vs.begin(); it != vs.end(); it++)
+        bool verbhere=verbose;
+        
+        if (vs.size()>=20)
         {
-          parametersToEstimate.deleteParameter(*it);
           if (verbose)
-            ApplicationTools::displayResult("Parameter ignored", *it);
+            ApplicationTools::displayResult("Number of parameters ignored", vs.size());
+          verbhere=false;
+        } 
+          
+        for (auto& it :  vs)
+        {
+          parametersToEstimate.deleteParameter(it);
+          if (verbhere)
+            ApplicationTools::displayResult("Parameter ignored", it);
         }
       }
       else
@@ -4416,31 +4495,35 @@ void PhylogeneticsApplicationTools::printAnalysisInformation(const PhyloLikeliho
   if (!result)
     return;
 
-  vector<size_t> phyldep;
-  const vector<size_t>& nPhyl = phylocont.getNumbersOfPhyloLikelihoods();
-  for (size_t i = 0; i < nPhyl.size(); i++)
+  if (dynamic_cast<const FormulaOfPhyloLikelihood*>(result))
   {
-    if (nPhyl[i] != 0 && phylocont[nPhyl[i]] == result)
+    ApplicationTools::displayWarning("Analysis Information not available for formulas.");
+    return;
+  }
+
+  vector<size_t> phyldep;
+  vector<size_t> nPhyl = phylocont.getNumbersOfPhyloLikelihoods();
+  nPhyl.erase(find(nPhyl.begin(),nPhyl.end(),0));
+  
+  for (const auto i : nPhyl)
+  {
+    if (phylocont[i] == result)
     {
-      phyldep.push_back(nPhyl[i]);
+      phyldep.push_back(i);
       break;
     }
   }
 
+  phyldep=VectorTools::unique(phyldep);
+  
   while (phyldep.size() != 0)
   {
     size_t num = phyldep[0];
+
+    phyldep.erase(phyldep.begin());
+    
     const PhyloLikelihood* phyloLike = phylocont[num];
-
-    // remove phylolikelihoods with this number
-    vector<size_t>::iterator itf = find(phyldep.begin(), phyldep.end(), num);
-    while (itf != phyldep.end())
-    {
-      phyldep.erase(itf);
-      itf = find(itf, phyldep.end(), num);
-    }
-
-    // then output
+    // output
 
     string info_out = infosFile + "_" + TextTools::toString(num);
 
@@ -4456,11 +4539,8 @@ void PhylogeneticsApplicationTools::printAnalysisInformation(const PhyloLikeliho
         vector<size_t> vPN = sOAP->getNumbersOfPhyloLikelihoods();
 
         // update phyldep
-        for (size_t i = 0; i < vPN.size(); i++)
-        {
-          if (find(phyldep.begin(), phyldep.end(), vPN[i]) == phyldep.end())
-            phyldep.push_back(vPN[i]);
-        }
+        phyldep.assign(vPN.begin(),vPN.end());
+        phyldep=VectorTools::unique(phyldep);
       }
     }
   }
