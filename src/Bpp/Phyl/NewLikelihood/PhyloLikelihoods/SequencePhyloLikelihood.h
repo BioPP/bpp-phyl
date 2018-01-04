@@ -51,200 +51,211 @@
 
 namespace bpp
 {
-    class SequencePhyloLikelihood :
-      public AbstractSingleDataPhyloLikelihood
-    {
-    protected:
-      /**
-       * @brief the Sequence Evolution
-       *
-       **/
+/**
+ * @brief PhyloLikelihoods based on Sequence Evolution class, ie for
+ * which there is a (set of) processes able to build a sequence.
+ *
+ */
+  
+  /**
+   * @brief Interface
+   *
+   */
+  
+  class SequencePhyloLikelihood :
+    public AbstractSingleDataPhyloLikelihood
+  {
+  protected:
+    /**
+     * @brief the Sequence Evolution
+     *
+     **/
+    
+    SequenceEvolution* seqEvol_;
+    
+    /**
+     * @brief the Sequence Evolution number
+     *
+     **/
 
-      SequenceEvolution* seqEvol_;
-
-      /**
-       * @brief the Sequence Evolution number
-       *
-       **/
-
-      size_t nSeqEvol_;
+    size_t nSeqEvol_;
       
-    public:
-      SequencePhyloLikelihood(SequenceEvolution& se, size_t nSE = 0, size_t nData = 0) :
-        AbstractPhyloLikelihood(),
-        AbstractAlignedPhyloLikelihood(0),
-        AbstractSingleDataPhyloLikelihood(0, (se.getSubstitutionProcessNumbers().size()!=0)?se.getSubstitutionProcess(se.getSubstitutionProcessNumbers()[0]).getNumberOfStates():0, nData),
-        seqEvol_(&se),
-        nSeqEvol_(nSE)
-      {
-      }
+  public:
+    SequencePhyloLikelihood(SequenceEvolution& se, size_t nSE = 0, size_t nData = 0) :
+      AbstractPhyloLikelihood(),
+      AbstractAlignedPhyloLikelihood(0),
+      AbstractSingleDataPhyloLikelihood(0, (se.getSubstitutionProcessNumbers().size()!=0)?se.getSubstitutionProcess(se.getSubstitutionProcessNumbers()[0]).getNumberOfStates():0, nData),
+      seqEvol_(&se),
+      nSeqEvol_(nSE)
+    {
+    }
 
-      SequencePhyloLikelihood(const SequencePhyloLikelihood& asd) :
+    SequencePhyloLikelihood(const SequencePhyloLikelihood& asd) :
       AbstractPhyloLikelihood(asd),
       AbstractAlignedPhyloLikelihood(asd),
       AbstractSingleDataPhyloLikelihood(asd),
       seqEvol_(asd.seqEvol_),
       nSeqEvol_(asd.nSeqEvol_)
-      {
-      }
-      
-      SequencePhyloLikelihood& operator=(const SequencePhyloLikelihood& asd)
-      {
-        AbstractSingleDataPhyloLikelihood::operator=(asd);
-
-        seqEvol_=asd.seqEvol_;
-        nSeqEvol_=asd.nSeqEvol_;
-
-        return *this;
-      }
-
-      virtual ~SequencePhyloLikelihood() {}
-
-      SequencePhyloLikelihood* clone() const = 0;
-
-    public:
-      /**
-       * @brief The Sequence Evolution
-       *
-       */
-      
-      const SequenceEvolution& getSequenceEvolution() const
-      {
-        return *seqEvol_;
-      }
-
-      const size_t getSequenceEvolutionNumber() const
-      {
-        return nSeqEvol_;
-      }
-
-      /**
-       * @name the Likelihood interface
-       *
-       */
-      
-      const Alphabet* getAlphabet() const {
-        if (seqEvol_->getSubstitutionProcessNumbers().size()==0)
-          return NULL;
-        else 
-          return seqEvol_->getSubstitutionProcess(seqEvol_->getSubstitutionProcessNumbers()[0]).getModel(0,0)->getAlphabet();
-      }
-
-
-    };
-
-    class AbstractSequencePhyloLikelihood :
-      public SequencePhyloLikelihood,
-      public AbstractParametrizable
     {
-    public:
-      AbstractSequencePhyloLikelihood(SequenceEvolution& se, size_t nSE = 0, size_t nData = 0) :
-        AbstractPhyloLikelihood(),
-        AbstractAlignedPhyloLikelihood(0),
-        SequencePhyloLikelihood(se, nSE, nData),
-        AbstractParametrizable("")
-      {
-        // initialize INDEPENDENT parameters:
-        addParameters_(se.getIndependentParameters());
-      }
+    }
+      
+    SequencePhyloLikelihood& operator=(const SequencePhyloLikelihood& asd)
+    {
+      AbstractSingleDataPhyloLikelihood::operator=(asd);
 
-      AbstractSequencePhyloLikelihood(const AbstractSequencePhyloLikelihood& asd) :
+      seqEvol_=asd.seqEvol_;
+      nSeqEvol_=asd.nSeqEvol_;
+
+      return *this;
+    }
+
+    virtual ~SequencePhyloLikelihood() {}
+
+    SequencePhyloLikelihood* clone() const = 0;
+
+  public:
+    /**
+     * @brief The Sequence Evolution
+     *
+     */
+      
+    const SequenceEvolution& getSequenceEvolution() const
+    {
+      return *seqEvol_;
+    }
+
+    const size_t getSequenceEvolutionNumber() const
+    {
+      return nSeqEvol_;
+    }
+
+    /**
+     * @name the Likelihood interface
+     *
+     */
+      
+    const Alphabet* getAlphabet() const {
+      if (seqEvol_->getSubstitutionProcessNumbers().size()==0)
+        return NULL;
+      else 
+        return seqEvol_->getSubstitutionProcess(seqEvol_->getSubstitutionProcessNumbers()[0]).getModel(0,0)->getAlphabet();
+    }
+
+
+  };
+
+  class AbstractSequencePhyloLikelihood :
+    public SequencePhyloLikelihood,
+    public AbstractParametrizable
+  {
+  public:
+    AbstractSequencePhyloLikelihood(SequenceEvolution& se, size_t nSE = 0, size_t nData = 0) :
+      AbstractPhyloLikelihood(),
+      AbstractAlignedPhyloLikelihood(0),
+      SequencePhyloLikelihood(se, nSE, nData),
+      AbstractParametrizable("")
+    {
+      // initialize INDEPENDENT parameters:
+      addParameters_(se.getIndependentParameters());
+    }
+
+    AbstractSequencePhyloLikelihood(const AbstractSequencePhyloLikelihood& asd) :
       AbstractPhyloLikelihood(asd),
       AbstractAlignedPhyloLikelihood(asd),
       SequencePhyloLikelihood(asd),
       AbstractParametrizable(asd)
-      {
-      }
+    {
+    }
       
-      AbstractSequencePhyloLikelihood& operator=(const AbstractSequencePhyloLikelihood& asd)
-      {
-        SequencePhyloLikelihood::operator=(asd);
+    AbstractSequencePhyloLikelihood& operator=(const AbstractSequencePhyloLikelihood& asd)
+    {
+      SequencePhyloLikelihood::operator=(asd);
 
-        AbstractParametrizable::operator=(asd);
+      AbstractParametrizable::operator=(asd);
         
-        return *this;
-      }
+      return *this;
+    }
 
-      virtual ~AbstractSequencePhyloLikelihood() {}
+    virtual ~AbstractSequencePhyloLikelihood() {}
 
-      AbstractSequencePhyloLikelihood* clone() const = 0;
+    AbstractSequencePhyloLikelihood* clone() const = 0;
 
-    protected:
-      virtual void fireParameterChanged(const ParameterList& parameters)
-      {
-        seqEvol_->matchParametersValues(parameters);
-        update();
-      }
+  protected:
+    virtual void fireParameterChanged(const ParameterList& parameters)
+    {
+      seqEvol_->matchParametersValues(parameters);
+      update();
+    }
 
-    public:
+  public:
 
-      double getFirstOrderDerivative(const std::string& variable) const throw (Exception)
-      {
-        if (dValues_.find(variable)==dValues_.end())
-          computeDLogLikelihood_(variable);
+    double getFirstOrderDerivative(const std::string& variable) const throw (Exception)
+    {
+      if (dValues_.find(variable)==dValues_.end())
+        computeDLogLikelihood_(variable);
 
-        if (dValues_.find(variable)==dValues_.end() || std::isnan(dValues_[variable]))
-          dValues_[variable]=-getDLogLikelihood(variable);
+      if (dValues_.find(variable)==dValues_.end() || std::isnan(dValues_[variable]))
+        dValues_[variable]=-getDLogLikelihood(variable);
         
-        return dValues_[variable];
-      }
+      return dValues_[variable];
+    }
 
-      double getSecondOrderDerivative(const std::string& variable) const throw (Exception)
-      {
-        if (d2Values_.find(variable)==d2Values_.end())
-          computeD2LogLikelihood_(variable);
+    double getSecondOrderDerivative(const std::string& variable) const throw (Exception)
+    {
+      if (d2Values_.find(variable)==d2Values_.end())
+        computeD2LogLikelihood_(variable);
 
-        if (d2Values_.find(variable)==d2Values_.end() || std::isnan(d2Values_[variable]))
-          d2Values_[variable]=-getD2LogLikelihood(variable);
+      if (d2Values_.find(variable)==d2Values_.end() || std::isnan(d2Values_[variable]))
+        d2Values_[variable]=-getD2LogLikelihood(variable);
         
-        return d2Values_[variable];
-      }
+      return d2Values_[variable];
+    }
 
-      double getSecondOrderDerivative(const std::string& variable1, const std::string& variable2) const throw (Exception) { return 0; } // Not implemented for now.
+    double getSecondOrderDerivative(const std::string& variable1, const std::string& variable2) const throw (Exception) { return 0; } // Not implemented for now.
 
-      void setData(const AlignedValuesContainer& sites, size_t nData = 0)
-      {
-        AbstractSingleDataPhyloLikelihood::setData(sites, nData);
-        update();
-      }
+    void setData(const AlignedValuesContainer& sites, size_t nData = 0)
+    {
+      AbstractSingleDataPhyloLikelihood::setData(sites, nData);
+      update();
+    }
       
-      void setNamespace(const std::string& nameSpace)
-      {
-        seqEvol_->setNamespace(nameSpace);
-      }
+    void setNamespace(const std::string& nameSpace)
+    {
+      seqEvol_->setNamespace(nameSpace);
+    }
 
-      ParameterList getNonDerivableParameters() const
-      {
-        return seqEvol_->getNonDerivableParameters();
-      }
+    ParameterList getNonDerivableParameters() const
+    {
+      return seqEvol_->getNonDerivableParameters();
+    }
 
-      ParameterList getBranchLengthParameters() const
-      {
-        return seqEvol_->getBranchLengthParameters(true);
-      }
+    ParameterList getBranchLengthParameters() const
+    {
+      return seqEvol_->getBranchLengthParameters(true);
+    }
 
-      ParameterList getRootFrequenciesParameters() const
-      {
-        return seqEvol_->getRootFrequenciesParameters(true);
-      }
+    ParameterList getRootFrequenciesParameters() const
+    {
+      return seqEvol_->getRootFrequenciesParameters(true);
+    }
 
-      ParameterList getRateDistributionParameters() const
-      {
-        return seqEvol_->getRateDistributionParameters(true);
-      }
+    ParameterList getRateDistributionParameters() const
+    {
+      return seqEvol_->getRateDistributionParameters(true);
+    }
 
-      ParameterList getSubstitutionModelParameters() const
-      {
-        return seqEvol_->getSubstitutionModelParameters(true);
-      }
+    ParameterList getSubstitutionModelParameters() const
+    {
+      return seqEvol_->getSubstitutionModelParameters(true);
+    }
 
-      ParameterList getSubstitutionProcessParameters() const
-      {
-        return seqEvol_->getSubstitutionProcessParameters(true);
-      }
+    ParameterList getSubstitutionProcessParameters() const
+    {
+      return seqEvol_->getSubstitutionProcessParameters(true);
+    }
 
 
-    };
+  };
       
 } //end of namespace bpp.
 

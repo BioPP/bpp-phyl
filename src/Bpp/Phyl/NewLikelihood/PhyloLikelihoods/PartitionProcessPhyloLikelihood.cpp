@@ -165,11 +165,9 @@ void PartitionProcessPhyloLikelihood::setData(const AlignedValuesContainer& data
 
   for (std::map<size_t, std::vector<size_t> >::const_iterator it=mProcPos.begin(); it!=mProcPos.end(); it++)
   {
-    
     AlignedValuesContainer* st=SiteContainerTools::getSelectedSites(data, it->second);
-
-    getPhyloContainer()->setData(*st, it->first);
     
+    getPhyloContainer()->setData(*st, it->first);    
     delete st;
   }
 }

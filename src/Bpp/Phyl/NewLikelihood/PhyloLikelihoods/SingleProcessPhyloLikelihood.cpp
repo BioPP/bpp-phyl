@@ -112,6 +112,18 @@ VVdouble SingleProcessPhyloLikelihood::getLikelihoodForEachSiteForEachClass() co
 
 /******************************************************************************/
 
+Vdouble SingleProcessPhyloLikelihood::getLikelihoodForSitePerClass(size_t i) const
+{
+  Vdouble l(getNumberOfClasses());
+  for (size_t c = 0; c < l.size(); ++c)
+  {
+    l[c] = tlComp_->getLikelihoodForASiteForAClass(i, c);
+  }
+  return l;
+}
+
+/******************************************************************************/
+
 VVVdouble SingleProcessPhyloLikelihood::getLikelihoodForEachSiteForEachClassForEachState() const
 {
   VVVdouble l(getNumberOfSites());
@@ -148,6 +160,20 @@ VVdouble SingleProcessPhyloLikelihood::getPosteriorProbabilitiesOfEachClass() co
       pb[i][j] = pb[i][j] * process_->getProbabilityForModel(j) / l[i];
     }
   }
+  return pb;
+}
+
+/******************************************************************************/
+
+Vdouble SingleProcessPhyloLikelihood::getPosteriorProbabilitiesForSitePerClass(size_t i) const
+{
+  size_t nbClasses = getNumberOfClasses();
+  Vdouble pb = getLikelihoodForSitePerClass(i);
+  double l = getLikelihoodForASite(i);
+
+  for (size_t j = 0; j < nbClasses; ++j)
+    pb[j] = pb[j] * process_->getProbabilityForModel(j) / l;
+
   return pb;
 }
 

@@ -55,7 +55,7 @@ namespace bpp
      * likelihood from aligned phylogenies.
      */
     
-    class SetOfAlignedPhyloLikelihood:
+  class SetOfAlignedPhyloLikelihood:
     public SetOfAbstractPhyloLikelihood,
     virtual public AbstractAlignedPhyloLikelihood
     {
@@ -199,3 +199,4 @@ namespace bpp
 
 #endif  //_SET_OF_ALIGNED_PHYLOLIKELIHOOD_H_
 
+ 

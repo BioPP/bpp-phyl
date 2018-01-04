@@ -369,6 +369,16 @@ namespace bpp
     VVdouble getLikelihoodForEachSiteForEachClass() const;
 
     /**
+     * @brief Get the likelihood for a site and each model class.
+     * @param i the index of the site
+     *
+     * @return A  vector with all likelihoods:
+     * <code>V[j] =</code> likelihood of site i and model class j.
+     */
+
+    Vdouble getLikelihoodForSitePerClass(size_t i) const;
+
+    /**
      * @brief Get the likelihood for each site and each model class and each state.
      *
      * @return A three-dimension vector with all likelihoods:
@@ -379,23 +389,25 @@ namespace bpp
     /** @} */
       
     /**
-     * @brief Get the index (used for inner computations) of a given site (original alignment column).
-     *
-     * @param site An alignment position.
-     * @return The site index corresponding to the given input alignment position.
-     */
-    
-    // size_t getSiteIndex(size_t site) const throw (IndexOutOfBoundsException) {
-    //   return tlComp_->getSiteIndex(site);
-    // }
-      
-    /**
      * Utilities
      *
      */
-      
+
+    /*
+     * @brief Compute and return the Posterior Probabilities Of Rate
+     *        Classes on all sites (array site X classes=)
+     */
+    
     VVdouble getPosteriorProbabilitiesOfEachClass() const;
-      
+
+    /*
+     * @brief Compute and return the Posterior Probabilities Of Rate
+     *        Classes on a site
+     * @param i the index of the site
+     */
+    
+    Vdouble getPosteriorProbabilitiesForSitePerClass(size_t i) const;
+
     /**
      * @brief Get the posterior model class (the one with maximum posterior
      * probability) for each site.

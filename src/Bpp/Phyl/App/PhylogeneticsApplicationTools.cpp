@@ -4248,24 +4248,29 @@ void PhylogeneticsApplicationTools::printParameters(const PhyloLikelihoodContain
 
   const FormulaOfPhyloLikelihood* pop = dynamic_cast<const FormulaOfPhyloLikelihood*>(result);
 
-  if (!pop)
-    throw Exception("PhylogeneticsApplicationTools::printParameters : unknown result phyloLikelihood format");
-
-  string popout=pop->output();
-
-  out << popout;
-  
-  StringTokenizer st(popout,"phylo",true, true);
-  st.nextToken();
-
   vector<size_t> phyldep;
-  
-  while (st.hasMoreToken())
-  {
-    string ex=st.nextToken();
-    phyldep.push_back((size_t)(atoi(ex.c_str())));
+
+  if (!pop)
+  {  
+    out << "phylo1";
+    phyldep.push_back(1);
   }
+  else
+  {
+    string popout=pop->output();
+
+    out << popout;
   
+    StringTokenizer st(popout,"phylo",true, true);
+    st.nextToken();
+    
+    
+    while (st.hasMoreToken())
+    {
+      string ex=st.nextToken();
+      phyldep.push_back((size_t)(atoi(ex.c_str())));
+    }
+  }
   
   out.endLine();
   out.endLine();
@@ -4495,12 +4500,6 @@ void PhylogeneticsApplicationTools::printAnalysisInformation(const PhyloLikeliho
   if (!result)
     return;
 
-  if (dynamic_cast<const FormulaOfPhyloLikelihood*>(result))
-  {
-    ApplicationTools::displayWarning("Analysis Information not available for formulas.");
-    return;
-  }
-
   vector<size_t> phyldep;
   vector<size_t> nPhyl = phylocont.getNumbersOfPhyloLikelihoods();
   nPhyl.erase(find(nPhyl.begin(),nPhyl.end(),0));
@@ -4514,8 +4513,6 @@ void PhylogeneticsApplicationTools::printAnalysisInformation(const PhyloLikeliho
     }
   }
 
-  phyldep=VectorTools::unique(phyldep);
-  
   while (phyldep.size() != 0)
   {
     size_t num = phyldep[0];
@@ -4646,43 +4643,36 @@ void PhylogeneticsApplicationTools::printAnalysisInformation(const SingleDataPhy
   if (dynamic_cast<const SingleProcessPhyloLikelihood*>(&phyloLike) != NULL)
   {
     const SingleProcessPhyloLikelihood* pSPL = dynamic_cast<const SingleProcessPhyloLikelihood*>(&phyloLike);
-
+    
     StlOutputStream out(new ofstream(infosFile.c_str(), ios::out));
-
+    
     const SubstitutionProcess* pSP = &pSPL->getSubstitutionProcess();
-
+    
     vector<string> colNames;
     colNames.push_back("Sites");
     colNames.push_back("is.complete");
     colNames.push_back("is.constant");
     colNames.push_back("lnL");
-
+    
     const DiscreteDistribution* pDD = pSP->getRateDistribution();
     size_t nbR = 0;
-
+    
     if (pDD != NULL)
     {
       nbR = pDD->getNumberOfCategories();
 
-      // pDD->print(out);
-
-      // out.endLine();
-      // out.endLine();
-
       if (nbR > 1)
         for (size_t i = 0; i < nbR; i++)
-        {
           colNames.push_back("prob" + TextTools::toString(i + 1));
-        }
     }
 
     const AlignedValuesContainer* sites = phyloLike.getData();
-
+    
     vector<string> row(4 + (nbR > 1 ? nbR : 0));
     DataTable* infos = new DataTable(colNames);
-
+    
     VVdouble vvPP = pSPL->getPosteriorProbabilitiesOfEachClass();
-
+    
     for (size_t i = 0; i < sites->getNumberOfSites(); i++)
     {
       double lnL = phyloLike.getLogLikelihoodForASite(i);
@@ -4707,16 +4697,112 @@ void PhylogeneticsApplicationTools::printAnalysisInformation(const SingleDataPhy
       row[1] = isCompl;
       row[2] = isConst;
       row[3] = TextTools::toString(lnL);
-
+      
       if (nbR > 1)
         for (size_t j = 0; j < nbR; j++)
         {
           row[4 + j] = TextTools::toString(vvPP[i][j]);
         }
-
+      
       infos->addRow(row);
     }
+    
+    DataTable::write(*infos, out, "\t");
+    delete infos;
+  }
+  else if (dynamic_cast<const PartitionProcessPhyloLikelihood*>(&phyloLike) != NULL)
+  {
+    const PartitionProcessPhyloLikelihood* pPPL = dynamic_cast<const PartitionProcessPhyloLikelihood*>(&phyloLike);
+    
+    const PartitionSequenceEvolution& pSE=dynamic_cast<const PartitionSequenceEvolution&>(pPPL->getSequenceEvolution());
 
+    const map<size_t, vector<size_t> >& mProcPos=pSE.getMapOfProcessSites();
+    
+    vector<size_t> nbProc=pSE.getSubstitutionProcessNumbers();
+    
+    map<size_t, size_t> mNbr;
+
+    for (auto nP : nbProc)
+    {
+      const SubstitutionProcess& sp=pSE.getSubstitutionProcess(nP);
+      const DiscreteDistribution* pDD = sp.getRateDistribution();
+      mNbr[nP]=(pDD?pDD->getNumberOfCategories():1);
+    }
+
+    size_t maxR=max_element(mNbr.begin(), mNbr.end(), [](const std::pair<size_t, size_t>& p1, const std::pair<size_t, size_t>& p2){ return p1.second < p2.second;})->second;
+
+    StlOutputStream out(new ofstream(infosFile.c_str(), ios::out));
+    
+    vector<string> colNames;
+    colNames.push_back("Sites");
+    colNames.push_back("is.complete");
+    colNames.push_back("is.constant");
+    colNames.push_back("lnL");
+    
+    if (maxR > 1)
+      for (size_t i = 0; i < maxR; i++)
+      {
+        colNames.push_back("prob" + TextTools::toString(i + 1));
+      }
+
+    size_t nbSites = pSE.getNumberOfSites();    
+    
+    vector<string> row(4 + (maxR > 1 ? maxR : 0));
+    DataTable* infos = new DataTable(nbSites,colNames);
+    
+    for (auto nP : nbProc)
+    {
+      const SingleProcessPhyloLikelihood* pSPPL = dynamic_cast<const SingleProcessPhyloLikelihood*>(pPPL->getAbstractPhyloLikelihood(nP));
+
+      if (!pSPPL)
+        throw Exception("PhylogeneticsApplicationTools::printAnalysisInformation : no SingleProcessPhyloLikelihood in PartitionProcessPhyloLikelihood.");
+      
+      size_t nbr=mNbr[pSPPL->getSubstitutionProcessNumber()];
+
+      const vector<size_t>& mPos=mProcPos.at(nP);
+      
+      const AlignedValuesContainer* sites = pSPPL->getData();
+
+      for (size_t i = 0; i < sites->getNumberOfSites(); i++)
+      {
+        double lnL = pSPPL->getLogLikelihoodForASite(i);
+
+        const CruxSymbolListSite& currentSite = sites->getSymbolListSite(i);
+        int currentSitePosition = currentSite.getPosition();
+        string isCompl = "NA";
+        string isConst = "NA";
+        try
+        {
+          isCompl = (SymbolListTools::isComplete(currentSite) ? "1" : "0");
+        }
+        catch (EmptySiteException& ex)
+        {}
+        try
+        {
+          isConst = (SymbolListTools::isConstant(currentSite) ? "1" : "0");
+        }
+        catch (EmptySiteException& ex)
+        {}
+        row[0] = (string("[" + TextTools::toString(currentSitePosition) + "]"));
+        row[1] = isCompl;
+        row[2] = isConst;
+        row[3] = TextTools::toString(lnL);
+      
+        if (nbr>1)
+        {
+          Vdouble vPP = pSPPL->getPosteriorProbabilitiesForSitePerClass(i);
+
+          for (size_t j = 0; j < nbr; j++)
+            row[4 + j] = TextTools::toString(vPP[j]);
+        }
+
+        for (size_t j = nbr; j<maxR; j++)
+          row[4 + j] = "NA";
+
+        infos->setRow(mPos[i],row);
+      }
+    }
+    
     DataTable::write(*infos, out, "\t");
     delete infos;
   }

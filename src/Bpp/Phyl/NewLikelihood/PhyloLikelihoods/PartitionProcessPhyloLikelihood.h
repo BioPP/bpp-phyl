@@ -44,6 +44,7 @@
 #include "SequencePhyloLikelihood.h"
 #include "ProductOfAlignedPhyloLikelihood.h"
 #include "../PartitionSequenceEvolution.h"
+#include "SingleProcessPhyloLikelihood.h"
 
 // From SeqLib:
 #include <Bpp/Seq/Container/AlignedValuesContainer.h>
@@ -57,12 +58,12 @@ namespace bpp
  * @see AbstractSequencePhyloLikelihood
  */
 
-    struct ProcPos
-    {
-      size_t nProc;
-      size_t pos;
-    };
-    
+  struct ProcPos
+  {
+    size_t nProc;
+    size_t pos;
+  };
+  
       
   class PartitionProcessPhyloLikelihood :
     public SequencePhyloLikelihood,
@@ -78,7 +79,7 @@ namespace bpp
 
       /**
        * vector of couples <number of process, site> specific to
-       * this process.
+       * this partition process.
        *
        */
 
@@ -137,12 +138,24 @@ namespace bpp
       void setData(const AlignedValuesContainer& data, size_t nData = 0);
 
       /**
-       * @brief add aligned phylolikelihood without length constraint
+       * @brief add aligned phylolikelihood.
+       *  This is done without any check on length constraint.
        *
        */
       
       bool addPhyloLikelihood(size_t nPhyl);
+
+      /*
+       * @brief Get PhyloLikelihood Number for a given site.
+       * @param siteIndex the index of the site
+       *
+       */
       
+      const SingleProcessPhyloLikelihood* getPhyloLikelihoodForASite(size_t siteIndex) const
+      {
+        return dynamic_cast<const SingleProcessPhyloLikelihood*>(getAbstractPhyloLikelihood(vProcPos_[siteIndex].nProc));
+      }
+
       /**
        * @name The Likelihood interface.
        *
