@@ -277,14 +277,14 @@ public:
      *
      */
     
-    VVVdouble getPosteriorProbabilitiesForEachStateForEachClass(int nodeId) const;
+    VVVdouble getPosteriorProbabilitiesPerStatePerClass(int nodeId) const;
 
     /**
      * @brief Compute the posterior probabilities for each state for a
      * given node.
      *
      * This method calls the
-     * getPosteriorProbabilitiesForEachStateForEachClass function and
+     * getPosteriorProbabilitiesPerStatePerClass function and
      * average the probabilities over all sites and classes,
      * resulting in a one-dimensionnal frequency array, with one
      * frequency per model state.

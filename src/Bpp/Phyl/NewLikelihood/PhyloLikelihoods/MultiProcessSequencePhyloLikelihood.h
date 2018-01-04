@@ -266,9 +266,9 @@ namespace bpp
         return vpTreelik_[p]->getD2LogLikelihoodForASite(site);
       }
 
-      VVdouble getLikelihoodForEachSiteForEachProcess() const;
+      VVdouble getLikelihoodPerSitePerProcess() const;
 
-      virtual VVdouble getPosteriorProbabilitiesForEachSiteForEachProcess() const = 0;
+      virtual VVdouble getPosteriorProbabilitiesPerSitePerProcess() const = 0;
 
   
       /**

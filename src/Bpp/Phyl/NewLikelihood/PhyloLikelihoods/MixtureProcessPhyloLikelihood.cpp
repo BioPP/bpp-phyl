@@ -199,15 +199,15 @@ double MixtureProcessPhyloLikelihood::getLogLikelihoodForASite(size_t site) cons
 
 /******************************************************************************/
 
-VVdouble MixtureProcessPhyloLikelihood::getPosteriorProbabilitiesForEachSiteForEachProcess() const
+VVdouble MixtureProcessPhyloLikelihood::getPosteriorProbabilitiesPerSitePerProcess() const
 {
   updateLikelihood();
   computeLikelihood();
 
   size_t nbProcess = getNumberOfSubstitutionProcess();
 
-  VVdouble pb = getLikelihoodForEachSiteForEachProcess();
-  Vdouble l = getLikelihoodForEachSite();
+  VVdouble pb = getLikelihoodPerSitePerProcess();
+  Vdouble l = getLikelihoodPerSite();
 
   for (size_t i = 0; i < nbSites_; ++i)
   {

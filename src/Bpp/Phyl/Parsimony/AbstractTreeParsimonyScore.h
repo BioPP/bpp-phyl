@@ -109,7 +109,7 @@ private:
 
 public:
   virtual const Tree& getTree() const { return *tree_; }
-  virtual std::vector<unsigned int> getScoreForEachSite() const;
+  virtual std::vector<unsigned int> getScorePerSite() const;
   virtual const StateMap& getStateMap() const { return *statesMap_; }
 
 protected:

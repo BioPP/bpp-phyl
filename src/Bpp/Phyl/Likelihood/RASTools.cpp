@@ -52,7 +52,7 @@ DiscreteDistribution* RASTools::getPosteriorRateDistribution(
   const DiscreteRatesAcrossSitesTreeLikelihood& treeLikelihood)
 {
   // Get all posterior rate classes for each sites:
-  vector<size_t> classes = treeLikelihood.getRateClassWithMaxPostProbOfEachSite();
+  vector<size_t> classes = treeLikelihood.getRateClassWithMaxPostProbPerSite();
   map<size_t, size_t> counts;
   for (size_t i = 0; i < classes.size(); i++)
   {

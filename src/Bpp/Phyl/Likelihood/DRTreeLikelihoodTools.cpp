@@ -44,7 +44,7 @@ using namespace bpp;
 
 //-----------------------------------------------------------------------------------------
 
-VVVdouble DRTreeLikelihoodTools::getPosteriorProbabilitiesForEachStateForEachRate(
+VVVdouble DRTreeLikelihoodTools::getPosteriorProbabilitiesPerStatePerRate(
   const DRTreeLikelihood & drl,
   int nodeId)
 {
@@ -123,7 +123,7 @@ Vdouble DRTreeLikelihoodTools::getPosteriorStateFrequencies(
   const DRTreeLikelihood& drl,
   int nodeId)
 {
-  VVVdouble probs = getPosteriorProbabilitiesForEachStateForEachRate(drl, nodeId);
+  VVVdouble probs = getPosteriorProbabilitiesPerStatePerRate(drl, nodeId);
   Vdouble freqs(drl.getNumberOfStates());
   double sumw = 0, w;
   for (size_t i = 0; i < probs.size(); i++)

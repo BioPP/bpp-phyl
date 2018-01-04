@@ -145,7 +145,7 @@ double DecompositionSubstitutionCount::getNumberOfSubstitutions(size_t initialSt
 
 /******************************************************************************/
 
-std::vector<double> DecompositionSubstitutionCount::getNumberOfSubstitutionsForEachType(size_t initialState, size_t finalState, double length) const
+std::vector<double> DecompositionSubstitutionCount::getNumberOfSubstitutionsPerType(size_t initialState, size_t finalState, double length) const
 {
   if (length < 0)
     throw Exception("DecompositionSubstitutionCount::getNumbersOfSubstitutions. Negative branch length: " + TextTools::toString(length) + ".");

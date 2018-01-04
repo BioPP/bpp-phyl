@@ -82,7 +82,7 @@ public:
    *
    * @return The minimum total number of changes in the tree for each site.
    */
-  virtual std::vector<unsigned int> getScoreForEachSite() const = 0;
+  virtual std::vector<unsigned int> getScorePerSite() const = 0;
 
   /**
    * @brief Get the tree for wich scores are computed.

@@ -91,7 +91,7 @@ void MultiProcessSequencePhyloLikelihood::setData(const AlignedValuesContainer& 
 
 /******************************************************************************/
 
-VVdouble MultiProcessSequencePhyloLikelihood::getLikelihoodForEachSiteForEachProcess() const
+VVdouble MultiProcessSequencePhyloLikelihood::getLikelihoodPerSitePerProcess() const
 {
   VVdouble l(getNumberOfSites());
   for (size_t i = 0; i < l.size(); ++i)

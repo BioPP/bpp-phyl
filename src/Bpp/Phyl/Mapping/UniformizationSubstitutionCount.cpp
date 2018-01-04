@@ -203,7 +203,7 @@ double UniformizationSubstitutionCount::getNumberOfSubstitutions(size_t initialS
 
 /******************************************************************************/
 
-std::vector<double> UniformizationSubstitutionCount::getNumberOfSubstitutionsForEachType(size_t initialState, size_t finalState, double length) const
+std::vector<double> UniformizationSubstitutionCount::getNumberOfSubstitutionsPerType(size_t initialState, size_t finalState, double length) const
 {
   if (length < 0)
     throw Exception("UniformizationSubstitutionCount::getNumbersOfSubstitutions. Negative branch length: " + TextTools::toString(length) + ".");

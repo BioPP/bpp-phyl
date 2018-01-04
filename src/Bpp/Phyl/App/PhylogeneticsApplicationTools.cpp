@@ -4617,9 +4617,9 @@ void PhylogeneticsApplicationTools::printAnalysisInformation(const SetOfAlignedP
         else
         {
           if (hOAP)
-            vap = hOAP->getPosteriorProbabilitiesForASiteForEachAligned(i);
+            vap = hOAP->getPosteriorProbabilitiesForASitePerAligned(i);
           else if (aCOAP)
-            vap = aCOAP->getPosteriorProbabilitiesForASiteForEachAligned(i);
+            vap = aCOAP->getPosteriorProbabilitiesForASitePerAligned(i);
 
           for (size_t j = 0; j < vap.size(); j++)
           {
@@ -4671,7 +4671,7 @@ void PhylogeneticsApplicationTools::printAnalysisInformation(const SingleDataPhy
     vector<string> row(4 + (nbR > 1 ? nbR : 0));
     DataTable* infos = new DataTable(colNames);
     
-    VVdouble vvPP = pSPL->getPosteriorProbabilitiesOfEachClass();
+    VVdouble vvPP = pSPL->getPosteriorProbabilitiesPerClass();
     
     for (size_t i = 0; i < sites->getNumberOfSites(); i++)
     {
@@ -4837,8 +4837,8 @@ void PhylogeneticsApplicationTools::printAnalysisInformation(const SingleDataPhy
     vector<string> row(4 + (nbP > 1 ? 2 * nbP : 0));
     DataTable* infos = new DataTable(colNames);
 
-    VVdouble vvPP = pMPL->getPosteriorProbabilitiesForEachSiteForEachProcess();
-    VVdouble vvL = pMPL->getLikelihoodForEachSiteForEachProcess();
+    VVdouble vvPP = pMPL->getPosteriorProbabilitiesPerSitePerProcess();
+    VVdouble vvL = pMPL->getLikelihoodPerSitePerProcess();
 
     for (size_t i = 0; i < sites->getNumberOfSites(); i++)
     {

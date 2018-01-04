@@ -291,7 +291,7 @@ namespace bpp
      *
      * @return A 2d vector with all likelihoods for each site and for each state.
      */
-    VVdouble getLikelihoodForEachSiteForEachState() const;
+    VVdouble getLikelihoodPerSitePerState() const;
 
     /**
      * @brief Get the likelihood for each site and each model class.
@@ -299,7 +299,7 @@ namespace bpp
      * @return A two-dimension vector with all likelihoods:
      * <code>V[i][j] =</code> likelihood of site i and model class j.
      */
-    VVdouble getLikelihoodForEachSiteForEachClass() const;
+    VVdouble getLikelihoodPerSitePerClass() const;
 
     /**
      * @brief Get the likelihood for each site and each model class and each state.
@@ -308,7 +308,7 @@ namespace bpp
      * <code>V[i][j][k} =</code> likelihood of site i and model class j and state k.
      */
 
-    VVVdouble getLikelihoodForEachSiteForEachClassForEachState() const;
+    VVVdouble getLikelihoodPerSitePerClassPerState() const;
 
     /** @} */
 
@@ -328,7 +328,7 @@ namespace bpp
      *
      */
 
-    VVdouble getPosteriorProbabilitiesOfEachClass() const;
+    VVdouble getPosteriorProbabilitiesPerClass() const;
 
     /**
      * @brief Get the posterior model class (the one with maximum posterior
@@ -337,9 +337,9 @@ namespace bpp
      * @return A vector with all model classes indexes.
      */
 
-    std::vector<size_t> getClassWithMaxPostProbOfEachSite() const;
+    std::vector<size_t> getClassWithMaxPostProbPerSite() const;
 
-    Vdouble getPosteriorRateOfEachSite() const;
+    Vdouble getPosteriorRatePerSite() const;
 
     /* @} */
 

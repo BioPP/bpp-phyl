@@ -131,7 +131,7 @@ namespace bpp
   
       double getD2LogLikelihoodForASite(const std::string& variable, size_t site) const;
   
-      VVdouble getPosteriorProbabilitiesForEachSiteForEachProcess() const;
+      VVdouble getPosteriorProbabilitiesPerSitePerProcess() const;
 
       /*
        * @}

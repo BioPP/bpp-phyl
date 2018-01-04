@@ -177,7 +177,7 @@ public:
     return Hmm_->getD2LogLikelihoodForASite(site);
   }
 
-  Vdouble getLikelihoodForEachSite() const
+  Vdouble getLikelihoodPerSite() const
   {
     updateLikelihood();
     computeLikelihood();
@@ -185,7 +185,7 @@ public:
     return Hmm_->getLikelihoodForEachSite();
   }
 
-  VVdouble getPosteriorProbabilitiesForEachSiteForEachProcess() const
+  VVdouble getPosteriorProbabilitiesPerSitePerProcess() const
   {
     updateLikelihood();
     computeLikelihood();

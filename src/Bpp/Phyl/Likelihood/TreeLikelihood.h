@@ -247,28 +247,28 @@ namespace bpp
      *
      * @return A vector with all likelihoods for each site.
      */
-    virtual Vdouble getLikelihoodForEachSite() const = 0;
+    virtual Vdouble getLikelihoodPerSite() const = 0;
 
     /**
      * @brief Get the logarithm of the likelihood for each site.
      *
      * @return A vector with all log likelihoods for each site.
      */
-    virtual Vdouble getLogLikelihoodForEachSite() const = 0;
+    virtual Vdouble getLogLikelihoodPerSite() const = 0;
 
     /**
      * @brief Get the likelihood for each site and for each state.
      *
      * @return A 2d vector with all likelihoods for each site and for each state.
      */
-    virtual VVdouble getLikelihoodForEachSiteForEachState() const = 0;
+    virtual VVdouble getLikelihoodPerSitePerState() const = 0;
 
     /**
      * @brief Get the logarithm of the likelihood for each site and for each state.
      *
      * @return A 2d vector with all log likelihoods for each site and for each state.
      */
-    virtual VVdouble getLogLikelihoodForEachSiteForEachState() const = 0;
+    virtual VVdouble getLogLikelihoodPerSitePerState() const = 0;
     
     /**
      * @brief Get the likelihood for the whole dataset.

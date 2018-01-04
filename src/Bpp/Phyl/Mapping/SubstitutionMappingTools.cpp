@@ -1598,8 +1598,8 @@ return substitutions;
 
   // Then, we deal with the node of interest.
   // ('y' is the state at 'node' and 'x' the state at 'father'.)
-  VVVdouble probsNode   = DRTreeLikelihoodTools::getPosteriorProbabilitiesForEachStateForEachRate(drtl, currentNode->getId());
-  VVVdouble probsFather = DRTreeLikelihoodTools::getPosteriorProbabilitiesForEachStateForEachRate(drtl, father->getId());
+  VVVdouble probsNode   = DRTreeLikelihoodTools::getPosteriorProbabilitiesPerStatePerRate(drtl, currentNode->getId());
+  VVVdouble probsFather = DRTreeLikelihoodTools::getPosteriorProbabilitiesPerStatePerRate(drtl, father->getId());
 
   // Iterate over all site partitions:
   unique_ptr<TreeLikelihood::ConstBranchModelIterator> mit(drtl.getNewBranchModelIterator(currentNode->getId()));

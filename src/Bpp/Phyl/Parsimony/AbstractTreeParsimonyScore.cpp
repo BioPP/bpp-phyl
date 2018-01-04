@@ -99,7 +99,7 @@ void AbstractTreeParsimonyScore::init_(const SiteContainer& data, bool verbose) 
   if (data_->getAlphabet()->getSize() > 20) throw Exception("Error, only alphabet with size <= 20 are supported. See the source file of AbstractTreeParsimonyScore.");
 }
 
-std::vector<unsigned int> AbstractTreeParsimonyScore::getScoreForEachSite() const
+std::vector<unsigned int> AbstractTreeParsimonyScore::getScorePerSite() const
 {
   vector<unsigned int> scores(data_->getNumberOfSites());
   for (size_t i = 0; i < scores.size(); i++)

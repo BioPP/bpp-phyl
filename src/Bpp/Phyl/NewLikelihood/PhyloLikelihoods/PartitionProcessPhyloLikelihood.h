@@ -172,9 +172,9 @@ namespace bpp
         return ProductOfAlignedPhyloLikelihood::getNumberOfSites();
       }
 
-      Vdouble getLikelihoodForEachSite() const
+      Vdouble getLikelihoodPerSite() const
       {
-        return ProductOfAlignedPhyloLikelihood::getLikelihoodForEachSite();
+        return ProductOfAlignedPhyloLikelihood::getLikelihoodPerSite();
       }
       
       /**

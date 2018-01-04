@@ -119,7 +119,7 @@ namespace bpp
      *
      * @return A two-dimension vector with all likelihoods.
      */
-    virtual VVdouble getLikelihoodForEachSiteForEachRateClass() const = 0;
+    virtual VVdouble getLikelihoodPerSitePerRateClass() const = 0;
 		
     /**
      * @brief Get the logarithm of the likelihood for each site and each rate class.
@@ -127,14 +127,14 @@ namespace bpp
      * @return A two-dimension vector with all log likelihoods:
      * <code>V[i][j] =</code> likelihood of site i and rate class j.
      */
-    virtual VVdouble getLogLikelihoodForEachSiteForEachRateClass() const = 0;
+    virtual VVdouble getLogLikelihoodPerSitePerRateClass() const = 0;
 		
     /**
      * @brief Get the likelihood for each site and each rate class and each state.
      *
      * @return A three-dimension vector with all likelihoods.
      */
-    virtual VVVdouble getLikelihoodForEachSiteForEachRateClassForEachState() const = 0;
+    virtual VVVdouble getLikelihoodPerSitePerRateClassPerState() const = 0;
 		
     /**
      * @brief Get the logarithm of the likelihood for each site and each rate class and each state.
@@ -142,7 +142,7 @@ namespace bpp
      * @return A three-dimension vector with all log likelihoods:
      * <code>V[i][j][k} =</code> likelihood of site i and rate class j and state k.
      */
-    virtual VVVdouble getLogLikelihoodForEachSiteForEachRateClassForEachState() const = 0;
+    virtual VVVdouble getLogLikelihoodPerSitePerRateClassPerState() const = 0;
 
     /**
      * @brief Get the posterior probability for each site of belonging to a
@@ -151,7 +151,7 @@ namespace bpp
      * @return A two-dimension vector with all posterior probabilities:
      * <code>V[i][j] =</code> probablity for site i of belonging to rate class j.
      */
-    virtual VVdouble getPosteriorProbabilitiesOfEachRate() const = 0;
+    virtual VVdouble getPosteriorProbabilitiesPerRate() const = 0;
 		
     /**
      * @brief Get the posterior rate class (the one with maximum posterior
@@ -159,7 +159,7 @@ namespace bpp
      *
      * @return A vector with all rate classes indexes.
      */
-    virtual std::vector<size_t> getRateClassWithMaxPostProbOfEachSite() const = 0;
+    virtual std::vector<size_t> getRateClassWithMaxPostProbPerSite() const = 0;
 
     /**
      * @brief Get the posterior rate (the one with maximum posterior
@@ -167,7 +167,7 @@ namespace bpp
      *
      * @return A vector with all rate classes indexes.
      */
-    virtual Vdouble getRateWithMaxPostProbOfEachSite() const = 0;
+    virtual Vdouble getRateWithMaxPostProbPerSite() const = 0;
 	
     /**
      * @brief Get the posterior rate, i.e. averaged over all classes
@@ -175,7 +175,7 @@ namespace bpp
      *
      * @return A vector with all rates.
      */
-    virtual Vdouble getPosteriorRateOfEachSite() const = 0;
+    virtual Vdouble getPosteriorRatePerSite() const = 0;
 
     /**
      * @brief Get the parameters associated to the rate distirbution.

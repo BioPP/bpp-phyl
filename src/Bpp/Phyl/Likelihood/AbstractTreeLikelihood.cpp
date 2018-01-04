@@ -43,7 +43,7 @@ using namespace bpp;
 
 /******************************************************************************/
 
-Vdouble AbstractTreeLikelihood::getLikelihoodForEachSite() const
+Vdouble AbstractTreeLikelihood::getLikelihoodPerSite() const
 {
 	Vdouble l(getNumberOfSites());
 	for (size_t i = 0; i < l.size(); i++) l[i] = getLikelihoodForASite(i);
@@ -52,7 +52,7 @@ Vdouble AbstractTreeLikelihood::getLikelihoodForEachSite() const
 
 /******************************************************************************/
 
-Vdouble AbstractTreeLikelihood::getLogLikelihoodForEachSite() const
+Vdouble AbstractTreeLikelihood::getLogLikelihoodPerSite() const
 {
 	Vdouble l(getNumberOfSites());
 	for (size_t i = 0; i < l.size(); i++) l[i] = getLogLikelihoodForASite(i);
@@ -61,7 +61,7 @@ Vdouble AbstractTreeLikelihood::getLogLikelihoodForEachSite() const
 
 /******************************************************************************/
 
-VVdouble AbstractTreeLikelihood::getLikelihoodForEachSiteForEachState() const
+VVdouble AbstractTreeLikelihood::getLikelihoodPerSitePerState() const
 {
 	VVdouble l(getNumberOfSites());
 	for (size_t i = 0; i < l.size(); i++)
@@ -78,7 +78,7 @@ VVdouble AbstractTreeLikelihood::getLikelihoodForEachSiteForEachState() const
 
 /******************************************************************************/
 
-VVdouble AbstractTreeLikelihood::getLogLikelihoodForEachSiteForEachState() const
+VVdouble AbstractTreeLikelihood::getLogLikelihoodPerSitePerState() const
 {
 	VVdouble l(getNumberOfSites());
 	for (size_t i = 0; i < l.size(); i++)

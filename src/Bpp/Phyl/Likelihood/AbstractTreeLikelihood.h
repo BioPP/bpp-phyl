@@ -287,10 +287,10 @@ namespace bpp
      */
     const AlignedValuesContainer* getData() const { return data_; }
     const Alphabet* getAlphabet() const { return data_->getAlphabet(); }  
-    Vdouble getLikelihoodForEachSite()                 const;
-    Vdouble getLogLikelihoodForEachSite()              const;
-    VVdouble getLikelihoodForEachSiteForEachState()    const;
-    VVdouble getLogLikelihoodForEachSiteForEachState() const;
+    Vdouble getLikelihoodPerSite()                 const;
+    Vdouble getLogLikelihoodPerSite()              const;
+    VVdouble getLikelihoodPerSitePerState()    const;
+    VVdouble getLogLikelihoodPerSitePerState() const;
     size_t getNumberOfSites() const { return data_->getNumberOfSites(); }
     const Tree& getTree() const { return *tree_; }
     void enableDerivatives(bool yn) { computeFirstOrderDerivatives_ = computeSecondOrderDerivatives_ = yn; }

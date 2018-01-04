@@ -155,19 +155,19 @@ public:
     return hmm_->getD2LogLikelihoodForASite(site);
   }
 
-  Vdouble getLikelihoodForEachSite() const
+  Vdouble getLikelihoodPerSite() const
   {
     return hmm_->getLikelihoodForEachSite();
   }
 
-  VVdouble getPosteriorProbabilitiesForEachSiteForEachAligned() const
+  VVdouble getPosteriorProbabilitiesPerSitePerAligned() const
   {
     VVdouble pp;
     hmm_->getHiddenStatesPosteriorProbabilities(pp, false);
     return pp;
   }
 
-  Vdouble getPosteriorProbabilitiesForASiteForEachAligned(size_t site) const
+  Vdouble getPosteriorProbabilitiesForASitePerAligned(size_t site) const
   {
     return hmm_->getHiddenStatesPosteriorProbabilitiesForASite(site);
   }
