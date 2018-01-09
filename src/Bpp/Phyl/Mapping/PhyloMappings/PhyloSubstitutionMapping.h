@@ -88,6 +88,13 @@ namespace bpp
     virtual bool matchParametersValues(const ParameterList& nullParams) = 0;
 
     /*
+     * @brief Gets the parameters.
+     *
+     */
+    
+    virtual const ParameterList& getParameters() const = 0;
+
+    /*
      * @brief compute Normalizations given a SubstitutionRegister and
      * a list of null parameters
      *

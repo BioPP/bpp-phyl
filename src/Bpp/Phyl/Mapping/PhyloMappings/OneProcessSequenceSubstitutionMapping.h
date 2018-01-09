@@ -62,7 +62,7 @@ namespace bpp
     OneProcessSequencePhyloLikelihood* pOPSP_;
 
     /*
-     * @brief Set the models of the BranchedModelSet to the adhox
+     * @brief Set the models of the BranchedModelSet to the adhoc
      * branches, for normalization.
      *
      */
@@ -75,6 +75,7 @@ namespace bpp
       pOPSP_(&spp)
     {
       computeCounts(threshold);
+      setBranchedModelSet_();
     }
 
     OneProcessSequenceSubstitutionMapping(const OneProcessSequenceSubstitutionMapping& sppm) :

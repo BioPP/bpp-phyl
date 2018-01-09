@@ -166,12 +166,17 @@ namespace bpp
     {
       return *pReg_;
     }
-
+    
     bool matchParametersValues(const ParameterList& nullParams)
     {
       return modelColl_.matchParametersValues(nullParams);
     }
-    
+
+    const ParameterList& getParameters() const
+    {
+      return modelColl_.getParameters();
+    }
+
     /* 
      *
      * @brief add a Substitition Model in the map, and on all branches

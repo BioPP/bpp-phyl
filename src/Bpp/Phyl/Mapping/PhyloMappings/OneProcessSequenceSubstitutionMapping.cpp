@@ -44,9 +44,6 @@ using namespace std;
 
 void OneProcessSequenceSubstitutionMapping::computeNormalizations(const ParameterList& nullParams)
 {
-  if (!factors_)
-    setBranchedModelSet_();
-  
   matchParametersValues(nullParams);
   
   factors_.reset(SubstitutionMappingTools::computeNormalizations(getLikelihoodCalculation(),
@@ -62,7 +59,5 @@ void OneProcessSequenceSubstitutionMapping::setBranchedModelSet_()
   vector<size_t> vId=sp.getModelNumbers();
 
   for (auto id:vId)
-  {
     addModel(id, *sp.getModel(id),sp.getNodesWithModel(id));
-  }
 }

@@ -44,16 +44,12 @@ using namespace std;
 
 void SingleProcessSubstitutionMapping::computeNormalizations(const ParameterList& nullParams)
 {
-  if (!factors_)
-    setBranchedModelSet_();
-  
   matchParametersValues(nullParams);
 
   factors_.reset(SubstitutionMappingTools::computeNormalizations(getLikelihoodCalculation(),
                                                                  this,
                                                                  getRegister()));
 }
-
 
 void SingleProcessSubstitutionMapping::setBranchedModelSet_()
 {

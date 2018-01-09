@@ -63,7 +63,7 @@ namespace bpp
     SingleProcessPhyloLikelihood* pSPP_;
 
     /*
-     * @brief Set the models of the BranchedModelSet to the adhox
+     * @brief Set the models of the BranchedModelSet to the adhoc
      * branches, for normalization.
      *
      */
@@ -76,6 +76,7 @@ namespace bpp
       pSPP_(&spp)
     {
       computeCounts(threshold);
+      setBranchedModelSet_();
     }
 
     SingleProcessSubstitutionMapping(const SingleProcessSubstitutionMapping& sppm) :
