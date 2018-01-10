@@ -379,6 +379,10 @@ namespace bpp
     static PhyloTree* getTreeForType(const ProbabilisticSubstitutionMapping& counts,
                               size_t type);
 
+    static PhyloTree* getTreeForType(const ProbabilisticSubstitutionMapping& counts,
+                                     const ProbabilisticSubstitutionMapping& factors,
+                                     size_t type);
+
     /**
      *
      * @brief Methods to get std::vectors of counts
@@ -423,6 +427,11 @@ namespace bpp
     static Vdouble getCountsForSitePerBranch(
       const ProbabilisticSubstitutionMapping& counts, size_t site);
 
+    static Vdouble getCountsForSitePerBranch(
+      const ProbabilisticSubstitutionMapping& counts,
+      const ProbabilisticSubstitutionMapping& factors,
+      size_t site);
+
     /**
      * @brief Sum all type of substitutions for each site for each branch. 
      *
@@ -435,6 +444,11 @@ namespace bpp
     
     static VVdouble getCountsPerSitePerBranch(
       const ProbabilisticSubstitutionMapping& counts, const std::vector<uint>& ids = Vuint(0));
+
+    static VVdouble getCountsPerSitePerBranch(
+      const ProbabilisticSubstitutionMapping& counts,
+      const ProbabilisticSubstitutionMapping& factors,
+      const std::vector<uint>& ids = Vuint(0));
 
     /**
      * @brief Sum all sites substitutions for each type of a given branch.

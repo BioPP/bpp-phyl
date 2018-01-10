@@ -532,6 +532,33 @@ PhyloTree* SubstitutionMappingTools::getTreeForType(const ProbabilisticSubstitut
   return pt.release();
 }
 
+PhyloTree* SubstitutionMappingTools::getTreeForType(const ProbabilisticSubstitutionMapping& counts,
+                                                    const ProbabilisticSubstitutionMapping& factors,
+                                                    size_t type)
+{
+  unique_ptr<PhyloTree> pt(new PhyloTree(counts));
+  size_t nbSites = counts.getNumberOfSites();
+
+  unique_ptr<ProbabilisticSubstitutionMapping::mapTree::EdgeIterator> brIt=counts.allEdgesIterator();
+
+  for (;!brIt->end();brIt->next())
+  {
+    shared_ptr<PhyloBranchMapping> brm=(**brIt);
+    shared_ptr<PhyloBranchMapping> brf=factors.getEdge(counts.getEdgeIndex(brm));
+    
+    double x=0,f=0;
+    
+    for (size_t i = 0; i < nbSites; ++i)
+    {
+      x += brm->getSiteTypeCount(counts.getSiteIndex(i), type);
+      f += brf->getSiteTypeCount(counts.getSiteIndex(i), type);
+    }
+    
+    pt->getEdge(counts.getEdgeIndex(brm))->setLength(x/f);
+  }
+ 
+  return pt.release();
+}
   
 
 /********************************************************************************/
@@ -587,6 +614,29 @@ Vdouble SubstitutionMappingTools::getCountsForSitePerBranch(
   return v;
 }
 
+Vdouble SubstitutionMappingTools::getCountsForSitePerBranch(
+  const ProbabilisticSubstitutionMapping& counts,
+  const ProbabilisticSubstitutionMapping& factors,
+  size_t site)
+{
+  unique_ptr<ProbabilisticSubstitutionMapping::mapTree::EdgeIterator> brIt=counts.allEdgesIterator();
+  size_t siteIndex = counts.getSiteIndex(site);
+  
+  Vdouble v(counts.getNumberOfBranches(),0);
+  for (;!brIt->end();brIt->next())
+  {
+    shared_ptr<PhyloBranchMapping> brm=(**brIt);
+    
+    uint edid=counts.getEdgeIndex(brm);
+    shared_ptr<PhyloBranchMapping> brf=factors.getEdge(edid);
+
+    
+    v[edid] = VectorTools::sum(brm->getSiteCount(siteIndex))/VectorTools::sum(brf->getSiteCount(siteIndex));
+  }
+  
+  return v;
+}
+
 /**************************************************************************************************/
 
 VVdouble SubstitutionMappingTools::getCountsPerSitePerBranch(
@@ -604,6 +654,30 @@ VVdouble SubstitutionMappingTools::getCountsPerSitePerBranch(
   for (size_t k = 0; k < nbSites; ++k)
   {
     vector<double> countsf(SubstitutionMappingTools::getCountsForSitePerBranch(counts, k));
+    Vdouble* resS=&result[k];
+    
+    for (size_t i = 0; i < nbBr; ++i)
+      (*resS)[i]= countsf[idc[i]];
+  }
+  return result;
+}
+
+VVdouble SubstitutionMappingTools::getCountsPerSitePerBranch(
+  const ProbabilisticSubstitutionMapping& counts,
+  const ProbabilisticSubstitutionMapping& factors,
+  const vector<uint>& ids)
+{
+  const Vuint idc(ids.size()==0?counts.getAllEdgesIndexes():ids);
+  size_t nbBr = idc.size();
+
+  size_t nbSites = counts.getNumberOfSites();
+  
+  VVdouble result;
+  VectorTools::resize2(result,nbSites, nbBr);
+
+  for (size_t k = 0; k < nbSites; ++k)
+  {
+    vector<double> countsf(SubstitutionMappingTools::getCountsForSitePerBranch(counts, factors, k));
     Vdouble* resS=&result[k];
     
     for (size_t i = 0; i < nbBr; ++i)
