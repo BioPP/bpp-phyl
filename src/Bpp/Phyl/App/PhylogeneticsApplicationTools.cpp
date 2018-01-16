@@ -978,9 +978,14 @@ throw (Exception)
           }
           string pname  = stp.nextToken();
           string pvalue = stp.nextToken();
-          size_t p = pl.whichParameterHasName(pname);
-          pl.setParameter(p, AutoParameter(pl[p]));
-          pl[p].setValue(TextTools::toDouble(pvalue));
+          try {
+            size_t p = pl.whichParameterHasName(pname);
+            pl.setParameter(p, AutoParameter(pl[p]));
+            pl[p].setValue(TextTools::toDouble(pvalue));
+          }
+          catch(Exception& e)
+          {
+          }
         }
       }
       bck.close();
