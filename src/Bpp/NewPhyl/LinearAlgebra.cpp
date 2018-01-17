@@ -39,7 +39,6 @@
   knowledge of the CeCILL license and that you accept its terms.
 */
 
-#include <Bpp/NewPhyl/DataFlowInternal.h> // raw value access
 #include <Bpp/NewPhyl/LinearAlgebra.h>
 
 namespace bpp {
@@ -102,10 +101,10 @@ Dimension<double> dimensions (const DF::Value<double> &) noexcept {
 	return {};
 }
 Dimension<VectorDouble> dimensions (const DF::Value<VectorDouble> & node) noexcept {
-	return dimensions (accessValueConst (node));
+	return dimensions (node.accessValueConst ());
 }
 Dimension<MatrixDouble> dimensions (const DF::Value<MatrixDouble> & node) noexcept {
-	return dimensions (accessValueConst (node));
+	return dimensions (node.accessValueConst ());
 }
 
 // Predicates

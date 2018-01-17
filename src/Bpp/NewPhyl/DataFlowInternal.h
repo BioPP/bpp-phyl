@@ -49,6 +49,7 @@
  */
 
 #include <Bpp/NewPhyl/DataFlow.h>
+#include <cassert>
 
 namespace bpp {
 namespace DF {
@@ -63,41 +64,18 @@ namespace DF {
 		return static_cast<const Value<T> &> (node);
 	}
 
-	/** Class used to access protected value_ in Value<T>.
-	 * Should only be used for DataFlow internal code.
-	 * Friend of node classes, bypasses encapsulation.
-	 * Used for wrappers, for manipulating possibly invalid values.
-	 */
-	class InternalAccessor {
-	public:
-		template <typename T> static const T & value (const Value<T> & node) noexcept {
-			return node.value_;
-		}
-		template <typename T> static T & value (Value<T> & node) noexcept { return node.value_; }
-	};
-
-	/// Access maybe invalid value as const.
-	template <typename T> const T & accessValueConst (const Value<T> & node) noexcept {
-		return InternalAccessor::value (node);
-	}
-
-	/// Access maybe invalid value as mutable.
-	template <typename T> T & accessValueMutable (Value<T> & node) noexcept {
-		return InternalAccessor::value (node);
-	}
-
 	/** Access maybe invalid const from raw Node &.
 	 * Typically used to get matrix dimensions during DF graph transformations.
 	 * Dimensions are preset in DFNumeric, so they are always valid.
 	 */
 	template <typename T> const T & accessValueConstCast (const Node & node) {
-		return accessValueConst (nodeValueCast<T> (node));
+		return nodeValueCast<T> (node).accessValueConst ();
 	}
 
 	/// Access const with assert checking validity.
 	template <typename T> const T & accessValidValueConst (const Value<T> & node) {
 		assert (node.isValid ());
-		return accessValueConst (node);
+		return node.accessValueConst ();
 	}
 
 	/// Access valid const while casting from a raw Node &.

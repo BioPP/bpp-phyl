@@ -60,7 +60,6 @@ namespace DF {
 	// Declarations
 	class Node;
 	template <typename T> class Value;
-	class InternalAccessor;
 	using NodeRef = std::shared_ptr<Node>;
 	using NodeRefVec = Vector<NodeRef>;
 	template <typename T> using ValueRef = std::shared_ptr<Value<T>>;
@@ -128,8 +127,6 @@ namespace DF {
 
 	private:
 		bool isValid_{false};
-
-		friend class InternalAccessor;
 	};
 
 	/* Free functions.
@@ -187,21 +184,33 @@ namespace DF {
 		template <typename... Args>
 		Value (NoDependencyTag, Args &&... args) : Node (), value_ (std::forward<Args> (args)...) {}
 
-		// Get updated value
+		/** Access value, recompute if needed.
+		 * Recompute the value if it is not up to date.
+		 * Then access it as const.
+		 * Recomputation is single threaded.
+		 */
 		const T & getValue () {
 			this->computeRecursively ();
-			return value_;
+			return accessValueConst ();
 		}
-		// TODO support for // computation... type tags ?
+
+		/** Raw value access (const).
+		 * Value is not guaranteed to be valid (no recomputation).
+		 */
+		const T & accessValueConst () const noexcept { return value_; }
+
+		/** Raw value access (mutable).
+		 * Access the value as a mutable reference (may not be valid, no recomputation).
+		 * Modifying a computed value through this functions does NOT invalidate dependent values.
+		 * This breaks data flow invariants, so only use it in internal data flow node code.
+		 */
+		T & accessValueMutable () noexcept { return value_; }
 
 		// Defined as default to enable specialisation
 		std::string debugInfo () const override { return Node::debugInfo (); }
 
 	protected:
 		T value_;
-
-	private:
-		friend class InternalAccessor;
 	};
 
 	// Debug info override for double (in DataFlowNumeric.cpp)

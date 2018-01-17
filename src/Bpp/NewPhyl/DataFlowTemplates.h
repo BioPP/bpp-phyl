@@ -73,7 +73,7 @@ namespace DF {
 
 		template <typename Callable> void modify (Callable && modifier) {
 			this->invalidateRecursively ();
-			std::forward<Callable> (modifier) (this->value_);
+			std::forward<Callable> (modifier) (this->accessValueMutable ());
 			this->makeValid ();
 		}
 		void setValue (const T & t) {

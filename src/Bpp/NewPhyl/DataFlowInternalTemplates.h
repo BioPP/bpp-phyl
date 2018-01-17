@@ -195,7 +195,7 @@ namespace DF {
 	 */
 	template <typename NodeType, typename... Callables>
 	void callWithValues (NodeType & node, Callables &&... callables) {
-		Impl::callWithValues (accessValueMutable (node), node.dependencies (),
+		Impl::callWithValues (node.accessValueMutable (), node.dependencies (),
 		                      typename NodeType::Dependencies{},
 		                      std::forward<Callables> (callables)...);
 	}
