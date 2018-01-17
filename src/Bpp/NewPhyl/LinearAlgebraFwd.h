@@ -59,13 +59,15 @@ class MatrixDouble;
 /// Specialisation of Dimension<T> for VectorDouble & MatrixDouble.
 template <> class Dimension<VectorDouble> {
 public:
-	SizeType size;
+	SizeType size{};
+  constexpr Dimension () = default;
 	constexpr Dimension (SizeType size_) noexcept : size (size_) {}
 };
 template <> class Dimension<MatrixDouble> {
 public:
-	SizeType rows;
-	SizeType cols;
+	SizeType rows{};
+	SizeType cols{};
+  constexpr Dimension () = default;
 	constexpr Dimension (SizeType rows_, SizeType cols_) noexcept : rows (rows_), cols (cols_) {}
 };
 ///@}

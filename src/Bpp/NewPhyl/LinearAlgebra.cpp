@@ -134,13 +134,15 @@ namespace DF {
 	// Debug info specialisations
 	template <> std::string Value<VectorDouble>::debugInfo () const {
 		using std::to_string;
-		auto & v = this->value_;
-		return "size=" + to_string (dimensions (v)) + " " + numericProps (v);
+		auto & v = this->accessValueConst ();
+		return "targetDim=" + to_string (this->getTargetDimension ()) +
+		       " dim=" + to_string (dimensions (v)) + " " + numericProps (v);
 	}
 	template <> std::string Value<MatrixDouble>::debugInfo () const {
 		using std::to_string;
-		auto & m = this->value_;
-		return "dim" + to_string (dimensions (m)) + " " + numericProps (m);
+		auto & m = this->accessValueConst ();
+		return "targetDim" + to_string (this->getTargetDimension ()) + " dim" +
+		       to_string (dimensions (m)) + " " + numericProps (m);
 	}
 
 	// Constant<VectorDouble> specialisation

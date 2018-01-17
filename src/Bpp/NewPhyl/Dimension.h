@@ -46,8 +46,13 @@ namespace bpp {
 /** Store a dimension for type T.
  * This class is used in any DF::Value<T> node to represent the dimension for T.
  * Default impl has no content.
- * Types which have a notion of dimension should specialise this class.
- * (like VectorDouble / MatrixDouble in LinearAlgebraFwd.h)
+ * Types which have a notion of dimension should specialise this class
+ * (like VectorDouble / MatrixDouble in LinearAlgebraFwd.h).
+ *
+ * Specialisations should be defined in the same header declaring the T type.
+ * This ensures that any use of Dimension<T> will pick the specialisation (not the default).
+ *
+ * Specialisation must be default constructible.
  */
 template <typename T> class Dimension {
 	// Empty default

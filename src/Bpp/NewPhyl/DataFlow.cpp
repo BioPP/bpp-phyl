@@ -219,7 +219,7 @@ namespace DF {
 
 	// Debug info of Value<double>
 	template <> std::string Value<double>::debugInfo () const {
-		return std::to_string (this->value_);
+		return std::to_string (this->accessValueConst ());
 	}
 
 	// Mutable<double> specialisation
