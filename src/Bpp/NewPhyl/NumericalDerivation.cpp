@@ -46,8 +46,11 @@
 
 namespace bpp {
 namespace DF {
-
-	// Node class (template)
+  /* NumericalDerivationShiftDelta.
+   *
+   * To avoid code duplication, the class is implemented as a template (private to this file).
+   * The template is instantianted with explicit types due to the factory functions.
+   */
 	template <typename T> class NumericalDerivationShiftDelta : public Value<T> {
 	public:
 		using Dependencies = FunctionOfValues<double, T>;
@@ -91,7 +94,6 @@ namespace DF {
 		}
 	};
 
-	// Factory function (template)
 	template <typename T>
 	ValueRef<T> makeNumericalDerivationShiftDelta (NodeRefVec && deps, int n,
 	                                               const Dimension<T> & targetDim) {
@@ -114,7 +116,6 @@ namespace DF {
 		}
 	}
 
-	// Specialisations of Builder<T>::make
 	ValueRef<double>
 	Builder<NumericalDerivationShiftDelta<double>>::make (NodeRefVec && deps, int n,
 	                                                      const Dimension<double> & targetDim) {
@@ -134,6 +135,8 @@ namespace DF {
 	    NodeRefVec && deps, int n, const Dimension<MatrixDouble> & targetDim) {
 		return makeNumericalDerivationShiftDelta<MatrixDouble> (std::move (deps), n, targetDim);
 	}
+
+  // NumericalDerivationCombineShifted
 
 } // namespace DF
 } // namespace bpp
