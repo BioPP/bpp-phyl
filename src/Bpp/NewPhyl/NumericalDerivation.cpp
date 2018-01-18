@@ -39,31 +39,98 @@
   knowledge of the CeCILL license and that you accept its terms.
 */
 
+#include <Bpp/NewPhyl/DataFlowInternalTemplates.h>
 #include <Bpp/NewPhyl/LinearAlgebra.h>
 #include <Bpp/NewPhyl/NumericalDerivation.h>
 
 namespace bpp {
 namespace DF {
 
+	// Node class (template)
 	template <typename T> class NumericalDerivationShiftDelta : public Value<T> {
 	public:
 		using Dependencies = FunctionOfValues<double, T>;
 
-    NumericalDerivationShiftDelta (NodeRefVec && deps);
+		NumericalDerivationShiftDelta (NodeRefVec && deps, int n, const Dimension<T> & targetDim)
+		    : Value<T> (std::move (deps)), n_ (n) {
+			this->setTargetDimension (targetDim);
+		}
 
+		std::string description () const override final { return std::to_string (n_) + " * delta * x"; }
+
+		// Never derive the delta side (not part of computation !)
+		NodeRef derive (const Node & node) override final {
+			auto & delta = this->dependency (0);
+			auto & x = this->dependency (1);
+			return makeNode<NumericalDerivationShiftDelta<T>> ({delta, x->derive (node)}, n_,
+			                                                   this->getTargetDimension ());
+		}
+		bool isDerivable (const Node & node) const override final {
+			auto & delta = this->dependency (0);
+			auto & x = this->dependency (1);
+			return x->isDerivable (node) && !delta->isTransitivelyDependentOn (node);
+		}
+
+		NodeRef rebuild (NodeRefVec && deps) const override final {
+			return makeNode<NumericalDerivationShiftDelta<T>> (std::move (deps), n_,
+			                                                   this->getTargetDimension ());
+		}
+
+		int getShiftFactor () const noexcept { return n_; }
 
 	private:
 		int n_;
 
 		void compute () override final {
-			callWithValues (*this, [this](T & result, double & delta, const T & arg) {
+			callWithValues (*this, [this](T & result, const double & delta, const T & arg) {
 				result = static_cast<double> (this->n_ * delta) * arg;
 			});
 		}
 	};
 
-	template <> class NumericalDerivationShiftDelta<double>;
-	template <> class NumericalDerivationShiftDelta<VectorDouble>;
-	template <> class NumericalDerivationShiftDelta<MatrixDouble>;
+	// Factory function (template)
+	template <typename T>
+	ValueRef<T> makeNumericalDerivationShiftDelta (NodeRefVec && deps, int n,
+	                                               const Dimension<T> & targetDim) {
+		checkDependencies<NumericalDerivationShiftDelta<T>> (deps);
+		auto & delta = deps[0];
+		auto & x = deps[1];
+		auto * xAsShiftDelta = dynamic_cast<const NumericalDerivationShiftDelta<T> *> (x.get ());
+		if (xAsShiftDelta != nullptr && xAsShiftDelta->dependency (0) == delta) {
+			// Merge chains of ShiftDelta nodes recursively
+			// n*delta* (m*delta*x) -> (n+m)*delta*x
+			return makeNode<NumericalDerivationShiftDelta<T>> (
+			    NodeRefVec{x->dependencies ()}, n + xAsShiftDelta->getShiftFactor (), targetDim);
+		} else {
+			// Final node choice (remove ShiftDelta node if n is 0)
+			if (n == 0) {
+				return convertRef<Value<T>> (x);
+			} else {
+				return std::make_shared<NumericalDerivationShiftDelta<T>> (std::move (deps), n, targetDim);
+			}
+		}
+	}
+
+	// Specialisations of Builder<T>::make
+	ValueRef<double>
+	Builder<NumericalDerivationShiftDelta<double>>::make (NodeRefVec && deps, int n,
+	                                                      const Dimension<double> & targetDim) {
+		return makeNumericalDerivationShiftDelta<double> (std::move (deps), n, targetDim);
+	}
+	ValueRef<double> Builder<NumericalDerivationShiftDelta<double>>::make (NodeRefVec && deps,
+	                                                                       int n) {
+		return make (std::move (deps), n, Dimension<double>{});
+	}
+
+	ValueRef<VectorDouble> Builder<NumericalDerivationShiftDelta<VectorDouble>>::make (
+	    NodeRefVec && deps, int n, const Dimension<VectorDouble> & targetDim) {
+		return makeNumericalDerivationShiftDelta<VectorDouble> (std::move (deps), n, targetDim);
+	}
+
+	ValueRef<MatrixDouble> Builder<NumericalDerivationShiftDelta<MatrixDouble>>::make (
+	    NodeRefVec && deps, int n, const Dimension<MatrixDouble> & targetDim) {
+		return makeNumericalDerivationShiftDelta<MatrixDouble> (std::move (deps), n, targetDim);
+	}
+
 } // namespace DF
 } // namespace bpp

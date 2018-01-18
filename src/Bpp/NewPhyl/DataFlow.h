@@ -209,6 +209,7 @@ namespace DF {
 		/** Access the node target dimension.
 		 * Target dimension is a node property, useful for sized data types (vector, matrices).
 		 * It is used as documentation of the node.
+		 * Target dimension can be compared to actual dimension (after computation) as a safety check.
 		 * It is also used for numerical graph simplification (creating simplified node of same size).
 		 * This property should be set by using setTargetDimension.
 		 */

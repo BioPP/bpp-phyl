@@ -53,9 +53,14 @@
 
 namespace bpp {
 namespace DF {
+	/// Dynamic test that node inherits (or is) of NodeType.
+	template <typename NodeType> bool isNodeType (const Node & n) noexcept {
+		return dynamic_cast<const NodeType *> (&n) != nullptr;
+	}
+
 	/// Dynamic test that node inherits from Value<T>.
 	template <typename T> bool isValueNode (const Node & n) noexcept {
-		return dynamic_cast<const Value<T> *> (&n) != nullptr;
+		return isNodeType<Value<T>> (n);
 	}
 
 	/// Unsafe cast from Node to Value<T> (faster than dynamic cast).

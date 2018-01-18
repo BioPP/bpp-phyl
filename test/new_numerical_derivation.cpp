@@ -1,16 +1,16 @@
 //
-// File: NumericalDerivation.h
+// File: new_dataflow.cpp
 // Authors:
 //   Francois Gindraud (2017)
-// Created: 2017-12-19
-// Last modified: 2017-12-19
+// Created: 2017-02-23 00:00:00
+// Last modified: 2017-06-08
 //
 
 /*
-  Copyright or © or Copr. Bio++ Development Team, (November 16, 2004)
+  Copyright or © or Copr. Bio++ Development Team, (November 17, 2004)
 
   This software is a computer program whose purpose is to provide classes
-  for phylogenetic data analysis.
+  for numerical calculus. This file is part of the Bio++ project.
 
   This software is governed by the CeCILL license under French law and
   abiding by the rules of distribution of free software. You can use,
@@ -39,31 +39,44 @@
   knowledge of the CeCILL license and that you accept its terms.
 */
 
-#ifndef BPP_NEWPHYL_NUMERICALDERIVATION_H
-#define BPP_NEWPHYL_NUMERICALDERIVATION_H
+#define DOCTEST_CONFIG_IMPLEMENT_WITH_MAIN
+#include "doctest.h"
 
+#include <Bpp/Exceptions.h>
 #include <Bpp/NewPhyl/DataFlow.h>
-#include <Bpp/NewPhyl/LinearAlgebraFwd.h>
+#include <Bpp/NewPhyl/DataFlowInternalTemplates.h>
+#include <Bpp/NewPhyl/DataFlowTemplates.h>
+#include <Bpp/NewPhyl/Debug.h>
+#include <Bpp/NewPhyl/NumericalDerivation.h>
+#include <fstream>
 
-namespace bpp {
-namespace DF {
-	template <typename T> class NumericalDerivationShiftDelta;
+using namespace bpp::DF;
 
-	template <> struct Builder<NumericalDerivationShiftDelta<double>> {
-		static ValueRef<double> make (NodeRefVec && deps, int n, const Dimension<double> & targetDim);
-		static ValueRef<double> make (NodeRefVec && deps, int n);
-	};
-	template <> struct Builder<NumericalDerivationShiftDelta<VectorDouble>> {
-		static ValueRef<VectorDouble> make (NodeRefVec && deps, int n,
-		                                    const Dimension<VectorDouble> & targetDim);
-	};
-	template <> struct Builder<NumericalDerivationShiftDelta<MatrixDouble>> {
-		static ValueRef<MatrixDouble> make (NodeRefVec && deps, int n,
-		                                    const Dimension<MatrixDouble> & targetDim);
-	};
+struct NumericallyDerivable : public Value<double>
+{
+  using Dependencies = FunctionOfValues<double, double>;
 
-	template <typename T> class NumericalDerivationCombineShifted;
-} // namespace DF
-} // namespace bpp
+  NumericallyDerivable(NodeRefVec&& deps)
+    : Value<double>(std::move(deps))
+  {
+    checkDependencies(*this);
+  }
 
-#endif // BPP_NEWPHYL_NUMERICALDERIVATION_H
+  void compute() override final
+  {
+    callWithValues(*this, [](double& r, double a, double b) { r = a * a + b * b; });
+  }
+};
+
+TEST_CASE("AAA")
+{
+  using namespace bpp::DF;
+
+  auto a = makeNode<Mutable<double>>(1);
+  auto b = makeNode<Mutable<double>>(-1);
+  auto f = makeNode<NumericallyDerivable>({a, b});
+
+  // Print DF graph
+  std::ofstream fd("df_debug");
+  bpp::debugDag(fd, f);
+}
