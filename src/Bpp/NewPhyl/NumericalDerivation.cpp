@@ -40,6 +40,7 @@
 */
 
 #include <Bpp/NewPhyl/DataFlowInternalTemplates.h>
+#include <Bpp/NewPhyl/Debug.h>
 #include <Bpp/NewPhyl/LinearAlgebra.h>
 #include <Bpp/NewPhyl/NumericalDerivation.h>
 
@@ -56,7 +57,9 @@ namespace DF {
 			this->setTargetDimension (targetDim);
 		}
 
-		std::string description () const override final { return std::to_string (n_) + " * delta * x"; }
+		std::string description () const override final {
+			return std::to_string (n_) + " * delta * " + prettyTypeName<T> ();
+		}
 
 		// Never derive the delta side (not part of computation !)
 		NodeRef derive (const Node & node) override final {
