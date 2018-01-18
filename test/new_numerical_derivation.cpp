@@ -68,6 +68,20 @@ struct NumericallyDerivable : public Value<double>
   }
 };
 
+TEST_CASE("shift delta") {
+  auto delta = makeNode<Constant<double>> (0.0001);
+  auto x = makeNode<Mutable<double>> (1);
+
+  auto shift_0 = makeNode<NumericalDerivationShiftDelta<double>> ({delta, x}, 0);
+  CHECK (shift_0 == x); // Simplification
+
+  auto shift_1 = makeNode<NumericalDerivationShiftDelta<double>> ({delta, x}, 1);
+  CHECK (shift_1->getValue() == doctest::Approx (x->getValue() + delta->getValue()));
+
+  auto shift_2 = makeNode<NumericalDerivationShiftDelta<double>> ({delta, shift_1}, 1);
+  CHECK (shift_2->dependency(1) == x); // Simplification
+}
+
 TEST_CASE("AAA")
 {
   using namespace bpp::DF;

@@ -83,7 +83,7 @@ namespace DF {
 
 		void compute () override final {
 			callWithValues (*this, [this](T & result, const double & delta, const T & arg) {
-				result = static_cast<double> (this->n_ * delta) * arg;
+				result = linearAlgebraValueFilledWith (this->getTargetDimension (), this->n_ * delta) + arg;
 			});
 		}
 	};

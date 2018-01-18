@@ -80,6 +80,26 @@ namespace internal {
 } // namespace Eigen
 
 namespace bpp {
+///@{
+/** Create a value filled with the given constant d.
+ * Versions for double, VectorDouble, MatrixDouble.
+ * The right overload is selected by the Dimension<T> argument.
+ * This argument also provide a size for Vector and Matrix variants.
+ * This overloaded functions is used in template code (common interface for 3 types).
+ */
+inline double linearAlgebraValueFilledWith (const Dimension<double> &, double d) {
+	return d;
+}
+inline auto linearAlgebraValueFilledWith (const Dimension<VectorDouble> & dim, double d)
+    -> decltype (VectorDouble::Constant (dim.size, d)) {
+	return VectorDouble::Constant (dim.size, d);
+}
+inline auto linearAlgebraValueFilledWith (const Dimension<MatrixDouble> & dim, double d)
+    -> decltype (MatrixDouble::Constant (dim.rows, dim.cols, d)) {
+	return MatrixDouble::Constant (dim.rows, dim.cols, d);
+}
+///@}
+
 namespace DF {
 	/* Declare overrides of Value<T>, Constant<T>.
 	 *
