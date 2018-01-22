@@ -95,19 +95,19 @@ namespace DF {
 		using Dependencies = ReductionOfValue<double>;
 
 		AddDouble (NodeRefVec && deps) : Value<double> (std::move (deps)) {}
-		NodeRef derive (const Node & node) override final {
+		NodeRef derive (const Node & node) final {
 			return makeNode<AddDouble> (mapToVector (
 			    this->dependencies (), [&node](const NodeRef & dep) { return dep->derive (node); }));
 		}
-		bool isDerivable (const Node & node) const override final {
+		bool isDerivable (const Node & node) const final {
 			return derivableIfAllDepsAre (*this, node);
 		}
-		NodeRef rebuild (NodeRefVec && deps) const override final {
+		NodeRef rebuild (NodeRefVec && deps) const final {
 			return makeNode<AddDouble> (std::move (deps));
 		}
 
 	private:
-		void compute () override final {
+		void compute () final {
 			callWithValues (*this, [](double & r) { r = 0.; }, [](double & r, double d) { r += d; });
 		}
 	};
@@ -131,7 +131,7 @@ namespace DF {
 		using Dependencies = ReductionOfValue<double>;
 
 		MulDouble (NodeRefVec && deps) : Value<double> (std::move (deps)) {}
-		NodeRef derive (const Node & node) override final {
+		NodeRef derive (const Node & node) final {
 			NodeRefVec addDeps;
 			for (auto i : bpp::range (this->nbDependencies ())) {
 				NodeRefVec mulDeps = this->dependencies ();
@@ -140,15 +140,15 @@ namespace DF {
 			}
 			return makeNode<AddDouble> (std::move (addDeps));
 		}
-		bool isDerivable (const Node & node) const override final {
+		bool isDerivable (const Node & node) const final {
 			return derivableIfAllDepsAre (*this, node);
 		}
-		NodeRef rebuild (NodeRefVec && deps) const override final {
+		NodeRef rebuild (NodeRefVec && deps) const final {
 			return makeNode<MulDouble> (std::move (deps));
 		}
 
 	private:
-		void compute () override final {
+		void compute () final {
 			callWithValues (*this, [](double & r) { r = 1.; }, [](double & r, double d) { r *= d; });
 		}
 	};
@@ -176,18 +176,18 @@ namespace DF {
 		using Dependencies = FunctionOfValues<double>;
 
 		NegDouble (NodeRefVec && deps) : Value<double> (std::move (deps)) {}
-		NodeRef derive (const Node & node) override final {
+		NodeRef derive (const Node & node) final {
 			return makeNode<NegDouble> ({this->dependency (0)->derive (node)});
 		}
-		bool isDerivable (const Node & node) const override final {
+		bool isDerivable (const Node & node) const final {
 			return derivableIfAllDepsAre (*this, node);
 		}
-		NodeRef rebuild (NodeRefVec && deps) const override final {
+		NodeRef rebuild (NodeRefVec && deps) const final {
 			return makeNode<NegDouble> (std::move (deps));
 		}
 
 	private:
-		void compute () override final {
+		void compute () final {
 			callWithValues (*this, [](double & r, double d) { r = -d; });
 		}
 	};
@@ -207,22 +207,22 @@ namespace DF {
 		using Dependencies = FunctionOfValues<VectorDouble, VectorDouble>;
 
 		ScalarProdDouble (NodeRefVec && deps) : Value<double> (std::move (deps)) {}
-		NodeRef derive (const Node & node) override final {
+		NodeRef derive (const Node & node) final {
 			auto & lhs = this->dependency (0);
 			auto & rhs = this->dependency (1);
 			auto dLhs = makeNode<ScalarProdDouble> ({lhs->derive (node), rhs});
 			auto dRhs = makeNode<ScalarProdDouble> ({lhs, rhs->derive (node)});
 			return makeNode<AddDouble> ({std::move (dLhs), std::move (dRhs)});
 		}
-		bool isDerivable (const Node & node) const override final {
+		bool isDerivable (const Node & node) const final {
 			return derivableIfAllDepsAre (*this, node);
 		}
-		NodeRef rebuild (NodeRefVec && deps) const override final {
+		NodeRef rebuild (NodeRefVec && deps) const final {
 			return makeNode<ScalarProdDouble> (std::move (deps));
 		}
 
 	private:
-		void compute () override final {
+		void compute () final {
 			callWithValues (*this, [](double & r, const VectorDouble & lhs, const VectorDouble & rhs) {
 				r = lhs.dot (rhs);
 			});
@@ -246,21 +246,21 @@ namespace DF {
 
 		AddVectorDouble (NodeRefVec && deps, const Dimension<VectorDouble> & dim)
 		    : Value<VectorDouble> (std::move (deps), dim.size) {}
-		NodeRef derive (const Node & node) override final {
+		NodeRef derive (const Node & node) final {
 			return makeNode<AddVectorDouble> (
 			    mapToVector (this->dependencies (),
 			                 [&node](const NodeRef & dep) { return dep->derive (node); }),
 			    dimensions (*this));
 		}
-		bool isDerivable (const Node & node) const override final {
+		bool isDerivable (const Node & node) const final {
 			return derivableIfAllDepsAre (*this, node);
 		}
-		NodeRef rebuild (NodeRefVec && deps) const override final {
+		NodeRef rebuild (NodeRefVec && deps) const final {
 			return makeNode<AddVectorDouble> (std::move (deps), dimensions (*this));
 		}
 
 	private:
-		void compute () override final {
+		void compute () final {
 			callWithValues (*this, [](VectorDouble & r) { r.setZero (); },
 			                [](VectorDouble & r, const VectorDouble & v) { r += v; });
 		}
@@ -287,7 +287,7 @@ namespace DF {
 
 		CWiseMulVectorDouble (NodeRefVec && deps, const Dimension<VectorDouble> & dim)
 		    : Value<VectorDouble> (std::move (deps), dim.size) {}
-		NodeRef derive (const Node & node) override final {
+		NodeRef derive (const Node & node) final {
 			auto dim = dimensions (*this);
 			NodeRefVec addDeps;
 			for (auto i : bpp::range (this->nbDependencies ())) {
@@ -297,15 +297,15 @@ namespace DF {
 			}
 			return makeNode<AddVectorDouble> (std::move (addDeps), dim);
 		}
-		bool isDerivable (const Node & node) const override final {
+		bool isDerivable (const Node & node) const final {
 			return derivableIfAllDepsAre (*this, node);
 		}
-		NodeRef rebuild (NodeRefVec && deps) const override final {
+		NodeRef rebuild (NodeRefVec && deps) const final {
 			return makeNode<CWiseMulVectorDouble> (std::move (deps), dimensions (*this));
 		}
 
 	private:
-		void compute () override final {
+		void compute () final {
 			callWithValues (*this, [](VectorDouble & r) { r.setOnes (); },
 			                [](VectorDouble & r, const VectorDouble & v) { r = r.cwiseProduct (v); });
 		}
@@ -336,19 +336,19 @@ namespace DF {
 
 		CWiseNegVectorDouble (NodeRefVec && deps, const Dimension<VectorDouble> & dim)
 		    : Value<VectorDouble> (std::move (deps), dim.size) {}
-		NodeRef derive (const Node & node) override final {
+		NodeRef derive (const Node & node) final {
 			return makeNode<CWiseNegVectorDouble> ({this->dependency (0)->derive (node)},
 			                                       dimensions (*this));
 		}
-		bool isDerivable (const Node & node) const override final {
+		bool isDerivable (const Node & node) const final {
 			return derivableIfAllDepsAre (*this, node);
 		}
-		NodeRef rebuild (NodeRefVec && deps) const override final {
+		NodeRef rebuild (NodeRefVec && deps) const final {
 			return makeNode<CWiseNegVectorDouble> (std::move (deps), dimensions (*this));
 		}
 
 	private:
-		void compute () override final {
+		void compute () final {
 			callWithValues (*this, [](VectorDouble & r, const VectorDouble & v) { r.noalias () = -v; });
 		}
 	};
@@ -370,21 +370,21 @@ namespace DF {
 
 		CWiseInverseVectorDouble (NodeRefVec && deps, const Dimension<VectorDouble> & dim)
 		    : Value<VectorDouble> (std::move (deps), dim.size) {}
-		NodeRef derive (const Node & node) override final {
+		NodeRef derive (const Node & node) final {
 			auto dim = dimensions (*this);
 			auto & arg = this->dependency (0);
 			return makeNode<CWiseNegVectorDouble> (
 			    {makeNode<CWiseConstantPowVectorDouble> ({arg}, dim, -2.), arg->derive (node)}, dim);
 		}
-		bool isDerivable (const Node & node) const override final {
+		bool isDerivable (const Node & node) const final {
 			return derivableIfAllDepsAre (*this, node);
 		}
-		NodeRef rebuild (NodeRefVec && deps) const override final {
+		NodeRef rebuild (NodeRefVec && deps) const final {
 			return makeNode<CWiseInverseVectorDouble> (std::move (deps), dimensions (*this));
 		}
 
 	private:
-		void compute () override final {
+		void compute () final {
 			callWithValues (*this, [](VectorDouble & r, const VectorDouble & v) {
 				r.noalias () = v.cwiseInverse ();
 			});
@@ -410,7 +410,7 @@ namespace DF {
 		CWiseConstantPowVectorDouble (NodeRefVec && deps, const Dimension<VectorDouble> & dim,
 		                              double exp)
 		    : Value<VectorDouble> (std::move (deps), dim.size), exp_ (exp) {}
-		NodeRef derive (const Node & node) override final {
+		NodeRef derive (const Node & node) final {
 			auto dim = dimensions (*this);
 			auto & arg = this->dependency (0);
 			auto powDerivative = makeNode<CWiseMulScalarVectorDouble> (
@@ -419,15 +419,15 @@ namespace DF {
 			    dim);
 			return makeNode<CWiseMulVectorDouble> ({std::move (powDerivative), arg->derive (node)}, dim);
 		}
-		bool isDerivable (const Node & node) const override final {
+		bool isDerivable (const Node & node) const final {
 			return derivableIfAllDepsAre (*this, node);
 		}
-		NodeRef rebuild (NodeRefVec && deps) const override final {
+		NodeRef rebuild (NodeRefVec && deps) const final {
 			return makeNode<CWiseConstantPowVectorDouble> (std::move (deps), dimensions (*this), exp_);
 		}
 
 	private:
-		void compute () override final {
+		void compute () final {
 			callWithValues (*this, [this](VectorDouble & r, const VectorDouble & v) {
 				r.noalias () = v.array ().pow (exp_).matrix ();
 			});
@@ -459,21 +459,21 @@ namespace DF {
 
 		AddMatrixDouble (NodeRefVec && deps, const Dimension<MatrixDouble> & dim)
 		    : Value<MatrixDouble> (std::move (deps), dim.rows, dim.cols) {}
-		NodeRef derive (const Node & node) override final {
+		NodeRef derive (const Node & node) final {
 			return makeNode<AddMatrixDouble> (
 			    mapToVector (this->dependencies (),
 			                 [&node](const NodeRef & dep) { return dep->derive (node); }),
 			    dimensions (*this));
 		}
-		bool isDerivable (const Node & node) const override final {
+		bool isDerivable (const Node & node) const final {
 			return derivableIfAllDepsAre (*this, node);
 		}
-		NodeRef rebuild (NodeRefVec && deps) const override final {
+		NodeRef rebuild (NodeRefVec && deps) const final {
 			return makeNode<AddMatrixDouble> (std::move (deps), dimensions (*this));
 		}
 
 	private:
-		void compute () override final {
+		void compute () final {
 			callWithValues (*this, [](MatrixDouble & r) { r.setZero (); },
 			                [](MatrixDouble & r, const MatrixDouble & m) { r += m; });
 		}
@@ -500,7 +500,7 @@ namespace DF {
 
 		MulMatrixDouble (NodeRefVec && deps, const Dimension<MatrixDouble> & dim)
 		    : Value<MatrixDouble> (std::move (deps), dim.rows, dim.cols) {}
-		NodeRef derive (const Node & node) override final {
+		NodeRef derive (const Node & node) final {
 			auto dim = dimensions (*this);
 			auto & lhs = this->dependency (0);
 			auto & rhs = this->dependency (1);
@@ -508,15 +508,15 @@ namespace DF {
 			auto dRhs = makeNode<MulMatrixDouble> ({lhs, rhs->derive (node)}, dim);
 			return makeNode<AddMatrixDouble> ({std::move (dLhs), std::move (dRhs)}, dim);
 		}
-		bool isDerivable (const Node & node) const override final {
+		bool isDerivable (const Node & node) const final {
 			return derivableIfAllDepsAre (*this, node);
 		}
-		NodeRef rebuild (NodeRefVec && deps) const override final {
+		NodeRef rebuild (NodeRefVec && deps) const final {
 			return makeNode<MulMatrixDouble> (std::move (deps), dimensions (*this));
 		}
 
 	private:
-		void compute () override final {
+		void compute () final {
 			callWithValues (*this, [](MatrixDouble & r, const MatrixDouble & lhs,
 			                          const MatrixDouble & rhs) { r.noalias () = lhs * rhs; });
 		}
@@ -544,7 +544,7 @@ namespace DF {
 
 		CWiseMulMatrixDouble (NodeRefVec && deps, const Dimension<MatrixDouble> & dim)
 		    : Value<MatrixDouble> (std::move (deps), dim.rows, dim.cols) {}
-		NodeRef derive (const Node & node) override final {
+		NodeRef derive (const Node & node) final {
 			auto dim = dimensions (*this);
 			NodeRefVec addDeps;
 			for (auto i : bpp::range (this->nbDependencies ())) {
@@ -554,15 +554,15 @@ namespace DF {
 			}
 			return makeNode<AddMatrixDouble> (std::move (addDeps), dim);
 		}
-		bool isDerivable (const Node & node) const override final {
+		bool isDerivable (const Node & node) const final {
 			return derivableIfAllDepsAre (*this, node);
 		}
-		NodeRef rebuild (NodeRefVec && deps) const override final {
+		NodeRef rebuild (NodeRefVec && deps) const final {
 			return makeNode<CWiseMulMatrixDouble> (std::move (deps), dimensions (*this));
 		}
 
 	private:
-		void compute () override final {
+		void compute () final {
 			callWithValues (*this, [](MatrixDouble & r) { r.setOnes (); },
 			                [](MatrixDouble & r, const MatrixDouble & m) { r = r.cwiseProduct (m); });
 		}
@@ -593,7 +593,7 @@ namespace DF {
 
 		MulTransposedMatrixVectorDouble (NodeRefVec && deps, const Dimension<VectorDouble> & dim)
 		    : Value<VectorDouble> (std::move (deps), dim.size) {}
-		NodeRef derive (const Node & node) override final {
+		NodeRef derive (const Node & node) final {
 			auto dim = dimensions (*this);
 			auto & lhs = this->dependency (0);
 			auto & rhs = this->dependency (1);
@@ -601,15 +601,15 @@ namespace DF {
 			auto dRhs = makeNode<MulTransposedMatrixVectorDouble> ({lhs, rhs->derive (node)}, dim);
 			return makeNode<AddVectorDouble> ({std::move (dLhs), std::move (dRhs)}, dim);
 		}
-		bool isDerivable (const Node & node) const override final {
+		bool isDerivable (const Node & node) const final {
 			return derivableIfAllDepsAre (*this, node);
 		}
-		NodeRef rebuild (NodeRefVec && deps) const override final {
+		NodeRef rebuild (NodeRefVec && deps) const final {
 			return makeNode<MulTransposedMatrixVectorDouble> (std::move (deps), dimensions (*this));
 		}
 
 	private:
-		void compute () override final {
+		void compute () final {
 			callWithValues (*this,
 			                [](VectorDouble & r, const MatrixDouble & lhs, const VectorDouble & rhs) {
 				                r.noalias () = lhs.transpose () * rhs;
@@ -638,7 +638,7 @@ namespace DF {
 
 		CWiseMulScalarVectorDouble (NodeRefVec && deps, const Dimension<VectorDouble> & dim)
 		    : Value<VectorDouble> (std::move (deps), dim.size) {}
-		NodeRef derive (const Node & node) override final {
+		NodeRef derive (const Node & node) final {
 			auto dim = dimensions (*this);
 			auto & lhs = this->dependency (0);
 			auto & rhs = this->dependency (1);
@@ -646,15 +646,15 @@ namespace DF {
 			auto dRhs = makeNode<CWiseMulScalarVectorDouble> ({lhs, rhs->derive (node)}, dim);
 			return makeNode<AddVectorDouble> ({std::move (dLhs), std::move (dRhs)}, dim);
 		}
-		bool isDerivable (const Node & node) const override final {
+		bool isDerivable (const Node & node) const final {
 			return derivableIfAllDepsAre (*this, node);
 		}
-		NodeRef rebuild (NodeRefVec && deps) const override final {
+		NodeRef rebuild (NodeRefVec && deps) const final {
 			return makeNode<CWiseMulScalarVectorDouble> (std::move (deps), dimensions (*this));
 		}
 
 	private:
-		void compute () override final {
+		void compute () final {
 			callWithValues (
 			    *this, [](VectorDouble & r, double d, const VectorDouble & v) { r.noalias () = d * v; });
 		}
@@ -681,7 +681,7 @@ namespace DF {
 
 		CWiseMulScalarMatrixDouble (NodeRefVec && deps, const Dimension<MatrixDouble> & dim)
 		    : Value<MatrixDouble> (std::move (deps), dim.rows, dim.cols) {}
-		NodeRef derive (const Node & node) override final {
+		NodeRef derive (const Node & node) final {
 			auto dim = dimensions (*this);
 			auto & lhs = this->dependency (0);
 			auto & rhs = this->dependency (1);
@@ -689,15 +689,15 @@ namespace DF {
 			auto dRhs = makeNode<CWiseMulScalarMatrixDouble> ({lhs, rhs->derive (node)}, dim);
 			return makeNode<AddMatrixDouble> ({std::move (dLhs), std::move (dRhs)}, dim);
 		}
-		bool isDerivable (const Node & node) const override final {
+		bool isDerivable (const Node & node) const final {
 			return derivableIfAllDepsAre (*this, node);
 		}
-		NodeRef rebuild (NodeRefVec && deps) const override final {
+		NodeRef rebuild (NodeRefVec && deps) const final {
 			return makeNode<CWiseMulScalarMatrixDouble> (std::move (deps), dimensions (*this));
 		}
 
 	private:
-		void compute () override final {
+		void compute () final {
 			callWithValues (
 			    *this, [](MatrixDouble & r, double d, const MatrixDouble & m) { r.noalias () = d * m; });
 		}

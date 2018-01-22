@@ -60,24 +60,24 @@ namespace DF {
 			this->setTargetDimension (targetDim);
 		}
 
-		std::string description () const override final {
+		std::string description () const final {
 			return std::to_string (n_) + " * delta * " + prettyTypeName<T> ();
 		}
 
 		// Never derive the delta side (not part of computation !)
-		NodeRef derive (const Node & node) override final {
+		NodeRef derive (const Node & node) final {
 			auto & delta = this->dependency (0);
 			auto & x = this->dependency (1);
 			return makeNode<NumericalDerivationShiftDelta<T>> ({delta, x->derive (node)}, n_,
 			                                                   this->getTargetDimension ());
 		}
-		bool isDerivable (const Node & node) const override final {
+		bool isDerivable (const Node & node) const final {
 			auto & delta = this->dependency (0);
 			auto & x = this->dependency (1);
 			return x->isDerivable (node) && !delta->isTransitivelyDependentOn (node);
 		}
 
-		NodeRef rebuild (NodeRefVec && deps) const override final {
+		NodeRef rebuild (NodeRefVec && deps) const final {
 			return makeNode<NumericalDerivationShiftDelta<T>> (std::move (deps), n_,
 			                                                   this->getTargetDimension ());
 		}
@@ -87,7 +87,7 @@ namespace DF {
 	private:
 		int n_;
 
-		void compute () override final {
+		void compute () final {
 			callWithValues (*this, [this](T & result, const double & delta, const T & arg) {
 				result = linearAlgebraValueFilledWith (this->getTargetDimension (), this->n_ * delta) + arg;
 			});

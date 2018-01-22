@@ -58,12 +58,12 @@ struct Square : public Value<double>
   {
     checkDependencies(*this);
   }
-  void compute() override final
+  void compute() final
   {
     callWithValues(*this, [](double& r, const double& t) { r = t * t; });
   }
-  std::string description() const override final { return "x^2"; }
-  NodeRef derive(const Node& variable) override final
+  std::string description() const final { return "x^2"; }
+  NodeRef derive(const Node& variable) final
   {
     auto& x = this->dependencies()[0];
     return makeNode<MulDouble>({makeNode<Constant<double>>(2.0), x, x->derive(variable)});

@@ -135,16 +135,16 @@ namespace DF {
 		ValueRef<double> getParameter (const std::string & name);
 		const std::string & getParameterName (SizeType index);
 
-		std::string description () const override final;
-		std::string debugInfo () const override final;
+		std::string description () const final;
+		std::string debugInfo () const final;
 
 		// TODO  derivation (customizable)
-		bool isDerivable (const Node & node) const override final;
+		bool isDerivable (const Node & node) const final;
 
-		NodeRef rebuild (NodeRefVec && deps) const override final;
+		NodeRef rebuild (NodeRefVec && deps) const final;
 
 	private:
-		void compute () override final;
+		void compute () final;
 		std::unique_ptr<SubstitutionModel> model_;
 	};
 

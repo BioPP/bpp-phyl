@@ -59,11 +59,11 @@ struct AddInt : public Value<int>
   {
     checkDependencies(*this);
   }
-  void compute() override final
+  void compute() final
   {
     callWithValues(*this, [](int& r) { r = 0; }, [](int& r, int i) { r += i; });
   }
-  NodeRef rebuild(NodeRefVec&& deps) const override final { return makeNode<AddInt>(std::move(deps)); }
+  NodeRef rebuild(NodeRefVec&& deps) const final { return makeNode<AddInt>(std::move(deps)); }
 };
 
 struct NegInt : public Value<int>
@@ -74,7 +74,7 @@ struct NegInt : public Value<int>
   {
     checkDependencies(*this);
   }
-  void compute() override final
+  void compute() final
   {
     callWithValues(*this, [](int& r, int i) { r = -i; });
   }

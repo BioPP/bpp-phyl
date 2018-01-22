@@ -57,21 +57,21 @@ namespace DF {
 		ConditionalLikelihoodFromSequence (NodeRefVec && deps, const LikelihoodDataDimension & dim)
 		    : Value<MatrixDouble> (std::move (deps), dim.rows, dim.cols) {}
 
-		std::string debugInfo () const override final {
+		std::string debugInfo () const final {
 			return Value<MatrixDouble>::debugInfo () + " " +
 			       to_string (LikelihoodDataDimension (dimensions (*this)));
 		}
-		NodeRef derive (const Node &) override final {
+		NodeRef derive (const Node &) final {
 			// Sequence is a constant.
 			return Builder<Constant<MatrixDouble>>::makeZero (dimensions (*this));
 		}
-		bool isDerivable (const Node &) const override final { return true; }
-		NodeRef rebuild (NodeRefVec && deps) const override final {
+		bool isDerivable (const Node &) const final { return true; }
+		NodeRef rebuild (NodeRefVec && deps) const final {
 			return makeNode<ConditionalLikelihoodFromSequence> (std::move (deps), dimensions (*this));
 		}
 
 	private:
-		void compute () override final {
+		void compute () final {
 			callWithValues (*this, [](MatrixDouble & condLikBySite, const Sequence * sequence) {
 				// Check sizes
 				if (sequence == nullptr)
@@ -105,21 +105,21 @@ namespace DF {
 	public:
 		using Dependencies = FunctionOfValues<VectorDouble>;
 		TotalLogLikelihood (NodeRefVec && deps) : Value<double> (std::move (deps)) {}
-		NodeRef derive (const Node & node) override final {
+		NodeRef derive (const Node & node) final {
 			auto likelihoodVector = convertRef<Value<VectorDouble>> (this->dependency (0));
 			return makeNode<ScalarProdDouble> ({likelihoodVector->derive (node),
 			                                    makeNode<CWiseInverseVectorDouble> (
 			                                        {likelihoodVector}, dimensions (*likelihoodVector))});
 		}
-		bool isDerivable (const Node & node) const override final {
+		bool isDerivable (const Node & node) const final {
 			return derivableIfAllDepsAre (*this, node);
 		}
-		NodeRef rebuild (NodeRefVec && deps) const override final {
+		NodeRef rebuild (NodeRefVec && deps) const final {
 			return makeNode<TotalLogLikelihood> (std::move (deps));
 		}
 
 	private:
-		void compute () override final {
+		void compute () final {
 			callWithValues (*this, [](double & logLik, const VectorDouble & likelihood) {
 				auto lik = likelihood
 				               .unaryExpr ([](double d) {

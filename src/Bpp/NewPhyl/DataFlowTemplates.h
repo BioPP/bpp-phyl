@@ -84,13 +84,13 @@ namespace DF {
 		}
 
 		// Defined as default to enable specialisation
-		NodeRef derive (const Node & node) override final { return Value<T>::derive (node); }
-		bool isDerivable (const Node & node) const override final {
+		NodeRef derive (const Node & node) final { return Value<T>::derive (node); }
+		bool isDerivable (const Node & node) const final {
 			return Value<T>::isDerivable (node);
 		}
 
 	private:
-		void compute () override final { failureComputeWasCalled (typeid (Mutable<T>)); }
+		void compute () final { failureComputeWasCalled (typeid (Mutable<T>)); }
 	};
 
 	/* Constant node.
@@ -103,16 +103,16 @@ namespace DF {
 			this->makeValid ();
 		}
 
-		bool isConstant () const override final { return true; }
+		bool isConstant () const final { return true; }
 
 		// Defined as default to enable specialisation
-		NodeRef derive (const Node & node) override final { return Value<T>::derive (node); }
-		bool isDerivable (const Node & node) const override final {
+		NodeRef derive (const Node & node) final { return Value<T>::derive (node); }
+		bool isDerivable (const Node & node) const final {
 			return Value<T>::isDerivable (node);
 		}
 
 	private:
-		void compute () override final { failureComputeWasCalled (typeid (Constant<T>)); }
+		void compute () final { failureComputeWasCalled (typeid (Constant<T>)); }
 	};
 
 	// Specialisations in DataFlow.cpp

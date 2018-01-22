@@ -60,7 +60,7 @@ struct NumericallyDerivable : public Value<double>
     checkDependencies(*this);
   }
 
-  void compute() override final
+  void compute() final
   {
     callWithValues(*this, [](double& r, double a, double b) { r = a * a + b * b; });
   }

@@ -63,17 +63,17 @@ public:
 	}
 
 	// TreeTopologyInterface
-	TopologyNodeIndex rootNode () const override final;
-	TopologyNodeIndex fatherNode (TopologyBranchIndex id) const override final;
-	TopologyNodeIndex childNode (TopologyBranchIndex id) const override final;
-	TopologyBranchIndex fatherBranch (TopologyNodeIndex id) const override final;
-	Vector<TopologyBranchIndex> childBranches (TopologyNodeIndex id) const override final;
+	TopologyNodeIndex rootNode () const final;
+	TopologyNodeIndex fatherNode (TopologyBranchIndex id) const final;
+	TopologyNodeIndex childNode (TopologyBranchIndex id) const final;
+	TopologyBranchIndex fatherBranch (TopologyNodeIndex id) const final;
+	Vector<TopologyBranchIndex> childBranches (TopologyNodeIndex id) const final;
 
 	// BranchLengthValueAccess
-	double getBranchLengthValue (TopologyBranchIndex id) const override final;
+	double getBranchLengthValue (TopologyBranchIndex id) const final;
 
 	// SequenceNameValueAccess
-	std::string getSequenceName (TopologyNodeIndex id) const override final;
+	std::string getSequenceName (TopologyNodeIndex id) const final;
 
 private:
 	const TreeTemplate<Node> & tree_;

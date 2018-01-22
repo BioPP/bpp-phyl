@@ -187,23 +187,23 @@ namespace DF {
 		using Dependencies = FunctionOfValues<const SubstitutionModel *>;
 		EquilibriumFrequenciesFromModel (NodeRefVec && deps, SizeType nbStates)
 		    : Value<VectorDouble> (std::move (deps), nbStates) {}
-		std::string debugInfo () const override final {
+		std::string debugInfo () const final {
 			using std::to_string;
 			return Value<VectorDouble>::debugInfo () + " nbState=" + to_string (dimensions (*this));
 		}
-		NodeRef derive (const Node & node) override final {
+		NodeRef derive (const Node & node) final {
 			assert (isDerivable (node));
 			return Builder<Constant<VectorDouble>>::makeZero (dimensions (*this));
 		}
-		bool isDerivable (const Node & node) const override final {
+		bool isDerivable (const Node & node) const final {
 			return derivableIfAllDepsAre (*this, node);
 		}
-		NodeRef rebuild (NodeRefVec && deps) const override final {
+		NodeRef rebuild (NodeRefVec && deps) const final {
 			return makeNode<EquilibriumFrequenciesFromModel> (std::move (deps), dimensions (*this).size);
 		}
 
 	private:
-		void compute () override final {
+		void compute () final {
 			callWithValues (*this, [](VectorDouble & freqs, const SubstitutionModel * model) {
 				auto & freqsFromModel = model->getFrequencies ();
 				freqs = Eigen::Map<const VectorDouble> (freqsFromModel.data (),
@@ -238,11 +238,11 @@ namespace DF {
 
 		TransitionMatrixFromModel (NodeRefVec && deps, const TransitionMatrixDimension & dim)
 		    : Value<MatrixDouble> (std::move (deps), dim.rows, dim.cols) {}
-		std::string debugInfo () const override final {
+		std::string debugInfo () const final {
 			return Value<MatrixDouble>::debugInfo () + " " +
 			       to_string (TransitionMatrixDimension (dimensions (*this)));
 		}
-		NodeRef derive (const Node & node) override final {
+		NodeRef derive (const Node & node) final {
 			assert (isDerivable (node));
 			auto dim = TransitionMatrixDimension (dimensions (*this));
 			auto & modelNode = this->dependency (0);
@@ -252,15 +252,15 @@ namespace DF {
 			return makeNode<CWiseMulScalarMatrixDouble> (
 			    {brlenNode->derive (node), std::move (dTransMat_dBrlen)}, dim);
 		}
-		bool isDerivable (const Node & node) const override final {
+		bool isDerivable (const Node & node) const final {
 			return derivableIfAllDepsAre (*this, node);
 		}
-		NodeRef rebuild (NodeRefVec && deps) const override final {
+		NodeRef rebuild (NodeRefVec && deps) const final {
 			return makeNode<TransitionMatrixFromModel> (std::move (deps), dimensions (*this));
 		}
 
 	private:
-		void compute () override final {
+		void compute () final {
 			callWithValues (*this, [](MatrixDouble & matrix, const SubstitutionModel * model,
 			                          double brlen) { bppToEigen (model->getPij_t (brlen), matrix); });
 		}
@@ -279,11 +279,11 @@ namespace DF {
 		TransitionMatrixFromModelBrlenDerivative (NodeRefVec && deps,
 		                                          const TransitionMatrixDimension & dim)
 		    : Value<MatrixDouble> (std::move (deps), dim.rows, dim.cols) {}
-		std::string debugInfo () const override final {
+		std::string debugInfo () const final {
 			return Value<MatrixDouble>::debugInfo () + " " +
 			       to_string (TransitionMatrixDimension (dimensions (*this)));
 		}
-		NodeRef derive (const Node & node) override final {
+		NodeRef derive (const Node & node) final {
 			assert (isDerivable (node));
 			auto dim = TransitionMatrixDimension (dimensions (*this));
 			auto & modelNode = this->dependency (0);
@@ -293,16 +293,16 @@ namespace DF {
 			return makeNode<CWiseMulScalarMatrixDouble> (
 			    {brlenNode->derive (node), std::move (d2TransMat_dBrlen2)}, dim);
 		}
-		bool isDerivable (const Node & node) const override final {
+		bool isDerivable (const Node & node) const final {
 			return derivableIfAllDepsAre (*this, node);
 		}
-		NodeRef rebuild (NodeRefVec && deps) const override final {
+		NodeRef rebuild (NodeRefVec && deps) const final {
 			return makeNode<TransitionMatrixFromModelBrlenDerivative> (std::move (deps),
 			                                                           dimensions (*this));
 		}
 
 	private:
-		void compute () override final {
+		void compute () final {
 			callWithValues (*this, [](MatrixDouble & matrix, const SubstitutionModel * model,
 			                          double brlen) { bppToEigen (model->getdPij_dt (brlen), matrix); });
 		}
@@ -321,17 +321,17 @@ namespace DF {
 		TransitionMatrixFromModelBrlenSecondDerivative (NodeRefVec && deps,
 		                                                const TransitionMatrixDimension & dim)
 		    : Value<MatrixDouble> (std::move (deps), dim.rows, dim.cols) {}
-		std::string debugInfo () const override final {
+		std::string debugInfo () const final {
 			return Value<MatrixDouble>::debugInfo () + " " +
 			       to_string (TransitionMatrixDimension (dimensions (*this)));
 		}
-		NodeRef rebuild (NodeRefVec && deps) const override final {
+		NodeRef rebuild (NodeRefVec && deps) const final {
 			return makeNode<TransitionMatrixFromModelBrlenSecondDerivative> (std::move (deps),
 			                                                                 dimensions (*this));
 		}
 
 	private:
-		void compute () override final {
+		void compute () final {
 			callWithValues (*this,
 			                [](MatrixDouble & matrix, const SubstitutionModel * model, double brlen) {
 				                bppToEigen (model->getd2Pij_dt2 (brlen), matrix);
