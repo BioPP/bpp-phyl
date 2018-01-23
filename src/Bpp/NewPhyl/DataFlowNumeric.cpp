@@ -85,7 +85,20 @@ namespace DF {
 	}
 
 	/******************************** New Nodes *******************************/
-	// TODO templatize impls
+
+	/** ConstantZero impl
+	 */
+	template <typename T> class ConstantZero : public Value<T> {
+	public:
+		explicit ConstantZero (const Dimension<T> & dim) : Value<T> (noDependency) {
+			this->setTargetDimension (dim);
+		}
+	};
+
+	template <typename Result, typename... Args> class CWiseAdd : public Value<Result> {
+	public:
+		using Dependencies = FunctionOfValues<Args...>;
+	};
 
 	/******************************** Old nodes *******************************/
 

@@ -50,8 +50,6 @@
 
 namespace bpp {
 namespace DF {
-	// TODO move Value (and maybe later value alternatives like SiteValue) here ?
-
 	// Declarations
 	template <typename T> class Mutable;
 	template <typename T> class Constant;
@@ -60,56 +58,72 @@ namespace DF {
 	// Error function
 	[[noreturn]] void failureComputeWasCalled (const std::type_info & nodeType);
 
-	/* Mutable node.
+	/** Mutable value node of type T.
 	 * Leaf of the DataFlow graph, has no dependency.
 	 * Represents a mutable value.
+	 * A Mutable object always has a valid value (do not call invalidate !).
+	 * It starts as initially valid.
+	 * Modifications will send invalidations to ensure recomputations, then set it as valid again.
 	 */
 	template <typename T> class Mutable : public Value<T> {
 	public:
+		/** Constructor.
+		 * Forwards arguments to the T constructor.
+		 * The T value is set as initially valid.
+		 */
 		template <typename... Args>
 		Mutable (Args &&... args) : Value<T> (noDependency, std::forward<Args> (args)...) {
 			this->makeValid ();
 		}
 
+		/** General case for modification of the T object.
+		 * Takes a callable object (lamda, function pointer) that performs the modification.
+		 * It must take a single T& as argument, which will refer to the T object to modify.
+		 * The callable is called exactly once.
+		 */
 		template <typename Callable> void modify (Callable && modifier) {
 			this->invalidateRecursively ();
 			std::forward<Callable> (modifier) (this->accessValueMutable ());
 			this->makeValid ();
 		}
+
+		/// Setter with invalidation.
 		void setValue (const T & t) {
 			modify ([&t](T & v) { v = t; });
 		}
+		/// Setter with invalidation (movable value version).
 		void setValue (T && t) {
 			modify ([&t](T & v) { v = std::move (t); });
 		}
 
-		// Defined as default to enable specialisation
+		// Defined as default to enable specialisation for some types
 		NodeRef derive (const Node & node) final { return Value<T>::derive (node); }
-		bool isDerivable (const Node & node) const final {
-			return Value<T>::isDerivable (node);
-		}
+		bool isDerivable (const Node & node) const final { return Value<T>::isDerivable (node); }
 
 	private:
 		void compute () final { failureComputeWasCalled (typeid (Mutable<T>)); }
 	};
 
-	/* Constant node.
-	 * DataFlow graph leaf, but for an immutable value.
+	/** Constant value of type T.
+	 * DataFlow graph leaf, but for an immutable value, has no dependency.
+	 * Is always valid.
 	 */
 	template <typename T> class Constant : public Value<T> {
 	public:
+		/** Constructor.
+		 * Forwards arguments to the T constructor, which is called immediately.
+		 */
 		template <typename... Args>
 		Constant (Args &&... args) : Value<T> (noDependency, std::forward<Args> (args)...) {
 			this->makeValid ();
 		}
 
+		// Override info method
 		bool isConstant () const final { return true; }
 
-		// Defined as default to enable specialisation
+		// Defined as default to enable specialisation for some types
 		NodeRef derive (const Node & node) final { return Value<T>::derive (node); }
-		bool isDerivable (const Node & node) const final {
-			return Value<T>::isDerivable (node);
-		}
+		bool isDerivable (const Node & node) const final { return Value<T>::isDerivable (node); }
 
 	private:
 		void compute () final { failureComputeWasCalled (typeid (Constant<T>)); }

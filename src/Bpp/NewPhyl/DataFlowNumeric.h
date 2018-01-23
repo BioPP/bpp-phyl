@@ -50,6 +50,15 @@ namespace DF {
 	// Utils
 	bool derivableIfAllDepsAre (const Node & toDerive, const Node & node);
 
+  /** Constant representing a zero for type T.
+   */
+  template<typename T> class ConstantZero;
+
+  // TODO
+  template<typename T> class ConstantOne;
+
+  template<typename Result, typename ... Args> class CWiseAdd;
+
 	/* Double nodes.
 	 */
 	class AddDouble;
