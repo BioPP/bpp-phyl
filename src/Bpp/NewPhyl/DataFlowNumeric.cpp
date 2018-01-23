@@ -40,7 +40,7 @@
 */
 
 #include <Bpp/Exceptions.h> // checks
-#include <Bpp/NewPhyl/DataFlowInternalTemplates.h>
+#include <Bpp/NewPhyl/DataFlowInternal.h>
 #include <Bpp/NewPhyl/DataFlowNumeric.h>
 #include <Bpp/NewPhyl/Debug.h> // checks
 #include <Bpp/NewPhyl/IntegerRange.h>
@@ -99,9 +99,7 @@ namespace DF {
 			return makeNode<AddDouble> (mapToVector (
 			    this->dependencies (), [&node](const NodeRef & dep) { return dep->derive (node); }));
 		}
-		bool isDerivable (const Node & node) const final {
-			return derivableIfAllDepsAre (*this, node);
-		}
+		bool isDerivable (const Node & node) const final { return derivableIfAllDepsAre (*this, node); }
 		NodeRef rebuild (NodeRefVec && deps) const final {
 			return makeNode<AddDouble> (std::move (deps));
 		}
@@ -140,9 +138,7 @@ namespace DF {
 			}
 			return makeNode<AddDouble> (std::move (addDeps));
 		}
-		bool isDerivable (const Node & node) const final {
-			return derivableIfAllDepsAre (*this, node);
-		}
+		bool isDerivable (const Node & node) const final { return derivableIfAllDepsAre (*this, node); }
 		NodeRef rebuild (NodeRefVec && deps) const final {
 			return makeNode<MulDouble> (std::move (deps));
 		}
@@ -179,9 +175,7 @@ namespace DF {
 		NodeRef derive (const Node & node) final {
 			return makeNode<NegDouble> ({this->dependency (0)->derive (node)});
 		}
-		bool isDerivable (const Node & node) const final {
-			return derivableIfAllDepsAre (*this, node);
-		}
+		bool isDerivable (const Node & node) const final { return derivableIfAllDepsAre (*this, node); }
 		NodeRef rebuild (NodeRefVec && deps) const final {
 			return makeNode<NegDouble> (std::move (deps));
 		}
@@ -214,9 +208,7 @@ namespace DF {
 			auto dRhs = makeNode<ScalarProdDouble> ({lhs, rhs->derive (node)});
 			return makeNode<AddDouble> ({std::move (dLhs), std::move (dRhs)});
 		}
-		bool isDerivable (const Node & node) const final {
-			return derivableIfAllDepsAre (*this, node);
-		}
+		bool isDerivable (const Node & node) const final { return derivableIfAllDepsAre (*this, node); }
 		NodeRef rebuild (NodeRefVec && deps) const final {
 			return makeNode<ScalarProdDouble> (std::move (deps));
 		}
@@ -252,9 +244,7 @@ namespace DF {
 			                 [&node](const NodeRef & dep) { return dep->derive (node); }),
 			    dimensions (*this));
 		}
-		bool isDerivable (const Node & node) const final {
-			return derivableIfAllDepsAre (*this, node);
-		}
+		bool isDerivable (const Node & node) const final { return derivableIfAllDepsAre (*this, node); }
 		NodeRef rebuild (NodeRefVec && deps) const final {
 			return makeNode<AddVectorDouble> (std::move (deps), dimensions (*this));
 		}
@@ -297,9 +287,7 @@ namespace DF {
 			}
 			return makeNode<AddVectorDouble> (std::move (addDeps), dim);
 		}
-		bool isDerivable (const Node & node) const final {
-			return derivableIfAllDepsAre (*this, node);
-		}
+		bool isDerivable (const Node & node) const final { return derivableIfAllDepsAre (*this, node); }
 		NodeRef rebuild (NodeRefVec && deps) const final {
 			return makeNode<CWiseMulVectorDouble> (std::move (deps), dimensions (*this));
 		}
@@ -340,9 +328,7 @@ namespace DF {
 			return makeNode<CWiseNegVectorDouble> ({this->dependency (0)->derive (node)},
 			                                       dimensions (*this));
 		}
-		bool isDerivable (const Node & node) const final {
-			return derivableIfAllDepsAre (*this, node);
-		}
+		bool isDerivable (const Node & node) const final { return derivableIfAllDepsAre (*this, node); }
 		NodeRef rebuild (NodeRefVec && deps) const final {
 			return makeNode<CWiseNegVectorDouble> (std::move (deps), dimensions (*this));
 		}
@@ -376,9 +362,7 @@ namespace DF {
 			return makeNode<CWiseNegVectorDouble> (
 			    {makeNode<CWiseConstantPowVectorDouble> ({arg}, dim, -2.), arg->derive (node)}, dim);
 		}
-		bool isDerivable (const Node & node) const final {
-			return derivableIfAllDepsAre (*this, node);
-		}
+		bool isDerivable (const Node & node) const final { return derivableIfAllDepsAre (*this, node); }
 		NodeRef rebuild (NodeRefVec && deps) const final {
 			return makeNode<CWiseInverseVectorDouble> (std::move (deps), dimensions (*this));
 		}
@@ -419,9 +403,7 @@ namespace DF {
 			    dim);
 			return makeNode<CWiseMulVectorDouble> ({std::move (powDerivative), arg->derive (node)}, dim);
 		}
-		bool isDerivable (const Node & node) const final {
-			return derivableIfAllDepsAre (*this, node);
-		}
+		bool isDerivable (const Node & node) const final { return derivableIfAllDepsAre (*this, node); }
 		NodeRef rebuild (NodeRefVec && deps) const final {
 			return makeNode<CWiseConstantPowVectorDouble> (std::move (deps), dimensions (*this), exp_);
 		}
@@ -465,9 +447,7 @@ namespace DF {
 			                 [&node](const NodeRef & dep) { return dep->derive (node); }),
 			    dimensions (*this));
 		}
-		bool isDerivable (const Node & node) const final {
-			return derivableIfAllDepsAre (*this, node);
-		}
+		bool isDerivable (const Node & node) const final { return derivableIfAllDepsAre (*this, node); }
 		NodeRef rebuild (NodeRefVec && deps) const final {
 			return makeNode<AddMatrixDouble> (std::move (deps), dimensions (*this));
 		}
@@ -508,9 +488,7 @@ namespace DF {
 			auto dRhs = makeNode<MulMatrixDouble> ({lhs, rhs->derive (node)}, dim);
 			return makeNode<AddMatrixDouble> ({std::move (dLhs), std::move (dRhs)}, dim);
 		}
-		bool isDerivable (const Node & node) const final {
-			return derivableIfAllDepsAre (*this, node);
-		}
+		bool isDerivable (const Node & node) const final { return derivableIfAllDepsAre (*this, node); }
 		NodeRef rebuild (NodeRefVec && deps) const final {
 			return makeNode<MulMatrixDouble> (std::move (deps), dimensions (*this));
 		}
@@ -554,9 +532,7 @@ namespace DF {
 			}
 			return makeNode<AddMatrixDouble> (std::move (addDeps), dim);
 		}
-		bool isDerivable (const Node & node) const final {
-			return derivableIfAllDepsAre (*this, node);
-		}
+		bool isDerivable (const Node & node) const final { return derivableIfAllDepsAre (*this, node); }
 		NodeRef rebuild (NodeRefVec && deps) const final {
 			return makeNode<CWiseMulMatrixDouble> (std::move (deps), dimensions (*this));
 		}
@@ -601,9 +577,7 @@ namespace DF {
 			auto dRhs = makeNode<MulTransposedMatrixVectorDouble> ({lhs, rhs->derive (node)}, dim);
 			return makeNode<AddVectorDouble> ({std::move (dLhs), std::move (dRhs)}, dim);
 		}
-		bool isDerivable (const Node & node) const final {
-			return derivableIfAllDepsAre (*this, node);
-		}
+		bool isDerivable (const Node & node) const final { return derivableIfAllDepsAre (*this, node); }
 		NodeRef rebuild (NodeRefVec && deps) const final {
 			return makeNode<MulTransposedMatrixVectorDouble> (std::move (deps), dimensions (*this));
 		}
@@ -646,9 +620,7 @@ namespace DF {
 			auto dRhs = makeNode<CWiseMulScalarVectorDouble> ({lhs, rhs->derive (node)}, dim);
 			return makeNode<AddVectorDouble> ({std::move (dLhs), std::move (dRhs)}, dim);
 		}
-		bool isDerivable (const Node & node) const final {
-			return derivableIfAllDepsAre (*this, node);
-		}
+		bool isDerivable (const Node & node) const final { return derivableIfAllDepsAre (*this, node); }
 		NodeRef rebuild (NodeRefVec && deps) const final {
 			return makeNode<CWiseMulScalarVectorDouble> (std::move (deps), dimensions (*this));
 		}
@@ -689,9 +661,7 @@ namespace DF {
 			auto dRhs = makeNode<CWiseMulScalarMatrixDouble> ({lhs, rhs->derive (node)}, dim);
 			return makeNode<AddMatrixDouble> ({std::move (dLhs), std::move (dRhs)}, dim);
 		}
-		bool isDerivable (const Node & node) const final {
-			return derivableIfAllDepsAre (*this, node);
-		}
+		bool isDerivable (const Node & node) const final { return derivableIfAllDepsAre (*this, node); }
 		NodeRef rebuild (NodeRefVec && deps) const final {
 			return makeNode<CWiseMulScalarMatrixDouble> (std::move (deps), dimensions (*this));
 		}

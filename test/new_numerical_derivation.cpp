@@ -42,7 +42,7 @@
 #define DOCTEST_CONFIG_IMPLEMENT_WITH_MAIN
 #include "doctest.h"
 
-#include <Bpp/NewPhyl/DataFlowInternalTemplates.h>
+#include <Bpp/NewPhyl/DataFlowInternal.h>
 #include <Bpp/NewPhyl/DataFlowTemplates.h>
 #include <Bpp/NewPhyl/Debug.h>
 #include <Bpp/NewPhyl/NumericalDerivation.h>

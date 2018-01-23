@@ -39,7 +39,7 @@
   knowledge of the CeCILL license and that you accept its terms.
 */
 
-#include <Bpp/NewPhyl/DataFlowInternalTemplates.h>
+#include <Bpp/NewPhyl/DataFlowInternal.h>
 #include <Bpp/NewPhyl/Optimizer.h>
 
 namespace bpp {

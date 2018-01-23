@@ -41,7 +41,7 @@
 
 #include <Bpp/Exceptions.h>
 #include <Bpp/NewPhyl/DataFlow.h>
-#include <Bpp/NewPhyl/DataFlowInternalTemplates.h>
+#include <Bpp/NewPhyl/DataFlowInternal.h>
 #include <Bpp/NewPhyl/DataFlowTemplates.h>
 #include <Bpp/NewPhyl/Debug.h>
 #include <Bpp/NewPhyl/LinearAlgebraFwd.h>
@@ -64,7 +64,7 @@ namespace DF {
 		throw Exception (prettyTypeName (nodeType) + ": compute() was called");
 	}
 
-	// Error functions DataFlowInternalTemplates.h
+	// Error functions DataFlowInternal.h
 	void failureDependencyNumberMismatch (const std::type_info & contextNodeType,
 	                                      SizeType expectedSize, SizeType givenSize) {
 		throw Exception (prettyTypeName (contextNodeType) + ": expected " +

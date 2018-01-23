@@ -233,7 +233,7 @@ namespace DF {
 	/* Dependency structure description.
 	 * These type tags are used to specify compute node dependency types.
 	 * This can serve as documentation about what arguments node expect.
-	 * Helper functions in DataFlowInternalTemplates.h act depending on these type tags.
+	 * Helper functions in DataFlowInternal.h act depending on these type tags.
 	 */
 	template <typename T> struct ReductionOfValue {};           // Dynamic sized list of Value<T>
 	template <typename... Types> struct FunctionOfValues {};    // Tuple of Value<T0>, Value<T1>, ...

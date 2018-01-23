@@ -39,7 +39,7 @@
 */
 
 #include <Bpp/Exceptions.h>
-#include <Bpp/NewPhyl/DataFlowInternalTemplates.h>
+#include <Bpp/NewPhyl/DataFlowInternal.h>
 #include <Bpp/NewPhyl/Debug.h>
 #include <Bpp/NewPhyl/ExtendedFloat.h>
 #include <Bpp/NewPhyl/IntegerRange.h>
@@ -111,9 +111,7 @@ namespace DF {
 			                                    makeNode<CWiseInverseVectorDouble> (
 			                                        {likelihoodVector}, dimensions (*likelihoodVector))});
 		}
-		bool isDerivable (const Node & node) const final {
-			return derivableIfAllDepsAre (*this, node);
-		}
+		bool isDerivable (const Node & node) const final { return derivableIfAllDepsAre (*this, node); }
 		NodeRef rebuild (NodeRefVec && deps) const final {
 			return makeNode<TotalLogLikelihood> (std::move (deps));
 		}

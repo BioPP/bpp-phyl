@@ -39,7 +39,7 @@
   knowledge of the CeCILL license and that you accept its terms.
 */
 
-#include <Bpp/NewPhyl/DataFlowInternalTemplates.h>
+#include <Bpp/NewPhyl/DataFlowInternal.h>
 #include <Bpp/NewPhyl/Debug.h>
 #include <Bpp/NewPhyl/LinearAlgebra.h>
 #include <Bpp/NewPhyl/NumericalDerivation.h>
@@ -184,9 +184,9 @@ namespace DF {
 		Vector<double> coeffs_;
 
 		void compute () final {
-      const auto & deps = this->dependencies ();
-      const auto & lambda = deps[0];
-      // FIXME finish
+			const auto & deps = this->dependencies ();
+			const auto & lambda = deps[0];
+			// FIXME finish
 
 			// callthValues (*this, [this](T & result, const double & delta, const T & arg) {
 			//	result = linearAlgebraValueFilledWith (this->getTargetDimension (), this->n_ * delta) +

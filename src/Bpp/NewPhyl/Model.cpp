@@ -40,7 +40,7 @@
 */
 
 #include <Bpp/Exceptions.h>
-#include <Bpp/NewPhyl/DataFlowInternalTemplates.h>
+#include <Bpp/NewPhyl/DataFlowInternal.h>
 #include <Bpp/NewPhyl/DataFlowNumeric.h>
 #include <Bpp/NewPhyl/IntegerRange.h>
 #include <Bpp/NewPhyl/LinearAlgebra.h>
@@ -195,9 +195,7 @@ namespace DF {
 			assert (isDerivable (node));
 			return Builder<Constant<VectorDouble>>::makeZero (dimensions (*this));
 		}
-		bool isDerivable (const Node & node) const final {
-			return derivableIfAllDepsAre (*this, node);
-		}
+		bool isDerivable (const Node & node) const final { return derivableIfAllDepsAre (*this, node); }
 		NodeRef rebuild (NodeRefVec && deps) const final {
 			return makeNode<EquilibriumFrequenciesFromModel> (std::move (deps), dimensions (*this).size);
 		}
@@ -252,9 +250,7 @@ namespace DF {
 			return makeNode<CWiseMulScalarMatrixDouble> (
 			    {brlenNode->derive (node), std::move (dTransMat_dBrlen)}, dim);
 		}
-		bool isDerivable (const Node & node) const final {
-			return derivableIfAllDepsAre (*this, node);
-		}
+		bool isDerivable (const Node & node) const final { return derivableIfAllDepsAre (*this, node); }
 		NodeRef rebuild (NodeRefVec && deps) const final {
 			return makeNode<TransitionMatrixFromModel> (std::move (deps), dimensions (*this));
 		}
@@ -293,9 +289,7 @@ namespace DF {
 			return makeNode<CWiseMulScalarMatrixDouble> (
 			    {brlenNode->derive (node), std::move (d2TransMat_dBrlen2)}, dim);
 		}
-		bool isDerivable (const Node & node) const final {
-			return derivableIfAllDepsAre (*this, node);
-		}
+		bool isDerivable (const Node & node) const final { return derivableIfAllDepsAre (*this, node); }
 		NodeRef rebuild (NodeRefVec && deps) const final {
 			return makeNode<TransitionMatrixFromModelBrlenDerivative> (std::move (deps),
 			                                                           dimensions (*this));
