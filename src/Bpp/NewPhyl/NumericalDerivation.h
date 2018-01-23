@@ -47,7 +47,7 @@
 
 namespace bpp {
 namespace DF {
-  /** Shift a value by a delta: (n, delta, x) -> n * delta + x.
+  /** Shift a value by a delta: <n>(delta, x) -> n * delta + x.
    * Defined for double, VectorDouble, MatrixDouble.
    * For composite types, delta will be added to all elements.
    * 

@@ -43,14 +43,15 @@
 #include <Bpp/NewPhyl/Debug.h>
 #include <Bpp/NewPhyl/LinearAlgebra.h>
 #include <Bpp/NewPhyl/NumericalDerivation.h>
+#include <algorithm>
 
 namespace bpp {
 namespace DF {
-  /* NumericalDerivationShiftDelta.
-   *
-   * To avoid code duplication, the class is implemented as a template (private to this file).
-   * The template is instantianted with explicit types due to the factory functions.
-   */
+	/* NumericalDerivationShiftDelta.
+	 *
+	 * To avoid code duplication, the class is implemented as a template (private to this file).
+	 * The template is instantianted with explicit types due to the factory functions.
+	 */
 	template <typename T> class NumericalDerivationShiftDelta : public Value<T> {
 	public:
 		using Dependencies = FunctionOfValues<double, T>;
@@ -103,7 +104,7 @@ namespace DF {
 		auto * xAsShiftDelta = dynamic_cast<const NumericalDerivationShiftDelta<T> *> (x.get ());
 		if (xAsShiftDelta != nullptr && xAsShiftDelta->dependency (0) == delta) {
 			// Merge chains of ShiftDelta nodes recursively
-			// n*delta* (m*delta*x) -> (n+m)*delta*x
+			// n * delta * (m * delta * x) -> (n + m) * delta * x
 			return makeNode<NumericalDerivationShiftDelta<T>> (
 			    NodeRefVec{x->dependencies ()}, n + xAsShiftDelta->getShiftFactor (), targetDim);
 		} else {
@@ -136,7 +137,63 @@ namespace DF {
 		return makeNumericalDerivationShiftDelta<MatrixDouble> (std::move (deps), n, targetDim);
 	}
 
-  // NumericalDerivationCombineShifted
+	/* NumericalDerivationCombineShifted
+	 *
+	 * To avoid code duplication, the class is implemented as a template (private to this file).
+	 * The template is instantianted with explicit types due to the factory functions.
+	 */
+	template <typename T> class NumericalDerivationCombineShifted : public Value<T> {
+	public:
+		using Dependencies = FunctionOfValues<double, T>; // FIXME
+
+		NumericalDerivationCombineShifted (NodeRefVec && deps, const Vector<double> & coeffs,
+		                                   const Dimension<T> & targetDim)
+		    : Value<T> (std::move (deps)), coeffs_ (coeffs) {
+			this->setTargetDimension (targetDim);
+		}
+
+		/*std::string description () const final {
+		  return std::to_string (n_) + " * delta * " + prettyTypeName<T> ();
+		}*/
+
+		// Never derive the lambda side (not part of computation !)
+		NodeRef derive (const Node & node) final {
+			NodeRefVec deps (this->nbDependencies ());
+			deps[0] = this->dependency (0); // lambda
+			for (auto i : range (1, this->nbDependencies ()))
+				deps[i] = this->dependency (i)->derive (node);
+			return makeNode<NumericalDerivationCombineShifted<T>> (std::move (deps), coeffs_,
+			                                                       this->getTargetDimension ());
+		}
+		bool isDerivable (const Node & node) const final {
+			const auto & deps = this->dependencies ();
+			auto & lambda = deps[0];
+			return std::all_of (deps.begin () + 1, deps.end (),
+			                    [&node](const NodeRef & ref) { return ref->isDerivable (node); }) &&
+			       !lambda->isTransitivelyDependentOn (node);
+		}
+
+		NodeRef rebuild (NodeRefVec && deps) const final {
+			return makeNode<NumericalDerivationCombineShifted<T>> (std::move (deps), coeffs_,
+			                                                       this->getTargetDimension ());
+		}
+
+		int getCoeffs () const noexcept { return coeffs_; }
+
+	private:
+		Vector<double> coeffs_;
+
+		void compute () final {
+      const auto & deps = this->dependencies ();
+      const auto & lambda = deps[0];
+      // FIXME finish
+
+			// callthValues (*this, [this](T & result, const double & delta, const T & arg) {
+			//	result = linearAlgebraValueFilledWith (this->getTargetDimension (), this->n_ * delta) +
+			// arg;
+			//});
+		}
+	};
 
 } // namespace DF
 } // namespace bpp
