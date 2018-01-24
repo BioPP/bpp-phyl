@@ -51,22 +51,52 @@
 #include <typeinfo> // convertRef
 #include <utility>
 
+/** @file Defines the basic types of data flow nodes.
+ */
 namespace bpp {
 namespace DF {
-	/* In this file:
-	 * - Basic node class definition.
-	 */
-
-	// Declarations
 	class Node;
 	template <typename T> class Value;
+
+	/// Node instances are always manipulated as shared pointers, use an alias.
 	using NodeRef = std::shared_ptr<Node>;
-	using NodeRefVec = Vector<NodeRef>;
+	/// Shared pointer alias for Value<T>.
 	template <typename T> using ValueRef = std::shared_ptr<Value<T>>;
 
-	/* Base Node class.
-	 * Abstract : compute() needs to be defined to the actual computation.
-	 * It is supposed to be used with std::shared_ptr for node class ownership.
+	/// Alias for a dependency vector (of NodeRef).
+	using NodeRefVec = Vector<NodeRef>;
+
+	/** Base data flow Node class.
+	 * All data flow nodes inherit from this class.
+	 * Instances of this class must be used through std::shared_ptr<T>.
+	 *
+	 * A base node represents something that can be computed from its dependencies.
+	 * The computation is defined by the compute() method in derived classes.
+	 *
+	 * The base class stores a boolean indicating if the current value is valid.
+	 * This boolean is used to cache intermediate results in the graph, and avoid recomputings.
+	 * When data flow graph leaves change, they invalidate (transitively) dependent nodes.
+	 * This means setting the valid flag to false, to trigger a recomputation at next access.
+	 *
+	 * Each node has dependencies: other nodes providing data it needs to compute.
+	 * These dependencies are stored as NodeRef (shared_ptr<Node>).
+	 * Thus, multiple nodes can depend on the same value, to shared intermediate results.
+	 * The list of dependencies is FIXED at creation, and cannot be changed.
+	 * Changing the meaning of a node (dependencies, config) is done by creating a different node.
+	 *
+	 * Nodes also store pointers to dependent nodes.
+	 * Dependent nodes are nodes which have a direct dependency to the current node.
+	 * This is used to propagate invalidations to all transitive dependent nodes of a leaf.
+	 * Dependent nodes are stored as raw pointers (no ownership).
+	 *
+	 * Base nodes thus store the data flow graph topology, in terms of pointer to base Node.
+	 * This is useful for code reuse: no templates in topology walks code.
+	 * It is useful for debugging: can print the whole graph structure.
+	 * Accessing the derived classes (for compute) can be done efficiently with static_cast.
+	 *
+	 * Specific features are present in the base class as virtual functions.
+	 * This include derivation (numerical values), information (debug, name, isConstant...).
+	 * These features have no-op defaults which can be overriden if meaningful in derived classes.
 	 */
 	class Node {
 	public:
@@ -88,18 +118,19 @@ namespace DF {
 		SizeType nbDependencies () const noexcept { return dependencyNodes_.size (); }
 		const NodeRef & dependency (SizeType i) const noexcept { return dependencyNodes_[i]; }
 
-		// Node string description (default = type name): shorter name for in debug.
+		/// Node string description (default = type name): shorter name for in debug.
 		virtual std::string description () const;
 
-		// Node debug info (default = ""): user defined detailed info for DF graph debug.
+		/// Node debug info (default = ""): user defined detailed info for DF graph debug.
 		virtual std::string debugInfo () const;
 
-		// Is the node returning a constant value ? (default = false), non recursive
+		/// Is the node returning a constant value ? (default = false), non recursive.
 		virtual bool isConstant () const;
 
-		// Derive with respect to node (default = not implemented), recursive
+		/// Derive with respect to node (default = not implemented), recursive.
 		virtual NodeRef derive (const Node & node);
 		virtual bool isDerivable (const Node & node) const;
+		// TODO derivation doc somewhere
 
 		// Check if node is part of transitive dependencies
 		bool isTransitivelyDependentOn (const Node & node) const;
@@ -108,10 +139,30 @@ namespace DF {
 		virtual NodeRef rebuild (NodeRefVec && deps) const;
 
 	protected:
-		// Computation implementation
+		/** Computation implementation.
+		 * This functions is defined by derived classes.
+		 * It should compute the new node value from dependency node values.
+		 * When called, dependency node are guaranteed to have valid values.
+		 *
+		 * This function is private to prevent use for invalid dependencies.
+		 * Higher level functions like computeRecursively() call it while ensuring dependency validity.
+     *
+     * Compute has access to dependencies as a NodeRefVec (base Node classes only).
+     * The recommended usage is to check dependency types at Node construction.
+     * Then use static_cast to access derived classes efficiently from the NodeRefVec.
+     * Several helper functions in DataFlowInternal.h simplify this.
+     * See DataFlowNumeric.h for examples.
+		 */
 		virtual void compute () = 0;
 
+    /** Invalidate (transitively) dependent nodes from this one.
+     * Not thread safe !
+     */
 		void invalidateRecursively () noexcept;
+
+    /** Compute this node value, recomputing dependencies (transitively) as needed.
+     * Not thread safe !
+     */
 		void computeRecursively ();
 
 		void makeInvalid () noexcept { isValid_ = false; }
@@ -121,11 +172,9 @@ namespace DF {
 		void registerNode (Node * n);
 		void unregisterNode (const Node * n);
 
-	protected:
+	private:
 		NodeRefVec dependencyNodes_{};    // Nodes that we depend on.
 		Vector<Node *> dependentNodes_{}; // Nodes that depend on us.
-
-	private:
 		bool isValid_{false};
 	};
 
@@ -134,7 +183,8 @@ namespace DF {
 	NodeRef rebuildWithSubstitution (const NodeRef & node,
 	                                 const std::map<const Node *, NodeRef> & substitutions);
 
-	/* Node are by convention manipulated as shared_ptr<NodeType>.
+	/** Node construction class.
+	 * Node are by convention manipulated as shared_ptr<NodeType>.
 	 * Node construction should always be done through the Builder<NodeType>::make function.
 	 * This class defaults to simply using std::make_shared.
 	 * However it can be specialised for some node types.
@@ -148,13 +198,13 @@ namespace DF {
 		}
 	};
 
-	// Defers to the Builder<NodeType>::make.
+	/// Defers to the Builder<NodeType>::make.
 	template <typename NodeType, typename... Args>
 	auto makeNode (Args &&... args)
 	    -> decltype (Builder<NodeType>::make (std::forward<Args> (args)...)) {
 		return Builder<NodeType>::make (std::forward<Args> (args)...);
 	}
-	// Overload that accepts a NodeRef initializer list (commonly used)
+	/// Overload that accepts a NodeRef initializer list (commonly used).
 	template <typename NodeType, typename... Args>
 	auto makeNode (std::initializer_list<NodeRef> deps, Args &&... args)
 	    -> decltype (Builder<NodeType>::make (deps, std::forward<Args> (args)...)) {
@@ -167,7 +217,7 @@ namespace DF {
 	};
 	constexpr NoDependencyTag noDependency{};
 
-	/* Valued node.
+	/* Valued node. TODO doc
 	 * Represents a DataFlow node containing a T value, but still abstract (no compute()).
 	 */
 	template <typename T> class Value : public Node {
