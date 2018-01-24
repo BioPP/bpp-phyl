@@ -50,14 +50,26 @@ namespace DF {
 	// Utils
 	bool derivableIfAllDepsAre (const Node & toDerive, const Node & node);
 
-  /** Constant representing a zero for type T.
-   */
-  template<typename T> class ConstantZero;
+	/** Constant representing a zero for type T.
+	 */
+	template <typename T> class ConstantZero;
 
-  // TODO
-  template<typename T> class ConstantOne;
+	// Builders
+	template <> struct Builder<ConstantZero<double>> {
+		static ValueRef<double> make (const Dimension<double> &);
+		static ValueRef<double> make () { return make ({}); }
+	};
+	template <> struct Builder<ConstantZero<VectorDouble>> {
+		static ValueRef<VectorDouble> make (const Dimension<VectorDouble> & dim);
+	};
+	template <> struct Builder<ConstantZero<MatrixDouble>> {
+		static ValueRef<MatrixDouble> make (const Dimension<MatrixDouble> & dim);
+	};
 
-  template<typename Result, typename ... Args> class CWiseAdd;
+	// TODO
+	template <typename T> class ConstantOne;
+
+	template <typename Result, typename... Args> class CWiseAdd;
 
 	/* Double nodes.
 	 */

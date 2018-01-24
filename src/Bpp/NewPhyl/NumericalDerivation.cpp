@@ -41,7 +41,7 @@
 
 #include <Bpp/NewPhyl/DataFlowInternal.h>
 #include <Bpp/NewPhyl/Debug.h>
-#include <Bpp/NewPhyl/LinearAlgebra.h>
+#include <Bpp/NewPhyl/LinearAlgebraUtils.h>
 #include <Bpp/NewPhyl/NumericalDerivation.h>
 #include <algorithm>
 

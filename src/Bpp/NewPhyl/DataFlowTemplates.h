@@ -61,9 +61,13 @@ namespace DF {
 	/** Mutable value node of type T.
 	 * Leaf of the DataFlow graph, has no dependency.
 	 * Represents a mutable value.
+	 *
 	 * A Mutable object always has a valid value (do not call invalidate !).
 	 * It starts as initially valid.
 	 * Modifications will send invalidations to ensure recomputations, then set it as valid again.
+	 *
+	 * Has no rebuild support: no dependency to change.
+	 * Derivation is supported only for double.
 	 */
 	template <typename T> class Mutable : public Value<T> {
 	public:
@@ -107,6 +111,9 @@ namespace DF {
 	/** Constant value of type T.
 	 * DataFlow graph leaf, but for an immutable value, has no dependency.
 	 * Is always valid.
+	 *
+	 * Has no rebuild support: no dependency to change.
+	 * Derivation is supported for linear algebra types, always returns a zero T value.
 	 */
 	template <typename T> class Constant : public Value<T> {
 	public:

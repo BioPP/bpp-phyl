@@ -45,6 +45,7 @@
 #include <Bpp/NewPhyl/Debug.h> // checks
 #include <Bpp/NewPhyl/IntegerRange.h>
 #include <Bpp/NewPhyl/LinearAlgebra.h>
+#include <Bpp/NewPhyl/LinearAlgebraUtils.h>
 #include <algorithm>
 #include <memory>
 #include <typeinfo>
@@ -86,14 +87,39 @@ namespace DF {
 
 	/******************************** New Nodes *******************************/
 
-	/** ConstantZero impl
+	/** ConstantZero for a T value (optimized).
+	 * The T value is lazily built (when accessed the first time).
 	 */
 	template <typename T> class ConstantZero : public Value<T> {
 	public:
 		explicit ConstantZero (const Dimension<T> & dim) : Value<T> (noDependency) {
 			this->setTargetDimension (dim);
 		}
+
+		bool isConstant () const final { return true; }
+
+		NodeRef derive (const Node &) final {
+			return makeNode<ConstantZero<T>> (this->getTargetDimension ());
+		}
+		bool isDerivable (const Node &) const final { return true; }
+
+	private:
+		void compute () final {
+			this->accessValueMutable () = linearAlgebraZeroValue (this->getTargetDimension ());
+		}
 	};
+
+	ValueRef<double> Builder<ConstantZero<double>>::make (const Dimension<double> & dim) {
+		return std::make_shared<ConstantZero<double>> (dim);
+	}
+	ValueRef<VectorDouble>
+	Builder<ConstantZero<VectorDouble>>::make (const Dimension<VectorDouble> & dim) {
+		return std::make_shared<ConstantZero<VectorDouble>> (dim);
+	}
+	ValueRef<MatrixDouble>
+	Builder<ConstantZero<MatrixDouble>>::make (const Dimension<MatrixDouble> & dim) {
+		return std::make_shared<ConstantZero<MatrixDouble>> (dim);
+	}
 
 	template <typename Result, typename... Args> class CWiseAdd : public Value<Result> {
 	public:
