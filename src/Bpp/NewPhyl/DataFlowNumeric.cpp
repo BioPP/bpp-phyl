@@ -121,6 +121,41 @@ namespace DF {
 		return std::make_shared<ConstantZero<MatrixDouble>> (dim);
 	}
 
+	/** ConstantOne for a T value (optimized).
+	 * The T value is lazily built (when accessed the first time).
+	 */
+	template <typename T> class ConstantOne : public Value<T> {
+	public:
+		explicit ConstantOne (const Dimension<T> & dim) : Value<T> (noDependency) {
+			this->setTargetDimension (dim);
+		}
+
+		bool isConstant () const final { return true; }
+
+		NodeRef derive (const Node &) final {
+			return makeNode<ConstantZero<T>> (this->getTargetDimension ());
+		}
+		bool isDerivable (const Node &) const final { return true; }
+
+	private:
+		void compute () final {
+			this->accessValueMutable () = linearAlgebraOneValue (this->getTargetDimension ());
+		}
+	};
+
+	ValueRef<double> Builder<ConstantOne<double>>::make (const Dimension<double> & dim) {
+		return std::make_shared<ConstantOne<double>> (dim);
+	}
+	ValueRef<VectorDouble>
+	Builder<ConstantOne<VectorDouble>>::make (const Dimension<VectorDouble> & dim) {
+		return std::make_shared<ConstantOne<VectorDouble>> (dim);
+	}
+	ValueRef<MatrixDouble>
+	Builder<ConstantOne<MatrixDouble>>::make (const Dimension<MatrixDouble> & dim) {
+		return std::make_shared<ConstantOne<MatrixDouble>> (dim);
+	}
+
+	// TODO
 	template <typename Result, typename... Args> class CWiseAdd : public Value<Result> {
 	public:
 		using Dependencies = FunctionOfValues<Args...>;
@@ -156,7 +191,7 @@ namespace DF {
 		if (deps.size () == 1) {
 			return convertRef<Value<double>> (deps[0]);
 		} else if (deps.size () == 0) {
-			return makeNode<Constant<double>> (0.);
+			return makeNode<ConstantZero<double>> ();
 		} else {
 			return std::make_shared<AddDouble> (std::move (deps));
 		}
@@ -191,7 +226,7 @@ namespace DF {
 		checkDependencies<MulDouble> (deps);
 		// Return 0 if any dep is 0
 		if (std::any_of (deps.begin (), deps.end (), isConstantZeroDouble)) {
-			return makeNode<Constant<double>> (0.);
+			return makeNode<ConstantZero<double>> ();
 		}
 		// Remove any 1s
 		removeDependenciesIf (deps, isConstantOneDouble);
@@ -199,7 +234,7 @@ namespace DF {
 		if (deps.size () == 1) {
 			return convertRef<Value<double>> (deps[0]);
 		} else if (deps.size () == 0) {
-			return makeNode<Constant<double>> (1.);
+			return makeNode<ConstantOne<double>> ();
 		} else {
 			return std::make_shared<MulDouble> (std::move (deps));
 		}
@@ -264,7 +299,7 @@ namespace DF {
 		auto & lhs = deps[0];
 		auto & rhs = deps[1];
 		if (isConstantZeroVector (lhs) || isConstantZeroVector (rhs)) {
-			return makeNode<Constant<double>> (0.);
+			return makeNode<ConstantZero<double>> ();
 		} else {
 			return std::make_shared<ScalarProdDouble> (std::move (deps));
 		}
@@ -303,7 +338,7 @@ namespace DF {
 		if (deps.size () == 1) {
 			return convertRef<Value<VectorDouble>> (deps[0]);
 		} else if (deps.size () == 0) {
-			return Builder<Constant<VectorDouble>>::makeZero (dim);
+			return makeNode<ConstantZero<VectorDouble>> (dim);
 		} else {
 			return std::make_shared<AddVectorDouble> (std::move (deps), dim);
 		}
@@ -342,7 +377,7 @@ namespace DF {
 		checkDependencies<CWiseMulVectorDouble> (deps);
 		// Return 0 if any 0 dep
 		if (std::any_of (deps.begin (), deps.end (), isConstantZeroVector)) {
-			return Builder<Constant<VectorDouble>>::makeZero (dim);
+			return makeNode<ConstantZero<VectorDouble>> (dim);
 		}
 		// Remove 1s
 		removeDependenciesIf (deps, isConstantOnesVector);
@@ -350,7 +385,7 @@ namespace DF {
 		if (deps.size () == 1) {
 			return convertRef<Value<VectorDouble>> (deps[0]);
 		} else if (deps.size () == 0) {
-			return Builder<Constant<VectorDouble>>::makeOne (dim);
+			return makeNode<ConstantOne<VectorDouble>> (dim);
 		} else {
 			return std::make_shared<CWiseMulVectorDouble> (std::move (deps), dim);
 		}
@@ -463,7 +498,7 @@ namespace DF {
 		if (exp == 1.) {
 			return convertRef<Value<VectorDouble>> (arg);
 		} else if (exp == 0.) {
-			return Builder<Constant<VectorDouble>>::makeOne (dim);
+			return makeNode<ConstantOne<VectorDouble>> (dim);
 		} else if (exp == -1.) {
 			return makeNode<CWiseInverseVectorDouble> (std::move (deps), dim);
 		} else if (isConstantOnesVector (arg)) {
@@ -506,7 +541,7 @@ namespace DF {
 		if (deps.size () == 1) {
 			return convertRef<Value<MatrixDouble>> (deps[0]);
 		} else if (deps.size () == 0) {
-			return Builder<Constant<MatrixDouble>>::makeZero (dim);
+			return makeNode<ConstantZero<MatrixDouble>> (dim);
 		} else {
 			return std::make_shared<AddMatrixDouble> (std::move (deps), dim);
 		}
@@ -544,7 +579,7 @@ namespace DF {
 		auto & lhs = deps[0];
 		auto & rhs = deps[1];
 		if (isConstantZeroMatrix (lhs) || isConstantZeroMatrix (rhs)) {
-			return Builder<Constant<MatrixDouble>>::makeZero (dim);
+			return makeNode<ConstantZero<MatrixDouble>> (dim);
 		} else if (isConstantIdentityMatrix (lhs)) {
 			return convertRef<Value<MatrixDouble>> (rhs);
 		} else if (isConstantIdentityMatrix (rhs)) {
@@ -587,7 +622,7 @@ namespace DF {
 		checkDependencies<CWiseMulMatrixDouble> (deps);
 		// Return 0 if any 0 dep
 		if (std::any_of (deps.begin (), deps.end (), isConstantZeroMatrix)) {
-			return Builder<Constant<MatrixDouble>>::makeZero (dim);
+			return makeNode<ConstantZero<MatrixDouble>> (dim);
 		}
 		// Remove 1s
 		removeDependenciesIf (deps, isConstantOnesMatrix);
@@ -595,7 +630,7 @@ namespace DF {
 		if (deps.size () == 1) {
 			return convertRef<Value<MatrixDouble>> (deps[0]);
 		} else if (deps.size () == 0) {
-			return Builder<Constant<MatrixDouble>>::makeOne (dim);
+			return makeNode<ConstantOne<MatrixDouble>> (dim);
 		} else {
 			return std::make_shared<CWiseMulMatrixDouble> (std::move (deps), dim);
 		}
@@ -636,7 +671,7 @@ namespace DF {
 		auto & lhs = deps[0];
 		auto & rhs = deps[1];
 		if (isConstantZeroMatrix (lhs) || isConstantZeroVector (rhs)) {
-			return Builder<Constant<VectorDouble>>::makeZero (dim);
+			return makeNode<ConstantZero<VectorDouble>> (dim);
 		} else if (isConstantIdentityMatrix (lhs)) {
 			return convertRef<Value<VectorDouble>> (rhs);
 		} else {
@@ -677,7 +712,7 @@ namespace DF {
 		auto & lhs = deps[0];
 		auto & rhs = deps[1];
 		if (isConstantZeroDouble (lhs) || isConstantZeroVector (rhs)) {
-			return Builder<Constant<VectorDouble>>::makeZero (dim);
+			return makeNode<ConstantZero<VectorDouble>> (dim);
 		} else if (isConstantOneDouble (lhs)) {
 			return convertRef<Value<VectorDouble>> (rhs);
 		} else {
@@ -718,7 +753,7 @@ namespace DF {
 		auto & lhs = deps[0];
 		auto & rhs = deps[1];
 		if (isConstantZeroDouble (lhs) || isConstantZeroMatrix (rhs)) {
-			return Builder<Constant<MatrixDouble>>::makeZero (dim);
+			return makeNode<ConstantZero<MatrixDouble>> (dim);
 		} else if (isConstantOneDouble (lhs)) {
 			return convertRef<Value<MatrixDouble>> (rhs);
 		} else {

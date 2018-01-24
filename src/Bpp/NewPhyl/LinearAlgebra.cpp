@@ -39,26 +39,20 @@
   knowledge of the CeCILL license and that you accept its terms.
 */
 
+#include <Bpp/NewPhyl/DataFlowNumeric.h>
 #include <Bpp/NewPhyl/LinearAlgebra.h>
+#include <Bpp/NewPhyl/LinearAlgebraUtils.h>
 
 namespace bpp {
 // Utils
 namespace {
-	auto zeroValue (const Dimension<VectorDouble> & dim) -> decltype (VectorDouble::Zero (dim.size)) {
-		return VectorDouble::Zero (dim.size);
-	}
-	auto zeroValue (const Dimension<MatrixDouble> & dim)
-	    -> decltype (MatrixDouble::Zero (dim.rows, dim.cols)) {
-		return MatrixDouble::Zero (dim.rows, dim.cols);
-	}
-
 	// Needed for numericProps, always false.
 	constexpr bool isExactIdentity (const VectorDouble &) { return false; }
 
 	// Generate a string describing useful numeric props of Vector/Matrix
 	template <typename T> std::string numericProps (const T & t) {
 		std::string s{"props{"};
-		auto zero = zeroValue (dimensions (t));
+		auto zero = linearAlgebraZeroValue (dimensions (t));
 		// Property for all elements
 		if (isExactZero (t))
 			s += "[0]";
@@ -147,30 +141,14 @@ namespace DF {
 
 	// Constant<VectorDouble> specialisation
 	template <> NodeRef Constant<VectorDouble>::derive (const Node &) {
-		return Builder<Constant<VectorDouble>>::makeZero (dimensions (*this));
+		return makeNode<ConstantZero<VectorDouble>> (dimensions (*this));
 	}
 	template <> bool Constant<VectorDouble>::isDerivable (const Node &) const { return true; }
-	std::shared_ptr<Constant<VectorDouble>>
-	Builder<Constant<VectorDouble>>::makeZero (const Dimension<VectorDouble> & dim) {
-		return make (zeroValue (dim));
-	}
-	std::shared_ptr<Constant<VectorDouble>>
-	Builder<Constant<VectorDouble>>::makeOne (const Dimension<VectorDouble> & dim) {
-		return make (VectorDouble::Ones (dim.size));
-	}
 
 	// Constant<MatrixDouble> specialisation
 	template <> NodeRef Constant<MatrixDouble>::derive (const Node &) {
-		return Builder<Constant<MatrixDouble>>::makeZero (dimensions (*this));
+		return makeNode<ConstantZero<MatrixDouble>> (dimensions (*this));
 	}
 	template <> bool Constant<MatrixDouble>::isDerivable (const Node &) const { return true; }
-	std::shared_ptr<Constant<MatrixDouble>>
-	Builder<Constant<MatrixDouble>>::makeZero (const Dimension<MatrixDouble> & dim) {
-		return make (zeroValue (dim));
-	}
-	std::shared_ptr<Constant<MatrixDouble>>
-	Builder<Constant<MatrixDouble>>::makeOne (const Dimension<MatrixDouble> & dim) {
-		return make (MatrixDouble::Ones (dim.rows, dim.cols));
-	}
 } // namespace DF
 } // namespace bpp

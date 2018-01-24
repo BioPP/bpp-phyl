@@ -63,7 +63,7 @@ namespace DF {
 		}
 		NodeRef derive (const Node &) final {
 			// Sequence is a constant.
-			return Builder<Constant<MatrixDouble>>::makeZero (dimensions (*this));
+			return makeNode<ConstantZero<MatrixDouble>> (dimensions (*this));
 		}
 		bool isDerivable (const Node &) const final { return true; }
 		NodeRef rebuild (NodeRefVec && deps) const final {

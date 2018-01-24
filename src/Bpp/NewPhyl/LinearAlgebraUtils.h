@@ -84,6 +84,26 @@ inline auto linearAlgebraZeroValue (const Dimension<MatrixDouble> & dim)
 	return MatrixDouble::Zero (dim.rows, dim.cols);
 }
 ///@}
+
+///@{
+/** Create a value filled with ones.
+ * Versions for double, VectorDouble, MatrixDouble.
+ * The right overload is selected by the Dimension<T> argument.
+ * This argument also provide a size for Vector and Matrix variants.
+ * This overloaded functions is used in template code (common interface for 3 types).
+ */
+inline double linearAlgebraOneValue (const Dimension<double> &) {
+	return 1.;
+}
+inline auto linearAlgebraOneValue (const Dimension<VectorDouble> & dim)
+    -> decltype (VectorDouble::Ones (dim.size)) {
+	return VectorDouble::Ones (dim.size);
+}
+inline auto linearAlgebraOneValue (const Dimension<MatrixDouble> & dim)
+    -> decltype (MatrixDouble::Ones (dim.rows, dim.cols)) {
+	return MatrixDouble::Ones (dim.rows, dim.cols);
+}
+///@}
 } // namespace bpp
 
 #endif // BPP_NEWPHYL_LINEARALGEBRAUTILS_H

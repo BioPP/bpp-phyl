@@ -94,26 +94,9 @@ namespace DF {
 	// Constant<T>
 	template <> NodeRef Constant<VectorDouble>::derive (const Node & node);
 	template <> bool Constant<VectorDouble>::isDerivable (const Node & node) const;
-	template <> struct Builder<Constant<VectorDouble>> {
-		template <typename EigenVector>
-		static std::shared_ptr<Constant<VectorDouble>> make (const EigenVector & v) {
-			return std::make_shared<Constant<VectorDouble>> (v);
-		}
-		static std::shared_ptr<Constant<VectorDouble>> makeZero (const Dimension<VectorDouble> & dim);
-		static std::shared_ptr<Constant<VectorDouble>> makeOne (const Dimension<VectorDouble> & dim);
-	};
 
 	template <> NodeRef Constant<MatrixDouble>::derive (const Node & node);
 	template <> bool Constant<MatrixDouble>::isDerivable (const Node & node) const;
-	template <> struct Builder<Constant<MatrixDouble>> {
-		template <typename EigenMatrix>
-		static std::shared_ptr<Constant<MatrixDouble>> make (const EigenMatrix & m) {
-			return std::make_shared<Constant<MatrixDouble>> (m);
-		}
-		static std::shared_ptr<Constant<MatrixDouble>> makeZero (const Dimension<MatrixDouble> & dim);
-		static std::shared_ptr<Constant<MatrixDouble>> makeOne (const Dimension<MatrixDouble> & dim);
-	};
-
 } // namespace DF
 } // namespace bpp
 

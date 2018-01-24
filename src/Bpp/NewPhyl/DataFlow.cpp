@@ -42,6 +42,7 @@
 #include <Bpp/Exceptions.h>
 #include <Bpp/NewPhyl/DataFlow.h>
 #include <Bpp/NewPhyl/DataFlowInternal.h>
+#include <Bpp/NewPhyl/DataFlowNumeric.h>
 #include <Bpp/NewPhyl/DataFlowTemplates.h>
 #include <Bpp/NewPhyl/Debug.h>
 #include <Bpp/NewPhyl/LinearAlgebraFwd.h>
@@ -225,37 +226,18 @@ namespace DF {
 	// Mutable<double> specialisation
 	template <> NodeRef Mutable<double>::derive (const Node & node) {
 		if (&node == static_cast<const Node *> (this)) {
-			return Builder<Constant<double>>::makeOne ();
+			return makeNode<ConstantOne<double>> ();
 		} else {
-			return Builder<Constant<double>>::makeZero ();
+			return makeNode<ConstantZero<double>> ();
 		}
 	}
 	template <> bool Mutable<double>::isDerivable (const Node &) const { return true; }
 
 	// Constant<double> specialisation
 	template <> NodeRef Constant<double>::derive (const Node &) {
-		return Builder<Constant<double>>::makeZero ();
+		return makeNode<ConstantZero<double>> ();
 	}
 	template <> bool Constant<double>::isDerivable (const Node &) const { return true; }
-	std::shared_ptr<Constant<double>> Builder<Constant<double>>::make (double d) {
-		if (isExactZero (d)) {
-			return makeZero ();
-		} else if (isExactOne (d)) {
-			return makeOne ();
-		} else {
-			return std::make_shared<Constant<double>> (d);
-		}
-	}
-	namespace {
-		auto constantNodeZeroDouble = std::make_shared<Constant<double>> (0.);
-		auto constantNodeOneDouble = std::make_shared<Constant<double>> (1.);
-	} // namespace
-	std::shared_ptr<Constant<double>> Builder<Constant<double>>::makeZero () {
-		return constantNodeZeroDouble;
-	}
-	std::shared_ptr<Constant<double>> Builder<Constant<double>>::makeOne () {
-		return constantNodeOneDouble;
-	}
 
 		// TODO use in InternalTemplates for merging
 #if 0

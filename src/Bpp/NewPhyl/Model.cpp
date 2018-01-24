@@ -193,7 +193,7 @@ namespace DF {
 		}
 		NodeRef derive (const Node & node) final {
 			assert (isDerivable (node));
-			return Builder<Constant<VectorDouble>>::makeZero (dimensions (*this));
+			return makeNode<ConstantZero<VectorDouble>> (dimensions (*this));
 		}
 		bool isDerivable (const Node & node) const final { return derivableIfAllDepsAre (*this, node); }
 		NodeRef rebuild (NodeRefVec && deps) const final {
