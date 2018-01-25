@@ -46,11 +46,13 @@
 #include <Bpp/NewPhyl/Signed.h>
 #include <string>
 
+/** @file Forward declaration of Eigen Vector/Matrix types.
+ * TODO doc forward decl scheme.
+ */
+
 namespace bpp {
 ///@{
-/** Forward declarations of eigen types.
- * TODO doc forward decl scheme
- */
+/// Forward declarations of eigen types.
 class VectorDouble;
 class MatrixDouble;
 ///@}
@@ -100,12 +102,12 @@ std::string to_string (const Dimension<MatrixDouble> & dim);
 
 ///@{
 /// Get dimensions from objects.
-Dimension<double> dimensions (const double & d) noexcept; // TODO impl
 Dimension<VectorDouble> dimensions (const VectorDouble & v) noexcept;
 Dimension<MatrixDouble> dimensions (const MatrixDouble & m) noexcept;
 ///@}
 
 // TODO doc. actual dim VS target dim ? add DIm<T> to value and setter/getters
+// FIXME deprecate
 // Get dimensions for DF nodes
 namespace DF {
 	/// Forward declaration of DF::Value<T>.
@@ -115,6 +117,7 @@ Dimension<double> dimensions (const DF::Value<double> &) noexcept;
 Dimension<VectorDouble> dimensions (const DF::Value<VectorDouble> & node) noexcept;
 Dimension<MatrixDouble> dimensions (const DF::Value<MatrixDouble> & node) noexcept;
 
+//FIXME deprecate ?
 // Exact predicates (not a fuzzy comparison)
 bool isExactZero (const double & d);
 bool isExactZero (const VectorDouble &);

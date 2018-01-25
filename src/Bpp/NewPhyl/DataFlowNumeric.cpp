@@ -39,15 +39,16 @@
   knowledge of the CeCILL license and that you accept its terms.
 */
 
-#include <Bpp/Exceptions.h> // checks
 #include <Bpp/NewPhyl/DataFlowInternal.h>
 #include <Bpp/NewPhyl/DataFlowNumeric.h>
+#include <Bpp/NewPhyl/DataFlowTemplates.h>
 #include <Bpp/NewPhyl/Debug.h> // checks
 #include <Bpp/NewPhyl/IntegerRange.h>
 #include <Bpp/NewPhyl/LinearAlgebra.h>
 #include <Bpp/NewPhyl/LinearAlgebraUtils.h>
 #include <algorithm>
 #include <memory>
+#include <string>
 #include <typeinfo>
 #include <utility>
 
@@ -71,11 +72,38 @@ namespace DF {
 		auto isConstantOneNode = [](const NodeRef & n) { return n->isConstantOne (); };
 
 		auto isConstantIdentityMatrix = [](const NodeRef & n) {
-      // FIXME assume Constant<MatrixDouble>, not lazily evaluated
+			// FIXME assume Constant<MatrixDouble>, not lazily evaluated
 			return n->isConstant () &&
 			       isExactIdentity (nodeValueCast<MatrixDouble> (*n).accessValueConst ());
 		};
 
+		/* Generate a string describing useful numeric props of Eigen vector/matrix.
+		 * Used in Value<T>::debugInfo specialisations.
+		 */
+		template <typename T> std::string numericProps (const T & t) {
+			std::string s{"props{"};
+			auto zero = linearAlgebraZeroValue (dimensions (t));
+			// Property for all elements
+			if (t.isZero (0.))
+				s += "[0]";
+			if (t.isOnes (0.))
+				s += "[1]";
+			if (t.rows () == t.cols () && t.isIdentity (0.))
+				s += "[I]";
+			// Property on any element
+			if (t.array ().isNaN ().any ())
+				s += "N";
+			if (t.array ().isInf ().any ())
+				s += "i";
+			if ((t.array () == zero.array ()).any ())
+				s += "0";
+			if ((t.array () > zero.array ()).any ())
+				s += "+";
+			if ((t.array () < zero.array ()).any ())
+				s += "-";
+			s += "}";
+			return s;
+		}
 	} // namespace
 
 	bool derivableIfAllDepsAre (const Node & toDerive, const Node & node) {
@@ -83,6 +111,53 @@ namespace DF {
 		return std::all_of (deps.begin (), deps.end (),
 		                    [&node](const NodeRef & dep) { return dep->isDerivable (node); });
 	}
+
+	/**************************************************************************
+	 * Specialisations of Value/Constant/Mutable for numeric types.
+	 */
+
+	// Debug info of Value<T>
+	template <> std::string Value<double>::debugInfo () const {
+		return std::to_string (this->accessValueConst ());
+	}
+	template <> std::string Value<VectorDouble>::debugInfo () const {
+		using std::to_string;
+		auto & v = this->accessValueConst ();
+		return "targetDim=" + to_string (this->getTargetDimension ()) +
+		       " dim=" + to_string (dimensions (v)) + " " + numericProps (v);
+	}
+	template <> std::string Value<MatrixDouble>::debugInfo () const {
+		using std::to_string;
+		auto & m = this->accessValueConst ();
+		return "targetDim" + to_string (this->getTargetDimension ()) + " dim" +
+		       to_string (dimensions (m)) + " " + numericProps (m);
+	}
+
+	// Mutable<double> specialisation
+	template <> NodeRef Mutable<double>::derive (const Node & node) {
+		if (&node == static_cast<const Node *> (this)) {
+			return makeNode<ConstantOne<double>> ();
+		} else {
+			return makeNode<ConstantZero<double>> ();
+		}
+	}
+	template <> bool Mutable<double>::isDerivable (const Node &) const { return true; }
+
+	// Constant<T> specialisation
+	template <> NodeRef Constant<double>::derive (const Node &) {
+		return makeNode<ConstantZero<double>> ();
+	}
+	template <> bool Constant<double>::isDerivable (const Node &) const { return true; }
+
+	template <> NodeRef Constant<VectorDouble>::derive (const Node &) {
+		return makeNode<ConstantZero<VectorDouble>> (dimensions (this->accessValueConst ()));
+	}
+	template <> bool Constant<VectorDouble>::isDerivable (const Node &) const { return true; }
+
+	template <> NodeRef Constant<MatrixDouble>::derive (const Node &) {
+		return makeNode<ConstantZero<MatrixDouble>> (dimensions (this->accessValueConst ()));
+	}
+	template <> bool Constant<MatrixDouble>::isDerivable (const Node &) const { return true; }
 
 	/******************************** New Nodes *******************************/
 

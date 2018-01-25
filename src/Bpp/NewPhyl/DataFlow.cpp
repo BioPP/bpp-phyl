@@ -42,10 +42,8 @@
 #include <Bpp/Exceptions.h>
 #include <Bpp/NewPhyl/DataFlow.h>
 #include <Bpp/NewPhyl/DataFlowInternal.h>
-#include <Bpp/NewPhyl/DataFlowNumeric.h>
 #include <Bpp/NewPhyl/DataFlowTemplates.h>
 #include <Bpp/NewPhyl/Debug.h>
-#include <Bpp/NewPhyl/LinearAlgebraFwd.h>
 #include <algorithm>
 #include <stack>
 #include <typeinfo>
@@ -218,30 +216,6 @@ namespace DF {
 		}
 	}
 
-	/********************************* Specialisations for templates ****************************/
-
-	// Debug info of Value<double>
-	template <> std::string Value<double>::debugInfo () const {
-		return std::to_string (this->accessValueConst ());
-	}
-
-	// Mutable<double> specialisation
-	template <> NodeRef Mutable<double>::derive (const Node & node) {
-		if (&node == static_cast<const Node *> (this)) {
-			return makeNode<ConstantOne<double>> ();
-		} else {
-			return makeNode<ConstantZero<double>> ();
-		}
-	}
-	template <> bool Mutable<double>::isDerivable (const Node &) const { return true; }
-
-	// Constant<double> specialisation
-	template <> NodeRef Constant<double>::derive (const Node &) {
-		return makeNode<ConstantZero<double>> ();
-	}
-	template <> bool Constant<double>::isDerivable (const Node &) const { return true; }
-
-		// TODO use in InternalTemplates for merging
 #if 0
 #include <Bpp/NewPhyl/Optional.h>
 #include <typeindex>

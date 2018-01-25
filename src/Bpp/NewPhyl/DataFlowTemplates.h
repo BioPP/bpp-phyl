@@ -136,7 +136,10 @@ namespace DF {
 		void compute () final { failureComputeWasCalled (typeid (Constant<T>)); }
 	};
 
-	// Specialisations in DataFlow.cpp
+	/* Specialisations in DataFlowNumeric.cpp
+   * Mutable<double>: enable derivation.
+   * Constant<double>: enable derivation.
+   */
 	template <> NodeRef Mutable<double>::derive (const Node & node);
 	template <> bool Mutable<double>::isDerivable (const Node & node) const;
 

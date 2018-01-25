@@ -44,38 +44,6 @@
 #include <Bpp/NewPhyl/LinearAlgebraUtils.h>
 
 namespace bpp {
-// Utils
-namespace {
-	// Needed for numericProps, always false.
-	constexpr bool isExactIdentity (const VectorDouble &) { return false; }
-
-	// Generate a string describing useful numeric props of Vector/Matrix
-	template <typename T> std::string numericProps (const T & t) {
-		std::string s{"props{"};
-		auto zero = linearAlgebraZeroValue (dimensions (t));
-		// Property for all elements
-		if (isExactZero (t))
-			s += "[0]";
-		if (isExactOne (t))
-			s += "[1]";
-		if (isExactIdentity (t))
-			s += "[I]";
-		// Property on any element
-		if (t.array ().isNaN ().any ())
-			s += "N";
-		if (t.array ().isInf ().any ())
-			s += "i";
-		if ((t.array () == zero.array ()).any ())
-			s += "0";
-		if ((t.array () > zero.array ()).any ())
-			s += "+";
-		if ((t.array () < zero.array ()).any ())
-			s += "-";
-		s += "}";
-		return s;
-	}
-} // namespace
-
 // Dimensions
 std::string to_string (const Dimension<VectorDouble> & dim) {
 	return std::to_string (dim.size);
@@ -123,32 +91,4 @@ bool isExactOne (const MatrixDouble & m) {
 bool isExactIdentity (const MatrixDouble & m) {
 	return m.rows () == m.cols () && m.isIdentity (0.);
 }
-
-namespace DF {
-	// Debug info specialisations
-	template <> std::string Value<VectorDouble>::debugInfo () const {
-		using std::to_string;
-		auto & v = this->accessValueConst ();
-		return "targetDim=" + to_string (this->getTargetDimension ()) +
-		       " dim=" + to_string (dimensions (v)) + " " + numericProps (v);
-	}
-	template <> std::string Value<MatrixDouble>::debugInfo () const {
-		using std::to_string;
-		auto & m = this->accessValueConst ();
-		return "targetDim" + to_string (this->getTargetDimension ()) + " dim" +
-		       to_string (dimensions (m)) + " " + numericProps (m);
-	}
-
-	// Constant<VectorDouble> specialisation
-	template <> NodeRef Constant<VectorDouble>::derive (const Node &) {
-		return makeNode<ConstantZero<VectorDouble>> (dimensions (*this));
-	}
-	template <> bool Constant<VectorDouble>::isDerivable (const Node &) const { return true; }
-
-	// Constant<MatrixDouble> specialisation
-	template <> NodeRef Constant<MatrixDouble>::derive (const Node &) {
-		return makeNode<ConstantZero<MatrixDouble>> (dimensions (*this));
-	}
-	template <> bool Constant<MatrixDouble>::isDerivable (const Node &) const { return true; }
-} // namespace DF
 } // namespace bpp

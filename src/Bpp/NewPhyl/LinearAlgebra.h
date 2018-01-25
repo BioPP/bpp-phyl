@@ -46,7 +46,6 @@
 #include <Bpp/NewPhyl/DataFlowTemplates.h> // Constant<T> override declarations
 #include <Bpp/NewPhyl/LinearAlgebraFwd.h>
 #include <Eigen/Core>
-#include <memory>
 
 namespace bpp {
 /** Define wrapper types to eigen matrix / vector.
@@ -81,17 +80,22 @@ namespace internal {
 
 namespace bpp {
 namespace DF {
-	/* Declare overrides of Value<T>, Constant<T>.
+	/** Declare overrides of Value<T>, Constant<T>.
 	 *
 	 * These overrides cannot be declared without a complete type.
-	 * Thus no nice declaration with forward declared types in the headers of bpp::DF.
+	 * Thus they cannot be declared in LinearAlgebraFwd.h.
+	 *
+	 * The defaults can only be generated if VectorDouble / MatrixDouble are defined.
+	 * By declaring them here, we ensure they will be used instead of defaults from the template.
+	 *
+	 * Implemented in DataFlowNumeric.cpp
 	 */
 
-	// Value<T>.
+	// Value<T>: debugInfo
 	template <> std::string Value<VectorDouble>::debugInfo () const;
 	template <> std::string Value<MatrixDouble>::debugInfo () const;
 
-	// Constant<T>
+	// Constant<T>: enable derivation
 	template <> NodeRef Constant<VectorDouble>::derive (const Node & node);
 	template <> bool Constant<VectorDouble>::isDerivable (const Node & node) const;
 
