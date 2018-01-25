@@ -81,7 +81,8 @@ namespace DF {
 		return static_cast<const Value<T> &> (node);
 	}
 
-	/** Access maybe invalid const from raw Node &.
+	/** @brief Access maybe invalid const from raw Node &.
+	 *
 	 * Typically used to get matrix dimensions during DF graph transformations.
 	 * Dimensions are preset in DFNumeric, so they are always valid.
 	 */
@@ -136,7 +137,8 @@ namespace DF {
 		}
 	}
 
-	/** Check that deps is a ReductionOfValue<T> (selected by type tag).
+	/** @brief Check that deps is a ReductionOfValue<T> (selected by type tag).
+   *
 	 * A reduction is any number of Value<T> nodes.
 	 */
 	template <typename T>
@@ -161,7 +163,8 @@ namespace DF {
 		                                    FunctionOfValues<OtherTypes...>{});
 	}
 
-	/** Check that deps is a FunctionOfValues<Types...> (selected by type tag).
+	/** @brief Check that deps is a FunctionOfValues<Types...> (selected by type tag).
+   *
 	 * A function of values take Value<T> nodes with the exact types specified in the list.
 	 * deps[i] must be a Value<Types[i]> node.
 	 */
@@ -173,7 +176,8 @@ namespace DF {
 		checkDependencyPatternFunctionImpl (contextNodeType, deps, 0, tag);
 	}
 
-	/** Check that deps is an ArrayOfValues<T> (selected by type tag).
+	/** @brief Check that deps is an ArrayOfValues<T> (selected by type tag).
+   *
 	 * An array of values of size n is a reduction of fixed size.
 	 */
 	template <typename T>
@@ -183,7 +187,8 @@ namespace DF {
 		checkDependencyPattern (contextNodeType, deps, ReductionOfValue<T>{});
 	}
 
-	/** Dependency check interface: out of node class.
+	/** @brief Dependency check interface: out of node class.
+   *
 	 * Usage: call checkDependencies<NodeType> (deps);
 	 * Used to check if a dependency vector matches a pattern described by NodeType::Dependencies.
 	 * Checks that dependencies match what the node excepts (number, types, non-empty).
@@ -193,7 +198,8 @@ namespace DF {
 		checkDependencyPattern (typeid (NodeType), deps, typename NodeType::Dependencies{});
 	}
 
-	/** Dependency check interface: for node constructor.
+	/** @brief Dependency check interface: for node constructor.
+   *
 	 * Usage: call checkDependencies(*this) in node constructor.
 	 */
 	template <typename NodeType> void checkDependencies (const NodeType & node) {
@@ -252,7 +258,8 @@ namespace DF {
 
 	/******************************* Optimizations *******************************/
 
-	/** Remove dependencies from the list according to a predicate.
+	/** @brief Remove dependencies from the list according to a predicate.
+	 *
 	 * Input predicate : const NodeRef & -> bool
 	 */
 	template <typename Predicate>

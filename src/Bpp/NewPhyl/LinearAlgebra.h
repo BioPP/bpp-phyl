@@ -48,9 +48,7 @@
 #include <Eigen/Core>
 
 namespace bpp {
-/** Define wrapper types to eigen matrix / vector.
- * No typedef, as typedef cannot be forward declared.
- */
+// Doc in LinearAlgebraFwd.h
 class VectorDouble : public Eigen::VectorXd {
 public:
 	using Eigen::VectorXd::Base;
@@ -80,8 +78,7 @@ namespace internal {
 
 namespace bpp {
 namespace DF {
-	/** Declare overrides of Value<T>, Constant<T>.
-	 *
+	/* Declare overrides of Value<T>, Constant<T>.
 	 * These overrides cannot be declared without a complete type.
 	 * Thus they cannot be declared in LinearAlgebraFwd.h.
 	 *
@@ -101,6 +98,7 @@ namespace DF {
 
 	template <> NodeRef Constant<MatrixDouble>::derive (const Node & node);
 	template <> bool Constant<MatrixDouble>::isDerivable (const Node & node) const;
+
 } // namespace DF
 } // namespace bpp
 

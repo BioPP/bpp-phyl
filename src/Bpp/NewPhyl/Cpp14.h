@@ -43,22 +43,17 @@
 #ifndef BPP_NEWPHYL_CPP14_H
 #define BPP_NEWPHYL_CPP14_H
 
-/**
- * @file Cpp14.h
- * Compatibility header that adds some utilities missing in C++11.
- * Utilities:
- * - make_unique
- * - IndexSequence / MakeIndexSequence / IndexSequenceFor
+/** @file Compatibility header that adds some utilities missing in C++11.
+ *
+ * IndexSequence / MakeIndexSequence / IndexSequenceFor: extracting arguments from tuples.
  *
  * They are placed in a Cpp14 namespace for now to prevent name clashes with other stuff.
  * FIXME it should be removed when moving to c++14.
- * TODO better doxygen below
  */
 
 #include <Bpp/NewPhyl/Signed.h>
 
-/**
- * @brief Implement std::index_sequence and std::index_sequence_for.
+/* Implement std::index_sequence and std::index_sequence_for.
  */
 #if (__cplusplus >= 201402L)
 #include <utility> // integer_sequence

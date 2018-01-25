@@ -44,8 +44,12 @@
 
 #include <Bpp/NewPhyl/LinearAlgebra.h>
 
+/** @file Template utilities built over the Eigen library.
+ *
+ * Used in template code in DataFlowNumeric.
+ */
 namespace bpp {
-/** @name linearAlgebraValueFilledWith: from double
+/** @name linearAlgebraValueFilledWith: from double.
  * Create a value filled with the given constant d.
  * Versions for double, VectorDouble, MatrixDouble.
  * The right overload is selected by the Dimension<T> argument.
@@ -66,7 +70,7 @@ inline auto linearAlgebraValueFilledWith (const Dimension<MatrixDouble> & dim, d
 }
 ///@}
 
-/** @name linearAlgebraValueFilledWith: from vector/matrix
+/** @name linearAlgebraValueFilledWith: from vector/matrix.
  * Just forwards its argument if matching the type in the dimension.
  * Used in templated code to add double to a vector (or matrix).
  * Applying linearAlgebraValueFilledWith to a double or vector will generate a vector-like object.

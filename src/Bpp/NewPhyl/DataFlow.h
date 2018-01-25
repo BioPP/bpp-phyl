@@ -66,7 +66,8 @@ namespace DF {
 	/// Alias for a dependency vector (of NodeRef).
 	using NodeRefVec = Vector<NodeRef>;
 
-	/** Base data flow Node class.
+	/** @brief Base data flow Node class.
+	 *
 	 * All data flow nodes inherit from this class.
 	 * Instances of this class must be used through std::shared_ptr<T>.
 	 *
@@ -124,22 +125,25 @@ namespace DF {
 		/// Node debug info (default = ""): user defined detailed info for DF graph debug.
 		virtual std::string debugInfo () const;
 
-		/** Indicates if the node represents a constant value.
-     * This is an optional indication only, used for optimisations.
-     * If unsure, leave it to false (the default implementation).
-     * This should be non recursive (only test the local node, not the sub tree).
-     */
+		/** @brief Indicates if the node represents a constant value.
+		 *
+		 * This is an optional indication only, used for optimisations.
+		 * If unsure, leave it to false (the default implementation).
+		 * This should be non recursive (only test the local node, not the sub tree).
+		 */
 		virtual bool isConstant () const;
 
-    /** Is the node a zero constant of its type (indication, like isConstant).
-     * For vector / matrices, this indicates a constant filled with zeroes.
-     */
-    virtual bool isConstantZero () const;
+		/** @brief Is the node a zero constant of its type (indication, like isConstant).
+		 *
+		 * For vector / matrices, this indicates a constant filled with zeroes.
+		 */
+		virtual bool isConstantZero () const;
 
-    /** Is the node a zero constant of its type (indication, like isConstant).
-     * For vector / matrices, this indicates a constant filled with ones.
-     */
-    virtual bool isConstantOne () const;
+		/** @brief Is the node a zero constant of its type (indication, like isConstant).
+		 *
+		 * For vector / matrices, this indicates a constant filled with ones.
+		 */
+		virtual bool isConstantOne () const;
 
 		/// Derive with respect to node (default = not implemented), recursive.
 		virtual NodeRef derive (const Node & node);
@@ -153,30 +157,33 @@ namespace DF {
 		virtual NodeRef rebuild (NodeRefVec && deps) const;
 
 	protected:
-		/** Computation implementation.
+		/** @brief Computation implementation.
+		 *
 		 * This functions is defined by derived classes.
 		 * It should compute the new node value from dependency node values.
 		 * When called, dependency node are guaranteed to have valid values.
 		 *
 		 * This function is private to prevent use for invalid dependencies.
 		 * Higher level functions like computeRecursively() call it while ensuring dependency validity.
-     *
-     * Compute has access to dependencies as a NodeRefVec (base Node classes only).
-     * The recommended usage is to check dependency types at Node construction.
-     * Then use static_cast to access derived classes efficiently from the NodeRefVec.
-     * Several helper functions in DataFlowInternal.h simplify this.
-     * See DataFlowNumeric.h for examples.
+		 *
+		 * Compute has access to dependencies as a NodeRefVec (base Node classes only).
+		 * The recommended usage is to check dependency types at Node construction.
+		 * Then use static_cast to access derived classes efficiently from the NodeRefVec.
+		 * Several helper functions in DataFlowInternal.h simplify this.
+		 * See DataFlowNumeric.h for examples.
 		 */
 		virtual void compute () = 0;
 
-    /** Invalidate (transitively) dependent nodes from this one.
-     * Not thread safe !
-     */
+		/** @brief Invalidate (transitively) dependent nodes from this one.
+		 *
+		 * Not thread safe !
+		 */
 		void invalidateRecursively () noexcept;
 
-    /** Compute this node value, recomputing dependencies (transitively) as needed.
-     * Not thread safe !
-     */
+		/** @brief Compute this node value, recomputing dependencies (transitively) as needed.
+		 *
+		 * Not thread safe !
+		 */
 		void computeRecursively ();
 
 		void makeInvalid () noexcept { isValid_ = false; }
@@ -197,7 +204,8 @@ namespace DF {
 	NodeRef rebuildWithSubstitution (const NodeRef & node,
 	                                 const std::map<const Node *, NodeRef> & substitutions);
 
-	/** Node construction class.
+	/** @brief Node construction class.
+	 *
 	 * Node are by convention manipulated as shared_ptr<NodeType>.
 	 * Node construction should always be done through the Builder<NodeType>::make function.
 	 * This class defaults to simply using std::make_shared.
@@ -225,14 +233,31 @@ namespace DF {
 		return Builder<NodeType>::make (deps, std::forward<Args> (args)...);
 	}
 
-	// Used in Value<T> to select constructors
+	/// Used in Value<T> to select constructors
 	struct NoDependencyTag {
 		constexpr NoDependencyTag () = default;
 	};
 	constexpr NoDependencyTag noDependency{};
 
-	/* Valued node. TODO doc
+	/** @brief Abstract Node storing a value of type T.
+	 *
 	 * Represents a DataFlow node containing a T value, but still abstract (no compute()).
+	 * This intermediate class is used everywhere to indicate a typed dependency to a T value.
+	 *
+	 * For performance, the T value is stored directly in the node.
+	 * Access to the value are made without any virtual call.
+   * Forward declared types cannot be used easily due to that.
+   * For documentation on how to manipulate Eigen forward declared types, see LinearAlgebraFwd.h.
+	 *
+	 * Access can be raw: no recomputations are done, the valid flag should be checked beforehand.
+	 * getValue provides an access with recomputation if needed.
+	 *
+	 * The Value<T> constructor forwards dependencies to the base Node, and other arguments to the
+	 * T value constructor.
+	 *
+	 * Value<T> stores a target dimension property, only useful for types which have Dimensions.
+	 * It is used to document what size should the result have.
+	 * It starts with a default constructed value.
 	 */
 	template <typename T> class Value : public Node {
 	public:
@@ -248,34 +273,38 @@ namespace DF {
 		template <typename... Args>
 		Value (NoDependencyTag, Args &&... args) : Node (), value_ (std::forward<Args> (args)...) {}
 
-		/** Access value, recompute if needed.
+		/** @brief Access value, recompute if needed.
+		 *
 		 * Recompute the value if it is not up to date.
 		 * Then access it as const.
-		 * Recomputation is single threaded.
+		 * Recomputation is single threaded and not thread safe.
 		 */
 		const T & getValue () {
 			this->computeRecursively ();
 			return accessValueConst ();
 		}
 
-		/** Raw value access (const).
+		/** @brief Raw value access (const).
+		 *
 		 * Value is not guaranteed to be valid (no recomputation).
 		 */
 		const T & accessValueConst () const noexcept { return value_; }
 
-		/** Raw value access (mutable).
+		/** @brief Raw value access (mutable).
+		 *
 		 * Access the value as a mutable reference (may not be valid, no recomputation).
 		 * Modifying a computed value through this functions does NOT invalidate dependent values.
 		 * This breaks data flow invariants, so only use it in internal data flow node code.
 		 */
 		T & accessValueMutable () noexcept { return value_; }
 
-		/** Access the node target dimension.
+		/** @brief Access the node target dimension.
+		 *
 		 * Target dimension is a node property, useful for sized data types (vector, matrices).
 		 * It is used as documentation of the node.
 		 * Target dimension can be compared to actual dimension (after computation) as a safety check.
 		 * It is also used for numerical graph simplification (creating simplified node of same size).
-		 * This property should be set by using setTargetDimension.
+		 * This property should be set by using setTargetDimension if meaningful.
 		 */
 		const Dimension<T> & getTargetDimension () const noexcept { return targetDimension_; }
 
@@ -290,9 +319,10 @@ namespace DF {
 		T value_;
 	};
 
-	// Debug info override for double (in DataFlowNumeric.cpp)
+	/* Debug info override for double (in DataFlowNumeric.cpp).
+	 * Overrides for VectorDouble and MatrixDouble are declared in LinearAlgebra.h
+	 */
 	template <> std::string Value<double>::debugInfo () const;
-	// overrides for VectorDouble and MatrixDouble are declared in LinearAlgebra.h
 
 	/* Dependency structure description.
 	 * These type tags are used to specify compute node dependency types.

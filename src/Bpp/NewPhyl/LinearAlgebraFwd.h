@@ -47,35 +47,35 @@
 #include <string>
 
 /** @file Forward declaration of Eigen Vector/Matrix types.
- * TODO doc forward decl scheme.
  */
 
 namespace bpp {
-///@{
-/// Forward declarations of eigen types.
+/** @name Wrappers to Eigen vector/matrix types.
+ *
+ * TODO doc foward decl scheme here
+ */
 class VectorDouble;
 class MatrixDouble;
-///@}
 
+/// @name Specialisation of Dimension<T> for VectorDouble & MatrixDouble.
 ///@{
-/// Specialisation of Dimension<T> for VectorDouble & MatrixDouble.
 template <> class Dimension<VectorDouble> {
 public:
 	SizeType size{};
-  constexpr Dimension () = default;
+	constexpr Dimension () = default;
 	constexpr Dimension (SizeType size_) noexcept : size (size_) {}
 };
 template <> class Dimension<MatrixDouble> {
 public:
 	SizeType rows{};
 	SizeType cols{};
-  constexpr Dimension () = default;
+	constexpr Dimension () = default;
 	constexpr Dimension (SizeType rows_, SizeType cols_) noexcept : rows (rows_), cols (cols_) {}
 };
 ///@}
 
+/// @name Enable comparisons.
 ///@{
-/// Enable comparisons.
 constexpr bool operator== (const Dimension<VectorDouble> & lhs,
                            const Dimension<VectorDouble> & rhs) noexcept {
 	return lhs.size == rhs.size;
@@ -94,14 +94,14 @@ constexpr bool operator!= (const Dimension<MatrixDouble> & lhs,
 }
 ///@}
 
+/// @name Specialisations of to_string (pretty printing).
 ///@{
-/// Specialisations of to_string (pretty printing).
 std::string to_string (const Dimension<VectorDouble> & dim);
 std::string to_string (const Dimension<MatrixDouble> & dim);
 ///@}
 
+/// @name Get dimensions from objects.
 ///@{
-/// Get dimensions from objects.
 Dimension<VectorDouble> dimensions (const VectorDouble & v) noexcept;
 Dimension<MatrixDouble> dimensions (const MatrixDouble & m) noexcept;
 ///@}
@@ -110,14 +110,13 @@ Dimension<MatrixDouble> dimensions (const MatrixDouble & m) noexcept;
 // FIXME deprecate
 // Get dimensions for DF nodes
 namespace DF {
-	/// Forward declaration of DF::Value<T>.
 	template <typename T> class Value;
 } // namespace DF
 Dimension<double> dimensions (const DF::Value<double> &) noexcept;
 Dimension<VectorDouble> dimensions (const DF::Value<VectorDouble> & node) noexcept;
 Dimension<MatrixDouble> dimensions (const DF::Value<MatrixDouble> & node) noexcept;
 
-//FIXME deprecate ?
+// FIXME deprecate ?
 // Exact predicates (not a fuzzy comparison)
 bool isExactZero (const double & d);
 bool isExactZero (const VectorDouble &);

@@ -49,7 +49,8 @@
 #include <vector>
 
 namespace bpp {
-/** std::vector equivalent with signed integer API.
+/** @brief std::vector equivalent with signed integer API.
+ *
  * Most uses of std::size_t come from interacting with std::vector.
  * Mixing unsigned and signed integer is dangerous (implicit conversions of -1 to UINT_MAX).
  * This class implements most of std::vector API, with all unsigned ints converted to signed.
@@ -138,7 +139,8 @@ template <typename T> bool operator== (const Vector<T> & lhs, const Vector<T> & 
 	return lhs.asVector () == rhs.asVector ();
 }
 
-/** Create a new vector filled with results from calling a function on another vector.
+/** @brief Create a new vector filled with results from calling a function on another vector.
+ *
  * The type of the new vector is std::vector<T> for T the result type of the function.
  */
 template <typename Container, typename Function>
@@ -153,7 +155,8 @@ auto mapToVector (const Container & container, Function function)
 } // namespace bpp
 
 namespace std {
-/** hash capability for bpp::Vector<T>.
+/** @brief hash capability for bpp::Vector<T>.
+ *
  * bpp::Vector<T> can be used as a key for hash tables (std::unordered_map / set).
  * The vector itself must be const after insertion in the table.
  * If not, the key will change, which breaks the hash table invariants.

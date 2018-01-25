@@ -58,7 +58,8 @@ namespace DF {
 	// Error function
 	[[noreturn]] void failureComputeWasCalled (const std::type_info & nodeType);
 
-	/** Mutable value node of type T.
+	/** @brief Mutable value node of type T.
+   *
 	 * Leaf of the DataFlow graph, has no dependency.
 	 * Represents a mutable value.
 	 *
@@ -71,8 +72,8 @@ namespace DF {
 	 */
 	template <typename T> class Mutable : public Value<T> {
 	public:
-		/** Constructor.
-		 * Forwards arguments to the T constructor.
+		/** @brief Forwards arguments to the T constructor.
+     *
 		 * The T value is set as initially valid.
 		 */
 		template <typename... Args>
@@ -80,7 +81,8 @@ namespace DF {
 			this->makeValid ();
 		}
 
-		/** General case for modification of the T object.
+		/** @brief General case for modification of the T object.
+     *
 		 * Takes a callable object (lamda, function pointer) that performs the modification.
 		 * It must take a single T& as argument, which will refer to the T object to modify.
 		 * The callable is called exactly once.
@@ -108,7 +110,8 @@ namespace DF {
 		void compute () final { failureComputeWasCalled (typeid (Mutable<T>)); }
 	};
 
-	/** Constant value of type T.
+	/** @brief Constant value of type T.
+   *
 	 * DataFlow graph leaf, but for an immutable value, has no dependency.
 	 * Is always valid.
 	 *
@@ -117,9 +120,7 @@ namespace DF {
 	 */
 	template <typename T> class Constant : public Value<T> {
 	public:
-		/** Constructor.
-		 * Forwards arguments to the T constructor, which is called immediately.
-		 */
+		/// Forwards arguments to the T constructor, which is called immediately.
 		template <typename... Args>
 		Constant (Args &&... args) : Value<T> (noDependency, std::forward<Args> (args)...) {
 			this->makeValid ();
