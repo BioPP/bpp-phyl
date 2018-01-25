@@ -45,13 +45,14 @@
 #include <Bpp/NewPhyl/LinearAlgebra.h>
 
 namespace bpp {
-///@{
-/** Create a value filled with the given constant d.
+/** @name linearAlgebraValueFilledWith: from double
+ * Create a value filled with the given constant d.
  * Versions for double, VectorDouble, MatrixDouble.
  * The right overload is selected by the Dimension<T> argument.
  * This argument also provide a size for Vector and Matrix variants.
  * This overloaded functions is used in template code (common interface for 3 types).
  */
+///@{
 inline double linearAlgebraValueFilledWith (const Dimension<double> &, double d) {
 	return d;
 }
@@ -65,13 +66,29 @@ inline auto linearAlgebraValueFilledWith (const Dimension<MatrixDouble> & dim, d
 }
 ///@}
 
+/** @name linearAlgebraValueFilledWith: from vector/matrix
+ * Just forwards its argument if matching the type in the dimension.
+ * Used in templated code to add double to a vector (or matrix).
+ * Applying linearAlgebraValueFilledWith to a double or vector will generate a vector-like object.
+ */
 ///@{
-/** Create a value filled with zeroes.
+inline const VectorDouble & linearAlgebraValueFilledWith (const Dimension<VectorDouble> & dim,
+                                                          const VectorDouble & v) {
+	return v;
+}
+inline const MatrixDouble & linearAlgebraValueFilledWith (const Dimension<MatrixDouble> & dim,
+                                                          const MatrixDouble & m) {
+	return m;
+}
+///@}
+
+/** @name Create a value filled with zeroes.
  * Versions for double, VectorDouble, MatrixDouble.
  * The right overload is selected by the Dimension<T> argument.
  * This argument also provide a size for Vector and Matrix variants.
  * This overloaded functions is used in template code (common interface for 3 types).
  */
+///@{
 inline double linearAlgebraZeroValue (const Dimension<double> &) {
 	return 0.;
 }
@@ -85,13 +102,13 @@ inline auto linearAlgebraZeroValue (const Dimension<MatrixDouble> & dim)
 }
 ///@}
 
-///@{
-/** Create a value filled with ones.
+/** @name Create a value filled with ones.
  * Versions for double, VectorDouble, MatrixDouble.
  * The right overload is selected by the Dimension<T> argument.
  * This argument also provide a size for Vector and Matrix variants.
  * This overloaded functions is used in template code (common interface for 3 types).
  */
+///@{
 inline double linearAlgebraOneValue (const Dimension<double> &) {
 	return 1.;
 }
