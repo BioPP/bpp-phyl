@@ -260,19 +260,6 @@ namespace DF {
 		deps.erase (std::remove_if (deps.begin (), deps.end (), std::forward<Predicate> (predicate)),
 		            deps.end ());
 	}
-
-	/** Build a predicate testing if a NodeRef is a constant value<T> matching the input predicate.
-	 * Input predicate: const T & -> bool
-	 * Output predicate: const NodeRef & -> bool
-	 */
-	template <typename T>
-	std::function<bool(const NodeRef &)>
-	predicateIsConstantValueMatching (bool (*predicate) (const T &)) {
-		return [predicate](const NodeRef & nodeRef) {
-			return nodeRef && nodeRef->isConstant () && isValueNode<T> (*nodeRef) &&
-			       predicate (accessValueConstCast<T> (*nodeRef));
-		};
-	} // TODO rename & make unsafe variant (only used in dep-checked context)
 } // namespace DF
 } // namespace bpp
 

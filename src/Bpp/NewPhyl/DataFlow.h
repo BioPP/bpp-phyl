@@ -124,8 +124,22 @@ namespace DF {
 		/// Node debug info (default = ""): user defined detailed info for DF graph debug.
 		virtual std::string debugInfo () const;
 
-		/// Is the node returning a constant value ? (default = false), non recursive.
+		/** Indicates if the node represents a constant value.
+     * This is an optional indication only, used for optimisations.
+     * If unsure, leave it to false (the default implementation).
+     * This should be non recursive (only test the local node, not the sub tree).
+     */
 		virtual bool isConstant () const;
+
+    /** Is the node a zero constant of its type (indication, like isConstant).
+     * For vector / matrices, this indicates a constant filled with zeroes.
+     */
+    virtual bool isConstantZero () const;
+
+    /** Is the node a zero constant of its type (indication, like isConstant).
+     * For vector / matrices, this indicates a constant filled with ones.
+     */
+    virtual bool isConstantOne () const;
 
 		/// Derive with respect to node (default = not implemented), recursive.
 		virtual NodeRef derive (const Node & node);

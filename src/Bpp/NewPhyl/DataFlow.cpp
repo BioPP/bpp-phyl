@@ -123,6 +123,8 @@ namespace DF {
 	std::string Node::debugInfo () const { return {}; }
 
 	bool Node::isConstant () const { return false; }
+	bool Node::isConstantZero () const { return false; }
+	bool Node::isConstantOne () const { return false; }
 
 	NodeRef Node::derive (const Node &) {
 		throw Exception ("Node does not support derivation: " + description ());
