@@ -246,8 +246,8 @@ namespace DF {
 	 *
 	 * For performance, the T value is stored directly in the node.
 	 * Access to the value are made without any virtual call.
-   * Forward declared types cannot be used easily due to that.
-   * For documentation on how to manipulate Eigen forward declared types, see LinearAlgebraFwd.h.
+	 * Forward declared types cannot be used easily due to that.
+	 * For documentation on how to manipulate Eigen forward declared types, see LinearAlgebraFwd.h.
 	 *
 	 * Access can be raw: no recomputations are done, the valid flag should be checked beforehand.
 	 * getValue provides an access with recomputation if needed.
@@ -330,8 +330,10 @@ namespace DF {
 	 * Helper functions in DataFlowInternal.h act depending on these type tags.
 	 */
 	template <typename T> struct ReductionOfValue {};           // Dynamic sized list of Value<T>
-	template <typename... Types> struct FunctionOfValues {};    // Tuple of Value<T0>, Value<T1>, ...
+	template <typename... Types> struct TupleOfValues {};       // Tuple of Value<T0>, Value<T1>, ...
 	template <typename T> struct ArrayOfValues { SizeType n; }; // n Value<T>
+
+	template <typename... Types> using FunctionOfValues = TupleOfValues<Types...>; // FIXME delete
 
 	// Error function
 	[[noreturn]] void failureNodeConversion (const std::type_info & handleType, const Node & node);

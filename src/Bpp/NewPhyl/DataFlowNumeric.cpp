@@ -234,10 +234,41 @@ namespace DF {
 	}
 
 	// TODO
-	template <typename Result, typename... Args> class CWiseAdd : public Value<Result> {
+	template <typename Result, typename Dependencies> class CWiseAdd : public Value<Result> {
 	public:
-		using Dependencies = FunctionOfValues<Args...>;
+		CWiseAdd (NodeRefVec && deps, const Dimension<Result> & targetDim)
+		    : Value<Result> (std::move (deps)) {
+			this->setTargetDimension (targetDim);
+		}
+
+		NodeRef derive (const Node & node) final {
+			return makeNode<CWiseAdd<Result, Dependencies>> (
+			    mapToVector (this->dependencies (),
+			                 [&node](const NodeRef & dep) { return dep->derive (node); }),
+			    this->getTargetDimension ());
+		}
+		bool isDerivable (const Node & node) const final { return derivableIfAllDepsAre (*this, node); }
+
+		NodeRef rebuild (NodeRefVec && deps) const final {
+			return makeNode<CWiseAdd<Result, Dependencies>> (std::move (deps),
+			                                                 this->getTargetDimension ());
+		}
+
+	private:
+		void compute () final {} // FIXME tried to use partial spec, fails :/
 	};
+
+	ValueRef<double>
+	Builder<CWiseAdd<double, ReductionOfValue<double>>>::make (NodeRefVec && deps,
+	                                                           const Dimension<double> & dim) {
+		return std::make_shared<CWiseAdd<double, ReductionOfValue<double>>> (std::move (deps), dim);
+	}
+	ValueRef<double>
+	Builder<CWiseAdd<double, TupleOfValues<double, double>>>::make (NodeRefVec && deps,
+	                                                                const Dimension<double> & dim) {
+		return std::make_shared<CWiseAdd<double, TupleOfValues<double, double>>> (std::move (deps),
+		                                                                          dim);
+	}
 
 	/******************************** Old nodes *******************************/
 

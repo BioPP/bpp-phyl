@@ -52,7 +52,7 @@ namespace DF {
 
 	///@{
 	/** @brief Constant representing a zero for type T.
-   *
+	 *
 	 * For vector or matrix, this means filled with zeroes.
 	 * This node should be prefered to a Constant<T> initialized with zeroes when possible.
 	 *
@@ -77,7 +77,7 @@ namespace DF {
 
 	///@{
 	/** @brief Constant representing a one for type T.
-   *
+	 *
 	 * For vector or matrix, this means filled with ones.
 	 * Similar to ConstantZero.
 	 */
@@ -97,7 +97,14 @@ namespace DF {
 	///@}
 
 	// TODO
-	template <typename Result, typename... Args> class CWiseAdd;
+	template <typename Result, typename Dependencies> class CWiseAdd;
+
+	template <> struct Builder<CWiseAdd<double, ReductionOfValue<double>>> {
+		static ValueRef<double> make (NodeRefVec && deps, const Dimension<double> &);
+	};
+	template <> struct Builder<CWiseAdd<double, TupleOfValues<double, double>>> {
+		static ValueRef<double> make (NodeRefVec && deps, const Dimension<double> &);
+	};
 
 	/* Double nodes.
 	 */
