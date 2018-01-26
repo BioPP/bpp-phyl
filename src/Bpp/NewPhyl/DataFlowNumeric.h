@@ -50,8 +50,15 @@ namespace DF {
 	// Utils
 	bool derivableIfAllDepsAre (const Node & toDerive, const Node & node);
 
-	/** Constant representing a zero for type T.
-   * For vector or matrix, this means filled with zeroes.
+	///@{
+	/** @brief Constant representing a zero for type T.
+   *
+	 * For vector or matrix, this means filled with zeroes.
+	 * This node should be prefered to a Constant<T> initialized with zeroes when possible.
+	 *
+	 * The value is built lazily: starts invalid, will be created at first compute / access.
+	 * This avoids memory allocations of matrices for temporary nodes.
+	 * Most zero nodes will be discarded by optimizations in numeric nodes.
 	 */
 	template <typename T> class ConstantZero;
 
@@ -66,9 +73,13 @@ namespace DF {
 	template <> struct Builder<ConstantZero<MatrixDouble>> {
 		static ValueRef<MatrixDouble> make (const Dimension<MatrixDouble> & dim);
 	};
+	///@}
 
-	/** Constant representing a one for type T.
-   * For vector or matrix, this means filled with ones.
+	///@{
+	/** @brief Constant representing a one for type T.
+   *
+	 * For vector or matrix, this means filled with ones.
+	 * Similar to ConstantZero.
 	 */
 	template <typename T> class ConstantOne;
 
@@ -83,6 +94,7 @@ namespace DF {
 	template <> struct Builder<ConstantOne<MatrixDouble>> {
 		static ValueRef<MatrixDouble> make (const Dimension<MatrixDouble> & dim);
 	};
+	///@}
 
 	// TODO
 	template <typename Result, typename... Args> class CWiseAdd;

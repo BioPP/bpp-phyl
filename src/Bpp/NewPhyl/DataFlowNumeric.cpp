@@ -159,11 +159,15 @@ namespace DF {
 	}
 	template <> bool Constant<MatrixDouble>::isDerivable (const Node &) const { return true; }
 
-	/******************************** New Nodes *******************************/
-
-	/** ConstantZero for a T value (optimized).
-	 * The T value is lazily built (when accessed the first time).
+	/***********************************************************************
+	 * New style numeric nodes.
+	 * Nodes are defined as template classes and template construction functions.
+	 * This reduce code duplication and simplify changes.
+	 * These class templates are only visible in this file.
+	 * Builder<NodeType>::make functions are provided for explicit types.
 	 */
+
+	// ConstantZero
 	template <typename T> class ConstantZero : public Value<T> {
 	public:
 		explicit ConstantZero (const Dimension<T> & dim) : Value<T> (noDependency) {
@@ -196,7 +200,7 @@ namespace DF {
 		return std::make_shared<ConstantZero<MatrixDouble>> (dim);
 	}
 
-	/** ConstantOne for a T value (optimized).
+	/* ConstantOne for a T value (optimized).
 	 * The T value is lazily built (when accessed the first time).
 	 */
 	template <typename T> class ConstantOne : public Value<T> {
