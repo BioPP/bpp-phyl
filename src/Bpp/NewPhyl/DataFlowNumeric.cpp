@@ -200,9 +200,7 @@ namespace DF {
 		return std::make_shared<ConstantZero<MatrixDouble>> (dim);
 	}
 
-	/* ConstantOne for a T value (optimized).
-	 * The T value is lazily built (when accessed the first time).
-	 */
+	// ConstantOne
 	template <typename T> class ConstantOne : public Value<T> {
 	public:
 		explicit ConstantOne (const Dimension<T> & dim) : Value<T> (noDependency) {

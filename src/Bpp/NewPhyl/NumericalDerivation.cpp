@@ -90,7 +90,7 @@ namespace DF {
 
 		void compute () final {
 			callWithValues (*this, [this](T & result, const double & delta, const T & arg) {
-				result = linearAlgebraValueFilledWith (this->getTargetDimension (), this->n_ * delta) + arg;
+				result = linearAlgebraMakeValueWith (this->getTargetDimension (), this->n_ * delta) + arg;
 			});
 		}
 	};
@@ -189,7 +189,7 @@ namespace DF {
 			// FIXME finish
 
 			// callthValues (*this, [this](T & result, const double & delta, const T & arg) {
-			//	result = linearAlgebraValueFilledWith (this->getTargetDimension (), this->n_ * delta) +
+			//	result = linearAlgebraMakeValueWith (this->getTargetDimension (), this->n_ * delta) +
 			// arg;
 			//});
 		}

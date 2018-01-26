@@ -49,39 +49,39 @@
  * Used in template code in DataFlowNumeric.
  */
 namespace bpp {
-/** @name linearAlgebraValueFilledWith: from double.
+/** @name linearAlgebraMakeValueWith: from double.
  * Create a value filled with the given constant d.
  * Versions for double, VectorDouble, MatrixDouble.
  * The right overload is selected by the Dimension<T> argument.
  * This argument also provide a size for Vector and Matrix variants.
- * This overloaded functions is used in template code (common interface for 3 types).
+ * These overloaded functions are used in template code (common interface for 3 types).
  */
 ///@{
-inline double linearAlgebraValueFilledWith (const Dimension<double> &, double d) {
+inline double linearAlgebraMakeValueWith (const Dimension<double> &, double d) {
 	return d;
 }
-inline auto linearAlgebraValueFilledWith (const Dimension<VectorDouble> & dim, double d)
+inline auto linearAlgebraMakeValueWith (const Dimension<VectorDouble> & dim, double d)
     -> decltype (VectorDouble::Constant (dim.size, d)) {
 	return VectorDouble::Constant (dim.size, d);
 }
-inline auto linearAlgebraValueFilledWith (const Dimension<MatrixDouble> & dim, double d)
+inline auto linearAlgebraMakeValueWith (const Dimension<MatrixDouble> & dim, double d)
     -> decltype (MatrixDouble::Constant (dim.rows, dim.cols, d)) {
 	return MatrixDouble::Constant (dim.rows, dim.cols, d);
 }
 ///@}
 
-/** @name linearAlgebraValueFilledWith: from vector/matrix.
+/** @name linearAlgebraMakeValueWith: from vector/matrix.
  * Just forwards its argument if matching the type in the dimension.
  * Used in templated code to add double to a vector (or matrix).
- * Applying linearAlgebraValueFilledWith to a double or vector will generate a vector-like object.
+ * Applying linearAlgebraMakeValueWith to a double or vector will generate a vector-like object.
  */
 ///@{
-inline const VectorDouble & linearAlgebraValueFilledWith (const Dimension<VectorDouble> & dim,
-                                                          const VectorDouble & v) {
+inline const VectorDouble & linearAlgebraMakeValueWith (const Dimension<VectorDouble> & dim,
+                                                        const VectorDouble & v) {
 	return v;
 }
-inline const MatrixDouble & linearAlgebraValueFilledWith (const Dimension<MatrixDouble> & dim,
-                                                          const MatrixDouble & m) {
+inline const MatrixDouble & linearAlgebraMakeValueWith (const Dimension<MatrixDouble> & dim,
+                                                        const MatrixDouble & m) {
 	return m;
 }
 ///@}
@@ -90,7 +90,7 @@ inline const MatrixDouble & linearAlgebraValueFilledWith (const Dimension<Matrix
  * Versions for double, VectorDouble, MatrixDouble.
  * The right overload is selected by the Dimension<T> argument.
  * This argument also provide a size for Vector and Matrix variants.
- * This overloaded functions is used in template code (common interface for 3 types).
+ * These overloaded functions are used in template code (common interface for 3 types).
  */
 ///@{
 inline double linearAlgebraZeroValue (const Dimension<double> &) {
@@ -110,7 +110,7 @@ inline auto linearAlgebraZeroValue (const Dimension<MatrixDouble> & dim)
  * Versions for double, VectorDouble, MatrixDouble.
  * The right overload is selected by the Dimension<T> argument.
  * This argument also provide a size for Vector and Matrix variants.
- * This overloaded functions is used in template code (common interface for 3 types).
+ * These overloaded functions are used in template code (common interface for 3 types).
  */
 ///@{
 inline double linearAlgebraOneValue (const Dimension<double> &) {
@@ -125,6 +125,23 @@ inline auto linearAlgebraOneValue (const Dimension<MatrixDouble> & dim)
 	return MatrixDouble::Ones (dim.rows, dim.cols);
 }
 ///@}
+
+/** @name Apply Eigen noalias to a value.
+ * Versions for double, VectorDouble, MatrixDouble.
+ * These overloaded functions are used in template code (common interface for 3 types).
+ */
+///@{
+inline double & linearAlgebraNoAlias (double & d) {
+	return d;
+}
+inline auto linearAlgebraNoAlias (VectorDouble & v) -> decltype (v.noalias ()) {
+	return v.noalias ();
+}
+inline auto linearAlgebraNoAlias (MatrixDouble & m) -> decltype (m.noalias ()) {
+	return m.noalias ();
+}
+///@}
+
 } // namespace bpp
 
 #endif // BPP_NEWPHYL_LINEARALGEBRAUTILS_H
