@@ -437,8 +437,10 @@ namespace DF {
 
 	private:
 		void compute () final {
-			callWithValues (*this, [](VectorDouble & r) { r.setZero (); },
-			                [](VectorDouble & r, const VectorDouble & v) { r += v; });
+			callWithValues (
+			    *this,
+			    [this](VectorDouble & r) { r = linearAlgebraZeroValue (this->getTargetDimension ()); },
+			    [](VectorDouble & r, const VectorDouble & v) { r += v; });
 		}
 	};
 	ValueRef<VectorDouble> Builder<AddVectorDouble>::make (NodeRefVec && deps,
@@ -482,8 +484,10 @@ namespace DF {
 
 	private:
 		void compute () final {
-			callWithValues (*this, [](VectorDouble & r) { r.setOnes (); },
-			                [](VectorDouble & r, const VectorDouble & v) { r = r.cwiseProduct (v); });
+			callWithValues (
+			    *this,
+			    [this](VectorDouble & r) { r = linearAlgebraOneValue (this->getTargetDimension ()); },
+			    [](VectorDouble & r, const VectorDouble & v) { r = r.cwiseProduct (v); });
 		}
 	};
 	ValueRef<VectorDouble> Builder<CWiseMulVectorDouble>::make (NodeRefVec && deps,
@@ -651,8 +655,10 @@ namespace DF {
 
 	private:
 		void compute () final {
-			callWithValues (*this, [](MatrixDouble & r) { r.setZero (); },
-			                [](MatrixDouble & r, const MatrixDouble & m) { r += m; });
+			callWithValues (
+			    *this,
+			    [this](MatrixDouble & r) { r = linearAlgebraZeroValue (this->getTargetDimension ()); },
+			    [](MatrixDouble & r, const MatrixDouble & m) { r += m; });
 		}
 	};
 	ValueRef<MatrixDouble> Builder<AddMatrixDouble>::make (NodeRefVec && deps,
@@ -740,8 +746,10 @@ namespace DF {
 
 	private:
 		void compute () final {
-			callWithValues (*this, [](MatrixDouble & r) { r.setOnes (); },
-			                [](MatrixDouble & r, const MatrixDouble & m) { r = r.cwiseProduct (m); });
+			callWithValues (
+			    *this,
+			    [this](MatrixDouble & r) { r = linearAlgebraOneValue (this->getTargetDimension ()); },
+			    [](MatrixDouble & r, const MatrixDouble & m) { r = r.cwiseProduct (m); });
 		}
 	};
 	ValueRef<MatrixDouble> Builder<CWiseMulMatrixDouble>::make (NodeRefVec && deps,

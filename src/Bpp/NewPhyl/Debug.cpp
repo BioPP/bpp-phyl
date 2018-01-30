@@ -244,3 +244,10 @@ void debugDag (const std::string & filename, const Vector<DF::NamedNodeRef> & na
 	debugDag (file, namedNodes, opt);
 }
 } // namespace bpp
+
+#ifndef NDEBUG
+/// Simpler version of debugDag, for use in gdb interpreter (only compiled in Debug mode)
+void bpp_df_print_dag (const bpp::DF::Node & node) {
+	bpp::debugDag ("df_debug", node, bpp::DF::DebugOptions::DetailedNodeInfo);
+}
+#endif

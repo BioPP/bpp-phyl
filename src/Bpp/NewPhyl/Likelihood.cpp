@@ -45,6 +45,7 @@
 #include <Bpp/NewPhyl/IntegerRange.h>
 #include <Bpp/NewPhyl/Likelihood.h>
 #include <Bpp/NewPhyl/LinearAlgebra.h>
+#include <Bpp/NewPhyl/LinearAlgebraUtils.h>
 #include <Bpp/Seq/Sequence.h>
 #include <cmath>
 
@@ -88,8 +89,7 @@ namespace DF {
 					                 ": size mismatch: sequence " + to_string (seqDim) + " -> " +
 					                 to_string (matDim));
 				// Put 1s at the right places, 0s elsewhere
-				condLikBySite.resize (matDim.rows, matDim.cols);
-				condLikBySite.setZero ();
+				condLikBySite = linearAlgebraZeroValue(matDim);
 				for (auto siteIndex : range (condLikBySite.cols ())) {
 					auto siteValue =
 					    static_cast<SizeType> (sequence->getValue (static_cast<std::size_t> (siteIndex)));
