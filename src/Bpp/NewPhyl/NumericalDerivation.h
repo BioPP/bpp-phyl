@@ -82,7 +82,7 @@ namespace DF {
    *
 	 * Defined for double, VectorDouble, MatrixDouble.
 	 * For composite types, delta will be added to all elements.
-   * It performs: <coeffs>(lambda, deps) -> lambda * sum (deps[i] * coeffs[i]).
+   * It performs: <coeffs>(lambda, deps) -> lambda * sum_i (deps[i] * coeffs[i]).
    *
 	 * Should only be used to compute numerical derivatives of functions.
    * This is used to combine the values from the function computed in different points.
