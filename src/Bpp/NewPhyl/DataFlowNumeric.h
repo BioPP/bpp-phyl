@@ -64,14 +64,13 @@ namespace DF {
 
 	// Builders
 	template <> struct Builder<ConstantZero<double>> {
-		static ValueRef<double> make (const Dimension<double> &);
-		static ValueRef<double> make () { return make ({}); }
+		static ValueRef<double> make (const Dimension<double> & targetDim = {});
 	};
 	template <> struct Builder<ConstantZero<VectorDouble>> {
-		static ValueRef<VectorDouble> make (const Dimension<VectorDouble> & dim);
+		static ValueRef<VectorDouble> make (const Dimension<VectorDouble> & targetDim);
 	};
 	template <> struct Builder<ConstantZero<MatrixDouble>> {
-		static ValueRef<MatrixDouble> make (const Dimension<MatrixDouble> & dim);
+		static ValueRef<MatrixDouble> make (const Dimension<MatrixDouble> & targetDim);
 	};
 	///@}
 
@@ -85,14 +84,13 @@ namespace DF {
 
 	// Builders
 	template <> struct Builder<ConstantOne<double>> {
-		static ValueRef<double> make (const Dimension<double> &);
-		static ValueRef<double> make () { return make ({}); }
+		static ValueRef<double> make (const Dimension<double> & targetDim = {});
 	};
 	template <> struct Builder<ConstantOne<VectorDouble>> {
-		static ValueRef<VectorDouble> make (const Dimension<VectorDouble> & dim);
+		static ValueRef<VectorDouble> make (const Dimension<VectorDouble> & targetDim);
 	};
 	template <> struct Builder<ConstantOne<MatrixDouble>> {
-		static ValueRef<MatrixDouble> make (const Dimension<MatrixDouble> & dim);
+		static ValueRef<MatrixDouble> make (const Dimension<MatrixDouble> & targetDim);
 	};
 	///@}
 

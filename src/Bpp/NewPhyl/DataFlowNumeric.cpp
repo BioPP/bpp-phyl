@@ -187,16 +187,16 @@ namespace DF {
 		}
 	};
 
-	ValueRef<double> Builder<ConstantZero<double>>::make (const Dimension<double> & dim) {
-		return std::make_shared<ConstantZero<double>> (dim);
+	ValueRef<double> Builder<ConstantZero<double>>::make (const Dimension<double> & targetDim) {
+		return std::make_shared<ConstantZero<double>> (targetDim);
 	}
 	ValueRef<VectorDouble>
-	Builder<ConstantZero<VectorDouble>>::make (const Dimension<VectorDouble> & dim) {
-		return std::make_shared<ConstantZero<VectorDouble>> (dim);
+	Builder<ConstantZero<VectorDouble>>::make (const Dimension<VectorDouble> & targetDim) {
+		return std::make_shared<ConstantZero<VectorDouble>> (targetDim);
 	}
 	ValueRef<MatrixDouble>
-	Builder<ConstantZero<MatrixDouble>>::make (const Dimension<MatrixDouble> & dim) {
-		return std::make_shared<ConstantZero<MatrixDouble>> (dim);
+	Builder<ConstantZero<MatrixDouble>>::make (const Dimension<MatrixDouble> & targetDim) {
+		return std::make_shared<ConstantZero<MatrixDouble>> (targetDim);
 	}
 
 	// ConstantOne
@@ -220,16 +220,16 @@ namespace DF {
 		}
 	};
 
-	ValueRef<double> Builder<ConstantOne<double>>::make (const Dimension<double> & dim) {
-		return std::make_shared<ConstantOne<double>> (dim);
+	ValueRef<double> Builder<ConstantOne<double>>::make (const Dimension<double> & targetDim) {
+		return std::make_shared<ConstantOne<double>> (targetDim);
 	}
 	ValueRef<VectorDouble>
-	Builder<ConstantOne<VectorDouble>>::make (const Dimension<VectorDouble> & dim) {
-		return std::make_shared<ConstantOne<VectorDouble>> (dim);
+	Builder<ConstantOne<VectorDouble>>::make (const Dimension<VectorDouble> & targetDim) {
+		return std::make_shared<ConstantOne<VectorDouble>> (targetDim);
 	}
 	ValueRef<MatrixDouble>
-	Builder<ConstantOne<MatrixDouble>>::make (const Dimension<MatrixDouble> & dim) {
-		return std::make_shared<ConstantOne<MatrixDouble>> (dim);
+	Builder<ConstantOne<MatrixDouble>>::make (const Dimension<MatrixDouble> & targetDim) {
+		return std::make_shared<ConstantOne<MatrixDouble>> (targetDim);
 	}
 
 #if 0
