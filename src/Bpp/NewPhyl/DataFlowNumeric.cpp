@@ -353,7 +353,7 @@ namespace DF {
 	// NegDouble
 	class NegDouble : public Value<double> {
 	public:
-		using Dependencies = FunctionOfValues<double>;
+		using Dependencies = TupleOfValues<double>;
 
 		NegDouble (NodeRefVec && deps) : Value<double> (std::move (deps)) {}
 		NodeRef derive (const Node & node) final {
@@ -382,7 +382,7 @@ namespace DF {
 	// ScalarProdDouble
 	class ScalarProdDouble : public Value<double> {
 	public:
-		using Dependencies = FunctionOfValues<VectorDouble, VectorDouble>;
+		using Dependencies = TupleOfValues<VectorDouble, VectorDouble>;
 
 		ScalarProdDouble (NodeRefVec && deps) : Value<double> (std::move (deps)) {}
 		NodeRef derive (const Node & node) final {
@@ -512,7 +512,7 @@ namespace DF {
 	// CWiseNegVectorDouble
 	class CWiseNegVectorDouble : public Value<VectorDouble> {
 	public:
-		using Dependencies = FunctionOfValues<VectorDouble>;
+		using Dependencies = TupleOfValues<VectorDouble>;
 
 		CWiseNegVectorDouble (NodeRefVec && deps, const Dimension<VectorDouble> & dim)
 		    : Value<VectorDouble> (std::move (deps)) {
@@ -546,7 +546,7 @@ namespace DF {
 	// CWiseInverseVectorDouble
 	class CWiseInverseVectorDouble : public Value<VectorDouble> {
 	public:
-		using Dependencies = FunctionOfValues<VectorDouble>;
+		using Dependencies = TupleOfValues<VectorDouble>;
 
 		CWiseInverseVectorDouble (NodeRefVec && deps, const Dimension<VectorDouble> & dim)
 		    : Value<VectorDouble> (std::move (deps)) {
@@ -585,7 +585,7 @@ namespace DF {
 	// CWiseConstantPowVectorDouble
 	class CWiseConstantPowVectorDouble : public Value<VectorDouble> {
 	public:
-		using Dependencies = FunctionOfValues<VectorDouble>;
+		using Dependencies = TupleOfValues<VectorDouble>;
 
 		CWiseConstantPowVectorDouble (NodeRefVec && deps, const Dimension<VectorDouble> & dim,
 		                              double exp)
@@ -679,7 +679,7 @@ namespace DF {
 	// MulMatrixDouble
 	class MulMatrixDouble : public Value<MatrixDouble> {
 	public:
-		using Dependencies = FunctionOfValues<MatrixDouble, MatrixDouble>;
+		using Dependencies = TupleOfValues<MatrixDouble, MatrixDouble>;
 
 		MulMatrixDouble (NodeRefVec && deps, const Dimension<MatrixDouble> & dim)
 		    : Value<MatrixDouble> (std::move (deps)) {
@@ -774,7 +774,7 @@ namespace DF {
 	// MulTransposedMatrixVectorDouble
 	class MulTransposedMatrixVectorDouble : public Value<VectorDouble> {
 	public:
-		using Dependencies = FunctionOfValues<MatrixDouble, VectorDouble>;
+		using Dependencies = TupleOfValues<MatrixDouble, VectorDouble>;
 
 		MulTransposedMatrixVectorDouble (NodeRefVec && deps, const Dimension<VectorDouble> & dim)
 		    : Value<VectorDouble> (std::move (deps)) {
@@ -820,7 +820,7 @@ namespace DF {
 	// CWiseMulScalarVectorDouble
 	class CWiseMulScalarVectorDouble : public Value<VectorDouble> {
 	public:
-		using Dependencies = FunctionOfValues<double, VectorDouble>;
+		using Dependencies = TupleOfValues<double, VectorDouble>;
 
 		CWiseMulScalarVectorDouble (NodeRefVec && deps, const Dimension<VectorDouble> & dim)
 		    : Value<VectorDouble> (std::move (deps)) {
@@ -863,7 +863,7 @@ namespace DF {
 	// CWiseMulScalarMatrixDouble
 	class CWiseMulScalarMatrixDouble : public Value<MatrixDouble> {
 	public:
-		using Dependencies = FunctionOfValues<double, MatrixDouble>;
+		using Dependencies = TupleOfValues<double, MatrixDouble>;
 
 		CWiseMulScalarMatrixDouble (NodeRefVec && deps, const Dimension<MatrixDouble> & dim)
 		    : Value<MatrixDouble> (std::move (deps)) {

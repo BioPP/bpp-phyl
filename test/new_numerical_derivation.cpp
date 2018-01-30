@@ -51,7 +51,7 @@ using namespace bpp::DF;
 
 struct NumericallyDerivable : public Value<double>
 {
-  using Dependencies = FunctionOfValues<double, double>;
+  using Dependencies = TupleOfValues<double, double>;
 
   NumericallyDerivable(NodeRefVec&& deps)
     : Value<double>(std::move(deps))

@@ -81,6 +81,9 @@ namespace DF {
 		return static_cast<const Value<T> &> (node);
 	}
 
+  /// @name Access the raw value with optional cast / checking
+  ///@{
+
 	/** @brief Access maybe invalid const from raw Node &.
 	 *
 	 * Typically used to get matrix dimensions during DF graph transformations.
@@ -106,9 +109,12 @@ namespace DF {
 		assert (nodeRef);
 		return accessValidValueConstCast<T> (*nodeRef);
 	}
+  ///@}
 
 	/******************************* Error functions *******************************/
 
+	/// @name Error functions for dependency check
+	///@{
 	[[noreturn]] void failureDependencyNumberMismatch (const std::type_info & contextNodeType,
 	                                                   SizeType expectedSize, SizeType givenSize);
 	[[noreturn]] void failureEmptyDependency (const std::type_info & contextNodeType,
@@ -117,8 +123,12 @@ namespace DF {
 	                                                 SizeType depIndex,
 	                                                 const std::type_info & expectedType,
 	                                                 const std::type_info & givenNodeType);
+	///@}
 
 	/******************************* Dependency check *******************************/
+
+  /// @name Non template dependency check primitives
+  ///@{
 
 	/// Checks the size of a dependency vector, throws if mismatch.
 	void checkDependencyVectorSize (const std::type_info & contextNodeType, const NodeRefVec & deps,
@@ -136,9 +146,13 @@ namespace DF {
 			failureDependencyTypeMismatch (contextNodeType, index, typeid (Value<T>), typeid (dep));
 		}
 	}
+  ///@}
+  
+  /// @name Dependency check template functions (for type tags)
+  ///@{
 
 	/** @brief Check that deps is a ReductionOfValue<T> (selected by type tag).
-   *
+	 *
 	 * A reduction is any number of Value<T> nodes.
 	 */
 	template <typename T>
@@ -149,35 +163,35 @@ namespace DF {
 			checkNthDependencyIsValue<T> (contextNodeType, deps, i);
 	}
 
-	// FunctionOfValues recursion base case
+	// TupleOfValues recursion base case
 	inline void checkDependencyPatternFunctionImpl (const std::type_info &, const NodeRefVec &,
-	                                                SizeType, FunctionOfValues<>) {}
+	                                                SizeType, TupleOfValues<>) {}
 
-	// FunctionOfValues recursion iteration case
+	// TupleOfValues recursion iteration case
 	template <typename FirstType, typename... OtherTypes>
 	void checkDependencyPatternFunctionImpl (const std::type_info & contextNodeType,
 	                                         const NodeRefVec & deps, SizeType index,
-	                                         FunctionOfValues<FirstType, OtherTypes...>) {
+	                                         TupleOfValues<FirstType, OtherTypes...>) {
 		checkNthDependencyIsValue<FirstType> (contextNodeType, deps, index);
 		checkDependencyPatternFunctionImpl (contextNodeType, deps, index + 1,
-		                                    FunctionOfValues<OtherTypes...>{});
+		                                    TupleOfValues<OtherTypes...>{});
 	}
 
-	/** @brief Check that deps is a FunctionOfValues<Types...> (selected by type tag).
-   *
+	/** @brief Check that deps is a TupleOfValues<Types...> (selected by type tag).
+	 *
 	 * A function of values take Value<T> nodes with the exact types specified in the list.
 	 * deps[i] must be a Value<Types[i]> node.
 	 */
 	template <typename... Types>
 	void checkDependencyPattern (const std::type_info & contextNodeType, const NodeRefVec & deps,
-	                             FunctionOfValues<Types...> tag) {
+	                             TupleOfValues<Types...> tag) {
 		checkDependencyVectorSize (contextNodeType, deps, sizeof...(Types));
 		checkDependenciesNotNull (contextNodeType, deps);
 		checkDependencyPatternFunctionImpl (contextNodeType, deps, 0, tag);
 	}
 
 	/** @brief Check that deps is an ArrayOfValues<T> (selected by type tag).
-   *
+	 *
 	 * An array of values of size n is a reduction of fixed size.
 	 */
 	template <typename T>
@@ -188,7 +202,7 @@ namespace DF {
 	}
 
 	/** @brief Dependency check interface: out of node class.
-   *
+	 *
 	 * Usage: call checkDependencies<NodeType> (deps);
 	 * Used to check if a dependency vector matches a pattern described by NodeType::Dependencies.
 	 * Checks that dependencies match what the node excepts (number, types, non-empty).
@@ -197,6 +211,8 @@ namespace DF {
 	template <typename NodeType> void checkDependencies (const NodeRefVec & deps) {
 		checkDependencyPattern (typeid (NodeType), deps, typename NodeType::Dependencies{});
 	}
+
+  ///@}
 
 	/************************ Unpack Value<T> and call function **************************/
 
@@ -216,13 +232,13 @@ namespace DF {
 				reduce (value, accessValidValueConstCast<ArgumentType> (*dep));
 		}
 
-		/* Impl of callWithValues for FunctionOfValues.
+		/* Impl of callWithValues for TupleOfValues.
 		 * Takes a single "function" f(ResultType & value, const T0&, const T1&, ...).
 		 * TODO doc
 		 */
 		template <typename ResultType, typename FunctionType, typename... Types, SizeType... Indexes>
 		void callWithValuesWithIndexSequence (ResultType & value, const NodeRefVec & dependencies,
-		                                      FunctionOfValues<Types...>,
+		                                      TupleOfValues<Types...>,
 		                                      Cpp14::IndexSequence<Indexes...>,
 		                                      FunctionType && function) {
 			std::forward<FunctionType> (function) (
@@ -231,8 +247,8 @@ namespace DF {
 
 		template <typename ResultType, typename FunctionType, typename... Types>
 		void callWithValues (ResultType & value, const NodeRefVec & dependencies,
-		                     FunctionOfValues<Types...>, FunctionType && function) {
-			callWithValuesWithIndexSequence (value, dependencies, FunctionOfValues<Types...>{},
+		                     TupleOfValues<Types...>, FunctionType && function) {
+			callWithValuesWithIndexSequence (value, dependencies, TupleOfValues<Types...>{},
 			                                 Cpp14::MakeIndexSequence<sizeof...(Types)>{},
 			                                 std::forward<FunctionType> (function));
 		}

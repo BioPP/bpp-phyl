@@ -68,7 +68,7 @@ struct AddInt : public Value<int>
 
 struct NegInt : public Value<int>
 {
-  using Dependencies = FunctionOfValues<int>;
+  using Dependencies = TupleOfValues<int>;
 
   NegInt(NodeRefVec&& deps)
     : Value<int>(std::move(deps))

@@ -52,7 +52,7 @@ using namespace bpp::DF;
 // Square
 struct Square : public Value<double>
 {
-  using Dependencies = FunctionOfValues<double>;
+  using Dependencies = TupleOfValues<double>;
 
   Square(NodeRefVec&& deps)
     : Value<double>(std::move(deps))

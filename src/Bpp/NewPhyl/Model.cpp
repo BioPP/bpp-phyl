@@ -184,7 +184,7 @@ namespace DF {
 
 	class EquilibriumFrequenciesFromModel : public Value<VectorDouble> {
 	public:
-		using Dependencies = FunctionOfValues<const SubstitutionModel *>;
+		using Dependencies = TupleOfValues<const SubstitutionModel *>;
 		EquilibriumFrequenciesFromModel (NodeRefVec && deps, const Dimension<VectorDouble> & dim)
 		    : Value<VectorDouble> (std::move (deps)) {
 			this->setTargetDimension (dim);
@@ -232,7 +232,7 @@ namespace DF {
 
 	class TransitionMatrixFromModel : public Value<MatrixDouble> {
 	public:
-		using Dependencies = FunctionOfValues<const SubstitutionModel *, double>;
+		using Dependencies = TupleOfValues<const SubstitutionModel *, double>;
 
 		TransitionMatrixFromModel (NodeRefVec && deps, const TransitionMatrixDimension & dim)
 		    : Value<MatrixDouble> (std::move (deps)) {
@@ -272,7 +272,7 @@ namespace DF {
 
 	class TransitionMatrixFromModelBrlenDerivative : public Value<MatrixDouble> {
 	public:
-		using Dependencies = FunctionOfValues<const SubstitutionModel *, double>;
+		using Dependencies = TupleOfValues<const SubstitutionModel *, double>;
 
 		TransitionMatrixFromModelBrlenDerivative (NodeRefVec && deps,
 		                                          const TransitionMatrixDimension & dim)
@@ -314,7 +314,7 @@ namespace DF {
 
 	class TransitionMatrixFromModelBrlenSecondDerivative : public Value<MatrixDouble> {
 	public:
-		using Dependencies = FunctionOfValues<const SubstitutionModel *, double>;
+		using Dependencies = TupleOfValues<const SubstitutionModel *, double>;
 
 		TransitionMatrixFromModelBrlenSecondDerivative (NodeRefVec && deps,
 		                                                const TransitionMatrixDimension & dim)

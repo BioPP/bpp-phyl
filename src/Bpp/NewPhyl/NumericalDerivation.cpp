@@ -55,7 +55,7 @@ namespace DF {
 	 */
 	template <typename T> class NumericalDerivationShiftDelta : public Value<T> {
 	public:
-		using Dependencies = FunctionOfValues<double, T>;
+		using Dependencies = TupleOfValues<double, T>;
 
 		NumericalDerivationShiftDelta (NodeRefVec && deps, int n, const Dimension<T> & targetDim)
 		    : Value<T> (std::move (deps)), n_ (n) {
@@ -141,7 +141,7 @@ namespace DF {
 	 */
 	template <typename T> class NumericalDerivationCombineShifted : public Value<T> {
 	public:
-		using Dependencies = FunctionOfValues<double, T>; // FIXME
+		using Dependencies = TupleOfValues<double, T>; // FIXME
 
 		NumericalDerivationCombineShifted (NodeRefVec && deps, const Vector<double> & coeffs,
 		                                   const Dimension<T> & targetDim)

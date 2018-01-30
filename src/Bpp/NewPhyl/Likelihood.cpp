@@ -53,7 +53,7 @@ namespace bpp {
 namespace DF {
 	class ConditionalLikelihoodFromSequence : public Value<MatrixDouble> {
 	public:
-		using Dependencies = FunctionOfValues<const Sequence *>;
+		using Dependencies = TupleOfValues<const Sequence *>;
 
 		ConditionalLikelihoodFromSequence (NodeRefVec && deps, const LikelihoodDataDimension & dim)
 		    : Value<MatrixDouble> (std::move (deps)) {
@@ -107,7 +107,7 @@ namespace DF {
 
 	class TotalLogLikelihood : public Value<double> {
 	public:
-		using Dependencies = FunctionOfValues<VectorDouble>;
+		using Dependencies = TupleOfValues<VectorDouble>;
 		TotalLogLikelihood (NodeRefVec && deps) : Value<double> (std::move (deps)) {}
 		NodeRef derive (const Node & node) final {
 			auto likelihoodVector = convertRef<Value<VectorDouble>> (this->dependency (0));

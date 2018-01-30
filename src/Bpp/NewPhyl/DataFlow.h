@@ -324,16 +324,23 @@ namespace DF {
 	 */
 	template <> std::string Value<double>::debugInfo () const;
 
-	/* Dependency structure description.
+	/** @name Dependency structure description.
+	 *
 	 * These type tags are used to specify compute node dependency types.
 	 * This can serve as documentation about what arguments node expect.
 	 * Helper functions in DataFlowInternal.h act depending on these type tags.
 	 */
-	template <typename T> struct ReductionOfValue {};           // Dynamic sized list of Value<T>
-	template <typename... Types> struct TupleOfValues {};       // Tuple of Value<T0>, Value<T1>, ...
-	template <typename T> struct ArrayOfValues { SizeType n; }; // n Value<T>
+	///@{
 
-	template <typename... Types> using FunctionOfValues = TupleOfValues<Types...>; // FIXME delete
+	/// Type tag: All arguments are of type Value<T> (any number).
+	template <typename T> struct ReductionOfValue {};
+
+	/// Type tag: Exact tuple of Value<T0>, Value<T1>, ...
+	template <typename... Types> struct TupleOfValues {};
+
+	/// Type tag: Exactly n arguments of type Value<T>.
+	template <typename T> struct ArrayOfValues { SizeType n; };
+	///@}
 
 	// Error function
 	[[noreturn]] void failureNodeConversion (const std::type_info & handleType, const Node & node);
