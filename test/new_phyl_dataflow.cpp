@@ -267,13 +267,14 @@ TEST_CASE("df")
   auto logLik = likFunc.getValue();
   timingEnd(ts, "df_init_value");
   printLik(logLik, "df_init_value");
-  bpp::debugDag("df_debug", *logLikNode, bpp::DF::DebugOptions::DetailedNodeInfo);
+
+  //bpp::debugDag("df_debug", *logLikNode, bpp::DF::DebugOptions::DetailedNodeInfo);
 
   timingEnd(ts, "df_setup");
   std::cout << "[dbrlen1] " << likFunc.getFirstOrderDerivative("BrLen1") << "\n";
   {
-    bpp::debugDag("df_debug", *logLikNode, bpp::DF::DebugOptions::DetailedNodeInfo);
-    // bpp::debugDag(fd, likFunc.getAllNamedNodes("f"), bpp::DF::DebugOptions::DetailedNodeInfo);
+    //bpp::debugDag("df_debug_2", *logLikNode, bpp::DF::DebugOptions::DetailedNodeInfo);
+    //bpp::debugDag("df_debug_2", likFunc.getAllNamedNodes("f"), bpp::DF::DebugOptions::DetailedNodeInfo);
     // bpp::debugTree(fd, treeView);
   }
   do_param_changes_multiple_times(likFunc, "df_param_model_change", c.paramModel1, c.paramModel2);
