@@ -56,9 +56,8 @@ struct NumericallyDerivable : public Value<double>
   NumericallyDerivable(NodeRefVec&& deps)
     : Value<double>(std::move(deps))
   {
-    checkDependencies(*this);
+    checkDependencyPattern(typeid(NumericallyDerivable), this->dependencies(), Dependencies{});
   }
-
   void compute() final
   {
     callWithValues(*this, [](double& r, double a, double b) { r = a * a + b * b; });

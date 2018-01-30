@@ -53,10 +53,11 @@ using namespace bpp::DF;
 struct Square : public Value<double>
 {
   using Dependencies = FunctionOfValues<double>;
+
   Square(NodeRefVec&& deps)
     : Value<double>(std::move(deps))
   {
-    checkDependencies(*this);
+    checkDependencyPattern(typeid(Square), this->dependencies(), Dependencies{});
   }
   void compute() final
   {

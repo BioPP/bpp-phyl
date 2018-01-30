@@ -53,10 +53,11 @@ using namespace bpp::DF;
 struct AddInt : public Value<int>
 {
   using Dependencies = ReductionOfValue<int>;
+
   AddInt(NodeRefVec&& deps)
     : Value<int>(std::move(deps))
   {
-    checkDependencies(*this);
+    checkDependencyPattern(typeid(AddInt), this->dependencies(), Dependencies{});
   }
   void compute() final
   {
@@ -68,10 +69,11 @@ struct AddInt : public Value<int>
 struct NegInt : public Value<int>
 {
   using Dependencies = FunctionOfValues<int>;
+
   NegInt(NodeRefVec&& deps)
     : Value<int>(std::move(deps))
   {
-    checkDependencies(*this);
+    checkDependencyPattern(typeid(NegInt), this->dependencies(), Dependencies{});
   }
   void compute() final
   {

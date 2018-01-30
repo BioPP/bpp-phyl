@@ -198,14 +198,6 @@ namespace DF {
 		checkDependencyPattern (typeid (NodeType), deps, typename NodeType::Dependencies{});
 	}
 
-	/** @brief Dependency check interface: for node constructor.
-   *
-	 * Usage: call checkDependencies(*this) in node constructor.
-	 */
-	template <typename NodeType> void checkDependencies (const NodeType & node) {
-		checkDependencies<NodeType> (node.dependencies ());
-	}
-
 	/************************ Unpack Value<T> and call function **************************/
 
 	namespace Impl {
