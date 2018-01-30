@@ -81,8 +81,8 @@ namespace DF {
 		return static_cast<const Value<T> &> (node);
 	}
 
-  /// @name Access the raw value with optional cast / checking
-  ///@{
+	/// @name Access the raw value with optional cast / checking
+	///@{
 
 	/** @brief Access maybe invalid const from raw Node &.
 	 *
@@ -109,7 +109,7 @@ namespace DF {
 		assert (nodeRef);
 		return accessValidValueConstCast<T> (*nodeRef);
 	}
-  ///@}
+	///@}
 
 	/******************************* Error functions *******************************/
 
@@ -127,8 +127,8 @@ namespace DF {
 
 	/******************************* Dependency check *******************************/
 
-  /// @name Non template dependency check primitives
-  ///@{
+	/// @name Basic dependency check primitives
+	///@{
 
 	/// Checks the size of a dependency vector, throws if mismatch.
 	void checkDependencyVectorSize (const std::type_info & contextNodeType, const NodeRefVec & deps,
@@ -146,59 +146,70 @@ namespace DF {
 			failureDependencyTypeMismatch (contextNodeType, index, typeid (Value<T>), typeid (dep));
 		}
 	}
-  ///@}
-  
-  /// @name Dependency check template functions (for type tags)
-  ///@{
 
-	/** @brief Check that deps is a ReductionOfValue<T> (selected by type tag).
-	 *
-	 * A reduction is any number of Value<T> nodes.
-	 */
+	/// Check that deps[start, end[ contains Value<T> nodes, throws if not
 	template <typename T>
-	void checkDependencyPattern (const std::type_info & contextNodeType, const NodeRefVec & deps,
-	                             ReductionOfValue<T>) {
-		checkDependenciesNotNull (contextNodeType, deps);
-		for (auto i : range (deps.size ()))
+	void checkDependencyRangeIsValue (const std::type_info & contextNodeType, const NodeRefVec & deps,
+	                                  SizeType start, SizeType end) {
+		for (auto i : range (start, end))
 			checkNthDependencyIsValue<T> (contextNodeType, deps, i);
 	}
 
-	// TupleOfValues recursion base case
-	inline void checkDependencyPatternFunctionImpl (const std::type_info &, const NodeRefVec &,
-	                                                SizeType, TupleOfValues<>) {}
+	///@}
 
-	// TupleOfValues recursion iteration case
-	template <typename FirstType, typename... OtherTypes>
-	void checkDependencyPatternFunctionImpl (const std::type_info & contextNodeType,
-	                                         const NodeRefVec & deps, SizeType index,
-	                                         TupleOfValues<FirstType, OtherTypes...>) {
-		checkNthDependencyIsValue<FirstType> (contextNodeType, deps, index);
-		checkDependencyPatternFunctionImpl (contextNodeType, deps, index + 1,
-		                                    TupleOfValues<OtherTypes...>{});
+	/// @name Dependency check template functions (for type tags)
+	///@{
+
+	// Check that dependency types are T from offset to end.
+	template <typename T>
+	void checkDependencyPatternImpl (const std::type_info & contextNodeType, const NodeRefVec & deps,
+	                                 SizeType offset, ReductionOfValue<T>) {
+		checkDependencyRangeIsValue<T> (contextNodeType, deps, offset, deps.size ());
 	}
 
-	/** @brief Check that deps is a TupleOfValues<Types...> (selected by type tag).
-	 *
-	 * A function of values take Value<T> nodes with the exact types specified in the list.
-	 * deps[i] must be a Value<Types[i]> node.
-	 */
+	// Check that dependency types are n T from offset (assumes vector size is >= offset + n).
+	template <typename T>
+	void checkDependencyPatternImpl (const std::type_info & contextNodeType, const NodeRefVec & deps,
+	                                 SizeType offset, ArrayOfValues<T> tag) {
+		checkDependencyRangeIsValue<T> (contextNodeType, deps, offset, offset + tag.n);
+	}
+
+	// TupleOfValues recursion base case
+	inline void checkDependencyPatternImpl (const std::type_info &, const NodeRefVec &, SizeType,
+	                                        TupleOfValues<>) {}
+
+	// TupleOfValues recursion iteration case (assumes vector size is >= offset + nb_of_types).
+	template <typename FirstType, typename... OtherTypes>
+	void checkDependencyPatternImpl (const std::type_info & contextNodeType, const NodeRefVec & deps,
+	                                 SizeType offset, TupleOfValues<FirstType, OtherTypes...>) {
+		checkNthDependencyIsValue<FirstType> (contextNodeType, deps, offset);
+		checkDependencyPatternImpl (contextNodeType, deps, offset + 1, TupleOfValues<OtherTypes...>{});
+	}
+
+	/// Check that deps is a ReductionOfValue<T> (selected by type tag).
+	template <typename T>
+	void checkDependencyPattern (const std::type_info & contextNodeType, const NodeRefVec & deps,
+	                             ReductionOfValue<T> tag) {
+		checkDependenciesNotNull (contextNodeType, deps);
+		checkDependencyPatternImpl (contextNodeType, deps, 0, tag);
+	}
+
+	/// Check that deps is a TupleOfValues<Types...> (selected by type tag).
 	template <typename... Types>
 	void checkDependencyPattern (const std::type_info & contextNodeType, const NodeRefVec & deps,
 	                             TupleOfValues<Types...> tag) {
 		checkDependencyVectorSize (contextNodeType, deps, sizeof...(Types));
 		checkDependenciesNotNull (contextNodeType, deps);
-		checkDependencyPatternFunctionImpl (contextNodeType, deps, 0, tag);
+		checkDependencyPatternImpl (contextNodeType, deps, 0, tag);
 	}
 
-	/** @brief Check that deps is an ArrayOfValues<T> (selected by type tag).
-	 *
-	 * An array of values of size n is a reduction of fixed size.
-	 */
+	/// Check that deps is an ArrayOfValues<T> (selected by type tag).
 	template <typename T>
 	void checkDependencyPattern (const std::type_info & contextNodeType, const NodeRefVec & deps,
 	                             ArrayOfValues<T> tag) {
 		checkDependencyVectorSize (contextNodeType, deps, tag.n);
-		checkDependencyPattern (contextNodeType, deps, ReductionOfValue<T>{});
+		checkDependenciesNotNull (contextNodeType, deps);
+		checkDependencyPatternImpl (contextNodeType, deps, 0, tag);
 	}
 
 	/** @brief Dependency check interface: out of node class.
@@ -212,7 +223,7 @@ namespace DF {
 		checkDependencyPattern (typeid (NodeType), deps, typename NodeType::Dependencies{});
 	}
 
-  ///@}
+	///@}
 
 	/************************ Unpack Value<T> and call function **************************/
 
@@ -238,8 +249,7 @@ namespace DF {
 		 */
 		template <typename ResultType, typename FunctionType, typename... Types, SizeType... Indexes>
 		void callWithValuesWithIndexSequence (ResultType & value, const NodeRefVec & dependencies,
-		                                      TupleOfValues<Types...>,
-		                                      Cpp14::IndexSequence<Indexes...>,
+		                                      TupleOfValues<Types...>, Cpp14::IndexSequence<Indexes...>,
 		                                      FunctionType && function) {
 			std::forward<FunctionType> (function) (
 			    value, accessValidValueConstCast<Types> (*dependencies[Indexes])...);
