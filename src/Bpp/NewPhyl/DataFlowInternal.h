@@ -75,10 +75,15 @@ namespace DF {
 		return isNodeType<Value<T>> (n);
 	}
 
-	/// Unsafe cast from Node to Value<T> (faster than dynamic cast).
+	/// Unsafe cast from Node to NodeType (faster than dynamic_cast, but check type beforehand).
+	template <typename NodeType> const NodeType & nodeCast (const Node & node) noexcept {
+		assert (isNodeType<NodeType> (node));
+		return static_cast<const NodeType &> (node);
+	}
+
+	/// Unsafe cast from Node to Value<T> (faster than dynamic_cast, but check type beforehand).
 	template <typename T> const Value<T> & nodeValueCast (const Node & node) noexcept {
-		assert (isValueNode<T> (node));
-		return static_cast<const Value<T> &> (node);
+		return nodeCast<Value<T>> (node);
 	}
 
 	/// @name Access the raw value with optional cast / checking

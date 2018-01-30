@@ -47,11 +47,16 @@
 
 namespace bpp {
 namespace DF {
-	/** Shift a value by a delta: <n>(delta, x) -> n * delta + x.
+  ///@{
+	/** @brief Shift a value by a delta: <n>(delta, x) -> n * delta + x.
+   *
 	 * Defined for double, VectorDouble, MatrixDouble.
 	 * For composite types, delta will be added to all elements.
 	 *
 	 * Should only be used to compute numerical derivatives of functions.
+   * This is used to create the values of the different points of computation.
+   * These values are then fed to duplicates of the function.
+   *
 	 * Delta is a special argument (not derivable, etc).
 	 * Construction will merge chains of NumericalDerivationShiftDelta.
 	 */
@@ -70,8 +75,21 @@ namespace DF {
 		static ValueRef<MatrixDouble> make (NodeRefVec && deps, int n,
 		                                    const Dimension<MatrixDouble> & targetDim);
 	};
+  ///@}
 
-	/** TODO
+  ///@{
+	/** @brief Make a linear combination of values (constant factors), multiplied by a factor.
+   *
+	 * Defined for double, VectorDouble, MatrixDouble.
+	 * For composite types, delta will be added to all elements.
+   * It performs: <coeffs>(lambda, deps) -> lambda * sum (deps[i] * coeffs[i]).
+   *
+	 * Should only be used to compute numerical derivatives of functions.
+   * This is used to combine the values from the function computed in different points.
+   * Lambda is intended to be 1/delta^n, where delta is the shift value.
+   *
+   * Lambda is a special argument (not derivable, etc).
+   * Construction will merge layers of consecutive NumericalDerivationCombineShifted.
 	 */
 	template <typename T> class NumericalDerivationCombineShifted;
 
@@ -87,6 +105,7 @@ namespace DF {
 		static ValueRef<MatrixDouble> make (NodeRefVec && deps, const Vector<double> & coeffs,
 		                                    const Dimension<MatrixDouble> & targetDim);
 	};
+  ///@}
 
 } // namespace DF
 } // namespace bpp

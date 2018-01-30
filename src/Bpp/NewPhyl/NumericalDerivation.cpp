@@ -40,6 +40,7 @@
 */
 
 #include <Bpp/NewPhyl/DataFlowInternal.h>
+#include <Bpp/NewPhyl/DataFlowNumeric.h>
 #include <Bpp/NewPhyl/Debug.h>
 #include <Bpp/NewPhyl/IntegerRange.h>
 #include <Bpp/NewPhyl/LinearAlgebraUtils.h>
@@ -48,11 +49,15 @@
 
 namespace bpp {
 namespace DF {
-	/* NumericalDerivationShiftDelta.
-	 *
-	 * To avoid code duplication, the class is implemented as a template (private to this file).
-	 * The template is instantianted with explicit types due to the factory functions.
+	/* Data flow nodes in this file are implemented using the 'new' pattern.
+	 * The class is forward declared as template (header file).
+	 * Templated by the type, to have one code for double / VectorDouble / MatrixDouble.
+	 * It is implemented as an actual template internally (this file).
+	 * Then the factory function is implemented as a template as well.
+	 * Finally, explicit specialisations of Builder<T>::make are instanciated here.
 	 */
+
+	// NumericalDerivationShiftDelta.
 	template <typename T> class NumericalDerivationShiftDelta : public Value<T> {
 	public:
 		using Dependencies = TupleOfValues<double, T>;
@@ -136,13 +141,12 @@ namespace DF {
 
 	/* NumericalDerivationCombineShifted
 	 *
-	 * To avoid code duplication, the class is implemented as a template (private to this file).
-	 * The template is instantianted with explicit types due to the factory functions.
+	 * Combine shifted has uncommon dependencies: double followed by ArrayOfValues<T>.
+	 * This is not yet representable in the dependency pattern type tag system.
+	 * Checks and compute are done by manually combining primitives.
 	 */
 	template <typename T> class NumericalDerivationCombineShifted : public Value<T> {
 	public:
-		using Dependencies = TupleOfValues<double, T>; // FIXME
-
 		NumericalDerivationCombineShifted (NodeRefVec && deps, const Vector<double> & coeffs,
 		                                   const Dimension<T> & targetDim)
 		    : Value<T> (std::move (deps)), coeffs_ (coeffs) {
@@ -175,7 +179,7 @@ namespace DF {
 			                                                       this->getTargetDimension ());
 		}
 
-		int getCoeffs () const noexcept { return coeffs_; }
+		const Vector<double> & getCoeffs () const noexcept { return coeffs_; }
 
 	private:
 		Vector<double> coeffs_;
@@ -186,29 +190,96 @@ namespace DF {
 			T & value = this->accessValueMutable ();
 
 			value = linearAlgebraZeroValue (this->getTargetDimension ());
-			for (auto i : range (SizeType (1), this->nbDependencies ())) {
-				value += linearAlgebraMakeValueWith (this->getTargetDimension (), coeffs_[i - 1] * lambda) *
-				         accessValidValueConstCast<T> (deps[i]);
+			for (auto i : range (coeffs_.size ())) {
+				value += linearAlgebraMakeValueWith (this->getTargetDimension (), coeffs_[i] * lambda) *
+				         accessValidValueConstCast<T> (deps[i + 1]);
 			}
 		}
 	};
 
+	template <typename T>
+	ValueRef<T> makeNumericalDerivationCombineShifted (NodeRefVec && deps,
+	                                                   const Vector<double> & coeffs,
+	                                                   const Dimension<T> & targetDim) {
+		// CombineShifted dependencies are manually checked using primitives.
+		auto && typeId = typeid (NumericalDerivationCombineShifted<T>);
+		checkDependencyVectorSize (typeId, deps, 1 + coeffs.size ());
+		checkDependenciesNotNull (typeId, deps);
+		checkNthDependencyIsValue<double> (typeId, deps, 0); // lambda
+		checkDependencyPatternImpl (typeId, deps, 1, ArrayOfValues<T>{coeffs.size ()});
+
+		auto & lambda = deps[0];
+
+		// Merge 2 layers of NumericalDerivationCombineShifted if they have the same lambda.
+		auto canMergeThisDep = [&lambda](const NodeRef & dep) {
+			return isNodeType<NumericalDerivationCombineShifted<T>> (*dep) &&
+			       dep->dependency (0) == lambda;
+		};
+		if (std::all_of (deps.begin () + 1, deps.end (), canMergeThisDep)) {
+			/* Shortening:
+			 * L = lambda.
+			 * V = Current node value.
+			 * DC[i] = coeffs of deps[i]. In these, deps[i] ignores lambda (deps[0]).
+			 * DD[i] = deps of deps[i].
+			 *
+			 * V = L * sum_i (deps[i] * coeffs[i])
+			 * After the test, we decompose deps:
+			 * V = L * sum_i (L * sum_j (DD[i][j] * DC[i][j]) * coeffs[i]
+			 * V = L^2 * sum_ij (DD[i][j] * DC[i][j] * coeffs[i])
+			 * Finally, we merge identical dependencies by summing their coefficients.
+			 */
+
+			// Create L^2
+			NodeRefVec mergedDeps;
+			mergedDeps.emplace_back (makeNode<MulDouble> ({lambda, lambda}));
+
+			// Add unique dependencies with merged coefficients
+			Vector<double> mergedCoeffs;
+			for (auto i : range (coeffs.size ())) {
+				auto & dep = nodeCast<NumericalDerivationCombineShifted<T>> (*deps[i + 1]);
+				auto & c = coeffs[i];
+				for (auto j : range (dep.getCoeffs ().size ())) {
+					auto & subDep = dep.dependency (j + 1);
+					auto & subCoeff = dep.getCoeffs ()[j];
+
+					auto it = std::find (mergedDeps.begin () + 1, mergedDeps.end (), subDep);
+					if (it != mergedDeps.end ()) {
+						// If found, sum to merged coefficient
+						auto mergedDepIndexIgnoringLambda =
+						    static_cast<SizeType> (std::distance (mergedDeps.begin () + 1, it));
+						mergedCoeffs[mergedDepIndexIgnoringLambda] += c * subCoeff;
+					} else {
+						// Not found, add dep and new coefficient
+						mergedDeps.emplace_back (subDep);
+						mergedCoeffs.emplace_back (c * subCoeff);
+					}
+				}
+			}
+
+			return makeNode<NumericalDerivationCombineShifted<T>> (std::move (mergedDeps), mergedCoeffs,
+			                                                       targetDim);
+		} else {
+			// Non merging case
+			return std::make_shared<NumericalDerivationCombineShifted<T>> (std::move (deps), coeffs,
+			                                                               targetDim);
+		}
+	}
+
 	ValueRef<double> Builder<NumericalDerivationCombineShifted<double>>::make (
 	    NodeRefVec && deps, const Vector<double> & coeffs, const Dimension<double> & targetDim) {
-		return std::make_shared<NumericalDerivationCombineShifted<double>> (std::move (deps), coeffs,
-		                                                                    targetDim);
+		return makeNumericalDerivationCombineShifted<double> (std::move (deps), coeffs, targetDim);
 	}
 	ValueRef<VectorDouble> Builder<NumericalDerivationCombineShifted<VectorDouble>>::make (
 	    NodeRefVec && deps, const Vector<double> & coeffs,
 	    const Dimension<VectorDouble> & targetDim) {
-		return std::make_shared<NumericalDerivationCombineShifted<VectorDouble>> (std::move (deps),
-		                                                                          coeffs, targetDim);
+		return makeNumericalDerivationCombineShifted<VectorDouble> (std::move (deps), coeffs,
+		                                                            targetDim);
 	}
 	ValueRef<MatrixDouble> Builder<NumericalDerivationCombineShifted<MatrixDouble>>::make (
 	    NodeRefVec && deps, const Vector<double> & coeffs,
 	    const Dimension<MatrixDouble> & targetDim) {
-		return std::make_shared<NumericalDerivationCombineShifted<MatrixDouble>> (std::move (deps),
-		                                                                          coeffs, targetDim);
+		return makeNumericalDerivationCombineShifted<MatrixDouble> (std::move (deps), coeffs,
+		                                                            targetDim);
 	}
 
 } // namespace DF
