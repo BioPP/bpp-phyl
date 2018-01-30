@@ -46,7 +46,6 @@
 #include <Bpp/NewPhyl/DataFlowTemplates.h>
 #include <Bpp/NewPhyl/Debug.h>
 #include <Bpp/NewPhyl/NumericalDerivation.h>
-#include <fstream>
 
 using namespace bpp::DF;
 
@@ -81,8 +80,7 @@ TEST_CASE("shift delta")
   CHECK(shift_2->dependency(1) == x); // Simplification
 
   // Print DF graph
-  std::ofstream fd("df_debug");
-  bpp::debugDag(fd, x, DebugOptions::FollowUpwardLinks | DebugOptions::DetailedNodeInfo);
+  bpp::debugDag("df_debug", *x, DebugOptions::FollowUpwardLinks | DebugOptions::DetailedNodeInfo);
 }
 
 TEST_CASE("AAA")
@@ -94,6 +92,5 @@ TEST_CASE("AAA")
   auto f = makeNode<NumericallyDerivable>({a, b});
 
   // Print DF graph
-  std::ofstream fd("df_debug");
-  bpp::debugDag(fd, f);
+  bpp::debugDag("df_debug", *f);
 }

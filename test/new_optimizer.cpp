@@ -102,7 +102,6 @@ TEST_CASE("derive parameter")
 #include <Bpp/Numeric/Function/ConjugateGradientMultiDimensions.h>
 #include <Bpp/Numeric/Function/Optimizer.h>
 #include <Bpp/Numeric/Function/SimpleNewtonMultiDimensions.h>
-#include <fstream>
 #include <iostream>
 
 TEST_CASE("optimizer test")
@@ -137,8 +136,7 @@ TEST_CASE("optimizer test")
 
   std::cout << "(x, y) == (" << xp.getValue() << ", " << yp.getValue() << ")\n";
 
-  std::ofstream fd("df_debug");
-  debugDag(fd, dfFunc.getAllNamedNodes("f"), DebugOptions::ShowDependencyIndex);
+  debugDag("df_debug", dfFunc.getAllNamedNodes("f"), DebugOptions::ShowDependencyIndex);
 
   CHECK(doctest::Approx(xp.getValue()) == 0.);
   CHECK(doctest::Approx(yp.getValue()) == 3.);

@@ -47,7 +47,6 @@
 #include <Bpp/NewPhyl/DataFlowInternal.h>
 #include <Bpp/NewPhyl/DataFlowTemplates.h>
 #include <Bpp/NewPhyl/Debug.h>
-#include <fstream>
 
 using namespace bpp::DF;
 
@@ -143,8 +142,7 @@ TEST_CASE("Testing data flow system on simple int reduction tree")
   CHECK(n3->isValid());
 
   // Print DF graph
-  std::ofstream fd("df_debug");
-  bpp::debugDag(fd, root);
+  bpp::debugDag("df_debug", *root);
 }
 
 template<typename T>

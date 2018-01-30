@@ -88,6 +88,7 @@ namespace DF {
 					                 ": size mismatch: sequence " + to_string (seqDim) + " -> " +
 					                 to_string (matDim));
 				// Put 1s at the right places, 0s elsewhere
+				condLikBySite.resize (matDim.rows, matDim.cols);
 				condLikBySite.setZero ();
 				for (auto siteIndex : range (condLikBySite.cols ())) {
 					auto siteValue =

@@ -45,6 +45,7 @@
 #include <Bpp/NewPhyl/IntegerRange.h>
 #include <Bpp/NewPhyl/Phylogeny.h>
 #include <algorithm>
+#include <fstream>
 #include <memory>
 #include <ostream>
 #include <queue>
@@ -169,12 +170,13 @@ void debugTree (std::ostream & os, const TreeTopologyInterface & tree) {
 
 // Print the DF dag structure (in blue).
 // Takes list of entry points.
-void debugDagStructure (std::ostream & os, DF::NodeRefVec entryPoints, DF::DebugOptions opt) {
+void debugDagStructure (std::ostream & os, Vector<const DF::Node *> entryPoints,
+                        DF::DebugOptions opt) {
 	std::queue<const DF::Node *> nodesToVisit;
 	std::unordered_set<const DF::Node *> nodesAlreadyVisited;
 
-	for (auto & n : entryPoints)
-		nodesToVisit.emplace (n.get ());
+	for (const auto * n : entryPoints)
+		nodesToVisit.emplace (n);
 
 	while (!nodesToVisit.empty ()) {
 		auto * node = nodesToVisit.front ();
@@ -209,26 +211,36 @@ void debugDagStructure (std::ostream & os, DF::NodeRefVec entryPoints, DF::Debug
 
 // Print name tags pointing to nodes.
 // Returns list of nodes.
-DF::NodeRefVec debugNamedNodeRefs (std::ostream & os, const Vector<DF::NamedNodeRef> & namedNodes) {
-	DF::NodeRefVec nodes;
+Vector<const DF::Node *> debugNamedNodeRefs (std::ostream & os,
+                                             const Vector<DF::NamedNodeRef> & namedNodes) {
+	Vector<const DF::Node *> nodes;
 	for (auto & namedNodeRef : namedNodes) {
 		dotNodePretty (os, namedNodeRef);
 		dotEdgePretty (os, namedNodeRef, namedNodeRef.nodeRef.get ());
-		nodes.emplace_back (namedNodeRef.nodeRef);
+		nodes.emplace_back (namedNodeRef.nodeRef.get ());
 	}
 	return nodes;
 }
 
-void debugDag (std::ostream & os, const std::shared_ptr<DF::Node> & entryPoint,
-               DF::DebugOptions opt) {
+void debugDag (std::ostream & os, const DF::Node & entryPoint, DF::DebugOptions opt) {
 	os << "digraph {\n";
-	debugDagStructure (os, {entryPoint}, opt);
+	debugDagStructure (os, {&entryPoint}, opt);
 	os << "}\n";
 }
+void debugDag (const std::string & filename, const DF::Node & entryPoint, DF::DebugOptions opt) {
+	std::ofstream file{filename};
+	debugDag (file, entryPoint, opt);
+}
+
 void debugDag (std::ostream & os, const Vector<DF::NamedNodeRef> & namedNodes,
                DF::DebugOptions opt) {
 	os << "digraph {\n";
 	debugDagStructure (os, debugNamedNodeRefs (os, namedNodes), opt);
 	os << "}\n";
+}
+void debugDag (const std::string & filename, const Vector<DF::NamedNodeRef> & namedNodes,
+               DF::DebugOptions opt) {
+	std::ofstream file{filename};
+	debugDag (file, namedNodes, opt);
 }
 } // namespace bpp

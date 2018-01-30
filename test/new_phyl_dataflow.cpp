@@ -59,7 +59,6 @@
 #include <Bpp/Seq/Alphabet/AlphabetTools.h>
 #include <Bpp/Seq/Container/VectorSiteContainer.h>
 #include <chrono>
-#include <fstream>
 
 // Old likelihood
 #ifdef ENABLE_OLD
@@ -240,7 +239,7 @@ TEST_CASE("df")
 
   // Model
   auto substitutionModel = std::unique_ptr<bpp::SubstitutionModel>(new bpp::T92(&c.alphabet, 3.));
-  auto modelParameters = bpp::ModelParameterMap (*substitutionModel);
+  auto modelParameters = bpp::ModelParameterMap(*substitutionModel);
   auto model = bpp::DF::makeNode<bpp::DF::Model>(modelParameters, std::move(substitutionModel));
 
   // Describe how to build a likelihood value
@@ -259,8 +258,8 @@ TEST_CASE("df")
   auto modelBppParams = bpp::modelParameterList(modelParameters, "T92.");
 
   bpp::ParameterList params;
-  params.addParameters (brlenBppParams);
-  params.addParameters (modelBppParams);
+  params.addParameters(brlenBppParams);
+  params.addParameters(modelBppParams);
 
   bpp::DataFlowFunction likFunc{logLikNode, params};
 
@@ -268,18 +267,12 @@ TEST_CASE("df")
   auto logLik = likFunc.getValue();
   timingEnd(ts, "df_init_value");
   printLik(logLik, "df_init_value");
+  bpp::debugDag("df_debug", *logLikNode, bpp::DF::DebugOptions::DetailedNodeInfo);
 
   timingEnd(ts, "df_setup");
-  {
-    std::ofstream fd("df_debug");
-    bpp::debugDag(fd, logLikNode, bpp::DF::DebugOptions::DetailedNodeInfo);
-    // bpp::debugDag(fd, likFunc.getAllNamedNodes("f"), bpp::DF::DebugOptions::DetailedNodeInfo);
-    // bpp::debugTree(fd, treeView);
-  }
   std::cout << "[dbrlen1] " << likFunc.getFirstOrderDerivative("BrLen1") << "\n";
   {
-    std::ofstream fd("df_debug");
-    bpp::debugDag(fd, logLikNode, bpp::DF::DebugOptions::DetailedNodeInfo);
+    bpp::debugDag("df_debug", *logLikNode, bpp::DF::DebugOptions::DetailedNodeInfo);
     // bpp::debugDag(fd, likFunc.getAllNamedNodes("f"), bpp::DF::DebugOptions::DetailedNodeInfo);
     // bpp::debugTree(fd, treeView);
   }

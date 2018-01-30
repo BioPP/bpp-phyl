@@ -66,18 +66,6 @@ template <typename T> std::string prettyTypeName (const T & t) {
 	return prettyTypeName (typeid (t));
 }
 
-// TODO more general to_string ?
-inline const std::string & debug_to_string (const std::string & s) {
-	return s;
-}
-inline std::string && debug_to_string (std::string && s) {
-	return std::move (s);
-}
-template <typename T, typename = decltype (std::to_string (std::declval<T> ()))>
-std::string debug_to_string (T && t) {
-	return std::to_string (std::forward<T> (t));
-}
-
 // Forward declarations
 class TreeTopologyInterface;
 namespace DF {
@@ -94,7 +82,7 @@ namespace DF {
 		std::string name;
 	};
 
-	/* Small flag class that defines various debug output options.
+	/** @brief Small flag class that defines various debug output options.
 	 */
 	enum class DebugOptions {
 		None = 0,
@@ -113,13 +101,20 @@ namespace DF {
 	}
 } // namespace DF
 
-// Output a dot format graph representing the dataflow dag
-void debugDag (std::ostream & os, const std::shared_ptr<DF::Node> & entryPoint,
+/// Outputs a dot format graph representing the dataflow dag to a stream
+void debugDag (std::ostream & os, const DF::Node & entryPoint,
+               DF::DebugOptions opt = DF::DebugOptions::None);
+
+/// Outputs a dot format graph representing the dataflow dag to a file
+void debugDag (const std::string & filename, const DF::Node & entryPoint,
                DF::DebugOptions opt = DF::DebugOptions::None);
 
 // Output debugDag + named node references (tags) to nodes.
 void debugDag (std::ostream & os, const Vector<DF::NamedNodeRef> & namedNodes,
                DF::DebugOptions opt = DF::DebugOptions::None);
+void debugDag (const std::string & filename, const Vector<DF::NamedNodeRef> & namedNodes,
+               DF::DebugOptions opt = DF::DebugOptions::None);
+// FIXME move to bpp::ParameterList
 } // namespace bpp
 
 #endif // BPP_NEWPHYL_DEBUG_H
