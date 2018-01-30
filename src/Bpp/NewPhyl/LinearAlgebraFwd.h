@@ -106,16 +106,6 @@ Dimension<VectorDouble> dimensions (const VectorDouble & v) noexcept;
 Dimension<MatrixDouble> dimensions (const MatrixDouble & m) noexcept;
 ///@}
 
-// TODO doc. actual dim VS target dim ? add DIm<T> to value and setter/getters
-// FIXME deprecate
-// Get dimensions for DF nodes
-namespace DF {
-	template <typename T> class Value;
-} // namespace DF
-Dimension<double> dimensions (const DF::Value<double> &) noexcept;
-Dimension<VectorDouble> dimensions (const DF::Value<VectorDouble> & node) noexcept;
-Dimension<MatrixDouble> dimensions (const DF::Value<MatrixDouble> & node) noexcept;
-
 // FIXME deprecate ?
 // Exact predicates (not a fuzzy comparison)
 bool isExactZero (const double & d);

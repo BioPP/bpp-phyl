@@ -55,29 +55,32 @@ namespace DF {
 		using Dependencies = FunctionOfValues<const Sequence *>;
 
 		ConditionalLikelihoodFromSequence (NodeRefVec && deps, const LikelihoodDataDimension & dim)
-		    : Value<MatrixDouble> (std::move (deps), dim.rows, dim.cols) {}
+		    : Value<MatrixDouble> (std::move (deps)) {
+			this->setTargetDimension (dim);
+		}
 
 		std::string debugInfo () const final {
 			return Value<MatrixDouble>::debugInfo () + " " +
-			       to_string (LikelihoodDataDimension (dimensions (*this)));
+			       to_string (LikelihoodDataDimension (this->getTargetDimension ()));
 		}
 		NodeRef derive (const Node &) final {
 			// Sequence is a constant.
-			return makeNode<ConstantZero<MatrixDouble>> (dimensions (*this));
+			return makeNode<ConstantZero<MatrixDouble>> (this->getTargetDimension ());
 		}
 		bool isDerivable (const Node &) const final { return true; }
 		NodeRef rebuild (NodeRefVec && deps) const final {
-			return makeNode<ConditionalLikelihoodFromSequence> (std::move (deps), dimensions (*this));
+			return makeNode<ConditionalLikelihoodFromSequence> (std::move (deps),
+			                                                    this->getTargetDimension ());
 		}
 
 	private:
 		void compute () final {
-			callWithValues (*this, [](MatrixDouble & condLikBySite, const Sequence * sequence) {
+			callWithValues (*this, [this](MatrixDouble & condLikBySite, const Sequence * sequence) {
 				// Check sizes
 				if (sequence == nullptr)
 					throw Exception (prettyTypeName<ConditionalLikelihoodFromSequence> () +
 					                 ": null sequence");
-				auto matDim = LikelihoodDataDimension (dimensions (condLikBySite));
+				auto matDim = LikelihoodDataDimension (this->getTargetDimension ());
 				auto seqDim = LikelihoodDataDimension (static_cast<SizeType> (sequence->size ()),
 				                                       sequence->getAlphabet ()->getSize ());
 				if (matDim != seqDim)
@@ -90,7 +93,7 @@ namespace DF {
 					auto siteValue =
 					    static_cast<SizeType> (sequence->getValue (static_cast<std::size_t> (siteIndex)));
 					condLikBySite (siteValue, siteIndex) = 1.;
-				}
+				} // FIXME use newlik change for pops
 			});
 		}
 	};
@@ -107,9 +110,10 @@ namespace DF {
 		TotalLogLikelihood (NodeRefVec && deps) : Value<double> (std::move (deps)) {}
 		NodeRef derive (const Node & node) final {
 			auto likelihoodVector = convertRef<Value<VectorDouble>> (this->dependency (0));
-			return makeNode<ScalarProdDouble> ({likelihoodVector->derive (node),
-			                                    makeNode<CWiseInverseVectorDouble> (
-			                                        {likelihoodVector}, dimensions (*likelihoodVector))});
+			return makeNode<ScalarProdDouble> (
+			    {likelihoodVector->derive (node),
+			     makeNode<CWiseInverseVectorDouble> ({likelihoodVector},
+			                                         likelihoodVector->getTargetDimension ())});
 		}
 		bool isDerivable (const Node & node) const final { return derivableIfAllDepsAre (*this, node); }
 		NodeRef rebuild (NodeRefVec && deps) const final {

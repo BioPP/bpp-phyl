@@ -263,13 +263,19 @@ TEST_CASE("df")
   params.addParameters (modelBppParams);
 
   bpp::DataFlowFunction likFunc{logLikNode, params};
-  timingEnd(ts, "df_setup");
 
   ts = timingStart();
   auto logLik = likFunc.getValue();
   timingEnd(ts, "df_init_value");
   printLik(logLik, "df_init_value");
 
+  timingEnd(ts, "df_setup");
+  {
+    std::ofstream fd("df_debug");
+    bpp::debugDag(fd, logLikNode, bpp::DF::DebugOptions::DetailedNodeInfo);
+    // bpp::debugDag(fd, likFunc.getAllNamedNodes("f"), bpp::DF::DebugOptions::DetailedNodeInfo);
+    // bpp::debugTree(fd, treeView);
+  }
   std::cout << "[dbrlen1] " << likFunc.getFirstOrderDerivative("BrLen1") << "\n";
   {
     std::ofstream fd("df_debug");

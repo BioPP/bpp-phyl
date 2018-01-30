@@ -58,7 +58,6 @@ namespace bpp {
  * - merge constants by type
  * - support for general register (reuse code in DF.cpp, declare in DFTinternal).
  * - opt: keep 0s instead of recreating them
- * - deduce size (require 1 arg in reductions) ?
  * - opt: merge * of *, + of +, ... ?
  * - common template for *,+ opts ?
  */
@@ -422,16 +421,18 @@ namespace DF {
 		using Dependencies = ReductionOfValue<VectorDouble>;
 
 		AddVectorDouble (NodeRefVec && deps, const Dimension<VectorDouble> & dim)
-		    : Value<VectorDouble> (std::move (deps), dim.size) {}
+		    : Value<VectorDouble> (std::move (deps)) {
+			this->setTargetDimension (dim);
+		}
 		NodeRef derive (const Node & node) final {
 			return makeNode<AddVectorDouble> (
 			    mapToVector (this->dependencies (),
 			                 [&node](const NodeRef & dep) { return dep->derive (node); }),
-			    dimensions (*this));
+			    this->getTargetDimension ());
 		}
 		bool isDerivable (const Node & node) const final { return derivableIfAllDepsAre (*this, node); }
 		NodeRef rebuild (NodeRefVec && deps) const final {
-			return makeNode<AddVectorDouble> (std::move (deps), dimensions (*this));
+			return makeNode<AddVectorDouble> (std::move (deps), this->getTargetDimension ());
 		}
 
 	private:
@@ -461,9 +462,11 @@ namespace DF {
 		using Dependencies = ReductionOfValue<VectorDouble>;
 
 		CWiseMulVectorDouble (NodeRefVec && deps, const Dimension<VectorDouble> & dim)
-		    : Value<VectorDouble> (std::move (deps), dim.size) {}
+		    : Value<VectorDouble> (std::move (deps)) {
+			this->setTargetDimension (dim);
+		}
 		NodeRef derive (const Node & node) final {
-			auto dim = dimensions (*this);
+			auto dim = this->getTargetDimension ();
 			NodeRefVec addDeps;
 			for (auto i : bpp::range (this->nbDependencies ())) {
 				NodeRefVec mulDeps = this->dependencies ();
@@ -474,7 +477,7 @@ namespace DF {
 		}
 		bool isDerivable (const Node & node) const final { return derivableIfAllDepsAre (*this, node); }
 		NodeRef rebuild (NodeRefVec && deps) const final {
-			return makeNode<CWiseMulVectorDouble> (std::move (deps), dimensions (*this));
+			return makeNode<CWiseMulVectorDouble> (std::move (deps), this->getTargetDimension ());
 		}
 
 	private:
@@ -508,14 +511,16 @@ namespace DF {
 		using Dependencies = FunctionOfValues<VectorDouble>;
 
 		CWiseNegVectorDouble (NodeRefVec && deps, const Dimension<VectorDouble> & dim)
-		    : Value<VectorDouble> (std::move (deps), dim.size) {}
+		    : Value<VectorDouble> (std::move (deps)) {
+			this->setTargetDimension (dim);
+		}
 		NodeRef derive (const Node & node) final {
 			return makeNode<CWiseNegVectorDouble> ({this->dependency (0)->derive (node)},
-			                                       dimensions (*this));
+			                                       this->getTargetDimension ());
 		}
 		bool isDerivable (const Node & node) const final { return derivableIfAllDepsAre (*this, node); }
 		NodeRef rebuild (NodeRefVec && deps) const final {
-			return makeNode<CWiseNegVectorDouble> (std::move (deps), dimensions (*this));
+			return makeNode<CWiseNegVectorDouble> (std::move (deps), this->getTargetDimension ());
 		}
 
 	private:
@@ -540,16 +545,18 @@ namespace DF {
 		using Dependencies = FunctionOfValues<VectorDouble>;
 
 		CWiseInverseVectorDouble (NodeRefVec && deps, const Dimension<VectorDouble> & dim)
-		    : Value<VectorDouble> (std::move (deps), dim.size) {}
+		    : Value<VectorDouble> (std::move (deps)) {
+			this->setTargetDimension (dim);
+		}
 		NodeRef derive (const Node & node) final {
-			auto dim = dimensions (*this);
+			auto dim = this->getTargetDimension ();
 			auto & arg = this->dependency (0);
 			return makeNode<CWiseNegVectorDouble> (
 			    {makeNode<CWiseConstantPowVectorDouble> ({arg}, dim, -2.), arg->derive (node)}, dim);
 		}
 		bool isDerivable (const Node & node) const final { return derivableIfAllDepsAre (*this, node); }
 		NodeRef rebuild (NodeRefVec && deps) const final {
-			return makeNode<CWiseInverseVectorDouble> (std::move (deps), dimensions (*this));
+			return makeNode<CWiseInverseVectorDouble> (std::move (deps), this->getTargetDimension ());
 		}
 
 	private:
@@ -578,9 +585,11 @@ namespace DF {
 
 		CWiseConstantPowVectorDouble (NodeRefVec && deps, const Dimension<VectorDouble> & dim,
 		                              double exp)
-		    : Value<VectorDouble> (std::move (deps), dim.size), exp_ (exp) {}
+		    : Value<VectorDouble> (std::move (deps)), exp_ (exp) {
+			this->setTargetDimension (dim);
+		}
 		NodeRef derive (const Node & node) final {
-			auto dim = dimensions (*this);
+			auto dim = this->getTargetDimension ();
 			auto & arg = this->dependency (0);
 			auto powDerivative = makeNode<CWiseMulScalarVectorDouble> (
 			    {makeNode<Constant<double>> (exp_),
@@ -590,7 +599,8 @@ namespace DF {
 		}
 		bool isDerivable (const Node & node) const final { return derivableIfAllDepsAre (*this, node); }
 		NodeRef rebuild (NodeRefVec && deps) const final {
-			return makeNode<CWiseConstantPowVectorDouble> (std::move (deps), dimensions (*this), exp_);
+			return makeNode<CWiseConstantPowVectorDouble> (std::move (deps), this->getTargetDimension (),
+			                                               exp_);
 		}
 
 	private:
@@ -625,16 +635,18 @@ namespace DF {
 		using Dependencies = ReductionOfValue<MatrixDouble>;
 
 		AddMatrixDouble (NodeRefVec && deps, const Dimension<MatrixDouble> & dim)
-		    : Value<MatrixDouble> (std::move (deps), dim.rows, dim.cols) {}
+		    : Value<MatrixDouble> (std::move (deps)) {
+			this->setTargetDimension (dim);
+		}
 		NodeRef derive (const Node & node) final {
 			return makeNode<AddMatrixDouble> (
 			    mapToVector (this->dependencies (),
 			                 [&node](const NodeRef & dep) { return dep->derive (node); }),
-			    dimensions (*this));
+			    this->getTargetDimension ());
 		}
 		bool isDerivable (const Node & node) const final { return derivableIfAllDepsAre (*this, node); }
 		NodeRef rebuild (NodeRefVec && deps) const final {
-			return makeNode<AddMatrixDouble> (std::move (deps), dimensions (*this));
+			return makeNode<AddMatrixDouble> (std::move (deps), this->getTargetDimension ());
 		}
 
 	private:
@@ -664,9 +676,11 @@ namespace DF {
 		using Dependencies = FunctionOfValues<MatrixDouble, MatrixDouble>;
 
 		MulMatrixDouble (NodeRefVec && deps, const Dimension<MatrixDouble> & dim)
-		    : Value<MatrixDouble> (std::move (deps), dim.rows, dim.cols) {}
+		    : Value<MatrixDouble> (std::move (deps)) {
+			this->setTargetDimension (dim);
+		}
 		NodeRef derive (const Node & node) final {
-			auto dim = dimensions (*this);
+			auto dim = this->getTargetDimension ();
 			auto & lhs = this->dependency (0);
 			auto & rhs = this->dependency (1);
 			auto dLhs = makeNode<MulMatrixDouble> ({lhs->derive (node), rhs}, dim);
@@ -675,7 +689,7 @@ namespace DF {
 		}
 		bool isDerivable (const Node & node) const final { return derivableIfAllDepsAre (*this, node); }
 		NodeRef rebuild (NodeRefVec && deps) const final {
-			return makeNode<MulMatrixDouble> (std::move (deps), dimensions (*this));
+			return makeNode<MulMatrixDouble> (std::move (deps), this->getTargetDimension ());
 		}
 
 	private:
@@ -706,9 +720,11 @@ namespace DF {
 		using Dependencies = ReductionOfValue<MatrixDouble>;
 
 		CWiseMulMatrixDouble (NodeRefVec && deps, const Dimension<MatrixDouble> & dim)
-		    : Value<MatrixDouble> (std::move (deps), dim.rows, dim.cols) {}
+		    : Value<MatrixDouble> (std::move (deps)) {
+			this->setTargetDimension (dim);
+		}
 		NodeRef derive (const Node & node) final {
-			auto dim = dimensions (*this);
+			auto dim = this->getTargetDimension ();
 			NodeRefVec addDeps;
 			for (auto i : bpp::range (this->nbDependencies ())) {
 				NodeRefVec mulDeps = this->dependencies ();
@@ -719,7 +735,7 @@ namespace DF {
 		}
 		bool isDerivable (const Node & node) const final { return derivableIfAllDepsAre (*this, node); }
 		NodeRef rebuild (NodeRefVec && deps) const final {
-			return makeNode<CWiseMulMatrixDouble> (std::move (deps), dimensions (*this));
+			return makeNode<CWiseMulMatrixDouble> (std::move (deps), this->getTargetDimension ());
 		}
 
 	private:
@@ -753,9 +769,11 @@ namespace DF {
 		using Dependencies = FunctionOfValues<MatrixDouble, VectorDouble>;
 
 		MulTransposedMatrixVectorDouble (NodeRefVec && deps, const Dimension<VectorDouble> & dim)
-		    : Value<VectorDouble> (std::move (deps), dim.size) {}
+		    : Value<VectorDouble> (std::move (deps)) {
+			this->setTargetDimension (dim);
+		}
 		NodeRef derive (const Node & node) final {
-			auto dim = dimensions (*this);
+			auto dim = this->getTargetDimension ();
 			auto & lhs = this->dependency (0);
 			auto & rhs = this->dependency (1);
 			auto dLhs = makeNode<MulTransposedMatrixVectorDouble> ({lhs->derive (node), rhs}, dim);
@@ -764,7 +782,8 @@ namespace DF {
 		}
 		bool isDerivable (const Node & node) const final { return derivableIfAllDepsAre (*this, node); }
 		NodeRef rebuild (NodeRefVec && deps) const final {
-			return makeNode<MulTransposedMatrixVectorDouble> (std::move (deps), dimensions (*this));
+			return makeNode<MulTransposedMatrixVectorDouble> (std::move (deps),
+			                                                  this->getTargetDimension ());
 		}
 
 	private:
@@ -796,9 +815,11 @@ namespace DF {
 		using Dependencies = FunctionOfValues<double, VectorDouble>;
 
 		CWiseMulScalarVectorDouble (NodeRefVec && deps, const Dimension<VectorDouble> & dim)
-		    : Value<VectorDouble> (std::move (deps), dim.size) {}
+		    : Value<VectorDouble> (std::move (deps)) {
+			this->setTargetDimension (dim);
+		}
 		NodeRef derive (const Node & node) final {
-			auto dim = dimensions (*this);
+			auto dim = this->getTargetDimension ();
 			auto & lhs = this->dependency (0);
 			auto & rhs = this->dependency (1);
 			auto dLhs = makeNode<CWiseMulScalarVectorDouble> ({lhs->derive (node), rhs}, dim);
@@ -807,7 +828,7 @@ namespace DF {
 		}
 		bool isDerivable (const Node & node) const final { return derivableIfAllDepsAre (*this, node); }
 		NodeRef rebuild (NodeRefVec && deps) const final {
-			return makeNode<CWiseMulScalarVectorDouble> (std::move (deps), dimensions (*this));
+			return makeNode<CWiseMulScalarVectorDouble> (std::move (deps), this->getTargetDimension ());
 		}
 
 	private:
@@ -837,9 +858,11 @@ namespace DF {
 		using Dependencies = FunctionOfValues<double, MatrixDouble>;
 
 		CWiseMulScalarMatrixDouble (NodeRefVec && deps, const Dimension<MatrixDouble> & dim)
-		    : Value<MatrixDouble> (std::move (deps), dim.rows, dim.cols) {}
+		    : Value<MatrixDouble> (std::move (deps)) {
+			this->setTargetDimension (dim);
+		}
 		NodeRef derive (const Node & node) final {
-			auto dim = dimensions (*this);
+			auto dim = this->getTargetDimension ();
 			auto & lhs = this->dependency (0);
 			auto & rhs = this->dependency (1);
 			auto dLhs = makeNode<CWiseMulScalarMatrixDouble> ({lhs->derive (node), rhs}, dim);
@@ -848,7 +871,7 @@ namespace DF {
 		}
 		bool isDerivable (const Node & node) const final { return derivableIfAllDepsAre (*this, node); }
 		NodeRef rebuild (NodeRefVec && deps) const final {
-			return makeNode<CWiseMulScalarMatrixDouble> (std::move (deps), dimensions (*this));
+			return makeNode<CWiseMulScalarMatrixDouble> (std::move (deps), this->getTargetDimension ());
 		}
 
 	private:

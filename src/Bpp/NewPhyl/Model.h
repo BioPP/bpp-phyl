@@ -170,7 +170,8 @@ namespace DF {
 	// (model) -> Vector of freqs
 	class EquilibriumFrequenciesFromModel;
 	template <> struct Builder<EquilibriumFrequenciesFromModel> {
-		static ValueRef<VectorDouble> make (NodeRefVec && deps, SizeType nbStates); // FIXME dimension
+    // Dim == nbStates FIXME add a dim type for Equ Freq ?
+		static ValueRef<VectorDouble> make (NodeRefVec && deps, const Dimension<VectorDouble> & dim);
 	};
 
 	// (model, branch length) -> transition matrix

@@ -59,16 +59,6 @@ Dimension<MatrixDouble> dimensions (const MatrixDouble & m) noexcept {
 	return {m.rows (), m.cols ()};
 }
 
-Dimension<double> dimensions (const DF::Value<double> &) noexcept {
-	return {};
-}
-Dimension<VectorDouble> dimensions (const DF::Value<VectorDouble> & node) noexcept {
-	return dimensions (node.accessValueConst ());
-}
-Dimension<MatrixDouble> dimensions (const DF::Value<MatrixDouble> & node) noexcept {
-	return dimensions (node.accessValueConst ());
-}
-
 // Predicates
 bool isExactZero (const double & d) {
 	return d == 0.;
