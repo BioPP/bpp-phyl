@@ -96,7 +96,8 @@ namespace DF {
 	};
 	///@}
 
-	// TODO
+#if 0
+	// TODO merge code of AddDouble / AddVectorDouble / AddMatrixDouble
 	template <typename Result, typename Dependencies> class CWiseAdd;
 
 	template <> struct Builder<CWiseAdd<double, ReductionOfValue<double>>> {
@@ -105,6 +106,7 @@ namespace DF {
 	template <> struct Builder<CWiseAdd<double, TupleOfValues<double, double>>> {
 		static ValueRef<double> make (NodeRefVec && deps, const Dimension<double> &);
 	};
+#endif
 
 	/* Double nodes.
 	 */

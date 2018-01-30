@@ -233,6 +233,7 @@ namespace DF {
 		return std::make_shared<ConstantOne<MatrixDouble>> (dim);
 	}
 
+#if 0
 	// TODO
 	template <typename Result, typename Dependencies> class CWiseAdd : public Value<Result> {
 	public:
@@ -269,6 +270,7 @@ namespace DF {
 		return std::make_shared<CWiseAdd<double, TupleOfValues<double, double>>> (std::move (deps),
 		                                                                          dim);
 	}
+#endif
 
 	/******************************** Old nodes *******************************/
 
