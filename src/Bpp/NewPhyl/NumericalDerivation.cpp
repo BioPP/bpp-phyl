@@ -67,9 +67,7 @@ namespace DF {
 			this->setTargetDimension (targetDim);
 		}
 
-		std::string description () const final {
-			return std::to_string (n_) + " * delta * " + prettyTypeName<T> ();
-		}
+		std::string description () const final { return std::to_string (n_) + " * delta * x"; }
 
 		// Never derive the delta side (not part of computation !)
 		NodeRef derive (const Node & node) final {
@@ -153,9 +151,16 @@ namespace DF {
 			this->setTargetDimension (targetDim);
 		}
 
-		/*std::string description () const final {
-		  return std::to_string (n_) + " * delta * " + prettyTypeName<T> ();
-		}*/
+		std::string description () const final {
+			auto r = std::string ("lambda * sum (deps[i] * {");
+			if (!coeffs_.empty ()) {
+				for (auto i : range (coeffs_.size () - 1))
+					r += std::to_string (coeffs_[i]) + " ";
+				r += std::to_string (coeffs_.back ());
+			}
+			r += "}[i])";
+			return r;
+		}
 
 		// Never derive the lambda side (not part of computation !)
 		NodeRef derive (const Node & node) final {
