@@ -41,6 +41,7 @@
 
 #include <Bpp/NewPhyl/DataFlowInternal.h>
 #include <Bpp/NewPhyl/Debug.h>
+#include <Bpp/NewPhyl/IntegerRange.h>
 #include <Bpp/NewPhyl/LinearAlgebraUtils.h>
 #include <Bpp/NewPhyl/NumericalDerivation.h>
 #include <algorithm>
@@ -122,10 +123,6 @@ namespace DF {
 	                                                      const Dimension<double> & targetDim) {
 		return makeNumericalDerivationShiftDelta<double> (std::move (deps), n, targetDim);
 	}
-	ValueRef<double> Builder<NumericalDerivationShiftDelta<double>>::make (NodeRefVec && deps,
-	                                                                       int n) {
-		return make (std::move (deps), n, Dimension<double>{});
-	}
 
 	ValueRef<VectorDouble> Builder<NumericalDerivationShiftDelta<VectorDouble>>::make (
 	    NodeRefVec && deps, int n, const Dimension<VectorDouble> & targetDim) {
@@ -160,7 +157,7 @@ namespace DF {
 		NodeRef derive (const Node & node) final {
 			NodeRefVec deps (this->nbDependencies ());
 			deps[0] = this->dependency (0); // lambda
-			for (auto i : range (1, this->nbDependencies ()))
+			for (auto i : range (SizeType (1), this->nbDependencies ()))
 				deps[i] = this->dependency (i)->derive (node);
 			return makeNode<NumericalDerivationCombineShifted<T>> (std::move (deps), coeffs_,
 			                                                       this->getTargetDimension ());
@@ -185,15 +182,34 @@ namespace DF {
 
 		void compute () final {
 			const auto & deps = this->dependencies ();
-			const auto & lambda = deps[0];
-			// FIXME finish
+			double lambda = accessValidValueConstCast<double> (deps[0]);
+			T & value = this->accessValueMutable ();
 
-			// callthValues (*this, [this](T & result, const double & delta, const T & arg) {
-			//	result = linearAlgebraMakeValueWith (this->getTargetDimension (), this->n_ * delta) +
-			// arg;
-			//});
+			value = linearAlgebraZeroValue (this->getTargetDimension ());
+			for (auto i : range (SizeType (1), this->nbDependencies ())) {
+				value += linearAlgebraMakeValueWith (this->getTargetDimension (), coeffs_[i - 1] * lambda) *
+				         accessValidValueConstCast<T> (deps[i]);
+			}
 		}
 	};
+
+	ValueRef<double> Builder<NumericalDerivationCombineShifted<double>>::make (
+	    NodeRefVec && deps, const Vector<double> & coeffs, const Dimension<double> & targetDim) {
+		return std::make_shared<NumericalDerivationCombineShifted<double>> (std::move (deps), coeffs,
+		                                                                    targetDim);
+	}
+	ValueRef<VectorDouble> Builder<NumericalDerivationCombineShifted<VectorDouble>>::make (
+	    NodeRefVec && deps, const Vector<double> & coeffs,
+	    const Dimension<VectorDouble> & targetDim) {
+		return std::make_shared<NumericalDerivationCombineShifted<VectorDouble>> (std::move (deps),
+		                                                                          coeffs, targetDim);
+	}
+	ValueRef<MatrixDouble> Builder<NumericalDerivationCombineShifted<MatrixDouble>>::make (
+	    NodeRefVec && deps, const Vector<double> & coeffs,
+	    const Dimension<MatrixDouble> & targetDim) {
+		return std::make_shared<NumericalDerivationCombineShifted<MatrixDouble>> (std::move (deps),
+		                                                                          coeffs, targetDim);
+	}
 
 } // namespace DF
 } // namespace bpp

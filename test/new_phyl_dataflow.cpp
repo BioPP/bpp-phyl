@@ -262,6 +262,7 @@ TEST_CASE("df")
   params.addParameters(modelBppParams);
 
   bpp::DataFlowFunction likFunc{logLikNode, params};
+  timingEnd(ts, "df_setup");
 
   ts = timingStart();
   auto logLik = likFunc.getValue();
@@ -270,7 +271,6 @@ TEST_CASE("df")
 
   //bpp::debugDag("df_debug", *logLikNode, bpp::DF::DebugOptions::DetailedNodeInfo);
 
-  timingEnd(ts, "df_setup");
   std::cout << "[dbrlen1] " << likFunc.getFirstOrderDerivative("BrLen1") << "\n";
   {
     //bpp::debugDag("df_debug_2", *logLikNode, bpp::DF::DebugOptions::DetailedNodeInfo);

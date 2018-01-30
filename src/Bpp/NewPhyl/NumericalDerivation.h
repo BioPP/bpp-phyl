@@ -47,20 +47,20 @@
 
 namespace bpp {
 namespace DF {
-  /** Shift a value by a delta: <n>(delta, x) -> n * delta + x.
-   * Defined for double, VectorDouble, MatrixDouble.
-   * For composite types, delta will be added to all elements.
-   * 
-   * Should only be used to compute numerical derivatives of functions.
-   * Delta is a special argument (not derivable, etc).
-   * Construction will merge chains of NumericalDerivationShiftDelta.
-   */
+	/** Shift a value by a delta: <n>(delta, x) -> n * delta + x.
+	 * Defined for double, VectorDouble, MatrixDouble.
+	 * For composite types, delta will be added to all elements.
+	 *
+	 * Should only be used to compute numerical derivatives of functions.
+	 * Delta is a special argument (not derivable, etc).
+	 * Construction will merge chains of NumericalDerivationShiftDelta.
+	 */
 	template <typename T> class NumericalDerivationShiftDelta;
 
-  // Factory functions
+	// Factory functions
 	template <> struct Builder<NumericalDerivationShiftDelta<double>> {
-		static ValueRef<double> make (NodeRefVec && deps, int n, const Dimension<double> & targetDim);
-		static ValueRef<double> make (NodeRefVec && deps, int n);
+		static ValueRef<double> make (NodeRefVec && deps, int n,
+		                              const Dimension<double> & targetDim = {});
 	};
 	template <> struct Builder<NumericalDerivationShiftDelta<VectorDouble>> {
 		static ValueRef<VectorDouble> make (NodeRefVec && deps, int n,
@@ -71,9 +71,23 @@ namespace DF {
 		                                    const Dimension<MatrixDouble> & targetDim);
 	};
 
-  /** TODO
-   */
+	/** TODO
+	 */
 	template <typename T> class NumericalDerivationCombineShifted;
+
+	template <> struct Builder<NumericalDerivationCombineShifted<double>> {
+		static ValueRef<double> make (NodeRefVec && deps, const Vector<double> & coeffs,
+		                              const Dimension<double> & targetDim = {});
+	};
+	template <> struct Builder<NumericalDerivationCombineShifted<VectorDouble>> {
+		static ValueRef<VectorDouble> make (NodeRefVec && deps, const Vector<double> & coeffs,
+		                                    const Dimension<VectorDouble> & targetDim);
+	};
+	template <> struct Builder<NumericalDerivationCombineShifted<MatrixDouble>> {
+		static ValueRef<MatrixDouble> make (NodeRefVec && deps, const Vector<double> & coeffs,
+		                                    const Dimension<MatrixDouble> & targetDim);
+	};
+
 } // namespace DF
 } // namespace bpp
 
