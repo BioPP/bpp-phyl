@@ -193,7 +193,11 @@ public:
     return pSubProColl_;
   }
 
-
+  const StateMap& getStateMap() const
+  {
+    return getModel(modelToNodes_.begin()->first)->getStateMap();
+  }
+  
   const Alphabet* getAlphabet() const;
 
   /**
@@ -230,7 +234,7 @@ public:
    * @return A pointer toward the corresponding model.
    */
 
-  const SubstitutionModel* getModel(size_t i) const;
+  const TransitionModel* getModel(size_t i) const;
 
   std::vector<size_t> getModelNumbers() const;
 
@@ -257,7 +261,7 @@ public:
    * @throw Exception If no model is found for this node.
    */
 
-  const SubstitutionModel* getModelForNode(unsigned int nodeId) const throw (Exception);
+  const TransitionModel* getModelForNode(unsigned int nodeId) const throw (Exception);
 
   /**
    * @brief Get a list of nodes id for which the given model is associated.
@@ -267,7 +271,7 @@ public:
    * @throw IndexOutOfBoundsException If the index is not valid.
    */
 
-  const std::vector<unsigned int>& getNodesWithModel(size_t i) const
+  const std::vector<unsigned int> getNodesWithModel(size_t i) const
   {
     std::map<size_t, std::vector<unsigned int> >::const_iterator it = modelToNodes_.find(i);
     if (it == modelToNodes_.end())
@@ -356,7 +360,7 @@ public:
    * Inheriting from SubstitutionProcess
    */
 
-  bool isCompatibleWith(const SiteContainer& data) const;
+  bool isCompatibleWith(const AlignedValuesContainer& data) const;
 
   /**
    * @brief Get the number of states associated to this model set.
@@ -390,7 +394,7 @@ public:
    * @param classIndex The model class index.
    */
 
-  const SubstitutionModel& getSubstitutionModel(unsigned int nodeId, size_t classIndex) const;
+  const TransitionModel* getModel(unsigned int nodeId, size_t classIndex) const;
 
   /**
    * @brief Get the parameters of the substitution models.
@@ -469,10 +473,10 @@ public:
   }
 
 
-  const Matrix<double>& getGenerator(unsigned int nodeId, size_t classIndex) const
-  {
-    return getSubstitutionModel(nodeId, classIndex).getGenerator();
-  }
+  // const Matrix<double>& getGenerator(unsigned int nodeId, size_t classIndex) const
+  // {
+  //   return getSubstitutionModel(nodeId, classIndex).getGenerator();
+  // }
 
   /**
    * This method is used to initialize likelihoods in reccursions.

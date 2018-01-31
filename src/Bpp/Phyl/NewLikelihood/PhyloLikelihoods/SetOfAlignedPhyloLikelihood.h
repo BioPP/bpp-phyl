@@ -41,7 +41,7 @@
 #define _SET_OF_ALIGNED_PHYLOLIKELIHOOD_H_
 
 // From bpp-seq:
-#include <Bpp/Seq/Container/SiteContainer.h>
+#include <Bpp/Seq/Container/AlignedValuesContainer.h>
 
 #include "AlignedPhyloLikelihood.h"
 #include "SetOfAbstractPhyloLikelihood.h"
@@ -55,7 +55,7 @@ namespace bpp
      * likelihood from aligned phylogenies.
      */
     
-    class SetOfAlignedPhyloLikelihood:
+  class SetOfAlignedPhyloLikelihood:
     public SetOfAbstractPhyloLikelihood,
     virtual public AbstractAlignedPhyloLikelihood
     {
@@ -199,3 +199,4 @@ namespace bpp
 
 #endif  //_SET_OF_ALIGNED_PHYLOLIKELIHOOD_H_
 
+ 

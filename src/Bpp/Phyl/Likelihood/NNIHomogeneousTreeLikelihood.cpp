@@ -51,7 +51,7 @@ using namespace bpp;
 using namespace std;
 
 /*******************************************************************************/
-void BranchLikelihood::initModel(const SubstitutionModel* model, const DiscreteDistribution* rDist)
+void BranchLikelihood::initModel(const TransitionModel* model, const DiscreteDistribution* rDist)
 {
   model_ = model;
   rDist_ = rDist;
@@ -123,7 +123,7 @@ void BranchLikelihood::computeLogLikelihood()
 
 NNIHomogeneousTreeLikelihood::NNIHomogeneousTreeLikelihood(
   const Tree& tree,
-  SubstitutionModel* model,
+  TransitionModel* model,
   DiscreteDistribution* rDist,
   bool checkRooted,
   bool verbose)
@@ -145,8 +145,8 @@ throw (Exception) :
 
 NNIHomogeneousTreeLikelihood::NNIHomogeneousTreeLikelihood(
   const Tree& tree,
-  const SiteContainer& data,
-  SubstitutionModel* model,
+  const AlignedValuesContainer& data,
+  TransitionModel* model,
   DiscreteDistribution* rDist,
   bool checkRooted,
   bool verbose)

@@ -5,6 +5,8 @@ Bastien Boussau    <bastien.boussau@univ-lyon1.fr>
 Céline Scornavacca <celine.scornavacca@lirmm.fr>
 Laurent Guéguen    <laurent.gueguen@univ-lyon1.fr>
 Nicolas Rochette   <nicolas.rochette@univ-lyon1.fr>
+Fanny Pouyet       <fanny.pouyet@univ-lyon1.fr>
+François Gindraud  <francois.gindraud@gmail.com>
 
 Contributed code to Bio++ was enabled thanks to the following institutions and resources:
 
@@ -21,3 +23,4 @@ Contributed code to Bio++ was enabled thanks to the following institutions and r
 2009 - 2010 Berkeley University (Bastien Boussau)
 2010 -      Laboratoire BBE - UMR CNRS 5558 Université Lyon 1 (Bastien Boussau)   
 2008 -      Laboratoire BBE - UMR CNRS 5558 Université Lyon 1 (Laurent Guéguen)
+2017 - 2018 Projet GrASP - LabEX Ecofect - Université de Lyon (François Gindraud)

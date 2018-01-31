@@ -55,6 +55,7 @@ using namespace bpp;
 // From the STL:
 #include <iostream>
 #include <fstream>
+#include <algorithm>
 
 using namespace std;
 
@@ -387,13 +388,10 @@ shared_ptr<PhyloNode>  Nhx::parenthesisToNode(PhyloTree& tree, shared_ptr<PhyloN
   else
     tree.createNode(node);
   
-
   if (!TextTools::isEmpty(elt.annotation))
   {
     bool hasId = setNodeProperties(tree, node, elt.annotation);
     hasIds_ |= hasId;
-    if (hasIds_ && !hasId)
-      throw Exception("Nhx::parenthesisToNode. At least one node is missing an id (ND tag).");
   }
  
   NestedStringTokenizer nt(elt.content, "(", ")", ",");
@@ -417,6 +415,7 @@ shared_ptr<PhyloNode>  Nhx::parenthesisToNode(PhyloTree& tree, shared_ptr<PhyloN
       parenthesisToNode(tree, node, elements[i]);
     }
   }
+
   return node;
 }
 
@@ -434,15 +433,62 @@ PhyloTree* Nhx::parenthesisToPhyloTree(const string& description) const
   shared_ptr<PhyloNode> root = parenthesisToNode(*tree, 0, content);
 
   tree->rootAt(root);
-  
-  if (!hasIds_)
-  {
-    tree->resetNodesId();
-  }
 
+  if (!hasIds_)
+    tree->resetNodesId();
+  else
+    checkNodesId_(*tree);
+  
+  Vuint vid=tree->getAllNodesIndexes();
   return tree;
 }
 
+/******************************************************************************/
+
+void Nhx::checkNodesId_(PhyloTree& tree) const
+{
+  std::unique_ptr<PhyloTree::NodeIterator> nIT=tree.allNodesIterator();
+
+  Vuint nid;
+  vector<shared_ptr<PhyloNode> > vNode;
+  
+  for (;!nIT->end(); nIT->next())
+    if (tree.hasIndex(**nIT))
+      nid.push_back(tree.getNodeIndex(**nIT));
+    else
+      vNode.push_back(**nIT);
+          
+  if (nid.size()==tree.getNumberOfNodes())
+    return;
+
+  if (vNode.size()!=tree.getNumberOfNodes())
+    ApplicationTools::displayWarning("Warning, missing tree nodes Id automatically filled in NHX.");
+
+  std::sort(nid.begin(),nid.end());
+
+  Vuint::iterator it(nid.begin());
+
+  uint val=*(it++)+1;
+  while (it!=nid.end() && val==*it)
+  {
+    val++;
+    it++;
+  }
+  
+  for (auto& node:vNode)
+  {
+    tree.setNodeIndex(node, val);
+    if (tree.hasFather(node))
+      tree.setEdgeIndex(tree.getEdgeToFather(node), val);
+    val++;
+    while (it!=nid.end() && val==*it)
+    {
+      val++;
+      it++;
+    }    
+  }
+  
+}
 
 /******************************************************************************/
 
@@ -537,6 +583,7 @@ bool Nhx::setNodeProperties(PhyloTree& tree, shared_ptr<PhyloNode> node , const 
       hasId = true;   
     }
   }
+
   return hasId;
 }
 

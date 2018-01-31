@@ -66,7 +66,7 @@ private:
     size_t index_;
 
 public:
-    ConstHomogeneousSiteModelIterator(const Tree& tree, const SubstitutionModel* model) :
+    ConstHomogeneousSiteModelIterator(const Tree& tree, const TransitionModel* model) :
       siteModelDescription_(model, tree.getBranchesId()),
       index_(0) {}
 
@@ -83,7 +83,7 @@ public:
   };
 
 protected:
-  SubstitutionModel* model_;
+  TransitionModel* model_;
   ParameterList brLenParameters_;
 
   mutable std::map<int, VVVdouble> pxy_;
@@ -118,7 +118,7 @@ protected:
 public:
   AbstractHomogeneousTreeLikelihood(
     const Tree& tree,
-    SubstitutionModel* model,
+    TransitionModel* model,
     DiscreteDistribution* rDist,
     bool checkRooted = true,
     bool verbose = true)
@@ -145,7 +145,7 @@ private:
    * @brief Method called by constructor.
    */
   void init_(const Tree& tree,
-             SubstitutionModel* model,
+             TransitionModel* model,
              DiscreteDistribution* rDist,
              bool checkRooted,
              bool verbose) throw (Exception);
@@ -200,14 +200,33 @@ public:
    *
    * @{
    */
-  const SubstitutionModel* getSubstitutionModel() const { return model_; }
-  const SubstitutionModel* getSubstitutionModel(int nodeId, size_t siteIndex) const throw (NodeNotFoundException) { return model_; }
+  const TransitionModel* getModel() const { return model_; }
+  const TransitionModel* getModel(int nodeId, size_t siteIndex) const { return model_; }
 
-  SubstitutionModel* getSubstitutionModel() { return model_; }
-  SubstitutionModel* getSubstitutionModel(int nodeId, size_t siteIndex) throw (NodeNotFoundException) { return model_; }
+  TransitionModel* getModel() { return model_; }
+  TransitionModel* getModel(int nodeId, size_t siteIndex) { return model_; }
 
-  void setSubstitutionModel(SubstitutionModel* model) throw (Exception);
+  void setModel(TransitionModel* model) throw (Exception);
   /** @} */
+
+  /**
+   * @brief Get a SubstitutionModel pointer toward the model associated to this instance, if possible.
+   *
+   * Performs a cast operation on the pointer. Return NULL if cast failed.
+   * @return A SubstitutionModel pointer toward the model associated to this instance.
+   */
+  virtual const SubstitutionModel* getSubstitutionModel() const { return dynamic_cast<const SubstitutionModel*>(model_); }
+  
+  /**
+   * @brief Get a SubstitutionModel pointer toward the model associated to this instance, if possible.
+   *
+   * Performs a cast operation on the pointer. Return NULL if cast failed.
+   * @return A SubstitutionModel pointer toward the model associated to this instance.
+   *
+   * @param nodeId Id of the node
+   * @param siteIndex Position of the site
+   */
+  virtual const SubstitutionModel* getSubstitutionModel(int nodeId, size_t siteIndex) const { return dynamic_cast<const SubstitutionModel*>(model_); }
 
 public:
   // Specific methods:

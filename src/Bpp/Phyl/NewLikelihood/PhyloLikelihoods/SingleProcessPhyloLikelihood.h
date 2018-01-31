@@ -126,7 +126,7 @@ namespace bpp
      *
      * @{
      */
-    void setData(const SiteContainer& sites, size_t nData = 0)
+    void setData(const AlignedValuesContainer& sites, size_t nData = 0)
     {
       AbstractSingleDataPhyloLikelihood::setData(sites, nData);
 
@@ -140,7 +140,7 @@ namespace bpp
      *
      */
       
-    const SiteContainer* getData() const {
+    const AlignedValuesContainer* getData() const {
       return tlComp_->getData();
     }
 
@@ -149,13 +149,6 @@ namespace bpp
     }
 
     /** @} */
-
-    // TODO: need to acount for model classes
-    // ConstBranchModelIterator* getNewBranchModelIterator(int nodeId) const
-    // {
-    //  return new ConstNoPartitionBranchModelIterator(modelSet_->getModelForNode(nodeId), nbDistinctSites_);
-    // }
-
 
     /**
      * @name Handling of substitution process
@@ -332,30 +325,30 @@ namespace bpp
       return tlComp_->getD2LogLikelihood();
     }
 
-    double getLikelihoodForASite(size_t siteIndex) const
+    double getLikelihoodForASite(size_t site) const
     {
       updateLikelihood();
       computeLikelihood();
-      return tlComp_->getLikelihoodForASite(siteIndex);
+      return tlComp_->getLikelihoodForASite(site);
     }
 
-    double getLogLikelihoodForASite(size_t siteIndex) const
+    double getLogLikelihoodForASite(size_t site) const
     {
       updateLikelihood();
       computeLikelihood();
-      return tlComp_->getLogLikelihoodForASite(siteIndex);
+      return tlComp_->getLogLikelihoodForASite(site);
     }
 
-    double getDLogLikelihoodForASite(const std::string& variable, size_t siteIndex) const {
+    double getDLogLikelihoodForASite(const std::string& variable, size_t site) const {
       if (dValues_.find(variable)!=dValues_.end())
-        return tlComp_->getDLogLikelihoodForASite(siteIndex);
+        return tlComp_->getDLogLikelihoodForASite(site);
       else
         return 0;
     }
 
-    double getD2LogLikelihoodForASite(const std::string& variable, size_t siteIndex) const {
+    double getD2LogLikelihoodForASite(const std::string& variable, size_t site) const {
       if (dValues_.find(variable)!=dValues_.end())
-        return tlComp_->getD2LogLikelihoodForASite(siteIndex);
+        return tlComp_->getD2LogLikelihoodForASite(site);
       else
         return 0;
     }
@@ -365,7 +358,7 @@ namespace bpp
      *
      * @return A 2d vector with all likelihoods for each site and for each state.
      */
-    VVdouble getLikelihoodForEachSiteForEachState() const;
+    VVdouble getLikelihoodPerSitePerState() const;
 
     /**
      * @brief Get the likelihood for each site and each model class.
@@ -373,7 +366,17 @@ namespace bpp
      * @return A two-dimension vector with all likelihoods:
      * <code>V[i][j] =</code> likelihood of site i and model class j.
      */
-    VVdouble getLikelihoodForEachSiteForEachClass() const;
+    VVdouble getLikelihoodPerSitePerClass() const;
+
+    /**
+     * @brief Get the likelihood for a site and each model class.
+     * @param i the index of the site
+     *
+     * @return A  vector with all likelihoods:
+     * <code>V[j] =</code> likelihood of site i and model class j.
+     */
+
+    Vdouble getLikelihoodForSitePerClass(size_t i) const;
 
     /**
      * @brief Get the likelihood for each site and each model class and each state.
@@ -381,27 +384,30 @@ namespace bpp
      * @return A three-dimension vector with all likelihoods:
      * <code>V[i][j][k} =</code> likelihood of site i and model class j and state k.
      */
-    VVVdouble getLikelihoodForEachSiteForEachClassForEachState() const;
+    VVVdouble getLikelihoodPerSitePerClassPerState() const;
       
     /** @} */
-      
-    /**
-     * @brief Get the index (used for inner computations) of a given site (original alignment column).
-     *
-     * @param site An alignment position.
-     * @return The site index corresponding to the given input alignment position.
-     */
-    size_t getSiteIndex(size_t site) const throw (IndexOutOfBoundsException) {
-      return tlComp_->getSiteIndex(site);
-    }
       
     /**
      * Utilities
      *
      */
-      
-    VVdouble getPosteriorProbabilitiesOfEachClass() const;
-      
+
+    /*
+     * @brief Compute and return the Posterior Probabilities Of Rate
+     *        Classes on all sites (array site X classes=)
+     */
+    
+    VVdouble getPosteriorProbabilitiesPerClass() const;
+
+    /*
+     * @brief Compute and return the Posterior Probabilities Of Rate
+     *        Classes on a site
+     * @param i the index of the site
+     */
+    
+    Vdouble getPosteriorProbabilitiesForSitePerClass(size_t i) const;
+
     /**
      * @brief Get the posterior model class (the one with maximum posterior
      * probability) for each site.
@@ -409,9 +415,9 @@ namespace bpp
      * @return A vector with all model classes indexes.
      */
 
-    std::vector<size_t> getClassWithMaxPostProbOfEachSite() const;
+    std::vector<size_t> getClassWithMaxPostProbPerSite() const;
       
-    Vdouble getPosteriorRateOfEachSite() const;
+    Vdouble getPosteriorRatePerSite() const;
 
     /* @} */
 

@@ -88,6 +88,7 @@ public:
    *   are owned by the instance.
    * @param prefix the Namespace.
    */
+
   WordSubstitutionModel(ModelList& modelList, const std::string& prefix = "");
 
   /**

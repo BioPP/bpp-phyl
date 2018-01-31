@@ -98,7 +98,7 @@ void PairedSiteLikelihoods::appendModel(
 
 void PairedSiteLikelihoods::appendModel(const bpp::TreeLikelihood& treeLikelihood) throw (Exception)
 {
-  const vector<double>& siteLogLikelihoods = treeLikelihood.getLogLikelihoodForEachSite();
+  const vector<double>& siteLogLikelihoods = treeLikelihood.getLogLikelihoodPerSite();
   const string& modelName = treeLikelihood.getTree().getName();
 
   PairedSiteLikelihoods::appendModel(siteLogLikelihoods, modelName);

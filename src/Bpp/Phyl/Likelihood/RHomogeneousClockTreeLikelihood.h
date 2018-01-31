@@ -87,7 +87,7 @@ class RHomogeneousClockTreeLikelihood:
      */
     RHomogeneousClockTreeLikelihood(
       const Tree& tree,
-      SubstitutionModel* model,
+      TransitionModel* model,
       DiscreteDistribution* rDist,
       bool checkRooted = true,
       bool verbose = true)
@@ -111,8 +111,8 @@ class RHomogeneousClockTreeLikelihood:
      */
     RHomogeneousClockTreeLikelihood(
       const Tree& tree,
-      const SiteContainer& data,
-      SubstitutionModel* model,
+      const AlignedValuesContainer& data,
+      TransitionModel* model,
       DiscreteDistribution* rDist,
       bool checkRooted = true,
       bool verbose = true)

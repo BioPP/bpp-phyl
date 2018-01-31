@@ -41,9 +41,6 @@
 
 #include <Bpp/Numeric/Matrix/MatrixTools.h>
 
-// From SeqLib:
-#include <Bpp/Seq/Container/SequenceContainerTools.h>
-
 // From the STL:
 #include <cmath>
 
@@ -114,6 +111,7 @@ RN95::RN95(
   addParameter_(new Parameter("RN95.alphaP", alphaP, new IntervalConstraint(1, 1, false), true));
   addParameter_(new Parameter("RN95.sigmaP", sigmaP, new IntervalConstraint(1, 1, false), true));
 
+  computeFrequencies(false);
   updateMatrices();
 }
 

@@ -89,12 +89,13 @@ class SubstitutionProcessCollection :
 {
 private:
   /**
-   * A collection of Substitution Models
+   * A collection of Transition Models
    */
-  ParametrizableCollection<SubstitutionModel> modelColl_;
+  
+  ParametrizableCollection<TransitionModel> modelColl_;
 
   /**
-   * A map from each SubstitutionModel number to the SubProcess
+   * A map from each TransitionModel number to the SubProcess
    * members that are linked to it.
    *
    */
@@ -126,11 +127,11 @@ private:
    * categories that are used independently as ConstantDistributions.
    *
    * These ConstantDistributions are stored in distColl_ with numbers
+
    * 10000*(numberOfDiscreteDistribution+1) + numberOfTheCategory.
    */
 
   std::map<size_t, std::vector<size_t> > mVConstDist_;
-  
    
   /**
    * A map from each DiscreteDistribution number to the SubProcess
@@ -192,12 +193,7 @@ public:
     clear();
   }
 
-#ifndef NO_VIRTUAL_COV
-  SubstitutionProcessCollection*
-#else
-  Clonable*
-#endif
-  clone() const { return new SubstitutionProcessCollection(*this); }
+  SubstitutionProcessCollection* clone() const { return new SubstitutionProcessCollection(*this); }
 
 
   /**
@@ -239,7 +235,7 @@ public:
    * ? operator[] ?
    */
   
-  void addModel(SubstitutionModel* model, size_t modelIndex)
+  void addModel(TransitionModel* model, size_t modelIndex)
   {
     addParametrizable(model, modelIndex);
   }
@@ -263,20 +259,20 @@ public:
   }
 
   /**
-   * @brief Get a SubstitutionModel from the collection.
+   * @brief Get a TransitionModel from the collection.
    *
    * @param modelIndex The index of the model in the collection.
-   * @return the got SubstitutionModel*. 
+   * @return the got TransitionModel*. 
    */
   
-  SubstitutionModel& getModel(size_t modelIndex)
+  TransitionModel* getModel(size_t modelIndex)
   {
-    return *(dynamic_cast<SubstitutionModel*>(modelColl_[modelIndex]));
+    return dynamic_cast<TransitionModel*>(modelColl_[modelIndex]);
   }
 
-  const SubstitutionModel& getModel(size_t modelIndex) const
+  const TransitionModel* getModel(size_t modelIndex) const
   {
-    return *(dynamic_cast<const SubstitutionModel*>(modelColl_[modelIndex]));
+    return dynamic_cast<const TransitionModel*>(modelColl_[modelIndex]);
   }
 
   /**

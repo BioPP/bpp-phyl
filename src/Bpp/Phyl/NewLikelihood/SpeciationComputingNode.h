@@ -69,7 +69,7 @@ namespace bpp
   {
   private:
   
-    const SubstitutionModel* model_;
+    const TransitionModel* model_;
 
     size_t nbStates_;
     
@@ -101,7 +101,7 @@ namespace bpp
     mutable Vdouble vLogStates_;
     
   public:
-    SpeciationComputingNode(const SubstitutionModel* model);
+    SpeciationComputingNode(const TransitionModel* model);
 
     SpeciationComputingNode(const PhyloNode& np);
 
@@ -113,7 +113,7 @@ namespace bpp
     
     ~SpeciationComputingNode() {}
 
-    void setSubstitutionModel(const SubstitutionModel* pSM);
+    void setTransitionModel(const TransitionModel* pSM);
 
     void setDistanceToFather(double x)
     {
@@ -121,7 +121,7 @@ namespace bpp
       update();
     }
 
-    const SubstitutionModel* getSubstitutionModel() const
+    const TransitionModel* getModel() const
     {
       return model_;      
     }

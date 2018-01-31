@@ -93,7 +93,7 @@ PartitionProcessPhyloLikelihood::PartitionProcessPhyloLikelihood(
 /******************************************************************************/
 
 PartitionProcessPhyloLikelihood::PartitionProcessPhyloLikelihood(
-  const SiteContainer& data,
+  const AlignedValuesContainer& data,
   PartitionSequenceEvolution& processSeqEvol,
   size_t nSeqEvol,
   size_t nData,
@@ -154,7 +154,7 @@ bool PartitionProcessPhyloLikelihood::addPhyloLikelihood(size_t nPhyl)
 
 /******************************************************************************/
 
-void PartitionProcessPhyloLikelihood::setData(const SiteContainer& data, size_t nData)
+void PartitionProcessPhyloLikelihood::setData(const AlignedValuesContainer& data, size_t nData)
 {
   if (data.getNumberOfSites()!=mSeqEvol_.getNumberOfSites())
     throw BadIntegerException("PartitionProcessPhyloLikelihood::PartitionProcessPhyloLikelihood, data and sequence process lengths do not match.", (int)data.getNumberOfSites());
@@ -165,10 +165,9 @@ void PartitionProcessPhyloLikelihood::setData(const SiteContainer& data, size_t 
 
   for (std::map<size_t, std::vector<size_t> >::const_iterator it=mProcPos.begin(); it!=mProcPos.end(); it++)
   {
-    SiteContainer* st=SiteContainerTools::getSelectedSites(data, it->second);
-
-    getPhyloContainer()->setData(*st, it->first);
+    AlignedValuesContainer* st=SiteContainerTools::getSelectedSites(data, it->second);
     
+    getPhyloContainer()->setData(*st, it->first);    
     delete st;
   }
 }

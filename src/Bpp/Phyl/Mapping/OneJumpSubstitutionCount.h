@@ -65,7 +65,7 @@ class OneJumpSubstitutionCount:
   
   public:
     OneJumpSubstitutionCount(const SubstitutionModel* model) :
-      AbstractSubstitutionCount(new TotalSubstitutionRegister(model)),
+      AbstractSubstitutionCount(new TotalSubstitutionRegister(model->getStateMap())),
       model_(model), tmp_() {}
     
     OneJumpSubstitutionCount(const OneJumpSubstitutionCount& ojsc) :
@@ -93,7 +93,7 @@ class OneJumpSubstitutionCount:
 
     Matrix<double>* getAllNumbersOfSubstitutions(double length, size_t type = 1) const;
     
-    std::vector<double> getNumberOfSubstitutionsForEachType(size_t initialState, size_t finalState, double length) const
+    std::vector<double> getNumberOfSubstitutionsPerType(size_t initialState, size_t finalState, double length) const
     {
       std::vector<double> v(0);
       v[0] = getNumberOfSubstitutions(initialState, finalState, length, 0);

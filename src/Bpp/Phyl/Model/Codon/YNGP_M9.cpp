@@ -38,6 +38,7 @@
 
 #include "YNGP_M9.h"
 #include "YN98.h"
+#include "../MixtureOfASubstitutionModel.h"
 
 #include <Bpp/Numeric/Prob/MixtureOfDiscreteDistributions.h>
 #include <Bpp/Numeric/Prob/BetaDiscreteDistribution.h>
@@ -51,10 +52,7 @@ using namespace std;
 /******************************************************************************/
 
 YNGP_M9::YNGP_M9(const GeneticCode* gc, FrequenciesSet* codonFreqs, unsigned int nbBeta, unsigned int nbGamma) :
-  AbstractBiblioMixedSubstitutionModel("YNGP_M9."),
-  pmixmodel_(),
-  synfrom_(),
-  synto_(),
+  YNGP_M("YNGP_M9."),
   nBeta_(nbBeta),
   nGamma_(nbGamma)
 {
@@ -110,10 +108,10 @@ YNGP_M9::YNGP_M9(const GeneticCode* gc, FrequenciesSet* codonFreqs, unsigned int
   // specific parameters
 
   string st;
-  for (map<string, string>::iterator it = mapParNamesFromPmodel_.begin(); it != mapParNamesFromPmodel_.end(); it++)
+  for (auto it : mapParNamesFromPmodel_)
   {
-    st = pmixmodel_->getParameterNameWithoutNamespace(it->first);
-    addParameter_(new Parameter("YNGP_M9." + it->second, pmixmodel_->getParameterValue(st),
+    st = pmixmodel_->getParameterNameWithoutNamespace(it.first);
+    addParameter_(new Parameter("YNGP_M9." + it.second, pmixmodel_->getParameterValue(st),
                                 pmixmodel_->getParameter(st).hasConstraint() ? pmixmodel_->getParameter(st).getConstraint()->clone() : 0, true));
   }
 
@@ -137,31 +135,6 @@ YNGP_M9::YNGP_M9(const GeneticCode* gc, FrequenciesSet* codonFreqs, unsigned int
   // update Matrices
   updateMatrices();
 }
-
-YNGP_M9::YNGP_M9(const YNGP_M9& mod2) : AbstractBiblioMixedSubstitutionModel(mod2),
-                                           pmixmodel_(new MixtureOfASubstitutionModel(*mod2.pmixmodel_)),
-                                           synfrom_(mod2.synfrom_),
-                                           synto_(mod2.synto_),
-                                           nBeta_(mod2.nBeta_),
-                                           nGamma_(mod2.nGamma_)
-
-{}
-
-
-YNGP_M9& YNGP_M9::operator=(const YNGP_M9& mod2)
-{
-  AbstractBiblioMixedSubstitutionModel::operator=(mod2);
-
-  pmixmodel_.reset(new MixtureOfASubstitutionModel(*mod2.pmixmodel_));
-  synfrom_ = mod2.synfrom_;
-  synto_ = mod2.synto_;
-  nBeta_ = mod2.nBeta_;
-  nGamma_ = mod2.nGamma_;
-  
-  return *this;
-}
-
-YNGP_M9::~YNGP_M9() {}
 
 void YNGP_M9::updateMatrices()
 {

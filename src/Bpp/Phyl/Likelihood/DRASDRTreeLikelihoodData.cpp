@@ -45,10 +45,11 @@
 #include <Bpp/Seq/SiteTools.h>
 
 using namespace bpp;
+using namespace std;
 
 /******************************************************************************/
 
-void DRASDRTreeLikelihoodData::initLikelihoods(const SiteContainer& sites, const SubstitutionModel& model) throw (Exception)
+void DRASDRTreeLikelihoodData::initLikelihoods(const AlignedValuesContainer& sites, const TransitionModel& model) throw (Exception)
 {
   if (sites.getNumberOfSequences() == 1)
     throw Exception("Error, only 1 sequence!");
@@ -64,8 +65,6 @@ void DRASDRTreeLikelihoodData::initLikelihoods(const SiteContainer& sites, const
   nbSites_  = sites.getNumberOfSites();
 
   SitePatterns pattern(&sites);
-  if (shrunkData_)
-    delete shrunkData_;
   shrunkData_       = pattern.getSites();
   rootWeights_      = pattern.getWeights();
   rootPatternLinks_ = pattern.getIndices();
@@ -73,9 +72,15 @@ void DRASDRTreeLikelihoodData::initLikelihoods(const SiteContainer& sites, const
 
   // Init data:
   // Clone data for more efficiency on sequences access:
-  const SiteContainer* sequences = new AlignedSequenceContainer(*shrunkData_);
+
+  const SiteContainer* sc=dynamic_cast<const SiteContainer*>(shrunkData_.get());
+  const VectorProbabilisticSiteContainer* psc=dynamic_cast<const VectorProbabilisticSiteContainer*>(shrunkData_.get());
+  
+  shared_ptr<const AlignedValuesContainer> sequences(sc?
+                                               static_cast<const AlignedValuesContainer*>(sc->clone()):
+                                               static_cast<const AlignedValuesContainer*>(psc->clone()));
+  
   initLikelihoods(tree_->getRootNode(), *sequences, model);
-  delete sequences;
 
   // Now initialize root likelihoods and derivatives:
   rootLikelihoods_.resize(nbDistinctSites_);
@@ -101,15 +106,15 @@ void DRASDRTreeLikelihoodData::initLikelihoods(const SiteContainer& sites, const
 
 /******************************************************************************/
 
-void DRASDRTreeLikelihoodData::initLikelihoods(const Node* node, const SiteContainer& sites, const SubstitutionModel& model) throw (Exception)
+void DRASDRTreeLikelihoodData::initLikelihoods(const Node* node, const AlignedValuesContainer& sites, const TransitionModel& model) throw (Exception)
 {
   if (node->isLeaf())
   {
     // Init leaves likelihoods:
-    const Sequence* seq;
+    size_t posSeq;    
     try
     {
-      seq = &sites.getSequence(node->getName());
+      posSeq=sites.getSequencePosition(node->getName());
     }
     catch (SequenceNotFoundException& snfe)
     {
@@ -123,14 +128,13 @@ void DRASDRTreeLikelihoodData::initLikelihoods(const Node* node, const SiteConta
     {
       Vdouble* leavesLikelihoods_leaf_i = &(*leavesLikelihoods_leaf)[i];
       leavesLikelihoods_leaf_i->resize(nbStates_);
-      int state = seq->getValue(i);
       double test = 0.;
 
       for (size_t s = 0; s < nbStates_; s++)
       {
         // Leaves likelihood are set to 1 if the char correspond to the site in the sequence,
         // otherwise value set to 0:
-        ( *leavesLikelihoods_leaf_i)[s] = model.getInitValue(s, state);
+        ( *leavesLikelihoods_leaf_i)[s] = sites.getStateValueAt(i, posSeq, model.getAlphabetStateAsInt(s));
         test += ( *leavesLikelihoods_leaf_i)[s];
       }
       if (test < 0.000001)

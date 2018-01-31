@@ -789,10 +789,10 @@ namespace bpp
             if (usesLog())
             {
               if (bro->usesLog())
-                temp_+=bro->getToFatherBelowLikelihoodArray_(ComputingNode::D0);
+                temp_+=bro->getToFatherBelowLikelihoodArray(ComputingNode::D0);
               else
               {
-                temp2_=VectorTools::log(bro->getToFatherBelowLikelihoodArray_(ComputingNode::D0));
+                temp2_=VectorTools::log(bro->getToFatherBelowLikelihoodArray(ComputingNode::D0));
                 temp_+=temp2_;
               }
             }
@@ -800,11 +800,11 @@ namespace bpp
             {
               if (bro->usesLog())
               {
-                temp2_=VectorTools::exp(bro->getToFatherBelowLikelihoodArray_(ComputingNode::D0));
+                temp2_=VectorTools::exp(bro->getToFatherBelowLikelihoodArray(ComputingNode::D0));
                 temp_*=temp2_;
               }
               else
-                temp_*=bro->getToFatherBelowLikelihoodArray_(ComputingNode::D0);
+                temp_*=bro->getToFatherBelowLikelihoodArray(ComputingNode::D0);
             }
           }
         }
@@ -816,14 +816,14 @@ namespace bpp
 
     }
 
-      private:
+  public:
 
     /*
      * @brief retrieve the Below DXLikelihood Arrays
      *
      */
     
-    VVdouble& getBelowLikelihoodArray_(unsigned char DX)
+    const VVdouble& getBelowLikelihoodArray(unsigned char DX) const
     {
       switch(DX){
       case ComputingNode::D0:
@@ -837,7 +837,41 @@ namespace bpp
       }
     }
 
-    const VVdouble& getBelowLikelihoodArray_(unsigned char DX) const
+    /*
+     * @brief retrieve the Below to Father DXLikelihood Arrays
+     *
+     */
+
+    const VVdouble& getToFatherBelowLikelihoodArray(unsigned char DX) const
+    {
+      switch(DX){
+      case ComputingNode::D0:
+        return node_fatherLikelihoods_B_;
+      case ComputingNode::D1:
+        return node_fatherDLikelihoods_B_;
+      case ComputingNode::D2:
+        return node_fatherD2Likelihoods_B_;
+      default:
+        throw Exception("Unknown derivative " + TextTools::toString(DX));
+      }
+    }
+
+    /*
+     * @brief retrieve the Above to Father Likelihood Arrays
+     *
+     */
+
+    const VVdouble& getAboveLikelihoodArray() const {
+      return nodeLikelihoods_A_; }
+
+  private:
+
+    /*
+     * @brief retrieve the Below DXLikelihood Arrays
+     *
+     */
+    
+    VVdouble& getBelowLikelihoodArray_(unsigned char DX)
     {
       switch(DX){
       case ComputingNode::D0:
@@ -870,20 +904,6 @@ namespace bpp
       }
     }
 
-    const VVdouble& getToFatherBelowLikelihoodArray_(unsigned char DX) const
-    {
-      switch(DX){
-      case ComputingNode::D0:
-        return node_fatherLikelihoods_B_;
-      case ComputingNode::D1:
-        return node_fatherDLikelihoods_B_;
-      case ComputingNode::D2:
-        return node_fatherD2Likelihoods_B_;
-      default:
-        throw Exception("Unknown derivative " + TextTools::toString(DX));
-      }
-    }
-
     /*
      * @brief retrieve the Above to Father Likelihood Arrays
      *
@@ -891,10 +911,6 @@ namespace bpp
 
     VVdouble& getAboveLikelihoodArray_() {
       return nodeLikelihoods_A_; }
-
-    const VVdouble& getAboveLikelihoodArray_() const {
-      return nodeLikelihoods_A_; }
-
 
     /*
      * @brief  Use patterns or not for computing likelihood arrays from sons

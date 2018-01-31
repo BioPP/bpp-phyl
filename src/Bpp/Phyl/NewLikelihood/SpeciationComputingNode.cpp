@@ -43,7 +43,7 @@
 using namespace bpp;
 using namespace std;
 
-SpeciationComputingNode::SpeciationComputingNode(const SubstitutionModel* model) :
+SpeciationComputingNode::SpeciationComputingNode(const TransitionModel* model) :
   ComputingNode(),
   AbstractParametrizable(""),
   model_(model),
@@ -113,7 +113,7 @@ SpeciationComputingNode& SpeciationComputingNode::operator=(const SpeciationComp
   return *this;
 }
 
-void SpeciationComputingNode::setSubstitutionModel(const SubstitutionModel* pSM)
+void SpeciationComputingNode::setTransitionModel(const TransitionModel* pSM)
 {
   model_=pSM;
 

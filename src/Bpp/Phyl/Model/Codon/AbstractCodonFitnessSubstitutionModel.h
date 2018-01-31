@@ -63,17 +63,26 @@ namespace bpp
 
 
   class AbstractCodonFitnessSubstitutionModel :
-    public virtual CodonSubstitutionModel,
+    public virtual CoreCodonSubstitutionModel,
     public virtual AbstractParameterAliasable
   {
   private:
     FrequenciesSet* pfitset_;
+
+    const GeneticCode* pgencode_;
+  
     std::string fitName_;
+
   public:
-    AbstractCodonFitnessSubstitutionModel(FrequenciesSet* pfitset, const std::string& prefix);
+    AbstractCodonFitnessSubstitutionModel(
+      FrequenciesSet* pfitset,
+      const GeneticCode* pgencode,
+      const std::string& prefix);
+    
     AbstractCodonFitnessSubstitutionModel(const AbstractCodonFitnessSubstitutionModel& model):
       AbstractParameterAliasable(model),
       pfitset_(model.pfitset_->clone()),
+      pgencode_(model.pgencode_),
       fitName_(model.fitName_)
     {}
 
@@ -81,23 +90,38 @@ namespace bpp
       AbstractParameterAliasable::operator=(model);
       if (pfitset_) delete pfitset_;
       pfitset_ = model.pfitset_->clone();
+      pgencode_ = model.pgencode_;
       fitName_ = model.fitName_ ;
       return *this;
+    }
+
+    AbstractCodonFitnessSubstitutionModel* clone() const
+    {
+      return new AbstractCodonFitnessSubstitutionModel(*this);
     }
 
     virtual ~AbstractCodonFitnessSubstitutionModel();
 
   public:
     void fireParameterChanged (const ParameterList& parameters);
+
     void setFreq(std::map<int, double>& frequencies);
+
     const FrequenciesSet& getFreq() const { return *pfitset_; }
+
     void setNamespace (const std::string& prefix){
+      AbstractParameterAliasable::setNamespace(prefix);
       pfitset_->setNamespace(prefix + fitName_);
     }
 
     double getCodonsMulRate(size_t i, size_t j) const;
 
     const FrequenciesSet* getFitness() const { return pfitset_;}
+
+    const FrequenciesSet* getFrequenciesSet() const 
+    {
+      return 0;
+    }
 
   };
 } // end of namespace bpp

@@ -48,7 +48,7 @@
 #include <Bpp/Numeric/ParameterAliasable.h>
 #include <Bpp/Numeric/Prob/DiscreteDistribution.h>
 
-#include <Bpp/Seq/Container/SiteContainer.h>
+#include <Bpp/Seq/Container/AlignedValuesContainer.h>
 
 //From the STL:
 #include <memory>
@@ -61,7 +61,7 @@ namespace bpp
  *
  * It main purpose is to provide the necessary calculus for each branch-site-model class combination,
  * such as Markov generator and transition probabilities.
- * These are typically provided by a SubstitutionModel class, applied in various combination along the
+ * These are typically provided by a TransitionModel class, applied in various combination along the
  * tree (eg non-homogeneous models) and alignment (eg partition models).
  * The so-called "model class" refers to mixture models.
  *
@@ -84,8 +84,14 @@ namespace bpp
     virtual SubstitutionProcess* clone() const = 0;
 
   public:
-    virtual bool isCompatibleWith(const SiteContainer& data) const = 0;
+    /**
+     * @return The state map associated with the models of this process
+     */
 
+    virtual const StateMap& getStateMap() const = 0;
+    
+    virtual bool isCompatibleWith(const AlignedValuesContainer& data) const = 0;
+    
     // virtual const TreeTemplate<Node>& getTree() const = 0;
   
     virtual const ParametrizablePhyloTree& getParametrizablePhyloTree() const = 0;
@@ -95,11 +101,23 @@ namespace bpp
     virtual size_t getNumberOfStates() const = 0;
 
     /**
-     * @return The current number of distinct substitution models.
+     * @return The current number of distinct models.
      */
 
     virtual size_t getNumberOfModels() const = 0;
+
+    /**
+     * @return The current indexes of models used in the process
+     */
     
+    virtual std::vector<size_t> getModelNumbers() const = 0;
+
+    /**
+     * @return the model with given index.
+     */
+    
+    virtual const TransitionModel* getModel(size_t i) const = 0;
+
     /**
      * @brief Get the substitution model corresponding to a certain
      * branch, site pattern, and model class.
@@ -108,7 +126,17 @@ namespace bpp
      * @param classIndex The model class index.
      */
 
-    virtual const SubstitutionModel& getSubstitutionModel(unsigned int nodeId, size_t classIndex) const = 0;
+    virtual const TransitionModel* getModel(unsigned int nodeId, size_t classIndex) const = 0;
+
+    /**
+     * @brief Get a list of nodes id for which the given model is associated.
+     *
+     * @param i The index of the model in the set.
+     * @return A vector with the ids of the node associated to this model.
+     * @throw IndexOutOfBoundsException If the index is not valid.
+     */
+
+    virtual const std::vector<unsigned int> getNodesWithModel(size_t i) const = 0;
 
     /**
      * @brief Get a pointer to the rate distribution (or null if there
@@ -170,7 +198,7 @@ namespace bpp
      * @param nodeId The id of the node.
      * @param classIndex The model class index.
      */
-    virtual const Matrix<double>& getGenerator(unsigned int nodeId, size_t classIndex) const = 0;
+    // virtual const Matrix<double>& getGenerator(unsigned int nodeId, size_t classIndex) const = 0;
 
     /**
      * @brief Get the values of the frequencies for each state in the

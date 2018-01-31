@@ -117,7 +117,7 @@ namespace bpp
        * @throw Exception in an error occured.
        */
       RecursiveLikelihoodTreeCalculation(
-        const SiteContainer& data,
+        const AlignedValuesContainer& data,
         const SubstitutionProcess* process,
         bool verbose = true,
         bool usePatterns = true)

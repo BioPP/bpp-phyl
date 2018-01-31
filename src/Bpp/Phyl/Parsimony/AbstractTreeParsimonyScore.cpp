@@ -90,13 +90,16 @@ void AbstractTreeParsimonyScore::init_(const SiteContainer& data, bool verbose) 
   TreeTemplateTools::deleteBranchLengths(*tree_->getRootNode());
 
   // Sequences will be in the same order than in the tree:
-  data_ = PatternTools::getSequenceSubset(data, *tree_->getRootNode());
+  data_ = dynamic_cast<const SiteContainer*>(PatternTools::getSequenceSubset(data, *tree_->getRootNode()));
+  if (!data_)
+    throw Exception("AbstractTreeParsimonyScore::init_ : Data must be plain alignments.");
+  
   if (data_->getNumberOfSequences() == 1) throw Exception("Error, only 1 sequence!");
   if (data_->getNumberOfSequences() == 0) throw Exception("Error, no sequence!");
   if (data_->getAlphabet()->getSize() > 20) throw Exception("Error, only alphabet with size <= 20 are supported. See the source file of AbstractTreeParsimonyScore.");
 }
 
-std::vector<unsigned int> AbstractTreeParsimonyScore::getScoreForEachSite() const
+std::vector<unsigned int> AbstractTreeParsimonyScore::getScorePerSite() const
 {
   vector<unsigned int> scores(data_->getNumberOfSites());
   for (size_t i = 0; i < scores.size(); i++)

@@ -50,8 +50,9 @@ CodonDistanceSubstitutionModel::CodonDistanceSubstitutionModel(
     const AlphabetIndex2* pdist) :
   AbstractParameterAliasable("CodonDist."),
   AbstractCodonSubstitutionModel(gCode, pmod, "CodonDist."),
-  AbstractCodonDistanceSubstitutionModel(pdist, "CodonDist.")
+  AbstractCodonDistanceSubstitutionModel(pdist, gCode, "CodonDist.")
 {
+  computeFrequencies(true);
   updateMatrices();
 }
 
@@ -63,8 +64,9 @@ CodonDistanceSubstitutionModel::CodonDistanceSubstitutionModel(
     const AlphabetIndex2* pdist) :
   AbstractParameterAliasable("CodonDist."),
   AbstractCodonSubstitutionModel(gCode, pmod1, pmod2, pmod3, "CodonDist."),
-  AbstractCodonDistanceSubstitutionModel(pdist, "CodonDist.")
+  AbstractCodonDistanceSubstitutionModel(pdist, gCode, "CodonDist.")
 {
+  computeFrequencies(true);
   updateMatrices();
 }
 

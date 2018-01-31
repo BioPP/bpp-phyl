@@ -47,9 +47,11 @@
 
 // From SeqLib:
 #include <Bpp/Seq/Container/VectorSiteContainer.h>
-#include <Bpp/Seq/SiteTools.h>
+#include <Bpp/Seq/Container/VectorProbabilisticSiteContainer.h>
+#include <Bpp/Seq/SymbolListTools.h>
 #include <Bpp/Seq/Site.h>
 #include <Bpp/Seq/Container/SiteContainer.h>
+#include <Bpp/Seq/Container/AlignedValuesContainer.h>
 
 // From the STL:
 #include <map>
@@ -74,10 +76,11 @@ namespace bpp
      * @return A new site container with corresponding sequences.
      * @throw Exception if an error occured.
      */
-    static SiteContainer* getSequenceSubset(const SiteContainer& sequenceSet, const Node& node) throw (Exception);
+
+    static AlignedValuesContainer* getSequenceSubset(const AlignedValuesContainer& sequenceSet, const Node& node) throw (Exception);
 
     template<class N, class E, class I>
-    static SiteContainer* getSequenceSubset(const SiteContainer& sequenceSet, const std::shared_ptr<N> node, const AssociationTreeGraphImplObserver<N,E,I>& tree) throw (Exception);
+    static AlignedValuesContainer* getSequenceSubset(const AlignedValuesContainer& sequenceSet, const std::shared_ptr<N> node, const AssociationTreeGraphImplObserver<N,E,I>& tree) throw (Exception);
 
     /**
      * @brief Extract the sequences corresponding to a given set of names.
@@ -88,7 +91,8 @@ namespace bpp
      * @throw Exception if an error occured.
      */
 
-      static SiteContainer* getSequenceSubset(const SiteContainer& sequenceSet, const std::vector<std::string>& names) throw (Exception);
+    static AlignedValuesContainer* getSequenceSubset(const AlignedValuesContainer& sequenceSet, const std::vector<std::string>& names) throw (Exception);
+    
     /**
      * @brief Compress a site container by removing duplicated sites.
      *
@@ -96,7 +100,7 @@ namespace bpp
      * @return A new site container with unique sites.
      * @throw Exception if an error occured.
      */
-    static SiteContainer* shrinkSiteSet(const SiteContainer& sequenceSet) throw (Exception);
+    static AlignedValuesContainer* shrinkSiteSet(const AlignedValuesContainer& sequenceSet) throw (Exception);
 
     /**
      * @brief Look for the occurence of each site in sequences1 in sequences2 and send the
@@ -106,43 +110,84 @@ namespace bpp
      * @param sequences2 Second container.
      * @return A vecotr of positions.
      */
-    static Vint getIndexes(const SiteContainer& sequences1, const SiteContainer& sequences2);
+    static Vint getIndexes(const AlignedValuesContainer& sequences1, const AlignedValuesContainer& sequences2);
   };
 
   template<class N, class E, class I>
-  SiteContainer* PatternTools::getSequenceSubset(const SiteContainer& sequenceSet, const std::shared_ptr<N> node, const AssociationTreeGraphImplObserver<N,E,I>& tree) throw (Exception)
+  AlignedValuesContainer* PatternTools::getSequenceSubset(const AlignedValuesContainer& sequenceSet, const std::shared_ptr<N> node, const AssociationTreeGraphImplObserver<N,E,I>& tree) throw (Exception)
   {
     size_t nbSites=sequenceSet.getNumberOfSites();
 
-    VectorSiteContainer* sequenceSubset = new VectorSiteContainer(sequenceSet.getAlphabet());
-    std::vector<std::shared_ptr<N> > leaves = tree.getLeavesUnderNode(node);
-
-    for (typename std::vector<std::shared_ptr<N> >::iterator i = leaves.begin(); i < leaves.end(); i++)
+    AlignedValuesContainer* result;
+    
+    if (dynamic_cast<const SiteContainer*>(&sequenceSet))
     {
-      const Sequence* newSeq = 0;
+      const SiteContainer& sitecontainer = dynamic_cast<const SiteContainer&>(sequenceSet);
 
-      if ((*i)->hasName())
+      VectorSiteContainer* sequenceSubset = new VectorSiteContainer(sequenceSet.getAlphabet());
+      result=sequenceSubset;
+      
+      std::vector<std::shared_ptr<N> > leaves = tree.getLeavesUnderNode(node);
+
+      for (auto i : leaves)
       {
-        try
-        {
-          newSeq = &sequenceSet.getSequence((*i)->getName());
-          sequenceSubset->addSequence(*newSeq);
-        }
-        catch (std::exception const& e)
-        {
-          ApplicationTools::displayWarning("Leaf name not found in sequence file: " + (*i)->getName() + " : Replaced with unknown sequence");
+        const Sequence* newSeq = 0;
         
-          BasicSequence seq((*i)->getName(),"",sequenceSet.getAlphabet());
-          seq.setToSizeR(nbSites);
-          SymbolListTools::changeGapsToUnknownCharacters(seq);
-          sequenceSubset->addSequence(seq);
+        if (i->hasName())
+        {
+          try
+          {
+            newSeq = &sitecontainer.getSequence(i->getName());
+            sequenceSubset->addSequence(*newSeq);
+          }
+          catch (std::exception const& e)
+          {
+            ApplicationTools::displayWarning("PatternTools::getSequenceSubset : Leaf name not found in sequence file: " + i->getName() + " : Replaced with unknown sequence");
+            
+            BasicSequence seq(i->getName(),"",sequenceSet.getAlphabet());
+            seq.setToSizeR(nbSites);
+            SymbolListTools::changeGapsToUnknownCharacters(seq);
+            sequenceSubset->addSequence(seq);
+          }
         }
       }
     }
+    else if (dynamic_cast<const VectorProbabilisticSiteContainer*>(&sequenceSet))
+    {
+      const VectorProbabilisticSiteContainer& sitecontainer = dynamic_cast<const VectorProbabilisticSiteContainer&>(sequenceSet);
+
+      VectorProbabilisticSiteContainer* sequenceSubset = new VectorProbabilisticSiteContainer(sequenceSet.getAlphabet());
+      result = sequenceSubset;
+      
+      std::vector<std::shared_ptr<N> > leaves = tree.getLeavesUnderNode(node);
+
+      for (auto i : leaves)
+      {
+        if (i->hasName())
+        {
+          try
+          {
+            std::shared_ptr<BasicProbabilisticSequence> newSeq(sitecontainer.getSequence(i->getName()));
+            sequenceSubset->addSequence(newSeq);
+          }
+          catch (std::exception const& e)
+          {
+            ApplicationTools::displayWarning("PatternTools::getSequenceSubset : Leaf name not found in sequence file: " + i->getName() + " : Replaced with unknown sequence");
+            
+            std::shared_ptr<BasicProbabilisticSequence> newSeq(new BasicProbabilisticSequence(i->getName(),Table<double>(sequenceSet.getAlphabet()->getSize(),0),sequenceSet.getAlphabet()));
+            newSeq->setToSizeR(nbSites);
+            SymbolListTools::changeGapsToUnknownCharacters(*newSeq);
+            sequenceSubset->addSequence(newSeq);
+          }
+        }
+      }
+    }
+    else
+      throw Exception("PatternTools::getSequenceSubset : this should not happen.");
+
+    result->setSitePositions(sequenceSet.getSitePositions());
   
-    sequenceSubset->setSitePositions(sequenceSet.getSitePositions());
-  
-    return sequenceSubset;
+    return result;
   }
 
 

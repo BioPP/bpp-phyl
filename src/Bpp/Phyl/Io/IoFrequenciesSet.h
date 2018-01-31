@@ -48,7 +48,7 @@
 #include <Bpp/Io/OutputStream.h>
 
 //From bpp-seq:
-#include <Bpp/Seq/Container/SiteContainer.h>
+#include <Bpp/Seq/Container/AlignedValuesContainer.h>
 
 namespace bpp
 {
@@ -85,12 +85,12 @@ namespace bpp
      *
      * @param alphabet         The alpabet to use in the model.
      * @param freqDescription  A string describing the frequencies set.
-     * @param data             A SiteContainer with the data to use to initialize fequency parameters. Can be set to 0.
+     * @param data             A AlignedValuesContainer with the data to use to initialize fequency parameters. Can be set to 0.
      * @param parseArguments   Attempt to parse function arguments. If not, only store them and use default values instead.
      * @return A new FrequenciesSet object according to options specified.
      * @throw Exception if an error occured.
      */
-    virtual FrequenciesSet* read(const Alphabet* alphabet, const std::string& freqDescription, const SiteContainer* data, bool parseArguments) = 0;
+    virtual FrequenciesSet* read(const Alphabet* alphabet, const std::string& freqDescription, const AlignedValuesContainer* data, bool parseArguments) = 0;
 
     /**
      * @return The arguments and their unparsed values from the last call of the read function, if there are any.

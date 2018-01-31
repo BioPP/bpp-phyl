@@ -90,7 +90,7 @@ ParameterList AbstractDiscreteRatesAcrossSitesTreeLikelihood::getNonDerivablePar
 
 /******************************************************************************/
 
-VVdouble AbstractDiscreteRatesAcrossSitesTreeLikelihood::getLikelihoodForEachSiteForEachRateClass() const
+VVdouble AbstractDiscreteRatesAcrossSitesTreeLikelihood::getLikelihoodPerSitePerRateClass() const
 {
   size_t nbSites   = getNumberOfSites();
   size_t nbClasses = getNumberOfClasses();
@@ -135,7 +135,7 @@ double AbstractDiscreteRatesAcrossSitesTreeLikelihood::getLogLikelihoodForASiteF
 
 /******************************************************************************/
 
-VVdouble AbstractDiscreteRatesAcrossSitesTreeLikelihood::getLogLikelihoodForEachSiteForEachRateClass() const
+VVdouble AbstractDiscreteRatesAcrossSitesTreeLikelihood::getLogLikelihoodPerSitePerRateClass() const
 {
   size_t nbSites   = getNumberOfSites();
   size_t nbClasses = getNumberOfClasses();
@@ -153,7 +153,7 @@ VVdouble AbstractDiscreteRatesAcrossSitesTreeLikelihood::getLogLikelihoodForEach
 
 /******************************************************************************/
 
-VVVdouble AbstractDiscreteRatesAcrossSitesTreeLikelihood::getLikelihoodForEachSiteForEachRateClassForEachState() const
+VVVdouble AbstractDiscreteRatesAcrossSitesTreeLikelihood::getLikelihoodPerSitePerRateClassPerState() const
 {
   size_t nbSites   = getNumberOfSites();
   size_t nbClasses = getNumberOfClasses();
@@ -176,7 +176,7 @@ VVVdouble AbstractDiscreteRatesAcrossSitesTreeLikelihood::getLikelihoodForEachSi
 
 /******************************************************************************/
 
-VVVdouble AbstractDiscreteRatesAcrossSitesTreeLikelihood::getLogLikelihoodForEachSiteForEachRateClassForEachState() const
+VVVdouble AbstractDiscreteRatesAcrossSitesTreeLikelihood::getLogLikelihoodPerSitePerRateClassPerState() const
 {
   size_t nbSites   = getNumberOfSites();
   size_t nbClasses = getNumberOfClasses();
@@ -199,12 +199,12 @@ VVVdouble AbstractDiscreteRatesAcrossSitesTreeLikelihood::getLogLikelihoodForEac
 
 /*******************************************************************************/
 
-VVdouble AbstractDiscreteRatesAcrossSitesTreeLikelihood::getPosteriorProbabilitiesOfEachRate() const
+VVdouble AbstractDiscreteRatesAcrossSitesTreeLikelihood::getPosteriorProbabilitiesPerRate() const
 {
   size_t nbSites   = getNumberOfSites();
   size_t nbClasses = getNumberOfClasses();
-  VVdouble pb = getLikelihoodForEachSiteForEachRateClass();
-  Vdouble l  = getLikelihoodForEachSite();
+  VVdouble pb = getLikelihoodPerSitePerRateClass();
+  Vdouble l  = getLikelihoodPerSite();
   for (size_t i = 0; i < nbSites; i++)
   {
     for (size_t j = 0; j < nbClasses; j++)
@@ -217,12 +217,12 @@ VVdouble AbstractDiscreteRatesAcrossSitesTreeLikelihood::getPosteriorProbabiliti
 
 /******************************************************************************/
 
-Vdouble AbstractDiscreteRatesAcrossSitesTreeLikelihood::getPosteriorRateOfEachSite() const
+Vdouble AbstractDiscreteRatesAcrossSitesTreeLikelihood::getPosteriorRatePerSite() const
 {
   size_t nbSites   = getNumberOfSites();
   size_t nbClasses = getNumberOfClasses();
-  VVdouble lr = getLikelihoodForEachSiteForEachRateClass();
-  Vdouble l  = getLikelihoodForEachSite();
+  VVdouble lr = getLikelihoodPerSitePerRateClass();
+  Vdouble l  = getLikelihoodPerSite();
   Vdouble rates(nbSites, 0.);
   for (size_t i = 0; i < nbSites; i++)
   {
@@ -236,10 +236,10 @@ Vdouble AbstractDiscreteRatesAcrossSitesTreeLikelihood::getPosteriorRateOfEachSi
 
 /******************************************************************************/
 
-vector<size_t> AbstractDiscreteRatesAcrossSitesTreeLikelihood::getRateClassWithMaxPostProbOfEachSite() const
+vector<size_t> AbstractDiscreteRatesAcrossSitesTreeLikelihood::getRateClassWithMaxPostProbPerSite() const
 {
   size_t nbSites = getNumberOfSites();
-  VVdouble l = getLikelihoodForEachSiteForEachRateClass();
+  VVdouble l = getLikelihoodPerSitePerRateClass();
   vector<size_t> classes(nbSites);
   for (size_t i = 0; i < nbSites; i++)
   {
@@ -250,10 +250,10 @@ vector<size_t> AbstractDiscreteRatesAcrossSitesTreeLikelihood::getRateClassWithM
 
 /******************************************************************************/
 
-Vdouble AbstractDiscreteRatesAcrossSitesTreeLikelihood::getRateWithMaxPostProbOfEachSite() const
+Vdouble AbstractDiscreteRatesAcrossSitesTreeLikelihood::getRateWithMaxPostProbPerSite() const
 {
   size_t nbSites = getNumberOfSites();
-  VVdouble l = getLikelihoodForEachSiteForEachRateClass();
+  VVdouble l = getLikelihoodPerSitePerRateClass();
   Vdouble rates(nbSites);
   for (size_t i = 0; i < nbSites; i++)
   {

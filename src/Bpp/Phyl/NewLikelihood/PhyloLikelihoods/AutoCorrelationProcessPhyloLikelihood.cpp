@@ -50,7 +50,7 @@ using namespace bpp;
 /******************************************************************************/
 
 AutoCorrelationProcessPhyloLikelihood::AutoCorrelationProcessPhyloLikelihood(
-  const SiteContainer& data,
+  const AlignedValuesContainer& data,
   AutoCorrelationSequenceEvolution& processSeqEvol,
   size_t nSeqEvol,
   size_t nData,

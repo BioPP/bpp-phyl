@@ -67,6 +67,7 @@
 // From SeqLib:
 #include <Bpp/Seq/Container/SiteContainer.h>
 #include <Bpp/Seq/Container/VectorSiteContainer.h>
+#include <Bpp/Seq/Container/VectorProbabilisticSiteContainer.h>
 
 // From the STL:
 #include <string>
@@ -112,15 +113,14 @@ namespace bpp
      * @param verbose          Print some info to the 'message' output stream.
      * @param warn             Set the warning level (0: always display warnings, >0 display warnings on demand).
      * @return A new Tree object according to the specified options.
-     * @throw Exception if an error occured.
      */
     static Tree* getTree(
-      std::map<std::string, std::string>& params,
+      const std::map<std::string, std::string>& params,
       const std::string& prefix = "input.",
       const std::string& suffix = "",
       bool suffixIsOptional = true,
       bool verbose = true,
-      int warn = 1) throw (Exception);
+      int warn = 1);
  
     /**
      * @brief Build a list ofTree objects according to options.
@@ -134,15 +134,14 @@ namespace bpp
      * @param verbose          Print some info to the 'message' output stream.
      * @param warn             Set the warning level (0: always display warnings, >0 display warnings on demand).
      * @return A new vector of Tree objects according to the specified options.
-     * @throw Exception if an error occured.
      */
     static std::vector<Tree*> getTrees(
-      std::map<std::string, std::string>& params,
+      const std::map<std::string, std::string>& params,
       const std::string& prefix = "input.",
       const std::string& suffix = "",
       bool suffixIsOptional = true,
       bool verbose = true,
-      int warn = 1) throw (Exception);
+      int warn = 1);
 
     /**
      * @brief Build a list ofTree objects according to options.
@@ -151,7 +150,7 @@ namespace bpp
      *
      * @param params           The attribute map where options may be
      * found.
-     * @param mSeq             A map of pointers of SiteContainers,
+     * @param mSeq             A map of pointers of AlignedValuesContainers,
      * necessary in case of random trees
      * @param unparsedParams   A map of parameters (BrLen) that will
      * be aliased after.
@@ -161,22 +160,11 @@ namespace bpp
      * @param verbose          Print some info to the 'message' output stream.
      * @param warn             Set the warning level (0: always display warnings, >0 display warnings on demand).
      * @return A new vector of Tree objects according to the specified options.
-     * @throw Exception if an error occured.
      */
     
     static std::map<size_t, Tree*> getTrees(
-      std::map<std::string, std::string>& params,
-      const std::map<size_t, SiteContainer*>& mSeq,
-      std::map<std::string, std::string>& unparsedParams,
-      const std::string& prefix = "input.",
-      const std::string& suffix = "",
-      bool suffixIsOptional = true,
-      bool verbose = true,
-      int warn = 1) throw (Exception);
-
-    static std::map<size_t, PhyloTree*> getPhyloTrees(
-      std::map<std::string, std::string>& params,
-      const std::map<size_t, SiteContainer*>& mSeq,
+      const std::map<std::string, std::string>& params,
+      const std::map<size_t, AlignedValuesContainer*>& mSeq,
       std::map<std::string, std::string>& unparsedParams,
       const std::string& prefix = "input.",
       const std::string& suffix = "",
@@ -184,6 +172,17 @@ namespace bpp
       bool verbose = true,
       int warn = 1);
 
+    static std::map<size_t, PhyloTree*> getPhyloTrees(
+      const std::map<std::string, std::string>& params,
+      const std::map<size_t, AlignedValuesContainer*>& mSeq,
+      std::map<std::string, std::string>& unparsedParams,
+      const std::string& prefix = "input.",
+      const std::string& suffix = "",
+      bool suffixIsOptional = true,
+      bool verbose = true,
+      int warn = 1);
+
+  
 
     /**
      * @brief Build a SubstitutionModel object according to options.
@@ -195,7 +194,7 @@ namespace bpp
      * @param alphabet         The alphabet to use in the model.
      * @param gCode            The genetic code to use (only for codon models, otherwise can be set to 0).
      *                         If set to NULL and a codon model is requested, an Exception will be thrown.
-     * @param data             A pointer toward the SiteContainer for which the substitution model is designed.
+     * @param data             A pointer toward the AlignedValuesContainer for which the substitution model is designed.
      *                         The alphabet associated to the data must be of the same type as the one specified for the model.
      *                         May be equal to NULL, but in this case use_observed_freq option will be unavailable.
      * @param params           The attribute map where options may be
@@ -207,35 +206,46 @@ namespace bpp
      * @param verbose          Print some info to the 'message' output stream.
      * @param warn             Set the warning level (0: always display warnings, >0 display warnings on demand).
      * @return A new SubstitutionModel object according to options specified.
-     * @throw Exception if an error occured.
      */
 
     static SubstitutionModel* getSubstitutionModel(
       const Alphabet* alphabet,
       const GeneticCode* gCode,
-      const SiteContainer* data, 
-      std::map<std::string, std::string>& params,
+      const AlignedValuesContainer* data, 
+      const std::map<std::string, std::string>& params,
       std::map<std::string, std::string>& unparsedparams,
       const std::string& suffix = "",
       bool suffixIsOptional = true,
       bool verbose = true,
-      int warn = 1) throw (Exception);
+      int warn = 1);
     
+    
+    static TransitionModel* getTransitionModel(
+      const Alphabet* alphabet,
+      const GeneticCode* gCode,
+      const AlignedValuesContainer* data,
+      const std::map<std::string, std::string>& params,
+      std::map<std::string, std::string>& unparsedparams,
+      const std::string& suffix = "",
+      bool suffixIsOptional = true,
+      bool verbose = true,
+      int warn = 1);
+
     /*
      * @brief The same as before, but with several models.
      *
      */
     
-    static std::map<size_t, SubstitutionModel*> getSubstitutionModels(
+    static std::map<size_t, TransitionModel*> getTransitionModels(
       const Alphabet* alphabet,
       const GeneticCode* gCode,
-      const std::map<size_t, SiteContainer*>& mData, 
-      std::map<std::string, std::string>& params,
+      const std::map<size_t, AlignedValuesContainer*>& mData, 
+      const std::map<std::string, std::string>& params,
       std::map<std::string, std::string>& unparsedparams,
       const std::string& suffix = "",
       bool suffixIsOptional = true,
       bool verbose = true,
-      int warn = 1) throw (Exception);
+      int warn = 1);
 
 
     /**
@@ -249,7 +259,7 @@ namespace bpp
      * @param gCode            The genetic code to use (only for codon models, otherwise can be set to 0).
      *                         If set to NULL and a codon model is requested, an Exception will be thrown.
      * @param mData            A map of pointers toward the
-     * SiteContainers for which the substitution process wil be designed.
+     * AlignedValuesContainers for which the substitution process wil be designed.
      *                         The alphabet associated to the data
      * must be of the same type as the one specified for the process. 
      * @param  params           The attribute map where options may be
@@ -259,20 +269,19 @@ namespace bpp
      * @param suffixIsOptional Tell if the suffix is absolutely required.
      * @param verbose          Print some info to the 'message' output stream.
      * @param warn             Set the warning level (0: always display warnings, >0 display warnings on demand).
-     * @return A new SubstitutionModel object according to options specified.
-     * @throw Exception if an error occured.
+     * @return A new TransitionModel object according to options specified.
      */
     
     static std::map<size_t, SubstitutionProcess*> getSubstitutionProcesses(
       const Alphabet* alphabet,
       const GeneticCode* gCode,
-      const std::map<size_t, SiteContainer*>& mData, 
-      std::map<std::string, std::string>& params,
+      const std::map<size_t, AlignedValuesContainer*>& mData, 
+      const std::map<std::string, std::string>& params,
       std::map<std::string, std::string>& unparsedparams,
       const std::string& suffix = "",
       bool suffixIsOptional = true,
       bool verbose = true,
-      int warn = 1) throw (Exception);
+      int warn = 1);
 
     /**
      * @brief Set parameter initial values of a given model in a set according to options.
@@ -286,21 +295,20 @@ namespace bpp
      * @param unparsedParameterValues A map that contains all the model parameters
      *                                names and their corresponding unparsed value, if they were found.
      * @param modelNumber The number of this model in the SubstitutionModelSet.
-     * @param data   A pointer toward the SiteContainer for which the substitution model is designed.
+     * @param data   A pointer toward the AlignedValuesContainer for which the substitution model is designed.
      *               The alphabet associated to the data must be of the same type as the one specified for the model.
      *               May be equal to NULL, but in this case use_observed_freq option will be unavailable.
      * @param sharedParams (out) remote parameters will be recorded here.
      * @param verbose Print some info to the 'message' output stream.
-     * @throw Exception if an error occured.
      */
 
     static void setSubstitutionModelParametersInitialValuesWithAliases(
-      SubstitutionModel& model,
+      TransitionModel& model,
       std::map<std::string, std::string>& unparsedParameterValues,
       size_t modelNumber,
-      const SiteContainer* data,
+      const AlignedValuesContainer* data,
       std::map<std::string, std::string>& sharedParams,
-      bool verbose) throw (Exception);
+      bool verbose);
 
     /**
      * @brief Get A FrequenciesSet object for root frequencies (NH models) according to options.
@@ -308,7 +316,7 @@ namespace bpp
      * @param alphabet         The alpabet to use.
      * @param gCode            The genetic code to use (only for codon alphabets, otherwise can be set to 0).
      *                         If set to NULL and a codon frequencies set is requested, an Exception will be thrown.
-     * @param data             A pointer toward the SiteContainer for which the substitution model is designed.
+     * @param data             A pointer toward the AlignedValuesContainer for which the substitution model is designed.
      *                         The alphabet associated to the data must be of the same type as the one specified for the model.
      *                         May be equal to NULL, but in this cas use_observed_freq option will be unavailable.
      * @param params           The attribute map where options may be
@@ -321,20 +329,19 @@ namespace bpp
      * @param verbose          Print some info to the 'message' output stream.
      * @param warn             Set the warning level (0: always display warnings, >0 display warnings on demand).
      * @return A new FrequenciesSet object according to options specified.
-     * @throw Exception if an error occured.
      */
     
     static FrequenciesSet* getRootFrequenciesSet(
       const Alphabet* alphabet,
       const GeneticCode* gCode,
-      const SiteContainer* data, 
-      std::map<std::string, std::string>& params,
+      const AlignedValuesContainer* data, 
+      const std::map<std::string, std::string>& params,
       std::map<std::string, std::string>& sharedparams,
       const std::vector<double>& rateFreqs,
       const std::string& suffix = "",
       bool suffixIsOptional = true,
       bool verbose = true,
-      int warn = 1) throw (Exception);
+      int warn = 1);
 
     /*
      * @brief The same, but with several FrequenciesSet.
@@ -344,13 +351,13 @@ namespace bpp
     static std::map<size_t, FrequenciesSet*> getRootFrequenciesSets(
       const Alphabet* alphabet,
       const GeneticCode* gCode,
-      const std::map<size_t, SiteContainer*>& mData, 
-      std::map<std::string, std::string>& params,
+      const std::map<size_t, AlignedValuesContainer*>& mData, 
+      const std::map<std::string, std::string>& params,
       std::map<std::string, std::string>& sharedparams,
       const std::string& suffix = "",
       bool suffixIsOptional = true,
       bool verbose = true,
-      int warn = 1) throw (Exception);
+      int warn = 1);
 
     /**
      * @brief Get A FrequenciesSet object according to options.
@@ -360,7 +367,7 @@ namespace bpp
      *                         If set to NULL and a codon frequencies set is requested, an Exception will be thrown.
      * @param freqDescription  A string in the keyval syntaxe describing the frequency set to use.:if expand("%") == ""|browse confirm w|else|confirm w|endif
      * 
-     * @param data             A pointer toward the SiteContainer for which the substitution model is designed.
+     * @param data             A pointer toward the AlignedValuesContainer for which the substitution model is designed.
      *                         The alphabet associated to the data must be of the same type as the one specified for the model.
      *                         May be equal to NULL, but in this cas use_observed_freq option will be unavailable.
      * @param sharedParams     (out) remote parameters will be recorded here.
@@ -369,19 +376,17 @@ namespace bpp
      * @param verbose          Print some info to the 'message' output stream.
      * @param warn             Set the warning level (0: always display warnings, >0 display warnings on demand).
      * @return A new FrequenciesSet object according to options specified.
-     * @throw Exception if an error occured.
      */
 
     static FrequenciesSet* getFrequenciesSet(
         const Alphabet* alphabet,
         const GeneticCode* gCode,
         const std::string& freqDescription,
-        const SiteContainer* data, 
+        const AlignedValuesContainer* data, 
         std::map<std::string, std::string>& sharedParams,
         const std::vector<double>& rateFreqs,
         bool verbose = true,
-        int warn = 1)
-      throw (Exception);
+        int warn = 1);
 
     /**
      * @brief Get A FrequenciesSet object according to options.
@@ -391,7 +396,7 @@ namespace bpp
      *                         If set to NULL and a codon frequencies set is requested, an Exception will be thrown.
      * @param freqDescription  A string in the keyval syntaxe describing the frequency set to use.:if expand("%") == ""|browse confirm w|else|confirm w|endif
      * 
-     * @param data             A pointer toward the SiteContainer for which the substitution model is designed.
+     * @param data             A pointer toward the AlignedValuesContainer for which the substitution model is designed.
      *                         The alphabet associated to the data must be of the same type as the one specified for the model.
      *                         May be equal to NULL, but in this cas use_observed_freq option will be unavailable.
      * @param rateFreqs        A vector of rate catégories frequencies in case of a Markov Modulated Markov Model.
@@ -399,17 +404,15 @@ namespace bpp
      * @param verbose          Print some info to the 'message' output stream.
      * @param warn             Set the warning level (0: always display warnings, >0 display warnings on demand).
      * @return A new FrequenciesSet object according to options specified.
-     * @throw Exception if an error occured.
      */
     static FrequenciesSet* getFrequenciesSet(
         const Alphabet* alphabet,
         const GeneticCode* gCode,
         const std::string& freqDescription,
-        const SiteContainer* data, 
+        const AlignedValuesContainer* data, 
         const std::vector<double>& rateFreqs,
         bool verbose = true,
         int warn = 1)
-      throw (Exception)
     {
       std::map<std::string, std::string> sharedParams;
       return getFrequenciesSet(alphabet, gCode, freqDescription, data, sharedParams, rateFreqs, verbose, warn);
@@ -425,12 +428,27 @@ namespace bpp
     static SubstitutionModelSet* getSubstitutionModelSet(
       const Alphabet* alphabet,
       const GeneticCode* gcode,
-      const SiteContainer* data, 
-      std::map<std::string, std::string>& params,
+      const AlignedValuesContainer* data, 
+      const std::map<std::string, std::string>& params,
       const std::string& suffix = "",
       bool suffixIsOptional = true,
       bool verbose = true,
       int warn = 1);    
+
+    
+  /**
+   * @brief Get a Register instance.
+   *
+   * @param regTypeDesc The description of the register.
+   * @param stateMap The stateMap to use.
+   * @param genCode when codon Alphabet, the genetic Code (otherwise,
+   *                default : 0)
+   * @param verbose if outputs  reading
+   * @return A SubstitutionRegister object.
+   */
+  
+    static SubstitutionRegister* getSubstitutionRegister(const std::string& regTypeDesc, const StateMap& stateMap, const GeneticCode* genCode = 0, bool verbose = true);
+  
 
     /**
      * @brief Sets a SubstitutionModelSet object according to options.
@@ -476,7 +494,7 @@ namespace bpp
      * @param alphabet         The alpabet to use in all models.
      * @param gcode            The genetic code to use (only for codon models, otherwise can be set to 0).
      *                         If set to NULL and a codon model is requested, an Exception will be thrown.
-     * @param data             A pointer toward the SiteContainer for which the substitution model is designed.
+     * @param data             A pointer toward the AlignedValuesContainer for which the substitution model is designed.
      *                         The alphabet associated to the data must be of the same type as the one specified for the model.
      *                         May be equal to NULL, but in this cas use_observed_freq option will be unavailable.
      * @param params           The attribute map where options may be found.
@@ -484,14 +502,13 @@ namespace bpp
      * @param suffixIsOptional Tell if the suffix is absolutely required.
      * @param verbose          Print some info to the 'message' output stream.
      * @param warn             Set the warning level (0: always display warnings, >0 display warnings on demand).
-     * @throw Exception if an error occured.
      */
     static void setSubstitutionModelSet(
       SubstitutionModelSet& modelSet,
       const Alphabet* alphabet,
       const GeneticCode* gcode,
-      const SiteContainer* data, 
-      std::map<std::string, std::string>& params,
+      const AlignedValuesContainer* data, 
+      const std::map<std::string, std::string>& params,
       const std::string& suffix = "",
       bool suffixIsOptional = true,
       bool verbose = true,
@@ -545,7 +562,7 @@ namespace bpp
      * @param alphabet The alpabet to use in all models.
      * @param gCode            The genetic code to use (only for codon alphabets, otherwise can be set to 0).
      *                         If set to NULL and a codon frequencies set is requested, an Exception will be thrown.
-     * @param pData A pointer toward the SiteContainer for which the
+     * @param pData A pointer toward the AlignedValuesContainer for which the
      *             substitution process is designed.
      *
      *             The alphabet associated to the data must be of the
@@ -559,15 +576,14 @@ namespace bpp
      * @param suffixIsOptional Tell if the suffix is absolutely required.
      * @param verbose Print some info to the 'message' output stream.
      * @param warn             Set the warning level (0: always display warnings, >0 display warnings on demand).
-     * @throw Exception if an error occured.
      */
     
     static SubstitutionProcess* getSubstitutionProcess(
       const Alphabet* alphabet,
       const GeneticCode* gCode,
-      const SiteContainer* pData, 
+      const AlignedValuesContainer* pData, 
       const vector<PhyloTree*>& vTree, 
-      std::map<std::string, std::string>& params,
+      const std::map<std::string, std::string>& params,
       const std::string& suffix = "",
       bool suffixIsOptional = true,
       bool verbose = true,
@@ -577,10 +593,10 @@ namespace bpp
       const Alphabet* alphabet,
       const GeneticCode* gCode,
       const map<size_t, PhyloTree*>& mTree,
-      const map<size_t, SubstitutionModel*>& mMod,
+      const map<size_t, TransitionModel*>& mMod,
       const map<size_t, FrequenciesSet*>& mRootFreq,
       const map<size_t, DiscreteDistribution*>& mDist,
-      map<string, string>& params,
+      const std::map<std::string, std::string>& params,
       map<string, string>& unparsedparams,
       const string& suffix = "",
       bool suffixIsOptional  = true,
@@ -591,19 +607,19 @@ namespace bpp
     static void addSubstitutionProcessCollectionMember(
       SubstitutionProcessCollection* SubProColl, 
       size_t procNum,
-      map<string, string>& params,
+      const std::map<std::string, std::string>& params,
       bool verbose = true,
       int warn = 1);
 
 
     static std::map<size_t, SequenceEvolution*> getSequenceEvolutions(
       SubstitutionProcessCollection& SPC,
-      map<string, string>& params,
+      const std::map<std::string, std::string>& params,
       map<string, string>& unparsedParams,
       const string& suffix = "",
       bool suffixIsOptional = true,
       bool verbose = true,
-      int warn = 1) throw (Exception);
+      int warn = 1);
     
 
     /**
@@ -619,12 +635,12 @@ namespace bpp
     static PhyloLikelihoodContainer* getPhyloLikelihoodContainer(
       SubstitutionProcessCollection& SPC,
       std::map<size_t, SequenceEvolution*>& mSeqEvol,
-      const std::map<size_t, SiteContainer*>& mData,
-      map<string, string>& params,
+      const std::map<size_t, AlignedValuesContainer*>& mData,
+      const std::map<std::string, std::string>& params,
       const string& suffix = "",
       bool suffixIsOptional = true,
       bool verbose = true,
-      int warn = 1) throw (Exception);
+      int warn = 1);
     
     /**
      * @brief Complete a MixedSubstitutionModelSet object according to
@@ -679,7 +695,7 @@ namespace bpp
      *
      * @param mixedModelSet    The modified MixedSubstitutionModelSet object according to options specified.
      * @param alphabet         The alpabet to use in all models.
-     * @param data             A pointer toward the SiteContainer for which the substitution model is designed.
+     * @param data             A pointer toward the AlignedValuesContainer for which the substitution model is designed.
      *                         The alphabet associated to the data must be of the same type as the one specified for the model.
      *                         May be equal to NULL, but in this cas use_observed_freq option will be unavailable.
      * @param params           The attribute map where options may be found.
@@ -687,13 +703,13 @@ namespace bpp
      * @param suffixIsOptional Tell if the suffix is absolutely required.
      * @param verbose          Print some info to the 'message' output stream.
      * @param warn             Set the warning level (0: always display warnings, >0 display warnings on demand).
-     * @throw Exception if an error occured.
      */
+
     static void completeMixedSubstitutionModelSet(
       MixedSubstitutionModelSet& mixedModelSet,
       const Alphabet* alphabet,
-      const SiteContainer* data, 
-      std::map<std::string, std::string>& params,
+      const AlignedValuesContainer* data, 
+      const std::map<std::string, std::string>& params,
       const std::string& suffix = "",
       bool suffixIsOptional = true,
       bool verbose = true,
@@ -712,7 +728,6 @@ namespace bpp
      *                                names and their corresponding unparsed value, if they were found.
      * @param verbose                 Print some info to the 'message' output stream.
      * @return A new MultipleDiscreteDistribution object according to options specified.
-     * @throw Exception if an error occured.
      */
     static MultipleDiscreteDistribution* getMultipleDistributionDefaultInstance(
       const std::string& distDescription,
@@ -731,14 +746,13 @@ namespace bpp
      * @param suffixIsOptional Tell if the suffix is absolutely required.
      * @param verbose Print some info to the 'message' output stream.
      * @return A new DiscreteDistribution object according to options specified.
-     * @throw Exception if an error occured.
      */
+
     static DiscreteDistribution* getRateDistribution(
-      std::map<std::string, std::string>& params,
+      const std::map<std::string, std::string>& params,
       const std::string& suffix = "",
       bool suffixIsOptional = true,
-      bool verbose = true)
-      throw (Exception);
+      bool verbose = true);
 
     /**
      * brief Same as before, but using several distributions.
@@ -746,11 +760,10 @@ namespace bpp
      */
     
     static std::map<size_t, DiscreteDistribution*> getRateDistributions(
-      map<string, string>& params,
+      const std::map<std::string, std::string>& params,
       const string& suffix = "",
       bool suffixIsOptional = true,
-      bool verbose = true)
-      throw (Exception);
+      bool verbose = true);
 
     /**
      * @brief Optimize parameters according to options.
@@ -763,7 +776,6 @@ namespace bpp
      * @param suffixIsOptional Tell if the suffix is absolutely required.
      * @param verbose          Print some info to the 'message' output stream.
      * @param warn             Set the warning level (0: always display warnings, >0 display warnings on demand).
-     * @throw Exception        Any exception that may happen during the optimization process.
      * @return A pointer toward the final likelihood object.
      * This pointer may be the same as passed in argument (tl), but in some cases the algorithm
      * clone this object. We may change this bahavior in the future...
@@ -776,22 +788,20 @@ namespace bpp
     static TreeLikelihood* optimizeParameters(
       TreeLikelihood* tl,
       const ParameterList& parameters,
-      std::map<std::string, std::string>& params,
+      const std::map<std::string, std::string>& params,
       const std::string& suffix = "",
       bool suffixIsOptional = true,
       bool verbose = true,
-      int warn = 1)
-      throw (Exception);
+      int warn = 1);
     
     static PhyloLikelihood* optimizeParameters(
       PhyloLikelihood* lik,
       const ParameterList& parameters,
-      std::map<std::string, std::string>& params,
+      const std::map<std::string, std::string>& params,
       const std::string& suffix = "",
       bool suffixIsOptional = true,
       bool verbose = true,
-      int warn = 1)
-      throw (Exception);
+      int warn = 1);
     
     /**
      * @brief Optimize parameters according to options, with a molecular clock.
@@ -804,17 +814,16 @@ namespace bpp
      * @param suffixIsOptional Tell if the suffix is absolutely required.
      * @param verbose          Print some info to the 'message' output stream.
      * @param warn             Set the warning level (0: always display warnings, >0 display warnings on demand).
-     * @throw Exception        Any exception that may happen during the optimization process.
      */
+
     static void optimizeParameters(
       DiscreteRatesAcrossSitesClockTreeLikelihood* tl,
       const ParameterList& parameters,
-      std::map<std::string, std::string>& params,
+      const std::map<std::string, std::string>& params,
       const std::string& suffix = "",
       bool suffixIsOptional = true,
       bool verbose = true,
-      int warn = 1)
-      throw (Exception);
+      int warn = 1);
     
     /**
      * @brief Check if parameter values are close to their definition boundary.
@@ -840,7 +849,7 @@ namespace bpp
     static SubstitutionCount* getSubstitutionCount(
       const Alphabet* alphabet,
       const SubstitutionModel* model,
-      map<string, string>& params,
+      const std::map<std::string, std::string>& params,
       string suffix = "",
       bool verbose = true,
       int warn = 1);
@@ -859,17 +868,17 @@ namespace bpp
      * @param checkOnly If this parameter is set to true, then all options are
      * checked and error messages sent, but no file is written.
      * @param warn             Set the warning level (0: always display warnings, >0 display warnings on demand).
-     * @throw Exception if an error occured.
      */
+
     static void writeTree(
       const TreeTemplate<Node>& tree,
-      std::map<std::string, std::string>& params,
+      const std::map<std::string, std::string>& params,
       const std::string& prefix = "output.",
       const std::string& suffix = "",
       bool suffixIsOptional = true,
       bool verbose = true,
       bool checkOnly = false,
-      int warn = 1) throw (Exception);
+      int warn = 1);
     
     /**
      * @brief Write a tree according to options.
@@ -885,47 +894,47 @@ namespace bpp
      * @param checkOnly        If this parameter is set to true, then all options are
      *                         checked and error messages sent, but no file is written.
      * @param warn             Set the warning level (0: always display warnings, >0 display warnings on demand).
-     * @throw Exception if an error occured.
      */
+
     static void writeTrees(
       const std::vector<const Tree*>& trees,
-      std::map<std::string, std::string>& params,
+      const std::map<std::string, std::string>& params,
       const std::string& prefix = "output.",
       const std::string& suffix = "",
       bool suffixIsOptional = true,
       bool verbose = true,
       bool checkOnly = false,
-      int warn = 1) throw (Exception);
+      int warn = 1);
 
     static void writeTrees(
       const std::vector<const PhyloTree*>& trees,
-      std::map<std::string, std::string>& params,
+      const std::map<std::string, std::string>& params,
       const std::string& prefix = "output.",
       const std::string& suffix = "",
       bool suffixIsOptional = true,
       bool verbose = true,
       bool checkOnly = false,
-      int warn = 1) throw (Exception);
+      int warn = 1);
 
     static void writeTrees(
       const std::vector<const TreeTemplate<Node>* >& trees,
-      std::map<std::string, std::string>& params,
+      const std::map<std::string, std::string>& params,
       const std::string& prefix = "output.",
       const std::string& suffix = "",
       bool suffixIsOptional = true,
       bool verbose = true,
       bool checkOnly = false,
-      int warn = 1) throw (Exception);
+      int warn = 1);
 
     static void writeTrees(
       const SubstitutionProcessCollection& spc,
-      std::map<std::string, std::string>& params,
+      const std::map<std::string, std::string>& params,
       const std::string& prefix = "output.",
       const std::string& suffix = "",
       bool suffixIsOptional = true,
       bool verbose = true,
       bool checkOnly = false,
-      int warn = 1) throw (Exception);
+      int warn = 1);
 
     
     /**
@@ -937,7 +946,7 @@ namespace bpp
      *                      >0 display warnings on demand).
      */
 
-    static void printParameters(const SubstitutionModel* model, OutputStream& out,int warn = 1);
+    static void printParameters(const TransitionModel* model, OutputStream& out,int warn = 1);
 
     /**
      * @brief Output a SubstitutionModelSet description to a file.

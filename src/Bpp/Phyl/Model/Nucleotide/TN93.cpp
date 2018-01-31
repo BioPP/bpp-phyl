@@ -43,9 +43,6 @@ knowledge of the CeCILL license and that you accept its terms.
 #include <Bpp/Numeric/Matrix/MatrixTools.h>
 #include <Bpp/Numeric/Matrix/EigenValue.h>
 
-// From bpp-seq:
-#include <Bpp/Seq/Container/SequenceContainerTools.h>
-
 // From the STL:
 #include <cmath>
 

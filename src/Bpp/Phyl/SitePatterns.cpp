@@ -42,19 +42,20 @@
 
 // From the SeqLib library:
 #include <Bpp/Seq/SiteTools.h>
+#include <Bpp/Seq/Container/AlignedValuesContainer.h>
 #include <Bpp/Seq/Container/VectorSiteContainer.h>
+#include <Bpp/Seq/Container/VectorProbabilisticSiteContainer.h>
 
 using namespace bpp;
 using namespace std;
 
 /******************************************************************************/
 
-SitePatterns::SitePatterns(const SiteContainer* sequences, bool own) :
+SitePatterns::SitePatterns(const AlignedValuesContainer* sequences, bool own) :
   names_(sequences->getSequencesNames()),
   sites_(),
   weights_(),
   indices_(),
-  sequences_(sequences),
   alpha_(sequences->getAlphabet()),
   own_(own)
 {
@@ -62,7 +63,8 @@ SitePatterns::SitePatterns(const SiteContainer* sequences, bool own) :
   vector<SortableSite> ss(nbSites);
   for (size_t i = 0; i < nbSites; i++)
   {
-    const Site* currentSite = &sequences->getSite(i);
+    const CruxSymbolListSite* currentSite = own?sequences->getSymbolListSite(i).clone():&sequences->getSymbolListSite(i);
+    
     SortableSite* ssi = &ss[i];
     ssi->siteS = currentSite->toString();
     ssi->siteP = currentSite;
@@ -77,7 +79,7 @@ SitePatterns::SitePatterns(const SiteContainer* sequences, bool own) :
     // Now build patterns:
 
     SortableSite* ss0 = &ss[0];
-    const Site* previousSite = ss0->siteP;
+    const CruxSymbolListSite* previousSite = ss0->siteP;
     indices_.resize(nbSites);
     indices_[ss0->originalPosition] = 0;
     sites_.push_back(previousSite);
@@ -87,8 +89,9 @@ SitePatterns::SitePatterns(const SiteContainer* sequences, bool own) :
     for (size_t i = 1; i < nbSites; i++)
     {
       SortableSite* ssi = &ss[i];
-      const Site* currentSite = ssi->siteP;
-      bool siteExists = SiteTools::areSitesIdentical(*currentSite, *previousSite);
+      const CruxSymbolListSite* currentSite = ssi->siteP;
+
+      bool siteExists = SymbolListTools::areSymbolListsIdentical(*currentSite, *previousSite);
       if (siteExists)
       {
         weights_[currentPos]++;
@@ -107,11 +110,20 @@ SitePatterns::SitePatterns(const SiteContainer* sequences, bool own) :
 
 /******************************************************************************/
 
-SiteContainer* SitePatterns::getSites() const
+std::shared_ptr<AlignedValuesContainer> SitePatterns::getSites() const
 {
-  SiteContainer* sites = new VectorSiteContainer(sites_, alpha_);
+  if (sites_.size()==0)
+    throw Exception("SitePatterns::getSites : empty set.");
+
+  AlignedValuesContainer* sites;
+  
+  if (dynamic_cast<const Site*>(sites_[0]))
+    sites = new VectorSiteContainer(sites_, alpha_);
+  else
+    sites = new VectorProbabilisticSiteContainer(sites_, alpha_);
+  
   sites->setSequencesNames(names_, false);
-  return sites;
+  return std::shared_ptr<AlignedValuesContainer>(sites);
 }
 
 /******************************************************************************/

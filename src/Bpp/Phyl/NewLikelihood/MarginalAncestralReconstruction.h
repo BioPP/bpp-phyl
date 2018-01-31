@@ -183,7 +183,7 @@ namespace bpp
       void recursiveMarginalAncestralStates(
         const std::shared_ptr<PhyloNode> node,
         std::map<int, std::vector<size_t> >& ancestors,
-        AlignedSequenceContainer& data) const;
+        AlignedValuesContainer& data) const;
 		
   };
 } //end of namespace bpp.

@@ -138,7 +138,8 @@ namespace bpp
     mutable double exp_;
     mutable RowMatrix<double> p_;
     ProteinFrequenciesSet* freqSet_;
-
+    bool withFreq_;
+    
   public:
     /**
      * @brief Build a simple JC69 model, with original equilibrium frequencies.
@@ -162,7 +163,8 @@ namespace bpp
       AbstractReversibleProteinSubstitutionModel(model),
       exp_(model.exp_),
       p_(model.p_),
-      freqSet_(dynamic_cast<ProteinFrequenciesSet*>(model.freqSet_->clone()))
+      freqSet_(dynamic_cast<ProteinFrequenciesSet*>(model.freqSet_->clone())),
+      withFreq_(model.withFreq_)
     {}
 
     JCprot& operator=(const JCprot& model)
@@ -173,6 +175,7 @@ namespace bpp
       p_   = model.p_;
       if (freqSet_) delete freqSet_;
       freqSet_ = dynamic_cast<ProteinFrequenciesSet*>(model.freqSet_->clone());
+      withFreq_ = model.withFreq_;
       return *this;
     }
 
@@ -190,10 +193,7 @@ namespace bpp
 
     std::string getName() const 
     { 
-      if (freqSet_->getNamespace().find("+F.") != std::string::npos)
-        return "JC69+F"; 
-      else 
-        return "JC69"; 
+      return (withFreq_?"JC69+F":"JC69");
     }
 	
     void fireParameterChanged(const ParameterList& parameters)
@@ -213,7 +213,13 @@ namespace bpp
 
     const FrequenciesSet* getFrequenciesSet() const { return freqSet_; }
 
-    void setFreqFromData(const SequenceContainer& data, double pseudoCount = 0);
+    void setNamespace(const std::string& prefix)
+    {
+      AbstractParameterAliasable::setNamespace(prefix);
+      freqSet_->setNamespace(prefix + freqSet_->getName() + ".");
+    }
+
+    void setFreqFromData(const SequencedValuesContainer& data, double pseudoCount = 0);
 
   protected:
     /**

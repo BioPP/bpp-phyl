@@ -125,7 +125,7 @@ namespace bpp
      *
      * @return A vector with all likelihoods for each site.
      */
-    virtual Vdouble getLikelihoodForEachSite() const = 0;
+    virtual Vdouble getLikelihoodPerSite() const = 0;
 
 /** @} */
 
@@ -175,7 +175,7 @@ namespace bpp
       nbSites_ = nbSites;
     }
 
-    Vdouble getLikelihoodForEachSite() const
+    Vdouble getLikelihoodPerSite() const
     {
       Vdouble l(getNumberOfSites());
       for (unsigned int i = 0; i < l.size(); ++i)

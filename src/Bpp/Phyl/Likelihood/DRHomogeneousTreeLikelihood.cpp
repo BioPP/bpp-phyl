@@ -59,7 +59,7 @@ using namespace std;
 
 DRHomogeneousTreeLikelihood::DRHomogeneousTreeLikelihood(
   const Tree& tree,
-  SubstitutionModel* model,
+  TransitionModel* model,
   DiscreteDistribution* rDist,
   bool checkRooted,
   bool verbose)
@@ -75,8 +75,8 @@ throw (Exception) :
 
 DRHomogeneousTreeLikelihood::DRHomogeneousTreeLikelihood(
   const Tree& tree,
-  const SiteContainer& data,
-  SubstitutionModel* model,
+  const AlignedValuesContainer& data,
+  TransitionModel* model,
   DiscreteDistribution* rDist,
   bool checkRooted,
   bool verbose)
@@ -132,7 +132,7 @@ DRHomogeneousTreeLikelihood::~DRHomogeneousTreeLikelihood()
 
 /******************************************************************************/
 
-void DRHomogeneousTreeLikelihood::setData(const SiteContainer& sites) throw (Exception)
+void DRHomogeneousTreeLikelihood::setData(const AlignedValuesContainer& sites) throw (Exception)
 {
   if (data_)
     delete data_;

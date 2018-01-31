@@ -38,7 +38,7 @@
  */
 
 #include "OptimizationTools.h"
-#include "Likelihood/PseudoNewtonOptimizer.h"
+#include "PseudoNewtonOptimizer.h"
 #include "Likelihood/GlobalClockTreeLikelihoodFunctionWrapper.h"
 #include "Tree/NNISearchable.h"
 #include "Tree/NNITopologySearch.h"
@@ -539,7 +539,8 @@ throw (Exception)
     optimizer->addOptimizationListener(listener);
   optimizer->init(pl);
   optimizer->optimize();
-
+  delete nanListener;
+  
   if (verbose > 0)
     ApplicationTools::displayMessage("\n");
 
@@ -861,7 +862,7 @@ DistanceMatrix* OptimizationTools::estimateDistanceMatrix(
   estimationMethod.setVerbose(verbose);
   if (param == DISTANCEMETHOD_PAIRWISE)
   {
-    ParameterList tmp = estimationMethod.getSubstitutionModel().getIndependentParameters();
+    ParameterList tmp = estimationMethod.getModel().getIndependentParameters();
     tmp.addParameters(estimationMethod.getRateDistribution().getIndependentParameters());
     tmp.deleteParameters(parametersToIgnore.getParameterNames());
     estimationMethod.setAdditionalParameters(tmp);
@@ -895,7 +896,7 @@ TreeTemplate<Node>* OptimizationTools::buildDistanceTree(
   estimationMethod.setVerbose(verbose);
   if (param == DISTANCEMETHOD_PAIRWISE)
   {
-    ParameterList tmp = estimationMethod.getSubstitutionModel().getIndependentParameters();
+    ParameterList tmp = estimationMethod.getModel().getIndependentParameters();
     tmp.addParameters(estimationMethod.getRateDistribution().getIndependentParameters());
     tmp.deleteParameters(parametersToIgnore.getParameterNames());
     estimationMethod.setAdditionalParameters(tmp);
@@ -946,7 +947,7 @@ TreeTemplate<Node>* OptimizationTools::buildDistanceTree(
       break;                // Ends here.
 
     // Now, re-estimate parameters:
-    unique_ptr<SubstitutionModel> model(estimationMethod.getSubstitutionModel().clone());
+    unique_ptr<TransitionModel> model(estimationMethod.getModel().clone());
     unique_ptr<DiscreteDistribution> rdist(estimationMethod.getRateDistribution().clone());
     DRHomogeneousTreeLikelihood tl(*tree,
                                    *estimationMethod.getData(),

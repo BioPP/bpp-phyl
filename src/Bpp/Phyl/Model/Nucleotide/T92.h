@@ -47,7 +47,6 @@
 
 // From SeqLib:
 #include <Bpp/Seq/Alphabet/NucleicAlphabet.h>
-#include <Bpp/Seq/Container/SequenceContainer.h>
 
 namespace bpp
 {

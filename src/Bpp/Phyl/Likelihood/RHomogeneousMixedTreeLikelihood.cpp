@@ -53,7 +53,7 @@ using namespace std;
 
 RHomogeneousMixedTreeLikelihood::RHomogeneousMixedTreeLikelihood(
   const Tree& tree,
-  SubstitutionModel* model,
+  TransitionModel* model,
   DiscreteDistribution* rDist,
   bool checkRooted,
   bool verbose,
@@ -76,8 +76,8 @@ RHomogeneousMixedTreeLikelihood::RHomogeneousMixedTreeLikelihood(
 
 RHomogeneousMixedTreeLikelihood::RHomogeneousMixedTreeLikelihood(
   const Tree& tree,
-  const SiteContainer& data,
-  SubstitutionModel* model,
+  const AlignedValuesContainer& data,
+  TransitionModel* model,
   DiscreteDistribution* rDist,
   bool checkRooted,
   bool verbose,
@@ -149,7 +149,7 @@ void RHomogeneousMixedTreeLikelihood::initialize() throw (Exception)
   RHomogeneousTreeLikelihood::initialize();
 }
 
-void RHomogeneousMixedTreeLikelihood::setData(const SiteContainer& sites) throw (Exception)
+void RHomogeneousMixedTreeLikelihood::setData(const AlignedValuesContainer& sites) throw (Exception)
 {
   RHomogeneousTreeLikelihood::setData(sites);
 
@@ -169,7 +169,7 @@ void RHomogeneousMixedTreeLikelihood::fireParameterChanged(const ParameterList& 
   MixedSubstitutionModel* mixedmodel = dynamic_cast<MixedSubstitutionModel*>(model_);
   size_t s = mixedmodel->getNumberOfModels();
 
-  const SubstitutionModel* pm;
+  const TransitionModel* pm;
   for (size_t i = 0; i < s; i++)
   {
     ParameterList pl;

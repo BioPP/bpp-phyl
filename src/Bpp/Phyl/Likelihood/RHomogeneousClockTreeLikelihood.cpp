@@ -53,7 +53,7 @@ using namespace bpp;
 
 RHomogeneousClockTreeLikelihood::RHomogeneousClockTreeLikelihood(
   const Tree & tree,
-  SubstitutionModel * model,
+  TransitionModel * model,
   DiscreteDistribution * rDist,
   bool checkRooted,
   bool verbose)
@@ -67,8 +67,8 @@ throw (Exception):
 
 RHomogeneousClockTreeLikelihood::RHomogeneousClockTreeLikelihood(
   const Tree & tree,
-  const SiteContainer & data,
-  SubstitutionModel * model,
+  const AlignedValuesContainer & data,
+  TransitionModel * model,
   DiscreteDistribution * rDist,
   bool checkRooted,
   bool verbose)

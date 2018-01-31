@@ -117,8 +117,8 @@ void SubstitutionProcessCollection::clear()
 void SubstitutionProcessCollection::addParametrizable(Parametrizable* parametrizable, size_t parametrizableIndex, bool withParameters)
 {
   ParameterList pl;
-  if (dynamic_cast<SubstitutionModel*>(parametrizable)){
-    modelColl_.addObject(dynamic_cast<SubstitutionModel*>(parametrizable), parametrizableIndex);
+  if (dynamic_cast<TransitionModel*>(parametrizable)){
+    modelColl_.addObject(dynamic_cast<TransitionModel*>(parametrizable), parametrizableIndex);
     pl=modelColl_.getParametersForObject(parametrizableIndex);
   }
   else

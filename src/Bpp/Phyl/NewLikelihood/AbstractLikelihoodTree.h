@@ -85,7 +85,7 @@ namespace bpp
 
     const Alphabet* alphabet_;
 
-    std::unique_ptr<SiteContainer> shrunkData_;
+    std::shared_ptr<AlignedValuesContainer> shrunkData_;
     size_t nbSites_; 
     size_t nbStates_;
     size_t nbClasses_;
@@ -170,7 +170,7 @@ public:
     
     const std::vector<size_t>& getRootArrayPositions() const { return rootPatternLinks_; }
 
-    const SiteContainer* getShrunkData() const {
+    const AlignedValuesContainer* getShrunkData() const {
       return shrunkData_.get();
     }
 
@@ -227,6 +227,11 @@ public:
       return getNodeData(nodeId, nClass).getLikelihoodArray(DX);
     }
 
+    const VVdouble& getLikelihoodArray(int nodeId, size_t nClass, unsigned char DX) const
+    {
+      return getNodeData(nodeId, nClass).getLikelihoodArray(DX);
+    }
+
     /**
      * @brief returns if given node at given class uses log in arrays.
      *
@@ -272,14 +277,14 @@ public:
      *
      */
     
-    VVVdouble getPosteriorProbabilitiesForEachStateForEachClass(int nodeId);
+    VVVdouble getPosteriorProbabilitiesPerStatePerClass(int nodeId) const;
 
     /**
      * @brief Compute the posterior probabilities for each state for a
      * given node.
      *
      * This method calls the
-     * getPosteriorProbabilitiesForEachStateForEachClass function and
+     * getPosteriorProbabilitiesPerStatePerClass function and
      * average the probabilities over all sites and classes,
      * resulting in a one-dimensionnal frequency array, with one
      * frequency per model state.
@@ -290,7 +295,7 @@ public:
      * node.
      */
     
-    Vdouble getPosteriorStateFrequencies(int nodeId);
+    Vdouble getPosteriorStateFrequencies(int nodeId) const;
 
   };
   

@@ -45,7 +45,7 @@ using namespace bpp;
 using namespace std;
 
 RateAcrossSitesSubstitutionProcess::RateAcrossSitesSubstitutionProcess(
-    SubstitutionModel* model,
+    TransitionModel* model,
     DiscreteDistribution* rdist,
     ParametrizablePhyloTree* tree) :
   AbstractParameterAliasable(""),

@@ -45,7 +45,7 @@ using namespace std;
 /******************************************************************************/
 
 FromMixtureSubstitutionModel::FromMixtureSubstitutionModel(const MixedSubstitutionModel& mixedModel, const std::string& subModelName, const std::string& mixtDesc) :
-  AbstractParameterAliasable(mixedModel.getName() + "_" + subModelName),
+  AbstractParameterAliasable(mixedModel.getName() + "_" + subModelName + "."),
   subModel_(),
   mixtName_(mixtDesc)
 {
@@ -55,7 +55,24 @@ FromMixtureSubstitutionModel::FromMixtureSubstitutionModel(const MixedSubstituti
     throw ParameterNotFoundException("FromMixtureSubstitutionModel::FromMixtureSubstitutionModel : unknown model name", subModelName);
 
   subModel_ = std::unique_ptr<SubstitutionModel>(sm->clone());
-  subModel_->setNamespace(mixtName_);
+  subModel_->setNamespace(getNamespace());
+
+  subModel_->setRate(1);
+  addParameters_(subModel_->getParameters());
+}
+
+FromMixtureSubstitutionModel::FromMixtureSubstitutionModel(const MixedSubstitutionModel& mixedModel, size_t subModelNumber, const std::string& mixtDesc) :
+  AbstractParameterAliasable(mixedModel.getName() + "_" + TextTools::toString(subModelNumber) + "."),
+  subModel_(),
+  mixtName_(mixtDesc)
+{
+  if (subModelNumber>=mixedModel.getNumberOfModels())
+    throw ParameterNotFoundException("FromMixtureSubstitutionModel::FromMixtureSubstitutionModel : bad model number", TextTools::toString(subModelNumber));
+
+  const SubstitutionModel* sm = mixedModel.getNModel(subModelNumber);
+
+  subModel_ = std::unique_ptr<SubstitutionModel>(sm->clone());
+  subModel_->setNamespace(getNamespace());
 
   subModel_->setRate(1);
   addParameters_(subModel_->getParameters());
@@ -85,9 +102,3 @@ FromMixtureSubstitutionModel& FromMixtureSubstitutionModel::operator=(const From
 }
 
 
-std::string FromMixtureSubstitutionModel::getName() const
-{
-  size_t posp = mixtName_.find("(");
-
-  return mixtName_.substr(0, posp) + "_" + getModel().getName() + mixtName_.substr(posp);
-}

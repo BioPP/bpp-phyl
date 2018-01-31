@@ -59,7 +59,10 @@ YpR::YpR(const RNY* alph, SubstitutionModel* const pm, const std::string& prefix
 {
   pmodel_->setNamespace(prefix + _nestedPrefix);
   pmodel_->enableEigenDecomposition(0);
+  pmodel_->computeFrequencies(false);
+
   addParameters_(pmodel_->getParameters());
+  computeFrequencies(true);
 }
 
 YpR::YpR(const YpR& ypr, const std::string& prefix) :

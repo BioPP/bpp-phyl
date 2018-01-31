@@ -49,28 +49,34 @@ namespace bpp
 {
 
   /**
-   * @brief Partial implementation of the Markov-modulated class of substitution
-   * models.
+   * @brief Partial implementation of the Markov-modulated class of
+   * substitution models.
    *
-   * This class wraps a substitution model and provide a matrix describing rate changes.
-   * The rate matrix must be initialized by derived classes of this class.
-   * Using these matrices, the diagonalization procedure of Galtier and Jean-Marie is used.
+   * This class wraps a substitution model and provide a matrix
+   * describing rate changes. The rate matrix must be initialized by
+   * derived classes of this class. Using these matrices, the
+   * diagonalization procedure of Galtier and Jean-Marie is used.
    *
    * Such models can be described using two matrices:
-   * a substitution matrix, @f$M@f$, with size @f$m@f$, which is a "standard" substitution model of any alphabet type,
+   * a substitution matrix, @f$M@f$, with size @f$m@f$, which is a
+   * "standard" substitution model of any alphabet type,
    * and a rate matrix @f$G@f$ of size @f$g@f$.
-   * The generator of the markov-modulated model, @f$Q@f$ can be written using Kronecker matrix operands:
+   * The generator of the markov-modulated model, @f$Q@f$ can be
+   * written using Kronecker matrix operands.
    * @f[
    * Q=D_R \otimes M + G \otimes I_m,
    * @f]
-   * where @f$D_R@f$ is the diagonal matrix of all rates, and @f$I_m@f$ is the identity matrix of size @f$m@f$.
+   * where @f$D_R@f$ is the diagonal matrix of all rates, and
+   * @f$I_m@f$ is the identity matrix of size @f$m@f$.
    *
-   * This generator is normalized so that branch lengths are measured in unit of mean number of substitutions per site,
-   * where susbstitution here means "change of alphabet state".
+   * This generator is normalized so that branch lengths are measured
+   * in unit of mean number of substitutions per site, where
+   * susbstitution here means "change of alphabet 
    * Rate changes are not counted.
    *
-   * Galtier N. and Jean-Marie A., Markov-modulated Markov chains and the covarion process of molecular evolution (2004).
-   * _Journal of Computational Biology_, 11:727-33.
+   * Galtier N. and Jean-Marie A., Markov-modulated Markov chains and
+   * the covarion process of molecular evolution (2004). _Journal of
+   * Computational Biology_, 11:727-33.
    */
   class MarkovModulatedSubstitutionModel:
     public virtual ReversibleSubstitutionModel,
@@ -132,6 +138,13 @@ namespace bpp
     bool eigenDecompose_;
 
     /**
+     * @brief Tell if the equilibrium frequencies  should be computed
+     * from the generator
+     */
+    
+    bool compFreq_;
+
+    /**
      * @brief These ones are for bookkeeping:
      */
     mutable RowMatrix<double> pijt_;
@@ -163,7 +176,7 @@ namespace bpp
       model_(model), stateMap_(model->getStateMap(), nbRates), nbStates_(model->getNumberOfStates()),
       nbRates_(nbRates), rates_(nbRates, nbRates), ratesExchangeability_(nbRates, nbRates),
       ratesFreq_(nbRates), ratesGenerator_(nbRates, nbRates), generator_(), exchangeability_(),
-      leftEigenVectors_(), rightEigenVectors_(), eigenValues_(), iEigenValues_(), eigenDecompose_(true), 
+      leftEigenVectors_(), rightEigenVectors_(), eigenValues_(), iEigenValues_(), eigenDecompose_(true), compFreq_(false), 
       pijt_(), dpijt_(), d2pijt_(), freq_(),
       normalizeRateChanges_(normalizeRateChanges),
       nestedPrefix_("model_" + model->getNamespace())
@@ -226,13 +239,18 @@ namespace bpp
     
     double getInitValue(size_t i, int state) const throw (IndexOutOfBoundsException, BadIntException);
     
-    void setFreqFromData(const SequenceContainer& data, double pseudoCount = 0)
+    void setFreqFromData(const SequencedValuesContainer& data, double pseudoCount = 0)
     {
       model_->setFreqFromData(data, pseudoCount);
       updateMatrices();
     }
 
-
+    virtual void setFreq(std::map<int, double>& frequencies)
+    {
+      model_->setFreq(frequencies);
+      updateMatrices();
+    }
+    
     const ReversibleSubstitutionModel* getNestedModel() const { return model_; }
 
     /**
@@ -266,7 +284,9 @@ namespace bpp
       model_->normalize();
       updateMatrices();
     }
-    
+
+    void setDiagonal();
+
     double getScale() const
     {
       std::vector<double> v;
@@ -282,7 +302,12 @@ namespace bpp
     void enableEigenDecomposition(bool yn) { eigenDecompose_ = yn; }
 
     bool enableEigenDecomposition() { return eigenDecompose_; }
-	
+
+    bool computeFrequencies() const { return compFreq_; }
+    
+    void computeFrequencies(bool yn) { compFreq_ = yn; }
+      
+
     /**
      * @brief Tells the model that a parameter value has changed.
      *
@@ -308,6 +333,12 @@ namespace bpp
      * It is called by the fireParameterChanged() method.
      */
     virtual void updateRatesModel() = 0;
+
+    Vdouble& getFrequencies_()
+    {
+      return freq_;
+    }
+    
 
   };
 

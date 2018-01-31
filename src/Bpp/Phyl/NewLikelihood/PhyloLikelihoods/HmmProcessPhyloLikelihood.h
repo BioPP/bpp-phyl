@@ -46,7 +46,7 @@
 #include "../HmmProcessEmissionProbabilities.h"
 
 // From SeqLib:
-#include <Bpp/Seq/Container/SiteContainer.h>
+#include <Bpp/Seq/Container/AlignedValuesContainer.h>
 
 // From Numeric
 #include <Bpp/Numeric/Hmm/HmmLikelihood.h>
@@ -74,7 +74,7 @@ private:
 
 public:
   HmmProcessPhyloLikelihood(
-    const SiteContainer& data,
+    const AlignedValuesContainer& data,
     HmmSequenceEvolution& processSeqEvol,
     size_t nSeqEvol = 0,
     size_t nData = 0,
@@ -177,7 +177,7 @@ public:
     return Hmm_->getD2LogLikelihoodForASite(site);
   }
 
-  Vdouble getLikelihoodForEachSite() const
+  Vdouble getLikelihoodPerSite() const
   {
     updateLikelihood();
     computeLikelihood();
@@ -185,7 +185,7 @@ public:
     return Hmm_->getLikelihoodForEachSite();
   }
 
-  VVdouble getPosteriorProbabilitiesForEachSiteForEachProcess() const
+  VVdouble getPosteriorProbabilitiesPerSitePerProcess() const
   {
     updateLikelihood();
     computeLikelihood();

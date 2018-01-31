@@ -6,36 +6,36 @@
 //
 
 /*
-Copyright or © or Copr. Bio++ Development Team, (November 16, 2004)
+  Copyright or © or Copr. Bio++ Development Team, (November 16, 2004)
 
-This software is a computer program whose purpose is to provide classes
-for phylogenetic data analysis.
+  This software is a computer program whose purpose is to provide classes
+  for phylogenetic data analysis.
 
-This software is governed by the CeCILL  license under French law and
-abiding by the rules of distribution of free software.  You can  use, 
-modify and/ or redistribute the software under the terms of the CeCILL
-license as circulated by CEA, CNRS and INRIA at the following URL
-"http://www.cecill.info". 
+  This software is governed by the CeCILL  license under French law and
+  abiding by the rules of distribution of free software.  You can  use, 
+  modify and/ or redistribute the software under the terms of the CeCILL
+  license as circulated by CEA, CNRS and INRIA at the following URL
+  "http://www.cecill.info". 
 
-As a counterpart to the access to the source code and  rights to copy,
-modify and redistribute granted by the license, users are provided only
-with a limited warranty  and the software's author,  the holder of the
-economic rights,  and the successive licensors  have only  limited
-liability. 
+  As a counterpart to the access to the source code and  rights to copy,
+  modify and redistribute granted by the license, users are provided only
+  with a limited warranty  and the software's author,  the holder of the
+  economic rights,  and the successive licensors  have only  limited
+  liability. 
 
-In this respect, the user's attention is drawn to the risks associated
-with loading,  using,  modifying and/or developing or reproducing the
-software by the user in light of its specific status of free software,
-that may mean  that it is complicated to manipulate,  and  that  also
-therefore means  that it is reserved for developers  and  experienced
-professionals having in-depth computer knowledge. Users are therefore
-encouraged to load and test the software's suitability as regards their
-requirements in conditions enabling the security of their systems and/or 
-data to be ensured and,  more generally, to use and operate it in the 
-same conditions as regards security. 
+  In this respect, the user's attention is drawn to the risks associated
+  with loading,  using,  modifying and/or developing or reproducing the
+  software by the user in light of its specific status of free software,
+  that may mean  that it is complicated to manipulate,  and  that  also
+  therefore means  that it is reserved for developers  and  experienced
+  professionals having in-depth computer knowledge. Users are therefore
+  encouraged to load and test the software's suitability as regards their
+  requirements in conditions enabling the security of their systems and/or 
+  data to be ensured and,  more generally, to use and operate it in the 
+  same conditions as regards security. 
 
-The fact that you are presently reading this means that you have had
-knowledge of the CeCILL license and that you accept its terms.
+  The fact that you are presently reading this means that you have had
+  knowledge of the CeCILL license and that you accept its terms.
 */
 
 #ifndef _DISTANCEESTIMATION_H_
@@ -44,7 +44,7 @@ knowledge of the CeCILL license and that you accept its terms.
 #include "../Model/SubstitutionModel.h"
 #include "../Likelihood/AbstractTreeLikelihood.h"
 #include "../Likelihood/DRHomogeneousTreeLikelihood.h"
-#include "../Likelihood/PseudoNewtonOptimizer.h"
+#include "../PseudoNewtonOptimizer.h"
 
 #include <Bpp/Clonable.h>
 #include <Bpp/Numeric/ParameterList.h>
@@ -54,7 +54,7 @@ knowledge of the CeCILL license and that you accept its terms.
 #include <Bpp/Numeric/Function/MetaOptimizer.h>
 
 // From bpp-seq:
-#include <Bpp/Seq/Container/SiteContainer.h>
+#include <Bpp/Seq/Container/AlignedValuesContainer.h>
 
 // From the STL:
 #include <memory>
@@ -65,13 +65,13 @@ namespace bpp
 /**
  * @brief This class is a simplified version of DRHomogeneousTreeLikelihood for 2-Trees.
  */
-class TwoTreeLikelihood:
-  public AbstractDiscreteRatesAcrossSitesTreeLikelihood  
-{
+  class TwoTreeLikelihood:
+    public AbstractDiscreteRatesAcrossSitesTreeLikelihood  
+  {
   private:
-    SiteContainer* shrunkData_;
+    std::shared_ptr<AlignedValuesContainer> shrunkData_;
     std::vector<std::string> seqnames_;
-    SubstitutionModel* model_;
+    TransitionModel* model_;
     ParameterList brLenParameters_;
     
     mutable VVVdouble pxy_;
@@ -100,9 +100,9 @@ class TwoTreeLikelihood:
 
     //some values we'll need:
     size_t nbSites_,         //the number of sites in the container
-           nbClasses_,       //the number of rate classes
-           nbStates_,        //the number of states in the alphabet
-           nbDistinctSites_; //the number of distinct sites in the container
+      nbClasses_,       //the number of rate classes
+      nbStates_,        //the number of states in the alphabet
+      nbDistinctSites_; //the number of distinct sites in the container
 
     mutable VVVdouble rootLikelihoods_;
     mutable VVdouble rootLikelihoodsS_;
@@ -118,8 +118,8 @@ class TwoTreeLikelihood:
   public:
     TwoTreeLikelihood(
       const std::string& seq1, const std::string& seq2,  
-      const SiteContainer& data,
-      SubstitutionModel* model,
+      const AlignedValuesContainer& data,
+      TransitionModel* model,
       DiscreteDistribution* rDist,
       bool verbose)  throw (Exception);
 
@@ -162,15 +162,18 @@ class TwoTreeLikelihood:
     double getLogLikelihoodForASite(size_t site) const;
     ParameterList getBranchLengthsParameters() const;
     ParameterList getSubstitutionModelParameters() const;
-    SubstitutionModel* getSubstitutionModel(int nodeId, size_t siteIndex) throw (NodeNotFoundException) { return model_; }
-    const SubstitutionModel* getSubstitutionModel(int nodeId, size_t siteIndex) const throw (NodeNotFoundException) { return model_; }
+  
+    TransitionModel* getModelForSite(int nodeId, size_t siteIndex) { return model_; }
+  
+    const TransitionModel* getModelForSite(int nodeId, size_t siteIndex) const { return model_; }
+
     const std::vector<double>& getRootFrequencies(size_t siteIndex) const { return model_->getFrequencies(); }
     size_t getSiteIndex(size_t site) const throw (IndexOutOfBoundsException) { return rootPatternLinks_[site]; }
     /**
      * @brief This method is not applicable for this object.
      */
     VVVdouble getTransitionProbabilitiesPerRateClass(int nodeId, size_t siteIndex) const { return pxy_; }
-    void setData(const SiteContainer& sites) throw (Exception) {}
+    void setData(const AlignedValuesContainer& sites) throw (Exception) {}
     void initialize() throw(Exception);
     /** @} */
 
@@ -185,19 +188,14 @@ class TwoTreeLikelihood:
     double getLogLikelihoodForASiteForARateClassForAState(size_t site, size_t rateClass, int state) const;
     /** @} */
 
-    /**
-     * @brief Get the substitution model used for the computation.
-     *
-     * @return A const pointer toward the substitution model of this instance.
-     */
-    const SubstitutionModel* getSubstitutionModel() const { return model_; }
-    
+    const TransitionModel* getModel() const { return model_; }
+
     /**
      * @brief Get the substitution model used for the computation.
      *
      * @return A pointer toward the substitution model of this instance.
      */
-    SubstitutionModel* getSubstitutionModel() { return model_; }
+    TransitionModel* getModel() { return model_; }
 
     ConstBranchModelIterator* getNewBranchModelIterator(int nodeId) const throw (NotImplementedException)
     {
@@ -272,7 +270,7 @@ class TwoTreeLikelihood:
      *
      * @param sequences The sequence container to use.
      */
-    virtual void initTreeLikelihoods(const SequenceContainer & sequences) throw (Exception);
+    virtual void initTreeLikelihoods(const SequencedValuesContainer & sequences) throw (Exception);
 
     void fireParameterChanged(const ParameterList & params);
     virtual void computeTreeLikelihood();
@@ -292,7 +290,7 @@ class TwoTreeLikelihood:
      */
     virtual void applyParameters() throw (Exception);  
 
-};
+  };
 
 /**
  * @brief Estimate a distance matrix from sequence data, according to a given model.
@@ -306,13 +304,13 @@ class TwoTreeLikelihood:
  * You'll have to specify a 'profiler' to the optimizer and then look at the file
  * if you want to do so.
  */
-class DistanceEstimation:
-  public virtual Clonable
-{
+  class DistanceEstimation:
+    public virtual Clonable
+  {
   private:
-    std::unique_ptr<SubstitutionModel> model_;
+    std::unique_ptr<TransitionModel> model_;
     std::unique_ptr<DiscreteDistribution> rateDist_;
-    const SiteContainer* sites_;
+    const AlignedValuesContainer* sites_;
     DistanceMatrix* dist_;
     Optimizer* optimizer_;
     MetaOptimizer* defaultOptimizer_;
@@ -336,9 +334,9 @@ class DistanceEstimation:
      *  - 4=3 + likelihood object verbose enabled
      */
     DistanceEstimation(
-        SubstitutionModel* model,
-        DiscreteDistribution* rateDist,
-        size_t verbose = 1) :
+      TransitionModel* model,
+      DiscreteDistribution* rateDist,
+      size_t verbose = 1) :
       model_(model),
       rateDist_(rateDist),
       sites_(0),
@@ -369,11 +367,11 @@ class DistanceEstimation:
      *  @param computeMat if true the computeMatrix() method is called.
      */
     DistanceEstimation(
-        SubstitutionModel* model,
-        DiscreteDistribution* rateDist,
-        const SiteContainer* sites,
-        size_t verbose = 1,
-        bool computeMat = true) :
+      TransitionModel* model,
+      DiscreteDistribution* rateDist,
+      const AlignedValuesContainer* sites,
+      size_t verbose = 1,
+      bool computeMat = true) :
       model_(model),
       rateDist_(rateDist),
       sites_(sites),
@@ -479,16 +477,17 @@ class DistanceEstimation:
      */
     DistanceMatrix* getMatrix() const { return dist_ == 0 ? 0 : new DistanceMatrix(*dist_); }
 
-    bool hasSubstitutionModel() const { return model_.get(); }
+    bool hasModel() const { return model_.get(); }
 
-    const SubstitutionModel& getSubstitutionModel() const throw (Exception) {
-      if (hasSubstitutionModel())
+    const TransitionModel& getModel() const throw (Exception)
+    {
+      if (hasModel())
         return *model_;
       else
         throw Exception("DistanceEstimation::getSubstitutionModel(). No model assciated to this instance.");
     }
 
-    void resetSubstitutionModel(SubstitutionModel* model = 0) { model_.reset(model); }
+    void resetSubstitutionModel(TransitionModel* model = 0) { model_.reset(model); }
 
     bool hasRateDistribution() const { return rateDist_.get(); }
 
@@ -501,8 +500,8 @@ class DistanceEstimation:
 
     void resetRateDistribution(DiscreteDistribution* rateDist = 0) { rateDist_.reset(rateDist); }
 
-    void setData(const SiteContainer* sites) { sites_ = sites; }
-    const SiteContainer* getData() const { return sites_; }
+    void setData(const AlignedValuesContainer* sites) { sites_ = sites; }
+    const AlignedValuesContainer* getData() const { return sites_; }
     void resetData() { sites_ = 0; }
     
     void setOptimizer(const Optimizer * optimizer)
@@ -542,7 +541,7 @@ class DistanceEstimation:
      * @return Verbose level.
      */
     size_t getVerbose() const { return verbose_; }
-};
+  };
 
 } //end of namespace bpp.
 

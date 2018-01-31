@@ -54,7 +54,7 @@ using namespace std;
 
 RHomogeneousTreeLikelihood::RHomogeneousTreeLikelihood(
   const Tree& tree,
-  SubstitutionModel* model,
+  TransitionModel* model,
   DiscreteDistribution* rDist,
   bool checkRooted,
   bool verbose,
@@ -71,8 +71,8 @@ throw (Exception) :
 
 RHomogeneousTreeLikelihood::RHomogeneousTreeLikelihood(
   const Tree& tree,
-  const SiteContainer& data,
-  SubstitutionModel* model,
+  const AlignedValuesContainer& data,
+  TransitionModel* model,
   DiscreteDistribution* rDist,
   bool checkRooted,
   bool verbose,
@@ -130,10 +130,11 @@ RHomogeneousTreeLikelihood::~RHomogeneousTreeLikelihood()
 
 /******************************************************************************/
 
-void RHomogeneousTreeLikelihood::setData(const SiteContainer& sites) throw (Exception)
+void RHomogeneousTreeLikelihood::setData(const AlignedValuesContainer& sites) throw (Exception)
 {
   if (data_) delete data_;
   data_ = PatternTools::getSequenceSubset(sites, *tree_->getRootNode());
+
   if (verbose_) ApplicationTools::displayTask("Initializing data structure");
   likelihoodData_->initLikelihoods(*data_, *model_);
   if (verbose_) ApplicationTools::displayTaskDone();
@@ -812,7 +813,8 @@ void RHomogeneousTreeLikelihood::computeTreeLikelihood()
 
 void RHomogeneousTreeLikelihood::computeSubtreeLikelihood(const Node* node)
 {
-  if (node->isLeaf()) return;
+  if (node->isLeaf())
+    return;
 
   size_t nbSites = likelihoodData_->getLikelihoodArray(node->getId()).size();
   size_t nbNodes = node->getNumberOfSons();
@@ -871,6 +873,7 @@ void RHomogeneousTreeLikelihood::computeSubtreeLikelihood(const Node* node)
       }
     }
   }
+  
 }
 
 /******************************************************************************/

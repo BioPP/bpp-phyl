@@ -115,6 +115,12 @@ namespace bpp
       {
         return vSize_;
       }
+
+      /*
+       * @brief Get Substitution Process Number for a given site.
+       * @param i the index of the site
+       *
+       */
       
       size_t getSubstitutionProcessNumber(size_t i) const
       {

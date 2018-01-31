@@ -160,19 +160,15 @@ namespace bpp
     {}
 
     AbstractReward(const AbstractReward& ar):
-      alphIndex_(ar.alphIndex_)//dynamic_cast<AlphabetIndex1*>(ar.alphIndex_->clone()))
+      alphIndex_(ar.alphIndex_)
     {}
 
     AbstractReward& operator=(const AbstractReward& ar) {
-      // if (alphIndex_)
-      //   delete alphIndex_;
-      alphIndex_ = ar.alphIndex_; //dynamic_cast<AlphabetIndex1*>(ar.alphIndex_->clone());
+      alphIndex_ = ar.alphIndex_;
       return *this;
     }
 
     ~AbstractReward() {
-      // if (alphIndex_)
-      //   delete alphIndex_;
     }
 
   public:
@@ -186,7 +182,6 @@ namespace bpp
      */
     
     void setAlphabetIndex(AlphabetIndex1* alphIndex) {
-//      if (alphIndex_) delete alphIndex_;
       alphIndex_ = alphIndex;
       alphabetIndexHasChanged();
     }

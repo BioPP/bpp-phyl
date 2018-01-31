@@ -60,7 +60,7 @@ namespace bpp
  * Frequencies are ordered according to alphabet states.
  */
 
-  class SubstitutionModel;
+  class TransitionModel;
   
   class FrequenciesSet :
     public virtual ParameterAliasable
@@ -84,7 +84,7 @@ namespace bpp
      * @return The frequencies values of the set.
      */
 
-    virtual const std::vector<double>& getFrequencies() const = 0;
+    virtual const Vdouble& getFrequencies() const = 0;
 
     /**
      * @return The frequencies of each alphabet states according to this model.
@@ -170,8 +170,8 @@ namespace bpp
 
     const StateMap& getStateMap() const { return *stateMap_; }
 
-    const std::vector<double>& getFrequencies() const { return freq_; }
-
+    const Vdouble& getFrequencies() const { return freq_; }
+  
     const std::map<int, double> getAlphabetStatesFrequencies() const;
 
     /**
@@ -261,10 +261,10 @@ namespace bpp
     public AbstractFrequenciesSet
   {
   private:
-    SubstitutionModel* model_;
+    TransitionModel* model_;
 
   public:
-    FromModelFrequenciesSet(SubstitutionModel* model);
+    FromModelFrequenciesSet(TransitionModel* model);
 
     FromModelFrequenciesSet(const FromModelFrequenciesSet& fmfs);
     
@@ -276,7 +276,7 @@ namespace bpp
 
   public:
 
-    const SubstitutionModel* getModel() const
+    const TransitionModel* getModel() const
     {
       return model_;
     }

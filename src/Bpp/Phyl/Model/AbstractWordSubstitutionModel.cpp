@@ -72,7 +72,6 @@ AbstractWordSubstitutionModel::AbstractWordSubstitutionModel(
   VnestedPrefix_(),
   Vrate_        (modelList.size())
 {
-  enableEigenDecomposition(false);
   size_t i, j;
   size_t n = modelList.size();
 
@@ -137,7 +136,6 @@ AbstractWordSubstitutionModel::AbstractWordSubstitutionModel(
   VnestedPrefix_(),
   Vrate_        (0)
 {
-  enableEigenDecomposition(false);
 }
 
 AbstractWordSubstitutionModel::AbstractWordSubstitutionModel(
@@ -153,7 +151,6 @@ AbstractWordSubstitutionModel::AbstractWordSubstitutionModel(
 {
   stateMap_=std::unique_ptr<StateMap>(new CanonicalStateMap(getAlphabet(), false));
 
-  enableEigenDecomposition(false);
   size_t i;
 
   string t = "";
@@ -280,8 +277,6 @@ void AbstractWordSubstitutionModel::updateMatrices()
     }
 
   size_t nbmod = VSubMod_.size();
-  size_t salph = getNumberOfStates();
-  size_t nbStop = 0;
   vector<bool> vnull; // vector of the indices of lines with only zeros
 
   // Generator
@@ -307,269 +302,52 @@ void AbstractWordSubstitutionModel::updateMatrices()
 
   // sets diagonal terms
 
-  double x;
+  setDiagonal();
 
-  for (i = 0; i < salph; i++)
-  {
-    x = 0;
-    for (j = 0; j < salph; j++)
-    {
-      if (j != i)
-        x += generator_(i, j);
-    }
-    generator_(i, i) = -x;
-  }
-
-  // at that point generator_ and freq_ are done for models without
-  // enableEigenDecomposition
+  // at that point generator_ (and possibly freq_) are done for models
+  // without enableEigenDecomposition
 
   // Eigen values:
   
   if (enableEigenDecomposition())
   {
-    for (i = 0; i < salph; i++)
-    {
-      bool flag = true;
-      for (j = 0; j < salph; j++)
-      {
-        if ((i != j) && abs(generator_(i, j)) > NumConstants::TINY())
-        {
-          flag = false;
-          break;
-        }
-      }
-      if (flag)
-        nbStop++;
-      vnull.push_back(flag);
-    }
-
-    if (nbStop != 0)
-    {
-      size_t gi = 0, gj = 0;
-
-      gk.resize(salph - nbStop, salph - nbStop);
-      for (i = 0; i < salph; i++)
-      {
-        if (!vnull[i])
-        {
-          gj = 0;
-          for (j = 0; j < salph; j++)
-          {
-            if (!vnull[j])
-            {
-              gk(i - gi, j - gj) = generator_(i, j);
-            }
-            else
-              gj++;
-          }
-        }
-        else
-          gi++;
-      }
-
-      EigenValue<double> ev(gk);
-      eigenValues_ = ev.getRealEigenValues();
-      iEigenValues_ = ev.getImagEigenValues();
-
-      for (i = 0; i < nbStop; i++)
-      {
-        eigenValues_.push_back(0);
-        iEigenValues_.push_back(0);
-      }
-
-      RowMatrix<double> rev = ev.getV();
-      rightEigenVectors_.resize(salph, salph);
-      gi = 0;
-      for (i = 0; i < salph; i++)
-      {
-        if (vnull[i])
-        {
-          gi++;
-          for (j = 0; j < salph; j++)
-          {
-            rightEigenVectors_(i, j) = 0;
-          }
-
-          rightEigenVectors_(i, salph - nbStop + gi - 1) = 1;
-        }
-        else
-        {
-          for (j = 0; j < salph - nbStop; j++)
-          {
-            rightEigenVectors_(i, j) = rev(i - gi, j);
-          }
-
-          for (j = salph - nbStop; j < salph; j++)
-          {
-            rightEigenVectors_(i, j) = 0;
-          }
-        }
-      }
-    }
-    else
-    {
-      EigenValue<double> ev(generator_);
-      eigenValues_ = ev.getRealEigenValues();
-      iEigenValues_ = ev.getImagEigenValues();
-      rightEigenVectors_ = ev.getV();
-      nbStop = 0;
-    }
-
-    try
-    {
-      MatrixTools::inv(rightEigenVectors_, leftEigenVectors_);
-
-      // is it diagonalizable ?
-
-      isDiagonalizable_ = true;
-      for (i = 0; i < size_ && isDiagonalizable_; i++)
-      {
-        if (abs(iEigenValues_[i]) > NumConstants::SMALL())
-          isDiagonalizable_ = false;
-      }
-
-      // is it singular?
-
-      // looking for the 0 eigenvector for which the non-stop right
-      // eigen vector elements are equal.
-      //
-
-      size_t nulleigen = 0;
-      double val;
-
-      isNonSingular_ = false;
-      while (nulleigen < salph - nbStop)
-      {
-        if ((abs(eigenValues_[nulleigen]) < NumConstants::SMALL()) && (abs(iEigenValues_[nulleigen]) < NumConstants::SMALL()))
-        {
-          i = 0;
-          while (vnull[i])
-            i++;
-          
-          val = rightEigenVectors_(i, nulleigen);
-          i++;
-          while (i < salph)
-          {
-            if (!vnull[i])
-            {
-              if (abs(rightEigenVectors_(i, nulleigen) - val) > NumConstants::SMALL())
-                break;
-            }
-            i++;
-          }
-          
-          if (i < salph)
-            nulleigen++;
-          else
-          {
-            isNonSingular_ = true;
-            break;
-          }
-        }
-        else
-          nulleigen++;
-      }
-      
-      if (isNonSingular_)
-      {
-        eigenValues_[nulleigen] = 0; // to avoid approximation errors on long long branches
-        iEigenValues_[nulleigen] = 0; // to avoid approximation errors on long long branches
-        
-        for (i = 0; i < salph; i++)
-          freq_[i] = leftEigenVectors_(nulleigen, i);
-        
-        x = 0;
-        for (i = 0; i < salph; i++)
-            x += freq_[i];
-        
-        for (i = 0; i < salph; i++)
-          freq_[i] /= x;
-      }
-      
-      else
-      {
-        ApplicationTools::displayMessage("Unable to find eigenvector for eigenvalue 1. Taylor series used instead.");
-        isDiagonalizable_ = false;
-      }
-    }
-    
-    
-    // if rightEigenVectors_ is singular
-    catch (ZeroDivisionException& e)
-    {
-      ApplicationTools::displayMessage("Singularity during  diagonalization. Taylor series used instead.");
-      isNonSingular_ = false;
-      isDiagonalizable_ = false;
-    }
-
-    if (!isNonSingular_)
-    {
-      double min = generator_(0, 0);
-      for (i = 1; i < salph; i++)
-      {
-        if (min > generator_(i, i))
-          min = generator_(i, i);
-      }
-
-      setScale(-1 / min);
-
-      if (vPowGen_.size() == 0)
-        vPowGen_.resize(30);
-
-      MatrixTools::getId(salph, tmpMat_);    // to compute the equilibrium frequency  (Q+Id)^256
-      MatrixTools::add(tmpMat_, generator_);
-      MatrixTools::pow(tmpMat_, 256, vPowGen_[0]);
-
-      for (i = 0; i < salph; i++)
-      {
-        freq_[i] = vPowGen_[0](0, i);
-      }
-
-      MatrixTools::getId(salph, vPowGen_[0]);
-    }
-
-    // normalization
-    normalize();
-
-    
-    if (!isNonSingular_)
-      MatrixTools::Taylor(generator_, 30, vPowGen_);
+    AbstractSubstitutionModel::updateMatrices();
   }
   else  // compute freq_ if no eigenDecomposition
   {
-    for (j = 0; j < size_; j++)
-      freq_[j] = 1;
-  
-    m = 1;
-    for (k = nbmod; k > 0; k--)
+    if (computeFrequencies())
     {
-      SubstitutionModel* pSM = VSubMod_[k - 1];
-      for (j = 0; j < vsize[k - 1]; j++)
-      {
-        n = 0;
-        while (n < salph)
-        { // loop on prefix
-          for (l = 0; l < m; l++)
-          { // loop on suffix
-            freq_[n + j * m + l] *=  pSM->freq(j);
-          }
-          n += m * vsize[k - 1];
-        }
-      }
-      m *= vsize[k - 1];
-    }
-
-    // normalization
-    normalize();
-  }
+      size_t salph = getNumberOfStates();
+      for (auto& fr : freq_)
+        fr = 1;
   
+      m = 1;
+      for (k = nbmod; k > 0; k--)
+      {
+        SubstitutionModel* pSM = VSubMod_[k - 1];
+        for (j = 0; j < vsize[k - 1]; j++)
+        {
+          n = 0;
+          while (n < salph)
+          { // loop on prefix
+            for (l = 0; l < m; l++)
+            { // loop on suffix
+              freq_[n + j * m + l] *=  pSM->freq(j);
+            }
+            n += m * vsize[k - 1];
+          }
+        }
+        m *= vsize[k - 1];
+      }
+      // normalization
+      normalize();
+    }
+  }
 
   // compute the exchangeability_
-
   for (i = 0; i < size_; i++)
     for (j = 0; j < size_; j++)
       exchangeability_(i, j) = generator_(i, j) / freq_[j];
-
 }
 
 

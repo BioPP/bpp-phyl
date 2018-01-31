@@ -65,7 +65,7 @@ class BranchLikelihood :
 {
 protected:
   const VVVdouble* array1_, * array2_;
-  const SubstitutionModel* model_;
+  const TransitionModel* model_;
   const DiscreteDistribution* rDist_;
   size_t nbStates_, nbClasses_;
   VVVdouble pxy_;
@@ -121,7 +121,7 @@ public:
   BranchLikelihood* clone() const { return new BranchLikelihood(*this); }
 
 public:
-  void initModel(const SubstitutionModel* model, const DiscreteDistribution* rDist);
+  void initModel(const TransitionModel* model, const DiscreteDistribution* rDist);
 
   /**
    * @warning No checking on alphabet size or number of rate classes is performed,
@@ -194,7 +194,7 @@ public:
    */
   NNIHomogeneousTreeLikelihood(
     const Tree& tree,
-    SubstitutionModel* model,
+    TransitionModel* model,
     DiscreteDistribution* rDist,
     bool checkRooted = true,
     bool verbose = true)
@@ -214,8 +214,8 @@ public:
    */
   NNIHomogeneousTreeLikelihood(
     const Tree& tree,
-    const SiteContainer& data,
-    SubstitutionModel* model,
+    const AlignedValuesContainer& data,
+    TransitionModel* model,
     DiscreteDistribution* rDist,
     bool checkRooted = true,
     bool verbose = true)
@@ -233,7 +233,7 @@ public:
   NNIHomogeneousTreeLikelihood* clone() const { return new NNIHomogeneousTreeLikelihood(*this); }
 
 public:
-  void setData(const SiteContainer& sites) throw (Exception)
+  void setData(const AlignedValuesContainer& sites) throw (Exception)
   {
     DRHomogeneousTreeLikelihood::setData(sites);
     if (brLikFunction_) delete brLikFunction_;

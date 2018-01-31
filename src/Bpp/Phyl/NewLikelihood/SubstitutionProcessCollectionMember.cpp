@@ -107,12 +107,12 @@ void SubstitutionProcessCollectionMember::clear()
 
 inline const Alphabet* SubstitutionProcessCollectionMember::getAlphabet() const
 {
-  return (getCollection()->getModel(modelToNodes_.begin()->first)).getAlphabet();
+  return (getCollection()->getModel(modelToNodes_.begin()->first))->getAlphabet();
 }
 
-inline const SubstitutionModel* SubstitutionProcessCollectionMember::getModel(size_t i) const
+inline const TransitionModel* SubstitutionProcessCollectionMember::getModel(size_t i) const
 {
-  return &getCollection()->getModel(i);
+  return getCollection()->getModel(i);
 }
 
 inline bool SubstitutionProcessCollectionMember::matchParametersValues(const ParameterList& parameters) throw (bpp::ConstraintException)
@@ -208,7 +208,7 @@ inline const FrequenciesSet* SubstitutionProcessCollectionMember::getRootFrequen
 inline const std::vector<double>& SubstitutionProcessCollectionMember::getRootFrequencies() const
 {
   if (stationarity_)
-    return (getCollection()->getModel(modelToNodes_.begin()->first)).getFrequencies();
+    return (getCollection()->getModel(modelToNodes_.begin()->first))->getFrequencies();
   else
     return (getCollection()->getFrequencies(nRoot_)).getFrequencies();
 }
@@ -226,11 +226,11 @@ inline size_t SubstitutionProcessCollectionMember::getNumberOfClasses() const
 
 void SubstitutionProcessCollectionMember::addModel(size_t numModel, const std::vector<unsigned int>& nodesId)
 {
-  const SubstitutionModel& nmod = getCollection()->getModel(numModel);
+  const TransitionModel& nmod = *getCollection()->getModel(numModel);
 
   if (modelToNodes_.size() > 0)
   {
-    const SubstitutionModel& modi = getCollection()->getModel(modelToNodes_.begin()->first);
+    const TransitionModel& modi = *getCollection()->getModel(modelToNodes_.begin()->first);
     if (nmod.getAlphabet()->getAlphabetType() !=  modi.getAlphabet()->getAlphabetType())
       throw Exception("SubstitutionProcessCollectionMember::addModel. A Substitution Model cannot be added to a Model Set if it does not have the same alphabet.");
     if (nmod.getNumberOfStates() != modi.getNumberOfStates())
@@ -263,7 +263,7 @@ void SubstitutionProcessCollectionMember::setRootFrequencies(size_t numFreq)
   const FrequenciesSet& freq = getCollection()->getFrequencies(numFreq);
   if (modelToNodes_.size() > 0)
   {
-    const SubstitutionModel& modi = getCollection()->getModel(modelToNodes_.begin()->first);
+    const TransitionModel& modi = *getCollection()->getModel(modelToNodes_.begin()->first);
 
     if (freq.getAlphabet()->getAlphabetType() != modi.getAlphabet()->getAlphabetType())
       throw Exception("SubstitutionProcessCollectionMember::setRootFrequencies. A Frequencies Set cannot be added to a Model Set if it does not have the same alphabet as the models.");
@@ -325,7 +325,7 @@ bool SubstitutionProcessCollectionMember::hasMixedSubstitutionModel() const
   std::map<size_t, std::vector<unsigned int> >::const_iterator it;
   for (it = modelToNodes_.begin(); it != modelToNodes_.end(); it++)
   {
-    if (dynamic_cast<const MixedSubstitutionModel*>(&getCollection()->getModel(it->first)) != NULL)
+    if (dynamic_cast<const MixedSubstitutionModel*>(getCollection()->getModel(it->first)) != NULL)
       return true;
   }
   return false;
@@ -334,16 +334,16 @@ bool SubstitutionProcessCollectionMember::hasMixedSubstitutionModel() const
 /*
  * Inheriting from SubstitutionProcess
  */
-bool SubstitutionProcessCollectionMember::isCompatibleWith(const SiteContainer& data) const
+bool SubstitutionProcessCollectionMember::isCompatibleWith(const AlignedValuesContainer& data) const
 {
   if (modelToNodes_.size() > 0)
-    return data.getAlphabet()->getAlphabetType() == getCollection()->getModel(modelToNodes_.begin()->first).getAlphabet()->getAlphabetType();
+    return data.getAlphabet()->getAlphabetType() == getCollection()->getModel(modelToNodes_.begin()->first)->getAlphabet()->getAlphabetType();
   else
     return true;
 }
 
 
-inline const SubstitutionModel* SubstitutionProcessCollectionMember::getModelForNode(unsigned int nodeId) const throw (Exception)
+inline const TransitionModel* SubstitutionProcessCollectionMember::getModelForNode(unsigned int nodeId) const throw (Exception)
 {
   std::map<unsigned int, size_t>::const_iterator i = nodeToModel_.find(nodeId);
   if (i == nodeToModel_.end())
@@ -359,9 +359,9 @@ inline size_t SubstitutionProcessCollectionMember::getNumberOfStates() const
     return getModel(modelToNodes_.begin()->first)->getNumberOfStates();
 }
 
-inline const SubstitutionModel& SubstitutionProcessCollectionMember::getSubstitutionModel(unsigned int nodeId, size_t classIndex) const
+inline const TransitionModel* SubstitutionProcessCollectionMember::getModel(unsigned int nodeId, size_t classIndex) const
 {
-  return *getModel(nodeToModel_.at(nodeId));
+  return getModel(nodeToModel_.at(nodeId));
 }
 
 inline double SubstitutionProcessCollectionMember::getInitValue(size_t i, int state) const throw (BadIntException)

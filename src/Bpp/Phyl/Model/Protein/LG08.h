@@ -128,9 +128,15 @@ namespace bpp
       addParameters_(freqSet_->getParameters());
     }
 
+    void setNamespace(const std::string& prefix)
+    {
+      AbstractParameterAliasable::setNamespace(prefix);
+      freqSet_->setNamespace(prefix + freqSet_->getName() + ".");
+    }
+
     const FrequenciesSet* getFrequenciesSet() const { return freqSet_; }
 
-    void setFreqFromData(const SequenceContainer& data, double pseudoCount = 0);
+    void setFreqFromData(const SequencedValuesContainer& data, double pseudoCount = 0);
 
   };
 

@@ -53,7 +53,7 @@ using namespace std;
 
 /******************************************************************************/
 
-AbstractSubstitutionModel::AbstractSubstitutionModel(const Alphabet* alpha, StateMap* stateMap, const std::string& prefix) :
+AbstractSubstitutionModel::AbstractSubstitutionModel(const Alphabet* alpha, const StateMap* stateMap, const std::string& prefix) :
   AbstractParameterAliasable(prefix),
   alphabet_(alpha),
   stateMap_(stateMap),
@@ -62,6 +62,7 @@ AbstractSubstitutionModel::AbstractSubstitutionModel(const Alphabet* alpha, Stat
   rate_(1),
   generator_(size_, size_),
   freq_(size_),
+  computeFreq_(true),
   exchangeability_(size_, size_),
   pijt_(size_, size_),
   dpijt_(size_, size_),
@@ -76,57 +77,243 @@ AbstractSubstitutionModel::AbstractSubstitutionModel(const Alphabet* alpha, Stat
   vPowGen_(),
   tmpMat_(size_, size_)
 {
-  for (size_t i = 0; i < size_; i++)
-  {
-    freq_[i] = 1.0 / static_cast<double>(size_);
-  }
+  if (computeFrequencies())
+    for (auto& fr : freq_)
+      fr = 1.0 / static_cast<double>(size_);
 }
+
 
 /******************************************************************************/
 
 void AbstractSubstitutionModel::updateMatrices()
 {
-  // if the object is not an AbstractReversibleSubstitutionModel,
-  // computes the exchangeability_ Matrix (otherwise the generator_
-  // has been computed from the exchangeability_)
-
-  if (!dynamic_cast<AbstractReversibleSubstitutionModel*>(this)) {
-    for (size_t i = 0; i < size_; i++)
-    {
-      for (size_t j = 0; j < size_; j++)
-      {
-        exchangeability_(i, j) = generator_(i, j) / freq_[j];
-      }
-    }
-  }
-
   // Compute eigen values and vectors:
   if (enableEigenDecomposition())
   {
-    EigenValue<double> ev(generator_);
-    rightEigenVectors_ = ev.getV();
-    eigenValues_ = ev.getRealEigenValues();
-    iEigenValues_ = ev.getImagEigenValues();
+    // Look for null lines (such as stop lines)
+    // ie null diagonal elements
+
+    size_t nbStop=0;
+    size_t salph = getNumberOfStates();
+    vector<bool> vnull(salph); // vector of the indices of lines with
+                               // only zeros
+
+    for (size_t i = 0; i < salph; i++)
+    {
+      if (abs(generator_(i, i)) < NumConstants::TINY())
+      {
+        nbStop++;
+        vnull[i]=true;
+      }
+      else
+        vnull[i]=false;
+    }
+        
+    if (nbStop != 0)
+    {
+      size_t salphok=salph - nbStop;
+      
+      RowMatrix<double> gk(salphok, salphok);
+      size_t gi = 0, gj = 0;
+
+      for (size_t i = 0; i < salph; i++)
+      {
+        if (!vnull[i])
+        {
+          gj = 0;
+          for (size_t j = 0; j < salph; j++)
+          {
+            if (!vnull[j])
+            {
+              gk(i - gi, j - gj) = generator_(i, j);
+            }
+            else
+              gj++;
+          }
+        }
+        else
+          gi++;
+      }
+
+      EigenValue<double> ev(gk);
+      eigenValues_ = ev.getRealEigenValues();
+      iEigenValues_ = ev.getImagEigenValues();
+
+      for (size_t i = 0; i < nbStop; i++)
+      {
+        eigenValues_.push_back(0);
+        iEigenValues_.push_back(0);
+      }
+
+      RowMatrix<double> rev = ev.getV();
+      rightEigenVectors_.resize(salph, salph);
+      gi = 0;
+      for (size_t i = 0; i < salph; i++)
+      {
+        if (vnull[i])
+        {
+          gi++;
+          for (size_t j = 0; j < salph; j++)
+          {
+            rightEigenVectors_(i, j) = 0;
+          }
+
+          rightEigenVectors_(i, salphok + gi - 1) = 1;
+        }
+        else
+        {
+          for (size_t j = 0; j < salphok; j++)
+          {
+            rightEigenVectors_(i, j) = rev(i - gi, j);
+          }
+
+          for (size_t j = salphok; j < salph; j++)
+          {
+            rightEigenVectors_(i, j) = 0;
+          }
+        }
+      }
+    }
+    else
+    {
+      EigenValue<double> ev(generator_);
+      rightEigenVectors_ = ev.getV();
+      eigenValues_ = ev.getRealEigenValues();
+      iEigenValues_ = ev.getImagEigenValues();
+      nbStop = 0;
+    }
+
+    /// Now check inversion and diagonalization
     try
     {
       MatrixTools::inv(rightEigenVectors_, leftEigenVectors_);
-      isNonSingular_ = true;
+
+      // is it diagonalizable ?
       isDiagonalizable_ = true;
-      for (size_t i = 0; i < size_ && isDiagonalizable_; i++)
+
+      if (!dynamic_cast<ReversibleSubstitutionModel*>(this))
       {
-        if (abs(iEigenValues_[i]) > NumConstants::TINY())
-          isDiagonalizable_ = false;
+        for (auto& vi : iEigenValues_)
+        {
+          if (abs(vi) > NumConstants::TINY())
+          {
+            isDiagonalizable_ = false;
+            break;
+          }
+        }
+      }
+      
+      // looking for the vector of 0 eigenvalues
+
+      vector<size_t> vNullEv;
+      for (size_t i = 0; i< salph - nbStop; i++)
+        if ((abs(eigenValues_[i]) < NumConstants::SMALL()) && (abs(iEigenValues_[i]) < NumConstants::SMALL()))
+          vNullEv.push_back(i);
+      
+
+      // pb to find unique null eigenvalue      
+      isNonSingular_=(vNullEv.size()==1);
+
+      size_t nulleigen;
+      
+      double val;
+      if (!isNonSingular_)
+      {
+        //look or check which non-stop right eigen vector elements are
+        //equal.
+        for (auto cnull : vNullEv)
+        {
+          size_t i = 0;
+          while (vnull[i])
+            i++;
+          
+          val = rightEigenVectors_(i, cnull);
+          i++;
+          
+          while (i < salph)
+          {
+            if (!vnull[i])
+            {
+              if (abs(rightEigenVectors_(i, cnull) - val) > NumConstants::SMALL())
+                break;
+            }
+            i++;
+          }
+          
+          if (i >= salph)
+          {
+            isNonSingular_ = true;
+            nulleigen=cnull;
+            break;
+          }
+        }
+      }
+      else
+        nulleigen=vNullEv[0];
+      
+      if (isNonSingular_)
+      {
+        eigenValues_[nulleigen] = 0; // to avoid approximation errors on long long branches
+        iEigenValues_[nulleigen] = 0; // to avoid approximation errors on long long branches
+
+        if (computeFrequencies())
+        {
+          for (size_t i = 0; i < salph; i++)
+            freq_[i] = leftEigenVectors_(nulleigen, i);
+        
+          double x = VectorTools::sum(freq_);        
+          freq_ /= x;
+        }
+      }
+      else
+      {
+        ApplicationTools::displayMessage("AbstractSubstitutionModel::updateMatrices : Unable to find eigenvector for eigenvalue 0. Taylor series used instead.");
+        isDiagonalizable_ = false;
       }
     }
+    // if rightEigenVectors_ is singular
     catch (ZeroDivisionException& e)
     {
-      ApplicationTools::displayMessage("Singularity during diagonalization. Taylor series used instead.");
-
+      ApplicationTools::displayMessage("AbstractSubstitutionModel::updateMatrices : Singularity during diagonalization. Taylor series used instead.");
       isNonSingular_ = false;
       isDiagonalizable_ = false;
-      MatrixTools::Taylor(generator_, 30, vPowGen_);
     }
+
+    if (!isNonSingular_)
+    {
+      double min = generator_(0, 0);
+      for (size_t i = 1; i < salph; i++)
+      {
+        if (min > generator_(i, i))
+          min = generator_(i, i);
+      }
+
+      setScale(-1 / min);
+
+      if (vPowGen_.size() == 0)
+        vPowGen_.resize(30);
+
+      
+      if (computeFrequencies())
+      {
+        MatrixTools::getId(salph, tmpMat_);    // to compute the equilibrium frequency  (Q+Id)^256
+        MatrixTools::add(tmpMat_, generator_);
+        MatrixTools::pow(tmpMat_, 256, vPowGen_[0]);
+
+        for (size_t i = 0; i < salph; i++)
+          freq_[i] = vPowGen_[0](0, i);
+      }
+
+      MatrixTools::getId(salph, vPowGen_[0]);
+    }
+
+    // normalization
+    normalize();
+    
+    if (!isNonSingular_)
+      MatrixTools::Taylor(generator_, 30, vPowGen_);
   }
+
 }
 
 
@@ -377,21 +564,10 @@ double AbstractSubstitutionModel::getInitValue(size_t i, int state) const throw 
 
 /******************************************************************************/
 
-void AbstractSubstitutionModel::setFreqFromData(const SequenceContainer& data, double pseudoCount)
+void AbstractSubstitutionModel::setFreqFromData(const SequencedValuesContainer& data, double pseudoCount)
 {
-  map<int, int> counts;
-  SequenceContainerTools::getCounts(data, counts);
-  double t = 0;
   map<int, double> freqs;
-
-  for (int i = 0; i < static_cast<int>(size_); i++)
-  {
-    t += (counts[i] + pseudoCount);
-  }
-  for (int i = 0; i < static_cast<int>(size_); i++)
-  {
-    freqs[i] = (static_cast<double>(counts[i]) + pseudoCount) / t;
-  }
+  SequenceContainerTools::getFrequencies(data, freqs, pseudoCount);
 
   // Re-compute generator and eigen values:
   setFreq(freqs);
@@ -433,6 +609,25 @@ void AbstractSubstitutionModel::setScale(double scale)
 
 /******************************************************************************/
 
+void AbstractSubstitutionModel::setDiagonal()
+{
+  for (size_t i = 0; i < size_; i++)
+  {
+    double lambda=0;
+    Vdouble& row=generator_.getRow(i);
+    
+    for (size_t j = 0; j < size_; j++)
+    {
+      if (j != i)
+        lambda += row[j];
+    }
+    row[i] = -lambda;
+  }
+}
+
+
+/******************************************************************************/
+
 void AbstractSubstitutionModel::normalize() 
 {
   if (isScalable_)
@@ -468,31 +663,10 @@ void AbstractSubstitutionModel::addRateParameter()
 
 void AbstractReversibleSubstitutionModel::updateMatrices()
 {
-  RowMatrix<double> Pi;
-  MatrixTools::diag(freq_, Pi);
-  MatrixTools::mult(exchangeability_, Pi, generator_); // Diagonal elements of the exchangability matrix will be ignored.
+  MatrixTools::hadamardMult(exchangeability_, freq_, generator_, false); // Diagonal elements of the exchangeability matrix will be ignored.
 
-  // Compute diagonal elements of the generator:
-  for (size_t i = 0; i < size_; i++)
-  {
-    double lambda = 0;
-    for (size_t j = 0; j < size_; j++)
-    {
-      if (j != i)
-        lambda += generator_(i, j);
-    }
-    generator_(i, i) = -lambda;
-  }
-  
   // Normalization:
   normalize();
-  
-  // Compute diagonal elements of the exchangeability matrix:
-  for (size_t i = 0; i < size_; i++)
-    for (size_t j = 0; j < size_; j++)
-    {
-      exchangeability_(i, j) = generator_(i, j) / freq_[i];
-    }
   
   AbstractSubstitutionModel::updateMatrices();
 }

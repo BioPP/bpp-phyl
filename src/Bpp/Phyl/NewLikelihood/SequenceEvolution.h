@@ -49,7 +49,7 @@
 
 //From bpp-seq:
 
-#include <Bpp/Seq/Container/SiteContainer.h>
+#include <Bpp/Seq/Container/AlignedValuesContainer.h>
 
 //From the STL:
 #include <memory>
@@ -75,12 +75,17 @@ namespace bpp
     virtual SequenceEvolution* clone() const = 0;
 
   public:
-    virtual bool isCompatibleWith(const SiteContainer& data) const = 0;
+    virtual bool isCompatibleWith(const AlignedValuesContainer& data) const = 0;
 
     virtual const std::vector<size_t>& getSubstitutionProcessNumbers() const = 0;
     
     virtual const SubstitutionProcess& getSubstitutionProcess(size_t number) const = 0;
-    
+
+    const StateMap& getStateMap() const
+    {
+      return getSubstitutionProcess(getSubstitutionProcessNumbers()[0]).getStateMap();
+    }
+
     /**
      * @brief Get the branch lengths parameters.
      *

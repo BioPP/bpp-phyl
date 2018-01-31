@@ -107,14 +107,14 @@ class AbstractDiscreteRatesAcrossSitesTreeLikelihood:
           DiscreteDistribution* getRateDistribution()       { return rateDistribution_; }
     size_t getNumberOfClasses() const { return rateDistribution_->getNumberOfCategories(); } 
     ParameterList getRateDistributionParameters() const;
-    VVdouble getLikelihoodForEachSiteForEachRateClass() const;
-    VVdouble getLogLikelihoodForEachSiteForEachRateClass() const;
-    VVVdouble getLikelihoodForEachSiteForEachRateClassForEachState() const;
-    VVVdouble getLogLikelihoodForEachSiteForEachRateClassForEachState() const;
-    VVdouble getPosteriorProbabilitiesOfEachRate() const;
-    Vdouble getRateWithMaxPostProbOfEachSite() const;
-    std::vector<size_t> getRateClassWithMaxPostProbOfEachSite() const;
-    Vdouble getPosteriorRateOfEachSite() const;
+    VVdouble getLikelihoodPerSitePerRateClass() const;
+    VVdouble getLogLikelihoodPerSitePerRateClass() const;
+    VVVdouble getLikelihoodPerSitePerRateClassPerState() const;
+    VVVdouble getLogLikelihoodPerSitePerRateClassPerState() const;
+    VVdouble getPosteriorProbabilitiesPerRate() const;
+    Vdouble getRateWithMaxPostProbPerSite() const;
+    std::vector<size_t> getRateClassWithMaxPostProbPerSite() const;
+    Vdouble getPosteriorRatePerSite() const;
     /** @} */
 
     /**

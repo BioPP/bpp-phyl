@@ -104,7 +104,7 @@ namespace bpp
 
     Matrix<double>* getAllNumbersOfSubstitutions(double length, size_t type = 1) const;
     
-    std::vector<double> getNumberOfSubstitutionsForEachType(size_t initialState, size_t finalState, double length) const
+    std::vector<double> getNumberOfSubstitutionsPerType(size_t initialState, size_t finalState, double length) const
     {
       std::vector<double> v(getNumberOfSubstitutionTypes());
       for (size_t t = 1; t <= getNumberOfSubstitutionTypes(); ++t) {
@@ -156,7 +156,7 @@ namespace bpp
       return dynamic_cast<Matrix<double>*>(label_.clone());
     }
     
-    std::vector<double> getNumberOfSubstitutionsForEachType(size_t initialState, size_t finalState, double length) const
+    std::vector<double> getNumberOfSubstitutionsPerType(size_t initialState, size_t finalState, double length) const
     {
       std::vector<double> v(1);
       v[0] = label_(initialState, finalState);

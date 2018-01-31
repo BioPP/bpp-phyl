@@ -41,6 +41,7 @@ knowledge of the CeCILL license and that you accept its terms.
 #define _DECOMPOSITIONSUBSTITUTIONCOUNT_H_
 
 #include "WeightedSubstitutionCount.h"
+#include "DecompositionMethods.h"
 
 #include <Bpp/Numeric/Matrix/Matrix.h>
 
@@ -51,37 +52,25 @@ namespace bpp
  * @brief Analytical substitution count using the eigen decomposition method.
  *
  * The codes is adapted from the original R code by Paula Tataru and Asger Hobolth.
- * Only reversible models are supported for now.
  *
  * @author Julien Dutheil
  */
-class DecompositionSubstitutionCount:
-  public AbstractSubstitutionCount,
-  public AbstractWeightedSubstitutionCount
-{
-	private:
-		const ReversibleSubstitutionModel* model_;
-    size_t nbStates_;
-		mutable RowMatrix<double> jMat_, v_, vInv_;
-    mutable std::vector<double> lambda_;
-    std::vector< RowMatrix<double> > bMatrices_, insideProducts_;
+  class DecompositionSubstitutionCount:
+    public AbstractSubstitutionCount,
+    public AbstractWeightedSubstitutionCount,
+    public DecompositionMethods
+  {
+  private:
     mutable std::vector< RowMatrix<double> > counts_;
     mutable double currentLength_;
-	
-	public:
-		DecompositionSubstitutionCount(const ReversibleSubstitutionModel* model, SubstitutionRegister* reg, const AlphabetIndex2* weights = 0);
+
+  public:
+    DecompositionSubstitutionCount(const SubstitutionModel* model, SubstitutionRegister* reg, const AlphabetIndex2* weights = 0);
 		
     DecompositionSubstitutionCount(const DecompositionSubstitutionCount& dsc) :
       AbstractSubstitutionCount(dsc),
       AbstractWeightedSubstitutionCount(dsc),
-      model_(dsc.model_),
-      nbStates_(dsc.nbStates_),
-      jMat_(dsc.jMat_),
-      v_(dsc.v_),
-      vInv_(dsc.vInv_),
-      lambda_(dsc.lambda_),
-      bMatrices_(dsc.bMatrices_),
-      insideProducts_(dsc.insideProducts_),
+      DecompositionMethods(dsc),
       counts_(dsc.counts_),
       currentLength_(dsc.currentLength_)
     {}				
@@ -90,14 +79,7 @@ class DecompositionSubstitutionCount:
     {
       AbstractSubstitutionCount::operator=(dsc);
       AbstractWeightedSubstitutionCount::operator=(dsc);
-      model_          = dsc.model_;
-      nbStates_       = dsc.nbStates_;
-      jMat_           = dsc.jMat_;
-      v_              = dsc.v_;
-      vInv_           = dsc.vInv_;
-      lambda_         = dsc.lambda_;
-      bMatrices_      = dsc.bMatrices_;
-      insideProducts_ = dsc.insideProducts_;
+      DecompositionMethods::operator=(dsc);
       counts_         = dsc.counts_;
       currentLength_  = dsc.currentLength_;
       return *this;
@@ -112,29 +94,30 @@ class DecompositionSubstitutionCount:
 
     Matrix<double>* getAllNumbersOfSubstitutions(double length, size_t type = 1) const;
     
-    std::vector<double> getNumberOfSubstitutionsForEachType(size_t initialState, size_t finalState, double length) const;
+    std::vector<double> getNumberOfSubstitutionsPerType(size_t initialState, size_t finalState, double length) const;
    
     /**
      * @brief Set the substitution model.
      *
-     * @param model A pointer toward the substitution model to use. Only reversible models are currently supported. Setting a non-reversible model will throw an exception.
+     * @param model A pointer toward the substitution model to use.
      */
+
     void setSubstitutionModel(const SubstitutionModel* model);
 
   protected:
+
+    void initCounts_();
+
     void computeCounts_(double length) const;
-    void jFunction_(const std::vector<double>& lambda, double t, RowMatrix<double>& result) const;
+
     void substitutionRegisterHasChanged() throw (Exception);
+
     void weightsHaveChanged() throw (Exception);
 
   private:
-    void resetStates_();
-    void resetBMatrices_();
-    void initBMatrices_();
     void fillBMatrices_();
-    void computeEigen_();
-    void computeProducts_();
-};
+
+  };
 
 } //end of namespace bpp.
 

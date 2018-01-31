@@ -64,7 +64,7 @@ AbstractLikelihoodTree::AbstractLikelihoodTree(const AbstractLikelihoodTree& atd
   nbDistinctSites_(atd.nbDistinctSites_)
 {
   if (atd.shrunkData_.get())
-    shrunkData_.reset(dynamic_cast<SiteContainer*>(atd.shrunkData_->clone()));
+    shrunkData_.reset(dynamic_cast<AlignedValuesContainer*>(atd.shrunkData_->clone()));
 }
 
 AbstractLikelihoodTree& AbstractLikelihoodTree::operator=(const AbstractLikelihoodTree& atd)
@@ -79,7 +79,7 @@ AbstractLikelihoodTree& AbstractLikelihoodTree::operator=(const AbstractLikeliho
   
   nbDistinctSites_  = atd.nbDistinctSites_;
   if (atd.shrunkData_.get())
-    shrunkData_.reset(dynamic_cast<SiteContainer*>(atd.shrunkData_->clone()));
+    shrunkData_.reset(dynamic_cast<AlignedValuesContainer*>(atd.shrunkData_->clone()));
   else
     shrunkData_.reset();
 
@@ -93,13 +93,13 @@ AbstractLikelihoodTree::~AbstractLikelihoodTree()
 
 /******************************************************************************/
 
-VVVdouble AbstractLikelihoodTree::getPosteriorProbabilitiesForEachStateForEachClass(int nodeId)
+VVVdouble AbstractLikelihoodTree::getPosteriorProbabilitiesPerStatePerClass(int nodeId) const
 {
   VVVdouble vRes(nbClasses_);
 
   for (size_t i=0; i<nbClasses_; i++)
   {
-    getNodeData(nodeId, i).getPosteriorProbabilitiesForEachState(vRes[i]);
+    getNodeData(nodeId, i).getPosteriorProbabilitiesPerState(vRes[i]);
     vRes[i]*=vProbClass_[i];
   }
   
@@ -108,9 +108,9 @@ VVVdouble AbstractLikelihoodTree::getPosteriorProbabilitiesForEachStateForEachCl
 
 /******************************************************************************/
 
-Vdouble AbstractLikelihoodTree::getPosteriorStateFrequencies(int nodeId)
+Vdouble AbstractLikelihoodTree::getPosteriorStateFrequencies(int nodeId) const
 {
-  VVVdouble probs = getPosteriorProbabilitiesForEachStateForEachClass(nodeId);
+  VVVdouble probs = getPosteriorProbabilitiesPerStatePerClass(nodeId);
   Vdouble freqs(getNumberOfStates());
   double sumw = 0, w;
   

@@ -149,7 +149,7 @@ namespace bpp
      * @param length       The length of the branch.
      * @return A matrix with all numbers of substitutions for each initial and final states.
      */
-    virtual std::vector<double> getNumberOfSubstitutionsForEachType(size_t initialState, size_t finalState, double length) const = 0;
+    virtual std::vector<double> getNumberOfSubstitutionsPerType(size_t initialState, size_t finalState, double length) const = 0;
 
     /**
      * @brief Set the substitution model associated with this count, if relevent.

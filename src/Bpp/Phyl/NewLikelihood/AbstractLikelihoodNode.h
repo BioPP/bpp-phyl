@@ -318,7 +318,7 @@ namespace bpp
      *        probabilities [in, out].
      */
     
-    void getPosteriorProbabilitiesForEachState(VVdouble& vPP) const;
+    void getPosteriorProbabilitiesPerState(VVdouble& vPP) const;
     
   };
 

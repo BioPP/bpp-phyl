@@ -75,7 +75,7 @@ unsigned char BppOFrequenciesSetFormat::CODON = 8;
 unsigned char BppOFrequenciesSetFormat::WORD = 16;
 unsigned char BppOFrequenciesSetFormat::ALL = 1 | 2 | 4 | 8 | 16;
 
-FrequenciesSet* BppOFrequenciesSetFormat::read(const Alphabet* alphabet, const std::string& freqDescription, const SiteContainer* data, bool parseArguments)
+FrequenciesSet* BppOFrequenciesSetFormat::read(const Alphabet* alphabet, const std::string& freqDescription, const AlignedValuesContainer* data, bool parseArguments)
 {
   unparsedArguments_.clear();
   string freqName;
@@ -176,6 +176,9 @@ FrequenciesSet* BppOFrequenciesSetFormat::read(const Alphabet* alphabet, const s
 
     const WordAlphabet* pWA = dynamic_cast<const WordAlphabet*>(alphabet);
 
+    if (pWA==NULL)
+      throw Exception("BppOFrequenciesSetFormat::read : Word freq name is from WordAlphabet.");
+    
     if (args.find("frequency") != args.end())
     {
       string sAFS = args["frequency"];
@@ -237,7 +240,7 @@ FrequenciesSet* BppOFrequenciesSetFormat::read(const Alphabet* alphabet, const s
     if (geneticCode_)
       nestedReader.setGeneticCode(geneticCode_);
 
-    SubstitutionModel* model=nestedReader.read(alphabet, args["model"], data, false);
+    TransitionModel* model=nestedReader.read(alphabet, args["model"], data, false);
     pFS.reset(new FromModelFrequenciesSet(model));
     map<string, string> unparsedParameterValuesNested(nestedReader.getUnparsedArguments());
     for (map<string, string>::iterator it = unparsedParameterValuesNested.begin(); it != unparsedParameterValuesNested.end(); it++)
@@ -265,7 +268,7 @@ FrequenciesSet* BppOFrequenciesSetFormat::read(const Alphabet* alphabet, const s
       string sAFS = args["frequency"];
 
       BppOFrequenciesSetFormat nestedReader(alphabetCode_, false, warningLevel_);
-      unique_ptr<FrequenciesSet> pFS2(nestedReader.read(pWA->getNAlphabet(0), sAFS, data, false));
+      unique_ptr<FrequenciesSet> pFS2(nestedReader.read(pWA->getNucleicAlphabet(), sAFS, data, false));
       map<string, string> unparsedParameterValuesNested(nestedReader.getUnparsedArguments());
 
       for (map<string, string>::iterator it = unparsedParameterValuesNested.begin(); it != unparsedParameterValuesNested.end(); it++)
@@ -294,7 +297,7 @@ FrequenciesSet* BppOFrequenciesSetFormat::read(const Alphabet* alphabet, const s
       for (size_t i = 0; i < v_sAFS.size(); ++i)
       {
         BppOFrequenciesSetFormat nestedReader(alphabetCode_, false, warningLevel_);
-        pFS.reset(nestedReader.read(pWA->getNAlphabet(i), v_sAFS[i], data, false));
+        pFS.reset(nestedReader.read(pWA->getNucleicAlphabet(), v_sAFS[i], data, false));
         map<string, string> unparsedParameterValuesNested(nestedReader.getUnparsedArguments());
         for (map<string, string>::iterator it = unparsedParameterValuesNested.begin(); it != unparsedParameterValuesNested.end(); it++)
         {
@@ -375,16 +378,20 @@ FrequenciesSet* BppOFrequenciesSetFormat::read(const Alphabet* alphabet, const s
     {
       opt = CodonFrequenciesSet::F1X4;
       
-      if (args.find("mgmtStopCodons") != args.end()){
+      if (args.find("mgmtStopCodons") != args.end())
         mgmtStopCodon = args["mgmtStopCodons"];
+      else if (args.find("mgmtStopCodon") != args.end())
+        mgmtStopCodon = args["mgmtStopCodon"];
+
+      if (verbose_)
         ApplicationTools::displayResult("StopCodon frequencies distribution ", mgmtStopCodon);
-      }
+
       if (args.find("frequency") != args.end())
       {
         string sAFS = args["frequency"];
         
         BppOFrequenciesSetFormat nestedReader(alphabetCode_, false, warningLevel_);
-        unique_ptr<FrequenciesSet> pFS2(nestedReader.read(pWA->getNAlphabet(0), sAFS, data, false));
+        unique_ptr<FrequenciesSet> pFS2(nestedReader.read(pWA->getNucleicAlphabet(), sAFS, data, false));
         if (pFS2->getName()!="Full")
           throw Exception("BppOFrequenciesSetFormat::read. The frequency option in F1X4 can only be Full");
         
@@ -413,10 +420,13 @@ FrequenciesSet* BppOFrequenciesSetFormat::read(const Alphabet* alphabet, const s
     {
       opt = CodonFrequenciesSet::F3X4;
 
-      if (args.find("mgmtStopCodons") != args.end()){
+      if (args.find("mgmtStopCodons") != args.end())
         mgmtStopCodon = args["mgmtStopCodons"];
+      else if (args.find("mgmtStopCodon") != args.end())
+          mgmtStopCodon = args["mgmtStopCodon"];
+
+      if (verbose_)
         ApplicationTools::displayResult("StopCodon frequencies distribution ", mgmtStopCodon);
-      }
 
       if (args.find("frequency1") != args.end() ||
           args.find("frequency2") != args.end() ||
@@ -434,7 +444,7 @@ FrequenciesSet* BppOFrequenciesSetFormat::read(const Alphabet* alphabet, const s
           {
             BppOFrequenciesSetFormat nestedReader(alphabetCode_, false, warningLevel_);
             if (v_sAFS[i]!=""){
-              pFS.reset(nestedReader.read(pWA->getNAlphabet(i), v_sAFS[i], data, false));
+              pFS.reset(nestedReader.read(pWA->getNucleicAlphabet(), v_sAFS[i], data, false));
               if (pFS->getName()!="Full")
                 throw Exception("BppOFrequenciesSetFormat::read. The frequency options in F3X4 can only be Full");
 
@@ -514,7 +524,6 @@ FrequenciesSet* BppOFrequenciesSetFormat::read(const Alphabet* alphabet, const s
     {
       pname2 = pFS->getParameterNameWithoutNamespace(pl[j].getName());
 
-      // if (j == i || args.find(pname2) == args.end()) continue; Julien 03/03/2010: This extra condition prevents complicated (nested) models to work properly...
       if (j == i)
         continue;
       if (pval == pname2)
@@ -724,7 +733,7 @@ void BppOFrequenciesSetFormat::write(const FrequenciesSet* pfreqset,
   out.setPrecision(p);
 }
 
-void BppOFrequenciesSetFormat::initialize_(FrequenciesSet& freqSet, const SiteContainer* data)
+void BppOFrequenciesSetFormat::initialize_(FrequenciesSet& freqSet, const AlignedValuesContainer* data)
 {
   if (unparsedArguments_.find("init") != unparsedArguments_.end())
   {

@@ -61,9 +61,9 @@ DRTreeParsimonyData::DRTreeParsimonyData(const DRTreeParsimonyData& data) :
   nbDistinctSites_(data.nbDistinctSites_)
 {
   if (data.shrunkData_)
-    shrunkData_ = dynamic_cast<SiteContainer*>(data.shrunkData_->clone());
+    shrunkData_ = shared_ptr<SiteContainer>(data.shrunkData_->clone());
   else
-    shrunkData_ = 0;
+    shrunkData_ = shared_ptr<SiteContainer>(0);
 }
 
 /******************************************************************************/
@@ -75,11 +75,10 @@ DRTreeParsimonyData& DRTreeParsimonyData::operator=(const DRTreeParsimonyData& d
   leafData_        = data.leafData_;
   rootBitsets_     = data.rootBitsets_;
   rootScores_      = data.rootScores_;
-  if (shrunkData_) delete shrunkData_;
   if (data.shrunkData_)
-    shrunkData_ = dynamic_cast<SiteContainer*>(data.shrunkData_->clone());
+    shrunkData_ = shared_ptr<SiteContainer>(data.shrunkData_->clone());
   else
-    shrunkData_ = 0;
+    shrunkData_ = shared_ptr<SiteContainer>(0);
   nbSites_         = data.nbSites_;
   nbStates_        = data.nbStates_;
   nbDistinctSites_ = data.nbDistinctSites_;
@@ -91,12 +90,17 @@ void DRTreeParsimonyData::init(const SiteContainer& sites, const StateMap& state
 {
   nbStates_         = stateMap.getNumberOfModelStates();
   nbSites_          = sites.getNumberOfSites();
+  
   SitePatterns pattern(&sites);
-  shrunkData_       = pattern.getSites();
+
+  shrunkData_       = dynamic_pointer_cast<SiteContainer>(pattern.getSites());
+  if (shrunkData_==nullptr)
+    throw Exception("DRTreeParsimonyData::init : Data must be plain alignments.");
+
   rootWeights_      = pattern.getWeights();
   rootPatternLinks_ = pattern.getIndices();
   nbDistinctSites_  = shrunkData_->getNumberOfSites();
-
+  
   // Init data:
   // Clone data for more efficiency on sequences access:
   const SiteContainer* sequences = new AlignedSequenceContainer(*shrunkData_);

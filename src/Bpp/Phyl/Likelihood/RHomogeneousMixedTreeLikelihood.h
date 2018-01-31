@@ -84,7 +84,7 @@ public:
    */
   RHomogeneousMixedTreeLikelihood(
     const Tree& tree,
-    SubstitutionModel* model,
+    TransitionModel* model,
     DiscreteDistribution* rDist,
     bool checkRooted = true,
     bool verbose = true,
@@ -108,8 +108,8 @@ public:
    */
   RHomogeneousMixedTreeLikelihood(
     const Tree& tree,
-    const SiteContainer& data,
-    SubstitutionModel* model,
+    const AlignedValuesContainer& data,
+    TransitionModel* model,
     DiscreteDistribution* rDist,
     bool checkRooted = true,
     bool verbose = true,
@@ -132,7 +132,7 @@ public:
    *
    * @{
    */
-  void setData(const SiteContainer& sites) throw (Exception);
+  void setData(const AlignedValuesContainer& sites) throw (Exception);
 
   /** @} */
 

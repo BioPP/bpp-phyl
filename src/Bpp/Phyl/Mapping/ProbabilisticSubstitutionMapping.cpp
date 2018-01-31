@@ -40,27 +40,48 @@ knowledge of the CeCILL license and that you accept its terms.
 #include "ProbabilisticSubstitutionMapping.h"
 
 using namespace bpp;
-
-void ProbabilisticSubstitutionMapping::setTree(const Tree& tree)
-{
-  AbstractSubstitutionMapping::setTree(tree);
-  for (size_t i = 0; i < getNumberOfSites(); i++) {
-    mapping_[i].resize(getNumberOfBranches());
-    for (size_t j = 0; j < getNumberOfBranches(); j++) {
-      mapping_[i][j].resize(1);
-    }
-  }
-}
+using namespace std;
 
 void ProbabilisticSubstitutionMapping::setNumberOfSites(size_t numberOfSites)
 {
-  AbstractSubstitutionMapping::setNumberOfSites(numberOfSites);
-  mapping_.resize(numberOfSites);
-  for (size_t i = 0; i < numberOfSites; i++) {
-    mapping_[i].resize(getNumberOfBranches());
-    for (size_t j = 0; j < getNumberOfBranches(); j++) {
-      mapping_[i][j].resize(getNumberOfSubstitutionTypes());
-    }
+  if (numberOfSites!=getNumberOfSites() || (usePatterns_ && numberOfSites!=numberOfDistinctSites_))
+  {
+    AbstractSubstitutionMapping::setNumberOfSites(numberOfSites);
+    
+    numberOfDistinctSites_=numberOfSites;
+    usePatterns_=false;
+  
+    unique_ptr<mapTree::EdgeIterator> nIT=allEdgesIterator();
+
+    for (;!nIT->end(); nIT->next())
+      (**nIT)->setNumberOfSites(numberOfSites);
   }
 }
- 
+
+void ProbabilisticSubstitutionMapping::setNumberOfSitesAndTypes(size_t numberOfSites, size_t numberOfTypes)
+{
+  if (numberOfSites!=getNumberOfSites() || (usePatterns_ && numberOfSites!=numberOfDistinctSites_))
+  {
+    numberOfDistinctSites_=numberOfSites;
+    usePatterns_=false;
+
+    AbstractSubstitutionMapping::setNumberOfSites(numberOfSites);
+    AbstractSubstitutionMapping::setNumberOfSubstitutionTypes(numberOfTypes);
+
+    unique_ptr<mapTree::EdgeIterator> nIT=allEdgesIterator();
+    for (;!nIT->end(); nIT->next())
+      (**nIT)->setNumberOfSitesAndTypes(numberOfDistinctSites_, numberOfTypes);
+  }
+}
+
+
+void ProbabilisticSubstitutionMapping::setNumberOfSubstitutionTypes(size_t numberOfTypes)
+{
+  AbstractSubstitutionMapping::setNumberOfSubstitutionTypes(numberOfTypes);
+
+  unique_ptr<mapTree::EdgeIterator> nIT=allEdgesIterator();
+  for (;!nIT->end(); nIT->next())
+    (**nIT)->setNumberOfTypes(numberOfTypes);
+}
+
+

@@ -41,6 +41,7 @@ knowledge of the CeCILL license and that you accept its terms.
 
 #include "Bpp/Numeric/Matrix/MatrixTools.h"
 #include <vector>
+#include <typeinfo>
 
 using namespace bpp;
 using namespace std;
@@ -49,95 +50,52 @@ using namespace std;
 
 DecompositionReward::DecompositionReward(const SubstitutionModel* model, AlphabetIndex1* alphIndex) :
   AbstractReward(alphIndex),
-  model_(dynamic_cast<const ReversibleSubstitutionModel*>(model)),
-  nbStates_(model->getNumberOfStates()),
-  jMat_(nbStates_, nbStates_),
-  v_(nbStates_, nbStates_),
-  vInv_(nbStates_, nbStates_),
-  lambda_(nbStates_),
-  bMatrice_(nbStates_, nbStates_),
-  insideProduct_(nbStates_, nbStates_),
+  DecompositionMethods(model),
   rewards_(nbStates_, nbStates_),
   currentLength_(-1.)
 {
   //Check compatiblity between model and alphabet Index:
-  if (model->getAlphabet()->getAlphabetType() != alphIndex_->getAlphabet()->getAlphabetType())
+  if (typeid(model->getAlphabet()) != typeid(alphIndex_->getAlphabet()))
     throw Exception("DecompositionReward (constructor): alphabets do not match between alphabet index and model.");
-  if (!dynamic_cast<const ReversibleSubstitutionModel*>(model))
-    throw Exception("DecompositionReward::DecompositionReward. Only works with declared reversible models for now.");
 
   //Initialize the B matrice. This is done once for all,
   //unless the number of states changes:
-  computeBMatrice_();
-  computeEigen_();
+
+  initBMatrices_();
+  initRewards_();
+  
+  fillBMatrice_();
   computeProducts_();
 }				
-    
+
 /******************************************************************************/
 
-void DecompositionReward::computeBMatrice_()
+void DecompositionReward::initRewards_()
 {
-  vector<int> supportedStates = model_->getAlphabetStates();
-  for (size_t j = 0; j < nbStates_; ++j) 
-    bMatrice_(j, j) = getAlphabetIndex()->getIndex(supportedStates[j]);
-}
-
-void DecompositionReward::computeEigen_()
-{
-  v_      = model_->getColumnRightEigenVectors();
-  vInv_   = model_->getRowLeftEigenVectors();
-  lambda_ = model_->getEigenValues();
-}
-
-void DecompositionReward::computeProducts_()
-{
-  RowMatrix<double> tmp(nbStates_, nbStates_);
-  MatrixTools::mult(vInv_, bMatrice_, tmp);
-  MatrixTools::mult(tmp, v_, insideProduct_);
-}
-
-void DecompositionReward::resetStates_()
-{
-  jMat_.resize(nbStates_, nbStates_);
-  v_.resize(nbStates_, nbStates_);
-  vInv_.resize(nbStates_, nbStates_);
-  lambda_.resize(nbStates_);
-  bMatrice_.resize(nbStates_, nbStates_);
-  insideProduct_.resize(nbStates_, nbStates_);
   rewards_.resize(nbStates_, nbStates_);
 }
 
-void DecompositionReward::jFunction_(const std::vector<double>& lambda, double t, RowMatrix<double>& result) const
+/******************************************************************************/
+
+void DecompositionReward::fillBMatrice_()
 {
-  vector<double> expLam = VectorTools::exp(lambda * t);
-  for (unsigned int i = 0; i < nbStates_; ++i) {
-    for (unsigned int j = 0; j < nbStates_; ++j) {
-      double dd = lambda[i] - lambda[j];
-      if (dd == 0) {
-        result(i, j) = t * expLam[i];
-      } else {
-        result(i, j) = (expLam[i] - expLam[j]) / dd;
-      }
-    }
-  }
+  vector<int> supportedStates = model_->getAlphabetStates();
+  for (size_t j = 0; j < nbStates_; ++j) 
+    bMatrices_[0](j, j) = getAlphabetIndex()->getIndex(supportedStates[j]);
 }
 
 /******************************************************************************/
 
 void DecompositionReward::computeRewards_(double length) const
 {
-  jFunction_(lambda_, length, jMat_);
-  RowMatrix<double> tmp1(nbStates_, nbStates_), tmp2(nbStates_, nbStates_);
-  MatrixTools::hadamardMult(jMat_, insideProduct_, tmp1);
-  MatrixTools::mult(v_, tmp1, tmp2);
-  MatrixTools::mult(tmp2, vInv_, rewards_);
+  computeExpectations(rewards_, length);
 
   // Now we must divide by pijt:
   RowMatrix<double> P = model_->getPij_t(length);
   for (size_t j = 0; j < nbStates_; j++) {
     for (size_t k = 0; k < nbStates_; k++) {
       rewards_(j, k) /= P(j, k);
-      if (std::isnan(rewards_(j, k)))
+      if (std::isnan(rewards_(j, k)) || std::isnan(-rewards_(j, k)) || std::isinf(rewards_(j, k)))
         rewards_(j, k) = 0.;
     }
   }
@@ -150,10 +108,10 @@ Matrix<double>* DecompositionReward::getAllRewards(double length) const
   if (length < 0)
     throw Exception("DecompositionReward::getAllRewards. Negative branch length: " + TextTools::toString(length) + ".");
   if (length != currentLength_)
-    {
-      computeRewards_(length);
-      currentLength_ = length;
-    }
+  {
+    computeRewards_(length);
+    currentLength_ = length;
+  }
   return new RowMatrix<double>(rewards_);
 }
 
@@ -175,35 +133,31 @@ double DecompositionReward::getReward(size_t initialState, size_t finalState, do
 
 void DecompositionReward::setSubstitutionModel(const SubstitutionModel* model)
 {
-  const ReversibleSubstitutionModel* rModel = dynamic_cast<const ReversibleSubstitutionModel*>(model);
-  if (!rModel)
-    throw Exception("DecompositionReward::setSubstitutionModel. Only works with reversible models for now.");
-
   //Check compatiblity between model and substitution register:
-  if (model->getAlphabet()->getAlphabetType() != alphIndex_->getAlphabet()->getAlphabetType())
+  if (typeid(model->getAlphabet()) != typeid(alphIndex_->getAlphabet()))
     throw Exception("DecompositionReward::setSubstitutionModel: alphabets do not match between alphabet index and model.");
-  model_ = rModel;
-  size_t n = model->getNumberOfStates();
-  if (n != nbStates_) {
-    nbStates_ = n;
-    resetStates_();
-  }
-  computeEigen_();
+
+  DecompositionMethods::setSubstitutionModel(model);
+
+  initRewards_();
+  
+  fillBMatrice_();  
   computeProducts_();
 
   //Recompute rewards:
+
   computeRewards_(currentLength_);
 }
 
 /******************************************************************************/
 
-void DecompositionReward::alphabetIndexHasChanged() throw (Exception)
+void DecompositionReward::alphabetIndexHasChanged()
 {
   //Check compatiblity between model and substitution register:
-  if (model_->getAlphabet()->getAlphabetType() != alphIndex_->getAlphabet()->getAlphabetType())
+  if (typeid(model_->getAlphabet()) != typeid(alphIndex_->getAlphabet()))
     throw Exception("DecompositionReward::AlphabetIndexHasChanged: alphabets do not match between alphbaet index and model.");
 
-  computeBMatrice_();
+  fillBMatrice_();
   computeProducts_();
 
   //Recompute rewards:

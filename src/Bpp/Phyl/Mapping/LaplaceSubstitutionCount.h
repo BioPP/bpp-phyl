@@ -69,7 +69,7 @@ namespace bpp
 	
   public:
     LaplaceSubstitutionCount(const SubstitutionModel* model, size_t cutOff) :
-      AbstractSubstitutionCount(new TotalSubstitutionRegister(model)),
+      AbstractSubstitutionCount(new TotalSubstitutionRegister(model->getStateMap())),
       model_        (model),
       cutOff_       (cutOff),
       currentLength_(-1),
@@ -101,7 +101,7 @@ namespace bpp
   public:
     double getNumberOfSubstitutions(size_t initialState, size_t finalState, double length, size_t type = 1) const;
     Matrix<double>* getAllNumbersOfSubstitutions(double length, size_t type = 1) const;
-    std::vector<double> getNumberOfSubstitutionsForEachType(size_t initialState, size_t finalState, double length) const
+    std::vector<double> getNumberOfSubstitutionsPerType(size_t initialState, size_t finalState, double length) const
     {
       std::vector<double> v(0);
       v[0] = getNumberOfSubstitutions(initialState, finalState, length, 0);

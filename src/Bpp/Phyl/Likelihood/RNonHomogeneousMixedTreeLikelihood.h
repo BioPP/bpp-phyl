@@ -158,7 +158,7 @@ private:
    */
 
   RNonHomogeneousMixedTreeLikelihood(const Tree& tree,
-                                     const SiteContainer& data,
+                                     const AlignedValuesContainer& data,
                                      MixedSubstitutionModelSet* modelSet,
                                      const MixedSubstitutionModelSet::HyperNode& hyperNode,
                                      int upperNode,
@@ -216,7 +216,7 @@ public:
    * @throw Exception in an error occured.
    */
   RNonHomogeneousMixedTreeLikelihood(const Tree& tree,
-                                     const SiteContainer& data,
+                                     const AlignedValuesContainer& data,
                                      MixedSubstitutionModelSet* modelSet,
                                      DiscreteDistribution* rDist,
                                      bool verbose = true,
@@ -239,7 +239,7 @@ public:
    *
    * @{
    */
-  void setData(const SiteContainer& sites) throw (Exception);
+  void setData(const AlignedValuesContainer& sites) throw (Exception);
 
 public:
   // Specific methods:

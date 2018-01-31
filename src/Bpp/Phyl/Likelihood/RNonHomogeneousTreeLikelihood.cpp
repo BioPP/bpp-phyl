@@ -74,7 +74,7 @@ throw (Exception) :
 
 RNonHomogeneousTreeLikelihood::RNonHomogeneousTreeLikelihood(
   const Tree& tree,
-  const SiteContainer& data,
+  const AlignedValuesContainer& data,
   SubstitutionModelSet* modelSet,
   DiscreteDistribution* rDist,
   bool verbose,
@@ -135,7 +135,7 @@ RNonHomogeneousTreeLikelihood::~RNonHomogeneousTreeLikelihood()
 
 /******************************************************************************/
 
-void RNonHomogeneousTreeLikelihood::setData(const SiteContainer& sites) throw (Exception)
+void RNonHomogeneousTreeLikelihood::setData(const AlignedValuesContainer& sites) throw (Exception)
 {
   if (data_) delete data_;
   data_ = PatternTools::getSequenceSubset(sites, *tree_->getRootNode());

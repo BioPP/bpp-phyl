@@ -132,7 +132,7 @@ namespace bpp
      */
     RNonHomogeneousTreeLikelihood(
                                   const Tree& tree,
-                                  const SiteContainer& data,
+                                  const AlignedValuesContainer& data,
                                   SubstitutionModelSet* modelSet,
                                   DiscreteDistribution* rDist,
                                   bool verbose = true,
@@ -164,7 +164,7 @@ namespace bpp
      *
      * @{
      */
-    void setData(const SiteContainer& sites) throw (Exception);
+    void setData(const AlignedValuesContainer& sites) throw (Exception);
     double getLikelihood() const;
     double getLogLikelihood() const;
     double getLikelihoodForASite(size_t site) const;

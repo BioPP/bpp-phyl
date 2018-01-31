@@ -58,7 +58,7 @@ namespace bpp
    * Only substitutions with one letter changed are accepted. </p>
    *
    * If a distance @f$d@f$ between amino-acids is defined, the ratio between
-   * non-synonymous and synonymous substitutions rates is, if the codied
+   * non-synonymous and synonymous substitutions rates is, if the coded
    * amino-acids are @f$x@f$ and @f$y@f$, @f$\beta*\exp(-\alpha.d(x,y))@f$ with
    * non-negative parameter \c "alpha" and positive parameter \c "beta".
    *

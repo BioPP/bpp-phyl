@@ -52,7 +52,7 @@ using namespace std;
 
 /******************************************************************************/
 
-void DRASRTreeLikelihoodData::initLikelihoods(const SiteContainer& sites, const SubstitutionModel& model)
+void DRASRTreeLikelihoodData::initLikelihoods(const AlignedValuesContainer& sites, const TransitionModel& model)
 throw (Exception)
 {
   if (sites.getNumberOfSequences() == 1)
@@ -67,12 +67,11 @@ throw (Exception)
   alphabet_ = sites.getAlphabet();
   nbStates_ = model.getNumberOfStates();
   nbSites_  = sites.getNumberOfSites();
-  if (shrunkData_)
-    delete shrunkData_;
-  SitePatterns* patterns;
+  unique_ptr<SitePatterns> patterns;
+
   if (usePatterns_)
   {
-    patterns          = initLikelihoodsWithPatterns(tree_->getRootNode(), sites, model);
+    patterns.reset(initLikelihoodsWithPatterns(tree_->getRootNode(), sites, model));
     shrunkData_       = patterns->getSites();
     rootWeights_      = patterns->getWeights();
     rootPatternLinks_ = patterns->getIndices();
@@ -80,19 +79,19 @@ throw (Exception)
   }
   else
   {
-    patterns          = new SitePatterns(&sites);
+    patterns.reset(new SitePatterns(&sites));
+    
     shrunkData_       = patterns->getSites();
     rootWeights_      = patterns->getWeights();
     rootPatternLinks_ = patterns->getIndices();
     nbDistinctSites_  = shrunkData_->getNumberOfSites();
     initLikelihoods(tree_->getRootNode(), *shrunkData_, model);
   }
-  delete patterns;
 }
 
 /******************************************************************************/
 
-void DRASRTreeLikelihoodData::initLikelihoods(const Node* node, const SiteContainer& sequences, const SubstitutionModel& model) throw (Exception)
+void DRASRTreeLikelihoodData::initLikelihoods(const Node* node, const AlignedValuesContainer& sequences, const TransitionModel& model) throw (Exception)
 {
   // Initialize likelihood vector:
   DRASRTreeLikelihoodNodeData* nodeData = &nodeData_[node->getId()];
@@ -131,22 +130,20 @@ void DRASRTreeLikelihoodData::initLikelihoods(const Node* node, const SiteContai
   }
 
   // Now initialize likelihood values and pointers:
-
   if (node->isLeaf())
   {
-    const Sequence* seq;
+    size_t posSeq;
     try
     {
-      seq = &sequences.getSequence(node->getName());
+      posSeq=sequences.getSequencePosition(node->getName());
     }
     catch (SequenceNotFoundException snfe)
     {
-      throw SequenceNotFoundException("DRASRTreeLikelihoodData::initTreelikelihoods. Leaf name in tree not found in site conainer: ", (node->getName()));
+      throw SequenceNotFoundException("DRASRTreeLikelihoodData::initTreelikelihoods. Leaf name in tree not found in site container: ", (node->getName()));
     }
     for (size_t i = 0; i < nbDistinctSites_; i++)
     {
       VVdouble* _likelihoods_node_i = &(*_likelihoods_node)[i];
-      int state = seq->getValue(i);
       for (size_t c = 0; c < nbClasses_; c++)
       {
         Vdouble* _likelihoods_node_i_c = &(*_likelihoods_node_i)[c];
@@ -156,8 +153,8 @@ void DRASRTreeLikelihoodData::initLikelihoods(const Node* node, const SiteContai
         {
           // Leaves likelihood are set to 1 if the char correspond to the site in the sequence,
           // otherwise value set to 0:
-          
-          (*_likelihoods_node_i_c)[s] = model.getInitValue(s, state);
+
+          (*_likelihoods_node_i_c)[s] = sequences.getStateValueAt(i, posSeq, model.getAlphabetStateAsInt(s));
           test += (*_likelihoods_node_i_c)[s];
         }
         if (test < 0.000001)
@@ -190,12 +187,15 @@ void DRASRTreeLikelihoodData::initLikelihoods(const Node* node, const SiteContai
 
 /******************************************************************************/
 
-SitePatterns* DRASRTreeLikelihoodData::initLikelihoodsWithPatterns(const Node* node, const SiteContainer& sequences, const SubstitutionModel& model) throw (Exception)
+SitePatterns* DRASRTreeLikelihoodData::initLikelihoodsWithPatterns(const Node* node, const AlignedValuesContainer& sequences, const TransitionModel& model) throw (Exception)
 {
-  SiteContainer* tmp = PatternTools::getSequenceSubset(sequences, *node);
-  SitePatterns* patterns = new SitePatterns(tmp, true);
-  SiteContainer* subSequences = patterns->getSites();
+  vector<const Node *> leaves = TreeTemplateTools::getLeaves(*node);
 
+  AlignedValuesContainer* tmp = PatternTools::getSequenceSubset(sequences, *node);
+
+  SitePatterns* patterns = new SitePatterns(tmp, true);
+
+  shared_ptr<AlignedValuesContainer> subSequences = patterns->getSites();
   size_t nbSites = subSequences->getNumberOfSites();
 
   // Initialize likelihood vector:
@@ -237,19 +237,19 @@ SitePatterns* DRASRTreeLikelihoodData::initLikelihoodsWithPatterns(const Node* n
 
   if (node->isLeaf())
   {
-    const Sequence* seq;
+    size_t posSeq;    
     try
     {
-      seq = &subSequences->getSequence(node->getName());
+      posSeq=subSequences->getSequencePosition(node->getName());
     }
     catch (SequenceNotFoundException snfe)
     {
-      throw SequenceNotFoundException("HomogeneousTreeLikelihood::initTreelikelihoodsWithPatterns. Leaf name in tree not found in site conainer: ", (node->getName()));
+      throw SequenceNotFoundException("HomogeneousTreeLikelihood::initTreelikelihoodsWithPatterns. Leaf name in tree not found in site container: ", (node->getName()));
     }
+
     for (size_t i = 0; i < nbSites; i++)
     {
       VVdouble* _likelihoods_node_i = &(*_likelihoods_node)[i];
-      int state = seq->getValue(i);
       
       for (size_t c = 0; c < nbClasses_; c++)
       {
@@ -260,7 +260,7 @@ SitePatterns* DRASRTreeLikelihoodData::initLikelihoodsWithPatterns(const Node* n
           // Leaves likelihood are set to 1 if the char correspond to the site in the sequence,
           // otherwise value set to 0:
           // cout << "i=" << i << "\tc=" << c << "\ts=" << s << endl;
-          (*_likelihoods_node_i_c)[s] = model.getInitValue(s, state);
+          (*_likelihoods_node_i_c)[s] = subSequences->getStateValueAt(i, posSeq, model.getAlphabetStateAsInt(s));
           test += (*_likelihoods_node_i_c)[s];
         }
         if (test < 0.000001)
@@ -282,13 +282,14 @@ SitePatterns* DRASRTreeLikelihoodData::initLikelihoodsWithPatterns(const Node* n
 
       std::vector<size_t>* patternLinks__node_son = &(*patternLinks__node)[son->getId()];
 
-      // Initialize subtree 'l' and retrieves corresponding subSequences:
-      SitePatterns* subPatterns = initLikelihoodsWithPatterns(son, *subSequences, model);
+      // Initialize subtree 'l' and retrieves corresponding
+      // subSequences:
+
+      unique_ptr<SitePatterns> subPatterns(initLikelihoodsWithPatterns(son, *subSequences, model));
+      
       (*patternLinks__node_son) = subPatterns->getIndices();
-      delete subPatterns;
     }
   }
-  delete subSequences;
   return patterns;
 }
 

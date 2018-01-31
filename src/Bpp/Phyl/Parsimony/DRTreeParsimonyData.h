@@ -200,7 +200,7 @@ private:
   mutable std::map<int, DRTreeParsimonyLeafData> leafData_;
   mutable std::vector<Bitset> rootBitsets_;
   mutable std::vector<unsigned int> rootScores_;
-  SiteContainer* shrunkData_;
+  std::shared_ptr<SiteContainer> shrunkData_;
   size_t nbSites_;
   size_t nbStates_;
   size_t nbDistinctSites_;
@@ -222,7 +222,7 @@ public:
 
   DRTreeParsimonyData& operator=(const DRTreeParsimonyData& data);
 
-  virtual ~DRTreeParsimonyData() { delete shrunkData_; }
+  virtual ~DRTreeParsimonyData() {}
 
   DRTreeParsimonyData* clone() const { return new DRTreeParsimonyData(*this); }
 

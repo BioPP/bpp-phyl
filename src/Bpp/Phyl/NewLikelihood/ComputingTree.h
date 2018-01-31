@@ -147,22 +147,22 @@ namespace bpp
     /*
      * @brief construction of a complete ComputingTree.
      *
-     * @param pSubMod a  pointer of SubstitutionModel.
+     * @param pSubMod a  pointer of TransitionModel.
      * @param vBr a vector of attribution of the model on the
      * branches of the tree that need a model.
      *
      */
      
-    void addModel(const SubstitutionModel* pSubMod, std::vector<unsigned int> vBr);
+    void addModel(const TransitionModel* pSubMod, std::vector<unsigned int> vBr);
 
     /*
      * @brief construction of an homogeneous ComputingTree.
      *
-     * @param pSubMod a  pointer of SubstitutionModel.
+     * @param pSubMod a  pointer of TransitionModel.
      *
      */
      
-    void addModel(const SubstitutionModel* pSubMod);
+    void addModel(const TransitionModel* pSubMod);
     
     size_t getNumberOfClasses() const { return vTree_.size();}
 

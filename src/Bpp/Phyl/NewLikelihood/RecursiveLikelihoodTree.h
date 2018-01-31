@@ -61,7 +61,7 @@ namespace bpp
 class RecursiveLikelihoodTree :
   public AbstractLikelihoodTree
 {
-private:
+public:
   /*
    * a vector of trees of computing nodes
    *
@@ -69,7 +69,8 @@ private:
 
   typedef AssociationTreeGlobalGraphObserver<RecursiveLikelihoodNode, PhyloBranchParam>  LikTree;
   using NodeIndex = typename LikTree::NodeIndex;
-  
+
+private:
   std::vector<std::shared_ptr<LikTree> > vTree_;
 
 
@@ -124,6 +125,7 @@ public:
    * @brief the Node Data
    *
    */
+
   AbstractLikelihoodNode& getNodeData(int nodeId, size_t nClass)
   {
     return *(*this)[nClass].getNode(static_cast<NodeIndex>(nodeId));
@@ -212,7 +214,7 @@ public:
    *
    */
 
-  void initLikelihoods(const SiteContainer& sites, const SubstitutionProcess& process) throw (Exception);
+  void initLikelihoods(const AlignedValuesContainer& sites, const SubstitutionProcess& process) throw (Exception);
 
   /*
    * @brief compute full likelihoods at a given node
@@ -257,7 +259,7 @@ protected:
    * @param process   The substitution process to use.
    */
 
-  virtual void initLikelihoodsWithoutPatterns_(const RecursiveLikelihoodNode* node, const SiteContainer& sequences, const SubstitutionProcess& process) throw (Exception);
+  virtual void initLikelihoodsWithoutPatterns_(const RecursiveLikelihoodNode* node, const AlignedValuesContainer& sequences, const SubstitutionProcess& process) throw (Exception);
 
   /**
    * @brief This method initializes the leaves according to a sequence file.
@@ -276,7 +278,7 @@ protected:
    * @return The shrunk sub-dataset + indices for the subtree defined by <i>node</i>.
    */
 
-  virtual SitePatterns* initLikelihoodsWithPatterns_(const RecursiveLikelihoodNode* node, const SiteContainer& sequences, const SubstitutionProcess& process) throw (Exception);
+  virtual SitePatterns* initLikelihoodsWithPatterns_(const RecursiveLikelihoodNode* node, const AlignedValuesContainer& sequences, const SubstitutionProcess& process) throw (Exception);
 };
 } // end of namespace bpp.
 

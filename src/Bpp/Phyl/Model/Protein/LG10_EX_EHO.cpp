@@ -38,6 +38,7 @@
 
 #include "LG10_EX_EHO.h"
 #include "../FrequenciesSet/ProteinFrequenciesSet.h"
+#include "../MixtureOfSubstitutionModels.h"
 
 #include <Bpp/Numeric/Prob/SimpleDiscreteDistribution.h>
 
@@ -48,8 +49,7 @@ using namespace std;
 /******************************************************************************/
 
 LG10_EX_EHO::LG10_EX_EHO(const ProteicAlphabet* alpha) : 
-  AbstractBiblioMixedSubstitutionModel("LG10_EX_EHO."),
-  pmixmodel_()
+  AbstractBiblioMixedSubstitutionModel("LG10_EX_EHO.")
 {
   // build the submodel
 	
@@ -86,22 +86,6 @@ LG10_EX_EHO::LG10_EX_EHO(const ProteicAlphabet* alpha) :
 	
   updateMatrices();	
 }
-
-LG10_EX_EHO::LG10_EX_EHO(const LG10_EX_EHO& mod2) : AbstractBiblioMixedSubstitutionModel(mod2),
-pmixmodel_(new MixtureOfSubstitutionModels(*mod2.pmixmodel_))
-{}
-
-LG10_EX_EHO& LG10_EX_EHO::operator=(const LG10_EX_EHO& mod2)
-{
-  AbstractBiblioMixedSubstitutionModel::operator=(mod2);
-  
-  pmixmodel_.reset(new MixtureOfSubstitutionModels(*mod2.pmixmodel_));	
-	
-  return *this;
-}
-
-LG10_EX_EHO::~LG10_EX_EHO()
-{}
 
 /**************** sub model classes *///////////
 

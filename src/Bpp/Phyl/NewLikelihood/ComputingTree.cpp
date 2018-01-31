@@ -216,7 +216,7 @@ void ComputingTree::checkModelOnEachNode()
 
       if (dynamic_cast<SpeciationComputingNode*>(vn[j].get()))
       {
-        if (dynamic_cast<SpeciationComputingNode&>(*vn[j]).getSubstitutionModel()==NULL)
+        if (dynamic_cast<SpeciationComputingNode&>(*vn[j]).getModel()==NULL)
         {
           isReadyToCompute_=false;
           return;
@@ -228,20 +228,20 @@ void ComputingTree::checkModelOnEachNode()
   isReadyToCompute_=true;
 }
   
-void ComputingTree::addModel(const SubstitutionModel* pSubMod, std::vector<unsigned int>  vBr)
+void ComputingTree::addModel(const TransitionModel* pSubMod, std::vector<unsigned int>  vBr)
 {
   for (size_t i=0; i< getNumberOfClasses(); i++)
     for (size_t j=0; j<vBr.size(); j++)
     {
       shared_ptr<ComputingNode> cn=vTree_[i]->getNode(vBr[j]);
       if (dynamic_cast<SpeciationComputingNode*>(cn.get()))
-        dynamic_cast<SpeciationComputingNode&>(*cn).setSubstitutionModel(pSubMod);
+        dynamic_cast<SpeciationComputingNode&>(*cn).setTransitionModel(pSubMod);
     }
   
   checkModelOnEachNode();
 }
 
-void ComputingTree::addModel(const SubstitutionModel* pSubMod)
+void ComputingTree::addModel(const TransitionModel* pSubMod)
 {
   if (pSubMod==0)
     return;
@@ -253,7 +253,7 @@ void ComputingTree::addModel(const SubstitutionModel* pSubMod)
     {
       shared_ptr<ComputingNode> cn=vTree_[i]->getNode(vId[j]);
       if (dynamic_cast<SpeciationComputingNode*>(cn.get()))
-        dynamic_cast<SpeciationComputingNode&>(*cn).setSubstitutionModel(pSubMod);
+        dynamic_cast<SpeciationComputingNode&>(*cn).setTransitionModel(pSubMod);
     }
   
   isReadyToCompute_=true;

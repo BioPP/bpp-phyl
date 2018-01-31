@@ -66,7 +66,7 @@ throw (Exception) :
  /******************************************************************************/
 
 RecursiveLikelihoodTreeCalculation::RecursiveLikelihoodTreeCalculation(
-  const SiteContainer& data,
+  const AlignedValuesContainer& data,
   const SubstitutionProcess* process,
   bool verbose,
   bool usePatterns)

@@ -57,7 +57,7 @@ Matrix<double>* NaiveSubstitutionCount::getAllNumbersOfSubstitutions(double leng
 
 LabelSubstitutionCount::LabelSubstitutionCount(const SubstitutionModel* model) :
   AbstractSubstitutionCount(
-      new TotalSubstitutionRegister(model)),
+    new TotalSubstitutionRegister(model->getStateMap())),
   label_(model->getNumberOfStates(), model->getNumberOfStates()),
   supportedChars_(model->getAlphabetStates())
 {

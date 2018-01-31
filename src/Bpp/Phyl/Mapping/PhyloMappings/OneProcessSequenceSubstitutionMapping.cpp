@@ -1,11 +1,12 @@
 //
-// File: CodonSubstitutionModel.cpp
-// Created by:  Laurent Gueguen
-// Created on: Feb 2009
+// File: OneProcessSequenceSubstitutionMapping.cpp
+// Created by: Laurent Guéguen
+// Created on: jeudi 7 décembre 2017, à 22h 59
 //
 
 /*
    Copyright or © or Copr. Bio++ Development Team, (November 16, 2004)
+
    This software is a computer program whose purpose is to provide classes
    for phylogenetic data analysis.
 
@@ -36,38 +37,27 @@
    knowledge of the CeCILL license and that you accept its terms.
  */
 
-#include "CodonRateSubstitutionModel.h"
-
+#include "OneProcessSequenceSubstitutionMapping.h"
 
 using namespace bpp;
-
 using namespace std;
 
-/******************************************************************************/
-
-CodonRateSubstitutionModel::CodonRateSubstitutionModel(
-    const GeneticCode* gCode,
-    NucleotideSubstitutionModel* pmod) :
-  AbstractParameterAliasable("CodonRate."),
-  AbstractCodonSubstitutionModel(gCode, pmod, "CodonRate.", true)
+void OneProcessSequenceSubstitutionMapping::computeNormalizations(const ParameterList& nullParams)
 {
-  updateMatrices();
-}
-
-CodonRateSubstitutionModel::CodonRateSubstitutionModel(
-    const GeneticCode* gCode,
-    NucleotideSubstitutionModel* pmod1,
-    NucleotideSubstitutionModel* pmod2,
-    NucleotideSubstitutionModel* pmod3) :
-  AbstractParameterAliasable("CodonRate."),
-  AbstractCodonSubstitutionModel(gCode, pmod1, pmod2, pmod3, "CodonRate.", true)
-{
-  updateMatrices();
-}
-
-std::string CodonRateSubstitutionModel::getName() const
-{
-  return "CodonRate";
+  matchParametersValues(nullParams);
+  
+  factors_.reset(SubstitutionMappingTools::computeNormalizations(getLikelihoodCalculation(),
+                                                                 this,
+                                                                 getRegister()));
 }
 
 
+void OneProcessSequenceSubstitutionMapping::setBranchedModelSet_()
+{
+  const SubstitutionProcess& sp=pOPSP_->getSubstitutionProcess();
+
+  vector<size_t> vId=sp.getModelNumbers();
+
+  for (auto id:vId)
+    addModel(id, *sp.getModel(id),sp.getNodesWithModel(id));
+}

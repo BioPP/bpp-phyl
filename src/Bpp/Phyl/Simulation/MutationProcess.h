@@ -113,7 +113,7 @@ class MutationPath
      * @return A pointer toward the alphabet associated to this path.
      */
     const Alphabet* getAlphabet() const { return alphabet_; }
-    
+  
     /**
      * @brief Add a new mutation event.
      *

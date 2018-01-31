@@ -55,7 +55,7 @@ class SimpleSubstitutionProcess :
     public AbstractSubstitutionProcess
 {
 protected:
-  std::unique_ptr<SubstitutionModel> model_;
+  std::unique_ptr<TransitionModel> model_;
 
 private:
   /**
@@ -64,7 +64,7 @@ private:
   mutable std::unique_ptr<ComputingTree> computingTree_;
 
 public:
-  SimpleSubstitutionProcess(SubstitutionModel* model, ParametrizablePhyloTree* tree);
+  SimpleSubstitutionProcess(TransitionModel* model, ParametrizablePhyloTree* tree);
 
   SimpleSubstitutionProcess(const SimpleSubstitutionProcess& ssp);
 
@@ -75,15 +75,36 @@ public:
 
   size_t getNumberOfStates() const { return model_->getNumberOfStates(); }
 
+  const StateMap& getStateMap() const
+  {
+    return model_->getStateMap();
+  }
+  
   size_t getNumberOfModels() const { return 1; }
 
-  bool isCompatibleWith(const SiteContainer& data) const {
+  bool isCompatibleWith(const AlignedValuesContainer& data) const {
     return data.getAlphabet()->getAlphabetType() == model_->getAlphabet()->getAlphabetType();
   }
- 
-  const SubstitutionModel& getSubstitutionModel(unsigned int nodeId, size_t classIndex) const
+
+  std::vector<size_t> getModelNumbers() const
   {
-    return *model_;
+    return(std::vector<size_t>(1,0));
+  }
+
+  const TransitionModel* getModel(unsigned int nodeId, size_t classIndex) const
+  {
+    return model_.get();
+  }
+
+  const TransitionModel* getModel(size_t i) const
+  {
+    return model_.get();
+  }
+
+  const std::vector<unsigned int> getNodesWithModel(size_t i) const
+  {
+    std::vector<uint> innodes=(*computingTree_)[0]->getAllEdgesIndexes();
+    return innodes;
   }
 
   const DiscreteDistribution* getRateDistribution() const
@@ -91,9 +112,9 @@ public:
     return 0;
   }
   
-  const Matrix<double>& getGenerator(unsigned int nodeId, size_t classIndex) const {
-    return model_->getGenerator();
-  }
+  // const Matrix<double>& getGenerator(unsigned int nodeId, size_t classIndex) const {
+  //   return model_->getGenerator();
+  // }
 
   const FrequenciesSet* getRootFrequenciesSet() const {
     return 0;

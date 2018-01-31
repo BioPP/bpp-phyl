@@ -67,8 +67,8 @@ using namespace std;
 
 TwoTreeLikelihood::TwoTreeLikelihood(
     const std::string& seq1, const std::string& seq2,
-    const SiteContainer& data,
-    SubstitutionModel* model,
+    const AlignedValuesContainer& data,
+    TransitionModel* model,
     DiscreteDistribution* rDist,
     bool verbose) throw (Exception) :
   AbstractDiscreteRatesAcrossSitesTreeLikelihood(rDist, verbose),
@@ -80,6 +80,7 @@ TwoTreeLikelihood::TwoTreeLikelihood(
 {
   seqnames_[0] = seq1;
   seqnames_[1] = seq2;
+  
   data_ = PatternTools::getSequenceSubset(data, seqnames_);
   if (data_->getAlphabet()->getAlphabetType()
       != model_->getAlphabet()->getAlphabetType())
@@ -105,7 +106,9 @@ TwoTreeLikelihood::TwoTreeLikelihood(
   // Init _likelihoods:
   if (verbose) ApplicationTools::displayTask("Init likelihoods arrays recursively");
   // Clone data for more efficiency on sequences access:
-  const SiteContainer* sequences = new AlignedSequenceContainer(*shrunkData_);
+  const AlignedValuesContainer* sequences = (dynamic_cast<const SiteContainer*>(shrunkData_.get()))?static_cast<const AlignedValuesContainer*>(new AlignedSequenceContainer(dynamic_cast<SiteContainer&>(*shrunkData_))):
+    static_cast<const AlignedValuesContainer*>(new VectorProbabilisticSiteContainer(dynamic_cast<const VectorProbabilisticSiteContainer&>(*shrunkData_)));
+  
   initTreeLikelihoods(*sequences);
   delete sequences;
 
@@ -119,7 +122,7 @@ TwoTreeLikelihood::TwoTreeLikelihood(
 
 TwoTreeLikelihood::TwoTreeLikelihood(const TwoTreeLikelihood& lik) :
   AbstractDiscreteRatesAcrossSitesTreeLikelihood(lik),
-  shrunkData_        (dynamic_cast<SiteContainer*>(lik.shrunkData_->clone())),
+  shrunkData_        (dynamic_cast<AlignedValuesContainer*>(lik.shrunkData_->clone())),
   seqnames_          (lik.seqnames_),
   model_             (lik.model_),
   brLenParameters_   (lik.brLenParameters_),
@@ -149,7 +152,7 @@ TwoTreeLikelihood::TwoTreeLikelihood(const TwoTreeLikelihood& lik) :
 TwoTreeLikelihood& TwoTreeLikelihood::operator=(const TwoTreeLikelihood& lik)
 {
   AbstractDiscreteRatesAcrossSitesTreeLikelihood::operator=(lik);
-  shrunkData_        = dynamic_cast<SiteContainer*>(lik.shrunkData_->clone());
+  shrunkData_        = shared_ptr<AlignedValuesContainer>(lik.shrunkData_->clone());
   seqnames_          = lik.seqnames_;
   model_             = lik.model_;
   brLenParameters_   = lik.brLenParameters_;
@@ -179,7 +182,6 @@ TwoTreeLikelihood& TwoTreeLikelihood::operator=(const TwoTreeLikelihood& lik)
 
 TwoTreeLikelihood::~TwoTreeLikelihood()
 {
-  delete shrunkData_;
   if (brLenConstraint_) delete brLenConstraint_;
 }
 
@@ -416,10 +418,8 @@ throw (Exception)
 
 /******************************************************************************/
 
-void TwoTreeLikelihood::initTreeLikelihoods(const SequenceContainer& sequences) throw (Exception)
+void TwoTreeLikelihood::initTreeLikelihoods(const SequencedValuesContainer& sequences) throw (Exception)
 {
-  const Sequence* seq1 = &sequences.getSequence(seqnames_[0]);
-  const Sequence* seq2 = &sequences.getSequence(seqnames_[1]);
   leafLikelihoods1_.resize(nbDistinctSites_);
   leafLikelihoods2_.resize(nbDistinctSites_);
   for (size_t i = 0; i < nbDistinctSites_; i++)
@@ -428,22 +428,17 @@ void TwoTreeLikelihood::initTreeLikelihoods(const SequenceContainer& sequences) 
    Vdouble* leafLikelihoods2_i = &leafLikelihoods2_[i];
    leafLikelihoods1_i->resize(nbStates_);
    leafLikelihoods2_i->resize(nbStates_);
-   int state1 = seq1->getValue(i);
-   int state2 = seq2->getValue(i);
-    for (size_t s = 0; s < nbStates_; s++)
-    {
-      // Leaves likelihood are set to 1 if the char correspond to the site in the sequence,
-      // otherwise value set to 0:
-      try
-      {
-        (*leafLikelihoods1_i)[s] = model_->getInitValue(s, state1);
-        (*leafLikelihoods2_i)[s] = model_->getInitValue(s, state2);
-      }
-      catch (SequenceNotFoundException& snfe)
-      {
-        throw SequenceNotFoundException("TwoTreeLikelihood::initTreelikelihoods. Leaf name in tree not found in site conainer: ", snfe.getSequenceId());
-      }
-    }
+   for (size_t s = 0; s < nbStates_; s++)
+   {
+     try {
+       (*leafLikelihoods1_i)[s] = sequences.getStateValueAt(i, seqnames_[0], model_->getAlphabetStateAsInt(s));
+       (*leafLikelihoods2_i)[s] = sequences.getStateValueAt(i, seqnames_[1], model_->getAlphabetStateAsInt(s));
+     }
+     catch (SequenceNotFoundException& snfe)
+     {
+       throw SequenceNotFoundException("TwoTreeLikelihood::initTreelikelihoods. Leaf name in tree not found in site conainer: ", snfe.getSequenceId());
+     }
+   }
   }
 
   // Initialize likelihood vector:
@@ -656,6 +651,10 @@ void DistanceEstimation::computeMatrix() throw (NullPointerException)
   if (dist_ != 0) delete dist_;
   dist_ = new DistanceMatrix(names);
   optimizer_->setVerbose(static_cast<unsigned int>(max(static_cast<int>(verbose_) - 2, 0)));
+
+  const SiteContainer* sc=dynamic_cast<const SiteContainer*>(sites_);
+  const VectorProbabilisticSiteContainer* psc=dynamic_cast<const VectorProbabilisticSiteContainer*>(sites_);
+
   for (size_t i = 0; i < n; ++i)
   {
     (*dist_)(i, i) = 0;
@@ -673,8 +672,14 @@ void DistanceEstimation::computeMatrix() throw (NullPointerException)
         new TwoTreeLikelihood(names[i], names[j], *sites_, model_.get(), rateDist_.get(), verbose_ > 3);
       lik->initialize();
       lik->enableDerivatives(true);
-      size_t d = SymbolListTools::getNumberOfDistinctPositions(sites_->getSequence(i), sites_->getSequence(j));
-      size_t g = SymbolListTools::getNumberOfPositionsWithoutGap(sites_->getSequence(i), sites_->getSequence(j));
+
+      size_t d = sc?
+        SymbolListTools::getNumberOfDistinctPositions(sc->getSequence(i), sc->getSequence(j)):
+        SymbolListTools::getNumberOfDistinctPositions(*psc->getSequence(i), *psc->getSequence(j));
+      size_t g = sc?
+        SymbolListTools::getNumberOfPositionsWithoutGap(sc->getSequence(i), sc->getSequence(j)):
+        SymbolListTools::getNumberOfPositionsWithoutGap(*psc->getSequence(i), *psc->getSequence(j));
+
       lik->setParameterValue("BrLen", g == 0 ? lik->getMinimumBranchLength() : std::max(lik->getMinimumBranchLength(), static_cast<double>(d) / static_cast<double>(g)));
       // Optimization:
       optimizer_->setFunction(lik);

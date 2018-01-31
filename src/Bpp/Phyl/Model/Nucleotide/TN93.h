@@ -47,7 +47,6 @@ knowledge of the CeCILL license and that you accept its terms.
 
 // From bpp-seq:
 #include <Bpp/Seq/Alphabet/NucleicAlphabet.h>
-#include <Bpp/Seq/Container/SequenceContainer.h>
 
 namespace bpp
 {

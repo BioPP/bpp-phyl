@@ -50,7 +50,7 @@ using namespace bpp;
 /******************************************************************************/
 
 HmmProcessPhyloLikelihood::HmmProcessPhyloLikelihood(
-  const SiteContainer& data,
+  const AlignedValuesContainer& data,
   HmmSequenceEvolution& processSeqEvol,
   size_t nSeqEvol,
   size_t nData,

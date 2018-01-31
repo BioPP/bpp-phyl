@@ -43,20 +43,21 @@ knowledge of the CeCILL license and that you accept its terms.
 #include <Bpp/Numeric/Matrix/MatrixTools.h>
 #include <Bpp/Seq/Alphabet/DNA.h>
 #include <Bpp/Seq/Io/Fasta.h>
-#include <Bpp/Phyl/Tree/TreeTemplate.h>
+#include <Bpp/Phyl/Io/Newick.h>
 #include <Bpp/Phyl/Model/Nucleotide/GTR.h>
 #include <Bpp/Phyl/Model/Protein/JTT92.h>
-#include <Bpp/Phyl/Simulation/HomogeneousSequenceSimulator.h>
-#include <Bpp/Phyl/Likelihood/DRHomogeneousTreeLikelihood.h>
+#include <Bpp/Phyl/Simulation/SubstitutionProcessSequenceSimulator.h>
 #include <Bpp/Phyl/Mapping/SubstitutionRegister.h>
 #include <Bpp/Phyl/Mapping/SubstitutionCount.h>
 #include <Bpp/Phyl/Mapping/LaplaceSubstitutionCount.h>
 #include <Bpp/Phyl/Mapping/DecompositionSubstitutionCount.h>
 #include <Bpp/Phyl/Mapping/UniformizationSubstitutionCount.h>
-#include <Bpp/Phyl/Mapping/DecompositionReward.h>
 #include <Bpp/Phyl/Mapping/NaiveSubstitutionCount.h>
-#include <Bpp/Phyl/Mapping/ProbabilisticSubstitutionMapping.h>
 #include <Bpp/Phyl/Mapping/SubstitutionMappingTools.h>
+#include <Bpp/Phyl/NewLikelihood/ParametrizablePhyloTree.h>
+#include <Bpp/Phyl/NewLikelihood/SimpleSubstitutionProcess.h>
+#include <Bpp/Phyl/NewLikelihood/RateAcrossSitesSubstitutionProcess.h>
+#include <Bpp/Phyl/NewLikelihood/PhyloLikelihoods/SingleProcessPhyloLikelihood.h>
 #include <Bpp/Seq/AlphabetIndex/GranthamAAVolumeIndex.h>
 #include <iostream>
 
@@ -64,79 +65,78 @@ using namespace bpp;
 using namespace std;
 
 int main() {
-  TreeTemplate<Node>* tree = TreeTemplateTools::parenthesisToTree("((A:0.001, B:0.002):0.008,C:0.01,D:0.1);");
-  vector<int> ids = tree->getNodesId();
-  ids.pop_back(); //Ignore root
+  try {
+  Newick reader;
+  unique_ptr<PhyloTree> new_tree(reader.parenthesisToPhyloTree("((A:0.001, B:0.002):0.008,C:0.01,D:0.02);", false, "", false, false));
+
+  vector<int> ids = {0, 1, 2, 3, 4};
 
   //-------------
 
   NucleicAlphabet* alphabet = new DNA();
   ReversibleSubstitutionModel* model = new GTR(alphabet, 1, 0.2, 0.3, 0.4, 0.4, 0.1, 0.35, 0.35, 0.2);
-  MatrixTools::print(model->getGenerator());
-  //DiscreteDistribution* rdist = new GammaDiscreteDistribution(4, 0.4, 0.4);
-  DiscreteDistribution* rdist = new ConstantDistribution(1.0);
-  HomogeneousSequenceSimulator simulator(model, rdist, tree);
-  TotalSubstitutionRegister* totReg = new TotalSubstitutionRegister(model);
-  ComprehensiveSubstitutionRegister* detReg = new ComprehensiveSubstitutionRegister(model);
+//  DiscreteDistribution* rdist = new ConstantDistribution(1);
+  DiscreteDistribution* rdist = new GammaDiscreteDistribution(4, 0.4, 0.4);
+  std::shared_ptr<ParametrizablePhyloTree> pTree(new ParametrizablePhyloTree(*new_tree));
+  unique_ptr<RateAcrossSitesSubstitutionProcess> process(new RateAcrossSitesSubstitutionProcess(model->clone(), rdist->clone(), pTree->clone()));
 
+  SimpleSubstitutionProcessSequenceSimulator simulator(*process);
+  
+  TotalSubstitutionRegister* totReg = new TotalSubstitutionRegister(model->getStateMap());
+  ComprehensiveSubstitutionRegister* detReg = new ComprehensiveSubstitutionRegister(model->getStateMap());
 
-  cout << "test mem" << endl;
-  ProteicAlphabet* alphabet2 = new ProteicAlphabet();
-  ReversibleSubstitutionModel* model2 = new JTT92(alphabet2);
-  AlphabetIndex1* ind = new GranthamAAVolumeIndex();
-  for (size_t i = 0; i < 1000000; i++) {
-    cout << i << endl;
-    unique_ptr<DecompositionReward> d(new DecompositionReward(model2, ind));
-  }
-  cout << "done" << endl;
-
-  unsigned int n = 20000;
+  size_t n = 50000;
   vector< vector<double> > realMap(n);
   vector< vector< vector<double> > > realMapTotal(n);
   vector< vector< vector<double> > > realMapDetailed(n);
-  VectorSiteContainer sites(tree->getLeavesNames(), alphabet);
-  for (unsigned int i = 0; i < n; ++i) {
+  VectorSiteContainer sites(new_tree->getAllLeavesNames(), alphabet);
+  for (size_t i = 0; i < n; ++i) {
     ApplicationTools::displayGauge(i, n - 1, '=');
-    unique_ptr<RASiteSimulationResult> result(simulator.dSimulateSite());
+    unique_ptr<New_SiteSimulationResult> result(simulator.dSimulateSite());
     realMap[i].resize(ids.size());
     realMapTotal[i].resize(ids.size());
     realMapDetailed[i].resize(ids.size());
     for (size_t j = 0; j < ids.size(); ++j) {
-      realMap[i][j] = static_cast<double>(result->getSubstitutionCount(ids[j]));
+      realMap[i][j] = static_cast<double>(result->getSubstitutionCount((uint)ids[j]));
       realMapTotal[i][j].resize(totReg->getNumberOfSubstitutionTypes());
       realMapDetailed[i][j].resize(detReg->getNumberOfSubstitutionTypes());
-      result->getSubstitutionCount(ids[j], *totReg, realMapTotal[i][j]);
-      result->getSubstitutionCount(ids[j], *detReg, realMapDetailed[i][j]);
+      result->getSubstitutionCount((uint)ids[j], *totReg, realMapTotal[i][j]);
+      result->getSubstitutionCount((uint)ids[j], *detReg, realMapDetailed[i][j]);
       if (realMapTotal[i][j][0] != realMap[i][j]) {
-        cerr << "Error, total substitution register provides wrong result." << endl;
+        throw Exception("Error, total substitution register provides wrong result.");
         return 1;
       }
       if (abs(VectorTools::sum(realMapDetailed[i][j]) - realMap[i][j]) > 0.000001) {
-        cerr << "Error, detailed substitution register provides wrong result." << endl;
+        throw Exception("Error, detailed substitution register provides wrong result.");
         return 1;
       }
     }
     unique_ptr<Site> site(result->getSite(*model));
-    site->setPosition(static_cast<int>(i));
+    site->setPosition(static_cast<int>(i));    
     sites.addSite(*site, false);
   }
   ApplicationTools::displayTaskDone();
-  
+
   //-------------
   //Now build the substitution vectors with the true model:
-  //Fasta fasta;
-  //fasta.write("Simulations.fasta", sites);
-  DRHomogeneousTreeLikelihood drhtl(*tree, sites, model, rdist);
-  drhtl.initialize();
-  cout << drhtl.getValue() << endl;
 
+  // Newlik
+  unique_ptr<RecursiveLikelihoodTreeCalculation> tmComp(new RecursiveLikelihoodTreeCalculation(sites, process.get(), true, false));
+  SingleProcessPhyloLikelihood newTl(process.get(), tmComp.release());
+  cout << "LogLik: " << newTl.getValue() << endl;
+    
+  RecursiveLikelihoodTreeCalculation* rltc=dynamic_cast<RecursiveLikelihoodTreeCalculation*>(newTl.getLikelihoodCalculation());
+  
+  
   SubstitutionCount* sCountAna = new LaplaceSubstitutionCount(model, 10);
   Matrix<double>* m = sCountAna->getAllNumbersOfSubstitutions(0.001, 1);
-  cout << "Analytical total count:" << endl;
+  cout << "Analytical (Laplace) total count:" << endl;
   MatrixTools::print(*m);
   delete m;
-  ProbabilisticSubstitutionMapping* probMapAna = 
-    SubstitutionMappingTools::computeSubstitutionVectors(drhtl, ids, *sCountAna);
+  ProbabilisticSubstitutionMapping* probNEWMapAna = 
+    SubstitutionMappingTools::computeCounts(*rltc, *sCountAna);
+
+  cout << endl;
 
   //Simple:
   SubstitutionCount* sCountTot = new NaiveSubstitutionCount(model, totReg);
@@ -144,16 +144,18 @@ int main() {
   cout << "Simple total count:" << endl;
   MatrixTools::print(*m);
   delete m;
-  ProbabilisticSubstitutionMapping* probMapTot = 
-    SubstitutionMappingTools::computeSubstitutionVectors(drhtl, ids, *sCountTot);
+  ProbabilisticSubstitutionMapping* probNEWMapTot = 
+    SubstitutionMappingTools::computeCounts(*rltc, *sCountTot);
+  cout << endl;
 
   SubstitutionCount* sCountDet = new NaiveSubstitutionCount(model, detReg);
   m = sCountDet->getAllNumbersOfSubstitutions(0.001,1);
   cout << "Detailed count, type 1:" << endl;
   MatrixTools::print(*m);
   delete m;
-  ProbabilisticSubstitutionMapping* probMapDet = 
-    SubstitutionMappingTools::computeSubstitutionVectors(drhtl, ids, *sCountDet);
+  ProbabilisticSubstitutionMapping* probNEWMapDet = 
+    SubstitutionMappingTools::computeCounts(*rltc, *sCountDet);
+  cout << endl;
 
   //Decomposition:
   SubstitutionCount* sCountDecTot = new DecompositionSubstitutionCount(model, totReg);
@@ -161,16 +163,17 @@ int main() {
   cout << "Total count, decomposition method:" << endl;
   MatrixTools::print(*m);
   delete m;
-  ProbabilisticSubstitutionMapping* probMapDecTot = 
-    SubstitutionMappingTools::computeSubstitutionVectors(drhtl, ids, *sCountDecTot);
+  ProbabilisticSubstitutionMapping* probNEWMapDecTot = 
+    SubstitutionMappingTools::computeCounts(*rltc, *sCountDecTot);
 
   SubstitutionCount* sCountDecDet = new DecompositionSubstitutionCount(model, detReg);
   m = sCountDecDet->getAllNumbersOfSubstitutions(0.001,1);
   cout << "Detailed count, decomposition method, type 1:" << endl;
   MatrixTools::print(*m);
   delete m;
-  ProbabilisticSubstitutionMapping* probMapDecDet = 
-    SubstitutionMappingTools::computeSubstitutionVectors(drhtl, ids, *sCountDecDet);
+  ProbabilisticSubstitutionMapping* probNEWMapDecDet = 
+    SubstitutionMappingTools::computeCounts(*rltc, *sCountDecDet);
+  cout << endl;
 
   //Uniformization
   SubstitutionCount* sCountUniTot = new UniformizationSubstitutionCount(model, totReg);
@@ -178,66 +181,36 @@ int main() {
   cout << "Total count, uniformization method:" << endl;
   MatrixTools::print(*m);
   delete m;
-  ProbabilisticSubstitutionMapping* probMapUniTot = 
-    SubstitutionMappingTools::computeSubstitutionVectors(drhtl, ids, *sCountUniTot);  
+  ProbabilisticSubstitutionMapping* probNEWMapUniTot = 
+    SubstitutionMappingTools::computeCounts(*rltc, *sCountUniTot);  
 
   SubstitutionCount* sCountUniDet = new UniformizationSubstitutionCount(model, detReg);
   m = sCountUniDet->getAllNumbersOfSubstitutions(0.001,1);
   cout << "Detailed count, uniformization method, type 1:" << endl;
   MatrixTools::print(*m);
-  delete m;
-  ProbabilisticSubstitutionMapping* probMapUniDet = 
-    SubstitutionMappingTools::computeSubstitutionVectors(drhtl, ids, *sCountUniDet);
-
+  ProbabilisticSubstitutionMapping* probNEWMapUniDet = 
+    SubstitutionMappingTools::computeCounts(*rltc, *sCountUniDet);
+  cout << endl;
+  
   //Check saturation:
   cout << "checking saturation..." << endl;
-  m = sCountUniDet->getAllNumbersOfSubstitutions(0.001,1);
-  cout << "Total count, uniformization method:" << endl;
-  MatrixTools::print(*m);
-  cout << MatrixTools::sumElements(*m) << endl;
-  delete m;
-  m = sCountUniDet->getAllNumbersOfSubstitutions(0.01,1);
-  cout << "Total count, uniformization method:" << endl;
-  MatrixTools::print(*m);
-  cout << MatrixTools::sumElements(*m) << endl;
-  delete m;
-  m = sCountUniDet->getAllNumbersOfSubstitutions(0.1,1);
-  cout << "Total count, uniformization method:" << endl;
-  MatrixTools::print(*m);
-  cout << MatrixTools::sumElements(*m) << endl;
-  delete m;
-  m = sCountUniDet->getAllNumbersOfSubstitutions(1,1);
-  cout << "Total count, uniformization method:" << endl;
-  MatrixTools::print(*m);
-  cout << MatrixTools::sumElements(*m) << endl;
-  delete m;
-  m = sCountUniDet->getAllNumbersOfSubstitutions(2,1);
-  cout << "Total count, uniformization method:" << endl;
-  MatrixTools::print(*m);
-  cout << MatrixTools::sumElements(*m) << endl;
-  delete m;
-  m = sCountUniDet->getAllNumbersOfSubstitutions(3,1);
-  cout << "Total count, uniformization method:" << endl;
-  MatrixTools::print(*m);
-  cout << MatrixTools::sumElements(*m) << endl;
-  delete m;
-  m = sCountUniDet->getAllNumbersOfSubstitutions(4,1);
-  cout << "Total count, uniformization method:" << endl;
-  MatrixTools::print(*m);
-  cout << MatrixTools::sumElements(*m) << endl;
-  delete m;
-  m = sCountUniDet->getAllNumbersOfSubstitutions(10,1);
-  cout << "Total count, uniformization method:" << endl;
-  MatrixTools::print(*m);
-  cout << MatrixTools::sumElements(*m) << endl;
-  delete m;
+  double td[] = {0.001, 0.01, 0.1, 1, 2, 3, 4, 10};
+  Vdouble vd(td, td+sizeof(td)/sizeof(double));
 
-
+  for (auto d : vd)
+  {
+    m = sCountUniDet->getAllNumbersOfSubstitutions(d,1);
+    cout << "Total count, uniformization method for " << d << endl;
+    MatrixTools::print(*m);
+    cout << MatrixTools::sumElements(*m) << endl;
+    delete m;
+  }
+  cout << endl;
 
   //Check per branch:
-  
   //1. Total:
-  for (unsigned int j = 0; j < ids.size(); ++j) {
+
+  for (size_t j = 0; j < ids.size(); ++j) {
     double totalReal = 0;
     double totalObs1 = 0;
     double totalObs2 = 0;
@@ -246,43 +219,50 @@ int main() {
     double totalObs5 = 0;
     double totalObs6 = 0;
     double totalObs7 = 0;
-    for (unsigned int i = 0; i < n; ++i) {
+    for (size_t i = 0; i < n; ++i) {
       totalReal += realMap[i][j];
-      totalObs1 += probMapAna->getNumberOfSubstitutions(ids[j], i, 0);
-      totalObs2 += probMapTot->getNumberOfSubstitutions(ids[j], i, 0);
-      totalObs3 += VectorTools::sum(probMapDet->getNumberOfSubstitutions(ids[j], i));
-      totalObs4 += probMapDecTot->getNumberOfSubstitutions(ids[j], i, 0);
-      totalObs5 += VectorTools::sum(probMapDecDet->getNumberOfSubstitutions(ids[j], i));
-      totalObs6 += probMapUniTot->getNumberOfSubstitutions(ids[j], i, 0);
-      totalObs7 += VectorTools::sum(probMapUniDet->getNumberOfSubstitutions(ids[j], i));
+      totalObs1 += probNEWMapAna->getCount(ids[j], i, 0);
+      totalObs2 += probNEWMapTot->getCount(ids[j], i, 0);
+      totalObs3 += VectorTools::sum(probNEWMapDet->getCounts(ids[j], i));
+      totalObs4 += probNEWMapDecTot->getCount(ids[j], i, 0);
+      totalObs5 += VectorTools::sum(probNEWMapDecDet->getCounts(ids[j], i));
+      totalObs6 += probNEWMapUniTot->getCount(ids[j], i, 0);
+      totalObs7 += VectorTools::sum(probNEWMapUniDet->getCounts(ids[j], i));
     }
-    if (tree->isLeaf(ids[j])) cout << tree->getNodeName(ids[j]) << "\t";
-    cout << tree->getDistanceToFather(ids[j]) << "\t" << totalReal << "\t" << totalObs1 << "\t" << totalObs2 << "\t" << totalObs3 << "\t" << totalObs4 << "\t" << totalObs5 << "\t" << totalObs6 << "\t" << totalObs7 << endl;
-    if (abs(totalReal - totalObs1) / totalReal > 0.1) return 1;
-    if (abs(totalReal - totalObs2) / totalReal > 0.1) return 1;
-    if (abs(totalReal - totalObs3) / totalReal > 0.1) return 1;
-    if (abs(totalReal - totalObs4) / totalReal > 0.1) return 1;
-    if (abs(totalReal - totalObs5) / totalReal > 0.1) return 1;
-    if (abs(totalReal - totalObs6) / totalReal > 0.1) return 1;
-    if (abs(totalReal - totalObs7) / totalReal > 0.1) return 1;
+    shared_ptr<PhyloNode> node=new_tree->getNode(ids[j]);
+    
+    cout << (new_tree->isLeaf(node)?node->getName():" ") << "\t";
+    
+    cout << new_tree->getEdgeToFather(node)->getLength() << "\t" << totalReal << "\t" << totalObs1 << "\t" << totalObs2 << "\t" << totalObs3 << "\t" << totalObs4 << "\t" << totalObs5 << "\t" << totalObs6 << "\t" << totalObs7 << endl;
+    if (abs(totalReal - totalObs1) / totalReal > 0.1) throw Exception("Laplace substitution mapping failed, observed: " + TextTools::toString(totalObs1) + ", expected " + TextTools::toString(totalReal));
+    //if (abs(totalReal - totalObs2) / totalReal > 0.1) return 1; //We do not expect the naive mapping to actually give an accurate result!
+    //if (abs(totalReal - totalObs3) / totalReal > 0.1) return 1;
+    if (abs(totalReal - totalObs4) / totalReal > 0.1) throw Exception("Uniformization (total) substitution mapping failed, observed: " + TextTools::toString(totalObs4) + ", expected " + TextTools::toString(totalReal));
+    if (abs(totalReal - totalObs5) / totalReal > 0.1) throw Exception("Uniformization (detailed) substitution mapping failed, observed: " + TextTools::toString(totalObs5) + ", expected " + TextTools::toString(totalReal));
+    if (abs(totalReal - totalObs6) / totalReal > 0.1) throw Exception("Decomposition (total) substitution mapping failed, observed: " + TextTools::toString(totalObs6) + ", expected " + TextTools::toString(totalReal));
+    if (abs(totalReal - totalObs7) / totalReal > 0.1) throw Exception("Decomposition (detailed) substitution mapping failed, observed: " + TextTools::toString(totalObs7) + ", expected " + TextTools::toString(totalReal));
   }
-  //2. Detail:
-  for (unsigned int j = 0; j < ids.size(); ++j) {
+
+//2. Detail:
+  for (size_t j = 0; j < ids.size(); ++j) {
     vector<double> real(4, 0);
     vector<double> obs1(4, 0);
     vector<double> obs2(4, 0);
     vector<double> obs3(4, 0);
-    for (unsigned int i = 0; i < n; ++i) {
+    for (size_t i = 0; i < n; ++i) {
       real += realMapDetailed[i][j];
       //VectorTools::print(real);
-      vector<double> c = probMapDet->getNumberOfSubstitutions(ids[j], i);
+      vector<double> c = probNEWMapDet->getCounts(ids[j], i);
       //VectorTools::print(c);
-      obs1 += probMapDet->getNumberOfSubstitutions(ids[j], i);
-      obs2 += probMapDecDet->getNumberOfSubstitutions(ids[j], i);
-      obs3 += probMapUniDet->getNumberOfSubstitutions(ids[j], i);
+      obs1 += probNEWMapDet->getCounts(ids[j], i);
+      obs2 += probNEWMapDecDet->getCounts(ids[j], i);
+      obs3 += probNEWMapUniDet->getCounts(ids[j], i);
     }
-    if (tree->isLeaf(ids[j])) cout << tree->getNodeName(ids[j]) << "\t";
-    cout << tree->getDistanceToFather(ids[j]) << "\t";
+    shared_ptr<PhyloNode> node=new_tree->getNode(ids[j]);
+    
+    cout << (new_tree->isLeaf(node)?node->getName():" ") << "\t";
+    
+    cout << new_tree->getEdgeToFather(node)->getLength() << "\t";
     for (unsigned int t = 0; t < 4; ++t) {
       cout << obs1[t] << "/" << real[t] << "\t";
       cout << obs2[t] << "/" << real[t] << "\t";
@@ -292,19 +272,25 @@ int main() {
     //if (abs(totalReal - totalObs) / totalReal > 0.1) return 1;
   }
 
+  
   //-------------
-  delete tree;
   delete alphabet;
   delete model;
   delete rdist;
   delete sCountTot;
   delete sCountDet;
-  delete probMapTot;
-  delete probMapDet;
-  delete probMapDecTot;
-  delete probMapDecDet;
-  delete probMapUniTot;
-  delete probMapUniDet;
+  delete probNEWMapTot;
+  delete probNEWMapDet;
+  delete probNEWMapDecTot;
+  delete probNEWMapDecDet;
+  delete probNEWMapUniTot;
+  delete probNEWMapUniDet;
   //return (abs(obs - 0.001) < 0.001 ? 0 : 1);
+  } catch (exception& e) {
+    cout << "Test failed. Reason:" << endl;
+    cout << e.what() << endl;
+    return 1;
+  }
+
   return 0;
 }

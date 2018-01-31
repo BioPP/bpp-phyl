@@ -47,7 +47,7 @@ using namespace bpp;
 /******************************************************************************/
 
 MultiProcessSequencePhyloLikelihood::MultiProcessSequencePhyloLikelihood(
-  const SiteContainer& data,
+  const AlignedValuesContainer& data,
   MultiProcessSequenceEvolution& processSeqEvol,
   size_t nSeqEvol,
   size_t nData,
@@ -77,7 +77,7 @@ MultiProcessSequencePhyloLikelihood::MultiProcessSequencePhyloLikelihood(
 
 /******************************************************************************/
 
-void MultiProcessSequencePhyloLikelihood::setData(const SiteContainer& sites, size_t nData)
+void MultiProcessSequencePhyloLikelihood::setData(const AlignedValuesContainer& sites, size_t nData)
 {
   AbstractSequencePhyloLikelihood::setData(sites, nData);
   
@@ -91,7 +91,7 @@ void MultiProcessSequencePhyloLikelihood::setData(const SiteContainer& sites, si
 
 /******************************************************************************/
 
-VVdouble MultiProcessSequencePhyloLikelihood::getLikelihoodForEachSiteForEachProcess() const
+VVdouble MultiProcessSequencePhyloLikelihood::getLikelihoodPerSitePerProcess() const
 {
   VVdouble l(getNumberOfSites());
   for (size_t i = 0; i < l.size(); ++i)

@@ -65,6 +65,7 @@ AbstractCodonSubstitutionModel::AbstractCodonSubstitutionModel(
 
   pmod->setNamespace(prefix + "123_" + VnestedPrefix_[0]);
   pmod->enableEigenDecomposition(0);
+
   addParameters_(pmod->getParameters());
 
   Vrate_.resize(3);

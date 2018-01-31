@@ -46,7 +46,7 @@ using namespace bpp;
 using namespace std;
 
 SubstitutionModelSet* SubstitutionModelSetTools::createHomogeneousModelSet(
-  SubstitutionModel* model,
+  TransitionModel* model,
   FrequenciesSet* rootFreqs,
   const Tree* tree
   ) throw (AlphabetException, Exception)
@@ -79,7 +79,7 @@ SubstitutionModelSet* SubstitutionModelSetTools::createHomogeneousModelSet(
 }
 
 SubstitutionModelSet* SubstitutionModelSetTools::createNonHomogeneousModelSet(
-  SubstitutionModel* model,
+  TransitionModel* model,
   FrequenciesSet* rootFreqs,
   const Tree* tree,
   const std::map<std::string, std::string>& aliasFreqNames,
@@ -120,23 +120,8 @@ SubstitutionModelSet* SubstitutionModelSetTools::createNonHomogeneousModelSet(
     }
   }
 
-  bool mixed = (dynamic_cast<MixedSubstitutionModel*>(model) != NULL);
   SubstitutionModelSet*  modelSet;
-  if (mixed)
-  {
-    modelSet = new MixedSubstitutionModelSet(model->getAlphabet());
-    // Remove the "relproba" parameters from the branch parameters and put them in the global parameters, for the hypernodes
-    for (size_t i = branchParameters.size(); i > 0; i--)
-    {
-      if (branchParameters[i - 1].getName().find("relproba") != string::npos)
-      {
-        globalParameters.addParameter(branchParameters[i - 1]);
-        branchParameters.deleteParameter(i - 1);
-      }
-    }
-  }
-  else
-    modelSet = new SubstitutionModelSet(model->getAlphabet());
+  modelSet = new SubstitutionModelSet(model->getAlphabet());
 
   if (rootFreqs)
     modelSet->setRootFrequencies(rootFreqs);
@@ -157,7 +142,7 @@ SubstitutionModelSet* SubstitutionModelSetTools::createNonHomogeneousModelSet(
   ids.erase(ids.begin() + static_cast<ptrdiff_t>(pos));
   for (size_t i = 0; i < ids.size(); i++)
   {
-    modelSet->addModel(dynamic_cast<SubstitutionModel*>(model->clone()), vector<int>(1, ids[i]));
+    modelSet->addModel(dynamic_cast<TransitionModel*>(model->clone()), vector<int>(1, ids[i]));
   }
 
   // Now alias all global parameters on all nodes:
@@ -176,24 +161,6 @@ SubstitutionModelSet* SubstitutionModelSetTools::createNonHomogeneousModelSet(
   {
     if (globalParameters.hasParameter(it->second))
       modelSet->aliasParameters(it->second + "_1",it->first);
-  }
-  
-  // Defines the hypernodes if mixed
-  if (mixed)
-  {
-    MixedSubstitutionModelSet* pMSMS = dynamic_cast<MixedSubstitutionModelSet*>(modelSet);
-    MixedSubstitutionModel* pMSM = dynamic_cast<MixedSubstitutionModel*>(model);
-
-    size_t nbm = pMSM->getNumberOfModels();
-    for (size_t i = 0; i < nbm; i++)
-    {
-      pMSMS->addEmptyHyperNode();
-      for (size_t j = 0; j < ids.size(); j++)
-      {
-        pMSMS->addToHyperNode(j, vector<int>(1, static_cast<int>(i)));
-      }
-    }
-    pMSMS->computeHyperNodesProbabilities();
   }
 
   delete model; // delete template model.

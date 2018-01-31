@@ -93,6 +93,8 @@ int main() {
     sites.addSite(*site, false);
   }
 
+  cout << "fit model" << endl;
+  
   //Now fit model:
   SubstitutionModelSet* modelSet2 = modelSet->clone();
   RNonHomogeneousTreeLikelihood tl(*tree, sites, modelSet2, rdist);
@@ -139,7 +141,10 @@ int main() {
     cout << thetas[i] << "\t" << modelSet3->getModel(i)->getParameter("theta").getValue() << endl;
     double diff = abs(thetas[i] - modelSet3->getModel(i)->getParameter("theta").getValue());
     if (diff > 0.1)
+    {
+      cout << "difference too large" << endl;
       return 1;
+    }
   }
   delete modelSet3;
 

@@ -44,7 +44,7 @@
 #include "SetOfAlignedPhyloLikelihood.h"
 
 // From SeqLib:
-#include <Bpp/Seq/Container/SiteContainer.h>
+#include <Bpp/Seq/Container/AlignedValuesContainer.h>
 
 #include <Bpp/Numeric/Prob/Simplex.h>
 

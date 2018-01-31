@@ -102,9 +102,8 @@ map<int, vector<size_t> > MarginalAncestralReconstruction::getAllAncestralStates
 {
   map<int, vector<size_t> > ancestors;
   // Clone the data into a AlignedSequenceContainer for more efficiency:
-  AlignedSequenceContainer* data = new AlignedSequenceContainer(*likelihood_->getLikelihoodData().getShrunkData());
+  shared_ptr<AlignedValuesContainer> data(dynamic_cast<AlignedValuesContainer*>(likelihood_->getLikelihoodData().getShrunkData()->clone()));
   recursiveMarginalAncestralStates(tree_->getRoot(), ancestors, *data);
-  delete data;
   return ancestors;
 }
 
@@ -113,7 +112,7 @@ Sequence* MarginalAncestralReconstruction::getAncestralSequenceForNode(int nodeI
   string name = tree_->getNode(nodeId)->hasName() ? tree_->getNode(nodeId)->getName() : ("" + TextTools::toString(nodeId));
   const vector<size_t>* rootPatternLinks = &likelihood_->getLikelihoodData().getRootArrayPositions();
 
-  const SubstitutionModel& model = likelihood_->getSubstitutionProcess()->getSubstitutionModel(tree_->getNodeIndex(tree_->getAllLeaves()[0]), 0); // We assume all nodes have a model with the same set of states.
+  const TransitionModel& model = *likelihood_->getSubstitutionProcess()->getModel(tree_->getNodeIndex(tree_->getAllLeaves()[0]), 0); // We assume all nodes have a model with the same set of states.
 
   vector<size_t> states;
   vector<int> allStates(nbSites_);
@@ -142,20 +141,28 @@ Sequence* MarginalAncestralReconstruction::getAncestralSequenceForNode(int nodeI
 void MarginalAncestralReconstruction::recursiveMarginalAncestralStates(
   const std::shared_ptr<PhyloNode> node,
   map<int, vector<size_t> >& ancestors,
-  AlignedSequenceContainer& data) const
+  AlignedValuesContainer& data) const
 {
   if (tree_->isLeaf(node))
-  {
-    const Sequence& seq = data.getSequence(node->getName());
-    vector<size_t>* v = &ancestors[tree_->getNodeIndex(node)];
-    v->resize(seq.size());
-    // This is a tricky way to store the real sequence as an ancestral one...
-    // In case of Markov Modulated models, we consider that the real sequences
-    // Are all in the first category.
-    const SubstitutionModel& model = likelihood_->getSubstitutionProcess()->getSubstitutionModel(tree_->getNodeIndex(tree_->getAllLeaves()[0]), 0); // We assume all nodes have a model with the same number of states.
-    for (size_t i = 0; i < seq.size(); i++)
+  { 
+    const SiteContainer* sc=dynamic_cast<const SiteContainer*>(&data);
+    if (sc)
     {
-      (*v)[i] = model.getModelStates(seq[i])[0];
+      const Sequence& seq = sc->getSequence(node->getName());
+      vector<size_t>* v = &ancestors[tree_->getNodeIndex(node)];
+      v->resize(seq.size());
+      // This is a tricky way to store the real sequence as an ancestral one...
+      // In case of Markov Modulated models, we consider that the real sequences
+      // Are all in the first category.
+      const TransitionModel& model = *likelihood_->getSubstitutionProcess()->getModel(tree_->getNodeIndex(tree_->getAllLeaves()[0]), 0); // We assume all nodes have a model with the same number of states.
+      for (size_t i = 0; i < seq.size(); i++)
+      {
+        (*v)[i] = model.getModelStates(seq[i])[0];
+      }
+    }
+    else
+    {
+      ancestors[tree_->getNodeIndex(node)] = getAncestralStatesForNode(tree_->getNodeIndex(node));
     }
   }
   else

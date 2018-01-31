@@ -42,9 +42,6 @@ knowledge of the CeCILL license and that you accept its terms.
 
 #include <Bpp/Numeric/Matrix/MatrixTools.h>
 
-// From SeqLib:
-#include <Bpp/Seq/Container/SequenceContainerTools.h>
-
 // From the STL:
 #include <cmath>
 
@@ -66,6 +63,7 @@ L95::L95(
   addParameter_(new Parameter("L95.kappa", kappa, new IntervalConstraint(0, 1000, false, false, NumConstants::MILLI()), true));
   addParameter_(new Parameter("L95.theta", theta, new IntervalConstraint(0, 1, false, false, NumConstants::MILLI()), true));
 
+  computeFrequencies(false);  
   updateMatrices();
 }
 

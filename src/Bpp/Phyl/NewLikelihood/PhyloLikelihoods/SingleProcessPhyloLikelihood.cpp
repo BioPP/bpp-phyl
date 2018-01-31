@@ -78,7 +78,7 @@ void SingleProcessPhyloLikelihood::fireParameterChanged(const ParameterList& par
 
 /******************************************************************************/
 
-VVdouble SingleProcessPhyloLikelihood::getLikelihoodForEachSiteForEachState() const
+VVdouble SingleProcessPhyloLikelihood::getLikelihoodPerSitePerState() const
 {
   VVdouble l(getNumberOfSites());
   for (size_t i = 0; i < l.size(); ++i)
@@ -95,7 +95,7 @@ VVdouble SingleProcessPhyloLikelihood::getLikelihoodForEachSiteForEachState() co
 
 /******************************************************************************/
 
-VVdouble SingleProcessPhyloLikelihood::getLikelihoodForEachSiteForEachClass() const
+VVdouble SingleProcessPhyloLikelihood::getLikelihoodPerSitePerClass() const
 {
   VVdouble l(getNumberOfSites());
   for (size_t i = 0; i < l.size(); ++i)
@@ -112,7 +112,19 @@ VVdouble SingleProcessPhyloLikelihood::getLikelihoodForEachSiteForEachClass() co
 
 /******************************************************************************/
 
-VVVdouble SingleProcessPhyloLikelihood::getLikelihoodForEachSiteForEachClassForEachState() const
+Vdouble SingleProcessPhyloLikelihood::getLikelihoodForSitePerClass(size_t i) const
+{
+  Vdouble l(getNumberOfClasses());
+  for (size_t c = 0; c < l.size(); ++c)
+  {
+    l[c] = tlComp_->getLikelihoodForASiteForAClass(i, c);
+  }
+  return l;
+}
+
+/******************************************************************************/
+
+VVVdouble SingleProcessPhyloLikelihood::getLikelihoodPerSitePerClassPerState() const
 {
   VVVdouble l(getNumberOfSites());
   for (size_t i = 0; i < l.size(); ++i)
@@ -134,12 +146,12 @@ VVVdouble SingleProcessPhyloLikelihood::getLikelihoodForEachSiteForEachClassForE
 
 /******************************************************************************/
 
-VVdouble SingleProcessPhyloLikelihood::getPosteriorProbabilitiesOfEachClass() const
+VVdouble SingleProcessPhyloLikelihood::getPosteriorProbabilitiesPerClass() const
 {
   size_t nbSites   = getNumberOfSites();
   size_t nbClasses = getNumberOfClasses();
-  VVdouble pb = getLikelihoodForEachSiteForEachClass();
-  Vdouble l = getLikelihoodForEachSite();
+  VVdouble pb = getLikelihoodPerSitePerClass();
+  Vdouble l = getLikelihoodPerSite();
 
   for (size_t i = 0; i < nbSites; ++i)
   {
@@ -153,10 +165,24 @@ VVdouble SingleProcessPhyloLikelihood::getPosteriorProbabilitiesOfEachClass() co
 
 /******************************************************************************/
 
-vector<size_t> SingleProcessPhyloLikelihood::getClassWithMaxPostProbOfEachSite() const
+Vdouble SingleProcessPhyloLikelihood::getPosteriorProbabilitiesForSitePerClass(size_t i) const
+{
+  size_t nbClasses = getNumberOfClasses();
+  Vdouble pb = getLikelihoodForSitePerClass(i);
+  double l = getLikelihoodForASite(i);
+
+  for (size_t j = 0; j < nbClasses; ++j)
+    pb[j] = pb[j] * process_->getProbabilityForModel(j) / l;
+
+  return pb;
+}
+
+/******************************************************************************/
+
+vector<size_t> SingleProcessPhyloLikelihood::getClassWithMaxPostProbPerSite() const
 {
   size_t nbSites = getNumberOfSites();
-  VVdouble l = getLikelihoodForEachSiteForEachClass();
+  VVdouble l = getLikelihoodPerSitePerClass();
 
   vector<size_t> classes(nbSites);
   for (size_t i = 0; i < nbSites; ++i)
@@ -169,12 +195,12 @@ vector<size_t> SingleProcessPhyloLikelihood::getClassWithMaxPostProbOfEachSite()
 
 /******************************************************************************/
 
-Vdouble SingleProcessPhyloLikelihood::getPosteriorRateOfEachSite() const
+Vdouble SingleProcessPhyloLikelihood::getPosteriorRatePerSite() const
 {
   size_t nbSites   = getNumberOfSites();
   size_t nbClasses = getNumberOfClasses();
-  VVdouble pb = getLikelihoodForEachSiteForEachClass();
-  Vdouble l  = getLikelihoodForEachSite();
+  VVdouble pb = getLikelihoodPerSitePerClass();
+  Vdouble l  = getLikelihoodPerSite();
   Vdouble rates(nbSites, 0.);
   for (size_t i = 0; i < nbSites; i++)
   {

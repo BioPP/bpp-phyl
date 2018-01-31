@@ -61,60 +61,67 @@ namespace bpp
     public AssociationTreeGlobalGraphObserver<PhyloNode,PhyloBranch>
   {
   private:
-      std::string name_;
+    std::string name_;
       
-    public:
+  public:
 
-      PhyloTree(bool rooted = false);
+    PhyloTree(bool rooted = false);
 
-      PhyloTree(const ParametrizablePhyloTree& tree);
+    PhyloTree(const ParametrizablePhyloTree& tree);
 
-      PhyloTree* clone() const
-      {
-        return new PhyloTree(*this);
-      }
+    template<class T, class U>
+    PhyloTree(AssociationTreeGlobalGraphObserver<T,U> tree):
+      AssociationTreeGlobalGraphObserver<PhyloNode,PhyloBranch>(tree),
+      name_("")
+    {
+    }
+
+    PhyloTree* clone() const
+    {
+      return new PhyloTree(*this);
+    }
       
-      /**
-       * @brief Tree name.
-       *
-       * @{
-       */
+    /**
+     * @brief Tree name.
+     *
+     * @{
+     */
 
-      std::string getName() const
-      {
-        return name_;
-      }
+    std::string getName() const
+    {
+      return name_;
+    }
 		
-      void setName(const std::string& name)
-      {
-        name_=name;
-      }
+    void setName(const std::string& name)
+    {
+      name_=name;
+    }
 
-      /** @} */
+    /** @} */
 
-      std::vector<std::string> getAllLeavesNames() const;
+    std::vector<std::string> getAllLeavesNames() const;
 
-      void resetNodesId();
+    void resetNodesId();
 
-      void setBranchLengths(double l);
+    void setBranchLengths(double l);
 
-      /**
-       * @brief Multiply all branch lengths by a given factor.
-       *
-       * @param factor The factor to multiply all branch lengths with.
-       */
+    /**
+     * @brief Multiply all branch lengths by a given factor.
+     *
+     * @param factor The factor to multiply all branch lengths with.
+     */
 
 
-      void scaleTree(double factor);
+    void scaleTree(double factor);
 
-      /**
-       * @brief Multiply all branch lengths under a Node by a given factor.
-       *
-       * @param node The node defining the subtree.
-       * @param factor The factor to multiply all branch lengths with.
-       */
+    /**
+     * @brief Multiply all branch lengths under a Node by a given factor.
+     *
+     * @param node The node defining the subtree.
+     * @param factor The factor to multiply all branch lengths with.
+     */
 
-      void scaleTree(std::shared_ptr<PhyloNode> node, double factor);
+    void scaleTree(std::shared_ptr<PhyloNode> node, double factor);
 
   };
     

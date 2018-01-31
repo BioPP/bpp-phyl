@@ -1,5 +1,5 @@
 //
-// File: AbstractCodonDistanceSubstitutionModel.cpp
+// File: AbstractCodonCpGSubstitutionModel.cpp
 // Created by:  Laurent Gueguen
 // Created on: Feb 2009
 //
@@ -47,7 +47,6 @@ using namespace std;
 
 AbstractCodonCpGSubstitutionModel::AbstractCodonCpGSubstitutionModel(
   const std::string& prefix) :
-  CodonSubstitutionModel(),
   AbstractParameterAliasable(prefix),
   rho_(1)
 {

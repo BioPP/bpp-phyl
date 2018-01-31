@@ -68,9 +68,9 @@ namespace bpp
  * corresponds to fixation, and stands for a dubious selection.
  *
  * With this term, the mutation rates from A and T to C and G are
- * multiplied by @f$ \frac{B}{2} . \frac{1}{1-exp(-B)}@f$, and
+ * multiplied by @f$ B . \frac{1}{1-exp(-B)}@f$, and
  * the mutation rates from C and G to A and T are multiplied by
- * @f$ \frac{B}{2} . \frac{1}{exp(B)-1}@f$.
+ * @f$ B . \frac{1}{exp(B)-1}@f$.
  *
  * @see AbstractSubstitutionModel
  *

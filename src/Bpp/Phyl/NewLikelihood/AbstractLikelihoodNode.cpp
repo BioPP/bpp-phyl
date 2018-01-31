@@ -45,7 +45,7 @@ using namespace bpp;
 using namespace std;
 
 
-void AbstractLikelihoodNode::getPosteriorProbabilitiesForEachState(VVdouble& vPP) const
+void AbstractLikelihoodNode::getPosteriorProbabilitiesPerState(VVdouble& vPP) const
 {
   size_t nSites=nodeLikelihoods_.size();
   size_t nStates=nodeLikelihoods_[0].size();

@@ -92,7 +92,7 @@ namespace bpp
       return new OneProcessSequenceEvolution(*this);
     }
     
-    bool isCompatibleWith(const SiteContainer& data) const
+    bool isCompatibleWith(const AlignedValuesContainer& data) const
     {
       return subsProc_->isCompatibleWith(data);
     }
