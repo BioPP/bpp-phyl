@@ -89,12 +89,25 @@ namespace DF {
 					                 ": size mismatch: sequence " + to_string (seqDim) + " -> " +
 					                 to_string (matDim));
 				// Put 1s at the right places, 0s elsewhere
-				condLikBySite = linearAlgebraZeroValue(matDim);
+				condLikBySite = linearAlgebraZeroValue (matDim);
 				for (auto siteIndex : range (condLikBySite.cols ())) {
 					auto siteValue =
 					    static_cast<SizeType> (sequence->getValue (static_cast<std::size_t> (siteIndex)));
 					condLikBySite (siteValue, siteIndex) = 1.;
-				} // FIXME use newlik change for pops
+				}
+				/* FIXME use correct way to get initial state.
+				 * Newlik code suggests: use an AlignedValuesContainer.
+				 * Call getStateValueAt (site index, sequence index, model state tested).
+				 *
+				 * Models can have different state spaces for the same sequence.
+				 * DFG creation should take a StateMap as argument.
+				 * Check that every model used is valid with the StateMap (same size).
+				 *
+				 * Remove this node. Directly build Constant<MatrixDouble> in Phylogeny.
+				 * Build these nodes for an AlignedValuesContainer, sequenceName, statemap.
+				 * Rename SequenceNodeAccess to InitialLikelihoodNodeProvider.
+				 * The sole impl should be built with StateMap ref at creation (fixed).
+				 */
 			});
 		}
 	};
