@@ -1,9 +1,9 @@
 //
-// File: NumericalDerivation.cpp
+// File: DataFlowNumericalDerivation.cpp
 // Authors:
 //   Francois Gindraud (2017)
-// Created: 2017-12-19
-// Last modified: 2017-12-19
+// Created: 2017-12-19 00:00:00
+// Last modified: 2018-01-31
 //
 
 /*
@@ -41,10 +41,10 @@
 
 #include <Bpp/NewPhyl/DataFlowInternal.h>
 #include <Bpp/NewPhyl/DataFlowNumeric.h>
+#include <Bpp/NewPhyl/DataFlowNumericalDerivation.h>
 #include <Bpp/NewPhyl/Debug.h>
 #include <Bpp/NewPhyl/IntegerRange.h>
 #include <Bpp/NewPhyl/LinearAlgebraUtils.h>
-#include <Bpp/NewPhyl/NumericalDerivation.h>
 #include <algorithm>
 
 namespace bpp {

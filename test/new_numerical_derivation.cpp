@@ -43,9 +43,9 @@
 #include "doctest.h"
 
 #include <Bpp/NewPhyl/DataFlowInternal.h>
+#include <Bpp/NewPhyl/DataFlowNumericalDerivation.h>
 #include <Bpp/NewPhyl/DataFlowTemplates.h>
 #include <Bpp/NewPhyl/Debug.h>
-#include <Bpp/NewPhyl/NumericalDerivation.h>
 
 using namespace bpp::DF;
 
