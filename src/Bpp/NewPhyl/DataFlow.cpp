@@ -217,7 +217,6 @@ namespace DF {
 	}
 
 #if 0
-#include <Bpp/NewPhyl/Optional.h>
 #include <typeindex>
 #include <unordered_map>
 	class Registry {
