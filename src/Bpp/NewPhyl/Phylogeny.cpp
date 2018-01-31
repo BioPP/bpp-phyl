@@ -65,9 +65,9 @@ bool operator< (TopologyBranchIndex lhs, TopologyBranchIndex rhs) {
 }
 
 // Access class implementations
-SameModelForAllBranches::SameModelForAllBranches (DF::ValueRef<const SubstitutionModel *> model)
+SameModelForAllBranches::SameModelForAllBranches (DF::ValueRef<const TransitionModel *> model)
     : model_ (std::move (model)) {}
-DF::ValueRef<const SubstitutionModel *>
+DF::ValueRef<const TransitionModel *>
 SameModelForAllBranches::getModelNode (TopologyBranchIndex) const {
 	return model_;
 }

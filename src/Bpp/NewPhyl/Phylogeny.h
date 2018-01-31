@@ -55,7 +55,7 @@ namespace bpp {
 
 // Forward declarations
 class Sequence;
-class SubstitutionModel;
+class TransitionModel;
 class SiteContainer;
 
 /** Data structure independent index for nodes in a topology.
@@ -112,7 +112,7 @@ public:
 class ModelNodeAccess {
 public:
 	virtual ~ModelNodeAccess () = default;
-	virtual DF::ValueRef<const SubstitutionModel *> getModelNode (TopologyBranchIndex id) const = 0;
+	virtual DF::ValueRef<const TransitionModel *> getModelNode (TopologyBranchIndex id) const = 0;
 	virtual SizeType getNbStates () const = 0; // tree constant
 };
 
@@ -135,12 +135,12 @@ public:
  */
 class SameModelForAllBranches : public ModelNodeAccess {
 public:
-	SameModelForAllBranches (DF::ValueRef<const SubstitutionModel *> model);
-	DF::ValueRef<const SubstitutionModel *> getModelNode (TopologyBranchIndex) const override;
+	SameModelForAllBranches (DF::ValueRef<const TransitionModel *> model);
+	DF::ValueRef<const TransitionModel *> getModelNode (TopologyBranchIndex) const override;
 	SizeType getNbStates () const override;
 
 private:
-	DF::ValueRef<const SubstitutionModel *> model_;
+	DF::ValueRef<const TransitionModel *> model_;
 };
 
 /** BranchLengthNodeAccess impl: creates one DF::Mutable for each branch from values.

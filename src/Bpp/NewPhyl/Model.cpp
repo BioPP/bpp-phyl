@@ -53,7 +53,7 @@
 namespace bpp {
 // ModelParameterMap
 
-ModelParameterMap::ModelParameterMap (const SubstitutionModel & model) {
+ModelParameterMap::ModelParameterMap (const TransitionModel & model) {
 	const auto & modelParameters = model.getParameters ();
 	for (auto i : range (modelParameters.size ())) {
 		const auto & param = modelParameters[i];
@@ -84,7 +84,7 @@ const DF::MutableRef<double> & ModelParameterMap::operator[] (const std::string 
 }
 
 namespace DF {
-	NodeRefVec createDependencyVector (const SubstitutionModel & model,
+	NodeRefVec createDependencyVector (const TransitionModel & model,
 	                                   const ModelParameterAccessByName & depsByName) {
 		NodeRefVec deps;
 		const auto & modelParameters = model.getParameters ();
@@ -117,8 +117,8 @@ namespace DF {
 
 	// Model DF Node
 
-	Model::Model (NodeRefVec && deps, std::unique_ptr<SubstitutionModel> && model)
-	    : Value<const SubstitutionModel *> (std::move (deps), model.get ()),
+	Model::Model (NodeRefVec && deps, std::unique_ptr<TransitionModel> && model)
+	    : Value<const TransitionModel *> (std::move (deps), model.get ()),
 	      model_ (std::move (model)) {
 		// This constructor can be called directly by user code, so check deps here.
 		checkDependencyPattern (typeid (Model), this->dependencies (),
@@ -153,7 +153,7 @@ namespace DF {
 	}
 
 	NodeRef Model::rebuild (NodeRefVec && deps) const {
-		return makeNode<Model> (std::move (deps), std::unique_ptr<SubstitutionModel>{model_->clone ()});
+		return makeNode<Model> (std::move (deps), std::unique_ptr<TransitionModel>{model_->clone ()});
 	}
 
 	void Model::compute () {
@@ -170,12 +170,12 @@ namespace DF {
 	// Model builder
 
 	std::shared_ptr<Model> Builder<Model>::make (NodeRefVec && deps,
-	                                             std::unique_ptr<SubstitutionModel> && model) {
+	                                             std::unique_ptr<TransitionModel> && model) {
 		return std::make_shared<Model> (std::move (deps), std::move (model));
 	}
 
 	std::shared_ptr<Model> Builder<Model>::make (const ModelParameterAccessByName & depsByName,
-	                                             std::unique_ptr<SubstitutionModel> && model) {
+	                                             std::unique_ptr<TransitionModel> && model) {
 		auto depVector = createDependencyVector (*model, depsByName);
 		return makeNode<Model> (std::move (depVector), std::move (model));
 	}
@@ -184,7 +184,7 @@ namespace DF {
 
 	class EquilibriumFrequenciesFromModel : public Value<VectorDouble> {
 	public:
-		using Dependencies = TupleOfValues<const SubstitutionModel *>;
+		using Dependencies = TupleOfValues<const TransitionModel *>;
 		EquilibriumFrequenciesFromModel (NodeRefVec && deps, const Dimension<VectorDouble> & dim)
 		    : Value<VectorDouble> (std::move (deps)) {
 			this->setTargetDimension (dim);
@@ -201,7 +201,7 @@ namespace DF {
 
 	private:
 		void compute () final {
-			callWithValues (*this, [](VectorDouble & freqs, const SubstitutionModel * model) {
+			callWithValues (*this, [](VectorDouble & freqs, const TransitionModel * model) {
 				auto & freqsFromModel = model->getFrequencies ();
 				freqs = Eigen::Map<const VectorDouble> (freqsFromModel.data (),
 				                                        static_cast<Eigen::Index> (freqsFromModel.size ()));
@@ -232,7 +232,7 @@ namespace DF {
 
 	class TransitionMatrixFromModel : public Value<MatrixDouble> {
 	public:
-		using Dependencies = TupleOfValues<const SubstitutionModel *, double>;
+		using Dependencies = TupleOfValues<const TransitionModel *, double>;
 
 		TransitionMatrixFromModel (NodeRefVec && deps, const TransitionMatrixDimension & dim)
 		    : Value<MatrixDouble> (std::move (deps)) {
@@ -259,7 +259,7 @@ namespace DF {
 
 	private:
 		void compute () final {
-			callWithValues (*this, [](MatrixDouble & matrix, const SubstitutionModel * model,
+			callWithValues (*this, [](MatrixDouble & matrix, const TransitionModel * model,
 			                          double brlen) { bppToEigen (model->getPij_t (brlen), matrix); });
 		}
 	};
@@ -272,7 +272,7 @@ namespace DF {
 
 	class TransitionMatrixFromModelBrlenDerivative : public Value<MatrixDouble> {
 	public:
-		using Dependencies = TupleOfValues<const SubstitutionModel *, double>;
+		using Dependencies = TupleOfValues<const TransitionModel *, double>;
 
 		TransitionMatrixFromModelBrlenDerivative (NodeRefVec && deps,
 		                                          const TransitionMatrixDimension & dim)
@@ -301,7 +301,7 @@ namespace DF {
 
 	private:
 		void compute () final {
-			callWithValues (*this, [](MatrixDouble & matrix, const SubstitutionModel * model,
+			callWithValues (*this, [](MatrixDouble & matrix, const TransitionModel * model,
 			                          double brlen) { bppToEigen (model->getdPij_dt (brlen), matrix); });
 		}
 	};
@@ -314,7 +314,7 @@ namespace DF {
 
 	class TransitionMatrixFromModelBrlenSecondDerivative : public Value<MatrixDouble> {
 	public:
-		using Dependencies = TupleOfValues<const SubstitutionModel *, double>;
+		using Dependencies = TupleOfValues<const TransitionModel *, double>;
 
 		TransitionMatrixFromModelBrlenSecondDerivative (NodeRefVec && deps,
 		                                                const TransitionMatrixDimension & dim)
@@ -333,7 +333,7 @@ namespace DF {
 	private:
 		void compute () final {
 			callWithValues (*this,
-			                [](MatrixDouble & matrix, const SubstitutionModel * model, double brlen) {
+			                [](MatrixDouble & matrix, const TransitionModel * model, double brlen) {
 				                bppToEigen (model->getd2Pij_dt2 (brlen), matrix);
 			                });
 		}

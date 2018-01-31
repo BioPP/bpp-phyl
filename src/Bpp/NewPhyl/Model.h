@@ -53,7 +53,7 @@
 #include <string>
 
 namespace bpp {
-class SubstitutionModel;
+class TransitionModel;
 
 /** Interface for accessing model parameters by their names.
  * Associates Value<double> nodes to names.
@@ -65,8 +65,8 @@ public:
 };
 
 /** Impl for ModelParameterAccessByName: map of DF::Mutable<double>.
- * Represents the set of parameters for one SubstitutionModel.
- * Mutable nodes are created for each SubstitutionModel parameter.
+ * Represents the set of parameters for one TransitionModel.
+ * Mutable nodes are created for each TransitionModel parameter.
  * They are registered under their non-namespaced names.
  * They can be changed to point to other Mutable<double> objects.
  */
@@ -75,10 +75,10 @@ public:
 	/** Creates a new ModelParameterMap.
 	 * One Mutable<double> object is created for each model parameter.
 	 * It is registered in the map with its non-namespaced name.
-	 * Mutable<double> nodes are initialized with values from the SubstitutionModel parameters.
+	 * Mutable<double> nodes are initialized with values from the TransitionModel parameters.
 	 * The reference to the model is only used in this constructor, not stored.
 	 */
-	ModelParameterMap (const SubstitutionModel & model);
+	ModelParameterMap (const TransitionModel & model);
 
 	/// Impl of ModelParameterAccessByName, returns the parameter or throws.
 	DF::ValueRef<double> getModelParameter (const std::string & name) const override;
@@ -110,11 +110,11 @@ namespace DF {
 	 * Only non-namespaced names are tried.
 	 * If no node is found in the map-like object, an exception is thrown.
 	 */
-	NodeRefVec createDependencyVector (const SubstitutionModel & model,
+	NodeRefVec createDependencyVector (const TransitionModel & model,
 	                                   const ModelParameterAccessByName & depsByName);
 
 	/** Data flow node representing a Model configured with parameter values.
-	 * This class wraps a bpp::SubstitutionModel as a data flow node.
+	 * This class wraps a bpp::TransitionModel as a data flow node.
 	 * It depends on Value<double> nodes (one for each parameter declared in the model).
 	 * It provides a dummy value representing the "model configured by its parameters".
 	 * This dummy value is then used by other node types to compute equilibrium frequencies,
@@ -122,10 +122,10 @@ namespace DF {
 	 *
 	 * The dummy value is implemented as a pointer to the internal model for simplicity.
 	 */
-	class Model : public Value<const SubstitutionModel *> {
+	class Model : public Value<const TransitionModel *> {
 	public:
 		/// Internal constructor, see Builder<Model>::make for doc.
-		Model (NodeRefVec && deps, std::unique_ptr<SubstitutionModel> && model);
+		Model (NodeRefVec && deps, std::unique_ptr<TransitionModel> && model);
 
 		~Model ();
 
@@ -145,24 +145,24 @@ namespace DF {
 
 	private:
 		void compute () final;
-		std::unique_ptr<SubstitutionModel> model_;
+		std::unique_ptr<TransitionModel> model_;
 	};
 
 	/// Always build Model nodes by using makeNode, which uses one of the make functions defined here.
 	template <> struct Builder<Model> {
 		/** Create a new model node from a dependency vector.
 		 * Model parameters are given by a dependency vector of Value<double> nodes.
-		 * The number and order of parameters is given by the SubstitutionModel internal ParameterList.
+		 * The number and order of parameters is given by the TransitionModel internal ParameterList.
 		 */
 		static std::shared_ptr<Model> make (NodeRefVec && deps,
-		                                    std::unique_ptr<SubstitutionModel> && model);
+		                                    std::unique_ptr<TransitionModel> && model);
 
 		/** Create a new model for an association from parameter names to Value<double> nodes.
 		 * Internally, this builds a dependency vector using createDependencyVector.
 		 * It will throw if some parameter names are node found in depsByName.
 		 */
 		static std::shared_ptr<Model> make (const ModelParameterAccessByName & depsByName,
-		                                    std::unique_ptr<SubstitutionModel> && model);
+		                                    std::unique_ptr<TransitionModel> && model);
 	};
 
 	// Compute nodes
