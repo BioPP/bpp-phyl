@@ -782,7 +782,7 @@ void BppOFrequenciesSetFormat::initialize_(FrequenciesSet& freqSet, const Aligne
   {
     AutoParameter ap(pl[i]);
     if (verbose_)
-      ap.setMessageHandler(ApplicationTools::warning);
+      ap.setMessageHandler(ApplicationTools::warning.get());
     pl.setParameter(i, ap);
   }
 
