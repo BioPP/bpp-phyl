@@ -50,7 +50,6 @@ class ExponentialDiscreteRateDistribution:
 {
   public:
     ExponentialDiscreteRateDistribution(size_t nbClasses):
-      AbstractParameterAliasable("Exponential."),
       ExponentialDiscreteDistribution(nbClasses, 1.)
     {
       deleteParameter_(0);

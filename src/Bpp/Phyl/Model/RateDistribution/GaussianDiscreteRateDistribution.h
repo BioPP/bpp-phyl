@@ -50,7 +50,6 @@ class GaussianDiscreteRateDistribution:
 {
   public:
     GaussianDiscreteRateDistribution(size_t nbClasses, double sigma):
-      AbstractParameterAliasable("Gaussian."),
       GaussianDiscreteDistribution(nbClasses, 1., sigma)
     {
       deleteParameter_(0);
