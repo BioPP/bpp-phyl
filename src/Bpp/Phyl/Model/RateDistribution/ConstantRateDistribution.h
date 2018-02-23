@@ -50,7 +50,6 @@ class ConstantRateDistribution:
 {
   public:
     ConstantRateDistribution():
-      AbstractParameterAliasable("Constant."),
       ConstantDistribution(1.)
     {
       resetParameters_();
