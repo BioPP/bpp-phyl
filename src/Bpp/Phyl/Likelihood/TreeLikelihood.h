@@ -79,7 +79,7 @@ namespace bpp
       /**
        * @return The id of the next node in the set.
        */
-      virtual int next() throw (Exception) = 0;
+      virtual int next() = 0;
       /**
        * @return True if there is at least another node in the set.
        */
@@ -100,7 +100,7 @@ namespace bpp
       /**
        * @return The position of the next site in the set.
        */
-      virtual size_t next() throw (Exception) = 0;
+      virtual size_t next() = 0;
       /**
        * @return True is there is at least another site in the set.
        */
@@ -130,7 +130,7 @@ namespace bpp
       virtual ~ConstBranchModelIterator() {}
 
     public:
-      virtual ConstBranchModelDescription* next() throw (Exception) = 0;
+      virtual ConstBranchModelDescription* next() = 0;
       virtual bool hasNext() const = 0;
     };
 
@@ -157,7 +157,7 @@ namespace bpp
       virtual ~ConstSiteModelIterator() {}
 
     public:
-      virtual ConstSiteModelDescription* next() throw (Exception) = 0;
+      virtual ConstSiteModelDescription* next() = 0;
       virtual bool hasNext() const = 0;
     };
 
@@ -191,7 +191,7 @@ namespace bpp
      * It contains virtual methods that can't be called in the constructor.
      * @throw Exception if something bad happened, for instance if no data are associated to the likelihood function.
      */
-    virtual void initialize() throw (Exception) = 0;
+    virtual void initialize() = 0;
 
     /**
      * @return 'true' is the likelihood function has been initialized.
@@ -388,7 +388,7 @@ namespace bpp
      * @param site An alignment position.
      * @return The site index corresponding to the given input alignment position.
      */
-    virtual size_t getSiteIndex(size_t site) const throw (IndexOutOfBoundsException) = 0;
+    virtual size_t getSiteIndex(size_t site) const = 0;
 
     /**
      * @brief Get the values of the frequencies for each state in the alphabet at the root node.

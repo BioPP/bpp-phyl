@@ -144,6 +144,34 @@ namespace bpp
       addParameter_(new Parameter(getNamespace() + "rate", getModel().getRate(), &Parameter::R_PLUS_STAR));
     }
 
+<<<<<<< HEAD
+=======
+    void setFreqFromData(const SequenceContainer& data, double pseudoCount = 0){getModel().setFreqFromData(data, pseudoCount); }
+
+    void setFreq(std::map<int, double>& frequ) {getModel().setFreq(frequ); }
+
+    double getInitValue(size_t i, int state) const { return getModel().getInitValue(i, state); }
+
+    virtual const FrequenciesSet* getFrequenciesSet() const = 0;
+
+    /*
+     * @}
+     *
+     */
+
+    /*
+     *@ brief Methods to supersede AbstractSubstitutionModel methods.
+     *
+     * @{
+     */
+
+    /**
+     * @brief Tells the model that a parameter value has changed.
+     *
+     * This updates the matrices consequently.
+     */
+    
+>>>>>>> 36ee90f0cbb9c7f97c05f79cbda9a5f0f7c509d2
     virtual void fireParameterChanged(const ParameterList& parameters)
     {
       AbstractParameterAliasable::fireParameterChanged(parameters);

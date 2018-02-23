@@ -85,7 +85,7 @@ void MvaFrequenciesSet::fireParameterChanged(const ParameterList& parameters)
   updateFrequencies();
 }
 
-void MvaFrequenciesSet::updateFrequencies() throw (Exception)
+void MvaFrequenciesSet::updateFrequencies()
 {
   if (nbrOfAxes_ == 0)
     throw Exception("The number of axes kept by the MVA analysis was not set. You should initialize it with the setNbrOfAxes function");
@@ -128,10 +128,10 @@ void MvaFrequenciesSet::updateFrequencies() throw (Exception)
   }
 }
 
-void MvaFrequenciesSet::setFrequencies(const vector<double>& frequencies) throw (DimensionException, Exception)
+void MvaFrequenciesSet::setFrequencies(const vector<double>& frequencies)
 {}
 
-void MvaFrequenciesSet::computeReverseCOA(const std::vector<double>& positions, std::vector<double>& tmpFreqs) throw (Exception)
+void MvaFrequenciesSet::computeReverseCOA(const std::vector<double>& positions, std::vector<double>& tmpFreqs)
 {
   for (unsigned int i = 0; i < 20; i++)
   {
@@ -142,7 +142,7 @@ void MvaFrequenciesSet::computeReverseCOA(const std::vector<double>& positions, 
   }
 }
 
-void MvaFrequenciesSet::computeCoordsFirstSpaceCOA(std::vector<double>& tmpFreqs, std::vector<double>& freqs) throw (Exception)
+void MvaFrequenciesSet::computeCoordsFirstSpaceCOA(std::vector<double>& tmpFreqs, std::vector<double>& freqs)
 {
   if (freqs.size() != tmpFreqs.size())
     throw Exception("MvaFrequenciesSet::computeCoordsFirstSpaceCOA : error in the size of the vectors");

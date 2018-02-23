@@ -72,7 +72,7 @@ class DistanceMethod:
      * @param matrix The matrix to use.
      * @throw Exception In case an incorrect matrix is provided (eg smaller than 3).
      */
-		virtual void setDistanceMatrix(const DistanceMatrix& matrix) throw (Exception) = 0;
+		virtual void setDistanceMatrix(const DistanceMatrix& matrix) = 0;
 		
     /**
      * @brief Perform the clustering.

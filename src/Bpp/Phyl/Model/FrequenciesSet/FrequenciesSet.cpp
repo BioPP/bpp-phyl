@@ -147,7 +147,7 @@ void FullFrequenciesSet::updateFreq_()
 // ///////////////////////////////////////////
 // / FixedFrequenciesSet
 
-FixedFrequenciesSet::FixedFrequenciesSet(StateMap* stateMap, const vector<double>& initFreqs, const string& name) throw (Exception) :
+FixedFrequenciesSet::FixedFrequenciesSet(StateMap* stateMap, const vector<double>& initFreqs, const string& name) :
   AbstractFrequenciesSet(stateMap, "Fixed.", name)
 {
   if (stateMap->getNumberOfModelStates() != initFreqs.size())

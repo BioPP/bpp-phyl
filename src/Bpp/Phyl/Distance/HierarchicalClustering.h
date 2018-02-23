@@ -85,7 +85,7 @@ public:
   HierarchicalClustering(const std::string& method, bool verbose = false) :
     AbstractAgglomerativeDistanceMethod(verbose),
     method_(method) {}
-  HierarchicalClustering(const std::string& method, const DistanceMatrix& matrix, bool verbose = false) throw (Exception) :
+  HierarchicalClustering(const std::string& method, const DistanceMatrix& matrix, bool verbose = false) :
     AbstractAgglomerativeDistanceMethod(matrix, verbose, true),
     method_(method)
   {
@@ -102,7 +102,7 @@ public:
   TreeTemplate<Node>* getTree() const;
 
 protected:
-  std::vector<size_t> getBestPair() throw (Exception);
+  std::vector<size_t> getBestPair();
   std::vector<double> computeBranchLengthsForPair(const std::vector<size_t>& pair);
   double computeDistancesFromPair(const std::vector<size_t>& pair, const std::vector<double>& branchLengths, size_t pos);
   void finalStep(int idRoot);

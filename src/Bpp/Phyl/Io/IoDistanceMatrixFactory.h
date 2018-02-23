@@ -85,7 +85,7 @@ public:
    * @return A pointer toward a new IDistanceMatrix object.
    * @throw Exception If the format name do not match any available format.
    */
-  virtual IDistanceMatrix* createReader(const std::string& format, bool extended=false) throw (Exception);
+  virtual IDistanceMatrix* createReader(const std::string& format, bool extended=false);
   
   /**
    * @brief Get a new dynamically created ODistanceMatrix object.
@@ -96,7 +96,7 @@ public:
    * @return A pointer toward a new ODistanceMatrix object.
    * @throw Exception If the format name do not match any available format.
    */
-  virtual ODistanceMatrix * createWriter(const std::string& format, bool extended=false) throw (Exception);
+  virtual ODistanceMatrix * createWriter(const std::string& format, bool extended=false);
 };
 
 } //end of namespace bpp.

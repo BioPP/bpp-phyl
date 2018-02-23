@@ -67,17 +67,17 @@ class PhylipDistanceMatrixFormat:
 		const std::string getFormatName() const { return "Phylip"; }
 
 		const std::string getFormatDescription() const {	return "Multiline space-delimited columns."; }
-		DistanceMatrix* read(const std::string& path) const throw (Exception)
+		DistanceMatrix* read(const std::string& path) const
 		{
 			return AbstractIDistanceMatrix::read(path); 
 		}
-		DistanceMatrix* read(std::istream& in) const throw (Exception);
+		DistanceMatrix* read(std::istream& in) const;
 		
-		void write(const DistanceMatrix& dist, const std::string& path, bool overwrite = true) const throw (Exception)
+		void write(const DistanceMatrix& dist, const std::string& path, bool overwrite = true) const
 		{
 			AbstractODistanceMatrix::write(dist, path, overwrite);
 		}
-		void write(const DistanceMatrix& dist, std::ostream& out) const throw (Exception);
+		void write(const DistanceMatrix& dist, std::ostream& out) const;
 
 };
 

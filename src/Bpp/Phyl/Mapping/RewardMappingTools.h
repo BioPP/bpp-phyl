@@ -82,7 +82,7 @@ public:
     const DRTreeLikelihood& drtl,
     const std::vector<int>& nodeIds,
     Reward& reward,
-    bool verbose = true) throw (Exception);
+    bool verbose = true);
 
 
   /**
@@ -97,8 +97,7 @@ public:
   static void writeToStream(
     const ProbabilisticRewardMapping& rewards,
     const SiteContainer& sites,
-    std::ostream& out)
-  throw (IOException);
+    std::ostream& out);
 
 
   /**
@@ -108,8 +107,7 @@ public:
    * @param rewards       The mapping object to fill.
    * @throw IOException If an input error happens.
    */
-  static void readFromStream(std::istream& in, ProbabilisticRewardMapping& rewards)
-  throw (IOException);
+  static void readFromStream(std::istream& in, ProbabilisticRewardMapping& rewards);
 
 
   /**

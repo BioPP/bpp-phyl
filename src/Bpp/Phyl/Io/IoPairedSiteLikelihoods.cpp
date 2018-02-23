@@ -53,7 +53,7 @@ using namespace bpp;
 /*
  * Read from a stream in Tree-puzzle, phylip-like format
  */
-PairedSiteLikelihoods IOTreepuzzlePairedSiteLikelihoods::read(std::istream& is) throw (Exception)
+PairedSiteLikelihoods IOTreepuzzlePairedSiteLikelihoods::read(std::istream& is)
 {
   // The first line contains the number of models and the number of sites
   string line;
@@ -128,7 +128,7 @@ PairedSiteLikelihoods IOTreepuzzlePairedSiteLikelihoods::read(std::istream& is) 
 /*
  * Read from a file in Tree-puzzle, phylip-like format
  */
-PairedSiteLikelihoods IOTreepuzzlePairedSiteLikelihoods::read(const std::string& path) throw (Exception)
+PairedSiteLikelihoods IOTreepuzzlePairedSiteLikelihoods::read(const std::string& path)
 {
   ifstream iF (path.c_str());
   PairedSiteLikelihoods psl (IOTreepuzzlePairedSiteLikelihoods::read(iF));
@@ -227,7 +227,7 @@ void IOTreepuzzlePairedSiteLikelihoods::write(const bpp::PairedSiteLikelihoods& 
 /*
  * Read from a stream in Phyml format
  */
-vector<double> IOPhymlPairedSiteLikelihoods::read(std::istream& is) throw (Exception)
+vector<double> IOPhymlPairedSiteLikelihoods::read(std::istream& is)
 {
   vector<double> loglikelihoods;
   string str;
@@ -267,7 +267,7 @@ vector<double> IOPhymlPairedSiteLikelihoods::read(std::istream& is) throw (Excep
 /*
  * Read from a file in Phyml format
  */
-vector<double> IOPhymlPairedSiteLikelihoods::read(const std::string& path) throw (Exception)
+vector<double> IOPhymlPairedSiteLikelihoods::read(const std::string& path)
 {
   ifstream iF (path.c_str());
   vector<double> loglikelihoods(IOPhymlPairedSiteLikelihoods::read(iF));

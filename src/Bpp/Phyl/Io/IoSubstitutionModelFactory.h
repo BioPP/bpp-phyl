@@ -84,7 +84,7 @@ public:
    * @return A pointer toward a new ISubstitutionModel object.
    * @throw Exception If the format name do not match any available format.
    */
-  virtual ISubstitutionModel* createReader(const std::string& format) throw (Exception);
+  virtual ISubstitutionModel* createReader(const std::string& format);
   
   /**
    * @brief Get a new dynamically created OSubstitutionModel object.
@@ -93,7 +93,7 @@ public:
    * @return A pointer toward a new OSubstitutionModel object.
    * @throw Exception If the format name do not match any available format.
    */
-  virtual OSubstitutionModel * createWriter(const std::string& format) throw (Exception);
+  virtual OSubstitutionModel * createWriter(const std::string& format);
 };
 
 } //end of namespace bpp.

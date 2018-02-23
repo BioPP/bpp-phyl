@@ -1891,7 +1891,7 @@ void BppOSubstitutionModelFormat::writeMixed_(const MixedSubstitutionModel& mode
 
 void BppOSubstitutionModelFormat::initialize_(
   TransitionModel& model,
-  const SiteContainer* data) throw (Exception)
+  const SiteContainer* data)
 {
   string initFreqs = ApplicationTools::getStringParameter(model.getNamespace() + "initFreqs", unparsedArguments_, "", "", true, warningLevel_);
   if (verbose_)

@@ -83,7 +83,7 @@ class IDistanceMatrix:
      * @return A new distance matrix object.
      * @throw Exception If an error occured.
      */
-		virtual DistanceMatrix* read(const std::string& path) const throw (Exception) = 0;
+		virtual DistanceMatrix* read(const std::string& path) const = 0;
     /**
      * @brief Read a distance matrix from a stream.
      *
@@ -91,7 +91,7 @@ class IDistanceMatrix:
      * @return A new distance matrix object.
      * @throw Exception If an error occured.
      */
-		virtual DistanceMatrix* read(std::istream& in) const throw (Exception) = 0;
+		virtual DistanceMatrix* read(std::istream& in) const = 0;
 };
 
 /**
@@ -114,7 +114,7 @@ class ODistanceMatrix:
      * Otherwise append to the file.
      * @throw Exception If an error occured.
      */
-		virtual void write(const DistanceMatrix& dist, const std::string& path, bool overwrite) const throw (Exception) = 0;
+		virtual void write(const DistanceMatrix& dist, const std::string& path, bool overwrite) const = 0;
     /**
      * @brief Write a distance matrix to a stream.
      *
@@ -122,7 +122,7 @@ class ODistanceMatrix:
      * @param out The output stream.
      * @throw Exception If an error occured.
      */
-		virtual void write(const DistanceMatrix& dist, std::ostream& out) const throw (Exception) = 0;
+		virtual void write(const DistanceMatrix& dist, std::ostream& out) const = 0;
 };
 
 /**
@@ -136,14 +136,14 @@ class AbstractIDistanceMatrix:
 		virtual ~AbstractIDistanceMatrix() {}
 
 	public:
-		virtual DistanceMatrix* read(const std::string& path) const throw (Exception)
+		virtual DistanceMatrix* read(const std::string& path) const
 		{
       std::ifstream input(path.c_str(), std::ios::in);
 			DistanceMatrix* mat = read(input);
 			input.close();
 			return mat;
 		}
-		virtual DistanceMatrix* read(std::istream& in) const throw (Exception) = 0;
+		virtual DistanceMatrix* read(std::istream& in) const = 0;
 };
 
 /**
@@ -157,14 +157,14 @@ class AbstractODistanceMatrix:
 		virtual ~AbstractODistanceMatrix() {}
 
 	public:
-		virtual void write(const DistanceMatrix& dist, const std::string& path, bool overwrite) const throw (Exception)
+		virtual void write(const DistanceMatrix& dist, const std::string& path, bool overwrite) const
 		{
 			// Open file in specified mode
       std::ofstream output(path.c_str(), overwrite ? (std::ios::out) : (std::ios::out|std::ios::app));
 			write(dist, output);
 			output.close();
 		}
-		virtual void write(const DistanceMatrix& dist, std::ostream& out) const throw (Exception) = 0;
+		virtual void write(const DistanceMatrix& dist, std::ostream& out) const = 0;
 };
 
 } //end of namespace bpp.

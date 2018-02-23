@@ -66,7 +66,7 @@ const string Newick::getFormatDescription() const
 
 /******************************************************************************/
 
-TreeTemplate<Node> * Newick::read(istream& in) const throw (Exception)
+TreeTemplate<Node> * Newick::read(istream& in) const
 {
   // Checking the existence of specified file
   if (! in) { throw IOException ("Newick::read: failed to read from stream"); }
@@ -93,7 +93,7 @@ TreeTemplate<Node> * Newick::read(istream& in) const throw (Exception)
 
 /******************************************************************************/
 
-void Newick::write_(const Tree& tree, ostream& out) const throw (Exception)
+void Newick::write_(const Tree& tree, ostream& out) const
 {
   // Checking the existence of specified file, and possibility to open it in write mode
   if (! out) { throw IOException ("Newick::writeTree: failed to write to stream"); }
@@ -110,7 +110,7 @@ void Newick::write_(const Tree& tree, ostream& out) const throw (Exception)
 /******************************************************************************/
 
 template<class N>
-void Newick::write_(const TreeTemplate<N>& tree, ostream& out) const throw (Exception)
+void Newick::write_(const TreeTemplate<N>& tree, ostream& out) const
 {
   // Checking the existence of specified file, and possibility to open it in write mode
   if (! out) { throw IOException ("Newick::writeTree: failed to write to stream"); }
@@ -126,7 +126,7 @@ void Newick::write_(const TreeTemplate<N>& tree, ostream& out) const throw (Exce
 
 /******************************************************************************/
 
-void Newick::read(istream& in, vector<Tree*>& trees) const throw (Exception)
+void Newick::read(istream& in, vector<Tree*>& trees) const
 {
   // Checking the existence of specified file
   if (! in) { throw IOException ("Newick::read: failed to read from stream"); }
@@ -152,7 +152,7 @@ void Newick::read(istream& in, vector<Tree*>& trees) const throw (Exception)
 
 /******************************************************************************/
 
-void Newick::write_(const vector<Tree*>& trees, ostream& out) const throw (Exception)
+void Newick::write_(const vector<Tree*>& trees, ostream& out) const
 {
   // Checking the existence of specified file, and possibility to open it in write mode
   if (! out) { throw IOException ("Newick::write: failed to write to stream"); }
@@ -172,7 +172,7 @@ void Newick::write_(const vector<Tree*>& trees, ostream& out) const throw (Excep
 /******************************************************************************/
 
 template<class N>
-void Newick::write_(const vector<TreeTemplate<N>*>& trees, ostream& out) const throw (Exception)
+void Newick::write_(const vector<TreeTemplate<N>*>& trees, ostream& out) const
 {
   // Checking the existence of specified file, and possibility to open it in write mode
   if (! out) { throw IOException ("Newick::write: failed to write to stream"); }

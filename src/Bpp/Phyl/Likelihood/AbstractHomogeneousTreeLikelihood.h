@@ -71,7 +71,7 @@ public:
       index_(0) {}
 
 public:
-    ConstSiteModelDescription* next() throw (Exception)
+    ConstSiteModelDescription* next()
     {
       if (!hasNext())
         throw Exception("AbstractHomogeneousTreeLikelihood::ConstHomogeneousSiteModelIterator::next(). No more site in the set.");
@@ -121,8 +121,7 @@ public:
     TransitionModel* model,
     DiscreteDistribution* rDist,
     bool checkRooted = true,
-    bool verbose = true)
-  throw (Exception);
+    bool verbose = true);
 
   /**
    * @brief Copy constructor
@@ -148,7 +147,7 @@ private:
              TransitionModel* model,
              DiscreteDistribution* rDist,
              bool checkRooted,
-             bool verbose) throw (Exception);
+             bool verbose);
 
 public:
   /**
@@ -166,7 +165,7 @@ public:
 
   std::string getAlphabetStateAsChar(size_t i) const { return model_->getAlphabetStateAsChar(i); }
 
-  void initialize() throw (Exception);
+  void initialize();
 
   ParameterList getBranchLengthsParameters() const;
 
@@ -242,11 +241,11 @@ public:
    * This function apply these parameters to the substitution model,
    * to the rate distribution and to the branch lengths.
    */
-  virtual void applyParameters() throw (Exception);
+  virtual void applyParameters();
 
   virtual void initBranchLengthsParameters(bool verbose = true);
 
-  virtual void setMinimumBranchLength(double minimum) throw (Exception)
+  virtual void setMinimumBranchLength(double minimum)
   {
     if (minimum > maximumBrLen_)
       throw Exception("AbstractHomogeneousTreeLikelihood::setMinimumBranchLength. Minimum branch length sould be lower than the maximum one: " + TextTools::toString(maximumBrLen_));
@@ -256,7 +255,7 @@ public:
     initBranchLengthsParameters();
   }
 
-  virtual void setMaximumBranchLength(double maximum) throw (Exception)
+  virtual void setMaximumBranchLength(double maximum)
   {
     if (maximum < minimumBrLen_)
       throw Exception("AbstractHomogeneousTreeLikelihood::setMaximumBranchLength. Maximum branch length sould be higher than the minimum one: " + TextTools::toString(minimumBrLen_));

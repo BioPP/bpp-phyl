@@ -91,8 +91,7 @@ class DRHomogeneousTreeLikelihood:
       TransitionModel* model,
       DiscreteDistribution* rDist,
       bool checkRooted = true,
-      bool verbose = true)
-      throw (Exception);
+      bool verbose = true);
   
     /**
      * @brief Build a new DRHomogeneousTreeLikelihood object and compute the corresponding likelihood.
@@ -114,8 +113,7 @@ class DRHomogeneousTreeLikelihood:
       TransitionModel* model,
       DiscreteDistribution* rDist,
       bool checkRooted = true,
-      bool verbose = true)
-      throw (Exception);
+      bool verbose = true);
 
     /**
      * @brief Copy constructor.
@@ -133,7 +131,7 @@ class DRHomogeneousTreeLikelihood:
     /**
      * @brief Method called by constructors.
      */
-    void init_() throw (Exception);
+    void init_();
 
   public:
 
@@ -144,12 +142,12 @@ class DRHomogeneousTreeLikelihood:
      *
      * @{
      */
-    void setData(const SiteContainer & sites) throw (Exception);
+    void setData(const SiteContainer & sites);
     double getLikelihood () const;
     double getLogLikelihood() const;
     double getLikelihoodForASite (size_t site) const;
     double getLogLikelihoodForASite(size_t site) const;
-    size_t getSiteIndex(size_t site) const throw (IndexOutOfBoundsException) { return likelihoodData_->getRootArrayPosition(site); }
+    size_t getSiteIndex(size_t site) const { return likelihoodData_->getRootArrayPosition(site); }
     /** @} */
 
     void computeTreeLikelihood();
@@ -177,19 +175,19 @@ class DRHomogeneousTreeLikelihood:
      *
      * @param parameters The parameter list to pass to the function.
      */
-    void setParameters(const ParameterList & parameters) throw (ParameterNotFoundException, ConstraintException);
+    void setParameters(const ParameterList & parameters);
     
     /**
      * @brief Function and NNISearchable interface.
      */
-    double getValue() const throw (Exception);
+    double getValue() const;
     
     /**
      * @name DerivableFirstOrder interface.
      *
      * @{
      */
-    double getFirstOrderDerivative(const std::string& variable) const throw (Exception);
+    double getFirstOrderDerivative(const std::string& variable) const;
     /** @{ */
 
     /**
@@ -197,8 +195,8 @@ class DRHomogeneousTreeLikelihood:
      *
      * @{
      */
-    double getSecondOrderDerivative(const std::string& variable) const throw (Exception);
-    double getSecondOrderDerivative(const std::string& variable1, const std::string& variable2) const throw (Exception) { return 0; } // Not implemented for now.
+    double getSecondOrderDerivative(const std::string& variable) const;
+    double getSecondOrderDerivative(const std::string& variable1, const std::string& variable2) const { return 0; } // Not implemented for now.
     /** @} */
     
   public:  // Specific methods:

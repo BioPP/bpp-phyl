@@ -80,7 +80,7 @@ namespace bpp
      * @return A new IMultiTree object according to options specified.
      * @throw Exception if an error occured.
      */
-    IMultiTree* read(const std::string& description) throw (Exception);
+    IMultiTree* read(const std::string& description);
 
     /**
      * @return The arguments and their unparsed values from the last call of the read function, if there are any.

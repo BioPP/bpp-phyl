@@ -47,7 +47,7 @@ short AbstractDendrogramPlot::ORIENTATION_RIGHT_TO_LEFT = 2;
 short AbstractDendrogramPlot::ORIENTATION_TOP_TO_BOTTOM = 3;
 short AbstractDendrogramPlot::ORIENTATION_BOTTOM_TO_TOP = 4;
 
-void AbstractDendrogramPlot::plot(GraphicDevice& gDevice) const throw (Exception)
+void AbstractDendrogramPlot::plot(GraphicDevice& gDevice) const
 {
   gDevice.setCurrentPointSize(getDisplaySettings().pointSize);
   drawDendrogram_(gDevice);

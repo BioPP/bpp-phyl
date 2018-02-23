@@ -71,7 +71,7 @@ class SubstitutionModelSetTools
         TransitionModel* model,
         FrequenciesSet* rootFreqs,
         const Tree* tree
-      ) throw (AlphabetException, Exception);
+      );
 
     /**
      * @brief Create a SubstitutionModelSet object, with one model per branch.
@@ -92,7 +92,7 @@ class SubstitutionModelSetTools
         const Tree* tree,
         const std::map<std::string, std::string>& aliasFreqNames,
         const std::vector<std::string>& globalParameterNames
-      ) throw (AlphabetException, Exception);
+      );
 
 };
 

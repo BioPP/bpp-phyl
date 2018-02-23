@@ -72,7 +72,7 @@ const string NexusIOTree::getFormatDescription() const
 
 /******************************************************************************/
 
-TreeTemplate<Node> * NexusIOTree::read(istream &in) const throw (Exception)
+TreeTemplate<Node> * NexusIOTree::read(istream &in) const
 {
   vector<Tree*> trees;
   read(in, trees);
@@ -85,7 +85,7 @@ TreeTemplate<Node> * NexusIOTree::read(istream &in) const throw (Exception)
 
 /******************************************************************************/
 
-void NexusIOTree::read(std::istream& in, std::vector<Tree*>& trees) const throw (Exception)
+void NexusIOTree::read(std::istream& in, std::vector<Tree*>& trees) const
 {
 	// Checking the existence of specified file
 	if (! in) { throw IOException ("NexusIOTree::read(). Failed to read from stream"); }
@@ -164,7 +164,7 @@ void NexusIOTree::read(std::istream& in, std::vector<Tree*>& trees) const throw 
 
 /******************************************************************************/
 
-void NexusIOTree::write_(const Tree& tree, ostream& out) const throw (Exception)
+void NexusIOTree::write_(const Tree& tree, ostream& out) const
 {
   vector<Tree*> trees;
   trees.push_back(&const_cast<Tree&>(tree));
@@ -174,7 +174,7 @@ void NexusIOTree::write_(const Tree& tree, ostream& out) const throw (Exception)
 /******************************************************************************/
 
 template<class N>
-void NexusIOTree::write_(const TreeTemplate<N>& tree, ostream& out) const throw (Exception)
+void NexusIOTree::write_(const TreeTemplate<N>& tree, ostream& out) const
 {
   vector<Tree*> trees;
   trees.push_back(&const_cast<Tree&>(tree));
@@ -183,7 +183,7 @@ void NexusIOTree::write_(const TreeTemplate<N>& tree, ostream& out) const throw 
 
 /******************************************************************************/
 
-void NexusIOTree::write_(const vector<Tree*>& trees, ostream& out) const throw (Exception)
+void NexusIOTree::write_(const vector<Tree*>& trees, ostream& out) const
 {
 	// Checking the existence of specified file, and possibility to open it in write mode
 	if (! out) { throw IOException ("NexusIOTree::write: failed to write to stream"); }
@@ -248,7 +248,7 @@ void NexusIOTree::write_(const vector<Tree*>& trees, ostream& out) const throw (
 /******************************************************************************/
 
 template<class N>
-void NexusIOTree::write_(const vector<TreeTemplate<N>*>& trees, ostream& out) const throw (Exception)
+void NexusIOTree::write_(const vector<TreeTemplate<N>*>& trees, ostream& out) const
 {
 	// Checking the existence of specified file, and possibility to open it in write mode
 	if (! out) { throw IOException ("NexusIOTree::write: failed to write to stream"); }

@@ -64,7 +64,7 @@ ProbabilisticSubstitutionMapping* SubstitutionMappingTools::computeSubstitutionV
   const DRTreeLikelihood& drtl,
   const vector<int>& nodeIds,
   SubstitutionCount& substitutionCount,
-  bool verbose) throw (Exception)
+  bool verbose)
 {
   // Preamble:
   if (!drtl.isInitialized())
@@ -377,7 +377,7 @@ ProbabilisticSubstitutionMapping* SubstitutionMappingTools::computeSubstitutionV
   const SubstitutionModelSet& modelSet,
   const vector<int>& nodeIds,
   SubstitutionCount& substitutionCount,
-  bool verbose) throw (Exception)
+  bool verbose)
 {
   // Preamble:
   if (!drtl.isInitialized())
@@ -687,7 +687,7 @@ ProbabilisticSubstitutionMapping* SubstitutionMappingTools::computeSubstitutionV
 ProbabilisticSubstitutionMapping* SubstitutionMappingTools::computeSubstitutionVectorsNoAveraging(
   const DRTreeLikelihood& drtl,
   SubstitutionCount& substitutionCount,
-  bool verbose) throw (Exception)
+  bool verbose)
 {
   // Preamble:
   if (!drtl.isInitialized())
@@ -984,7 +984,7 @@ ProbabilisticSubstitutionMapping* SubstitutionMappingTools::computeSubstitutionV
 ProbabilisticSubstitutionMapping* SubstitutionMappingTools::computeSubstitutionVectorsNoAveragingMarginal(
   const DRTreeLikelihood& drtl,
   SubstitutionCount& substitutionCount,
-  bool verbose) throw (Exception)
+  bool verbose)
 {
   // Preamble:
   if (!drtl.isInitialized())
@@ -1115,7 +1115,7 @@ ProbabilisticSubstitutionMapping* SubstitutionMappingTools::computeSubstitutionV
 ProbabilisticSubstitutionMapping* SubstitutionMappingTools::computeSubstitutionVectorsMarginal(
   const DRTreeLikelihood& drtl,
   SubstitutionCount& substitutionCount,
-  bool verbose) throw (Exception)
+  bool verbose)
 {
   // Preamble:
   if (!drtl.isInitialized())
@@ -1262,7 +1262,6 @@ void SubstitutionMappingTools::writeToStream(
   const SiteContainer& sites,
   size_t type,
   ostream& out)
-throw (IOException)
 {
   if (!out)
     throw IOException("SubstitutionMappingTools::writeToFile. Can't write to stream.");
@@ -1288,7 +1287,6 @@ throw (IOException)
 /**************************************************************************************************/
 
 void SubstitutionMappingTools::readFromStream(istream& in, ProbabilisticSubstitutionMapping& substitutions, size_t type)
-throw (IOException)
 {
   try
   {

@@ -113,7 +113,6 @@ void SubstitutionModelSet::setRootFrequencies(FrequenciesSet* rootFreqs)
 }
 
 std::vector<int> SubstitutionModelSet::getNodesWithParameter(const std::string& name) const
-  throw (ParameterNotFoundException)
 {
   if (!(hasParameter(name)))
     throw ParameterNotFoundException("SubstitutionModelSet::getNodesWithParameter.", name);
@@ -135,7 +134,7 @@ std::vector<int> SubstitutionModelSet::getNodesWithParameter(const std::string& 
   return inode;
 }
 
-void SubstitutionModelSet::addModel(TransitionModel* model, const std::vector<int>& nodesId)//, const vector<string>& newParams) throw (Exception)
+void SubstitutionModelSet::addModel(TransitionModel* model, const std::vector<int>& nodesId)//, const vector<string>& newParams)
 {
   if (model->getAlphabet()->getAlphabetType() != alphabet_->getAlphabetType())
     throw Exception("SubstitutionModelSet::addModel. A Substitution Model cannot be added to a Model Set if it does not have the same alphabet.");
@@ -169,7 +168,7 @@ void SubstitutionModelSet::addModel(TransitionModel* model, const std::vector<in
     }
 }
 
-void SubstitutionModelSet::replaceModel(size_t modelIndex, TransitionModel* model) throw (Exception)
+void SubstitutionModelSet::replaceModel(size_t modelIndex, TransitionModel* model)
 {
   delete modelSet_[modelIndex];
   modelSet_[modelIndex]=model;
@@ -250,7 +249,6 @@ void SubstitutionModelSet::fireParameterChanged(const ParameterList& parameters)
 }
 
 bool SubstitutionModelSet::checkOrphanModels(bool throwEx) const
-  throw (Exception)
 {
   vector<size_t> index = MapTools::getValues(nodeToModel_);
   for (size_t i = 0; i < modelSet_.size(); i++)
@@ -265,7 +263,6 @@ bool SubstitutionModelSet::checkOrphanModels(bool throwEx) const
 }
 
 bool SubstitutionModelSet::checkOrphanNodes(const Tree& tree, bool throwEx) const
-  throw (Exception)
 {
   vector<int> ids = tree.getNodesId();
   int rootId = tree.getRootId();
@@ -281,7 +278,6 @@ bool SubstitutionModelSet::checkOrphanNodes(const Tree& tree, bool throwEx) cons
 }
 
 bool SubstitutionModelSet::checkUnknownNodes(const Tree& tree, bool throwEx) const
-  throw (Exception)
 {
   vector<int> ids = tree.getNodesId();
   int id;

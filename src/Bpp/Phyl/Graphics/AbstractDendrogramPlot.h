@@ -72,10 +72,10 @@ class AbstractDendrogramPlot:
     short getHorizontalOrientation() const { return horOrientation_; }
     short getVerticalOrientation() const { return verOrientation_; }
 
-    void plot(GraphicDevice& gDevice) const throw (Exception);
+    void plot(GraphicDevice& gDevice) const;
 
   protected:
-    virtual void drawDendrogram_(GraphicDevice& gDevice) const throw (Exception) = 0;
+    virtual void drawDendrogram_(GraphicDevice& gDevice) const = 0;
    
   public:
     static short ORIENTATION_LEFT_TO_RIGHT;

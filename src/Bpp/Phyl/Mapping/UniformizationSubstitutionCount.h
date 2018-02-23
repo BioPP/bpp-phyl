@@ -114,8 +114,8 @@ public:
 
   protected:
     void computeCounts_(double length) const;
-    void substitutionRegisterHasChanged() throw (Exception);
-    void weightsHaveChanged() throw (Exception);
+    void substitutionRegisterHasChanged();
+    void weightsHaveChanged();
 
   private:
     void resetBMatrices_();

@@ -56,7 +56,7 @@ using namespace std;
 
 /******************************************************************************/
 
-SiteContainer* PatternTools::getSequenceSubset(const SiteContainer& sequenceSet, const Node& node) throw (Exception)
+SiteContainer* PatternTools::getSequenceSubset(const SiteContainer& sequenceSet, const Node& node)
 {
 	VectorSiteContainer * sequenceSubset = new VectorSiteContainer(sequenceSet.getAlphabet());
 	vector<const Node *> leaves = TreeTemplateTools::getLeaves(node);
@@ -71,7 +71,7 @@ SiteContainer* PatternTools::getSequenceSubset(const SiteContainer& sequenceSet,
 
 /******************************************************************************/
 
-SiteContainer* PatternTools::getSequenceSubset(const SiteContainer& sequenceSet, const vector<string>& names) throw (Exception)
+SiteContainer* PatternTools::getSequenceSubset(const SiteContainer& sequenceSet, const vector<string>& names)
 {
 	VectorSiteContainer* sequenceSubset = new VectorSiteContainer(sequenceSet.getAlphabet());
 	for (unsigned int i = 0; i < names.size(); i++)
@@ -85,7 +85,7 @@ SiteContainer* PatternTools::getSequenceSubset(const SiteContainer& sequenceSet,
 
 /******************************************************************************/
 
-SiteContainer* PatternTools::shrinkSiteSet(const SiteContainer& siteSet) throw (Exception)
+SiteContainer* PatternTools::shrinkSiteSet(const SiteContainer& siteSet)
 {
 	if (siteSet.getNumberOfSites() == 0) throw Exception("PatternTools::shrinkSiteSet siteSet is void.");
 	vector<const Site *> sites;

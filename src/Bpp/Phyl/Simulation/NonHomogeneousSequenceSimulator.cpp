@@ -57,7 +57,7 @@ using namespace std;
 NonHomogeneousSequenceSimulator::NonHomogeneousSequenceSimulator(
   const SubstitutionModelSet* modelSet,
   const DiscreteDistribution* rate,
-  const Tree* tree) throw (Exception) :
+  const Tree* tree) :
   modelSet_(modelSet),
   alphabet_(modelSet_->getAlphabet()),
   supportedStates_(modelSet_->getAlphabetStates()),
