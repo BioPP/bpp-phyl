@@ -1928,7 +1928,7 @@ void BppOSubstitutionModelFormat::initialize_(
   for (size_t i = 0; i < pl.size(); i++)
   {
     AutoParameter ap(pl[i]);
-    ap.setMessageHandler(ApplicationTools::warning);
+    ap.setMessageHandler(ApplicationTools::warning.get());
     pl.setParameter(i, ap);
   }
   

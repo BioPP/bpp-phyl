@@ -258,7 +258,7 @@ void PhylogeneticsApplicationTools::setSubstitutionModelParametersInitialValuesW
   for (size_t i = 0; i < pl.size(); ++i)
   {
     AutoParameter ap(pl[i]);
-    ap.setMessageHandler(ApplicationTools::warning);
+    ap.setMessageHandler(ApplicationTools::warning.get());
     pl.setParameter(i, ap);
   }
 
@@ -747,7 +747,7 @@ throw (Exception)
   string mhPath = ApplicationTools::getAFilePath("optimization.message_handler", params, false, false, suffix, suffixIsOptional, "none", warn + 1);
   OutputStream* messageHandler =
     (mhPath == "none") ? 0 :
-    (mhPath == "std") ? ApplicationTools::message :
+    (mhPath == "std") ? ApplicationTools::message.get() :
     new StlOutputStream(new ofstream(mhPath.c_str(), ios::out));
   if (verbose)
     ApplicationTools::displayResult("Message handler", mhPath);
@@ -755,7 +755,7 @@ throw (Exception)
   string prPath = ApplicationTools::getAFilePath("optimization.profiler", params, false, false, suffix, suffixIsOptional, "none", warn + 1);
   OutputStream* profiler =
     (prPath == "none") ? 0 :
-    (prPath == "std") ? ApplicationTools::message :
+    (prPath == "std") ? ApplicationTools::message.get() :
     new StlOutputStream(new ofstream(prPath.c_str(), ios::out));
   if (profiler)
     profiler->setPrecision(20);
@@ -1175,7 +1175,7 @@ throw (Exception)
   string mhPath = ApplicationTools::getAFilePath("optimization.message_handler", params, false, false, suffix, suffixIsOptional, "none", warn + 1);
   OutputStream* messageHandler =
     (mhPath == "none") ? 0 :
-    (mhPath == "std") ? ApplicationTools::message :
+    (mhPath == "std") ? ApplicationTools::message.get() :
     new StlOutputStream(new ofstream(mhPath.c_str(), ios::out));
   if (verbose)
     ApplicationTools::displayResult("Message handler", mhPath);
@@ -1183,7 +1183,7 @@ throw (Exception)
   string prPath = ApplicationTools::getAFilePath("optimization.profiler", params, false, false, suffix, suffixIsOptional, "none", warn + 1);
   OutputStream* profiler =
     (prPath == "none") ? 0 :
-    (prPath == "std") ? ApplicationTools::message :
+    (prPath == "std") ? ApplicationTools::message.get() :
     new StlOutputStream(new ofstream(prPath.c_str(), ios::out));
   if (profiler)
     profiler->setPrecision(20);

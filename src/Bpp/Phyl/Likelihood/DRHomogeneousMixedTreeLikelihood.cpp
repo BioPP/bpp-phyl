@@ -4,7 +4,7 @@
 //
 
 /*
-   Copyright or © or Copr. CNRS, (November 16, 2004)
+   Copyright or © or Copr. Bio++ Development Team, (November 16, 2004)
 
    This software is a computer program whose purpose is to provide classes
    for phylogenetic data analysis.
@@ -42,7 +42,7 @@
 // From the STL:
 #include <iostream>
 
-#include <math.h>
+#include <cmath>
 #include "../PatternTools.h"
 
 #include <Bpp/Numeric/VectorTools.h>

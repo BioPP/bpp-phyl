@@ -342,8 +342,8 @@ public:
     unsigned int nstep                = 1,
     double tolerance                  = 0.000001,
     unsigned int tlEvalMax            = 1000000,
-    OutputStream* messageHandler      = ApplicationTools::message,
-    OutputStream* profiler            = ApplicationTools::message,
+    OutputStream* messageHandler      = ApplicationTools::message.get(),
+    OutputStream* profiler            = ApplicationTools::message.get(),
     bool reparametrization            = false,
     unsigned int verbose              = 1,
     const std::string& optMethodDeriv = OPTIMIZATION_NEWTON,
@@ -378,8 +378,8 @@ public:
     OptimizationListener* listener     = 0,
     double tolerance                   = 0.000001,
     unsigned int tlEvalMax             = 1000000,
-    OutputStream* messageHandler       = ApplicationTools::message,
-    OutputStream* profiler             = ApplicationTools::message,
+    OutputStream* messageHandler       = ApplicationTools::message.get(),
+    OutputStream* profiler             = ApplicationTools::message.get(),
     bool reparametrization             = false,
     bool useClock                      = false,
     unsigned int verbose               = 1,
@@ -413,8 +413,8 @@ public:
     OptimizationListener* listener     = 0,
     double tolerance                   = 0.000001,
     unsigned int tlEvalMax             = 1000000,
-    OutputStream* messageHandler       = ApplicationTools::message,
-    OutputStream* profiler             = ApplicationTools::message,
+    OutputStream* messageHandler       = ApplicationTools::message.get(),
+    OutputStream* profiler             = ApplicationTools::message.get(),
     unsigned int verbose               = 1,
     const std::string& optMethodDeriv  = OPTIMIZATION_NEWTON)
   throw (Exception);
@@ -451,8 +451,8 @@ public:
     unsigned int nstep                = 1,
     double tolerance                  = 0.000001,
     unsigned int tlEvalMax            = 1000000,
-    OutputStream* messageHandler      = ApplicationTools::message,
-    OutputStream* profiler            = ApplicationTools::message,
+    OutputStream* messageHandler      = ApplicationTools::message.get(),
+    OutputStream* profiler            = ApplicationTools::message.get(),
     unsigned int verbose              = 1,
     const std::string& optMethodDeriv = OPTIMIZATION_GRADIENT)
   throw (Exception);
@@ -483,8 +483,8 @@ public:
     OptimizationListener* listener    = 0,
     double tolerance                  = 0.000001,
     unsigned int tlEvalMax            = 1000000,
-    OutputStream* messageHandler      = ApplicationTools::message,
-    OutputStream* profiler            = ApplicationTools::message,
+    OutputStream* messageHandler      = ApplicationTools::message.get(),
+    OutputStream* profiler            = ApplicationTools::message.get(),
     unsigned int verbose              = 1,
     const std::string& optMethodDeriv = OPTIMIZATION_GRADIENT)
   throw (Exception);
@@ -563,8 +563,8 @@ public:
     TreeLikelihood* tl,
     double tolerance = 0.000001,
     unsigned int tlEvalMax = 1000000,
-    OutputStream* messageHandler = ApplicationTools::message,
-    OutputStream* profiler       = ApplicationTools::message,
+    OutputStream* messageHandler = ApplicationTools::message.get(),
+    OutputStream* profiler       = ApplicationTools::message.get(),
     unsigned int verbose = 1)
   throw (Exception);
 
@@ -615,8 +615,8 @@ public:
     double tolDuring             = 100,
     unsigned int tlEvalMax       = 1000000,
     unsigned int numStep         = 1,
-    OutputStream* messageHandler = ApplicationTools::message,
-    OutputStream* profiler       = ApplicationTools::message,
+    OutputStream* messageHandler = ApplicationTools::message.get(),
+    OutputStream* profiler       = ApplicationTools::message.get(),
     bool reparametrization       = false,
     unsigned int verbose         = 1,
     const std::string& optMethod = OptimizationTools::OPTIMIZATION_NEWTON,
@@ -670,8 +670,8 @@ public:
     double tolDuring             = 100,
     unsigned int tlEvalMax       = 1000000,
     unsigned int numStep         = 1,
-    OutputStream* messageHandler = ApplicationTools::message,
-    OutputStream* profiler       = ApplicationTools::message,
+    OutputStream* messageHandler = ApplicationTools::message.get(),
+    OutputStream* profiler       = ApplicationTools::message.get(),
     bool reparametrization       = false,
     unsigned int verbose         = 1,
     const std::string& optMethod = OptimizationTools::OPTIMIZATION_NEWTON,
