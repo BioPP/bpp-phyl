@@ -169,11 +169,7 @@ void AbstractHomogeneousTreeLikelihood::init_(
 
 /******************************************************************************/
 
-<<<<<<< HEAD
-void AbstractHomogeneousTreeLikelihood::setModel(TransitionModel* model) throw (Exception)
-=======
-void AbstractHomogeneousTreeLikelihood::setSubstitutionModel(TransitionModel* model)
->>>>>>> 36ee90f0cbb9c7f97c05f79cbda9a5f0f7c509d2
+void AbstractHomogeneousTreeLikelihood::setModel(TransitionModel* model)
 {
   // Check:
   if (data_)

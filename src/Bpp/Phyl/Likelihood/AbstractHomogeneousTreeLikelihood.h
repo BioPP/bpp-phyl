@@ -205,7 +205,7 @@ public:
   TransitionModel* getModel() { return model_; }
   TransitionModel* getModel(int nodeId, size_t siteIndex) { return model_; }
 
-  void setModel(TransitionModel* model) throw (Exception);
+  void setModel(TransitionModel* model);
   /** @} */
 
   /**
