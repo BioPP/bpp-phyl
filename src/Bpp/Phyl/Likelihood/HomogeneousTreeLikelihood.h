@@ -86,7 +86,7 @@ namespace bpp
      * @return Set the substitution model for this instance.
      * @throw Exception If the model could not be set (for instance, because of a wrong alphabet type).
      */
-    virtual void setModel(TransitionModel* model) throw (Exception) = 0;
+    virtual void setModel(TransitionModel* model) = 0;
 
     /**
      * @brief Get a SubstitutionModel pointer toward the model associated to this instance, if possible.

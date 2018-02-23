@@ -221,7 +221,7 @@ public:
    * @return The number of states.
    * @throw Exception if no model is associated to the set.
    */
-  size_t getNumberOfStates() const throw (Exception)
+  size_t getNumberOfStates() const
   {
     return nbStates_;
   }
@@ -250,23 +250,22 @@ public:
    * @param i Index of the model in the set.
    * @return A pointer toward the corresponding model.
    */
-
-  const TransitionModel* getModel(size_t i) const throw (IndexOutOfBoundsException)
+  const TransitionModel* getModel(size_t i) const
   {
-    if (i >= modelSet_.size()) throw IndexOutOfBoundsException("SubstitutionModelSet::getNumberOfModels().", 0, modelSet_.size() - 1, i);
+    if (i >= modelSet_.size()) throw IndexOutOfBoundsException("SubstitutionModelSet::getModel(i).", 0, modelSet_.size() - 1, i);
     return modelSet_[i];
   }
 
-  TransitionModel* getModel(size_t i) throw (IndexOutOfBoundsException)
+  TransitionModel* getModel(size_t i)
   {
-    if (i >= modelSet_.size()) throw IndexOutOfBoundsException("SubstitutionModelSet::getNumberOfModels().", 0, modelSet_.size() - 1, i);
+    if (i >= modelSet_.size()) throw IndexOutOfBoundsException("SubstitutionModelSet::getModel(i).", 0, modelSet_.size() - 1, i);
     return modelSet_[i];
   }
 
   /**
    *@brief Return a markovian substitution model (or null)
    */
-  const SubstitutionModel* getSubstitutionModel(size_t i) const throw (IndexOutOfBoundsException)
+  const SubstitutionModel* getSubstitutionModel(size_t i) const
   {
     try
     {
@@ -279,7 +278,7 @@ public:
   }
   
 
-  SubstitutionModel* getSubstitutionModel(size_t i) throw (IndexOutOfBoundsException)
+  SubstitutionModel* getSubstitutionModel(size_t i)
   {
     try
     {
@@ -312,7 +311,7 @@ public:
    * @return The index of the model associated to the given node.
    * @throw Exception If no model is found for this node.
    */
-  size_t getModelIndexForNode(int nodeId) const throw (Exception)
+  size_t getModelIndexForNode(int nodeId) const
   {
    std::map<int, size_t>::iterator i = nodeToModel_.find(nodeId);
     if (i == nodeToModel_.end())
@@ -327,14 +326,14 @@ public:
    * @return A pointer toward the corresponding model.
    * @throw Exception If no model is found for this node.
    */
-  const TransitionModel* getModelForNode(int nodeId) const throw (Exception)
+  const TransitionModel* getModelForNode(int nodeId) const
   {
    std::map<int, size_t>::const_iterator i = nodeToModel_.find(nodeId);
     if (i == nodeToModel_.end())
       throw Exception("SubstitutionModelSet::getModelForNode(). No model associated to node with id " + TextTools::toString(nodeId));
     return modelSet_[i->second];
   }
-  TransitionModel* getModelForNode(int nodeId) throw (Exception)
+  TransitionModel* getModelForNode(int nodeId)
   {
    std::map<int, size_t>::iterator i = nodeToModel_.find(nodeId);
     if (i == nodeToModel_.end())
@@ -342,12 +341,12 @@ public:
     return modelSet_[i->second];
   }
 
-  const SubstitutionModel* getSubstitutionModelForNode(int nodeId) const throw (Exception)
+  const SubstitutionModel* getSubstitutionModelForNode(int nodeId) const
   {
     return dynamic_cast<const SubstitutionModel*>(getModelForNode(nodeId));
   }
 
-  SubstitutionModel* getSubstitutionModelForNode(int nodeId) throw (Exception)
+  SubstitutionModel* getSubstitutionModelForNode(int nodeId)
   {
     return dynamic_cast<SubstitutionModel*>(getModelForNode(nodeId));
   }
@@ -359,7 +358,7 @@ public:
    * @return A vector with the ids of the node associated to this model.
    * @throw IndexOutOfBoundsException If the index is not valid.
    */
-  const std::vector<int>& getNodesWithModel(size_t i) const throw (IndexOutOfBoundsException)
+  const std::vector<int>& getNodesWithModel(size_t i) const
   {
     if (i >= modelSet_.size()) throw IndexOutOfBoundsException("SubstitutionModelSet::getNodesWithModel().", i, 0, modelSet_.size());
     return modelToNodes_[i];
@@ -371,7 +370,7 @@ public:
    * @throw ParameterNotFoundException If no parameter with the specified name is found.
    */
 
-  std::vector<int> getNodesWithParameter(const std::string& name) const throw (ParameterNotFoundException);
+  std::vector<int> getNodesWithParameter(const std::string& name) const;
 
   /**
    * @brief Add a new model to the set, and set relationships with nodes and params.
@@ -389,7 +388,7 @@ public:
    * <li>etc.</li>
    * </ul>
    */
-  void addModel(TransitionModel* model, const std::vector<int>& nodesId);//, const std::vector<std::string>& newParams) throw (Exception);
+  void addModel(TransitionModel* model, const std::vector<int>& nodesId);//, const std::vector<std::string>& newParams);
 
   /**
    * @brief Replace a model in the set, and all corresponding
@@ -401,7 +400,7 @@ public:
    * @throw Exception if a parameter becomes orphan because of the removal.
    */
 
-  void replaceModel(size_t modelIndex, TransitionModel* model) throw (Exception);
+  void replaceModel(size_t modelIndex, TransitionModel* model);
 
   void listModelNames(std::ostream& out = std::cout) const;
 
@@ -513,7 +512,7 @@ public:
    * @param tree The tree to check.
    * @param throwEx Tell if an exception have to be thrown in case of test not passed.
    */
-  bool isFullySetUpFor(const Tree& tree, bool throwEx = true) const throw (Exception)
+  bool isFullySetUpFor(const Tree& tree, bool throwEx = true) const
   {
     return checkOrphanModels(throwEx)
       //           && checkOrphanParameters(throwEx)
@@ -536,11 +535,11 @@ protected:
    *
    * @{
    */
-  bool checkOrphanModels(bool throwEx) const throw (Exception);
+  bool checkOrphanModels(bool throwEx) const;
 
-  bool checkOrphanNodes(const Tree& tree, bool throwEx) const throw (Exception);
+  bool checkOrphanNodes(const Tree& tree, bool throwEx) const;
 
-  bool checkUnknownNodes(const Tree& tree, bool throwEx) const throw (Exception);
+  bool checkUnknownNodes(const Tree& tree, bool throwEx) const;
   /** @} */
 };
 } // end of namespace bpp.

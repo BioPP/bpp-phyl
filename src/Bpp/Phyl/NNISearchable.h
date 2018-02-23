@@ -117,7 +117,7 @@ class NNISearchable:
 		 * @return The score variation of the NNI.
 		 * @throw NodeException If the node does not define a valid NNI.
 		 */
-		virtual double testNNI(int nodeId) const throw (NodeException) = 0;
+		virtual double testNNI(int nodeId) const = 0;
 
 		/**
 		 * @brief Perform a NNI movement.
@@ -125,7 +125,7 @@ class NNISearchable:
 		 * @param nodeId The id of the node defining the NNI movement.
 		 * @throw NodeException If the node does not define a valid NNI.
 		 */
-		virtual void doNNI(int nodeId) throw (NodeException) = 0;
+		virtual void doNNI(int nodeId) = 0;
 
 		/**
 		 * @brief Get the tree associated to this NNISearchable object.
@@ -139,7 +139,7 @@ class NNISearchable:
      *
      * @return The current score of this instance.
      */
-    virtual double getTopologyValue() const throw (Exception) = 0;
+    virtual double getTopologyValue() const = 0;
 
 };
 

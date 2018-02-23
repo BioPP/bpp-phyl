@@ -73,12 +73,12 @@ class GlobalClockTreeLikelihoodFunctionWrapper:
     GlobalClockTreeLikelihoodFunctionWrapper* clone() const { return new GlobalClockTreeLikelihoodFunctionWrapper(*this); }
 
   public:
-    void setParameters(const ParameterList& pl) throw (Exception) {
+    void setParameters(const ParameterList& pl) {
       //For now we go the hard way and recompute everything:
       matchParametersValues(pl);
     }
 
-    double getValue() const throw (Exception) { return tl_->getValue(); }
+    double getValue() const { return tl_->getValue(); }
 
     void fireParameterChanged(const bpp::ParameterList& pl);
 
@@ -86,15 +86,15 @@ class GlobalClockTreeLikelihoodFunctionWrapper:
     bool enableSecondOrderDerivatives() const { return tl_->enableSecondOrderDerivatives(); }
     void enableFirstOrderDerivatives(bool yn) { tl_->enableFirstOrderDerivatives(yn); }
     bool enableFirstOrderDerivatives() const { return tl_->enableFirstOrderDerivatives(); }
-    double getSecondOrderDerivative(const std::string& variable1, const std::string& variable2) const throw (Exception) { return tl_->getSecondOrderDerivative(variable1, variable2); }
-    double getSecondOrderDerivative(const std::string& variable) const throw (Exception) { return tl_->getSecondOrderDerivative(variable); }
-    double getFirstOrderDerivative(const std::string& variable) const throw (Exception) { return tl_->getFirstOrderDerivative(variable); } 
+    double getSecondOrderDerivative(const std::string& variable1, const std::string& variable2) const { return tl_->getSecondOrderDerivative(variable1, variable2); }
+    double getSecondOrderDerivative(const std::string& variable) const { return tl_->getSecondOrderDerivative(variable); }
+    double getFirstOrderDerivative(const std::string& variable) const { return tl_->getFirstOrderDerivative(variable); } 
 
     ParameterList getHeightParameters() const;
 
   private:
     void initParameters_();
-    void computeBranchLengthsFromHeights_(const Node* node, double height, ParameterList& brlenPl) throw (Exception);
+    void computeBranchLengthsFromHeights_(const Node* node, double height, ParameterList& brlenPl);
 
 };
 

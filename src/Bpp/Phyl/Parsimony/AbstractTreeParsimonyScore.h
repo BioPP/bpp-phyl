@@ -66,15 +66,13 @@ public:
     const Tree& tree,
     const SiteContainer& data,
     bool verbose,
-    bool includeGaps)
-  throw (Exception);
+    bool includeGaps);
 
   AbstractTreeParsimonyScore(
     const Tree& tree,
     const SiteContainer& data,
     const StateMap* statesMap,
-    bool verbose)
-  throw (Exception);
+    bool verbose);
 
   AbstractTreeParsimonyScore(const AbstractTreeParsimonyScore& tp) :
     tree_(0),
@@ -105,7 +103,7 @@ public:
   }
 
 private:
-  void init_(const SiteContainer& data, bool verbose) throw (Exception);
+  void init_(const SiteContainer& data, bool verbose);
 
 public:
   virtual const Tree& getTree() const { return *tree_; }

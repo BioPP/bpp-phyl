@@ -99,6 +99,7 @@ namespace bpp
 
     Matrix<double>* getAllRewards(double length) const;
     
+<<<<<<< HEAD
     /**
      * @brief Set the substitution model.
      *
@@ -119,6 +120,29 @@ namespace bpp
   private:
     void fillBMatrice_();
   };
+=======
+  /**
+   * @brief Set the substitution model.
+   *
+   * @param model A pointer toward the substitution model to use. Only
+   * reversible models are currently supported. Setting a
+   * non-reversible model will throw an exception.
+   *
+   */
+  void setSubstitutionModel(const SubstitutionModel* model);
+
+protected:
+  void computeRewards_(double length) const;
+  void jFunction_(const std::vector<double>& lambda, double t, RowMatrix<double>& result) const;
+  void alphabetIndexHasChanged();
+
+private:
+  void resetStates_();
+  void computeBMatrice_();
+  void computeEigen_();
+  void computeProducts_();
+};
+>>>>>>> 36ee90f0cbb9c7f97c05f79cbda9a5f0f7c509d2
 
 } //end of namespace bpp.
 

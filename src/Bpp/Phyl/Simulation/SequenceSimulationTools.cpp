@@ -67,7 +67,6 @@ SiteContainer* SequenceSimulationTools::simulateSites(const SiteSimulator& simul
 }
 
 SiteContainer* SequenceSimulationTools::simulateSites(const SiteSimulator& simulator, const vector<double>& rates, const vector<size_t>& states)
-throw (Exception)
 {
   size_t numberOfSites = rates.size();
   if (states.size() != numberOfSites)
@@ -91,7 +90,6 @@ throw (Exception)
 }
 
 SiteContainer* SequenceSimulationTools::simulateSites(const SiteSimulator& simulator, const vector<size_t>& states)
-throw (Exception)
 {
   size_t numberOfSites = states.size();
   vector<const Site*> vs(numberOfSites);

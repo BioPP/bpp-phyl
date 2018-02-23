@@ -57,7 +57,7 @@ TreeTemplate<Node>* PGMA::getTree() const
   return new TreeTemplate<Node>(root);
 }
 
-vector<size_t> PGMA::getBestPair() throw (Exception)
+vector<size_t> PGMA::getBestPair()
 {
   vector<size_t> bestPair(2);
   double distMin = -std::log(0.);

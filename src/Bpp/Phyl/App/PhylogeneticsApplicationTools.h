@@ -107,7 +107,7 @@ public:
     const std::string& suffix = "",
     bool suffixIsOptional = true,
     bool verbose = true,
-    int warn = 1) throw (Exception);
+    int warn = 1);
 
   /**
    * @brief Build a list ofTree objects according to options.
@@ -129,7 +129,7 @@ public:
     const std::string& suffix = "",
     bool suffixIsOptional = true,
     bool verbose = true,
-    int warn = 1) throw (Exception);
+    int warn = 1);
 
   /**
    * @brief Build a SubstitutionModel object according to options.
@@ -161,7 +161,7 @@ public:
     const std::string& suffix = "",
     bool suffixIsOptional = true,
     bool verbose = true,
-    int warn = 1) throw (Exception);
+    int warn = 1);
 
   
   static TransitionModel* getTransitionModel(
@@ -172,7 +172,7 @@ public:
     const std::string& suffix = "",
     bool suffixIsOptional = true,
     bool verbose = true,
-    int warn = 1) throw (Exception);
+    int warn = 1);
 
   /**
    * @brief Set parameter initial values of a given model in a set according to options.
@@ -199,7 +199,7 @@ public:
     size_t modelNumber,
     const SiteContainer* data,
     std::map<std::string, std::string>& sharedParams,
-    bool verbose) throw (Exception);
+    bool verbose);
 
   /**
    * @brief Get A FrequenciesSet object for root frequencies (NH models) according to options.
@@ -231,7 +231,7 @@ public:
     const std::string& suffix = "",
     bool suffixIsOptional = true,
     bool verbose = true,
-    int warn = 1) throw (Exception);
+    int warn = 1);
 
   /**
    * @brief Get A FrequenciesSet object according to options.
@@ -260,8 +260,7 @@ public:
     std::map<std::string, std::string>& sharedParams,
     const std::vector<double>& rateFreqs,
     bool verbose = true,
-    int warn = 1)
-  throw (Exception);
+    int warn = 1);
 
   /**
    * @brief Get A FrequenciesSet object according to options.
@@ -289,7 +288,6 @@ public:
     const std::vector<double>& rateFreqs,
     bool verbose = true,
     int warn = 1)
-  throw (Exception)
   {
     std::map<std::string, std::string> sharedParams;
     return getFrequenciesSet(alphabet, gCode, freqDescription, data, sharedParams, rateFreqs, verbose, warn);
@@ -487,8 +485,7 @@ public:
     std::map<std::string, std::string>& params,
     const std::string& suffix = "",
     bool suffixIsOptional = true,
-    bool verbose = true)
-  throw (Exception);
+    bool verbose = true);
 
   /**
    * @brief Optimize parameters according to options.
@@ -517,8 +514,7 @@ public:
     const std::string& suffix = "",
     bool suffixIsOptional = true,
     bool verbose = true,
-    int warn = 1)
-  throw (Exception);
+    int warn = 1);
 
   /**
    * @brief Optimize parameters according to options, with a molecular clock.
@@ -540,8 +536,7 @@ public:
     const std::string& suffix = "",
     bool suffixIsOptional = true,
     bool verbose = true,
-    int warn = 1)
-  throw (Exception);
+    int warn = 1);
 
   /**
    * @brief Check if parameter values are close to their definition boundary.
@@ -608,7 +603,7 @@ public:
     bool suffixIsOptional = true,
     bool verbose = true,
     bool checkOnly = false,
-    int warn = 1) throw (Exception);
+    int warn = 1);
 
   /**
    * @brief Write a tree according to options.
@@ -634,7 +629,7 @@ public:
     bool suffixIsOptional = true,
     bool verbose = true,
     bool checkOnly = false,
-    int warn = 1) throw (Exception);
+    int warn = 1);
 
 
   /**

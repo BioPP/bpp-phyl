@@ -252,7 +252,7 @@ void UniformizationSubstitutionCount::setSubstitutionModel(const SubstitutionMod
 
 /******************************************************************************/
 
-void UniformizationSubstitutionCount::substitutionRegisterHasChanged() throw (Exception)
+void UniformizationSubstitutionCount::substitutionRegisterHasChanged()
 {
   //Check compatiblity between model and substitution register:
   if (model_->getAlphabet()->getAlphabetType() != register_->getAlphabet()->getAlphabetType())
@@ -269,7 +269,7 @@ void UniformizationSubstitutionCount::substitutionRegisterHasChanged() throw (Ex
 
 /******************************************************************************/
 
-void UniformizationSubstitutionCount::weightsHaveChanged() throw (Exception)
+void UniformizationSubstitutionCount::weightsHaveChanged()
 {
   if (weights_->getAlphabet()->getAlphabetType() != register_->getAlphabet()->getAlphabetType())
     throw Exception("UniformizationSubstitutionCount::weightsHaveChanged. Incorrect alphabet type.");

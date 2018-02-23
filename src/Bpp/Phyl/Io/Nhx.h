@@ -167,12 +167,12 @@ namespace bpp
      *
      * @{
      */    
-    TreeTemplate<Node>* read(const std::string& path) const throw (Exception)
+    TreeTemplate<Node>* read(const std::string& path) const
     {
       return dynamic_cast<TreeTemplate<Node>*>(AbstractITree::read(path));
     }
     
-    TreeTemplate<Node>* read(std::istream& in) const throw (Exception);
+    TreeTemplate<Node>* read(std::istream& in) const;
     /** @} */
 
     /**
@@ -180,12 +180,12 @@ namespace bpp
      *
      * @{
      */
-    void write(const Tree& tree, const std::string& path, bool overwrite = true) const throw (Exception)
+    void write(const Tree& tree, const std::string& path, bool overwrite = true) const
     {
       AbstractOTree::write(tree, path, overwrite);
     }
     
-    void write(const Tree& tree, std::ostream& out) const throw (Exception)
+    void write(const Tree& tree, std::ostream& out) const
     {
       write_(tree, out);
     }
@@ -196,11 +196,11 @@ namespace bpp
      *
      * @{
      */
-    void read(const std::string& path, std::vector<Tree*>& trees) const throw (Exception)
+    void read(const std::string& path, std::vector<Tree*>& trees) const
     {
       AbstractIMultiTree::read(path, trees);
     }
-    void read(std::istream& in, std::vector<Tree*>& trees) const throw (Exception);
+    void read(std::istream& in, std::vector<Tree*>& trees) const;
     /**@}*/
 
     /**
@@ -208,17 +208,17 @@ namespace bpp
      *
      * @{
      */
-    void write(const std::vector<Tree*>& trees, const std::string& path, bool overwrite = true) const throw (Exception)
+    void write(const std::vector<Tree*>& trees, const std::string& path, bool overwrite = true) const
     {
       AbstractOMultiTree::write(trees, path, overwrite);
     }
-    void write(const std::vector<Tree*>& trees, std::ostream& out) const throw (Exception)
+    void write(const std::vector<Tree*>& trees, std::ostream& out) const
     {
       write_(trees, out);
     }
     /** @} */
 
-    TreeTemplate<Node>* parenthesisToTree(const std::string& description) const throw (Exception);
+    TreeTemplate<Node>* parenthesisToTree(const std::string& description) const;
 
     std::string treeToParenthesis(const TreeTemplate<Node>& tree) const;
 
@@ -252,17 +252,17 @@ namespace bpp
     bool useTagsAsPropertyNames() const { return useTagsAsPropertyNames_; }
 
   protected:
-    void write_(const Tree& tree, std::ostream& out) const throw (Exception);
+    void write_(const Tree& tree, std::ostream& out) const;
     
     template<class N>
-    void write_(const TreeTemplate<N>& tree, std::ostream& out) const throw (Exception);
+    void write_(const TreeTemplate<N>& tree, std::ostream& out) const;
     
-    void write_(const std::vector<Tree*>& trees, std::ostream& out) const throw (Exception);
+    void write_(const std::vector<Tree*>& trees, std::ostream& out) const;
     
     template<class N>
-    void write_(const std::vector<TreeTemplate<N>*>& trees, std::ostream& out) const throw (Exception);
+    void write_(const std::vector<TreeTemplate<N>*>& trees, std::ostream& out) const;
 
-    Element getElement(const std::string& elt) const throw (IOException);
+    Element getElement(const std::string& elt) const;
 
   public:
     Node* parenthesisToNode(const std::string& description) const;
@@ -274,8 +274,8 @@ namespace bpp
     bool setNodeProperties(Node& node, const std::string properties) const;
 
   protected:
-    static std::string propertyToString_(const Clonable* pptObject, short type) throw (Exception);
-    static Clonable* stringToProperty_(const std::string& pptDesc, short type) throw (Exception);
+    static std::string propertyToString_(const Clonable* pptObject, short type);
+    static Clonable* stringToProperty_(const std::string& pptDesc, short type);
   };
 
 } //end of namespace bpp.

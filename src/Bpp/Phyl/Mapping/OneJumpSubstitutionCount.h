@@ -107,7 +107,7 @@ class OneJumpSubstitutionCount:
    *
    */
         
-    void setSubstitutionRegister(SubstitutionRegister* reg) throw (Exception) {
+    void setSubstitutionRegister(SubstitutionRegister* reg) {
       throw Exception("OneJumpSubstitutionCount::setSubstitutionRegister. This SubstitutionsCount only works with a TotalSubstitutionRegister.");
     }
 

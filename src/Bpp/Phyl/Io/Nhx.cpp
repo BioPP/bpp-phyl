@@ -96,7 +96,7 @@ const string Nhx::getFormatDescription() const
 
 /******************************************************************************/
 
-TreeTemplate<Node>* Nhx::read(istream& in) const throw (Exception)
+TreeTemplate<Node>* Nhx::read(istream& in) const
 {
   // Checking the existence of specified file
   if (! in) { throw IOException ("Nhx ::read: failed to read from stream"); }
@@ -123,7 +123,7 @@ TreeTemplate<Node>* Nhx::read(istream& in) const throw (Exception)
 
 /******************************************************************************/
 
-void Nhx::write_(const Tree& tree, ostream& out) const throw (Exception)
+void Nhx::write_(const Tree& tree, ostream& out) const
 {
   // Checking the existence of specified file, and possibility to open it in write mode
   if (! out) { throw IOException ("Nhx::writeTree: failed to write to stream"); }
@@ -133,7 +133,7 @@ void Nhx::write_(const Tree& tree, ostream& out) const throw (Exception)
 /******************************************************************************/
 
 template<class N>
-void Nhx::write_(const TreeTemplate<N>& tree, ostream& out) const throw (Exception)
+void Nhx::write_(const TreeTemplate<N>& tree, ostream& out) const
 {
   // Checking the existence of specified file, and possibility to open it in write mode
   if (! out) { throw IOException ("Nhx::writeTree: failed to write to stream"); }
@@ -142,7 +142,7 @@ void Nhx::write_(const TreeTemplate<N>& tree, ostream& out) const throw (Excepti
 
 /******************************************************************************/
 
-void Nhx::read(istream& in, vector<Tree*>& trees) const throw (Exception)
+void Nhx::read(istream& in, vector<Tree*>& trees) const
 {
   // Checking the existence of specified file
   if (! in) { throw IOException ("Nhx::read: failed to read from stream"); }
@@ -173,7 +173,7 @@ void Nhx::read(istream& in, vector<Tree*>& trees) const throw (Exception)
 
 /******************************************************************************/
 
-void Nhx::write_(const vector<Tree*>& trees, ostream& out) const throw (Exception)
+void Nhx::write_(const vector<Tree*>& trees, ostream& out) const
 {
   // Checking the existence of specified file, and possibility to open it in write mode
   if (! out) { throw IOException ("Nhx::write: failed to write to stream"); }
@@ -186,7 +186,7 @@ void Nhx::write_(const vector<Tree*>& trees, ostream& out) const throw (Exceptio
 /******************************************************************************/
 
 template<class N>
-void Nhx::write_(const vector<TreeTemplate<N>*>& trees, ostream& out) const throw (Exception)
+void Nhx::write_(const vector<TreeTemplate<N>*>& trees, ostream& out) const
 {
   // Checking the existence of specified file, and possibility to open it in write mode
   if (! out) { throw IOException ("Nhx::write: failed to write to stream"); }
@@ -198,7 +198,7 @@ void Nhx::write_(const vector<TreeTemplate<N>*>& trees, ostream& out) const thro
 
 /******************************************************************************/
 
-Nhx::Element Nhx::getElement(const string& elt) const throw (IOException)
+Nhx::Element Nhx::getElement(const string& elt) const
 {
   Element element;
   element.length     = ""; //default
@@ -326,7 +326,7 @@ Node* Nhx::parenthesisToNode(const string& description) const
 
 /******************************************************************************/
 
-TreeTemplate<Node>* Nhx::parenthesisToTree(const string& description) const throw (Exception) 
+TreeTemplate<Node>* Nhx::parenthesisToTree(const string& description) const 
 {
   hasIds_ = false;
   string::size_type semi = description.rfind(';');
@@ -345,7 +345,7 @@ TreeTemplate<Node>* Nhx::parenthesisToTree(const string& description) const thro
 
 /******************************************************************************/
 
-string Nhx::propertyToString_(const Clonable* pptObject, short type) throw (Exception)
+string Nhx::propertyToString_(const Clonable* pptObject, short type)
 {
   if (type == 0) {
     const BppString* castedPptObject = dynamic_cast<const BppString*>(pptObject);
@@ -378,7 +378,7 @@ string Nhx::propertyToString_(const Clonable* pptObject, short type) throw (Exce
 
 /******************************************************************************/
 
-Clonable* Nhx::stringToProperty_(const string& pptDesc, short type) throw (Exception)
+Clonable* Nhx::stringToProperty_(const string& pptDesc, short type)
 {
   if (type == 0) {
     return new BppString(pptDesc);

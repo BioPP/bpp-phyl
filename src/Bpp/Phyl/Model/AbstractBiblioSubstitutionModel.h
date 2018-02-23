@@ -107,6 +107,17 @@ namespace bpp
 
     void setFreq(std::map<int, double>& frequ);
 
+<<<<<<< HEAD
+=======
+    const Alphabet* getAlphabet() const { return getModel().getAlphabet(); }
+
+    size_t getNumberOfStates() const { return getModel().getNumberOfStates(); }
+
+    double getInitValue(size_t i, int state) const { return getModel().getInitValue(i, state); }
+
+    const FrequenciesSet* getFrequenciesSet() const {return getModel().getFrequenciesSet(); }
+
+>>>>>>> 36ee90f0cbb9c7f97c05f79cbda9a5f0f7c509d2
     /*
      * @}
      *

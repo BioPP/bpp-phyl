@@ -88,7 +88,7 @@ namespace bpp
       return *this;
     }
 
-    ~SubstitutionModelException() throw ();
+    ~SubstitutionModelException();
 
   public:
     /**
@@ -270,7 +270,7 @@ namespace bpp
      * @throw BadIntException if states are not allowed in the associated alphabet.
      * @see getStates();
      */
-    virtual double getInitValue(size_t i, int state) const throw (IndexOutOfBoundsException, BadIntException) = 0;
+    virtual double getInitValue(size_t i, int state) const = 0;
 
     /**
      * @brief Get the rate

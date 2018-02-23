@@ -57,7 +57,7 @@ RHomogeneousMixedTreeLikelihood::RHomogeneousMixedTreeLikelihood(
   DiscreteDistribution* rDist,
   bool checkRooted,
   bool verbose,
-  bool usePatterns) throw (Exception) :
+  bool usePatterns) :
   RHomogeneousTreeLikelihood(tree, model, rDist, checkRooted, verbose, usePatterns),
   treeLikelihoodsContainer_(),
   probas_()
@@ -81,7 +81,7 @@ RHomogeneousMixedTreeLikelihood::RHomogeneousMixedTreeLikelihood(
   DiscreteDistribution* rDist,
   bool checkRooted,
   bool verbose,
-  bool usePatterns) throw (Exception) :
+  bool usePatterns) :
   RHomogeneousTreeLikelihood(tree, model, rDist, checkRooted, verbose, usePatterns),
   treeLikelihoodsContainer_(),
   probas_()
@@ -139,7 +139,7 @@ RHomogeneousMixedTreeLikelihood::~RHomogeneousMixedTreeLikelihood()
 }
 
 
-void RHomogeneousMixedTreeLikelihood::initialize() throw (Exception)
+void RHomogeneousMixedTreeLikelihood::initialize()
 {
   for (size_t i = 0; i < treeLikelihoodsContainer_.size(); i++)
   {
@@ -149,7 +149,7 @@ void RHomogeneousMixedTreeLikelihood::initialize() throw (Exception)
   RHomogeneousTreeLikelihood::initialize();
 }
 
-void RHomogeneousMixedTreeLikelihood::setData(const SiteContainer& sites) throw (Exception)
+void RHomogeneousMixedTreeLikelihood::setData(const SiteContainer& sites)
 {
   RHomogeneousTreeLikelihood::setData(sites);
 

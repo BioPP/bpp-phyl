@@ -187,7 +187,7 @@ double TreeTemplateTools::getHeights(const Node& node, map<const Node*, double>&
 
 /******************************************************************************/
 
-TreeTemplateTools::Element TreeTemplateTools::getElement(const string& elt) throw (IOException)
+TreeTemplateTools::Element TreeTemplateTools::getElement(const string& elt)
 {
   Element element;
   element.length    = ""; // default
@@ -332,7 +332,7 @@ Node* TreeTemplateTools::parenthesisToNode(const string& description, unsigned i
 
 /******************************************************************************/
 
-TreeTemplate<Node>* TreeTemplateTools::parenthesisToTree(const string& description, bool bootstrap, const string& propertyName, bool withId, bool verbose) throw (Exception)
+TreeTemplate<Node>* TreeTemplateTools::parenthesisToTree(const string& description, bool bootstrap, const string& propertyName, bool withId, bool verbose)
 {
   string::size_type semi = description.rfind(';');
   if (semi == string::npos)
@@ -505,7 +505,7 @@ string TreeTemplateTools::treeToParenthesis(const TreeTemplate<Node>& tree, bool
 
 /******************************************************************************/
 
-Vdouble TreeTemplateTools::getBranchLengths(const Node& node) throw (NodePException)
+Vdouble TreeTemplateTools::getBranchLengths(const Node& node)
 {
   Vdouble brLen(1);
   brLen[0] = node.getDistanceToFather();
@@ -522,7 +522,7 @@ Vdouble TreeTemplateTools::getBranchLengths(const Node& node) throw (NodePExcept
 
 /******************************************************************************/
 
-double TreeTemplateTools::getTotalLength(const Node& node, bool includeAncestor) throw (NodePException)
+double TreeTemplateTools::getTotalLength(const Node& node, bool includeAncestor)
 {
   if (includeAncestor && !node.hasDistanceToFather())
     throw NodePException("TreeTools::getTotalLength(). No branch length.", &node);
@@ -570,7 +570,7 @@ void TreeTemplateTools::setVoidBranchLengths(Node& node, double brLen)
 
 /******************************************************************************/
 
-void TreeTemplateTools::scaleTree(Node& node, double factor) throw (NodePException)
+void TreeTemplateTools::scaleTree(Node& node, double factor)
 {
   if (node.hasFather())
   {

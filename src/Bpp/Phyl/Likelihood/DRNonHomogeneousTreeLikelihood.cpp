@@ -62,8 +62,7 @@ DRNonHomogeneousTreeLikelihood::DRNonHomogeneousTreeLikelihood(
   SubstitutionModelSet* modelSet,
   DiscreteDistribution* rDist,
   bool verbose,
-  bool reparametrizeRoot)
-throw (Exception) :
+  bool reparametrizeRoot) :
   AbstractNonHomogeneousTreeLikelihood(tree, modelSet, rDist, verbose, reparametrizeRoot),
   likelihoodData_(0),
   minusLogLik_(-1.)
@@ -81,8 +80,7 @@ DRNonHomogeneousTreeLikelihood::DRNonHomogeneousTreeLikelihood(
   SubstitutionModelSet* modelSet,
   DiscreteDistribution* rDist,
   bool verbose,
-  bool reparametrizeRoot)
-throw (Exception) :
+  bool reparametrizeRoot) :
   AbstractNonHomogeneousTreeLikelihood(tree, modelSet, rDist, verbose, reparametrizeRoot),
   likelihoodData_(0),
   minusLogLik_(-1.)
@@ -95,7 +93,7 @@ throw (Exception) :
 
 /******************************************************************************/
 
-void DRNonHomogeneousTreeLikelihood::init_() throw (Exception)
+void DRNonHomogeneousTreeLikelihood::init_()
 {
   likelihoodData_ = new DRASDRTreeLikelihoodData(
     tree_,
@@ -135,7 +133,7 @@ DRNonHomogeneousTreeLikelihood::~DRNonHomogeneousTreeLikelihood()
 
 /******************************************************************************/
 
-void DRNonHomogeneousTreeLikelihood::setData(const SiteContainer& sites) throw (Exception)
+void DRNonHomogeneousTreeLikelihood::setData(const SiteContainer& sites)
 {
   if (data_)
     delete data_;
@@ -235,7 +233,6 @@ double DRNonHomogeneousTreeLikelihood::getLogLikelihoodForASiteForARateClassForA
 /******************************************************************************/
 
 void DRNonHomogeneousTreeLikelihood::setParameters(const ParameterList& parameters)
-throw (ParameterNotFoundException, ConstraintException)
 {
   setParametersValues(parameters);
 }
@@ -303,7 +300,6 @@ void DRNonHomogeneousTreeLikelihood::fireParameterChanged(const ParameterList& p
 /******************************************************************************/
 
 double DRNonHomogeneousTreeLikelihood::getValue() const
-throw (Exception)
 {
   if (!isInitialized())
     throw Exception("DRNonHomogeneousTreeLikelihood::getValue(). Instance is not initialized.");
@@ -371,7 +367,6 @@ void DRNonHomogeneousTreeLikelihood::computeTreeDLikelihoods()
 /******************************************************************************/
 
 double DRNonHomogeneousTreeLikelihood::getFirstOrderDerivative(const string& variable) const
-throw (Exception)
 {
   if (!hasParameter(variable))
     throw ParameterNotFoundException("DRNonHomogeneousTreeLikelihood::getFirstOrderDerivative().", variable);
@@ -500,7 +495,6 @@ void DRNonHomogeneousTreeLikelihood::computeTreeD2Likelihoods()
 /******************************************************************************/
 
 double DRNonHomogeneousTreeLikelihood::getSecondOrderDerivative(const string& variable) const
-throw (Exception)
 {
   if (!hasParameter(variable))
     throw ParameterNotFoundException("DRNonHomogeneousTreeLikelihood::getSecondOrderDerivative().", variable);

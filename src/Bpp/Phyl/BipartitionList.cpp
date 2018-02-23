@@ -240,7 +240,7 @@ BipartitionList::~BipartitionList()
 
 /******************************************************************************/
 
-map<string, bool> BipartitionList::getBipartition(size_t i) const throw (Exception)
+map<string, bool> BipartitionList::getBipartition(size_t i) const
 {
   map<string, bool> bip;
 
@@ -259,7 +259,7 @@ map<string, bool> BipartitionList::getBipartition(size_t i) const throw (Excepti
 
 /******************************************************************************/
 
-int* BipartitionList::getBitBipartition(size_t i) throw (Exception)
+int* BipartitionList::getBitBipartition(size_t i)
 {
   if (i >= bitBipartitionList_.size())
     throw Exception("Bipartition index exceeds BipartitionList size");
@@ -291,7 +291,7 @@ bool BipartitionList::haveSameElementsThan(map<string, bool>& bipart) const
 
 /******************************************************************************/
 
-void BipartitionList::addBipartition(map<string, bool>& bipart, bool checkElements) throw (Exception)
+void BipartitionList::addBipartition(map<string, bool>& bipart, bool checkElements)
 {
   if (checkElements && !BipartitionList::haveSameElementsThan(bipart))
     throw Exception("Distinct bipartition element sets");
@@ -317,7 +317,7 @@ void BipartitionList::addBipartition(map<string, bool>& bipart, bool checkElemen
 
 /******************************************************************************/
 
-void BipartitionList::deleteBipartition(size_t i) throw (Exception)
+void BipartitionList::deleteBipartition(size_t i)
 {
   if (i >= bitBipartitionList_.size())
     throw Exception("Bipartition index exceeds BipartitionList size");
@@ -328,7 +328,7 @@ void BipartitionList::deleteBipartition(size_t i) throw (Exception)
 
 /******************************************************************************/
 
-bool BipartitionList::containsBipartition(map<string, bool>& bipart, bool checkElements) const throw (Exception)
+bool BipartitionList::containsBipartition(map<string, bool>& bipart, bool checkElements) const
 {
   size_t i, j;
   bool dac, padac;
@@ -366,7 +366,7 @@ bool BipartitionList::containsBipartition(map<string, bool>& bipart, bool checkE
 
 /******************************************************************************/
 
-bool BipartitionList::areIdentical(size_t k1, size_t k2) const throw (Exception)
+bool BipartitionList::areIdentical(size_t k1, size_t k2) const
 {
   bool dac, padac;
 
@@ -400,7 +400,7 @@ bool BipartitionList::areIdentical(size_t k1, size_t k2) const throw (Exception)
 
 /******************************************************************************/
 
-bool BipartitionList::areCompatible(size_t k1, size_t k2) const throw (Exception)
+bool BipartitionList::areCompatible(size_t k1, size_t k2) const
 {
   bool uu, uz, zu, zz;
 
@@ -451,7 +451,7 @@ bool BipartitionList::areAllCompatible() const
 
 /******************************************************************************/
 
-bool BipartitionList::areAllCompatibleWith(map<string, bool>& bipart, bool checkElements) const throw (Exception)
+bool BipartitionList::areAllCompatibleWith(map<string, bool>& bipart, bool checkElements) const
 {
   if (checkElements && !haveSameElementsThan(bipart))
     throw Exception("Distinct bipartition element sets");
@@ -525,7 +525,7 @@ void BipartitionList::sortElements()
 
 /******************************************************************************/
 
-size_t BipartitionList::getPartitionSize(size_t k) const throw (Exception)
+size_t BipartitionList::getPartitionSize(size_t k) const
 {
   size_t size = 0;
   if (k >= bitBipartitionList_.size())
@@ -602,7 +602,7 @@ void BipartitionList::sortByPartitionSize()
 
 /******************************************************************************/
 
-void BipartitionList::flip(size_t k) throw (Exception)
+void BipartitionList::flip(size_t k)
 {
   if (k >= bitBipartitionList_.size())
     throw Exception("Bipartition index exceeds BipartitionList size");
@@ -647,7 +647,7 @@ void BipartitionList::removeRedundantBipartitions()
 
 /******************************************************************************/
 
-TreeTemplate<Node>* BipartitionList::toTree() const throw (Exception)
+TreeTemplate<Node>* BipartitionList::toTree() const
 {
   BipartitionList* sortedBipL;
   vector<int*> sortedBitBipL;

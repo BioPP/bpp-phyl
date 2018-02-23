@@ -97,8 +97,39 @@ namespace bpp
       return *subModel_.get();
     }
 
+<<<<<<< HEAD
   public:
     /*
+=======
+  double getRate() const { return getModel().getRate(); }
+
+  void setRate(double rate) { return getModel().setRate(rate); }
+
+  void addRateParameter()
+  {
+    getModel().addRateParameter();
+    addParameter_(new Parameter(getNamespace() + "rate", getModel().getRate(), &Parameter::R_PLUS_STAR));
+  }
+
+  void setFreqFromData(const SequenceContainer& data, double pseudoCount = 0){getModel().setFreqFromData(data, pseudoCount); }
+
+  void setFreq(std::map<int, double>& frequ) {getModel().setFreq(frequ); }
+
+  const Alphabet* getAlphabet() const { return getModel().getAlphabet(); }
+
+  size_t getNumberOfStates() const { return getModel().getNumberOfStates(); }
+
+  double getInitValue(size_t i, int state) const { return getModel().getInitValue(i, state); }
+
+  const FrequenciesSet* getFrequenciesSet() const {return getModel().getFrequenciesSet(); }
+
+  /*
+   * @}
+   *
+   */
+
+  /*
+>>>>>>> 36ee90f0cbb9c7f97c05f79cbda9a5f0f7c509d2
      *@ brief Methods to supersede AbstractSubstitutionModel methods.
      *
      * @{

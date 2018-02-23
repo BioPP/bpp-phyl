@@ -404,7 +404,7 @@ class DRASDRTreeLikelihoodData :
      * @param model The substitution model to use.
      * @throw Exception if an error occures.
      */
-    void initLikelihoods(const SiteContainer& sites, const TransitionModel& model) throw (Exception);
+    void initLikelihoods(const SiteContainer& sites, const TransitionModel& model);
     
     /**
      * @brief Rebuild likelihood arrays at inner nodes.
@@ -413,9 +413,9 @@ class DRASDRTreeLikelihoodData :
      * Node arrays relationship are rebuilt according to the new topology of the tree.
      * The leaves likelihood remain unchanged, so as for the first and second order derivatives.
      */
-    void reInit() throw (Exception);
+    void reInit();
     
-    void reInit(const Node* node) throw (Exception);
+    void reInit(const Node* node);
 
   protected:
     /**
@@ -434,7 +434,7 @@ class DRASDRTreeLikelihoodData :
      * @param sites The sequence container to use.
      * @param model The model, used for initializing leaves' likelihoods.
      */
-    void initLikelihoods(const Node* node, const SiteContainer& sites, const TransitionModel& model) throw (Exception);
+    void initLikelihoods(const Node* node, const SiteContainer& sites, const TransitionModel& model);
     
 };
 

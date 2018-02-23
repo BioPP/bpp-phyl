@@ -53,7 +53,7 @@ TreeDrawingDisplayControler::~TreeDrawingDisplayControler()
   }
 }
 
-void TreeDrawingDisplayControler::addListener(const std::string& propertyName, TreeDrawingListener* listener) throw (Exception)
+void TreeDrawingDisplayControler::addListener(const std::string& propertyName, TreeDrawingListener* listener)
 {
   if (listeners_.find(propertyName) != listeners_.end())
     throw Exception("TreeDrawingDisplayControler::addListener. A listener is already added with this name: " + propertyName + ".");

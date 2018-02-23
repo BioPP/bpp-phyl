@@ -48,7 +48,7 @@ using namespace bpp;
 
 /******************************************************************************/
 
-void DRASDRTreeLikelihoodData::initLikelihoods(const SiteContainer& sites, const TransitionModel& model) throw (Exception)
+void DRASDRTreeLikelihoodData::initLikelihoods(const SiteContainer& sites, const TransitionModel& model)
 {
   if (sites.getNumberOfSequences() == 1)
     throw Exception("Error, only 1 sequence!");
@@ -101,7 +101,7 @@ void DRASDRTreeLikelihoodData::initLikelihoods(const SiteContainer& sites, const
 
 /******************************************************************************/
 
-void DRASDRTreeLikelihoodData::initLikelihoods(const Node* node, const SiteContainer& sites, const TransitionModel& model) throw (Exception)
+void DRASDRTreeLikelihoodData::initLikelihoods(const Node* node, const SiteContainer& sites, const TransitionModel& model)
 {
   if (node->isLeaf())
   {
@@ -207,12 +207,12 @@ void DRASDRTreeLikelihoodData::initLikelihoods(const Node* node, const SiteConta
 
 /******************************************************************************/
 
-void DRASDRTreeLikelihoodData::reInit() throw (Exception)
+void DRASDRTreeLikelihoodData::reInit()
 {
   reInit(tree_->getRootNode());
 }
 
-void DRASDRTreeLikelihoodData::reInit(const Node* node) throw (Exception)
+void DRASDRTreeLikelihoodData::reInit(const Node* node)
 {
   if (node->isLeaf())
   {
