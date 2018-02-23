@@ -53,6 +53,7 @@
 #include <map>
 //#include <algorithm>
 #include <memory>
+#include <numeric>
 
 namespace bpp
 {
