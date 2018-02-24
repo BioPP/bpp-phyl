@@ -185,7 +185,7 @@ namespace bpp
 
     void setRate(double rate) { return getModel().setRate(rate); }
 
-    double getInitValue(size_t i, int state) const throw (BadIntException) { return modelChanged_->getInitValue(i, state); }
+    double getInitValue(size_t i, int state) const { return modelChanged_->getInitValue(i, state); }
 
     void updateMatrices();
     

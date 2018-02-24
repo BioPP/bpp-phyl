@@ -172,7 +172,7 @@ namespace bpp
 
     const Matrix<double>& getd2Pij_dt2(double t) const { return getModel().getd2Pij_dt2(t); }
 
-    double getInitValue(size_t i, int state) const throw (IndexOutOfBoundsException, BadIntException)
+    double getInitValue(size_t i, int state) const
     {
       return getModel().getInitValue(i,state);
     }
