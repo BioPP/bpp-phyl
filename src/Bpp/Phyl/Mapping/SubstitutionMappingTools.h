@@ -237,7 +237,6 @@ namespace bpp
      * the counts should be computed. 
      * @return A vector will all counts for all types of substitutions summed.
      */
-    
     static std::vector<double> computeTotalSubstitutionVectorForSitePerBranch(const SubstitutionMapping& smap, size_t siteIndex);
 
     /**
@@ -249,7 +248,6 @@ namespace bpp
      * the counts should be computed. 
      * @return A vector will all counts for all branches summed.
      */
-    
     static std::vector<double> computeTotalSubstitutionVectorForSitePerType(const SubstitutionMapping& smap, size_t siteIndex);
 
     /**
@@ -263,7 +261,6 @@ namespace bpp
      * @param siteIndex The index of the substitution vector for which the norm should be computed.
      * @return The norm of the substitution vector.
      */
-
     static double computeNormForSite(const SubstitutionMapping& smap, size_t siteIndex);
 
     /**
@@ -273,7 +270,6 @@ namespace bpp
      * @param branchIndex The index of the substitution vector for which the counts should be computed.
      * @return A vector will all counts summed for each types of substitutions.
      */
-
     static std::vector<double> computeSumForBranch(const SubstitutionMapping& smap, size_t branchIndex);
 
 
@@ -284,7 +280,6 @@ namespace bpp
      * @param siteIndex The index of the substitution vector for which the counts should be computed.
      * @return A vector will all counts summed for each types of substitutions.
      */
-  
     static std::vector<double> computeSumForSite(const SubstitutionMapping& smap, size_t siteIndex);
 
 
@@ -324,7 +319,6 @@ namespace bpp
      * @param verbose           Display progress messages.
      * @return A vector of normalization vectors (one per branch per type).
      */
-
     static std::vector< std::vector<double> > getNormalizationsPerBranch(
       DRTreeLikelihood& drtl,
       const std::vector<int>& ids,
@@ -345,7 +339,6 @@ namespace bpp
      * @param verbose           Display progress messages.
      * @return A vector of normalization vectors (one per branch per type).
      */
-
     static std::vector< std::vector<double> > getNormalizationsPerBranch(
       DRTreeLikelihood& drtl,
       const std::vector<int>& ids,
@@ -371,7 +364,6 @@ namespace bpp
      *
      * @param verbose           Display progress messages.
      */
-
     static std::vector< std::vector<double> > getRelativeCountsPerBranch(
       DRTreeLikelihood& drtl,
       const std::vector<int>& ids,
@@ -401,7 +393,6 @@ namespace bpp
      *                          word length).
      * @param verbose           Display progress messages.
      */
-
     static std::vector< std::vector<double> >  getNormalizedCountsPerBranch(
       DRTreeLikelihood& drtl,
       const std::vector<int>& ids,
@@ -433,7 +424,6 @@ namespace bpp
      *                          word length).
      * @param verbose           Display progress messages.
      */
-
     static std::vector< std::vector<double> > getNormalizedCountsPerBranch(
       DRTreeLikelihood& drtl,
       const std::vector<int>& ids,
@@ -470,9 +460,7 @@ namespace bpp
      * @param model       The model on which the SubstitutionCount is built
      * @param reg         The Substitution Register
      * @param array       The resulted counts as an tabular site X branchid 
-     *
      */
-
     static void computeCountsPerSitePerBranch(
       DRTreeLikelihood& drtl,
       const std::vector<int>& ids,
@@ -506,9 +494,7 @@ namespace bpp
      * @param threshold         value above which counts are considered saturated
      *                                        (default: -1 means no threshold).
      * @param verbose           Display progress messages.
-     *
      */
-
     static void computeCountsPerTypePerBranch(
       DRTreeLikelihood& drtl,
       const std::vector<int>& ids,
@@ -536,9 +522,7 @@ namespace bpp
      *                          length (otherwise they are divided per
      *                          word length).
      * @param verbose           Display progress messages.
-     *
      */
-
     static void computeCountsPerTypePerBranch(
       DRTreeLikelihood& drtl,
       const std::vector<int>& ids,
@@ -571,7 +555,6 @@ namespace bpp
      * @param verbose           Display progress messages.
      *
      */
-
     static void computeCountsPerTypePerBranch(
       DRTreeLikelihood& drtl,
       const std::vector<int>& ids,
@@ -604,9 +587,7 @@ namespace bpp
      * @param reg               the Substitution Register
      * @param result            the resulted counts as an tabular
      *                          site X TypeId 
-     *
      */
-
     static void computeCountsPerSitePerType(
       DRTreeLikelihood& drtl,
       const std::vector<int>& ids,
@@ -631,9 +612,7 @@ namespace bpp
      * @param perWord           If true, normalized counts are per unit of
      *                          length (otherwise they are divided per
      *                          word length).
-     *
      */
-
     static void computeCountsPerSitePerType(
       DRTreeLikelihood& drtl,
       const std::vector<int>& ids,
@@ -661,9 +640,7 @@ namespace bpp
      * @param perWord           If true, normalized counts are per unit of
      *                          length (otherwise they are divided per
      *                          word length).
-     *
      */
-
     static void computeCountsPerSitePerType(
       DRTreeLikelihood& drtl,
       const std::vector<int>& ids,
@@ -676,14 +653,12 @@ namespace bpp
 
     /**
      *@}
-     *
      */
 
     /**
      *@ brief Per Branch Per Site Per Type methods
      *
      *@{
-     *
      */
 
     /**
@@ -697,7 +672,6 @@ namespace bpp
      *                          site X branchid X typeId
      * @author Iakov Davydov
      */
-    
     static void computeCountsPerSitePerBranchPerType(
       DRTreeLikelihood& drtl,
       const std::vector<int>& ids,
@@ -721,9 +695,7 @@ namespace bpp
      * @param perWord           If true, normalized counts are per unit of
      *                          length (otherwise they are divided per
      *                          word length).
-     *
      */
-
     static void computeCountsPerSitePerBranchPerType(
       DRTreeLikelihood& drtl,
       const std::vector<int>& ids,
@@ -750,9 +722,7 @@ namespace bpp
      * @param perWord           If true, normalized counts are per unit of
      *                          length (otherwise they are divided per
      *                          word length).
-     *
      */
-
     static void computeCountsPerSitePerBranchPerType(
       DRTreeLikelihood& drtl,
       const std::vector<int>& ids,
@@ -772,27 +742,21 @@ namespace bpp
 
     /**
      * @brief Output Per Site Per Branch
-     *
      */
-    
     static void outputPerSitePerBranch(const std::string& filename,
                                        const std::vector<int>& ids,
                                        const VVdouble& counts);
 
     /**
      * @brief Output Per Site Per Type
-     *
      */
-    
     static void outputPerSitePerType(const std::string& filename,
                                      const SubstitutionRegister& reg,
                                      const VVdouble& counts);
     
     /**
      * @brief Output Per Site Per Branch Per Type
-     *
      */
-    
     static void outputPerSitePerBranchPerType(const std::string& filenamePrefix,
                                               const std::vector<int>& ids,
                                               const SubstitutionRegister& reg,
