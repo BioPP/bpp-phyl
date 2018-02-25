@@ -77,10 +77,10 @@ namespace bpp
      * @throw Exception if an error occured.
      */
 
-    static AlignedValuesContainer* getSequenceSubset(const AlignedValuesContainer& sequenceSet, const Node& node) throw (Exception);
+    static AlignedValuesContainer* getSequenceSubset(const AlignedValuesContainer& sequenceSet, const Node& node);
 
     template<class N, class E, class I>
-    static AlignedValuesContainer* getSequenceSubset(const AlignedValuesContainer& sequenceSet, const std::shared_ptr<N> node, const AssociationTreeGraphImplObserver<N,E,I>& tree) throw (Exception);
+    static AlignedValuesContainer* getSequenceSubset(const AlignedValuesContainer& sequenceSet, const std::shared_ptr<N> node, const AssociationTreeGraphImplObserver<N,E,I>& tree);
 
     /**
      * @brief Extract the sequences corresponding to a given set of names.
@@ -91,7 +91,7 @@ namespace bpp
      * @throw Exception if an error occured.
      */
 
-    static AlignedValuesContainer* getSequenceSubset(const AlignedValuesContainer& sequenceSet, const std::vector<std::string>& names) throw (Exception);
+    static AlignedValuesContainer* getSequenceSubset(const AlignedValuesContainer& sequenceSet, const std::vector<std::string>& names);
     
     /**
      * @brief Compress a site container by removing duplicated sites.
@@ -100,7 +100,7 @@ namespace bpp
      * @return A new site container with unique sites.
      * @throw Exception if an error occured.
      */
-    static AlignedValuesContainer* shrinkSiteSet(const AlignedValuesContainer& sequenceSet) throw (Exception);
+    static AlignedValuesContainer* shrinkSiteSet(const AlignedValuesContainer& sequenceSet);
 
     /**
      * @brief Look for the occurence of each site in sequences1 in sequences2 and send the
@@ -114,7 +114,7 @@ namespace bpp
   };
 
   template<class N, class E, class I>
-  AlignedValuesContainer* PatternTools::getSequenceSubset(const AlignedValuesContainer& sequenceSet, const std::shared_ptr<N> node, const AssociationTreeGraphImplObserver<N,E,I>& tree) throw (Exception)
+  AlignedValuesContainer* PatternTools::getSequenceSubset(const AlignedValuesContainer& sequenceSet, const std::shared_ptr<N> node, const AssociationTreeGraphImplObserver<N,E,I>& tree)
   {
     size_t nbSites=sequenceSet.getNumberOfSites();
 

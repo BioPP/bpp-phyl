@@ -93,6 +93,7 @@ namespace bpp
    *
    * @see ApplicationTools
    */
+
   class PhylogeneticsApplicationTools
   {
   
@@ -449,7 +450,6 @@ namespace bpp
   
     static SubstitutionRegister* getSubstitutionRegister(const std::string& regTypeDesc, const StateMap& stateMap, const GeneticCode* genCode = 0, bool verbose = true);
   
-
     /**
      * @brief Sets a SubstitutionModelSet object according to options.
      *
@@ -602,7 +602,6 @@ namespace bpp
       bool suffixIsOptional  = true,
       bool verbose = true,
       int warn = 1);
-
 
     static void addSubstitutionProcessCollectionMember(
       SubstitutionProcessCollection* SubProColl, 

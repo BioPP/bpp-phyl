@@ -80,7 +80,7 @@ public:
    * @param positiveLengths Tell if negative lengths should be avoided.
    * @param verbose Allow to display extra information, like progress bars.
    */
-  BioNJ(const DistanceMatrix& matrix, bool rooted = false, bool positiveLengths = false, bool verbose = true) throw (Exception) :
+  BioNJ(const DistanceMatrix& matrix, bool rooted = false, bool positiveLengths = false, bool verbose = true) :
     NeighborJoining(rooted, positiveLengths, verbose),
     // Use the default constructor, because the other one call computeTree.
     variance_(matrix),
@@ -98,12 +98,12 @@ public:
 public:
   std::string getName() const { return "BioNJ"; }
 
-  void setDistanceMatrix(const DistanceMatrix& matrix) throw (Exception)
+  void setDistanceMatrix(const DistanceMatrix& matrix)
   {
     NeighborJoining::setDistanceMatrix(matrix);
     variance_ = matrix;
   }
-  void computeTree() throw (Exception);
+  void computeTree();
   double computeDistancesFromPair(const std::vector<size_t>& pair, const std::vector<double>& branchLengths, size_t pos);
 };
 } // end of namespace bpp.

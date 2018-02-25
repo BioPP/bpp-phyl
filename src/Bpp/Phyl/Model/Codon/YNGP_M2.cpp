@@ -125,6 +125,7 @@ YNGP_M2::YNGP_M2(const GeneticCode* gc, FrequenciesSet* codonFreqs) :
 
   // update Matrices
 
+  computeFrequencies(false);
   updateMatrices();
 }
 

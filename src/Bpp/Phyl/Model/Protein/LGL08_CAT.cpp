@@ -94,13 +94,13 @@ LGL08_CAT::EmbeddedModel::EmbeddedModel(const ProteicAlphabet* alpha, string nam
   //Exchangeabilities:
   for(unsigned int i = 0; i < 20; i++)
   {
-  for(unsigned int j = 0; j < 20; j++)
-  {
-    if(i == j)
-    exchangeability_(i,i) = -19.;
-    else
-    exchangeability_(i,j) = 1.;
-  }
+    for(unsigned int j = 0; j < 20; j++)
+    {
+      if(i == j)
+        exchangeability_(i,i) = -19.;
+      else
+        exchangeability_(i,j) = 1.;
+    }
   }
   
   //Equilibrium frequencies, rates and proportions:

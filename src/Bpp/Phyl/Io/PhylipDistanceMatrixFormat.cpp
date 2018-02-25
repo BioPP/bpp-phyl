@@ -53,7 +53,7 @@ using namespace bpp;
 
 using namespace std;
 
-DistanceMatrix * PhylipDistanceMatrixFormat::read(istream& in) const throw (Exception)
+DistanceMatrix * PhylipDistanceMatrixFormat::read(istream& in) const
 {
 	string s = FileTools::getNextLine(in);
 	// the size of the matrix:
@@ -93,7 +93,7 @@ DistanceMatrix * PhylipDistanceMatrixFormat::read(istream& in) const throw (Exce
 	return dist;
 }
 
-void PhylipDistanceMatrixFormat::write(const DistanceMatrix& dist, ostream& out) const throw (Exception)
+void PhylipDistanceMatrixFormat::write(const DistanceMatrix& dist, ostream& out) const
 {
 	size_t n = dist.size();
 	out << "   " << n << endl;

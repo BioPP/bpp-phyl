@@ -96,18 +96,18 @@ public:
 	void setVectorOfColumnWeights(const std::vector<double>& cw) { columnWeights_ = cw; }
 	void setParamValues(std::map<std::string, std::string>& valuesSettings) {paramValues_ = valuesSettings;}
 	
-	void setFrequencies(const std::vector<double>& frequencies) throw (DimensionException, Exception);
+	void setFrequencies(const std::vector<double>& frequencies);
 	
 	void defineParameters();
 	void fireParameterChanged(const ParameterList& parameters);
-	void updateFrequencies() throw (Exception);
+	void updateFrequencies();
 	
 	void initSet(CoalaCore* coala);
 	
-	void computeReversePCA(const std::vector<double>& positions, std::vector<double>& tmpFreqs) throw (Exception);
-	void computeCoordsFirstSpacePCA(std::vector<double>& tmpFreqs, std::vector<double>& freqs) throw (Exception);
-	void computeReverseCOA(const std::vector<double>& positions, std::vector<double>& tmpFreqs) throw (Exception);
-	void computeCoordsFirstSpaceCOA(std::vector<double>& tmpFreqs, std::vector<double>& freqs) throw (Exception);	
+	void computeReversePCA(const std::vector<double>& positions, std::vector<double>& tmpFreqs);
+	void computeCoordsFirstSpacePCA(std::vector<double>& tmpFreqs, std::vector<double>& freqs);
+	void computeReverseCOA(const std::vector<double>& positions, std::vector<double>& tmpFreqs);
+	void computeCoordsFirstSpaceCOA(std::vector<double>& tmpFreqs, std::vector<double>& freqs);	
 	
 };
 

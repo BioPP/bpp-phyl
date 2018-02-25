@@ -48,7 +48,7 @@ const std::string IOTreeFactory::NEWICK_FORMAT = "Newick";
 const std::string IOTreeFactory::NEXUS_FORMAT = "Nexus"; 
 const std::string IOTreeFactory::NHX_FORMAT = "Nhx"; 
 
-ITree* IOTreeFactory::createReader(const std::string& format) throw (Exception)
+ITree* IOTreeFactory::createReader(const std::string& format)
 {
        if (format == NEWICK_FORMAT) return new Newick();
   else if (format == NEXUS_FORMAT) return new NexusIOTree();
@@ -56,7 +56,7 @@ ITree* IOTreeFactory::createReader(const std::string& format) throw (Exception)
   else throw Exception("Format " + format + " is not supported for input.");
 }
   
-OTree* IOTreeFactory::createWriter(const std::string& format) throw (Exception)
+OTree* IOTreeFactory::createWriter(const std::string& format)
 {
        if (format == NEWICK_FORMAT) return new Newick();
   else if (format == NEXUS_FORMAT) return new NexusIOTree();

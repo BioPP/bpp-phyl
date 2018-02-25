@@ -52,8 +52,7 @@ using namespace std;
 
 AbstractDiscreteRatesAcrossSitesTreeLikelihood::AbstractDiscreteRatesAcrossSitesTreeLikelihood(
   DiscreteDistribution* rDist,
-  bool verbose)
-throw (Exception) :
+  bool verbose) :
   rateDistribution_(rDist)
 {
   AbstractTreeLikelihood::enableDerivatives(true);

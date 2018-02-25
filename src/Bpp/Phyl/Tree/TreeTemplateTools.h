@@ -162,7 +162,7 @@ public:
    * @return The id of the node.
    * @throw NodeNotFoundException If the node is not found.
    */
-  static int getLeafId(const Node& node, const std::string& name) throw (NodeNotFoundException)
+  static int getLeafId(const Node& node, const std::string& name)
   {
     int* id = 0;
     searchLeaf(node, name, id);
@@ -183,7 +183,7 @@ public:
    * @param id The id of the node.
    * @throw NodeNotFoundException If the node is not found.
    */
-  static void searchLeaf(const Node& node, const std::string& name, int*& id) throw (NodeNotFoundException)
+  static void searchLeaf(const Node& node, const std::string& name, int*& id)
   {
     if (node.hasNoSon())
     {
@@ -207,7 +207,7 @@ public:
    * @throw NodeNotFoundException If the node is not found.
    */
   template<class N>
-  static void dropLeaf(TreeTemplate<N>& tree, const std::string& leafName) throw (NodeNotFoundException, Exception)
+  static void dropLeaf(TreeTemplate<N>& tree, const std::string& leafName)
   {
     N* leaf = tree.getNode(leafName);
     if (!leaf->hasFather())
@@ -264,7 +264,7 @@ public:
    * @throw Exception If something unexpected happens :s
    */
   template<class N>
-  static void dropSubtree(TreeTemplate<N>& tree, Node* subtree) throw (Exception)
+  static void dropSubtree(TreeTemplate<N>& tree, Node* subtree)
   {
     if (!subtree->hasFather())
       throw Exception("TreeTemplateTools::dropSubtree(). Trying to remove the full tree!");
@@ -830,7 +830,7 @@ public:
    * @return A vector with all branch lengths.
    * @throw NodePException If a branch length is lacking.
    */
-  static Vdouble getBranchLengths(const Node& node) throw (NodePException);
+  static Vdouble getBranchLengths(const Node& node);
 
   /**
    * @brief Get the total length (sum of all branch lengths) of a subtree.
@@ -841,7 +841,7 @@ public:
    * @return The total length of the subtree.
    * @throw NodePException If a branch length is lacking.
    */
-  static double getTotalLength(const Node& node, bool includeAncestor = true) throw (NodePException);
+  static double getTotalLength(const Node& node, bool includeAncestor = true);
 
   /**
    * @brief Set all the branch lengths of a subtree.
@@ -875,7 +875,7 @@ public:
    * @param factor The factor to multiply all branch lengths with.
    * @throw NodePException If a branch length is lacking.
    */
-  static void scaleTree(Node& node, double factor) throw (NodePException);
+  static void scaleTree(Node& node, double factor);
 
   /**
    * @brief Get the total distance between to nodes.
@@ -950,7 +950,7 @@ public:
       isLeaf(false) {}
   };
 
-  static Element getElement(const std::string& elt) throw (IOException);
+  static Element getElement(const std::string& elt);
 
   /**
    * @brief Parse a string in the parenthesis format and convert it to
@@ -980,7 +980,7 @@ public:
    * @return A pointer toward a dynamically created tree.
    * @throw Exception in case of bad format.
    */
-  static TreeTemplate<Node>* parenthesisToTree(const std::string& description, bool bootstrap = true, const std::string& propertyName = TreeTools::BOOTSTRAP, bool withId = false, bool verbose = true) throw (Exception);
+  static TreeTemplate<Node>* parenthesisToTree(const std::string& description, bool bootstrap = true, const std::string& propertyName = TreeTools::BOOTSTRAP, bool withId = false, bool verbose = true);
 
   /**
    * @brief Get the parenthesis description of a subtree.

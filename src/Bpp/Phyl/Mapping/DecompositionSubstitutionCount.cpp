@@ -182,7 +182,7 @@ void DecompositionSubstitutionCount::setSubstitutionModel(const SubstitutionMode
 
 /******************************************************************************/
 
-void DecompositionSubstitutionCount::substitutionRegisterHasChanged() throw (Exception)
+void DecompositionSubstitutionCount::substitutionRegisterHasChanged()
 {
 //Check compatiblity between model and substitution register:
   if (model_->getAlphabet()->getAlphabetType() != register_->getAlphabet()->getAlphabetType())
@@ -203,7 +203,7 @@ void DecompositionSubstitutionCount::substitutionRegisterHasChanged() throw (Exc
 
 /******************************************************************************/
 
-void DecompositionSubstitutionCount::weightsHaveChanged() throw (Exception)
+void DecompositionSubstitutionCount::weightsHaveChanged()
 {
   if (typeid(weights_->getAlphabet()) != typeid(register_->getAlphabet()))
     throw Exception("DecompositionSubstitutionCount::weightsHaveChanged. Incorrect alphabet type.");

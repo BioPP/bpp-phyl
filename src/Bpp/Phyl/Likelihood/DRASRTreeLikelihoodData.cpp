@@ -53,7 +53,6 @@ using namespace std;
 /******************************************************************************/
 
 void DRASRTreeLikelihoodData::initLikelihoods(const AlignedValuesContainer& sites, const TransitionModel& model)
-throw (Exception)
 {
   if (sites.getNumberOfSequences() == 1)
     throw Exception("Error, only 1 sequence!");
@@ -91,7 +90,7 @@ throw (Exception)
 
 /******************************************************************************/
 
-void DRASRTreeLikelihoodData::initLikelihoods(const Node* node, const AlignedValuesContainer& sequences, const TransitionModel& model) throw (Exception)
+void DRASRTreeLikelihoodData::initLikelihoods(const Node* node, const AlignedValuesContainer& sequences, const TransitionModel& model)
 {
   // Initialize likelihood vector:
   DRASRTreeLikelihoodNodeData* nodeData = &nodeData_[node->getId()];
@@ -187,7 +186,7 @@ void DRASRTreeLikelihoodData::initLikelihoods(const Node* node, const AlignedVal
 
 /******************************************************************************/
 
-SitePatterns* DRASRTreeLikelihoodData::initLikelihoodsWithPatterns(const Node* node, const AlignedValuesContainer& sequences, const TransitionModel& model) throw (Exception)
+SitePatterns* DRASRTreeLikelihoodData::initLikelihoodsWithPatterns(const Node* node, const AlignedValuesContainer& sequences, const TransitionModel& model)
 {
   vector<const Node *> leaves = TreeTemplateTools::getLeaves(*node);
 

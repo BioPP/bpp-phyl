@@ -217,7 +217,7 @@ const Matrix<double>& MarkovModulatedSubstitutionModel::getd2Pij_dt2(double t) c
 
 /******************************************************************************/
 
-double MarkovModulatedSubstitutionModel::getInitValue(size_t i, int state) const throw (IndexOutOfBoundsException, BadIntException)
+double MarkovModulatedSubstitutionModel::getInitValue(size_t i, int state) const
 {
   if (i >= (nbStates_ * nbRates_))
     throw IndexOutOfBoundsException("MarkovModulatedSubstitutionModel::getInitValue", i, 0, nbStates_ * nbRates_ - 1);

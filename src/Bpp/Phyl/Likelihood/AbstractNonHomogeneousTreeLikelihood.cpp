@@ -60,8 +60,7 @@ AbstractNonHomogeneousTreeLikelihood::AbstractNonHomogeneousTreeLikelihood(
                                                                            SubstitutionModelSet* modelSet,
                                                                            DiscreteDistribution* rDist,
                                                                            bool verbose,
-                                                                           bool reparametrizeRoot)
-  throw (Exception) :
+                                                                           bool reparametrizeRoot) :
   AbstractDiscreteRatesAcrossSitesTreeLikelihood(rDist, verbose),
   modelSet_(0),
   brLenParameters_(),
@@ -165,7 +164,7 @@ void AbstractNonHomogeneousTreeLikelihood::init_(
                                                  const Tree& tree,
                                                  SubstitutionModelSet* modelSet,
                                                  DiscreteDistribution* rDist,
-                                                 bool verbose) throw (Exception)
+                                                 bool verbose)
 {
   TreeTools::checkIds(tree, true);
   tree_ = new TreeTemplate<Node>(tree);
@@ -192,7 +191,7 @@ void AbstractNonHomogeneousTreeLikelihood::init_(
 
 /******************************************************************************/
 
-void AbstractNonHomogeneousTreeLikelihood::setSubstitutionModelSet(SubstitutionModelSet* modelSet) throw (Exception)
+void AbstractNonHomogeneousTreeLikelihood::setSubstitutionModelSet(SubstitutionModelSet* modelSet)
 {
   //Check:
   if (data_)
@@ -265,7 +264,7 @@ void AbstractNonHomogeneousTreeLikelihood::setSubstitutionModelSet(SubstitutionM
 
 /******************************************************************************/
 
-void AbstractNonHomogeneousTreeLikelihood::initialize() throw (Exception)
+void AbstractNonHomogeneousTreeLikelihood::initialize()
 {
   if (initialized_) throw Exception("AbstractBranchNonHomogeneousTreeLikelihood::initialize(). Object is already initialized.");
   if (!data_) throw Exception("AbstractBranchNonHomogeneousTreeLikelihood::initialize(). Data are no set.");
@@ -312,7 +311,7 @@ void AbstractNonHomogeneousTreeLikelihood::initParameters()
 
 /******************************************************************************/
 
-void AbstractNonHomogeneousTreeLikelihood::applyParameters() throw (Exception)
+void AbstractNonHomogeneousTreeLikelihood::applyParameters()
 {
   if (!initialized_) throw Exception("AbstractBranchNonHomogeneousTreeLikelihood::applyParameters(). Object not initialized.");
   //Apply branch lengths:

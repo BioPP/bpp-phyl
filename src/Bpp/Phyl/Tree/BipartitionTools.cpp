@@ -126,7 +126,7 @@ bool BipartitionTools::testBit(int* plist, int num)
 BipartitionList* BipartitionTools::buildBipartitionPair(
   const BipartitionList& bipartL1, size_t i1,
   const BipartitionList& bipartL2, size_t i2,
-  bool checkElements) throw (Exception)
+  bool checkElements)
 {
   vector<int*> bitBipL1, bitBipL2, twoBitBipL;
   vector<string> elements;
@@ -204,7 +204,7 @@ bool BipartitionTools::areCompatible(
 
 BipartitionList* BipartitionTools::mergeBipartitionLists(
   const vector<BipartitionList*>& vecBipartL,
-  bool checkElements) throw (Exception)
+  bool checkElements)
 {
   vector<string> elements;
   vector<int*> mergedBitBipL;
@@ -264,7 +264,7 @@ BipartitionList* BipartitionTools::mergeBipartitionLists(
 /******************************************************************************/
 
 VectorSiteContainer* BipartitionTools::MRPEncode(
-  const vector<BipartitionList*>& vecBipartL) throw (Exception)
+  const vector<BipartitionList*>& vecBipartL)
 {
   vector<string> all_elements;
   map<string, bool> bip;
@@ -328,7 +328,7 @@ VectorSiteContainer* BipartitionTools::MRPEncode(
 /******************************************************************************/
 
 VectorSiteContainer* BipartitionTools::MRPEncodeMultilabel(
-                                                 const vector<BipartitionList*>& vecBipartL) throw (Exception)
+                                                 const vector<BipartitionList*>& vecBipartL)
 {
     vector<string> all_elements;
     map<string, bool> bip;

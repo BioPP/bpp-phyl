@@ -60,7 +60,7 @@ PairedSiteLikelihoods::PairedSiteLikelihoods() :
 
 PairedSiteLikelihoods::PairedSiteLikelihoods(
   const vector<vector<double> >& siteLogLikelihoods,
-  const vector<string>& modelNames) throw (Exception) :
+  const vector<string>& modelNames) :
   logLikelihoods_(siteLogLikelihoods),
   modelNames_(modelNames)
 {
@@ -87,7 +87,7 @@ PairedSiteLikelihoods::PairedSiteLikelihoods(
 void PairedSiteLikelihoods::appendModel(
   const vector<double>& siteLogLikelihoods,
   const string& modelName
-  ) throw (Exception)
+  )
 {
   if (getNumberOfModels() > 0 && siteLogLikelihoods.size() != getNumberOfSites())
     throw Exception("PairedSiteLikelihoods::appendModel: Model site-loglikelihoods record does not have the correct number of elements");
@@ -96,7 +96,7 @@ void PairedSiteLikelihoods::appendModel(
   modelNames_.push_back(modelName);
 }
 
-void PairedSiteLikelihoods::appendModel(const bpp::TreeLikelihood& treeLikelihood) throw (Exception)
+void PairedSiteLikelihoods::appendModel(const bpp::TreeLikelihood& treeLikelihood)
 {
   const vector<double>& siteLogLikelihoods = treeLikelihood.getLogLikelihoodPerSite();
   const string& modelName = treeLikelihood.getTree().getName();
@@ -104,7 +104,7 @@ void PairedSiteLikelihoods::appendModel(const bpp::TreeLikelihood& treeLikelihoo
   PairedSiteLikelihoods::appendModel(siteLogLikelihoods, modelName);
 }
 
-void PairedSiteLikelihoods::appendModels(const PairedSiteLikelihoods& psl)  throw (Exception)
+void PairedSiteLikelihoods::appendModels(const PairedSiteLikelihoods& psl)
 {
   if (getNumberOfModels() > 0 && psl.getNumberOfModels() > 0 && psl.getNumberOfSites() != getNumberOfSites())
     throw Exception("PairedSiteLikelihoods::appendModels: The two PairedSiteLikelihood objects have different number of sites.");

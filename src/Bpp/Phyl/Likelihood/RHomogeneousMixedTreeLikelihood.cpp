@@ -4,7 +4,7 @@
 //
 
 /*
-   Copyright or © or Copr. CNRS, (November 16, 2004)
+   Copyright or © or Copr. Bio++ Development Team, (November 16, 2004)
 
    This software is a computer program whose purpose is to provide classes
    for phylogenetic data analysis.
@@ -42,7 +42,7 @@
 // From the STL:
 #include <iostream>
 
-#include <math.h>
+#include <cmath>
 #include "../PatternTools.h"
 
 #include <Bpp/Numeric/VectorTools.h>
@@ -57,7 +57,7 @@ RHomogeneousMixedTreeLikelihood::RHomogeneousMixedTreeLikelihood(
   DiscreteDistribution* rDist,
   bool checkRooted,
   bool verbose,
-  bool usePatterns) throw (Exception) :
+  bool usePatterns) :
   RHomogeneousTreeLikelihood(tree, model, rDist, checkRooted, verbose, usePatterns),
   treeLikelihoodsContainer_(),
   probas_()
@@ -81,7 +81,7 @@ RHomogeneousMixedTreeLikelihood::RHomogeneousMixedTreeLikelihood(
   DiscreteDistribution* rDist,
   bool checkRooted,
   bool verbose,
-  bool usePatterns) throw (Exception) :
+  bool usePatterns) :
   RHomogeneousTreeLikelihood(tree, model, rDist, checkRooted, verbose, usePatterns),
   treeLikelihoodsContainer_(),
   probas_()
@@ -139,7 +139,7 @@ RHomogeneousMixedTreeLikelihood::~RHomogeneousMixedTreeLikelihood()
 }
 
 
-void RHomogeneousMixedTreeLikelihood::initialize() throw (Exception)
+void RHomogeneousMixedTreeLikelihood::initialize()
 {
   for (size_t i = 0; i < treeLikelihoodsContainer_.size(); i++)
   {
@@ -149,7 +149,7 @@ void RHomogeneousMixedTreeLikelihood::initialize() throw (Exception)
   RHomogeneousTreeLikelihood::initialize();
 }
 
-void RHomogeneousMixedTreeLikelihood::setData(const AlignedValuesContainer& sites) throw (Exception)
+void RHomogeneousMixedTreeLikelihood::setData(const AlignedValuesContainer& sites)
 {
   RHomogeneousTreeLikelihood::setData(sites);
 

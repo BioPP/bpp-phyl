@@ -77,7 +77,7 @@ class TreeLikelihoodTools
         const TreeLikelihood& tl,
         size_t site,
         std::map<int, std::vector<double> >& frequencies,
-        bool alsoForLeaves = false) throw (Exception);
+        bool alsoForLeaves = false);
 
     /**
      * @brief Compute the expected ancestral frequencies of all states at all (inner) nodes
@@ -95,7 +95,7 @@ class TreeLikelihoodTools
     static void getAncestralFrequencies(
         const TreeLikelihood& tl,
         std::map<int, std::vector<double> >& frequencies,
-        bool alsoForLeaves = false) throw (Exception);
+        bool alsoForLeaves = false);
 
   private:
     /**
@@ -109,7 +109,7 @@ class TreeLikelihoodTools
         int parentId,
         const std::vector<double>& ancestralFrequencies,
         std::map<int, std::vector<double> >& frequencies,
-        bool alsoForLeaves) throw (Exception);
+        bool alsoForLeaves);
  
 };
 

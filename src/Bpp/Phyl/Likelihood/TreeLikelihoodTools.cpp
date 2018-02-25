@@ -46,7 +46,7 @@ void TreeLikelihoodTools::getAncestralFrequencies(
         const TreeLikelihood& tl,
         size_t site,
         std::map<int, std::vector<double> >& frequencies,
-        bool alsoForLeaves) throw (Exception)
+        bool alsoForLeaves)
 {
   int currentId = tl.getTree().getRootId();
   vector<double> currentFreqs = tl.getRootFrequencies(tl.getSiteIndex(site));
@@ -56,7 +56,7 @@ void TreeLikelihoodTools::getAncestralFrequencies(
 void TreeLikelihoodTools::getAncestralFrequencies(
         const TreeLikelihood& tl,
         std::map<int, std::vector<double> >& frequencies,
-        bool alsoForLeaves) throw (Exception)
+        bool alsoForLeaves)
 {
   size_t n = tl.getLikelihoodData()->getNumberOfDistinctSites();
   size_t ns = tl.getNumberOfStates();
@@ -97,7 +97,7 @@ void TreeLikelihoodTools::getAncestralFrequencies_(
         int parentId,
         const std::vector<double>& ancestralFrequencies,
         std::map<int,std::vector<double> >& frequencies,
-        bool alsoForLeaves) throw (Exception)
+        bool alsoForLeaves)
 {
   if (!tl.getTree().isLeaf(parentId) || alsoForLeaves)
     frequencies[parentId] = ancestralFrequencies;

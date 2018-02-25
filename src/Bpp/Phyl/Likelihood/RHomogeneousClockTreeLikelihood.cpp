@@ -56,8 +56,7 @@ RHomogeneousClockTreeLikelihood::RHomogeneousClockTreeLikelihood(
   TransitionModel * model,
   DiscreteDistribution * rDist,
   bool checkRooted,
-  bool verbose)
-throw (Exception):
+  bool verbose):
   RHomogeneousTreeLikelihood(tree, model, rDist, false, verbose, true)
 {
   init_();
@@ -71,8 +70,7 @@ RHomogeneousClockTreeLikelihood::RHomogeneousClockTreeLikelihood(
   TransitionModel * model,
   DiscreteDistribution * rDist,
   bool checkRooted,
-  bool verbose)
-throw (Exception):
+  bool verbose):
   RHomogeneousTreeLikelihood(tree, data, model, rDist, false, verbose, true)
 {
   init_();
@@ -90,7 +88,7 @@ void RHomogeneousClockTreeLikelihood::init_()
 
 /******************************************************************************/
 
-void RHomogeneousClockTreeLikelihood::applyParameters() throw (Exception)
+void RHomogeneousClockTreeLikelihood::applyParameters()
 {
   if (!initialized_) throw Exception("RHomogeneousClockTreeLikelihood::applyParameters(). Object not initialized.");
    //Apply branch lengths:
@@ -160,7 +158,7 @@ void RHomogeneousClockTreeLikelihood::initBranchLengthsParameters(bool verbose)
 
 /******************************************************************************/
 
-void RHomogeneousClockTreeLikelihood::computeBranchLengthsFromHeights(Node* node, double height) throw (Exception)
+void RHomogeneousClockTreeLikelihood::computeBranchLengthsFromHeights(Node* node, double height)
 {
   for (unsigned int i = 0; i < node->getNumberOfSons(); i++)
   {
@@ -182,7 +180,7 @@ void RHomogeneousClockTreeLikelihood::computeBranchLengthsFromHeights(Node* node
 
 /******************************************************************************/
 
-ParameterList RHomogeneousClockTreeLikelihood::getDerivableParameters() const throw (Exception)
+ParameterList RHomogeneousClockTreeLikelihood::getDerivableParameters() const
 {
   if (!initialized_) throw Exception("RHomogeneousClockTreeLikelihood::getDerivableParameters(). Object is not initialized.");
   return ParameterList();
@@ -190,7 +188,7 @@ ParameterList RHomogeneousClockTreeLikelihood::getDerivableParameters() const th
 
 /******************************************************************************/
 
-ParameterList RHomogeneousClockTreeLikelihood::getNonDerivableParameters() const throw (Exception)
+ParameterList RHomogeneousClockTreeLikelihood::getNonDerivableParameters() const
 {
   if (!initialized_) throw Exception("RHomogeneousClockTreeLikelihood::getNonDerivableParameters(). Object is not initialized.");
   return getParameters();
@@ -201,7 +199,6 @@ ParameterList RHomogeneousClockTreeLikelihood::getNonDerivableParameters() const
  ******************************************************************************/  
 
 double RHomogeneousClockTreeLikelihood::getFirstOrderDerivative(const std::string& variable) const
-throw (Exception)
 { 
   throw Exception("No first order derivative is implemented for this function.");
 }
@@ -211,7 +208,6 @@ throw (Exception)
  ******************************************************************************/  
 
 double RHomogeneousClockTreeLikelihood::getSecondOrderDerivative(const std::string& variable) const
-throw (Exception)
 {
   throw Exception("No second order derivative is implemented for this function.");
 }

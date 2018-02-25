@@ -49,7 +49,7 @@ using namespace std;
 
 /******************************************************************************/
 
-void DRASDRTreeLikelihoodData::initLikelihoods(const AlignedValuesContainer& sites, const TransitionModel& model) throw (Exception)
+void DRASDRTreeLikelihoodData::initLikelihoods(const AlignedValuesContainer& sites, const TransitionModel& model)
 {
   if (sites.getNumberOfSequences() == 1)
     throw Exception("Error, only 1 sequence!");
@@ -106,7 +106,7 @@ void DRASDRTreeLikelihoodData::initLikelihoods(const AlignedValuesContainer& sit
 
 /******************************************************************************/
 
-void DRASDRTreeLikelihoodData::initLikelihoods(const Node* node, const AlignedValuesContainer& sites, const TransitionModel& model) throw (Exception)
+void DRASDRTreeLikelihoodData::initLikelihoods(const Node* node, const AlignedValuesContainer& sites, const TransitionModel& model)
 {
   if (node->isLeaf())
   {
@@ -211,12 +211,12 @@ void DRASDRTreeLikelihoodData::initLikelihoods(const Node* node, const AlignedVa
 
 /******************************************************************************/
 
-void DRASDRTreeLikelihoodData::reInit() throw (Exception)
+void DRASDRTreeLikelihoodData::reInit()
 {
   reInit(tree_->getRootNode());
 }
 
-void DRASDRTreeLikelihoodData::reInit(const Node* node) throw (Exception)
+void DRASDRTreeLikelihoodData::reInit(const Node* node)
 {
   if (node->isLeaf())
   {

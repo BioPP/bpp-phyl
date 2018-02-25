@@ -288,7 +288,6 @@ namespace bpp
     //   SubstitutionCount& substitutionCount,
     //   bool verbose = true) throw (Exception);
 
-
     /**
      * @brief Compute the substitutions std::vectors for a particular dataset using the
      * double-recursive likelihood computation.
@@ -312,7 +311,6 @@ namespace bpp
     //   SubstitutionCount& substitutionCount,
     //   bool verbose = true) throw (Exception);
 
-
     /**
      * @brief Compute the substitutions std::vectors for a particular dataset using the
      * double-recursive likelihood computation.
@@ -332,7 +330,6 @@ namespace bpp
     //   const DRTreeLikelihood& drtl,
     //   SubstitutionCount& substitutionCount,
     //   bool verbose = true) throw (Exception);
-
 
     /**
      * @brief This method computes for each site and for each branch
@@ -640,27 +637,21 @@ namespace bpp
 
     /**
      * @brief Output Per Site Per Branch
-     *
      */
-    
     static void outputPerSitePerBranch(const std::string& filename,
                                        const std::vector<uint>& ids,
                                        const VVdouble& counts);
 
     /**
      * @brief Output Per Site Per Type
-     *
      */
-    
     static void outputPerSitePerType(const std::string& filename,
                                      const SubstitutionRegister& reg,
                                      const VVdouble& counts);
     
     /**
      * @brief Output Per Site Per Branch Per Type
-     *
      */
-    
     static void outputPerSitePerBranchPerType(const std::string& filenamePrefix,
                                               const std::vector<uint>& ids,
                                               const SubstitutionRegister& reg,

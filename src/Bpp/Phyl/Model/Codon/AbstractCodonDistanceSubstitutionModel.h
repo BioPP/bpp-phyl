@@ -95,10 +95,12 @@ namespace bpp
      * @brief Build a new AbstractCodonDistanceSubstitutionModel object.
      *
      * @param pdist optional pointer to a distance between amino-acids
+     * @param pgencode the genetic code
      * @param prefix the Namespace
      * @param paramSynRate is true iff synonymous rate is parametrised
      *       (default=false).
      */
+    
     AbstractCodonDistanceSubstitutionModel(
       const AlphabetIndex2* pdist,
       const GeneticCode* pgencode,

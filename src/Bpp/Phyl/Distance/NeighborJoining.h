@@ -81,7 +81,7 @@ class NeighborJoining :
      * @param positiveLengths Tell if negative lengths should be avoided.
      * @param verbose Allow to display extra information, like progress bars.
      */
-		NeighborJoining(const DistanceMatrix& matrix, bool rooted = false, bool positiveLengths = false, bool verbose = true) throw (Exception) :
+		NeighborJoining(const DistanceMatrix& matrix, bool rooted = false, bool positiveLengths = false, bool verbose = true) :
       AbstractAgglomerativeDistanceMethod(matrix, verbose, rooted),
       sumDist_(),
       positiveLengths_(positiveLengths) 
@@ -97,7 +97,7 @@ class NeighborJoining :
 	public:
     std::string getName() const { return "NJ"; }
 
-		virtual void setDistanceMatrix(const DistanceMatrix& matrix) throw (Exception)
+		virtual void setDistanceMatrix(const DistanceMatrix& matrix)
 		{ 
 			AbstractAgglomerativeDistanceMethod::setDistanceMatrix(matrix);
 			sumDist_.resize(matrix.size());
@@ -106,7 +106,7 @@ class NeighborJoining :
     virtual void outputPositiveLengths(bool yn) { positiveLengths_ = yn; }
 	
 	protected:
-		std::vector<size_t> getBestPair() throw (Exception);
+		std::vector<size_t> getBestPair();
 		std::vector<double> computeBranchLengthsForPair(const std::vector<size_t>& pair);
 		double computeDistancesFromPair(const std::vector<size_t>& pair, const std::vector<double>& branchLengths, size_t pos);
 		void finalStep(int idRoot);	

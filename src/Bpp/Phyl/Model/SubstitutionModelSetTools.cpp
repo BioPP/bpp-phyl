@@ -49,7 +49,7 @@ SubstitutionModelSet* SubstitutionModelSetTools::createHomogeneousModelSet(
   TransitionModel* model,
   FrequenciesSet* rootFreqs,
   const Tree* tree
-  ) throw (AlphabetException, Exception)
+  )
 {
   // Check alphabet:
   if (model->getAlphabet()->getAlphabetType() != rootFreqs->getAlphabet()->getAlphabetType())
@@ -84,7 +84,7 @@ SubstitutionModelSet* SubstitutionModelSetTools::createNonHomogeneousModelSet(
   const Tree* tree,
   const std::map<std::string, std::string>& aliasFreqNames,
   const vector<string>& globalParameterNames
-  ) throw (AlphabetException, Exception)
+  )
 {
   // Check alphabet:
   if (rootFreqs && model->getAlphabet()->getAlphabetType() != rootFreqs->getAlphabet()->getAlphabetType())

@@ -184,7 +184,10 @@ namespace bpp
     const MixedSubstitutionModel& getMixedModel() const { return *pmixmodel_.get(); }
     
   protected:
-    SubstitutionModel& getSubstitutionModel() { return *pmixmodel_.get(); }
+    SubstitutionModel& getSubstitutionModel()
+    {
+      return *pmixmodel_.get();
+    }
     
     MixedSubstitutionModel& getMixedModel() { return *pmixmodel_.get(); }
 

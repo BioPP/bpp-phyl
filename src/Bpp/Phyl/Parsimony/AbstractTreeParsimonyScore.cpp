@@ -50,8 +50,7 @@ AbstractTreeParsimonyScore::AbstractTreeParsimonyScore(
   const Tree& tree,
   const SiteContainer& data,
   bool verbose,
-  bool includeGaps)
-throw (Exception) :
+  bool includeGaps) :
   tree_(new TreeTemplate<Node>(tree)),
   data_(0),
   alphabet_(data.getAlphabet()),
@@ -68,8 +67,7 @@ AbstractTreeParsimonyScore::AbstractTreeParsimonyScore(
   const Tree& tree,
   const SiteContainer& data,
   const StateMap* statesMap,
-  bool verbose)
-throw (Exception) :
+  bool verbose) :
   tree_(new TreeTemplate<Node>(tree)),
   data_(0),
   alphabet_(data.getAlphabet()),
@@ -79,7 +77,7 @@ throw (Exception) :
   init_(data, verbose);
 }
 
-void AbstractTreeParsimonyScore::init_(const SiteContainer& data, bool verbose) throw (Exception)
+void AbstractTreeParsimonyScore::init_(const SiteContainer& data, bool verbose)
 {
   if (tree_->isRooted())
   {

@@ -134,6 +134,7 @@ YNGP_M10::YNGP_M10(const GeneticCode* gc, FrequenciesSet* codonFreqs, unsigned i
     throw Exception("Impossible to find synonymous codons");
 
   // update Matrices
+  computeFrequencies(false);
   updateMatrices();
 }
 

@@ -133,6 +133,7 @@ YNGP_M9::YNGP_M9(const GeneticCode* gc, FrequenciesSet* codonFreqs, unsigned int
     throw Exception("Impossible to find synonymous codons");
 
   // update Matrices
+  computeFrequencies(false);
   updateMatrices();
 }
 

@@ -336,7 +336,6 @@ map<size_t, Tree*> PhylogeneticsApplicationTools::getTrees(
       ApplicationTools::displayResult("Number of leaves", tree->getNumberOfLeaves());
     }
 
-
     // //////////
     // Setting branch lengths?
     string initBrLenMethod = ApplicationTools::getStringParameter("init.brlen.method", args, "Input", "", true, 1);
@@ -1065,7 +1064,6 @@ void PhylogeneticsApplicationTools::setSubstitutionModelParametersInitialValuesW
 /**** FREQUENCIES SET *********************************/
 /******************************************************/
 
-
 FrequenciesSet* PhylogeneticsApplicationTools::getFrequenciesSet(
   const Alphabet* alphabet,
   const GeneticCode* gCode,
@@ -1596,7 +1594,6 @@ SubstitutionProcessCollection* PhylogeneticsApplicationTools::getSubstitutionPro
 
   if (mTree.size() == 0)
     throw Exception("Missing tree in construction of SubstitutionProcessCollection.");
-
 
   for (const auto& itt : mTree)
     SPC->addTree(new ParametrizablePhyloTree(*(itt.second)), itt.first);

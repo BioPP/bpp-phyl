@@ -260,7 +260,7 @@ namespace bpp
     size_t getNumberOfStates() const { return nbStates_; }
     size_t getNumberOfClasses() const { return nbClasses_; }
     
-    void initLikelihoods(const AlignedValuesContainer& sites, const TransitionModel& model) throw (Exception);
+    void initLikelihoods(const AlignedValuesContainer& sites, const TransitionModel& model);
 
   protected:
     /**
@@ -277,7 +277,7 @@ namespace bpp
      * @param sequences The data to be used for initialization.
      * @param model     The model to use.
      */
-    virtual void initLikelihoods(const Node* node, const AlignedValuesContainer& sequences, const TransitionModel& model) throw (Exception);
+    virtual void initLikelihoods(const Node* node, const AlignedValuesContainer& sequences, const TransitionModel& model);
 
     /**
      * @brief This method initializes the leaves according to a sequence file.
@@ -295,7 +295,7 @@ namespace bpp
      * @param model     The model to use.
      * @return The shrunk sub-dataset + indices for the subtree defined by <i>node</i>.
      */
-    virtual SitePatterns* initLikelihoodsWithPatterns(const Node* node, const AlignedValuesContainer& sequences, const TransitionModel& model) throw (Exception);
+    virtual SitePatterns* initLikelihoodsWithPatterns(const Node* node, const AlignedValuesContainer& sequences, const TransitionModel& model);
   
   };
 

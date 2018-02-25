@@ -546,7 +546,7 @@ const Matrix<double>& AbstractSubstitutionModel::getd2Pij_dt2(double t) const
 
 /******************************************************************************/
 
-double AbstractSubstitutionModel::getInitValue(size_t i, int state) const throw (IndexOutOfBoundsException, BadIntException)
+double AbstractSubstitutionModel::getInitValue(size_t i, int state) const
 {
   if (i >= size_)
     throw IndexOutOfBoundsException("AbstractSubstitutionModel::getInitValue", i, 0, size_ - 1);
@@ -666,6 +666,7 @@ void AbstractReversibleSubstitutionModel::updateMatrices()
   MatrixTools::hadamardMult(exchangeability_, freq_, generator_, false); // Diagonal elements of the exchangeability matrix will be ignored.
 
   // Normalization:
+  setDiagonal();
   normalize();
   
   AbstractSubstitutionModel::updateMatrices();

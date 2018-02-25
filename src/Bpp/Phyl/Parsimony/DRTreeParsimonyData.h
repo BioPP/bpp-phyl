@@ -304,12 +304,12 @@ public:
   size_t getNumberOfSites() const { return nbSites_; }
   size_t getNumberOfStates() const { return nbStates_; }
 
-  void init(const SiteContainer& sites, const StateMap& stateMap) throw (Exception);
-  void reInit() throw (Exception);
+  void init(const SiteContainer& sites, const StateMap& stateMap);
+  void reInit();
 
 protected:
-  void init(const Node* node, const SiteContainer& sites, const StateMap& stateMap) throw (Exception);
-  void reInit(const Node* node) throw (Exception);
+  void init(const Node* node, const SiteContainer& sites, const StateMap& stateMap);
+  void reInit(const Node* node);
 };
 } // end of namespace bpp.
 

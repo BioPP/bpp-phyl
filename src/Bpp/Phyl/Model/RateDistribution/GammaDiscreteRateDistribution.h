@@ -50,7 +50,6 @@ class GammaDiscreteRateDistribution:
 {
   public:
     GammaDiscreteRateDistribution(size_t nbClasses, double alpha = 1.):
-      AbstractParameterAliasable("Gamma."),
       GammaDiscreteDistribution(nbClasses, alpha, alpha)
     {
       aliasParameters("alpha", "beta");

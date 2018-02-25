@@ -73,14 +73,14 @@ public:
    *
    * @throw Exception If the format is not recognized.
    */
-  static PairedSiteLikelihoods read(std::istream& is) throw (Exception);
+  static PairedSiteLikelihoods read(std::istream& is);
 
   /**
    * @brief Read paired-site likelihoods from a Treepuzzle/RAxML-formatted file.
    *
    * @throw Exception If the format is not recognized.
    */
-  static PairedSiteLikelihoods read(const std::string& path) throw (Exception);
+  static PairedSiteLikelihoods read(const std::string& path);
 
   /**
    * @brief Write paired-site likelihoods to a stream.
@@ -114,13 +114,13 @@ public:
    * @brief Read paired-site likelihoods from a Phyml-formatted stream.
    * @throw Exception If the format is not recognized.
    */
-  static std::vector<double> read(std::istream& is) throw (Exception);
+  static std::vector<double> read(std::istream& is);
 
   /**
    * @brief Read Phyml paired-site likelihoods from a Phyml-formatted file.
    * @throw Exception If the format is not recognized.
    */
-  static std::vector<double> read(const std::string& path) throw (Exception);
+  static std::vector<double> read(const std::string& path);
 };
 } // namespace bpp
 #endif

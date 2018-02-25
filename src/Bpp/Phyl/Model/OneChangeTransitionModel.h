@@ -110,7 +110,7 @@ namespace bpp
 
     void setRate(double rate) { return getModel().setRate(rate); }
 
-    double getInitValue(size_t i, int state) const throw (BadIntException) { return getModel().getInitValue(i, state); }
+    double getInitValue(size_t i, int state) const { return getModel().getInitValue(i, state); }
 
     std::string getName() const
     {
