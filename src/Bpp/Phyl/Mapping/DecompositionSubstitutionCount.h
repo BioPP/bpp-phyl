@@ -110,9 +110,9 @@ namespace bpp
 
     void computeCounts_(double length) const;
 
-    void substitutionRegisterHasChanged() throw (Exception);
+    void substitutionRegisterHasChanged();
 
-    void weightsHaveChanged() throw (Exception);
+    void weightsHaveChanged();
 
   private:
     void fillBMatrices_();
