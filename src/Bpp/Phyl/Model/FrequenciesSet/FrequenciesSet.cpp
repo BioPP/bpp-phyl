@@ -98,8 +98,8 @@ const std::map<int, double> AbstractFrequenciesSet::getAlphabetStatesFrequencies
 // FullFrequenciesSet
 
 FullFrequenciesSet::FullFrequenciesSet(StateMap* stateMap, bool allowNullFreqs, unsigned short method, const string& name) :
-  AbstractFrequenciesSet(stateMap, "Full.", name),
-  sFreq_(stateMap->getNumberOfModelStates(), method, allowNullFreqs, "Full.")
+  AbstractFrequenciesSet(stateMap, "Full", name),
+  sFreq_(stateMap->getNumberOfModelStates(), method, allowNullFreqs, "Full")
 {
   vector<double> vd;
   double r = 1. / static_cast<double>(stateMap->getNumberOfModelStates());
@@ -113,8 +113,8 @@ FullFrequenciesSet::FullFrequenciesSet(StateMap* stateMap, bool allowNullFreqs, 
 }
 
 FullFrequenciesSet::FullFrequenciesSet(StateMap* stateMap, const vector<double>& initFreqs, bool allowNullFreqs, unsigned short method, const string& name) :
-  AbstractFrequenciesSet(stateMap, "Full.", name),
-  sFreq_(stateMap->getNumberOfModelStates(), method, allowNullFreqs, "Full.")
+  AbstractFrequenciesSet(stateMap, "Full", name),
+  sFreq_(stateMap->getNumberOfModelStates(), method, allowNullFreqs, "Full")
 {
   sFreq_.setFrequencies(initFreqs);
   addParameters_(sFreq_.getParameters());

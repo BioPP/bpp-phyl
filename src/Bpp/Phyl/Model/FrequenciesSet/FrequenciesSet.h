@@ -230,8 +230,8 @@ namespace bpp
      * @brief Construction with uniform frequencies on the states of
      * the alphabet.
      */
-    FullFrequenciesSet(StateMap* stateMap, bool allowNullFreqs = false, unsigned short method = 1, const std::string& name = "Full.");
-    FullFrequenciesSet(StateMap* stateMap, const std::vector<double>& initFreqs, bool allowNullFreqs = false, unsigned short method = 1, const std::string& name = "Full.");
+    FullFrequenciesSet(StateMap* stateMap, bool allowNullFreqs = false, unsigned short method = 1, const std::string& name = "Full");
+    FullFrequenciesSet(StateMap* stateMap, const std::vector<double>& initFreqs, bool allowNullFreqs = false, unsigned short method = 1, const std::string& name = "Full");
 
     FullFrequenciesSet* clone() const { return new FullFrequenciesSet(*this); }
 
