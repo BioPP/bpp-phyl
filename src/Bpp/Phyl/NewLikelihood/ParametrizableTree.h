@@ -75,12 +75,13 @@ namespace bpp
 
   public:
     //NB: has to be changed in case of root reparametrization!
-    const ParameterList getBranchLengthParameters(size_t nodeIndex) const throw (IndexOutOfBoundsException) {
+    const ParameterList getBranchLengthParameters(size_t nodeIndex) const
+    {
       return getParameters().subList(nodeIndex);
     }
 
     //NB: has to be changed in case of root reparametrization!
-    const ParameterList getBranchLengthParameters(int nodeId) const throw (NodeNotFoundException) {
+    const ParameterList getBranchLengthParameters(int nodeId) const {
       std::map<int, size_t>::const_iterator it = index_.find(nodeId);
       if (it != index_.end())
         return getParameters().subList(it->second);
@@ -88,7 +89,7 @@ namespace bpp
         throw NodeNotFoundException("ParametrizableTree::getBranchLengthParameter.", nodeId);
     }
 
-    double getBranchLength(int nodeId) const throw (NodeNotFoundException) {
+    double getBranchLength(int nodeId) const {
       std::map<int, size_t>::const_iterator it = index_.find(nodeId);
       if (it != index_.end())
         return getParameter_(it->second).getValue(); //Works because one parameter per branch, needs to be updated in case of root reparametrization.
@@ -96,7 +97,7 @@ namespace bpp
         throw NodeNotFoundException("ParametrizableTree::getBranchLength.", nodeId);
     }
 
-    size_t getNodeIndex(int nodeId) const throw (NodeNotFoundException) {
+    size_t getNodeIndex(int nodeId) const {
       std::map<int, size_t>::const_iterator it = index_.find(nodeId);
       if (it != index_.end())
         return it->second;
@@ -105,7 +106,7 @@ namespace bpp
     }
 
     //NB: has to be changed in case of root reparametrization!
-    std::vector<int> getNodesIdForParameter(const std::string& brlenParam) const throw (ParameterNotFoundException) {
+    std::vector<int> getNodesIdForParameter(const std::string& brlenParam) const {
       std::map<std::string, Node*>::const_iterator it = reverseIndex_.find(brlenParam);
       if (it == reverseIndex_.end())
         throw ParameterNotFoundException("ParametrizableTree::getNodeIdForParameter(). Not a ParametrizableTree parameter: " + brlenParam + ".");
@@ -116,7 +117,7 @@ namespace bpp
     
     const TreeTemplate<Node>& getTree() const;
 
-    virtual void setMinimumBranchLength(double minimum) throw (Exception)
+    virtual void setMinimumBranchLength(double minimum)
     {
       if (minimum > maximumBrLen_)
         throw Exception("ParametrizableTree::setMinimumBranchLength. Minimum branch length sould be lower than the maximum one: " + TextTools::toString(maximumBrLen_));
@@ -127,7 +128,7 @@ namespace bpp
       buildIndex_(*tree_.getRootNode());
     }
 
-    virtual void setMaximumBranchLength(double maximum) throw (Exception)
+    virtual void setMaximumBranchLength(double maximum)
     {
       if (maximum < minimumBrLen_)
         throw Exception("ParametrizableTree::setMaximumBranchLength. Maximum branch length sould be higher than the minimum one: " + TextTools::toString(minimumBrLen_));

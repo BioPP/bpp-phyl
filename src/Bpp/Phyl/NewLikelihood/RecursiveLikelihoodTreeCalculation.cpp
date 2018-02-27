@@ -53,8 +53,7 @@ using namespace std;
 RecursiveLikelihoodTreeCalculation::RecursiveLikelihoodTreeCalculation(
   const SubstitutionProcess* process,
   bool verbose,
-  bool usePatterns)
-throw (Exception) :
+  bool usePatterns) :
   AbstractLikelihoodTreeCalculation(process, verbose),
   likelihoodData_(),
   root1_(-1),
@@ -69,8 +68,7 @@ RecursiveLikelihoodTreeCalculation::RecursiveLikelihoodTreeCalculation(
   const AlignedValuesContainer& data,
   const SubstitutionProcess* process,
   bool verbose,
-  bool usePatterns)
-throw (Exception) :
+  bool usePatterns) :
   AbstractLikelihoodTreeCalculation(process, verbose),
   likelihoodData_(),
   root1_(-1),
@@ -82,7 +80,7 @@ throw (Exception) :
 
 /******************************************************************************/
 
-void RecursiveLikelihoodTreeCalculation::init_(bool usePatterns) throw (Exception)
+void RecursiveLikelihoodTreeCalculation::init_(bool usePatterns) 
 {
   likelihoodData_.reset(new RecursiveLikelihoodTree(
                           *process_,
@@ -176,6 +174,28 @@ void RecursiveLikelihoodTreeCalculation::computeLikelihoodsAtNode(int nodeId)
   // recursion
 
   likelihoodData_->computeLikelihoodsAtNode(process_->getComputingTree(), nodeId);
+}
+
+
+/******************************************************************************/
+
+void RecursiveLikelihoodTreeCalculation::computeLikelihoodsAtAllNodes()
+{
+  if (likelihoodData_->usePatterns())
+    throw Exception("RecursiveLikelihoodTreeCalculation::computeLikelihoodsAtAllNodes not available wth patterns.");
+  
+  if (!likelihoodData_->isAboveLikelihoodsInitialized())
+  {
+    likelihoodData_->resetInnerAboveLikelihoods();
+    likelihoodData_->resetDownwardLikelihoods(nbDistinctSites_, nbStates_, ComputingNode::D0);
+  }
+
+  // recursion
+
+  vector<uint> nodesId=process_->getParametrizablePhyloTree().getAllNodesIndexes();
+
+  for (auto nodeId: nodesId)
+    likelihoodData_->computeLikelihoodsAtNode(process_->getComputingTree(), nodeId);
 }
 
 

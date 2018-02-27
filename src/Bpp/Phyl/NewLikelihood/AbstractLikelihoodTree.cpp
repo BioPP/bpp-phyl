@@ -111,7 +111,7 @@ VVVdouble AbstractLikelihoodTree::getPosteriorProbabilitiesPerStatePerClass(int 
 Vdouble AbstractLikelihoodTree::getPosteriorStateFrequencies(int nodeId) const
 {
   VVVdouble probs = getPosteriorProbabilitiesPerStatePerClass(nodeId);
-  Vdouble freqs(getNumberOfStates());
+  Vdouble freqs(getNumberOfStates(),0);
   double sumw = 0, w;
   
   for (size_t j = 0; j < getNumberOfClasses(); j++)
@@ -119,7 +119,6 @@ Vdouble AbstractLikelihoodTree::getPosteriorStateFrequencies(int nodeId) const
     for (size_t i = 0; i < getNumberOfDistinctSites(); i++)
     {
       w = getWeight(i);
-      sumw += w;
       for (size_t k = 0; k < getNumberOfStates(); k++)
       {
         freqs[k] += probs[j][i][k] * w;
@@ -127,10 +126,14 @@ Vdouble AbstractLikelihoodTree::getPosteriorStateFrequencies(int nodeId) const
     }
   }
 
+  for (size_t j = 0; j < getNumberOfDistinctSites(); j++)
+    sumw += getWeight(j);
+
   for (size_t k = 0; k < getNumberOfStates(); k++)
   {
     freqs[k] /= sumw;
   }
+
   return freqs;  
 }
 

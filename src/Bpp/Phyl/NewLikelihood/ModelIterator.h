@@ -57,7 +57,7 @@ public:
   /**
    * @return The id of the next node in the set.
    */
-  virtual int next() throw (Exception) = 0;
+  virtual int next() = 0;
   /**
    * @return True if there is at least another node in the set.
    */
@@ -78,7 +78,7 @@ public:
   /**
    * @return The position of the next site in the set.
    */
-  virtual unsigned int next() throw (Exception) = 0;
+  virtual unsigned int next() = 0;
   /**
    * @return True is there is at least another site in the set.
    */
@@ -106,7 +106,7 @@ public:
   virtual ~ConstBranchModelIterator() {}
 
 public:
-  virtual ConstBranchModelDescription* next() throw (Exception) = 0;
+  virtual ConstBranchModelDescription* next() = 0;
   virtual bool hasNext() const = 0;
 };
 
@@ -131,7 +131,7 @@ public:
   virtual ~ConstSiteModelIterator() {}
 
 public:
-  virtual ConstSiteModelDescription* next() throw (Exception) = 0;
+  virtual ConstSiteModelDescription* next() = 0;
   virtual bool hasNext() const = 0;
 };
 
@@ -153,7 +153,7 @@ public:
     index_(0) {}
 
 public:
-  int next() throw (Exception)
+  int next()
   {
     if (!hasNext())
       throw Exception("AbstractTreeLikelihood::SimpleBranchIterator::next(). No more branch in the set.");
@@ -185,7 +185,7 @@ public:
     offset_(offset) {}
 
 public:
-  unsigned int next() throw (Exception)
+  unsigned int next()
   {
     if (!hasNext())
       throw Exception("SimpleSiteIterator::next(). No more site in the set.");
@@ -237,7 +237,7 @@ public:
     index_(0) {}
 
 public:
-  ConstNoPartitionBranchModelDescription* next() throw (Exception)
+  ConstNoPartitionBranchModelDescription* next()
   {
     if (!hasNext())
       throw Exception("ConstNoPartitionBranchModelDescription::next(). No more branch in the set.");
@@ -286,7 +286,7 @@ class ConstHomogeneousSiteModelIterator :
      siteModelDescription_(model, tree.getBranchesId()), index_(0) {}
 
   public:
-    ConstSiteModelDescription* next() throw (Exception)
+    ConstSiteModelDescription* next()
     {
       if (!hasNext())
         throw Exception("ConstHomogeneousSiteModelIterator::next(). No more site in the set.");

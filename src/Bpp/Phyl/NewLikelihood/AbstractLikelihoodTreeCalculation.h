@@ -143,14 +143,14 @@ namespace bpp
 
     bool isInitialized() const { return initialized_; }
 
-    const Alphabet* getAlphabet() const throw (LikelihoodTreeCalculationNotInitializedException)
+    const Alphabet* getAlphabet() const
     {
       if (!initialized_)
         throw new LikelihoodTreeCalculationNotInitializedException("DoubleRecursiveLikelihoodTreeCalculation::getAlphabet().");
       return data_->getAlphabet();
     }
 
-    size_t getSiteIndex(size_t site) const throw (LikelihoodTreeCalculationNotInitializedException, IndexOutOfBoundsException) {
+    size_t getSiteIndex(size_t site) const {
       if (!initialized_)
         throw new LikelihoodTreeCalculationNotInitializedException("SingleRecursiveLikelihoodTreeCalculation::getSiteIndex().");
       return getLikelihoodData().getRootArrayPosition(site);

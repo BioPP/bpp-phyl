@@ -116,7 +116,7 @@ namespace bpp {
      * @see getNumberOfStates
      */
 
-    const Clonable& getState(size_t stateIndex) const throw (HmmBadStateException)
+    const Clonable& getState(size_t stateIndex) const 
     {
       return *vAP_[stateIndex];
     }

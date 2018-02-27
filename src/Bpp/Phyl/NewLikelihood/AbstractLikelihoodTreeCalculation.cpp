@@ -341,6 +341,9 @@ void AbstractLikelihoodTreeCalculation::getAncestralFrequencies(
   std::map<int, std::vector<double> >& frequencies,
   bool alsoForLeaves)
 {
+  if (!up2date_)
+    throw Exception("AbstractLikelihoodTreeCalculation::getAncestralFrequencies not up to date.");
+  
   size_t n = getNumberOfDistinctSites();
   size_t ns = getNumberOfStates();
   double sumw = 0, w;
@@ -355,13 +358,14 @@ void AbstractLikelihoodTreeCalculation::getAncestralFrequencies(
   {
     w = getLikelihoodData().getWeight(i);
     getAncestralFrequencies(i, siteFrequencies, alsoForLeaves);
+    
     //Initialization
     if (i == 0)
     {
       frequencies = siteFrequencies; //Initialize all nodes ids.
       //Now reset to 0:
-      for (map<int, vector<double> >::iterator it = frequencies.begin(); it != frequencies.end(); it++)
-        VectorTools::fill(it->second, 0.);
+      for (auto& it : frequencies)
+        VectorTools::fill(it.second, 0.);
     }
     map<int, vector<double> >::iterator it = frequencies.begin();
     map<int, vector<double> >::iterator itSite = siteFrequencies.begin();
@@ -398,14 +402,16 @@ void AbstractLikelihoodTreeCalculation::getAncestralFrequencies(
   
   frequencies.clear();
   frequencies.insert(vmfreqcl[0].begin(), vmfreqcl[0].end());
+  double prob0=getSubstitutionProcess()->getProbabilityForModel(0);
+  for (auto& it:frequencies)
+    it.second*=prob0;
 
   for (size_t nclass=1; nclass<nbClasses; nclass++)
   {
     std::map<int, std::vector<double> >& mfreqcl=vmfreqcl[nclass];
     double prob=getSubstitutionProcess()->getProbabilityForModel(nclass);
-    
-    for (std::map<int, std::vector<double> >::const_iterator it=mfreqcl.begin(); it!= mfreqcl.end(); it++)
-      frequencies[it->first]+=it->second * prob;
+    for (const auto& it:mfreqcl)
+      frequencies[it.first]+=it.second * prob;
   }
   
 }
@@ -421,7 +427,7 @@ void AbstractLikelihoodTreeCalculation::getAncestralFrequencies_(
   bool alsoForLeaves)
 {
   const AbstractLikelihoodNode& parentNode = getLikelihoodData().getNodeData(parentId, classIndex);
-  
+
   if (!parentNode.isLeaf() || alsoForLeaves)
     frequencies[parentId] = ancestralFrequencies;
 

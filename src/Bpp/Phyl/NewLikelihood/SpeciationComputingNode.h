@@ -265,12 +265,12 @@ namespace bpp
      *@brief from AwareNode
      */
 
-    SpeciationComputingNode* getSon(size_t pos) throw (IndexOutOfBoundsException)
+    SpeciationComputingNode* getSon(size_t pos) 
     {
       return dynamic_cast<SpeciationComputingNode*>(AwareNode::getSon(pos));
     }
 
-    const SpeciationComputingNode* getSon(size_t pos) const throw (IndexOutOfBoundsException)
+    const SpeciationComputingNode* getSon(size_t pos) const
     {
       return dynamic_cast<const SpeciationComputingNode*>(AwareNode::getSon(pos));
     }

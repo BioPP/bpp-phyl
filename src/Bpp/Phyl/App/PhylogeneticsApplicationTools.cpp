@@ -1563,10 +1563,29 @@ void PhylogeneticsApplicationTools::addSubstitutionProcessCollectionMember(
     if (!SubProColl->hasModelNumber(numModel))
       throw BadIntegerException("PhylogeneticsApplicationTools::addSubstitutionProcessCollectionMember : unknown model number", (int)numModel);
 
+    vector<string> sharedParameters = ApplicationTools::getVectorParameter<string>("shared_parameters", params, ',', "");
 
-    throw Exception("OnePerBranch option not implemented yet. Ask developpers to do it");
+    if (stationarity)
+      SubProColl->addOnePerBranchSubstitutionProcess(procNum, numModel, numTree, numRate, sharedParameters);
+    else
+      SubProColl->addOnePerBranchSubstitutionProcess(procNum, numModel, numTree, numRate, numFreq, sharedParameters);
+
+    if (verbose)
+    {
+      ApplicationTools::displayResult("Process type", string("OnePerBranch"));
+
+      ApplicationTools::displayResult (" Model number", TextTools::toString(numModel));
+      ApplicationTools::displayResult (" Tree number", TextTools::toString(numTree));
+      ApplicationTools::displayResult (" Rate number", TextTools::toString(numRate));
+      if (!stationarity)
+        ApplicationTools::displayResult (" Root frequencies number", TextTools::toString(numFreq));
+      for (const auto& sP : sharedParameters)
+        ApplicationTools::displayResult(" Shared parameter", sP);
+    }
   }
+  
 }
+
 
 
 /******************************************************************************/
@@ -2318,7 +2337,6 @@ PhyloLikelihoodContainer* PhylogeneticsApplicationTools::getPhyloLikelihoodConta
     
     sumAll += "phylo"+TextTools::toString(nPhyl[i]);
   }
-
   
   string resultDesc = ApplicationTools::getStringParameter("result", params, sumAll);
 
@@ -2326,33 +2344,36 @@ PhyloLikelihoodContainer* PhylogeneticsApplicationTools::getPhyloLikelihoodConta
 
   std::shared_ptr<PhyloLikelihood> nPL(0);
   size_t nP(0);
-  
-  if (resultDesc.substr(0,5)=="phylo")
+  bool flag(resultDesc.substr(0,5)=="phylo");
+
+  if (flag)
   {
     try {
       nP=(size_t)TextTools::toInt(resultDesc.substr(5));
     }
     catch (Exception& e)
     {
-      nPL = shared_ptr<PhyloLikelihood>(new FormulaOfPhyloLikelihood(mPhylo, resultDesc));
-      if (verbose)
-        ApplicationTools::displayResult(" Result", dynamic_cast<FormulaOfPhyloLikelihood*>(nPL.get())->output());
-    }
-
-    if (!nPL)
-    {
-      if (!mPhylo->hasPhyloLikelihood(nP))
-        throw BadIntegerException("Unknown Phylolikelihood number for result",(int)nP);
-      else
-        nPL=mPhylo->getPhyloLikelihood(nP);
-
-      if (verbose)
-        ApplicationTools::displayResult(" Result", resultDesc);
+      flag=false;
     }
   }
-  
-  mPhylo->sharePhyloLikelihood(0, nPL);
 
+  if (!flag)
+  {
+    nPL = shared_ptr<PhyloLikelihood>(new FormulaOfPhyloLikelihood(mPhylo, resultDesc));
+    if (verbose)
+      ApplicationTools::displayResult(" Result", dynamic_cast<FormulaOfPhyloLikelihood*>(nPL.get())->output());
+  }
+  else
+  {
+    if (!mPhylo->hasPhyloLikelihood(nP))
+      throw BadIntegerException("Unknown Phylolikelihood number for result",(int)nP);
+    else
+      nPL=mPhylo->getPhyloLikelihood(nP);
+    if (verbose)
+      ApplicationTools::displayResult(" Result", resultDesc);
+  }
+
+  mPhylo->sharePhyloLikelihood(0, nPL);
   return mPhylo;
 }
 

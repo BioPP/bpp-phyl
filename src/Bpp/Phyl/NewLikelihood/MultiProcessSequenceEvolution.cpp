@@ -135,7 +135,6 @@ ParameterList MultiProcessSequenceEvolution::getNonDerivableParameters() const
 
 
 void MultiProcessSequenceEvolution::setParameters(const ParameterList& parameters)
-throw (ParameterNotFoundException, ConstraintException)
 {
   setParametersValues(parameters);
 }

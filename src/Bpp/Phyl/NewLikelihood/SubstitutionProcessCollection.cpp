@@ -250,7 +250,7 @@ void SubstitutionProcessCollection::setNamespace(const string& prefix)
     it->second->setNamespace(prefix);
 }
 
-void SubstitutionProcessCollection::aliasParameters(const std::string& p1, const std::string& p2) throw (ParameterNotFoundException, Exception) 
+void SubstitutionProcessCollection::aliasParameters(const std::string& p1, const std::string& p2) 
 {
   AbstractParameterAliasable::aliasParameters(p1, p2);
   for (std::map<size_t, SubstitutionProcessCollectionMember*>::iterator it=mSubProcess_.begin(); it != mSubProcess_.end(); it++)
@@ -261,14 +261,14 @@ void SubstitutionProcessCollection::aliasParameters(const std::string& p1, const
     }
 }
 
-void SubstitutionProcessCollection::unaliasParameters(const std::string& p1, const std::string& p2) throw (ParameterNotFoundException, Exception) 
+void SubstitutionProcessCollection::unaliasParameters(const std::string& p1, const std::string& p2)
 {
   AbstractParameterAliasable::unaliasParameters(p1, p2);
   for (std::map<size_t, SubstitutionProcessCollectionMember*>::iterator it=mSubProcess_.begin(); it != mSubProcess_.end(); it++)
     it->second->updateParameters();
 }
 
-void SubstitutionProcessCollection::aliasParameters(std::map<std::string, std::string>& unparsedParams, bool verbose) throw (ParameterNotFoundException, Exception) 
+void SubstitutionProcessCollection::aliasParameters(std::map<std::string, std::string>& unparsedParams, bool verbose)
 {
   AbstractParameterAliasable::aliasParameters(unparsedParams, verbose);
   for (std::map<std::string, std::string>::iterator itp=unparsedParams.begin(); itp!=unparsedParams.end(); itp++)
@@ -284,32 +284,15 @@ void SubstitutionProcessCollection::aliasParameters(std::map<std::string, std::s
 
 void SubstitutionProcessCollection::addSubstitutionProcess(size_t nProc, std::map<size_t, std::vector<unsigned int> > mModBr, size_t nTree, size_t nRate, size_t nFreq)
 {
-  if (mSubProcess_.find(nProc)!=mSubProcess_.end())
-    throw BadIntegerException("Already assigned substitution process",(int)nProc);
+  addSubstitutionProcess(nProc,mModBr,nTree,nRate);
   
   if (!freqColl_.hasObject(nFreq))
     throw BadIntegerException("Wrong Root Frequencies Set number",(int)nFreq);
-  if (!treeColl_.hasObject(nTree))
-    throw BadIntegerException("Wrong Tree number",(int)nTree);
-  if (!distColl_.hasObject(nRate))
-    throw BadIntegerException("Wrong Rate distribution number",(int)nRate);
-
-  SubstitutionProcessCollectionMember* pSMS=new SubstitutionProcessCollectionMember(this, nProc, nTree, nRate);
-  pSMS->setRootFrequencies(nFreq);
-
-  std::map<size_t, std::vector<unsigned int> >::iterator it;
-  for (it=mModBr.begin(); it!=mModBr.end(); it++){
-    pSMS->addModel(it->first, it->second);
-    mModelToSubPro_[it->first].push_back(nProc);
-  }
   
-  pSMS->isFullySetUp();
+  SubstitutionProcessCollectionMember& pSMS=dynamic_cast<SubstitutionProcessCollectionMember&>(getSubstitutionProcess(nProc));
+  pSMS.setRootFrequencies(nFreq);
 
-  mTreeToSubPro_[nTree].push_back(nProc);
-  mDistToSubPro_[nRate].push_back(nProc);
   mFreqToSubPro_[nFreq].push_back(nProc);
-  
-  mSubProcess_[nProc]=pSMS;
 }
 
 void SubstitutionProcessCollection::addSubstitutionProcess(size_t nProc, std::map<size_t, std::vector<unsigned int> > mModBr, size_t nTree, size_t nRate)
@@ -354,4 +337,107 @@ ParameterList SubstitutionProcessCollection::getSubstitutionProcessParameters() 
 }
 
 
+void SubstitutionProcessCollection::addOnePerBranchSubstitutionProcess(size_t nProc, size_t nMod, size_t nTree, size_t nRate, size_t nFreq, const vector<string>& sharedParameterNames)
+{
+  addOnePerBranchSubstitutionProcess(nProc, nMod, nTree, nRate, sharedParameterNames);
+  
+  if (!freqColl_.hasObject(nFreq))
+    throw BadIntegerException("Wrong Root Frequencies Set number",(int)nFreq);
+  
+  SubstitutionProcessCollectionMember& pSMS=dynamic_cast<SubstitutionProcessCollectionMember&>(getSubstitutionProcess(nProc));
+  pSMS.setRootFrequencies(nFreq);
 
+  mFreqToSubPro_[nFreq].push_back(nProc);
+}
+
+
+void SubstitutionProcessCollection::addOnePerBranchSubstitutionProcess(size_t nProc, size_t nMod, size_t nTree, size_t nRate, const vector<string>& sharedParameterNames)
+{
+  if (mSubProcess_.find(nProc)!=mSubProcess_.end())
+    throw BadIntegerException("Already assigned substitution process",(int)nProc);
+
+  if (!treeColl_.hasObject(nTree))
+    throw BadIntegerException("Wrong Tree number",(int)nTree);
+  if (!distColl_.hasObject(nRate))
+    throw BadIntegerException("Wrong Rate distribution number",(int)nRate);
+
+  // Build new models and assign to a map
+
+  const ParametrizablePhyloTree& tree=getTree(nTree);
+  const TransitionModel* model=getModel(nMod);
+  
+  vector<uint> ids = tree.getAllEdgesIndexes();
+  vector<size_t> vModN=getModelNumbers();
+  
+  size_t maxMod=*max_element(vModN.begin(),vModN.end())+1;
+  
+  std::map<size_t, std::vector<unsigned int> > mModBr;
+
+  for (auto& id : ids)
+  {
+    size_t mNb=maxMod+id;
+    addModel(model->clone(),mNb);
+    mModBr[mNb]=vector<uint>(1,id);
+  }
+
+  addSubstitutionProcess(nProc, mModBr, nTree, nRate);
+
+  /////////////////////////////////////
+  // Look for aliases in parameters
+  
+  ParameterList sharedParameters = model->getIndependentParameters();
+  
+  vector<string> sharedParameterNames2; // vector of the complete names of global parameters
+
+  // First get correct parameter names
+  size_t i, j;
+
+  for (i = 0; i < sharedParameterNames.size(); i++)
+  {
+    if (sharedParameterNames[i].find("*") != string::npos)
+    {
+      for (j = 0; j < sharedParameters.size(); j++)
+      {
+        StringTokenizer stj(sharedParameterNames[i], "*", true, false);
+        size_t pos1, pos2;
+        string parn = sharedParameters[j].getName();
+        bool flag(true);
+        string g = stj.nextToken();
+        pos1 = parn.find(g);
+        if (pos1 != 0)
+          flag = false;
+        pos1 += g.length();
+        while (flag && stj.hasMoreToken())
+        {
+          g = stj.nextToken();
+          pos2 = parn.find(g, pos1);
+          if (pos2 == string::npos)
+          {
+            flag = false;
+            break;
+          }
+          pos1 = pos2 + g.length();
+        }
+        if (flag &&
+            ((g.length() == 0) || (pos1 == parn.length()) || (parn.rfind(g) == parn.length() - g.length())))
+          sharedParameterNames2.push_back(parn);
+      }
+    }
+    else if (!sharedParameters.hasParameter(sharedParameterNames[i]))
+      throw Exception("SubstitutionProcessCollection::addOnePerBranchSubstitutionProcess. Parameter '" + sharedParameterNames[i] + "' is not valid.");
+    else
+      sharedParameterNames2.push_back(sharedParameterNames[i]);
+  }
+  
+  // Now alias all shared parameters on all nodes:
+
+  string pnum=TextTools::toString(mModBr.begin()->first);
+  
+  for (const auto& pname : sharedParameterNames)
+  {
+    for (auto it=mModBr.begin();it!=mModBr.end();it++)
+      if (it!=mModBr.begin())
+        aliasParameters(pname+"_"+pnum,pname+"_"+TextTools::toString(it->first));
+  }
+  
+}

@@ -56,7 +56,7 @@ HmmPhyloEmissionProbabilities::HmmPhyloEmissionProbabilities(const HmmPhyloAlpha
 }
 
 
-void HmmPhyloEmissionProbabilities::setHmmStateAlphabet(const HmmStateAlphabet* stateAlphabet) throw (HmmUnvalidAlphabetException)
+void HmmPhyloEmissionProbabilities::setHmmStateAlphabet(const HmmStateAlphabet* stateAlphabet) 
 {
   if (stateAlphabet==NULL)
     throw HmmUnvalidAlphabetException("Null alphabet in HmmPhyloEmissionProbabilities::setHmmStateAlphabet");

@@ -59,7 +59,7 @@ HmmProcessEmissionProbabilities::HmmProcessEmissionProbabilities(const HmmProces
 }
 
 
-void HmmProcessEmissionProbabilities::setHmmStateAlphabet(const HmmStateAlphabet* stateAlphabet) throw (HmmUnvalidAlphabetException)
+void HmmProcessEmissionProbabilities::setHmmStateAlphabet(const HmmStateAlphabet* stateAlphabet)
 {
   if (stateAlphabet==NULL)
     throw HmmUnvalidAlphabetException("Null alphabet in HmmProcessEmissionProbabilities::setHmmStateAlphabet");

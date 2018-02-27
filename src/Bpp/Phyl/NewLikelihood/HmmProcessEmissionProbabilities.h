@@ -118,7 +118,7 @@ namespace bpp
      * @throw UnvalidStateAlphabetException if the new alphabet is uncorrect (for instance is NULL pointer).
      */
     
-    void setHmmStateAlphabet(const HmmStateAlphabet* stateAlphabet) throw (HmmUnvalidAlphabetException);
+    void setHmmStateAlphabet(const HmmStateAlphabet* stateAlphabet);
     
     /**@} */
 

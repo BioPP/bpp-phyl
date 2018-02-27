@@ -102,9 +102,8 @@ namespace bpp
       RecursiveLikelihoodTreeCalculation(
         const SubstitutionProcess* process,
         bool verbose = true,
-        bool usePatterns = true)
-        throw (Exception);
-
+        bool usePatterns = true);
+      
       /**
        * @brief Build a new Simple Recursive Tree Likelihood object and compute the corresponding likelihood.
        *
@@ -120,9 +119,8 @@ namespace bpp
         const AlignedValuesContainer& data,
         const SubstitutionProcess* process,
         bool verbose = true,
-        bool usePatterns = true)
-        throw (Exception);
-
+        bool usePatterns = true);
+      
       /**
        * @brief Copy constructor.
        */ 
@@ -138,7 +136,7 @@ namespace bpp
       /**
        * @brief Method called by constructors.
        */
-      void init_(bool usePatterns) throw (Exception);
+      void init_(bool usePatterns);
 
     public:
 
@@ -205,6 +203,16 @@ namespace bpp
        */
     
       void computeLikelihoodsAtNode(int nodeId);
+
+      /**
+       *@brief Compute the Likelihood at all nodes node, using ONLY
+       *     downward recursion from the root, so upward recursion
+       *     should be up to date.
+       *
+       *
+       */
+
+      void computeLikelihoodsAtAllNodes();
 
     public:
 

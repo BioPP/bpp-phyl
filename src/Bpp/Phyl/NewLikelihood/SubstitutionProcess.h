@@ -226,7 +226,7 @@ namespace bpp
      * @see getStates();
      * @see SubstitutionModel
      */
-    virtual double getInitValue(size_t i, int state) const throw (BadIntException) = 0;
+    virtual double getInitValue(size_t i, int state) const = 0;
 
     /**
      * @return The probability associated to the given model class.
