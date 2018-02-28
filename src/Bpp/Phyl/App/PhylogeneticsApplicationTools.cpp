@@ -1563,7 +1563,7 @@ void PhylogeneticsApplicationTools::addSubstitutionProcessCollectionMember(
     if (!SubProColl->hasModelNumber(numModel))
       throw BadIntegerException("PhylogeneticsApplicationTools::addSubstitutionProcessCollectionMember : unknown model number", (int)numModel);
 
-    vector<string> sharedParameters = ApplicationTools::getVectorParameter<string>("shared_parameters", params, ',', "");
+    vector<string> sharedParameters = ApplicationTools::getVectorParameter<string>("shared_parameters", args, ',', "", "", true, 1);
 
     if (stationarity)
       SubProColl->addOnePerBranchSubstitutionProcess(procNum, numModel, numTree, numRate, sharedParameters);
