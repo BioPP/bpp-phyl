@@ -46,9 +46,11 @@ using namespace std;
 /******************************************************************************/
 
 AbstractCodonCpGSubstitutionModel::AbstractCodonCpGSubstitutionModel(
+  const CodonAlphabet& alphabet,
   const std::string& prefix) :
   AbstractParameterAliasable(prefix),
-  rho_(1)
+  rho_(1),
+  stateMap_(new CanonicalStateMap(&alphabet, false))
 {
   addParameter_(new Parameter(prefix + "rho", 1, new IntervalConstraint(NumConstants::SMALL(), 999, true, true), true));
 }
@@ -60,9 +62,8 @@ void AbstractCodonCpGSubstitutionModel::fireParameterChanged(const ParameterList
 
 double AbstractCodonCpGSubstitutionModel::getCodonsMulRate(size_t i, size_t j) const
 {
-  int ii=static_cast<int>(i);
-  int ij=static_cast<int>(j);
+  int si(stateMap_->getAlphabetStateAsInt(i)), sj(stateMap_->getAlphabetStateAsInt(j));
 
-  return ((ii%16==7  && (ii-ij==2 || ij-ii==8)) || ((ii-1)/4==6 && (ii-ij==8 || (ij-ii==32))))?rho_:1;
+  return ((si%16==7  && (si-sj==2 || sj-si==8)) || ((si-1)/4==6 && (si-sj==8 || (sj-si==32))))?rho_:1;
 }
 

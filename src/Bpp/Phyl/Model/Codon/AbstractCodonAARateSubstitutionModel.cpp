@@ -54,7 +54,8 @@ AbstractCodonAARateSubstitutionModel::AbstractCodonAARateSubstitutionModel(
   pAAmodel_(pmodel),
   pgencode_(pgencode),
   beta_(19),
-  gamma_(1)
+  gamma_(1),
+  stateMap_(new CanonicalStateMap(pgencode->getSourceAlphabet(), false))
 {
   if (paramSynRate)
     addParameter_(new Parameter(prefix + "gamma", 1, new IntervalConstraint(NumConstants::SMALL(), 999, true, true), true));
@@ -79,8 +80,10 @@ void AbstractCodonAARateSubstitutionModel::fireParameterChanged(const ParameterL
 
 double AbstractCodonAARateSubstitutionModel::getCodonsMulRate(size_t i, size_t j) const
 {
-  return pgencode_->areSynonymous(static_cast<int>(i), static_cast<int>(j)) ? gamma_ :
-    beta_ * pAAmodel_->Qij(pgencode_->translate(static_cast<int>(i)),
-                           pgencode_->translate(static_cast<int>(j)));
+  int si(stateMap_->getAlphabetStateAsInt(i)), sj(stateMap_->getAlphabetStateAsInt(j));
+  
+  return pgencode_->areSynonymous(si,sj) ? gamma_ :
+    beta_ * pAAmodel_->Qij(pAAmodel_->getModelStates(pgencode_->translate(si))[0],
+                           pAAmodel_->getModelStates(pgencode_->translate(sj))[0]);
 }
 

@@ -75,6 +75,8 @@ namespace bpp
   
     std::string fitName_;
 
+    const StateMap* stateMap_;
+    
 public:
     AbstractCodonAAFitnessSubstitutionModel(
       FrequenciesSet* pfitset,
@@ -85,7 +87,8 @@ public:
       AbstractParameterAliasable(model),
       pfitset_(model.pfitset_->clone()),
       pgencode_(model.pgencode_),
-      fitName_(model.fitName_)
+      fitName_(model.fitName_),
+      stateMap_(&pfitset_->getStateMap())
     {}
 
     AbstractCodonAAFitnessSubstitutionModel& operator=(const AbstractCodonAAFitnessSubstitutionModel& model){
@@ -93,6 +96,8 @@ public:
       pfitset_.reset(model.pfitset_->clone());
       pgencode_ = model.pgencode_;
       fitName_ = model.fitName_ ;
+      stateMap_ = &pfitset_->getStateMap();
+      
       return *this;
     }
 

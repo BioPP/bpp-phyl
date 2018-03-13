@@ -79,6 +79,9 @@ namespace bpp
     double beta_;
 
     double gamma_;
+
+    std::shared_ptr<StateMap> stateMap_;
+    
   public:
     /**
      * @brief Build a new AbstractCodonAARateSubstitutionModel object from
@@ -96,13 +99,15 @@ namespace bpp
       const GeneticCode* pgencode,
       const std::string& prefix,
       bool paramSynRate = false);
+  
 
     AbstractCodonAARateSubstitutionModel(const AbstractCodonAARateSubstitutionModel& model) :
       AbstractParameterAliasable(model),
       pAAmodel_(model.pAAmodel_),
       pgencode_(model.pgencode_),
       beta_(model.beta_),
-      gamma_(model.gamma_)
+      gamma_(model.gamma_),
+      stateMap_(model.stateMap_)
     {}
 
     AbstractCodonAARateSubstitutionModel& operator=(
@@ -113,6 +118,8 @@ namespace bpp
       pgencode_ = model.pgencode_;
       beta_ = model.beta_;
       gamma_ = model.gamma_;
+      stateMap_ = model.stateMap_;
+      
       return *this;
     }
 

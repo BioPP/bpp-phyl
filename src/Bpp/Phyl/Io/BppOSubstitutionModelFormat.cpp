@@ -1221,7 +1221,7 @@ SubstitutionModel* BppOSubstitutionModelFormat::readWord_(const Alphabet* alphab
       if (modelName.find("CpG")!=string::npos)
       {
         name+="CpG";
-        vCSM.push_back(new AbstractCodonCpGSubstitutionModel(""));
+        vCSM.push_back(new AbstractCodonCpGSubstitutionModel(*pCA,""));
       }
       
       if (modelName.find("AAFit")!=string::npos)
