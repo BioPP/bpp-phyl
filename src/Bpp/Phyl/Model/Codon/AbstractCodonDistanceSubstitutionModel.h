@@ -90,6 +90,9 @@ namespace bpp
     double alpha_, beta_;
 
     double gamma_;
+
+    std::shared_ptr<StateMap> stateMap_;
+    
   public:
     /**
      * @brief Build a new AbstractCodonDistanceSubstitutionModel object.
@@ -113,7 +116,8 @@ namespace bpp
       pgencode_(model.pgencode_),
       alpha_(model.alpha_),
       beta_(model.beta_),
-      gamma_(model.gamma_)
+      gamma_(model.gamma_),
+      stateMap_(model.stateMap_)
     {}
 
     AbstractCodonDistanceSubstitutionModel& operator=(
@@ -125,6 +129,8 @@ namespace bpp
       alpha_ = model.alpha_;
       beta_ = model.beta_;
       gamma_ = model.gamma_;
+      stateMap_ = model.stateMap_;
+      
       return *this;
     }
 

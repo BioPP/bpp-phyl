@@ -80,7 +80,7 @@ AbstractCodonSubstitutionModel::AbstractCodonSubstitutionModel(
     // relative rates
     for (i = 0; i < 2; i++)
     {
-      addParameter_(new Parameter(prefix + "relrate" + TextTools::toString(i + 1), 1.0 / static_cast<double>(3 - i), &Parameter::PROP_CONSTRAINT_EX));
+      addParameter_(new Parameter(prefix + "relrate" + TextTools::toString(i + 1), 1.0 / double(3 - i), &Parameter::PROP_CONSTRAINT_EX));
     }
   }
 }
@@ -143,7 +143,7 @@ AbstractCodonSubstitutionModel::AbstractCodonSubstitutionModel(
     // relative rates
     for (int i = 0; i < 2; ++i)
     {
-      addParameter_(new Parameter(prefix + "relrate" + TextTools::toString(i + 1), 1.0 / (3.0 - i), &Parameter::PROP_CONSTRAINT_EX));
+      addParameter_(new Parameter(prefix + "relrate" + TextTools::toString(i + 1), 1.0 / double(3 - i), &Parameter::PROP_CONSTRAINT_EX));
     }
   }
 }
@@ -180,7 +180,7 @@ void AbstractCodonSubstitutionModel::completeMatrices()
   {
     for (j = 0; j < salph; j++)
     {
-      if (gCode_->isStop(static_cast<int>(i)) || gCode_->isStop(static_cast<int>(j)))
+      if (gCode_->isStop(getAlphabetStateAsInt(i)) || gCode_->isStop(getAlphabetStateAsInt(j)))
       {
         generator_(i, j) = 0;
       }

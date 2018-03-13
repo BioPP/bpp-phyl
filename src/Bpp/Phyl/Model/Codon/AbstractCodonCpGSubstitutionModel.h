@@ -67,20 +67,26 @@ namespace bpp
   {
   private:
     double rho_;
+    
+    std::shared_ptr<StateMap> stateMap_;
 
   public:
     /**
      * @brief Build a new AbstractCodonCpGSubstitutionModel object from
      *  a pointer to NucleotideSubstitutionModel.
      *
+     * @param alphabet the codon alphabet
      * @param prefix the Namespace
      */
+    
     AbstractCodonCpGSubstitutionModel(
+      const CodonAlphabet& alphabet,
       const std::string& prefix);
 
     AbstractCodonCpGSubstitutionModel(const AbstractCodonCpGSubstitutionModel& model) :
       AbstractParameterAliasable(model),
-      rho_(model.rho_)
+      rho_(model.rho_),
+      stateMap_(model.stateMap_)
     {}
 
     AbstractCodonCpGSubstitutionModel& operator=(
@@ -88,6 +94,7 @@ namespace bpp
     {
       AbstractParameterAliasable::operator=(model);
       rho_ = model.rho_;
+      stateMap_ = model.stateMap_;
       return *this;
     }
 

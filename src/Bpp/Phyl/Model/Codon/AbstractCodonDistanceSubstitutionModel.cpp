@@ -55,7 +55,8 @@ AbstractCodonDistanceSubstitutionModel::AbstractCodonDistanceSubstitutionModel(
   pgencode_(pgencode),
   alpha_(10000),
   beta_(1),
-  gamma_(1)
+  gamma_(1),
+  stateMap_(new CanonicalStateMap(pgencode->getSourceAlphabet(), false))
 {
   if (pdistance_)
     addParameter_(new Parameter(prefix + "alpha", 10000, &Parameter::R_PLUS_STAR));
@@ -78,9 +79,11 @@ void AbstractCodonDistanceSubstitutionModel::fireParameterChanged(const Paramete
 
 double AbstractCodonDistanceSubstitutionModel::getCodonsMulRate(size_t i, size_t j) const
 {
-  return pgencode_->areSynonymous(static_cast<int>(i), static_cast<int>(j)) ? gamma_ :
-         beta_ * (pdistance_ ? exp(-pdistance_->getIndex(
-                                     pgencode_->translate(static_cast<int>(i)),
-                                     pgencode_->translate(static_cast<int>(j))) / alpha_) : 1);
+  int si(stateMap_->getAlphabetStateAsInt(i)), sj(stateMap_->getAlphabetStateAsInt(j));
+
+  return pgencode_->areSynonymous(si, sj) ? gamma_ :
+    beta_ * (pdistance_ ? exp(-pdistance_->getIndex(
+                                pgencode_->translate(si),
+                                pgencode_->translate(sj)) / alpha_) : 1);
 }
 

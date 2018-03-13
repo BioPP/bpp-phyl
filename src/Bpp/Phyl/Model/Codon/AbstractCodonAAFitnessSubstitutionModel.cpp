@@ -48,6 +48,8 @@ AbstractCodonAAFitnessSubstitutionModel::AbstractCodonAAFitnessSubstitutionModel
   
   fitName_="fit_"+ pfitset_->getNamespace();
   pfitset_->setNamespace(prefix + fitName_);
+  stateMap_=&pfitset_->getStateMap();
+  
   addParameters_(pfitset_->getParameters());
 }
 
@@ -70,11 +72,11 @@ double AbstractCodonAAFitnessSubstitutionModel::getCodonsMulRate(size_t i, size_
 {
   double mu;
 
-  int aai = pgencode_->translate(static_cast<int>(i));
-  int aaj = pgencode_->translate(static_cast<int>(j));
+  int aai = pgencode_->translate(stateMap_->getAlphabetStateAsInt(i));
+  int aaj = pgencode_->translate(stateMap_->getAlphabetStateAsInt(j));
 
-  double phi_j= pfitset_->getFrequencies() [aai];
-  double phi_i= pfitset_->getFrequencies() [aaj];
+  double phi_j= pfitset_->getFrequencies() [stateMap_->getModelStates(aai)[0]];
+  double phi_i= pfitset_->getFrequencies() [stateMap_->getModelStates(aaj)[0]];
 
   if (phi_i == phi_j) mu=1;
   else if (phi_i==0)

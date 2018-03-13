@@ -51,7 +51,8 @@ AbstractCodonBGCSubstitutionModel::AbstractCodonBGCSubstitutionModel(
   AbstractParameterAliasable(prefix),
   pgencode_(pgencode),
   B_(0),
-  S_(0)
+  S_(0),
+  stateMap_(new CanonicalStateMap(pgencode->getSourceAlphabet(), false))
 {
   addParameter_(new Parameter(prefix + "S", 0));
   addParameter_(new Parameter(prefix + "B", 0));
@@ -65,20 +66,22 @@ void AbstractCodonBGCSubstitutionModel::fireParameterChanged(const ParameterList
 
 double AbstractCodonBGCSubstitutionModel::getCodonsMulRate(size_t i, size_t j) const
 {
-  int epsilon = pgencode_->getSourceAlphabet()->getGCinCodon(static_cast<int>(j))
-    - pgencode_->getSourceAlphabet()->getGCinCodon(static_cast<int>(i));
+  int si(stateMap_->getAlphabetStateAsInt(i)), sj(stateMap_->getAlphabetStateAsInt(j));
+
+  int epsilon = pgencode_->getSourceAlphabet()->getGCinCodon(sj)
+    - pgencode_->getSourceAlphabet()->getGCinCodon(si);
 
   switch (epsilon)
   {
   case 0:
-    return (pgencode_->areSynonymous(static_cast<int>(i), static_cast<int>(j))?1.
+    return (pgencode_->areSynonymous(si, sj)?1.
             :(S_==0?1.:S_/(1-exp(-S_))));
   case 1:
-    return (pgencode_->areSynonymous(static_cast<int>(i), static_cast<int>(j))
+    return (pgencode_->areSynonymous(si, sj)
             ?(B_==0?1:B_/(1-exp(-B_)))
             :(B_+S_==0?1.:(B_+S_)/(1-exp(-(B_+S_)))));
   case -1:
-    return (pgencode_->areSynonymous(static_cast<int>(i), static_cast<int>(j))
+    return (pgencode_->areSynonymous(si, sj)
             ?(B_==0?1:-B_/(1-exp(B_)))
             :(-B_+S_==0?1.:(-B_+S_)/(1-exp(B_-S_))));
   }

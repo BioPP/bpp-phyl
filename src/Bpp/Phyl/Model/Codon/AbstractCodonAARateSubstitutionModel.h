@@ -79,6 +79,9 @@ namespace bpp
     double beta_;
 
     double gamma_;
+
+    std::shared_ptr<StateMap> stateMap_;
+    
   public:
     /**
      * @brief Build a new AbstractCodonAARateSubstitutionModel object from
@@ -87,6 +90,7 @@ namespace bpp
      * @param pmodel shared_ptr to an amino_acid generator
      * @param pgencode the genetic code
      * @param prefix the Namespace
+     * @param statemap the statemap
      * @param paramSynRate is true iff synonymous rate is parameterised
      *       (default=false).
      */
@@ -96,13 +100,15 @@ namespace bpp
       const GeneticCode* pgencode,
       const std::string& prefix,
       bool paramSynRate = false);
+  
 
     AbstractCodonAARateSubstitutionModel(const AbstractCodonAARateSubstitutionModel& model) :
       AbstractParameterAliasable(model),
       pAAmodel_(model.pAAmodel_),
       pgencode_(model.pgencode_),
       beta_(model.beta_),
-      gamma_(model.gamma_)
+      gamma_(model.gamma_),
+      stateMap_(model.stateMap_)
     {}
 
     AbstractCodonAARateSubstitutionModel& operator=(
@@ -113,6 +119,8 @@ namespace bpp
       pgencode_ = model.pgencode_;
       beta_ = model.beta_;
       gamma_ = model.gamma_;
+      stateMap_ = model.stateMap_;
+      
       return *this;
     }
 
