@@ -90,7 +90,6 @@ namespace bpp
      * @param pmodel shared_ptr to an amino_acid generator
      * @param pgencode the genetic code
      * @param prefix the Namespace
-     * @param statemap the statemap
      * @param paramSynRate is true iff synonymous rate is parameterised
      *       (default=false).
      */
