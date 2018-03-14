@@ -575,7 +575,6 @@ public:
    * @param verbose if outputs  reading
    * @return A SubstitutionRegister object.
    */
-  
   static SubstitutionRegister* getSubstitutionRegister(const std::string& regTypeDesc, const SubstitutionModel* model, bool verbose = true);
   
 
