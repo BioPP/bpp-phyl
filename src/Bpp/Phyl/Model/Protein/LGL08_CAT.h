@@ -45,8 +45,6 @@
 #include "../AbstractSubstitutionModel.h"
 #include "../AbstractBiblioMixedSubstitutionModel.h"
 
-using namespace std;
-
 namespace bpp
 {
 /**
@@ -80,13 +78,13 @@ namespace bpp
     {
     private:
       double proportion_;
-      string name_;
+      std::string name_;
 
     public:
-      EmbeddedModel(const ProteicAlphabet* alpha, string name, unsigned int nbCat = 10);
+      EmbeddedModel(const ProteicAlphabet* alpha, std::string name, unsigned int nbCat = 10);
       virtual ~EmbeddedModel(){}
       EmbeddedModel* clone() const { return new EmbeddedModel(*this); }
-      string getName() const { return name_;}
+      std::string getName() const { return name_;}
       double getProportion() const { return proportion_;}
     };
 
@@ -111,6 +109,13 @@ namespace bpp
       AbstractBiblioMixedSubstitutionModel::operator=(mod2);
       return *this;
     }
+
+    uint getNumberOfCategories() const
+    {
+      return (uint)pmixmodel_->getNumberOfModels();
+    }
+    
+    std::string getName() const { return "LGL08_CAT";}
 
   };
 } // end of namespace bpp.

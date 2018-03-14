@@ -1542,6 +1542,7 @@ void BppOSubstitutionModelFormat::write(const TransitionModel& model,
                                         std::map<std::string, std::string>& globalAliases,
                                         std::vector<std::string>& writtenNames) const
 {
+  cerr << "BppOSubstitutionModelFormat::write" << model.getName() << endl;
   bool comma = false;
 
   //  Mixed Model that are defined as "Mixture" and "Mixed"
@@ -1814,6 +1815,16 @@ void BppOSubstitutionModelFormat::write(const TransitionModel& model,
     
     comma=true;
   }
+
+  const LGL08_CAT* pLGL = dynamic_cast<const LGL08_CAT*>(&model);
+  if (pLGL)
+  {
+    if (comma)
+      out << ",";
+    out << "nbCat=" << pLGL->getNumberOfCategories();
+    
+    comma=true;
+  }
   
   BppOParametrizableFormat bIO;
 
@@ -1845,6 +1856,8 @@ void BppOSubstitutionModelFormat::writeMixed_(const MixedSubstitutionModel& mode
                                               std::map<std::string, std::string>& globalAliases,
                                               std::vector<std::string>& writtenNames) const
 {
+  cerr << "BppOSubstitutionModelFormat::writeMixed_" << endl;
+  
   if (dynamic_cast<const MixtureOfSubstitutionModels*>(&model) != NULL)
   {
     const MixtureOfSubstitutionModels* pMS = dynamic_cast<const MixtureOfSubstitutionModels*>(&model);
