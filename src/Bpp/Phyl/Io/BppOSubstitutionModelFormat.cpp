@@ -1542,7 +1542,6 @@ void BppOSubstitutionModelFormat::write(const TransitionModel& model,
                                         std::map<std::string, std::string>& globalAliases,
                                         std::vector<std::string>& writtenNames) const
 {
-  cerr << "BppOSubstitutionModelFormat::write" << model.getName() << endl;
   bool comma = false;
 
   //  Mixed Model that are defined as "Mixture" and "Mixed"
@@ -1553,8 +1552,8 @@ void BppOSubstitutionModelFormat::write(const TransitionModel& model,
     return;
   }
 
-   out << model.getName() + "(";
-
+  out << model.getName() + "(";
+   
   // Is it a protein user defined model?
   const UserProteinSubstitutionModel* userModel = dynamic_cast<const UserProteinSubstitutionModel*>(&model);
   if (userModel)
