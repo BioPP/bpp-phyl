@@ -52,63 +52,55 @@ namespace bpp
 /**
  * @brief Interface allowing for weighting of  substitution counts according to state properties.
  */
-class WeightedSubstitutionCount:
-  public virtual SubstitutionCount
-{
+  class WeightedSubstitutionCount:
+    public virtual SubstitutionCount
+  {
   public:
-    virtual void setWeights(const AlphabetIndex2* index, bool ownWeights) = 0;
+    virtual void setWeights(std::shared_ptr<const AlphabetIndex2> index) = 0;
     virtual bool hasWeights() const = 0;
-    virtual const AlphabetIndex2* getWeights() const = 0;
-};
-
+    virtual std::shared_ptr<const AlphabetIndex2> getWeights() const = 0;
+  };
+  
 /**
  * @brief Partial implementation of the WeightedSubstitutionCount interface.
  */
-class AbstractWeightedSubstitutionCount:
-  public virtual WeightedSubstitutionCount
-{
+  class AbstractWeightedSubstitutionCount:
+    public virtual WeightedSubstitutionCount
+  {
   protected:
-    const AlphabetIndex2* weights_;
-    bool ownWeights_;
+    std::shared_ptr<const AlphabetIndex2> weights_;
 	
   public:
-    AbstractWeightedSubstitutionCount(const AlphabetIndex2* weights, bool ownWeights) :
-      weights_(weights),
-      ownWeights_(ownWeights)
+    AbstractWeightedSubstitutionCount(std::shared_ptr<const AlphabetIndex2> weights) :
+      weights_(weights)
     {}
 
     AbstractWeightedSubstitutionCount(const AbstractWeightedSubstitutionCount& index) :
-      weights_(index.weights_),
-      ownWeights_(index.ownWeights_)
+      weights_(index.weights_)
     {
-      if (ownWeights_)
-        weights_ = dynamic_cast<AlphabetIndex2*>(index.weights_->clone());
     }
 
     AbstractWeightedSubstitutionCount& operator=(const AbstractWeightedSubstitutionCount& index)
     {
-      ownWeights_ = index.ownWeights_;
-      if (ownWeights_) weights_ = dynamic_cast<AlphabetIndex2*>(index.weights_->clone());
-      else weights_ = index.weights_;
+      weights_ = index.weights_;
       
       return *this;
     }
 		
     virtual ~AbstractWeightedSubstitutionCount()
     {
-      if (ownWeights_)
-        delete weights_;
     }
+    
 		
   public:
-    void setWeights(const AlphabetIndex2* weights, bool ownWeights);
-    bool hasWeights() const { return weights_ != 0; }
-    const AlphabetIndex2* getWeights() const { return weights_; }
+    void setWeights(std::shared_ptr<const AlphabetIndex2> weights);
+    bool hasWeights() const { return weights_.get() != 0; }
+    std::shared_ptr<const AlphabetIndex2> getWeights() const { return weights_; }
 
   protected:
     virtual void weightsHaveChanged() = 0;
 
-};
+  };
 
 } //end of namespace bpp.
 

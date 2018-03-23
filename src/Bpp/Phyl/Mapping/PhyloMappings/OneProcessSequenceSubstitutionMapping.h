@@ -70,8 +70,8 @@ namespace bpp
     void setBranchedModelSet_();
     
   public:
-    OneProcessSequenceSubstitutionMapping(OneProcessSequencePhyloLikelihood& spp, SubstitutionRegister& reg, double threshold = -1) :
-      AbstractSinglePhyloSubstitutionMapping(spp.getSubstitutionProcess().getParametrizablePhyloTree().getGraph(), reg),
+    OneProcessSequenceSubstitutionMapping(OneProcessSequencePhyloLikelihood& spp, SubstitutionRegister& reg, std::shared_ptr<const AlphabetIndex2> weights, double threshold = -1) :
+      AbstractSinglePhyloSubstitutionMapping(spp.getSubstitutionProcess().getParametrizablePhyloTree().getGraph(), reg, weights),
       pOPSP_(&spp)
     {
       computeCounts(threshold);
@@ -88,6 +88,7 @@ namespace bpp
     {
       AbstractSinglePhyloSubstitutionMapping::operator=(sppm);
       pOPSP_ = sppm.pOPSP_;
+      
       return *this;
     }
 
@@ -104,6 +105,7 @@ namespace bpp
     {
       counts_.reset(SubstitutionMappingTools::computeCounts(getLikelihoodCalculation(),
                                                             getRegister(),
+                                                            getWeights(),
                                                             threshold));
     }
     

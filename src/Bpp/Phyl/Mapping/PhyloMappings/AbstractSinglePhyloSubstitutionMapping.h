@@ -45,6 +45,7 @@
 #include "PhyloSubstitutionMapping.h"
 #include "../../Tree/PhyloTree.h"
 
+#include <Bpp/Seq/AlphabetIndex/AlphabetIndex2.h>
 #include <Bpp/Numeric/ParametrizableCollection.h>
 #include <Bpp/Numeric/Matrix/MatrixTools.h>
 
@@ -75,6 +76,13 @@ namespace bpp
 
     const SubstitutionRegister* pReg_;
 
+    /*
+     * @brief weights of the substitutions. If null, no weights are
+     * used.
+     */
+    
+    std::shared_ptr<const AlphabetIndex2> weights_;
+
   protected:
     
     std::unique_ptr<ProbabilisticSubstitutionMapping> counts_;
@@ -97,8 +105,8 @@ namespace bpp
     std::map<size_t, std::vector<uint> > mModBrid_;
     
   public:
-    AbstractSinglePhyloSubstitutionMapping(std::shared_ptr<TreeGlobalGraph> graph, const SubstitutionRegister& reg) :
-      modelTree(graph), pReg_(&reg), counts_(), factors_(), modelColl_(), mModBrid_()
+    AbstractSinglePhyloSubstitutionMapping(std::shared_ptr<TreeGlobalGraph> graph, const SubstitutionRegister& reg, std::shared_ptr<const AlphabetIndex2> weights) :
+      modelTree(graph), pReg_(&reg), weights_(weights), counts_(), factors_(), modelColl_(), mModBrid_()
     {}
 
     AbstractSinglePhyloSubstitutionMapping(const AbstractSinglePhyloSubstitutionMapping& sppm);
@@ -106,8 +114,6 @@ namespace bpp
     AbstractSinglePhyloSubstitutionMapping& operator=(const AbstractSinglePhyloSubstitutionMapping& sppm);
 
     virtual ~AbstractSinglePhyloSubstitutionMapping() {}
-    
-    // AbstractSinglePhyloSubstitutionMapping* clone() const { return new AbstractSinglePhyloSubstitutionMapping(*this); }
     
     /*
      * @brief From BranchedModelSet
@@ -177,6 +183,11 @@ namespace bpp
       return modelColl_.getParameters();
     }
 
+    std::shared_ptr<const AlphabetIndex2> getWeights() const
+    {
+      return weights_;
+    }
+    
     /* 
      *
      * @brief add a Substitition Model in the map, and on all branches

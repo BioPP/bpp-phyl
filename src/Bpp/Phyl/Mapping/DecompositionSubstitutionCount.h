@@ -65,7 +65,7 @@ namespace bpp
     mutable double currentLength_;
 
   public:
-    DecompositionSubstitutionCount(const SubstitutionModel* model, SubstitutionRegister* reg, const AlphabetIndex2* weights = 0);
+    DecompositionSubstitutionCount(const SubstitutionModel* model, SubstitutionRegister* reg, std::shared_ptr<const AlphabetIndex2> weights = 0);
 		
     DecompositionSubstitutionCount(const DecompositionSubstitutionCount& dsc) :
       AbstractSubstitutionCount(dsc),

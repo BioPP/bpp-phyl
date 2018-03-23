@@ -251,7 +251,9 @@ SubstitutionModel* BppOSubstitutionModelFormat::read(
       throw Exception("BppOSubstitutionModelFormat::read. Missing argument 'register' for model 'FromRegister'.");
     
     string registerDescription = args["register"];
-    unique_ptr<SubstitutionRegister> reg(PhylogeneticsApplicationTools::getSubstitutionRegister(registerDescription, nestedModel->getStateMap(), geneticCode_, verbose_));
+    AlphabetIndex2* weights=0;
+    
+    unique_ptr<SubstitutionRegister> reg(PhylogeneticsApplicationTools::getSubstitutionRegister(registerDescription, nestedModel->getStateMap(), geneticCode_, weights, verbose_));
 
     // is it normalized (default : false)
     bool isNorm=false;

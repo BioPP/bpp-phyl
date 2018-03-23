@@ -68,6 +68,8 @@
 #include <Bpp/Seq/Container/SiteContainer.h>
 #include <Bpp/Seq/Container/VectorSiteContainer.h>
 #include <Bpp/Seq/Container/VectorProbabilisticSiteContainer.h>
+#include <Bpp/Seq/AlphabetIndex/AlphabetIndex2.h>
+#include <Bpp/Seq/Io/BppOAlphabetIndex2Format.h>
 
 // From the STL:
 #include <string>
@@ -444,11 +446,13 @@ namespace bpp
    * @param stateMap The stateMap to use.
    * @param genCode when codon Alphabet, the genetic Code (otherwise,
    *                default : 0)
+   * @param weights [out] AlphabetIndex2 pointer if "weights" argument
+   *        is provided, null otherwise
    * @param verbose if outputs  reading
    * @return A SubstitutionRegister object.
    */
   
-    static SubstitutionRegister* getSubstitutionRegister(const std::string& regTypeDesc, const StateMap& stateMap, const GeneticCode* genCode = 0, bool verbose = true);
+    static SubstitutionRegister* getSubstitutionRegister(const std::string& regTypeDesc, const StateMap& stateMap, const GeneticCode* genCode, AlphabetIndex2*& weights, bool verbose = true);
   
     /**
      * @brief Sets a SubstitutionModelSet object according to options.

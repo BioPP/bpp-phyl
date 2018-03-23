@@ -80,9 +80,9 @@ namespace bpp
      * The default is "no", to be consistent with other types of substitution counts which account for multiple substitutions, in which case it does not make sense to count "X to X".
      * @param weights the weights of the counts
      */
-    NaiveSubstitutionCount(const SubstitutionModel* model, SubstitutionRegister* reg, bool allowSelf = false, const AlphabetIndex2* weights = 0) :
+    NaiveSubstitutionCount(const SubstitutionModel* model, SubstitutionRegister* reg, bool allowSelf = false, std::shared_ptr<const AlphabetIndex2> weights = 0) :
       AbstractSubstitutionCount(reg),
-      AbstractWeightedSubstitutionCount(weights, true),
+      AbstractWeightedSubstitutionCount(weights),
       allowSelf_(allowSelf),
       supportedChars_(model->getAlphabetStates()) {}				
 		

@@ -5024,13 +5024,13 @@ SubstitutionCount* PhylogeneticsApplicationTools::getSubstitutionCount(
   else if (nijtOption == "Uniformization")
   {
     string weightOption = ApplicationTools::getStringParameter("weight", nijtParams, "None", "", true, warn + 1);
-    AlphabetIndex2* weights = SequenceApplicationTools::getAlphabetIndex2(alphabet, weightOption, "Substitution weight scheme:");
+    shared_ptr<const AlphabetIndex2> weights(SequenceApplicationTools::getAlphabetIndex2(alphabet, weightOption, "Substitution weight scheme:"));
     substitutionCount = new UniformizationSubstitutionCount(model, new TotalSubstitutionRegister(stateMap), weights);
   }
   else if (nijtOption == "Decomposition")
   {
     string weightOption = ApplicationTools::getStringParameter("weight", nijtParams, "None", "", true, warn + 1);
-    AlphabetIndex2* weights = SequenceApplicationTools::getAlphabetIndex2(alphabet, weightOption, "Substitution weight scheme:");
+    shared_ptr<const AlphabetIndex2> weights(SequenceApplicationTools::getAlphabetIndex2(alphabet, weightOption, "Substitution weight scheme:"));
     const ReversibleSubstitutionModel* revModel = dynamic_cast<const ReversibleSubstitutionModel*>(model);
     if (revModel)
       substitutionCount = new DecompositionSubstitutionCount(revModel, new TotalSubstitutionRegister(stateMap), weights);
@@ -5040,7 +5040,7 @@ SubstitutionCount* PhylogeneticsApplicationTools::getSubstitutionCount(
   else if (nijtOption == "Naive")
   {
     string weightOption = ApplicationTools::getStringParameter("weight", nijtParams, "None", "", true, warn + 1);
-    AlphabetIndex2* weights = SequenceApplicationTools::getAlphabetIndex2(alphabet, weightOption, "Substitution weight scheme:");
+    std::shared_ptr<const AlphabetIndex2> weights(SequenceApplicationTools::getAlphabetIndex2(alphabet, weightOption, "Substitution weight scheme:"));
     substitutionCount = new NaiveSubstitutionCount(model, new TotalSubstitutionRegister(stateMap), false, weights);
   }
   else if (nijtOption == "Label")
@@ -5065,16 +5065,28 @@ SubstitutionCount* PhylogeneticsApplicationTools::getSubstitutionCount(
 /****************************************************************************/
 
 
-SubstitutionRegister* PhylogeneticsApplicationTools::getSubstitutionRegister(const string& regTypeDesc, const StateMap& stateMap, const GeneticCode* genCode, bool verbose)
+SubstitutionRegister* PhylogeneticsApplicationTools::getSubstitutionRegister(const string& regTypeDesc, const StateMap& stateMap, const GeneticCode* genCode, AlphabetIndex2*& weights, bool verbose)
 {
   string regType = "";
   map<string, string> regArgs;
   KeyvalTools::parseProcedure(regTypeDesc, regType, regArgs);
+
+  const Alphabet* alphabet=stateMap.getAlphabet();
   
   SubstitutionRegister* reg = 0;
+  weights = 0;
+
+  string weightOption = ApplicationTools::getStringParameter("weight", regArgs, "None", "", true, 1);
+
+  if (AlphabetTools::isCodonAlphabet(alphabet))
+    weights = SequenceApplicationTools::getAlphabetIndex2(dynamic_cast<const CodonAlphabet*>(alphabet), genCode, weightOption, "Substitution weight scheme:");
+  else
+    weights = SequenceApplicationTools::getAlphabetIndex2(alphabet, weightOption, "Substitution weight scheme:");
 
   if (regType=="Combination")
   {
+    AlphabetIndex2* w2=0;
+    
     VectorOfSubstitionRegisters* vreg= new VectorOfSubstitionRegisters(stateMap);
 
     size_t i = 0;
@@ -5084,7 +5096,7 @@ SubstitutionRegister* PhylogeneticsApplicationTools::getSubstitutionRegister(con
       if (regDesc=="")
         break;
       
-      SubstitutionRegister* sreg=getSubstitutionRegister(regDesc, stateMap, genCode);
+      SubstitutionRegister* sreg=getSubstitutionRegister(regDesc, stateMap, genCode, w2);
 
       vreg->addRegister(sreg);
     }
@@ -5108,7 +5120,7 @@ SubstitutionRegister* PhylogeneticsApplicationTools::getSubstitutionRegister(con
   // Alphabet dependent registers
 
   
-  else if (AlphabetTools::isNucleicAlphabet(stateMap.getAlphabet()))
+  else if (AlphabetTools::isNucleicAlphabet(alphabet))
   {    
     if (regType == "GC")
       reg = new GCSubstitutionRegister(stateMap, false);
@@ -5117,13 +5129,10 @@ SubstitutionRegister* PhylogeneticsApplicationTools::getSubstitutionRegister(con
     else if (regType == "SW")
       reg = new SWSubstitutionRegister(stateMap);
     else
-      throw Exception("PhylogeneticsApplicationTools::getSubstitutionRegister: unsupported substitution categorization:" + regType + " for alphabet " + stateMap.getAlphabet()->getAlphabetType());
+      throw Exception("PhylogeneticsApplicationTools::getSubstitutionRegister: unsupported substitution categorization:" + regType + " for alphabet " + alphabet->getAlphabetType());
   }  
-  else if (AlphabetTools::isCodonAlphabet(stateMap.getAlphabet()))
-  {
-    if (!genCode)
-      throw Exception("PhylogeneticsApplicationTools::getSubstitutionRegister: unknown genetic code for alphabet " + stateMap.getAlphabet()->getAlphabetType());
-    
+  else if (AlphabetTools::isCodonAlphabet(alphabet))
+  {    
     if (regType == "IntraAA")
       reg = new AAInteriorSubstitutionRegister(stateMap, *genCode);
     else if (regType == "InterAA")
@@ -5139,15 +5148,15 @@ SubstitutionRegister* PhylogeneticsApplicationTools::getSubstitutionRegister(con
     else if (regType == "DnDs")
       reg = new DnDsSubstitutionRegister(stateMap, *genCode, false);
     else
-      throw Exception("Unsupported substitution categorization: " + regType + " for alphabet " + stateMap.getAlphabet()->getAlphabetType());
+      throw Exception("Unsupported substitution categorization: " + regType + " for alphabet " + alphabet->getAlphabetType());
   }
   
-  else if (AlphabetTools::isProteicAlphabet(stateMap.getAlphabet()))
+  else if (AlphabetTools::isProteicAlphabet(alphabet))
   {  
     if (regType == "KrKc")
       reg = new KrKcSubstitutionRegister(stateMap);
     else
-      throw Exception("Unsupported substitution categorization: " + regType + " for alphabet " + stateMap.getAlphabet()->getAlphabetType());
+      throw Exception("Unsupported substitution categorization: " + regType + " for alphabet " + alphabet->getAlphabetType());
   }
   
   CategorySubstitutionRegister* csr=dynamic_cast<CategorySubstitutionRegister*>(reg);

@@ -45,6 +45,7 @@
 #include "OneJumpSubstitutionCount.h"
 #include "../NewLikelihood/RecursiveLikelihoodTreeCalculation.h"
 #include "../Model/BranchedModelSet.h"
+#include <Bpp/Seq/AlphabetIndex/AlphabetIndex2.h>
 
 namespace bpp
 {
@@ -101,6 +102,9 @@ namespace bpp
      *
      * @param rltc              A RecursiveLikelihoodTreeCalculation object.
      * @param reg               The SubstitutionRegister to use.
+     * @param weights           Pointer to AlphabetIndex2 for weights
+     *                          for all substitutions (default: null
+     *                          means no weight),
      * @param threshold         value above which counts are considered
      *                          saturated (default: -1 means no threshold).
      * @param verbose           Print info to screen.
@@ -110,11 +114,12 @@ namespace bpp
     static ProbabilisticSubstitutionMapping* computeCounts(
       RecursiveLikelihoodTreeCalculation& rltc,
       const SubstitutionRegister& reg,
+      std::shared_ptr<const AlphabetIndex2> weights = 0,
       double threshold = -1,
       bool verbose = true)
     {
       std::vector<uint> nodeIds=rltc.getSubstitutionProcess()->getParametrizablePhyloTree().getAllEdgesIndexes();
-      return computeCounts(rltc, nodeIds, reg, threshold, verbose);
+      return computeCounts(rltc, nodeIds, reg, weights, threshold, verbose);
     }
 
     /**
@@ -146,6 +151,9 @@ namespace bpp
      *                          are counted on. If empty, count substitutions
      *                          on all nodes.
      * @param reg               The SubstitutionRegister to use.
+     * @param weights           Pointer to AlphabetIndex2 for weights
+     *                          for all substitutions (default: null
+     *                          means no weight),
      * @param threshold         value above which counts are considered
      *                          saturated (default: -1 means no threshold).
      * @param verbose           Print info to screen.
@@ -156,6 +164,7 @@ namespace bpp
       RecursiveLikelihoodTreeCalculation& rltc,
       const std::vector<uint>& nodeIds,
       const SubstitutionRegister& reg,
+      std::shared_ptr<const AlphabetIndex2> weights = 0,
       double threshold = -1,
       bool verbose = true);
 
@@ -211,9 +220,13 @@ namespace bpp
      *                          on all nodes.
      * @param nullModels        The "null" models used for normalization
      * @param reg               the Substitution Register
-     * @param perTimeUnit           If true, normalized counts are per unit of
+     * @param weights           Pointer to AlphabetIndex2 for weights
+     *                          for all substitutions (default: null
+     *                          means no weight),
+     * @param perTimeUnit       If true, normalized counts are per unit of
      *                          time (otherwise they are multiplied by
-     *                          the length of the branches).
+     *                          the length of the branches) (default:
+     *                          false).
      * @param siteSize          The length of a site, as considered as
      *                          a counting unit (default = 1)
      * @param threshold         value above which non-normalized counts are
@@ -228,7 +241,8 @@ namespace bpp
       const std::vector<uint>& nodeIds,
       const BranchedModelSet* nullModels,
       const SubstitutionRegister& reg,
-      bool perTimeUnit,
+      std::shared_ptr<const AlphabetIndex2> weights = 0,
+      bool perTimeUnit = false,
       uint siteSize = 1,
       double threshold = -1,
       bool verbose = true);
@@ -237,20 +251,21 @@ namespace bpp
       const ProbabilisticSubstitutionMapping* counts,
       const ProbabilisticSubstitutionMapping* factors,
       const vector<uint>& nodeIds,
-      bool perTimeUnit,
+      bool perTimeUnit = false,
       uint siteSize = 1);
 
     static ProbabilisticSubstitutionMapping* computeNormalizedCounts(
       RecursiveLikelihoodTreeCalculation& rltc,
       const BranchedModelSet* nullModels,
       const SubstitutionRegister& reg,
-      bool perTimeUnit,
+      std::shared_ptr<const AlphabetIndex2> weights = 0,
+      bool perTimeUnit = false,
       uint siteSize = 1,
       double threshold = -1,
       bool verbose = true)
     {
       std::vector<uint> nodeIds=rltc.getSubstitutionProcess()->getParametrizablePhyloTree().getAllEdgesIndexes();
-      return computeNormalizedCounts(rltc, nodeIds, nullModels, reg, perTimeUnit, siteSize, threshold, verbose);
+      return computeNormalizedCounts(rltc, nodeIds, nullModels, reg, weights, perTimeUnit, siteSize, threshold, verbose);
     }
 
     static ProbabilisticSubstitutionMapping* computeNormalizedCounts(
@@ -484,6 +499,9 @@ namespace bpp
      *           If the SubstitutionRegister is a non-stationary
      *           CategorySubstitutionRegister, a correction is made.     
      *
+     * @param weights           Pointer to AlphabetIndex2 for weights
+     *                          for all substitutions (default: null
+     *                          means no weight),
      * @param threshold         value above which counts are considered
      *                          saturated (default: -1 means no threshold).
      * @param verbose Display progress messages.
@@ -493,6 +511,7 @@ namespace bpp
       RecursiveLikelihoodTreeCalculation& rltc,
       const std::vector<uint>& ids,
       const SubstitutionRegister& reg,
+      std::shared_ptr<const AlphabetIndex2> weights = 0,
       double threshold = -1,
       bool verbose = true);
 

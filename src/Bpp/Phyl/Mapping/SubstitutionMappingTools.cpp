@@ -38,7 +38,7 @@
  */
 
 #include "SubstitutionMappingTools.h"
-#include "UniformizationSubstitutionCount.h"
+#include "DecompositionSubstitutionCount.h"
 #include "DecompositionReward.h"
 #include "ProbabilisticRewardMapping.h"
 #include "ProbabilisticSubstitutionMapping.h"
@@ -63,6 +63,7 @@ ProbabilisticSubstitutionMapping* SubstitutionMappingTools::computeCounts(
   RecursiveLikelihoodTreeCalculation& rltc,
   const vector<uint>& nodeIds,
   const SubstitutionRegister& reg,
+  std::shared_ptr<const AlphabetIndex2> weights,
   double threshold,
   bool verbose)
 {
@@ -95,8 +96,9 @@ ProbabilisticSubstitutionMapping* SubstitutionMappingTools::computeCounts(
 
   if (!sm)
     throw Exception("SubstitutionMappingTools::computeSubstitutionVectors not possible with null model.");
-    
-  unique_ptr<SubstitutionCount> substitutionCount(new UniformizationSubstitutionCount(sm, reg.clone()));
+
+  unique_ptr<SubstitutionCount> substitutionCount(new DecompositionSubstitutionCount(sm, reg.clone(), weights));
+
   return computeCounts(rltc, nodeIds, *substitutionCount, threshold, verbose);
 }
 
@@ -112,8 +114,7 @@ ProbabilisticSubstitutionMapping* SubstitutionMappingTools::computeCounts(
   if (!rltc.isInitialized())
     throw Exception("SubstitutionMappingTools::computeSubstitutionVectors(). Likelihood object is not initialized.");
   rltc.computeTreeLikelihood();
-
-
+  
   const SubstitutionProcess& sp=*rltc.getSubstitutionProcess();
 
   if (nodeIds.size()==0)
@@ -433,12 +434,13 @@ ProbabilisticSubstitutionMapping* SubstitutionMappingTools::computeNormalizedCou
   const vector<uint>& nodeIds,
   const BranchedModelSet* nullModels,
   const SubstitutionRegister& reg,
+  std::shared_ptr<const AlphabetIndex2> weights,
   bool perTimeUnit,
   uint siteSize,
   double threshold,
   bool verbose)
 {
-  unique_ptr<ProbabilisticSubstitutionMapping> counts(computeCounts(rltc,nodeIds,reg,threshold,verbose));
+  unique_ptr<ProbabilisticSubstitutionMapping> counts(computeCounts(rltc,nodeIds,reg,weights,threshold,verbose));
   
   unique_ptr<ProbabilisticSubstitutionMapping> factors(computeNormalizations(rltc,nodeIds,nullModels,reg,verbose));
   
@@ -751,10 +753,11 @@ VVdouble SubstitutionMappingTools::computeCountsPerTypePerBranch(
   RecursiveLikelihoodTreeCalculation& rltc,
   const vector<uint>& ids,
   const SubstitutionRegister& reg,
+  std::shared_ptr<const AlphabetIndex2> weights,
   double threshold,
   bool verbose)
 {
-  ProbabilisticSubstitutionMapping psm(computeCounts(rltc,ids,reg,threshold,verbose));
+  ProbabilisticSubstitutionMapping psm(computeCounts(rltc,ids,reg,weights,threshold,verbose));
   
   VVdouble result = getCountsPerTypePerBranch(psm, ids);
 

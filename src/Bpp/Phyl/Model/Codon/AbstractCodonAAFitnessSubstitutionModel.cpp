@@ -41,14 +41,13 @@ using namespace bpp;
 using namespace std;
 /****************************************************************************************/
 AbstractCodonAAFitnessSubstitutionModel::AbstractCodonAAFitnessSubstitutionModel(FrequenciesSet* pfitset, const GeneticCode* pgencode, const string& prefix):
-  AbstractParameterAliasable(prefix), pfitset_(pfitset), pgencode_(pgencode), fitName_("")
+  AbstractParameterAliasable(prefix), pfitset_(pfitset), pgencode_(pgencode), fitName_(""), stateMap_(&pfitset_->getStateMap())
 {
   if (pfitset_->getAlphabet()->getAlphabetType()!="Proteic")
     throw Exception("AbstractCodonAAFitnessSubstitutionModel::AbstractCodonAAFitnessSubstitutionModel need Proteic Fitness.");
   
   fitName_="fit_"+ pfitset_->getNamespace();
   pfitset_->setNamespace(prefix + fitName_);
-  stateMap_=&pfitset_->getStateMap();
   
   addParameters_(pfitset_->getParameters());
 }

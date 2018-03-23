@@ -116,14 +116,11 @@ int main() {
   if (!testModel(gtr)) return 1;
 
   //Codon models:
-  StandardGeneticCode gc(&AlphabetTools::DNA_ALPHABET);
-  const CodonAlphabet* codonAlphabet = new CodonAlphabet(&AlphabetTools::DNA_ALPHABET);
+  StandardGeneticCode gc(AlphabetTools::DNA_ALPHABET.clone());
   FrequenciesSet* fset = CodonFrequenciesSet::getFrequenciesSetForCodons(CodonFrequenciesSet::F3X4, &gc);
   YN98 yn98(&gc, fset);
   
   if (!testModel(yn98)) return 1;
-
-  delete codonAlphabet;
 
   return 0;
 }
