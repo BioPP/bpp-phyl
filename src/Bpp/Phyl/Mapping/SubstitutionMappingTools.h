@@ -105,6 +105,9 @@ namespace bpp
      * @param weights           Pointer to AlphabetIndex2 for weights
      *                          for all substitutions (default: null
      *                          means no weight),
+     * @param distances         Pointer to AlphabetIndex2 for distances
+     *                          for all substitutions (default: null
+     *                          means each distance = 1),
      * @param threshold         value above which counts are considered
      *                          saturated (default: -1 means no threshold).
      * @param verbose           Print info to screen.
@@ -115,11 +118,12 @@ namespace bpp
       RecursiveLikelihoodTreeCalculation& rltc,
       const SubstitutionRegister& reg,
       std::shared_ptr<const AlphabetIndex2> weights = 0,
+      std::shared_ptr<const AlphabetIndex2> distances = 0,
       double threshold = -1,
       bool verbose = true)
     {
       std::vector<uint> nodeIds=rltc.getSubstitutionProcess()->getParametrizablePhyloTree().getAllEdgesIndexes();
-      return computeCounts(rltc, nodeIds, reg, weights, threshold, verbose);
+      return computeCounts(rltc, nodeIds, reg, weights, distances, threshold, verbose);
     }
 
     /**
@@ -154,6 +158,9 @@ namespace bpp
      * @param weights           Pointer to AlphabetIndex2 for weights
      *                          for all substitutions (default: null
      *                          means no weight),
+     * @param distances         Pointer to AlphabetIndex2 for distances
+     *                          for all substitutions (default: null
+     *                          means each distance = 1),
      * @param threshold         value above which counts are considered
      *                          saturated (default: -1 means no threshold).
      * @param verbose           Print info to screen.
@@ -165,6 +172,7 @@ namespace bpp
       const std::vector<uint>& nodeIds,
       const SubstitutionRegister& reg,
       std::shared_ptr<const AlphabetIndex2> weights = 0,
+      std::shared_ptr<const AlphabetIndex2> distances = 0,
       double threshold = -1,
       bool verbose = true);
 
@@ -178,6 +186,9 @@ namespace bpp
      *                          on all nodes.
      * @param nullModels        The "null" models used for normalization
      * @param reg               the Substitution Register
+     * @param distances         Pointer to AlphabetIndex2 for distances
+     *                          for all substitutions (default: null
+     *                          means each distance = 1),
      * @param verbose           Display progress messages.
      * @return A tree <PhyloNode, PhyloBranchMapping> of normalization factors.
      */
@@ -187,6 +198,7 @@ namespace bpp
       const std::vector<uint>& nodeIds,
       const BranchedModelSet* nullModels,
       const SubstitutionRegister& reg,
+      std::shared_ptr<const AlphabetIndex2> distances = 0,
       bool verbose = true);
 
     /**
@@ -196,6 +208,9 @@ namespace bpp
      * @param rltc              A RecursiveLikelihoodTreeCalculation object.
      * @param nullModels        The "null" models used for normalization
      * @param reg               the Substitution Register
+     * @param distances         Pointer to AlphabetIndex2 for distances
+     *                          for all substitutions (default: null
+     *                          means each distance = 1),
      * @param verbose           Display progress messages.
      * @return A tree <PhyloNode, PhyloBranchMapping> of normalization factors.
      */
@@ -204,10 +219,11 @@ namespace bpp
       RecursiveLikelihoodTreeCalculation& rltc,
       const BranchedModelSet* nullModels,
       const SubstitutionRegister& reg,
+      std::shared_ptr<const AlphabetIndex2> distances = 0,
       bool verbose = true)
     {
       std::vector<uint> nodeIds=rltc.getSubstitutionProcess()->getParametrizablePhyloTree().getAllEdgesIndexes();
-      return computeNormalizations(rltc, nodeIds, nullModels, reg, verbose);
+      return computeNormalizations(rltc, nodeIds, nullModels, reg, distances, verbose);
     }
 
     /**
@@ -223,6 +239,9 @@ namespace bpp
      * @param weights           Pointer to AlphabetIndex2 for weights
      *                          for all substitutions (default: null
      *                          means no weight),
+     * @param distances         Pointer to AlphabetIndex2 for distances
+     *                          for all substitutions (default: null
+     *                          means each distance = 1),
      * @param perTimeUnit       If true, normalized counts are per unit of
      *                          time (otherwise they are multiplied by
      *                          the length of the branches) (default:
@@ -242,6 +261,7 @@ namespace bpp
       const BranchedModelSet* nullModels,
       const SubstitutionRegister& reg,
       std::shared_ptr<const AlphabetIndex2> weights = 0,
+      std::shared_ptr<const AlphabetIndex2> distances = 0,
       bool perTimeUnit = false,
       uint siteSize = 1,
       double threshold = -1,
@@ -259,13 +279,14 @@ namespace bpp
       const BranchedModelSet* nullModels,
       const SubstitutionRegister& reg,
       std::shared_ptr<const AlphabetIndex2> weights = 0,
+      std::shared_ptr<const AlphabetIndex2> distances = 0,
       bool perTimeUnit = false,
       uint siteSize = 1,
       double threshold = -1,
       bool verbose = true)
     {
       std::vector<uint> nodeIds=rltc.getSubstitutionProcess()->getParametrizablePhyloTree().getAllEdgesIndexes();
-      return computeNormalizedCounts(rltc, nodeIds, nullModels, reg, weights, perTimeUnit, siteSize, threshold, verbose);
+      return computeNormalizedCounts(rltc, nodeIds, nullModels, reg, weights, distances, perTimeUnit, siteSize, threshold, verbose);
     }
 
     static ProbabilisticSubstitutionMapping* computeNormalizedCounts(
@@ -502,6 +523,9 @@ namespace bpp
      * @param weights           Pointer to AlphabetIndex2 for weights
      *                          for all substitutions (default: null
      *                          means no weight),
+     * @param distances         Pointer to AlphabetIndex2 for distances
+     *                          for all substitutions (default: null
+     *                          means each distance = 1),
      * @param threshold         value above which counts are considered
      *                          saturated (default: -1 means no threshold).
      * @param verbose Display progress messages.
@@ -512,6 +536,7 @@ namespace bpp
       const std::vector<uint>& ids,
       const SubstitutionRegister& reg,
       std::shared_ptr<const AlphabetIndex2> weights = 0,
+      std::shared_ptr<const AlphabetIndex2> distances = 0,
       double threshold = -1,
       bool verbose = true);
 

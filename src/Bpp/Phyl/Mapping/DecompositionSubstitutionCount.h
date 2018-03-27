@@ -41,6 +41,7 @@ knowledge of the CeCILL license and that you accept its terms.
 #define _DECOMPOSITIONSUBSTITUTIONCOUNT_H_
 
 #include "WeightedSubstitutionCount.h"
+#include "SubstitutionDistance.h"
 #include "DecompositionMethods.h"
 
 #include <Bpp/Numeric/Matrix/Matrix.h>
@@ -55,9 +56,11 @@ namespace bpp
  *
  * @author Julien Dutheil
  */
+
   class DecompositionSubstitutionCount:
     public AbstractSubstitutionCount,
     public AbstractWeightedSubstitutionCount,
+    public AbstractSubstitutionDistance,
     public DecompositionMethods
   {
   private:
@@ -65,11 +68,12 @@ namespace bpp
     mutable double currentLength_;
 
   public:
-    DecompositionSubstitutionCount(const SubstitutionModel* model, SubstitutionRegister* reg, std::shared_ptr<const AlphabetIndex2> weights = 0);
+    DecompositionSubstitutionCount(const SubstitutionModel* model, SubstitutionRegister* reg, std::shared_ptr<const AlphabetIndex2> weights = 0, std::shared_ptr<const AlphabetIndex2> distances = 0);
 		
     DecompositionSubstitutionCount(const DecompositionSubstitutionCount& dsc) :
       AbstractSubstitutionCount(dsc),
       AbstractWeightedSubstitutionCount(dsc),
+      AbstractSubstitutionDistance(dsc),
       DecompositionMethods(dsc),
       counts_(dsc.counts_),
       currentLength_(dsc.currentLength_)
@@ -79,6 +83,7 @@ namespace bpp
     {
       AbstractSubstitutionCount::operator=(dsc);
       AbstractWeightedSubstitutionCount::operator=(dsc);
+      AbstractSubstitutionDistance::operator=(dsc);
       DecompositionMethods::operator=(dsc);
       counts_         = dsc.counts_;
       currentLength_  = dsc.currentLength_;
@@ -114,8 +119,12 @@ namespace bpp
 
     void weightsHaveChanged();
 
+    void distancesHaveChanged();
+
   private:
     void fillBMatrices_();
+
+    void setDistanceBMatrices_();
 
   };
 

@@ -5025,15 +5025,19 @@ SubstitutionCount* PhylogeneticsApplicationTools::getSubstitutionCount(
   {
     string weightOption = ApplicationTools::getStringParameter("weight", nijtParams, "None", "", true, warn + 1);
     shared_ptr<const AlphabetIndex2> weights(SequenceApplicationTools::getAlphabetIndex2(alphabet, weightOption, "Substitution weight scheme:"));
-    substitutionCount = new UniformizationSubstitutionCount(model, new TotalSubstitutionRegister(stateMap), weights);
+    string distanceOption = ApplicationTools::getStringParameter("distance", nijtParams, "None", "", true, warn + 1);
+    shared_ptr<const AlphabetIndex2> distances(SequenceApplicationTools::getAlphabetIndex2(alphabet, distanceOption, "Substitution distances:"));
+    substitutionCount = new UniformizationSubstitutionCount(model, new TotalSubstitutionRegister(stateMap), weights, distances);
   }
   else if (nijtOption == "Decomposition")
   {
     string weightOption = ApplicationTools::getStringParameter("weight", nijtParams, "None", "", true, warn + 1);
     shared_ptr<const AlphabetIndex2> weights(SequenceApplicationTools::getAlphabetIndex2(alphabet, weightOption, "Substitution weight scheme:"));
+    string distanceOption = ApplicationTools::getStringParameter("distance", nijtParams, "None", "", true, warn + 1);
+    shared_ptr<const AlphabetIndex2> distances(SequenceApplicationTools::getAlphabetIndex2(alphabet, distanceOption, "Substitution distances:"));
     const ReversibleSubstitutionModel* revModel = dynamic_cast<const ReversibleSubstitutionModel*>(model);
     if (revModel)
-      substitutionCount = new DecompositionSubstitutionCount(revModel, new TotalSubstitutionRegister(stateMap), weights);
+      substitutionCount = new DecompositionSubstitutionCount(revModel, new TotalSubstitutionRegister(stateMap), weights, distances);
     else
       throw Exception("Decomposition method can only be used with reversible substitution models.");
   }
@@ -5041,6 +5045,10 @@ SubstitutionCount* PhylogeneticsApplicationTools::getSubstitutionCount(
   {
     string weightOption = ApplicationTools::getStringParameter("weight", nijtParams, "None", "", true, warn + 1);
     std::shared_ptr<const AlphabetIndex2> weights(SequenceApplicationTools::getAlphabetIndex2(alphabet, weightOption, "Substitution weight scheme:"));
+    string distanceOption = ApplicationTools::getStringParameter("distance", nijtParams, "", "", true, warn + 1);
+    if (distanceOption!="")
+      ApplicationTools::displayMessage("Naive substitution count: distances not handled");
+    
     substitutionCount = new NaiveSubstitutionCount(model, new TotalSubstitutionRegister(stateMap), false, weights);
   }
   else if (nijtOption == "Label")
@@ -5065,7 +5073,7 @@ SubstitutionCount* PhylogeneticsApplicationTools::getSubstitutionCount(
 /****************************************************************************/
 
 
-SubstitutionRegister* PhylogeneticsApplicationTools::getSubstitutionRegister(const string& regTypeDesc, const StateMap& stateMap, const GeneticCode* genCode, AlphabetIndex2*& weights, bool verbose)
+SubstitutionRegister* PhylogeneticsApplicationTools::getSubstitutionRegister(const string& regTypeDesc, const StateMap& stateMap, const GeneticCode* genCode, AlphabetIndex2*& weights, AlphabetIndex2*& distances, bool verbose)
 {
   string regType = "";
   map<string, string> regArgs;
@@ -5075,17 +5083,26 @@ SubstitutionRegister* PhylogeneticsApplicationTools::getSubstitutionRegister(con
   
   SubstitutionRegister* reg = 0;
   weights = 0;
-
+  distances = 0;
+  
   string weightOption = ApplicationTools::getStringParameter("weight", regArgs, "None", "", true, 1);
+  string distanceOption = ApplicationTools::getStringParameter("distance", regArgs, "None", "", true, 1);
 
   if (AlphabetTools::isCodonAlphabet(alphabet))
+  {
     weights = SequenceApplicationTools::getAlphabetIndex2(dynamic_cast<const CodonAlphabet*>(alphabet), genCode, weightOption, "Substitution weight scheme:");
+    distances = SequenceApplicationTools::getAlphabetIndex2(dynamic_cast<const CodonAlphabet*>(alphabet), genCode, distanceOption, "Substitution distances:");
+  }
   else
+  {
     weights = SequenceApplicationTools::getAlphabetIndex2(alphabet, weightOption, "Substitution weight scheme:");
-
+    distances = SequenceApplicationTools::getAlphabetIndex2(alphabet, distanceOption, "Substitution distances:");
+  }
+  
   if (regType=="Combination")
   {
     AlphabetIndex2* w2=0;
+    AlphabetIndex2* d2=0;
     
     VectorOfSubstitionRegisters* vreg= new VectorOfSubstitionRegisters(stateMap);
 
@@ -5096,7 +5113,7 @@ SubstitutionRegister* PhylogeneticsApplicationTools::getSubstitutionRegister(con
       if (regDesc=="")
         break;
       
-      SubstitutionRegister* sreg=getSubstitutionRegister(regDesc, stateMap, genCode, w2);
+      SubstitutionRegister* sreg=getSubstitutionRegister(regDesc, stateMap, genCode, w2, d2);
 
       vreg->addRegister(sreg);
     }

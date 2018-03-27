@@ -41,6 +41,7 @@
 #define _UNIFORMIZATIONSUBSTITUTIONCOUNT_H_
 
 #include "WeightedSubstitutionCount.h"
+#include "SubstitutionDistance.h"
 
 #include <Bpp/Numeric/Matrix/Matrix.h>
 
@@ -54,9 +55,11 @@ namespace bpp
  *
  * @author Julien Dutheil
  */
+
   class UniformizationSubstitutionCount:
     public AbstractSubstitutionCount,
-    public AbstractWeightedSubstitutionCount
+    public AbstractWeightedSubstitutionCount,
+    public AbstractSubstitutionDistance
   {
   private:
     const SubstitutionModel* model_;
@@ -69,11 +72,12 @@ namespace bpp
     mutable double currentLength_;
   
   public:
-    UniformizationSubstitutionCount(const SubstitutionModel* model, SubstitutionRegister* reg, std::shared_ptr<const AlphabetIndex2> weights = 0);
+    UniformizationSubstitutionCount(const SubstitutionModel* model, SubstitutionRegister* reg, std::shared_ptr<const AlphabetIndex2> weights = 0, std::shared_ptr<const AlphabetIndex2> distances = 0);
     
     UniformizationSubstitutionCount(const UniformizationSubstitutionCount& usc) :
       AbstractSubstitutionCount(usc), 
       AbstractWeightedSubstitutionCount(usc),
+      AbstractSubstitutionDistance(usc),
       model_(usc.model_),
       nbStates_(usc.nbStates_),
       bMatrices_(usc.bMatrices_),
@@ -88,6 +92,7 @@ namespace bpp
     {
       AbstractSubstitutionCount::operator=(usc);
       AbstractWeightedSubstitutionCount::operator=(usc);
+      AbstractSubstitutionDistance::operator=(usc);
       model_          = usc.model_;
       nbStates_       = usc.nbStates_;
       bMatrices_      = usc.bMatrices_;
@@ -116,12 +121,14 @@ namespace bpp
     void computeCounts_(double length) const;
     void substitutionRegisterHasChanged();
     void weightsHaveChanged();
+    void distancesHaveChanged();
 
   private:
     void resetBMatrices_();
     void initBMatrices_();
     void fillBMatrices_();
 
+    void setDistanceBMatrices_();
   };
 
 } //end of namespace bpp.

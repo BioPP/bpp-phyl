@@ -48,9 +48,10 @@ using namespace std;
 
 /******************************************************************************/
 
-UniformizationSubstitutionCount::UniformizationSubstitutionCount(const SubstitutionModel* model, SubstitutionRegister* reg, std::shared_ptr<const AlphabetIndex2> weights) :
+UniformizationSubstitutionCount::UniformizationSubstitutionCount(const SubstitutionModel* model, SubstitutionRegister* reg, std::shared_ptr<const AlphabetIndex2> weights, std::shared_ptr<const AlphabetIndex2> distances) :
   AbstractSubstitutionCount(reg),
   AbstractWeightedSubstitutionCount(weights),
+  AbstractSubstitutionDistance(distances),
   model_(model),
   nbStates_(model->getNumberOfStates()),
   bMatrices_(reg->getNumberOfSubstitutionTypes()),
@@ -107,7 +108,23 @@ void UniformizationSubstitutionCount::fillBMatrices_()
     for (size_t k = 0; k < nbStates_; ++k) {
       size_t i = register_->getType(j, k);
       if (i > 0 && k != j) {
-        bMatrices_[i - 1](j, k) = model_->Qij(j, k) * (weights_ ? weights_->getIndex(supportedStates[j], supportedStates[k]) : 1);
+        bMatrices_[i - 1](j, k) = model_->Qij(j, k);
+      }
+    }
+  }
+
+  if (distances_)
+    setDistanceBMatrices_();
+}
+
+void UniformizationSubstitutionCount::setDistanceBMatrices_()
+{
+  vector<int> supportedStates = model_->getAlphabetStates();
+  for (size_t j = 0; j < nbStates_; ++j) {
+    for (size_t k = 0; k < nbStates_; ++k) {
+      size_t i = register_->getType(j, k);
+      if (i > 0 && k != j) {
+        bMatrices_[i - 1](j, k) *= distances_->getIndex(supportedStates[j], supportedStates[k]);
       }
     }
   }
@@ -164,6 +181,8 @@ void UniformizationSubstitutionCount::computeCounts_(double length) const
         counts_[i](j, k) /= P(j, k);
         if (std::isinf(counts_[i](j, k)) || std::isnan(counts_[i](j, k)) || (!weights_ && counts_[i](j, k) < 0.))
           counts_[i](j, k) = 0;
+        if (weights_)
+          counts_[i](j, k) *= weights_->getIndex(supportedStates[j], supportedStates[k]);
       }
     }
   }
@@ -270,16 +289,21 @@ void UniformizationSubstitutionCount::weightsHaveChanged()
   if (weights_->getAlphabet()->getAlphabetType() != register_->getAlphabet()->getAlphabetType())
     throw Exception("UniformizationSubstitutionCount::weightsHaveChanged. Incorrect alphabet type.");
 
-  //jdutheil on 25/07/14: not necessary if weights are only accounted for in the end.
-  //fillBMatrices_();
-  
   //Recompute counts:
   if (currentLength_ > 0)
-  {
-    fillBMatrices_();
     computeCounts_(currentLength_);
-  }
-  
+}
+
+void UniformizationSubstitutionCount::distancesHaveChanged()
+{
+  if (distances_->getAlphabet()->getAlphabetType() != register_->getAlphabet()->getAlphabetType())
+    throw Exception("UniformizationSubstitutionCount::distancesHaveChanged. Incorrect alphabet type.");
+
+  //Recompute counts:
+  setDistanceBMatrices_();
+
+  if (currentLength_ > 0)
+    computeCounts_(currentLength_);
 }
 
 /******************************************************************************/

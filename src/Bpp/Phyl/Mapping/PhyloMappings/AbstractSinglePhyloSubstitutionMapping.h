@@ -83,6 +83,13 @@ namespace bpp
     
     std::shared_ptr<const AlphabetIndex2> weights_;
 
+    /*
+     * @brief distances of the substitutions. If null, no distances are
+     * used.
+     */
+    
+    std::shared_ptr<const AlphabetIndex2> distances_;
+
   protected:
     
     std::unique_ptr<ProbabilisticSubstitutionMapping> counts_;
@@ -105,8 +112,8 @@ namespace bpp
     std::map<size_t, std::vector<uint> > mModBrid_;
     
   public:
-    AbstractSinglePhyloSubstitutionMapping(std::shared_ptr<TreeGlobalGraph> graph, const SubstitutionRegister& reg, std::shared_ptr<const AlphabetIndex2> weights) :
-      modelTree(graph), pReg_(&reg), weights_(weights), counts_(), factors_(), modelColl_(), mModBrid_()
+    AbstractSinglePhyloSubstitutionMapping(std::shared_ptr<TreeGlobalGraph> graph, const SubstitutionRegister& reg, std::shared_ptr<const AlphabetIndex2> weights, std::shared_ptr<const AlphabetIndex2> distances) :
+      modelTree(graph), pReg_(&reg), weights_(weights), distances_(distances), counts_(), factors_(), modelColl_(), mModBrid_()
     {}
 
     AbstractSinglePhyloSubstitutionMapping(const AbstractSinglePhyloSubstitutionMapping& sppm);
@@ -187,7 +194,12 @@ namespace bpp
     {
       return weights_;
     }
-    
+
+    std::shared_ptr<const AlphabetIndex2> getDistances() const
+    {
+      return distances_;
+    }
+
     /* 
      *
      * @brief add a Substitition Model in the map, and on all branches

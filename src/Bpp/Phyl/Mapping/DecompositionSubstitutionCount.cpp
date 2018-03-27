@@ -48,9 +48,10 @@ using namespace std;
 
 /******************************************************************************/
 
-DecompositionSubstitutionCount::DecompositionSubstitutionCount(const SubstitutionModel* model, SubstitutionRegister* reg, std::shared_ptr<const AlphabetIndex2> weights) :
+DecompositionSubstitutionCount::DecompositionSubstitutionCount(const SubstitutionModel* model, SubstitutionRegister* reg, std::shared_ptr<const AlphabetIndex2> weights, std::shared_ptr<const AlphabetIndex2> distances) :
   AbstractSubstitutionCount(reg),
   AbstractWeightedSubstitutionCount(weights),
+  AbstractSubstitutionDistance(distances),
   DecompositionMethods(model, reg),
   counts_(reg->getNumberOfSubstitutionTypes()),
   currentLength_(0)
@@ -84,12 +85,27 @@ void DecompositionSubstitutionCount::fillBMatrices_()
     for (size_t k = 0; k < nbStates_; ++k) {
       size_t i = register_->getType(j, k);
       if (i > 0 && k != j) {
-        bMatrices_[i - 1](j, k) = model_->Qij(j, k) * (weights_ ? weights_->getIndex(supportedStates[j], supportedStates[k]) : 1);
+        bMatrices_[i - 1](j, k) = model_->Qij(j, k);
+      }
+    }
+  }
+
+  if (distances_)
+    setDistanceBMatrices_();
+}
+ 
+void DecompositionSubstitutionCount::setDistanceBMatrices_()
+{
+  vector<int> supportedStates = model_->getAlphabetStates();
+  for (size_t j = 0; j < nbStates_; ++j) {
+    for (size_t k = 0; k < nbStates_; ++k) {
+      size_t i = register_->getType(j, k);
+      if (i > 0 && k != j) {
+        bMatrices_[i - 1](j, k) *= distances_->getIndex(supportedStates[j], supportedStates[k]);
       }
     }
   }
 }
-
 
 /******************************************************************************/
 
@@ -98,15 +114,16 @@ void DecompositionSubstitutionCount::computeCounts_(double length) const
   computeExpectations(counts_, length);
 
   // Now we must divide by pijt and account for putative weights:
+  vector<int> supportedStates = model_->getAlphabetStates();
   RowMatrix<double> P = model_->getPij_t(length);
   for (size_t i = 0; i < nbTypes_; i++) {
     for (size_t j = 0; j < nbStates_; j++) {
       for (size_t k = 0; k < nbStates_; k++) {
         counts_[i](j, k) /= P(j, k);
-        if (std::isinf(counts_[i](j, k)) || std::isnan(counts_[i](j, k)) || (!weights_ && counts_[i](j, k) < 0.))
-        {
+        if (std::isinf(counts_[i](j, k)) || std::isnan(counts_[i](j, k)) || (!distances_ && counts_[i](j, k) < 0.))
           counts_[i](j, k) = 0.;
-        }
+        if (weights_)
+          counts_[i](j, k) *= weights_->getIndex(supportedStates[j], supportedStates[k]);
       }
     }
   }
@@ -206,6 +223,19 @@ void DecompositionSubstitutionCount::weightsHaveChanged()
     throw Exception("DecompositionSubstitutionCount::weightsHaveChanged. Incorrect alphabet type.");
 
   //Recompute counts:
+  if (currentLength_ > 0)
+    computeCounts_(currentLength_);
+}
+
+
+void DecompositionSubstitutionCount::distancesHaveChanged()
+{
+  if (distances_->getAlphabet()->getAlphabetType() != register_->getAlphabet()->getAlphabetType())
+    throw Exception("DecompositionSubstitutionCount::distancesHaveChanged. Incorrect alphabet type.");
+
+  //Recompute counts:
+  setDistanceBMatrices_();
+
   if (currentLength_ > 0)
     computeCounts_(currentLength_);
 }

@@ -448,11 +448,13 @@ namespace bpp
    *                default : 0)
    * @param weights [out] AlphabetIndex2 pointer if "weights" argument
    *        is provided, null otherwise
+   * @param distances [out] AlphabetIndex2 pointer if "distances"
+   *        argument is provided, null otherwise
    * @param verbose if outputs  reading
    * @return A SubstitutionRegister object.
    */
   
-    static SubstitutionRegister* getSubstitutionRegister(const std::string& regTypeDesc, const StateMap& stateMap, const GeneticCode* genCode, AlphabetIndex2*& weights, bool verbose = true);
+    static SubstitutionRegister* getSubstitutionRegister(const std::string& regTypeDesc, const StateMap& stateMap, const GeneticCode* genCode, AlphabetIndex2*& weights, AlphabetIndex2*& distances, bool verbose = true);
   
     /**
      * @brief Sets a SubstitutionModelSet object according to options.

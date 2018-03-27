@@ -252,8 +252,9 @@ SubstitutionModel* BppOSubstitutionModelFormat::read(
     
     string registerDescription = args["register"];
     AlphabetIndex2* weights=0;
+    AlphabetIndex2* distances=0; 
     
-    unique_ptr<SubstitutionRegister> reg(PhylogeneticsApplicationTools::getSubstitutionRegister(registerDescription, nestedModel->getStateMap(), geneticCode_, weights, verbose_));
+    unique_ptr<SubstitutionRegister> reg(PhylogeneticsApplicationTools::getSubstitutionRegister(registerDescription, nestedModel->getStateMap(), geneticCode_, weights, distances, verbose_));
 
     // is it normalized (default : false)
     bool isNorm=false;
