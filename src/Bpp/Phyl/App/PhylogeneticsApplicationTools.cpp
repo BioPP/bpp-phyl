@@ -3162,7 +3162,8 @@ bpp::TreeLikelihood* PhylogeneticsApplicationTools::optimizeParameters(
     ApplicationTools::displayResult("Performed", TextTools::toString(n) + " function evaluations.");
   if (backupFile != "none")
   {
-    remove(backupFile.c_str());
+    string bf=backupFile+".def";
+    rename(backupFile.c_str(),bf.c_str());
   }
   return tl;
 }
@@ -3573,7 +3574,8 @@ PhyloLikelihood* PhylogeneticsApplicationTools::optimizeParameters(
     ApplicationTools::displayResult("Performed", TextTools::toString(n) + " function evaluations.");
   if (backupFile != "none")
   {
-    remove(backupFile.c_str());
+    string bf=backupFile+".def";
+    rename(backupFile.c_str(),bf.c_str());
   }
   return lik;
 }
@@ -3909,11 +3911,14 @@ void PhylogeneticsApplicationTools::writeTrees(
     throw Exception("Unknow format for tree writing: " + format);
 
   if (!checkOnly)
+  {
     treeWriter->write(trees, file, true);
-
+    
+    if (verbose)
+      ApplicationTools::displayResult("Wrote trees to file ", file);
+  }
+  
   delete treeWriter;
-  if (verbose)
-    ApplicationTools::displayResult("Wrote trees to file ", file);
 }
 
 void PhylogeneticsApplicationTools::writeTrees(
@@ -3924,10 +3929,12 @@ void PhylogeneticsApplicationTools::writeTrees(
   bool suffixIsOptional,
   bool verbose,
   bool checkOnly,
+  bool withIds,
   int warn)
 {
   string format = ApplicationTools::getStringParameter(prefix + "tree.format", params, "Newick", suffix, suffixIsOptional, warn + 1);
   string file = ApplicationTools::getAFilePath(prefix + "tree.file", params, true, false, suffix, suffixIsOptional);
+
   OTree* treeWriter;
   if (format == "Newick")
     treeWriter = new Newick();
@@ -3945,7 +3952,21 @@ void PhylogeneticsApplicationTools::writeTrees(
     for (size_t i = 0; i < vTN.size(); i++)
     {
       PhyloTree tree(spc.getTree(vTN[i]));
-      
+
+      std::vector<shared_ptr<PhyloNode> > nodes = tree.getAllNodes();
+
+      for (auto& node : nodes)
+      {
+        if (tree.isLeaf(node))
+          node->setName(TextTools::toString(tree.getNodeIndex(node)) + "_" + node->getName());
+        else
+          node->setProperty("NodeId", BppString(TextTools::toString(tree.getNodeIndex(node))));
+      }
+
+      Newick* nt=dynamic_cast<Newick*>(treeWriter);
+      if (nt)
+        nt->enableExtendedBootstrapProperty("NodeId");
+
       treeWriter->write(tree, file + "_" + TextTools::toString(vTN[i]), true);
     }
     if (verbose)

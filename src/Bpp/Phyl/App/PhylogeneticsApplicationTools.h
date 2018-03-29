@@ -896,9 +896,11 @@ namespace bpp
      * @param suffix           A suffix to be applied to each attribute name.
      * @param suffixIsOptional Tell if the suffix is absolutely required.
      * @param verbose          Print some info to the 'message' output stream.
-     * @param checkOnly        If this parameter is set to true, then all options are
-     *                         checked and error messages sent, but no file is written.
-     * @param warn             Set the warning level (0: always display warnings, >0 display warnings on demand).
+     * @param checkOnly        If this parameter is set to true, then all
+     *                         options are checked and error messages
+     *                         sent, but no file is written.
+     * @param warn Set the warning level (0: always display warnings,
+     * >0 display warnings on demand).
      */
 
     static void writeTrees(
@@ -931,6 +933,26 @@ namespace bpp
       bool checkOnly = false,
       int warn = 1);
 
+    /**
+     * @brief Write a tree according to options.
+     *
+     * See the Bio++ Program Suite manual for a descriptio of all available options.
+     *
+     * @param trees            The trees to write.
+     * @param params           The attribute map where options may be found.
+     * @param prefix           A prefix to be applied to each attribute name.
+     * @param suffix           A suffix to be applied to each attribute name.
+     * @param suffixIsOptional Tell if the suffix is absolutely required.
+     * @param verbose          Print some info to the 'message' output stream.
+     * @param checkOnly        If this parameter is set to true, then all
+     *                         options are checked and error messages
+     *                         sent, but no file is written.
+     * @param withIds          If this parameter is set to true, ids
+     *                         are added to the names of the nodes in output.
+     * @param warn Set the warning level (0: always display warnings,
+     * >0 display warnings on demand).
+     */
+
     static void writeTrees(
       const SubstitutionProcessCollection& spc,
       const std::map<std::string, std::string>& params,
@@ -939,6 +961,7 @@ namespace bpp
       bool suffixIsOptional = true,
       bool verbose = true,
       bool checkOnly = false,
+      bool withIds = false,
       int warn = 1);
 
     
