@@ -51,7 +51,7 @@ using namespace std;
 
 /******************************************************************************/
 
-AlignedValuesContainer* PatternTools::getSequenceSubset(const AlignedValuesContainer& sequenceSet, const Node& node) throw (Exception)
+AlignedValuesContainer* PatternTools::getSequenceSubset(const AlignedValuesContainer& sequenceSet, const Node& node)
 {
   size_t nbSites=sequenceSet.getNumberOfSites();
   AlignedValuesContainer* result;
@@ -131,7 +131,7 @@ AlignedValuesContainer* PatternTools::getSequenceSubset(const AlignedValuesConta
 
 /******************************************************************************/
 
-AlignedValuesContainer* PatternTools::getSequenceSubset(const AlignedValuesContainer& sequenceSet, const vector<string>& names) throw (Exception)
+AlignedValuesContainer* PatternTools::getSequenceSubset(const AlignedValuesContainer& sequenceSet, const vector<string>& names)
 {
   AlignedValuesContainer* result;
   
@@ -173,7 +173,7 @@ AlignedValuesContainer* PatternTools::getSequenceSubset(const AlignedValuesConta
 
 /******************************************************************************/
 
-AlignedValuesContainer* PatternTools::shrinkSiteSet(const AlignedValuesContainer& siteSet) throw (Exception)
+AlignedValuesContainer* PatternTools::shrinkSiteSet(const AlignedValuesContainer& siteSet)
 {
   if (siteSet.getNumberOfSites() == 0) throw Exception("PatternTools::shrinkSiteSet siteSet is void.");
   AlignedValuesContainer* result;

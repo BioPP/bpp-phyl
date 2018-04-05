@@ -144,7 +144,7 @@ namespace bpp
 
       virtual void fireParameterChanged(const ParameterList& parameters);
 
-      void setParameters(const ParameterList& parameters)   throw (ParameterNotFoundException, ConstraintException);
+      void setParameters(const ParameterList& parameters);
 
       /**
        * @brief test if data fits this model

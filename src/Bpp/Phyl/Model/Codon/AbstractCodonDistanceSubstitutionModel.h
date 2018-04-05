@@ -90,15 +90,20 @@ namespace bpp
     double alpha_, beta_;
 
     double gamma_;
+
+    std::shared_ptr<StateMap> stateMap_;
+    
   public:
     /**
      * @brief Build a new AbstractCodonDistanceSubstitutionModel object.
      *
      * @param pdist optional pointer to a distance between amino-acids
+     * @param pgencode the genetic code
      * @param prefix the Namespace
      * @param paramSynRate is true iff synonymous rate is parametrised
      *       (default=false).
      */
+    
     AbstractCodonDistanceSubstitutionModel(
       const AlphabetIndex2* pdist,
       const GeneticCode* pgencode,
@@ -111,7 +116,8 @@ namespace bpp
       pgencode_(model.pgencode_),
       alpha_(model.alpha_),
       beta_(model.beta_),
-      gamma_(model.gamma_)
+      gamma_(model.gamma_),
+      stateMap_(model.stateMap_)
     {}
 
     AbstractCodonDistanceSubstitutionModel& operator=(
@@ -123,6 +129,8 @@ namespace bpp
       alpha_ = model.alpha_;
       beta_ = model.beta_;
       gamma_ = model.gamma_;
+      stateMap_ = model.stateMap_;
+      
       return *this;
     }
 

@@ -558,14 +558,14 @@ string Newick::nodeToParenthesis(const PhyloTree& tree, const std::shared_ptr<Ph
       }
       else
       {
-        if (branch->hasProperty(propertyName))
-          s << *(dynamic_cast<const BppString*>(branch->getProperty(propertyName)));
+        if (node->hasProperty(propertyName))
+          s << *(dynamic_cast<const BppString*>(node->getProperty(propertyName)));
       }
     }
   }
 
   if (branch && branch->hasLength())
-    s << ":" << branch->getLength() << endl;
+    s << ":" << branch->getLength();
 
   return s.str();  
 }

@@ -68,6 +68,8 @@
 #include <Bpp/Seq/Container/SiteContainer.h>
 #include <Bpp/Seq/Container/VectorSiteContainer.h>
 #include <Bpp/Seq/Container/VectorProbabilisticSiteContainer.h>
+#include <Bpp/Seq/AlphabetIndex/AlphabetIndex2.h>
+#include <Bpp/Seq/Io/BppOAlphabetIndex2Format.h>
 
 // From the STL:
 #include <string>
@@ -93,6 +95,7 @@ namespace bpp
    *
    * @see ApplicationTools
    */
+
   class PhylogeneticsApplicationTools
   {
   
@@ -443,13 +446,16 @@ namespace bpp
    * @param stateMap The stateMap to use.
    * @param genCode when codon Alphabet, the genetic Code (otherwise,
    *                default : 0)
+   * @param weights [out] AlphabetIndex2 pointer if "weights" argument
+   *        is provided, null otherwise
+   * @param distances [out] AlphabetIndex2 pointer if "distances"
+   *        argument is provided, null otherwise
    * @param verbose if outputs  reading
    * @return A SubstitutionRegister object.
    */
   
-    static SubstitutionRegister* getSubstitutionRegister(const std::string& regTypeDesc, const StateMap& stateMap, const GeneticCode* genCode = 0, bool verbose = true);
+    static SubstitutionRegister* getSubstitutionRegister(const std::string& regTypeDesc, const StateMap& stateMap, const GeneticCode* genCode, AlphabetIndex2*& weights, AlphabetIndex2*& distances, bool verbose = true);
   
-
     /**
      * @brief Sets a SubstitutionModelSet object according to options.
      *
@@ -602,7 +608,6 @@ namespace bpp
       bool suffixIsOptional  = true,
       bool verbose = true,
       int warn = 1);
-
 
     static void addSubstitutionProcessCollectionMember(
       SubstitutionProcessCollection* SubProColl, 
@@ -891,9 +896,11 @@ namespace bpp
      * @param suffix           A suffix to be applied to each attribute name.
      * @param suffixIsOptional Tell if the suffix is absolutely required.
      * @param verbose          Print some info to the 'message' output stream.
-     * @param checkOnly        If this parameter is set to true, then all options are
-     *                         checked and error messages sent, but no file is written.
-     * @param warn             Set the warning level (0: always display warnings, >0 display warnings on demand).
+     * @param checkOnly        If this parameter is set to true, then all
+     *                         options are checked and error messages
+     *                         sent, but no file is written.
+     * @param warn Set the warning level (0: always display warnings,
+     * >0 display warnings on demand).
      */
 
     static void writeTrees(
@@ -926,6 +933,26 @@ namespace bpp
       bool checkOnly = false,
       int warn = 1);
 
+    /**
+     * @brief Write a tree according to options.
+     *
+     * See the Bio++ Program Suite manual for a descriptio of all available options.
+     *
+     * @param trees            The trees to write.
+     * @param params           The attribute map where options may be found.
+     * @param prefix           A prefix to be applied to each attribute name.
+     * @param suffix           A suffix to be applied to each attribute name.
+     * @param suffixIsOptional Tell if the suffix is absolutely required.
+     * @param verbose          Print some info to the 'message' output stream.
+     * @param checkOnly        If this parameter is set to true, then all
+     *                         options are checked and error messages
+     *                         sent, but no file is written.
+     * @param withIds          If this parameter is set to true, ids
+     *                         are added to the names of the nodes in output.
+     * @param warn Set the warning level (0: always display warnings,
+     * >0 display warnings on demand).
+     */
+
     static void writeTrees(
       const SubstitutionProcessCollection& spc,
       const std::map<std::string, std::string>& params,
@@ -934,6 +961,7 @@ namespace bpp
       bool suffixIsOptional = true,
       bool verbose = true,
       bool checkOnly = false,
+      bool withIds = false,
       int warn = 1);
 
     

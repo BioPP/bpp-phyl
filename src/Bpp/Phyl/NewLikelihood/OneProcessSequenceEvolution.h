@@ -121,7 +121,15 @@ namespace bpp
     {
       return *subsProc_;
     }
+
+    /**
+     * @brief Get the tree (topology and branch lengths).
+     *
+     * @return The tree of this OneProcessSequenceEvolution object.
+     */
     
+    const ParametrizablePhyloTree& getTree() const { return subsProc_->getParametrizablePhyloTree(); }
+
     void fireParameterChanged(const ParameterList& pl)
     {
       //Updates substitution process:

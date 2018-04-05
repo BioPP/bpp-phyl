@@ -113,12 +113,12 @@ namespace bpp
      *
      * @{
      */
-    double getFunctionValue() const throw (NullPointerException) { return currentValue_; }
+    double getFunctionValue() const { return currentValue_; }
     /** @} */
 
-    void doInit(const ParameterList& params) throw (Exception);
+    void doInit(const ParameterList& params);
 
-    double doStep() throw (Exception);
+    double doStep();
 
     void setMaximumNumberOfCorrections(unsigned int mx) { maxCorrection_ = mx; }
 

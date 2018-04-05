@@ -46,6 +46,8 @@ using namespace std;
 AbstractSinglePhyloSubstitutionMapping::AbstractSinglePhyloSubstitutionMapping(const AbstractSinglePhyloSubstitutionMapping& sppm) :
   modelTree(sppm),    
   pReg_(sppm.pReg_),
+  weights_(sppm.weights_),
+  distances_(sppm.distances_),
   counts_(sppm.counts_?sppm.counts_->clone():0),
   factors_(sppm.factors_?sppm.factors_->clone():0),
   modelColl_(sppm.modelColl_),
@@ -83,6 +85,9 @@ AbstractSinglePhyloSubstitutionMapping& AbstractSinglePhyloSubstitutionMapping::
 {
   modelTree::operator=(sppm);
   pReg_ = sppm.pReg_;
+  weights_ = sppm.weights_;
+  distances_ = sppm.distances_;
+
   counts_.reset(sppm.counts_?sppm.counts_->clone():0);
   factors_.reset(sppm.factors_?sppm.factors_->clone():0);
   modelColl_ = sppm.modelColl_;

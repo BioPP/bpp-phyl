@@ -122,6 +122,7 @@ set (CPP_FILES
   Bpp/Phyl/Mapping/ProbabilisticRewardMapping.cpp
   Bpp/Phyl/Mapping/ProbabilisticSubstitutionMapping.cpp
   Bpp/Phyl/Mapping/RewardMappingTools.cpp
+  Bpp/Phyl/Mapping/SubstitutionDistance.cpp
   Bpp/Phyl/Mapping/SubstitutionMappingTools.cpp
   Bpp/Phyl/Mapping/SubstitutionRegister.cpp
   Bpp/Phyl/Mapping/UniformizationSubstitutionCount.cpp

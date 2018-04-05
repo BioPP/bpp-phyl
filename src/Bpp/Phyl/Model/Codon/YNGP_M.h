@@ -79,7 +79,6 @@ namespace bpp
       synfrom_(),
       synto_()
     {
-      computeFrequencies(false);
     }
     
     YNGP_M(const YNGP_M& mod2) :
@@ -87,7 +86,6 @@ namespace bpp
       synfrom_(mod2.synfrom_),
       synto_(mod2.synto_)
     {
-      computeFrequencies(false);
     }
 
     virtual YNGP_M* clone() const = 0;

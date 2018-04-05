@@ -245,7 +245,7 @@ public:
    * @return The index of the model associated to the given node.
    * @throw Exception If no model is found for this node.
    */
-  size_t getModelIndexForNode(unsigned int nodeId) const throw (Exception)
+  size_t getModelIndexForNode(unsigned int nodeId) const
   {
     std::map<unsigned int, size_t>::const_iterator i = nodeToModel_.find(nodeId);
     if (i == nodeToModel_.end())
@@ -261,7 +261,7 @@ public:
    * @throw Exception If no model is found for this node.
    */
 
-  const TransitionModel* getModelForNode(unsigned int nodeId) const throw (Exception);
+  const TransitionModel* getModelForNode(unsigned int nodeId) const;
 
   /**
    * @brief Get a list of nodes id for which the given model is associated.
@@ -321,7 +321,7 @@ public:
    *
    **/
 
-  bool matchParametersValues(const ParameterList& parameters) throw (bpp::ConstraintException);
+  bool matchParametersValues(const ParameterList& parameters);
 
   void fireParameterChanged(const ParameterList& parameters)
   {
@@ -350,9 +350,9 @@ protected:
    *
    * @{
    */
-  bool checkOrphanNodes(bool throwEx) const throw (Exception);
+  bool checkOrphanNodes(bool throwEx) const;
 
-  bool checkUnknownNodes(bool throwEx) const throw (Exception);
+  bool checkUnknownNodes(bool throwEx) const;
   /** @} */
 
 public:
@@ -494,7 +494,7 @@ public:
    * @see SubstitutionModel
    */
 
-  double getInitValue(size_t i, int state) const throw (BadIntException);
+  double getInitValue(size_t i, int state) const;
 
   double getProbabilityForModel(size_t classIndex) const;
 

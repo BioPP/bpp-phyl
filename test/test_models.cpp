@@ -66,12 +66,11 @@ class DummyFunction:
 
     DummyFunction* clone() const { return new DummyFunction(*this); }
 
-    void setParameters(const ParameterList& pl) throw (bpp::ParameterNotFoundException
-, bpp::ConstraintException, bpp::Exception) {
+    void setParameters(const ParameterList& pl) {
       matchParametersValues(pl);
     }
 
-    double getValue() const throw (Exception) { return 0; }
+    double getValue() const { return 0; }
 
     void fireParameterChanged(const bpp::ParameterList&) {}
 
@@ -117,14 +116,11 @@ int main() {
   if (!testModel(gtr)) return 1;
 
   //Codon models:
-  StandardGeneticCode gc(&AlphabetTools::DNA_ALPHABET);
-  const CodonAlphabet* codonAlphabet = new CodonAlphabet(&AlphabetTools::DNA_ALPHABET);
+  StandardGeneticCode gc(AlphabetTools::DNA_ALPHABET.clone());
   FrequenciesSet* fset = CodonFrequenciesSet::getFrequenciesSetForCodons(CodonFrequenciesSet::F3X4, &gc);
   YN98 yn98(&gc, fset);
   
   if (!testModel(yn98)) return 1;
-
-  delete codonAlphabet;
 
   return 0;
 }

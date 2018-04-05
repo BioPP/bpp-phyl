@@ -151,12 +151,12 @@ namespace bpp
       return AbstractWrappedSubstitutionModel::getAlphabetStates();
     }
     
-    std::vector<long unsigned int> getModelStates(int i) const
+    std::vector<size_t> getModelStates(int i) const
     {
       return AbstractWrappedSubstitutionModel::getModelStates(i);
     }
 
-    std::vector<long unsigned int> getModelStates(const std::string& s) const
+    std::vector<size_t> getModelStates(const std::string& s) const
     {
       return AbstractWrappedSubstitutionModel::getModelStates(s);
     }

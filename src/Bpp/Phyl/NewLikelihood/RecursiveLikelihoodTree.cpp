@@ -118,7 +118,6 @@ RecursiveLikelihoodTree::~RecursiveLikelihoodTree()
 }
 
 void RecursiveLikelihoodTree::initLikelihoods(const AlignedValuesContainer& sites, const SubstitutionProcess& process)
-throw (Exception)
 {
   if (sites.getNumberOfSequences() == 1)
     throw Exception("RecursiveLikelihoodTree::initLikelihoods. Only 1 sequence in data set.");
@@ -154,7 +153,7 @@ throw (Exception)
 
 /******************************************************************************/
 
-void RecursiveLikelihoodTree::initLikelihoodsWithoutPatterns_(const RecursiveLikelihoodNode* node, const AlignedValuesContainer& sequences, const SubstitutionProcess& process) throw (Exception)
+void RecursiveLikelihoodTree::initLikelihoodsWithoutPatterns_(const RecursiveLikelihoodNode* node, const AlignedValuesContainer& sequences, const SubstitutionProcess& process) 
 {
   const ParametrizablePhyloTree& tree=process.getParametrizablePhyloTree();
   int nId = node->getId();
@@ -254,7 +253,7 @@ void RecursiveLikelihoodTree::initLikelihoodsWithoutPatterns_(const RecursiveLik
 
 /******************************************************************************/
 
-SitePatterns* RecursiveLikelihoodTree::initLikelihoodsWithPatterns_(const RecursiveLikelihoodNode* node, const AlignedValuesContainer& sequences, const SubstitutionProcess& process) throw (Exception)
+SitePatterns* RecursiveLikelihoodTree::initLikelihoodsWithPatterns_(const RecursiveLikelihoodNode* node, const AlignedValuesContainer& sequences, const SubstitutionProcess& process) 
 {
   const ParametrizablePhyloTree& tree=process.getParametrizablePhyloTree();
   AlignedValuesContainer* tmp = PatternTools::getSequenceSubset(sequences, tree.getNode(node->getId()), tree);

@@ -336,7 +336,6 @@ map<size_t, Tree*> PhylogeneticsApplicationTools::getTrees(
       ApplicationTools::displayResult("Number of leaves", tree->getNumberOfLeaves());
     }
 
-
     // //////////
     // Setting branch lengths?
     string initBrLenMethod = ApplicationTools::getStringParameter("init.brlen.method", args, "Input", "", true, 1);
@@ -1065,7 +1064,6 @@ void PhylogeneticsApplicationTools::setSubstitutionModelParametersInitialValuesW
 /**** FREQUENCIES SET *********************************/
 /******************************************************/
 
-
 FrequenciesSet* PhylogeneticsApplicationTools::getFrequenciesSet(
   const Alphabet* alphabet,
   const GeneticCode* gCode,
@@ -1565,10 +1563,29 @@ void PhylogeneticsApplicationTools::addSubstitutionProcessCollectionMember(
     if (!SubProColl->hasModelNumber(numModel))
       throw BadIntegerException("PhylogeneticsApplicationTools::addSubstitutionProcessCollectionMember : unknown model number", (int)numModel);
 
+    vector<string> sharedParameters = ApplicationTools::getVectorParameter<string>("shared_parameters", args, ',', "", "", true, 1);
 
-    throw Exception("OnePerBranch option not implemented yet. Ask developpers to do it");
+    if (stationarity)
+      SubProColl->addOnePerBranchSubstitutionProcess(procNum, numModel, numTree, numRate, sharedParameters);
+    else
+      SubProColl->addOnePerBranchSubstitutionProcess(procNum, numModel, numTree, numRate, numFreq, sharedParameters);
+
+    if (verbose)
+    {
+      ApplicationTools::displayResult("Process type", string("OnePerBranch"));
+
+      ApplicationTools::displayResult (" Model number", TextTools::toString(numModel));
+      ApplicationTools::displayResult (" Tree number", TextTools::toString(numTree));
+      ApplicationTools::displayResult (" Rate number", TextTools::toString(numRate));
+      if (!stationarity)
+        ApplicationTools::displayResult (" Root frequencies number", TextTools::toString(numFreq));
+      for (const auto& sP : sharedParameters)
+        ApplicationTools::displayResult(" Shared parameter", sP);
+    }
   }
+  
 }
+
 
 
 /******************************************************************************/
@@ -1596,7 +1613,6 @@ SubstitutionProcessCollection* PhylogeneticsApplicationTools::getSubstitutionPro
 
   if (mTree.size() == 0)
     throw Exception("Missing tree in construction of SubstitutionProcessCollection.");
-
 
   for (const auto& itt : mTree)
     SPC->addTree(new ParametrizablePhyloTree(*(itt.second)), itt.first);
@@ -2321,7 +2337,6 @@ PhyloLikelihoodContainer* PhylogeneticsApplicationTools::getPhyloLikelihoodConta
     
     sumAll += "phylo"+TextTools::toString(nPhyl[i]);
   }
-
   
   string resultDesc = ApplicationTools::getStringParameter("result", params, sumAll);
 
@@ -2329,33 +2344,36 @@ PhyloLikelihoodContainer* PhylogeneticsApplicationTools::getPhyloLikelihoodConta
 
   std::shared_ptr<PhyloLikelihood> nPL(0);
   size_t nP(0);
-  
-  if (resultDesc.substr(0,5)=="phylo")
+  bool flag(resultDesc.substr(0,5)=="phylo");
+
+  if (flag)
   {
     try {
       nP=(size_t)TextTools::toInt(resultDesc.substr(5));
     }
     catch (Exception& e)
     {
-      nPL = shared_ptr<PhyloLikelihood>(new FormulaOfPhyloLikelihood(mPhylo, resultDesc));
-      if (verbose)
-        ApplicationTools::displayResult(" Result", dynamic_cast<FormulaOfPhyloLikelihood*>(nPL.get())->output());
-    }
-
-    if (!nPL)
-    {
-      if (!mPhylo->hasPhyloLikelihood(nP))
-        throw BadIntegerException("Unknown Phylolikelihood number for result",(int)nP);
-      else
-        nPL=mPhylo->getPhyloLikelihood(nP);
-
-      if (verbose)
-        ApplicationTools::displayResult(" Result", resultDesc);
+      flag=false;
     }
   }
-  
-  mPhylo->sharePhyloLikelihood(0, nPL);
 
+  if (!flag)
+  {
+    nPL = shared_ptr<PhyloLikelihood>(new FormulaOfPhyloLikelihood(mPhylo, resultDesc));
+    if (verbose)
+      ApplicationTools::displayResult(" Result", dynamic_cast<FormulaOfPhyloLikelihood*>(nPL.get())->output());
+  }
+  else
+  {
+    if (!mPhylo->hasPhyloLikelihood(nP))
+      throw BadIntegerException("Unknown Phylolikelihood number for result",(int)nP);
+    else
+      nPL=mPhylo->getPhyloLikelihood(nP);
+    if (verbose)
+      ApplicationTools::displayResult(" Result", resultDesc);
+  }
+
+  mPhylo->sharePhyloLikelihood(0, nPL);
   return mPhylo;
 }
 
@@ -3144,7 +3162,8 @@ bpp::TreeLikelihood* PhylogeneticsApplicationTools::optimizeParameters(
     ApplicationTools::displayResult("Performed", TextTools::toString(n) + " function evaluations.");
   if (backupFile != "none")
   {
-    remove(backupFile.c_str());
+    string bf=backupFile+".def";
+    rename(backupFile.c_str(),bf.c_str());
   }
   return tl;
 }
@@ -3555,7 +3574,8 @@ PhyloLikelihood* PhylogeneticsApplicationTools::optimizeParameters(
     ApplicationTools::displayResult("Performed", TextTools::toString(n) + " function evaluations.");
   if (backupFile != "none")
   {
-    remove(backupFile.c_str());
+    string bf=backupFile+".def";
+    rename(backupFile.c_str(),bf.c_str());
   }
   return lik;
 }
@@ -3891,11 +3911,14 @@ void PhylogeneticsApplicationTools::writeTrees(
     throw Exception("Unknow format for tree writing: " + format);
 
   if (!checkOnly)
+  {
     treeWriter->write(trees, file, true);
-
+    
+    if (verbose)
+      ApplicationTools::displayResult("Wrote trees to file ", file);
+  }
+  
   delete treeWriter;
-  if (verbose)
-    ApplicationTools::displayResult("Wrote trees to file ", file);
 }
 
 void PhylogeneticsApplicationTools::writeTrees(
@@ -3906,10 +3929,12 @@ void PhylogeneticsApplicationTools::writeTrees(
   bool suffixIsOptional,
   bool verbose,
   bool checkOnly,
+  bool withIds,
   int warn)
 {
   string format = ApplicationTools::getStringParameter(prefix + "tree.format", params, "Newick", suffix, suffixIsOptional, warn + 1);
   string file = ApplicationTools::getAFilePath(prefix + "tree.file", params, true, false, suffix, suffixIsOptional);
+
   OTree* treeWriter;
   if (format == "Newick")
     treeWriter = new Newick();
@@ -3927,7 +3952,21 @@ void PhylogeneticsApplicationTools::writeTrees(
     for (size_t i = 0; i < vTN.size(); i++)
     {
       PhyloTree tree(spc.getTree(vTN[i]));
-      
+
+      std::vector<shared_ptr<PhyloNode> > nodes = tree.getAllNodes();
+
+      for (auto& node : nodes)
+      {
+        if (tree.isLeaf(node))
+          node->setName(TextTools::toString(tree.getNodeIndex(node)) + "_" + node->getName());
+        else
+          node->setProperty("NodeId", BppString(TextTools::toString(tree.getNodeIndex(node))));
+      }
+
+      Newick* nt=dynamic_cast<Newick*>(treeWriter);
+      if (nt)
+        nt->enableExtendedBootstrapProperty("NodeId");
+
       treeWriter->write(tree, file + "_" + TextTools::toString(vTN[i]), true);
     }
     if (verbose)
@@ -5006,23 +5045,31 @@ SubstitutionCount* PhylogeneticsApplicationTools::getSubstitutionCount(
   else if (nijtOption == "Uniformization")
   {
     string weightOption = ApplicationTools::getStringParameter("weight", nijtParams, "None", "", true, warn + 1);
-    AlphabetIndex2* weights = SequenceApplicationTools::getAlphabetIndex2(alphabet, weightOption, "Substitution weight scheme:");
-    substitutionCount = new UniformizationSubstitutionCount(model, new TotalSubstitutionRegister(stateMap), weights);
+    shared_ptr<const AlphabetIndex2> weights(SequenceApplicationTools::getAlphabetIndex2(alphabet, weightOption, "Substitution weight scheme:"));
+    string distanceOption = ApplicationTools::getStringParameter("distance", nijtParams, "None", "", true, warn + 1);
+    shared_ptr<const AlphabetIndex2> distances(SequenceApplicationTools::getAlphabetIndex2(alphabet, distanceOption, "Substitution distances:"));
+    substitutionCount = new UniformizationSubstitutionCount(model, new TotalSubstitutionRegister(stateMap), weights, distances);
   }
   else if (nijtOption == "Decomposition")
   {
     string weightOption = ApplicationTools::getStringParameter("weight", nijtParams, "None", "", true, warn + 1);
-    AlphabetIndex2* weights = SequenceApplicationTools::getAlphabetIndex2(alphabet, weightOption, "Substitution weight scheme:");
+    shared_ptr<const AlphabetIndex2> weights(SequenceApplicationTools::getAlphabetIndex2(alphabet, weightOption, "Substitution weight scheme:"));
+    string distanceOption = ApplicationTools::getStringParameter("distance", nijtParams, "None", "", true, warn + 1);
+    shared_ptr<const AlphabetIndex2> distances(SequenceApplicationTools::getAlphabetIndex2(alphabet, distanceOption, "Substitution distances:"));
     const ReversibleSubstitutionModel* revModel = dynamic_cast<const ReversibleSubstitutionModel*>(model);
     if (revModel)
-      substitutionCount = new DecompositionSubstitutionCount(revModel, new TotalSubstitutionRegister(stateMap), weights);
+      substitutionCount = new DecompositionSubstitutionCount(revModel, new TotalSubstitutionRegister(stateMap), weights, distances);
     else
       throw Exception("Decomposition method can only be used with reversible substitution models.");
   }
   else if (nijtOption == "Naive")
   {
     string weightOption = ApplicationTools::getStringParameter("weight", nijtParams, "None", "", true, warn + 1);
-    AlphabetIndex2* weights = SequenceApplicationTools::getAlphabetIndex2(alphabet, weightOption, "Substitution weight scheme:");
+    std::shared_ptr<const AlphabetIndex2> weights(SequenceApplicationTools::getAlphabetIndex2(alphabet, weightOption, "Substitution weight scheme:"));
+    string distanceOption = ApplicationTools::getStringParameter("distance", nijtParams, "", "", true, warn + 1);
+    if (distanceOption!="")
+      ApplicationTools::displayMessage("Naive substitution count: distances not handled");
+    
     substitutionCount = new NaiveSubstitutionCount(model, new TotalSubstitutionRegister(stateMap), false, weights);
   }
   else if (nijtOption == "Label")
@@ -5047,16 +5094,37 @@ SubstitutionCount* PhylogeneticsApplicationTools::getSubstitutionCount(
 /****************************************************************************/
 
 
-SubstitutionRegister* PhylogeneticsApplicationTools::getSubstitutionRegister(const string& regTypeDesc, const StateMap& stateMap, const GeneticCode* genCode, bool verbose)
+SubstitutionRegister* PhylogeneticsApplicationTools::getSubstitutionRegister(const string& regTypeDesc, const StateMap& stateMap, const GeneticCode* genCode, AlphabetIndex2*& weights, AlphabetIndex2*& distances, bool verbose)
 {
   string regType = "";
   map<string, string> regArgs;
   KeyvalTools::parseProcedure(regTypeDesc, regType, regArgs);
+
+  const Alphabet* alphabet=stateMap.getAlphabet();
   
   SubstitutionRegister* reg = 0;
+  weights = 0;
+  distances = 0;
+  
+  string weightOption = ApplicationTools::getStringParameter("weight", regArgs, "None", "", true, 1);
+  string distanceOption = ApplicationTools::getStringParameter("distance", regArgs, "None", "", true, 1);
 
+  if (AlphabetTools::isCodonAlphabet(alphabet))
+  {
+    weights = SequenceApplicationTools::getAlphabetIndex2(dynamic_cast<const CodonAlphabet*>(alphabet), genCode, weightOption, "Substitution weight scheme:");
+    distances = SequenceApplicationTools::getAlphabetIndex2(dynamic_cast<const CodonAlphabet*>(alphabet), genCode, distanceOption, "Substitution distances:");
+  }
+  else
+  {
+    weights = SequenceApplicationTools::getAlphabetIndex2(alphabet, weightOption, "Substitution weight scheme:");
+    distances = SequenceApplicationTools::getAlphabetIndex2(alphabet, distanceOption, "Substitution distances:");
+  }
+  
   if (regType=="Combination")
   {
+    AlphabetIndex2* w2=0;
+    AlphabetIndex2* d2=0;
+    
     VectorOfSubstitionRegisters* vreg= new VectorOfSubstitionRegisters(stateMap);
 
     size_t i = 0;
@@ -5066,7 +5134,7 @@ SubstitutionRegister* PhylogeneticsApplicationTools::getSubstitutionRegister(con
       if (regDesc=="")
         break;
       
-      SubstitutionRegister* sreg=getSubstitutionRegister(regDesc, stateMap, genCode);
+      SubstitutionRegister* sreg=getSubstitutionRegister(regDesc, stateMap, genCode, w2, d2);
 
       vreg->addRegister(sreg);
     }
@@ -5090,7 +5158,7 @@ SubstitutionRegister* PhylogeneticsApplicationTools::getSubstitutionRegister(con
   // Alphabet dependent registers
 
   
-  else if (AlphabetTools::isNucleicAlphabet(stateMap.getAlphabet()))
+  else if (AlphabetTools::isNucleicAlphabet(alphabet))
   {    
     if (regType == "GC")
       reg = new GCSubstitutionRegister(stateMap, false);
@@ -5099,13 +5167,10 @@ SubstitutionRegister* PhylogeneticsApplicationTools::getSubstitutionRegister(con
     else if (regType == "SW")
       reg = new SWSubstitutionRegister(stateMap);
     else
-      throw Exception("PhylogeneticsApplicationTools::getSubstitutionRegister: unsupported substitution categorization:" + regType + " for alphabet " + stateMap.getAlphabet()->getAlphabetType());
+      throw Exception("PhylogeneticsApplicationTools::getSubstitutionRegister: unsupported substitution categorization:" + regType + " for alphabet " + alphabet->getAlphabetType());
   }  
-  else if (AlphabetTools::isCodonAlphabet(stateMap.getAlphabet()))
-  {
-    if (!genCode)
-      throw Exception("PhylogeneticsApplicationTools::getSubstitutionRegister: unknown genetic code for alphabet " + stateMap.getAlphabet()->getAlphabetType());
-    
+  else if (AlphabetTools::isCodonAlphabet(alphabet))
+  {    
     if (regType == "IntraAA")
       reg = new AAInteriorSubstitutionRegister(stateMap, *genCode);
     else if (regType == "InterAA")
@@ -5121,15 +5186,15 @@ SubstitutionRegister* PhylogeneticsApplicationTools::getSubstitutionRegister(con
     else if (regType == "DnDs")
       reg = new DnDsSubstitutionRegister(stateMap, *genCode, false);
     else
-      throw Exception("Unsupported substitution categorization: " + regType + " for alphabet " + stateMap.getAlphabet()->getAlphabetType());
+      throw Exception("Unsupported substitution categorization: " + regType + " for alphabet " + alphabet->getAlphabetType());
   }
   
-  else if (AlphabetTools::isProteicAlphabet(stateMap.getAlphabet()))
+  else if (AlphabetTools::isProteicAlphabet(alphabet))
   {  
     if (regType == "KrKc")
       reg = new KrKcSubstitutionRegister(stateMap);
     else
-      throw Exception("Unsupported substitution categorization: " + regType + " for alphabet " + stateMap.getAlphabet()->getAlphabetType());
+      throw Exception("Unsupported substitution categorization: " + regType + " for alphabet " + alphabet->getAlphabetType());
   }
   
   CategorySubstitutionRegister* csr=dynamic_cast<CategorySubstitutionRegister*>(reg);

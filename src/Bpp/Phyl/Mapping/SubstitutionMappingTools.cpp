@@ -38,7 +38,7 @@
  */
 
 #include "SubstitutionMappingTools.h"
-#include "UniformizationSubstitutionCount.h"
+#include "DecompositionSubstitutionCount.h"
 #include "DecompositionReward.h"
 #include "ProbabilisticRewardMapping.h"
 #include "ProbabilisticSubstitutionMapping.h"
@@ -51,11 +51,10 @@
 #include <Bpp/Seq/AlphabetIndex/UserAlphabetIndex1.h>
 
 using namespace bpp;
+using namespace std;
 
 // From the STL:
 #include <iomanip>
-
-using namespace std;
 
 /******************************************************************************/
 
@@ -63,6 +62,8 @@ ProbabilisticSubstitutionMapping* SubstitutionMappingTools::computeCounts(
   RecursiveLikelihoodTreeCalculation& rltc,
   const vector<uint>& nodeIds,
   const SubstitutionRegister& reg,
+  std::shared_ptr<const AlphabetIndex2> weights,
+  std::shared_ptr<const AlphabetIndex2> distances,
   double threshold,
   bool verbose)
 {
@@ -95,8 +96,9 @@ ProbabilisticSubstitutionMapping* SubstitutionMappingTools::computeCounts(
 
   if (!sm)
     throw Exception("SubstitutionMappingTools::computeSubstitutionVectors not possible with null model.");
-    
-  unique_ptr<SubstitutionCount> substitutionCount(new UniformizationSubstitutionCount(sm, reg.clone()));
+
+  unique_ptr<SubstitutionCount> substitutionCount(new DecompositionSubstitutionCount(sm, reg.clone(), weights, distances));
+
   return computeCounts(rltc, nodeIds, *substitutionCount, threshold, verbose);
 }
 
@@ -112,8 +114,7 @@ ProbabilisticSubstitutionMapping* SubstitutionMappingTools::computeCounts(
   if (!rltc.isInitialized())
     throw Exception("SubstitutionMappingTools::computeSubstitutionVectors(). Likelihood object is not initialized.");
   rltc.computeTreeLikelihood();
-
-
+  
   const SubstitutionProcess& sp=*rltc.getSubstitutionProcess();
 
   if (nodeIds.size()==0)
@@ -330,11 +331,12 @@ ProbabilisticSubstitutionMapping* SubstitutionMappingTools::computeNormalization
   const vector<uint>& nodeIds,
   const BranchedModelSet* nullModels,
   const SubstitutionRegister& reg,
+  std::shared_ptr<const AlphabetIndex2> distances,
   bool verbose)
 {
   // Preamble:
   if (!rltc.isInitialized())
-    throw Exception("SubstitutionMappingTools::computeNormalizationVectors(). Likelihood object is not initialized.");
+    throw Exception("SubstitutionMappingTools::computeNormalizations(). Likelihood object is not initialized.");
   rltc.computeTreeLikelihood();
 
   const SubstitutionModel* sm(0);
@@ -352,7 +354,7 @@ ProbabilisticSubstitutionMapping* SubstitutionMappingTools::computeNormalization
   for (auto id :nodeIds)
   {
     if (dynamic_cast<const SubstitutionModel*>(sp.getModel(id,0))==NULL)
-      throw Exception("SubstitutionMappingTools::computeNormalizationVectors possible only for SubstitutionModels, not in branch " + TextTools::toString(id));
+      throw Exception("SubstitutionMappingTools::computeNormalizations possible only for SubstitutionModels, not in branch " + TextTools::toString(id));
     else
       if (!sm)
         sm=dynamic_cast<const SubstitutionModel*>(sp.getModel(id,0));
@@ -377,7 +379,7 @@ ProbabilisticSubstitutionMapping* SubstitutionMappingTools::computeNormalization
   {
     const SubstitutionModel* modn = dynamic_cast<const SubstitutionModel*>(nullModels->getModel(nbm));
     if (!modn)
-      throw Exception("SubstitutionMappingTools::computeNormalizationVectors possible only for SubstitutionModels, not for model " + nullModels->getModel(nbm)->getName());
+      throw Exception("SubstitutionMappingTools::computeNormalizations possible only for SubstitutionModels, not for model " + nullModels->getModel(nbm)->getName());
   }
 
   for (auto& nbm : vMod)
@@ -400,7 +402,7 @@ ProbabilisticSubstitutionMapping* SubstitutionMappingTools::computeNormalization
           {
             size_t nbt = reg.getType(i, j);
             if (nbt != 0)
-              usai[nbt - 1].setIndex(supportedStates[i], usai[nbt - 1].getIndex(supportedStates[i]) + modn->Qij(i, j));
+              usai[nbt - 1].setIndex(supportedStates[i], usai[nbt - 1].getIndex(supportedStates[i]) + modn->Qij(i, j)*(distances?distances->getIndex(supportedStates[i],supportedStates[j]):1));
           }
         }
       }
@@ -433,14 +435,16 @@ ProbabilisticSubstitutionMapping* SubstitutionMappingTools::computeNormalizedCou
   const vector<uint>& nodeIds,
   const BranchedModelSet* nullModels,
   const SubstitutionRegister& reg,
+  std::shared_ptr<const AlphabetIndex2> weights,
+  std::shared_ptr<const AlphabetIndex2> distances,
   bool perTimeUnit,
   uint siteSize,
   double threshold,
   bool verbose)
 {
-  unique_ptr<ProbabilisticSubstitutionMapping> counts(computeCounts(rltc,nodeIds,reg,threshold,verbose));
+  unique_ptr<ProbabilisticSubstitutionMapping> counts(computeCounts(rltc,nodeIds,reg,weights,distances,threshold,verbose));
   
-  unique_ptr<ProbabilisticSubstitutionMapping> factors(computeNormalizations(rltc,nodeIds,nullModels,reg,verbose));
+  unique_ptr<ProbabilisticSubstitutionMapping> factors(computeNormalizations(rltc,nodeIds,nullModels,reg,distances,verbose));
   
   return computeNormalizedCounts(counts.get(), factors.get(), nodeIds, perTimeUnit, siteSize);  
 }
@@ -751,10 +755,12 @@ VVdouble SubstitutionMappingTools::computeCountsPerTypePerBranch(
   RecursiveLikelihoodTreeCalculation& rltc,
   const vector<uint>& ids,
   const SubstitutionRegister& reg,
+  std::shared_ptr<const AlphabetIndex2> weights,
+  std::shared_ptr<const AlphabetIndex2> distances,
   double threshold,
   bool verbose)
 {
-  ProbabilisticSubstitutionMapping psm(computeCounts(rltc,ids,reg,threshold,verbose));
+  ProbabilisticSubstitutionMapping psm(computeCounts(rltc,ids,reg,weights,distances,threshold,verbose));
   
   VVdouble result = getCountsPerTypePerBranch(psm, ids);
 

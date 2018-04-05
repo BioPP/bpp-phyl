@@ -120,6 +120,7 @@ YNGP_M7::YNGP_M7(const GeneticCode* gc, FrequenciesSet* codonFreqs, unsigned int
 
   // update Matrices
 
+  computeFrequencies(false);
   updateMatrices();
 }
 

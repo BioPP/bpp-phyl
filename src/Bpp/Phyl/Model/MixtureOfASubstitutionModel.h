@@ -112,7 +112,7 @@ public:
       const Alphabet* alpha,
       SubstitutionModel* model,
       std::map<std::string, DiscreteDistribution*> parametersDistributionsList,
-      int ffrom = -1, int tto = -1) throw (Exception);
+      int ffrom = -1, int tto = -1);
 
   MixtureOfASubstitutionModel(const MixtureOfASubstitutionModel&);
 

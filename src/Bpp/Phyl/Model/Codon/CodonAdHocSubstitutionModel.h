@@ -81,11 +81,11 @@ namespace bpp
      * a pointer to NucleotideSubstitutionModel.
      *
      * @param gCode pointer to a GeneticCode
-     * @param pmod  pointer to the NucleotideSubstitutionModel to use in the three positions.
+     * @param pmod  pointer to the NucleotideSubstitutionModel to use
+     * in the three positions.
      * The instance will then own this substitution model.
-     * @param vmodel vector of codon models. They will be owned by the
-     * model.
-     * @param the name of the model
+     * @param vpmodel vector of codon models. They will be owned by the model.
+     * @param name the name of the model
      */
 
     CodonAdHocSubstitutionModel(
@@ -104,9 +104,9 @@ namespace bpp
      *   Either all the models are different objects to avoid parameters
      *   redondancy, or only the first model is used in every position.
      *   The used models are owned by the instance.
-     * @param vmodel vector of codon models. They will be owned by the
+     * @param vpmodel vector of codon models. They will be owned by the
      * model.
-     * @param the name of the model
+     * @param name the name of the model
      */
 
     CodonAdHocSubstitutionModel(

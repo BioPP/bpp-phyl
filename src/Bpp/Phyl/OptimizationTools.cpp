@@ -89,7 +89,6 @@ OptimizationTools::ScaleFunction::ScaleFunction(TreeLikelihood* tl) :
 OptimizationTools::ScaleFunction::~ScaleFunction() {}
 
 void OptimizationTools::ScaleFunction::setParameters(const ParameterList& lambda)
-throw (ParameterNotFoundException, ConstraintException)
 {
   if (lambda.size() != 1)
     throw Exception("OptimizationTools::ScaleFunction::f(). This is a one parameter function!");
@@ -97,7 +96,6 @@ throw (ParameterNotFoundException, ConstraintException)
 }
 
 double OptimizationTools::ScaleFunction::getValue() const
-throw (ParameterException)
 {
   // Scale the tree:
   ParameterList brLen = brLen_;
@@ -125,7 +123,6 @@ unsigned int OptimizationTools::optimizeTreeScale(
   OutputStream* messageHandler,
   OutputStream* profiler,
   unsigned int verbose)
-throw (Exception)
 {
   ScaleFunction sf(tl);
   BrentOneDimension bod(&sf);
@@ -160,7 +157,6 @@ unsigned int OptimizationTools::optimizeNumericalParameters(
   unsigned int verbose,
   const std::string& optMethodDeriv,
   const std::string& optMethodModel)
-throw (Exception)
 {
   DerivableSecondOrder* f = tl;
   ParameterList pl = parameters;
@@ -367,7 +363,6 @@ unsigned int OptimizationTools::optimizeNumericalParameters2(
   bool useClock,
   unsigned int verbose,
   const std::string& optMethodDeriv)
-throw (Exception)
 {
   DerivableSecondOrder* f = tl;
   ParameterList pl = parameters;
@@ -561,7 +556,6 @@ unsigned int OptimizationTools::optimizeBranchLengthsParameters(
   OutputStream* profiler,
   unsigned int verbose,
   const std::string& optMethodDeriv)
-throw (Exception)
 {
   // Build optimizer:
   Optimizer* optimizer = 0;
@@ -620,7 +614,6 @@ unsigned int OptimizationTools::optimizeNumericalParametersWithGlobalClock(
   OutputStream* profiler,
   unsigned int verbose,
   const std::string& optMethodDeriv)
-throw (Exception)
 {
   AbstractNumericalDerivative* fun = 0;
 
@@ -689,7 +682,6 @@ unsigned int OptimizationTools::optimizeNumericalParametersWithGlobalClock2(
   OutputStream* profiler,
   unsigned int verbose,
   const std::string& optMethodDeriv)
-throw (Exception)
 {
   AbstractNumericalDerivative* fun = 0;
 
@@ -782,7 +774,6 @@ NNIHomogeneousTreeLikelihood* OptimizationTools::optimizeTreeNNI(
   const std::string& optMethodDeriv,
   unsigned int nStep,
   const std::string& nniMethod)
-throw (Exception)
 {
   // Roughly optimize parameter
   if (optimizeNumFirst)
@@ -814,7 +805,6 @@ NNIHomogeneousTreeLikelihood* OptimizationTools::optimizeTreeNNI2(
   unsigned int verbose,
   const std::string& optMethodDeriv,
   const std::string& nniMethod)
-throw (Exception)
 {
   // Roughly optimize parameter
   if (optimizeNumFirst)
@@ -854,7 +844,7 @@ DistanceMatrix* OptimizationTools::estimateDistanceMatrix(
   DistanceEstimation& estimationMethod,
   const ParameterList& parametersToIgnore,
   const std::string& param,
-  unsigned int verbose) throw (Exception)
+  unsigned int verbose)
 {
   if (param != DISTANCEMETHOD_PAIRWISE && param != DISTANCEMETHOD_INIT)
     throw Exception("OptimizationTools::estimateDistanceMatrix. Invalid option param=" + param + ".");
@@ -890,7 +880,7 @@ TreeTemplate<Node>* OptimizationTools::buildDistanceTree(
   unsigned int tlEvalMax,
   OutputStream* profiler,
   OutputStream* messenger,
-  unsigned int verbose) throw (Exception)
+  unsigned int verbose)
 {
   estimationMethod.resetAdditionalParameters();
   estimationMethod.setVerbose(verbose);

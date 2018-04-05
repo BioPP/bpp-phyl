@@ -85,7 +85,7 @@ public:
    * @return The alphabet of the data set for which this object is initialized.
    * @throw LikelihoodTreeCalculationNotInitializedException If this instance was not initialized.
    */
-  virtual const Alphabet* getAlphabet() const throw (LikelihoodTreeCalculationNotInitializedException) = 0;
+  virtual const Alphabet* getAlphabet() const = 0;
 
   /**
    * @return The process used for calculation.
@@ -109,7 +109,7 @@ public:
    * @throw IndexOutOfBoundsException If the input position is invalid.
    */
 
-  virtual size_t getSiteIndex(size_t site) const throw (LikelihoodTreeCalculationNotInitializedException, IndexOutOfBoundsException) = 0;
+  virtual size_t getSiteIndex(size_t site) const = 0;
 
   /**
    * @brief Tell is this instance is properly insitialized, that is, if the setData method has been called once.
@@ -333,11 +333,27 @@ public:
   /**
    * @brief Perform a likelihood computation.
    */
+
+  /**
+   * @brief Computes Likelihood at the root.
+   *
+   **/
   
   virtual void computeTreeLikelihood() = 0;
-
   
+  /**
+   * @brief Computes Likelihood at a given node.
+   *
+   **/
+
   virtual void computeLikelihoodsAtNode(int nodeId) = 0;
+
+  /**
+   * @brief Computes Likelihood at a all nodes.
+   *
+   **/
+
+  virtual void computeLikelihoodsAtAllNodes() = 0;
 
 public:
   /**

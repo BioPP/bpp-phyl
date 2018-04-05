@@ -553,7 +553,7 @@ namespace bpp
      * @see TransitionModel
      */
 
-    double getInitValue(size_t i, int state) const throw (BadIntException)
+    double getInitValue(size_t i, int state) const 
     {
       if (modelSet_.size()==0)
         throw Exception("NonHomogeneousSubstitutionProcess::getInitValue : no model associated");

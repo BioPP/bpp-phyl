@@ -407,12 +407,11 @@ public:
 
   void setNamespace(const std::string& prefix);
 
-  void aliasParameters(const std::string& p1, const std::string& p2) throw (ParameterNotFoundException, Exception);
+  void aliasParameters(const std::string& p1, const std::string& p2);
 
-  void unaliasParameters(const std::string& p1, const std::string& p2) throw (ParameterNotFoundException, Exception);
+  void unaliasParameters(const std::string& p1, const std::string& p2);
 
-  void aliasParameters(std::map<std::string, std::string>& unparsedParams, bool verbose) throw (ParameterNotFoundException, Exception);
-  
+  void aliasParameters(std::map<std::string, std::string>& unparsedParams, bool verbose);  
 
   /**
    * @}
@@ -446,6 +445,44 @@ public:
    */
 
   void addSubstitutionProcess(size_t nProc, std::map<size_t, std::vector<unsigned int> > mModBr, size_t nTree, size_t nRate);
+
+  /*
+   * @brief Method to add a one per branch SubstitutionProcess. A new
+   * model is created for each branch.
+   *
+   * @param nProc the number of the Substitution process
+   * @param nMod  the number of Transition Model which is cloned on
+   *        all branches.
+   * @param nTree the number of a Tree (from the collection)
+   * @param nRate the number of a Distribution Rate (from the
+   *        collection)
+   * @param nFreq the number of a FrequenciesSet for the root (from
+   *        the collection)
+   * @param sharedParameterNames the vector of the names of parameters
+   *        of the model that are shared among all the models.
+   *
+   */
+
+  void addOnePerBranchSubstitutionProcess(size_t nProc, size_t nMod, size_t nTree, size_t nRate, size_t nFreq, const std::vector<std::string>& sharedParameterNames);
+
+  /*
+   * @brief Method to add a one per branch SubstitutionProcess. A new
+   * model is created for each branch.
+   *
+   * @param nProc the number of the Substitution process
+   * @param nMod  the number of Transition Model which is cloned on
+   *        all branches.
+   * @param nTree the number of a Tree (from the collection)
+   * @param nRate the number of a Distribution Rate (from the
+   *        collection)
+   * @param nFreq the number of a FrequenciesSet for the root (from
+   *        the collection)
+   * @param sharedParameterNames the vector of the names of parameters
+   *        of the model that are shared among all the models.
+   *
+   */
+
+  void addOnePerBranchSubstitutionProcess(size_t nProc, size_t nMod, size_t nTree, size_t nRate, const std::vector<std::string>& sharedParameterNames);
 
   /*
    * @brief Methods to retrieve Substitution Process

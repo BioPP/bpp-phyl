@@ -442,16 +442,14 @@ MixedSubstitutionModelSet::HyperNode::Node& MixedSubstitutionModelSet::HyperNode
 
 bool MixedSubstitutionModelSet::HyperNode::Node::operator<=(const Node& n) const
 {
-  vector<int>::const_iterator it(vNumb_.begin());
   vector<int>::const_iterator it2(n.vNumb_.begin());
 
-  for ( ; it != vNumb_.end(); it++)
+  for (const auto& it : vNumb_)
   {
-    while (it2 != n.vNumb_.end()  && (*it2 < *it))
+    while (it2 != n.vNumb_.end()  && (*it2 < it))
       it2++;
-    if (it2 == n.vNumb_.end() || (*it2 > *it))
+    if (it2 == n.vNumb_.end() || (*it2 > it))
       return false;
-    it++;
   }
   return true;
 }
@@ -463,19 +461,17 @@ bool MixedSubstitutionModelSet::HyperNode::Node::operator>=(const Node& n) const
 
 bool MixedSubstitutionModelSet::HyperNode::Node::intersects(const Node& n) const
 {
-  vector<int>::const_iterator it(vNumb_.begin());
   vector<int>::const_iterator it2(n.vNumb_.begin());
 
-  for ( ; it != vNumb_.end(); it++)
+  for (const auto& it : vNumb_)
   {
-    while (it2 != n.vNumb_.end()  && (*it2 < *it))
+    while (it2 != n.vNumb_.end()  && (*it2 < it))
       it2++;
 
     if (it2 == n.vNumb_.end())
       return false;
-    if (*it2 == *it)
+    if (*it2 == it)
       return true;
-    it++;
   }
   return false;
 }

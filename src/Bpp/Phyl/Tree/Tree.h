@@ -191,7 +191,7 @@ namespace bpp
      */
     virtual int getRootId() const = 0;
 
-    virtual int getLeafId(const std::string& name) const throw (NodeNotFoundException)= 0;
+    virtual int getLeafId(const std::string& name) const= 0;
 	
     virtual std::vector<int> getLeavesId() const = 0;
 
@@ -201,13 +201,13 @@ namespace bpp
 		
     virtual std::vector<int> getBranchesId() const = 0;
 
-    virtual std::vector<int> getSonsId(int parentId) const throw (NodeNotFoundException) = 0;
+    virtual std::vector<int> getSonsId(int parentId) const = 0;
 
-    virtual std::vector<int> getAncestorsId(int nodeId) const throw (NodeNotFoundException) = 0;
+    virtual std::vector<int> getAncestorsId(int nodeId) const = 0;
 
-    virtual int getFatherId(int parentId) const throw (NodeNotFoundException) = 0;
+    virtual int getFatherId(int parentId) const = 0;
 
-    virtual bool hasFather(int nodeId) const throw (NodeNotFoundException) = 0;
+    virtual bool hasFather(int nodeId) const = 0;
 
 /** @} */
 
@@ -216,13 +216,13 @@ namespace bpp
      *
      * @{
      */
-    virtual std::string getNodeName(int nodeId) const throw (NodeNotFoundException) = 0;
+    virtual std::string getNodeName(int nodeId) const = 0;
 		
-    virtual void setNodeName(int nodeId, const std::string& name) throw (NodeNotFoundException) = 0;
+    virtual void setNodeName(int nodeId, const std::string& name) = 0;
 		
-    virtual void deleteNodeName(int nodeId) throw (NodeNotFoundException) = 0;
+    virtual void deleteNodeName(int nodeId) = 0;
 		
-    virtual bool hasNodeName(int nodeId) const throw (NodeNotFoundException) = 0;
+    virtual bool hasNodeName(int nodeId) const = 0;
     /** @} */
 		
     /**
@@ -232,11 +232,11 @@ namespace bpp
      */
     virtual bool hasNode(int nodeId) const = 0;
 
-    virtual bool isLeaf(int nodeId) const throw (NodeNotFoundException) = 0;
+    virtual bool isLeaf(int nodeId) const = 0;
 
-    virtual bool hasNoSon(int nodeId) const throw (NodeNotFoundException) = 0;
+    virtual bool hasNoSon(int nodeId) const = 0;
 
-    virtual bool isRoot(int nodeId) const throw (NodeNotFoundException) = 0;
+    virtual bool isRoot(int nodeId) const = 0;
     /** @} */
 
     /**
@@ -255,7 +255,7 @@ namespace bpp
      * @throw NodeNotFoundException If the node is not found.
      * @throw IndexOutOfBoundsException If one node index is not valid, or if the node
      */
-    void swapNodes(const Tree& tree, int nodeId, size_t i1 = 0, size_t i2 = 1) throw (NodeNotFoundException,IndexOutOfBoundsException);
+    void swapNodes(const Tree& tree, int nodeId, size_t i1 = 0, size_t i2 = 1);
   
     /** @} */
 
@@ -278,17 +278,17 @@ namespace bpp
      *
      * @{
      */
-    virtual bool hasNodeProperty(int nodeId, const std::string& name) const throw (NodeNotFoundException) = 0;
+    virtual bool hasNodeProperty(int nodeId, const std::string& name) const = 0;
 		
-    virtual void setNodeProperty(int nodeId, const std::string& name, const Clonable& property) throw (NodeNotFoundException) = 0;
+    virtual void setNodeProperty(int nodeId, const std::string& name, const Clonable& property) = 0;
 				
-    virtual Clonable* getNodeProperty(int nodeId, const std::string& name) throw (NodeNotFoundException) = 0;
+    virtual Clonable* getNodeProperty(int nodeId, const std::string& name) = 0;
 				
-    virtual const Clonable* getNodeProperty(int nodeId, const std::string& name) const throw (NodeNotFoundException) = 0;
+    virtual const Clonable* getNodeProperty(int nodeId, const std::string& name) const = 0;
 				
-    virtual Clonable* removeNodeProperty(int nodeId, const std::string& name) throw (NodeNotFoundException) = 0;
+    virtual Clonable* removeNodeProperty(int nodeId, const std::string& name) = 0;
 
-    virtual std::vector<std::string> getNodePropertyNames(int nodeId) const throw (NodeNotFoundException) = 0;
+    virtual std::vector<std::string> getNodePropertyNames(int nodeId) const = 0;
     /** @} */
 		
     /**
@@ -296,17 +296,17 @@ namespace bpp
      *
      * @{
      */
-    virtual bool hasBranchProperty(int nodeId, const std::string& name) const throw (NodeNotFoundException) = 0;
+    virtual bool hasBranchProperty(int nodeId, const std::string& name) const = 0;
 		
-    virtual void setBranchProperty(int nodeId, const std::string& name, const Clonable & property) throw (NodeNotFoundException) = 0;
+    virtual void setBranchProperty(int nodeId, const std::string& name, const Clonable & property) = 0;
 				
-    virtual Clonable* getBranchProperty(int nodeId, const std::string& name) throw (NodeNotFoundException) = 0;
+    virtual Clonable* getBranchProperty(int nodeId, const std::string& name) = 0;
 				
-    virtual const Clonable* getBranchProperty(int nodeId, const std::string& name) const throw (NodeNotFoundException) = 0;
+    virtual const Clonable* getBranchProperty(int nodeId, const std::string& name) const = 0;
 				
-    virtual Clonable* removeBranchProperty(int nodeId, const std::string& name) throw (NodeNotFoundException) = 0;
+    virtual Clonable* removeBranchProperty(int nodeId, const std::string& name) = 0;
 
-    virtual std::vector<std::string> getBranchPropertyNames(int nodeId) const throw (NodeNotFoundException) = 0;
+    virtual std::vector<std::string> getBranchPropertyNames(int nodeId) const = 0;
     /** @} */
 
     /**
@@ -317,7 +317,7 @@ namespace bpp
      *
      * @param nodeId The id of the node that will be the new root.
      */
-    virtual void rootAt(int nodeId) throw (NodeNotFoundException) = 0;
+    virtual void rootAt(int nodeId) = 0;
 
     /**
      * @brief Root a tree by specifying an outgroup.
@@ -328,7 +328,7 @@ namespace bpp
      *
      * @param nodeId The id of the node that will be the new root.
      */
-    virtual void newOutGroup(int nodeId) throw (NodeNotFoundException) = 0;
+    virtual void newOutGroup(int nodeId) = 0;
 		
     /**
      * @brief Tell if the tree is rooted.
@@ -343,7 +343,7 @@ namespace bpp
      * @return True if the tree has been unrooted.
      * @throw UnrootedTreeException If the tree is already rooted.
      */
-    virtual bool unroot() throw (UnrootedTreeException) = 0;
+    virtual bool unroot() = 0;
 
     /**
      * @brief Number nodes.
@@ -365,7 +365,7 @@ namespace bpp
      * @return A vector with all branch lengths.
      * @throw NodeException If a branch length is lacking.
      */
-    virtual std::vector<double> getBranchLengths() throw (NodeException) = 0;
+    virtual std::vector<double> getBranchLengths() = 0;
 
     /**
      * @brief Get the total length (sum of all branch lengths) of a tree.
@@ -373,7 +373,7 @@ namespace bpp
      * @return The total length of the subtree.
      * @throw NodeException If a branch length is lacking.
      */
-    virtual double getTotalLength() throw (NodeException) = 0;
+    virtual double getTotalLength() = 0;
 
     /**
      * @brief Set all the branch lengths of a tree.
@@ -397,7 +397,7 @@ namespace bpp
      * @param factor The factor to multiply all branch lengths with.
      * @throw NodeException If a branch length is lacking.
      */
-    virtual void scaleTree(double factor) throw (NodeException) = 0;
+    virtual void scaleTree(double factor) = 0;
 
     /**
      * @brief Get an id.

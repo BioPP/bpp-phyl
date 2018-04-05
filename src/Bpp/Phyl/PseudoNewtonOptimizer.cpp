@@ -81,7 +81,7 @@ PseudoNewtonOptimizer::PseudoNewtonOptimizer(DerivableSecondOrder* function) :
 
 /**************************************************************************/
 
-void PseudoNewtonOptimizer::doInit(const ParameterList& params) throw (Exception)
+void PseudoNewtonOptimizer::doInit(const ParameterList& params)
 {
   n_ = getParameters().size();
   params_ = getParameters().getParameterNames();
@@ -91,7 +91,7 @@ void PseudoNewtonOptimizer::doInit(const ParameterList& params) throw (Exception
 
 /**************************************************************************/
 
-double PseudoNewtonOptimizer::doStep() throw (Exception)
+double PseudoNewtonOptimizer::doStep()
 {
   ParameterList* bckPoint = 0;
   if (updateParameters()) bckPoint = new ParameterList(getFunction()->getParameters());

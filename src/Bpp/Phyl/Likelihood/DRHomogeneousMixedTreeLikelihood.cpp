@@ -4,7 +4,7 @@
 //
 
 /*
-   Copyright or © or Copr. CNRS, (November 16, 2004)
+   Copyright or © or Copr. Bio++ Development Team, (November 16, 2004)
 
    This software is a computer program whose purpose is to provide classes
    for phylogenetic data analysis.
@@ -42,7 +42,7 @@
 // From the STL:
 #include <iostream>
 
-#include <math.h>
+#include <cmath>
 #include "../PatternTools.h"
 
 #include <Bpp/Numeric/VectorTools.h>
@@ -57,7 +57,7 @@ DRHomogeneousMixedTreeLikelihood::DRHomogeneousMixedTreeLikelihood(
   DiscreteDistribution* rDist,
   bool checkRooted,
   bool verbose,
-  bool rootArray)  throw (Exception) :
+  bool rootArray) :
   DRHomogeneousTreeLikelihood(tree, model, rDist, checkRooted, verbose),
   treeLikelihoodsContainer_(),
   probas_(),
@@ -84,8 +84,7 @@ DRHomogeneousMixedTreeLikelihood::DRHomogeneousMixedTreeLikelihood(
   DiscreteDistribution* rDist,
   bool checkRooted,
   bool verbose,
-  bool rootArray)
-throw (Exception) :
+  bool rootArray) :
   DRHomogeneousTreeLikelihood(tree, model, rDist, checkRooted, verbose),
   treeLikelihoodsContainer_(),
   probas_(),
@@ -148,7 +147,7 @@ DRHomogeneousMixedTreeLikelihood::~DRHomogeneousMixedTreeLikelihood()
 }
 
 
-void DRHomogeneousMixedTreeLikelihood::initialize() throw (Exception)
+void DRHomogeneousMixedTreeLikelihood::initialize()
 {
   for (unsigned int i = 0; i < treeLikelihoodsContainer_.size(); i++)
   {
@@ -159,7 +158,7 @@ void DRHomogeneousMixedTreeLikelihood::initialize() throw (Exception)
     computeRootLikelihood();
 }
 
-void DRHomogeneousMixedTreeLikelihood::setData(const AlignedValuesContainer& sites) throw (Exception)
+void DRHomogeneousMixedTreeLikelihood::setData(const AlignedValuesContainer& sites)
 {
   DRHomogeneousTreeLikelihood::setData(sites);
 
@@ -398,7 +397,6 @@ void DRHomogeneousMixedTreeLikelihood::computeTreeDLikelihoods()
 }
 
 double DRHomogeneousMixedTreeLikelihood::getFirstOrderDerivative(const std::string& variable) const
-throw (Exception)
 {
   if (!hasParameter(variable))
     throw ParameterNotFoundException("DRHomogeneousTreeLikelihood::getFirstOrderDerivative().", variable);
@@ -462,7 +460,6 @@ void DRHomogeneousMixedTreeLikelihood::computeTreeD2Likelihoods()
 }
 
 double DRHomogeneousMixedTreeLikelihood::getSecondOrderDerivative(const std::string& variable) const
-throw (Exception)
 {
   if (!hasParameter(variable))
     throw ParameterNotFoundException("DRHomogeneousTreeLikelihood::getFirstOrderDerivative().", variable);

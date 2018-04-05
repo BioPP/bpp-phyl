@@ -47,11 +47,15 @@ using namespace std;
 
 void AbstractLikelihoodNode::getPosteriorProbabilitiesPerState(VVdouble& vPP) const
 {
-  size_t nSites=nodeLikelihoods_.size();
-  size_t nStates=nodeLikelihoods_[0].size();
-
-  vPP.resize(nSites);
+  if (!isUp2date(ComputingNode::D0))
+    throw Exception("AbstractLikelihoodNode::getPosteriorProbabilitiesPerState : Node " + TextTools::toString(getId()) + " likelihood not up to date.");
   
+  size_t nSites=nodeLikelihoods_.size();
+  vPP.resize(nSites);
+  if (nSites==0)
+    return;
+
+  size_t nStates=nodeLikelihoods_[0].size();
   const VVdouble& larray = getLikelihoodArray(ComputingNode::D0);
 
   for (size_t i = 0; i < nSites; i++)

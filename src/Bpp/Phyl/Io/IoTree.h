@@ -90,7 +90,6 @@ namespace bpp
 
     virtual Tree* read(const std::string& path) const = 0;
     virtual PhyloTree* readP(const std::string& path) const = 0;
-    
     /**
      * @brief Read a tree from a stream.
      *

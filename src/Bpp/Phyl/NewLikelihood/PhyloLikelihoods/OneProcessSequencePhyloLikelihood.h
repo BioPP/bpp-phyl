@@ -131,7 +131,7 @@ namespace bpp
      *
      * @{
      */
-    void setData(const AlignedValuesContainer& sites, size_t nData = 0) throw (Exception)
+    void setData(const AlignedValuesContainer& sites, size_t nData = 0) 
     {
       AbstractSequencePhyloLikelihood::setData(sites, nData);
       tlComp_->setData(sites);
@@ -160,10 +160,16 @@ namespace bpp
      */
 
     /**
+     * @brief Get the substition process
+     */
+
+    const SubstitutionProcess& getSubstitutionProcess() const { return mSeqEvol_.getSubstitutionProcess(); }
+
+    /**
      * @brief Get the number of model classes.
      *
-     * @return The Number of model classes.
      */
+
     size_t getNumberOfClasses() const { return mSeqEvol_.getSubstitutionProcess().getNumberOfClasses(); }
 
     /**
@@ -172,7 +178,8 @@ namespace bpp
      * @return The tree of this OneProcessSequencePhyloLikelihood object.
      */
 
-    const SubstitutionProcess& getSubstitutionProcess() const { return mSeqEvol_.getSubstitutionProcess(); }
+    const ParametrizablePhyloTree& getTree() const { return mSeqEvol_.getSubstitutionProcess().getParametrizablePhyloTree(); }
+
 
     /** @} */
 

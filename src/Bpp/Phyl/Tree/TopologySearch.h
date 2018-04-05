@@ -139,7 +139,7 @@ class TopologySearch
 		/**
 		 * @brief Performs the search.
 		 */
-		virtual void search() throw (Exception) = 0;
+		virtual void search() = 0;
 
     /**
      * @brief Add a topology listener to this class.

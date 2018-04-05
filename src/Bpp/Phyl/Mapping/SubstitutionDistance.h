@@ -1,7 +1,7 @@
 //
-// File: WeightedSubstitutionCount.h
-// Created by: Julien Dutheil
-// Created on: Wed Apr 5 15:12 2006
+// File: SubstitutionDistance.h
+// Created by: Laurent Guéguen
+// Created on: lundi 26 mars 2018, à 15h 08
 //
 
 /*
@@ -37,8 +37,8 @@ The fact that you are presently reading this means that you have had
 knowledge of the CeCILL license and that you accept its terms.
 */
 
-#ifndef _WEIGHTEDSUBSTITUTIONCOUNT_H_
-#define _WEIGHTEDSUBSTITUTIONCOUNT_H_
+#ifndef _SUBSTITUTION_DISTANCE_H_
+#define _SUBSTITUTION_DISTANCE_H_
 
 #include "SubstitutionCount.h"
 
@@ -50,65 +50,66 @@ namespace bpp
 {
 
 /**
- * @brief Interface allowing for weighting of substitution counts
- * according to state properties.
+ * @brief Interface allowing for using distances between states in
+ * substitution counts.
  *
- * These weights are used for the final counts, after the mapping
- * process (see SubstitutionDistances for integration of substitution
- * distances before the mapping process).
+ * These distances are used for integration of substitution distances
+ * before the mapping process (see WeightedSubstitutionCount for
+ * weight on the final counts, after the mapping process).
+ *
  */
 
-  class WeightedSubstitutionCount:
+  class SubstitutionDistance:
     public virtual SubstitutionCount
   {
   public:
-    virtual void setWeights(std::shared_ptr<const AlphabetIndex2> index) = 0;
-    virtual bool hasWeights() const = 0;
-    virtual std::shared_ptr<const AlphabetIndex2> getWeights() const = 0;
+    virtual void setDistances(std::shared_ptr<const AlphabetIndex2> index) = 0;
+    virtual bool hasDistances() const = 0;
+    virtual std::shared_ptr<const AlphabetIndex2> getDistances() const = 0;
   };
   
 /**
- * @brief Partial implementation of the WeightedSubstitutionCount interface.
+ * @brief Partial implementation of the SubstitutionDistance interface.
  */
-  class AbstractWeightedSubstitutionCount:
-    public virtual WeightedSubstitutionCount
+  class AbstractSubstitutionDistance:
+    public virtual SubstitutionDistance
   {
   protected:
-    std::shared_ptr<const AlphabetIndex2> weights_;
+    std::shared_ptr<const AlphabetIndex2> distances_;
 	
   public:
-    AbstractWeightedSubstitutionCount(std::shared_ptr<const AlphabetIndex2> weights) :
-      weights_(weights)
+    AbstractSubstitutionDistance(std::shared_ptr<const AlphabetIndex2> distances) :
+      distances_(distances)
     {}
 
-    AbstractWeightedSubstitutionCount(const AbstractWeightedSubstitutionCount& index) :
-      weights_(index.weights_)
+    AbstractSubstitutionDistance(const AbstractSubstitutionDistance& index) :
+      distances_(index.distances_)
     {
     }
 
-    AbstractWeightedSubstitutionCount& operator=(const AbstractWeightedSubstitutionCount& index)
+    AbstractSubstitutionDistance& operator=(const AbstractSubstitutionDistance& index)
     {
-      weights_ = index.weights_;
+      distances_ = index.distances_;
       
       return *this;
     }
 		
-    virtual ~AbstractWeightedSubstitutionCount()
+    virtual ~AbstractSubstitutionDistance()
     {
     }
     
 		
   public:
-    void setWeights(std::shared_ptr<const AlphabetIndex2> weights);
-    bool hasWeights() const { return weights_.get() != 0; }
-    std::shared_ptr<const AlphabetIndex2> getWeights() const { return weights_; }
+    void setDistances(std::shared_ptr<const AlphabetIndex2> distances);
+    bool hasDistances() const { return distances_.get() != 0; }
+    std::shared_ptr<const AlphabetIndex2> getDistances() const { return distances_; }
 
   protected:
-    virtual void weightsHaveChanged() = 0;
+    virtual void distancesHaveChanged() = 0;
 
   };
 
 } //end of namespace bpp.
 
-#endif //_WEIGHTEDSUBSTITUTIONCOUNT_H_
+#endif //_SUBSTITUTIONDISTANCE_H_
 

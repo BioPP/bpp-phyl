@@ -235,7 +235,7 @@ namespace bpp
         update();
       }
 
-      double getFirstOrderDerivative(const std::string& variable) const throw (Exception)
+      double getFirstOrderDerivative(const std::string& variable) const 
       {
         if (dValues_.find(variable)==dValues_.end())
           computeDLogLikelihood_(variable);
@@ -246,7 +246,7 @@ namespace bpp
         return dValues_[variable];
       }
 
-      double getSecondOrderDerivative(const std::string& variable) const throw (Exception)
+      double getSecondOrderDerivative(const std::string& variable) const
       {
         if (d2Values_.find(variable)==d2Values_.end())
           computeD2LogLikelihood_(variable);
@@ -257,7 +257,8 @@ namespace bpp
         return d2Values_[variable];
       }
 
-      double getSecondOrderDerivative(const std::string& variable1, const std::string& variable2) const throw (Exception) { return 0; } // Not implemented for now.
+      double getSecondOrderDerivative(const std::string& variable1, const std::string& variable2) const
+      { return 0; } // Not implemented for now.
       
       /**
        * @name Retrieve some particular parameters subsets.

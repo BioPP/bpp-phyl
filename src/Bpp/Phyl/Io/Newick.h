@@ -141,7 +141,6 @@ namespace bpp
      *
      * @{
      */    
-
     TreeTemplate<Node>* read(const std::string& path) const
     {
       return dynamic_cast<TreeTemplate<Node>*>(AbstractITree::read(path));
@@ -267,7 +266,7 @@ namespace bpp
 
     std::string nodeToParenthesis(const PhyloTree& tree, std::shared_ptr<PhyloNode> node, bool writeId = false) const;
 
-/*        * @brief Get the parenthesis description of a subtree.
+/* @brief Get the parenthesis description of a subtree.
  *
  * @param tree The tree
  * @param node The node defining the subtree.

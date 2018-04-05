@@ -80,13 +80,13 @@ namespace bpp
 
   public:
     
-    const ParameterList getBranchLengthParameters(size_t nodeIndex) const throw (IndexOutOfBoundsException)
+    const ParameterList getBranchLengthParameters(size_t nodeIndex) const 
     {
       //!!!!!!!!!!!!!!!!!! TODO : not stable
       return getParameters().subList(nodeIndex);
     }
 
-    virtual void setMinimumBranchLength(double minimum) throw (Exception)
+    virtual void setMinimumBranchLength(double minimum) 
     {
       if (minimum > maximumBrLen_)
         throw Exception("ParametrizablePhyloTree::setMinimumBranchLength. Minimum branch length sould be lower than the maximum one: " + TextTools::toString(maximumBrLen_));
@@ -99,7 +99,7 @@ namespace bpp
         dynamic_cast<IntervalConstraint*>(brLenConstraint_.get())->setLowerBound(minimumBrLen_, false);
     }
 
-    virtual void setMaximumBranchLength(double maximum) throw (Exception)
+    virtual void setMaximumBranchLength(double maximum) 
     {
       if (maximum < minimumBrLen_)
         throw Exception("ParametrizablePhyloTree::setMaximumBranchLength. Maximum branch length sould be higher than the minimum one: " + TextTools::toString(minimumBrLen_));

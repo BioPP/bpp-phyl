@@ -94,8 +94,7 @@ public:
     DiscreteDistribution* rDist,
     bool checkRooted = true,
     bool verbose = true,
-    bool rootArray = false)
-  throw (Exception);
+    bool rootArray = false);
 
   /**
    * @brief Build a new DRHomogeneousMixedTreeLikelihood object with data.
@@ -120,8 +119,7 @@ public:
     DiscreteDistribution* rDist,
     bool checkRooted = true,
     bool verbose = true,
-    bool rootArray = false)
-  throw (Exception);
+    bool rootArray = false);
 
   DRHomogeneousMixedTreeLikelihood(const DRHomogeneousMixedTreeLikelihood& lik);
 
@@ -142,7 +140,7 @@ public:
   double getLikelihood() const;
   double getLogLikelihood() const;
   
-  void setData(const AlignedValuesContainer& sites) throw (Exception);
+  void setData(const AlignedValuesContainer& sites);
   double getLikelihoodForASite (size_t site) const;
   double getLogLikelihoodForASite(size_t site) const;
   /** @} */
@@ -164,7 +162,7 @@ public:
    *
    * @{
    */
-  double getFirstOrderDerivative(const std::string& variable) const throw (Exception);
+  double getFirstOrderDerivative(const std::string& variable) const;
   /** @} */
 
   /**
@@ -172,13 +170,13 @@ public:
    *
    * @{
    */
-  double getSecondOrderDerivative(const std::string& variable) const throw (Exception);
-  double getSecondOrderDerivative(const std::string& variable1, const std::string& variable2) const throw (Exception) { return 0; } // Not implemented for now.
+  double getSecondOrderDerivative(const std::string& variable) const;
+  double getSecondOrderDerivative(const std::string& variable1, const std::string& variable2) const { return 0; } // Not implemented for now.
   /** @} */
 
 public:
   // Specific methods:
-  void initialize() throw (Exception);
+  void initialize();
 
   void fireParameterChanged(const ParameterList& params);
 

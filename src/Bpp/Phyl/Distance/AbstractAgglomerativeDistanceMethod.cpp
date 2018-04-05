@@ -50,7 +50,7 @@ using namespace bpp;
 
 using namespace std;
 
-void AbstractAgglomerativeDistanceMethod::setDistanceMatrix(const DistanceMatrix& matrix) throw (Exception)
+void AbstractAgglomerativeDistanceMethod::setDistanceMatrix(const DistanceMatrix& matrix)
 {
   if (matrix.size() <= 3)
     throw Exception("AbstractAgglomerativeDistanceMethod::setDistanceMatrix(): matrix must be at least of dimension 3.");
@@ -59,7 +59,7 @@ void AbstractAgglomerativeDistanceMethod::setDistanceMatrix(const DistanceMatrix
   if (tree_) delete tree_;
 }
     
-void AbstractAgglomerativeDistanceMethod::computeTree() throw (Exception)
+void AbstractAgglomerativeDistanceMethod::computeTree()
 {
   // Initialization:
   for (size_t i = 0; i < matrix_.size(); ++i)

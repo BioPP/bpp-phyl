@@ -115,7 +115,7 @@ inline const TransitionModel* SubstitutionProcessCollectionMember::getModel(size
   return getCollection()->getModel(i);
 }
 
-inline bool SubstitutionProcessCollectionMember::matchParametersValues(const ParameterList& parameters) throw (bpp::ConstraintException)
+inline bool SubstitutionProcessCollectionMember::matchParametersValues(const ParameterList& parameters)
 {
   return getCollection()->matchParametersValues(parameters);
 }
@@ -278,7 +278,6 @@ void SubstitutionProcessCollectionMember::setRootFrequencies(size_t numFreq)
 }
 
 bool SubstitutionProcessCollectionMember::checkOrphanNodes(bool throwEx) const
-throw (Exception)
 {
   vector<unsigned int> ids = getParametrizablePhyloTree().getAllNodesIndexes();
   unsigned int rootId = getParametrizablePhyloTree().getNodeIndex(getParametrizablePhyloTree().getRoot());
@@ -295,7 +294,6 @@ throw (Exception)
 }
 
 bool SubstitutionProcessCollectionMember::checkUnknownNodes(bool throwEx) const
-throw (Exception)
 {
   vector<unsigned int> ids = getParametrizablePhyloTree().getAllNodesIndexes();
 
@@ -343,7 +341,7 @@ bool SubstitutionProcessCollectionMember::isCompatibleWith(const AlignedValuesCo
 }
 
 
-inline const TransitionModel* SubstitutionProcessCollectionMember::getModelForNode(unsigned int nodeId) const throw (Exception)
+inline const TransitionModel* SubstitutionProcessCollectionMember::getModelForNode(unsigned int nodeId) const 
 {
   std::map<unsigned int, size_t>::const_iterator i = nodeToModel_.find(nodeId);
   if (i == nodeToModel_.end())
@@ -364,7 +362,7 @@ inline const TransitionModel* SubstitutionProcessCollectionMember::getModel(unsi
   return getModel(nodeToModel_.at(nodeId));
 }
 
-inline double SubstitutionProcessCollectionMember::getInitValue(size_t i, int state) const throw (BadIntException)
+inline double SubstitutionProcessCollectionMember::getInitValue(size_t i, int state) const 
 {
   if (modelToNodes_.size() == 0)
     throw Exception("SubstitutionProcessCollectionMember::getInitValue : no model associated");

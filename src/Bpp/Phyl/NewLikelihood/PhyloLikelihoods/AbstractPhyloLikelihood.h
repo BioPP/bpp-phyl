@@ -139,7 +139,7 @@ namespace bpp
 
   public:
 
-    void setParameters(const ParameterList& parameters) throw (ParameterNotFoundException, ConstraintException)
+    void setParameters(const ParameterList& parameters)
     {
       setParametersValues(parameters);
     }
@@ -159,7 +159,7 @@ namespace bpp
      *
      */
       
-    double getValue() const throw (Exception)
+    double getValue() const 
     {
       if (!isInitialized())
         throw Exception("AbstractPhyloLikelihood::getValue(). Instance is not initialized.");

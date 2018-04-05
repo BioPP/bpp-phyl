@@ -113,8 +113,7 @@ namespace bpp
                                   DiscreteDistribution* rDist,
                                   bool verbose = true,
                                   bool usePatterns = true,
-                                  bool reparametrizeRoot = false)
-      throw (Exception);
+                                  bool reparametrizeRoot = false);
 	
     /**
      * @brief Build a new NonHomogeneousTreeLikelihood object and compute the corresponding likelihood.
@@ -137,8 +136,7 @@ namespace bpp
                                   DiscreteDistribution* rDist,
                                   bool verbose = true,
                                   bool usePatterns = true,
-                                  bool reparametrizeRoot = false)
-      throw (Exception);
+                                  bool reparametrizeRoot = false);
 
     RNonHomogeneousTreeLikelihood(const RNonHomogeneousTreeLikelihood& lik);
     
@@ -153,7 +151,7 @@ namespace bpp
     /**
      * @brief Method called by constructors.
      */
-    void init_(bool usePatterns) throw (Exception);
+    void init_(bool usePatterns);
 	
   public:
 
@@ -164,12 +162,12 @@ namespace bpp
      *
      * @{
      */
-    void setData(const AlignedValuesContainer& sites) throw (Exception);
+    void setData(const AlignedValuesContainer& sites);
     double getLikelihood() const;
     double getLogLikelihood() const;
     double getLikelihoodForASite(size_t site) const;
     double getLogLikelihoodForASite(size_t site) const;
-    size_t getSiteIndex(size_t site) const throw (IndexOutOfBoundsException) { return likelihoodData_->getRootArrayPosition(site); }
+    size_t getSiteIndex(size_t site) const { return likelihoodData_->getRootArrayPosition(site); }
     /** @} */
 
 		
@@ -197,15 +195,15 @@ namespace bpp
      *
      * @param parameters The parameter list to pass to the function.
      */
-    void setParameters(const ParameterList& parameters) throw (ParameterNotFoundException, ConstraintException);
-    double getValue() const throw(Exception);
+    void setParameters(const ParameterList& parameters);
+    double getValue() const;
 		
     /**
      * @name DerivableFirstOrder interface.
      *
      * @{
      */
-    double getFirstOrderDerivative(const std::string& variable) const throw (Exception);
+    double getFirstOrderDerivative(const std::string& variable) const;
     /** @} */
 
     /**
@@ -213,8 +211,8 @@ namespace bpp
      *
      * @{
      */
-    double getSecondOrderDerivative(const std::string& variable) const throw (Exception);
-    double getSecondOrderDerivative(const std::string& variable1, const std::string& variable2) const throw (Exception) { return 0; } // Not implemented for now.
+    double getSecondOrderDerivative(const std::string& variable) const;
+    double getSecondOrderDerivative(const std::string& variable1, const std::string& variable2) const { return 0; } // Not implemented for now.
     /** @} */
 	
   public:	// Specific methods:

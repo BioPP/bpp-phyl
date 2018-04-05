@@ -141,7 +141,7 @@ public:
     return model_->getFrequencies();
   }
   
-  double getInitValue(size_t i, int state) const throw (BadIntException) {
+  double getInitValue(size_t i, int state) const {
     return model_->getInitValue(i, state);
   }
   

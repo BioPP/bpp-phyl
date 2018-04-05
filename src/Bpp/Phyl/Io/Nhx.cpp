@@ -103,8 +103,6 @@ const string Nhx::getFormatDescription() const
 /*  INPUT */
 /**********************************************************/
 
-
-
 TreeTemplate<Node>* Nhx::read(istream& in) const
 {
   // Checking the existence of specified file

@@ -84,15 +84,16 @@ namespace bpp
     const GeneticCode* pgencode_;
   
     double B_, S_;
-
+    
+    std::shared_ptr<StateMap> stateMap_;
+    
   public:
     /**
      * @brief Build a new AbstractCodonBGCSubstitutionModel object.
      *
-     * @param pdist optional pointer to a distance between amino-acids
+     * @param pgencode the genetic code
      * @param prefix the Namespace
-     * @param paramSynRate is true iff synonymous rate is parametrised
-     *       (default=false).
+     * @param statemap the statemap
      */
     AbstractCodonBGCSubstitutionModel(
       const GeneticCode* pgencode,
@@ -102,7 +103,8 @@ namespace bpp
       AbstractParameterAliasable(model),
       pgencode_(model.pgencode_),
       B_(model.B_),
-      S_(model.S_)
+      S_(model.S_),
+      stateMap_(model.stateMap_)
     {}
 
     AbstractCodonBGCSubstitutionModel& operator=(
@@ -112,6 +114,8 @@ namespace bpp
       pgencode_ = model.pgencode_;
       B_ = model.B_;
       S_ = model.S_;
+      stateMap_ = model.stateMap_;
+
       return *this;
     }
 

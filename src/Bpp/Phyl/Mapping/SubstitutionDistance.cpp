@@ -1,14 +1,14 @@
 //
-// File IOSubstitutionModelFactory.cpp
-// Created by: Laurent Guéguen
-// Created on: mercredi 4 juillet 2012, à 13h 22
+// File: SubstitutionDistance.cpp
+// Created by: Julien Dutheil
+// Created on: Mon Dec 6 21:35 2010
 //
 
 /*
-Copyright or © or Copr. Bio++ Development Team, (November 17, 2004)
+Copyright or © or Copr. Bio++ Development Team, (November 16, 2004, 2005, 2006)
 
 This software is a computer program whose purpose is to provide classes
-for sequences analysis.
+for phylogenetic data analysis.
 
 This software is governed by the CeCILL  license under French law and
 abiding by the rules of distribution of free software.  You can  use, 
@@ -37,21 +37,12 @@ The fact that you are presently reading this means that you have had
 knowledge of the CeCILL license and that you accept its terms.
 */
 
-#include "BppOSubstitutionModelFormat.h"
+#include "SubstitutionDistance.h"
 
 using namespace bpp;
-
-const std::string IOSubstitutionModelFactory::BPPO_FORMAT = "Bpp0"; 
-
-ISubstitutionModel* IOSubstitutionModelFactory::createReader(const std::string& format)
-{
-  if (format == BPPO_FORMAT) return new BppOSubstitutionModelFormat(BppOSubstitutionModelFormat::ALL, true, true, true, true, 0);
-  else throw Exception("Format " + format + " is not supported for input.");
-}
-  
-OSubstitutionModel* IOSubstitutionModelFactory::createWriter(const std::string& format)
-{
-  if(format == BPPO_FORMAT) return new BppOSubstitutionModelFormat(BppOSubstitutionModelFormat::ALL, true, true, true, true, 0);
-  else throw Exception("Format " + format + " is not supported for output.");
+      
+void AbstractSubstitutionDistance::setDistances(std::shared_ptr<const AlphabetIndex2> distances) {
+  distances_ = distances;
+  distancesHaveChanged();
 }
 

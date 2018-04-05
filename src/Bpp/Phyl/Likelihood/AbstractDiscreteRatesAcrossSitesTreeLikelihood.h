@@ -64,7 +64,7 @@ class AbstractDiscreteRatesAcrossSitesTreeLikelihood:
     AbstractDiscreteRatesAcrossSitesTreeLikelihood(
       DiscreteDistribution* rDist,
       bool verbose = true
-    )  throw (Exception);
+    );
     
     AbstractDiscreteRatesAcrossSitesTreeLikelihood(
         const AbstractDiscreteRatesAcrossSitesTreeLikelihood& tl) :

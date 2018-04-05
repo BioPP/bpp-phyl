@@ -48,7 +48,7 @@ using namespace bpp;
 
 using namespace std;
 
-std::vector<size_t> NeighborJoining::getBestPair() throw (Exception)
+std::vector<size_t> NeighborJoining::getBestPair()
 {
   for (std::map<size_t, Node*>::iterator i = currentNodes_.begin(); i != currentNodes_.end(); i++)
   {

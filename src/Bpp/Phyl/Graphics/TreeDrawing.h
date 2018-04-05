@@ -332,7 +332,7 @@ class TreeDrawing:
      *
      * @param gDevice An object implementing the GraphicDevice interface.
      */
-    virtual void plot(GraphicDevice& gDevice) const throw (Exception) = 0;
+    virtual void plot(GraphicDevice& gDevice) const = 0;
 
     /**
      * @brief Get the position of a node.
@@ -341,7 +341,7 @@ class TreeDrawing:
      * @return The localization of the node using the coordinate system of the last GraphicDevice used.
      * @throw NodeNotFoundException If the node does not correspond to a node in the tree.
      */
-    virtual Point2D<double> getNodePosition(int nodeId) const throw (NodeNotFoundException) = 0;
+    virtual Point2D<double> getNodePosition(int nodeId) const = 0;
 
     /**
      * @brief Get the node corresponding to a position on the device.
@@ -350,7 +350,7 @@ class TreeDrawing:
      * @return The corresponding node identifier if available.
      * @throw NodeNotFoundException If the node does not correspond to a node in the tree.
      */
-    virtual int getNodeAt(const Point2D<double>& position) const throw (NodeNotFoundException) = 0;
+    virtual int getNodeAt(const Point2D<double>& position) const = 0;
 
     /**
      * @brief Properties to draw.
@@ -363,8 +363,8 @@ class TreeDrawing:
      *
      * @{
      */
-    virtual void collapseNode(int nodeId, bool yn) throw (NodeNotFoundException, Exception) = 0;
-    virtual bool isNodeCollapsed(int nodeId) const throw (NodeNotFoundException, Exception) = 0;
+    virtual void collapseNode(int nodeId, bool yn) = 0;
+    virtual bool isNodeCollapsed(int nodeId) const = 0;
     /** @} */
 
     /**
