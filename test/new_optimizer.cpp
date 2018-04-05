@@ -127,8 +127,8 @@ TEST_CASE("optimizer test")
   // bpp::ConjugateGradientMultiDimensions optimizer(&dfFunc);
   bpp::SimpleNewtonMultiDimensions optimizer(&dfFunc);
   optimizer.setVerbose(1);
-  optimizer.setProfiler(bpp::ApplicationTools::message);
-  optimizer.setMessageHandler(bpp::ApplicationTools::message);
+  optimizer.setProfiler(bpp::ApplicationTools::message.get());
+  optimizer.setMessageHandler(bpp::ApplicationTools::message.get());
   optimizer.setMaximumNumberOfEvaluations(1000000);
   optimizer.getStopCondition()->setTolerance(0.000001);
   optimizer.setConstraintPolicy(bpp::AutoParameter::CONSTRAINTS_AUTO);
