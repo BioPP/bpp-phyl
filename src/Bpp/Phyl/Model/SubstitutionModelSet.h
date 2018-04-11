@@ -269,7 +269,7 @@ public:
   {
     try
     {
-      return dynamic_cast<const SubstitutionModel*>(getModel(i));
+      return &dynamic_cast<const SubstitutionModel&>(*getModel(i));
     }
     catch (std::bad_cast& bc)
     {
@@ -282,7 +282,7 @@ public:
   {
     try
     {
-      return dynamic_cast<SubstitutionModel*>(getModel(i));
+      return &dynamic_cast<SubstitutionModel&>(*getModel(i));
     }
     catch (std::bad_cast& bc)
     {
