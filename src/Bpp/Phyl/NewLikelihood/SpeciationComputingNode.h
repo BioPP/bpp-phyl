@@ -311,16 +311,21 @@ namespace bpp
           else
             throw Exception("SpeciationComputingNode::addUpwardLikelihoodsAtASite: unknown function modifier " + TextTools::toString(DX));
 
-      if (usesLog)
+      if (usesLog){        
         for (size_t x = 0; x < nbStates_; x++)
         {
           for (size_t y = 0; y < nbStates_; y++)
-            vLogStates_[y]=log((*this.*gtP)(x, y)) + (*likelihoods_node)[y];
-
+          {
+            double t=(*this.*gtP)(x, y);  
+            vLogStates_[y]=(t<=0?NumConstants::MINF():log(t)) + (*likelihoods_node)[y];
+          }
+          
           double v=VectorTools::logSumExp(vLogStates_);
           double w=(*likelihoods_target)[x];
           (*likelihoods_target)[x] = (v<w)?w+log(1+exp(v-w)):v+log(1+exp(w-v));
         }
+      }
+      
       else
         for (size_t x = 0; x < nbStates_; x++)
         {
@@ -348,15 +353,20 @@ namespace bpp
           else
             throw Exception("SpeciationComputingNode::setUpwardLikelihoodsAtASite: unknown function modifier " + TextTools::toString(DX));
 
-      if (usesLog)
+      if (usesLog){
+        
         for (size_t x = 0; x < nbStates_; x++)
         {
           // For each initial state,
           for (size_t y = 0; y < nbStates_; y++)
-            vLogStates_[y]=log((*this.*gtP)(x, y)) + (*likelihoods_node)[y];
+          {
+            double t=(*this.*gtP)(x, y);
+            vLogStates_[y]=(t<=0?NumConstants::MINF():log(t)) + (*likelihoods_node)[y];
+          }
           
           (*likelihoods_target)[x] = VectorTools::logSumExp(vLogStates_);
         }
+      }
       else 
         for (size_t x = 0; x < nbStates_; x++)
         {
@@ -404,7 +414,10 @@ namespace bpp
         {
           // For each initial state,
           for (size_t y = 0; y < nbStates_; y++)
-            vLogStates_[y]=log((*this.*gtP)(y, x)) + (*likelihoods_father)[y];
+          {
+            double t=(*this.*gtP)(x, y);  
+            vLogStates_[y]=(t<=0?NumConstants::MINF():log(t)) + (*likelihoods_father)[y];
+          }
           
           (*likelihoods_node)[x] = VectorTools::logSumExp(vLogStates_);
         }

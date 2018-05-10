@@ -97,15 +97,21 @@ void AbstractLikelihoodNode::setUseLog(bool useLog)
       for (size_t i = 0; i < nSites; i++)
       {
         Vdouble* nodeLikelihoods_i_ = &(nodeLikelihoods_[i]);
-        for(size_t s = 0; s < nStates; s++)
-          (*nodeLikelihoods_i_)[s]=log((*nodeLikelihoods_i_)[s]);
+        for (size_t s = 0; s < nStates; s++)
+        {
+          (*nodeLikelihoods_i_)[s]=((*nodeLikelihoods_i_)[s]<=0)?NumConstants::MINF():log((*nodeLikelihoods_i_)[s]);
+        }
+        
       }
     }
-    for (size_t i = 0; i < nSites; i++)
+    else
     {
-      Vdouble* nodeLikelihoods_i_ = &(nodeLikelihoods_[i]);
-      for(size_t s = 0; s < nStates; s++)
-        (*nodeLikelihoods_i_)[s]=exp((*nodeLikelihoods_i_)[s]);
+      for (size_t i = 0; i < nSites; i++)
+      {
+        Vdouble* nodeLikelihoods_i_ = &(nodeLikelihoods_[i]);
+        for (size_t s = 0; s < nStates; s++)
+          (*nodeLikelihoods_i_)[s]=exp((*nodeLikelihoods_i_)[s]);
+      }
     }
   }
   

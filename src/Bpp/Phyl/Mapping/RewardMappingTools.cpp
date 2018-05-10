@@ -87,11 +87,11 @@ ProbabilisticRewardMapping* RewardMappingTools::computeRewardVectors(
   Vdouble Lr(nbDistinctSites, 0);
   
   for (size_t i = 0; i < nbDistinctSites; i++)
-    Lr[i]=rltc.getLikelihoodForASiteIndex(i);
+    Lr[i]=rltc.getLogLikelihoodForASiteIndex(i);
 
   // Compute the reward for each class and each branch in the tree:
   if (verbose)
-    ApplicationTools::displayTask("Compute joint node-pairs likelihood", true);
+    ApplicationTools::displayTask("Compute rewards", true);
 
   unique_ptr<ProbabilisticRewardMapping::mapTree::EdgeIterator> brIt=rewards->allEdgesIterator();
 
@@ -120,15 +120,27 @@ ProbabilisticRewardMapping* RewardMappingTools::computeRewardVectors(
     VVdouble likelihoodsFatherConstantPart;    
     VectorTools::resize2(likelihoodsFatherConstantPart, nbDistinctSites, nbStates);
 
+    bool usesLog=false;
+
     for (size_t ncl=0; ncl<nbClasses; ncl++)
     {
       const RecursiveLikelihoodTree::LikTree& rlt_c=rlt[ncl];
+      
+      shared_ptr<RecursiveLikelihoodNode> ici = rlt_c.getNode(icid);
+
+      // reinit substitutionsForCurrentNode for log 
+      if (!usesLog && ici->usesLog())
+      {
+        std::fill(rewardsForCurrentNode.begin(), rewardsForCurrentNode.end(), NumConstants::MINF());
+      }
+
+      usesLog=ici->usesLog();
       
       double pr=sp.getProbabilityForModel(ncl);
       double rate=sp.getRateForModel(ncl);
       
       for (size_t i=0; i<nbDistinctSites; i++)
-        VectorTools::fill(likelihoodsFatherConstantPart[i],pr);
+        VectorTools::fill(likelihoodsFatherConstantPart[i],usesLog?log(pr):pr);
 
       rltc.computeLikelihoodsAtNode(fathid);
 
@@ -143,17 +155,43 @@ ProbabilisticRewardMapping* RewardMappingTools::computeRewardVectors(
       {
         if (rlt_c.getEdgeIndex(**brothIt)!=edid)
         {
-          likelihoodsFatherConstantPart *= rlt_c.getSon(**brothIt)->getToFatherBelowLikelihoodArray(ComputingNode::D0);
+          bool slog=rlt_c.getSon(**brothIt)->usesLog();
+
+          if (!usesLog)
+          {
+            if (!slog)
+              likelihoodsFatherConstantPart *= rlt_c.getSon(**brothIt)->getToFatherBelowLikelihoodArray(ComputingNode::D0);
+            else
+              likelihoodsFatherConstantPart *= VectorTools::exp(rlt_c.getSon(**brothIt)->getToFatherBelowLikelihoodArray(ComputingNode::D0));
+          }
+          else {
+            if (slog)
+              likelihoodsFatherConstantPart += rlt_c.getSon(**brothIt)->getToFatherBelowLikelihoodArray(ComputingNode::D0);
+            else
+              likelihoodsFatherConstantPart += VectorTools::log(rlt_c.getSon(**brothIt)->getToFatherBelowLikelihoodArray(ComputingNode::D0));
+          }
         }
       }
       
-      likelihoodsFatherConstantPart *= father->getAboveLikelihoodArray();
+      bool flog=father->usesLog();
 
+      if (!usesLog)
+      {
+        if (!flog)
+          likelihoodsFatherConstantPart *= father->getAboveLikelihoodArray();
+        else
+          likelihoodsFatherConstantPart *= VectorTools::exp(father->getAboveLikelihoodArray());
+      }
+      else {
+        if (flog)
+          likelihoodsFatherConstantPart += father->getAboveLikelihoodArray();
+        else
+          likelihoodsFatherConstantPart += VectorTools::log(father->getAboveLikelihoodArray());
+      }
+      
       // Then, we deal with the node of interest.
       // We first average upon 'y' to save computations, and then upon 'x'.
       // ('y' is the state at 'node' and 'x' the state at 'father'.)
-
-      shared_ptr<RecursiveLikelihoodNode> ici = rlt_c.getNode(icid);
 
       const VVdouble& likelihoodsFather_node = ici->getBelowLikelihoodArray(ComputingNode::D0);
 
@@ -180,16 +218,44 @@ ProbabilisticRewardMapping* RewardMappingTools::computeRewardVectors(
           double likelihoodsFatherConstantPart_i_x = (*likelihoodsFatherConstantPart_i)[x];
           for (size_t y = 0; y < nbStates; ++y)
           {
-            double likelihood_xy = likelihoodsFatherConstantPart_i_x
-              * (*likelihoodsFather_node_i)[y];
+            double likelihood_xy = usesLog
+              ?likelihoodsFatherConstantPart_i_x + (*likelihoodsFather_node_i)[y]
+              :likelihoodsFatherConstantPart_i_x * (*likelihoodsFather_node_i)[y];
 
-            rewardsForCurrentNode[i] += likelihood_xy * (*nij)(x,y);
+            if (!usesLog)
+            {
+              if (likelihood_xy!=0) // to avoid multiplication per nan
+                                    // (stop codons)
+                rewardsForCurrentNode[i] += likelihood_xy * (*nij)(x,y);
             //                       <------------>   <--------------->
             // Posterior probability         |                 |
             // for site i and rate class c * |                 |
             // likelihood for this site------+                 |
             //                                                 |
             // Reward function for site i and rate class c------+
+            }
+            else
+            {
+              if (likelihood_xy!=NumConstants::MINF())  // to avoid add per -inf
+              {
+                if ((*nij)(x,y)< -NumConstants::MILLI())
+                {
+                  ApplicationTools::displayWarning("These rewards are negative, their logs could not be computed:" + TextTools::toString((*nij)(x,y)));
+                  throw Exception("Stop in RewardMappingTools");
+                }
+                else
+                {
+                  if ((*nij)(x,y)>0)
+                  {
+                    double ll=likelihood_xy + log((*nij)(x,y));
+                    if (ll>rewardsForCurrentNode[i])
+                      rewardsForCurrentNode[i] = ll + log(1 + exp(rewardsForCurrentNode[i] - ll));
+                    else
+                      rewardsForCurrentNode[i] += log(1 + exp(ll - rewardsForCurrentNode[i]));
+                  }
+                }
+              }
+            }
           }
         }
       }
@@ -199,7 +265,8 @@ ProbabilisticRewardMapping* RewardMappingTools::computeRewardVectors(
     
     // Now we just have to copy the substitutions into the result vector:
     for (size_t i = 0; i < nbDistinctSites; ++i)
-      (*br)(i) = rewardsForCurrentNode[i] / Lr[i];
+      (*br)(i) = usesLog?exp(rewardsForCurrentNode[i] - Lr[i]):
+        rewardsForCurrentNode[i] / exp(Lr[i]);
 
   }
   if (verbose)

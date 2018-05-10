@@ -235,7 +235,7 @@ namespace bpp
           Vdouble* nodeLikelihoods_A_i_ = &(nodeLikelihoods_A_[i]);
           
           for(size_t s = 0; s < nStates; s++)
-            (*nodeLikelihoods_A_i_)[s]=log((*nodeLikelihoods_A_i_)[s]);
+            (*nodeLikelihoods_A_i_)[s]=((*nodeLikelihoods_A_i_)[s]<=0)?NumConstants::MINF():log((*nodeLikelihoods_A_i_)[s]);
           }
         }
         else
@@ -262,7 +262,7 @@ namespace bpp
             Vdouble* node_fatherLikelihoods_B_i_ = &(node_fatherLikelihoods_B_[i]);
           
             for(size_t s = 0; s < nStates; s++)
-              (*node_fatherLikelihoods_B_i_)[s]=log((*node_fatherLikelihoods_B_i_)[s]);
+              (*node_fatherLikelihoods_B_i_)[s]=((*node_fatherLikelihoods_B_i_)[s]<=0)?NumConstants::MINF():log((*node_fatherLikelihoods_B_i_)[s]);
           }
         }
         else
@@ -289,7 +289,8 @@ namespace bpp
             Vdouble* nodeLikelihoods_B_i_ = &(nodeLikelihoods_B_[i]);
           
             for(size_t s = 0; s < nStates; s++)
-              (*nodeLikelihoods_B_i_)[s]=log((*nodeLikelihoods_B_i_)[s]);
+              (*nodeLikelihoods_B_i_)[s]=((*nodeLikelihoods_B_i_)[s]<=0)?NumConstants::MINF():log((*nodeLikelihoods_B_i_)[s]);
+            
           }
         }
         else

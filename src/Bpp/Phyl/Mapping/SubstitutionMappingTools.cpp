@@ -156,11 +156,11 @@ ProbabilisticSubstitutionMapping* SubstitutionMappingTools::computeCounts(
   Vdouble Lr(nbDistinctSites, 0);
 
   for (size_t i = 0; i < nbDistinctSites; i++)
-    Lr[i]=rltc.getLikelihoodForASiteIndex(i);
+    Lr[i]=rltc.getLogLikelihoodForASiteIndex(i);
 
   // Compute the number of substitutions for each class and each branch in the tree:
   if (verbose)
-    ApplicationTools::displayTask("Compute joint node-pairs likelihood", true);
+    ApplicationTools::displayTask("Compute counts", true);
 
   unique_ptr<ProbabilisticSubstitutionMapping::mapTree::EdgeIterator> brIt=substitutions->allEdgesIterator();
 
@@ -192,21 +192,34 @@ ProbabilisticSubstitutionMapping* SubstitutionMappingTools::computeCounts(
     VVdouble substitutionsForCurrentNode;
     VectorTools::resize2(substitutionsForCurrentNode,nbDistinctSites,nbTypes);
 
+    bool usesLog=false;
+    
     for (size_t ncl=0; ncl<nbClasses; ncl++)
     {
       const RecursiveLikelihoodTree::LikTree& rlt_c=rlt[ncl];
       
+      shared_ptr<RecursiveLikelihoodNode> ici = rlt_c.getNode(icid);
+
+      // reinit substitutionsForCurrentNode for log 
+      if (!usesLog && ici->usesLog())
+      {
+        for (auto& vi : substitutionsForCurrentNode)
+          std::fill(vi.begin(), vi.end(), NumConstants::MINF());
+      }
+        
+      usesLog=ici->usesLog();
+
       double pr=sp.getProbabilityForModel(ncl);
       double rate=sp.getRateForModel(ncl);
       
       for (size_t i=0; i<nbDistinctSites; i++)
-        VectorTools::fill(likelihoodsFatherConstantPart[i],pr);
+        VectorTools::fill(likelihoodsFatherConstantPart[i],usesLog?log(pr):pr);
 
       rltc.computeLikelihoodsAtNode(fathid);
 
       // up father
       shared_ptr<RecursiveLikelihoodNode> father = rlt_c.getNode(fathid);
-
+      
       // down the brothers
 
       unique_ptr<RecursiveLikelihoodTree::LikTree::EdgeIterator> brothIt=rlt_c.branchesIterator(father);
@@ -215,17 +228,43 @@ ProbabilisticSubstitutionMapping* SubstitutionMappingTools::computeCounts(
       {
         if (rlt_c.getEdgeIndex(**brothIt)!=edid)
         {
-           likelihoodsFatherConstantPart *= rlt_c.getSon(**brothIt)->getToFatherBelowLikelihoodArray(ComputingNode::D0);
+          bool slog=rlt_c.getSon(**brothIt)->usesLog();
+          
+          if (!usesLog)
+          {
+            if (!slog)
+              likelihoodsFatherConstantPart *= rlt_c.getSon(**brothIt)->getToFatherBelowLikelihoodArray(ComputingNode::D0);
+            else
+              likelihoodsFatherConstantPart *= VectorTools::exp(rlt_c.getSon(**brothIt)->getToFatherBelowLikelihoodArray(ComputingNode::D0));
+          }
+          else {
+            if (slog)
+              likelihoodsFatherConstantPart += rlt_c.getSon(**brothIt)->getToFatherBelowLikelihoodArray(ComputingNode::D0);
+            else
+              likelihoodsFatherConstantPart += VectorTools::log(rlt_c.getSon(**brothIt)->getToFatherBelowLikelihoodArray(ComputingNode::D0));
+          }
         }
       }
-      
-      likelihoodsFatherConstantPart *= father->getAboveLikelihoodArray();
 
+      bool flog=father->usesLog();
+
+      if (!usesLog)
+      {
+        if (!flog)
+          likelihoodsFatherConstantPart *= father->getAboveLikelihoodArray();
+        else
+          likelihoodsFatherConstantPart *= VectorTools::exp(father->getAboveLikelihoodArray());
+      }
+      else {
+        if (flog)
+          likelihoodsFatherConstantPart += father->getAboveLikelihoodArray();
+        else
+          likelihoodsFatherConstantPart += VectorTools::log(father->getAboveLikelihoodArray());
+      }
+      
       // Then, we deal with the node of interest.
       // We first average upon 'y' to save computations, and then upon 'x'.
       // ('y' is the state at 'node' and 'x' the state at 'father'.)
-
-      shared_ptr<RecursiveLikelihoodNode> ici = rlt_c.getNode(icid);
 
       const VVdouble& likelihoodsFather_node = ici->getBelowLikelihoodArray(ComputingNode::D0);
 
@@ -267,20 +306,47 @@ ProbabilisticSubstitutionMapping* SubstitutionMappingTools::computeCounts(
           double likelihoodsFatherConstantPart_i_x = (*likelihoodsFatherConstantPart_i)[x];
           for (size_t y = 0; y < nbStates; ++y)
           {
-            double likelihood_xy = likelihoodsFatherConstantPart_i_x
-              * (*likelihoodsFather_node_i)[y];
-
-            for (size_t t = 0; t < nbTypes; ++t)
+            double likelihood_xy = usesLog
+              ?likelihoodsFatherConstantPart_i_x + (*likelihoodsFather_node_i)[y]
+              :likelihoodsFatherConstantPart_i_x * (*likelihoodsFather_node_i)[y];
+            
+            if (!usesLog)
             {
               if (likelihood_xy!=0) // to avoid multiplication per nan
                                     // (stop codons)
-                substitutionsForCurrentNode[i][t] += likelihood_xy * npxy[t][x][y];
+                for (size_t t = 0; t < nbTypes; ++t)
+                {
+                  substitutionsForCurrentNode[i][t] += likelihood_xy * npxy[t][x][y];
                  //                                <------------>  <----------->
                  // Posterior probability              |               |
                  // for site i *                       |               |
                  // likelihood for this site ----------+               |
                  //                                                    |
                  // Substitution function for site i ------------------+
+                }
+            }
+            else
+            {
+              if (likelihood_xy!=NumConstants::MINF())  // to avoid add per -inf
+                for (size_t t = 0; t < nbTypes; ++t)
+                {
+                  if (npxy[t][x][y]< -NumConstants::MILLI())
+                  {
+                    ApplicationTools::displayWarning("These counts are negative, their logs could not be computed:" + TextTools::toString(npxy[t][x][y]));
+                    throw Exception("Stop in SubstitutionMappingTools");
+                  }
+                  else
+                  {
+                    if (npxy[t][x][y]>0)
+                    {
+                      double ll=likelihood_xy + log(npxy[t][x][y]);
+                      if (ll>substitutionsForCurrentNode[i][t])
+                        substitutionsForCurrentNode[i][t] = ll + log(1 + exp(substitutionsForCurrentNode[i][t] - ll));
+                      else
+                        substitutionsForCurrentNode[i][t] += log(1 + exp(ll - substitutionsForCurrentNode[i][t]));
+                    }
+                  } 
+                }
             }
           }
         }
@@ -292,7 +358,8 @@ ProbabilisticSubstitutionMapping* SubstitutionMappingTools::computeCounts(
     {
       for (size_t t = 0; t < nbTypes; ++t)
       {
-        double x = substitutionsForCurrentNode[i][t] / Lr[i];
+        double x = usesLog?exp(substitutionsForCurrentNode[i][t] - Lr[i]):substitutionsForCurrentNode[i][t]/exp(Lr[i]);
+        
         if (std::isnan(x) || std::isinf(x))
         {
           if (verbose)
@@ -411,7 +478,7 @@ ProbabilisticSubstitutionMapping* SubstitutionMappingTools::computeNormalization
       {
         unique_ptr<Reward> reward(new DecompositionReward(modn, &usai[nbt]));
         
-        unique_ptr<ProbabilisticRewardMapping> mapping(RewardMappingTools::computeRewardVectors(rltc, mids, *reward, false));
+        unique_ptr<ProbabilisticRewardMapping> mapping(RewardMappingTools::computeRewardVectors(rltc, mids, *reward, true));
 
         for (size_t k = 0; k < mids.size(); k++)
         {

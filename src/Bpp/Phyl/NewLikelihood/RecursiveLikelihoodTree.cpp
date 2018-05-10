@@ -170,16 +170,13 @@ void RecursiveLikelihoodTree::initLikelihoodsWithoutPatterns_(const RecursiveLik
     resetLikelihoods(nId, nbDistinctSites_, nbStates_, ComputingNode::D1);
     resetLikelihoods(nId, nbDistinctSites_, nbStates_, ComputingNode::D2);
   }
-
-
+  
   resetBelowLikelihoods(nId, nbDistinctSites_, nbStates_, ComputingNode::D0);
   resetBelowLikelihoods(nId, nbDistinctSites_, nbStates_, ComputingNode::D1);
   resetBelowLikelihoods(nId, nbDistinctSites_, nbStates_, ComputingNode::D2);
-
-
+  
   // Now initialize likelihood values and pointers:
 
-  
   if (node->hasNoSon())
   {
     size_t posSeq;
@@ -206,15 +203,7 @@ void RecursiveLikelihoodTree::initLikelihoodsWithoutPatterns_(const RecursiveLik
         {
           double x = sequences.getStateValueAt(i, posSeq, statemap.getAlphabetStateAsInt(s));
           
-          if (lNode.usesLog())
-          {
-            if (x <= 0)
-              (*array_i)[s] = -10000;
-            else
-              (*array_i)[s] = log(x);
-          }
-          else
-            (*array_i)[s] = x;
+          (*array_i)[s] = lNode.usesLog()?(x<=0?NumConstants::MINF():log(x)):x;
 
           test += x;
         }
@@ -311,15 +300,7 @@ SitePatterns* RecursiveLikelihoodTree::initLikelihoodsWithPatterns_(const Recurs
         {
           double x = subSequences->getStateValueAt(i, posSeq, statemap.getAlphabetStateAsInt(s));
 
-          if (lNode.usesLog())
-          {
-            if (x <= 0)
-              (*array_i)[s] = -10000;
-            else
-              (*array_i)[s] = log(x);
-          }
-          else
-            (*array_i)[s] = x;
+          (*array_i)[s] = lNode.usesLog()?(x <= 0?NumConstants::MINF():log(x)):x;
 
           test += x;
         }
