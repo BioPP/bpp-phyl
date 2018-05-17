@@ -89,14 +89,14 @@ int main() {
   DiscreteDistribution* rdist = new GammaDiscreteRateDistribution(4, 1.0);
 
   size_t nsites = 1000;
-  unsigned int nrep = 20;
+  unsigned int nrep = 3;
   size_t nmodels = modelSet->getNumberOfModels();
   vector<double> thetas(nmodels);
   vector<double> thetasEst1(nmodels);
   vector<double> thetasEst2(nmodels);
 
   for (size_t i = 0; i < nmodels; ++i) {
-    double theta = RandomTools::giveRandomNumberBetweenZeroAndEntry(0.99) + 0.005;
+    double theta = RandomTools::giveRandomNumberBetweenZeroAndEntry(0.9) + 0.05;
     cout << "Theta" << i << " set to " << theta << endl; 
     modelSet->setParameterValue("T92.theta_" + TextTools::toString(i + 1), theta);
     thetas[i] = theta;
@@ -119,11 +119,11 @@ int main() {
     tl2.initialize();
    
     unsigned int c1 = OptimizationTools::optimizeNumericalParameters2(
-        &tl, tl.getParameters(), 0,
+        &tl, tl.getSubstitutionModelParameters(), 0,
         0.0001, 10000, messenger, profiler, false, false, 1, OptimizationTools::OPTIMIZATION_NEWTON);
 
     unsigned int c2 = OptimizationTools::optimizeNumericalParameters2(
-        &tl2, tl2.getParameters(), 0,
+        &tl2, tl2.getSubstitutionModelParameters(), 0,
         0.0001, 10000, messenger, profiler, false, false, 1, OptimizationTools::OPTIMIZATION_NEWTON);
 
     cout << c1 << ": " << tl.getValue() << "\t" << c2 << ": " << tl2.getValue() << endl;

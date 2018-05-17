@@ -36,19 +36,23 @@
   knowledge of the CeCILL license and that you accept its terms.
 */
 
-# include "AbstractCodonAAFitnessSubstitutionModel.h"
+#include "AbstractCodonAAFitnessSubstitutionModel.h"
+
+#include <Bpp/Seq/Alphabet/AlphabetTools.h>
+
 using namespace bpp;
 using namespace std;
+
 /****************************************************************************************/
+
 AbstractCodonAAFitnessSubstitutionModel::AbstractCodonAAFitnessSubstitutionModel(FrequenciesSet* pfitset, const GeneticCode* pgencode, const string& prefix):
-  AbstractParameterAliasable(prefix), pfitset_(pfitset), pgencode_(pgencode), fitName_("")
+  AbstractParameterAliasable(prefix), pfitset_(pfitset), pgencode_(pgencode), fitName_(""), stateMap_(&pfitset->getStateMap())
 {
-  if (pfitset_->getAlphabet()->getAlphabetType()!="Proteic")
+  if (!AlphabetTools::isProteicAlphabet(pfitset_->getAlphabet()))
     throw Exception("AbstractCodonAAFitnessSubstitutionModel::AbstractCodonAAFitnessSubstitutionModel need Proteic Fitness.");
   
-  fitName_="fit_"+ pfitset_->getNamespace();
+  fitName_ = "fit_" + pfitset_->getNamespace();
   pfitset_->setNamespace(prefix + fitName_);
-  stateMap_=&pfitset_->getStateMap();
   
   addParameters_(pfitset_->getParameters());
 }
