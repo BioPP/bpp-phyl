@@ -64,7 +64,7 @@ namespace DF {
 
 		NumericalDerivationShiftDelta (NodeRefVec && deps, int n, const Dimension<T> & targetDim)
 		    : Value<T> (std::move (deps)), n_ (n) {
-			this->setTargetDimension (targetDim);
+			setTargetDimension (this->accessValueMutable (), targetDim);
 		}
 
 		std::string description () const final { return std::to_string (n_) + " * delta * x"; }
@@ -73,8 +73,8 @@ namespace DF {
 		NodeRef derive (const Node & node) final {
 			auto & delta = this->dependency (0);
 			auto & x = this->dependency (1);
-			return makeNode<NumericalDerivationShiftDelta<T>> ({delta, x->derive (node)}, n_,
-			                                                   this->getTargetDimension ());
+			return makeNode<NumericalDerivationShiftDelta<T>> (
+			    {delta, x->derive (node)}, n_, targetDimension (this->accessValueConst ()));
 		}
 		bool isDerivable (const Node & node) const final {
 			auto & delta = this->dependency (0);
@@ -83,8 +83,8 @@ namespace DF {
 		}
 
 		NodeRef rebuild (NodeRefVec && deps) const final {
-			return makeNode<NumericalDerivationShiftDelta<T>> (std::move (deps), n_,
-			                                                   this->getTargetDimension ());
+			return makeNode<NumericalDerivationShiftDelta<T>> (
+			    std::move (deps), n_, targetDimension (this->accessValueConst ()));
 		}
 
 		int getShiftFactor () const noexcept { return n_; }
@@ -94,7 +94,9 @@ namespace DF {
 
 		void compute () final {
 			callWithValues (*this, [this](T & result, const double & delta, const T & arg) {
-				result = linearAlgebraMakeValueWith (this->getTargetDimension (), this->n_ * delta) + arg;
+				result = linearAlgebraMakeValueWith (targetDimension (this->accessValueConst ()),
+				                                     this->n_ * delta) +
+				         arg;
 			});
 		}
 	};
@@ -148,7 +150,7 @@ namespace DF {
 		NumericalDerivationCombineShifted (NodeRefVec && deps, const Vector<double> & coeffs,
 		                                   const Dimension<T> & targetDim)
 		    : Value<T> (std::move (deps)), coeffs_ (coeffs) {
-			this->setTargetDimension (targetDim);
+			setTargetDimension (this->accessValueMutable (), targetDim);
 		}
 
 		std::string description () const final {
@@ -168,8 +170,8 @@ namespace DF {
 			deps[0] = this->dependency (0); // lambda
 			for (auto i : range (SizeType (1), this->nbDependencies ()))
 				deps[i] = this->dependency (i)->derive (node);
-			return makeNode<NumericalDerivationCombineShifted<T>> (std::move (deps), coeffs_,
-			                                                       this->getTargetDimension ());
+			return makeNode<NumericalDerivationCombineShifted<T>> (
+			    std::move (deps), coeffs_, targetDimension (this->accessValueConst ()));
 		}
 		bool isDerivable (const Node & node) const final {
 			const auto & deps = this->dependencies ();
@@ -180,8 +182,8 @@ namespace DF {
 		}
 
 		NodeRef rebuild (NodeRefVec && deps) const final {
-			return makeNode<NumericalDerivationCombineShifted<T>> (std::move (deps), coeffs_,
-			                                                       this->getTargetDimension ());
+			return makeNode<NumericalDerivationCombineShifted<T>> (
+			    std::move (deps), coeffs_, targetDimension (this->accessValueConst ()));
 		}
 
 		const Vector<double> & getCoeffs () const noexcept { return coeffs_; }
@@ -193,10 +195,11 @@ namespace DF {
 			const auto & deps = this->dependencies ();
 			double lambda = accessValidValueConstCast<double> (deps[0]);
 			T & value = this->accessValueMutable ();
+			const auto targetDim = targetDimension (value);
 
-			value = linearAlgebraZeroValue (this->getTargetDimension ());
+			value = linearAlgebraZeroValue (targetDim);
 			for (auto i : range (coeffs_.size ())) {
-				value += linearAlgebraMakeValueWith (this->getTargetDimension (), coeffs_[i] * lambda) *
+				value += linearAlgebraMakeValueWith (targetDim, coeffs_[i] * lambda) *
 				         accessValidValueConstCast<T> (deps[i + 1]);
 			}
 		}

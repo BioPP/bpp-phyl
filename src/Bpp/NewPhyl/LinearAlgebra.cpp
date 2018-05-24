@@ -52,11 +52,25 @@ std::string to_string (const Dimension<MatrixDouble> & dim) {
 	return "(" + std::to_string (dim.rows) + "," + std::to_string (dim.cols) + ")";
 }
 
-Dimension<VectorDouble> dimensions (const VectorDouble & v) noexcept {
+Dimension<VectorDouble> dimension (const VectorDouble & v) noexcept {
 	return {v.rows ()};
 }
-Dimension<MatrixDouble> dimensions (const MatrixDouble & m) noexcept {
+Dimension<MatrixDouble> dimension (const MatrixDouble & m) noexcept {
 	return {m.rows (), m.cols ()};
+}
+
+Dimension<VectorDouble> targetDimension (const VectorDouble & v) noexcept {
+	return v.targetDimension;
+}
+Dimension<MatrixDouble> targetDimension (const MatrixDouble & m) noexcept {
+	return m.targetDimension;
+}
+
+void setTargetDimension (VectorDouble & v, const Dimension<VectorDouble> & dim) noexcept {
+	v.targetDimension = dim;
+}
+void setTargetDimension (MatrixDouble & m, const Dimension<MatrixDouble> & dim) noexcept {
+	m.targetDimension = dim;
 }
 
 // Predicates

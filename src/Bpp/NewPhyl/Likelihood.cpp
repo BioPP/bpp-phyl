@@ -57,21 +57,21 @@ namespace DF {
 
 		ConditionalLikelihoodFromSequence (NodeRefVec && deps, const LikelihoodDataDimension & dim)
 		    : Value<MatrixDouble> (std::move (deps)) {
-			this->setTargetDimension (dim);
+			setTargetDimension (this->accessValueMutable (), dim);
 		}
 
 		std::string debugInfo () const final {
 			return Value<MatrixDouble>::debugInfo () + " " +
-			       to_string (LikelihoodDataDimension (this->getTargetDimension ()));
+			       to_string (LikelihoodDataDimension (targetDimension (this->accessValueConst ())));
 		}
 		NodeRef derive (const Node &) final {
 			// Sequence is a constant.
-			return makeNode<ConstantZero<MatrixDouble>> (this->getTargetDimension ());
+			return makeNode<ConstantZero<MatrixDouble>> (targetDimension (this->accessValueConst ()));
 		}
 		bool isDerivable (const Node &) const final { return true; }
 		NodeRef rebuild (NodeRefVec && deps) const final {
-			return makeNode<ConditionalLikelihoodFromSequence> (std::move (deps),
-			                                                    this->getTargetDimension ());
+			return makeNode<ConditionalLikelihoodFromSequence> (
+			    std::move (deps), targetDimension (this->accessValueConst ()));
 		}
 
 	private:
@@ -81,7 +81,7 @@ namespace DF {
 				if (sequence == nullptr)
 					throw Exception (prettyTypeName<ConditionalLikelihoodFromSequence> () +
 					                 ": null sequence");
-				auto matDim = LikelihoodDataDimension (this->getTargetDimension ());
+				auto matDim = LikelihoodDataDimension (targetDimension (this->accessValueConst ()));
 				auto seqDim = LikelihoodDataDimension (static_cast<SizeType> (sequence->size ()),
 				                                       sequence->getAlphabet ()->getSize ());
 				if (matDim != seqDim)
@@ -126,8 +126,8 @@ namespace DF {
 			auto likelihoodVector = convertRef<Value<VectorDouble>> (this->dependency (0));
 			return makeNode<ScalarProdDouble> (
 			    {likelihoodVector->derive (node),
-			     makeNode<CWiseInverseVectorDouble> ({likelihoodVector},
-			                                         likelihoodVector->getTargetDimension ())});
+			     makeNode<CWiseInverseVectorDouble> (
+			         {likelihoodVector}, targetDimension (likelihoodVector->accessValueConst ()))});
 		}
 		bool isDerivable (const Node & node) const final { return derivableIfAllDepsAre (*this, node); }
 		NodeRef rebuild (NodeRefVec && deps) const final {

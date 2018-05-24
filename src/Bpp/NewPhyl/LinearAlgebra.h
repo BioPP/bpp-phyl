@@ -53,11 +53,29 @@ class VectorDouble : public Eigen::VectorXd {
 public:
 	using Eigen::VectorXd::Base;
 	using Eigen::VectorXd::Matrix; // Constructors
+
+  /** @brief Target dimension of this vector.
+   *
+   * This is used to indicate the expected size of the vector.
+   * This value is used for debugging: checking size after computation.
+   * This is also used for numeric simplification: returning a constant with the right size.
+   * This must be set manually (defaults to 0).
+   */
+  Dimension<VectorDouble> targetDimension {};
 };
 class MatrixDouble : public Eigen::MatrixXd {
 public:
 	using Eigen::MatrixXd::Base;
 	using Eigen::MatrixXd::Matrix; // Constructors
+
+  /** @brief Target dimension of this matrix.
+   *
+   * This is used to indicate the expected size of the vector.
+   * This value is used for debugging: checking size after computation.
+   * This is also used for numeric simplification: returning a constant with the right size.
+   * This must be set manually (defaults to 0).
+   */
+  Dimension<MatrixDouble> targetDimension {};
 };
 } // namespace bpp
 
@@ -98,7 +116,6 @@ namespace DF {
 
 	template <> NodeRef Constant<MatrixDouble>::derive (const Node & node);
 	template <> bool Constant<MatrixDouble>::isDerivable (const Node & node) const;
-
 } // namespace DF
 } // namespace bpp
 

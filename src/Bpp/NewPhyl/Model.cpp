@@ -187,16 +187,16 @@ namespace DF {
 		using Dependencies = TupleOfValues<const TransitionModel *>;
 		EquilibriumFrequenciesFromModel (NodeRefVec && deps, const Dimension<VectorDouble> & dim)
 		    : Value<VectorDouble> (std::move (deps)) {
-			this->setTargetDimension (dim);
+			setTargetDimension (this->accessValueMutable (), dim);
 		}
 		NodeRef derive (const Node & node) final {
 			assert (isDerivable (node));
-			return makeNode<ConstantZero<VectorDouble>> (this->getTargetDimension ());
+			return makeNode<ConstantZero<VectorDouble>> (targetDimension (this->accessValueConst ()));
 		}
 		bool isDerivable (const Node & node) const final { return derivableIfAllDepsAre (*this, node); }
 		NodeRef rebuild (NodeRefVec && deps) const final {
-			return makeNode<EquilibriumFrequenciesFromModel> (std::move (deps),
-			                                                  this->getTargetDimension ());
+			return makeNode<EquilibriumFrequenciesFromModel> (
+			    std::move (deps), targetDimension (this->accessValueConst ()));
 		}
 
 	private:
@@ -236,15 +236,15 @@ namespace DF {
 
 		TransitionMatrixFromModel (NodeRefVec && deps, const TransitionMatrixDimension & dim)
 		    : Value<MatrixDouble> (std::move (deps)) {
-			this->setTargetDimension (dim);
+			setTargetDimension (this->accessValueMutable (), dim);
 		}
 		std::string debugInfo () const final {
 			return Value<MatrixDouble>::debugInfo () + " " +
-			       to_string (TransitionMatrixDimension (this->getTargetDimension ()));
+			       to_string (TransitionMatrixDimension (targetDimension (this->accessValueConst ())));
 		}
 		NodeRef derive (const Node & node) final {
 			assert (isDerivable (node));
-			auto dim = TransitionMatrixDimension (this->getTargetDimension ());
+			auto dim = TransitionMatrixDimension (targetDimension (this->accessValueConst ()));
 			auto & modelNode = this->dependency (0);
 			auto & brlenNode = this->dependency (1);
 			auto dTransMat_dBrlen =
@@ -254,7 +254,8 @@ namespace DF {
 		}
 		bool isDerivable (const Node & node) const final { return derivableIfAllDepsAre (*this, node); }
 		NodeRef rebuild (NodeRefVec && deps) const final {
-			return makeNode<TransitionMatrixFromModel> (std::move (deps), this->getTargetDimension ());
+			return makeNode<TransitionMatrixFromModel> (std::move (deps),
+			                                            targetDimension (this->accessValueConst ()));
 		}
 
 	private:
@@ -277,15 +278,15 @@ namespace DF {
 		TransitionMatrixFromModelBrlenDerivative (NodeRefVec && deps,
 		                                          const TransitionMatrixDimension & dim)
 		    : Value<MatrixDouble> (std::move (deps)) {
-			this->setTargetDimension (dim);
+			setTargetDimension (this->accessValueMutable (), dim);
 		}
 		std::string debugInfo () const final {
 			return Value<MatrixDouble>::debugInfo () + " " +
-			       to_string (TransitionMatrixDimension (this->getTargetDimension ()));
+			       to_string (TransitionMatrixDimension (targetDimension (this->accessValueConst ())));
 		}
 		NodeRef derive (const Node & node) final {
 			assert (isDerivable (node));
-			auto dim = TransitionMatrixDimension (this->getTargetDimension ());
+			auto dim = TransitionMatrixDimension (targetDimension (this->accessValueConst ()));
 			auto & modelNode = this->dependency (0);
 			auto & brlenNode = this->dependency (1);
 			auto d2TransMat_dBrlen2 =
@@ -295,8 +296,8 @@ namespace DF {
 		}
 		bool isDerivable (const Node & node) const final { return derivableIfAllDepsAre (*this, node); }
 		NodeRef rebuild (NodeRefVec && deps) const final {
-			return makeNode<TransitionMatrixFromModelBrlenDerivative> (std::move (deps),
-			                                                           this->getTargetDimension ());
+			return makeNode<TransitionMatrixFromModelBrlenDerivative> (
+			    std::move (deps), targetDimension (this->accessValueConst ()));
 		}
 
 	private:
@@ -319,15 +320,15 @@ namespace DF {
 		TransitionMatrixFromModelBrlenSecondDerivative (NodeRefVec && deps,
 		                                                const TransitionMatrixDimension & dim)
 		    : Value<MatrixDouble> (std::move (deps)) {
-			this->setTargetDimension (dim);
+			setTargetDimension (this->accessValueMutable (), dim);
 		}
 		std::string debugInfo () const final {
 			return Value<MatrixDouble>::debugInfo () + " " +
-			       to_string (TransitionMatrixDimension (this->getTargetDimension ()));
+			       to_string (TransitionMatrixDimension (targetDimension (this->accessValueConst ())));
 		}
 		NodeRef rebuild (NodeRefVec && deps) const final {
-			return makeNode<TransitionMatrixFromModelBrlenSecondDerivative> (std::move (deps),
-			                                                                 this->getTargetDimension ());
+			return makeNode<TransitionMatrixFromModelBrlenSecondDerivative> (
+			    std::move (deps), targetDimension (this->accessValueConst ()));
 		}
 
 	private:

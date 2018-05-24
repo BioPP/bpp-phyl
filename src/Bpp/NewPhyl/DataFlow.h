@@ -42,7 +42,6 @@
 #ifndef BPP_NEWPHYL_DATAFLOW_H
 #define BPP_NEWPHYL_DATAFLOW_H
 
-#include <Bpp/NewPhyl/Dimension.h>
 #include <Bpp/NewPhyl/Signed.h>
 #include <Bpp/NewPhyl/Vector.h>
 #include <map>
@@ -298,24 +297,10 @@ namespace DF {
 		 */
 		T & accessValueMutable () noexcept { return value_; }
 
-		/** @brief Access the node target dimension.
-		 *
-		 * Target dimension is a node property, useful for sized data types (vector, matrices).
-		 * It is used as documentation of the node.
-		 * Target dimension can be compared to actual dimension (after computation) as a safety check.
-		 * It is also used for numerical graph simplification (creating simplified node of same size).
-		 * This property should be set by using setTargetDimension if meaningful.
-		 */
-		const Dimension<T> & getTargetDimension () const noexcept { return targetDimension_; }
-
-		/// Set the target dimension of the node.
-		void setTargetDimension (const Dimension<T> & dim) { targetDimension_ = dim; }
-
 		// Defined as default to enable specialisation
 		std::string debugInfo () const override { return Node::debugInfo (); }
 
 	protected:
-		Dimension<T> targetDimension_{};
 		T value_;
 	};
 

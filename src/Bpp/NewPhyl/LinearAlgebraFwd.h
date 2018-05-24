@@ -42,7 +42,6 @@
 #ifndef BPP_NEWPHYL_LINEARALGEBRAFWD_H
 #define BPP_NEWPHYL_LINEARALGEBRAFWD_H
 
-#include <Bpp/NewPhyl/Dimension.h>
 #include <Bpp/NewPhyl/Signed.h>
 #include <string>
 
@@ -57,8 +56,18 @@ namespace bpp {
 class VectorDouble;
 class MatrixDouble;
 
-/// @name Specialisation of Dimension<T> for VectorDouble & MatrixDouble.
+/** Store a dimension for type T.
+ * Declared but undefined by default.
+ *
+ * Specialisations should be defined in the same header declaring the T type.
+ */
+template <typename T> class Dimension;
+
+/// @name Specialisation of Dimension<T> for double, VectorDouble, MatrixDouble.
 ///@{
+template <> class Dimension<double> {
+	// Empty
+};
 template <> class Dimension<VectorDouble> {
 public:
 	SizeType size{};
@@ -102,8 +111,24 @@ std::string to_string (const Dimension<MatrixDouble> & dim);
 
 /// @name Get dimensions from objects.
 ///@{
-Dimension<VectorDouble> dimensions (const VectorDouble & v) noexcept;
-Dimension<MatrixDouble> dimensions (const MatrixDouble & m) noexcept;
+Dimension<VectorDouble> dimension (const VectorDouble & v) noexcept;
+Dimension<MatrixDouble> dimension (const MatrixDouble & m) noexcept;
+///@}
+
+/// @name Get target dimensions from objects.
+///@{
+inline Dimension<double> targetDimension (const double &) noexcept {
+	return {};
+}
+Dimension<VectorDouble> targetDimension (const VectorDouble & v) noexcept;
+Dimension<MatrixDouble> targetDimension (const MatrixDouble & m) noexcept;
+///@}
+
+/// @name Set target dimensions of objects.
+///@{
+inline void setTargetDimension (double &, const Dimension<double> &) noexcept {}
+void setTargetDimension (VectorDouble & v, const Dimension<VectorDouble> & dim) noexcept;
+void setTargetDimension (MatrixDouble & m, const Dimension<MatrixDouble> & dim) noexcept;
 ///@}
 
 // FIXME deprecate ?
