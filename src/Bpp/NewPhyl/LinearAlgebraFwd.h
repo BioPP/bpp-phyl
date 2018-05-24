@@ -42,7 +42,6 @@
 #ifndef BPP_NEWPHYL_LINEARALGEBRAFWD_H
 #define BPP_NEWPHYL_LINEARALGEBRAFWD_H
 
-#include <Bpp/NewPhyl/Signed.h>
 #include <string>
 
 /** @file Forward declaration of Eigen Vector/Matrix types.
@@ -70,16 +69,17 @@ template <> class Dimension<double> {
 };
 template <> class Dimension<VectorDouble> {
 public:
-	SizeType size{};
+	std::size_t size{};
 	constexpr Dimension () = default;
-	constexpr Dimension (SizeType size_) noexcept : size (size_) {}
+	constexpr Dimension (std::size_t size_) noexcept : size (size_) {}
 };
 template <> class Dimension<MatrixDouble> {
 public:
-	SizeType rows{};
-	SizeType cols{};
+	std::size_t rows{};
+	std::size_t cols{};
 	constexpr Dimension () = default;
-	constexpr Dimension (SizeType rows_, SizeType cols_) noexcept : rows (rows_), cols (cols_) {}
+	constexpr Dimension (std::size_t rows_, std::size_t cols_) noexcept
+	    : rows (rows_), cols (cols_) {}
 };
 ///@}
 

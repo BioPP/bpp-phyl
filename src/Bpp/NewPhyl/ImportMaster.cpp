@@ -41,6 +41,7 @@
 
 #include <Bpp/Exceptions.h>
 #include <Bpp/NewPhyl/ImportMaster.h>
+#include <Bpp/NewPhyl/Utils.h>
 #include <Bpp/Phyl/Tree/Node.h>
 #include <Bpp/Phyl/Tree/TreeTemplate.h>
 
@@ -64,7 +65,7 @@ TopologyNodeIndex TreeTemplateView::childNode (TopologyBranchIndex id) const {
 TopologyBranchIndex TreeTemplateView::fatherBranch (TopologyNodeIndex id) const {
 	return TopologyBranchIndex (id.value);
 }
-Vector<TopologyBranchIndex> TreeTemplateView::childBranches (TopologyNodeIndex id) const {
+std::vector<TopologyBranchIndex> TreeTemplateView::childBranches (TopologyNodeIndex id) const {
 	return mapToVector (tree_.getSonsId (convert (id)),
 	                    [](int i) { return TopologyBranchIndex (static_cast<std::intptr_t> (i)); });
 }

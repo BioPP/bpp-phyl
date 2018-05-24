@@ -61,12 +61,13 @@ inline double linearAlgebraMakeValueWith (const Dimension<double> &, double d) {
 	return d;
 }
 inline auto linearAlgebraMakeValueWith (const Dimension<VectorDouble> & dim, double d)
-    -> decltype (VectorDouble::Constant (dim.size, d)) {
-	return VectorDouble::Constant (dim.size, d);
+    -> decltype (VectorDouble::Constant (static_cast<int> (dim.size), d)) {
+	return VectorDouble::Constant (static_cast<int> (dim.size), d);
 }
 inline auto linearAlgebraMakeValueWith (const Dimension<MatrixDouble> & dim, double d)
-    -> decltype (MatrixDouble::Constant (dim.rows, dim.cols, d)) {
-	return MatrixDouble::Constant (dim.rows, dim.cols, d);
+    -> decltype (MatrixDouble::Constant (static_cast<int> (dim.rows), static_cast<int> (dim.cols),
+                                         d)) {
+	return MatrixDouble::Constant (static_cast<int> (dim.rows), static_cast<int> (dim.cols), d);
 }
 ///@}
 
@@ -97,12 +98,12 @@ inline double linearAlgebraZeroValue (const Dimension<double> &) {
 	return 0.;
 }
 inline auto linearAlgebraZeroValue (const Dimension<VectorDouble> & dim)
-    -> decltype (VectorDouble::Zero (dim.size)) {
-	return VectorDouble::Zero (dim.size);
+    -> decltype (VectorDouble::Zero (static_cast<int> (dim.size))) {
+	return VectorDouble::Zero (static_cast<int> (dim.size));
 }
 inline auto linearAlgebraZeroValue (const Dimension<MatrixDouble> & dim)
-    -> decltype (MatrixDouble::Zero (dim.rows, dim.cols)) {
-	return MatrixDouble::Zero (dim.rows, dim.cols);
+    -> decltype (MatrixDouble::Zero (static_cast<int> (dim.rows), static_cast<int> (dim.cols))) {
+	return MatrixDouble::Zero (static_cast<int> (dim.rows), static_cast<int> (dim.cols));
 }
 ///@}
 
@@ -117,12 +118,12 @@ inline double linearAlgebraOneValue (const Dimension<double> &) {
 	return 1.;
 }
 inline auto linearAlgebraOneValue (const Dimension<VectorDouble> & dim)
-    -> decltype (VectorDouble::Ones (dim.size)) {
-	return VectorDouble::Ones (dim.size);
+    -> decltype (VectorDouble::Ones (static_cast<int> (dim.size))) {
+	return VectorDouble::Ones (static_cast<int> (dim.size));
 }
 inline auto linearAlgebraOneValue (const Dimension<MatrixDouble> & dim)
-    -> decltype (MatrixDouble::Ones (dim.rows, dim.cols)) {
-	return MatrixDouble::Ones (dim.rows, dim.cols);
+    -> decltype (MatrixDouble::Ones (static_cast<int> (dim.rows), static_cast<int> (dim.cols))) {
+	return MatrixDouble::Ones (static_cast<int> (dim.rows), static_cast<int> (dim.cols));
 }
 ///@}
 

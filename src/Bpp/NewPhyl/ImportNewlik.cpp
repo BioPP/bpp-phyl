@@ -41,6 +41,7 @@
 
 #include <Bpp/Exceptions.h>
 #include <Bpp/NewPhyl/ImportNewlik.h>
+#include <Bpp/NewPhyl/Utils.h>
 #include <Bpp/Phyl/Tree/PhyloTree.h>
 
 namespace bpp {
@@ -66,7 +67,7 @@ TopologyNodeIndex PhyloTreeView::childNode (TopologyBranchIndex id) const {
 TopologyBranchIndex PhyloTreeView::fatherBranch (TopologyNodeIndex id) const {
 	return convertBranch (tree_.getEdgeIndex (tree_.getEdgeToFather (convertNode (id))));
 }
-Vector<TopologyBranchIndex> PhyloTreeView::childBranches (TopologyNodeIndex id) const {
+std::vector<TopologyBranchIndex> PhyloTreeView::childBranches (TopologyNodeIndex id) const {
 	return mapToVector (tree_.getBranches (convertNode (id)),
 	                    [](PhyloTree::EdgeIndex i) { return convertBranch (i); });
 }

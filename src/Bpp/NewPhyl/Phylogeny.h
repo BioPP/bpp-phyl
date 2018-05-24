@@ -45,11 +45,10 @@
 #include <Bpp/NewPhyl/DataFlow.h>
 #include <Bpp/NewPhyl/DataFlowTemplates.h>
 #include <Bpp/NewPhyl/LinearAlgebraFwd.h>
-#include <Bpp/NewPhyl/Signed.h>
-#include <Bpp/NewPhyl/Vector.h>
 #include <cstdint> // intptr_t
 #include <map>
 #include <string>
+#include <vector>
 
 namespace bpp {
 
@@ -91,7 +90,7 @@ public:
 	virtual TopologyNodeIndex fatherNode (TopologyBranchIndex id) const = 0;
 	virtual TopologyNodeIndex childNode (TopologyBranchIndex id) const = 0;
 	virtual TopologyBranchIndex fatherBranch (TopologyNodeIndex id) const = 0;
-	virtual Vector<TopologyBranchIndex> childBranches (TopologyNodeIndex id) const = 0;
+	virtual std::vector<TopologyBranchIndex> childBranches (TopologyNodeIndex id) const = 0;
 };
 
 /// Interface: Can access Branch length fixed value by branch index.
@@ -113,7 +112,7 @@ class ModelNodeAccess {
 public:
 	virtual ~ModelNodeAccess () = default;
 	virtual DF::ValueRef<const TransitionModel *> getModelNode (TopologyBranchIndex id) const = 0;
-	virtual SizeType getNbStates () const = 0; // tree constant
+	virtual std::size_t getNbStates () const = 0; // tree constant
 };
 
 /// Interface: Can access Sequence names at leaves.
@@ -128,7 +127,7 @@ class SequenceNodeAccess {
 public:
 	virtual ~SequenceNodeAccess () = default;
 	virtual DF::ValueRef<const Sequence *> getSequenceNode (TopologyNodeIndex id) const = 0;
-	virtual SizeType getNbSites () const = 0;
+	virtual std::size_t getNbSites () const = 0;
 };
 
 /** ModelNodeAccess implementation using one model node for all branches.
@@ -137,7 +136,7 @@ class SameModelForAllBranches : public ModelNodeAccess {
 public:
 	SameModelForAllBranches (DF::ValueRef<const TransitionModel *> model);
 	DF::ValueRef<const TransitionModel *> getModelNode (TopologyBranchIndex) const override;
-	SizeType getNbStates () const override;
+	std::size_t getNbStates () const override;
 
 private:
 	DF::ValueRef<const TransitionModel *> model_;
@@ -169,7 +168,7 @@ public:
 	SequenceNodesInilialisedFromNames (const SequenceNameValueAccess & names,
 	                                   const SiteContainer & sequences);
 	DF::ValueRef<const Sequence *> getSequenceNode (TopologyNodeIndex id) const override;
-	SizeType getNbSites () const override;
+	std::size_t getNbSites () const override;
 
 private:
 	const SequenceNameValueAccess & names_;

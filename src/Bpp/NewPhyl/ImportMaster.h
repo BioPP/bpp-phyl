@@ -43,6 +43,7 @@
 #define BPP_NEWPHYL_IMPORTMASTER_H
 
 #include <Bpp/NewPhyl/Phylogeny.h>
+#include <vector>
 
 namespace bpp {
 
@@ -67,7 +68,7 @@ public:
 	TopologyNodeIndex fatherNode (TopologyBranchIndex id) const final;
 	TopologyNodeIndex childNode (TopologyBranchIndex id) const final;
 	TopologyBranchIndex fatherBranch (TopologyNodeIndex id) const final;
-	Vector<TopologyBranchIndex> childBranches (TopologyNodeIndex id) const final;
+	std::vector<TopologyBranchIndex> childBranches (TopologyNodeIndex id) const final;
 
 	// BranchLengthValueAccess
 	double getBranchLengthValue (TopologyBranchIndex id) const final;

@@ -54,9 +54,9 @@
 #include <Bpp/NewPhyl/DataFlow.h>
 #include <Bpp/NewPhyl/DataFlowInternal.h>
 #include <Bpp/NewPhyl/IntegerRange.h>
-#include <Bpp/NewPhyl/Signed.h>
 #include <algorithm>
 #include <cassert>
+#include <cstddef>
 #include <functional>
 #include <type_traits>
 #include <typeinfo>
@@ -121,11 +121,12 @@ namespace DF {
 	/// @name Error functions for dependency check
 	///@{
 	[[noreturn]] void failureDependencyNumberMismatch (const std::type_info & contextNodeType,
-	                                                   SizeType expectedSize, SizeType givenSize);
+	                                                   std::size_t expectedSize,
+	                                                   std::size_t givenSize);
 	[[noreturn]] void failureEmptyDependency (const std::type_info & contextNodeType,
-	                                          SizeType depIndex);
+	                                          std::size_t depIndex);
 	[[noreturn]] void failureDependencyTypeMismatch (const std::type_info & contextNodeType,
-	                                                 SizeType depIndex,
+	                                                 std::size_t depIndex,
 	                                                 const std::type_info & expectedType,
 	                                                 const std::type_info & givenNodeType);
 	///@}
@@ -137,7 +138,7 @@ namespace DF {
 
 	/// Checks the size of a dependency vector, throws if mismatch.
 	void checkDependencyVectorSize (const std::type_info & contextNodeType, const NodeRefVec & deps,
-	                                SizeType expectedSize);
+	                                std::size_t expectedSize);
 
 	/// Checks that all dependencies are not null, throws if not.
 	void checkDependenciesNotNull (const std::type_info & contextNodeType, const NodeRefVec & deps);
@@ -145,7 +146,7 @@ namespace DF {
 	/// Checks that deps[index] is a Value<T> node, throws if not.
 	template <typename T>
 	void checkNthDependencyIsValue (const std::type_info & contextNodeType, const NodeRefVec & deps,
-	                                SizeType index) {
+	                                std::size_t index) {
 		const auto & dep = *deps[index];
 		if (!isValueNode<T> (dep)) {
 			failureDependencyTypeMismatch (contextNodeType, index, typeid (Value<T>), typeid (dep));
@@ -155,7 +156,7 @@ namespace DF {
 	/// Check that deps[start, end[ contains Value<T> nodes, throws if not
 	template <typename T>
 	void checkDependencyRangeIsValue (const std::type_info & contextNodeType, const NodeRefVec & deps,
-	                                  SizeType start, SizeType end) {
+	                                  std::size_t start, std::size_t end) {
 		for (auto i : range (start, end))
 			checkNthDependencyIsValue<T> (contextNodeType, deps, i);
 	}
@@ -168,25 +169,25 @@ namespace DF {
 	// Check that dependency types are T from offset to end.
 	template <typename T>
 	void checkDependencyPatternImpl (const std::type_info & contextNodeType, const NodeRefVec & deps,
-	                                 SizeType offset, ReductionOfValue<T>) {
+	                                 std::size_t offset, ReductionOfValue<T>) {
 		checkDependencyRangeIsValue<T> (contextNodeType, deps, offset, deps.size ());
 	}
 
 	// Check that dependency types are n T from offset (assumes vector size is >= offset + n).
 	template <typename T>
 	void checkDependencyPatternImpl (const std::type_info & contextNodeType, const NodeRefVec & deps,
-	                                 SizeType offset, ArrayOfValues<T> tag) {
+	                                 std::size_t offset, ArrayOfValues<T> tag) {
 		checkDependencyRangeIsValue<T> (contextNodeType, deps, offset, offset + tag.n);
 	}
 
 	// TupleOfValues recursion base case
-	inline void checkDependencyPatternImpl (const std::type_info &, const NodeRefVec &, SizeType,
+	inline void checkDependencyPatternImpl (const std::type_info &, const NodeRefVec &, std::size_t,
 	                                        TupleOfValues<>) {}
 
 	// TupleOfValues recursion iteration case (assumes vector size is >= offset + nb_of_types).
 	template <typename FirstType, typename... OtherTypes>
 	void checkDependencyPatternImpl (const std::type_info & contextNodeType, const NodeRefVec & deps,
-	                                 SizeType offset, TupleOfValues<FirstType, OtherTypes...>) {
+	                                 std::size_t offset, TupleOfValues<FirstType, OtherTypes...>) {
 		checkNthDependencyIsValue<FirstType> (contextNodeType, deps, offset);
 		checkDependencyPatternImpl (contextNodeType, deps, offset + 1, TupleOfValues<OtherTypes...>{});
 	}
@@ -252,7 +253,7 @@ namespace DF {
 		 * Takes a single "function" f(ResultType & value, const T0&, const T1&, ...).
 		 * TODO doc
 		 */
-		template <typename ResultType, typename FunctionType, typename... Types, SizeType... Indexes>
+		template <typename ResultType, typename FunctionType, typename... Types, std::size_t... Indexes>
 		void callWithValuesWithIndexSequence (ResultType & value, const NodeRefVec & dependencies,
 		                                      TupleOfValues<Types...>, Cpp14::IndexSequence<Indexes...>,
 		                                      FunctionType && function) {

@@ -220,8 +220,8 @@ public:
 	}
 
 	// Debug introspection FIXME
-	Vector<DF::NamedNodeRef> getAllNamedNodes (const std::string & funcName) const {
-		Vector<DF::NamedNodeRef> namedNodes;
+	std::vector<DF::NamedNodeRef> getAllNamedNodes (const std::string & funcName) const {
+		std::vector<DF::NamedNodeRef> namedNodes;
 		namedNodes.emplace_back (DF::NamedNodeRef{dfFunction_, funcName});
 		for (auto & derivative : firstOrderDerivativeNodes_)
 			namedNodes.emplace_back (

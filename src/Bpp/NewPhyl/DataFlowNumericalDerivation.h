@@ -44,6 +44,7 @@
 
 #include <Bpp/NewPhyl/DataFlow.h>
 #include <Bpp/NewPhyl/LinearAlgebraFwd.h>
+#include <vector>
 
 namespace bpp {
 namespace DF {
@@ -94,15 +95,15 @@ namespace DF {
 	template <typename T> class NumericalDerivationCombineShifted;
 
 	template <> struct Builder<NumericalDerivationCombineShifted<double>> {
-		static ValueRef<double> make (NodeRefVec && deps, const Vector<double> & coeffs,
+		static ValueRef<double> make (NodeRefVec && deps, const std::vector<double> & coeffs,
 		                              const Dimension<double> & targetDim = {});
 	};
 	template <> struct Builder<NumericalDerivationCombineShifted<VectorDouble>> {
-		static ValueRef<VectorDouble> make (NodeRefVec && deps, const Vector<double> & coeffs,
+		static ValueRef<VectorDouble> make (NodeRefVec && deps, const std::vector<double> & coeffs,
 		                                    const Dimension<VectorDouble> & targetDim);
 	};
 	template <> struct Builder<NumericalDerivationCombineShifted<MatrixDouble>> {
-		static ValueRef<MatrixDouble> make (NodeRefVec && deps, const Vector<double> & coeffs,
+		static ValueRef<MatrixDouble> make (NodeRefVec && deps, const std::vector<double> & coeffs,
 		                                    const Dimension<MatrixDouble> & targetDim);
 	};
 	///@}

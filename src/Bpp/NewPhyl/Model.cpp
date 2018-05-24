@@ -127,18 +127,18 @@ namespace DF {
 
 	Model::~Model () = default;
 
-	SizeType Model::nbParameters () const noexcept { return this->dependencies ().size (); }
-	ValueRef<double> Model::getParameter (SizeType index) {
+	std::size_t Model::nbParameters () const noexcept { return this->dependencies ().size (); }
+	ValueRef<double> Model::getParameter (std::size_t index) {
 		assert (0 <= index);
 		assert (index < this->nbDependencies ());
 		return convertRef<DF::Value<double>> (this->dependency (index));
 	}
 	ValueRef<double> Model::getParameter (const std::string & name) {
 		return getParameter (
-		    static_cast<SizeType> (model_->getParameters ().whichParameterHasName (name)));
+		    static_cast<std::size_t> (model_->getParameters ().whichParameterHasName (name)));
 	}
-	const std::string & Model::getParameterName (SizeType index) {
-		return model_->getParameters ()[static_cast<std::size_t> (index)].getName ();
+	const std::string & Model::getParameterName (std::size_t index) {
+		return model_->getParameters ()[index].getName ();
 	}
 
 	std::string Model::description () const { return "Model(" + model_->getName () + ")"; }

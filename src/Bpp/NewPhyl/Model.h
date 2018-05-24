@@ -47,7 +47,6 @@
 #include <Bpp/NewPhyl/DataFlowTemplates.h>
 #include <Bpp/NewPhyl/LinearAlgebraFwd.h>
 #include <Bpp/NewPhyl/PhylogenyTypes.h>
-#include <Bpp/NewPhyl/Signed.h>
 #include <map>
 #include <memory>
 #include <string>
@@ -130,10 +129,10 @@ namespace DF {
 		~Model ();
 
 		// Access some node information TODO namespacing semantics !
-		SizeType nbParameters () const noexcept;
-		ValueRef<double> getParameter (SizeType index);
+		std::size_t nbParameters () const noexcept;
+		ValueRef<double> getParameter (std::size_t index);
 		ValueRef<double> getParameter (const std::string & name);
-		const std::string & getParameterName (SizeType index);
+		const std::string & getParameterName (std::size_t index);
 
 		std::string description () const final;
 		std::string debugInfo () const final;
@@ -170,7 +169,7 @@ namespace DF {
 	// (model) -> Vector of freqs
 	class EquilibriumFrequenciesFromModel;
 	template <> struct Builder<EquilibriumFrequenciesFromModel> {
-    // Dim == nbStates FIXME add a dim type for Equ Freq ?
+		// Dim == nbStates FIXME add a dim type for Equ Freq ?
 		static ValueRef<VectorDouble> make (NodeRefVec && deps, const Dimension<VectorDouble> & dim);
 	};
 

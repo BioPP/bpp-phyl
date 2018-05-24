@@ -142,7 +142,8 @@ namespace {
 	void dotEdgePretty (std::ostream & os, const DF::Node * from, const DF::Node * to) {
 		dotEdgePretty (os, from, to, "[color=blue]");
 	}
-	void dotEdgePretty (std::ostream & os, const DF::Node * from, const DF::Node * to, SizeType num) {
+	void dotEdgePretty (std::ostream & os, const DF::Node * from, const DF::Node * to,
+	                    std::size_t num) {
 		dotEdgePretty (os, from, to, "[color=blue,label=\"" + std::to_string (num) + "\"]");
 	}
 	void dotEdgePretty (std::ostream & os, const DF::NamedNodeRef & from, const DF::Node * to) {
@@ -170,7 +171,7 @@ void debugTree (std::ostream & os, const TreeTopologyInterface & tree) {
 
 // Print the DF dag structure (in blue).
 // Takes list of entry points.
-void debugDagStructure (std::ostream & os, Vector<const DF::Node *> entryPoints,
+void debugDagStructure (std::ostream & os, std::vector<const DF::Node *> entryPoints,
                         DF::DebugOptions opt) {
 	std::queue<const DF::Node *> nodesToVisit;
 	std::unordered_set<const DF::Node *> nodesAlreadyVisited;
@@ -211,9 +212,9 @@ void debugDagStructure (std::ostream & os, Vector<const DF::Node *> entryPoints,
 
 // Print name tags pointing to nodes.
 // Returns list of nodes.
-Vector<const DF::Node *> debugNamedNodeRefs (std::ostream & os,
-                                             const Vector<DF::NamedNodeRef> & namedNodes) {
-	Vector<const DF::Node *> nodes;
+std::vector<const DF::Node *>
+debugNamedNodeRefs (std::ostream & os, const std::vector<DF::NamedNodeRef> & namedNodes) {
+	std::vector<const DF::Node *> nodes;
 	for (auto & namedNodeRef : namedNodes) {
 		dotNodePretty (os, namedNodeRef);
 		dotEdgePretty (os, namedNodeRef, namedNodeRef.nodeRef.get ());
@@ -232,13 +233,13 @@ void debugDag (const std::string & filename, const DF::Node & entryPoint, DF::De
 	debugDag (file, entryPoint, opt);
 }
 
-void debugDag (std::ostream & os, const Vector<DF::NamedNodeRef> & namedNodes,
+void debugDag (std::ostream & os, const std::vector<DF::NamedNodeRef> & namedNodes,
                DF::DebugOptions opt) {
 	os << "digraph {\n";
 	debugDagStructure (os, debugNamedNodeRefs (os, namedNodes), opt);
 	os << "}\n";
 }
-void debugDag (const std::string & filename, const Vector<DF::NamedNodeRef> & namedNodes,
+void debugDag (const std::string & filename, const std::vector<DF::NamedNodeRef> & namedNodes,
                DF::DebugOptions opt) {
 	std::ofstream file{filename};
 	debugDag (file, namedNodes, opt);

@@ -82,8 +82,8 @@ namespace DF {
 					throw Exception (prettyTypeName<ConditionalLikelihoodFromSequence> () +
 					                 ": null sequence");
 				auto matDim = LikelihoodDataDimension (targetDimension (this->accessValueConst ()));
-				auto seqDim = LikelihoodDataDimension (static_cast<SizeType> (sequence->size ()),
-				                                       sequence->getAlphabet ()->getSize ());
+				auto seqDim =
+				    LikelihoodDataDimension (sequence->size (), sequence->getAlphabet ()->getSize ());
 				if (matDim != seqDim)
 					throw Exception (prettyTypeName<ConditionalLikelihoodFromSequence> () +
 					                 ": size mismatch: sequence " + to_string (seqDim) + " -> " +
@@ -91,8 +91,7 @@ namespace DF {
 				// Put 1s at the right places, 0s elsewhere
 				condLikBySite = linearAlgebraZeroValue (matDim);
 				for (auto siteIndex : range (condLikBySite.cols ())) {
-					auto siteValue =
-					    static_cast<SizeType> (sequence->getValue (static_cast<std::size_t> (siteIndex)));
+					auto siteValue = sequence->getValue (static_cast<std::size_t> (siteIndex));
 					condLikBySite (siteValue, siteIndex) = 1.;
 				}
 				/* FIXME use correct way to get initial state.

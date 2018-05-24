@@ -43,8 +43,8 @@
 #define BPP_NEWPHYL_PHYLOGENYTYPES_H
 
 #include <Bpp/NewPhyl/LinearAlgebraFwd.h>
-#include <Bpp/NewPhyl/Signed.h>
 #include <cassert>
+#include <cstddef>
 #include <string>
 
 namespace bpp {
@@ -56,27 +56,27 @@ using LikelihoodData = MatrixDouble;
 
 // defines a Dimension<MatrixDouble> compatible struct.
 struct LikelihoodDataDimension : public Dimension<MatrixDouble> {
-	LikelihoodDataDimension (SizeType nbSitesArg, SizeType nbStatesArg) noexcept
+	LikelihoodDataDimension (std::size_t nbSitesArg, std::size_t nbStatesArg) noexcept
 	    : Dimension<MatrixDouble> (nbStatesArg, nbSitesArg) {}
 	LikelihoodDataDimension (const Dimension<MatrixDouble> & matDim) noexcept
 	    : Dimension<MatrixDouble> (matDim) {}
 
-	SizeType nbStates () const noexcept { return rows; }
-	SizeType nbSites () const noexcept { return cols; }
+	std::size_t nbStates () const noexcept { return rows; }
+	std::size_t nbSites () const noexcept { return cols; }
 };
 std::string to_string (const LikelihoodDataDimension & dim);
 
 // defines a Dimension<MatrixDouble> compatible struct.
 using TransitionMatrix = MatrixDouble;
 struct TransitionMatrixDimension : public Dimension<MatrixDouble> {
-	TransitionMatrixDimension (SizeType nbStatesArg) noexcept
+	TransitionMatrixDimension (std::size_t nbStatesArg) noexcept
 	    : Dimension<MatrixDouble> (nbStatesArg, nbStatesArg) {}
 	TransitionMatrixDimension (const Dimension<MatrixDouble> & matDim) noexcept
 	    : Dimension<MatrixDouble> (matDim) {
 		assert (rows == cols);
 	}
 
-	SizeType nbStates () const noexcept { return rows; }
+	std::size_t nbStates () const noexcept { return rows; }
 };
 std::string to_string (const TransitionMatrixDimension & dim);
 

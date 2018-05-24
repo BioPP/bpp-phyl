@@ -51,7 +51,7 @@
  * FIXME it should be removed when moving to c++14.
  */
 
-#include <Bpp/NewPhyl/Signed.h>
+#include <cstddef>
 
 /* Implement std::index_sequence and std::index_sequence_for.
  */
@@ -59,40 +59,39 @@
 #include <utility> // integer_sequence
 namespace bpp {
 namespace Cpp14 {
-	template <SizeType... Is> using IndexSequence = std::integer_sequence<SizeType, Is...>;
-	template <SizeType N> using MakeIndexSequence = std::make_integer_sequence<SizeType, N>;
-	template <typename... Types>
-	using IndexSequenceFor = MakeIndexSequence<static_cast<SizeType> (sizeof...(Types))>;
+	template <std::size_t... Is> using IndexSequence = std::integer_sequence<std::size_t, Is...>;
+	template <std::size_t N> using MakeIndexSequence = std::make_integer_sequence<std::size_t, N>;
+	template <typename... Types> using IndexSequenceFor = MakeIndexSequence<sizeof...(Types)>;
 } // end namespace Cpp14
 } // end namespace bpp
 #else
 namespace bpp {
 namespace Cpp14 {
-	template <SizeType... Is> struct IndexSequence {
-		static constexpr SizeType size (void) { return sizeof...(Is); }
+	template <std::size_t... Is> struct IndexSequence {
+		static constexpr std::size_t size (void) { return sizeof...(Is); }
 	};
 
 	namespace detail {
 		// Seq1<0, ..., N-1> + Seq2<0, ..., M-1> => Seq<0, ..., N+M-1>
 		template <typename Seq1, typename Seq2> struct ConcatImpl;
-		template <SizeType... Is1, SizeType... Is2>
+		template <std::size_t... Is1, std::size_t... Is2>
 		struct ConcatImpl<IndexSequence<Is1...>, IndexSequence<Is2...>> {
 			using Type = IndexSequence<Is1..., (sizeof...(Is1) + Is2)...>;
 		};
 		template <typename Seq1, typename Seq2> using Concat = typename ConcatImpl<Seq1, Seq2>::Type;
 
 		// N => Seq<0, ..., N-1>
-		template <SizeType N> struct MakeIndexSequenceImpl;
-		template <SizeType N> using MakeIndexSequence = typename MakeIndexSequenceImpl<N>::Type;
+		template <std::size_t N> struct MakeIndexSequenceImpl;
+		template <std::size_t N> using MakeIndexSequence = typename MakeIndexSequenceImpl<N>::Type;
 
 		// Recursive implementation in log(n)
-		template <SizeType N> struct MakeIndexSequenceImpl {
+		template <std::size_t N> struct MakeIndexSequenceImpl {
 			using Type = Concat<MakeIndexSequence<N / 2>, MakeIndexSequence<N - N / 2>>;
 		};
 		template <> struct MakeIndexSequenceImpl<0> { using Type = IndexSequence<>; };
 		template <> struct MakeIndexSequenceImpl<1> { using Type = IndexSequence<0>; };
 	} // namespace detail
-	template <SizeType N> using MakeIndexSequence = detail::MakeIndexSequence<N>;
+	template <std::size_t N> using MakeIndexSequence = detail::MakeIndexSequence<N>;
 	template <typename... Types> using IndexSequenceFor = MakeIndexSequence<sizeof...(Types)>;
 } // end namespace Cpp14
 } // end namespace bpp

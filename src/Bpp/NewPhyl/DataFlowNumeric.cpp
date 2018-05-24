@@ -46,6 +46,7 @@
 #include <Bpp/NewPhyl/IntegerRange.h>
 #include <Bpp/NewPhyl/LinearAlgebra.h>
 #include <Bpp/NewPhyl/LinearAlgebraUtils.h>
+#include <Bpp/NewPhyl/Utils.h>
 #include <algorithm>
 #include <memory>
 #include <string>

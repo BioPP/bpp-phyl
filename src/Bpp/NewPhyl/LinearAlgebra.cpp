@@ -53,10 +53,10 @@ std::string to_string (const Dimension<MatrixDouble> & dim) {
 }
 
 Dimension<VectorDouble> dimension (const VectorDouble & v) noexcept {
-	return {v.rows ()};
+	return {static_cast<std::size_t> (v.rows ())};
 }
 Dimension<MatrixDouble> dimension (const MatrixDouble & m) noexcept {
-	return {m.rows (), m.cols ()};
+	return {static_cast<std::size_t> (m.rows ()), static_cast<std::size_t> (m.cols ())};
 }
 
 Dimension<VectorDouble> targetDimension (const VectorDouble & v) noexcept {

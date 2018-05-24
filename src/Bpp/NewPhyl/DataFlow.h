@@ -42,13 +42,13 @@
 #ifndef BPP_NEWPHYL_DATAFLOW_H
 #define BPP_NEWPHYL_DATAFLOW_H
 
-#include <Bpp/NewPhyl/Signed.h>
-#include <Bpp/NewPhyl/Vector.h>
+#include <cstddef>
 #include <map>
 #include <memory>
 #include <string>   // description
 #include <typeinfo> // convertRef
 #include <utility>
+#include <vector>
 
 /** @file Defines the basic types of data flow nodes.
  */
@@ -63,7 +63,7 @@ namespace DF {
 	template <typename T> using ValueRef = std::shared_ptr<Value<T>>;
 
 	/// Alias for a dependency vector (of NodeRef).
-	using NodeRefVec = Vector<NodeRef>;
+	using NodeRefVec = std::vector<NodeRef>;
 
 	/** @brief Base data flow Node class.
 	 *
@@ -114,9 +114,9 @@ namespace DF {
 		// Accessors
 		bool isValid () const noexcept { return isValid_; }
 		const NodeRefVec & dependencies () const noexcept { return dependencyNodes_; }
-		const Vector<Node *> & dependentNodes () const noexcept { return dependentNodes_; }
-		SizeType nbDependencies () const noexcept { return dependencyNodes_.size (); }
-		const NodeRef & dependency (SizeType i) const noexcept { return dependencyNodes_[i]; }
+		const std::vector<Node *> & dependentNodes () const noexcept { return dependentNodes_; }
+		std::size_t nbDependencies () const noexcept { return dependencyNodes_.size (); }
+		const NodeRef & dependency (std::size_t i) const noexcept { return dependencyNodes_[i]; }
 
 		/// Node string description (default = type name): shorter name for in debug.
 		virtual std::string description () const;
@@ -193,8 +193,8 @@ namespace DF {
 		void unregisterNode (const Node * n);
 
 	private:
-		NodeRefVec dependencyNodes_{};    // Nodes that we depend on.
-		Vector<Node *> dependentNodes_{}; // Nodes that depend on us.
+		NodeRefVec dependencyNodes_{};         // Nodes that we depend on.
+		std::vector<Node *> dependentNodes_{}; // Nodes that depend on us.
 		bool isValid_{false};
 	};
 
@@ -324,7 +324,7 @@ namespace DF {
 	template <typename... Types> struct TupleOfValues {};
 
 	/// Type tag: Exactly n arguments of type Value<T>.
-	template <typename T> struct ArrayOfValues { SizeType n; };
+	template <typename T> struct ArrayOfValues { std::size_t n; };
 	///@}
 
 	// Error function

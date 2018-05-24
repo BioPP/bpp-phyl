@@ -44,6 +44,7 @@
 #include <Bpp/NewPhyl/Model.h>
 #include <Bpp/NewPhyl/Phylogeny.h>
 #include <Bpp/NewPhyl/PhylogenyTypes.h>
+#include <Bpp/NewPhyl/Utils.h>
 #include <Bpp/Phyl/Model/SubstitutionModel.h>
 #include <Bpp/Seq/Container/SiteContainer.h>
 #include <utility>
@@ -71,8 +72,8 @@ DF::ValueRef<const TransitionModel *>
 SameModelForAllBranches::getModelNode (TopologyBranchIndex) const {
 	return model_;
 }
-SizeType SameModelForAllBranches::getNbStates () const {
-	return static_cast<SizeType> (model_->getValue ()->getNumberOfStates ());
+std::size_t SameModelForAllBranches::getNbStates () const {
+	return model_->getValue ()->getNumberOfStates ();
 }
 
 BranchLengthsInitializedFromValues::BranchLengthsInitializedFromValues (
@@ -109,8 +110,8 @@ SequenceNodesInilialisedFromNames::getSequenceNode (TopologyNodeIndex id) const 
 		return sequence;
 	}
 }
-SizeType SequenceNodesInilialisedFromNames::getNbSites () const {
-	return static_cast<SizeType> (sequences_.getNumberOfSites ());
+std::size_t SequenceNodesInilialisedFromNames::getNbSites () const {
+	return sequences_.getNumberOfSites ();
 }
 
 // DF graph construction functions

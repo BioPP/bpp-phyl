@@ -137,7 +137,7 @@ TEST_CASE("optimizer test")
 
   std::cout << "(x, y) == (" << xp.getValue() << ", " << yp.getValue() << ")\n";
 
-  debugDag("df_debug", dfFunc.getAllNamedNodes("f"), DebugOptions::ShowDependencyIndex);
+  bpp::debugDag("df_debug", dfFunc.getAllNamedNodes("f"), DebugOptions::ShowDependencyIndex);
 
   CHECK(doctest::Approx(xp.getValue()) == 0.);
   CHECK(doctest::Approx(yp.getValue()) == 3.);

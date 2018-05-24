@@ -44,6 +44,7 @@
 #include <Bpp/NewPhyl/DataFlowInternal.h>
 #include <Bpp/NewPhyl/DataFlowTemplates.h>
 #include <Bpp/NewPhyl/Debug.h>
+#include <Bpp/NewPhyl/Utils.h>
 #include <algorithm>
 #include <stack>
 #include <typeinfo>
@@ -65,18 +66,18 @@ namespace DF {
 
 	// Error functions DataFlowInternal.h
 	void failureDependencyNumberMismatch (const std::type_info & contextNodeType,
-	                                      SizeType expectedSize, SizeType givenSize) {
+	                                      std::size_t expectedSize, std::size_t givenSize) {
 		throw Exception (prettyTypeName (contextNodeType) + ": expected " +
 		                 std::to_string (expectedSize) + " dependencies, got " +
 		                 std::to_string (givenSize));
 	}
 
-	void failureEmptyDependency (const std::type_info & contextNodeType, SizeType depIndex) {
+	void failureEmptyDependency (const std::type_info & contextNodeType, std::size_t depIndex) {
 		throw Exception (prettyTypeName (contextNodeType) + ": " + std::to_string (depIndex) +
 		                 "-th dependency is empty (nullptr)");
 	}
 
-	void failureDependencyTypeMismatch (const std::type_info & contextNodeType, SizeType depIndex,
+	void failureDependencyTypeMismatch (const std::type_info & contextNodeType, std::size_t depIndex,
 	                                    const std::type_info & expectedType,
 	                                    const std::type_info & givenNodeType) {
 		throw Exception (prettyTypeName (contextNodeType) + ": expected class derived from " +
@@ -85,7 +86,7 @@ namespace DF {
 	}
 
 	void checkDependencyVectorSize (const std::type_info & contextNodeType, const NodeRefVec & deps,
-	                                SizeType expectedSize) {
+	                                std::size_t expectedSize) {
 		auto size = deps.size ();
 		if (size != expectedSize) {
 			failureDependencyNumberMismatch (contextNodeType, expectedSize, size);

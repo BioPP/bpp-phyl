@@ -43,12 +43,12 @@
 #ifndef BPP_NEWPHYL_DEBUG_H
 #define BPP_NEWPHYL_DEBUG_H
 
-#include <Bpp/NewPhyl/Vector.h>
 #include <iosfwd>
 #include <string>
 #include <typeindex>
 #include <typeinfo>
 #include <utility>
+#include <vector>
 
 #include <memory>
 
@@ -110,9 +110,9 @@ void debugDag (const std::string & filename, const DF::Node & entryPoint,
                DF::DebugOptions opt = DF::DebugOptions::None);
 
 // Output debugDag + named node references (tags) to nodes.
-void debugDag (std::ostream & os, const Vector<DF::NamedNodeRef> & namedNodes,
+void debugDag (std::ostream & os, const std::vector<DF::NamedNodeRef> & namedNodes,
                DF::DebugOptions opt = DF::DebugOptions::None);
-void debugDag (const std::string & filename, const Vector<DF::NamedNodeRef> & namedNodes,
+void debugDag (const std::string & filename, const std::vector<DF::NamedNodeRef> & namedNodes,
                DF::DebugOptions opt = DF::DebugOptions::None);
 // FIXME move to bpp::ParameterList
 } // namespace bpp
