@@ -129,7 +129,6 @@ namespace DF {
 
 	std::size_t Model::nbParameters () const noexcept { return this->dependencies ().size (); }
 	ValueRef<double> Model::getParameter (std::size_t index) {
-		assert (0 <= index);
 		assert (index < this->nbDependencies ());
 		return convertRef<DF::Value<double>> (this->dependency (index));
 	}
@@ -161,7 +160,7 @@ namespace DF {
 		auto & modelParams = model_->getParameters ();
 		for (auto i : range (nbParameters ())) {
 			auto & v = accessValidValueConstCast<double> (this->dependency (i));
-			auto & p = modelParams[static_cast<std::size_t> (i)];
+			auto & p = modelParams[i];
 			if (p.getValue () != v)
 				model_->setParameterValue (model_->getParameterNameWithoutNamespace (p.getName ()), v);
 		}
