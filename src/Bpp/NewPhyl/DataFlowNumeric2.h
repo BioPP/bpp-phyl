@@ -47,11 +47,17 @@
 #include <string>
 
 namespace bpp {
+/******************************************************************************
+ * Dimension.
+ */
 
 /// Basic matrix dimension type
 struct MatrixDimension {
 	Eigen::Index rows{};
 	Eigen::Index cols{};
+
+	MatrixDimension () = default;
+	MatrixDimension (Eigen::Index rows, Eigen::Index cols) : rows (rows), cols (cols) {}
 };
 
 /** Store a dimension for type T.
@@ -70,18 +76,38 @@ template <> struct Dimension<double> {};
  * Redirect to MatrixDimension for all eigen matrix variants.
  */
 template <typename T, Eigen::Index Rows, Eigen::Index Cols>
-struct Dimension<Eigen::Matrix<T, Rows, Cols>> : MatrixDimension {};
+struct Dimension<Eigen::Matrix<T, Rows, Cols>> : MatrixDimension {
+	using MatrixDimension; // FIXME does not work nicely...
+};
+
+/******************************************************************************
+ * Numerical functions.
+ */
 
 // Create a zero value of the given dimension
-inline double make_numerical_zero_value (const Dimension<double> &) {
+inline double numericalZeroValue (const Dimension<double> &) {
 	return 0.;
 }
 template <typename T, Eigen::Index Rows, Eigen::Index Cols>
-auto make_numerical_zero_value (const Dimension<Eigen::Matrix<T, Rows, Cols>> & dim)
+auto numericalZeroValue (const Dimension<Eigen::Matrix<T, Rows, Cols>> & dim)
     -> decltype (Eigen::Matrix<T, Rows, Cols>::Zero (dim.rows, dim.cols)) {
 	return Eigen::Matrix<T, Rows, Cols>::Zero (dim.rows, dim.cols);
 }
 
+// Create a one value of the given dimension
+inline double numericalOneValue (const Dimension<double> &) {
+	return 1.;
+}
+template <typename T, Eigen::Index Rows, Eigen::Index Cols>
+auto numericalOneValue (const Dimension<Eigen::Matrix<T, Rows, Cols>> & dim)
+    -> decltype (Eigen::Matrix<T, Rows, Cols>::Ones (dim.rows, dim.cols)) {
+	return Eigen::Matrix<T, Rows, Cols>::Ones (dim.rows, dim.cols);
+}
+
+/******************************************************************************
+ * Data flow nodes for those numerical functions.
+ * TODO debug !
+ */
 namespace DF {
 	/** Lazily created numeric constant equal to zero for the type.
 	 */
@@ -94,20 +120,36 @@ namespace DF {
 		bool isConstantZero () const final { return true; }
 
 		NodeRef derive (const Node &) final {
-			return shared_from_this (); // Return handle to self, as derive (0) = 0
+			return this->shared_from_this (); // Return handle to self, as derive (0) = 0
 		}
-		bool is_derivable (const Node &) const final { return true; }
+		bool isDerivable (const Node &) const final { return true; }
 
 	private:
-		void compute () final {
-			this->accessValueMutable () = make_numerical_zero_value (targetDimension);
-		}
+		void compute () final { this->accessValueMutable () = numericalZeroValue (targetDimension); }
 
 		Dimension<T> targetDimension;
 	};
 
-  // TODO merging builder::make ?
+	// TODO merging builder::make ?
 
+	/** Lazily created numeric constant equal to one for the type.
+	 */
+	template <typename T> class ConstantOne : public Value<T> {
+	public:
+		explicit ConstantOne (const Dimension<T> & dim = {})
+		    : Value<T> (noDependency), targetDimension (dim) {}
+
+		bool isConstant () const final { return true; }
+		bool isConstantOne () const final { return true; }
+
+		NodeRef derive (const Node &) final { return makeNode<ConstantZero<T>> (targetDimension); }
+		bool isDerivable (const Node &) const final { return true; }
+
+	private:
+		void compute () final { this->accessValueMutable () = numericalOneValue (targetDimension); }
+
+		Dimension<T> targetDimension;
+	};
 
 } // namespace DF
 } // namespace bpp
