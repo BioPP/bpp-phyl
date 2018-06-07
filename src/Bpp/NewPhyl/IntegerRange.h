@@ -63,6 +63,9 @@ public:
 	constexpr IntegerIterator () noexcept = default;
 	constexpr IntegerIterator (Int n) noexcept : n_ (n) {}
 
+  // Convertible to Int
+	explicit constexpr operator Int () const noexcept { return n_; }
+
 	// Input / output
 	IntegerIterator & operator++ () noexcept { return ++n_, *this; }
 	constexpr reference operator* () const noexcept { return n_; }
