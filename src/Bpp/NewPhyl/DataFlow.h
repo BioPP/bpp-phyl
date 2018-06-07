@@ -98,7 +98,7 @@ namespace DF {
 	 * This include derivation (numerical values), information (debug, name, isConstant...).
 	 * These features have no-op defaults which can be overriden if meaningful in derived classes.
 	 */
-	class Node {
+	class Node : public std::enable_shared_from_this<Node> {
 	public:
 		Node () = default;
 		Node (const Node &) = delete;
