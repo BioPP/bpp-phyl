@@ -53,12 +53,13 @@ namespace bpp
   }
 }
 
+
 TEST_CASE("test")
 {
   using namespace bpp::DF;
 
   auto a = makeNode<ConstantZero<double>>();
-  // FIXME not working auto b = makeNode<ConstantOne<Eigen::MatrixXd>>(bpp::MatrixDimension{42, 32});
+  auto b = makeNode<ConstantOne<Eigen::MatrixXd>>(bpp::MatrixDimension{42, 32});
   // Print DF graph
   // bpp::debugDag("df_debug", *root);
 }

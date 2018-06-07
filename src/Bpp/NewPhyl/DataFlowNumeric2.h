@@ -75,9 +75,10 @@ template <> struct Dimension<double> {};
  * Note that in Eigen, a vector is a matrix with one column.
  * Redirect to MatrixDimension for all eigen matrix variants.
  */
-template <typename T, Eigen::Index Rows, Eigen::Index Cols>
+template <typename T, int Rows, int Cols>
 struct Dimension<Eigen::Matrix<T, Rows, Cols>> : MatrixDimension {
-	using MatrixDimension; // FIXME does not work nicely...
+	using MatrixDimension::MatrixDimension; // Have the same constructors as MatrixDimension
+	Dimension (const MatrixDimension & dim) : MatrixDimension (dim) {} // From MatrixDimension
 };
 
 /******************************************************************************
@@ -88,7 +89,7 @@ struct Dimension<Eigen::Matrix<T, Rows, Cols>> : MatrixDimension {
 inline double numericalZeroValue (const Dimension<double> &) {
 	return 0.;
 }
-template <typename T, Eigen::Index Rows, Eigen::Index Cols>
+template <typename T, int Rows, int Cols>
 auto numericalZeroValue (const Dimension<Eigen::Matrix<T, Rows, Cols>> & dim)
     -> decltype (Eigen::Matrix<T, Rows, Cols>::Zero (dim.rows, dim.cols)) {
 	return Eigen::Matrix<T, Rows, Cols>::Zero (dim.rows, dim.cols);
@@ -98,7 +99,7 @@ auto numericalZeroValue (const Dimension<Eigen::Matrix<T, Rows, Cols>> & dim)
 inline double numericalOneValue (const Dimension<double> &) {
 	return 1.;
 }
-template <typename T, Eigen::Index Rows, Eigen::Index Cols>
+template <typename T, int Rows, int Cols>
 auto numericalOneValue (const Dimension<Eigen::Matrix<T, Rows, Cols>> & dim)
     -> decltype (Eigen::Matrix<T, Rows, Cols>::Ones (dim.rows, dim.cols)) {
 	return Eigen::Matrix<T, Rows, Cols>::Ones (dim.rows, dim.cols);
@@ -150,6 +151,8 @@ namespace DF {
 
 		Dimension<T> targetDimension;
 	};
+
+	// TODO Add
 
 } // namespace DF
 } // namespace bpp
