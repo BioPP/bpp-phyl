@@ -304,29 +304,6 @@ namespace DF {
 		T value_;
 	};
 
-	/* Debug info override for double (in DataFlowNumeric.cpp).
-	 * Overrides for VectorDouble and MatrixDouble are declared in LinearAlgebra.h
-	 */
-	template <> std::string Value<double>::debugInfo () const;
-
-	/** @name Dependency structure description.
-	 *
-	 * These type tags are used to specify compute node dependency types.
-	 * This can serve as documentation about what arguments node expect.
-	 * Helper functions in DataFlowInternal.h act depending on these type tags.
-	 */
-	///@{
-
-	/// Type tag: All arguments are of type Value<T> (any number).
-	template <typename T> struct ReductionOfValue {};
-
-	/// Type tag: Exact tuple of Value<T0>, Value<T1>, ...
-	template <typename... Types> struct TupleOfValues {};
-
-	/// Type tag: Exactly n arguments of type Value<T>.
-	template <typename T> struct ArrayOfValues { std::size_t n; };
-	///@}
-
 	// Error function
 	[[noreturn]] void failureNodeConversion (const std::type_info & handleType, const Node & node);
 

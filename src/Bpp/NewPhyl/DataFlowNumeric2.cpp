@@ -39,8 +39,8 @@
   knowledge of the CeCILL license and that you accept its terms.
 */
 
-#include <Bpp/NewPhyl/DataNumeric2.h>
+#include <Bpp/NewPhyl/DataFlowNumeric2.h>
 
 namespace bpp {
-
+// TODO put extern template instantiations here.
 }

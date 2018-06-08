@@ -41,13 +41,38 @@
 
 #include <Bpp/Exceptions.h>
 #include <Bpp/NewPhyl/DataFlow.h>
-#include <Bpp/NewPhyl/DataFlowInternal.h>
-#include <Bpp/NewPhyl/DataFlowTemplates.h>
-#include <Bpp/NewPhyl/Debug.h>
-#include <Bpp/NewPhyl/Utils.h>
+#include <Bpp/NewPhyl/IntegerRange.h>
+#include <Bpp/NewPhyl/Utils.h> // TODO for now
 #include <algorithm>
 #include <stack>
+
+#include <typeindex>
 #include <typeinfo>
+
+#include <Bpp/NewPhyl/Config.h>
+#ifdef BPP_HAVE_DEMANGLING // TODO replace with sfinae test to remove dep on cmake ?
+#include <cstdlib>
+#include <cxxabi.h>
+#endif
+namespace bpp {
+std::string demangle (const char * name) {
+#ifdef BPP_HAVE_DEMANGLING
+	int status{};
+	std::unique_ptr<char, void (*) (void *)> res{
+	    abi::__cxa_demangle (name, nullptr, nullptr, &status), std::free};
+	return status == 0 ? res.get () : name;
+#else
+	return name;
+#endif
+}
+
+std::string prettyTypeName (const std::type_info & ti) {
+	return demangle (ti.name ());
+}
+std::string prettyTypeName (std::type_index ti) {
+	return demangle (ti.name ());
+}
+} // namespace bpp
 
 namespace bpp {
 namespace DF {
