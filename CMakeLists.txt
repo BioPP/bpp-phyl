@@ -84,7 +84,7 @@ find_package (Eigen3)
 add_subdirectory (src)
 
 # TODO remove at some point, profiling setup for NewPhyl
-add_subdirectory (profiling)
+# add_subdirectory (profiling) FIXME Disabled for move to DF v3
 
 # Doxygen
 FIND_PACKAGE(Doxygen)
