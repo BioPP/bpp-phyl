@@ -44,6 +44,7 @@
 
 #include <Bpp/NewPhyl/DataFlow.h>
 #include <Eigen/Core>
+#include <cassert>
 #include <string>
 
 namespace bpp {
@@ -113,6 +114,7 @@ auto numericalOneValue (const Dimension<Eigen::Matrix<T, Rows, Cols>> & dim)
 /******************************************************************************
  * Data flow nodes for those numerical functions.
  * TODO debug !
+ * TODO what of rebuild ?
  */
 namespace DF {
 	/** Lazily created numeric constant equal to zero for the type.
@@ -158,6 +160,34 @@ namespace DF {
 	};
 
 	// TODO Add
+
+	template <typename T> struct ReductionOf; // Type tag
+
+	// TODO doc from internal.h, move to DF.h
+	template <typename T> const T & accessValueConstCast (const Node & node) {
+		assert (dynamic_cast<const Value<T> *> (&node) != nullptr);      // Check type in debug mode
+		return static_cast<const Value<T> &> (node).accessValueConst (); // Fast cast access
+	}
+
+	template <typename Result, typename From> class CWiseAdd;
+
+	template <typename Result, typename T>
+	class CWiseAdd<Result, ReductionOf<T>> : public Value<Result> {
+	public:
+		CWiseAdd (NodeRefVec && deps, const Dimension<T> & dim = {})
+		    : Value<Result> (std::move (deps)), targetDimension (dim) {}
+
+	private:
+		void compute () final {
+			auto & result = this->accessValueMutable ();
+			result = numericalZeroValue (targetDimension);
+			for (const auto & depNodeRef : this->dependencies ()) {
+				result += accessValueConstCast<T> (*depNodeRef);
+			}
+		}
+
+		Dimension<T> targetDimension;
+	};
 
 } // namespace DF
 } // namespace bpp

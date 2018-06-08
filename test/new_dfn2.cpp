@@ -43,6 +43,7 @@
 #include "doctest.h"
 
 #include <Bpp/NewPhyl/DataFlowNumeric2.h>
+#include <Bpp/NewPhyl/DataFlowTemplates.h>
 
 namespace bpp
 {
@@ -60,6 +61,10 @@ TEST_CASE("test")
   auto a = makeNode<ConstantZero<double>>();
   auto b = makeNode<ConstantZero<Eigen::MatrixXd>>(bpp::MatrixDimension{42, 32});
   auto c = makeNode<ConstantOne<Eigen::VectorXd>>(bpp::vectorDimension(42));
+
+  auto d = makeNode<Constant<Eigen::MatrixXd>> (Eigen::MatrixXd::Random(42, 32));
+  auto e = makeNode<CWiseAdd<Eigen::MatrixXd, ReductionOf<Eigen::MatrixXd>>> ({b, d});
+  e->getValue();
   // Print DF graph
   // bpp::debugDag("df_debug", *root);
 }
