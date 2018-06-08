@@ -60,6 +60,11 @@ struct MatrixDimension {
 	MatrixDimension (Eigen::Index rows, Eigen::Index cols) : rows (rows), cols (cols) {}
 };
 
+/// Eigen vector are matrices with 1 column.
+inline MatrixDimension vectorDimension (Eigen::Index size) {
+	return {size, 1};
+}
+
 /** Store a dimension for type T.
  * Declared but undefined by default.
  * Specialisations should be defined in the same header declaring the T type.

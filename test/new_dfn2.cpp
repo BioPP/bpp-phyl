@@ -53,13 +53,13 @@ namespace bpp
   }
 }
 
-
 TEST_CASE("test")
 {
   using namespace bpp::DF;
 
   auto a = makeNode<ConstantZero<double>>();
-  auto b = makeNode<ConstantOne<Eigen::MatrixXd>>(bpp::MatrixDimension{42, 32});
+  auto b = makeNode<ConstantZero<Eigen::MatrixXd>>(bpp::MatrixDimension{42, 32});
+  auto c = makeNode<ConstantOne<Eigen::VectorXd>>(bpp::vectorDimension(42));
   // Print DF graph
   // bpp::debugDag("df_debug", *root);
 }
