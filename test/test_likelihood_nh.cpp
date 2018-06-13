@@ -117,14 +117,14 @@ int main() {
   // Simulation
     
   size_t nsites = 1000;
-  unsigned int nrep = 20;
+  unsigned int nrep = 3;
   size_t nmodels = modelSet->getNumberOfModels();
   vector<double> thetas(nmodels);
   vector<double> thetasEst1(nmodels);
   vector<double> thetasEst1n(nmodels);
 
   for (size_t i = 0; i < nmodels; ++i) {
-    double theta = RandomTools::giveRandomNumberBetweenZeroAndEntry(0.99) + 0.005;
+    double theta = RandomTools::giveRandomNumberBetweenZeroAndEntry(0.9) + 0.05;
     cout << "Theta" << i << " set to " << theta << endl; 
     modelSetSim->setParameterValue("T92.theta_" + TextTools::toString(i + 1), theta);
     thetas[i] = theta;

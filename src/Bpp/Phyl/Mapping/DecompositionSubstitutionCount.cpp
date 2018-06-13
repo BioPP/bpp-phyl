@@ -235,7 +235,8 @@ void DecompositionSubstitutionCount::distancesHaveChanged()
 
   //Recompute counts:
   setDistanceBMatrices_();
-
+  computeProducts_();
+  
   if (currentLength_ > 0)
     computeCounts_(currentLength_);
 }
