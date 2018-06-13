@@ -124,8 +124,16 @@ namespace DF {
 		explicit ConstantZero (const Dimension<T> & dim = {})
 		    : Value<T> (noDependency), targetDimension (dim) {}
 
-		bool isConstant () const final { return true; }
-		bool isConstantZero () const final { return true; }
+		bool hasNumericalProperty (NumericalProperty prop) const final {
+			switch (prop) {
+			case NumericalProperty::Constant:
+				return true;
+			case NumericalProperty::Zero:
+				return true;
+			default:
+				return false;
+			}
+		}
 
 		NodeRef derive (const Node &) final {
 			return this->shared_from_this (); // Return handle to self, as derive (0) = 0
@@ -147,8 +155,16 @@ namespace DF {
 		explicit ConstantOne (const Dimension<T> & dim = {})
 		    : Value<T> (noDependency), targetDimension (dim) {}
 
-		bool isConstant () const final { return true; }
-		bool isConstantOne () const final { return true; }
+		bool hasNumericalProperty (NumericalProperty prop) const final {
+			switch (prop) {
+			case NumericalProperty::Constant:
+				return true;
+			case NumericalProperty::One:
+				return true;
+			default:
+				return false;
+			}
+		}
 
 		NodeRef derive (const Node &) final { return makeNode<ConstantZero<T>> (targetDimension); }
 		bool isDerivable (const Node &) const final { return true; }
@@ -171,11 +187,12 @@ namespace DF {
 
 	template <typename Result, typename From> class CWiseAdd;
 
-	template <typename Result, typename T>
-	class CWiseAdd<Result, ReductionOf<T>> : public Value<Result> {
+	/** Addition of any number of T into R.
+	 */
+	template <typename R, typename T> class CWiseAdd<R, ReductionOf<T>> : public Value<R> {
 	public:
-		CWiseAdd (NodeRefVec && deps, const Dimension<T> & dim = {})
-		    : Value<Result> (std::move (deps)), targetDimension (dim) {}
+		CWiseAdd (NodeRefVec && deps, const Dimension<R> & dim)
+		    : Value<R> (std::move (deps)), targetDimension (dim) {}
 
 	private:
 		void compute () final {
@@ -186,7 +203,13 @@ namespace DF {
 			}
 		}
 
-		Dimension<T> targetDimension;
+		Dimension<R> targetDimension;
+	};
+
+	template <typename R, typename T> struct Builder<CWiseAdd<R, ReductionOf<T>>> {
+		static ValueRef<R> make (NodeRefVec && deps, const Dimension<R> & dim = {}) {
+			return std::make_shared<CWiseAdd<R, ReductionOf<T>>> (std::move (deps), dim);
+		}
 	};
 
 } // namespace DF

@@ -59,11 +59,20 @@ namespace DF {
 
 	/// Node instances are always manipulated as shared pointers, use an alias.
 	using NodeRef = std::shared_ptr<Node>;
+
 	/// Shared pointer alias for Value<T>.
 	template <typename T> using ValueRef = std::shared_ptr<Value<T>>;
 
 	/// Alias for a dependency vector (of NodeRef).
 	using NodeRefVec = std::vector<NodeRef>;
+
+	/// Numerical properties for DF Node.
+	enum class NumericalProperty {
+		Constant, // Is a constant value
+		Zero, // Is a zero value for its type
+		One, // Is a one value for its type
+		Identity, // Is identity (for matrices only, double(1.) is not considered identity).
+	};
 
 	/** @brief Base data flow Node class.
 	 *
@@ -124,25 +133,13 @@ namespace DF {
 		/// Node debug info (default = ""): user defined detailed info for DF graph debug.
 		virtual std::string debugInfo () const;
 
-		/** @brief Indicates if the node represents a constant value.
+		/** @brief Test if the node has the given numerical property.
 		 *
 		 * This is an optional indication only, used for optimisations.
 		 * If unsure, leave it to false (the default implementation).
-		 * This should be non recursive (only test the local node, not the sub tree).
+		 * This should be non recursive, to ensure a constant time check.
 		 */
-		virtual bool isConstant () const;
-
-		/** @brief Is the node a zero constant of its type (indication, like isConstant).
-		 *
-		 * For vector / matrices, this indicates a constant filled with zeroes.
-		 */
-		virtual bool isConstantZero () const;
-
-		/** @brief Is the node a zero constant of its type (indication, like isConstant).
-		 *
-		 * For vector / matrices, this indicates a constant filled with ones.
-		 */
-		virtual bool isConstantOne () const;
+		virtual bool hasNumericalProperty (NumericalProperty prop) const;
 
 		/// Derive with respect to node (default = not implemented), recursive.
 		virtual NodeRef derive (const Node & node);

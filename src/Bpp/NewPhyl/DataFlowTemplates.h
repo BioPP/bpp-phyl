@@ -59,7 +59,7 @@ namespace DF {
 	[[noreturn]] void failureComputeWasCalled (const std::type_info & nodeType);
 
 	/** @brief Mutable value node of type T.
-   *
+	 *
 	 * Leaf of the DataFlow graph, has no dependency.
 	 * Represents a mutable value.
 	 *
@@ -73,7 +73,7 @@ namespace DF {
 	template <typename T> class Mutable : public Value<T> {
 	public:
 		/** @brief Forwards arguments to the T constructor.
-     *
+		 *
 		 * The T value is set as initially valid.
 		 */
 		template <typename... Args>
@@ -82,7 +82,7 @@ namespace DF {
 		}
 
 		/** @brief General case for modification of the T object.
-     *
+		 *
 		 * Takes a callable object (lamda, function pointer) that performs the modification.
 		 * It must take a single T& as argument, which will refer to the T object to modify.
 		 * The callable is called exactly once.
@@ -111,7 +111,7 @@ namespace DF {
 	};
 
 	/** @brief Constant value of type T.
-   *
+	 *
 	 * DataFlow graph leaf, but for an immutable value, has no dependency.
 	 * Is always valid.
 	 *
@@ -127,7 +127,9 @@ namespace DF {
 		}
 
 		// Override info method
-		bool isConstant () const final { return true; }
+		bool hasNumericalProperty (NumericalProperty prop) const final {
+			return prop == NumericalProperty::Constant; // TODO dynamically do expensive tests for others
+		}
 
 		// Defined as default to enable specialisation for some types
 		NodeRef derive (const Node & node) final { return Value<T>::derive (node); }
@@ -138,9 +140,9 @@ namespace DF {
 	};
 
 	/* Specialisations in DataFlowNumeric.cpp
-   * Mutable<double>: enable derivation.
-   * Constant<double>: enable derivation.
-   */
+	 * Mutable<double>: enable derivation.
+	 * Constant<double>: enable derivation.
+	 */
 	template <> NodeRef Mutable<double>::derive (const Node & node);
 	template <> bool Mutable<double>::isDerivable (const Node & node) const;
 
