@@ -42,11 +42,12 @@
 #ifndef BPP_NEWPHYL_DATAFLOW_H
 #define BPP_NEWPHYL_DATAFLOW_H
 
+#include <cassert>
 #include <cstddef>
-#include <map>
+#include <map> // TODO rm ?
 #include <memory>
-#include <string>   // description
-#include <typeinfo> // convertRef
+#include <string> // description
+#include <typeinfo>
 #include <utility>
 #include <vector>
 
@@ -69,8 +70,8 @@ namespace DF {
 	/// Numerical properties for DF Node.
 	enum class NumericalProperty {
 		Constant, // Is a constant value
-		Zero, // Is a zero value for its type
-		One, // Is a one value for its type
+		Zero,     // Is a zero value for its type
+		One,      // Is a one value for its type
 		Identity, // Is identity (for matrices only, double(1.) is not considered identity).
 	};
 
@@ -300,6 +301,61 @@ namespace DF {
 	protected:
 		T value_;
 	};
+
+	/// Dynamically test that node inherits from Value<T>.
+	template <typename T> bool isValueNode (const Node & n) noexcept {
+		return dynamic_cast<const Value<T> *> (&n) != nullptr;
+	}
+
+	/// Access value of Node as a Value<T> (unchecked cast).
+	template <typename T> const T & accessValueConstCast (const Node & node) {
+		assert (isValueNode<T> (node));                                  // Check type in debug mode
+		return static_cast<const Value<T> &> (node).accessValueConst (); // Fast cast access
+	}
+
+	/// @name Error functions for dependency check
+	///@{
+	[[noreturn]] void failureDependencyNumberMismatch (const std::type_info & contextNodeType,
+	                                                   std::size_t expectedSize,
+	                                                   std::size_t givenSize);
+	[[noreturn]] void failureEmptyDependency (const std::type_info & contextNodeType,
+	                                          std::size_t depIndex);
+	[[noreturn]] void failureDependencyTypeMismatch (const std::type_info & contextNodeType,
+	                                                 std::size_t depIndex,
+	                                                 const std::type_info & expectedType,
+	                                                 const std::type_info & givenNodeType);
+	///@}
+
+	/// @name Basic dependency check primitives
+	///@{
+
+	/// Checks the size of a dependency vector, throws if mismatch.
+	void checkDependencyVectorSize (const std::type_info & contextNodeType, const NodeRefVec & deps,
+	                                std::size_t expectedSize);
+
+	/// Checks that all dependencies are not null, throws if not.
+	void checkDependenciesNotNull (const std::type_info & contextNodeType, const NodeRefVec & deps);
+
+	/// Checks that deps[index] is a Value<T> node, throws if not.
+	template <typename T>
+	void checkNthDependencyIsValue (const std::type_info & contextNodeType, const NodeRefVec & deps,
+	                                std::size_t index) {
+		const auto & dep = *deps[index];
+		if (!isValueNode<T> (dep)) {
+			failureDependencyTypeMismatch (contextNodeType, index, typeid (Value<T>), typeid (dep));
+		}
+	}
+
+	/// Check that deps[start, end[ contains Value<T> nodes, throws if not
+	template <typename T>
+	void checkDependencyRangeIsValue (const std::type_info & contextNodeType, const NodeRefVec & deps,
+	                                  std::size_t start, std::size_t end) {
+		for (std::size_t i = start; i < end; ++i) {
+			checkNthDependencyIsValue<T> (contextNodeType, deps, i);
+		}
+	}
+
+	///@}
 
 	// Error function
 	[[noreturn]] void failureNodeConversion (const std::type_info & handleType, const Node & node);

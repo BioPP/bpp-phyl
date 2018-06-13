@@ -41,7 +41,6 @@
 
 #include <Bpp/Exceptions.h>
 #include <Bpp/NewPhyl/DataFlow.h>
-#include <Bpp/NewPhyl/IntegerRange.h>
 #include <Bpp/NewPhyl/Utils.h> // TODO for now
 #include <algorithm>
 #include <stack>
@@ -76,7 +75,9 @@ std::string prettyTypeName (std::type_index ti) {
 
 namespace bpp {
 namespace DF {
-	/************************************ Error functions *******************************/
+	/*****************************************************************************
+	 * Error & dependency check functions.
+	 */
 
 	// Error functions DataFlow.h
 	void failureNodeConversion (const std::type_info & handleType, const Node & node) {
@@ -119,7 +120,7 @@ namespace DF {
 	}
 
 	void checkDependenciesNotNull (const std::type_info & contextNodeType, const NodeRefVec & deps) {
-		for (auto i : range (deps.size ())) {
+		for (std::size_t i = 0; i < deps.size (); ++i) {
 			if (!deps[i]) {
 				failureEmptyDependency (contextNodeType, i);
 			}

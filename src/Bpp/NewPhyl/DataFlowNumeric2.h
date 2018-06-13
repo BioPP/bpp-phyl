@@ -179,12 +179,6 @@ namespace DF {
 
 	template <typename T> struct ReductionOf; // Type tag
 
-	// TODO doc from internal.h, move to DF.h
-	template <typename T> const T & accessValueConstCast (const Node & node) {
-		assert (dynamic_cast<const Value<T> *> (&node) != nullptr);      // Check type in debug mode
-		return static_cast<const Value<T> &> (node).accessValueConst (); // Fast cast access
-	}
-
 	template <typename Result, typename From> class CWiseAdd;
 
 	/** Addition of any number of T into R.
@@ -208,10 +202,13 @@ namespace DF {
 
 	template <typename R, typename T> struct Builder<CWiseAdd<R, ReductionOf<T>>> {
 		static ValueRef<R> make (NodeRefVec && deps, const Dimension<R> & dim = {}) {
+			using NodeType = CWiseAdd<R, ReductionOf<T>>;
+			// Check dependencies
+			checkDependenciesNotNull (typeid (NodeType), deps);
+			checkDependencyRangeIsValue<T> (typeid (NodeType), deps, 0, deps.size ());
 			return std::make_shared<CWiseAdd<R, ReductionOf<T>>> (std::move (deps), dim);
 		}
 	};
-
 } // namespace DF
 } // namespace bpp
 

@@ -116,53 +116,6 @@ namespace DF {
 	}
 	///@}
 
-	/******************************* Error functions *******************************/
-
-	/// @name Error functions for dependency check
-	///@{
-	[[noreturn]] void failureDependencyNumberMismatch (const std::type_info & contextNodeType,
-	                                                   std::size_t expectedSize,
-	                                                   std::size_t givenSize);
-	[[noreturn]] void failureEmptyDependency (const std::type_info & contextNodeType,
-	                                          std::size_t depIndex);
-	[[noreturn]] void failureDependencyTypeMismatch (const std::type_info & contextNodeType,
-	                                                 std::size_t depIndex,
-	                                                 const std::type_info & expectedType,
-	                                                 const std::type_info & givenNodeType);
-	///@}
-
-	/******************************* Dependency check *******************************/
-
-	/// @name Basic dependency check primitives
-	///@{
-
-	/// Checks the size of a dependency vector, throws if mismatch.
-	void checkDependencyVectorSize (const std::type_info & contextNodeType, const NodeRefVec & deps,
-	                                std::size_t expectedSize);
-
-	/// Checks that all dependencies are not null, throws if not.
-	void checkDependenciesNotNull (const std::type_info & contextNodeType, const NodeRefVec & deps);
-
-	/// Checks that deps[index] is a Value<T> node, throws if not.
-	template <typename T>
-	void checkNthDependencyIsValue (const std::type_info & contextNodeType, const NodeRefVec & deps,
-	                                std::size_t index) {
-		const auto & dep = *deps[index];
-		if (!isValueNode<T> (dep)) {
-			failureDependencyTypeMismatch (contextNodeType, index, typeid (Value<T>), typeid (dep));
-		}
-	}
-
-	/// Check that deps[start, end[ contains Value<T> nodes, throws if not
-	template <typename T>
-	void checkDependencyRangeIsValue (const std::type_info & contextNodeType, const NodeRefVec & deps,
-	                                  std::size_t start, std::size_t end) {
-		for (auto i : range (start, end))
-			checkNthDependencyIsValue<T> (contextNodeType, deps, i);
-	}
-
-	///@}
-
 	/// @name Dependency check template functions (for type tags)
 	///@{
 
