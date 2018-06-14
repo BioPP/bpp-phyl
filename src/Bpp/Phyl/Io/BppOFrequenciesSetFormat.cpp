@@ -156,6 +156,45 @@ FrequenciesSet* BppOFrequenciesSetFormat::read(const Alphabet* alphabet, const s
       pFS.reset(new FullFrequenciesSet(new CanonicalStateMap(alphabet, false), false, method));
     }
   }
+  else if (freqName == "Empirical")
+  {
+    string fname = args["file"];
+    if (TextTools::isEmpty(fname))
+      throw Exception("'file' argument missing for user-defined frequencies.");
+
+    size_t nCol=1;
+    if (args.find("col")!=args.end())
+      nCol=size_t(TextTools::toInt(args["col"]));
+    
+    if (AlphabetTools::isNucleicAlphabet(alphabet))
+    {
+      if (alphabetCode_ & NUCLEOTIDE)
+        pFS.reset(new UserNucleotideFrequenciesSet(dynamic_cast<const NucleicAlphabet*>(alphabet), fname, nCol));
+      else
+        throw Exception("Nucleotide alphabet not supported.");
+    }
+    else if (AlphabetTools::isProteicAlphabet(alphabet))
+    {
+      if (alphabetCode_ & PROTEIN)
+        pFS.reset(new UserProteinFrequenciesSet(dynamic_cast<const ProteicAlphabet*>(alphabet), fname, nCol));
+      else
+        throw Exception("Protein alphabet not supported.");
+    }
+    else if (AlphabetTools::isCodonAlphabet(alphabet))
+    {
+      if (alphabetCode_ & CODON) {
+        if (!geneticCode_)
+          throw Exception("BppOFrequenciesSetFormat::read(). No genetic code specified! Consider using 'setGeneticCode'.");
+        pFS.reset(new UserCodonFrequenciesSet(geneticCode_, fname, nCol));
+      } else {
+        throw Exception("Codon alphabet not supported.");
+      }
+    }
+    else
+    {
+      pFS.reset(new UserFrequenciesSet(new CanonicalStateMap(alphabet, false), fname, nCol));
+    }
+  }
   else if (freqName == "GC")
   {
     if (!AlphabetTools::isNucleicAlphabet(alphabet))
@@ -605,7 +644,18 @@ void BppOFrequenciesSetFormat::write(const FrequenciesSet* pfreqset,
     oValues=true;
   }
 
-  
+  const UserFrequenciesSet* ufs=dynamic_cast<const UserFrequenciesSet*>(pfreqset);
+  if (ufs)
+  {  
+    out << "file=" << ufs->getPath();
+    size_t nCol=ufs->getColumnNumber();
+
+    if (nCol!=1)
+      out << ", col=" << nCol;
+
+    oValues=true;
+  }
+
   // For Word or Codon FS : length mgmt
   const WordFromIndependentFrequenciesSet* pWFI = dynamic_cast<const WordFromIndependentFrequenciesSet*>(pfreqset);
   if (name != "F3X4" && pWFI != NULL)

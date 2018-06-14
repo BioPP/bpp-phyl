@@ -717,6 +717,7 @@ SubstitutionModel* BppOSubstitutionModelFormat::read(
         string freqOpt = ApplicationTools::getStringParameter("frequencies", args, "Full", "", true, warningLevel_);
         BppOFrequenciesSetFormat freqReader(BppOFrequenciesSetFormat::ALL, false, warningLevel_);
         unique_ptr<FrequenciesSet> protFreq(freqReader.read(alpha, freqOpt, data, true));
+  
         map<string, string> unparsedParameterValuesNested(freqReader.getUnparsedArguments());
 
         for (map<string, string>::iterator it = unparsedParameterValuesNested.begin(); it != unparsedParameterValuesNested.end(); it++)
