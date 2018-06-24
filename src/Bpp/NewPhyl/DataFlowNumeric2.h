@@ -116,7 +116,7 @@ auto numericalOneValue (const Dimension<Eigen::Matrix<T, Rows, Cols>> & dim)
  * TODO debug !
  * TODO what of rebuild ?
  */
-namespace DF {
+namespace dataflow {
 	/** Lazily created numeric constant equal to zero for the type.
 	 */
 	template <typename T> class ConstantZero : public Value<T> {
@@ -209,7 +209,7 @@ namespace DF {
 			return std::make_shared<CWiseAdd<R, ReductionOf<T>>> (std::move (deps), dim);
 		}
 	};
-} // namespace DF
+} // namespace dataflow
 } // namespace bpp
 
 #endif // BPP_NEWPHYL_DATAFLOWNUMERIC2_H

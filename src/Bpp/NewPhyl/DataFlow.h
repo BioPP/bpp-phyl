@@ -54,7 +54,7 @@
 /** @file Defines the basic types of data flow nodes.
  */
 namespace bpp {
-namespace DF {
+namespace dataflow {
 	class Node;
 	template <typename T> class Value;
 
@@ -368,7 +368,7 @@ namespace DF {
 			failureNodeConversion (typeid (T), *from);
 		return p;
 	}
-} // namespace DF
+} // namespace dataflow
 } // namespace bpp
 
 #endif // BPP_NEWPHYL_DATAFLOW_H

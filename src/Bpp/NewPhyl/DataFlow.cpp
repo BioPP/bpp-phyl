@@ -74,7 +74,7 @@ std::string prettyTypeName (std::type_index ti) {
 } // namespace bpp
 
 namespace bpp {
-namespace DF {
+namespace dataflow {
 	/*****************************************************************************
 	 * Error & dependency check functions.
 	 */
@@ -240,5 +240,5 @@ namespace DF {
 			}
 		}
 	}
-} // namespace DF
+} // namespace dataflow
 } // namespace bpp
