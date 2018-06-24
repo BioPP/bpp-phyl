@@ -46,6 +46,7 @@
 #include <Eigen/Core>
 #include <cassert>
 #include <string>
+#include <type_traits>
 
 namespace bpp {
 /******************************************************************************
@@ -88,28 +89,31 @@ struct Dimension<Eigen::Matrix<T, Rows, Cols>> : MatrixDimension {
 };
 
 /******************************************************************************
- * Numerical functions.
+ * Collection of overloaded numerical functions.
  */
+namespace numeric {
+	// Create a zero value of the given dimension
+	template <typename T, typename = typename std::enable_if<std::is_arithmetic<T>::value>::type>
+	T zero (const Dimension<T> &) {
+		return 0;
+	}
+	template <typename T, int Rows, int Cols>
+	auto zero (const Dimension<Eigen::Matrix<T, Rows, Cols>> & dim)
+	    -> decltype (Eigen::Matrix<T, Rows, Cols>::Zero (dim.rows, dim.cols)) {
+		return Eigen::Matrix<T, Rows, Cols>::Zero (dim.rows, dim.cols);
+	}
 
-// Create a zero value of the given dimension
-inline double numericalZeroValue (const Dimension<double> &) {
-	return 0.;
-}
-template <typename T, int Rows, int Cols>
-auto numericalZeroValue (const Dimension<Eigen::Matrix<T, Rows, Cols>> & dim)
-    -> decltype (Eigen::Matrix<T, Rows, Cols>::Zero (dim.rows, dim.cols)) {
-	return Eigen::Matrix<T, Rows, Cols>::Zero (dim.rows, dim.cols);
-}
-
-// Create a one value of the given dimension
-inline double numericalOneValue (const Dimension<double> &) {
-	return 1.;
-}
-template <typename T, int Rows, int Cols>
-auto numericalOneValue (const Dimension<Eigen::Matrix<T, Rows, Cols>> & dim)
-    -> decltype (Eigen::Matrix<T, Rows, Cols>::Ones (dim.rows, dim.cols)) {
-	return Eigen::Matrix<T, Rows, Cols>::Ones (dim.rows, dim.cols);
-}
+	// Create a one value of the given dimension
+	template <typename T, typename = typename std::enable_if<std::is_arithmetic<T>::value>::type>
+	T one (const Dimension<T> &) {
+		return 1;
+	}
+	template <typename T, int Rows, int Cols>
+	auto one (const Dimension<Eigen::Matrix<T, Rows, Cols>> & dim)
+	    -> decltype (Eigen::Matrix<T, Rows, Cols>::Ones (dim.rows, dim.cols)) {
+		return Eigen::Matrix<T, Rows, Cols>::Ones (dim.rows, dim.cols);
+	}
+} // namespace numeric
 
 /******************************************************************************
  * Data flow nodes for those numerical functions.
@@ -141,7 +145,10 @@ namespace dataflow {
 		bool isDerivable (const Node &) const final { return true; }
 
 	private:
-		void compute () final { this->accessValueMutable () = numericalZeroValue (targetDimension); }
+		void compute () final {
+			using namespace numeric;
+			this->accessValueMutable () = zero (targetDimension);
+		}
 
 		Dimension<T> targetDimension;
 	};
@@ -170,7 +177,10 @@ namespace dataflow {
 		bool isDerivable (const Node &) const final { return true; }
 
 	private:
-		void compute () final { this->accessValueMutable () = numericalOneValue (targetDimension); }
+		void compute () final {
+			using namespace numeric;
+			this->accessValueMutable () = one (targetDimension);
+		}
 
 		Dimension<T> targetDimension;
 	};
@@ -190,8 +200,9 @@ namespace dataflow {
 
 	private:
 		void compute () final {
+			using namespace numeric;
 			auto & result = this->accessValueMutable ();
-			result = numericalZeroValue (targetDimension);
+			result = zero (targetDimension);
 			for (const auto & depNodeRef : this->dependencies ()) {
 				result += accessValueConstCast<T> (*depNodeRef);
 			}
