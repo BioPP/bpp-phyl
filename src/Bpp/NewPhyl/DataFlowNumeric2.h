@@ -44,6 +44,7 @@
 
 #include <Bpp/NewPhyl/DataFlow.h>
 #include <Eigen/Core>
+#include <algorithm>
 #include <cassert>
 #include <string>
 #include <type_traits>
@@ -103,7 +104,7 @@ namespace numeric {
 	// Create a zero value of the given dimension
 	template <typename T, typename = typename std::enable_if<std::is_arithmetic<T>::value>::type>
 	T zero (const Dimension<T> &) {
-		return 0;
+		return T (0);
 	}
 	template <typename T, int Rows, int Cols>
 	auto zero (const Dimension<Eigen::Matrix<T, Rows, Cols>> & dim)
@@ -114,7 +115,7 @@ namespace numeric {
 	// Create a one value of the given dimension
 	template <typename T, typename = typename std::enable_if<std::is_arithmetic<T>::value>::type>
 	T one (const Dimension<T> &) {
-		return 1;
+		return T (1);
 	}
 	template <typename T, int Rows, int Cols>
 	auto one (const Dimension<Eigen::Matrix<T, Rows, Cols>> & dim)
@@ -129,6 +130,12 @@ namespace numeric {
  * TODO what of rebuild ?
  */
 namespace dataflow {
+	// Utility : remove dependencies from vector according to a predicate
+	template <typename Predicate> void removeDependenciesIf (NodeRefVec & deps, Predicate p) {
+		auto new_end = std::remove_if (deps.begin (), deps.end (), std::move (p));
+		deps.erase (new_end, deps.end ()); // Truncate vector storage
+	}
+
 	/** Lazily created numeric constant equal to zero for the type.
 	 */
 	template <typename T> class ConstantZero : public Value<T> {
@@ -259,7 +266,18 @@ namespace dataflow {
 			// Check dependencies
 			checkDependenciesNotNull (typeid (NodeType), deps);
 			checkDependencyRangeIsValue<T> (typeid (NodeType), deps, 0, deps.size ());
-			return std::make_shared<CWiseAdd<R, ReductionOf<T>>> (std::move (deps), dim);
+			// Remove 0s from deps
+			removeDependenciesIf (deps, [](const NodeRef & ref) {
+				return ref->hasNumericalProperty (NumericalProperty::Zero);
+			});
+			// Select node implementation
+			if (deps.size () == 1) {
+				return convertRef<Value<R>> (deps[0]); // FIXME add conversion node
+			} else if (deps.size () == 0) {
+				return makeNode<ConstantZero<R>> (dim);
+			} else {
+				return std::make_shared<CWiseAdd<R, ReductionOf<T>>> (std::move (deps), dim);
+			}
 		}
 	};
 } // namespace dataflow
