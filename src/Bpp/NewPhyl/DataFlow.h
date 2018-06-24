@@ -358,6 +358,7 @@ namespace dataflow {
 	///@}
 
 	// Error function
+	[[noreturn]] void failureComputeWasCalled (const std::type_info & nodeType);
 	[[noreturn]] void failureNodeConversion (const std::type_info & handleType, const Node & node);
 
 	// Convert handles with check

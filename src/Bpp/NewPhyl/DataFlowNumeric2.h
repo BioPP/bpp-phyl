@@ -60,6 +60,10 @@ struct MatrixDimension {
 
 	MatrixDimension () = default;
 	MatrixDimension (Eigen::Index rows, Eigen::Index cols) : rows (rows), cols (cols) {}
+
+	// Get dimensions of any matrix-like eigen object.
+	template <typename Derived>
+	MatrixDimension (const Eigen::MatrixBase<Derived> & m) : MatrixDimension (m.rows (), m.cols ()) {}
 };
 
 /// Eigen vector are matrices with 1 column.
@@ -70,13 +74,17 @@ inline MatrixDimension vectorDimension (Eigen::Index size) {
 /** Store a dimension for type T.
  * Declared but undefined by default.
  * Specialisations should be defined in the same header declaring the T type.
+ * Specialisations should define a constructor from const T & : get the dimension of a T object.
  */
 template <typename T> struct Dimension;
 
-/** Specialisation of Dimension<T> for double.
+/** Specialisation of Dimension<T> for floating point types.
  * This is a dummy empty type, required by generic code below.
  */
-template <> struct Dimension<double> {};
+template <> struct Dimension<double> {
+	Dimension () = default;
+	Dimension (const double &) {}
+};
 
 /** Specialisation of Dimension<T> for eigen matrix types.
  * Note that in Eigen, a vector is a matrix with one column.
@@ -183,6 +191,40 @@ namespace dataflow {
 		}
 
 		Dimension<T> targetDimension;
+	};
+
+	/** Numeric constant of type T.
+	 * Supports derivation.
+	 * Eagerly constructed (value is created at construction).
+	 */
+	template <typename T> class NumericConstant : public Value<T> {
+	public:
+		template <typename... Args>
+		explicit NumericConstant (Args &&... args)
+		    : Value<T> (noDependency, std::forward<Args> (args)...) {
+			this->makeValid (); // Always valid
+		}
+
+		bool hasNumericalProperty (NumericalProperty prop) const final {
+			switch (prop) {
+			case NumericalProperty::Constant:
+				return true;
+			default:
+				return false;
+				// TODO manual comparison to zero/one
+			}
+		}
+
+		NodeRef derive (const Node &) final {
+			return makeNode<ConstantZero<T>> (Dimension<T> (this->accessValueConst ()));
+		}
+		bool isDerivable (const Node &) const final { return true; }
+
+	private:
+		void compute () final {
+			// Constant is valid from construction
+			failureComputeWasCalled (typeid (*this));
+		}
 	};
 
 	// TODO Add
