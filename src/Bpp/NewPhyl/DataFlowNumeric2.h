@@ -286,6 +286,14 @@ namespace dataflow {
 			}
 		}
 	};
+
+	// Pre compiled instantiations
+	extern template class CWiseAdd<double, ReductionOf<double>>;
+	extern template struct Builder<CWiseAdd<double, ReductionOf<double>>>;
+	extern template class CWiseAdd<Eigen::VectorXd, ReductionOf<Eigen::VectorXd>>;
+	extern template struct Builder<CWiseAdd<Eigen::VectorXd, ReductionOf<Eigen::VectorXd>>>;
+	extern template class CWiseAdd<Eigen::MatrixXd, ReductionOf<Eigen::MatrixXd>>;
+	extern template struct Builder<CWiseAdd<Eigen::MatrixXd, ReductionOf<Eigen::MatrixXd>>>;
 } // namespace dataflow
 } // namespace bpp
 

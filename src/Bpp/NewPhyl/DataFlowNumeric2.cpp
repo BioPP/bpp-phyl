@@ -42,5 +42,14 @@
 #include <Bpp/NewPhyl/DataFlowNumeric2.h>
 
 namespace bpp {
-// TODO put extern template instantiations here.
-}
+// Explicit instantations to generate a symbol
+namespace dataflow {
+	// CWiseAdd
+	template class CWiseAdd<double, ReductionOf<double>>;
+	template struct Builder<CWiseAdd<double, ReductionOf<double>>>;
+	template class CWiseAdd<Eigen::VectorXd, ReductionOf<Eigen::VectorXd>>;
+	template struct Builder<CWiseAdd<Eigen::VectorXd, ReductionOf<Eigen::VectorXd>>>;
+	template class CWiseAdd<Eigen::MatrixXd, ReductionOf<Eigen::MatrixXd>>;
+	template struct Builder<CWiseAdd<Eigen::MatrixXd, ReductionOf<Eigen::MatrixXd>>>;
+} // namespace dataflow
+} // namespace bpp
