@@ -206,6 +206,7 @@ namespace dataflow {
 	 */
 	template <typename T> class NumericConstant : public Value<T> {
 	public:
+		/// Sets an initial value constructed with the given arguments.
 		template <typename... Args>
 		explicit NumericConstant (Args &&... args)
 		    : Value<T> (noDependency, std::forward<Args> (args)...) {
@@ -235,6 +236,71 @@ namespace dataflow {
 	private:
 		void compute () final {
 			// Constant is valid from construction
+			failureComputeWasCalled (typeid (*this));
+		}
+	};
+
+	/** Numeric mutable value of type T.
+	 * Supports derivation.
+	 * Eagerly constructed (value is created at construction).
+	 */
+	template <typename T> class NumericMutable : public Value<T> {
+	public:
+		/// Sets an initial value constructed with the given arguments.
+		template <typename... Args>
+		explicit NumericMutable (Args &&... args)
+		    : Value<T> (noDependency, std::forward<Args> (args)...) {
+			this->makeValid (); // Initial value is valid
+		}
+
+		/** @brief General case for modification of the T object.
+		 *
+		 * Takes a callable object (lamda, function pointer) that performs the modification.
+		 * It must take a single T& as argument, which will refer to the T object to modify.
+		 * The callable is called exactly once.
+     * TODO replace with view-struct that performs invalidate on destruction ?
+		 */
+		template <typename Callable> void modify (Callable && modifier) {
+			this->invalidateRecursively ();
+			std::forward<Callable> (modifier) (this->accessValueMutable ());
+			this->makeValid ();
+		}
+
+		/// Setter with invalidation.
+		void setValue (const T & t) {
+			modify ([&t](T & v) { v = t; });
+		}
+		/// Setter with invalidation (movable value version).
+		void setValue (T && t) {
+			modify ([&t](T & v) { v = std::move (t); });
+		}
+
+		bool hasNumericalProperty (NumericalProperty prop) const final {
+			using namespace numeric;
+			const auto & value = this->accessValueConst ();
+			switch (prop) {
+			case NumericalProperty::Zero:
+				return value == zero (Dimension<T> (value));
+			case NumericalProperty::One:
+				return value == one (Dimension<T> (value));
+			default:
+				return false;
+			}
+		}
+
+		NodeRef derive (const Node & node) final {
+			const auto dim = Dimension<T> (this->accessValueConst ());
+			if (&node == static_cast<const Node *> (this)) {
+				return makeNode<ConstantOne<T>> (dim);
+			} else {
+				return makeNode<ConstantZero<T>> (dim);
+			}
+		}
+		bool isDerivable (const Node &) const final { return true; }
+
+	private:
+		void compute () final {
+			// Mutable is always valid
 			failureComputeWasCalled (typeid (*this));
 		}
 	};
