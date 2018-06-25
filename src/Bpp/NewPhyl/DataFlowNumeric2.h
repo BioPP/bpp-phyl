@@ -213,12 +213,17 @@ namespace dataflow {
 		}
 
 		bool hasNumericalProperty (NumericalProperty prop) const final {
+			using namespace numeric;
+			const auto & value = this->accessValueConst ();
 			switch (prop) {
 			case NumericalProperty::Constant:
 				return true;
+			case NumericalProperty::Zero:
+				return value == zero (Dimension<T> (value));
+			case NumericalProperty::One:
+				return value == one (Dimension<T> (value));
 			default:
 				return false;
-				// TODO manual comparison to zero/one
 			}
 		}
 
@@ -268,7 +273,8 @@ namespace dataflow {
 			checkDependencyRangeIsValue<T> (typeid (NodeType), deps, 0, deps.size ());
 			// Remove 0s from deps
 			removeDependenciesIf (deps, [](const NodeRef & ref) {
-				return ref->hasNumericalProperty (NumericalProperty::Zero);
+				return ref->hasNumericalProperty (NumericalProperty::Constant) &&
+				       ref->hasNumericalProperty (NumericalProperty::Zero);
 			});
 			// Select node implementation
 			if (deps.size () == 1) {
