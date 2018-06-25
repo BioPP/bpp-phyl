@@ -122,6 +122,19 @@ namespace numeric {
 	    -> decltype (Eigen::Matrix<T, Rows, Cols>::Ones (dim.rows, dim.cols)) {
 		return Eigen::Matrix<T, Rows, Cols>::Ones (dim.rows, dim.cols);
 	}
+
+	// Convert from F to R (with specific dimension)
+	template <typename R, typename F,
+	          typename = typename std::enable_if<std::is_convertible<F, R>::value>::type>
+	R convert (const F & from, const Dimension<R> &) {
+		return R (from); // For simple arithmetic types
+	}
+	template <typename T, int Rows, int Cols, typename F>
+	auto convert (const F & from, const Dimension<Eigen::Matrix<T, Rows, Cols>> & dim)
+	    -> decltype (Eigen::Matrix<T, Rows, Cols>::Constant (T (from), dim.rows, dim.cols)) {
+		// Eigen case, build a matrix/vector filled with constant value.
+		return Eigen::Matrix<T, Rows, Cols>::Constant (T (from), dim.rows, dim.cols);
+	}
 } // namespace numeric
 
 /******************************************************************************
@@ -258,7 +271,7 @@ namespace dataflow {
 		 * Takes a callable object (lamda, function pointer) that performs the modification.
 		 * It must take a single T& as argument, which will refer to the T object to modify.
 		 * The callable is called exactly once.
-     * TODO replace with view-struct that performs invalidate on destruction ?
+		 * TODO replace with view-struct that performs invalidate on destruction ?
 		 */
 		template <typename Callable> void modify (Callable && modifier) {
 			this->invalidateRecursively ();
@@ -305,6 +318,39 @@ namespace dataflow {
 		}
 	};
 
+	/** Convert a F value into a R value, with specified dimension.
+	 */
+	template <typename R, typename F> class Convert : public Value<R> {
+	public:
+		Convert (NodeRefVec && deps, const Dimension<R> & dim)
+		    : Value<R> (std::move (deps)), targetDimension (dim) {}
+
+	private:
+		void compute () final {
+			using namespace numeric;
+			const auto & arg = accessValueConstCast<F> (*(this->dependency (0)));
+			this->accessValueMutable () = convert (arg, targetDimension);
+		}
+
+		Dimension<R> targetDimension;
+	};
+
+	template <typename R, typename F> struct Builder<Convert<R, F>> {
+		static ValueRef<R> make (NodeRefVec && deps, const Dimension<R> & dim = {}) {
+			using NodeType = Convert<R, F>;
+			// Check dependencies
+			checkDependencyVectorSize (typeid (NodeType), deps, 1);
+			checkDependenciesNotNull (typeid (NodeType), deps);
+			checkNthDependencyIsValue<F> (typeid (NodeType), deps, 0);
+			// Select node
+			if (std::is_same<R, F>::value) {
+				return convertRef<Value<R>> (deps[0]);
+			} else {
+				return std::make_shared<Convert<R, F>> (std::move (deps), dim);
+			}
+		}
+	};
+
 	// TODO Add
 
 	template <typename T> struct ReductionOf; // Type tag
@@ -344,7 +390,7 @@ namespace dataflow {
 			});
 			// Select node implementation
 			if (deps.size () == 1) {
-				return convertRef<Value<R>> (deps[0]); // FIXME add conversion node
+				return makeNode<Convert<R, T>> (std::move (deps), dim);
 			} else if (deps.size () == 0) {
 				return makeNode<ConstantZero<R>> (dim);
 			} else {
