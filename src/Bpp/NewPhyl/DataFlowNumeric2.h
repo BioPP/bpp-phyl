@@ -422,6 +422,63 @@ namespace dataflow {
 	extern template struct Builder<CWiseAdd<Eigen::VectorXd, ReductionOf<Eigen::VectorXd>>>;
 	extern template class CWiseAdd<Eigen::MatrixXd, ReductionOf<Eigen::MatrixXd>>;
 	extern template struct Builder<CWiseAdd<Eigen::MatrixXd, ReductionOf<Eigen::MatrixXd>>>;
+
+	/** Multiplication of any number of T into R.
+	 */
+	template <typename R, typename T> class CWiseMul<R, ReductionOf<T>> : public Value<R> {
+	public:
+		CWiseMul (NodeRefVec && deps, const Dimension<R> & dim)
+		    : Value<R> (std::move (deps)), targetDimension (dim) {}
+
+	private:
+		void compute () final {
+			using namespace numeric;
+			auto & result = this->accessValueMutable ();
+			result = one (targetDimension);
+			for (const auto & depNodeRef : this->dependencies ()) {
+				cwise (result) *= cwise (accessValueConstCast<T> (*depNodeRef));
+			}
+		}
+
+		Dimension<R> targetDimension;
+	};
+
+	template <typename R, typename T> struct Builder<CWiseMul<R, ReductionOf<T>>> {
+		static ValueRef<R> make (NodeRefVec && deps, const Dimension<R> & dim = {}) {
+			using NodeType = CWiseMul<R, ReductionOf<T>>;
+			// Check dependencies
+			checkDependenciesNotNull (typeid (NodeType), deps);
+			checkDependencyRangeIsValue<T> (typeid (NodeType), deps, 0, deps.size ());
+			//
+			if (std::any_of (deps.begin (), deps.end (), [](const NodeRef & ref) {
+				    return ref->hasNumericalProperty (NumericalProperty::Constant) &&
+				           ref->hasNumericalProperty (NumericalProperty::Zero);
+			    })) {
+				return makeNode<ConstantZero<R>> (dim);
+			}
+			// Remove 1s from deps
+			removeDependenciesIf (deps, [](const NodeRef & ref) {
+				return ref->hasNumericalProperty (NumericalProperty::Constant) &&
+				       ref->hasNumericalProperty (NumericalProperty::One);
+			});
+			// Select node implementation
+			if (deps.size () == 1) {
+				return makeNode<Convert<R, T>> (std::move (deps), dim);
+			} else if (deps.size () == 0) {
+				return makeNode<ConstantOne<R>> (dim);
+			} else {
+				return std::make_shared<CWiseMul<R, ReductionOf<T>>> (std::move (deps), dim);
+			}
+		}
+	};
+
+	// Pre compiled instantiations
+	extern template class CWiseMul<double, ReductionOf<double>>;
+	extern template struct Builder<CWiseMul<double, ReductionOf<double>>>;
+	extern template class CWiseMul<Eigen::VectorXd, ReductionOf<Eigen::VectorXd>>;
+	extern template struct Builder<CWiseMul<Eigen::VectorXd, ReductionOf<Eigen::VectorXd>>>;
+	extern template class CWiseMul<Eigen::MatrixXd, ReductionOf<Eigen::MatrixXd>>;
+	extern template struct Builder<CWiseMul<Eigen::MatrixXd, ReductionOf<Eigen::MatrixXd>>>;
 } // namespace dataflow
 } // namespace bpp
 

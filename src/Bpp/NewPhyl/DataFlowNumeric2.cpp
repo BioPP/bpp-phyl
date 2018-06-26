@@ -51,5 +51,13 @@ namespace dataflow {
 	template struct Builder<CWiseAdd<Eigen::VectorXd, ReductionOf<Eigen::VectorXd>>>;
 	template class CWiseAdd<Eigen::MatrixXd, ReductionOf<Eigen::MatrixXd>>;
 	template struct Builder<CWiseAdd<Eigen::MatrixXd, ReductionOf<Eigen::MatrixXd>>>;
+
+	// CWiseMul
+	template class CWiseMul<double, ReductionOf<double>>;
+	template struct Builder<CWiseMul<double, ReductionOf<double>>>;
+	template class CWiseMul<Eigen::VectorXd, ReductionOf<Eigen::VectorXd>>;
+	template struct Builder<CWiseMul<Eigen::VectorXd, ReductionOf<Eigen::VectorXd>>>;
+	template class CWiseMul<Eigen::MatrixXd, ReductionOf<Eigen::MatrixXd>>;
+	template struct Builder<CWiseMul<Eigen::MatrixXd, ReductionOf<Eigen::MatrixXd>>>;
 } // namespace dataflow
 } // namespace bpp
