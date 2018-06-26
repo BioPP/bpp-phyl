@@ -135,6 +135,21 @@ namespace numeric {
 		// Eigen case, build a matrix/vector filled with constant value.
 		return Eigen::Matrix<T, Rows, Cols>::Constant (T (from), dim.rows, dim.cols);
 	}
+
+	// Return a reference to the object for component-wise operations
+	template <typename T, typename = typename std::enable_if<std::is_arithmetic<T>::value>::type>
+	T & cwise (T & t) {
+		return t; // Do nothing for basic types
+	}
+	template <typename Derived>
+	auto cwise (const Eigen::MatrixBase<Derived> & m) -> decltype (m.array ()) {
+		return m.array (); // Use Array API in Eigen
+	}
+	template <typename Derived> auto cwise (Eigen::MatrixBase<Derived> & m) -> decltype (m.array ()) {
+		return m.array (); // Use Array API in Eigen
+	}
+
+	// CWiseMul
 } // namespace numeric
 
 /******************************************************************************
@@ -356,6 +371,7 @@ namespace dataflow {
 	template <typename T> struct ReductionOf; // Type tag
 
 	template <typename Result, typename From> class CWiseAdd;
+	template <typename Result, typename From> class CWiseMul;
 
 	/** Addition of any number of T into R.
 	 */
@@ -370,7 +386,7 @@ namespace dataflow {
 			auto & result = this->accessValueMutable ();
 			result = zero (targetDimension);
 			for (const auto & depNodeRef : this->dependencies ()) {
-				result += accessValueConstCast<T> (*depNodeRef);
+				cwise (result) += cwise (accessValueConstCast<T> (*depNodeRef));
 			}
 		}
 
