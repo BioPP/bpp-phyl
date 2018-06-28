@@ -101,6 +101,8 @@ namespace bpp
 
     std::vector<std::string> getAllLeavesNames() const;
 
+    Vdouble getBranchLengths() const;
+
     void resetNodesId();
 
     void setBranchLengths(double l);
@@ -122,6 +124,39 @@ namespace bpp
      */
 
     void scaleTree(std::shared_ptr<PhyloNode> node, double factor);
+
+    /**
+     * @brief Add the lengths of branches of another phylotree to this
+     * one. Just branch ids are considered, whatever the topology of
+     * the trees. 
+     *
+     * @param phylotree The added PhyloTree
+     *
+     */
+
+    PhyloTree& operator+=(const PhyloTree& phylotree);
+
+    /**
+     * @brief Divides the lengths of branches of this phylotree by the
+     * ones of another phylotree. Just branch ids are considered,
+     * whatever the topology of the trees.
+     *
+     * @param phylotree The dividant PhyloTree
+     *
+     */
+
+    PhyloTree& operator/=(const PhyloTree& phylotree);
+
+    /**
+     * @brief Multiplies the lengths of branches of this phylotree by the
+     * ones of another phylotree. Just branch ids are considered,
+     * whatever the topology of the trees.
+     *
+     * @param phylotree The dividant PhyloTree
+     *
+     */
+
+    PhyloTree& operator*=(const PhyloTree& phylotree);
 
   };
     

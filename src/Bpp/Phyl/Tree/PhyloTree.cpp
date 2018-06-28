@@ -49,8 +49,6 @@ PhyloTree::PhyloTree(const ParametrizablePhyloTree& tree) :
 {
 }
 
-
-
 void PhyloTree::resetNodesId()
 {
   std::vector<shared_ptr<PhyloNode> > nodes = getAllNodes();
@@ -96,7 +94,76 @@ void PhyloTree::setBranchLengths(double l)
 {
   vector<shared_ptr<PhyloBranch> > vpn=getAllEdges();
 
-  for (vector<shared_ptr<PhyloBranch> >::const_iterator it=vpn.begin(); it != vpn.end(); it++)
-    (*it)->setLength(l);
+  for (auto& it: vpn)
+    it->setLength(l);
+}
+
+Vdouble PhyloTree::getBranchLengths() const 
+{
+  Vdouble vl;
+  
+  vector<shared_ptr<PhyloBranch> > vpn=getAllEdges();
+
+  for (auto& it: vpn)
+    vl.push_back(it->getLength());
+  return vl;
+}
+
+
+PhyloTree& PhyloTree::operator+=(const PhyloTree& phylotree)
+{
+  vector<shared_ptr<PhyloBranch> > vpn=getAllEdges();
+
+  for (auto& it: vpn)
+  {
+    uint ei=getEdgeIndex(it);
+
+    if (!phylotree.hasEdge(ei))
+      throw Exception("Phylotree::operator+= : argument tree does not have edge " + TextTools::toString(ei));
+    if (!it->hasLength() || !phylotree.getEdge(ei)->getLength())
+      throw Exception("Phylotree::operator+= : no summing of branches without length.");
+      
+    it->setLength(it->getLength()+phylotree.getEdge(ei)->getLength());
+  }
+  
+  return *this;
+}
+
+PhyloTree& PhyloTree::operator/=(const PhyloTree& phylotree)
+{
+  vector<shared_ptr<PhyloBranch> > vpn=getAllEdges();
+
+  for (auto& it: vpn)
+  {
+    uint ei=getEdgeIndex(it);
+
+    if (!phylotree.hasEdge(ei))
+      throw Exception("Phylotree::operator/= : argument tree does not have edge " + TextTools::toString(ei));
+    if (!it->hasLength() || !phylotree.getEdge(ei)->getLength())
+      throw Exception("Phylotree::operator/= : no summing of branches without length.");
+      
+    it->setLength(it->getLength()/phylotree.getEdge(ei)->getLength());
+  }
+  
+  return *this;
+}
+
+PhyloTree& PhyloTree::operator*=(const PhyloTree& phylotree)
+{
+  vector<shared_ptr<PhyloBranch> > vpn=getAllEdges();
+
+  for (auto& it: vpn)
+  {
+    uint ei=getEdgeIndex(it);
+
+    if (!phylotree.hasEdge(ei))
+      throw Exception("Phylotree::operator/= : argument tree does not have edge " + TextTools::toString(ei));
+    if (!it->hasLength() || !phylotree.getEdge(ei)->getLength())
+      throw Exception("Phylotree::operator/= : no summing of branches without length.");
+      
+    it->setLength(it->getLength()*phylotree.getEdge(ei)->getLength());
+  }
+  
+  return *this;
 }
 
