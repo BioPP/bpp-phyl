@@ -86,6 +86,8 @@ namespace bpp
       return getParameters().subList(nodeIndex);
     }
 
+    Vdouble getBranchLengths() const;
+
     virtual void setMinimumBranchLength(double minimum) 
     {
       if (minimum > maximumBrLen_)

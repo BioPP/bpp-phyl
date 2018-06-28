@@ -84,6 +84,16 @@ ParametrizablePhyloTree& ParametrizablePhyloTree::operator=(const Parametrizable
   return *this;
 }
 
+Vdouble ParametrizablePhyloTree::getBranchLengths() const 
+{
+  Vdouble vl;
+  
+  vector<shared_ptr<PhyloBranchParam> > vpn=getAllEdges();
+
+  for (auto& it: vpn)
+    vl.push_back(it->getLength());
+  return vl;
+}
 
 void ParametrizablePhyloTree::fireParameterChanged(const ParameterList& parameters)
 {
