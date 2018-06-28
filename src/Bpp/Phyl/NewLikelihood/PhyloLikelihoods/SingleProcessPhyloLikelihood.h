@@ -43,7 +43,6 @@
 #include "../../Tree/PhyloNode.h"
 #include "../../Tree/PhyloTree.h"
 #include "../../Model/SubstitutionModel.h"
-#include "../ModelIterator.h"
 #include "../SitePartition.h"
 
 #include <Bpp/Numeric/ParameterList.h>

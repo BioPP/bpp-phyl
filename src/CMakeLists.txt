@@ -72,7 +72,6 @@ set (CPP_FILES
   Bpp/Phyl/NewLikelihood/HmmSequenceEvolution.cpp
   Bpp/Phyl/NewLikelihood/AutoCorrelationSequenceEvolution.cpp
   Bpp/Phyl/NewLikelihood/HmmProcessEmissionProbabilities.cpp
-  Bpp/Phyl/NewLikelihood/ParametrizableTree.cpp
   Bpp/Phyl/NewLikelihood/ParametrizablePhyloTree.cpp
   Bpp/Phyl/NewLikelihood/AbstractLikelihoodNode.cpp
   Bpp/Phyl/NewLikelihood/AbstractLikelihoodTree.cpp
