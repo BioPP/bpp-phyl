@@ -167,6 +167,11 @@ namespace bpp
         return getPhyloContainer()->getData(getPhyloContainer()->getNumbersOfPhyloLikelihoods()[0]);
       }
 
+      const std::vector<ProcPos>& getProcessSiteRelations() const
+      {
+        return vProcPos_;
+      }
+      
       size_t getNumberOfSites() const
       {
         return ProductOfAlignedPhyloLikelihood::getNumberOfSites();
@@ -174,7 +179,7 @@ namespace bpp
 
       Vdouble getLikelihoodPerSite() const
       {
-        return ProductOfAlignedPhyloLikelihood::getLikelihoodPerSite();
+        return AbstractAlignedPhyloLikelihood::getLikelihoodPerSite();
       }
       
       /**
