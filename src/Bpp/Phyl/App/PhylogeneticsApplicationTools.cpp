@@ -1823,7 +1823,7 @@ map<size_t, SequenceEvolution*> PhylogeneticsApplicationTools::getSequenceEvolut
           for (size_t j = 0; j < procPos.size(); j++)
           {
             if (posProc.find(procPos[j]) != posProc.end())
-              throw BadIntegerException("A process position is defined twice:", (int)j);
+              throw BadIntegerException("A process position is defined twice ", (int)procPos[j]);
             else
               posProc[procPos[j]] = vproc[i];
           }
