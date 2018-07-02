@@ -95,12 +95,13 @@ namespace bpp
     virtual const ParameterList& getParameters() const = 0;
 
     /*
-     * @brief compute Normalizations given a SubstitutionRegister and
-     * a list of null parameters
+     * @brief compute Normalizations
+     * @param nullParams a list of null parameters
+     * @param verbose  
      *
      */
 
-    virtual void computeNormalizations(const ParameterList& nullParams) = 0;
+    virtual void computeNormalizations(const ParameterList& nullParams, bool verbose = true) = 0;
 
     /*
      * @brief return if normalizations have been performed.

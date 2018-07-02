@@ -42,13 +42,16 @@
 using namespace bpp;
 using namespace std;
 
-void OneProcessSequenceSubstitutionMapping::computeNormalizations(const ParameterList& nullParams)
+void OneProcessSequenceSubstitutionMapping::computeNormalizations(const ParameterList& nullParams,
+                                                                  bool verbose)
 {
   matchParametersValues(nullParams);
   
   factors_.reset(SubstitutionMappingTools::computeNormalizations(getLikelihoodCalculation(),
                                                                  this,
-                                                                 getRegister()));
+                                                                 getRegister(),
+                                                                 getDistances(),
+                                                                 verbose));
 }
 
 

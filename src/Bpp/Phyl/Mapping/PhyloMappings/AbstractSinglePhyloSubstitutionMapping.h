@@ -213,7 +213,7 @@ namespace bpp
      */
     
     void addModel(size_t index, const TransitionModel& model, Vuint brIds);
-
+    
   };
   
 } // end of namespace bpp.

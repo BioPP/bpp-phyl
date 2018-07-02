@@ -70,11 +70,11 @@ namespace bpp
     void setBranchedModelSet_();
     
   public:
-    OneProcessSequenceSubstitutionMapping(OneProcessSequencePhyloLikelihood& spp, SubstitutionRegister& reg, std::shared_ptr<const AlphabetIndex2> weights, std::shared_ptr<const AlphabetIndex2> distances, double threshold = -1) :
+    OneProcessSequenceSubstitutionMapping(OneProcessSequencePhyloLikelihood& spp, SubstitutionRegister& reg, std::shared_ptr<const AlphabetIndex2> weights, std::shared_ptr<const AlphabetIndex2> distances, double threshold = -1, bool verbose=true) :
       AbstractSinglePhyloSubstitutionMapping(spp.getSubstitutionProcess().getParametrizablePhyloTree().getGraph(), reg, weights, distances),
       pOPSP_(&spp)
     {
-      computeCounts(threshold);
+      computeCounts(threshold, verbose);
       setBranchedModelSet_();
     }
 
@@ -101,16 +101,18 @@ namespace bpp
      *
      */
 
-    void computeCounts(double threshold = -1)
+    void computeCounts(double threshold = -1, bool verbose=true)
     {
       counts_.reset(SubstitutionMappingTools::computeCounts(getLikelihoodCalculation(),
                                                             getRegister(),
                                                             getWeights(),
                                                             getDistances(),
-                                                            threshold));
+                                                            threshold,
+                                                            verbose));
     }
     
-    void computeNormalizations(const ParameterList& nullParams);
+    void computeNormalizations(const ParameterList& nullParams,
+                               bool verbose = true);
 
     /*
      * @brief Return the tree of counts

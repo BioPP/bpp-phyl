@@ -478,7 +478,7 @@ ProbabilisticSubstitutionMapping* SubstitutionMappingTools::computeNormalization
       {
         unique_ptr<Reward> reward(new DecompositionReward(modn, &usai[nbt]));
         
-        unique_ptr<ProbabilisticRewardMapping> mapping(RewardMappingTools::computeRewardVectors(rltc, mids, *reward, true));
+        unique_ptr<ProbabilisticRewardMapping> mapping(RewardMappingTools::computeRewardVectors(rltc, mids, *reward, verbose));
 
         for (size_t k = 0; k < mids.size(); k++)
         {

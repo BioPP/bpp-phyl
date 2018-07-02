@@ -42,13 +42,16 @@
 using namespace bpp;
 using namespace std;
 
-void SingleProcessSubstitutionMapping::computeNormalizations(const ParameterList& nullParams)
+void SingleProcessSubstitutionMapping::computeNormalizations(const ParameterList& nullParams,
+                                                             bool verbose)
 {
   matchParametersValues(nullParams);
 
   factors_.reset(SubstitutionMappingTools::computeNormalizations(getLikelihoodCalculation(),
                                                                  this,
-                                                                 getRegister()));
+                                                                 getRegister(),
+                                                                 getDistances(),
+                                                                 verbose));
 }
 
 void SingleProcessSubstitutionMapping::setBranchedModelSet_()
@@ -58,7 +61,7 @@ void SingleProcessSubstitutionMapping::setBranchedModelSet_()
   vector<size_t> vId=sp.getModelNumbers();
   
   for (auto id:vId)
-  {
     addModel(id, *sp.getModel(id),sp.getNodesWithModel(id));
-  }
 }
+
+  
