@@ -178,6 +178,26 @@ public:
   }
 };
 
+  /**
+   * @brief FrequenciesSet useful for homogeneous and stationary models, nucleotide implementation
+   *
+   * This set contains no parameter.
+   */
+  class UserNucleotideFrequenciesSet :
+    public virtual NucleotideFrequenciesSet,
+    public UserFrequenciesSet
+  {
+  public:
+    UserNucleotideFrequenciesSet(const NucleicAlphabet* alphabet, const std::string& path, size_t nCol=1):
+      UserFrequenciesSet(new CanonicalStateMap(alphabet, false), path, nCol) {}
+    
+    UserNucleotideFrequenciesSet* clone() const { return new UserNucleotideFrequenciesSet(*this); }
+
+    const NucleicAlphabet* getAlphabet() const
+    {
+      return dynamic_cast<const NucleicAlphabet*>(AbstractFrequenciesSet::getAlphabet());
+    }
+  };
 
 } // end of namespace bpp.
 

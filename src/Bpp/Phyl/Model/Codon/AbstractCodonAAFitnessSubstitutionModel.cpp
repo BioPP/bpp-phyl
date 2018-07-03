@@ -46,7 +46,7 @@ using namespace std;
 /****************************************************************************************/
 
 AbstractCodonAAFitnessSubstitutionModel::AbstractCodonAAFitnessSubstitutionModel(FrequenciesSet* pfitset, const GeneticCode* pgencode, const string& prefix):
-  AbstractParameterAliasable(prefix), pfitset_(pfitset), pgencode_(pgencode), fitName_(""), stateMap_(&pfitset->getStateMap())
+  AbstractParameterAliasable(prefix), pfitset_(pfitset), pgencode_(pgencode), fitName_(""), stateMap_(new CanonicalStateMap(pgencode->getSourceAlphabet(), false)), protStateMap_(&pfitset->getStateMap())
 {
   if (!AlphabetTools::isProteicAlphabet(pfitset_->getAlphabet()))
     throw Exception("AbstractCodonAAFitnessSubstitutionModel::AbstractCodonAAFitnessSubstitutionModel need Proteic Fitness.");

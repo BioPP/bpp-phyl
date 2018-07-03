@@ -192,8 +192,6 @@ MarkovModulatedFrequenciesSet::MarkovModulatedFrequenciesSet(FrequenciesSet* fre
   setFrequencies_(VectorTools::kroneckerMult(rateFreqs, freqSet_->getFrequencies()));
 }
 
-
-
 //////////////////////////////////
 /// From Model
 
@@ -246,4 +244,82 @@ void FromModelFrequenciesSet::fireParameterChanged(const ParameterList& pl)
 {
   model_->matchParametersValues(pl);
   setFrequencies_(model_->getFrequencies());
+}
+
+
+//////////////////////////////////
+/// User
+
+UserFrequenciesSet::UserFrequenciesSet(StateMap* stateMap, const std::string& path, size_t nCol):
+  AbstractFrequenciesSet(stateMap, "User.", "User"),
+  path_(path),
+  nCol_(nCol)
+{
+  readFromFile_();
+}
+
+UserFrequenciesSet::UserFrequenciesSet(const UserFrequenciesSet& fmfs):
+  AbstractFrequenciesSet(fmfs),
+  path_(fmfs.path_),
+  nCol_(fmfs.nCol_)
+{
+}
+
+UserFrequenciesSet& UserFrequenciesSet::operator=(const UserFrequenciesSet& fmfs) 
+{
+  AbstractFrequenciesSet::operator=(fmfs);
+  path_ = fmfs.path_;
+  nCol_ = fmfs.nCol_;
+  return *this;
+}
+
+void UserFrequenciesSet::readFromFile_()
+{
+  if (!FileTools::fileExists(path_.c_str()))
+    throw Exception("UserFrequenciesSet::readFromFile. Frequencies file not found : " +  path_);
+
+  ifstream in(path_.c_str(), ios::in);
+
+  //Read profile:
+
+  for (unsigned int i = 0; i < getAlphabet()->getSize(); i++)
+  {
+    if (!in)
+      throw Exception("UserFrequenciesSet::readFromFile. Missing frequencies in file : " +  path_);
+    
+    string line = FileTools::getNextLine(in);
+    StringTokenizer st(line);
+    double s(0);
+    for (unsigned int j = 0; j < nCol_; j++)
+    {
+      if (!st.hasMoreToken())
+        throw Exception("UserFrequenciesSet::readFromFile. Missing frequencies for column " + TextTools::toString(nCol_) + " in line " + TextTools::toString(i));
+      s = TextTools::toDouble(st.nextToken());
+    }
+    getFreq_(i)=s;
+  }
+
+  double sf = VectorTools::sum(getFrequencies_());
+  if (fabs(sf - 1) > 0.000001)
+  {
+    ApplicationTools::displayMessage("WARNING!!! Frequencies sum to " + TextTools::toString(sf) + ", frequencies have been scaled.");
+    sf *= 1./sf;
+  }
+
+  //Closing stream:
+  in.close();
+}
+
+void UserFrequenciesSet::setFrequencies(const vector<double>& frequencies) 
+{
+  if (frequencies.size() != getNumberOfFrequencies())
+    throw DimensionException("UserFrequenciesSet::setFrequencies", frequencies.size(), getNumberOfFrequencies());
+  double sum = 0.0;
+  for (size_t i = 0; i < frequencies.size(); i++)
+  {
+    sum += frequencies[i];
+  }
+  if (fabs(1. - sum) > 0.00001)
+    throw Exception("FixedFrequenciesSet::setFrequencies. Frequencies sum must equal 1 (sum = " + TextTools::toString(sum) + ").");
+  setFrequencies_(frequencies);
 }

@@ -370,6 +370,38 @@ void FixedCodonFrequenciesSet::setFrequencies(const vector<double>& frequencies)
 }
 
 
+// ///////////////////////////////////////////
+// / UserCodonFrequenciesSet
+
+UserCodonFrequenciesSet::UserCodonFrequenciesSet(
+  const GeneticCode* gCode,
+  const std::string& path,
+  size_t nCol) :
+  UserFrequenciesSet(new CanonicalStateMap(gCode->getSourceAlphabet(), false), path, nCol),
+  pgc_(gCode)
+{
+}
+
+void UserCodonFrequenciesSet::setFrequencies(const vector<double>& frequencies)
+{
+  const CodonAlphabet* ca = getCodonAlphabet();
+  if (frequencies.size() != ca->getSize())
+    throw DimensionException("UserFrequenciesSet::setFrequencies", frequencies.size(), ca->getSize());
+  double sum = 0.0;
+
+  for (size_t i = 0; i < frequencies.size(); i++)
+  {
+    if (!(pgc_->isStop(static_cast<int>(i))))
+      sum += frequencies[i];
+  }
+
+  for (size_t i = 0; i < ca->getSize(); i++)
+  {
+    getFreq_(i) = (pgc_->isStop(static_cast<int>(i))) ? 0 : frequencies[i] / sum;
+  }
+}
+
+
 // ///////////////////////////////////////////////////////////////////
 // // CodonFromIndependentFrequenciesSet
 
