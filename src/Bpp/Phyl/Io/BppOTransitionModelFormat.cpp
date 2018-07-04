@@ -139,13 +139,13 @@ TransitionModel* BppOTransitionModelFormat::readTransitionModel(
 
     delete nestedModel;
 
-    // update only for trnasition models
+    // update only if transition model
     updateParameters_(model.get(), args);
     if (parseArguments)
       initialize_(*model, data);
   }
   else
     model.reset(BppOSubstitutionModelFormat::read(alphabet, modelDescription, data, parseArguments));
-
+  
   return model.release();
 }
