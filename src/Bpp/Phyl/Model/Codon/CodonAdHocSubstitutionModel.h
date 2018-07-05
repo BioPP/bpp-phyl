@@ -148,6 +148,8 @@ namespace bpp
     
     double getCodonsMulRate(size_t i, size_t j) const;
 
+    void setFreq(std::map<int,double>& frequencies);
+
     const FrequenciesSet* getFrequenciesSet() const
     {
       return freqSet_;

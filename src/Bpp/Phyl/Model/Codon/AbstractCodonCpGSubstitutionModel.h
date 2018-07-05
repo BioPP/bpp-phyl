@@ -115,6 +115,7 @@ namespace bpp
       return 0;
     }
 
+    void setFreq(std::map<int, double>& frequencies){};
   };
 
 } // end of namespace bpp.
