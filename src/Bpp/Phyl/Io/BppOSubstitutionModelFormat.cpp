@@ -1219,7 +1219,12 @@ SubstitutionModel* BppOSubstitutionModelFormat::readWord_(const Alphabet* alphab
         for (auto  it : nestedReader.getUnparsedArguments())
           unparsedParameterValuesNested["fit_" + it.first] = it.second;
 
-        vCSM.push_back(new AbstractCodonAAFitnessSubstitutionModel(nestedFreq, geneticCode_, ""));
+        AbstractCodonAAFitnessSubstitutionModel* aca=new AbstractCodonAAFitnessSubstitutionModel(nestedFreq, geneticCode_, "");
+
+        if (args.find("Ns")!=args.end())
+          aca->addNsParameter();
+        
+        vCSM.push_back(aca);
       }
       else if (modelName.find("Fit")!=string::npos)
       {
