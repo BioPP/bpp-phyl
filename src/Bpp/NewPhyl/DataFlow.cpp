@@ -186,10 +186,11 @@ namespace dataflow {
 		while (!nodesToVisit.empty ()) {
 			auto * n = nodesToVisit.top ();
 			nodesToVisit.pop ();
-			if (!n->isValid ())
+			if (!n->isValid ()) {
 				nodesToRecompute.push (n);
-			for (auto & dep : n->dependencies ())
-				nodesToVisit.push (dep.get ());
+				for (auto & dep : n->dependencies ())
+					nodesToVisit.push (dep.get ());
+			}
 		}
 		while (!nodesToRecompute.empty ()) {
 			auto * n = nodesToRecompute.top ();

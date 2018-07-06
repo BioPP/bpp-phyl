@@ -201,8 +201,6 @@ namespace dataflow {
 		Dimension<T> targetDimension;
 	};
 
-	// TODO merging builder::make ?
-
 	/** Lazily created numeric constant equal to one for the type.
 	 */
 	template <typename T> class ConstantOne : public Value<T> {
@@ -389,8 +387,6 @@ namespace dataflow {
 
 		Dimension<R> targetDimension;
 	};
-
-	// TODO Add
 
 	template <typename T> struct ReductionOf; // Type tag
 
@@ -609,6 +605,12 @@ namespace dataflow {
 	extern template class CWiseMul<double, ReductionOf<double>>;
 	extern template class CWiseMul<Eigen::VectorXd, ReductionOf<Eigen::VectorXd>>;
 	extern template class CWiseMul<Eigen::MatrixXd, ReductionOf<Eigen::MatrixXd>>;
+
+	// TODO add derivation for existing nodes
+	// TODO add other nodes from DFN1
+	// TODO add nodes from Numerical derivation
+	// TODO rename to DFN1
+	// TODO rm CPP14, DFN1, integer range uses
 } // namespace dataflow
 } // namespace bpp
 

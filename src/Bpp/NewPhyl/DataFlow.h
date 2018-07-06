@@ -151,6 +151,12 @@ namespace dataflow {
 		// Rebuild the node with different dependencies
 		virtual NodeRef rebuild (NodeRefVec && deps) const;
 
+		/** @brief Compute this node value, recomputing dependencies (transitively) as needed.
+		 *
+		 * Not thread safe !
+		 */
+		void computeRecursively ();
+
 	protected:
 		/** @brief Computation implementation.
 		 *
@@ -174,12 +180,6 @@ namespace dataflow {
 		 * Not thread safe !
 		 */
 		void invalidateRecursively () noexcept;
-
-		/** @brief Compute this node value, recomputing dependencies (transitively) as needed.
-		 *
-		 * Not thread safe !
-		 */
-		void computeRecursively ();
 
 		void makeInvalid () noexcept { isValid_ = false; }
 		void makeValid () noexcept { isValid_ = true; }
