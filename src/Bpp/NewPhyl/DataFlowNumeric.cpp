@@ -122,35 +122,6 @@ namespace DF {
 		       " " + numericProps (m);
 	}
 
-	// NegDouble
-	class NegDouble : public Value<double> {
-	public:
-		using Dependencies = TupleOfValues<double>;
-
-		NegDouble (NodeRefVec && deps) : Value<double> (std::move (deps)) {}
-		NodeRef derive (const Node & node) final {
-			return makeNode<NegDouble> ({this->dependency (0)->derive (node)});
-		}
-		bool isDerivable (const Node & node) const final { return derivableIfAllDepsAre (*this, node); }
-		NodeRef rebuild (NodeRefVec && deps) const final {
-			return makeNode<NegDouble> (std::move (deps));
-		}
-
-	private:
-		void compute () final {
-			callWithValues (*this, [](double & r, double d) { r = -d; });
-		}
-	};
-	ValueRef<double> Builder<NegDouble>::make (NodeRefVec && deps) {
-		checkDependencies<NegDouble> (deps);
-		auto & dep = deps[0];
-		if (dep->isConstant ()) {
-			return makeNode<Constant<double>> (-accessValidValueConstCast<double> (dep));
-		} else {
-			return std::make_shared<NegDouble> (std::move (deps));
-		}
-	}
-
 	// ScalarProdDouble
 	class ScalarProdDouble : public Value<double> {
 	public:
@@ -184,41 +155,6 @@ namespace DF {
 			return makeNode<ConstantZero<double>> ();
 		} else {
 			return std::make_shared<ScalarProdDouble> (std::move (deps));
-		}
-	}
-
-	// CWiseNegVectorDouble
-	class CWiseNegVectorDouble : public Value<VectorDouble> {
-	public:
-		using Dependencies = TupleOfValues<VectorDouble>;
-
-		CWiseNegVectorDouble (NodeRefVec && deps, const Dimension<VectorDouble> & dim)
-		    : Value<VectorDouble> (std::move (deps)) {
-			setTargetDimension (this->accessValueMutable (), dim);
-		}
-		NodeRef derive (const Node & node) final {
-			return makeNode<CWiseNegVectorDouble> ({this->dependency (0)->derive (node)},
-			                                       targetDimension (this->accessValueConst ()));
-		}
-		bool isDerivable (const Node & node) const final { return derivableIfAllDepsAre (*this, node); }
-		NodeRef rebuild (NodeRefVec && deps) const final {
-			return makeNode<CWiseNegVectorDouble> (std::move (deps),
-			                                       targetDimension (this->accessValueConst ()));
-		}
-
-	private:
-		void compute () final {
-			callWithValues (*this, [](VectorDouble & r, const VectorDouble & v) { r.noalias () = -v; });
-		}
-	};
-	ValueRef<VectorDouble> Builder<CWiseNegVectorDouble>::make (NodeRefVec && deps,
-	                                                            const Dimension<VectorDouble> & dim) {
-		checkDependencies<CWiseNegVectorDouble> (deps);
-		auto & dep = deps[0];
-		if (dep->isConstant ()) {
-			return makeNode<Constant<VectorDouble>> (-accessValidValueConstCast<VectorDouble> (dep));
-		} else {
-			return std::make_shared<CWiseNegVectorDouble> (std::move (deps), dim);
 		}
 	}
 

@@ -678,6 +678,48 @@ namespace dataflow {
 	extern template class CWiseMul<Eigen::VectorXd, ReductionOf<Eigen::VectorXd>>;
 	extern template class CWiseMul<Eigen::MatrixXd, ReductionOf<Eigen::MatrixXd>>;
 
+	/** Negation of T.
+	 */
+	template <typename T> class Negate : public Value<T> {
+	public:
+		using Self = Negate;
+
+		static ValueRef<T> create (Context & c, NodeRefVec && deps, const Dimension<T> & dim = {}) {
+			// Check dependencies
+			checkDependenciesNotNull (typeid (Self), deps);
+			checkDependencyVectorSize (typeid (Self), deps, 1);
+			checkNthDependencyIsValue<T> (typeid (Self), deps, 0);
+			// Select node
+			if (deps[0]->hasNumericalProperty (NumericalProperty::Constant) &&
+			    deps[0]->hasNumericalProperty (NumericalProperty::Zero)) {
+				return ConstantZero<T>::create (c, dim);
+			} else {
+				return std::make_shared<Self> (std::move (deps), dim);
+			}
+		}
+
+		Negate (NodeRefVec && deps, const Dimension<T> & dim)
+		    : Value<T> (std::move (deps)), targetDimension (dim) {}
+
+		NodeRef derive (Context & c, const Node & node) final {
+			return Self::create (c, NodeRefVec{this->dependency (0)->derive (c, node)}, targetDimension);
+		}
+		bool isDerivable (const Node & node) const final {
+			return this->dependency (0)->isDerivable (node);
+		}
+
+	private:
+		void compute () final {
+			this->accessValueMutable () = -accessValueConstCast<T> (*this->dependency (0));
+		}
+
+		Dimension<T> targetDimension;
+	};
+
+	// Pre compiled instantiations
+	extern template class Negate<double>;
+	extern template class Negate<Eigen::VectorXd>;
+	extern template class Negate<Eigen::MatrixXd>;
 } // namespace dataflow
 } // namespace bpp
 
