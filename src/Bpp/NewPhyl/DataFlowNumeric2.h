@@ -395,7 +395,7 @@ namespace dataflow {
 	template <typename R, typename T0, typename T1>
 	class CWiseAdd<R, std::tuple<T0, T1>> : public Value<R> {
 	public:
-		static ValueRef<R> make (NodeRefVec && deps, const Dimension<R> & dim = {}) {
+		static ValueRef<R> create (NodeRefVec && deps, const Dimension<R> & dim = {}) {
 			using NodeType = CWiseAdd<R, std::tuple<T0, T1>>;
 			// Check dependencies
 			checkDependenciesNotNull (typeid (NodeType), deps);
@@ -452,10 +452,12 @@ namespace dataflow {
 				       ref->hasNumericalProperty (NumericalProperty::Zero);
 			});
 			// Select node implementation
-			if (deps.size () == 1) {
-				return Convert<R, T>::create (std::move (deps), dim);
-			} else if (deps.size () == 0) {
+			if (deps.size () == 0) {
 				return ConstantZero<R>::create (dim);
+			} else if (deps.size () == 1) {
+				return Convert<R, T>::create (std::move (deps), dim);
+			} else if (deps.size () == 2) {
+				return CWiseAdd<R, std::tuple<T, T>>::create (std::move (deps), dim);
 			} else {
 				return std::make_shared<NodeType> (std::move (deps), dim);
 			}
@@ -562,10 +564,12 @@ namespace dataflow {
 				       ref->hasNumericalProperty (NumericalProperty::One);
 			});
 			// Select node implementation
-			if (deps.size () == 1) {
-				return Convert<R, T>::create (std::move (deps), dim);
-			} else if (deps.size () == 0) {
+			if (deps.size () == 0) {
 				return ConstantOne<R>::create (dim);
+			} else if (deps.size () == 1) {
+				return Convert<R, T>::create (std::move (deps), dim);
+			} else if (deps.size () == 2) {
+				return CWiseMul<R, std::tuple<T, T>>::create (std::move (deps), dim);
 			} else {
 				return std::make_shared<NodeType> (std::move (deps), dim);
 			}
