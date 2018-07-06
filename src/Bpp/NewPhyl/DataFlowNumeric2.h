@@ -155,8 +155,24 @@ namespace numeric {
  * Data flow nodes for those numerical functions.
  * TODO debug !
  * TODO what of rebuild ?
+ * TODO add derivation for existing nodes
+ * TODO add other nodes from DFN1
+ * TODO add nodes from Numerical derivation
+ * TODO rename to DFN1
+ * TODO rm CPP14, DFN1, integer range uses
  */
 namespace dataflow {
+	template <typename T> struct ReductionOf; // Type tag
+
+	// Declaration of all defined nodes, in order of implementation.
+	template <typename T> class ConstantZero;
+	template <typename T> class ConstantOne;
+	template <typename T> class NumericConstant;
+	template <typename T> class NumericMutable;
+	template <typename Result, typename From> class Convert;
+	template <typename Result, typename From> class CWiseAdd;
+	template <typename Result, typename From> class CWiseMul;
+
 	// Utility : remove dependencies from vector according to a predicate
 	template <typename Predicate> void removeDependenciesIf (NodeRefVec & deps, Predicate p) {
 		auto new_end = std::remove_if (deps.begin (), deps.end (), std::move (p));
@@ -388,11 +404,6 @@ namespace dataflow {
 		Dimension<R> targetDimension;
 	};
 
-	template <typename T> struct ReductionOf; // Type tag
-
-	template <typename Result, typename From> class CWiseAdd;
-	template <typename Result, typename From> class CWiseMul;
-
 	/** Addition of a fixed set of values into R.
 	 * Only defined for N = 2 for now.
 	 * The generic version is horrible in C++11 (lack of auto return).
@@ -606,11 +617,6 @@ namespace dataflow {
 	extern template class CWiseMul<Eigen::VectorXd, ReductionOf<Eigen::VectorXd>>;
 	extern template class CWiseMul<Eigen::MatrixXd, ReductionOf<Eigen::MatrixXd>>;
 
-	// TODO add derivation for existing nodes
-	// TODO add other nodes from DFN1
-	// TODO add nodes from Numerical derivation
-	// TODO rename to DFN1
-	// TODO rm CPP14, DFN1, integer range uses
 } // namespace dataflow
 } // namespace bpp
 
