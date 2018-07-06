@@ -48,15 +48,17 @@ TEST_CASE("test")
 {
   using namespace bpp::dataflow;
 
-  auto a = ConstantZero<double>::create();
-  auto b = ConstantZero<Eigen::MatrixXd>::create(bpp::MatrixDimension{42, 32});
-  auto c = ConstantOne<Eigen::VectorXd>::create(bpp::vectorDimension(42));
+  Context context;
 
-  auto d = NumericConstant<Eigen::MatrixXd>::create(Eigen::MatrixXd::Random(42, 32));
-  auto e = CWiseAdd<Eigen::MatrixXd, ReductionOf<Eigen::MatrixXd>>::create({b, d});
+  auto a = ConstantZero<double>::create(context);
+  auto b = ConstantZero<Eigen::MatrixXd>::create(context, bpp::MatrixDimension{42, 32});
+  auto c = ConstantOne<Eigen::VectorXd>::create(context, bpp::vectorDimension(42));
+
+  auto d = NumericConstant<Eigen::MatrixXd>::create(context, Eigen::MatrixXd::Random(42, 32));
+  auto e = CWiseAdd<Eigen::MatrixXd, ReductionOf<Eigen::MatrixXd>>::create(context, {b, d});
   e->getValue();
 
-  auto z = e->derive(*a);
+  auto z = e->derive(context, *a);
   // Print DF graph
   // bpp::debugDag("df_debug", *root);
 }

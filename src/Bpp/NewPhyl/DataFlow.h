@@ -57,6 +57,7 @@ namespace bpp {
 namespace dataflow {
 	class Node;
 	template <typename T> class Value;
+	class Context;
 
 	/// Node instances are always manipulated as shared pointers, use an alias.
 	using NodeRef = std::shared_ptr<Node>;
@@ -137,13 +138,13 @@ namespace dataflow {
 		/** @brief Test if the node has the given numerical property.
 		 *
 		 * This is an optional indication only, used for optimisations.
-		 * If unsure, leave it to false (the default implementation).
+		 * If unsure, leave it to always false (the default implementation).
 		 * This should be non recursive, to ensure a constant time check.
 		 */
 		virtual bool hasNumericalProperty (NumericalProperty prop) const;
 
 		/// Derive with respect to node (default = not implemented), recursive.
-		virtual NodeRef derive (const Node & node);
+		virtual NodeRef derive (Context & c, const Node & node);
 		virtual bool isDerivable (const Node & node) const;
 		// TODO derivation doc somewhere
 
@@ -199,6 +200,15 @@ namespace dataflow {
 	                                 const std::map<const Node *, NodeRef> & substitutions);
 
 	bool isTransitivelyDependentOn (const Node & searchedDependency, const Node & node);
+
+	/** Context for dataflow node construction.
+	 *
+	 * TODO later, use to implement Cache/merging strategies
+	 */
+	class Context {
+	public:
+		Context () = default;
+	};
 
 	/** @brief Abstract Node storing a value of type T.
 	 *

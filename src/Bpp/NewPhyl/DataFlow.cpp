@@ -149,7 +149,7 @@ namespace dataflow {
 
 	bool Node::hasNumericalProperty (NumericalProperty) const { return false; }
 
-	NodeRef Node::derive (const Node &) {
+	NodeRef Node::derive (Context &, const Node &) {
 		throw Exception ("Node does not support derivation: " + description ());
 	}
 	bool Node::isDerivable (const Node &) const { return false; }
