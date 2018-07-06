@@ -42,11 +42,13 @@
 #ifndef BPP_NEWPHYL_DATAFLOWNUMERIC2_H
 #define BPP_NEWPHYL_DATAFLOWNUMERIC2_H
 
+#include <Bpp/NewPhyl/Cpp14.h>
 #include <Bpp/NewPhyl/DataFlow.h>
 #include <Eigen/Core>
 #include <algorithm>
 #include <cassert>
 #include <string>
+#include <tuple>
 #include <type_traits>
 
 namespace bpp {
@@ -148,8 +150,6 @@ namespace numeric {
 	template <typename Derived> auto cwise (Eigen::MatrixBase<Derived> & m) -> decltype (m.array ()) {
 		return m.array (); // Use Array API in Eigen
 	}
-
-	// CWiseMul
 } // namespace numeric
 
 /******************************************************************************
@@ -373,6 +373,33 @@ namespace dataflow {
 	template <typename Result, typename From> class CWiseAdd;
 	template <typename Result, typename From> class CWiseMul;
 
+	/** Addition of a fixed set of values into R.
+	 * Only defined for N = 2 for now.
+	 * The generic version is horrible in C++11 (lack of auto return).
+	 * Generic simplification routine is horrible too.
+	 */
+	template <typename R, typename T0, typename T1>
+	class CWiseAdd<R, std::tuple<T0, T1>> : public Value<R> {
+	public:
+		CWiseAdd (NodeRefVec && deps, const Dimension<R> & dim)
+		    : Value<R> (std::move (deps), targetDimension (dim)) {}
+
+	private:
+		void compute () final {
+			using namespace numeric;
+			auto & result = this->accessValueMutable ();
+			cwise (result) = cwise (accessValueConstCast<T0> (this->dependency (0))) +
+			                 cwise (accessValueConstCast<T1> (this->dependency (1)));
+		}
+
+		Dimension<R> targetDimension;
+	}; // namespace dataflow
+
+	// Pre compiled instantiations
+	extern template class CWiseAdd<double, std::tuple<double, double>>;
+	extern template class CWiseAdd<Eigen::VectorXd, std::tuple<Eigen::VectorXd, Eigen::VectorXd>>;
+	extern template class CWiseAdd<Eigen::MatrixXd, std::tuple<Eigen::MatrixXd, Eigen::MatrixXd>>;
+
 	/** Addition of any number of T into R.
 	 */
 	template <typename R, typename T> class CWiseAdd<R, ReductionOf<T>> : public Value<R> {
@@ -422,6 +449,33 @@ namespace dataflow {
 	extern template struct Builder<CWiseAdd<Eigen::VectorXd, ReductionOf<Eigen::VectorXd>>>;
 	extern template class CWiseAdd<Eigen::MatrixXd, ReductionOf<Eigen::MatrixXd>>;
 	extern template struct Builder<CWiseAdd<Eigen::MatrixXd, ReductionOf<Eigen::MatrixXd>>>;
+
+	/** Multiplication of a fixed set of values into R.
+	 * Only defined for N = 2 for now. Same problems as CWiseAdd.
+	 */
+	template <typename R, typename T0, typename T1>
+	class CWiseMul<R, std::tuple<T0, T1>> : public Value<R> {
+	public:
+		CWiseMul (NodeRefVec && deps, const Dimension<R> & dim)
+		    : Value<R> (std::move (deps), targetDimension (dim)) {}
+
+	private:
+		void compute () final {
+			using namespace numeric;
+			auto & result = this->accessValueMutable ();
+			cwise (result) = cwise (accessValueConstCast<T0> (this->dependency (0))) *
+			                 cwise (accessValueConstCast<T1> (this->dependency (1)));
+		}
+
+		Dimension<R> targetDimension;
+	}; // namespace dataflow
+
+	// Pre compiled instantiations
+	extern template class CWiseMul<double, std::tuple<double, double>>;
+	extern template class CWiseMul<Eigen::VectorXd, std::tuple<Eigen::VectorXd, Eigen::VectorXd>>;
+	extern template class CWiseMul<Eigen::MatrixXd, std::tuple<Eigen::MatrixXd, Eigen::MatrixXd>>;
+	extern template class CWiseMul<Eigen::VectorXd, std::tuple<double, Eigen::VectorXd>>;
+	extern template class CWiseMul<Eigen::MatrixXd, std::tuple<double, Eigen::MatrixXd>>;
 
 	/** Multiplication of any number of T into R.
 	 */
