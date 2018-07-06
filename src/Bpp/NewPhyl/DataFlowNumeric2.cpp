@@ -66,9 +66,14 @@ namespace dataflow {
 	template class CWiseMul<Eigen::VectorXd, ReductionOf<Eigen::VectorXd>>;
 	template class CWiseMul<Eigen::MatrixXd, ReductionOf<Eigen::MatrixXd>>;
 
-	// Negate
-	template class Negate<double>;
-	template class Negate<Eigen::VectorXd>;
-	template class Negate<Eigen::MatrixXd>;
+	// CWiseNegate
+	template class CWiseNegate<double>;
+	template class CWiseNegate<Eigen::VectorXd>;
+	template class CWiseNegate<Eigen::MatrixXd>;
+
+	// CWiseConstantPow
+	template class CWiseConstantPow<double>;
+	template class CWiseConstantPow<Eigen::VectorXd>;
+	template class CWiseConstantPow<Eigen::MatrixXd>;
 } // namespace dataflow
 } // namespace bpp

@@ -47,20 +47,9 @@
 
 namespace bpp {
 namespace DF {
-	// Utils
-	bool derivableIfAllDepsAre (const Node & toDerive, const Node & node);
-
-	class NegDouble;
-	template <> struct Builder<NegDouble> { static ValueRef<double> make (NodeRefVec && deps); };
-
 	class ScalarProdDouble;
 	template <> struct Builder<ScalarProdDouble> {
 		static ValueRef<double> make (NodeRefVec && deps);
-	};
-
-	class CWiseNegVectorDouble;
-	template <> struct Builder<CWiseNegVectorDouble> {
-		static ValueRef<VectorDouble> make (NodeRefVec && deps, const Dimension<VectorDouble> & dim);
 	};
 
 	class CWiseInverseVectorDouble;
@@ -79,8 +68,6 @@ namespace DF {
 		static ValueRef<MatrixDouble> make (NodeRefVec && deps, const Dimension<MatrixDouble> & dim);
 	};
 
-	/* Combinations
-	 */
 	class MulTransposedMatrixVectorDouble;
 	template <> struct Builder<MulTransposedMatrixVectorDouble> {
 		static ValueRef<VectorDouble> make (NodeRefVec && deps, const Dimension<VectorDouble> & dim);

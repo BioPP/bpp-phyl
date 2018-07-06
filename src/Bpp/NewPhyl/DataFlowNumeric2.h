@@ -608,6 +608,8 @@ namespace dataflow {
 	extern template class CWiseMul<Eigen::MatrixXd, std::tuple<Eigen::MatrixXd, Eigen::MatrixXd>>;
 	extern template class CWiseMul<Eigen::VectorXd, std::tuple<double, Eigen::VectorXd>>;
 	extern template class CWiseMul<Eigen::MatrixXd, std::tuple<double, Eigen::MatrixXd>>;
+	template <typename T> class CwiseNegate;
+	template <typename T> class CWiseConstantPow;
 
 	/** Multiplication of any number of T into R.
 	 */
@@ -680,9 +682,9 @@ namespace dataflow {
 
 	/** Negation of T.
 	 */
-	template <typename T> class Negate : public Value<T> {
+	template <typename T> class CWiseNegate : public Value<T> {
 	public:
-		using Self = Negate;
+		using Self = CWiseNegate;
 
 		static ValueRef<T> create (Context & c, NodeRefVec && deps, const Dimension<T> & dim = {}) {
 			// Check dependencies
@@ -698,7 +700,7 @@ namespace dataflow {
 			}
 		}
 
-		Negate (NodeRefVec && deps, const Dimension<T> & dim)
+		CWiseNegate (NodeRefVec && deps, const Dimension<T> & dim)
 		    : Value<T> (std::move (deps)), targetDimension (dim) {}
 
 		NodeRef derive (Context & c, const Node & node) final {
@@ -710,16 +712,76 @@ namespace dataflow {
 
 	private:
 		void compute () final {
-			this->accessValueMutable () = -accessValueConstCast<T> (*this->dependency (0));
+			using namespace numeric;
+			auto & result = this->accessValueMutable ();
+			cwise (result) = -cwise (accessValueConstCast<T> (*this->dependency (0)));
 		}
 
 		Dimension<T> targetDimension;
 	};
 
 	// Pre compiled instantiations
-	extern template class Negate<double>;
-	extern template class Negate<Eigen::VectorXd>;
-	extern template class Negate<Eigen::MatrixXd>;
+	extern template class CWiseNegate<double>;
+	extern template class CWiseNegate<Eigen::VectorXd>;
+	extern template class CWiseNegate<Eigen::MatrixXd>;
+
+	/** Pow applied to values in T.
+	 */
+	template <typename T> class CWiseConstantPow : public Value<T> {
+	public:
+		using Self = CWiseConstantPow;
+
+		static ValueRef<T> create (Context & c, NodeRefVec && deps, double exponent,
+		                           const Dimension<T> & dim = {}) {
+			// Check dependencies
+			checkDependenciesNotNull (typeid (Self), deps);
+			checkDependencyVectorSize (typeid (Self), deps, 1);
+			checkNthDependencyIsValue<T> (typeid (Self), deps, 0);
+			// Select node
+			if (exponent == 0. || (deps[0]->hasNumericalProperty (NumericalProperty::Constant) &&
+			                       deps[0]->hasNumericalProperty (NumericalProperty::One))) {
+				return ConstantOne<T>::create (c, dim);
+			} else if (exponent == 1.) {
+				return convertRef<Value<T>> (deps[0]);
+			} else {
+				return std::make_shared<Self> (std::move (deps), exponent, dim);
+			}
+			// TODO spec to inverse when added
+		}
+
+		CWiseConstantPow (NodeRefVec && deps, double exponent, const Dimension<T> & dim)
+		    : Value<T> (std::move (deps)), targetDimension (dim), exponent (exponent) {}
+
+		NodeRef derive (Context & c, const Node & node) final {
+			const auto & dep = this->dependency (0);
+			auto powDerivative = CWiseMul<T, std::tuple<double, T>>::create (
+			    c,
+			    NodeRefVec{NumericConstant<double>::create (c, exponent),
+			               Self::create (c, NodeRefVec{dep}, exponent - 1, targetDimension)},
+			    targetDimension);
+			return CWiseMul<T, std::tuple<T, T>>::create (
+			    c, NodeRefVec{std::move (powDerivative), dep->derive (c, node)}, targetDimension);
+		}
+		bool isDerivable (const Node & node) const final {
+			return this->dependency (0)->isDerivable (node);
+		}
+
+	private:
+		void compute () final {
+			using namespace numeric;
+			auto & result = this->accessValueMutable ();
+			cwise (result) = pow (cwise (accessValueConstCast<T> (*this->dependency (0))), exponent);
+			// pow (a, b) works because eigen defines it for both scalar and matrices
+		}
+
+		Dimension<T> targetDimension;
+		double exponent;
+	};
+
+	// Pre compiled instantiations
+	extern template class CWiseConstantPow<double>;
+	extern template class CWiseConstantPow<Eigen::VectorXd>;
+	extern template class CWiseConstantPow<Eigen::MatrixXd>;
 } // namespace dataflow
 } // namespace bpp
 

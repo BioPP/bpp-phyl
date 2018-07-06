@@ -198,57 +198,6 @@ namespace DF {
 		}
 	}
 
-	// CWiseConstantPowVectorDouble
-	class CWiseConstantPowVectorDouble : public Value<VectorDouble> {
-	public:
-		using Dependencies = TupleOfValues<VectorDouble>;
-
-		CWiseConstantPowVectorDouble (NodeRefVec && deps, const Dimension<VectorDouble> & dim,
-		                              double exp)
-		    : Value<VectorDouble> (std::move (deps)), exp_ (exp) {
-			setTargetDimension (this->accessValueMutable (), dim);
-		}
-		NodeRef derive (const Node & node) final {
-			auto dim = targetDimension (this->accessValueConst ());
-			auto & arg = this->dependency (0);
-			auto powDerivative = makeNode<CWiseMulScalarVectorDouble> (
-			    {makeNode<Constant<double>> (exp_),
-			     makeNode<CWiseConstantPowVectorDouble> ({arg}, dim, exp_ - 1.)},
-			    dim);
-			return makeNode<CWiseMulVectorDouble> ({std::move (powDerivative), arg->derive (node)}, dim);
-		}
-		bool isDerivable (const Node & node) const final { return derivableIfAllDepsAre (*this, node); }
-		NodeRef rebuild (NodeRefVec && deps) const final {
-			return makeNode<CWiseConstantPowVectorDouble> (
-			    std::move (deps), targetDimension (this->accessValueConst ()), exp_);
-		}
-
-	private:
-		void compute () final {
-			callWithValues (*this, [this](VectorDouble & r, const VectorDouble & v) {
-				r.noalias () = v.array ().pow (exp_).matrix ();
-			});
-		}
-		double exp_;
-	};
-	ValueRef<VectorDouble>
-	Builder<CWiseConstantPowVectorDouble>::make (NodeRefVec && deps,
-	                                             const Dimension<VectorDouble> & dim, double exp) {
-		checkDependencies<CWiseConstantPowVectorDouble> (deps);
-		auto & arg = deps[0];
-		if (exp == 1.) {
-			return convertRef<Value<VectorDouble>> (arg);
-		} else if (exp == 0.) {
-			return makeNode<ConstantOne<VectorDouble>> (dim);
-		} else if (exp == -1.) {
-			return makeNode<CWiseInverseVectorDouble> (std::move (deps), dim);
-		} else if (isConstantOneNode (arg)) {
-			return convertRef<Value<VectorDouble>> (arg);
-		} else {
-			return std::make_shared<CWiseConstantPowVectorDouble> (std::move (deps), dim, exp);
-		}
-	}
-
 	// MulMatrixDouble
 	class MulMatrixDouble : public Value<MatrixDouble> {
 	public:
