@@ -54,17 +54,6 @@
 #include <utility>
 
 namespace bpp {
-/* TODO
- * - opt: aggregate constants
- * - merge constants by type
- * - support for general register (reuse code in DF.cpp, declare in DFTinternal).
- * - opt: keep 0s instead of recreating them
- * - opt: merge * of *, + of +, ... ?
- * - common template for *,+ opts ?
- */
-
-// TODO fwd decl: cannot convert sp<Value<T>> to sp<Node>: provide make(Value<T>, ...) ?
-
 namespace DF {
 	/******************************** Utils *******************************/
 	namespace {
@@ -369,59 +358,6 @@ namespace DF {
 		}
 	}
 
-	// CWiseMulMatrixDouble
-	class CWiseMulMatrixDouble : public Value<MatrixDouble> {
-	public:
-		using Dependencies = ReductionOfValue<MatrixDouble>;
-
-		CWiseMulMatrixDouble (NodeRefVec && deps, const Dimension<MatrixDouble> & dim)
-		    : Value<MatrixDouble> (std::move (deps)) {
-			setTargetDimension (this->accessValueMutable (), dim);
-		}
-		NodeRef derive (const Node & node) final {
-			auto dim = targetDimension (this->accessValueConst ());
-			NodeRefVec addDeps;
-			for (auto i : bpp::range (this->nbDependencies ())) {
-				NodeRefVec mulDeps = this->dependencies ();
-				mulDeps[i] = this->dependency (i)->derive (node);
-				addDeps.emplace_back (makeNode<CWiseMulMatrixDouble> (std::move (mulDeps), dim));
-			}
-			return makeNode<AddMatrixDouble> (std::move (addDeps), dim);
-		}
-		bool isDerivable (const Node & node) const final { return derivableIfAllDepsAre (*this, node); }
-		NodeRef rebuild (NodeRefVec && deps) const final {
-			return makeNode<CWiseMulMatrixDouble> (std::move (deps),
-			                                       targetDimension (this->accessValueConst ()));
-		}
-
-	private:
-		void compute () final {
-			callWithValues (*this,
-			                [this](MatrixDouble & r) {
-				                r = linearAlgebraOneValue (targetDimension (this->accessValueConst ()));
-			                },
-			                [](MatrixDouble & r, const MatrixDouble & m) { r = r.cwiseProduct (m); });
-		}
-	};
-	ValueRef<MatrixDouble> Builder<CWiseMulMatrixDouble>::make (NodeRefVec && deps,
-	                                                            const Dimension<MatrixDouble> & dim) {
-		checkDependencies<CWiseMulMatrixDouble> (deps);
-		// Return 0 if any 0 dep
-		if (std::any_of (deps.begin (), deps.end (), isConstantZeroNode)) {
-			return makeNode<ConstantZero<MatrixDouble>> (dim);
-		}
-		// Remove 1s
-		removeDependenciesIf (deps, isConstantOneNode);
-		// Select node
-		if (deps.size () == 1) {
-			return convertRef<Value<MatrixDouble>> (deps[0]);
-		} else if (deps.size () == 0) {
-			return makeNode<ConstantOne<MatrixDouble>> (dim);
-		} else {
-			return std::make_shared<CWiseMulMatrixDouble> (std::move (deps), dim);
-		}
-	}
-
 	// MulTransposedMatrixVectorDouble
 	class MulTransposedMatrixVectorDouble : public Value<VectorDouble> {
 	public:
@@ -468,92 +404,5 @@ namespace DF {
 		}
 	}
 
-	// CWiseMulScalarVectorDouble
-	class CWiseMulScalarVectorDouble : public Value<VectorDouble> {
-	public:
-		using Dependencies = TupleOfValues<double, VectorDouble>;
-
-		CWiseMulScalarVectorDouble (NodeRefVec && deps, const Dimension<VectorDouble> & dim)
-		    : Value<VectorDouble> (std::move (deps)) {
-			setTargetDimension (this->accessValueMutable (), dim);
-		}
-		NodeRef derive (const Node & node) final {
-			auto dim = targetDimension (this->accessValueConst ());
-			auto & lhs = this->dependency (0);
-			auto & rhs = this->dependency (1);
-			auto dLhs = makeNode<CWiseMulScalarVectorDouble> ({lhs->derive (node), rhs}, dim);
-			auto dRhs = makeNode<CWiseMulScalarVectorDouble> ({lhs, rhs->derive (node)}, dim);
-			return makeNode<AddVectorDouble> ({std::move (dLhs), std::move (dRhs)}, dim);
-		}
-		bool isDerivable (const Node & node) const final { return derivableIfAllDepsAre (*this, node); }
-		NodeRef rebuild (NodeRefVec && deps) const final {
-			return makeNode<CWiseMulScalarVectorDouble> (std::move (deps),
-			                                             targetDimension (this->accessValueConst ()));
-		}
-
-	private:
-		void compute () final {
-			callWithValues (
-			    *this, [](VectorDouble & r, double d, const VectorDouble & v) { r.noalias () = d * v; });
-		}
-	};
-	ValueRef<VectorDouble>
-	Builder<CWiseMulScalarVectorDouble>::make (NodeRefVec && deps,
-	                                           const Dimension<VectorDouble> & dim) {
-		checkDependencies<CWiseMulScalarVectorDouble> (deps);
-		auto & lhs = deps[0];
-		auto & rhs = deps[1];
-		if (isConstantZeroNode (lhs) || isConstantZeroNode (rhs)) {
-			return makeNode<ConstantZero<VectorDouble>> (dim);
-		} else if (isConstantOneNode (lhs)) {
-			return convertRef<Value<VectorDouble>> (rhs);
-		} else {
-			return std::make_shared<CWiseMulScalarVectorDouble> (std::move (deps), dim);
-		}
-	}
-
-	// CWiseMulScalarMatrixDouble
-	class CWiseMulScalarMatrixDouble : public Value<MatrixDouble> {
-	public:
-		using Dependencies = TupleOfValues<double, MatrixDouble>;
-
-		CWiseMulScalarMatrixDouble (NodeRefVec && deps, const Dimension<MatrixDouble> & dim)
-		    : Value<MatrixDouble> (std::move (deps)) {
-			setTargetDimension (this->accessValueMutable (), dim);
-		}
-		NodeRef derive (const Node & node) final {
-			auto dim = targetDimension (this->accessValueConst ());
-			auto & lhs = this->dependency (0);
-			auto & rhs = this->dependency (1);
-			auto dLhs = makeNode<CWiseMulScalarMatrixDouble> ({lhs->derive (node), rhs}, dim);
-			auto dRhs = makeNode<CWiseMulScalarMatrixDouble> ({lhs, rhs->derive (node)}, dim);
-			return makeNode<AddMatrixDouble> ({std::move (dLhs), std::move (dRhs)}, dim);
-		}
-		bool isDerivable (const Node & node) const final { return derivableIfAllDepsAre (*this, node); }
-		NodeRef rebuild (NodeRefVec && deps) const final {
-			return makeNode<CWiseMulScalarMatrixDouble> (std::move (deps),
-			                                             targetDimension (this->accessValueConst ()));
-		}
-
-	private:
-		void compute () final {
-			callWithValues (
-			    *this, [](MatrixDouble & r, double d, const MatrixDouble & m) { r.noalias () = d * m; });
-		}
-	};
-	ValueRef<MatrixDouble>
-	Builder<CWiseMulScalarMatrixDouble>::make (NodeRefVec && deps,
-	                                           const Dimension<MatrixDouble> & dim) {
-		checkDependencies<CWiseMulScalarMatrixDouble> (deps);
-		auto & lhs = deps[0];
-		auto & rhs = deps[1];
-		if (isConstantZeroNode (lhs) || isConstantZeroNode (rhs)) {
-			return makeNode<ConstantZero<MatrixDouble>> (dim);
-		} else if (isConstantOneNode (lhs)) {
-			return convertRef<Value<MatrixDouble>> (rhs);
-		} else {
-			return std::make_shared<CWiseMulScalarMatrixDouble> (std::move (deps), dim);
-		}
-	}
 } // namespace DF
 } // namespace bpp

@@ -155,7 +155,6 @@ namespace numeric {
  * Data flow nodes for those numerical functions.
  * TODO debug !
  * TODO what of rebuild ?
- * TODO add derivation for existing nodes
  * TODO add other nodes from DFN1
  * TODO add nodes from Numerical derivation
  * TODO rename to DFN1
@@ -451,7 +450,7 @@ namespace dataflow {
 		    : Value<R> (std::move (deps)), targetDimension (dim) {}
 
 		NodeRef derive (Context & c, const Node & node) {
-			const auto n = this->nbDependencies ();
+			constexpr std::size_t n = 2;
 			NodeRefVec derivedDeps (n);
 			for (std::size_t i = 0; i < n; ++i) {
 				derivedDeps[i] = this->dependency (i)->derive (c, node);
@@ -553,11 +552,10 @@ namespace dataflow {
 			checkNthDependencyIsValue<T0> (typeid (Self), deps, 0);
 			checkNthDependencyIsValue<T1> (typeid (Self), deps, 1);
 			// Return 0 if any 0.
-			bool dep_0_zero = deps[0]->hasNumericalProperty (NumericalProperty::Constant) &&
-			                  deps[0]->hasNumericalProperty (NumericalProperty::Zero);
-			bool dep_1_zero = deps[1]->hasNumericalProperty (NumericalProperty::Constant) &&
-			                  deps[1]->hasNumericalProperty (NumericalProperty::Zero);
-			if (dep_0_zero || dep_1_zero) {
+			if (std::any_of (deps.begin (), deps.end (), [](const NodeRef & ref) {
+				    return ref->hasNumericalProperty (NumericalProperty::Constant) &&
+				           ref->hasNumericalProperty (NumericalProperty::Zero);
+			    })) {
 				return ConstantZero<R>::create (c, dim);
 			}
 			// Select node implementation
@@ -578,6 +576,20 @@ namespace dataflow {
 
 		CWiseMul (NodeRefVec && deps, const Dimension<R> & dim)
 		    : Value<R> (std::move (deps)), targetDimension (dim) {}
+
+		NodeRef derive (Context & c, const Node & node) {
+			constexpr std::size_t n = 2;
+			NodeRefVec addDeps (n);
+			for (std::size_t i = 0; i < n; ++i) {
+				NodeRefVec ithMulDeps = this->dependencies ();
+				ithMulDeps[i] = this->dependency (i)->derive (c, node);
+				addDeps[i] = Self::create (c, std::move (ithMulDeps), targetDimension);
+			}
+			return CWiseAdd<R, std::tuple<R, R>>::create (c, std::move (addDeps), targetDimension);
+		}
+		bool isDerivable (const Node & node) const {
+			return allDerivable (this->dependencies (), node);
+		}
 
 	private:
 		void compute () final {
@@ -633,6 +645,20 @@ namespace dataflow {
 
 		CWiseMul (NodeRefVec && deps, const Dimension<R> & dim)
 		    : Value<R> (std::move (deps)), targetDimension (dim) {}
+
+		NodeRef derive (Context & c, const Node & node) {
+			const auto n = this->nbDependencies ();
+			NodeRefVec addDeps (n);
+			for (std::size_t i = 0; i < n; ++i) {
+				NodeRefVec ithMulDeps = this->dependencies ();
+				ithMulDeps[i] = this->dependency (i)->derive (c, node);
+				addDeps[i] = Self::create (c, std::move (ithMulDeps), targetDimension);
+			}
+			return CWiseAdd<R, ReductionOf<R>>::create (c, std::move (addDeps), targetDimension);
+		}
+		bool isDerivable (const Node & node) const {
+			return allDerivable (this->dependencies (), node);
+		}
 
 	private:
 		void compute () final {
