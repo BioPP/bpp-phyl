@@ -50,88 +50,12 @@ namespace DF {
 	// Utils
 	bool derivableIfAllDepsAre (const Node & toDerive, const Node & node);
 
-	///@{
-	/** @brief Constant representing a zero for type T.
-	 *
-	 * For vector or matrix, this means filled with zeroes.
-	 * This node should be prefered to a Constant<T> initialized with zeroes when possible.
-	 *
-	 * The value is built lazily: starts invalid, will be created at first compute / access.
-	 * This avoids memory allocations of matrices for temporary nodes.
-	 * Most zero nodes will be discarded by optimizations in numeric nodes.
-	 */
-	template <typename T> class ConstantZero;
-
-	// Builders
-	template <> struct Builder<ConstantZero<double>> {
-		static ValueRef<double> make (const Dimension<double> & targetDim = {});
-	};
-	template <> struct Builder<ConstantZero<VectorDouble>> {
-		static ValueRef<VectorDouble> make (const Dimension<VectorDouble> & targetDim);
-	};
-	template <> struct Builder<ConstantZero<MatrixDouble>> {
-		static ValueRef<MatrixDouble> make (const Dimension<MatrixDouble> & targetDim);
-	};
-	///@}
-
-	///@{
-	/** @brief Constant representing a one for type T.
-	 *
-	 * For vector or matrix, this means filled with ones.
-	 * Similar to ConstantZero.
-	 */
-	template <typename T> class ConstantOne;
-
-	// Builders
-	template <> struct Builder<ConstantOne<double>> {
-		static ValueRef<double> make (const Dimension<double> & targetDim = {});
-	};
-	template <> struct Builder<ConstantOne<VectorDouble>> {
-		static ValueRef<VectorDouble> make (const Dimension<VectorDouble> & targetDim);
-	};
-	template <> struct Builder<ConstantOne<MatrixDouble>> {
-		static ValueRef<MatrixDouble> make (const Dimension<MatrixDouble> & targetDim);
-	};
-	///@}
-
-#if 0
-	// TODO merge code of AddDouble / AddVectorDouble / AddMatrixDouble
-	template <typename Result, typename Dependencies> class CWiseAdd;
-
-	template <> struct Builder<CWiseAdd<double, ReductionOfValue<double>>> {
-		static ValueRef<double> make (NodeRefVec && deps, const Dimension<double> &);
-	};
-	template <> struct Builder<CWiseAdd<double, TupleOfValues<double, double>>> {
-		static ValueRef<double> make (NodeRefVec && deps, const Dimension<double> &);
-	};
-#endif
-
-	/* Double nodes.
-	 */
-	class AddDouble;
-	template <> struct Builder<AddDouble> { static ValueRef<double> make (NodeRefVec && deps); };
-
-	class MulDouble;
-	template <> struct Builder<MulDouble> { static ValueRef<double> make (NodeRefVec && deps); };
-
 	class NegDouble;
 	template <> struct Builder<NegDouble> { static ValueRef<double> make (NodeRefVec && deps); };
 
 	class ScalarProdDouble;
 	template <> struct Builder<ScalarProdDouble> {
 		static ValueRef<double> make (NodeRefVec && deps);
-	};
-
-	/* Vector nodes.
-	 */
-	class AddVectorDouble;
-	template <> struct Builder<AddVectorDouble> {
-		static ValueRef<VectorDouble> make (NodeRefVec && deps, const Dimension<VectorDouble> & dim);
-	};
-
-	class CWiseMulVectorDouble;
-	template <> struct Builder<CWiseMulVectorDouble> {
-		static ValueRef<VectorDouble> make (NodeRefVec && deps, const Dimension<VectorDouble> & dim);
 	};
 
 	class CWiseNegVectorDouble;
@@ -150,20 +74,8 @@ namespace DF {
 		                                    double exp);
 	};
 
-	/* Matrix nodes.
-	 */
-	class AddMatrixDouble;
-	template <> struct Builder<AddMatrixDouble> {
-		static ValueRef<MatrixDouble> make (NodeRefVec && deps, const Dimension<MatrixDouble> & dim);
-	};
-
 	class MulMatrixDouble;
 	template <> struct Builder<MulMatrixDouble> {
-		static ValueRef<MatrixDouble> make (NodeRefVec && deps, const Dimension<MatrixDouble> & dim);
-	};
-
-	class CWiseMulMatrixDouble;
-	template <> struct Builder<CWiseMulMatrixDouble> {
 		static ValueRef<MatrixDouble> make (NodeRefVec && deps, const Dimension<MatrixDouble> & dim);
 	};
 
@@ -173,17 +85,6 @@ namespace DF {
 	template <> struct Builder<MulTransposedMatrixVectorDouble> {
 		static ValueRef<VectorDouble> make (NodeRefVec && deps, const Dimension<VectorDouble> & dim);
 	};
-
-	class CWiseMulScalarVectorDouble;
-	template <> struct Builder<CWiseMulScalarVectorDouble> {
-		static ValueRef<VectorDouble> make (NodeRefVec && deps, const Dimension<VectorDouble> & dim);
-	};
-
-	class CWiseMulScalarMatrixDouble;
-	template <> struct Builder<CWiseMulScalarMatrixDouble> {
-		static ValueRef<MatrixDouble> make (NodeRefVec && deps, const Dimension<MatrixDouble> & dim);
-	};
-
 } // namespace DF
 } // namespace bpp
 #endif // BPP_NEWPHYL_DATAFLOWNUMERIC_H

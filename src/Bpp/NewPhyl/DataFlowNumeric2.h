@@ -173,10 +173,14 @@ namespace dataflow {
 	template <typename Result, typename From> class CWiseAdd;
 	template <typename Result, typename From> class CWiseMul;
 
-	// Utility : remove dependencies from vector according to a predicate
+	// Utilities
 	template <typename Predicate> void removeDependenciesIf (NodeRefVec & deps, Predicate p) {
 		auto new_end = std::remove_if (deps.begin (), deps.end (), std::move (p));
 		deps.erase (new_end, deps.end ()); // Truncate vector storage
+	}
+	inline bool allDerivable (const NodeRefVec & deps, const Node & node) {
+		return std::all_of (deps.begin (), deps.end (),
+		                    [&node](const NodeRef & dep) { return dep->isDerivable (node); });
 	}
 
 	/** Lazily created numeric constant equal to zero for the type.
@@ -394,10 +398,17 @@ namespace dataflow {
 		Convert (NodeRefVec && deps, const Dimension<R> & dim)
 		    : Value<R> (std::move (deps)), targetDimension (dim) {}
 
+		NodeRef derive (Context & c, const Node & node) final {
+			return Self::create (c, NodeRefVec{this->dependency (0)->derive (c, node)}, targetDimension);
+		}
+		bool isDerivable (const Node & node) const final {
+			return this->dependency (0)->isDerivable (node);
+		}
+
 	private:
 		void compute () final {
 			using namespace numeric;
-			const auto & arg = accessValueConstCast<F> (*(this->dependency (0)));
+			const auto & arg = accessValueConstCast<F> (*this->dependency (0));
 			this->accessValueMutable () = convert (arg, targetDimension);
 		}
 
