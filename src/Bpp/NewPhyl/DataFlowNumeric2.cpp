@@ -44,20 +44,26 @@
 namespace bpp {
 // Explicit instantations to generate a symbol
 namespace dataflow {
-	// CWiseAdd
-	template class CWiseAdd<double, ReductionOf<double>>;
-	template struct Builder<CWiseAdd<double, ReductionOf<double>>>;
-	template class CWiseAdd<Eigen::VectorXd, ReductionOf<Eigen::VectorXd>>;
-	template struct Builder<CWiseAdd<Eigen::VectorXd, ReductionOf<Eigen::VectorXd>>>;
-	template class CWiseAdd<Eigen::MatrixXd, ReductionOf<Eigen::MatrixXd>>;
-	template struct Builder<CWiseAdd<Eigen::MatrixXd, ReductionOf<Eigen::MatrixXd>>>;
+	// CWiseAdd tuple
+	template class CWiseAdd<double, std::tuple<double, double>>;
+	template class CWiseAdd<Eigen::VectorXd, std::tuple<Eigen::VectorXd, Eigen::VectorXd>>;
+	template class CWiseAdd<Eigen::MatrixXd, std::tuple<Eigen::MatrixXd, Eigen::MatrixXd>>;
 
-	// CWiseMul
+	// CWiseAdd reduction
+	template class CWiseAdd<double, ReductionOf<double>>;
+	template class CWiseAdd<Eigen::VectorXd, ReductionOf<Eigen::VectorXd>>;
+	template class CWiseAdd<Eigen::MatrixXd, ReductionOf<Eigen::MatrixXd>>;
+
+	// CWiseMul tuple
+	template class CWiseMul<double, std::tuple<double, double>>;
+	template class CWiseMul<Eigen::VectorXd, std::tuple<Eigen::VectorXd, Eigen::VectorXd>>;
+	template class CWiseMul<Eigen::MatrixXd, std::tuple<Eigen::MatrixXd, Eigen::MatrixXd>>;
+	template class CWiseMul<Eigen::VectorXd, std::tuple<double, Eigen::VectorXd>>;
+	template class CWiseMul<Eigen::MatrixXd, std::tuple<double, Eigen::MatrixXd>>;
+
+	// CWiseMul Reduction
 	template class CWiseMul<double, ReductionOf<double>>;
-	template struct Builder<CWiseMul<double, ReductionOf<double>>>;
 	template class CWiseMul<Eigen::VectorXd, ReductionOf<Eigen::VectorXd>>;
-	template struct Builder<CWiseMul<Eigen::VectorXd, ReductionOf<Eigen::VectorXd>>>;
 	template class CWiseMul<Eigen::MatrixXd, ReductionOf<Eigen::MatrixXd>>;
-	template struct Builder<CWiseMul<Eigen::MatrixXd, ReductionOf<Eigen::MatrixXd>>>;
 } // namespace dataflow
 } // namespace bpp

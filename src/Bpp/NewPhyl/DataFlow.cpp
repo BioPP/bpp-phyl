@@ -154,20 +154,6 @@ namespace dataflow {
 	}
 	bool Node::isDerivable (const Node &) const { return false; }
 
-	bool Node::isTransitivelyDependentOn (const Node & node) const {
-		std::stack<const Node *> nodesToVisit;
-		nodesToVisit.push (this);
-		while (!nodesToVisit.empty ()) {
-			auto * current = nodesToVisit.top ();
-			nodesToVisit.pop ();
-			if (&node == current)
-				return true;
-			for (auto & dep : current->dependencies ())
-				nodesToVisit.push (dep.get ());
-		}
-		return false;
-	}
-
 	NodeRef Node::rebuild (NodeRefVec &&) const {
 		throw Exception ("Node does not support rebuild(deps): " + description ());
 	}
@@ -240,5 +226,20 @@ namespace dataflow {
 			}
 		}
 	}
+
+	bool isTransitivelyDependentOn (const Node & searchedDependency, const Node & node) {
+		std::stack<const Node *> nodesToVisit;
+		nodesToVisit.push (&node);
+		while (!nodesToVisit.empty ()) {
+			auto * current = nodesToVisit.top ();
+			nodesToVisit.pop ();
+			if (current == &searchedDependency)
+				return true;
+			for (auto & dep : current->dependencies ())
+				nodesToVisit.push (dep.get ());
+		}
+		return false;
+	}
+
 } // namespace dataflow
 } // namespace bpp

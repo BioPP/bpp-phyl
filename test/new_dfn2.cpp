@@ -48,12 +48,12 @@ TEST_CASE("test")
 {
   using namespace bpp::dataflow;
 
-  auto a = makeNode<ConstantZero<double>>();
-  auto b = makeNode<ConstantZero<Eigen::MatrixXd>>(bpp::MatrixDimension{42, 32});
-  auto c = makeNode<ConstantOne<Eigen::VectorXd>>(bpp::vectorDimension(42));
+  auto a = ConstantZero<double>::create();
+  auto b = ConstantZero<Eigen::MatrixXd>::create(bpp::MatrixDimension{42, 32});
+  auto c = ConstantOne<Eigen::VectorXd>::create(bpp::vectorDimension(42));
 
-  auto d = makeNode<NumericConstant<Eigen::MatrixXd>>(Eigen::MatrixXd::Random(42, 32));
-  auto e = makeNode<CWiseAdd<Eigen::MatrixXd, ReductionOf<Eigen::MatrixXd>>>({b, d});
+  auto d = NumericConstant<Eigen::MatrixXd>::create(Eigen::MatrixXd::Random(42, 32));
+  auto e = CWiseAdd<Eigen::MatrixXd, ReductionOf<Eigen::MatrixXd>>::create({b, d});
   e->getValue();
 
   auto z = e->derive(*a);

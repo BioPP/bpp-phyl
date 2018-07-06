@@ -61,11 +61,11 @@ namespace dataflow {
 	/// Node instances are always manipulated as shared pointers, use an alias.
 	using NodeRef = std::shared_ptr<Node>;
 
-	/// Shared pointer alias for Value<T>.
-	template <typename T> using ValueRef = std::shared_ptr<Value<T>>;
-
 	/// Alias for a dependency vector (of NodeRef).
 	using NodeRefVec = std::vector<NodeRef>;
+
+	/// Shared pointer alias for Value<T>.
+	template <typename T> using ValueRef = std::shared_ptr<Value<T>>;
 
 	/// Numerical properties for DF Node.
 	enum class NumericalProperty {
@@ -128,7 +128,7 @@ namespace dataflow {
 		std::size_t nbDependencies () const noexcept { return dependencyNodes_.size (); }
 		const NodeRef & dependency (std::size_t i) const noexcept { return dependencyNodes_[i]; }
 
-		/// Node string description (default = type name): shorter name for in debug.
+		/// Node pretty name (default = type name).
 		virtual std::string description () const;
 
 		/// Node debug info (default = ""): user defined detailed info for DF graph debug.
@@ -146,9 +146,6 @@ namespace dataflow {
 		virtual NodeRef derive (const Node & node);
 		virtual bool isDerivable (const Node & node) const;
 		// TODO derivation doc somewhere
-
-		// Check if node is part of transitive dependencies
-		bool isTransitivelyDependentOn (const Node & node) const;
 
 		// Rebuild the node with different dependencies
 		virtual NodeRef rebuild (NodeRefVec && deps) const;
@@ -201,40 +198,7 @@ namespace dataflow {
 	NodeRef rebuildWithSubstitution (const NodeRef & node,
 	                                 const std::map<const Node *, NodeRef> & substitutions);
 
-	/** @brief Node construction class.
-	 *
-	 * Node are by convention manipulated as shared_ptr<NodeType>.
-	 * Node construction should always be done through the Builder<NodeType>::make function.
-	 * This class defaults to simply using std::make_shared.
-	 * However it can be specialised for some node types.
-	 * Specialisations may perform merging, numeric optimisation / simplification.
-	 *
-	 * The shorter makeNode<NodeType> (...) function is provided (it calls Builder<NodeType>::make).
-	 */
-	template <typename NodeType> struct Builder {
-		template <typename... Args> static std::shared_ptr<NodeType> make (Args &&... args) {
-			return std::make_shared<NodeType> (std::forward<Args> (args)...);
-		}
-	};
-
-	/// Defers to the Builder<NodeType>::make.
-	template <typename NodeType, typename... Args>
-	auto makeNode (Args &&... args)
-	    -> decltype (Builder<NodeType>::make (std::forward<Args> (args)...)) {
-		return Builder<NodeType>::make (std::forward<Args> (args)...);
-	}
-	/// Overload that accepts a NodeRef initializer list (commonly used).
-	template <typename NodeType, typename... Args>
-	auto makeNode (std::initializer_list<NodeRef> deps, Args &&... args)
-	    -> decltype (Builder<NodeType>::make (deps, std::forward<Args> (args)...)) {
-		return Builder<NodeType>::make (deps, std::forward<Args> (args)...);
-	}
-
-	/// Used in Value<T> to select constructors
-	struct NoDependencyTag {
-		constexpr NoDependencyTag () = default;
-	};
-	constexpr NoDependencyTag noDependency{};
+	bool isTransitivelyDependentOn (const Node & searchedDependency, const Node & node);
 
 	/** @brief Abstract Node storing a value of type T.
 	 *
@@ -266,10 +230,6 @@ namespace dataflow {
 		Value (NodeRefVec && deps, Args &&... args)
 		    : Node (std::move (deps)), value_ (std::forward<Args> (args)...) {}
 
-		// Without dependencies
-		template <typename... Args>
-		Value (NoDependencyTag, Args &&... args) : Node (), value_ (std::forward<Args> (args)...) {}
-
 		/** @brief Access value, recompute if needed.
 		 *
 		 * Recompute the value if it is not up to date.
@@ -287,18 +247,11 @@ namespace dataflow {
 		 */
 		const T & accessValueConst () const noexcept { return value_; }
 
-		/** @brief Raw value access (mutable).
-		 *
-		 * Access the value as a mutable reference (may not be valid, no recomputation).
-		 * Modifying a computed value through this functions does NOT invalidate dependent values.
-		 * This breaks data flow invariants, so only use it in internal data flow node code.
-		 */
+	protected:
+		/// Raw value access (mutable). Should only be used by subclasses to implement compute().
 		T & accessValueMutable () noexcept { return value_; }
 
-		// Defined as default to enable specialisation
-		std::string debugInfo () const override { return Node::debugInfo (); }
-
-	protected:
+	private:
 		T value_;
 	};
 
