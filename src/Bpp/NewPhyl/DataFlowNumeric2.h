@@ -450,6 +450,18 @@ namespace dataflow {
 		CWiseAdd (NodeRefVec && deps, const Dimension<R> & dim)
 		    : Value<R> (std::move (deps)), targetDimension (dim) {}
 
+		NodeRef derive (Context & c, const Node & node) {
+			const auto n = this->nbDependencies ();
+			NodeRefVec derivedDeps (n);
+			for (std::size_t i = 0; i < n; ++i) {
+				derivedDeps[i] = this->dependency (i)->derive (c, node);
+			}
+			return Self::create (c, std::move (derivedDeps), targetDimension);
+		}
+		bool isDerivable (const Node & node) const {
+			return allDerivable (this->dependencies (), node);
+		}
+
 	private:
 		void compute () final {
 			using namespace numeric;
@@ -495,6 +507,18 @@ namespace dataflow {
 
 		CWiseAdd (NodeRefVec && deps, const Dimension<R> & dim)
 		    : Value<R> (std::move (deps)), targetDimension (dim) {}
+
+		NodeRef derive (Context & c, const Node & node) {
+			const auto n = this->nbDependencies ();
+			NodeRefVec derivedDeps (n);
+			for (std::size_t i = 0; i < n; ++i) {
+				derivedDeps[i] = this->dependency (i)->derive (c, node);
+			}
+			return Self::create (c, std::move (derivedDeps), targetDimension);
+		}
+		bool isDerivable (const Node & node) const {
+			return allDerivable (this->dependencies (), node);
+		}
 
 	private:
 		void compute () final {

@@ -324,51 +324,6 @@ namespace DF {
 		}
 	}
 
-	// AddMatrixDouble
-	class AddMatrixDouble : public Value<MatrixDouble> {
-	public:
-		using Dependencies = ReductionOfValue<MatrixDouble>;
-
-		AddMatrixDouble (NodeRefVec && deps, const Dimension<MatrixDouble> & dim)
-		    : Value<MatrixDouble> (std::move (deps)) {
-			setTargetDimension (this->accessValueMutable (), dim);
-		}
-		NodeRef derive (const Node & node) final {
-			return makeNode<AddMatrixDouble> (
-			    mapToVector (this->dependencies (),
-			                 [&node](const NodeRef & dep) { return dep->derive (node); }),
-			    targetDimension (this->accessValueConst ()));
-		}
-		bool isDerivable (const Node & node) const final { return derivableIfAllDepsAre (*this, node); }
-		NodeRef rebuild (NodeRefVec && deps) const final {
-			return makeNode<AddMatrixDouble> (std::move (deps),
-			                                  targetDimension (this->accessValueConst ()));
-		}
-
-	private:
-		void compute () final {
-			callWithValues (*this,
-			                [this](MatrixDouble & r) {
-				                r = linearAlgebraZeroValue (targetDimension (this->accessValueConst ()));
-			                },
-			                [](MatrixDouble & r, const MatrixDouble & m) { r += m; });
-		}
-	};
-	ValueRef<MatrixDouble> Builder<AddMatrixDouble>::make (NodeRefVec && deps,
-	                                                       const Dimension<MatrixDouble> & dim) {
-		checkDependencies<AddMatrixDouble> (deps);
-		// Remove Os
-		removeDependenciesIf (deps, isConstantZeroNode);
-		// Select node impl
-		if (deps.size () == 1) {
-			return convertRef<Value<MatrixDouble>> (deps[0]);
-		} else if (deps.size () == 0) {
-			return makeNode<ConstantZero<MatrixDouble>> (dim);
-		} else {
-			return std::make_shared<AddMatrixDouble> (std::move (deps), dim);
-		}
-	}
-
 	// MulMatrixDouble
 	class MulMatrixDouble : public Value<MatrixDouble> {
 	public:
