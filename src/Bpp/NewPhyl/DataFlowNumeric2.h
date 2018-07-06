@@ -167,8 +167,10 @@ namespace dataflow {
 	 */
 	template <typename T> class ConstantZero : public Value<T> {
 	public:
-		static std::shared_ptr<ConstantZero<T>> create (const Dimension<T> & dim = {}) {
-			return std::make_shared<ConstantZero<T>> (dim);
+		using Self = ConstantZero;
+
+		static std::shared_ptr<Self> create (const Dimension<T> & dim = {}) {
+			return std::make_shared<Self> (dim);
 		}
 
 		explicit ConstantZero (const Dimension<T> & dim)
@@ -205,8 +207,10 @@ namespace dataflow {
 	 */
 	template <typename T> class ConstantOne : public Value<T> {
 	public:
-		static std::shared_ptr<ConstantOne<T>> create (const Dimension<T> & dim = {}) {
-			return std::make_shared<ConstantOne<T>> (dim);
+		using Self = ConstantOne;
+
+		static std::shared_ptr<Self> create (const Dimension<T> & dim = {}) {
+			return std::make_shared<Self> (dim);
 		}
 
 		explicit ConstantOne (const Dimension<T> & dim)
@@ -241,9 +245,10 @@ namespace dataflow {
 	 */
 	template <typename T> class NumericConstant : public Value<T> {
 	public:
-		template <typename... Args>
-		static std::shared_ptr<NumericConstant<T>> create (Args &&... args) {
-			return std::make_shared<NumericConstant<T>> (std::forward<Args> (args)...);
+		using Self = NumericConstant;
+
+		template <typename... Args> static std::shared_ptr<Self> create (Args &&... args) {
+			return std::make_shared<Self> (std::forward<Args> (args)...);
 		}
 
 		/// Sets an initial value constructed with the given arguments.
@@ -286,8 +291,10 @@ namespace dataflow {
 	 */
 	template <typename T> class NumericMutable : public Value<T> {
 	public:
-		template <typename... Args> static std::shared_ptr<NumericMutable<T>> create (Args &&... args) {
-			return std::make_shared<NumericMutable<T>> (std::forward<Args> (args)...);
+		using Self = NumericMutable;
+
+		template <typename... Args> static std::shared_ptr<Self> create (Args &&... args) {
+			return std::make_shared<Self> (std::forward<Args> (args)...);
 		}
 
 		/// Sets an initial value constructed with the given arguments.
@@ -353,17 +360,18 @@ namespace dataflow {
 	 */
 	template <typename R, typename F> class Convert : public Value<R> {
 	public:
+		using Self = Convert;
+
 		static ValueRef<R> create (NodeRefVec && deps, const Dimension<R> & dim = {}) {
-			using NodeType = Convert<R, F>;
 			// Check dependencies
-			checkDependencyVectorSize (typeid (NodeType), deps, 1);
-			checkDependenciesNotNull (typeid (NodeType), deps);
-			checkNthDependencyIsValue<F> (typeid (NodeType), deps, 0);
+			checkDependenciesNotNull (typeid (Self), deps);
+			checkDependencyVectorSize (typeid (Self), deps, 1);
+			checkNthDependencyIsValue<F> (typeid (Self), deps, 0);
 			// Select node
 			if (std::is_same<R, F>::value) {
 				return convertRef<Value<R>> (deps[0]);
 			} else {
-				return std::make_shared<NodeType> (std::move (deps), dim);
+				return std::make_shared<Self> (std::move (deps), dim);
 			}
 		}
 
@@ -395,13 +403,14 @@ namespace dataflow {
 	template <typename R, typename T0, typename T1>
 	class CWiseAdd<R, std::tuple<T0, T1>> : public Value<R> {
 	public:
+		using Self = CWiseAdd;
+
 		static ValueRef<R> create (NodeRefVec && deps, const Dimension<R> & dim = {}) {
-			using NodeType = CWiseAdd<R, std::tuple<T0, T1>>;
 			// Check dependencies
-			checkDependenciesNotNull (typeid (NodeType), deps);
-			checkDependencyVectorSize (typeid (NodeType), deps, 2);
-			checkNthDependencyIsValue<T0> (typeid (NodeType), deps, 0);
-			checkNthDependencyIsValue<T1> (typeid (NodeType), deps, 1);
+			checkDependenciesNotNull (typeid (Self), deps);
+			checkDependencyVectorSize (typeid (Self), deps, 2);
+			checkNthDependencyIsValue<T0> (typeid (Self), deps, 0);
+			checkNthDependencyIsValue<T1> (typeid (Self), deps, 1);
 			// Select node implementation
 			bool dep_0_zero = deps[0]->hasNumericalProperty (NumericalProperty::Constant) &&
 			                  deps[0]->hasNumericalProperty (NumericalProperty::Zero);
@@ -414,7 +423,7 @@ namespace dataflow {
 			} else if (!dep_0_zero && dep_0_zero) {
 				return Convert<R, T0>::create (NodeRefVec{deps[0]}, dim);
 			} else {
-				return std::make_shared<NodeType> (std::move (deps), dim);
+				return std::make_shared<Self> (std::move (deps), dim);
 			}
 		}
 
@@ -441,11 +450,12 @@ namespace dataflow {
 	 */
 	template <typename R, typename T> class CWiseAdd<R, ReductionOf<T>> : public Value<R> {
 	public:
+		using Self = CWiseAdd;
+
 		static ValueRef<R> create (NodeRefVec && deps, const Dimension<R> & dim = {}) {
-			using NodeType = CWiseAdd<R, ReductionOf<T>>;
 			// Check dependencies
-			checkDependenciesNotNull (typeid (NodeType), deps);
-			checkDependencyRangeIsValue<T> (typeid (NodeType), deps, 0, deps.size ());
+			checkDependenciesNotNull (typeid (Self), deps);
+			checkDependencyRangeIsValue<T> (typeid (Self), deps, 0, deps.size ());
 			// Remove 0s from deps
 			removeDependenciesIf (deps, [](const NodeRef & ref) {
 				return ref->hasNumericalProperty (NumericalProperty::Constant) &&
@@ -459,7 +469,7 @@ namespace dataflow {
 			} else if (deps.size () == 2) {
 				return CWiseAdd<R, std::tuple<T, T>>::create (std::move (deps), dim);
 			} else {
-				return std::make_shared<NodeType> (std::move (deps), dim);
+				return std::make_shared<Self> (std::move (deps), dim);
 			}
 		}
 
@@ -490,13 +500,14 @@ namespace dataflow {
 	template <typename R, typename T0, typename T1>
 	class CWiseMul<R, std::tuple<T0, T1>> : public Value<R> {
 	public:
+		using Self = CWiseMul;
+
 		static ValueRef<R> create (NodeRefVec && deps, const Dimension<R> & dim = {}) {
-			using NodeType = CWiseAdd<R, std::tuple<T0, T1>>;
 			// Check dependencies
-			checkDependenciesNotNull (typeid (NodeType), deps);
-			checkDependencyVectorSize (typeid (NodeType), deps, 2);
-			checkNthDependencyIsValue<T0> (typeid (NodeType), deps, 0);
-			checkNthDependencyIsValue<T1> (typeid (NodeType), deps, 1);
+			checkDependenciesNotNull (typeid (Self), deps);
+			checkDependencyVectorSize (typeid (Self), deps, 2);
+			checkNthDependencyIsValue<T0> (typeid (Self), deps, 0);
+			checkNthDependencyIsValue<T1> (typeid (Self), deps, 1);
 			// Return 0 if any 0.
 			bool dep_0_zero = deps[0]->hasNumericalProperty (NumericalProperty::Constant) &&
 			                  deps[0]->hasNumericalProperty (NumericalProperty::Zero);
@@ -517,7 +528,7 @@ namespace dataflow {
 			} else if (!dep_0_one && dep_0_one) {
 				return Convert<R, T0>::create (NodeRefVec{deps[0]}, dim);
 			} else {
-				return std::make_shared<NodeType> (std::move (deps), dim);
+				return std::make_shared<Self> (std::move (deps), dim);
 			}
 		}
 
@@ -546,12 +557,13 @@ namespace dataflow {
 	 */
 	template <typename R, typename T> class CWiseMul<R, ReductionOf<T>> : public Value<R> {
 	public:
+		using Self = CWiseMul;
+
 		static ValueRef<R> create (NodeRefVec && deps, const Dimension<R> & dim = {}) {
-			using NodeType = CWiseMul<R, ReductionOf<T>>;
 			// Check dependencies
-			checkDependenciesNotNull (typeid (NodeType), deps);
-			checkDependencyRangeIsValue<T> (typeid (NodeType), deps, 0, deps.size ());
-			//
+			checkDependenciesNotNull (typeid (Self), deps);
+			checkDependencyRangeIsValue<T> (typeid (Self), deps, 0, deps.size ());
+			// If there is a 0 return 0.
 			if (std::any_of (deps.begin (), deps.end (), [](const NodeRef & ref) {
 				    return ref->hasNumericalProperty (NumericalProperty::Constant) &&
 				           ref->hasNumericalProperty (NumericalProperty::Zero);
@@ -571,7 +583,7 @@ namespace dataflow {
 			} else if (deps.size () == 2) {
 				return CWiseMul<R, std::tuple<T, T>>::create (std::move (deps), dim);
 			} else {
-				return std::make_shared<NodeType> (std::move (deps), dim);
+				return std::make_shared<Self> (std::move (deps), dim);
 			}
 		}
 
