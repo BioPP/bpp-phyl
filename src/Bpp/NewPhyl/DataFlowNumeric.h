@@ -50,11 +50,6 @@ namespace DF {
 	class ScalarProdDouble;
 	template <> struct Builder<ScalarProdDouble> {
 		static ValueRef<double> make (NodeRefVec && deps);
-	}; // Only for eigen vectors
-
-	class CWiseInverseVectorDouble;
-	template <> struct Builder<CWiseInverseVectorDouble> {
-		static ValueRef<VectorDouble> make (NodeRefVec && deps, const Dimension<VectorDouble> & dim);
 	};
 
 	class MulMatrixDouble;

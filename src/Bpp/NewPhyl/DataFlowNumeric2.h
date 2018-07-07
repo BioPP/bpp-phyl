@@ -422,7 +422,7 @@ namespace dataflow {
 		    : Value<R> (std::move (deps)), targetDimension (dim) {}
 
 		NodeRef derive (Context & c, const Node & node) final {
-			return Self::create (c, NodeRefVec{this->dependency (0)->derive (c, node)}, targetDimension);
+			return Self::create (c, {this->dependency (0)->derive (c, node)}, targetDimension);
 		}
 		bool isDerivable (const Node & node) const final {
 			return this->dependency (0)->isDerivable (node);
@@ -467,9 +467,9 @@ namespace dataflow {
 			if (dep_0_zero && dep_1_zero) {
 				return ConstantZero<R>::create (c, dim);
 			} else if (dep_0_zero && !dep_1_zero) {
-				return Convert<R, T1>::create (c, NodeRefVec{deps[1]}, dim);
+				return Convert<R, T1>::create (c, {deps[1]}, dim);
 			} else if (!dep_0_zero && dep_0_zero) {
-				return Convert<R, T0>::create (c, NodeRefVec{deps[0]}, dim);
+				return Convert<R, T0>::create (c, {deps[0]}, dim);
 			} else {
 				return std::make_shared<Self> (std::move (deps), dim);
 			}
@@ -605,9 +605,9 @@ namespace dataflow {
 			if (dep_0_one && dep_1_one) {
 				return ConstantOne<R>::create (c, dim);
 			} else if (dep_0_one && !dep_1_one) {
-				return Convert<R, T1>::create (c, NodeRefVec{deps[1]}, dim);
+				return Convert<R, T1>::create (c, {deps[1]}, dim);
 			} else if (!dep_0_one && dep_0_one) {
-				return Convert<R, T0>::create (c, NodeRefVec{deps[0]}, dim);
+				return Convert<R, T0>::create (c, {deps[0]}, dim);
 			} else {
 				return std::make_shared<Self> (std::move (deps), dim);
 			}
@@ -747,7 +747,7 @@ namespace dataflow {
 		    : Value<T> (std::move (deps)), targetDimension (dim) {}
 
 		NodeRef derive (Context & c, const Node & node) final {
-			return Self::create (c, NodeRefVec{this->dependency (0)->derive (c, node)}, targetDimension);
+			return Self::create (c, {this->dependency (0)->derive (c, node)}, targetDimension);
 		}
 		bool isDerivable (const Node & node) const final {
 			return this->dependency (0)->isDerivable (node);
@@ -793,8 +793,13 @@ namespace dataflow {
 		    : Value<T> (std::move (deps)), targetDimension (dim) {}
 
 		NodeRef derive (Context & c, const Node & node) final {
-			// TODO
-			return CWiseNegate<T>::create (c, {this->dependency (0)->derive (c, node)}, targetDimension);
+			// -1/x^2 * x'
+			const auto & dep = this->dependency (0);
+			return CWiseMul<T, std::tuple<T, T>>::create (
+			    c,
+			    {CWiseConstantPow<T>::create (c, {dep}, -2., -1., targetDimension),
+			     dep->derive (c, node)},
+			    targetDimension);
 		}
 		bool isDerivable (const Node & node) const final {
 			return this->dependency (0)->isDerivable (node);
@@ -815,45 +820,55 @@ namespace dataflow {
 	extern template class CWiseInverse<Eigen::VectorXd>;
 	extern template class CWiseInverse<Eigen::MatrixXd>;
 
-	/** r = pow (x, exponent) for each component.
+	/** r = factor * pow (x, exponent) for each component.
 	 * r, x: T.
-	 * exponent: double.
+	 * exponent, factor: double (constant parameter of the node).
 	 */
 	template <typename T> class CWiseConstantPow : public Value<T> {
 	public:
 		using Self = CWiseConstantPow;
 
-		static ValueRef<T> create (Context & c, NodeRefVec && deps, double exponent,
+		static ValueRef<T> create (Context & c, NodeRefVec && deps, double exponent, double factor,
 		                           const Dimension<T> & dim = {}) {
 			// Check dependencies
 			checkDependenciesNotNull (typeid (Self), deps);
 			checkDependencyVectorSize (typeid (Self), deps, 1);
 			checkNthDependencyIsValue<T> (typeid (Self), deps, 0);
-			// Select node
+			// Select node implementation
 			if (exponent == 0. || (deps[0]->hasNumericalProperty (NumericalProperty::Constant) &&
 			                       deps[0]->hasNumericalProperty (NumericalProperty::One))) {
-				return ConstantOne<T>::create (c, dim);
+				// pow (x, exponent) == 1
+				using namespace numeric;
+				return NumericConstant<T>::create (c, factor * one (dim));
 			} else if (exponent == 1.) {
-				return convertRef<Value<T>> (deps[0]);
+				// pow (x, exponent) == x
+				return CWiseMul<T, std::tuple<double, T>>::create (
+				    c, {NumericConstant<double>::create (c, factor), deps[0]}, dim);
 			} else if (exponent == -1.) {
-				return CWiseInverse<T>::create (c, std::move (deps), dim);
+				// pow (x, exponent) = 1/x
+				return CWiseMul<T, std::tuple<double, T>>::create (
+				    c,
+				    {NumericConstant<double>::create (c, factor),
+				     CWiseInverse<T>::create (c, std::move (deps), dim)},
+				    dim);
 			} else {
-				return std::make_shared<Self> (std::move (deps), exponent, dim);
+				return std::make_shared<Self> (std::move (deps), exponent, factor, dim);
 			}
 		}
 
-		CWiseConstantPow (NodeRefVec && deps, double exponent, const Dimension<T> & dim)
-		    : Value<T> (std::move (deps)), targetDimension (dim), exponent (exponent) {}
+		CWiseConstantPow (NodeRefVec && deps, double exponent, double factor, const Dimension<T> & dim)
+		    : Value<T> (std::move (deps)),
+		      targetDimension (dim),
+		      exponent (exponent),
+		      factor (factor) {}
 
 		NodeRef derive (Context & c, const Node & node) final {
+			// factor * (exponent * x^(exponent - 1)) * x'
 			const auto & dep = this->dependency (0);
-			auto powDerivative = CWiseMul<T, std::tuple<double, T>>::create (
-			    c,
-			    NodeRefVec{NumericConstant<double>::create (c, exponent),
-			               Self::create (c, NodeRefVec{dep}, exponent - 1, targetDimension)},
-			    targetDimension);
+			auto powDerivative =
+			    Self::create (c, {dep}, exponent - 1., factor * exponent, targetDimension);
 			return CWiseMul<T, std::tuple<T, T>>::create (
-			    c, NodeRefVec{std::move (powDerivative), dep->derive (c, node)}, targetDimension);
+			    c, {std::move (powDerivative), dep->derive (c, node)}, targetDimension);
 		}
 		bool isDerivable (const Node & node) const final {
 			return this->dependency (0)->isDerivable (node);
@@ -863,12 +878,13 @@ namespace dataflow {
 		void compute () final {
 			using namespace numeric;
 			auto & result = this->accessValueMutable ();
-			cwise (result) = pow (cwise (accessValueConstCast<T> (*this->dependency (0))), exponent);
-			// pow (a, b) works because eigen defines it for both scalar and matrices
+			const auto & dep = *this->dependency (0);
+			cwise (result) = factor * pow (cwise (accessValueConstCast<T> (dep)), exponent);
 		}
 
 		Dimension<T> targetDimension;
 		double exponent;
+		double factor;
 	};
 
 	// Pre compiled instantiations

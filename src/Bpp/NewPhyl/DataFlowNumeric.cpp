@@ -158,46 +158,6 @@ namespace DF {
 		}
 	}
 
-	// CWiseInverseVectorDouble
-	class CWiseInverseVectorDouble : public Value<VectorDouble> {
-	public:
-		using Dependencies = TupleOfValues<VectorDouble>;
-
-		CWiseInverseVectorDouble (NodeRefVec && deps, const Dimension<VectorDouble> & dim)
-		    : Value<VectorDouble> (std::move (deps)) {
-			setTargetDimension (this->accessValueMutable (), dim);
-		}
-		NodeRef derive (const Node & node) final {
-			auto dim = targetDimension (this->accessValueConst ());
-			auto & arg = this->dependency (0);
-			return makeNode<CWiseNegVectorDouble> (
-			    {makeNode<CWiseConstantPowVectorDouble> ({arg}, dim, -2.), arg->derive (node)}, dim);
-		}
-		bool isDerivable (const Node & node) const final { return derivableIfAllDepsAre (*this, node); }
-		NodeRef rebuild (NodeRefVec && deps) const final {
-			return makeNode<CWiseInverseVectorDouble> (std::move (deps),
-			                                           targetDimension (this->accessValueConst ()));
-		}
-
-	private:
-		void compute () final {
-			callWithValues (*this, [](VectorDouble & r, const VectorDouble & v) {
-				r.noalias () = v.cwiseInverse ();
-			});
-		}
-	};
-	ValueRef<VectorDouble>
-	Builder<CWiseInverseVectorDouble>::make (NodeRefVec && deps,
-	                                         const Dimension<VectorDouble> & dim) {
-		checkDependencies<CWiseInverseVectorDouble> (deps);
-		auto & arg = deps[0];
-		if (isConstantOneNode (arg)) {
-			return convertRef<Value<VectorDouble>> (arg);
-		} else {
-			return std::make_shared<CWiseInverseVectorDouble> (std::move (deps), dim);
-		}
-	}
-
 	// MulMatrixDouble
 	class MulMatrixDouble : public Value<MatrixDouble> {
 	public:
