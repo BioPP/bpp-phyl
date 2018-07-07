@@ -149,6 +149,17 @@ namespace numeric {
 	template <typename Derived> auto cwise (Eigen::MatrixBase<Derived> & m) -> decltype (m.array ()) {
 		return m.array (); // Use Array API in Eigen
 	}
+
+	// 1/x
+	template <typename T, typename = typename std::enable_if<std::is_floating_point<T>::value>::type>
+	T inverse (T t) {
+		return T (1) / t;
+	}
+	using Eigen::inverse;
+
+	// x^y
+	using Eigen::pow;
+	using std::pow;
 } // namespace numeric
 
 /******************************************************************************
@@ -171,6 +182,9 @@ namespace dataflow {
 	template <typename Result, typename From> class Convert;
 	template <typename Result, typename From> class CWiseAdd;
 	template <typename Result, typename From> class CWiseMul;
+	template <typename T> class CWiseNegate;
+	template <typename T> class CWiseInverse;
+	template <typename T> class CWiseConstantPow;
 
 	// Utilities
 	template <typename Predicate> void removeDependenciesIf (NodeRefVec & deps, Predicate p) {
@@ -182,7 +196,9 @@ namespace dataflow {
 		                    [&node](const NodeRef & dep) { return dep->isDerivable (node); });
 	}
 
-	/** Lazily created numeric constant equal to zero for the type.
+	/** r = 0 for each component.
+	 * r: T.
+	 * Value is only created at first use (lazy).
 	 */
 	template <typename T> class ConstantZero : public Value<T> {
 	public:
@@ -220,7 +236,9 @@ namespace dataflow {
 		Dimension<T> targetDimension;
 	};
 
-	/** Lazily created numeric constant equal to one for the type.
+	/** r = 1 for each component.
+	 * r: T.
+	 * Value is only created at first use (lazy).
 	 */
 	template <typename T> class ConstantOne : public Value<T> {
 	public:
@@ -258,9 +276,10 @@ namespace dataflow {
 		Dimension<T> targetDimension;
 	};
 
-	/** Numeric constant of type T.
+	/** r = const.
+	 * r: T.
+	 * Value is set at construction, and cannot change.
 	 * Supports derivation.
-	 * Eagerly constructed (value is created at construction).
 	 */
 	template <typename T> class NumericConstant : public Value<T> {
 	public:
@@ -304,9 +323,10 @@ namespace dataflow {
 		}
 	};
 
-	/** Numeric mutable value of type T.
+	/** r = v.
+	 * r: T.
+	 * Value is set at construction, and can be changed (will invalidate all dependent values).
 	 * Supports derivation.
-	 * Eagerly constructed (value is created at construction).
 	 */
 	template <typename T> class NumericMutable : public Value<T> {
 	public:
@@ -375,7 +395,11 @@ namespace dataflow {
 		}
 	};
 
-	/** Convert a F value into a R value, with specified dimension.
+	/** r = f.
+	 * r: R.
+	 * f: F.
+	 * Convert from F to R type.
+	 * For double -> matrix, this fills the matrix with the double value.
 	 */
 	template <typename R, typename F> class Convert : public Value<R> {
 	public:
@@ -414,7 +438,12 @@ namespace dataflow {
 		Dimension<R> targetDimension;
 	};
 
-	/** Addition of a fixed set of values into R.
+	/** r = x_0 + x_1 for each component.
+	 * r: R.
+	 * x_0: T0.
+	 * x_1: T1.
+	 *
+	 * Values are converted to R with the same semantics as Convert.
 	 * Only defined for N = 2 for now.
 	 * The generic version is horrible in C++11 (lack of auto return).
 	 * Generic simplification routine is horrible too.
@@ -477,7 +506,12 @@ namespace dataflow {
 	extern template class CWiseAdd<Eigen::VectorXd, std::tuple<Eigen::VectorXd, Eigen::VectorXd>>;
 	extern template class CWiseAdd<Eigen::MatrixXd, std::tuple<Eigen::MatrixXd, Eigen::MatrixXd>>;
 
-	/** Addition of any number of T into R.
+	/** r = sum (x_i), for each component.
+	 * r: R.
+	 * x_i: T.
+	 *
+	 * Sum of any number of T values into R.
+	 * Values extended to R with the semantics of Convert.
 	 */
 	template <typename R, typename T> class CWiseAdd<R, ReductionOf<T>> : public Value<R> {
 	public:
@@ -537,8 +571,13 @@ namespace dataflow {
 	extern template class CWiseAdd<Eigen::VectorXd, ReductionOf<Eigen::VectorXd>>;
 	extern template class CWiseAdd<Eigen::MatrixXd, ReductionOf<Eigen::MatrixXd>>;
 
-	/** Multiplication of a fixed set of values into R.
-	 * Only defined for N = 2 for now. Same problems as CWiseAdd.
+	/** r = x_0 * x_1 for each component.
+	 * r: R.
+	 * x_0: T0.
+	 * x_1: T1.
+	 *
+	 * Values are converted to R with the same semantics as Convert.
+	 * Only defined for N = 2 for now (same constraints as CWiseAdd for genericity).
 	 */
 	template <typename R, typename T0, typename T1>
 	class CWiseMul<R, std::tuple<T0, T1>> : public Value<R> {
@@ -608,10 +647,13 @@ namespace dataflow {
 	extern template class CWiseMul<Eigen::MatrixXd, std::tuple<Eigen::MatrixXd, Eigen::MatrixXd>>;
 	extern template class CWiseMul<Eigen::VectorXd, std::tuple<double, Eigen::VectorXd>>;
 	extern template class CWiseMul<Eigen::MatrixXd, std::tuple<double, Eigen::MatrixXd>>;
-	template <typename T> class CwiseNegate;
-	template <typename T> class CWiseConstantPow;
 
-	/** Multiplication of any number of T into R.
+	/** r = prod (x_i), for each component.
+	 * r: R.
+	 * x_i: T.
+	 *
+	 * Product of any number of T values into R.
+	 * Values extended to R with the semantics of Convert.
 	 */
 	template <typename R, typename T> class CWiseMul<R, ReductionOf<T>> : public Value<R> {
 	public:
@@ -680,7 +722,8 @@ namespace dataflow {
 	extern template class CWiseMul<Eigen::VectorXd, ReductionOf<Eigen::VectorXd>>;
 	extern template class CWiseMul<Eigen::MatrixXd, ReductionOf<Eigen::MatrixXd>>;
 
-	/** Negation of T.
+	/** r = -x, for each component.
+	 * r, x: T.
 	 */
 	template <typename T> class CWiseNegate : public Value<T> {
 	public:
@@ -725,7 +768,56 @@ namespace dataflow {
 	extern template class CWiseNegate<Eigen::VectorXd>;
 	extern template class CWiseNegate<Eigen::MatrixXd>;
 
-	/** Pow applied to values in T.
+	/** r = 1/x for each component.
+	 * r, x: T.
+	 */
+	template <typename T> class CWiseInverse : public Value<T> {
+	public:
+		using Self = CWiseInverse;
+
+		static ValueRef<T> create (Context & c, NodeRefVec && deps, const Dimension<T> & dim = {}) {
+			// Check dependencies
+			checkDependenciesNotNull (typeid (Self), deps);
+			checkDependencyVectorSize (typeid (Self), deps, 1);
+			checkNthDependencyIsValue<T> (typeid (Self), deps, 0);
+			// Select node
+			if (deps[0]->hasNumericalProperty (NumericalProperty::Constant) &&
+			    deps[0]->hasNumericalProperty (NumericalProperty::One)) {
+				return ConstantOne<T>::create (c, dim);
+			} else {
+				return std::make_shared<Self> (std::move (deps), dim);
+			}
+		}
+
+		CWiseInverse (NodeRefVec && deps, const Dimension<T> & dim)
+		    : Value<T> (std::move (deps)), targetDimension (dim) {}
+
+		NodeRef derive (Context & c, const Node & node) final {
+			// TODO
+			return CWiseNegate<T>::create (c, {this->dependency (0)->derive (c, node)}, targetDimension);
+		}
+		bool isDerivable (const Node & node) const final {
+			return this->dependency (0)->isDerivable (node);
+		}
+
+	private:
+		void compute () final {
+			using namespace numeric;
+			auto & result = this->accessValueMutable ();
+			cwise (result) = inverse (cwise (accessValueConstCast<T> (*this->dependency (0))));
+		}
+
+		Dimension<T> targetDimension;
+	};
+
+	// Pre compiled instantiations
+	extern template class CWiseInverse<double>;
+	extern template class CWiseInverse<Eigen::VectorXd>;
+	extern template class CWiseInverse<Eigen::MatrixXd>;
+
+	/** r = pow (x, exponent) for each component.
+	 * r, x: T.
+	 * exponent: double.
 	 */
 	template <typename T> class CWiseConstantPow : public Value<T> {
 	public:
@@ -743,10 +835,11 @@ namespace dataflow {
 				return ConstantOne<T>::create (c, dim);
 			} else if (exponent == 1.) {
 				return convertRef<Value<T>> (deps[0]);
+			} else if (exponent == -1.) {
+				return CWiseInverse<T>::create (c, std::move (deps), dim);
 			} else {
 				return std::make_shared<Self> (std::move (deps), exponent, dim);
 			}
-			// TODO spec to inverse when added
 		}
 
 		CWiseConstantPow (NodeRefVec && deps, double exponent, const Dimension<T> & dim)

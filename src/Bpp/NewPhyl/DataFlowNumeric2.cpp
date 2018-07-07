@@ -71,6 +71,11 @@ namespace dataflow {
 	template class CWiseNegate<Eigen::VectorXd>;
 	template class CWiseNegate<Eigen::MatrixXd>;
 
+	// CWiseInverse
+	template class CWiseInverse<double>;
+	template class CWiseInverse<Eigen::VectorXd>;
+	template class CWiseInverse<Eigen::MatrixXd>;
+
 	// CWiseConstantPow
 	template class CWiseConstantPow<double>;
 	template class CWiseConstantPow<Eigen::VectorXd>;
