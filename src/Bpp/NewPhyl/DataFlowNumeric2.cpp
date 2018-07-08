@@ -80,5 +80,8 @@ namespace dataflow {
 	template class CWiseConstantPow<double>;
 	template class CWiseConstantPow<Eigen::VectorXd>;
 	template class CWiseConstantPow<Eigen::MatrixXd>;
+
+	// ScalarProduct
+	template class ScalarProduct<Eigen::VectorXd, Eigen::VectorXd>;
 } // namespace dataflow
 } // namespace bpp

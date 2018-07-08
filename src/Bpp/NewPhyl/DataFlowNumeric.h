@@ -47,11 +47,6 @@
 
 namespace bpp {
 namespace DF {
-	class ScalarProdDouble;
-	template <> struct Builder<ScalarProdDouble> {
-		static ValueRef<double> make (NodeRefVec && deps);
-	};
-
 	class MulMatrixDouble;
 	template <> struct Builder<MulMatrixDouble> {
 		static ValueRef<MatrixDouble> make (NodeRefVec && deps, const Dimension<MatrixDouble> & dim);

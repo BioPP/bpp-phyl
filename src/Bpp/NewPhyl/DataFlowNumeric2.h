@@ -166,7 +166,6 @@ namespace numeric {
  * Data flow nodes for those numerical functions.
  * TODO debug !
  * TODO what of rebuild ?
- * TODO add other nodes from DFN1
  * TODO add nodes from Numerical derivation
  * TODO rename to DFN1
  * TODO rm CPP14, DFN1, integer range uses
@@ -185,6 +184,8 @@ namespace dataflow {
 	template <typename T> class CWiseNegate;
 	template <typename T> class CWiseInverse;
 	template <typename T> class CWiseConstantPow;
+	template <typename T0, typename T1> class ScalarProduct;
+	// TODO matrix multiply with transposed variants ? to R for mat * vector -> vector cases
 
 	// Utilities
 	template <typename Predicate> void removeDependenciesIf (NodeRefVec & deps, Predicate p) {
@@ -431,17 +432,18 @@ namespace dataflow {
 	private:
 		void compute () final {
 			using namespace numeric;
+			auto & result = this->accessValueMutable ();
 			const auto & arg = accessValueConstCast<F> (*this->dependency (0));
-			this->accessValueMutable () = convert (arg, targetDimension);
+			result = convert (arg, targetDimension);
 		}
 
 		Dimension<R> targetDimension;
 	};
 
-	/** r = x_0 + x_1 for each component.
+	/** r = x0 + x1 for each component.
 	 * r: R.
-	 * x_0: T0.
-	 * x_1: T1.
+	 * x0: T0.
+	 * x1: T1.
 	 *
 	 * Values are converted to R with the same semantics as Convert.
 	 * Only defined for N = 2 for now.
@@ -494,8 +496,9 @@ namespace dataflow {
 		void compute () final {
 			using namespace numeric;
 			auto & result = this->accessValueMutable ();
-			cwise (result) = cwise (accessValueConstCast<T0> (*this->dependency (0))) +
-			                 cwise (accessValueConstCast<T1> (*this->dependency (1)));
+			const auto & x0 = accessValueConstCast<T0> (*this->dependency (0));
+			const auto & x1 = accessValueConstCast<T1> (*this->dependency (1));
+			cwise (result) = cwise (x0) + cwise (x1);
 		}
 
 		Dimension<R> targetDimension;
@@ -571,10 +574,10 @@ namespace dataflow {
 	extern template class CWiseAdd<Eigen::VectorXd, ReductionOf<Eigen::VectorXd>>;
 	extern template class CWiseAdd<Eigen::MatrixXd, ReductionOf<Eigen::MatrixXd>>;
 
-	/** r = x_0 * x_1 for each component.
+	/** r = x0 * x1 for each component.
 	 * r: R.
-	 * x_0: T0.
-	 * x_1: T1.
+	 * x0: T0.
+	 * x1: T1.
 	 *
 	 * Values are converted to R with the same semantics as Convert.
 	 * Only defined for N = 2 for now (same constraints as CWiseAdd for genericity).
@@ -634,8 +637,9 @@ namespace dataflow {
 		void compute () final {
 			using namespace numeric;
 			auto & result = this->accessValueMutable ();
-			cwise (result) = cwise (accessValueConstCast<T0> (*this->dependency (0))) *
-			                 cwise (accessValueConstCast<T1> (*this->dependency (1)));
+			const auto & x0 = accessValueConstCast<T0> (*this->dependency (0));
+			const auto & x1 = accessValueConstCast<T1> (*this->dependency (1));
+			cwise (result) = cwise (x0) * cwise (x1);
 		}
 
 		Dimension<R> targetDimension;
@@ -757,7 +761,8 @@ namespace dataflow {
 		void compute () final {
 			using namespace numeric;
 			auto & result = this->accessValueMutable ();
-			cwise (result) = -cwise (accessValueConstCast<T> (*this->dependency (0)));
+			const auto & x = accessValueConstCast<T> (*this->dependency (0));
+			cwise (result) = -cwise (x);
 		}
 
 		Dimension<T> targetDimension;
@@ -809,7 +814,8 @@ namespace dataflow {
 		void compute () final {
 			using namespace numeric;
 			auto & result = this->accessValueMutable ();
-			cwise (result) = inverse (cwise (accessValueConstCast<T> (*this->dependency (0))));
+			const auto & x = accessValueConstCast<T> (*this->dependency (0));
+			cwise (result) = inverse (cwise (x));
 		}
 
 		Dimension<T> targetDimension;
@@ -878,8 +884,8 @@ namespace dataflow {
 		void compute () final {
 			using namespace numeric;
 			auto & result = this->accessValueMutable ();
-			const auto & dep = *this->dependency (0);
-			cwise (result) = factor * pow (cwise (accessValueConstCast<T> (dep)), exponent);
+			const auto & x = accessValueConstCast<T> (*this->dependency (0));
+			cwise (result) = factor * pow (cwise (x), exponent);
 		}
 
 		Dimension<T> targetDimension;
@@ -891,6 +897,60 @@ namespace dataflow {
 	extern template class CWiseConstantPow<double>;
 	extern template class CWiseConstantPow<Eigen::VectorXd>;
 	extern template class CWiseConstantPow<Eigen::MatrixXd>;
+
+	/** r = x0 * x1 (dot product)
+	 * r: double.
+	 * x0: T0 (vector-like).
+	 * x1: T1 (vector-like).
+	 *
+	 * Values are converted to R with the same semantics as Convert.
+	 */
+	template <typename T0, typename T1> class ScalarProduct : public Value<double> {
+	public:
+		using Self = ScalarProduct;
+
+		static ValueRef<double> create (Context & c, NodeRefVec && deps) {
+			// Check dependencies
+			checkDependenciesNotNull (typeid (Self), deps);
+			checkDependencyVectorSize (typeid (Self), deps, 2);
+			checkNthDependencyIsValue<T0> (typeid (Self), deps, 0);
+			checkNthDependencyIsValue<T1> (typeid (Self), deps, 1);
+			// Select node
+			bool dep_0_zero = deps[0]->hasNumericalProperty (NumericalProperty::Constant) &&
+			                  deps[0]->hasNumericalProperty (NumericalProperty::Zero);
+			bool dep_1_zero = deps[1]->hasNumericalProperty (NumericalProperty::Constant) &&
+			                  deps[1]->hasNumericalProperty (NumericalProperty::Zero);
+			if (dep_0_zero || dep_1_zero) {
+				return ConstantZero<double>::create (c);
+			} else {
+				return std::make_shared<Self> (std::move (deps));
+			}
+		}
+
+		ScalarProduct (NodeRefVec && deps) : Value<double> (std::move (deps)) {}
+
+		NodeRef derive (Context & c, const Node & node) {
+			const auto & x0 = this->dependency (0);
+			const auto & x1 = this->dependency (1);
+			auto dx0_prod = Self::create (c, {x0->derive (c, node), x1});
+			auto dx1_prod = Self::create (c, {x0, x1->derive (c, node)});
+			return CWiseAdd<double, std::tuple<double, double>>::create (c, {dx0_prod, dx1_prod});
+		}
+		bool isDerivable (const Node & node) const {
+			return allDerivable (this->dependencies (), node);
+		}
+
+	private:
+		void compute () final {
+			auto & result = this->accessValueMutable ();
+			const auto & x0 = accessValueConstCast<T0> (*this->dependency (0));
+			const auto & x1 = accessValueConstCast<T1> (*this->dependency (1));
+			result = x0.dot (x1); // Using lhs.dot(rhs) method from Eigen only
+		}
+	};
+
+	// Pre compiled instantiations
+	extern template class ScalarProduct<Eigen::VectorXd, Eigen::VectorXd>;
 } // namespace dataflow
 } // namespace bpp
 

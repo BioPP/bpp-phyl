@@ -122,42 +122,6 @@ namespace DF {
 		       " " + numericProps (m);
 	}
 
-	// ScalarProdDouble
-	class ScalarProdDouble : public Value<double> {
-	public:
-		using Dependencies = TupleOfValues<VectorDouble, VectorDouble>;
-
-		ScalarProdDouble (NodeRefVec && deps) : Value<double> (std::move (deps)) {}
-		NodeRef derive (const Node & node) final {
-			auto & lhs = this->dependency (0);
-			auto & rhs = this->dependency (1);
-			auto dLhs = makeNode<ScalarProdDouble> ({lhs->derive (node), rhs});
-			auto dRhs = makeNode<ScalarProdDouble> ({lhs, rhs->derive (node)});
-			return makeNode<AddDouble> ({std::move (dLhs), std::move (dRhs)});
-		}
-		bool isDerivable (const Node & node) const final { return derivableIfAllDepsAre (*this, node); }
-		NodeRef rebuild (NodeRefVec && deps) const final {
-			return makeNode<ScalarProdDouble> (std::move (deps));
-		}
-
-	private:
-		void compute () final {
-			callWithValues (*this, [](double & r, const VectorDouble & lhs, const VectorDouble & rhs) {
-				r = lhs.dot (rhs);
-			});
-		}
-	};
-	ValueRef<double> Builder<ScalarProdDouble>::make (NodeRefVec && deps) {
-		checkDependencies<ScalarProdDouble> (deps);
-		auto & lhs = deps[0];
-		auto & rhs = deps[1];
-		if (isConstantZeroNode (lhs) || isConstantZeroNode (rhs)) {
-			return makeNode<ConstantZero<double>> ();
-		} else {
-			return std::make_shared<ScalarProdDouble> (std::move (deps));
-		}
-	}
-
 	// MulMatrixDouble
 	class MulMatrixDouble : public Value<MatrixDouble> {
 	public:
