@@ -42,46 +42,38 @@
 #include <Bpp/NewPhyl/DataFlowNumeric2.h>
 
 namespace bpp {
-// Explicit instantations to generate a symbol
 namespace dataflow {
-	// CWiseAdd tuple
+	// Precompiled instantiations of numeric nodes
 	template class CWiseAdd<double, std::tuple<double, double>>;
 	template class CWiseAdd<Eigen::VectorXd, std::tuple<Eigen::VectorXd, Eigen::VectorXd>>;
 	template class CWiseAdd<Eigen::MatrixXd, std::tuple<Eigen::MatrixXd, Eigen::MatrixXd>>;
 
-	// CWiseAdd reduction
 	template class CWiseAdd<double, ReductionOf<double>>;
 	template class CWiseAdd<Eigen::VectorXd, ReductionOf<Eigen::VectorXd>>;
 	template class CWiseAdd<Eigen::MatrixXd, ReductionOf<Eigen::MatrixXd>>;
 
-	// CWiseMul tuple
 	template class CWiseMul<double, std::tuple<double, double>>;
 	template class CWiseMul<Eigen::VectorXd, std::tuple<Eigen::VectorXd, Eigen::VectorXd>>;
 	template class CWiseMul<Eigen::MatrixXd, std::tuple<Eigen::MatrixXd, Eigen::MatrixXd>>;
 	template class CWiseMul<Eigen::VectorXd, std::tuple<double, Eigen::VectorXd>>;
 	template class CWiseMul<Eigen::MatrixXd, std::tuple<double, Eigen::MatrixXd>>;
 
-	// CWiseMul Reduction
 	template class CWiseMul<double, ReductionOf<double>>;
 	template class CWiseMul<Eigen::VectorXd, ReductionOf<Eigen::VectorXd>>;
 	template class CWiseMul<Eigen::MatrixXd, ReductionOf<Eigen::MatrixXd>>;
 
-	// CWiseNegate
 	template class CWiseNegate<double>;
 	template class CWiseNegate<Eigen::VectorXd>;
 	template class CWiseNegate<Eigen::MatrixXd>;
 
-	// CWiseInverse
 	template class CWiseInverse<double>;
 	template class CWiseInverse<Eigen::VectorXd>;
 	template class CWiseInverse<Eigen::MatrixXd>;
 
-	// CWiseConstantPow
 	template class CWiseConstantPow<double>;
 	template class CWiseConstantPow<Eigen::VectorXd>;
 	template class CWiseConstantPow<Eigen::MatrixXd>;
 
-	// ScalarProduct
 	template class ScalarProduct<Eigen::VectorXd, Eigen::VectorXd>;
 } // namespace dataflow
 } // namespace bpp

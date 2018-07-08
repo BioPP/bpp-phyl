@@ -332,6 +332,8 @@ namespace dataflow {
 			failureNodeConversion (typeid (T), *from);
 		return p;
 	}
+
+	// TODO add debug printing of graph here (and impl in .cpp)
 } // namespace dataflow
 } // namespace bpp
 

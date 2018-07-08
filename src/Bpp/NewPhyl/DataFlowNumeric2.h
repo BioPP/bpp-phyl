@@ -504,11 +504,6 @@ namespace dataflow {
 		Dimension<R> targetDimension;
 	}; // namespace dataflow
 
-	// Pre compiled instantiations
-	extern template class CWiseAdd<double, std::tuple<double, double>>;
-	extern template class CWiseAdd<Eigen::VectorXd, std::tuple<Eigen::VectorXd, Eigen::VectorXd>>;
-	extern template class CWiseAdd<Eigen::MatrixXd, std::tuple<Eigen::MatrixXd, Eigen::MatrixXd>>;
-
 	/** r = sum (x_i), for each component.
 	 * r: R.
 	 * x_i: T.
@@ -568,11 +563,6 @@ namespace dataflow {
 
 		Dimension<R> targetDimension;
 	};
-
-	// Pre compiled instantiations
-	extern template class CWiseAdd<double, ReductionOf<double>>;
-	extern template class CWiseAdd<Eigen::VectorXd, ReductionOf<Eigen::VectorXd>>;
-	extern template class CWiseAdd<Eigen::MatrixXd, ReductionOf<Eigen::MatrixXd>>;
 
 	/** r = x0 * x1 for each component.
 	 * r: R.
@@ -645,13 +635,6 @@ namespace dataflow {
 		Dimension<R> targetDimension;
 	}; // namespace dataflow
 
-	// Pre compiled instantiations
-	extern template class CWiseMul<double, std::tuple<double, double>>;
-	extern template class CWiseMul<Eigen::VectorXd, std::tuple<Eigen::VectorXd, Eigen::VectorXd>>;
-	extern template class CWiseMul<Eigen::MatrixXd, std::tuple<Eigen::MatrixXd, Eigen::MatrixXd>>;
-	extern template class CWiseMul<Eigen::VectorXd, std::tuple<double, Eigen::VectorXd>>;
-	extern template class CWiseMul<Eigen::MatrixXd, std::tuple<double, Eigen::MatrixXd>>;
-
 	/** r = prod (x_i), for each component.
 	 * r: R.
 	 * x_i: T.
@@ -721,11 +704,6 @@ namespace dataflow {
 		Dimension<R> targetDimension;
 	};
 
-	// Pre compiled instantiations
-	extern template class CWiseMul<double, ReductionOf<double>>;
-	extern template class CWiseMul<Eigen::VectorXd, ReductionOf<Eigen::VectorXd>>;
-	extern template class CWiseMul<Eigen::MatrixXd, ReductionOf<Eigen::MatrixXd>>;
-
 	/** r = -x, for each component.
 	 * r, x: T.
 	 */
@@ -767,11 +745,6 @@ namespace dataflow {
 
 		Dimension<T> targetDimension;
 	};
-
-	// Pre compiled instantiations
-	extern template class CWiseNegate<double>;
-	extern template class CWiseNegate<Eigen::VectorXd>;
-	extern template class CWiseNegate<Eigen::MatrixXd>;
 
 	/** r = 1/x for each component.
 	 * r, x: T.
@@ -821,11 +794,6 @@ namespace dataflow {
 		Dimension<T> targetDimension;
 	};
 
-	// Pre compiled instantiations
-	extern template class CWiseInverse<double>;
-	extern template class CWiseInverse<Eigen::VectorXd>;
-	extern template class CWiseInverse<Eigen::MatrixXd>;
-
 	/** r = factor * pow (x, exponent) for each component.
 	 * r, x: T.
 	 * exponent, factor: double (constant parameter of the node).
@@ -871,10 +839,9 @@ namespace dataflow {
 		NodeRef derive (Context & c, const Node & node) final {
 			// factor * (exponent * x^(exponent - 1)) * x'
 			const auto & dep = this->dependency (0);
-			auto powDerivative =
-			    Self::create (c, {dep}, exponent - 1., factor * exponent, targetDimension);
-			return CWiseMul<T, std::tuple<T, T>>::create (
-			    c, {std::move (powDerivative), dep->derive (c, node)}, targetDimension);
+			auto dpow = Self::create (c, {dep}, exponent - 1., factor * exponent, targetDimension);
+			return CWiseMul<T, std::tuple<T, T>>::create (c, {dpow, dep->derive (c, node)},
+			                                              targetDimension);
 		}
 		bool isDerivable (const Node & node) const final {
 			return this->dependency (0)->isDerivable (node);
@@ -892,11 +859,6 @@ namespace dataflow {
 		double exponent;
 		double factor;
 	};
-
-	// Pre compiled instantiations
-	extern template class CWiseConstantPow<double>;
-	extern template class CWiseConstantPow<Eigen::VectorXd>;
-	extern template class CWiseConstantPow<Eigen::MatrixXd>;
 
 	/** r = x0 * x1 (dot product)
 	 * r: double.
@@ -949,7 +911,37 @@ namespace dataflow {
 		}
 	};
 
-	// Pre compiled instantiations
+	// Precompiled instantiations
+	extern template class CWiseAdd<double, std::tuple<double, double>>;
+	extern template class CWiseAdd<Eigen::VectorXd, std::tuple<Eigen::VectorXd, Eigen::VectorXd>>;
+	extern template class CWiseAdd<Eigen::MatrixXd, std::tuple<Eigen::MatrixXd, Eigen::MatrixXd>>;
+
+	extern template class CWiseAdd<double, ReductionOf<double>>;
+	extern template class CWiseAdd<Eigen::VectorXd, ReductionOf<Eigen::VectorXd>>;
+	extern template class CWiseAdd<Eigen::MatrixXd, ReductionOf<Eigen::MatrixXd>>;
+
+	extern template class CWiseMul<double, std::tuple<double, double>>;
+	extern template class CWiseMul<Eigen::VectorXd, std::tuple<Eigen::VectorXd, Eigen::VectorXd>>;
+	extern template class CWiseMul<Eigen::MatrixXd, std::tuple<Eigen::MatrixXd, Eigen::MatrixXd>>;
+	extern template class CWiseMul<Eigen::VectorXd, std::tuple<double, Eigen::VectorXd>>;
+	extern template class CWiseMul<Eigen::MatrixXd, std::tuple<double, Eigen::MatrixXd>>;
+
+	extern template class CWiseMul<double, ReductionOf<double>>;
+	extern template class CWiseMul<Eigen::VectorXd, ReductionOf<Eigen::VectorXd>>;
+	extern template class CWiseMul<Eigen::MatrixXd, ReductionOf<Eigen::MatrixXd>>;
+
+	extern template class CWiseNegate<double>;
+	extern template class CWiseNegate<Eigen::VectorXd>;
+	extern template class CWiseNegate<Eigen::MatrixXd>;
+
+	extern template class CWiseInverse<double>;
+	extern template class CWiseInverse<Eigen::VectorXd>;
+	extern template class CWiseInverse<Eigen::MatrixXd>;
+
+	extern template class CWiseConstantPow<double>;
+	extern template class CWiseConstantPow<Eigen::VectorXd>;
+	extern template class CWiseConstantPow<Eigen::MatrixXd>;
+
 	extern template class ScalarProduct<Eigen::VectorXd, Eigen::VectorXd>;
 } // namespace dataflow
 } // namespace bpp
