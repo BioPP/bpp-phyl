@@ -102,6 +102,9 @@ struct Dimension<Eigen::Matrix<T, Rows, Cols>> : MatrixDimension {
  * Collection of overloaded numerical functions.
  */
 namespace numeric {
+	// Error util
+	void checkDimensionIsSquare (const MatrixDimension & dim);
+
 	// Create a zero value of the given dimension
 	template <typename T, typename = typename std::enable_if<std::is_arithmetic<T>::value>::type>
 	T zero (const Dimension<T> &) {
@@ -124,7 +127,29 @@ namespace numeric {
 		return Eigen::Matrix<T, Rows, Cols>::Ones (dim.rows, dim.cols);
 	}
 
-	// Convert from F to R (with specific dimension)
+	// Create an identity value of the given dimension (fails if not a square matrix)
+	template <typename T, typename = typename std::enable_if<std::is_arithmetic<T>::value>::type>
+	T identity (const Dimension<T> &) {
+		return T (1); // Equivalent to matrix of size 1x1
+	}
+	template <typename T, int Rows, int Cols>
+	auto identity (const Dimension<Eigen::Matrix<T, Rows, Cols>> & dim)
+	    -> decltype (Eigen::Matrix<T, Rows, Cols>::Identity (dim.rows, dim.cols)) {
+		checkDimensionIsSquare (dim);
+		return Eigen::Matrix<T, Rows, Cols>::Identity (dim.rows, dim.cols);
+	}
+
+	// Check if value is identity itself
+	template <typename T, typename = typename std::enable_if<std::is_arithmetic<T>::value>::type>
+	bool isIdentity (const T & t) {
+		return t == T (1);
+	}
+	template <typename Derived> bool isIdentity (const Eigen::MatrixBase<Derived> & m) {
+		auto dim = Dimension<Derived> (m.derived ());
+		return dim.rows == dim.cols && m == identity (dim);
+	}
+
+	// Convert from F to R (with specific dimension) TODO details semantics and cases
 	template <typename R, typename F,
 	          typename = typename std::enable_if<std::is_convertible<F, R>::value>::type>
 	R convert (const F & from, const Dimension<R> &) {
@@ -185,7 +210,8 @@ namespace dataflow {
 	template <typename T> class CWiseInverse;
 	template <typename T> class CWiseConstantPow;
 	template <typename T0, typename T1> class ScalarProduct;
-	// TODO matrix multiply with transposed variants ? to R for mat * vector -> vector cases
+	template <typename R, typename T0, typename T1> class MatrixProduct;
+	// TODO matrix multiply with transposed variants
 
 	// Utilities
 	template <typename Predicate> void removeDependenciesIf (NodeRefVec & deps, Predicate p) {
@@ -307,6 +333,8 @@ namespace dataflow {
 				return value == zero (Dimension<T> (value));
 			case NumericalProperty::One:
 				return value == one (Dimension<T> (value));
+			case NumericalProperty::Identity:
+				return isIdentity (value);
 			default:
 				return false;
 			}
@@ -374,6 +402,8 @@ namespace dataflow {
 				return value == zero (Dimension<T> (value));
 			case NumericalProperty::One:
 				return value == one (Dimension<T> (value));
+			case NumericalProperty::Identity:
+				return isIdentity (value);
 			default:
 				return false;
 			}
@@ -470,7 +500,7 @@ namespace dataflow {
 				return ConstantZero<R>::create (c, dim);
 			} else if (dep_0_zero && !dep_1_zero) {
 				return Convert<R, T1>::create (c, {deps[1]}, dim);
-			} else if (!dep_0_zero && dep_0_zero) {
+			} else if (!dep_0_zero && dep_1_zero) {
 				return Convert<R, T0>::create (c, {deps[0]}, dim);
 			} else {
 				return std::make_shared<Self> (std::move (deps), dim);
@@ -599,7 +629,7 @@ namespace dataflow {
 				return ConstantOne<R>::create (c, dim);
 			} else if (dep_0_one && !dep_1_one) {
 				return Convert<R, T1>::create (c, {deps[1]}, dim);
-			} else if (!dep_0_one && dep_0_one) {
+			} else if (!dep_0_one && dep_1_one) {
 				return Convert<R, T0>::create (c, {deps[0]}, dim);
 			} else {
 				return std::make_shared<Self> (std::move (deps), dim);
@@ -911,6 +941,71 @@ namespace dataflow {
 		}
 	};
 
+	/** r = x0 * x1 (matrix product).
+	 * r: R (matrix).
+	 * x0: T0 (matrix).
+	 * x1: T1 (matrix).
+	 */
+	template <typename R, typename T0, typename T1> class MatrixProduct : public Value<R> {
+	public:
+		using Self = MatrixProduct;
+
+		static ValueRef<R> create (Context & c, NodeRefVec && deps, const Dimension<R> & dim) {
+			// Check dependencies
+			checkDependenciesNotNull (typeid (Self), deps);
+			checkDependencyVectorSize (typeid (Self), deps, 2);
+			checkNthDependencyIsValue<T0> (typeid (Self), deps, 0);
+			checkNthDependencyIsValue<T1> (typeid (Self), deps, 1);
+			// Return 0 if any 0.
+			if (std::any_of (deps.begin (), deps.end (), [](const NodeRef & ref) {
+				    return ref->hasNumericalProperty (NumericalProperty::Constant) &&
+				           ref->hasNumericalProperty (NumericalProperty::Zero);
+			    })) {
+				return ConstantZero<R>::create (c, dim);
+			}
+			// Select node implementation
+			bool dep_0_identity = deps[0]->hasNumericalProperty (NumericalProperty::Constant) &&
+			                      deps[0]->hasNumericalProperty (NumericalProperty::Identity);
+			bool dep_1_identity = deps[1]->hasNumericalProperty (NumericalProperty::Constant) &&
+			                      deps[1]->hasNumericalProperty (NumericalProperty::Identity);
+			if (dep_0_identity && dep_1_identity) {
+				// No specific class for Identity
+				using namespace numeric;
+				return NumericConstant<R>::create (c, identity (dim));
+			} else if (dep_0_identity && !dep_1_identity) {
+				return Convert<R, T1>::create (c, {deps[1]}, dim);
+			} else if (!dep_0_identity && dep_1_identity) {
+				return Convert<R, T0>::create (c, {deps[0]}, dim);
+			} else {
+				return std::make_shared<Self> (std::move (deps), dim);
+			}
+		}
+
+		MatrixProduct (NodeRefVec && deps, const Dimension<R> & dim)
+		    : Value<R> (std::move (deps)), targetDimension (dim) {}
+
+		NodeRef derive (Context & c, const Node & node) {
+			const auto & x0 = this->dependency (0);
+			const auto & x1 = this->dependency (1);
+			auto dx0_prod = Self::create (c, {x0->derive (c, node), x1}, targetDimension);
+			auto dx1_prod = Self::create (c, {x0, x1->derive (c, node)}, targetDimension);
+			return CWiseAdd<R, std::tuple<R, R>>::create (c, {dx0_prod, dx1_prod}, targetDimension);
+		}
+		bool isDerivable (const Node & node) const {
+			return allDerivable (this->dependencies (), node);
+		}
+
+	private:
+		void compute () final {
+			auto & result = this->accessValueMutable ();
+			const auto & x0 = accessValueConstCast<T0> (*this->dependency (0));
+			const auto & x1 = accessValueConstCast<T1> (*this->dependency (1));
+			result = x0 * x1;
+		}
+
+		Dimension<R> targetDimension;
+	};
+
 	// Precompiled instantiations
 	extern template class CWiseAdd<double, std::tuple<double, double>>;
 	extern template class CWiseAdd<Eigen::VectorXd, std::tuple<Eigen::VectorXd, Eigen::VectorXd>>;
@@ -943,6 +1038,8 @@ namespace dataflow {
 	extern template class CWiseConstantPow<Eigen::MatrixXd>;
 
 	extern template class ScalarProduct<Eigen::VectorXd, Eigen::VectorXd>;
+
+	extern template class MatrixProduct<Eigen::MatrixXd, Eigen::MatrixXd, Eigen::MatrixXd>;
 } // namespace dataflow
 } // namespace bpp
 

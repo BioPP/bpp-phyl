@@ -39,9 +39,18 @@
   knowledge of the CeCILL license and that you accept its terms.
 */
 
+#include <Bpp/Exceptions.h>
 #include <Bpp/NewPhyl/DataFlowNumeric2.h>
 
 namespace bpp {
+namespace numeric {
+	void checkDimensionIsSquare (const MatrixDimension & dim) {
+		if (dim.rows != dim.cols) {
+			throw Exception ("MatrixDimension is not square: " + std::to_string (dim.rows) + "x" +
+			                 std::to_string (dim.cols));
+		}
+	}
+} // namespace numeric
 namespace dataflow {
 	// Precompiled instantiations of numeric nodes
 	template class CWiseAdd<double, std::tuple<double, double>>;
@@ -75,5 +84,7 @@ namespace dataflow {
 	template class CWiseConstantPow<Eigen::MatrixXd>;
 
 	template class ScalarProduct<Eigen::VectorXd, Eigen::VectorXd>;
+
+	template class MatrixProduct<Eigen::MatrixXd, Eigen::MatrixXd, Eigen::MatrixXd>;
 } // namespace dataflow
 } // namespace bpp
