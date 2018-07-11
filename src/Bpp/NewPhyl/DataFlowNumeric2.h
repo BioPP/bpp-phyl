@@ -68,6 +68,8 @@ struct MatrixDimension {
 	MatrixDimension (const Eigen::MatrixBase<Derived> & m) : MatrixDimension (m.rows (), m.cols ()) {}
 };
 
+std::string to_string (const MatrixDimension & dim);
+
 /// Eigen vector are matrices with 1 column.
 inline MatrixDimension vectorDimension (Eigen::Index size) {
 	return {size, 1};
@@ -87,6 +89,10 @@ template <> struct Dimension<double> {
 	Dimension () = default;
 	Dimension (const double &) {}
 };
+
+inline std::string to_string (const Dimension<double> &) {
+	return {};
+}
 
 /** Specialisation of Dimension<T> for eigen matrix types.
  * Note that in Eigen, a vector is a matrix with one column.
@@ -1000,11 +1006,13 @@ namespace dataflow {
 			auto & result = this->accessValueMutable ();
 			const auto & x0 = accessValueConstCast<T0> (*this->dependency (0));
 			const auto & x1 = accessValueConstCast<T1> (*this->dependency (1));
-			result = x0 * x1;
+			result.noalias () = x0 * x1;
 		}
 
 		Dimension<R> targetDimension;
 	};
+
+	// TODO transposed variants ?  r.noalias () = lhs.transpose () * rhs;
 
 	// Precompiled instantiations
 	extern template class CWiseAdd<double, std::tuple<double, double>>;

@@ -43,6 +43,10 @@
 #include <Bpp/NewPhyl/DataFlowNumeric2.h>
 
 namespace bpp {
+std::string to_string (const MatrixDimension & dim) {
+	return "(" + std::to_string (dim.rows) + "," + std::to_string (dim.cols) + ")";
+}
+
 namespace numeric {
 	void checkDimensionIsSquare (const MatrixDimension & dim) {
 		if (dim.rows != dim.cols) {
@@ -51,6 +55,7 @@ namespace numeric {
 		}
 	}
 } // namespace numeric
+
 namespace dataflow {
 	// Precompiled instantiations of numeric nodes
 	template class CWiseAdd<double, std::tuple<double, double>>;
