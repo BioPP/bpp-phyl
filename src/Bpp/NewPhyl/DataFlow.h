@@ -59,7 +59,7 @@ namespace dataflow {
 	template <typename T> class Value;
 	class Context;
 
-	/// Node instances are always manipulated as shared pointers, use an alias.
+	/// Node instances are always manipulated as shared pointers: provide a short alias.
 	using NodeRef = std::shared_ptr<Node>;
 
 	/// Alias for a dependency vector (of NodeRef).
@@ -73,7 +73,7 @@ namespace dataflow {
 		Constant, // Is a constant value
 		Zero,     // Is a zero value for its type
 		One,      // Is a one value for its type
-		Identity, // Is identity (for matrices only, double(1.) is not considered identity).
+		Identity, // Is identity (for matrices mostly ; double(1.) is also considered identity).
 	};
 
 	/** @brief Base data flow Node class.
@@ -108,6 +108,8 @@ namespace dataflow {
 	 * Specific features are present in the base class as virtual functions.
 	 * This include derivation (numerical values), information (debug, name, isConstant...).
 	 * These features have no-op defaults which can be overriden if meaningful in derived classes.
+	 *
+	 * TODO describe invariants if not already. Review doc
 	 */
 	class Node : public std::enable_shared_from_this<Node> {
 	public:

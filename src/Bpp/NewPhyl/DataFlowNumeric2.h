@@ -191,11 +191,44 @@ namespace numeric {
 	// x^y
 	using Eigen::pow;
 	using std::pow;
+
+	// Numerical information as text
+	template <typename T, typename = typename std::enable_if<std::is_arithmetic<T>::value>::type>
+	std::string debug (const T & t) {
+		// For basic arithmetic scalar types, just print the value itself
+		using std::to_string;
+		return "value=" + to_string (t);
+	}
+	template <typename Derived> std::string debug (const Eigen::MatrixBase<Derived> & m) {
+		// With matrices, check some numeric properties and encode results as text
+		const auto dim = Dimension<Derived> (m.derived ());
+		std::string props = "dim=" + to_string (dim) + " props={";
+		const auto zero_value = zero (dim);
+		// Properties on all elements
+		if (m == zero_value)
+			props += "[0]";
+		if (m == one (dim))
+			props += "[1]";
+		if (isIdentity (m))
+			props += "[I]";
+		// Properties on any element
+		if (m.array ().isNaN ().any ())
+			props += "N";
+		if (m.array ().isInf ().any ())
+			props += "i";
+		if ((m.array () == zero_value.array ()).any ())
+			props += "0";
+		if ((m.array () > zero_value.array ()).any ())
+			props += "+";
+		if ((m.array () < zero_value.array ()).any ())
+			props += "-";
+		props += "}";
+		return props;
+	}
 } // namespace numeric
 
 /******************************************************************************
  * Data flow nodes for those numerical functions.
- * TODO debug !
  * TODO what of rebuild ?
  * TODO add nodes from Numerical derivation
  * TODO rename to DFN1
@@ -244,6 +277,8 @@ namespace dataflow {
 		explicit ConstantZero (const Dimension<T> & dim)
 		    : Value<T> (NodeRefVec{}), targetDimension (dim) {}
 
+		std::string debugInfo () const override { return "targetDim=" + to_string (targetDimension); }
+
 		bool hasNumericalProperty (NumericalProperty prop) const final {
 			switch (prop) {
 			case NumericalProperty::Constant:
@@ -283,6 +318,8 @@ namespace dataflow {
 
 		explicit ConstantOne (const Dimension<T> & dim)
 		    : Value<T> (NodeRefVec{}), targetDimension (dim) {}
+
+		std::string debugInfo () const override { return "targetDim=" + to_string (targetDimension); }
 
 		bool hasNumericalProperty (NumericalProperty prop) const final {
 			switch (prop) {
@@ -327,6 +364,11 @@ namespace dataflow {
 		explicit NumericConstant (Args &&... args)
 		    : Value<T> (NodeRefVec{}, std::forward<Args> (args)...) {
 			this->makeValid (); // Always valid
+		}
+
+		std::string debugInfo () const override {
+			using namespace numeric;
+			return debug (this->accessValueConst ());
 		}
 
 		bool hasNumericalProperty (NumericalProperty prop) const final {
@@ -400,6 +442,11 @@ namespace dataflow {
 			modify ([&t](T & v) { v = std::move (t); });
 		}
 
+		std::string debugInfo () const override {
+			using namespace numeric;
+			return debug (this->accessValueConst ());
+		}
+
 		bool hasNumericalProperty (NumericalProperty prop) const final {
 			using namespace numeric;
 			const auto & value = this->accessValueConst ();
@@ -457,6 +504,11 @@ namespace dataflow {
 
 		Convert (NodeRefVec && deps, const Dimension<R> & dim)
 		    : Value<R> (std::move (deps)), targetDimension (dim) {}
+
+		std::string debugInfo () const override {
+			using namespace numeric;
+			return debug (this->accessValueConst ()) + " targetDim=" + to_string (targetDimension);
+		}
 
 		NodeRef derive (Context & c, const Node & node) final {
 			return Self::create (c, {this->dependency (0)->derive (c, node)}, targetDimension);
@@ -516,7 +568,12 @@ namespace dataflow {
 		CWiseAdd (NodeRefVec && deps, const Dimension<R> & dim)
 		    : Value<R> (std::move (deps)), targetDimension (dim) {}
 
-		NodeRef derive (Context & c, const Node & node) {
+		std::string debugInfo () const override {
+			using namespace numeric;
+			return debug (this->accessValueConst ()) + " targetDim=" + to_string (targetDimension);
+		}
+
+		NodeRef derive (Context & c, const Node & node) final {
 			constexpr std::size_t n = 2;
 			NodeRefVec derivedDeps (n);
 			for (std::size_t i = 0; i < n; ++i) {
@@ -524,7 +581,7 @@ namespace dataflow {
 			}
 			return Self::create (c, std::move (derivedDeps), targetDimension);
 		}
-		bool isDerivable (const Node & node) const {
+		bool isDerivable (const Node & node) const final {
 			return allDerivable (this->dependencies (), node);
 		}
 
@@ -575,7 +632,12 @@ namespace dataflow {
 		CWiseAdd (NodeRefVec && deps, const Dimension<R> & dim)
 		    : Value<R> (std::move (deps)), targetDimension (dim) {}
 
-		NodeRef derive (Context & c, const Node & node) {
+		std::string debugInfo () const override {
+			using namespace numeric;
+			return debug (this->accessValueConst ()) + " targetDim=" + to_string (targetDimension);
+		}
+
+		NodeRef derive (Context & c, const Node & node) final {
 			const auto n = this->nbDependencies ();
 			NodeRefVec derivedDeps (n);
 			for (std::size_t i = 0; i < n; ++i) {
@@ -583,7 +645,7 @@ namespace dataflow {
 			}
 			return Self::create (c, std::move (derivedDeps), targetDimension);
 		}
-		bool isDerivable (const Node & node) const {
+		bool isDerivable (const Node & node) const final {
 			return allDerivable (this->dependencies (), node);
 		}
 
@@ -645,7 +707,12 @@ namespace dataflow {
 		CWiseMul (NodeRefVec && deps, const Dimension<R> & dim)
 		    : Value<R> (std::move (deps)), targetDimension (dim) {}
 
-		NodeRef derive (Context & c, const Node & node) {
+		std::string debugInfo () const override {
+			using namespace numeric;
+			return debug (this->accessValueConst ()) + " targetDim=" + to_string (targetDimension);
+		}
+
+		NodeRef derive (Context & c, const Node & node) final {
 			constexpr std::size_t n = 2;
 			NodeRefVec addDeps (n);
 			for (std::size_t i = 0; i < n; ++i) {
@@ -655,7 +722,7 @@ namespace dataflow {
 			}
 			return CWiseAdd<R, std::tuple<R, R>>::create (c, std::move (addDeps), targetDimension);
 		}
-		bool isDerivable (const Node & node) const {
+		bool isDerivable (const Node & node) const final {
 			return allDerivable (this->dependencies (), node);
 		}
 
@@ -713,7 +780,12 @@ namespace dataflow {
 		CWiseMul (NodeRefVec && deps, const Dimension<R> & dim)
 		    : Value<R> (std::move (deps)), targetDimension (dim) {}
 
-		NodeRef derive (Context & c, const Node & node) {
+		std::string debugInfo () const override {
+			using namespace numeric;
+			return debug (this->accessValueConst ()) + " targetDim=" + to_string (targetDimension);
+		}
+
+		NodeRef derive (Context & c, const Node & node) final {
 			const auto n = this->nbDependencies ();
 			NodeRefVec addDeps (n);
 			for (std::size_t i = 0; i < n; ++i) {
@@ -723,7 +795,7 @@ namespace dataflow {
 			}
 			return CWiseAdd<R, ReductionOf<R>>::create (c, std::move (addDeps), targetDimension);
 		}
-		bool isDerivable (const Node & node) const {
+		bool isDerivable (const Node & node) const final {
 			return allDerivable (this->dependencies (), node);
 		}
 
@@ -763,6 +835,11 @@ namespace dataflow {
 
 		CWiseNegate (NodeRefVec && deps, const Dimension<T> & dim)
 		    : Value<T> (std::move (deps)), targetDimension (dim) {}
+
+		std::string debugInfo () const override {
+			using namespace numeric;
+			return debug (this->accessValueConst ()) + " targetDim=" + to_string (targetDimension);
+		}
 
 		NodeRef derive (Context & c, const Node & node) final {
 			return Self::create (c, {this->dependency (0)->derive (c, node)}, targetDimension);
@@ -805,6 +882,11 @@ namespace dataflow {
 
 		CWiseInverse (NodeRefVec && deps, const Dimension<T> & dim)
 		    : Value<T> (std::move (deps)), targetDimension (dim) {}
+
+		std::string debugInfo () const override {
+			using namespace numeric;
+			return debug (this->accessValueConst ()) + " targetDim=" + to_string (targetDimension);
+		}
 
 		NodeRef derive (Context & c, const Node & node) final {
 			// -1/x^2 * x'
@@ -872,6 +954,11 @@ namespace dataflow {
 		      exponent (exponent),
 		      factor (factor) {}
 
+		std::string debugInfo () const override {
+			using namespace numeric;
+			return debug (this->accessValueConst ()) + " targetDim=" + to_string (targetDimension);
+		}
+
 		NodeRef derive (Context & c, const Node & node) final {
 			// factor * (exponent * x^(exponent - 1)) * x'
 			const auto & dep = this->dependency (0);
@@ -927,14 +1014,19 @@ namespace dataflow {
 
 		ScalarProduct (NodeRefVec && deps) : Value<double> (std::move (deps)) {}
 
-		NodeRef derive (Context & c, const Node & node) {
+		std::string debugInfo () const override {
+			using namespace numeric;
+			return debug (this->accessValueConst ());
+		}
+
+		NodeRef derive (Context & c, const Node & node) final {
 			const auto & x0 = this->dependency (0);
 			const auto & x1 = this->dependency (1);
 			auto dx0_prod = Self::create (c, {x0->derive (c, node), x1});
 			auto dx1_prod = Self::create (c, {x0, x1->derive (c, node)});
 			return CWiseAdd<double, std::tuple<double, double>>::create (c, {dx0_prod, dx1_prod});
 		}
-		bool isDerivable (const Node & node) const {
+		bool isDerivable (const Node & node) const final {
 			return allDerivable (this->dependencies (), node);
 		}
 
@@ -990,14 +1082,19 @@ namespace dataflow {
 		MatrixProduct (NodeRefVec && deps, const Dimension<R> & dim)
 		    : Value<R> (std::move (deps)), targetDimension (dim) {}
 
-		NodeRef derive (Context & c, const Node & node) {
+		std::string debugInfo () const override {
+			using namespace numeric;
+			return debug (this->accessValueConst ()) + " targetDim=" + to_string (targetDimension);
+		}
+
+		NodeRef derive (Context & c, const Node & node) final {
 			const auto & x0 = this->dependency (0);
 			const auto & x1 = this->dependency (1);
 			auto dx0_prod = Self::create (c, {x0->derive (c, node), x1}, targetDimension);
 			auto dx1_prod = Self::create (c, {x0, x1->derive (c, node)}, targetDimension);
 			return CWiseAdd<R, std::tuple<R, R>>::create (c, {dx0_prod, dx1_prod}, targetDimension);
 		}
-		bool isDerivable (const Node & node) const {
+		bool isDerivable (const Node & node) const final {
 			return allDerivable (this->dependencies (), node);
 		}
 
