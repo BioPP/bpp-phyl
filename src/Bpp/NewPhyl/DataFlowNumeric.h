@@ -107,6 +107,7 @@ struct Dimension<Eigen::Matrix<T, Rows, Cols>> : MatrixDimension {
 
 /******************************************************************************
  * Collection of overloaded numerical functions.
+ * Not documented with doxygen, as this is only intended for use in dataflow nodes.
  */
 namespace numeric {
 	// Error util
@@ -156,17 +157,26 @@ namespace numeric {
 		return dim.rows == dim.cols && m == identity (dim);
 	}
 
-	// Convert from F to R (with specific dimension) TODO details semantics and cases
+	/* Convert from F to R (with specific dimension).
+	 * scalar -> scalar: simple cast.
+	 * scalar -> matrix: fill the matrix with scalar value.
+	 * matrix -> matrix: copy values, size must match (conversion between eigen dynamic/fixed types).
+	 */
 	template <typename R, typename F,
-	          typename = typename std::enable_if<std::is_convertible<F, R>::value>::type>
-	R convert (const F & from, const Dimension<R> &) {
-		return R (from); // For simple arithmetic types
+	          typename = typename std::enable_if<std::is_arithmetic<R>::value>::type>
+	void convert (R & r, const F & from, const Dimension<R> &) {
+		r = R (from); // scalar -> scalar
 	}
-	template <typename T, int Rows, int Cols, typename F>
-	auto convert (const F & from, const Dimension<Eigen::Matrix<T, Rows, Cols>> & dim)
-	    -> decltype (Eigen::Matrix<T, Rows, Cols>::Constant (T (from), dim.rows, dim.cols)) {
-		// Eigen case, build a matrix/vector filled with constant value.
-		return Eigen::Matrix<T, Rows, Cols>::Constant (dim.rows, dim.cols, T (from));
+	template <typename Derived, typename F,
+	          typename = typename std::enable_if<std::is_arithmetic<F>::value>::type>
+	void convert (Eigen::MatrixBase<Derived> & r, const F & from, const Dimension<Derived> & dim) {
+		r.derived () = Derived::Constant (dim.rows, dim.cols, from); // scalar -> matrix
+	}
+	template <typename DerivedR, typename DerivedF>
+	void convert (Eigen::MatrixBase<DerivedR> & r, const Eigen::MatrixBase<DerivedF> & from,
+	              const Dimension<DerivedR> & dim) {
+		r.derived () = from.derived ();      // matrix -> matrix
+		assert (MatrixDimension (r) == dim); // debug post check of size
 	}
 
 	// Return a reference to the object for component-wise operations
@@ -482,8 +492,7 @@ namespace dataflow {
 	/** r = f.
 	 * r: R.
 	 * f: F.
-	 * Convert from F to R type.
-	 * For double -> matrix, this fills the matrix with the double value.
+	 * Convert from F to R type, semantics of numeric::convert.
 	 */
 	template <typename R, typename F> class Convert : public Value<R> {
 	public:
@@ -522,7 +531,7 @@ namespace dataflow {
 			using namespace numeric;
 			auto & result = this->accessValueMutable ();
 			const auto & arg = accessValueConstCast<F> (*this->dependency (0));
-			result = convert (arg, targetDimension);
+			convert (result, arg, targetDimension);
 		}
 
 		Dimension<R> targetDimension;
@@ -533,7 +542,7 @@ namespace dataflow {
 	 * x0: T0.
 	 * x1: T1.
 	 *
-	 * Values are converted to R with the same semantics as Convert.
+	 * Values converted to R with the semantics of numeric::convert.
 	 * Only defined for N = 2 for now.
 	 * The generic version is horrible in C++11 (lack of auto return).
 	 * Generic simplification routine is horrible too.
@@ -602,7 +611,7 @@ namespace dataflow {
 	 * x_i: T.
 	 *
 	 * Sum of any number of T values into R.
-	 * Values extended to R with the semantics of Convert.
+	 * Values converted to R with the semantics of numeric::convert.
 	 */
 	template <typename R, typename T> class CWiseAdd<R, ReductionOf<T>> : public Value<R> {
 	public:
@@ -667,7 +676,7 @@ namespace dataflow {
 	 * x0: T0.
 	 * x1: T1.
 	 *
-	 * Values are converted to R with the same semantics as Convert.
+	 * Values converted to R with the semantics of numeric::convert.
 	 * Only defined for N = 2 for now (same constraints as CWiseAdd for genericity).
 	 */
 	template <typename R, typename T0, typename T1>
@@ -741,9 +750,8 @@ namespace dataflow {
 	/** r = prod (x_i), for each component.
 	 * r: R.
 	 * x_i: T.
-	 *
 	 * Product of any number of T values into R.
-	 * Values extended to R with the semantics of Convert.
+	 * Values converted to R with the semantics of numeric::convert.
 	 */
 	template <typename R, typename T> class CWiseMul<R, ReductionOf<T>> : public Value<R> {
 	public:
@@ -987,8 +995,6 @@ namespace dataflow {
 	 * r: double.
 	 * x0: T0 (vector-like).
 	 * x1: T1 (vector-like).
-	 *
-	 * Values are converted to R with the same semantics as Convert.
 	 */
 	template <typename T0, typename T1> class ScalarProduct : public Value<double> {
 	public:
@@ -1148,4 +1154,4 @@ namespace dataflow {
 } // namespace dataflow
 } // namespace bpp
 
-#endif // BPP_NEWPHYL_DATAFLOWNUMERIC2_H
+#endif // BPP_NEWPHYL_DATAFLOWNUMERIC_H
