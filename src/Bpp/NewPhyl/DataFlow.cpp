@@ -48,8 +48,6 @@
 
 #include "DataFlow.h"
 
-#include <Bpp/NewPhyl/Utils.h> // TODO rm
-
 /* std::type_info::name() returns a "mangled" type name, not very readable.
  * Compilers can optionally provide an ABI header cxxabi.h.
  * This header contain the demangle function, which makes the type name readable.
@@ -81,19 +79,15 @@ namespace dataflow {
 	/*****************************************************************************
 	 * Error & dependency check functions.
 	 */
+	void failureComputeWasCalled (const std::type_info & nodeType) {
+		throw Exception (prettyTypeName (nodeType) + ": compute() was called");
+	}
 
-	// Error functions DataFlow.h
 	void failureNodeConversion (const std::type_info & handleType, const Node & node) {
 		throw Exception (prettyTypeName (handleType) +
 		                 " cannot store: " + prettyTypeName (typeid (node)));
 	}
 
-	// Error functions DataFlowTemplates.h
-	void failureComputeWasCalled (const std::type_info & nodeType) {
-		throw Exception (prettyTypeName (nodeType) + ": compute() was called");
-	}
-
-	// Error functions DataFlowInternal.h
 	void failureDependencyNumberMismatch (const std::type_info & contextNodeType,
 	                                      std::size_t expectedSize, std::size_t givenSize) {
 		throw Exception (prettyTypeName (contextNodeType) + ": expected " +
@@ -130,8 +124,9 @@ namespace dataflow {
 		}
 	}
 
-	/************************************ Base DF::Node impl *******************************/
-
+	/*****************************************************************************
+	 * Node impl.
+	 */
 	Node::Node (const NodeRefVec & dependenciesArg) : dependencyNodes_ (dependenciesArg) {
 		for (auto & n : dependencyNodes_)
 			n->registerNode (this);
@@ -161,22 +156,6 @@ namespace dataflow {
 		throw Exception ("Node does not support rebuild(deps): " + description ());
 	}
 
-	void Node::invalidateRecursively () noexcept {
-		if (!isValid ())
-			return;
-		std::stack<Node *> nodesToInvalidate;
-		nodesToInvalidate.push (this);
-		while (!nodesToInvalidate.empty ()) {
-			auto * n = nodesToInvalidate.top ();
-			nodesToInvalidate.pop ();
-			if (n->isValid ()) {
-				n->makeInvalid ();
-				for (auto * dependent : n->dependentNodes_)
-					nodesToInvalidate.push (dependent);
-			}
-		}
-	}
-
 	void Node::computeRecursively () {
 		// Compute the current node (and dependencies recursively) if needed
 		if (isValid ())
@@ -203,12 +182,31 @@ namespace dataflow {
 		}
 	}
 
+	void Node::invalidateRecursively () noexcept {
+		if (!isValid ())
+			return;
+		std::stack<Node *> nodesToInvalidate;
+		nodesToInvalidate.push (this);
+		while (!nodesToInvalidate.empty ()) {
+			auto * n = nodesToInvalidate.top ();
+			nodesToInvalidate.pop ();
+			if (n->isValid ()) {
+				n->makeInvalid ();
+				for (auto * dependent : n->dependentNodes_)
+					nodesToInvalidate.push (dependent);
+			}
+		}
+	}
+
 	void Node::registerNode (Node * n) { dependentNodes_.emplace_back (n); }
 	void Node::unregisterNode (const Node * n) {
 		dependentNodes_.erase (std::remove (dependentNodes_.begin (), dependentNodes_.end (), n),
 		                       dependentNodes_.end ());
 	}
 
+	/*****************************************************************************
+	 * Free functions.
+	 */
 	NodeRef rebuildWithSubstitution (const NodeRef & node,
 	                                 const std::map<const Node *, NodeRef> & substitutions) {
 		auto it = substitutions.find (node.get ());
@@ -220,9 +218,10 @@ namespace dataflow {
 			return node;
 		} else {
 			// Recursion : only rebuild if dependencies have changed
-			auto rebuiltDeps = mapToVector (node->dependencies (), [&substitutions](const NodeRef & dep) {
-				return rebuildWithSubstitution (dep, substitutions);
-			});
+			NodeRefVec rebuiltDeps (node->nbDependencies ());
+			for (std::size_t i = 0; i < rebuiltDeps.size (); ++i) {
+				rebuiltDeps[i] = rebuildWithSubstitution (node->dependency (i), substitutions);
+			}
 			if (rebuiltDeps == node->dependencies ()) {
 				return node;
 			} else {

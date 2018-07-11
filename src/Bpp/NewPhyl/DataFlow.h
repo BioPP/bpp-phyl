@@ -80,7 +80,7 @@ namespace dataflow {
 		Identity, // Is identity (for matrices mostly ; double(1.) is also considered identity).
 	};
 
-	/** @brief Base data flow Node class.
+	/** @brief Base dataflow Node class.
 	 *
 	 * All data flow nodes inherit from this class.
 	 * Instances of this class must be used through std::shared_ptr<T>.
@@ -109,11 +109,13 @@ namespace dataflow {
 	 * It is useful for debugging: can print the whole graph structure.
 	 * Accessing the derived classes (for compute) can be done efficiently with static_cast.
 	 *
-	 * Specific features are present in the base class as virtual functions.
-	 * This include derivation (numerical values), information (debug, name, isConstant...).
-	 * These features have no-op defaults which can be overriden if meaningful in derived classes.
+	 * Two main invariants are maintained at all times by this class.
+	 * 1: If a node is valid, all its transitive dependencies are valid.
+	 * 2: If a node is invalid, all transitively dependent nodes are invalid.
 	 *
-	 * TODO describe invariants if not already. Review doc
+	 * Specific features are present in the base class as virtual functions.
+	 * This include derivation (numerical values), debug, etc.
+	 * These features have no-op of failure defaults which can be overriden in derived classes.
 	 */
 	class Node : public std::enable_shared_from_this<Node> {
 	public:
@@ -282,8 +284,10 @@ namespace dataflow {
 		return static_cast<const Value<T> &> (node).accessValueConst (); // Fast cast access
 	}
 
-	/// @name Error functions for dependency check
+	/// @name Error functions (generate a message and throw exceptions).
 	///@{
+	[[noreturn]] void failureComputeWasCalled (const std::type_info & nodeType);
+	[[noreturn]] void failureNodeConversion (const std::type_info & handleType, const Node & node);
 	[[noreturn]] void failureDependencyNumberMismatch (const std::type_info & contextNodeType,
 	                                                   std::size_t expectedSize,
 	                                                   std::size_t givenSize);
@@ -325,10 +329,6 @@ namespace dataflow {
 	}
 
 	///@}
-
-	// Error function
-	[[noreturn]] void failureComputeWasCalled (const std::type_info & nodeType);
-	[[noreturn]] void failureNodeConversion (const std::type_info & handleType, const Node & node);
 
 	// Convert handles with check
 	template <typename T, typename U>
