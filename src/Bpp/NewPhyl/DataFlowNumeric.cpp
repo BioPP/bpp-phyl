@@ -59,6 +59,28 @@ namespace numeric {
 
 namespace dataflow {
 	// Precompiled instantiations of numeric nodes
+	template class ConstantZero<double>;
+	template class ConstantZero<Eigen::VectorXd>;
+	template class ConstantZero<Eigen::MatrixXd>;
+
+	template class ConstantOne<double>;
+	template class ConstantOne<Eigen::VectorXd>;
+	template class ConstantOne<Eigen::MatrixXd>;
+
+	template class NumericConstant<double>;
+	template class NumericConstant<Eigen::VectorXd>;
+	template class NumericConstant<Eigen::MatrixXd>;
+
+	template class NumericMutable<double>;
+	template class NumericMutable<Eigen::VectorXd>;
+	template class NumericMutable<Eigen::MatrixXd>;
+
+	template class Convert<double, double>;
+	template class Convert<Eigen::VectorXd, Eigen::VectorXd>;
+	template class Convert<Eigen::MatrixXd, Eigen::MatrixXd>;
+	template class Convert<Eigen::VectorXd, double>;
+	template class Convert<Eigen::MatrixXd, double>;
+
 	template class CWiseAdd<double, std::tuple<double, double>>;
 	template class CWiseAdd<Eigen::VectorXd, std::tuple<Eigen::VectorXd, Eigen::VectorXd>>;
 	template class CWiseAdd<Eigen::MatrixXd, std::tuple<Eigen::MatrixXd, Eigen::MatrixXd>>;

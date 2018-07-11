@@ -1118,6 +1118,28 @@ namespace dataflow {
 	// TODO transposed variants ?  r.noalias () = lhs.transpose () * rhs;
 
 	// Precompiled instantiations
+	extern template class ConstantZero<double>;
+	extern template class ConstantZero<Eigen::VectorXd>;
+	extern template class ConstantZero<Eigen::MatrixXd>;
+
+	extern template class ConstantOne<double>;
+	extern template class ConstantOne<Eigen::VectorXd>;
+	extern template class ConstantOne<Eigen::MatrixXd>;
+
+	extern template class NumericConstant<double>;
+	extern template class NumericConstant<Eigen::VectorXd>;
+	extern template class NumericConstant<Eigen::MatrixXd>;
+
+	extern template class NumericMutable<double>;
+	extern template class NumericMutable<Eigen::VectorXd>;
+	extern template class NumericMutable<Eigen::MatrixXd>;
+
+	extern template class Convert<double, double>;
+	extern template class Convert<Eigen::VectorXd, Eigen::VectorXd>;
+	extern template class Convert<Eigen::MatrixXd, Eigen::MatrixXd>;
+	extern template class Convert<Eigen::VectorXd, double>;
+	extern template class Convert<Eigen::MatrixXd, double>;
+
 	extern template class CWiseAdd<double, std::tuple<double, double>>;
 	extern template class CWiseAdd<Eigen::VectorXd, std::tuple<Eigen::VectorXd, Eigen::VectorXd>>;
 	extern template class CWiseAdd<Eigen::MatrixXd, std::tuple<Eigen::MatrixXd, Eigen::MatrixXd>>;
