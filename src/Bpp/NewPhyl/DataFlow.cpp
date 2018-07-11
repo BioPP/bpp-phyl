@@ -50,27 +50,28 @@
 
 #include <Bpp/NewPhyl/Utils.h> // TODO rm
 
-#include <Bpp/NewPhyl/Config.h>
-#ifdef BPP_HAVE_DEMANGLING // TODO replace with sfinae test to remove dep on cmake ?
+/* std::type_info::name() returns a "mangled" type name, not very readable.
+ * Compilers can optionally provide an ABI header cxxabi.h.
+ * This header contain the demangle function, which makes the type name readable.
+ * By testing on godbolt, all versions of gcc and clang have this header.
+ */
+#if defined(__GNUC__) || defined(__clang__)
 #include <cstdlib>
 #include <cxxabi.h>
-#endif
-namespace bpp {
-std::string demangle (const char * name) {
-#ifdef BPP_HAVE_DEMANGLING
+static std::string demangle (const char * name) {
 	int status{};
 	std::unique_ptr<char, void (*) (void *)> res{
 	    abi::__cxa_demangle (name, nullptr, nullptr, &status), std::free};
 	return status == 0 ? res.get () : name;
+}
 #else
+static std::string demangle (const char * name) {
 	return name;
+}
 #endif
-}
 
+namespace bpp {
 std::string prettyTypeName (const std::type_info & ti) {
-	return demangle (ti.name ());
-}
-std::string prettyTypeName (std::type_index ti) {
 	return demangle (ti.name ());
 }
 } // namespace bpp

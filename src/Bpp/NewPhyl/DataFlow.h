@@ -55,6 +55,9 @@
 /** @file Defines the basic types of data flow nodes.
  */
 namespace bpp {
+/// Debug: return a readable name for a C++ type descriptor (from typeid operator).
+std::string prettyTypeName (const std::type_info & type_info);
+
 namespace dataflow {
 	class Node;
 	template <typename T> class Value;

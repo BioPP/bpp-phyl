@@ -241,18 +241,10 @@ set (CPP_FILES
   Bpp/Phyl/Tree/PhyloTreeExceptions.cpp
   )
 
-# Config file (currently not installed as it is only used in impl files).
-# $<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}> is due to this file.
-configure_file (
-  ${CMAKE_CURRENT_SOURCE_DIR}/Bpp/NewPhyl/Config.h.in
-  ${CMAKE_CURRENT_BINARY_DIR}/Bpp/NewPhyl/Config.h
-  )
-
 # Build the static lib
 add_library (${PROJECT_NAME}-static STATIC ${CPP_FILES})
 target_include_directories (${PROJECT_NAME}-static PUBLIC
   $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>
-  $<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}>
   $<INSTALL_INTERFACE:$<INSTALL_PREFIX>/${CMAKE_INSTALL_INCLUDEDIR}>
   )
 set_target_properties (${PROJECT_NAME}-static PROPERTIES OUTPUT_NAME ${PROJECT_NAME})
@@ -262,7 +254,6 @@ target_link_libraries (${PROJECT_NAME}-static ${BPP_LIBS_STATIC} Eigen3::Eigen)
 add_library (${PROJECT_NAME}-shared SHARED ${CPP_FILES})
 target_include_directories (${PROJECT_NAME}-shared PUBLIC
   $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>
-  $<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}>
   $<INSTALL_INTERFACE:$<INSTALL_PREFIX>/${CMAKE_INSTALL_INCLUDEDIR}>
   )
 set_target_properties (${PROJECT_NAME}-shared

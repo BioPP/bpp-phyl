@@ -73,10 +73,6 @@ install (FILES ${CMAKE_CURRENT_BINARY_DIR}/package.cmake DESTINATION ${cmake-pac
 install (FILES ${CMAKE_CURRENT_BINARY_DIR}/package-version.cmake DESTINATION ${cmake-package-location}
   RENAME ${PROJECT_NAME}-config-version.cmake)
 
-# Check demangling support
-include (CheckCXXSymbolExists)
-CHECK_CXX_SYMBOL_EXISTS("abi::__cxa_demangle" "cxxabi.h" BPP_HAVE_DEMANGLING)
-
 # Use eigen (TODO, add eigen files to repository directly)
 find_package (Eigen3)
 
