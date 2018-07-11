@@ -42,7 +42,7 @@
 #define DOCTEST_CONFIG_IMPLEMENT_WITH_MAIN
 #include "doctest.h"
 
-#include <Bpp/NewPhyl/DataFlowNumeric2.h>
+#include <Bpp/NewPhyl/DataFlowNumeric.h>
 
 TEST_CASE("test")
 {

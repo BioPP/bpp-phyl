@@ -8,14 +8,12 @@
 # File list
 set (CPP_FILES
   Bpp/NewPhyl/DataFlow.cpp
-  Bpp/NewPhyl/DataFlowNumeric2.cpp
-  #  Bpp/NewPhyl/DataFlowNumeric.cpp
+  Bpp/NewPhyl/DataFlowNumeric.cpp
   #  Bpp/NewPhyl/DataFlowNumericalDerivation.cpp
   #  Bpp/NewPhyl/Debug.cpp
   #  Bpp/NewPhyl/ImportMaster.cpp
   #  Bpp/NewPhyl/ImportNewlik.cpp
   #  Bpp/NewPhyl/Likelihood.cpp
-  #  Bpp/NewPhyl/LinearAlgebra.cpp
   #  Bpp/NewPhyl/Model.cpp
   #  Bpp/NewPhyl/Optimizer.cpp
   #  Bpp/NewPhyl/Phylogeny.cpp

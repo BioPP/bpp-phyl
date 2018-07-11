@@ -39,17 +39,18 @@
   knowledge of the CeCILL license and that you accept its terms.
 */
 
-#ifndef BPP_NEWPHYL_DATAFLOW_H
-#define BPP_NEWPHYL_DATAFLOW_H
+#ifndef BPP_DATAFLOW_H
+#define BPP_DATAFLOW_H
 
 #include <cassert>
 #include <cstddef>
-#include <map> // TODO rm ?
 #include <memory>
-#include <string> // description
+#include <string>
 #include <typeinfo>
 #include <utility>
 #include <vector>
+
+#include <map> // TODO rm ?
 
 /** @file Defines the basic types of data flow nodes.
  */

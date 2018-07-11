@@ -2,8 +2,8 @@
 // File: DataFlowNumeric.cpp
 // Authors:
 //   Francois Gindraud (2017)
-// Created: 2017-10-09 00:00:00
-// Last modified: 2017-10-10
+// Created: 2018-06-07
+// Last modified: 2018-07-11
 //
 
 /*
@@ -39,72 +39,58 @@
   knowledge of the CeCILL license and that you accept its terms.
 */
 
-#include <Bpp/NewPhyl/DataFlowInternal.h>
-#include <Bpp/NewPhyl/DataFlowNumeric.h>
-#include <Bpp/NewPhyl/DataFlowTemplates.h>
-#include <Bpp/NewPhyl/Debug.h> // checks
-#include <Bpp/NewPhyl/IntegerRange.h>
-#include <Bpp/NewPhyl/LinearAlgebra.h>
-#include <Bpp/NewPhyl/LinearAlgebraUtils.h>
-#include <Bpp/NewPhyl/Utils.h>
-#include <algorithm>
-#include <memory>
-#include <string>
-#include <typeinfo>
-#include <utility>
+#include <Bpp/Exceptions.h>
+
+#include "DataFlowNumeric.h"
 
 namespace bpp {
-namespace DF {
-	/******************************** Utils *******************************/
-	namespace {
-		/* Generate a string describing useful numeric props of Eigen vector/matrix.
-		 * Used in Value<T>::debugInfo specialisations.
-		 */
-		template <typename T> std::string numericProps (const T & t) {
-			std::string s{"props{"};
-			auto zero = linearAlgebraZeroValue (dimension (t));
-			// Property for all elements
-			if (t.isZero (0.))
-				s += "[0]";
-			if (t.isOnes (0.))
-				s += "[1]";
-			if (t.rows () == t.cols () && t.isIdentity (0.))
-				s += "[I]";
-			// Property on any element
-			if (t.array ().isNaN ().any ())
-				s += "N";
-			if (t.array ().isInf ().any ())
-				s += "i";
-			if ((t.array () == zero.array ()).any ())
-				s += "0";
-			if ((t.array () > zero.array ()).any ())
-				s += "+";
-			if ((t.array () < zero.array ()).any ())
-				s += "-";
-			s += "}";
-			return s;
+std::string to_string (const MatrixDimension & dim) {
+	return "(" + std::to_string (dim.rows) + "," + std::to_string (dim.cols) + ")";
+}
+
+namespace numeric {
+	void checkDimensionIsSquare (const MatrixDimension & dim) {
+		if (dim.rows != dim.cols) {
+			throw Exception ("MatrixDimension is not square: " + std::to_string (dim.rows) + "x" +
+			                 std::to_string (dim.cols));
 		}
-	} // namespace
+	}
+} // namespace numeric
 
-	/**************************************************************************
-	 * Specialisations of Value/Constant/Mutable for numeric types.
-	 */
+namespace dataflow {
+	// Precompiled instantiations of numeric nodes
+	template class CWiseAdd<double, std::tuple<double, double>>;
+	template class CWiseAdd<Eigen::VectorXd, std::tuple<Eigen::VectorXd, Eigen::VectorXd>>;
+	template class CWiseAdd<Eigen::MatrixXd, std::tuple<Eigen::MatrixXd, Eigen::MatrixXd>>;
 
-	// Debug info of Value<T>
-	template <> std::string Value<double>::debugInfo () const {
-		return std::to_string (this->accessValueConst ());
-	}
-	template <> std::string Value<VectorDouble>::debugInfo () const {
-		using std::to_string;
-		auto & v = this->accessValueConst ();
-		return "targetDim=" + to_string (targetDimension (v)) + " dim=" + to_string (dimension (v)) +
-		       " " + numericProps (v);
-	}
-	template <> std::string Value<MatrixDouble>::debugInfo () const {
-		using std::to_string;
-		auto & m = this->accessValueConst ();
-		return "targetDim" + to_string (targetDimension (m)) + " dim" + to_string (dimension (m)) +
-		       " " + numericProps (m);
-	}
-} // namespace DF
+	template class CWiseAdd<double, ReductionOf<double>>;
+	template class CWiseAdd<Eigen::VectorXd, ReductionOf<Eigen::VectorXd>>;
+	template class CWiseAdd<Eigen::MatrixXd, ReductionOf<Eigen::MatrixXd>>;
+
+	template class CWiseMul<double, std::tuple<double, double>>;
+	template class CWiseMul<Eigen::VectorXd, std::tuple<Eigen::VectorXd, Eigen::VectorXd>>;
+	template class CWiseMul<Eigen::MatrixXd, std::tuple<Eigen::MatrixXd, Eigen::MatrixXd>>;
+	template class CWiseMul<Eigen::VectorXd, std::tuple<double, Eigen::VectorXd>>;
+	template class CWiseMul<Eigen::MatrixXd, std::tuple<double, Eigen::MatrixXd>>;
+
+	template class CWiseMul<double, ReductionOf<double>>;
+	template class CWiseMul<Eigen::VectorXd, ReductionOf<Eigen::VectorXd>>;
+	template class CWiseMul<Eigen::MatrixXd, ReductionOf<Eigen::MatrixXd>>;
+
+	template class CWiseNegate<double>;
+	template class CWiseNegate<Eigen::VectorXd>;
+	template class CWiseNegate<Eigen::MatrixXd>;
+
+	template class CWiseInverse<double>;
+	template class CWiseInverse<Eigen::VectorXd>;
+	template class CWiseInverse<Eigen::MatrixXd>;
+
+	template class CWiseConstantPow<double>;
+	template class CWiseConstantPow<Eigen::VectorXd>;
+	template class CWiseConstantPow<Eigen::MatrixXd>;
+
+	template class ScalarProduct<Eigen::VectorXd, Eigen::VectorXd>;
+
+	template class MatrixProduct<Eigen::MatrixXd, Eigen::MatrixXd, Eigen::MatrixXd>;
+} // namespace dataflow
 } // namespace bpp

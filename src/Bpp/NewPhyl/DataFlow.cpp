@@ -40,13 +40,15 @@
 */
 
 #include <Bpp/Exceptions.h>
-#include <Bpp/NewPhyl/DataFlow.h>
-#include <Bpp/NewPhyl/Utils.h> // TODO for now
+
 #include <algorithm>
 #include <stack>
-
 #include <typeindex>
 #include <typeinfo>
+
+#include "DataFlow.h"
+
+#include <Bpp/NewPhyl/Utils.h> // TODO rm
 
 #include <Bpp/NewPhyl/Config.h>
 #ifdef BPP_HAVE_DEMANGLING // TODO replace with sfinae test to remove dep on cmake ?
