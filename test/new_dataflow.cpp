@@ -48,12 +48,14 @@
 #include <Bpp/NewPhyl/DataFlowNumeric.h>
 
 using namespace bpp::dataflow;
+using bpp::MatrixDimension;
 
 /******************************************************************************
  * Test dataflow basics.
  */
 struct DoNothingNode : public Node
 {
+  DoNothingNode() = default;
   DoNothingNode(NodeRefVec&& deps)
     : Node(std::move(deps))
   {
@@ -68,7 +70,7 @@ struct DoNothingNode : public Node
 
 TEST_CASE("dataflow_dependent_list")
 {
-  auto l = std::make_shared<DoNothingNode>(NodeRefVec{});
+  auto l = std::make_shared<DoNothingNode>();
   const auto count = [&l](const Node* dependent) {
     const auto& dependents = l->dependentNodes();
     return std::count(dependents.begin(), dependents.end(), dependent);
@@ -95,9 +97,9 @@ TEST_CASE("dataflow_invariants")
    * l1_/   /
    * l2____/
    */
-  auto l0 = std::make_shared<DoNothingNode>(NodeRefVec{});
-  auto l1 = std::make_shared<DoNothingNode>(NodeRefVec{});
-  auto l2 = std::make_shared<DoNothingNode>(NodeRefVec{});
+  auto l0 = std::make_shared<DoNothingNode>();
+  auto l1 = std::make_shared<DoNothingNode>();
+  auto l2 = std::make_shared<DoNothingNode>();
   auto n0 = std::make_shared<DoNothingNode>(NodeRefVec{l0, l1});
   auto n1 = std::make_shared<DoNothingNode>(NodeRefVec{n0, l2});
 
@@ -146,7 +148,7 @@ TEST_CASE("dataflow_invariants")
 
 TEST_CASE("dataflow_node_basic_errors")
 {
-  auto doNothing = std::make_shared<DoNothingNode>(NodeRefVec{});
+  auto doNothing = std::make_shared<DoNothingNode>();
 
   // Failed conversion
   auto asNodeClass = std::shared_ptr<Node>(doNothing);
@@ -158,8 +160,48 @@ TEST_CASE("dataflow_node_basic_errors")
 }
 
 /******************************************************************************
- * Test dataflow basics.
+ * Test dataflow numerical nodes.
  */
+TEST_CASE("ConstantZero")
+{
+  Context c;
+
+  auto d = ConstantZero<double>::create(c);
+  auto m = ConstantZero<Eigen::MatrixXd>::create(c, MatrixDimension(1, 2));
+
+  // Check value
+  CHECK(d->getValue() == 0.);
+
+  const auto& mValue = m->getValue();
+  CHECK(MatrixDimension(mValue) == MatrixDimension(1, 2));
+  CHECK(mValue(0, 0) == 0.);
+  CHECK(mValue(0, 1) == 0.);
+
+  // Check derivative
+  auto dummy = std::make_shared<DoNothingNode>();
+  CHECK(d->deriveAsValue(c, *dummy)->getValue() == 0.);
+}
+
+TEST_CASE("ConstantOne")
+{
+  Context c;
+
+  auto d = ConstantOne<double>::create(c);
+  auto m = ConstantOne<Eigen::MatrixXd>::create(c, MatrixDimension(1, 2));
+
+  // Check value
+  CHECK(d->getValue() == 1.);
+
+  const auto& mValue = m->getValue();
+  CHECK(MatrixDimension(mValue) == MatrixDimension(1, 2));
+  CHECK(mValue(0, 0) == 1.);
+  CHECK(mValue(0, 1) == 1.);
+
+  // Check derivative
+  auto dummy = std::make_shared<DoNothingNode>();
+  CHECK(d->deriveAsValue(c, *dummy)->getValue() == 0.);
+}
+
 TEST_CASE("test")
 {
   using namespace bpp::dataflow;

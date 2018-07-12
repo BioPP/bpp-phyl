@@ -67,6 +67,9 @@ struct MatrixDimension {
 	// Get dimensions of any matrix-like eigen object.
 	template <typename Derived>
 	MatrixDimension (const Eigen::MatrixBase<Derived> & m) : MatrixDimension (m.rows (), m.cols ()) {}
+
+	bool operator== (const MatrixDimension & o) const { return rows == o.rows && cols == o.cols; }
+	bool operator!= (const MatrixDimension & o) const { return !(*this == o); }
 };
 
 std::string to_string (const MatrixDimension & dim);
@@ -242,6 +245,7 @@ namespace numeric {
  * Data flow nodes for those numerical functions.
  * TODO what of rebuild ?
  * TODO add nodes from Numerical derivation
+ * TODO derivation: if node == self return constantone ?
  * TODO rm CPP14, integer range uses
  */
 namespace dataflow {

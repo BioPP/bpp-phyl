@@ -80,6 +80,21 @@ namespace dataflow {
 		Identity, // Is identity (for matrices mostly ; double(1.) is also considered identity).
 	};
 
+	/// @name Error functions (generate a message and throw exceptions).
+	///@{
+	[[noreturn]] void failureComputeWasCalled (const std::type_info & nodeType);
+	[[noreturn]] void failureNodeConversion (const std::type_info & handleType, const Node & node);
+	[[noreturn]] void failureDependencyNumberMismatch (const std::type_info & contextNodeType,
+	                                                   std::size_t expectedSize,
+	                                                   std::size_t givenSize);
+	[[noreturn]] void failureEmptyDependency (const std::type_info & contextNodeType,
+	                                          std::size_t depIndex);
+	[[noreturn]] void failureDependencyTypeMismatch (const std::type_info & contextNodeType,
+	                                                 std::size_t depIndex,
+	                                                 const std::type_info & expectedType,
+	                                                 const std::type_info & givenNodeType);
+	///@}
+
 	/** @brief Base dataflow Node class.
 	 *
 	 * All data flow nodes inherit from this class.
@@ -112,10 +127,10 @@ namespace dataflow {
 	 * Two main invariants are maintained at all times by this class.
 	 * 1: If a node is valid, all its transitive dependencies are valid.
 	 * 2: If a node is invalid, all transitively dependent nodes are invalid.
-   *
-   * In addition, two properties are implemented for performance:
-   * 1: During computation of a node dependencies, do not recompute valid nodes.
-   * 2: Only invalidate transitively dependent node, not others (still valid).
+	 *
+	 * In addition, two properties are implemented for performance:
+	 * 1: During computation of a node dependencies, do not recompute valid nodes.
+	 * 2: Only invalidate transitively dependent node, not others (still valid).
 	 *
 	 * Specific features are present in the base class as virtual functions.
 	 * This include derivation (numerical values), debug, etc.
@@ -206,6 +221,15 @@ namespace dataflow {
 		bool isValid_{false};
 	};
 
+	/// Convert a node ref with type check.
+	template <typename T, typename U>
+	std::shared_ptr<T> convertRef (const std::shared_ptr<U> & from) {
+		auto p = std::dynamic_pointer_cast<T> (from);
+		if (!p)
+			failureNodeConversion (typeid (T), *from);
+		return p;
+	}
+
 	/* Free functions.
 	 */
 	NodeRef rebuildWithSubstitution (const NodeRef & node,
@@ -269,6 +293,11 @@ namespace dataflow {
 		 */
 		const T & accessValueConst () const noexcept { return value_; }
 
+		/// Derive and cast result as Value<T> (most nodes derive to the same value type).
+		ValueRef<T> deriveAsValue (Context & c, const Node & node) {
+			return convertRef<Value<T>> (this->derive (c, node));
+		}
+
 	protected:
 		/// Raw value access (mutable). Should only be used by subclasses to implement compute().
 		T & accessValueMutable () noexcept { return value_; }
@@ -288,24 +317,8 @@ namespace dataflow {
 		return static_cast<const Value<T> &> (node).accessValueConst (); // Fast cast access
 	}
 
-	/// @name Error functions (generate a message and throw exceptions).
-	///@{
-	[[noreturn]] void failureComputeWasCalled (const std::type_info & nodeType);
-	[[noreturn]] void failureNodeConversion (const std::type_info & handleType, const Node & node);
-	[[noreturn]] void failureDependencyNumberMismatch (const std::type_info & contextNodeType,
-	                                                   std::size_t expectedSize,
-	                                                   std::size_t givenSize);
-	[[noreturn]] void failureEmptyDependency (const std::type_info & contextNodeType,
-	                                          std::size_t depIndex);
-	[[noreturn]] void failureDependencyTypeMismatch (const std::type_info & contextNodeType,
-	                                                 std::size_t depIndex,
-	                                                 const std::type_info & expectedType,
-	                                                 const std::type_info & givenNodeType);
-	///@}
-
 	/// @name Basic dependency check primitives
 	///@{
-
 	/// Checks the size of a dependency vector, throws if mismatch.
 	void checkDependencyVectorSize (const std::type_info & contextNodeType, const NodeRefVec & deps,
 	                                std::size_t expectedSize);
@@ -331,17 +344,7 @@ namespace dataflow {
 			checkNthDependencyIsValue<T> (contextNodeType, deps, i);
 		}
 	}
-
 	///@}
-
-	// Convert handles with check
-	template <typename T, typename U>
-	std::shared_ptr<T> convertRef (const std::shared_ptr<U> & from) {
-		auto p = std::dynamic_pointer_cast<T> (from);
-		if (!p)
-			failureNodeConversion (typeid (T), *from);
-		return p;
-	}
 
 	// TODO add debug printing of graph here (and impl in .cpp)
 } // namespace dataflow
