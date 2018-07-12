@@ -202,6 +202,55 @@ TEST_CASE("ConstantOne")
   CHECK(d->deriveAsValue(c, *dummy)->getValue() == 0.);
 }
 
+TEST_CASE("NumericConstant")
+{
+  Context c;
+
+  auto d = NumericConstant<double>::create(c, 42);
+  auto m = NumericConstant<Eigen::MatrixXd>::create(c, (Eigen::MatrixXd(1, 2) << 42., -42.).finished());
+
+  // Check value
+  CHECK(d->getValue() == 42.);
+
+  const auto& mValue = m->getValue();
+  CHECK(MatrixDimension(mValue) == MatrixDimension(1, 2));
+  CHECK(mValue(0, 0) == 42.);
+  CHECK(mValue(0, 1) == -42.);
+
+  // Check derivative
+  auto dummy = std::make_shared<DoNothingNode>();
+  CHECK(d->deriveAsValue(c, *dummy)->getValue() == 0.);
+}
+
+TEST_CASE("NumericMutable")
+{
+  Context c;
+
+  auto d = NumericMutable<double>::create(c, 42);
+  auto m = NumericMutable<Eigen::MatrixXd>::create(c, (Eigen::MatrixXd(1, 2) << 42., -42.).finished());
+
+  // Check value
+  CHECK(d->getValue() == 42.);
+
+  const auto& mValue = m->getValue();
+  CHECK(MatrixDimension(mValue) == MatrixDimension(1, 2));
+  CHECK(mValue(0, 0) == 42.);
+  CHECK(mValue(0, 1) == -42.);
+
+  // Check invalidation on change
+  auto dependent = std::make_shared<DoNothingNode>(NodeRefVec{d});
+  dependent->computeRecursively();
+  CHECK(dependent->isValid());
+  d->setValue(-42.);
+  CHECK(d->getValue() == -42.);
+  CHECK_FALSE(dependent->isValid());
+
+  // Check derivative
+  auto dummy = std::make_shared<DoNothingNode>();
+  CHECK(d->deriveAsValue(c, *dummy)->getValue() == 0.);
+  CHECK(d->deriveAsValue(c, *d)->getValue() == 1.);
+}
+
 TEST_CASE("test")
 {
   using namespace bpp::dataflow;
