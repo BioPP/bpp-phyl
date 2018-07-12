@@ -44,6 +44,78 @@
 
 #include <Bpp/NewPhyl/DataFlowNumeric.h>
 
+using namespace bpp::dataflow;
+
+struct DoNothingNode : public Node
+{
+  DoNothingNode(NodeRefVec&& deps)
+    : Node(std::move(deps))
+  {
+  }
+
+  using Node::invalidateRecursively; // Make it public to test it
+
+  // Flag to check recomputations
+  bool computeCalled = false;
+  void compute() final { computeCalled = true; }
+};
+
+TEST_CASE("dataflow_invariants")
+{
+  /* Build the following DAG:
+   * l0__n0__n1
+   * l1_/   /
+   * l2____/
+   */
+  auto l0 = std::make_shared<DoNothingNode>(NodeRefVec{});
+  auto l1 = std::make_shared<DoNothingNode>(NodeRefVec{});
+  auto l2 = std::make_shared<DoNothingNode>(NodeRefVec{});
+  auto n0 = std::make_shared<DoNothingNode>(NodeRefVec{l0, l1});
+  auto n1 = std::make_shared<DoNothingNode>(NodeRefVec{n0, l2});
+
+  // Initial state is invalid
+  CHECK_FALSE(l0->isValid());
+  CHECK_FALSE(l1->isValid());
+  CHECK_FALSE(l2->isValid());
+  CHECK_FALSE(n0->isValid());
+  CHECK_FALSE(n1->isValid());
+
+  n0->computeRecursively();
+
+  // n0 and its dependencies must be valid, and compute must have been called
+  CHECK(l0->isValid());
+  CHECK(l1->isValid());
+  CHECK(n0->isValid());
+  CHECK(l0->computeCalled);
+  CHECK(l1->computeCalled);
+  CHECK(n0->computeCalled);
+
+  l0->computeCalled = false;
+  l1->computeCalled = false;
+  n0->computeCalled = false;
+  n1->computeRecursively();
+
+  // Compute n1: dependencies must be valid. n0 and its deps should not be recomputed (already valid)
+  CHECK(l2->isValid());
+  CHECK(n1->isValid());
+  CHECK(l2->computeCalled);
+  CHECK(n1->computeCalled);
+  CHECK_FALSE(l0->computeCalled);
+  CHECK_FALSE(l1->computeCalled);
+  CHECK_FALSE(n0->computeCalled);
+
+  l2->computeCalled = false;
+  n1->computeCalled = false;
+  l2->invalidateRecursively();
+
+  // l2 and n1 must be invalid, but not n0 and its deps
+  CHECK(l0->isValid());
+  CHECK(l1->isValid());
+  CHECK(n0->isValid());
+  CHECK_FALSE(l2->isValid());
+  CHECK_FALSE(n1->isValid());
+}
+
 TEST_CASE("test")
 {
   using namespace bpp::dataflow;

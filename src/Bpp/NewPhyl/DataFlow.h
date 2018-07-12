@@ -112,6 +112,10 @@ namespace dataflow {
 	 * Two main invariants are maintained at all times by this class.
 	 * 1: If a node is valid, all its transitive dependencies are valid.
 	 * 2: If a node is invalid, all transitively dependent nodes are invalid.
+   *
+   * In addition, two properties are implemented for performance:
+   * 1: During computation of a node dependencies, do not recompute valid nodes.
+   * 2: Only invalidate transitively dependent node, not others (still valid).
 	 *
 	 * Specific features are present in the base class as virtual functions.
 	 * This include derivation (numerical values), debug, etc.
