@@ -42,10 +42,16 @@
 #define DOCTEST_CONFIG_IMPLEMENT_WITH_MAIN
 #include "doctest.h"
 
+#include <algorithm>
+
+#include <Bpp/Exceptions.h>
 #include <Bpp/NewPhyl/DataFlowNumeric.h>
 
 using namespace bpp::dataflow;
 
+/******************************************************************************
+ * Test dataflow basics.
+ */
 struct DoNothingNode : public Node
 {
   DoNothingNode(NodeRefVec&& deps)
@@ -59,6 +65,28 @@ struct DoNothingNode : public Node
   bool computeCalled = false;
   void compute() final { computeCalled = true; }
 };
+
+TEST_CASE("dataflow_dependent_list")
+{
+  auto l = std::make_shared<DoNothingNode>(NodeRefVec{});
+  const auto count = [&l](const Node* dependent) {
+    const auto& dependents = l->dependentNodes();
+    return std::count(dependents.begin(), dependents.end(), dependent);
+  };
+
+  CHECK(l->dependentNodes().empty());
+
+  auto d0 = std::make_shared<DoNothingNode>(NodeRefVec{l});
+  CHECK(count(d0.get()) == 1);
+
+  auto d1 = std::make_shared<DoNothingNode>(NodeRefVec{l});
+  CHECK(count(d0.get()) == 1);
+  CHECK(count(d1.get()) == 1);
+
+  d0.reset(); // Destroy d0
+  CHECK(count(d0.get()) == 0);
+  CHECK(count(d1.get()) == 1);
+}
 
 TEST_CASE("dataflow_invariants")
 {
@@ -116,6 +144,22 @@ TEST_CASE("dataflow_invariants")
   CHECK_FALSE(n1->isValid());
 }
 
+TEST_CASE("dataflow_node_basic_errors")
+{
+  auto doNothing = std::make_shared<DoNothingNode>(NodeRefVec{});
+
+  // Failed conversion
+  auto asNodeClass = std::shared_ptr<Node>(doNothing);
+  CHECK_THROWS_AS(convertRef<Value<int>>(asNodeClass), bpp::Exception);
+
+  // By default, derive fails
+  Context c;
+  CHECK_THROWS_AS(asNodeClass->derive(c, *asNodeClass), bpp::Exception);
+}
+
+/******************************************************************************
+ * Test dataflow basics.
+ */
 TEST_CASE("test")
 {
   using namespace bpp::dataflow;
