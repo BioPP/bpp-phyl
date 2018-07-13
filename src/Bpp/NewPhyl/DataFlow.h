@@ -237,7 +237,22 @@ namespace dataflow {
 		return p;
 	}
 
-	// TODO add debug printing of graph here (and impl in .cpp)
+	/// Flags to control dot output of dataflow graphs.
+	enum class DotOptions {
+		None = 0,
+		DetailedNodeInfo = 1 << 0,
+		FollowUpwardLinks = 1 << 1,
+		ShowDependencyIndex = 1 << 2,
+	};
+	DotOptions operator| (DotOptions a, DotOptions b);
+	bool operator& (DotOptions a, DotOptions b);
+
+	/// Write dataflow graph starting at nodes to output stream.
+	void writeGraphToDot (std::ostream & os, const std::vector<const Node *> & nodes, DotOptions opt);
+
+	/// Write dataflow graph starting at nodes to file at filename (shortcut).
+	void writeGraphToDot (const std::string & filename, const std::vector<const Node *> & nodes,
+	                      DotOptions opt);
 
 	/* Free functions.
 	 */

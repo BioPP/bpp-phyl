@@ -53,18 +53,6 @@
 #include <memory>
 
 namespace bpp {
-// Demangle a C++ symbol name
-std::string demangle (const char * name);
-
-// Pretty type name
-std::string prettyTypeName (const std::type_info & ti);
-std::string prettyTypeName (std::type_index ti);
-template <typename T> std::string prettyTypeName () {
-	return prettyTypeName (typeid (T));
-}
-template <typename T> std::string prettyTypeName (const T & t) {
-	return prettyTypeName (typeid (t));
-}
 
 // Forward declarations
 class TreeTopologyInterface;
@@ -82,23 +70,6 @@ namespace DF {
 		std::string name;
 	};
 
-	/** @brief Small flag class that defines various debug output options.
-	 */
-	enum class DebugOptions {
-		None = 0,
-		FollowUpwardLinks = 1 << 0,
-		ShowDependencyIndex = 1 << 1,
-		ShowRegistryLinks = 1 << 2,
-		DetailedNodeInfo = 1 << 3,
-	};
-	inline DebugOptions operator| (DebugOptions a, DebugOptions b) {
-		using IntType = typename std::underlying_type<DebugOptions>::type;
-		return static_cast<DebugOptions> (static_cast<IntType> (a) | static_cast<IntType> (b));
-	}
-	inline bool operator& (DebugOptions a, DebugOptions b) {
-		using IntType = typename std::underlying_type<DebugOptions>::type;
-		return static_cast<IntType> (a) & static_cast<IntType> (b);
-	}
 } // namespace DF
 
 /// Outputs a dot format graph representing the dataflow dag to a stream

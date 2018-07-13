@@ -42,9 +42,13 @@
 #include <Bpp/Exceptions.h>
 
 #include <algorithm>
-#include <stack>
-#include <typeindex>
+#include <fstream>     // debug
+#include <functional>  // std::hash
+#include <ostream>     // debug
+#include <stack>       // invalidate/compute recursively + debug
+#include <type_traits> // DotOptions flags
 #include <typeinfo>
+#include <unordered_set> // debug
 
 #include "DataFlow.h"
 
@@ -244,5 +248,106 @@ namespace dataflow {
 		return false;
 	}
 
+	/*****************************************************************************
+	 * output dataflow graph to dot format.
+	 */
+
+	// Make enum behave as flags.
+	DotOptions operator| (DotOptions a, DotOptions b) {
+		using IntType = typename std::underlying_type<DotOptions>::type;
+		return static_cast<DotOptions> (static_cast<IntType> (a) | static_cast<IntType> (b));
+	}
+	bool operator& (DotOptions a, DotOptions b) {
+		using IntType = typename std::underlying_type<DotOptions>::type;
+		return static_cast<IntType> (a) & static_cast<IntType> (b);
+	}
+
+	// Escape text in a dot box label
+	static std::string dotLabelEscape (const std::string & s) {
+		std::string result;
+		result.reserve (s.size ());
+		static const char toEscape[] = "<>|{} ";
+		for (const char c : s) {
+			if (std::any_of (std::begin (toEscape), std::end (toEscape),
+			                 [c](const char c2) { return c == c2; })) {
+				result.push_back ('\\');
+			}
+			result.push_back (c);
+		}
+		return result;
+	}
+
+	// Dot node id for dataflow Node: 'N' + hash as a string
+	static std::string dotIdentifier (const Node & node) {
+		return 'N' + std::to_string (std::hash<const Node *>{}(&node));
+	}
+
+	// Write line with node representation
+	static void writeDotNode (std::ostream & os, const Node & node, DotOptions opt) {
+		os << '\t' << dotIdentifier (node);
+		if (opt & DotOptions::DetailedNodeInfo) {
+			os << " [shape=Mrecord,label=\"{" << dotLabelEscape (node.description ())
+			   << "| valid=" << node.isValid () << ' ' << dotLabelEscape (node.debugInfo ()) << "}\"]";
+		} else {
+			os << " [shape=box,label=\"" << dotLabelEscape (node.description ()) << "\"]";
+		}
+		os << ";\n";
+	}
+
+	// Write line with edge representation for n-th dependency of from
+	static void writeDotEdge (std::ostream & os, const Node & from, std::size_t depIndex,
+	                          DotOptions opt) {
+		os << '\t' << dotIdentifier (from) << " -> " << dotIdentifier (*from.dependency (depIndex));
+		if (opt & DotOptions::ShowDependencyIndex) {
+			os << " [label=\"" << depIndex << "\"]";
+		}
+		os << ";\n";
+	}
+
+	// Write dot lines for graph structure, starting from the given entry points.
+	static void writeGraphStructure (std::ostream & os, const std::vector<const Node *> & entryPoints,
+	                                 DotOptions opt) {
+		std::stack<const Node *> nodesToVisit;
+		std::unordered_set<const Node *> discoveredNodes;
+
+		const auto discover = [&nodesToVisit, &discoveredNodes](const Node * n) {
+			const bool discovered = discoveredNodes.find (n) != discoveredNodes.end ();
+			if (!discovered) {
+				nodesToVisit.emplace (n);
+				discoveredNodes.emplace (n);
+			}
+		};
+
+		for (const auto * n : entryPoints) {
+			discover (n);
+		}
+
+		while (!nodesToVisit.empty ()) {
+			const auto * node = nodesToVisit.top ();
+			nodesToVisit.pop ();
+			writeDotNode (os, *node, opt);
+			if (opt & DotOptions::FollowUpwardLinks) {
+				for (const auto * dependent : node->dependentNodes ()) {
+					discover (dependent);
+				}
+			}
+			for (std::size_t index = 0; index < node->nbDependencies (); ++index) {
+				writeDotEdge (os, *node, index, opt);
+				discover (node->dependency (index).get ());
+			}
+		}
+	}
+
+	void writeGraphToDot (std::ostream & os, const std::vector<const Node *> & nodes,
+	                      DotOptions opt) {
+		os << "digraph {\n";
+		writeGraphStructure (os, nodes, opt);
+		os << "}\n";
+	}
+	void writeGraphToDot (const std::string & filename, const std::vector<const Node *> & nodes,
+	                      DotOptions opt) {
+		std::ofstream file{filename};
+		writeGraphToDot (file, nodes, opt);
+	}
 } // namespace dataflow
 } // namespace bpp

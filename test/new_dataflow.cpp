@@ -165,7 +165,6 @@ TEST_CASE("dataflow_node_basic_errors")
 TEST_CASE("ConstantZero")
 {
   Context c;
-
   auto d = ConstantZero<double>::create(c);
   auto m = ConstantZero<Eigen::MatrixXd>::create(c, MatrixDimension(1, 2));
 
@@ -186,7 +185,6 @@ TEST_CASE("ConstantZero")
 TEST_CASE("ConstantOne")
 {
   Context c;
-
   auto d = ConstantOne<double>::create(c);
   auto m = ConstantOne<Eigen::MatrixXd>::create(c, MatrixDimension(1, 2));
 
@@ -207,7 +205,6 @@ TEST_CASE("ConstantOne")
 TEST_CASE("NumericConstant")
 {
   Context c;
-
   auto d = NumericConstant<double>::create(c, 42);
   auto m = NumericConstant<Eigen::MatrixXd>::create(c, (Eigen::MatrixXd(1, 2) << 42., -42.).finished());
 
@@ -228,7 +225,6 @@ TEST_CASE("NumericConstant")
 TEST_CASE("NumericMutable")
 {
   Context c;
-
   auto d = NumericMutable<double>::create(c, 42);
   auto m = NumericMutable<Eigen::MatrixXd>::create(c, (Eigen::MatrixXd(1, 2) << 42., -42.).finished());
 
