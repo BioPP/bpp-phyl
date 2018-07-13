@@ -245,7 +245,6 @@ namespace numeric {
  * Data flow nodes for those numerical functions.
  * TODO what of rebuild ?
  * TODO add nodes from Numerical derivation
- * TODO derivation: if node == self return constantone ?
  * TODO rm CPP14, integer range uses
  */
 namespace dataflow {
@@ -304,8 +303,11 @@ namespace dataflow {
 			}
 		}
 
-		NodeRef derive (Context &, const Node &) final {
-			return this->shared_from_this (); // Return handle to self, as derive (0) = 0
+		NodeRef derive (Context & c, const Node & node) final {
+			if (&node == this) {
+				return ConstantOne<T>::create (c, targetDimension);
+			}
+			return this->shared_from_this (); // Return handle to self, as d(0)/dx = 0
 		}
 		bool isDerivable (const Node &) const final { return true; }
 
@@ -346,7 +348,10 @@ namespace dataflow {
 			}
 		}
 
-		NodeRef derive (Context & c, const Node &) final {
+		NodeRef derive (Context & c, const Node & node) final {
+			if (&node == this) {
+				return ConstantOne<T>::create (c, targetDimension);
+			}
 			return ConstantZero<T>::create (c, targetDimension);
 		}
 		bool isDerivable (const Node &) const final { return true; }
@@ -402,8 +407,12 @@ namespace dataflow {
 			}
 		}
 
-		NodeRef derive (Context & c, const Node &) final {
-			return ConstantZero<T>::create (c, Dimension<T> (this->accessValueConst ()));
+		NodeRef derive (Context & c, const Node & node) final {
+			const auto dim = Dimension<T> (this->accessValueConst ());
+			if (&node == this) {
+				return ConstantOne<T>::create (c, dim);
+			}
+			return ConstantZero<T>::create (c, dim);
 		}
 		bool isDerivable (const Node &) const final { return true; }
 
@@ -478,11 +487,10 @@ namespace dataflow {
 
 		NodeRef derive (Context & c, const Node & node) final {
 			const auto dim = Dimension<T> (this->accessValueConst ());
-			if (&node == static_cast<const Node *> (this)) {
+			if (&node == this) {
 				return ConstantOne<T>::create (c, dim);
-			} else {
-				return ConstantZero<T>::create (c, dim);
 			}
+			return ConstantZero<T>::create (c, dim);
 		}
 		bool isDerivable (const Node &) const final { return true; }
 
@@ -524,6 +532,9 @@ namespace dataflow {
 		}
 
 		NodeRef derive (Context & c, const Node & node) final {
+			if (&node == this) {
+				return ConstantOne<R>::create (c, targetDimension);
+			}
 			return Self::create (c, {this->dependency (0)->derive (c, node)}, targetDimension);
 		}
 		bool isDerivable (const Node & node) const final {
@@ -587,6 +598,9 @@ namespace dataflow {
 		}
 
 		NodeRef derive (Context & c, const Node & node) final {
+			if (&node == this) {
+				return ConstantOne<R>::create (c, targetDimension);
+			}
 			constexpr std::size_t n = 2;
 			NodeRefVec derivedDeps (n);
 			for (std::size_t i = 0; i < n; ++i) {
@@ -651,6 +665,9 @@ namespace dataflow {
 		}
 
 		NodeRef derive (Context & c, const Node & node) final {
+			if (&node == this) {
+				return ConstantOne<R>::create (c, targetDimension);
+			}
 			const auto n = this->nbDependencies ();
 			NodeRefVec derivedDeps (n);
 			for (std::size_t i = 0; i < n; ++i) {
@@ -726,6 +743,9 @@ namespace dataflow {
 		}
 
 		NodeRef derive (Context & c, const Node & node) final {
+			if (&node == this) {
+				return ConstantOne<R>::create (c, targetDimension);
+			}
 			constexpr std::size_t n = 2;
 			NodeRefVec addDeps (n);
 			for (std::size_t i = 0; i < n; ++i) {
@@ -798,6 +818,9 @@ namespace dataflow {
 		}
 
 		NodeRef derive (Context & c, const Node & node) final {
+			if (&node == this) {
+				return ConstantOne<R>::create (c, targetDimension);
+			}
 			const auto n = this->nbDependencies ();
 			NodeRefVec addDeps (n);
 			for (std::size_t i = 0; i < n; ++i) {
@@ -854,6 +877,9 @@ namespace dataflow {
 		}
 
 		NodeRef derive (Context & c, const Node & node) final {
+			if (&node == this) {
+				return ConstantOne<T>::create (c, targetDimension);
+			}
 			return Self::create (c, {this->dependency (0)->derive (c, node)}, targetDimension);
 		}
 		bool isDerivable (const Node & node) const final {
@@ -901,6 +927,9 @@ namespace dataflow {
 		}
 
 		NodeRef derive (Context & c, const Node & node) final {
+			if (&node == this) {
+				return ConstantOne<T>::create (c, targetDimension);
+			}
 			// -1/x^2 * x'
 			const auto & dep = this->dependency (0);
 			return CWiseMul<T, std::tuple<T, T>>::create (
@@ -972,6 +1001,9 @@ namespace dataflow {
 		}
 
 		NodeRef derive (Context & c, const Node & node) final {
+			if (&node == this) {
+				return ConstantOne<T>::create (c, targetDimension);
+			}
 			// factor * (exponent * x^(exponent - 1)) * x'
 			const auto & dep = this->dependency (0);
 			auto dpow = Self::create (c, {dep}, exponent - 1., factor * exponent, targetDimension);
@@ -1030,6 +1062,9 @@ namespace dataflow {
 		}
 
 		NodeRef derive (Context & c, const Node & node) final {
+			if (&node == this) {
+				return ConstantOne<double>::create (c);
+			}
 			const auto & x0 = this->dependency (0);
 			const auto & x1 = this->dependency (1);
 			auto dx0_prod = Self::create (c, {x0->derive (c, node), x1});
@@ -1098,6 +1133,9 @@ namespace dataflow {
 		}
 
 		NodeRef derive (Context & c, const Node & node) final {
+			if (&node == this) {
+				return ConstantOne<R>::create (c, targetDimension);
+			}
 			const auto & x0 = this->dependency (0);
 			const auto & x1 = this->dependency (1);
 			auto dx0_prod = Self::create (c, {x0->derive (c, node), x1}, targetDimension);

@@ -180,6 +180,7 @@ TEST_CASE("ConstantZero")
   // Check derivative
   auto dummy = std::make_shared<DoNothingNode>();
   CHECK(d->deriveAsValue(c, *dummy)->getValue() == 0.);
+  CHECK(d->deriveAsValue(c, *d)->getValue() == 1.);
 }
 
 TEST_CASE("ConstantOne")
@@ -200,6 +201,7 @@ TEST_CASE("ConstantOne")
   // Check derivative
   auto dummy = std::make_shared<DoNothingNode>();
   CHECK(d->deriveAsValue(c, *dummy)->getValue() == 0.);
+  CHECK(d->deriveAsValue(c, *d)->getValue() == 1.);
 }
 
 TEST_CASE("NumericConstant")
@@ -220,6 +222,7 @@ TEST_CASE("NumericConstant")
   // Check derivative
   auto dummy = std::make_shared<DoNothingNode>();
   CHECK(d->deriveAsValue(c, *dummy)->getValue() == 0.);
+  CHECK(d->deriveAsValue(c, *d)->getValue() == 1.);
 }
 
 TEST_CASE("NumericMutable")
@@ -249,23 +252,4 @@ TEST_CASE("NumericMutable")
   auto dummy = std::make_shared<DoNothingNode>();
   CHECK(d->deriveAsValue(c, *dummy)->getValue() == 0.);
   CHECK(d->deriveAsValue(c, *d)->getValue() == 1.);
-}
-
-TEST_CASE("test")
-{
-  using namespace bpp::dataflow;
-
-  Context context;
-
-  auto a = ConstantZero<double>::create(context);
-  auto b = ConstantZero<Eigen::MatrixXd>::create(context, bpp::MatrixDimension{42, 32});
-  auto c = ConstantOne<Eigen::VectorXd>::create(context, bpp::vectorDimension(42));
-
-  auto d = NumericConstant<Eigen::MatrixXd>::create(context, Eigen::MatrixXd::Random(42, 32));
-  auto e = CWiseAdd<Eigen::MatrixXd, ReductionOf<Eigen::MatrixXd>>::create(context, {b, d});
-  e->getValue();
-
-  auto z = e->derive(context, *a);
-  // Print DF graph
-  // bpp::debugDag("df_debug", *root);
 }

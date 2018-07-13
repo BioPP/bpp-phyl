@@ -170,10 +170,18 @@ namespace dataflow {
 		 */
 		virtual bool hasNumericalProperty (NumericalProperty prop) const;
 
-		/// Derive with respect to node (default = not implemented), recursive.
+		/** @brief Returns a node computing d(this_node_expression)/d(node_expression).
+		 *
+		 * The expression represented by 'node' is considered as a variable.
+		 * Event if 'node' is a constant value node, d(node)/d(node) == 1.
+		 * The derivatiive of a matrix is the matrix of the derivatives.
+		 * Derivation is undefined by default, and this function will throw en exception.
+		 * Implementations will usually recursively derive sub-expressions and combine them.
+		 */
 		virtual NodeRef derive (Context & c, const Node & node);
+
+		/// Check if derivation is transitively defined (FIXME semantics).
 		virtual bool isDerivable (const Node & node) const;
-		// TODO derivation doc somewhere
 
 		// Rebuild the node with different dependencies
 		virtual NodeRef rebuild (NodeRefVec && deps) const;
@@ -215,7 +223,6 @@ namespace dataflow {
 		void registerNode (Node * n);
 		void unregisterNode (const Node * n);
 
-	private:
 		NodeRefVec dependencyNodes_{};         // Nodes that we depend on.
 		std::vector<Node *> dependentNodes_{}; // Nodes that depend on us.
 		bool isValid_{false};
@@ -229,6 +236,8 @@ namespace dataflow {
 			failureNodeConversion (typeid (T), *from);
 		return p;
 	}
+
+	// TODO add debug printing of graph here (and impl in .cpp)
 
 	/* Free functions.
 	 */
@@ -345,8 +354,6 @@ namespace dataflow {
 		}
 	}
 	///@}
-
-	// TODO add debug printing of graph here (and impl in .cpp)
 } // namespace dataflow
 } // namespace bpp
 
