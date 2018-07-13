@@ -1613,10 +1613,9 @@ SubstitutionProcessCollection* PhylogeneticsApplicationTools::getSubstitutionPro
 
   if (mTree.size() == 0)
     throw Exception("Missing tree in construction of SubstitutionProcessCollection.");
-
   for (const auto& itt : mTree)
     SPC->addTree(new ParametrizablePhyloTree(*(itt.second)), itt.first);
-
+  
   // ///////////////////////
   // Rates
 
@@ -1718,7 +1717,7 @@ SubstitutionProcessCollection* PhylogeneticsApplicationTools::getSubstitutionPro
   }
 
   SPC->aliasParameters(unparsedParams, verbose);
-  
+
   return SPC;
 }
 
@@ -3957,7 +3956,7 @@ void PhylogeneticsApplicationTools::writeTrees(
 
       for (auto& node : nodes)
       {
-        if (tree.isLeaf(node))
+        if (tree.isLeaf(node) && withIds)
           node->setName(TextTools::toString(tree.getNodeIndex(node)) + "_" + node->getName());
         else
           node->setProperty("NodeId", BppString(TextTools::toString(tree.getNodeIndex(node))));
