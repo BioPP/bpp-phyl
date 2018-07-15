@@ -39,13 +39,25 @@
   knowledge of the CeCILL license and that you accept its terms.
 */
 
-#define DOCTEST_CONFIG_IMPLEMENT_WITH_MAIN
+#define DOCTEST_CONFIG_IMPLEMENT
 #include "doctest.h"
 
 #include <algorithm>
 
 #include <Bpp/Exceptions.h>
 #include <Bpp/NewPhyl/DataFlowNumeric.h>
+
+static bool enableDotOutput = false;
+
+static void dotOutput(const std::string& testName, const std::vector<const bpp::dataflow::Node*>& nodes)
+{
+  if (enableDotOutput)
+  {
+    using bpp::dataflow::DotOptions;
+    writeGraphToDot(
+      "debug_" + testName + ".dot", nodes, DotOptions::DetailedNodeInfo | DotOptions::ShowDependencyIndex);
+  }
+}
 
 using namespace bpp::dataflow;
 using bpp::MatrixDimension;
@@ -88,6 +100,8 @@ TEST_CASE("dataflow_dependent_list")
   d0.reset(); // Destroy d0
   CHECK(count(d0.get()) == 0);
   CHECK(count(d1.get()) == 1);
+
+  dotOutput("dataflow_dependend_list", {d1.get()});
 }
 
 TEST_CASE("dataflow_invariants")
@@ -144,6 +158,8 @@ TEST_CASE("dataflow_invariants")
   CHECK(n0->isValid());
   CHECK_FALSE(l2->isValid());
   CHECK_FALSE(n1->isValid());
+
+  dotOutput("dataflow_invariants", {n1.get()});
 }
 
 TEST_CASE("dataflow_node_basic_errors")
@@ -180,6 +196,8 @@ TEST_CASE("ConstantZero")
   auto dummy = std::make_shared<DoNothingNode>();
   CHECK(d->deriveAsValue(c, *dummy)->getValue() == 0.);
   CHECK(d->deriveAsValue(c, *d)->getValue() == 1.);
+
+  dotOutput("ConstantZero", {d.get(), m.get()});
 }
 
 TEST_CASE("ConstantOne")
@@ -200,6 +218,8 @@ TEST_CASE("ConstantOne")
   auto dummy = std::make_shared<DoNothingNode>();
   CHECK(d->deriveAsValue(c, *dummy)->getValue() == 0.);
   CHECK(d->deriveAsValue(c, *d)->getValue() == 1.);
+
+  dotOutput("ConstantOne", {d.get(), m.get()});
 }
 
 TEST_CASE("NumericConstant")
@@ -220,6 +240,8 @@ TEST_CASE("NumericConstant")
   auto dummy = std::make_shared<DoNothingNode>();
   CHECK(d->deriveAsValue(c, *dummy)->getValue() == 0.);
   CHECK(d->deriveAsValue(c, *d)->getValue() == 1.);
+
+  dotOutput("NumericConstant", {d.get(), m.get()});
 }
 
 TEST_CASE("NumericMutable")
@@ -248,4 +270,23 @@ TEST_CASE("NumericMutable")
   auto dummy = std::make_shared<DoNothingNode>();
   CHECK(d->deriveAsValue(c, *dummy)->getValue() == 0.);
   CHECK(d->deriveAsValue(c, *d)->getValue() == 1.);
+
+  dotOutput("NumericMutable", {d.get(), m.get()});
+}
+
+int main(int argc, char** argv)
+{
+  doctest::Context context;
+
+  const std::string keyword = "dot_output";
+  for (int i = 1; i < argc; ++i)
+  {
+    if (argv[i] == keyword)
+    {
+      enableDotOutput = true;
+    }
+  }
+
+  context.applyCommandLine(argc, argv);
+  return context.run();
 }
