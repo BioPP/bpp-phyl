@@ -1,7 +1,5 @@
 #!/bin/bash
 
-set -x
-
 if [[ "$#" == "0" ]]; then
 	dot_files=($(ls *.dot))
 else
@@ -10,7 +8,7 @@ fi
 
 png_files=()
 clean_png_files() {
-	echo Cleaning "${png_files[@]}"
+	echo "Cleanup of ${png_files[@]}"
 	rm -f "${png_files[@]}"
 }
 trap clean_png_files EXIT

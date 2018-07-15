@@ -93,9 +93,14 @@ template <> struct Dimension<double> {
 	Dimension () = default;
 	Dimension (const double &) {}
 };
+template <> struct Dimension<float> {
+	Dimension () = default;
+	Dimension (const float &) {}
+};
 
-inline std::string to_string (const Dimension<double> &) {
-	return {};
+template <typename T, typename = typename std::enable_if<std::is_floating_point<T>::value>::type>
+std::string to_string (const Dimension<T> &) {
+	return "()";
 }
 
 /** Specialisation of Dimension<T> for eigen matrix types.
@@ -164,22 +169,30 @@ namespace numeric {
 	 * scalar -> scalar: simple cast.
 	 * scalar -> matrix: fill the matrix with scalar value.
 	 * matrix -> matrix: copy values, size must match (conversion between eigen dynamic/fixed types).
+	 *
+	 * Two APIs:
+	 * r = convert(f, dim); -> convert returns a "converted" result
+	 * convert (r, f, dim); -> convert does the assignment directly
 	 */
 	template <typename R, typename F,
 	          typename = typename std::enable_if<std::is_arithmetic<R>::value>::type>
-	void convert (R & r, const F & from, const Dimension<R> &) {
-		r = R (from); // scalar -> scalar
+	R convert (const F & from, const Dimension<R> &) {
+		return R (from); // scalar -> scalar
 	}
-	template <typename Derived, typename F,
+	template <typename T, int Rows, int Cols, typename F,
 	          typename = typename std::enable_if<std::is_arithmetic<F>::value>::type>
-	void convert (Eigen::MatrixBase<Derived> & r, const F & from, const Dimension<Derived> & dim) {
-		r.derived () = Derived::Constant (dim.rows, dim.cols, from); // scalar -> matrix
+	auto convert (const F & from, const Dimension<Eigen::Matrix<T, Rows, Cols>> & dim)
+	    -> decltype (Eigen::Matrix<T, Rows, Cols>::Constant (dim.rows, dim.cols, from)) {
+		return Eigen::Matrix<T, Rows, Cols>::Constant (dim.rows, dim.cols, from); // scalar -> matrix
 	}
-	template <typename DerivedR, typename DerivedF>
-	void convert (Eigen::MatrixBase<DerivedR> & r, const Eigen::MatrixBase<DerivedF> & from,
-	              const Dimension<DerivedR> & dim) {
-		r.derived () = from.derived ();      // matrix -> matrix
-		assert (MatrixDimension (r) == dim); // debug post check of size
+	template <typename T, int Rows, int Cols, typename DerivedF>
+	const DerivedF & convert (const Eigen::MatrixBase<DerivedF> & from,
+	                          const Dimension<Eigen::Matrix<T, Rows, Cols>> & dim) {
+		return from.derived (); // matrix -> matrix, conversion will be done in the assignment
+	}
+	template <typename R, typename F> void convert (R & r, const F & from, const Dimension<R> & dim) {
+		r = convert (from, dim);
+		assert (Dimension<R> (r) == dim); // debug post check of size
 	}
 
 	// Return a reference to the object for component-wise operations
@@ -245,7 +258,6 @@ namespace numeric {
  * Data flow nodes for those numerical functions.
  * TODO what of rebuild ?
  * TODO add nodes from Numerical derivation
- * TODO rm CPP14, integer range uses
  */
 namespace dataflow {
 	template <typename T> struct ReductionOf; // Type tag
@@ -510,7 +522,7 @@ namespace dataflow {
 	public:
 		using Self = Convert;
 
-		static ValueRef<R> create (Context &, NodeRefVec && deps, const Dimension<R> & dim = {}) {
+		static ValueRef<R> create (Context & c, NodeRefVec && deps, const Dimension<R> & dim = {}) {
 			// Check dependencies
 			checkDependenciesNotNull (typeid (Self), deps);
 			checkDependencyVectorSize (typeid (Self), deps, 1);
@@ -518,6 +530,12 @@ namespace dataflow {
 			// Select node
 			if (std::is_same<R, F>::value) {
 				return convertRef<Value<R>> (deps[0]);
+			} else if (deps[0]->hasNumericalProperty (NumericalProperty::Constant) &&
+			           deps[0]->hasNumericalProperty (NumericalProperty::Zero)) {
+				return ConstantZero<R>::create (c, dim);
+			} else if (deps[0]->hasNumericalProperty (NumericalProperty::Constant) &&
+			           deps[0]->hasNumericalProperty (NumericalProperty::One)) {
+				return ConstantOne<R>::create (c, dim);
 			} else {
 				return std::make_shared<Self> (std::move (deps), dim);
 			}
