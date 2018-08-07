@@ -82,9 +82,6 @@ double AbstractCodonAAFitnessSubstitutionModel::getCodonsMulRate(size_t i, size_
 {
   double mu;
 
-  if (i==0 && j==0)
-    cerr << Ns_ << endl;
-  
   int aai = pgencode_->translate(stateMap_->getAlphabetStateAsInt(i));
   int aaj = pgencode_->translate(stateMap_->getAlphabetStateAsInt(j));
 
