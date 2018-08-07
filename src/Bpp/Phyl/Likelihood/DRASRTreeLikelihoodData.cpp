@@ -138,7 +138,7 @@ void DRASRTreeLikelihoodData::initLikelihoods(const Node* node, const SiteContai
     {
       seq = &sequences.getSequence(node->getName());
     }
-    catch (SequenceNotFoundException snfe)
+    catch (SequenceNotFoundException& snfe)
     {
       throw SequenceNotFoundException("DRASRTreeLikelihoodData::initTreelikelihoods. Leaf name in tree not found in site conainer: ", (node->getName()));
     }
@@ -241,7 +241,7 @@ SitePatterns* DRASRTreeLikelihoodData::initLikelihoodsWithPatterns(const Node* n
     {
       seq = &subSequences->getSequence(node->getName());
     }
-    catch (SequenceNotFoundException snfe)
+    catch (SequenceNotFoundException& snfe)
     {
       throw SequenceNotFoundException("HomogeneousTreeLikelihood::initTreelikelihoodsWithPatterns. Leaf name in tree not found in site conainer: ", (node->getName()));
     }
