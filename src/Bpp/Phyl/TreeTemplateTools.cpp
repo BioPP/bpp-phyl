@@ -241,7 +241,7 @@ TreeTemplateTools::Element TreeTemplateTools::getElement(const string& elt)
       }
     }
   }
-  catch (exception e)
+  catch (exception& e)
   {
     throw IOException("Bad tree description: " + elt);
   }
