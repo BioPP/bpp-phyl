@@ -257,6 +257,7 @@ namespace numeric {
 /******************************************************************************
  * Data flow nodes for those numerical functions.
  * TODO what of rebuild ?
+ * TODO numerical simplification: all deps constant => return constant ?
  * TODO add nodes from Numerical derivation
  */
 namespace dataflow {

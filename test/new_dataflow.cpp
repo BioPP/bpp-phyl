@@ -314,6 +314,137 @@ TEST_CASE("Convert")
   CHECK(df_dd->getValue() == 1);
 
   dotOutput("Convert", {f.get(), m2.get(), m3.get(), df_df.get(), df_dd.get()});
+  // Not tested: Constant simplifications
+}
+
+TEST_CASE("CWiseAdd")
+{
+  Context c;
+  auto d = NumericMutable<double>::create(c, 42);
+  auto m = NumericMutable<Eigen::MatrixXd>::create(c, (Eigen::MatrixXd(1, 2) << 42., -42.).finished());
+
+  // Check wrong dependency detection (tuple<A,B>)
+  CHECK_THROWS_AS((CWiseAdd<double, std::tuple<double, float>>::create(c, {d, d})), bpp::Exception);
+  CHECK_THROWS_AS((CWiseAdd<double, std::tuple<double, double>>::create(c, {nullptr, d})), bpp::Exception);
+  CHECK_THROWS_AS((CWiseAdd<double, std::tuple<double, double>>::create(c, {d})), bpp::Exception);
+  CHECK_THROWS_AS((CWiseAdd<double, std::tuple<double, double>>::create(c, {d, d, d})), bpp::Exception);
+  // Check wrong dependency detection (reduction<A>)
+  CHECK_THROWS_AS((CWiseAdd<double, ReductionOf<double>>::create(c, {nullptr})), bpp::Exception);
+  CHECK_THROWS_AS((CWiseAdd<double, ReductionOf<float>>::create(c, {d})), bpp::Exception);
+
+  // Scalar + scalar
+  auto add_d_d = CWiseAdd<double, std::tuple<double, double>>::create(c, {d, d});
+  auto add_0_d = CWiseAdd<double, ReductionOf<double>>::create(c, {});
+  auto add_1_d = CWiseAdd<double, ReductionOf<double>>::create(c, {d});
+  auto add_2_d = CWiseAdd<double, ReductionOf<double>>::create(c, {d, d});
+  auto add_3_d = CWiseAdd<double, ReductionOf<double>>::create(c, {d, d, d});
+  CHECK(add_d_d->getValue() == d->getValue() * 2);
+  CHECK(add_0_d->getValue() == 0);
+  CHECK(add_1_d->getValue() == d->getValue());
+  CHECK(add_2_d->getValue() == d->getValue() * 2);
+  CHECK(add_3_d->getValue() == d->getValue() * 3);
+
+  // Matrix + matrix
+  auto add_m_m = CWiseAdd<Eigen::MatrixXd, ReductionOf<Eigen::MatrixXd>>::create(c, {m, m}, MatrixDimension(1, 2));
+  const auto& add_m_m_value = add_m_m->getValue();
+  CHECK(MatrixDimension(add_m_m_value) == MatrixDimension(1, 2));
+  CHECK(add_m_m_value(0, 0) == 42 * 2);
+  CHECK(add_m_m_value(0, 1) == -42 * 2);
+
+  // Matrix + scalar
+  auto add_m_d =
+    CWiseAdd<Eigen::MatrixXd, std::tuple<Eigen::MatrixXd, double>>::create(c, {m, d}, MatrixDimension(1, 2));
+  const auto& add_m_d_value = add_m_d->getValue();
+  CHECK(MatrixDimension(add_m_d_value) == MatrixDimension(1, 2));
+  CHECK(add_m_d_value(0, 0) == 42 * 2);
+  CHECK(add_m_d_value(0, 1) == 0);
+
+  // Derivatives
+  auto dummy = std::make_shared<DoNothingNode>();
+  auto& x = add_3_d;
+  auto dx_ddummy = x->deriveAsValue(c, *dummy);
+  CHECK(dx_ddummy->getValue() == 0);
+  auto dx_dx = x->deriveAsValue(c, *x);
+  CHECK(dx_dx->getValue() == 1);
+  auto dx_dd = x->deriveAsValue(c, *d);
+  CHECK(dx_dd->getValue() == 3);
+
+  dotOutput("CWiseAdd",
+            {add_d_d.get(),
+             add_0_d.get(),
+             add_1_d.get(),
+             add_2_d.get(),
+             add_3_d.get(),
+             add_m_m.get(),
+             add_m_d.get(),
+             dx_dx.get(),
+             dx_dd.get()});
+  // Not tested: Constant simplifications
+}
+
+TEST_CASE("CWiseMul")
+{
+  Context c;
+  auto d = NumericMutable<double>::create(c, 42);
+  auto m = NumericMutable<Eigen::MatrixXd>::create(c, (Eigen::MatrixXd(1, 2) << 42., -42.).finished());
+
+  // Check wrong dependency detection (tuple<A,B>)
+  CHECK_THROWS_AS((CWiseMul<double, std::tuple<double, float>>::create(c, {d, d})), bpp::Exception);
+  CHECK_THROWS_AS((CWiseMul<double, std::tuple<double, double>>::create(c, {nullptr, d})), bpp::Exception);
+  CHECK_THROWS_AS((CWiseMul<double, std::tuple<double, double>>::create(c, {d})), bpp::Exception);
+  CHECK_THROWS_AS((CWiseMul<double, std::tuple<double, double>>::create(c, {d, d, d})), bpp::Exception);
+  // Check wrong dependency detection (reduction<A>)
+  CHECK_THROWS_AS((CWiseMul<double, ReductionOf<double>>::create(c, {nullptr})), bpp::Exception);
+  CHECK_THROWS_AS((CWiseMul<double, ReductionOf<float>>::create(c, {d})), bpp::Exception);
+
+  // Scalar * scalar
+  auto mul_d_d = CWiseMul<double, std::tuple<double, double>>::create(c, {d, d});
+  auto mul_0_d = CWiseMul<double, ReductionOf<double>>::create(c, {});
+  auto mul_1_d = CWiseMul<double, ReductionOf<double>>::create(c, {d});
+  auto mul_2_d = CWiseMul<double, ReductionOf<double>>::create(c, {d, d});
+  auto mul_3_d = CWiseMul<double, ReductionOf<double>>::create(c, {d, d, d});
+  CHECK(mul_d_d->getValue() == d->getValue() * d->getValue());
+  CHECK(mul_0_d->getValue() == 1);
+  CHECK(mul_1_d->getValue() == d->getValue());
+  CHECK(mul_2_d->getValue() == d->getValue() * d->getValue());
+  CHECK(mul_3_d->getValue() == d->getValue() * d->getValue() * d->getValue());
+
+  // Matrix * matrix
+  auto mul_m_m = CWiseMul<Eigen::MatrixXd, ReductionOf<Eigen::MatrixXd>>::create(c, {m, m}, MatrixDimension(1, 2));
+  const auto& mul_m_m_value = mul_m_m->getValue();
+  CHECK(MatrixDimension(mul_m_m_value) == MatrixDimension(1, 2));
+  CHECK(mul_m_m_value(0, 0) == 42 * 42);
+  CHECK(mul_m_m_value(0, 1) == -42 * -42);
+
+  // Matrix * scalar
+  auto mul_m_d =
+    CWiseMul<Eigen::MatrixXd, std::tuple<Eigen::MatrixXd, double>>::create(c, {m, d}, MatrixDimension(1, 2));
+  const auto& mul_m_d_value = mul_m_d->getValue();
+  CHECK(MatrixDimension(mul_m_d_value) == MatrixDimension(1, 2));
+  CHECK(mul_m_d_value(0, 0) == 42 * 42);
+  CHECK(mul_m_d_value(0, 1) == -42 * 42);
+
+  // Derivatives
+  auto dummy = std::make_shared<DoNothingNode>();
+  auto& x = mul_3_d;
+  auto dx_ddummy = x->deriveAsValue(c, *dummy);
+  CHECK(dx_ddummy->getValue() == 0);
+  auto dx_dx = x->deriveAsValue(c, *x);
+  CHECK(dx_dx->getValue() == 1);
+  auto dx_dd = x->deriveAsValue(c, *d);
+  CHECK(dx_dd->getValue() == 3 * d->getValue() * d->getValue());
+
+  dotOutput("CWiseMul",
+            {mul_d_d.get(),
+             mul_0_d.get(),
+             mul_1_d.get(),
+             mul_2_d.get(),
+             mul_3_d.get(),
+             mul_m_m.get(),
+             mul_m_d.get(),
+             dx_dx.get(),
+             dx_dd.get()});
+  // Not tested: Constant simplifications
 }
 
 int main(int argc, char** argv)
