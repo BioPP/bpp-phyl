@@ -49,36 +49,6 @@
 namespace bpp {
 namespace DF {
 	///@{
-	/** @brief Shift a value by a delta: <n>(delta, x) -> n * delta + x.
-	 *
-	 * Defined for double, VectorDouble, MatrixDouble.
-	 * For composite types, delta will be added to all elements.
-	 *
-	 * Should only be used to compute numerical derivatives of functions.
-	 * This is used to create the values of the different points of computation.
-	 * These values are then fed to duplicates of the function.
-	 *
-	 * Delta is a special argument (not derivable, etc).
-	 * Construction will merge chains of NumericalDerivationShiftDelta.
-	 */
-	template <typename T> class NumericalDerivationShiftDelta;
-
-	// Factory functions
-	template <> struct Builder<NumericalDerivationShiftDelta<double>> {
-		static ValueRef<double> make (NodeRefVec && deps, int n,
-		                              const Dimension<double> & targetDim = {});
-	};
-	template <> struct Builder<NumericalDerivationShiftDelta<VectorDouble>> {
-		static ValueRef<VectorDouble> make (NodeRefVec && deps, int n,
-		                                    const Dimension<VectorDouble> & targetDim);
-	};
-	template <> struct Builder<NumericalDerivationShiftDelta<MatrixDouble>> {
-		static ValueRef<MatrixDouble> make (NodeRefVec && deps, int n,
-		                                    const Dimension<MatrixDouble> & targetDim);
-	};
-	///@}
-
-	///@{
 	/** @brief Make a linear combination of values (constant factors), multiplied by a factor.
 	 *
 	 * Defined for double, VectorDouble, MatrixDouble.

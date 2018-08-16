@@ -114,5 +114,9 @@ namespace dataflow {
 	template class ScalarProduct<Eigen::VectorXd, Eigen::VectorXd>;
 
 	template class MatrixProduct<Eigen::MatrixXd, Eigen::MatrixXd, Eigen::MatrixXd>;
+
+	template class ShiftDelta<double>;
+	template class ShiftDelta<Eigen::VectorXd>;
+	template class ShiftDelta<Eigen::MatrixXd>;
 } // namespace dataflow
 } // namespace bpp

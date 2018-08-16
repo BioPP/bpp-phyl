@@ -277,6 +277,7 @@ namespace dataflow {
 	template <typename T0, typename T1> class ScalarProduct;
 	template <typename R, typename T0, typename T1> class MatrixProduct;
 	// TODO matrix multiply with transposed variants
+	template <typename T> class ShiftDelta;
 
 	// Utilities
 	template <typename Predicate> void removeDependenciesIf (NodeRefVec & deps, Predicate p) {
@@ -641,7 +642,7 @@ namespace dataflow {
 		}
 
 		Dimension<R> targetDimension;
-	}; // namespace dataflow
+	};
 
 	/** r = sum (x_i), for each component.
 	 * r: R.
@@ -788,7 +789,7 @@ namespace dataflow {
 		}
 
 		Dimension<R> targetDimension;
-	}; // namespace dataflow
+	};
 
 	/** r = prod (x_i), for each component.
 	 * r: R.
@@ -1178,6 +1179,83 @@ namespace dataflow {
 
 	// TODO transposed variants ?  r.noalias () = lhs.transpose () * rhs;
 
+	/** r = n * delta + x.
+	 * r: T.
+	 * x: T.
+	 * n: int, contant parameter.
+	 * delta: double.
+	 * Order of parameters: (delta, x).
+	 *
+	 * Adds n * delta to all values (component wise) of x.
+	 * Used to generate x +/- delta values for numerical derivation.
+	 */
+	template <typename T> class ShiftDelta : public Value<T> {
+	public:
+		using Self = ShiftDelta;
+
+		static ValueRef<T> create (Context & c, NodeRefVec && deps, int n,
+		                           const Dimension<T> & dim = {}) {
+			// Check dependencies
+			checkDependenciesNotNull (typeid (Self), deps);
+			checkDependencyVectorSize (typeid (Self), deps, 2);
+			checkNthDependencyIsValue<double> (typeid (Self), deps, 0);
+			checkNthDependencyIsValue<T> (typeid (Self), deps, 1);
+			// Detect if we have a chain of ShiftDelta with the same delta.
+			auto & delta = deps[0];
+			auto & x = deps[1];
+			auto * xAsShiftDelta = dynamic_cast<const ShiftDelta<T> *> (x.get ());
+			if (xAsShiftDelta != nullptr && xAsShiftDelta->dependency (0) == delta) {
+				// Merge with ShiftDelta dependency by summing the n.
+				return Self::create (c, NodeRefVec{x->dependencies ()}, n + xAsShiftDelta->getN (), dim);
+			}
+			// Not a merge, select node implementation.
+			bool delta_zero = delta->hasNumericalProperty (NumericalProperty::Constant) &&
+			                  delta->hasNumericalProperty (NumericalProperty::Zero);
+			if (n == 0 || delta_zero) {
+				return convertRef<Value<T>> (x);
+			} else {
+				return std::make_shared<Self> (std::move (deps), n, dim);
+			}
+		}
+
+		ShiftDelta (NodeRefVec && deps, int n, const Dimension<T> & dim)
+		    : Value<T> (std::move (deps)), targetDimension (dim), n (n) {}
+
+		std::string description () const override {
+			return Node::description () + '(' + std::to_string (n) + ')';
+		}
+		std::string debugInfo () const override {
+			using namespace numeric;
+			return debug (this->accessValueConst ()) + " targetDim=" + to_string (targetDimension);
+		}
+
+		NodeRef derive (Context & c, const Node & node) final {
+			if (&node == this) {
+				return ConstantOne<T>::create (c, targetDimension);
+			}
+			auto & delta = this->dependency (0);
+			auto & x = this->dependency (1);
+			return Self::create (c, {delta->derive (c, node), x->derive (c, node)}, n, targetDimension);
+		}
+		bool isDerivable (const Node & node) const final {
+			return allDerivable (this->dependencies (), node);
+		}
+
+		int getN () const { return n; }
+
+	private:
+		void compute () final {
+			using namespace numeric;
+			auto & result = this->accessValueMutable ();
+			const auto & delta = accessValueConstCast<double> (*this->dependency (0));
+			const auto & x = accessValueConstCast<T> (*this->dependency (1));
+			cwise (result) = n * delta + cwise (x);
+		}
+
+		Dimension<T> targetDimension;
+		int n;
+	};
+
 	// Precompiled instantiations
 	extern template class ConstantZero<double>;
 	extern template class ConstantZero<Eigen::VectorXd>;
@@ -1234,6 +1312,10 @@ namespace dataflow {
 	extern template class ScalarProduct<Eigen::VectorXd, Eigen::VectorXd>;
 
 	extern template class MatrixProduct<Eigen::MatrixXd, Eigen::MatrixXd, Eigen::MatrixXd>;
+
+	extern template class ShiftDelta<double>;
+	extern template class ShiftDelta<Eigen::VectorXd>;
+	extern template class ShiftDelta<Eigen::MatrixXd>;
 } // namespace dataflow
 } // namespace bpp
 
