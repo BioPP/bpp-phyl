@@ -63,19 +63,6 @@ namespace DF {
 	 * Construction will merge layers of consecutive NumericalDerivationCombineShifted.
 	 */
 	template <typename T> class NumericalDerivationCombineShifted;
-
-	template <> struct Builder<NumericalDerivationCombineShifted<double>> {
-		static ValueRef<double> make (NodeRefVec && deps, const std::vector<double> & coeffs,
-		                              const Dimension<double> & targetDim = {});
-	};
-	template <> struct Builder<NumericalDerivationCombineShifted<VectorDouble>> {
-		static ValueRef<VectorDouble> make (NodeRefVec && deps, const std::vector<double> & coeffs,
-		                                    const Dimension<VectorDouble> & targetDim);
-	};
-	template <> struct Builder<NumericalDerivationCombineShifted<MatrixDouble>> {
-		static ValueRef<MatrixDouble> make (NodeRefVec && deps, const std::vector<double> & coeffs,
-		                                    const Dimension<MatrixDouble> & targetDim);
-	};
 	///@}
 
 	enum class NumericalDerivativeType { Disabled, ThreePoints, FivePoints };

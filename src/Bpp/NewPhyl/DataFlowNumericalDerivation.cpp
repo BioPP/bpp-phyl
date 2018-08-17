@@ -49,72 +49,6 @@
 
 namespace bpp {
 namespace DF {
-	/* NumericalDerivationCombineShifted
-	 *
-	 * Combine shifted has uncommon dependencies: double followed by ArrayOfValues<T>.
-	 * This is not yet representable in the dependency pattern type tag system.
-	 * Checks and compute are done by manually combining primitives.
-	 */
-	template <typename T> class NumericalDerivationCombineShifted : public Value<T> {
-	public:
-		NumericalDerivationCombineShifted (NodeRefVec && deps, const std::vector<double> & coeffs,
-		                                   const Dimension<T> & targetDim)
-		    : Value<T> (std::move (deps)), coeffs_ (coeffs) {
-			setTargetDimension (this->accessValueMutable (), targetDim);
-		}
-
-		std::string description () const final {
-			auto r = std::string ("lambda * sum (deps[i] * {");
-			if (!coeffs_.empty ()) {
-				for (auto i : range (coeffs_.size () - 1))
-					r += std::to_string (coeffs_[i]) + " ";
-				r += std::to_string (coeffs_.back ());
-			}
-			r += "}[i])";
-			return r;
-		}
-
-		// Never derive the lambda side (not part of computation !)
-		NodeRef derive (const Node & node) final {
-			NodeRefVec deps (this->nbDependencies ());
-			deps[0] = this->dependency (0); // lambda
-			for (auto i : range (std::size_t (1), this->nbDependencies ()))
-				deps[i] = this->dependency (i)->derive (node);
-			return makeNode<NumericalDerivationCombineShifted<T>> (
-			    std::move (deps), coeffs_, targetDimension (this->accessValueConst ()));
-		}
-		bool isDerivable (const Node & node) const final {
-			const auto & deps = this->dependencies ();
-			auto & lambda = deps[0];
-			return std::all_of (deps.begin () + 1, deps.end (),
-			                    [&node](const NodeRef & ref) { return ref->isDerivable (node); }) &&
-			       !lambda->isTransitivelyDependentOn (node);
-		}
-
-		NodeRef rebuild (NodeRefVec && deps) const final {
-			return makeNode<NumericalDerivationCombineShifted<T>> (
-			    std::move (deps), coeffs_, targetDimension (this->accessValueConst ()));
-		}
-
-		const std::vector<double> & getCoeffs () const noexcept { return coeffs_; }
-
-	private:
-		std::vector<double> coeffs_;
-
-		void compute () final {
-			const auto & deps = this->dependencies ();
-			double lambda = accessValidValueConstCast<double> (deps[0]);
-			T & value = this->accessValueMutable ();
-			const auto targetDim = targetDimension (value);
-
-			value = linearAlgebraZeroValue (targetDim);
-			for (auto i : range (coeffs_.size ())) {
-				value += linearAlgebraMakeValueWith (targetDim, coeffs_[i] * lambda) *
-				         accessValidValueConstCast<T> (deps[i + 1]);
-			}
-		}
-	};
-
 	template <typename T>
 	ValueRef<T> makeNumericalDerivationCombineShifted (NodeRefVec && deps,
 	                                                   const std::vector<double> & coeffs,
@@ -182,23 +116,5 @@ namespace DF {
 			                                                               targetDim);
 		}
 	}
-
-	ValueRef<double> Builder<NumericalDerivationCombineShifted<double>>::make (
-	    NodeRefVec && deps, const std::vector<double> & coeffs, const Dimension<double> & targetDim) {
-		return makeNumericalDerivationCombineShifted<double> (std::move (deps), coeffs, targetDim);
-	}
-	ValueRef<VectorDouble> Builder<NumericalDerivationCombineShifted<VectorDouble>>::make (
-	    NodeRefVec && deps, const std::vector<double> & coeffs,
-	    const Dimension<VectorDouble> & targetDim) {
-		return makeNumericalDerivationCombineShifted<VectorDouble> (std::move (deps), coeffs,
-		                                                            targetDim);
-	}
-	ValueRef<MatrixDouble> Builder<NumericalDerivationCombineShifted<MatrixDouble>>::make (
-	    NodeRefVec && deps, const std::vector<double> & coeffs,
-	    const Dimension<MatrixDouble> & targetDim) {
-		return makeNumericalDerivationCombineShifted<MatrixDouble> (std::move (deps), coeffs,
-		                                                            targetDim);
-	}
-
 } // namespace DF
 } // namespace bpp

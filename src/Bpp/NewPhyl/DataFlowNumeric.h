@@ -256,12 +256,17 @@ namespace numeric {
 
 /******************************************************************************
  * Data flow nodes for those numerical functions.
+ *
  * TODO what of rebuild ?
  * TODO numerical simplification: all deps constant => return constant ?
  * TODO add nodes from Numerical derivation
  */
 namespace dataflow {
-	template <typename T> struct ReductionOf; // Type tag
+	// Error utils
+	[[noreturn]] void failureDeltaNotDerivable (const std::type_info & contextNodeType);
+
+	// Type tag to indicate a reduction operation (for +,*,...).
+	template <typename T> struct ReductionOf;
 
 	// Declaration of all defined nodes, in order of implementation.
 	template <typename T> class ConstantZero;
@@ -278,6 +283,7 @@ namespace dataflow {
 	template <typename R, typename T0, typename T1> class MatrixProduct;
 	// TODO matrix multiply with transposed variants
 	template <typename T> class ShiftDelta;
+	template <typename T> class CombineDeltaShifted;
 
 	// Utilities
 	template <typename Predicate> void removeDependenciesIf (NodeRefVec & deps, Predicate p) {
@@ -1017,7 +1023,8 @@ namespace dataflow {
 
 		std::string debugInfo () const override {
 			using namespace numeric;
-			return debug (this->accessValueConst ()) + " targetDim=" + to_string (targetDimension);
+			return debug (this->accessValueConst ()) + " targetDim=" + to_string (targetDimension) +
+			       " exponent=" + std::to_string (exponent) + " factor=" + std::to_string (factor);
 		}
 
 		NodeRef derive (Context & c, const Node & node) final {
@@ -1181,10 +1188,10 @@ namespace dataflow {
 
 	/** r = n * delta + x.
 	 * r: T.
-	 * x: T.
-	 * n: int, contant parameter.
 	 * delta: double.
-	 * Order of parameters: (delta, x).
+	 * x: T.
+	 * n: constant int.
+	 * Order of dependencies: (delta, x).
 	 *
 	 * Adds n * delta to all values (component wise) of x.
 	 * Used to generate x +/- delta values for numerical derivation.
@@ -1209,9 +1216,8 @@ namespace dataflow {
 				return Self::create (c, NodeRefVec{x->dependencies ()}, n + xAsShiftDelta->getN (), dim);
 			}
 			// Not a merge, select node implementation.
-			bool delta_zero = delta->hasNumericalProperty (NumericalProperty::Constant) &&
-			                  delta->hasNumericalProperty (NumericalProperty::Zero);
-			if (n == 0 || delta_zero) {
+			if (n == 0 || (delta->hasNumericalProperty (NumericalProperty::Constant) &&
+			               delta->hasNumericalProperty (NumericalProperty::Zero))) {
 				return convertRef<Value<T>> (x);
 			} else {
 				return std::make_shared<Self> (std::move (deps), n, dim);
@@ -1221,12 +1227,10 @@ namespace dataflow {
 		ShiftDelta (NodeRefVec && deps, int n, const Dimension<T> & dim)
 		    : Value<T> (std::move (deps)), targetDimension (dim), n (n) {}
 
-		std::string description () const override {
-			return Node::description () + '(' + std::to_string (n) + ')';
-		}
 		std::string debugInfo () const override {
 			using namespace numeric;
-			return debug (this->accessValueConst ()) + " targetDim=" + to_string (targetDimension);
+			return debug (this->accessValueConst ()) + " targetDim=" + to_string (targetDimension) +
+			       " n=" + std::to_string (n);
 		}
 
 		NodeRef derive (Context & c, const Node & node) final {
@@ -1253,6 +1257,100 @@ namespace dataflow {
 		}
 
 		Dimension<T> targetDimension;
+		int n;
+	};
+
+	/** r = (1/delta)^n * sum_i coeffs_i * x_i.
+	 * r: T.
+	 * delta: double.
+	 * x_i: T.
+	 * n: constant int.
+	 * coeffs_i: constant double.
+	 * Order of dependencies: (delta, x_i).
+	 *
+	 * Weighted sum of dependencies, multiplied by a double.
+	 * Used to combine f(x+n*delta) values in numerical derivation.
+	 * Lambda represents the 1/delta^n for a nth-order numerical derivation.
+	 */
+	template <typename T> class CombineDeltaShifted : public Value<T> {
+	public:
+		using Self = CombineDeltaShifted;
+
+		static ValueRef<T> create (Context & c, NodeRefVec && deps, int n,
+		                           std::vector<double> && coeffs, const Dimension<T> & dim = {}) {
+			// Check dependencies
+			checkDependenciesNotNull (typeid (Self), deps);
+			checkDependencyVectorSize (typeid (Self), deps, 1 + coeffs.size ());
+			checkNthDependencyIsValue<double> (typeid (Self), deps, 0);
+			checkDependencyRangeIsValue<T> (typeid (Self), deps, 1, deps.size ());
+			// TODO merge with dependencies if CombineDeltaShifted with same delta.
+			// TODO remove constant 0, or stuff with 0 factor.
+			return std::make_shared<Self> (std::move (deps), n, std::move (coeffs), dim);
+		}
+
+		CombineDeltaShifted (NodeRefVec && deps, int n, std::vector<double> && coeffs,
+		                     const Dimension<T> & dim)
+		    : Value<T> (std::move (deps)), targetDimension (dim), coeffs (std::move (coeffs)), n (n) {
+			assert (this->coeffs.size () + 1 == this->nbDependencies ());
+		}
+
+		std::string debugInfo () const override {
+			using namespace numeric;
+			std::string s = debug (this->accessValueConst ()) +
+			                " targetDim=" + to_string (targetDimension) + " n=" + std::to_string (n) +
+			                " coeffs={";
+			if (!coeffs.empty ()) {
+				s += std::to_string (coeffs[0]);
+				for (std::size_t i = 1; i < coeffs.size (); ++i) {
+					s += ';' + std::to_string (coeffs[i]);
+				}
+			}
+			s += '}';
+			return s;
+		}
+
+		NodeRef derive (Context & c, const Node & node) final {
+			if (&node == this) {
+				return ConstantOne<T>::create (c, targetDimension);
+			}
+			// For simplicity, we assume delta is a constant with respect to derivation node.
+			auto & delta = this->dependency (0);
+			if (isTransitivelyDependentOn (node, *delta)) {
+				// Fail if delta is not constant for node.
+				failureDeltaNotDerivable (typeid (Self));
+			}
+			// Derivation is a simple weighted sums of derivatives.
+			const auto nbDeps = this->nbDependencies ();
+			NodeRefVec derivedDeps (nbDeps);
+			derivedDeps[0] = delta;
+			for (std::size_t i = 1; i < nbDeps; ++i) {
+				derivedDeps[i] = this->dependency (i)->derive (c, node);
+			}
+			return Self::create (c, std::move (derivedDeps), n, std::vector<double>{coeffs},
+			                     targetDimension);
+		}
+		bool isDerivable (const Node & node) const final {
+			return allDerivable (this->dependencies (), node); // FIXME delta arg ?
+		}
+
+		const std::vector<double> & getCoeffs () const { return coeffs; }
+		int getN () const { return n; }
+
+	private:
+		void compute () final {
+			using namespace numeric;
+			auto & result = this->accessValueMutable ();
+			const auto & delta = accessValueConstCast<double> (*this->dependency (0));
+			const double lambda = pow (delta, -n);
+			result = zero (targetDimension);
+			for (std::size_t i = 0; i < coeffs.size (); ++i) {
+				const auto & x = accessValueConstCast<T> (*this->dependency (1 + i));
+				cwise (result) += (lambda * coeffs[i]) * cwise (x);
+			}
+		}
+
+		Dimension<T> targetDimension;
+		std::vector<double> coeffs;
 		int n;
 	};
 
@@ -1316,6 +1414,10 @@ namespace dataflow {
 	extern template class ShiftDelta<double>;
 	extern template class ShiftDelta<Eigen::VectorXd>;
 	extern template class ShiftDelta<Eigen::MatrixXd>;
+
+	extern template class CombineDeltaShifted<double>;
+	extern template class CombineDeltaShifted<Eigen::VectorXd>;
+	extern template class CombineDeltaShifted<Eigen::MatrixXd>;
 } // namespace dataflow
 } // namespace bpp
 

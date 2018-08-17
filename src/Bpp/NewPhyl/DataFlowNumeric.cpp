@@ -58,6 +58,11 @@ namespace numeric {
 } // namespace numeric
 
 namespace dataflow {
+	void failureDeltaNotDerivable (const std::type_info & contextNodeType) {
+		throw Exception (prettyTypeName (contextNodeType) +
+		                 ": does not support derivation for the delta dependency");
+	}
+
 	// Precompiled instantiations of numeric nodes
 	template class ConstantZero<double>;
 	template class ConstantZero<Eigen::VectorXd>;
@@ -118,5 +123,9 @@ namespace dataflow {
 	template class ShiftDelta<double>;
 	template class ShiftDelta<Eigen::VectorXd>;
 	template class ShiftDelta<Eigen::MatrixXd>;
+
+	template class CombineDeltaShifted<double>;
+	template class CombineDeltaShifted<Eigen::VectorXd>;
+	template class CombineDeltaShifted<Eigen::MatrixXd>;
 } // namespace dataflow
 } // namespace bpp
