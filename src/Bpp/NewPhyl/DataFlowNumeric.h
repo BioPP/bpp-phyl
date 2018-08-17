@@ -264,6 +264,7 @@ namespace numeric {
 namespace dataflow {
 	// Error utils
 	[[noreturn]] void failureDeltaNotDerivable (const std::type_info & contextNodeType);
+	[[noreturn]] void failureNumericalDerivationNotConfigured ();
 
 	// Type tag to indicate a reduction operation (for +,*,...).
 	template <typename T> struct ReductionOf;
@@ -1418,6 +1419,71 @@ namespace dataflow {
 	extern template class CombineDeltaShifted<double>;
 	extern template class CombineDeltaShifted<Eigen::VectorXd>;
 	extern template class CombineDeltaShifted<Eigen::MatrixXd>;
+
+	/*****************************************************************************
+	 * Numerical derivation helpers.
+	 */
+	enum class NumericalDerivativeType { Disabled, ThreePoints, FivePoints };
+
+	/// Configuration for a numerical derivation: what delta to use, and type of derivation.
+	struct NumericalDerivativeConfiguration {
+		NumericalDerivativeType type{NumericalDerivativeType::Disabled};
+		ValueRef<double> delta{};
+	};
+
+	/** Helper used to generate data flow expressions computing a numerical derivative.
+	 *
+	 * For an expression e = f(x0,...,xn), which may be composed of multiple nodes.
+	 * dep is one of the expression dependencies: exists i, dep is node xi.
+	 * buildNodeWithDep(context, new_xi, e_dim) creates a node: f(x0,...,new_xi,...,xn).
+	 * It must duplicate the expression by replacing dep by new_xi.
+	 * e must be a Value<NodeT>, and xi a Value<DepT>.
+	 *
+	 * This function generates a new node de_ddep.
+	 * de_ddep = g(delta,x0,...xn) = df/ddep value at x0,...,xn.
+	 * delta is the shift between points of computation of f (numerical derivation).
+	 * The pattern of computation points and delta are given by config.
+	 * After creation, the pattern and node for delta cannot change, but delta value can.
+	 */
+	template <typename NodeT, typename DepT, typename B>
+	ValueRef<NodeT>
+	generateNumericalDerivative (Context & c, const NumericalDerivativeConfiguration & config,
+	                             NodeRef dep, const Dimension<DepT> & depDim,
+	                             const Dimension<NodeT> & nodeDim, B buildNodeWithDep) {
+		if (config.delta == nullptr) {
+			failureNumericalDerivationNotConfigured ();
+		}
+		switch (config.type) {
+		case NumericalDerivativeType::ThreePoints: {
+			// Shift {-1, +1}, coeffs {-0.5, +0.5}
+			auto shift_m1 = ShiftDelta<DepT>::create (c, {config.delta, dep}, -1, depDim);
+			auto shift_p1 = ShiftDelta<DepT>::create (c, {config.delta, dep}, 1, depDim);
+			NodeRefVec combineDeps (3);
+			combineDeps[0] = config.delta;
+			combineDeps[1] = buildNodeWithDep (c, std::move (shift_m1), nodeDim);
+			combineDeps[2] = buildNodeWithDep (c, std::move (shift_p1), nodeDim);
+			return CombineDeltaShifted<NodeT>::create (c, std::move (combineDeps), 1, {-0.5, 0.5},
+			                                           nodeDim);
+		} break;
+		case NumericalDerivativeType::FivePoints: {
+			// Shift {-2, -1, +1, +2}, coeffs {1/12, -2/3, 2/3, -1/12}
+			auto shift_m2 = ShiftDelta<DepT>::create (c, {config.delta, dep}, -2, depDim);
+			auto shift_m1 = ShiftDelta<DepT>::create (c, {config.delta, dep}, -1, depDim);
+			auto shift_p1 = ShiftDelta<DepT>::create (c, {config.delta, dep}, 1, depDim);
+			auto shift_p2 = ShiftDelta<DepT>::create (c, {config.delta, dep}, 2, depDim);
+			NodeRefVec combineDeps (5);
+			combineDeps[0] = config.delta;
+			combineDeps[1] = buildNodeWithDep (c, std::move (shift_m2), nodeDim);
+			combineDeps[2] = buildNodeWithDep (c, std::move (shift_m1), nodeDim);
+			combineDeps[3] = buildNodeWithDep (c, std::move (shift_p1), nodeDim);
+			combineDeps[4] = buildNodeWithDep (c, std::move (shift_p2), nodeDim);
+			return CombineDeltaShifted<NodeT>::create (c, std::move (combineDeps), 1,
+			                                           {1. / 12., -2. / 3., 2. / 3., -1. / 12.}, nodeDim);
+		} break;
+		default:
+			failureNumericalDerivationNotConfigured ();
+		}
+	}
 } // namespace dataflow
 } // namespace bpp
 

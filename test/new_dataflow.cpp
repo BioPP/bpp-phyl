@@ -60,6 +60,7 @@ static void dotOutput(const std::string& testName, const std::vector<const bpp::
 }
 
 using namespace bpp::dataflow;
+using bpp::Dimension;
 using bpp::MatrixDimension;
 
 /******************************************************************************
@@ -447,10 +448,94 @@ TEST_CASE("CWiseMul")
   // Not tested: Constant simplifications
 }
 
+// Test dataflow node for numerical derivation. Can serve as an example of a simple case.
+struct OpaqueTestFunction : public Value<double>
+{
+  using Self = OpaqueTestFunction;
+
+  NumericalDerivativeConfiguration config{};
+
+  static std::shared_ptr<OpaqueTestFunction> create(NodeRefVec&& deps)
+  {
+    checkDependenciesNotNull(typeid(Self), deps);
+    checkDependencyVectorSize(typeid(Self), deps, 2);
+    checkDependencyRangeIsValue<double>(typeid(Self), deps, 0, deps.size());
+    return std::make_shared<Self>(std::move(deps));
+  }
+  OpaqueTestFunction(NodeRefVec&& deps)
+    : Value<double>(std::move(deps))
+  {
+  }
+
+  NodeRef derive(Context& c, const Node& node) final
+  {
+    // df/dn = df/dx * dx/dn + df/dy * dy/dn (derivative of multivariable func)
+    auto dim = Dimension<double>{}; // Dimension is trivial for this test
+    NodeRefVec derivativeSumDeps;
+    for (std::size_t i = 0; i < this->nbDependencies(); ++i)
+    {
+      // First compute dxi_dn. If this maps to a constant 0, do not compute df_dxi at all (costly).
+      auto dxi_dn = this->dependency(i)->derive(c, node);
+      if (!(dxi_dn->hasNumericalProperty(NumericalProperty::Constant) &&
+            dxi_dn->hasNumericalProperty(NumericalProperty::Zero)))
+      {
+        auto buildFWithNewXi = [this, i](Context& c, ValueRef<double> newDep, const Dimension<double>& nodeDim) {
+          // Build a duplicate of Self (OpaqueTestFunction) with replaced dependency.
+          // The function supports a general case for sub-expressions.
+          NodeRefVec newDeps = this->dependencies();
+          newDeps[i] = std::move(newDep);
+          return Self::create(std::move(newDeps));
+        };
+        auto df_dxi =
+          generateNumericalDerivative<double, double>(c, config, this->dependency(i), dim, dim, buildFWithNewXi);
+        derivativeSumDeps.emplace_back(
+          CWiseMul<double, std::tuple<double, double>>::create(c, {std::move(df_dxi), std::move(dxi_dn)}));
+      }
+    }
+    return CWiseAdd<double, ReductionOf<double>>::create(c, std::move(derivativeSumDeps));
+  }
+
+  void compute() final
+  {
+    auto& result = this->accessValueMutable();
+    const auto& x = accessValueConstCast<double>(*this->dependency(0));
+    const auto& y = accessValueConstCast<double>(*this->dependency(1));
+    result = 3 * x * x + y * y; // 3x^2 + y^2
+  }
+};
+
+TEST_CASE("numerical_derivation")
+{
+  Context c;
+  auto x = NumericMutable<double>::create(c, 1);
+  auto y = NumericMutable<double>::create(c, -1);
+  auto f = OpaqueTestFunction::create({x, y});
+
+  auto dummy = std::make_shared<DoNothingNode>();
+  auto delta = NumericMutable<double>::create(c, 1e-10);
+
+  // Initial state. Numerical diff not configured, so it should fail.
+  CHECK(f->getValue() == 4);
+  CHECK_THROWS_AS(f->derive(c, *x), bpp::Exception);
+
+  // Configure and test derivations
+  f->config.delta = delta;
+  f->config.type = NumericalDerivativeType::ThreePoints;
+  auto df_ddummy = f->deriveAsValue(c, *dummy);
+  auto df_dx = f->deriveAsValue(c, *x);
+  auto df_dy = f->deriveAsValue(c, *y);
+  CHECK(df_ddummy->getValue() == 0);
+  CHECK(df_dx->getValue() == 3 * 2 * x->getValue());
+  CHECK(df_dy->getValue() == 1 * 2 * y->getValue());
+
+  // TODO test second order derivatives
+  // TODO test g = OpaqueTestFunction(x,x)
+
+  dotOutput("numerical_derivation", {f.get(), df_ddummy.get(), df_dx.get(), df_dy.get()});
+}
+
 int main(int argc, char** argv)
 {
-  doctest::Context context;
-
   const std::string keyword = "dot_output";
   for (int i = 1; i < argc; ++i)
   {
@@ -459,7 +544,7 @@ int main(int argc, char** argv)
       enableDotOutput = true;
     }
   }
-
+  doctest::Context context;
   context.applyCommandLine(argc, argv);
   return context.run();
 }

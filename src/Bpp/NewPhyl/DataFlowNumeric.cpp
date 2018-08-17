@@ -62,6 +62,10 @@ namespace dataflow {
 		throw Exception (prettyTypeName (contextNodeType) +
 		                 ": does not support derivation for the delta dependency");
 	}
+	void failureNumericalDerivationNotConfigured () {
+		throw Exception ("Numerical derivation of expression is not configured: define the node "
+		                 "providing the delta value, and choose a computation type.");
+	}
 
 	// Precompiled instantiations of numeric nodes
 	template class ConstantZero<double>;
