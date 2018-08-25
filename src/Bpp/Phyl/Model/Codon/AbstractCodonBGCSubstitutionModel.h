@@ -93,7 +93,6 @@ namespace bpp
      *
      * @param pgencode the genetic code
      * @param prefix the Namespace
-     * @param statemap the statemap
      */
     AbstractCodonBGCSubstitutionModel(
       const GeneticCode* pgencode,
