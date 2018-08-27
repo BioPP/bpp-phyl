@@ -72,7 +72,7 @@ namespace bpp
       Exception("PhyloNodeException: " + text + "(id:" + TextTools::toString(nodeId) + ")"),
       nodeId_(nodeId) {}
 
-    virtual ~PhyloNodeException() throw () {}
+    virtual ~PhyloNodeException() {}
 
   public:
     /**
@@ -129,7 +129,7 @@ namespace bpp
       return *this;
     }
 
-    virtual ~PhyloNodePException() throw () {}
+    virtual ~PhyloNodePException() {}
 
   public:
     /**
@@ -188,7 +188,7 @@ namespace bpp
       PhyloNodePException("Property not found: " + propertyName + ". " + text, nodeId),
       propertyName_(propertyName) {}
 
-    virtual ~PhyloNodePropertyNotFoundException() throw () {}
+    virtual ~PhyloNodePropertyNotFoundException() {}
 
   public:
     /**
@@ -225,7 +225,7 @@ namespace bpp
      */
     PhyloNodeNotFoundException(const std::string& text, int id);
 
-    virtual ~PhyloNodeNotFoundException() throw () {}
+    virtual ~PhyloNodeNotFoundException() {}
 
   public:
     /**
@@ -255,7 +255,7 @@ namespace bpp
       Exception("PhyloBranchException: " + text + "(id:" + TextTools::toString(branchId) + ")"),
       branchId_(branchId) {}
 
-    virtual ~PhyloBranchException() throw () {}
+    virtual ~PhyloBranchException() {}
 
   public:
     /**
@@ -312,7 +312,7 @@ namespace bpp
       return *this;
     }
 
-    virtual ~PhyloBranchPException() throw () {}
+    virtual ~PhyloBranchPException() {}
 
   public:
     /**
@@ -373,7 +373,7 @@ namespace bpp
       PhyloBranchPException("Property not found: " + propertyName + ". " + text, branchId),
       propertyName_(propertyName) {}
 
-    virtual ~PhyloBranchPropertyNotFoundException() throw () {}
+    virtual ~PhyloBranchPropertyNotFoundException() {}
 
   public:
     /**
@@ -410,7 +410,7 @@ namespace bpp
      */
     PhyloBranchNotFoundException(const std::string& text, int id);
 
-    virtual ~PhyloBranchNotFoundException() throw () {}
+    virtual ~PhyloBranchNotFoundException() {}
 
   public:
     /**
@@ -451,7 +451,7 @@ namespace bpp
       return *this;
     }
 
-    virtual ~PhyloTreeException() throw () {}
+    virtual ~PhyloTreeException() {}
 
   public:
     /**
@@ -477,7 +477,7 @@ namespace bpp
      */
     UnrootedPhyloTreeException(const std::string& text, const PhyloTree* tree = 0);
 
-    virtual ~UnrootedPhyloTreeException() throw () {}
+    virtual ~UnrootedPhyloTreeException() {}
   };
 
 } // end of namespace bpp.

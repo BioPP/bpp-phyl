@@ -102,7 +102,7 @@ void SENCA::setNamespace(const std::string& st)
 
 void SENCA::setFreq(map<int,double>& frequencies)
 { 
-   AbstractCodonSubstitutionModel::setFreq(frequencies);
+   AbstractSubstitutionModel::setFreq(frequencies);
    const Vdouble& freq1 = AbstractCodonSubstitutionModel::getFrequencies();
    const Alphabet* alphabet = getAlphabet();
 

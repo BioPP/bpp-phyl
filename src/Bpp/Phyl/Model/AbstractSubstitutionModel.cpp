@@ -87,6 +87,7 @@ AbstractSubstitutionModel::AbstractSubstitutionModel(const Alphabet* alpha, cons
 
 void AbstractSubstitutionModel::updateMatrices()
 {
+
   // Compute eigen values and vectors:
   if (enableEigenDecomposition())
   {
@@ -100,7 +101,17 @@ void AbstractSubstitutionModel::updateMatrices()
 
     for (size_t i = 0; i < salph; i++)
     {
-      if (abs(generator_(i, i)) < NumConstants::TINY())
+      bool flag=(abs(generator_(i, i)) < NumConstants::TINY());
+
+      if (flag)
+        for (size_t j = 0; j < salph; j++)
+          if (abs(generator_(j, i)) >= NumConstants::TINY())
+          {
+            flag=false;
+            break;
+          }
+
+      if (flag)
       {
         nbStop++;
         vnull[i]=true;
@@ -206,14 +217,20 @@ void AbstractSubstitutionModel::updateMatrices()
       // looking for the vector of 0 eigenvalues
 
       vector<size_t> vNullEv;
-      for (size_t i = 0; i< salph - nbStop; i++)
-        if ((abs(eigenValues_[i]) < NumConstants::SMALL()) && (abs(iEigenValues_[i]) < NumConstants::SMALL()))
-          vNullEv.push_back(i);
+      double fact=0.1;
+      while (vNullEv.size()==0 && fact<1000)
+      {
+        fact*=10;
+        
+        for (size_t i = 0; i< salph - nbStop; i++)
+          if ((abs(eigenValues_[i]) < fact*NumConstants::SMALL()) && (abs(iEigenValues_[i]) < NumConstants::SMALL()))
+            vNullEv.push_back(i);
+      }
       
 
       // pb to find unique null eigenvalue      
       isNonSingular_=(vNullEv.size()==1);
-
+      
       size_t nulleigen;
       
       double val;
@@ -234,7 +251,7 @@ void AbstractSubstitutionModel::updateMatrices()
           {
             if (!vnull[i])
             {
-              if (abs(rightEigenVectors_(i, cnull) - val) > NumConstants::SMALL())
+              if (abs((rightEigenVectors_(i, cnull) - val)/val) > NumConstants::SMALL())
                 break;
             }
             i++;

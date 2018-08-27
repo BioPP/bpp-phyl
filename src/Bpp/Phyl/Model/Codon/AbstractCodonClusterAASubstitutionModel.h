@@ -1,7 +1,7 @@
 //
-// File: AbstractCodonAARateSubstitutionModel.h
+// File: AbstractCodonClusterAASubstitutionModel.h
 // Created by: Laurent Gueguen
-// Created on: jeudi 15 septembre 2011, à 21h 11
+// Created on: mercredi 22 août 2018, à 14h 11
 //
 
 /*
@@ -37,11 +37,12 @@
   knowledge of the CeCILL license and that you accept its terms.
 */
 
-#ifndef _ABSTRACTCODON_AARATE_SUBSTITUTIONMODEL_H_
-#define _ABSTRACTCODON_AARATE_SUBSTITUTIONMODEL_H_
+#ifndef _ABSTRACT_CODON_CLUSTER_AA_SUBSTITUTION_MODEL_H_
+#define _ABSTRACT_CODON_CLUSTER_AA_SUBSTITUTION_MODEL_H_
 
 #include "CodonSubstitutionModel.h"
-#include "../Protein/ProteinSubstitutionModel.h"
+#include <Bpp/Numeric/AbstractParameterAliasable.h>
+
 
 // From bpp-seq:
 #include <Bpp/Seq/GeneticCode/GeneticCode.h>
@@ -51,120 +52,110 @@ namespace bpp
 {
 /**
  * @brief Abstract class for modelling of non-synonymous and
- *  synonymous substitution rates in codon models, given an amino acid
- *  rate matrix (from a shared_ptr model).
- *
+ *  synonymous substitution rates in codon models, with AA clustered.
+ *  
  * @author Laurent Guéguen
  *
- * From the generator @f$g@f$ between amino-acids, the non-synonymous
- *  rate is multiplied with, if the coded amino-acids are @f$x@f$ and
- *  @f$y@f$, @f$\beta*g(x,y)@f$ with positive parameter \c "beta".
+ * Non-synonymous rates between amino-acids in the same cluster are
+ *  multiplied with @f$\omega_C@f$, and non-synonymous rates between
+ *  amino-acids in different clusters are multiplied with\omega_R@f$.
  *
- * If paramSynRate is true, the synonymous substitution rate is
- *  multiplied with @f$\gamma@f$ (with optional positive parameter \c
- *  "gamma"), else it is multiplied with 1.
+ *  Parameters names are \c "omegaR" and "omegaC".
  *
+ *  Clusters can be defined as a vector of assignations, amino-acids
+ *  ordered as 3-letters abbreviates ("Ala", "Arg", ...). Default
+ *  cluster splits according to polarity and size: "AGPV", "RQEHKWY",
+ *  "NDCST", "ILMF", which produces vector:
+ *
+ * (1,2,3,3,3,2,2,1,2,4,4,2,4,4,1,3,3,2,2,1)
+ *
+ * References:
+ *
+ * Sainudiin et al., 2005, Detecting Site-Specific Physicochemical
+ *    Selective Pressures: Applications to the Class I HLA of the
+ *    Human Major Histocompatibility Complex and the SRK of the Plant
+ *    Sporophytic Self-Incompatibility System, Journal of Molecular
+ *    Evolution 60(3):315-26
  *
  */
 
-  class AbstractCodonAARateSubstitutionModel :
+  class AbstractCodonClusterAASubstitutionModel :
     public virtual CoreCodonSubstitutionModel,
     public virtual AbstractParameterAliasable
   {
   private:
-    std::shared_ptr<ProteinSubstitutionModel> pAAmodel_;
-
     const GeneticCode* pgencode_;
+  
+    double omegaR_, omegaC_;
+
+    std::vector<uint> assign_;
     
-    double beta_;
-
-    double gamma_;
-
     std::shared_ptr<StateMap> stateMap_;
-    
+
   public:
     /**
-     * @brief Build a new AbstractCodonAARateSubstitutionModel object from
-     *  a pointer to NucleotideSubstitutionModel.
+     * @brief Build a new AbstractCodonClusterAASubstitutionModel object.
      *
-     * @param pmodel shared_ptr to an amino_acid generator
      * @param pgencode the genetic code
      * @param prefix the Namespace
-     * @param paramSynRate is true iff synonymous rate is parameterised
-     *       (default=false).
+     * @param assign an paramSynRate is true iff synonymous rate is parametrised
+     *       (default categories:   "AGPV", "RQEHKWY", "NDCST", "ILMF")
      */
     
-    AbstractCodonAARateSubstitutionModel(
-      std::shared_ptr<ProteinSubstitutionModel> pmodel,
+    AbstractCodonClusterAASubstitutionModel(
       const GeneticCode* pgencode,
       const std::string& prefix,
-      bool paramSynRate = false);
-  
+      const std::vector<uint>& assign = {1,2,3,3,3,2,2,1,2,4,4,2,4,4,1,3,3,2,2,1});
 
-    AbstractCodonAARateSubstitutionModel(const AbstractCodonAARateSubstitutionModel& model) :
+    AbstractCodonClusterAASubstitutionModel(const AbstractCodonClusterAASubstitutionModel& model) :
       AbstractParameterAliasable(model),
-      pAAmodel_(model.pAAmodel_),
       pgencode_(model.pgencode_),
-      beta_(model.beta_),
-      gamma_(model.gamma_),
+      omegaR_(model.omegaR_),
+      omegaC_(model.omegaC_),
+      assign_(model.assign_),
       stateMap_(model.stateMap_)
     {}
 
-    AbstractCodonAARateSubstitutionModel& operator=(
-      const AbstractCodonAARateSubstitutionModel& model)
+    AbstractCodonClusterAASubstitutionModel& operator=(
+      const AbstractCodonClusterAASubstitutionModel& model)
     {
       AbstractParameterAliasable::operator=(model);
-      pAAmodel_ = model.pAAmodel_;
       pgencode_ = model.pgencode_;
-      beta_ = model.beta_;
-      gamma_ = model.gamma_;
+      omegaR_ = model.omegaR_;
+      omegaC_ = model.omegaC_;
+      assign_ = model.assign_;
       stateMap_ = model.stateMap_;
       
       return *this;
     }
 
-    AbstractCodonAARateSubstitutionModel* clone() const
+    AbstractCodonClusterAASubstitutionModel* clone() const
     {
-      return new AbstractCodonAARateSubstitutionModel(*this);
+      return new AbstractCodonClusterAASubstitutionModel(*this);
     }
-
-    virtual ~AbstractCodonAARateSubstitutionModel() {}
+  
+    virtual ~AbstractCodonClusterAASubstitutionModel() {}
 
   public:
     void fireParameterChanged(const ParameterList& parameters);
 
     double getCodonsMulRate(size_t i, size_t j) const;
 
-    void setNamespace(const std::string& prefix)
-    {
-      AbstractParameterAliasable::setNamespace(prefix);
-      pAAmodel_->setNamespace(prefix + pAAmodel_->getNamespace());
-    }
-
-    /*
-     * @brief links to a new AA model
-     *
-     */
-    
-    void setAAModel(std::shared_ptr<ProteinSubstitutionModel> model)
-    {
-      pAAmodel_=model;
-    }
-
-    const std::shared_ptr<ProteinSubstitutionModel>  getAAModel() const
-    {
-      return pAAmodel_;
-    }
-
     const FrequenciesSet* getFrequenciesSet() const 
     {
       return 0;
     }
 
+    const std::vector<uint>& getAssign() const
+    {
+      return assign_;
+    }
+    
     void setFreq(std::map<int, double>& frequencies){};
+    
   };
 
 } // end of namespace bpp.
 
-#endif // _ABSTRACTCODON_AARATE_SUBSTITUTIONMODEL_H_
+#endif  
 

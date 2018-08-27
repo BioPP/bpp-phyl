@@ -159,7 +159,7 @@ namespace bpp
 
   public:    
     SimpleSubstitutionProcessSequenceSimulator(
-      const SubstitutionProcess& process) throw (Exception);
+      const SubstitutionProcess& process);
 
     virtual ~SimpleSubstitutionProcessSequenceSimulator()
     {

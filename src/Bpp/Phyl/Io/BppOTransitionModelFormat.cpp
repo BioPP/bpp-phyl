@@ -142,7 +142,7 @@ TransitionModel* BppOTransitionModelFormat::readTransitionModel(
 
     delete nestedModel;
 
-    // update only for trnasition models
+    // update only for transition models
     updateParameters_(model.get(), args);
     if (parseArguments)
       initialize_(*model, data);

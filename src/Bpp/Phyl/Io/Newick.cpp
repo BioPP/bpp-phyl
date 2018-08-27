@@ -237,7 +237,7 @@ AbstractITree::Element Newick::getElement(const string& elt) const
       }
     }
   }
-  catch (exception e)
+  catch (exception& e)
   {
     throw IOException("Bad tree description: " + elt);
   }

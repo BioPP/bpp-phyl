@@ -328,6 +328,12 @@ namespace bpp
     const FrequenciesSet* getFrequenciesSet() const {
       return ((AbstractSubstitutionModel*)getNestedModel())->getFrequenciesSet();
     }
+
+    void setFreq(std::map<int, double>& frequencies)
+    {
+      ((AbstractSubstitutionModel*)getNestedModel())->setFreq(frequencies);
+    }
+
   };
 
 

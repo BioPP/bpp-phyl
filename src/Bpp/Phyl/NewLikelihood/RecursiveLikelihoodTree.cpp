@@ -184,7 +184,7 @@ void RecursiveLikelihoodTree::initLikelihoodsWithoutPatterns_(const RecursiveLik
     {
       posSeq=sequences.getSequencePosition(tree.getNode(node->getId())->getName());
     }
-    catch (SequenceNotFoundException snfe)
+    catch (SequenceNotFoundException& snfe)
     {
       throw SequenceNotFoundException("RecursiveLikelihoodTree::initTreelikelihoods. Leaf name in tree not found in site container: ", tree.getNode(node->getId())->getName());
     }
@@ -281,7 +281,7 @@ SitePatterns* RecursiveLikelihoodTree::initLikelihoodsWithPatterns_(const Recurs
     {
       posSeq=subSequences->getSequencePosition(tree.getNode(node->getId())->getName());
     }
-    catch (SequenceNotFoundException snfe)
+    catch (SequenceNotFoundException& snfe)
     {
       throw SequenceNotFoundException("RecursiveLikelihoodTree::initTreelikelihoodsWithPatterns_. Leaf name in tree not found in site container: ", tree.getNode(node->getId())->getName());
     }

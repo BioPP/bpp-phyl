@@ -54,8 +54,7 @@ using namespace std;
 
 /******************************************************************************/
 
-SimpleSubstitutionProcessSequenceSimulator::SimpleSubstitutionProcessSequenceSimulator(
-  const SubstitutionProcess& process) throw (Exception) :
+SimpleSubstitutionProcessSequenceSimulator::SimpleSubstitutionProcessSequenceSimulator(const SubstitutionProcess& process) :
   process_(&process),
   alphabet_(process_->getStateMap().getAlphabet()),
   supportedStates_(process_->getStateMap().getAlphabetStates()),

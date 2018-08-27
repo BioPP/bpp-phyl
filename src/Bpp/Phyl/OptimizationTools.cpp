@@ -259,7 +259,6 @@ unsigned int OptimizationTools::optimizeNumericalParameters(
   unsigned int verbose,
   const std::string& optMethodDeriv,
   const std::string& optMethodModel)
-throw (Exception)
 {
   DerivableSecondOrder* f = lik;
   ParameterList pl = parameters;
@@ -456,7 +455,6 @@ unsigned int OptimizationTools::optimizeNumericalParameters2(
   bool useClock,
   unsigned int verbose,
   const std::string& optMethodDeriv)
-throw (Exception)
 {
   DerivableSecondOrder* f = lik;
   ParameterList pl = parameters;

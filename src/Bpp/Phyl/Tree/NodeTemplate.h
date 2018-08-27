@@ -144,9 +144,9 @@ namespace bpp
 				
     NodeTemplate<NodeInfos>* removeFather() { NodeTemplate<NodeInfos>* f = dynamic_cast<NodeTemplate<NodeInfos> *>(father_); father_ = 0; return f; }
 
-    const NodeTemplate<NodeInfos>* getSon(size_t i) const throw (IndexOutOfBoundsException) { return dynamic_cast<NodeTemplate<NodeInfos> *>(sons_[i]); }
+    const NodeTemplate<NodeInfos>* getSon(size_t i) const { return dynamic_cast<NodeTemplate<NodeInfos> *>(sons_[i]); }
 				
-    NodeTemplate<NodeInfos>* getSon(size_t i) throw (IndexOutOfBoundsException) { return dynamic_cast<NodeTemplate<NodeInfos> *>(sons_[i]); }
+    NodeTemplate<NodeInfos>* getSon(size_t i) { return dynamic_cast<NodeTemplate<NodeInfos> *>(sons_[i]); }
 				
     std::vector<const NodeTemplate<NodeInfos>*> getNeighbors() const
     {

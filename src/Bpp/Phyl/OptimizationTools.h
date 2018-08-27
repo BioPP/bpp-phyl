@@ -362,8 +362,7 @@ public:
       bool reparametrization            = false,
       unsigned int verbose              = 1,
       const std::string& optMethodDeriv = OPTIMIZATION_NEWTON,
-      const std::string& optMethodModel = OPTIMIZATION_BRENT)
-    throw (Exception);
+      const std::string& optMethodModel = OPTIMIZATION_BRENT);
   
   /**
    * @brief Optimize numerical parameters (branch length, substitution model & rate distribution) of a TreeLikelihood function.
@@ -411,8 +410,7 @@ public:
       bool reparametrization             = false,
       bool useClock                      = false,
       unsigned int verbose               = 1,
-      const std::string& optMethodDeriv  = OPTIMIZATION_NEWTON)
-    throw (Exception);
+      const std::string& optMethodDeriv  = OPTIMIZATION_NEWTON);
 
   /**
    * @brief Optimize branch lengths parameters of a TreeLikelihood function.

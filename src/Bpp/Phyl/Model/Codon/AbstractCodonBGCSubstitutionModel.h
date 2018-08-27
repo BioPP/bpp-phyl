@@ -93,7 +93,6 @@ namespace bpp
      *
      * @param pgencode the genetic code
      * @param prefix the Namespace
-     * @param statemap the statemap
      */
     AbstractCodonBGCSubstitutionModel(
       const GeneticCode* pgencode,
@@ -136,6 +135,7 @@ namespace bpp
       return 0;
     }
 
+    void setFreq(std::map<int, double>& frequencies){};
   };
 
 } // end of namespace bpp.

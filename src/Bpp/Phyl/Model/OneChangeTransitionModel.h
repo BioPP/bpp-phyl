@@ -66,7 +66,6 @@ namespace bpp
       AbstractFromSubstitutionModelTransitionModel(fmsm)
     {
     }
-    
 
     OneChangeTransitionModel& operator=(const OneChangeTransitionModel& fmsm)
     {

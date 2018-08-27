@@ -136,7 +136,7 @@ void DRASRTreeLikelihoodData::initLikelihoods(const Node* node, const AlignedVal
     {
       posSeq=sequences.getSequencePosition(node->getName());
     }
-    catch (SequenceNotFoundException snfe)
+    catch (SequenceNotFoundException& snfe)
     {
       throw SequenceNotFoundException("DRASRTreeLikelihoodData::initTreelikelihoods. Leaf name in tree not found in site container: ", (node->getName()));
     }
@@ -241,7 +241,7 @@ SitePatterns* DRASRTreeLikelihoodData::initLikelihoodsWithPatterns(const Node* n
     {
       posSeq=subSequences->getSequencePosition(node->getName());
     }
-    catch (SequenceNotFoundException snfe)
+    catch (SequenceNotFoundException& snfe)
     {
       throw SequenceNotFoundException("HomogeneousTreeLikelihood::initTreelikelihoodsWithPatterns. Leaf name in tree not found in site container: ", (node->getName()));
     }

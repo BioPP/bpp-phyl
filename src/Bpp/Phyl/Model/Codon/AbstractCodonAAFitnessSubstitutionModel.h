@@ -56,7 +56,10 @@ namespace bpp
    * an amino acid @f$i@f$ has a fitness @f$\phi_i@f$ and another one
    * (@f$j@f$) has a fitness @f$\phi_j@f$, the substitution rate from
    * codon @f$i@f$ to codon @f$j@f$ is multiplied by
-   * \f[-\frac{\log(\frac{\phi_i}{\phi_j})}{1-\frac{\phi_i}{\phi_j}}\f]
+   * \f[-\frac{\log\left((\frac{\phi_i}{\phi_j})^{s}\right)}{1-\left(\frac{\phi_i}{\phi_j}\right)^{s}}\f]
+   *
+   * where @f$s@f$ is a positive Ns coefficient (default value:
+   * 1).
    *
    * The set of fitnesses is implemented through a Protein
    * FrequenciesSet object. The parameters are named \c
@@ -75,11 +78,18 @@ namespace bpp
   
     std::string fitName_;
 
-    std::unique_ptr<StateMap> stateMap_;
+    std::shared_ptr<StateMap> stateMap_;
 
     const StateMap* protStateMap_;
+    
+    /**
+     * @brief The Ns of the model (default: 1),  The generator (and all
+     * its vectorial components) is independent of the rate, since it
+     * should be normalized.
+     */ 
+    double Ns_;
 
-public:
+  public:
     AbstractCodonAAFitnessSubstitutionModel(
       FrequenciesSet* pfitset,
       const GeneticCode* pgencode,
@@ -90,8 +100,9 @@ public:
       pfitset_(model.pfitset_->clone()),
       pgencode_(model.pgencode_),
       fitName_(model.fitName_),
-      stateMap_(model.stateMap_->clone()),
-      protStateMap_(&pfitset_->getStateMap())
+      stateMap_(model.stateMap_),
+      protStateMap_(&pfitset_->getStateMap()),
+      Ns_(1)
     {}
 
     AbstractCodonAAFitnessSubstitutionModel& operator=(const AbstractCodonAAFitnessSubstitutionModel& model){
@@ -99,8 +110,9 @@ public:
       pfitset_.reset(model.pfitset_->clone());
       pgencode_ = model.pgencode_;
       fitName_ = model.fitName_ ;
-      stateMap_.reset(model.stateMap_->clone()),
+      stateMap_ = model.stateMap_;
       protStateMap_ = &pfitset_->getStateMap();
+      Ns_ = 1;
       
       return *this;
     }
@@ -132,6 +144,12 @@ public:
     {
       return 0;
     }
+
+    void addNsParameter()
+    {
+      addParameter_(new Parameter("Ns", 1, new IntervalConstraint(NumConstants::MILLI(), 100, true, true), true));
+    }
+
 
   };
 } // end of namespace bpp
