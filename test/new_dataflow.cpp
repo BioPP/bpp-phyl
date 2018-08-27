@@ -484,7 +484,9 @@ struct OpaqueTestFunction : public Value<double>
           // The function supports a general case for sub-expressions.
           NodeRefVec newDeps = this->dependencies();
           newDeps[i] = std::move(newDep);
-          return Self::create(std::move(newDeps));
+          auto newNode = Self::create(std::move(newDeps));
+          newNode->config = this->config; // Duplicate config
+          return newNode;
         };
         auto df_dxi =
           generateNumericalDerivative<double, double>(c, config, this->dependency(i), dim, dim, buildFWithNewXi);
@@ -512,7 +514,7 @@ TEST_CASE("numerical_derivation")
   auto f = OpaqueTestFunction::create({x, y});
 
   auto dummy = std::make_shared<DoNothingNode>();
-  auto delta = NumericMutable<double>::create(c, 1e-10);
+  auto delta = NumericMutable<double>::create(c, 0.0001);
 
   // Initial state. Numerical diff not configured, so it should fail.
   CHECK(f->getValue() == 4);
@@ -525,13 +527,21 @@ TEST_CASE("numerical_derivation")
   auto df_dx = f->deriveAsValue(c, *x);
   auto df_dy = f->deriveAsValue(c, *y);
   CHECK(df_ddummy->getValue() == 0);
-  CHECK(df_dx->getValue() == 3 * 2 * x->getValue());
-  CHECK(df_dy->getValue() == 1 * 2 * y->getValue());
+  CHECK(df_dx->getValue() == doctest::Approx(3 * 2 * x->getValue()));
+  CHECK(df_dy->getValue() == doctest::Approx(1 * 2 * y->getValue()));
 
-  // TODO test second order derivatives
-  // TODO test g = OpaqueTestFunction(x,x)
+  // Second order
+  auto d2f_dx2 = df_dx->deriveAsValue(c, *x);
+  CHECK(d2f_dx2->getValue() == doctest::Approx(3 * 2));
 
-  dotOutput("numerical_derivation", {f.get(), df_ddummy.get(), df_dx.get(), df_dy.get()});
+  // Multiple dependencies
+  auto g = OpaqueTestFunction::create({x, x});
+  g->config.delta = delta;
+  g->config.type = NumericalDerivativeType::ThreePoints;
+  auto dg_dx = g->deriveAsValue(c, *x);
+  CHECK(dg_dx->getValue() == doctest::Approx(4 * 2 * x->getValue()));
+
+  dotOutput("numerical_derivation", {f.get(), df_ddummy.get(), df_dx.get(), df_dy.get(), d2f_dx2.get()});
 }
 
 int main(int argc, char** argv)
