@@ -145,7 +145,22 @@ namespace dataflow {
 			n->unregisterNode (this);
 	}
 
-	std::string Node::description () const { return prettyTypeName (typeid (*this)); }
+	std::string Node::description () const {
+		auto replaceAll = [](std::string & str, const std::string & pattern,
+		                     const std::string & replacement) {
+			std::string::size_type i = str.find (pattern);
+			while (i != std::string::npos) {
+				str.replace (i, pattern.size (), replacement);
+				i = str.find (pattern, i + replacement.size ());
+			}
+		};
+		std::string nodeType = prettyTypeName (typeid (*this));
+    // Shorten displayed name by removing namespaces.
+		replaceAll (nodeType, "bpp::dataflow::", "");
+		replaceAll (nodeType, "Eigen::", "");
+		replaceAll (nodeType, "std::", "");
+		return nodeType;
+	}
 
 	std::string Node::debugInfo () const { return {}; }
 
