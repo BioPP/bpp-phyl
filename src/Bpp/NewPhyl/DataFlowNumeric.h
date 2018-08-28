@@ -259,7 +259,6 @@ namespace numeric {
  *
  * TODO what of rebuild ?
  * TODO numerical simplification: all deps constant => return constant ?
- * TODO add nodes from Numerical derivation
  */
 namespace dataflow {
 	// Error utils
@@ -539,11 +538,9 @@ namespace dataflow {
 			// Select node
 			if (std::is_same<R, F>::value) {
 				return convertRef<Value<R>> (deps[0]);
-			} else if (deps[0]->hasNumericalProperty (NumericalProperty::Constant) &&
-			           deps[0]->hasNumericalProperty (NumericalProperty::Zero)) {
+			} else if (deps[0]->isConstantAnd (NumericalProperty::Zero)) {
 				return ConstantZero<R>::create (c, dim);
-			} else if (deps[0]->hasNumericalProperty (NumericalProperty::Constant) &&
-			           deps[0]->hasNumericalProperty (NumericalProperty::One)) {
+			} else if (deps[0]->isConstantAnd (NumericalProperty::One)) {
 				return ConstantOne<R>::create (c, dim);
 			} else {
 				return std::make_shared<Self> (std::move (deps), dim);
@@ -601,15 +598,13 @@ namespace dataflow {
 			checkNthDependencyIsValue<T0> (typeid (Self), deps, 0);
 			checkNthDependencyIsValue<T1> (typeid (Self), deps, 1);
 			// Select node implementation
-			bool dep_0_zero = deps[0]->hasNumericalProperty (NumericalProperty::Constant) &&
-			                  deps[0]->hasNumericalProperty (NumericalProperty::Zero);
-			bool dep_1_zero = deps[1]->hasNumericalProperty (NumericalProperty::Constant) &&
-			                  deps[1]->hasNumericalProperty (NumericalProperty::Zero);
-			if (dep_0_zero && dep_1_zero) {
+			bool zeroDep0 = deps[0]->isConstantAnd (NumericalProperty::Zero);
+			bool zeroDep1 = deps[1]->isConstantAnd (NumericalProperty::Zero);
+			if (zeroDep0 && zeroDep1) {
 				return ConstantZero<R>::create (c, dim);
-			} else if (dep_0_zero && !dep_1_zero) {
+			} else if (zeroDep0 && !zeroDep1) {
 				return Convert<R, T1>::create (c, {deps[1]}, dim);
-			} else if (!dep_0_zero && dep_1_zero) {
+			} else if (!zeroDep0 && zeroDep1) {
 				return Convert<R, T0>::create (c, {deps[0]}, dim);
 			} else {
 				return std::make_shared<Self> (std::move (deps), dim);
@@ -667,10 +662,8 @@ namespace dataflow {
 			checkDependenciesNotNull (typeid (Self), deps);
 			checkDependencyRangeIsValue<T> (typeid (Self), deps, 0, deps.size ());
 			// Remove 0s from deps
-			removeDependenciesIf (deps, [](const NodeRef & ref) {
-				return ref->hasNumericalProperty (NumericalProperty::Constant) &&
-				       ref->hasNumericalProperty (NumericalProperty::Zero);
-			});
+			removeDependenciesIf (
+			    deps, [](const NodeRef & dep) { return dep->isConstantAnd (NumericalProperty::Zero); });
 			// Select node implementation
 			if (deps.size () == 0) {
 				return ConstantZero<R>::create (c, dim);
@@ -739,22 +732,19 @@ namespace dataflow {
 			checkNthDependencyIsValue<T0> (typeid (Self), deps, 0);
 			checkNthDependencyIsValue<T1> (typeid (Self), deps, 1);
 			// Return 0 if any 0.
-			if (std::any_of (deps.begin (), deps.end (), [](const NodeRef & ref) {
-				    return ref->hasNumericalProperty (NumericalProperty::Constant) &&
-				           ref->hasNumericalProperty (NumericalProperty::Zero);
+			if (std::any_of (deps.begin (), deps.end (), [](const NodeRef & dep) {
+				    return dep->isConstantAnd (NumericalProperty::Zero);
 			    })) {
 				return ConstantZero<R>::create (c, dim);
 			}
 			// Select node implementation
-			bool dep_0_one = deps[0]->hasNumericalProperty (NumericalProperty::Constant) &&
-			                 deps[0]->hasNumericalProperty (NumericalProperty::One);
-			bool dep_1_one = deps[1]->hasNumericalProperty (NumericalProperty::Constant) &&
-			                 deps[1]->hasNumericalProperty (NumericalProperty::One);
-			if (dep_0_one && dep_1_one) {
+			bool oneDep0 = deps[0]->isConstantAnd (NumericalProperty::One);
+			bool oneDep1 = deps[1]->isConstantAnd (NumericalProperty::One);
+			if (oneDep0 && oneDep1) {
 				return ConstantOne<R>::create (c, dim);
-			} else if (dep_0_one && !dep_1_one) {
+			} else if (oneDep0 && !oneDep1) {
 				return Convert<R, T1>::create (c, {deps[1]}, dim);
-			} else if (!dep_0_one && dep_1_one) {
+			} else if (!oneDep0 && oneDep1) {
 				return Convert<R, T0>::create (c, {deps[0]}, dim);
 			} else {
 				return std::make_shared<Self> (std::move (deps), dim);
@@ -813,17 +803,14 @@ namespace dataflow {
 			checkDependenciesNotNull (typeid (Self), deps);
 			checkDependencyRangeIsValue<T> (typeid (Self), deps, 0, deps.size ());
 			// If there is a 0 return 0.
-			if (std::any_of (deps.begin (), deps.end (), [](const NodeRef & ref) {
-				    return ref->hasNumericalProperty (NumericalProperty::Constant) &&
-				           ref->hasNumericalProperty (NumericalProperty::Zero);
+			if (std::any_of (deps.begin (), deps.end (), [](const NodeRef & dep) {
+				    return dep->isConstantAnd (NumericalProperty::Zero);
 			    })) {
 				return ConstantZero<R>::create (c, dim);
 			}
 			// Remove 1s from deps
-			removeDependenciesIf (deps, [](const NodeRef & ref) {
-				return ref->hasNumericalProperty (NumericalProperty::Constant) &&
-				       ref->hasNumericalProperty (NumericalProperty::One);
-			});
+			removeDependenciesIf (
+			    deps, [](const NodeRef & dep) { return dep->isConstantAnd (NumericalProperty::One); });
 			// Select node implementation
 			if (deps.size () == 0) {
 				return ConstantOne<R>::create (c, dim);
@@ -887,8 +874,7 @@ namespace dataflow {
 			checkDependencyVectorSize (typeid (Self), deps, 1);
 			checkNthDependencyIsValue<T> (typeid (Self), deps, 0);
 			// Select node
-			if (deps[0]->hasNumericalProperty (NumericalProperty::Constant) &&
-			    deps[0]->hasNumericalProperty (NumericalProperty::Zero)) {
+			if (deps[0]->isConstantAnd (NumericalProperty::Zero)) {
 				return ConstantZero<T>::create (c, dim);
 			} else {
 				return std::make_shared<Self> (std::move (deps), dim);
@@ -937,8 +923,7 @@ namespace dataflow {
 			checkDependencyVectorSize (typeid (Self), deps, 1);
 			checkNthDependencyIsValue<T> (typeid (Self), deps, 0);
 			// Select node
-			if (deps[0]->hasNumericalProperty (NumericalProperty::Constant) &&
-			    deps[0]->hasNumericalProperty (NumericalProperty::One)) {
+			if (deps[0]->isConstantAnd (NumericalProperty::One)) {
 				return ConstantOne<T>::create (c, dim);
 			} else {
 				return std::make_shared<Self> (std::move (deps), dim);
@@ -995,8 +980,7 @@ namespace dataflow {
 			checkDependencyVectorSize (typeid (Self), deps, 1);
 			checkNthDependencyIsValue<T> (typeid (Self), deps, 0);
 			// Select node implementation
-			if (exponent == 0. || (deps[0]->hasNumericalProperty (NumericalProperty::Constant) &&
-			                       deps[0]->hasNumericalProperty (NumericalProperty::One))) {
+			if (exponent == 0. || deps[0]->isConstantAnd (NumericalProperty::One)) {
 				// pow (x, exponent) == 1
 				using namespace numeric;
 				return NumericConstant<T>::create (c, factor * one (dim));
@@ -1071,11 +1055,8 @@ namespace dataflow {
 			checkNthDependencyIsValue<T0> (typeid (Self), deps, 0);
 			checkNthDependencyIsValue<T1> (typeid (Self), deps, 1);
 			// Select node
-			bool dep_0_zero = deps[0]->hasNumericalProperty (NumericalProperty::Constant) &&
-			                  deps[0]->hasNumericalProperty (NumericalProperty::Zero);
-			bool dep_1_zero = deps[1]->hasNumericalProperty (NumericalProperty::Constant) &&
-			                  deps[1]->hasNumericalProperty (NumericalProperty::Zero);
-			if (dep_0_zero || dep_1_zero) {
+			if (deps[0]->isConstantAnd (NumericalProperty::Zero) &&
+			    deps[1]->isConstantAnd (NumericalProperty::Zero)) {
 				return ConstantZero<double>::create (c);
 			} else {
 				return std::make_shared<Self> (std::move (deps));
@@ -1128,24 +1109,21 @@ namespace dataflow {
 			checkNthDependencyIsValue<T0> (typeid (Self), deps, 0);
 			checkNthDependencyIsValue<T1> (typeid (Self), deps, 1);
 			// Return 0 if any 0.
-			if (std::any_of (deps.begin (), deps.end (), [](const NodeRef & ref) {
-				    return ref->hasNumericalProperty (NumericalProperty::Constant) &&
-				           ref->hasNumericalProperty (NumericalProperty::Zero);
+			if (std::any_of (deps.begin (), deps.end (), [](const NodeRef & dep) {
+				    return dep->isConstantAnd (NumericalProperty::Zero);
 			    })) {
 				return ConstantZero<R>::create (c, dim);
 			}
 			// Select node implementation
-			bool dep_0_identity = deps[0]->hasNumericalProperty (NumericalProperty::Constant) &&
-			                      deps[0]->hasNumericalProperty (NumericalProperty::Identity);
-			bool dep_1_identity = deps[1]->hasNumericalProperty (NumericalProperty::Constant) &&
-			                      deps[1]->hasNumericalProperty (NumericalProperty::Identity);
-			if (dep_0_identity && dep_1_identity) {
+			bool identityDep0 = deps[0]->isConstantAnd (NumericalProperty::Identity);
+			bool identityDep1 = deps[1]->isConstantAnd (NumericalProperty::Identity);
+			if (identityDep0 && identityDep1) {
 				// No specific class for Identity
 				using namespace numeric;
 				return NumericConstant<R>::create (c, identity (dim));
-			} else if (dep_0_identity && !dep_1_identity) {
+			} else if (identityDep0 && !identityDep1) {
 				return Convert<R, T1>::create (c, {deps[1]}, dim);
-			} else if (!dep_0_identity && dep_1_identity) {
+			} else if (!identityDep0 && identityDep1) {
 				return Convert<R, T0>::create (c, {deps[0]}, dim);
 			} else {
 				return std::make_shared<Self> (std::move (deps), dim);
@@ -1217,8 +1195,7 @@ namespace dataflow {
 				return Self::create (c, NodeRefVec{x->dependencies ()}, n + xAsShiftDelta->getN (), dim);
 			}
 			// Not a merge, select node implementation.
-			if (n == 0 || (delta->hasNumericalProperty (NumericalProperty::Constant) &&
-			               delta->hasNumericalProperty (NumericalProperty::Zero))) {
+			if (n == 0 || delta->isConstantAnd (NumericalProperty::Zero)) {
 				return convertRef<Value<T>> (x);
 			} else {
 				return std::make_shared<Self> (std::move (deps), n, dim);
@@ -1290,8 +1267,7 @@ namespace dataflow {
 			                                     std::vector<double> && coeffs) -> ValueRef<T> {
 				// Clean deps : remove constant 0, of deps with a 0 factor.
 				for (std::size_t i = 0; i < coeffs.size ();) {
-					if (coeffs[i] == 0. || (deps[i + 1]->hasNumericalProperty (NumericalProperty::Constant) &&
-					                        deps[i + 1]->hasNumericalProperty (NumericalProperty::Zero))) {
+					if (coeffs[i] == 0. || deps[i + 1]->isConstantAnd (NumericalProperty::Zero)) {
 						coeffs.erase (coeffs.begin () + std::ptrdiff_t (i));
 						deps.erase (deps.begin () + std::ptrdiff_t (i + 1));
 					} else {

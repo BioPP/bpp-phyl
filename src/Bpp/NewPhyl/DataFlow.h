@@ -170,6 +170,10 @@ namespace dataflow {
 		 */
 		virtual bool hasNumericalProperty (NumericalProperty prop) const;
 
+		bool isConstantAnd (NumericalProperty prop) const {
+			return hasNumericalProperty (NumericalProperty::Constant) && hasNumericalProperty (prop);
+		}
+
 		/** @brief Returns a node computing d(this_node_expression)/d(node_expression).
 		 *
 		 * The expression represented by 'node' is considered as a variable.
