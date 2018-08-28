@@ -1272,6 +1272,7 @@ namespace dataflow {
 	 * Weighted sum of dependencies, multiplied by a double.
 	 * Used to combine f(x+n*delta) values in numerical derivation.
 	 * Lambda represents the 1/delta^n for a nth-order numerical derivation.
+	 * Note that in the whole class, coeffs[i] is the coefficient of deps[i + 1] !
 	 */
 	template <typename T> class CombineDeltaShifted : public Value<T> {
 	public:
@@ -1284,9 +1285,69 @@ namespace dataflow {
 			checkDependencyVectorSize (typeid (Self), deps, 1 + coeffs.size ());
 			checkNthDependencyIsValue<double> (typeid (Self), deps, 0);
 			checkDependencyRangeIsValue<T> (typeid (Self), deps, 1, deps.size ());
-			// TODO merge with dependencies if CombineDeltaShifted with same delta.
-			// TODO remove constant 0, or stuff with 0 factor.
-			return std::make_shared<Self> (std::move (deps), n, std::move (coeffs), dim);
+			//
+			auto cleanAndCreateNode = [&c, &dim](NodeRefVec && deps, int n,
+			                                     std::vector<double> && coeffs) -> ValueRef<T> {
+				// Clean deps : remove constant 0, of deps with a 0 factor.
+				for (std::size_t i = 0; i < coeffs.size ();) {
+					if (coeffs[i] == 0. || (deps[i + 1]->hasNumericalProperty (NumericalProperty::Constant) &&
+					                        deps[i + 1]->hasNumericalProperty (NumericalProperty::Zero))) {
+						coeffs.erase (coeffs.begin () + std::ptrdiff_t (i));
+						deps.erase (deps.begin () + std::ptrdiff_t (i + 1));
+					} else {
+						++i;
+					}
+				}
+				// Final node selection
+				if (coeffs.empty ()) {
+					return ConstantZero<T>::create (c, dim);
+				} else {
+					return std::make_shared<Self> (std::move (deps), n, std::move (coeffs), dim);
+				}
+			};
+			// Detect if we can merge this node with its dependencies
+			const auto & delta = deps[0];
+			auto isSelfWithSameDelta = [&delta](const NodeRef & dep) {
+				return dynamic_cast<const Self *> (dep.get ()) != nullptr && dep->dependency (0) == delta;
+			};
+			if (!coeffs.empty () && std::all_of (deps.begin () + 1, deps.end (), isSelfWithSameDelta)) {
+				const auto depN = static_cast<const Self &> (*deps[1]).getN ();
+				auto useSameNasDep1 = [depN](const NodeRef & dep) {
+					return static_cast<const Self &> (*dep).getN () == depN;
+				};
+				if (std::all_of (deps.begin () + 2, deps.end (), useSameNasDep1)) {
+					/* Merge with dependencies because they use the same delta and a common N.
+					 *
+					 * V(this) = 1/delta^n * sum_i V(deps[i]) * coeffs[i].
+					 * V(deps[i]) = 1/delta^depN * sum_j V(depDeps[i][j]) * depCoeffs[i][j].
+					 * V(this) = 1/delta^(n + depN) * sum_ij V(depDeps[i][j]) * coeffs[i] * depCoeffs[i][j].
+					 * And simplify the sum by summing coeffs for each unique depDeps[i][j].
+					 */
+					NodeRefVec mergedDeps{delta};
+					std::vector<double> mergedCoeffs;
+					for (std::size_t i = 0; i < coeffs.size (); ++i) {
+						const auto & dep = static_cast<const Self &> (*deps[i + 1]);
+						const auto & depCoeffs = dep.getCoeffs ();
+						for (std::size_t j = 0; j < depCoeffs.size (); ++j) {
+							const auto & subDep = dep.dependency (j + 1);
+							auto it = std::find (mergedDeps.begin () + 1, mergedDeps.end (), subDep);
+							if (it != mergedDeps.end ()) {
+								// Found
+								const auto subDepIndexInMerged =
+								    static_cast<std::size_t> (std::distance (mergedDeps.begin () + 1, it));
+								mergedCoeffs[subDepIndexInMerged] += coeffs[i] * depCoeffs[j];
+							} else {
+								// Not found
+								mergedDeps.emplace_back (subDep);
+								mergedCoeffs.emplace_back (coeffs[i] * depCoeffs[j]);
+							}
+						}
+					}
+					return cleanAndCreateNode (std::move (mergedDeps), n + depN, std::move (mergedCoeffs));
+				}
+			}
+			// If not able to merge
+			return cleanAndCreateNode (std::move (deps), n, std::move (coeffs));
 		}
 
 		CombineDeltaShifted (NodeRefVec && deps, int n, std::vector<double> && coeffs,
