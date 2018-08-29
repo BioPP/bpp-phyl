@@ -122,7 +122,10 @@ namespace dataflow {
 
 	template class ScalarProduct<Eigen::VectorXd, Eigen::VectorXd>;
 
+	template class SumOfLogarithms<Eigen::RowVectorXd>;
+
 	template class MatrixProduct<Eigen::MatrixXd, Eigen::MatrixXd, Eigen::MatrixXd>;
+	template class MatrixProduct<Eigen::RowVectorXd, Eigen::RowVectorXd, Eigen::MatrixXd>;
 
 	template class ShiftDelta<double>;
 	template class ShiftDelta<Eigen::VectorXd>;

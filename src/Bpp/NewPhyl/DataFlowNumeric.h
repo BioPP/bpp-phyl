@@ -42,6 +42,7 @@
 #ifndef BPP_NEWPHYL_DATAFLOWNUMERIC_H
 #define BPP_NEWPHYL_DATAFLOWNUMERIC_H
 
+#include <Bpp/NewPhyl/ExtendedFloat.h>
 #include <Eigen/Core>
 #include <algorithm>
 #include <cassert>
@@ -77,6 +78,10 @@ std::string to_string (const MatrixDimension & dim);
 /// Eigen vector are matrices with 1 column.
 inline MatrixDimension vectorDimension (Eigen::Index size) {
 	return {size, 1};
+}
+/// Eigen RowVector are matrices with 1 row.
+inline MatrixDimension rowVectorDimension (Eigen::Index size) {
+	return {1, size};
 }
 
 /** Store a dimension for type T.
@@ -280,8 +285,8 @@ namespace dataflow {
 	template <typename T> class CWiseInverse;
 	template <typename T> class CWiseConstantPow;
 	template <typename T0, typename T1> class ScalarProduct;
+	template <typename F> class SumOfLogarithms;
 	template <typename R, typename T0, typename T1> class MatrixProduct;
-	// TODO matrix multiply with transposed variants
 	template <typename T> class ShiftDelta;
 	template <typename T> class CombineDeltaShifted;
 
@@ -1039,7 +1044,7 @@ namespace dataflow {
 		double factor;
 	};
 
-	/** r = x0 * x1 (dot product)
+	/** r = x0 * x1 (dot product).
 	 * r: double.
 	 * x0: T0 (vector-like).
 	 * x1: T1 (vector-like).
@@ -1091,6 +1096,63 @@ namespace dataflow {
 			const auto & x1 = accessValueConstCast<T1> (*this->dependency (1));
 			result = x0.dot (x1); // Using lhs.dot(rhs) method from Eigen only
 		}
+	};
+
+	/** r = sum_{v in m} log (v).
+	 * r: double.
+	 * m: F (matrix-like type).
+	 *
+	 * The node has no dimension (double).
+	 * The dimension of m should be provided for derivation.
+	 */
+	template <typename F> class SumOfLogarithms : public Value<double> {
+	public:
+		using Self = SumOfLogarithms;
+
+		static ValueRef<double> create (Context & c, NodeRefVec && deps, const Dimension<F> & mDim) {
+			checkDependenciesNotNull (typeid (Self), deps);
+			checkDependencyVectorSize (typeid (Self), deps, 1);
+			checkNthDependencyIsValue<F> (typeid (Self), deps, 0);
+			return std::make_shared<Self> (std::move (deps), mDim);
+		}
+
+		SumOfLogarithms (NodeRefVec && deps, const Dimension<F> & mDim)
+		    : Value<double> (std::move (deps)), mTargetDimension (mDim) {}
+
+		std::string debugInfo () const override {
+			using namespace numeric;
+			return debug (this->accessValueConst ());
+		}
+
+		NodeRef derive (Context & c, const Node & node) final {
+			const auto & m = this->dependency (0);
+			auto dm_dn = m->derive (c, node);
+			auto m_inverse = CWiseInverse<F>::create (c, {m}, mTargetDimension);
+			return ScalarProduct<F, F>::create (c, {std::move (dm_dn), std::move (m_inverse)});
+		}
+		bool isDerivable (const Node & node) const final {
+			return this->dependency (0)->isDerivable (node);
+		}
+
+	private:
+		void compute () final {
+			auto & result = this->accessValueMutable ();
+			const auto & m = accessValueConstCast<F> (*this->dependency (0));
+			const ExtendedFloat product =
+			    m.unaryExpr ([](double d) {
+				     ExtendedFloat ef{d};
+				     ef.normalize_small ();
+				     return ef;
+			     })
+			        .redux ([](const ExtendedFloat & lhs, const ExtendedFloat & rhs) {
+				        auto r = denorm_mul (lhs, rhs);
+				        r.normalize_small ();
+				        return r;
+			        });
+			result = log (product);
+		}
+
+		Dimension<F> mTargetDimension;
 	};
 
 	/** r = x0 * x1 (matrix product).
@@ -1162,8 +1224,6 @@ namespace dataflow {
 
 		Dimension<R> targetDimension;
 	};
-
-	// TODO transposed variants ?  r.noalias () = lhs.transpose () * rhs;
 
 	/** r = n * delta + x.
 	 * r: T.
@@ -1447,7 +1507,10 @@ namespace dataflow {
 
 	extern template class ScalarProduct<Eigen::VectorXd, Eigen::VectorXd>;
 
+	extern template class SumOfLogarithms<Eigen::RowVectorXd>;
+
 	extern template class MatrixProduct<Eigen::MatrixXd, Eigen::MatrixXd, Eigen::MatrixXd>;
+	extern template class MatrixProduct<Eigen::RowVectorXd, Eigen::RowVectorXd, Eigen::MatrixXd>;
 
 	extern template class ShiftDelta<double>;
 	extern template class ShiftDelta<Eigen::VectorXd>;
