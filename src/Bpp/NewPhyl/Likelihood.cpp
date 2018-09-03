@@ -139,5 +139,38 @@ namespace dataflow {
 			}
 		}
 	}
+
+	// EquilibriumFrequenciesFromModel
+
+	ValueRef<Eigen::RowVectorXd>
+	EquilibriumFrequenciesFromModel::create (Context & c, NodeRefVec && deps,
+	                                         const Dimension<Eigen::RowVectorXd> & dim) {
+		checkDependenciesNotNull (typeid (Self), deps);
+		checkDependencyVectorSize (typeid (Self), deps, 1);
+		checkNthDependencyIs<ConfiguredModel> (typeid (Self), deps, 0);
+		return std::make_shared<Self> (std::move (deps), dim);
+	}
+
+	EquilibriumFrequenciesFromModel::EquilibriumFrequenciesFromModel (
+	    NodeRefVec && deps, const Dimension<Eigen::RowVectorXd> & dim)
+	    : Value<Eigen::RowVectorXd> (std::move (deps)), targetDimension (dim) {}
+
+	std::string EquilibriumFrequenciesFromModel::debugInfo () const {
+		using namespace numeric;
+		return debug (this->accessValueConst ()) + " targetDim=" + to_string (targetDimension);
+	}
+
+	NodeRef EquilibriumFrequenciesFromModel::derive (Context & c, const Node & node) {
+		// FIXME sum of various sub derivatives
+		return {};
+	}
+
+	void EquilibriumFrequenciesFromModel::compute () {
+		const auto * model = accessValueConstCast<const TransitionModel *> (*this->dependency (0));
+		const auto & freqsFromModel = model->getFrequencies ();
+		auto & r = this->accessValueMutable ();
+		r = Eigen::Map<const Eigen::RowVectorXd> (freqsFromModel.data (),
+		                                          static_cast<Eigen::Index> (freqsFromModel.size ()));
+	}
 } // namespace dataflow
 } // namespace bpp

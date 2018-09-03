@@ -54,63 +54,8 @@
 namespace bpp {
 class TransitionModel;
 
-/** Interface for accessing model parameters by their names.
- * Associates Value<double> nodes to names.
- */
-class ModelParameterAccessByName {
-public:
-	virtual ~ModelParameterAccessByName () = default;
-	virtual DF::ValueRef<double> getModelParameter (const std::string & name) const = 0;
-};
-
-/** Impl for ModelParameterAccessByName: map of DF::Mutable<double>.
- * Represents the set of parameters for one TransitionModel.
- * Mutable nodes are created for each TransitionModel parameter.
- * They are registered under their non-namespaced names.
- * They can be changed to point to other Mutable<double> objects.
- */
-class ModelParameterMap : public ModelParameterAccessByName {
-public:
-	/** Creates a new ModelParameterMap.
-	 * One Mutable<double> object is created for each model parameter.
-	 * It is registered in the map with its non-namespaced name.
-	 * Mutable<double> nodes are initialized with values from the TransitionModel parameters.
-	 * The reference to the model is only used in this constructor, not stored.
-	 */
-	ModelParameterMap (const TransitionModel & model);
-
-	/// Impl of ModelParameterAccessByName, returns the parameter or throws.
-	DF::ValueRef<double> getModelParameter (const std::string & name) const override;
-
-	/** Access Mutable directly, or throws if not found (non-const version).
-	 * Can change which Mutable is associated to this name.
-	 * This is useful to have multiple models share a subset of parameter values.
-	 */
-	DF::MutableRef<double> & operator[] (const std::string & name);
-
-	/** Access Mutable directly or throws if not found (const version).
-	 *  Mutable cannot be changed, but its value can.
-	 */
-	const DF::MutableRef<double> & operator[] (const std::string & name) const;
-
-	/// Direct map access (for info, debug, iteration).
-	const std::map<std::string, DF::MutableRef<double>> & getMap () const {
-		return mutableNodeByName_;
-	}
-
-private:
-	std::map<std::string, DF::MutableRef<double>> mutableNodeByName_;
-};
-
 namespace DF {
 	// Compute nodes
-
-	// (model) -> Vector of freqs
-	class EquilibriumFrequenciesFromModel;
-	template <> struct Builder<EquilibriumFrequenciesFromModel> {
-		// Dim == nbStates FIXME add a dim type for Equ Freq ?
-		static ValueRef<VectorDouble> make (NodeRefVec && deps, const Dimension<VectorDouble> & dim);
-	};
 
 	// (model, branch length) -> transition matrix
 	class TransitionMatrixFromModel;

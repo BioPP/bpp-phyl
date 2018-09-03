@@ -74,39 +74,6 @@ namespace DF {
 
 	// Compute node functions
 
-	class EquilibriumFrequenciesFromModel : public Value<VectorDouble> {
-	public:
-		using Dependencies = TupleOfValues<const TransitionModel *>;
-		EquilibriumFrequenciesFromModel (NodeRefVec && deps, const Dimension<VectorDouble> & dim)
-		    : Value<VectorDouble> (std::move (deps)) {
-			setTargetDimension (this->accessValueMutable (), dim);
-		}
-		NodeRef derive (const Node & node) final {
-			assert (isDerivable (node));
-			return makeNode<ConstantZero<VectorDouble>> (targetDimension (this->accessValueConst ()));
-		}
-		bool isDerivable (const Node & node) const final { return derivableIfAllDepsAre (*this, node); }
-		NodeRef rebuild (NodeRefVec && deps) const final {
-			return makeNode<EquilibriumFrequenciesFromModel> (
-			    std::move (deps), targetDimension (this->accessValueConst ()));
-		}
-
-	private:
-		void compute () final {
-			callWithValues (*this, [](VectorDouble & freqs, const TransitionModel * model) {
-				auto & freqsFromModel = model->getFrequencies ();
-				freqs = Eigen::Map<const VectorDouble> (freqsFromModel.data (),
-				                                        static_cast<Eigen::Index> (freqsFromModel.size ()));
-			});
-		}
-	};
-	ValueRef<VectorDouble>
-	Builder<EquilibriumFrequenciesFromModel>::make (NodeRefVec && deps,
-	                                                const Dimension<VectorDouble> & dim) {
-		checkDependencies<EquilibriumFrequenciesFromModel> (deps);
-		return std::make_shared<EquilibriumFrequenciesFromModel> (std::move (deps), dim);
-	}
-
 	namespace {
 		/* For now copy matrix cell by cell.
 		 * TODO use eigen internally in SubsitutionModel ! (not perf critical for now though)

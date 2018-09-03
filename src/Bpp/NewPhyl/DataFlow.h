@@ -334,14 +334,9 @@ namespace dataflow {
 		T value_;
 	};
 
-	/// Dynamically test that node inherits from Value<T>.
-	template <typename T> bool isValueNode (const Node & n) noexcept {
-		return dynamic_cast<const Value<T> *> (&n) != nullptr;
-	}
-
 	/// Access value of Node as a Value<T> (unchecked cast).
 	template <typename T> const T & accessValueConstCast (const Node & node) {
-		assert (isValueNode<T> (node));                                  // Check type in debug mode
+		assert (dynamic_cast<const Value<T> *> (&node) != nullptr);      // Check type in debug mode
 		return static_cast<const Value<T> &> (node).accessValueConst (); // Fast cast access
 	}
 
@@ -354,14 +349,21 @@ namespace dataflow {
 	/// Checks that all dependencies are not null, throws if not.
 	void checkDependenciesNotNull (const std::type_info & contextNodeType, const NodeRefVec & deps);
 
+	/// Checks that deps[index] is a T node, throws if not.
+	template <typename T>
+	void checkNthDependencyIs (const std::type_info & contextNodeType, const NodeRefVec & deps,
+	                           std::size_t index) {
+		const auto & dep = *deps[index];
+		if (dynamic_cast<const T *> (&dep) == nullptr) {
+			failureDependencyTypeMismatch (contextNodeType, index, typeid (T), typeid (dep));
+		}
+	}
+
 	/// Checks that deps[index] is a Value<T> node, throws if not.
 	template <typename T>
 	void checkNthDependencyIsValue (const std::type_info & contextNodeType, const NodeRefVec & deps,
 	                                std::size_t index) {
-		const auto & dep = *deps[index];
-		if (!isValueNode<T> (dep)) {
-			failureDependencyTypeMismatch (contextNodeType, index, typeid (Value<T>), typeid (dep));
-		}
+		checkNthDependencyIs<Value<T>> (contextNodeType, deps, index);
 	}
 
 	/// Check that deps[start, end[ contains Value<T> nodes, throws if not

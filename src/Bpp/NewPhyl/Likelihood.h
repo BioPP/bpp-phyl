@@ -172,6 +172,28 @@ namespace dataflow {
 		std::unique_ptr<TransitionModel> model_;
 	};
 
+	/** equilibriumFrequencies = f(model).
+	 * equilibriumFrequencies: RowVector.
+	 */
+	class EquilibriumFrequenciesFromModel : public Value<Eigen::RowVectorXd> {
+	public:
+		using Self = EquilibriumFrequenciesFromModel;
+
+		static ValueRef<Eigen::RowVectorXd> create (Context & c, NodeRefVec && deps,
+		                                            const Dimension<Eigen::RowVectorXd> & dim);
+
+		EquilibriumFrequenciesFromModel (NodeRefVec && deps, const Dimension<Eigen::RowVectorXd> & dim);
+
+		std::string debugInfo () const final;
+
+		NodeRef derive (Context & c, const Node & node) final;
+
+	private:
+		void compute () final;
+
+		Dimension<Eigen::RowVectorXd> targetDimension;
+	};
+
 } // namespace dataflow
 } // namespace bpp
 
