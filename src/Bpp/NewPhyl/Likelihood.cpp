@@ -38,7 +38,9 @@
   knowledge of the CeCILL license and that you accept its terms.
 */
 
+#include <Bpp/Exceptions.h>
 #include <Bpp/NewPhyl/Likelihood.h>
+#include <Bpp/Phyl/Model/SubstitutionModel.h>
 
 namespace bpp {
 namespace dataflow {
@@ -57,5 +59,85 @@ namespace dataflow {
 	 * Rename SequenceNodeAccess to InitialLikelihoodNodeProvider.
 	 * The sole impl should be built with StateMap ref at creation (fixed).
 	 */
+
+	std::unordered_map<std::string, std::shared_ptr<NumericMutable<double>>>
+	createParameterMapForModel (Context & c, const TransitionModel & model) {
+		const auto & modelParameters = model.getParameters ();
+		const auto nbParameters = modelParameters.size ();
+		std::unordered_map<std::string, std::shared_ptr<NumericMutable<double>>> map;
+		for (std::size_t i = 0; i < nbParameters; ++i) {
+			const auto & param = modelParameters[i];
+			map.emplace (model.getParameterNameWithoutNamespace (param.getName ()),
+			             NumericMutable<double>::create (c, param.getValue ()));
+		}
+		return map;
+	}
+
+	NodeRefVec
+	createDependencyVector (const TransitionModel & model,
+	                        const std::function<NodeRef (const std::string &)> & getParameter) {
+		const auto & modelParameters = model.getParameters ();
+		const auto nbParameters = modelParameters.size ();
+		NodeRefVec deps (nbParameters);
+		for (std::size_t i = 0; i < nbParameters; ++i) {
+			std::string nonNamespacedName =
+			    model.getParameterNameWithoutNamespace (modelParameters[i].getName ());
+			auto dep = getParameter (nonNamespacedName);
+			if (!dep) {
+				throw Exception ("createDependencyVector (TransitionModel): model parameter not found: " +
+				                 nonNamespacedName);
+			}
+			deps[i] = std::move (dep);
+		}
+		return deps;
+	}
+
+	// Model node
+
+	std::shared_ptr<ConfiguredModel>
+	ConfiguredModel::create (Context & c, NodeRefVec && deps,
+	                         std::unique_ptr<TransitionModel> && model) {
+		if (!model) {
+			throw Exception ("ConfiguredModel(): nullptr TransitionModel");
+		}
+		// Check dependencies
+		const auto nbParameters = model->getParameters ().size ();
+		checkDependenciesNotNull (typeid (Self), deps);
+		checkDependencyVectorSize (typeid (Self), deps, nbParameters);
+		checkDependencyRangeIsValue<double> (typeid (Self), deps, 0, nbParameters);
+		return std::make_shared<Self> (std::move (deps), std::move (model));
+	}
+
+	ConfiguredModel::ConfiguredModel (NodeRefVec && deps, std::unique_ptr<TransitionModel> && model)
+	    : Value<const TransitionModel *> (std::move (deps), model.get ()),
+	      model_ (std::move (model)) {}
+
+	ConfiguredModel::~ConfiguredModel () = default;
+
+	const std::string & ConfiguredModel::getParameterName (std::size_t index) {
+		return model_->getParameters ()[index].getName ();
+	}
+	std::size_t ConfiguredModel::getParameterIndex (const std::string & name) {
+		return static_cast<std::size_t> (model_->getParameters ().whichParameterHasName (name));
+	}
+
+	std::string ConfiguredModel::description () const { return "Model(" + model_->getName () + ")"; }
+	std::string ConfiguredModel::debugInfo () const {
+		return "nbState=" + std::to_string (model_->getAlphabet ()->getSize ());
+	}
+
+	void ConfiguredModel::compute () {
+		// Update each internal model bpp::Parameter with the dependency
+		auto & modelParameters = model_->getParameters ();
+		const auto nbParameters = this->nbDependencies ();
+		for (std::size_t i = 0; i < nbParameters; ++i) {
+			auto & v = accessValueConstCast<double> (*this->dependency (i));
+			auto & p = modelParameters[i];
+			if (p.getValue () != v) {
+				// TODO improve bpp::Model interface to change values by index.
+				model_->setParameterValue (model_->getParameterNameWithoutNamespace (p.getName ()), v);
+			}
+		}
+	}
 } // namespace dataflow
 } // namespace bpp

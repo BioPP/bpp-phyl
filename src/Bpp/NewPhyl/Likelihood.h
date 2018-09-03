@@ -45,6 +45,8 @@
 
 #include <Bpp/NewPhyl/DataFlow.h>
 #include <Bpp/NewPhyl/DataFlowNumeric.h> // For dimension types, TODO remove for local forward declaration ?
+#include <functional>
+#include <unordered_map>
 
 namespace bpp {
 /* Conditional likelihoods are stored in a matrix of sizes (nbState, nbSite).
@@ -73,9 +75,8 @@ inline MatrixDimension equilibriumFrequenciesDimension (std::size_t nbState) {
  */
 class Sequence; // TODO
 
+// Dataflow nodes for likelihood computation.
 namespace dataflow {
-	// Dataflow nodes for likelihood computation.
-
 	/** conditionalLikelihood = product_i forwardLikelihood[children[i]].
 	 * conditionalLikelihood: Matrix.
 	 * forwardLikelihood[i]: Matrix.
@@ -110,6 +111,67 @@ namespace dataflow {
 	 * totalLogLikelihood: double.
 	 */
 	using TotalLogLikelihood = SumOfLogarithms<Eigen::RowVectorXd>;
+} // namespace dataflow
+
+/* Likelihood transition model.
+ */
+class TransitionModel;
+
+namespace dataflow {
+	/** Helper: create a map with mutable dataflow nodes for each model parameter.
+	 * The map is indexed by model non namespaced names.
+	 */
+	std::unordered_map<std::string, std::shared_ptr<NumericMutable<double>>>
+	createParameterMapForModel (Context & c, const TransitionModel & model);
+
+	/** Create a dependency vector suitable for a Model class constructor.
+	 * The vector is built from model parameter names, and an opaque accessor function.
+	 * For each named parameter in the model, getParameter(name) should return a valid node.
+	 * Only non-namespaced names are tried.
+	 * If no node is found (NodeRef was null), an exception is thrown.
+	 * Returned nodes must be Value<double> nodes.
+	 */
+	NodeRefVec
+	createDependencyVector (const TransitionModel & model,
+	                        const std::function<NodeRef (const std::string &)> & getParameter);
+
+	/** Data flow node representing a Model configured with parameter values.
+	 * This class wraps a bpp::TransitionModel as a data flow node.
+	 * It depends on Value<double> nodes (one for each parameter declared in the model).
+	 * It provides a dummy value representing the "model configured by its parameters".
+	 * This dummy value is then used by other node types to compute equilibrium frequencies,
+	 * transition matrices and their derivatives.
+	 *
+	 * The dummy value is implemented as a pointer to the internal model for simplicity.
+	 */
+	class ConfiguredModel : public Value<const TransitionModel *> {
+	public:
+		using Self = ConfiguredModel;
+
+		/** Create a new model node from a dependency vector.
+		 * Model parameters are given by a dependency vector of Value<double> nodes.
+		 * The number and order of parameters is given by the TransitionModel internal ParameterList.
+		 */
+		static std::shared_ptr<ConfiguredModel> create (Context & c, NodeRefVec && deps,
+		                                                std::unique_ptr<TransitionModel> && model);
+
+		ConfiguredModel (NodeRefVec && deps, std::unique_ptr<TransitionModel> && model);
+		~ConfiguredModel ();
+
+		/// Return the index of parameter with the given non namespaced name (or throw).
+		std::size_t getParameterIndex (const std::string & name);
+		/// Return the non namespaced name for parameter at the given index.
+		const std::string & getParameterName (std::size_t index);
+
+		std::string description () const final;
+		std::string debugInfo () const final;
+
+	private:
+		void compute () final;
+
+		std::unique_ptr<TransitionModel> model_;
+	};
+
 } // namespace dataflow
 } // namespace bpp
 

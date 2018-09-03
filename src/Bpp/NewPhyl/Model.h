@@ -103,67 +103,6 @@ private:
 };
 
 namespace DF {
-	/** Create a dependency vector suitable for a Model class constructor.
-	 * The vector is built from model parameter names, and Value<double> nodes in a map-like object.
-	 * For each named parameter in the model, a value node of the same node is taken from the object.
-	 * Only non-namespaced names are tried.
-	 * If no node is found in the map-like object, an exception is thrown.
-	 */
-	NodeRefVec createDependencyVector (const TransitionModel & model,
-	                                   const ModelParameterAccessByName & depsByName);
-
-	/** Data flow node representing a Model configured with parameter values.
-	 * This class wraps a bpp::TransitionModel as a data flow node.
-	 * It depends on Value<double> nodes (one for each parameter declared in the model).
-	 * It provides a dummy value representing the "model configured by its parameters".
-	 * This dummy value is then used by other node types to compute equilibrium frequencies,
-	 * transition matrices and their derivatives.
-	 *
-	 * The dummy value is implemented as a pointer to the internal model for simplicity.
-	 */
-	class Model : public Value<const TransitionModel *> {
-	public:
-		/// Internal constructor, see Builder<Model>::make for doc.
-		Model (NodeRefVec && deps, std::unique_ptr<TransitionModel> && model);
-
-		~Model ();
-
-		// Access some node information TODO namespacing semantics !
-		std::size_t nbParameters () const noexcept;
-		ValueRef<double> getParameter (std::size_t index);
-		ValueRef<double> getParameter (const std::string & name);
-		const std::string & getParameterName (std::size_t index);
-
-		std::string description () const final;
-		std::string debugInfo () const final;
-
-		// TODO  derivation (customizable)
-		bool isDerivable (const Node & node) const final;
-
-		NodeRef rebuild (NodeRefVec && deps) const final;
-
-	private:
-		void compute () final;
-		std::unique_ptr<TransitionModel> model_;
-	};
-
-	/// Always build Model nodes by using makeNode, which uses one of the make functions defined here.
-	template <> struct Builder<Model> {
-		/** Create a new model node from a dependency vector.
-		 * Model parameters are given by a dependency vector of Value<double> nodes.
-		 * The number and order of parameters is given by the TransitionModel internal ParameterList.
-		 */
-		static std::shared_ptr<Model> make (NodeRefVec && deps,
-		                                    std::unique_ptr<TransitionModel> && model);
-
-		/** Create a new model for an association from parameter names to Value<double> nodes.
-		 * Internally, this builds a dependency vector using createDependencyVector.
-		 * It will throw if some parameter names are node found in depsByName.
-		 */
-		static std::shared_ptr<Model> make (const ModelParameterAccessByName & depsByName,
-		                                    std::unique_ptr<TransitionModel> && model);
-	};
-
 	// Compute nodes
 
 	// (model) -> Vector of freqs
