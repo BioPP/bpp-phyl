@@ -85,8 +85,8 @@ double AbstractCodonAAFitnessSubstitutionModel::getCodonsMulRate(size_t i, size_
   int aai = pgencode_->translate(stateMap_->getAlphabetStateAsInt(i));
   int aaj = pgencode_->translate(stateMap_->getAlphabetStateAsInt(j));
 
-  double phi_j= pfitset_->getFrequencies() [protStateMap_->getModelStates(aai)[0]];
-  double phi_i= pfitset_->getFrequencies() [protStateMap_->getModelStates(aaj)[0]];
+  double phi_i= pfitset_->getFrequencies() [protStateMap_->getModelStates(aai)[0]];
+  double phi_j= pfitset_->getFrequencies() [protStateMap_->getModelStates(aaj)[0]];
 
   if (phi_i == phi_j || Ns_==0)
     mu=1;
