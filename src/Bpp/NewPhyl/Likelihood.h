@@ -166,6 +166,12 @@ namespace dataflow {
 		std::string description () const final;
 		std::string debugInfo () const final;
 
+		/// Configuration for numerical derivation of computation nodes using this Model.
+		NumericalDerivativeConfiguration config;
+
+		// Recreate model node with other deps (TODO restore rebuild stuff ?)
+		NodeRef recreate (Context & c, NodeRefVec && deps) const;
+
 	private:
 		void compute () final;
 
@@ -178,11 +184,10 @@ namespace dataflow {
 	class EquilibriumFrequenciesFromModel : public Value<Eigen::RowVectorXd> {
 	public:
 		using Self = EquilibriumFrequenciesFromModel;
+		using T = Eigen::RowVectorXd;
 
-		static ValueRef<Eigen::RowVectorXd> create (Context & c, NodeRefVec && deps,
-		                                            const Dimension<Eigen::RowVectorXd> & dim);
-
-		EquilibriumFrequenciesFromModel (NodeRefVec && deps, const Dimension<Eigen::RowVectorXd> & dim);
+		static ValueRef<T> create (Context & c, NodeRefVec && deps, const Dimension<T> & dim);
+		EquilibriumFrequenciesFromModel (NodeRefVec && deps, const Dimension<T> & dim);
 
 		std::string debugInfo () const final;
 
@@ -191,7 +196,7 @@ namespace dataflow {
 	private:
 		void compute () final;
 
-		Dimension<Eigen::RowVectorXd> targetDimension;
+		Dimension<T> targetDimension;
 	};
 
 } // namespace dataflow

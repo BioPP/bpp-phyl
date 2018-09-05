@@ -126,6 +126,12 @@ namespace dataflow {
 		return "nbState=" + std::to_string (model_->getAlphabet ()->getSize ());
 	}
 
+	NodeRef ConfiguredModel::recreate (Context & c, NodeRefVec && deps) const {
+		auto m = Self::create (c, std::move (deps), std::unique_ptr<TransitionModel>{model_->clone ()});
+		m->config = this->config; // Duplicate derivation config
+		return m;
+	}
+
 	void ConfiguredModel::compute () {
 		// Update each internal model bpp::Parameter with the dependency
 		auto & modelParameters = model_->getParameters ();
@@ -161,16 +167,39 @@ namespace dataflow {
 	}
 
 	NodeRef EquilibriumFrequenciesFromModel::derive (Context & c, const Node & node) {
-		// FIXME sum of various sub derivatives
-		return {};
+		// d(equFreqs)/dn = sum_i d(equFreqs)/dx_i * dx_i/dn
+		// In this case x_i are the model parameters, dependencies of the single dep of this node.
+		auto dep = this->dependency (0);
+		const auto & model = static_cast<const ConfiguredModel &> (*dep);
+		auto parameterDim = Dimension<double>{}; // Dimension for model params
+		NodeRefVec derivativeSumDeps;
+		for (std::size_t i = 0; i < model.nbDependencies (); ++i) {
+			// First compute dxi_dn. If this maps to a constant 0, do not compute df_dxi at all (costly).
+			auto dxi_dn = model.dependency (i)->derive (c, node);
+			if (!dxi_dn->isConstantAnd (NumericalProperty::Zero)) {
+				auto buildFWithNewXi = [this, i, &model](Context & c, ValueRef<double> newDep,
+				                                         const Dimension<T> & nodeDim) {
+					// The sub-graph that will be replicated with shifted inputs is: equFreq -> model
+					NodeRefVec newModelDeps = model.dependencies ();
+					newModelDeps[i] = std::move (newDep);
+					auto newModel = model.recreate (c, std::move (newModelDeps));
+					return Self::create (c, {std::move (newModel)}, targetDimension);
+				};
+				auto df_dxi = generateNumericalDerivative<T, double> (
+				    c, model.config, model.dependency (i), parameterDim, targetDimension, buildFWithNewXi);
+				derivativeSumDeps.emplace_back (CWiseMul<T, std::tuple<T, double>>::create (
+				    c, {std::move (df_dxi), std::move (dxi_dn)}, targetDimension));
+			}
+		}
+		return CWiseAdd<T, ReductionOf<T>>::create (c, std::move (derivativeSumDeps));
 	}
 
 	void EquilibriumFrequenciesFromModel::compute () {
 		const auto * model = accessValueConstCast<const TransitionModel *> (*this->dependency (0));
 		const auto & freqsFromModel = model->getFrequencies ();
 		auto & r = this->accessValueMutable ();
-		r = Eigen::Map<const Eigen::RowVectorXd> (freqsFromModel.data (),
-		                                          static_cast<Eigen::Index> (freqsFromModel.size ()));
+		r = Eigen::Map<const T> (freqsFromModel.data (),
+		                         static_cast<Eigen::Index> (freqsFromModel.size ()));
 	}
 } // namespace dataflow
 } // namespace bpp
