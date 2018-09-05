@@ -1455,58 +1455,76 @@ namespace dataflow {
 	// Precompiled instantiations
 	extern template class ConstantZero<double>;
 	extern template class ConstantZero<Eigen::VectorXd>;
+	extern template class ConstantZero<Eigen::RowVectorXd>;
 	extern template class ConstantZero<Eigen::MatrixXd>;
 
 	extern template class ConstantOne<double>;
 	extern template class ConstantOne<Eigen::VectorXd>;
+	extern template class ConstantOne<Eigen::RowVectorXd>;
 	extern template class ConstantOne<Eigen::MatrixXd>;
 
 	extern template class NumericConstant<double>;
 	extern template class NumericConstant<Eigen::VectorXd>;
+	extern template class NumericConstant<Eigen::RowVectorXd>;
 	extern template class NumericConstant<Eigen::MatrixXd>;
 
 	extern template class NumericMutable<double>;
 	extern template class NumericMutable<Eigen::VectorXd>;
+	extern template class NumericMutable<Eigen::RowVectorXd>;
 	extern template class NumericMutable<Eigen::MatrixXd>;
 
 	extern template class Convert<double, double>;
 	extern template class Convert<Eigen::VectorXd, Eigen::VectorXd>;
+	extern template class Convert<Eigen::RowVectorXd, Eigen::RowVectorXd>;
 	extern template class Convert<Eigen::MatrixXd, Eigen::MatrixXd>;
 	extern template class Convert<Eigen::VectorXd, double>;
+	extern template class Convert<Eigen::RowVectorXd, double>;
 	extern template class Convert<Eigen::MatrixXd, double>;
 
 	extern template class CWiseAdd<double, std::tuple<double, double>>;
 	extern template class CWiseAdd<Eigen::VectorXd, std::tuple<Eigen::VectorXd, Eigen::VectorXd>>;
+	extern template class CWiseAdd<Eigen::RowVectorXd,
+	                               std::tuple<Eigen::RowVectorXd, Eigen::RowVectorXd>>;
 	extern template class CWiseAdd<Eigen::MatrixXd, std::tuple<Eigen::MatrixXd, Eigen::MatrixXd>>;
 
 	extern template class CWiseAdd<double, ReductionOf<double>>;
 	extern template class CWiseAdd<Eigen::VectorXd, ReductionOf<Eigen::VectorXd>>;
+	extern template class CWiseAdd<Eigen::RowVectorXd, ReductionOf<Eigen::RowVectorXd>>;
 	extern template class CWiseAdd<Eigen::MatrixXd, ReductionOf<Eigen::MatrixXd>>;
 
 	extern template class CWiseMul<double, std::tuple<double, double>>;
 	extern template class CWiseMul<Eigen::VectorXd, std::tuple<Eigen::VectorXd, Eigen::VectorXd>>;
+	extern template class CWiseMul<Eigen::RowVectorXd,
+	                               std::tuple<Eigen::RowVectorXd, Eigen::RowVectorXd>>;
 	extern template class CWiseMul<Eigen::MatrixXd, std::tuple<Eigen::MatrixXd, Eigen::MatrixXd>>;
 	extern template class CWiseMul<Eigen::VectorXd, std::tuple<double, Eigen::VectorXd>>;
+	extern template class CWiseMul<Eigen::RowVectorXd, std::tuple<double, Eigen::RowVectorXd>>;
 	extern template class CWiseMul<Eigen::MatrixXd, std::tuple<double, Eigen::MatrixXd>>;
 
 	extern template class CWiseMul<double, ReductionOf<double>>;
 	extern template class CWiseMul<Eigen::VectorXd, ReductionOf<Eigen::VectorXd>>;
+	extern template class CWiseMul<Eigen::RowVectorXd, ReductionOf<Eigen::RowVectorXd>>;
 	extern template class CWiseMul<Eigen::MatrixXd, ReductionOf<Eigen::MatrixXd>>;
 
 	extern template class CWiseNegate<double>;
 	extern template class CWiseNegate<Eigen::VectorXd>;
+	extern template class CWiseNegate<Eigen::RowVectorXd>;
 	extern template class CWiseNegate<Eigen::MatrixXd>;
 
 	extern template class CWiseInverse<double>;
 	extern template class CWiseInverse<Eigen::VectorXd>;
+	extern template class CWiseInverse<Eigen::RowVectorXd>;
 	extern template class CWiseInverse<Eigen::MatrixXd>;
 
 	extern template class CWiseConstantPow<double>;
 	extern template class CWiseConstantPow<Eigen::VectorXd>;
+	extern template class CWiseConstantPow<Eigen::RowVectorXd>;
 	extern template class CWiseConstantPow<Eigen::MatrixXd>;
 
 	extern template class ScalarProduct<Eigen::VectorXd, Eigen::VectorXd>;
+	extern template class ScalarProduct<Eigen::RowVectorXd, Eigen::RowVectorXd>;
 
+	extern template class SumOfLogarithms<Eigen::VectorXd>;
 	extern template class SumOfLogarithms<Eigen::RowVectorXd>;
 
 	extern template class MatrixProduct<Eigen::MatrixXd, Eigen::MatrixXd, Eigen::MatrixXd>;
@@ -1514,10 +1532,12 @@ namespace dataflow {
 
 	extern template class ShiftDelta<double>;
 	extern template class ShiftDelta<Eigen::VectorXd>;
+	extern template class ShiftDelta<Eigen::RowVectorXd>;
 	extern template class ShiftDelta<Eigen::MatrixXd>;
 
 	extern template class CombineDeltaShifted<double>;
 	extern template class CombineDeltaShifted<Eigen::VectorXd>;
+	extern template class CombineDeltaShifted<Eigen::RowVectorXd>;
 	extern template class CombineDeltaShifted<Eigen::MatrixXd>;
 
 	/*****************************************************************************

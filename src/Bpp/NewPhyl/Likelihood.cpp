@@ -187,8 +187,8 @@ namespace dataflow {
 				};
 				auto df_dxi = generateNumericalDerivative<T, double> (
 				    c, model.config, model.dependency (i), parameterDim, targetDimension, buildFWithNewXi);
-				derivativeSumDeps.emplace_back (CWiseMul<T, std::tuple<T, double>>::create (
-				    c, {std::move (df_dxi), std::move (dxi_dn)}, targetDimension));
+				derivativeSumDeps.emplace_back (CWiseMul<T, std::tuple<double, T>>::create (
+				    c, {std::move (dxi_dn), std::move (df_dxi)}, targetDimension));
 			}
 		}
 		return CWiseAdd<T, ReductionOf<T>>::create (c, std::move (derivativeSumDeps));
