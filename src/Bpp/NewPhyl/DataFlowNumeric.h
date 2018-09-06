@@ -1543,7 +1543,7 @@ namespace dataflow {
 	 *
 	 * For an expression e = f(x0,...,xn), which may be composed of multiple nodes.
 	 * dep is one of the expression dependencies: exists i, dep is node xi.
-	 * buildNodeWithDep(context, new_xi, e_dim) creates a node: f(x0,...,new_xi,...,xn).
+	 * buildNodeWithDep(new_xi) should create the f(x0,...,new_xi,...,xn) node.
 	 * It must duplicate the expression by replacing dep by new_xi.
 	 * e must be a Value<NodeT>, and xi a Value<DepT>.
 	 *
@@ -1568,8 +1568,8 @@ namespace dataflow {
 			auto shift_p1 = ShiftDelta<DepT>::create (c, {config.delta, dep}, 1, depDim);
 			NodeRefVec combineDeps (3);
 			combineDeps[0] = config.delta;
-			combineDeps[1] = buildNodeWithDep (c, std::move (shift_m1), nodeDim);
-			combineDeps[2] = buildNodeWithDep (c, std::move (shift_p1), nodeDim);
+			combineDeps[1] = buildNodeWithDep (std::move (shift_m1));
+			combineDeps[2] = buildNodeWithDep (std::move (shift_p1));
 			return CombineDeltaShifted<NodeT>::create (c, std::move (combineDeps), 1, {-0.5, 0.5},
 			                                           nodeDim);
 		} break;
@@ -1581,10 +1581,10 @@ namespace dataflow {
 			auto shift_p2 = ShiftDelta<DepT>::create (c, {config.delta, dep}, 2, depDim);
 			NodeRefVec combineDeps (5);
 			combineDeps[0] = config.delta;
-			combineDeps[1] = buildNodeWithDep (c, std::move (shift_m2), nodeDim);
-			combineDeps[2] = buildNodeWithDep (c, std::move (shift_m1), nodeDim);
-			combineDeps[3] = buildNodeWithDep (c, std::move (shift_p1), nodeDim);
-			combineDeps[4] = buildNodeWithDep (c, std::move (shift_p2), nodeDim);
+			combineDeps[1] = buildNodeWithDep (std::move (shift_m2));
+			combineDeps[2] = buildNodeWithDep (std::move (shift_m1));
+			combineDeps[3] = buildNodeWithDep (std::move (shift_p1));
+			combineDeps[4] = buildNodeWithDep (std::move (shift_p2));
 			return CombineDeltaShifted<NodeT>::create (c, std::move (combineDeps), 1,
 			                                           {1. / 12., -2. / 3., 2. / 3., -1. / 12.}, nodeDim);
 		} break;

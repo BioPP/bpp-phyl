@@ -478,7 +478,7 @@ struct OpaqueTestFunction : public Value<double>
       auto dxi_dn = this->dependency(i)->derive(c, node);
       if (!dxi_dn->hasNumericalProperty(NumericalProperty::ConstantZero))
       {
-        auto buildFWithNewXi = [this, i](Context& c, ValueRef<double> newDep, const Dimension<double>& nodeDim) {
+        auto buildFWithNewXi = [this, i](ValueRef<double> newDep) {
           // Build a duplicate of Self (OpaqueTestFunction) with replaced dependency.
           // The function supports a general case for sub-expressions.
           NodeRefVec newDeps = this->dependencies();

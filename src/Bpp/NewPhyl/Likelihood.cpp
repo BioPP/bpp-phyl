@@ -59,6 +59,38 @@ namespace dataflow {
 		}
 	}
 
+	/* Helper function for generating numerical derivatives of model computation nodes.
+   * Assuming we have a v = f(model, stuff) node, with v of type T.
+	 * df/dn = sum_i df/dx_i * dx_i/dn + df/dstuff * dstuff/dn.
+	 * This function returns a NodeRefVec containings the nodes: {df/dx_i * dx_i/dn} for i in order.
+	 * buildFWithNewModel(newModel) should create the f(newModel, stuff) node.
+	 */
+	template <typename T, typename B>
+	static NodeRefVec generateModelDerivativeSumDepsForModelComputations (
+	    Context & c, const ConfiguredModel & model, const Node & derivationNode,
+	    const Dimension<T> & targetDimension, B buildFWithNewModel) {
+		NodeRefVec derivativeSumDeps;
+		for (std::size_t i = 0; i < model.nbDependencies (); ++i) {
+			// First compute dxi_dn. If this maps to a constant 0, do not compute df_dxi at all (costly).
+			auto dxi_dn = model.dependency (i)->derive (c, derivationNode);
+			if (!dxi_dn->hasNumericalProperty (NumericalProperty::ConstantZero)) {
+				auto buildFWithNewXi = [&c, i, &model, &buildFWithNewModel](ValueRef<double> newDep) {
+					// The sub-graph that will be replicated with shifted inputs is: f(model(x_i), stuff)
+					NodeRefVec newModelDeps = model.dependencies ();
+					newModelDeps[i] = std::move (newDep);
+					auto newModel = model.recreate (c, std::move (newModelDeps));
+					return buildFWithNewModel (std::move (newModel));
+				};
+				auto df_dxi = generateNumericalDerivative<T, double> (c, model.config, model.dependency (i),
+				                                                      Dimension<double>{}, targetDimension,
+				                                                      buildFWithNewXi);
+				derivativeSumDeps.emplace_back (CWiseMul<T, std::tuple<double, T>>::create (
+				    c, {std::move (dxi_dn), std::move (df_dxi)}, targetDimension));
+			}
+		}
+		return derivativeSumDeps;
+	}
+
 	/* TODO add function to generate initial matrix
 	 *
 	 * use correct way to get initial state.
@@ -185,26 +217,11 @@ namespace dataflow {
 		// d(equFreqs)/dn = sum_i d(equFreqs)/dx_i * dx_i/dn (x_i = model parameters)
 		auto modelDep = this->dependency (0);
 		const auto & model = static_cast<const ConfiguredModel &> (*modelDep);
-		auto parameterDim = Dimension<double>{}; // Dimension for model params
-		NodeRefVec derivativeSumDeps;
-		for (std::size_t i = 0; i < model.nbDependencies (); ++i) {
-			// First compute dxi_dn. If this maps to a constant 0, do not compute df_dxi at all (costly).
-			auto dxi_dn = model.dependency (i)->derive (c, node);
-			if (!dxi_dn->hasNumericalProperty (NumericalProperty::ConstantZero)) {
-				auto buildFWithNewXi = [this, i, &model](Context & c, ValueRef<double> newDep,
-				                                         const Dimension<T> & nodeDim) {
-					// The sub-graph that will be replicated with shifted inputs is: equFreq -> model
-					NodeRefVec newModelDeps = model.dependencies ();
-					newModelDeps[i] = std::move (newDep);
-					auto newModel = model.recreate (c, std::move (newModelDeps));
-					return Self::create (c, {std::move (newModel)}, targetDimension);
-				};
-				auto df_dxi = generateNumericalDerivative<T, double> (
-				    c, model.config, model.dependency (i), parameterDim, targetDimension, buildFWithNewXi);
-				derivativeSumDeps.emplace_back (CWiseMul<T, std::tuple<double, T>>::create (
-				    c, {std::move (dxi_dn), std::move (df_dxi)}, targetDimension));
-			}
-		}
+		auto buildFWithNewModel = [this, &c](NodeRef && newModel) {
+			return Self::create (c, {std::move (newModel)}, targetDimension);
+		};
+		NodeRefVec derivativeSumDeps = generateModelDerivativeSumDepsForModelComputations<T> (
+		    c, model, node, targetDimension, buildFWithNewModel);
 		return CWiseAdd<T, ReductionOf<T>>::create (c, std::move (derivativeSumDeps));
 	}
 
@@ -239,29 +256,15 @@ namespace dataflow {
 
 	NodeRef TransitionMatrixFromModel::derive (Context & c, const Node & node) {
 		// dtm/dn = sum_i dtm/dx_i * dx_i/dn + dtm/dbrlen + dbrlen/dn (x_i = model parameters).
-		// Model part
 		auto modelDep = this->dependency (0);
+		auto brlenDep = this->dependency (1);
+		// Model part
 		const auto & model = static_cast<const ConfiguredModel &> (*modelDep);
-		auto parameterDim = Dimension<double>{}; // Dimension for model params
-		NodeRefVec derivativeSumDeps;
-		for (std::size_t i = 0; i < model.nbDependencies (); ++i) {
-			// First compute dxi_dn. If this maps to a constant 0, do not compute df_dxi at all (costly).
-			auto dxi_dn = model.dependency (i)->derive (c, node);
-			if (!dxi_dn->hasNumericalProperty (NumericalProperty::ConstantZero)) {
-				auto buildFWithNewXi = [this, i, &model](Context & c, ValueRef<double> newDep,
-				                                         const Dimension<T> & nodeDim) {
-					// The sub-graph that will be replicated with shifted inputs is: equFreq -> model
-					NodeRefVec newModelDeps = model.dependencies ();
-					newModelDeps[i] = std::move (newDep);
-					auto newModel = model.recreate (c, std::move (newModelDeps));
-					return Self::create (c, {std::move (newModel)}, targetDimension);
-				};
-				auto df_dxi = generateNumericalDerivative<T, double> (
-				    c, model.config, model.dependency (i), parameterDim, targetDimension, buildFWithNewXi);
-				derivativeSumDeps.emplace_back (CWiseMul<T, std::tuple<double, T>>::create (
-				    c, {std::move (dxi_dn), std::move (df_dxi)}, targetDimension));
-			}
-		}
+		auto buildFWithNewModel = [this, &c, &brlenDep](NodeRef && newModel) {
+			return Self::create (c, {std::move (newModel), brlenDep}, targetDimension);
+		};
+		NodeRefVec derivativeSumDeps = generateModelDerivativeSumDepsForModelComputations<T> (
+		    c, model, node, targetDimension, buildFWithNewModel);
 		// Brlen part TODO use specific node
 		return CWiseAdd<T, ReductionOf<T>>::create (c, std::move (derivativeSumDeps));
 	}
