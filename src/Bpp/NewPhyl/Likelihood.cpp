@@ -44,6 +44,21 @@
 
 namespace bpp {
 namespace dataflow {
+	/* For now copy matrix cell by cell.
+	 * TODO use eigen internally in SubstitutionModel ! (not perf critical for now though)
+	 * FIXME if multithreading, internal model state must be removed !
+	 */
+	static void copyBppToEigen (const Matrix<double> & bppMatrix, Eigen::MatrixXd & eigenMatrix) {
+		const auto eigenRows = static_cast<Eigen::Index> (bppMatrix.getNumberOfRows ());
+		const auto eigenCols = static_cast<Eigen::Index> (bppMatrix.getNumberOfColumns ());
+		eigenMatrix.resize (eigenRows, eigenCols);
+		for (Eigen::Index i = 0; i < eigenRows; ++i) {
+			for (Eigen::Index j = 0; j < eigenCols; ++j) {
+				eigenMatrix (i, j) = bppMatrix (static_cast<std::size_t> (i), static_cast<std::size_t> (j));
+			}
+		}
+	}
+
 	/* TODO add function to generate initial matrix
 	 *
 	 * use correct way to get initial state.
@@ -167,10 +182,9 @@ namespace dataflow {
 	}
 
 	NodeRef EquilibriumFrequenciesFromModel::derive (Context & c, const Node & node) {
-		// d(equFreqs)/dn = sum_i d(equFreqs)/dx_i * dx_i/dn
-		// In this case x_i are the model parameters, dependencies of the single dep of this node.
-		auto dep = this->dependency (0);
-		const auto & model = static_cast<const ConfiguredModel &> (*dep);
+		// d(equFreqs)/dn = sum_i d(equFreqs)/dx_i * dx_i/dn (x_i = model parameters)
+		auto modelDep = this->dependency (0);
+		const auto & model = static_cast<const ConfiguredModel &> (*modelDep);
 		auto parameterDim = Dimension<double>{}; // Dimension for model params
 		NodeRefVec derivativeSumDeps;
 		for (std::size_t i = 0; i < model.nbDependencies (); ++i) {
@@ -201,5 +215,63 @@ namespace dataflow {
 		r = Eigen::Map<const T> (freqsFromModel.data (),
 		                         static_cast<Eigen::Index> (freqsFromModel.size ()));
 	}
+
+	// TransitionMatrixFromModel
+
+	ValueRef<Eigen::MatrixXd>
+	TransitionMatrixFromModel::create (Context & c, NodeRefVec && deps,
+	                                   const Dimension<Eigen::MatrixXd> & dim) {
+		checkDependenciesNotNull (typeid (Self), deps);
+		checkDependencyVectorSize (typeid (Self), deps, 2);
+		checkNthDependencyIs<ConfiguredModel> (typeid (Self), deps, 0);
+		checkNthDependencyIsValue<double> (typeid (Self), deps, 1);
+		return std::make_shared<Self> (std::move (deps), dim);
+	}
+
+	TransitionMatrixFromModel::TransitionMatrixFromModel (NodeRefVec && deps,
+	                                                      const Dimension<Eigen::MatrixXd> & dim)
+	    : Value<Eigen::MatrixXd> (std::move (deps)), targetDimension (dim) {}
+
+	std::string TransitionMatrixFromModel::debugInfo () const {
+		using namespace numeric;
+		return debug (this->accessValueConst ()) + " targetDim=" + to_string (targetDimension);
+	}
+
+	NodeRef TransitionMatrixFromModel::derive (Context & c, const Node & node) {
+		// dtm/dn = sum_i dtm/dx_i * dx_i/dn + dtm/dbrlen + dbrlen/dn (x_i = model parameters).
+		// Model part
+		auto modelDep = this->dependency (0);
+		const auto & model = static_cast<const ConfiguredModel &> (*modelDep);
+		auto parameterDim = Dimension<double>{}; // Dimension for model params
+		NodeRefVec derivativeSumDeps;
+		for (std::size_t i = 0; i < model.nbDependencies (); ++i) {
+			// First compute dxi_dn. If this maps to a constant 0, do not compute df_dxi at all (costly).
+			auto dxi_dn = model.dependency (i)->derive (c, node);
+			if (!dxi_dn->hasNumericalProperty (NumericalProperty::ConstantZero)) {
+				auto buildFWithNewXi = [this, i, &model](Context & c, ValueRef<double> newDep,
+				                                         const Dimension<T> & nodeDim) {
+					// The sub-graph that will be replicated with shifted inputs is: equFreq -> model
+					NodeRefVec newModelDeps = model.dependencies ();
+					newModelDeps[i] = std::move (newDep);
+					auto newModel = model.recreate (c, std::move (newModelDeps));
+					return Self::create (c, {std::move (newModel)}, targetDimension);
+				};
+				auto df_dxi = generateNumericalDerivative<T, double> (
+				    c, model.config, model.dependency (i), parameterDim, targetDimension, buildFWithNewXi);
+				derivativeSumDeps.emplace_back (CWiseMul<T, std::tuple<double, T>>::create (
+				    c, {std::move (dxi_dn), std::move (df_dxi)}, targetDimension));
+			}
+		}
+		// Brlen part TODO use specific node
+		return CWiseAdd<T, ReductionOf<T>>::create (c, std::move (derivativeSumDeps));
+	}
+
+	void TransitionMatrixFromModel::compute () {
+		const auto * model = accessValueConstCast<const TransitionModel *> (*this->dependency (0));
+		const auto brlen = accessValueConstCast<double> (*this->dependency (1));
+		auto & r = this->accessValueMutable ();
+		copyBppToEigen (model->getPij_t (brlen), r);
+	}
+
 } // namespace dataflow
 } // namespace bpp

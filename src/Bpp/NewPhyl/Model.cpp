@@ -74,62 +74,6 @@ namespace DF {
 
 	// Compute node functions
 
-	namespace {
-		/* For now copy matrix cell by cell.
-		 * TODO use eigen internally in SubsitutionModel ! (not perf critical for now though)
-		 * FIXME if multithreading, internal model state must be removed !
-		 */
-		void bppToEigen (const Matrix<double> & bppMatrix, MatrixDouble & eigenMatrix) {
-			eigenMatrix.resize (static_cast<Eigen::Index> (bppMatrix.getNumberOfRows ()),
-			                    static_cast<Eigen::Index> (bppMatrix.getNumberOfColumns ()));
-			for (auto i : range (eigenMatrix.rows ()))
-				for (auto j : range (eigenMatrix.cols ()))
-					eigenMatrix (i, j) =
-					    bppMatrix (static_cast<std::size_t> (i), static_cast<std::size_t> (j));
-		}
-	} // namespace
-
-	class TransitionMatrixFromModel : public Value<MatrixDouble> {
-	public:
-		using Dependencies = TupleOfValues<const TransitionModel *, double>;
-
-		TransitionMatrixFromModel (NodeRefVec && deps, const TransitionMatrixDimension & dim)
-		    : Value<MatrixDouble> (std::move (deps)) {
-			setTargetDimension (this->accessValueMutable (), dim);
-		}
-		std::string debugInfo () const final {
-			return Value<MatrixDouble>::debugInfo () + " " +
-			       to_string (TransitionMatrixDimension (targetDimension (this->accessValueConst ())));
-		}
-		NodeRef derive (const Node & node) final {
-			assert (isDerivable (node));
-			auto dim = TransitionMatrixDimension (targetDimension (this->accessValueConst ()));
-			auto & modelNode = this->dependency (0);
-			auto & brlenNode = this->dependency (1);
-			auto dTransMat_dBrlen =
-			    makeNode<TransitionMatrixFromModelBrlenDerivative> ({modelNode, brlenNode}, dim);
-			return makeNode<CWiseMulScalarMatrixDouble> (
-			    {brlenNode->derive (node), std::move (dTransMat_dBrlen)}, dim);
-		}
-		bool isDerivable (const Node & node) const final { return derivableIfAllDepsAre (*this, node); }
-		NodeRef rebuild (NodeRefVec && deps) const final {
-			return makeNode<TransitionMatrixFromModel> (std::move (deps),
-			                                            targetDimension (this->accessValueConst ()));
-		}
-
-	private:
-		void compute () final {
-			callWithValues (*this, [](MatrixDouble & matrix, const TransitionModel * model,
-			                          double brlen) { bppToEigen (model->getPij_t (brlen), matrix); });
-		}
-	};
-	ValueRef<MatrixDouble>
-	Builder<TransitionMatrixFromModel>::make (NodeRefVec && deps,
-	                                          const TransitionMatrixDimension & dim) {
-		checkDependencies<TransitionMatrixFromModel> (deps);
-		return std::make_shared<TransitionMatrixFromModel> (std::move (deps), dim);
-	}
-
 	class TransitionMatrixFromModelBrlenDerivative : public Value<MatrixDouble> {
 	public:
 		using Dependencies = TupleOfValues<const TransitionModel *, double>;

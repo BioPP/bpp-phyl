@@ -57,12 +57,6 @@ class TransitionModel;
 namespace DF {
 	// Compute nodes
 
-	// (model, branch length) -> transition matrix
-	class TransitionMatrixFromModel;
-	template <> struct Builder<TransitionMatrixFromModel> {
-		static ValueRef<MatrixDouble> make (NodeRefVec && deps, const TransitionMatrixDimension & dim);
-	};
-
 	// (model, branch length) -> d(transition matrix)
 	class TransitionMatrixFromModelBrlenDerivative;
 	template <> struct Builder<TransitionMatrixFromModelBrlenDerivative> {

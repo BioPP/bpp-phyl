@@ -180,6 +180,7 @@ namespace dataflow {
 
 	/** equilibriumFrequencies = f(model).
 	 * equilibriumFrequencies: RowVector.
+	 * model: ConfiguredModel.
 	 */
 	class EquilibriumFrequenciesFromModel : public Value<Eigen::RowVectorXd> {
 	public:
@@ -188,6 +189,29 @@ namespace dataflow {
 
 		static ValueRef<T> create (Context & c, NodeRefVec && deps, const Dimension<T> & dim);
 		EquilibriumFrequenciesFromModel (NodeRefVec && deps, const Dimension<T> & dim);
+
+		std::string debugInfo () const final;
+
+		NodeRef derive (Context & c, const Node & node) final;
+
+	private:
+		void compute () final;
+
+		Dimension<T> targetDimension;
+	};
+
+	/** transitionMatrix = f(model, branchLen).
+	 * transitionMatrix: Matrix.
+	 * model: ConfiguredModel.
+	 * branchLen: double.
+	 */
+	class TransitionMatrixFromModel : public Value<Eigen::MatrixXd> {
+	public:
+		using Self = TransitionMatrixFromModel;
+		using T = Eigen::MatrixXd;
+
+		static ValueRef<T> create (Context & c, NodeRefVec && deps, const Dimension<T> & dim);
+		TransitionMatrixFromModel (NodeRefVec && deps, const Dimension<T> & dim);
 
 		std::string debugInfo () const final;
 
