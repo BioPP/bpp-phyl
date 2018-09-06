@@ -176,7 +176,7 @@ namespace dataflow {
 		for (std::size_t i = 0; i < model.nbDependencies (); ++i) {
 			// First compute dxi_dn. If this maps to a constant 0, do not compute df_dxi at all (costly).
 			auto dxi_dn = model.dependency (i)->derive (c, node);
-			if (!dxi_dn->isConstantAnd (NumericalProperty::Zero)) {
+			if (!dxi_dn->hasNumericalProperty (NumericalProperty::ConstantZero)) {
 				auto buildFWithNewXi = [this, i, &model](Context & c, ValueRef<double> newDep,
 				                                         const Dimension<T> & nodeDim) {
 					// The sub-graph that will be replicated with shifted inputs is: equFreq -> model

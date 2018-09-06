@@ -74,10 +74,10 @@ namespace dataflow {
 
 	/// Numerical properties for DF Node.
 	enum class NumericalProperty {
-		Constant, // Is a constant value
-		Zero,     // Is a zero value for its type
-		One,      // Is a one value for its type
-		Identity, // Is identity (for matrices mostly ; double(1.) is also considered identity).
+		Constant,         // Is a constant value
+		ConstantZero,     // Is a zero value for its type
+		ConstantOne,      // Is a one value for its type
+		ConstantIdentity, // Is identity (for matrices mostly ; double(1.) is also considered identity).
 	};
 
 	/// @name Error functions (generate a message and throw exceptions).
@@ -169,10 +169,6 @@ namespace dataflow {
 		 * This should be non recursive, to ensure a constant time check.
 		 */
 		virtual bool hasNumericalProperty (NumericalProperty prop) const;
-
-		bool isConstantAnd (NumericalProperty prop) const {
-			return hasNumericalProperty (NumericalProperty::Constant) && hasNumericalProperty (prop);
-		}
 
 		/** @brief Returns a node computing d(this_node_expression)/d(node_expression).
 		 *

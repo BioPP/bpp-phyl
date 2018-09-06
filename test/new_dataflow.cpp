@@ -476,7 +476,7 @@ struct OpaqueTestFunction : public Value<double>
     {
       // First compute dxi_dn. If this maps to a constant 0, do not compute df_dxi at all (costly).
       auto dxi_dn = this->dependency(i)->derive(c, node);
-      if (!dxi_dn->isConstantAnd(NumericalProperty::Zero))
+      if (!dxi_dn->hasNumericalProperty(NumericalProperty::ConstantZero))
       {
         auto buildFWithNewXi = [this, i](Context& c, ValueRef<double> newDep, const Dimension<double>& nodeDim) {
           // Build a duplicate of Self (OpaqueTestFunction) with replaced dependency.
