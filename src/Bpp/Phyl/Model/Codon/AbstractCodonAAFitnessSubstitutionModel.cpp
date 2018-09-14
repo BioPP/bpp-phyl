@@ -65,9 +65,8 @@ AbstractCodonAAFitnessSubstitutionModel::~AbstractCodonAAFitnessSubstitutionMode
 void AbstractCodonAAFitnessSubstitutionModel::fireParameterChanged (const ParameterList& parameters)
 {
   AbstractParameterAliasable::fireParameterChanged(parameters); 
-  
-  if (parameters.hasParameter(getNamespace()+"Ns"))
-    Ns_=parameters.getParameterValue(getNamespace()+"Ns");
+  if (hasParameter("Ns"))
+    Ns_=getParameterValue("Ns");
   
   pfitset_->matchParametersValues(parameters);
 }
@@ -84,9 +83,9 @@ double AbstractCodonAAFitnessSubstitutionModel::getCodonsMulRate(size_t i, size_
 
   int aai = pgencode_->translate(stateMap_->getAlphabetStateAsInt(i));
   int aaj = pgencode_->translate(stateMap_->getAlphabetStateAsInt(j));
-
-  double phi_j= pfitset_->getFrequencies() [protStateMap_->getModelStates(aai)[0]];
-  double phi_i= pfitset_->getFrequencies() [protStateMap_->getModelStates(aaj)[0]];
+  
+  double phi_i= pfitset_->getFrequencies() [protStateMap_->getModelStates(aai)[0]];
+  double phi_j= pfitset_->getFrequencies() [protStateMap_->getModelStates(aaj)[0]];
 
   if (phi_i == phi_j || Ns_==0)
     mu=1;
