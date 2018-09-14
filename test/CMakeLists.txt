@@ -24,4 +24,3 @@ foreach (test_cpp_file ${test_cpp_files})
     )
   set_tests_properties (${test_name} PROPERTIES TIMEOUT 60000)
 endforeach (test_cpp_file)
-

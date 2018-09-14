@@ -7,6 +7,16 @@
 
 # File list
 set (CPP_FILES
+  Bpp/NewPhyl/DataFlow.cpp
+  Bpp/NewPhyl/DataFlowNumeric.cpp
+  Bpp/NewPhyl/Likelihood.cpp
+  #  Bpp/NewPhyl/Debug.cpp
+  #  Bpp/NewPhyl/ImportMaster.cpp
+  #  Bpp/NewPhyl/ImportNewlik.cpp
+  #  Bpp/NewPhyl/Model.cpp
+  #  Bpp/NewPhyl/Optimizer.cpp
+  #  Bpp/NewPhyl/Phylogeny.cpp
+  #  Bpp/NewPhyl/PhylogenyTypes.cpp
   Bpp/Phyl/App/PhylogeneticsApplicationTools.cpp
   Bpp/Phyl/Distance/AbstractAgglomerativeDistanceMethod.cpp
   Bpp/Phyl/Distance/BioNJ.cpp
@@ -237,7 +247,7 @@ target_include_directories (${PROJECT_NAME}-static PUBLIC
   $<INSTALL_INTERFACE:$<INSTALL_PREFIX>/${CMAKE_INSTALL_INCLUDEDIR}>
   )
 set_target_properties (${PROJECT_NAME}-static PROPERTIES OUTPUT_NAME ${PROJECT_NAME})
-target_link_libraries (${PROJECT_NAME}-static ${BPP_LIBS_STATIC})
+target_link_libraries (${PROJECT_NAME}-static ${BPP_LIBS_STATIC} Eigen3::Eigen)
 
 # Build the shared lib
 add_library (${PROJECT_NAME}-shared SHARED ${CPP_FILES})
@@ -251,7 +261,7 @@ set_target_properties (${PROJECT_NAME}-shared
   VERSION ${${PROJECT_NAME}_VERSION}
   SOVERSION ${${PROJECT_NAME}_VERSION_MAJOR}
   )
-target_link_libraries (${PROJECT_NAME}-shared ${BPP_LIBS_SHARED})
+target_link_libraries (${PROJECT_NAME}-shared ${BPP_LIBS_SHARED} Eigen3::Eigen)
 
 # Install libs and headers
 install (
