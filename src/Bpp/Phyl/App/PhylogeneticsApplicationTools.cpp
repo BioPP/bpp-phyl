@@ -756,6 +756,7 @@ TreeLikelihood* PhylogeneticsApplicationTools::optimizeParameters(
     (prPath == "none") ? 0 :
     (prPath == "std") ? ApplicationTools::message.get() :
     new StlOutputStream(new ofstream(prPath.c_str(), ios::out));
+
   if (profiler)
     profiler->setPrecision(20);
   if (verbose)
@@ -1139,6 +1140,11 @@ TreeLikelihood* PhylogeneticsApplicationTools::optimizeParameters(
     n += finalOptimizer->getNumberOfEvaluations();
     delete finalOptimizer;
   }
+
+  if (prPath != "none" && prPath != "std")
+    delete profiler;
+  if (mhPath != "none" && mhPath != "std")
+    delete messageHandler;
 
   if (verbose)
     ApplicationTools::displayResult("Performed", TextTools::toString(n) + " function evaluations.");

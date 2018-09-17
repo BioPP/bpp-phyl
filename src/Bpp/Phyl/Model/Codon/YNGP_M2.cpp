@@ -63,9 +63,9 @@ YNGP_M2::YNGP_M2(const GeneticCode* gc, FrequenciesSet* codonFreqs) :
   map<string, DiscreteDistribution*> mpdd;
   mpdd["omega"] = psdd;
 
-  YN98* yn98 = new YN98(gc, codonFreqs);
+  unique_ptr<YN98> yn98(new YN98(gc, codonFreqs));
 
-  pmixmodel_.reset(new MixtureOfASubstitutionModel(gc->getSourceAlphabet(), yn98, mpdd));
+  pmixmodel_.reset(new MixtureOfASubstitutionModel(gc->getSourceAlphabet(), yn98.get(), mpdd));
   delete psdd;
 
   vector<int> supportedChars = yn98->getAlphabetStates();
