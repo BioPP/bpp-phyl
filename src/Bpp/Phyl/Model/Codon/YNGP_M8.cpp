@@ -74,9 +74,9 @@ YNGP_M8::YNGP_M8(const GeneticCode* gc, FrequenciesSet* codonFreqs, unsigned int
   map<string, DiscreteDistribution*> mpdd;
   mpdd["omega"] = pmodd;
 
-  YN98* yn98 = new YN98(gc, codonFreqs);
+  unique_ptr<YN98> yn98(new YN98(gc, codonFreqs));
 
-  pmixmodel_.reset(new MixtureOfASubstitutionModel(gc->getSourceAlphabet(), yn98, mpdd));
+  pmixmodel_.reset(new MixtureOfASubstitutionModel(gc->getSourceAlphabet(), yn98.get(), mpdd));
   delete pbdd;
 
   vector<int> supportedChars = yn98->getAlphabetStates();
