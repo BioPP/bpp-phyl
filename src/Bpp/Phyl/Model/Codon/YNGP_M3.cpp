@@ -74,9 +74,9 @@ YNGP_M3::YNGP_M3(const GeneticCode* gc, FrequenciesSet* codonFreqs, unsigned int
   map<string, DiscreteDistribution*> mpdd;
   mpdd["omega"] = psdd;
 
-  YN98* yn98 = new YN98(gc, codonFreqs);
+  unique_ptr<YN98> yn98(new YN98(gc, codonFreqs));
 
-  pmixmodel_.reset(new MixtureOfASubstitutionModel(gc->getSourceAlphabet(), yn98, mpdd));
+  pmixmodel_.reset(new MixtureOfASubstitutionModel(gc->getSourceAlphabet(), yn98.get(), mpdd));
   delete psdd;
 
   vector<int> supportedChars = yn98->getAlphabetStates();
@@ -153,9 +153,10 @@ void YNGP_M3::updateMatrices()
   {
     if (mapParNamesFromPmodel_.find(lParPmodel_[i].getName()) != mapParNamesFromPmodel_.end())
     {
-      if (lParPmodel_[i].getName()[18] == 'V')
+      const string& np=lParPmodel_[i].getName();
+      if (np.size()>19 && np[18] == 'V')
       {
-        size_t ind = TextTools::to<size_t>(lParPmodel_[i].getName().substr(19));
+        size_t ind = TextTools::to<size_t>(np.substr(19));
         double x = getParameterValue("omega0");
         for (unsigned j = 1; j < ind; j++)
         {
@@ -165,7 +166,7 @@ void YNGP_M3::updateMatrices()
       }
       else
       {
-        lParPmodel_[i].setValue(getParameter(getParameterNameWithoutNamespace(mapParNamesFromPmodel_[lParPmodel_[i].getName()])).getValue());
+        lParPmodel_[i].setValue(getParameter(getParameterNameWithoutNamespace(mapParNamesFromPmodel_[np])).getValue());
       }
     }
   }
