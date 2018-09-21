@@ -238,9 +238,6 @@ std::vector<double> UniformizationSubstitutionCount::getNumberOfSubstitutionsPer
 
 void UniformizationSubstitutionCount::setSubstitutionModel(const SubstitutionModel* model)
 {
-  if (model==model_)
-    return;
-  
   //Check compatiblity between model and substitution register:
   if (model->getAlphabet()->getAlphabetType() != register_->getAlphabet()->getAlphabetType())
     throw Exception("UniformizationSubstitutionCount::setSubstitutionModel: alphabets do not match between register and model.");
@@ -263,6 +260,9 @@ void UniformizationSubstitutionCount::setSubstitutionModel(const SubstitutionMod
 
   if (miu_ > 10000)
     throw Exception("UniformizationSubstitutionCount::setSubstitutionModel(). The maximum diagonal values of generator is above 10000. Abort, chose another mapping method.");
+
+  //Recompute counts:
+  computeCounts_(currentLength_);
 }
 
 /******************************************************************************/

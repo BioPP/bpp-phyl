@@ -111,15 +111,6 @@ namespace bpp
     virtual bool normalizationsPerformed() const = 0;
 
     /*
-     * @brief compute Counts
-     * @param threshold a threshold to check to consider only counts above threshold. Default: -1 means no threshold used.
-     * @param verbose  
-     *
-     */
-
-    virtual void computeCounts(double threshold = -1, bool verbose = true) = 0;
-
-    /*
      * @brief Return the tree of counts
      *
      */

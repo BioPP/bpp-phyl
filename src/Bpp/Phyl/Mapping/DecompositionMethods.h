@@ -134,10 +134,6 @@ namespace bpp
     
     void setSubstitutionModel(const SubstitutionModel* model);
 
-    const SubstitutionModel* getSubstitutionModel() const
-    {
-      return model_;
-    }
 
   protected:
 

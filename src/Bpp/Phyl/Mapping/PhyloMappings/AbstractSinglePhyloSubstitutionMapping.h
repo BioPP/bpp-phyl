@@ -123,46 +123,6 @@ namespace bpp
     virtual ~AbstractSinglePhyloSubstitutionMapping() {}
     
     /*
-     * @brief Return the tree of counts
-     *
-     */
-
-    bool countsPerformed() const
-    {
-      return counts_!=0;
-    }
-    
-    ProbabilisticSubstitutionMapping& getCounts()
-    {
-      return *counts_;
-    }
-
-    const ProbabilisticSubstitutionMapping& getCounts() const
-    {
-      return *counts_;
-    }
-
-    /*
-     * @brief Return the tree of factors
-     *
-     */
-    
-    bool normalizationsPerformed() const
-    {
-      return factors_!=0;
-    }
-    
-    ProbabilisticSubstitutionMapping& getNormalizations()
-    {
-      return *factors_;
-    }
-
-    const ProbabilisticSubstitutionMapping& getNormalizations() const
-    {
-      return *factors_;
-    }
-
-    /*
      * @brief From BranchedModelSet
      *
      * @{

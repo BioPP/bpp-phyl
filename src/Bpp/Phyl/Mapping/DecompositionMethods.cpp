@@ -51,7 +51,7 @@ using namespace bpp;
 /******************************************************************************/
 
 DecompositionMethods::DecompositionMethods(const SubstitutionModel* model, SubstitutionRegister* reg) :
-  model_(0), // not (model) so setSubstitutionModel is effective
+  model_(model),
   nbStates_(model->getNumberOfStates()),
   nbTypes_(reg->getNumberOfSubstitutionTypes()),
   jMat_(nbStates_, nbStates_),
@@ -69,7 +69,7 @@ DecompositionMethods::DecompositionMethods(const SubstitutionModel* model, Subst
 
 
 DecompositionMethods::DecompositionMethods(const SubstitutionModel* model) :
-  model_(0), // not (model) so setSubstitutionModel is effective
+  model_(model),
   nbStates_(model->getNumberOfStates()),
   nbTypes_(1),
   jMat_(nbStates_, nbStates_),
@@ -221,9 +221,6 @@ void DecompositionMethods::initStates_()
 
 void DecompositionMethods::setSubstitutionModel(const SubstitutionModel* model)
 {
-  if (model_==model)
-    return;
-  
   model_ = model;
   size_t n = model->getNumberOfStates();
   if (n != nbStates_)

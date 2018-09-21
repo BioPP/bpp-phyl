@@ -133,17 +133,20 @@ double DecompositionReward::getReward(size_t initialState, size_t finalState, do
 
 void DecompositionReward::setSubstitutionModel(const SubstitutionModel* model)
 {
-  if (model==getSubstitutionModel())
-    return;
-  
   //Check compatiblity between model and substitution register:
   if (typeid(model->getAlphabet()) != typeid(alphIndex_->getAlphabet()))
     throw Exception("DecompositionReward::setSubstitutionModel: alphabets do not match between alphabet index and model.");
 
   DecompositionMethods::setSubstitutionModel(model);
 
+  initRewards_();
+  
   fillBMatrice_();  
   computeProducts_();
+
+  //Recompute rewards:
+
+  computeRewards_(currentLength_);
 }
 
 /******************************************************************************/

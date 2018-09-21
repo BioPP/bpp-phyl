@@ -140,6 +140,8 @@ void LaplaceSubstitutionCount::setSubstitutionModel(const SubstitutionModel* mod
   model_ = model;
   size_t n = model->getAlphabet()->getSize();
   m_.resize(n, n);
+  // Recompute counts:
+  computeCounts(currentLength_);
 }
 
 /******************************************************************************/
