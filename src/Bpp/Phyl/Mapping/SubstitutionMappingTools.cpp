@@ -271,7 +271,7 @@ ProbabilisticSubstitutionMapping* SubstitutionMappingTools::computeCounts(
       const SubstitutionModel* sm=dynamic_cast<const SubstitutionModel*>(sp.getModel(icid,ncl));
       if (!sm)
         throw Exception("SubstitutionMappingTools:: non substitution model in node " + TextTools::toString(icid));
-      
+
       substitutionCount.setSubstitutionModel(sm);
       
       // compute all nxy * pxy first:
@@ -586,7 +586,7 @@ PhyloTree* SubstitutionMappingTools::getTreeForType(const ProbabilisticSubstitut
 {
   unique_ptr<PhyloTree> pt(new PhyloTree(counts));
   size_t nbSites = counts.getNumberOfSites();
-
+  
   unique_ptr<ProbabilisticSubstitutionMapping::mapTree::EdgeIterator> brIt=counts.allEdgesIterator();
 
   for (;!brIt->end();brIt->next())
@@ -599,7 +599,6 @@ PhyloTree* SubstitutionMappingTools::getTreeForType(const ProbabilisticSubstitut
 
     pt->getEdge(counts.getEdgeIndex(brm))->setLength(x);
   }
- 
   return pt.release();
 }
 

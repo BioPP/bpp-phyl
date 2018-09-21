@@ -179,26 +179,24 @@ std::vector<double> DecompositionSubstitutionCount::getNumberOfSubstitutionsPerT
 
 void DecompositionSubstitutionCount::setSubstitutionModel(const SubstitutionModel* model)
 {
+  if (model==getSubstitutionModel())
+    return;
+
   //Check compatiblity between model and substitution register:
   if (typeid(model->getAlphabet()) != typeid(register_->getAlphabet()))
     throw Exception("DecompositionMethods::setSubstitutionModel: alphabets do not match between register and model.");
 
   DecompositionMethods::setSubstitutionModel(model);
 
-  initCounts_();
-  
   fillBMatrices_();
   computeProducts_();
-  
-  //Recompute counts:
-  computeCounts_(currentLength_);
 }
 
 /******************************************************************************/
 
 void DecompositionSubstitutionCount::substitutionRegisterHasChanged()
 {
-//Check compatiblity between model and substitution register:
+  //Check compatiblity between model and substitution register:
   if (model_->getAlphabet()->getAlphabetType() != register_->getAlphabet()->getAlphabetType())
     throw Exception("DecompositionMethods::substitutionRegisterHasChanged: alphabets do not match between register and model.");
 

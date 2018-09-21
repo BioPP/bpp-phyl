@@ -71,11 +71,10 @@ namespace bpp
     void setBranchedModelSet_();
     
   public:
-    SingleProcessSubstitutionMapping(SingleProcessPhyloLikelihood& spp, SubstitutionRegister& reg, std::shared_ptr<const AlphabetIndex2> weights, std::shared_ptr<const AlphabetIndex2> distances, double threshold = -1, bool verbose = true) :
+    SingleProcessSubstitutionMapping(SingleProcessPhyloLikelihood& spp, SubstitutionRegister& reg, std::shared_ptr<const AlphabetIndex2> weights, std::shared_ptr<const AlphabetIndex2> distances) :
       AbstractSinglePhyloSubstitutionMapping(spp.getTree().getGraph(), reg, weights, distances),
       pSPP_(&spp)
     {
-      computeCounts(threshold, verbose);
       setBranchedModelSet_();
     }
 
@@ -114,20 +113,6 @@ namespace bpp
     void computeNormalizations(const ParameterList& nullParams,
                                bool verbose = true);
 
-    /*
-     * @brief Return the tree of counts
-     *
-     */
-
-    ProbabilisticSubstitutionMapping& getCounts()
-    {
-      return *counts_;
-    }
-
-    const ProbabilisticSubstitutionMapping& getCounts() const
-    {
-      return *counts_;
-    }
 
     size_t getNumberOfModels() const
     {
@@ -138,28 +123,7 @@ namespace bpp
     {
       return pSPP_->getSubstitutionProcess().getModelNumbers();
     }
-
-        
-    /*
-     * @brief Return the tree of factors
-     *
-     */
     
-    bool normalizationsPerformed() const
-    {
-      return factors_!=0;
-    }
-    
-    ProbabilisticSubstitutionMapping& getNormalizations()
-    {
-      return *factors_;
-    }
-
-    const ProbabilisticSubstitutionMapping& getNormalizations() const
-    {
-      return *factors_;
-    }
-
     RecursiveLikelihoodTreeCalculation& getLikelihoodCalculation()
     {
       return *(dynamic_cast<RecursiveLikelihoodTreeCalculation*>(pSPP_->getLikelihoodCalculation()));
