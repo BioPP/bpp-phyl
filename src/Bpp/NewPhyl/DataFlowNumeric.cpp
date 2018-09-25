@@ -45,14 +45,14 @@
 
 namespace bpp {
 std::string to_string (const MatrixDimension & dim) {
-	return "(" + std::to_string (dim.rows) + "," + std::to_string (dim.cols) + ")";
+	return "(" + std::to_string (dim.rows_) + "," + std::to_string (dim.cols_) + ")";
 }
 
 namespace numeric {
 	void checkDimensionIsSquare (const MatrixDimension & dim) {
-		if (dim.rows != dim.cols) {
-			throw Exception ("MatrixDimension is not square: " + std::to_string (dim.rows) + "x" +
-			                 std::to_string (dim.cols));
+		if (dim.rows_ != dim.cols_) {
+			throw Exception ("MatrixDimension is not square: " + std::to_string (dim.rows_) + "x" +
+			                 std::to_string (dim.cols_));
 		}
 	}
 } // namespace numeric
