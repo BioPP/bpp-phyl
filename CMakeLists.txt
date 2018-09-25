@@ -9,7 +9,7 @@ cmake_minimum_required (VERSION 2.8.11)
 project (bpp-phyl CXX)
 
 # Compile options
-set (CMAKE_CXX_FLAGS "-std=c++11 -Wall -Weffc++ -Wshadow -Wconversion")
+set (CMAKE_CXX_FLAGS "-std=c++11 -Wall -Wshadow -Wconversion")
 
 IF(NOT CMAKE_BUILD_TYPE)
   SET(CMAKE_BUILD_TYPE RelWithDebInfo CACHE STRING
