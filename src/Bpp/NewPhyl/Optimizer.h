@@ -1,0 +1,249 @@
+//
+// File: Optimizer.h
+// Authors:
+//   Francois Gindraud (2017)
+// Created: 2017-07-07
+// Last modified: 2017-07-07
+//
+
+/*
+  Copyright or © or Copr. Bio++ Development Team, (November 16, 2004)
+
+  This software is a computer program whose purpose is to provide classes
+  for phylogenetic data analysis.
+
+  This software is governed by the CeCILL license under French law and
+  abiding by the rules of distribution of free software. You can use,
+  modify and/ or redistribute the software under the terms of the CeCILL
+  license as circulated by CEA, CNRS and INRIA at the following URL
+  "http://www.cecill.info".
+
+  As a counterpart to the access to the source code and rights to copy,
+  modify and redistribute granted by the license, users are provided only
+  with a limited warranty and the software's author, the holder of the
+  economic rights, and the successive licensors have only limited
+  liability.
+
+  In this respect, the user's attention is drawn to the risks associated
+  with loading, using, modifying and/or developing or reproducing the
+  software by the user in light of its specific status of free software,
+  that may mean that it is complicated to manipulate, and that also
+  therefore means that it is reserved for developers and experienced
+  professionals having in-depth computer knowledge. Users are therefore
+  encouraged to load and test the software's suitability as regards their
+  requirements in conditions enabling the security of their systems and/or
+  data to be ensured and, more generally, to use and operate it in the
+  same conditions as regards security.
+
+  The fact that you are presently reading this means that you have had
+  knowledge of the CeCILL license and that you accept its terms.
+*/
+
+#ifndef BPP_NEWPHYL_OPTIMIZER_H
+#define BPP_NEWPHYL_OPTIMIZER_H
+
+#include <Bpp/NewPhyl/DataFlowTemplates.h>
+#include <Bpp/NewPhyl/Debug.h>
+#include <Bpp/NewPhyl/IntegerRange.h>
+#include <Bpp/Numeric/Function/Functions.h>
+#include <Bpp/Numeric/Parameter.h>
+#include <Bpp/Numeric/ParameterList.h>
+#include <unordered_map>
+#include <utility>
+
+#include <Bpp/NewPhyl/Model.h>
+#include <Bpp/NewPhyl/Phylogeny.h>
+#include <functional>
+#include <stack>
+
+namespace bpp {
+
+// Wraps a DF::Mutable<double> data flow node as a bpp::Parameter
+class DataFlowParameter : public Parameter {
+public:
+	DataFlowParameter (const std::string & name, DF::MutableRef<double> existingParam);
+	DataFlowParameter (const std::string & name, double initialValue);
+
+	// Parameter boilerplate
+	DataFlowParameter * clone () const override { return new DataFlowParameter (*this); }
+
+	// Override value access
+	double getValue () const override;
+	void setValue (double v) override;
+	// TODO care about the listeners
+
+	const DF::MutableRef<double> & getDataFlowParameter () const noexcept { return dfParam_; }
+
+private:
+	DF::MutableRef<double> dfParam_;
+	// FIXME improve sync between DF::Mutable value and bpp::Parameter
+};
+
+/** Builds a bpp::ParameterList from a set of branch length Mutable nodes.
+ * Requires a naming convention function (branchName).
+ * Also add constraints (strict positive lengths).
+ */
+inline ParameterList
+branchLengthParameterList (const TreeTopologyInterface & tree,
+                           const BranchLengthsInitializedFromValues & brlens,
+                           std::function<std::string (TopologyBranchIndex)> branchName) {
+	ParameterList params;
+
+	std::stack<TopologyNodeIndex> nodesToVisit;
+	nodesToVisit.push (tree.rootNode ());
+	while (!nodesToVisit.empty ()) {
+		auto node = nodesToVisit.top ();
+		nodesToVisit.pop ();
+		for (auto branch : tree.childBranches (node)) {
+			auto p = DataFlowParameter (branchName (branch), brlens.getBranchLengthMutableNode (branch));
+			p.setConstraint (Parameter::R_PLUS.clone (), true);
+			params.addParameter (std::move (p));
+			nodesToVisit.push (tree.childNode (branch));
+		}
+	}
+	return params;
+}
+
+/** Builds a bpp::ParameterList from a set of model mutable nodes.
+ * bpp::Parameter objects are created with the non namespaced name, with an optional prefix.
+ * The prefix can be used to reintroduce a namespacing.
+ * TODO do this better (namespacing).
+ */
+inline ParameterList modelParameterList (const ModelParameterMap & modelParameters,
+                                         const std::string prefix = "") {
+	ParameterList params;
+	for (const auto & mapItem : modelParameters.getMap ()) {
+		auto p = DataFlowParameter (prefix + mapItem.first, mapItem.second);
+		params.addParameter (std::move (p));
+	}
+	return params;
+}
+
+/*
+ * TODO use AbstractParametrizable (provides no way of adding parameters)
+ */
+class DataFlowFunction : public DerivableSecondOrder {
+private:
+	DF::ValueRef<double> dfFunction_;
+	ParameterList variables_;
+
+	struct StringPairHash {
+		std::size_t operator() (const std::pair<std::string, std::string> & p) const {
+			std::hash<std::string> strHash{};
+			return strHash (p.first) ^ (strHash (p.second) << 1);
+		}
+	};
+	mutable std::unordered_map<std::string, DF::ValueRef<double>> firstOrderDerivativeNodes_;
+	mutable std::unordered_map<std::pair<std::string, std::string>, DF::ValueRef<double>,
+	                           StringPairHash>
+	    secondOrderDerivativeNodes_;
+
+public:
+	DataFlowFunction (DF::ValueRef<double> dfNode, const ParameterList & variables)
+	    : dfFunction_ (std::move (dfNode)), variables_ (variables) {}
+
+	// Boilerplate
+	DataFlowFunction * clone () const override { return new DataFlowFunction (*this); }
+
+	// bpp::Parametrizable (prefix unused FIXME?)
+	bool hasParameter (const std::string & name) const override {
+		return variables_.hasParameter (name);
+	}
+	const ParameterList & getParameters () const override { return variables_; }
+	const Parameter & getParameter (const std::string & name) const override {
+		return variables_.getParameter (name);
+	}
+	double getParameterValue (const std::string & name) const override {
+		return variables_.getParameterValue (name);
+	}
+	void setAllParametersValues (const ParameterList & params) override {
+		return variables_.setAllParametersValues (params);
+	}
+	void setParameterValue (const std::string & name, double value) override {
+		variables_.setParameterValue (name, value);
+	}
+	void setParametersValues (const ParameterList & params) override {
+		variables_.setParametersValues (params);
+	}
+	bool matchParametersValues (const ParameterList & params) override {
+		return variables_.matchParametersValues (params);
+	}
+	std::size_t getNumberOfParameters () const override { return variables_.size (); }
+	void setNamespace (const std::string &) override {}
+	std::string getNamespace () const override { return {}; }
+	std::string getParameterNameWithoutNamespace (const std::string & name) const override {
+		return name;
+	}
+
+	// bpp::Function
+	void setParameters (const ParameterList & params) override {
+		variables_.setParametersValues (params);
+	}
+	double getValue () const override { return dfFunction_->getValue (); }
+
+	// bpp::DerivableFirstOrder
+	void enableFirstOrderDerivatives (bool) override {}
+	bool enableFirstOrderDerivatives () const override { return true; }
+	double getFirstOrderDerivative (const std::string & variable) const override {
+		auto it = firstOrderDerivativeNodes_.find (variable);
+		DF::ValueRef<double> node;
+		if (it != firstOrderDerivativeNodes_.end ()) {
+			node = it->second;
+		} else {
+			node = DF::convertRef<DF::Value<double>> (
+			    dfFunction_->derive (*getDataFlowParameter (variable)));
+			firstOrderDerivativeNodes_.insert (std::make_pair (variable, node));
+		}
+		return node->getValue ();
+	}
+
+	// bpp::DerivableSecondOrder
+	void enableSecondOrderDerivatives (bool) override {}
+	bool enableSecondOrderDerivatives () const override { return true; }
+	double getSecondOrderDerivative (const std::string & variable) const override {
+		return getSecondOrderDerivative (variable, variable);
+	}
+	double getSecondOrderDerivative (const std::string & variable1,
+	                                 const std::string & variable2) const override {
+		auto mapKey = std::make_pair (variable1, variable2);
+		auto it = secondOrderDerivativeNodes_.find (mapKey);
+		DF::ValueRef<double> node;
+		if (it != secondOrderDerivativeNodes_.end ()) {
+			node = it->second;
+		} else {
+			node =
+			    DF::convertRef<DF::Value<double>> (dfFunction_->derive (*getDataFlowParameter (variable1))
+			                                           ->derive (*getDataFlowParameter (variable2)));
+			secondOrderDerivativeNodes_.insert (std::make_pair (mapKey, node));
+		}
+		return node->getValue ();
+	}
+
+	// Debug introspection FIXME
+	std::vector<DF::NamedNodeRef> getAllNamedNodes (const std::string & funcName) const {
+		std::vector<DF::NamedNodeRef> namedNodes;
+		namedNodes.emplace_back (DF::NamedNodeRef{dfFunction_, funcName});
+		for (auto & derivative : firstOrderDerivativeNodes_)
+			namedNodes.emplace_back (
+			    DF::NamedNodeRef{derivative.second, "d(" + funcName + ")/d(" + derivative.first + ")"});
+		for (auto & derivative : secondOrderDerivativeNodes_)
+			namedNodes.emplace_back (
+			    DF::NamedNodeRef{derivative.second, "d2(" + funcName + ")/d(" + derivative.first.first +
+			                                            ")d(" + derivative.first.second + ")"});
+		for (auto i : range (variables_.size ()))
+			namedNodes.emplace_back (
+			    DF::NamedNodeRef{getDataFlowParameter (variables_[i]), variables_[i].getName ()});
+		return namedNodes;
+	}
+
+private:
+	static const DF::MutableRef<double> & getDataFlowParameter (const Parameter & param) {
+		return dynamic_cast<const DataFlowParameter &> (param).getDataFlowParameter ();
+	}
+	const DF::MutableRef<double> & getDataFlowParameter (const std::string & name) const {
+		return getDataFlowParameter (getParameter (name));
+	}
+};
+} // namespace bpp
+
+#endif // BPP_NEWPHYL_OPTIMIZER_H

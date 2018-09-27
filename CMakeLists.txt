@@ -9,7 +9,7 @@ cmake_minimum_required (VERSION 2.8.11)
 project (bpp-phyl CXX)
 
 # Compile options
-set (CMAKE_CXX_FLAGS "-std=c++11 -Wall -Weffc++ -Wshadow -Wconversion")
+set (CMAKE_CXX_FLAGS "-std=c++11 -Wall -Wshadow -Wconversion")
 
 IF(NOT CMAKE_BUILD_TYPE)
   SET(CMAKE_BUILD_TYPE RelWithDebInfo CACHE STRING
@@ -73,8 +73,14 @@ install (FILES ${CMAKE_CURRENT_BINARY_DIR}/package.cmake DESTINATION ${cmake-pac
 install (FILES ${CMAKE_CURRENT_BINARY_DIR}/package-version.cmake DESTINATION ${cmake-package-location}
   RENAME ${PROJECT_NAME}-config-version.cmake)
 
+# Use eigen (TODO, add eigen files to repository directly)
+find_package (Eigen3)
+
 # Define the libraries
 add_subdirectory (src)
+
+# TODO remove at some point, profiling setup for NewPhyl
+# add_subdirectory (profiling) FIXME Disabled for move to DF v3
 
 # Doxygen
 FIND_PACKAGE(Doxygen)
