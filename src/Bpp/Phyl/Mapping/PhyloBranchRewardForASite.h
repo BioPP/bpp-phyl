@@ -1,7 +1,7 @@
 //
-// File: PhyloBranchReward.h
+// File: PhyloBranchRewardForASite.h
 // Created by: Laurent Guéguen
-// Created on: dimanche 8 octobre 2017, à 22h 14
+// Created on: mercredi 26 septembre 2018, à 16h 15
 //
 
 /*
@@ -37,8 +37,8 @@
   knowledge of the CeCILL license and that you accept its terms.
 */
 
-#ifndef _PHYLOBRANCH_REWARD_H_
-#define _PHYLOBRANCH_REWARD_H_
+#ifndef _PHYLOBRANCH_REWARD_FOR_A_SITE_H_
+#define _PHYLOBRANCH_REWARD_FOR_A_SITE_H_
 
 #include <Bpp/Numeric/Number.h>
 #include <Bpp/Clonable.h>
@@ -58,7 +58,7 @@ namespace bpp
    *
    */
   
-  class PhyloBranchReward :
+  class PhyloBranchRewardForASite :
     public PhyloBranch
   {
   protected:
@@ -67,7 +67,7 @@ namespace bpp
      *
      */
     
-    Vdouble rewards_;
+    double reward_;
     
   public:
     /**
@@ -77,21 +77,21 @@ namespace bpp
      *
      */
     
-    PhyloBranchReward():
+    PhyloBranchRewardForASite():
       PhyloBranch(),
-      rewards_()
+      reward_()
     {
     }
 
-    PhyloBranchReward(double length):
+    PhyloBranchRewardForASite(double length):
       PhyloBranch(length),
-      rewards_()
+      reward_()
     {
     }
 
-    PhyloBranchReward(const PhyloBranch& branch):
+    PhyloBranchRewardForASite(const PhyloBranch& branch):
       PhyloBranch(branch),
-      rewards_()
+      reward_()
     {
     }
     
@@ -101,9 +101,9 @@ namespace bpp
      * @param branch The branch to copy.
      */
     
-    PhyloBranchReward(const PhyloBranchReward& branch):
+    PhyloBranchRewardForASite(const PhyloBranchRewardForASite& branch):
       PhyloBranch(branch),
-      rewards_(branch.rewards_)
+      reward_(branch.reward_)
     {
     }
     
@@ -114,97 +114,36 @@ namespace bpp
      * @return A reference toward this branch.
      */
 
-    PhyloBranchReward& operator=(const PhyloBranchReward& branch)
+    PhyloBranchRewardForASite& operator=(const PhyloBranchRewardForASite& branch)
     {
       PhyloBranch::operator=(branch);
-      rewards_ = branch.rewards_;
+      reward_ = branch.reward_;
       return *this;
       
     }
     
-    PhyloBranchReward* clone() const { return new PhyloBranchReward(*this); }
+    PhyloBranchRewardForASite* clone() const { return new PhyloBranchRewardForASite(*this); }
     
     /**
      * @brief destructor. In Graph, nothing is changed.
      *
      */
     
-    ~PhyloBranchReward()
+    ~PhyloBranchRewardForASite()
     {
     }
 
-    /**
-     * @brief Sets a number of sites.
-     */
+    double getReward()
+    {
+      return reward_;
+    }
     
-    void setNumberOfSites(size_t nbSites)
+    void setReward(double reward)
     {
-      rewards_.resize(nbSites);
+      reward_=reward;
     }
-
-    /**
-     * @brief Gets the number of sites.
-     */
-    
-    size_t getNumberOfSites() const
-    {
-      return rewards_.size();
-    }
-
-    
-    double getSiteReward(size_t site) const
-    {
-      if (site>=getNumberOfSites())
-        throw BadSizeException("PhyloBranchReward::getSiteReward : bad site number",site,getNumberOfSites());
-      return rewards_[site];
-    }
-
-    double setSiteReward(size_t site, double rew)
-    {
-      if (site>=getNumberOfSites())
-        throw BadSizeException("PhyloBranchReward::setSiteReward : bad site number",site,getNumberOfSites());
-      rewards_[site]=rew;
-    }
-
-    /**
-     * @brief Gets the rewards at a given site on a given type
-     *
-     */
-
-    /**
-     * @brief Without check
-     *
-     */
-    
-    double operator()(size_t site) const
-    {
-      return rewards_[site];
-    }
-
-    double& operator()(size_t site)
-    {
-      return rewards_[site];
-    }
-
-    /**
-     * @brief return rewards
-     *
-     */
-    
-    const Vdouble& getRewards() const
-    {
-      return rewards_;
-    }
-
-    Vdouble& getRewards()
-    {
-      return rewards_;
-    }
-
-
-  }; 
-
+  };
 
 } //end of namespace bpp.
 
-#endif  //_PHYLOBRANCH_REWARD_H_
+#endif  //_PHYLOBRANCH_REWARD_FOR_A_SITE_H_

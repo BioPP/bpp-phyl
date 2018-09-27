@@ -1,5 +1,5 @@
 //
-// File: PhyloBranchMapping.h
+// File: PhyloBranchMappingForASite.h
 // Created by: Laurent Guéguen
 // Created on: dimanche 8 octobre 2017, à 22h 14
 //
@@ -37,15 +37,14 @@
   knowledge of the CeCILL license and that you accept its terms.
 */
 
-#ifndef _PHYLOBRANCH_MAPPING_H_
-#define _PHYLOBRANCH_MAPPING_H_
+#ifndef _PHYLOBRANCH_MAPPING_FOR_A_SITEH_
+#define _PHYLOBRANCH_MAPPING_FOR_A_SITEH_
 
 #include <Bpp/Numeric/Number.h>
 #include <Bpp/Clonable.h>
 #include <Bpp/Exceptions.h>
 
 #include "../Tree/PhyloBranch.h"
-
 
 namespace bpp
 {
@@ -58,16 +57,16 @@ namespace bpp
    *
    */
   
-  class PhyloBranchMapping :
+  class PhyloBranchMappingForASite :
     public PhyloBranch
   {
   protected:
     /*
-     * @brief counts are stored by site / type
+     * @brief counts are stored by type
      *
      */
     
-    VVdouble counts_;
+    Vdouble counts_;
     
   public:
     /**
@@ -77,19 +76,19 @@ namespace bpp
      *
      */
     
-    PhyloBranchMapping():
+    PhyloBranchMappingForASite():
       PhyloBranch(),
       counts_()
     {
     }
 
-    PhyloBranchMapping(double length):
+    PhyloBranchMappingForASite(double length):
       PhyloBranch(length),
       counts_()
     {
     }
 
-    PhyloBranchMapping(const PhyloBranch& branch):
+    PhyloBranchMappingForASite(const PhyloBranch& branch):
       PhyloBranch(branch),
       counts_()
     {
@@ -101,7 +100,7 @@ namespace bpp
      * @param branch The branch to copy.
      */
     
-    PhyloBranchMapping(const PhyloBranchMapping& branch):
+    PhyloBranchMappingForASite(const PhyloBranchMappingForASite& branch):
       PhyloBranch(branch),
       counts_(branch.counts_)
     {
@@ -114,7 +113,7 @@ namespace bpp
      * @return A reference toward this branch.
      */
 
-    PhyloBranchMapping& operator=(const PhyloBranchMapping& branch)
+    PhyloBranchMappingForASite& operator=(const PhyloBranchMappingForASite& branch)
     {
       PhyloBranch::operator=(branch);
       counts_ = branch.counts_;
@@ -122,25 +121,15 @@ namespace bpp
       
     }
     
-    PhyloBranchMapping* clone() const { return new PhyloBranchMapping(*this); }
+    PhyloBranchMappingForASite* clone() const { return new PhyloBranchMappingForASite(*this); }
     
     /**
      * @brief destructor. In Graph, nothing is changed.
      *
      */
     
-    ~PhyloBranchMapping()
+    ~PhyloBranchMappingForASite()
     {
-    }
-
-    /**
-     * @brief Sets a number of sites. If the number of types is
-     * already defined, it is kept. 
-     */
-    
-    void setNumberOfSites(size_t nbSites)
-    {
-      VectorTools::resize2(counts_, nbSites, (counts_.size()!=0?counts_[0].size():0));
     }
 
     /**
@@ -149,26 +138,7 @@ namespace bpp
     
     void setNumberOfTypes(size_t nbTypes)
     {
-      VectorTools::resize2(counts_, counts_.size(), nbTypes);
-    }
-
-    /**
-     * @brief Define a number of types.
-     */
-    
-    void setNumberOfSitesAndTypes(size_t nbSites, size_t nbTypes)
-    {
-      VectorTools::resize2(counts_, nbSites, nbTypes);
-    }
-
-
-    /**
-     * @brief Gets the number of sites.
-     */
-    
-    size_t getNumberOfSites() const
-    {
-      return counts_.size();
+      counts_.resize(nbTypes);
     }
 
     /**
@@ -177,26 +147,26 @@ namespace bpp
     
     size_t getNumberOfTypes() const
     {
-      return counts_.size()?counts_[0].size():0;
+      return counts_.size();
     }
     
     /**
-     * @brief Gets the counts at a given site
+     * @brief Gets the counts
      *
      */
     
-    Vdouble& getSiteCount(size_t site)
+    Vdouble& getCounts()
     {
-      return counts_[site];
+      return counts_;
     }
 
-    const Vdouble& getSiteCount(size_t site) const
+    const Vdouble& getCounts() const
     {
-      return counts_[site];
+      return counts_;
     }
 
     /**
-     * @brief Gets the counts at a given site on a given type
+     * @brief Gets the counts on a given type
      *
      */
 
@@ -205,13 +175,11 @@ namespace bpp
      *
      */
     
-    double getSiteTypeCount(size_t site, size_t type) const
+    double getTypeCount(size_t type) const
     {
-      if (site>=getNumberOfSites())
-        throw BadSizeException("PhyloBranchMapping::getSiteTypeCount : bad site number",site,getNumberOfSites());
       if (type>=getNumberOfTypes())
-        throw BadSizeException("PhyloBranchMapping::getSiteTypeCount : bad site number",type,getNumberOfTypes());
-      return counts_[site][type];
+        throw BadSizeException("PhyloBranchMappingForASite::getSiteTypeCount : bad site number",type,getNumberOfTypes());
+      return counts_[type];
     }
 
     /**
@@ -219,13 +187,11 @@ namespace bpp
      *
      */
     
-    void setSiteTypeCount(size_t site, size_t type, double value)
+    void setTypeCount(size_t type, double value)
     {
-      if (site>=getNumberOfSites())
-        throw BadSizeException("PhyloBranchMapping::setSiteTypeCount : bad site number",site,getNumberOfSites());
       if (type>=getNumberOfTypes())
-        throw BadSizeException("PhyloBranchMapping::setSiteTypeCount : bad type number",type,getNumberOfTypes());
-      counts_[site][type]=value;
+        throw BadSizeException("PhyloBranchMappingForASite::setSiteTypeCount : bad type number",type,getNumberOfTypes());
+      counts_[type]=value;
     }
 
     
@@ -234,35 +200,19 @@ namespace bpp
      *
      */
     
-    double operator()(size_t site, size_t type) const
+    double operator()(size_t type) const
     {
-      return counts_[site][type];
+      return counts_[type];
     }
 
-    double& operator()(size_t site, size_t type)
+    double& operator()(size_t type)
     {
-      return counts_[site][type];
+      return counts_[type];
     }
-
-    /**
-     * @brief return counts
-     *
-     */
-    
-    const VVdouble& getCounts() const
-    {
-      return counts_;
-    }
-
-    VVdouble& getCounts()
-    {
-      return counts_;
-    }
-
 
   }; 
 
 
 } //end of namespace bpp.
 
-#endif  //_PHYLOBRANCH_MAPPING_H_
+#endif  //_PHYLOBRANCH_MAPPING_FOR_A_SITE_H_

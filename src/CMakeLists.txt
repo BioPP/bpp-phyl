@@ -106,11 +106,13 @@ set (CPP_FILES
   Bpp/Phyl/Mapping/PhyloMappings/AbstractSinglePhyloSubstitutionMapping.cpp
   Bpp/Phyl/Mapping/PhyloMappings/OneProcessSequenceSubstitutionMapping.cpp
   Bpp/Phyl/Mapping/PhyloMappings/SingleProcessSubstitutionMapping.cpp
-  Bpp/Phyl/Mapping/ProbabilisticRewardMapping.cpp
+  Bpp/Phyl/Mapping/ProbabilisticRewardMapping.cpp 
   Bpp/Phyl/Mapping/ProbabilisticSubstitutionMapping.cpp
   Bpp/Phyl/Mapping/RewardMappingTools.cpp
+  Bpp/Phyl/Mapping/RewardMappingToolsForASite.cpp
   Bpp/Phyl/Mapping/SubstitutionDistance.cpp
   Bpp/Phyl/Mapping/SubstitutionMappingTools.cpp
+  Bpp/Phyl/Mapping/SubstitutionMappingToolsForASite.cpp
   Bpp/Phyl/Mapping/SubstitutionRegister.cpp
   Bpp/Phyl/Mapping/UniformizationSubstitutionCount.cpp
   Bpp/Phyl/Mapping/WeightedSubstitutionCount.cpp
