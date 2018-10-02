@@ -1,6 +1,6 @@
-﻿AlignConsecutiveAssignments: 'false'
+﻿---
+AlignConsecutiveAssignments: 'false'
 AllowShortBlocksOnASingleLine: 'true'
-AllowShortFunctionsOnASingleLine: Inline
 AllowShortIfStatementsOnASingleLine: 'false'
 AllowShortLoopsOnASingleLine: 'false'
 AlwaysBreakAfterDefinitionReturnType: None
@@ -8,11 +8,13 @@ AlwaysBreakTemplateDeclarations: 'false'
 BinPackArguments: 'true'
 BinPackParameters: 'true'
 BreakBeforeBraces: Attach
-ColumnLimit: '100'
+ColumnLimit: '110'
 ConstructorInitializerAllOnOneLineOrOnePerLine: 'true'
+ConstructorInitializerIndentWidth: '2'
+ContinuationIndentWidth: '2'
 IndentCaseLabels: 'false'
 Language: Cpp
-NamespaceIndentation: Inner
+NamespaceIndentation: All
 PointerAlignment: Middle
 SpaceAfterCStyleCast: 'true'
 SpaceBeforeAssignmentOperators: 'true'
@@ -24,4 +26,6 @@ SpacesInParentheses: 'false'
 SpacesInSquareBrackets: 'false'
 Standard: Cpp11
 TabWidth: '2'
-UseTab: ForIndentation
+UseTab: Never
+
+...

@@ -53,11 +53,11 @@
 #include "DataFlow.h"
 
 namespace bpp {
-/******************************************************************************
- * Dimension.
- */
+  /******************************************************************************
+   * Dimension.
+   */
 
-/// Basic matrix dimension type
+  /// Basic matrix dimension type
   struct MatrixDimension {
     Eigen::Index rows_{};
     Eigen::Index cols_{};
@@ -75,25 +75,21 @@ namespace bpp {
 
   std::string to_string (const MatrixDimension & dim);
 
-/// Eigen vector are matrices with 1 column.
-  inline MatrixDimension vectorDimension (Eigen::Index size) {
-    return {size, 1};
-  }
-/// Eigen RowVector are matrices with 1 row.
-  inline MatrixDimension rowVectorDimension (Eigen::Index size) {
-    return {1, size};
-  }
+  /// Eigen vector are matrices with 1 column.
+  inline MatrixDimension vectorDimension (Eigen::Index size) { return {size, 1}; }
+  /// Eigen RowVector are matrices with 1 row.
+  inline MatrixDimension rowVectorDimension (Eigen::Index size) { return {1, size}; }
 
-/** Store a dimension for type T.
- * Declared but undefined by default.
- * Specialisations should be defined in the same header declaring the T type.
- * Specialisations should define a constructor from const T & : get the dimension of a T object.
- */
+  /** Store a dimension for type T.
+   * Declared but undefined by default.
+   * Specialisations should be defined in the same header declaring the T type.
+   * Specialisations should define a constructor from const T & : get the dimension of a T object.
+   */
   template <typename T> struct Dimension;
 
-/** Specialisation of Dimension<T> for floating point types.
- * This is a dummy empty type, required by generic code below.
- */
+  /** Specialisation of Dimension<T> for floating point types.
+   * This is a dummy empty type, required by generic code below.
+   */
   template <> struct Dimension<double> {
     Dimension () = default;
     Dimension (const double &) {}
@@ -108,22 +104,20 @@ namespace bpp {
     return "()";
   }
 
-/** Specialisation of Dimension<T> for eigen matrix types.
- * Note that in Eigen, a vector is a matrix with one column.
- * Redirect to MatrixDimension for all eigen matrix variants.
- */
-  template <typename T, int Rows, int Cols>
-  struct Dimension<Eigen::Matrix<T, Rows, Cols>> : MatrixDimension {
+  /** Specialisation of Dimension<T> for eigen matrix types.
+   * Note that in Eigen, a vector is a matrix with one column.
+   * Redirect to MatrixDimension for all eigen matrix variants.
+   */
+  template <typename T, int Rows, int Cols> struct Dimension<Eigen::Matrix<T, Rows, Cols>> : MatrixDimension {
     using MatrixDimension::MatrixDimension; // Have the same constructors as MatrixDimension
     Dimension (const MatrixDimension & dim) : MatrixDimension (dim) {} // From MatrixDimension
-    Dimension (std::initializer_list<uint> dim = {}) : MatrixDimension() {}
-    
+    Dimension (std::initializer_list<uint> dim = {}) : MatrixDimension () {}
   };
 
-/******************************************************************************
- * Collection of overloaded numerical functions.
- * Not documented with doxygen, as this is only intended for use in dataflow nodes.
- */
+  /******************************************************************************
+   * Collection of overloaded numerical functions.
+   * Not documented with doxygen, as this is only intended for use in dataflow nodes.
+   */
   namespace numeric {
     // Error util
     void checkDimensionIsSquare (const MatrixDimension & dim);
@@ -175,14 +169,13 @@ namespace bpp {
     /* Convert from F to R (with specific dimension).
      * scalar -> scalar: simple cast.
      * scalar -> matrix: fill the matrix with scalar value.
-     * matrix -> matrix: copy values, size must match (conversion between eigen dynamic/fixed types).
+     * matrix -> matrix: copy values, size must match (conversion between eigen dynamic/fixed)
      *
      * Two APIs:
      * r = convert(f, dim); -> convert returns a "converted" result
      * convert (r, f, dim); -> convert does the assignment directly
      */
-    template <typename R, typename F,
-              typename = typename std::enable_if<std::is_arithmetic<R>::value>::type>
+    template <typename R, typename F, typename = typename std::enable_if<std::is_arithmetic<R>::value>::type>
     R convert (const F & from, const Dimension<R> &) {
       return R (from); // scalar -> scalar
     }
@@ -190,7 +183,8 @@ namespace bpp {
               typename = typename std::enable_if<std::is_arithmetic<F>::value>::type>
     auto convert (const F & from, const Dimension<Eigen::Matrix<T, Rows, Cols>> & dim)
       -> decltype (Eigen::Matrix<T, Rows, Cols>::Constant (dim.rows_, dim.cols_, from)) {
-      return Eigen::Matrix<T, Rows, Cols>::Constant (dim.rows_, dim.cols_, from); // scalar -> matrix
+      // scalar -> matrix
+      return Eigen::Matrix<T, Rows, Cols>::Constant (dim.rows_, dim.cols_, from);
     }
     template <typename T, int Rows, int Cols, typename DerivedF>
     const DerivedF & convert (const Eigen::MatrixBase<DerivedF> & from,
@@ -207,8 +201,7 @@ namespace bpp {
     T & cwise (T & t) {
       return t; // Do nothing for basic types
     }
-    template <typename Derived>
-    auto cwise (const Eigen::MatrixBase<Derived> & m) -> decltype (m.array ()) {
+    template <typename Derived> auto cwise (const Eigen::MatrixBase<Derived> & m) -> decltype (m.array ()) {
       return m.array (); // Use Array API in Eigen
     }
     template <typename Derived> auto cwise (Eigen::MatrixBase<Derived> & m) -> decltype (m.array ()) {
@@ -261,12 +254,12 @@ namespace bpp {
     }
   } // namespace numeric
 
-/******************************************************************************
- * Data flow nodes for those numerical functions.
- *
- * TODO what of rebuild ?
- * TODO numerical simplification: all deps constant => return constant ?
- */
+  /******************************************************************************
+   * Data flow nodes for those numerical functions.
+   *
+   * TODO what of rebuild ?
+   * TODO numerical simplification: all deps constant => return constant ?
+   */
   namespace dataflow {
     // Error utils
     [[noreturn]] void failureDeltaNotDerivable (const std::type_info & contextNodeType);
@@ -314,8 +307,7 @@ namespace bpp {
         return std::make_shared<Self> (dim);
       }
 
-      explicit ConstantZero (const Dimension<T> & dim)
-        : Value<T> (NodeRefVec{}), targetDimension (dim) {}
+      explicit ConstantZero (const Dimension<T> & dim) : Value<T> (NodeRefVec{}), targetDimension (dim) {}
 
       std::string debugInfo () const override { return "targetDim=" + to_string (targetDimension); }
 
@@ -359,8 +351,7 @@ namespace bpp {
         return std::make_shared<Self> (dim);
       }
 
-      explicit ConstantOne (const Dimension<T> & dim)
-        : Value<T> (NodeRefVec{}), targetDimension (dim) {}
+      explicit ConstantOne (const Dimension<T> & dim) : Value<T> (NodeRefVec{}), targetDimension (dim) {}
 
       std::string debugInfo () const override { return "targetDim=" + to_string (targetDimension); }
 
@@ -407,8 +398,7 @@ namespace bpp {
 
       /// Sets an initial value constructed with the given arguments.
       template <typename... Args>
-      explicit NumericConstant (Args &&... args)
-        : Value<T> (NodeRefVec{}, std::forward<Args> (args)...) {
+      explicit NumericConstant (Args &&... args) : Value<T> (NodeRefVec{}, std::forward<Args> (args)...) {
         this->makeValid (); // Always valid
       }
 
@@ -465,8 +455,7 @@ namespace bpp {
 
       /// Sets an initial value constructed with the given arguments.
       template <typename... Args>
-      explicit NumericMutable (Args &&... args)
-        : Value<T> (NodeRefVec{}, std::forward<Args> (args)...) {
+      explicit NumericMutable (Args &&... args) : Value<T> (NodeRefVec{}, std::forward<Args> (args)...) {
         this->makeValid (); // Initial value is valid
       }
 
@@ -553,9 +542,7 @@ namespace bpp {
         }
         return Self::create (c, {this->dependency (0)->derive (c, node)}, targetDimension);
       }
-      bool isDerivable (const Node & node) const final {
-        return this->dependency (0)->isDerivable (node);
-      }
+      bool isDerivable (const Node & node) const final { return this->dependency (0)->isDerivable (node); }
 
     private:
       void compute () final {
@@ -578,8 +565,7 @@ namespace bpp {
      * The generic version is horrible in C++11 (lack of auto return).
      * Generic simplification routine is horrible too.
      */
-    template <typename R, typename T0, typename T1>
-    class CWiseAdd<R, std::tuple<T0, T1>> : public Value<R> {
+    template <typename R, typename T0, typename T1> class CWiseAdd<R, std::tuple<T0, T1>> : public Value<R> {
     public:
       using Self = CWiseAdd;
 
@@ -622,9 +608,7 @@ namespace bpp {
         }
         return Self::create (c, std::move (derivedDeps), targetDimension);
       }
-      bool isDerivable (const Node & node) const final {
-        return allDerivable (this->dependencies (), node);
-      }
+      bool isDerivable (const Node & node) const final { return allDerivable (this->dependencies (), node); }
 
     private:
       void compute () final {
@@ -655,8 +639,8 @@ namespace bpp {
         checkDependencyRangeIsValue<T> (typeid (Self), deps, 0, deps.size ());
         // Remove 0s from deps
         removeDependenciesIf (deps, [](const NodeRef & dep) {
-            return dep->hasNumericalProperty (NumericalProperty::ConstantZero);
-          });
+          return dep->hasNumericalProperty (NumericalProperty::ConstantZero);
+        });
         // Select node implementation
         if (deps.size () == 0) {
           return ConstantZero<R>::create (c, dim);
@@ -688,9 +672,7 @@ namespace bpp {
         }
         return Self::create (c, std::move (derivedDeps), targetDimension);
       }
-      bool isDerivable (const Node & node) const final {
-        return allDerivable (this->dependencies (), node);
-      }
+      bool isDerivable (const Node & node) const final { return allDerivable (this->dependencies (), node); }
 
     private:
       void compute () final {
@@ -713,8 +695,7 @@ namespace bpp {
      * Values converted to R with the semantics of numeric::convert.
      * Only defined for N = 2 for now (same constraints as CWiseAdd for genericity).
      */
-    template <typename R, typename T0, typename T1>
-    class CWiseMul<R, std::tuple<T0, T1>> : public Value<R> {
+    template <typename R, typename T0, typename T1> class CWiseMul<R, std::tuple<T0, T1>> : public Value<R> {
     public:
       using Self = CWiseMul;
 
@@ -765,9 +746,7 @@ namespace bpp {
         }
         return CWiseAdd<R, std::tuple<R, R>>::create (c, std::move (addDeps), targetDimension);
       }
-      bool isDerivable (const Node & node) const final {
-        return allDerivable (this->dependencies (), node);
-      }
+      bool isDerivable (const Node & node) const final { return allDerivable (this->dependencies (), node); }
 
     private:
       void compute () final {
@@ -803,8 +782,8 @@ namespace bpp {
         }
         // Remove 1s from deps
         removeDependenciesIf (deps, [](const NodeRef & dep) {
-            return dep->hasNumericalProperty (NumericalProperty::ConstantOne);
-          });
+          return dep->hasNumericalProperty (NumericalProperty::ConstantOne);
+        });
         // Select node implementation
         if (deps.size () == 0) {
           return ConstantOne<R>::create (c, dim);
@@ -838,9 +817,7 @@ namespace bpp {
         }
         return CWiseAdd<R, ReductionOf<R>>::create (c, std::move (addDeps), targetDimension);
       }
-      bool isDerivable (const Node & node) const final {
-        return allDerivable (this->dependencies (), node);
-      }
+      bool isDerivable (const Node & node) const final { return allDerivable (this->dependencies (), node); }
 
     private:
       void compute () final {
@@ -889,9 +866,7 @@ namespace bpp {
         }
         return Self::create (c, {this->dependency (0)->derive (c, node)}, targetDimension);
       }
-      bool isDerivable (const Node & node) const final {
-        return this->dependency (0)->isDerivable (node);
-      }
+      bool isDerivable (const Node & node) const final { return this->dependency (0)->isDerivable (node); }
 
     private:
       void compute () final {
@@ -939,14 +914,10 @@ namespace bpp {
         // -1/x^2 * x'
         const auto & dep = this->dependency (0);
         return CWiseMul<T, std::tuple<T, T>>::create (
-          c,
-          {CWiseConstantPow<T>::create (c, {dep}, -2., -1., targetDimension),
-              dep->derive (c, node)},
+          c, {CWiseConstantPow<T>::create (c, {dep}, -2., -1., targetDimension), dep->derive (c, node)},
           targetDimension);
       }
-      bool isDerivable (const Node & node) const final {
-        return this->dependency (0)->isDerivable (node);
-      }
+      bool isDerivable (const Node & node) const final { return this->dependency (0)->isDerivable (node); }
 
     private:
       void compute () final {
@@ -986,8 +957,7 @@ namespace bpp {
           // pow (x, exponent) = 1/x
           return CWiseMul<T, std::tuple<double, T>>::create (
             c,
-            {NumericConstant<double>::create (c, factor),
-                CWiseInverse<T>::create (c, std::move (deps), dim)},
+            {NumericConstant<double>::create (c, factor), CWiseInverse<T>::create (c, std::move (deps), dim)},
             dim);
         } else {
           return std::make_shared<Self> (std::move (deps), exponent, factor, dim);
@@ -995,15 +965,12 @@ namespace bpp {
       }
 
       CWiseConstantPow (NodeRefVec && deps, double exponent, double factor, const Dimension<T> & dim)
-        : Value<T> (std::move (deps)),
-        targetDimension (dim),
-        exponent_ (exponent),
-        factor_ (factor) {}
+        : Value<T> (std::move (deps)), targetDimension (dim), exponent_ (exponent), factor_ (factor) {}
 
       std::string debugInfo () const override {
         using namespace numeric;
         return debug (this->accessValueConst ()) + " targetDim=" + to_string (targetDimension) +
-          " exponent=" + std::to_string (exponent_) + " factor=" + std::to_string (factor_);
+               " exponent=" + std::to_string (exponent_) + " factor=" + std::to_string (factor_);
       }
 
       NodeRef derive (Context & c, const Node & node) final {
@@ -1013,12 +980,9 @@ namespace bpp {
         // factor * (exponent * x^(exponent - 1)) * x'
         const auto & dep = this->dependency (0);
         auto dpow = Self::create (c, {dep}, exponent_ - 1., factor_ * exponent_, targetDimension);
-        return CWiseMul<T, std::tuple<T, T>>::create (c, {dpow, dep->derive (c, node)},
-                                                      targetDimension);
+        return CWiseMul<T, std::tuple<T, T>>::create (c, {dpow, dep->derive (c, node)}, targetDimension);
       }
-      bool isDerivable (const Node & node) const final {
-        return this->dependency (0)->isDerivable (node);
-      }
+      bool isDerivable (const Node & node) const final { return this->dependency (0)->isDerivable (node); }
 
     private:
       void compute () final {
@@ -1074,9 +1038,7 @@ namespace bpp {
         auto dx1_prod = Self::create (c, {x0, x1->derive (c, node)});
         return CWiseAdd<double, std::tuple<double, double>>::create (c, {dx0_prod, dx1_prod});
       }
-      bool isDerivable (const Node & node) const final {
-        return allDerivable (this->dependencies (), node);
-      }
+      bool isDerivable (const Node & node) const final { return allDerivable (this->dependencies (), node); }
 
     private:
       void compute () final {
@@ -1119,25 +1081,22 @@ namespace bpp {
         auto m_inverse = CWiseInverse<F>::create (c, {m}, mTargetDimension);
         return ScalarProduct<F, F>::create (c, {std::move (dm_dn), std::move (m_inverse)});
       }
-      bool isDerivable (const Node & node) const final {
-        return this->dependency (0)->isDerivable (node);
-      }
+      bool isDerivable (const Node & node) const final { return this->dependency (0)->isDerivable (node); }
 
     private:
       void compute () final {
         auto & result = this->accessValueMutable ();
         const auto & m = accessValueConstCast<F> (*this->dependency (0));
-        const ExtendedFloat product =
-          m.unaryExpr ([](double d) {
-              ExtendedFloat ef{d};
-              ef.normalize_small ();
-              return ef;
-            })
-          .redux ([](const ExtendedFloat & lhs, const ExtendedFloat & rhs) {
-              auto r = denorm_mul (lhs, rhs);
-              r.normalize_small ();
-              return r;
-            });
+        const ExtendedFloat product = m.unaryExpr ([](double d) {
+                                         ExtendedFloat ef{d};
+                                         ef.normalize_small ();
+                                         return ef;
+                                       })
+                                        .redux ([](const ExtendedFloat & lhs, const ExtendedFloat & rhs) {
+                                          auto r = denorm_mul (lhs, rhs);
+                                          r.normalize_small ();
+                                          return r;
+                                        });
         result = log (product);
       }
 
@@ -1199,9 +1158,7 @@ namespace bpp {
         auto dx1_prod = Self::create (c, {x0, x1->derive (c, node)}, targetDimension);
         return CWiseAdd<R, std::tuple<R, R>>::create (c, {dx0_prod, dx1_prod}, targetDimension);
       }
-      bool isDerivable (const Node & node) const final {
-        return allDerivable (this->dependencies (), node);
-      }
+      bool isDerivable (const Node & node) const final { return allDerivable (this->dependencies (), node); }
 
     private:
       void compute () final {
@@ -1228,8 +1185,7 @@ namespace bpp {
     public:
       using Self = ShiftDelta;
 
-      static ValueRef<T> create (Context & c, NodeRefVec && deps, int n,
-                                 const Dimension<T> & dim = {}) {
+      static ValueRef<T> create (Context & c, NodeRefVec && deps, int n, const Dimension<T> & dim = {}) {
         // Check dependencies
         checkDependenciesNotNull (typeid (Self), deps);
         checkDependencyVectorSize (typeid (Self), deps, 2);
@@ -1257,7 +1213,7 @@ namespace bpp {
       std::string debugInfo () const override {
         using namespace numeric;
         return debug (this->accessValueConst ()) + " targetDim=" + to_string (targetDimension) +
-          " n=" + std::to_string (n_);
+               " n=" + std::to_string (n_);
       }
 
       NodeRef derive (Context & c, const Node & node) final {
@@ -1268,9 +1224,7 @@ namespace bpp {
         auto & x = this->dependency (1);
         return Self::create (c, {delta->derive (c, node), x->derive (c, node)}, n_, targetDimension);
       }
-      bool isDerivable (const Node & node) const final {
-        return allDerivable (this->dependencies (), node);
-      }
+      bool isDerivable (const Node & node) const final { return allDerivable (this->dependencies (), node); }
 
       int getN () const { return n_; }
 
@@ -1304,8 +1258,8 @@ namespace bpp {
     public:
       using Self = CombineDeltaShifted;
 
-      static ValueRef<T> create (Context & c, NodeRefVec && deps, int n,
-                                 std::vector<double> && coeffs, const Dimension<T> & dim = {}) {
+      static ValueRef<T> create (Context & c, NodeRefVec && deps, int n, std::vector<double> && coeffs,
+                                 const Dimension<T> & dim = {}) {
         // Check dependencies
         checkDependenciesNotNull (typeid (Self), deps);
         checkDependencyVectorSize (typeid (Self), deps, 1 + coeffs.size ());
@@ -1316,8 +1270,7 @@ namespace bpp {
                                              std::vector<double> && coeffs2) -> ValueRef<T> {
           // Clean deps : remove constant 0, of deps with a 0 factor.
           for (std::size_t i = 0; i < coeffs2.size ();) {
-            if (coeffs2[i] == 0. ||
-                deps2[i + 1]->hasNumericalProperty (NumericalProperty::ConstantZero)) {
+            if (coeffs2[i] == 0. || deps2[i + 1]->hasNumericalProperty (NumericalProperty::ConstantZero)) {
               coeffs2.erase (coeffs2.begin () + std::ptrdiff_t (i));
               deps2.erase (deps2.begin () + std::ptrdiff_t (i + 1));
             } else {
@@ -1376,17 +1329,15 @@ namespace bpp {
         return cleanAndCreateNode (std::move (deps), n, std::move (coeffs));
       }
 
-      CombineDeltaShifted (NodeRefVec && deps, int n, std::vector<double> && coeffs,
-                           const Dimension<T> & dim)
+      CombineDeltaShifted (NodeRefVec && deps, int n, std::vector<double> && coeffs, const Dimension<T> & dim)
         : Value<T> (std::move (deps)), targetDimension (dim), coeffs_ (std::move (coeffs)), n_ (n) {
         assert (this->coeffs_.size () + 1 == this->nbDependencies ());
       }
 
       std::string debugInfo () const override {
         using namespace numeric;
-        std::string s = debug (this->accessValueConst ()) +
-          " targetDim=" + to_string (targetDimension) + " n=" + std::to_string (n_) +
-          " coeffs={";
+        std::string s = debug (this->accessValueConst ()) + " targetDim=" + to_string (targetDimension) +
+                        " n=" + std::to_string (n_) + " coeffs={";
         if (!coeffs_.empty ()) {
           s += std::to_string (coeffs_[0]);
           for (std::size_t i = 1; i < coeffs_.size (); ++i) {
@@ -1414,8 +1365,7 @@ namespace bpp {
         for (std::size_t i = 1; i < nbDeps; ++i) {
           derivedDeps[i] = this->dependency (i)->derive (c, node);
         }
-        return Self::create (c, std::move (derivedDeps), n_, std::vector<double>{coeffs_},
-                             targetDimension);
+        return Self::create (c, std::move (derivedDeps), n_, std::vector<double>{coeffs_}, targetDimension);
       }
       bool isDerivable (const Node & node) const final {
         return allDerivable (this->dependencies (), node); // FIXME delta arg ?
@@ -1473,8 +1423,7 @@ namespace bpp {
 
     extern template class CWiseAdd<double, std::tuple<double, double>>;
     extern template class CWiseAdd<Eigen::VectorXd, std::tuple<Eigen::VectorXd, Eigen::VectorXd>>;
-    extern template class CWiseAdd<Eigen::RowVectorXd,
-                                   std::tuple<Eigen::RowVectorXd, Eigen::RowVectorXd>>;
+    extern template class CWiseAdd<Eigen::RowVectorXd, std::tuple<Eigen::RowVectorXd, Eigen::RowVectorXd>>;
     extern template class CWiseAdd<Eigen::MatrixXd, std::tuple<Eigen::MatrixXd, Eigen::MatrixXd>>;
 
     extern template class CWiseAdd<double, ReductionOf<double>>;
@@ -1484,8 +1433,7 @@ namespace bpp {
 
     extern template class CWiseMul<double, std::tuple<double, double>>;
     extern template class CWiseMul<Eigen::VectorXd, std::tuple<Eigen::VectorXd, Eigen::VectorXd>>;
-    extern template class CWiseMul<Eigen::RowVectorXd,
-                                   std::tuple<Eigen::RowVectorXd, Eigen::RowVectorXd>>;
+    extern template class CWiseMul<Eigen::RowVectorXd, std::tuple<Eigen::RowVectorXd, Eigen::RowVectorXd>>;
     extern template class CWiseMul<Eigen::MatrixXd, std::tuple<Eigen::MatrixXd, Eigen::MatrixXd>>;
     extern template class CWiseMul<Eigen::VectorXd, std::tuple<double, Eigen::VectorXd>>;
     extern template class CWiseMul<Eigen::RowVectorXd, std::tuple<double, Eigen::RowVectorXd>>;
@@ -1556,10 +1504,9 @@ namespace bpp {
      * After creation, the pattern and node for delta cannot change, but delta value can.
      */
     template <typename NodeT, typename DepT, typename B>
-    ValueRef<NodeT>
-    generateNumericalDerivative (Context & c, const NumericalDerivativeConfiguration & config,
-                                 NodeRef dep, const Dimension<DepT> & depDim,
-                                 const Dimension<NodeT> & nodeDim, B buildNodeWithDep) {
+    ValueRef<NodeT> generateNumericalDerivative (Context & c, const NumericalDerivativeConfiguration & config,
+                                                 NodeRef dep, const Dimension<DepT> & depDim,
+                                                 const Dimension<NodeT> & nodeDim, B buildNodeWithDep) {
       if (config.delta == nullptr) {
         failureNumericalDerivationNotConfigured ();
       }
@@ -1572,8 +1519,7 @@ namespace bpp {
         combineDeps[0] = config.delta;
         combineDeps[1] = buildNodeWithDep (std::move (shift_m1));
         combineDeps[2] = buildNodeWithDep (std::move (shift_p1));
-        return CombineDeltaShifted<NodeT>::create (c, std::move (combineDeps), 1, {-0.5, 0.5},
-                                                   nodeDim);
+        return CombineDeltaShifted<NodeT>::create (c, std::move (combineDeps), 1, {-0.5, 0.5}, nodeDim);
       } break;
       case NumericalDerivativeType::FivePoints: {
         // Shift {-2, -1, +1, +2}, coeffs {1/12, -2/3, 2/3, -1/12}

@@ -81,11 +81,10 @@ namespace bpp {
             auto newModel = model.recreate (c, std::move (newModelDeps));
             return buildFWithNewModel (std::move (newModel));
           };
-          auto df_dxi = generateNumericalDerivative<T, double> (c, model.config, model.dependency (i),
-                                                                Dimension<double>{}, targetDimension,
-                                                                buildFWithNewXi);
+          auto df_dxi = generateNumericalDerivative<T, double> (
+            c, model.config, model.dependency (i), Dimension<double>{}, targetDimension, buildFWithNewXi);
           derivativeSumDeps.emplace_back (CWiseMul<T, std::tuple<double, T>>::create (
-                                            c, {std::move (dxi_dn), std::move (df_dxi)}, targetDimension));
+            c, {std::move (dxi_dn), std::move (df_dxi)}, targetDimension));
         }
       }
       return derivativeSumDeps;
@@ -108,7 +107,7 @@ namespace bpp {
      */
 
     std::unordered_map<std::string, std::shared_ptr<NumericMutable<double>>>
-      createParameterMapForModel (Context & c, const TransitionModel & model) {
+    createParameterMapForModel (Context & c, const TransitionModel & model) {
       const auto & modelParameters = model.getParameters ();
       const auto nbParameters = modelParameters.size ();
       std::unordered_map<std::string, std::shared_ptr<NumericMutable<double>>> map;
@@ -120,9 +119,8 @@ namespace bpp {
       return map;
     }
 
-    NodeRefVec
-    createDependencyVector (const TransitionModel & model,
-                            const std::function<NodeRef (const std::string &)> & getParameter) {
+    NodeRefVec createDependencyVector (const TransitionModel & model,
+                                       const std::function<NodeRef (const std::string &)> & getParameter) {
       const auto & modelParameters = model.getParameters ();
       const auto nbParameters = modelParameters.size ();
       NodeRefVec deps (nbParameters);
@@ -141,9 +139,8 @@ namespace bpp {
 
     // Model node
 
-    std::shared_ptr<ConfiguredModel>
-    ConfiguredModel::create (Context & c, NodeRefVec && deps,
-                             std::unique_ptr<TransitionModel> && model) {
+    std::shared_ptr<ConfiguredModel> ConfiguredModel::create (Context & c, NodeRefVec && deps,
+                                                              std::unique_ptr<TransitionModel> && model) {
       if (!model) {
         throw Exception ("ConfiguredModel(): nullptr TransitionModel");
       }
@@ -156,8 +153,7 @@ namespace bpp {
     }
 
     ConfiguredModel::ConfiguredModel (NodeRefVec && deps, std::unique_ptr<TransitionModel> && model)
-      : Value<const TransitionModel *> (std::move (deps), model.get ()),
-      model_ (std::move (model)) {}
+      : Value<const TransitionModel *> (std::move (deps), model.get ()), model_ (std::move (model)) {}
 
     ConfiguredModel::~ConfiguredModel () = default;
 
@@ -229,15 +225,13 @@ namespace bpp {
       const auto * model = accessValueConstCast<const TransitionModel *> (*this->dependency (0));
       const auto & freqsFromModel = model->getFrequencies ();
       auto & r = this->accessValueMutable ();
-      r = Eigen::Map<const T> (freqsFromModel.data (),
-                               static_cast<Eigen::Index> (freqsFromModel.size ()));
+      r = Eigen::Map<const T> (freqsFromModel.data (), static_cast<Eigen::Index> (freqsFromModel.size ()));
     }
 
     // TransitionMatrixFromModel
 
-    ValueRef<Eigen::MatrixXd>
-    TransitionMatrixFromModel::create (Context & c, NodeRefVec && deps,
-                                       const Dimension<Eigen::MatrixXd> & dim) {
+    ValueRef<Eigen::MatrixXd> TransitionMatrixFromModel::create (Context & c, NodeRefVec && deps,
+                                                                 const Dimension<Eigen::MatrixXd> & dim) {
       checkDependenciesNotNull (typeid (Self), deps);
       checkDependencyVectorSize (typeid (Self), deps, 2);
       checkNthDependencyIs<ConfiguredModel> (typeid (Self), deps, 0);

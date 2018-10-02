@@ -62,20 +62,16 @@
 #include <cxxabi.h>
 static std::string demangle (const char * name) {
   int status{};
-  std::unique_ptr<char, void (*) (void *)> res{
-    abi::__cxa_demangle (name, nullptr, nullptr, &status), std::free};
+  std::unique_ptr<char, void (*) (void *)> res{abi::__cxa_demangle (name, nullptr, nullptr, &status),
+                                               std::free};
   return status == 0 ? res.get () : name;
 }
 #else
-static std::string demangle (const char * name) {
-  return name;
-}
+static std::string demangle (const char * name) { return name; }
 #endif
 
 namespace bpp {
-  std::string prettyTypeName (const std::type_info & ti) {
-    return demangle (ti.name ());
-  }
+  std::string prettyTypeName (const std::type_info & ti) { return demangle (ti.name ()); }
 } // namespace bpp
 
 namespace bpp {
@@ -88,15 +84,13 @@ namespace bpp {
     }
 
     void failureNodeConversion (const std::type_info & handleType, const Node & node) {
-      throw Exception (prettyTypeName (handleType) +
-                       " cannot store: " + prettyTypeName (typeid (node)));
+      throw Exception (prettyTypeName (handleType) + " cannot store: " + prettyTypeName (typeid (node)));
     }
 
-    void failureDependencyNumberMismatch (const std::type_info & contextNodeType,
-                                          std::size_t expectedSize, std::size_t givenSize) {
-      throw Exception (prettyTypeName (contextNodeType) + ": expected " +
-                       std::to_string (expectedSize) + " dependencies, got " +
-                       std::to_string (givenSize));
+    void failureDependencyNumberMismatch (const std::type_info & contextNodeType, std::size_t expectedSize,
+                                          std::size_t givenSize) {
+      throw Exception (prettyTypeName (contextNodeType) + ": expected " + std::to_string (expectedSize) +
+                       " dependencies, got " + std::to_string (givenSize));
     }
 
     void failureEmptyDependency (const std::type_info & contextNodeType, std::size_t depIndex) {
@@ -146,8 +140,7 @@ namespace bpp {
     }
 
     std::string Node::description () const {
-      auto replaceAll = [](std::string & str, const std::string & pattern,
-                           const std::string & replacement) {
+      auto replaceAll = [](std::string & str, const std::string & pattern, const std::string & replacement) {
         std::string::size_type i = str.find (pattern);
         while (i != std::string::npos) {
           str.replace (i, pattern.size (), replacement);
@@ -310,8 +303,7 @@ namespace bpp {
     }
 
     // Write line with edge representation for n-th dependency of from
-    static void writeDotEdge (std::ostream & os, const Node & from, std::size_t depIndex,
-                              DotOptions opt) {
+    static void writeDotEdge (std::ostream & os, const Node & from, std::size_t depIndex, DotOptions opt) {
       os << '\t' << dotIdentifier (from) << " -> " << dotIdentifier (*from.dependency (depIndex));
       if (opt & DotOptions::ShowDependencyIndex) {
         os << " [label=\"" << depIndex << "\"]";
@@ -353,8 +345,7 @@ namespace bpp {
       }
     }
 
-    void writeGraphToDot (std::ostream & os, const std::vector<const Node *> & nodes,
-                          DotOptions opt) {
+    void writeGraphToDot (std::ostream & os, const std::vector<const Node *> & nodes, DotOptions opt) {
       os << "digraph {\n";
       writeGraphStructure (os, nodes, opt);
       os << "}\n";
