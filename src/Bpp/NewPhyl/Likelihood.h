@@ -194,7 +194,7 @@ namespace bpp {
     private:
       void compute () final;
 
-      Dimension<T> targetDimension;
+      Dimension<T> targetDimension_;
     };
 
     /** transitionMatrix = f(model, branchLen).
@@ -217,7 +217,7 @@ namespace bpp {
     private:
       void compute () final;
 
-      Dimension<T> targetDimension;
+      Dimension<T> targetDimension_;
     };
 
   } // namespace dataflow

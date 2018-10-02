@@ -302,13 +302,13 @@ namespace bpp {
     public:
       using Self = ConstantZero;
 
-      static std::shared_ptr<Self> create (Context &, const Dimension<T> & dim = {}) {
+      static std::shared_ptr<Self> create (Context &, const Dimension<T> & dim) {
         return std::make_shared<Self> (dim);
       }
 
-      explicit ConstantZero (const Dimension<T> & dim) : Value<T> (NodeRefVec{}), targetDimension (dim) {}
+      explicit ConstantZero (const Dimension<T> & dim) : Value<T> (NodeRefVec{}), targetDimension_ (dim) {}
 
-      std::string debugInfo () const override { return "targetDim=" + to_string (targetDimension); }
+      std::string debugInfo () const override { return "targetDim=" + to_string (targetDimension_); }
 
       bool hasNumericalProperty (NumericalProperty prop) const final {
         switch (prop) {
@@ -323,7 +323,7 @@ namespace bpp {
 
       NodeRef derive (Context & c, const Node & node) final {
         if (&node == this) {
-          return ConstantOne<T>::create (c, targetDimension);
+          return ConstantOne<T>::create (c, targetDimension_);
         }
         return this->shared_from_this (); // Return handle to self, as d(0)/dx = 0
       }
@@ -332,10 +332,10 @@ namespace bpp {
     private:
       void compute () final {
         using namespace numeric;
-        this->accessValueMutable () = zero (targetDimension);
+        this->accessValueMutable () = zero (targetDimension_);
       }
 
-      Dimension<T> targetDimension;
+      Dimension<T> targetDimension_;
     };
 
     /** r = 1 for each component.
@@ -346,13 +346,13 @@ namespace bpp {
     public:
       using Self = ConstantOne;
 
-      static std::shared_ptr<Self> create (Context &, const Dimension<T> & dim = {}) {
+      static std::shared_ptr<Self> create (Context &, const Dimension<T> & dim) {
         return std::make_shared<Self> (dim);
       }
 
-      explicit ConstantOne (const Dimension<T> & dim) : Value<T> (NodeRefVec{}), targetDimension (dim) {}
+      explicit ConstantOne (const Dimension<T> & dim) : Value<T> (NodeRefVec{}), targetDimension_ (dim) {}
 
-      std::string debugInfo () const override { return "targetDim=" + to_string (targetDimension); }
+      std::string debugInfo () const override { return "targetDim=" + to_string (targetDimension_); }
 
       bool hasNumericalProperty (NumericalProperty prop) const final {
         switch (prop) {
@@ -367,19 +367,19 @@ namespace bpp {
 
       NodeRef derive (Context & c, const Node & node) final {
         if (&node == this) {
-          return ConstantOne<T>::create (c, targetDimension);
+          return ConstantOne<T>::create (c, targetDimension_);
         }
-        return ConstantZero<T>::create (c, targetDimension);
+        return ConstantZero<T>::create (c, targetDimension_);
       }
       bool isDerivable (const Node &) const final { return true; }
 
     private:
       void compute () final {
         using namespace numeric;
-        this->accessValueMutable () = one (targetDimension);
+        this->accessValueMutable () = one (targetDimension_);
       }
 
-      Dimension<T> targetDimension;
+      Dimension<T> targetDimension_;
     };
 
     /** r = const.
@@ -510,7 +510,7 @@ namespace bpp {
     public:
       using Self = Convert;
 
-      static ValueRef<R> create (Context & c, NodeRefVec && deps, const Dimension<R> & dim = {}) {
+      static ValueRef<R> create (Context & c, NodeRefVec && deps, const Dimension<R> & dim) {
         // Check dependencies
         checkDependenciesNotNull (typeid (Self), deps);
         checkDependencyVectorSize (typeid (Self), deps, 1);
@@ -528,18 +528,18 @@ namespace bpp {
       }
 
       Convert (NodeRefVec && deps, const Dimension<R> & dim)
-        : Value<R> (std::move (deps)), targetDimension (dim) {}
+        : Value<R> (std::move (deps)), targetDimension_ (dim) {}
 
       std::string debugInfo () const override {
         using namespace numeric;
-        return debug (this->accessValueConst ()) + " targetDim=" + to_string (targetDimension);
+        return debug (this->accessValueConst ()) + " targetDim=" + to_string (targetDimension_);
       }
 
       NodeRef derive (Context & c, const Node & node) final {
         if (&node == this) {
-          return ConstantOne<R>::create (c, targetDimension);
+          return ConstantOne<R>::create (c, targetDimension_);
         }
-        return Self::create (c, {this->dependency (0)->derive (c, node)}, targetDimension);
+        return Self::create (c, {this->dependency (0)->derive (c, node)}, targetDimension_);
       }
       bool isDerivable (const Node & node) const final { return this->dependency (0)->isDerivable (node); }
 
@@ -548,10 +548,10 @@ namespace bpp {
         using namespace numeric;
         auto & result = this->accessValueMutable ();
         const auto & arg = accessValueConstCast<F> (*this->dependency (0));
-        convert (result, arg, targetDimension);
+        convert (result, arg, targetDimension_);
       }
 
-      Dimension<R> targetDimension;
+      Dimension<R> targetDimension_;
     };
 
     /** r = x0 + x1 for each component.
@@ -568,7 +568,7 @@ namespace bpp {
     public:
       using Self = CWiseAdd;
 
-      static ValueRef<R> create (Context & c, NodeRefVec && deps, const Dimension<R> & dim = {}) {
+      static ValueRef<R> create (Context & c, NodeRefVec && deps, const Dimension<R> & dim) {
         // Check dependencies
         checkDependenciesNotNull (typeid (Self), deps);
         checkDependencyVectorSize (typeid (Self), deps, 2);
@@ -589,23 +589,23 @@ namespace bpp {
       }
 
       CWiseAdd (NodeRefVec && deps, const Dimension<R> & dim)
-        : Value<R> (std::move (deps)), targetDimension (dim) {}
+        : Value<R> (std::move (deps)), targetDimension_ (dim) {}
 
       std::string debugInfo () const override {
         using namespace numeric;
-        return debug (this->accessValueConst ()) + " targetDim=" + to_string (targetDimension);
+        return debug (this->accessValueConst ()) + " targetDim=" + to_string (targetDimension_);
       }
 
       NodeRef derive (Context & c, const Node & node) final {
         if (&node == this) {
-          return ConstantOne<R>::create (c, targetDimension);
+          return ConstantOne<R>::create (c, targetDimension_);
         }
         constexpr std::size_t n = 2;
         NodeRefVec derivedDeps (n);
         for (std::size_t i = 0; i < n; ++i) {
           derivedDeps[i] = this->dependency (i)->derive (c, node);
         }
-        return Self::create (c, std::move (derivedDeps), targetDimension);
+        return Self::create (c, std::move (derivedDeps), targetDimension_);
       }
       bool isDerivable (const Node & node) const final { return allDerivable (this->dependencies (), node); }
 
@@ -618,7 +618,7 @@ namespace bpp {
         cwise (result) = cwise (x0) + cwise (x1);
       }
 
-      Dimension<R> targetDimension;
+      Dimension<R> targetDimension_;
     };
 
     /** r = sum (x_i), for each component.
@@ -632,7 +632,7 @@ namespace bpp {
     public:
       using Self = CWiseAdd;
 
-      static ValueRef<R> create (Context & c, NodeRefVec && deps, const Dimension<R> & dim = {}) {
+      static ValueRef<R> create (Context & c, NodeRefVec && deps, const Dimension<R> & dim) {
         // Check dependencies
         checkDependenciesNotNull (typeid (Self), deps);
         checkDependencyRangeIsValue<T> (typeid (Self), deps, 0, deps.size ());
@@ -653,23 +653,23 @@ namespace bpp {
       }
 
       CWiseAdd (NodeRefVec && deps, const Dimension<R> & dim)
-        : Value<R> (std::move (deps)), targetDimension (dim) {}
+        : Value<R> (std::move (deps)), targetDimension_ (dim) {}
 
       std::string debugInfo () const override {
         using namespace numeric;
-        return debug (this->accessValueConst ()) + " targetDim=" + to_string (targetDimension);
+        return debug (this->accessValueConst ()) + " targetDim=" + to_string (targetDimension_);
       }
 
       NodeRef derive (Context & c, const Node & node) final {
         if (&node == this) {
-          return ConstantOne<R>::create (c, targetDimension);
+          return ConstantOne<R>::create (c, targetDimension_);
         }
         const auto n = this->nbDependencies ();
         NodeRefVec derivedDeps (n);
         for (std::size_t i = 0; i < n; ++i) {
           derivedDeps[i] = this->dependency (i)->derive (c, node);
         }
-        return Self::create (c, std::move (derivedDeps), targetDimension);
+        return Self::create (c, std::move (derivedDeps), targetDimension_);
       }
       bool isDerivable (const Node & node) const final { return allDerivable (this->dependencies (), node); }
 
@@ -677,13 +677,13 @@ namespace bpp {
       void compute () final {
         using namespace numeric;
         auto & result = this->accessValueMutable ();
-        result = zero (targetDimension);
+        result = zero (targetDimension_);
         for (const auto & depNodeRef : this->dependencies ()) {
           cwise (result) += cwise (accessValueConstCast<T> (*depNodeRef));
         }
       }
 
-      Dimension<R> targetDimension;
+      Dimension<R> targetDimension_;
     };
 
     /** r = x0 * x1 for each component.
@@ -698,7 +698,7 @@ namespace bpp {
     public:
       using Self = CWiseMul;
 
-      static ValueRef<R> create (Context & c, NodeRefVec && deps, const Dimension<R> & dim = {}) {
+      static ValueRef<R> create (Context & c, NodeRefVec && deps, const Dimension<R> & dim) {
         // Check dependencies
         checkDependenciesNotNull (typeid (Self), deps);
         checkDependencyVectorSize (typeid (Self), deps, 2);
@@ -725,25 +725,25 @@ namespace bpp {
       }
 
       CWiseMul (NodeRefVec && deps, const Dimension<R> & dim)
-        : Value<R> (std::move (deps)), targetDimension (dim) {}
+        : Value<R> (std::move (deps)), targetDimension_ (dim) {}
 
       std::string debugInfo () const override {
         using namespace numeric;
-        return debug (this->accessValueConst ()) + " targetDim=" + to_string (targetDimension);
+        return debug (this->accessValueConst ()) + " targetDim=" + to_string (targetDimension_);
       }
 
       NodeRef derive (Context & c, const Node & node) final {
         if (&node == this) {
-          return ConstantOne<R>::create (c, targetDimension);
+          return ConstantOne<R>::create (c, targetDimension_);
         }
         constexpr std::size_t n = 2;
         NodeRefVec addDeps (n);
         for (std::size_t i = 0; i < n; ++i) {
           NodeRefVec ithMulDeps = this->dependencies ();
           ithMulDeps[i] = this->dependency (i)->derive (c, node);
-          addDeps[i] = Self::create (c, std::move (ithMulDeps), targetDimension);
+          addDeps[i] = Self::create (c, std::move (ithMulDeps), targetDimension_);
         }
-        return CWiseAdd<R, std::tuple<R, R>>::create (c, std::move (addDeps), targetDimension);
+        return CWiseAdd<R, std::tuple<R, R>>::create (c, std::move (addDeps), targetDimension_);
       }
       bool isDerivable (const Node & node) const final { return allDerivable (this->dependencies (), node); }
 
@@ -756,7 +756,7 @@ namespace bpp {
         cwise (result) = cwise (x0) * cwise (x1);
       }
 
-      Dimension<R> targetDimension;
+      Dimension<R> targetDimension_;
     };
 
     /** r = prod (x_i), for each component.
@@ -769,7 +769,7 @@ namespace bpp {
     public:
       using Self = CWiseMul;
 
-      static ValueRef<R> create (Context & c, NodeRefVec && deps, const Dimension<R> & dim = {}) {
+      static ValueRef<R> create (Context & c, NodeRefVec && deps, const Dimension<R> & dim) {
         // Check dependencies
         checkDependenciesNotNull (typeid (Self), deps);
         checkDependencyRangeIsValue<T> (typeid (Self), deps, 0, deps.size ());
@@ -796,25 +796,25 @@ namespace bpp {
       }
 
       CWiseMul (NodeRefVec && deps, const Dimension<R> & dim)
-        : Value<R> (std::move (deps)), targetDimension (dim) {}
+        : Value<R> (std::move (deps)), targetDimension_ (dim) {}
 
       std::string debugInfo () const override {
         using namespace numeric;
-        return debug (this->accessValueConst ()) + " targetDim=" + to_string (targetDimension);
+        return debug (this->accessValueConst ()) + " targetDim=" + to_string (targetDimension_);
       }
 
       NodeRef derive (Context & c, const Node & node) final {
         if (&node == this) {
-          return ConstantOne<R>::create (c, targetDimension);
+          return ConstantOne<R>::create (c, targetDimension_);
         }
         const auto n = this->nbDependencies ();
         NodeRefVec addDeps (n);
         for (std::size_t i = 0; i < n; ++i) {
           NodeRefVec ithMulDeps = this->dependencies ();
           ithMulDeps[i] = this->dependency (i)->derive (c, node);
-          addDeps[i] = Self::create (c, std::move (ithMulDeps), targetDimension);
+          addDeps[i] = Self::create (c, std::move (ithMulDeps), targetDimension_);
         }
-        return CWiseAdd<R, ReductionOf<R>>::create (c, std::move (addDeps), targetDimension);
+        return CWiseAdd<R, ReductionOf<R>>::create (c, std::move (addDeps), targetDimension_);
       }
       bool isDerivable (const Node & node) const final { return allDerivable (this->dependencies (), node); }
 
@@ -822,13 +822,13 @@ namespace bpp {
       void compute () final {
         using namespace numeric;
         auto & result = this->accessValueMutable ();
-        result = one (targetDimension);
+        result = one (targetDimension_);
         for (const auto & depNodeRef : this->dependencies ()) {
           cwise (result) *= cwise (accessValueConstCast<T> (*depNodeRef));
         }
       }
 
-      Dimension<R> targetDimension;
+      Dimension<R> targetDimension_;
     };
 
     /** r = -x, for each component.
@@ -838,7 +838,7 @@ namespace bpp {
     public:
       using Self = CWiseNegate;
 
-      static ValueRef<T> create (Context & c, NodeRefVec && deps, const Dimension<T> & dim = {}) {
+      static ValueRef<T> create (Context & c, NodeRefVec && deps, const Dimension<T> & dim) {
         // Check dependencies
         checkDependenciesNotNull (typeid (Self), deps);
         checkDependencyVectorSize (typeid (Self), deps, 1);
@@ -852,18 +852,18 @@ namespace bpp {
       }
 
       CWiseNegate (NodeRefVec && deps, const Dimension<T> & dim)
-        : Value<T> (std::move (deps)), targetDimension (dim) {}
+        : Value<T> (std::move (deps)), targetDimension_ (dim) {}
 
       std::string debugInfo () const override {
         using namespace numeric;
-        return debug (this->accessValueConst ()) + " targetDim=" + to_string (targetDimension);
+        return debug (this->accessValueConst ()) + " targetDim=" + to_string (targetDimension_);
       }
 
       NodeRef derive (Context & c, const Node & node) final {
         if (&node == this) {
-          return ConstantOne<T>::create (c, targetDimension);
+          return ConstantOne<T>::create (c, targetDimension_);
         }
-        return Self::create (c, {this->dependency (0)->derive (c, node)}, targetDimension);
+        return Self::create (c, {this->dependency (0)->derive (c, node)}, targetDimension_);
       }
       bool isDerivable (const Node & node) const final { return this->dependency (0)->isDerivable (node); }
 
@@ -875,7 +875,7 @@ namespace bpp {
         cwise (result) = -cwise (x);
       }
 
-      Dimension<T> targetDimension;
+      Dimension<T> targetDimension_;
     };
 
     /** r = 1/x for each component.
@@ -885,7 +885,7 @@ namespace bpp {
     public:
       using Self = CWiseInverse;
 
-      static ValueRef<T> create (Context & c, NodeRefVec && deps, const Dimension<T> & dim = {}) {
+      static ValueRef<T> create (Context & c, NodeRefVec && deps, const Dimension<T> & dim) {
         // Check dependencies
         checkDependenciesNotNull (typeid (Self), deps);
         checkDependencyVectorSize (typeid (Self), deps, 1);
@@ -899,22 +899,22 @@ namespace bpp {
       }
 
       CWiseInverse (NodeRefVec && deps, const Dimension<T> & dim)
-        : Value<T> (std::move (deps)), targetDimension (dim) {}
+        : Value<T> (std::move (deps)), targetDimension_ (dim) {}
 
       std::string debugInfo () const override {
         using namespace numeric;
-        return debug (this->accessValueConst ()) + " targetDim=" + to_string (targetDimension);
+        return debug (this->accessValueConst ()) + " targetDim=" + to_string (targetDimension_);
       }
 
       NodeRef derive (Context & c, const Node & node) final {
         if (&node == this) {
-          return ConstantOne<T>::create (c, targetDimension);
+          return ConstantOne<T>::create (c, targetDimension_);
         }
         // -1/x^2 * x'
         const auto & dep = this->dependency (0);
         return CWiseMul<T, std::tuple<T, T>>::create (
-          c, {CWiseConstantPow<T>::create (c, {dep}, -2., -1., targetDimension), dep->derive (c, node)},
-          targetDimension);
+          c, {CWiseConstantPow<T>::create (c, {dep}, -2., -1., targetDimension_), dep->derive (c, node)},
+          targetDimension_);
       }
       bool isDerivable (const Node & node) const final { return this->dependency (0)->isDerivable (node); }
 
@@ -926,7 +926,7 @@ namespace bpp {
         cwise (result) = inverse (cwise (x));
       }
 
-      Dimension<T> targetDimension;
+      Dimension<T> targetDimension_;
     };
 
     /** r = factor * pow (x, exponent) for each component.
@@ -938,7 +938,7 @@ namespace bpp {
       using Self = CWiseConstantPow;
 
       static ValueRef<T> create (Context & c, NodeRefVec && deps, double exponent, double factor,
-                                 const Dimension<T> & dim = {}) {
+                                 const Dimension<T> & dim) {
         // Check dependencies
         checkDependenciesNotNull (typeid (Self), deps);
         checkDependencyVectorSize (typeid (Self), deps, 1);
@@ -964,22 +964,22 @@ namespace bpp {
       }
 
       CWiseConstantPow (NodeRefVec && deps, double exponent, double factor, const Dimension<T> & dim)
-        : Value<T> (std::move (deps)), targetDimension (dim), exponent_ (exponent), factor_ (factor) {}
+        : Value<T> (std::move (deps)), targetDimension_ (dim), exponent_ (exponent), factor_ (factor) {}
 
       std::string debugInfo () const override {
         using namespace numeric;
-        return debug (this->accessValueConst ()) + " targetDim=" + to_string (targetDimension) +
+        return debug (this->accessValueConst ()) + " targetDim=" + to_string (targetDimension_) +
                " exponent=" + std::to_string (exponent_) + " factor=" + std::to_string (factor_);
       }
 
       NodeRef derive (Context & c, const Node & node) final {
         if (&node == this) {
-          return ConstantOne<T>::create (c, targetDimension);
+          return ConstantOne<T>::create (c, targetDimension_);
         }
         // factor * (exponent * x^(exponent - 1)) * x'
         const auto & dep = this->dependency (0);
-        auto dpow = Self::create (c, {dep}, exponent_ - 1., factor_ * exponent_, targetDimension);
-        return CWiseMul<T, std::tuple<T, T>>::create (c, {dpow, dep->derive (c, node)}, targetDimension);
+        auto dpow = Self::create (c, {dep}, exponent_ - 1., factor_ * exponent_, targetDimension_);
+        return CWiseMul<T, std::tuple<T, T>>::create (c, {dpow, dep->derive (c, node)}, targetDimension_);
       }
       bool isDerivable (const Node & node) const final { return this->dependency (0)->isDerivable (node); }
 
@@ -991,7 +991,7 @@ namespace bpp {
         cwise (result) = factor_ * pow (cwise (x), exponent_);
       }
 
-      Dimension<T> targetDimension;
+      Dimension<T> targetDimension_;
       double exponent_;
       double factor_;
     };
@@ -1014,7 +1014,7 @@ namespace bpp {
         // Select node
         if (deps[0]->hasNumericalProperty (NumericalProperty::ConstantZero) &&
             deps[1]->hasNumericalProperty (NumericalProperty::ConstantZero)) {
-          return ConstantZero<double>::create (c);
+          return ConstantZero<double>::create (c, Dimension<double> ());
         } else {
           return std::make_shared<Self> (std::move (deps));
         }
@@ -1029,13 +1029,14 @@ namespace bpp {
 
       NodeRef derive (Context & c, const Node & node) final {
         if (&node == this) {
-          return ConstantOne<double>::create (c);
+          return ConstantOne<double>::create (c, Dimension<double> ());
         }
         const auto & x0 = this->dependency (0);
         const auto & x1 = this->dependency (1);
         auto dx0_prod = Self::create (c, {x0->derive (c, node), x1});
         auto dx1_prod = Self::create (c, {x0, x1->derive (c, node)});
-        return CWiseAdd<double, std::tuple<double, double>>::create (c, {dx0_prod, dx1_prod});
+        return CWiseAdd<double, std::tuple<double, double>>::create (c, {dx0_prod, dx1_prod},
+                                                                     Dimension<double> ());
       }
       bool isDerivable (const Node & node) const final { return allDerivable (this->dependencies (), node); }
 
@@ -1140,22 +1141,22 @@ namespace bpp {
       }
 
       MatrixProduct (NodeRefVec && deps, const Dimension<R> & dim)
-        : Value<R> (std::move (deps)), targetDimension (dim) {}
+        : Value<R> (std::move (deps)), targetDimension_ (dim) {}
 
       std::string debugInfo () const override {
         using namespace numeric;
-        return debug (this->accessValueConst ()) + " targetDim=" + to_string (targetDimension);
+        return debug (this->accessValueConst ()) + " targetDim=" + to_string (targetDimension_);
       }
 
       NodeRef derive (Context & c, const Node & node) final {
         if (&node == this) {
-          return ConstantOne<R>::create (c, targetDimension);
+          return ConstantOne<R>::create (c, targetDimension_);
         }
         const auto & x0 = this->dependency (0);
         const auto & x1 = this->dependency (1);
-        auto dx0_prod = Self::create (c, {x0->derive (c, node), x1}, targetDimension);
-        auto dx1_prod = Self::create (c, {x0, x1->derive (c, node)}, targetDimension);
-        return CWiseAdd<R, std::tuple<R, R>>::create (c, {dx0_prod, dx1_prod}, targetDimension);
+        auto dx0_prod = Self::create (c, {x0->derive (c, node), x1}, targetDimension_);
+        auto dx1_prod = Self::create (c, {x0, x1->derive (c, node)}, targetDimension_);
+        return CWiseAdd<R, std::tuple<R, R>>::create (c, {dx0_prod, dx1_prod}, targetDimension_);
       }
       bool isDerivable (const Node & node) const final { return allDerivable (this->dependencies (), node); }
 
@@ -1167,7 +1168,7 @@ namespace bpp {
         result.noalias () = x0 * x1;
       }
 
-      Dimension<R> targetDimension;
+      Dimension<R> targetDimension_;
     };
 
     /** r = n * delta + x.
@@ -1184,7 +1185,7 @@ namespace bpp {
     public:
       using Self = ShiftDelta;
 
-      static ValueRef<T> create (Context & c, NodeRefVec && deps, int n, const Dimension<T> & dim = {}) {
+      static ValueRef<T> create (Context & c, NodeRefVec && deps, int n, const Dimension<T> & dim) {
         // Check dependencies
         checkDependenciesNotNull (typeid (Self), deps);
         checkDependencyVectorSize (typeid (Self), deps, 2);
@@ -1207,21 +1208,21 @@ namespace bpp {
       }
 
       ShiftDelta (NodeRefVec && deps, int n, const Dimension<T> & dim)
-        : Value<T> (std::move (deps)), targetDimension (dim), n_ (n) {}
+        : Value<T> (std::move (deps)), targetDimension_ (dim), n_ (n) {}
 
       std::string debugInfo () const override {
         using namespace numeric;
-        return debug (this->accessValueConst ()) + " targetDim=" + to_string (targetDimension) +
+        return debug (this->accessValueConst ()) + " targetDim=" + to_string (targetDimension_) +
                " n=" + std::to_string (n_);
       }
 
       NodeRef derive (Context & c, const Node & node) final {
         if (&node == this) {
-          return ConstantOne<T>::create (c, targetDimension);
+          return ConstantOne<T>::create (c, targetDimension_);
         }
         auto & delta = this->dependency (0);
         auto & x = this->dependency (1);
-        return Self::create (c, {delta->derive (c, node), x->derive (c, node)}, n_, targetDimension);
+        return Self::create (c, {delta->derive (c, node), x->derive (c, node)}, n_, targetDimension_);
       }
       bool isDerivable (const Node & node) const final { return allDerivable (this->dependencies (), node); }
 
@@ -1236,7 +1237,7 @@ namespace bpp {
         cwise (result) = n_ * delta + cwise (x);
       }
 
-      Dimension<T> targetDimension;
+      Dimension<T> targetDimension_;
       int n_;
     };
 
@@ -1258,7 +1259,7 @@ namespace bpp {
       using Self = CombineDeltaShifted;
 
       static ValueRef<T> create (Context & c, NodeRefVec && deps, int n, std::vector<double> && coeffs,
-                                 const Dimension<T> & dim = {}) {
+                                 const Dimension<T> & dim) {
         // Check dependencies
         checkDependenciesNotNull (typeid (Self), deps);
         checkDependencyVectorSize (typeid (Self), deps, 1 + coeffs.size ());
@@ -1329,13 +1330,13 @@ namespace bpp {
       }
 
       CombineDeltaShifted (NodeRefVec && deps, int n, std::vector<double> && coeffs, const Dimension<T> & dim)
-        : Value<T> (std::move (deps)), targetDimension (dim), coeffs_ (std::move (coeffs)), n_ (n) {
+        : Value<T> (std::move (deps)), targetDimension_ (dim), coeffs_ (std::move (coeffs)), n_ (n) {
         assert (this->coeffs_.size () + 1 == this->nbDependencies ());
       }
 
       std::string debugInfo () const override {
         using namespace numeric;
-        std::string s = debug (this->accessValueConst ()) + " targetDim=" + to_string (targetDimension) +
+        std::string s = debug (this->accessValueConst ()) + " targetDim=" + to_string (targetDimension_) +
                         " n=" + std::to_string (n_) + " coeffs={";
         if (!coeffs_.empty ()) {
           s += std::to_string (coeffs_[0]);
@@ -1349,7 +1350,7 @@ namespace bpp {
 
       NodeRef derive (Context & c, const Node & node) final {
         if (&node == this) {
-          return ConstantOne<T>::create (c, targetDimension);
+          return ConstantOne<T>::create (c, targetDimension_);
         }
         // For simplicity, we assume delta is a constant with respect to derivation node.
         auto & delta = this->dependency (0);
@@ -1364,7 +1365,7 @@ namespace bpp {
         for (std::size_t i = 1; i < nbDeps; ++i) {
           derivedDeps[i] = this->dependency (i)->derive (c, node);
         }
-        return Self::create (c, std::move (derivedDeps), n_, std::vector<double>{coeffs_}, targetDimension);
+        return Self::create (c, std::move (derivedDeps), n_, std::vector<double>{coeffs_}, targetDimension_);
       }
       bool isDerivable (const Node & node) const final {
         return allDerivable (this->dependencies (), node); // FIXME delta arg ?
@@ -1379,14 +1380,14 @@ namespace bpp {
         auto & result = this->accessValueMutable ();
         const auto & delta = accessValueConstCast<double> (*this->dependency (0));
         const double lambda = pow (delta, -n_);
-        result = zero (targetDimension);
+        result = zero (targetDimension_);
         for (std::size_t i = 0; i < coeffs_.size (); ++i) {
           const auto & x = accessValueConstCast<T> (*this->dependency (1 + i));
           cwise (result) += (lambda * coeffs_[i]) * cwise (x);
         }
       }
 
-      Dimension<T> targetDimension;
+      Dimension<T> targetDimension_;
       std::vector<double> coeffs_;
       int n_;
     };

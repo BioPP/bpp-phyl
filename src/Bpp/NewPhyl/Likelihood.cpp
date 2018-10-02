@@ -202,11 +202,11 @@ namespace bpp {
 
     EquilibriumFrequenciesFromModel::EquilibriumFrequenciesFromModel (
       NodeRefVec && deps, const Dimension<Eigen::RowVectorXd> & dim)
-      : Value<Eigen::RowVectorXd> (std::move (deps)), targetDimension (dim) {}
+      : Value<Eigen::RowVectorXd> (std::move (deps)), targetDimension_ (dim) {}
 
     std::string EquilibriumFrequenciesFromModel::debugInfo () const {
       using namespace numeric;
-      return debug (this->accessValueConst ()) + " targetDim=" + to_string (targetDimension);
+      return debug (this->accessValueConst ()) + " targetDim=" + to_string (targetDimension_);
     }
 
     NodeRef EquilibriumFrequenciesFromModel::derive (Context & c, const Node & node) {
@@ -214,11 +214,11 @@ namespace bpp {
       auto modelDep = this->dependency (0);
       const auto & model = static_cast<const ConfiguredModel &> (*modelDep);
       auto buildFWithNewModel = [this, &c](NodeRef && newModel) {
-        return Self::create (c, {std::move (newModel)}, targetDimension);
+        return Self::create (c, {std::move (newModel)}, targetDimension_);
       };
       NodeRefVec derivativeSumDeps = generateModelDerivativeSumDepsForModelComputations<T> (
-        c, model, node, targetDimension, buildFWithNewModel);
-      return CWiseAdd<T, ReductionOf<T>>::create (c, std::move (derivativeSumDeps));
+        c, model, node, targetDimension_, buildFWithNewModel);
+      return CWiseAdd<T, ReductionOf<T>>::create (c, std::move (derivativeSumDeps), targetDimension_);
     }
 
     void EquilibriumFrequenciesFromModel::compute () {
@@ -241,11 +241,11 @@ namespace bpp {
 
     TransitionMatrixFromModel::TransitionMatrixFromModel (NodeRefVec && deps,
                                                           const Dimension<Eigen::MatrixXd> & dim)
-      : Value<Eigen::MatrixXd> (std::move (deps)), targetDimension (dim) {}
+      : Value<Eigen::MatrixXd> (std::move (deps)), targetDimension_ (dim) {}
 
     std::string TransitionMatrixFromModel::debugInfo () const {
       using namespace numeric;
-      return debug (this->accessValueConst ()) + " targetDim=" + to_string (targetDimension);
+      return debug (this->accessValueConst ()) + " targetDim=" + to_string (targetDimension_);
     }
 
     NodeRef TransitionMatrixFromModel::derive (Context & c, const Node & node) {
@@ -255,12 +255,12 @@ namespace bpp {
       // Model part
       const auto & model = static_cast<const ConfiguredModel &> (*modelDep);
       auto buildFWithNewModel = [this, &c, &brlenDep](NodeRef && newModel) {
-        return Self::create (c, {std::move (newModel), brlenDep}, targetDimension);
+        return Self::create (c, {std::move (newModel), brlenDep}, targetDimension_);
       };
       NodeRefVec derivativeSumDeps = generateModelDerivativeSumDepsForModelComputations<T> (
-        c, model, node, targetDimension, buildFWithNewModel);
+        c, model, node, targetDimension_, buildFWithNewModel);
       // Brlen part TODO use specific node
-      return CWiseAdd<T, ReductionOf<T>>::create (c, std::move (derivativeSumDeps));
+      return CWiseAdd<T, ReductionOf<T>>::create (c, std::move (derivativeSumDeps), targetDimension_);
     }
 
     void TransitionMatrixFromModel::compute () {
