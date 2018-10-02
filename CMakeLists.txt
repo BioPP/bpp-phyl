@@ -73,14 +73,11 @@ install (FILES ${CMAKE_CURRENT_BINARY_DIR}/package.cmake DESTINATION ${cmake-pac
 install (FILES ${CMAKE_CURRENT_BINARY_DIR}/package-version.cmake DESTINATION ${cmake-package-location}
   RENAME ${PROJECT_NAME}-config-version.cmake)
 
-# Use eigen (TODO, add eigen files to repository directly)
+# Use eigen (TODO inclusion method ?)
 find_package (Eigen3)
 
 # Define the libraries
 add_subdirectory (src)
-
-# TODO remove at some point, profiling setup for NewPhyl
-# add_subdirectory (profiling) FIXME Disabled for move to DF v3
 
 # Doxygen
 FIND_PACKAGE(Doxygen)
