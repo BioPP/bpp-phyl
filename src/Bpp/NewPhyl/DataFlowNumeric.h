@@ -59,17 +59,17 @@ namespace bpp {
 
   /// Basic matrix dimension type
   struct MatrixDimension {
-    Eigen::Index rows_{};
-    Eigen::Index cols_{};
+    Eigen::Index rows{};
+    Eigen::Index cols{};
 
     MatrixDimension () = default;
-    MatrixDimension (Eigen::Index rows, Eigen::Index cols) : rows_ (rows), cols_ (cols) {}
+    MatrixDimension (Eigen::Index rows_, Eigen::Index cols_) : rows (rows_), cols (cols_) {}
 
     // Get dimensions of any matrix-like eigen object.
     template <typename Derived>
     MatrixDimension (const Eigen::MatrixBase<Derived> & m) : MatrixDimension (m.rows (), m.cols ()) {}
 
-    bool operator== (const MatrixDimension & o) const { return rows_ == o.rows_ && cols_ == o.cols_; }
+    bool operator== (const MatrixDimension & o) const { return rows == o.rows && cols == o.cols; }
     bool operator!= (const MatrixDimension & o) const { return !(*this == o); }
   };
 
@@ -111,7 +111,6 @@ namespace bpp {
   template <typename T, int Rows, int Cols> struct Dimension<Eigen::Matrix<T, Rows, Cols>> : MatrixDimension {
     using MatrixDimension::MatrixDimension; // Have the same constructors as MatrixDimension
     Dimension (const MatrixDimension & dim) : MatrixDimension (dim) {} // From MatrixDimension
-    Dimension (std::initializer_list<uint> dim = {}) : MatrixDimension () {}
   };
 
   /******************************************************************************
@@ -129,8 +128,8 @@ namespace bpp {
     }
     template <typename T, int Rows, int Cols>
     auto zero (const Dimension<Eigen::Matrix<T, Rows, Cols>> & dim)
-      -> decltype (Eigen::Matrix<T, Rows, Cols>::Zero (dim.rows_, dim.cols_)) {
-      return Eigen::Matrix<T, Rows, Cols>::Zero (dim.rows_, dim.cols_);
+      -> decltype (Eigen::Matrix<T, Rows, Cols>::Zero (dim.rows, dim.cols)) {
+      return Eigen::Matrix<T, Rows, Cols>::Zero (dim.rows, dim.cols);
     }
 
     // Create a one value of the given dimension
@@ -140,8 +139,8 @@ namespace bpp {
     }
     template <typename T, int Rows, int Cols>
     auto one (const Dimension<Eigen::Matrix<T, Rows, Cols>> & dim)
-      -> decltype (Eigen::Matrix<T, Rows, Cols>::Ones (dim.rows_, dim.cols_)) {
-      return Eigen::Matrix<T, Rows, Cols>::Ones (dim.rows_, dim.cols_);
+      -> decltype (Eigen::Matrix<T, Rows, Cols>::Ones (dim.rows, dim.cols)) {
+      return Eigen::Matrix<T, Rows, Cols>::Ones (dim.rows, dim.cols);
     }
 
     // Create an identity value of the given dimension (fails if not a square matrix)
@@ -151,9 +150,9 @@ namespace bpp {
     }
     template <typename T, int Rows, int Cols>
     auto identity (const Dimension<Eigen::Matrix<T, Rows, Cols>> & dim)
-      -> decltype (Eigen::Matrix<T, Rows, Cols>::Identity (dim.rows_, dim.cols_)) {
+      -> decltype (Eigen::Matrix<T, Rows, Cols>::Identity (dim.rows, dim.cols)) {
       checkDimensionIsSquare (dim);
-      return Eigen::Matrix<T, Rows, Cols>::Identity (dim.rows_, dim.cols_);
+      return Eigen::Matrix<T, Rows, Cols>::Identity (dim.rows, dim.cols);
     }
 
     // Check if value is identity itself
@@ -163,7 +162,7 @@ namespace bpp {
     }
     template <typename Derived> bool isIdentity (const Eigen::MatrixBase<Derived> & m) {
       auto dim = Dimension<Derived> (m.derived ());
-      return dim.rows_ == dim.cols_ && m == identity (dim);
+      return dim.rows == dim.cols && m == identity (dim);
     }
 
     /* Convert from F to R (with specific dimension).
@@ -182,9 +181,9 @@ namespace bpp {
     template <typename T, int Rows, int Cols, typename F,
               typename = typename std::enable_if<std::is_arithmetic<F>::value>::type>
     auto convert (const F & from, const Dimension<Eigen::Matrix<T, Rows, Cols>> & dim)
-      -> decltype (Eigen::Matrix<T, Rows, Cols>::Constant (dim.rows_, dim.cols_, from)) {
+      -> decltype (Eigen::Matrix<T, Rows, Cols>::Constant (dim.rows, dim.cols, from)) {
       // scalar -> matrix
-      return Eigen::Matrix<T, Rows, Cols>::Constant (dim.rows_, dim.cols_, from);
+      return Eigen::Matrix<T, Rows, Cols>::Constant (dim.rows, dim.cols, from);
     }
     template <typename T, int Rows, int Cols, typename DerivedF>
     const DerivedF & convert (const Eigen::MatrixBase<DerivedF> & from,
