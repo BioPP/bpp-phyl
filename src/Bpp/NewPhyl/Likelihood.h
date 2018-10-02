@@ -166,8 +166,7 @@ namespace bpp {
       /// Configuration for numerical derivation of computation nodes using this Model.
       NumericalDerivativeConfiguration config;
 
-      // Recreate model node with other deps (TODO restore rebuild stuff ?)
-      NodeRef recreate (Context & c, NodeRefVec && deps) const;
+      NodeRef recreate (Context & c, NodeRefVec && deps) const final;
 
     private:
       void compute () final;

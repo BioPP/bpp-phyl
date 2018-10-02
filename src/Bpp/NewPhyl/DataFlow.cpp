@@ -164,8 +164,8 @@ namespace bpp {
     }
     bool Node::isDerivable (const Node &) const { return false; }
 
-    NodeRef Node::rebuild (NodeRefVec &&) const {
-      throw Exception ("Node does not support rebuild(deps): " + description ());
+    NodeRef Node::recreate (Context &, NodeRefVec &&) const {
+      throw Exception ("Node does not support recreate(deps): " + description ());
     }
 
     void Node::computeRecursively () {
@@ -219,29 +219,6 @@ namespace bpp {
     /*****************************************************************************
      * Free functions.
      */
-    NodeRef rebuildWithSubstitution (const NodeRef & node,
-                                     const std::map<const Node *, NodeRef> & substitutions) {
-      auto it = substitutions.find (node.get ());
-      if (it != substitutions.end ()) {
-        // Substitute sub tree.
-        return it->second;
-      } else if (node->dependencies ().empty ()) {
-        // Leaves do no support rebuild: just copy them
-        return node;
-      } else {
-        // Recursion : only rebuild if dependencies have changed
-        NodeRefVec rebuiltDeps (node->nbDependencies ());
-        for (std::size_t i = 0; i < rebuiltDeps.size (); ++i) {
-          rebuiltDeps[i] = rebuildWithSubstitution (node->dependency (i), substitutions);
-        }
-        if (rebuiltDeps == node->dependencies ()) {
-          return node;
-        } else {
-          return node->rebuild (std::move (rebuiltDeps));
-        }
-      }
-    }
-
     bool isTransitivelyDependentOn (const Node & searchedDependency, const Node & node) {
       std::stack<const Node *> nodesToVisit;
       nodesToVisit.push (&node);
@@ -254,6 +231,29 @@ namespace bpp {
           nodesToVisit.push (dep.get ());
       }
       return false;
+    }
+
+    NodeRef recreateWithSubstitution (Context & c, const NodeRef & node,
+                                      const std::map<const Node *, NodeRef> & substitutions) {
+      auto it = substitutions.find (node.get ());
+      if (it != substitutions.end ()) {
+        // Substitute sub tree.
+        return it->second;
+      } else if (node->dependencies ().empty ()) {
+        // Leaves do no support rebuild: just copy them
+        return node;
+      } else {
+        // Recursion : only rebuild if dependencies have changed
+        NodeRefVec recreatedDeps (node->nbDependencies ());
+        for (std::size_t i = 0; i < recreatedDeps.size (); ++i) {
+          recreatedDeps[i] = recreateWithSubstitution (c, node->dependency (i), substitutions);
+        }
+        if (recreatedDeps == node->dependencies ()) {
+          return node;
+        } else {
+          return node->recreate (c, std::move (recreatedDeps));
+        }
+      }
     }
 
     /*****************************************************************************

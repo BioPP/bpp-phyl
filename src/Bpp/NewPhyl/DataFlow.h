@@ -50,7 +50,7 @@
 #include <utility>
 #include <vector>
 
-#include <map> // TODO rm ?
+#include <map> // For recreateWithSubstitution
 
 /** @file Defines the basic types of data flow nodes.
  */
@@ -181,8 +181,8 @@ namespace bpp {
       /// Check if derivation is transitively defined (FIXME semantics).
       virtual bool isDerivable (const Node & node) const;
 
-      // Rebuild the node with different dependencies
-      virtual NodeRef rebuild (NodeRefVec && deps) const;
+      // Recreate the node with different dependencies
+      virtual NodeRef recreate (Context & c, NodeRefVec && deps) const;
 
       /** @brief Compute this node value, recomputing dependencies (transitively) as needed.
        *
@@ -252,12 +252,12 @@ namespace bpp {
     void writeGraphToDot (const std::string & filename, const std::vector<const Node *> & nodes,
                           DotOptions opt);
 
-    /* Free functions.
-     */
-    NodeRef rebuildWithSubstitution (const NodeRef & node,
-                                     const std::map<const Node *, NodeRef> & substitutions);
-
+    /// Check if searchedDependency if a transitive dependency of node.
     bool isTransitivelyDependentOn (const Node & searchedDependency, const Node & node);
+
+    /// Recreate node by transitively replacing dependencies according to substitutions mapping.
+    NodeRef recreateWithSubstitution (Context & c, const NodeRef & node,
+                                      const std::map<const Node *, NodeRef> & substitutions);
 
     /** Context for dataflow node construction.
      *
