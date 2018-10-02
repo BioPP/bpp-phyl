@@ -220,6 +220,51 @@ namespace bpp {
       Dimension<T> targetDimension_;
     };
 
+    /** dtransitionMatrix/dbrlen = f(model, branchLen).
+     * dtransitionMatrix/dbrlen: Matrix.
+     * model: ConfiguredModel.
+     * branchLen: double.
+     */
+    class TransitionMatrixFromModelFirstBrlenDerivative : public Value<Eigen::MatrixXd> {
+    public:
+      using Self = TransitionMatrixFromModelFirstBrlenDerivative;
+      using T = Eigen::MatrixXd;
+
+      static ValueRef<T> create (Context & c, NodeRefVec && deps, const Dimension<T> & dim);
+      TransitionMatrixFromModelFirstBrlenDerivative (NodeRefVec && deps, const Dimension<T> & dim);
+
+      std::string debugInfo () const final;
+
+      NodeRef derive (Context & c, const Node & node) final;
+
+    private:
+      void compute () final;
+
+      Dimension<T> targetDimension_;
+    };
+
+    /** d2transitionMatrix/dbrlen2 = f(model, branchLen).
+     * d2transitionMatrix/dbrlen2: Matrix.
+     * model: ConfiguredModel.
+     * branchLen: double.
+     */
+    class TransitionMatrixFromModelSecondBrlenDerivative : public Value<Eigen::MatrixXd> {
+    public:
+      using Self = TransitionMatrixFromModelSecondBrlenDerivative;
+      using T = Eigen::MatrixXd;
+
+      static ValueRef<T> create (Context & c, NodeRefVec && deps, const Dimension<T> & dim);
+      TransitionMatrixFromModelSecondBrlenDerivative (NodeRefVec && deps, const Dimension<T> & dim);
+
+      std::string debugInfo () const final;
+
+      NodeRef derive (Context & c, const Node & node) final;
+
+    private:
+      void compute () final;
+
+      Dimension<T> targetDimension_;
+    };
   } // namespace dataflow
 } // namespace bpp
 

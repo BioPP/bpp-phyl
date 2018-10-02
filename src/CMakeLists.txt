@@ -13,7 +13,6 @@ set (CPP_FILES
   #  Bpp/NewPhyl/Debug.cpp
   #  Bpp/NewPhyl/ImportMaster.cpp
   #  Bpp/NewPhyl/ImportNewlik.cpp
-  #  Bpp/NewPhyl/Model.cpp
   #  Bpp/NewPhyl/Optimizer.cpp
   #  Bpp/NewPhyl/Phylogeny.cpp
   #  Bpp/NewPhyl/PhylogenyTypes.cpp
