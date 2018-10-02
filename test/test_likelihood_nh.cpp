@@ -50,7 +50,7 @@ knowledge of the CeCILL license and that you accept its terms.
 #include <Bpp/Phyl/Likelihood/DRNonHomogeneousTreeLikelihood.h>
 #include <Bpp/Phyl/OptimizationTools.h>
 
-#include <Bpp/Phyl/NewLikelihood/ParametrizableTree.h>
+#include <Bpp/Phyl/NewLikelihood/ParametrizablePhyloTree.h>
 #include <Bpp/Phyl/NewLikelihood/NonHomogeneousSubstitutionProcess.h>
 #include <Bpp/Phyl/NewLikelihood/SimpleSubstitutionProcess.h>
 #include <Bpp/Phyl/NewLikelihood/RateAcrossSitesSubstitutionProcess.h>

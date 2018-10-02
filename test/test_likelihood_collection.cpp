@@ -47,7 +47,7 @@ knowledge of the CeCILL license and that you accept its terms.
 #include <Bpp/Phyl/Model/RateDistribution/GammaDiscreteRateDistribution.h>
 #include <Bpp/Phyl/OptimizationTools.h>
 
-#include <Bpp/Phyl/NewLikelihood/ParametrizableTree.h>
+#include <Bpp/Phyl/NewLikelihood/ParametrizablePhyloTree.h>
 
 #include <Bpp/Phyl/NewLikelihood/NonHomogeneousSubstitutionProcess.h>
 #include <Bpp/Phyl/NewLikelihood/SubstitutionProcessCollection.h>
