@@ -44,7 +44,7 @@
 #define BPP_NEWPHYL_LIKELIHOOD_H
 
 #include <Bpp/NewPhyl/DataFlow.h>
-#include <Bpp/NewPhyl/DataFlowNumeric.h> // For dimension types, TODO remove for local forward declaration ?
+#include <Bpp/NewPhyl/DataFlowNumeric.h>
 #include <functional>
 #include <unordered_map>
 
@@ -53,9 +53,12 @@ namespace bpp {
    * Rows represents states (nucleotides, proteins or codon).
    * Columns represents sites (one site for each column).
    * Conditional likelihood is thus accessed by m(state,site) for an eigen matrix.
+   * Eigen defaults to ColMajor matrices, meaning data is stored column by column.
+   * So with the current layout, values for a site are grouped together for locality.
    *
    * A Transition matrix is a (nbState,nbState) matrix.
-   * tm(toState, fromState) = probability of going to toState from fromState.
+   * tm(fromState, toState) = probability of going to toState from fromState.
+   * This matches the convention from TransitionModel::getPij_t().
    *
    * Equilibrium frequencies are stored as a RowVector : matrix with 1 row and n columns.
    * This choice allows to reuse the MatrixProduct numeric node directly.
@@ -69,6 +72,7 @@ namespace bpp {
   inline MatrixDimension equilibriumFrequenciesDimension (std::size_t nbState) {
     return rowVectorDimension (Eigen::Index (nbState));
   }
+  // FIXME mess with row/col order to clear.
 
   /* Initial conditional likelihood for leaves (sequences on the tree) are computed separately.
    * The values should be used in the dataflow tree by using matrix constant nodes.
@@ -77,36 +81,40 @@ namespace bpp {
 
   // Dataflow nodes for likelihood computation.
   namespace dataflow {
-    /** conditionalLikelihood = product_i forwardLikelihood[children[i]].
-     * conditionalLikelihood: Matrix.
-     * forwardLikelihood[i]: Matrix.
-     * c(state, site) = prod_i f_i(state, site)
+    /** conditionalLikelihood = f(forwardLikelihood[children[i]] for i).
+     * conditionalLikelihood: Matrix(state, site).
+     * forwardLikelihood[i]: Matrix(state, site).
+     *
+     * c(state, site) = prod_i f_i(state, site).
+     * Using member wise multiply: c = prod_member_i f_i.
      */
     using ConditionalLikelihoodFromChildrenForward = CWiseMul<Eigen::MatrixXd, ReductionOf<Eigen::MatrixXd>>;
 
-    /** forwardLikelihood = transitionMatrix * conditionalLikelihood.
-     * forwardLikelihood: Matrix.
-     * conditionalLikelihood: Matrix.
+    /** forwardLikelihood = f(transitionMatrix, conditionalLikelihood).
+     * forwardLikelihood: Matrix(state, site).
+     * transitionMatrix: Matrix (fromState, toState)
+     * conditionalLikelihood: Matrix(state, site).
      *
-     * f(toState, site) = sum_fromState P(toState, fromState) * c(fromState, site).
-     * Matrix multiply provides this exact computation efficiently.
+     * f(toState, site) = sum_fromState P(fromState, toState) * c(fromState, site).
+     * Using matrix multiply with transposition: f = transposed(transitionMatrix) * c.
+     * FIXME need to transpose TM.
      */
     using ForwardLikelihoodFromConditional = MatrixProduct<Eigen::MatrixXd, Eigen::MatrixXd, Eigen::MatrixXd>;
 
-    /** likelihood = equilibriumFrequencies * rootConditionalLikelihood.
-     * likelihood: RowVector.
-     * equilibriumFrequencies: RowVector.
-     * rootConditionalLikelihood: Matrix.
+    /** likelihood = f(equilibriumFrequencies, rootConditionalLikelihood).
+     * likelihood: RowVector(site).
+     * equilibriumFrequencies: RowVector(state).
+     * rootConditionalLikelihood: Matrix(state, site).
      *
      * likelihood(site) = sum_state equFreqs(state) * rootConditionalLikelihood(state, site).
-     * By using RowVector, this computation is done by matrix multiply.
+     * Using matrix multiply: likelihood = equilibriumFrequencies * rootConditionalLikelihood.
      */
     using LikelihoodFromRootConditional =
       MatrixProduct<Eigen::RowVectorXd, Eigen::RowVectorXd, Eigen::MatrixXd>;
 
     /** totalLogLikelihood = sum_site log(likelihood(site)).
-     * likelihood: F (matrix-like type).
-     * totalLogLikelihood: double.
+     * likelihood: RowVector (site).
+   * totalLogLikelihood: double.
      */
     using TotalLogLikelihood = SumOfLogarithms<Eigen::RowVectorXd>;
   } // namespace dataflow

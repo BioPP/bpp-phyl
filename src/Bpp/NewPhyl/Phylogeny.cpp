@@ -51,65 +51,6 @@
 
 namespace bpp {
 
-// Index comparisons
-bool operator== (TopologyNodeIndex lhs, TopologyNodeIndex rhs) {
-	return lhs.value == rhs.value;
-}
-bool operator< (TopologyNodeIndex lhs, TopologyNodeIndex rhs) {
-	return lhs.value < rhs.value;
-}
-bool operator== (TopologyBranchIndex lhs, TopologyBranchIndex rhs) {
-	return lhs.value == rhs.value;
-}
-bool operator< (TopologyBranchIndex lhs, TopologyBranchIndex rhs) {
-	return lhs.value < rhs.value;
-}
-
-// Access class implementations
-SameModelForAllBranches::SameModelForAllBranches (DF::ValueRef<const TransitionModel *> model)
-    : model_ (std::move (model)) {}
-DF::ValueRef<const TransitionModel *>
-SameModelForAllBranches::getModelNode (TopologyBranchIndex) const {
-	return model_;
-}
-std::size_t SameModelForAllBranches::getNbStates () const {
-	return model_->getValue ()->getNumberOfStates ();
-}
-
-BranchLengthsInitializedFromValues::BranchLengthsInitializedFromValues (
-    const BranchLengthValueAccess & values)
-    : values_ (values) {}
-DF::ValueRef<double>
-BranchLengthsInitializedFromValues::getBranchLengthNode (TopologyBranchIndex id) const {
-	return getBranchLengthMutableNode (id);
-}
-DF::MutableRef<double>
-BranchLengthsInitializedFromValues::getBranchLengthMutableNode (TopologyBranchIndex id) const {
-	auto it = mutableNodes_.find (id);
-	if (it != mutableNodes_.end ()) {
-		return it->second;
-	} else {
-		auto mutableNode = DF::makeNode<DF::Mutable<double>> (values_.getBranchLengthValue (id));
-		mutableNodes_.emplace (id, mutableNode);
-		return mutableNode;
-	}
-}
-
-SequenceNodesInilialisedFromNames::SequenceNodesInilialisedFromNames (
-    const SequenceNameValueAccess & names, const SiteContainer & sequences)
-    : names_ (names), sequences_ (sequences) {}
-DF::ValueRef<const Sequence *>
-SequenceNodesInilialisedFromNames::getSequenceNode (TopologyNodeIndex id) const {
-	auto it = sequenceNodes_.find (id);
-	if (it != sequenceNodes_.end ()) {
-		return it->second;
-	} else {
-		auto sequence = DF::makeNode<DF::Constant<const Sequence *>> (
-		    &sequences_.getSequence (names_.getSequenceName (id)));
-		sequenceNodes_.emplace (id, sequence);
-		return sequence;
-	}
-}
 std::size_t SequenceNodesInilialisedFromNames::getNbSites () const {
 	return sequences_.getNumberOfSites ();
 }
@@ -158,22 +99,5 @@ DF::ValueRef<MatrixDouble> makeForwardLikelihoodNode (const TreeTopologyInterfac
 	     makeConditionalLikelihoodNode (tree, sequenceNodes, brlenNodes, modelNodes,
 	                                    tree.childNode (branch))},
 	    dim);
-}
-
-DF::ValueRef<double> makeLogLikelihoodNode (const TreeTopologyInterface & tree,
-                                            const SequenceNodeAccess & sequenceNodes,
-                                            const BranchLengthNodeAccess & brlenNodes,
-                                            const ModelNodeAccess & modelNodes) {
-	auto dim = likelihoodDataDimension (sequenceNodes, modelNodes);
-	auto root = tree.rootNode ();
-	auto rootBranchModel = modelNodes.getModelNode (tree.fatherBranch (root));
-	auto rootEquilibriumFrequencies =
-	    DF::makeNode<DF::EquilibriumFrequenciesFromModel> ({rootBranchModel}, dim.nbStates ());
-	auto likelihood = DF::makeNode<DF::Likelihood> (
-	    {makeConditionalLikelihoodNode (tree, sequenceNodes, brlenNodes, modelNodes, root),
-	     std::move (rootEquilibriumFrequencies)},
-	    Dimension<VectorDouble> (dim.nbSites ()));
-	auto logLik = DF::makeNode<DF::TotalLogLikelihood> ({std::move (likelihood)});
-	return DF::makeNode<DF::NegDouble> ({std::move (logLik)});
 }
 } // namespace bpp
