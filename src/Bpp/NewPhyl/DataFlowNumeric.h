@@ -379,6 +379,11 @@ namespace bpp {
       }
       bool isDerivable (const Node &) const final { return true; }
 
+      NodeRef recreate (Context &, NodeRefVec && deps) final {
+        checkRecreateWithoutDependencies (typeid (Self), deps);
+        return this->shared_from_this ();
+      }
+
     private:
       void compute () final {
         using namespace numeric;
@@ -437,6 +442,11 @@ namespace bpp {
         return ConstantZero<T>::create (c, dim);
       }
       bool isDerivable (const Node &) const final { return true; }
+
+      NodeRef recreate (Context &, NodeRefVec && deps) final {
+        checkRecreateWithoutDependencies (typeid (Self), deps);
+        return this->shared_from_this ();
+      }
 
     private:
       void compute () final {
@@ -500,6 +510,11 @@ namespace bpp {
       }
       bool isDerivable (const Node &) const final { return true; }
 
+      NodeRef recreate (Context &, NodeRefVec && deps) final {
+        checkRecreateWithoutDependencies (typeid (Self), deps);
+        return this->shared_from_this ();
+      }
+
     private:
       void compute () final {
         // Mutable is always valid
@@ -548,6 +563,10 @@ namespace bpp {
         return Self::create (c, {this->dependency (0)->derive (c, node)}, targetDimension_);
       }
       bool isDerivable (const Node & node) const final { return this->dependency (0)->isDerivable (node); }
+
+      NodeRef recreate (Context & c, NodeRefVec && deps) final {
+        return Self::create (c, std::move (deps), targetDimension_);
+      }
 
     private:
       void compute () final {
@@ -615,6 +634,10 @@ namespace bpp {
       }
       bool isDerivable (const Node & node) const final { return allDerivable (this->dependencies (), node); }
 
+      NodeRef recreate (Context & c, NodeRefVec && deps) final {
+        return Self::create (c, std::move (deps), targetDimension_);
+      }
+
     private:
       void compute () final {
         using namespace numeric;
@@ -678,6 +701,10 @@ namespace bpp {
         return Self::create (c, std::move (derivedDeps), targetDimension_);
       }
       bool isDerivable (const Node & node) const final { return allDerivable (this->dependencies (), node); }
+
+      NodeRef recreate (Context & c, NodeRefVec && deps) final {
+        return Self::create (c, std::move (deps), targetDimension_);
+      }
 
     private:
       void compute () final {
@@ -753,6 +780,10 @@ namespace bpp {
       }
       bool isDerivable (const Node & node) const final { return allDerivable (this->dependencies (), node); }
 
+      NodeRef recreate (Context & c, NodeRefVec && deps) final {
+        return Self::create (c, std::move (deps), targetDimension_);
+      }
+
     private:
       void compute () final {
         using namespace numeric;
@@ -824,6 +855,10 @@ namespace bpp {
       }
       bool isDerivable (const Node & node) const final { return allDerivable (this->dependencies (), node); }
 
+      NodeRef recreate (Context & c, NodeRefVec && deps) final {
+        return Self::create (c, std::move (deps), targetDimension_);
+      }
+
     private:
       void compute () final {
         using namespace numeric;
@@ -872,6 +907,10 @@ namespace bpp {
         return Self::create (c, {this->dependency (0)->derive (c, node)}, targetDimension_);
       }
       bool isDerivable (const Node & node) const final { return this->dependency (0)->isDerivable (node); }
+
+      NodeRef recreate (Context & c, NodeRefVec && deps) final {
+        return Self::create (c, std::move (deps), targetDimension_);
+      }
 
     private:
       void compute () final {
@@ -923,6 +962,10 @@ namespace bpp {
           targetDimension_);
       }
       bool isDerivable (const Node & node) const final { return this->dependency (0)->isDerivable (node); }
+
+      NodeRef recreate (Context & c, NodeRefVec && deps) final {
+        return Self::create (c, std::move (deps), targetDimension_);
+      }
 
     private:
       void compute () final {
@@ -989,6 +1032,10 @@ namespace bpp {
       }
       bool isDerivable (const Node & node) const final { return this->dependency (0)->isDerivable (node); }
 
+      NodeRef recreate (Context & c, NodeRefVec && deps) final {
+        return Self::create (c, std::move (deps), exponent_, factor_, targetDimension_);
+      }
+
     private:
       void compute () final {
         using namespace numeric;
@@ -1046,6 +1093,8 @@ namespace bpp {
       }
       bool isDerivable (const Node & node) const final { return allDerivable (this->dependencies (), node); }
 
+      NodeRef recreate (Context & c, NodeRefVec && deps) final { return Self::create (c, std::move (deps)); }
+
     private:
       void compute () final {
         auto & result = this->accessValueMutable ();
@@ -1074,7 +1123,7 @@ namespace bpp {
       }
 
       SumOfLogarithms (NodeRefVec && deps, const Dimension<F> & mDim)
-        : Value<double> (std::move (deps)), mTargetDimension (mDim) {}
+        : Value<double> (std::move (deps)), mTargetDimension_ (mDim) {}
 
       std::string debugInfo () const override {
         using namespace numeric;
@@ -1084,10 +1133,14 @@ namespace bpp {
       NodeRef derive (Context & c, const Node & node) final {
         const auto & m = this->dependency (0);
         auto dm_dn = m->derive (c, node);
-        auto m_inverse = CWiseInverse<F>::create (c, {m}, mTargetDimension);
+        auto m_inverse = CWiseInverse<F>::create (c, {m}, mTargetDimension_);
         return ScalarProduct<F, F>::create (c, {std::move (dm_dn), std::move (m_inverse)});
       }
       bool isDerivable (const Node & node) const final { return this->dependency (0)->isDerivable (node); }
+
+      NodeRef recreate (Context & c, NodeRefVec && deps) final {
+        return Self::create (c, std::move (deps), mTargetDimension_);
+      }
 
     private:
       void compute () final {
@@ -1106,7 +1159,7 @@ namespace bpp {
         result = log (product);
       }
 
-      Dimension<F> mTargetDimension;
+      Dimension<F> mTargetDimension_;
     };
 
     /** r = x0 * x1 (matrix product).
@@ -1165,6 +1218,10 @@ namespace bpp {
         return CWiseAdd<R, std::tuple<R, R>>::create (c, {dx0_prod, dx1_prod}, targetDimension_);
       }
       bool isDerivable (const Node & node) const final { return allDerivable (this->dependencies (), node); }
+
+      NodeRef recreate (Context & c, NodeRefVec && deps) final {
+        return Self::create (c, std::move (deps), targetDimension_);
+      }
 
     private:
       void compute () final {
@@ -1231,6 +1288,10 @@ namespace bpp {
         return Self::create (c, {delta->derive (c, node), x->derive (c, node)}, n_, targetDimension_);
       }
       bool isDerivable (const Node & node) const final { return allDerivable (this->dependencies (), node); }
+
+      NodeRef recreate (Context & c, NodeRefVec && deps) final {
+        return Self::create (c, std::move (deps), n_, targetDimension_);
+      }
 
       int getN () const { return n_; }
 
@@ -1375,6 +1436,10 @@ namespace bpp {
       }
       bool isDerivable (const Node & node) const final {
         return allDerivable (this->dependencies (), node); // FIXME delta arg ?
+      }
+
+      NodeRef recreate (Context & c, NodeRefVec && deps) final {
+        return Self::create (c, std::move (deps), n_, std::vector<double>{coeffs_}, targetDimension_);
       }
 
       const std::vector<double> & getCoeffs () const { return coeffs_; }

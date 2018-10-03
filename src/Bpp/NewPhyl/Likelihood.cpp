@@ -221,6 +221,10 @@ namespace bpp {
       return CWiseAdd<T, ReductionOf<T>>::create (c, std::move (derivativeSumDeps), targetDimension_);
     }
 
+    NodeRef EquilibriumFrequenciesFromModel::recreate (Context & c, NodeRefVec && deps) {
+      return Self::create (c, std::move (deps), targetDimension_);
+    }
+
     void EquilibriumFrequenciesFromModel::compute () {
       const auto * model = accessValueConstCast<const TransitionModel *> (*this->dependency (0));
       const auto & freqsFromModel = model->getFrequencies ();
@@ -268,6 +272,10 @@ namespace bpp {
           c, {std::move (dbrlen_dn), std::move (df_dbrlen)}, targetDimension_));
       }
       return CWiseAdd<T, ReductionOf<T>>::create (c, std::move (derivativeSumDeps), targetDimension_);
+    }
+
+    NodeRef TransitionMatrixFromModel::recreate (Context & c, NodeRefVec && deps) {
+      return Self::create (c, std::move (deps), targetDimension_);
     }
 
     void TransitionMatrixFromModel::compute () {
@@ -318,6 +326,10 @@ namespace bpp {
           c, {std::move (dbrlen_dn), std::move (df_dbrlen)}, targetDimension_));
       }
       return CWiseAdd<T, ReductionOf<T>>::create (c, std::move (derivativeSumDeps), targetDimension_);
+    }
+
+    NodeRef TransitionMatrixFromModelFirstBrlenDerivative::recreate (Context & c, NodeRefVec && deps) {
+      return Self::create (c, std::move (deps), targetDimension_);
     }
 
     void TransitionMatrixFromModelFirstBrlenDerivative::compute () {
@@ -371,6 +383,10 @@ namespace bpp {
           c, {std::move (dbrlen_dn), std::move (df_dbrlen)}, targetDimension_));
       }
       return CWiseAdd<T, ReductionOf<T>>::create (c, std::move (derivativeSumDeps), targetDimension_);
+    }
+
+    NodeRef TransitionMatrixFromModelSecondBrlenDerivative::recreate (Context & c, NodeRefVec && deps) {
+      return Self::create (c, std::move (deps), targetDimension_);
     }
 
     void TransitionMatrixFromModelSecondBrlenDerivative::compute () {

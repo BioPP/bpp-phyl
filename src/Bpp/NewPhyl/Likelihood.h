@@ -189,6 +189,7 @@ namespace bpp {
       std::string debugInfo () const final;
 
       NodeRef derive (Context & c, const Node & node) final;
+      NodeRef recreate (Context & c, NodeRefVec && deps) final;
 
     private:
       void compute () final;
@@ -212,6 +213,7 @@ namespace bpp {
       std::string debugInfo () const final;
 
       NodeRef derive (Context & c, const Node & node) final;
+      NodeRef recreate (Context & c, NodeRefVec && deps) final;
 
     private:
       void compute () final;
@@ -235,6 +237,7 @@ namespace bpp {
       std::string debugInfo () const final;
 
       NodeRef derive (Context & c, const Node & node) final;
+      NodeRef recreate (Context & c, NodeRefVec && deps) final;
 
     private:
       void compute () final;
@@ -258,6 +261,7 @@ namespace bpp {
       std::string debugInfo () const final;
 
       NodeRef derive (Context & c, const Node & node) final;
+      NodeRef recreate (Context & c, NodeRefVec && deps) final;
 
     private:
       void compute () final;
