@@ -66,6 +66,12 @@ namespace bpp {
       throw Exception ("Numerical derivation of expression is not configured: define the node "
                        "providing the delta value, and choose a computation type.");
     }
+    void checkRecreateWithoutDependencies (const std::type_info & contextNodeType, const NodeRefVec & deps) {
+      if (!deps.empty ()) {
+        throw Exception (prettyTypeName (contextNodeType) +
+                         "recreate called with dependencies, but node does not have dependencies");
+      }
+    }
 
     // Precompiled instantiations of numeric nodes
     template class ConstantZero<double>;

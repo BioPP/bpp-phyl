@@ -67,8 +67,8 @@ namespace bpp {
      */
     template <typename T, typename B>
     static NodeRefVec generateModelDerivativeSumDepsForModelComputations (
-      Context & c, const ConfiguredModel & model, const Node & derivationNode,
-      const Dimension<T> & targetDimension, B buildFWithNewModel) {
+      Context & c, ConfiguredModel & model, const Node & derivationNode, const Dimension<T> & targetDimension,
+      B buildFWithNewModel) {
       NodeRefVec derivativeSumDeps;
       for (std::size_t i = 0; i < model.nbDependencies (); ++i) {
         // First compute dxi_dn. If this maps to a constant 0, do not compute df_dxi at all (costly).
@@ -169,7 +169,7 @@ namespace bpp {
       return "nbState=" + std::to_string (model_->getAlphabet ()->getSize ());
     }
 
-    NodeRef ConfiguredModel::recreate (Context & c, NodeRefVec && deps) const {
+    NodeRef ConfiguredModel::recreate (Context & c, NodeRefVec && deps) {
       auto m = Self::create (c, std::move (deps), std::unique_ptr<TransitionModel>{model_->clone ()});
       m->config = this->config; // Duplicate derivation config
       return m;
@@ -212,7 +212,7 @@ namespace bpp {
     NodeRef EquilibriumFrequenciesFromModel::derive (Context & c, const Node & node) {
       // d(equFreqs)/dn = sum_i d(equFreqs)/dx_i * dx_i/dn (x_i = model parameters)
       auto modelDep = this->dependency (0);
-      const auto & model = static_cast<const ConfiguredModel &> (*modelDep);
+      auto & model = static_cast<ConfiguredModel &> (*modelDep);
       auto buildFWithNewModel = [this, &c](NodeRef && newModel) {
         return Self::create (c, {std::move (newModel)}, targetDimension_);
       };
@@ -253,7 +253,7 @@ namespace bpp {
       auto modelDep = this->dependency (0);
       auto brlenDep = this->dependency (1);
       // Model part
-      const auto & model = static_cast<const ConfiguredModel &> (*modelDep);
+      auto & model = static_cast<ConfiguredModel &> (*modelDep);
       auto buildFWithNewModel = [this, &c, &brlenDep](NodeRef && newModel) {
         return Self::create (c, {std::move (newModel), brlenDep}, targetDimension_);
       };
@@ -303,7 +303,7 @@ namespace bpp {
       auto modelDep = this->dependency (0);
       auto brlenDep = this->dependency (1);
       // Model part
-      const auto & model = static_cast<const ConfiguredModel &> (*modelDep);
+      auto & model = static_cast<ConfiguredModel &> (*modelDep);
       auto buildFWithNewModel = [this, &c, &brlenDep](NodeRef && newModel) {
         return Self::create (c, {std::move (newModel), brlenDep}, targetDimension_);
       };
@@ -353,7 +353,7 @@ namespace bpp {
       auto modelDep = this->dependency (0);
       auto brlenDep = this->dependency (1);
       // Model part
-      const auto & model = static_cast<const ConfiguredModel &> (*modelDep);
+      auto & model = static_cast<ConfiguredModel &> (*modelDep);
       auto buildFWithNewModel = [this, &c, &brlenDep](NodeRef && newModel) {
         return Self::create (c, {std::move (newModel), brlenDep}, targetDimension_);
       };

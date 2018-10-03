@@ -263,6 +263,7 @@ namespace bpp {
     // Error utils
     [[noreturn]] void failureDeltaNotDerivable (const std::type_info & contextNodeType);
     [[noreturn]] void failureNumericalDerivationNotConfigured ();
+    void checkRecreateWithoutDependencies (const std::type_info & contextNodeType, const NodeRefVec & deps);
 
     // Type tag to indicate a reduction operation (for +,*,...).
     template <typename T> struct ReductionOf;
@@ -328,6 +329,11 @@ namespace bpp {
         return this->shared_from_this (); // Return handle to self, as d(0)/dx = 0
       }
       bool isDerivable (const Node &) const final { return true; }
+
+      NodeRef recreate (Context &, NodeRefVec && deps) final {
+        checkRecreateWithoutDependencies (typeid (Self), deps);
+        return this->shared_from_this ();
+      }
 
     private:
       void compute () final {

@@ -181,8 +181,8 @@ namespace bpp {
       /// Check if derivation is transitively defined (FIXME semantics).
       virtual bool isDerivable (const Node & node) const;
 
-      // Recreate the node with different dependencies
-      virtual NodeRef recreate (Context & c, NodeRefVec && deps) const;
+      /// Recreate the node with different dependencies.
+      virtual NodeRef recreate (Context & c, NodeRefVec && deps);
 
       /** @brief Compute this node value, recomputing dependencies (transitively) as needed.
        *
