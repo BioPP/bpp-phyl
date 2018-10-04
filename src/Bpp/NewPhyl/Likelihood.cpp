@@ -90,22 +90,6 @@ namespace bpp {
       return derivativeSumDeps;
     }
 
-    /* TODO add function to generate initial matrix
-     *
-     * use correct way to get initial state.
-     * Newlik code suggests: use an AlignedValuesContainer.
-     * Call getStateValueAt (site index, sequence index, model state tested).
-     *
-     * Models can have different state spaces for the same sequence.
-     * DFG creation should take a StateMap as argument.
-     * Check that every model used is valid with the StateMap (same size).
-     *
-     * Remove this node. Directly build Constant<MatrixDouble> in Phylogeny.
-     * Build these nodes for an AlignedValuesContainer, sequenceName, statemap.
-     * Rename SequenceNodeAccess to InitialLikelihoodNodeProvider.
-     * The sole impl should be built with StateMap ref at creation (fixed).
-     */
-
     std::unordered_map<std::string, std::shared_ptr<NumericMutable<double>>>
     createParameterMapForModel (Context & c, const TransitionModel & model) {
       const auto & modelParameters = model.getParameters ();

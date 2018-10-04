@@ -244,8 +244,7 @@ TEST_CASE("df")
     std::move(model));
 
   // Build likelihood value
-  const auto nbSite = c.sites.getNumberOfSites();
-  auto l = makeSimpleLikelihoodNodes(context, *phyloTree, modelNode, nbSite);
+  auto l = makeSimpleLikelihoodNodes(context, *phyloTree, c.sites, modelNode);
   timingEnd(ts, "df_setup");
 
   bpp::dataflow::writeGraphToDot(

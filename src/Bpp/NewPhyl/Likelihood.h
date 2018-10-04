@@ -62,6 +62,9 @@ namespace bpp {
    *
    * Equilibrium frequencies are stored as a RowVector(nbState) : matrix with 1 row and n columns.
    * This choice allows to reuse the MatrixProduct numeric node directly.
+   *
+   * Initial conditional likelihood for leaves (sequences on the tree) should be computed outside of the
+   * dataflow graph, and provided as NumericConstant<MatrixXd>.
    */
   inline MatrixDimension conditionalLikelihoodDimension (std::size_t nbState, std::size_t nbSite) {
     return {Eigen::Index (nbState), Eigen::Index (nbSite)};
@@ -72,12 +75,6 @@ namespace bpp {
   inline MatrixDimension equilibriumFrequenciesDimension (std::size_t nbState) {
     return rowVectorDimension (Eigen::Index (nbState));
   }
-  // FIXME mess with row/col order to clear.
-
-  /* Initial conditional likelihood for leaves (sequences on the tree) are computed separately.
-   * The values should be used in the dataflow tree by using matrix constant nodes.
-   */
-  class Sequence; // TODO
 
   // Dataflow nodes for likelihood computation.
   namespace dataflow {

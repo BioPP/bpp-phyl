@@ -43,6 +43,7 @@
 #define BPP_NEWPHYL_LIKELIHOODEXAMPLE_H
 
 #include <Bpp/Exceptions.h>
+#include <Bpp/Seq/Container/VectorSiteContainer.h>
 
 #include "Bpp/NewPhyl/Likelihood.h"
 #include "Bpp/Phyl/Model/SubstitutionModel.h"
@@ -67,8 +68,30 @@ namespace bpp {
     SimpleLikelihoodNodes & r;
     std::shared_ptr<dataflow::ConfiguredModel> model;
     const PhyloTree & tree;
+    const VectorSiteContainer & sites;
     MatrixDimension likelihoodMatrixDim;
     std::size_t nbState;
+    std::size_t nbSite;
+
+    dataflow::NodeRef makeInitialConditionalLikelihood (const std::string & sequenceName) {
+      /* FIXME Generate the matrix of {0,1} for each (state, site).
+       * I am not sure what is the current interface class to use in the bpp_seq stuff.
+       * Thus I selected VectorSiteContainer which is an implementation class.
+       * This is certainly not the most permissive interface.
+       * In addition, I iterate on raw states, but newlik code seems to use StateMap conversion.
+       * I do not handle any of that in this example !
+       * It should also be checked that edge models have the same state space, etc...
+       */
+      const auto sequenceIndex = sites.getSequencePosition (sequenceName);
+      Eigen::MatrixXd initCondLik (nbState, nbSite);
+      for (std::size_t site = 0; site < nbSite; ++site) {
+        for (std::size_t state = 0; state < nbState; ++state) {
+          initCondLik (Eigen::Index (state), Eigen::Index (site)) =
+            sites.getStateValueAt (site, sequenceIndex, int(state));
+        }
+      }
+      return dataflow::NumericConstant<Eigen::MatrixXd>::create (c, std::move (initCondLik));
+    }
 
     dataflow::NodeRef makeForwardLikelihoodNode (PhyloTree::EdgeIndex index) {
       const auto initBrlen = tree.getEdge (index)->getLength ();
@@ -85,7 +108,7 @@ namespace bpp {
     dataflow::NodeRef makeConditionalLikelihoodNode (PhyloTree::NodeIndex index) {
       const auto childBranchIndexes = tree.getBranches (index);
       if (childBranchIndexes.empty ()) {
-        // FIXME leaf node, create likelihood matrix constant from sequence
+        return makeInitialConditionalLikelihood (tree.getNode (index)->getName ());
       } else {
         dataflow::NodeRefVec deps (childBranchIndexes.size ());
         for (std::size_t i = 0; i < childBranchIndexes.size (); ++i) {
@@ -108,9 +131,10 @@ namespace bpp {
    * The branch length values can be provided by any computation, or as a leaf NumericMutable node.
    */
   inline SimpleLikelihoodNodes makeSimpleLikelihoodNodes (dataflow::Context & c, const PhyloTree & tree,
-                                                          std::shared_ptr<dataflow::ConfiguredModel> model,
-                                                          std::size_t nbSite) {
-    const auto nbState = model->getValue ()->getNumberOfStates ();
+                                                          const VectorSiteContainer & sites,
+                                                          std::shared_ptr<dataflow::ConfiguredModel> model) {
+    const auto nbState = model->getValue ()->getNumberOfStates (); // Number of stored state values !
+    const auto nbSite = sites.getNumberOfSites ();
     const auto likelihoodMatrixDim = conditionalLikelihoodDimension (nbState, nbSite);
     SimpleLikelihoodNodes r;
 
@@ -120,7 +144,7 @@ namespace bpp {
     }
 
     // Recursively generate dataflow graph for conditional likelihood using helper struct.
-    SimpleLikelihoodNodesHelper helper{c, r, model, tree, likelihoodMatrixDim, nbState};
+    SimpleLikelihoodNodesHelper helper{c, r, model, tree, sites, likelihoodMatrixDim, nbState, nbSite};
     auto rootConditionalLikelihoods = helper.makeConditionalLikelihoodNode (tree.getRootIndex ());
 
     // Combine them to equilibrium frequencies to get the log likelihood
