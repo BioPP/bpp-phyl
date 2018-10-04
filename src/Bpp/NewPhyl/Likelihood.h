@@ -60,7 +60,7 @@ namespace bpp {
    * tm(fromState, toState) = probability of going to toState from fromState.
    * This matches the convention from TransitionModel::getPij_t().
    *
-   * Equilibrium frequencies are stored as a RowVector : matrix with 1 row and n columns.
+   * Equilibrium frequencies are stored as a RowVector(nbState) : matrix with 1 row and n columns.
    * This choice allows to reuse the MatrixProduct numeric node directly.
    */
   inline MatrixDimension conditionalLikelihoodDimension (std::size_t nbState, std::size_t nbSite) {
@@ -97,9 +97,9 @@ namespace bpp {
      *
      * f(toState, site) = sum_fromState P(fromState, toState) * c(fromState, site).
      * Using matrix multiply with transposition: f = transposed(transitionMatrix) * c.
-     * FIXME need to transpose TM.
      */
-    using ForwardLikelihoodFromConditional = MatrixProduct<Eigen::MatrixXd, Eigen::MatrixXd, Eigen::MatrixXd>;
+    using ForwardLikelihoodFromConditional =
+      MatrixProduct<Eigen::MatrixXd, Transposed<Eigen::MatrixXd>, Eigen::MatrixXd>;
 
     /** likelihood = f(equilibriumFrequencies, rootConditionalLikelihood).
      * likelihood: RowVector(site).
@@ -114,7 +114,7 @@ namespace bpp {
 
     /** totalLogLikelihood = sum_site log(likelihood(site)).
      * likelihood: RowVector (site).
-   * totalLogLikelihood: double.
+     * totalLogLikelihood: double.
      */
     using TotalLogLikelihood = SumOfLogarithms<Eigen::RowVectorXd>;
   } // namespace dataflow
@@ -183,7 +183,7 @@ namespace bpp {
     };
 
     /** equilibriumFrequencies = f(model).
-     * equilibriumFrequencies: RowVector.
+     * equilibriumFrequencies: RowVector(nbState).
      * model: ConfiguredModel.
      */
     class EquilibriumFrequenciesFromModel : public Value<Eigen::RowVectorXd> {
@@ -206,7 +206,7 @@ namespace bpp {
     };
 
     /** transitionMatrix = f(model, branchLen).
-     * transitionMatrix: Matrix.
+     * transitionMatrix: Matrix(fromState, toState).
      * model: ConfiguredModel.
      * branchLen: double.
      */
@@ -230,7 +230,7 @@ namespace bpp {
     };
 
     /** dtransitionMatrix/dbrlen = f(model, branchLen).
-     * dtransitionMatrix/dbrlen: Matrix.
+     * dtransitionMatrix/dbrlen: Matrix(fromState, toState).
      * model: ConfiguredModel.
      * branchLen: double.
      */
@@ -254,7 +254,7 @@ namespace bpp {
     };
 
     /** d2transitionMatrix/dbrlen2 = f(model, branchLen).
-     * d2transitionMatrix/dbrlen2: Matrix.
+     * d2transitionMatrix/dbrlen2: Matrix(fromState, toState).
      * model: ConfiguredModel.
      * branchLen: double.
      */

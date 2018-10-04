@@ -1,5 +1,5 @@
 //
-// File: Phylogeny.h
+// File: LikelihoodExample.h
 // Authors:
 //   Francois Gindraud (2017)
 // Created: 2017-05-12
@@ -42,30 +42,11 @@
 #ifndef BPP_NEWPHYL_LIKELIHOODEXAMPLE_H
 #define BPP_NEWPHYL_LIKELIHOODEXAMPLE_H
 
-#if 0
-namespace bpp {
-  /* Phylogeny DF graph construction functions.
-   * TODO doc
-   */
-  DF::ValueRef<MatrixDouble> makeConditionalLikelihoodNode (const TreeTopologyInterface & tree,
-                                                            const SequenceNodeAccess & sequenceNodes,
-                                                            const BranchLengthNodeAccess & brlenNodes,
-                                                            const ModelNodeAccess & modelNodes,
-                                                            TopologyNodeIndex node);
-  DF::ValueRef<MatrixDouble> makeForwardLikelihoodNode (const TreeTopologyInterface & tree,
-                                                        const SequenceNodeAccess & sequenceNodes,
-                                                        const BranchLengthNodeAccess & brlenNodes,
-                                                        const ModelNodeAccess & modelNodes,
-                                                        TopologyBranchIndex branch);
-
-} // namespace bpp
-#endif
-
 #include <Bpp/Exceptions.h>
 
 #include "Bpp/NewPhyl/Likelihood.h"
-#include "Bpp/Phyl/Tree/PhyloTree.h"
 #include "Bpp/Phyl/Model/SubstitutionModel.h"
+#include "Bpp/Phyl/Tree/PhyloTree.h"
 
 #include <map>
 
@@ -75,6 +56,45 @@ namespace bpp {
     dataflow::ValueRef<double> totalLogLikelihood;
 
     std::map<PhyloTree::EdgeIndex, std::shared_ptr<dataflow::NumericMutable<double>>> branchLengthValues;
+  };
+
+  // Recursion helper class.
+  // This stores state used by the two mutually recursive functions used to generate cond lik nodes.
+  // The struct is similar to how a lambda is done internally, and allow the function definitions to be short.
+  // The pure function equivalent has seven arguments, which is horrible.
+  struct SimpleLikelihoodNodesHelper {
+    dataflow::Context & c;
+    SimpleLikelihoodNodes & r;
+    std::shared_ptr<dataflow::ConfiguredModel> model;
+    const PhyloTree & tree;
+    MatrixDimension likelihoodMatrixDim;
+    std::size_t nbState;
+
+    dataflow::NodeRef makeForwardLikelihoodNode (PhyloTree::EdgeIndex index) {
+      const auto initBrlen = tree.getEdge (index)->getLength ();
+      auto brlen = dataflow::NumericMutable<double>::create (c, initBrlen);
+      r.branchLengthValues.emplace (index, brlen);
+
+      auto childConditionalLikelihood = makeConditionalLikelihoodNode (tree.getSon (index));
+      auto transitionMatrix =
+        dataflow::TransitionMatrixFromModel::create (c, {model, brlen}, transitionMatrixDimension (nbState));
+      return dataflow::ForwardLikelihoodFromConditional::create (
+        c, {transitionMatrix, childConditionalLikelihood}, likelihoodMatrixDim);
+    }
+
+    dataflow::NodeRef makeConditionalLikelihoodNode (PhyloTree::NodeIndex index) {
+      const auto childBranchIndexes = tree.getBranches (index);
+      if (childBranchIndexes.empty ()) {
+        // FIXME leaf node, create likelihood matrix constant from sequence
+      } else {
+        dataflow::NodeRefVec deps (childBranchIndexes.size ());
+        for (std::size_t i = 0; i < childBranchIndexes.size (); ++i) {
+          deps[i] = makeForwardLikelihoodNode (childBranchIndexes[i]);
+        }
+        return dataflow::ConditionalLikelihoodFromChildrenForward::create (c, std::move (deps),
+                                                                           likelihoodMatrixDim);
+      }
+    }
   };
 
   /* Build a likelihood computation dataflow graph for a simple example.
@@ -87,40 +107,35 @@ namespace bpp {
    * In a real case, something like a map<EdgeIndex, ValueRef<double>> would provide branch lengths.
    * The branch length values can be provided by any computation, or as a leaf NumericMutable node.
    */
-  inline SimpleLikelihoodNodes makeSimpleLikelihoodNodes (const PhyloTree & tree,
+  inline SimpleLikelihoodNodes makeSimpleLikelihoodNodes (dataflow::Context & c, const PhyloTree & tree,
                                                           std::shared_ptr<dataflow::ConfiguredModel> model,
                                                           std::size_t nbSite) {
-    SimpleLikelihoodNodes r;
-
-    dataflow::Context c;
-
-    const auto nbState = model->getValue()->getNumberOfStates();
+    const auto nbState = model->getValue ()->getNumberOfStates ();
     const auto likelihoodMatrixDim = conditionalLikelihoodDimension (nbState, nbSite);
-
-    // Recursive intermediate functions TODO
-    auto makeConditionalLikelihoodNode = [&](PhyloTree::NodeIndex index) {};
-    auto makeForwardLikelihoodNode = [&](PhyloTree::EdgeIndex index) {};
+    SimpleLikelihoodNodes r;
 
     // Build conditional likelihoods up to root recursively.
     if (!tree.isRooted ()) {
       throw Exception ("PhyloTree must be rooted");
     }
-    auto rootConditionalLikelihoods = makeConditionalLikelihoodNode (tree.getRootIndex ());
+
+    // Recursively generate dataflow graph for conditional likelihood using helper struct.
+    SimpleLikelihoodNodesHelper helper{c, r, model, tree, likelihoodMatrixDim, nbState};
+    auto rootConditionalLikelihoods = helper.makeConditionalLikelihoodNode (tree.getRootIndex ());
 
     // Combine them to equilibrium frequencies to get the log likelihood
     auto equFreqs = dataflow::EquilibriumFrequenciesFromModel::create (
-      c, {model}, equilibriumFrequenciesDimension (nbState));
+      c, {model}, rowVectorDimension (Eigen::Index (nbState)));
     auto siteLikelihoods = dataflow::LikelihoodFromRootConditional::create (
-      c, {equFreqs, rootConditionalLikelihood}, rowVectorDimension (nbSite));
+      c, {equFreqs, rootConditionalLikelihoods}, rowVectorDimension (Eigen::Index (nbSite)));
     auto totalLogLikelihood =
-      dataflow::TotalLogLikelihood::create (c, {siteLikelihoods}, rowVectorDimension (nbSite));
+      dataflow::TotalLogLikelihood::create (c, {siteLikelihoods}, rowVectorDimension (Eigen::Index (nbSite)));
 
     // We want -log(likelihood)
-    r.totalLogLikelihood = dataflow::CWiseNegate<double> (c, {totalLogLikelihood}, Dimension<double> ());
-
+    r.totalLogLikelihood =
+      dataflow::CWiseNegate<double>::create (c, {totalLogLikelihood}, Dimension<double> ());
     return r;
   }
-
 } // namespace bpp
 
 #endif // BPP_NEWPHYL_LIKELIHOODEXAMPLE_H

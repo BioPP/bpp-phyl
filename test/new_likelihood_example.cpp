@@ -47,7 +47,6 @@
 #define ENABLE_DF
 
 // Common stuff
-#include <Bpp/NewPhyl/IntegerRange.h>
 #include <Bpp/Numeric/AutoParameter.h>
 #include <Bpp/Numeric/Function/ConjugateGradientMultiDimensions.h>
 #include <Bpp/Numeric/Function/Optimizer.h>
@@ -55,7 +54,6 @@
 #include <Bpp/Numeric/Parameter.h>
 #include <Bpp/Numeric/ParameterList.h>
 #include <Bpp/Phyl/Model/Nucleotide/T92.h>
-#include <Bpp/Phyl/Tree/TreeTemplate.h>
 #include <Bpp/Seq/Alphabet/AlphabetTools.h>
 #include <Bpp/Seq/Container/VectorSiteContainer.h>
 #include <chrono>
@@ -64,6 +62,7 @@
 #ifdef ENABLE_OLD
 #include <Bpp/Numeric/Prob/ConstantDistribution.h>
 #include <Bpp/Phyl/Likelihood/RHomogeneousTreeLikelihood.h>
+#include <Bpp/Phyl/Tree/TreeTemplate.h>
 #endif
 // Newlik
 #ifdef ENABLE_NEW
@@ -73,11 +72,9 @@
 #endif
 // DF
 #ifdef ENABLE_DF
-#include <Bpp/NewPhyl/Debug.h>
-#include <Bpp/NewPhyl/ImportMaster.h>
-#include <Bpp/NewPhyl/Model.h>
-#include <Bpp/NewPhyl/Optimizer.h>
-#include <Bpp/NewPhyl/Phylogeny.h>
+#include <Bpp/NewPhyl/LikelihoodExample.h>
+#include <Bpp/Phyl/Io/Newick.h>
+#include <Bpp/Phyl/NewLikelihood/PhyloLikelihoods/SingleProcessPhyloLikelihood.h>
 #endif
 
 namespace
@@ -100,11 +97,8 @@ namespace
   {
     constexpr std::size_t updatesNbIterations = 1000;
     auto ts = timingStart();
-    for (auto i : bpp::range(updatesNbIterations))
-    {
-      (void)i;
+    for (std::size_t i = 0; i < updatesNbIterations; ++i)
       f();
-    }
     timingEnd(ts, timePrefix);
   }
   void do_param_changes_multiple_times(bpp::DerivableSecondOrder& llh,
@@ -235,56 +229,31 @@ TEST_CASE("df")
   const CommonStuff c;
   auto ts = timingStart();
   // Read tree structure
-  auto tree = std::unique_ptr<bpp::TreeTemplate<bpp::Node>>(bpp::TreeTemplateTools::parenthesisToTree(c.treeStr));
+  bpp::Newick reader;
+  auto phyloTree = std::unique_ptr<bpp::PhyloTree>(reader.parenthesisToPhyloTree(c.treeStr, false, "", false, false));
 
-  // Model
-  auto substitutionModel = std::unique_ptr<bpp::SubstitutionModel>(new bpp::T92(&c.alphabet, 3.));
-  auto modelParameters = bpp::ModelParameterMap(*substitutionModel);
-  auto model = bpp::DF::makeNode<bpp::DF::Model>(modelParameters, std::move(substitutionModel));
+  bpp::dataflow::Context context;
 
-  // Describe how to build a likelihood value
-  auto treeView = bpp::TreeTemplateView(*tree);
-  auto modelSetup = bpp::SameModelForAllBranches(model);
-  auto brlenParameters = bpp::BranchLengthsInitializedFromValues(treeView);
-  auto sequences = bpp::SequenceNodesInilialisedFromNames(treeView, c.sites);
+  // Model: create simple leaf nodes as model parameters
+  auto model = std::unique_ptr<bpp::T92>(new bpp::T92(&c.alphabet, 3.));
+  auto modelParameters = bpp::dataflow::createParameterMapForModel(context, *model);
+  auto modelNode = bpp::dataflow::ConfiguredModel::create(
+    context,
+    bpp::dataflow::createDependencyVector(
+      *model, [&modelParameters](const std::string& paramName) { return modelParameters[paramName]; }),
+    std::move(model));
 
-  // Build DF node
-  auto logLikNode = bpp::makeLogLikelihoodNode(treeView, sequences, brlenParameters, modelSetup);
-
-  // Build bpp-compatible structure out of it
-  auto brlenBppParams = bpp::branchLengthParameterList(
-    treeView, brlenParameters, [](bpp::TopologyBranchIndex branch) { return "BrLen" + std::to_string(branch.value); });
-
-  auto modelBppParams = bpp::modelParameterList(modelParameters, "T92.");
-
-  bpp::ParameterList params;
-  params.addParameters(brlenBppParams);
-  params.addParameters(modelBppParams);
-
-  bpp::DataFlowFunction likFunc{logLikNode, params};
+  // Build likelihood value
+  const auto nbSite = c.sites.getNumberOfSites();
+  auto l = makeSimpleLikelihoodNodes(context, *phyloTree, modelNode, nbSite);
   timingEnd(ts, "df_setup");
 
+  bpp::dataflow::writeGraphToDot(
+    "new_likelikood_example.dot", {l.totalLogLikelihood.get()}, bpp::dataflow::DotOptions::None);
+
   ts = timingStart();
-  auto logLik = likFunc.getValue();
+  auto logLik = l.totalLogLikelihood->getValue();
   timingEnd(ts, "df_init_value");
   printLik(logLik, "df_init_value");
-
-  //bpp::debugDag("df_debug", *logLikNode, bpp::DF::DebugOptions::DetailedNodeInfo);
-
-  std::cout << "[dbrlen1] " << likFunc.getFirstOrderDerivative("BrLen1") << "\n";
-  {
-    //bpp::debugDag("df_debug_2", *logLikNode, bpp::DF::DebugOptions::DetailedNodeInfo);
-    //bpp::debugDag("df_debug_2", likFunc.getAllNamedNodes("f"), bpp::DF::DebugOptions::DetailedNodeInfo);
-    // bpp::debugTree(fd, treeView);
-  }
-  do_param_changes_multiple_times(likFunc, "df_param_model_change", c.paramModel1, c.paramModel2);
-  do_param_changes_multiple_times(likFunc, "df_param_brlen_change", c.paramBrLen1, c.paramBrLen2);
-  optimize_branch_params(likFunc, "df_brlens_opt", brlenBppParams);
-
-  {
-    // TESTS
-    std::cout << "--------------------------\n";
-    std::cout << "--------------------------\n";
-  }
 }
 #endif
