@@ -298,12 +298,19 @@ TEST_CASE("Convert")
   CHECK(m2Value(0, 0) == 42);
   CHECK(m2Value(0, 1) == 42);
 
-  // Matrix to matrix
+  // Matrix to a Fixed size type (RowVector2d).
   auto m3 = Convert<Eigen::RowVector2d, Eigen::MatrixXd>::create(c, {m}, MatrixDimension(1, 2));
   const auto& m3Value = m3->getValue();
   CHECK(MatrixDimension(m3Value) == MatrixDimension(1, 2));
   CHECK(m3Value(0, 0) == 42);
   CHECK(m3Value(0, 1) == -42);
+
+  // Matrix to matrix with transposition
+  auto m4 = Convert<Eigen::MatrixXd, Transposed<Eigen::MatrixXd>>::create(c, {m}, MatrixDimension(1, 2));
+  const auto& m4Value = m4->getValue();
+  CHECK(MatrixDimension(m4Value) == MatrixDimension(2, 1));
+  CHECK(m4Value(0, 0) == 42);
+  CHECK(m4Value(1, 0) == -42);
 
   // Check derivative
   auto dummy = std::make_shared<DoNothingNode>();

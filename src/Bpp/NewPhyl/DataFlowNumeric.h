@@ -256,7 +256,6 @@ namespace bpp {
   /******************************************************************************
    * Data flow nodes for those numerical functions.
    *
-   * TODO what of rebuild ?
    * TODO numerical simplification: all deps constant => return constant ?
    */
   namespace dataflow {
@@ -294,6 +293,54 @@ namespace bpp {
       return std::all_of (deps.begin (), deps.end (),
                           [&node](const NodeRef & dep) { return dep->isDerivable (node); });
     }
+
+    /** Template struct used to describe a dependency transformation before compute().
+     *
+     * Transforms allow to generate variants of computation nodes with a readable syntax:
+     * MatrixProduct<R, T0, T1> will perform R = T0 * T1.
+     * MatrixProduct<R, Transposed<T0>, T1> will perform R = transpose(T0) * T1.
+     *
+     * This struct is used to implement the transformation.
+     * A default case is provided that performs no transformation.
+     * Adding a new transformation type consists of declaring a type tag (like Transposed<T>),
+     * and specialising this struct for the type tag to implement the transformation.
+     * Specialisations should be recursive to allow nesting of transformations (see Transposed<T>).
+     *
+     * The DepType field gives the real type of the dependency, removing any type tag.
+     * For Transposed<T0>, DepType = T0.
+     * DepType is used to check the dependency types (Value<DepType>), and casting during computation.
+     *
+     * transform(const DepType & d) -> ? "performs" the transformation.
+     * By default, this just forwards the d reference, doing nothing.
+     * For Transposed<T>, this returns an Eigen expression template declaring a transposition.
+     *
+     * A transformation must not change the result of hasNumericalProperty(), because it is not applied to it,
+     * and would make the simplifications wrong.
+     * This makes it unlikely that something other than transposition can be implemented with this model.
+     *
+     * For now, this is only used to implement transposed variants of MatrixProduct, and Convert.
+     * This can be extended to other nodes if useful.
+     */
+    template <typename T> struct NumericalDependencyTransform {
+      /// Real type of the dependency: T in the default case.
+      using DepType = T;
+      /// Transform the DepType value: do nothing in the default case.
+      static const DepType & transform (const DepType & d) { return d; }
+    };
+
+    /// The T dependency should be transposed before computation.
+    template <typename T> struct Transposed;
+    /// Implementation for a dependency transposition.
+    template <typename T> struct NumericalDependencyTransform<Transposed<T>> {
+      // Get DepType by recursion
+      using DepType = typename NumericalDependencyTransform<T>::DepType;
+
+      // Perform inner transformation for T, then transpose. Only for Eigen types.
+      static auto transform (const DepType & d)
+        -> decltype (NumericalDependencyTransform<T>::transform (d).transpose ()) {
+        return NumericalDependencyTransform<T>::transform (d).transpose ();
+      }
+    };
 
     /** r = 0 for each component.
      * r: T.
@@ -524,18 +571,19 @@ namespace bpp {
 
     /** r = f.
      * r: R.
-     * f: F.
+     * f: F, allows NumericalDependencyTransform.
      * Convert from F to R type, semantics of numeric::convert.
      */
     template <typename R, typename F> class Convert : public Value<R> {
     public:
       using Self = Convert;
+      using DepF = typename NumericalDependencyTransform<F>::DepType;
 
       static ValueRef<R> create (Context & c, NodeRefVec && deps, const Dimension<R> & dim) {
         // Check dependencies
         checkDependenciesNotNull (typeid (Self), deps);
         checkDependencyVectorSize (typeid (Self), deps, 1);
-        checkNthDependencyIsValue<F> (typeid (Self), deps, 0);
+        checkNthDependencyIsValue<DepF> (typeid (Self), deps, 0);
         // Select node
         if (std::is_same<R, F>::value) {
           return convertRef<Value<R>> (deps[0]);
@@ -572,8 +620,8 @@ namespace bpp {
       void compute () final {
         using namespace numeric;
         auto & result = this->accessValueMutable ();
-        const auto & arg = accessValueConstCast<F> (*this->dependency (0));
-        convert (result, arg, targetDimension_);
+        const auto & arg = accessValueConstCast<DepF> (*this->dependency (0));
+        convert (result, NumericalDependencyTransform<F>::transform (arg), targetDimension_);
       }
 
       Dimension<R> targetDimension_;
@@ -1164,19 +1212,21 @@ namespace bpp {
 
     /** r = x0 * x1 (matrix product).
      * r: R (matrix).
-     * x0: T0 (matrix).
-     * x1: T1 (matrix).
+     * x0: T0 (matrix), allows NumericalDependencyTransform.
+     * x1: T1 (matrix), allows NumericalDependencyTransform.
      */
     template <typename R, typename T0, typename T1> class MatrixProduct : public Value<R> {
     public:
       using Self = MatrixProduct;
+      using DepT0 = typename NumericalDependencyTransform<T0>::DepType;
+      using DepT1 = typename NumericalDependencyTransform<T1>::DepType;
 
       static ValueRef<R> create (Context & c, NodeRefVec && deps, const Dimension<R> & dim) {
         // Check dependencies
         checkDependenciesNotNull (typeid (Self), deps);
         checkDependencyVectorSize (typeid (Self), deps, 2);
-        checkNthDependencyIsValue<T0> (typeid (Self), deps, 0);
-        checkNthDependencyIsValue<T1> (typeid (Self), deps, 1);
+        checkNthDependencyIsValue<DepT0> (typeid (Self), deps, 0);
+        checkNthDependencyIsValue<DepT1> (typeid (Self), deps, 1);
         // Return 0 if any 0.
         if (std::any_of (deps.begin (), deps.end (), [](const NodeRef & dep) {
               return dep->hasNumericalProperty (NumericalProperty::ConstantZero);
@@ -1226,9 +1276,10 @@ namespace bpp {
     private:
       void compute () final {
         auto & result = this->accessValueMutable ();
-        const auto & x0 = accessValueConstCast<T0> (*this->dependency (0));
-        const auto & x1 = accessValueConstCast<T1> (*this->dependency (1));
-        result.noalias () = x0 * x1;
+        const auto & x0 = accessValueConstCast<DepT0> (*this->dependency (0));
+        const auto & x1 = accessValueConstCast<DepT1> (*this->dependency (1));
+        result.noalias () =
+          NumericalDependencyTransform<T0>::transform (x0) * NumericalDependencyTransform<T1>::transform (x1);
       }
 
       Dimension<R> targetDimension_;
@@ -1491,6 +1542,9 @@ namespace bpp {
     extern template class Convert<Eigen::VectorXd, double>;
     extern template class Convert<Eigen::RowVectorXd, double>;
     extern template class Convert<Eigen::MatrixXd, double>;
+    extern template class Convert<Eigen::MatrixXd, Transposed<Eigen::MatrixXd>>;
+    extern template class Convert<Eigen::RowVectorXd, Transposed<Eigen::VectorXd>>;
+    extern template class Convert<Eigen::VectorXd, Transposed<Eigen::RowVectorXd>>;
 
     extern template class CWiseAdd<double, std::tuple<double, double>>;
     extern template class CWiseAdd<Eigen::VectorXd, std::tuple<Eigen::VectorXd, Eigen::VectorXd>>;
@@ -1538,6 +1592,7 @@ namespace bpp {
 
     extern template class MatrixProduct<Eigen::MatrixXd, Eigen::MatrixXd, Eigen::MatrixXd>;
     extern template class MatrixProduct<Eigen::RowVectorXd, Eigen::RowVectorXd, Eigen::MatrixXd>;
+    extern template class MatrixProduct<Eigen::MatrixXd, Transposed<Eigen::MatrixXd>, Eigen::MatrixXd>;
 
     extern template class ShiftDelta<double>;
     extern template class ShiftDelta<Eigen::VectorXd>;

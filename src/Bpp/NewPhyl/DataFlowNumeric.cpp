@@ -101,6 +101,9 @@ namespace bpp {
     template class Convert<Eigen::VectorXd, double>;
     template class Convert<Eigen::RowVectorXd, double>;
     template class Convert<Eigen::MatrixXd, double>;
+    template class Convert<Eigen::MatrixXd, Transposed<Eigen::MatrixXd>>;
+    template class Convert<Eigen::RowVectorXd, Transposed<Eigen::VectorXd>>;
+    template class Convert<Eigen::VectorXd, Transposed<Eigen::RowVectorXd>>;
 
     template class CWiseAdd<double, std::tuple<double, double>>;
     template class CWiseAdd<Eigen::VectorXd, std::tuple<Eigen::VectorXd, Eigen::VectorXd>>;
@@ -148,6 +151,7 @@ namespace bpp {
 
     template class MatrixProduct<Eigen::MatrixXd, Eigen::MatrixXd, Eigen::MatrixXd>;
     template class MatrixProduct<Eigen::RowVectorXd, Eigen::RowVectorXd, Eigen::MatrixXd>;
+    template class MatrixProduct<Eigen::MatrixXd, Transposed<Eigen::MatrixXd>, Eigen::MatrixXd>;
 
     template class ShiftDelta<double>;
     template class ShiftDelta<Eigen::VectorXd>;
