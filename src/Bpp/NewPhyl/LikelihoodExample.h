@@ -43,20 +43,24 @@
 #define BPP_NEWPHYL_LIKELIHOODEXAMPLE_H
 
 #include <Bpp/Exceptions.h>
+#include <Bpp/Numeric/Function/Functions.h>
+#include <Bpp/Numeric/Parameter.h>
+#include <Bpp/Numeric/ParameterList.h>
 #include <Bpp/Seq/Container/VectorSiteContainer.h>
 
 #include "Bpp/NewPhyl/Likelihood.h"
 #include "Bpp/Phyl/Model/SubstitutionModel.h"
 #include "Bpp/Phyl/Tree/PhyloTree.h"
 
-#include <map>
+#include <unordered_map>
 
 namespace bpp {
   // Store interesting nodes of the likelihood example
   struct SimpleLikelihoodNodes {
     dataflow::ValueRef<double> totalLogLikelihood;
 
-    std::map<PhyloTree::EdgeIndex, std::shared_ptr<dataflow::NumericMutable<double>>> branchLengthValues;
+    std::unordered_map<PhyloTree::EdgeIndex, std::shared_ptr<dataflow::NumericMutable<double>>>
+      branchLengthValues;
   };
 
   // Recursion helper class.
@@ -160,6 +164,163 @@ namespace bpp {
       dataflow::CWiseNegate<double>::create (c, {totalLogLikelihood}, Dimension<double> ());
     return r;
   }
+
+  /* Wraps a dataflow::NumericMutable<double> as a bpp::Parameter.
+   * 2 values exist: the one in the node, and the one in bpp::Parameter.
+   * The dataflow one is considered to be the reference.
+   *
+   * FIXME This is a temporary system:
+   * - It ignores all the Parameter listener system.
+   * - Synchronization between the 2 values is a best effort.
+   * - bpp::Parameter should be improved with respect to semantics, because it currently is a mess of multiple
+   * systems with sharing, some shared_ptr stuff, etc...
+   */
+  class DataFlowParameter : public Parameter {
+  public:
+    DataFlowParameter (const std::string & name,
+                       std::shared_ptr<dataflow::NumericMutable<double>> existingNode)
+      : Parameter (name, existingNode->getValue ()), node_ (std::move (existingNode)) {}
+
+    // Parameter boilerplate
+    DataFlowParameter * clone () const override { return new DataFlowParameter (*this); }
+
+    // Override value access
+    double getValue () const override { return node_->getValue (); }
+    void setValue (double v) override {
+      Parameter::setValue (v);                  // Will apply possible constraints
+      node_->setValue (Parameter::getValue ()); // Get constrained value
+    }
+
+    dataflow::NumericMutable<double> & node () const { return *node_; }
+
+  private:
+    std::shared_ptr<dataflow::NumericMutable<double>> node_;
+  };
+
+  /* Wraps a dataflow graph as a function: resultNode = f(variableNodes).
+   *
+   * FIXME This temporary interface to bpp::DerivableSecondOrder stuff should be improved.
+   *
+   * Any bpp::Parameter can be given in the bpp::ParameterList, but only DataFlowParameter are supported
+   * because we need to have dataflow nodes.
+   * No specific check is done, in case of error it will be a std::bad_cast from dynamic_cast.
+   *
+   * In addition, as we need a context for derivation but the bpp legacy API does not support it, a reference
+   * is stored in the class which is dangerous with respect to lifetime.
+   */
+  class DataFlowFunction : public DerivableSecondOrder {
+  private:
+    dataflow::Context & context_;
+
+    // Store nodes
+    dataflow::ValueRef<double> resultNode_;
+    ParameterList variableNodes_;
+
+    // Cache generated nodes representing derivatives, to avoid recreating them every time.
+    // Using the mutable keyword because the table must be changed even in const methods.
+    struct StringPairHash {
+      std::size_t operator() (const std::pair<std::string, std::string> & p) const {
+        std::hash<std::string> strHash{};
+        return strHash (p.first) ^ (strHash (p.second) << 1);
+      }
+    };
+    mutable std::unordered_map<std::string, dataflow::ValueRef<double>> firstOrderDerivativeNodes_;
+    mutable std::unordered_map<std::pair<std::string, std::string>, dataflow::ValueRef<double>,
+                               StringPairHash>
+      secondOrderDerivativeNodes_;
+
+  public:
+    DataFlowFunction (dataflow::Context & context, dataflow::ValueRef<double> resultNode,
+                      const ParameterList & variableNodes)
+      : context_ (context), resultNode_ (std::move (resultNode)), variableNodes_ (variableNodes) {}
+
+    // Legacy boilerplate
+    DataFlowFunction * clone () const override { return new DataFlowFunction (*this); }
+
+    // bpp::Parametrizable (prefix unused FIXME?)
+    bool hasParameter (const std::string & name) const override { return variableNodes_.hasParameter (name); }
+    const ParameterList & getParameters () const override { return variableNodes_; }
+    const Parameter & getParameter (const std::string & name) const override {
+      return variableNodes_.getParameter (name);
+    }
+    double getParameterValue (const std::string & name) const override {
+      return variableNodes_.getParameterValue (name);
+    }
+    void setAllParametersValues (const ParameterList & params) override {
+      return variableNodes_.setAllParametersValues (params);
+    }
+    void setParameterValue (const std::string & name, double value) override {
+      variableNodes_.setParameterValue (name, value);
+    }
+    void setParametersValues (const ParameterList & params) override {
+      variableNodes_.setParametersValues (params);
+    }
+    bool matchParametersValues (const ParameterList & params) override {
+      return variableNodes_.matchParametersValues (params);
+    }
+    std::size_t getNumberOfParameters () const override { return variableNodes_.size (); }
+    void setNamespace (const std::string &) override {}
+    std::string getNamespace () const override { return {}; }
+    std::string getParameterNameWithoutNamespace (const std::string & name) const override { return name; }
+
+    // bpp::Function
+    void setParameters (const ParameterList & params) override {
+      variableNodes_.setParametersValues (params);
+    }
+    double getValue () const override { return resultNode_->getValue (); }
+
+    // bpp::DerivableFirstOrder
+    void enableFirstOrderDerivatives (bool) override {}
+    bool enableFirstOrderDerivatives () const override { return true; }
+    double getFirstOrderDerivative (const std::string & variable) const override {
+      return firstOrderDerivativeNode (variable)->getValue ();
+    }
+
+    // bpp::DerivableSecondOrder
+    void enableSecondOrderDerivatives (bool) override {}
+    bool enableSecondOrderDerivatives () const override { return true; }
+    double getSecondOrderDerivative (const std::string & variable) const override {
+      return getSecondOrderDerivative (variable, variable);
+    }
+    double getSecondOrderDerivative (const std::string & variable1,
+                                     const std::string & variable2) const override {
+      return secondOrderDerivativeNode (variable1, variable2)->getValue ();
+    }
+
+    // Get nodes of derivatives directly
+    dataflow::ValueRef<double> firstOrderDerivativeNode (const std::string & variable) const {
+      const auto it = firstOrderDerivativeNodes_.find (variable);
+      if (it != firstOrderDerivativeNodes_.end ()) {
+        return it->second;
+      } else {
+        auto node = resultNode_->deriveAsValue (context_, accessVariableNode (variable));
+        firstOrderDerivativeNodes_.emplace (variable, node);
+        return node;
+      }
+    }
+    dataflow::ValueRef<double> secondOrderDerivativeNode (const std::string & variable1,
+                                                          const std::string & variable2) const {
+      const auto key = std::make_pair (variable1, variable2);
+      const auto it = secondOrderDerivativeNodes_.find (key);
+      if (it != secondOrderDerivativeNodes_.end ()) {
+        return it->second;
+      } else {
+        // Reuse firstOrderDerivative() to generate the first derivative with caching
+        auto node =
+          firstOrderDerivativeNode (variable1)->deriveAsValue (context_, accessVariableNode (variable2));
+        secondOrderDerivativeNodes_.emplace (key, node);
+        return node;
+      }
+    }
+
+  private:
+    static dataflow::NumericMutable<double> & accessVariableNode (const Parameter & param) {
+      return dynamic_cast<const DataFlowParameter &> (param).node ();
+    }
+    dataflow::NumericMutable<double> & accessVariableNode (const std::string & name) const {
+      return accessVariableNode (getParameter (name));
+    }
+  };
 } // namespace bpp
 
 #endif // BPP_NEWPHYL_LIKELIHOODEXAMPLE_H

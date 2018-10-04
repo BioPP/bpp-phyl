@@ -191,7 +191,7 @@ TEST_CASE("old")
   std::cout << "[dbrlen1] " << llh.getFirstOrderDerivative("BrLen1") << "\n";
   do_param_changes_multiple_times(llh, "old_param_model_change", c.paramModel1, c.paramModel2);
   do_param_changes_multiple_times(llh, "old_param_brlen_change", c.paramBrLen1, c.paramBrLen2);
-  optimize_branch_params(llh, "old_brlends_opt", llh.getBranchLengthsParameters());
+  optimize_branch_params(llh, "old_brlens_opt", llh.getBranchLengthsParameters());
 }
 #endif
 
@@ -243,19 +243,42 @@ TEST_CASE("df")
       *model, [&modelParameters](const std::string& paramName) { return modelParameters[paramName]; }),
     std::move(model));
 
-  // Build likelihood value
+  // Build likelihood value node
   auto l = makeSimpleLikelihoodNodes(context, *phyloTree, c.sites, modelNode);
+
+  // Assemble a bpp::Optimizer compatible interface to SimpleLikelihoodNodes.
+  bpp::ParameterList brlenOnlyParameters;
+  for (const auto& p : l.branchLengthValues)
+  {
+    auto param = bpp::DataFlowParameter("BrLen" + std::to_string(p.first), p.second);
+    param.setConstraint(bpp::Parameter::R_PLUS.clone(), true);
+    brlenOnlyParameters.addParameter(std::move(param));
+  }
+  bpp::ParameterList allParameters;
+  allParameters.addParameters(brlenOnlyParameters);
+  for (const auto& p : modelParameters)
+  {
+    allParameters.addParameter(bpp::DataFlowParameter("T92." + p.first, p.second));
+  }
+
+  bpp::DataFlowFunction llh(context, l.totalLogLikelihood, allParameters);
   timingEnd(ts, "df_setup");
 
   bpp::dataflow::writeGraphToDot(
     "new_likelikood_example.dot", {l.totalLogLikelihood.get()}, bpp::dataflow::DotOptions::None);
 
   ts = timingStart();
-  auto logLik = l.totalLogLikelihood->getValue();
+  auto logLik = llh.getValue();
   timingEnd(ts, "df_init_value");
   printLik(logLik, "df_init_value");
 
+  // Manual access to dbrlen1
   auto dlogLik_dbrlen1 = l.totalLogLikelihood->deriveAsValue(context, *l.branchLengthValues[1]);
   std::cout << "[dbrlen1] " << dlogLik_dbrlen1->getValue() << "\n";
+
+  do_param_changes_multiple_times(llh, "df_param_model_change", c.paramModel1, c.paramModel2);
+  do_param_changes_multiple_times(llh, "df_param_brlen_change", c.paramBrLen1, c.paramBrLen2);
+  optimize_branch_params(llh, "df_brlens_opt", brlenOnlyParameters);
+  // TODO test optimization with model params (should work inefficiently due to lack of merging)
 }
 #endif
