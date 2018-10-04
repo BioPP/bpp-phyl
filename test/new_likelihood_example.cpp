@@ -254,5 +254,8 @@ TEST_CASE("df")
   auto logLik = l.totalLogLikelihood->getValue();
   timingEnd(ts, "df_init_value");
   printLik(logLik, "df_init_value");
+
+  auto dlogLik_dbrlen1 = l.totalLogLikelihood->deriveAsValue(context, *l.branchLengthValues[1]);
+  std::cout << "[dbrlen1] " << dlogLik_dbrlen1->getValue() << "\n";
 }
 #endif
