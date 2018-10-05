@@ -43,6 +43,7 @@
 #include "../../NewLikelihood/PhyloLikelihoods/SingleProcessPhyloLikelihood.h"
 #include "../ProbabilisticSubstitutionMapping.h"
 #include "../SubstitutionMappingTools.h"
+#include "../SubstitutionMappingToolsForASite.h"
 
 #include "AbstractSinglePhyloSubstitutionMapping.h"
 
@@ -75,7 +76,6 @@ namespace bpp
       AbstractSinglePhyloSubstitutionMapping(spp.getTree().getGraph(), reg, weights, distances),
       pSPP_(&spp)
     {
-      computeCounts(threshold, verbose);
       setBranchedModelSet_();
     }
 
@@ -111,23 +111,29 @@ namespace bpp
                                                             verbose));
     }
     
+    void computeCountsForASite(size_t site, double threshold = -1, bool verbose=true)
+    {
+      counts_.reset(SubstitutionMappingToolsForASite::computeCounts(
+                      site,
+                      getLikelihoodCalculation(),
+                      getRegister(),
+                      getWeights(),
+                      getDistances(),
+                      threshold,
+                      verbose));
+    }
+
     void computeNormalizations(const ParameterList& nullParams,
                                bool verbose = true);
+
+    void computeNormalizationsForASite(size_t site,
+                                       const ParameterList& nullParams,
+                                       bool verbose = true);
 
     /*
      * @brief Return the tree of counts
      *
      */
-
-    ProbabilisticSubstitutionMapping& getCounts()
-    {
-      return *counts_;
-    }
-
-    const ProbabilisticSubstitutionMapping& getCounts() const
-    {
-      return *counts_;
-    }
 
     size_t getNumberOfModels() const
     {
@@ -138,28 +144,7 @@ namespace bpp
     {
       return pSPP_->getSubstitutionProcess().getModelNumbers();
     }
-
         
-    /*
-     * @brief Return the tree of factors
-     *
-     */
-    
-    bool normalizationsPerformed() const
-    {
-      return factors_!=0;
-    }
-    
-    ProbabilisticSubstitutionMapping& getNormalizations()
-    {
-      return *factors_;
-    }
-
-    const ProbabilisticSubstitutionMapping& getNormalizations() const
-    {
-      return *factors_;
-    }
-
     RecursiveLikelihoodTreeCalculation& getLikelihoodCalculation()
     {
       return *(dynamic_cast<RecursiveLikelihoodTreeCalculation*>(pSPP_->getLikelihoodCalculation()));

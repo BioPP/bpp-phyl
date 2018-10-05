@@ -54,9 +54,26 @@ void OneProcessSequenceSubstitutionMapping::computeNormalizations(const Paramete
                                                                  verbose));
 }
 
+void OneProcessSequenceSubstitutionMapping::computeNormalizationsForASite(
+  size_t site,
+  const ParameterList& nullParams,
+  bool verbose)
+{
+  matchParametersValues(nullParams);
+
+  factors_.reset(SubstitutionMappingToolsForASite::computeNormalizations(
+                   site,
+                   getLikelihoodCalculation(),
+                   this,
+                   getRegister(),
+                   getDistances(),
+                   verbose));
+}
 
 void OneProcessSequenceSubstitutionMapping::setBranchedModelSet_()
 {
+  
+  cerr << "pOPSP_  " << ->getSubstitutionProcess();
   const SubstitutionProcess& sp=pOPSP_->getSubstitutionProcess();
 
   vector<size_t> vId=sp.getModelNumbers();

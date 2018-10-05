@@ -70,7 +70,7 @@ namespace bpp
   {
   public:
 
-    typedef  AssociationTreeGlobalGraphObserver<uint, ModelBranch> modelTree;
+    typedef AssociationTreeGlobalGraphObserver<uint, ModelBranch> modelTree;
     
   private:
 
@@ -170,6 +170,48 @@ namespace bpp
      * @{
      */
     
+    /*
+     * @brief Return the tree of factors
+     *
+     */
+    
+    bool normalizationsPerformed() const
+    {
+      return factors_!=0;
+    }
+    
+    ProbabilisticSubstitutionMapping& getNormalizations()
+    {
+      return *factors_;
+    }
+
+    const ProbabilisticSubstitutionMapping& getNormalizations() const
+    {
+      return *factors_;
+    }
+
+    bool countsPerformed() const
+    {
+      return counts_!=0;
+    }
+
+    ProbabilisticSubstitutionMapping& getCounts()
+    {
+      return *counts_;
+    }
+
+    const ProbabilisticSubstitutionMapping& getCounts() const
+    {
+      return *counts_;
+    }
+
+
+    /*
+     *
+     *@brief For eegisters
+     *
+     */
+    
     void setRegister(const SubstitutionRegister& reg)
     {
       pReg_=&reg;
@@ -213,6 +255,17 @@ namespace bpp
      */
     
     void addModel(size_t index, const TransitionModel& model, Vuint brIds);
+
+    /*
+     * @brief change Distances
+     * 
+     *  BEWARE: counts are not updated automatically
+     */
+
+    void setDistances(const AlphabetIndex2& ndist)
+    {
+      distances_.reset(ndist.clone());
+    }
     
   };
   

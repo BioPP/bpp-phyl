@@ -42,6 +42,7 @@
 
 #include "../../NewLikelihood/PhyloLikelihoods/OneProcessSequencePhyloLikelihood.h"
 #include "../SubstitutionMappingTools.h"
+#include "../SubstitutionMappingToolsForASite.h"
 
 #include "AbstractSinglePhyloSubstitutionMapping.h"
 
@@ -70,11 +71,10 @@ namespace bpp
     void setBranchedModelSet_();
     
   public:
-    OneProcessSequenceSubstitutionMapping(OneProcessSequencePhyloLikelihood& spp, SubstitutionRegister& reg, std::shared_ptr<const AlphabetIndex2> weights, std::shared_ptr<const AlphabetIndex2> distances, double threshold = -1, bool verbose=true) :
+    OneProcessSequenceSubstitutionMapping(OneProcessSequencePhyloLikelihood& spp, SubstitutionRegister& reg, std::shared_ptr<const AlphabetIndex2> weights, std::shared_ptr<const AlphabetIndex2> distances) :
       AbstractSinglePhyloSubstitutionMapping(spp.getSubstitutionProcess().getParametrizablePhyloTree().getGraph(), reg, weights, distances),
       pOPSP_(&spp)
     {
-      computeCounts(threshold, verbose);
       setBranchedModelSet_();
     }
 
@@ -110,24 +110,25 @@ namespace bpp
                                                             threshold,
                                                             verbose));
     }
-    
+
+    void computeCountsForASite(size_t site, double threshold = -1, bool verbose=true)
+    {
+      counts_.reset(SubstitutionMappingToolsForASite::computeCounts(
+                      site,
+                      getLikelihoodCalculation(),
+                      getRegister(),
+                      getWeights(),
+                      getDistances(),
+                      threshold,
+                      verbose));
+    }
+
     void computeNormalizations(const ParameterList& nullParams,
                                bool verbose = true);
 
-    /*
-     * @brief Return the tree of counts
-     *
-     */
-
-    ProbabilisticSubstitutionMapping& getCounts()
-    {
-      return *counts_;
-    }
-
-    const ProbabilisticSubstitutionMapping& getCounts() const
-    {
-      return *counts_;
-    }
+    void computeNormalizationsForASite(size_t site,
+                                       const ParameterList& nullParams,
+                                       bool verbose = true);
 
     size_t getNumberOfModels() const
     {
@@ -138,28 +139,7 @@ namespace bpp
     {
       return pOPSP_->getSubstitutionProcess().getModelNumbers();
     }
-
         
-    /*
-     * @brief Return the tree of factors
-     *
-     */
-    
-    bool normalizationsPerformed() const
-    {
-      return factors_!=0;
-    }
-    
-    ProbabilisticSubstitutionMapping& getNormalizations()
-    {
-      return *factors_;
-    }
-
-    const ProbabilisticSubstitutionMapping& getNormalizations() const
-    {
-      return *factors_;
-    }
-
     RecursiveLikelihoodTreeCalculation& getLikelihoodCalculation()
     {
       return *(dynamic_cast<RecursiveLikelihoodTreeCalculation*>(pOPSP_->getLikelihoodCalculation()));

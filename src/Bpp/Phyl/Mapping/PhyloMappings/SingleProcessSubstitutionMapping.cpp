@@ -54,6 +54,22 @@ void SingleProcessSubstitutionMapping::computeNormalizations(const ParameterList
                                                                  verbose));
 }
 
+void SingleProcessSubstitutionMapping::computeNormalizationsForASite(
+  size_t site,
+  const ParameterList& nullParams,
+  bool verbose)
+{
+  matchParametersValues(nullParams);
+
+  factors_.reset(SubstitutionMappingToolsForASite::computeNormalizations(
+                   site,
+                   getLikelihoodCalculation(),
+                   this,
+                   getRegister(),
+                   getDistances(),
+                   verbose));
+}
+
 void SingleProcessSubstitutionMapping::setBranchedModelSet_()
 {
   const SubstitutionProcess& sp=pSPP_->getSubstitutionProcess();

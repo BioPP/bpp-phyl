@@ -200,11 +200,16 @@ ProbabilisticSubstitutionMapping* SubstitutionMappingTools::computeCounts(
       
       shared_ptr<RecursiveLikelihoodNode> ici = rlt_c.getNode(icid);
 
-      // reinit substitutionsForCurrentNode for log 
-      if (!usesLog && ici->usesLog())
+      // reinit substitutionsForCurrentNode 
+      if (ici->usesLog())
       {
         for (auto& vi : substitutionsForCurrentNode)
           std::fill(vi.begin(), vi.end(), NumConstants::MINF());
+      }
+      else 
+      {
+        for (auto& vi : substitutionsForCurrentNode)
+          std::fill(vi.begin(), vi.end(), 0);
       }
         
       usesLog=ici->usesLog();

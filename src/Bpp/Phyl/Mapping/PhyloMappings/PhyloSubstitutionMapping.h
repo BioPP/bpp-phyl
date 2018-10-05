@@ -46,6 +46,8 @@
 #include "../SubstitutionRegister.h"
 #include "../../Model/SubstitutionModel.h"
 
+#include <Bpp/Seq/AlphabetIndex/AlphabetIndex2.h>
+
 namespace bpp
 {
   class PhyloSubstitutionMapping :
@@ -103,12 +105,32 @@ namespace bpp
 
     virtual void computeNormalizations(const ParameterList& nullParams, bool verbose = true) = 0;
 
+    virtual void computeNormalizationsForASite(size_t site, const ParameterList& nullParams, bool verbose = true) = 0;
+
     /*
      * @brief return if normalizations have been performed.
      *
      */
      
     virtual bool normalizationsPerformed() const = 0;
+
+    /*
+     * @brief return if counts have been performed.
+     *
+     */
+     
+    virtual bool countsPerformed() const = 0;
+    
+    /*
+     * @brief ComputeCounts
+     * @param threshold 
+     * @param verbose  
+     *
+     */
+
+    virtual void computeCounts(double threshold = -1, bool verbose=true) = 0;
+
+    virtual void computeCountsForASite(size_t site, double threshold = -1, bool verbose=true) = 0;
 
     /*
      * @brief Return the tree of counts
@@ -128,6 +150,12 @@ namespace bpp
     
     virtual const ProbabilisticSubstitutionMapping& getNormalizations() const = 0;
 
+    /*
+     * @brief change Distances
+     *
+     */
+
+    virtual void setDistances(const AlphabetIndex2 & ndist) = 0;
     
   };
 
