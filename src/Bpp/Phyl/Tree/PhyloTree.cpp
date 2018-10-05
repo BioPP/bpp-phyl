@@ -129,6 +129,25 @@ PhyloTree& PhyloTree::operator+=(const PhyloTree& phylotree)
   return *this;
 }
 
+PhyloTree& PhyloTree::operator-=(const PhyloTree& phylotree)
+{
+  vector<shared_ptr<PhyloBranch> > vpn=getAllEdges();
+
+  for (auto& it: vpn)
+  {
+    uint ei=getEdgeIndex(it);
+
+    if (!phylotree.hasEdge(ei))
+      throw Exception("Phylotree::operator+= : argument tree does not have edge " + TextTools::toString(ei));
+    if (!it->hasLength() || !phylotree.getEdge(ei)->getLength())
+      throw Exception("Phylotree::operator+= : no summing of branches without length.");
+      
+    it->setLength(it->getLength()-phylotree.getEdge(ei)->getLength());
+  }
+  
+  return *this;
+}
+
 PhyloTree& PhyloTree::operator/=(const PhyloTree& phylotree)
 {
   vector<shared_ptr<PhyloBranch> > vpn=getAllEdges();

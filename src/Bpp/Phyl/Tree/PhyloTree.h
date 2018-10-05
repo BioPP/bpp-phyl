@@ -137,6 +137,17 @@ namespace bpp
     PhyloTree& operator+=(const PhyloTree& phylotree);
 
     /**
+     * @brief Substracts the lengths of branches of another phylotree to this
+     * one. Just branch ids are considered, whatever the topology of
+     * the trees. 
+     *
+     * @param phylotree The added PhyloTree
+     *
+     */
+
+    PhyloTree& operator-=(const PhyloTree& phylotree);
+
+    /**
      * @brief Divides the lengths of branches of this phylotree by the
      * ones of another phylotree. Just branch ids are considered,
      * whatever the topology of the trees.
