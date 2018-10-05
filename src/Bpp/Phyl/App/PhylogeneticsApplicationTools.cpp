@@ -1399,7 +1399,7 @@ SubstitutionProcess* PhylogeneticsApplicationTools::getSubstitutionProcess(
 
 /************************************************************/
 
-void PhylogeneticsApplicationTools::addSubstitutionProcessCollectionMember(
+bool PhylogeneticsApplicationTools::addSubstitutionProcessCollectionMember(
   SubstitutionProcessCollection* SubProColl,
   size_t procNum,
   const map<string, string>& params,
@@ -1414,7 +1414,7 @@ void PhylogeneticsApplicationTools::addSubstitutionProcessCollectionMember(
   KeyvalTools::parseProcedure(procDesc, procName, args);
 
   if ((procName != "OnePerBranch") && (procName != "Homogeneous") && (procName != "Nonhomogeneous") &&  (procName != "NonHomogeneous"))
-    return;
+    return 0;
 
 
   // ///
@@ -1583,7 +1583,8 @@ void PhylogeneticsApplicationTools::addSubstitutionProcessCollectionMember(
         ApplicationTools::displayResult(" Shared parameter", sP);
     }
   }
-  
+
+  return 1;
 }
 
 
@@ -1661,13 +1662,16 @@ SubstitutionProcessCollection* PhylogeneticsApplicationTools::getSubstitutionPro
     else
       num = 1;
 
-    if (nT==10)
-      ApplicationTools::displayMessage("");
+    bool addok=addSubstitutionProcessCollectionMember(SPC, num, params, (nT<10?verbose:false), warn);
 
-    if (nT>=10)
-      ApplicationTools::displayResult("Process" + TextTools::toString(num), string("..."));
-
-    addSubstitutionProcessCollectionMember(SPC, num, params, (nT<10?verbose:false), warn);
+    if (addok)
+    {
+      if (nT==10)
+        ApplicationTools::displayMessage("");
+      
+      if (nT>=10)
+        ApplicationTools::displayResult("Process" + TextTools::toString(num), string("..."));
+    }
   }
 
 

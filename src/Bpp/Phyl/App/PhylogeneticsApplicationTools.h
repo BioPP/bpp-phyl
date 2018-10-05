@@ -609,7 +609,7 @@ namespace bpp
       bool verbose = true,
       int warn = 1);
 
-    static void addSubstitutionProcessCollectionMember(
+    static bool addSubstitutionProcessCollectionMember(
       SubstitutionProcessCollection* SubProColl, 
       size_t procNum,
       const std::map<std::string, std::string>& params,
