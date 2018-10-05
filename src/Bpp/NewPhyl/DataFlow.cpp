@@ -62,20 +62,16 @@
 #include <cxxabi.h>
 static std::string demangle (const char * name) {
   int status{};
-  std::unique_ptr<char, void (*) (void *)> res{
-    abi::__cxa_demangle (name, nullptr, nullptr, &status), std::free};
+  std::unique_ptr<char, void (*) (void *)> res{abi::__cxa_demangle (name, nullptr, nullptr, &status),
+                                               std::free};
   return status == 0 ? res.get () : name;
 }
 #else
-static std::string demangle (const char * name) {
-  return name;
-}
+static std::string demangle (const char * name) { return name; }
 #endif
 
 namespace bpp {
-  std::string prettyTypeName (const std::type_info & ti) {
-    return demangle (ti.name ());
-  }
+  std::string prettyTypeName (const std::type_info & ti) { return demangle (ti.name ()); }
 } // namespace bpp
 
 namespace bpp {
@@ -88,15 +84,13 @@ namespace bpp {
     }
 
     void failureNodeConversion (const std::type_info & handleType, const Node & node) {
-      throw Exception (prettyTypeName (handleType) +
-                       " cannot store: " + prettyTypeName (typeid (node)));
+      throw Exception (prettyTypeName (handleType) + " cannot store: " + prettyTypeName (typeid (node)));
     }
 
-    void failureDependencyNumberMismatch (const std::type_info & contextNodeType,
-                                          std::size_t expectedSize, std::size_t givenSize) {
-      throw Exception (prettyTypeName (contextNodeType) + ": expected " +
-                       std::to_string (expectedSize) + " dependencies, got " +
-                       std::to_string (givenSize));
+    void failureDependencyNumberMismatch (const std::type_info & contextNodeType, std::size_t expectedSize,
+                                          std::size_t givenSize) {
+      throw Exception (prettyTypeName (contextNodeType) + ": expected " + std::to_string (expectedSize) +
+                       " dependencies, got " + std::to_string (givenSize));
     }
 
     void failureEmptyDependency (const std::type_info & contextNodeType, std::size_t depIndex) {
@@ -146,8 +140,7 @@ namespace bpp {
     }
 
     std::string Node::description () const {
-      auto replaceAll = [](std::string & str, const std::string & pattern,
-                           const std::string & replacement) {
+      auto replaceAll = [](std::string & str, const std::string & pattern, const std::string & replacement) {
         std::string::size_type i = str.find (pattern);
         while (i != std::string::npos) {
           str.replace (i, pattern.size (), replacement);
@@ -171,8 +164,8 @@ namespace bpp {
     }
     bool Node::isDerivable (const Node &) const { return false; }
 
-    NodeRef Node::rebuild (NodeRefVec &&) const {
-      throw Exception ("Node does not support rebuild(deps): " + description ());
+    NodeRef Node::recreate (Context &, NodeRefVec &&) {
+      throw Exception ("Node does not support recreate(deps): " + description ());
     }
 
     void Node::computeRecursively () {
@@ -226,29 +219,6 @@ namespace bpp {
     /*****************************************************************************
      * Free functions.
      */
-    NodeRef rebuildWithSubstitution (const NodeRef & node,
-                                     const std::map<const Node *, NodeRef> & substitutions) {
-      auto it = substitutions.find (node.get ());
-      if (it != substitutions.end ()) {
-        // Substitute sub tree.
-        return it->second;
-      } else if (node->dependencies ().empty ()) {
-        // Leaves do no support rebuild: just copy them
-        return node;
-      } else {
-        // Recursion : only rebuild if dependencies have changed
-        NodeRefVec rebuiltDeps (node->nbDependencies ());
-        for (std::size_t i = 0; i < rebuiltDeps.size (); ++i) {
-          rebuiltDeps[i] = rebuildWithSubstitution (node->dependency (i), substitutions);
-        }
-        if (rebuiltDeps == node->dependencies ()) {
-          return node;
-        } else {
-          return node->rebuild (std::move (rebuiltDeps));
-        }
-      }
-    }
-
     bool isTransitivelyDependentOn (const Node & searchedDependency, const Node & node) {
       std::stack<const Node *> nodesToVisit;
       nodesToVisit.push (&node);
@@ -261,6 +231,29 @@ namespace bpp {
           nodesToVisit.push (dep.get ());
       }
       return false;
+    }
+
+    NodeRef recreateWithSubstitution (Context & c, const NodeRef & node,
+                                      const std::map<const Node *, NodeRef> & substitutions) {
+      auto it = substitutions.find (node.get ());
+      if (it != substitutions.end ()) {
+        // Substitute sub tree.
+        return it->second;
+      } else if (node->dependencies ().empty ()) {
+        // Leaves do no support rebuild: just copy them
+        return node;
+      } else {
+        // Recursion : only rebuild if dependencies have changed
+        NodeRefVec recreatedDeps (node->nbDependencies ());
+        for (std::size_t i = 0; i < recreatedDeps.size (); ++i) {
+          recreatedDeps[i] = recreateWithSubstitution (c, node->dependency (i), substitutions);
+        }
+        if (recreatedDeps == node->dependencies ()) {
+          return node;
+        } else {
+          return node->recreate (c, std::move (recreatedDeps));
+        }
+      }
     }
 
     /*****************************************************************************
@@ -310,8 +303,7 @@ namespace bpp {
     }
 
     // Write line with edge representation for n-th dependency of from
-    static void writeDotEdge (std::ostream & os, const Node & from, std::size_t depIndex,
-                              DotOptions opt) {
+    static void writeDotEdge (std::ostream & os, const Node & from, std::size_t depIndex, DotOptions opt) {
       os << '\t' << dotIdentifier (from) << " -> " << dotIdentifier (*from.dependency (depIndex));
       if (opt & DotOptions::ShowDependencyIndex) {
         os << " [label=\"" << depIndex << "\"]";
@@ -353,8 +345,7 @@ namespace bpp {
       }
     }
 
-    void writeGraphToDot (std::ostream & os, const std::vector<const Node *> & nodes,
-                          DotOptions opt) {
+    void writeGraphToDot (std::ostream & os, const std::vector<const Node *> & nodes, DotOptions opt) {
       os << "digraph {\n";
       writeGraphStructure (os, nodes, opt);
       os << "}\n";
