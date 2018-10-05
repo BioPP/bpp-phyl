@@ -55,7 +55,7 @@ using namespace std;
 
 /******************************************************************************/
 
-ProbabilisticRewardMappingForASite* RewardMappingToolsForASite::computeRewardVectors(
+ProbabilisticRewardMapping* RewardMappingToolsForASite::computeRewardVectors(
   size_t site,
   RecursiveLikelihoodTreeCalculation& rltc,
   const vector<uint>& nodeIds,
@@ -79,7 +79,7 @@ ProbabilisticRewardMappingForASite* RewardMappingToolsForASite::computeRewardVec
   size_t nbNodes         = nodeIds.size();
   
   // We create a new ProbabilisticRewardMapping object:
-  unique_ptr<ProbabilisticRewardMappingForASite> rewards(new ProbabilisticRewardMappingForASite(ppt));
+  unique_ptr<ProbabilisticRewardMapping> rewards(new ProbabilisticRewardMapping(ppt, 1));
   
   // Store likelihood for each site (here rootPatterns are managed):
 
@@ -91,16 +91,18 @@ ProbabilisticRewardMappingForASite* RewardMappingToolsForASite::computeRewardVec
   if (verbose)
     ApplicationTools::displayTask("Compute rewards", true);
 
-  unique_ptr<ProbabilisticRewardMappingForASite::mapTree::EdgeIterator> brIt=rewards->allEdgesIterator();
+  unique_ptr<ProbabilisticRewardMapping::mapTree::EdgeIterator> brIt=rewards->allEdgesIterator();
 
   size_t nn=0;
   
+  Vdouble likelihoodsFatherConstantPart(nbStates);
+
   for (;!brIt->end();brIt->next())
   {
     if (verbose)
       ApplicationTools::displayGauge(nn++, nbNodes - 1);
     
-    shared_ptr<PhyloBranchRewardForASite> br=**brIt;
+    shared_ptr<PhyloBranchReward> br=**brIt;
     
     // For each branch
     uint edid=rewards->getEdgeIndex(br);
@@ -114,8 +116,6 @@ ProbabilisticRewardMappingForASite* RewardMappingToolsForASite::computeRewardVec
     double d=br->getLength();
 
     double rewardsForCurrentNode(0);
-
-    Vdouble likelihoodsFatherConstantPart(nbStates);
 
     bool usesLog=false;
 
@@ -252,7 +252,7 @@ ProbabilisticRewardMappingForASite* RewardMappingToolsForASite::computeRewardVec
     }
     
     // Now we just have to copy the substitutions into the result vector:
-    (*br) = usesLog?exp(rewardsForCurrentNode - Lr):
+    (*br)(0) = usesLog?exp(rewardsForCurrentNode - Lr):
       rewardsForCurrentNode / exp(Lr);
 
   }
@@ -265,45 +265,3 @@ ProbabilisticRewardMappingForASite* RewardMappingToolsForASite::computeRewardVec
   return rewards.release();
 }
 
-/**************************************************************************************************/
-
-void RewardMappingToolsForASite::writeToStream(
-  const ProbabilisticRewardMappingForASite& rewards,
-  ostream& out)
-{
-  if (!out)
-    throw IOException("RewardMappingToolsForASite::writeToFile. Can't write to stream.");
-  out << "Branches";
-  out << "\tMean";
-  out << "\tSite";
-  out << endl;
-
-  unique_ptr<ProbabilisticRewardMappingForASite::mapTree::EdgeIterator> brIt=rewards.allEdgesIterator();
-
-  for (;!brIt->end();brIt->next())
-  {
-    const shared_ptr<PhyloBranchRewardForASite> br=**brIt;
-    
-    out << rewards.getEdgeIndex(br) << "\t" << br->getLength();
-    
-    out << "\t" << br->getReward();
-    
-    out << endl;
-  }
-}
-
-/**************************************************************************************************/
-
-double RewardMappingToolsForASite::computeSum(const ProbabilisticRewardMappingForASite& smap)
-{
-  double v = 0;
-  unique_ptr<ProbabilisticRewardMappingForASite::mapTree::EdgeIterator> brIt=smap.allEdgesIterator();
-
-  for (;!brIt->end();brIt->next())
-  {
-    v += (**brIt)->getReward();
-  }
-  return v;
-}
-
-/**************************************************************************************************/

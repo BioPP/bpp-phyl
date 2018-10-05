@@ -40,7 +40,7 @@
 #ifndef _REWARDMAPPINGTOOLS_FOR_A_SITE_H_
 #define _REWARDMAPPINGTOOLS_FOR_A_SITE_H_
 
-#include "ProbabilisticRewardMappingForASite.h"
+#include "ProbabilisticRewardMapping.h"
 #include "Reward.h"
 
 #include "../NewLikelihood/RecursiveLikelihoodTreeCalculation.h"
@@ -78,36 +78,12 @@ namespace bpp
      * @throw Exception If the likelihood object is not initialized.
      */
     
-    static ProbabilisticRewardMappingForASite* computeRewardVectors(
+    static ProbabilisticRewardMapping* computeRewardVectors(
       size_t site,
       RecursiveLikelihoodTreeCalculation& rltc,
       const std::vector<uint>& nodeIds,
       Reward& reward,
       bool verbose = true);
-
-
-    /**
-     * @brief Write the reward vectors to a stream.
-     *
-     * @param rewards The reward vectors to write.
-     * @param sites         The dataset associated to the vectors
-     * (needed to know the position of each site in the dataset).
-     * @param out           The output stream where to write the vectors.
-     * @throw IOException If an output error happens.
-     */
-  
-    static void writeToStream(
-      const ProbabilisticRewardMappingForASite& rewards,
-      std::ostream& out);  
-
-    /**
-     * @brief Sum all substitutions.
-     *
-     * @param smap The substitution map to use.
-     * @return A vector will all counts summed for each types of substitutions.
-     */
-
-    static double computeSum(const ProbabilisticRewardMappingForASite& smap);
 
   };
 } // end of namespace bpp.
