@@ -159,6 +159,9 @@ namespace bpp {
 
     bool Node::hasNumericalProperty (NumericalProperty) const { return false; }
 
+    bool Node::compareAdditionalArguments (const Node &) const { return false; }
+    std::size_t Node::hashAdditionalArguments () const { return 0; }
+
     NodeRef Node::derive (Context &, const Node &) {
       throw Exception ("Node does not support derivation: " + description ());
     }
@@ -265,11 +268,24 @@ namespace bpp {
       return r.first->ref;
     }
 
+    /* Compare/hash the triplet (type, deps, additionalArgs).
+     * type and deps are available directly from the Node*.
+     * additionalArgs is handled through the two virtual methods.
+     */
     bool Context::CachedNodeRef::operator== (const CachedNodeRef & other) const {
-      return false; // FIXME
+      const auto & lhs = *this->ref;
+      const auto & rhs = *other.ref;
+      return typeid (lhs) == typeid (rhs) && lhs.dependencies () == rhs.dependencies () &&
+             lhs.compareAdditionalArguments (rhs);
     }
     std::size_t Context::CachedNodeRefHash::operator() (const CachedNodeRef & ref) const {
-      return 0; // FIXME
+      const auto & node = *ref.ref;
+      std::size_t seed = typeid (node).hash_code ();
+      for (const auto & dep : node.dependencies ()) {
+        combineHash (seed, dep);
+      }
+      combineHash (seed, node.hashAdditionalArguments ());
+      return seed;
     }
 
     /*****************************************************************************

@@ -59,6 +59,12 @@ namespace bpp {
   /// Debug: return a readable name for a C++ type descriptor (from typeid operator).
   std::string prettyTypeName (const std::type_info & type_info);
 
+  /// Combine hashable value to a hash, from Boost library
+  template <typename T> void combineHash (std::size_t & seed, const T & t) {
+    std::hash<T> hasher;
+    seed ^= hasher (t) + 0x9e3779b9 + (seed << 6) + (seed >> 2);
+  }
+
   namespace dataflow {
     class Node;
     template <typename T> class Value;
@@ -169,11 +175,27 @@ namespace bpp {
        */
       virtual bool hasNumericalProperty (NumericalProperty prop) const;
 
+      /** @brief Compare node-specific configuration to another.
+       *
+       * Required by Context for merging.
+       * It must compare everything in the node configuration except its type and dependencies.
+       * See DataFlowNumeric for examples.
+       * The default returns false, so nodes are different and not merged.
+       */
+      virtual bool compareAdditionalArguments (const Node & other) const;
+      /** @brief  Return the hash of node-specific configuration.
+       *
+       * Compute a hash from additional arguments of the node.
+       * The hashed values must the same as the ones compared by compareAdditionalArguments.
+       * The default returns 0.
+       */
+      virtual std::size_t hashAdditionalArguments () const;
+
       /** @brief Returns a node computing d(this_node_expression)/d(node_expression).
        *
        * The expression represented by 'node' is considered as a variable.
        * Event if 'node' is a constant value node, d(node)/d(node) == 1.
-       * The derivatiive of a matrix is the matrix of the derivatives.
+       * The derivative of a matrix is the matrix of the derivatives.
        * Derivation is undefined by default, and this function will throw en exception.
        * Implementations will usually recursively derive sub-expressions and combine them.
        */
@@ -380,7 +402,7 @@ namespace bpp {
      * - the same dependencies (same input value),
      * - same additional arguments (constants, etc).
      * Which is equivalent to the value if all additional arguments are compared.
-     * TODO compareAdditionalArguments / hashAdditionalArguments
+     * (compare|hash)AdditionalArguments implement polymorphic comparison of additional arguments.
      */
     class Context {
     public:
@@ -420,12 +442,6 @@ namespace bpp {
     template <typename T> std::shared_ptr<T> cachedAs (Context & c, std::shared_ptr<T> && newNode) {
       // We can use the faster static_cast due to Context::cached guarantees.
       return std::static_pointer_cast<T> (c.cached (std::move (newNode)));
-    }
-
-    // Utils: Combine hashes, from Boost library
-    template <typename T> void combineHash (std::size_t & seed, const T & t) {
-      std::hash<T> hasher;
-      seed ^= hasher (t) + 0x9e3779b9 + (seed << 6) + (seed >> 2);
     }
   } // namespace dataflow
 } // namespace bpp
