@@ -350,8 +350,8 @@ namespace bpp {
     public:
       using Self = ConstantZero;
 
-      static std::shared_ptr<Self> create (Context &, const Dimension<T> & dim) {
-        return std::make_shared<Self> (dim);
+      static std::shared_ptr<Self> create (Context & c, const Dimension<T> & dim) {
+        return cachedAs<Self> (c, std::make_shared<Self> (dim));
       }
 
       explicit ConstantZero (const Dimension<T> & dim) : Value<T> (NodeRefVec{}), targetDimension_ (dim) {}
@@ -399,8 +399,8 @@ namespace bpp {
     public:
       using Self = ConstantOne;
 
-      static std::shared_ptr<Self> create (Context &, const Dimension<T> & dim) {
-        return std::make_shared<Self> (dim);
+      static std::shared_ptr<Self> create (Context & c, const Dimension<T> & dim) {
+        return cachedAs<Self> (c, std::make_shared<Self> (dim));
       }
 
       explicit ConstantOne (const Dimension<T> & dim) : Value<T> (NodeRefVec{}), targetDimension_ (dim) {}
@@ -449,8 +449,8 @@ namespace bpp {
     public:
       using Self = NumericConstant;
 
-      template <typename... Args> static std::shared_ptr<Self> create (Context &, Args &&... args) {
-        return std::make_shared<Self> (std::forward<Args> (args)...);
+      template <typename... Args> static std::shared_ptr<Self> create (Context & c, Args &&... args) {
+        return cachedAs<Self> (c, std::make_shared<Self> (std::forward<Args> (args)...));
       }
 
       /// Sets an initial value constructed with the given arguments.
@@ -506,6 +506,7 @@ namespace bpp {
      * r: T.
      * Value is set at construction, and can be changed (will invalidate all dependent values).
      * Supports derivation.
+     * Note that this node has no Context caching support: mutable nodes are always different.
      */
     template <typename T> class NumericMutable : public Value<T> {
     public:
@@ -592,7 +593,7 @@ namespace bpp {
         } else if (deps[0]->hasNumericalProperty (NumericalProperty::ConstantOne)) {
           return ConstantOne<R>::create (c, dim);
         } else {
-          return std::make_shared<Self> (std::move (deps), dim);
+          return cachedAs<Value<R>> (c, std::make_shared<Self> (std::move (deps), dim));
         }
       }
 
@@ -657,7 +658,7 @@ namespace bpp {
         } else if (!zeroDep0 && zeroDep1) {
           return Convert<R, T0>::create (c, {deps[0]}, dim);
         } else {
-          return std::make_shared<Self> (std::move (deps), dim);
+          return cachedAs<Value<R>> (c, std::make_shared<Self> (std::move (deps), dim));
         }
       }
 
@@ -725,7 +726,7 @@ namespace bpp {
         } else if (deps.size () == 2) {
           return CWiseAdd<R, std::tuple<T, T>>::create (c, std::move (deps), dim);
         } else {
-          return std::make_shared<Self> (std::move (deps), dim);
+          return cachedAs<Value<R>> (c, std::make_shared<Self> (std::move (deps), dim));
         }
       }
 
@@ -801,7 +802,7 @@ namespace bpp {
         } else if (!oneDep0 && oneDep1) {
           return Convert<R, T0>::create (c, {deps[0]}, dim);
         } else {
-          return std::make_shared<Self> (std::move (deps), dim);
+          return cachedAs<Value<R>> (c, std::make_shared<Self> (std::move (deps), dim));
         }
       }
 
@@ -876,7 +877,7 @@ namespace bpp {
         } else if (deps.size () == 2) {
           return CWiseMul<R, std::tuple<T, T>>::create (c, std::move (deps), dim);
         } else {
-          return std::make_shared<Self> (std::move (deps), dim);
+          return cachedAs<Value<R>> (c, std::make_shared<Self> (std::move (deps), dim));
         }
       }
 
@@ -936,7 +937,7 @@ namespace bpp {
         if (deps[0]->hasNumericalProperty (NumericalProperty::ConstantZero)) {
           return ConstantZero<T>::create (c, dim);
         } else {
-          return std::make_shared<Self> (std::move (deps), dim);
+          return cachedAs<Value<T>> (c, std::make_shared<Self> (std::move (deps), dim));
         }
       }
 
@@ -987,7 +988,7 @@ namespace bpp {
         if (deps[0]->hasNumericalProperty (NumericalProperty::ConstantOne)) {
           return ConstantOne<T>::create (c, dim);
         } else {
-          return std::make_shared<Self> (std::move (deps), dim);
+          return cachedAs<Value<T>> (c, std::make_shared<Self> (std::move (deps), dim));
         }
       }
 
@@ -1056,7 +1057,7 @@ namespace bpp {
             {NumericConstant<double>::create (c, factor), CWiseInverse<T>::create (c, std::move (deps), dim)},
             dim);
         } else {
-          return std::make_shared<Self> (std::move (deps), exponent, factor, dim);
+          return cachedAs<Value<T>> (c, std::make_shared<Self> (std::move (deps), exponent, factor, dim));
         }
       }
 
@@ -1117,7 +1118,7 @@ namespace bpp {
             deps[1]->hasNumericalProperty (NumericalProperty::ConstantZero)) {
           return ConstantZero<double>::create (c, Dimension<double> ());
         } else {
-          return std::make_shared<Self> (std::move (deps));
+          return cachedAs<Value<double>> (c, std::make_shared<Self> (std::move (deps)));
         }
       }
 
@@ -1167,7 +1168,7 @@ namespace bpp {
         checkDependenciesNotNull (typeid (Self), deps);
         checkDependencyVectorSize (typeid (Self), deps, 1);
         checkNthDependencyIsValue<F> (typeid (Self), deps, 0);
-        return std::make_shared<Self> (std::move (deps), mDim);
+        return cachedAs<Value<double>> (c, std::make_shared<Self> (std::move (deps), mDim));
       }
 
       SumOfLogarithms (NodeRefVec && deps, const Dimension<F> & mDim)
@@ -1245,7 +1246,7 @@ namespace bpp {
         } else if (!identityDep0 && identityDep1) {
           return Convert<R, T0>::create (c, {deps[0]}, dim);
         } else {
-          return std::make_shared<Self> (std::move (deps), dim);
+          return cachedAs<Value<R>> (c, std::make_shared<Self> (std::move (deps), dim));
         }
       }
 
@@ -1317,7 +1318,7 @@ namespace bpp {
         if (n == 0 || delta->hasNumericalProperty (NumericalProperty::ConstantZero)) {
           return convertRef<Value<T>> (x);
         } else {
-          return std::make_shared<Self> (std::move (deps), n, dim);
+          return cachedAs<Value<T>> (c, std::make_shared<Self> (std::move (deps), n, dim));
         }
       }
 
@@ -1399,7 +1400,8 @@ namespace bpp {
           if (coeffs2.empty ()) {
             return ConstantZero<T>::create (c, dim);
           } else {
-            return std::make_shared<Self> (std::move (deps2), n2, std::move (coeffs2), dim);
+            return cachedAs<Value<T>> (
+              c, std::make_shared<Self> (std::move (deps2), n2, std::move (coeffs2), dim));
           }
         };
         // Detect if we can merge this node with its dependencies

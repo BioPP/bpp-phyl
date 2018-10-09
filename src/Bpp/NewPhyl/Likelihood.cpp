@@ -133,7 +133,7 @@ namespace bpp {
       checkDependenciesNotNull (typeid (Self), deps);
       checkDependencyVectorSize (typeid (Self), deps, nbParameters);
       checkDependencyRangeIsValue<double> (typeid (Self), deps, 0, nbParameters);
-      return std::make_shared<Self> (std::move (deps), std::move (model));
+      return cachedAs<Self> (c, std::make_shared<Self> (std::move (deps), std::move (model)));
     }
 
     ConfiguredModel::ConfiguredModel (NodeRefVec && deps, std::unique_ptr<TransitionModel> && model)
@@ -181,7 +181,7 @@ namespace bpp {
       checkDependenciesNotNull (typeid (Self), deps);
       checkDependencyVectorSize (typeid (Self), deps, 1);
       checkNthDependencyIs<ConfiguredModel> (typeid (Self), deps, 0);
-      return std::make_shared<Self> (std::move (deps), dim);
+      return cachedAs<Value<T>> (c, std::make_shared<Self> (std::move (deps), dim));
     }
 
     EquilibriumFrequenciesFromModel::EquilibriumFrequenciesFromModel (
@@ -224,7 +224,7 @@ namespace bpp {
       checkDependencyVectorSize (typeid (Self), deps, 2);
       checkNthDependencyIs<ConfiguredModel> (typeid (Self), deps, 0);
       checkNthDependencyIsValue<double> (typeid (Self), deps, 1);
-      return std::make_shared<Self> (std::move (deps), dim);
+      return cachedAs<Value<T>> (c, std::make_shared<Self> (std::move (deps), dim));
     }
 
     TransitionMatrixFromModel::TransitionMatrixFromModel (NodeRefVec && deps,
@@ -278,7 +278,7 @@ namespace bpp {
       checkDependencyVectorSize (typeid (Self), deps, 2);
       checkNthDependencyIs<ConfiguredModel> (typeid (Self), deps, 0);
       checkNthDependencyIsValue<double> (typeid (Self), deps, 1);
-      return std::make_shared<Self> (std::move (deps), dim);
+      return cachedAs<Value<T>> (c, std::make_shared<Self> (std::move (deps), dim));
     }
 
     TransitionMatrixFromModelFirstBrlenDerivative::TransitionMatrixFromModelFirstBrlenDerivative (
@@ -332,7 +332,7 @@ namespace bpp {
       checkDependencyVectorSize (typeid (Self), deps, 2);
       checkNthDependencyIs<ConfiguredModel> (typeid (Self), deps, 0);
       checkNthDependencyIsValue<double> (typeid (Self), deps, 1);
-      return std::make_shared<Self> (std::move (deps), dim);
+      return cachedAs<Value<T>> (c, std::make_shared<Self> (std::move (deps), dim));
     }
 
     TransitionMatrixFromModelSecondBrlenDerivative::TransitionMatrixFromModelSecondBrlenDerivative (

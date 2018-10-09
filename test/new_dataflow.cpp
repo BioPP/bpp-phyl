@@ -468,12 +468,12 @@ struct OpaqueTestFunction : public Value<double>
 
   NumericalDerivativeConfiguration config{};
 
-  static std::shared_ptr<OpaqueTestFunction> create(NodeRefVec&& deps)
+  static std::shared_ptr<OpaqueTestFunction> create(Context& c, NodeRefVec&& deps)
   {
     checkDependenciesNotNull(typeid(Self), deps);
     checkDependencyVectorSize(typeid(Self), deps, 2);
     checkDependencyRangeIsValue<double>(typeid(Self), deps, 0, deps.size());
-    return std::make_shared<Self>(std::move(deps));
+    return cachedAs<Self>(c, std::make_shared<Self>(std::move(deps)));
   }
   OpaqueTestFunction(NodeRefVec&& deps)
     : Value<double>(std::move(deps))
@@ -491,12 +491,12 @@ struct OpaqueTestFunction : public Value<double>
       auto dxi_dn = this->dependency(i)->derive(c, node);
       if (!dxi_dn->hasNumericalProperty(NumericalProperty::ConstantZero))
       {
-        auto buildFWithNewXi = [this, i](ValueRef<double> newDep) {
+        auto buildFWithNewXi = [this, i, &c](ValueRef<double> newDep) {
           // Build a duplicate of Self (OpaqueTestFunction) with replaced dependency.
           // The function supports a general case for sub-expressions.
           NodeRefVec newDeps = this->dependencies();
           newDeps[i] = std::move(newDep);
-          auto newNode = Self::create(std::move(newDeps));
+          auto newNode = Self::create(c, std::move(newDeps));
           newNode->config = this->config; // Duplicate config
           return newNode;
         };
@@ -523,7 +523,7 @@ TEST_CASE("numerical_derivation")
   Context c;
   auto x = NumericMutable<double>::create(c, 1);
   auto y = NumericMutable<double>::create(c, -1);
-  auto f = OpaqueTestFunction::create({x, y});
+  auto f = OpaqueTestFunction::create(c, {x, y});
 
   auto dummy = std::make_shared<DoNothingNode>();
   auto delta = NumericMutable<double>::create(c, 0.0001);
@@ -547,7 +547,7 @@ TEST_CASE("numerical_derivation")
   CHECK(d2f_dx2->getValue() == doctest::Approx(3 * 2));
 
   // Multiple dependencies
-  auto g = OpaqueTestFunction::create({x, x});
+  auto g = OpaqueTestFunction::create(c, {x, x});
   g->config.delta = delta;
   g->config.type = NumericalDerivativeType::ThreePoints;
   auto dg_dx = g->deriveAsValue(c, *x);

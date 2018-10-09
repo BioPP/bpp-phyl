@@ -234,7 +234,7 @@ namespace bpp {
     }
 
     NodeRef recreateWithSubstitution (Context & c, const NodeRef & node,
-                                      const std::map<const Node *, NodeRef> & substitutions) {
+                                      const std::unordered_map<const Node *, NodeRef> & substitutions) {
       auto it = substitutions.find (node.get ());
       if (it != substitutions.end ()) {
         // Substitute sub tree.
@@ -254,6 +254,23 @@ namespace bpp {
           return node->recreate (c, std::move (recreatedDeps));
         }
       }
+    }
+
+    /*****************************************************************************
+     * Context.
+     */
+    NodeRef Context::cached (NodeRef && newNode) {
+      assert (newNode != nullptr);
+      // Try inserting it, which will fail if already present and return the old one
+      auto r = nodeCache_.emplace (std::move (newNode));
+      return r.first->ref;
+    }
+
+    bool Context::CachedNodeRef::operator== (const CachedNodeRef & other) const {
+      return false; // FIXME
+    }
+    std::size_t Context::CachedNodeRefHash::operator() (const CachedNodeRef & ref) const {
+      return 0; // FIXME
     }
 
     /*****************************************************************************

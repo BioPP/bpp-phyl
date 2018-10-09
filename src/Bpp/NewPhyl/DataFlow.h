@@ -47,10 +47,11 @@
 #include <memory>
 #include <string>
 #include <typeinfo>
+#include <unordered_set>
 #include <utility>
 #include <vector>
 
-#include <map> // For recreateWithSubstitution
+#include <unordered_map> // For recreateWithSubstitution
 
 /** @file Defines the basic types of data flow nodes.
  */
@@ -257,16 +258,7 @@ namespace bpp {
 
     /// Recreate node by transitively replacing dependencies according to substitutions mapping.
     NodeRef recreateWithSubstitution (Context & c, const NodeRef & node,
-                                      const std::map<const Node *, NodeRef> & substitutions);
-
-    /** Context for dataflow node construction.
-     *
-     * TODO later, use to implement Cache/merging strategies
-     */
-    class Context {
-    public:
-      Context () = default;
-    };
+                                      const std::unordered_map<const Node *, NodeRef> & substitutions);
 
     /** @brief Abstract Node storing a value of type T.
      *
@@ -368,6 +360,76 @@ namespace bpp {
       }
     }
     ///@}
+
+    /** @brief Context for dataflow node construction.
+     *
+     * A context argument is passed to every function constructing dataflow nodes.
+     * This class can thus be used to provide construction-time features.
+     *
+     * The only feature for now is merging of nodes representing the same value.
+     * Each Context instance stores the set of nodes created with it.
+     * When passed to a node creation function (create, derive, recreate),
+     * the set is updated and used to prevent duplicate nodes.
+     * Internally, creation functions will call Context::cached(newlyCreatedNode),
+     * which will return an old node and discard the new if it already exists,
+     * or update the set and return the new node.
+     * Note that the Context owns shared_ptr to nodes,
+     * so they will not be destroyed unless the context is destroyed.
+     * Multiple context can be used for independent computations.
+     *
+     * Nodes are merged if they represent the same value.
+     * As the value is not computed yet, two nodes are merged if they have:
+     * - the same derived class type (same computation code),
+     * - the same dependencies (same input value),
+     * - same additional arguments (constants, etc).
+     * Which is equivalent to the value if all additional arguments are compared.
+     * TODO compareAdditionalArguments / hashAdditionalArguments
+     */
+    class Context {
+    public:
+      Context () = default;
+
+      /** For a newly created node, return its equivalent from the cache.
+       * If not already present in the cache, add it and return newNode.
+       * If already present in the cache, return the stored one.
+       *
+       * The returned node is always of the same derived class than newNode.
+       * It represents the same value.
+       */
+      NodeRef cached (NodeRef && newNode);
+
+    private:
+      /* NodeRef is hashable and comparable as a pointer.
+       * CachedNodeRef is hashable and comparable, by comparing the node configuration:
+       * - Derived class type,
+       * - Dependencies,
+       * - Additional values (for constants, Model, etc).
+       * Thus a set of CachedNodeRef will merge nodes by represented value.
+       */
+      struct CachedNodeRef {
+        NodeRef ref;
+
+        CachedNodeRef (NodeRef && r) : ref (std::move (r)) {}
+        bool operator== (const CachedNodeRef & other) const;
+      };
+      struct CachedNodeRefHash {
+        std::size_t operator() (const CachedNodeRef & ref) const;
+      };
+
+      std::unordered_set<CachedNodeRef, CachedNodeRefHash> nodeCache_;
+    };
+
+    /// Same as Context::cached but with a shared_ptr<T> node.
+    template <typename T> std::shared_ptr<T> cachedAs (Context & c, std::shared_ptr<T> && newNode) {
+      // We can use the faster static_cast due to Context::cached guarantees.
+      return std::static_pointer_cast<T> (c.cached (std::move (newNode)));
+    }
+
+    // Utils: Combine hashes, from Boost library
+    template <typename T> void combineHash (std::size_t & seed, const T & t) {
+      std::hash<T> hasher;
+      seed ^= hasher (t) + 0x9e3779b9 + (seed << 6) + (seed >> 2);
+    }
   } // namespace dataflow
 } // namespace bpp
 
