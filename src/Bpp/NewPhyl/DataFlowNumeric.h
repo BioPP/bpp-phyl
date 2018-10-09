@@ -57,6 +57,14 @@ namespace bpp {
    * Dimension.
    */
 
+  /// Empty type representing no dimensions.
+  struct NoDimension {};
+
+  std::string to_string (const NoDimension &);
+  inline std::size_t hash (const NoDimension &) { return 0; }
+  inline bool operator== (const NoDimension &, const NoDimension &) { return true; }
+  inline bool operator!= (const NoDimension &, const NoDimension &) { return false; }
+
   /// Basic matrix dimension type
   struct MatrixDimension {
     Eigen::Index rows{};
@@ -68,12 +76,14 @@ namespace bpp {
     // Get dimensions of any matrix-like eigen object.
     template <typename Derived>
     MatrixDimension (const Eigen::MatrixBase<Derived> & m) : MatrixDimension (m.rows (), m.cols ()) {}
-
-    bool operator== (const MatrixDimension & o) const { return rows == o.rows && cols == o.cols; }
-    bool operator!= (const MatrixDimension & o) const { return !(*this == o); }
   };
 
   std::string to_string (const MatrixDimension & dim);
+  std::size_t hash (const MatrixDimension & dim);
+  inline bool operator== (const MatrixDimension & lhs, const MatrixDimension & rhs) {
+    return lhs.rows == rhs.rows && lhs.cols == rhs.cols;
+  }
+  inline bool operator!= (const MatrixDimension & lhs, const MatrixDimension & rhs) { return !(lhs == rhs); }
 
   /// Eigen vector are matrices with 1 column.
   inline MatrixDimension vectorDimension (Eigen::Index size) { return {size, 1}; }
@@ -90,19 +100,14 @@ namespace bpp {
   /** Specialisation of Dimension<T> for floating point types.
    * This is a dummy empty type, required by generic code below.
    */
-  template <> struct Dimension<double> {
+  template <> struct Dimension<double> : NoDimension {
     Dimension () = default;
     Dimension (const double &) {}
   };
-  template <> struct Dimension<float> {
+  template <> struct Dimension<float> : NoDimension {
     Dimension () = default;
     Dimension (const float &) {}
   };
-
-  template <typename T, typename = typename std::enable_if<std::is_floating_point<T>::value>::type>
-  std::string to_string (const Dimension<T> &) {
-    return "()";
-  }
 
   /** Specialisation of Dimension<T> for eigen matrix types.
    * Note that in Eigen, a vector is a matrix with one column.
@@ -250,6 +255,21 @@ namespace bpp {
         props += "-";
       props += "}";
       return props;
+    }
+
+    // Hash of numerical value
+    template <typename T, typename = typename std::enable_if<std::is_floating_point<T>::value>::type>
+    std::size_t hash (T t) {
+      return std::hash<T>{}(t);
+    }
+    template <typename Derived> std::size_t hash (const Eigen::MatrixBase<Derived> & m) {
+      std::size_t seed = 0;
+      for (Eigen::Index j = 0; j < m.cols (); ++j) {
+        for (Eigen::Index i = 0; i < m.rows (); ++i) {
+          combineHash (seed, m (i, j));
+        }
+      }
+      return seed;
     }
   } // namespace numeric
 

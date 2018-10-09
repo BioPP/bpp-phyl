@@ -44,8 +44,18 @@
 #include "DataFlowNumeric.h"
 
 namespace bpp {
+  std::string to_string (const NoDimension &) {
+    return "()";
+  }
+
   std::string to_string (const MatrixDimension & dim) {
     return "(" + std::to_string (dim.rows) + "," + std::to_string (dim.cols) + ")";
+  }
+  std::size_t hash (const MatrixDimension & dim) {
+    std::size_t seed = 0;
+    combineHash (seed, dim.rows);
+    combineHash (seed, dim.cols);
+    return seed;
   }
 
   namespace numeric {
