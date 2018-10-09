@@ -162,7 +162,6 @@ namespace bpp {
     NodeRef Node::derive (Context &, const Node &) {
       throw Exception ("Node does not support derivation: " + description ());
     }
-    bool Node::isDerivable (const Node &) const { return false; }
 
     NodeRef Node::recreate (Context &, NodeRefVec &&) {
       throw Exception ("Node does not support recreate(deps): " + description ());

@@ -179,9 +179,6 @@ namespace bpp {
        */
       virtual NodeRef derive (Context & c, const Node & node);
 
-      /// Check if derivation is transitively defined (FIXME semantics).
-      virtual bool isDerivable (const Node & node) const;
-
       /// Recreate the node with different dependencies.
       virtual NodeRef recreate (Context & c, NodeRefVec && deps);
 
