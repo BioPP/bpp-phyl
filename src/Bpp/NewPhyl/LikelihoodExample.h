@@ -134,6 +134,7 @@ namespace bpp {
    * In a real case, something like a map<EdgeIndex, ValueRef<double>> would provide branch lengths.
    * The branch length values can be provided by any computation, or as a leaf NumericMutable node.
    */
+  
   inline SimpleLikelihoodNodes makeSimpleLikelihoodNodes (dataflow::Context & c, const PhyloTree & tree,
                                                           const VectorSiteContainer & sites,
                                                           std::shared_ptr<dataflow::ConfiguredModel> model) {

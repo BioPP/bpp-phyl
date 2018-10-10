@@ -42,6 +42,8 @@
 #define DOCTEST_CONFIG_IMPLEMENT
 #include "doctest.h"
 
+#include <Bpp/NewPhyl/Parametrizable.h>
+#include <Bpp/NewPhyl/Model.h>
 #include <Bpp/NewPhyl/Likelihood.h>
 #include <Bpp/Phyl/Model/Nucleotide/T92.h>
 #include <Bpp/Seq/Alphabet/AlphabetTools.h>
@@ -71,7 +73,7 @@ TEST_CASE("model")
   Context c;
 
   // Create set of raw parameters for the model
-  auto modelParameterNodes = createParameterMapForModel(c, *model);
+  auto modelParameterNodes = createParameterMap(c, *model);
   auto kappa = modelParameterNodes["kappa"];
 
   // Create model node

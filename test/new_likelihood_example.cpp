@@ -42,7 +42,7 @@
 #define DOCTEST_CONFIG_IMPLEMENT_WITH_MAIN
 #include "doctest.h"
 
-#define ENABLE_OLD
+//#define ENABLE_OLD
 #define ENABLE_NEW
 #define ENABLE_DF
 
@@ -54,6 +54,7 @@
 #include <Bpp/Numeric/Parameter.h>
 #include <Bpp/Numeric/ParameterList.h>
 #include <Bpp/Phyl/Model/Nucleotide/T92.h>
+#include <Bpp/Phyl/Model/FrequenciesSet/NucleotideFrequenciesSet.h>
 #include <Bpp/Seq/Alphabet/AlphabetTools.h>
 #include <Bpp/Seq/Container/VectorSiteContainer.h>
 #include <chrono>
@@ -68,10 +69,13 @@
 #ifdef ENABLE_NEW
 #include <Bpp/Phyl/Io/Newick.h>
 #include <Bpp/Phyl/NewLikelihood/PhyloLikelihoods/SingleProcessPhyloLikelihood.h>
-#include <Bpp/Phyl/NewLikelihood/SimpleSubstitutionProcess.h>
+#include <Bpp/Phyl/NewLikelihood/NonHomogeneousSubstitutionProcess.h>
 #endif
 // DF
 #ifdef ENABLE_DF
+#include <Bpp/NewPhyl/Parametrizable.h>
+#include <Bpp/NewPhyl/Model.h>
+#include <Bpp/NewPhyl/Likelihood.h>
 #include <Bpp/NewPhyl/LikelihoodExample.h>
 #include <Bpp/Phyl/Io/Newick.h>
 #include <Bpp/Phyl/NewLikelihood/PhyloLikelihoods/SingleProcessPhyloLikelihood.h>
@@ -201,11 +205,16 @@ TEST_CASE("new")
   const CommonStuff c;
   auto ts = timingStart();
   auto model = new bpp::T92(&c.alphabet, 3.);
+  auto rootFreqs = new bpp::GCFrequenciesSet(&c.alphabet, 0.1);
+  
   bpp::Newick reader;
   auto phyloTree = std::unique_ptr<bpp::PhyloTree>(reader.parenthesisToPhyloTree(c.treeStr, false, "", false, false));
   auto paramPhyloTree = new bpp::ParametrizablePhyloTree(*phyloTree);
+  std::vector<std::string> globalParameterNames;
+
   auto process =
-    std::unique_ptr<bpp::SimpleSubstitutionProcess>(new bpp::SimpleSubstitutionProcess(model, paramPhyloTree));
+    std::unique_ptr<bpp::NonHomogeneousSubstitutionProcess>(bpp::NonHomogeneousSubstitutionProcess::createNonHomogeneousSubstitutionProcess(model, 0, rootFreqs, paramPhyloTree, globalParameterNames));
+  
   auto likelihoodCompStruct = std::unique_ptr<bpp::RecursiveLikelihoodTreeCalculation>(
     new bpp::RecursiveLikelihoodTreeCalculation(c.sites, process.get(), false, true));
   bpp::SingleProcessPhyloLikelihood llh(process.get(), likelihoodCompStruct.release());
@@ -233,14 +242,23 @@ TEST_CASE("df")
   auto phyloTree = std::unique_ptr<bpp::PhyloTree>(reader.parenthesisToPhyloTree(c.treeStr, false, "", false, false));
 
   bpp::dataflow::Context context;
-
+  
   // Model: create simple leaf nodes as model parameters
   auto model = std::unique_ptr<bpp::T92>(new bpp::T92(&c.alphabet, 3.));
-  auto modelParameters = bpp::dataflow::createParameterMapForModel(context, *model);
+  auto modelParameters = bpp::dataflow::createParameterMap(context, *model);
+
+  auto rootFreqs = std::unique_ptr<bpp::GCFrequenciesSet>(new bpp::GCFrequenciesSet(&c.alphabet, 0.1));
+  auto rootFreqsParameters = bpp::dataflow::createParameterMap(context, *rootFreqs);
+  
+  auto depvecModel=bpp::dataflow::createDependencyVector(
+    *model, [&modelParameters](const std::string& paramName) { return modelParameters[paramName]; });
+
+  auto depvecRootFreqs=bpp::dataflow::createDependencyVector(
+    *rootFreqs, [&rootFreqsParameters](const std::string& paramName) { return rootFreqsParameters[paramName]; });
+
   auto modelNode = bpp::dataflow::ConfiguredModel::create(
     context,
-    bpp::dataflow::createDependencyVector(
-      *model, [&modelParameters](const std::string& paramName) { return modelParameters[paramName]; }),
+    std::move(depvecModel),
     std::move(model));
 
   // Build likelihood value node
@@ -254,6 +272,7 @@ TEST_CASE("df")
     param.setConstraint(bpp::Parameter::R_PLUS.clone(), true);
     brlenOnlyParameters.addParameter(std::move(param));
   }
+
   bpp::ParameterList allParameters;
   allParameters.addParameters(brlenOnlyParameters);
   for (const auto& p : modelParameters)
