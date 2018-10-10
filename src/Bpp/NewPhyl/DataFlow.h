@@ -139,7 +139,7 @@ namespace bpp {
      *
      * Specific features are present in the base class as virtual functions.
      * This include derivation (numerical values), debug, etc.
-     * These features have no-op of failure defaults which can be overriden in derived classes.
+     * These features have no-op or failure defaults which can be overriden in derived classes.
      */
     class Node : public std::enable_shared_from_this<Node> {
     public:
@@ -180,14 +180,14 @@ namespace bpp {
        * Required by Context for merging.
        * It must compare everything in the node configuration except its type and dependencies.
        * See DataFlowNumeric for examples.
-       * The default returns false, so nodes are different and not merged.
+       * The default returns false, so nodes are considered different and not merged.
        */
       virtual bool compareAdditionalArguments (const Node & other) const;
       /** @brief  Return the hash of node-specific configuration.
        *
        * Compute a hash from additional arguments of the node.
        * The hashed values must the same as the ones compared by compareAdditionalArguments.
-       * The default returns 0.
+       * The default returns 0, which is ok if there are no additional arguments.
        */
       virtual std::size_t hashAdditionalArguments () const;
 
@@ -196,7 +196,7 @@ namespace bpp {
        * The expression represented by 'node' is considered as a variable.
        * Event if 'node' is a constant value node, d(node)/d(node) == 1.
        * The derivative of a matrix is the matrix of the derivatives.
-       * Derivation is undefined by default, and this function will throw en exception.
+       * Derivation is undefined by default, and this function will throw an exception.
        * Implementations will usually recursively derive sub-expressions and combine them.
        */
       virtual NodeRef derive (Context & c, const Node & node);
@@ -218,13 +218,11 @@ namespace bpp {
        * When called, dependency node are guaranteed to have valid values.
        *
        * This function is private to prevent use for invalid dependencies.
-       * Higher level functions like computeRecursively() call it while ensuring dependency
-       * validity.
+       * Higher level functions like computeRecursively call it while ensuring dependency validity.
        *
        * Compute has access to dependencies as a NodeRefVec (base Node classes only).
        * The recommended usage is to check dependency types at Node construction.
        * Then use static_cast to access derived classes efficiently from the NodeRefVec.
-       * Several helper functions in DataFlowInternal.h simplify this.
        * See DataFlowNumeric.h for examples.
        */
       virtual void compute () = 0;
@@ -247,7 +245,7 @@ namespace bpp {
       bool isValid_{false};
     };
 
-    /// Convert a node ref with type check.
+    /// Convert a node ref with runtime type check.
     template <typename T, typename U> std::shared_ptr<T> convertRef (const std::shared_ptr<U> & from) {
       auto p = std::dynamic_pointer_cast<T> (from);
       if (!p)
@@ -268,7 +266,7 @@ namespace bpp {
     /// Write dataflow graph starting at nodes to output stream.
     void writeGraphToDot (std::ostream & os, const std::vector<const Node *> & nodes, DotOptions opt);
 
-    /// Write dataflow graph starting at nodes to file at filename (shortcut).
+    /// Write dataflow graph starting at nodes to file at filename, overwriting it.
     void writeGraphToDot (const std::string & filename, const std::vector<const Node *> & nodes,
                           DotOptions opt);
 
@@ -286,18 +284,13 @@ namespace bpp {
      *
      * For performance, the T value is stored directly in the node.
      * Access to the value are made without any virtual call.
-     * Forward declared types cannot be used easily due to that.
-     * For documentation on how to manipulate Eigen forward declared types, see LinearAlgebraFwd.h.
+     * Types can not be forward-declared.
      *
-     * Access can be raw: no recomputations are done, the valid flag should be checked beforehand.
-     * getValue provides an access with recomputation if needed.
+     * accessValueConst() returns the current raw value, which may be invalid.
+     * getValue() returns the value, recomputing it recursively if invalid.
      *
      * The Value<T> constructor forwards dependencies to the base Node, and other arguments to the
      * T value constructor.
-     *
-     * Value<T> stores a target dimension property, only useful for types which have Dimensions.
-     * It is used to document what size should the result have.
-     * It starts with a default constructed value.
      */
     template <typename T> class Value : public Node {
     public:
@@ -338,7 +331,7 @@ namespace bpp {
       T value_;
     };
 
-    /// Access value of Node as a Value<T> (unchecked cast).
+    /// Helper: access value of Node as a Value<T> with unchecked cast.
     template <typename T> const T & accessValueConstCast (const Node & node) {
       assert (dynamic_cast<const Value<T> *> (&node) != nullptr);      // Check type in debug mode
       return static_cast<const Value<T> &> (node).accessValueConst (); // Fast cast access
@@ -370,7 +363,7 @@ namespace bpp {
       checkNthDependencyIs<Value<T>> (contextNodeType, deps, index);
     }
 
-    /// Check that deps[start, end[ contains Value<T> nodes, throws if not
+    /// Check that deps[start, end[ contains Value<T> nodes, throws if not.
     template <typename T>
     void checkDependencyRangeIsValue (const std::type_info & contextNodeType, const NodeRefVec & deps,
                                       std::size_t start, std::size_t end) {
@@ -438,9 +431,9 @@ namespace bpp {
       std::unordered_set<CachedNodeRef, CachedNodeRefHash> nodeCache_;
     };
 
-    /// Same as Context::cached but with a shared_ptr<T> node.
+    /// Helper: Same as Context::cached but with a shared_ptr<T> node.
     template <typename T> std::shared_ptr<T> cachedAs (Context & c, std::shared_ptr<T> && newNode) {
-      // We can use the faster static_cast due to Context::cached guarantees.
+      // We can use the faster static_cast due to Context::cached(): node types are conserved.
       return std::static_pointer_cast<T> (c.cached (std::move (newNode)));
     }
   } // namespace dataflow

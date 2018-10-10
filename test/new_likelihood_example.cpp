@@ -128,9 +128,9 @@ namespace
     });
   }
 
-  void optimize_branch_params(bpp::DerivableSecondOrder& llh,
-                              const std::string& prefix,
-                              const bpp::ParameterList& branchParams)
+  void optimize_for_params(bpp::DerivableSecondOrder& llh,
+                           const std::string& prefix,
+                           const bpp::ParameterList& branchParams)
   {
     auto ts = timingStart();
     bpp::ConjugateGradientMultiDimensions optimizer(&llh);
@@ -200,7 +200,7 @@ TEST_CASE("old")
   std::cout << "[dbrlen1] " << llh.getFirstOrderDerivative("BrLen1") << "\n";
   do_param_changes_multiple_times(llh, "old_param_model_change", c.paramModel1, c.paramModel2);
   do_param_changes_multiple_times(llh, "old_param_brlen_change", c.paramBrLen1, c.paramBrLen2);
-  optimize_branch_params(llh, "old_brlens_opt", llh.getBranchLengthsParameters());
+  optimize_for_params(llh, "old_brlens_opt", llh.getBranchLengthsParameters());
 }
 #endif
 
@@ -228,7 +228,7 @@ TEST_CASE("new")
   std::cout << "[dbrlen1] " << llh.getFirstOrderDerivative("BrLen1") << "\n";
   do_param_changes_multiple_times(llh, "new_param_model_change", c.paramModel1, c.paramModel2);
   do_param_changes_multiple_times(llh, "new_param_brlen_change", c.paramBrLen1, c.paramBrLen2);
-  optimize_branch_params(llh, "new_brlens_opt", llh.getBranchLengthParameters());
+  optimize_for_params(llh, "new_brlens_opt", llh.getBranchLengthParameters());
 }
 #endif
 
@@ -285,7 +285,7 @@ TEST_CASE("df")
 
   do_param_changes_multiple_times(llh, "df_param_model_change", c.paramModel1, c.paramModel2);
   do_param_changes_multiple_times(llh, "df_param_brlen_change", c.paramBrLen1, c.paramBrLen2);
-  optimize_branch_params(llh, "df_brlens_opt", brlenOnlyParameters);
+  optimize_for_params(llh, "df_brlens_opt", brlenOnlyParameters);
   // TODO test optimization with model params
 }
 

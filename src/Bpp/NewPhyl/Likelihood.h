@@ -49,7 +49,7 @@
 #include <unordered_map>
 
 namespace bpp {
-  /* Conditional likelihoods are stored in a matrix of sizes (nbState, nbSite).
+  /** Conditional likelihoods are stored in a matrix of sizes (nbState, nbSite).
    * Rows represents states (nucleotides, proteins or codon).
    * Columns represents sites (one site for each column).
    * Conditional likelihood is thus accessed by m(state,site) for an eigen matrix.
@@ -78,19 +78,19 @@ namespace bpp {
 
   // Dataflow nodes for likelihood computation.
   namespace dataflow {
-    /** conditionalLikelihood = f(forwardLikelihood[children[i]] for i).
-     * conditionalLikelihood: Matrix(state, site).
-     * forwardLikelihood[i]: Matrix(state, site).
+    /** @brief conditionalLikelihood = f(forwardLikelihood[children[i]] for i).
+     * - conditionalLikelihood: Matrix(state, site).
+     * - forwardLikelihood[i]: Matrix(state, site).
      *
      * c(state, site) = prod_i f_i(state, site).
      * Using member wise multiply: c = prod_member_i f_i.
      */
     using ConditionalLikelihoodFromChildrenForward = CWiseMul<Eigen::MatrixXd, ReductionOf<Eigen::MatrixXd>>;
 
-    /** forwardLikelihood = f(transitionMatrix, conditionalLikelihood).
-     * forwardLikelihood: Matrix(state, site).
-     * transitionMatrix: Matrix (fromState, toState)
-     * conditionalLikelihood: Matrix(state, site).
+    /** @brief forwardLikelihood = f(transitionMatrix, conditionalLikelihood).
+     * - forwardLikelihood: Matrix(state, site).
+     * - transitionMatrix: Matrix (fromState, toState)
+     * - conditionalLikelihood: Matrix(state, site).
      *
      * f(toState, site) = sum_fromState P(fromState, toState) * c(fromState, site).
      * Using matrix multiply with transposition: f = transposed(transitionMatrix) * c.
@@ -98,10 +98,10 @@ namespace bpp {
     using ForwardLikelihoodFromConditional =
       MatrixProduct<Eigen::MatrixXd, Transposed<Eigen::MatrixXd>, Eigen::MatrixXd>;
 
-    /** likelihood = f(equilibriumFrequencies, rootConditionalLikelihood).
-     * likelihood: RowVector(site).
-     * equilibriumFrequencies: RowVector(state).
-     * rootConditionalLikelihood: Matrix(state, site).
+    /** @brief likelihood = f(equilibriumFrequencies, rootConditionalLikelihood).
+     * - likelihood: RowVector(site).
+     * - equilibriumFrequencies: RowVector(state).
+     * - rootConditionalLikelihood: Matrix(state, site).
      *
      * likelihood(site) = sum_state equFreqs(state) * rootConditionalLikelihood(state, site).
      * Using matrix multiply: likelihood = equilibriumFrequencies * rootConditionalLikelihood.
@@ -109,9 +109,9 @@ namespace bpp {
     using LikelihoodFromRootConditional =
       MatrixProduct<Eigen::RowVectorXd, Eigen::RowVectorXd, Eigen::MatrixXd>;
 
-    /** totalLogLikelihood = sum_site log(likelihood(site)).
-     * likelihood: RowVector (site).
-     * totalLogLikelihood: double.
+    /** @brief totalLogLikelihood = sum_site log(likelihood(site)).
+     * - likelihood: RowVector (site).
+     * - totalLogLikelihood: double.
      */
     using TotalLogLikelihood = SumOfLogarithms<Eigen::RowVectorXd>;
   } // namespace dataflow
@@ -127,7 +127,8 @@ namespace bpp {
     std::unordered_map<std::string, std::shared_ptr<NumericMutable<double>>>
     createParameterMapForModel (Context & c, const TransitionModel & model);
 
-    /** Create a dependency vector suitable for a Model class constructor.
+    /** @brief Create a dependency vector suitable for a Model class constructor.
+     *
      * The vector is built from model parameter names, and an opaque accessor function.
      * For each named parameter in the model, getParameter(name) should return a valid node.
      * Only non-namespaced names are tried.
@@ -137,7 +138,8 @@ namespace bpp {
     NodeRefVec createDependencyVector (const TransitionModel & model,
                                        const std::function<NodeRef (const std::string &)> & getParameter);
 
-    /** Data flow node representing a Model configured with parameter values.
+    /** @brief Data flow node representing a Model configured with parameter values.
+     *
      * This class wraps a bpp::TransitionModel as a data flow node.
      * It depends on Value<double> nodes (one for each parameter declared in the model).
      * It provides a dummy value representing the "model configured by its parameters".
@@ -150,7 +152,8 @@ namespace bpp {
     public:
       using Self = ConfiguredModel;
 
-      /** Create a new model node from a dependency vector.
+      /** @brief Create a new model node from a dependency vector.
+       *
        * Model parameters are given by a dependency vector of Value<double> nodes.
        * The number and order of parameters is given by the TransitionModel internal ParameterList.
        */
@@ -182,15 +185,18 @@ namespace bpp {
       std::unique_ptr<TransitionModel> model_;
     };
 
-    /** equilibriumFrequencies = f(model).
-     * equilibriumFrequencies: RowVector(nbState).
-     * model: ConfiguredModel.
+    /** @brief equilibriumFrequencies = f(model).
+     * - equilibriumFrequencies: RowVector(nbState).
+     * - model: ConfiguredModel.
+     *
+     * Node construction should be done with the create static method.
      */
     class EquilibriumFrequenciesFromModel : public Value<Eigen::RowVectorXd> {
     public:
       using Self = EquilibriumFrequenciesFromModel;
       using T = Eigen::RowVectorXd;
 
+      /// Build a new EquilibriumFrequenciesFromModel node with the given output dimensions.
       static ValueRef<T> create (Context & c, NodeRefVec && deps, const Dimension<T> & dim);
       EquilibriumFrequenciesFromModel (NodeRefVec && deps, const Dimension<T> & dim);
 
@@ -207,16 +213,19 @@ namespace bpp {
       Dimension<T> targetDimension_;
     };
 
-    /** transitionMatrix = f(model, branchLen).
-     * transitionMatrix: Matrix(fromState, toState).
-     * model: ConfiguredModel.
-     * branchLen: double.
+    /** @brief transitionMatrix = f(model, branchLen).
+     * - transitionMatrix: Matrix(fromState, toState).
+     * - model: ConfiguredModel.
+     * - branchLen: double.
+     *
+     * Node construction should be done with the create static method.
      */
     class TransitionMatrixFromModel : public Value<Eigen::MatrixXd> {
     public:
       using Self = TransitionMatrixFromModel;
       using T = Eigen::MatrixXd;
 
+      /// Build a new TransitionMatrixFromModel node with the given output dimensions.
       static ValueRef<T> create (Context & c, NodeRefVec && deps, const Dimension<T> & dim);
       TransitionMatrixFromModel (NodeRefVec && deps, const Dimension<T> & dim);
 
@@ -233,16 +242,19 @@ namespace bpp {
       Dimension<T> targetDimension_;
     };
 
-    /** dtransitionMatrix/dbrlen = f(model, branchLen).
-     * dtransitionMatrix/dbrlen: Matrix(fromState, toState).
-     * model: ConfiguredModel.
-     * branchLen: double.
+    /** @brief dtransitionMatrix/dbrlen = f(model, branchLen).
+     * - dtransitionMatrix/dbrlen: Matrix(fromState, toState).
+     * - model: ConfiguredModel.
+     * - branchLen: double.
+     *
+     * Node construction should be done with the create static method.
      */
     class TransitionMatrixFromModelFirstBrlenDerivative : public Value<Eigen::MatrixXd> {
     public:
       using Self = TransitionMatrixFromModelFirstBrlenDerivative;
       using T = Eigen::MatrixXd;
 
+      /// Build a new TransitionMatrixFromModelFirstBrlenDerivative node with the given output dimensions.
       static ValueRef<T> create (Context & c, NodeRefVec && deps, const Dimension<T> & dim);
       TransitionMatrixFromModelFirstBrlenDerivative (NodeRefVec && deps, const Dimension<T> & dim);
 
@@ -259,16 +271,19 @@ namespace bpp {
       Dimension<T> targetDimension_;
     };
 
-    /** d2transitionMatrix/dbrlen2 = f(model, branchLen).
-     * d2transitionMatrix/dbrlen2: Matrix(fromState, toState).
-     * model: ConfiguredModel.
-     * branchLen: double.
+    /** @brief d2transitionMatrix/dbrlen2 = f(model, branchLen).
+     * - d2transitionMatrix/dbrlen2: Matrix(fromState, toState).
+     * - model: ConfiguredModel.
+     * - branchLen: double.
+     *
+     * Node construction should be done with the create static method.
      */
     class TransitionMatrixFromModelSecondBrlenDerivative : public Value<Eigen::MatrixXd> {
     public:
       using Self = TransitionMatrixFromModelSecondBrlenDerivative;
       using T = Eigen::MatrixXd;
 
+      /// Build a new TransitionMatrixFromModelSecondBrlenDerivative node with the given output dimensions.
       static ValueRef<T> create (Context & c, NodeRefVec && deps, const Dimension<T> & dim);
       TransitionMatrixFromModelSecondBrlenDerivative (NodeRefVec && deps, const Dimension<T> & dim);
 

@@ -90,16 +90,16 @@ namespace bpp {
   /// Eigen RowVector are matrices with 1 row.
   inline MatrixDimension rowVectorDimension (Eigen::Index size) { return {1, size}; }
 
-  /** Store a dimension for type T.
+  /** @brief Store a dimension for type T.
+   *
    * Declared but undefined by default.
    * Specialisations should be defined in the same header declaring the T type.
    * Specialisations should define a constructor from const T & : get the dimension of a T object.
+   * If used in dataflow numeric nodes, it should be comparable and hashable.
    */
   template <typename T> struct Dimension;
 
-  /** Specialisation of Dimension<T> for floating point types.
-   * This is a dummy empty type, required by generic code below.
-   */
+  /// Specialisation of Dimension<T> for floating point types.
   template <> struct Dimension<double> : NoDimension {
     Dimension () = default;
     Dimension (const double &) {}
@@ -109,7 +109,8 @@ namespace bpp {
     Dimension (const float &) {}
   };
 
-  /** Specialisation of Dimension<T> for eigen matrix types.
+  /** @brief Specialisation of Dimension<T> for eigen matrix types.
+   *
    * Note that in Eigen, a vector is a matrix with one column.
    * Redirect to MatrixDimension for all eigen matrix variants.
    */
@@ -312,7 +313,7 @@ namespace bpp {
       deps.erase (new_end, deps.end ()); // Truncate vector storage
     }
 
-    /** Template struct used to describe a dependency transformation before compute().
+    /** @brief Template struct used to describe a dependency transformation before compute().
      *
      * Transforms allow to generate variants of computation nodes with a readable syntax:
      * MatrixProduct<R, T0, T1> will perform R = T0 * T1.
@@ -360,14 +361,17 @@ namespace bpp {
       }
     };
 
-    /** r = 0 for each component.
-     * r: T.
+    /** @brief r = 0 for each component.
+     * - r: T.
+     *
+     * Node construction should be done with the create static method.
      * Value is only created at first use (lazy).
      */
     template <typename T> class ConstantZero : public Value<T> {
     public:
       using Self = ConstantZero;
 
+      /// Build a new ConstantZero node of the given dimension.
       static std::shared_ptr<Self> create (Context & c, const Dimension<T> & dim) {
         return cachedAs<Self> (c, std::make_shared<Self> (dim));
       }
@@ -415,14 +419,17 @@ namespace bpp {
       Dimension<T> targetDimension_;
     };
 
-    /** r = 1 for each component.
-     * r: T.
+    /** @brief r = 1 for each component.
+     * - r: T.
+     *
+     * Node construction should be done with the create static method.
      * Value is only created at first use (lazy).
      */
     template <typename T> class ConstantOne : public Value<T> {
     public:
       using Self = ConstantOne;
 
+      /// Build a new ConstantOne node of the given dimension.
       static std::shared_ptr<Self> create (Context & c, const Dimension<T> & dim) {
         return cachedAs<Self> (c, std::make_shared<Self> (dim));
       }
@@ -470,8 +477,10 @@ namespace bpp {
       Dimension<T> targetDimension_;
     };
 
-    /** r = const.
-     * r: T.
+    /** @brief r = constant_value.
+     * - r: T.
+     *
+     * Node construction should be done with the create static method.
      * Value is set at construction, and cannot change.
      * Supports derivation.
      */
@@ -479,11 +488,11 @@ namespace bpp {
     public:
       using Self = NumericConstant;
 
+      /// Build a new NumericConstant node with T(args...) value.
       template <typename... Args> static std::shared_ptr<Self> create (Context & c, Args &&... args) {
         return cachedAs<Self> (c, std::make_shared<Self> (std::forward<Args> (args)...));
       }
 
-      /// Sets an initial value constructed with the given arguments.
       template <typename... Args>
       explicit NumericConstant (Args &&... args) : Value<T> (NodeRefVec{}, std::forward<Args> (args)...) {
         this->makeValid (); // Always valid
@@ -541,9 +550,11 @@ namespace bpp {
       }
     };
 
-    /** r = v.
-     * r: T.
+    /** @brief r = variable_value.
+     * - r: T.
+     *
      * Value is set at construction, and can be changed (will invalidate all dependent values).
+     * Node construction should be done with the create static method.
      * Supports derivation.
      * This node has no Context merging support: mutable nodes are always different.
      */
@@ -551,11 +562,11 @@ namespace bpp {
     public:
       using Self = NumericMutable;
 
+      /// Build a new NumericMutable node with T(args...) value.
       template <typename... Args> static std::shared_ptr<Self> create (Context &, Args &&... args) {
         return std::make_shared<Self> (std::forward<Args> (args)...);
       }
 
-      /// Sets an initial value constructed with the given arguments.
       template <typename... Args>
       explicit NumericMutable (Args &&... args) : Value<T> (NodeRefVec{}, std::forward<Args> (args)...) {
         this->makeValid (); // Initial value is valid
@@ -608,16 +619,19 @@ namespace bpp {
       }
     };
 
-    /** r = f.
-     * r: R.
-     * f: F, allows NumericalDependencyTransform.
+    /** @brief r = convert(f).
+     * - r: R.
+     * - f: F, allows NumericalDependencyTransform.
+     *
      * Convert from F to R type, semantics of numeric::convert.
+     * Node construction should be done with the create static method.
      */
     template <typename R, typename F> class Convert : public Value<R> {
     public:
       using Self = Convert;
       using DepF = typename NumericalDependencyTransform<F>::DepType;
 
+      /// Build a new Convert node with the given output dimensions.
       static ValueRef<R> create (Context & c, NodeRefVec && deps, const Dimension<R> & dim) {
         // Check dependencies
         checkDependenciesNotNull (typeid (Self), deps);
@@ -670,12 +684,14 @@ namespace bpp {
       Dimension<R> targetDimension_;
     };
 
-    /** r = x0 + x1 for each component.
-     * r: R.
-     * x0: T0.
-     * x1: T1.
+    /** @brief r = x0 + x1 for each component.
+     * - r: R.
+     * - x0: T0.
+     * - x1: T1.
      *
      * Values converted to R with the semantics of numeric::convert.
+     * Node construction should be done with the create static method.
+     *
      * Only defined for N = 2 for now.
      * The generic version is horrible in C++11 (lack of auto return).
      * Generic simplification routine is horrible too.
@@ -684,6 +700,7 @@ namespace bpp {
     public:
       using Self = CWiseAdd;
 
+      /// Build a new CWiseAdd node with the given output dimensions.
       static ValueRef<R> create (Context & c, NodeRefVec && deps, const Dimension<R> & dim) {
         // Check dependencies
         checkDependenciesNotNull (typeid (Self), deps);
@@ -745,17 +762,19 @@ namespace bpp {
       Dimension<R> targetDimension_;
     };
 
-    /** r = sum (x_i), for each component.
-     * r: R.
-     * x_i: T.
+    /** @brief r = sum (x_i), for each component.
+     * - r: R.
+     * - x_i: T.
      *
      * Sum of any number of T values into R.
      * Values converted to R with the semantics of numeric::convert.
+     * Node construction should be done with the create static method.
      */
     template <typename R, typename T> class CWiseAdd<R, ReductionOf<T>> : public Value<R> {
     public:
       using Self = CWiseAdd;
 
+      /// Build a new CWiseAdd node with the given output dimensions.
       static ValueRef<R> create (Context & c, NodeRefVec && deps, const Dimension<R> & dim) {
         // Check dependencies
         checkDependenciesNotNull (typeid (Self), deps);
@@ -818,18 +837,21 @@ namespace bpp {
       Dimension<R> targetDimension_;
     };
 
-    /** r = x0 * x1 for each component.
-     * r: R.
-     * x0: T0.
-     * x1: T1.
+    /** @brief r = x0 * x1 for each component.
+     * - r: R.
+     * - x0: T0.
+     * - x1: T1.
      *
      * Values converted to R with the semantics of numeric::convert.
+     * Node construction should be done with the create static method.
+     *
      * Only defined for N = 2 for now (same constraints as CWiseAdd for genericity).
      */
     template <typename R, typename T0, typename T1> class CWiseMul<R, std::tuple<T0, T1>> : public Value<R> {
     public:
       using Self = CWiseMul;
 
+      /// Build a new CWiseMul node with the given output dimensions.
       static ValueRef<R> create (Context & c, NodeRefVec && deps, const Dimension<R> & dim) {
         // Check dependencies
         checkDependenciesNotNull (typeid (Self), deps);
@@ -899,16 +921,19 @@ namespace bpp {
       Dimension<R> targetDimension_;
     };
 
-    /** r = prod (x_i), for each component.
-     * r: R.
-     * x_i: T.
+    /** @brief r = prod (x_i), for each component.
+     * - r: R.
+     * - x_i: T.
+     *
      * Product of any number of T values into R.
      * Values converted to R with the semantics of numeric::convert.
+     * Node construction should be done with the create static method.
      */
     template <typename R, typename T> class CWiseMul<R, ReductionOf<T>> : public Value<R> {
     public:
       using Self = CWiseMul;
 
+      /// Build a new CWiseMul node with the given output dimensions.
       static ValueRef<R> create (Context & c, NodeRefVec && deps, const Dimension<R> & dim) {
         // Check dependencies
         checkDependenciesNotNull (typeid (Self), deps);
@@ -979,13 +1004,16 @@ namespace bpp {
       Dimension<R> targetDimension_;
     };
 
-    /** r = -x, for each component.
-     * r, x: T.
+    /** @brief r = -x, for each component.
+     * - r, x: T.
+     *
+     * Node construction should be done with the create static method.
      */
     template <typename T> class CWiseNegate : public Value<T> {
     public:
       using Self = CWiseNegate;
 
+      /// Build a new CWiseNegate node with the given output dimensions.
       static ValueRef<T> create (Context & c, NodeRefVec && deps, const Dimension<T> & dim) {
         // Check dependencies
         checkDependenciesNotNull (typeid (Self), deps);
@@ -1034,13 +1062,16 @@ namespace bpp {
       Dimension<T> targetDimension_;
     };
 
-    /** r = 1/x for each component.
-     * r, x: T.
+    /** @brief r = 1/x for each component.
+     * - r, x: T.
+     *
+     * Node construction should be done with the create static method.
      */
     template <typename T> class CWiseInverse : public Value<T> {
     public:
       using Self = CWiseInverse;
 
+      /// Build a new CWiseInverse node with the given output dimensions.
       static ValueRef<T> create (Context & c, NodeRefVec && deps, const Dimension<T> & dim) {
         // Check dependencies
         checkDependenciesNotNull (typeid (Self), deps);
@@ -1093,14 +1124,17 @@ namespace bpp {
       Dimension<T> targetDimension_;
     };
 
-    /** r = factor * pow (x, exponent) for each component.
-     * r, x: T.
-     * exponent, factor: double (constant parameter of the node).
+    /** @brief r = factor * pow (x, exponent) for each component.
+     * - r, x: T.
+     * - exponent, factor: double (constant parameter of the node).
+     *
+     * Node construction should be done with the create static method.
      */
     template <typename T> class CWiseConstantPow : public Value<T> {
     public:
       using Self = CWiseConstantPow;
 
+      /// Build a new CWiseConstantPow node with the given output dimensions and factors.
       static ValueRef<T> create (Context & c, NodeRefVec && deps, double exponent, double factor,
                                  const Dimension<T> & dim) {
         // Check dependencies
@@ -1175,15 +1209,18 @@ namespace bpp {
       double factor_;
     };
 
-    /** r = x0 * x1 (dot product).
-     * r: double.
-     * x0: T0 (vector-like).
-     * x1: T1 (vector-like).
+    /** @brief r = x0 * x1 (dot product).
+     * - r: double.
+     * - x0: T0 (vector-like).
+     * - x1: T1 (vector-like).
+     *
+     * Node construction should be done with the create static method.
      */
     template <typename T0, typename T1> class ScalarProduct : public Value<double> {
     public:
       using Self = ScalarProduct;
 
+      /// Build a new ScalarProduct node.
       static ValueRef<double> create (Context & c, NodeRefVec && deps) {
         // Check dependencies
         checkDependenciesNotNull (typeid (Self), deps);
@@ -1234,17 +1271,19 @@ namespace bpp {
       }
     };
 
-    /** r = sum_{v in m} log (v).
-     * r: double.
-     * m: F (matrix-like type).
+    /** @brief r = sum_{v in m} log (v).
+     * - r: double.
+     * - m: F (matrix-like type).
      *
      * The node has no dimension (double).
      * The dimension of m should be provided for derivation.
+     * Node construction should be done with the create static method.
      */
     template <typename F> class SumOfLogarithms : public Value<double> {
     public:
       using Self = SumOfLogarithms;
 
+      /// Build a new SumOfLogarithms node with the given input matrix dimensions.
       static ValueRef<double> create (Context & c, NodeRefVec && deps, const Dimension<F> & mDim) {
         checkDependenciesNotNull (typeid (Self), deps);
         checkDependencyVectorSize (typeid (Self), deps, 1);
@@ -1296,10 +1335,12 @@ namespace bpp {
       Dimension<F> mTargetDimension_;
     };
 
-    /** r = x0 * x1 (matrix product).
-     * r: R (matrix).
-     * x0: T0 (matrix), allows NumericalDependencyTransform.
-     * x1: T1 (matrix), allows NumericalDependencyTransform.
+    /** @brief r = x0 * x1 (matrix product).
+     * - r: R (matrix).
+     * - x0: T0 (matrix), allows NumericalDependencyTransform.
+     * - x1: T1 (matrix), allows NumericalDependencyTransform.
+     *
+     * Node construction should be done with the create static method.
      */
     template <typename R, typename T0, typename T1> class MatrixProduct : public Value<R> {
     public:
@@ -1307,6 +1348,7 @@ namespace bpp {
       using DepT0 = typename NumericalDependencyTransform<T0>::DepType;
       using DepT1 = typename NumericalDependencyTransform<T1>::DepType;
 
+      /// Build a new MatrixProduct node with the given output dimensions.
       static ValueRef<R> create (Context & c, NodeRefVec && deps, const Dimension<R> & dim) {
         // Check dependencies
         checkDependenciesNotNull (typeid (Self), deps);
@@ -1375,20 +1417,22 @@ namespace bpp {
       Dimension<R> targetDimension_;
     };
 
-    /** r = n * delta + x.
-     * r: T.
-     * delta: double.
-     * x: T.
-     * n: constant int.
-     * Order of dependencies: (delta, x).
+    /** @brief r = n * delta + x.
+     * - r: T.
+     * - delta: double.
+     * - x: T.
+     * - n: constant int.
+     * - Order of dependencies: (delta, x).
      *
      * Adds n * delta to all values (component wise) of x.
      * Used to generate x +/- delta values for numerical derivation.
+     * Node construction should be done with the create static method.
      */
     template <typename T> class ShiftDelta : public Value<T> {
     public:
       using Self = ShiftDelta;
 
+      /// Build a new ShiftDelta node with the given output dimensions and shift number.
       static ValueRef<T> create (Context & c, NodeRefVec && deps, int n, const Dimension<T> & dim) {
         // Check dependencies
         checkDependenciesNotNull (typeid (Self), deps);
@@ -1459,16 +1503,18 @@ namespace bpp {
       int n_;
     };
 
-    /** r = (1/delta)^n * sum_i coeffs_i * x_i.
-     * r: T.
-     * delta: double.
-     * x_i: T.
-     * n: constant int.
-     * coeffs_i: constant double.
-     * Order of dependencies: (delta, x_i).
+    /** @brief r = (1/delta)^n * sum_i coeffs_i * x_i.
+     * - r: T.
+     * - delta: double.
+     * - x_i: T.
+     * - n: constant int.
+     * - coeffs_i: constant double.
+     * - Order of dependencies: (delta, x_i).
      *
      * Weighted sum of dependencies, multiplied by a double.
      * Used to combine f(x+n*delta) values in numerical derivation.
+     * Node construction should be done with the create static method.
+     *
      * Lambda represents the 1/delta^n for a nth-order numerical derivation.
      * Note that in the whole class, coeffs[i] is the coefficient of deps[i + 1] !
      */
@@ -1476,6 +1522,7 @@ namespace bpp {
     public:
       using Self = CombineDeltaShifted;
 
+      /// Build a new CombineDeltaShifted node with the given output dimensions, exponent and weights.
       static ValueRef<T> create (Context & c, NodeRefVec && deps, int n, std::vector<double> && coeffs,
                                  const Dimension<T> & dim) {
         // Check dependencies
@@ -1727,7 +1774,7 @@ namespace bpp {
       ValueRef<double> delta{};
     };
 
-    /** Helper used to generate data flow expressions computing a numerical derivative.
+    /** @brief Helper used to generate data flow expressions computing a numerical derivative.
      *
      * For an expression e = f(x0,...,xn), which may be composed of multiple nodes.
      * dep is one of the expression dependencies: exists i, dep is node xi.
