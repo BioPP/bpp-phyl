@@ -159,10 +159,12 @@ namespace bpp {
 
     bool Node::hasNumericalProperty (NumericalProperty) const { return false; }
 
+    bool Node::compareAdditionalArguments (const Node &) const { return false; }
+    std::size_t Node::hashAdditionalArguments () const { return 0; }
+
     NodeRef Node::derive (Context &, const Node &) {
       throw Exception ("Node does not support derivation: " + description ());
     }
-    bool Node::isDerivable (const Node &) const { return false; }
 
     NodeRef Node::recreate (Context &, NodeRefVec &&) {
       throw Exception ("Node does not support recreate(deps): " + description ());
@@ -234,7 +236,7 @@ namespace bpp {
     }
 
     NodeRef recreateWithSubstitution (Context & c, const NodeRef & node,
-                                      const std::map<const Node *, NodeRef> & substitutions) {
+                                      const std::unordered_map<const Node *, NodeRef> & substitutions) {
       auto it = substitutions.find (node.get ());
       if (it != substitutions.end ()) {
         // Substitute sub tree.
@@ -254,6 +256,36 @@ namespace bpp {
           return node->recreate (c, std::move (recreatedDeps));
         }
       }
+    }
+
+    /*****************************************************************************
+     * Context.
+     */
+    NodeRef Context::cached (NodeRef && newNode) {
+      assert (newNode != nullptr);
+      // Try inserting it, which will fail if already present and return the old one
+      auto r = nodeCache_.emplace (std::move (newNode));
+      return r.first->ref;
+    }
+
+    /* Compare/hash the triplet (type, deps, additionalArgs).
+     * type and deps are available directly from the Node*.
+     * additionalArgs is handled through the two virtual methods.
+     */
+    bool Context::CachedNodeRef::operator== (const CachedNodeRef & other) const {
+      const auto & lhs = *this->ref;
+      const auto & rhs = *other.ref;
+      return typeid (lhs) == typeid (rhs) && lhs.dependencies () == rhs.dependencies () &&
+             lhs.compareAdditionalArguments (rhs);
+    }
+    std::size_t Context::CachedNodeRefHash::operator() (const CachedNodeRef & ref) const {
+      const auto & node = *ref.ref;
+      std::size_t seed = typeid (node).hash_code ();
+      for (const auto & dep : node.dependencies ()) {
+        combineHash (seed, dep);
+      }
+      combineHash (seed, node.hashAdditionalArguments ());
+      return seed;
     }
 
     /*****************************************************************************

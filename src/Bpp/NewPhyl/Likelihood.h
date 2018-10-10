@@ -49,7 +49,7 @@
 #include <unordered_map>
 
 namespace bpp {
-  /* Conditional likelihoods are stored in a matrix of sizes (nbState, nbSite).
+  /** Conditional likelihoods are stored in a matrix of sizes (nbState, nbSite).
    * Rows represents states (nucleotides, proteins or codon).
    * Columns represents sites (one site for each column).
    * Conditional likelihood is thus accessed by m(state,site) for an eigen matrix.
@@ -88,10 +88,10 @@ namespace bpp {
      */
     using ConditionalLikelihoodFromChildrenForward = CWiseMul<Eigen::MatrixXd, ReductionOf<Eigen::MatrixXd>>;
 
-    /** forwardLikelihood = f(transitionMatrix, conditionalLikelihood).
-     * forwardLikelihood: Matrix(state, site).
-     * transitionMatrix: Matrix (fromState, toState)
-     * conditionalLikelihood: Matrix(state, site).
+    /** @brief forwardLikelihood = f(transitionMatrix, conditionalLikelihood).
+     * - forwardLikelihood: Matrix(state, site).
+     * - transitionMatrix: Matrix (fromState, toState)
+     * - conditionalLikelihood: Matrix(state, site).
      *
      * f(toState, site) = sum_fromState P(fromState, toState) * c(fromState, site).
      * Using matrix multiply with transposition: f = transposed(transitionMatrix) * c.
@@ -99,10 +99,10 @@ namespace bpp {
     using ForwardLikelihoodFromConditional =
       MatrixProduct<Eigen::MatrixXd, Transposed<Eigen::MatrixXd>, Eigen::MatrixXd>;
 
-    /** likelihood = f(equilibriumFrequencies, rootConditionalLikelihood).
-     * likelihood: RowVector(site).
-     * equilibriumFrequencies: RowVector(state).
-     * rootConditionalLikelihood: Matrix(state, site).
+    /** @brief likelihood = f(equilibriumFrequencies, rootConditionalLikelihood).
+     * - likelihood: RowVector(site).
+     * - equilibriumFrequencies: RowVector(state).
+     * - rootConditionalLikelihood: Matrix(state, site).
      *
      * likelihood(site) = sum_state equFreqs(state) * rootConditionalLikelihood(state, site).
      * Using matrix multiply: likelihood = equilibriumFrequencies * rootConditionalLikelihood.
@@ -110,13 +110,12 @@ namespace bpp {
     using LikelihoodFromRootConditional =
       MatrixProduct<Eigen::RowVectorXd, Eigen::RowVectorXd, Eigen::MatrixXd>;
 
-    /** totalLogLikelihood = sum_site log(likelihood(site)).
-     * likelihood: RowVector (site).
-     * totalLogLikelihood: double.
+    /** @brief totalLogLikelihood = sum_site log(likelihood(site)).
+     * - likelihood: RowVector (site).
+     * - totalLogLikelihood: double.
      */
     using TotalLogLikelihood = SumOfLogarithms<Eigen::RowVectorXd>;
   } // namespace dataflow
-
 } // namespace bpp
 
 #endif // BPP_NEWPHYL_LIKELIHOOD_H

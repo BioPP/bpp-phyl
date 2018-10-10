@@ -54,6 +54,14 @@
 
 #include <unordered_map>
 
+/* This file contains temporary helpers and wrappers.
+ * They are used to bridge the gap between bpp::dataflow stuff and the rest of bpp.
+ * They have only been used (and thus tested) for a single likelihood example.
+ * They do not deal with all of bpp features, which is why they are only temporary.
+ *
+ * Ultimately, stuff in this file should be changed to a new system to describe phylogenic computations, which
+ * would generate dataflow graphs to do the actual computations.
+ */
 namespace bpp {
   // Store interesting nodes of the likelihood example
   struct SimpleLikelihoodNodes {
