@@ -53,14 +53,15 @@ NonHomogeneousSubstitutionProcess::NonHomogeneousSubstitutionProcess(const NonHo
   AbstractSubstitutionProcess(set),
   modelSet_(set.modelSet_.size()),
   rootFrequencies_(set.stationarity_ ? 0 : dynamic_cast<FrequenciesSet*>(set.rootFrequencies_->clone())),
-  rDist_                (dynamic_cast<DiscreteDistribution*>(set.rDist_->clone())),
+  rDist_                (set.rDist_?dynamic_cast<DiscreteDistribution*>(set.rDist_->clone()):0),
   nodeToModel_          (set.nodeToModel_),
   modelToNodes_         (set.modelToNodes_),
   modelParameters_      (set.modelParameters_),
   stationarity_         (set.stationarity_),
   computingTree_()
 {
-  computingTree_.reset(new ComputingTree(*pTree_.get(), *rDist_.get()));
+  computingTree_.reset(rDist_?new ComputingTree(*pTree_.get(), *rDist_.get()):
+                       new ComputingTree(*pTree_.get()));
 
   // Duplicate all model objects:
   for (size_t i = 0; i < set.modelSet_.size(); i++)
@@ -88,9 +89,10 @@ NonHomogeneousSubstitutionProcess& NonHomogeneousSubstitutionProcess::operator=(
   else
     rootFrequencies_.reset(dynamic_cast<FrequenciesSet*>(set.rootFrequencies_->clone()));
 
-  rDist_.reset(dynamic_cast<DiscreteDistribution*>(set.rDist_->clone()));
+  rDist_.reset(rDist_?dynamic_cast<DiscreteDistribution*>(set.rDist_->clone()):0);
   
-  computingTree_.reset(new ComputingTree(*pTree_.get(), *rDist_.get()));
+  computingTree_.reset(rDist_?new ComputingTree(*pTree_.get(), *rDist_.get()):
+                       new ComputingTree(*pTree_.get()));
 
   // Duplicate all model objects:
 
@@ -237,7 +239,8 @@ void NonHomogeneousSubstitutionProcess::fireParameterChanged(const ParameterList
   updateRootFrequencies();
 
   //Update rate distribution:
-  rDist_->matchParametersValues(parameters);
+  if (rDist_)
+    rDist_->matchParametersValues(parameters);
 
 
   // Then we update all models in the set:

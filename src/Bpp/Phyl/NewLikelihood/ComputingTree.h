@@ -114,7 +114,7 @@ namespace bpp
     ComputingTree(const SubstitutionProcessCollection* pSubProColl, size_t nTree, size_t nDist);
   
     /*
-     * @brief construction of an empty ComputingTree with Constant Distribution
+     * @brief construction of an empty ComputingTree with no Distribution
      *
      * @param tree The tree.
      *
@@ -221,6 +221,15 @@ namespace bpp
     
     Vuint toBeUpdatedNodes() const;
 
+  private:
+
+    /*
+     * @brief Initializes the Computing tree in homogeneous constructors.
+     *
+     */
+    
+    void init_();
+    
   };
   
 } //end of namespace bpp.

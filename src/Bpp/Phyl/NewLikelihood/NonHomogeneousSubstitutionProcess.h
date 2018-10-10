@@ -156,7 +156,7 @@ namespace bpp
      */
     NonHomogeneousSubstitutionProcess(DiscreteDistribution*  rdist, ParametrizablePhyloTree* tree) :
       AbstractParameterAliasable(""),
-      AbstractSubstitutionProcess(tree, rdist ? rdist->getNumberOfCategories() : 0),
+      AbstractSubstitutionProcess(tree, rdist ? rdist->getNumberOfCategories() : 1),
       modelSet_(),
       rootFrequencies_(),
       rDist_(rdist),
@@ -168,9 +168,11 @@ namespace bpp
     {
       // Add parameters:
       addParameters_(tree->getParameters());  //Branch lengths
-      addParameters_(rdist->getIndependentParameters());
+      if (rDist_)
+        addParameters_(rDist_->getIndependentParameters());
 
-      computingTree_.reset(new ComputingTree(*pTree_.get(), *rDist_.get()));
+      computingTree_.reset(rDist_?new ComputingTree(*pTree_.get(), *rDist_.get()):
+                           new ComputingTree(*pTree_.get()));
     }
 
     /**
@@ -183,7 +185,7 @@ namespace bpp
      */
     NonHomogeneousSubstitutionProcess(DiscreteDistribution*  rdist, ParametrizablePhyloTree* tree, FrequenciesSet* rootFreqs):
       AbstractParameterAliasable(""),
-      AbstractSubstitutionProcess(tree, rdist ? rdist->getNumberOfCategories() : 0),
+      AbstractSubstitutionProcess(tree, rdist ? rdist->getNumberOfCategories() : 1),
       modelSet_(),
       rootFrequencies_(),
       rDist_(rdist),
@@ -194,9 +196,11 @@ namespace bpp
       computingTree_()
     {
       addParameters_(tree->getParameters());  //Branch lengths
-      addParameters_(rdist->getIndependentParameters());  
+      if (rDist_)
+        addParameters_(rDist_->getIndependentParameters());  
       setRootFrequencies(rootFreqs);
-      computingTree_.reset(new ComputingTree(*pTree_.get(), *rDist_.get()));
+      computingTree_.reset(rDist_?new ComputingTree(*pTree_.get(), *rDist_.get()):
+                           new ComputingTree(*pTree_.get()));
     }
 
     NonHomogeneousSubstitutionProcess(const NonHomogeneousSubstitutionProcess& set);
@@ -438,7 +442,7 @@ namespace bpp
 
     const DiscreteDistribution* getRateDistribution() const
     {
-      return rDist_.get();
+      return rDist_?rDist_.get():0;
     }
 
     /**
@@ -563,25 +567,28 @@ namespace bpp
     
     double getProbabilityForModel(size_t classIndex) const
     {
-      if (classIndex >= rDist_->getNumberOfCategories())
+      if (classIndex >= (rDist_?rDist_->getNumberOfCategories():1))
         throw IndexOutOfBoundsException("NonHomogeneousSubstitutionProcess::getProbabilityForModel.", classIndex, 0, rDist_->getNumberOfCategories());
-      return rDist_->getProbability(classIndex);
+      return rDist_?rDist_->getProbability(classIndex):1.;
     }
 
     Vdouble getClassProbabilities() const
     {
       Vdouble vProb;
 
-      for (size_t i=0;i<rDist_->getNumberOfCategories(); i++)
-        vProb.push_back(rDist_->getProbability(i));
+      if (!rDist_)
+        vProb.push_back(1.);
+      else
+        for (size_t i=0;i<rDist_->getNumberOfCategories(); i++)
+          vProb.push_back(rDist_->getProbability(i));
 
       return vProb;
     }
 
     double getRateForModel(size_t classIndex) const {
-      if (classIndex >= rDist_->getNumberOfCategories())
-        throw IndexOutOfBoundsException("NonHomogeneousSubstitutionProcess::getRateForModel.", classIndex, 0, rDist_->getNumberOfCategories());
-      return rDist_->getCategory(classIndex);
+      if (classIndex >= (rDist_?rDist_->getNumberOfCategories():1))
+        throw IndexOutOfBoundsException("NonHomogeneousSubstitutionProcess::getRateForModel.", classIndex, 0, (rDist_?rDist_->getNumberOfCategories():1));
+      return rDist_?rDist_->getCategory(classIndex):1;
     }
 
     const ComputingTree& getComputingTree() const

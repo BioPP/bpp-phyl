@@ -54,31 +54,9 @@ ComputingTree::ComputingTree(const ParametrizablePhyloTree& ptree, const Discret
   vTree_(),
   isReadyToCompute_(false)
 {
-  size_t nbCl=dist.getNumberOfCategories();
-
-  for (size_t i=0; i<nbCl; i++){
-
-    std::shared_ptr<SpecCompTree> pTC2(new SpecCompTree(ptree));
-
-    std::vector<unsigned int> vCN=pTC2->getAllNodesIndexes();
-    
-    for (size_t j=0; j<vCN.size(); j++){
-      pTC2->getNode(vCN[j])->setParameterValue("scale",dist.getCategory(i));
-      if (pTC2->hasFather(vCN[j]))
-        pTC2->getNode(vCN[j])->setDistanceToFather(ptree.getEdgeToFather(vCN[j])->getLength());
-    }
-
-    std::shared_ptr<CompTree> pTC(new CompTree(*pTC2));
-
-    for (size_t j=0; j<vCN.size(); j++){
-      pTC->getNode(vCN[j])->updateTree(pTC.get(), vCN[j]);
-    }
-    
-    vTree_.push_back(pTC);
-  }
-  
-  addParameters_(ptree.getParameters());
-  addParameters_(dist.getIndependentParameters());
+  init_();
+  addParameters_(parTree_->getParameters());
+  addParameters_(pDist_->getIndependentParameters());
 }
 
 ComputingTree::ComputingTree(const ParametrizablePhyloTree& ptree) :
@@ -88,25 +66,8 @@ ComputingTree::ComputingTree(const ParametrizablePhyloTree& ptree) :
   vTree_(),
   isReadyToCompute_(false)
 {
-  std::shared_ptr<SpecCompTree> pTC2(new SpecCompTree(ptree));
-
-  std::vector<unsigned int> vCN=pTC2->getAllNodesIndexes();
-    
-  for (size_t j=0; j<vCN.size(); j++){
-    pTC2->getNode(vCN[j])->setParameterValue("scale",1.);
-    if (pTC2->hasFather(vCN[j]))
-      pTC2->getNode(vCN[j])->setDistanceToFather(ptree.getEdgeToFather(vCN[j])->getLength());
-  }
-
-  std::shared_ptr<CompTree> pTC(new CompTree(*pTC2));
-
-  for (size_t j=0; j<vCN.size(); j++){
-    pTC->getNode(vCN[j])->updateTree(pTC.get(), vCN[j]);
-  }
-
-  vTree_.push_back(pTC);
-
-  addParameters_(ptree.getParameters());
+  init_();
+  addParameters_(parTree_->getParameters());
 }
 
 ComputingTree::ComputingTree(const SubstitutionProcessCollection* pSubProColl, size_t nTree, size_t nDist) :
@@ -116,15 +77,32 @@ ComputingTree::ComputingTree(const SubstitutionProcessCollection* pSubProColl, s
   vTree_(),
   isReadyToCompute_(false)
 {
-  size_t nbCl=pDist_->getNumberOfCategories();
+  init_();
+  
+  ParameterList pl=pSubProColl->getTree(nTree).getParameters();
+  for (size_t i=0; i<pl.size(); i++)
+    pl[i].setName(pl[i].getName()+"_"+TextTools::toString(nTree));
+
+  addParameters_(pl);
+  pl=pSubProColl->getRateDistribution(nDist).getParameters();
+
+  for (size_t i=0; i<pl.size(); i++)
+    pl[i].setName(pl[i].getName()+"_"+TextTools::toString(nDist));
+  addParameters_(pl);
+}
+
+void ComputingTree::init_()
+{
+  size_t nbCl=pDist_?pDist_->getNumberOfCategories():1;
 
   for (size_t i=0; i<nbCl; i++){
 
     std::shared_ptr<SpecCompTree> pTC2(new SpecCompTree(*parTree_));
+
     std::vector<unsigned int> vCN=pTC2->getAllNodesIndexes();
     
     for (size_t j=0; j<vCN.size(); j++){
-      pTC2->getNode(vCN[j])->setParameterValue("scale",pDist_->getCategory(i));
+      pTC2->getNode(vCN[j])->setParameterValue("scale",pDist_?pDist_->getCategory(i):1);
       if (pTC2->hasFather(vCN[j]))
         pTC2->getNode(vCN[j])->setDistanceToFather(parTree_->getEdgeToFather(vCN[j])->getLength());
     }
@@ -134,23 +112,9 @@ ComputingTree::ComputingTree(const SubstitutionProcessCollection* pSubProColl, s
     for (size_t j=0; j<vCN.size(); j++){
       pTC->getNode(vCN[j])->updateTree(pTC.get(), vCN[j]);
     }
-    
     vTree_.push_back(pTC);
   }
   
-  ParameterList pl=pSubProColl->getTree(nTree).getParameters();
-
-  for (size_t i=0; i<pl.size(); i++)
-    pl[i].setName(pl[i].getName()+"_"+TextTools::toString(nTree));
-
-  addParameters_(pl);
-  
-  pl=pSubProColl->getRateDistribution(nDist).getParameters();
-
-  for (size_t i=0; i<pl.size(); i++)
-    pl[i].setName(pl[i].getName()+"_"+TextTools::toString(nDist));
-
-  addParameters_(pl);
 }
 
 
