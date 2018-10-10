@@ -276,7 +276,9 @@ namespace bpp {
   /******************************************************************************
    * Data flow nodes for those numerical functions.
    *
-   * TODO numerical simplification: all deps constant => return constant ?
+   * TODO numerical simplification:
+   * add(x,x) -> 2*x ? (and similar for mul, ...)
+   * all deps constant => return constant ?
    */
   namespace dataflow {
     // Error utils
@@ -385,6 +387,13 @@ namespace bpp {
         }
       }
 
+      // ConstantZero<T> additional arguments = (targetDimension_).
+      bool compareAdditionalArguments (const Node & other) const final {
+        const auto * derived = dynamic_cast<const Self *> (&other);
+        return derived != nullptr && targetDimension_ == derived->targetDimension_;
+      }
+      std::size_t hashAdditionalArguments () const final { return hash (targetDimension_); }
+
       NodeRef derive (Context & c, const Node & node) final {
         if (&node == this) {
           return ConstantOne<T>::create (c, targetDimension_);
@@ -432,6 +441,13 @@ namespace bpp {
           return false;
         }
       }
+
+      // ConstantOne<T> additional arguments = (targetDimension_).
+      bool compareAdditionalArguments (const Node & other) const final {
+        const auto * derived = dynamic_cast<const Self *> (&other);
+        return derived != nullptr && targetDimension_ == derived->targetDimension_;
+      }
+      std::size_t hashAdditionalArguments () const final { return hash (targetDimension_); }
 
       NodeRef derive (Context & c, const Node & node) final {
         if (&node == this) {
@@ -495,6 +511,16 @@ namespace bpp {
         }
       }
 
+      // NumericConstant<T> additional arguments = (value).
+      bool compareAdditionalArguments (const Node & other) const final {
+        const auto * derived = dynamic_cast<const Self *> (&other);
+        return derived != nullptr && this->accessValueConst () == derived->accessValueConst ();
+      }
+      std::size_t hashAdditionalArguments () const final {
+        using namespace numeric;
+        return hash (this->accessValueConst ());
+      }
+
       NodeRef derive (Context & c, const Node & node) final {
         const auto dim = Dimension<T> (this->accessValueConst ());
         if (&node == this) {
@@ -519,7 +545,7 @@ namespace bpp {
      * r: T.
      * Value is set at construction, and can be changed (will invalidate all dependent values).
      * Supports derivation.
-     * Note that this node has no Context caching support: mutable nodes are always different.
+     * This node has no Context merging support: mutable nodes are always different.
      */
     template <typename T> class NumericMutable : public Value<T> {
     public:
@@ -617,6 +643,11 @@ namespace bpp {
         return debug (this->accessValueConst ()) + " targetDim=" + to_string (targetDimension_);
       }
 
+      // Convert<T> additional arguments = ().
+      bool compareAdditionalArguments (const Node & other) const final {
+        return dynamic_cast<const Self *> (&other) != nullptr;
+      }
+
       NodeRef derive (Context & c, const Node & node) final {
         if (&node == this) {
           return ConstantOne<R>::create (c, targetDimension_);
@@ -679,6 +710,11 @@ namespace bpp {
       std::string debugInfo () const override {
         using namespace numeric;
         return debug (this->accessValueConst ()) + " targetDim=" + to_string (targetDimension_);
+      }
+
+      // Convert<T> additional arguments = ().
+      bool compareAdditionalArguments (const Node & other) const final {
+        return dynamic_cast<const Self *> (&other) != nullptr;
       }
 
       NodeRef derive (Context & c, const Node & node) final {
@@ -746,6 +782,11 @@ namespace bpp {
       std::string debugInfo () const override {
         using namespace numeric;
         return debug (this->accessValueConst ()) + " targetDim=" + to_string (targetDimension_);
+      }
+
+      // CWiseAdd additional arguments = ().
+      bool compareAdditionalArguments (const Node & other) const final {
+        return dynamic_cast<const Self *> (&other) != nullptr;
       }
 
       NodeRef derive (Context & c, const Node & node) final {
@@ -823,6 +864,11 @@ namespace bpp {
         return debug (this->accessValueConst ()) + " targetDim=" + to_string (targetDimension_);
       }
 
+      // CWiseAdd additional arguments = ().
+      bool compareAdditionalArguments (const Node & other) const final {
+        return dynamic_cast<const Self *> (&other) != nullptr;
+      }
+
       NodeRef derive (Context & c, const Node & node) final {
         if (&node == this) {
           return ConstantOne<R>::create (c, targetDimension_);
@@ -897,6 +943,11 @@ namespace bpp {
         return debug (this->accessValueConst ()) + " targetDim=" + to_string (targetDimension_);
       }
 
+      // CWiseAdd additional arguments = ().
+      bool compareAdditionalArguments (const Node & other) const final {
+        return dynamic_cast<const Self *> (&other) != nullptr;
+      }
+
       NodeRef derive (Context & c, const Node & node) final {
         if (&node == this) {
           return ConstantOne<R>::create (c, targetDimension_);
@@ -956,6 +1007,11 @@ namespace bpp {
         return debug (this->accessValueConst ()) + " targetDim=" + to_string (targetDimension_);
       }
 
+      // CWiseNegate additional arguments = ().
+      bool compareAdditionalArguments (const Node & other) const final {
+        return dynamic_cast<const Self *> (&other) != nullptr;
+      }
+
       NodeRef derive (Context & c, const Node & node) final {
         if (&node == this) {
           return ConstantOne<T>::create (c, targetDimension_);
@@ -1004,6 +1060,11 @@ namespace bpp {
       std::string debugInfo () const override {
         using namespace numeric;
         return debug (this->accessValueConst ()) + " targetDim=" + to_string (targetDimension_);
+      }
+
+      // CWiseInverse additional arguments = ().
+      bool compareAdditionalArguments (const Node & other) const final {
+        return dynamic_cast<const Self *> (&other) != nullptr;
       }
 
       NodeRef derive (Context & c, const Node & node) final {
@@ -1075,6 +1136,18 @@ namespace bpp {
                " exponent=" + std::to_string (exponent_) + " factor=" + std::to_string (factor_);
       }
 
+      // CWiseConstantPow additional arguments = (exponent_, factor_).
+      bool compareAdditionalArguments (const Node & other) const final {
+        const auto * derived = dynamic_cast<const Self *> (&other);
+        return derived != nullptr && exponent_ == derived->exponent_ && factor_ == derived->factor_;
+      }
+      std::size_t hashAdditionalArguments () const final {
+        std::size_t seed = 0;
+        combineHash (seed, exponent_);
+        combineHash (seed, factor_);
+        return seed;
+      }
+
       NodeRef derive (Context & c, const Node & node) final {
         if (&node == this) {
           return ConstantOne<T>::create (c, targetDimension_);
@@ -1133,6 +1206,11 @@ namespace bpp {
         return debug (this->accessValueConst ());
       }
 
+      // ScalarProduct additional arguments = ().
+      bool compareAdditionalArguments (const Node & other) const final {
+        return dynamic_cast<const Self *> (&other) != nullptr;
+      }
+
       NodeRef derive (Context & c, const Node & node) final {
         if (&node == this) {
           return ConstantOne<double>::create (c, Dimension<double> ());
@@ -1180,6 +1258,11 @@ namespace bpp {
       std::string debugInfo () const override {
         using namespace numeric;
         return debug (this->accessValueConst ());
+      }
+
+      // SumOfLogarithms additional arguments = ().
+      bool compareAdditionalArguments (const Node & other) const final {
+        return dynamic_cast<const Self *> (&other) != nullptr;
       }
 
       NodeRef derive (Context & c, const Node & node) final {
@@ -1260,6 +1343,11 @@ namespace bpp {
         return debug (this->accessValueConst ()) + " targetDim=" + to_string (targetDimension_);
       }
 
+      // MatrixProduct additional arguments = ().
+      bool compareAdditionalArguments (const Node & other) const final {
+        return dynamic_cast<const Self *> (&other) != nullptr;
+      }
+
       NodeRef derive (Context & c, const Node & node) final {
         if (&node == this) {
           return ConstantOne<R>::create (c, targetDimension_);
@@ -1330,6 +1418,17 @@ namespace bpp {
         using namespace numeric;
         return debug (this->accessValueConst ()) + " targetDim=" + to_string (targetDimension_) +
                " n=" + std::to_string (n_);
+      }
+
+      // ShiftDelta additional arguments = (n_).
+      bool compareAdditionalArguments (const Node & other) const final {
+        const auto * derived = dynamic_cast<const Self *> (&other);
+        return derived != nullptr && n_ == derived->n_;
+      }
+      std::size_t hashAdditionalArguments () const final {
+        std::size_t seed = 0;
+        combineHash (seed, n_);
+        return seed;
       }
 
       NodeRef derive (Context & c, const Node & node) final {
@@ -1466,6 +1565,20 @@ namespace bpp {
         }
         s += '}';
         return s;
+      }
+
+      // CombineDeltaShifted additional arguments = (n_, coeffs_).
+      bool compareAdditionalArguments (const Node & other) const final {
+        const auto * derived = dynamic_cast<const Self *> (&other);
+        return derived != nullptr && n_ == derived->n_ && coeffs_ == derived->coeffs_;
+      }
+      std::size_t hashAdditionalArguments () const final {
+        std::size_t seed = 0;
+        combineHash (seed, n_);
+        for (const auto d : coeffs_) {
+          combineHash (seed, d);
+        }
+        return seed;
       }
 
       NodeRef derive (Context & c, const Node & node) final {

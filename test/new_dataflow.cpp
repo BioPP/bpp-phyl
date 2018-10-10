@@ -480,6 +480,12 @@ struct OpaqueTestFunction : public Value<double>
   {
   }
 
+  // OpaqueTestFunction additional arguments = (). Entirely defined by deps.
+  bool compareAdditionalArguments(const Node& other) const final
+  {
+    return dynamic_cast<const Self*>(&other) != nullptr;
+  }
+
   NodeRef derive(Context& c, const Node& node) final
   {
     // df/dn = df/dx * dx/dn + df/dy * dy/dn (derivative of multivariable func)
