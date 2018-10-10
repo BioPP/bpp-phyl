@@ -72,8 +72,6 @@ void OneProcessSequenceSubstitutionMapping::computeNormalizationsForASite(
 
 void OneProcessSequenceSubstitutionMapping::setBranchedModelSet_()
 {
-  
-  cerr << "pOPSP_  " << ->getSubstitutionProcess();
   const SubstitutionProcess& sp=pOPSP_->getSubstitutionProcess();
 
   vector<size_t> vId=sp.getModelNumbers();
