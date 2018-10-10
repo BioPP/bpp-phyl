@@ -39,12 +39,11 @@
   knowledge of the CeCILL license and that you accept its terms.
 */
 
-#define DOCTEST_CONFIG_IMPLEMENT_WITH_MAIN
+#define DOCTEST_CONFIG_IMPLEMENT
 #include "doctest.h"
 
 #define ENABLE_OLD
 #define ENABLE_NEW
-#define ENABLE_DF
 
 // Common stuff
 #include <Bpp/Numeric/AutoParameter.h>
@@ -71,11 +70,21 @@
 #include <Bpp/Phyl/NewLikelihood/SimpleSubstitutionProcess.h>
 #endif
 // DF
-#ifdef ENABLE_DF
 #include <Bpp/NewPhyl/LikelihoodExample.h>
 #include <Bpp/Phyl/Io/Newick.h>
 #include <Bpp/Phyl/NewLikelihood/PhyloLikelihoods/SingleProcessPhyloLikelihood.h>
-#endif
+
+static bool enableDotOutput = false;
+
+static void dotOutput(const std::string& testName, const std::vector<const bpp::dataflow::Node*>& nodes)
+{
+  if (enableDotOutput)
+  {
+    using bpp::dataflow::DotOptions;
+    writeGraphToDot(
+      "debug_" + testName + ".dot", nodes, DotOptions::DetailedNodeInfo | DotOptions::ShowDependencyIndex);
+  }
+}
 
 namespace
 {
@@ -223,7 +232,6 @@ TEST_CASE("new")
 }
 #endif
 
-#ifdef ENABLE_DF
 TEST_CASE("df")
 {
   const CommonStuff c;
@@ -264,21 +272,34 @@ TEST_CASE("df")
   bpp::DataFlowFunction llh(context, l.totalLogLikelihood, allParameters);
   timingEnd(ts, "df_setup");
 
-  bpp::dataflow::writeGraphToDot(
-    "new_likelikood_example.dot", {l.totalLogLikelihood.get()}, bpp::dataflow::DotOptions::None);
-
   ts = timingStart();
   auto logLik = llh.getValue();
   timingEnd(ts, "df_init_value");
   printLik(logLik, "df_init_value");
+  dotOutput("likelihood_example_value", {l.totalLogLikelihood.get()});
 
   // Manual access to dbrlen1
   auto dlogLik_dbrlen1 = l.totalLogLikelihood->deriveAsValue(context, *l.branchLengthValues[1]);
   std::cout << "[dbrlen1] " << dlogLik_dbrlen1->getValue() << "\n";
+  dotOutput("likelihood_example_dbrlen1", {dlogLik_dbrlen1.get()});
 
   do_param_changes_multiple_times(llh, "df_param_model_change", c.paramModel1, c.paramModel2);
   do_param_changes_multiple_times(llh, "df_param_brlen_change", c.paramBrLen1, c.paramBrLen2);
   optimize_branch_params(llh, "df_brlens_opt", brlenOnlyParameters);
-  // TODO test optimization with model params (should work inefficiently due to lack of merging)
+  // TODO test optimization with model params
 }
-#endif
+
+int main(int argc, char** argv)
+{
+  const std::string keyword = "dot_output";
+  for (int i = 1; i < argc; ++i)
+  {
+    if (argv[i] == keyword)
+    {
+      enableDotOutput = true;
+    }
+  }
+  doctest::Context context;
+  context.applyCommandLine(argc, argv);
+  return context.run();
+}

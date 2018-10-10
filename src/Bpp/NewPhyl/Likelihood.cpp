@@ -153,6 +153,23 @@ namespace bpp {
       return "nbState=" + std::to_string (model_->getAlphabet ()->getSize ());
     }
 
+    // Model node additional arguments = (type of bpp::TransitionModel).
+    // Everything else is determined by the node dependencies.
+    bool ConfiguredModel::compareAdditionalArguments (const Node & other) const {
+      const auto * derived = dynamic_cast<const Self *> (&other);
+      if (derived == nullptr) {
+        return false;
+      } else {
+        const auto & thisModel = *model_;
+        const auto & otherModel = *derived->model_;
+        return typeid (thisModel) == typeid (otherModel);
+      }
+    }
+    std::size_t ConfiguredModel::hashAdditionalArguments () const {
+      const auto & bppModel = *model_;
+      return typeid (bppModel).hash_code ();
+    }
+
     NodeRef ConfiguredModel::recreate (Context & c, NodeRefVec && deps) {
       auto m = Self::create (c, std::move (deps), std::unique_ptr<TransitionModel>{model_->clone ()});
       m->config = this->config; // Duplicate derivation config
@@ -191,6 +208,11 @@ namespace bpp {
     std::string EquilibriumFrequenciesFromModel::debugInfo () const {
       using namespace numeric;
       return debug (this->accessValueConst ()) + " targetDim=" + to_string (targetDimension_);
+    }
+
+    // EquilibriumFrequenciesFromModel additional arguments = ().
+    bool EquilibriumFrequenciesFromModel::compareAdditionalArguments (const Node & other) const {
+      return dynamic_cast<const Self *> (&other) != nullptr;
     }
 
     NodeRef EquilibriumFrequenciesFromModel::derive (Context & c, const Node & node) {
@@ -234,6 +256,11 @@ namespace bpp {
     std::string TransitionMatrixFromModel::debugInfo () const {
       using namespace numeric;
       return debug (this->accessValueConst ()) + " targetDim=" + to_string (targetDimension_);
+    }
+
+    // TransitionMatrixFromModel additional arguments = ().
+    bool TransitionMatrixFromModel::compareAdditionalArguments (const Node & other) const {
+      return dynamic_cast<const Self *> (&other) != nullptr;
     }
 
     NodeRef TransitionMatrixFromModel::derive (Context & c, const Node & node) {
@@ -290,6 +317,12 @@ namespace bpp {
       return debug (this->accessValueConst ()) + " targetDim=" + to_string (targetDimension_);
     }
 
+    // TransitionMatrixFromModelFirstBrlenDerivative additional arguments = ().
+    bool
+    TransitionMatrixFromModelFirstBrlenDerivative::compareAdditionalArguments (const Node & other) const {
+      return dynamic_cast<const Self *> (&other) != nullptr;
+    }
+
     NodeRef TransitionMatrixFromModelFirstBrlenDerivative::derive (Context & c, const Node & node) {
       // dtm/dn = sum_i dtm/dx_i * dx_i/dn + dtm/dbrlen + dbrlen/dn (x_i = model parameters).
       auto modelDep = this->dependency (0);
@@ -342,6 +375,12 @@ namespace bpp {
     std::string TransitionMatrixFromModelSecondBrlenDerivative::debugInfo () const {
       using namespace numeric;
       return debug (this->accessValueConst ()) + " targetDim=" + to_string (targetDimension_);
+    }
+
+    // TransitionMatrixFromModelSecondBrlenDerivative additional arguments = ().
+    bool
+    TransitionMatrixFromModelSecondBrlenDerivative::compareAdditionalArguments (const Node & other) const {
+      return dynamic_cast<const Self *> (&other) != nullptr;
     }
 
     NodeRef TransitionMatrixFromModelSecondBrlenDerivative::derive (Context & c, const Node & node) {

@@ -168,6 +168,9 @@ namespace bpp {
       std::string description () const final;
       std::string debugInfo () const final;
 
+      bool compareAdditionalArguments (const Node & other) const final;
+      std::size_t hashAdditionalArguments () const final;
+
       /// Configuration for numerical derivation of computation nodes using this Model.
       NumericalDerivativeConfiguration config;
 
@@ -193,6 +196,8 @@ namespace bpp {
 
       std::string debugInfo () const final;
 
+      bool compareAdditionalArguments (const Node & other) const final;
+
       NodeRef derive (Context & c, const Node & node) final;
       NodeRef recreate (Context & c, NodeRefVec && deps) final;
 
@@ -216,6 +221,8 @@ namespace bpp {
       TransitionMatrixFromModel (NodeRefVec && deps, const Dimension<T> & dim);
 
       std::string debugInfo () const final;
+
+      bool compareAdditionalArguments (const Node & other) const final;
 
       NodeRef derive (Context & c, const Node & node) final;
       NodeRef recreate (Context & c, NodeRefVec && deps) final;
@@ -241,6 +248,8 @@ namespace bpp {
 
       std::string debugInfo () const final;
 
+      bool compareAdditionalArguments (const Node & other) const final;
+
       NodeRef derive (Context & c, const Node & node) final;
       NodeRef recreate (Context & c, NodeRefVec && deps) final;
 
@@ -264,6 +273,8 @@ namespace bpp {
       TransitionMatrixFromModelSecondBrlenDerivative (NodeRefVec && deps, const Dimension<T> & dim);
 
       std::string debugInfo () const final;
+
+      bool compareAdditionalArguments (const Node & other) const final;
 
       NodeRef derive (Context & c, const Node & node) final;
       NodeRef recreate (Context & c, NodeRefVec && deps) final;
