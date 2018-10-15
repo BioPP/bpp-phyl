@@ -146,7 +146,7 @@ namespace bpp {
   inline SimpleLikelihoodNodes makeSimpleLikelihoodNodes (dataflow::Context & c, const PhyloTree & tree,
                                                           const VectorSiteContainer & sites,
                                                           std::shared_ptr<dataflow::ConfiguredModel> model) {
-    const auto nbState = model->getValue ()->getNumberOfStates (); // Number of stored state values !
+    const auto nbState = model->getModel().getNumberOfStates (); // Number of stored state values !
     const auto nbSite = sites.getNumberOfSites ();
     const auto likelihoodMatrixDim = conditionalLikelihoodDimension (nbState, nbSite);
     SimpleLikelihoodNodes r;

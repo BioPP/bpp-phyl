@@ -80,6 +80,7 @@
 #include <Bpp/NewPhyl/LikelihoodExample.h>
 #include <Bpp/Phyl/Io/Newick.h>
 #include <Bpp/Phyl/NewLikelihood/PhyloLikelihoods/SingleProcessPhyloLikelihood.h>
+#endif
 
 static bool enableDotOutput = false;
 
@@ -187,7 +188,6 @@ namespace
     }
   };
 }
-#endif
 
 #ifdef ENABLE_OLD
 TEST_CASE("old")
@@ -258,7 +258,7 @@ TEST_CASE("df")
   // Model: create simple leaf nodes as model parameters
   auto model = std::unique_ptr<bpp::T92>(new bpp::T92(&c.alphabet, 3.));
   auto modelParameters = bpp::dataflow::createParameterMap(context, *model);
-
+  
   auto rootFreqs = std::unique_ptr<bpp::GCFrequenciesSet>(new bpp::GCFrequenciesSet(&c.alphabet, 0.1));
   auto rootFreqsParameters = bpp::dataflow::createParameterMap(context, *rootFreqs);
   
