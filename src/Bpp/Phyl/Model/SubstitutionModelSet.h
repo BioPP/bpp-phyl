@@ -390,6 +390,9 @@ public:
    */
   void addModel(TransitionModel* model, const std::vector<int>& nodesId);//, const std::vector<std::string>& newParams);
 
+  void setNodeToModel(size_t modelIndex, int nodeId); // Keren: added on my own to allow alternation of nodes assignemnts to existing nodes
+
+  void resetModelToNodels();  // Keren: added on my own to allow alternation of nodes assignemnts to existing nodes
   /**
    * @brief Replace a model in the set, and all corresponding
    * parameters. The replaced model deleted.
