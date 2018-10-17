@@ -127,7 +127,7 @@ SimpleMutationProcess::SimpleMutationProcess(const SubstitutionModel* model) :
   // Each element contains the probabilities concerning each character in the alphabet.
 
   // We will now initiate each of these probability vector.
-  RowMatrix<double> Q = model->getGenerator();
+  RowMatrix<double> Q = model->getGenerator(); // under RELAX matrix of zeros - don't know why
   for (size_t i = 0; i < size_; i++)
   {
     repartition_[i] = Vdouble(size_,0);

@@ -167,3 +167,140 @@ SubstitutionModelSet* SubstitutionModelSetTools::createNonHomogeneousModelSet(
   return modelSet;
 }
 
+SubstitutionModelSet* SubstitutionModelSetTools::createNonHomogeneousModelSet2(
+  TransitionModel* model,
+  FrequenciesSet* rootFreqs,
+  const Tree* tree,
+  const std::map<std::string, std::string>& aliasFreqNames,
+  const vector<string>& globalParameterNames,
+  const vector<int>& subset1BranchIds,
+  const vector<int>& subset2BranchIds,
+  const vector<string>& subsetSharedParameterNames,
+  const vector<double>& subset1SharedParametersInitialValues,
+  const vector<double>& subset2SharedParametersInitialValues
+  )
+{
+  // Check alphabet:
+  if (rootFreqs && model->getAlphabet()->getAlphabetType() != rootFreqs->getAlphabet()->getAlphabetType())
+    throw AlphabetMismatchException("SubstitutionModelSetTools::createNonHomogeneousModelSet()", model->getAlphabet(), rootFreqs->getAlphabet());
+  ParameterList globalParameters, branchParameters;
+  globalParameters = model->getParameters();
+  
+  vector<string> modelParamNames=globalParameters.getParameterNames();
+  
+  vector<string> globalParameterNames2;
+  
+  // First get correct parameter names
+
+  for (size_t i = 0; i < globalParameterNames.size(); i++)
+  {
+    vector<string> complName=ApplicationTools::matchingParameters(globalParameterNames[i], modelParamNames);
+
+    if (complName.size()==0)
+      throw Exception("SubstitutionModelSetTools::createNonHomogeneousModelSet. Parameter '" + globalParameterNames[i] + "' is not valid.");
+    else
+      for (size_t j=0; j<complName.size(); j++)
+        globalParameterNames2.push_back(complName[j]);
+  }
+
+  // remove non global parameters
+  for (size_t i = globalParameters.size(); i > 0; i--)
+  {
+    if (find(globalParameterNames2.begin(), globalParameterNames2.end(), globalParameters[i - 1].getName()) == globalParameterNames2.end())
+    {
+      // not a global parameter:
+      branchParameters.addParameter(globalParameters[i - 1]);
+      globalParameters.deleteParameter(i - 1);
+    }
+  }
+
+  SubstitutionModelSet*  modelSet;
+  modelSet = new SubstitutionModelSet(model->getAlphabet());
+
+  if (rootFreqs)
+    modelSet->setRootFrequencies(rootFreqs);
+  
+  // We assign a copy of this model to all nodes in the tree (excepted root node), and link all parameters with it.
+  vector<int> ids = tree->getNodesId();
+  int rootId = tree->getRootId();
+  size_t pos = 0;
+  for (size_t i = 0; i < ids.size(); i++)
+  {
+    if (ids[i] == rootId)
+    {
+      pos = i;
+      break;
+    }
+  }
+
+  ids.erase(ids.begin() + static_cast<ptrdiff_t>(pos));
+  for (size_t i = 0; i < ids.size(); i++)
+  {
+    modelSet->addModel(dynamic_cast<TransitionModel*>(model->clone()), vector<int>(1, ids[i]));
+  }
+
+  // Now alias all global parameters on all nodes:
+  for (size_t i=0; i < globalParameters.size(); i++)
+    {
+      string pname=globalParameters[i].getName();
+
+      for (size_t nn = 1; nn < ids.size(); nn++)
+        modelSet->aliasParameters(pname+"_1",pname+"_"+TextTools::toString(nn+1));
+    }
+
+  // and alias on the root
+  std::map<std::string, std::string>::const_iterator it;
+
+  for (it = aliasFreqNames.begin(); it != aliasFreqNames.end(); it++)
+  {
+    if (globalParameters.hasParameter(it->second))
+      modelSet->aliasParameters(it->second + "_1",it->first);
+  }
+
+  /* keren 16.10.18 - alias some parameters on a subset of models - lines 171-208 */
+
+  vector<string> subsetSharedParameterNames2;
+  
+  // First get correct parameter names
+  for (size_t i = 0; i < subsetSharedParameterNames.size(); i++)
+  {
+    vector<string> complName=ApplicationTools::matchingParameters(subsetSharedParameterNames[i], modelParamNames);
+
+    if (complName.size()==0)
+      throw Exception("SubstitutionModelSetTools::createNonHomogeneousModelSet. Parameter '" + subsetSharedParameterNames[i] + "' is not valid.");
+    else
+      for (size_t j=0; j<complName.size(); j++)
+        subsetSharedParameterNames2.push_back(complName[j]);
+  }
+
+  // now, set initial values for the parameters in the model corresponding to the leading branch ID of each subset
+  for (size_t j=0; j < subsetSharedParameterNames2.size(); j++)
+    {
+      string pname=subsetSharedParameterNames2[j];
+      
+      modelSet->setParameterValue (pname+"_"+TextTools::toString(subset1BranchIds[0]+1), subset1SharedParametersInitialValues[j]);
+      modelSet->setParameterValue (pname+"_"+TextTools::toString(subset2BranchIds[0]+1), subset2SharedParametersInitialValues[j]);
+    }
+
+  // alias the parameters acroos the subsets
+  for (size_t j=0; j < subsetSharedParameterNames2.size(); j++)
+    {
+      string pname=subsetSharedParameterNames2[j];
+      // alias the parameter acroos the models corresponding to branch IDs in subset1BranchIds
+      for (size_t bg = 1; bg < subset1BranchIds.size(); ++bg)
+      {
+        modelSet->setParameterValue(pname+"_"+TextTools::toString(subset1BranchIds[bg]+1), subset1SharedParametersInitialValues[j]);
+        modelSet->aliasParameters(pname+"_"+TextTools::toString(subset1BranchIds[0]+1),pname+"_"+TextTools::toString(subset1BranchIds[bg]+1));
+      }
+       // alias the parameter acroos the models corresponding to branch IDs in subset2BranchIds
+      for (size_t fg = 1; fg < subset2BranchIds.size(); ++fg)
+      {
+        modelSet->setParameterValue(pname+"_"+TextTools::toString(subset2BranchIds[fg]+1), subset2SharedParametersInitialValues[j]);
+        modelSet->aliasParameters(pname+"_"+TextTools::toString(subset2BranchIds[0]+1),pname+"_"+TextTools::toString(subset2BranchIds[fg]+1));    
+      }
+    }
+
+  delete model; // delete template model.
+  return modelSet;
+}
+
