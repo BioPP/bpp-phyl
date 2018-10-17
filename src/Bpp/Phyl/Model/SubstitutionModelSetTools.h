@@ -73,6 +73,7 @@ class SubstitutionModelSetTools
         const Tree* tree
       );
 
+ 
     /**
      * @brief Create a SubstitutionModelSet object, with one model per branch.
      *
@@ -92,6 +93,20 @@ class SubstitutionModelSetTools
         const Tree* tree,
         const std::map<std::string, std::string>& aliasFreqNames,
         const std::vector<std::string>& globalParameterNames
+      );
+      
+
+    static SubstitutionModelSet* createNonHomogeneousModelSet2(
+        TransitionModel* model,
+        FrequenciesSet* rootFreqs,
+        const Tree* tree,
+        const std::map<std::string, std::string>& aliasFreqNames,
+        const std::vector<std::string>& globalParameterNames,
+        const std::vector<int>& subset1BranchIds,                        // keren 16.10.18 - added argument 
+        const std::vector<int>& subset2BranchIds,                        // keren 16.10.18 - added argument 
+        const std::vector<std::string>& subsetSharedParameterNames,           // keren 16.10.18 - added argument 
+        const std::vector<double>& subset1SharedParametersInitialValues, // keren 16.10.18 - added argument 
+        const std::vector<double>& subset2SharedParametersInitialValues  // keren 16.10.18 - added argument 
       );
 
 };
