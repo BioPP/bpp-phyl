@@ -113,6 +113,10 @@ class MutationPath
      * @return A pointer toward the alphabet associated to this path.
      */
     const Alphabet* getAlphabet() const { return alphabet_; }
+
+    const std::vector<size_t> getStates() const { return states_; }
+
+    const std::vector<double> getTimes() const { return times_; }
     
     /**
      * @brief Add a new mutation event.
