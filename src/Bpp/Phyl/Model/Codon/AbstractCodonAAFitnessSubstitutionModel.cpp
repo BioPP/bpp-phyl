@@ -46,7 +46,8 @@ using namespace std;
 /****************************************************************************************/
 
 AbstractCodonAAFitnessSubstitutionModel::AbstractCodonAAFitnessSubstitutionModel(FrequenciesSet* pfitset, const GeneticCode* pgencode, const string& prefix):
-  AbstractParameterAliasable(prefix), pfitset_(pfitset), pgencode_(pgencode), fitName_(""), stateMap_(&pfitset->getStateMap())
+  AbstractParameterAliasable(prefix), pfitset_(pfitset), pgencode_(pgencode), fitName_(""), stateMap_(new CanonicalStateMap(pgencode->getSourceAlphabet(), false)),
+  protStateMap_(&pfitset->getStateMap()), Ns_(1)
 {
   if (!AlphabetTools::isProteicAlphabet(pfitset_->getAlphabet()))
     throw Exception("AbstractCodonAAFitnessSubstitutionModel::AbstractCodonAAFitnessSubstitutionModel need Proteic Fitness.");
@@ -63,6 +64,10 @@ AbstractCodonAAFitnessSubstitutionModel::~AbstractCodonAAFitnessSubstitutionMode
 
 void AbstractCodonAAFitnessSubstitutionModel::fireParameterChanged (const ParameterList& parameters)
 {
+  AbstractParameterAliasable::fireParameterChanged(parameters); 
+  if (hasParameter("Ns"))
+    Ns_=getParameterValue("Ns");
+  
   pfitset_->matchParametersValues(parameters);
 }
 
@@ -78,17 +83,27 @@ double AbstractCodonAAFitnessSubstitutionModel::getCodonsMulRate(size_t i, size_
 
   int aai = pgencode_->translate(stateMap_->getAlphabetStateAsInt(i));
   int aaj = pgencode_->translate(stateMap_->getAlphabetStateAsInt(j));
+  
+  double phi_i= pfitset_->getFrequencies() [protStateMap_->getModelStates(aai)[0]];
+  double phi_j= pfitset_->getFrequencies() [protStateMap_->getModelStates(aaj)[0]];
 
-  double phi_j= pfitset_->getFrequencies() [stateMap_->getModelStates(aai)[0]];
-  double phi_i= pfitset_->getFrequencies() [stateMap_->getModelStates(aaj)[0]];
-
-  if (phi_i == phi_j) mu=1;
+  if (phi_i == phi_j || Ns_==0)
+    mu=1;
   else if (phi_i==0)
     mu=100;
   else if (phi_j==0)
     mu=0;
   else
-    mu = -(log(phi_i/phi_j)/(1-(phi_i/phi_j)));
+  {
+    if (Ns_==1)
+      mu = -(log(phi_i/phi_j)/(1-(phi_i/phi_j)));
+    else
+    {
+      double x=pow(phi_i/phi_j,Ns_);
+      mu = -log(x)/(1-x);
+    }
+  }
+  
   return mu;
 }
 

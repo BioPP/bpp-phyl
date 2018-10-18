@@ -83,16 +83,23 @@ class SubstitutionModelSetTools
      * @param model                The model to use.
      * @param rootFreqs            A FrequenciesSet object to parametrize root frequencies.
      * @param tree                 The tree to use for the construction of the set.
-     * @param aliasFreqNames             Aliases for the frequencies names
-     * @param globalParameterNames Common parameters for all branches.
+     * @param aliasFreqNames       Aliases for the frequencies names
+     * @param globalParameterNames map for shared parameters.
+     *                             Associated value is a vector of
+     *                             vectors of branch ids that share
+     *                             the parameter. If the vector is
+     *                             empty, the parameter is shared
+     *                             among all branches.
+     *
      * All other parameters will be considered distinct for all branches.
      */
-    static SubstitutionModelSet* createNonHomogeneousModelSet(
+
+  static SubstitutionModelSet* createNonHomogeneousModelSet(
         TransitionModel* model,
         FrequenciesSet* rootFreqs,
         const Tree* tree,
         const std::map<std::string, std::string>& aliasFreqNames,
-        const std::vector<std::string>& globalParameterNames
+        const std::map<std::string, std::vector<Vint> >& globalParameterNames
       );
       
 

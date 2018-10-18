@@ -1245,6 +1245,9 @@ SubstitutionModel* BppOSubstitutionModelFormat::readWord_(const Alphabet* alphab
 
         AbstractCodonAAFitnessSubstitutionModel* aca=new AbstractCodonAAFitnessSubstitutionModel(nestedFreq, geneticCode_, "");
 
+        if (args.find("Ns")!=args.end())
+          aca->addNsParameter();
+        
         vCSM.push_back(aca);
       }
       else if (modelName.find("Fit")!=string::npos)

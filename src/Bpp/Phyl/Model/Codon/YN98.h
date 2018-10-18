@@ -114,6 +114,11 @@ namespace bpp
 
     const FrequenciesSet* getFrequenciesSet() const { return pmodel_->getFrequenciesSet();}
 
+    void setFreq(std::map<int, double>& frequencies) 
+    {
+      pmodel_->setFreq(frequencies);
+    }
+
   protected:
     SubstitutionModel& getSubstitutionModel() { return *pmodel_.get(); }
 

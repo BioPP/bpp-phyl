@@ -136,6 +136,12 @@ namespace bpp
       return name_;
     }
 
+    void setNamespace(const std::string& prefix){
+      AbstractParameterAliasable::setNamespace(prefix);
+      for (auto& model : vModel_)
+        model->setNamespace(prefix);
+    }
+
     size_t  getNumberOfModels() const
     {
       return vModel_.size();
@@ -147,6 +153,8 @@ namespace bpp
     }
     
     double getCodonsMulRate(size_t i, size_t j) const;
+
+    void setFreq(std::map<int,double>& frequencies);
 
     const FrequenciesSet* getFrequenciesSet() const
     {
