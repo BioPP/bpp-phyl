@@ -391,6 +391,21 @@ public:
   void addModel(TransitionModel* model, const std::vector<int>& nodesId);//, const std::vector<std::string>& newParams);
 
   /**
+   * @brief Sets an assignment of a given modle index to a given onde id
+   *
+   * @param modelIndex The index of the model in the set.
+   * @param model      The node ID
+   *
+   * @throw Exception if the modle index doesn't correspond to an existing modle in the modelSet
+   */
+  void setNodeToModel(size_t modelIndex, int nodeId); // Keren: added on my own to allow alternation of nodes assignemnts to existing nodes
+  
+  /**
+   * @brief Reset model indices to node ids assignment
+   */
+  void resetModelToNodeIds();  // Keren: added on my own to allow alternation of nodes assignemnts to existing nodes
+
+  /**
    * @brief Replace a model in the set, and all corresponding
    * parameters. The replaced model deleted.
    *
@@ -399,7 +414,6 @@ public:
    *
    * @throw Exception if a parameter becomes orphan because of the removal.
    */
-
   void replaceModel(size_t modelIndex, TransitionModel* model);
 
   void listModelNames(std::ostream& out = std::cout) const;
