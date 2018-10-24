@@ -47,9 +47,12 @@
 #include <Bpp/NewPhyl/Parametrizable.h>
 #include <Bpp/NewPhyl/Likelihood.h>
 #include <Bpp/Phyl/Model/Nucleotide/T92.h>
+#include <Bpp/Phyl/Model/FrequenciesSet/NucleotideFrequenciesSet.h>
 #include <Bpp/Seq/Alphabet/AlphabetTools.h>
 
 static bool enableDotOutput = false;
+
+using namespace std;
 
 static void dotOutput(const std::string& testName, const std::vector<const bpp::dataflow::Node*>& nodes)
 {
@@ -70,32 +73,52 @@ TEST_CASE("model")
   // Bpp model
   const bpp::NucleicAlphabet& alphabet = bpp::AlphabetTools::DNA_ALPHABET;
   auto model = std::unique_ptr<bpp::TransitionModel>(new bpp::T92(&alphabet, 3.));
+  auto rootfreq = std::unique_ptr<bpp::FrequenciesSet>(new bpp::GCFrequenciesSet(&alphabet, 0.1));
 
   Context c;
 
   // Create set of raw parameters for the model
   auto modelParameterNodes = createParameterMap(c, *model);
-  auto kappa = modelParameterNodes["kappa"];
+  auto kappa = modelParameterNodes["T92.kappa"];
+  auto thetaM = modelParameterNodes["T92.theta"];
+
+  // Create set of raw parameters for the root freq
+  auto rootfreqParameterNodes = createParameterMap(c, *rootfreq);
+  auto thetaR = rootfreqParameterNodes["GC.theta"];
 
   // Create model node
   auto modelNodeDeps = createDependencyVector(
     *model, [&modelParameterNodes](const std::string& name) { return modelParameterNodes[name]; });
   auto modelNode = ConfiguredModel::create(c, std::move(modelNodeDeps), std::move(model));
 
+  // Create rootfreq node
+  auto rootfreqNodeDeps = createDependencyVector(
+    *rootfreq, [&rootfreqParameterNodes](const std::string& name) { return rootfreqParameterNodes[name]; });
+  
+  auto rootfreqNode = ConfiguredFrequenciesSet::create(c, std::move(rootfreqNodeDeps), std::move(rootfreq));
+
   // Create nodes generating numeric values from model.
   auto ef = EquilibriumFrequenciesFromModel::create(c, {modelNode}, bpp::rowVectorDimension(alphabet.getSize()));
+
+  auto fs = FrequenciesFromFrequenciesSet::create(c, {rootfreqNode}, bpp::rowVectorDimension(alphabet.getSize()));
 
   // Setup numerical derivation
   auto delta = NumericMutable<double>::create(c, 0.001);
   modelNode->config.delta = delta;
   modelNode->config.type = NumericalDerivativeType::ThreePoints;
+  rootfreqNode->config.delta = delta;
+  rootfreqNode->config.type = NumericalDerivativeType::ThreePoints;
 
+  auto def_dthetaM = ef->deriveAsValue(c, *thetaM);
   auto def_dkappa = ef->deriveAsValue(c, *kappa);
+  
+  auto def_dthetaR = fs->deriveAsValue(c, *thetaR);
 
   // T92 : equilibrium frequencies do not depend on kappa
   CHECK (def_dkappa->getValue().isZero());
 
-  dotOutput("model", {ef.get(), def_dkappa.get()});
+  dotOutput("model", {ef.get(), def_dkappa.get(), def_dthetaM.get()});
+  dotOutput("root", {fs.get(), def_dthetaR.get()});
 }
 
 int main(int argc, char** argv)
@@ -110,5 +133,7 @@ int main(int argc, char** argv)
   }
   doctest::Context context;
   context.applyCommandLine(argc, argv);
-  return context.run();
+  context.run();
+  return 1;
+  
 }

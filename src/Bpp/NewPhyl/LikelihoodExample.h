@@ -50,6 +50,7 @@
 
 #include "Bpp/NewPhyl/Likelihood.h"
 #include "Bpp/Phyl/Model/SubstitutionModel.h"
+#include "Bpp/Phyl/Model/FrequenciesSet/FrequenciesSet.h"
 #include "Bpp/Phyl/Tree/PhyloTree.h"
 
 #include <unordered_map>
@@ -79,6 +80,7 @@ namespace bpp {
     dataflow::Context & c;
     SimpleLikelihoodNodes & r;
     std::shared_ptr<dataflow::ConfiguredModel> model;
+    std::shared_ptr<dataflow::ConfiguredFrequenciesSet> rootFreqs;
     const PhyloTree & tree;
     const VectorSiteContainer & sites;
     MatrixDimension likelihoodMatrixDim;
@@ -145,7 +147,8 @@ namespace bpp {
   
   inline SimpleLikelihoodNodes makeSimpleLikelihoodNodes (dataflow::Context & c, const PhyloTree & tree,
                                                           const VectorSiteContainer & sites,
-                                                          std::shared_ptr<dataflow::ConfiguredModel> model) {
+                                                          std::shared_ptr<dataflow::ConfiguredModel> model,
+                                                          std::shared_ptr<dataflow::ConfiguredFrequenciesSet> rootFreqs = 0) {
     const auto nbState = model->getValue()->getNumberOfStates (); // Number of stored state values !
     const auto nbSite = sites.getNumberOfSites ();
     const auto likelihoodMatrixDim = conditionalLikelihoodDimension (nbState, nbSite);
@@ -157,14 +160,18 @@ namespace bpp {
     }
 
     // Recursively generate dataflow graph for conditional likelihood using helper struct.
-    SimpleLikelihoodNodesHelper helper{c, r, model, tree, sites, likelihoodMatrixDim, nbState, nbSite};
+    SimpleLikelihoodNodesHelper helper{c, r, model, rootFreqs, tree, sites, likelihoodMatrixDim, nbState, nbSite};
     auto rootConditionalLikelihoods = helper.makeConditionalLikelihoodNode (tree.getRootIndex ());
 
     // Combine them to equilibrium frequencies to get the log likelihood
-    auto equFreqs = dataflow::EquilibriumFrequenciesFromModel::create (
-      c, {model}, rowVectorDimension (Eigen::Index (nbState)));
+    auto rFreqs = rootFreqs?dataflow::FrequenciesFromFrequenciesSet::create (
+      c, {rootFreqs}, rowVectorDimension (Eigen::Index (nbState))):
+      dataflow::EquilibriumFrequenciesFromModel::create (
+        c, {model}, rowVectorDimension (Eigen::Index (nbState)));
+    
     auto siteLikelihoods = dataflow::LikelihoodFromRootConditional::create (
-      c, {equFreqs, rootConditionalLikelihoods}, rowVectorDimension (Eigen::Index (nbSite)));
+      c, {rFreqs, rootConditionalLikelihoods}, rowVectorDimension (Eigen::Index (nbSite)));
+    
     auto totalLogLikelihood =
       dataflow::TotalLogLikelihood::create (c, {siteLikelihoods}, rowVectorDimension (Eigen::Index (nbSite)));
 

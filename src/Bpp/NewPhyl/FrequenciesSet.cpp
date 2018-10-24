@@ -47,6 +47,38 @@ namespace bpp {
   namespace dataflow {
     // FrequenciesSet node
 
+    /* Helper function for generating numerical derivatives of frequencies set computation nodes.
+     * Assuming we have a v = f(freqset, stuff) node, with v of type T.
+     * df/dn = sum_i df/dx_i * dx_i/dn + df/dstuff * dstuff/dn.
+     * This function returns a NodeRefVec containings the nodes: {df/dx_i * dx_i/dn} for i in order.
+     * buildFWithNewFreqSet(newFreqSet) should create the f(newFS, stuff) node.
+     */
+
+    template <typename T, typename B>
+    static NodeRefVec generateFrequenciesSetDerivativeSumDepsForFrequenciesSetComputations (
+      Context & c, ConfiguredFrequenciesSet & freqset, const Node & derivationNode, const Dimension<T> & targetDimension, B buildFWithNewFreqSet) {
+      NodeRefVec derivativeSumDeps;
+      for (std::size_t i = 0; i < freqset.nbDependencies (); ++i) {
+        // First compute dxi_dn. If this maps to a constant 0, do not compute df_dxi at all (costly).
+        auto dxi_dn = freqset.dependency (i)->derive (c, derivationNode);
+        if (!dxi_dn->hasNumericalProperty (NumericalProperty::ConstantZero)) {
+          auto buildFWithNewXi = [&c, i, &freqset, &buildFWithNewFreqSet](ValueRef<double> newDep) {
+            // The sub-graph that will be replicated with shifted inputs is: f(freqset(x_i), stuff)
+            NodeRefVec newFreqsetDeps = freqset.dependencies ();
+            newFreqsetDeps[i] = std::move (newDep);
+            auto newFreqset = freqset.recreate (c, std::move (newFreqsetDeps));
+            return buildFWithNewFreqSet (std::move (newFreqset));
+          };
+          auto df_dxi = generateNumericalDerivative<T, double> (
+            c, freqset.config, freqset.dependency (i), Dimension<double>{}, targetDimension, buildFWithNewXi);
+          derivativeSumDeps.emplace_back (CWiseMul<T, std::tuple<double, T>>::create (
+                                            c, {std::move (dxi_dn), std::move (df_dxi)}, targetDimension));
+        }
+      }
+      return derivativeSumDeps;
+    }
+
+
     std::shared_ptr<ConfiguredFrequenciesSet> ConfiguredFrequenciesSet::create (Context & c, NodeRefVec && deps,
                                                                                 std::unique_ptr<FrequenciesSet> && freqset) {
       if (!freqset) {
@@ -117,6 +149,54 @@ namespace bpp {
           freqset_->setParameterValue (freqset_->getParameterNameWithoutNamespace (p.getName ()), v);
         }
       }
+    }
+
+    // FrequenciesFromFrequenciesSet
+
+    ValueRef<Eigen::RowVectorXd>
+    FrequenciesFromFrequenciesSet::create (Context & c, NodeRefVec && deps,
+                                             const Dimension<Eigen::RowVectorXd> & dim) {
+      checkDependenciesNotNull (typeid (Self), deps);
+      checkDependencyVectorSize (typeid (Self), deps, 1);
+      checkNthDependencyIs<ConfiguredFrequenciesSet> (typeid (Self), deps, 0);
+      return cachedAs<Value<T>> (c, std::make_shared<Self> (std::move (deps), dim));
+    }
+
+    FrequenciesFromFrequenciesSet::FrequenciesFromFrequenciesSet (
+      NodeRefVec && deps, const Dimension<Eigen::RowVectorXd> & dim)
+      : Value<Eigen::RowVectorXd> (std::move (deps)), targetDimension_ (dim) {}
+
+    std::string FrequenciesFromFrequenciesSet::debugInfo () const {
+      using namespace numeric;
+      return debug (this->accessValueConst ()) + " targetDim=" + to_string (targetDimension_);
+    }
+
+    // FrequenciesFromFrequenciesSet additional arguments = ().
+    bool FrequenciesFromFrequenciesSet::compareAdditionalArguments (const Node & other) const {
+      return dynamic_cast<const Self *> (&other) != nullptr;
+    }
+
+    NodeRef FrequenciesFromFrequenciesSet::derive (Context & c, const Node & node) {
+      // d(equFreqs)/dn = sum_i d(equFreqs)/dx_i * dx_i/dn (x_i = freqset parameters)
+      auto freqSetDep = this->dependency (0);
+      auto & freqset = static_cast<ConfiguredFrequenciesSet &> (*freqSetDep);
+      auto buildFWithNewFreqSet = [this, &c](NodeRef && newFreqSet) {
+        return Self::create (c, {std::move (newFreqSet)}, targetDimension_);
+      };
+      NodeRefVec derivativeSumDeps = generateFrequenciesSetDerivativeSumDepsForFrequenciesSetComputations<T> (
+        c, freqset, node, targetDimension_, buildFWithNewFreqSet);
+      return CWiseAdd<T, ReductionOf<T>>::create (c, std::move (derivativeSumDeps), targetDimension_);
+    }
+
+    NodeRef FrequenciesFromFrequenciesSet::recreate (Context & c, NodeRefVec && deps) {
+      return Self::create (c, std::move (deps), targetDimension_);
+    }
+
+    void FrequenciesFromFrequenciesSet::compute () {
+      const auto * freqset = accessValueConstCast<const FrequenciesSet *> (*this->dependency (0));
+      const auto & freqsFromFS = freqset->getFrequencies ();
+      auto & r = this->accessValueMutable ();
+      r = Eigen::Map<const T> (freqsFromFS.data(), static_cast<Eigen::Index> (freqsFromFS.size ()));
     }
 
 

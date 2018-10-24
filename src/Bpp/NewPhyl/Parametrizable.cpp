@@ -54,7 +54,7 @@ namespace bpp {
       std::unordered_map<std::string, std::shared_ptr<NumericMutable<double>>> map;
       for (std::size_t i = 0; i < nbParameters; ++i) {
         const auto & param = parameters[i];
-        map.emplace (parametrizable.getParameterNameWithoutNamespace (param.getName ()),
+        map.emplace (param.getName (),
                      NumericMutable<double>::create (c, param.getValue ()));
       }
       return map;
@@ -67,12 +67,12 @@ namespace bpp {
       const auto nbParameters = parameters.size ();
       NodeRefVec deps (nbParameters);
       for (std::size_t i = 0; i < nbParameters; ++i) {
-        std::string nonNamespacedName =
-          parametrizable.getParameterNameWithoutNamespace (parameters[i].getName ());
-        auto dep = getParameter (nonNamespacedName);
+        // std::string nonNamespacedName =
+        //   parametrizable.getParameterNameWithoutNamespace (parameters[i].getName ());
+        auto dep = getParameter (parameters[i].getName ());
         if (!dep) {
           throw Exception ("createDependencyVector (Parametrizable): parameter not found: " +
-                           nonNamespacedName);
+                           parameters[i].getName ());
         }
         deps[i] = std::move (dep);
       }

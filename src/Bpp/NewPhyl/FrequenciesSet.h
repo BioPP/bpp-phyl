@@ -68,7 +68,7 @@ namespace bpp {
      * frequencies set for simplicity.
      */
     
-    class ConfiguredFrequenciesSet : public Value<const FrequenciesSet*>// ,ConfiguredParametrizable
+    class ConfiguredFrequenciesSet : public Value<const FrequenciesSet*>
     {
     public:
       using Self = ConfiguredFrequenciesSet;
@@ -105,6 +105,35 @@ namespace bpp {
 
       std::unique_ptr<FrequenciesSet> freqset_;
     };
+
+    /** Frequencies = f(FrequenciesSet).
+     * Frequencies: RowVector(nbState).
+     * model: ConfiguredFrequenciesSet.
+     *
+     * Node construction should be done with the create static method.
+     */
+
+    class FrequenciesFromFrequenciesSet : public Value<Eigen::RowVectorXd> {
+    public:
+      using Self = FrequenciesFromFrequenciesSet;
+      using T = Eigen::RowVectorXd;
+
+      static ValueRef<T> create (Context & c, NodeRefVec && deps, const Dimension<T> & dim);
+      FrequenciesFromFrequenciesSet (NodeRefVec && deps, const Dimension<T> & dim);
+
+      std::string debugInfo () const final;
+
+      bool compareAdditionalArguments (const Node & other) const final;
+
+      NodeRef derive (Context & c, const Node & node) final;
+      NodeRef recreate (Context & c, NodeRefVec && deps) final;
+
+    private:
+      void compute () final;
+
+      Dimension<T> targetDimension_;
+    };
+
 
   } // namespace dataflow
 } // namespace bpp
