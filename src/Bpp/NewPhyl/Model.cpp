@@ -81,7 +81,7 @@ namespace bpp {
             // The sub-graph that will be replicated with shifted inputs is: f(model(x_i), stuff)
             NodeRefVec newModelDeps = model.dependencies ();
             newModelDeps[i] = std::move (newDep);
-            auto newModel = model.ConfiguredParametrizable::recreate (c, std::move (newModelDeps));
+            auto newModel = model.recreate (c, std::move (newModelDeps));
             return buildFWithNewModel (std::move (newModel));
           };
           auto df_dxi = generateNumericalDerivative<T, double> (
@@ -110,7 +110,7 @@ namespace bpp {
     }
 
     ConfiguredModel::ConfiguredModel (NodeRefVec && deps, std::unique_ptr<TransitionModel> && model)
-      : ConfiguredParametrizable(std::move(deps), std::move(model)), model_ (dynamic_cast<const TransitionModel*>(getValue())) {}
+      : Value<const TransitionModel*> (std::move (deps), model.get ()), model_(std::move(model)) {}
 
     ConfiguredModel::~ConfiguredModel () = default;
 
@@ -120,11 +120,54 @@ namespace bpp {
       return "nbState=" + std::to_string (model_->getAlphabet ()->getSize ());
     }
 
+    const std::string & ConfiguredModel::getParameterName (std::size_t index) {
+      return model_->getParameters ()[index].getName ();
+    }
+    
+    std::size_t ConfiguredModel::getParameterIndex (const std::string & name) {
+      return static_cast<std::size_t> (model_->getParameters ().whichParameterHasName (name));
+    }
+
+    // Model node additional arguments = (type of bpp::TransitionModel).
+    // Everything else is determined by the node dependencies.
+    bool ConfiguredModel::compareAdditionalArguments (const Node & other) const {
+      const auto * derived = dynamic_cast<const Self *> (&other);
+      if (derived == nullptr) {
+        return false;
+      } else {
+        const auto & thisModel = *model_;
+        const auto & otherModel = *derived->model_;
+        return typeid (thisModel) == typeid (otherModel);
+      }
+    }
+    
+    std::size_t ConfiguredModel::hashAdditionalArguments () const {
+      const auto & bppModel = *model_;
+      return typeid (bppModel).hash_code ();
+    }
+
     NodeRef ConfiguredModel::recreate (Context & c, NodeRefVec && deps) {
       auto m = Self::create (c, std::move (deps), std::unique_ptr<TransitionModel>{model_->clone ()});
       m->config = this->config; // Duplicate derivation config
       return m;
     }
+
+
+    void ConfiguredModel::compute () {
+      // Update each internal model bpp::Parameter with the dependency
+      auto & parameters = model_->getParameters ();
+      const auto nbParameters = this->nbDependencies ();
+      for (std::size_t i = 0; i < nbParameters; ++i) {
+        auto & v = accessValueConstCast<double> (*this->dependency (i));
+        auto & p = parameters[i];
+        if (p.getValue () != v) {
+          // TODO improve bpp::Parametrizable interface to change values by index.
+          model_->setParameterValue (model_->getParameterNameWithoutNamespace (p.getName ()), v);
+        }
+      }
+    }
+
+
 
     // EquilibriumFrequenciesFromModel
 

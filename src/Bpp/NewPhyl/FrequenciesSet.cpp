@@ -61,8 +61,8 @@ namespace bpp {
     }
 
     ConfiguredFrequenciesSet::ConfiguredFrequenciesSet (NodeRefVec && deps, std::unique_ptr<FrequenciesSet> && freqset)
-      : ConfiguredParametrizable(std::move(deps), std::move(freqset)), freqset_ (dynamic_cast<const FrequenciesSet*>(getValue())) {}
-    
+      : Value<const FrequenciesSet*> (std::move (deps), freqset.get ()), freqset_(std::move(freqset)) {}
+
     ConfiguredFrequenciesSet::~ConfiguredFrequenciesSet () = default;
     
     std::string ConfiguredFrequenciesSet::description () const { return "FreqSet(" + freqset_->getName () + ")"; }
@@ -71,12 +71,55 @@ namespace bpp {
       return "nbState=" + std::to_string (freqset_->getAlphabet ()->getSize ());
     }
 
+    const std::string & ConfiguredFrequenciesSet::getParameterName (std::size_t index) {
+      return freqset_->getParameters ()[index].getName ();
+    }
+    
+    std::size_t ConfiguredFrequenciesSet::getParameterIndex (const std::string & name) {
+      return static_cast<std::size_t> (freqset_->getParameters ().whichParameterHasName (name));
+    }
+
+    // FrequenciesSet node additional arguments = (type of bpp::FrequenciesSet).
+    // Everything else is determined by the node dependencies.
+
+    bool ConfiguredFrequenciesSet::compareAdditionalArguments (const Node & other) const {
+      const auto * derived = dynamic_cast<const Self *> (&other);
+      if (derived == nullptr) {
+        return false;
+      } else {
+        const auto & thisFS = *freqset_;
+        const auto & otherFS = *derived->freqset_;
+        return typeid (thisFS) == typeid (otherFS);
+      }
+    }
+    
+    std::size_t ConfiguredFrequenciesSet::hashAdditionalArguments () const {
+      const auto & bppFS = *freqset_;
+      return typeid (bppFS).hash_code ();
+    }
+
 
     NodeRef ConfiguredFrequenciesSet::recreate (Context & c, NodeRefVec && deps) {
       auto m = Self::create (c, std::move (deps), std::unique_ptr<FrequenciesSet>{freqset_->clone ()});
       m->config = this->config; // Duplicate derivation config
       return m;
     }
+
+    void ConfiguredFrequenciesSet::compute () {
+      // Update each internal freqseq bpp::Parameter with the dependency
+      auto & parameters = freqset_->getParameters ();
+      const auto nbParameters = this->nbDependencies ();
+      for (std::size_t i = 0; i < nbParameters; ++i) {
+        auto & v = accessValueConstCast<double> (*this->dependency (i));
+        auto & p = parameters[i];
+        if (p.getValue () != v) {
+          // TODO improve bpp::Parametrizable interface to change values by index.
+          freqset_->setParameterValue (freqset_->getParameterNameWithoutNamespace (p.getName ()), v);
+        }
+      }
+    }
+
+
     
   } // namespace dataflow
 } // namespace bpp

@@ -41,9 +41,13 @@
 
 #pragma once
 #ifndef BPP_NEWPHYL_MODEL_H
-#define BPP_NEWPHYL_MODEL_H
+#define BPP_NEWPHYL_MODEL_H 
 
-#include <Bpp/NewPhyl/Parametrizable.h>
+#include <Bpp/NewPhyl/DataFlow.h>
+#include <Bpp/NewPhyl/DataFlowNumeric.h>
+#include <Bpp/Exceptions.h>
+#include <functional>
+#include <unordered_map>
 
 namespace bpp {
   /* Likelihood transition model.
@@ -62,7 +66,8 @@ namespace bpp {
      *
      * The dummy value is implemented as a pointer to the internal model for simplicity.
      */
-    class ConfiguredModel : public ConfiguredParametrizable
+    class ConfiguredModel : public Value<const TransitionModel*>// ,
+                            // public ConfiguredParametrizable
     {
     public:
       using Self = ConfiguredModel;
@@ -81,18 +86,25 @@ namespace bpp {
       std::string description () const final;
       std::string debugInfo () const final;
 
+      /// Return the index of parameter with the given non namespaced name (or throw).
+      std::size_t getParameterIndex (const std::string & name);
+      /// Return the non namespaced name for parameter at the given index.
+      const std::string & getParameterName (std::size_t index);
+
+      bool compareAdditionalArguments (const Node & other) const;
+      
+      std::size_t hashAdditionalArguments () const;
+      
       /// Configuration for numerical derivation of computation nodes using this Model.
       NumericalDerivativeConfiguration config;
 
       NodeRef recreate (Context & c, NodeRefVec && deps) final;
-
-      const TransitionModel& getModel() const
-      {
-        return *model_;
-      }
       
     private:
-      const TransitionModel* model_;
+      void compute ();
+
+      std::unique_ptr<TransitionModel> model_;
+      
     };
 
     /** equilibriumFrequencies = f(model).

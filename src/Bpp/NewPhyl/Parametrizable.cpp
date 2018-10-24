@@ -80,69 +80,61 @@ namespace bpp {
     }
 
     
-    std::shared_ptr<ConfiguredParametrizable> ConfiguredParametrizable::create (Context & c, NodeRefVec && deps,
-                                                                                std::unique_ptr<Parametrizable> && parametrizable) {
-      if (!parametrizable) {
-        throw Exception ("ConfiguredParametrizable(): nullptr parametrizable");
-      }
-      // Check dependencies
-      const auto nbParameters = parametrizable->getParameters ().size ();
-      checkDependenciesNotNull (typeid (Self), deps);
-      checkDependencyVectorSize (typeid (Self), deps, nbParameters);
-      checkDependencyRangeIsValue<double> (typeid (Self), deps, 0, nbParameters);
-      return cachedAs<Self> (c, std::make_shared<Self> (std::move (deps), std::move (parametrizable)));
-    }
+    // std::shared_ptr<ConfiguredParametrizable> ConfiguredParametrizable::create (Context & c, NodeRefVec && deps,
+    //                                                                             std::unique_ptr<Parametrizable> && parametrizable) {
+    //   if (!parametrizable) {
+    //     throw Exception ("ConfiguredParametrizable(): nullptr parametrizable");
+    //   }
+    //   // Check dependencies
+    //   const auto nbParameters = parametrizable->getParameters ().size ();
+    //   checkDependenciesNotNull (typeid (Self), deps);
+    //   checkDependencyVectorSize (typeid (Self), deps, nbParameters);
+    //   checkDependencyRangeIsValue<double> (typeid (Self), deps, 0, nbParameters);
+    //   return cachedAs<Self> (c, std::make_shared<Self> (std::move (deps), std::move (parametrizable)));
+    // }
 
-    ConfiguredParametrizable::ConfiguredParametrizable (NodeRefVec && deps, std::unique_ptr<Parametrizable>&& parametrizable)
-      : Value<const Parametrizable*> (std::move (deps), parametrizable.get ()), parametrizable_ (std::move(parametrizable)) {}
+    // ConfiguredParametrizable::ConfiguredParametrizable (NodeRefVec && deps, std::unique_ptr<Parametrizable>&& parametrizable)
+    //   : Value<const Parametrizable*> (std::move (deps), parametrizable.get ()), parametrizable_ (std::move(parametrizable)) {}
 
-    ConfiguredParametrizable::~ConfiguredParametrizable () = default;
+    // ConfiguredParametrizable::~ConfiguredParametrizable () = default;
 
-    const std::string & ConfiguredParametrizable::getParameterName (std::size_t index) {
-      return parametrizable_->getParameters ()[index].getName ();
-    }
+    // // Model node additional arguments = (type of bpp::TransitionModel).
+    // // Everything else is determined by the node dependencies.
+    // bool ConfiguredParametrizable::compareAdditionalArguments (const Node & other) const {
+    //   const auto * derived = dynamic_cast<const Self *> (&other);
+    //   if (derived == nullptr) {
+    //     return false;
+    //   } else {
+    //     const auto & thisParam = *parametrizable_;
+    //     const auto & otherParam = *derived->parametrizable_;
+    //     return typeid (thisParam) == typeid (otherParam);
+    //   }
+    // }
     
-    std::size_t ConfiguredParametrizable::getParameterIndex (const std::string & name) {
-      return static_cast<std::size_t> (parametrizable_->getParameters ().whichParameterHasName (name));
-    }
+    // std::size_t ConfiguredParametrizable::hashAdditionalArguments () const {
+    //   const auto & bppParam = *parametrizable_;
+    //   return typeid (bppParam).hash_code ();
+    // }
 
-    // Model node additional arguments = (type of bpp::TransitionModel).
-    // Everything else is determined by the node dependencies.
-    bool ConfiguredParametrizable::compareAdditionalArguments (const Node & other) const {
-      const auto * derived = dynamic_cast<const Self *> (&other);
-      if (derived == nullptr) {
-        return false;
-      } else {
-        const auto & thisParam = *parametrizable_;
-        const auto & otherParam = *derived->parametrizable_;
-        return typeid (thisParam) == typeid (otherParam);
-      }
-    }
-    
-    std::size_t ConfiguredParametrizable::hashAdditionalArguments () const {
-      const auto & bppParam = *parametrizable_;
-      return typeid (bppParam).hash_code ();
-    }
+    // NodeRef ConfiguredParametrizable::recreate (Context & c, NodeRefVec && deps) {
+    //   auto m = Self::create (c, std::move (deps), std::unique_ptr<Parametrizable>{parametrizable_->clone ()});
+    //   m->config = this->config; // Duplicate derivation config
+    //   return m;
+    // }
 
-    NodeRef ConfiguredParametrizable::recreate (Context & c, NodeRefVec && deps) {
-      auto m = Self::create (c, std::move (deps), std::unique_ptr<Parametrizable>{parametrizable_->clone ()});
-      m->config = this->config; // Duplicate derivation config
-      return m;
-    }
-
-    void ConfiguredParametrizable::compute () {
-      // Update each internal model bpp::Parameter with the dependency
-      auto & parameters = parametrizable_->getParameters ();
-      const auto nbParameters = this->nbDependencies ();
-      for (std::size_t i = 0; i < nbParameters; ++i) {
-        auto & v = accessValueConstCast<double> (*this->dependency (i));
-        auto & p = parameters[i];
-        if (p.getValue () != v) {
-          // TODO improve bpp::Parametrizable interface to change values by index.
-          parametrizable_->setParameterValue (parametrizable_->getParameterNameWithoutNamespace (p.getName ()), v);
-        }
-      }
-    }
+    // void ConfiguredParametrizable::compute () {
+    //   // Update each internal model bpp::Parameter with the dependency
+    //   auto & parameters = parametrizable_->getParameters ();
+    //   const auto nbParameters = this->nbDependencies ();
+    //   for (std::size_t i = 0; i < nbParameters; ++i) {
+    //     auto & v = accessValueConstCast<double> (*this->dependency (i));
+    //     auto & p = parameters[i];
+    //     if (p.getValue () != v) {
+    //       // TODO improve bpp::Parametrizable interface to change values by index.
+    //       parametrizable_->setParameterValue (parametrizable_->getParameterNameWithoutNamespace (p.getName ()), v);
+    //     }
+    //   }
+    // }
 
   } // namespace dataflow
 } // namespace bpp

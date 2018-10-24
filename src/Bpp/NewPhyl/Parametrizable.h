@@ -73,42 +73,42 @@ namespace bpp {
     NodeRefVec createDependencyVector (const Parametrizable & parametrizable,
                                        const std::function<NodeRef (const std::string &)> & getParameter);
 
-    class ConfiguredParametrizable : public Value<const Parametrizable*>
-    {
-    public:
-      using Self = ConfiguredParametrizable;
+    // class ConfiguredParametrizable : 
+    // {
+    // public:
+    //   using Self = ConfiguredParametrizable;
 
-      /** Create a new model node from a dependency vector.
-       * Model parameters are given by a dependency vector of Value<double> nodes.
-       * The number and order of parameters is given by the TransitionModel internal ParameterList.
-       */
+    //   /** Create a new model node from a dependency vector.
+    //    * Model parameters are given by a dependency vector of Value<double> nodes.
+    //    * The number and order of parameters is given by the TransitionModel internal ParameterList.
+    //    */
       
-      static std::shared_ptr<ConfiguredParametrizable> create (Context & c, NodeRefVec && deps,
-                                                               std::unique_ptr<Parametrizable> && parametrizable);
+    //   static std::shared_ptr<ConfiguredParametrizable> create (Context & c, NodeRefVec && deps,
+    //                                                            std::unique_ptr<Parametrizable> && parametrizable);
 
-      ConfiguredParametrizable (NodeRefVec && deps, std::unique_ptr<Parametrizable> && );
+    //   ConfiguredParametrizable (NodeRefVec && deps, std::unique_ptr<Parametrizable> && );
       
-      ~ConfiguredParametrizable ();
+    //   ~ConfiguredParametrizable ();
 
-      /// Return the index of parameter with the given non namespaced name (or throw).
-      std::size_t getParameterIndex (const std::string & name);
-      /// Return the non namespaced name for parameter at the given index.
-      const std::string & getParameterName (std::size_t index);
+    //   /// Return the index of parameter with the given non namespaced name (or throw).
+    //   std::size_t getParameterIndex (const std::string & name);
+    //   /// Return the non namespaced name for parameter at the given index.
+    //   const std::string & getParameterName (std::size_t index);
 
-      bool compareAdditionalArguments (const Node & other) const;
+    //   bool compareAdditionalArguments (const Node & other) const;
       
-      std::size_t hashAdditionalArguments () const;
+    //   std::size_t hashAdditionalArguments () const;
       
-      /// Configuration for numerical derivation of computation nodes using this FrequenciesSet.
-      NumericalDerivativeConfiguration config;
+    //   /// Configuration for numerical derivation of computation nodes using this FrequenciesSet.
+    //   NumericalDerivativeConfiguration config;
 
-      NodeRef recreate (Context & c, NodeRefVec && deps);
+    //   NodeRef recreate (Context & c, NodeRefVec && deps);
 
-    private:
-      void compute ();
+    // private:
+    //   void compute ();
 
-      std::unique_ptr<Parametrizable> parametrizable_;
-    };
+    //   std::unique_ptr<Parametrizable> parametrizable_;
+    // };
 
   } // namespace dataflow
 } // namespace bpp

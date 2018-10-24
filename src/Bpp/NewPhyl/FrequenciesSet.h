@@ -42,7 +42,11 @@
 #ifndef BPP_NEWPHYL_FREQUENCIES_SET_H
 #define BPP_NEWPHYL_FREQUENCIES_SET_H
 
-#include <Bpp/NewPhyl/Parametrizable.h>
+#include <Bpp/NewPhyl/DataFlow.h>
+#include <Bpp/NewPhyl/DataFlowNumeric.h>
+#include <Bpp/Exceptions.h>
+#include <functional>
+#include <unordered_map>
 
 namespace bpp {
 
@@ -64,14 +68,14 @@ namespace bpp {
      * frequencies set for simplicity.
      */
     
-    class ConfiguredFrequenciesSet : public ConfiguredParametrizable
+    class ConfiguredFrequenciesSet : public Value<const FrequenciesSet*>// ,ConfiguredParametrizable
     {
     public:
       using Self = ConfiguredFrequenciesSet;
 
       /** Create a new model node from a dependency vector.
        * Model parameters are given by a dependency vector of Value<double> nodes.
-       * The number and order of parameters is given by the TransitionModel internal ParameterList.
+       * The number and order of parameters is given by the FrequenciesSet internal ParameterList.
        */
       static std::shared_ptr<ConfiguredFrequenciesSet> create (Context & c, NodeRefVec && deps,
                                                                std::unique_ptr<FrequenciesSet> && freqset);
@@ -82,18 +86,24 @@ namespace bpp {
       std::string description () const final;
       std::string debugInfo () const final;
 
+      /// Return the index of parameter with the given non namespaced name (or throw).
+      std::size_t getParameterIndex (const std::string & name);
+      /// Return the non namespaced name for parameter at the given index.
+      const std::string & getParameterName (std::size_t index);
+
+      bool compareAdditionalArguments (const Node & other) const;
+      
+      std::size_t hashAdditionalArguments () const;
+      
       /// Configuration for numerical derivation of computation nodes using this FrequenciesSet.
       NumericalDerivativeConfiguration config;
 
       NodeRef recreate (Context & c, NodeRefVec && deps) final;
 
-      const FrequenciesSet& getFrequenciesSet() const
-      {
-        return *freqset_;
-      }
-      
     private:
-      const FrequenciesSet* freqset_;
+      void compute ();
+
+      std::unique_ptr<FrequenciesSet> freqset_;
     };
 
   } // namespace dataflow

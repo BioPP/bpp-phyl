@@ -73,8 +73,9 @@
 #endif
 // DF
 #ifdef ENABLE_DF
-#include <Bpp/NewPhyl/Parametrizable.h>
+#include <Bpp/NewPhyl/FrequenciesSet.h>
 #include <Bpp/NewPhyl/Model.h>
+#include <Bpp/NewPhyl/Parametrizable.h>
 #include <Bpp/NewPhyl/Likelihood.h>
 #include <Bpp/NewPhyl/DataFlow.h>
 #include <Bpp/NewPhyl/LikelihoodExample.h>
