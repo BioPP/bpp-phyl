@@ -1,9 +1,6 @@
 //
-// File: LikelihoodExample.h
-// Authors:
-//   Francois Gindraud (2017)
-// Created: 2017-05-12
-// Last modified: 2018-03-10
+// File: DataFlowWrappers.h
+// Authors: François Gindraud (2017)
 //
 
 /*
@@ -39,147 +36,22 @@
   knowledge of the CeCILL license and that you accept its terms.
 */
 
-#ifndef BPP_NEWPHYL_LIKELIHOODEXAMPLE_H
-#define BPP_NEWPHYL_LIKELIHOODEXAMPLE_H
+#ifndef BPP_NEWPHYL_DATA_FLOW_WRAPPERS_H
+#define BPP_NEWPHYL_DATA_FLOW_WRAPPERS_H
 
 #include <Bpp/Exceptions.h>
 #include <Bpp/Numeric/Function/Functions.h>
 #include <Bpp/Numeric/Parameter.h>
 #include <Bpp/Numeric/ParameterList.h>
-#include <Bpp/Seq/Container/VectorSiteContainer.h>
-
-#include "Bpp/NewPhyl/Likelihood.h"
-#include "Bpp/Phyl/Model/SubstitutionModel.h"
-#include "Bpp/Phyl/Model/FrequenciesSet/FrequenciesSet.h"
-#include "Bpp/Phyl/Tree/PhyloTree.h"
 
 #include <unordered_map>
 
-/* This file contains temporary helpers and wrappers.
+/* This file contains wrappers.
  * They are used to bridge the gap between bpp::dataflow stuff and the rest of bpp.
- * They have only been used (and thus tested) for a single likelihood example.
- * They do not deal with all of bpp features, which is why they are only temporary.
  *
- * Ultimately, stuff in this file should be changed to a new system to describe phylogenic computations, which
- * would generate dataflow graphs to do the actual computations.
  */
+
 namespace bpp {
-  // Store interesting nodes of the likelihood example
-  struct SimpleLikelihoodNodes {
-    dataflow::ValueRef<double> totalLogLikelihood;
-
-    std::unordered_map<PhyloTree::EdgeIndex, std::shared_ptr<dataflow::NumericMutable<double>>>
-      branchLengthValues;
-  };
-
-  // Recursion helper class.
-  // This stores state used by the two mutually recursive functions used to generate cond lik nodes.
-  // The struct is similar to how a lambda is done internally, and allow the function definitions to be short.
-  // The pure function equivalent has seven arguments, which is horrible.
-  struct SimpleLikelihoodNodesHelper {
-    dataflow::Context & c;
-    SimpleLikelihoodNodes & r;
-    std::shared_ptr<dataflow::ConfiguredModel> model;
-    std::shared_ptr<dataflow::ConfiguredFrequenciesSet> rootFreqs;
-    const PhyloTree & tree;
-    const VectorSiteContainer & sites;
-    MatrixDimension likelihoodMatrixDim;
-    std::size_t nbState;
-    std::size_t nbSite;
-
-    dataflow::NodeRef makeInitialConditionalLikelihood (const std::string & sequenceName) {
-      /* FIXME Generate the matrix of {0,1} for each (state, site).
-       * I am not sure what is the current interface class to use in the bpp_seq stuff.
-       * Thus I selected VectorSiteContainer which is an implementation class.
-       * This is certainly not the most permissive interface.
-       * In addition, I iterate on raw states, but newlik code seems to use StateMap conversion.
-       * I do not handle any of that in this example !
-       * It should also be checked that edge models have the same state space, etc...
-       */
-      const auto sequenceIndex = sites.getSequencePosition (sequenceName);
-      Eigen::MatrixXd initCondLik (nbState, nbSite);
-      for (std::size_t site = 0; site < nbSite; ++site) {
-        for (std::size_t state = 0; state < nbState; ++state) {
-          initCondLik (Eigen::Index (state), Eigen::Index (site)) =
-            sites.getStateValueAt (site, sequenceIndex, int(state));
-        }
-      }
-      return dataflow::NumericConstant<Eigen::MatrixXd>::create (c, std::move (initCondLik));
-    }
-
-    dataflow::NodeRef makeForwardLikelihoodNode (PhyloTree::EdgeIndex index) {
-      const auto initBrlen = tree.getEdge (index)->getLength ();
-      auto brlen = dataflow::NumericMutable<double>::create (c, initBrlen);
-      r.branchLengthValues.emplace (index, brlen);
-
-      auto childConditionalLikelihood = makeConditionalLikelihoodNode (tree.getSon (index));
-      auto transitionMatrix =
-        dataflow::TransitionMatrixFromModel::create (c, {model, brlen}, transitionMatrixDimension (nbState));
-      return dataflow::ForwardLikelihoodFromConditional::create (
-        c, {transitionMatrix, childConditionalLikelihood}, likelihoodMatrixDim);
-    }
-
-    dataflow::NodeRef makeConditionalLikelihoodNode (PhyloTree::NodeIndex index) {
-      const auto childBranchIndexes = tree.getBranches (index);
-      if (childBranchIndexes.empty ()) {
-        return makeInitialConditionalLikelihood (tree.getNode (index)->getName ());
-      } else {
-        dataflow::NodeRefVec deps (childBranchIndexes.size ());
-        for (std::size_t i = 0; i < childBranchIndexes.size (); ++i) {
-          deps[i] = makeForwardLikelihoodNode (childBranchIndexes[i]);
-        }
-        return dataflow::ConditionalLikelihoodFromChildrenForward::create (c, std::move (deps),
-                                                                           likelihoodMatrixDim);
-      }
-    }
-  };
-
-  /* Build a likelihood computation dataflow graph for a simple example.
-   *
-   * The same model is used everywhere for simplicity.
-   * In a real case, something like a map<EdgeIndex, shared_ptr<Model>> would give the model for each branch.
-   *
-   * In this example, a new leaf NumericMutable is generated for each branch length.
-   * The set of parameters (branch lengths) is returned in the branchLengthValues map.
-   * In a real case, something like a map<EdgeIndex, ValueRef<double>> would provide branch lengths.
-   * The branch length values can be provided by any computation, or as a leaf NumericMutable node.
-   */
-  
-  inline SimpleLikelihoodNodes makeSimpleLikelihoodNodes (dataflow::Context & c, const PhyloTree & tree,
-                                                          const VectorSiteContainer & sites,
-                                                          std::shared_ptr<dataflow::ConfiguredModel> model,
-                                                          std::shared_ptr<dataflow::ConfiguredFrequenciesSet> rootFreqs = 0) {
-    const auto nbState = model->getValue()->getNumberOfStates (); // Number of stored state values !
-    const auto nbSite = sites.getNumberOfSites ();
-    const auto likelihoodMatrixDim = conditionalLikelihoodDimension (nbState, nbSite);
-    SimpleLikelihoodNodes r;
-
-    // Build conditional likelihoods up to root recursively.
-    if (!tree.isRooted ()) {
-      throw Exception ("PhyloTree must be rooted");
-    }
-
-    // Recursively generate dataflow graph for conditional likelihood using helper struct.
-    SimpleLikelihoodNodesHelper helper{c, r, model, rootFreqs, tree, sites, likelihoodMatrixDim, nbState, nbSite};
-    auto rootConditionalLikelihoods = helper.makeConditionalLikelihoodNode (tree.getRootIndex ());
-
-    // Combine them to equilibrium frequencies to get the log likelihood
-    auto rFreqs = rootFreqs?dataflow::FrequenciesFromFrequenciesSet::create (
-      c, {rootFreqs}, rowVectorDimension (Eigen::Index (nbState))):
-      dataflow::EquilibriumFrequenciesFromModel::create (
-        c, {model}, rowVectorDimension (Eigen::Index (nbState)));
-    
-    auto siteLikelihoods = dataflow::LikelihoodFromRootConditional::create (
-      c, {rFreqs, rootConditionalLikelihoods}, rowVectorDimension (Eigen::Index (nbSite)));
-    
-    auto totalLogLikelihood =
-      dataflow::TotalLogLikelihood::create (c, {siteLikelihoods}, rowVectorDimension (Eigen::Index (nbSite)));
-
-    // We want -log(likelihood)
-    r.totalLogLikelihood =
-      dataflow::CWiseNegate<double>::create (c, {totalLogLikelihood}, Dimension<double> ());
-    return r;
-  }
 
   /* Wraps a dataflow::NumericMutable<double> as a bpp::Parameter.
    * 2 values exist: the one in the node, and the one in bpp::Parameter.
@@ -188,14 +60,23 @@ namespace bpp {
    * FIXME This is a temporary system:
    * - It ignores all the Parameter listener system.
    * - Synchronization between the 2 values is a best effort.
-   * - bpp::Parameter should be improved with respect to semantics, because it currently is a mess of multiple
-   * systems with sharing, some shared_ptr stuff, etc...
+   * - bpp::Parameter should be improved with respect to semantics,
+   * because it currently is a mess of multiple systems with sharing,
+   * some shared_ptr stuff, etc...
    */
+
   class DataFlowParameter : public Parameter {
   public:
     DataFlowParameter (const std::string & name,
                        std::shared_ptr<dataflow::NumericMutable<double>> existingNode)
       : Parameter (name, existingNode->getValue ()), node_ (std::move (existingNode)) {}
+
+    DataFlowParameter (const bpp::Parameter& param,
+                       std::shared_ptr<dataflow::NumericMutable<double>> existingNode)
+      : Parameter (param), node_ (std::move (existingNode))
+    {
+      setValue(node_->getValue());
+    }
 
     // Parameter boilerplate
     DataFlowParameter * clone () const override { return new DataFlowParameter (*this); }
@@ -215,15 +96,20 @@ namespace bpp {
 
   /* Wraps a dataflow graph as a function: resultNode = f(variableNodes).
    *
-   * FIXME This temporary interface to bpp::DerivableSecondOrder stuff should be improved.
+   * FIXME This temporary interface to bpp::DerivableSecondOrder stuff
+   * should be improved.
    *
-   * Any bpp::Parameter can be given in the bpp::ParameterList, but only DataFlowParameter are supported
-   * because we need to have dataflow nodes.
-   * No specific check is done, in case of error it will be a std::bad_cast from dynamic_cast.
+   * Any bpp::Parameter can be given in the bpp::ParameterList, but
+   * only DataFlowParameter are supported because we need to have
+   * dataflow nodes.
+   * No specific check is done, in case of error it will be a
+   * std::bad_cast from dynamic_cast.
    *
-   * In addition, as we need a context for derivation but the bpp legacy API does not support it, a reference
-   * is stored in the class which is dangerous with respect to lifetime.
+   * In addition, as we need a context for derivation but the bpp
+   * legacy API does not support it, a reference is stored in the
+   * class which is dangerous with respect to lifetime.
    */
+  
   class DataFlowFunction : public DerivableSecondOrder {
   private:
     dataflow::Context & context_;
@@ -339,4 +225,4 @@ namespace bpp {
   };
 } // namespace bpp
 
-#endif // BPP_NEWPHYL_LIKELIHOODEXAMPLE_H
+#endif // BPP_NEWPHYL_HOMOGENEOUS_LIKELIHOOD_EXAMPLE_H

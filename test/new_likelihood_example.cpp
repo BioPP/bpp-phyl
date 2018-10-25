@@ -43,7 +43,7 @@
 #include "doctest.h"
 
 //#define ENABLE_OLD
-#define ENABLE_NEW
+//#define ENABLE_NEW
 #define ENABLE_DF
 
 // Common stuff
@@ -78,12 +78,13 @@
 #include <Bpp/NewPhyl/Parametrizable.h>
 #include <Bpp/NewPhyl/Likelihood.h>
 #include <Bpp/NewPhyl/DataFlow.h>
-#include <Bpp/NewPhyl/LikelihoodExample.h>
+#include <Bpp/NewPhyl/HomogeneousLikelihoodExample.h>
 #include <Bpp/Phyl/Io/Newick.h>
 #include <Bpp/Phyl/NewLikelihood/PhyloLikelihoods/SingleProcessPhyloLikelihood.h>
 #endif
 
 static bool enableDotOutput = false;
+using namespace std;
 
 static void dotOutput(const std::string& testName, const std::vector<const bpp::dataflow::Node*>& nodes)
 {
@@ -124,6 +125,7 @@ namespace
                                        const bpp::ParameterList& p1,
                                        const bpp::ParameterList& p2)
   {
+
     llh.matchParametersValues(p1);
     printLik(llh.getValue(), timePrefix);
     llh.matchParametersValues(p2);
@@ -139,7 +141,7 @@ namespace
 
   void optimize_for_params(bpp::DerivableSecondOrder& llh,
                            const std::string& prefix,
-                           const bpp::ParameterList& branchParams)
+                           const bpp::ParameterList& params)
   {
     auto ts = timingStart();
     bpp::ConjugateGradientMultiDimensions optimizer(&llh);
@@ -150,7 +152,7 @@ namespace
     optimizer.setMaximumNumberOfEvaluations(100);
     optimizer.getStopCondition()->setTolerance(0.000001);
     optimizer.setConstraintPolicy(bpp::AutoParameter::CONSTRAINTS_AUTO);
-    optimizer.init(branchParams);
+    optimizer.init(params);
     optimizer.optimize();
     timingEnd(ts, prefix);
     printLik(llh.getValue(), prefix);
@@ -244,9 +246,9 @@ TEST_CASE("new")
   printLik(logLik, "new_init_value");
 
   std::cout << "[dbrlen1] " << llh.getFirstOrderDerivative("BrLen1") << "\n";
-  do_param_changes_multiple_times(llh, "new_param_model_change", c.paramModel1, c.paramModel2);
-  do_param_changes_multiple_times(llh, "new_param_root_change", c.paramRoot1, c.paramRoot2);
-  do_param_changes_multiple_times(llh, "new_param_brlen_change", c.paramBrLen1, c.paramBrLen2);
+  // do_param_changes_multiple_times(llh, "new_param_model_change", c.paramModel1, c.paramModel2);
+  // do_param_changes_multiple_times(llh, "new_param_root_change", c.paramRoot1, c.paramRoot2);
+  // do_param_changes_multiple_times(llh, "new_param_brlen_change", c.paramBrLen1, c.paramBrLen2);
   optimize_for_params(llh, "new_brlens_opt", llh.getBranchLengthParameters());
 }
 #endif
@@ -259,6 +261,8 @@ TEST_CASE("df")
   bpp::Newick reader;
   auto phyloTree = std::unique_ptr<bpp::PhyloTree>(reader.parenthesisToPhyloTree(c.treeStr, false, "", false, false));
 
+  auto paramPhyloTree = std::unique_ptr<bpp::ParametrizablePhyloTree>(new bpp::ParametrizablePhyloTree(*phyloTree));
+  
   bpp::dataflow::Context context;
   
   // Model: create simple leaf nodes as model parameters
@@ -279,33 +283,47 @@ TEST_CASE("df")
     std::move(depvecModel),
     std::move(model));
 
+  auto delta = bpp::dataflow::NumericMutable<double>::create(context, 0.001);
+  modelNode->config.delta = delta;
+  modelNode->config.type = bpp::dataflow::NumericalDerivativeType::ThreePoints;
+
   auto rootFreqsNode = bpp::dataflow::ConfiguredFrequenciesSet::create(
     context,
     std::move(depvecRootFreqs),
     std::move(rootFreqs));
 
-  // Build likelihood value node
-  auto l = makeSimpleLikelihoodNodes(context, *phyloTree, c.sites, modelNode, rootFreqsNode);
+  rootFreqsNode->config.delta = delta;
+  rootFreqsNode->config.type = bpp::dataflow::NumericalDerivativeType::ThreePoints;
 
-  // Assemble a bpp::Optimizer compatible interface to SimpleLikelihoodNodes.
+  // Build likelihood value node
+  auto l = makeHomogeneousLikelihoodNodes(context, *paramPhyloTree, c.sites, modelNode, rootFreqsNode);
+
+  // Assemble a bpp::Optimizer compatible interface to HomogeneousLikelihoodNodes.
   bpp::ParameterList brlenOnlyParameters;
-  for (const auto& p : l.branchLengthValues)
+
+  for (const auto& p: l.branchLengthValues)
   {
-    auto param = bpp::DataFlowParameter("BrLen" + std::to_string(p.first), p.second);
-    param.setConstraint(bpp::Parameter::R_PLUS.clone(), true);
+    auto param = bpp::DataFlowParameter(paramPhyloTree->getParameter("BrLen" + std::to_string(p.first)), p.second);
     brlenOnlyParameters.addParameter(std::move(param));
   }
 
   bpp::ParameterList allParameters;
   allParameters.addParameters(brlenOnlyParameters);
+  
   for (const auto& p : modelParameters)
   {
-    allParameters.addParameter(bpp::DataFlowParameter(p.first, p.second));
+    auto model2=modelNode->getValue();
+    
+    auto param = bpp::DataFlowParameter(model2->getParameter(model2->getParameterNameWithoutNamespace(p.first)), p.second);
+    allParameters.addParameter(std::move(param));
   }
 
   for (const auto& p : rootFreqsParameters)
   {
-    allParameters.addParameter(bpp::DataFlowParameter(p.first, p.second));
+    auto root2=rootFreqsNode->getValue();
+    
+    auto param = bpp::DataFlowParameter(root2->getParameter(root2->getParameterNameWithoutNamespace(p.first)), p.second);
+    allParameters.addParameter(param);
   }
   
   bpp::DataFlowFunction llh(context, l.totalLogLikelihood, allParameters);
@@ -322,10 +340,17 @@ TEST_CASE("df")
   std::cout << "[dbrlen1] " << dlogLik_dbrlen1->getValue() << "\n";
   dotOutput("likelihood_example_dbrlen1", {dlogLik_dbrlen1.get()});
 
-  do_param_changes_multiple_times(llh, "df_param_model_change", c.paramModel1, c.paramModel2);
-  do_param_changes_multiple_times(llh, "df_param_root_change", c.paramRoot1, c.paramRoot2);
-  do_param_changes_multiple_times(llh, "df_param_brlen_change", c.paramBrLen1, c.paramBrLen2);
+  auto dlogLik_dkappa = l.totalLogLikelihood->deriveAsValue(context,  *modelParameters["T92.kappa"]);
+  
+  std::cout << "[dkappa] " << dlogLik_dkappa->getValue() << "\n";
+  dotOutput("likelihood_example_dkappa", {dlogLik_dkappa.get()});
+
+  // do_param_changes_multiple_times(llh, "df_param_model_change", c.paramModel1, c.paramModel2);
+  // do_param_changes_multiple_times(llh, "df_param_root_change", c.paramRoot1, c.paramRoot2);
+  // do_param_changes_multiple_times(llh, "df_param_brlen_change", c.paramBrLen1, c.paramBrLen2);
+  
   optimize_for_params(llh, "df_brlens_opt", brlenOnlyParameters);
+  optimize_for_params(llh, "df_all_opt", allParameters);
   // TODO test optimization with model params
 }
 
