@@ -9,6 +9,7 @@
 set (CPP_FILES
   Bpp/NewPhyl/DataFlow.cpp
   Bpp/NewPhyl/DataFlowNumeric.cpp
+  Bpp/NewPhyl/DiscreteDistribution.cpp
   Bpp/NewPhyl/FrequenciesSet.cpp
   Bpp/NewPhyl/Model.cpp
   Bpp/NewPhyl/Parametrizable.cpp
