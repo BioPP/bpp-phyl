@@ -89,18 +89,18 @@ TEST_CASE("model")
   // Create model node
   auto modelNodeDeps = createDependencyVector(
     *model, [&modelParameterNodes](const std::string& name) { return modelParameterNodes[name]; });
-  auto modelNode = ConfiguredModel::create(c, std::move(modelNodeDeps), std::move(model));
+  auto modelNode = ConfiguredParametrizable::createConfigured<bpp::TransitionModel, ConfiguredModel>(c, std::move(modelNodeDeps), std::move(model));
 
   // Create rootfreq node
   auto rootfreqNodeDeps = createDependencyVector(
     *rootfreq, [&rootfreqParameterNodes](const std::string& name) { return rootfreqParameterNodes[name]; });
   
-  auto rootfreqNode = ConfiguredFrequenciesSet::create(c, std::move(rootfreqNodeDeps), std::move(rootfreq));
+  auto rootfreqNode = ConfiguredParametrizable::createConfigured<bpp::FrequenciesSet, ConfiguredFrequenciesSet>(c, std::move(rootfreqNodeDeps), std::move(rootfreq));
 
   // Create nodes generating numeric values from model.
-  auto ef = EquilibriumFrequenciesFromModel::create(c, {modelNode}, bpp::rowVectorDimension(alphabet.getSize()));
+  auto ef = ConfiguredParametrizable::createVector<ConfiguredModel, EquilibriumFrequenciesFromModel>(c, {modelNode}, bpp::rowVectorDimension(alphabet.getSize()));
 
-  auto fs = FrequenciesFromFrequenciesSet::create(c, {rootfreqNode}, bpp::rowVectorDimension(alphabet.getSize()));
+  auto fs = ConfiguredParametrizable::createVector<ConfiguredFrequenciesSet, FrequenciesFromFrequenciesSet>(c, {rootfreqNode}, bpp::rowVectorDimension(alphabet.getSize()));
 
   // Setup numerical derivation
   auto delta = NumericMutable<double>::create(c, 0.001);

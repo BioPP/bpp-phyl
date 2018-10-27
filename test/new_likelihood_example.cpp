@@ -43,7 +43,7 @@
 #include "doctest.h"
 
 //#define ENABLE_OLD
-//#define ENABLE_NEW
+#define ENABLE_NEW
 #define ENABLE_DF
 
 // Common stuff
@@ -55,6 +55,7 @@
 #include <Bpp/Numeric/ParameterList.h>
 #include <Bpp/Phyl/Model/Nucleotide/T92.h>
 #include <Bpp/Phyl/Model/FrequenciesSet/NucleotideFrequenciesSet.h>
+#include <Bpp/Phyl/Model/RateDistribution/GammaDiscreteRateDistribution.h>
 #include <Bpp/Seq/Alphabet/AlphabetTools.h>
 #include <Bpp/Seq/Container/VectorSiteContainer.h>
 #include <chrono>
@@ -226,6 +227,7 @@ TEST_CASE("new")
   auto ts = timingStart();
   auto model = new bpp::T92(&c.alphabet, 3.);
   auto rootFreqs = new bpp::GCFrequenciesSet(&c.alphabet, 0.1);
+  auto distribution = new bpp::GammaDiscreteRateDistribution(3, 0.5);
   
   bpp::Newick reader;
   auto phyloTree = std::unique_ptr<bpp::PhyloTree>(reader.parenthesisToPhyloTree(c.treeStr, false, "", false, false));
@@ -233,7 +235,7 @@ TEST_CASE("new")
   std::vector<std::string> globalParameterNames;
 
   auto process =
-    std::unique_ptr<bpp::NonHomogeneousSubstitutionProcess>(bpp::NonHomogeneousSubstitutionProcess::createNonHomogeneousSubstitutionProcess(model, 0, rootFreqs, paramPhyloTree, globalParameterNames));
+    std::unique_ptr<bpp::NonHomogeneousSubstitutionProcess>(bpp::NonHomogeneousSubstitutionProcess::createNonHomogeneousSubstitutionProcess(model, distribution, rootFreqs, paramPhyloTree, globalParameterNames));
   
   auto likelihoodCompStruct = std::unique_ptr<bpp::RecursiveLikelihoodTreeCalculation>(
     new bpp::RecursiveLikelihoodTreeCalculation(c.sites, process.get(), false, true));
@@ -278,7 +280,7 @@ TEST_CASE("df")
   auto depvecRootFreqs=bpp::dataflow::createDependencyVector(
     *rootFreqs, [&rootFreqsParameters](const std::string& paramName) { return rootFreqsParameters[paramName]; });
 
-  auto modelNode = bpp::dataflow::ConfiguredModel::create(
+  auto modelNode = bpp::dataflow::ConfiguredParametrizable::createConfigured<bpp::TransitionModel, bpp::dataflow::ConfiguredModel>(
     context,
     std::move(depvecModel),
     std::move(model));
@@ -287,7 +289,7 @@ TEST_CASE("df")
   modelNode->config.delta = delta;
   modelNode->config.type = bpp::dataflow::NumericalDerivativeType::ThreePoints;
 
-  auto rootFreqsNode = bpp::dataflow::ConfiguredFrequenciesSet::create(
+  auto rootFreqsNode = bpp::dataflow::ConfiguredParametrizable::createConfigured<bpp::FrequenciesSet, bpp::dataflow::ConfiguredFrequenciesSet>(
     context,
     std::move(depvecRootFreqs),
     std::move(rootFreqs));

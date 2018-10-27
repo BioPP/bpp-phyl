@@ -109,7 +109,7 @@ namespace bpp {
 
       auto childConditionalLikelihood = makeConditionalLikelihoodNode (tree.getSon (index));
       auto transitionMatrix =
-        dataflow::TransitionMatrixFromModel::create (c, {model, brlen}, transitionMatrixDimension (nbState));
+        dataflow::ConfiguredParametrizable::createMatrix<dataflow::ConfiguredModel, dataflow::TransitionMatrixFromModel> (c, {model, brlen}, transitionMatrixDimension (nbState));
       return dataflow::ForwardLikelihoodFromConditional::create (
         c, {transitionMatrix, childConditionalLikelihood}, likelihoodMatrixDim);
     }
@@ -159,9 +159,9 @@ namespace bpp {
     auto rootConditionalLikelihoods = helper.makeConditionalLikelihoodNode (tree.getRootIndex ());
 
     // Combine them to equilibrium frequencies to get the log likelihood
-    auto rFreqs = rootFreqs?dataflow::FrequenciesFromFrequenciesSet::create (
+    auto rFreqs = rootFreqs?dataflow::ConfiguredParametrizable::createVector<dataflow::ConfiguredFrequenciesSet, dataflow::FrequenciesFromFrequenciesSet> (
       c, {rootFreqs}, rowVectorDimension (Eigen::Index (nbState))):
-      dataflow::EquilibriumFrequenciesFromModel::create (
+      dataflow::ConfiguredParametrizable::createVector<dataflow::ConfiguredModel, dataflow::EquilibriumFrequenciesFromModel> (
         c, {model}, rowVectorDimension (Eigen::Index (nbState)));
     
     auto siteLikelihoods = dataflow::LikelihoodFromRootConditional::create (

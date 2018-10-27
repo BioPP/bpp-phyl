@@ -66,20 +66,12 @@ namespace bpp {
      *
      * The dummy value is implemented as a pointer to the internal model for simplicity.
      */
-    class ConfiguredModel : public Value<const TransitionModel*>// ,
-                            // public ConfiguredParametrizable
+    class ConfiguredModel : public Value<const TransitionModel*>
     {
     public:
       using Self = ConfiguredModel;
-
-      /** Create a new model node from a dependency vector.
-       * Model parameters are given by a dependency vector of Value<double> nodes.
-       * The number and order of parameters is given by the TransitionModel internal ParameterList.
-       */
-
-      static std::shared_ptr<ConfiguredModel> create (Context & c, NodeRefVec && deps,
-                                                      std::unique_ptr<TransitionModel> && model);
-
+      using Target = TransitionModel;
+      
       ConfiguredModel (NodeRefVec && deps, std::unique_ptr<TransitionModel> && model);
       ~ConfiguredModel ();
 
@@ -117,9 +109,9 @@ namespace bpp {
     class EquilibriumFrequenciesFromModel : public Value<Eigen::RowVectorXd> {
     public:
       using Self = EquilibriumFrequenciesFromModel;
+      using Dep = ConfiguredModel;
       using T = Eigen::RowVectorXd;
 
-      static ValueRef<T> create (Context & c, NodeRefVec && deps, const Dimension<T> & dim);
       EquilibriumFrequenciesFromModel (NodeRefVec && deps, const Dimension<T> & dim);
 
       std::string debugInfo () const final;
@@ -149,7 +141,6 @@ namespace bpp {
       using T = Eigen::MatrixXd;
 
       /// Build a new TransitionMatrixFromModel node with the given output dimensions.
-      static ValueRef<T> create (Context & c, NodeRefVec && deps, const Dimension<T> & dim);
       TransitionMatrixFromModel (NodeRefVec && deps, const Dimension<T> & dim);
 
       std::string debugInfo () const final;
@@ -178,7 +169,6 @@ namespace bpp {
       using Self = TransitionMatrixFromModelFirstBrlenDerivative;
       using T = Eigen::MatrixXd;
 
-      static ValueRef<T> create (Context & c, NodeRefVec && deps, const Dimension<T> & dim);
       TransitionMatrixFromModelFirstBrlenDerivative (NodeRefVec && deps, const Dimension<T> & dim);
 
       std::string debugInfo () const final;
@@ -207,7 +197,6 @@ namespace bpp {
       using Self = TransitionMatrixFromModelSecondBrlenDerivative;
       using T = Eigen::MatrixXd;
 
-      static ValueRef<T> create (Context & c, NodeRefVec && deps, const Dimension<T> & dim);
       TransitionMatrixFromModelSecondBrlenDerivative (NodeRefVec && deps, const Dimension<T> & dim);
 
       std::string debugInfo () const final;

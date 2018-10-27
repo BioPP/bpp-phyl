@@ -72,14 +72,8 @@ namespace bpp {
     {
     public:
       using Self = ConfiguredFrequenciesSet;
-
-      /** Create a new model node from a dependency vector.
-       * Model parameters are given by a dependency vector of Value<double> nodes.
-       * The number and order of parameters is given by the FrequenciesSet internal ParameterList.
-       */
-      static std::shared_ptr<ConfiguredFrequenciesSet> create (Context & c, NodeRefVec && deps,
-                                                               std::unique_ptr<FrequenciesSet> && freqset);
-
+      using Target = FrequenciesSet;
+      
       ConfiguredFrequenciesSet (NodeRefVec && deps, std::unique_ptr<FrequenciesSet> && freqset);
       ~ConfiguredFrequenciesSet ();
       
@@ -108,7 +102,7 @@ namespace bpp {
 
     /** Frequencies = f(FrequenciesSet).
      * Frequencies: RowVector(nbState).
-     * model: ConfiguredFrequenciesSet.
+     * Frequenciesset: ConfiguredFrequenciesSet.
      *
      * Node construction should be done with the create static method.
      */
