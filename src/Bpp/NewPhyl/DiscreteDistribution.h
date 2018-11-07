@@ -114,9 +114,35 @@ namespace bpp {
       using Dep = ConfiguredDistribution;
       using T = Eigen::RowVectorXd;
 
-      static ValueRef<T> create (Context & c, NodeRefVec && deps, const Dimension<T> & dim);
-      
       ProbabilitiesFromDiscreteDistribution (NodeRefVec && deps, const Dimension<T> & dim);
+
+      std::string debugInfo () const final;
+
+      bool compareAdditionalArguments (const Node & other) const final;
+
+      NodeRef derive (Context & c, const Node & node) final;
+      NodeRef recreate (Context & c, NodeRefVec && deps) final;
+
+    private:
+      void compute () final;
+
+      Dimension<T> nbClass_;
+    };
+
+    /** Categories = f(DiscreteDistribution).
+     * Categories: RowVector(nbClass).
+     * DiscreteDistribution: ConfiguredDistribution.
+     *
+     * Node construction should be done with the create static method.
+     */
+
+    class CategoriesFromDiscreteDistribution : public Value<Eigen::RowVectorXd> {
+    public:
+      using Self = CategoriesFromDiscreteDistribution;
+      using Dep = ConfiguredDistribution;
+      using T = Eigen::RowVectorXd;
+
+      CategoriesFromDiscreteDistribution (NodeRefVec && deps, const Dimension<T> & dim);
 
       std::string debugInfo () const final;
 

@@ -55,8 +55,9 @@ namespace bpp {
   
   namespace dataflow {
 
-    /** Helper: create a map with mutable dataflow nodes for each model parameter.
-     * The map is indexed by model non namespaced names.
+    /** Helper: create a map with mutable dataflow nodes for each
+        parameter of the parametrizable.
+     * The map is indexed by model parameter names.
      */
     
     std::unordered_map<std::string, std::shared_ptr<NumericMutable<double>>>
@@ -66,7 +67,6 @@ namespace bpp {
     /** Create a dependency vector suitable for a parametrizable class constructor.
      * The vector is built from parameter names, and an opaque accessor function.
      * For each named parameter, getParameter(name) should return a valid node.
-     * Only non-namespaced names are tried.
      * If no node is found (NodeRef was null), an exception is thrown.
      * Returned nodes must be Value<double> nodes.
      */

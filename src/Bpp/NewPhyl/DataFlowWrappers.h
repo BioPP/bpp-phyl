@@ -44,6 +44,8 @@
 #include <Bpp/Numeric/Parameter.h>
 #include <Bpp/Numeric/ParameterList.h>
 
+#include "DataFlowNumeric.h"
+
 #include <unordered_map>
 
 /* This file contains wrappers.
@@ -53,6 +55,9 @@
 
 namespace bpp {
 
+  namespace dataflow
+  {
+    
   /* Wraps a dataflow::NumericMutable<double> as a bpp::Parameter.
    * 2 values exist: the one in the node, and the one in bpp::Parameter.
    * The dataflow one is considered to be the reference.
@@ -68,7 +73,7 @@ namespace bpp {
   class DataFlowParameter : public Parameter {
   public:
     DataFlowParameter (const std::string & name,
-                       std::shared_ptr<dataflow::NumericMutable<double>> existingNode)
+                       std::shared_ptr<NumericMutable<double>> existingNode)
       : Parameter (name, existingNode->getValue ()), node_ (std::move (existingNode)) {}
 
     DataFlowParameter (const bpp::Parameter& param,
@@ -78,11 +83,16 @@ namespace bpp {
       setValue(node_->getValue());
     }
 
+    DataFlowParameter (const bpp::Parameter& param)
+      : Parameter (param), node_ (new NumericMutable<double>(param.getValue()))
+    {}
+
     // Parameter boilerplate
     DataFlowParameter * clone () const override { return new DataFlowParameter (*this); }
 
     // Override value access
     double getValue () const override { return node_->getValue (); }
+
     void setValue (double v) override {
       Parameter::setValue (v);                  // Will apply possible constraints
       node_->setValue (Parameter::getValue ()); // Get constrained value
@@ -223,6 +233,9 @@ namespace bpp {
       return accessVariableNode (getParameter (name));
     }
   };
+
+  }
+  
 } // namespace bpp
 
 #endif // BPP_NEWPHYL_HOMOGENEOUS_LIKELIHOOD_EXAMPLE_H

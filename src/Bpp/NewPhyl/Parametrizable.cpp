@@ -67,12 +67,9 @@ namespace bpp {
       const auto nbParameters = parameters.size ();
       NodeRefVec deps (nbParameters);
       for (std::size_t i = 0; i < nbParameters; ++i) {
-        // std::string nonNamespacedName =
-        //   parametrizable.getParameterNameWithoutNamespace (parameters[i].getName ());
         auto dep = getParameter (parameters[i].getName ());
         if (!dep) {
-          throw Exception ("createDependencyVector (Parametrizable): parameter not found: " +
-                           parameters[i].getName ());
+          throw Exception ("createDependencyVector (Parametrizable): parameter not found: " + parameters[i].getName ());
         }
         deps[i] = std::move (dep);
       }

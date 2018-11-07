@@ -258,27 +258,33 @@ TEST_CASE("new")
 TEST_CASE("df")
 {
   const CommonStuff c;
+  bpp::dataflow::Context context;
+
   auto ts = timingStart();
+
   // Read tree structure
   bpp::Newick reader;
+  
   auto phyloTree = std::unique_ptr<bpp::PhyloTree>(reader.parenthesisToPhyloTree(c.treeStr, false, "", false, false));
 
-  auto paramPhyloTree = std::unique_ptr<bpp::ParametrizablePhyloTree>(new bpp::ParametrizablePhyloTree(*phyloTree));
+  auto tree = std::unique_ptr<bpp::ParametrizablePhyloTree>(new bpp::ParametrizablePhyloTree(*phyloTree));
   
-  bpp::dataflow::Context context;
+  auto treeParameters = bpp::dataflow::createParameterMap(context, *tree);
+  
+  auto depvecTree=bpp::dataflow::createDependencyVector(
+    *tree, [&treeParameters](const std::string& paramName) { return treeParameters[paramName]; });
+  
+  auto treeNode = bpp::dataflow::ConfiguredParametrizable::createConfigured<bpp::ParametrizablePhyloTree, bpp::dataflow::ConfiguredPhyloTree>(
+    context,
+    std::move(depvecTree),
+    std::move(tree));
   
   // Model: create simple leaf nodes as model parameters
   auto model = std::unique_ptr<bpp::T92>(new bpp::T92(&c.alphabet, 3.));
   auto modelParameters = bpp::dataflow::createParameterMap(context, *model);
   
-  auto rootFreqs = std::unique_ptr<bpp::GCFrequenciesSet>(new bpp::GCFrequenciesSet(&c.alphabet, 0.1));
-  auto rootFreqsParameters = bpp::dataflow::createParameterMap(context, *rootFreqs);
-  
   auto depvecModel=bpp::dataflow::createDependencyVector(
     *model, [&modelParameters](const std::string& paramName) { return modelParameters[paramName]; });
-
-  auto depvecRootFreqs=bpp::dataflow::createDependencyVector(
-    *rootFreqs, [&rootFreqsParameters](const std::string& paramName) { return rootFreqsParameters[paramName]; });
 
   auto modelNode = bpp::dataflow::ConfiguredParametrizable::createConfigured<bpp::TransitionModel, bpp::dataflow::ConfiguredModel>(
     context,
@@ -289,6 +295,12 @@ TEST_CASE("df")
   modelNode->config.delta = delta;
   modelNode->config.type = bpp::dataflow::NumericalDerivativeType::ThreePoints;
 
+  // Root Frequencies
+  auto rootFreqs = std::unique_ptr<bpp::GCFrequenciesSet>(new bpp::GCFrequenciesSet(&c.alphabet, 0.1));
+  auto rootFreqsParameters = bpp::dataflow::createParameterMap(context, *rootFreqs);
+  auto depvecRootFreqs=bpp::dataflow::createDependencyVector(
+    *rootFreqs, [&rootFreqsParameters](const std::string& paramName) { return rootFreqsParameters[paramName]; });
+
   auto rootFreqsNode = bpp::dataflow::ConfiguredParametrizable::createConfigured<bpp::FrequenciesSet, bpp::dataflow::ConfiguredFrequenciesSet>(
     context,
     std::move(depvecRootFreqs),
@@ -298,17 +310,19 @@ TEST_CASE("df")
   rootFreqsNode->config.type = bpp::dataflow::NumericalDerivativeType::ThreePoints;
 
   // Build likelihood value node
-  auto l = makeHomogeneousLikelihoodNodes(context, *paramPhyloTree, c.sites, modelNode, rootFreqsNode);
+  auto l = makeHomogeneousLikelihoodNodes(context, c.sites, treeNode, modelNode, rootFreqsNode);
 
   // Assemble a bpp::Optimizer compatible interface to HomogeneousLikelihoodNodes.
   bpp::ParameterList brlenOnlyParameters;
-
-  for (const auto& p: l.branchLengthValues)
+  
+  for (const auto& p : treeParameters)
   {
-    auto param = bpp::DataFlowParameter(paramPhyloTree->getParameter("BrLen" + std::to_string(p.first)), p.second);
+    auto tree2=treeNode->getValue();
+    
+    auto param = bpp::dataflow::DataFlowParameter(tree2->getParameter(tree2->getParameterNameWithoutNamespace(p.first)), p.second);
     brlenOnlyParameters.addParameter(std::move(param));
   }
-
+  
   bpp::ParameterList allParameters;
   allParameters.addParameters(brlenOnlyParameters);
   
@@ -316,7 +330,7 @@ TEST_CASE("df")
   {
     auto model2=modelNode->getValue();
     
-    auto param = bpp::DataFlowParameter(model2->getParameter(model2->getParameterNameWithoutNamespace(p.first)), p.second);
+    auto param = bpp::dataflow::DataFlowParameter(model2->getParameter(model2->getParameterNameWithoutNamespace(p.first)), p.second);
     allParameters.addParameter(std::move(param));
   }
 
@@ -324,25 +338,25 @@ TEST_CASE("df")
   {
     auto root2=rootFreqsNode->getValue();
     
-    auto param = bpp::DataFlowParameter(root2->getParameter(root2->getParameterNameWithoutNamespace(p.first)), p.second);
+    auto param = bpp::dataflow::DataFlowParameter(root2->getParameter(root2->getParameterNameWithoutNamespace(p.first)), p.second);
     allParameters.addParameter(param);
   }
   
-  bpp::DataFlowFunction llh(context, l.totalLogLikelihood, allParameters);
+  bpp::dataflow::DataFlowFunction llh(context, l, allParameters);
   timingEnd(ts, "df_setup");
 
   ts = timingStart();
   auto logLik = llh.getValue();
   timingEnd(ts, "df_init_value");
   printLik(logLik, "df_init_value");
-  dotOutput("likelihood_example_value", {l.totalLogLikelihood.get()});
+  dotOutput("likelihood_example_value", {l.get()});
 
   // Manual access to dbrlen1
-  auto dlogLik_dbrlen1 = l.totalLogLikelihood->deriveAsValue(context, *l.branchLengthValues[1]);
+  auto dlogLik_dbrlen1 = l->deriveAsValue(context, *treeNode->dependency(treeNode->getParameterIndex("BrLen1")));
   std::cout << "[dbrlen1] " << dlogLik_dbrlen1->getValue() << "\n";
   dotOutput("likelihood_example_dbrlen1", {dlogLik_dbrlen1.get()});
 
-  auto dlogLik_dkappa = l.totalLogLikelihood->deriveAsValue(context,  *modelParameters["T92.kappa"]);
+  auto dlogLik_dkappa = l->deriveAsValue(context,  *modelParameters["T92.kappa"]);
   
   std::cout << "[dkappa] " << dlogLik_dkappa->getValue() << "\n";
   dotOutput("likelihood_example_dkappa", {dlogLik_dkappa.get()});

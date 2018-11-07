@@ -143,7 +143,7 @@ namespace bpp {
     NodeRef EquilibriumFrequenciesFromModel::derive (Context & c, const Node & node) {
       // d(equFreqs)/dn = sum_i d(equFreqs)/dx_i * dx_i/dn (x_i = model parameters)
       auto modelDep = this->dependency (0);
-      auto & model = static_cast<ConfiguredModel &> (*modelDep);
+      auto & model = static_cast<Dep &> (*modelDep);
       auto buildFWithNewModel = [this, &c](NodeRef && newModel) {
         return ConfiguredParametrizable::createVector<Dep, Self> (c, {std::move (newModel)}, targetDimension_);
       };
@@ -184,17 +184,17 @@ namespace bpp {
       auto modelDep = this->dependency (0);
       auto brlenDep = this->dependency (1);
       // Model part
-      auto & model = static_cast<ConfiguredModel &> (*modelDep);
+      auto & model = static_cast<Dep &> (*modelDep);
       auto buildFWithNewModel = [this, &c, &brlenDep](NodeRef && newModel) {
-        return ConfiguredParametrizable::createMatrix<ConfiguredModel, Self> (c, {std::move (newModel), brlenDep}, targetDimension_);
+        return ConfiguredParametrizable::createMatrix<Dep, Self> (c, {std::move (newModel), brlenDep}, targetDimension_);
       };
-      NodeRefVec derivativeSumDeps = bpp::dataflow::ConfiguredParametrizable::generateDerivativeSumDepsForComputations<ConfiguredModel, T> (
+      NodeRefVec derivativeSumDeps = bpp::dataflow::ConfiguredParametrizable::generateDerivativeSumDepsForComputations<Dep, T> (
         c, model, node, targetDimension_, buildFWithNewModel);
       // Brlen part, use specific node
       auto dbrlen_dn = brlenDep->derive (c, node);
       if (!dbrlen_dn->hasNumericalProperty (NumericalProperty::ConstantZero)) {
         auto df_dbrlen =
-          ConfiguredParametrizable::createMatrix<ConfiguredModel, TransitionMatrixFromModelFirstBrlenDerivative>(c, {modelDep, brlenDep}, targetDimension_);
+          ConfiguredParametrizable::createMatrix<Dep, TransitionMatrixFromModelFirstBrlenDerivative>(c, {modelDep, brlenDep}, targetDimension_);
         derivativeSumDeps.emplace_back (CWiseMul<T, std::tuple<double, T>>::create (
                                           c, {std::move (dbrlen_dn), std::move (df_dbrlen)}, targetDimension_));
       }
@@ -202,7 +202,7 @@ namespace bpp {
     }
 
     NodeRef TransitionMatrixFromModel::recreate (Context & c, NodeRefVec && deps) {
-      return ConfiguredParametrizable::createMatrix<ConfiguredModel, Self> (c, std::move (deps), targetDimension_);
+      return ConfiguredParametrizable::createMatrix<Dep, Self> (c, std::move (deps), targetDimension_);
     }
 
     void TransitionMatrixFromModel::compute () {
@@ -234,18 +234,18 @@ namespace bpp {
       auto modelDep = this->dependency (0);
       auto brlenDep = this->dependency (1);
       // Model part
-      auto & model = static_cast<ConfiguredModel &> (*modelDep);
+      auto & model = static_cast<Dep &> (*modelDep);
       auto buildFWithNewModel = [this, &c, &brlenDep](NodeRef && newModel) {
-        return ConfiguredParametrizable::createMatrix<ConfiguredModel, Self> (c, {std::move (newModel), brlenDep}, targetDimension_);
+        return ConfiguredParametrizable::createMatrix<Dep, Self> (c, {std::move (newModel), brlenDep}, targetDimension_);
       };
       
-      NodeRefVec derivativeSumDeps = bpp::dataflow::ConfiguredParametrizable::generateDerivativeSumDepsForComputations<ConfiguredModel, T> (
+      NodeRefVec derivativeSumDeps = bpp::dataflow::ConfiguredParametrizable::generateDerivativeSumDepsForComputations<Dep, T> (
         c, model, node, targetDimension_, buildFWithNewModel);
       // Brlen part, use specific node
       auto dbrlen_dn = brlenDep->derive (c, node);
       if (!dbrlen_dn->hasNumericalProperty (NumericalProperty::ConstantZero)) {
         auto df_dbrlen =
-          ConfiguredParametrizable::createMatrix<ConfiguredModel, TransitionMatrixFromModelSecondBrlenDerivative> (c, {modelDep, brlenDep}, targetDimension_);
+          ConfiguredParametrizable::createMatrix<Dep, TransitionMatrixFromModelSecondBrlenDerivative> (c, {modelDep, brlenDep}, targetDimension_);
         derivativeSumDeps.emplace_back (CWiseMul<T, std::tuple<double, T>>::create (
                                           c, {std::move (dbrlen_dn), std::move (df_dbrlen)}, targetDimension_));
       }
@@ -253,7 +253,7 @@ namespace bpp {
     }
 
     NodeRef TransitionMatrixFromModelFirstBrlenDerivative::recreate (Context & c, NodeRefVec && deps) {
-      return ConfiguredParametrizable::createMatrix<ConfiguredModel, Self> (c, std::move (deps), targetDimension_);
+      return ConfiguredParametrizable::createMatrix<Dep, Self> (c, std::move (deps), targetDimension_);
     }
 
     void TransitionMatrixFromModelFirstBrlenDerivative::compute () {
@@ -263,6 +263,8 @@ namespace bpp {
       copyBppToEigen (model->getdPij_dt (brlen), r);
     }
 
+    
+    ////////////////////////////////////////////////////////
     // TransitionMatrixFromModelSecondBrlenDerivative
 
     TransitionMatrixFromModelSecondBrlenDerivative::TransitionMatrixFromModelSecondBrlenDerivative (
@@ -285,17 +287,17 @@ namespace bpp {
       auto modelDep = this->dependency (0);
       auto brlenDep = this->dependency (1);
       // Model part
-      auto & model = static_cast<ConfiguredModel &> (*modelDep);
+      auto & model = static_cast<Dep &> (*modelDep);
       auto buildFWithNewModel = [this, &c, &brlenDep](NodeRef && newModel) {
-        return ConfiguredParametrizable::createMatrix<ConfiguredModel, Self> (c, {std::move (newModel), brlenDep}, targetDimension_);
+        return ConfiguredParametrizable::createMatrix<Dep, Self> (c, {std::move (newModel), brlenDep}, targetDimension_);
       };
-      NodeRefVec derivativeSumDeps = bpp::dataflow::ConfiguredParametrizable::generateDerivativeSumDepsForComputations<ConfiguredModel, T> (
+      NodeRefVec derivativeSumDeps = bpp::dataflow::ConfiguredParametrizable::generateDerivativeSumDepsForComputations<Dep, T> (
         c, model, node, targetDimension_, buildFWithNewModel);
       // Brlen part : no specific node, use numerical derivation.
       auto dbrlen_dn = brlenDep->derive (c, node);
       if (!dbrlen_dn->hasNumericalProperty (NumericalProperty::ConstantZero)) {
         auto buildFWithNewBrlen = [this, &c, &modelDep](ValueRef<double> newBrlen) {
-          return ConfiguredParametrizable::createMatrix<ConfiguredModel, Self> (c, {modelDep, std::move (newBrlen)}, targetDimension_);
+          return ConfiguredParametrizable::createMatrix<Dep, Self> (c, {modelDep, std::move (newBrlen)}, targetDimension_);
         };
         auto df_dbrlen = generateNumericalDerivative<T, double> (
           c, model.config, brlenDep, Dimension<double> (), targetDimension_, buildFWithNewBrlen);
@@ -306,7 +308,7 @@ namespace bpp {
     }
 
     NodeRef TransitionMatrixFromModelSecondBrlenDerivative::recreate (Context & c, NodeRefVec && deps) {
-      return ConfiguredParametrizable::createMatrix<ConfiguredModel, Self> (c, std::move (deps), targetDimension_);
+      return ConfiguredParametrizable::createMatrix<Dep, Self> (c, std::move (deps), targetDimension_);
     }
 
     void TransitionMatrixFromModelSecondBrlenDerivative::compute () {

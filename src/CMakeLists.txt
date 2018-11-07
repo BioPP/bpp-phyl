@@ -13,6 +13,7 @@ set (CPP_FILES
   Bpp/NewPhyl/FrequenciesSet.cpp
   Bpp/NewPhyl/Model.cpp
   Bpp/NewPhyl/Parametrizable.cpp
+  Bpp/NewPhyl/PhyloTree.cpp
   Bpp/Phyl/App/PhylogeneticsApplicationTools.cpp
   Bpp/Phyl/Distance/AbstractAgglomerativeDistanceMethod.cpp
   Bpp/Phyl/Distance/BioNJ.cpp

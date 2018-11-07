@@ -589,6 +589,7 @@ namespace bpp {
       void setValue (const T & t) {
         modify ([&t](T & v) { v = t; });
       }
+
       /// Setter with invalidation (movable value version).
       void setValue (T && t) {
         modify ([&t](T & v) { v = std::move (t); });

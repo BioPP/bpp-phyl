@@ -86,6 +86,7 @@ namespace bpp {
      * c(state, site) = prod_i f_i(state, site).
      * Using member wise multiply: c = prod_member_i f_i.
      */
+    
     using ConditionalLikelihoodFromChildrenForward = CWiseMul<Eigen::MatrixXd, ReductionOf<Eigen::MatrixXd>>;
 
     /** @brief forwardLikelihood = f(transitionMatrix, conditionalLikelihood).
@@ -96,6 +97,7 @@ namespace bpp {
      * f(toState, site) = sum_fromState P(fromState, toState) * c(fromState, site).
      * Using matrix multiply with transposition: f = transposed(transitionMatrix) * c.
      */
+    
     using ForwardLikelihoodFromConditional =
       MatrixProduct<Eigen::MatrixXd, Transposed<Eigen::MatrixXd>, Eigen::MatrixXd>;
 
@@ -107,6 +109,7 @@ namespace bpp {
      * likelihood(site) = sum_state equFreqs(state) * rootConditionalLikelihood(state, site).
      * Using matrix multiply: likelihood = equilibriumFrequencies * rootConditionalLikelihood.
      */
+
     using LikelihoodFromRootConditional =
       MatrixProduct<Eigen::RowVectorXd, Eigen::RowVectorXd, Eigen::MatrixXd>;
 
@@ -114,7 +117,9 @@ namespace bpp {
      * - likelihood: RowVector (site).
      * - totalLogLikelihood: double.
      */
+
     using TotalLogLikelihood = SumOfLogarithms<Eigen::RowVectorXd>;
+
   } // namespace dataflow
 } // namespace bpp
 

@@ -138,6 +138,7 @@ namespace bpp {
     class TransitionMatrixFromModel : public Value<Eigen::MatrixXd> {
     public:
       using Self = TransitionMatrixFromModel;
+      using Dep = ConfiguredModel;
       using T = Eigen::MatrixXd;
 
       /// Build a new TransitionMatrixFromModel node with the given output dimensions.
@@ -167,6 +168,7 @@ namespace bpp {
     class TransitionMatrixFromModelFirstBrlenDerivative : public Value<Eigen::MatrixXd> {
     public:
       using Self = TransitionMatrixFromModelFirstBrlenDerivative;
+      using Dep = ConfiguredModel;
       using T = Eigen::MatrixXd;
 
       TransitionMatrixFromModelFirstBrlenDerivative (NodeRefVec && deps, const Dimension<T> & dim);
@@ -184,6 +186,8 @@ namespace bpp {
       Dimension<T> targetDimension_;
     };
 
+
+
     /** d2transitionMatrix/dbrlen2 = f(model, branchLen).
      * d2transitionMatrix/dbrlen2: Matrix(fromState, toState).
      * model: ConfiguredModel.
@@ -195,6 +199,7 @@ namespace bpp {
     class TransitionMatrixFromModelSecondBrlenDerivative : public Value<Eigen::MatrixXd> {
     public:
       using Self = TransitionMatrixFromModelSecondBrlenDerivative;
+      using Dep = ConfiguredModel;
       using T = Eigen::MatrixXd;
 
       TransitionMatrixFromModelSecondBrlenDerivative (NodeRefVec && deps, const Dimension<T> & dim);

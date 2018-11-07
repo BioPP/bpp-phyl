@@ -104,7 +104,7 @@ namespace bpp {
       }
     }
 
-
+    //////////////////////////////////////////////
     // ProbabilitiesFromDiscreteDistribution
 
     ProbabilitiesFromDiscreteDistribution::ProbabilitiesFromDiscreteDistribution (
@@ -125,9 +125,9 @@ namespace bpp {
     NodeRef ProbabilitiesFromDiscreteDistribution::derive (Context & c, const Node & node) {
       // d(Prob)/dn = sum_i d(Prob)/dx_i * dx_i/dn (x_i = distrib parameters)
       auto distribDep = this->dependency (0);
-      auto & distrib = static_cast<ConfiguredDistribution &> (*distribDep);
+      auto & distrib = static_cast<Dep &> (*distribDep);
       auto buildPWithNewDistrib = [this, &c](NodeRef && newDistrib) {
-        return ConfiguredParametrizable::createVector<ConfiguredDistribution, Self> (c, {std::move (newDistrib)}, nbClass_);
+        return ConfiguredParametrizable::createVector<Dep, Self> (c, {std::move (newDistrib)}, nbClass_);
       };
       
       NodeRefVec derivativeSumDeps = ConfiguredParametrizable::generateDerivativeSumDepsForComputations<ConfiguredDistribution, T > (
@@ -136,7 +136,7 @@ namespace bpp {
     }
 
     NodeRef ProbabilitiesFromDiscreteDistribution::recreate (Context & c, NodeRefVec && deps) {
-      return ConfiguredParametrizable::createVector<ConfiguredDistribution, Self> (c, std::move (deps), nbClass_);
+      return ConfiguredParametrizable::createVector<Dep, Self> (c, std::move (deps), nbClass_);
     }
 
     void ProbabilitiesFromDiscreteDistribution::compute () {
@@ -144,6 +144,48 @@ namespace bpp {
       const auto & probasFromDistrib = distrib->getProbabilities ();
       auto & r = this->accessValueMutable ();
       r = Eigen::Map<const T> (probasFromDistrib.data(), static_cast<Eigen::Index> (probasFromDistrib.size ()));
+    }
+
+    ////////////////////////////////////////////////////
+    // CategoriesFromDiscreteDistribution
+
+    CategoriesFromDiscreteDistribution::CategoriesFromDiscreteDistribution (
+      NodeRefVec && deps, const Dimension<Eigen::RowVectorXd> & dim)
+      : Value<Eigen::RowVectorXd> (std::move (deps)), nbClass_ (dim) {}
+
+    
+    std::string CategoriesFromDiscreteDistribution::debugInfo () const {
+      using namespace numeric;
+      return debug (this->accessValueConst ()) + " nbClass=" + to_string (nbClass_);
+    }
+
+    // CategoriesFromDiscreteDistribution additional arguments = ().
+    bool CategoriesFromDiscreteDistribution::compareAdditionalArguments (const Node & other) const {
+      return dynamic_cast<const Self *> (&other) != nullptr;
+    }
+
+    NodeRef CategoriesFromDiscreteDistribution::derive (Context & c, const Node & node) {
+      // d(Prob)/dn = sum_i d(Prob)/dx_i * dx_i/dn (x_i = distrib parameters)
+      auto distribDep = this->dependency (0);
+      auto & distrib = static_cast<Dep &> (*distribDep);
+      auto buildPWithNewDistrib = [this, &c](NodeRef && newDistrib) {
+        return ConfiguredParametrizable::createVector<Dep, Self> (c, {std::move (newDistrib)}, nbClass_);
+      };
+      
+      NodeRefVec derivativeSumDeps = ConfiguredParametrizable::generateDerivativeSumDepsForComputations<ConfiguredDistribution, T > (
+        c, distrib, node, nbClass_, buildPWithNewDistrib);
+      return CWiseAdd<T, ReductionOf<T>>::create (c, std::move (derivativeSumDeps), nbClass_);
+    }
+
+    NodeRef CategoriesFromDiscreteDistribution::recreate (Context & c, NodeRefVec && deps) {
+      return ConfiguredParametrizable::createVector<Dep, Self> (c, std::move (deps), nbClass_);
+    }
+
+    void CategoriesFromDiscreteDistribution::compute () {
+      const auto * distrib = accessValueConstCast<const DiscreteDistribution *> (*this->dependency (0));
+      const auto & categoriesFromDistrib = distrib->getCategories ();
+      auto & r = this->accessValueMutable ();
+      r = Eigen::Map<const T> (categoriesFromDistrib.data(), static_cast<Eigen::Index> (categoriesFromDistrib.size ()));
     }
 
 
