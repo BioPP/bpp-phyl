@@ -27,6 +27,15 @@ IF(NO_DEP_CHECK)
   MESSAGE("-- Dependencies checking disabled. Only distribution can be built.")
 ELSE(NO_DEP_CHECK)
 
+# include openmp for parallelization of likelihood computation
+find_package(OpenMP)
+if (OPENMP_FOUND)
+    set (CMAKE_C_FLAGS "${CMAKE_C_FLAGS} ${OpenMP_C_FLAGS}")
+    set (CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${OpenMP_CXX_FLAGS}")
+    set (CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} ${OpenMP_EXE_LINKER_FLAGS}")
+    set (OMP_NUM_THREADS 4)
+endif()
+
 # Libtool-like version number
 # CURRENT:REVISION:AGE => file.so.(C-A).A.R
 # current:  The most recent interface number that this library implements.
