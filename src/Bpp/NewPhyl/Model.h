@@ -43,8 +43,7 @@
 #ifndef BPP_NEWPHYL_MODEL_H
 #define BPP_NEWPHYL_MODEL_H 
 
-#include <Bpp/NewPhyl/DataFlow.h>
-#include <Bpp/NewPhyl/DataFlowNumeric.h>
+#include <Bpp/NewPhyl/DataFlowCWise.h>
 #include <Bpp/Exceptions.h>
 #include <functional>
 #include <unordered_map>
@@ -78,9 +77,9 @@ namespace bpp {
       std::string description () const final;
       std::string debugInfo () const final;
 
-      /// Return the index of parameter with the given non namespaced name (or throw).
+      /// Return the index of parameter with the given name (or throw).
       std::size_t getParameterIndex (const std::string & name);
-      /// Return the non namespaced name for parameter at the given index.
+      /// Return the name for parameter at the given index.
       const std::string & getParameterName (std::size_t index);
 
       bool compareAdditionalArguments (const Node & other) const;

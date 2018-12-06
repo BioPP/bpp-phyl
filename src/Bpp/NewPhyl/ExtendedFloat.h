@@ -48,95 +48,133 @@
 
 namespace bpp {
 
-template <typename T> constexpr T constexpr_power (T d, int n) {
-	return n == 0 ? 1.0 : (n > 0 ? constexpr_power (d, n - 1) * d : constexpr_power (d, n + 1) / d);
-}
+  template <typename T> constexpr T constexpr_power (T d, int n) {
+    return n == 0 ? 1.0 : (n > 0 ? constexpr_power (d, n - 1) * d : constexpr_power (d, n + 1) / d);
+  }
 
-class ExtendedFloat {
-	// Assumes positive integer
-public:
-	using FloatType = double;
-	using ExtType = int;
+  class ExtendedFloat {
+    // Assumes positive integer
+  public:
+    using FloatType = double;
+    using ExtType = int;
 
-	// Parameter: decide how much product we can do safely before having to normalize.
-	static constexpr int allowed_product_without_normalization = 4;
+    // Parameter: decide how much product we can do safely before having to normalize.
+    static constexpr int allowed_product_without_normalization = 4;
 
-	// Radix is the float exponent base
-	static constexpr int radix = std::numeric_limits<FloatType>::radix;
+    // Radix is the float exponent base
+    static constexpr int radix = std::numeric_limits<FloatType>::radix;
 
-	// biggest_repr_radix_power = max { n ; radix^n is representable }
-	static constexpr int biggest_repr_radix_power = std::numeric_limits<FloatType>::max_exponent - 1;
-	// biggest_normalized_radix_power = max { n ; (radix^n)^allowed_product_denorm is representable }
-	static constexpr int biggest_normalized_radix_power =
-	    biggest_repr_radix_power / allowed_product_without_normalization;
-	// biggest_normalized_value = max { f ; f^allowed_product_denorm is representable }
-	static constexpr FloatType biggest_normalized_value =
-	    constexpr_power (FloatType (radix), biggest_normalized_radix_power);
+    // biggest_repr_radix_power = max { n ; radix^n is representable }
+    static constexpr int biggest_repr_radix_power = std::numeric_limits<FloatType>::max_exponent - 1;
+    
+    // biggest_normalized_radix_power = max { n ; (radix^n)^allowed_product_without_normalization is representable }
+    static constexpr int biggest_normalized_radix_power =
+      biggest_repr_radix_power / allowed_product_without_normalization;
 
-	// smallest_repr_radix_power = min { n ; radix^n is representable }
-	static constexpr int smallest_repr_radix_power = std::numeric_limits<FloatType>::min_exponent - 1;
-	// smallest_normalized_radix_power = min { n ; (radix^n)^allowed_product_denorm is representable }
-	static constexpr int smallest_normalized_radix_power =
-	    -((-smallest_repr_radix_power) / allowed_product_without_normalization);
-	// smallest_normalized_value = min { f ; f^allowed_product_denorm is representable }
-	static constexpr FloatType smallest_normalized_value =
-	    constexpr_power (FloatType (radix), smallest_normalized_radix_power);
+    // biggest_normalized_value = max { f ; f^allowed_product_without_normalization is representable }
+    static constexpr FloatType biggest_normalized_value =
+      constexpr_power (FloatType (radix), biggest_normalized_radix_power);
 
-	// factors to scale f_ to renormalize.
-	static constexpr FloatType normalize_big_factor = 1. / biggest_normalized_value;
-	static constexpr FloatType normalize_small_factor = 1. / smallest_normalized_value;
+    // smallest_repr_radix_power = min { n ; radix^n is representable }
+    static constexpr int smallest_repr_radix_power = std::numeric_limits<FloatType>::min_exponent - 1;
 
-	// TODO add denorm info for sum
+    // smallest_normalized_radix_power = min { n ; (radix^n)^allowed_product_denorm is representable }
+    static constexpr int smallest_normalized_radix_power =
+      -((-smallest_repr_radix_power) / allowed_product_without_normalization);
 
-	constexpr ExtendedFloat (FloatType f = 0.0, ExtType e = 0) noexcept : f_ (f), exp_ (e) {}
+    // smallest_normalized_value = min { f ; f^allowed_product_denorm is representable }
+    static constexpr FloatType smallest_normalized_value =
+      constexpr_power (FloatType (radix), smallest_normalized_radix_power);
 
-	const FloatType & float_part () const noexcept { return f_; }
-	const ExtType & exponent_part () const noexcept { return exp_; }
+    // factors to scale f_ to renormalize.
+    static constexpr FloatType normalize_big_factor = 1. / biggest_normalized_value;
+    static constexpr FloatType normalize_small_factor = 1. / smallest_normalized_value;
 
-	void normalize_big () noexcept {
-		if (std::isfinite (f_)) {
-			while (f_ > biggest_normalized_value) {
-				f_ *= normalize_big_factor;
-				exp_ += biggest_normalized_radix_power;
-			}
-		}
-	}
-	void normalize_small () {
-		if (f_ > 0.) {
-			while (f_ < smallest_normalized_value) {
-				f_ *= normalize_small_factor;
-				exp_ += smallest_normalized_radix_power;
-			}
-		}
-	}
-	void normalize () noexcept {
-		normalize_big ();
-		normalize_small ();
-	}
+    // TODO add denorm info for sum
 
-private:
-	FloatType f_;
-	ExtType exp_;
-};
+    constexpr ExtendedFloat (FloatType f = 0.0, ExtType e = 0) noexcept : f_ (f), exp_ (e) {}
 
-inline ExtendedFloat denorm_mul (const ExtendedFloat & lhs, const ExtendedFloat & rhs) {
-	return {lhs.float_part () * rhs.float_part (), lhs.exponent_part () + rhs.exponent_part ()};
-}
-inline ExtendedFloat operator* (const ExtendedFloat & lhs, const ExtendedFloat & rhs) {
-	auto r = denorm_mul (lhs, rhs);
-	r.normalize ();
-	return r;
-}
+    const FloatType & float_part () const noexcept { return f_; }
+    const ExtType & exponent_part () const noexcept { return exp_; }
 
-inline double log (const ExtendedFloat & ef) {
-	static const auto ln_radix = std::log (static_cast<double> (ExtendedFloat::radix));
-	return std::log (ef.float_part ()) + static_cast<double> (ef.exponent_part ()) * ln_radix;
-}
+    void normalize_big () noexcept {
+      if (std::isfinite (f_)) {
+        while (f_ > biggest_normalized_value) {
+          f_ *= normalize_big_factor;
+          exp_ += biggest_normalized_radix_power;
+        }
+      }
+    }
+    void normalize_small () {
+      if (f_ > 0.) {
+        while (f_ < smallest_normalized_value) {
+          f_ *= normalize_small_factor;
+          exp_ += smallest_normalized_radix_power;
+        }
+      }
+    }
+    void normalize () noexcept {
+      normalize_big ();
+      normalize_small ();
+    }
 
-inline std::string to_string (const ExtendedFloat & ef) {
-	using std::to_string;
-	return "double(" + to_string (ef.float_part ()) + " * 2^" + to_string (ef.exponent_part ()) + ")";
-}
+  private:
+    FloatType f_;
+    ExtType exp_;
+  };
+
+  inline ExtendedFloat denorm_mul (const ExtendedFloat & lhs, const ExtendedFloat & rhs) {
+    return {lhs.float_part () * rhs.float_part (), lhs.exponent_part () + rhs.exponent_part ()};
+  }
+
+  inline ExtendedFloat denorm_add (const ExtendedFloat & lhs, const ExtendedFloat & rhs) {
+    return (lhs.exponent_part ()>=rhs.exponent_part ())?
+      ExtendedFloat(lhs.float_part () + rhs.float_part () * constexpr_power<double>(ExtendedFloat::radix, rhs.exponent_part () - lhs.exponent_part ()), lhs.exponent_part ()):
+      ExtendedFloat(rhs.float_part () + lhs.float_part () * constexpr_power<double>(ExtendedFloat::radix, lhs.exponent_part () - rhs.exponent_part ()), rhs.exponent_part ());
+  }
+
+  inline ExtendedFloat operator* (const ExtendedFloat & lhs, const ExtendedFloat & rhs) {
+    auto r = denorm_mul (lhs, rhs);
+    r.normalize ();
+    return r;
+  }
+
+  inline ExtendedFloat pow (const ExtendedFloat & lhs, double exp) {
+    double b=lhs.exponent_part()*exp;
+    ExtendedFloat::ExtType e=ExtendedFloat::ExtType(lround(b));
+    ExtendedFloat r(std::pow(lhs.float_part(),exp)*std::pow(ExtendedFloat::radix,(b-e)), e);
+    r.normalize ();
+    return r;
+  }
+
+  inline ExtendedFloat operator+ (const ExtendedFloat & lhs, const ExtendedFloat & rhs) {
+    auto r = denorm_add (lhs, rhs);
+    r.normalize ();
+    return r;
+  }
+
+  inline ExtendedFloat operator- (const ExtendedFloat & lhs) {
+    return ExtendedFloat(-lhs.float_part(),lhs.exponent_part());
+  }
+
+  inline bool operator== (const ExtendedFloat & lhs, const ExtendedFloat & rhs) {
+    return (lhs.float_part()==rhs.float_part() && lhs.exponent_part()==rhs.exponent_part());
+  }
+
+  inline double log (const ExtendedFloat & ef) {
+    static const auto ln_radix = std::log (static_cast<double> (ExtendedFloat::radix));
+    return std::log (ef.float_part ()) + static_cast<double> (ef.exponent_part ()) * ln_radix;
+  }
+
+  //!!! no check on the validation of the conversion
+  inline double convert(const ExtendedFloat & ef) {
+    return ef.float_part () * constexpr_power<double>(ExtendedFloat::radix, ef.exponent_part ());
+  }
+
+  inline std::string to_string (const ExtendedFloat & ef) {
+    using std::to_string;
+    return "double(" + to_string (ef.float_part ()) + " * 2^" + to_string (ef.exponent_part ()) + ")";
+  }
 
 // TODO add Vector<EF> = Vector<double> + one exp (for lik vectors for one site, big tree case)
 // TODO add Vector<EF> = Vector<double> + Vector<exps> (for lik vec by site, eigen, delayed_norm)

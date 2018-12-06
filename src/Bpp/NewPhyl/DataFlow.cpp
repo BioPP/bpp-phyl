@@ -48,6 +48,7 @@
 #include <stack>       // invalidate/compute recursively + debug
 #include <type_traits> // DotOptions flags
 #include <typeinfo>
+#include <regex>
 #include <unordered_set> // debug
 
 #include "DataFlow.h"
@@ -140,18 +141,12 @@ namespace bpp {
     }
 
     std::string Node::description () const {
-      auto replaceAll = [](std::string & str, const std::string & pattern, const std::string & replacement) {
-        std::string::size_type i = str.find (pattern);
-        while (i != std::string::npos) {
-          str.replace (i, pattern.size (), replacement);
-          i = str.find (pattern, i + replacement.size ());
-        }
-      };
       std::string nodeType = prettyTypeName (typeid (*this));
       // Shorten displayed name by removing namespaces.
-      replaceAll (nodeType, "bpp::dataflow::", "");
-      replaceAll (nodeType, "Eigen::", "");
-      replaceAll (nodeType, "std::", "");
+      nodeType = std::regex_replace(nodeType, std::regex("bpp::dataflow::"), "");
+      nodeType = std::regex_replace(nodeType, std::regex("Eigen::"), "");
+      nodeType = std::regex_replace(nodeType, std::regex("std::"), "");
+      nodeType = std::regex_replace(nodeType, std::regex("(Matrix<)([^>]*>)"),"Matrix");
       return nodeType;
     }
 
@@ -278,6 +273,7 @@ namespace bpp {
       return typeid (lhs) == typeid (rhs) && lhs.dependencies () == rhs.dependencies () &&
              lhs.compareAdditionalArguments (rhs);
     }
+    
     std::size_t Context::CachedNodeRefHash::operator() (const CachedNodeRef & ref) const {
       const auto & node = *ref.ref;
       std::size_t seed = typeid (node).hash_code ();

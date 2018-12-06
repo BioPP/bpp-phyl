@@ -45,7 +45,7 @@
 #include <algorithm>
 
 #include <Bpp/Exceptions.h>
-#include <Bpp/NewPhyl/DataFlowNumeric.h>
+#include <Bpp/NewPhyl/DataFlowCWise.h>
 
 static bool enableDotOutput = false;
 
@@ -289,7 +289,7 @@ TEST_CASE("Convert")
 
   // Scalar to scalar
   auto f = Convert<float, double>::create(c, {d}, Dimension<float>());
-  CHECK(f->getValue() == 42);
+  CHECK(f->getValue() == 42.);
 
   // Scalar to matrix
   auto m2 = Convert<Eigen::MatrixXd, double>::create(c, {d}, MatrixDimension(1, 2));
@@ -315,11 +315,11 @@ TEST_CASE("Convert")
   // Check derivative
   auto dummy = std::make_shared<DoNothingNode>();
   auto df_ddummy = f->deriveAsValue(c, *dummy);
-  CHECK(df_ddummy->getValue() == 0);
+  CHECK(df_ddummy->getValue() == 0.);
   auto df_df = f->deriveAsValue(c, *f);
-  CHECK(df_df->getValue() == 1);
+  CHECK(df_df->getValue() == 1.);
   auto df_dd = f->deriveAsValue(c, *d);
-  CHECK(df_dd->getValue() == 1);
+  CHECK(df_dd->getValue() == 1.);
 
   dotOutput("Convert", {f.get(), m2.get(), m3.get(), df_df.get(), df_dd.get()});
   // Not tested: Constant simplifications

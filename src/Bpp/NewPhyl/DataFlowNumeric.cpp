@@ -68,14 +68,6 @@ namespace bpp {
   } // namespace numeric
 
   namespace dataflow {
-    void failureDeltaNotDerivable (const std::type_info & contextNodeType) {
-      throw Exception (prettyTypeName (contextNodeType) +
-                       ": does not support derivation for the delta dependency");
-    }
-    void failureNumericalDerivationNotConfigured () {
-      throw Exception ("Numerical derivation of expression is not configured: define the node "
-                       "providing the delta value, and choose a computation type.");
-    }
     void checkRecreateWithoutDependencies (const std::type_info & contextNodeType, const NodeRefVec & deps) {
       if (!deps.empty ()) {
         throw Exception (prettyTypeName (contextNodeType) +
@@ -114,63 +106,5 @@ namespace bpp {
     template class Convert<Eigen::MatrixXd, Transposed<Eigen::MatrixXd>>;
     template class Convert<Eigen::RowVectorXd, Transposed<Eigen::VectorXd>>;
     template class Convert<Eigen::VectorXd, Transposed<Eigen::RowVectorXd>>;
-
-    template class CWiseAdd<double, std::tuple<double, double>>;
-    template class CWiseAdd<Eigen::VectorXd, std::tuple<Eigen::VectorXd, Eigen::VectorXd>>;
-    template class CWiseAdd<Eigen::RowVectorXd, std::tuple<Eigen::RowVectorXd, Eigen::RowVectorXd>>;
-    template class CWiseAdd<Eigen::MatrixXd, std::tuple<Eigen::MatrixXd, Eigen::MatrixXd>>;
-
-    template class CWiseAdd<double, ReductionOf<double>>;
-    template class CWiseAdd<Eigen::VectorXd, ReductionOf<Eigen::VectorXd>>;
-    template class CWiseAdd<Eigen::RowVectorXd, ReductionOf<Eigen::RowVectorXd>>;
-    template class CWiseAdd<Eigen::MatrixXd, ReductionOf<Eigen::MatrixXd>>;
-
-    template class CWiseMul<double, std::tuple<double, double>>;
-    template class CWiseMul<Eigen::VectorXd, std::tuple<Eigen::VectorXd, Eigen::VectorXd>>;
-    template class CWiseMul<Eigen::RowVectorXd, std::tuple<Eigen::RowVectorXd, Eigen::RowVectorXd>>;
-    template class CWiseMul<Eigen::MatrixXd, std::tuple<Eigen::MatrixXd, Eigen::MatrixXd>>;
-    template class CWiseMul<Eigen::VectorXd, std::tuple<double, Eigen::VectorXd>>;
-    template class CWiseMul<Eigen::RowVectorXd, std::tuple<double, Eigen::RowVectorXd>>;
-    template class CWiseMul<Eigen::MatrixXd, std::tuple<double, Eigen::MatrixXd>>;
-
-    template class CWiseMul<double, ReductionOf<double>>;
-    template class CWiseMul<Eigen::VectorXd, ReductionOf<Eigen::VectorXd>>;
-    template class CWiseMul<Eigen::RowVectorXd, ReductionOf<Eigen::RowVectorXd>>;
-    template class CWiseMul<Eigen::MatrixXd, ReductionOf<Eigen::MatrixXd>>;
-
-    template class CWiseNegate<double>;
-    template class CWiseNegate<Eigen::VectorXd>;
-    template class CWiseNegate<Eigen::RowVectorXd>;
-    template class CWiseNegate<Eigen::MatrixXd>;
-
-    template class CWiseInverse<double>;
-    template class CWiseInverse<Eigen::VectorXd>;
-    template class CWiseInverse<Eigen::RowVectorXd>;
-    template class CWiseInverse<Eigen::MatrixXd>;
-
-    template class CWiseConstantPow<double>;
-    template class CWiseConstantPow<Eigen::VectorXd>;
-    template class CWiseConstantPow<Eigen::RowVectorXd>;
-    template class CWiseConstantPow<Eigen::MatrixXd>;
-
-    template class ScalarProduct<Eigen::VectorXd, Eigen::VectorXd>;
-    template class ScalarProduct<Eigen::RowVectorXd, Eigen::RowVectorXd>;
-
-    template class SumOfLogarithms<Eigen::VectorXd>;
-    template class SumOfLogarithms<Eigen::RowVectorXd>;
-
-    template class MatrixProduct<Eigen::MatrixXd, Eigen::MatrixXd, Eigen::MatrixXd>;
-    template class MatrixProduct<Eigen::RowVectorXd, Eigen::RowVectorXd, Eigen::MatrixXd>;
-    template class MatrixProduct<Eigen::MatrixXd, Transposed<Eigen::MatrixXd>, Eigen::MatrixXd>;
-
-    template class ShiftDelta<double>;
-    template class ShiftDelta<Eigen::VectorXd>;
-    template class ShiftDelta<Eigen::RowVectorXd>;
-    template class ShiftDelta<Eigen::MatrixXd>;
-
-    template class CombineDeltaShifted<double>;
-    template class CombineDeltaShifted<Eigen::VectorXd>;
-    template class CombineDeltaShifted<Eigen::RowVectorXd>;
-    template class CombineDeltaShifted<Eigen::MatrixXd>;
   } // namespace dataflow
 } // namespace bpp

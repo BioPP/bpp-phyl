@@ -41,8 +41,7 @@
 #ifndef BPP_NEWPHYL_DISCRETE_DISTRIBUTION_H
 #define BPP_NEWPHYL_DISCRETE_DISTRIBUTION_H 
 
-#include <Bpp/NewPhyl/DataFlow.h>
-#include <Bpp/NewPhyl/DataFlowNumeric.h>
+#include <Bpp/NewPhyl/DataFlowCWise.h>
 #include <Bpp/NewPhyl/Parametrizable.h>
 #include <Bpp/Exceptions.h>
 #include <functional>
@@ -127,22 +126,30 @@ namespace bpp {
       void compute () final;
 
       Dimension<T> nbClass_;
+
+    public:
+      static std::shared_ptr<Self> create (Context & c, NodeRefVec && deps);
+      
     };
 
-    /** Categories = f(DiscreteDistribution).
-     * Categories: RowVector(nbClass).
+    /** Rate = f(DiscreteDistribution, Category).
+     * Rate: Double.
      * DiscreteDistribution: ConfiguredDistribution.
+     * Category: number of the category
      *
      * Node construction should be done with the create static method.
      */
 
-    class CategoriesFromDiscreteDistribution : public Value<Eigen::RowVectorXd> {
+    class CategoryFromDiscreteDistribution : public Value<double> {
+    private:
+      uint nCat_;
+      
     public:
-      using Self = CategoriesFromDiscreteDistribution;
+      using Self = CategoryFromDiscreteDistribution;
       using Dep = ConfiguredDistribution;
-      using T = Eigen::RowVectorXd;
+      using T = double;
 
-      CategoriesFromDiscreteDistribution (NodeRefVec && deps, const Dimension<T> & dim);
+      CategoryFromDiscreteDistribution (NodeRefVec && deps, uint nCat_);
 
       std::string debugInfo () const final;
 
@@ -154,7 +161,9 @@ namespace bpp {
     private:
       void compute () final;
 
-      Dimension<T> nbClass_;
+    public:
+      static std::shared_ptr<Self> create (Context & c, NodeRefVec && deps, uint nCat);
+
     };
 
   } // namespace dataflow

@@ -297,6 +297,7 @@ namespace bpp {
       // Init deps
       template <typename... Args>
       Value (const NodeRefVec & deps, Args &&... args) : Node (deps), value_ (std::forward<Args> (args)...) {}
+
       template <typename... Args>
       Value (NodeRefVec && deps, Args &&... args)
         : Node (std::move (deps)), value_ (std::forward<Args> (args)...) {}

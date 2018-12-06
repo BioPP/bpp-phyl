@@ -43,11 +43,11 @@
 #ifndef BPP_NEWPHYL_PARAMETRIZABLE_H
 #define BPP_NEWPHYL_PARAMETRIZABLE_H
 
-#include <Bpp/NewPhyl/DataFlow.h>
-#include <Bpp/NewPhyl/DataFlowNumeric.h>
+#include <Bpp/NewPhyl/DataFlowCWise.h>
 #include <Bpp/Exceptions.h>
 #include <functional>
 #include <unordered_map>
+#include <iostream>
 
 namespace bpp {
 
@@ -57,7 +57,7 @@ namespace bpp {
 
     /** Helper: create a map with mutable dataflow nodes for each
         parameter of the parametrizable.
-     * The map is indexed by model parameter names.
+     * The map is indexed by parameter names.
      */
     
     std::unordered_map<std::string, std::shared_ptr<NumericMutable<double>>>
@@ -102,6 +102,21 @@ namespace bpp {
       }
 
 
+      /** Create a new vector of dependencies node to a double,
+       * through a inheriting class (aka Self), from a
+       * ConfiguredObject
+       *
+       */
+
+      template<typename ConfiguredObject, typename Self>
+      static ValueRef<double>
+      createDouble (Context & c, NodeRefVec && deps) {
+        checkDependenciesNotNull (typeid (Self), deps);
+        checkDependencyVectorSize (typeid (Self), deps, 1);
+        checkNthDependencyIs<ConfiguredObject> (typeid (Self), deps, 0);
+        return cachedAs<Value<double>> (c, std::make_shared<Self> (std::move (deps)));
+      }
+
       /** Create a new vector of dependencies node to a RowVectorXd,
        * through a inheriting class (aka Self), from a
        * ConfiguredObject
@@ -118,7 +133,6 @@ namespace bpp {
         checkNthDependencyIs<ConfiguredObject> (typeid (Self), deps, 0);
         return cachedAs<Value<Eigen::RowVectorXd>> (c, std::make_shared<Self> (std::move (deps), dim));
       }
-
 
       /** Create a new vector of dependencies node to a MatrixXd,
        * through a inheriting class (aka Self), from a

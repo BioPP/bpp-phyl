@@ -44,7 +44,7 @@
 #define BPP_NEWPHYL_LIKELIHOOD_H
 
 #include <Bpp/NewPhyl/DataFlow.h>
-#include <Bpp/NewPhyl/DataFlowNumeric.h>
+#include <Bpp/NewPhyl/DataFlowCWise.h>
 #include <functional>
 #include <unordered_map>
 
@@ -113,12 +113,19 @@ namespace bpp {
     using LikelihoodFromRootConditional =
       MatrixProduct<Eigen::RowVectorXd, Eigen::RowVectorXd, Eigen::MatrixXd>;
 
-    /** @brief totalLogLikelihood = sum_site log(likelihood(site)).
+    /** @brief totalLikelihood = product_site likelihood(site).
      * - likelihood: RowVector (site).
-     * - totalLogLikelihood: double.
+     * - totalLikelihood: Extended float.
      */
 
     using TotalLogLikelihood = SumOfLogarithms<Eigen::RowVectorXd>;
+
+    // /** @brief totalLikelihood = log(likelihood)
+    //  * - likelihood: double.
+    //  * - totalLogLikelihood: double.
+    //  */
+
+    // using LogLikelihood = CWiseLog<double>;
 
   } // namespace dataflow
 } // namespace bpp

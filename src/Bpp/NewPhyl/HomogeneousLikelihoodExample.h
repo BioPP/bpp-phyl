@@ -51,9 +51,10 @@
 #include "Bpp/Phyl/Model/FrequenciesSet/FrequenciesSet.h"
 #include "Bpp/Phyl/Tree/PhyloTree.h"
 
-#include "Bpp/NewPhyl/PhyloTree.h"
+#include "Bpp/NewPhyl/PhyloTree_BrRef.h"
 
 #include <unordered_map>
+#include <list>
 
 /* This file contains temporary helpers and wrappers.
  * They are used to bridge the gap between bpp::dataflow stuff and the rest of bpp.
@@ -63,6 +64,7 @@
  * Ultimately, stuff in this file should be changed to a new system to describe phylogenic computations, which
  * would generate dataflow graphs to do the actual computations.
  */
+
 namespace bpp {
 
   // Recursion helper class.
@@ -73,17 +75,15 @@ namespace bpp {
     dataflow::Context & c;
     dataflow::ValueRef<double> totalLogLikelihood;
     const AlignedValuesContainer & sites;
-    std::shared_ptr<dataflow::ConfiguredPhyloTree> tree;
-    std::shared_ptr<dataflow::ConfiguredModel> model;
+    std::shared_ptr<dataflow::PhyloTree_BrRef> tree;
     std::shared_ptr<dataflow::ConfiguredFrequenciesSet> rootFreqs;
     std::shared_ptr<dataflow::ConfiguredDistribution> rate;
     MatrixDimension likelihoodMatrixDim;
+    const StateMap& statemap;
     std::size_t nbState;
     std::size_t nbSite;
 
     dataflow::NodeRef makeInitialConditionalLikelihood (const std::string & sequenceName) {
-      const StateMap& statemap = model->getValue()->getStateMap();
-
       const auto sequenceIndex = sites.getSequencePosition (sequenceName);
       Eigen::MatrixXd initCondLik (nbState, nbSite);
       for (std::size_t site = 0; site < nbSite; ++site) {
@@ -92,30 +92,36 @@ namespace bpp {
             sites.getStateValueAt (site, sequenceIndex, statemap.getAlphabetStateAsInt(state));
         }
       }
-      return dataflow::NumericConstant<Eigen::MatrixXd>::create (c, std::move (initCondLik));
+      auto r=dataflow::NumericConstant<Eigen::MatrixXd>::create (c, std::move (initCondLik));
+      return r;
+      
     }
 
     dataflow::NodeRef makeForwardLikelihoodNode (PhyloTree::EdgeIndex index) {
-      const auto brlen = tree->dependency(tree->getParameterIndex("BrLen"+TextTools::toString(index)));
-
-      auto childConditionalLikelihood = makeConditionalLikelihoodNode (tree->getValue()->getSon (index));
+      const auto brlen = tree->getEdge(index)->getBrLen();//dependency(tree->getParameterIndex("BrLen"+TextTools::toString(index)));
+      const auto model= tree->getEdge(index)->getModel();
+      auto childConditionalLikelihood = makeConditionalLikelihoodNode (tree->getSon(index));
       auto transitionMatrix =
         dataflow::ConfiguredParametrizable::createMatrix<dataflow::ConfiguredModel, dataflow::TransitionMatrixFromModel> (c, {model, brlen}, transitionMatrixDimension (nbState));
-      return dataflow::ForwardLikelihoodFromConditional::create (
+      auto r= dataflow::ForwardLikelihoodFromConditional::create (
         c, {transitionMatrix, childConditionalLikelihood}, likelihoodMatrixDim);
+
+      return r;
     }
 
     dataflow::NodeRef makeConditionalLikelihoodNode (PhyloTree::NodeIndex index) {
-      const auto childBranchIndexes = tree->getValue()->getBranches (index);
+      const auto childBranchIndexes = tree->getBranches (index);
       if (childBranchIndexes.empty ()) {
-        return makeInitialConditionalLikelihood (tree->getValue()->getNode (index)->getName ());
+        return makeInitialConditionalLikelihood (tree->getNode (index)->getName ());
       } else {
         dataflow::NodeRefVec deps (childBranchIndexes.size ());
         for (std::size_t i = 0; i < childBranchIndexes.size (); ++i) {
           deps[i] = makeForwardLikelihoodNode (childBranchIndexes[i]);
         }
-        return dataflow::ConditionalLikelihoodFromChildrenForward::create (c, std::move (deps),
+        auto r= dataflow::ConditionalLikelihoodFromChildrenForward::create (c, std::move (deps),
                                                                            likelihoodMatrixDim);
+        return r;
+        
       }
     }
   };
@@ -133,42 +139,82 @@ namespace bpp {
   
   inline dataflow::ValueRef<double> makeHomogeneousLikelihoodNodes (dataflow::Context & c,
                                                                     const AlignedValuesContainer & sites,
-                                                                    std::shared_ptr<dataflow::ConfiguredPhyloTree> tree,
+                                                                    std::shared_ptr<dataflow::PhyloTree_BrRef> tree,
                                                                     std::shared_ptr<dataflow::ConfiguredModel> model,
-                                                                    std::shared_ptr<dataflow::ConfiguredFrequenciesSet> rootFreqs = 0) {
+                                                                    std::shared_ptr<dataflow::ConfiguredFrequenciesSet> rootFreqs = 0,
+                                                                    std::shared_ptr<dataflow::ConfiguredDistribution> rates = 0) {
 
     const auto nbState = model->getValue()->getNumberOfStates (); // Number of stored state values !
     const auto nbSite = sites.getNumberOfSites ();
     const auto likelihoodMatrixDim = conditionalLikelihoodDimension (nbState, nbSite);
 
     // Build conditional likelihoods up to root recursively.
-    if (!tree->getValue()->isRooted ()) {
+    if (!tree->isRooted ()) {
       throw Exception ("PhyloTree must be rooted");
     }
 
     // Recursively generate dataflow graph for conditional likelihood using helper struct.
-    HomogeneousLikelihoodNodesHelper helper{c, 0, sites, tree, model, rootFreqs, 0, likelihoodMatrixDim, nbState, nbSite};
-    
-    auto rootConditionalLikelihoods = helper.makeConditionalLikelihoodNode (tree->getValue()->getRootIndex ());
+    HomogeneousLikelihoodNodesHelper helper{c, 0, sites, tree, rootFreqs, rates, likelihoodMatrixDim, model->getValue()->getStateMap(), nbState, nbSite};
 
-    // Combine them to equilibrium frequencies to get the log likelihood
+    // Set root frequencies 
     auto rFreqs = rootFreqs?dataflow::ConfiguredParametrizable::createVector<dataflow::ConfiguredFrequenciesSet, dataflow::FrequenciesFromFrequenciesSet> (
       c, {rootFreqs}, rowVectorDimension (Eigen::Index (nbState))):
       dataflow::ConfiguredParametrizable::createVector<dataflow::ConfiguredModel, dataflow::EquilibriumFrequenciesFromModel> (
         c, {model}, rowVectorDimension (Eigen::Index (nbState)));
+
+    dataflow::ValueRef<Eigen::RowVectorXd> siteLikelihoods;
     
-    auto siteLikelihoods = dataflow::LikelihoodFromRootConditional::create (
-      c, {rFreqs, rootConditionalLikelihoods}, rowVectorDimension (Eigen::Index (nbSite)));
+    if (rates)
+    {
+      auto brlenmap = bpp::dataflow::createBrLenMap(c, *tree);
+      
+      uint nbCat=(uint)rates->getValue()->getNumberOfCategories();
+
+      std::vector<std::shared_ptr<bpp::dataflow::Node>> vLogRoot;
+      
+      for (uint nCat=0; nCat<nbCat; nCat++)
+      {
+        auto catRef = bpp::dataflow::CategoryFromDiscreteDistribution::create(c, {rates}, nCat);
+  
+        auto rateBrLen = bpp::dataflow::multiplyBrLenMap(c, *tree, std::move(catRef));
+
+        auto treeCat = std::shared_ptr<bpp::dataflow::PhyloTree_BrRef>(new bpp::dataflow::PhyloTree_BrRef(*tree, std::move(rateBrLen)));
+
+        HomogeneousLikelihoodNodesHelper helperCat{c, 0, sites, treeCat, rootFreqs,0, likelihoodMatrixDim, model->getValue()->getStateMap(), nbState, nbSite};
+
+        auto rootConditionalLikelihoods=helperCat.makeConditionalLikelihoodNode (treeCat->getRootIndex ());
+
+        auto siteLikelihoodsCat = dataflow::LikelihoodFromRootConditional::create (
+          c, {rFreqs, rootConditionalLikelihoods}, rowVectorDimension (Eigen::Index (nbSite)));
+
+        vLogRoot.push_back(std::move(siteLikelihoodsCat));
+      }
+
+      auto catProb = bpp::dataflow::ProbabilitiesFromDiscreteDistribution::create(c, {rates});
+
+      vLogRoot.push_back(catProb);
+      
+      siteLikelihoods = bpp::dataflow::CWiseMean<Eigen::RowVectorXd, bpp::dataflow::ReductionOf<Eigen::RowVectorXd>, Eigen::RowVectorXd>::create(c, std::move(vLogRoot), rowVectorDimension (Eigen::Index(nbSite)));
+    }
+    else
+    {
+      auto rootConditionalLikelihoods=helper.makeConditionalLikelihoodNode (tree->getRootIndex ());
+
+      siteLikelihoods = dataflow::LikelihoodFromRootConditional::create (
+        c, {rFreqs, rootConditionalLikelihoods}, rowVectorDimension (Eigen::Index (nbSite)));
+    }
     
     auto totalLogLikelihood =
-      dataflow::TotalLogLikelihood::create (c, {siteLikelihoods}, rowVectorDimension (Eigen::Index (nbSite)));
+      dataflow::SumOfLogarithms<Eigen::RowVectorXd>::create (c, {siteLikelihoods}, rowVectorDimension (Eigen::Index (nbSite)));
 
-    // We want -log(likelihood)
-    totalLogLikelihood =
+// We want -log(likelihood)
+    auto totalNegLogLikelihood =
       dataflow::CWiseNegate<double>::create (c, {totalLogLikelihood}, Dimension<double> ());
-    return totalLogLikelihood;
+
+    return totalNegLogLikelihood;
   }
 
 } // namespace bpp
 
 #endif // BPP_NEWPHYL_HOMOGENEOUS_LIKELIHOOD_EXAMPLE_H
+

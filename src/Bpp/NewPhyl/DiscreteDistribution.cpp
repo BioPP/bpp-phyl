@@ -146,49 +146,65 @@ namespace bpp {
       r = Eigen::Map<const T> (probasFromDistrib.data(), static_cast<Eigen::Index> (probasFromDistrib.size ()));
     }
 
-    ////////////////////////////////////////////////////
-    // CategoriesFromDiscreteDistribution
 
-    CategoriesFromDiscreteDistribution::CategoriesFromDiscreteDistribution (
-      NodeRefVec && deps, const Dimension<Eigen::RowVectorXd> & dim)
-      : Value<Eigen::RowVectorXd> (std::move (deps)), nbClass_ (dim) {}
+    std::shared_ptr<ProbabilitiesFromDiscreteDistribution> ProbabilitiesFromDiscreteDistribution::create(Context & c, NodeRefVec && deps)
+    {
+      checkDependenciesNotNull (typeid (Self), deps);
+      checkDependencyVectorSize (typeid (Self), deps, 1);
+      checkNthDependencyIs<ConfiguredDistribution> (typeid (Self), deps, 0);
+      size_t nbCat=accessValueConstCast<DiscreteDistribution*> (*deps[0])->getNumberOfCategories();
+      return cachedAs<ProbabilitiesFromDiscreteDistribution> (c, std::make_shared<ProbabilitiesFromDiscreteDistribution> (std::move(deps), rowVectorDimension(Eigen::Index(nbCat))));
+    }
+      
+
+    ////////////////////////////////////////////////////
+    // CategoryFromDiscreteDistribution
+
+    CategoryFromDiscreteDistribution::CategoryFromDiscreteDistribution (
+      NodeRefVec && deps, uint nCat)
+      : Value<double> (std::move (deps)), nCat_ (nCat) {}
 
     
-    std::string CategoriesFromDiscreteDistribution::debugInfo () const {
+    std::string CategoryFromDiscreteDistribution::debugInfo () const {
       using namespace numeric;
-      return debug (this->accessValueConst ()) + " nbClass=" + to_string (nbClass_);
+      return "rate=" + TextTools::toString(accessValueConst()) + ":nCat=" + TextTools::toString(nCat_);
     }
 
-    // CategoriesFromDiscreteDistribution additional arguments = ().
-    bool CategoriesFromDiscreteDistribution::compareAdditionalArguments (const Node & other) const {
-      return dynamic_cast<const Self *> (&other) != nullptr;
+    // CategoryFromDiscreteDistribution additional arguments = ().
+    bool CategoryFromDiscreteDistribution::compareAdditionalArguments (const Node & other) const {
+      const auto * derived = dynamic_cast<const Self *> (&other);
+      return derived != nullptr && nCat_ == derived->nCat_;
     }
 
-    NodeRef CategoriesFromDiscreteDistribution::derive (Context & c, const Node & node) {
+    std::shared_ptr<CategoryFromDiscreteDistribution> CategoryFromDiscreteDistribution::create (Context & c, NodeRefVec && deps, uint nCat) {
+      checkDependenciesNotNull (typeid (Self), deps);
+      checkDependencyVectorSize (typeid (Self), deps, 1);
+      checkNthDependencyIs<ConfiguredDistribution> (typeid (Self), deps, 0);
+      return cachedAs<CategoryFromDiscreteDistribution> (c, std::make_shared<CategoryFromDiscreteDistribution> (std::move (deps), nCat));
+    }
+
+    NodeRef CategoryFromDiscreteDistribution::derive (Context & c, const Node & node) {
       // d(Prob)/dn = sum_i d(Prob)/dx_i * dx_i/dn (x_i = distrib parameters)
       auto distribDep = this->dependency (0);
       auto & distrib = static_cast<Dep &> (*distribDep);
       auto buildPWithNewDistrib = [this, &c](NodeRef && newDistrib) {
-        return ConfiguredParametrizable::createVector<Dep, Self> (c, {std::move (newDistrib)}, nbClass_);
+        return this->create (c, {std::move (newDistrib)}, nCat_);
       };
       
-      NodeRefVec derivativeSumDeps = ConfiguredParametrizable::generateDerivativeSumDepsForComputations<ConfiguredDistribution, T > (
-        c, distrib, node, nbClass_, buildPWithNewDistrib);
-      return CWiseAdd<T, ReductionOf<T>>::create (c, std::move (derivativeSumDeps), nbClass_);
+      NodeRefVec derivativeSumDeps = ConfiguredParametrizable::generateDerivativeSumDepsForComputations<Dep, T > (
+        c, distrib, node, 1, buildPWithNewDistrib);
+      return CWiseAdd<T, ReductionOf<T>>::create (c, std::move (derivativeSumDeps), 1);
     }
 
-    NodeRef CategoriesFromDiscreteDistribution::recreate (Context & c, NodeRefVec && deps) {
-      return ConfiguredParametrizable::createVector<Dep, Self> (c, std::move (deps), nbClass_);
+    NodeRef CategoryFromDiscreteDistribution::recreate (Context & c, NodeRefVec && deps) {
+      return CategoryFromDiscreteDistribution::create (c, {std::move (deps)}, nCat_);
     }
 
-    void CategoriesFromDiscreteDistribution::compute () {
+    void CategoryFromDiscreteDistribution::compute () {
       const auto * distrib = accessValueConstCast<const DiscreteDistribution *> (*this->dependency (0));
-      const auto & categoriesFromDistrib = distrib->getCategories ();
-      auto & r = this->accessValueMutable ();
-      r = Eigen::Map<const T> (categoriesFromDistrib.data(), static_cast<Eigen::Index> (categoriesFromDistrib.size ()));
+      double categoryFromDistrib = distrib->getCategory(nCat_);
+      this->accessValueMutable () = categoryFromDistrib;
     }
-
-
 
   } // namespace dataflow
 } // namespace bpp

@@ -43,7 +43,7 @@
 #define BPP_NEWPHYL_FREQUENCIES_SET_H
 
 #include <Bpp/NewPhyl/DataFlow.h>
-#include <Bpp/NewPhyl/DataFlowNumeric.h>
+#include <Bpp/NewPhyl/DataFlowCWise.h>
 #include <Bpp/Exceptions.h>
 #include <functional>
 #include <unordered_map>
