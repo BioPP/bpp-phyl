@@ -110,7 +110,7 @@ ProbabilisticRewardMapping* RewardMappingTools::computeRewardVectors(
     if (nodeIds.size() > 0 && !VectorTools::contains(nodeIds, (int)edid))
       continue;
 
-    uint fathid=rewards->getFather(edid);
+    uint fathid=rewards->getFatherOfEdge(edid);
     uint icid=rewards->getSon(edid);
 
     double d=br->getLength();

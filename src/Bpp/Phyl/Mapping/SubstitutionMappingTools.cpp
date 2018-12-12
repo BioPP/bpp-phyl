@@ -179,7 +179,7 @@ ProbabilisticSubstitutionMapping* SubstitutionMappingTools::computeCounts(
     if (nodeIds.size() > 0 && !VectorTools::contains(nodeIds, (int)edid))
       continue;
 
-    uint fathid=substitutions->getFather(edid);
+    uint fathid=substitutions->getFatherOfEdge(edid);
     uint icid=substitutions->getSon(edid);
 
     double d=br->getLength();

@@ -451,7 +451,7 @@ void Nhx::checkNodesId_(PhyloTree& tree) const
   vector<shared_ptr<PhyloNode> > vNode;
   
   for (;!nIT->end(); nIT->next())
-    if (tree.hasIndex(**nIT))
+    if (tree.hasNodeIndex(**nIT))
       nid.push_back(tree.getNodeIndex(**nIT));
     else
       vNode.push_back(**nIT);

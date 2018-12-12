@@ -380,7 +380,7 @@ namespace bpp
     id_ = index;
 
     std::shared_ptr<N> thisN=tree->getNode(index);
-    father_ = tree->hasFather(thisN)?dynamic_cast<AwareNode*>(tree->getFather(thisN).get()):0;
+    father_ = tree->hasFather(thisN)?dynamic_cast<AwareNode*>(tree->getFatherOfNode(thisN).get()):0;
     
     sons_.clear();
     std::vector< std::shared_ptr<N> > vS=tree->getSons(thisN);
