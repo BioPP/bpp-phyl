@@ -146,8 +146,6 @@ namespace bpp
           setNodeIndex(pn,tree.getNodeIndex(pn));
         }
         
-        rootAt(tree.getRoot());
-
         // Ids of the branches in the graph may be different from the ids in the observer phyloTree
         vector<uint> vEdgesId=tree.getGraph()->getAllEdges();
         

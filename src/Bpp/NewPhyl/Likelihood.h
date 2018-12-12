@@ -79,28 +79,6 @@ namespace bpp {
   // Dataflow nodes for likelihood computation.
   namespace dataflow {
     
-    /** conditionalLikelihood = f(forwardLikelihood[children[i]] for i).
-     * conditionalLikelihood: Matrix(state, site).
-     * forwardLikelihood[i]: Matrix(state, site).
-     *
-     * c(state, site) = prod_i f_i(state, site).
-     * Using member wise multiply: c = prod_member_i f_i.
-     */
-    
-    using ConditionalLikelihoodFromChildrenForward = CWiseMul<Eigen::MatrixXd, ReductionOf<Eigen::MatrixXd>>;
-
-    /** @brief forwardLikelihood = f(transitionMatrix, conditionalLikelihood).
-     * - forwardLikelihood: Matrix(state, site).
-     * - transitionMatrix: Matrix (fromState, toState)
-     * - conditionalLikelihood: Matrix(state, site).
-     *
-     * f(toState, site) = sum_fromState P(fromState, toState) * c(fromState, site).
-     * Using matrix multiply with transposition: f = transposed(transitionMatrix) * c.
-     */
-    
-    using ForwardLikelihoodFromConditional =
-      MatrixProduct<Eigen::MatrixXd, Transposed<Eigen::MatrixXd>, Eigen::MatrixXd>;
-
     /** @brief likelihood = f(equilibriumFrequencies, rootConditionalLikelihood).
      * - likelihood: RowVector(site).
      * - equilibriumFrequencies: RowVector(state).
