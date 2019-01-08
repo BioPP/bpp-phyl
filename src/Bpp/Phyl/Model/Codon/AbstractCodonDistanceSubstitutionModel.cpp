@@ -59,12 +59,12 @@ AbstractCodonDistanceSubstitutionModel::AbstractCodonDistanceSubstitutionModel(
   stateMap_(new CanonicalStateMap(pgencode->getSourceAlphabet(), false))
 {
   if (pdistance_)
-    addParameter_(new Parameter(prefix + "alpha", 10000, &Parameter::R_PLUS_STAR));
+    addParameter_(new Parameter(prefix + "alpha", 10000, Parameter::R_PLUS_STAR));
 
   if (paramSynRate)
-    addParameter_(new Parameter(prefix + "gamma", 1, new IntervalConstraint(NumConstants::SMALL(), 999, true, true), true));
+    addParameter_(new Parameter(prefix + "gamma", 1, std::make_shared<IntervalConstraint>(NumConstants::SMALL(), 999, true, true)));
 
-  addParameter_(new Parameter(prefix + "beta", 1, new IntervalConstraint(NumConstants::SMALL(), 999, true, true), true));
+  addParameter_(new Parameter(prefix + "beta", 1, std::make_shared<IntervalConstraint>(NumConstants::SMALL(), 999, true, true)));
 }
 
 void AbstractCodonDistanceSubstitutionModel::fireParameterChanged(const ParameterList& parameters)

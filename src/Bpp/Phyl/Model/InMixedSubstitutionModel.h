@@ -262,7 +262,7 @@ namespace bpp
     void addRateParameter()
     {
       getMixedModel().addRateParameter();
-      addParameter_(new Parameter(getNamespace() + "rate", getMixedModel().getRate(), &Parameter::R_PLUS_STAR));
+      addParameter_(new Parameter(getNamespace() + "rate", getMixedModel().getRate(), Parameter::R_PLUS_STAR));
     }
 
     /*

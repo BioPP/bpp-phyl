@@ -919,12 +919,12 @@ TreeLikelihood* PhylogeneticsApplicationTools::optimizeParameters(
         Parameter& par = parametersToEstimate.getParameter(parNames2[i]);
         if (par.hasConstraint())
         {
-          par.setConstraint(ic & (*par.getConstraint()), true);
+          par.setConstraint(std::shared_ptr<Constraint>(ic & (*par.getConstraint())));
           if (par.getConstraint()->isEmpty())
             throw Exception("Empty interval for parameter " + parNames[i] + par.getConstraint()->getDescription());
         }
         else
-          par.setConstraint(ic.clone(), true);
+          par.setConstraint(std::shared_ptr<Constraint>(ic.clone()));
 
         if (verbose)
           ApplicationTools::displayResult("Parameter constrained " + par.getName(), par.getConstraint()->getDescription());
@@ -1385,7 +1385,7 @@ void PhylogeneticsApplicationTools::checkEstimatedParameters(const ParameterList
 {
   for (size_t i = 0; i < pl.size(); ++i)
   {
-    const Constraint* constraint = pl[i].getConstraint();
+    auto constraint = pl[i].getConstraint();
     if (constraint)
     {
       double value = pl[i].getValue();

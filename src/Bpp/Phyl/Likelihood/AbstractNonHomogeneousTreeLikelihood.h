@@ -124,7 +124,7 @@ class AbstractNonHomogeneousTreeLikelihood:
 
     double minimumBrLen_;
     double maximumBrLen_;
-    std::unique_ptr<Constraint> brLenConstraint_;
+    std::shared_ptr<Constraint> brLenConstraint_;
 
     bool reparametrizeRoot_;
     int root1_, root2_;
@@ -259,8 +259,7 @@ class AbstractNonHomogeneousTreeLikelihood:
       if (minimum > maximumBrLen_)
         throw Exception("AbstractNonHomogeneousTreeLikelihood::setMinimumBranchLength. Minimum branch length sould be lower than the maximum one: " + TextTools::toString(maximumBrLen_));
       minimumBrLen_ = minimum;
-      if (brLenConstraint_.get()) brLenConstraint_.release();
-      brLenConstraint_.reset(new IntervalConstraint(minimumBrLen_, maximumBrLen_, true, true));
+      brLenConstraint_=std::make_shared<IntervalConstraint>(minimumBrLen_, maximumBrLen_, true, true);
       initBranchLengthsParameters();
     }
 
@@ -269,8 +268,7 @@ class AbstractNonHomogeneousTreeLikelihood:
       if (maximum < minimumBrLen_)
         throw Exception("AbstractNonHomogeneousTreeLikelihood::setMaximumBranchLength. Maximum branch length sould be higher than the minimum one: " + TextTools::toString(minimumBrLen_));
       maximumBrLen_ = maximum;
-      if (brLenConstraint_.get()) brLenConstraint_.release();
-      brLenConstraint_.reset(new IntervalConstraint(minimumBrLen_, maximumBrLen_, true, true));
+      brLenConstraint_=std::make_shared<IntervalConstraint>(minimumBrLen_, maximumBrLen_, true, true);
       initBranchLengthsParameters();
     }
 

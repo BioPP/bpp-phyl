@@ -112,7 +112,7 @@ namespace bpp
     mutable VVdouble leafLikelihoods1_, leafLikelihoods2_;
   
     double minimumBrLen_;
-    Constraint* brLenConstraint_;
+    std::shared_ptr<Constraint> brLenConstraint_;
     double brLen_;
 
   public:
@@ -247,8 +247,7 @@ namespace bpp
     virtual void setMinimumBranchLength(double minimum)
     {
       minimumBrLen_ = minimum;
-      if (brLenConstraint_) delete brLenConstraint_;
-      brLenConstraint_ = new IntervalConstraint(1, minimumBrLen_, true);
+      brLenConstraint_ = std::make_shared<IntervalConstraint>(IntervalConstraint(1, minimumBrLen_, true));
       initBranchLengthsParameters();
     }
 

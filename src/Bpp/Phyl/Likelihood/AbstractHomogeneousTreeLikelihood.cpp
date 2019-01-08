@@ -131,9 +131,7 @@ AbstractHomogeneousTreeLikelihood& AbstractHomogeneousTreeLikelihood::operator=(
   verbose_         = lik.verbose_;
   minimumBrLen_    = lik.minimumBrLen_;
   maximumBrLen_    = lik.maximumBrLen_;
-  if (brLenConstraint_.get())
-    brLenConstraint_.release();
-  brLenConstraint_.reset(lik.brLenConstraint_->clone());
+  brLenConstraint_ = std::shared_ptr<Constraint>(lik.brLenConstraint_->clone());
   return *this;
 }
 
@@ -164,7 +162,7 @@ void AbstractHomogeneousTreeLikelihood::init_(
 
   minimumBrLen_ = 0.000001;
   maximumBrLen_ = 10000;
-  brLenConstraint_.reset(new IntervalConstraint(minimumBrLen_, maximumBrLen_, true, true));
+  brLenConstraint_=std::make_shared<IntervalConstraint>(minimumBrLen_, maximumBrLen_, true, true);
 }
 
 /******************************************************************************/
@@ -334,7 +332,7 @@ void AbstractHomogeneousTreeLikelihood::initBranchLengthsParameters(bool verbose
         d = maximumBrLen_;
       }
     }
-    brLenParameters_.addParameter(Parameter("BrLen" + TextTools::toString(i), d, brLenConstraint_->clone(), true)); // Attach constraint to avoid clonage problems!
+    brLenParameters_.addParameter(Parameter("BrLen" + TextTools::toString(i), d, brLenConstraint_));
   }
 }
 

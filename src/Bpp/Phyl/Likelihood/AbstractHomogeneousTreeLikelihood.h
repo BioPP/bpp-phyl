@@ -113,7 +113,7 @@ protected:
 
   double minimumBrLen_;
   double maximumBrLen_;
-  std::unique_ptr<Constraint> brLenConstraint_;
+  std::shared_ptr<Constraint> brLenConstraint_;
 
 public:
   AbstractHomogeneousTreeLikelihood(
@@ -250,8 +250,7 @@ public:
     if (minimum > maximumBrLen_)
       throw Exception("AbstractHomogeneousTreeLikelihood::setMinimumBranchLength. Minimum branch length sould be lower than the maximum one: " + TextTools::toString(maximumBrLen_));
     minimumBrLen_ = minimum;
-    if (brLenConstraint_.get()) brLenConstraint_.release();
-    brLenConstraint_.reset(new IntervalConstraint(minimumBrLen_, maximumBrLen_, true, true));
+    brLenConstraint_ = std::make_shared<IntervalConstraint>(minimumBrLen_, maximumBrLen_, true, true);
     initBranchLengthsParameters();
   }
 
@@ -260,8 +259,7 @@ public:
     if (maximum < minimumBrLen_)
       throw Exception("AbstractHomogeneousTreeLikelihood::setMaximumBranchLength. Maximum branch length sould be higher than the minimum one: " + TextTools::toString(minimumBrLen_));
     maximumBrLen_ = maximum;
-    if (brLenConstraint_.get()) brLenConstraint_.release();
-    brLenConstraint_.reset(new IntervalConstraint(minimumBrLen_, maximumBrLen_, true, true));
+    brLenConstraint_ = std::make_shared<IntervalConstraint>(minimumBrLen_, maximumBrLen_, true, true);
     initBranchLengthsParameters();
   }
 

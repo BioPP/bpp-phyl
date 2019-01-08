@@ -117,12 +117,12 @@ YNGP_M3::YNGP_M3(const GeneticCode* gc, FrequenciesSet* codonFreqs, unsigned int
     st = pmixmodel_->getParameterNameWithoutNamespace(it->first);
     if (it->second.substr(0, 5) != "delta")
       addParameter_(new Parameter("YNGP_M3." + it->second, pmixmodel_->getParameterValue(st),
-                              pmixmodel_->getParameter(st).hasConstraint() ? pmixmodel_->getParameter(st).getConstraint()->clone() : 0, true));
+                                  pmixmodel_->getParameter(st).hasConstraint() ? std::shared_ptr<Constraint>(pmixmodel_->getParameter(st).getConstraint()->clone()) : 0));
   }
 
   for (size_t i = 1; i < nbOmega; ++i)
   {
-    addParameter_(new Parameter("YNGP_M3.delta" + TextTools::toString(i), 0.5, new IntervalConstraint(NumConstants::MILLI(), 999, true, true, NumConstants::MILLI()), true));
+    addParameter_(new Parameter("YNGP_M3.delta" + TextTools::toString(i), 0.5, std::make_shared<IntervalConstraint>(NumConstants::MILLI(), 999, true, true, NumConstants::MILLI())));
   }
 
   // look for synonymous codons

@@ -75,7 +75,7 @@ TripletSubstitutionModel::TripletSubstitutionModel(
   // relative rates
   for (i = 0; i < 2; i++)
   {
-    addParameter_(new Parameter("Triplet.relrate" + TextTools::toString(i+1), 1.0 / (3 - i), &Parameter::PROP_CONSTRAINT_EX));
+    addParameter_(new Parameter("Triplet.relrate" + TextTools::toString(i+1), 1.0 / (3 - i), Parameter::PROP_CONSTRAINT_EX));
   }
 
   WordSubstitutionModel::updateMatrices();
@@ -131,7 +131,7 @@ TripletSubstitutionModel::TripletSubstitutionModel(
   // relative rates
   for (i = 0; i < 2; i++)
   {
-    addParameter_(new Parameter(st + "relrate" + TextTools::toString(i+1), 1.0 / (3 - i),&Parameter::PROP_CONSTRAINT_EX));
+    addParameter_(new Parameter(st + "relrate" + TextTools::toString(i+1), 1.0 / (3 - i),Parameter::PROP_CONSTRAINT_EX));
   }
 
   WordSubstitutionModel::updateMatrices();

@@ -68,7 +68,7 @@ WordSubstitutionModel::WordSubstitutionModel(
   // relative rates
   for (i = 0; i < nbmod - 1; i++)
   {
-    addParameter_(new Parameter("Word.relrate" + TextTools::toString(i + 1), 1.0 / static_cast<int>(nbmod - i), &Parameter::PROP_CONSTRAINT_EX));
+    addParameter_(new Parameter("Word.relrate" + TextTools::toString(i + 1), 1.0 / static_cast<int>(nbmod - i), Parameter::PROP_CONSTRAINT_EX));
   }
 
   enableEigenDecomposition(false); // the product of the position
@@ -104,7 +104,7 @@ WordSubstitutionModel::WordSubstitutionModel(
   // relative rates
   for (i = 0; i < num - 1; i++)
   {
-    addParameter_(new Parameter("Word.relrate" + TextTools::toString(i + 1), 1.0 / static_cast<int>(num - i ), &Parameter::PROP_CONSTRAINT_EX));
+    addParameter_(new Parameter("Word.relrate" + TextTools::toString(i + 1), 1.0 / static_cast<int>(num - i ), Parameter::PROP_CONSTRAINT_EX));
   }
 
   enableEigenDecomposition(false); // the product of the position

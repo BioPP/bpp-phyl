@@ -86,7 +86,7 @@ public:
     ratesFreq_ = std::vector<double>(nbRates_, 1. / static_cast<double>(nbRates_));
     rDist_->setNamespace(getNamespace() + nestedRatePrefix_);
     addParameters_(rDist_->getIndependentParameters());
-    addParameter_(new Parameter("G01.nu", nu, &Parameter::R_PLUS));
+    addParameter_(new Parameter("G01.nu", nu, Parameter::R_PLUS));
     updateRatesModel();
     updateMatrices();
   }

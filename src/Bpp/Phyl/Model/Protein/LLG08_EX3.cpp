@@ -78,7 +78,7 @@ LLG08_EX3::LLG08_EX3(const ProteicAlphabet* alpha) :
     mapParNamesFromPmodel_[name] = st;
     addParameter_(new Parameter("LLG08_EX3." + st,
                             pmixmodel_->getParameterValue(st),
-                            pmixmodel_->getParameter(st).hasConstraint() ? pmixmodel_->getParameter(st).getConstraint()->clone() : 0, true));
+                                pmixmodel_->getParameter(st).hasConstraint() ? std::shared_ptr<Constraint>(pmixmodel_->getParameter(st).getConstraint()->clone()) : 0));
   }
 
   updateMatrices();

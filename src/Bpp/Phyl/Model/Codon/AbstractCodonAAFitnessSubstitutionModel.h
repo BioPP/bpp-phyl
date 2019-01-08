@@ -147,7 +147,7 @@ namespace bpp
 
     void addNsParameter()
     {
-      addParameter_(new Parameter("Ns", 1, new IntervalConstraint(NumConstants::MILLI(), 100, true, true), true));
+      addParameter_(new Parameter("Ns", 1, std::make_shared<IntervalConstraint>(NumConstants::MILLI(), 100, true, true)));
     }
 
 

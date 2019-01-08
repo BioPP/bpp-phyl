@@ -110,10 +110,10 @@ YNGP_M8::YNGP_M8(const GeneticCode* gc, FrequenciesSet* codonFreqs, unsigned int
     st = pmixmodel_->getParameterNameWithoutNamespace(it->first);
     if (it->second != "omegas")
       addParameter_(new Parameter("YNGP_M8." + it->second, pmixmodel_->getParameterValue(st),
-                              pmixmodel_->getParameter(st).hasConstraint() ? pmixmodel_->getParameter(st).getConstraint()->clone() : 0, true));
+                                  pmixmodel_->getParameter(st).hasConstraint() ? std::shared_ptr<Constraint>(pmixmodel_->getParameter(st).getConstraint()->clone()) : 0));
   }
 
-  addParameter_(new Parameter("YNGP_M8.omegas", 2., new IntervalConstraint(1, 1, false), true));
+  addParameter_(new Parameter("YNGP_M8.omegas", 2., std::make_shared<IntervalConstraint>(1, 1, false)));
 
   // look for synonymous codons
   for (synfrom_ = 1; synfrom_ < supportedChars.size(); synfrom_++)
