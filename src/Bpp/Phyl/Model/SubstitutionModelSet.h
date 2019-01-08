@@ -252,13 +252,13 @@ public:
    */
   const TransitionModel* getModel(size_t i) const
   {
-    if (i >= modelSet_.size()) throw IndexOutOfBoundsException("SubstitutionModelSet::getModel(i).", 0, modelSet_.size() - 1, i);
+    if (i >= modelSet_.size()) throw IndexOutOfBoundsException("SubstitutionModelSet::getModel(i).", i, 0, modelSet_.size() - 1);
     return modelSet_[i];
   }
 
   TransitionModel* getModel(size_t i)
   {
-    if (i >= modelSet_.size()) throw IndexOutOfBoundsException("SubstitutionModelSet::getModel(i).", 0, modelSet_.size() - 1, i);
+    if (i >= modelSet_.size()) throw IndexOutOfBoundsException("SubstitutionModelSet::getModel(i).", i, 0, modelSet_.size() - 1);
     return modelSet_[i];
   }
 
