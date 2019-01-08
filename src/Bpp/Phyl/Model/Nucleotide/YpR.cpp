@@ -407,10 +407,10 @@ YpR_Sym::YpR_Sym(const RNY* alph,
                  double CaT, double TaC) : AbstractParameterAliasable("YpR_Sym."),
   YpR(alph, pm, "YpR_Sym.")
 {
-  addParameter_(new Parameter("YpR_Sym.rCgT", CgT, &Parameter::R_PLUS));
-  addParameter_(new Parameter("YpR_Sym.rTgC", TgC, &Parameter::R_PLUS));
-  addParameter_(new Parameter("YpR_Sym.rCaT", CaT, &Parameter::R_PLUS));
-  addParameter_(new Parameter("YpR_Sym.rTaC", TaC, &Parameter::R_PLUS));
+  addParameter_(new Parameter("YpR_Sym.rCgT", CgT, Parameter::R_PLUS));
+  addParameter_(new Parameter("YpR_Sym.rTgC", TgC, Parameter::R_PLUS));
+  addParameter_(new Parameter("YpR_Sym.rCaT", CaT, Parameter::R_PLUS));
+  addParameter_(new Parameter("YpR_Sym.rTaC", TaC, Parameter::R_PLUS));
 
   updateMatrices();
 }
@@ -450,14 +450,14 @@ YpR_Gen::YpR_Gen(const RNY* alph,
                  double TaC, double tAG) : AbstractParameterAliasable("YpR_Gen."),
   YpR(alph, pm, "YpR_Gen.")
 {
-  addParameter_(new Parameter("YpR_Gen.rCgT", CgT, &Parameter::R_PLUS));
-  addParameter_(new Parameter("YpR_Gen.rcGA", cGA, &Parameter::R_PLUS));
-  addParameter_(new Parameter("YpR_Gen.rTgC", TgC, &Parameter::R_PLUS));
-  addParameter_(new Parameter("YpR_Gen.rtGA", tGA, &Parameter::R_PLUS));
-  addParameter_(new Parameter("YpR_Gen.rCaT", CaT, &Parameter::R_PLUS));
-  addParameter_(new Parameter("YpR_Gen.rcAG", cAG, &Parameter::R_PLUS));
-  addParameter_(new Parameter("YpR_Gen.rTaC", TaC, &Parameter::R_PLUS));
-  addParameter_(new Parameter("YpR_Gen.rtAG", tAG, &Parameter::R_PLUS));
+  addParameter_(new Parameter("YpR_Gen.rCgT", CgT, Parameter::R_PLUS));
+  addParameter_(new Parameter("YpR_Gen.rcGA", cGA, Parameter::R_PLUS));
+  addParameter_(new Parameter("YpR_Gen.rTgC", TgC, Parameter::R_PLUS));
+  addParameter_(new Parameter("YpR_Gen.rtGA", tGA, Parameter::R_PLUS));
+  addParameter_(new Parameter("YpR_Gen.rCaT", CaT, Parameter::R_PLUS));
+  addParameter_(new Parameter("YpR_Gen.rcAG", cAG, Parameter::R_PLUS));
+  addParameter_(new Parameter("YpR_Gen.rTaC", TaC, Parameter::R_PLUS));
+  addParameter_(new Parameter("YpR_Gen.rtAG", tAG, Parameter::R_PLUS));
 
   updateMatrices();
 }

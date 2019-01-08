@@ -49,5 +49,5 @@ PhyloBranchParam::PhyloBranchParam(const PhyloBranch& branch):
   double brLen=NumConstants::SMALL();
   if (branch.hasLength() && branch.getLength()>=NumConstants::SMALL())
     brLen=branch.getLength();
-  addParameter_(new Parameter("BrLen", brLen, &Parameter::R_PLUS_STAR, 0));
+  addParameter_(new Parameter("BrLen", brLen, Parameter::R_PLUS_STAR));
 }

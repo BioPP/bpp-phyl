@@ -65,14 +65,14 @@ GTR::GTR(
   AbstractReversibleNucleotideSubstitutionModel(alpha, new CanonicalStateMap(alpha, false), "GTR."),
   a_(a), b_(b), c_(c), d_(d), e_(e), piA_(piA), piC_(piC), piG_(piG), piT_(piT), theta_(piG + piC), theta1_(piA / (1. - theta_)), theta2_(piG / theta_), p_()
 {
-  addParameter_(new Parameter("GTR.a", a, &Parameter::R_PLUS_STAR));
-  addParameter_(new Parameter("GTR.b", b, &Parameter::R_PLUS_STAR));
-  addParameter_(new Parameter("GTR.c", c, &Parameter::R_PLUS_STAR));
-  addParameter_(new Parameter("GTR.d", d, &Parameter::R_PLUS_STAR));
-  addParameter_(new Parameter("GTR.e", e, &Parameter::R_PLUS_STAR));
-  addParameter_(new Parameter("GTR.theta", theta_, &FrequenciesSet::FREQUENCE_CONSTRAINT_SMALL));
-  addParameter_(new Parameter("GTR.theta1", theta1_, &FrequenciesSet::FREQUENCE_CONSTRAINT_SMALL));
-  addParameter_(new Parameter("GTR.theta2", theta2_, &FrequenciesSet::FREQUENCE_CONSTRAINT_SMALL));
+  addParameter_(new Parameter("GTR.a", a, Parameter::R_PLUS_STAR));
+  addParameter_(new Parameter("GTR.b", b, Parameter::R_PLUS_STAR));
+  addParameter_(new Parameter("GTR.c", c, Parameter::R_PLUS_STAR));
+  addParameter_(new Parameter("GTR.d", d, Parameter::R_PLUS_STAR));
+  addParameter_(new Parameter("GTR.e", e, Parameter::R_PLUS_STAR));
+  addParameter_(new Parameter("GTR.theta", theta_, FrequenciesSet::FREQUENCE_CONSTRAINT_SMALL));
+  addParameter_(new Parameter("GTR.theta1", theta1_, FrequenciesSet::FREQUENCE_CONSTRAINT_SMALL));
+  addParameter_(new Parameter("GTR.theta2", theta2_, FrequenciesSet::FREQUENCE_CONSTRAINT_SMALL));
   updateMatrices();
 }
 

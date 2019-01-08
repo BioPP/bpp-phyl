@@ -77,7 +77,6 @@
 #ifdef ENABLE_DF
 #include <Bpp/NewPhyl/FrequenciesSet.h>
 #include <Bpp/NewPhyl/Model.h>
-#include <Bpp/NewPhyl/PhyloTree.h>
 #include <Bpp/NewPhyl/PhyloTree_BrRef.h>
 #include <Bpp/NewPhyl/Parametrizable.h>
 #include <Bpp/NewPhyl/Likelihood.h>

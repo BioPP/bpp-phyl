@@ -112,12 +112,12 @@ MixtureOfASubstitutionModel::MixtureOfASubstitutionModel(
 
   // Initialization of parameters_.
 
-  Parameter pm;
+  
   DiscreteDistribution* pd;
 
   for (it = distributionMap_.begin(); it != distributionMap_.end(); it++)
   {
-    pm = model->getParameter(model->getParameterNameWithoutNamespace(getParameterNameWithoutNamespace(it->first)));
+    const Parameter& pm = model->getParameter(model->getParameterNameWithoutNamespace(getParameterNameWithoutNamespace(it->first)));
     pd = it->second;
 
     if (pm.hasConstraint())
@@ -132,7 +132,7 @@ MixtureOfASubstitutionModel::MixtureOfASubstitutionModel(
       }
     }
     else
-      addParameter_(new Parameter(it->first, pd->getCategory(0), (pd->getParameter("value").getConstraint()) ? pd->getParameter("value").getConstraint()->clone() : 0, true));
+      addParameter_(new Parameter(it->first, pd->getCategory(0), (pd->getParameter("value").getConstraint()) ? std::shared_ptr<Constraint>(pd->getParameter("value").getConstraint()->clone()) : 0));
   }
   updateMatrices();
 }

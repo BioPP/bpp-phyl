@@ -78,9 +78,9 @@ RN95s::RN95s(const NucleicAlphabet* alphabet,
 
   double piA = 0.5 * (beta_ + delta_) / (alpha_ + beta_ + 0.5);
   double alphaP = (2 * alpha_ * piA + ((0.5 - piA < gamma_) ? 0.5 - piA : gamma_)) / (0.5 - piA);
-  addParameter_(new Parameter("RN95s.thetaA", piA, new IntervalConstraint(0, 0.5, false, false), true));
-  addParameter_(new Parameter("RN95s.gamma", gamma_, new IntervalConstraint(0, 0.5, false, false), true));
-  addParameter_(new Parameter("RN95s.alphaP", alphaP, new IntervalConstraint(1, 1, false), true));
+  addParameter_(new Parameter("RN95s.thetaA", piA, std::make_shared<IntervalConstraint>(0, 0.5, false, false)));
+  addParameter_(new Parameter("RN95s.gamma", gamma_, std::make_shared<IntervalConstraint>(0, 0.5, false, false)));
+  addParameter_(new Parameter("RN95s.alphaP", alphaP, std::make_shared<IntervalConstraint>(1, 1, false)));
 
   computeFrequencies(false);
   updateMatrices();

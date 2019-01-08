@@ -76,8 +76,8 @@ LGL08_CAT::LGL08_CAT(const ProteicAlphabet* alpha, unsigned int nbCat) :
     st = pmixmodel_->getParameterNameWithoutNamespace(name);
     mapParNamesFromPmodel_[name] = st;
     addParameter_(new Parameter("LGL08_CAT." + st,
-                            pmixmodel_->getParameterValue(st),
-                            pmixmodel_->getParameter(st).hasConstraint() ? pmixmodel_->getParameter(st).getConstraint()->clone() : 0, true));
+                                pmixmodel_->getParameterValue(st),
+                                pmixmodel_->getParameter(st).hasConstraint() ? std::shared_ptr<Constraint>(pmixmodel_->getParameter(st).getConstraint()->clone()) : 0, true));
   }
 
   updateMatrices();

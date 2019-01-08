@@ -70,7 +70,7 @@ namespace bpp
     PhyloBranchParam(const std::string& prefix = ""):
       AbstractParametrizable(prefix)
     {
-      addParameter_(new Parameter("BrLen", NumConstants::SMALL(), &Parameter::R_PLUS_STAR, 0));
+      addParameter_(new Parameter("BrLen", NumConstants::SMALL(), Parameter::R_PLUS_STAR));
     }
 
     PhyloBranchParam(const PhyloBranch& branch);

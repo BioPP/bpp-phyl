@@ -2906,7 +2906,7 @@ bpp::TreeLikelihood* PhylogeneticsApplicationTools::optimizeParameters(
         throw Exception("PhylogeneticsApplicationTools::optimizeParamaters. Bad constrain syntax, should contain `=' symbol: " + pc);
       param = pc.substr(0, index);
       constraint = pc.substr(index + 1);
-      IntervalConstraint ic(constraint);
+      std::shared_ptr<IntervalConstraint> ic(new IntervalConstraint(constraint));
 
       vector<string> parNames2;
 
@@ -2944,12 +2944,12 @@ bpp::TreeLikelihood* PhylogeneticsApplicationTools::optimizeParameters(
         Parameter& par = parametersToEstimate.getParameter(parNames2[i]);
         if (par.hasConstraint())
         {
-          par.setConstraint(ic & (*par.getConstraint()), true);
+          par.setConstraint(std::shared_ptr<Constraint>(*ic & (*par.getConstraint())));
           if (par.getConstraint()->isEmpty())
             throw Exception("Empty interval for parameter " + parNames[i] + par.getConstraint()->getDescription());
         }
         else
-          par.setConstraint(ic.clone(), true);
+          par.setConstraint(ic);
 
         if (verbose)
           ApplicationTools::displayResult("Parameter constrained " + par.getName(), par.getConstraint()->getDescription());
@@ -3331,7 +3331,7 @@ PhyloLikelihood* PhylogeneticsApplicationTools::optimizeParameters(
         throw Exception("PhylogeneticsApplicationTools::optimizeParamaters. Bad constrain syntax, should contain `=' symbol: " + pc);
       param = pc.substr(0, index);
       constraint = pc.substr(index + 1);
-      IntervalConstraint ic(constraint);
+      std::shared_ptr<IntervalConstraint> ic(new IntervalConstraint(constraint));
 
       vector<string> parNames2;
 
@@ -3354,12 +3354,12 @@ PhyloLikelihood* PhylogeneticsApplicationTools::optimizeParameters(
         Parameter& par = parametersToEstimate.getParameter(parNames2[i]);
         if (par.hasConstraint())
         {
-          par.setConstraint(ic & (*par.getConstraint()), true);
+          par.setConstraint(std::shared_ptr<Constraint>(*ic & (*par.getConstraint())));
           if (par.getConstraint()->isEmpty())
             throw Exception("Empty interval for parameter " + parNames[i] + par.getConstraint()->getDescription());
         }
         else
-          par.setConstraint(ic.clone(), true);
+          par.setConstraint(ic);
 
         if (verbose)
           ApplicationTools::displayResult("Parameter constrained " + par.getName(), par.getConstraint()->getDescription());
@@ -3797,6 +3797,11 @@ void PhylogeneticsApplicationTools::optimizeParameters(
     delete finalOptimizer;
   }
 
+  if (prPath != "none" && prPath != "std")
+    delete profiler;
+  if (mhPath != "none" && mhPath != "std")
+    delete messageHandler;
+
   if (verbose)
     ApplicationTools::displayResult("Performed", TextTools::toString(n) + " function evaluations.");
   if (backupFile != "none")
@@ -3812,7 +3817,7 @@ void PhylogeneticsApplicationTools::checkEstimatedParameters(const ParameterList
 {
   for (size_t i = 0; i < pl.size(); ++i)
   {
-    const Constraint* constraint = pl[i].getConstraint();
+    std::shared_ptr<Constraint> constraint = pl[i].getConstraint();
     if (constraint)
     {
       double value = pl[i].getValue();

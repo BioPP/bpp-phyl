@@ -93,8 +93,8 @@ int main() {
   FrequenciesSet* rootFreqs = new GCFrequenciesSet(alphabet);
   
   SubstitutionModel* model = new T92(alphabet, 3.);
-  std::vector<std::string> globalParameterNames;
-  globalParameterNames.push_back("T92.kappa");
+  std::map<std::string, std::vector<Vint>> globalParameterVectors;
+  globalParameterVectors["T92.kappa"]=std::vector<Vint>();
 
   //Very difficult to optimize on small datasets:
   DiscreteDistribution* rdist = new GammaDiscreteRateDistribution(4, 1.0);
@@ -107,10 +107,12 @@ int main() {
 
   map<string, string> alias;
 
-  SubstitutionModelSet* modelSet = SubstitutionModelSetTools::createNonHomogeneousModelSet(model, rootFreqs, tree, alias, globalParameterNames);
+  SubstitutionModelSet* modelSet = SubstitutionModelSetTools::createNonHomogeneousModelSet(model, rootFreqs, tree, alias, globalParameterVectors);
 
   unique_ptr<SubstitutionModelSet> modelSetSim(modelSet->clone());
-  
+
+  std::vector<std::string> globalParameterNames;
+  globalParameterNames.push_back("T92.kappa");
 
   NonHomogeneousSubstitutionProcess* subPro= NonHomogeneousSubstitutionProcess::createNonHomogeneousSubstitutionProcess(model2, rdist2, rootFreqs2, parTree.get(), globalParameterNames);
 

@@ -111,8 +111,8 @@ int main() {
   cout << "..:: Testing with non-homogeneous, non-stationary model ::.." << endl;
   model = new T92(alphabet.get(), 3., 0.5);
   rootFreqs = new GCFrequenciesSet(alphabet.get(), 0.65);
-  std::vector<std::string> globalParameterNames;
-  globalParameterNames.push_back("T92.kappa");
+  std::map<std::string, std::vector<Vint> > globalParameterNames;
+  globalParameterNames["T92.kappa"]={};
   map<string, string> alias;
   
   unique_ptr<SubstitutionModelSet> modelSetNHGC(SubstitutionModelSetTools::createNonHomogeneousModelSet(model, rootFreqs, tree.get(), alias, globalParameterNames));
@@ -139,7 +139,7 @@ int main() {
   model = new T92(alphabet.get(), 3., 0.5);
   rootFreqs = new GCFrequenciesSet(alphabet.get(), 0.5);
   globalParameterNames.clear();
-  globalParameterNames.push_back("T92.theta");
+  globalParameterNames["T92.theta"]={};
   unique_ptr<SubstitutionModelSet> modelSetNHTsTv(SubstitutionModelSetTools::createNonHomogeneousModelSet(model, rootFreqs, tree.get(), alias, globalParameterNames));
   modelSetNHTsTv->setParameterValue("T92.kappa_1", 2);
   modelSetNHTsTv->setParameterValue("T92.kappa_2", 7);

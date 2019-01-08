@@ -76,8 +76,8 @@ LLG08_UL2::LLG08_UL2(const ProteicAlphabet* alpha) :
     st = pmixmodel_->getParameterNameWithoutNamespace(name);
     mapParNamesFromPmodel_[name] = st;
     addParameter_(new Parameter("LLG08_UL2." + st,
-                            pmixmodel_->getParameterValue(st),
-                            pmixmodel_->getParameter(st).hasConstraint() ? pmixmodel_->getParameter(st).getConstraint()->clone() : 0, true));
+                                pmixmodel_->getParameterValue(st),
+                                pmixmodel_->getParameter(st).hasConstraint() ? std::shared_ptr<Constraint>(pmixmodel_->getParameter(st).getConstraint()->clone()) : 0));
   }
 
   updateMatrices();

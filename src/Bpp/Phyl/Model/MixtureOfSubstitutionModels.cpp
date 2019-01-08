@@ -81,8 +81,8 @@ MixtureOfSubstitutionModels::MixtureOfSubstitutionModels(
   // relative rates and probas
   for (i = 0; i < nbmod - 1; i++)
   {
-    addParameter_(new Parameter("Mixture.relproba" + TextTools::toString(i + 1), 1.0 / static_cast<double>(nbmod - i), &Parameter::PROP_CONSTRAINT_EX));
-    addParameter_(new Parameter("Mixture.relrate" + TextTools::toString(i + 1), 1.0 / static_cast<double>(nbmod - i), &Parameter::PROP_CONSTRAINT_EX));
+    addParameter_(new Parameter("Mixture.relproba" + TextTools::toString(i + 1), 1.0 / static_cast<double>(nbmod - i), Parameter::PROP_CONSTRAINT_EX));
+    addParameter_(new Parameter("Mixture.relrate" + TextTools::toString(i + 1), 1.0 / static_cast<double>(nbmod - i), Parameter::PROP_CONSTRAINT_EX));
   }
 
   // models parameters
@@ -161,9 +161,9 @@ MixtureOfSubstitutionModels::MixtureOfSubstitutionModels(
 
   for (i = 0; i < nbmod - 1; i++)
   {
-    addParameter_(new Parameter("Mixture.relproba" + TextTools::toString(i + 1), vproba[i] / (1 - x), &Parameter::PROP_CONSTRAINT_EX));
+    addParameter_(new Parameter("Mixture.relproba" + TextTools::toString(i + 1), vproba[i] / (1 - x), Parameter::PROP_CONSTRAINT_EX));
     x += vproba[i];
-    addParameter_(new Parameter("Mixture.relrate" + TextTools::toString(i + 1), vproba[i] * vrate[i] / (1 - y), &Parameter::PROP_CONSTRAINT_EX));
+    addParameter_(new Parameter("Mixture.relrate" + TextTools::toString(i + 1), vproba[i] * vrate[i] / (1 - y), Parameter::PROP_CONSTRAINT_EX));
     y += vproba[i] * vrate[i];
   }
 

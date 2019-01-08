@@ -62,8 +62,8 @@ int main() {
   NucleicAlphabet* alphabet = new DNA();
   SubstitutionModel* model = new T92(alphabet, 3.);
   FrequenciesSet* rootFreqs = new GCFrequenciesSet(alphabet);
-  std::vector<std::string> globalParameterNames;
-  globalParameterNames.push_back("T92.kappa");
+  std::map<std::string, std::vector<Vint> > globalParameterNames;
+  globalParameterNames["T92.kappa"]={};
   map<string, string> alias;
 
   SubstitutionModelSet* modelSet = SubstitutionModelSetTools::createNonHomogeneousModelSet(model, rootFreqs, tree, alias, globalParameterNames);

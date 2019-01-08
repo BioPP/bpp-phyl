@@ -64,13 +64,12 @@ YNGP_M1::YNGP_M1(const GeneticCode* gc, FrequenciesSet* codonFreqs) :
   map<string, DiscreteDistribution*> mpdd;
   mpdd["omega"] = psdd;
 
-  YN98* yn98 = new YN98(gc, codonFreqs);
+  unique_ptr<YN98> yn98(new YN98(gc, codonFreqs));
 
-  pmixmodel_.reset(new MixtureOfASubstitutionModel(gc->getSourceAlphabet(), yn98, mpdd));
+  pmixmodel_.reset(new MixtureOfASubstitutionModel(gc->getSourceAlphabet(), yn98.get(), mpdd));
   delete psdd;
 
   vector<int> supportedChars = yn98->getAlphabetStates();
-
   // map the parameters
 
   lParPmodel_.addParameters(pmixmodel_->getParameters());
@@ -95,11 +94,11 @@ YNGP_M1::YNGP_M1(const GeneticCode* gc, FrequenciesSet* codonFreqs) :
     if (st != "omega_Simple.V1")
     {
       addParameter_(new Parameter("YNGP_M1." + it.second, pmixmodel_->getParameterValue(st),
-                                  pmixmodel_->getParameter(st).hasConstraint() ? pmixmodel_->getParameter(st).getConstraint()->clone() : 0, true));
+                                  pmixmodel_->getParameter(st).hasConstraint() ? std::shared_ptr<Constraint>(pmixmodel_->getParameter(st).getConstraint()->clone()) : 0, true));
     }
   }
 
-  addParameter_(new Parameter("YNGP_M1.omega", 0.5, new IntervalConstraint(NumConstants::MILLI(), 1, true, false, NumConstants::MILLI()), true));
+  addParameter_(new Parameter("YNGP_M1.omega", 0.5, std::make_shared<IntervalConstraint>(NumConstants::MILLI(), 1, true, false, NumConstants::MILLI())));
 
   // look for synonymous codons
   for (synfrom_ = 1; synfrom_ < supportedChars.size(); ++synfrom_)

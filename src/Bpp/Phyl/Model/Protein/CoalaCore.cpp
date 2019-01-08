@@ -168,7 +168,7 @@ ParameterList CoalaCore::computeCOA(const SequencedValuesContainer& data, bool p
       double maxCoord = VectorTools::max(rCoords);
       double minCoord = VectorTools::min(rCoords);
       double sd = VectorTools::sd<double, double>(rCoords);
-      IntervalConstraint* constraint = new IntervalConstraint(minCoord - sd, maxCoord + sd, true, true);
+      std::shared_ptr<IntervalConstraint> constraint(new IntervalConstraint(minCoord - sd, maxCoord + sd, true, true));
       if (paramValues_.find("AxPos" + TextTools::toString(i)) != paramValues_.end())
         pList.addParameter(Parameter("Coala.AxPos" + TextTools::toString(i), TextTools::toDouble(paramValues_["AxPos" + TextTools::toString(i)].substr(0, 8)), constraint));
       else

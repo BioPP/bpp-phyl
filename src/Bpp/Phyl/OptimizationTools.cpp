@@ -179,7 +179,7 @@ unsigned int OptimizationTools::optimizeNumericalParameters(
 
   MetaOptimizerInfos* desc = new MetaOptimizerInfos();
   MetaOptimizer* poptimizer = 0;
-  AbstractNumericalDerivative* fnum = new ThreePointsNumericalDerivative(f);
+  unique_ptr<AbstractNumericalDerivative> fnum(new ThreePointsNumericalDerivative(f));
 
   if (optMethodDeriv == OPTIMIZATION_GRADIENT)
     desc->addOptimizer("Branch length parameters", new ConjugateGradientMultiDimensions(f), tl->getBranchLengthsParameters().getParameterNames(), 2, MetaOptimizerInfos::IT_TYPE_FULL);
@@ -216,8 +216,8 @@ unsigned int OptimizationTools::optimizeNumericalParameters(
     vNameDer.insert(vNameDer.begin(), vNameDer2.begin(), vNameDer2.end());
     fnum->setParametersToDerivate(vNameDer);
 
-    desc->addOptimizer("Rate & model distribution parameters", new BfgsMultiDimensions(fnum), vNameDer, 1, MetaOptimizerInfos::IT_TYPE_FULL);
-    poptimizer = new MetaOptimizer(fnum, desc, nstep);
+    desc->addOptimizer("Rate & model distribution parameters", new BfgsMultiDimensions(fnum.get()), vNameDer, 1, MetaOptimizerInfos::IT_TYPE_FULL);
+    poptimizer = new MetaOptimizer(fnum.get(), desc, nstep);
   }
   else
     throw Exception("OptimizationTools::optimizeNumericalParameters. Unknown optimization method: " + optMethodModel);
@@ -243,6 +243,7 @@ unsigned int OptimizationTools::optimizeNumericalParameters(
   // We're done.
   unsigned int nb = poptimizer->getNumberOfEvaluations();
   delete poptimizer;
+  delete nanListener;
   return nb;
 }
 

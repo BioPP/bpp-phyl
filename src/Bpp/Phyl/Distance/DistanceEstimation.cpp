@@ -113,7 +113,7 @@ TwoTreeLikelihood::TwoTreeLikelihood(
   delete sequences;
 
   brLen_ = minimumBrLen_;
-  brLenConstraint_ = new IntervalConstraint(1, minimumBrLen_, true);
+  brLenConstraint_ = std::make_shared<IntervalConstraint>(1, minimumBrLen_, true);
 
   if (verbose) ApplicationTools::displayTaskDone();
 }
@@ -143,7 +143,7 @@ TwoTreeLikelihood::TwoTreeLikelihood(const TwoTreeLikelihood& lik) :
   leafLikelihoods1_  (lik.leafLikelihoods1_),
   leafLikelihoods2_  (lik.leafLikelihoods2_),
   minimumBrLen_      (lik.minimumBrLen_),
-  brLenConstraint_   (dynamic_cast<Constraint*>(lik.brLenConstraint_->clone())),
+  brLenConstraint_   (std::shared_ptr<Constraint>(lik.brLenConstraint_->clone())),
   brLen_             (lik.brLen_)
 {}
 
@@ -173,7 +173,7 @@ TwoTreeLikelihood& TwoTreeLikelihood::operator=(const TwoTreeLikelihood& lik)
   leafLikelihoods1_  = lik.leafLikelihoods1_;
   leafLikelihoods2_  = lik.leafLikelihoods2_;
   minimumBrLen_      = lik.minimumBrLen_;
-  brLenConstraint_   = dynamic_cast<Constraint*>(brLenConstraint_->clone());
+  brLenConstraint_   = std::shared_ptr<Constraint>(brLenConstraint_->clone());
   brLen_             = lik.brLen_;
   return *this;
 }
@@ -182,7 +182,6 @@ TwoTreeLikelihood& TwoTreeLikelihood::operator=(const TwoTreeLikelihood& lik)
 
 TwoTreeLikelihood::~TwoTreeLikelihood()
 {
-  if (brLenConstraint_) delete brLenConstraint_;
 }
 
 /******************************************************************************/

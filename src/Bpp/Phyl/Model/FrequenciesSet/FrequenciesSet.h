@@ -117,8 +117,8 @@ namespace bpp
     virtual size_t getNumberOfFrequencies() const = 0;
 
   public:
-    static IntervalConstraint FREQUENCE_CONSTRAINT_SMALL;
-    static IntervalConstraint FREQUENCE_CONSTRAINT_MILLI;
+    static std::shared_ptr<IntervalConstraint> FREQUENCE_CONSTRAINT_SMALL;
+    static std::shared_ptr<IntervalConstraint> FREQUENCE_CONSTRAINT_MILLI;
   };
 
 /**

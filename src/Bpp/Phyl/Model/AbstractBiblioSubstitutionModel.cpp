@@ -96,7 +96,7 @@ void AbstractBiblioSubstitutionModel::updateMatrices()
 void AbstractBiblioSubstitutionModel::addRateParameter()
 {
   getModel().addRateParameter();
-  addParameter_(new Parameter(getNamespace() + "rate", getModel().getRate(), &Parameter::R_PLUS_STAR));
+  addParameter_(new Parameter(getNamespace() + "rate", getModel().getRate(), Parameter::R_PLUS_STAR));
   
   mapParNamesFromPmodel_[getNamespace() + "rate"] = "rate";
   lParPmodel_.reset();

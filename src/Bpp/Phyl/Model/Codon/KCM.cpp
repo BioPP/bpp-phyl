@@ -67,11 +67,7 @@ KCM::KCM(const GeneticCode* gc, bool oneModel) :
   addParameters_(pmodel_->getParameters());
 
   getParameter_("beta").setName(name+"omega"),
-  // deleteParameter("KCM.beta")N
-
   
-  // addParameter(new Parameter("KCM.omega", 1, new IntervalConstraint(NumConstants::MILLI(), 999, true, true), true));
-
   lParPmodel_.addParameters(pmodel_->getParameters());
 
   vector<std::string> v = lParPmodel_.getParameterNames();

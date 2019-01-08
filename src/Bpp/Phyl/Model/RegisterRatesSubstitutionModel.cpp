@@ -75,7 +75,7 @@ RegisterRatesSubstitutionModel::RegisterRatesSubstitutionModel(const Substitutio
   // changed (see updateMatrices for vRates_ update).
   // rates for all register types
   for (size_t i=1;i<=nbTypes_;i++)
-    addParameter_(new Parameter("FromRegister.rho_"+reg.getTypeName(i), 1, &Parameter::R_PLUS));
+    addParameter_(new Parameter("FromRegister.rho_"+reg.getTypeName(i), 1, Parameter::R_PLUS));
 
   getModel().setNamespace(getNamespace()+getModel().getNamespace());
   addParameters_(getModel().getParameters());

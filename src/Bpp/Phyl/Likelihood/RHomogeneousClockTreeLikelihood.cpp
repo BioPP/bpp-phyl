@@ -145,13 +145,13 @@ void RHomogeneousClockTreeLikelihood::initBranchLengthsParameters(bool verbose)
   map<const Node*, double> heights;
   TreeTemplateTools::getHeights(*tree_->getRootNode(), heights);
   double totalHeight = heights[tree_->getRootNode()];
-  brLenParameters_.addParameter(Parameter("TotalHeight", totalHeight, brLenConstraint_->clone(), true)); 
+  brLenParameters_.addParameter(Parameter("TotalHeight", totalHeight, brLenConstraint_)); 
   for (map<const Node *, double>::iterator it = heights.begin(); it != heights.end(); it++)
   {
     if (!it->first->isLeaf() && it->first->hasFather())
     {
       double fatherHeight = heights[it->first->getFather()];
-      brLenParameters_.addParameter(Parameter("HeightP" + TextTools::toString(it->first->getId()), it->second / fatherHeight, &Parameter::PROP_CONSTRAINT_IN));
+      brLenParameters_.addParameter(Parameter("HeightP" + TextTools::toString(it->first->getId()), it->second / fatherHeight, Parameter::PROP_CONSTRAINT_IN));
     }
   }
 }

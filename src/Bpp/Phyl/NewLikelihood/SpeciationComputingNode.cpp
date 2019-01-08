@@ -57,7 +57,7 @@ SpeciationComputingNode::SpeciationComputingNode(const TransitionModel* model) :
   computeProbabilitiesD2_(true),
   vLogStates_(model->getNumberOfStates())
 {
-  addParameter_(new Parameter("scale", 1, &Parameter::R_PLUS_STAR));
+  addParameter_(new Parameter("scale", 1, Parameter::R_PLUS_STAR));
 }
 
 SpeciationComputingNode::SpeciationComputingNode(const PhyloNode& pn) :
@@ -74,7 +74,7 @@ SpeciationComputingNode::SpeciationComputingNode(const PhyloNode& pn) :
   computeProbabilitiesD2_(true),
   vLogStates_(0)
 {
-  addParameter_(new Parameter("scale", 1, &Parameter::R_PLUS_STAR));
+  addParameter_(new Parameter("scale", 1, Parameter::R_PLUS_STAR));
 }
 
 SpeciationComputingNode::SpeciationComputingNode(const SpeciationComputingNode& cn) :

@@ -59,8 +59,8 @@ AbstractCodonClusterAASubstitutionModel::AbstractCodonClusterAASubstitutionModel
   if (assign_.size()!=20)
     throw BadSizeException("AbstractCodonClusterAASubstitutionModel::AbstractCodonClusterAASubstitutionModel: assign_", assign_.size(), 20);
   
-  addParameter_(new Parameter(prefix + "omegaR", 1, new IntervalConstraint(NumConstants::SMALL(), 999, true, true), true));
-  addParameter_(new Parameter(prefix + "omegaC", 1, new IntervalConstraint(NumConstants::SMALL(), 999, true, true), true));
+  addParameter_(new Parameter(prefix + "omegaR", 1, std::make_shared<IntervalConstraint>(NumConstants::SMALL(), 999, true, true)));
+  addParameter_(new Parameter(prefix + "omegaC", 1, std::make_shared<IntervalConstraint>(NumConstants::SMALL(), 999, true, true)));
 }
 
 void AbstractCodonClusterAASubstitutionModel::fireParameterChanged(const ParameterList& parameters)

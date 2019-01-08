@@ -141,7 +141,7 @@ namespace bpp
     virtual void addRateParameter()
     {
       getModel().addRateParameter();
-      addParameter_(new Parameter(getNamespace() + "rate", getModel().getRate(), &Parameter::R_PLUS_STAR));
+      addParameter_(new Parameter(getNamespace() + "rate", getModel().getRate(), Parameter::R_PLUS_STAR));
     }
 
     virtual void fireParameterChanged(const ParameterList& parameters)

@@ -53,8 +53,8 @@ using namespace bpp;
 #include <cmath>
 using namespace std;
 
-IntervalConstraint FrequenciesSet::FREQUENCE_CONSTRAINT_MILLI(NumConstants::MILLI(), 1 - NumConstants::MILLI(), false, false);
-IntervalConstraint FrequenciesSet::FREQUENCE_CONSTRAINT_SMALL(NumConstants::SMALL(), 1 - NumConstants::SMALL(), false, false);
+std::shared_ptr<IntervalConstraint> FrequenciesSet::FREQUENCE_CONSTRAINT_MILLI(new IntervalConstraint(NumConstants::MILLI(), 1 - NumConstants::MILLI(), false, false));
+std::shared_ptr<IntervalConstraint> FrequenciesSet::FREQUENCE_CONSTRAINT_SMALL(new IntervalConstraint(NumConstants::SMALL(), 1 - NumConstants::SMALL(), false, false));
 
 // ///////////////////////////////////////
 // AbstractFrequenciesSet

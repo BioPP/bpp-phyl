@@ -64,9 +64,9 @@ YNGP_M7::YNGP_M7(const GeneticCode* gc, FrequenciesSet* codonFreqs, unsigned int
   map<string, DiscreteDistribution*> mpdd;
   mpdd["omega"] = pbdd;
 
-  YN98* yn98 = new YN98(gc, codonFreqs);
+  unique_ptr<YN98> yn98(new YN98(gc, codonFreqs));
 
-  pmixmodel_.reset(new MixtureOfASubstitutionModel(gc->getSourceAlphabet(), yn98, mpdd));
+  pmixmodel_.reset(new MixtureOfASubstitutionModel(gc->getSourceAlphabet(), yn98.get(), mpdd));
 
   delete pbdd;
 
@@ -98,7 +98,7 @@ YNGP_M7::YNGP_M7(const GeneticCode* gc, FrequenciesSet* codonFreqs, unsigned int
   {
     st = pmixmodel_->getParameterNameWithoutNamespace(it.first);
     addParameter_(new Parameter("YNGP_M7." + it.second, pmixmodel_->getParameterValue(st),
-                            pmixmodel_->getParameter(st).hasConstraint() ? pmixmodel_->getParameter(st).getConstraint()->clone() : 0, true));
+                                pmixmodel_->getParameter(st).hasConstraint() ? std::shared_ptr<Constraint>(pmixmodel_->getParameter(st).getConstraint()->clone()) : 0));
   }
 
   // look for synonymous codons

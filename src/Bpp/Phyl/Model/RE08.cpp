@@ -56,8 +56,8 @@ RE08::RE08(ReversibleSubstitutionModel* simpleModel, double lambda, double mu) :
   exp_(), p_(), lambda_(lambda), mu_(mu),
   nestedPrefix_("model_" + simpleModel->getNamespace())
 {
-  addParameter_(new Parameter("RE08.lambda", lambda, &Parameter::R_PLUS));  
-  addParameter_(new Parameter("RE08.mu", mu, &Parameter::R_PLUS));
+  addParameter_(new Parameter("RE08.lambda", lambda, Parameter::R_PLUS));  
+  addParameter_(new Parameter("RE08.mu", mu, Parameter::R_PLUS));
   simpleModel_->setNamespace("RE08." + nestedPrefix_);
   addParameters_(simpleModel->getParameters());
   //We need to overrired this from the AbstractSubstitutionModel constructor,
