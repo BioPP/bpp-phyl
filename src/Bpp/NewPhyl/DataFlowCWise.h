@@ -431,10 +431,7 @@ namespace bpp {
           return ConstantZero<R>::create (c, dim);
         
         // Select node implementation
-        if (deps.size () == 2) 
-          return CWiseMul<R, std::tuple<T,P>>::create (c, std::move (deps), dim);
-        else 
-          return cachedAs<Value<R>> (c, std::make_shared<Self> (std::move (deps), dim));
+        return cachedAs<Value<R>> (c, std::make_shared<Self> (std::move (deps), dim));
       }
 
       CWiseMean (NodeRefVec && deps, const Dimension<R> & dim)
