@@ -43,6 +43,8 @@
 #define BPP_NEWPHYL_DATAFLOWNUMERIC_H
 
 #include <Bpp/NewPhyl/ExtendedFloat.h>
+#include <Bpp/Numeric/Parameter.h>
+  
 #include <Eigen/Core>
 #include <algorithm>
 #include <cassert>
@@ -109,6 +111,11 @@ namespace bpp {
     Dimension (const float &) {}
   };
 
+  template <> struct Dimension<Parameter> : NoDimension {
+    Dimension () = default;
+    Dimension (const Parameter &) {}
+  };
+
   /** @brief Specialisation of Dimension<T> for eigen matrix types.
    *
    * Note that in Eigen, a vector is a matrix with one column.
@@ -132,6 +139,12 @@ namespace bpp {
     T zero (const Dimension<T> &) {
       return T (0);
     }
+
+    template <typename T = void>
+    Parameter& zero (const Dimension<Parameter> &) {
+      return *std::make_shared<Parameter>("Zero",0);
+    }
+
     template <typename T, int Rows, int Cols>
     auto zero (const Dimension<Eigen::Matrix<T, Rows, Cols>> & dim)
       -> decltype (Eigen::Matrix<T, Rows, Cols>::Zero (dim.rows, dim.cols)) {
@@ -143,6 +156,12 @@ namespace bpp {
     T one (const Dimension<T> &) {
       return T (1);
     }
+    
+    template <typename T = void>
+    Parameter& one (const Dimension<Parameter> &) {
+      return *std::make_shared<Parameter>("One",1);
+    }
+    
     template <typename T, int Rows, int Cols>
     auto one (const Dimension<Eigen::Matrix<T, Rows, Cols>> & dim)
       -> decltype (Eigen::Matrix<T, Rows, Cols>::Ones (dim.rows, dim.cols)) {
@@ -214,14 +233,24 @@ namespace bpp {
     using std::pow;
 
     // Numerical information as text
-    template <typename T, typename = typename std::enable_if<std::is_arithmetic<T>::value>::type>
-    std::string debug (const T & t) {
+    template <typename T>
+    std::string debug (const T & t, typename std::enable_if<std::is_arithmetic<T>::value>::type* = 0) {
       // For basic arithmetic scalar types, just print the value itself
       using std::to_string;
       return "value=" + to_string (t);
     }
-    template <typename Derived> std::string debug (const Eigen::MatrixBase<Derived> & m) {
+    
+    template <typename T>
+    std::string debug (const Parameter& t){
+      // For basic arithmetic scalar types, just print the value itself
+      using std::to_string;
+      return "value=" + to_string(t.getValue());
+    }
+
+    template <typename Derived>
+    std::string debug (const Eigen::MatrixBase<Derived> & m){//, typename std::enable_if<!std::is_same<Derived, Parameter const&>::value>::type* = 0) {
       // With matrices, check some numeric properties and encode results as text
+      using std::to_string;
       const auto dim = Dimension<Derived> (m.derived ());
       std::string props = "dim=" + to_string (dim) + " props={";
       const auto zero_value = zero (dim);
@@ -246,6 +275,7 @@ namespace bpp {
       props += "}";
       return props;
     }
+    
 
     // Hash of numerical value
     template <typename T, typename = typename std::enable_if<std::is_floating_point<T>::value>::type>

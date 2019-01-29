@@ -267,7 +267,8 @@ TEST_CASE("df")
 
   // Rate
 
-  auto rates = std::unique_ptr<bpp::GammaDiscreteRateDistribution>(new bpp::GammaDiscreteRateDistribution(3, 0.5));
+//  auto rates = std::unique_ptr<bpp::GammaDiscreteRateDistribution>(new bpp::GammaDiscreteRateDistribution(3, 0.5));
+  auto rates = std::unique_ptr<bpp::ConstantRateDistribution>(new bpp::ConstantRateDistribution());
 
   auto ratesParameters = bpp::dataflow::createParameterMap(context, *rates);
 
@@ -371,14 +372,14 @@ TEST_CASE("df")
   bpp::ParameterList allParameters;
   allParameters.addParameters(brlenOnlyParameters);
   
-  for (const auto& p : modelParameters)
-  {
-    auto modelb=modelNode->getValue();
+  // for (const auto& p : modelParameters)
+  // {
+  //   auto modelb=modelNode->getValue();
     
-    auto param = bpp::dataflow::DataFlowParameter(modelb->getParameter(modelb->getParameterNameWithoutNamespace(p.first)), p.second);
-    param.setName(param.getName()+"_1");
-    allParameters.addParameter(std::move(param));
-  }
+  //   auto param = bpp::dataflow::DataFlowParameter(*p.second->getValue(), Name(),()modelb->getParameter(modelb->getParameterNameWithoutNamespace(p.first)), p.second);
+  //   param = std::shared_ptr<Parameter>(p.second->getValue()->clone());
+  //   allParameters.addParameter(std::move(param));
+  // }
 
   // for (const auto& p : model2Parameters)
   // {
@@ -390,13 +391,13 @@ TEST_CASE("df")
   //   allParameters.addParameter(std::move(param));
   // }
 
-  for (const auto& p : rootFreqsParameters)
-  {
-    auto root2=rootFreqsNode->getValue();
+  // for (const auto& p : rootFreqsParameters)
+  // {
+  //   auto root2=rootFreqsNode->getValue();
     
-    auto param = bpp::dataflow::DataFlowParameter(root2->getParameter(root2->getParameterNameWithoutNamespace(p.first)), p.second);
-    allParameters.addParameter(param);
-  }
+  //   auto param = bpp::dataflow::DataFlowParameter(root2->getParameter(root2->getParameterNameWithoutNamespace(p.first)), p.second);
+  //   allParameters.addParameter(param);
+  // }
 
   
   bpp::dataflow::DataFlowFunction llh(context, l, allParameters);

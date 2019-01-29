@@ -357,6 +357,15 @@ namespace bpp {
       }
     }
 
+    /// Check that deps[start, end[ contains T, throws if not.
+    template <typename T>
+    void checkDependencyRangeIs (const std::type_info & contextNodeType, const NodeRefVec & deps,
+                                 std::size_t start, std::size_t end) {
+      for (std::size_t i = start; i < end; ++i) {
+        checkNthDependencyIs<T> (contextNodeType, deps, i);
+      }
+    }
+    
     /// Checks that deps[index] is a Value<T> node, throws if not.
     template <typename T>
     void checkNthDependencyIsValue (const std::type_info & contextNodeType, const NodeRefVec & deps,

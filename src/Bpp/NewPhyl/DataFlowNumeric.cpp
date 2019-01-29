@@ -77,11 +77,13 @@ namespace bpp {
 
     // Precompiled instantiations of numeric nodes
     template class ConstantZero<double>;
+    template class ConstantZero<Parameter>;
     template class ConstantZero<Eigen::VectorXd>;
     template class ConstantZero<Eigen::RowVectorXd>;
     template class ConstantZero<Eigen::MatrixXd>;
 
     template class ConstantOne<double>;
+    template class ConstantOne<Parameter>;
     template class ConstantOne<Eigen::VectorXd>;
     template class ConstantOne<Eigen::RowVectorXd>;
     template class ConstantOne<Eigen::MatrixXd>;

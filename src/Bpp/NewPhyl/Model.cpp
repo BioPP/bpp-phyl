@@ -106,14 +106,13 @@ namespace bpp {
       m->config = this->config; // Duplicate derivation config
       return m;
     }
-
-
+    
     void ConfiguredModel::compute () {
       // Update each internal model bpp::Parameter with the dependency
       auto & parameters = model_->getParameters ();
       const auto nbParameters = this->nbDependencies ();
       for (std::size_t i = 0; i < nbParameters; ++i) {
-        auto & v = accessValueConstCast<double> (*this->dependency (i));
+        auto v = accessValueConstCast<Parameter*> (*this->dependency (i))->getValue();
         auto & p = parameters[i];
         if (p.getValue () != v) {
           // TODO improve bpp::Parametrizable interface to change values by index.
@@ -121,8 +120,6 @@ namespace bpp {
         }
       }
     }
-
-
 
     // EquilibriumFrequenciesFromModel
 
@@ -147,6 +144,7 @@ namespace bpp {
       auto buildFWithNewModel = [this, &c](NodeRef && newModel) {
         return ConfiguredParametrizable::createVector<Dep, Self> (c, {std::move (newModel)}, targetDimension_);
       };
+      
       NodeRefVec derivativeSumDeps = ConfiguredParametrizable::generateDerivativeSumDepsForComputations<Dep, T> (
         c, model, node, targetDimension_, buildFWithNewModel);
       return CWiseAdd<T, ReductionOf<T>>::create (c, std::move (derivativeSumDeps), targetDimension_);

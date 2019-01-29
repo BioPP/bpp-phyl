@@ -40,6 +40,7 @@
 
 #include <Bpp/Exceptions.h>
 #include <Bpp/NewPhyl/Parametrizable.h>
+#include <Bpp/NewPhyl/Parameter.h>
 #include <Bpp/Numeric/Parametrizable.h>
 
 using namespace std;
@@ -47,18 +48,18 @@ using namespace std;
 namespace bpp {
   namespace dataflow {
 
-    std::unordered_map<std::string, std::shared_ptr<NumericMutable<double>>>
+    std::unordered_map<std::string, std::shared_ptr<ConfiguredParameter>>
       createParameterMap (Context & c, const Parametrizable& parametrizable) {
       const auto & parameters = parametrizable.getParameters ();
       const auto nbParameters = parameters.size ();
-      std::unordered_map<std::string, std::shared_ptr<NumericMutable<double>>> map;
+      std::unordered_map<std::string, std::shared_ptr<ConfiguredParameter>> map;
       for (std::size_t i = 0; i < nbParameters; ++i) {
         const auto & param = parameters[i];
+        auto value = NumericMutable<double>::create (c, param.getValue ());
         map.emplace (param.getName (),
-                     NumericMutable<double>::create (c, param.getValue ()));
+                     ConfiguredParameter::create (c, {std::move(value)}, std::unique_ptr<Parameter>(param.clone())));
       }
       return map;
-
     }
 
     NodeRefVec createDependencyVector (const Parametrizable & parametrizable,
@@ -75,63 +76,6 @@ namespace bpp {
       }
       return deps;
     }
-
     
-    // std::shared_ptr<ConfiguredParametrizable> ConfiguredParametrizable::create (Context & c, NodeRefVec && deps,
-    //                                                                             std::unique_ptr<Parametrizable> && parametrizable) {
-    //   if (!parametrizable) {
-    //     throw Exception ("ConfiguredParametrizable(): nullptr parametrizable");
-    //   }
-    //   // Check dependencies
-    //   const auto nbParameters = parametrizable->getParameters ().size ();
-    //   checkDependenciesNotNull (typeid (Self), deps);
-    //   checkDependencyVectorSize (typeid (Self), deps, nbParameters);
-    //   checkDependencyRangeIsValue<double> (typeid (Self), deps, 0, nbParameters);
-    //   return cachedAs<Self> (c, std::make_shared<Self> (std::move (deps), std::move (parametrizable)));
-    // }
-
-    // ConfiguredParametrizable::ConfiguredParametrizable (NodeRefVec && deps, std::unique_ptr<Parametrizable>&& parametrizable)
-    //   : Value<const Parametrizable*> (std::move (deps), parametrizable.get ()), parametrizable_ (std::move(parametrizable)) {}
-
-    // ConfiguredParametrizable::~ConfiguredParametrizable () = default;
-
-    // // Model node additional arguments = (type of bpp::TransitionModel).
-    // // Everything else is determined by the node dependencies.
-    // bool ConfiguredParametrizable::compareAdditionalArguments (const Node & other) const {
-    //   const auto * derived = dynamic_cast<const Self *> (&other);
-    //   if (derived == nullptr) {
-    //     return false;
-    //   } else {
-    //     const auto & thisParam = *parametrizable_;
-    //     const auto & otherParam = *derived->parametrizable_;
-    //     return typeid (thisParam) == typeid (otherParam);
-    //   }
-    // }
-    
-    // std::size_t ConfiguredParametrizable::hashAdditionalArguments () const {
-    //   const auto & bppParam = *parametrizable_;
-    //   return typeid (bppParam).hash_code ();
-    // }
-
-    // NodeRef ConfiguredParametrizable::recreate (Context & c, NodeRefVec && deps) {
-    //   auto m = Self::create (c, std::move (deps), std::unique_ptr<Parametrizable>{parametrizable_->clone ()});
-    //   m->config = this->config; // Duplicate derivation config
-    //   return m;
-    // }
-
-    // void ConfiguredParametrizable::compute () {
-    //   // Update each internal model bpp::Parameter with the dependency
-    //   auto & parameters = parametrizable_->getParameters ();
-    //   const auto nbParameters = this->nbDependencies ();
-    //   for (std::size_t i = 0; i < nbParameters; ++i) {
-    //     auto & v = accessValueConstCast<double> (*this->dependency (i));
-    //     auto & p = parameters[i];
-    //     if (p.getValue () != v) {
-    //       // TODO improve bpp::Parametrizable interface to change values by index.
-    //       parametrizable_->setParameterValue (parametrizable_->getParameterNameWithoutNamespace (p.getName ()), v);
-    //     }
-    //   }
-    // }
-
   } // namespace dataflow
 } // namespace bpp

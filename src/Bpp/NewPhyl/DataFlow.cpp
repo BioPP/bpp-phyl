@@ -43,6 +43,7 @@
 
 #include <algorithm>
 #include <fstream>     // debug
+#include <iostream>     // debug
 #include <functional>  // std::hash
 #include <ostream>     // debug
 #include <stack>       // invalidate/compute recursively + debug

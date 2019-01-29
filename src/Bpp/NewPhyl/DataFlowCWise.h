@@ -52,6 +52,8 @@
 #include <iostream>
 
 #include "DataFlowNumeric.h"
+#include <Bpp/Numeric/Parameter.h>
+#include <Bpp/NewPhyl/Parameter.h>
 
 namespace bpp {
 
@@ -67,7 +69,7 @@ namespace bpp {
     template <typename Derived> auto cwise (Eigen::MatrixBase<Derived> & m) -> decltype (m.array ()) {
       return m.array (); // Use Array API in Eigen
     }
-
+    
   }
   
   /******************************************************************************
@@ -1343,7 +1345,8 @@ namespace bpp {
       int getN () const { return n_; }
 
     private:
-      void compute () final {
+      void compute () final
+      {
         using namespace numeric;
         auto & result = this->accessValueMutable ();
         const auto & delta = accessValueConstCast<double> (*this->dependency (0));
@@ -1352,6 +1355,88 @@ namespace bpp {
       }
 
       Dimension<T> targetDimension_;
+      int n_;
+    };
+
+    
+    class ShiftParameter : public ConfiguredParameter {
+    public:
+      using Self = ShiftParameter;
+
+      /// Build a new ShiftDelta node with the given output dimensions and shift number.
+      static std::shared_ptr<ConfiguredParameter> create(Context & c, NodeRefVec && deps, int n)
+      {
+        // Check dependencies
+        checkDependenciesNotNull (typeid (Self), deps);
+        checkDependencyVectorSize (typeid (Self), deps, 2);
+        checkNthDependencyIsValue<double> (typeid (Self), deps, 0);
+        checkNthDependencyIs<ConfiguredParameter> (typeid (Self), deps, 1);
+        // Detect if we have a chain of ShiftParameter with the same delta.
+        auto & delta = deps[0];
+        auto & x = deps[1];
+        auto * xAsShiftParameter = dynamic_cast<const ShiftParameter *> (x.get ());
+        if (xAsShiftParameter != nullptr && xAsShiftParameter->dependency (0) == delta) {
+          // Merge with ShiftParameter dependency by summing the n.
+          return Self::create (c, NodeRefVec{x->dependencies ()}, 1 + xAsShiftParameter->getN ());
+        }
+        // Not a merge, select node implementation.
+        if (n == 0 || delta->hasNumericalProperty (NumericalProperty::ConstantZero)) {
+          ///!!!! Not sure about this
+          return std::dynamic_pointer_cast<ConfiguredParameter> (x);
+        } else {
+          auto cfx=dynamic_cast<const ConfiguredParameter*>(x.get());
+          auto paramd=std::unique_ptr<Parameter>(cfx->accessValueConst()->clone());
+          paramd->setName(paramd->getName()+"_"+to_string(n)+"delta");
+          return cachedAs<ConfiguredParameter> (c, std::make_shared<Self> (c, std::move (deps), std::move(paramd), n));
+        }
+      }
+
+      ShiftParameter (const Context& context, NodeRefVec && deps, std::unique_ptr<Parameter>&& parameter, int n)
+        : ConfiguredParameter (context, std::move (deps), std::move(parameter)), n_ (n)
+      {}
+
+      std::string debugInfo () const override {
+        return ConfiguredParameter::debugInfo() +
+          " n=" + std::to_string (n_);
+      }
+
+      // ShiftDelta additional arguments = (n_).
+      bool compareAdditionalArguments (const Node & other) const final {
+        const auto * derived = dynamic_cast<const Self *> (&other);
+        return derived != nullptr && n_ == derived->n_;
+      }
+      
+      std::size_t hashAdditionalArguments () const final {
+        std::size_t seed = 0;
+        combineHash (seed, n_);
+        return seed;
+      }
+
+      NodeRef derive (Context & c, const Node & node) final {
+        if (&node == this) {
+          return ConstantOne<Parameter>::create (c, Dimension<Parameter>());
+        }
+        auto & delta = this->dependency (0);
+        auto & x = this->dependency (1);
+        return Self::create (c, {delta->derive (c, node), x->derive (c, node)}, n_);
+      }
+
+      NodeRef recreate (Context & c, NodeRefVec && deps) final {
+        return Self::create (c, std::move (deps), n_);
+      }
+
+      int getN () const { return n_; }
+
+    private:
+      void compute () final
+      {
+        const auto & delta = accessValueConstCast<double> (*this->dependency (0));
+        const auto & x = static_cast<const ConfiguredParameter&> (*this->dependency (1));
+        this->accessValueMutable()->setValue(n_ * delta + x.getValue());
+        //        std::cerr << "ShiftParameter::compute " << x.getName() << ":" << this->accessValueMutable()->getValue() << std::endl;
+        
+      }
+
       int n_;
     };
 
@@ -1370,6 +1455,7 @@ namespace bpp {
      * Lambda represents the 1/delta^n for a nth-order numerical derivation.
      * Note that in the whole class, coeffs[i] is the coefficient of deps[i + 1] !
      */
+
     template <typename T> class CombineDeltaShifted : public Value<T> {
     public:
       using Self = CombineDeltaShifted;
@@ -1644,10 +1730,14 @@ namespace bpp {
      * The pattern of computation points and delta are given by config.
      * After creation, the pattern and node for delta cannot change, but delta value can.
      */
+    
     template <typename NodeT, typename DepT, typename B>
     ValueRef<NodeT> generateNumericalDerivative (Context & c, const NumericalDerivativeConfiguration & config,
-                                                 NodeRef dep, const Dimension<DepT> & depDim,
-                                                 const Dimension<NodeT> & nodeDim, B buildNodeWithDep) {
+                                                 NodeRef dep,
+                                                 const Dimension<DepT> & depDim,
+                                                 Dimension<NodeT> & nodeDim,
+                                                 B buildNodeWithDep)//,typename std::enable_if<!std::is_same<DepT, Parameter>::value>::type* = 0)
+    {
       if (config.delta == nullptr) {
         failureNumericalDerivationNotConfigured ();
       }
@@ -1681,6 +1771,48 @@ namespace bpp {
         failureNumericalDerivationNotConfigured ();
       }
     }
+
+    template <typename NodeT, typename B>
+    ValueRef<NodeT> generateNumericalDerivative (Context & c,
+                                                 const NumericalDerivativeConfiguration & config,
+                                                 NodeRef dep,
+                                                 const Dimension<NodeT> & nodeDim,
+                                                 B buildNodeWithDep)
+    {      
+      if (config.delta == nullptr) {
+        failureNumericalDerivationNotConfigured ();
+      }
+      switch (config.type) {
+      case NumericalDerivativeType::ThreePoints: {
+        // Shift {-1, +1}, coeffs {-0.5, +0.5}
+        auto shift_m1 = ShiftParameter::create (c, {config.delta, dep}, -1);
+        auto shift_p1 = ShiftParameter::create (c, {config.delta, dep}, 1);
+        NodeRefVec combineDeps (3);
+        combineDeps[0] = config.delta;
+        combineDeps[1] = buildNodeWithDep (std::move (shift_m1));
+        combineDeps[2] = buildNodeWithDep (std::move (shift_p1));
+        return CombineDeltaShifted<NodeT>::create (c, std::move (combineDeps), 1, {-0.5, 0.5}, nodeDim);
+      } break;
+      case NumericalDerivativeType::FivePoints: {
+        // Shift {-2, -1, +1, +2}, coeffs {1/12, -2/3, 2/3, -1/12}
+        auto shift_m2 = ShiftParameter::create (c, {config.delta, dep}, -2);
+        auto shift_m1 = ShiftParameter::create (c, {config.delta, dep}, -1);
+        auto shift_p1 = ShiftParameter::create (c, {config.delta, dep}, 1);
+        auto shift_p2 = ShiftParameter::create (c, {config.delta, dep}, 2);
+        NodeRefVec combineDeps (5);
+        combineDeps[0] = config.delta;
+        combineDeps[1] = buildNodeWithDep (std::move (shift_m2));
+        combineDeps[2] = buildNodeWithDep (std::move (shift_m1));
+        combineDeps[3] = buildNodeWithDep (std::move (shift_p1));
+        combineDeps[4] = buildNodeWithDep (std::move (shift_p2));
+        return CombineDeltaShifted<NodeT>::create (c, std::move (combineDeps), 1,
+                                                   {1. / 12., -2. / 3., 2. / 3., -1. / 12.}, nodeDim);
+      } break;
+      default:
+        failureNumericalDerivationNotConfigured ();
+      }
+    }
+
   } // namespace dataflow
 } // namespace bpp
 

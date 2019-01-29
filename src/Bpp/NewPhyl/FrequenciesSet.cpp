@@ -98,7 +98,7 @@ namespace bpp {
       auto & parameters = freqset_->getParameters ();
       const auto nbParameters = this->nbDependencies ();
       for (std::size_t i = 0; i < nbParameters; ++i) {
-        auto & v = accessValueConstCast<double> (*this->dependency (i));
+        auto v = accessValueConstCast<Parameter*> (*this->dependency (i))->getValue();
         auto & p = parameters[i];
         if (p.getValue () != v) {
           // TODO improve bpp::Parametrizable interface to change values by index.

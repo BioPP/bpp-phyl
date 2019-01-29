@@ -44,6 +44,7 @@
 #define BPP_NEWPHYL_PARAMETRIZABLE_H
 
 #include <Bpp/NewPhyl/DataFlowCWise.h>
+#include <Bpp/NewPhyl/Parameter.h>
 #include <Bpp/Exceptions.h>
 #include <functional>
 #include <unordered_map>
@@ -60,7 +61,7 @@ namespace bpp {
      * The map is indexed by parameter names.
      */
     
-    std::unordered_map<std::string, std::shared_ptr<NumericMutable<double>>>
+    std::unordered_map<std::string, std::shared_ptr<ConfiguredParameter>>
       createParameterMap(Context & c, const Parametrizable & parametrizable);
 
 
@@ -97,7 +98,7 @@ namespace bpp {
         const auto nbParameters = object->getParameters ().size ();
         checkDependenciesNotNull (typeid (Self), deps);
         checkDependencyVectorSize (typeid (Self), deps, nbParameters);
-        checkDependencyRangeIsValue<double> (typeid (Self), deps, 0, nbParameters);
+        checkDependencyRangeIsValue<Parameter*> (typeid (Self), deps, 0, nbParameters);
         return cachedAs<Self> (c, std::make_shared<Self> (std::move (deps), std::move (object)));
       }
 
@@ -171,15 +172,17 @@ namespace bpp {
           // First compute dxi_dn. If this maps to a constant 0, do not compute df_dxi at all (costly).
           auto dxi_dn = object.dependency (i)->derive (c, derivationNode);
           if (!dxi_dn->hasNumericalProperty (NumericalProperty::ConstantZero)) {
-            auto buildFWithNewXi = [&c, i, &object, &buildFWithNewObject](ValueRef<double> newDep) {
+            auto buildFWithNewXi = [&c, i, &object, &buildFWithNewObject](std::shared_ptr<ConfiguredParameter> newDep) {
               // The sub-graph that will be replicated with shifted inputs is: f(freqset(x_i), stuff)
               NodeRefVec newObjectDeps = object.dependencies ();
               newObjectDeps[i] = std::move (newDep);
               auto newObject = object.recreate (c, std::move (newObjectDeps));
               return buildFWithNewObject (std::move (newObject));
             };
-            auto df_dxi = generateNumericalDerivative<T, double> (
-              c, object.config, object.dependency (i), Dimension<double>{}, targetDimension, buildFWithNewXi);
+
+            auto df_dxi = generateNumericalDerivative<T> (
+              c, object.config, object.dependency (i), targetDimension, buildFWithNewXi);
+
             derivativeSumDeps.emplace_back (CWiseMul<T, std::tuple<double, T>>::create (
                                             c, {std::move (dxi_dn), std::move (df_dxi)}, targetDimension));
           }

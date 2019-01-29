@@ -116,6 +116,9 @@ TEST_CASE("model")
 
   // T92 : equilibrium frequencies do not depend on kappa
   CHECK (def_dkappa->getValue().isZero());
+  def_dthetaM->getValue();
+  
+  def_dthetaR->getValue();
 
   dotOutput("model", {ef.get(), def_dkappa.get(), def_dthetaM.get()});
   dotOutput("root", {fs.get(), def_dthetaR.get()});
