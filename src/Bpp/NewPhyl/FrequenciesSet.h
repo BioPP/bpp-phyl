@@ -70,11 +70,14 @@ namespace bpp {
     
     class ConfiguredFrequenciesSet : public Value<const FrequenciesSet*>
     {
+    private:
+
+      const Context& context_;
     public:
       using Self = ConfiguredFrequenciesSet;
       using Target = FrequenciesSet;
       
-      ConfiguredFrequenciesSet (NodeRefVec && deps, std::unique_ptr<FrequenciesSet> && freqset);
+      ConfiguredFrequenciesSet (const Context& context, NodeRefVec && deps, std::unique_ptr<FrequenciesSet> && freqset);
       ~ConfiguredFrequenciesSet ();
       
       std::string description () const final;

@@ -49,16 +49,18 @@ namespace bpp {
   namespace dataflow {
     // Parameter node
     
-    ConfiguredParameter::ConfiguredParameter (const Context& context, NodeRefVec&& deps, std::unique_ptr<Parameter> && parameter)
-      : Value<Parameter*> (deps, parameter.get ()), context_(context), parameter_(std::move(parameter)) {}
-
-    ConfiguredParameter::~ConfiguredParameter () = default;
+    ConfiguredParameter::ConfiguredParameter (const Context& context, NodeRefVec&& deps, const Parameter& parameter)
+      : Parameter(parameter), Value<Parameter*> (deps, this), context_(context)
+    {
+    };
     
-    std::string ConfiguredParameter::description () const { return "Parameter(" + parameter_->getName () + ")";
+    ConfiguredParameter::~ConfiguredParameter () = default;
+
+    std::string ConfiguredParameter::description () const { return "Parameter(" + getName () + ")";
     }
     
     std::string ConfiguredParameter::debugInfo () const {
-      return "value="+std::to_string(parameter_->getValue());
+      return "value="+std::to_string(getValue());
     }
 
     // Parameter node additional arguments = (type of bpp::Parameter).
@@ -69,14 +71,14 @@ namespace bpp {
       if (derived == nullptr) {
         return false;
       } else {
-        const auto & thisFS = *parameter_;
-        const auto & otherFS = *derived->parameter_;
+        const auto & thisFS = *this;
+        const auto & otherFS = *derived;
         return typeid (thisFS) == typeid (otherFS);
       }
     }
     
     std::size_t ConfiguredParameter::hashAdditionalArguments () const {
-      const auto & bppFS = *parameter_;
+      const auto & bppFS = *this;
       return typeid (bppFS).hash_code ();
     }
 
@@ -87,16 +89,20 @@ namespace bpp {
       return ConstantZero<double>::create (c, Dimension<double>());
     }
     
+    NodeRef ConfiguredParameter::recreate (Context & c) {
+      return ConfiguredParameter::create (c, NodeRefVec{NumericMutable<double>::create(c, accessValueConstCast<double>(*dependency(0)))}, *this);
+    }
+
     NodeRef ConfiguredParameter::recreate (Context & c, NodeRefVec && deps) {
-      auto m = ConfiguredParameter::create (c, std::move (deps), std::unique_ptr<Target>{parameter_->clone ()});
+      auto m = ConfiguredParameter::create (c, std::move (deps), *this);
       return m;
     }
 
     void ConfiguredParameter::compute () {
       // Update with the numerical dependency
       auto & v = accessValueConstCast<double> (*this->dependency (0));
-      if (parameter_->getValue () != v) {
-        parameter_->setValue(v);
+      if (getValue () != v) {
+        setValue(v);
       }
     }
     

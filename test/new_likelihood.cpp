@@ -115,10 +115,10 @@ TEST_CASE("model")
   auto def_dthetaR = fs->deriveAsValue(c, *thetaR);
 
   // T92 : equilibrium frequencies do not depend on kappa
-  CHECK (def_dkappa->getValue().isZero());
-  def_dthetaM->getValue();
+  CHECK (def_dkappa->getTargetValue().isZero());
+  def_dthetaM->getTargetValue();
   
-  def_dthetaR->getValue();
+  def_dthetaR->getTargetValue();
 
   dotOutput("model", {ef.get(), def_dkappa.get(), def_dthetaM.get()});
   dotOutput("root", {fs.get(), def_dthetaR.get()});

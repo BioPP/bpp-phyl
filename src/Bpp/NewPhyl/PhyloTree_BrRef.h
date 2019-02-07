@@ -268,7 +268,7 @@ namespace bpp
       {
         auto edge=**aEit;
         map.emplace (tree.getEdgeIndex(edge),
-                     NumericMutable<double>::create (c, edge->getBrLen()->getValue()));
+                     NumericMutable<double>::create (c, edge->getBrLen()->getTargetValue()));
         aEit->next();
       }
       

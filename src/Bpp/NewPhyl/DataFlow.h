@@ -53,6 +53,8 @@
 
 #include <unordered_map> // For recreateWithSubstitution
 
+#include <Bpp/Exceptions.h>
+
 /** @file Defines the basic types of data flow nodes.
  */
 namespace bpp {
@@ -236,6 +238,22 @@ namespace bpp {
       void makeInvalid () noexcept { isValid_ = false; }
       void makeValid () noexcept { isValid_ = true; }
 
+    protected:
+
+      void setDependencies_(NodeRefVec && dependenciesArg)
+      {
+        if (dependencyNodes_.size()!=0)
+          throw bpp::Exception("Node::setDependencies_ possible only for Nodes without dependencies.");
+        
+        dependencyNodes_=std::move(dependenciesArg);
+
+        for (auto & n : dependencyNodes_)
+            n->registerNode (this);
+
+        invalidateRecursively ();
+        makeInvalid ();
+      }
+   
     private:
       void registerNode (Node * n);
       void unregisterNode (const Node * n);
@@ -287,7 +305,7 @@ namespace bpp {
      * Types can not be forward-declared.
      *
      * accessValueConst() returns the current raw value, which may be invalid.
-     * getValue() returns the value, recomputing it recursively if invalid.
+     * getTargetValue() returns the value, recomputing it recursively if invalid.
      *
      * The Value<T> constructor forwards dependencies to the base Node, and other arguments to the
      * T value constructor.
@@ -308,7 +326,7 @@ namespace bpp {
        * Then access it as const.
        * Recomputation is single threaded and not thread safe.
        */
-      const T & getValue () {
+      const T & getTargetValue () {
         this->computeRecursively ();
         return accessValueConst ();
       }

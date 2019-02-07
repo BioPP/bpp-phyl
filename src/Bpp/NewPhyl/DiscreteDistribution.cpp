@@ -39,15 +39,21 @@
 
 #include <Bpp/Exceptions.h>
 #include <Bpp/NewPhyl/DiscreteDistribution.h>
-#include <Bpp/Numeric/Prob/DiscreteDistribution.h>
 
 using namespace std;
 
 namespace bpp {
   namespace dataflow {
 
-    ConfiguredDistribution::ConfiguredDistribution (NodeRefVec && deps, std::unique_ptr<DiscreteDistribution> && distrib)
-      : Value<const DiscreteDistribution*> (std::move (deps), distrib.get ()), distrib_(std::move(distrib)) {}
+    ConfiguredDistribution::ConfiguredDistribution (Context& context, NodeRefVec && deps, std::unique_ptr<DiscreteDistribution> && distrib)
+      : Value<const DiscreteDistribution*> (std::move (deps), distrib.get ()), AbstractParametrizable(distrib->getNamespace()), context_(context), distrib_(std::move(distrib))
+    {
+      for (const auto& dep:dependencies())
+      {
+        const auto& param=std::dynamic_pointer_cast<ConfiguredParameter>(dep);
+        shareParameter_(param);
+      }
+    }
 
     ConfiguredDistribution::~ConfiguredDistribution () = default;
 
@@ -55,14 +61,6 @@ namespace bpp {
 
     std::string ConfiguredDistribution::debugInfo () const {
       return "nbClass=" + std::to_string (distrib_->getNumberOfCategories ());
-    }
-
-    const std::string & ConfiguredDistribution::getParameterName (std::size_t index) {
-      return distrib_->getParameters ()[index].getName ();
-    }
-    
-    std::size_t ConfiguredDistribution::getParameterIndex (const std::string & name) {
-      return static_cast<std::size_t> (distrib_->getParameters ().whichParameterHasName (name));
     }
 
     // Model node additional arguments = (type of bpp::TransitionModel).
@@ -87,21 +85,6 @@ namespace bpp {
       auto m = ConfiguredParametrizable::createConfigured<Target, Self> (c, std::move (deps), std::unique_ptr<DiscreteDistribution>{distrib_->clone ()});
       m->config = this->config; // Duplicate derivation config
       return m;
-    }
-
-
-    void ConfiguredDistribution::compute () {
-      // Update each internal model bpp::Parameter with the dependency
-      auto & parameters = distrib_->getParameters ();
-      const auto nbParameters = this->nbDependencies ();
-      for (std::size_t i = 0; i < nbParameters; ++i) {
-        auto v = accessValueConstCast<Parameter*> (*this->dependency (i))->getValue();
-        auto & p = parameters[i];
-        if (p.getValue () != v) {
-          // TODO improve bpp::Parametrizable interface to change values by index.
-          distrib_->setParameterValue (distrib_->getParameterNameWithoutNamespace (p.getName ()), v);
-        }
-      }
     }
 
     //////////////////////////////////////////////

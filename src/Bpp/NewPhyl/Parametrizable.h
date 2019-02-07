@@ -99,10 +99,26 @@ namespace bpp {
         checkDependenciesNotNull (typeid (Self), deps);
         checkDependencyVectorSize (typeid (Self), deps, nbParameters);
         checkDependencyRangeIsValue<Parameter*> (typeid (Self), deps, 0, nbParameters);
-        return cachedAs<Self> (c, std::make_shared<Self> (std::move (deps), std::move (object)));
+        return cachedAs<Self> (c, std::make_shared<Self> (c, std::move (deps), std::move (object)));
       }
 
+      template<typename Object, typename Self>
+      static std::shared_ptr<Self> createConfigured (Context & context, std::unique_ptr<Object> && object) {
 
+        auto objectParameters = createParameterMap(context, *object);
+  
+        auto depvecObject=createDependencyVector(
+          *object, [&objectParameters](const std::string& paramName) { return objectParameters[paramName]; });
+
+        auto objectNode = ConfiguredParametrizable::createConfigured<Object, Self>(
+          context,
+          std::move(depvecObject),
+          std::move(object));
+
+
+        return objectNode;
+      }
+      
       /** Create a new vector of dependencies node to a double,
        * through a inheriting class (aka Self), from a
        * ConfiguredObject

@@ -57,7 +57,7 @@ namespace bpp {
         const auto & param = parameters[i];
         auto value = NumericMutable<double>::create (c, param.getValue ());
         map.emplace (param.getName (),
-                     ConfiguredParameter::create (c, {std::move(value)}, std::unique_ptr<Parameter>(param.clone())));
+                     ConfiguredParameter::create (c, {std::move(value)}, param));
       }
       return map;
     }

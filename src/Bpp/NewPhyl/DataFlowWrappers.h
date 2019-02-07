@@ -74,13 +74,13 @@ namespace bpp {
     public:
       DataFlowParameter (const std::string & name,
                          std::shared_ptr<NumericMutable<double>> existingNode)
-        : Parameter (name, existingNode->getValue ()), node_ (std::move (existingNode)) {}
+        : Parameter (name, existingNode->getTargetValue ()), node_ (std::move (existingNode)) {}
 
       DataFlowParameter (const bpp::Parameter& param,
                          std::shared_ptr<dataflow::NumericMutable<double>> existingNode)
         : Parameter (param), node_ (std::move (existingNode))
       {
-        setValue(node_->getValue());
+        setValue(node_->getTargetValue());
       }
 
       DataFlowParameter (const bpp::Parameter& param)
@@ -91,7 +91,7 @@ namespace bpp {
       DataFlowParameter * clone () const override { return new DataFlowParameter (*this); }
 
       // Override value access
-      double getValue () const override { return node_->getValue (); }
+      double getValue () const override { return node_->getTargetValue (); }
 
       void setValue (double v) override {
         Parameter::setValue (v);                  // Will apply possible constraints
@@ -144,7 +144,9 @@ namespace bpp {
     public:
       DataFlowFunction (dataflow::Context & context, dataflow::ValueRef<double> resultNode,
                         const ParameterList & variableNodes)
-        : context_ (context), resultNode_ (std::move (resultNode)), variableNodes_ (variableNodes) {}
+        : context_ (context), resultNode_ (std::move (resultNode)), variableNodes_ () {
+        variableNodes_.shareParameters(variableNodes);
+      }
 
       // Legacy boilerplate
       DataFlowFunction * clone () const override { return new DataFlowFunction (*this); }
@@ -179,13 +181,14 @@ namespace bpp {
       void setParameters (const ParameterList & params) override {
         variableNodes_.setParametersValues (params);
       }
-      double getValue () const override { return resultNode_->getValue (); }
+      
+      double getValue () const override { return resultNode_->getTargetValue (); }
 
       // bpp::DerivableFirstOrder
       void enableFirstOrderDerivatives (bool) override {}
       bool enableFirstOrderDerivatives () const override { return true; }
       double getFirstOrderDerivative (const std::string & variable) const override {
-        return firstOrderDerivativeNode (variable)->getValue ();
+        return firstOrderDerivativeNode (variable)->getTargetValue ();
       }
 
       // bpp::DerivableSecondOrder
@@ -196,7 +199,7 @@ namespace bpp {
       }
       double getSecondOrderDerivative (const std::string & variable1,
                                        const std::string & variable2) const override {
-        return secondOrderDerivativeNode (variable1, variable2)->getValue ();
+        return secondOrderDerivativeNode (variable1, variable2)->getTargetValue ();
       }
 
       // Get nodes of derivatives directly

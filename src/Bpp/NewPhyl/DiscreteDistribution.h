@@ -41,7 +41,11 @@
 #ifndef BPP_NEWPHYL_DISCRETE_DISTRIBUTION_H
 #define BPP_NEWPHYL_DISCRETE_DISTRIBUTION_H 
 
+#include <Bpp/Numeric/AbstractParametrizable.h>
+#include <Bpp/Numeric/Prob/DiscreteDistribution.h>
+
 #include <Bpp/NewPhyl/DataFlowCWise.h>
+#include <Bpp/NewPhyl/DataFlow.h>
 #include <Bpp/NewPhyl/Parametrizable.h>
 #include <Bpp/Exceptions.h>
 #include <functional>
@@ -50,7 +54,6 @@
 namespace bpp {
   /* Likelihood discrete distribution.
    */
-  class DiscreteDistribution;
 
   namespace dataflow {
 
@@ -67,22 +70,27 @@ namespace bpp {
      * distribution for simplicity.
      */
     
-    class ConfiguredDistribution : public Value<const DiscreteDistribution*>
+    class ConfiguredDistribution : public Value<const DiscreteDistribution*>,
+                                   public AbstractParametrizable
     {
+    private:
+
+      Context& context_;
+      
     public:
       using Self = ConfiguredDistribution;
       using Target = DiscreteDistribution;
       
-      ConfiguredDistribution (NodeRefVec && deps, std::unique_ptr<DiscreteDistribution> && distrib);
+      ConfiguredDistribution (Context& context, NodeRefVec && deps, std::unique_ptr<DiscreteDistribution> && distrib);
       ~ConfiguredDistribution ();
 
+      ConfiguredDistribution* clone() const
+      {
+        throw bpp::Exception("ConfiguredDistribution clone should not happen.");
+      }
+      
       std::string description () const final;
       std::string debugInfo () const final;
-
-      /// Return the index of parameter with the given non namespaced name (or throw).
-      std::size_t getParameterIndex (const std::string & name);
-      /// Return the non namespaced name for parameter at the given index.
-      const std::string & getParameterName (std::size_t index);
 
       bool compareAdditionalArguments (const Node & other) const;
       
@@ -93,8 +101,16 @@ namespace bpp {
 
       NodeRef recreate (Context & c, NodeRefVec && deps) final;
       
+      const ConfiguredParameter& getConfiguredParameter(const std::string& name)
+      {
+        return static_cast<const ConfiguredParameter&>(getParameter(name));
+      }
+
     private:
-      void compute ();
+      void compute ()
+      {
+        distrib_->matchParametersValues(getParameters());
+      }
 
       std::unique_ptr<DiscreteDistribution> distrib_;
       

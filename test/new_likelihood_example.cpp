@@ -270,14 +270,8 @@ TEST_CASE("df")
 //  auto rates = std::unique_ptr<bpp::GammaDiscreteRateDistribution>(new bpp::GammaDiscreteRateDistribution(3, 0.5));
   auto rates = std::unique_ptr<bpp::ConstantRateDistribution>(new bpp::ConstantRateDistribution());
 
-  auto ratesParameters = bpp::dataflow::createParameterMap(context, *rates);
-
-  auto depvecRates=bpp::dataflow::createDependencyVector(
-    *rates, [&ratesParameters](const std::string& paramName) { return ratesParameters[paramName]; });
-
   auto ratesNode = bpp::dataflow::ConfiguredParametrizable::createConfigured<bpp::DiscreteDistribution, bpp::dataflow::ConfiguredDistribution>(
     context,
-    std::move(depvecRates),
     std::move(rates));
 
   auto deltaRate = bpp::dataflow::NumericMutable<double>::create(context, 0.001);
@@ -297,16 +291,13 @@ TEST_CASE("df")
   auto parTree = std::unique_ptr<bpp::ParametrizablePhyloTree>(new bpp::ParametrizablePhyloTree(*phyloTree));
   
   // Model: create simple leaf nodes as model parameters
-  auto model = std::unique_ptr<bpp::T92>(new bpp::T92(&c.alphabet, 3.));
-  auto modelParameters = bpp::dataflow::createParameterMap(context, *model);
+  auto model = std::unique_ptr<bpp::T92>(new bpp::T92(&c.alphabet, 3));
+  // auto modelParameters = bpp::dataflow::createParameterMap(context, *model);
   
-  auto depvecModel=bpp::dataflow::createDependencyVector(
-    *model, [&modelParameters](const std::string& paramName) { return modelParameters[paramName]; });
+  // auto depvecModel=bpp::dataflow::createDependencyVector(
+  //   *model, [&modelParameters](const std::string& paramName) { return modelParameters[paramName]; });
 
-  auto modelNode = bpp::dataflow::ConfiguredParametrizable::createConfigured<bpp::TransitionModel, bpp::dataflow::ConfiguredModel>(
-    context,
-    std::move(depvecModel),
-    std::move(model));
+  auto modelNode = bpp::dataflow::ConfiguredParametrizable::createConfigured<bpp::TransitionModel, bpp::dataflow::ConfiguredModel>(context,std::move(model));
 
   auto delta = bpp::dataflow::NumericMutable<double>::create(context, 0.001);
   modelNode->config.delta = delta;
@@ -371,19 +362,20 @@ TEST_CASE("df")
   
   bpp::ParameterList allParameters;
   allParameters.addParameters(brlenOnlyParameters);
+
+//  allParameters.shareParameters(modelNode->getParameters());
   
-  // for (const auto& p : modelParameters)
   // {
-  //   auto modelb=modelNode->getValue();
+  //   auto modelb=modelNode->getTargetValue();
     
-  //   auto param = bpp::dataflow::DataFlowParameter(*p.second->getValue(), Name(),()modelb->getParameter(modelb->getParameterNameWithoutNamespace(p.first)), p.second);
-  //   param = std::shared_ptr<Parameter>(p.second->getValue()->clone());
+  //   auto param = bpp::dataflow::DataFlowParameter(*p.second->getTargetValue(), Name(),()modelb->getParameter(modelb->getParameterNameWithoutNamespace(p.first)), p.second);
+  //   param = std::shared_ptr<Parameter>(p.second->getTargetValue()->clone());
   //   allParameters.addParameter(std::move(param));
   // }
 
   // for (const auto& p : model2Parameters)
   // {
-  //   auto modelb=model2Node->getValue();
+  //   auto modelb=model2Node->getTargetValue();
     
   //   auto param = bpp::dataflow::DataFlowParameter(modelb->getParameter(modelb->getParameterNameWithoutNamespace(p.first)), p.second);
   //   param.setName(param.getName()+"_2");
@@ -393,13 +385,12 @@ TEST_CASE("df")
 
   // for (const auto& p : rootFreqsParameters)
   // {
-  //   auto root2=rootFreqsNode->getValue();
+  //   auto root2=rootFreqsNode->getTargetValue();
     
   //   auto param = bpp::dataflow::DataFlowParameter(root2->getParameter(root2->getParameterNameWithoutNamespace(p.first)), p.second);
   //   allParameters.addParameter(param);
   // }
 
-  
   bpp::dataflow::DataFlowFunction llh(context, l, allParameters);
   timingEnd(ts, "df_setup");
 
@@ -411,12 +402,12 @@ TEST_CASE("df")
 
   // Manual access to dbrlen1
   auto dlogLik_dbrlen1 = l->deriveAsValue(context, *treeNode->getEdge(1)->getBrLen());
-  std::cout << "[dbrlen1] " << dlogLik_dbrlen1->getValue() << "\n";
+  std::cout << "[dbrlen1] " << dlogLik_dbrlen1->getTargetValue() << "\n";
   dotOutput("likelihood_example_dbrlen1", {dlogLik_dbrlen1.get()});
 
-  auto dlogLik_dkappa = l->deriveAsValue(context,  *modelParameters["T92.kappa"]);
+  auto dlogLik_dkappa = l->deriveAsValue(context,  modelNode->getConfiguredParameter("kappa"));
   
-  std::cout << "[dkappa] " << dlogLik_dkappa->getValue() << "\n";
+  std::cout << "[dkappa] " << dlogLik_dkappa->getTargetValue() << "\n";
   dotOutput("likelihood_example_dkappa", {dlogLik_dkappa.get()});
 
   // do_param_changes_multiple_times(llh, "df_param_model_change", c.paramModel1, c.paramModel2);

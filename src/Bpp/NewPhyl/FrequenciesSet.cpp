@@ -48,8 +48,8 @@ namespace bpp {
   namespace dataflow {
     // FrequenciesSet node
 
-    ConfiguredFrequenciesSet::ConfiguredFrequenciesSet (NodeRefVec && deps, std::unique_ptr<FrequenciesSet> && freqset)
-      : Value<const FrequenciesSet*> (std::move (deps), freqset.get ()), freqset_(std::move(freqset)) {}
+    ConfiguredFrequenciesSet::ConfiguredFrequenciesSet (const Context& context, NodeRefVec && deps, std::unique_ptr<FrequenciesSet> && freqset)
+      : Value<const FrequenciesSet*> (std::move (deps), freqset.get ()), context_(context), freqset_(std::move(freqset)) {}
 
     ConfiguredFrequenciesSet::~ConfiguredFrequenciesSet () = default;
     

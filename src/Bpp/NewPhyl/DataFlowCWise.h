@@ -1039,7 +1039,9 @@ namespace bpp {
                                                                      Dimension<double> ());
       }
 
-      NodeRef recreate (Context & c, NodeRefVec && deps) final { return Self::create (c, std::move (deps)); }
+      NodeRef recreate (Context & c, NodeRefVec && deps) final {
+        return Self::create (c, std::move (deps));
+      }
 
     private:
       void compute () final {
@@ -1369,31 +1371,33 @@ namespace bpp {
         // Check dependencies
         checkDependenciesNotNull (typeid (Self), deps);
         checkDependencyVectorSize (typeid (Self), deps, 2);
-        checkNthDependencyIsValue<double> (typeid (Self), deps, 0);
-        checkNthDependencyIs<ConfiguredParameter> (typeid (Self), deps, 1);
+        checkNthDependencyIs<ConfiguredParameter> (typeid (Self), deps, 0);
+        checkNthDependencyIsValue<double> (typeid (Self), deps, 1);
         // Detect if we have a chain of ShiftParameter with the same delta.
-        auto & delta = deps[0];
-        auto & x = deps[1];
+        auto & x = deps[0];
+        auto & delta = deps[1];
         auto * xAsShiftParameter = dynamic_cast<const ShiftParameter *> (x.get ());
-        if (xAsShiftParameter != nullptr && xAsShiftParameter->dependency (0) == delta) {
+        if (xAsShiftParameter != nullptr && xAsShiftParameter->dependency (1) == delta) {
           // Merge with ShiftParameter dependency by summing the n.
           return Self::create (c, NodeRefVec{x->dependencies ()}, 1 + xAsShiftParameter->getN ());
         }
         // Not a merge, select node implementation.
         if (n == 0 || delta->hasNumericalProperty (NumericalProperty::ConstantZero)) {
-          ///!!!! Not sure about this
           return std::dynamic_pointer_cast<ConfiguredParameter> (x);
         } else {
           auto cfx=dynamic_cast<const ConfiguredParameter*>(x.get());
-          auto paramd=std::unique_ptr<Parameter>(cfx->accessValueConst()->clone());
-          paramd->setName(paramd->getName()+"_"+to_string(n)+"delta");
-          return cachedAs<ConfiguredParameter> (c, std::make_shared<Self> (c, std::move (deps), std::move(paramd), n));
+          auto ret=cachedAs<ConfiguredParameter> (c, std::make_shared<Self> (c, NodeRefVec{cfx->dependency(0), deps[1]}, *cfx, n));
+          
+          return ret;
         }
       }
 
-      ShiftParameter (const Context& context, NodeRefVec && deps, std::unique_ptr<Parameter>&& parameter, int n)
-        : ConfiguredParameter (context, std::move (deps), std::move(parameter)), n_ (n)
-      {}
+      ShiftParameter (const Context& context, NodeRefVec && deps, const Parameter& parameter, int n)
+        : ConfiguredParameter (context, std::move (deps), parameter), n_ (n)
+      {
+      }
+
+      std::string description () const { return "Shift" + ConfiguredParameter::description();}
 
       std::string debugInfo () const override {
         return ConfiguredParameter::debugInfo() +
@@ -1416,8 +1420,8 @@ namespace bpp {
         if (&node == this) {
           return ConstantOne<Parameter>::create (c, Dimension<Parameter>());
         }
-        auto & delta = this->dependency (0);
-        auto & x = this->dependency (1);
+        auto & x = this->dependency (0);
+        auto & delta = this->dependency (1);
         return Self::create (c, {delta->derive (c, node), x->derive (c, node)}, n_);
       }
 
@@ -1430,11 +1434,9 @@ namespace bpp {
     private:
       void compute () final
       {
-        const auto & delta = accessValueConstCast<double> (*this->dependency (0));
-        const auto & x = static_cast<const ConfiguredParameter&> (*this->dependency (1));
-        this->accessValueMutable()->setValue(n_ * delta + x.getValue());
-        //        std::cerr << "ShiftParameter::compute " << x.getName() << ":" << this->accessValueMutable()->getValue() << std::endl;
-        
+        const auto & delta = accessValueConstCast<double> (*this->dependency (1));
+        const auto&  x = accessValueConstCast<double> (*this->dependency (0));
+        this->accessValueMutable()->setValue(n_ * delta + x);
       }
 
       int n_;
@@ -1591,8 +1593,9 @@ namespace bpp {
       }
 
       const std::vector<double> & getCoeffs () const { return coeffs_; }
-      int getN () const { return n_; }
 
+      int getN () const { return n_; }
+      
     private:
       void compute () final {
         using namespace numeric;
@@ -1736,7 +1739,7 @@ namespace bpp {
                                                  NodeRef dep,
                                                  const Dimension<DepT> & depDim,
                                                  Dimension<NodeT> & nodeDim,
-                                                 B buildNodeWithDep)//,typename std::enable_if<!std::is_same<DepT, Parameter>::value>::type* = 0)
+                                                 B buildNodeWithDep)
     {
       if (config.delta == nullptr) {
         failureNumericalDerivationNotConfigured ();
@@ -1785,8 +1788,8 @@ namespace bpp {
       switch (config.type) {
       case NumericalDerivativeType::ThreePoints: {
         // Shift {-1, +1}, coeffs {-0.5, +0.5}
-        auto shift_m1 = ShiftParameter::create (c, {config.delta, dep}, -1);
-        auto shift_p1 = ShiftParameter::create (c, {config.delta, dep}, 1);
+        auto shift_m1 = ShiftParameter::create (c, {dep, config.delta}, -1);
+        auto shift_p1 = ShiftParameter::create (c, {dep, config.delta}, 1);
         NodeRefVec combineDeps (3);
         combineDeps[0] = config.delta;
         combineDeps[1] = buildNodeWithDep (std::move (shift_m1));
@@ -1795,10 +1798,10 @@ namespace bpp {
       } break;
       case NumericalDerivativeType::FivePoints: {
         // Shift {-2, -1, +1, +2}, coeffs {1/12, -2/3, 2/3, -1/12}
-        auto shift_m2 = ShiftParameter::create (c, {config.delta, dep}, -2);
-        auto shift_m1 = ShiftParameter::create (c, {config.delta, dep}, -1);
-        auto shift_p1 = ShiftParameter::create (c, {config.delta, dep}, 1);
-        auto shift_p2 = ShiftParameter::create (c, {config.delta, dep}, 2);
+        auto shift_m2 = ShiftParameter::create (c, {dep, config.delta}, -2);
+        auto shift_m1 = ShiftParameter::create (c, {dep, config.delta}, -1);
+        auto shift_p1 = ShiftParameter::create (c, {dep, config.delta}, 1);
+        auto shift_p2 = ShiftParameter::create (c, {dep, config.delta}, 2);
         NodeRefVec combineDeps (5);
         combineDeps[0] = config.delta;
         combineDeps[1] = buildNodeWithDep (std::move (shift_m2));
