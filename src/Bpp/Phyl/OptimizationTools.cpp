@@ -169,7 +169,7 @@ unsigned int OptimizationTools::optimizeNumericalParameters(
     f = frep.get();
 
     // Reset parameters to remove constraints:
-    pl = f->getParameters().subList(parameters.getParameterNames());
+    pl = f->getParameters().createSubList(parameters.getParameterNames());
   }
 
   // ///////////////
@@ -272,7 +272,7 @@ unsigned int OptimizationTools::optimizeNumericalParameters(
     f = frep.get();
 
     // Reset parameters to remove constraints:
-    pl = f->getParameters().subList(parameters.getParameterNames());
+    pl = f->getParameters().createSubList(parameters.getParameterNames());
   }
   
   // ///////////////
@@ -387,7 +387,7 @@ unsigned int OptimizationTools::optimizeNumericalParameters2(
     f = frep.get();
 
     // Reset parameters to remove constraints:
-    pl = f->getParameters().subList(pl.getParameterNames());
+    pl = f->getParameters().createSubList(pl.getParameterNames());
   }
 
   unique_ptr<AbstractNumericalDerivative> fnum;
@@ -481,7 +481,7 @@ unsigned int OptimizationTools::optimizeNumericalParameters2(
     f = frep.get();
 
     // Reset parameters to remove constraints:
-    pl = f->getParameters().subList(pl.getParameterNames());
+    pl = f->getParameters().createSubList(pl.getParameterNames());
   }
 
   unique_ptr<AbstractNumericalDerivative> fnum;

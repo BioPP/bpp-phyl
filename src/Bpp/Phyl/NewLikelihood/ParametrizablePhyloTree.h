@@ -83,7 +83,7 @@ namespace bpp
     const ParameterList getBranchLengthParameters(size_t nodeIndex) const 
     {
       //!!!!!!!!!!!!!!!!!! TODO : not stable
-      return getParameters().subList(nodeIndex);
+      return getParameters().createSubList(nodeIndex);
     }
 
     Vdouble getBranchLengths() const;

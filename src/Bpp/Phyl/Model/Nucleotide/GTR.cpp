@@ -132,7 +132,7 @@ void GTR::setFreq(map<int, double>& freqs)
   thetas[0] = getNamespace() + "theta";
   thetas[1] = getNamespace() + "theta1";
   thetas[2] = getNamespace() + "theta2";
-  ParameterList pl = getParameters().subList(thetas);
+  ParameterList pl = getParameters().createSubList(thetas);
   pl[0].setValue(piC_ + piG_);
   pl[1].setValue(piA_ / (piA_ + piT_));
   pl[2].setValue(piG_ / (piC_ + piG_));
