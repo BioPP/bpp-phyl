@@ -41,7 +41,6 @@
 #include <Bpp/Exceptions.h>
 #include <Bpp/NewPhyl/Model.h>
 #include <Bpp/NewPhyl/Parametrizable.h>
-#include <Bpp/Phyl/Model/SubstitutionModel.h>
 
 using namespace std;
 
@@ -64,8 +63,15 @@ namespace bpp {
 
     // Model node
 
-    ConfiguredModel::ConfiguredModel (NodeRefVec && deps, std::unique_ptr<TransitionModel> && model)
-      : Value<const TransitionModel*> (std::move (deps), model.get ()), model_(std::move(model)) {}
+    ConfiguredModel::ConfiguredModel (Context& context, NodeRefVec && deps, std::unique_ptr<TransitionModel> && model)
+      : Value<const TransitionModel*> (std::move (deps), model.get ()), AbstractParametrizable(model->getNamespace()), context_(context), model_(std::move(model))
+    {
+      for (const auto& dep:dependencies())
+      {
+        const auto& param=std::dynamic_pointer_cast<ConfiguredParameter>(dep);
+        shareParameter_(param);
+      }
+    }
 
     ConfiguredModel::~ConfiguredModel () = default;
 
@@ -73,14 +79,6 @@ namespace bpp {
 
     std::string ConfiguredModel::debugInfo () const {
       return "nbState=" + std::to_string (model_->getAlphabet ()->getSize ());
-    }
-
-    const std::string & ConfiguredModel::getParameterName (std::size_t index) {
-      return model_->getParameters ()[index].getName ();
-    }
-    
-    std::size_t ConfiguredModel::getParameterIndex (const std::string & name) {
-      return static_cast<std::size_t> (model_->getParameters ().whichParameterHasName (name));
     }
 
     // Model node additional arguments = (type of bpp::TransitionModel).
@@ -107,20 +105,6 @@ namespace bpp {
       return m;
     }
     
-    void ConfiguredModel::compute () {
-      // Update each internal model bpp::Parameter with the dependency
-      auto & parameters = model_->getParameters ();
-      const auto nbParameters = this->nbDependencies ();
-      for (std::size_t i = 0; i < nbParameters; ++i) {
-        auto v = accessValueConstCast<Parameter*> (*this->dependency (i))->getValue();
-        auto & p = parameters[i];
-        if (p.getValue () != v) {
-          // TODO improve bpp::Parametrizable interface to change values by index.
-          model_->setParameterValue (model_->getParameterNameWithoutNamespace (p.getName ()), v);
-        }
-      }
-    }
-
     // EquilibriumFrequenciesFromModel
 
     EquilibriumFrequenciesFromModel::EquilibriumFrequenciesFromModel (

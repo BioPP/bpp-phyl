@@ -43,6 +43,9 @@
 #ifndef BPP_NEWPHYL_MODEL_H
 #define BPP_NEWPHYL_MODEL_H 
 
+#include <Bpp/Numeric/AbstractParametrizable.h>
+#include <Bpp/Phyl/Model/SubstitutionModel.h>
+
 #include <Bpp/NewPhyl/DataFlowCWise.h>
 #include <Bpp/Exceptions.h>
 #include <functional>
@@ -65,22 +68,26 @@ namespace bpp {
      *
      * The dummy value is implemented as a pointer to the internal model for simplicity.
      */
-    class ConfiguredModel : public Value<const TransitionModel*>
+    class ConfiguredModel : public Value<const TransitionModel*>,
+                            public AbstractParametrizable
     {
+    private:
+      Context& context_;
+
     public:
       using Self = ConfiguredModel;
       using Target = TransitionModel;
-      
-      ConfiguredModel (NodeRefVec && deps, std::unique_ptr<TransitionModel> && model);
+
+      ConfiguredModel (Context& context, NodeRefVec && deps, std::unique_ptr<TransitionModel> && model);
       ~ConfiguredModel ();
 
+      ConfiguredModel* clone() const
+      {
+        throw bpp::Exception("ConfiguredModel clone should not happen.");
+      }
+      
       std::string description () const final;
       std::string debugInfo () const final;
-
-      /// Return the index of parameter with the given name (or throw).
-      std::size_t getParameterIndex (const std::string & name);
-      /// Return the name for parameter at the given index.
-      const std::string & getParameterName (std::size_t index);
 
       bool compareAdditionalArguments (const Node & other) const;
       
@@ -90,9 +97,17 @@ namespace bpp {
       NumericalDerivativeConfiguration config;
 
       NodeRef recreate (Context & c, NodeRefVec && deps) final;
-      
+
+      const ConfiguredParameter& getConfiguredParameter(const std::string& name)
+      {
+        return static_cast<const ConfiguredParameter&>(getParameter(name));
+      }
+   
     private:
-      void compute ();
+      void compute ()
+      {
+        model_->matchParametersValues(getParameters());
+      }
 
       std::unique_ptr<TransitionModel> model_;
       

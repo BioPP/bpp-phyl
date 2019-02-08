@@ -238,6 +238,22 @@ namespace bpp {
       void makeInvalid () noexcept { isValid_ = false; }
       void makeValid () noexcept { isValid_ = true; }
 
+    protected:
+
+      void setDependencies_(NodeRefVec && dependenciesArg)
+      {
+        if (dependencyNodes_.size()!=0)
+          throw bpp::Exception("Node::setDependencies_ possible only for Nodes without dependencies.");
+        
+        dependencyNodes_=std::move(dependenciesArg);
+
+        for (auto & n : dependencyNodes_)
+            n->registerNode (this);
+
+        invalidateRecursively ();
+        makeInvalid ();
+      }
+   
     private:
       void registerNode (Node * n);
       void unregisterNode (const Node * n);

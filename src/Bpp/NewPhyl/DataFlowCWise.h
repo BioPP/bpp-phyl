@@ -1386,13 +1386,9 @@ namespace bpp {
           return std::dynamic_pointer_cast<ConfiguredParameter> (x);
         } else {
           auto cfx=dynamic_cast<const ConfiguredParameter*>(x.get());
-          auto paramd=std::unique_ptr<Parameter>(new Parameter(*cfx->accessValueConst()));
-          paramd->setName(paramd->getName()+"_"+to_string(n)+"delta");
-          return cachedAs<ConfiguredParameter> (c, std::make_shared<Self> (c, NodeRefVec{cfx->dependency(0), deps[1]}, *paramd, n));
+          auto ret=cachedAs<ConfiguredParameter> (c, std::make_shared<Self> (c, NodeRefVec{cfx->dependency(0), deps[1]}, *cfx, n));
           
-          //   auto ret=cachedAs<ConfiguredParameter> (c, std::make_shared<Self> (c, NodeRefVec{cfx->dependency(0), deps[1]}, *cfx, n));
-          
-          //return ret;
+          return ret;
         }
       }
 
