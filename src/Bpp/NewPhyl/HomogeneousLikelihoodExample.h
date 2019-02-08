@@ -92,7 +92,7 @@ namespace bpp {
 
     std::size_t nbSite = sites.getNumberOfSites();
     
-    const auto nbState = model->getValue()->getNumberOfStates (); // Number of stored state values !
+    const auto nbState = model->getTargetValue()->getNumberOfStates (); // Number of stored state values !
     // Build conditional likelihoods up to root recursively.
     if (!tree->isRooted ()) {
       throw Exception ("PhyloTree must be rooted");
@@ -110,7 +110,7 @@ namespace bpp {
     {
       auto brlenmap = bpp::dataflow::createBrLenMap(c, *tree);
       
-      uint nbCat=(uint)rates->getValue()->getNumberOfCategories();
+      uint nbCat=(uint)rates->getTargetValue()->getNumberOfCategories();
 
       std::vector<std::shared_ptr<bpp::dataflow::Node>> vLogRoot;
       
@@ -122,7 +122,7 @@ namespace bpp {
 
         auto treeCat = std::shared_ptr<bpp::dataflow::PhyloTree_BrRef>(new bpp::dataflow::PhyloTree_BrRef(*tree, std::move(rateBrLen)));
 
-        bpp::dataflow::ForwardLikelihoodTree flt(c, treeCat, model->getValue()->getStateMap());
+        bpp::dataflow::ForwardLikelihoodTree flt(c, treeCat, model->getTargetValue()->getStateMap());
         flt.initialize(sites);
         auto rootConditionalLikelihoods=flt.getForwardLikelihoodArray(treeCat->getRootIndex ());
 
@@ -140,7 +140,7 @@ namespace bpp {
     }
     else
     {
-      bpp::dataflow::ForwardLikelihoodTree flt(c, tree, model->getValue()->getStateMap());
+      bpp::dataflow::ForwardLikelihoodTree flt(c, tree, model->getTargetValue()->getStateMap());
       flt.initialize(sites);
 
       auto rootConditionalLikelihoods=flt.getForwardLikelihoodArray(tree->getRootIndex ());

@@ -411,12 +411,12 @@ TEST_CASE("df")
 
   // Manual access to dbrlen1
   auto dlogLik_dbrlen1 = l->deriveAsValue(context, *treeNode->getEdge(1)->getBrLen());
-  std::cout << "[dbrlen1] " << dlogLik_dbrlen1->getValue() << "\n";
+  std::cout << "[dbrlen1] " << dlogLik_dbrlen1->getTargetValue() << "\n";
   dotOutput("likelihood_example_dbrlen1", {dlogLik_dbrlen1.get()});
 
   auto dlogLik_dkappa = l->deriveAsValue(context,  *modelParameters["T92.kappa"]);
   
-  std::cout << "[dkappa] " << dlogLik_dkappa->getValue() << "\n";
+  std::cout << "[dkappa] " << dlogLik_dkappa->getTargetValue() << "\n";
   dotOutput("likelihood_example_dkappa", {dlogLik_dkappa.get()});
 
   // do_param_changes_multiple_times(llh, "df_param_model_change", c.paramModel1, c.paramModel2);

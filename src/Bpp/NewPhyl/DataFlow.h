@@ -53,6 +53,8 @@
 
 #include <unordered_map> // For recreateWithSubstitution
 
+#include <Bpp/Exceptions.h>
+
 /** @file Defines the basic types of data flow nodes.
  */
 namespace bpp {
@@ -287,7 +289,7 @@ namespace bpp {
      * Types can not be forward-declared.
      *
      * accessValueConst() returns the current raw value, which may be invalid.
-     * getValue() returns the value, recomputing it recursively if invalid.
+     * getTargetValue() returns the value, recomputing it recursively if invalid.
      *
      * The Value<T> constructor forwards dependencies to the base Node, and other arguments to the
      * T value constructor.
@@ -308,7 +310,7 @@ namespace bpp {
        * Then access it as const.
        * Recomputation is single threaded and not thread safe.
        */
-      const T & getValue () {
+      const T & getTargetValue () {
         this->computeRecursively ();
         return accessValueConst ();
       }

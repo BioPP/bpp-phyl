@@ -42,7 +42,7 @@
 #define BPP_NEWPHYL_PARAMETER_H
 
 #include <Bpp/NewPhyl/DataFlow.h>
-//#include <Bpp/NewPhyl/DataFlowCWise.h>
+#include <Bpp/NewPhyl/DataFlowNumeric.h>
 #include <Bpp/Numeric/Parameter.h>
 #include <Bpp/Exceptions.h>
 #include <functional>
@@ -66,7 +66,7 @@ namespace bpp {
      * frequencies set for simplicity.
      */
     
-    class ConfiguredParameter : public Value<Parameter*>
+    class ConfiguredParameter : public Parameter, public Value<Parameter*>
     {
     private:
 
@@ -77,35 +77,32 @@ namespace bpp {
       using Target = Parameter;
       
       /// Build a new ConfiguredParameter node.
-      static std::shared_ptr<Self> create (Context & c, NodeRefVec&& deps, std::unique_ptr<Target> && param)
+      static std::shared_ptr<Self> create (Context & c, NodeRefVec&& deps, const Parameter& param)
       {
-        if (!param) {
-          throw Exception ("createConfigured(): nullptr object");
-        }
         checkDependenciesNotNull (typeid (Self), deps);
         checkDependencyVectorSize (typeid (Self), deps, 1);
         checkNthDependencyIsValue<double> (typeid (Self), deps, 0);
 
-        return cachedAs<Self> (c, std::make_shared<Self> (c, std::move(deps), std::move(param)));
+        return cachedAs<Self> (c, std::make_shared<Self> (c, std::move(deps), param));
       }
 
-      ConfiguredParameter (const Context& context, NodeRefVec&& deps, std::unique_ptr<Parameter> && parameter);
+      ConfiguredParameter (const Context& context, NodeRefVec&& deps, const Parameter& parameter);
 
-      ConfiguredParameter (const Value<Parameter*>& param);
-
+      ConfiguredParameter* clone() const {
+        throw Exception("ConfiguredParameter::clone should not be called.");
+      }
+      
       ~ConfiguredParameter ();
       
-      std::string description () const final;
+      std::string description () const;
       std::string debugInfo () const;
 
-      const std::string & getName () const {
-        return parameter_->getName();
+      void setValue(double v)
+      {
+        Parameter::setValue(v);
+        static_cast<NumericMutable<double>&>(*dependency(0)).setValue(Parameter::getValue());
       }
     
-      double getValue() const {
-        return parameter_->getValue();
-      }
-
       bool compareAdditionalArguments (const Node & other) const;
       
       std::size_t hashAdditionalArguments () const;
@@ -113,11 +110,11 @@ namespace bpp {
       NodeRef derive (Context & c, const Node & node);
 
       NodeRef recreate (Context & c, NodeRefVec && deps);
+      
+      NodeRef recreate (Context & c);
 
     private:
       void compute ();
-
-      std::unique_ptr<Parameter> parameter_;
     };
 
   } // namespace dataflow

@@ -186,17 +186,17 @@ TEST_CASE("ConstantZero")
   auto m = ConstantZero<Eigen::MatrixXd>::create(c, MatrixDimension(1, 2));
 
   // Check value
-  CHECK(d->getValue() == 0);
+  CHECK(d->getTargetValue() == 0);
 
-  const auto& mValue = m->getValue();
+  const auto& mValue = m->getTargetValue();
   CHECK(MatrixDimension(mValue) == MatrixDimension(1, 2));
   CHECK(mValue(0, 0) == 0);
   CHECK(mValue(0, 1) == 0);
 
   // Check derivative
   auto dummy = std::make_shared<DoNothingNode>();
-  CHECK(d->deriveAsValue(c, *dummy)->getValue() == 0);
-  CHECK(d->deriveAsValue(c, *d)->getValue() == 1);
+  CHECK(d->deriveAsValue(c, *dummy)->getTargetValue() == 0);
+  CHECK(d->deriveAsValue(c, *d)->getTargetValue() == 1);
 
   dotOutput("ConstantZero", {d.get(), m.get()});
 }
@@ -208,17 +208,17 @@ TEST_CASE("ConstantOne")
   auto m = ConstantOne<Eigen::MatrixXd>::create(c, MatrixDimension(1, 2));
 
   // Check value
-  CHECK(d->getValue() == 1);
+  CHECK(d->getTargetValue() == 1);
 
-  const auto& mValue = m->getValue();
+  const auto& mValue = m->getTargetValue();
   CHECK(MatrixDimension(mValue) == MatrixDimension(1, 2));
   CHECK(mValue(0, 0) == 1);
   CHECK(mValue(0, 1) == 1);
 
   // Check derivative
   auto dummy = std::make_shared<DoNothingNode>();
-  CHECK(d->deriveAsValue(c, *dummy)->getValue() == 0);
-  CHECK(d->deriveAsValue(c, *d)->getValue() == 1);
+  CHECK(d->deriveAsValue(c, *dummy)->getTargetValue() == 0);
+  CHECK(d->deriveAsValue(c, *d)->getTargetValue() == 1);
 
   dotOutput("ConstantOne", {d.get(), m.get()});
 }
@@ -230,17 +230,17 @@ TEST_CASE("NumericConstant")
   auto m = NumericConstant<Eigen::MatrixXd>::create(c, (Eigen::MatrixXd(1, 2) << 42, -42).finished());
 
   // Check value
-  CHECK(d->getValue() == 42);
+  CHECK(d->getTargetValue() == 42);
 
-  const auto& mValue = m->getValue();
+  const auto& mValue = m->getTargetValue();
   CHECK(MatrixDimension(mValue) == MatrixDimension(1, 2));
   CHECK(mValue(0, 0) == 42);
   CHECK(mValue(0, 1) == -42);
 
   // Check derivative
   auto dummy = std::make_shared<DoNothingNode>();
-  CHECK(d->deriveAsValue(c, *dummy)->getValue() == 0);
-  CHECK(d->deriveAsValue(c, *d)->getValue() == 1);
+  CHECK(d->deriveAsValue(c, *dummy)->getTargetValue() == 0);
+  CHECK(d->deriveAsValue(c, *d)->getTargetValue() == 1);
 
   dotOutput("NumericConstant", {d.get(), m.get()});
 }
@@ -252,9 +252,9 @@ TEST_CASE("NumericMutable")
   auto m = NumericMutable<Eigen::MatrixXd>::create(c, (Eigen::MatrixXd(1, 2) << 42, -42).finished());
 
   // Check value
-  CHECK(d->getValue() == 42);
+  CHECK(d->getTargetValue() == 42);
 
-  const auto& mValue = m->getValue();
+  const auto& mValue = m->getTargetValue();
   CHECK(MatrixDimension(mValue) == MatrixDimension(1, 2));
   CHECK(mValue(0, 0) == 42);
   CHECK(mValue(0, 1) == -42);
@@ -264,13 +264,13 @@ TEST_CASE("NumericMutable")
   dependent->computeRecursively();
   CHECK(dependent->isValid());
   d->setValue(-42);
-  CHECK(d->getValue() == -42);
+  CHECK(d->getTargetValue() == -42);
   CHECK_FALSE(dependent->isValid());
 
   // Check derivative
   auto dummy = std::make_shared<DoNothingNode>();
-  CHECK(d->deriveAsValue(c, *dummy)->getValue() == 0);
-  CHECK(d->deriveAsValue(c, *d)->getValue() == 1);
+  CHECK(d->deriveAsValue(c, *dummy)->getTargetValue() == 0);
+  CHECK(d->deriveAsValue(c, *d)->getTargetValue() == 1);
 
   dotOutput("NumericMutable", {d.get(), m.get()});
 }
@@ -289,25 +289,25 @@ TEST_CASE("Convert")
 
   // Scalar to scalar
   auto f = Convert<float, double>::create(c, {d}, Dimension<float>());
-  CHECK(f->getValue() == 42.);
+  CHECK(f->getTargetValue() == 42.);
 
   // Scalar to matrix
   auto m2 = Convert<Eigen::MatrixXd, double>::create(c, {d}, MatrixDimension(1, 2));
-  const auto& m2Value = m2->getValue();
+  const auto& m2Value = m2->getTargetValue();
   CHECK(MatrixDimension(m2Value) == MatrixDimension(1, 2));
   CHECK(m2Value(0, 0) == 42);
   CHECK(m2Value(0, 1) == 42);
 
   // Matrix to a Fixed size type (RowVector2d).
   auto m3 = Convert<Eigen::RowVector2d, Eigen::MatrixXd>::create(c, {m}, MatrixDimension(1, 2));
-  const auto& m3Value = m3->getValue();
+  const auto& m3Value = m3->getTargetValue();
   CHECK(MatrixDimension(m3Value) == MatrixDimension(1, 2));
   CHECK(m3Value(0, 0) == 42);
   CHECK(m3Value(0, 1) == -42);
 
   // Matrix to matrix with transposition
   auto m4 = Convert<Eigen::MatrixXd, Transposed<Eigen::MatrixXd>>::create(c, {m}, MatrixDimension(1, 2));
-  const auto& m4Value = m4->getValue();
+  const auto& m4Value = m4->getTargetValue();
   CHECK(MatrixDimension(m4Value) == MatrixDimension(2, 1));
   CHECK(m4Value(0, 0) == 42);
   CHECK(m4Value(1, 0) == -42);
@@ -315,11 +315,11 @@ TEST_CASE("Convert")
   // Check derivative
   auto dummy = std::make_shared<DoNothingNode>();
   auto df_ddummy = f->deriveAsValue(c, *dummy);
-  CHECK(df_ddummy->getValue() == 0.);
+  CHECK(df_ddummy->getTargetValue() == 0.);
   auto df_df = f->deriveAsValue(c, *f);
-  CHECK(df_df->getValue() == 1.);
+  CHECK(df_df->getTargetValue() == 1.);
   auto df_dd = f->deriveAsValue(c, *d);
-  CHECK(df_dd->getValue() == 1.);
+  CHECK(df_dd->getTargetValue() == 1.);
 
   dotOutput("Convert", {f.get(), m2.get(), m3.get(), df_df.get(), df_dd.get()});
   // Not tested: Constant simplifications
@@ -349,15 +349,15 @@ TEST_CASE("CWiseAdd")
   auto add_1_d = CWiseAdd<double, ReductionOf<double>>::create(c, {d}, Dimension<double>());
   auto add_2_d = CWiseAdd<double, ReductionOf<double>>::create(c, {d, d}, Dimension<double>());
   auto add_3_d = CWiseAdd<double, ReductionOf<double>>::create(c, {d, d, d}, Dimension<double>());
-  CHECK(add_d_d->getValue() == d->getValue() * 2);
-  CHECK(add_0_d->getValue() == 0);
-  CHECK(add_1_d->getValue() == d->getValue());
-  CHECK(add_2_d->getValue() == d->getValue() * 2);
-  CHECK(add_3_d->getValue() == d->getValue() * 3);
+  CHECK(add_d_d->getTargetValue() == d->getTargetValue() * 2);
+  CHECK(add_0_d->getTargetValue() == 0);
+  CHECK(add_1_d->getTargetValue() == d->getTargetValue());
+  CHECK(add_2_d->getTargetValue() == d->getTargetValue() * 2);
+  CHECK(add_3_d->getTargetValue() == d->getTargetValue() * 3);
 
   // Matrix + matrix
   auto add_m_m = CWiseAdd<Eigen::MatrixXd, ReductionOf<Eigen::MatrixXd>>::create(c, {m, m}, MatrixDimension(1, 2));
-  const auto& add_m_m_value = add_m_m->getValue();
+  const auto& add_m_m_value = add_m_m->getTargetValue();
   CHECK(MatrixDimension(add_m_m_value) == MatrixDimension(1, 2));
   CHECK(add_m_m_value(0, 0) == 42 * 2);
   CHECK(add_m_m_value(0, 1) == -42 * 2);
@@ -365,7 +365,7 @@ TEST_CASE("CWiseAdd")
   // Matrix + scalar
   auto add_m_d =
     CWiseAdd<Eigen::MatrixXd, std::tuple<Eigen::MatrixXd, double>>::create(c, {m, d}, MatrixDimension(1, 2));
-  const auto& add_m_d_value = add_m_d->getValue();
+  const auto& add_m_d_value = add_m_d->getTargetValue();
   CHECK(MatrixDimension(add_m_d_value) == MatrixDimension(1, 2));
   CHECK(add_m_d_value(0, 0) == 42 * 2);
   CHECK(add_m_d_value(0, 1) == 0);
@@ -374,11 +374,11 @@ TEST_CASE("CWiseAdd")
   auto dummy = std::make_shared<DoNothingNode>();
   auto& x = add_3_d;
   auto dx_ddummy = x->deriveAsValue(c, *dummy);
-  CHECK(dx_ddummy->getValue() == 0);
+  CHECK(dx_ddummy->getTargetValue() == 0);
   auto dx_dx = x->deriveAsValue(c, *x);
-  CHECK(dx_dx->getValue() == 1);
+  CHECK(dx_dx->getTargetValue() == 1);
   auto dx_dd = x->deriveAsValue(c, *d);
-  CHECK(dx_dd->getValue() == 3);
+  CHECK(dx_dd->getTargetValue() == 3);
 
   dotOutput("CWiseAdd",
             {add_d_d.get(),
@@ -417,15 +417,15 @@ TEST_CASE("CWiseMul")
   auto mul_1_d = CWiseMul<double, ReductionOf<double>>::create(c, {d}, Dimension<double>());
   auto mul_2_d = CWiseMul<double, ReductionOf<double>>::create(c, {d, d}, Dimension<double>());
   auto mul_3_d = CWiseMul<double, ReductionOf<double>>::create(c, {d, d, d}, Dimension<double>());
-  CHECK(mul_d_d->getValue() == d->getValue() * d->getValue());
-  CHECK(mul_0_d->getValue() == 1);
-  CHECK(mul_1_d->getValue() == d->getValue());
-  CHECK(mul_2_d->getValue() == d->getValue() * d->getValue());
-  CHECK(mul_3_d->getValue() == d->getValue() * d->getValue() * d->getValue());
+  CHECK(mul_d_d->getTargetValue() == d->getTargetValue() * d->getTargetValue());
+  CHECK(mul_0_d->getTargetValue() == 1);
+  CHECK(mul_1_d->getTargetValue() == d->getTargetValue());
+  CHECK(mul_2_d->getTargetValue() == d->getTargetValue() * d->getTargetValue());
+  CHECK(mul_3_d->getTargetValue() == d->getTargetValue() * d->getTargetValue() * d->getTargetValue());
 
   // Matrix * matrix
   auto mul_m_m = CWiseMul<Eigen::MatrixXd, ReductionOf<Eigen::MatrixXd>>::create(c, {m, m}, MatrixDimension(1, 2));
-  const auto& mul_m_m_value = mul_m_m->getValue();
+  const auto& mul_m_m_value = mul_m_m->getTargetValue();
   CHECK(MatrixDimension(mul_m_m_value) == MatrixDimension(1, 2));
   CHECK(mul_m_m_value(0, 0) == 42 * 42);
   CHECK(mul_m_m_value(0, 1) == -42 * -42);
@@ -433,7 +433,7 @@ TEST_CASE("CWiseMul")
   // Matrix * scalar
   auto mul_m_d =
     CWiseMul<Eigen::MatrixXd, std::tuple<Eigen::MatrixXd, double>>::create(c, {m, d}, MatrixDimension(1, 2));
-  const auto& mul_m_d_value = mul_m_d->getValue();
+  const auto& mul_m_d_value = mul_m_d->getTargetValue();
   CHECK(MatrixDimension(mul_m_d_value) == MatrixDimension(1, 2));
   CHECK(mul_m_d_value(0, 0) == 42 * 42);
   CHECK(mul_m_d_value(0, 1) == -42 * 42);
@@ -442,11 +442,11 @@ TEST_CASE("CWiseMul")
   auto dummy = std::make_shared<DoNothingNode>();
   auto& x = mul_3_d;
   auto dx_ddummy = x->deriveAsValue(c, *dummy);
-  CHECK(dx_ddummy->getValue() == 0);
+  CHECK(dx_ddummy->getTargetValue() == 0);
   auto dx_dx = x->deriveAsValue(c, *x);
-  CHECK(dx_dx->getValue() == 1);
+  CHECK(dx_dx->getTargetValue() == 1);
   auto dx_dd = x->deriveAsValue(c, *d);
-  CHECK(dx_dd->getValue() == 3 * d->getValue() * d->getValue());
+  CHECK(dx_dd->getTargetValue() == 3 * d->getTargetValue() * d->getTargetValue());
 
   dotOutput("CWiseMul",
             {mul_d_d.get(),
@@ -535,7 +535,7 @@ TEST_CASE("numerical_derivation")
   auto delta = NumericMutable<double>::create(c, 0.0001);
 
   // Initial state. Numerical diff not configured, so it should fail.
-  CHECK(f->getValue() == 4);
+  CHECK(f->getTargetValue() == 4);
   CHECK_THROWS_AS(f->derive(c, *x), bpp::Exception);
 
   // Configure and test derivations
@@ -544,20 +544,20 @@ TEST_CASE("numerical_derivation")
   auto df_ddummy = f->deriveAsValue(c, *dummy);
   auto df_dx = f->deriveAsValue(c, *x);
   auto df_dy = f->deriveAsValue(c, *y);
-  CHECK(df_ddummy->getValue() == 0);
-  CHECK(df_dx->getValue() == doctest::Approx(3 * 2 * x->getValue()));
-  CHECK(df_dy->getValue() == doctest::Approx(1 * 2 * y->getValue()));
+  CHECK(df_ddummy->getTargetValue() == 0);
+  CHECK(df_dx->getTargetValue() == doctest::Approx(3 * 2 * x->getTargetValue()));
+  CHECK(df_dy->getTargetValue() == doctest::Approx(1 * 2 * y->getTargetValue()));
 
   // Second order
   auto d2f_dx2 = df_dx->deriveAsValue(c, *x);
-  CHECK(d2f_dx2->getValue() == doctest::Approx(3 * 2));
+  CHECK(d2f_dx2->getTargetValue() == doctest::Approx(3 * 2));
 
   // Multiple dependencies
   auto g = OpaqueTestFunction::create(c, {x, x});
   g->config.delta = delta;
   g->config.type = NumericalDerivativeType::ThreePoints;
   auto dg_dx = g->deriveAsValue(c, *x);
-  CHECK(dg_dx->getValue() == doctest::Approx(4 * 2 * x->getValue()));
+  CHECK(dg_dx->getTargetValue() == doctest::Approx(4 * 2 * x->getTargetValue()));
 
   dotOutput("numerical_derivation", {f.get(), df_ddummy.get(), df_dx.get(), df_dy.get(), d2f_dx2.get()});
 }
