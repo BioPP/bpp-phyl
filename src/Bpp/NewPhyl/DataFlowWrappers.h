@@ -184,6 +184,8 @@ namespace bpp {
       
       double getValue () const override { return resultNode_->getTargetValue (); }
 
+      ValueRef<double> getValueRef () const { return resultNode_; }
+
       // bpp::DerivableFirstOrder
       void enableFirstOrderDerivatives (bool) override {}
       bool enableFirstOrderDerivatives () const override { return true; }
@@ -229,10 +231,11 @@ namespace bpp {
       }
 
     private:
-      static dataflow::NumericMutable<double> & accessVariableNode (const Parameter & param) {
-        return dynamic_cast<const DataFlowParameter &> (param).node ();
+      static Node & accessVariableNode (const Parameter & param) {
+        return *dynamic_cast<const ConfiguredParameter&>(param).dependency(0);
       }
-      dataflow::NumericMutable<double> & accessVariableNode (const std::string & name) const {
+      
+      Node & accessVariableNode (const std::string & name) const {
         return accessVariableNode (getParameter (name));
       }
     };

@@ -71,7 +71,7 @@ namespace bpp
      */
     
     using ForwardLikelihoodFromConditional =
-      MatrixProduct<Eigen::MatrixXd, Transposed<Eigen::MatrixXd>, Eigen::MatrixXd>;
+      MatrixProduct<Eigen::MatrixXd, Eigen::MatrixXd, Eigen::MatrixXd>;
 
 /**
  * @brief Interface LikelihoodTree data structure.

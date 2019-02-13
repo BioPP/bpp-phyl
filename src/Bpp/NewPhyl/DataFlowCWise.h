@@ -248,7 +248,7 @@ namespace bpp {
         const auto & x1 = accessValueConstCast<T1> (*this->dependency (1));
         cwise (result) = cwise (x0) + cwise (x1);
       }
-
+      
       Dimension<R> targetDimension_;
     };
 
@@ -1441,7 +1441,9 @@ namespace bpp {
       {
         const auto & delta = accessValueConstCast<double> (*this->dependency (1));
         const auto&  x = accessValueConstCast<double> (*this->dependency (0));
-        this->accessValueMutable()->setValue(n_ * delta + x);
+        double r=n_ * delta + x;
+        // Boundary mgmt dirty!
+        this->accessValueMutable()->setValue(getConstraint()->isCorrect(r)?r:getConstraint()->getAcceptedLimit(r));
       }
 
       int n_;

@@ -86,6 +86,7 @@ namespace bpp {
       if (&node == this || dependency(0).get() == &node) {
         return ConstantOne<double>::create (c, Dimension<double>());
       }
+      
       return ConstantZero<double>::create (c, Dimension<double>());
     }
     

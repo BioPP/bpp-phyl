@@ -86,10 +86,15 @@ namespace bpp {
         return cachedAs<Self> (c, std::make_shared<Self> (c, std::move(deps), param));
       }
 
+      ConfiguredParameter (const ConfiguredParameter& param)
+        : Parameter (param), Value<Parameter*> ({std::shared_ptr<NumericMutable<double>>(new NumericMutable<double>(param.getValue()))},this), context_(param.context_)
+      {
+      }
+
       ConfiguredParameter (const Context& context, NodeRefVec&& deps, const Parameter& parameter);
 
       ConfiguredParameter* clone() const {
-        throw Exception("ConfiguredParameter::clone should not be called.");
+        return new ConfiguredParameter(*this);
       }
       
       ~ConfiguredParameter ();

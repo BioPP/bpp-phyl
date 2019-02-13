@@ -40,7 +40,6 @@
 #include <Bpp/Exceptions.h>
 #include <Bpp/NewPhyl/FrequenciesSet.h>
 #include <Bpp/NewPhyl/Parametrizable.h>
-#include <Bpp/Phyl/Model/FrequenciesSet/FrequenciesSet.h>
 
 using namespace std;
 
@@ -49,7 +48,14 @@ namespace bpp {
     // FrequenciesSet node
 
     ConfiguredFrequenciesSet::ConfiguredFrequenciesSet (const Context& context, NodeRefVec && deps, std::unique_ptr<FrequenciesSet> && freqset)
-      : Value<const FrequenciesSet*> (std::move (deps), freqset.get ()), context_(context), freqset_(std::move(freqset)) {}
+      : Value<const FrequenciesSet*> (std::move (deps), freqset.get ()), AbstractParametrizable(freqset->getNamespace()), context_(context), freqset_(std::move(freqset))
+    {
+      for (const auto& dep:dependencies())
+      {
+        const auto& param=std::dynamic_pointer_cast<ConfiguredParameter>(dep);
+        shareParameter_(param);
+      }
+    }
 
     ConfiguredFrequenciesSet::~ConfiguredFrequenciesSet () = default;
     
@@ -57,14 +63,6 @@ namespace bpp {
     
     std::string ConfiguredFrequenciesSet::debugInfo () const {
       return "nbState=" + std::to_string (freqset_->getAlphabet ()->getSize ());
-    }
-
-    const std::string & ConfiguredFrequenciesSet::getParameterName (std::size_t index) {
-      return freqset_->getParameters ()[index].getName ();
-    }
-    
-    std::size_t ConfiguredFrequenciesSet::getParameterIndex (const std::string & name) {
-      return static_cast<std::size_t> (freqset_->getParameters ().whichParameterHasName (name));
     }
 
     // FrequenciesSet node additional arguments = (type of bpp::FrequenciesSet).
@@ -91,20 +89,6 @@ namespace bpp {
       auto m = ConfiguredParametrizable::createConfigured<Target, Self> (c, std::move (deps), std::unique_ptr<Target>{freqset_->clone ()});
       m->config = this->config; // Duplicate derivation config
       return m;
-    }
-
-    void ConfiguredFrequenciesSet::compute () {
-      // Update each internal freqseq bpp::Parameter with the dependency
-      auto & parameters = freqset_->getParameters ();
-      const auto nbParameters = this->nbDependencies ();
-      for (std::size_t i = 0; i < nbParameters; ++i) {
-        auto v = accessValueConstCast<Parameter*> (*this->dependency (i))->getValue();
-        auto & p = parameters[i];
-        if (p.getValue () != v) {
-          // TODO improve bpp::Parametrizable interface to change values by index.
-          freqset_->setParameterValue (freqset_->getParameterNameWithoutNamespace (p.getName ()), v);
-        }
-      }
     }
 
     // FrequenciesFromFrequenciesSet

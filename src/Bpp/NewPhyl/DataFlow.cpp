@@ -187,8 +187,11 @@ namespace bpp {
       while (!nodesToRecompute.empty ()) {
         auto * n = nodesToRecompute.top ();
         nodesToRecompute.pop ();
-        n->compute ();
-        n->makeValid ();
+        if (!n->isValid())
+        {
+          n->compute ();
+          n->makeValid ();
+        }
       }
     }
 

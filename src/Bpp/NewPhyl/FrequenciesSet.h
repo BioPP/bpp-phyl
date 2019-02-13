@@ -42,6 +42,9 @@
 #ifndef BPP_NEWPHYL_FREQUENCIES_SET_H
 #define BPP_NEWPHYL_FREQUENCIES_SET_H
 
+#include <Bpp/Numeric/AbstractParametrizable.h>
+#include <Bpp/Phyl/Model/FrequenciesSet/FrequenciesSet.h>
+
 #include <Bpp/NewPhyl/DataFlow.h>
 #include <Bpp/NewPhyl/DataFlowCWise.h>
 #include <Bpp/Exceptions.h>
@@ -68,11 +71,13 @@ namespace bpp {
      * frequencies set for simplicity.
      */
     
-    class ConfiguredFrequenciesSet : public Value<const FrequenciesSet*>
+    class ConfiguredFrequenciesSet : public Value<const FrequenciesSet*>,
+                                     public AbstractParametrizable
     {
     private:
 
       const Context& context_;
+
     public:
       using Self = ConfiguredFrequenciesSet;
       using Target = FrequenciesSet;
@@ -80,14 +85,14 @@ namespace bpp {
       ConfiguredFrequenciesSet (const Context& context, NodeRefVec && deps, std::unique_ptr<FrequenciesSet> && freqset);
       ~ConfiguredFrequenciesSet ();
       
+      ConfiguredFrequenciesSet* clone() const
+      {
+        throw bpp::Exception("ConfiguredFrequenciesSet clone should not happen.");
+      }
+      
       std::string description () const final;
       std::string debugInfo () const final;
-
-      /// Return the index of parameter with the given non namespaced name (or throw).
-      std::size_t getParameterIndex (const std::string & name);
-      /// Return the non namespaced name for parameter at the given index.
-      const std::string & getParameterName (std::size_t index);
-
+      
       bool compareAdditionalArguments (const Node & other) const;
       
       std::size_t hashAdditionalArguments () const;
@@ -97,8 +102,17 @@ namespace bpp {
 
       NodeRef recreate (Context & c, NodeRefVec && deps) final;
 
+      const ConfiguredParameter& getConfiguredParameter(const std::string& name)
+      {
+        return static_cast<const ConfiguredParameter&>(getParameter(name));
+      }
+
     private:
-      void compute ();
+      void compute ()
+      {
+        freqset_->matchParametersValues(getParameters());
+      }
+
 
       std::unique_ptr<FrequenciesSet> freqset_;
     };
