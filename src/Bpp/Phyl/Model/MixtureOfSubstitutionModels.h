@@ -41,7 +41,7 @@
 #define _MIXTUREOFSUBSTITUTIONMODELS_H_
 
 #include <Bpp/Numeric/VectorTools.h>
-#include "AbstractMixedSubstitutionModel.h"
+#include "MixtureOfTransitionModels.h"
 
 #include <vector>
 #include <string>
@@ -50,72 +50,9 @@
 
 namespace bpp
 {
-/**
- * @brief Substitution models defined as a mixture of several
- * substitution models.
- * @author Laurent Guéguen
- *
- * All the models can be of different types (for example T92 or
- * GY94), and each model has a specific probability and rate.
- *
- *
- * The probabilities and rates of the models are independent
- * parameters, handled directly, under the constraint that the
- * expectation of the rates on the distribution of the models must
- * equal one.
- *
- * If there are @f$n@f$ models, @f$p_i@f$ is the probability of
- * model i (@f$\sum_{i=1}^{n} p_i = 1@f$) and the probabilities
- * are defined by relative probabilities parameters @f$rp_i@f$
- * (called "relprobai") with:
- * @f[
- * 1 <= i < n, p_i = (1-rp_1)*(1-rp_2)...(1-rp_{i-1})*rp_{i}
- * @f]
- * @f[
- * p_n = (1-rp_1)*(1-rp_2)...(1-rp_{n-1})
- * @f]
- * and
- * @f[
- * \forall 1 <= i < n, rp_i = \frac{p_i}{1-(p_1+...+p_{i-1})}
- * @f]
- * where @f$p_i@f$ stands for the probability of model @f$i@f$.
- *
- *
- * If there are @f$n@f$ models, @f$\rho_i@f$ is the rate and @f$p_i@f$
- * is the probability of model i (@f$\sum_{i=1}^{n} p_i * \rho_i =
- * 1@f$), the rates are defined by relative rates parameters
- * @f$r_i@f$ (called "relratei") with:
- * @f[
- * 1 <= i < n, \rho_i = (1-r_1)*(1-r_2)...(1-r_{i-1})*\frac{r_{i}}{p_i}
- * @f]
- * @f[
- * \rho_n = \frac{(1-r_1)*(1-r_2)*...*(1-r_{n-1})}{p_n}
- * @f]
- * and
- * @f[
- * \forall 1 <= i < n, r_i = \frac{\rho_i*p_i}{1-(p_1*\rho_1+...+p_{i-1}*\rho_{i-1})} < 1.
- * @f]
- *
- * For example:
- *
- * Mixture(model1=HKY85(kappa=3), model2=T92(theta=0.1),
- *         model2=L95(gamma=2), relrate1=0.2, relrate2=0.9,
- *         relproba1=0.1,relproba2=0.8)
- *
- * define a model as a mixture of 3 different models: HKY85 has
- * probability 0.1 and rate 2, T92 has probability 0.4 and rate 1.8,
- * and L95 has probability 0.5 and rate 0.16.
- *
- *
- * The parameters are named \c "Mixture.relrate1", \c
- * "Mixture.relrate2", \c "Mixture.relproba1", \c
- * "Mixture.relproba2"... in addition to the parameters of the
- * submodels that are prefixed by "Mixture.i_", where i is the order
- * of the model.
- */
 
 class MixtureOfSubstitutionModels :
-  public AbstractMixedSubstitutionModel
+  public MixtureOfTransitionModels
 {
 public:
   /**
@@ -127,10 +64,20 @@ public:
    *   SubstitutionModels are owned by the instance.
    * @warning providing a vpModel with size 0 will generate a segmentation fault!
    */
-  MixtureOfSubstitutionModels(
-      const Alphabet* alpha,
-      std::vector<SubstitutionModel*> vpModel);
+  MixtureOfSubstitutionModels(const Alphabet* alpha, std::vector<TransitionModel*> vpModel) :
+    AbstractParameterAliasable("Mixture."),
+    AbstractTransitionModel(alpha, vpModel.size()?vpModel[0]->shareStateMap():0, "Mixture."),
+    MixtureOfTransitionModels(alpha, vpModel)
+  {
+    /*
+     * Check that all models are substitutionmodels
+     */
 
+    for (const auto& model:vpModel)
+      if (!dynamic_cast<const SubstitutionModel*>(model))
+        throw Exception("MixtureOfSubstitutionModels can only be built with SubstitutionModels, not " + model->getName());
+  }
+  
   /**
    * @brief Constructor of a MixtureOfSubstitutionModels.
    *
@@ -147,55 +94,51 @@ public:
 
   MixtureOfSubstitutionModels(
       const Alphabet* alpha,
-      std::vector<SubstitutionModel*> vpModel,
-      Vdouble& vproba, Vdouble& vrate);
+      std::vector<TransitionModel*> vpModel,
+      Vdouble& vproba, Vdouble& vrate) :
+    AbstractParameterAliasable("Mixture."),
+    AbstractTransitionModel(alpha, vpModel.size()?vpModel[0]->shareStateMap():0, "Mixture."),
+    MixtureOfTransitionModels(alpha, vpModel, vproba, vrate) 
+  {
+    /*
+     * Check that all models are substitutionmodels
+     */
 
-  MixtureOfSubstitutionModels(const MixtureOfSubstitutionModels&);
+    for (const auto& model:vpModel)
+      if (!dynamic_cast<const SubstitutionModel*>(model))
+        throw Exception("MixtureOfSubstitutionModels can only be built with SubstitutionModels, not " + model->getName());
+  }
+  
 
-  MixtureOfSubstitutionModels& operator=(const MixtureOfSubstitutionModels&);
+  MixtureOfSubstitutionModels(const MixtureOfSubstitutionModels& model) :
+    AbstractParameterAliasable(model),
+    AbstractTransitionModel(model),
+    MixtureOfTransitionModels(model)
+  {
+  }
+  
 
-  virtual ~MixtureOfSubstitutionModels();
-
+  MixtureOfSubstitutionModels& operator=(const MixtureOfSubstitutionModels& model)
+  {
+    MixtureOfTransitionModels::operator=(model);
+    return *this;
+  }
+  
   MixtureOfSubstitutionModels* clone() const { return new MixtureOfSubstitutionModels(*this); }
 
 public:
-  std::string getName() const { return "Mixture"; }
-
   /**
-   * @brief retrieve a pointer to the submodel with the given name.
+   * @brief retrieve a pointer to the subsitution model with the given name.
    *
    * Return Null if not found.
    *
    */
   
-  const SubstitutionModel* getSubModelWithName(const std::string& name) const;
+  const SubstitutionModel* getSubModel(const std::string& name) const
+  {
+    return dynamic_cast<const SubstitutionModel*>(getModel(name));
+  }
   
-  void updateMatrices();
-
-  /**
-   * @brief Sets the rates of the submodels to follow the constraint
-   * that the mean rate of the mixture equals rate_.
-   * @param vd a vector of positive values such that the rates of
-   * the respective submodels are in the same proportions (ie this
-   * vector does not need to be normalized).
-   */
-  virtual void setVRates(const Vdouble& vd);
-
-  /**
-   * @brief Returns the vector of numbers of the submodels in the
-   * mixture that match a description of the parameters numbers.
-   *
-   * @param desc is the description of the class indexes of the mixed
-   * parameters. Syntax is like: kappa_1,gamma_3,delta_2
-   */
-  Vint getSubmodelNumbers(const std::string& desc) const;
-
-  /**
-   * @brief applies setFreq to all the models of the mixture and
-   * recovers the parameters values.
-   */
-  void setFreq(std::map<int, double>&);
-
 };
 } // end of namespace bpp.
 

@@ -49,13 +49,6 @@
 #include "../Model/KroneckerWordSubstitutionModel.h"
 #include "../Model/Codon/MG94.h"
 #include "../Model/Codon/GY94.h"
-#include "../Model/Codon/YNGP_M1.h"
-#include "../Model/Codon/YNGP_M2.h"
-#include "../Model/Codon/YNGP_M3.h"
-#include "../Model/Codon/YNGP_M7.h"
-#include "../Model/Codon/YNGP_M8.h"
-#include "../Model/Codon/YNGP_M9.h"
-#include "../Model/Codon/YNGP_M10.h"
 #include "../Model/Codon/YN98.h"
 #include "../Model/Codon/TripletSubstitutionModel.h"
 #include "../Model/Codon/AbstractCodonDistanceSubstitutionModel.h"
@@ -91,31 +84,32 @@
 #include "../Model/Nucleotide/L95.h"
 #include "../Model/Nucleotide/YpR.h"
 #include "../Model/Protein/CoalaCore.h"
-#include "../Model/Protein/LLG08_EX2.h"
 #include "../Model/Protein/Coala.h"
-#include "../Model/Protein/LLG08_EX3.h"
 #include "../Model/Protein/DSO78.h"
-#include "../Model/Protein/LLG08_UL2.h"
 #include "../Model/Protein/JCprot.h"
-#include "../Model/Protein/LLG08_UL3.h"
 #include "../Model/Protein/JTT92.h"
 #include "../Model/Protein/ProteinSubstitutionModel.h"
 #include "../Model/Protein/LG08.h" 
 #include "../Model/Protein/UserProteinSubstitutionModel.h"
-#include "../Model/Protein/LGL08_CAT.h"
 #include "../Model/Protein/WAG01.h"
-#include "../Model/Protein/LLG08_EHO.h"
-#include "../Model/Protein/LG10_EX_EHO.h"
 #include "../Model/BinarySubstitutionModel.h"
 #include "../Model/FromMixtureSubstitutionModel.h"
+#include "../Model/AbstractBiblioMixedTransitionModel.h"
 #include "../Model/InMixedSubstitutionModel.h"
+#include "../Model/MixtureOfTransitionModels.h"
+#include "../Model/MixtureOfATransitionModel.h"
 #include "../Model/OneChangeTransitionModel.h"
 #include "../Model/OneChangeRegisterTransitionModel.h"
 #include "../Model/RegisterRatesSubstitutionModel.h"
+#include "../Model/Codon/YNGP_M7.h"
+#include "../Model/Codon/YNGP_M8.h"
+#include "../Model/Codon/YNGP_M9.h"
+#include "../Model/Codon/YNGP_M10.h"
 
 #include "../App/PhylogeneticsApplicationTools.h"
 
 #include "BppOFrequenciesSetFormat.h"
+#include "BppOTransitionModelFormat.h"
 
 #include <Bpp/Seq/App/SequenceApplicationTools.h>
 #include <Bpp/Seq/Alphabet/AlphabetTools.h>
@@ -131,6 +125,7 @@
 
 
 #include <Bpp/Text/StringTokenizer.h>
+
 
 using namespace bpp;
 
@@ -163,18 +158,11 @@ SubstitutionModel* BppOSubstitutionModelFormat::read(
   KeyvalTools::parseProcedure(modelDescription, modelName, args);
 
   
-  // //////////////////////////////////
-  // / MIXED MODELS
-  // ////////////////////////////////
-
-  if ((modelName == "MixedModel" || (modelName == "Mixture")) && allowMixed_)
-    model.reset(readMixed_(alphabet, modelDescription, data));
-
   // ///////////////////////////////
   // LINKED WITH MIXTURES
   // //////////////////////////////
   
-  else if (modelName == "InMixed")
+  if (modelName == "InMixed")
   {
     if (args.find("model") == args.end())
       throw Exception("'model' argument missing to define the InMixed model.");
@@ -193,10 +181,10 @@ SubstitutionModel* BppOSubstitutionModelFormat::read(
       numMod=(size_t)TextTools::toInt(args["numMod"]);
     
     string modelDesc2=args["model"];
-    BppOSubstitutionModelFormat nestedReader(alphabetCode_, false, true, false, false, warningLevel_);
+    BppOTransitionModelFormat nestedReader(alphabetCode_, false, true, false, false, warningLevel_);
     nestedReader.setGeneticCode(geneticCode_); //This uses the same instance as the o
 
-    MixedSubstitutionModel* nestedModel=dynamic_cast<MixedSubstitutionModel*>(nestedReader.read(alphabet, modelDesc2, data, false));
+    MixedTransitionModel* nestedModel=dynamic_cast<MixedTransitionModel*>(nestedReader.readTransitionModel(alphabet, modelDesc2, data, false));
 
     // Check that nestedModel is fine and has subModel of given name
     // or number
@@ -206,7 +194,7 @@ SubstitutionModel* BppOSubstitutionModelFormat::read(
     
     if (nameMod!="")
     {
-      if (nestedModel->getSubModelWithName(nameMod)==NULL)
+      if (nestedModel->getModel(nameMod)==NULL)
         throw Exception("BppOSubstitutionModelFormat::read. " + nestedModel->getName() + "argument for model 'InMixed' has no submodel with name " + nameMod + ".");
       model.reset(new InMixedSubstitutionModel(*nestedModel, nameMod, modelDesc2));
     }
@@ -284,9 +272,8 @@ SubstitutionModel* BppOSubstitutionModelFormat::read(
   // PREDEFINED CODON MODELS
   
   else if (((modelName == "MG94") || (modelName == "YN98") ||
-            (modelName == "GY94") || (modelName.substr(0, 4) == "YNGP") ||
-            (modelName.substr(0,3) == "KCM")
-             ) && (alphabetCode_ & CODON))
+            (modelName == "GY94") ||  (modelName.substr(0,3) == "KCM"))
+           && (alphabetCode_ & CODON))
   {
     if (!(alphabetCode_ & CODON))
       throw Exception("BppOSubstitutionModelFormat::read. Codon alphabet not supported.");
@@ -323,44 +310,6 @@ SubstitutionModel* BppOSubstitutionModelFormat::read(
       model.reset(new GY94(geneticCode_, codonFreqs.release()));
     else if ((modelName == "YN98") || (modelName == "YNGP_M0"))
       model.reset(new YN98(geneticCode_, codonFreqs.release()));
-    else if (modelName == "YNGP_M1")
-      model.reset(new YNGP_M1(geneticCode_, codonFreqs.release()));
-    else if (modelName == "YNGP_M2")
-      model.reset(new YNGP_M2(geneticCode_, codonFreqs.release()));
-    else if (modelName == "YNGP_M3")
-      if (args.find("n") == args.end())
-        model.reset(new YNGP_M3(geneticCode_, codonFreqs.release()));
-      else
-        model.reset(new YNGP_M3(geneticCode_, codonFreqs.release(), TextTools::to<unsigned int>(args["n"])));
-    else if ((modelName == "YNGP_M7") || modelName == "YNGP_M8")
-    {
-      if (args.find("n") == args.end())
-        throw Exception("Missing argument 'n' (number of classes) in " + modelName + " distribution");
-      unsigned int nbClasses = TextTools::to<unsigned int>(args["n"]);
-      if (verbose_)
-        ApplicationTools::displayResult("Number of classes in model", nbClasses);
-
-      if (modelName == "YNGP_M7")
-        model.reset(new YNGP_M7(geneticCode_, codonFreqs.release(), nbClasses));
-      else if (modelName == "YNGP_M8")
-        model.reset(new YNGP_M8(geneticCode_, codonFreqs.release(), nbClasses));
-    }
-    else if (modelName == "YNGP_M9" || modelName == "YNGP_M10")
-    {
-      if (args.find("nbeta") == args.end())
-        throw Exception("Missing argument 'nbeta' (number of classes of beta distribution) in " + modelName + " distribution");
-      unsigned int nbBeta = TextTools::to<unsigned int>(args["nbeta"]);
-      if (args.find("ngamma") == args.end())
-        throw Exception("Missing argument 'ngamma' (number of classes of gamma distribution) in " + modelName + " distribution");
-      unsigned int nbGamma = TextTools::to<unsigned int>(args["ngamma"]);
-      if (verbose_)
-        ApplicationTools::displayResult("Number of classes in model", nbBeta + nbGamma);
-
-      if (modelName == "YNGP_M9")
-        model.reset(new YNGP_M9(geneticCode_, codonFreqs.release(), nbBeta, nbGamma));
-      else
-        model.reset(new YNGP_M10(geneticCode_, codonFreqs.release(), nbBeta, nbGamma));
-    }
     else if (modelName == "KCM7")
       model.reset(new KCM(geneticCode_, true));
     else if (modelName == "KCM19")
@@ -757,26 +706,6 @@ SubstitutionModel* BppOSubstitutionModelFormat::read(
         model.reset(new LG08(alpha));
       else if (modelName == "WAG01")
         model.reset(new WAG01(alpha));
-      else if (modelName == "LLG08_EHO")
-        model.reset(new LLG08_EHO(alpha));
-      else if (modelName == "LLG08_EX2")
-        model.reset(new LLG08_EX2(alpha));
-      else if (modelName == "LLG08_EX3")
-        model.reset(new LLG08_EX3(alpha));
-      else if (modelName == "LLG08_UL2")
-        model.reset(new LLG08_UL2(alpha));
-      else if (modelName == "LLG08_UL3")
-        model.reset(new LLG08_UL3(alpha));
-      else if (modelName == "LG10_EX_EHO")
-        model.reset(new LG10_EX_EHO(alpha));	
-      else if (modelName == "LGL08_CAT")
-      {
-        if (args.find("nbCat")==args.end())
-          throw Exception("'nbCat' argument is compulsory for model 'LGL08_CAT'");
-          
-        unsigned int nbCat = TextTools::to<unsigned int>(args["nbCat"]);
-        model.reset(new LGL08_CAT(alpha, nbCat));
-      }
       // submodels of mixture models
       else if (modelName.substr(0,9) == "LGL08_CAT")
       {
@@ -786,15 +715,15 @@ SubstitutionModel* BppOSubstitutionModelFormat::read(
 
         string modelDesc2=modelName.substr(0,9)+modelDescription.substr(posp);
         
-        BppOSubstitutionModelFormat nestedReader(PROTEIN, true, true, false, verbose_, warningLevel_);
+        BppOTransitionModelFormat nestedReader(PROTEIN, true, true, false, verbose_, warningLevel_);
         
-        MixedSubstitutionModel* nestedModel=dynamic_cast<MixedSubstitutionModel*>(nestedReader.read(alphabet, modelDesc2, data, false));
+        MixedTransitionModel* nestedModel=dynamic_cast<MixedTransitionModel*>(nestedReader.readTransitionModel(alphabet, modelDesc2, data, false));
       
         // Check that nestedModel is fine and has subModel of given name
         if (nestedModel==NULL)
           throw Exception("Unknown model " + modelName + ".");
         
-        if (nestedModel->getSubModelWithName(subModelName)==NULL)
+        if (nestedModel->getModel(subModelName)==NULL)
           throw Exception("BppOSubstitutionModelFormat::read. " + nestedModel->getName() + "argument for model 'FromMixture' has no submodel with name " + subModelName + ".");
 
         // Now we create the FromMixture substitution model:
@@ -1412,140 +1341,6 @@ SubstitutionModel* BppOSubstitutionModelFormat::readWord_(const Alphabet* alphab
 }
 
 
-MixedSubstitutionModel* BppOSubstitutionModelFormat::readMixed_(const Alphabet* alphabet, const std::string& modelDescription, const SiteContainer* data)
-{
-  unique_ptr<MixedSubstitutionModel> model;
-
-  string modelName = "";
-  map<string, string> args;
-  KeyvalTools::parseProcedure(modelDescription, modelName, args);
-  unique_ptr<SubstitutionModel> pSM;
-
-  if (modelName == "MixedModel")
-  {
-    if (args.find("model") == args.end())
-      throw Exception("The argument 'model' is missing from MixedSubstitutionModel description");
-    string nestedModelDescription = args["model"];
-    BppOSubstitutionModelFormat nestedReader(alphabetCode_, allowCovarions_, true, allowGaps_, false, warningLevel_);
-    if (geneticCode_)
-      nestedReader.setGeneticCode(geneticCode_); //This uses the same
-    //instance as the one
-    //that will be used
-    //by the model.
-    SubstitutionModel* tm=nestedReader.read(alphabet, nestedModelDescription, data, false);
-    if (dynamic_cast<SubstitutionModel*>(tm)==0)
-      throw Exception("Need Markov SubstitutionModel for Mixtures");
-
-    pSM.reset(dynamic_cast<SubstitutionModel*>(tm));
-
-    map<string, string> unparsedParameterValuesNested(nestedReader.getUnparsedArguments());
-
-    map<string, DiscreteDistribution*> mdist;
-    map<string, string> unparsedParameterValuesNested2;
-
-    for (map<string, string>::iterator it = unparsedParameterValuesNested.begin();
-         it != unparsedParameterValuesNested.end();
-         it++)
-    {
-      if (it->second.find("(") != string::npos)
-      {
-        BppODiscreteDistributionFormat bIO(false);
-        mdist[pSM->getParameterNameWithoutNamespace(it->first)] = bIO.read(it->second, false);
-        map<string, string> unparsedParameterValuesNested3(bIO.getUnparsedArguments());
-        for (map<string, string>::iterator it2 = unparsedParameterValuesNested3.begin();
-             it2 != unparsedParameterValuesNested3.end();
-             it2++)
-        {
-          unparsedParameterValuesNested2[it->first + "_" + it2->first] = it2->second;
-        }
-      }
-      else
-        unparsedParameterValuesNested2[it->first] = it->second;
-    }
-
-    for (map<string, string>::iterator it = unparsedParameterValuesNested2.begin();
-         it != unparsedParameterValuesNested2.end();
-         it++)
-    {
-      unparsedArguments_[it->first] = it->second;
-    }
-
-
-    int fi(-1), ti(-1);
-
-    if (args.find("from") != args.end())
-      fi = alphabet->charToInt(args["from"]);
-    if (args.find("to") != args.end())
-      ti = alphabet->charToInt(args["to"]);
-
-    string sModN=pSM->getName();
-    model.reset(new MixtureOfASubstitutionModel(alphabet, pSM.release(), mdist, fi, ti));
-
-    vector<string> v = model->getParameters().getParameterNames();
-
-    for (map<string, DiscreteDistribution*>::iterator it = mdist.begin();
-         it != mdist.end(); it++)
-    {
-      delete it->second;
-    }
-
-    if (verbose_)
-    {
-      ApplicationTools::displayResult("Mixture Of A Substitution Model", sModN);
-      ApplicationTools::displayResult("Number of classes", model->getNumberOfModels());
-    }
-  }
-
-
-  else if (modelName == "Mixture")
-  {
-    vector<string> v_nestedModelDescription;
-    vector<SubstitutionModel*> v_pSM;
-
-    if (args.find("model1") == args.end())
-    {
-      throw Exception("Missing argument 'model1' for model " + modelName + ".");
-    }
-    unsigned int nbmodels = 0;
-
-    while (args.find("model" + TextTools::toString(nbmodels + 1)) != args.end())
-    {
-      v_nestedModelDescription.push_back(args["model" + TextTools::toString(++nbmodels)]);
-    }
-
-    if (nbmodels < 2)
-      throw Exception("Missing nested models for model " + modelName + ".");
-
-    for (unsigned i = 0; i < v_nestedModelDescription.size(); i++)
-    {
-      BppOSubstitutionModelFormat nestedReader(alphabetCode_, false, true, false, false, warningLevel_);
-      if (geneticCode_)
-        nestedReader.setGeneticCode(geneticCode_); //This uses the same instance as the one that will be used by the model.
-
-      SubstitutionModel* tm=nestedReader.read(alphabet, v_nestedModelDescription[i], data, false);
-      if (dynamic_cast<SubstitutionModel*>(tm)==0)
-        throw Exception("Need Markov SubstitutionModel for Mixtures");
-
-      pSM.reset(dynamic_cast<SubstitutionModel*>(tm));
-
-      map<string, string> unparsedParameterValuesNested(nestedReader.getUnparsedArguments());
-      for (map<string, string>::iterator it = unparsedParameterValuesNested.begin(); it != unparsedParameterValuesNested.end(); it++)
-      {
-        unparsedArguments_[modelName + "." + TextTools::toString(i + 1) + "_" + it->first] = it->second;
-      }
-      v_pSM.push_back(pSM.release());
-    }
-
-    model.reset(new MixtureOfSubstitutionModels(alphabet, v_pSM));
-    if (verbose_)
-      ApplicationTools::displayResult("Mixture Of Substitution Models", modelName );
-  }
-  else
-    throw Exception("Unknown model name for mixture " + modelName);
-
-  return model.release();
-}
-
 
 void BppOSubstitutionModelFormat::write(const TransitionModel& model,
                                         OutputStream& out,
@@ -1556,9 +1351,9 @@ void BppOSubstitutionModelFormat::write(const TransitionModel& model,
 
   //  Mixed Model that are defined as "Mixture" and "Mixed"
 
-  if ((dynamic_cast<const MixedSubstitutionModel*>(&model) != NULL) && (dynamic_cast<const AbstractBiblioMixedSubstitutionModel*>(&model) == NULL))
+  if ((dynamic_cast<const MixedTransitionModel*>(&model) != NULL) && (dynamic_cast<const AbstractBiblioMixedTransitionModel*>(&model) == NULL))
   {
-    writeMixed_(*dynamic_cast<const MixedSubstitutionModel*>(&model), out, globalAliases, writtenNames);
+    writeMixed_(*dynamic_cast<const MixedTransitionModel*>(&model), out, globalAliases, writtenNames);
     return;
   }
 
@@ -1867,18 +1662,18 @@ void BppOSubstitutionModelFormat::write(const TransitionModel& model,
 }
 
 
-void BppOSubstitutionModelFormat::writeMixed_(const MixedSubstitutionModel& model,
+void BppOSubstitutionModelFormat::writeMixed_(const MixedTransitionModel& model,
                                               OutputStream& out,
                                               std::map<std::string, std::string>& globalAliases,
                                               std::vector<std::string>& writtenNames) const
 {
-  if (dynamic_cast<const MixtureOfSubstitutionModels*>(&model) != NULL)
+  if (dynamic_cast<const MixtureOfTransitionModels*>(&model) != NULL)
   {
-    const MixtureOfSubstitutionModels* pMS = dynamic_cast<const MixtureOfSubstitutionModels*>(&model);
+    const MixtureOfTransitionModels* pMS = dynamic_cast<const MixtureOfTransitionModels*>(&model);
 
     // for (unsigned int i = 0; i < pMS->getNumberOfModels(); i++)
     // {
-    //   const SubstitutionModel* eM = pMS->getNModel(i);
+    //   const SubstitutionModel* eM = pMS->getModel(i);
 
     //   vector<string> vpl = eM->getIndependentParameters().getParameterNames();
     //   for (unsigned j = 0; j < vpl.size(); j++)
@@ -1894,14 +1689,14 @@ void BppOSubstitutionModelFormat::writeMixed_(const MixedSubstitutionModel& mode
       if (i != 0)
         out << ", ";
       out << "model" + TextTools::toString(i + 1) + "=";
-      write(*pMS->getNModel(i), out, globalAliases, writtenNames);
+      write(*pMS->AbstractMixedTransitionModel::getNModel(i), out, globalAliases, writtenNames);
     }
   }
   else
   {
-    const MixtureOfASubstitutionModel* pMS = dynamic_cast<const MixtureOfASubstitutionModel*>(&model);
+    const MixtureOfATransitionModel* pMS = dynamic_cast<const MixtureOfATransitionModel*>(&model);
     out << "MixedModel(model=";
-    const TransitionModel* eM = pMS->getNModel(0);
+    const TransitionModel* eM = pMS->getModel(0);
 
     ParameterList pl = eM->getIndependentParameters();
     vector<string> vpl = pl.getParameterNames();

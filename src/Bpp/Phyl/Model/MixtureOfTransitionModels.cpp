@@ -1,5 +1,5 @@
 //
-// File: MixtureOfSubstitutionModels.cpp
+// File: MixtureOfTransitionModels.cpp
 // Created by: Laurent Gueguen
 // Date: mardi 14 septembre 2010, à 20h 43
 //
@@ -36,7 +36,7 @@
    knowledge of the CeCILL license and that you accept its terms.
  */
 
-#include "MixtureOfSubstitutionModels.h"
+#include "MixtureOfTransitionModels.h"
 
 #include <Bpp/Numeric/NumConstants.h>
 #include <Bpp/Text/TextTools.h>
@@ -46,23 +46,24 @@
 using namespace bpp;
 using namespace std;
 
-MixtureOfSubstitutionModels::MixtureOfSubstitutionModels(
+MixtureOfTransitionModels::MixtureOfTransitionModels(
   const Alphabet* alpha,
-  vector<SubstitutionModel*> vpModel) :
+  vector<TransitionModel*> vpModel) :
   AbstractParameterAliasable("Mixture."),
-  AbstractMixedSubstitutionModel(alpha, vpModel[0]->getStateMap().clone(), "Mixture.")
+  AbstractTransitionModel(alpha, vpModel.size()?vpModel[0]->shareStateMap():0, "Mixture."),
+  AbstractMixedTransitionModel(alpha, vpModel.size()?vpModel[0]->shareStateMap():0, "Mixture.")
 {
   size_t i, nbmod = vpModel.size();
 
   for (i = 0; i < nbmod; i++)
   {
     if (!vpModel[i])
-      throw Exception("Empty model number " + TextTools::toString(i) + " in MixtureOfSubstitutionModels constructor");
+      throw Exception("Empty model number " + TextTools::toString(i) + " in MixtureOfTransitionModels constructor");
     for (size_t j = i + 1; j < nbmod; j++)
     {
       if (vpModel[i] == vpModel[j])
         throw Exception("Same model at positions " + TextTools::toString(i) + " and " +
-                        TextTools::toString(j) + " in MixtureOfSubstitutionModels constructor");
+                        TextTools::toString(j) + " in MixtureOfTransitionModels constructor");
     }
   }
 
@@ -95,25 +96,26 @@ MixtureOfSubstitutionModels::MixtureOfSubstitutionModels(
   updateMatrices();
 }
 
-MixtureOfSubstitutionModels::MixtureOfSubstitutionModels(
+MixtureOfTransitionModels::MixtureOfTransitionModels(
     const Alphabet* alpha,
-    vector<SubstitutionModel*> vpModel,
+    vector<TransitionModel*> vpModel,
     Vdouble& vproba,
     Vdouble& vrate) :
   AbstractParameterAliasable("Mixture."),
-  AbstractMixedSubstitutionModel(alpha, vpModel[0]->getStateMap().clone(), "Mixture.")
+  AbstractTransitionModel(alpha, vpModel.size()?vpModel[0]->shareStateMap():0, "Mixture."),
+  AbstractMixedTransitionModel(alpha, vpModel.size()?vpModel[0]->shareStateMap():0, "Mixture.")
 {
   size_t i, nbmod = vpModel.size();
 
   for (i = 0; i < nbmod; i++)
   {
     if (!vpModel[i])
-      throw Exception("Empty model number " + TextTools::toString(i) + " in MixtureOfSubstitutionModels constructor");
+      throw Exception("Empty model number " + TextTools::toString(i) + " in MixtureOfTransitionModels constructor");
     for (size_t j = i + 1; j < nbmod; j++)
     {
       if (vpModel[i] == vpModel[j])
         throw Exception("Same model at positions " + TextTools::toString(i) + " and " +
-                        TextTools::toString(j) + " in MixtureOfSubstitutionModels constructor");
+                        TextTools::toString(j) + " in MixtureOfTransitionModels constructor");
     }
   }
 
@@ -123,9 +125,9 @@ MixtureOfSubstitutionModels::MixtureOfSubstitutionModels(
   for (i = 0; i < nbmod; i++)
   {
     if (vrate[i] <= 0)
-      throw Exception("Non positive rate: " + TextTools::toString(vrate[i]) + " in MixtureOfSubstitutionModels constructor.");
+      throw Exception("Non positive rate: " + TextTools::toString(vrate[i]) + " in MixtureOfTransitionModels constructor.");
     if (vproba[i] <= 0)
-      throw Exception("Non positive probability: " + TextTools::toString(vproba[i]) + " in MixtureOfSubstitutionModels constructor.");
+      throw Exception("Non positive probability: " + TextTools::toString(vproba[i]) + " in MixtureOfTransitionModels constructor.");
     x += vproba[i];
     y += vproba[i] * vrate[i];
   }
@@ -176,23 +178,24 @@ MixtureOfSubstitutionModels::MixtureOfSubstitutionModels(
   updateMatrices();
 }
 
-MixtureOfSubstitutionModels::MixtureOfSubstitutionModels(const MixtureOfSubstitutionModels& msm) :
+MixtureOfTransitionModels::MixtureOfTransitionModels(const MixtureOfTransitionModels& msm) :
   AbstractParameterAliasable(msm),
-  AbstractMixedSubstitutionModel(msm)
+  AbstractTransitionModel(msm),
+  AbstractMixedTransitionModel(msm)
 {}
 
-MixtureOfSubstitutionModels& MixtureOfSubstitutionModels::operator=(const MixtureOfSubstitutionModels& msm)
+MixtureOfTransitionModels& MixtureOfTransitionModels::operator=(const MixtureOfTransitionModels& msm)
 {
-  AbstractMixedSubstitutionModel::operator=(msm);
+  AbstractMixedTransitionModel::operator=(msm);
 
   return *this;
 }
 
 
-MixtureOfSubstitutionModels::~MixtureOfSubstitutionModels()
+MixtureOfTransitionModels::~MixtureOfTransitionModels()
 {}
 
-const SubstitutionModel* MixtureOfSubstitutionModels::getSubModelWithName(const std::string& name) const
+const TransitionModel* MixtureOfTransitionModels::getModel(const std::string& name) const
 {
   size_t nbmod=getNumberOfModels();
 
@@ -203,7 +206,7 @@ const SubstitutionModel* MixtureOfSubstitutionModels::getSubModelWithName(const 
   return NULL;
 }
 
-void MixtureOfSubstitutionModels::updateMatrices()
+void MixtureOfTransitionModels::updateMatrices()
 {
   size_t i, j, nbmod = modelsContainer_.size();
 
@@ -275,7 +278,7 @@ void MixtureOfSubstitutionModels::updateMatrices()
 }
 
 
-void MixtureOfSubstitutionModels::setFreq(std::map<int, double>& m)
+void MixtureOfTransitionModels::setFreq(std::map<int, double>& m)
 {
   ParameterList pl;
   for (unsigned int n = 0; n < modelsContainer_.size(); n++)
@@ -286,9 +289,9 @@ void MixtureOfSubstitutionModels::setFreq(std::map<int, double>& m)
   matchParametersValues(pl);
 }
 
-void MixtureOfSubstitutionModels::setVRates(const Vdouble& vd)
+void MixtureOfTransitionModels::setVRates(const Vdouble& vd)
 {
-  AbstractMixedSubstitutionModel::setVRates(vd);
+  AbstractMixedTransitionModel::setVRates(vd);
 
   size_t i, nbmod = modelsContainer_.size();
   double sP = 0;
@@ -305,7 +308,7 @@ void MixtureOfSubstitutionModels::setVRates(const Vdouble& vd)
   }
 }
 
-Vint MixtureOfSubstitutionModels::getSubmodelNumbers(const string& desc) const
+Vint MixtureOfTransitionModels::getSubmodelNumbers(const string& desc) const
 {
   size_t i;
   for (i = 0; i < getNumberOfModels(); i++)
@@ -314,7 +317,7 @@ Vint MixtureOfSubstitutionModels::getSubmodelNumbers(const string& desc) const
       break;
   }
   if (i == getNumberOfModels())
-    throw Exception("MixtureOfSubstitutionModels::getSubmodelNumbers model description do not match " + desc);
+    throw Exception("MixtureOfTransitionModels::getSubmodelNumbers model description do not match " + desc);
 
   Vint submodnb;
   submodnb.push_back(static_cast<int>(i));

@@ -40,6 +40,7 @@
 
 #include "PhylogeneticsApplicationTools.h"
 #include "../Model/SubstitutionModel.h"
+#include "../Model/MixedTransitionModel.h"
 #include "../Model/WrappedModel.h"
 #include "../Model/Protein/Coala.h"
 #include "../Model/FrequenciesSet/MvaFrequenciesSet.h"
@@ -409,7 +410,7 @@ SubstitutionModelSet* PhylogeneticsApplicationTools::getSubstitutionModelSet(
   modelSet1 = new SubstitutionModelSet(alphabet);
   setSubstitutionModelSet(*modelSet1, alphabet, gCode, data, params, suffix, suffixIsOptional, verbose, warn);
 
-  if (modelSet1->hasMixedSubstitutionModel())
+  if (modelSet1->hasMixedTransitionModel())
   {
     modelSet = new MixedSubstitutionModelSet(*modelSet1);
     completeMixedSubstitutionModelSet(*dynamic_cast<MixedSubstitutionModelSet*>(modelSet), alphabet, data, params, suffix, suffixIsOptional, verbose);
@@ -608,7 +609,7 @@ void PhylogeneticsApplicationTools::completeMixedSubstitutionModelSet(
       size_t num = TextTools::to<size_t>(submodel.substr(5, indexo - 5));
       string p2 = submodel.substr(indexo + 1, indexf - indexo - 1);
 
-      const MixedSubstitutionModel* pSM = dynamic_cast<const MixedSubstitutionModel*>(mixedModelSet.getSubstitutionModel(num - 1));
+      const MixedTransitionModel* pSM = dynamic_cast<const MixedTransitionModel*>(mixedModelSet.getSubstitutionModel(num - 1));
       if (!pSM)
         throw BadIntegerException("PhylogeneticsApplicationTools::setMixedSubstitutionModelSet: Wrong model for number", static_cast<int>(num - 1));
       Vint submodnb = pSM->getSubmodelNumbers(p2);

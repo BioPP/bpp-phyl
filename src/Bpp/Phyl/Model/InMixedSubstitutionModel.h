@@ -41,22 +41,22 @@
 #define _IN_MIXED_SUBSTITUTIONMODEL_H_
 
 #include "AbstractSubstitutionModel.h"
-#include "MixedSubstitutionModel.h"
+#include "MixedTransitionModel.h"
 #include "AbstractWrappedModel.h"
 
 namespace bpp
 {
 /**
- * @brief SubModel taken from a MixedSubstitutionModel, kept in the
- * context of the MixedSubstitutionModel (see
+ * @brief SubModel taken from a MixedTransitionModel, kept in the
+ * context of the MixedTransitionModel (see
  * FromMixtureSubstitutionModel for an out of context subModel). So
- * "rate" and "scale" are set for the MixedSubstitutionModel.
+ * "rate" and "scale" are set for the MixedTransitionModel.
  *
  * But method getRate returns the specific rate of the subModel.
  *
- * It owns the MixedSubstitutionModel.
+ * It owns the MixedTransitionModel.
  *
- * It has the same parameters as the MixedSubstitutionModel.
+ * It has the same parameters as the MixedTransitionModel.
  */
   
   class InMixedSubstitutionModel :
@@ -65,11 +65,11 @@ namespace bpp
   {
   private:
     /*
-     * @brief The MixedOfSubstitutionModels.
+     * @brief The MixedOfTransitionModels.
      *
      */
 
-    std::unique_ptr<MixedSubstitutionModel> mixedModel_;
+    std::unique_ptr<MixedTransitionModel> mixedModel_;
 
     /*
      * @brief the number of the submodel
@@ -85,9 +85,9 @@ namespace bpp
     std::string mixtName_;
 
   public:
-    InMixedSubstitutionModel(const MixedSubstitutionModel& mixedModel, const std::string& subModelName, const std::string& mixtDesc);
+    InMixedSubstitutionModel(const MixedTransitionModel& mixedModel, const std::string& subModelName, const std::string& mixtDesc);
 
-    InMixedSubstitutionModel(const MixedSubstitutionModel& mixedModel, size_t subModelNumber, const std::string& mixtDesc);
+    InMixedSubstitutionModel(const MixedTransitionModel& mixedModel, size_t subModelNumber, const std::string& mixtDesc);
 
     InMixedSubstitutionModel(const InMixedSubstitutionModel& fmsm);
 
@@ -97,14 +97,14 @@ namespace bpp
 
   public:
     
-    const MixedSubstitutionModel& getMixedModel() const
+    const MixedTransitionModel& getMixedModel() const
     {
       return *mixedModel_.get();
     }
 
     const SubstitutionModel& getSubstitutionModel() const
     {
-      return *mixedModel_->getNModel(subModelNumber_);
+      return dynamic_cast<const SubstitutionModel&>(*mixedModel_->getNModel(subModelNumber_));
     }
 
     size_t getSubModelNumber() const
@@ -139,14 +139,14 @@ namespace bpp
      *
      */
 
-    MixedSubstitutionModel& getMixedModel()
+    MixedTransitionModel& getMixedModel()
     {
       return *mixedModel_.get();
     }
 
     SubstitutionModel& getSubstitutionModel()
     {
-      return *mixedModel_->getNModel(subModelNumber_);
+      return dynamic_cast<SubstitutionModel&>(*mixedModel_->getNModel(subModelNumber_));
     }
 
   public:
@@ -201,9 +201,9 @@ namespace bpp
 
     double Sij(size_t i, size_t j) const { return getSubstitutionModel().Sij(i, j); }
 
-    void enableEigenDecomposition(bool yn) { getMixedModel().enableEigenDecomposition(yn); }
+    void enableEigenDecomposition(bool yn) { getSubstitutionModel().enableEigenDecomposition(yn); }
 
-    bool enableEigenDecomposition() { return getMixedModel().enableEigenDecomposition(); }
+    bool enableEigenDecomposition() { return getSubstitutionModel().enableEigenDecomposition(); }
 
     bool isDiagonalizable() const { return getSubstitutionModel().isDiagonalizable(); }
 
@@ -225,28 +225,28 @@ namespace bpp
 
     bool isScalable() const 
     {
-      return getMixedModel().isScalable();
+      return getSubstitutionModel().isScalable();
     }
 
     void setScalable(bool scalable)
     {
-      getMixedModel().setScalable(scalable);
+      getSubstitutionModel().setScalable(scalable);
     }
 
  
-    double getScale() const { return getMixedModel().getScale(); }
+    double getScale() const { return getSubstitutionModel().getScale(); }
 
-    void setScale(double scale) { getMixedModel().setScale(scale); }
+    void setScale(double scale) { getSubstitutionModel().setScale(scale); }
 
 
     void normalize()
     {
-      getMixedModel().normalize();
+      getSubstitutionModel().normalize();
     }
 
     void setDiagonal()
     {
-      getMixedModel().setDiagonal();
+      getSubstitutionModel().setDiagonal();
     }
 
     double getRate() const
@@ -271,7 +271,7 @@ namespace bpp
      */
 
     /*
-     *@ brief Methods to supersede AbstractSubstitutionModel methods.
+     *@ brief Methods to supersede AbstractSubstitutionnModel methods.
      *
      * @{
      */
