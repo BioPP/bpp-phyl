@@ -54,7 +54,7 @@ using namespace std;
 FullNucleotideFrequenciesSet::FullNucleotideFrequenciesSet(
   const NucleicAlphabet* alphabet, bool allowNullFreqs,
   const string& name) :
-  AbstractFrequenciesSet(new CanonicalStateMap(alphabet, false), "Full.", name)
+  AbstractFrequenciesSet(std::shared_ptr<const StateMap>(new CanonicalStateMap(alphabet, false)), "Full.", name)
 {
   addParameter_(new Parameter(
     "Full.theta", 0.5,
@@ -76,7 +76,7 @@ FullNucleotideFrequenciesSet::FullNucleotideFrequenciesSet(
 FullNucleotideFrequenciesSet::FullNucleotideFrequenciesSet(
   const NucleicAlphabet* alphabet, double theta, double theta1, double theta2,
   bool allowNullFreqs, const string& name) :
-  AbstractFrequenciesSet(new CanonicalStateMap(alphabet, false), "Full.", name)
+  AbstractFrequenciesSet(std::shared_ptr<const StateMap>(new CanonicalStateMap(alphabet, false)), "Full.", name)
 {
   addParameter_(new Parameter(
     "Full.theta",

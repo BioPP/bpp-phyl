@@ -61,7 +61,7 @@ namespace bpp
     public AbstractSubstitutionModel
   {
   public:
-    AnonymousSubstitutionModel(const Alphabet* alpha, const StateMap* stateMap):
+    AnonymousSubstitutionModel(const Alphabet* alpha, std::shared_ptr<const StateMap> stateMap):
       AbstractParameterAliasable("Anonymous"),
       AbstractSubstitutionModel(alpha, stateMap, "Anonymous")
     {}

@@ -42,7 +42,7 @@
 
 #include "ProteinSubstitutionModel.h"
 #include "../AbstractSubstitutionModel.h"
-#include "../AbstractBiblioMixedSubstitutionModel.h"
+#include "../AbstractBiblioMixedTransitionModel.h"
 
 using namespace std;
 
@@ -71,7 +71,7 @@ namespace bpp
  * Le S.Q., Gascuel O. (2010) Syst. Biol. 59(3):277–287
  */
   class LG10_EX_EHO :
-    public AbstractBiblioMixedSubstitutionModel
+    public AbstractBiblioMixedTransitionModel
   {
   public:
     class EmbeddedModel :
@@ -102,12 +102,12 @@ namespace bpp
     LG10_EX_EHO* clone() const { return new LG10_EX_EHO(*this); }
 
     LG10_EX_EHO(const LG10_EX_EHO& mod2) :
-      AbstractBiblioMixedSubstitutionModel(mod2)
+      AbstractBiblioMixedTransitionModel(mod2)
     {}
 
     LG10_EX_EHO& operator=(const LG10_EX_EHO& mod2)
     {
-      AbstractBiblioMixedSubstitutionModel::operator=(mod2);
+      AbstractBiblioMixedTransitionModel::operator=(mod2);
 
       return *this;
     }

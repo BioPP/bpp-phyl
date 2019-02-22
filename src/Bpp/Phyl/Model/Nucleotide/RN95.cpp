@@ -63,7 +63,7 @@ RN95::RN95(
   double lambda,
   double sigma) :
   AbstractParameterAliasable("RN95."),
-  AbstractNucleotideSubstitutionModel(alphabet, new CanonicalStateMap(alphabet, false), "RN95."),
+  AbstractNucleotideSubstitutionModel(alphabet, std::shared_ptr<const StateMap>(new CanonicalStateMap(alphabet, false)), "RN95."),
   alpha_(),
   beta_(),
   gamma_(),

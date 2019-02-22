@@ -93,7 +93,7 @@ protected:
   size_t getSizeFromVector(const std::vector<FrequenciesSet*>& freqVector);
   
 public:
-  AbstractWordFrequenciesSet(StateMap* stateMap, const std::string& prefix = "", const std::string& name="");
+  AbstractWordFrequenciesSet(std::shared_ptr<const StateMap> stateMap, const std::string& prefix = "", const std::string& name="");
 
   AbstractWordFrequenciesSet* clone() const = 0;
 

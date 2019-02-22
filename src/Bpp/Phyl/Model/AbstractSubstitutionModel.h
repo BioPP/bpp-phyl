@@ -76,8 +76,9 @@ namespace bpp
  * @note This class is dedicated to "simple" substitution models, for which the number of states is equivalent to the number of characters in the alphabet.
  * Consider using the MarkovModulatedSubstitutionModel for more complexe cases.
  */
-  class AbstractSubstitutionModel :
-    public virtual SubstitutionModel,
+
+  class AbstractTransitionModel :
+    public virtual TransitionModel,
     public virtual AbstractParameterAliasable
   {
   protected:
@@ -92,16 +93,9 @@ namespace bpp
     std::shared_ptr<const StateMap> stateMap_;
 
     /**
-     * @brief The size of the generator, i.e. the number of states.
+     * @brief The number of states.
      */
     size_t size_;
-
-    /**
-     * @brief If the model is scalable (ie generator can be normalized
-     * automatically).
-     */
-  
-    bool isScalable_;
 
     /**
      * @brief The rate of the model (default: 1). The generator (and all
@@ -111,14 +105,173 @@ namespace bpp
     double rate_;
 
     /**
-     * @brief The generator matrix \f$Q\f$ of the model.
-     */
-    RowMatrix<double> generator_;
-
-    /**
      * @brief The vector \f$\pi_e\f$ of equilibrium frequencies.
      */
     Vdouble freq_;
+
+    /**
+     * @brief These ones are for bookkeeping:
+     */
+    mutable RowMatrix<double> pijt_;
+    mutable RowMatrix<double> dpijt_;
+    mutable RowMatrix<double> d2pijt_;
+
+  public:
+    AbstractTransitionModel(const Alphabet* alpha, std::shared_ptr<const StateMap> stateMap, const std::string& prefix);
+
+    AbstractTransitionModel(const AbstractTransitionModel& model) :
+      AbstractParameterAliasable(model),
+      alphabet_(model.alphabet_),
+      stateMap_(model.stateMap_),
+      size_(model.size_),
+      rate_(model.rate_),
+      freq_(model.freq_),
+      pijt_(model.pijt_),
+      dpijt_(model.dpijt_),
+      d2pijt_(model.d2pijt_)
+    {}
+
+    AbstractTransitionModel& operator=(const AbstractTransitionModel& model)
+    {
+      AbstractParameterAliasable::operator=(model);
+      alphabet_          = model.alphabet_;
+      stateMap_          = model.stateMap_;
+      size_              = model.size_;
+      rate_              = model.rate_;
+      freq_              = model.freq_;
+      pijt_              = model.pijt_;
+      dpijt_             = model.dpijt_;
+      d2pijt_            = model.d2pijt_;
+      return *this;
+    }
+  
+    virtual ~AbstractTransitionModel() {}
+
+    virtual AbstractTransitionModel* clone() const = 0;
+
+  public:
+    const Alphabet* getAlphabet() const { return alphabet_; }
+
+    const StateMap& getStateMap() const { return *stateMap_; }
+
+    std::shared_ptr<const StateMap> shareStateMap() const { return stateMap_; }
+
+    const std::vector<int>& getAlphabetStates() const { return stateMap_->getAlphabetStates(); }
+
+    std::string getAlphabetStateAsChar(size_t index) const { return stateMap_->getAlphabetStateAsChar(index); }
+
+    int getAlphabetStateAsInt(size_t index) const { return stateMap_->getAlphabetStateAsInt(index); }
+
+    std::vector<size_t> getModelStates(int code) const { return stateMap_->getModelStates(code); }
+  
+    std::vector<size_t> getModelStates(const std::string& code) const { return stateMap_->getModelStates(code); }
+
+    const Vdouble& getFrequencies() const { return freq_; }
+
+    bool computeFrequencies() const { return false; }
+    
+    virtual const Matrix<double>& getPij_t(double t) const = 0;
+    virtual const Matrix<double>& getdPij_dt(double t) const = 0;
+    virtual const Matrix<double>& getd2Pij_dt2(double t) const = 0;
+
+    virtual double freq(size_t i) const { return freq_[i]; }
+
+    virtual double Pij_t    (size_t i, size_t j, double t) const { return getPij_t(t) (i, j); }
+    virtual double dPij_dt  (size_t i, size_t j, double t) const { return getdPij_dt(t) (i, j); }
+    virtual double d2Pij_dt2(size_t i, size_t j, double t) const { return getd2Pij_dt2(t) (i, j); }
+
+    double getInitValue(size_t i, int state) const;
+
+    void setFreqFromData(const SequenceContainer& data, double pseudoCount = 0);
+
+    virtual void setFreq(std::map<int, double>&);
+
+    /**
+     * @brief Tells the model that a parameter value has changed.
+     *
+     * This updates the matrices consequently.
+     */
+    virtual void fireParameterChanged(const ParameterList& parameters)
+    {
+      AbstractParameterAliasable::fireParameterChanged(parameters);
+    
+      if (parameters.hasParameter(getNamespace()+"rate"))
+      {
+        rate_=parameters.getParameterValue(getNamespace()+"rate");
+      
+        if (parameters.size()!=1)
+          updateMatrices();
+      }
+      else
+        updateMatrices();      
+    }
+
+    /**
+     * @brief add a "rate" parameter to the model, that handles the
+     * overall rate of the process.
+     *
+     */
+    void addRateParameter();
+
+  protected:
+    /**
+     * @brief Diagonalize the \f$Q\f$ matrix, and fill the eigenValues_, iEigenValues_, 
+     * leftEigenVectors_ and rightEigenVectors_ matrices.
+     *
+     * The generator_ matrix and freq_ vector must be initialized.
+     *
+     * Eigen values and vectors are computed from the generator and
+     * assigned to the eigenValues_ for the real part, iEigenValues_ for
+     * the imaginary part, rightEigenVectors_ and leftEigenVectors_
+     * variables. isDiagonalizable_ checks if the generator_ is
+     * diagonalizable in R.
+     *
+     * The optional rate parameter is not taken into account in this
+     * method to prevent unnecessary computation.
+     *
+     * !! Here there is no normalization of the generator.
+     * 
+     */
+    virtual void updateMatrices() = 0;
+
+    /*
+     * @brief : To update the eq freq
+     *
+     */
+    
+    Vdouble& getFrequencies_() {
+      return freq_;
+    }
+
+  public:
+
+    /**
+     * @brief The rate of the substitution process.
+     *
+     */
+    virtual double getRate() const;
+
+    virtual void setRate(double rate);
+
+  };
+
+
+  class AbstractSubstitutionModel :
+    public AbstractTransitionModel,
+    virtual public SubstitutionModel
+  {
+  protected:
+    /**
+     * @brief If the model is scalable (ie generator can be normalized
+     * automatically).
+     */
+  
+    bool isScalable_;
+
+    /**
+     * @brief The generator matrix \f$Q\f$ of the model.
+     */
+    RowMatrix<double> generator_;
 
     /**
      * @brief if the Frequencies must be computed from the generator
@@ -133,13 +286,6 @@ namespace bpp
      *
      */
     RowMatrix<double> exchangeability_;
-
-    /**
-     * @brief These ones are for bookkeeping:
-     */
-    mutable RowMatrix<double> pijt_;
-    mutable RowMatrix<double> dpijt_;
-    mutable RowMatrix<double> d2pijt_;
 
     /**
      * @brief Tell if the eigen decomposition should be performed.
@@ -189,22 +335,14 @@ namespace bpp
     mutable RowMatrix<double> tmpMat_;
   
   public:
-    AbstractSubstitutionModel(const Alphabet* alpha, const StateMap* stateMap, const std::string& prefix);
+    AbstractSubstitutionModel(const Alphabet* alpha, std::shared_ptr<const StateMap> stateMap, const std::string& prefix);
 
     AbstractSubstitutionModel(const AbstractSubstitutionModel& model) :
-      AbstractParameterAliasable(model),
-      alphabet_(model.alphabet_),
-      stateMap_(model.stateMap_),
-      size_(model.size_),
+      AbstractTransitionModel(model),
       isScalable_(model.isScalable_),
-      rate_(model.rate_),
       generator_(model.generator_),
-      freq_(model.freq_),
       computeFreq_(model.computeFreq_),
       exchangeability_(model.exchangeability_),
-      pijt_(model.pijt_),
-      dpijt_(model.dpijt_),
-      d2pijt_(model.d2pijt_),
       eigenDecompose_(model.eigenDecompose_),
       eigenValues_(model.eigenValues_),
       iEigenValues_(model.iEigenValues_),
@@ -218,19 +356,11 @@ namespace bpp
 
     AbstractSubstitutionModel& operator=(const AbstractSubstitutionModel& model)
     {
-      AbstractParameterAliasable::operator=(model);
-      alphabet_          = model.alphabet_;
-      stateMap_.reset(model.stateMap_->clone());
-      size_              = model.size_;
+      AbstractTransitionModel::operator=(model);
       isScalable_        = model.isScalable_;
-      rate_              = model.rate_;
       generator_         = model.generator_;
-      freq_              = model.freq_;
       computeFreq_       = model.computeFreq_;
       exchangeability_   = model.exchangeability_;
-      pijt_              = model.pijt_;
-      dpijt_             = model.dpijt_;
-      d2pijt_            = model.d2pijt_;
       eigenDecompose_    = model.eigenDecompose_;
       eigenValues_       = model.eigenValues_;
       iEigenValues_      = model.iEigenValues_;
@@ -248,22 +378,6 @@ namespace bpp
     virtual AbstractSubstitutionModel* clone() const = 0;
 
   public:
-    const Alphabet* getAlphabet() const { return alphabet_; }
-
-    const StateMap& getStateMap() const { return *stateMap_; }
-
-    const std::vector<int>& getAlphabetStates() const { return stateMap_->getAlphabetStates(); }
-
-    std::string getAlphabetStateAsChar(size_t index) const { return stateMap_->getAlphabetStateAsChar(index); }
-
-    int getAlphabetStateAsInt(size_t index) const { return stateMap_->getAlphabetStateAsInt(index); }
-
-    std::vector<size_t> getModelStates(int code) const { return stateMap_->getModelStates(code); }
-  
-    std::vector<size_t> getModelStates(const std::string& code) const { return stateMap_->getModelStates(code); }
-
-    const Vdouble& getFrequencies() const { return freq_; }
-
     bool computeFrequencies() const { return computeFreq_; }
 
     void computeFrequencies(bool yn) { computeFreq_=yn; }
@@ -272,11 +386,11 @@ namespace bpp
 
     const Matrix<double>& getExchangeabilityMatrix() const { return exchangeability_; }
 
-    double Sij(size_t i, size_t j) const { return exchangeability_(i, j); }
+    const Matrix<double>& getPij_t(double t) const;
+    const Matrix<double>& getdPij_dt(double t) const;
+    const Matrix<double>& getd2Pij_dt2(double t) const;
 
-    virtual const Matrix<double>& getPij_t(double t) const;
-    virtual const Matrix<double>& getdPij_dt(double t) const;
-    virtual const Matrix<double>& getd2Pij_dt2(double t) const;
+    double Sij(size_t i, size_t j) const { return exchangeability_(i, j); }
 
     const Vdouble& getEigenValues() const { return eigenValues_; }
 
@@ -290,50 +404,11 @@ namespace bpp
 
     const Matrix<double>& getColumnRightEigenVectors() const { return rightEigenVectors_; }
 
-    virtual double freq(size_t i) const { return freq_[i]; }
-
     virtual double Qij(size_t i, size_t j) const { return generator_(i, j); }
-
-    virtual double Pij_t    (size_t i, size_t j, double t) const { return getPij_t(t) (i, j); }
-    virtual double dPij_dt  (size_t i, size_t j, double t) const { return getdPij_dt(t) (i, j); }
-    virtual double d2Pij_dt2(size_t i, size_t j, double t) const { return getd2Pij_dt2(t) (i, j); }
-
-    double getInitValue(size_t i, int state) const;
-
-    void setFreqFromData(const SequenceContainer& data, double pseudoCount = 0);
-
-    virtual void setFreq(std::map<int, double>&);
 
     void enableEigenDecomposition(bool yn) { eigenDecompose_ = yn; }
 
     bool enableEigenDecomposition() { return eigenDecompose_; }
-
-    /**
-     * @brief Tells the model that a parameter value has changed.
-     *
-     * This updates the matrices consequently.
-     */
-    virtual void fireParameterChanged(const ParameterList& parameters)
-    {
-      AbstractParameterAliasable::fireParameterChanged(parameters);
-    
-      if (parameters.hasParameter(getNamespace()+"rate"))
-      {
-        rate_=parameters.getParameterValue(getNamespace()+"rate");
-      
-        if (parameters.size()!=1)
-          updateMatrices();
-      }
-      else
-        updateMatrices();      
-    }
-
-    /**
-     * @brief add a "rate" parameter to the model, that handles the
-     * overall rate of the process.
-     *
-     */
-    void addRateParameter();
 
   protected:
     /**
@@ -355,15 +430,6 @@ namespace bpp
      * 
      */
     virtual void updateMatrices();
-
-    /*
-     * @brief : To update the eq freq
-     *
-     */
-    
-    Vdouble& getFrequencies_() {
-      return freq_;
-    }
 
   public:
 
@@ -418,14 +484,6 @@ namespace bpp
   
     void setDiagonal();
 
-    /**
-     * @brief The rate of the substitution process.
-     *
-     */
-    virtual double getRate() const;
-
-    virtual void setRate(double rate);
-
   };
 
 
@@ -457,7 +515,7 @@ namespace bpp
     public virtual ReversibleSubstitutionModel
   {
   public:
-    AbstractReversibleSubstitutionModel(const Alphabet* alpha, const StateMap* stateMap, const std::string& prefix) :
+    AbstractReversibleSubstitutionModel(const Alphabet* alpha, std::shared_ptr<const StateMap> stateMap, const std::string& prefix) :
       AbstractParameterAliasable(prefix),
       AbstractSubstitutionModel(alpha, stateMap, prefix)
     {

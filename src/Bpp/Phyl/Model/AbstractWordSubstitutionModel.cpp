@@ -65,7 +65,7 @@ AbstractWordSubstitutionModel::AbstractWordSubstitutionModel(
   AbstractParameterAliasable(prefix),
   AbstractSubstitutionModel(
       modelList.getWordAlphabet(),
-      new CanonicalStateMap(modelList.getWordAlphabet(), false),
+      std::shared_ptr<const StateMap>(new CanonicalStateMap(modelList.getWordAlphabet(), false)),
       prefix),
   new_alphabet_ (true),
   VSubMod_      (),
@@ -127,7 +127,7 @@ AbstractWordSubstitutionModel::AbstractWordSubstitutionModel(
 
 AbstractWordSubstitutionModel::AbstractWordSubstitutionModel(
   const Alphabet* alph,
-  StateMap* stateMap,
+  std::shared_ptr<const StateMap> stateMap,
   const std::string& prefix) :
   AbstractParameterAliasable(prefix),
   AbstractSubstitutionModel(alph, stateMap, prefix),
@@ -149,7 +149,7 @@ AbstractWordSubstitutionModel::AbstractWordSubstitutionModel(
   VnestedPrefix_(),
   Vrate_        (num,1.0/num)
 {
-  stateMap_=std::unique_ptr<StateMap>(new CanonicalStateMap(getAlphabet(), false));
+  stateMap_=std::shared_ptr<const StateMap>(new CanonicalStateMap(getAlphabet(), false));
 
   size_t i;
 

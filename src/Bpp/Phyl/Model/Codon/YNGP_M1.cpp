@@ -59,15 +59,15 @@ YNGP_M1::YNGP_M1(const GeneticCode* gc, FrequenciesSet* codonFreqs) :
   v1.push_back(0.5); v1.push_back(1);
   v2.push_back(0.5); v2.push_back(0.5);
 
-  SimpleDiscreteDistribution* psdd = new SimpleDiscreteDistribution(v1, v2);
+  std::unique_ptr<DiscreteDistribution> psdd(new SimpleDiscreteDistribution(v1, v2));
 
   map<string, DiscreteDistribution*> mpdd;
-  mpdd["omega"] = psdd;
+  mpdd["omega"] = psdd.get();
 
   unique_ptr<YN98> yn98(new YN98(gc, codonFreqs));
 
   pmixmodel_.reset(new MixtureOfASubstitutionModel(gc->getSourceAlphabet(), yn98.get(), mpdd));
-  delete psdd;
+  pmixsubmodel_=dynamic_cast<const MixtureOfASubstitutionModel*>(&getMixedModel());      
 
   vector<int> supportedChars = yn98->getAlphabetStates();
   // map the parameters
@@ -106,8 +106,8 @@ YNGP_M1::YNGP_M1(const GeneticCode* gc, FrequenciesSet* codonFreqs) :
     for (synto_ = 0; synto_ < synfrom_; ++synto_)
     {
       if (gc->areSynonymous(supportedChars[synfrom_], supportedChars[synto_])
-        && (pmixmodel_->getNModel(0)->Qij(synfrom_, synto_) != 0)
-        && (pmixmodel_->getNModel(1)->Qij(synfrom_, synto_) != 0))
+        && (pmixsubmodel_->getSubNModel(0)->Qij(synfrom_, synto_) != 0)
+        && (pmixsubmodel_->getSubNModel(1)->Qij(synfrom_, synto_) != 0))
         break;
     }
     if (synto_ < synfrom_)
@@ -125,14 +125,14 @@ YNGP_M1::YNGP_M1(const GeneticCode* gc, FrequenciesSet* codonFreqs) :
 
 void YNGP_M1::updateMatrices()
 {
-  AbstractBiblioSubstitutionModel::updateMatrices();
+  AbstractBiblioTransitionModel::updateMatrices();
 
   // homogeneization of the synonymous substitution rates
 
   Vdouble vd;
 
-  vd.push_back(1. / pmixmodel_->getNModel(0)->Qij(synfrom_, synto_));
-  vd.push_back(1. / pmixmodel_->getNModel(1)->Qij(synfrom_, synto_));
+  vd.push_back(1. / pmixsubmodel_->getSubNModel(0)->Qij(synfrom_, synto_));
+  vd.push_back(1. / pmixsubmodel_->getSubNModel(1)->Qij(synfrom_, synto_));
 
   pmixmodel_->setVRates(vd);
 }

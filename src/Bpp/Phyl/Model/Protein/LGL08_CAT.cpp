@@ -49,11 +49,11 @@ using namespace std;
 /******************************************************************************/
 
 LGL08_CAT::LGL08_CAT(const ProteicAlphabet* alpha, unsigned int nbCat) :
-  AbstractBiblioMixedSubstitutionModel("LGL08_CAT.")
+  AbstractBiblioMixedTransitionModel("LGL08_CAT.")
 {
   // build the submodel
 
-  vector<SubstitutionModel*> vpSM;
+  vector<TransitionModel*> vpSM;
   for(unsigned int i = 1; i < nbCat + 1; i++)
   vpSM.push_back(new LGL08_CAT::EmbeddedModel(alpha, "C" + TextTools::toString(i), nbCat));
 
@@ -87,7 +87,7 @@ LGL08_CAT::LGL08_CAT(const ProteicAlphabet* alpha, unsigned int nbCat) :
 
 LGL08_CAT::EmbeddedModel::EmbeddedModel(const ProteicAlphabet* alpha, string name, unsigned int nbCat) :
   AbstractParameterAliasable(name),
-  AbstractReversibleProteinSubstitutionModel(alpha, new CanonicalStateMap(alpha, false), name),
+  AbstractReversibleProteinSubstitutionModel(alpha, std::shared_ptr<const StateMap>(new CanonicalStateMap(alpha, false)), name),
   proportion_(1),
   name_(name)
 {

@@ -112,7 +112,7 @@ FrequenciesSet* BppOFrequenciesSetFormat::read(const Alphabet* alphabet, const s
     }
     else
     {
-      pFS.reset(new FixedFrequenciesSet(new CanonicalStateMap(alphabet, false)));
+      pFS.reset(new FixedFrequenciesSet(std::shared_ptr<const StateMap>(new CanonicalStateMap(alphabet, false))));
     }
   }
   else if (freqName == "Full")
@@ -153,7 +153,7 @@ FrequenciesSet* BppOFrequenciesSetFormat::read(const Alphabet* alphabet, const s
     else
     {
       //NB: jdutheil 25/09/14 => gap models will not be supported before we add the appropriate option!
-      pFS.reset(new FullFrequenciesSet(new CanonicalStateMap(alphabet, false), false, method));
+      pFS.reset(new FullFrequenciesSet(std::shared_ptr<const StateMap>(new CanonicalStateMap(alphabet, false)), false, method));
     }
   }
   else if (freqName == "Empirical")
@@ -192,7 +192,7 @@ FrequenciesSet* BppOFrequenciesSetFormat::read(const Alphabet* alphabet, const s
     }
     else
     {
-      pFS.reset(new UserFrequenciesSet(new CanonicalStateMap(alphabet, false), fname, nCol));
+      pFS.reset(new UserFrequenciesSet(std::shared_ptr<const StateMap>(new CanonicalStateMap(alphabet, false)), fname, nCol));
     }
   }
   else if (freqName == "GC")

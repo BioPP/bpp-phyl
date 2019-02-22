@@ -76,9 +76,9 @@ namespace bpp
   {
   public:
     FullProteinFrequenciesSet(const ProteicAlphabet* alphabet, bool allowNullFreqs = false, unsigned short method = 1, const std::string& name = "Full") :
-      FullFrequenciesSet(new CanonicalStateMap(alphabet, false), allowNullFreqs, method, name) {}
+      FullFrequenciesSet(std::shared_ptr<const StateMap>(new CanonicalStateMap(alphabet, false)), allowNullFreqs, method, name) {}
     FullProteinFrequenciesSet(const ProteicAlphabet* alphabet, const std::vector<double>& initFreqs, bool allowNullFreqs = false, unsigned short method = 1, const std::string& name = "Full") :
-      FullFrequenciesSet(new CanonicalStateMap(alphabet, false), initFreqs, allowNullFreqs, method, name) {}
+      FullFrequenciesSet(std::shared_ptr<const StateMap>(new CanonicalStateMap(alphabet, false)), initFreqs, allowNullFreqs, method, name) {}
 
     FullProteinFrequenciesSet* clone() const { return new FullProteinFrequenciesSet(*this); }
 
@@ -100,14 +100,14 @@ namespace bpp
   {
   public:
     FixedProteinFrequenciesSet(const ProteicAlphabet* alphabet, const std::vector<double>& initFreqs, const std::string& name = "Fixed") :
-      FixedFrequenciesSet(new CanonicalStateMap(alphabet, false), initFreqs, name) {}
+      FixedFrequenciesSet(std::shared_ptr<const StateMap>(new CanonicalStateMap(alphabet, false)), initFreqs, name) {}
 
     /**
      * @brief Construction with uniform frequencies on the letters of
      * the alphabet.
      */
     FixedProteinFrequenciesSet(const ProteicAlphabet* alphabet, const std::string& name = "Fixed") :
-      FixedFrequenciesSet(new CanonicalStateMap(alphabet, false), name) {}
+      FixedFrequenciesSet(std::shared_ptr<const StateMap>(new CanonicalStateMap(alphabet, false)), name) {}
 
     FixedProteinFrequenciesSet* clone() const { return new FixedProteinFrequenciesSet(*this); }
 
@@ -129,7 +129,7 @@ namespace bpp
   {
   public:
     UserProteinFrequenciesSet(const ProteicAlphabet* alphabet, const std::string& path, size_t nCol=1) :
-      UserFrequenciesSet(new CanonicalStateMap(alphabet, false), path, nCol) {}
+      UserFrequenciesSet(std::shared_ptr<const StateMap>(new CanonicalStateMap(alphabet, false)), path, nCol) {}
     
     UserProteinFrequenciesSet* clone() const { return new UserProteinFrequenciesSet(*this); }
 
