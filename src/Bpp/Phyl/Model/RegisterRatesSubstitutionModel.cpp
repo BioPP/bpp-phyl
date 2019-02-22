@@ -45,7 +45,7 @@ using namespace std;
 
 RegisterRatesSubstitutionModel::RegisterRatesSubstitutionModel(const SubstitutionModel& originalModel, const SubstitutionRegister& reg, bool  isNormalized) :
   AbstractParameterAliasable("FromRegister."),
-  AbstractSubstitutionModel(originalModel.getAlphabet(), originalModel.getStateMap().clone(), "FromRegister."),
+  AbstractSubstitutionModel(originalModel.getAlphabet(), originalModel.shareStateMap(), "FromRegister."),
   originalModel_(originalModel.clone()),
   registerName_(reg.getName()),
   vRegStates_(),

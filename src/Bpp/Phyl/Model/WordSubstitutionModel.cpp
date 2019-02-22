@@ -80,7 +80,7 @@ WordSubstitutionModel::WordSubstitutionModel(
 
 WordSubstitutionModel::WordSubstitutionModel(
   const Alphabet* alph,
-  StateMap* stateMap,
+  std::shared_ptr<const StateMap> stateMap,
   const std::string& prefix) :
   AbstractParameterAliasable((prefix == "") ? "Word." : prefix),
   AbstractWordSubstitutionModel(alph, stateMap, (prefix == "") ? "Word." : prefix)

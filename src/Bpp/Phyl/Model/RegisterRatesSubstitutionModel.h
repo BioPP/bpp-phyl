@@ -180,6 +180,11 @@ namespace bpp
       return AbstractWrappedSubstitutionModel::getStateMap();
     }
 
+    std::shared_ptr<const StateMap> shareStateMap() const
+    {
+      return AbstractWrappedSubstitutionModel::shareStateMap();
+    }
+
     
     /*
      * @brief From AbstractWrappedSubstitutionModel

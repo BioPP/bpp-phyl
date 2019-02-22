@@ -239,10 +239,10 @@ public:
   size_t getNumberOfModels() const { return modelSet_.size(); }
 
   /**
-   * @return True iff there is a MixedSubstitutionModel in the SubstitutionModelSet
+   * @return True iff there is a MixedTransitionModel in the SubstitutionModelSet
    **/
 
-  bool hasMixedSubstitutionModel() const;
+  bool hasMixedTransitionModel() const;
 
   /**
    * @brief Get one model from the set knowing its index.
@@ -482,19 +482,23 @@ public:
    *
    * @see Alphabet
    */
-  virtual const std::vector<int>& getAlphabetStates() const {
+  const std::vector<int>& getAlphabetStates() const {
     return getModel(0)->getAlphabetStates();
   }
 
-  virtual const StateMap& getStateMap() const {
+  const StateMap& getStateMap() const {
     return getModel(0)->getStateMap();
   }
 
-  virtual std::vector<size_t> getModelStates(int code) const {
+  std::shared_ptr<const StateMap> shareStateMap() const {
+    return getModel(0)->shareStateMap();
+  }
+
+  std::vector<size_t> getModelStates(int code) const {
     return getModel(0)->getModelStates(code);
   }
 
-  virtual std::vector<size_t> getModelStates(const std::string& code) const {
+  std::vector<size_t> getModelStates(const std::string& code) const {
     return getModel(0)->getModelStates(code);
   }
 
@@ -502,7 +506,8 @@ public:
    * @param index The model state.
    * @return The corresponding alphabet state as character code.
    */
-  virtual int getAlphabetStateAsInt(size_t index) const {
+
+  int getAlphabetStateAsInt(size_t index) const {
     return getModel(0)->getAlphabetStateAsInt(index);
   }
   
@@ -510,7 +515,8 @@ public:
    * @param index The model state.
    * @return The corresponding alphabet state as character code.
    */
-  virtual std::string getAlphabetStateAsChar(size_t index) const {
+
+  std::string getAlphabetStateAsChar(size_t index) const {
     return getModel(0)->getAlphabetStateAsChar(index);
   }
 

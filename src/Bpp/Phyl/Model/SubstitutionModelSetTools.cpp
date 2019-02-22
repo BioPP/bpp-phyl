@@ -39,7 +39,7 @@
 
 #include "SubstitutionModelSetTools.h"
 #include "MixedSubstitutionModelSet.h"
-#include "MixedSubstitutionModel.h"
+#include "MixedTransitionModel.h"
 
 using namespace bpp;
 
@@ -54,7 +54,7 @@ SubstitutionModelSet* SubstitutionModelSetTools::createHomogeneousModelSet(
   // Check alphabet:
   if (model->getAlphabet()->getAlphabetType() != rootFreqs->getAlphabet()->getAlphabetType())
     throw AlphabetMismatchException("SubstitutionModelSetTools::createHomogeneousModelSet()", model->getAlphabet(), rootFreqs->getAlphabet());
-  if (dynamic_cast<MixedSubstitutionModel*>(model) != NULL)
+  if (dynamic_cast<MixedTransitionModel*>(model) != NULL)
     throw Exception("createHomogeneousModelSet non yet programmed for mixture models.");
 
   SubstitutionModelSet*  modelSet = new SubstitutionModelSet(model->getAlphabet());
