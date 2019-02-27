@@ -255,8 +255,8 @@ TEST_CASE("new")
   // do_param_changes_multiple_times(llh, "new_param_root_change", c.paramRoot1, c.paramRoot2);
   // do_param_changes_multiple_times(llh, "new_param_brlen_change", c.paramBrLen1, c.paramBrLen2);
   
-  optimize_for_params(llh, "new_brlens_opt", llh.getBranchLengthParameters());
-  optimize_for_params(llh, "new_all_opt", llh.getParameters());
+  // optimize_for_params(llh, "new_brlens_opt", llh.getBranchLengthParameters());
+  // optimize_for_params(llh, "new_all_opt", llh.getParameters());
 }
 #endif
 
@@ -269,7 +269,7 @@ TEST_CASE("df")
 
   // Rate
 
-  auto rates = std::unique_ptr<bpp::GammaDiscreteRateDistribution>(new bpp::GammaDiscreteRateDistribution(3, 0.5));
+  auto rates = std::unique_ptr<bpp::GammaDiscreteRateDistribution>(new bpp::GammaDiscreteRateDistribution(3, 9));
 //  auto rates = std::unique_ptr<bpp::ConstantRateDistribution>(new bpp::ConstantRateDistribution());
 
   auto ratesNode = bpp::dataflow::ConfiguredParametrizable::createConfigured<bpp::DiscreteDistribution, bpp::dataflow::ConfiguredDistribution>(
@@ -300,30 +300,25 @@ TEST_CASE("df")
   auto delta = bpp::dataflow::NumericMutable<double>::create(context, 0.001);
   modelNode->config.delta = delta;
   modelNode->config.type = bpp::dataflow::NumericalDerivativeType::ThreePoints;
-  ;
-  // auto model2 = std::unique_ptr<bpp::T92>(new bpp::T92(&c.alphabet, 2.));
-  // auto model2Parameters = bpp::dataflow::createParameterMap(context, *model2);
   
-  // auto depvecModel2=bpp::dataflow::createDependencyVector(
-  //   *model2, [&model2Parameters](const std::string& paramName) { return model2Parameters[paramName]; });
+  auto model2 = std::unique_ptr<bpp::T92>(new bpp::T92(&c.alphabet, 3.));
 
-  // auto model2Node = bpp::dataflow::ConfiguredParametrizable::createConfigured<bpp::TransitionModel, bpp::dataflow::ConfiguredModel>(
-  //   context,
-  //   std::move(depvecModel2),
-  //   std::move(model2));
+  auto model2Node = bpp::dataflow::ConfiguredParametrizable::createConfigured<bpp::TransitionModel, bpp::dataflow::ConfiguredModel>(
+    context,
+    std::move(model2));
 
-  // auto delta2 = bpp::dataflow::NumericMutable<double>::create(context, 0.001);
-  // model2Node->config.delta = delta2;
-  // model2Node->config.type = bpp::dataflow::NumericalDerivativeType::ThreePoints;
+  auto delta2 = bpp::dataflow::NumericMutable<double>::create(context, 0.001);
+  model2Node->config.delta = delta2;
+  model2Node->config.type = bpp::dataflow::NumericalDerivativeType::ThreePoints;
 
   bpp::dataflow::ModelMap modelmap;
   auto vId=treeNode->getAllEdgesIndexes();
 
   for (const auto& id: vId)
   {
-    // if (id%2==0)
-    //   modelmap.emplace(id, model2Node);
-    // else
+    if (id%2==0)
+      modelmap.emplace(id, model2Node);
+    else
       modelmap.emplace(id, modelNode);
   }
 
@@ -351,9 +346,30 @@ TEST_CASE("df")
   }
   
   bpp::ParameterList allParameters;
-  allParameters.shareParameters(brlenOnlyParameters);
-  allParameters.shareParameters(modelNode->getParameters());
-  allParameters.shareParameters(rootFreqsNode->getParameters());
+  
+  // allParameters.shareParameters(brlenOnlyParameters);
+  for (size_t i=0;i<modelNode->getParameters().size();i++)
+  {
+    const auto pm=modelNode->getParameters().getSharedParameter(i);
+    bpp::Parameter p(*pm);
+    p.setName(p.getName()+"_1");
+    auto cp=bpp::dataflow::ConfiguredParameter::create(context, {dynamic_cast<const bpp::dataflow::ConfiguredParameter*>(pm.get())->dependency(0)}, p);
+    allParameters.shareParameter(cp);
+  }
+  for (size_t i=0;i<model2Node->getParameters().size();i++)
+  {
+    const auto pm=model2Node->getParameters().getSharedParameter(i);
+    bpp::Parameter p(*pm);
+    p.setName(p.getName()+"_2");
+    auto cp=bpp::dataflow::ConfiguredParameter::create(context, {dynamic_cast<const bpp::dataflow::ConfiguredParameter*>(pm.get())->dependency(0)}, p);
+    allParameters.shareParameter(cp);
+  }
+
+  //allParameters.shareParameters(ratesNode->getParameters());
+  
+
+//  allParameters.addParameters(model2Node->getParameters());
+//  allParameters.shareParameters(rootFreqsNode->getParameters());
   
   // {
   //   auto modelb=modelNode->getTargetValue();
@@ -392,24 +408,30 @@ TEST_CASE("df")
   dotOutput("likelihood_example_value", {l.get()});
   
   // Manual access to dbrlen1
-  auto dlogLik_dbrlen1 = l->deriveAsValue(context, *treeNode->getEdge(1)->getBrLen());
-  std::cout << "[dbrlen1] " << dlogLik_dbrlen1->getTargetValue() << "\n";
-  dotOutput("likelihood_example_dbrlen1", {dlogLik_dbrlen1.get()});
+  // auto dlogLik_dbrlen1 = l->deriveAsValue(context, *treeNode->getEdge(1)->getBrLen());
+  // std::cout << "[dbrlen1] " << dlogLik_dbrlen1->getTargetValue() << "\n";
+  // dotOutput("likelihood_example_dbrlen1", {dlogLik_dbrlen1.get()});
 
-  auto dlogLik_dkappa = l->deriveAsValue(context,  modelNode->getConfiguredParameter("kappa"));
-  std::cout << "[dkappa] " << dlogLik_dkappa->getTargetValue() << "\n";
-  dotOutput("likelihood_example_dkappa", {dlogLik_dkappa.get()});
+  // auto dlogLik_dkappa = l->deriveAsValue(context,  modelNode->getConfiguredParameter("kappa"));
+  // std::cout << "[dkappa] " << dlogLik_dkappa->getTargetValue() << "\n";
+  // dotOutput("likelihood_example_dkappa", {dlogLik_dkappa.get()});
 
-  auto dlogLik_dtheta = l->deriveAsValue(context,  modelNode->getConfiguredParameter("theta"));
-  std::cout << "[dtheta] " << dlogLik_dtheta->getTargetValue() << "\n";
-  dotOutput("likelihood_example_dtheta", {dlogLik_dtheta.get()});
+  // auto dlogLik_dtheta = l->deriveAsValue(context,  modelNode->getConfiguredParameter("theta"));
+  // std::cout << "[dtheta] " << dlogLik_dtheta->getTargetValue() << "\n";
+  // dotOutput("likelihood_example_dtheta", {dlogLik_dtheta.get()});
+
+  // auto dlogLik_dalpha = l->deriveAsValue(context,  ratesNode->getConfiguredParameter("alpha"));
+  // std::cout << "[dalpha] " << dlogLik_dalpha->getTargetValue() << "\n";
+  // dotOutput("likelihood_example_dalpha", {dlogLik_dalpha.get()});
 
   // do_param_changes_multiple_times(llh, "df_param_model_change", c.paramModel1, c.paramModel2);
   // do_param_changes_multiple_times(llh, "df_param_root_change", c.paramRoot1, c.paramRoot2);
   // do_param_changes_multiple_times(llh, "df_param_brlen_change", c.paramBrLen1, c.paramBrLen2);
 
-  optimize_for_params(llh, "df_brlens_opt", brlenOnlyParameters);
+  // optimize_for_params(llh, "df_brlens_opt", brlenOnlyParameters);
   optimize_for_params(llh, "df_all_opt", allParameters);
+  llh.getParameters().printParameters(std::cerr);
+  
   // TODO test optimization with model params
 }
 

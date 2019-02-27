@@ -98,7 +98,7 @@ namespace bpp {
 
       NodeRef recreate (Context & c, NodeRefVec && deps) final;
 
-      const ConfiguredParameter& getConfiguredParameter(const std::string& name)
+      const ConfiguredParameter& getConfiguredParameter(const std::string& name) const
       {
         return static_cast<const ConfiguredParameter&>(getParameter(name));
       }

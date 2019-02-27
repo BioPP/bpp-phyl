@@ -53,6 +53,7 @@
 namespace bpp {
 
   class Parametrizable;
+  class ParameterAliasable;
   
   namespace dataflow {
 
@@ -64,6 +65,9 @@ namespace bpp {
     std::unordered_map<std::string, std::shared_ptr<ConfiguredParameter>>
       createParameterMap(Context & c, const Parametrizable & parametrizable);
 
+    std::unordered_map<std::string, std::shared_ptr<ConfiguredParameter>>
+      createParameterMap(Context & c, const ParameterAliasable & parametrizable);
+
 
     /** Create a dependency vector suitable for a parametrizable class constructor.
      * The vector is built from parameter names, and an opaque accessor function.
@@ -73,6 +77,9 @@ namespace bpp {
      */
 
     NodeRefVec createDependencyVector (const Parametrizable & parametrizable,
+                                       const std::function<NodeRef (const std::string &)> & getParameter);
+
+    NodeRefVec createDependencyVector (const ParameterAliasable & parametrizable,
                                        const std::function<NodeRef (const std::string &)> & getParameter);
 
 
@@ -89,7 +96,25 @@ namespace bpp {
 
       template<typename Object, typename Self>
       static std::shared_ptr<Self> createConfigured (Context & c, NodeRefVec && deps,
-                                                     std::unique_ptr<Object> && object) {
+                                                     std::unique_ptr<Object> && object,
+                                                     typename std::enable_if<std::is_base_of<ParameterAliasable, Object>::value>::type* = 0) {
+        
+        if (!object) {
+          throw Exception ("createConfigured(): nullptr object");
+        }
+        // Check dependencies
+        const auto nbParameters = object->getIndependentParameters ().size ();
+        checkDependenciesNotNull (typeid (Self), deps);
+        checkDependencyVectorSize (typeid (Self), deps, nbParameters);
+        checkDependencyRangeIsValue<Parameter*> (typeid (Self), deps, 0, nbParameters);
+        return cachedAs<Self> (c, std::make_shared<Self> (c, std::move (deps), std::move (object)));
+      }
+
+
+      template<typename Object, typename Self>
+      static std::shared_ptr<Self> createConfigured (Context & c, NodeRefVec && deps,
+                                                     std::unique_ptr<Object> && object,
+                                                     typename std::enable_if<!std::is_base_of<ParameterAliasable, Object>::value>::type* = 0) {
         
         if (!object) {
           throw Exception ("createConfigured(): nullptr object");

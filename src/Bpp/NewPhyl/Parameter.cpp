@@ -71,9 +71,7 @@ namespace bpp {
       if (derived == nullptr) {
         return false;
       } else {
-        const auto & thisFS = *this;
-        const auto & otherFS = *derived;
-        return typeid (thisFS) == typeid (otherFS);
+        return this->getName() == derived->getName();
       }
     }
     
@@ -102,8 +100,8 @@ namespace bpp {
     void ConfiguredParameter::compute () {
       // Update with the numerical dependency
       auto & v = accessValueConstCast<double> (*this->dependency (0));
-      if (getValue () != v) {
-        setValue(v);
+      if (Parameter::getValue () != v) {
+        Parameter::setValue(v);
       }
     }
     

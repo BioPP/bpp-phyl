@@ -58,52 +58,6 @@ namespace bpp {
   namespace dataflow
   {
     
-    /* Wraps a dataflow::NumericMutable<double> as a bpp::Parameter.
-     * 2 values exist: the one in the node, and the one in bpp::Parameter.
-     * The dataflow one is considered to be the reference.
-     *
-     * FIXME This is a temporary system:
-     * - It ignores all the Parameter listener system.
-     * - Synchronization between the 2 values is a best effort.
-     * - bpp::Parameter should be improved with respect to semantics,
-     * because it currently is a mess of multiple systems with sharing,
-     * some shared_ptr stuff, etc...
-     */
-
-    class DataFlowParameter : public Parameter {
-    public:
-      DataFlowParameter (const std::string & name,
-                         std::shared_ptr<NumericMutable<double>> existingNode)
-        : Parameter (name, existingNode->getTargetValue ()), node_ (std::move (existingNode)) {}
-
-      DataFlowParameter (const bpp::Parameter& param,
-                         std::shared_ptr<dataflow::NumericMutable<double>> existingNode)
-        : Parameter (param), node_ (std::move (existingNode))
-      {
-        setValue(node_->getTargetValue());
-      }
-
-      DataFlowParameter (const bpp::Parameter& param)
-        : Parameter (param), node_ (new NumericMutable<double>(param.getValue()))
-      {}
-
-      // Parameter boilerplate
-      DataFlowParameter * clone () const override { return new DataFlowParameter (*this); }
-
-      // Override value access
-      double getValue () const override { return node_->getTargetValue (); }
-
-      void setValue (double v) override {
-        Parameter::setValue (v);                  // Will apply possible constraints
-        node_->setValue (Parameter::getValue ()); // Get constrained value
-      }
-
-      dataflow::NumericMutable<double> & node () const { return *node_; }
-
-    private:
-      std::shared_ptr<dataflow::NumericMutable<double>> node_;
-    };
-
     /* Wraps a dataflow graph as a function: resultNode = f(variableNodes).
      *
      * FIXME This temporary interface to bpp::DerivableSecondOrder stuff

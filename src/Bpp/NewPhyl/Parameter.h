@@ -102,12 +102,32 @@ namespace bpp {
       std::string description () const;
       std::string debugInfo () const;
 
+      /*
+       * @brief setValue is transfered to the double dependency,
+       * through the parameter constraints test.
+       *
+       */
+      
       void setValue(double v)
       {
-        Parameter::setValue(v);
+        Parameter::setValue (v);                  // Will apply possible constraints
         static_cast<NumericMutable<double>&>(*dependency(0)).setValue(Parameter::getValue());
+        
       }
-    
+      
+      /*
+       * @brief computation of double dependency is done and
+       * transfered to parameter value, with constraint.
+       *
+       */
+      
+      double getValue() const
+      {
+        double x=static_cast<NumericMutable<double>&>(*dependency(0)).getTargetValue(); 
+        accessValueConst()->Parameter::setValue(x);        
+        return Parameter::getValue();
+      }
+
       bool compareAdditionalArguments (const Node & other) const;
       
       std::size_t hashAdditionalArguments () const;

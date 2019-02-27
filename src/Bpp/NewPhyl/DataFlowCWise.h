@@ -431,7 +431,12 @@ namespace bpp {
         // if p_i are all Null
         if (deps[deps.size()-1]->hasNumericalProperty (NumericalProperty::ConstantZero))
           return ConstantZero<R>::create (c, dim);
-        
+        // if x_i are all Null
+        if (std::all_of (deps.begin (), deps.end ()-1, [](const NodeRef & dep) {
+              return dep->hasNumericalProperty (NumericalProperty::ConstantZero);
+            })) {
+          return ConstantZero<R>::create (c, dim);
+        }
         // Select node implementation
         return cachedAs<Value<R>> (c, std::make_shared<Self> (std::move (deps), dim));
       }
@@ -693,7 +698,7 @@ namespace bpp {
         return dynamic_cast<const Self *> (&other) != nullptr;
       }
 
-      NodeRef derive (Context & c, const Node & node) final {
+      NodeRef derive (Context & c, const Node & node) final { 
         if (&node == this) {
           return ConstantOne<T>::create (c, targetDimension_);
         }
@@ -1234,7 +1239,8 @@ namespace bpp {
       }
 
       MatrixProduct (NodeRefVec && deps, const Dimension<R> & dim)
-        : Value<R> (std::move (deps)), targetDimension_ (dim) {}
+        : Value<R> (std::move (deps)), targetDimension_ (dim) {
+      }
 
       std::string debugInfo () const override {
         using namespace numeric;
@@ -1410,11 +1416,28 @@ namespace bpp {
         return derived != nullptr && n_ == derived->n_;
       }
 
+      /*
+       * @brief setValue is not possible here, since computation is
+       * done only through ompute method.
+       *
+       */
+      
       void setValue(double v)
       {
-        Parameter::setValue(v);
+        throw Exception("ShiftParameter setValue should not be called");
       }
+
+
+      /** @brief Raw value access (const).
+       *
+       * Value is not guaranteed to be valid (no recomputation).
+       */
       
+      double getValue() const
+      {
+        return Parameter::getValue();
+      }
+
       std::size_t hashAdditionalArguments () const final {
         std::size_t seed = 0;
         combineHash (seed, n_);
@@ -1442,8 +1465,8 @@ namespace bpp {
         const auto & delta = accessValueConstCast<double> (*this->dependency (1));
         const auto&  x = accessValueConstCast<double> (*this->dependency (0));
         double r=n_ * delta + x;
-        // Boundary mgmt dirty!
-        this->accessValueMutable()->setValue(getConstraint()->isCorrect(r)?r:getConstraint()->getAcceptedLimit(r));
+        // Boundary mgmt not so clean!
+        this->accessValueMutable()->Parameter::setValue(getConstraint()->isCorrect(r)?r:getConstraint()->getAcceptedLimit(r));
       }
 
       int n_;
