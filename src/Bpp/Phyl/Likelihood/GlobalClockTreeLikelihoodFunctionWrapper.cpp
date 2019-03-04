@@ -110,13 +110,13 @@ void GlobalClockTreeLikelihoodFunctionWrapper::computeBranchLengthsFromHeights_(
     const Node* son = node->getSon(i);
     if (son->isLeaf())
     {
-      brlenPl.addParameter(Parameter("BrLen" + TextTools::toString(son->getId()), std::max(0.0000011, height), std::make_shared<IntervalConstraint>(1, 0.000001, false), true));
+      brlenPl.addParameter(Parameter("BrLen" + TextTools::toString(son->getId()), std::max(0.0000011, height), std::make_shared<IntervalConstraint>(1, 0.000001, false)));
     }
     else
     {
       double sonHeightP = getParameter("HeightP" + TextTools::toString(son->getId())).getValue();
       double sonHeight = sonHeightP * height;
-      brlenPl.addParameter(Parameter("BrLen" + TextTools::toString(son->getId()), std::max(0.0000011, height - sonHeight), std::make_shared<IntervalConstraint>(1, 0.000001, false), true));
+      brlenPl.addParameter(Parameter("BrLen" + TextTools::toString(son->getId()), std::max(0.0000011, height - sonHeight), std::make_shared<IntervalConstraint>(1, 0.000001, false)));
       computeBranchLengthsFromHeights_(son, sonHeight, brlenPl);
     }
   }

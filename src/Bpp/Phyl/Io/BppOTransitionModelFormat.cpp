@@ -196,10 +196,8 @@ TransitionModel* BppOTransitionModelFormat::readTransitionModel(
     unique_ptr<FrequenciesSet> codonFreqs(freqReader.read(pCA, freqOpt, data, false));
     map<string, string> unparsedParameterValuesNested(freqReader.getUnparsedArguments());
 
-    for (map<string, string>::iterator it = unparsedParameterValuesNested.begin(); it != unparsedParameterValuesNested.end(); it++)
-    {
-      unparsedArguments_[modelName + "." + it->first] = it->second;
-    }
+    for (auto& it:unparsedParameterValuesNested)
+      unparsedArguments_[modelName + "." + it.first] = it.second;
 
     if (modelName == "YNGP_M1")
       model.reset(new YNGP_M1(geneticCode_, codonFreqs.release()));
@@ -270,7 +268,17 @@ TransitionModel* BppOTransitionModelFormat::readTransitionModel(
 
   if (!model)
     model.reset(BppOSubstitutionModelFormat::read(alphabet, modelDescription, data, parseArguments));
-
+  else
+  {
+    if (verbose_)
+      ApplicationTools::displayResult("Transition model", modelName);
+  
+    updateParameters_(model.get(), args);
+  
+    if (parseArguments)
+      initialize_(*model, data);
+  }
+  
   return model.release();
 }
 
