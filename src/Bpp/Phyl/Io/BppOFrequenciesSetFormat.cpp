@@ -64,7 +64,7 @@ using namespace bpp;
 // From the STL:
 #include <iomanip>
 
-#include "BppOSubstitutionModelFormat.h"
+#include "BppOTransitionModelFormat.h"
 
 using namespace std;
 
@@ -276,11 +276,11 @@ FrequenciesSet* BppOFrequenciesSetFormat::read(const Alphabet* alphabet, const s
     if (args.find("model") == args.end())
       throw Exception("Missing argument 'model' for frequencies " + freqName + ".");
     
-    BppOSubstitutionModelFormat nestedReader(alphabetCode_, false, true, false, false, warningLevel_);
+    BppOTransitionModelFormat nestedReader(alphabetCode_, false, true, false, false, warningLevel_);
     if (geneticCode_)
       nestedReader.setGeneticCode(geneticCode_);
 
-    TransitionModel* model=nestedReader.read(alphabet, args["model"], data, false);
+    TransitionModel* model=nestedReader.readTransitionModel(alphabet, args["model"], data, false);
     pFS.reset(new FromModelFrequenciesSet(model));
     map<string, string> unparsedParameterValuesNested(nestedReader.getUnparsedArguments());
     for (map<string, string>::iterator it = unparsedParameterValuesNested.begin(); it != unparsedParameterValuesNested.end(); it++)

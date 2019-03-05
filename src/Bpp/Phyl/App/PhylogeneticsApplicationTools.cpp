@@ -181,7 +181,7 @@ SubstitutionModel* PhylogeneticsApplicationTools::getSubstitutionModel(
   else
     modelDescription = ApplicationTools::getStringParameter("model", params, "JC69", suffix, suffixIsOptional, warn);
 
-  SubstitutionModel* model = bIO.read(alphabet, modelDescription, data, true);
+  SubstitutionModel* model = bIO.readSubstitionModel(alphabet, modelDescription, data, true);
   return model;
 }
 

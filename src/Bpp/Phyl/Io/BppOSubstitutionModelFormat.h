@@ -142,7 +142,7 @@ namespace bpp
       geneticCode_ = gCode;
     }
 
-    SubstitutionModel* read(const Alphabet* alphabet, const std::string& modelDescription, const SiteContainer* data = 0, bool parseArguments = true);
+    SubstitutionModel* readSubstitionModel(const Alphabet* alphabet, const std::string& modelDescription, const SiteContainer* data = 0, bool parseArguments = true);
   
     const std::map<std::string, std::string>& getUnparsedArguments() const { return unparsedArguments_; }
 

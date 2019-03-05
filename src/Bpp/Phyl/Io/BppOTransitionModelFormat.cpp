@@ -122,7 +122,7 @@ TransitionModel* BppOTransitionModelFormat::readTransitionModel(
     if (geneticCode_)
       nestedReader.setGeneticCode(geneticCode_);
     
-    SubstitutionModel* nestedModel=nestedReader.read(alphabet, nestedModelDescription, data, false);
+    SubstitutionModel* nestedModel=nestedReader.readSubstitionModel(alphabet, nestedModelDescription, data, false);
     map<string, string> unparsedParameterValuesNested(nestedReader.getUnparsedArguments());
 
     // We look for the register:
@@ -157,9 +157,9 @@ TransitionModel* BppOTransitionModelFormat::readTransitionModel(
     }
 
     // Then we update the parameter set:
-    for (map<string, string>::iterator it = unparsedParameterValuesNested.begin(); it != unparsedParameterValuesNested.end(); it++)
+    for (auto&  it:unparsedParameterValuesNested)
     {
-      unparsedArguments_["OneChange." + it->first] = it->second;
+      unparsedArguments_["OneChange." + it.first] = it.second;
     }
 
     delete nestedModel;
@@ -176,7 +176,7 @@ TransitionModel* BppOTransitionModelFormat::readTransitionModel(
     if (!(alphabetCode_ & CODON))
       throw Exception("BppOTransitionModelFormat::read. Codon alphabet not supported.");
     if (!geneticCode_)
-      throw Exception("BppOTransitionModelFormat::read(). No genetic code specified! Consider using 'setGeneticCode'.");
+      throw Exception("BppOTransitionModelFormat::readTransitionModel(). No genetic code specified! Consider using 'setGeneticCode'.");
   
     if (!AlphabetTools::isCodonAlphabet(alphabet))
       throw Exception("Alphabet should be Codon Alphabet.");
@@ -267,7 +267,7 @@ TransitionModel* BppOTransitionModelFormat::readTransitionModel(
   }
 
   if (!model)
-    model.reset(BppOSubstitutionModelFormat::read(alphabet, modelDescription, data, parseArguments));
+    model.reset(readSubstitionModel(alphabet, modelDescription, data, parseArguments));
   else
   {
     if (verbose_)
@@ -294,7 +294,7 @@ MixedTransitionModel* BppOTransitionModelFormat::readMixed_(const Alphabet* alph
   if (modelName == "MixedModel")
   {
     if (args.find("model") == args.end())
-      throw Exception("The argument 'model' is missing from MixedSubstitutionModel description");
+      throw Exception("The argument 'model' is missing from MixedModel description");
     string nestedModelDescription = args["model"];
     BppOTransitionModelFormat nestedReader(alphabetCode_, allowCovarions_, true, allowGaps_, false, warningLevel_);
     if (geneticCode_)
@@ -302,39 +302,29 @@ MixedTransitionModel* BppOTransitionModelFormat::readMixed_(const Alphabet* alph
     //instance as the one
     //that will be used
     //by the model.
-    pSM.reset(nestedReader.read(alphabet, nestedModelDescription, data, false));
+    pSM.reset(nestedReader.readTransitionModel(alphabet, nestedModelDescription, data, false));
 
     map<string, string> unparsedParameterValuesNested(nestedReader.getUnparsedArguments());
 
     map<string, DiscreteDistribution*> mdist;
     map<string, string> unparsedParameterValuesNested2;
 
-    for (map<string, string>::iterator it = unparsedParameterValuesNested.begin();
-         it != unparsedParameterValuesNested.end();
-         it++)
+    for (auto& it:unparsedParameterValuesNested)
     {
-      if (it->second.find("(") != string::npos)
+      if (it.second.find("(") != string::npos)
       {
         BppODiscreteDistributionFormat bIO(false);
-        mdist[pSM->getParameterNameWithoutNamespace(it->first)] = bIO.read(it->second, false);
+        mdist[pSM->getParameterNameWithoutNamespace(it.first)] = bIO.read(it.second, false);
         map<string, string> unparsedParameterValuesNested3(bIO.getUnparsedArguments());
-        for (map<string, string>::iterator it2 = unparsedParameterValuesNested3.begin();
-             it2 != unparsedParameterValuesNested3.end();
-             it2++)
-        {
-          unparsedParameterValuesNested2[it->first + "_" + it2->first] = it2->second;
-        }
+        for (auto& it2:unparsedParameterValuesNested3)
+          unparsedParameterValuesNested2[it.first + "_" + it2.first] = it2.second;
       }
       else
-        unparsedParameterValuesNested2[it->first] = it->second;
+        unparsedParameterValuesNested2[it.first] = it.second;
     }
 
-    for (map<string, string>::iterator it = unparsedParameterValuesNested2.begin();
-         it != unparsedParameterValuesNested2.end();
-         it++)
-    {
-      unparsedArguments_[it->first] = it->second;
-    }
+    for (auto& it:unparsedParameterValuesNested2)
+      unparsedArguments_[it.first] = it.second;
 
 
     int fi(-1), ti(-1);
@@ -349,11 +339,8 @@ MixedTransitionModel* BppOTransitionModelFormat::readMixed_(const Alphabet* alph
 
     vector<string> v = model->getParameters().getParameterNames();
 
-    for (map<string, DiscreteDistribution*>::iterator it = mdist.begin();
-         it != mdist.end(); it++)
-    {
-      delete it->second;
-    }
+    for (auto&  it:mdist)
+      delete it.second;
 
     if (verbose_)
     {
@@ -386,13 +373,12 @@ MixedTransitionModel* BppOTransitionModelFormat::readMixed_(const Alphabet* alph
       if (geneticCode_)
         nestedReader.setGeneticCode(geneticCode_); //This uses the same instance as the one that will be used by the model.
 
-      pSM.reset(nestedReader.read(alphabet, v_nestedModelDescription[i], data, false));
+      pSM.reset(nestedReader.readTransitionModel(alphabet, v_nestedModelDescription[i], data, false));
 
       map<string, string> unparsedParameterValuesNested(nestedReader.getUnparsedArguments());
-      for (map<string, string>::iterator it = unparsedParameterValuesNested.begin(); it != unparsedParameterValuesNested.end(); it++)
-      {
-        unparsedArguments_[modelName + "." + TextTools::toString(i + 1) + "_" + it->first] = it->second;
-      }
+      for (auto& it:unparsedParameterValuesNested)
+        unparsedArguments_[modelName + "." + TextTools::toString(i + 1) + "_" + it.first] = it.second;
+
       v_pSM.push_back(pSM.release());
     }
 
