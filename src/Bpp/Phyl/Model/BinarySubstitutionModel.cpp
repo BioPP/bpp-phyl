@@ -53,7 +53,7 @@ using namespace std;
 BinarySubstitutionModel::BinarySubstitutionModel(const BinaryAlphabet* alpha, double kappa) :
   AbstractParameterAliasable("Binary."),
   //AbstractSubstitutionModel(alpha, new CanonicalStateMap(alpha, false), "Binary."),
-  AbstractReversibleSubstitutionModel(alpha, new CanonicalStateMap(alpha, false), "Binary."),
+  AbstractReversibleSubstitutionModel(alpha, std::shared_ptr<const StateMap>(new CanonicalStateMap(alpha, false)), "Binary."),
   kappa_(kappa),
   lambda_(0),
   exp_(0),

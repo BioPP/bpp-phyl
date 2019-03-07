@@ -85,7 +85,7 @@ namespace bpp
 
   protected:
     ReversibleSubstitutionModel* model_;
-    MarkovModulatedStateMap stateMap_;
+    std::shared_ptr<const MarkovModulatedStateMap> stateMap_;
     size_t nbStates_; //Number of states in model
     size_t nbRates_; //Number of rate classes
 
@@ -173,7 +173,7 @@ namespace bpp
      */
     MarkovModulatedSubstitutionModel(ReversibleSubstitutionModel* model, unsigned int nbRates, bool normalizeRateChanges, const std::string& prefix) :
       AbstractParameterAliasable(prefix),
-      model_(model), stateMap_(model->getStateMap(), nbRates), nbStates_(model->getNumberOfStates()),
+      model_(model), stateMap_(new MarkovModulatedStateMap(model->getStateMap(), nbRates)), nbStates_(model->getNumberOfStates()),
       nbRates_(nbRates), rates_(nbRates, nbRates), ratesExchangeability_(nbRates, nbRates),
       ratesFreq_(nbRates), ratesGenerator_(nbRates, nbRates), generator_(), exchangeability_(),
       leftEigenVectors_(), rightEigenVectors_(), eigenValues_(), iEigenValues_(), eigenDecompose_(true), compFreq_(false), 
@@ -198,17 +198,19 @@ namespace bpp
 
     size_t getNumberOfStates() const { return nbStates_ * nbRates_; }
 
-    const StateMap& getStateMap() const { return stateMap_; }
+    const StateMap& getStateMap() const { return *stateMap_; }
 
-    const std::vector<int>& getAlphabetStates() const { return stateMap_.getAlphabetStates(); }
+    std::shared_ptr<const StateMap> shareStateMap() const { return stateMap_; }
 
-    std::string getAlphabetStateAsChar(size_t index) const { return stateMap_.getAlphabetStateAsChar(index); }
+    const std::vector<int>& getAlphabetStates() const { return stateMap_->getAlphabetStates(); }
 
-    int getAlphabetStateAsInt(size_t index) const { return stateMap_.getAlphabetStateAsInt(index); }
+    std::string getAlphabetStateAsChar(size_t index) const { return stateMap_->getAlphabetStateAsChar(index); }
 
-    std::vector<size_t> getModelStates(int code) const { return stateMap_.getModelStates(code); }
+    int getAlphabetStateAsInt(size_t index) const { return stateMap_->getAlphabetStateAsInt(index); }
+
+    std::vector<size_t> getModelStates(int code) const { return stateMap_->getModelStates(code); }
   
-    std::vector<size_t> getModelStates(const std::string& code) const { return stateMap_.getModelStates(code); }
+    std::vector<size_t> getModelStates(const std::string& code) const { return stateMap_->getModelStates(code); }
 
     const Vdouble& getFrequencies() const { return freq_; }
     

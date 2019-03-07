@@ -58,7 +58,7 @@ size_t AbstractWordFrequenciesSet::getSizeFromVector(const std::vector<Frequenci
   return s;
 }
 
-AbstractWordFrequenciesSet::AbstractWordFrequenciesSet(StateMap* stateMap, const string& prefix, const string& name) :
+AbstractWordFrequenciesSet::AbstractWordFrequenciesSet(std::shared_ptr<const StateMap> stateMap, const string& prefix, const string& name) :
   AbstractFrequenciesSet(stateMap, prefix, name)
 {}
 
@@ -78,7 +78,7 @@ WordFromIndependentFrequenciesSet::WordFromIndependentFrequenciesSet(
     const WordAlphabet* pWA,
     const std::vector<FrequenciesSet*>& freqVector,
     const string& prefix, const string& name) :
-  AbstractWordFrequenciesSet(new CanonicalStateMap(pWA, false), prefix, name),
+  AbstractWordFrequenciesSet(std::shared_ptr<const StateMap>(new CanonicalStateMap(pWA, false)), prefix, name),
   vFreq_(),
   vNestedPrefix_()
 {
@@ -103,7 +103,7 @@ WordFromIndependentFrequenciesSet::WordFromIndependentFrequenciesSet(
   const CodonAlphabet* pWA,
   const std::vector<FrequenciesSet*>& freqVector,
   const string& prefix, const string& name) :
-  AbstractWordFrequenciesSet(new CanonicalStateMap(pWA, false), prefix, name),
+  AbstractWordFrequenciesSet(std::shared_ptr<const StateMap>(new CanonicalStateMap(pWA, false)), prefix, name),
   vFreq_(),
   vNestedPrefix_()
 {
@@ -280,7 +280,7 @@ WordFromUniqueFrequenciesSet::WordFromUniqueFrequenciesSet(
     FrequenciesSet* pabsfreq,
     const string& prefix,
     const string& name) :
-  AbstractWordFrequenciesSet(new CanonicalStateMap(pWA, false), prefix, name),
+  AbstractWordFrequenciesSet(std::shared_ptr<const StateMap>(new CanonicalStateMap(pWA, false)), prefix, name),
   pFreq_(pabsfreq),
   NestedPrefix_(pabsfreq->getNamespace()),
   length_(pWA->getLength())
@@ -304,7 +304,7 @@ WordFromUniqueFrequenciesSet::WordFromUniqueFrequenciesSet(
   FrequenciesSet* pabsfreq,
   const string& prefix,
   const string& name) :
-  AbstractWordFrequenciesSet(new CanonicalStateMap(pWA, false), prefix, name),
+  AbstractWordFrequenciesSet(std::shared_ptr<const StateMap>(new CanonicalStateMap(pWA, false)), prefix, name),
   pFreq_(pabsfreq),
   NestedPrefix_(pabsfreq->getNamespace()),
   length_(pWA->getLength())

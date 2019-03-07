@@ -34,7 +34,7 @@
 */
 
 #include "SubstitutionModelSet.h"
-#include "MixedSubstitutionModel.h"
+#include "MixedTransitionModel.h"
 
 #include <Bpp/Utils/MapTools.h>
 
@@ -307,11 +307,11 @@ bool SubstitutionModelSet::checkUnknownNodes(const Tree& tree, bool throwEx) con
   return true;
 }
 
-bool SubstitutionModelSet::hasMixedSubstitutionModel() const
+bool SubstitutionModelSet::hasMixedTransitionModel() const
 {
   for (size_t i = 0; i < getNumberOfModels(); i++)
     {
-      if ((dynamic_cast<const MixedSubstitutionModel*>(getModel(i)) != NULL) && (modelToNodes_[i].size()>1))
+      if ((dynamic_cast<const MixedTransitionModel*>(getModel(i)) != NULL) && (modelToNodes_[i].size()>1))
         return true;
     }
   return false;

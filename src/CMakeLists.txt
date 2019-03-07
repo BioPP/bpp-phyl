@@ -124,11 +124,11 @@ set (CPP_FILES
   Bpp/Phyl/Mapping/SubstitutionRegister.cpp
   Bpp/Phyl/Mapping/UniformizationSubstitutionCount.cpp
   Bpp/Phyl/Mapping/WeightedSubstitutionCount.cpp
-  Bpp/Phyl/Model/AbstractBiblioMixedSubstitutionModel.cpp
+  Bpp/Phyl/Model/AbstractBiblioMixedTransitionModel.cpp
   Bpp/Phyl/Model/AbstractBiblioSubstitutionModel.cpp
   Bpp/Phyl/Model/AbstractFromSubstitutionModelTransitionModel.cpp
   Bpp/Phyl/Model/AbstractKroneckerWordSubstitutionModel.cpp
-  Bpp/Phyl/Model/AbstractMixedSubstitutionModel.cpp
+  Bpp/Phyl/Model/AbstractMixedTransitionModel.cpp
   Bpp/Phyl/Model/AbstractSubstitutionModel.cpp
   Bpp/Phyl/Model/AbstractWordSubstitutionModel.cpp
   Bpp/Phyl/Model/BinarySubstitutionModel.cpp
@@ -173,8 +173,8 @@ set (CPP_FILES
   Bpp/Phyl/Model/KroneckerWordSubstitutionModel.cpp
   Bpp/Phyl/Model/MarkovModulatedSubstitutionModel.cpp
   Bpp/Phyl/Model/MixedSubstitutionModelSet.cpp
-  Bpp/Phyl/Model/MixtureOfASubstitutionModel.cpp
-  Bpp/Phyl/Model/MixtureOfSubstitutionModels.cpp
+  Bpp/Phyl/Model/MixtureOfATransitionModel.cpp
+  Bpp/Phyl/Model/MixtureOfTransitionModels.cpp
   Bpp/Phyl/Model/Nucleotide/F81.cpp
   Bpp/Phyl/Model/Nucleotide/F84.cpp
   Bpp/Phyl/Model/Nucleotide/GTR.cpp

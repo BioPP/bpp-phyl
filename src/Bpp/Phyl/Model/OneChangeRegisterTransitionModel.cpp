@@ -58,7 +58,7 @@ OneChangeRegisterTransitionModel::OneChangeRegisterTransitionModel(const Substit
   // new alphabet to handle pit state
   shared_ptr<IntegerAlphabet> ialph(new IntegerAlphabet(getAlphabet()->getSize()));
     
-  modelChanged_.reset(new AnonymousSubstitutionModel(ialph.get(), new CanonicalStateMap(ialph.get(),false)));
+  modelChanged_.reset(new AnonymousSubstitutionModel(ialph.get(), std::shared_ptr<const StateMap>(new CanonicalStateMap(ialph.get(),false))));
   modelChanged_->setScalable(false);
   
   for (size_t i=0;i<size_;i++)
@@ -86,7 +86,7 @@ OneChangeRegisterTransitionModel::OneChangeRegisterTransitionModel(const Substit
 
   shared_ptr<IntegerAlphabet> ialph(new IntegerAlphabet(getAlphabet()->getSize()));
     
-  modelChanged_.reset(new AnonymousSubstitutionModel(ialph.get(), new CanonicalStateMap(ialph.get(),false)));
+  modelChanged_.reset(new AnonymousSubstitutionModel(ialph.get(), std::shared_ptr<const StateMap>(new CanonicalStateMap(ialph.get(),false))));
   modelChanged_->setScalable(false);
 
   for (size_t i=0;i<size_;i++)

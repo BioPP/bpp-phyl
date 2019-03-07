@@ -97,7 +97,7 @@ const std::map<int, double> AbstractFrequenciesSet::getAlphabetStatesFrequencies
 // ////////////////////////////
 // FullFrequenciesSet
 
-FullFrequenciesSet::FullFrequenciesSet(StateMap* stateMap, bool allowNullFreqs, unsigned short method, const string& name) :
+FullFrequenciesSet::FullFrequenciesSet(std::shared_ptr<const StateMap> stateMap, bool allowNullFreqs, unsigned short method, const string& name) :
   AbstractFrequenciesSet(stateMap, "Full.", name),
   sFreq_(stateMap->getNumberOfModelStates(), method, allowNullFreqs, "Full.")
 {
@@ -112,7 +112,7 @@ FullFrequenciesSet::FullFrequenciesSet(StateMap* stateMap, bool allowNullFreqs, 
   updateFreq_();
 }
 
-FullFrequenciesSet::FullFrequenciesSet(StateMap* stateMap, const vector<double>& initFreqs, bool allowNullFreqs, unsigned short method, const string& name) :
+FullFrequenciesSet::FullFrequenciesSet(std::shared_ptr<const StateMap> stateMap, const vector<double>& initFreqs, bool allowNullFreqs, unsigned short method, const string& name) :
   AbstractFrequenciesSet(stateMap, "Full.", name),
   sFreq_(stateMap->getNumberOfModelStates(), method, allowNullFreqs, "Full.")
 {
@@ -150,7 +150,7 @@ void FullFrequenciesSet::updateFreq_()
 // ///////////////////////////////////////////
 // / FixedFrequenciesSet
 
-FixedFrequenciesSet::FixedFrequenciesSet(StateMap* stateMap, const vector<double>& initFreqs, const string& name) :
+FixedFrequenciesSet::FixedFrequenciesSet(std::shared_ptr<const StateMap> stateMap, const vector<double>& initFreqs, const string& name) :
   AbstractFrequenciesSet(stateMap, "Fixed.", name)
 {
   if (stateMap->getNumberOfModelStates() != initFreqs.size())
@@ -158,7 +158,7 @@ FixedFrequenciesSet::FixedFrequenciesSet(StateMap* stateMap, const vector<double
   setFrequencies(initFreqs);
 }
 
-FixedFrequenciesSet::FixedFrequenciesSet(StateMap* stateMap, const string& name) :
+FixedFrequenciesSet::FixedFrequenciesSet(std::shared_ptr<const StateMap> stateMap, const string& name) :
   AbstractFrequenciesSet(stateMap, "Fixed.", name)
 {
   size_t n = stateMap->getNumberOfModelStates();
@@ -183,7 +183,7 @@ void FixedFrequenciesSet::setFrequencies(const vector<double>& frequencies)
 }
 
 MarkovModulatedFrequenciesSet::MarkovModulatedFrequenciesSet(FrequenciesSet* freqSet, const std::vector<double>& rateFreqs) :
-  AbstractFrequenciesSet(new MarkovModulatedStateMap(freqSet->getStateMap(), static_cast<unsigned int>(rateFreqs.size())), "MarkovModulated.", "MarkovModulated." + freqSet->getName()),
+  AbstractFrequenciesSet(std::shared_ptr<const StateMap>(new MarkovModulatedStateMap(freqSet->getStateMap(), static_cast<unsigned int>(rateFreqs.size()))), "MarkovModulated.", "MarkovModulated." + freqSet->getName()),
   freqSet_(freqSet),
   rateFreqs_(rateFreqs)
 {
@@ -214,7 +214,7 @@ FromModelFrequenciesSet::~FromModelFrequenciesSet()
 }
 
 FromModelFrequenciesSet::FromModelFrequenciesSet(TransitionModel* model) :
-  AbstractFrequenciesSet(model->getStateMap().clone(), "FromModel."+(model?model->getNamespace():""), "FromModel"),
+  AbstractFrequenciesSet(model->shareStateMap(), "FromModel."+(model?model->getNamespace():""), "FromModel"),
   model_(model)
 {
   model_->setNamespace(getNamespace());
@@ -250,7 +250,7 @@ void FromModelFrequenciesSet::fireParameterChanged(const ParameterList& pl)
 //////////////////////////////////
 /// User
 
-UserFrequenciesSet::UserFrequenciesSet(StateMap* stateMap, const std::string& path, size_t nCol):
+UserFrequenciesSet::UserFrequenciesSet(std::shared_ptr<const StateMap> stateMap, const std::string& path, size_t nCol):
   AbstractFrequenciesSet(stateMap, "User.", "User"),
   path_(path),
   nCol_(nCol)

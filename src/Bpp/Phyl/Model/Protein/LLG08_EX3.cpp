@@ -49,11 +49,11 @@ using namespace std;
 /******************************************************************************/
 
 LLG08_EX3::LLG08_EX3(const ProteicAlphabet* alpha) :
-  AbstractBiblioMixedSubstitutionModel("LLG08_EX3.")
+  AbstractBiblioMixedTransitionModel("LLG08_EX3.")
 {
   // build the submodel
 
-  vector<SubstitutionModel*> vpSM;
+  vector<TransitionModel*> vpSM;
   vpSM.push_back(new LLG08_EX3::EmbeddedModel(alpha, "Buried"));
   vpSM.push_back(new LLG08_EX3::EmbeddedModel(alpha, "Intermediate"));
   vpSM.push_back(new LLG08_EX3::EmbeddedModel(alpha, "HExposed"));
@@ -88,7 +88,7 @@ LLG08_EX3::LLG08_EX3(const ProteicAlphabet* alpha) :
 
 LLG08_EX3::EmbeddedModel::EmbeddedModel(const ProteicAlphabet* alpha, string name) :
   AbstractParameterAliasable(name),
-  AbstractReversibleProteinSubstitutionModel(alpha, new CanonicalStateMap(alpha, false), name),
+  AbstractReversibleProteinSubstitutionModel(alpha, std::shared_ptr<const StateMap>(new CanonicalStateMap(alpha, false)), name),
   proportion_(1),
   name_(name)
 {

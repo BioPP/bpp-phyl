@@ -133,7 +133,7 @@ namespace bpp
      * @brief Constructor for the derived classes only
      */
 
-    KroneckerWordSubstitutionModel(const Alphabet* alph, StateMap* stateMap, const std::string& prefix = "");
+    KroneckerWordSubstitutionModel(const Alphabet* alph, std::shared_ptr<const StateMap> stateMap, const std::string& prefix = "");
 
     void completeMatrices() {};
     

@@ -58,7 +58,7 @@ F84::F84(
     double piG,
     double piT) :
   AbstractParameterAliasable("F84."),
-  AbstractReversibleNucleotideSubstitutionModel(alpha, new CanonicalStateMap(alpha, false), "F84."),
+  AbstractReversibleNucleotideSubstitutionModel(alpha, std::shared_ptr<const StateMap>(new CanonicalStateMap(alpha, false)), "F84."),
   kappa_(kappa), piA_(piA), piC_(piC), piG_(piG), piT_(piT), piY_(), piR_(),
   r_(), k1_(), k2_(), theta_(piG + piC), theta1_(piA / (1. - theta_)), theta2_(piG / theta_),
   l_(), exp1_(), exp2_(), p_(size_, size_)

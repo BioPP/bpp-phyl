@@ -70,7 +70,7 @@ public:
   DRTreeParsimonyScore(
     const Tree& tree,
     const SiteContainer& data,
-    const StateMap* statesMap,
+    std::shared_ptr<const StateMap> statesMap,
     bool verbose = true);
 
   DRTreeParsimonyScore(const DRTreeParsimonyScore& tp);

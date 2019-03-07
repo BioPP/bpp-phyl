@@ -52,7 +52,7 @@ using namespace std;
 
 K80::K80(const NucleicAlphabet* alpha, double kappa) :
 AbstractParameterAliasable("K80."),
-  AbstractReversibleNucleotideSubstitutionModel(alpha, new CanonicalStateMap(alpha, false), "K80."),
+AbstractReversibleNucleotideSubstitutionModel(alpha, std::shared_ptr<const StateMap>(new CanonicalStateMap(alpha, false)), "K80."),
   kappa_(kappa), r_(), l_(), k_(), exp1_(), exp2_(), p_(size_, size_)
 {
   addParameter_(new Parameter("K80.kappa", kappa, Parameter::R_PLUS_STAR));

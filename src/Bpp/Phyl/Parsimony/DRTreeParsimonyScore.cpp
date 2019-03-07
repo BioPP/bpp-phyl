@@ -64,7 +64,7 @@ DRTreeParsimonyScore::DRTreeParsimonyScore(
 DRTreeParsimonyScore::DRTreeParsimonyScore(
   const Tree& tree,
   const SiteContainer& data,
-  const StateMap* statesMap,
+  std::shared_ptr<const StateMap> statesMap,
   bool verbose) :
   AbstractTreeParsimonyScore(tree, data, statesMap, verbose),
   parsimonyData_(new DRTreeParsimonyData(getTreeP_())),

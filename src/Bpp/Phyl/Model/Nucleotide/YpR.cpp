@@ -53,7 +53,7 @@ using namespace bpp;
 
 YpR::YpR(const RNY* alph, SubstitutionModel* const pm, const std::string& prefix) :
   AbstractParameterAliasable(prefix),
-  AbstractSubstitutionModel(alph, new CanonicalStateMap(alph, false), prefix),
+  AbstractSubstitutionModel(alph, std::shared_ptr<const StateMap>(new CanonicalStateMap(alph, false)), prefix),
   pmodel_(pm->clone()),
   _nestedPrefix(pm->getNamespace())
 {

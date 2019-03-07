@@ -81,6 +81,12 @@ namespace bpp
     virtual const StateMap& getStateMap() const = 0;
 
     /**
+     * @return Share the mapping of model states with alphabet states.
+     */
+
+    virtual std::shared_ptr<const StateMap> shareStateMap() const = 0;
+
+    /**
      * @return The frequencies values of the set.
      */
 
@@ -131,12 +137,12 @@ namespace bpp
   {
   private:
     const Alphabet* alphabet_;
-    std::unique_ptr<StateMap> stateMap_;
+    std::shared_ptr<const StateMap> stateMap_;
     std::vector<double> freq_;
     std::string name_;
 
   public:
-    AbstractFrequenciesSet(StateMap* stateMap, const std::string& prefix, const std::string& name) :
+    AbstractFrequenciesSet(std::shared_ptr<const StateMap> stateMap, const std::string& prefix, const std::string& name) :
       AbstractParameterAliasable(prefix),
       alphabet_(stateMap->getAlphabet()),
       stateMap_(stateMap),
@@ -150,7 +156,7 @@ namespace bpp
     AbstractFrequenciesSet(const AbstractFrequenciesSet& af) :
       AbstractParameterAliasable(af),
       alphabet_(af.alphabet_),
-      stateMap_(af.stateMap_->clone()),
+      stateMap_(af.stateMap_),
       freq_(af.freq_),
       name_(af.name_)
     {}
@@ -159,7 +165,7 @@ namespace bpp
     {
       AbstractParameterAliasable::operator=(af);
       alphabet_ = af.alphabet_;
-      stateMap_.reset(af.stateMap_->clone());
+      stateMap_ = af.stateMap_;
       freq_ = af.freq_;
       name_ = af.name_;
       return *this;
@@ -169,6 +175,8 @@ namespace bpp
     const Alphabet* getAlphabet() const { return alphabet_; }
 
     const StateMap& getStateMap() const { return *stateMap_; }
+
+    std::shared_ptr<const StateMap> shareStateMap() const { return stateMap_; }
 
     const Vdouble& getFrequencies() const { return freq_; }
   
@@ -230,8 +238,8 @@ namespace bpp
      * @brief Construction with uniform frequencies on the states of
      * the alphabet.
      */
-    FullFrequenciesSet(StateMap* stateMap, bool allowNullFreqs = false, unsigned short method = 1, const std::string& name = "Full");
-    FullFrequenciesSet(StateMap* stateMap, const std::vector<double>& initFreqs, bool allowNullFreqs = false, unsigned short method = 1, const std::string& name = "Full");
+    FullFrequenciesSet(std::shared_ptr<const StateMap> stateMap, bool allowNullFreqs = false, unsigned short method = 1, const std::string& name = "Full.");
+    FullFrequenciesSet(std::shared_ptr<const StateMap> stateMap, const std::vector<double>& initFreqs, bool allowNullFreqs = false, unsigned short method = 1, const std::string& name = "Full.");
 
     FullFrequenciesSet* clone() const { return new FullFrequenciesSet(*this); }
 
@@ -360,7 +368,7 @@ namespace bpp
      * @param name The name of the set.
      * @throw Exception In case the number of frequencies does not match the number of model states.
      */
-    FixedFrequenciesSet(StateMap* stateMap, const std::vector<double>& initFreqs, const std::string& name = "Fixed");
+    FixedFrequenciesSet(std::shared_ptr<const StateMap> stateMap, const std::vector<double>& initFreqs, const std::string& name = "Fixed");
 
     /**
      * @brief Construction with uniform frequencies on the states of the model.
@@ -368,7 +376,7 @@ namespace bpp
      * @param stateMap The model states for which frequencies should be built.
      * @param name The name of the set.
      */
-    FixedFrequenciesSet(StateMap* stateMap, const std::string& name = "Fixed");
+    FixedFrequenciesSet(std::shared_ptr<const StateMap> stateMap, const std::string& name = "Fixed");
 
     FixedFrequenciesSet* clone() const { return new FixedFrequenciesSet(*this); }
 
@@ -393,7 +401,7 @@ namespace bpp
     size_t nCol_;
 
   public:
-    UserFrequenciesSet(StateMap* stateMap, const std::string& path, size_t nCol=1);
+    UserFrequenciesSet(std::shared_ptr<const StateMap> stateMap, const std::string& path, size_t nCol=1);
 
     UserFrequenciesSet(const UserFrequenciesSet& fmfs);
     

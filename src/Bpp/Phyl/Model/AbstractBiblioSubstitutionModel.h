@@ -54,8 +54,8 @@ namespace bpp
  *
  */
 
-  class AbstractBiblioSubstitutionModel :
-    public virtual AbstractTotallyWrappedSubstitutionModel,
+  class AbstractBiblioTransitionModel :
+    public virtual AbstractTotallyWrappedModel,
     public AbstractParameterAliasable
   {
   protected:
@@ -70,15 +70,15 @@ namespace bpp
     ParameterList lParPmodel_;
 
   public:
-    AbstractBiblioSubstitutionModel(const std::string& prefix);
+    AbstractBiblioTransitionModel(const std::string& prefix);
 
-    AbstractBiblioSubstitutionModel(const AbstractBiblioSubstitutionModel& model);
+    AbstractBiblioTransitionModel(const AbstractBiblioTransitionModel& model);
 
-    AbstractBiblioSubstitutionModel& operator=(const AbstractBiblioSubstitutionModel& model);
+    AbstractBiblioTransitionModel& operator=(const AbstractBiblioTransitionModel& model);
 
-    virtual ~AbstractBiblioSubstitutionModel() {}
+    virtual ~AbstractBiblioTransitionModel() {}
 
-    virtual AbstractBiblioSubstitutionModel* clone() const = 0;
+    virtual AbstractBiblioTransitionModel* clone() const = 0;
 
   protected:
     virtual void updateMatrices();
@@ -96,7 +96,7 @@ namespace bpp
     std::string getParNameFromPmodel(const std::string& name) const;
     
     /*
-     *@ brief Methods to supersede SubstitutionModel methods.
+     *@ brief Methods to supersede TransitionModel methods.
      *
      * @{
      */
@@ -113,7 +113,7 @@ namespace bpp
      */
 
     /*
-     *@ brief Methods to supersede AbstractSubstitutionModel methods.
+     *@ brief Methods to supersede AbstractTransitionModel methods.
      *
      * @{
      */
@@ -141,6 +141,40 @@ namespace bpp
      * @}
      */
   };
+
+  class AbstractBiblioSubstitutionModel :
+    public virtual AbstractBiblioTransitionModel,
+    public virtual AbstractTotallyWrappedSubstitutionModel
+  {
+  public:
+    AbstractBiblioSubstitutionModel(const std::string& prefix) :
+      AbstractBiblioTransitionModel(prefix),
+      AbstractTotallyWrappedSubstitutionModel()
+    {}
+
+      AbstractBiblioSubstitutionModel(const AbstractBiblioSubstitutionModel& model):
+      AbstractBiblioTransitionModel(model)
+    {}
+    
+
+    AbstractBiblioSubstitutionModel& operator=(const AbstractBiblioSubstitutionModel& model)
+    {
+      AbstractBiblioTransitionModel::operator=(model);
+      return *this;
+    }      
+
+    virtual ~AbstractBiblioSubstitutionModel() {}
+
+    virtual AbstractBiblioSubstitutionModel* clone() const = 0;
+
+    void updateMatrices()
+    {
+      AbstractBiblioTransitionModel::updateMatrices();
+    }
+
+  };
+
+
 } // end of namespace bpp.
 
 

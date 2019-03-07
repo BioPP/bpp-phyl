@@ -52,7 +52,7 @@ using namespace std;
 
 FullCodonFrequenciesSet::FullCodonFrequenciesSet(const GeneticCode* gCode, bool allowNullFreqs, unsigned short method, const string& name) :
   AbstractFrequenciesSet(
-    new CanonicalStateMap(gCode->getSourceAlphabet(), false),
+    std::shared_ptr<const StateMap>(new CanonicalStateMap(gCode->getSourceAlphabet(), false)),
     "Full.",
     name),
   pgc_(gCode),
@@ -77,7 +77,7 @@ FullCodonFrequenciesSet::FullCodonFrequenciesSet(
   bool allowNullFreqs,
   unsigned short method,
   const string& name) :
-  AbstractFrequenciesSet(new CanonicalStateMap(gCode->getSourceAlphabet(), false), "Full.", name),
+  AbstractFrequenciesSet(std::shared_ptr<const StateMap>(new CanonicalStateMap(gCode->getSourceAlphabet(), false)), "Full.", name),
   pgc_(gCode),
   sFreq_(gCode->getSourceAlphabet()->getSize() - gCode->getNumberOfStopCodons(), method, allowNullFreqs, "Full.")
 {
@@ -178,7 +178,7 @@ FullPerAACodonFrequenciesSet::FullPerAACodonFrequenciesSet(
   const GeneticCode* gencode,
   ProteinFrequenciesSet* ppfs,
   unsigned short method) :
-  AbstractFrequenciesSet(new CanonicalStateMap(gencode->getSourceAlphabet(), false), "FullPerAA.", "FullPerAA"),
+  AbstractFrequenciesSet(std::shared_ptr<const StateMap>(new CanonicalStateMap(gencode->getSourceAlphabet(), false)), "FullPerAA.", "FullPerAA"),
   pgc_(gencode),
   ppfs_(ppfs),
   vS_()
@@ -204,7 +204,7 @@ FullPerAACodonFrequenciesSet::FullPerAACodonFrequenciesSet(
 }
 
 FullPerAACodonFrequenciesSet::FullPerAACodonFrequenciesSet(const GeneticCode* gencode, unsigned short method) :
-  AbstractFrequenciesSet(new CanonicalStateMap(gencode->getSourceAlphabet(), false), "FullPerAA.", "FullPerAA"),
+  AbstractFrequenciesSet(std::shared_ptr<const StateMap>(new CanonicalStateMap(gencode->getSourceAlphabet(), false)), "FullPerAA.", "FullPerAA"),
   pgc_(gencode),
   ppfs_(new FixedProteinFrequenciesSet(dynamic_cast<const ProteicAlphabet*>(gencode->getTargetAlphabet()), "FullPerAA.")),
   vS_()
@@ -332,14 +332,14 @@ FixedCodonFrequenciesSet::FixedCodonFrequenciesSet(
   const GeneticCode* gCode,
   const vector<double>& initFreqs,
   const string& name) :
-  AbstractFrequenciesSet(new CanonicalStateMap(gCode->getSourceAlphabet(), false), "Fixed.", name),
+  AbstractFrequenciesSet(std::shared_ptr<const StateMap>(new CanonicalStateMap(gCode->getSourceAlphabet(), false)), "Fixed.", name),
   pgc_(gCode)
 {
   setFrequencies(initFreqs);
 }
 
 FixedCodonFrequenciesSet::FixedCodonFrequenciesSet(const GeneticCode* gCode, const string& name) :
-  AbstractFrequenciesSet(new CanonicalStateMap(gCode->getSourceAlphabet(), false), "Fixed.", name),
+  AbstractFrequenciesSet(std::shared_ptr<const StateMap>(new CanonicalStateMap(gCode->getSourceAlphabet(), false)), "Fixed.", name),
   pgc_(gCode)
 {
   size_t size = gCode->getSourceAlphabet()->getSize() - gCode->getNumberOfStopCodons();
@@ -377,7 +377,7 @@ UserCodonFrequenciesSet::UserCodonFrequenciesSet(
   const GeneticCode* gCode,
   const std::string& path,
   size_t nCol) :
-  UserFrequenciesSet(new CanonicalStateMap(gCode->getSourceAlphabet(), false), path, nCol),
+  UserFrequenciesSet(std::shared_ptr<const StateMap>(new CanonicalStateMap(gCode->getSourceAlphabet(), false)), path, nCol),
   pgc_(gCode)
 {
 }
