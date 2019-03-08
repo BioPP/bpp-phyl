@@ -40,7 +40,7 @@
 #include "SubstitutionProcessCollectionMember.h"
 
 #include "SubstitutionProcessCollection.h"
-#include "../Model/MixedSubstitutionModel.h"
+#include "../Model/MixedTransitionModel.h"
 
 #include <Bpp/Utils/MapTools.h>
 
@@ -318,12 +318,12 @@ bool SubstitutionProcessCollectionMember::checkUnknownNodes(bool throwEx) const
   return true;
 }
 
-bool SubstitutionProcessCollectionMember::hasMixedSubstitutionModel() const
+bool SubstitutionProcessCollectionMember::hasMixedTransitionModel() const
 {
   std::map<size_t, std::vector<unsigned int> >::const_iterator it;
   for (it = modelToNodes_.begin(); it != modelToNodes_.end(); it++)
   {
-    if (dynamic_cast<const MixedSubstitutionModel*>(getCollection()->getModel(it->first)) != NULL)
+    if (dynamic_cast<const MixedTransitionModel*>(getCollection()->getModel(it->first)) != NULL)
       return true;
   }
   return false;

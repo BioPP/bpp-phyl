@@ -113,23 +113,10 @@ double AbstractTransitionModel::getInitValue(size_t i, int state) const
 
 /******************************************************************************/
 
-void AbstractTransitionModel::setFreqFromData(const SequenceContainer& data, double pseudoCount)
+void AbstractTransitionModel::setFreqFromData(const SequencedValuesContainer& data, double pseudoCount)
 {
-  map<int, int> counts;
-  SequenceContainerTools::getCounts(data, counts);
   map<int, double> freqs;
-
-  double t = 0;
-  for (auto& ci : counts)
-    t+=ci.second;
-
-  t+= pseudoCount*(double)counts.size();
-  
-  for (int i = 0; i < static_cast<int>(size_); i++)
-  {
-    freqs[i] = (static_cast<double>(counts[i]) + pseudoCount) / t;
-  }
-
+  SequenceContainerTools::getFrequencies(data, freqs, pseudoCount);
   // Re-compute generator and eigen values:
   setFreq(freqs);
 }
