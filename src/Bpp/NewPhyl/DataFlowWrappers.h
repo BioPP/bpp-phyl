@@ -45,6 +45,7 @@
 #include <Bpp/Numeric/ParameterList.h>
 
 #include "DataFlowNumeric.h"
+#include "Parameter.h"
 
 #include <unordered_map>
 
@@ -169,6 +170,7 @@ namespace bpp {
           return node;
         }
       }
+      
       dataflow::ValueRef<double> secondOrderDerivativeNode (const std::string & variable1,
                                                             const std::string & variable2) const {
         const auto key = std::make_pair (variable1, variable2);

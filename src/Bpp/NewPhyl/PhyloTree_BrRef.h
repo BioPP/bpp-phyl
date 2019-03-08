@@ -40,13 +40,13 @@
 #ifndef _PHYLO_TREE_BRREF_H_
 #define _PHYLO_TREE_BRREF_H_
 
-#include <Bpp/Phyl/Tree/PhyloNode.h>
-#include <Bpp/Phyl/Tree/PhyloTree.h>
+#include <Bpp/Phyl/NewLikelihood/ParametrizablePhyloTree.h>
 
 #include <Bpp/Graph/AssociationTreeGraphImplObserver.h>
 
 #include "DiscreteDistribution.h"
 #include "Model.h"
+#include "Parameter.h"
 
 //From the stl:
 #include <string>
@@ -62,21 +62,22 @@ namespace bpp
      *  The map is indexed by branch ids.
      */
 
-    using NumericMutableMap = std::map<uint, std::shared_ptr<NumericMutable<double>>>;
-    using ValueRefMap = std::map<uint, ValueRef<double>>;
+//    using NumericMutableMap = std::map<uint, std::shared_ptr<NumericMutable<double>>>;
+    using BrLenMap = std::map<uint, std::shared_ptr<ConfiguredParameter>>;
 
     using ModelMap = std::map<uint, std::shared_ptr<ConfiguredModel>>;
 
-    ValueRefMap createBrLenMap(Context & c, const PhyloTree& tree)
+    BrLenMap createBrLenMap(Context & c, const ParametrizablePhyloTree& tree)
     {
-      std::vector<std::shared_ptr<PhyloBranch> > vB=tree.getAllEdges();
+      std::vector<std::shared_ptr<PhyloBranchParam> > vB=tree.getAllEdges();
 
-      ValueRefMap map;
+      BrLenMap map;
 
       for (auto& branch:vB)
       {
+        auto brl=NumericMutable<double>::create(c, branch->getLength());
         map.emplace (tree.getEdgeIndex(branch),
-                     NumericMutable<double>::create (c, branch->hasLength()?branch->getLength():0.1));
+                     ConfiguredParameter::create (c, {std::move(brl)}, branch->getParameters()[0]));
       }
 
       return map;
@@ -91,7 +92,7 @@ namespace bpp
     struct BrRef
     {
       std::shared_ptr<ConfiguredModel> model_;
-      ValueRef<double> brlen_;
+      std::shared_ptr<ConfiguredParameter> brlen_;
 
     public:      
       std::shared_ptr<ConfiguredModel> getModel() const
@@ -104,12 +105,12 @@ namespace bpp
         model_=model;
       }
 
-      ValueRef<double> getBrLen()
+      std::shared_ptr<ConfiguredParameter> getBrLen()
       {
         return brlen_;
       }
 
-      void setBrLen(ValueRef<double>&& brlen)
+      void setBrLen(std::shared_ptr<ConfiguredParameter> brlen)
       {
         brlen_=brlen;
       }
@@ -122,8 +123,6 @@ namespace bpp
     public:
       // Map to link branch Ids and ValueRef at attribution of NodeRef to branches
       
-      using NumericMutableMap = std::map<uint, std::shared_ptr<NumericMutable<double>>>;
-      
       // The Values are shared as they are in branches
       // PhyloTree_BrRef(const PhyloTree& tree, const ValueRefMap& vrefmap);
       
@@ -133,26 +132,26 @@ namespace bpp
     
       // PhyloTree_BrRef* clone() const { return new PhyloTree_BrRef(*this); }
       
-      PhyloTree_BrRef(const PhyloTree& tree, ValueRefMap&& vrefmap) :
+      PhyloTree_BrRef(const ParametrizablePhyloTree& tree, BrLenMap&& vrefmap) :
         AssociationTreeGlobalGraphObserver<PhyloNode,BrRef>(tree.getGraph())
       {
-        vector<uint> vNodesId=tree.getGraph()->getAllNodes();
+        std::vector<uint> vNodesId=tree.getGraph()->getAllNodes();
         
         for (auto& index:vNodesId)
         {
-          shared_ptr<PhyloNode> pn=tree.getNodeFromGraphid(index);
+          std::shared_ptr<PhyloNode> pn=tree.getNodeFromGraphid(index);
           
           associateNode(pn,index);
           setNodeIndex(pn,tree.getNodeIndex(pn));
         }
         
         // Ids of the branches in the graph may be different from the ids in the observer phyloTree
-        vector<uint> vEdgesId=tree.getGraph()->getAllEdges();
+        std::vector<uint> vEdgesId=tree.getGraph()->getAllEdges();
         
         for (auto& index:vEdgesId)
         {
           // retrieve PhyloBranch id
-          const std::shared_ptr<PhyloBranch> pb=tree.getEdgeFromGraphid(index);
+          const std::shared_ptr<PhyloBranchParam> pb=tree.getEdgeFromGraphid(index);
           uint ids=tree.getEdgeIndex(pb);
 
           if (vrefmap.find(ids)!=vrefmap.end())
@@ -166,14 +165,14 @@ namespace bpp
         }
       }
 
-      PhyloTree_BrRef(const PhyloTree& tree, const ValueRefMap& vrefmap) :
+      PhyloTree_BrRef(const ParametrizablePhyloTree& tree, const BrLenMap& vrefmap) :
         AssociationTreeGlobalGraphObserver<PhyloNode,BrRef>(tree.getGraph())
       {
-        vector<uint> vNodesId=tree.getGraph()->getAllNodes();
+        std::vector<uint> vNodesId=tree.getGraph()->getAllNodes();
         
         for (auto& index:vNodesId)
         {
-          shared_ptr<PhyloNode> pn=tree.getNodeFromGraphid(index);
+          std::shared_ptr<PhyloNode> pn=tree.getNodeFromGraphid(index);
           
           associateNode(pn,index);
           setNodeIndex(pn,tree.getNodeIndex(pn));
@@ -182,12 +181,12 @@ namespace bpp
         rootAt(tree.getRoot());
 
         // Ids of the branches in the graph may be different from the ids in the observer phyloTree
-        vector<uint> vEdgesId=tree.getGraph()->getAllEdges();
+        std::vector<uint> vEdgesId=tree.getGraph()->getAllEdges();
         
         for (auto& index:vEdgesId)
         {
           // retrieve PhyloBranch id
-          const std::shared_ptr<PhyloBranch> pb=tree.getEdgeFromGraphid(index);
+          const std::shared_ptr<PhyloBranchParam> pb=tree.getEdgeFromGraphid(index);
           uint ids=tree.getEdgeIndex(pb);
 
           if (vrefmap.find(ids)!=vrefmap.end())
@@ -201,7 +200,7 @@ namespace bpp
         }
       }
 
-      PhyloTree_BrRef(const PhyloTree_BrRef& tree, ValueRefMap&& vrefmap) :
+      PhyloTree_BrRef(const PhyloTree_BrRef& tree, BrLenMap&& vrefmap) :
         AssociationTreeGlobalGraphObserver<PhyloNode,BrRef>(tree)
       {
         auto aEit=allEdgesIterator();
@@ -222,7 +221,9 @@ namespace bpp
         }
       }
 
-      PhyloTree_BrRef* clone() const { return 0;}//new PhyloTree_BrRef(*this); }
+      PhyloTree_BrRef* clone() const {
+        throw Exception("PhyloTree_BrRef::clone should not be called.");
+      }
 
       PhyloTree_BrRef(const PhyloTree_BrRef& pTree): 
         AssociationTreeGlobalGraphObserver<PhyloNode,BrRef>(pTree.getGraph())
@@ -256,11 +257,11 @@ namespace bpp
       
     };
 
-    ValueRefMap createBrLenMap(Context & c, const PhyloTree_BrRef& tree)
+    BrLenMap createBrLenMap(Context & c, const PhyloTree_BrRef& tree)
     {
       // Ids of the branches
       
-      ValueRefMap map;
+      BrLenMap map;
 
       auto aEit=tree.allEdgesIterator();
         
@@ -268,7 +269,7 @@ namespace bpp
       {
         auto edge=**aEit;
         map.emplace (tree.getEdgeIndex(edge),
-                     NumericMutable<double>::create (c, edge->getBrLen()->getTargetValue()));
+                     std::dynamic_pointer_cast<ConfiguredParameter>(edge->getBrLen()->recreate(c)));
         aEit->next();
       }
       
@@ -276,11 +277,11 @@ namespace bpp
     }
 
     
-    ValueRefMap multiplyBrLenMap(Context & c, const PhyloTree_BrRef& tree, std::shared_ptr<CategoryFromDiscreteDistribution>&& rate)
+    BrLenMap multiplyBrLenMap(Context & c, const PhyloTree_BrRef& tree, std::shared_ptr<CategoryFromDiscreteDistribution>&& rate)
     {
       // Ids of the branches
 
-      ValueRefMap map;
+      BrLenMap map;
 
       auto aEit=tree.allEdgesIterator();
         
@@ -288,12 +289,16 @@ namespace bpp
       {
         auto edge=**aEit;
 
+        auto mulref = CWiseMul<double, std::tuple<double, double>>::create (c, {edge->getBrLen()->dependency(0), rate}, Dimension<double>());
+        
         map.emplace (tree.getEdgeIndex(edge),
-                     CWiseMul<double, std::tuple<double, double>>::create (c, {edge->getBrLen(), rate}, Dimension<double>()));
-
+                     std::dynamic_pointer_cast<ConfiguredParameter>(edge->getBrLen()->recreate(c,{std::move(mulref)})));
+        
         aEit->next();
       }
+
       return map;
+      
     }
 
   } //end of namespace dataflow

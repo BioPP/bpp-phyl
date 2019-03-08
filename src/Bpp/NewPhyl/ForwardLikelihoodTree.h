@@ -194,5 +194,5 @@ namespace bpp
   
 } //end of namespace bpp.
 
-#endif //_DF_ABSTRACT_LIKELIHOOD_TREE_H_
+#endif //_FORWARD_LIKELIHOOD_TREE_H_
 

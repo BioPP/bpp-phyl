@@ -52,7 +52,9 @@ class ConstantRateDistribution:
     ConstantRateDistribution():
       ConstantDistribution(1.)
     {
-      resetParameters_();
+      deleteParameter_(0);
+      getIndependentParameters().printParameters(std::cerr);
+      
     }
 
     ConstantRateDistribution* clone() const { return new ConstantRateDistribution(*this); }

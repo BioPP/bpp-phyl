@@ -43,61 +43,14 @@
 #ifndef BPP_NEWPHYL_LIKELIHOOD_H
 #define BPP_NEWPHYL_LIKELIHOOD_H
 
-#include <Bpp/NewPhyl/DataFlow.h>
-#include <Bpp/NewPhyl/DataFlowCWise.h>
 #include <functional>
 #include <unordered_map>
 
 namespace bpp {
-  /** Conditional likelihoods are stored in a matrix of sizes (nbState, nbSite).
-   * Rows represents states (nucleotides, proteins or codon).
-   * Columns represents sites (one site for each column).
-   * Conditional likelihood is thus accessed by m(state,site) for an eigen matrix.
-   * Eigen defaults to ColMajor matrices, meaning data is stored column by column.
-   * So with the current layout, values for a site are grouped together for locality.
-   *
-   * A Transition matrix is a (nbState,nbState) matrix.
-   * tm(fromState, toState) = probability of going to toState from fromState.
-   * This matches the convention from TransitionModel::getPij_t().
-   *
-   * Equilibrium frequencies are stored as a RowVector(nbState) : matrix with 1 row and n columns.
-   * This choice allows to reuse the MatrixProduct numeric node directly.
-   *
-   * Initial conditional likelihood for leaves (sequences on the tree) should be computed outside of the
-   * dataflow graph, and provided as NumericConstant<MatrixXd>.
-   */
-  inline MatrixDimension conditionalLikelihoodDimension (std::size_t nbState, std::size_t nbSite) {
-    return {Eigen::Index (nbState), Eigen::Index (nbSite)};
-  }
-  inline MatrixDimension transitionMatrixDimension (std::size_t nbState) {
-    return {Eigen::Index (nbState), Eigen::Index (nbState)};
-  }
-  inline MatrixDimension equilibriumFrequenciesDimension (std::size_t nbState) {
-    return rowVectorDimension (Eigen::Index (nbState));
-  }
 
   // Dataflow nodes for likelihood computation.
   namespace dataflow {
     
-    /** @brief likelihood = f(equilibriumFrequencies, rootConditionalLikelihood).
-     * - likelihood: RowVector(site).
-     * - equilibriumFrequencies: RowVector(state).
-     * - rootConditionalLikelihood: Matrix(state, site).
-     *
-     * likelihood(site) = sum_state equFreqs(state) * rootConditionalLikelihood(state, site).
-     * Using matrix multiply: likelihood = equilibriumFrequencies * rootConditionalLikelihood.
-     */
-
-    using LikelihoodFromRootConditional =
-      MatrixProduct<Eigen::RowVectorXd, Eigen::RowVectorXd, Eigen::MatrixXd>;
-
-    /** @brief totalLikelihood = product_site likelihood(site).
-     * - likelihood: RowVector (site).
-     * - totalLikelihood: Extended float.
-     */
-
-    using TotalLogLikelihood = SumOfLogarithms<Eigen::RowVectorXd>;
-
     // /** @brief totalLikelihood = log(likelihood)
     //  * - likelihood: double.
     //  * - totalLogLikelihood: double.

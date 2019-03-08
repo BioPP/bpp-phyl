@@ -189,7 +189,7 @@ namespace bpp {
         checkDependenciesNotNull (typeid (Self), deps);
         checkDependencyVectorSize (typeid (Self), deps, 2);
         checkNthDependencyIs<ConfiguredObject> (typeid (Self), deps, 0);
-        checkNthDependencyIsValue<double> (typeid (Self), deps, 1);
+        checkNthDependencyIs<ConfiguredParameter> (typeid (Self), deps, 1);
         return cachedAs<Value<Eigen::MatrixXd>> (c, std::make_shared<Self> (std::move (deps), dim));
       }
 

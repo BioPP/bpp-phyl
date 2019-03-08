@@ -75,15 +75,12 @@
 #endif
 // DF
 #ifdef ENABLE_DF
-#include <Bpp/NewPhyl/FrequenciesSet.h>
-#include <Bpp/NewPhyl/Model.h>
-#include <Bpp/NewPhyl/PhyloTree_BrRef.h>
 #include <Bpp/NewPhyl/Parametrizable.h>
-#include <Bpp/NewPhyl/Likelihood.h>
 #include <Bpp/NewPhyl/DataFlow.h>
-#include <Bpp/NewPhyl/HomogeneousLikelihoodExample.h>
+#include <Bpp/NewPhyl/LikelihoodCalculation.h>
 #include <Bpp/Phyl/Io/Newick.h>
 #include <Bpp/Phyl/NewLikelihood/PhyloLikelihoods/SingleProcessPhyloLikelihood.h>
+#include "Bpp/Phyl/NewLikelihood/SubstitutionProcess.h"
 #include <Bpp/Text/TextTools.h>
 #endif
 
@@ -115,33 +112,33 @@ namespace
     std::cout << "[log-lik] " << prefix << " " << logLik << "\n";
   }
 
-  template<typename Func>
-  void do_func_multiple_times(const std::string& timePrefix, Func f)
-  {
-    constexpr std::size_t updatesNbIterations = 1000;
-    auto ts = timingStart();
-    for (std::size_t i = 0; i < updatesNbIterations; ++i)
-      f();
-    timingEnd(ts, timePrefix);
-  }
-  void do_param_changes_multiple_times(bpp::DerivableSecondOrder& llh,
-                                       const std::string& timePrefix,
-                                       const bpp::ParameterList& p1,
-                                       const bpp::ParameterList& p2)
-  {
+  // template<typename Func>
+  // void do_func_multiple_times(const std::string& timePrefix, Func f)
+  // {
+  //   constexpr std::size_t updatesNbIterations = 1000;
+  //   auto ts = timingStart();
+  //   for (std::size_t i = 0; i < updatesNbIterations; ++i)
+  //     f();
+  //   timingEnd(ts, timePrefix);
+  // }
+  // void do_param_changes_multiple_times(bpp::DerivableSecondOrder& llh,
+  //                                      const std::string& timePrefix,
+  //                                      const bpp::ParameterList& p1,
+  //                                      const bpp::ParameterList& p2)
+  // {
 
-    llh.matchParametersValues(p1);
-    printLik(llh.getValue(), timePrefix);
-    llh.matchParametersValues(p2);
-    printLik(llh.getValue(), timePrefix);
+  //   llh.matchParametersValues(p1);
+  //   printLik(llh.getValue(), timePrefix);
+  //   llh.matchParametersValues(p2);
+  //   printLik(llh.getValue(), timePrefix);
 
-    do_func_multiple_times(timePrefix, [&]() {
-      llh.matchParametersValues(p1);
-      llh.getValue();
-      llh.matchParametersValues(p2);
-      llh.getValue();
-    });
-  }
+  //   do_func_multiple_times(timePrefix, [&]() {
+  //     llh.matchParametersValues(p1);
+  //     llh.getValue();
+  //     llh.matchParametersValues(p2);
+  //     llh.getValue();
+  //   });
+  // }
 
   void optimize_for_params(bpp::DerivableSecondOrder& llh,
                            const std::string& prefix,
@@ -230,19 +227,22 @@ TEST_CASE("new")
   auto ts = timingStart();
   auto model = new bpp::T92(&c.alphabet, 3., 0.7);
   auto rootFreqs = new bpp::GCFrequenciesSet(&c.alphabet, 0.1);
-  auto distribution = new bpp::GammaDiscreteRateDistribution(3, 0.5);
-  
+  auto distribution = new bpp::ConstantRateDistribution();
+//  auto distribution = new bpp::GammaDiscreteRateDistribution(3, 0.5);
+
   bpp::Newick reader;
   auto phyloTree = std::unique_ptr<bpp::PhyloTree>(reader.parenthesisToPhyloTree(c.treeStr, false, "", false, false));
   auto paramPhyloTree = new bpp::ParametrizablePhyloTree(*phyloTree);
   std::vector<std::string> globalParameterNames;
 
   auto process =
-    std::unique_ptr<bpp::NonHomogeneousSubstitutionProcess>(bpp::NonHomogeneousSubstitutionProcess::createNonHomogeneousSubstitutionProcess(model, distribution, rootFreqs, paramPhyloTree, globalParameterNames));
-  
+    std::unique_ptr<bpp::NonHomogeneousSubstitutionProcess>(bpp::NonHomogeneousSubstitutionProcess::createHomogeneousSubstitutionProcess(model, distribution, rootFreqs, paramPhyloTree));
+
+
   auto likelihoodCompStruct = std::unique_ptr<bpp::RecursiveLikelihoodTreeCalculation>(
     new bpp::RecursiveLikelihoodTreeCalculation(c.sites, process.get(), false, true));
   bpp::SingleProcessPhyloLikelihood llh(process.get(), likelihoodCompStruct.release());
+  
   timingEnd(ts, "new_setup");
   ts = timingStart();
   llh.computeLikelihood();
@@ -256,7 +256,8 @@ TEST_CASE("new")
   // do_param_changes_multiple_times(llh, "new_param_brlen_change", c.paramBrLen1, c.paramBrLen2);
   
   // optimize_for_params(llh, "new_brlens_opt", llh.getBranchLengthParameters());
-  // optimize_for_params(llh, "new_all_opt", llh.getParameters());
+  optimize_for_params(llh, "new_all_opt", llh.getParameters());
+  llh.getParameters().printParameters(std::cerr);
 }
 #endif
 
@@ -267,137 +268,23 @@ TEST_CASE("df")
 
   auto ts = timingStart();
 
-  // Rate
-
-  auto rates = std::unique_ptr<bpp::GammaDiscreteRateDistribution>(new bpp::GammaDiscreteRateDistribution(3, 9));
-//  auto rates = std::unique_ptr<bpp::ConstantRateDistribution>(new bpp::ConstantRateDistribution());
-
-  auto ratesNode = bpp::dataflow::ConfiguredParametrizable::createConfigured<bpp::DiscreteDistribution, bpp::dataflow::ConfiguredDistribution>(
-    context,
-    std::move(rates));
-
-  auto deltaRate = bpp::dataflow::NumericMutable<double>::create(context, 0.001);
-  ratesNode->config.delta = deltaRate;
-  ratesNode->config.type = bpp::dataflow::NumericalDerivativeType::ThreePoints;
-
-  
+  auto model = new bpp::T92(&c.alphabet, 3., 0.7);
+  auto rootFreqs = new bpp::GCFrequenciesSet(&c.alphabet, 0.1);
+  auto distribution = new bpp::ConstantRateDistribution();
+//  auto distribution = new bpp::GammaDiscreteRateDistribution(3, 0.5);
   // Read tree structure
   bpp::Newick reader;
-  
   auto phyloTree = std::unique_ptr<bpp::PhyloTree>(reader.parenthesisToPhyloTree(c.treeStr, false, "", false, false));
+  auto paramPhyloTree = new bpp::ParametrizablePhyloTree(*phyloTree);
+  std::vector<std::string> globalParameterNames;
 
-  auto treeBrLen = bpp::dataflow::createBrLenMap(context, *phyloTree);
-
-  auto treeNode = std::shared_ptr<bpp::dataflow::PhyloTree_BrRef>(new bpp::dataflow::PhyloTree_BrRef(*phyloTree, treeBrLen));
-
-  auto parTree = std::unique_ptr<bpp::ParametrizablePhyloTree>(new bpp::ParametrizablePhyloTree(*phyloTree));
+  auto process =
+    std::unique_ptr<bpp::NonHomogeneousSubstitutionProcess>(bpp::NonHomogeneousSubstitutionProcess::createHomogeneousSubstitutionProcess(model, distribution, rootFreqs, paramPhyloTree));
   
-  // Model: create simple leaf nodes as model parameters
-  auto model = std::unique_ptr<bpp::T92>(new bpp::T92(&c.alphabet, 3, 0.7));
-
-  auto modelNode = bpp::dataflow::ConfiguredParametrizable::createConfigured<bpp::TransitionModel, bpp::dataflow::ConfiguredModel>(context,std::move(model));
-
-  auto delta = bpp::dataflow::NumericMutable<double>::create(context, 0.001);
-  modelNode->config.delta = delta;
-  modelNode->config.type = bpp::dataflow::NumericalDerivativeType::ThreePoints;
+   // Build likelihood value node
+  bpp::dataflow::LikelihoodCalculation l(context, c.sites, *process);
   
-  auto model2 = std::unique_ptr<bpp::T92>(new bpp::T92(&c.alphabet, 3.));
-
-  auto model2Node = bpp::dataflow::ConfiguredParametrizable::createConfigured<bpp::TransitionModel, bpp::dataflow::ConfiguredModel>(
-    context,
-    std::move(model2));
-
-  auto delta2 = bpp::dataflow::NumericMutable<double>::create(context, 0.001);
-  model2Node->config.delta = delta2;
-  model2Node->config.type = bpp::dataflow::NumericalDerivativeType::ThreePoints;
-
-  bpp::dataflow::ModelMap modelmap;
-  auto vId=treeNode->getAllEdgesIndexes();
-
-  for (const auto& id: vId)
-  {
-    if (id%2==0)
-      modelmap.emplace(id, model2Node);
-    else
-      modelmap.emplace(id, modelNode);
-  }
-
-  treeNode->setBranchModels(modelmap);
-  
-  // Root Frequencies
-  auto rootFreqs = std::unique_ptr<bpp::GCFrequenciesSet>(new bpp::GCFrequenciesSet(&c.alphabet, 0.1));
-
-  auto rootFreqsNode = bpp::dataflow::ConfiguredParametrizable::createConfigured<bpp::FrequenciesSet, bpp::dataflow::ConfiguredFrequenciesSet>(context,std::move(rootFreqs));
-  
-  rootFreqsNode->config.delta = delta;
-  rootFreqsNode->config.type = bpp::dataflow::NumericalDerivativeType::ThreePoints;
-
-  // Build likelihood value node
-  auto l = makeHomogeneousLikelihoodNodes(context, c.sites, treeNode, modelNode, rootFreqsNode, ratesNode);
-
-  
-  // Assemble a bpp::Optimizer compatible interface to HomogeneousLikelihoodNodes.
-  bpp::ParameterList brlenOnlyParameters;
-  
-  for (const auto& id: vId)
-  {
-    auto param = std::shared_ptr<bpp::dataflow::ConfiguredParameter>(new bpp::dataflow::ConfiguredParameter(context, {treeNode->getEdge(id)->getBrLen()}, parTree->getParameter("BrLen"+bpp::TextTools::toString(id))));
-    brlenOnlyParameters.shareParameter(std::move(param));
-  }
-  
-  bpp::ParameterList allParameters;
-  
-  // allParameters.shareParameters(brlenOnlyParameters);
-  for (size_t i=0;i<modelNode->getParameters().size();i++)
-  {
-    const auto pm=modelNode->getParameters().getSharedParameter(i);
-    bpp::Parameter p(*pm);
-    p.setName(p.getName()+"_1");
-    auto cp=bpp::dataflow::ConfiguredParameter::create(context, {dynamic_cast<const bpp::dataflow::ConfiguredParameter*>(pm.get())->dependency(0)}, p);
-    allParameters.shareParameter(cp);
-  }
-  for (size_t i=0;i<model2Node->getParameters().size();i++)
-  {
-    const auto pm=model2Node->getParameters().getSharedParameter(i);
-    bpp::Parameter p(*pm);
-    p.setName(p.getName()+"_2");
-    auto cp=bpp::dataflow::ConfiguredParameter::create(context, {dynamic_cast<const bpp::dataflow::ConfiguredParameter*>(pm.get())->dependency(0)}, p);
-    allParameters.shareParameter(cp);
-  }
-
-  //allParameters.shareParameters(ratesNode->getParameters());
-  
-
-//  allParameters.addParameters(model2Node->getParameters());
-//  allParameters.shareParameters(rootFreqsNode->getParameters());
-  
-  // {
-  //   auto modelb=modelNode->getTargetValue();
-    
-  //   auto param = bpp::dataflow::DataFlowParameter(*p.second->getTargetValue(), Name(),()modelb->getParameter(modelb->getParameterNameWithoutNamespace(p.first)), p.second);
-  //   param = std::shared_ptr<Parameter>(p.second->getTargetValue()->clone());
-  //   allParameters.addParameter(std::move(param));
-  // }
-
-  // for (const auto& p : model2Parameters)
-  // {
-  //   auto modelb=model2Node->getTargetValue();
-    
-  //   auto param = bpp::dataflow::DataFlowParameter(modelb->getParameter(modelb->getParameterNameWithoutNamespace(p.first)), p.second);
-  //   param.setName(param.getName()+"_2");
-    
-  //   allParameters.addParameter(std::move(param));
-  // }
-
-  // for (const auto& p : rootFreqsParameters)
-  // {
-  //   auto root2=rootFreqsNode->getTargetValue();
-    
-  //   auto param = bpp::dataflow::DataFlowParameter(root2->getParameter(root2->getParameterNameWithoutNamespace(p.first)), p.second);
-  //   allParameters.addParameter(param);
-  // }
-
-  bpp::dataflow::DataFlowFunction llh(context, l, allParameters);
+  bpp::dataflow::DataFlowFunction llh(context, l.getLikelihood(), l.getParameters());
 
   timingEnd(ts, "df_setup");
 
@@ -405,31 +292,62 @@ TEST_CASE("df")
   auto logLik = llh.getValue();
   timingEnd(ts, "df_init_value");
   printLik(logLik, "df_init_value");
-  dotOutput("likelihood_example_value", {l.get()});
+  dotOutput("likelihood_example_value", {l.getLikelihood().get()});
   
   // Manual access to dbrlen1
-  // auto dlogLik_dbrlen1 = l->deriveAsValue(context, *treeNode->getEdge(1)->getBrLen());
+  // auto br= dynamic_cast<bpp::dataflow::ConfiguredParameter*>(l.shareParameter("BrLen1").get());
+  
+  // auto dlogLik_dbrlen1 = l.getLikelihood()->deriveAsValue(context, *br->dependency(0));
+  
   // std::cout << "[dbrlen1] " << dlogLik_dbrlen1->getTargetValue() << "\n";
   // dotOutput("likelihood_example_dbrlen1", {dlogLik_dbrlen1.get()});
 
-  // auto dlogLik_dkappa = l->deriveAsValue(context,  modelNode->getConfiguredParameter("kappa"));
+  // // Manual access to dkappa 
+  // auto kappa= dynamic_cast<bpp::dataflow::ConfiguredParameter*>(l.shareParameter("T92.kappa_1").get());
+  // auto dlogLik_dkappa = l.getLikelihood()->deriveAsValue(context, *kappa->dependency(0));
   // std::cout << "[dkappa] " << dlogLik_dkappa->getTargetValue() << "\n";
   // dotOutput("likelihood_example_dkappa", {dlogLik_dkappa.get()});
 
-  // auto dlogLik_dtheta = l->deriveAsValue(context,  modelNode->getConfiguredParameter("theta"));
-  // std::cout << "[dtheta] " << dlogLik_dtheta->getTargetValue() << "\n";
-  // dotOutput("likelihood_example_dtheta", {dlogLik_dtheta.get()});
+  bpp::ParameterList BrLenParam;
+  for (size_t i=0;i<l.getParameters().size();i++)
+  {
+    auto ps = l.shareParameter(i);
+    if (ps->getName().substr(0,5)=="BrLen")
+      BrLenParam.shareParameter(ps);
+  }
 
-  // auto dlogLik_dalpha = l->deriveAsValue(context,  ratesNode->getConfiguredParameter("alpha"));
-  // std::cout << "[dalpha] " << dlogLik_dalpha->getTargetValue() << "\n";
-  // dotOutput("likelihood_example_dalpha", {dlogLik_dalpha.get()});
+  bpp::ParameterList ModelParam;
+  for (size_t i=0;i<l.getParameters().size();i++)
+  {
+    auto ps = l.shareParameter(i);
+    if ((ps->getName().substr(0,5)=="BrLen")
+        || ps->getName().substr(0,3)=="T92"
+        || ps->getName().substr(0,2)=="GC")
+      ModelParam.shareParameter(ps);
+  }
 
-  // do_param_changes_multiple_times(llh, "df_param_model_change", c.paramModel1, c.paramModel2);
-  // do_param_changes_multiple_times(llh, "df_param_root_change", c.paramRoot1, c.paramRoot2);
-  // do_param_changes_multiple_times(llh, "df_param_brlen_change", c.paramBrLen1, c.paramBrLen2);
+  ModelParam.printParameters(std::cerr);
+  
+  // bpp::ParameterList RootParam;
+  // for (size_t i=0;i<l.getParameters().size();i++)
+  // {
+  //   auto ps = l.shareParameter(i);
+  //   if (ps->getName().substr(0,2)!="GC")
+  //    RootParam.shareParameter(ps);
+  // }
 
-  // optimize_for_params(llh, "df_brlens_opt", brlenOnlyParameters);
-  optimize_for_params(llh, "df_all_opt", allParameters);
+  // RootParam.printParameters(std::cerr);
+  
+  // bpp::ParameterList AllParam;
+  // for (size_t i=0;i<l.getParameters().size();i++)
+  // {
+  //   auto ps = l.shareParameter(i);
+  //   AllParam.shareParameter(ps);
+  // }
+
+  // optimize_for_params(llh, "df_brlens_opt", BrLenParam);
+  // optimize_for_params(llh, "df_model_opt",  ModelParam);
+  optimize_for_params(llh, "df_all_opt", l.getParameters());
   llh.getParameters().printParameters(std::cerr);
   
   // TODO test optimization with model params

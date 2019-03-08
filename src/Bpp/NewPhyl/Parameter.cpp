@@ -50,10 +50,10 @@ namespace bpp {
     // Parameter node
     
     ConfiguredParameter::ConfiguredParameter (const Context& context, NodeRefVec&& deps, const Parameter& parameter)
-      : Parameter(parameter), Value<Parameter*> (deps, this), context_(context)
+      : Value<Parameter*> (deps, this), Parameter(parameter), context_(context)
     {
     };
-    
+
     ConfiguredParameter::~ConfiguredParameter () = default;
 
     std::string ConfiguredParameter::description () const { return "Parameter(" + getName () + ")";
@@ -81,11 +81,13 @@ namespace bpp {
     }
 
     NodeRef ConfiguredParameter::derive (Context & c, const Node & node) {
-      if (&node == this || dependency(0).get() == &node) {
+      // std::cerr << "der " << this->description() << "=" << this << ":"  << dependency(0).get() << ":" << &node << std::endl;
+
+      if (&node == this) {
         return ConstantOne<double>::create (c, Dimension<double>());
       }
-      
-      return ConstantZero<double>::create (c, Dimension<double>());
+      else
+        return this->dependency(0)->derive(c, node);
     }
     
     NodeRef ConfiguredParameter::recreate (Context & c) {

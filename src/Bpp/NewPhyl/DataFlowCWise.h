@@ -1367,111 +1367,6 @@ namespace bpp {
     };
 
     
-    class ShiftParameter : public ConfiguredParameter {
-    public:
-      using Self = ShiftParameter;
-
-      /// Build a new ShiftDelta node with the given output dimensions and shift number.
-      static std::shared_ptr<ConfiguredParameter> create(Context & c, NodeRefVec && deps, int n)
-      {
-        // Check dependencies
-        checkDependenciesNotNull (typeid (Self), deps);
-        checkDependencyVectorSize (typeid (Self), deps, 2);
-        checkNthDependencyIs<ConfiguredParameter> (typeid (Self), deps, 0);
-        checkNthDependencyIsValue<double> (typeid (Self), deps, 1);
-        // Detect if we have a chain of ShiftParameter with the same delta.
-        auto & x = deps[0];
-        auto & delta = deps[1];
-        auto * xAsShiftParameter = dynamic_cast<const ShiftParameter *> (x.get ());
-        if (xAsShiftParameter != nullptr && xAsShiftParameter->dependency (1) == delta) {
-          // Merge with ShiftParameter dependency by summing the n.
-          return Self::create (c, NodeRefVec{x->dependencies ()}, 1 + xAsShiftParameter->getN ());
-        }
-        // Not a merge, select node implementation.
-        if (n == 0 || delta->hasNumericalProperty (NumericalProperty::ConstantZero)) {
-          return std::dynamic_pointer_cast<ConfiguredParameter> (x);
-        } else {
-          auto cfx=dynamic_cast<const ConfiguredParameter*>(x.get());
-          auto ret=cachedAs<ConfiguredParameter> (c, std::make_shared<Self> (c, NodeRefVec{cfx->dependency(0), deps[1]}, *cfx, n));
-          
-          return ret;
-        }
-      }
-
-      ShiftParameter (const Context& context, NodeRefVec && deps, const Parameter& parameter, int n)
-        : ConfiguredParameter (context, std::move (deps), parameter), n_ (n)
-      {
-      }
-
-      std::string description () const { return "Shift" + ConfiguredParameter::description();}
-
-      std::string debugInfo () const override {
-        return ConfiguredParameter::debugInfo() +
-          " n=" + std::to_string (n_);
-      }
-
-      // ShiftDelta additional arguments = (n_).
-      bool compareAdditionalArguments (const Node & other) const final {
-        const auto * derived = dynamic_cast<const Self *> (&other);
-        return derived != nullptr && n_ == derived->n_;
-      }
-
-      /*
-       * @brief setValue is not possible here, since computation is
-       * done only through ompute method.
-       *
-       */
-      
-      void setValue(double v)
-      {
-        throw Exception("ShiftParameter setValue should not be called");
-      }
-
-
-      /** @brief Raw value access (const).
-       *
-       * Value is not guaranteed to be valid (no recomputation).
-       */
-      
-      double getValue() const
-      {
-        return Parameter::getValue();
-      }
-
-      std::size_t hashAdditionalArguments () const final {
-        std::size_t seed = 0;
-        combineHash (seed, n_);
-        return seed;
-      }
-
-      NodeRef derive (Context & c, const Node & node) final {
-        if (&node == this) {
-          return ConstantOne<Parameter>::create (c, Dimension<Parameter>());
-        }
-        auto & x = this->dependency (0);
-        auto & delta = this->dependency (1);
-        return Self::create (c, {delta->derive (c, node), x->derive (c, node)}, n_);
-      }
-
-      NodeRef recreate (Context & c, NodeRefVec && deps) final {
-        return Self::create (c, std::move (deps), n_);
-      }
-
-      int getN () const { return n_; }
-
-    private:
-      void compute () final
-      {
-        const auto & delta = accessValueConstCast<double> (*this->dependency (1));
-        const auto&  x = accessValueConstCast<double> (*this->dependency (0));
-        double r=n_ * delta + x;
-        // Boundary mgmt not so clean!
-        this->accessValueMutable()->Parameter::setValue(getConstraint()->isCorrect(r)?r:getConstraint()->getAcceptedLimit(r));
-      }
-
-      int n_;
-    };
-
     /** @brief r = (1/delta)^n * sum_i coeffs_i * x_i.
      * - r: T.
      * - delta: double.
@@ -1815,11 +1710,15 @@ namespace bpp {
       if (config.delta == nullptr) {
         failureNumericalDerivationNotConfigured ();
       }
+      ConfiguredParameter* param=dynamic_cast<ConfiguredParameter*>(dep.get());
+      if (param == nullptr)
+        throw Exception("generateNumericalDerivative : dependency should be ConfiguredParameter");
+
       switch (config.type) {
       case NumericalDerivativeType::ThreePoints: {
         // Shift {-1, +1}, coeffs {-0.5, +0.5}
-        auto shift_m1 = ShiftParameter::create (c, {dep, config.delta}, -1);
-        auto shift_p1 = ShiftParameter::create (c, {dep, config.delta}, 1);
+        auto shift_m1 = ShiftParameter::create (c, {dep->dependency(0), config.delta}, *param, -1);
+        auto shift_p1 = ShiftParameter::create (c, {dep->dependency(0), config.delta}, *param, 1);
         NodeRefVec combineDeps (3);
         combineDeps[0] = config.delta;
         combineDeps[1] = buildNodeWithDep (std::move (shift_m1));
@@ -1828,10 +1727,10 @@ namespace bpp {
       } break;
       case NumericalDerivativeType::FivePoints: {
         // Shift {-2, -1, +1, +2}, coeffs {1/12, -2/3, 2/3, -1/12}
-        auto shift_m2 = ShiftParameter::create (c, {dep, config.delta}, -2);
-        auto shift_m1 = ShiftParameter::create (c, {dep, config.delta}, -1);
-        auto shift_p1 = ShiftParameter::create (c, {dep, config.delta}, 1);
-        auto shift_p2 = ShiftParameter::create (c, {dep, config.delta}, 2);
+        auto shift_m2 = ShiftParameter::create (c, {dep->dependency(0), config.delta}, *param, -2);
+        auto shift_m1 = ShiftParameter::create (c, {dep->dependency(0), config.delta}, *param, -1);
+        auto shift_p1 = ShiftParameter::create (c, {dep->dependency(0), config.delta}, *param, 1);
+        auto shift_p2 = ShiftParameter::create (c, {dep->dependency(0), config.delta}, *param, 2);
         NodeRefVec combineDeps (5);
         combineDeps[0] = config.delta;
         combineDeps[1] = buildNodeWithDep (std::move (shift_m2));

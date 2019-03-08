@@ -338,20 +338,23 @@ namespace bpp {
        */
       const T & accessValueConst () const noexcept { return value_; }
 
-      /// Derive and cast result as Value<T> (most nodes derive to the same value type).
+      /// Derive and cast result as Value<T> (most nodes derive to the
+      /// same value type).
       ValueRef<T> deriveAsValue (Context & c, const Node & node) {
         return convertRef<Value<T>> (this->derive (c, node));
       }
 
     protected:
-      /// Raw value access (mutable). Should only be used by subclasses to implement compute().
+      /// Raw value access (mutable). Should only be used by
+      /// subclasses to implement compute().
       T & accessValueMutable () noexcept { return value_; }
 
     private:
       T value_;
     };
 
-    /// Helper: access value of Node as a Value<T> with unchecked cast.
+    /// Helper: access value of Node as a Value<T> with unchecked
+    /// cast.
     template <typename T> const T & accessValueConstCast (const Node & node) {
       assert (dynamic_cast<const Value<T> *> (&node) != nullptr);      // Check type in debug mode
       return static_cast<const Value<T> &> (node).accessValueConst (); // Fast cast access
@@ -362,6 +365,10 @@ namespace bpp {
     /// Checks the size of a dependency vector, throws if mismatch.
     void checkDependencyVectorSize (const std::type_info & contextNodeType, const NodeRefVec & deps,
                                     std::size_t expectedSize);
+
+    /// Checks the minimum size of a dependency vector, throws if mismatch.
+    // void checkDependencyVectorMinSize (const std::type_info & contextNodeType, const NodeRefVec & deps,
+    //                                    std::size_t expectedMinSize);
 
     /// Checks that all dependencies are not null, throws if not.
     void checkDependenciesNotNull (const std::type_info & contextNodeType, const NodeRefVec & deps);

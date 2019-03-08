@@ -190,7 +190,7 @@ namespace bpp {
 
     void TransitionMatrixFromModel::compute () {
       const auto * model = accessValueConstCast<const TransitionModel *> (*this->dependency (0));
-      const auto brlen = accessValueConstCast<double> (*this->dependency (1));
+      const auto brlen = accessValueConstCast<double> (*this->dependency (1)->dependency(0));
       auto & r = this->accessValueMutable ();
       copyBppToEigen (model->getPij_t (brlen), r);
     }
@@ -241,7 +241,7 @@ namespace bpp {
 
     void TransitionMatrixFromModelFirstBrlenDerivative::compute () {
       const auto * model = accessValueConstCast<const TransitionModel *> (*this->dependency (0));
-      const auto brlen = accessValueConstCast<double> (*this->dependency (1));
+      const auto brlen = accessValueConstCast<double> (*this->dependency (1)->dependency(0));
       auto & r = this->accessValueMutable ();
       copyBppToEigen (model->getdPij_dt (brlen), r);
     }
@@ -296,7 +296,7 @@ namespace bpp {
 
     void TransitionMatrixFromModelSecondBrlenDerivative::compute () {
       const auto * model = accessValueConstCast<const TransitionModel *> (*this->dependency (0));
-      const auto brlen = accessValueConstCast<double> (*this->dependency (1));
+      const auto brlen = accessValueConstCast<double> (*this->dependency (1)->dependency(0));
       auto & r = this->accessValueMutable ();
       copyBppToEigen (model->getd2Pij_dt2 (brlen), r);
     }

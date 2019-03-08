@@ -611,6 +611,7 @@ namespace bpp {
       }
 
       NodeRef derive (Context & c, const Node & node) final {
+        // std::cerr << "der " << this->description() << "=" << this << ":" << &node << std::endl;
         const auto dim = Dimension<T> (this->accessValueConst ());
         if (&node == this) {
           return ConstantOne<T>::create (c, dim);
