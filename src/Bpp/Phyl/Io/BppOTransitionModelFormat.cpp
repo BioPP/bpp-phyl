@@ -285,7 +285,7 @@ TransitionModel* BppOTransitionModelFormat::readTransitionModel(
   return model.release();
 }
 
-MixedTransitionModel* BppOTransitionModelFormat::readMixed_(const Alphabet* alphabet, const std::string& modelDescription, const SiteContainer* data)
+MixedTransitionModel* BppOTransitionModelFormat::readMixed_(const Alphabet* alphabet, const std::string& modelDescription, const AlignedValuesContainer* data)
 {
   unique_ptr<MixedTransitionModel> model;
 

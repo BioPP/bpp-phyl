@@ -58,7 +58,7 @@ F81::F81(
   double piG,
   double piT):
   AbstractParameterAliasable("F81."),
-  AbstractReversibleNucleotideSubstitutionModel(alpha, new CanonicalStateMap(alpha, false), "F81."),
+  AbstractReversibleNucleotideSubstitutionModel(alpha, std::shared_ptr<StateMap>(new CanonicalStateMap(alpha, false)), "F81."),
   r_(),
   piA_(piA), piC_(piC), piG_(piG), piT_(piT), piY_(), piR_(),
   theta_(piG + piC), theta1_(piA / (1. - theta_)), theta2_(piG / theta_),

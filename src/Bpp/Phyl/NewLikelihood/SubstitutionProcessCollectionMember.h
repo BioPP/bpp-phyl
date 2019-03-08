@@ -214,10 +214,10 @@ public:
   size_t getNumberOfModels() const { return modelToNodes_.size(); }
 
   /**
-   * @return True iff there is a MixedSubstitutionModel in the SubstitutionProcessCollectionMember
+   * @return True iff there is a MixedTransitionModel in the SubstitutionProcessCollectionMember
    **/
 
-  bool hasMixedSubstitutionModel() const;
+  bool hasMixedTransitionModel() const;
 
   /**
    * @return True iff is stationary.

@@ -57,7 +57,7 @@ namespace bpp
     public BppOSubstitutionModelFormat
   {
   private:
-    MixedTransitionModel* readMixed_(const Alphabet* alphabet, const std::string& modelDescription, const SiteContainer* data);
+    MixedTransitionModel* readMixed_(const Alphabet* alphabet, const std::string& modelDescription, const AlignedValuesContainer* data);
 
   public:
     /**

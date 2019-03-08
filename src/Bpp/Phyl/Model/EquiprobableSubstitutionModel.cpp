@@ -53,16 +53,16 @@ using namespace std;
 
 EquiprobableSubstitutionModel::EquiprobableSubstitutionModel(const Alphabet* alpha) :
   AbstractParameterAliasable("Equi."),
-  AbstractReversibleSubstitutionModel(alpha, new CanonicalStateMap(alpha, false), "Equi."),
+  AbstractReversibleSubstitutionModel(alpha, std::shared_ptr<StateMap>(new CanonicalStateMap(alpha, false)), "Equi."),
   exp_(), p_(size_, size_), freqSet_(0)
 {
-  freqSet_ = new FixedFrequenciesSet(getStateMap().clone(), freq_);
+  freqSet_ = new FixedFrequenciesSet(shareStateMap(), freq_);
   updateMatrices();
 }
 
 EquiprobableSubstitutionModel::EquiprobableSubstitutionModel(const Alphabet* alpha, FrequenciesSet* freqSet, bool initFreqs) :
   AbstractParameterAliasable("Equi+F."),
-  AbstractReversibleSubstitutionModel(alpha, new CanonicalStateMap(alpha, false), "Equi+F."),
+  AbstractReversibleSubstitutionModel(alpha, std::shared_ptr<StateMap>(new CanonicalStateMap(alpha, false)), "Equi+F."),
   exp_(), p_(size_, size_), freqSet_(freqSet)
 {
   freqSet_->setNamespace("Equi+F."+freqSet_->getNamespace());

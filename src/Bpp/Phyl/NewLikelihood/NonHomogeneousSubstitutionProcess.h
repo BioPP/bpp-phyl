@@ -258,10 +258,10 @@ namespace bpp
     size_t getNumberOfModels() const { return modelSet_.size(); }
     
     /**
-     * @return True iff there is a MixedSubstitutionModel in the NonHomogeneousSubstitutionProcess
+     * @return True iff there is a MixedTransitionModel in the NonHomogeneousSubstitutionProcess
      **/
 
-    bool hasMixedSubstitutionModel() const;
+    bool hasMixedTransitionModel() const;
 
     std::vector<size_t> getModelNumbers() const
     {

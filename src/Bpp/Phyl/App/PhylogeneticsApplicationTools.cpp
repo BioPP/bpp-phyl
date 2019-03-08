@@ -786,7 +786,7 @@ SubstitutionModel* PhylogeneticsApplicationTools::getSubstitutionModel(
   else
     modelDescription = ApplicationTools::getStringParameter("model", params, "JC69", suffix, suffixIsOptional, warn);
 
-  SubstitutionModel* model = bIO.read(alphabet, modelDescription, data, true);
+  SubstitutionModel* model = bIO.readSubstitionModel(alphabet, modelDescription, data, true);
 
   unparsedParams.insert(bIO.getUnparsedArguments().begin(), bIO.getUnparsedArguments().end());
 
@@ -819,7 +819,7 @@ TransitionModel* PhylogeneticsApplicationTools::getTransitionModel(
   else
     modelDescription = ApplicationTools::getStringParameter("model", params, "JC69", suffix, suffixIsOptional, warn);
 
-  TransitionModel* model = bIO.read(alphabet, modelDescription, data, true);
+  TransitionModel* model = bIO.readTransitionModel(alphabet, modelDescription, data, true);
   map<string, string> tmpUnparsedParameterValues(bIO.getUnparsedArguments());
 
   unparsedParams.insert(tmpUnparsedParameterValues.begin(), tmpUnparsedParameterValues.end());
@@ -961,7 +961,7 @@ map<size_t, TransitionModel*> PhylogeneticsApplicationTools::getTransitionModels
     if (args.find("data") != args.end())
       nData = (size_t) TextTools::toInt(args["data"]);
 
-    unique_ptr<TransitionModel> model(bIO.read(alphabet, modelDescription, (args.find("data") != args.end()) ? mData.find(nData)->second : 0, true));
+    unique_ptr<TransitionModel> model(bIO.readTransitionModel(alphabet, modelDescription, (args.find("data") != args.end()) ? mData.find(nData)->second : 0, true));
     
     map<string, string> tmpUnparsedParameterValues(bIO.getUnparsedArguments());
 
@@ -1271,7 +1271,7 @@ SubstitutionProcess* PhylogeneticsApplicationTools::getSubstitutionProcess(
     string fName = (nhOpt == "one_per_branch" ? "model" : "model1");
 
     tmpDesc = ApplicationTools::getStringParameter(fName, params, "", suffix, suffixIsOptional, warn);
-    unique_ptr<TransitionModel> tmp(bIO.read(alphabet, tmpDesc, pData, true));
+    unique_ptr<TransitionModel> tmp(bIO.readTransitionModel(alphabet, tmpDesc, pData, true));
 
 
     // ////////////////////////////////////
@@ -1357,7 +1357,7 @@ SubstitutionProcess* PhylogeneticsApplicationTools::getSubstitutionProcess(
         string modelDesc;
         modelDesc = ApplicationTools::getStringParameter(prefix, params, "", suffix, suffixIsOptional, warn);
 
-        unique_ptr<TransitionModel> model(bIO.read(alphabet, modelDesc, pData, true));
+        unique_ptr<TransitionModel> model(bIO.readTransitionModel(alphabet, modelDesc, pData, true));
         map<string, string> tmpUnparsedParameterValues(bIO.getUnparsedArguments());
 
         for (auto& it : tmpUnparsedParameterValues)
@@ -2419,7 +2419,7 @@ SubstitutionModelSet* PhylogeneticsApplicationTools::getSubstitutionModelSet(
   modelSet1 = new SubstitutionModelSet(alphabet);
   setSubstitutionModelSet(*modelSet1, alphabet, gCode, data, params, suffix, suffixIsOptional, verbose, warn);
 
-  if (modelSet1->hasMixedSubstitutionModel())
+  if (modelSet1->hasMixedTransitionModel())
   {
     modelSet = new MixedSubstitutionModelSet(*modelSet1);
     completeMixedSubstitutionModelSet(*dynamic_cast<MixedSubstitutionModelSet*>(modelSet), alphabet, data, params, suffix, suffixIsOptional, verbose);
@@ -2453,7 +2453,7 @@ void PhylogeneticsApplicationTools::setSubstitutionModelSet(
   if (verbose)
     ApplicationTools::displayResult("Number of distinct models", TextTools::toString(nbModels));
 
-  BppOSubstitutionModelFormat bIO(BppOSubstitutionModelFormat::ALL, true, true, true, false, warn);
+  BppOTransitionModelFormat bIO(BppOTransitionModelFormat::ALL, true, true, true, false, warn);
 
   // ///////////////////////////////////////////
   // Build a new model set object:
@@ -2472,7 +2472,7 @@ void PhylogeneticsApplicationTools::setSubstitutionModelSet(
   else
     tmpDesc = ApplicationTools::getStringParameter("model1", params, "JC69", suffix, suffixIsOptional, warn);
 
-  unique_ptr<TransitionModel> tmp(bIO.read(alphabet, tmpDesc, data, false));
+  unique_ptr<TransitionModel> tmp(bIO.readTransitionModel(alphabet, tmpDesc, data, false));
 
   if (tmp->getNumberOfStates() != alphabet->getSize())
   {
@@ -2526,7 +2526,7 @@ void PhylogeneticsApplicationTools::setSubstitutionModelSet(
     else
       modelDesc = ApplicationTools::getStringParameter(prefix, params, "JC69", suffix, suffixIsOptional, warn);
 
-    unique_ptr<TransitionModel> model(bIO.read(alphabet, modelDesc, data, false));
+    unique_ptr<TransitionModel> model(bIO.readTransitionModel(alphabet, modelDesc, data, false));
 
     map<string, string> unparsedModelParameters = bIO.getUnparsedArguments();
     map<string, string> sharedParameters;
@@ -2622,9 +2622,9 @@ void PhylogeneticsApplicationTools::completeMixedSubstitutionModelSet(
       int num = TextTools::toInt(submodel.substr(5, indexo - 5));
       string p2 = submodel.substr(indexo + 1, indexf - indexo - 1);
 
-      const MixedSubstitutionModel* pSM = dynamic_cast<const MixedSubstitutionModel*>(mixedModelSet.getModel(static_cast<size_t> (num - 1)));
+      const MixedTransitionModel* pSM = dynamic_cast<const MixedTransitionModel*>(mixedModelSet.getModel(static_cast<size_t> (num - 1)));
       if (pSM == NULL)
-        throw BadIntegerException("PhylogeneticsApplicationTools::setMixedSubstitutionModelSet: Wron gmodel for number", num - 1);
+        throw BadIntegerException("PhylogeneticsApplicationTools::setMixedSubstitutionModelSet: Wrong model for number", num - 1);
       Vint submodnb = pSM->getSubmodelNumbers(p2);
 
       mixedModelSet.addToHyperNode(static_cast<size_t> (num - 1), submodnb);

@@ -40,7 +40,7 @@
 */
 
 #include "NonHomogeneousSubstitutionProcess.h"
-#include "../Model/MixedSubstitutionModel.h"
+#include "../Model/MixedTransitionModel.h"
 
 #include <algorithm>
 #include <Bpp/Utils/MapTools.h>
@@ -316,11 +316,11 @@ bool NonHomogeneousSubstitutionProcess::checkUnknownNodes(bool throwEx) const
   return true;
 }
 
-bool NonHomogeneousSubstitutionProcess::hasMixedSubstitutionModel() const
+bool NonHomogeneousSubstitutionProcess::hasMixedTransitionModel() const
 {
   for (size_t i = 0; i < getNumberOfModels(); i++)
   {
-    if (dynamic_cast<const MixedSubstitutionModel*>(getModel(i)) != NULL)
+    if (dynamic_cast<const MixedTransitionModel*>(getModel(i)) != NULL)
       return true;
   }
   return false;
@@ -349,7 +349,7 @@ NonHomogeneousSubstitutionProcess* NonHomogeneousSubstitutionProcess::createHomo
   // Check alphabet:
   if  (rootFreqs && model->getAlphabet()->getAlphabetType() != rootFreqs->getAlphabet()->getAlphabetType())
     throw AlphabetMismatchException("NonHomogeneousSubstitutionProcess::createHomogeneousModelSet()", model->getAlphabet(), rootFreqs->getAlphabet());
-  if (dynamic_cast<MixedSubstitutionModel*>(model) != NULL)
+  if (dynamic_cast<MixedTransitionModel*>(model) != NULL)
     throw Exception("createHomogeneousSubstitutionProcess not yet programmed for mixture models.");
 
   NonHomogeneousSubstitutionProcess*  modelSet = new NonHomogeneousSubstitutionProcess(rdist, tree, rootFreqs);
@@ -384,7 +384,7 @@ NonHomogeneousSubstitutionProcess* NonHomogeneousSubstitutionProcess::createNonH
   // Check alphabet:
   if (rootFreqs && model->getAlphabet()->getAlphabetType() != rootFreqs->getAlphabet()->getAlphabetType())
     throw AlphabetMismatchException("NonHomogeneousSubstitutionProcess::createNonHomogeneousModelSet()", model->getAlphabet(), rootFreqs->getAlphabet());
-  if (dynamic_cast<MixedSubstitutionModel*>(model) != NULL)
+  if (dynamic_cast<MixedTransitionModel*>(model) != NULL)
     throw Exception("createNonHomogeneousSubstitutionProcess not yet programmed for mixture models.");
 
   ParameterList globalParameters, branchParameters;
