@@ -138,6 +138,7 @@ void AbstractTransitionModel::setFreq(map<int, double>& freqs)
 /******************************************************************************/
 
 AbstractSubstitutionModel::AbstractSubstitutionModel(const Alphabet* alpha, std::shared_ptr<const StateMap> stateMap, const std::string& prefix) :
+  AbstractParameterAliasable(prefix),
   AbstractTransitionModel(alpha, stateMap, prefix),
   isScalable_(true),
   generator_(size_, size_),

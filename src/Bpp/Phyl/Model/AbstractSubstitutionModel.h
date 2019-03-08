@@ -338,6 +338,7 @@ namespace bpp
     AbstractSubstitutionModel(const Alphabet* alpha, std::shared_ptr<const StateMap> stateMap, const std::string& prefix);
 
     AbstractSubstitutionModel(const AbstractSubstitutionModel& model) :
+      AbstractParameterAliasable(model),
       AbstractTransitionModel(model),
       isScalable_(model.isScalable_),
       generator_(model.generator_),
