@@ -63,10 +63,10 @@ DRHomogeneousMixedTreeLikelihood::DRHomogeneousMixedTreeLikelihood(
   probas_(),
   rootArray_(rootArray)
 {
-  MixedSubstitutionModel* mixedmodel;
+  MixedTransitionModel* mixedmodel;
 
-  if ((mixedmodel = dynamic_cast<MixedSubstitutionModel*>(model_)) == NULL)
-    throw Exception("Bad model: DRHomogeneousMixedTreeLikelihood needs a MixedSubstitutionModel.");
+  if ((mixedmodel = dynamic_cast<MixedTransitionModel*>(model_)) == NULL)
+    throw Exception("Bad model: DRHomogeneousMixedTreeLikelihood needs a MixedTransitionModel.");
 
   size_t s = mixedmodel->getNumberOfModels();
   for (size_t i = 0; i < s; i++)
@@ -90,10 +90,10 @@ DRHomogeneousMixedTreeLikelihood::DRHomogeneousMixedTreeLikelihood(
   probas_(),
   rootArray_(rootArray)
 {
-  MixedSubstitutionModel* mixedmodel;
+  MixedTransitionModel* mixedmodel;
 
-  if ((mixedmodel = dynamic_cast<MixedSubstitutionModel*>(model_)) == NULL)
-    throw Exception("Bad model: DRHomogeneousMixedTreeLikelihood needs a MixedSubstitutionModel.");
+  if ((mixedmodel = dynamic_cast<MixedTransitionModel*>(model_)) == NULL)
+    throw Exception("Bad model: DRHomogeneousMixedTreeLikelihood needs a MixedTransitionModel.");
 
   size_t s = mixedmodel->getNumberOfModels();
 
@@ -173,7 +173,7 @@ void DRHomogeneousMixedTreeLikelihood::fireParameterChanged(const ParameterList&
 {
   applyParameters();
 
-  MixedSubstitutionModel* mixedmodel = dynamic_cast<MixedSubstitutionModel*>(model_);
+  MixedTransitionModel* mixedmodel = dynamic_cast<MixedTransitionModel*>(model_);
 
   size_t s = mixedmodel->getNumberOfModels();
 

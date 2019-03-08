@@ -62,9 +62,9 @@ RHomogeneousMixedTreeLikelihood::RHomogeneousMixedTreeLikelihood(
   treeLikelihoodsContainer_(),
   probas_()
 {
-  MixedSubstitutionModel* mixedmodel;
-  if ((mixedmodel = dynamic_cast<MixedSubstitutionModel*>(model_)) == 0)
-    throw Exception("Bad model: RHomogeneousMixedTreeLikelihood needs a MixedSubstitutionModel.");
+  MixedTransitionModel* mixedmodel;
+  if ((mixedmodel = dynamic_cast<MixedTransitionModel*>(model_)) == 0)
+    throw Exception("Bad model: RHomogeneousMixedTreeLikelihood needs a MixedTransitionModel.");
   size_t s = mixedmodel->getNumberOfModels();
   for (size_t i = 0; i < s; i++)
   {
@@ -86,10 +86,10 @@ RHomogeneousMixedTreeLikelihood::RHomogeneousMixedTreeLikelihood(
   treeLikelihoodsContainer_(),
   probas_()
 {
-  MixedSubstitutionModel* mixedmodel;
+  MixedTransitionModel* mixedmodel;
 
-  if ((mixedmodel = dynamic_cast<MixedSubstitutionModel*>(model_)) == 0)
-    throw Exception("Bad model: RHomogeneousMixedTreeLikelihood needs a MixedSubstitutionModel.");
+  if ((mixedmodel = dynamic_cast<MixedTransitionModel*>(model_)) == 0)
+    throw Exception("Bad model: RHomogeneousMixedTreeLikelihood needs a MixedTransitionModel.");
 
   size_t s = mixedmodel->getNumberOfModels();
   for (size_t i = 0; i < s; i++)
@@ -166,7 +166,7 @@ void RHomogeneousMixedTreeLikelihood::fireParameterChanged(const ParameterList& 
   bool modelC=model_->getParameters().testParametersValues(params);
 
   applyParameters();
-  MixedSubstitutionModel* mixedmodel = dynamic_cast<MixedSubstitutionModel*>(model_);
+  MixedTransitionModel* mixedmodel = dynamic_cast<MixedTransitionModel*>(model_);
   size_t s = mixedmodel->getNumberOfModels();
 
   const TransitionModel* pm;

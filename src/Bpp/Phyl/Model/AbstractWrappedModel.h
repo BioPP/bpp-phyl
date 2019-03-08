@@ -70,6 +70,8 @@ namespace bpp
 
     const StateMap& getStateMap() const { return getModel().getStateMap(); }
 
+    std::shared_ptr<const StateMap> shareStateMap() const { return getModel().shareStateMap(); }
+
     int getAlphabetStateAsInt(size_t i) const { return getModel().getAlphabetStateAsInt(i); }
   
     std::string getAlphabetStateAsChar(size_t i) const { return getModel().getAlphabetStateAsChar(i); }
@@ -196,7 +198,6 @@ namespace bpp
     {
       return getSubstitutionModel();
     }
-    
 
   protected:
     TransitionModel& getModel()
@@ -206,7 +207,7 @@ namespace bpp
 
   };
 
-  class AbstractTotallyWrappedSubstitutionModel :
+   class AbstractTotallyWrappedSubstitutionModel :
     public virtual AbstractTotallyWrappedModel,
     public virtual AbstractWrappedSubstitutionModel
   {

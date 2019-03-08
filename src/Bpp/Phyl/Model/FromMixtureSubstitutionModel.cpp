@@ -44,16 +44,20 @@ using namespace std;
 
 /******************************************************************************/
 
-FromMixtureSubstitutionModel::FromMixtureSubstitutionModel(const MixedSubstitutionModel& mixedModel, const std::string& subModelName, const std::string& mixtDesc) :
+FromMixtureSubstitutionModel::FromMixtureSubstitutionModel(const MixedTransitionModel& mixedModel, const std::string& subModelName, const std::string& mixtDesc) :
   AbstractParameterAliasable(mixedModel.getName() + "_" + subModelName + "."),
   subModel_(),
   mixtName_(mixtDesc)
 {
-  const SubstitutionModel* sm = mixedModel.getSubModelWithName(subModelName);
+  const TransitionModel* tm = mixedModel.getModel(subModelName);
 
-  if (sm == 0)
+  if (tm == 0)
     throw ParameterNotFoundException("FromMixtureSubstitutionModel::FromMixtureSubstitutionModel : unknown model name", subModelName);
 
+  const auto sm = dynamic_cast<const SubstitutionModel*>(tm);
+  if (sm == 0)
+    throw Exception("FromMixtureSubstitutionModel::FromMixtureSubstitutionModel : model " + subModelName + " is not a substitution model.");
+  
   subModel_ = std::unique_ptr<SubstitutionModel>(sm->clone());
   subModel_->setNamespace(getNamespace());
 
@@ -61,7 +65,7 @@ FromMixtureSubstitutionModel::FromMixtureSubstitutionModel(const MixedSubstituti
   addParameters_(subModel_->getParameters());
 }
 
-FromMixtureSubstitutionModel::FromMixtureSubstitutionModel(const MixedSubstitutionModel& mixedModel, size_t subModelNumber, const std::string& mixtDesc) :
+FromMixtureSubstitutionModel::FromMixtureSubstitutionModel(const MixedTransitionModel& mixedModel, size_t subModelNumber, const std::string& mixtDesc) :
   AbstractParameterAliasable(mixedModel.getName() + "_" + TextTools::toString(subModelNumber) + "."),
   subModel_(),
   mixtName_(mixtDesc)
@@ -69,8 +73,12 @@ FromMixtureSubstitutionModel::FromMixtureSubstitutionModel(const MixedSubstituti
   if (subModelNumber>=mixedModel.getNumberOfModels())
     throw ParameterNotFoundException("FromMixtureSubstitutionModel::FromMixtureSubstitutionModel : bad model number", TextTools::toString(subModelNumber));
 
-  const SubstitutionModel* sm = mixedModel.getNModel(subModelNumber);
+  const auto tm = mixedModel.getNModel(subModelNumber);
+  const auto sm = dynamic_cast<const SubstitutionModel*>(tm);
 
+  if (sm == 0)
+    throw Exception("FromMixtureSubstitutionModel::FromMixtureSubstitutionModel : model with number " + TextTools::toString(subModelNumber) + " is not a substitution model.");
+  
   subModel_ = std::unique_ptr<SubstitutionModel>(sm->clone());
   subModel_->setNamespace(getNamespace());
 

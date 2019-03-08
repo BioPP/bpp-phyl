@@ -44,7 +44,7 @@ using namespace bpp;
 using namespace std;
 
 MvaFrequenciesSet::MvaFrequenciesSet(const ProteicAlphabet* alpha) :
-  AbstractFrequenciesSet(new CanonicalStateMap(alpha, false), "MVA.", "MVAprotein"),
+  AbstractFrequenciesSet(std::shared_ptr<const StateMap>(new CanonicalStateMap(alpha, false)), "MVA.", "MVAprotein"),
   tPpalAxes_(),
   rowCoords_(),
   nbrOfAxes_(0),

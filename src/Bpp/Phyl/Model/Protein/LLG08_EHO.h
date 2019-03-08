@@ -40,10 +40,10 @@
 #ifndef _LLG08_EHO_H_
 #define _LLG08_EHO_H_
 
-#include "../MixtureOfSubstitutionModels.h"
+#include "../MixtureOfTransitionModels.h"
 #include "ProteinSubstitutionModel.h"
 #include "../AbstractSubstitutionModel.h"
-#include "../AbstractBiblioMixedSubstitutionModel.h"
+#include "../AbstractBiblioMixedTransitionModel.h"
 
 using namespace std;
 
@@ -76,7 +76,7 @@ namespace bpp
  */
 
   class LLG08_EHO :
-    public AbstractBiblioMixedSubstitutionModel
+    public AbstractBiblioMixedTransitionModel
   {
   public:
     class EmbeddedModel :
@@ -107,12 +107,12 @@ namespace bpp
     LLG08_EHO* clone() const { return new LLG08_EHO(*this); }
 
     LLG08_EHO(const LLG08_EHO& mod2) :
-      AbstractBiblioMixedSubstitutionModel(mod2)
+      AbstractBiblioMixedTransitionModel(mod2)
     {}
 
     LLG08_EHO& operator=(const LLG08_EHO& mod2)
     {
-      AbstractBiblioMixedSubstitutionModel::operator=(mod2);
+      AbstractBiblioMixedTransitionModel::operator=(mod2);
 
       return *this;
     }

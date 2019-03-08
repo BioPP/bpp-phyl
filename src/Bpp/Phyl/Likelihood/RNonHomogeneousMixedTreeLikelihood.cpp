@@ -39,7 +39,7 @@
 
 #include "RNonHomogeneousMixedTreeLikelihood.h"
 #include "../PatternTools.h"
-#include "../Model/MixedSubstitutionModel.h"
+#include "../Model/MixedTransitionModel.h"
 #include "../Tree/TreeTools.h"
 
 #include <Bpp/Numeric/NumConstants.h>
@@ -730,7 +730,7 @@ void RNonHomogeneousMixedTreeLikelihood::computeTransitionProbabilitiesForNode(c
     vProba.push_back(1);
   }
   else {
-    const MixedSubstitutionModel* mmodel = dynamic_cast<const MixedSubstitutionModel*>(model);
+    const MixedTransitionModel* mmodel = dynamic_cast<const MixedTransitionModel*>(model);
     double x = 0;
     for (size_t i = 0; i < nd.size(); ++i){
       vModel.push_back(mmodel->getNModel(static_cast<size_t>(nd[i])));

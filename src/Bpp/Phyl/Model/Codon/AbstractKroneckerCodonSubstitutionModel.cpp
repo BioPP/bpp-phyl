@@ -49,7 +49,7 @@ AbstractKroneckerCodonSubstitutionModel::AbstractKroneckerCodonSubstitutionModel
   NucleotideSubstitutionModel* pmod,
   const std::string& prefix) :
   AbstractParameterAliasable(prefix),
-  AbstractKroneckerWordSubstitutionModel(gCode->getSourceAlphabet(), new CanonicalStateMap(gCode->getSourceAlphabet(), false), prefix),
+  AbstractKroneckerWordSubstitutionModel(gCode->getSourceAlphabet(), std::shared_ptr<const StateMap>(new CanonicalStateMap(gCode->getSourceAlphabet(), false)), prefix),
   gCode_(gCode)
 {
   enableEigenDecomposition(true);
@@ -74,7 +74,7 @@ AbstractKroneckerCodonSubstitutionModel::AbstractKroneckerCodonSubstitutionModel
   const std::vector<std::set< size_t> >& vPos,
   const std::string& prefix) :
   AbstractParameterAliasable(prefix),
-  AbstractKroneckerWordSubstitutionModel(gCode->getSourceAlphabet(), new CanonicalStateMap(gCode->getSourceAlphabet(), false), prefix),
+  AbstractKroneckerWordSubstitutionModel(gCode->getSourceAlphabet(), std::shared_ptr<const StateMap>(new CanonicalStateMap(gCode->getSourceAlphabet(), false)), prefix),
   gCode_(gCode)
 {
   enableEigenDecomposition(true);
@@ -100,7 +100,7 @@ AbstractKroneckerCodonSubstitutionModel::AbstractKroneckerCodonSubstitutionModel
   NucleotideSubstitutionModel* pmod3,
   const std::string& prefix) :
   AbstractParameterAliasable(prefix),
-  AbstractKroneckerWordSubstitutionModel(gCode->getSourceAlphabet(), new CanonicalStateMap(gCode->getSourceAlphabet(), false), prefix),
+  AbstractKroneckerWordSubstitutionModel(gCode->getSourceAlphabet(), std::shared_ptr<const StateMap>(new CanonicalStateMap(gCode->getSourceAlphabet(), false)), prefix),
   gCode_(gCode)
 {
   enableEigenDecomposition(true);
@@ -148,7 +148,7 @@ AbstractKroneckerCodonSubstitutionModel::AbstractKroneckerCodonSubstitutionModel
   const std::vector<std::set< size_t> >& vPos,
   const std::string& prefix) :
   AbstractParameterAliasable(prefix),
-  AbstractKroneckerWordSubstitutionModel(gCode->getSourceAlphabet(), new CanonicalStateMap(gCode->getSourceAlphabet(), false), prefix),
+  AbstractKroneckerWordSubstitutionModel(gCode->getSourceAlphabet(), std::shared_ptr<const StateMap>(new CanonicalStateMap(gCode->getSourceAlphabet(), false)), prefix),
   gCode_(gCode)
 {
   enableEigenDecomposition(true);

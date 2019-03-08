@@ -1,5 +1,5 @@
 //
-// File: MixtureOfASubstitutionModel.cpp
+// File: MixtureOfATransitionModel.cpp
 // Created by: David Fournier, Laurent Gueguen
 //
 
@@ -36,7 +36,7 @@
    knowledge of the CeCILL license and that you accept its terms.
  */
 
-#include "MixtureOfASubstitutionModel.h"
+#include "MixtureOfATransitionModel.h"
 
 #include <Bpp/Numeric/NumConstants.h>
 #include <Bpp/Numeric/Prob/ConstantDistribution.h>
@@ -48,15 +48,15 @@ using namespace bpp;
 using namespace std;
 
 
-MixtureOfASubstitutionModel::MixtureOfASubstitutionModel(
+MixtureOfATransitionModel::MixtureOfATransitionModel(
   const Alphabet* alpha,
-  SubstitutionModel* model,
+  TransitionModel* model,
   std::map<std::string, DiscreteDistribution*> parametersDistributionsList,
   int ffrom,
   int tto) :
   AbstractParameterAliasable(model->getNamespace()),
-  AbstractSubstitutionModel(alpha, model->getStateMap().clone(), model->getNamespace()),
-  AbstractMixedSubstitutionModel(alpha, model->getStateMap().clone(), model->getNamespace()),
+  AbstractTransitionModel(alpha, model->shareStateMap(), model->getNamespace()),
+  AbstractMixedTransitionModel(alpha, shareStateMap(), model->getNamespace()),
   distributionMap_(),
   from_(ffrom),
   to_(tto)
@@ -103,7 +103,6 @@ MixtureOfASubstitutionModel::MixtureOfASubstitutionModel(
   for (i = 0; i < c; i++)
   {
     modelsContainer_.push_back(model->clone());
-//    modelsContainer_[i]->addRateParameter();
     modelsContainer_[i]->setNamespace(model->getNamespace());
 
     vProbas_.push_back(1.0 / static_cast<double>(c));
@@ -137,10 +136,10 @@ MixtureOfASubstitutionModel::MixtureOfASubstitutionModel(
   updateMatrices();
 }
 
-MixtureOfASubstitutionModel::MixtureOfASubstitutionModel(const MixtureOfASubstitutionModel& msm) :
+MixtureOfATransitionModel::MixtureOfATransitionModel(const MixtureOfATransitionModel& msm) :
   AbstractParameterAliasable(msm),
-  AbstractSubstitutionModel(msm),
-  AbstractMixedSubstitutionModel(msm),
+  AbstractTransitionModel(msm),
+  AbstractMixedTransitionModel(msm),
   distributionMap_(),
   from_(msm.from_),
   to_(msm.to_)
@@ -153,10 +152,10 @@ MixtureOfASubstitutionModel::MixtureOfASubstitutionModel(const MixtureOfASubstit
   }
 }
 
-MixtureOfASubstitutionModel& MixtureOfASubstitutionModel::operator=(const MixtureOfASubstitutionModel& msm)
+MixtureOfATransitionModel& MixtureOfATransitionModel::operator=(const MixtureOfATransitionModel& msm)
 {
   AbstractParameterAliasable::operator=(msm);
-  AbstractMixedSubstitutionModel::operator=(msm);
+  AbstractMixedTransitionModel::operator=(msm);
   from_ = msm.from_;
   to_ = msm.to_;
 
@@ -173,7 +172,7 @@ MixtureOfASubstitutionModel& MixtureOfASubstitutionModel::operator=(const Mixtur
 }
 
 
-MixtureOfASubstitutionModel::~MixtureOfASubstitutionModel()
+MixtureOfATransitionModel::~MixtureOfATransitionModel()
 {
   map<string, DiscreteDistribution*>::iterator it;
 
@@ -183,7 +182,7 @@ MixtureOfASubstitutionModel::~MixtureOfASubstitutionModel()
   }
 }
 
-const DiscreteDistribution* MixtureOfASubstitutionModel::getDistribution(std::string& parName) const
+const DiscreteDistribution* MixtureOfATransitionModel::getDistribution(std::string& parName) const
 {
   if (distributionMap_.find(parName) != distributionMap_.end())
     return distributionMap_.find(parName)->second;
@@ -191,7 +190,7 @@ const DiscreteDistribution* MixtureOfASubstitutionModel::getDistribution(std::st
     return NULL;
 }
 
-void MixtureOfASubstitutionModel::updateMatrices()
+void MixtureOfATransitionModel::updateMatrices()
 {
   string s, t;
   size_t i, j, l;
@@ -256,29 +255,15 @@ void MixtureOfASubstitutionModel::updateMatrices()
       freq_[i] += vProbas_[j] * modelsContainer_[j]->freq(i);
     }
   }
-
-  // setting the rates, if to_ & from_ are different from -1
-
-  if (to_ >= 0 && from_ >= 0)
-  {
-    Vdouble vd;
-
-    for (j = 0; j < modelsContainer_.size(); j++)
-    {
-      vd.push_back(1 / getNModel(j)->Qij(static_cast<size_t>(from_), static_cast<size_t>(to_)));
-    }
-
-    setVRates(vd);
-  }
 }
 
-void MixtureOfASubstitutionModel::setFreq(std::map<int, double>& m)
+void MixtureOfATransitionModel::setFreq(std::map<int, double>& m)
 {
   modelsContainer_[0]->setFreq(m);
   matchParametersValues(modelsContainer_[0]->getParameters());
 }
 
-const SubstitutionModel* MixtureOfASubstitutionModel::getSubModelWithName(const std::string& name) const
+const TransitionModel* MixtureOfATransitionModel::getModel(const std::string& name) const
 {
   size_t nbmod=getNumberOfModels();
   
@@ -289,7 +274,7 @@ const SubstitutionModel* MixtureOfASubstitutionModel::getSubModelWithName(const 
   return NULL;
 }
 
-Vint MixtureOfASubstitutionModel::getSubmodelNumbers(const string& desc) const
+Vint MixtureOfATransitionModel::getSubmodelNumbers(const string& desc) const
 {
   vector<string> parnames = modelsContainer_[0]->getParameters().getParameterNames();
   std::map<std::string, size_t> msubn;
@@ -301,7 +286,7 @@ Vint MixtureOfASubstitutionModel::getSubmodelNumbers(const string& desc) const
     string param = st.nextToken();
     string::size_type index = param.rfind("_");
     if (index == string::npos)
-      throw Exception("MixtureOfASubstitutionModel::getSubmodelNumbers parameter description should contain a number" + param);
+      throw Exception("MixtureOfATransitionModel::getSubmodelNumbers parameter description should contain a number" + param);
     msubn[param.substr(0, index)] = TextTools::to<size_t>(param.substr(index + 1, 4)) - 1;
   }
 

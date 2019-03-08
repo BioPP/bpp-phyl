@@ -59,7 +59,7 @@ SSR::SSR(
   double delta,
   double theta):
   AbstractParameterAliasable("SSR."),
-  AbstractReversibleNucleotideSubstitutionModel(alpha, new CanonicalStateMap(alpha, false), "SSR."),
+  AbstractReversibleNucleotideSubstitutionModel(alpha, std::shared_ptr<const StateMap>(new CanonicalStateMap(alpha, false)), "SSR."),
   beta_(beta), gamma_(gamma), delta_(delta), theta_(theta),
   piA_((1. - theta) / 2.), piC_(theta / 2.), piG_(theta / 2.), piT_((1. - theta) / 2.)
 {

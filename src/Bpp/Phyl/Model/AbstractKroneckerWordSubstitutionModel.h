@@ -206,7 +206,7 @@ namespace bpp
     /**
      * @brief Constructor for the derived classes only
      */
-    AbstractKroneckerWordSubstitutionModel(const Alphabet* alph, StateMap* stateMap, const std::string& prefix);
+    AbstractKroneckerWordSubstitutionModel(const Alphabet* alph, std::shared_ptr<const StateMap> stateMap, const std::string& prefix);
 
     void setChangingPositions(const std::vector<std::set<size_t> >& vPos);
 
