@@ -79,6 +79,13 @@ namespace bpp {
         return cachedAs<Self> (c, std::make_shared<Self> (c, std::move(deps), param));
       }
 
+      static std::shared_ptr<Self> create (Context & c, const Parameter& param)
+      {
+        NodeRefVec deps({NumericMutable<double>::create(c, param.getValue())});
+        
+        return cachedAs<Self> (c, std::make_shared<Self> (c, std::move(deps), param));
+      }
+
       ConfiguredParameter (const ConfiguredParameter& param)
         : Value<Parameter*> ({std::shared_ptr<NumericMutable<double>>(new NumericMutable<double>(param.getValue()))},this), Parameter (param), context_(param.context_)
       {

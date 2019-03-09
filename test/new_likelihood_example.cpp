@@ -225,18 +225,18 @@ TEST_CASE("new")
 {
   const CommonStuff c;
   auto ts = timingStart();
-  auto model = new bpp::T92(&c.alphabet, 3., 0.7);
+  auto model = new bpp::T92(&c.alphabet, 3, 0.7);
   auto rootFreqs = new bpp::GCFrequenciesSet(&c.alphabet, 0.1);
-  auto distribution = new bpp::ConstantRateDistribution();
-//  auto distribution = new bpp::GammaDiscreteRateDistribution(3, 0.5);
+//  auto distribution = new bpp::ConstantRateDistribution();
+  auto distribution = new bpp::GammaDiscreteRateDistribution(3, 1);
 
   bpp::Newick reader;
   auto phyloTree = std::unique_ptr<bpp::PhyloTree>(reader.parenthesisToPhyloTree(c.treeStr, false, "", false, false));
   auto paramPhyloTree = new bpp::ParametrizablePhyloTree(*phyloTree);
-  std::vector<std::string> globalParameterNames;
-
+  std::vector<std::string> globalParameterNames({"T92.kappa"});
+  
   auto process =
-    std::unique_ptr<bpp::NonHomogeneousSubstitutionProcess>(bpp::NonHomogeneousSubstitutionProcess::createHomogeneousSubstitutionProcess(model, distribution, rootFreqs, paramPhyloTree));
+    std::unique_ptr<bpp::NonHomogeneousSubstitutionProcess>(bpp::NonHomogeneousSubstitutionProcess::createNonHomogeneousSubstitutionProcess(model, distribution, rootFreqs, paramPhyloTree, globalParameterNames));
 
 
   auto likelihoodCompStruct = std::unique_ptr<bpp::RecursiveLikelihoodTreeCalculation>(
@@ -271,15 +271,15 @@ TEST_CASE("df")
   auto model = new bpp::T92(&c.alphabet, 3., 0.7);
   auto rootFreqs = new bpp::GCFrequenciesSet(&c.alphabet, 0.1);
   auto distribution = new bpp::ConstantRateDistribution();
-//  auto distribution = new bpp::GammaDiscreteRateDistribution(3, 0.5);
+//  auto distribution = new bpp::GammaDiscreteRateDistribution(3, 1);
   // Read tree structure
   bpp::Newick reader;
   auto phyloTree = std::unique_ptr<bpp::PhyloTree>(reader.parenthesisToPhyloTree(c.treeStr, false, "", false, false));
   auto paramPhyloTree = new bpp::ParametrizablePhyloTree(*phyloTree);
-  std::vector<std::string> globalParameterNames;
+  std::vector<std::string> globalParameterNames({"T92.theta","T92.kappa"});
 
   auto process =
-    std::unique_ptr<bpp::NonHomogeneousSubstitutionProcess>(bpp::NonHomogeneousSubstitutionProcess::createHomogeneousSubstitutionProcess(model, distribution, rootFreqs, paramPhyloTree));
+    std::unique_ptr<bpp::NonHomogeneousSubstitutionProcess>(bpp::NonHomogeneousSubstitutionProcess::createNonHomogeneousSubstitutionProcess(model, distribution, rootFreqs, paramPhyloTree, globalParameterNames));
   
    // Build likelihood value node
   bpp::dataflow::LikelihoodCalculation l(context, c.sites, *process);
@@ -320,14 +320,10 @@ TEST_CASE("df")
   for (size_t i=0;i<l.getParameters().size();i++)
   {
     auto ps = l.shareParameter(i);
-    if ((ps->getName().substr(0,5)=="BrLen")
-        || ps->getName().substr(0,3)=="T92"
-        || ps->getName().substr(0,2)=="GC")
+    if (ps->getName().substr(0,3)=="T92")
       ModelParam.shareParameter(ps);
   }
 
-  ModelParam.printParameters(std::cerr);
-  
   // bpp::ParameterList RootParam;
   // for (size_t i=0;i<l.getParameters().size();i++)
   // {
@@ -350,7 +346,6 @@ TEST_CASE("df")
   optimize_for_params(llh, "df_all_opt", l.getParameters());
   llh.getParameters().printParameters(std::cerr);
   
-  // TODO test optimization with model params
 }
 
 int main(int argc, char** argv)
