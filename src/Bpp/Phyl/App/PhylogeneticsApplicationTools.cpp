@@ -326,11 +326,8 @@ FrequenciesSet* PhylogeneticsApplicationTools::getRootFrequenciesSet(
     FrequenciesSet* freq = getFrequenciesSet(alphabet, gCode, freqDescription, data, unparams, rateFreqs, verbose, warn + 1);
     freq->setNamespace("root." + freq->getNamespace());
 
-    map<string, string>::iterator it;
-    for (it = unparams.begin(); it != unparams.end(); it++)
-    {
-      sharedparams["root." + it->first] = it->second;
-    }
+    for (const auto& it:unparams)
+      sharedparams["root." + it.first] = it.second;
 
     if (verbose)
       ApplicationTools::displayResult("Root frequencies ", freq->getName());

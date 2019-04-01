@@ -674,7 +674,7 @@ SubstitutionModel* BppOSubstitutionModelFormat::readSubstitionModel(
         {
           unparsedArguments_[modelName + "." + it->first] = it->second;
         }
-        
+
         if (modelName == "JC69+F")
           model.reset(new JCprot(alpha, dynamic_cast<ProteinFrequenciesSet*>(protFreq.release())));
         else if (modelName == "DSO78+F")
@@ -1524,12 +1524,14 @@ void BppOSubstitutionModelFormat::write(const TransitionModel& model,
   // Is it a model with FrequenciesSet?
   
   const FrequenciesSet* pfs = model.getFrequenciesSet();
-  if (pfs)
+  auto paf=dynamic_cast<const AbstractWrappedModel*>(&model);
+  
+  if ((pfs!=0) && (!paf))
   {
     if (comma)
       out << ",";
     out << "frequencies=";
-    
+
     BppOFrequenciesSetFormat bIOFreq(alphabetCode_, false, warningLevel_);
     bIOFreq.write(pfs, out, globalAliases, writtenNames);
     

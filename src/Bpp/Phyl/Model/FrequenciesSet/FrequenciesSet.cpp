@@ -249,7 +249,7 @@ void FromModelFrequenciesSet::fireParameterChanged(const ParameterList& pl)
 /// User
 
 UserFrequenciesSet::UserFrequenciesSet(std::shared_ptr<const StateMap> stateMap, const std::string& path, size_t nCol):
-  AbstractFrequenciesSet(stateMap, "User.", "User"),
+  AbstractFrequenciesSet(stateMap, "Empirical.", "Empirical"),
   path_(path),
   nCol_(nCol)
 {
