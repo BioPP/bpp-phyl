@@ -91,7 +91,11 @@ namespace bpp {
       
       std::string description () const final;
       std::string debugInfo () const final;
-
+      std::string color() const final
+      {
+        return "blue";
+      }
+      
       bool compareAdditionalArguments (const Node & other) const;
       
       std::size_t hashAdditionalArguments () const;
@@ -133,6 +137,11 @@ namespace bpp {
 
       std::string debugInfo () const final;
 
+      std::string color() const final
+      {
+        return "blue";
+      }
+
       bool compareAdditionalArguments (const Node & other) const final;
 
       NodeRef derive (Context & c, const Node & node) final;
@@ -173,6 +182,11 @@ namespace bpp {
 
       NodeRef derive (Context & c, const Node & node) final;
       NodeRef recreate (Context & c, NodeRefVec && deps) final;
+
+      std::string color() const final
+      {
+        return "blue";
+      }
 
     private:
       void compute () final;

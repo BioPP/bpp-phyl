@@ -43,7 +43,7 @@
 #include "doctest.h"
 
 //#define ENABLE_OLD
-#define ENABLE_NEW
+//#define ENABLE_NEW
 #define ENABLE_DF
 
 // Common stuff
@@ -75,10 +75,12 @@
 #endif
 // DF
 #ifdef ENABLE_DF
-#include <Bpp/NewPhyl/Parametrizable.h>
-#include <Bpp/NewPhyl/DataFlow.h>
-#include <Bpp/NewPhyl/LikelihoodCalculation.h>
+// #include <Bpp/NewPhyl/Parametrizable.h>
+// #include <Bpp/NewPhyl/DataFlow.h>
+#include <Bpp/NewPhyl/DataFlowFunction.h>
 #include <Bpp/Phyl/Io/Newick.h>
+#include <Bpp/Phyl/NewLikelihood/PhyloLikelihoods/SingleProcessPhyloLikelihood.h>
+#include <Bpp/Phyl/NewLikelihood/NonHomogeneousSubstitutionProcess.h>
 #include <Bpp/Phyl/NewLikelihood/PhyloLikelihoods/SingleProcessPhyloLikelihood.h>
 #include "Bpp/Phyl/NewLikelihood/SubstitutionProcess.h"
 #include <Bpp/Text/TextTools.h>
@@ -93,7 +95,7 @@ static void dotOutput(const std::string& testName, const std::vector<const bpp::
   {
     using bpp::dataflow::DotOptions;
     writeGraphToDot(
-      "debug_" + testName + ".dot", nodes, DotOptions::DetailedNodeInfo | DotOptions::ShowDependencyIndex);
+      "debug_" + testName + ".dot", nodes);//, DotOptions::DetailedNodeInfo | DotOptions::ShowDependencyIndex);
   }
 }
 
@@ -276,23 +278,26 @@ TEST_CASE("df")
   bpp::Newick reader;
   auto phyloTree = std::unique_ptr<bpp::PhyloTree>(reader.parenthesisToPhyloTree(c.treeStr, false, "", false, false));
   auto paramPhyloTree = new bpp::ParametrizablePhyloTree(*phyloTree);
-  std::vector<std::string> globalParameterNames({"T92.theta","T92.kappa"});
+  std::vector<std::string> globalParameterNames({"T92.kappa"});
 
+  // auto process =
+  //   std::unique_ptr<bpp::NonHomogeneousSubstitutionProcess>(bpp::NonHomogeneousSubstitutionProcess::createNonHomogeneousSubstitutionProcess(model, distribution, rootFreqs, paramPhyloTree, globalParameterNames));
   auto process =
-    std::unique_ptr<bpp::NonHomogeneousSubstitutionProcess>(bpp::NonHomogeneousSubstitutionProcess::createNonHomogeneousSubstitutionProcess(model, distribution, rootFreqs, paramPhyloTree, globalParameterNames));
+    std::unique_ptr<bpp::NonHomogeneousSubstitutionProcess>(bpp::NonHomogeneousSubstitutionProcess::createHomogeneousSubstitutionProcess(model, distribution, rootFreqs, paramPhyloTree));
   
    // Build likelihood value node
-  bpp::dataflow::LikelihoodCalculation l(context, c.sites, *process);
+  auto l = std::make_shared<bpp::dataflow::LikelihoodCalculation>(context, c.sites, *process);
+  l->setNumericalDerivateConfiguration(0.001, bpp::dataflow::NumericalDerivativeType::ThreePoints);
+//  l->setClockLike();
   
-  bpp::dataflow::DataFlowFunction llh(context, l.getLikelihood(), l.getParameters());
-
+  bpp::dataflow::DataFlowFunction llh(context, l, l->getParameters());
   timingEnd(ts, "df_setup");
 
   ts = timingStart();
   auto logLik = llh.getValue();
   timingEnd(ts, "df_init_value");
   printLik(logLik, "df_init_value");
-  dotOutput("likelihood_example_value", {l.getLikelihood().get()});
+  dotOutput("likelihood_example_value", {llh.getLikelihoodCalculation()->getLikelihood().get()});
   
   // Manual access to dbrlen1
   // auto br= dynamic_cast<bpp::dataflow::ConfiguredParameter*>(l.shareParameter("BrLen1").get());
@@ -302,32 +307,38 @@ TEST_CASE("df")
   // std::cout << "[dbrlen1] " << dlogLik_dbrlen1->getTargetValue() << "\n";
   // dotOutput("likelihood_example_dbrlen1", {dlogLik_dbrlen1.get()});
 
-  // // Manual access to dkappa 
-  // auto kappa= dynamic_cast<bpp::dataflow::ConfiguredParameter*>(l.shareParameter("T92.kappa_1").get());
-  // auto dlogLik_dkappa = l.getLikelihood()->deriveAsValue(context, *kappa->dependency(0));
-  // std::cout << "[dkappa] " << dlogLik_dkappa->getTargetValue() << "\n";
-  // dotOutput("likelihood_example_dkappa", {dlogLik_dkappa.get()});
+  // Manual access to dkappa
+  llh.getLikelihoodCalculation()->getParameters().printParameters(std::cerr);
+  
+  auto kappa= dynamic_cast<bpp::dataflow::ConfiguredParameter*>(llh.getLikelihoodCalculation()->getSharedParameter("T92.kappa_1").get());
+  auto dlogLik_dkappa = l->getLikelihood()->deriveAsValue(context, *kappa->dependency(0));
+  std::cout << "[dkappa] " << dlogLik_dkappa->getTargetValue() << "\n";
+  dotOutput("likelihood_example_dkappa", {dlogLik_dkappa.get()});
+  
+  auto d2logLik_dkappa2 = dlogLik_dkappa->deriveAsValue(context, *kappa->dependency(0));
+  std::cout << "[d2kappa] " << d2logLik_dkappa2->getTargetValue() << "\n";
+  dotOutput("likelihood_example_dkappa2", {d2logLik_dkappa2.get()});
 
-  bpp::ParameterList BrLenParam;
-  for (size_t i=0;i<l.getParameters().size();i++)
-  {
-    auto ps = l.shareParameter(i);
-    if (ps->getName().substr(0,5)=="BrLen")
-      BrLenParam.shareParameter(ps);
-  }
+  // bpp::ParameterList BrLenParam;
+  // for (size_t i=0;i<l->getParameters().size();i++)
+  // {
+  //   auto ps = l->getParameters().getSharedParameter(i);
+  //   if (ps->getName().substr(0,5)=="BrLen")
+  //     BrLenParam.shareParameter(ps);
+  // }
 
-  bpp::ParameterList ModelParam;
-  for (size_t i=0;i<l.getParameters().size();i++)
-  {
-    auto ps = l.shareParameter(i);
-    if (ps->getName().substr(0,3)=="T92")
-      ModelParam.shareParameter(ps);
-  }
+  // bpp::ParameterList ModelParam;
+  // for (size_t i=0;i<l->getParameters().size();i++)
+  // {
+  //   auto ps = l->getParameters().getSharedParameter(i);
+  //   if (ps->getName().substr(0,3)=="T92")
+  //     ModelParam.shareParameter(ps);
+  // }
 
   // bpp::ParameterList RootParam;
-  // for (size_t i=0;i<l.getParameters().size();i++)
+  // for (size_t i=0;i<l->getParameters().size();i++)
   // {
-  //   auto ps = l.shareParameter(i);
+  //   auto ps = l->shareParameter(i);
   //   if (ps->getName().substr(0,2)!="GC")
   //    RootParam.shareParameter(ps);
   // }
@@ -335,15 +346,15 @@ TEST_CASE("df")
   // RootParam.printParameters(std::cerr);
   
   // bpp::ParameterList AllParam;
-  // for (size_t i=0;i<l.getParameters().size();i++)
+  // for (size_t i=0;i<l->getParameters().size();i++)
   // {
-  //   auto ps = l.shareParameter(i);
+  //   auto ps = l->shareParameter(i);
   //   AllParam.shareParameter(ps);
   // }
 
   // optimize_for_params(llh, "df_brlens_opt", BrLenParam);
   // optimize_for_params(llh, "df_model_opt",  ModelParam);
-  optimize_for_params(llh, "df_all_opt", l.getParameters());
+  optimize_for_params(llh, "df_all_opt", l->getParameters());
   llh.getParameters().printParameters(std::cerr);
   
 }

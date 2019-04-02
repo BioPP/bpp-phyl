@@ -386,7 +386,8 @@ namespace bpp {
         return cachedAs<Self> (c, std::make_shared<Self> (dim));
       }
 
-      explicit ConstantZero (const Dimension<T> & dim) : Value<T> (NodeRefVec{}), targetDimension_ (dim) {}
+      explicit ConstantZero (const Dimension<T> & dim) : Value<T> (NodeRefVec{}), targetDimension_ (dim) {
+      }
 
       std::string debugInfo () const override { return "targetDim=" + to_string (targetDimension_); }
 
@@ -513,6 +514,16 @@ namespace bpp {
         return debug (this->accessValueConst ());
       }
 
+      std::string description() const override
+      {
+        using namespace numeric;
+        return Node::description() + "\n"+ debug (this->accessValueConst ());
+      }
+
+      std::string color () const override {
+        return "grey";
+      }
+
       bool hasNumericalProperty (NumericalProperty prop) const final {
         using namespace numeric;
         const auto & value = this->accessValueConst ();
@@ -610,8 +621,13 @@ namespace bpp {
         return debug (this->accessValueConst ());
       }
 
+      std::string description() const override
+      {
+        using namespace numeric;
+        return Node::description() + "\n"+ debug (this->accessValueConst ());
+      }
+
       NodeRef derive (Context & c, const Node & node) final {
-        // std::cerr << "der " << this->description() << "=" << this << ":" << &node << std::endl;
         const auto dim = Dimension<T> (this->accessValueConst ());
         if (&node == this) {
           return ConstantOne<T>::create (c, dim);

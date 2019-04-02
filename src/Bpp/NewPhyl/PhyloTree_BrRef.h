@@ -95,7 +95,7 @@ namespace bpp
       std::shared_ptr<ConfiguredParameter> brlen_;
 
     public:      
-      std::shared_ptr<ConfiguredModel> getModel() const
+      std::shared_ptr<ConfiguredModel> getModel()
       {
         return model_;
       }
@@ -269,7 +269,7 @@ namespace bpp
       {
         auto edge=**aEit;
         map.emplace (tree.getEdgeIndex(edge),
-                     std::dynamic_pointer_cast<ConfiguredParameter>(edge->getBrLen()->recreate(c)));
+                     std::dynamic_pointer_cast<ConfiguredParameter>(edge->getBrLen()->recreate(c,{edge->getBrLen()->dependency(0)})));
         aEit->next();
       }
       
@@ -277,7 +277,7 @@ namespace bpp
     }
 
     
-    BrLenMap multiplyBrLenMap(Context & c, const PhyloTree_BrRef& tree, std::shared_ptr<CategoryFromDiscreteDistribution>&& rate)
+    BrLenMap multiplyBrLenMap(Context & c, const PhyloTree_BrRef& tree, ValueRef<double>&& rate)
     {
       // Ids of the branches
 
@@ -288,7 +288,7 @@ namespace bpp
       while (!aEit->end())
       {
         auto edge=**aEit;
-
+        
         auto mulref = CWiseMul<double, std::tuple<double, double>>::create (c, {edge->getBrLen()->dependency(0), rate}, Dimension<double>());
         
         map.emplace (tree.getEdgeIndex(edge),

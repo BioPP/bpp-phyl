@@ -310,7 +310,7 @@ void PhyloTreeTools::computeBranchLengthsGrafen(
     else
       throw PhyloBranchPException ("PhyloTreeTools::computeBranchLengthsGrafen. Branch length lacking.", branch.get());
   }
-  heightRaised = pow(height / total, power) * total;
+  heightRaised = std::pow(height / total, power) * total;
   for (size_t i = 0; i < sons.size(); i++)
   {
     tree.getEdgeToFather(sons[i])->setLength(heightRaised - hr[i]);

@@ -163,7 +163,6 @@ namespace bpp {
 
     NodeRef TransitionMatrixFromModel::derive (Context & c, const Node & node) {
       // dtm/dn = sum_i dtm/dx_i * dx_i/dn + dtm/dbrlen * dbrlen/dn (x_i = model parameters).
-      
       auto modelDep = this->dependency (0);
       auto brlenDep = this->dependency (1);
       // Model part

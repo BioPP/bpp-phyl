@@ -59,7 +59,7 @@ namespace bpp {
      * It depends on a Value<double> node.
      */
     
-    class ConfiguredParameter : public Value<Parameter*>, public Parameter
+    class ConfiguredParameter : public Parameter, public Value<Parameter*>
     {
     private:
 
@@ -75,7 +75,6 @@ namespace bpp {
         checkDependenciesNotNull (typeid (Self), deps);
         checkDependencyVectorSize (typeid (Self), deps, 1);
         checkNthDependencyIsValue<double> (typeid (Self), deps, 0);
-
         return cachedAs<Self> (c, std::make_shared<Self> (c, std::move(deps), param));
       }
 
@@ -86,12 +85,26 @@ namespace bpp {
         return cachedAs<Self> (c, std::make_shared<Self> (c, std::move(deps), param));
       }
 
-      ConfiguredParameter (const ConfiguredParameter& param)
-        : Value<Parameter*> ({std::shared_ptr<NumericMutable<double>>(new NumericMutable<double>(param.getValue()))},this), Parameter (param), context_(param.context_)
+      static std::shared_ptr<Self> resetDependencies(Context& c, std::shared_ptr<Self> self, NodeRefVec&& deps)
       {
+        checkDependenciesNotNull (typeid (Self), deps);
+        checkDependencyVectorSize (typeid (Self), deps, 1);
+        checkNthDependencyIsValue<double> (typeid (Self), deps, 0);
+
+        self->resetDependencies_(std::move(deps));
+        
+        return cachedAs<Self> (c, self);
       }
+      
+          
+      ConfiguredParameter (const ConfiguredParameter& param)
+        : Parameter (param), Value<Parameter*> ({std::shared_ptr<NumericMutable<double>>(new NumericMutable<double>(param.getValue()))},this), context_(param.context_)
+      {
+      }      
 
       ConfiguredParameter (const Context& context, NodeRefVec&& deps, const Parameter& parameter);
+
+      ConfiguredParameter (const Context& context, NodeRefVec&& deps, Parameter&& parameter);
 
       ConfiguredParameter* clone() const {
         return new ConfiguredParameter(*this);
@@ -100,6 +113,7 @@ namespace bpp {
       ~ConfiguredParameter ();
       
       std::string description () const;
+      std::string color () const;
       std::string debugInfo () const;
 
       /*
@@ -165,11 +179,14 @@ namespace bpp {
         checkDependencyVectorSize (typeid (Self), deps, 2);
         checkDependencyRangeIsValue<double> (typeid (Self), deps, 0, 2);
         // Detect if we have a chain of ShiftParameter with the same delta.
+
         auto & delta = deps[1];
         auto * paramAsShiftParameter = dynamic_cast<ShiftParameter *> (&param);
+        
         if (paramAsShiftParameter != nullptr && paramAsShiftParameter->dependency (1) == delta) {
           // Merge with ShiftParameter dependency by summing the n.
-          return Self::create (c, std::move(deps), param, 1 + paramAsShiftParameter->getN ());
+          Parameter p2(param);
+          return Self::create (c, std::move(deps), p2, n + paramAsShiftParameter->getN ());
         }
         // Not a merge, select node implementation.
         if (n == 0 || delta->hasNumericalProperty (NumericalProperty::ConstantZero)) {
@@ -189,7 +206,22 @@ namespace bpp {
       {
       }
 
+      ShiftParameter (const Context& context, NodeRefVec && deps, Parameter&& parameter, int n)
+        : ConfiguredParameter (context, std::move (deps), std::move(parameter)), n_ (n)
+      {
+      }
+
       std::string description () const { return "Shift" + ConfiguredParameter::description();}
+
+      std::string color () const
+      {
+        auto& name=getName();
+        if (name.substr(0,5)=="BrLen")
+          return "#aa99aa";
+        else
+          return "#ffcc44";
+      }
+
 
       std::string debugInfo () const override {
         return ConfiguredParameter::debugInfo() +
@@ -234,9 +266,15 @@ namespace bpp {
         if (&node == this) {
           return ConstantOne<Parameter>::create (c, Dimension<Parameter>());
         }
-        auto & x = this->dependency (0);
-        auto & delta = this->dependency (1);
-        return Self::create (c, {x->derive (c, node), delta->derive (c, node)}, *this, n_);
+        auto dx = this->dependency (0)->derive (c, node);
+        auto ddelta = this->dependency (1)->derive (c, node);
+        if (dx->hasNumericalProperty (NumericalProperty::ConstantZero))
+          return ConstantZero<Parameter>::create (c, Dimension<Parameter>());
+
+        if (dx->hasNumericalProperty (NumericalProperty::ConstantOne))
+          return ConstantOne<Parameter>::create (c, Dimension<Parameter>());
+
+        return Self::create (c, {dx, ddelta}, *this, n_);
       }
 
       NodeRef recreate (Context & c, NodeRefVec && deps) final {
@@ -258,137 +296,42 @@ namespace bpp {
       int n_;
     };
 
-    // /** @brief scale param value = x * v [+ y].
-    //  * - v, x[, y]: double.
-    //  * - Order of dependencies: (v, x[, y]).
-    //  *
-    //  * Node construction should be done with the create static method.
-    //  */
-
-    // class ScaledParameter : public ConfiguredParameter {
-    // public:
-    //   using Self = ScaledParameter;
-
-    //   /// Build a new ScaledDelta node with the given output dimensions and shift number.
-    //   static std::shared_ptr<ConfiguredParameter> create(Context & c, NodeRefVec && deps, const Parameter& param)
-    //   {
-    //     // Check dependencies
-    //     checkDependenciesNotNull (typeid (Self), deps);
-    //     checkDependencyVectorMinSize (typeid (Self), deps, 2);
-    //     checkNthDependencyIsValue<double> (typeid (Self), deps, 0);
-    //     checkNthDependencyIsValue<double> (typeid (Self), deps, 1);
-    //     if (deps.size()==3)
-    //       checkNthDependencyIsValue<double> (typeid (Self), deps, 2);
-        
-    //     auto cfx=dynamic_cast<const ConfiguredParameter*>(&param);
-    //     if (deps.size()==2 || deps[2]->hasNumericalProperty (NumericalProperty::ConstantZero))
-    //     {
-    //       if (deps[0]->hasNumericalProperty (NumericalProperty::ConstantZero) ||
-    //           deps[1]->hasNumericalProperty (NumericalProperty::ConstantZero))
-    //         return ConstantZero<Parameter>::create (c, Dimension<Parameter>());
-    //       else {
-    //         bool oneDep0 = deps[0]->hasNumericalProperty (NumericalProperty::ConstantOne);
-    //         bool oneDep1 = deps[1]->hasNumericalProperty (NumericalProperty::ConstantOne);
-    //         if (oneDep0 && oneDep1) {
-    //           return ConstantOne<Parameter>::create (c, Dimension<Parameter>());
-    //         } else if (oneDep0 && !oneDep1) {
-    //           bpp::Parameter newParam("newParam", deps[1]->accessValueConst());
-    //           return ConfiguredParameter::create(c, NodeRefVec{deps[1]}, newParam);
-    //         } else if (!oneDep0 && oneDep1) {
-    //           auto* paramAsConf = dynamic_cast<const ConfiguredParameter*>(&param);
-    //           if (paramAsConf)
-    //             return std::dynamic_pointer_cast<ConfiguredParameter> (paramAsConf);
-    //           else
-    //             return ConfiguredParameter::create(c, {deps[0]}, param);
-    //         }
-    //       }
-    //     }
-    //     else
-    //     {
-    //       if (deps[0]->hasNumericalProperty (NumericalProperty::ConstantZero) ||
-    //           deps[1]->hasNumericalProperty (NumericalProperty::ConstantZero))
-    //       {
-    //         bpp::Parameter newParam("newParam", deps[2]->accessValueConst());
-    //         return ConfiguredParameter::create(c, {deps[2]}, newParam);
-    //       } 
-    //     }
-        
-    //     // otherwise
-    //     return cachedAs<Self> (c, std::make_shared<Self> (c, deps, param));
-    //   }
-
-    //   ScaledParameter (const Context& context, NodeRefVec && deps, const Parameter& parameter)
-    //     : ConfiguredParameter (context, std::move (deps), parameter)
-    //   {
-    //   }
-
-    //   std::string description () const { return "Scaled" + ConfiguredParameter::description();}
-
-    //   std::string debugInfo () const override {
-    //     return ConfiguredParameter::debugInfo()
-    //   }
-
-    //   /*
-    //    * @brief setValue is not possible here, since computation is
-    //    * done only through ompute method.
-    //    *
-    //    */
-      
-    //   void setValue(double v)
-    //   {
-    //     throw Exception("ScaledParameter setValue should not be called");
-    //   }
+    /** Value = parameter.getValue().
+     * parameter: ConfiguredParameter.
+     *
+     * Node construction should be done with the create static method.
+     */
 
 
-    //   /** @brief Raw value access (const).
-    //    *
-    //    * Value is not guaranteed to be valid (no recomputation).
-    //    */
-      
-    //   double getValue() const
-    //   {
-    //     return Parameter::getValue();
-    //   }
+    class ValueFromConfiguredParameter : public Value<double> {
+    public:
+      using Self = ValueFromConfiguredParameter;
+      using Dep = ConfiguredParameter;
+      using T = double;
 
-    //   NodeRef derive (Context & c, const Node & node) final {
-    //     if (&node == this) {
-    //       return ConstantOne<Parameter>::create (c, Dimension<Parameter>());
-    //     }
-    //     auto & v = this->dependency (0);
-    //     auto & x = this->dependency (1);
-    //     NodeRefVec addDeps(3);
-    //     addDeps[0]=ConstantOne<Parameter>::create (c, Dimension<Parameter>());
-    //     addDeps[1]=Self::create (c, {v->derive (c, node), x}, *this);
-    //     addDeps[2]=Self::create (c, {v, x->derive (c, node)}, *this);
-    //     auto addDer=Self::create(c, std::move(addDeps));
-        
-    //     if (this->dependencies().size()==3)
-    //     {
-    //       auto & y = this->dependency (2);
-    //       return Self::create (c, {addDer, ConstantOne<double>::create (c, Dimension<double>()), y->derive(c, node)});
-    //     }
-    //     else
-    //       return addDer;
-    //   }
+      ValueFromConfiguredParameter (NodeRefVec && deps);
 
-    //   NodeRef recreate (Context & c, NodeRefVec && deps) final {
-    //     return Self::create (c, std::move (deps));
-    //   }
+      std::string debugInfo () const final;
 
-    // private:
-    //   void compute () final
-    //   {
-    //     const auto&  val = accessValueConstCast<double> (*this->dependency (0));
-    //     const auto& x = accessValueConstCast<double> (*this->dependency (1));
-    //     double r=n_ * delta + x;
-    //     // Boundary mgmt not so clean!
-    //     this->accessValueMutable()->Parameter::setValue(getConstraint()->isCorrect(r)?r:getConstraint()->getAcceptedLimit(r));
-    //   }
+      bool compareAdditionalArguments (const Node & other) const final;
 
-    //   int n_;
-    // };
+      NodeRef derive (Context & c, const Node & node) final;
+      NodeRef recreate (Context & c, NodeRefVec && deps) final;
 
+      std::string description () const {
+        return "ValueFrom(" + dependency(0)->description() + ")";
+      }
 
+      std::string color () const;
+
+    private:
+      void compute () final;
+
+    public:
+      static std::shared_ptr<Self> create (Context & c, NodeRefVec && deps);
+
+    };
+    
   } // namespace dataflow
 } // namespace bpp
 

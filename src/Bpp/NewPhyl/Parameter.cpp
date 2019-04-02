@@ -50,17 +50,32 @@ namespace bpp {
     // Parameter node
     
     ConfiguredParameter::ConfiguredParameter (const Context& context, NodeRefVec&& deps, const Parameter& parameter)
-      : Value<Parameter*> (deps, this), Parameter(parameter), context_(context)
+      : Parameter(parameter), Value<Parameter*> (deps, this), context_(context)
+    {
+    };
+
+    ConfiguredParameter::ConfiguredParameter (const Context& context, NodeRefVec&& deps, Parameter&& parameter)
+      : Parameter(std::move(parameter)), Value<Parameter*> (deps, this), context_(context)
     {
     };
 
     ConfiguredParameter::~ConfiguredParameter () = default;
 
-    std::string ConfiguredParameter::description () const { return "Parameter(" + getName () + ")";
+    std::string ConfiguredParameter::description () const {
+      return "Parameter(" + getName () + ")\nvalue="+std::to_string(getValue());
     }
     
     std::string ConfiguredParameter::debugInfo () const {
-      return "value="+std::to_string(getValue());
+      return "";
+    }
+
+    std::string ConfiguredParameter::color () const
+    {
+      auto& name=getName();
+      if (name.substr(0,5)=="BrLen")
+        return "#00ff00";
+      else
+        return "#ff8800";
     }
 
     // Parameter node additional arguments = (type of bpp::Parameter).
@@ -81,8 +96,6 @@ namespace bpp {
     }
 
     NodeRef ConfiguredParameter::derive (Context & c, const Node & node) {
-      // std::cerr << "der " << this->description() << "=" << this << ":"  << dependency(0).get() << ":" << &node << std::endl;
-
       if (&node == this) {
         return ConstantOne<double>::create (c, Dimension<double>());
       }
@@ -106,6 +119,57 @@ namespace bpp {
         Parameter::setValue(v);
       }
     }
-    
+
+    ////////////////////////////////////////////////////
+    // ValueFromConfiguredParameter
+
+    ValueFromConfiguredParameter::ValueFromConfiguredParameter (
+      NodeRefVec && deps)
+      : Value<double> (std::move (deps)) {}
+
+    std::string ValueFromConfiguredParameter::debugInfo () const {
+      return dependency(0)->debugInfo();
+    }
+
+    // ValueFromConfiguredParameter additional arguments = ().
+    bool ValueFromConfiguredParameter::compareAdditionalArguments (const Node & other) const {
+      const auto * derived = dynamic_cast<const Self *> (&other);
+      return derived != nullptr;
+    }
+
+    std::shared_ptr<ValueFromConfiguredParameter> ValueFromConfiguredParameter::create (Context & c, NodeRefVec && deps) {
+      checkDependenciesNotNull (typeid (Self), deps);
+      checkDependencyVectorSize (typeid (Self), deps, 1);
+      checkNthDependencyIs<ConfiguredParameter> (typeid (Self), deps, 0);
+      return cachedAs<ValueFromConfiguredParameter> (c, std::make_shared<ValueFromConfiguredParameter> (std::move (deps)));
+    }
+
+    NodeRef ValueFromConfiguredParameter::derive (Context & c, const Node & node) {
+      if (&node == this) {
+        return ConstantOne<double>::create (c, Dimension<double>());
+      }
+      else
+        return this->dependency(0)->derive(c, node);
+    }
+      
+    std::string ValueFromConfiguredParameter::color () const
+    {
+      auto& name = accessValueConstCast<const ConfiguredParameter *> (*this->dependency (0))->getName();
+      if (name.substr(0,5)=="BrLen")
+        return "#66ff66";
+      else
+        return "#ffcc00";
+    }
+
+    NodeRef ValueFromConfiguredParameter::recreate (Context & c, NodeRefVec && deps)
+    {
+      return ValueFromConfiguredParameter::create (c, {std::move (deps)});
+    }
+
+    void ValueFromConfiguredParameter::compute () {
+      const auto * param = accessValueConstCast<const ConfiguredParameter *> (*this->dependency (0));
+      this->accessValueMutable () = param->getValue();
+    }
+
   } // namespace dataflow
 } // namespace bpp

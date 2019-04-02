@@ -347,8 +347,8 @@ namespace bpp
 
     double getD2LogLikelihoodForASiteIndex(size_t siteindex) const
     {
-      return getD2LikelihoodForASiteIndex(siteindex) / getLikelihoodForASiteIndex(siteindex)
-        - pow( getDLikelihoodForASiteIndex(siteindex) / getLikelihoodForASiteIndex(siteindex), 2);
+      double x= getDLikelihoodForASiteIndex(siteindex) / getLikelihoodForASiteIndex(siteindex);
+      return getD2LikelihoodForASiteIndex(siteindex) / getLikelihoodForASiteIndex(siteindex) - x*x;
     }
 
     /**

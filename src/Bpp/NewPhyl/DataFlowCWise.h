@@ -63,6 +63,7 @@ namespace bpp {
     T & cwise (T & t) {
       return t; // Do nothing for basic types
     }
+
     template <typename Derived> auto cwise (const Eigen::MatrixBase<Derived> & m) -> decltype (m.array ()) {
       return m.array (); // Use Array API in Eigen
     }
@@ -217,6 +218,21 @@ namespace bpp {
       std::string debugInfo () const override {
         using namespace numeric;
         return debug (this->accessValueConst ()) + " targetDim=" + to_string (targetDimension_);
+      }
+
+      std::string shape() const
+      {
+        return "triangle";
+      }
+
+      std::string color() const
+      {
+        return "#ff6060";
+      }
+
+      std::string description() const
+      {
+        return "Add";
       }
 
       // Convert<T> additional arguments = ().
@@ -449,6 +465,21 @@ namespace bpp {
         return debug (this->accessValueConst ()) + " targetDim=" + to_string (targetDimension_);
       }
 
+      std::string shape() const
+      {
+        return "trapezium";
+      }
+
+      std::string color() const
+      {
+        return "#ffd0d0";
+      }
+
+      std::string description() const
+      {
+        return "Mean";
+      }
+      
       // CWiseAdd additional arguments = ().
       bool compareAdditionalArguments (const Node & other) const final {
         return dynamic_cast<const Self *> (&other) != nullptr;
@@ -542,6 +573,21 @@ namespace bpp {
       std::string debugInfo () const override {
         using namespace numeric;
         return debug (this->accessValueConst ()) + " targetDim=" + to_string (targetDimension_);
+      }
+
+      std::string shape() const
+      {
+        return "house";
+      }
+
+      std::string color() const
+      {
+        return "#ff9090";
+      }
+
+      std::string description() const
+      {
+        return "Mul";
       }
 
       // CWiseMul additional arguments = ().
@@ -1247,6 +1293,22 @@ namespace bpp {
         return debug (this->accessValueConst ()) + " targetDim=" + to_string (targetDimension_);
       }
 
+      std::string shape() const
+      {
+        return "doubleoctagon";
+      }
+
+      std::string color() const
+      {
+        return "#9e9e9e";
+      }
+
+
+      std::string description() const
+      {
+        return "Matrix Product";
+      }
+
       // MatrixProduct additional arguments = ().
       bool compareAdditionalArguments (const Node & other) const final {
         return dynamic_cast<const Self *> (&other) != nullptr;
@@ -1465,10 +1527,9 @@ namespace bpp {
         assert (this->coeffs_.size () + 1 == this->nbDependencies ());
       }
 
-      std::string debugInfo () const override {
-        using namespace numeric;
-        std::string s = debug (this->accessValueConst ()) + " targetDim=" + to_string (targetDimension_) +
-                        " n=" + std::to_string (n_) + " coeffs={";
+      std::string description() const override
+      {
+        std::string s = " CombineDeltaShifted  n=" + std::to_string (n_) + " coeffs={";
         if (!coeffs_.empty ()) {
           s += std::to_string (coeffs_[0]);
           for (std::size_t i = 1; i < coeffs_.size (); ++i) {
@@ -1476,6 +1537,12 @@ namespace bpp {
           }
         }
         s += '}';
+        return s;
+      }
+      
+      std::string debugInfo () const override {
+        using namespace numeric;
+        std::string s = debug (this->accessValueConst ()) + " targetDim=" + to_string (targetDimension_);
         return s;
       }
 
@@ -1706,7 +1773,7 @@ namespace bpp {
                                                  NodeRef dep,
                                                  const Dimension<NodeT> & nodeDim,
                                                  B buildNodeWithDep)
-    {      
+    {
       if (config.delta == nullptr) {
         failureNumericalDerivationNotConfigured ();
       }

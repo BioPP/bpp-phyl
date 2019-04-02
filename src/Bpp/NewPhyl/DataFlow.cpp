@@ -275,6 +275,22 @@ namespace bpp {
       return r.first->ref;
     }
 
+    NodeRef Context::cached (NodeRef& newNode) {
+      assert (newNode != nullptr);
+      // First remove this object from the set if it is already      
+      for (auto it=nodeCache_.begin();it!=nodeCache_.end();)
+      {
+        if (&it->ref==&newNode)
+          it=nodeCache_.erase(it);
+        else
+          ++it;
+      }
+      
+      // Try inserting it, which will fail if already present and return the old one
+      auto r = nodeCache_.emplace (newNode);
+      return r.first->ref;
+    }
+
     /* Compare/hash the triplet (type, deps, additionalArgs).
      * type and deps are available directly from the Node*.
      * additionalArgs is handled through the two virtual methods.
@@ -334,20 +350,35 @@ namespace bpp {
     static void writeDotNode (std::ostream & os, const Node & node, DotOptions opt) {
       os << '\t' << dotIdentifier (node);
       if (opt & DotOptions::DetailedNodeInfo) {
-        os << " [shape=Mrecord,label=\"{" << dotLabelEscape (node.description ())
-           << "| valid=" << node.isValid () << ' ' << dotLabelEscape (node.debugInfo ()) << "}\"]";
+        os << " [style=filled, shape=Mrecord,label=\"{" << dotLabelEscape (node.description ())
+           << "| valid=" << node.isValid () << ' ' << dotLabelEscape (node.debugInfo ()) << "}\"";
       } else {
-        os << " [shape=box,label=\"" << dotLabelEscape (node.description ()) << "\"]";
+        os << " [style=filled, shape=" << node.shape() << ",label=\"" << dotLabelEscape (node.description ()) << "\"";
       }
+      os  << ",fillcolor=\"" << node.color() << "\"]";
       os << ";\n";
     }
 
     // Write line with edge representation for n-th dependency of from
     static void writeDotEdge (std::ostream & os, const Node & from, std::size_t depIndex, DotOptions opt) {
-      os << '\t' << dotIdentifier (from) << " -> " << dotIdentifier (*from.dependency (depIndex));
+      const auto& to = *from.dependency (depIndex);
+      os << '\t' << dotIdentifier (from) << " -> " << dotIdentifier (to);
+      os << " [";
       if (opt & DotOptions::ShowDependencyIndex) {
-        os << " [label=\"" << depIndex << "\"]";
+        os << "label=\"" << depIndex << "\",";
       }
+      
+      auto fc=from.color()!="white"?from.color():"black";
+      // auto tc=to.color()!="white"?to.color():"black";
+
+      // std::vector<double> vpat={0.05,0.1,0.15,0.2};
+      
+      // std::string pat;
+      // for (size_t i=0;i<vpat.size();i++)
+      //   pat += fc + ";" + std::to_string(vpat[i]) + ":" + tc + ";" + std::to_string(vpat[vpat.size()-i-1])+":";
+      
+      os << "color=\"" << fc << "\"";
+      os << " ]";
       os << ";\n";
     }
 
@@ -371,8 +402,10 @@ namespace bpp {
 
       while (!nodesToVisit.empty ()) {
         const auto * node = nodesToVisit.top ();
+        
         nodesToVisit.pop ();
         writeDotNode (os, *node, opt);
+        
         if (opt & DotOptions::FollowUpwardLinks) {
           for (const auto * dependent : node->dependentNodes ()) {
             discover (dependent);

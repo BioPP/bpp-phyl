@@ -542,6 +542,79 @@ unsigned int OptimizationTools::optimizeNumericalParameters2(
   return optimizer->getNumberOfEvaluations();
 }
 
+/************************************************************/
+
+unsigned int OptimizationTools::optimizeNumericalParameters2(
+  dataflow::DataFlowFunction& lik,
+  const ParameterList& parameters,
+  OptimizationListener* listener,
+  double tolerance,
+  unsigned int tlEvalMax,
+  OutputStream* messageHandler,
+  OutputStream* profiler,
+  bool reparametrization,
+  bool useClock,
+  unsigned int verbose,
+  const std::string& optMethodDeriv)
+{
+  ParameterList pl = parameters;
+
+  if (reparametrization)
+  {
+    throw Exception("OptimizationTools::optimizeNumericalParameters2 reparametrization not checked for dataflow likelihood calculation");
+    
+    // frep.reset(new ReparametrizationDerivableSecondOrderWrapper(f, pl));
+    // f = frep.get();
+
+    // // Reset parameters to remove constraints:
+    // pl = f->getParameters().createSubList(pl.getParameterNames());
+  }
+
+  
+  // Build optimizer:
+  unique_ptr<Optimizer> optimizer;
+
+  if (optMethodDeriv == OPTIMIZATION_GRADIENT)
+  {
+    lik.getLikelihoodCalculation()->setNumericalDerivateConfiguration(0.00001, dataflow::NumericalDerivativeType::ThreePoints);
+    optimizer.reset(new ConjugateGradientMultiDimensions(&lik));
+  }
+  else if (optMethodDeriv == OPTIMIZATION_NEWTON)
+  {
+    lik.getLikelihoodCalculation()->setNumericalDerivateConfiguration(0.0001, dataflow::NumericalDerivativeType::FivePoints);
+    optimizer.reset(new PseudoNewtonOptimizer(&lik));
+  }
+  else if (optMethodDeriv == OPTIMIZATION_BFGS)
+  {
+    lik.getLikelihoodCalculation()->setNumericalDerivateConfiguration(0.0001, dataflow::NumericalDerivativeType::ThreePoints);
+    optimizer.reset(new BfgsMultiDimensions(&lik));
+  }
+  else
+    throw Exception("OptimizationTools::optimizeNumericalParameters2. Unknown optimization method: " + optMethodDeriv);
+
+  optimizer->setVerbose(verbose);
+  optimizer->setProfiler(profiler);
+  optimizer->setMessageHandler(messageHandler);
+  optimizer->setMaximumNumberOfEvaluations(tlEvalMax);
+  optimizer->getStopCondition()->setTolerance(tolerance);
+
+  // Optimize TreeLikelihood function:
+  optimizer->setConstraintPolicy(AutoParameter::CONSTRAINTS_AUTO);
+  NaNListener* nanListener = new NaNListener(optimizer.get(), &lik);
+  optimizer->addOptimizationListener(nanListener);
+  if (listener)
+    optimizer->addOptimizationListener(listener);
+  optimizer->init(pl);
+  optimizer->optimize();
+  delete nanListener;
+  
+  if (verbose > 0)
+    ApplicationTools::displayMessage("\n");
+
+  // We're done.
+  return optimizer->getNumberOfEvaluations();
+}
+
 /******************************************************************************/
 
 

@@ -50,6 +50,7 @@
 #include "Distance/DistanceMethod.h"
 
 #include "NewLikelihood/PhyloLikelihoods/PhyloLikelihood.h"
+#include <Bpp/NewPhyl/DataFlowFunction.h>
 
 #include <Bpp/Io/OutputStream.h>
 #include <Bpp/App/ApplicationTools.h>
@@ -363,7 +364,7 @@ public:
       unsigned int verbose              = 1,
       const std::string& optMethodDeriv = OPTIMIZATION_NEWTON,
       const std::string& optMethodModel = OPTIMIZATION_BRENT);
-  
+
   /**
    * @brief Optimize numerical parameters (branch length, substitution model & rate distribution) of a TreeLikelihood function.
    *
@@ -411,6 +412,19 @@ public:
       bool useClock                      = false,
       unsigned int verbose               = 1,
       const std::string& optMethodDeriv  = OPTIMIZATION_NEWTON);
+
+  static unsigned int optimizeNumericalParameters2(
+    dataflow::DataFlowFunction& lik,
+    const ParameterList& parameters,
+    OptimizationListener* listener     = 0,
+    double tolerance                   = 0.000001,
+    unsigned int tlEvalMax             = 1000000,
+    OutputStream* messageHandler       = ApplicationTools::message.get(),
+    OutputStream* profiler             = ApplicationTools::message.get(),
+    bool reparametrization             = false,
+    bool useClock                      = false,
+    unsigned int verbose               = 1,
+    const std::string& optMethodDeriv  = OPTIMIZATION_NEWTON);
 
   /**
    * @brief Optimize branch lengths parameters of a TreeLikelihood function.

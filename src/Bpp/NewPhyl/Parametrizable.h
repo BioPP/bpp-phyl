@@ -209,9 +209,11 @@ namespace bpp {
       static NodeRefVec generateDerivativeSumDepsForComputations (
         Context & c, ConfiguredObject & object, const Node & derivationNode, const Dimension<T> & targetDimension, B buildFWithNewObject) {
         NodeRefVec derivativeSumDeps;
+        
         for (std::size_t i = 0; i < object.nbDependencies (); ++i) {
           // First compute dxi_dn. If this maps to a constant 0, do not compute df_dxi at all (costly).
           auto dxi_dn = object.dependency (i)->derive (c, derivationNode);
+          
           if (!dxi_dn->hasNumericalProperty (NumericalProperty::ConstantZero)) {
             auto buildFWithNewXi = [&c, i, &object, &buildFWithNewObject](std::shared_ptr<ConfiguredParameter> newDep) {
               // The sub-graph that will be replicated with shifted inputs is: f(freqset(x_i), stuff)
@@ -223,9 +225,12 @@ namespace bpp {
 
             auto df_dxi = generateNumericalDerivative<T> (
               c, object.config, object.dependency (i), targetDimension, buildFWithNewXi);
-
-            derivativeSumDeps.emplace_back (CWiseMul<T, std::tuple<double, T>>::create (
-                                            c, {std::move (dxi_dn), std::move (df_dxi)}, targetDimension));
+            
+            if (dxi_dn->hasNumericalProperty (NumericalProperty::ConstantOne))
+              derivativeSumDeps.emplace_back (std::move (df_dxi));
+            else              
+              derivativeSumDeps.emplace_back (CWiseMul<T, std::tuple<double, T>>::create (
+                                                c, {std::move (dxi_dn), std::move (df_dxi)}, targetDimension));
           }
         }
         return derivativeSumDeps;

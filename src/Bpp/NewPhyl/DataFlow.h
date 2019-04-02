@@ -73,7 +73,30 @@ namespace bpp {
     template <typename T> class Value;
     class Context;
 
+
+    /////  Dot output
+    /// Flags to control dot output of dataflow graphs.
+    enum class DotOptions {
+      None = 0,
+      DetailedNodeInfo = 1 << 0,
+      FollowUpwardLinks = 1 << 1,
+      ShowDependencyIndex = 1 << 2};
+    
+    DotOptions operator| (DotOptions a, DotOptions b);
+    bool operator& (DotOptions a, DotOptions b);
+
+    /// Write dataflow graph starting at nodes to output stream.
+    void writeGraphToDot (std::ostream & os, const std::vector<const Node *> & nodes, DotOptions opt = DotOptions::None);
+
+    /// Write dataflow graph starting at nodes to file at filename, overwriting it.
+    void writeGraphToDot (const std::string & filename, const std::vector<const Node *> & nodes,
+                          DotOptions opt  = DotOptions::None);
+
+
+    ///////////////////////////////////
+    /// 
     /// Node instances are always manipulated as shared pointers: provide a short alias.
+    
     using NodeRef = std::shared_ptr<Node>;
 
     /// Alias for a dependency vector (of NodeRef).
@@ -144,6 +167,7 @@ namespace bpp {
      * This include derivation (numerical values), debug, etc.
      * These features have no-op or failure defaults which can be overriden in derived classes.
      */
+    
     class Node : public std::enable_shared_from_this<Node> {
     public:
       Node () = default;
@@ -166,6 +190,16 @@ namespace bpp {
 
       /// Node pretty name (default = type name).
       virtual std::string description () const;
+
+      virtual std::string color () const
+      {
+        return "white";
+      }
+
+      virtual std::string shape () const
+      {
+        return "box";
+      }
 
       /// Node debug info (default = ""): user defined detailed info for DF graph debug.
       virtual std::string debugInfo () const;
@@ -241,20 +275,37 @@ namespace bpp {
 
     protected:
 
-      void setDependencies_(NodeRefVec && dependenciesArg)
-      {
-        if (dependencyNodes_.size()!=0)
-          throw bpp::Exception("Node::setDependencies_ possible only for Nodes without dependencies.");
+      // void setDependencies_(NodeRefVec && dependenciesArg)
+      // {
+      //   if (dependencyNodes_.size()!=0)
+      //     throw bpp::Exception("Node::setDependencies_ possible only for Nodes without dependencies.");
         
-        dependencyNodes_=std::move(dependenciesArg);
+      //   dependencyNodes_=std::move(dependenciesArg);
+
+      //   for (auto & n : dependencyNodes_)
+      //       n->registerNode (this);
+
+      //   invalidateRecursively ();
+      //   makeInvalid ();
+      // }
+
+      void resetDependencies_(NodeRefVec && dependenciesArg)
+      {
+        for (auto & n : dependencyNodes_)
+          n->unregisterNode (this);
+        
+        dependencyNodes_=dependenciesArg;
+
+        dataflow::writeGraphToDot("this",{this});
 
         for (auto & n : dependencyNodes_)
-            n->registerNode (this);
-
+          n->registerNode (this);
+        
         invalidateRecursively ();
         makeInvalid ();
+
       }
-   
+
     private:
       void registerNode (Node * n);
       void unregisterNode (const Node * n);
@@ -272,23 +323,6 @@ namespace bpp {
       return p;
     }
 
-    /// Flags to control dot output of dataflow graphs.
-    enum class DotOptions {
-      None = 0,
-      DetailedNodeInfo = 1 << 0,
-      FollowUpwardLinks = 1 << 1,
-      ShowDependencyIndex = 1 << 2,
-    };
-    DotOptions operator| (DotOptions a, DotOptions b);
-    bool operator& (DotOptions a, DotOptions b);
-
-    /// Write dataflow graph starting at nodes to output stream.
-    void writeGraphToDot (std::ostream & os, const std::vector<const Node *> & nodes, DotOptions opt);
-
-    /// Write dataflow graph starting at nodes to file at filename, overwriting it.
-    void writeGraphToDot (const std::string & filename, const std::vector<const Node *> & nodes,
-                          DotOptions opt);
-
     /// Check if searchedDependency if a transitive dependency of node.
     bool isTransitivelyDependentOn (const Node & searchedDependency, const Node & node);
 
@@ -296,6 +330,8 @@ namespace bpp {
     NodeRef recreateWithSubstitution (Context & c, const NodeRef & node,
                                       const std::unordered_map<const Node *, NodeRef> & substitutions);
 
+
+    
     /** @brief Abstract Node storing a value of type T.
      *
      * Represents a DataFlow node containing a T value, but still abstract (no compute()).
@@ -446,6 +482,8 @@ namespace bpp {
        */
       NodeRef cached (NodeRef && newNode);
 
+      NodeRef cached (NodeRef& newNode);
+
     private:
       /* NodeRef is hashable and comparable as a pointer.
        * CachedNodeRef is hashable and comparable, by comparing the node configuration:
@@ -458,6 +496,9 @@ namespace bpp {
         NodeRef ref;
 
         CachedNodeRef (NodeRef && r) : ref (std::move (r)) {}
+
+        CachedNodeRef (NodeRef & r) : ref (r) {}
+
         bool operator== (const CachedNodeRef & other) const;
       };
       struct CachedNodeRefHash {
@@ -471,6 +512,11 @@ namespace bpp {
     template <typename T> std::shared_ptr<T> cachedAs (Context & c, std::shared_ptr<T> && newNode) {
       // We can use the faster static_cast due to Context::cached(): node types are conserved.
       return std::static_pointer_cast<T> (c.cached (std::move (newNode)));
+    }
+
+    template <typename T> std::shared_ptr<T> cachedAs (Context & c, std::shared_ptr<T>& newNode) {
+      // We can use the faster static_cast due to Context::cached(): node types are conserved.
+      return std::static_pointer_cast<T> (c.cached (newNode));
     }
   } // namespace dataflow
 } // namespace bpp

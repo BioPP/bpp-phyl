@@ -608,7 +608,7 @@ void TreeTools::computeBranchLengthsGrafen(
     else
       throw NodeException ("TreeTools::computeBranchLengthsGrafen. Branch length lacking.", son);
   }
-  heightRaised = pow(height / total, power) * total;
+  heightRaised = std::pow(height / total, power) * total;
   for (size_t i = 0; i < sons.size(); i++)
   {
     tree.setDistanceToFather(sons[i], heightRaised - hr[i]);
@@ -1137,7 +1137,7 @@ void TreeTools::computeBootstrapValues(Tree& tree, const vector<Tree*>& vecTr, b
     {
       if (BipartitionTools::areIdentical(bpTree, i, *bpList, j))
       {
-        bootstrapValues[i] = format >= 0 ? round(static_cast<double>(occurences[j]) * pow(10., 2 + format) / static_cast<double>(vecTr.size())) / pow(10., format) : static_cast<double>(occurences[j]);
+        bootstrapValues[i] = format >= 0 ? round(static_cast<double>(occurences[j]) * std::pow(10., 2 + format) / static_cast<double>(vecTr.size())) / std::pow(10., format) : static_cast<double>(occurences[j]);
         break;
       }
     }

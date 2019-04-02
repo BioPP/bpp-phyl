@@ -41,7 +41,7 @@
 #ifndef BPP_NEWPHYL_HOMOGENEOUS_LIKELIHOOD_EXAMPLE_H
 #define BPP_NEWPHYL_HOMOGENEOUS_LIKELIHOOD_EXAMPLE_H
 
-#include "Bpp/NewPhyl/DataFlowWrappers.h"
+#include "Bpp/NewPhyl/DataFlowFunction.h"
 #include "Bpp/NewPhyl/Model.h"
 #include "Bpp/NewPhyl/DiscreteDistribution.h"
 #include "Bpp/NewPhyl/FrequenciesSet.h"

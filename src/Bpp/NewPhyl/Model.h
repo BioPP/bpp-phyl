@@ -89,6 +89,11 @@ namespace bpp {
       std::string description () const final;
       std::string debugInfo () const final;
 
+      std::string color () const final
+      {
+        return "red";
+      }
+
       bool compareAdditionalArguments (const Node & other) const;
       
       std::size_t hashAdditionalArguments () const;
@@ -135,6 +140,11 @@ namespace bpp {
       NodeRef derive (Context & c, const Node & node) final;
       NodeRef recreate (Context & c, NodeRefVec && deps) final;
 
+      std::string color () const final
+      {
+        return "#aa00ff";
+      }
+
     private:
       void compute () final;
 
@@ -165,6 +175,21 @@ namespace bpp {
       NodeRef derive (Context & c, const Node & node) final;
       NodeRef recreate (Context & c, NodeRefVec && deps) final;
 
+      std::string color () const final
+      {
+        return "#aaff00";
+      }
+
+      std::string description () const final
+      {
+        return "TransitionMatrix";
+      }
+
+      std::string shape() const
+      {
+        return "octagon";
+      }
+
     private:
       void compute () final;
 
@@ -194,6 +219,20 @@ namespace bpp {
       NodeRef derive (Context & c, const Node & node) final;
       NodeRef recreate (Context & c, NodeRefVec && deps) final;
 
+      std::string color () const final
+      {
+        return "#aaff00";
+      }
+
+      std::string description () const final
+      {
+        return "dTransitionMatrix/dBrlen";
+      }
+
+      std::string shape() const
+      {
+        return "octagon";
+      }
     private:
       void compute () final;
 
@@ -225,6 +264,21 @@ namespace bpp {
       NodeRef derive (Context & c, const Node & node) final;
       NodeRef recreate (Context & c, NodeRefVec && deps) final;
 
+      std::string color () const final
+      {
+        return "#aaff00";
+      }
+
+      std::string description () const final
+      {
+        return "d2(TransitionMatrix)/dBrlen2";
+      }
+
+      std::string shape() const
+      {
+        return "octagon";
+      }
+      
     private:
       void compute () final;
 

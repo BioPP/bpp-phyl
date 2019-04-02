@@ -39,68 +39,93 @@ knowledge of the CeCILL license and that you accept its terms.
 
 #include <Bpp/Numeric/Matrix/MatrixTools.h>
 #include <Bpp/Seq/Alphabet/AlphabetTools.h>
-#include <Bpp/Phyl/Tree/TreeTemplate.h>
+#include <Bpp/Seq/Container/VectorSiteContainer.h>
+#include <Bpp/Phyl/Io/Newick.h>
+// #include <Bpp/Phyl/Tree/TreeTemplate.h>
 #include <Bpp/Phyl/Model/Nucleotide/T92.h>
 #include <Bpp/Phyl/Model/RateDistribution/ConstantRateDistribution.h>
+#include <Bpp/Phyl/NewLikelihood/RateAcrossSitesSubstitutionProcess.h>
 #include <Bpp/Phyl/Simulation/HomogeneousSequenceSimulator.h>
 #include <Bpp/Phyl/Likelihood/RHomogeneousTreeLikelihood.h>
 #include <Bpp/Phyl/Likelihood/RHomogeneousClockTreeLikelihood.h>
 #include <Bpp/Phyl/OptimizationTools.h>
 #include <iostream>
 
+#include <Bpp/NewPhyl/LikelihoodCalculation.h>
+
 using namespace bpp;
 using namespace std;
 
-void fitModelH(SubstitutionModel* model, DiscreteDistribution* rdist, const Tree& tree, const SiteContainer& sites,
-    double initialValue, double finalValue) {
-  RHomogeneousTreeLikelihood tl(tree, sites, model, rdist, false);
-  tl.enableFirstOrderDerivatives(false);
-  tl.enableSecondOrderDerivatives(false);
-  tl.initialize();
+void fitModelH(SubstitutionModel* model, DiscreteDistribution* rdist,
+               ParametrizablePhyloTree* tree, const VectorSiteContainer& sites,
+               double initialValue, double finalValue)
+{
+  RateAcrossSitesSubstitutionProcess process(model, rdist, tree);
+
+  dataflow::Context context;
+  
+  auto lik = std::make_shared<dataflow::LikelihoodCalculation>(context, sites, process);
+  
+  dataflow::DataFlowFunction llh(context, lik, lik->getParameters());
+
   ApplicationTools::displayResult("Test model", model->getName());
-  cout << setprecision(20) << tl.getValue() << endl;
-  ApplicationTools::displayResult("* initial likelihood", tl.getValue());
-  if (abs(tl.getValue() - initialValue) > 0.001)
-    throw Exception("Incorrect initial value:" + TextTools::toString(tl.getValue()) + "<>" + TextTools::toString(initialValue));
+  double initValue=llh.getValue();
+
+  cout << setprecision(20) << initValue << endl;  
+  ApplicationTools::displayResult("* initial likelihood", initValue);
+  if (abs(initValue - initialValue) > 0.001)
+    throw Exception("Incorrect initial value:" + TextTools::toString(initValue) + "<>" + TextTools::toString(initialValue));
   unique_ptr<OutputStream> messenger(new StlOutputStream(new ofstream("messages.txt", ios::out)));
   unique_ptr<OutputStream> profiler(new StlOutputStream(new ofstream("profile.txt", ios::out)));
   profiler->setPrecision(20);
-  OptimizationTools::optimizeNumericalParameters2(&tl, tl.getParameters(), 0, 0.000001, 10000, messenger.get(), profiler.get(), false, true, 2, OptimizationTools::OPTIMIZATION_NEWTON);
-  cout << setprecision(20) << tl.getValue() << endl;
-  ApplicationTools::displayResult("* likelihood after full optimization", tl.getValue());
-  tl.getParameters().printParameters(cout);
-  if (abs(tl.getValue() - finalValue) > 0.001)
-    throw Exception("Incorrect final value:" + TextTools::toString(tl.getValue()) + "<>" + TextTools::toString(finalValue));
+
+  
+  OptimizationTools::optimizeNumericalParameters2(llh, llh.getParameters(), 0, 0.000001, 10000, messenger.get(), profiler.get(), false, true, 2, OptimizationTools::OPTIMIZATION_NEWTON);
+  cout << setprecision(20) << llh.getValue() << endl;
+  ApplicationTools::displayResult("* likelihood after full optimization", llh.getValue());
+  llh.getParameters().printParameters(cout);
+  if (abs(llh.getValue() - finalValue) > 0.001)
+    throw Exception("Incorrect final value:" + TextTools::toString(llh.getValue()) + "<>" + TextTools::toString(finalValue));
 }
 
-void fitModelHClock(SubstitutionModel* model, DiscreteDistribution* rdist, const Tree& tree, const SiteContainer& sites,
-    double initialValue, double finalValue) {
-  RHomogeneousClockTreeLikelihood tl(tree, sites, model, rdist);
-  tl.enableFirstOrderDerivatives(false);
-  tl.enableSecondOrderDerivatives(false);
-  tl.initialize();
+void fitModelHClock(SubstitutionModel* model, DiscreteDistribution* rdist,
+                    ParametrizablePhyloTree* tree, const VectorSiteContainer& sites,
+
+                    double initialValue, double finalValue)
+{
+  RateAcrossSitesSubstitutionProcess process(model, rdist, tree);
+
+  dataflow::Context context;
+  
+  auto lik = std::make_shared<dataflow::LikelihoodCalculation>(context, sites, process);
+  lik->setClockLike();
+  
+  dataflow::DataFlowFunction llh(context, lik, lik->getParameters());
+    
   ApplicationTools::displayResult("Test model", model->getName());
-  cout << setprecision(20) << tl.getValue() << endl;
-  ApplicationTools::displayResult("* initial likelihood", tl.getValue());
-  if (abs(tl.getValue() - initialValue) > 0.001)
-    throw Exception("Incorrect initial value:" + TextTools::toString(tl.getValue()) + "<>" + TextTools::toString(initialValue));
+  double initValue=llh.getValue();
+
+  cout << setprecision(20) << initValue << endl;  
+  ApplicationTools::displayResult("* initial likelihood", initValue);
+  if (abs(initValue - initialValue) > 0.001)
+    throw Exception("Incorrect initial value:" + TextTools::toString(initValue) + "<>" + TextTools::toString(initialValue));
   unique_ptr<OutputStream> messenger(new StlOutputStream(new ofstream("messages.txt", ios::out)));
   unique_ptr<OutputStream> profiler(new StlOutputStream(new ofstream("profile.txt", ios::out)));
   profiler->setPrecision(20);
-  OptimizationTools::optimizeNumericalParametersWithGlobalClock2(&tl, tl.getParameters(), 0, 0.000001, 10000, messenger.get(), profiler.get());
-  cout << setprecision(20) << tl.getValue() << endl;
-  ApplicationTools::displayResult("* likelihood after full optimization", tl.getValue());
-  tl.getParameters().printParameters(cout);
-  if (abs(tl.getValue() - finalValue) > 0.001)
-    throw Exception("Incorrect final value:" + TextTools::toString(tl.getValue()) + "<>" + TextTools::toString(finalValue));
+
+  OptimizationTools::optimizeNumericalParameters2(llh, llh.getParameters(), 0, 0.000001, 10000, messenger.get(), profiler.get());
+  cout << setprecision(20) << llh.getValue() << endl;
+  ApplicationTools::displayResult("* likelihood after full optimization", llh.getValue());
+  llh.getParameters().printParameters(cout);
+  if (abs(llh.getValue() - finalValue) > 0.001)
+    throw Exception("Incorrect final value:" + TextTools::toString(llh.getValue()) + "<>" + TextTools::toString(finalValue));
 }
 
 int main() {
-  TreeTemplate<Node>* tree = TreeTemplateTools::parenthesisToTree("(((A:0.01, B:0.01):0.02,C:0.03):0.01,D:0.04);");
-  vector<string> seqNames = tree->getLeavesNames();
-  vector<int> ids = tree->getNodesId();
-  //-------------
-
+  bpp::Newick reader;
+  auto phyloTree = std::unique_ptr<bpp::PhyloTree>(reader.parenthesisToPhyloTree("(((A:0.01, B:0.01):0.02,C:0.03):0.01,D:0.04);", false, "", false, false));
+  ParametrizablePhyloTree paramphyloTree(*phyloTree);
+  
   const NucleicAlphabet* alphabet = &AlphabetTools::DNA_ALPHABET;
   SubstitutionModel* model = new T92(alphabet, 3.);
   DiscreteDistribution* rdist = new ConstantRateDistribution();
@@ -112,20 +137,22 @@ int main() {
   sites.addSequence(BasicSequence("D", "CAACGGGAGTGCGCCTA", alphabet));
 
   try {
-    fitModelH(model, rdist, *tree, sites, 94.3957, 71.2657);
+    fitModelH(model->clone(), rdist->clone(), paramphyloTree.clone(), sites, 94.3957, 71.0564);
   } catch (Exception& ex) {
     cerr << ex.what() << endl;
     return 1;
   }
+
+  cout << endl << endl;
+  
   try {
-    fitModelHClock(model, rdist, *tree, sites, 92.3295, 71.2657);
+    fitModelHClock(model->clone(), rdist->clone(), paramphyloTree.clone(), sites, 94.395699, 72.7196);
   } catch (Exception& ex) {
     cerr << ex.what() << endl;
     return 1;
   }
 
   //-------------
-  delete tree;
   delete model;
   delete rdist;
 

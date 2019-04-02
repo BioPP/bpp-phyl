@@ -40,7 +40,6 @@
 #ifndef LIKELIHOOD_CALCULATION_H
 #define LIKELIHOOD_CALCULATION_H
 
-#include "Bpp/NewPhyl/DataFlowWrappers.h"
 #include "Bpp/NewPhyl/Model.h"
 #include "Bpp/NewPhyl/DiscreteDistribution.h"
 #include "Bpp/NewPhyl/FrequenciesSet.h"
@@ -49,8 +48,6 @@
 
 #include <Bpp/Seq/Container/AlignedValuesContainer.h>
 #include "Bpp/Phyl/NewLikelihood/SubstitutionProcess.h"
-
-#include "Bpp/NewPhyl/PhyloTree_BrRef.h"
 
 /* This file contains temporary helpers and wrappers.
  * They are used to bridge the gap between bpp::dataflow stuff and the rest of bpp.
@@ -92,6 +89,8 @@ namespace bpp {
   }
 
   namespace dataflow {
+
+    class PhyloTree_BrRef;
     
     /** @brief likelihood = f(equilibriumFrequencies, rootConditionalLikelihood).
      * - likelihood: RowVector(site).
@@ -127,7 +126,8 @@ namespace bpp {
      * The branch length values can be provided by any computation, or as a leaf NumericMutable node.
      */
 
-    class LikelihoodCalculation
+    class LikelihoodCalculation :
+      public AbstractParametrizable
     {
     private:
       
@@ -143,7 +143,7 @@ namespace bpp {
        *
        */
       
-      double deltaNode_;
+      double delta_;
 
       /* DataFlow Nodes linked with process */
       
@@ -163,40 +163,50 @@ namespace bpp {
       LikelihoodCalculation(dataflow::Context & context,
                             const SubstitutionProcess& process);
 
-      
-      const ParameterList& getParameters() const { return parameters_; }
+      LikelihoodCalculation(const LikelihoodCalculation& lik);
 
-      std::shared_ptr<Parameter> shareParameter(size_t i)
+      LikelihoodCalculation* clone() const
       {
-        return parameters_.getSharedParameter(i);
+        return new LikelihoodCalculation(*this);
       }
-
-      std::shared_ptr<Parameter> shareParameter(std::string name)
-      {
-        return parameters_.getSharedParameter(name);
-      }
-
+    
       ValueRef<double> getLikelihood() 
       {
+        if (psites_ && !likelihood_)
+          likelihood_=makeLikelihoodNodes_();
         return likelihood_;
       }
 
       void setData(const AlignedValuesContainer& sites)
       {
         psites_=&sites;
-        likelihood_=makeLikelihoodNodes_(context, *psites_, treeNode_, modelNode_, rootFreqsNode_, *ratesNode_);
       }
-      
-    private:
-      
-      ValueRef<double> makeLikelihoodNodes_(Context & c,
-                                            const AlignedValuesContainer & sites,
-                                            std::shared_ptr<PhyloTree_BrRef> tree,
-                                            std::shared_ptr<ConfiguredModel> model,
-                                            std::shared_ptr<ConfiguredFrequenciesSet> rootFreqs = 0,
-                                            std::shared_ptr<ConfiguredDistribution> rates = 0);
 
-      void setUpParameters_();
+      void setNumericalDerivateConfiguration(double delta, const NumericalDerivativeType& config);
+
+      /**
+       * Set Tree ClockLike :
+       *  - add a RateNode parameter for multiplying all branch lengths
+       *  - remove all branch lengths parameters from the parameters
+       *
+       */
+      
+      void setClockLike(double rate=1);
+        
+      const AlignedValuesContainer* getData() const
+      {
+        return psites_;
+      }
+
+      // const Alphabet* getAlphabet() const
+      // {
+      //   return static_cast<const bpp::TransitionModel*>(modelNode_->getTargetValue())->getAlphabet();
+      // }
+
+    private:
+      ValueRef<double> makeLikelihoodNodes_();
+
+      void makeProcessNodes_();
 
     };
 
