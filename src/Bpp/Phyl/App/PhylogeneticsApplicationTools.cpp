@@ -575,14 +575,15 @@ void PhylogeneticsApplicationTools::completeMixedSubstitutionModelSet(
     ApplicationTools::displayResult("Number of distinct paths", TextTools::toString(numd));
 
   vector<string> vdesc;
-  while (numd)
+  size_t numi=0;
+  while (numi<numd)
   {
-    string desc = ApplicationTools::getStringParameter("site.path" + TextTools::toString(numd), params, "",  suffix, suffixIsOptional, warn);
+    string desc = ApplicationTools::getStringParameter("site.path" + TextTools::toString(numi+1), params, "",  suffix, suffixIsOptional, warn);
     if (desc.size() == 0)
       break;
     else
       vdesc.push_back(desc);
-    numd--;
+    numi++;
   }
   
   if (vdesc.size() == 0)
