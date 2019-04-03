@@ -273,7 +273,7 @@ public:
     }
     catch (std::bad_cast& bc)
     {
-      throw Exception("SubstitutionModelSet::getSubstitutionModel : model is not a sustitution model " + getModel(i)->getName());
+      throw Exception("SubstitutionModelSet::getSubstitutionModel : " + getModel(i)->getName() + " is not a sustitution model." );
     }
   }
   
@@ -286,7 +286,7 @@ public:
     }
     catch (std::bad_cast& bc)
     {
-      throw Exception("SubstitutionModelSet::getSubstitutionModel : model is not a sustitution model " + getModel(i)->getName());
+      throw Exception("SubstitutionModelSet::getSubstitutionModel : " + getModel(i)->getName() + " is not a sustitution model." );
     }
   }
 

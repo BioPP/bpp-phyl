@@ -584,7 +584,7 @@ void PhylogeneticsApplicationTools::completeMixedSubstitutionModelSet(
       vdesc.push_back(desc);
     numd--;
   }
-
+  
   if (vdesc.size() == 0)
   {
     mixedModelSet.complete();
@@ -592,33 +592,43 @@ void PhylogeneticsApplicationTools::completeMixedSubstitutionModelSet(
     return;
   }
 
-  for (vector<string>::iterator it(vdesc.begin()); it != vdesc.end(); it++)
+  for (auto& desc:vdesc)
   {
     mixedModelSet.addEmptyHyperNode();
-    StringTokenizer st(*it, "&");
+    StringTokenizer st(desc, "&");
     while (st.hasMoreToken())
     {
       string submodel = st.nextToken();
       string::size_type indexo = submodel.find("[");
       string::size_type indexf = submodel.find("]");
       if ((indexo == string::npos) | (indexf == string::npos))
-        throw Exception("PhylogeneticsApplicationTools::setMixedSubstitutionModelSet. Bad path syntax, should contain `[]' symbols: " + submodel);
+        throw Exception("PhylogeneticsApplicationTools::completeMixedSubstitutionModelSet. Bad path syntax, should contain `[]' symbols: " + submodel);
       size_t num = TextTools::to<size_t>(submodel.substr(5, indexo - 5));
       string p2 = submodel.substr(indexo + 1, indexf - indexo - 1);
 
-      const MixedTransitionModel* pSM = dynamic_cast<const MixedTransitionModel*>(mixedModelSet.getSubstitutionModel(num - 1));
+      const MixedTransitionModel* pSM = dynamic_cast<const MixedTransitionModel*>(mixedModelSet.getModel(num - 1));
       if (!pSM)
-        throw BadIntegerException("PhylogeneticsApplicationTools::setMixedSubstitutionModelSet: Wrong model for number", static_cast<int>(num - 1));
-      Vint submodnb = pSM->getSubmodelNumbers(p2);
+        throw BadIntegerException("PhylogeneticsApplicationTools::completeMixedSubstitutionModelSet: Wrong model for number", static_cast<int>(num - 1));
 
-      mixedModelSet.addToHyperNode(num - 1, submodnb);
+      try  {
+        int n2=TextTools::toInt(p2);
+        if (n2<=0 || n2>(int)(pSM->getNumberOfModels()))
+          throw BadIntegerException("PhylogeneticsApplicationTools::completeMixedSubstitutionModelSet: Wrong model for number", static_cast<int>(n2));
+        
+        mixedModelSet.addToHyperNode(num - 1, {n2-1});
+      }
+      catch (Exception& e)
+      {
+        Vint submodnb = pSM->getSubmodelNumbers(p2);
+        mixedModelSet.addToHyperNode(num - 1, submodnb);
+      }
     }
 
     if (!mixedModelSet.getHyperNode(mixedModelSet.getNumberOfHyperNodes() - 1).isComplete())
-      throw Exception("A path should own at least a submodel of each mixed model: " + *it);
+      throw Exception("A path should own at least a submodel of each mixed model: " + desc);
 
     if (verbose)
-      ApplicationTools::displayResult("Site Path", *it);
+      ApplicationTools::displayResult("Site Path", desc);
   }
 
   // / Checks if the paths are separate
