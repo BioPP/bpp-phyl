@@ -1357,7 +1357,10 @@ void BppOSubstitutionModelFormat::write(const TransitionModel& model,
     return;
   }
 
-  out << model.getName() + "(";
+  auto name=model.getName();
+  auto parend=(name.rfind(")")==name.size()-1);
+  
+  out << (parend?name.substr(0,name.size()-1):name+"(");
 
   // Is it a protein user defined model?
   const UserProteinSubstitutionModel* userModel = dynamic_cast<const UserProteinSubstitutionModel*>(&model);
@@ -1703,17 +1706,17 @@ void BppOSubstitutionModelFormat::writeMixed_(const MixedTransitionModel& model,
     ParameterList pl = eM->getIndependentParameters();
     vector<string> vpl = pl.getParameterNames();
 
-    for (unsigned j = 0; j < vpl.size(); j++)
+    for (auto& pn:vpl)
     {
-      if (find(writtenNames.begin(), writtenNames.end(), vpl[j]) == writtenNames.end())
+      if (find(writtenNames.begin(), writtenNames.end(), pn) == writtenNames.end())
       {
-        const DiscreteDistribution* pDD = pMS->getDistribution(vpl[j]);
+        const DiscreteDistribution* pDD = pMS->getDistribution(pn);
         if (pDD && dynamic_cast<const ConstantDistribution*>(pDD) == NULL)
         {
           const BppODiscreteDistributionFormat* bIO = new BppODiscreteDistributionFormat();
           StdStr sout;
           bIO->write(*pDD, sout, globalAliases, writtenNames);
-          globalAliases[vpl[j]] = sout.str();
+          globalAliases[pn] = sout.str();
           delete bIO;
         }
       }
@@ -1728,7 +1731,6 @@ void BppOSubstitutionModelFormat::writeMixed_(const MixedTransitionModel& model,
   const BppOParametrizableFormat* bIO = new BppOParametrizableFormat();
   bIO->write(&model, out, globalAliases, model.getIndependentParameters().getParameterNames(), writtenNames, true, true);
   delete bIO;
-
   out << ")";
 }
 

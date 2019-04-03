@@ -133,7 +133,6 @@ namespace bpp
     std::string getName() const
     {
       size_t posp = mixtName_.find("(");
-      
       return mixtName_.substr(0, posp) + "_" + getModel().getName() + mixtName_.substr(posp);
     }
 
