@@ -41,26 +41,33 @@
 #include <Bpp/Numeric/AutoParameter.h>
 #include <Bpp/Seq/Alphabet/AlphabetTools.h>
 #include <Bpp/Phyl/Io/Newick.h>
-#include <Bpp/Phyl/Tree/TreeTemplate.h>
-#include <Bpp/Phyl/Model/Nucleotide/JCnuc.h>
 #include <Bpp/Phyl/Model/Nucleotide/T92.h>
 #include <Bpp/Phyl/Model/RateDistribution/GammaDiscreteRateDistribution.h>
 #include <Bpp/Phyl/Model/RateDistribution/ConstantRateDistribution.h>
+#include <Bpp/Phyl/Tree/TreeTemplate.h>
 #include <Bpp/Phyl/Likelihood/RHomogeneousTreeLikelihood.h>
+
 #include <Bpp/Phyl/OptimizationTools.h>
 #include <Bpp/Phyl/NewLikelihood/ParametrizablePhyloTree.h>
 #include <Bpp/Phyl/NewLikelihood/SimpleSubstitutionProcess.h>
 #include <Bpp/Phyl/NewLikelihood/RateAcrossSitesSubstitutionProcess.h>
-#include <Bpp/Phyl/NewLikelihood/PhyloLikelihoods/SingleProcessPhyloLikelihood.h>
+
+#include <Bpp/NewPhyl/LikelihoodCalculation.h>
+
 #include <iostream>
 
 
 using namespace bpp;
 using namespace std;
 
-void fitModelHSR(SubstitutionModel* model, DiscreteDistribution* rdist, const Tree& tree, const PhyloTree&  new_tree, const SiteContainer& sites,
+void fitModelHSR(SubstitutionModel* model, DiscreteDistribution* rdist,
+                 const Tree& tree,
+                 const ParametrizablePhyloTree& partree,
+                 const SiteContainer& sites,
                  double initialValue, double finalValue)
 {
+  ApplicationTools::startTimer();
+
   RHomogeneousTreeLikelihood tl(tree, sites, model->clone(), rdist->clone(), false, false);
   tl.initialize();
 
@@ -110,42 +117,35 @@ void fitModelHSR(SubstitutionModel* model, DiscreteDistribution* rdist, const Tr
 
   ApplicationTools::displayTime("Old Likelihood: brlen upgrade");
 
-
   cout << "=============================" << endl;
 
+  unique_ptr<RateAcrossSitesSubstitutionProcess> process(new RateAcrossSitesSubstitutionProcess(model->clone(), rdist->clone(), partree.clone()));
+
+  dataflow::Context context;                        
+  auto lik = std::make_shared<dataflow::LikelihoodCalculation>(context, sites, *process);
+  dataflow::DataFlowFunction llh(context, lik, lik->getParameters());
+
+  llh.getFirstOrderDerivative("BrLen0");
+  llh.getFirstOrderDerivative("BrLen1");
+  llh.getFirstOrderDerivative("BrLen2");
+  llh.getFirstOrderDerivative("BrLen3");
+  llh.getFirstOrderDerivative("BrLen4");
   
-  std::shared_ptr<ParametrizablePhyloTree> pTree(new ParametrizablePhyloTree(new_tree));
-
-  ApplicationTools::startTimer();
+  cout << "NewTL: " << setprecision(20) << llh.getValue() << endl;
+  cout << "NewTL D1: " << setprecision(20) << llh.getFirstOrderDerivative("BrLen2") << endl;
+  cout << "NewTL D2: " << setprecision(20) << llh.getSecondOrderDerivative("BrLen2") << endl;
   
-  unique_ptr<RateAcrossSitesSubstitutionProcess> process(new RateAcrossSitesSubstitutionProcess(model->clone(), rdist->clone(), pTree->clone()));
-
-  unique_ptr<RecursiveLikelihoodTreeCalculation> tmComp(new RecursiveLikelihoodTreeCalculation(sites, process.get(), false, false));
-
-  SingleProcessPhyloLikelihood newTl(process.get(), tmComp.release());
-
-  newTl.computeLikelihood();
-
-  newTl.getFirstOrderDerivative("BrLen0");
-  newTl.getFirstOrderDerivative("BrLen1");
-  newTl.getFirstOrderDerivative("BrLen2");
-  newTl.getFirstOrderDerivative("BrLen3");
-  newTl.getFirstOrderDerivative("BrLen4");
-  
-  cout << "NewTL: " << setprecision(20) << newTl.getValue() << endl;
-  cout << "NewTL D1: " << setprecision(20) << newTl.getFirstOrderDerivative("BrLen2") << endl;
-  cout << "NewTL D2: " << setprecision(20) << newTl.getSecondOrderDerivative("BrLen2") << endl;
-  ApplicationTools::displayResult("* initial likelihood", newTl.getValue());
-  if (abs(newTl.getValue() - initialValue) > 0.001)
+  ApplicationTools::displayResult("* initial likelihood", llh.getValue());
+  if (abs(llh.getValue() - initialValue) > 0.001)
     throw Exception("Incorrect initial value.");
   cout << endl;
 
   for (size_t i = 0; i < n; ++i) { 
     ApplicationTools::displayGauge(i, n-1);
-    newTl.matchParametersValues(pl1);
-    newTl.getValue();
-    newTl.matchParametersValues(pl2);
-    newTl.getValue();
+    llh.matchParametersValues(pl1);
+    llh.getValue();
+    llh.matchParametersValues(pl2);
+    llh.getValue();
   }
 
   cout << endl;
@@ -154,10 +154,10 @@ void fitModelHSR(SubstitutionModel* model, DiscreteDistribution* rdist, const Tr
   ApplicationTools::startTimer();
   for (size_t i = 0; i < n; ++i) { 
     ApplicationTools::displayGauge(i, n-1);
-    newTl.matchParametersValues(pl3);
-    newTl.getValue();
-    newTl.matchParametersValues(pl4);
-    newTl.getValue();
+    llh.matchParametersValues(pl3);
+    llh.getValue();
+    llh.matchParametersValues(pl4);
+    llh.getValue();
   }
   cout << endl;
   
@@ -186,21 +186,23 @@ void fitModelHSR(SubstitutionModel* model, DiscreteDistribution* rdist, const Tr
     throw Exception("Incorrect final value.");
   tlop.getParameters().printParameters(cout);
 
-
-  process.reset(new RateAcrossSitesSubstitutionProcess(model->clone(), rdist->clone(), pTree->clone()));
   
-  tmComp.reset(new RecursiveLikelihoodTreeCalculation(sites, process.get(), false, true));
+  process.reset(new RateAcrossSitesSubstitutionProcess(model->clone(), rdist->clone(), partree.clone()));
 
-  SingleProcessPhyloLikelihood newTlop(process.get(), tmComp.release(), false);
+  dataflow::Context context2;
+  
+  lik.reset(new dataflow::LikelihoodCalculation(context2, sites, *process));
+  
+  dataflow::DataFlowFunction llh2(context2, lik, lik->getParameters());
 
   ParameterList opln1=process->getBranchLengthParameters(true);
   
-  OptimizationTools::optimizeNumericalParameters2(&newTlop, newTlop.getParameters(), 0, 0.000001, nboptim, 0, 0);
-  cout << setprecision(20) << newTlop.getValue() << endl;
-  ApplicationTools::displayResult("* lnL after full optimization (new)", newTlop.getValue());
-  if (abs(newTlop.getValue() - finalValue) > 0.001)
+  OptimizationTools::optimizeNumericalParameters2(llh, llh.getParameters(), 0, 0.000001, nboptim, 0, 0);
+  cout << setprecision(20) << llh.getValue() << endl;
+  ApplicationTools::displayResult("* lnL after full optimization (new)", llh.getValue());
+  if (abs(llh.getValue() - finalValue) > 0.001)
     throw Exception("Incorrect final value.");
-  newTlop.getParameters().printParameters(cout);
+  llh.getParameters().printParameters(cout);
 }
 
 
@@ -210,8 +212,9 @@ int main() {
   vector<int> ids = tree->getNodesId();
 
   Newick reader;
-  unique_ptr<PhyloTree> pTree(reader.parenthesisToPhyloTree("((A:0.01, B:0.02):0.03,C:0.01,D:0.1);", false, "", false, false));
-  
+  auto pTree = unique_ptr<PhyloTree>(reader.parenthesisToPhyloTree("((A:0.01, B:0.02):0.03,C:0.01,D:0.1);", false, "", false, false));
+  ParametrizablePhyloTree paramphyloTree(*pTree);
+
   //-------------
 
   const NucleicAlphabet* alphabet = &AlphabetTools::DNA_ALPHABET;
@@ -226,7 +229,7 @@ int main() {
   unique_ptr<DiscreteDistribution> rdist(new GammaDiscreteRateDistribution(4, 1.0));
   try {
     cout << "Testing Single Tree Traversal likelihood class..." << endl;
-    fitModelHSR(model.get(), rdist.get(), *tree, *pTree, sites, 228.6333642493463, 198.47216106233);
+    fitModelHSR(model.get(), rdist.get(), *tree, paramphyloTree, sites, 228.6333642493463, 198.47216106233);
   } catch (Exception& ex) {
     cerr << ex.what() << endl;
     return 1;

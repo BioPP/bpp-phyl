@@ -192,6 +192,11 @@ namespace bpp {
        */
       
       void setClockLike(double rate=1);
+
+      const SubstitutionProcess& getSubstitutionProcess() const
+      {
+        return process_;
+      }
         
       const AlignedValuesContainer* getData() const
       {

@@ -52,31 +52,14 @@ knowledge of the CeCILL license and that you accept its terms.
 
 #include <Bpp/Phyl/NewLikelihood/ParametrizablePhyloTree.h>
 #include <Bpp/Phyl/NewLikelihood/NonHomogeneousSubstitutionProcess.h>
-#include <Bpp/Phyl/NewLikelihood/SimpleSubstitutionProcess.h>
 #include <Bpp/Phyl/NewLikelihood/RateAcrossSitesSubstitutionProcess.h>
-#include <Bpp/Phyl/NewLikelihood/PhyloLikelihoods/SingleProcessPhyloLikelihood.h>
+
+#include <Bpp/NewPhyl/LikelihoodCalculation.h>
 
 #include <iostream>
 
 using namespace bpp;
 using namespace std;
-
-void fitModelNH(SubstitutionModelSet* model, DiscreteDistribution* rdist, const Tree& tree, const SiteContainer& sites,
-    double initialValue, double finalValue, bool reparam) {
-  DRNonHomogeneousTreeLikelihood tl(tree, sites, model, rdist, false, reparam);
-  tl.initialize();
-  cout << setprecision(20) << tl.getValue() << endl;
-  ApplicationTools::displayResult("* initial likelihood", tl.getValue());
-  if (abs(tl.getValue() - initialValue) > 0.0001)
-    throw Exception("Incorrect initial value.");
-  OptimizationTools::optimizeTreeScale(&tl);
-  ApplicationTools::displayResult("* likelihood after tree scale", tl.getValue());
-  OptimizationTools::optimizeNumericalParameters2(&tl, tl.getParameters(), 0, 0.000001, 10000, 0, 0);
-  cout << setprecision(20) << tl.getValue() << endl;
-  ApplicationTools::displayResult("* likelihood after full optimization", tl.getValue());
-  if (abs(tl.getValue() - finalValue) > 0.0001)
-    throw Exception("Incorrect final value.");
-}
 
 int main() {
 
@@ -84,6 +67,7 @@ int main() {
 
   Newick reader;
   unique_ptr<PhyloTree> pTree(reader.parenthesisToPhyloTree("(((A:0.1, B:0.2):0.3,C:0.15):0.25,(D:0.35,(E:0.26,F:0.05):0.12):0.16);", false, "", false, false));
+  ParametrizablePhyloTree parTree(*pTree);
 
   vector<string> seqNames= tree->getLeavesNames();
   vector<int> ids = tree->getNodesId();
@@ -96,11 +80,10 @@ int main() {
   std::map<std::string, std::vector<Vint>> globalParameterVectors;
   globalParameterVectors["T92.kappa"]=std::vector<Vint>();
 
+  
   //Very difficult to optimize on small datasets:
   DiscreteDistribution* rdist = new GammaDiscreteRateDistribution(4, 1.0);
   
-  unique_ptr<ParametrizablePhyloTree> parTree(new ParametrizablePhyloTree(*pTree));
-                                              
   FrequenciesSet* rootFreqs2 = rootFreqs->clone();
   DiscreteDistribution* rdist2 = rdist->clone();
   SubstitutionModel* model2=model->clone();
@@ -114,7 +97,7 @@ int main() {
   std::vector<std::string> globalParameterNames;
   globalParameterNames.push_back("T92.kappa");
 
-  NonHomogeneousSubstitutionProcess* subPro= NonHomogeneousSubstitutionProcess::createNonHomogeneousSubstitutionProcess(model2, rdist2, rootFreqs2, parTree.get(), globalParameterNames);
+  NonHomogeneousSubstitutionProcess* subPro= NonHomogeneousSubstitutionProcess::createNonHomogeneousSubstitutionProcess(model2, rdist2, rootFreqs2, parTree.clone(), globalParameterNames);
 
   // Simulation
     
@@ -147,14 +130,14 @@ int main() {
     //Now fit model:
 
     RNonHomogeneousTreeLikelihood tl(*tree, *sites.get(), modelSet, rdist, true, true, false);
-
     tl.initialize();
 
+    
     SubstitutionProcess* nsubPro=subPro->clone();
 
-    RecursiveLikelihoodTreeCalculation* tlComp = new RecursiveLikelihoodTreeCalculation(*sites->clone(), nsubPro, true, false);
-
-    SingleProcessPhyloLikelihood ntl(nsubPro, tlComp, true);
+    dataflow::Context context;
+    auto lik = std::make_shared<dataflow::LikelihoodCalculation>(context, *sites->clone(), *nsubPro);
+    dataflow::DataFlowFunction ntl(context, lik, lik->getParameters());
 
     cout << setprecision(10) << "OldTL init: "  << tl.getValue()  << endl;
 
@@ -165,7 +148,7 @@ int main() {
       0.0001, 10000, messenger, profiler, false, false, 1, OptimizationTools::OPTIMIZATION_NEWTON);
     
     unsigned int nc1 = OptimizationTools::optimizeNumericalParameters2(
-      &ntl, ntl.getParameters(), 0,
+      ntl, ntl.getParameters(), 0,
       0.0001, 10000, messenger, profiler, false, false, 1, OptimizationTools::OPTIMIZATION_NEWTON);
 
 
@@ -175,11 +158,11 @@ int main() {
     cout << "Thetas : " << endl;
 
     for (size_t i = 0; i < nmodels; ++i) {
-      cout << tl.getSubstitutionModelSet()->getModel((int)i)->getParameter("theta").getValue() << "\t" << ntl.getSubstitutionProcess().getModel((int)i,0)->getParameter("theta").getValue() << endl;
+      cout << tl.getSubstitutionModelSet()->getModel((int)i)->getParameter("theta").getValue() << "\t" << ntl.getLikelihoodCalculation()->getSubstitutionProcess().getModel((int)i,0)->getParameter("theta").getValue() << endl;
       //if (abs(modelSet2->getModel(i)->getParameter("theta").getValue() - modelSet3->getModel(i)->getParameter("theta").getValue()) > 0.1)
       //  return 1;
       thetasEst1[i] += tl.getSubstitutionModelSet()->getModel((int)i)->getParameter("theta").getValue();
-      thetasEst1n[i] += ntl.getSubstitutionProcess().getModel((int)i,0)->getParameter("theta").getValue();
+      thetasEst1n[i] += ntl.getLikelihoodCalculation()->getSubstitutionProcess().getModel((int)i,0)->getParameter("theta").getValue();
     }
   }
   thetasEst1 /= static_cast<double>(nrep);

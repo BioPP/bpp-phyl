@@ -41,13 +41,10 @@ knowledge of the CeCILL license and that you accept its terms.
 #include <Bpp/Seq/Alphabet/AlphabetTools.h>
 #include <Bpp/Seq/Container/VectorSiteContainer.h>
 #include <Bpp/Phyl/Io/Newick.h>
-// #include <Bpp/Phyl/Tree/TreeTemplate.h>
 #include <Bpp/Phyl/Model/Nucleotide/T92.h>
 #include <Bpp/Phyl/Model/RateDistribution/ConstantRateDistribution.h>
 #include <Bpp/Phyl/NewLikelihood/RateAcrossSitesSubstitutionProcess.h>
 #include <Bpp/Phyl/Simulation/HomogeneousSequenceSimulator.h>
-#include <Bpp/Phyl/Likelihood/RHomogeneousTreeLikelihood.h>
-#include <Bpp/Phyl/Likelihood/RHomogeneousClockTreeLikelihood.h>
 #include <Bpp/Phyl/OptimizationTools.h>
 #include <iostream>
 

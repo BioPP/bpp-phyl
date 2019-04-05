@@ -38,8 +38,8 @@ The fact that you are presently reading this means that you have had
 knowledge of the CeCILL license and that you accept its terms.
 */
 
-#ifndef _SUBSTITUTIONPROCESSSEQUENCESIMULATOR_H_
-#define _SUBSTITUTIONPROCESSSEQUENCESIMULATOR_H_
+#ifndef _SUBSTITUTION_PROCESS_SEQUENCE_SIMULATOR_H_
+#define _SUBSTITUTION_PROCESS_SEQUENCE_SIMULATOR_H_
 
 #include "New_DetailedSiteSimulator.h"
 #include "SequenceSimulator.h"
