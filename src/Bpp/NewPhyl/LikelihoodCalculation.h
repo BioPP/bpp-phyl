@@ -91,6 +91,8 @@ namespace bpp {
   namespace dataflow {
 
     class PhyloTree_BrRef;
+    class ForwardLikelihoodTree;
+    class BackwardLikelihoodTree;
     
     /** @brief likelihood = f(equilibriumFrequencies, rootConditionalLikelihood).
      * - likelihood: RowVector(site).
@@ -111,25 +113,31 @@ namespace bpp {
     
     using TotalLogLikelihood = SumOfLogarithms<Eigen::RowVectorXd>;
 
-    // Recursion helper class.
-    // This stores state used by the two mutually recursive functions used to generate cond lik nodes.
-    // The struct is similar to how a lambda is done internally, and allow the function definitions to be short.
-    // The pure function equivalent has seven arguments, which is horrible.
-    /* Build a likelihood computation dataflow graph for a simple example.
+    /** @brief Conditionallikelihood = AboveConditionalLikelihood * BelowConditionalLikelihood
      *
-     * The same model is used everywhere for simplicity.
-     * In a real case, something like a map<EdgeIndex, shared_ptr<Model>> would give the model for each branch.
-     *
-     * In this example, a new leaf NumericMutable is generated for each branch length.
-     * The set of parameters (branch lengths) is returned in the branchLengthValues map.
-     * In a real case, something like a map<EdgeIndex, ValueRef<double>> would provide branch lengths.
-     * The branch length values can be provided by any computation, or as a leaf NumericMutable node.
+     * lik(state, site) = abova(state, site) * below(state,site)
+     * Using member wise multiply
      */
 
+    using BuildConditionalLikelihood =
+      CWiseMul<Eigen::MatrixXd, ReductionOf<Eigen::MatrixXd>>;
+
+    using ConditionalLikelihood = Value<Eigen::MatrixXd>;
+    
+    using ConditionalLikelihoodTree = AssociationTreeGlobalGraphObserver<ConditionalLikelihood,uint>;
+    
     class LikelihoodCalculation :
       public AbstractParametrizable
     {
     private:
+      
+      class RateCategoryTrees {
+      public:
+        std::shared_ptr<PhyloTree_BrRef> phyloTree;
+        std::shared_ptr<ForwardLikelihoodTree> flt;
+        std::shared_ptr<BackwardLikelihoodTree> blt;
+        std::shared_ptr<ConditionalLikelihoodTree> lt;
+      };
       
       ValueRef<double> likelihood_;
       Context context_;
@@ -138,29 +146,33 @@ namespace bpp {
       
       ParameterList parameters_;
 
-      /*
-       * Double for numeric derivates.
-       *
-       */
-      
-      double delta_;
-
       /* DataFlow Nodes linked with process */
       
       std::shared_ptr<PhyloTree_BrRef> treeNode_;
+
+      /*
+       * link towards a model (any) to get stateMap & nb of states
+       *
+       */
+      
       std::shared_ptr<ConfiguredModel> modelNode_;
       
       std::shared_ptr<ConfiguredFrequenciesSet> rootFreqsNode_;
       
       std::shared_ptr<ConfiguredDistribution> ratesNode_;
 
-    public:
+      /* Used to build BackwardLikelihoodTree */
 
-      LikelihoodCalculation(dataflow::Context & context,
+      std::vector<RateCategoryTrees> vRateCatTrees_;
+
+      ValueRef<Eigen::RowVectorXd> rFreqs_;
+
+    public:
+      LikelihoodCalculation(Context & context,
                             const AlignedValuesContainer & sites,
                             const SubstitutionProcess& process);
 
-      LikelihoodCalculation(dataflow::Context & context,
+      LikelihoodCalculation(Context & context,
                             const SubstitutionProcess& process);
 
       LikelihoodCalculation(const LikelihoodCalculation& lik);
@@ -173,10 +185,15 @@ namespace bpp {
       ValueRef<double> getLikelihood() 
       {
         if (psites_ && !likelihood_)
-          likelihood_=makeLikelihoodNodes_();
+          likelihood_=makeLikelihoodAtRoot_();
         return likelihood_;
       }
 
+      ValueRef<double> getLikelihoodAtNode(uint nodeId) 
+      {
+        return makeLikelihoodAtNode_(nodeId);
+      }
+      
       void setData(const AlignedValuesContainer& sites)
       {
         psites_=&sites;
@@ -203,15 +220,47 @@ namespace bpp {
         return psites_;
       }
 
-      // const Alphabet* getAlphabet() const
-      // {
-      //   return static_cast<const bpp::TransitionModel*>(modelNode_->getTargetValue())->getAlphabet();
-      // }
+      std::size_t getNumberOfSites() const 
+      {
+        if (psites_!=0)
+          return psites_->getNumberOfSites();
+        else
+          return 0;
+      }
+      
+      const StateMap& getStateMap() const
+      {
+        return modelNode_->getTargetValue()->getStateMap();
+      }
+      
+      std::shared_ptr<PhyloTree_BrRef> getTreeNode()
+      {
+        return treeNode_;
+      }
 
+      ValueRef<Eigen::RowVectorXd> getRootFreqs()
+      {
+        return rFreqs_;
+      }
+
+      std::shared_ptr<ForwardLikelihoodTree> getForwardTree(size_t nCat)
+      {
+        if (nCat>=vRateCatTrees_.size())
+          throw Exception("LikelihoodCalculation::getForwardTree : Bad ForwardTree number " + TextTools::toString(nCat));
+        return vRateCatTrees_[nCat].flt;
+      }
+
+      
     private:
-      ValueRef<double> makeLikelihoodNodes_();
+      void makeForwardLikelihoodTree_();
 
       void makeProcessNodes_();
+
+      void makeRootFreqs_();
+
+      ValueRef<double> makeLikelihoodAtRoot_();
+
+      ValueRef<double> makeLikelihoodAtNode_(uint nodeId);
 
     };
 

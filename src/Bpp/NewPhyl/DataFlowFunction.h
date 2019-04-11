@@ -44,6 +44,8 @@
 #include <Bpp/Numeric/Parameter.h>
 #include <Bpp/Numeric/ParameterList.h>
 
+#include <Bpp/Phyl/NewLikelihood/PhyloLikelihoods/PhyloLikelihood.h>
+
 #include "DataFlowNumeric.h"
 #include "Parameter.h"
 #include "LikelihoodCalculation.h"
@@ -62,21 +64,9 @@ namespace bpp {
     
     /* Wraps a dataflow graph as a function: resultNode = f(variableNodes).
      *
-     * FIXME This temporary interface to bpp::DerivableSecondOrder stuff
-     * should be improved.
-     *
-     * Any bpp::Parameter can be given in the bpp::ParameterList, but
-     * only DataFlowParameter are supported because we need to have
-     * dataflow nodes.
-     * No specific check is done, in case of error it will be a
-     * std::bad_cast from dynamic_cast.
-     *
-     * In addition, as we need a context for derivation but the bpp
-     * legacy API does not support it, a reference is stored in the
-     * class which is dangerous with respect to lifetime.
      */
   
-    class DataFlowFunction : public DerivableSecondOrder {
+    class DataFlowFunction : public PhyloLikelihood {
     private:
       dataflow::Context & context_;
 
@@ -108,9 +98,176 @@ namespace bpp {
         variableNodes_.shareParameters(variableNodes);
       }
 
+      /*
+       * @brief: the parameters are those of the LikelihoodCalculation
+       */
+      
+      DataFlowFunction (dataflow::Context & context, std::shared_ptr<LikelihoodCalculation> likCal)
+        : context_ (context), likCal_(likCal), variableNodes_ () {
+        variableNodes_.shareParameters(likCal->getParameters());
+      }
+
       // Legacy boilerplate
       DataFlowFunction * clone () const override { return new DataFlowFunction (*this); }
 
+      /**
+       * @return initialize the likelihood function.
+       */
+      
+      void initialize() {};
+      
+      /**
+       * @return 'true' is the likelihood function has been initialized.
+       */
+      bool isInitialized() const {
+        return likCal_->getData();
+      };
+      
+      /**
+       * @}
+       */
+
+      /**
+       * @brief set it arrays should be computed in log.
+       *
+       */
+
+      void setUseLog(bool useLog) {};
+
+      /**
+       * @name The likelihood functions.
+       *
+       * @{
+       */
+      
+      /**
+       * @brief update the likelihood to get ready for computation
+       *
+       */
+
+      void updateLikelihood() const {};
+
+      /**
+       * @brief compute the likelihood
+       *
+       */
+
+      void computeLikelihood() const {};
+
+      /**
+       * @brief Get the logarithm of the likelihood for the whole dataset.
+       *
+       * @return The logarithm of the likelihood of the dataset.
+       */
+    
+      double getLogLikelihood() const {
+        return getValue();
+      }
+      
+      /**
+       * @brief Compute the derivates of the LogLikelihood.
+       *
+       */
+
+      void computeDLogLikelihood_(const std::string& variable) const {};
+
+    
+      void computeD2LogLikelihood_(const std::string& variable) const {};
+    
+      /**
+       * @brief Get the derivates of the LogLikelihood.
+       *
+       */
+
+      double getDLogLikelihood(const std::string& variable) const
+      {
+        return getFirstOrderDerivative(variable);
+      }
+
+      double getD2LogLikelihood(const std::string& variable) const
+      {
+        return getSecondOrderDerivative(variable);
+      }
+
+      /** @} */
+
+      /**
+       * @name Retrieve some particular independent parameters subsets.
+       *
+       * @{
+       */
+    
+      /**
+       * @brief Get the independent branch lengths parameters.
+       *
+       * @return A ParameterList with all branch lengths.
+       */
+
+      ParameterList getBranchLengthParameters() const
+      {
+        return likCal_->getSubstitutionProcess().getBranchLengthParameters(true);
+      }
+      
+      /**
+       * @brief Get the independent parameters associated to substitution model(s).
+       *
+       * @return A ParameterList.
+       */
+
+      ParameterList getSubstitutionModelParameters() const
+      {
+        return likCal_->getSubstitutionProcess().getSubstitutionModelParameters(true);
+      }
+
+      /**
+       * @brief Get the independent parameters associated to the rate distribution(s).
+       *
+       * @return A ParameterList.
+       */
+
+      ParameterList getRateDistributionParameters() const
+      {
+        return likCal_->getSubstitutionProcess().getRateDistributionParameters(true);
+      }
+      
+      /**
+       * @brief Get the independent parameters associated to the root
+       * frequencies(s).
+       *
+       * @return A ParameterList.
+       */
+      
+      ParameterList getRootFrequenciesParameters() const
+      {
+        return likCal_->getSubstitutionProcess().getRootFrequenciesParameters(true);
+      }
+      
+      /**
+       * @brief All independent non derivable parameters.
+       *
+       * Usually, this contains all substitution model parameters and rate distribution.
+       *
+       * @return A ParameterList.
+       */
+
+      ParameterList getNonDerivableParameters() const
+      {
+        return likCal_->getSubstitutionProcess().getNonDerivableParameters();
+      }
+     
+
+      /** @} */
+
+      /**
+       * @brief Tell if derivatives must be computed.
+       *
+       * This methods calls the enableFirstOrderDerivatives and enableSecondOrderDerivatives.
+       *
+       * @param yn Yes or no.
+       */
+      void enableDerivatives(bool yn) {};
+      
+      
       // bpp::Parametrizable (prefix unused FIXME?)
       bool hasParameter (const std::string & name) const override { return variableNodes_.hasParameter (name); }
       const ParameterList & getParameters () const override { return variableNodes_; }
@@ -139,11 +296,13 @@ namespace bpp {
       std::string getParameterNameWithoutNamespace (const std::string & name) const override { return name; }
 
       // bpp::Function
-      void setParameters (const ParameterList & params) override {
+      void setParameters (const ParameterList & params) override
+      {
         variableNodes_.setParametersValues (params);
       }
       
-      double getValue () const override {
+      double getValue () const override
+      {
         return likCal_->getLikelihood()->getTargetValue ();
       }
 
@@ -165,6 +324,7 @@ namespace bpp {
       double getSecondOrderDerivative (const std::string & variable) const override {
         return getSecondOrderDerivative (variable, variable);
       }
+
       double getSecondOrderDerivative (const std::string & variable1,
                                        const std::string & variable2) const override {
         return secondOrderDerivativeNode (variable1, variable2)->getTargetValue ();

@@ -6,6 +6,7 @@
 
 #include "Bpp/NewPhyl/LikelihoodCalculation.h"
 #include "Bpp/NewPhyl/ForwardLikelihoodTree.h"
+#include "Bpp/NewPhyl/BackwardLikelihoodTree.h"
 
 #include <Bpp/Phyl/Model/RateDistribution/ConstantRateDistribution.h>
 
@@ -16,13 +17,13 @@ using namespace std;
 using namespace bpp;
 using namespace bpp::dataflow;
 
-LikelihoodCalculation::LikelihoodCalculation(dataflow::Context & context,
+LikelihoodCalculation::LikelihoodCalculation(Context & context,
                                              const AlignedValuesContainer & sites,
                                              const SubstitutionProcess& process):
   AbstractParametrizable(""),
   likelihood_(), context_(context), process_(process), psites_(&sites),
   treeNode_(), modelNode_(), rootFreqsNode_(),
-  ratesNode_()
+  ratesNode_(), vRateCatTrees_(), rFreqs_()
 {
   makeProcessNodes_();
 }
@@ -31,17 +32,17 @@ LikelihoodCalculation::LikelihoodCalculation(const LikelihoodCalculation& lik) :
   AbstractParametrizable(lik),
   likelihood_(), context_(), process_(lik.process_), psites_(lik.psites_),
   treeNode_(), modelNode_(), rootFreqsNode_(),
-  ratesNode_()
+  ratesNode_(), vRateCatTrees_(), rFreqs_()
 {
   makeProcessNodes_();
 }
 
-LikelihoodCalculation::LikelihoodCalculation(dataflow::Context & context,
+LikelihoodCalculation::LikelihoodCalculation(Context & context,
                                              const SubstitutionProcess& process):
   AbstractParametrizable(""),
   likelihood_(), context_(context), process_(process), psites_(),
   treeNode_(), modelNode_(), rootFreqsNode_(),
-  ratesNode_()
+  ratesNode_(), vRateCatTrees_(), rFreqs_()
 {
   makeProcessNodes_();
 }
@@ -75,11 +76,11 @@ void LikelihoodCalculation::makeProcessNodes_()
   {
     std::unique_ptr<DiscreteDistribution> newRates(rates->clone());
     const auto& rateParams=newRates->getIndependentParameters();
-    std::vector<bpp::dataflow::NodeRef> deps;
+    std::vector<NodeRef> deps;
     for (size_t i=0;i<rateParams.size();i++)
-      deps.push_back(bpp::dataflow::ConfiguredParameter::create(context_, {dynamic_cast<ConfiguredParameter*>(getSharedParameter(rateParams[i].getName()).get())->dependency(0)}, rateParams[i]));
+      deps.push_back(ConfiguredParameter::create(context_, {dynamic_cast<ConfiguredParameter*>(getSharedParameter(rateParams[i].getName()).get())->dependency(0)}, rateParams[i]));
     
-    ratesNode_ = bpp::dataflow::ConfiguredParametrizable::createConfigured<bpp::DiscreteDistribution, bpp::dataflow::ConfiguredDistribution>(
+    ratesNode_ = ConfiguredParametrizable::createConfigured<DiscreteDistribution, ConfiguredDistribution>(
       context_,
       std::move(deps),
       std::move(newRates));
@@ -97,10 +98,10 @@ void LikelihoodCalculation::makeProcessNodes_()
     const auto& bp=branch->getParameters()[0];
     
     mapBr.emplace(parTree.getEdgeIndex(branch),
-                  bpp::dataflow::ConfiguredParameter::create(context_, {dynamic_cast<ConfiguredParameter*>(getSharedParameter(bp.getName()).get())->dependency(0)}, bp));
+                  ConfiguredParameter::create(context_, {dynamic_cast<ConfiguredParameter*>(getSharedParameter(bp.getName()).get())->dependency(0)}, bp));
   }
   
-  treeNode_ = std::shared_ptr<bpp::dataflow::PhyloTree_BrRef>(new bpp::dataflow::PhyloTree_BrRef(parTree, mapBr));
+  treeNode_ = std::shared_ptr<PhyloTree_BrRef>(new PhyloTree_BrRef(parTree, mapBr));
 
   /////////////////
   // model nodes
@@ -109,27 +110,27 @@ void LikelihoodCalculation::makeProcessNodes_()
 
   size_t nMod=process_.getNumberOfModels();
         
-  bpp::dataflow::ModelMap modelmap;
+  ModelMap modelmap;
 
   for (size_t nm=0; nm<nMod;nm++)
   {
     std::unique_ptr<TransitionModel> newModel(process_.getModel(nm)->clone());
     const auto& modelParams=process_.getModel(nm)->getParameters();
     
-    std::vector<bpp::dataflow::NodeRef> depModel;
+    std::vector<NodeRef> depModel;
     for (size_t np=0;np<modelParams.size();np++)
     {
       if (hasParameter(modelParams[np].getName()+"_"+ TextTools::toString(nm+1)))
-        depModel.push_back(bpp::dataflow::ConfiguredParameter::create(context_, {dynamic_cast<ConfiguredParameter*>(getSharedParameter(modelParams[np].getName()+"_"+ TextTools::toString(nm+1)).get())->dependency(0)}, modelParams[np]));
+        depModel.push_back(ConfiguredParameter::create(context_, {dynamic_cast<ConfiguredParameter*>(getSharedParameter(modelParams[np].getName()+"_"+ TextTools::toString(nm+1)).get())->dependency(0)}, modelParams[np]));
       else
       {
         if (nMod==1)
-          depModel.push_back(bpp::dataflow::ConfiguredParameter::create(context_, {dynamic_cast<ConfiguredParameter*>(getSharedParameter(modelParams[np].getName()).get())->dependency(0)}, modelParams[np]));
+          depModel.push_back(ConfiguredParameter::create(context_, {dynamic_cast<ConfiguredParameter*>(getSharedParameter(modelParams[np].getName()).get())->dependency(0)}, modelParams[np]));
         else
           throw ParameterNotFoundException("LikelihoodCalculation::makeProcessNodes_", modelParams[np].getName());
       }
     }  
-    auto modelNode = bpp::dataflow::ConfiguredParametrizable::createConfigured<bpp::TransitionModel, bpp::dataflow::ConfiguredModel>(context_, std::move(depModel), std::move(newModel));
+    auto modelNode = ConfiguredParametrizable::createConfigured<TransitionModel, ConfiguredModel>(context_, std::move(depModel), std::move(newModel));
     
     // assign model to branche id
     std::vector<uint> vId=process_.getNodesWithModel(nm);
@@ -150,11 +151,11 @@ void LikelihoodCalculation::makeProcessNodes_()
     auto rootFreqs = std::unique_ptr<FrequenciesSet>(root->clone());
     const auto& rootParams= root->getParameters();
     
-    std::vector<bpp::dataflow::NodeRef> depRoot;
+    std::vector<NodeRef> depRoot;
     for (size_t i=0;i<rootParams.size();i++)
-      depRoot.push_back(bpp::dataflow::ConfiguredParameter::create(context_, {dynamic_cast<ConfiguredParameter*>(getSharedParameter(rootParams[i].getName()).get())->dependency(0)}, rootParams[i]));
+      depRoot.push_back(ConfiguredParameter::create(context_, {dynamic_cast<ConfiguredParameter*>(getSharedParameter(rootParams[i].getName()).get())->dependency(0)}, rootParams[i]));
     
-    rootFreqsNode_ = bpp::dataflow::ConfiguredParametrizable::createConfigured<bpp::FrequenciesSet, bpp::dataflow::ConfiguredFrequenciesSet>(context_, std::move(depRoot), std::move(rootFreqs));
+    rootFreqsNode_ = ConfiguredParametrizable::createConfigured<FrequenciesSet, ConfiguredFrequenciesSet>(context_, std::move(depRoot), std::move(rootFreqs));
   }
 
   // get a modelNode from the map
@@ -164,7 +165,7 @@ void LikelihoodCalculation::makeProcessNodes_()
 
 void LikelihoodCalculation::setNumericalDerivateConfiguration(double delta, const NumericalDerivativeType& config)
 {
-  auto deltaNode = bpp::dataflow::NumericMutable<double>::create(context_, delta);
+  auto deltaNode = NumericMutable<double>::create(context_, delta);
 
   if (ratesNode_)
   {
@@ -198,9 +199,9 @@ void LikelihoodCalculation::setClockLike(double rate)
 {
   Parameter pRate("BrLen_rate", rate, Parameter::R_PLUS_STAR);
 
-  auto rateNode = bpp::dataflow::ConfiguredParameter::create(context_, pRate);
+  auto rateNode = ConfiguredParameter::create(context_, pRate);
 
-  auto rateRef= bpp::dataflow::ValueFromConfiguredParameter::create(context_, {rateNode});
+  auto rateRef= ValueFromConfiguredParameter::create(context_, {rateNode});
 
   /////////////////
   // brlen nodes
@@ -231,73 +232,189 @@ void LikelihoodCalculation::setClockLike(double rate)
 }
 
 
-ValueRef<double> LikelihoodCalculation::makeLikelihoodNodes_()
+/****************************************
+ * Construction methods
+ ****************************************/
+
+void LikelihoodCalculation::makeRootFreqs_()
 {
-  std::size_t nbSite = psites_->getNumberOfSites();
-    
-  const auto nbState = modelNode_->getTargetValue()->getNumberOfStates (); // Number of stored state values !
+  
+// Set root frequencies 
+
+  size_t nbState = getStateMap().getNumberOfModelStates();
+  rFreqs_ = rootFreqsNode_?ConfiguredParametrizable::createVector<ConfiguredFrequenciesSet, FrequenciesFromFrequenciesSet> (
+    context_, {rootFreqsNode_}, rowVectorDimension (Eigen::Index (nbState))):
+    ConfiguredParametrizable::createVector<ConfiguredModel, EquilibriumFrequenciesFromModel> (
+      context_, {modelNode_}, rowVectorDimension (Eigen::Index (nbState)));
+}
+
+
+void LikelihoodCalculation::makeForwardLikelihoodTree_()
+{
   // Build conditional likelihoods up to root recursively.
   if (!treeNode_->isRooted ()) {
     throw Exception ("PhyloTree must be rooted");
   }
         
-  // Set root frequencies 
-  auto rFreqs = rootFreqsNode_?dataflow::ConfiguredParametrizable::createVector<dataflow::ConfiguredFrequenciesSet, dataflow::FrequenciesFromFrequenciesSet> (
-    context_, {rootFreqsNode_}, rowVectorDimension (Eigen::Index (nbState))):
-    dataflow::ConfiguredParametrizable::createVector<dataflow::ConfiguredModel, dataflow::EquilibriumFrequenciesFromModel> (
-      context_, {modelNode_}, rowVectorDimension (Eigen::Index (nbState)));
-
-  dataflow::ValueRef<Eigen::RowVectorXd> siteLikelihoods;
-
   if (ratesNode_)
   {
-    auto brlenmap = bpp::dataflow::createBrLenMap(context_, *treeNode_);
+    auto brlenmap = createBrLenMap(context_, *treeNode_);
       
     uint nbCat=(uint)ratesNode_->getTargetValue()->getNumberOfCategories();
 
-    std::vector<std::shared_ptr<bpp::dataflow::Node>> vLogRoot;
-      
+    vRateCatTrees_.resize(nbCat);
+
     for (uint nCat=0; nCat<nbCat; nCat++)
     {
-      auto catRef = bpp::dataflow::CategoryFromDiscreteDistribution::create(context_, {ratesNode_}, nCat);
+      auto catRef = CategoryFromDiscreteDistribution::create(context_, {ratesNode_}, nCat);
   
-      auto rateBrLen = bpp::dataflow::multiplyBrLenMap(context_, *treeNode_, catRef);
+      auto rateBrLen = multiplyBrLenMap(context_, *treeNode_, catRef);
+      auto treeCat = std::shared_ptr<PhyloTree_BrRef>(new PhyloTree_BrRef(*treeNode_, std::move(rateBrLen)));
+      vRateCatTrees_[nCat].phyloTree=treeCat;      
 
-      auto treeCat = std::shared_ptr<bpp::dataflow::PhyloTree_BrRef>(new bpp::dataflow::PhyloTree_BrRef(*treeNode_, std::move(rateBrLen)));
-
-      bpp::dataflow::ForwardLikelihoodTree flt(context_, treeCat, modelNode_->getTargetValue()->getStateMap());
-      flt.initialize(*psites_);
-      auto rootConditionalLikelihoods=flt.getForwardLikelihoodArray(treeCat->getRootIndex ());
-
-      auto siteLikelihoodsCat = dataflow::LikelihoodFromRootConditional::create (
-        context_, {rFreqs, rootConditionalLikelihoods}, rowVectorDimension (Eigen::Index (nbSite)));
-
-      vLogRoot.push_back(std::move(siteLikelihoodsCat));
+      auto flt=std::make_shared<ForwardLikelihoodTree>(context_, treeCat, getStateMap());
+      flt->initialize(*psites_);
+      vRateCatTrees_[nCat].flt=flt;
     }
-
-    auto catProb = bpp::dataflow::ProbabilitiesFromDiscreteDistribution::create(context_, {ratesNode_});
-
-    vLogRoot.push_back(catProb);
-      
-    siteLikelihoods = bpp::dataflow::CWiseMean<Eigen::RowVectorXd, bpp::dataflow::ReductionOf<Eigen::RowVectorXd>, Eigen::RowVectorXd>::create(context_, std::move(vLogRoot), rowVectorDimension (Eigen::Index(nbSite)));
   }
   else
   {
-    bpp::dataflow::ForwardLikelihoodTree flt(context_, treeNode_, modelNode_->getTargetValue()->getStateMap());
-    flt.initialize(*psites_);
+    vRateCatTrees_.resize(1);
+    vRateCatTrees_[0].phyloTree=treeNode_;
+    
+    auto flt=std::make_shared<ForwardLikelihoodTree >(context_, treeNode_, modelNode_->getTargetValue()->getStateMap());
+    flt->initialize(*psites_);
+    vRateCatTrees_[0].flt=flt;
+  }
+}
 
-    auto rootConditionalLikelihoods=flt.getForwardLikelihoodArray(treeNode_->getRootIndex ());
 
-    siteLikelihoods = dataflow::LikelihoodFromRootConditional::create (
-      context_, {rFreqs, rootConditionalLikelihoods}, rowVectorDimension (Eigen::Index (nbSite)));
+ValueRef<double> LikelihoodCalculation::makeLikelihoodAtRoot_()
+{
+  if (vRateCatTrees_.size()==0)
+    makeForwardLikelihoodTree_();
+
+  std::size_t nbSite = psites_->getNumberOfSites();    
+  auto rootIndex = treeNode_->getRootIndex();
+  
+  // Set root frequencies
+  if (rFreqs_==0)
+    makeRootFreqs_();
+  
+  ValueRef<Eigen::RowVectorXd> siteLikelihoods;
+
+  if (ratesNode_)
+  {
+    std::vector<std::shared_ptr<Node>> vLogRoot;
+      
+    for (auto rateCat: vRateCatTrees_)
+    {
+      vLogRoot.push_back(LikelihoodFromRootConditional::create (
+                           context_, {rFreqs_, rateCat.flt->getForwardLikelihoodArray(rootIndex)}, rowVectorDimension (Eigen::Index (nbSite))));
+    }
+
+    auto catProb = ProbabilitiesFromDiscreteDistribution::create(context_, {ratesNode_});
+    
+    vLogRoot.push_back(catProb);
+      
+    siteLikelihoods = CWiseMean<Eigen::RowVectorXd, ReductionOf<Eigen::RowVectorXd>, Eigen::RowVectorXd>::create(context_, std::move(vLogRoot), rowVectorDimension (Eigen::Index(nbSite)));
+  }
+  else
+  {
+    siteLikelihoods = LikelihoodFromRootConditional::create (
+      context_, {rFreqs_, vRateCatTrees_[0].flt->getForwardLikelihoodArray(rootIndex)}, rowVectorDimension (Eigen::Index (nbSite)));
   }
     
   auto totalLogLikelihood =
-    dataflow::SumOfLogarithms<Eigen::RowVectorXd>::create (context_, {siteLikelihoods}, rowVectorDimension (Eigen::Index (nbSite)));
+    SumOfLogarithms<Eigen::RowVectorXd>::create (context_, {siteLikelihoods}, rowVectorDimension (Eigen::Index (nbSite)));
 
 // We want -log(likelihood)
   auto totalNegLogLikelihood =
-    dataflow::CWiseNegate<double>::create (context_, {totalLogLikelihood}, Dimension<double> ());
+    CWiseNegate<double>::create (context_, {totalLogLikelihood}, Dimension<double> ());
+
+  return totalNegLogLikelihood;
+}
+
+
+ValueRef<double> LikelihoodCalculation::makeLikelihoodAtNode_(uint nodeId)
+{
+  if (vRateCatTrees_.size()==0)
+    makeForwardLikelihoodTree_();
+  
+  if (rFreqs_==0)
+    makeRootFreqs_();
+  
+  const auto& stateMap = getStateMap();
+  size_t nbSite = getNumberOfSites();
+  size_t nbState = stateMap.getNumberOfModelStates();
+  MatrixDimension likelihoodMatrixDim = conditionalLikelihoodDimension (nbState, nbSite);
+  
+  auto one=ConstantOne<Eigen::RowVectorXd>::create(context_, rowVectorDimension (Eigen::Index (nbState)));
+
+  ValueRef<Eigen::RowVectorXd> siteLikelihoods;
+
+  if (ratesNode_)
+  {
+    std::vector<std::shared_ptr<Node>> vLogRoot;
+      
+    for (auto rateCat: vRateCatTrees_)
+    {
+      if (!rateCat.blt)
+        rateCat.blt=std::make_shared<BackwardLikelihoodTree>(context_, rateCat.flt, rateCat.phyloTree, rFreqs_, stateMap, nbSite);
+
+      if (!rateCat.lt)
+        rateCat.lt=std::make_shared<ConditionalLikelihoodTree>(treeNode_->getGraph());
+      
+      auto condAbove = rateCat.blt->getBackwardLikelihoodArray(nodeId);
+      
+      auto condBelow = rateCat.flt->getForwardLikelihoodArray(nodeId);
+
+      auto cond = BuildConditionalLikelihood::create (
+        context_, {condAbove, condBelow}, likelihoodMatrixDim);
+      
+      rateCat.lt->associateNode(cond, treeNode_->getNodeGraphid(treeNode_->getNode(nodeId)));
+      rateCat.lt->setNodeIndex(cond, nodeId);
+
+      auto siteLikelihoodsCat = LikelihoodFromRootConditional::create (
+        context_, {one, cond}, rowVectorDimension (Eigen::Index (nbSite)));
+      
+      vLogRoot.push_back(std::move(siteLikelihoodsCat));
+    }
+
+    auto catProb = ProbabilitiesFromDiscreteDistribution::create(context_, {ratesNode_});
+    vLogRoot.push_back(catProb);
+      
+    siteLikelihoods = CWiseMean<Eigen::RowVectorXd, ReductionOf<Eigen::RowVectorXd>, Eigen::RowVectorXd>::create(context_, std::move(vLogRoot), rowVectorDimension (Eigen::Index(nbSite)));
+  }
+  else
+  {
+    auto& rateCat = vRateCatTrees_[0];
+    
+    if (!rateCat.blt)
+      rateCat.blt=std::make_shared<BackwardLikelihoodTree>(context_, rateCat.flt, rateCat.phyloTree, rFreqs_, stateMap, nbSite);
+
+    if (!rateCat.lt)
+      rateCat.lt=std::make_shared<ConditionalLikelihoodTree>(treeNode_->getGraph());
+    auto condAbove = rateCat.blt->getBackwardLikelihoodArray(nodeId);
+      
+    auto condBelow = rateCat.flt->getForwardLikelihoodArray(nodeId);
+
+    auto cond = BuildConditionalLikelihood::create (
+      context_, {condAbove, condBelow}, likelihoodMatrixDim);
+    
+    rateCat.lt->associateNode(cond, treeNode_->getNodeGraphid(treeNode_->getNode(nodeId)));
+    rateCat.lt->setNodeIndex(cond, nodeId);
+
+    siteLikelihoods = LikelihoodFromRootConditional::create (
+      context_, {one, cond}, rowVectorDimension (Eigen::Index (nbSite)));
+  }
+    
+  auto totalLogLikelihood =
+    SumOfLogarithms<Eigen::RowVectorXd>::create (context_, {siteLikelihoods}, rowVectorDimension (Eigen::Index (nbSite)));
+
+// We want -log(likelihood)
+  auto totalNegLogLikelihood =
+    CWiseNegate<double>::create (context_, {totalLogLikelihood}, Dimension<double> ());
 
   return totalNegLogLikelihood;
 }

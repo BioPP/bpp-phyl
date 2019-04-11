@@ -76,7 +76,7 @@ namespace bpp
      */
     
     using BackwardLikelihoodFromConditional =
-      MatrixProduct<Eigen::MatrixXd, Eigen::MatrixXd, Eigen::MatrixXd>;
+      MatrixProduct<Eigen::MatrixXd, Transposed<Eigen::MatrixXd>, Eigen::MatrixXd>;
     
     using ConditionalLikelihood = Value<Eigen::MatrixXd>;
 
@@ -84,30 +84,37 @@ namespace bpp
 
     /** Tree structure for all the forward computations **/
     /* All the computations are set in a DataFlow context */
-    
+
     class BackwardLikelihoodTree : public AssociationTreeGlobalGraphObserver<ConditionalLikelihood,BackwardLikelihoodAbove>
     {
       using TreeClass = AssociationTreeGlobalGraphObserver<ConditionalLikelihood,BackwardLikelihoodAbove>;
+
+      /** For a given rate catagory, stores PhyloTree_BrRef,
+       * ForwardlikelihoodTree and BackwardLikelihoodTree
+       **/
       
     private:
       dataflow::Context& context_;
-      std::shared_ptr<dataflow::ForwardLikelihoodTree> forwardTree_;
-      std::shared_ptr<dataflow::PhyloTree_BrRef> tree_;
-      MatrixDimension likelihoodMatrixDim_;
-      const StateMap& statemap_;
       std::size_t nbState_;
       std::size_t nbSite_;
+      std::shared_ptr<dataflow::ForwardLikelihoodTree> forwardTree_;
+      std::shared_ptr<dataflow::PhyloTree_BrRef> tree_;
+      ValueRef<Eigen::RowVectorXd> rFreqs_;
+      MatrixDimension likelihoodMatrixDim_;
+      const StateMap& statemap_;
 
     public:
 
       BackwardLikelihoodTree(dataflow::Context& c, 
                              std::shared_ptr<dataflow::ForwardLikelihoodTree> forwardTree,
                              std::shared_ptr<dataflow::PhyloTree_BrRef> tree,
+                             ValueRef<Eigen::RowVectorXd> rFreqs,
                              const StateMap& statemap,
                              std::size_t nbSite) :
         TreeClass(tree->getGraph()),
-        context_(c), forwardTree_(forwardTree), tree_(tree), likelihoodMatrixDim_(conditionalLikelihoodDimension (nbState_, nbSite_)), statemap_(statemap), nbState_(statemap.getNumberOfModelStates()), nbSite_(nbSite)
-      {}
+        context_(c), nbState_(statemap.getNumberOfModelStates()), nbSite_(nbSite), forwardTree_(forwardTree), tree_(tree), rFreqs_(rFreqs), likelihoodMatrixDim_(conditionalLikelihoodDimension (nbState_, nbSite_)), statemap_(statemap)
+      {
+      }
 
       void setForwardTree(std::shared_ptr<dataflow::ForwardLikelihoodTree> forwardTree)
       {
@@ -119,7 +126,10 @@ namespace bpp
 
       void setRootFrequencies(const dataflow::ValueRef<Eigen::RowVectorXd> rootFreqs)
       {
-        auto r2=convertRef<bpp::dataflow::Value<Eigen::MatrixXd>, bpp::dataflow::Value<Eigen::RowVectorXd>>(rootFreqs);
+        //auto r2=convert<bpp::dataflow::Value<Eigen::MatrixXd>, bpp::dataflow::Value<Eigen::RowVectorXd> >(rootFreqs);
+        
+        
+        auto r2=bpp::dataflow::CWiseFill<Eigen::MatrixXd, Eigen::RowVectorXd>::create(context_, {rootFreqs}, likelihoodMatrixDim_);
         
         associateNode(r2, tree_->getRootIndex());
         setNodeIndex(r2, tree_->getRootIndex());
@@ -127,18 +137,23 @@ namespace bpp
         
       dataflow::ValueRef<Eigen::MatrixXd> makeBackwardAboveLikelihoodEdge (PhyloTree::EdgeIndex index) {
 
-        auto fatherIndex = getFatherOfEdge(index);
-        auto backNode = getNode(fatherIndex);
+        auto fatherIndex = tree_->getFatherOfEdge(index);
+
+        // get/check if edge with backward likelihood exists
+        dataflow::ValueRef<Eigen::MatrixXd> backNode;
         
-        if (!backNode)
+        if (hasNode(fatherIndex))
+          backNode = getNode(fatherIndex);
+        else
           backNode = makeConditionalAboveLikelihoodNode(fatherIndex);
 
         // get forward likelihoods of brothers
         if (!forwardTree_)
           throw Exception("BackwardLikelihoodTree::makeBackwardAboveLikelihoodEdge: forwardTree_ is missing.");
-        
+
         auto edgeIds = forwardTree_->getBranches(fatherIndex);
         dataflow::NodeRefVec deps;
+        
         for (auto eId : edgeIds)
         {
           if (eId!=index)
@@ -155,21 +170,23 @@ namespace bpp
       }
 
       dataflow::ValueRef<Eigen::MatrixXd> makeConditionalAboveLikelihoodNode (PhyloTree::NodeIndex index) {
-        //!!!! must be initialized before
+         //!!!! must be initialized before
         if (index==tree_->getRootIndex())
         {
-          auto root=getNode(index);
-          if (!root)
-            throw Exception("BackwardLikelihoodTree::makeConditionalAboveLikelihoodNode : root is missing.");
-          return root;
+          setRootFrequencies(rFreqs_);
+          return getNode(index);
         }
         
         // get Edge with model
         const auto edgeToFather = tree_->getEdgeToFather(index);
-        // get/check if edge with backward likelihood exists
-        auto backEdge = getEdgeToFather(index);
+        const auto edgeToFatherIndex = tree_->getEdgeIndex(edgeToFather);
 
-        if (!backEdge)
+        // get/check if edge with backward likelihood exists
+        dataflow::ValueRef<Eigen::MatrixXd> backEdge;
+        
+        if (hasEdge(edgeToFatherIndex))
+          backEdge = getEdgeToFather(index);
+        else
           backEdge=makeBackwardAboveLikelihoodEdge(index);
         
         const auto brlen = edgeToFather->getBrLen();
@@ -177,6 +194,7 @@ namespace bpp
         // useless, the transitionMatrix already exists, but is not available directly through a tree
         auto transitionMatrix =
           dataflow::ConfiguredParametrizable::createMatrix<dataflow::ConfiguredModel, dataflow::TransitionMatrixFromModel> (context_, {model, brlen}, transitionMatrixDimension (nbState_));
+
         auto r= dataflow::BackwardLikelihoodFromConditional::create (
           context_, {transitionMatrix, backEdge}, likelihoodMatrixDim_);
 
@@ -190,8 +208,11 @@ namespace bpp
      *
      */
     
-      const ValueRef<Eigen::MatrixXd> getBackwardLikelihoodArray(int nodeId) const
+      ValueRef<Eigen::MatrixXd> getBackwardLikelihoodArray(int nodeId)
       {
+        if (!hasNode(nodeId))
+          makeConditionalAboveLikelihoodNode(nodeId);
+        
         return getNode(nodeId);
       }
 

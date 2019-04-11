@@ -154,19 +154,20 @@ int main() {
   SubstitutionProcess* sP1c=subPro1;
   SubstitutionProcess* sP2c=subPro2;
 
-  RecursiveLikelihoodTreeCalculation* rtl1=new RecursiveLikelihoodTreeCalculation(*sites.clone(), sP1c, true, true);
+  bpp::dataflow::Context context;
 
-  pc.addPhyloLikelihood(1, new SingleProcessPhyloLikelihood(subPro1, rtl1, true));
+  auto lik1 = std::make_shared<bpp::dataflow::LikelihoodCalculation>(context, sites, *sP1c);
+
+  pc.addPhyloLikelihood(1, new bpp::dataflow::DataFlowFunction(context, lik1));
   
   
-  RecursiveLikelihoodTreeCalculation* rtl2=new RecursiveLikelihoodTreeCalculation(*sites.clone(), sP2c, true, true);
-  pc.addPhyloLikelihood(2, new SingleProcessPhyloLikelihood(subPro2, rtl2, true));
+  auto lik2 = std::make_shared<bpp::dataflow::LikelihoodCalculation>(context, sites, *sP2c);
 
+  pc.addPhyloLikelihood(2, new bpp::dataflow::DataFlowFunction(context, lik2));
   
   AlignedPhyloLikelihood* spl1=dynamic_cast<AlignedPhyloLikelihood*>(pc[1]);
   AlignedPhyloLikelihood* spl2=dynamic_cast<AlignedPhyloLikelihood*>(pc[2]);
 
-  
   spl1->computeLikelihood();
   spl2->computeLikelihood();
   

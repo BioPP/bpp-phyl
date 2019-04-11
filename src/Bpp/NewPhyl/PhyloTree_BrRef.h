@@ -157,8 +157,8 @@ namespace bpp
           if (vrefmap.find(ids)!=vrefmap.end())
           {
             std::shared_ptr<BrRef> brref(new BrRef({0, std::move(vrefmap.at(ids))}));
-            associateEdge(std::move(brref), index);
-            setEdgeIndex(getEdgeFromGraphid(index),ids);
+            associateEdge(brref, index);
+            setEdgeIndex(brref, ids);
           }
           else
             throw Exception("PhyloTree_BrRef::PhyloTree_BrRef missing reference for branch " + TextTools::toString(ids));
@@ -174,8 +174,8 @@ namespace bpp
         {
           std::shared_ptr<PhyloNode> pn=tree.getNodeFromGraphid(index);
           
-          associateNode(pn,index);
-          setNodeIndex(pn,tree.getNodeIndex(pn));
+          associateNode(pn, index);
+          setNodeIndex(pn, tree.getNodeIndex(pn));
         }
         
         rootAt(tree.getRoot());

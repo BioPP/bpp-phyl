@@ -56,9 +56,9 @@ namespace bpp {
 
     // Precompiled instantiations of numeric nodes
     template class CWiseFill<Eigen::RowVectorXd, double>;
-    //template class CWiseFill<Eigen::VectorXd, double>;
-    //template class CWiseFill<Eigen::MatrixXd, Eigen::VectorXd>;
-    //template class CWiseFill<Eigen::MatrixXd, Eigen::RowVectorXd>;
+    template class CWiseFill<Eigen::VectorXd, double>;
+    template class CWiseFill<Eigen::MatrixXd, Eigen::VectorXd>;
+    template class CWiseFill<Eigen::MatrixXd, Eigen::RowVectorXd>;
 
     template class CWiseAdd<double, std::tuple<double, double>>;
     template class CWiseAdd<Eigen::VectorXd, std::tuple<Eigen::VectorXd, Eigen::VectorXd>>;

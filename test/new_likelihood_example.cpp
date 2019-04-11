@@ -78,6 +78,7 @@
 // #include <Bpp/NewPhyl/Parametrizable.h>
 // #include <Bpp/NewPhyl/DataFlow.h>
 #include <Bpp/NewPhyl/DataFlowFunction.h>
+#include <Bpp/NewPhyl/BackwardLikelihoodTree.h>
 #include <Bpp/Phyl/Io/Newick.h>
 #include <Bpp/Phyl/NewLikelihood/PhyloLikelihoods/SingleProcessPhyloLikelihood.h>
 #include <Bpp/Phyl/NewLikelihood/NonHomogeneousSubstitutionProcess.h>
@@ -272,8 +273,8 @@ TEST_CASE("df")
 
   auto model = new bpp::T92(&c.alphabet, 3., 0.7);
   auto rootFreqs = new bpp::GCFrequenciesSet(&c.alphabet, 0.1);
-  auto distribution = new bpp::ConstantRateDistribution();
-//  auto distribution = new bpp::GammaDiscreteRateDistribution(3, 1);
+//  auto distribution = new bpp::ConstantRateDistribution();
+  auto distribution = new bpp::GammaDiscreteRateDistribution(3, 1);
   // Read tree structure
   bpp::Newick reader;
   auto phyloTree = std::unique_ptr<bpp::PhyloTree>(reader.parenthesisToPhyloTree(c.treeStr, false, "", false, false));
@@ -290,14 +291,15 @@ TEST_CASE("df")
   l->setNumericalDerivateConfiguration(0.001, bpp::dataflow::NumericalDerivativeType::ThreePoints);
 //  l->setClockLike();
   
-  bpp::dataflow::DataFlowFunction llh(context, l, l->getParameters());
+  bpp::dataflow::DataFlowFunction llh(context, l);
   timingEnd(ts, "df_setup");
 
   ts = timingStart();
   auto logLik = llh.getValue();
   timingEnd(ts, "df_init_value");
   printLik(logLik, "df_init_value");
-  dotOutput("likelihood_example_value", {llh.getLikelihoodCalculation()->getLikelihood().get()});
+  auto lik = llh.getLikelihoodCalculation();
+  dotOutput("likelihood_example_value", {lik->getLikelihood().get()});
   
   // Manual access to dbrlen1
   // auto br= dynamic_cast<bpp::dataflow::ConfiguredParameter*>(l.shareParameter("BrLen1").get());
@@ -308,16 +310,23 @@ TEST_CASE("df")
   // dotOutput("likelihood_example_dbrlen1", {dlogLik_dbrlen1.get()});
 
   // Manual access to dkappa
-  llh.getLikelihoodCalculation()->getParameters().printParameters(std::cerr);
+
+  auto likNode= lik->getLikelihoodAtNode(4);
+
+  dotOutput("likelihood_example_4.dot", {likNode.get(), lik->getLikelihood().get()});
+
+  auto logLikNode = likNode->getTargetValue();
+  timingEnd(ts, "df_init_value_node");
+  printLik(logLikNode, "df_init_value_node");
+
+  // auto kappa= dynamic_cast<bpp::dataflow::ConfiguredParameter*>(llh.getLikelihoodCalculation()->getSharedParameter("T92.kappa_1").get());
+  // auto dlogLik_dkappa = l->getLikelihood()->deriveAsValue(context, *kappa->dependency(0));
+  // std::cout << "[dkappa] " << dlogLik_dkappa->getTargetValue() << "\n";
+  // dotOutput("likelihood_example_dkappa", {dlogLik_dkappa.get()});
   
-  auto kappa= dynamic_cast<bpp::dataflow::ConfiguredParameter*>(llh.getLikelihoodCalculation()->getSharedParameter("T92.kappa_1").get());
-  auto dlogLik_dkappa = l->getLikelihood()->deriveAsValue(context, *kappa->dependency(0));
-  std::cout << "[dkappa] " << dlogLik_dkappa->getTargetValue() << "\n";
-  dotOutput("likelihood_example_dkappa", {dlogLik_dkappa.get()});
-  
-  auto d2logLik_dkappa2 = dlogLik_dkappa->deriveAsValue(context, *kappa->dependency(0));
-  std::cout << "[d2kappa] " << d2logLik_dkappa2->getTargetValue() << "\n";
-  dotOutput("likelihood_example_dkappa2", {d2logLik_dkappa2.get()});
+  // auto d2logLik_dkappa2 = dlogLik_dkappa->deriveAsValue(context, *kappa->dependency(0));
+  // std::cout << "[d2kappa] " << d2logLik_dkappa2->getTargetValue() << "\n";
+  // dotOutput("likelihood_example_dkappa2", {d2logLik_dkappa2.get()});
 
   // bpp::ParameterList BrLenParam;
   // for (size_t i=0;i<l->getParameters().size();i++)
@@ -354,8 +363,8 @@ TEST_CASE("df")
 
   // optimize_for_params(llh, "df_brlens_opt", BrLenParam);
   // optimize_for_params(llh, "df_model_opt",  ModelParam);
-  optimize_for_params(llh, "df_all_opt", l->getParameters());
-  llh.getParameters().printParameters(std::cerr);
+  // optimize_for_params(llh, "df_all_opt", l->getParameters());
+  // llh.getParameters().printParameters(std::cerr);
   
 }
 

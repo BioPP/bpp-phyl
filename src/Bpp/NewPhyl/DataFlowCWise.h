@@ -1,7 +1,6 @@
 //
 // File: DataFlowCwise.h
-// Authors:
-//   Francois Gindraud (2017)
+// Authors: Francois Gindraud (2017), Laurent Guéguen (2019)
 // Created: 2018-06-07
 // Last modified: 2018-07-11
 //
@@ -113,27 +112,23 @@ namespace bpp {
       static ValueRef<R> create (Context & c, NodeRefVec && deps, const Dimension<R> & dim) {
         // Check dependencies
         checkDependenciesNotNull (typeid (Self), deps);
-        checkDependencyRangeIsValue<T> (typeid (Self), deps, 0, deps.size ());
+        checkDependencyVectorSize (typeid (Self), deps, 1);
+        checkNthDependencyIsValue<T> (typeid (Self), deps, 0);
         // Remove 0s from deps
-        removeDependenciesIf (deps, [](const NodeRef & dep) {
-            return dep->hasNumericalProperty (NumericalProperty::ConstantZero);
-          });
-        
-        // Select node implementation
-        if (deps.size () == 0) {
+        if (deps[0]->hasNumericalProperty (NumericalProperty::ConstantZero))
           return ConstantZero<R>::create (c, dim);
-        } else if (deps.size () == 1) {
-          return Convert<R, T>::create (c, {deps[0]}, dim);
-        } else {
+        else if (deps[0]->hasNumericalProperty (NumericalProperty::ConstantOne))
+          return ConstantOne<R>::create (c, dim);
+        else {
           return cachedAs<Value<R>> (c, std::make_shared<Self> (std::move (deps), dim));
         }
       }
 
       CWiseFill (NodeRefVec && deps, const Dimension<R> & dim)
         : Value<R> (std::move (deps)), targetDimension_ (dim)
-          {
-            this->accessValueMutable().resize(dim.rows,dim.cols);
-          }
+      {
+        this->accessValueMutable().resize(dim.rows,dim.cols);
+      }
 
       std::string debugInfo () const override {
         using namespace numeric;
@@ -149,12 +144,7 @@ namespace bpp {
         if (&node == this) {
           return ConstantOne<R>::create (c, targetDimension_);
         }
-        const auto n = this->nbDependencies ();
-        NodeRefVec derivedDeps (n);
-        for (std::size_t i = 0; i < n; ++i) {
-          derivedDeps[i] = this->dependency (i)->derive (c, node);
-        }
-        return Self::create (c, std::move (derivedDeps), targetDimension_);
+        return Self::create (c, {this->dependency(0)->derive (c, node)}, targetDimension_);
       }
 
       NodeRef recreate (Context & c, NodeRefVec && deps) final {
@@ -162,13 +152,35 @@ namespace bpp {
       }
 
     private:
-      void compute () final {
+      void compute() { compute<T>();}
+      
+      template<class U=T>
+      typename std::enable_if<std::is_arithmetic<U>::value, void>::type
+      compute () {
         using namespace numeric;
         auto & result = this->accessValueMutable ();
-        for (size_t i=0; i<this->nbDependencies(); i++)
-        {
-          result.col(i).fill(accessValueConstCast<T> (*this->dependency (i)));
-        }
+        const auto & x0 = accessValueConstCast<T> (*this->dependency (0));
+        result=convert(x0,targetDimension_);
+      }      
+
+      template<class U=T>
+      typename std::enable_if<std::is_same<U,Eigen::RowVectorXd>::value>::type
+      compute ()
+      {
+        using namespace numeric;
+        auto & result = this->accessValueMutable ();
+        const auto & x0 = accessValueConstCast<T> (*this->dependency (0));
+        result.colwise()=x0.transpose();
+      }      
+
+      template<class U=T>
+      typename std::enable_if<std::is_same<U,Eigen::VectorXd>::value>::type
+      compute ()
+      {
+        using namespace numeric;
+        auto & result = this->accessValueMutable ();
+        const auto & x0 = accessValueConstCast<T> (*this->dependency (0));
+        result.colwise()=x0;
       }      
 
       Dimension<R> targetDimension_;

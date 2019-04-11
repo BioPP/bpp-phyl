@@ -142,16 +142,17 @@ namespace bpp
         auto r= dataflow::ForwardLikelihoodFromConditional::create (
           context_, {transitionMatrix, childConditionalLikelihood}, likelihoodMatrixDim_);
 
-        associateEdge(r,index);
+        associateEdge(r, tree_->getEdgeGraphid(tree_->getEdge(index)));
         setEdgeIndex(r, index);
         return r;
       }
 
       dataflow::ValueRef<Eigen::MatrixXd> makeConditionalLikelihoodNode (PhyloTree::NodeIndex index, const AlignedValuesContainer & sites) {
         const auto childBranchIndexes = tree_->getBranches (index);
+        auto node=tree_->getNode (index);
         if (childBranchIndexes.empty ()) {
-          auto r=makeInitialConditionalLikelihood (tree_->getNode (index)->getName (), sites);
-          associateNode(r, index);
+          auto r=makeInitialConditionalLikelihood (node->getName (), sites);
+          associateNode(r, tree_->getNodeGraphid(node));
           setNodeIndex(r, index);
           return(r);
         }
@@ -162,7 +163,7 @@ namespace bpp
           }
           auto r= dataflow::ConditionalLikelihoodFromChildrenForward::create (context_, std::move (deps),
                                                                               likelihoodMatrixDim_);
-          associateNode(r, index);
+          associateNode(r, tree_->getNodeGraphid(node));
           setNodeIndex(r, index);
           return r;
         }

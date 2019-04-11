@@ -211,11 +211,13 @@ namespace bpp {
       // scalar -> matrix
       return Eigen::Matrix<T, Rows, Cols>::Constant (dim.rows, dim.cols, from);
     }
+    
     template <typename T, int Rows, int Cols, typename DerivedF>
     const DerivedF & convert (const Eigen::MatrixBase<DerivedF> & from,
                               const Dimension<Eigen::Matrix<T, Rows, Cols>> & dim) {
       return from.derived (); // matrix -> matrix, conversion will be done in the assignment
     }
+    
     template <typename R, typename F> void convert (R & r, const F & from, const Dimension<R> & dim) {
       r = convert (from, dim);
       assert (Dimension<R> (r) == dim); // debug post check of size
