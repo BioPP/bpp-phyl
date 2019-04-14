@@ -153,7 +153,7 @@ namespace bpp
       
       const SingleProcessPhyloLikelihood* getPhyloLikelihoodForASite(size_t siteIndex) const
       {
-        return dynamic_cast<const SingleProcessPhyloLikelihood*>(getAbstractPhyloLikelihood(vProcPos_[siteIndex].nProc));
+        return dynamic_cast<const SingleProcessPhyloLikelihood*>(getPhyloLikelihood(vProcPos_[siteIndex].nProc));
       }
 
       /**

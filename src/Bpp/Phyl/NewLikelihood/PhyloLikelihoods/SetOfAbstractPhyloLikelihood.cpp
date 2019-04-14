@@ -95,7 +95,7 @@ void SetOfAbstractPhyloLikelihood::addAllPhyloLikelihoods()
 void SetOfAbstractPhyloLikelihood::computeDLogLikelihood_(const std::string& variable) const
 {
   for (size_t i=0; i<nPhylo_.size(); i++)
-    getAbstractPhyloLikelihood(nPhylo_[i])->computeDLogLikelihood_(variable);
+    getPhyloLikelihood(nPhylo_[i])->computeDLogLikelihood_(variable);
 
   // derivative exists and ready to compute
   
@@ -105,7 +105,7 @@ void SetOfAbstractPhyloLikelihood::computeDLogLikelihood_(const std::string& var
 void SetOfAbstractPhyloLikelihood::computeD2LogLikelihood_(const std::string& variable) const
 {
   for (size_t i=0; i<nPhylo_.size(); i++)
-    getAbstractPhyloLikelihood(nPhylo_[i])->computeD2LogLikelihood_(variable);
+    getPhyloLikelihood(nPhylo_[i])->computeD2LogLikelihood_(variable);
 
   // derivative exists and ready to compute
   
@@ -116,7 +116,7 @@ ParameterList SetOfAbstractPhyloLikelihood::getBranchLengthParameters() const
 {
   ParameterList pl;
   for (size_t i=0; i<nPhylo_.size(); i++)
-    pl.includeParameters(getAbstractPhyloLikelihood(nPhylo_[i])->getBranchLengthParameters());
+    pl.includeParameters(getPhyloLikelihood(nPhylo_[i])->getBranchLengthParameters());
   
   return pl;
 }
@@ -125,7 +125,7 @@ ParameterList SetOfAbstractPhyloLikelihood::getSubstitutionModelParameters() con
 {
   ParameterList pl;
   for (size_t i=0; i<nPhylo_.size(); i++)
-    pl.includeParameters(getAbstractPhyloLikelihood(nPhylo_[i])->getSubstitutionModelParameters());
+    pl.includeParameters(getPhyloLikelihood(nPhylo_[i])->getSubstitutionModelParameters());
 
   return pl;
 }
@@ -134,7 +134,7 @@ ParameterList SetOfAbstractPhyloLikelihood::getRateDistributionParameters() cons
 {
   ParameterList pl;
   for (size_t i=0; i<nPhylo_.size(); i++)
-    pl.includeParameters(getAbstractPhyloLikelihood(nPhylo_[i])->getRateDistributionParameters());
+    pl.includeParameters(getPhyloLikelihood(nPhylo_[i])->getRateDistributionParameters());
 
   return pl;
 }
@@ -143,7 +143,7 @@ ParameterList SetOfAbstractPhyloLikelihood::getRootFrequenciesParameters() const
 {
   ParameterList pl;
   for (size_t i=0; i<nPhylo_.size(); i++)
-    pl.includeParameters(getAbstractPhyloLikelihood(nPhylo_[i])->getRootFrequenciesParameters());
+    pl.includeParameters(getPhyloLikelihood(nPhylo_[i])->getRootFrequenciesParameters());
 
   return pl;
 }
@@ -152,7 +152,7 @@ ParameterList SetOfAbstractPhyloLikelihood::getNonDerivableParameters() const
 {
   ParameterList pl;
   for (size_t i=0; i<nPhylo_.size(); i++)
-    pl.includeParameters(getAbstractPhyloLikelihood(nPhylo_[i])->getNonDerivableParameters());
+    pl.includeParameters(getPhyloLikelihood(nPhylo_[i])->getNonDerivableParameters());
 
   return pl;
 }
@@ -162,7 +162,7 @@ void SetOfAbstractPhyloLikelihood::enableDerivatives(bool yn)
   AbstractPhyloLikelihood::enableDerivatives(yn);
   
   for (size_t i=0; i<nPhylo_.size(); i++)
-    getAbstractPhyloLikelihood(nPhylo_[i])->enableDerivatives(yn);
+    getPhyloLikelihood(nPhylo_[i])->enableDerivatives(yn);
 }
 
 void SetOfAbstractPhyloLikelihood::enableFirstOrderDerivatives(bool yn)
@@ -170,7 +170,7 @@ void SetOfAbstractPhyloLikelihood::enableFirstOrderDerivatives(bool yn)
   AbstractPhyloLikelihood::enableFirstOrderDerivatives(yn);
 
   for (size_t i=0; i<nPhylo_.size(); i++)
-    getAbstractPhyloLikelihood(nPhylo_[i])->enableFirstOrderDerivatives(yn);
+    getPhyloLikelihood(nPhylo_[i])->enableFirstOrderDerivatives(yn);
 }
 
 void SetOfAbstractPhyloLikelihood::enableSecondOrderDerivatives(bool yn)
@@ -178,6 +178,6 @@ void SetOfAbstractPhyloLikelihood::enableSecondOrderDerivatives(bool yn)
   AbstractPhyloLikelihood::enableSecondOrderDerivatives(yn);
 
   for (size_t i=0; i<nPhylo_.size(); i++)
-    getAbstractPhyloLikelihood(nPhylo_[i])->enableSecondOrderDerivatives(yn);
+    getPhyloLikelihood(nPhylo_[i])->enableSecondOrderDerivatives(yn);
 }
 

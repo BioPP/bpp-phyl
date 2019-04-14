@@ -123,7 +123,7 @@ namespace bpp
         const std::vector<size_t>& nPhylo=getNumbersOfPhyloLikelihoods();
         
         for (size_t i=0; i<nPhylo.size(); i++)
-          x *= getAbstractPhyloLikelihood(nPhylo[i])->getLikelihoodForASite(site);
+          x *= getPhyloLikelihood(nPhylo[i])->getLikelihoodForASite(site);
         
         return x;
       }
@@ -138,7 +138,7 @@ namespace bpp
         const std::vector<size_t>& nPhylo=getNumbersOfPhyloLikelihoods();
         
         for (size_t i=0; i<nPhylo.size(); i++)
-          x += getAbstractPhyloLikelihood(nPhylo[i])->getLogLikelihoodForASite(site);
+          x += getPhyloLikelihood(nPhylo[i])->getLogLikelihoodForASite(site);
         
         return x;
       }

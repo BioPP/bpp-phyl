@@ -77,7 +77,7 @@ double ProductOfAlignedPhyloLikelihood::getDLogLikelihoodForASite(const std::str
   const std::vector<size_t>& nPhylo=getNumbersOfPhyloLikelihoods();
         
   for (size_t i=0; i<nPhylo.size(); i++)
-    x += getAbstractPhyloLikelihood(nPhylo[i])->getDLogLikelihoodForASite(variable, site);
+    x += getPhyloLikelihood(nPhylo[i])->getDLogLikelihoodForASite(variable, site);
   return x;
 }
 
@@ -88,7 +88,7 @@ double ProductOfAlignedPhyloLikelihood::getD2LogLikelihoodForASite(const std::st
   const std::vector<size_t>& nPhylo=getNumbersOfPhyloLikelihoods();
         
   for (size_t i=0; i<nPhylo.size(); i++)
-    x += getAbstractPhyloLikelihood(nPhylo[i])->getD2LogLikelihoodForASite(variable, site);
+    x += getPhyloLikelihood(nPhylo[i])->getD2LogLikelihoodForASite(variable, site);
   return x;
 }
 

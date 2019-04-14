@@ -80,7 +80,7 @@ namespace bpp {
       
       for (size_t i=0; i<nphyl.size(); i++)
       {
-        const AlignedPhyloLikelihood* ap=soap.getAbstractPhyloLikelihood(nphyl[i]);
+        const AlignedPhyloLikelihood* ap=soap.getPhyloLikelihood(nphyl[i]);
         vAP_.push_back(ap);
         includeParameters_(ap->getParameters());
       }

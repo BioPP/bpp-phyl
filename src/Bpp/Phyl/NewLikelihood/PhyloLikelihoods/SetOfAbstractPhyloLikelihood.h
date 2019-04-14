@@ -139,6 +139,17 @@ namespace bpp
         return dynamic_cast<AbstractPhyloLikelihood*>((*pPhyloCont_)[nPhyl]);
       }
 
+      virtual const PhyloLikelihood* getPhyloLikelihood(size_t nPhyl) const
+      {
+        return (*pPhyloCont_)[nPhyl];
+      }
+      
+      
+      virtual PhyloLikelihood* getPhyloLikelihood(size_t nPhyl)
+      {
+        return (*pPhyloCont_)[nPhyl];
+      }
+
       /**
        *
        * @}
@@ -184,7 +195,7 @@ namespace bpp
       bool isInitialized() const 
       {
         for (size_t i=0; i<nPhylo_.size(); i++)
-          if (!getAbstractPhyloLikelihood(nPhylo_[i])->isInitialized())
+          if (!getPhyloLikelihood(nPhylo_[i])->isInitialized())
             return false;
         return true;
       }
@@ -200,7 +211,7 @@ namespace bpp
         if (computeLikelihoods_)
         {
           for (size_t i=0; i<nPhylo_.size(); i++)
-            getAbstractPhyloLikelihood(nPhylo_[i])->updateLikelihood();
+            getPhyloLikelihood(nPhylo_[i])->updateLikelihood();
         }
       }
 
@@ -209,7 +220,7 @@ namespace bpp
         if (computeLikelihoods_)
         {
           for (size_t i=0; i<nPhylo_.size(); i++)
-            getAbstractPhyloLikelihood(nPhylo_[i])->computeLikelihood();
+            getPhyloLikelihood(nPhylo_[i])->computeLikelihood();
           computeLikelihoods_=false;
         }
       }

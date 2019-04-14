@@ -65,7 +65,7 @@ SetOfAlignedPhyloLikelihood::SetOfAlignedPhyloLikelihood(PhyloLikelihoodContaine
 
 bool SetOfAlignedPhyloLikelihood::addPhyloLikelihood(size_t nPhyl)
 {
-  const AbstractAlignedPhyloLikelihood* aPL=getAbstractPhyloLikelihood(nPhyl);
+  const AlignedPhyloLikelihood* aPL=getPhyloLikelihood(nPhyl);
 
   if (aPL!=NULL && (getNumberOfSites()==0 || aPL->getNumberOfSites()==getNumberOfSites()))
   {

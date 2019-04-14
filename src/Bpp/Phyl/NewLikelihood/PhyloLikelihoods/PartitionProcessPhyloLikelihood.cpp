@@ -176,28 +176,28 @@ void PartitionProcessPhyloLikelihood::setData(const AlignedValuesContainer& data
 
 double PartitionProcessPhyloLikelihood::getLikelihoodForASite(size_t site) const
 {
-  return getAbstractPhyloLikelihood(vProcPos_[site].nProc)->getLikelihoodForASite(vProcPos_[site].pos);
+  return getPhyloLikelihood(vProcPos_[site].nProc)->getLikelihoodForASite(vProcPos_[site].pos);
 }
 
 /******************************************************************************/
 
 double PartitionProcessPhyloLikelihood::getLogLikelihoodForASite(size_t site) const
 {
-  return getAbstractPhyloLikelihood(vProcPos_[site].nProc)->getLogLikelihoodForASite(vProcPos_[site].pos);
+  return getPhyloLikelihood(vProcPos_[site].nProc)->getLogLikelihoodForASite(vProcPos_[site].pos);
 }
 
 /******************************************************************************/
 
 double PartitionProcessPhyloLikelihood::getDLogLikelihoodForASite(const std::string& variable, size_t site) const
 {
-  return getAbstractPhyloLikelihood(vProcPos_[site].nProc)->getDLogLikelihoodForASite(variable, vProcPos_[site].pos);
+  return getPhyloLikelihood(vProcPos_[site].nProc)->getDLogLikelihoodForASite(variable, vProcPos_[site].pos);
 }
 
 /******************************************************************************/
 
 double PartitionProcessPhyloLikelihood::getD2LogLikelihoodForASite(const std::string& variable, size_t site) const
 {
-  return getAbstractPhyloLikelihood(vProcPos_[site].nProc)->getD2LogLikelihoodForASite(variable, vProcPos_[site].pos);
+  return getPhyloLikelihood(vProcPos_[site].nProc)->getD2LogLikelihoodForASite(variable, vProcPos_[site].pos);
 }
 
 

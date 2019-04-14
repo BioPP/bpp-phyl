@@ -83,7 +83,7 @@ void FormulaOfPhyloLikelihood::readFormula(const std::string& formula)
   
   for (size_t i = 0; i < nPhyl.size(); i++)
   {
-    functionNames["phylo"+TextTools::toString(nPhyl[i])]=getAbstractPhyloLikelihood(nPhyl[i]);
+    functionNames["phylo"+TextTools::toString(nPhyl[i])]=getPhyloLikelihood(nPhyl[i]);
   }
   
   compTree_=unique_ptr<ComputationTree>(new ComputationTree(formula, functionNames));

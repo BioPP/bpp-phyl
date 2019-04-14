@@ -108,6 +108,17 @@ namespace bpp
         return dynamic_cast<AbstractAlignedPhyloLikelihood*>((*pPhyloCont_)[nPhyl]);
       }
 
+      const AlignedPhyloLikelihood* getPhyloLikelihood(size_t nPhyl) const
+      {
+        return dynamic_cast<const AlignedPhyloLikelihood*>((*pPhyloCont_)[nPhyl]);
+      }
+      
+      
+      AlignedPhyloLikelihood* getPhyloLikelihood(size_t nPhyl)
+      {
+        return dynamic_cast<AlignedPhyloLikelihood*>((*pPhyloCont_)[nPhyl]);
+      }
+
     protected:
 
       void computeDLogLikelihood_(const std::string& variable) const
@@ -146,7 +157,7 @@ namespace bpp
   
       double getLikelihoodForASiteForAPhyloLikelihood(size_t site, size_t nPhyl) const
       {
-        return getAbstractPhyloLikelihood(nPhyl)->getLikelihoodForASite(site);
+        return getPhyloLikelihood(nPhyl)->getLikelihoodForASite(site);
       }
 
       /**
@@ -161,7 +172,7 @@ namespace bpp
   
       double getLogLikelihoodForASiteForAPhyloLikelihood(size_t site, size_t nPhyl) const
       {
-        return getAbstractPhyloLikelihood(nPhyl)->getLogLikelihoodForASite(site);
+        return getPhyloLikelihood(nPhyl)->getLogLikelihoodForASite(site);
       }
 
       /**
@@ -175,7 +186,7 @@ namespace bpp
 
       double getDLogLikelihoodForASiteForAPhyloLikelihood(const std::string& variable, size_t site, size_t nPhyl) const
       {
-        return getAbstractPhyloLikelihood(nPhyl)->getDLogLikelihoodForASite(variable, site);
+        return getPhyloLikelihood(nPhyl)->getDLogLikelihoodForASite(variable, site);
       }
       
       /**
@@ -189,7 +200,7 @@ namespace bpp
 
       double getD2LogLikelihoodForASiteForAPhyloLikelihood(const std::string& variable, size_t site, size_t nPhyl) const
       {
-        return getAbstractPhyloLikelihood(nPhyl)->getD2LogLikelihoodForASite(variable, site);
+        return getPhyloLikelihood(nPhyl)->getD2LogLikelihoodForASite(variable, site);
       }
 
     };
