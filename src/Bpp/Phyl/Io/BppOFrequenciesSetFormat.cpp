@@ -581,20 +581,13 @@ FrequenciesSet* BppOFrequenciesSetFormat::read(const Alphabet* alphabet, const s
 
   // Forward arguments:
   if (args.find("init") != args.end())
-  {
     unparsedArguments_["init"] = args["init"];
-    unparsedArguments_["initFreqs"] = args["init"];
-  }
-  
+
   if (args.find("init.observedPseudoCount") != args.end())
-  {
     unparsedArguments_["init.observedPseudoCount"] = args["init.observedPseudoCount"];
-    unparsedArguments_["initFreqs.observedPseudoCount"] = args["init.observedPseudoCount"];
-  }
 
   if (args.find("values") != args.end())
   {
-    unparsedArguments_["initFreqs"] = "values" + args["values"];
     unparsedArguments_["init"] = "values" + args["values"];
     initialize_(*pFS, data);    
   }
@@ -822,7 +815,6 @@ void BppOFrequenciesSetFormat::initialize_(FrequenciesSet& freqSet, const Aligne
       throw Exception("Unknown init argument");
 
     unparsedArguments_.erase(unparsedArguments_.find("init"));
-    unparsedArguments_.erase(unparsedArguments_.find("initFreqs"));    
   }
 
   // Explicit initialization of each parameter

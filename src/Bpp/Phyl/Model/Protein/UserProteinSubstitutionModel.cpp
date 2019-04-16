@@ -82,7 +82,7 @@ UserProteinSubstitutionModel::UserProteinSubstitutionModel(
   freqSet_(freqSet)
 {
   readFromFile();
-  freqSet_->setNamespace(prefix+freqSet_->getNamespace());
+  freqSet_->setNamespace(prefix+freqSet_->getName()+".");
   if (initFreqs) freqSet->setFrequencies(freq_);
   else freq_ = freqSet_->getFrequencies();
   addParameters_(freqSet_->getParameters());
