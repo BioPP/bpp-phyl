@@ -153,7 +153,10 @@ CodonAdHocSubstitutionModel& CodonAdHocSubstitutionModel::operator=(const CodonA
 void CodonAdHocSubstitutionModel::setFreq(std::map<int,double>& frequencies)
 {
   for (auto& model : vModel_)
+  {
     model->setFreq(frequencies);
+    matchParametersValues(model->getParameters());
+  }  
 }
 
 void CodonAdHocSubstitutionModel::fireParameterChanged(const ParameterList& parameters)

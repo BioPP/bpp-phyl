@@ -699,7 +699,7 @@ SubstitutionModel* BppOSubstitutionModelFormat::readSubstitionModel(
         {
           unparsedArguments_[modelName + "." + it->first] = it->second;
         }
-        
+
         if (modelName == "JC69+F")
           model.reset(new JCprot(alpha, dynamic_cast<ProteinFrequenciesSet*>(protFreq.release())));
         else if (modelName == "DSO78+F")
@@ -1379,8 +1379,11 @@ void BppOSubstitutionModelFormat::write(const TransitionModel& model,
     return;
   }
 
-  out << model.getName() + "(";
-   
+  auto name=model.getName();
+  auto parend=(name.rfind(")")==name.size()-1);
+  
+  out << (parend?name.substr(0,name.size()-1):name+"(");
+
   // Is it a protein user defined model?
   const UserProteinSubstitutionModel* userModel = dynamic_cast<const UserProteinSubstitutionModel*>(&model);
   if (userModel)
@@ -1546,12 +1549,14 @@ void BppOSubstitutionModelFormat::write(const TransitionModel& model,
   // Is it a model with FrequenciesSet?
   
   const FrequenciesSet* pfs = model.getFrequenciesSet();
-  if (pfs)
+  auto paf=dynamic_cast<const AbstractWrappedModel*>(&model);
+  
+  if ((pfs!=0) && (!paf))
   {
     if (comma)
       out << ",";
     out << "frequencies=";
-    
+
     BppOFrequenciesSetFormat bIOFreq(alphabetCode_, false, warningLevel_);
     bIOFreq.write(pfs, out, globalAliases, writtenNames);
     
@@ -1733,17 +1738,17 @@ void BppOSubstitutionModelFormat::writeMixed_(const MixedTransitionModel& model,
     ParameterList pl = eM->getIndependentParameters();
     vector<string> vpl = pl.getParameterNames();
 
-    for (unsigned j = 0; j < vpl.size(); j++)
+    for (auto& pn:vpl)
     {
-      if (find(writtenNames.begin(), writtenNames.end(), vpl[j]) == writtenNames.end())
+      if (find(writtenNames.begin(), writtenNames.end(), pn) == writtenNames.end())
       {
-        const DiscreteDistribution* pDD = pMS->getDistribution(vpl[j]);
+        const DiscreteDistribution* pDD = pMS->getDistribution(pn);
         if (pDD && dynamic_cast<const ConstantDistribution*>(pDD) == NULL)
         {
           const BppODiscreteDistributionFormat* bIO = new BppODiscreteDistributionFormat();
           StdStr sout;
           bIO->write(*pDD, sout, globalAliases, writtenNames);
-          globalAliases[vpl[j]] = sout.str();
+          globalAliases[pn] = sout.str();
           delete bIO;
         }
       }
@@ -1758,7 +1763,6 @@ void BppOSubstitutionModelFormat::writeMixed_(const MixedTransitionModel& model,
   const BppOParametrizableFormat* bIO = new BppOParametrizableFormat();
   bIO->write(&model, out, globalAliases, model.getIndependentParameters().getParameterNames(), writtenNames, true, true);
   delete bIO;
-
   out << ")";
 }
 

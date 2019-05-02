@@ -170,10 +170,10 @@ public:
   
   const TransitionModel* getModel(const std::string& name) const;
   
-  // const TransitionModel* getModel(size_t i) const
-  // {
-  //   return AbstractMixedTransitionModel::getModel(i);
-  // }
+  const TransitionModel* getModel(size_t i) const
+  {
+    return AbstractMixedTransitionModel::getNModel(i);
+  }
 
   // TransitionModel* getModel(size_t i)
   // {

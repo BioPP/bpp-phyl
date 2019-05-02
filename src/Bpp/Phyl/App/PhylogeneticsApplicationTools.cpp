@@ -823,6 +823,76 @@ TransitionModel* PhylogeneticsApplicationTools::getTransitionModel(
   TransitionModel* model = bIO.readTransitionModel(alphabet, modelDescription, data, true);
   map<string, string> tmpUnparsedParameterValues(bIO.getUnparsedArguments());
 
+/*  // /////////////////////////////////////////
+  // Looks for the allowed paths
+
+  size_t numd;
+  if (!ApplicationTools::parameterExists("site.number_of_paths", params))
+    numd = 0;
+  else
+    numd = ApplicationTools::getParameter<size_t>("site.number_of_paths", params, 1, suffix, suffixIsOptional, warn);
+  
+  if (verbose)
+    ApplicationTools::displayResult("Number of distinct paths", TextTools::toString(numd));
+  
+  vector<string> vdesc;
+  size_t numi=0;
+  while (numi<numd)
+  {
+    string desc = ApplicationTools::getStringParameter("site.path" + TextTools::toString(numi+1), params, "",  suffix, suffixIsOptional, warn);
+    if (desc.size() == 0)
+      break;
+    else
+      vdesc.push_back(desc);
+    numi++;
+  }
+  
+  if (vdesc.size() == 0)
+  {
+    mixedModelSet.complete();
+    mixedModelSet.computeHyperNodesProbabilities();
+    return;
+    
+    for (auto& desc:vdesc)
+    {
+      mixedModelSet.addEmptyHyperNode();
+      StringTokenizer st(desc, "&");
+      while (st.hasMoreToken())
+      {
+        string submodel = st.nextToken();
+        string::size_type indexo = submodel.find("[");
+        string::size_type indexf = submodel.find("]");
+        if ((indexo == string::npos) | (indexf == string::npos))
+          throw Exception("PhylogeneticsApplicationTools::completeMixedSubstitutionModelSet. Bad path syntax, should contain `[]' symbols: " + submodel);
+        size_t num = TextTools::to<size_t>(submodel.substr(5, indexo - 5));
+        string p2 = submodel.substr(indexo + 1, indexf - indexo - 1);
+        
+        const MixedTransitionModel* pSM = dynamic_cast<const MixedTransitionModel*>(mixedModelSet.getModel(num - 1));
+        if (!pSM)
+          throw BadIntegerException("PhylogeneticsApplicationTools::completeMixedSubstitutionModelSet: Wrong model for number", static_cast<int>(num - 1));
+        
+        try  {
+          int n2=TextTools::toInt(p2);
+          if (n2<=0 || n2>(int)(pSM->getNumberOfModels()))
+            throw BadIntegerException("PhylogeneticsApplicationTools::completeMixedSubstitutionModelSet: Wrong model for number", static_cast<int>(n2));
+          
+          mixedModelSet.addToHyperNode(num - 1, {n2-1});
+        }
+        catch (Exception& e)
+        {
+          Vint submodnb = pSM->getSubmodelNumbers(p2);
+          mixedModelSet.addToHyperNode(num - 1, submodnb);
+        }
+      }
+      
+      if (!mixedModelSet.getHyperNode(mixedModelSet.getNumberOfHyperNodes() - 1).isComplete())
+        throw Exception("A path should own at least a submodel of each mixed model: " + desc);
+      
+      if (verbose)
+        ApplicationTools::displayResult("Site Path", desc);
+    }
+*/
+      
   unparsedParams.insert(tmpUnparsedParameterValues.begin(), tmpUnparsedParameterValues.end());
 
   return model;
