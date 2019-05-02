@@ -104,7 +104,6 @@ double PseudoNewtonOptimizer::doStep()
   {
     double firstOrderDerivative = getFunction()->getFirstOrderDerivative(params_[i]);
     double secondOrderDerivative = getFunction()->getSecondOrderDerivative(params_[i]);
-    
     if (secondOrderDerivative == 0)
     {
       movements[i] = 0;

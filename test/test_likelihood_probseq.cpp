@@ -126,7 +126,7 @@ void fitModelHSR(SubstitutionModel* model, DiscreteDistribution* rdist,
 
   dataflow::Context context;                        
   auto lik = std::make_shared<dataflow::LikelihoodCalculation>(context, sites, *process);
-  auto newTl = std::make_shared<dataflow::DataFlowFunction>(context, lik, lik->getParameters());
+  auto newTl = std::make_shared<dataflow::PhyloLikelihood_DF>(context, lik, lik->getParameters());
 
   
   cout << "NewTL: " << setprecision(20) << newTl->getValue() << endl;
@@ -184,7 +184,7 @@ void fitModelHSR(SubstitutionModel* model, DiscreteDistribution* rdist,
 
   process.reset(new RateAcrossSitesSubstitutionProcess(model->clone(), rdist->clone(), new_tree.clone()));  
   lik.reset(new dataflow::LikelihoodCalculation(context, sites, *process));
-  newTl.reset(new dataflow::DataFlowFunction(context, lik, lik->getParameters()));
+  newTl.reset(new dataflow::PhyloLikelihood_DF(context, lik, lik->getParameters()));
 
   ParameterList opln1=process->getBranchLengthParameters(true);
   

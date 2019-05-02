@@ -1,5 +1,5 @@
 //
-// File: DataFlowFunction.h
+// File: PhyloLikelihood_DF.h
 // Authors: François Gindraud (2017)
 //
 
@@ -36,8 +36,8 @@
   knowledge of the CeCILL license and that you accept its terms.
 */
 
-#ifndef DATA_FLOW_FUNCTION_H
-#define DATA_FLOW_FUNCTION_H
+#ifndef PHYLOLIKELIHOOD_DF_H
+#define PHYLOLIKELIHOOD_DF_H
 
 #include <Bpp/Exceptions.h>
 #include <Bpp/Numeric/Function/Functions.h>
@@ -66,16 +66,10 @@ namespace bpp {
      *
      */
   
-    class DataFlowFunction : public PhyloLikelihood {
+    class PhyloLikelihood_DF :
+      virtual public PhyloLikelihood
+    {
     private:
-      dataflow::Context & context_;
-
-      // Store nodes
-      std::shared_ptr<dataflow::LikelihoodCalculation> likCal_;
-      // ValueRef<double> resultNode_;
-      
-      ParameterList variableNodes_;
-
       // Cache generated nodes representing derivatives, to avoid recreating them every time.
       // Using the mutable keyword because the table must be changed even in const methods.
       struct StringPairHash {
@@ -84,15 +78,28 @@ namespace bpp {
           return strHash (p.first) ^ (strHash (p.second) << 1);
         }
       };
-
       
-      mutable std::unordered_map<std::string, dataflow::ValueRef<double>> firstOrderDerivativeNodes_;
-      mutable std::unordered_map<std::pair<std::string, std::string>, dataflow::ValueRef<double>,
+    protected:
+      Context & context_;
+
+      // Store nodes
+      mutable std::shared_ptr<LikelihoodCalculation> likCal_;
+      
+      ParameterList variableNodes_;
+
+      mutable std::unordered_map<std::string, ValueRef<double>> firstOrderDerivativeNodes_;
+      mutable std::unordered_map<std::string, ValueRef<Eigen::RowVectorXd>> firstOrderDerivativeVectors_;
+
+
+      mutable std::unordered_map<std::pair<std::string, std::string>, ValueRef<double>,
                                  StringPairHash>
       secondOrderDerivativeNodes_;
+      mutable std::unordered_map<std::pair<std::string, std::string>, ValueRef<Eigen::RowVectorXd>,
+                                 StringPairHash>
+      secondOrderDerivativeVectors_;
 
     public:
-      DataFlowFunction (dataflow::Context & context, std::shared_ptr<LikelihoodCalculation> likCal,
+      PhyloLikelihood_DF (Context & context, std::shared_ptr<LikelihoodCalculation> likCal,
                         const ParameterList & variableNodes)
         : context_ (context), likCal_(likCal), variableNodes_ () {
         variableNodes_.shareParameters(variableNodes);
@@ -102,13 +109,20 @@ namespace bpp {
        * @brief: the parameters are those of the LikelihoodCalculation
        */
       
-      DataFlowFunction (dataflow::Context & context, std::shared_ptr<LikelihoodCalculation> likCal)
+      PhyloLikelihood_DF (Context & context, std::shared_ptr<LikelihoodCalculation> likCal)
         : context_ (context), likCal_(likCal), variableNodes_ () {
         variableNodes_.shareParameters(likCal->getParameters());
       }
 
+      Context& getContext()
+      {
+        return context_;
+      }
+      
       // Legacy boilerplate
-      DataFlowFunction * clone () const override { return new DataFlowFunction (*this); }
+      PhyloLikelihood_DF * clone () const override {
+        throw Exception("PhyloLikelihood_DF::clone should not be called.");
+        return new PhyloLikelihood_DF (*this); }
 
       /**
        * @return initialize the likelihood function.
@@ -301,12 +315,12 @@ namespace bpp {
         variableNodes_.setParametersValues (params);
       }
       
-      double getValue () const override
+      double getValue () const
       {
         return likCal_->getLikelihood()->getTargetValue ();
       }
 
-      std::shared_ptr<dataflow::LikelihoodCalculation> getLikelihoodCalculation()
+      std::shared_ptr<LikelihoodCalculation> getLikelihoodCalculation() const
       {
         return likCal_;
       }
@@ -316,6 +330,10 @@ namespace bpp {
       bool enableFirstOrderDerivatives () const override { return true; }
       double getFirstOrderDerivative (const std::string & variable) const override {
         return firstOrderDerivativeNode (variable)->getTargetValue ();
+      }
+
+      ValueRef<Eigen::RowVectorXd> getFirstOrderDerivativeVector (const std::string & variable) const  {
+        return firstOrderDerivativeVector(variable);
       }
 
       // bpp::DerivableSecondOrder
@@ -330,8 +348,17 @@ namespace bpp {
         return secondOrderDerivativeNode (variable1, variable2)->getTargetValue ();
       }
 
+      ValueRef<Eigen::RowVectorXd> getSecondOrderDerivativeVector (const std::string & variable) const {
+        return getSecondOrderDerivativeVector (variable, variable);
+      }
+
+      ValueRef<Eigen::RowVectorXd>  getSecondOrderDerivativeVector (const std::string & variable1,
+                                                                    const std::string & variable2) const {
+        return secondOrderDerivativeVector (variable1, variable2);
+      }
+
       // Get nodes of derivatives directly
-      dataflow::ValueRef<double> firstOrderDerivativeNode (const std::string & variable) const {
+      ValueRef<double> firstOrderDerivativeNode (const std::string & variable) const {
         const auto it = firstOrderDerivativeNodes_.find (variable);
         if (it != firstOrderDerivativeNodes_.end ()) {
           return it->second;
@@ -342,8 +369,8 @@ namespace bpp {
         }
       }
       
-      dataflow::ValueRef<double> secondOrderDerivativeNode (const std::string & variable1,
-                                                            const std::string & variable2) const {
+      ValueRef<double> secondOrderDerivativeNode (const std::string & variable1,
+                                                  const std::string & variable2) const {
         const auto key = std::make_pair (variable1, variable2);
         const auto it = secondOrderDerivativeNodes_.find (key);
         if (it != secondOrderDerivativeNodes_.end ()) {
@@ -353,7 +380,34 @@ namespace bpp {
           auto node =
             firstOrderDerivativeNode (variable1)->deriveAsValue (context_, accessVariableNode (variable2));
           secondOrderDerivativeNodes_.emplace (key, node);
+
           return node;
+        }
+      }
+
+      ValueRef<Eigen::RowVectorXd> firstOrderDerivativeVector (const std::string & variable) const {
+        const auto it = firstOrderDerivativeVectors_.find (variable);
+        if (it != firstOrderDerivativeVectors_.end ()) {
+          return it->second;
+        } else {
+          auto vector = likCal_->getSiteLikelihoods()->deriveAsValue (context_, accessVariableNode (variable));
+          firstOrderDerivativeVectors_.emplace (variable, vector);
+          return vector;
+        }
+      }
+      
+      ValueRef<Eigen::RowVectorXd> secondOrderDerivativeVector (const std::string & variable1,
+                                                                const std::string & variable2) const {
+        const auto key = std::make_pair (variable1, variable2);
+        const auto it = secondOrderDerivativeVectors_.find (key);
+        if (it != secondOrderDerivativeVectors_.end ()) {
+          return it->second;
+        } else {
+          // Reuse firstOrderDerivative() to generate the first derivative with caching
+          auto vector =
+            firstOrderDerivativeVector (variable1)->deriveAsValue (context_, accessVariableNode (variable2));
+          secondOrderDerivativeVectors_.emplace (key, vector);
+          return vector;
         }
       }
 

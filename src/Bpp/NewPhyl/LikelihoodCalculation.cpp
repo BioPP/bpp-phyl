@@ -17,22 +17,22 @@ using namespace std;
 using namespace bpp;
 using namespace bpp::dataflow;
 
-LikelihoodCalculation::LikelihoodCalculation(Context & context,
+LikelihoodCalculation::LikelihoodCalculation(Context& context,
                                              const AlignedValuesContainer & sites,
                                              const SubstitutionProcess& process):
   AbstractParametrizable(""),
-  likelihood_(), context_(context), process_(process), psites_(&sites),
-  treeNode_(), modelNode_(), rootFreqsNode_(),
-  ratesNode_(), vRateCatTrees_(), rFreqs_()
+  context_(context), process_(process), psites_(&sites),
+  treeNode_(), modelNode_(), rootFreqsNode_(),  ratesNode_(), rFreqs_(),
+  likelihood_(), siteLikelihoods_(), vRateCatTrees_()
 {
   makeProcessNodes_();
 }
 
 LikelihoodCalculation::LikelihoodCalculation(const LikelihoodCalculation& lik) :
   AbstractParametrizable(lik),
-  likelihood_(), context_(), process_(lik.process_), psites_(lik.psites_),
-  treeNode_(), modelNode_(), rootFreqsNode_(),
-  ratesNode_(), vRateCatTrees_(), rFreqs_()
+  context_(*std::shared_ptr<Context>().get()), process_(lik.process_), psites_(lik.psites_),
+  treeNode_(), modelNode_(), rootFreqsNode_(), ratesNode_(), rFreqs_(),
+  likelihood_(), siteLikelihoods_(), vRateCatTrees_()
 {
   makeProcessNodes_();
 }
@@ -40,9 +40,9 @@ LikelihoodCalculation::LikelihoodCalculation(const LikelihoodCalculation& lik) :
 LikelihoodCalculation::LikelihoodCalculation(Context & context,
                                              const SubstitutionProcess& process):
   AbstractParametrizable(""),
-  likelihood_(), context_(context), process_(process), psites_(),
-  treeNode_(), modelNode_(), rootFreqsNode_(),
-  ratesNode_(), vRateCatTrees_(), rFreqs_()
+  context_(context), process_(process), psites_(),
+  treeNode_(), modelNode_(), rootFreqsNode_(), ratesNode_(), rFreqs_(),
+  likelihood_(), siteLikelihoods_(), vRateCatTrees_()
 {
   makeProcessNodes_();
 }
@@ -52,7 +52,6 @@ void LikelihoodCalculation::makeProcessNodes_()
 {
   // add Independent Parameters
   const auto& paramProc=process_.getIndependentParameters();
-
   for (size_t i=0;i<paramProc.size();i++)
     shareParameter_(ConfiguredParameter::create(context_, paramProc[i]));
 
@@ -78,7 +77,10 @@ void LikelihoodCalculation::makeProcessNodes_()
     const auto& rateParams=newRates->getIndependentParameters();
     std::vector<NodeRef> deps;
     for (size_t i=0;i<rateParams.size();i++)
-      deps.push_back(ConfiguredParameter::create(context_, {dynamic_cast<ConfiguredParameter*>(getSharedParameter(rateParams[i].getName()).get())->dependency(0)}, rateParams[i]));
+    {
+      std::string name=rateParams[i].getName()+(hasParameter(rateParams[i].getName())?"":"_1");
+      deps.push_back(ConfiguredParameter::create(context_, {dynamic_cast<ConfiguredParameter*>(getSharedParameter(name).get())->dependency(0)}, rateParams[i]));
+    }
     
     ratesNode_ = ConfiguredParametrizable::createConfigured<DiscreteDistribution, ConfiguredDistribution>(
       context_,
@@ -97,8 +99,9 @@ void LikelihoodCalculation::makeProcessNodes_()
   {
     const auto& bp=branch->getParameters()[0];
     
+    std::string name=bp.getName()+(hasParameter(bp.getName())?"":"_1");
     mapBr.emplace(parTree.getEdgeIndex(branch),
-                  ConfiguredParameter::create(context_, {dynamic_cast<ConfiguredParameter*>(getSharedParameter(bp.getName()).get())->dependency(0)}, bp));
+                  ConfiguredParameter::create(context_, {dynamic_cast<ConfiguredParameter*>(getSharedParameter(name).get())->dependency(0)}, bp));
   }
   
   treeNode_ = std::shared_ptr<PhyloTree_BrRef>(new PhyloTree_BrRef(parTree, mapBr));
@@ -108,32 +111,36 @@ void LikelihoodCalculation::makeProcessNodes_()
   
   std::vector<std::shared_ptr<ConfiguredModel>> vModelNodes;
 
-  size_t nMod=process_.getNumberOfModels();
+  auto vnMod=process_.getModelNumbers();
         
   ModelMap modelmap;
 
-  for (size_t nm=0; nm<nMod;nm++)
+  for (auto nMod:vnMod)
   {
-    std::unique_ptr<TransitionModel> newModel(process_.getModel(nm)->clone());
-    const auto& modelParams=process_.getModel(nm)->getParameters();
+    std::unique_ptr<TransitionModel> newModel(process_.getModel(nMod)->clone());
     
+    const auto& modelParams=process_.getModel(nMod)->getParameters();
+
     std::vector<NodeRef> depModel;
     for (size_t np=0;np<modelParams.size();np++)
     {
-      if (hasParameter(modelParams[np].getName()+"_"+ TextTools::toString(nm+1)))
-        depModel.push_back(ConfiguredParameter::create(context_, {dynamic_cast<ConfiguredParameter*>(getSharedParameter(modelParams[np].getName()+"_"+ TextTools::toString(nm+1)).get())->dependency(0)}, modelParams[np]));
+      std::string name = modelParams[np].getName();
+      
+      if (hasParameter(name+"_"+ TextTools::toString(nMod)))
+        depModel.push_back(ConfiguredParameter::create(context_, {dynamic_cast<ConfiguredParameter*>(getSharedParameter(name+"_"+ TextTools::toString(nMod)).get())->dependency(0)}, modelParams[np]));
       else
       {
-        if (nMod==1)
-          depModel.push_back(ConfiguredParameter::create(context_, {dynamic_cast<ConfiguredParameter*>(getSharedParameter(modelParams[np].getName()).get())->dependency(0)}, modelParams[np]));
+        if (vnMod.size()==1)
+          depModel.push_back(ConfiguredParameter::create(context_, {dynamic_cast<ConfiguredParameter*>(getSharedParameter(name).get())->dependency(0)}, modelParams[np]));
         else
           throw ParameterNotFoundException("LikelihoodCalculation::makeProcessNodes_", modelParams[np].getName());
       }
-    }  
+    }
+    
     auto modelNode = ConfiguredParametrizable::createConfigured<TransitionModel, ConfiguredModel>(context_, std::move(depModel), std::move(newModel));
     
     // assign model to branche id
-    std::vector<uint> vId=process_.getNodesWithModel(nm);
+    std::vector<uint> vId=process_.getNodesWithModel(nMod);
     for (auto id:vId)
       modelmap.emplace(id, modelNode);
   }
@@ -289,7 +296,7 @@ void LikelihoodCalculation::makeForwardLikelihoodTree_()
 }
 
 
-ValueRef<double> LikelihoodCalculation::makeLikelihoodAtRoot_()
+void LikelihoodCalculation::makeLikelihoodAtRoot_()
 {
   if (vRateCatTrees_.size()==0)
     makeForwardLikelihoodTree_();
@@ -301,8 +308,6 @@ ValueRef<double> LikelihoodCalculation::makeLikelihoodAtRoot_()
   if (rFreqs_==0)
     makeRootFreqs_();
   
-  ValueRef<Eigen::RowVectorXd> siteLikelihoods;
-
   if (ratesNode_)
   {
     std::vector<std::shared_ptr<Node>> vLogRoot;
@@ -317,26 +322,23 @@ ValueRef<double> LikelihoodCalculation::makeLikelihoodAtRoot_()
     
     vLogRoot.push_back(catProb);
       
-    siteLikelihoods = CWiseMean<Eigen::RowVectorXd, ReductionOf<Eigen::RowVectorXd>, Eigen::RowVectorXd>::create(context_, std::move(vLogRoot), rowVectorDimension (Eigen::Index(nbSite)));
+    siteLikelihoods_ = CWiseMean<Eigen::RowVectorXd, ReductionOf<Eigen::RowVectorXd>, Eigen::RowVectorXd>::create(context_, std::move(vLogRoot), rowVectorDimension (Eigen::Index(nbSite)));
   }
   else
   {
-    siteLikelihoods = LikelihoodFromRootConditional::create (
+    siteLikelihoods_ = LikelihoodFromRootConditional::create (
       context_, {rFreqs_, vRateCatTrees_[0].flt->getForwardLikelihoodArray(rootIndex)}, rowVectorDimension (Eigen::Index (nbSite)));
   }
-    
+
   auto totalLogLikelihood =
-    SumOfLogarithms<Eigen::RowVectorXd>::create (context_, {siteLikelihoods}, rowVectorDimension (Eigen::Index (nbSite)));
+    SumOfLogarithms<Eigen::RowVectorXd>::create (context_, {siteLikelihoods_}, rowVectorDimension (Eigen::Index (nbSite)));
 
 // We want -log(likelihood)
-  auto totalNegLogLikelihood =
-    CWiseNegate<double>::create (context_, {totalLogLikelihood}, Dimension<double> ());
-
-  return totalNegLogLikelihood;
+  likelihood_ = CWiseNegate<double>::create (context_, {totalLogLikelihood}, Dimension<double> ());
 }
 
 
-ValueRef<double> LikelihoodCalculation::makeLikelihoodAtNode_(uint nodeId)
+void LikelihoodCalculation::makeLikelihoodsAtNode_(uint nodeId)
 {
   if (vRateCatTrees_.size()==0)
     makeForwardLikelihoodTree_();
@@ -351,7 +353,7 @@ ValueRef<double> LikelihoodCalculation::makeLikelihoodAtNode_(uint nodeId)
   
   auto one=ConstantOne<Eigen::RowVectorXd>::create(context_, rowVectorDimension (Eigen::Index (nbState)));
 
-  ValueRef<Eigen::RowVectorXd> siteLikelihoods;
+  ValueRef<Eigen::RowVectorXd> siteLikelihoodsNode;
 
   if (ratesNode_)
   {
@@ -384,7 +386,7 @@ ValueRef<double> LikelihoodCalculation::makeLikelihoodAtNode_(uint nodeId)
     auto catProb = ProbabilitiesFromDiscreteDistribution::create(context_, {ratesNode_});
     vLogRoot.push_back(catProb);
       
-    siteLikelihoods = CWiseMean<Eigen::RowVectorXd, ReductionOf<Eigen::RowVectorXd>, Eigen::RowVectorXd>::create(context_, std::move(vLogRoot), rowVectorDimension (Eigen::Index(nbSite)));
+    siteLikelihoodsNode = CWiseMean<Eigen::RowVectorXd, ReductionOf<Eigen::RowVectorXd>, Eigen::RowVectorXd>::create(context_, std::move(vLogRoot), rowVectorDimension (Eigen::Index(nbSite)));
   }
   else
   {
@@ -405,17 +407,17 @@ ValueRef<double> LikelihoodCalculation::makeLikelihoodAtNode_(uint nodeId)
     rateCat.lt->associateNode(cond, treeNode_->getNodeGraphid(treeNode_->getNode(nodeId)));
     rateCat.lt->setNodeIndex(cond, nodeId);
 
-    siteLikelihoods = LikelihoodFromRootConditional::create (
+    siteLikelihoodsNode = LikelihoodFromRootConditional::create (
       context_, {one, cond}, rowVectorDimension (Eigen::Index (nbSite)));
   }
     
-  auto totalLogLikelihood =
-    SumOfLogarithms<Eigen::RowVectorXd>::create (context_, {siteLikelihoods}, rowVectorDimension (Eigen::Index (nbSite)));
+//   auto totalLogLikelihood =
+//     SumOfLogarithms<Eigen::RowVectorXd>::create (context_, {siteLikelihoodsNode}, rowVectorDimension (Eigen::Index (nbSite)));
 
-// We want -log(likelihood)
-  auto totalNegLogLikelihood =
-    CWiseNegate<double>::create (context_, {totalLogLikelihood}, Dimension<double> ());
+// // We want -log(likelihood)
+//   auto totalNegLogLikelihood =
+//     CWiseNegate<double>::create (context_, {totalLogLikelihood}, Dimension<double> ());
 
-  return totalNegLogLikelihood;
+//   return totalNegLogLikelihood;
 }
 

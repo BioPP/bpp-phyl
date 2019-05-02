@@ -137,7 +137,7 @@ int main() {
 
     dataflow::Context context;
     auto lik = std::make_shared<dataflow::LikelihoodCalculation>(context, *sites->clone(), *nsubPro);
-    dataflow::DataFlowFunction ntl(context, lik, lik->getParameters());
+    dataflow::PhyloLikelihood_DF ntl(context, lik, lik->getParameters());
 
     cout << setprecision(10) << "OldTL init: "  << tl.getValue()  << endl;
 

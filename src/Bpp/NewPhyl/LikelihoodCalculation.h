@@ -139,21 +139,21 @@ namespace bpp {
         std::shared_ptr<ConditionalLikelihoodTree> lt;
       };
       
-      ValueRef<double> likelihood_;
-      Context context_;
+      Context& context_;
+
+      /************************************/
+      /* Dependencies */
+      
       const SubstitutionProcess& process_;
       const AlignedValuesContainer* psites_;
-      
-      ParameterList parameters_;
 
-      /* DataFlow Nodes linked with process */
+      /************************************/
+      /* DataFlow objects */
       
+         
       std::shared_ptr<PhyloTree_BrRef> treeNode_;
 
-      /*
-       * link towards a model (any) to get stateMap & nb of states
-       *
-       */
+      /* link towards a model (any) to get stateMap & nb of states */
       
       std::shared_ptr<ConfiguredModel> modelNode_;
       
@@ -161,11 +161,18 @@ namespace bpp {
       
       std::shared_ptr<ConfiguredDistribution> ratesNode_;
 
-      /* Used to build BackwardLikelihoodTree */
-
-      std::vector<RateCategoryTrees> vRateCatTrees_;
-
       ValueRef<Eigen::RowVectorXd> rFreqs_;
+
+      /******************************************/
+      /** Likelihoods  **/
+      
+          
+      ValueRef<double> likelihood_;
+
+      ValueRef<Eigen::RowVectorXd> siteLikelihoods_;
+
+      /* Likelihood Trees with for all rate categories */
+      std::vector<RateCategoryTrees> vRateCatTrees_;
 
     public:
       LikelihoodCalculation(Context & context,
@@ -185,14 +192,31 @@ namespace bpp {
       ValueRef<double> getLikelihood() 
       {
         if (psites_ && !likelihood_)
-          likelihood_=makeLikelihoodAtRoot_();
+          makeLikelihoodAtRoot_();
+        
         return likelihood_;
       }
 
-      ValueRef<double> getLikelihoodAtNode(uint nodeId) 
+      ValueRef<Eigen::RowVectorXd> getSiteLikelihoods()
       {
-        return makeLikelihoodAtNode_(nodeId);
+        if (psites_ && !siteLikelihoods_)
+          makeLikelihoodAtRoot_();
+        
+        return siteLikelihoods_;
       }
+
+      double getLikelihoodForASite(size_t pos)
+      {
+        if (psites_ && !siteLikelihoods_)
+            makeLikelihoodAtRoot_();
+
+        return siteLikelihoods_->getTargetValue()[pos];
+      }
+      
+      // ValueRef<double> getLikelihoodAtNode(uint nodeId) 
+      // {
+      //   makeLikelihoodsAtNode_(nodeId);
+      // }
       
       void setData(const AlignedValuesContainer& sites)
       {
@@ -258,9 +282,9 @@ namespace bpp {
 
       void makeRootFreqs_();
 
-      ValueRef<double> makeLikelihoodAtRoot_();
+      void makeLikelihoodAtRoot_();
 
-      ValueRef<double> makeLikelihoodAtNode_(uint nodeId);
+      void makeLikelihoodsAtNode_(uint nodeId);
 
     };
 

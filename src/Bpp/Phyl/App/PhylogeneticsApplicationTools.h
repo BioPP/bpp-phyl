@@ -64,6 +64,8 @@
 #include "../NewLikelihood/SubstitutionProcess.h"
 #include "../NewLikelihood/SequenceEvolution.h"
 
+#include <Bpp/NewPhyl/DataFlow.h>
+
 // From SeqLib:
 #include <Bpp/Seq/Container/SiteContainer.h>
 #include <Bpp/Seq/Container/VectorSiteContainer.h>
@@ -638,6 +640,7 @@ namespace bpp
      */
     
     static PhyloLikelihoodContainer* getPhyloLikelihoodContainer(
+      dataflow::Context& context,
       SubstitutionProcessCollection& SPC,
       std::map<size_t, SequenceEvolution*>& mSeqEvol,
       const std::map<size_t, AlignedValuesContainer*>& mData,

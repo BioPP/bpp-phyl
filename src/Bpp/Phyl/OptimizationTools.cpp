@@ -545,7 +545,7 @@ unsigned int OptimizationTools::optimizeNumericalParameters2(
 /************************************************************/
 
 unsigned int OptimizationTools::optimizeNumericalParameters2(
-  dataflow::DataFlowFunction& lik,
+  dataflow::PhyloLikelihood_DF& lik,
   const ParameterList& parameters,
   OptimizationListener* listener,
   double tolerance,
@@ -558,7 +558,6 @@ unsigned int OptimizationTools::optimizeNumericalParameters2(
   const std::string& optMethodDeriv)
 {
   ParameterList pl = parameters;
-
   if (reparametrization)
   {
     throw Exception("OptimizationTools::optimizeNumericalParameters2 reparametrization not checked for dataflow likelihood calculation");
@@ -604,6 +603,7 @@ unsigned int OptimizationTools::optimizeNumericalParameters2(
   optimizer->addOptimizationListener(nanListener);
   if (listener)
     optimizer->addOptimizationListener(listener);
+
   optimizer->init(pl);
   optimizer->optimize();
   delete nanListener;

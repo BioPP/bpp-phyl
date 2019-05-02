@@ -484,6 +484,10 @@ namespace bpp {
 
       NodeRef cached (NodeRef& newNode);
 
+      size_t size() const
+      {
+        return nodeCache_.size();
+      }
     private:
       /* NodeRef is hashable and comparable as a pointer.
        * CachedNodeRef is hashable and comparable, by comparing the node configuration:
@@ -504,7 +508,7 @@ namespace bpp {
       struct CachedNodeRefHash {
         std::size_t operator() (const CachedNodeRef & ref) const;
       };
-
+      
       std::unordered_set<CachedNodeRef, CachedNodeRefHash> nodeCache_;
     };
 

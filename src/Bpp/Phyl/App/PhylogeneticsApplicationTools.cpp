@@ -91,9 +91,10 @@
 #include "../NewLikelihood/SimpleSubstitutionProcess.h"
 #include "../NewLikelihood/SubstitutionProcessCollection.h"
 #include "../NewLikelihood/RateAcrossSitesSubstitutionProcess.h"
-#include "../NewLikelihood/RecursiveLikelihoodTreeCalculation.h"
 
 #include "../NewLikelihood/ParametrizablePhyloTree.h"
+
+#include <Bpp/NewPhyl/PhyloLikelihood_DF.h>
 
 // From bpp-core
 #include <Bpp/Io/BppODiscreteDistributionFormat.h>
@@ -972,7 +973,7 @@ map<size_t, TransitionModel*> PhylogeneticsApplicationTools::getTransitionModels
     {
       //   ApplicationTools::displayResult("substitution Model " + TextTools::toString(modelsNum[i]), model->getName());
       if (nData != 0)
-        ApplicationTools::displayResult("Data used ", TextTools::toString("nData"));
+        ApplicationTools::displayResult("Data used ", TextTools::toString(nData));
     }
 
     mModel[modelsNum[i]] = model.release();
@@ -1942,6 +1943,7 @@ map<size_t, SequenceEvolution*> PhylogeneticsApplicationTools::getSequenceEvolut
 /******************************************************/
 
 PhyloLikelihoodContainer* PhylogeneticsApplicationTools::getPhyloLikelihoodContainer(
+  dataflow::Context& context,
   SubstitutionProcessCollection& SPC,
   map<size_t, SequenceEvolution*>& mSeqEvol,
   const map<size_t, AlignedValuesContainer*>& mData,
@@ -2094,11 +2096,10 @@ PhyloLikelihoodContainer* PhylogeneticsApplicationTools::getPhyloLikelihoodConta
 
     if (SPC.hasSubstitutionProcessNumber(nProcess))
     {
-      LikelihoodTreeCalculation* tlc = 0;
-      
-      tlc = new RecursiveLikelihoodTreeCalculation(*data, &SPC.getSubstitutionProcess(nProcess), true, compression == 'R');
+      auto l = std::make_shared<bpp::dataflow::LikelihoodCalculation>(context, *data, SPC.getSubstitutionProcess(nProcess));
+      l->setNumericalDerivateConfiguration(0.001, bpp::dataflow::NumericalDerivativeType::ThreePoints);
 
-      nPL = new SingleProcessPhyloLikelihood(&SPC.getSubstitutionProcess(nProcess), tlc, nProcess, nData);
+      nPL = new bpp::dataflow::PhyloLikelihood_DF(context, l);
     }
     else if (mSeqEvol.find(nProcess) != mSeqEvol.end())
     {
@@ -2145,7 +2146,6 @@ PhyloLikelihoodContainer* PhylogeneticsApplicationTools::getPhyloLikelihoodConta
     }
     else
       throw Exception("PhylogeneticsApplicationTools::getPhyloLikelihoodContainer : Unknown Process number.");
-
 
     nPL->setUseLog(useLog);
     mPhylo->addPhyloLikelihood(phylonum, nPL);
@@ -3533,10 +3533,14 @@ PhyloLikelihood* PhylogeneticsApplicationTools::optimizeParameters(
 
 
     parametersToEstimate.matchParametersValues(lik->getParameters());
-
-    n = OptimizationTools::optimizeNumericalParameters2(
-      lik, parametersToEstimate,
-      backupListener.get(), tolerance, nbEvalMax, messageHandler, profiler, reparam, useClock, optVerbose, optMethodDeriv);
+    if (dynamic_cast<dataflow::PhyloLikelihood_DF*>(lik))
+      n = OptimizationTools::optimizeNumericalParameters2(
+        *dynamic_cast<dataflow::PhyloLikelihood_DF*>(lik), parametersToEstimate,
+        backupListener.get(), tolerance, nbEvalMax, messageHandler, profiler, reparam, useClock, optVerbose, optMethodDeriv);
+    else
+      n = OptimizationTools::optimizeNumericalParameters2(
+        lik, parametersToEstimate,
+        backupListener.get(), tolerance, nbEvalMax, messageHandler, profiler, reparam, useClock, optVerbose, optMethodDeriv);
 
   }
   else

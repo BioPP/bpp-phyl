@@ -58,6 +58,8 @@ knowledge of the CeCILL license and that you accept its terms.
 #include <Bpp/Phyl/NewLikelihood/PhyloLikelihoods/SingleProcessPhyloLikelihood.h>
 #include <Bpp/Phyl/NewLikelihood/PhyloLikelihoods/FormulaOfPhyloLikelihood.h>
 
+#include <Bpp/NewPhyl/AlignedPhyloLikelihood_DF.h>
+
 #include <iostream>
 
 using namespace bpp;
@@ -151,26 +153,22 @@ int main() {
   // Likelihoods
   PhyloLikelihoodContainer pc;
 
-  SubstitutionProcess* sP1c=subPro1;
-  SubstitutionProcess* sP2c=subPro2;
+  SubstitutionProcess* sP1c=subPro1->clone();
+  SubstitutionProcess* sP2c=subPro2->clone();
 
   bpp::dataflow::Context context;
 
   auto lik1 = std::make_shared<bpp::dataflow::LikelihoodCalculation>(context, sites, *sP1c);
 
-  pc.addPhyloLikelihood(1, new bpp::dataflow::DataFlowFunction(context, lik1));
-  
-  
+  pc.addPhyloLikelihood(1, new bpp::dataflow::AlignedPhyloLikelihood_DF(context, lik1));
+    
   auto lik2 = std::make_shared<bpp::dataflow::LikelihoodCalculation>(context, sites, *sP2c);
 
-  pc.addPhyloLikelihood(2, new bpp::dataflow::DataFlowFunction(context, lik2));
+  pc.addPhyloLikelihood(2, new bpp::dataflow::AlignedPhyloLikelihood_DF(context, lik2));
   
   AlignedPhyloLikelihood* spl1=dynamic_cast<AlignedPhyloLikelihood*>(pc[1]);
   AlignedPhyloLikelihood* spl2=dynamic_cast<AlignedPhyloLikelihood*>(pc[2]);
 
-  spl1->computeLikelihood();
-  spl2->computeLikelihood();
-  
   cerr << setprecision(10) << "TL1:"  << spl1->getValue() << "\tTL2:" << spl2->getValue() << endl;
 
 
@@ -208,24 +206,35 @@ int main() {
     0.0001, 10000, messenger, profiler, false, false, 1, OptimizationTools::OPTIMIZATION_NEWTON);
 
   cerr << "Opt 1: rounds " << c1 << endl;
+
+  cerr << "--------------------------------" << endl;
+  
   unsigned int c2 = OptimizationTools::optimizeNumericalParameters2(
     spl2, spl2->getParameters(), 0,
     0.0001, 10000, messenger, profiler, false, false, 1, OptimizationTools::OPTIMIZATION_NEWTON);
 
+  spl1->getParameters().printParameters(std::cout);
+  
   cerr << "Opt 2: rounds " << c2 << endl;
 
-  unsigned int cM = OptimizationTools::optimizeNumericalParameters2(
-                                                                    &mlc, mlc.getParameters(), 0,
-                                                                    0.0001, 10000, messenger, profiler, false, false, 1, OptimizationTools::OPTIMIZATION_NEWTON);
+  spl2->getParameters().printParameters(std::cout);
 
   
   cerr << setprecision(10) << "Ml1:"  << spl1->getValue() << "\tMl2:" << spl2->getValue() << endl;
+
+  cerr << "--------------------------------" << endl;
+
+  unsigned int cM = OptimizationTools::optimizeNumericalParameters2(
+    &mlc, mlc.getParameters(), 0,
+    0.0001, 10000, messenger, profiler, false, false, 1, OptimizationTools::OPTIMIZATION_NEWTON);
   
   cerr << "Opt M rounds: " << cM << endl;
 
   cerr << "Mlc: " << mlc.getValue() << endl;
 
   mlc.getParameters().printParameters(std::cout);
+
+
   
 // Formula
   

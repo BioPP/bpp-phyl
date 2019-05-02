@@ -176,7 +176,7 @@ void NonHomogeneousSubstitutionProcess::addModel(TransitionModel* model, const s
   for (size_t i  = 0; i < pl.size(); i++)
   {
     Parameter* p = pl[i].clone();
-    p->setName(p->getName() + "_" + TextTools::toString(modelParameters_.size()));
+    p->setName(p->getName() + "_" + TextTools::toString(modelSet_.size()));
     addParameter_(p);
   }
 
@@ -318,7 +318,7 @@ bool NonHomogeneousSubstitutionProcess::checkUnknownNodes(bool throwEx) const
 
 bool NonHomogeneousSubstitutionProcess::hasMixedTransitionModel() const
 {
-  for (size_t i = 0; i < getNumberOfModels(); i++)
+  for (size_t i = 1; i <= getNumberOfModels(); i++)
   {
     if (dynamic_cast<const MixedTransitionModel*>(getModel(i)) != NULL)
       return true;
@@ -368,7 +368,7 @@ NonHomogeneousSubstitutionProcess* NonHomogeneousSubstitutionProcess::createHomo
     }
   }
   ids.erase(ids.begin() + pos);
-  
+
   modelSet->addModel(model, ids);
   return modelSet;
 }

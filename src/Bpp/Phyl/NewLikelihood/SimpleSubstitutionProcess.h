@@ -88,7 +88,7 @@ public:
 
   std::vector<size_t> getModelNumbers() const
   {
-    return(std::vector<size_t>(1,0));
+    return(std::vector<size_t>(1,1));
   }
 
   const TransitionModel* getModel(unsigned int nodeId, size_t classIndex) const

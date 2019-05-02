@@ -266,31 +266,32 @@ namespace bpp
     std::vector<size_t> getModelNumbers() const
     {
       std::vector<size_t> v(getNumberOfModels());
-      std::iota(std::begin(v),std::end(v),0);
+      std::iota(std::begin(v),std::end(v), 1);
       return v;
     }
 
     /**
-     * @brief Get one model from the set knowing its index.
+     * @brief Get one model from the set knowing its number.
      *
-     * @param i Index of the model in the set.
+     * @param i Index of the model set.
      * @return A pointer toward the corresponding model.
      */
 
     const TransitionModel* getModel(size_t i) const
     {
-      if (i > modelSet_.size()) throw IndexOutOfBoundsException("NonHomogeneousSubstitutionProcess::getNumberOfModels().", 0, modelSet_.size() - 1, i);
-      return modelSet_[i];
+      if ((i == 0) || (i > modelSet_.size())) throw IndexOutOfBoundsException("NonHomogeneousSubstitutionProcess::getModel().", 1, modelSet_.size(), i);
+      return modelSet_[i-1];
     }
 
     TransitionModel* getModel(size_t i)
     {
-      if (i > modelSet_.size()) throw IndexOutOfBoundsException("NonHomogeneousSubstitutionProcess::getNumberOfModels().", 0, modelSet_.size() - 1, i);
-      return modelSet_[i];
+      if ((i == 0) || (i > modelSet_.size())) throw IndexOutOfBoundsException("NonHomogeneousSubstitutionProcess::getModel().", 1, modelSet_.size(), i);
+      return modelSet_[i-1];
     }
 
     /**
-     * @brief Get the index in the set of the model associated to a particular node id.
+     * @brief Get the INDEX in the set of the model associated to a
+     * particular node id (and not the number of the model).
      *
      * @param nodeId The id of the query node.
      * @return The index of the model associated to the given node.
@@ -332,15 +333,16 @@ namespace bpp
     /**
      * @brief Get a list of nodes id for which the given model is associated.
      *
-     * @param i The index of the model in the set.
+     * @param i The number of the model in the set (ie the index in the set, plus 1).
      * @return A vector with the ids of the node associated to this model.
      * @throw IndexOutOfBoundsException If the index is not valid.
      */
 
     const std::vector<unsigned int> getNodesWithModel(size_t i) const
     {
-      if (i >= modelSet_.size()) throw IndexOutOfBoundsException("NonHomogeneousSubstitutionProcess::getNodesWithModel().", i, 0, modelSet_.size());
-      return modelToNodes_[i];
+      
+      if (i > modelSet_.size()) throw IndexOutOfBoundsException("NonHomogeneousSubstitutionProcess::getNodesWithModel().", i, 0, modelSet_.size());
+      return modelToNodes_[i-1];
     }
 
     /**
