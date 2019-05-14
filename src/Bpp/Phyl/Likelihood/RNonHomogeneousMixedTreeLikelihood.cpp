@@ -5,37 +5,37 @@
 //
 
 /*
-   Copyright or © or Copr. Bio++ Development Team, (November 16, 2004)
+  Copyright or © or Copr. Bio++ Development Team, (November 16, 2004)
 
-   This software is a computer program whose purpose is to provide classes
-   for phylogenetic data analysis.
+  This software is a computer program whose purpose is to provide classes
+  for phylogenetic data analysis.
 
-   This software is governed by the CeCILL  license under French law and
-   abiding by the rules of distribution of free software.  You can  use,
-   modify and/ or redistribute the software under the terms of the CeCILL
-   license as circulated by CEA, CNRS and INRIA at the following URL
-   "http://www.cecill.info".
+  This software is governed by the CeCILL  license under French law and
+  abiding by the rules of distribution of free software.  You can  use,
+  modify and/ or redistribute the software under the terms of the CeCILL
+  license as circulated by CEA, CNRS and INRIA at the following URL
+  "http://www.cecill.info".
 
-   As a counterpart to the access to the source code and  rights to copy,
-   modify and redistribute granted by the license, users are provided only
-   with a limited warranty  and the software's author,  the holder of the
-   economic rights,  and the successive licensors  have only  limited
-   liability.
+  As a counterpart to the access to the source code and  rights to copy,
+  modify and redistribute granted by the license, users are provided only
+  with a limited warranty  and the software's author,  the holder of the
+  economic rights,  and the successive licensors  have only  limited
+  liability.
 
-   In this respect, the user's attention is drawn to the risks associated
-   with loading,  using,  modifying and/or developing or reproducing the
-   software by the user in light of its specific status of free software,
-   that may mean  that it is complicated to manipulate,  and  that  also
-   therefore means  that it is reserved for developers  and  experienced
-   professionals having in-depth computer knowledge. Users are therefore
-   encouraged to load and test the software's suitability as regards their
-   requirements in conditions enabling the security of their systems and/or
-   data to be ensured and,  more generally, to use and operate it in the
-   same conditions as regards security.
+  In this respect, the user's attention is drawn to the risks associated
+  with loading,  using,  modifying and/or developing or reproducing the
+  software by the user in light of its specific status of free software,
+  that may mean  that it is complicated to manipulate,  and  that  also
+  therefore means  that it is reserved for developers  and  experienced
+  professionals having in-depth computer knowledge. Users are therefore
+  encouraged to load and test the software's suitability as regards their
+  requirements in conditions enabling the security of their systems and/or
+  data to be ensured and,  more generally, to use and operate it in the
+  same conditions as regards security.
 
-   The fact that you are presently reading this means that you have had
-   knowledge of the CeCILL license and that you accept its terms.
- */
+  The fact that you are presently reading this means that you have had
+  knowledge of the CeCILL license and that you accept its terms.
+*/
 
 #include "RNonHomogeneousMixedTreeLikelihood.h"
 #include "../PatternTools.h"
@@ -184,7 +184,7 @@ void RNonHomogeneousMixedTreeLikelihood::init(bool usePatterns)
         for (it = mdesc.begin(); it != mdesc.end(); it++)
         {
           for (size_t j = 0; j < it->second.size(); j++)
-            {
+          {
             if (it->second[j] != it->first)
             {
               if (find(vn.begin(), vn.end(), it->second[j]) != vn.end())
@@ -309,7 +309,7 @@ RNonHomogeneousMixedTreeLikelihood::~RNonHomogeneousMixedTreeLikelihood()
 }
 
 /******************************************************************************/
- void RNonHomogeneousMixedTreeLikelihood::initialize()
+void RNonHomogeneousMixedTreeLikelihood::initialize()
 {
   if (main_)
     initParameters();
@@ -332,32 +332,32 @@ RNonHomogeneousMixedTreeLikelihood::~RNonHomogeneousMixedTreeLikelihood()
 
 /******************************************************************************/
 
- void RNonHomogeneousMixedTreeLikelihood::fireParameterChanged(const ParameterList& params)
+void RNonHomogeneousMixedTreeLikelihood::fireParameterChanged(const ParameterList& params)
 {
   if (main_)
     applyParameters();
   else {
     for (size_t i = 0; i < nbNodes_; i++)
+    {
+      int id = nodes_[i]->getId();
+      if (reparametrizeRoot_ && id == root1_)
       {
-        int id = nodes_[i]->getId();
-        if (reparametrizeRoot_ && id == root1_)
-          {
-            const Parameter* rootBrLen = &getParameter("BrLenRoot");
-            const Parameter* rootPos = &getParameter("RootPosition");
-            nodes_[i]->setDistanceToFather(rootBrLen->getValue() * rootPos->getValue());
-          }
-        else if (reparametrizeRoot_ && id == root2_)
-          {
-            const Parameter* rootBrLen = &getParameter("BrLenRoot");
-            const Parameter* rootPos = &getParameter("RootPosition");
-            nodes_[i]->setDistanceToFather(rootBrLen->getValue() * (1. - rootPos->getValue()));
-          }
-        else
-          {
-            const Parameter* brLen = &getParameter(string("BrLen") + TextTools::toString(i));
-            if (brLen) nodes_[i]->setDistanceToFather(brLen->getValue());
-          }
+        const Parameter* rootBrLen = &getParameter("BrLenRoot");
+        const Parameter* rootPos = &getParameter("RootPosition");
+        nodes_[i]->setDistanceToFather(rootBrLen->getValue() * rootPos->getValue());
       }
+      else if (reparametrizeRoot_ && id == root2_)
+      {
+        const Parameter* rootBrLen = &getParameter("BrLenRoot");
+        const Parameter* rootPos = &getParameter("RootPosition");
+        nodes_[i]->setDistanceToFather(rootBrLen->getValue() * (1. - rootPos->getValue()));
+      }
+      else
+      {
+        const Parameter* brLen = &getParameter(string("BrLen") + TextTools::toString(i));
+        if (brLen) nodes_[i]->setDistanceToFather(brLen->getValue());
+      }
+    }
   }
 
   map<int, vector<RNonHomogeneousMixedTreeLikelihood*> >::const_iterator it2;
@@ -373,62 +373,62 @@ RNonHomogeneousMixedTreeLikelihood::~RNonHomogeneousMixedTreeLikelihood()
   }
   else {
     if (params.getCommonParametersWith(rateDistribution_->getIndependentParameters()).size() > 0)
-      {
-        computeAllTransitionProbabilities();
-      }
+    {
+      computeAllTransitionProbabilities();
+    }
     else
+    {
+      vector<int> ids;
+      vector<string> tmp = params.getCommonParametersWith(modelSet_->getNodeParameters()).getParameterNames();
+      for (size_t i = 0; i < tmp.size(); i++)
       {
-        vector<int> ids;
-        vector<string> tmp = params.getCommonParametersWith(modelSet_->getNodeParameters()).getParameterNames();
-        for (size_t i = 0; i < tmp.size(); i++)
-          {
-            vector<int> tmpv = modelSet_->getNodesWithParameter(tmp[i]);
-            ids = VectorTools::vectorUnion(ids, tmpv);
-          }
-        tmp = params.getCommonParametersWith(brLenParameters_).getParameterNames();
-        vector<const Node*> nodes;
-        for (size_t i = 0; i < ids.size(); i++)
-          {
-            nodes.push_back(idToNode_[ids[i]]);
-          }
-        vector<const Node*> tmpv;
-        bool test = false;
-        for (size_t i = 0; i < tmp.size(); i++)
-          {
-            if (tmp[i] == "BrLenRoot" || tmp[i] == "RootPosition")
-              {
-                if (!test)
-                  {
-                    tmpv.push_back(tree_->getRootNode()->getSon(0));
-                    tmpv.push_back(tree_->getRootNode()->getSon(1));
-                    test = true; // Add only once.
-                  }
-              }
-            else
-              tmpv.push_back(nodes_[TextTools::to < size_t > (tmp[i].substr(5))]);
-          }
-        nodes = VectorTools::vectorUnion(nodes, tmpv);
-        
-        for (size_t i = 0; i < nodes.size(); i++){
-          computeTransitionProbabilitiesForNode(nodes[i]);
-        }
+        vector<int> tmpv = modelSet_->getNodesWithParameter(tmp[i]);
+        ids = VectorTools::vectorUnion(ids, tmpv);
       }
+      tmp = params.getCommonParametersWith(brLenParameters_).getParameterNames();
+      vector<const Node*> nodes;
+      for (size_t i = 0; i < ids.size(); i++)
+      {
+        nodes.push_back(idToNode_[ids[i]]);
+      }
+      vector<const Node*> tmpv;
+      bool test = false;
+      for (size_t i = 0; i < tmp.size(); i++)
+      {
+        if (tmp[i] == "BrLenRoot" || tmp[i] == "RootPosition")
+        {
+          if (!test)
+          {
+            tmpv.push_back(tree_->getRootNode()->getSon(0));
+            tmpv.push_back(tree_->getRootNode()->getSon(1));
+            test = true; // Add only once.
+          }
+        }
+        else
+          tmpv.push_back(nodes_[TextTools::to < size_t > (tmp[i].substr(5))]);
+      }
+      nodes = VectorTools::vectorUnion(nodes, tmpv);
+        
+      for (size_t i = 0; i < nodes.size(); i++){
+        computeTransitionProbabilitiesForNode(nodes[i]);
+      }
+    }
 
     map<int, vector<RNonHomogeneousMixedTreeLikelihood*> >::iterator it;
     for (it = mvTreeLikelihoods_.begin(); it != mvTreeLikelihoods_.end(); it++)
+    {
+      for (size_t i = 0; i < it->second.size(); i++)
       {
-        for (size_t i = 0; i < it->second.size(); i++)
-          {
-            it->second[i]->matchParametersValues(params);
-          }
+        it->second[i]->matchParametersValues(params);
       }
+    }
   }
   
   if (main_)
-    {
-      computeTreeLikelihood();
-      minusLogLik_ = -getLogLikelihood();
-    }
+  {
+    computeTreeLikelihood();
+    minusLogLik_ = -getLogLikelihood();
+  }
 }
 
 /******************************************************************************/
@@ -474,28 +474,30 @@ void RNonHomogeneousMixedTreeLikelihood::computeSubtreeLikelihood(const Node* no
     // Must reset the likelihood array first (i.e. set all of them to 0):
     VVVdouble* _likelihoods_node = &likelihoodData_->getLikelihoodArray(nodeId);
     for (size_t i = 0; i < nbSites; i++)
+    {
+      // For each site in the sequence,
+      VVdouble* _likelihoods_node_i = &(*_likelihoods_node)[i];
+      for (size_t c = 0; c < nbClasses_; c++)
       {
-        // For each site in the sequence,
-        VVdouble* _likelihoods_node_i = &(*_likelihoods_node)[i];
-        for (size_t c = 0; c < nbClasses_; c++)
-          {
-              // For each rate classe,
-            Vdouble* _likelihoods_node_i_c = &(*_likelihoods_node_i)[c];
-            for (size_t x = 0; x < nbStates_; x++)
-              {
-                // For each initial state,
-                (*_likelihoods_node_i_c)[x] = 0.;
-              }
-          }
+        // For each rate classe,
+        Vdouble* _likelihoods_node_i_c = &(*_likelihoods_node_i)[c];
+        for (size_t x = 0; x < nbStates_; x++)
+        {
+          // For each initial state,
+          (*_likelihoods_node_i_c)[x] = 0.;
+        }
       }
+    }
 
     if (getProbability()==0)
       return;
   
     vector<RNonHomogeneousMixedTreeLikelihood* > vr = mvTreeLikelihoods_[nodeId];
     for (size_t t = 0; t < vr.size(); t++)
+    {
       vr[t]->computeSubtreeLikelihood(node);
-
+    }
+    
     // for each specific subtree
     for (size_t t = 0; t < vr.size(); t++)
     {
@@ -530,8 +532,8 @@ void RNonHomogeneousMixedTreeLikelihood::computeSubtreeLikelihood(const Node* no
 }
 
 /******************************************************************************
-*                           First Order Derivatives                          *
-******************************************************************************/
+ *                           First Order Derivatives                          *
+ ******************************************************************************/
 void RNonHomogeneousMixedTreeLikelihood::computeTreeDLikelihood(const string& variable)
 {
   const Node* father, father2;
@@ -543,11 +545,11 @@ void RNonHomogeneousMixedTreeLikelihood::computeTreeDLikelihood(const string& va
     if ((variable == "BrLenRoot") ||  (variable == "RootPosition"))
       father = tree_->getRootNode();
     else
-      {
-        size_t brI = TextTools::to<size_t>(variable.substr(5));
-        const Node* branch = nodes_[brI];
-        father = branch->getFather();
-      }
+    {
+      size_t brI = TextTools::to<size_t>(variable.substr(5));
+      const Node* branch = nodes_[brI];
+      father = branch->getFather();
+    }
   }
   
   bool flok = 0;
@@ -621,8 +623,8 @@ void RNonHomogeneousMixedTreeLikelihood::computeDownSubtreeDLikelihood(const Nod
 }
 
 /******************************************************************************
-*                           Second Order Derivatives                         *
-******************************************************************************/
+ *                           Second Order Derivatives                         *
+ ******************************************************************************/
 void RNonHomogeneousMixedTreeLikelihood::computeTreeD2Likelihood(const string& variable)
 {
   const Node* father, father2;
@@ -633,67 +635,67 @@ void RNonHomogeneousMixedTreeLikelihood::computeTreeD2Likelihood(const string& v
     if ((variable == "BrLenRoot") ||  (variable == "RootPosition"))
       father = tree_->getRootNode();
     else
-      {
-        size_t brI = TextTools::to<size_t>(variable.substr(5));
-        const Node* branch = nodes_[brI];
-        father = branch->getFather();
-      }
+    {
+      size_t brI = TextTools::to<size_t>(variable.substr(5));
+      const Node* branch = nodes_[brI];
+      father = branch->getFather();
+    }
   }
   
   bool flok = 0;
   while (father){
     if (mvTreeLikelihoods_.find(father->getId()) != mvTreeLikelihoods_.end())
-      {
-        flok = 1;
-        break;
-      }
+    {
+      flok = 1;
+      break;
+    }
     if (father->getId() == upperNode_)
       break;
     father = father->getFather();
   }
 
   if (flok)  // there is an expanded model above the derivated branch
-    {
-      int fatherId = father->getId();
-      // Compute d2Likelihoods array for the father node.
-      // Fist initialize to 0:
-      VVVdouble* _d2Likelihoods_father = &likelihoodData_->getD2LikelihoodArray(fatherId);
-      size_t nbSites  = _d2Likelihoods_father->size();
-      for (size_t i = 0; i < nbSites; i++) {
-        VVdouble* _d2Likelihoods_father_i = &(*_d2Likelihoods_father)[i];
-        for (size_t c = 0; c < nbClasses_; c++) {
-          Vdouble* _d2Likelihoods_father_i_c = &(*_d2Likelihoods_father_i)[c];
-          for (size_t s = 0; s < nbStates_; s++) {
-            (*_d2Likelihoods_father_i_c)[s] = 0.;
-          }
+  {
+    int fatherId = father->getId();
+    // Compute d2Likelihoods array for the father node.
+    // Fist initialize to 0:
+    VVVdouble* _d2Likelihoods_father = &likelihoodData_->getD2LikelihoodArray(fatherId);
+    size_t nbSites  = _d2Likelihoods_father->size();
+    for (size_t i = 0; i < nbSites; i++) {
+      VVdouble* _d2Likelihoods_father_i = &(*_d2Likelihoods_father)[i];
+      for (size_t c = 0; c < nbClasses_; c++) {
+        Vdouble* _d2Likelihoods_father_i_c = &(*_d2Likelihoods_father_i)[c];
+        for (size_t s = 0; s < nbStates_; s++) {
+          (*_d2Likelihoods_father_i_c)[s] = 0.;
         }
       }
+    }
 
-      if (getProbability()!=0){
+    if (getProbability()!=0){
         
-        vector<RNonHomogeneousMixedTreeLikelihood* > vr = mvTreeLikelihoods_[fatherId];
-        for (size_t t = 0; t < vr.size(); t++)
-          vr[t]->computeTreeD2Likelihood(variable);
+      vector<RNonHomogeneousMixedTreeLikelihood* > vr = mvTreeLikelihoods_[fatherId];
+      for (size_t t = 0; t < vr.size(); t++)
+        vr[t]->computeTreeD2Likelihood(variable);
       
-        // for each specific subtree
-        for (size_t t = 0; t < vr.size(); t++) {
-          VVVdouble* _vt_d2Likelihoods_father = &vr[t]->likelihoodData_->getD2LikelihoodArray(fatherId);
-          for (size_t i = 0; i < nbSites; i++) {
-            // For each site in the sequence,
-            VVdouble* _d2Likelihoods_father_i = &(*_d2Likelihoods_father)[i];
-            for (size_t c = 0; c < nbClasses_; c++){
-              // For each rate classe,
-              Vdouble* _d2Likelihoods_father_i_c = &(*_d2Likelihoods_father_i)[c];
-              Vdouble* _vt_d2Likelihoods_father_i_c = &(*_vt_d2Likelihoods_father)[i][c];
-              for (size_t x = 0; x < nbStates_; x++) {
-                (*_d2Likelihoods_father_i_c)[x] +=  (*_vt_d2Likelihoods_father_i_c)[x] * vr[t]->getProbability() / getProbability();
-              }
+      // for each specific subtree
+      for (size_t t = 0; t < vr.size(); t++) {
+        VVVdouble* _vt_d2Likelihoods_father = &vr[t]->likelihoodData_->getD2LikelihoodArray(fatherId);
+        for (size_t i = 0; i < nbSites; i++) {
+          // For each site in the sequence,
+          VVdouble* _d2Likelihoods_father_i = &(*_d2Likelihoods_father)[i];
+          for (size_t c = 0; c < nbClasses_; c++){
+            // For each rate classe,
+            Vdouble* _d2Likelihoods_father_i_c = &(*_d2Likelihoods_father_i)[c];
+            Vdouble* _vt_d2Likelihoods_father_i_c = &(*_vt_d2Likelihoods_father)[i][c];
+            for (size_t x = 0; x < nbStates_; x++) {
+              (*_d2Likelihoods_father_i_c)[x] +=  (*_vt_d2Likelihoods_father_i_c)[x] * vr[t]->getProbability() / getProbability();
             }
           }
         }
       }
-      computeDownSubtreeD2Likelihood(father);
     }
+    computeDownSubtreeD2Likelihood(father);
+  }
   else
     RNonHomogeneousTreeLikelihood::computeTreeD2Likelihood(variable);
 }
@@ -753,7 +755,7 @@ void RNonHomogeneousMixedTreeLikelihood::computeTransitionProbabilitiesForNode(c
         (*pxy__node_c_x)[y] = 0;
       }
     }
-    
+
     for (size_t i=0;i<vModel.size();i++){
       RowMatrix<double> Q = vModel[i]->getPij_t(l * rateDistribution_->getCategory(c));
       for (size_t x = 0; x < nbStates_; x++){

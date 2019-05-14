@@ -412,18 +412,18 @@ void AbstractNonHomogeneousTreeLikelihood::computeTransitionProbabilitiesForNode
   //Computes all pxy and pyx once for all:
   VVVdouble * pxy__node = & pxy_[node->getId()];
   for(unsigned int c = 0; c < nbClasses_; c++)
+  {
+    VVdouble * pxy__node_c = & (* pxy__node)[c];
+    RowMatrix<double> Q = model->getPij_t(l * rateDistribution_->getCategory(c));
+    for(unsigned int x = 0; x < nbStates_; x++)
     {
-      VVdouble * pxy__node_c = & (* pxy__node)[c];
-      RowMatrix<double> Q = model->getPij_t(l * rateDistribution_->getCategory(c));
-      for(unsigned int x = 0; x < nbStates_; x++)
-        {
-          Vdouble * pxy__node_c_x = & (* pxy__node_c)[x];
-          for(unsigned int y = 0; y < nbStates_; y++)
-            {
-              (* pxy__node_c_x)[y] = Q(x, y);
-            }
-        }
+      Vdouble * pxy__node_c_x = & (* pxy__node_c)[x];
+      for(unsigned int y = 0; y < nbStates_; y++)
+      {
+        (* pxy__node_c_x)[y] = Q(x, y);
+      }
     }
+  }
   
   if(computeFirstOrderDerivatives_)
     {

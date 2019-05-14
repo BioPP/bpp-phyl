@@ -86,15 +86,21 @@ namespace bpp
  * 1@f$), the rates are defined by relative rates parameters
  * @f$r_i@f$ (called "relratei") with:
  * @f[
- * 1 <= i < n, \rho_i = (1-r_1)*(1-r_2)...(1-r_{i-1})*\frac{r_{i}}{p_i}
+ * 1 <= i < n, \rho_i = K.(1-r_1)*(1-r_2)...(1-r_{i-1})*r_{i}
  * @f]
  * @f[
- * \rho_n = \frac{(1-r_1)*(1-r_2)*...*(1-r_{n-1})}{p_n}
+ * \rho_n = K.\frac{(1-r_1)*(1-r_2)*...*(1-r_{n-1})
  * @f]
- * and
+ *
+ * with @f[ K = \frac{1}{\sum_{i=1}^n p_i.\rho_i} @f] 
+ *
+ * And on the reverse:
+ *
  * @f[
- * \forall 1 <= i < n, r_i = \frac{\rho_i*p_i}{1-(p_1*\rho_1+...+p_{i-1}*\rho_{i-1})} < 1.
+ * \forall 1 <= i < n, r_i = \frac{\rho_i}{1-(\rho_1+...+\rho_{i-1})} < 1.
  * @f]
+ *
+ * So the relative rates parameters are independent from the probabilities.
  *
  * For example:
  *
@@ -103,9 +109,8 @@ namespace bpp
  *         relproba1=0.1,relproba2=0.8)
  *
  * define a model as a mixture of 3 different models: HKY85 has
- * probability 0.1 and rate 2, T92 has probability 0.4 and rate 1.8,
- * and L95 has probability 0.5 and rate 0.16.
- *
+ * probability 0.1 and rate 0.36, T92 has probability 0.72 and rate 1.3,
+ * and L95 has probability 0.18 and rate 0.14.
  *
  * The parameters are named \c "Mixture.relrate1", \c
  * "Mixture.relrate2", \c "Mixture.relproba1", \c
