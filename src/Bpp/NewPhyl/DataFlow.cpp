@@ -116,13 +116,13 @@ namespace bpp {
       }
     }
 
-    // void checkDependencyVectorMinSize (const std::type_info & contextNodeType, const NodeRefVec & deps,
-    //                                    std::size_t expectedMinSize) {
-    //   auto size = deps.size ();
-    //   if (size < expectedSize) {
-    //     failureDependencyNumberMismatch (contextNodeType, expectedSize, size);
-    //   }
-    // }
+    void checkDependencyVectorMinSize (const std::type_info & contextNodeType, const NodeRefVec & deps,
+                                       std::size_t expectedMinSize) {
+      auto size = deps.size ();
+      if (size < expectedMinSize) {
+        failureDependencyNumberMismatch (contextNodeType, expectedMinSize, size);
+      }
+    }
 
     void checkDependenciesNotNull (const std::type_info & contextNodeType, const NodeRefVec & deps) {
       for (std::size_t i = 0; i < deps.size (); ++i) {

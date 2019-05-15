@@ -99,7 +99,7 @@ namespace bpp
       MatrixDimension likelihoodMatrixDim_;
       const StateMap& statemap_;
       std::size_t nbState_;
-      std::size_t nbSite_;
+      std::size_t nbSites_;
 
     public:
 
@@ -107,22 +107,23 @@ namespace bpp
                             std::shared_ptr<dataflow::PhyloTree_BrRef> tree,
                             const StateMap& statemap) :
         TreeClass(tree->getGraph()),
-        context_(c), tree_(tree), likelihoodMatrixDim_(), statemap_(statemap), nbState_(statemap.getNumberOfModelStates()), nbSite_(0)
+        context_(c), tree_(tree), likelihoodMatrixDim_(), statemap_(statemap), nbState_(statemap.getNumberOfModelStates()), nbSites_(0)
       {
       }
 
       void initialize(const AlignedValuesContainer& sites)
       {
-        nbSite_ = sites.getNumberOfSites (); 
-        likelihoodMatrixDim_ = conditionalLikelihoodDimension (nbState_, nbSite_);
+        nbSites_ = sites.getNumberOfSites (); 
+        likelihoodMatrixDim_ = conditionalLikelihoodDimension (nbState_, nbSites_);
         makeConditionalLikelihoodNode (tree_->getRootIndex (), sites);
       }
         
       dataflow::ValueRef<Eigen::MatrixXd> makeInitialConditionalLikelihood (const std::string & sequenceName, const AlignedValuesContainer & sites)
       {
+        size_t nbSites=sites.getNumberOfSites();
         const auto sequenceIndex = sites.getSequencePosition (sequenceName);
-        Eigen::MatrixXd initCondLik (nbState_, nbSite_);
-        for (std::size_t site = 0; site < nbSite_; ++site) {
+        Eigen::MatrixXd initCondLik (nbState_, nbSites);
+        for (std::size_t site = 0; site < nbSites; ++site) {
           for (std::size_t state = 0; state < nbState_; ++state) {
             initCondLik (Eigen::Index (state), Eigen::Index (site)) =
               sites.getStateValueAt (site, sequenceIndex, statemap_.getAlphabetStateAsInt(state));
@@ -184,11 +185,13 @@ namespace bpp
        *
        */
 
-      std::size_t getNumberOfSites() const 
-      {
-        return nbSite_;
-      }
-      
+      std::size_t getNumberOfSites() const {return nbSites_; }
+
+      /*
+       * @brief the weights of the positions of the shrunked data
+       *
+       */
+
     };
   }
   

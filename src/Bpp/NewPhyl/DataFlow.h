@@ -403,8 +403,8 @@ namespace bpp {
                                     std::size_t expectedSize);
 
     /// Checks the minimum size of a dependency vector, throws if mismatch.
-    // void checkDependencyVectorMinSize (const std::type_info & contextNodeType, const NodeRefVec & deps,
-    //                                    std::size_t expectedMinSize);
+    void checkDependencyVectorMinSize (const std::type_info & contextNodeType, const NodeRefVec & deps,
+                                       std::size_t expectedMinSize);
 
     /// Checks that all dependencies are not null, throws if not.
     void checkDependenciesNotNull (const std::type_info & contextNodeType, const NodeRefVec & deps);

@@ -133,6 +133,18 @@ namespace bpp {
       ExtendedFloat(rhs.float_part () + lhs.float_part () * constexpr_power<double>(ExtendedFloat::radix, lhs.exponent_part () - rhs.exponent_part ()), rhs.exponent_part ());
   }
 
+  inline ExtendedFloat denorm_pow (const ExtendedFloat & lhs, double exp) {
+    double b=lhs.exponent_part()*exp;
+    ExtendedFloat::ExtType e=ExtendedFloat::ExtType(lround(b));
+    ExtendedFloat r(std::pow(lhs.float_part(),exp)*std::pow(ExtendedFloat::radix,(b-e)), e);
+    return r;
+  }
+
+  inline ExtendedFloat denorm_pow (const ExtendedFloat & lhs, int exp) {
+    ExtendedFloat r(std::pow(lhs.float_part(),exp), lhs.exponent_part()*exp);
+    return r;
+  }
+
   inline ExtendedFloat operator* (const ExtendedFloat & lhs, const ExtendedFloat & rhs) {
     auto r = denorm_mul (lhs, rhs);
     r.normalize ();
@@ -140,9 +152,13 @@ namespace bpp {
   }
 
   inline ExtendedFloat pow (const ExtendedFloat & lhs, double exp) {
-    double b=lhs.exponent_part()*exp;
-    ExtendedFloat::ExtType e=ExtendedFloat::ExtType(lround(b));
-    ExtendedFloat r(std::pow(lhs.float_part(),exp)*std::pow(ExtendedFloat::radix,(b-e)), e);
+    auto  r = denorm_pow(lhs, exp);
+    r.normalize ();
+    return r;
+  }
+
+  inline ExtendedFloat pow (const ExtendedFloat & lhs, int exp) {
+    auto  r = denorm_pow(lhs, exp);
     r.normalize ();
     return r;
   }

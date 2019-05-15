@@ -77,6 +77,10 @@ namespace bpp {
       size_t getNumberOfSites() const {
         return getLikelihoodCalculation()->getNumberOfSites();
       }
+
+      size_t getNumberOfDistinctSites() const {
+        return getLikelihoodCalculation()->getNumberOfDistinctSites();
+      }
       
       /**
        * @brief Get the likelihood for a site.

@@ -212,9 +212,20 @@ namespace bpp {
       return Eigen::Matrix<T, Rows, Cols>::Constant (dim.rows, dim.cols, from);
     }
     
+    inline Eigen::RowVectorXd convert (const Eigen::RowVectorXi& from, const Dimension<Eigen::RowVectorXd>& dim)
+    {
+      return from.template cast<double>();
+    }
+
+    inline Eigen::RowVectorXd convert (Eigen::RowVectorXi& from, const Dimension<Eigen::RowVectorXd>& dim)
+    {
+      return from.template cast<double>();
+    }
+
     template <typename T, int Rows, int Cols, typename DerivedF>
     const DerivedF & convert (const Eigen::MatrixBase<DerivedF> & from,
-                              const Dimension<Eigen::Matrix<T, Rows, Cols>> & dim) {
+                              const Dimension<Eigen::Matrix<T, Rows, Cols>> & dim,
+                              typename std::enable_if<! std::is_same<DerivedF, Eigen::RowVectorXi>::value>::type* = 0) {
       return from.derived (); // matrix -> matrix, conversion will be done in the assignment
     }
     

@@ -66,8 +66,13 @@ namespace bpp {
     template <typename Derived> auto cwise (const Eigen::MatrixBase<Derived> & m) -> decltype (m.array ()) {
       return m.array (); // Use Array API in Eigen
     }
+    
     template <typename Derived> auto cwise (Eigen::MatrixBase<Derived> & m) -> decltype (m.array ()) {
       return m.array (); // Use Array API in Eigen
+    }
+
+    inline Eigen::ArrayXd cwise (const Eigen::RowVectorXi & m) {
+      return m.template cast<double>().array ();
     }
     
   }
@@ -99,7 +104,7 @@ namespace bpp {
     template <typename T> class CombineDeltaShifted;
 
     /** @brief build a Value to a Matrix or rowVector filled with
-     * values of references. One reference per 
+     * values of references.  
      *
      * Node construction should be done with the create static method.
      */
@@ -1119,24 +1124,38 @@ namespace bpp {
      * - r: double.
      * - m: F (matrix-like type).
      *
+     * or  r = sum_{i in 0:len(m)-1} log (p[i]*m[i]).
+     * - r: double.
+     * - m: F (matrix-like type).
+     * - p: <Eigen::RowVectorXd>
+     *
      * The node has no dimension (double).
      * The dimension of m should be provided for derivation.
      * Node construction should be done with the create static method.
      */ 
-   template <typename F> class SumOfLogarithms : public Value<double> {
+
+    template <typename F> class SumOfLogarithms : public Value<double> {
     public:
       using Self = SumOfLogarithms;
 
       /// Build a new SumOfLogarithms node with the given input matrix dimensions.
       static ValueRef<double> create (Context & c, NodeRefVec && deps, const Dimension<F> & mDim) {
         checkDependenciesNotNull (typeid (Self), deps);
-        checkDependencyVectorSize (typeid (Self), deps, 1);
+        checkDependencyVectorMinSize (typeid (Self), deps, 1);
         checkNthDependencyIsValue<F> (typeid (Self), deps, 0);
+        if (deps.size()==2)
+          checkNthDependencyIsValue<Eigen::RowVectorXi>(typeid (Self), deps, 1);
         return cachedAs<Value<double>> (c, std::make_shared<Self> (std::move (deps), mDim));
       }
 
       SumOfLogarithms (NodeRefVec && deps, const Dimension<F> & mDim)
-        : Value<double> (std::move (deps)), mTargetDimension_ (mDim) {}
+        : Value<double> (std::move (deps)), mTargetDimension_ (mDim), temp_() {
+        if (dependencies().size()==2)
+        {
+          const auto & p = accessValueConstCast<Eigen::VectorXi> (*this->dependency (1));
+          temp_.resize(p.size());
+        }
+      }
 
       std::string debugInfo () const override {
         using namespace numeric;
@@ -1152,6 +1171,10 @@ namespace bpp {
         const auto & m = this->dependency (0);
         auto dm_dn = m->derive (c, node);
         auto m_inverse = CWiseInverse<F>::create (c, {m}, mTargetDimension_);
+        if (dependencies().size()==2)
+        {
+          m_inverse = CWiseMul<F,std::tuple<F,Eigen::RowVectorXi>>::create (c, {m_inverse, this->dependency (1)}, mTargetDimension_);
+        } 
         return ScalarProduct<F, F>::create (c, {std::move (dm_dn), std::move (m_inverse)});
       }
 
@@ -1163,20 +1186,45 @@ namespace bpp {
       void compute () final {
         auto & result = this->accessValueMutable ();
         const auto & m = accessValueConstCast<F> (*this->dependency (0));
-        const ExtendedFloat product = m.unaryExpr ([](double d) {
-                                         ExtendedFloat ef{d};
-                                         ef.normalize_small ();
-                                         return ef;
-                                       })
-                                        .redux ([](const ExtendedFloat & lhs, const ExtendedFloat & rhs) {
-                                          auto r = denorm_mul (lhs, rhs);
-                                          r.normalize_small ();
-                                          return r;
-                                        });
-        result = log (product);
+        if (dependencies().size()==1)
+        {
+          const ExtendedFloat product = m.unaryExpr ([](double d) {
+              ExtendedFloat ef{d};
+              ef.normalize_small ();
+              return ef;
+            }).redux ([](const ExtendedFloat & lhs, const ExtendedFloat & rhs) {
+                auto r = denorm_mul (lhs, rhs);
+                r.normalize_small ();
+                return r;
+              });
+          result = log (product);
+        }
+        else
+        {
+          const auto & p = accessValueConstCast<Eigen::RowVectorXi> (*this->dependency (1));
+          
+          temp_ = m.unaryExpr ([](double d) {
+              ExtendedFloat ef{d};
+              ef.normalize_small ();
+              return ef;
+            });
+
+          for (size_t i=0;i<(size_t)p.size();i++)
+            temp_[i]=pow(temp_[i],p[i]);
+          
+          const ExtendedFloat product = temp_.redux ([](const ExtendedFloat & lhs, const ExtendedFloat & rhs) {
+              auto r = denorm_mul (lhs, rhs);
+              r.normalize_small ();
+              return r;
+            });
+          result = log (product);
+        }
+          
       }
 
       Dimension<F> mTargetDimension_;
+
+      Eigen::Matrix<ExtendedFloat, 1, Eigen::Dynamic> temp_;
     };
 
 

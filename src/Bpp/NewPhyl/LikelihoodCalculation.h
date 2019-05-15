@@ -47,6 +47,8 @@
 #include <Bpp/NewPhyl/DataFlowCWise.h>
 
 #include <Bpp/Seq/Container/AlignedValuesContainer.h>
+#include <Bpp/Phyl/SitePatterns.h>
+
 #include "Bpp/Phyl/NewLikelihood/SubstitutionProcess.h"
 
 /* This file contains temporary helpers and wrappers.
@@ -123,7 +125,9 @@ namespace bpp {
       CWiseMul<Eigen::MatrixXd, ReductionOf<Eigen::MatrixXd>>;
 
     using ConditionalLikelihood = Value<Eigen::MatrixXd>;
-    
+
+    using SiteWeights = NumericConstant<Eigen::RowVectorXi>;
+
     using ConditionalLikelihoodTree = AssociationTreeGlobalGraphObserver<ConditionalLikelihood,uint>;
     
     class LikelihoodCalculation :
@@ -146,10 +150,31 @@ namespace bpp {
       
       const SubstitutionProcess& process_;
       const AlignedValuesContainer* psites_;
+      
+      /*****************************
+       ****** Patterns
+       *
+       * @brief Links between sites and patterns.
+       * 
+       * The size of this vector is equal to the number of sites in the container,
+       * each element corresponds to a site in the container and points to the
+       * corresponding column in the likelihood array of the root node.
+       * If the container contains no repeated site, there will be a strict
+       * equivalence between each site and the likelihood array of the root node.
+       * However, if this is not the case, some pointers may point toward the same
+       * element in the likelihood array.
+       */
+      
+      std::vector<size_t> rootPatternLinks_;
+      /**
+       * @brief The frequency of each site.
+       */
+
+      std::shared_ptr<SiteWeights> rootWeights_;
+      std::shared_ptr<AlignedValuesContainer> shrunkData_;
 
       /************************************/
       /* DataFlow objects */
-      
          
       std::shared_ptr<PhyloTree_BrRef> treeNode_;
 
@@ -165,7 +190,6 @@ namespace bpp {
 
       /******************************************/
       /** Likelihoods  **/
-      
           
       ValueRef<double> likelihood_;
 
@@ -191,15 +215,25 @@ namespace bpp {
     
       ValueRef<double> getLikelihood() 
       {
-        if (psites_ && !likelihood_)
+        if (shrunkData_ && !likelihood_)
           makeLikelihoodAtRoot_();
         
         return likelihood_;
       }
 
+      size_t getNumberOfSites() const
+      {
+        return psites_->getNumberOfSites();
+      }
+
+      size_t getNumberOfDistinctSites() const
+      {
+        return shrunkData_->getNumberOfSites();
+      }
+
       ValueRef<Eigen::RowVectorXd> getSiteLikelihoods()
       {
-        if (psites_ && !siteLikelihoods_)
+        if (shrunkData_ && !siteLikelihoods_)
           makeLikelihoodAtRoot_();
         
         return siteLikelihoods_;
@@ -207,12 +241,45 @@ namespace bpp {
 
       double getLikelihoodForASite(size_t pos)
       {
-        if (psites_ && !siteLikelihoods_)
+        if (shrunkData_ && !siteLikelihoods_)
             makeLikelihoodAtRoot_();
 
         return siteLikelihoods_->getTargetValue()[pos];
       }
+
+      /************************************************
+       *** Patterns
+       ****************************/
       
+      /*
+       * @brief the relations between real position and shrunked data
+       * positions.
+       *
+       */
+     
+      std::vector<size_t>& getRootArrayPositions() { return rootPatternLinks_; }
+      
+      size_t getRootArrayPosition(size_t currentPosition) const
+      {
+        return rootPatternLinks_[currentPosition];
+      }
+    
+      const std::vector<size_t>& getRootArrayPositions() const { return rootPatternLinks_; }
+
+      const AlignedValuesContainer* getShrunkData() const {
+        return shrunkData_.get();
+      }
+
+      unsigned int getWeight(size_t pos) const
+      {
+        return rootWeights_->getTargetValue()(pos);
+      }
+
+      // const std::vector<unsigned int>& getWeights() const
+      // { 
+      //   return rootWeights_;
+      // }
+
       // ValueRef<double> getLikelihoodAtNode(uint nodeId) 
       // {
       //   makeLikelihoodsAtNode_(nodeId);
@@ -221,6 +288,7 @@ namespace bpp {
       void setData(const AlignedValuesContainer& sites)
       {
         psites_=&sites;
+        setPatterns_();
       }
 
       void setNumericalDerivateConfiguration(double delta, const NumericalDerivativeType& config);
@@ -244,14 +312,16 @@ namespace bpp {
         return psites_;
       }
 
-      std::size_t getNumberOfSites() const 
-      {
-        if (psites_!=0)
-          return psites_->getNumberOfSites();
-        else
-          return 0;
-      }
-      
+      // std::size_t getNumberOfSites() const 
+      // {
+      //   return (psites_!=0)?psites_->getNumberOfSites():0;
+      // }
+
+      // std::size_t getNumberOfDistinctSites() const 
+      // {
+      //   return (shrunkData_!=0)?shrunkData_->getNumberOfSites():0;
+      // }
+
       const StateMap& getStateMap() const
       {
         return modelNode_->getTargetValue()->getStateMap();
@@ -276,6 +346,8 @@ namespace bpp {
 
       
     private:
+      void setPatterns_();
+      
       void makeForwardLikelihoodTree_();
 
       void makeProcessNodes_();

@@ -101,6 +101,7 @@ namespace bpp {
     template class Convert<double, double>;
     template class Convert<Eigen::VectorXd, Eigen::VectorXd>;
     template class Convert<Eigen::RowVectorXd, Eigen::RowVectorXd>;
+    template class Convert<Eigen::RowVectorXd, Eigen::RowVectorXi>;
     template class Convert<Eigen::MatrixXd, Eigen::MatrixXd>;
     template class Convert<Eigen::VectorXd, double>;
     template class Convert<Eigen::RowVectorXd, double>;

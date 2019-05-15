@@ -88,6 +88,8 @@ namespace bpp {
     template class CWiseMul<double, std::tuple<double, double>>;
     template class CWiseMul<Eigen::VectorXd, std::tuple<Eigen::VectorXd, Eigen::VectorXd>>;
     template class CWiseMul<Eigen::RowVectorXd, std::tuple<Eigen::RowVectorXd, Eigen::RowVectorXd>>;
+    template class CWiseMul<Eigen::RowVectorXd, std::tuple<Eigen::RowVectorXd, Eigen::RowVectorXi>>;
+    template class CWiseMul<Eigen::VectorXd, std::tuple<Eigen::VectorXd, Eigen::RowVectorXi>>;
     template class CWiseMul<Eigen::MatrixXd, std::tuple<Eigen::MatrixXd, Eigen::MatrixXd>>;
     template class CWiseMul<Eigen::VectorXd, std::tuple<double, Eigen::VectorXd>>;
     template class CWiseMul<Eigen::RowVectorXd, std::tuple<double, Eigen::RowVectorXd>>;

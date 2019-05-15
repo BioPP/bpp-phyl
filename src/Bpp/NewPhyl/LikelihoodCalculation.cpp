@@ -22,18 +22,22 @@ LikelihoodCalculation::LikelihoodCalculation(Context& context,
                                              const SubstitutionProcess& process):
   AbstractParametrizable(""),
   context_(context), process_(process), psites_(&sites),
+  rootPatternLinks_(), rootWeights_(), shrunkData_(),
   treeNode_(), modelNode_(), rootFreqsNode_(),  ratesNode_(), rFreqs_(),
   likelihood_(), siteLikelihoods_(), vRateCatTrees_()
 {
+  setPatterns_();
   makeProcessNodes_();
 }
 
 LikelihoodCalculation::LikelihoodCalculation(const LikelihoodCalculation& lik) :
   AbstractParametrizable(lik),
   context_(*std::shared_ptr<Context>().get()), process_(lik.process_), psites_(lik.psites_),
+  rootPatternLinks_(lik.rootPatternLinks_), rootWeights_(), shrunkData_(lik.shrunkData_),
   treeNode_(), modelNode_(), rootFreqsNode_(), ratesNode_(), rFreqs_(),
   likelihood_(), siteLikelihoods_(), vRateCatTrees_()
 {
+  setPatterns_();
   makeProcessNodes_();
 }
 
@@ -41,12 +45,25 @@ LikelihoodCalculation::LikelihoodCalculation(Context & context,
                                              const SubstitutionProcess& process):
   AbstractParametrizable(""),
   context_(context), process_(process), psites_(),
+  rootPatternLinks_(), rootWeights_(), shrunkData_(),
   treeNode_(), modelNode_(), rootFreqsNode_(), ratesNode_(), rFreqs_(),
   likelihood_(), siteLikelihoods_(), vRateCatTrees_()
 {
   makeProcessNodes_();
 }
 
+
+void LikelihoodCalculation::setPatterns_()
+{
+  SitePatterns patterns(psites_);
+  shrunkData_       = patterns.getSites();
+  rootPatternLinks_ = patterns.getIndices();
+  size_t nbSites    = shrunkData_->getNumberOfSites();
+  Eigen::RowVectorXi weights(nbSites);
+  for (std::size_t i=0;i<nbSites;i++)
+    weights(Eigen::Index(i))=patterns.getWeights()[i];
+  rootWeights_ = SiteWeights::create(context_, std::move(weights));
+}
 
 void LikelihoodCalculation::makeProcessNodes_()
 {
@@ -280,7 +297,7 @@ void LikelihoodCalculation::makeForwardLikelihoodTree_()
       vRateCatTrees_[nCat].phyloTree=treeCat;      
 
       auto flt=std::make_shared<ForwardLikelihoodTree>(context_, treeCat, getStateMap());
-      flt->initialize(*psites_);
+      flt->initialize(*getShrunkData());
       vRateCatTrees_[nCat].flt=flt;
     }
   }
@@ -290,7 +307,7 @@ void LikelihoodCalculation::makeForwardLikelihoodTree_()
     vRateCatTrees_[0].phyloTree=treeNode_;
     
     auto flt=std::make_shared<ForwardLikelihoodTree >(context_, treeNode_, modelNode_->getTargetValue()->getStateMap());
-    flt->initialize(*psites_);
+    flt->initialize(*getShrunkData());
     vRateCatTrees_[0].flt=flt;
   }
 }
@@ -301,7 +318,7 @@ void LikelihoodCalculation::makeLikelihoodAtRoot_()
   if (vRateCatTrees_.size()==0)
     makeForwardLikelihoodTree_();
 
-  std::size_t nbSite = psites_->getNumberOfSites();    
+  std::size_t nbSite = getShrunkData()->getNumberOfSites();    
   auto rootIndex = treeNode_->getRootIndex();
   
   // Set root frequencies
@@ -331,7 +348,7 @@ void LikelihoodCalculation::makeLikelihoodAtRoot_()
   }
 
   auto totalLogLikelihood =
-    SumOfLogarithms<Eigen::RowVectorXd>::create (context_, {siteLikelihoods_}, rowVectorDimension (Eigen::Index (nbSite)));
+    SumOfLogarithms<Eigen::RowVectorXd>::create (context_, {siteLikelihoods_, rootWeights_}, rowVectorDimension (Eigen::Index (nbSite)));
 
 // We want -log(likelihood)
   likelihood_ = CWiseNegate<double>::create (context_, {totalLogLikelihood}, Dimension<double> ());
@@ -347,7 +364,7 @@ void LikelihoodCalculation::makeLikelihoodsAtNode_(uint nodeId)
     makeRootFreqs_();
   
   const auto& stateMap = getStateMap();
-  size_t nbSite = getNumberOfSites();
+  size_t nbSite = getShrunkData()->getNumberOfSites();
   size_t nbState = stateMap.getNumberOfModelStates();
   MatrixDimension likelihoodMatrixDim = conditionalLikelihoodDimension (nbState, nbSite);
   
@@ -410,7 +427,6 @@ void LikelihoodCalculation::makeLikelihoodsAtNode_(uint nodeId)
     siteLikelihoodsNode = LikelihoodFromRootConditional::create (
       context_, {one, cond}, rowVectorDimension (Eigen::Index (nbSite)));
   }
-    
 //   auto totalLogLikelihood =
 //     SumOfLogarithms<Eigen::RowVectorXd>::create (context_, {siteLikelihoodsNode}, rowVectorDimension (Eigen::Index (nbSite)));
 

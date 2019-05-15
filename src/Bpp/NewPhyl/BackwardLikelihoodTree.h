@@ -126,9 +126,6 @@ namespace bpp
 
       void setRootFrequencies(const dataflow::ValueRef<Eigen::RowVectorXd> rootFreqs)
       {
-        //auto r2=convert<bpp::dataflow::Value<Eigen::MatrixXd>, bpp::dataflow::Value<Eigen::RowVectorXd> >(rootFreqs);
-        
-        
         auto r2=bpp::dataflow::CWiseFill<Eigen::MatrixXd, Eigen::RowVectorXd>::create(context_, {rootFreqs}, likelihoodMatrixDim_);
         
         associateNode(r2, tree_->getRootIndex());
