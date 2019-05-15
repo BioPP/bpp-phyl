@@ -71,7 +71,8 @@ namespace bpp {
       return m.array (); // Use Array API in Eigen
     }
 
-    inline Eigen::ArrayXd cwise (const Eigen::RowVectorXi & m) {
+    inline auto cwise (const Eigen::RowVectorXi & m)  -> decltype (m.template cast<double>().array ())
+    {
       return m.template cast<double>().array ();
     }
     
@@ -1173,9 +1174,11 @@ namespace bpp {
         auto m_inverse = CWiseInverse<F>::create (c, {m}, mTargetDimension_);
         if (dependencies().size()==2)
         {
-          m_inverse = CWiseMul<F,std::tuple<F,Eigen::RowVectorXi>>::create (c, {m_inverse, this->dependency (1)}, mTargetDimension_);
+          auto m2 = CWiseMul<F,std::tuple<F,Eigen::RowVectorXi>>::create (c, {m_inverse, this->dependency (1)}, mTargetDimension_);
+          return ScalarProduct<F, F>::create (c, {std::move (dm_dn), std::move (m2)});
         } 
-        return ScalarProduct<F, F>::create (c, {std::move (dm_dn), std::move (m_inverse)});
+        else
+          return ScalarProduct<F, F>::create (c, {std::move (dm_dn), std::move (m_inverse)});
       }
 
       NodeRef recreate (Context & c, NodeRefVec && deps) final {
