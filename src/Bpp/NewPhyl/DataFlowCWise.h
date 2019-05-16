@@ -1150,11 +1150,11 @@ namespace bpp {
       }
 
       SumOfLogarithms (NodeRefVec && deps, const Dimension<F> & mDim)
-        : Value<double> (std::move (deps)), mTargetDimension_ (mDim), temp_() {
+        : Value<double> (std::move (deps)), mTargetDimension_ (mDim) {//, temp_() {
         if (dependencies().size()==2)
         {
           const auto & p = accessValueConstCast<Eigen::VectorXi> (*this->dependency (1));
-          temp_.resize(p.size());
+//          temp_.resize(p.size());
         }
       }
 
@@ -1205,29 +1205,30 @@ namespace bpp {
         else
         {
           const auto & p = accessValueConstCast<Eigen::RowVectorXi> (*this->dependency (1));
-          
-          temp_ = m.unaryExpr ([](double d) {
-              ExtendedFloat ef{d};
-              ef.normalize_small ();
-              return ef;
-            });
+          result = (numeric::cwise(m).log() * numeric::cwise(p)).sum();
 
-          for (size_t i=0;i<(size_t)p.size();i++)
-            temp_[i]=pow(temp_[i],p[i]);
+          // computes 0 on large data sets: to fix
+          // temp_ = m.unaryExpr ([](double d) {
+          //     ExtendedFloat ef{d};
+          //     ef.normalize_small ();
+          //     return ef;
+          //   });
           
-          const ExtendedFloat product = temp_.redux ([](const ExtendedFloat & lhs, const ExtendedFloat & rhs) {
-              auto r = denorm_mul (lhs, rhs);
-              r.normalize_small ();
-              return r;
-            });
-          result = log (product);
+          // for (size_t i=0;i<(size_t)p.size();i++)
+          //   temp_[i]=pow(temp_[i],p[i]);
+          
+          // const ExtendedFloat product = temp_.redux ([](const ExtendedFloat & lhs, const ExtendedFloat & rhs) {
+          //     auto r = denorm_mul (lhs, rhs);
+          //     r.normalize_small ();
+          //     return r;
+          //   });
+          // result = log (product);
         }
-          
       }
 
       Dimension<F> mTargetDimension_;
 
-      Eigen::Matrix<ExtendedFloat, 1, Eigen::Dynamic> temp_;
+//      Eigen::Matrix<ExtendedFloat, 1, Eigen::Dynamic> temp_;
     };
 
 

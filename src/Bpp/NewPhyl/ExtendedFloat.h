@@ -45,6 +45,7 @@
 #include <cmath>
 #include <limits>
 #include <string>
+#include <iostream>
 
 namespace bpp {
 
@@ -52,14 +53,15 @@ namespace bpp {
     return n == 0 ? 1.0 : (n > 0 ? constexpr_power (d, n - 1) * d : constexpr_power (d, n + 1) / d);
   }
 
+  
   class ExtendedFloat {
     // Assumes positive integer
   public:
     using FloatType = double;
     using ExtType = int;
 
-    // Parameter: decide how much product we can do safely before having to normalize.
-    static constexpr int allowed_product_without_normalization = 4;
+    // Parameter: decide how much product we can do safely before having to normalize (smaller -> less normalizations)
+    static constexpr int allowed_product_without_normalization = 50;
 
     // Radix is the float exponent base
     static constexpr int radix = std::numeric_limits<FloatType>::radix;
@@ -123,8 +125,17 @@ namespace bpp {
     ExtType exp_;
   };
 
+  inline std::string to_string (const ExtendedFloat & ef) {
+    using std::to_string;
+    return "double(" + to_string (ef.float_part ()) + " * 2^" + to_string (ef.exponent_part ()) + ")";
+  }
+
   inline ExtendedFloat denorm_mul (const ExtendedFloat & lhs, const ExtendedFloat & rhs) {
     return {lhs.float_part () * rhs.float_part (), lhs.exponent_part () + rhs.exponent_part ()};
+  }
+
+  inline ExtendedFloat denorm_div (const ExtendedFloat & lhs, const ExtendedFloat & rhs) {
+    return {lhs.float_part () / rhs.float_part (), lhs.exponent_part () - rhs.exponent_part ()};
   }
 
   inline ExtendedFloat denorm_add (const ExtendedFloat & lhs, const ExtendedFloat & rhs) {
@@ -141,12 +152,28 @@ namespace bpp {
   }
 
   inline ExtendedFloat denorm_pow (const ExtendedFloat & lhs, int exp) {
-    ExtendedFloat r(std::pow(lhs.float_part(),exp), lhs.exponent_part()*exp);
-    return r;
+    if (exp==0)
+      return ExtendedFloat(1.0);
+    if (exp & 1)
+      return (exp>0? denorm_mul(lhs,denorm_pow(lhs, exp-1)): denorm_div(denorm_pow(lhs, exp+1),lhs));
+    else
+    {
+      ExtendedFloat r2(pow(lhs.float_part(),2));
+      auto r2k=denorm_pow(r2,exp>>1);
+      r2k.normalize_small();
+      ExtendedFloat r(r2k.float_part(), r2k.exponent_part() + lhs.exponent_part()*exp);
+      return r;
+    }
   }
 
   inline ExtendedFloat operator* (const ExtendedFloat & lhs, const ExtendedFloat & rhs) {
     auto r = denorm_mul (lhs, rhs);
+    r.normalize ();
+    return r;
+  }
+
+  inline ExtendedFloat operator/ (const ExtendedFloat & lhs, const ExtendedFloat & rhs) {
+    auto r = denorm_div (lhs, rhs);
     r.normalize ();
     return r;
   }
@@ -185,11 +212,6 @@ namespace bpp {
   //!!! no check on the validation of the conversion
   inline double convert(const ExtendedFloat & ef) {
     return ef.float_part () * constexpr_power<double>(ExtendedFloat::radix, ef.exponent_part ());
-  }
-
-  inline std::string to_string (const ExtendedFloat & ef) {
-    using std::to_string;
-    return "double(" + to_string (ef.float_part ()) + " * 2^" + to_string (ef.exponent_part ()) + ")";
   }
 
 // TODO add Vector<EF> = Vector<double> + one exp (for lik vectors for one site, big tree case)
