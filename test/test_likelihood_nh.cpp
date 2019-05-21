@@ -54,7 +54,7 @@ knowledge of the CeCILL license and that you accept its terms.
 #include <Bpp/Phyl/NewLikelihood/NonHomogeneousSubstitutionProcess.h>
 #include <Bpp/Phyl/NewLikelihood/RateAcrossSitesSubstitutionProcess.h>
 
-#include <Bpp/NewPhyl/LikelihoodCalculation.h>
+#include <Bpp/NewPhyl/LikelihoodCalculationSingleProcess.h>
 
 #include <iostream>
 
@@ -136,7 +136,7 @@ int main() {
     SubstitutionProcess* nsubPro=subPro->clone();
 
     dataflow::Context context;
-    auto lik = std::make_shared<dataflow::LikelihoodCalculation>(context, *sites->clone(), *nsubPro);
+    auto lik = std::make_shared<dataflow::LikelihoodCalculationSingleProcess>(context, *sites->clone(), *nsubPro);
     dataflow::PhyloLikelihood_DF ntl(context, lik, lik->getParameters());
 
     cout << setprecision(10) << "OldTL init: "  << tl.getValue()  << endl;

@@ -272,8 +272,8 @@ TEST_CASE("df")
 
   auto model = new bpp::T92(&c.alphabet, 3., 0.7);
   auto rootFreqs = new bpp::GCFrequenciesSet(&c.alphabet, 0.1);
-  auto distribution = new bpp::ConstantRateDistribution();
-//  auto distribution = new bpp::GammaDiscreteRateDistribution(3, 1);
+//  auto distribution = new bpp::ConstantRateDistribution();
+  auto distribution = new bpp::GammaDiscreteRateDistribution(3, 1);
   // Read tree structure
   bpp::Newick reader;
   auto phyloTree = std::unique_ptr<bpp::PhyloTree>(reader.parenthesisToPhyloTree(c.treeStr, false, "", false, false));
@@ -286,7 +286,7 @@ TEST_CASE("df")
     std::unique_ptr<bpp::NonHomogeneousSubstitutionProcess>(bpp::NonHomogeneousSubstitutionProcess::createHomogeneousSubstitutionProcess(model, distribution, rootFreqs, paramPhyloTree));
 
    // Build likelihood value node
-  auto l = std::make_shared<bpp::dataflow::LikelihoodCalculation>(context, c.sites, *process);
+  auto l = std::make_shared<bpp::dataflow::LikelihoodCalculationSingleProcess>(context, c.sites, *process);
 
   l->setNumericalDerivateConfiguration(0.001, bpp::dataflow::NumericalDerivativeType::ThreePoints);
 //  l->setClockLike();

@@ -158,11 +158,11 @@ int main() {
 
   bpp::dataflow::Context context;
 
-  auto lik1 = std::make_shared<bpp::dataflow::LikelihoodCalculation>(context, sites, *sP1c);
+  auto lik1 = std::make_shared<bpp::dataflow::LikelihoodCalculationSingleProcess>(context, sites, *sP1c);
 
   pc.addPhyloLikelihood(1, new bpp::dataflow::AlignedPhyloLikelihood_DF(context, lik1));
     
-  auto lik2 = std::make_shared<bpp::dataflow::LikelihoodCalculation>(context, sites, *sP2c);
+  auto lik2 = std::make_shared<bpp::dataflow::LikelihoodCalculationSingleProcess>(context, sites, *sP2c);
 
   pc.addPhyloLikelihood(2, new bpp::dataflow::AlignedPhyloLikelihood_DF(context, lik2));
   

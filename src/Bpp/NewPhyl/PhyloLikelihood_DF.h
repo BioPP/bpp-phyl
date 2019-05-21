@@ -48,7 +48,7 @@
 
 #include "DataFlowNumeric.h"
 #include "Parameter.h"
-#include "LikelihoodCalculation.h"
+#include "LikelihoodCalculationSingleProcess.h"
 
 #include <unordered_map>
 
@@ -83,7 +83,7 @@ namespace bpp {
       Context & context_;
 
       // Store nodes
-      mutable std::shared_ptr<LikelihoodCalculation> likCal_;
+      mutable std::shared_ptr<LikelihoodCalculationSingleProcess> likCal_;
       
       ParameterList variableNodes_;
 
@@ -99,7 +99,7 @@ namespace bpp {
       secondOrderDerivativeVectors_;
 
     public:
-      PhyloLikelihood_DF (Context & context, std::shared_ptr<LikelihoodCalculation> likCal,
+      PhyloLikelihood_DF (Context & context, std::shared_ptr<LikelihoodCalculationSingleProcess> likCal,
                         const ParameterList & variableNodes)
         : context_ (context), likCal_(likCal), variableNodes_ () {
         variableNodes_.shareParameters(variableNodes);
@@ -109,7 +109,7 @@ namespace bpp {
        * @brief: the parameters are those of the LikelihoodCalculation
        */
       
-      PhyloLikelihood_DF (Context & context, std::shared_ptr<LikelihoodCalculation> likCal)
+      PhyloLikelihood_DF (Context & context, std::shared_ptr<LikelihoodCalculationSingleProcess> likCal)
         : context_ (context), likCal_(likCal), variableNodes_ () {
         variableNodes_.shareParameters(likCal->getParameters());
       }
@@ -320,7 +320,7 @@ namespace bpp {
         return likCal_->getLikelihood()->getTargetValue ();
       }
 
-      std::shared_ptr<LikelihoodCalculation> getLikelihoodCalculation() const
+      std::shared_ptr<LikelihoodCalculationSingleProcess> getLikelihoodCalculation() const
       {
         return likCal_;
       }

@@ -95,6 +95,7 @@
 #include "../NewLikelihood/ParametrizablePhyloTree.h"
 
 #include <Bpp/NewPhyl/PhyloLikelihood_DF.h>
+#include <Bpp/NewPhyl/LikelihoodCalculationCollection.h>
 
 // From bpp-core
 #include <Bpp/Io/BppODiscreteDistributionFormat.h>
@@ -191,7 +192,7 @@ vector<Tree*> PhylogeneticsApplicationTools::getTrees(
 
 /******************************************************************************/
 
-    
+ 
 map<size_t, Tree*> PhylogeneticsApplicationTools::getTrees(
   const map<string, string>& params,
   const map<size_t, AlignedValuesContainer*>& mSeq,
@@ -2023,10 +2024,29 @@ PhyloLikelihoodContainer* PhylogeneticsApplicationTools::getPhyloLikelihoodConta
   bool verbose,
   int warn)
 {
+  // get all parameters and link then to ConfiguredParameters
+  // add Independent Parameters
+  ParameterList paramList;
+  
+  const auto& indParamColl=SPC.getIndependentParameters();
+  for (size_t i=0;i<indParamColl.size();i++)
+    paramList.shareParameter(dataflow::ConfiguredParameter::create(context, indParamColl[i]));
+
+  // Share dependencies with aliased parameters
+
+  for (size_t i=0;i<indParamColl.size();i++)
+  {
+    auto vs=SPC.getAlias(indParamColl[i].getName());
+    auto dep=dynamic_cast<const dataflow::ConfiguredParameter*>(&paramList[i])->dependency(0);
+    for (const auto& s:vs)
+    {
+      auto newacp = dataflow::ConfiguredParameter::create(context, {dep}, SPC.getParameter(s));
+      paramList.shareParameter(newacp);
+    }
+  }
+  
   map<string, string> paramPhyl;
-
   paramPhyl.insert(params.begin(), params.end());
-
   vector<string> phylosName = ApplicationTools::matchingParameters("phylo*", paramPhyl);
 
   // map of dependencies between phylolikelihoods
@@ -2055,7 +2075,6 @@ PhyloLikelihoodContainer* PhylogeneticsApplicationTools::getPhyloLikelihoodConta
     while (args.find("phylo" + TextTools::toString(indPhyl)) != args.end())
     {
       size_t numPhyl = (size_t) ApplicationTools::getIntParameter("phylo" + TextTools::toString(indPhyl), args, 1, "", true, warn);
-
       vphyl.push_back(numPhyl);
       indPhyl++;
     }
@@ -2066,7 +2085,6 @@ PhyloLikelihoodContainer* PhylogeneticsApplicationTools::getPhyloLikelihoodConta
   PhyloLikelihoodContainer* mPhylo = new PhyloLikelihoodContainer();
 
   vector<size_t> usedPhylo;
-
 
   // //////////////////////////////////////////
   // First the phylos that do not depend on other phylos
@@ -2104,13 +2122,8 @@ PhyloLikelihoodContainer* PhylogeneticsApplicationTools::getPhyloLikelihoodConta
 
     // Data
 
-    size_t nData;
-
-    if (args.find("data") == args.end())
-      nData = 1;
-    else
-      nData = (size_t) TextTools::toInt(args["data"]);
-
+    size_t nData = (args.find("data") == args.end()? 1: (size_t)TextTools::toInt(args["data"]));
+    
     if (mData.find(nData) == mData.end())
       throw BadIntegerException("PhylogeneticsApplicationTools::getPhyloLikelihoodContainer. Data number is wrong:", (int)nData);
 
@@ -2119,46 +2132,19 @@ PhyloLikelihoodContainer* PhylogeneticsApplicationTools::getPhyloLikelihoodConta
     if (!data)
       throw Exception("PhylogeneticsApplicationTools::getPhyloLikelihoodContainer. Data " + TextTools::toString(nData) + " does not match with aligned sequences");
 
-
     if (verbhere)
       ApplicationTools::displayResult(" Data used ", TextTools::toString(nData));
 
     // Sequence Evolution or process
 
-    size_t nProcess = 0;
-
-    if (args.find("process") == args.end())
-    {
-      ApplicationTools::displayWarning("Warning, missing 'process' argument. Set to 1");
-      nProcess = 1;
-    }
-    else
-      nProcess = (size_t) TextTools::toInt(args["process"]);
-
-
-    // Says if log should be used or not
-
-    bool useLog = false;
-
-    if (args.find("useLog") != args.end() && args["useLog"] == "yes")
-      useLog = true;
-
-    if (verbhere)
-      ApplicationTools::displayResult(" Use log in computation ", (useLog ? "yes" : "no"));
-
-
-    // Check this process has not been used before
-
+    size_t nProcess = (args.find("process") == args.end()? 1: (size_t) TextTools::toInt(args["process"]));
     if (verbhere)
       ApplicationTools::displayResult(" Process ", TextTools::toString(nProcess));
 
+
     // Compression
 
-    char compression = 'S';
-
-    if (args.find("compression") != args.end() && args["compression"] == "recursive")
-      compression = 'R';
-
+    char compression = (args.find("compression") != args.end() && args["compression"] == "recursive")?'R':'S';
     if (verbhere)
       ApplicationTools::displayResult(" Compression ", (compression == 'R') ? "recursive" : "simple");
 
@@ -2166,9 +2152,8 @@ PhyloLikelihoodContainer* PhylogeneticsApplicationTools::getPhyloLikelihoodConta
 
     if (SPC.hasSubstitutionProcessNumber(nProcess))
     {
-      auto l = std::make_shared<bpp::dataflow::LikelihoodCalculation>(context, *data, SPC.getSubstitutionProcess(nProcess));
+      auto l = std::make_shared<dataflow::LikelihoodCalculationSingleProcess>(context, *data, SPC.getSubstitutionProcess(nProcess), paramList);
       l->setNumericalDerivateConfiguration(0.001, bpp::dataflow::NumericalDerivativeType::ThreePoints);
-
       nPL = new bpp::dataflow::PhyloLikelihood_DF(context, l);
     }
     else if (mSeqEvol.find(nProcess) != mSeqEvol.end())
@@ -2217,9 +2202,7 @@ PhyloLikelihoodContainer* PhylogeneticsApplicationTools::getPhyloLikelihoodConta
     else
       throw Exception("PhylogeneticsApplicationTools::getPhyloLikelihoodContainer : Unknown Process number.");
 
-    nPL->setUseLog(useLog);
     mPhylo->addPhyloLikelihood(phylonum, nPL);
-
     usedPhylo.push_back(phylonum);
   }
 
@@ -2974,7 +2957,7 @@ bpp::TreeLikelihood* PhylogeneticsApplicationTools::optimizeParameters(
       pc = st2.nextToken();
       string::size_type index = pc.find("=");
       if (index == string::npos)
-        throw Exception("PhylogeneticsApplicationTools::optimizeParamaters. Bad constrain syntax, should contain `=' symbol: " + pc);
+        throw Exception("PhylogeneticsApplicationTools::optimizeParameters. Bad constrain syntax, should contain `=' symbol: " + pc);
       param = pc.substr(0, index);
       constraint = pc.substr(index + 1);
       std::shared_ptr<IntervalConstraint> ic(new IntervalConstraint(constraint));
@@ -3588,20 +3571,6 @@ PhyloLikelihood* PhylogeneticsApplicationTools::optimizeParameters(
   else if (optName == "FullD")
   {
     // Uses Newton-raphson algorithm with numerical derivatives when required.
-
-    // if (optimizeTopo)
-    //   {
-    //     bool optNumFirst = ApplicationTools::getBooleanParameter("optimization.topology.numfirst", params, true, suffix, suffixIsOptional, warn + 1);
-    //     unsigned int topoNbStep = ApplicationTools::getParameter<unsigned int>("optimization.topology.nstep", params, 1, "", true, warn + 1);
-    //     double tolBefore = ApplicationTools::getDoubleParameter("optimization.topology.tolerance.before", params, 100, suffix, suffixIsOptional);
-    //     double tolDuring = ApplicationTools::getDoubleParameter("optimization.topology.tolerance.during", params, 100, suffix, suffixIsOptional);
-    //     tl = OptimizationTools::optimizeTreeNNI2(
-    //                                              dynamic_cast<NNIHomogeneousTreeLikelihood*>(tl), parametersToEstimate,
-    //                                              optNumFirst, tolBefore, tolDuring, nbEvalMax, topoNbStep, messageHandler, profiler,
-    //                                              reparam, optVerbose, optMethodDeriv, nniAlgo);
-    //   }
-
-
     parametersToEstimate.matchParametersValues(lik->getParameters());
     if (dynamic_cast<dataflow::PhyloLikelihood_DF*>(lik))
       n = OptimizationTools::optimizeNumericalParameters2(

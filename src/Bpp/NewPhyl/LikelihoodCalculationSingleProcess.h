@@ -1,5 +1,5 @@
 //
-// File: LikelihoodCalculation.h
+// File: LikelihoodCalculationSingleProcess.h
 // Authors: François Gindraud, Laurent Guéguen (2018)
 // Created: jeudi 28 février 2019, à 07h 22
 //
@@ -37,8 +37,8 @@
   knowledge of the CeCILL license and that you accept its terms.
 */
 
-#ifndef LIKELIHOOD_CALCULATION_H
-#define LIKELIHOOD_CALCULATION_H
+#ifndef LIKELIHOOD_CALCULATION_SINGLE_PROCESS_H
+#define LIKELIHOOD_CALCULATION_SINGLE_PROCESS_H
 
 #include "Bpp/NewPhyl/Model.h"
 #include "Bpp/NewPhyl/DiscreteDistribution.h"
@@ -130,7 +130,7 @@ namespace bpp {
 
     using ConditionalLikelihoodTree = AssociationTreeGlobalGraphObserver<ConditionalLikelihood,uint>;
     
-    class LikelihoodCalculation :
+    class LikelihoodCalculationSingleProcess :
       public AbstractParametrizable
     {
     private:
@@ -142,7 +142,15 @@ namespace bpp {
         std::shared_ptr<BackwardLikelihoodTree> blt;
         std::shared_ptr<ConditionalLikelihoodTree> lt;
       };
-      
+
+      class ProcessNodes {
+      public:
+        std::shared_ptr<PhyloTree_BrRef> treeNode_;
+        std::shared_ptr<ConfiguredModel> modelNode_;
+        std::shared_ptr<ConfiguredFrequenciesSet> rootFreqsNode_;
+        std::shared_ptr<ConfiguredDistribution> ratesNode_;
+      };
+        
       Context& context_;
 
       /************************************/
@@ -175,16 +183,8 @@ namespace bpp {
 
       /************************************/
       /* DataFlow objects */
-         
-      std::shared_ptr<PhyloTree_BrRef> treeNode_;
 
-      /* link towards a model (any) to get stateMap & nb of states */
-      
-      std::shared_ptr<ConfiguredModel> modelNode_;
-      
-      std::shared_ptr<ConfiguredFrequenciesSet> rootFreqsNode_;
-      
-      std::shared_ptr<ConfiguredDistribution> ratesNode_;
+      ProcessNodes processNodes_;
 
       ValueRef<Eigen::RowVectorXd> rFreqs_;
 
@@ -199,18 +199,23 @@ namespace bpp {
       std::vector<RateCategoryTrees> vRateCatTrees_;
 
     public:
-      LikelihoodCalculation(Context & context,
-                            const AlignedValuesContainer & sites,
-                            const SubstitutionProcess& process);
+      LikelihoodCalculationSingleProcess(Context & context,
+                                         const AlignedValuesContainer & sites,
+                                         const SubstitutionProcess& process);
 
-      LikelihoodCalculation(Context & context,
-                            const SubstitutionProcess& process);
+      LikelihoodCalculationSingleProcess(Context & context,
+                                         const SubstitutionProcess& process);
 
-      LikelihoodCalculation(const LikelihoodCalculation& lik);
+      LikelihoodCalculationSingleProcess(Context & context,
+                                         const AlignedValuesContainer & sites,
+                                         const SubstitutionProcess& process,
+                                         ParameterList& paramList);
 
-      LikelihoodCalculation* clone() const
+      LikelihoodCalculationSingleProcess(const LikelihoodCalculationSingleProcess& lik);
+
+      LikelihoodCalculationSingleProcess* clone() const
       {
-        return new LikelihoodCalculation(*this);
+        return new LikelihoodCalculationSingleProcess(*this);
       }
     
       ValueRef<double> getLikelihood() 
@@ -242,7 +247,7 @@ namespace bpp {
       double getLikelihoodForASite(size_t pos)
       {
         if (shrunkData_ && !siteLikelihoods_)
-            makeLikelihoodAtRoot_();
+          makeLikelihoodAtRoot_();
 
         return siteLikelihoods_->getTargetValue()[pos];
       }
@@ -287,6 +292,8 @@ namespace bpp {
       
       void setData(const AlignedValuesContainer& sites)
       {
+        if (psites_)
+          throw Exception("LikelihoodCalculationSingleProcess::// setData : data already assigned.");
         psites_=&sites;
         setPatterns_();
       }
@@ -324,12 +331,12 @@ namespace bpp {
 
       const StateMap& getStateMap() const
       {
-        return modelNode_->getTargetValue()->getStateMap();
+        return processNodes_.modelNode_->getTargetValue()->getStateMap();
       }
       
       std::shared_ptr<PhyloTree_BrRef> getTreeNode()
       {
-        return treeNode_;
+        return processNodes_.treeNode_;
       }
 
       ValueRef<Eigen::RowVectorXd> getRootFreqs()
@@ -340,10 +347,15 @@ namespace bpp {
       std::shared_ptr<ForwardLikelihoodTree> getForwardTree(size_t nCat)
       {
         if (nCat>=vRateCatTrees_.size())
-          throw Exception("LikelihoodCalculation::getForwardTree : Bad ForwardTree number " + TextTools::toString(nCat));
+          throw Exception("LikelihoodCalculationSingleProcess::getForwardTree : Bad ForwardTree number " + TextTools::toString(nCat));
         return vRateCatTrees_[nCat].flt;
       }
 
+      /*
+       *@ brief make DF nodes of the process, using
+       *ConfiguredParameters defined in a ParameterList.
+       */
+      void makeProcessNodes(ParameterList& pl);
       
     private:
       void setPatterns_();
@@ -351,18 +363,22 @@ namespace bpp {
       void makeForwardLikelihoodTree_();
 
       void makeProcessNodes_();
-
+      
       void makeRootFreqs_();
 
       void makeLikelihoodAtRoot_();
 
       void makeLikelihoodsAtNode_(uint nodeId);
 
+
+      /********************************/
+      
+      friend class LikelihoodCalculationCollection;
     };
 
   }
   
 } // namespace bpp
 
-#endif // LIKELIHOOD_CALCULATION
+#endif // LIKELIHOOD_CALCULATION_SINGLE_PROCESS_H
 

@@ -55,7 +55,7 @@ knowledge of the CeCILL license and that you accept its terms.
 #include <Bpp/Phyl/NewLikelihood/SimpleSubstitutionProcess.h>
 #include <Bpp/Phyl/NewLikelihood/RateAcrossSitesSubstitutionProcess.h>
 
-#include <Bpp/NewPhyl/LikelihoodCalculation.h>
+#include <Bpp/NewPhyl/LikelihoodCalculationSingleProcess.h>
 
 #include <iostream>
 
@@ -125,7 +125,7 @@ void fitModelHSR(SubstitutionModel* model, DiscreteDistribution* rdist,
   unique_ptr<RateAcrossSitesSubstitutionProcess> process(new RateAcrossSitesSubstitutionProcess(model->clone(), rdist->clone(), new_tree.clone()));
 
   dataflow::Context context;                        
-  auto lik = std::make_shared<dataflow::LikelihoodCalculation>(context, sites, *process);
+  auto lik = std::make_shared<dataflow::LikelihoodCalculationSingleProcess>(context, sites, *process);
   auto newTl = std::make_shared<dataflow::PhyloLikelihood_DF>(context, lik, lik->getParameters());
 
   
@@ -183,7 +183,7 @@ void fitModelHSR(SubstitutionModel* model, DiscreteDistribution* rdist,
 
 
   process.reset(new RateAcrossSitesSubstitutionProcess(model->clone(), rdist->clone(), new_tree.clone()));  
-  lik.reset(new dataflow::LikelihoodCalculation(context, sites, *process));
+  lik.reset(new dataflow::LikelihoodCalculationSingleProcess(context, sites, *process));
   newTl.reset(new dataflow::PhyloLikelihood_DF(context, lik, lik->getParameters()));
 
   ParameterList opln1=process->getBranchLengthParameters(true);

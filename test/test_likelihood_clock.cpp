@@ -48,7 +48,7 @@ knowledge of the CeCILL license and that you accept its terms.
 #include <Bpp/Phyl/OptimizationTools.h>
 #include <iostream>
 
-#include <Bpp/NewPhyl/LikelihoodCalculation.h>
+#include <Bpp/NewPhyl/LikelihoodCalculationSingleProcess.h>
 
 using namespace bpp;
 using namespace std;
@@ -61,7 +61,7 @@ void fitModelH(SubstitutionModel* model, DiscreteDistribution* rdist,
 
   dataflow::Context context;
   
-  auto lik = std::make_shared<dataflow::LikelihoodCalculation>(context, sites, process);
+  auto lik = std::make_shared<dataflow::LikelihoodCalculationSingleProcess>(context, sites, process);
   
   dataflow::PhyloLikelihood_DF llh(context, lik, lik->getParameters());
 
@@ -94,7 +94,7 @@ void fitModelHClock(SubstitutionModel* model, DiscreteDistribution* rdist,
 
   dataflow::Context context;
   
-  auto lik = std::make_shared<dataflow::LikelihoodCalculation>(context, sites, process);
+  auto lik = std::make_shared<dataflow::LikelihoodCalculationSingleProcess>(context, sites, process);
   lik->setClockLike();
   
   dataflow::PhyloLikelihood_DF llh(context, lik, lik->getParameters());

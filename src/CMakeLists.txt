@@ -12,7 +12,7 @@ set (CPP_FILES
   Bpp/NewPhyl/DataFlowCWise.cpp
   Bpp/NewPhyl/DiscreteDistribution.cpp
   Bpp/NewPhyl/FrequenciesSet.cpp
-  Bpp/NewPhyl/LikelihoodCalculation.cpp
+  Bpp/NewPhyl/LikelihoodCalculationSingleProcess.cpp
   Bpp/NewPhyl/Model.cpp
   Bpp/NewPhyl/Parameter.cpp
   Bpp/NewPhyl/Parametrizable.cpp

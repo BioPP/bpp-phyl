@@ -62,12 +62,11 @@ namespace bpp
      *  The map is indexed by branch ids.
      */
 
-//    using NumericMutableMap = std::map<uint, std::shared_ptr<NumericMutable<double>>>;
     using BrLenMap = std::map<uint, std::shared_ptr<ConfiguredParameter>>;
 
     using ModelMap = std::map<uint, std::shared_ptr<ConfiguredModel>>;
 
-    BrLenMap createBrLenMap(Context & c, const ParametrizablePhyloTree& tree)
+    inline BrLenMap createBrLenMap(Context & c, const ParametrizablePhyloTree& tree)
     {
       std::vector<std::shared_ptr<PhyloBranchParam> > vB=tree.getAllEdges();
 
@@ -120,17 +119,9 @@ namespace bpp
       
     class PhyloTree_BrRef : public AssociationTreeGlobalGraphObserver<PhyloNode,BrRef>
     {
+      using Self = PhyloTree_BrRef;
+      
     public:
-      // Map to link branch Ids and ValueRef at attribution of NodeRef to branches
-      
-      // The Values are shared as they are in branches
-      // PhyloTree_BrRef(const PhyloTree& tree, const ValueRefMap& vrefmap);
-      
-      // PhyloTree_BrRef(const PhyloTree_BrRef& pTree);
-      
-      // PhyloTree_BrRef& operator=(const PhyloTree_BrRef& pTree);
-    
-      // PhyloTree_BrRef* clone() const { return new PhyloTree_BrRef(*this); }
       
       PhyloTree_BrRef(const ParametrizablePhyloTree& tree, BrLenMap&& vrefmap) :
         AssociationTreeGlobalGraphObserver<PhyloNode,BrRef>(tree.getGraph())
@@ -257,7 +248,7 @@ namespace bpp
       
     };
 
-    BrLenMap createBrLenMap(Context & c, const PhyloTree_BrRef& tree)
+    inline BrLenMap createBrLenMap(Context & c, const PhyloTree_BrRef& tree)
     {
       // Ids of the branches
       
@@ -277,7 +268,7 @@ namespace bpp
     }
 
     
-    BrLenMap multiplyBrLenMap(Context & c, const PhyloTree_BrRef& tree, ValueRef<double>&& rate)
+    inline BrLenMap multiplyBrLenMap(Context & c, const PhyloTree_BrRef& tree, ValueRef<double>&& rate)
     {
       // Ids of the branches
 
@@ -298,9 +289,41 @@ namespace bpp
       }
 
       return map;
+    }
+    
+    /** Create a new Tree Node. Tree Node parameters are get from
+     * ConfiguredParameters PREVIOUSLY built and stored in a
+     * ParameterList*/
+    
+    inline std::shared_ptr<PhyloTree_BrRef> makeTreeNode(Context& context, const ParametrizablePhyloTree& parTree, ParameterList& parList, const std::string& suff = "")
+    {
+      std::vector<std::shared_ptr<PhyloBranchParam> > vB=parTree.getAllEdges();
+      BrLenMap mapBr;
       
+      for (auto& branch:vB)
+      {
+        const auto& bp=branch->getParameters()[0];
+        
+        std::string name=bp.getName()+suff;
+        if (!parList.hasParameter(name) && suff=="")
+        {
+          if (!parList.hasParameter(bp.getName()+"_1"))
+            throw Exception("makeTreeNode: unknown ConfiguredParameter " + name);
+          else name=bp.getName()+"_1";
+        }
+
+        auto confPar=dynamic_cast<ConfiguredParameter*>(parList.getSharedParameter(name).get());
+        if (!confPar)
+          throw Exception("makeTreeNode: unknown ConfiguredParameter " + name);
+        
+        mapBr.emplace(parTree.getEdgeIndex(branch),
+                      ConfiguredParameter::create(context, {confPar->dependency(0)}, bp));
+      }
+      
+      return std::shared_ptr<PhyloTree_BrRef>(new PhyloTree_BrRef(parTree, mapBr));
     }
 
+    
   } //end of namespace dataflow
 
 } //end of namespace bpp

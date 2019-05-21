@@ -58,16 +58,16 @@ namespace bpp {
     {
     public:
       AlignedPhyloLikelihood_DF (dataflow::Context & context,
-                                 std::shared_ptr<LikelihoodCalculation> likCal,
+                                 std::shared_ptr<LikelihoodCalculationSingleProcess> likCal,
                                  const ParameterList & variableNodes)
         : PhyloLikelihood_DF(context, likCal, variableNodes)
       {}
 
       /*
-       * @brief: the parameters are those of the LikelihoodCalculation
+       * @brief: the parameters are those of the LikelihoodCalculationSingleProcess
        */
       
-      AlignedPhyloLikelihood_DF (dataflow::Context & context, std::shared_ptr<LikelihoodCalculation> likCal)
+      AlignedPhyloLikelihood_DF (dataflow::Context & context, std::shared_ptr<LikelihoodCalculationSingleProcess> likCal)
         : PhyloLikelihood_DF(context, likCal)
       {}
 

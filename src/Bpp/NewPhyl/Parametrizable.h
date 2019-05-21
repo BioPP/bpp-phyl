@@ -50,6 +50,8 @@
 #include <unordered_map>
 #include <iostream>
 
+#include <Bpp/Numeric/ParameterList.h>
+
 namespace bpp {
 
   class Parametrizable;
@@ -59,8 +61,8 @@ namespace bpp {
 
     /** Helper: create a map with mutable dataflow nodes for each
         parameter of the parametrizable.
-     * The map is indexed by parameter names.
-     */
+        * The map is indexed by parameter names.
+        */
     
     std::unordered_map<std::string, std::shared_ptr<ConfiguredParameter>>
       createParameterMap(Context & c, const Parametrizable & parametrizable);
@@ -86,7 +88,6 @@ namespace bpp {
     
     class ConfiguredParametrizable 
     {
-
     public:
       /** Create a new node from a dependency vector.
        * Object parameters are given by a dependency vector of Value<double> nodes.
@@ -109,7 +110,6 @@ namespace bpp {
         checkDependencyRangeIsValue<Parameter*> (typeid (Self), deps, 0, nbParameters);
         return cachedAs<Self> (c, std::make_shared<Self> (c, std::move (deps), std::move (object)));
       }
-
 
       template<typename Object, typename Self>
       static std::shared_ptr<Self> createConfigured (Context & c, NodeRefVec && deps,
@@ -143,6 +143,66 @@ namespace bpp {
 
         return objectNode;
       }
+
+      /** Create a new node from a clonable object. Object parameters
+       * are get from ConfiguredParameters PREVIOUSLY built and stored
+       * in a ParameterList*/
+      
+      template<typename Object, typename Self> 
+      static std::shared_ptr<Self> createConfigured(Context& context, const Object& object, ParameterList& parList, const std::string& suff = "",
+                                                    typename std::enable_if<!std::is_base_of<ParameterAliasable, Object>::value>::type* = 0) 
+      {
+        auto nObject = std::unique_ptr<Object>(object.clone());
+        const auto& lParams = object.getParameters();
+      
+        std::vector<NodeRef> dep;
+        for (size_t i=0;i<lParams.size();i++)
+        {
+          std::string name = lParams[i].getName()+suff;
+          if (!parList.hasParameter(name) && suff=="")
+          {
+            if (!parList.hasParameter(lParams[i].getName()+"_1"))
+              throw Exception("createConfigured: unknow ConfiguredParameter " + name);
+            else name=lParams[i].getName()+"_1";
+          }
+          
+          ConfiguredParameter* confPar=dynamic_cast<ConfiguredParameter*>(parList.getSharedParameter(name).get());
+          if (!confPar)
+            throw Exception("createConfigured: unknow ConfiguredParameter " + name);
+          
+          dep.push_back(ConfiguredParameter::create(context, {confPar->dependency(0)}, lParams[i]));
+        }
+  
+        return ConfiguredParametrizable::createConfigured<Object, Self>(context, std::move(dep), std::move(nObject));
+      }
+
+      template<typename Object, typename Self> 
+      static std::shared_ptr<Self> createConfigured(Context& context, const Object& object, ParameterList& parList, const std::string& suff = "",
+                                                    typename std::enable_if<std::is_base_of<ParameterAliasable, Object>::value>::type* = 0) 
+      {
+        auto nObject = std::unique_ptr<Object>(object.clone());
+        const auto& lParams = object.getIndependentParameters();
+      
+        std::vector<NodeRef> dep;
+        for (size_t i=0;i<lParams.size();i++)
+        {
+          std::string name = lParams[i].getName()+suff;
+          if (!parList.hasParameter(name) && suff=="")
+          {
+            if (!parList.hasParameter(lParams[i].getName()+"_1"))
+              throw Exception("createConfigured: unknow ConfiguredParameter " + name);
+            else name=lParams[i].getName()+"_1";
+          }
+          auto confPar=dynamic_cast<ConfiguredParameter*>(parList.getSharedParameter(name).get());
+          if (!confPar)
+            throw Exception("createConfigured: unknow ConfiguredParameter " + name);
+          
+          dep.push_back(ConfiguredParameter::create(context, {confPar->dependency(0)}, lParams[i]));
+        }
+  
+        return ConfiguredParametrizable::createConfigured<Object, Self>(context, std::move(dep), std::move(nObject));
+      }
+
       
       /** Create a new vector of dependencies node to a double,
        * through a inheriting class (aka Self), from a
@@ -158,7 +218,7 @@ namespace bpp {
         checkNthDependencyIs<ConfiguredObject> (typeid (Self), deps, 0);
         return cachedAs<Value<double>> (c, std::make_shared<Self> (std::move (deps)));
       }
-
+    
       /** Create a new vector of dependencies node to a RowVectorXd,
        * through a inheriting class (aka Self), from a
        * ConfiguredObject
@@ -203,7 +263,7 @@ namespace bpp {
        *
        * buildFWithFreqSet(newFreqSet) should create the f(newFS,
        * stuff) node.
-     */
+       */
     
       template <typename ConfiguredObject, typename T, typename B>
       static NodeRefVec generateDerivativeSumDepsForComputations (
@@ -234,22 +294,8 @@ namespace bpp {
         }
         return derivativeSumDeps;
       }
-
+        
     };
-
-    /// Return the index of parameter with the given non namespaced name (or throw).
-    //   std::size_t getParameterIndex (const std::string & name);
-    //   /// Return the non namespaced name for parameter at the given index.
-    //   const std::string & getParameterName (std::size_t index);
-
-    //   bool compareAdditionalArguments (const Node & other) const;
-      
-    //   std::size_t hashAdditionalArguments () const;
-      
-    //   /// Configuration for numerical derivation of computation nodes using this FrequenciesSet.
-    //   NumericalDerivativeConfiguration config;
-
-    //   NodeRef recreate (Context & c, NodeRefVec && deps);
 
   } // namespace dataflow
 } // namespace bpp

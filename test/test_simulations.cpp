@@ -101,7 +101,7 @@ int main() {
   
   //Now fit model:
   bpp::dataflow::Context context;
-  auto l = std::make_shared<bpp::dataflow::LikelihoodCalculation>(context, sites, *process);
+  auto l = std::make_shared<bpp::dataflow::LikelihoodCalculationSingleProcess>(context, sites, *process);
   bpp::dataflow::PhyloLikelihood_DF llh(context, l, l->getParameters());
 
   OptimizationTools::optimizeNumericalParameters2(
@@ -132,7 +132,7 @@ int main() {
 
   //Now fit model:
   auto process2 = process->clone();
-  auto l2 = std::make_shared<bpp::dataflow::LikelihoodCalculation>(context, sites, *process2);
+  auto l2 = std::make_shared<bpp::dataflow::LikelihoodCalculationSingleProcess>(context, sites, *process2);
   bpp::dataflow::PhyloLikelihood_DF llh2(context, l2, l2->getParameters());
 
   OptimizationTools::optimizeNumericalParameters2(

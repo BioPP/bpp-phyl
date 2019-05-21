@@ -1151,11 +1151,11 @@ namespace bpp {
 
       SumOfLogarithms (NodeRefVec && deps, const Dimension<F> & mDim)
         : Value<double> (std::move (deps)), mTargetDimension_ (mDim) {//, temp_() {
-        if (dependencies().size()==2)
-        {
-          const auto & p = accessValueConstCast<Eigen::VectorXi> (*this->dependency (1));
+//         if (dependencies().size()==2)
+//         {
+//           const auto & p = accessValueConstCast<Eigen::VectorXi> (*this->dependency (1));
 //          temp_.resize(p.size());
-        }
+//         }
       }
 
       std::string debugInfo () const override {

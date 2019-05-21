@@ -561,14 +561,7 @@ unsigned int OptimizationTools::optimizeNumericalParameters2(
   if (reparametrization)
   {
     throw Exception("OptimizationTools::optimizeNumericalParameters2 reparametrization not checked for dataflow likelihood calculation");
-    
-    // frep.reset(new ReparametrizationDerivableSecondOrderWrapper(f, pl));
-    // f = frep.get();
-
-    // // Reset parameters to remove constraints:
-    // pl = f->getParameters().createSubList(pl.getParameterNames());
   }
-
   
   // Build optimizer:
   unique_ptr<Optimizer> optimizer;
@@ -606,6 +599,7 @@ unsigned int OptimizationTools::optimizeNumericalParameters2(
 
   optimizer->init(pl);
   optimizer->optimize();
+
   delete nanListener;
   
   if (verbose > 0)
