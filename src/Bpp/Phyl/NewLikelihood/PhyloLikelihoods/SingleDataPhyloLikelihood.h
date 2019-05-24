@@ -86,7 +86,7 @@ namespace bpp
      */
     
     virtual void setData(const AlignedValuesContainer& sites, size_t nData = 0) = 0;
-    
+
     /**
      * @brief Get the dataset for which the likelihood must be evaluated.
      *

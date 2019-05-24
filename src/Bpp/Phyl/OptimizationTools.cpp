@@ -545,7 +545,7 @@ unsigned int OptimizationTools::optimizeNumericalParameters2(
 /************************************************************/
 
 unsigned int OptimizationTools::optimizeNumericalParameters2(
-  dataflow::PhyloLikelihood_DF& lik,
+  dataflow::SingleProcessPhyloLikelihood_DF& lik,
   const ParameterList& parameters,
   OptimizationListener* listener,
   double tolerance,

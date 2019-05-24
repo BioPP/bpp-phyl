@@ -50,7 +50,7 @@
 #include "Distance/DistanceMethod.h"
 
 #include "NewLikelihood/PhyloLikelihoods/PhyloLikelihood.h"
-#include <Bpp/NewPhyl/PhyloLikelihood_DF.h>
+#include <Bpp/NewPhyl/SingleProcessPhyloLikelihood_DF.h>
 
 #include <Bpp/Io/OutputStream.h>
 #include <Bpp/App/ApplicationTools.h>
@@ -414,7 +414,7 @@ public:
       const std::string& optMethodDeriv  = OPTIMIZATION_NEWTON);
 
   static unsigned int optimizeNumericalParameters2(
-    dataflow::PhyloLikelihood_DF& lik,
+    dataflow::SingleProcessPhyloLikelihood_DF& lik,
     const ParameterList& parameters,
     OptimizationListener* listener     = 0,
     double tolerance                   = 0.000001,

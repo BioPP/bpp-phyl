@@ -67,7 +67,9 @@ void DRASDRTreeLikelihoodData::initLikelihoods(const AlignedValuesContainer& sit
   SitePatterns pattern(&sites);
   shrunkData_       = pattern.getSites();
   rootWeights_      = pattern.getWeights();
-  rootPatternLinks_ = pattern.getIndices();
+
+  rootPatternLinks_.resize(pattern.getIndices().size());
+  SitePatterns::IndicesType::Map(&rootPatternLinks_[0], rootPatternLinks_.size()) = pattern.getIndices();
   nbDistinctSites_  = shrunkData_->getNumberOfSites();
 
   // Init data:

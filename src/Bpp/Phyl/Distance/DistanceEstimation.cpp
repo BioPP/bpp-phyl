@@ -98,7 +98,10 @@ TwoTreeLikelihood::TwoTreeLikelihood(
   SitePatterns pattern(data_);
   shrunkData_       = pattern.getSites();
   rootWeights_      = pattern.getWeights();
-  rootPatternLinks_ = pattern.getIndices();
+  
+  rootPatternLinks_.resize(pattern.getIndices().size());
+  SitePatterns::IndicesType::Map(&rootPatternLinks_[0], rootPatternLinks_.size()) = pattern.getIndices();
+
   nbDistinctSites_  = shrunkData_->getNumberOfSites();
   if (verbose)
     ApplicationTools::displayResult("Number of distinct sites", TextTools::toString(nbDistinctSites_));

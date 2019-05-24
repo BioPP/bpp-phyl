@@ -73,7 +73,8 @@ void DRASRTreeLikelihoodData::initLikelihoods(const AlignedValuesContainer& site
     patterns.reset(initLikelihoodsWithPatterns(tree_->getRootNode(), sites, model));
     shrunkData_       = patterns->getSites();
     rootWeights_      = patterns->getWeights();
-    rootPatternLinks_ = patterns->getIndices();
+    rootPatternLinks_.resize(patterns->getIndices().size());
+    SitePatterns::IndicesType::Map(&rootPatternLinks_[0], rootPatternLinks_.size()) = patterns->getIndices();
     nbDistinctSites_  = shrunkData_->getNumberOfSites();
   }
   else
@@ -82,7 +83,8 @@ void DRASRTreeLikelihoodData::initLikelihoods(const AlignedValuesContainer& site
     
     shrunkData_       = patterns->getSites();
     rootWeights_      = patterns->getWeights();
-    rootPatternLinks_ = patterns->getIndices();
+    rootPatternLinks_.resize(patterns->getIndices().size());
+    SitePatterns::IndicesType::Map(&rootPatternLinks_[0], rootPatternLinks_.size()) = patterns->getIndices();
     nbDistinctSites_  = shrunkData_->getNumberOfSites();
     initLikelihoods(tree_->getRootNode(), *shrunkData_, model);
   }
@@ -285,8 +287,9 @@ SitePatterns* DRASRTreeLikelihoodData::initLikelihoodsWithPatterns(const Node* n
       // subSequences:
 
       unique_ptr<SitePatterns> subPatterns(initLikelihoodsWithPatterns(son, *subSequences, model));
-      
-      (*patternLinks__node_son) = subPatterns->getIndices();
+
+      patternLinks__node_son->resize(subPatterns->getIndices().size());
+      SitePatterns::IndicesType::Map(&((*patternLinks__node_son)[0]), patternLinks__node_son->size()) = subPatterns->getIndices();
     }
   }
   return patterns;

@@ -135,7 +135,8 @@ void RecursiveLikelihoodTree::initLikelihoods(const AlignedValuesContainer& site
     patterns.reset(initLikelihoodsWithPatterns_(vTree_[0]->getRoot().get(), sites, process));
     shrunkData_ = patterns->getSites();
     rootWeights_      = patterns->getWeights();
-    rootPatternLinks_ = patterns->getIndices();
+    rootPatternLinks_.resize(patterns->getIndices().size());
+    SitePatterns::IndicesType::Map(&rootPatternLinks_[0], rootPatternLinks_.size()) = patterns->getIndices();
     nbDistinctSites_  = shrunkData_->getNumberOfSites();
 
     setPatterns(patternLinks_);
@@ -145,7 +146,8 @@ void RecursiveLikelihoodTree::initLikelihoods(const AlignedValuesContainer& site
     patterns.reset(new SitePatterns(&sites));
     shrunkData_       = patterns->getSites();
     rootWeights_      = patterns->getWeights();
-    rootPatternLinks_ = patterns->getIndices();
+    rootPatternLinks_.resize(patterns->getIndices().size());
+    SitePatterns::IndicesType::Map(&rootPatternLinks_[0], rootPatternLinks_.size()) = patterns->getIndices();
     nbDistinctSites_  = shrunkData_->getNumberOfSites();
     initLikelihoodsWithoutPatterns_(vTree_[0]->getRoot().get(), *shrunkData_, process);
   }
@@ -328,7 +330,9 @@ SitePatterns* RecursiveLikelihoodTree::initLikelihoodsWithPatterns_(const Recurs
 
 // Initialize subtree 'l' and retrieves corresponding subSequences:
       unique_ptr<SitePatterns> subPatterns(initLikelihoodsWithPatterns_(son, *subSequences.get(), process));
-      (*patternLinks_node_son) = subPatterns->getIndices();
+
+      patternLinks_node_son->resize(subPatterns->getIndices().size());
+      SitePatterns::IndicesType::Map(&((*patternLinks_node_son)[0]), patternLinks_node_son->size()) = subPatterns->getIndices();
     }
   }
   

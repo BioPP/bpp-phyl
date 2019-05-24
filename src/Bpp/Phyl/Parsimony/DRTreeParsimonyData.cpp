@@ -98,7 +98,9 @@ void DRTreeParsimonyData::init(const SiteContainer& sites, const StateMap& state
     throw Exception("DRTreeParsimonyData::init : Data must be plain alignments.");
 
   rootWeights_      = pattern.getWeights();
-  rootPatternLinks_ = pattern.getIndices();
+
+  rootPatternLinks_.resize(pattern.getIndices().size());
+  SitePatterns::IndicesType::Map(&rootPatternLinks_[0], rootPatternLinks_.size()) = pattern.getIndices();
   nbDistinctSites_  = shrunkData_->getNumberOfSites();
   
   // Init data:

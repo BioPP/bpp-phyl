@@ -94,7 +94,7 @@
 
 #include "../NewLikelihood/ParametrizablePhyloTree.h"
 
-#include <Bpp/NewPhyl/PhyloLikelihood_DF.h>
+#include <Bpp/NewPhyl/SingleProcessPhyloLikelihood_DF.h>
 #include <Bpp/NewPhyl/LikelihoodCalculationCollection.h>
 
 // From bpp-core
@@ -2154,7 +2154,7 @@ PhyloLikelihoodContainer* PhylogeneticsApplicationTools::getPhyloLikelihoodConta
     {
       auto l = std::make_shared<dataflow::LikelihoodCalculationSingleProcess>(context, *data, SPC.getSubstitutionProcess(nProcess), paramList);
       l->setNumericalDerivateConfiguration(0.001, bpp::dataflow::NumericalDerivativeType::ThreePoints);
-      nPL = new bpp::dataflow::PhyloLikelihood_DF(context, l);
+      nPL = new bpp::dataflow::SingleProcessPhyloLikelihood_DF(context, l, nData, nProcess);
     }
     else if (mSeqEvol.find(nProcess) != mSeqEvol.end())
     {
@@ -3572,9 +3572,9 @@ PhyloLikelihood* PhylogeneticsApplicationTools::optimizeParameters(
   {
     // Uses Newton-raphson algorithm with numerical derivatives when required.
     parametersToEstimate.matchParametersValues(lik->getParameters());
-    if (dynamic_cast<dataflow::PhyloLikelihood_DF*>(lik))
+    if (dynamic_cast<dataflow::SingleProcessPhyloLikelihood_DF*>(lik))
       n = OptimizationTools::optimizeNumericalParameters2(
-        *dynamic_cast<dataflow::PhyloLikelihood_DF*>(lik), parametersToEstimate,
+        *dynamic_cast<dataflow::SingleProcessPhyloLikelihood_DF*>(lik), parametersToEstimate,
         backupListener.get(), tolerance, nbEvalMax, messageHandler, profiler, reparam, useClock, optVerbose, optMethodDeriv);
     else
       n = OptimizationTools::optimizeNumericalParameters2(
@@ -4477,7 +4477,7 @@ void PhylogeneticsApplicationTools::printParameters(const SingleDataPhyloLikelih
   }
   else
   {
-    const SingleProcessPhyloLikelihood* pS = dynamic_cast<const SingleProcessPhyloLikelihood*>(&phyloLike);
+    const dataflow::SingleProcessPhyloLikelihood_DF* pS = dynamic_cast<const dataflow::SingleProcessPhyloLikelihood_DF*>(&phyloLike);
 
     if (pS)
       out << "process=" << pS->getSubstitutionProcessNumber();
@@ -4731,9 +4731,9 @@ void PhylogeneticsApplicationTools::printAnalysisInformation(const SetOfAlignedP
 
 void PhylogeneticsApplicationTools::printAnalysisInformation(const SingleDataPhyloLikelihood& phyloLike, const string& infosFile, int warn)
 {
-  if (dynamic_cast<const SingleProcessPhyloLikelihood*>(&phyloLike) != NULL)
+  if (dynamic_cast<const dataflow::SingleProcessPhyloLikelihood_DF*>(&phyloLike) != NULL)
   {
-    const SingleProcessPhyloLikelihood* pSPL = dynamic_cast<const SingleProcessPhyloLikelihood*>(&phyloLike);
+    auto pSPL = dynamic_cast<const dataflow::SingleProcessPhyloLikelihood_DF*>(&phyloLike);
     
     StlOutputStream out(new ofstream(infosFile.c_str(), ios::out));
     
@@ -4843,10 +4843,10 @@ void PhylogeneticsApplicationTools::printAnalysisInformation(const SingleDataPhy
     
     for (auto nP : nbProc)
     {
-      const SingleProcessPhyloLikelihood* pSPPL = dynamic_cast<const SingleProcessPhyloLikelihood*>(pPPL->getAbstractPhyloLikelihood(nP));
+      auto pSPPL = dynamic_cast<const dataflow::SingleProcessPhyloLikelihood_DF*>(pPPL->getAbstractPhyloLikelihood(nP));
 
       if (!pSPPL)
-        throw Exception("PhylogeneticsApplicationTools::printAnalysisInformation : no SingleProcessPhyloLikelihood in PartitionProcessPhyloLikelihood.");
+        throw Exception("PhylogeneticsApplicationTools::printAnalysisInformation : no SingleProcessPhyloLikelihood_DF in PartitionProcessPhyloLikelihood.");
       
       size_t nbr=mNbr[pSPPL->getSubstitutionProcessNumber()];
 

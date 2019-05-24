@@ -55,6 +55,8 @@
 #include <vector>
 #include <string>
 
+#include <Eigen/Core>
+
 namespace bpp
 {
 
@@ -69,6 +71,9 @@ namespace bpp
   class SitePatterns :
     public virtual Clonable
   {
+  public:
+    typedef Eigen::Matrix<size_t, 1, -1> IndicesType;
+    
   private:
     /**
      * @brief Class used for site pattern sorting.
@@ -109,7 +114,7 @@ namespace bpp
     std::vector<std::string> names_;
     std::vector<const CruxSymbolListSite* > sites_;
     std::vector<unsigned int> weights_;
-    std::vector<size_t> indices_;
+    IndicesType indices_;
     const Alphabet* alpha_;
     bool own_;
 
@@ -182,7 +187,7 @@ namespace bpp
     /**
      * @return The position of each unique site.
      */
-    const std::vector<size_t>& getIndices() const { return indices_; }
+    const IndicesType& getIndices() const { return indices_; }
 
     /**
      * @return A new container with each unique site.
