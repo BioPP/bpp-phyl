@@ -190,6 +190,10 @@ namespace bpp {
       return dim.rows == dim.cols && m == identity (dim);
     }
 
+    
+    /********************************************************/
+    /*** CONVERSI0N  ***/
+
     /* Convert from F to R (with specific dimension).
      * scalar -> scalar: simple cast.
      * scalar -> matrix: fill the matrix with scalar value.
@@ -234,6 +238,10 @@ namespace bpp {
       assert (Dimension<R> (r) == dim); // debug post check of size
     }
 
+    /*******************************************/
+    /*** Simple operators ***/
+    
+    
     // 1/x
     template <typename T, typename = typename std::enable_if<std::is_floating_point<T>::value>::type>
     T inverse (T t) {
@@ -245,6 +253,10 @@ namespace bpp {
     using Eigen::pow;
     using std::pow;
 
+    /*******************************************/
+    /*** Debug/Output ***/
+    /*******************************************/
+    
     // Numerical information as text
     template <typename T>
     std::string debug (const T & t, typename std::enable_if<std::is_arithmetic<T>::value>::type* = 0) {
@@ -290,6 +302,9 @@ namespace bpp {
     }
     
 
+    /**************************************************/
+    /*  HASH */
+    
     // Hash of numerical value
     template <typename T, typename = typename std::enable_if<std::is_floating_point<T>::value>::type>
     std::size_t hash (T t) {
@@ -306,6 +321,7 @@ namespace bpp {
     }
   } // namespace numeric
 
+  
   /******************************************************************************
    * Data flow nodes for those numerical functions.
    *
@@ -313,6 +329,7 @@ namespace bpp {
    * add(x,x) -> 2*x ? (and similar for mul, ...)
    * all deps constant => return constant ?
    */
+
   namespace dataflow {
     // Error utils
     [[noreturn]] void failureDeltaNotDerivable (const std::type_info & contextNodeType);

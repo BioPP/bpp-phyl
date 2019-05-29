@@ -1,6 +1,6 @@
 //
-// File: PhyloLikelihood_DF.h
-// Authors: François Gindraud (2017)
+// File: SingleProcessPhyloLikelihood_DF.h
+// Authors: François Gindraud, Laurent Guéguen (2017)
 //
 
 /*
@@ -36,15 +36,15 @@
   knowledge of the CeCILL license and that you accept its terms.
 */
 
-#ifndef PHYLOLIKELIHOOD_DF_H
-#define PHYLOLIKELIHOOD_DF_H
+#ifndef SINGLE_PROCESS_PHYLOLIKELIHOOD_DF_H
+#define SINGLE_PROCESS_PHYLOLIKELIHOOD_DF_H
 
 #include <Bpp/Exceptions.h>
 #include <Bpp/Numeric/Function/Functions.h>
 #include <Bpp/Numeric/Parameter.h>
 #include <Bpp/Numeric/ParameterList.h>
 
-#include <Bpp/Phyl/NewLikelihood/PhyloLikelihoods/PhyloLikelihood.h>
+#include "SingleDataPhyloLikelihood_DF.h"
 
 #include "DataFlowNumeric.h"
 #include "Parameter.h"
@@ -66,8 +66,8 @@ namespace bpp {
      *
      */
   
-    class PhyloLikelihood_DF :
-      virtual public PhyloLikelihood
+    class SingleProcessPhyloLikelihood_DF :
+      public SingleDataPhyloLikelihood_DF
     {
     private:
       // Cache generated nodes representing derivatives, to avoid recreating them every time.
@@ -84,12 +84,23 @@ namespace bpp {
 
       // Store nodes
       mutable std::shared_ptr<LikelihoodCalculationSingleProcess> likCal_;
+
+      /**
+       * @brief the Substitution Process number
+       *
+       **/
+
+      size_t nProc_;
       
       ParameterList variableNodes_;
 
+      /**
+       * @brief For Dataflow computing
+       *
+       */
+      
       mutable std::unordered_map<std::string, ValueRef<double>> firstOrderDerivativeNodes_;
       mutable std::unordered_map<std::string, ValueRef<Eigen::RowVectorXd>> firstOrderDerivativeVectors_;
-
 
       mutable std::unordered_map<std::pair<std::string, std::string>, ValueRef<double>,
                                  StringPairHash>
@@ -99,9 +110,14 @@ namespace bpp {
       secondOrderDerivativeVectors_;
 
     public:
-      PhyloLikelihood_DF (Context & context, std::shared_ptr<LikelihoodCalculationSingleProcess> likCal,
-                        const ParameterList & variableNodes)
-        : context_ (context), likCal_(likCal), variableNodes_ () {
+      SingleProcessPhyloLikelihood_DF (Context & context,
+                                       std::shared_ptr<LikelihoodCalculationSingleProcess> likCal,
+                                       const ParameterList & variableNodes,
+                                       size_t nProc = 0, size_t nData=0)
+        : AlignedPhyloLikelihood_DF(likCal->getNumberOfSites()),
+          SingleDataPhyloLikelihood_DF(likCal->getNumberOfSites(), likCal->getSubstitutionProcess().getNumberOfStates(), nData),
+          context_ (context), likCal_(likCal), nProc_(nProc), variableNodes_ ()
+      {
         variableNodes_.shareParameters(variableNodes);
       }
 
@@ -109,8 +125,13 @@ namespace bpp {
        * @brief: the parameters are those of the LikelihoodCalculation
        */
       
-      PhyloLikelihood_DF (Context & context, std::shared_ptr<LikelihoodCalculationSingleProcess> likCal)
-        : context_ (context), likCal_(likCal), variableNodes_ () {
+      SingleProcessPhyloLikelihood_DF (Context & context,
+                                       std::shared_ptr<LikelihoodCalculationSingleProcess> likCal,
+                                       size_t nProc = 0, size_t nData=0)
+        : AlignedPhyloLikelihood_DF(likCal->getNumberOfSites()),
+          SingleDataPhyloLikelihood_DF(likCal->getNumberOfSites(), likCal->getSubstitutionProcess().getNumberOfStates(), nData),
+          context_ (context), likCal_(likCal), nProc_(nProc), variableNodes_ ()
+      {
         variableNodes_.shareParameters(likCal->getParameters());
       }
 
@@ -120,9 +141,15 @@ namespace bpp {
       }
       
       // Legacy boilerplate
-      PhyloLikelihood_DF * clone () const override {
-        throw Exception("PhyloLikelihood_DF::clone should not be called.");
-        return new PhyloLikelihood_DF (*this); }
+      SingleProcessPhyloLikelihood_DF * clone () const override {
+        throw Exception("SingleProcessPhyloLikelihood_DF::clone should not be called.");
+        return new SingleProcessPhyloLikelihood_DF (*this); }
+
+      void setData(const AlignedValuesContainer& sites, size_t nData = 0)
+      {
+        SingleDataPhyloLikelihood_DF::setData(sites, nData);  
+        likCal_->setData(sites);
+      }
 
       /**
        * @return initialize the likelihood function.
@@ -136,7 +163,36 @@ namespace bpp {
       bool isInitialized() const {
         return likCal_->getData();
       };
+
+      /**
+       * @brief return a pointer to the compressed data. 
+       *
+       */
       
+      const AlignedValuesContainer* getShrunkData() const {
+        return likCal_->getShrunkData();
+      }
+
+      /**
+       * @brief return a pointer to the original  data. 
+       *
+       */
+      
+      const AlignedValuesContainer* getData() const {
+        return likCal_->getData();
+      }
+
+      const Alphabet* getAlphabet() const {
+        return likCal_->getStateMap().getAlphabet();
+      }
+
+      
+      const SubstitutionProcess& getSubstitutionProcess() const {
+        return likCal_->getSubstitutionProcess();
+      }
+
+      size_t getSubstitutionProcessNumber() const { return nProc_; }
+
       /**
        * @}
        */
@@ -411,6 +467,70 @@ namespace bpp {
         }
       }
 
+      size_t getNumberOfSites() const {
+        return getLikelihoodCalculation()->getNumberOfSites();
+      }
+
+      size_t getNumberOfDistinctSites() const {
+        return getLikelihoodCalculation()->getNumberOfDistinctSites();
+      }
+    
+      /**
+       * @brief Get the likelihood for a site.
+       *
+       * @param site The site index to analyse.
+       * @return The likelihood for site <i>site</i>.
+       */
+
+      double getLikelihoodForASite(size_t site) const
+      {
+        return getLikelihoodCalculation()->getLikelihoodForASite(site);
+      }
+    
+      /**
+       * @brief Get the log likelihood for a site, and its derivatives.
+       *
+       * @param site The site index to analyse.
+       * @return The (D)log likelihood for site <i>site</i>.
+       */
+
+      double getLogLikelihoodForASite(size_t site) const
+      {
+        return std::log(getLikelihoodForASite(site));
+      }
+  
+      double getDLogLikelihoodForASite(const std::string& variable, size_t site) const
+      {
+        throw Exception("SingleProcessPhyloLikelihood_DF::getDLogLikelihoodForASite not finished : ask developpers.");
+        return getFirstOrderDerivativeVector(variable)->getTargetValue()[site];
+      }
+    
+      double getD2LogLikelihoodForASite(const std::string& variable, size_t site) const
+      {
+        throw Exception("SingleProcessPhyloLikelihood_DF::getD2LogLikelihoodForASite not finished : ask developpers.");
+        return getSecondOrderDerivativeVector(variable)->getTargetValue()[site];
+      }
+  
+      /**
+       * @brief Get the likelihood for each site.
+       *
+       * @return A vector with all likelihoods for each site.
+       */
+
+      Vdouble getLikelihoodPerSite() const;
+
+      /**
+       * @brief Get the posterior probabilities of each class, for
+       * each site.
+       *
+       * @return A 2D-vector (Sites X Class) of all posterior
+       * probabilities.
+       */
+
+      VVdouble getPosteriorProbabilitiesPerClass() const;
+      
+      Vdouble getPosteriorProbabilitiesForSitePerClass(size_t pos) const;
+
     private:
       static Node & accessVariableNode (const Parameter & param) {
         return *dynamic_cast<const ConfiguredParameter&>(param).dependency(0);
@@ -425,4 +545,4 @@ namespace bpp {
   
 } // namespace bpp
 
-#endif // DATA_FLOW_FUNCTION_H
+#endif // SINGLE_PROCESS_PHYLOLIKELIHOOD_DF_H

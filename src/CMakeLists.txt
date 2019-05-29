@@ -13,6 +13,7 @@ set (CPP_FILES
   Bpp/NewPhyl/DiscreteDistribution.cpp
   Bpp/NewPhyl/FrequenciesSet.cpp
   Bpp/NewPhyl/LikelihoodCalculationSingleProcess.cpp
+  Bpp/NewPhyl/SingleProcessPhyloLikelihood_DF.cpp
   Bpp/NewPhyl/Model.cpp
   Bpp/NewPhyl/Parameter.cpp
   Bpp/NewPhyl/Parametrizable.cpp

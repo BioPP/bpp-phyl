@@ -77,7 +77,7 @@
 #ifdef ENABLE_DF
 // #include <Bpp/NewPhyl/Parametrizable.h>
 // #include <Bpp/NewPhyl/DataFlow.h>
-#include <Bpp/NewPhyl/PhyloLikelihood_DF.h>
+#include <Bpp/NewPhyl/SingleProcessPhyloLikelihood_DF.h>
 #include <Bpp/NewPhyl/BackwardLikelihoodTree.h>
 #include <Bpp/Phyl/Io/Newick.h>
 #include <Bpp/Phyl/NewLikelihood/PhyloLikelihoods/SingleProcessPhyloLikelihood.h>
@@ -291,7 +291,7 @@ TEST_CASE("df")
   l->setNumericalDerivateConfiguration(0.001, bpp::dataflow::NumericalDerivativeType::ThreePoints);
 //  l->setClockLike();
   
-  bpp::dataflow::PhyloLikelihood_DF llh(context, l);
+  bpp::dataflow::SingleProcessPhyloLikelihood_DF llh(context, l);
   timingEnd(ts, "df_setup");
 
   ts = timingStart();
@@ -305,7 +305,7 @@ TEST_CASE("df")
   auto br= dynamic_cast<bpp::dataflow::ConfiguredParameter*>(llh.getLikelihoodCalculation()->getSharedParameter("BrLen1").get());
   
   auto dlogLik_dbrlen1 = lik->getLikelihood()->deriveAsValue(context, *br->dependency(0));
-  
+
   std::cout << "[dbrlen1] " << dlogLik_dbrlen1->getTargetValue() << "\n";
   dotOutput("likelihood_example_dbrlen1", {dlogLik_dbrlen1.get()});
 
@@ -320,6 +320,9 @@ TEST_CASE("df")
   std::cout << "[d2kappa] " << d2logLik_dkappa2->getTargetValue() << "\n";
   dotOutput("likelihood_example_dkappa2", {d2logLik_dkappa2.get()});
 
+  // for (size_t pos=0;pos<c.sites.getNumberOfSites();pos++)
+  //   std::cout << pos << " : " << lik->getLikelihoodForASite(pos) << std::endl;
+  
   // bpp::ParameterList BrLenParam;
   // for (size_t i=0;i<l->getParameters().size();i++)
   // {

@@ -1,5 +1,5 @@
 //
-// File: AlignedPhyloLikelihood_DF.h
+// File: SingleDataPhyloLikelihood_DF.h
 // Authors: Laurent Guéguen (2019)
 //
 
@@ -36,10 +36,12 @@
   knowledge of the CeCILL license and that you accept its terms.
 */
 
-#ifndef ALIGNED_PHYLOLIKELIHOOD_DF_H
-#define ALIGNED_PHYLOLIKELIHOOD_DF_H
+#ifndef SINGLE_DATA_PHYLOLIKELIHOOD_DF_H
+#define SINGLE_DATA_PHYLOLIKELIHOOD_DF_H
 
-#include <Bpp/Phyl/NewLikelihood/PhyloLikelihoods/AlignedPhyloLikelihood.h>
+#include <Bpp/Phyl/NewLikelihood/PhyloLikelihoods/SingleDataPhyloLikelihood.h>
+
+#include "AlignedPhyloLikelihood_DF.h"
 
 namespace bpp {
 
@@ -50,38 +52,70 @@ namespace bpp {
      *
      */
   
-    class AlignedPhyloLikelihood_DF :
-      virtual public AlignedPhyloLikelihood
+    class SingleDataPhyloLikelihood_DF :
+      public SingleDataPhyloLikelihood,
+      virtual public AlignedPhyloLikelihood_DF
     {
     protected:
+      size_t nbStates_;
 
-      size_t nbSites_;
-
-    public:      
-      AlignedPhyloLikelihood_DF (size_t nbSites) :
-        nbSites_(nbSites)
+      /**
+       * @brief Number of the concerned data.
+       *
+       **/
+    
+      size_t nData_;
+    
+    public:
+      SingleDataPhyloLikelihood_DF(size_t nbSites, size_t nbStates, size_t nData = 0) :
+        AlignedPhyloLikelihood_DF(nbSites),
+        nbStates_(nbStates),
+        nData_(nData)
       {}
-
-      AlignedPhyloLikelihood_DF(const AlignedPhyloLikelihood_DF& asd) :
-        nbSites_(asd.nbSites_)
-      {}
-      
-      AlignedPhyloLikelihood_DF& operator=(const AlignedPhyloLikelihood_DF& asd)
+    
+    
+      SingleDataPhyloLikelihood_DF(const SingleDataPhyloLikelihood_DF& asd) :
+        AlignedPhyloLikelihood_DF(asd),
+        nbStates_(asd.nbStates_),
+        nData_(asd.nData_)
       {
-        nbSites_=asd.nbSites_;        
+      }
+    
+      virtual ~SingleDataPhyloLikelihood_DF() {}
+    
+      SingleDataPhyloLikelihood_DF* clone() const = 0;
+    
+      SingleDataPhyloLikelihood_DF& operator=(const SingleDataPhyloLikelihood_DF& asd)
+      {
+        AlignedPhyloLikelihood_DF::operator=(asd);
+        nbStates_=asd.nbStates_;
+      
+        nData_=asd.nData_;
+      
         return *this;
       }
-
-      size_t getNumberOfSites() const { return nbSites_; }
-
-    protected:
-      void setNumberOfSites(size_t nbSites)
+    
+      virtual void setData(const AlignedValuesContainer& sites, size_t nData = 0)
       {
-        nbSites_ = nbSites;
+        setNumberOfSites(sites.getNumberOfSites());
+        nbStates_ = sites.getAlphabet()->getSize();
+        nData_=nData;
       }
-      
+    
+      size_t getNData() const
+      {
+        return nData_;
+      }
+    
+      void setNData(size_t nData)
+      {
+        nData_=nData;
+      }
+    
+      size_t getNumberOfStates() const { return nbStates_; }
+    
     };
-  }
+  }  
 } // namespace bpp
 
-#endif // ALIGNEDPHYLOLIKELIHOOD_DF_H
+#endif // SINGLE_DATA_PHYLOLIKELIHOOD_DF_H

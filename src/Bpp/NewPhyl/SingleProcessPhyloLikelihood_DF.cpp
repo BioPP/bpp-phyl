@@ -1,6 +1,7 @@
 //
-// File: AlignedPhyloLikelihood_DF.h
-// Authors: Laurent Guéguen (2019)
+// File: SingleProcessPhyloLikelihood_DF.cpp
+// Authors: François Gindraud, Laurent Guéguen
+// Creation: lundi 27 mai 2019, à 06h 35
 //
 
 /*
@@ -36,52 +37,56 @@
   knowledge of the CeCILL license and that you accept its terms.
 */
 
-#ifndef ALIGNED_PHYLOLIKELIHOOD_DF_H
-#define ALIGNED_PHYLOLIKELIHOOD_DF_H
+#include "SingleProcessPhyloLikelihood_DF.h"
 
-#include <Bpp/Phyl/NewLikelihood/PhyloLikelihoods/AlignedPhyloLikelihood.h>
-
-namespace bpp {
-
-  namespace dataflow
-  {
-    
-    /* Wraps a dataflow graph as a function: resultNode = f(variableNodes).
-     *
-     */
+using namespace bpp;
+using namespace dataflow;
+Vdouble SingleProcessPhyloLikelihood_DF::getLikelihoodPerSite() const
+{
+  auto vLik=getLikelihoodCalculation()->getSiteLikelihoods()->getTargetValue();
+  Vdouble v(vLik.size());
   
-    class AlignedPhyloLikelihood_DF :
-      virtual public AlignedPhyloLikelihood
-    {
-    protected:
-
-      size_t nbSites_;
-
-    public:      
-      AlignedPhyloLikelihood_DF (size_t nbSites) :
-        nbSites_(nbSites)
-      {}
-
-      AlignedPhyloLikelihood_DF(const AlignedPhyloLikelihood_DF& asd) :
-        nbSites_(asd.nbSites_)
-      {}
+  Eigen::VectorXd::Map(&v[0], v.size()) = vLik;
+  return v;
+}
       
-      AlignedPhyloLikelihood_DF& operator=(const AlignedPhyloLikelihood_DF& asd)
-      {
-        nbSites_=asd.nbSites_;        
-        return *this;
-      }
 
-      size_t getNumberOfSites() const { return nbSites_; }
-
-    protected:
-      void setNumberOfSites(size_t nbSites)
-      {
-        nbSites_ = nbSites;
-      }
-      
-    };
+VVdouble SingleProcessPhyloLikelihood_DF::getPosteriorProbabilitiesPerClass() const
+{
+  auto rates=getLikelihoodCalculation()->getSubstitutionProcess().getRateDistribution();
+  auto nbS=getLikelihoodCalculation()->getNumberOfSites();
+  VVdouble vv(nbS);
+  
+  if (!rates || rates->getNumberOfCategories()==1)
+  {
+    for (auto& v:vv)
+      v.resize(1,1);
   }
-} // namespace bpp
-
-#endif // ALIGNEDPHYLOLIKELIHOOD_DF_H
+  else
+  {
+    auto vvLik=getLikelihoodCalculation()->getSiteLikelihoodsForAllClasses();
+    for (size_t i=0;i<nbS;i++)
+    {
+      vv[i].resize(vvLik.rows());
+      Eigen::VectorXd::Map(&vv[i][0], vv[i].size()) = vvLik.col(i)/vvLik.col(i).sum();
+    }
+  }
+  return vv;
+}
+      
+Vdouble SingleProcessPhyloLikelihood_DF::getPosteriorProbabilitiesForSitePerClass(size_t pos) const
+{
+  auto rates=getLikelihoodCalculation()->getSubstitutionProcess().getRateDistribution();
+  
+  if (!rates || rates->getNumberOfCategories()==1)
+    return Vdouble(1,1);
+  else
+  {
+    Vdouble vv(rates->getNumberOfCategories());
+    for (size_t i=0;i<vv.size();i++)
+      vv[i]=(getLikelihoodCalculation()->getSiteLikelihoodsForAClass(i))(pos);
+      
+    vv/=VectorTools::sum(vv);
+    return vv;
+  }
+}

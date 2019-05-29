@@ -4761,9 +4761,9 @@ void PhylogeneticsApplicationTools::printAnalysisInformation(const SingleDataPhy
     
     vector<string> row(4 + (nbR > 1 ? nbR : 0));
     DataTable* infos = new DataTable(colNames);
-    
-    VVdouble vvPP = pSPL->getPosteriorProbabilitiesPerClass();
-    
+
+    VVdouble vvPP(pSPL->getPosteriorProbabilitiesPerClass());
+
     for (size_t i = 0; i < sites->getNumberOfSites(); i++)
     {
       double lnL = phyloLike.getLogLikelihoodForASite(i);
@@ -4797,7 +4797,7 @@ void PhylogeneticsApplicationTools::printAnalysisInformation(const SingleDataPhy
       
       infos->addRow(row);
     }
-    
+
     DataTable::write(*infos, out, "\t");
     delete infos;
   }

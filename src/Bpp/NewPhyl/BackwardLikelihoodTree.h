@@ -82,6 +82,8 @@ namespace bpp
 
     using BackwardLikelihoodAbove = Value<Eigen::MatrixXd>;
 
+//    using FullLikelihood = Value<Patterned<Eigen::MatrixXd>>;
+
     /** Tree structure for all the forward computations **/
     /* All the computations are set in a DataFlow context */
 

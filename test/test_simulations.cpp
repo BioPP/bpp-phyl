@@ -47,7 +47,7 @@ knowledge of the CeCILL license and that you accept its terms.
 #include <Bpp/Phyl/Model/SubstitutionModelSetTools.h>
 #include <Bpp/Phyl/Simulation/SubstitutionProcessSequenceSimulator.h>
 #include <Bpp/Phyl/NewLikelihood/NonHomogeneousSubstitutionProcess.h>
-#include <Bpp/NewPhyl/PhyloLikelihood_DF.h>
+#include <Bpp/NewPhyl/SingleProcessPhyloLikelihood_DF.h>
 #include <Bpp/Phyl/OptimizationTools.h>
 #include <iostream>
 
@@ -102,7 +102,7 @@ int main() {
   //Now fit model:
   bpp::dataflow::Context context;
   auto l = std::make_shared<bpp::dataflow::LikelihoodCalculationSingleProcess>(context, sites, *process);
-  bpp::dataflow::PhyloLikelihood_DF llh(context, l, l->getParameters());
+  bpp::dataflow::SingleProcessPhyloLikelihood_DF llh(context, l, l->getParameters());
 
   OptimizationTools::optimizeNumericalParameters2(
       llh, llh.getParameters(), 0,
@@ -133,7 +133,7 @@ int main() {
   //Now fit model:
   auto process2 = process->clone();
   auto l2 = std::make_shared<bpp::dataflow::LikelihoodCalculationSingleProcess>(context, sites, *process2);
-  bpp::dataflow::PhyloLikelihood_DF llh2(context, l2, l2->getParameters());
+  bpp::dataflow::SingleProcessPhyloLikelihood_DF llh2(context, l2, l2->getParameters());
 
   OptimizationTools::optimizeNumericalParameters2(
     llh2, llh2.getParameters(), 0,

@@ -193,6 +193,96 @@ namespace bpp {
 
     };
 
+
+
+    /** @brief build a Value to a Eigen T which columns are accessible
+     * through a pattern.
+     *
+     * Node construction should be done with the create static method.
+     */
+
+    typedef Eigen::Matrix<size_t,-1,1> PatternType;
+
+    template <typename R> class CWisePattern : public Value<R> {
+
+      class pattern_functor
+      {
+        const R& m_arg_;
+        const PatternType& pattern_;
+      public:
+        pattern_functor(const R& arg, const PatternType& pattern) :
+          m_arg_(arg), pattern_(pattern) {}
+      
+        const typename R::Scalar& operator()(Eigen::Index row, Eigen::Index col) const
+        {
+          return m_arg_(row, pattern_[col]);
+        }
+      };
+            
+    public:
+      using Self = CWisePattern;
+
+      /// Build a new CWiseFill node.
+      static ValueRef<R> create (Context & c, NodeRefVec && deps, const Dimension<R> & dim) {
+        // Check dependencies
+        checkDependenciesNotNull (typeid (Self), deps);
+        checkDependencyVectorSize (typeid (Self), deps, 2);
+        checkNthDependencyIsValue<R> (typeid (Self), deps, 0);
+        checkNthDependencyIsValue<PatternType> (typeid(Self), deps, 1);
+        // Remove 0s from deps
+        if (deps[1]->hasNumericalProperty (NumericalProperty::ConstantOne))
+          return convertRef<Value<R>>(deps[0]);
+        else
+          return cachedAs<Value<R>> (c, std::make_shared<Self> (std::move (deps), dim));
+      }
+
+      CWisePattern (NodeRefVec && deps, const Dimension<R> & dim)
+        : Value<R> (deps), targetDimension_ (dim)//, patterning(accessValueConstCast<R>(*deps[0]), accessValueConstCast<PatternType>(*deps[1]), dim))
+      {
+//        this->accessValueMutable().resize(dim.rows,dim.cols);
+        // accessValueMutable() =
+        // typedef pattern_functor func;
+        // const auto& arg=accessValueConstCast<R> (*this->dependency (0));
+        // const auto& pattern=accessValueConstCast<PatternType> (*this->dependency (1));
+        // this->accessValueMutable()=
+
+
+          
+      }
+
+      std::string debugInfo () const override {
+        using namespace numeric;
+        return debug (this->accessValueConst ()) + " targetDim=" + to_string (targetDimension_);
+      }
+
+      // CWisePattern additional arguments = ().
+      bool compareAdditionalArguments (const Node & other) const final {
+        return dynamic_cast<const Self *> (&other) != nullptr;
+      }
+
+      NodeRef derive (Context & c, const Node & node) final {
+        if (&node == this) {
+          return ConstantOne<R>::create (c, targetDimension_);
+        }
+        return Self::create (c, {this->dependency(0)->derive (c, node), this->dependency(1)}, targetDimension_);
+      }
+
+      NodeRef recreate (Context & c, NodeRefVec && deps) final {
+        return Self::create (c, std::move (deps), targetDimension_);
+      }
+
+    private:
+      void compute() {
+        const auto& arg=accessValueConstCast<R>(*this->dependency(0));
+        const auto& pattern=accessValueConstCast<PatternType>(*this->dependency(1));
+        this->accessValueMutable()=R::NullaryExpr(targetDimension_.rows, targetDimension_.cols, pattern_functor(arg, pattern));
+      };
+      
+      Dimension<R> targetDimension_;
+
+    };
+    
+
     /** @brief r = x0 + x1 for each component.
      * - r: R.
      * - x0: T0.

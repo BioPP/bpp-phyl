@@ -117,7 +117,7 @@ namespace bpp {
 
     /** @brief Conditionallikelihood = AboveConditionalLikelihood * BelowConditionalLikelihood
      *
-     * lik(state, site) = abova(state, site) * below(state,site)
+     * lik(state, site) = above(state, site) * below(state,site)
      * Using member wise multiply
      */
 
@@ -125,11 +125,17 @@ namespace bpp {
       CWiseMul<Eigen::MatrixXd, ReductionOf<Eigen::MatrixXd>>;
 
     using ConditionalLikelihood = Value<Eigen::MatrixXd>;
+    
+    using SiteLikelihoods = Value<Eigen::RowVectorXd>;
 
+    using AllRatesSiteLikelihoods = Eigen::MatrixXd;
+    
     using SiteWeights = NumericConstant<Eigen::RowVectorXi>;
 
     using ConditionalLikelihoodTree = AssociationTreeGlobalGraphObserver<ConditionalLikelihood,uint>;
-    
+
+    using SiteLikelihoodsTree = AssociationTreeGlobalGraphObserver<SiteLikelihoods, uint>;
+
     class LikelihoodCalculationSingleProcess :
       public AbstractParametrizable
     {
@@ -140,7 +146,21 @@ namespace bpp {
         std::shared_ptr<PhyloTree_BrRef> phyloTree;
         std::shared_ptr<ForwardLikelihoodTree> flt;
         std::shared_ptr<BackwardLikelihoodTree> blt;
-        std::shared_ptr<ConditionalLikelihoodTree> lt;
+        /*
+         * @brief for each node n:  clt[n] = flt[n] * dlt[n]
+         *
+         */
+        std::shared_ptr<ConditionalLikelihoodTree> clt;
+        
+        /*
+         * Site Likelihoods on the tree, with real (not shrunked)
+         * positions.
+         * 
+         * @brief for each node n:  lt[n] = sum_{state s} flt[n][s]
+         *
+         */
+
+        std::shared_ptr<SiteLikelihoodsTree> lt;
       };
 
       class ProcessNodes {
@@ -173,7 +193,8 @@ namespace bpp {
        * element in the likelihood array.
        */
       
-      std::vector<size_t> rootPatternLinks_;
+      ValueRef<PatternType> rootPatternLinks_;
+
       /**
        * @brief The frequency of each site.
        */
@@ -195,6 +216,8 @@ namespace bpp {
 
       ValueRef<Eigen::RowVectorXd> siteLikelihoods_;
 
+      ValueRef<Eigen::RowVectorXd> patternedSiteLikelihoods_;
+      
       /* Likelihood Trees with for all rate categories */
       std::vector<RateCategoryTrees> vRateCatTrees_;
 
@@ -220,7 +243,10 @@ namespace bpp {
     
       ValueRef<double> getLikelihood() 
       {
-        if (shrunkData_ && !likelihood_)
+        if (!shrunkData_)
+          throw Exception("LikelihoodCalculationSingleProcess::getLikelihood : data not set.");
+        
+        if (!likelihood_)
           makeLikelihoodAtRoot_();
         
         return likelihood_;
@@ -228,28 +254,28 @@ namespace bpp {
 
       size_t getNumberOfSites() const
       {
-        return psites_->getNumberOfSites();
+        return (psites_?psites_->getNumberOfSites():0);
       }
 
       size_t getNumberOfDistinctSites() const
       {
-        return shrunkData_->getNumberOfSites();
+        return shrunkData_?shrunkData_->getNumberOfSites():0;
       }
 
+      /*
+       * @brief Return the Sitelikelihoods_ vector on shrunked data
+       *
+       */
+      
       ValueRef<Eigen::RowVectorXd> getSiteLikelihoods()
       {
-        if (shrunkData_ && !siteLikelihoods_)
-          makeLikelihoodAtRoot_();
+        if (!shrunkData_)
+          throw Exception("LikelihoodCalculationSingleProcess::getSiteLikelihoods : data not set.");
         
-        return siteLikelihoods_;
-      }
-
-      double getLikelihoodForASite(size_t pos)
-      {
-        if (shrunkData_ && !siteLikelihoods_)
+        if (!siteLikelihoods_)
           makeLikelihoodAtRoot_();
 
-        return siteLikelihoods_->getTargetValue()[pos];
+        return siteLikelihoods_;
       }
 
       /************************************************
@@ -262,14 +288,14 @@ namespace bpp {
        *
        */
      
-      std::vector<size_t>& getRootArrayPositions() { return rootPatternLinks_; }
-      
       size_t getRootArrayPosition(size_t currentPosition) const
       {
-        return rootPatternLinks_[currentPosition];
+        return rootPatternLinks_->getTargetValue()(currentPosition);
       }
     
-      const std::vector<size_t>& getRootArrayPositions() const { return rootPatternLinks_; }
+//      PatternType& getRootArrayPositions() { return rootPatternLinks_; }
+      
+      const PatternType& getRootArrayPositions() const { return rootPatternLinks_->getTargetValue(); }
 
       const AlignedValuesContainer* getShrunkData() const {
         return shrunkData_.get();
@@ -279,11 +305,6 @@ namespace bpp {
       {
         return rootWeights_->getTargetValue()(pos);
       }
-
-      // const std::vector<unsigned int>& getWeights() const
-      // { 
-      //   return rootWeights_;
-      // }
 
       // ValueRef<double> getLikelihoodAtNode(uint nodeId) 
       // {
@@ -319,16 +340,6 @@ namespace bpp {
         return psites_;
       }
 
-      // std::size_t getNumberOfSites() const 
-      // {
-      //   return (psites_!=0)?psites_->getNumberOfSites():0;
-      // }
-
-      // std::size_t getNumberOfDistinctSites() const 
-      // {
-      //   return (shrunkData_!=0)?shrunkData_->getNumberOfSites():0;
-      // }
-
       const StateMap& getStateMap() const
       {
         return processNodes_.modelNode_->getTargetValue()->getStateMap();
@@ -344,19 +355,50 @@ namespace bpp {
         return rFreqs_;
       }
 
-      std::shared_ptr<ForwardLikelihoodTree> getForwardTree(size_t nCat)
-      {
-        if (nCat>=vRateCatTrees_.size())
-          throw Exception("LikelihoodCalculationSingleProcess::getForwardTree : Bad ForwardTree number " + TextTools::toString(nCat));
-        return vRateCatTrees_[nCat].flt;
-      }
+      // std::shared_ptr<ForwardLikelihoodTree> getForwardTree(size_t nCat)
+      // {
+      //   if (nCat>=vRateCatTrees_.size())
+      //     throw Exception("LikelihoodCalculationSingleProcess::getForwardTree : Bad ForwardTree number " + TextTools::toString(nCat));
+      //   return vRateCatTrees_[nCat].flt;
+      // }
 
+      std::shared_ptr<ConditionalLikelihoodTree> getConditionalLikelihoodTree(size_t nCat);
+      
+      std::shared_ptr<SiteLikelihoodsTree> getSiteLikelihoodsTree(size_t nCat);
+      
       /*
        *@ brief make DF nodes of the process, using
        *ConfiguredParameters defined in a ParameterList.
        */
       void makeProcessNodes(ParameterList& pl);
+
+            
+      /*********************************/
+      /*@brief Methods for external usage (after lik computation) */
+      /*  Then with real site positions (and not shrunked) */
       
+            
+      const Eigen::RowVectorXd& getSiteLikelihoodsForAClass(size_t nCat);
+
+      /*
+       *@brief Output array (Classes X Sites) of likelihoods for all
+       *sites & classes.
+       *
+       */
+       
+      const AllRatesSiteLikelihoods& getSiteLikelihoodsForAllClasses();
+
+      double getLikelihoodForASite(size_t pos)
+      {
+        if (!shrunkData_)
+          throw Exception("LikelihoodCalculationSingleProcess::getLikelihoodForASite : data not set.");
+        
+        if (!siteLikelihoods_)
+          makeLikelihoodAtRoot_();
+
+        return patternedSiteLikelihoods_->getTargetValue()(pos);
+      }
+
     private:
       void setPatterns_();
       
@@ -370,10 +412,6 @@ namespace bpp {
 
       void makeLikelihoodsAtNode_(uint nodeId);
 
-
-      /********************************/
-      
-      friend class LikelihoodCalculationCollection;
     };
 
   }
