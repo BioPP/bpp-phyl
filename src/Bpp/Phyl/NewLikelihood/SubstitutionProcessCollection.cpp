@@ -367,17 +367,19 @@ void SubstitutionProcessCollection::addOnePerBranchSubstitutionProcess(size_t nP
   const TransitionModel* model=getModel(nMod);
   
   vector<uint> ids = tree.getAllEdgesIndexes();
+  sort(ids.begin(), ids.end()); 
   vector<size_t> vModN=getModelNumbers();
   
   size_t maxMod=*max_element(vModN.begin(),vModN.end())+1;
   
   std::map<size_t, std::vector<unsigned int> > mModBr;
+  mModBr[nMod]=vector<uint>(1,ids[0]);
 
-  for (auto& id : ids)
+  for (auto it=ids.begin()+1; it!=ids.end(); it++)
   {
-    size_t mNb=maxMod+id;
+    size_t mNb=maxMod+*it;
     addModel(model->clone(),mNb);
-    mModBr[mNb]=vector<uint>(1,id);
+    mModBr[mNb]=vector<uint>(1,*it);
   }
 
   addSubstitutionProcess(nProc, mModBr, nTree, nRate);
