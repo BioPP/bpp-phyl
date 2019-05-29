@@ -435,7 +435,7 @@ void SubstitutionProcessCollection::addOnePerBranchSubstitutionProcess(size_t nP
 
   string pnum=TextTools::toString(mModBr.begin()->first);
   
-  for (const auto& pname : sharedParameterNames)
+  for (const auto& pname : sharedParameterNames2)
   {
     for (auto it=mModBr.begin();it!=mModBr.end();it++)
       if (it!=mModBr.begin())
