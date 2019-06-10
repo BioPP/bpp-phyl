@@ -88,15 +88,15 @@ void TwoParameterBinarySubstitutionModel::updateMatrices()
   eigenValues_[1] = -1 * mu_;
 
   // Eigen vectors:
-  leftEigenVectors_(0,0) = 1 - pi0_;
-  leftEigenVectors_(0,1) = pi0_;
+  leftEigenVectors_(0,0) = pi0_;
+  leftEigenVectors_(0,1) = 1-pi0_;
   leftEigenVectors_(1,0) = 1;
   leftEigenVectors_(1,1) = -1;
 
   rightEigenVectors_(0,0) = 1;
   rightEigenVectors_(1,0) = 1;
-  rightEigenVectors_(0,1) = 1;
-  rightEigenVectors_(1,1) = -1 * (1-pi0_) / pi0_;
+  rightEigenVectors_(0,1) = 1-pi0_;
+  rightEigenVectors_(1,1) = -1* pi0_;
 }
 
 /******************************************************************************/
