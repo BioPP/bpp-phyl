@@ -99,10 +99,11 @@ namespace bpp
     std::map<std::string,bool> adjustableParToStatus_; // status can be 0 == constaint relaxed (requires union during aliasing), or 1 == contraint remains the same or intensified (requires intersection during aliasing)
     bool getAdjustedParamStatus(std::string parName) { return adjustableParToStatus_[parName]; }
     void updateMatrices();
-    void adjustBoundaries(); // adjusts boundaries n the fly during optimization: changes the boundaries of parameters whose lower or upper bounds are set as their current value on the expense of other confunding parameters in the model
+    void adjustBoundaries(); // depreceted function - adjusts boundaries on the fly during optimization: changes the boundaries of parameters whose lower or upper bounds are set as their current value on the expense of other confunding parameters in the model
 
   public:
     std::string getName() const { return "RELAX"; }
+    void setParameterBounds(const std::string& parName, double lb, double ub); // enables alternation of boundaries of a parameter in the model
 
   };
 

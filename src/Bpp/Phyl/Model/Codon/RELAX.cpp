@@ -313,6 +313,11 @@ void RELAX::updateMatrices()
 
   pmixmodel_->setVRates(vd);
 
-  //adjust the boundaries of the parameters so that they would not have values at their boundaries 
-  //adjustBoundaries();
+}
+
+
+void RELAX::setParameterBounds(const std::string& parName, double lb, double ub)
+{
+  IntervalConstraint* bounds = new IntervalConstraint(lb, ub, true, true); 
+  getParameter_(parName).setConstraint(bounds, true);
 }
