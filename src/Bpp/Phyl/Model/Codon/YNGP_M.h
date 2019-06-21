@@ -51,7 +51,8 @@ namespace bpp
 
 /**
  * @brief Abstract generic class for The Yang et al (2000) M
- * substitution models for codons. al (2004). @author Laurent Guéguen
+ * substitution models for codons. al (2004).
+ * @author Laurent Guéguen
  *
  * References:
  *

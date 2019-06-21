@@ -184,7 +184,7 @@ namespace bpp
 
     void setFreqFromData(const SequencedValuesContainer& data, double pseudoCount = 0);
 
-    virtual void setFreq(std::map<int, double>&);
+    virtual void setFreq(std::map<int, double>& freqs);
 
     /**
      * @brief Tells the model that a parameter value has changed.

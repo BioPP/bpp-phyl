@@ -216,7 +216,7 @@ namespace bpp
 
     const FrequenciesSet* getFrequenciesSet() const { return freqSet_; }
 
-    void setFreqFromData(const SequencedValuesContainer& data, double pseudoCount = 0);
+    void setFreq(std::map<int, double>& freq);
 
   protected:
     /**

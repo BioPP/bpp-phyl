@@ -42,6 +42,7 @@
 
 #include "MixedTransitionModel.h"
 #include "AbstractSubstitutionModel.h"
+#include <Bpp/Seq/Container/SequenceContainerTools.h>
 
 #include <vector>
 #include <string>
@@ -230,7 +231,21 @@ namespace bpp
         sm->computeFrequencies(yn);
     }
 
+    void setFreq(std::map<int, double>& frequ)
+    {
+      for (auto& sm : modelsContainer_)
+        sm->setFreq(frequ);
+    }
+
+    void setFreqFromData(const SequencedValuesContainer& data, double pseudoCount)
+    {
+      std::map<int, double> freqs;
+      SequenceContainerTools::getFrequencies(data, freqs, pseudoCount);
+      setFreq(freqs);
+    }
+
   };
+  
 } // end of namespace bpp.
 
 #endif  // _ABSTRACT_MIXED_TRANSITION_MODEL_H_

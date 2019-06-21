@@ -41,6 +41,8 @@
 #define _ABSTRACT_WRAPPED_MODEL_H_
 
 #include "WrappedModel.h"
+#include <Bpp/Seq/Container/SequencedValuesContainer.h>
+#include <Bpp/Seq/Container/SequenceContainerTools.h>
 
 namespace bpp
 {
@@ -147,7 +149,10 @@ namespace bpp
 
     void setFreqFromData(const SequencedValuesContainer& data, double pseudoCount = 0)
     {
-      getModel().setFreqFromData(data, pseudoCount);
+      std::map<int, double> freqs;
+      SequenceContainerTools::getFrequencies(data, freqs, pseudoCount);
+      // Re-compute generator and eigen values:
+      getModel().setFreq(freqs);
     }
     
     void setFreq(std::map<int, double>& frequencies)

@@ -178,7 +178,12 @@ namespace bpp
     {
       simpleModel_->setFreqFromData(data, pseudoCount);
     }
-	
+
+    void setFreq(std::map<int, double>& frequencies)
+    {
+      simpleModel_->setFreq(frequencies);
+    }
+
     void fireParameterChanged(const ParameterList& parameters)
     {
       simpleModel_->matchParametersValues(parameters);

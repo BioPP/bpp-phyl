@@ -126,9 +126,9 @@ void AbstractBiblioTransitionModel::setNamespace(const std::string& name)
 
 /******************************************************************************/
 
-void AbstractBiblioTransitionModel::setFreq(std::map<int, double>& m)
+void AbstractBiblioTransitionModel::setFreq(std::map<int, double>& frequ)
 {
-  AbstractTotallyWrappedModel::setFreq(m);
+  AbstractTotallyWrappedModel::setFreq(frequ);
 
   ParameterList pl;
   for (const auto& it : mapParNamesFromPmodel_)
@@ -142,14 +142,8 @@ void AbstractBiblioTransitionModel::setFreq(std::map<int, double>& m)
 
 void AbstractBiblioTransitionModel::setFreqFromData(const SequencedValuesContainer& data, double pseudoCount)
 {
-  AbstractTotallyWrappedModel::setFreqFromData(data, pseudoCount);
-  
-  ParameterList pl;
-  for (const auto& it : mapParNamesFromPmodel_)
-  {
-    pl.addParameter(Parameter(getNamespace() + it.second, getModel().getParameterValue(getModel().getParameterNameWithoutNamespace(it.first))));
-  }
-
-  matchParametersValues(pl);
+  map<int, double> freqs;
+  SequenceContainerTools::getFrequencies(data, freqs, pseudoCount);
+  setFreq(freqs);
 }
 

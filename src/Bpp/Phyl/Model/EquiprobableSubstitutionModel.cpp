@@ -177,13 +177,9 @@ const Matrix<double>& EquiprobableSubstitutionModel::getd2Pij_dt2(double d) cons
 
 /******************************************************************************/
 
-void EquiprobableSubstitutionModel::setFreqFromData(const SequencedValuesContainer& data, double pseudoCount)
+void EquiprobableSubstitutionModel::setFreq(std::map<int, double>& freqs)
 {
-  std::map<int, double> freq;
-  
-  SequenceContainerTools::getFrequencies(data, freq, pseudoCount);
-
-  for (auto i : freq)
+  for (auto i : freqs)
     freq_[(size_t)i.first]=i.second;
 
   freqSet_->setFrequencies(freq_);

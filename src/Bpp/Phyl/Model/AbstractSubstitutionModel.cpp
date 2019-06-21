@@ -125,10 +125,9 @@ void AbstractTransitionModel::setFreqFromData(const SequencedValuesContainer& da
 
 void AbstractTransitionModel::setFreq(map<int, double>& freqs)
 {
-  for (size_t i = 0; i < size_; ++i)
-  {
-    freq_[i] = freqs[static_cast<int>(i)];
-  }
+  for (auto i : freqs)
+    freq_[(size_t)i.first]=i.second;
+
   // Re-compute generator and eigen values:
   updateMatrices();
 }
