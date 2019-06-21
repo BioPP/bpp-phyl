@@ -89,6 +89,7 @@ namespace bpp {
     template class ConstantOne<Eigen::MatrixXd>;
 
     template class NumericConstant<double>;
+    template class NumericConstant<size_t>;
     template class NumericConstant<Eigen::VectorXd>;
     template class NumericConstant<Eigen::RowVectorXd>;
     template class NumericConstant<Eigen::MatrixXd>;

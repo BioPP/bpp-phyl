@@ -223,15 +223,16 @@ namespace bpp {
        * through a inheriting class (aka Self), from a
        * ConfiguredObject
        *
+       * Additional dependencies are allowed
+       *
        */
 
       template<typename ConfiguredObject, typename Self>
       static ValueRef<Eigen::RowVectorXd>
       createVector (Context & c, NodeRefVec && deps,
-                    const Dimension<Eigen::RowVectorXd> & dim) {
-
-        checkDependenciesNotNull (typeid (Self), deps);
-        checkDependencyVectorSize (typeid (Self), deps, 1);
+                    const Dimension<Eigen::RowVectorXd> & dim) {        
+        checkDependencyVectorMinSize (typeid (Self), deps, 1);
+        checkNthDependencyNotNull (typeid (Self), deps, 0);
         checkNthDependencyIs<ConfiguredObject> (typeid (Self), deps, 0);
         return cachedAs<Value<Eigen::RowVectorXd>> (c, std::make_shared<Self> (std::move (deps), dim));
       }
@@ -246,8 +247,9 @@ namespace bpp {
       static ValueRef<Eigen::MatrixXd>
       createMatrix (Context & c, NodeRefVec && deps,
                     const Dimension<Eigen::MatrixXd> & dim) {
-        checkDependenciesNotNull (typeid (Self), deps);
-        checkDependencyVectorSize (typeid (Self), deps, 2);
+        checkDependencyVectorMinSize (typeid (Self), deps, 2);
+        checkNthDependencyNotNull (typeid (Self), deps, 0);
+        checkNthDependencyNotNull (typeid (Self), deps, 1);
         checkNthDependencyIs<ConfiguredObject> (typeid (Self), deps, 0);
         checkNthDependencyIs<ConfiguredParameter> (typeid (Self), deps, 1);
         return cachedAs<Value<Eigen::MatrixXd>> (c, std::make_shared<Self> (std::move (deps), dim));

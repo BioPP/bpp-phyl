@@ -58,8 +58,9 @@
 
 /** @file Defines the basic types of data flow nodes.
  */
+
 namespace bpp {
-  /// Debug: return a readable name for a C++ type descriptor (from typeid operator).
+/// Debug: return a readable name for a C++ type descriptor (from typeid operator).
   std::string prettyTypeName (const std::type_info & type_info);
 
   /// Combine hashable value to a hash, from Boost library
@@ -408,6 +409,8 @@ namespace bpp {
 
     /// Checks that all dependencies are not null, throws if not.
     void checkDependenciesNotNull (const std::type_info & contextNodeType, const NodeRefVec & deps);
+
+    void checkNthDependencyNotNull (const std::type_info & contextNodeType, const NodeRefVec & deps, std::size_t index);
 
     /// Checks that deps[index] is a T node, throws if not.
     template <typename T>

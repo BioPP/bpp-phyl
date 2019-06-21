@@ -44,6 +44,9 @@ knowledge of the CeCILL license and that you accept its terms.
 using namespace bpp;
 using namespace std;
 
+const NodeEvent NodeEvent::speciationEvent(NodeEvent::NodeType::Speciation);
+const NodeEvent NodeEvent::mixtureEvent(NodeEvent::NodeType::Mixture);
+
 /** Copy constructor: *********************************************************/
   
 PhyloNode::PhyloNode(const PhyloNode& node):

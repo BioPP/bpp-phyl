@@ -49,6 +49,48 @@
 
 namespace bpp
 {
+
+  /***********
+   * For each PhyloNode of the tree, a description of the event at the node.
+   *
+   * It will determine the choice of the computing operator on this node.
+   *
+   */
+
+  class NodeEvent : public Clonable
+  {
+    enum class NodeType
+    {
+      Speciation = 0,
+      Mixture = 1
+    };
+
+    NodeType nodeType_;
+    
+  public:
+    NodeEvent(NodeType type) { nodeType_=type;}
+
+    // NodeEvent(const NodeEvent& event) :
+    //   nodeType_(event.nodeType_) {}
+
+    NodeEvent* clone() const { return new NodeEvent(*this);}
+
+    bool isSpeciation() const { return nodeType_==NodeType::Speciation;}
+    bool isMixture() const {return nodeType_==NodeType::Mixture;}      
+
+  public:
+    static const NodeEvent speciationEvent;
+    static const NodeEvent mixtureEvent;
+
+    std::string toString() const
+    {
+      if (isSpeciation())
+        return "speciation";
+      else
+        return "mixture";
+    }
+  };
+        
   
   class PhyloNode
   {
@@ -58,7 +100,6 @@ namespace bpp
     
     // Node properties
     mutable std::map<std::string, Clonable*> properties_;
-
     
   public:
     /**

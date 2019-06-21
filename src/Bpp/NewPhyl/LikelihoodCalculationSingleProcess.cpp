@@ -9,10 +9,12 @@
 #include "Bpp/NewPhyl/BackwardLikelihoodTree.h"
 
 #include <Bpp/Phyl/Model/RateDistribution/ConstantRateDistribution.h>
+#include <Bpp/Phyl/Model/MixedTransitionModel.h>
 #include "Bpp/Phyl/NewLikelihood/SubstitutionProcessCollectionMember.h"
 
 #include <unordered_map>
 #include <list>
+#include <numeric>
 
 using namespace std;
 using namespace bpp;
@@ -149,11 +151,6 @@ void LikelihoodCalculationSingleProcess::makeProcessNodes(ParameterList& paramLi
   if (rates && dynamic_cast<const ConstantRateDistribution*>(rates)==nullptr)
     processNodes_.ratesNode_ = ConfiguredParametrizable::createConfigured<DiscreteDistribution, ConfiguredDistribution>(context_, *rates, paramList, suff);
 
-  ///////
-  // tree node
-  suff=spcm?("_"+TextTools::toString(spcm->getTreeNumber())):"";
-  const ParametrizablePhyloTree& parTree = process_.getParametrizablePhyloTree();
-  processNodes_.treeNode_ = makeTreeNode(context_, parTree, paramList, suff);
 
   /////////////////
   // model nodes
@@ -165,15 +162,25 @@ void LikelihoodCalculationSingleProcess::makeProcessNodes(ParameterList& paramLi
   for (auto nMod:vnMod)
   {    
     auto modelNode = ConfiguredParametrizable::createConfigured<TransitionModel, ConfiguredModel>(context_, *process_.getModel(nMod), paramList, "_"+ TextTools::toString(nMod));
-    
+
+    const auto mtm=dynamic_cast<const MixedTransitionModel*>(process_.getModel(nMod));
+
+    std::vector<size_t> nsubmod(mtm?mtm->getNumberOfModels():0);
+    std::iota (std::begin(nsubmod), std::end(nsubmod), 0);
+
     // assign model to branche id
     std::vector<uint> vId=process_.getNodesWithModel(nMod);
+    ModelAssign mass(modelNode, nsubmod);
+    
     for (auto id:vId)
-      modelmap.emplace(id, modelNode);
+      modelmap.emplace(id, mass);
   }
 
-  // assign models to branches
-  processNodes_.treeNode_->setBranchModels(modelmap);
+  ///////
+  // tree node
+  suff=spcm?("_"+TextTools::toString(spcm->getTreeNumber())):"";
+  const ParametrizablePhyloTree& parTree = process_.getParametrizablePhyloTree();
+  processNodes_.treeNode_ = makeProcessTree(context_, parTree, modelmap, paramList, suff);
 
   ///////////////////////////
   // rootFrequencies node
@@ -185,8 +192,8 @@ void LikelihoodCalculationSingleProcess::makeProcessNodes(ParameterList& paramLi
     processNodes_.rootFreqsNode_ = ConfiguredParametrizable::createConfigured<FrequenciesSet, ConfiguredFrequenciesSet>(context_, *root, paramList, suff);
   }
 
-  // get a modelNode from the map
-  processNodes_.modelNode_ = modelmap.begin()->second;
+  // get any modelNode from the map (only for StateMap)
+  processNodes_.modelNode_ = modelmap.begin()->second.model_;
 }
 
 
@@ -203,7 +210,7 @@ void LikelihoodCalculationSingleProcess::setNumericalDerivateConfiguration(doubl
   /////////////////
   // model nodes
 
-  vector<shared_ptr<BrRef> > vpn=processNodes_.treeNode_->getAllEdges();
+  vector<shared_ptr<ProcessEdge> > vpn=processNodes_.treeNode_->getAllEdges();
 
   for (auto& it: vpn)
   {
@@ -233,7 +240,7 @@ void LikelihoodCalculationSingleProcess::setClockLike(double rate)
   /////////////////
   // brlen nodes
 
-  vector<shared_ptr<BrRef> > vpn=processNodes_.treeNode_->getAllEdges();
+  vector<shared_ptr<ProcessEdge> > vpn=processNodes_.treeNode_->getAllEdges();
 
   for (auto& it: vpn)
   {
@@ -327,7 +334,7 @@ void LikelihoodCalculationSingleProcess::makeForwardLikelihoodTree_()
   if (!processNodes_.treeNode_->isRooted ()) {
     throw Exception ("PhyloTree must be rooted");
   }
-        
+  
   if (processNodes_.ratesNode_)
   {
     auto brlenmap = createBrLenMap(context_, *processNodes_.treeNode_);
@@ -341,7 +348,7 @@ void LikelihoodCalculationSingleProcess::makeForwardLikelihoodTree_()
       auto catRef = CategoryFromDiscreteDistribution::create(context_, {processNodes_.ratesNode_}, nCat);
   
       auto rateBrLen = multiplyBrLenMap(context_, *processNodes_.treeNode_, catRef);
-      auto treeCat = std::shared_ptr<PhyloTree_BrRef>(new PhyloTree_BrRef(*processNodes_.treeNode_, std::move(rateBrLen)));
+      auto treeCat = std::shared_ptr<ProcessTree>(new ProcessTree(*processNodes_.treeNode_, std::move(rateBrLen)));
       vRateCatTrees_[nCat].phyloTree=treeCat;      
 
       auto flt=std::make_shared<ForwardLikelihoodTree>(context_, treeCat, getStateMap());
@@ -367,8 +374,7 @@ void LikelihoodCalculationSingleProcess::makeLikelihoodAtRoot_()
     makeForwardLikelihoodTree_();
 
   std::size_t nbSite = getShrunkData()->getNumberOfSites();    
-  auto rootIndex = processNodes_.treeNode_->getRootIndex();
-  
+
   // Set root frequencies
   if (rFreqs_==0)
     makeRootFreqs_();
@@ -380,7 +386,7 @@ void LikelihoodCalculationSingleProcess::makeLikelihoodAtRoot_()
     for (auto& rateCat: vRateCatTrees_)
     {
       vLogRoot.push_back(LikelihoodFromRootConditional::create (
-                           context_, {rFreqs_, rateCat.flt->getForwardLikelihoodArray(rootIndex)}, rowVectorDimension (Eigen::Index (nbSite))));
+                           context_, {rFreqs_, rateCat.flt->getForwardLikelihoodArrayAtRoot()}, rowVectorDimension (Eigen::Index (nbSite))));
     }
 
     auto catProb = ProbabilitiesFromDiscreteDistribution::create(context_, {processNodes_.ratesNode_});
@@ -392,7 +398,7 @@ void LikelihoodCalculationSingleProcess::makeLikelihoodAtRoot_()
   else
   {
     siteLikelihoods_ = LikelihoodFromRootConditional::create (
-      context_, {rFreqs_, vRateCatTrees_[0].flt->getForwardLikelihoodArray(rootIndex)}, rowVectorDimension (Eigen::Index (nbSite)));
+      context_, {rFreqs_, vRateCatTrees_[0].flt->getForwardLikelihoodArrayAtRoot()}, rowVectorDimension (Eigen::Index (nbSite)));
   }
 
   patternedSiteLikelihoods_= CWisePattern<Eigen::RowVectorXd>::create(context_,{siteLikelihoods_,rootPatternLinks_}, rowVectorDimension (Eigen::Index (getData()->getNumberOfSites())));

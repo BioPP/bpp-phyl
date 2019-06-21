@@ -135,7 +135,7 @@ namespace bpp {
 
       std::string debugInfo () const final;
 
-      bool compareAdditionalArguments (const Node & other) const final;
+      bool compareAdditionalArguments (const Node & other) const;
 
       NodeRef derive (Context & c, const Node & node) final;
       NodeRef recreate (Context & c, NodeRefVec && deps) final;
@@ -170,7 +170,7 @@ namespace bpp {
 
       std::string debugInfo () const final;
 
-      bool compareAdditionalArguments (const Node & other) const final;
+      bool compareAdditionalArguments (const Node & other) const;
 
       NodeRef derive (Context & c, const Node & node) final;
       NodeRef recreate (Context & c, NodeRefVec && deps) final;
@@ -214,7 +214,7 @@ namespace bpp {
 
       std::string debugInfo () const final;
 
-      bool compareAdditionalArguments (const Node & other) const final;
+      bool compareAdditionalArguments (const Node & other) const;
 
       NodeRef derive (Context & c, const Node & node) final;
       NodeRef recreate (Context & c, NodeRefVec && deps) final;
@@ -259,7 +259,7 @@ namespace bpp {
 
       std::string debugInfo () const final;
 
-      bool compareAdditionalArguments (const Node & other) const final;
+      bool compareAdditionalArguments (const Node & other) const;
 
       NodeRef derive (Context & c, const Node & node) final;
       NodeRef recreate (Context & c, NodeRefVec && deps) final;
@@ -284,6 +284,45 @@ namespace bpp {
 
       Dimension<T> targetDimension_;
     };
+
+
+    /** Probabilities = f(MixedModel).
+     * Probabilities: RowVector(nbClass).
+     * MixedModel: ConfiguredModel.
+     *
+     * Node construction should be done with the create static method.
+     */
+    
+    class ProbabilitiesFromMixedModel : public Value<Eigen::RowVectorXd> {
+    public:
+      using Self = ProbabilitiesFromMixedModel;
+      using Dep = ConfiguredModel;
+      using T = Eigen::RowVectorXd;
+
+      ProbabilitiesFromMixedModel (NodeRefVec && deps, const Dimension<T> & dim);
+
+      std::string debugInfo () const final;
+      
+      std::string color() const final
+      {
+        return "blue";
+      }
+
+      bool compareAdditionalArguments (const Node & other) const final;
+      
+      NodeRef derive (Context & c, const Node & node) final;
+      NodeRef recreate (Context & c, NodeRefVec && deps) final;
+      
+    private:
+      void compute () final;
+      
+      Dimension<T> nbClass_;
+      
+    public:
+      static std::shared_ptr<Self> create (Context & c, NodeRefVec && deps);
+      
+    };
+
   } // namespace dataflow
 } // namespace bpp
 

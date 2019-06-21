@@ -11,12 +11,14 @@ set (CPP_FILES
   Bpp/NewPhyl/DataFlowNumeric.cpp
   Bpp/NewPhyl/DataFlowCWise.cpp
   Bpp/NewPhyl/DiscreteDistribution.cpp
+  Bpp/NewPhyl/ForwardLikelihoodTree.cpp
   Bpp/NewPhyl/FrequenciesSet.cpp
   Bpp/NewPhyl/LikelihoodCalculationSingleProcess.cpp
-  Bpp/NewPhyl/SingleProcessPhyloLikelihood_DF.cpp
   Bpp/NewPhyl/Model.cpp
   Bpp/NewPhyl/Parameter.cpp
   Bpp/NewPhyl/Parametrizable.cpp
+  Bpp/NewPhyl/ProcessTree.cpp
+  Bpp/NewPhyl/SingleProcessPhyloLikelihood_DF.cpp
   Bpp/Phyl/App/PhylogeneticsApplicationTools.cpp
   Bpp/Phyl/Distance/AbstractAgglomerativeDistanceMethod.cpp
   Bpp/Phyl/Distance/BioNJ.cpp

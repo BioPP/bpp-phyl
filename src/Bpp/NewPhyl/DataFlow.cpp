@@ -132,14 +132,21 @@ namespace bpp {
       }
     }
 
+    void checkNthDependencyNotNull (const std::type_info & contextNodeType, const NodeRefVec & deps, std::size_t index) {
+      if (!deps[index])
+        failureEmptyDependency (contextNodeType, index);
+    }
+
     /*****************************************************************************
      * Node impl.
      */
     Node::Node (const NodeRefVec & dependenciesArg) : dependencyNodes_ (dependenciesArg) {
+      dependencyNodes_.erase(std::remove_if(dependencyNodes_.begin(),dependencyNodes_.end(),[](NodeRef nr){return nr==0;}), dependencyNodes_.end());
       for (auto & n : dependencyNodes_)
         n->registerNode (this);
     }
     Node::Node (NodeRefVec && dependenciesArg) : dependencyNodes_ (std::move (dependenciesArg)) {
+      dependencyNodes_.erase(std::remove_if(dependencyNodes_.begin(),dependencyNodes_.end(),[](NodeRef nr){return nr==0;}), dependencyNodes_.end());
       for (auto & n : dependencyNodes_)
         n->registerNode (this);
     }

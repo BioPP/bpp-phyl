@@ -1,56 +1,67 @@
 //
-// File: ForwardLikelihoodTree.h
+// File: ForwardLikelihoodTree.cpp
 // Created by: Laurent Guéguen
 // Created on: mardi 23 juin 2015, à 09h 19
 //
 
 /*
-Copyright or © or Copr. Bio++ Development Team, (November 16, 2004)
+  Copyright or © or Copr. Bio++ Development Team, (November 16, 2004)
 
-This software is a computer program whose purpose is to provide classes
-for phylogenetic data analysis.
+  This software is a computer program whose purpose is to provide classes
+  for phylogenetic data analysis.
 
-This software is governed by the CeCILL  license under French law and
-abiding by the rules of distribution of free software.  You can  use, 
-modify and/ or redistribute the software under the terms of the CeCILL
-license as circulated by CEA, CNRS and INRIA at the following URL
-"http://www.cecill.info". 
+  This software is governed by the CeCILL  license under French law and
+  abiding by the rules of distribution of free software.  You can  use, 
+  modify and/ or redistribute the software under the terms of the CeCILL
+  license as circulated by CEA, CNRS and INRIA at the following URL
+  "http://www.cecill.info". 
 
-As a counterpart to the access to the source code and  rights to copy,
-modify and redistribute granted by the license, users are provided only
-with a limited warranty  and the software's author,  the holder of the
-economic rights,  and the successive licensors  have only  limited
-liability. 
+  As a counterpart to the access to the source code and  rights to copy,
+  modify and redistribute granted by the license, users are provided only
+  with a limited warranty  and the software's author,  the holder of the
+  economic rights,  and the successive licensors  have only  limited
+  liability. 
 
-In this respect, the user's attention is drawn to the risks associated
-with loading,  using,  modifying and/or developing or reproducing the
-software by the user in light of its specific status of free software,
-that may mean  that it is complicated to manipulate,  and  that  also
-therefore means  that it is reserved for developers  and  experienced
-professionals having in-depth computer knowledge. Users are therefore
-encouraged to load and test the software's suitability as regards their
-requirements in conditions enabling the security of their systems and/or 
-data to be ensured and,  more generally, to use and operate it in the 
-same conditions as regards security. 
+  In this respect, the user's attention is drawn to the risks associated
+  with loading,  using,  modifying and/or developing or reproducing the
+  software by the user in light of its specific status of free software,
+  that may mean  that it is complicated to manipulate,  and  that  also
+  therefore means  that it is reserved for developers  and  experienced
+  professionals having in-depth computer knowledge. Users are therefore
+  encouraged to load and test the software's suitability as regards their
+  requirements in conditions enabling the security of their systems and/or 
+  data to be ensured and,  more generally, to use and operate it in the 
+  same conditions as regards security. 
 
-The fact that you are presently reading this means that you have had
-knowledge of the CeCILL license and that you accept its terms.
+  The fact that you are presently reading this means that you have had
+  knowledge of the CeCILL license and that you accept its terms.
 */
 
 #ifndef _FORWARD_LIKELIHOOD_TREE_H_
 #define _FORWARD_LIKELIHOOD_TREE_H_
 
-#include "Bpp/NewPhyl/PhyloTree_BrRef.h"
-#include "Bpp/NewPhyl/Model.h"
-#include "Bpp/NewPhyl/DiscreteDistribution.h"
-#include "Bpp/NewPhyl/FrequenciesSet.h"
+#include "Bpp/NewPhyl/ProcessTree.h"
+#include <Bpp/Seq/Container/AlignedValuesContainer.h>
+#include <Bpp/Graph/AssociationDAGraphImplObserver.h>
 
 namespace bpp
 {
   namespace dataflow
   {
 
-    /** conditionalLikelihood = f(forwardLikelihood[children[i]] for i).
+    inline MatrixDimension transitionMatrixDimension (std::size_t nbState) {
+      return {Eigen::Index (nbState), Eigen::Index (nbState)};
+    }
+
+    inline MatrixDimension equilibriumFrequenciesDimension (std::size_t nbState) {
+      return rowVectorDimension (Eigen::Index (nbState));
+    }
+
+    inline MatrixDimension conditionalLikelihoodDimension (std::size_t nbState, std::size_t nbSite) {
+    return {Eigen::Index (nbState), Eigen::Index (nbSite)};
+    }
+    
+/** conditionalLikelihood = f(forwardLikelihood[children[i]] for i).
      * conditionalLikelihood: Matrix(state, site).
      * forwardLikelihood[i]: Matrix(state, site).
      *
@@ -58,7 +69,19 @@ namespace bpp
      * Using member wise multiply: c = prod_member_i f_i.
      */
     
-    using ConditionalLikelihoodFromChildrenForward = CWiseMul<Eigen::MatrixXd, ReductionOf<Eigen::MatrixXd>>;
+    using SpeciationFromChildrenForward = CWiseMul<Eigen::MatrixXd, ReductionOf<Eigen::MatrixXd>>;
+
+    /** conditionalLikelihood = f(forwardLikelihood[children[i]] for i, prop).
+     * conditionalLikelihood: Matrix(state, site).
+     * forwardLikelihood[i]: Matrix(state, site).
+     * prop: Vector([i])
+     *
+     * c(state, site) = sum_i f_i(state, site) * prop_i
+     * Using member wise addition: c = sum_member_i (f_i * prop_i)
+     */
+    
+    using MixtureFromChildrenForward = CWiseMean<Eigen::MatrixXd, ReductionOf<Eigen::MatrixXd>, Eigen::RowVectorXd>;
+
 
     /** @brief forwardLikelihood = f(transitionMatrix, conditionalLikelihood).
      * - forwardLikelihood: Matrix(state, site).
@@ -86,28 +109,30 @@ namespace bpp
  */
 
     using ConditionalLikelihoodForward = Value<Eigen::MatrixXd>;
+    using ConditionalLikelihoodForwardRef = ValueRef<Eigen::MatrixXd>;
 
     using ForwardLikelihoodBelow = Value<Eigen::MatrixXd>;
+    using ForwardLikelihoodBelowRef = ValueRef<Eigen::MatrixXd>;
 
-    class ForwardLikelihoodTree : public AssociationTreeGlobalGraphObserver<ConditionalLikelihoodForward,ForwardLikelihoodBelow>
+    class ForwardLikelihoodTree : public AssociationDAGlobalGraphObserver<ConditionalLikelihoodForward,ForwardLikelihoodBelow>
     {
-      using TreeClass = AssociationTreeGlobalGraphObserver<ConditionalLikelihoodForward,ForwardLikelihoodBelow>;
-      
+      using DAClass = AssociationDAGlobalGraphObserver<ConditionalLikelihoodForward,ForwardLikelihoodBelow>;
+
     private:
-      dataflow::Context& context_;
-      std::shared_ptr<dataflow::PhyloTree_BrRef> tree_;
+      Context& context_;
+      std::shared_ptr<ProcessTree> processTree_;
       MatrixDimension likelihoodMatrixDim_;
       const StateMap& statemap_;
       std::size_t nbState_;
       std::size_t nbSites_;
 
     public:
-
-      ForwardLikelihoodTree(dataflow::Context& c, 
-                            std::shared_ptr<dataflow::PhyloTree_BrRef> tree,
+      
+      ForwardLikelihoodTree(Context& c, 
+                            std::shared_ptr<ProcessTree> tree,
                             const StateMap& statemap) :
-        TreeClass(tree->getGraph()),
-        context_(c), tree_(tree), likelihoodMatrixDim_(), statemap_(statemap), nbState_(statemap.getNumberOfModelStates()), nbSites_(0)
+        DAClass(),
+        context_(c), processTree_(tree), likelihoodMatrixDim_(), statemap_(statemap), nbState_(statemap.getNumberOfModelStates()), nbSites_(0)
       {
       }
 
@@ -115,69 +140,29 @@ namespace bpp
       {
         nbSites_ = sites.getNumberOfSites (); 
         likelihoodMatrixDim_ = conditionalLikelihoodDimension (nbState_, nbSites_);
-        makeConditionalLikelihoodNode (tree_->getRootIndex (), sites);
+        auto n=makeConditionalLikelihoodNode (processTree_->getRoot(), sites);
+        rootAt(n);
       }
         
-      dataflow::ValueRef<Eigen::MatrixXd> makeInitialConditionalLikelihood (const std::string & sequenceName, const AlignedValuesContainer & sites)
-      {
-        size_t nbSites=sites.getNumberOfSites();
-        const auto sequenceIndex = sites.getSequencePosition (sequenceName);
-        Eigen::MatrixXd initCondLik (nbState_, nbSites);
-        for (std::size_t site = 0; site < nbSites; ++site) {
-          for (std::size_t state = 0; state < nbState_; ++state) {
-            initCondLik (Eigen::Index (state), Eigen::Index (site)) =
-              sites.getStateValueAt (site, sequenceIndex, statemap_.getAlphabetStateAsInt(state));
-          }
-        }
-        auto r=dataflow::NumericConstant<Eigen::MatrixXd>::create (context_, std::move (initCondLik));
-        
-        return r;
-      }
+      ConditionalLikelihoodForwardRef makeInitialConditionalLikelihood (const std::string & sequenceName, const AlignedValuesContainer & sites);
 
-      dataflow::ValueRef<Eigen::MatrixXd> makeForwardLikelihoodNode (PhyloTree::EdgeIndex index, const AlignedValuesContainer & sites) {
-        const auto brlen = tree_->getEdge(index)->getBrLen();
-        const auto model= tree_->getEdge(index)->getModel();
-        auto childConditionalLikelihood = makeConditionalLikelihoodNode (tree_->getSon(index), sites);
-        auto transitionMatrix =
-          dataflow::ConfiguredParametrizable::createMatrix<dataflow::ConfiguredModel, dataflow::TransitionMatrixFromModel> (context_, {model, brlen}, transitionMatrixDimension (nbState_));
-        auto r= dataflow::ForwardLikelihoodFromConditional::create (
-          context_, {transitionMatrix, childConditionalLikelihood}, likelihoodMatrixDim_);
-
-        associateEdge(r, tree_->getEdgeGraphid(tree_->getEdge(index)));
-        setEdgeIndex(r, index);
-        return r;
-      }
-
-      dataflow::ValueRef<Eigen::MatrixXd> makeConditionalLikelihoodNode (PhyloTree::NodeIndex index, const AlignedValuesContainer & sites) {
-        const auto childBranchIndexes = tree_->getBranches (index);
-        auto node=tree_->getNode (index);
-        if (childBranchIndexes.empty ()) {
-          auto r=makeInitialConditionalLikelihood (node->getName (), sites);
-          associateNode(r, tree_->getNodeGraphid(node));
-          setNodeIndex(r, index);
-          return(r);
-        }
-        else {
-          dataflow::NodeRefVec deps (childBranchIndexes.size ());
-          for (std::size_t i = 0; i < childBranchIndexes.size (); ++i) {
-            deps[i] = makeForwardLikelihoodNode (childBranchIndexes[i], sites);
-          }
-          auto r= dataflow::ConditionalLikelihoodFromChildrenForward::create (context_, std::move (deps),
-                                                                              likelihoodMatrixDim_);
-          associateNode(r, tree_->getNodeGraphid(node));
-          setNodeIndex(r, index);
-          return r;
-        }
-      }
-
-    /*
-     * @brief the LikehoodArrays
-     *
-     */
+      ForwardLikelihoodBelowRef makeForwardLikelihoodNode (std::shared_ptr<ProcessEdge> edge, const AlignedValuesContainer & sites);
+      
+      ConditionalLikelihoodForwardRef makeConditionalLikelihoodNode (std::shared_ptr<ProcessNode> node, const AlignedValuesContainer & sites);
+      
+      /*
+       * @brief the LikehoodArrays
+       *
+       */
     
       const ValueRef<Eigen::MatrixXd> getForwardLikelihoodArray(int nodeId) const
       {
         return getNode(nodeId);
+      }
+
+      const ValueRef<Eigen::MatrixXd> getForwardLikelihoodArrayAtRoot() const
+      {
+        return getRoot();
       }
 
       /**

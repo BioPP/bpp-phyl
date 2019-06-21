@@ -237,17 +237,8 @@ namespace bpp {
       }
 
       CWisePattern (NodeRefVec && deps, const Dimension<R> & dim)
-        : Value<R> (deps), targetDimension_ (dim)//, patterning(accessValueConstCast<R>(*deps[0]), accessValueConstCast<PatternType>(*deps[1]), dim))
+        : Value<R> (deps), targetDimension_ (dim)
       {
-//        this->accessValueMutable().resize(dim.rows,dim.cols);
-        // accessValueMutable() =
-        // typedef pattern_functor func;
-        // const auto& arg=accessValueConstCast<R> (*this->dependency (0));
-        // const auto& pattern=accessValueConstCast<PatternType> (*this->dependency (1));
-        // this->accessValueMutable()=
-
-
-          
       }
 
       std::string debugInfo () const override {
@@ -1439,7 +1430,8 @@ namespace bpp {
       }
 
       MatrixProduct (NodeRefVec && deps, const Dimension<R> & dim)
-        : Value<R> (std::move (deps)), targetDimension_ (dim) {
+        : Value<R> (std::move (deps)), targetDimension_ (dim)
+      {
       }
 
       std::string debugInfo () const override {

@@ -106,6 +106,10 @@ namespace bpp {
     Dimension () = default;
     Dimension (const double &) {}
   };
+  template <> struct Dimension<size_t> : NoDimension {
+    Dimension () = default;
+    Dimension (const size_t &) {}
+  };
   template <> struct Dimension<float> : NoDimension {
     Dimension () = default;
     Dimension (const float &) {}
@@ -306,10 +310,11 @@ namespace bpp {
     /*  HASH */
     
     // Hash of numerical value
-    template <typename T, typename = typename std::enable_if<std::is_floating_point<T>::value>::type>
-    std::size_t hash (T t) {
+    template <typename T>
+    std::size_t hash (T t, typename std::enable_if<std::is_floating_point<T>::value || std::is_integral<T>::value>::type* = 0) {
       return std::hash<T>{}(t);
     }
+    
     template <typename Derived> std::size_t hash (const Eigen::MatrixBase<Derived> & m) {
       std::size_t seed = 0;
       for (Eigen::Index j = 0; j < m.cols (); ++j) {

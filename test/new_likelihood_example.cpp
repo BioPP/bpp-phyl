@@ -293,16 +293,16 @@ TEST_CASE("df")
   
   bpp::dataflow::SingleProcessPhyloLikelihood_DF llh(context, l);
   timingEnd(ts, "df_setup");
+  auto lik = llh.getLikelihoodCalculation();
+  dotOutput("likelihood_example_value", {lik->getLikelihood().get()});
 
   ts = timingStart();
   auto logLik = llh.getValue();
   timingEnd(ts, "df_init_value");
   printLik(logLik, "df_init_value");
-  auto lik = llh.getLikelihoodCalculation();
-  dotOutput("likelihood_example_value", {lik->getLikelihood().get()});
   
-  // Manual access to dbrlen1
-  auto br= dynamic_cast<bpp::dataflow::ConfiguredParameter*>(llh.getLikelihoodCalculation()->getSharedParameter("BrLen1").get());
+  // Manual access to dbrlen
+  auto br= dynamic_cast<bpp::dataflow::ConfiguredParameter*>(lik->hasParameter("BrLen1")?lik->getSharedParameter("BrLen1").get():lik->getSharedParameter("BrLen_rate").get());
   
   auto dlogLik_dbrlen1 = lik->getLikelihood()->deriveAsValue(context, *br->dependency(0));
 

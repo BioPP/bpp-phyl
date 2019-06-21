@@ -80,19 +80,10 @@ namespace bpp {
    * dataflow graph, and provided as NumericConstant<MatrixXd>.
    */
 
-  inline MatrixDimension conditionalLikelihoodDimension (std::size_t nbState, std::size_t nbSite) {
-    return {Eigen::Index (nbState), Eigen::Index (nbSite)};
-  }
-  inline MatrixDimension transitionMatrixDimension (std::size_t nbState) {
-    return {Eigen::Index (nbState), Eigen::Index (nbState)};
-  }
-  inline MatrixDimension equilibriumFrequenciesDimension (std::size_t nbState) {
-    return rowVectorDimension (Eigen::Index (nbState));
-  }
 
   namespace dataflow {
 
-    class PhyloTree_BrRef;
+    class ProcessTree;
     class ForwardLikelihoodTree;
     class BackwardLikelihoodTree;
     
@@ -143,7 +134,7 @@ namespace bpp {
       
       class RateCategoryTrees {
       public:
-        std::shared_ptr<PhyloTree_BrRef> phyloTree;
+        std::shared_ptr<ProcessTree> phyloTree;
         std::shared_ptr<ForwardLikelihoodTree> flt;
         std::shared_ptr<BackwardLikelihoodTree> blt;
         /*
@@ -165,7 +156,7 @@ namespace bpp {
 
       class ProcessNodes {
       public:
-        std::shared_ptr<PhyloTree_BrRef> treeNode_;
+        std::shared_ptr<ProcessTree> treeNode_;
         std::shared_ptr<ConfiguredModel> modelNode_;
         std::shared_ptr<ConfiguredFrequenciesSet> rootFreqsNode_;
         std::shared_ptr<ConfiguredDistribution> ratesNode_;
@@ -345,7 +336,7 @@ namespace bpp {
         return processNodes_.modelNode_->getTargetValue()->getStateMap();
       }
       
-      std::shared_ptr<PhyloTree_BrRef> getTreeNode()
+      std::shared_ptr<ProcessTree> getTreeNode()
       {
         return processNodes_.treeNode_;
       }

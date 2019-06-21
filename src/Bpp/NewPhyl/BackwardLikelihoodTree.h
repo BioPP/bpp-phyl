@@ -40,9 +40,8 @@ knowledge of the CeCILL license and that you accept its terms.
 #ifndef _BACKWARD_LIKELIHOOD_TREE_H_
 #define _BACKWARD_LIKELIHOOD_TREE_H_
 
-#include "Bpp/NewPhyl/PhyloTree_BrRef.h"
+#include "Bpp/NewPhyl/ProcessTree.h"
 #include "Bpp/NewPhyl/Model.h"
-//#include "Bpp/NewPhyl/FrequenciesSet.h"
 
 #include "Bpp/NewPhyl/ForwardLikelihoodTree.h"
 
@@ -91,7 +90,7 @@ namespace bpp
     {
       using TreeClass = AssociationTreeGlobalGraphObserver<ConditionalLikelihood,BackwardLikelihoodAbove>;
 
-      /** For a given rate catagory, stores PhyloTree_BrRef,
+      /** For a given rate catagory, stores ProcessTree,
        * ForwardlikelihoodTree and BackwardLikelihoodTree
        **/
       
@@ -100,7 +99,7 @@ namespace bpp
       std::size_t nbState_;
       std::size_t nbSite_;
       std::shared_ptr<dataflow::ForwardLikelihoodTree> forwardTree_;
-      std::shared_ptr<dataflow::PhyloTree_BrRef> tree_;
+      std::shared_ptr<dataflow::ProcessTree> processTree_;
       ValueRef<Eigen::RowVectorXd> rFreqs_;
       MatrixDimension likelihoodMatrixDim_;
       const StateMap& statemap_;
@@ -109,12 +108,12 @@ namespace bpp
 
       BackwardLikelihoodTree(dataflow::Context& c, 
                              std::shared_ptr<dataflow::ForwardLikelihoodTree> forwardTree,
-                             std::shared_ptr<dataflow::PhyloTree_BrRef> tree,
+                             std::shared_ptr<dataflow::ProcessTree> tree,
                              ValueRef<Eigen::RowVectorXd> rFreqs,
                              const StateMap& statemap,
                              std::size_t nbSite) :
         TreeClass(tree->getGraph()),
-        context_(c), nbState_(statemap.getNumberOfModelStates()), nbSite_(nbSite), forwardTree_(forwardTree), tree_(tree), rFreqs_(rFreqs), likelihoodMatrixDim_(conditionalLikelihoodDimension (nbState_, nbSite_)), statemap_(statemap)
+        context_(c), nbState_(statemap.getNumberOfModelStates()), nbSite_(nbSite), forwardTree_(forwardTree), processTree_(tree), rFreqs_(rFreqs), likelihoodMatrixDim_(conditionalLikelihoodDimension (nbState_, nbSite_)), statemap_(statemap)
       {
       }
 
@@ -130,13 +129,13 @@ namespace bpp
       {
         auto r2=bpp::dataflow::CWiseFill<Eigen::MatrixXd, Eigen::RowVectorXd>::create(context_, {rootFreqs}, likelihoodMatrixDim_);
         
-        associateNode(r2, tree_->getRootIndex());
-        setNodeIndex(r2, tree_->getRootIndex());
+        associateNode(r2, processTree_->getRootIndex());
+        setNodeIndex(r2, processTree_->getRootIndex());
       }
         
       dataflow::ValueRef<Eigen::MatrixXd> makeBackwardAboveLikelihoodEdge (PhyloTree::EdgeIndex index) {
 
-        auto fatherIndex = tree_->getFatherOfEdge(index);
+        auto fatherIndex = processTree_->getFatherOfEdge(index);
 
         // get/check if edge with backward likelihood exists
         dataflow::ValueRef<Eigen::MatrixXd> backNode;
@@ -150,7 +149,7 @@ namespace bpp
         if (!forwardTree_)
           throw Exception("BackwardLikelihoodTree::makeBackwardAboveLikelihoodEdge: forwardTree_ is missing.");
 
-        auto edgeIds = forwardTree_->getBranches(fatherIndex);
+        auto edgeIds = forwardTree_->getOutgoingEdges(fatherIndex);
         dataflow::NodeRefVec deps;
         
         for (auto eId : edgeIds)
@@ -170,15 +169,15 @@ namespace bpp
 
       dataflow::ValueRef<Eigen::MatrixXd> makeConditionalAboveLikelihoodNode (PhyloTree::NodeIndex index) {
          //!!!! must be initialized before
-        if (index==tree_->getRootIndex())
+        if (index==processTree_->getRootIndex())
         {
           setRootFrequencies(rFreqs_);
           return getNode(index);
         }
         
         // get Edge with model
-        const auto edgeToFather = tree_->getEdgeToFather(index);
-        const auto edgeToFatherIndex = tree_->getEdgeIndex(edgeToFather);
+        const auto edgeToFather = processTree_->getEdgeToFather(index);
+        const auto edgeToFatherIndex = processTree_->getEdgeIndex(edgeToFather);
 
         // get/check if edge with backward likelihood exists
         dataflow::ValueRef<Eigen::MatrixXd> backEdge;
