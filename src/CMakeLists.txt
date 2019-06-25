@@ -61,6 +61,7 @@ set (CPP_FILES
   Bpp/Phyl/Likelihood/RNonHomogeneousMixedTreeLikelihood.cpp
   Bpp/Phyl/Likelihood/RNonHomogeneousTreeLikelihood.cpp
   Bpp/Phyl/Likelihood/TreeLikelihoodTools.cpp
+  Bpp/Phyl/Likelihood/JointLikelihoodFunction.cpp
   Bpp/Phyl/Mapping/DecompositionMethods.cpp
   Bpp/Phyl/Mapping/DecompositionReward.cpp
   Bpp/Phyl/Mapping/DecompositionSubstitutionCount.cpp
