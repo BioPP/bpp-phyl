@@ -176,6 +176,7 @@ set (CPP_FILES
   Bpp/Phyl/TreeExceptions.cpp
   Bpp/Phyl/TreeTemplateTools.cpp
   Bpp/Phyl/TreeTools.cpp  
+  Bpp/Phyl/TreeIterator.cpp  
   )
 
 # Build the static lib
