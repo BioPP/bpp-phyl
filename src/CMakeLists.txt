@@ -114,6 +114,7 @@ set (CPP_FILES
   Bpp/Phyl/Model/Codon/YNGP_M7.cpp
   Bpp/Phyl/Model/Codon/YNGP_M8.cpp
   Bpp/Phyl/Model/Codon/YNGP_M9.cpp
+  Bpp/Phyl/Model/Codon/RELAX.cpp
   Bpp/Phyl/Model/FrequenciesSet/CodonFrequenciesSet.cpp
   Bpp/Phyl/Model/FrequenciesSet/FrequenciesSet.cpp
   Bpp/Phyl/Model/FrequenciesSet/MvaFrequenciesSet.cpp
