@@ -124,17 +124,16 @@ RELAX::RELAX(const GeneticCode* gc, FrequenciesSet* codonFreqs) :
   YN98_2.omega = RELAX.omega2 ^ RELAX.k */
   // reparameterization of omega0: RELAX.omega0 = RELAX.p*RELAX.omega1
   //addParameter_(new AutoParameter("RELAX.p", 0.5, new IntervalConstraint(0.1, 1, true, true), true));
-  addParameter_(new Parameter("RELAX.p", 0.5, new IntervalConstraint(0.064, 1, true, true), true));
-  //addParameter_(new AutoParameter("RELAX.omega1", 1, new IntervalConstraint(0.64, 1, true, true), true));
-  addParameter_(new Parameter("RELAX.omega1", 1, new IntervalConstraint(0.5, 1, true, true), true));
+  addParameter_(new Parameter("RELAX.p", 0.5, new IntervalConstraint(0.0001, 1, true, true), true));
+  addParameter_(new Parameter("RELAX.omega1", 1, new IntervalConstraint(0.1, 1, true, true), true));
 
   // the upper bound of omega3 in its submodel is 999, so I must restrict upperBound(RELAX.omega2)^upperBound(RELAX.k)<=999 -> set maximal omega to 5  
   //addParameter_(new AutoParameter("RELAX.omega2", 2, new IntervalConstraint(1, 15, true, true), true));
-  addParameter_(new Parameter("RELAX.omega2", 2, new IntervalConstraint(1, 15, true, true), true));
+  addParameter_(new Parameter("RELAX.omega2", 2, new IntervalConstraint(1, 999, true, true), true));
 
   // add a selection intensity parameter k, which is 1 in the null case
   //addParameter_(new AutoParameter("RELAX.k", 1, new IntervalConstraint(0, 2.5, true, true), true));
-  addParameter_(new Parameter("RELAX.k", 1, new IntervalConstraint(0, 2, true, true), true));
+  addParameter_(new Parameter("RELAX.k", 1, new IntervalConstraint(0, 10, true, true), true));
 
   // look for synonymous codons
   // assumes that the states number follow the map in the genetic code and thus:
@@ -164,107 +163,6 @@ RELAX::RELAX(const GeneticCode* gc, FrequenciesSet* codonFreqs) :
 }
 
 
-void RELAX::adjustBoundaries()
-{
-  // get the current values of all the parameters
-  map<string,double> parameterToValue;
-  for (map<string, bool>::iterator it = adjustableParToStatus_.begin(); it != adjustableParToStatus_.end(); it++)
-  {
-    parameterToValue[it->first] = getParameterValue(it->first);
-  }
-
-  // check which parameters have values at their boundaries, and which boundary is reached (lower or upper)
-  const IntervalConstraint* paramConstraint;
-  const IntervalConstraint* confunderConstraint;
-  IntervalConstraint* paramNewBounds; 
-  IntervalConstraint* confunderNewBounds;
-  for (map<string, bool>::iterator externalIt = adjustableParToStatus_.begin(); externalIt != adjustableParToStatus_.end(); externalIt++)
-  {
-    // get the interval constraint of the parameter
-    paramConstraint = dynamic_cast<const IntervalConstraint*>(getParameter(externalIt->first).getConstraint());
-    if (externalIt->first == "p"|| externalIt->first == "omega1") // only the lower bound can be adjusted
-    {
-      // if the conastraint is at its boundaries -> set a new inerval constraint for it and for its confunding parameters
-      if (parameterToValue[externalIt->first] == paramConstraint->getLowerBound()) // only the lower bund can be adjusted in the case of omega0 and omega1
-      {
-        // relax the lower bound of the parameter
-        paramNewBounds = new IntervalConstraint(paramConstraint->getLowerBound() - 0.01, paramConstraint->getUpperBound(), true, true);
-        getParameter_(externalIt->first).setConstraint(paramNewBounds, true);
-        adjustableParToStatus_[externalIt->first] = 0;
-        // now, adjust the bounds on the other parameters
-        for (map<string, bool>::iterator internalIt = adjustableParToStatus_.begin(); internalIt != adjustableParToStatus_.end(); internalIt++)
-          {
-          confunderConstraint = dynamic_cast<const IntervalConstraint*>(getParameter(internalIt->first).getConstraint());
-          if (internalIt->first != externalIt->first && internalIt->first != "k"  && confunderConstraint->getLowerBound() + 0.01 < confunderConstraint->getUpperBound())
-          {
-          // if the confunder's value is not at its lower bound - increase the lower bound by 0.01
-          confunderNewBounds = new IntervalConstraint(confunderConstraint->getLowerBound() + 0.01, confunderConstraint->getUpperBound(), true, true);
-          getParameter_(internalIt->first).setConstraint(confunderNewBounds, true);
-          adjustableParToStatus_[internalIt->first] = 1;
-          break;
-          }
-          else if (internalIt->first == "k" && confunderConstraint->getUpperBound() - 0.015 > confunderConstraint->getLowerBound())
-          {
-          // in the case of k, the upper bound should be adjusted - descrease its upper bound by 0.11 (k is expressed as a power and is therefore more constraining)
-          confunderNewBounds = new IntervalConstraint(confunderConstraint->getLowerBound(), confunderConstraint->getUpperBound() - 0.015, true, true);
-          getParameter_(internalIt->first).setConstraint(confunderNewBounds, true);
-          adjustableParToStatus_[internalIt->first] = 1;
-          break;
-          }
-        }
-      }
-      return;
-    }
-    else if (externalIt->first == "omega2") // only the upper bound can be adjusted
-    {
-      // if the conastraint is at its boundaries -> set a new inerval constraint for it and for its confunding parameters
-      if (parameterToValue[externalIt->first] == paramConstraint->getUpperBound()) // only the upper bound can be adjusted in the case of omega2
-      {
-        paramNewBounds = new IntervalConstraint(paramConstraint->getLowerBound(), paramConstraint->getUpperBound() + 0.01, true, true);
-        getParameter_(externalIt->first).setConstraint(paramNewBounds, true);
-        adjustableParToStatus_[externalIt->first] = 0;
-        confunderConstraint = dynamic_cast<const IntervalConstraint*>(getParameter("k").getConstraint());
-        if (confunderConstraint->getLowerBound() < confunderConstraint->getUpperBound() - 0.015)
-        {
-          confunderNewBounds = new IntervalConstraint(confunderConstraint->getLowerBound(), confunderConstraint->getUpperBound() - 0.015, true, true);
-          getParameter_("k").setConstraint(confunderNewBounds, true);
-          adjustableParToStatus_["k"] = 1;
-        }
-      }
-      return;
-    }
-    else // in the case of k - only the upper bound can be adjusted, and in addition, p/omega1 AND omega2 must be adjusted
-    {
-      // if the constraint is at its boundaries -> set a new inerval constraint for it and for its confunding parameters
-      if (parameterToValue[externalIt->first] == paramConstraint->getUpperBound()) // only the upper bound can be adjusted in the case of omega2
-      {
-        // relax the upper bound of k
-        paramNewBounds = new IntervalConstraint(paramConstraint->getLowerBound(), paramConstraint->getUpperBound() + 0.01, true, true);
-        getParameter_(externalIt->first).setConstraint(paramNewBounds, true);
-        adjustableParToStatus_[externalIt->first] = 0;
-        for (map<string, bool>::iterator internalIt = adjustableParToStatus_.begin(); internalIt != adjustableParToStatus_.end(); internalIt++)
-        {
-          confunderConstraint = dynamic_cast<const IntervalConstraint*>(getParameter(internalIt->first).getConstraint());
-          if (internalIt->first == "p" && confunderConstraint->getLowerBound() + 0.05 < confunderConstraint->getUpperBound()) // constraint the lower bound of p (to affect only omega0=p*omega1)
-          {
-            confunderNewBounds = new IntervalConstraint(confunderConstraint->getLowerBound() + 0.05, confunderConstraint->getUpperBound(), true, true);
-            getParameter_(internalIt->first).setConstraint(confunderNewBounds, true);
-            adjustableParToStatus_[internalIt->first] = 1;
-          }
-          else if (internalIt->first == "omega2" && confunderConstraint->getLowerBound() < confunderConstraint->getUpperBound() - 0.05) // constrain the upper bound of omega2 
-          {
-            confunderNewBounds = new IntervalConstraint(confunderConstraint->getLowerBound(), confunderConstraint->getUpperBound() - 0.05, true, true);
-            getParameter_(internalIt->first).setConstraint(confunderNewBounds, true);
-            adjustableParToStatus_[internalIt->first] = 1;
-          }
-        }
-      }
-      return;
-    }
-  }
-}
-
-
 void RELAX::updateMatrices()
 {
   // update the values of the sub-model parameters, that are used in the 3 rate matrices
@@ -281,18 +179,33 @@ void RELAX::updateMatrices()
         if (np.size()>19) {
           ind = TextTools::to<int>(np.substr(19)) - 1; // ind corresponds to the index of the omega that belongs to submodel ind+1
         }
-        // change ind not to be -1 to allow names omega1, omega2, omega3
-        if (ind > 0) {                    // raise each omega to the power of k
-          double omega =  getParameterValue("omega" + TextTools::toString(ind));
-          omega = pow (omega, k);
-          lParPmodel_[i].setValue(omega);
-        } else if (ind == 0) {                          // handle omega0 differently due to reparameterization via RELAX.p
-          double omega1 = getParameterValue("omega1");
-          double p = getParameterValue("p");
-          double omega0 = p * omega1;
-          omega0 = pow(omega0,k);
-          lParPmodel_[i].setValue(omega0); // update the omega of the first sub-model according to the transformation: omega0^k = (p*omega1)^k
+        // change ind not to be -1 to allow names omega0, omega1, omega2
+        double omega;
+        if (ind == 0)
+        {
+          omega = getParameterValue("omega1") * getParameterValue("p");
+          if  (omega < 0.0001)
+          {
+            omega = 0.0001;
+          }    
         }
+        else if (ind == 1) 
+        {                    // raise each omega to the power of k
+          omega = pow(getParameterValue("omega" + TextTools::toString(ind)), k);
+          if (omega < 0.0001)
+          {
+            omega = 0.0001;
+          }
+        } 
+        else if (ind == 2) 
+        {                          // handle omega0 differently due to reparameterization via RELAX.p
+          omega = pow(getParameterValue("omega" + TextTools::toString(ind)), k);
+          if (omega > 999)
+          {
+            omega = 999;
+          }
+        }
+        lParPmodel_[i].setValue(omega);
       }
       else
       {
