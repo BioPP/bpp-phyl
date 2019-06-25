@@ -391,6 +391,18 @@ public:
   void addModel(TransitionModel* model, const std::vector<int>& nodesId);//, const std::vector<std::string>& newParams);
 
   /**
+   * @brief Alters of nodes assignemnts to existing nodes
+   * 
+   * @param modelIndex - index of the model to assign the node Id to
+   * @param nodeId - node Id to assign to the model index 
+   */
+  void setNodeToModel(size_t modelIndex, int nodeId);
+
+  /**
+   * @brief resets the assignments of models to nodes and vice versa
+   */
+  void resetModelToNodeIds();
+  /**
    * @brief Replace a model in the set, and all corresponding
    * parameters. The replaced model deleted.
    *
