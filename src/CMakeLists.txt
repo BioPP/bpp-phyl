@@ -74,6 +74,7 @@ set (CPP_FILES
   Bpp/Phyl/Mapping/SubstitutionRegister.cpp
   Bpp/Phyl/Mapping/UniformizationSubstitutionCount.cpp
   Bpp/Phyl/Mapping/WeightedSubstitutionCount.cpp
+  Bpp/Phyl/Mapping/StochasticMapping.cpp
   Bpp/Phyl/Model/AbstractBiblioMixedSubstitutionModel.cpp
   Bpp/Phyl/Model/AbstractBiblioSubstitutionModel.cpp
   Bpp/Phyl/Model/AbstractFromSubstitutionModelTransitionModel.cpp
