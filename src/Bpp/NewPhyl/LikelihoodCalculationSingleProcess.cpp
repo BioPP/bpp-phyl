@@ -108,7 +108,6 @@ void LikelihoodCalculationSingleProcess::makeProcessNodes_()
       paramList.shareParameter(newacp);
     }
   }
-  
   makeProcessNodes(paramList);
 }
 
@@ -249,7 +248,7 @@ void LikelihoodCalculationSingleProcess::setClockLike(double rate)
     auto mulref = CWiseMul<double, std::tuple<double, double>>::create (context_, {cp->dependency(0), rateRef}, Dimension<double>());
 
     auto cp2=ConfiguredParameter::resetDependencies(context_, cp, {mulref});
-    
+  
     it->setBrLen(cp2);
   }
 
@@ -337,8 +336,6 @@ void LikelihoodCalculationSingleProcess::makeForwardLikelihoodTree_()
   
   if (processNodes_.ratesNode_)
   {
-    auto brlenmap = createBrLenMap(context_, *processNodes_.treeNode_);
-      
     uint nbCat=(uint)processNodes_.ratesNode_->getTargetValue()->getNumberOfCategories();
 
     vRateCatTrees_.resize(nbCat);
@@ -390,10 +387,14 @@ void LikelihoodCalculationSingleProcess::makeLikelihoodAtRoot_()
     }
 
     auto catProb = ProbabilitiesFromDiscreteDistribution::create(context_, {processNodes_.ratesNode_});
+
+    for (size_t nCat=0;nCat<vRateCatTrees_.size();nCat++)
+      vLogRoot.push_back(ProbabilityFromDiscreteDistribution::create(context_, {processNodes_.ratesNode_},(uint)nCat));
     
-    vLogRoot.push_back(catProb);
-      
-    siteLikelihoods_ = CWiseMean<Eigen::RowVectorXd, ReductionOf<Eigen::RowVectorXd>, Eigen::RowVectorXd>::create(context_, std::move(vLogRoot), rowVectorDimension (Eigen::Index(nbSite)));
+    siteLikelihoods_ = CWiseMean<Eigen::RowVectorXd, ReductionOf<Eigen::RowVectorXd>, ReductionOf<double>>::create(context_, std::move(vLogRoot), rowVectorDimension (Eigen::Index(nbSite)));
+    
+    //vLogRoot.push_back(catProb);
+    //siteLikelihoods_ = CWiseMean<Eigen::RowVectorXd, ReductionOf<Eigen::RowVectorXd>, Eigen::RowVectorXd>::create(context_, std::move(vLogRoot), rowVectorDimension (Eigen::Index(nbSite)));
   }
   else
   {

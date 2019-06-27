@@ -73,13 +73,16 @@ namespace bpp {
     template class CWiseAdd<Eigen::RowVectorXd, ReductionOf<Eigen::RowVectorXd>>;
     template class CWiseAdd<Eigen::MatrixXd, ReductionOf<Eigen::MatrixXd>>;
 
+    template class CWiseMean<Eigen::VectorXd, ReductionOf<Eigen::VectorXd>, ReductionOf<double>>;
+    template class CWiseMean<Eigen::RowVectorXd, ReductionOf<Eigen::RowVectorXd>, ReductionOf<double>>;
+    template class CWiseMean<Eigen::MatrixXd, ReductionOf<Eigen::MatrixXd>, ReductionOf<double>>;
+
     template class CWiseMean<Eigen::VectorXd, ReductionOf<Eigen::VectorXd>, Eigen::VectorXd>;
     template class CWiseMean<Eigen::RowVectorXd, ReductionOf<Eigen::RowVectorXd>, Eigen::VectorXd>;
     template class CWiseMean<Eigen::MatrixXd, ReductionOf<Eigen::MatrixXd>, Eigen::VectorXd>;
     template class CWiseMean<Eigen::VectorXd, ReductionOf<Eigen::VectorXd>, Eigen::RowVectorXd>;
     template class CWiseMean<Eigen::RowVectorXd, ReductionOf<Eigen::RowVectorXd>, Eigen::RowVectorXd>;
     template class CWiseMean<Eigen::MatrixXd, ReductionOf<Eigen::MatrixXd>, Eigen::RowVectorXd>;
-
 
     template class CWiseSub<double, std::tuple<double, double>>;
     template class CWiseSub<Eigen::VectorXd, std::tuple<Eigen::VectorXd, Eigen::VectorXd>>;

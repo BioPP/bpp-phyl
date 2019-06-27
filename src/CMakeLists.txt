@@ -7,6 +7,7 @@
 
 # File list
 set (CPP_FILES
+  Bpp/NewPhyl/BackwardLikelihoodTree.cpp
   Bpp/NewPhyl/DataFlow.cpp
   Bpp/NewPhyl/DataFlowNumeric.cpp
   Bpp/NewPhyl/DataFlowCWise.cpp

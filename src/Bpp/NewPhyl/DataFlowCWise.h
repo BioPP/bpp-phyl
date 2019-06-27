@@ -530,7 +530,7 @@ namespace bpp {
      * Node construction should be done with the create static method.
      */
     
-    template <typename R, typename T, typename P> class CWiseMean<R, ReductionOf<T>, P> : public Value<R> {
+    template <typename R, typename T, typename P> class CWiseMean<R, ReductionOf<T>, ReductionOf<P>> : public Value<R> {
     public:
       using Self = CWiseMean;
 
@@ -539,6 +539,123 @@ namespace bpp {
       static ValueRef<R> create (Context & c, NodeRefVec && deps, const Dimension<R> & dim) {
         // Check dependencies
         checkDependenciesNotNull (typeid (Self), deps);
+        if (deps.size() % 2 == 1)
+          Exception ("CWiseMean needs an even number of dependencies, got " + std::to_string(deps.size()));
+        
+        size_t half=deps.size ()/2;
+        
+        checkDependencyRangeIsValue<T> (typeid (Self), deps, 0, half);
+        checkDependencyRangeIsValue<P> (typeid (Self), deps, half, deps.size());
+
+        // Remove both p_i or x_i from deps if one is null
+
+        for (size_t i=0;i<half;i++)
+        {
+          if (deps[i]->hasNumericalProperty (NumericalProperty::ConstantZero) ||
+              deps[i+half]->hasNumericalProperty (NumericalProperty::ConstantZero))
+          {
+            deps[i]==0;
+            deps[i+half]==0;
+          }
+        }
+        
+        removeDependenciesIf (deps, [](const NodeRef & dep) {
+            return dep==0;
+          });
+
+        // if p_i * x_i are all Null
+        if (deps.size()==0)
+          return ConstantZero<R>::create (c, dim);
+
+        // Select node implementation
+        return cachedAs<Value<R>> (c, std::make_shared<Self> (std::move (deps), dim));
+      }
+
+      CWiseMean (NodeRefVec && deps, const Dimension<R> & dim)
+        : Value<R> (std::move (deps)), targetDimension_ (dim) {}
+
+      std::string debugInfo () const override {
+        using namespace numeric;
+        return debug (this->accessValueConst ()) + " targetDim=" + to_string (targetDimension_);
+      }
+
+      std::string shape() const
+      {
+        return "trapezium";
+      }
+
+      std::string color() const
+      {
+        return "#ffd0d0";
+      }
+
+      std::string description() const
+      {
+        return "Mean";
+      }
+      
+      // CWiseAdd additional arguments = ().
+      bool compareAdditionalArguments (const Node & other) const final {
+        return dynamic_cast<const Self *> (&other) != nullptr;
+      }
+
+      NodeRef derive (Context & c, const Node & node) final {
+        if (&node == this) {
+          return ConstantOne<R>::create (c, targetDimension_);
+        }
+        const auto n = this->nbDependencies ();
+        size_t half=n/2;
+
+        NodeRefVec derivedDeps_T (n);
+        for (std::size_t i = 0; i < half; ++i) {
+          derivedDeps_T[i] = this->dependency (i)->derive (c, node);
+        }
+        for (std::size_t i = half; i < n; ++i) {
+          derivedDeps_T[i] = this->dependency (i);
+        }
+        NodeRef dR_dT=Self::create (c, std::move (derivedDeps_T), targetDimension_);
+
+        NodeRefVec derivedDeps_P(n);
+        for (std::size_t i = 0; i < half; ++i) {
+          derivedDeps_P[i] = this->dependency (i);
+        }
+        for (std::size_t i = half; i < n; ++i) {
+          derivedDeps_P[i] = this->dependency (i)->derive (c, node);
+        }
+        
+        NodeRef dR_dP=Self::create (c, std::move (derivedDeps_P), targetDimension_);
+
+        return CWiseAdd<R, std::tuple<R,R>>::create(c, {dR_dT, dR_dP}, targetDimension_);
+        
+      }
+
+      NodeRef recreate (Context & c, NodeRefVec && deps) final {
+        return Self::create (c, std::move (deps), targetDimension_);
+      }
+
+    private:
+      void compute () final {
+        using namespace numeric;
+        auto & result = this->accessValueMutable ();
+        result = zero (targetDimension_);
+        size_t half=this->nbDependencies()/2;
+        for (size_t i=0; i<half; i++)
+        {
+          cwise (result) += cwise (accessValueConstCast<P> (*this->dependency(i+half))) * cwise (accessValueConstCast<T> (*this->dependency(i)));
+        }
+      }
+
+      Dimension<R> targetDimension_;
+    };
+
+    template <typename R, typename T, typename P> class CWiseMean<R, ReductionOf<T>, P> : public Value<R> {
+    public:
+      using Self = CWiseMean;
+
+      /// Build a new CWiseMean node with the given output dimensions.
+      //  Last dependency is for P component
+      static ValueRef<R> create (Context & c, NodeRefVec && deps, const Dimension<R> & dim) {
+        // Check dependencies
         if (deps.size () <= 1) 
           return ConstantZero<R>::create (c, dim);
         checkDependencyRangeIsValue<T> (typeid (Self), deps, 0, deps.size () -1);
@@ -552,10 +669,11 @@ namespace bpp {
             })) {
           return ConstantZero<R>::create (c, dim);
         }
+        
         // Select node implementation
         return cachedAs<Value<R>> (c, std::make_shared<Self> (std::move (deps), dim));
       }
-
+      
       CWiseMean (NodeRefVec && deps, const Dimension<R> & dim)
         : Value<R> (std::move (deps)), targetDimension_ (dim) {}
 
@@ -617,9 +735,7 @@ namespace bpp {
         result = zero (targetDimension_);
         auto& p = accessValueConstCast<P>(*this->dependency(this->nbDependencies()-1));
         for (size_t i=0; i<this->nbDependencies()-1; i++)
-        {
           cwise (result) += cwise(p)[i] * cwise (accessValueConstCast<T> (*this->dependency(i)));
-        }
       }
 
       Dimension<R> targetDimension_;
@@ -1776,6 +1892,12 @@ namespace bpp {
     extern template class CWiseAdd<Eigen::VectorXd, ReductionOf<Eigen::VectorXd>>;
     extern template class CWiseAdd<Eigen::RowVectorXd, ReductionOf<Eigen::RowVectorXd>>;
     extern template class CWiseAdd<Eigen::MatrixXd, ReductionOf<Eigen::MatrixXd>>;
+
+
+    extern template class CWiseMean<double, ReductionOf<double>, ReductionOf<double>>;
+    extern template class CWiseMean<Eigen::VectorXd, ReductionOf<Eigen::VectorXd>, ReductionOf<double>>;
+    extern template class CWiseMean<Eigen::RowVectorXd, ReductionOf<Eigen::RowVectorXd>, ReductionOf<double>>;
+    extern template class CWiseMean<Eigen::MatrixXd, ReductionOf<Eigen::MatrixXd>, ReductionOf<double>>;
 
     extern template class CWiseMean<double, ReductionOf<double>, double>;
     extern template class CWiseMean<Eigen::VectorXd, ReductionOf<Eigen::VectorXd>, Eigen::VectorXd>;
