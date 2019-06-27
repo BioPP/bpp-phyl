@@ -108,8 +108,7 @@ namespace bpp {
     }
 
     NodeRef ConfiguredParameter::recreate (Context & c, NodeRefVec && deps) {
-      auto m = ConfiguredParameter::create (c, std::move (deps), *this);
-      return m;
+      return ConfiguredParameter::create (c, std::move (deps), *this);
     }
 
     void ConfiguredParameter::compute () {

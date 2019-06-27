@@ -157,6 +157,45 @@ namespace bpp {
       
     };
 
+    /** Proba = f(DiscreteDistribution, Category).
+     * Proba: Double.
+     * DiscreteDistribution: ConfiguredDistribution.
+     * Category: number of the category
+     *
+     * Node construction should be done with the create static method.
+     */
+
+    class ProbabilityFromDiscreteDistribution : public Value<double> {
+    private:
+      uint nCat_;
+      
+    public:
+      using Self = ProbabilityFromDiscreteDistribution;
+      using Dep = ConfiguredDistribution;
+      using T = double;
+
+      ProbabilityFromDiscreteDistribution (NodeRefVec && deps, uint nCat_);
+
+      std::string debugInfo () const final;
+
+      bool compareAdditionalArguments (const Node & other) const final;
+
+      NodeRef derive (Context & c, const Node & node) final;
+      NodeRef recreate (Context & c, NodeRefVec && deps) final;
+
+      std::string color() const final
+      {
+        return "blue";
+      }
+
+    private:
+      void compute () final;
+
+    public:
+      static std::shared_ptr<Self> create (Context & c, NodeRefVec && deps, uint nCat);
+
+    };
+
     /** Rate = f(DiscreteDistribution, Category).
      * Rate: Double.
      * DiscreteDistribution: ConfiguredDistribution.

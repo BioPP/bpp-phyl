@@ -80,8 +80,8 @@ ProcessTree::ProcessTree(Context& context, const ParametrizablePhyloTree& tree, 
     if (vrefmap.find(ids)!=vrefmap.end())
     {
       auto brref=make_shared<ProcessEdge>(vrefmap.at(ids));
-            associateEdge(move(brref), index);
-            setEdgeIndex(getEdgeFromGraphid(index),ids);
+      associateEdge(move(brref), index);
+      setEdgeIndex(getEdgeFromGraphid(index),ids);
     }
     else
       throw Exception("ProcessTree::ProcessTree missing reference for branch " + TextTools::toString(ids));

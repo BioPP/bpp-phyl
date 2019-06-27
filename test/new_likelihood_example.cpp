@@ -320,6 +320,13 @@ TEST_CASE("df")
   std::cout << "[d2kappa] " << d2logLik_dkappa2->getTargetValue() << "\n";
   dotOutput("likelihood_example_dkappa2", {d2logLik_dkappa2.get()});
 
+  // Manual access to dalpha
+
+  auto alpha= dynamic_cast<bpp::dataflow::ConfiguredParameter*>(llh.getLikelihoodCalculation()->getSharedParameter("Gamma.alpha").get());
+  auto dlogLik_dalpha = lik->getLikelihood()->deriveAsValue(context, *alpha->dependency(0));
+  std::cout << "[dalpha] " << dlogLik_dalpha->getTargetValue() << "\n";
+  dotOutput("likelihood_example_dalpha", {dlogLik_dalpha.get()});
+  
   // for (size_t pos=0;pos<c.sites.getNumberOfSites();pos++)
   //   std::cout << pos << " : " << lik->getLikelihoodForASite(pos) << std::endl;
   

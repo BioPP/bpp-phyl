@@ -141,6 +141,54 @@ namespace bpp {
       
 
     ////////////////////////////////////////////////////
+    // ProbabilityFromDiscreteDistribution
+
+    ProbabilityFromDiscreteDistribution::ProbabilityFromDiscreteDistribution (
+      NodeRefVec && deps, uint nCat)
+      : Value<double> (std::move (deps)), nCat_ (nCat) {}
+
+    
+    std::string ProbabilityFromDiscreteDistribution::debugInfo () const {
+      using namespace numeric;
+      return "proba=" + TextTools::toString(accessValueConst()) + ":nCat=" + TextTools::toString(nCat_);
+    }
+
+    // ProbabilityFromDiscreteDistribution additional arguments = ().
+    bool ProbabilityFromDiscreteDistribution::compareAdditionalArguments (const Node & other) const {
+      const auto * derived = dynamic_cast<const Self *> (&other);
+      return derived != nullptr && nCat_ == derived->nCat_;
+    }
+
+    std::shared_ptr<ProbabilityFromDiscreteDistribution> ProbabilityFromDiscreteDistribution::create (Context & c, NodeRefVec && deps, uint nCat) {
+      checkDependenciesNotNull (typeid (Self), deps);
+      checkDependencyVectorSize (typeid (Self), deps, 1);
+      checkNthDependencyIs<ConfiguredDistribution> (typeid (Self), deps, 0);
+      return cachedAs<ProbabilityFromDiscreteDistribution> (c, std::make_shared<ProbabilityFromDiscreteDistribution> (std::move (deps), nCat));
+    }
+
+    NodeRef ProbabilityFromDiscreteDistribution::derive (Context & c, const Node & node) {
+      // d(Prob)/dn = sum_i d(Prob)/dx_i * dx_i/dn (x_i = distrib parameters)
+      auto distribDep = this->dependency (0);
+      auto & distrib = static_cast<Dep &> (*distribDep);
+      auto buildPWithNewDistrib = [this, &c](NodeRef && newDistrib) {
+        return this->create (c, {std::move (newDistrib)}, nCat_);
+      };
+      
+      NodeRefVec derivativeSumDeps = ConfiguredParametrizable::generateDerivativeSumDepsForComputations<Dep, T > (
+        c, distrib, node, 1, buildPWithNewDistrib);
+      return CWiseAdd<T, ReductionOf<T>>::create (c, std::move (derivativeSumDeps), 1);
+    }
+
+    NodeRef ProbabilityFromDiscreteDistribution::recreate (Context & c, NodeRefVec && deps) {
+      return ProbabilityFromDiscreteDistribution::create (c, {std::move (deps)}, nCat_);
+    }
+
+    void ProbabilityFromDiscreteDistribution::compute () {
+      const auto * distrib = accessValueConstCast<const DiscreteDistribution *> (*this->dependency (0));
+      this->accessValueMutable () = distrib->getProbability((size_t)nCat_);
+    }
+
+    ////////////////////////////////////////////////////
     // CategoryFromDiscreteDistribution
 
     CategoryFromDiscreteDistribution::CategoryFromDiscreteDistribution (

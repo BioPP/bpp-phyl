@@ -86,9 +86,9 @@ namespace bpp
     /** Tree structure for all the forward computations **/
     /* All the computations are set in a DataFlow context */
 
-    class BackwardLikelihoodTree : public AssociationTreeGlobalGraphObserver<ConditionalLikelihood,BackwardLikelihoodAbove>
+    class BackwardLikelihoodTree : public AssociationDAGlobalGraphObserver<ConditionalLikelihood,BackwardLikelihoodAbove>
     {
-      using TreeClass = AssociationTreeGlobalGraphObserver<ConditionalLikelihood,BackwardLikelihoodAbove>;
+      using DAClass = AssociationDAGlobalGraphObserver<ConditionalLikelihood,BackwardLikelihoodAbove>;
 
       /** For a given rate catagory, stores ProcessTree,
        * ForwardlikelihoodTree and BackwardLikelihoodTree
@@ -112,7 +112,7 @@ namespace bpp
                              ValueRef<Eigen::RowVectorXd> rFreqs,
                              const StateMap& statemap,
                              std::size_t nbSite) :
-        TreeClass(tree->getGraph()),
+        DAClass(forwardTree->getGraph()),
         context_(c), nbState_(statemap.getNumberOfModelStates()), nbSite_(nbSite), forwardTree_(forwardTree), processTree_(tree), rFreqs_(rFreqs), likelihoodMatrixDim_(conditionalLikelihoodDimension (nbState_, nbSite_)), statemap_(statemap)
       {
       }
@@ -128,78 +128,14 @@ namespace bpp
       void setRootFrequencies(const dataflow::ValueRef<Eigen::RowVectorXd> rootFreqs)
       {
         auto r2=bpp::dataflow::CWiseFill<Eigen::MatrixXd, Eigen::RowVectorXd>::create(context_, {rootFreqs}, likelihoodMatrixDim_);
-        
-        associateNode(r2, processTree_->getRootIndex());
-        setNodeIndex(r2, processTree_->getRootIndex());
+
+        associateNode(r2, forwardTree_->getRootIndex());
+        setNodeIndex(r2, forwardTree_->getRootIndex());
       }
         
-      dataflow::ValueRef<Eigen::MatrixXd> makeBackwardAboveLikelihoodEdge (PhyloTree::EdgeIndex index) {
-
-        auto fatherIndex = processTree_->getFatherOfEdge(index);
-
-        // get/check if edge with backward likelihood exists
-        dataflow::ValueRef<Eigen::MatrixXd> backNode;
-        
-        if (hasNode(fatherIndex))
-          backNode = getNode(fatherIndex);
-        else
-          backNode = makeConditionalAboveLikelihoodNode(fatherIndex);
-
-        // get forward likelihoods of brothers
-        if (!forwardTree_)
-          throw Exception("BackwardLikelihoodTree::makeBackwardAboveLikelihoodEdge: forwardTree_ is missing.");
-
-        auto edgeIds = forwardTree_->getOutgoingEdges(fatherIndex);
-        dataflow::NodeRefVec deps;
-        
-        for (auto eId : edgeIds)
-        {
-          if (eId!=index)
-            deps.push_back(forwardTree_->getEdge(eId));
-        }
-        deps.push_back(backNode);
-        
-        auto r= dataflow::ConditionalLikelihoodFromBrothersBackward::create (context_, std::move (deps),
-                                                                             likelihoodMatrixDim_);
-        
-        associateEdge(r,index);
-        setEdgeIndex(r, index);
-        return r;
-      }
-
-      dataflow::ValueRef<Eigen::MatrixXd> makeConditionalAboveLikelihoodNode (PhyloTree::NodeIndex index) {
-         //!!!! must be initialized before
-        if (index==processTree_->getRootIndex())
-        {
-          setRootFrequencies(rFreqs_);
-          return getNode(index);
-        }
-        
-        // get Edge with model
-        const auto edgeToFather = processTree_->getEdgeToFather(index);
-        const auto edgeToFatherIndex = processTree_->getEdgeIndex(edgeToFather);
-
-        // get/check if edge with backward likelihood exists
-        dataflow::ValueRef<Eigen::MatrixXd> backEdge;
-        
-        if (hasEdge(edgeToFatherIndex))
-          backEdge = getEdgeToFather(index);
-        else
-          backEdge=makeBackwardAboveLikelihoodEdge(index);
-        
-        const auto brlen = edgeToFather->getBrLen();
-        const auto model= edgeToFather->getModel();
-        // useless, the transitionMatrix already exists, but is not available directly through a tree
-        auto transitionMatrix =
-          dataflow::ConfiguredParametrizable::createMatrix<dataflow::ConfiguredModel, dataflow::TransitionMatrixFromModel> (context_, {model, brlen}, transitionMatrixDimension (nbState_));
-
-        auto r= dataflow::BackwardLikelihoodFromConditional::create (
-          context_, {transitionMatrix, backEdge}, likelihoodMatrixDim_);
-
-        associateNode(r, index);
-        setNodeIndex(r, index);
-        return r;
-      }
+      dataflow::ValueRef<Eigen::MatrixXd> makeBackwardAboveLikelihoodEdge (PhyloTree::EdgeIndex index);
+      
+      dataflow::ValueRef<Eigen::MatrixXd> makeConditionalAboveLikelihoodNode (PhyloTree::NodeIndex index);
 
     /*
      * @brief the LikehoodArrays

@@ -417,9 +417,23 @@ namespace bpp {
     void checkNthDependencyIs (const std::type_info & contextNodeType, const NodeRefVec & deps,
                                std::size_t index) {
       const auto & dep = *deps[index];
-      if (dynamic_cast<const T *> (&dep) == nullptr) {
+      if (dynamic_cast<const T *> (&dep) == nullptr)
         failureDependencyTypeMismatch (contextNodeType, index, typeid (T), typeid (dep));
-      }
+    }
+
+    /// Checks that deps[index] is a T1 or a T2 node, throws if not.
+    template <typename T1, typename T2>
+    void checkNthDependencyIs (const std::type_info & contextNodeType, const NodeRefVec & deps,
+                               std::size_t index){
+      const auto & dep = *deps[index];
+      if (dynamic_cast<const T1 *> (&dep) == nullptr &&
+          (dynamic_cast<const T2 *> (&dep) == nullptr))
+
+        throw Exception (prettyTypeName (contextNodeType) + ": expected class derived from " +
+                         prettyTypeName (typeid(T1))
+                         + " or " + prettyTypeName (typeid(T2))
+                         + " as " + std::to_string (index)
+                         + "-th dependency, got " + prettyTypeName (typeid (dep)));
     }
 
     /// Check that deps[start, end[ contains T, throws if not.

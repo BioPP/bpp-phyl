@@ -98,6 +98,7 @@ namespace bpp
     struct ProcessEdge
     {
       std::shared_ptr<ConfiguredParameter> brlen_;
+      //NodeRef brlen_;
 
       std::shared_ptr<ConfiguredModel> model_;
 
@@ -247,25 +248,13 @@ namespace bpp
       ProcessTree(const ProcessTree& tree, BrLenMap&& vrefmap) :
         AssociationTreeGlobalGraphObserver<ProcessNode,ProcessEdge>(tree)
       {
-        auto aEit=allEdgesIterator();
-        
-        while (!aEit->end())
-        {
-          auto edge=**aEit;
-          if (edge->getBrLen())
-          {
-            auto parname = edge->getBrLen()->getName();
+        std::vector<uint> vEdgesId=tree.getAllEdgesIndexes();
 
-            for (auto& copedge:vrefmap)
-            {
-              if (copedge.second && copedge.second->getName()==parname)
-              {
-                edge->setBrLen(copedge.second);
-                break;
-              }
-            }
-          }
-          aEit->next();
+        for (auto& index:vEdgesId)
+        {
+          if (vrefmap.find(index)==vrefmap.end())
+            throw Exception("ProcessTree::ProcessTree : unknown edge id in Map : " + std::to_string(index));
+          getEdge(index)->setBrLen(vrefmap.at(index));
         }
       }
 
@@ -353,6 +342,7 @@ namespace bpp
         }
         else
           map.emplace (tree.getEdgeIndex(edge), std::shared_ptr<ConfiguredParameter>(0));
+//map.emplace (tree.getEdgeIndex(edge), NodeRef(0));
         
         aEit->next();
       }
