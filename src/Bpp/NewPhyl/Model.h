@@ -323,6 +323,46 @@ namespace bpp {
       
     };
 
+    /** Proba = f(MixedModel, Category).
+     * Proba: Double.
+     * MixedModel: ConfiguredModel
+     * Category: number of the category
+     *
+     * Node construction should be done with the create static method.
+     */
+
+    class ProbabilityFromMixedModel : public Value<double> {
+    private:
+      size_t nCat_;
+      
+    public:
+      using Self = ProbabilityFromMixedModel;
+      using Dep = ConfiguredModel;
+      using T = double;
+
+      ProbabilityFromMixedModel (NodeRefVec && deps, size_t nCat_);
+
+      std::string debugInfo () const final;
+
+      bool compareAdditionalArguments (const Node & other) const final;
+
+      NodeRef derive (Context & c, const Node & node) final;
+      NodeRef recreate (Context & c, NodeRefVec && deps) final;
+
+      std::string color() const final
+      {
+        return "blue";
+      }
+
+    private:
+      void compute () final;
+
+    public:
+      static std::shared_ptr<Self> create (Context & c, NodeRefVec && deps, size_t nCat);
+
+    };
+
+
   } // namespace dataflow
 } // namespace bpp
 

@@ -58,12 +58,14 @@ ProcessTree::ProcessTree(Context& context, const ParametrizablePhyloTree& tree, 
 {
   vector<uint> vNodesId=tree.getGraph()->getAllNodes();
   
-  for (auto& index:vNodesId)
+  for (auto& id:vNodesId)
   {
-    auto pn=make_shared<ProcessNode>(*tree.getNodeFromGraphid(index));
+    uint index=tree.getNodeIndex(tree.getNodeFromGraphid(id));
+    auto pn=make_shared<ProcessNode>(*tree.getNodeFromGraphid(id), index);
     pn->setProperty("event",NodeEvent::speciationEvent);
-    associateNode(pn, index);
-    setNodeIndex(pn, tree.getNodeIndex(tree.getNodeFromGraphid(index)));
+    pn->setProba(ConstantOne<double>::create(context_, Dimension<double>()));
+    associateNode(pn, id);
+    setNodeIndex(pn, index);
   }
   
   // Ids of the branches in the graph may be different from the
@@ -71,20 +73,21 @@ ProcessTree::ProcessTree(Context& context, const ParametrizablePhyloTree& tree, 
   
   vector<uint> vEdgesId=tree.getGraph()->getAllEdges();
   
-  for (auto& index:vEdgesId)
+  for (auto& id:vEdgesId)
   {
     // retrieve PhyloBranch id
-    const auto pb=tree.getEdgeFromGraphid(index);
-    uint ids=tree.getEdgeIndex(pb);
+    const auto pb=tree.getEdgeFromGraphid(id);
+    uint index=tree.getEdgeIndex(pb);
     
-    if (vrefmap.find(ids)!=vrefmap.end())
+    if (vrefmap.find(index)!=vrefmap.end())
     {
-      auto brref=make_shared<ProcessEdge>(vrefmap.at(ids));
-      associateEdge(move(brref), index);
-      setEdgeIndex(getEdgeFromGraphid(index),ids);
+      auto brref=make_shared<ProcessEdge>(vrefmap.at(index));
+      brref->setProba(ConstantOne<double>::create(context_, Dimension<double>()));
+      associateEdge(move(brref), id);
+      setEdgeIndex(getEdgeFromGraphid(id),index);
     }
     else
-      throw Exception("ProcessTree::ProcessTree missing reference for branch " + TextTools::toString(ids));
+      throw Exception("ProcessTree::ProcessTree missing reference for branch " + TextTools::toString(index));
   }
 }
 
@@ -92,18 +95,23 @@ ProcessTree::ProcessTree(Context& context, const ParametrizablePhyloTree& tree, 
 void ProcessTree::buildUnderNode_(const ParametrizablePhyloTree& tree, const BrLenMap& vrefmap, ModelMap& modelmap, shared_ptr<PhyloNode> node, shared_ptr<ProcessNode> newFather, shared_ptr<ProcessEdge> newEdge)
 {
   // build a new node as a speciation node, and sets all edges below it
-  auto newNode=make_shared<ProcessNode>(*node);
+  auto newNode=make_shared<ProcessNode>(*node, tree.getNodeIndex(node));
   addNodeIndex(newNode);
   createNode(newNode);
   
+  // Specific case of mixture at root
   if (!newFather)
   {
+    newNode->setProba(ConstantOne<double>::create(context_, Dimension<double>()));
     if (isRooted())
       rootAt(newNode);
-    // check mixture node at root
+
     auto id = tree.getNodeIndex(node);    
-    auto vId=tree.getOutgoingNeighbors(id);
+    auto vId = tree.getOutgoingNeighbors(id);
     ModelAssign* pmodelass(0);
+    
+    // root node is a mixture only if the model is the same in the
+    // outgoing branches.
     for (auto ids:vId)
     {
       if (modelmap.find(ids)==modelmap.end())
@@ -117,6 +125,7 @@ void ProcessTree::buildUnderNode_(const ParametrizablePhyloTree& tree, const BrL
           break;
         }
     }
+    
     if (pmodelass)
     {
       auto model=pmodelass->model_;
@@ -124,20 +133,24 @@ void ProcessTree::buildUnderNode_(const ParametrizablePhyloTree& tree, const BrL
       if (assign.size()>1) // mixture
       {
         newNode->setProperty("event",NodeEvent::mixtureEvent);
-        auto probas=ProbabilitiesFromMixedModel::create(context_, {model});
-        newNode->setProba(probas);
         
         for (const auto ass:assign)
         {
-          // replace all numbers of submodel of model submodel in
-          // inheriting branches
+          // replace all numbers of model submodels in inheriting
+          // branches
           ModelMap modelmap2(modelmap);
           for (auto& id2:modelmap2)
             if (id2.second.model_==model)
               id2.second.modelNum_={ass};
 
           auto nMod=NumericConstant<size_t>::create(context_, ass);
+
           auto newMixEdge=make_shared<ProcessEdge>(std::shared_ptr<ConfiguredParameter>(0), model, nMod);
+          
+          auto proba=ProbabilityFromMixedModel::create(context_, {model}, ass);
+          newMixEdge->setProba(proba);
+
+          // build subtree for each submodel 
           buildUnderNode_(tree, vrefmap, modelmap2, node, newNode, newMixEdge);
         }
         return;
@@ -145,22 +158,29 @@ void ProcessTree::buildUnderNode_(const ParametrizablePhyloTree& tree, const BrL
     }
   }
   
-  // if not mixture node
+  // Otherwise not a mixture node (mixture is handled in
+  // buildUnderEdgeFromNode_)
+  
   newNode->setProperty("event",NodeEvent::speciationEvent);
   if (newFather) // no root node
   {
     link(newFather, newNode, newEdge);
     if (newEdge)
+    {
       addEdgeIndex(newEdge);
+      newNode->setProba(newEdge->getProba());
+    }
+    else 
+      newNode->setProba(newFather->getProba());
   }
   
   // then the edges below
   auto vEdges=tree.getOutgoingEdges(node);
   for (const auto& oldEdge:vEdges)
-    buildUnderEdgeFromNode_(tree, vrefmap, modelmap, oldEdge, newNode);
+    buildUnderEdgeFromNode_(tree, vrefmap, modelmap, oldEdge, newNode, newEdge);
 }
 
-void ProcessTree::buildUnderEdgeFromNode_(const ParametrizablePhyloTree& tree, const BrLenMap& vrefmap, ModelMap& modelmap, shared_ptr<PhyloBranchParam> oldEdge, shared_ptr<ProcessNode> newNode)
+void ProcessTree::buildUnderEdgeFromNode_(const ParametrizablePhyloTree& tree, const BrLenMap& vrefmap, ModelMap& modelmap, shared_ptr<PhyloBranchParam> oldEdge, shared_ptr<ProcessNode> newNode, shared_ptr<ProcessEdge> aboveEdge)
 {
   uint id=tree.getEdgeIndex(oldEdge);
   
@@ -181,17 +201,20 @@ void ProcessTree::buildUnderEdgeFromNode_(const ParametrizablePhyloTree& tree, c
       auto nMod=NumericConstant<size_t>::create(context_, assign[0]);
       newEdge->setNMod(nMod);
     }
+
+    // set proba equal to the father node proba
+    newEdge->setProba(newNode->getProba());
     
     buildUnderNode_(tree, vrefmap, modelmap, tree.getSon(oldEdge), newNode, newEdge);
   }
   else
   {
     // build a mixture node at distance 0, with edges carrying the submodels
-    auto mixNode=make_shared<ProcessNode>(*newNode);
+    auto mixNode=make_shared<ProcessNode>(*newNode, tree.getNodeIndex(tree.getFatherOfEdge(oldEdge)));
     mixNode->setProperty("event",NodeEvent::mixtureEvent);
+    mixNode->setProba(newEdge->getProba());
+    
     createNode(mixNode);
-    auto probas=ProbabilitiesFromMixedModel::create(context_, {model});
-    mixNode->setProba(probas);
     addNodeIndex(mixNode);
     link(newNode, mixNode, newEdge);
     addEdgeIndex(newEdge);
@@ -207,6 +230,16 @@ void ProcessTree::buildUnderEdgeFromNode_(const ParametrizablePhyloTree& tree, c
 
       auto nMod=NumericConstant<size_t>::create(context_, ass);
       auto newMixEdge=make_shared<ProcessEdge>(vrefmap.at(id), model, nMod);
+
+      ValueRef<double> proba=ProbabilityFromMixedModel::create(context_, {model}, ass);
+      // if a mixture inside a mixture
+      if (aboveEdge && aboveEdge->getProba())
+      {
+        NodeRefVec deps={proba,aboveEdge->getProba()};
+        
+        proba=CWiseMul<double,std::tuple<double,double>>::create(context_, std::move(deps), Dimension<double>());
+      }
+      newMixEdge->setProba(proba);
       
       buildUnderNode_(tree, vrefmap, modelmap2, tree.getSon(oldEdge), mixNode, newMixEdge);
     }

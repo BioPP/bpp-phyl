@@ -284,23 +284,27 @@ namespace bpp {
         return rootPatternLinks_->getTargetValue()(currentPosition);
       }
     
-//      PatternType& getRootArrayPositions() { return rootPatternLinks_; }
-      
       const PatternType& getRootArrayPositions() const { return rootPatternLinks_->getTargetValue(); }
 
       const AlignedValuesContainer* getShrunkData() const {
         return shrunkData_.get();
       }
 
+      /*
+       * @brief: Get the weight of a position in the shrunked data (ie
+       * the number of sites corresponding to this site)
+       *
+       */
+      
       unsigned int getWeight(size_t pos) const
       {
         return rootWeights_->getTargetValue()(pos);
       }
 
-      // ValueRef<double> getLikelihoodAtNode(uint nodeId) 
-      // {
-      //   makeLikelihoodsAtNode_(nodeId);
-      // }
+      ValueRef<double> getLikelihoodAtNode(uint nodeId) 
+      {
+        return makeLikelihoodsAtNode_(nodeId);
+      }
       
       void setData(const AlignedValuesContainer& sites)
       {
@@ -345,13 +349,6 @@ namespace bpp {
       {
         return rFreqs_;
       }
-
-      // std::shared_ptr<ForwardLikelihoodTree> getForwardTree(size_t nCat)
-      // {
-      //   if (nCat>=vRateCatTrees_.size())
-      //     throw Exception("LikelihoodCalculationSingleProcess::getForwardTree : Bad ForwardTree number " + TextTools::toString(nCat));
-      //   return vRateCatTrees_[nCat].flt;
-      // }
 
       std::shared_ptr<ConditionalLikelihoodTree> getConditionalLikelihoodTree(size_t nCat);
       
@@ -401,7 +398,14 @@ namespace bpp {
 
       void makeLikelihoodAtRoot_();
 
-      void makeLikelihoodsAtNode_(uint nodeId);
+      /*
+       * @brief Compute the likelihood at a given node in the DAG,
+       * which number may not be the number in the tree.
+       *
+       * @param nodeId : index of the node in the likelihood DAG.
+       */
+      
+      ValueRef<double> makeLikelihoodsAtNode_(uint nodeId);
 
     };
 

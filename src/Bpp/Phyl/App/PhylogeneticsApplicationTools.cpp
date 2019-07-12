@@ -4762,11 +4762,17 @@ void PhylogeneticsApplicationTools::printAnalysisInformation(const SingleDataPhy
     vector<string> row(4 + (nbR > 1 ? nbR : 0));
     DataTable* infos = new DataTable(colNames);
 
+    cerr << "vvpPP" << std::endl;
+    
     VVdouble vvPP(pSPL->getPosteriorProbabilitiesPerClass());
 
+    cerr << "vvppp" << std::endl;
+    
     for (size_t i = 0; i < sites->getNumberOfSites(); i++)
     {
+      std::cerr << i << endl;
       double lnL = phyloLike.getLogLikelihoodForASite(i);
+      std::cerr << "lok" << endl;
       
       const CruxSymbolListSite& currentSite = sites->getSymbolListSite(i);
       int currentSitePosition = currentSite.getPosition();

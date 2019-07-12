@@ -412,7 +412,7 @@ void LikelihoodCalculationSingleProcess::makeLikelihoodAtRoot_()
 }
 
 
-void LikelihoodCalculationSingleProcess::makeLikelihoodsAtNode_(uint nodeId)
+ValueRef<double> LikelihoodCalculationSingleProcess::makeLikelihoodsAtNode_(uint nodeId)
 {
   if (vRateCatTrees_.size()==0)
     makeForwardLikelihoodTree_();
@@ -458,18 +458,18 @@ void LikelihoodCalculationSingleProcess::makeLikelihoodsAtNode_(uint nodeId)
       auto siteLikelihoodsCat = LikelihoodFromRootConditional::create (
         context_, {one, cond}, rowVectorDimension (Eigen::Index (nbSite)));
 
-      auto patLikCat = CWisePattern<Eigen::RowVectorXd>::create(context_,{siteLikelihoodsCat, rootPatternLinks_}, rowVectorDimension (Eigen::Index(getData()->getNumberOfSites())));
-
-      rateCat.lt->associateNode(patLikCat, treeNode->getNodeGraphid(treeNode->getNode(nodeId)));
-      rateCat.lt->setNodeIndex(patLikCat, nodeId);
+      rateCat.lt->associateNode(siteLikelihoodsCat, treeNode->getNodeGraphid(treeNode->getNode(nodeId)));
+      rateCat.lt->setNodeIndex(siteLikelihoodsCat, nodeId);
 
       vLogRoot.push_back(std::move(siteLikelihoodsCat));
     }
 
     auto catProb = ProbabilitiesFromDiscreteDistribution::create(context_, {processNodes_.ratesNode_});
     vLogRoot.push_back(catProb);
-      
-    siteLikelihoodsNode = CWiseMean<Eigen::RowVectorXd, ReductionOf<Eigen::RowVectorXd>, Eigen::RowVectorXd>::create(context_, std::move(vLogRoot), rowVectorDimension (Eigen::Index(nbSite)));
+    
+    auto distinctSiteLikelihoodsNode = CWiseMean<Eigen::RowVectorXd, ReductionOf<Eigen::RowVectorXd>, Eigen::RowVectorXd>::create(context_, std::move(vLogRoot), rowVectorDimension (Eigen::Index(nbSite)));
+
+    siteLikelihoodsNode = CWisePattern<Eigen::RowVectorXd>::create(context_,{distinctSiteLikelihoodsNode,rootPatternLinks_}, rowVectorDimension (Eigen::Index (getData()->getNumberOfSites())));
   }
   else
   {
@@ -483,8 +483,7 @@ void LikelihoodCalculationSingleProcess::makeLikelihoodsAtNode_(uint nodeId)
     if (!rateCat.lt)
       rateCat.lt=std::make_shared<SiteLikelihoodsTree>(treeNode->getGraph());
     
-    auto condAbove = rateCat.blt->getBackwardLikelihoodArray(nodeId);
-      
+    auto condAbove = rateCat.blt->getBackwardLikelihoodArray(nodeId);      
     auto condBelow = rateCat.flt->getForwardLikelihoodArray(nodeId);
 
     auto cond = BuildConditionalLikelihood::create (
@@ -493,21 +492,24 @@ void LikelihoodCalculationSingleProcess::makeLikelihoodsAtNode_(uint nodeId)
     rateCat.clt->associateNode(cond, treeNode->getNodeGraphid(treeNode->getNode(nodeId)));
     rateCat.clt->setNodeIndex(cond, nodeId);
 
-    siteLikelihoodsNode = LikelihoodFromRootConditional::create (
+    auto distinctSiteLikelihoodsNode = LikelihoodFromRootConditional::create (
       context_, {one, cond}, rowVectorDimension (Eigen::Index (nbSite)));
 
-    auto patLikCat = CWisePattern<Eigen::RowVectorXd>::create(context_,{siteLikelihoodsNode, rootPatternLinks_}, rowVectorDimension (Eigen::Index(getData()->getNumberOfSites())));
+    rateCat.lt->associateNode(distinctSiteLikelihoodsNode, treeNode->getNodeGraphid(treeNode->getNode(nodeId)));
+    rateCat.lt->setNodeIndex(distinctSiteLikelihoodsNode, nodeId);
 
-    rateCat.lt->associateNode(patLikCat, treeNode->getNodeGraphid(treeNode->getNode(nodeId)));
-    rateCat.lt->setNodeIndex(patLikCat, nodeId);
+    siteLikelihoodsNode = CWisePattern<Eigen::RowVectorXd>::create(context_,{distinctSiteLikelihoodsNode, rootPatternLinks_}, rowVectorDimension (Eigen::Index(getData()->getNumberOfSites())));
   }
-//   auto totalLogLikelihood =
-//     SumOfLogarithms<Eigen::RowVectorXd>::create (context_, {siteLikelihoodsNode}, rowVectorDimension (Eigen::Index (nbSite)));
 
-// // We want -log(likelihood)
-//   auto totalNegLogLikelihood =
-//     CWiseNegate<double>::create (context_, {totalLogLikelihood}, Dimension<double> ());
+  auto totalLogLikelihood =
+    SumOfLogarithms<Eigen::RowVectorXd>::create (context_, {siteLikelihoodsNode}, rowVectorDimension (Eigen::Index (nbSite)));
 
-//   return totalNegLogLikelihood;
+ // We want -log(likelihood)
+   auto totalNegLogLikelihood =
+     CWiseNegate<double>::create (context_, {totalLogLikelihood}, Dimension<double> ());
+
+   writeGraphToDot("totalLogLikelihood.dot",{totalNegLogLikelihood.get()});
+
+   return totalNegLogLikelihood;
 }
 

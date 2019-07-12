@@ -80,7 +80,7 @@ namespace bpp
      * Using member wise addition: c = sum_member_i (f_i * prop_i)
      */
     
-    using MixtureFromChildrenForward = CWiseMean<Eigen::MatrixXd, ReductionOf<Eigen::MatrixXd>, Eigen::RowVectorXd>;
+    using MixtureFromChildrenForward = CWiseMean<Eigen::MatrixXd, ReductionOf<Eigen::MatrixXd>, ReductionOf<double>>;
 
 
     /** @brief forwardLikelihood = f(transitionMatrix, conditionalLikelihood).
@@ -95,18 +95,18 @@ namespace bpp
     using ForwardLikelihoodFromConditional =
       MatrixProduct<Eigen::MatrixXd, Eigen::MatrixXd, Eigen::MatrixXd>;
 
-/**
- * @brief Interface LikelihoodTree data structure.
- *
- * Stores all the inner computations:
- * - conditional likelihoods for each node,
- * - correspondance between sites in the dataset and array indices.
- *
- * The structure is initiated according to a tree topology, and 
- * data can be retrieved through node ids.
- *
- * @see LikelihoodNode
- */
+    /**
+     * @brief Interface LikelihoodTree data structure.
+     *
+     * Stores all the inner computations:
+     * - conditional likelihoods for each node,
+     * - correspondance between sites in the dataset and array indices.
+     *
+     * The structure is initiated according to a tree topology, and 
+     * data can be retrieved through node ids.
+     *
+     * @see LikelihoodNode
+     */
 
     using ConditionalLikelihoodForward = Value<Eigen::MatrixXd>;
     using ConditionalLikelihoodForwardRef = ValueRef<Eigen::MatrixXd>;
@@ -126,13 +126,25 @@ namespace bpp
       std::size_t nbState_;
       std::size_t nbSites_;
 
+      /* Maps of edges and nodes between ForwardLikelihoodTree and ProcessTree */
+      
+      std::map<ForwardLikelihoodBelowRef, ProcessEdgeRef> mapEdge_;
+      std::map<ConditionalLikelihoodForwardRef, ProcessNodeRef> mapNode_;
+
+      /* Map of the indexes between species tree and likelihood tree */
+
+      using DAGindexes = std::vector<uint>;
+      using Speciesindex = uint;
+      
+      std::map<Speciesindex, DAGindexes> mapIndexes_;
+      
     public:
       
       ForwardLikelihoodTree(Context& c, 
                             std::shared_ptr<ProcessTree> tree,
                             const StateMap& statemap) :
         DAClass(),
-        context_(c), processTree_(tree), likelihoodMatrixDim_(), statemap_(statemap), nbState_(statemap.getNumberOfModelStates()), nbSites_(0)
+        context_(c), processTree_(tree), likelihoodMatrixDim_(), statemap_(statemap), nbState_(statemap.getNumberOfModelStates()), nbSites_(0), mapEdge_(), mapNode_()
       {
       }
 
@@ -140,19 +152,57 @@ namespace bpp
       {
         nbSites_ = sites.getNumberOfSites (); 
         likelihoodMatrixDim_ = conditionalLikelihoodDimension (nbState_, nbSites_);
+        ConditionalLikelihoodForwardRef bidonRoot=ConstantZero<Eigen::MatrixXd>::create(context_, MatrixDimension(1,1));
+        createNode(bidonRoot);
+        rootAt(bidonRoot); // for construction, temporary top node for new edges
         auto n=makeConditionalLikelihoodNode (processTree_->getRoot(), sites);
         rootAt(n);
+        outputToDot("forwardRoot_"+TextTools::toString(getNodeIndex(n))+".dot","forwardTree");
+        deleteNode(bidonRoot);
+
+        // Now map the species indexes and the likelihood DAG indexes
+
+        setSpeciesMapIndexes_();
       }
-        
+
+    private:
+
       ConditionalLikelihoodForwardRef makeInitialConditionalLikelihood (const std::string & sequenceName, const AlignedValuesContainer & sites);
 
-      ForwardLikelihoodBelowRef makeForwardLikelihoodNode (std::shared_ptr<ProcessEdge> edge, const AlignedValuesContainer & sites);
+      ForwardLikelihoodBelowRef makeForwardLikelihoodEdge (std::shared_ptr<ProcessEdge> edge, const AlignedValuesContainer & sites);
       
       ConditionalLikelihoodForwardRef makeConditionalLikelihoodNode (std::shared_ptr<ProcessNode> node, const AlignedValuesContainer & sites);
+
+      /*
+       * @brief Map the species indexes and the likelihood DAG
+       * indexes.
+       *
+       */
+      
+      void setSpeciesMapIndexes_();
+      
+    public:
       
       /*
-       * @brief the LikehoodArrays
+       * @brief Links with processTree edges & nodes
        *
+       */
+
+      ProcessNodeRef getProcessNode(const ConditionalLikelihoodForwardRef& node) const
+      {
+        return mapNode_.at(node);
+      }
+
+      ProcessEdgeRef getProcessEdge(const ForwardLikelihoodBelowRef& edge) const
+      {
+        return mapEdge_.at(edge);
+      }
+
+      /*
+       * @brief get the forward likehoodarray at a given node in the DAG,
+       * which number may not be the number in the tree.
+       *
+       * @param nodeId : index of the node in the likelihood DAG.
        */
     
       const ValueRef<Eigen::MatrixXd> getForwardLikelihoodArray(int nodeId) const
@@ -165,17 +215,8 @@ namespace bpp
         return getRoot();
       }
 
-      /**
-       * NbSite
-       *
-       */
 
-      std::size_t getNumberOfSites() const {return nbSites_; }
-
-      /*
-       * @brief the weights of the positions of the shrunked data
-       *
-       */
+      friend class LikelihoodCalculationSingleProcess;
 
     };
   }

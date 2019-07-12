@@ -45,72 +45,129 @@ using namespace bpp::dataflow;
 using namespace std;
 
 
-dataflow::ValueRef<Eigen::MatrixXd> BackwardLikelihoodTree::makeBackwardAboveLikelihoodEdge (PhyloTree::EdgeIndex index) {
-  
-  auto fatherIndex = processTree_->getFatherOfEdge(index);
-
-  // get/check if edge with backward likelihood exists
-  dataflow::ValueRef<Eigen::MatrixXd> backNode;
-  
-  if (hasNode(fatherIndex))
-    backNode = getNode(fatherIndex);
-  else
-    backNode = makeConditionalAboveLikelihoodNode(fatherIndex);
-  
-  // get forward likelihoods of brothers
+BackwardLikelihoodAboveRef BackwardLikelihoodTree::makeBackwardAboveLikelihoodEdge (PhyloTree::EdgeIndex edgeIndex)
+{
+  cerr << "makeBackwardAboveLikelihoodEdge " << edgeIndex << endl;
   if (!forwardTree_)
     throw Exception("BackwardLikelihoodTree::makeBackwardAboveLikelihoodEdge: forwardTree_ is missing.");
   
+  auto fatherIndex = forwardTree_->getFatherOfEdge(edgeIndex);
+  auto fatherForward = forwardTree_->getNode(fatherIndex);
+
+  // get/check if edge with backward likelihood exists
+  ValueRef<Eigen::MatrixXd> backNode = hasNode(fatherIndex)
+    ? getNode(fatherIndex)
+    : makeConditionalAboveLikelihoodNode(fatherIndex);
+
+  // get forward likelihoods of brothers
   auto edgeIds = forwardTree_->getOutgoingEdges(fatherIndex);
-  dataflow::NodeRefVec deps;
-  
+
+  NodeRefVec deps;
   for (auto eId : edgeIds)
   {
-    if (eId!=index)
+    if (eId!=edgeIndex)
       deps.push_back(forwardTree_->getEdge(eId));
   }
   deps.push_back(backNode);
-  
-  auto r= dataflow::ConditionalLikelihoodFromBrothersBackward::create (context_, std::move (deps),
-                                                                       likelihoodMatrixDim_);
-  
-  associateEdge(r,index);
-  setEdgeIndex(r, index);
-  return r;
+
+  auto backwardEdge = ConditionalLikelihoodFromUpper::create (context_, std::move (deps),
+                                                              likelihoodMatrixDim_);  
+
+  associateEdge(backwardEdge, forwardTree_->getEdgeGraphid(forwardTree_->getEdge(edgeIndex)));
+  setEdgeIndex(backwardEdge, edgeIndex);
+  writeGraphToDot("backwardEdge_"+TextTools::toString(edgeIndex)+".dot",{backwardEdge.get()});
+  cerr << "makebackwardabovelikelihoodedge " << edgeIndex << endl;
+  return backwardEdge;
 }
 
-dataflow::ValueRef<Eigen::MatrixXd> BackwardLikelihoodTree::makeConditionalAboveLikelihoodNode (PhyloTree::NodeIndex index) {
-  //!!!! must be initialized before
-  if (index==processTree_->getRootIndex())
+
+ConditionalLikelihoodRef BackwardLikelihoodTree::makeConditionalAboveLikelihoodNode (PhyloTree::NodeIndex nodeIndex)
+{
+  cerr << "makeConditionalAboveLikelihoodNode "  << nodeIndex << endl;
+  if (!forwardTree_)
+    throw Exception("BackwardLikelihoodTree::makeBackwardAboveLikelihoodEdge: forwardTree_ is missing.");
+
+  auto forwardNode = forwardTree_->getNode(nodeIndex);
+  cerr << nodeIndex << "=" << forwardNode << endl;
+  // if root
+  if (nodeIndex==forwardTree_->getRootIndex())
+    return setRootFrequencies(rFreqs_);
+    
+  // else get fathers
+  const auto fathersIndexes = forwardTree_->getIncomingNeighbors(nodeIndex);
+
+  // get upper dependencies
+  NodeRefVec deps;
+  NodeRefVec probaDeps;
+  ConditionalLikelihoodRef backwardNode(0);
+
+  for (const auto& fatherIndex:fathersIndexes)
   {
-    setRootFrequencies(rFreqs_);
-    return getNode(index);
+    auto forwardFather = forwardTree_->getNode(fatherIndex);
+    cerr << "node: " << forwardTree_->nodeToString(forwardFather) << endl;
+    auto forwardEdgeToFather = forwardTree_->getEdgeLinking(forwardFather, forwardNode);
+
+    cerr << "edge: " << forwardTree_->edgeToString(forwardEdgeToFather) << endl;
+    // if an edge exists on forward tree (ie a model)
+    if (forwardEdgeToFather)
+    {
+      const auto processEdge = forwardTree_->getProcessEdge(forwardEdgeToFather); 
+      const auto brlen = processEdge->getBrLen();
+      const auto model = processEdge->getModel();
+      probaDeps.push_back(processEdge->getProba());
+      
+      // useless, the transitionMatrix already exists, but is not
+      // available directly through a tree
+      // ToDo : find another way to get it
+      auto transitionMatrix =
+        ConfiguredParametrizable::createMatrix<ConfiguredModel, TransitionMatrixFromModel> (context_, {model, brlen}, transitionMatrixDimension (nbState_));
+
+      
+      // build the backward top edge to this father if it does not exist
+      const auto edgeToFatherIndex = forwardTree_->getEdgeIndex(forwardEdgeToFather);
+      BackwardLikelihoodAboveRef backEdge = hasEdge(edgeToFatherIndex)
+        ? getEdge(edgeToFatherIndex)
+        : makeBackwardAboveLikelihoodEdge(edgeToFatherIndex);
+
+      // and uses the transposed transition matrix to compute the
+      // bottom of the edge
+      auto backLikeEdge=BackwardLikelihoodFromConditional::create (
+        context_, {transitionMatrix, backEdge}, likelihoodMatrixDim_);
+
+      if (fathersIndexes.size()==1)
+      {
+        backwardNode = backLikeEdge;
+        break;
+      }
+      else
+        deps.push_back(backLikeEdge);
+    }
+    else
+    {
+      if (deps.size()!=0)
+        throw Exception("BackwardLikelihoodFromConditional::makeConditionalAboveLikelihoodNode mixing edges and non-edges.");
+      backwardNode = hasNode(fatherIndex)
+        ? getNode(fatherIndex)
+        : makeConditionalAboveLikelihoodNode(fatherIndex);
+    }
   }
-  
-  // get Edge with model
-  const auto edgeToFather = processTree_->getEdgeToFather(index);
-//  const auto edgeToFatherIndex = processTree_->getEdgeIndex(edgeToFather);
-  
-  // get/check if edge with backward likelihood exists
-  dataflow::ValueRef<Eigen::MatrixXd> backEdge;
-  
-  // if (hasEdge(edgeToFatherIndex))
-  //   backEdge = getEdgeToFather(index);
-  // else
-  //   backEdge=makeBackwardAboveLikelihoodEdge(index);
-  
-  const auto brlen = edgeToFather->getBrLen();
-  const auto model= edgeToFather->getModel();
-  // useless, the transitionMatrix already exists, but is not available directly through a tree
-  auto transitionMatrix =
-    dataflow::ConfiguredParametrizable::createMatrix<dataflow::ConfiguredModel, dataflow::TransitionMatrixFromModel> (context_, {model, brlen}, transitionMatrixDimension (nbState_));
-  
-  auto r= dataflow::BackwardLikelihoodFromConditional::create (
-    context_, {transitionMatrix, backEdge}, likelihoodMatrixDim_);
-  
-  associateNode(r, index);
-  setNodeIndex(r, index);
-  return r;
+  // Then mean if several incoming nodes
+  if (deps.size()>1)
+  {
+    for (auto& probaDep:probaDeps)
+      deps.push_back(probaDep);
+    backwardNode = MixtureFromUpperBackward::create(context_, std::move(deps), likelihoodMatrixDim_);
+  }
+
+  if (!hasNode(backwardNode))
+  {
+    associateNode(backwardNode, forwardTree_->getNodeGraphid(forwardTree_->getNode(nodeIndex)));
+    setNodeIndex(backwardNode, nodeIndex);
+  }
+
+  writeGraphToDot("backwardNode_"+TextTools::toString(nodeIndex)+".dot",{backwardNode.get()});
+  cerr << "makeconditionalabovelikelihoodnode " << nodeIndex << endl;
+  return backwardNode;
 }
 
 

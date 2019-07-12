@@ -57,6 +57,7 @@
 #include <Bpp/Phyl/Model/FrequenciesSet/NucleotideFrequenciesSet.h>
 #include <Bpp/Phyl/Model/RateDistribution/GammaDiscreteRateDistribution.h>
 #include <Bpp/Phyl/Model/RateDistribution/ConstantRateDistribution.h>
+#include <Bpp/Phyl/Model/MixtureOfASubstitutionModel.h>
 #include <Bpp/Seq/Alphabet/AlphabetTools.h>
 #include <Bpp/Seq/Container/VectorSiteContainer.h>
 #include <chrono>
@@ -177,7 +178,7 @@ namespace
     CommonStuff()
       : alphabet(bpp::AlphabetTools::DNA_ALPHABET)
       , sites(&alphabet)
-      , treeStr("(((A:0.01, B:0.02):0.03,C:0.01):0.3,D:0.1);")
+      , treeStr("((A:0.01, B:0.02):0.03,C:0.01);")
     {
       // Init sequences
       sites.addSequence(
@@ -230,7 +231,7 @@ TEST_CASE("new")
   auto ts = timingStart();
   auto model = new bpp::T92(&c.alphabet, 3, 0.7);
   auto rootFreqs = new bpp::GCFrequenciesSet(&c.alphabet, 0.1);
-//  auto distribution = new bpp::ConstantRateDistribution();
+  auto distribution = new bpp::ConstantRateDistribution();
   auto distribution = new bpp::GammaDiscreteRateDistribution(3, 1);
 
   bpp::Newick reader;
@@ -270,10 +271,15 @@ TEST_CASE("df")
 
   auto ts = timingStart();
 
-  auto model = new bpp::T92(&c.alphabet, 3., 0.7);
+  auto model1 = new bpp::T92(&c.alphabet, 3., 0.7);
+  std::map<std::string, bpp::DiscreteDistribution*> mapParam;
+  mapParam["kappa"]=new bpp::GammaDiscreteDistribution(3, 1);
+
+  auto model = new bpp::MixtureOfASubstitutionModel(&c.alphabet, model1, mapParam);
+  
   auto rootFreqs = new bpp::GCFrequenciesSet(&c.alphabet, 0.1);
-//  auto distribution = new bpp::ConstantRateDistribution();
-  auto distribution = new bpp::GammaDiscreteRateDistribution(3, 1);
+  auto distribution = new bpp::ConstantRateDistribution();
+//  auto distribution = new bpp::GammaDiscreteRateDistribution(3, 1);
   // Read tree structure
   bpp::Newick reader;
   auto phyloTree = std::unique_ptr<bpp::PhyloTree>(reader.parenthesisToPhyloTree(c.treeStr, false, "", false, false));
@@ -287,10 +293,9 @@ TEST_CASE("df")
 
    // Build likelihood value node
   auto l = std::make_shared<bpp::dataflow::LikelihoodCalculationSingleProcess>(context, c.sites, *process);
-
   l->setNumericalDerivateConfiguration(0.001, bpp::dataflow::NumericalDerivativeType::ThreePoints);
 //  l->setClockLike();
-  
+
   bpp::dataflow::SingleProcessPhyloLikelihood_DF llh(context, l);
   timingEnd(ts, "df_setup");
   auto lik = llh.getLikelihoodCalculation();
@@ -300,7 +305,8 @@ TEST_CASE("df")
   auto logLik = llh.getValue();
   timingEnd(ts, "df_init_value");
   printLik(logLik, "df_init_value");
-  
+
+  /*
   // Manual access to dbrlen
   auto br= dynamic_cast<bpp::dataflow::ConfiguredParameter*>(lik->hasParameter("BrLen1")?lik->getSharedParameter("BrLen1").get():lik->getSharedParameter("BrLen_rate").get());
   
@@ -326,45 +332,15 @@ TEST_CASE("df")
   auto dlogLik_dalpha = lik->getLikelihood()->deriveAsValue(context, *alpha->dependency(0));
   std::cout << "[dalpha] " << dlogLik_dalpha->getTargetValue() << "\n";
   dotOutput("likelihood_example_dalpha", {dlogLik_dalpha.get()});
+  */
   
   // for (size_t pos=0;pos<c.sites.getNumberOfSites();pos++)
   //   std::cout << pos << " : " << lik->getLikelihoodForASite(pos) << std::endl;
+
+  auto lik5 = lik->getLikelihoodAtNode(5);
+  std::cout << "[lik5] " << lik5->getTargetValue() << "\n";
+  dotOutput("likelihood_5", {lik5.get()});
   
-  // bpp::ParameterList BrLenParam;
-  // for (size_t i=0;i<l->getParameters().size();i++)
-  // {
-  //   auto ps = l->getParameters().getSharedParameter(i);
-  //   if (ps->getName().substr(0,5)=="BrLen")
-  //     BrLenParam.shareParameter(ps);
-  // }
-
-  // bpp::ParameterList ModelParam;
-  // for (size_t i=0;i<l->getParameters().size();i++)
-  // {
-  //   auto ps = l->getParameters().getSharedParameter(i);
-  //   if (ps->getName().substr(0,3)=="T92")
-  //     ModelParam.shareParameter(ps);
-  // }
-
-  // bpp::ParameterList RootParam;
-  // for (size_t i=0;i<l->getParameters().size();i++)
-  // {
-  //   auto ps = l->shareParameter(i);
-  //   if (ps->getName().substr(0,2)!="GC")
-  //    RootParam.shareParameter(ps);
-  // }
-
-  // RootParam.printParameters(std::cerr);
-  
-  // bpp::ParameterList AllParam;
-  // for (size_t i=0;i<l->getParameters().size();i++)
-  // {
-  //   auto ps = l->shareParameter(i);
-  //   AllParam.shareParameter(ps);
-  // }
-
-  // optimize_for_params(llh, "df_brlens_opt", BrLenParam);
-  // optimize_for_params(llh, "df_model_opt",  ModelParam);
   optimize_for_params(llh, "df_all_opt", l->getParameters());
   llh.getParameters().printParameters(std::cerr);  
 }

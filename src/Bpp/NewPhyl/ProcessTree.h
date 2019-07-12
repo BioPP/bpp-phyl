@@ -65,6 +65,10 @@ namespace bpp
      
     using BrLenMap = std::map<uint, std::shared_ptr<ConfiguredParameter>>;
 
+    /* Map (branch id, Branch Probability) */
+     
+    using BrProbMap = std::map<uint, NodeRef>;
+
     /* Map (branch id, ConfiguredModel of Branch Length) */
 
     struct ModelAssign
@@ -72,10 +76,11 @@ namespace bpp
       /* ConfiguredModel on this branch */
       std::shared_ptr<ConfiguredModel> model_;
 
-      /* vector of allowed submodels if model_ is mixed*/
-      /* empty vector is model_ is not mixed, or considered as not
+      /* vector of allowed submodels if model_ is mixed.
+       * empty vector if model_ is not mixed, or considered as not
        * mixed (ie its transition matrix is a mixture of transition
-       * matrices of submodels). */
+       * matrices of submodels).
+       */
    
       std::vector<size_t> modelNum_;
 
@@ -98,7 +103,13 @@ namespace bpp
     struct ProcessEdge
     {
       std::shared_ptr<ConfiguredParameter> brlen_;
-      //NodeRef brlen_;
+
+      /*
+       *@ brief Probablity of the edge, used in case of mixture models.
+       *
+       */
+      
+      NodeRef brprob_;
 
       std::shared_ptr<ConfiguredModel> model_;
 
@@ -108,13 +119,16 @@ namespace bpp
        *
        */
 
+      // Not just "size_t nMod_" bacause dataflow dependency is needed
+      // for createMatrix for TransitionMatrixFromModel
+      
       std::shared_ptr<NumericConstant<size_t>> nMod_;
       
     public:
 
       ProcessEdge(std::shared_ptr<ConfiguredParameter> brlen=0,
                   std::shared_ptr<ConfiguredModel> model=0,
-                  std::shared_ptr<NumericConstant<size_t>> nMod=0) : brlen_(brlen), model_(model), nMod_(nMod){};
+                  std::shared_ptr<NumericConstant<size_t>> nMod=0) : brlen_(brlen), brprob_(0), model_(model), nMod_(nMod){};
 
       std::shared_ptr<ConfiguredModel> getModel()
       {
@@ -136,6 +150,16 @@ namespace bpp
         brlen_=brlen;
       }
 
+      NodeRef getProba()
+      {
+        return brprob_;
+      }
+
+      void setProba(NodeRef brprob)
+      {
+        brprob_=brprob;
+      }
+
       void setNMod(std::shared_ptr<NumericConstant<size_t>> nMod)
       {
         nMod_=nMod;
@@ -153,37 +177,59 @@ namespace bpp
       public PhyloNode
     {
       /*
-       * Mixing probabilities used at Node (if needed, such as for Mixture Nodes)
+       * @brief the index of the species in the phyloTree matching this node.
        *
        */
       
-      std::shared_ptr<ProbabilitiesFromMixedModel> proba_;
+      const uint speciesIndex_;
+
+      /*
+       *@ brief Probablity of the node, useful in case of mixture
+       *models.
+       *
+       */
+      
+      NodeRef nodeprob_;
       
     public:
 
-      ProcessNode(const PhyloNode& node) :
+      /*
+       * @brief Build from a node in the phylo tree, with a specific
+       * speciesIndex (because indexes are not the same as in the
+       * ParametrizablePhyloTree.
+       *
+       */
+      
+      ProcessNode(const PhyloNode& node, uint speciesIndex) :
         PhyloNode(node),
-        proba_(0){}
+        speciesIndex_(speciesIndex),
+        nodeprob_(0) {}
 
-      std::shared_ptr<ProbabilitiesFromMixedModel> getProba()
+      NodeRef getProba()
       {
-        return proba_;
+        return nodeprob_;
       }
 
-      void setProba(std::shared_ptr<ProbabilitiesFromMixedModel> proba)
+      void setProba(NodeRef nodeprob)
       {
-        proba_=proba;
+        nodeprob_=nodeprob;
+      }
+
+      uint getSpeciesIndex() const
+      {
+        return speciesIndex_;
       }
 
     };
 
+
+    using ProcessEdgeRef = std::shared_ptr<ProcessEdge>;
+    using ProcessNodeRef = std::shared_ptr<ProcessNode>;
     
     class ProcessTree : public AssociationTreeGlobalGraphObserver<ProcessNode,ProcessEdge>
     {
-      using Self = ProcessTree;
-
       Context context_;
-      
+
     public:
 
       /*
@@ -229,9 +275,10 @@ namespace bpp
        * construction of ProcessEdge branches are set in the following
        * branches, for all submodels.
        *
+       * aboveEdge is the edge leading to newNode from above (can be null)
        */
       
-      void buildUnderEdgeFromNode_(const ParametrizablePhyloTree& tree, const BrLenMap& vrefmap, ModelMap& modelmap, std::shared_ptr<PhyloBranchParam> oldEdge, std::shared_ptr<ProcessNode> newNode);
+      void buildUnderEdgeFromNode_(const ParametrizablePhyloTree& tree, const BrLenMap& vrefmap, ModelMap& modelmap, std::shared_ptr<PhyloBranchParam> oldEdge, std::shared_ptr<ProcessNode> newNode, std::shared_ptr<ProcessEdge> aboveEdge);
 
     public:
       /*
@@ -342,7 +389,6 @@ namespace bpp
         }
         else
           map.emplace (tree.getEdgeIndex(edge), std::shared_ptr<ConfiguredParameter>(0));
-//map.emplace (tree.getEdgeIndex(edge), NodeRef(0));
         
         aEit->next();
       }

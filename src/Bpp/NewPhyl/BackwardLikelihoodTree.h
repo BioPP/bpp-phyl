@@ -50,19 +50,19 @@ namespace bpp
   namespace dataflow
   {
     
-    /** @brief : At the top of edges:
+    /** @brief : At the top of each edge at speciation node
      *
-     * conditionalLikelihood = f(backwardLikelihood[father[i], brothers[i]]).
+     * conditionalLikelihood = f(backwardLikelihood[father[i]], forwardlikelihood[brothers[i]]).
      * conditionalLikelihood: Matrix(state, site).
-     * forwardLikelihood[i]: Matrix(state, site).
+     * backwardLikelihood, forwardlikelihood: Matrix(state, site).
      *
      * c(state, site) = prod_i f_i(state, site).
      * Using member wise multiply: c = prod_member_i f_i.
      */
     
-    using ConditionalLikelihoodFromBrothersBackward = CWiseMul<Eigen::MatrixXd, ReductionOf<Eigen::MatrixXd>>;
+    using ConditionalLikelihoodFromUpper = CWiseMul<Eigen::MatrixXd, ReductionOf<Eigen::MatrixXd>>;
 
-    /** @brief : Above each node:
+    /** @brief : Above each node : bottom of each edge
      *
      *  backwardLikelihood = f(transitionMatrix, conditionalLikelihood).
      *  
@@ -76,10 +76,26 @@ namespace bpp
     
     using BackwardLikelihoodFromConditional =
       MatrixProduct<Eigen::MatrixXd, Transposed<Eigen::MatrixXd>, Eigen::MatrixXd>;
-    
-    using ConditionalLikelihood = Value<Eigen::MatrixXd>;
 
+    /** @brief : Above each node : in case of mixture of above edges
+     *
+     * mixturefromupper = f(backwardLikelihood[edgestofathers[i]] for i, prop[i]).
+     * edgestofathers: Matrix(state, site).
+     * prob[i]: probability of edge leading to father[i]
+     *
+     * c(state, site) = sum_i f_i(state, site) * prop_i
+     * Using member wise addition: c = sum_member_i (f_i * prop_i)
+     */
+    
+    using MixtureFromUpperBackward = CWiseMean<Eigen::MatrixXd, ReductionOf<Eigen::MatrixXd>, ReductionOf<double>>;
+
+    // Upper Likelihood in nodes
+    using ConditionalLikelihood = Value<Eigen::MatrixXd>;
+    using ConditionalLikelihoodRef = ValueRef<Eigen::MatrixXd>;
+
+    // Upper Likelihood at top of edges
     using BackwardLikelihoodAbove = Value<Eigen::MatrixXd>;
+    using BackwardLikelihoodAboveRef = ValueRef<Eigen::MatrixXd>;
 
 //    using FullLikelihood = Value<Patterned<Eigen::MatrixXd>>;
 
@@ -117,32 +133,30 @@ namespace bpp
       {
       }
 
-      void setForwardTree(std::shared_ptr<dataflow::ForwardLikelihoodTree> forwardTree)
-      {
-        if (forwardTree_)
-          throw Exception("BackwardLikelihoodTree::setForwardTree : forwardTree_ already set.");
-        
-        forwardTree_=forwardTree;
-      }
-
-      void setRootFrequencies(const dataflow::ValueRef<Eigen::RowVectorXd> rootFreqs)
+      ConditionalLikelihoodRef setRootFrequencies(const dataflow::ValueRef<Eigen::RowVectorXd> rootFreqs)
       {
         auto r2=bpp::dataflow::CWiseFill<Eigen::MatrixXd, Eigen::RowVectorXd>::create(context_, {rootFreqs}, likelihoodMatrixDim_);
 
         associateNode(r2, forwardTree_->getRootIndex());
         setNodeIndex(r2, forwardTree_->getRootIndex());
+        return r2;
       }
-        
-      dataflow::ValueRef<Eigen::MatrixXd> makeBackwardAboveLikelihoodEdge (PhyloTree::EdgeIndex index);
-      
-      dataflow::ValueRef<Eigen::MatrixXd> makeConditionalAboveLikelihoodNode (PhyloTree::NodeIndex index);
 
-    /*
-     * @brief the LikehoodArrays
-     *
-     */
-    
-      ValueRef<Eigen::MatrixXd> getBackwardLikelihoodArray(int nodeId)
+    private:
+      BackwardLikelihoodAboveRef makeBackwardAboveLikelihoodEdge (PhyloTree::EdgeIndex index);
+      
+      ConditionalLikelihoodRef makeConditionalAboveLikelihoodNode (PhyloTree::NodeIndex index);
+
+      /*
+       * @brief the LikehoodArrays
+       *
+       * Beware: nodeIds are in the DAG, not the ids of the PhyloTree.
+       *
+       * Set in private to avoid bad usage, access through
+       * LikelihoodCalculationSingleProcess.
+       */
+      
+      ConditionalLikelihoodRef getBackwardLikelihoodArray(int nodeId)
       {
         if (!hasNode(nodeId))
           makeConditionalAboveLikelihoodNode(nodeId);
@@ -150,16 +164,8 @@ namespace bpp
         return getNode(nodeId);
       }
 
-      /**
-       * NbSite
-       *
-       */
+      friend class LikelihoodCalculationSingleProcess;
 
-      std::size_t getNumberOfSites() const 
-      {
-        return nbSite_;
-      }
-      
     };
   }
   
