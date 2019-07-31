@@ -57,13 +57,22 @@ knowledge of the CeCILL license and that you accept its terms.
 using namespace bpp;
 using namespace std;
 
+
+void printModelParameters(TreeLikelihood* tl)
+{
+  ParameterList parameters = tl->getParameters();
+  for (size_t i = 0; i < parameters.size(); i++)
+  {
+    ApplicationTools::displayResult(parameters[i].getName(), TextTools::toString(parameters[i].getValue()));
+  }
+  cout << "\n" << endl;
+}
+
+
 int main() 
 {
     try
     {
-
-
-        
         // process tree
         TreeTemplate<Node>* tree = TreeTemplateTools::parenthesisToTree("(((A:0.01, B:0.01):0.02,C:0.03):0.01,D:0.04);");
         Tree* ttree = dynamic_cast<Tree*>(tree);
@@ -84,8 +93,8 @@ int main()
 
         // set partition A and feed it to the RELAX model with k=1
         map<string,string> params;
-        params["model1"] = "RELAX(kappa=2.0,p=0.1,omega1=1.0,omega2=1.0,k=1,theta1=0.5,theta2=0.8,frequencies=F0)";
-        params["model2"] = "RELAX(kappa=RELAX.kappa_1,p=RELAX.p_1,omega1=RELAX.omega1_1,omega2=RELAX.omega2_1,theta1=RELAX.theta1_1,theta2=RELAX.theta2_1,frequencies=F0,k=1)";
+        params["model1"] = "RELAX(kappa=2.0,p=0.1,omega1=1.0,omega2=2.0,k=1.0,theta1=0.5,theta2=0.8,frequencies=F0)";
+        params["model2"] = "RELAX(kappa=RELAX.kappa_1,p=RELAX.p_1,omega1=RELAX.omega1_1,omega2=RELAX.omega2_1,theta1=RELAX.theta1_1,theta2=RELAX.theta2_1,frequencies=F0,k=1.0)";
         params["nonhomogeneous"]="general";
         params["nonhomogeneous.number_of_models"] = "2";
         params["nonhomogeneous.stationarity"] = "yes";
@@ -93,7 +102,7 @@ int main()
         params["site.path1"] = "model1[YN98.omega_1]&model2[YN98.omega_1]"; // map omega1 in the branches under character state 0 (=model1) to omega1 in the branches under character state 1 (=model2) 
         params["site.path2"] = "model1[YN98.omega_2]&model2[YN98.omega_2]"; // these to complement the path of omega2
         params["model1.nodes_id"] = "0";
-        params["model2.nodes_id"] = "1,2,3,4,5,6";
+        params["model2.nodes_id"] = "1,2,3,4,5";
         MixedSubstitutionModelSet* RELAXModel_1 = dynamic_cast<MixedSubstitutionModelSet*>(PhylogeneticsApplicationTools::getSubstitutionModelSet(alphabet, gCode.get(), dynamic_cast<const SiteContainer*>(&sites), params));
         
         // create likelihood function
@@ -103,7 +112,7 @@ int main()
         double RELAXLogLikelihood_1 = -1*RELAXTreeLikelihood_1->getValue();
 
         // set partition 2 -> make sure likelihood has not changed
-        params["model1.nodes_id"] = "1,2,3,4,5,6";
+        params["model1.nodes_id"] = "1,2,3,4,5";
         params["model2.nodes_id"] = "0";
         MixedSubstitutionModelSet* RELAXModel_2 = dynamic_cast<MixedSubstitutionModelSet*>(PhylogeneticsApplicationTools::getSubstitutionModelSet(alphabet, gCode.get(), dynamic_cast<const SiteContainer*>(&sites), params));
         RNonHomogeneousMixedTreeLikelihood* RELAXTreeLikelihood_2 = new RNonHomogeneousMixedTreeLikelihood(*ttree, dynamic_cast<const SiteContainer&>(sites), RELAXModel_2, rdist, true, false);
@@ -117,7 +126,7 @@ int main()
 
         // make sure you receive the same likelihood as YNGP_M2 (simple site model)
         map<string,string> m2params;
-        m2params["model"] = "YNGP_M2(kappa=1,omega0=0.1,omega2=2,theta1=0.5,theta2=0.5,frequencies=F0)";
+        m2params["model"] = "YNGP_M2(kappa=2.0,omega0=0.1,omega2=2.0,theta1=0.5,theta2=0.8,frequencies=F0)";
         m2params["nonhomogeneous"] = "no";
         TransitionModel* M2Model = PhylogeneticsApplicationTools::getTransitionModel(alphabet, gCode.get(), dynamic_cast<const SiteContainer*>(&sites), m2params);
         RHomogeneousMixedTreeLikelihood* M2TreeLikelihood = new RHomogeneousMixedTreeLikelihood(*ttree, dynamic_cast<const SiteContainer&>(sites), M2Model, rdist, true, false);
@@ -126,15 +135,20 @@ int main()
         if (RELAXLogLikelihood_1 != M2LogLikelihood)
         {
             cout << "Error! RELAX when k=1 yields different likelihood than M2 model" << endl;
-            return 1;
+			cout << "RELAX Log Likelihood: " << RELAXLogLikelihood_1 << endl;
+			printModelParameters(RELAXTreeLikelihood_1);
+			cout << "M2 Log Likelihood: " << M2LogLikelihood << endl;
+			printModelParameters(M2TreeLikelihood);
+            //return 1;
         }
         
         // set k to 2 -> fit two YNGP_M2 copies with the induced omega values and make sure the smae likelihood is obtained
-        RELAXModel_2->setParameterValue("RELAX.k_2", 2);
+        RELAXTreeLikelihood_2->setParameterValue("RELAX.k_2", 2);
+		RELAXTreeLikelihood_2->computeTreeLikelihood();
         // make sure that updating other parameters except for k is done sucessfully 
         double RELAXLogLikelihood_3 = -1*RELAXTreeLikelihood_2->getValue();
 
-        params["model1"] = "YNGP_M2(kappa=1,omega0=0.1,omega2=2,theta1=0.5,theta2=0.5,frequencies=F0)";
+        params["model1"] = "YNGP_M2(kappa=2.0,omega0=0.1,omega2=2.0,theta1=0.5,theta2=0.8,frequencies=F0)";
         params["model2"] = "YNGP_M2(kappa=YNGP_M2.kappa_1,omega0=0.01,omega2=4,theta1=YNGP_M2.theta1_1,theta2=YNGP_M2.theta2_1,frequencies=F0)";
         MixedSubstitutionModelSet* DoubleM2Model = dynamic_cast<MixedSubstitutionModelSet*>(PhylogeneticsApplicationTools::getSubstitutionModelSet(alphabet, gCode.get(), dynamic_cast<const SiteContainer*>(&sites), params));
         RNonHomogeneousMixedTreeLikelihood* DoubleM2TreeLikelihood = new RNonHomogeneousMixedTreeLikelihood(*ttree, dynamic_cast<const SiteContainer&>(sites), DoubleM2Model, rdist, true, false);
@@ -142,7 +156,11 @@ int main()
         double DoubleM2LogLikelihood = -1*DoubleM2TreeLikelihood->getValue(); 
         if (RELAXLogLikelihood_3 != DoubleM2LogLikelihood)
         {
-            cout << "Error! RELAX yields different likelihood from tow copies of YNGP_M2 that produce the same BG and FG as RELAX" << endl;
+            cout << "Error! RELAX yields different likelihood from two copies of YNGP_M2 that produce the same BG and FG as RELAX" << endl;
+			cout << "RELAX Log Likelihood: " << RELAXLogLikelihood_3 << endl;
+			printModelParameters(RELAXTreeLikelihood_2);
+			cout << "M2 Log Likelihood: " << DoubleM2LogLikelihood << endl;
+			printModelParameters(DoubleM2TreeLikelihood);
             return 1;
         }  
 
