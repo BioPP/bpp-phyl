@@ -66,7 +66,8 @@ sequenceChanged_(false),
 previousK_(1),
 origTreeLength_(0),
 debugDir_(),
-debug_(false)
+debug_(false),
+cycleNum_(0)
 {
     // get the original total tree length
     const TreeTemplate<Node>* ttree = dynamic_cast<const TreeTemplate<Node>*>(tree);
@@ -237,7 +238,7 @@ void JointLikelihoodFunction::updatesequenceTreeLikelihood(const Tree* history)
 
 /******************************************************************************/
 
-void JointLikelihoodFunction::reportSequenceScalingFactor()
+double JointLikelihoodFunction::getSequenceScalingFactor(bool verbose)
 {
     const Tree& tree = sequenceTreeLikelihood_->getTree();
     vector <const Node*> nodes = (dynamic_cast<const TreeTemplate<Node>&>(tree)).getNodes();
@@ -250,46 +251,125 @@ void JointLikelihoodFunction::reportSequenceScalingFactor()
             treeSize = treeSize + nodes[b]->getDistanceToFather();
         }
     }
-    cout << "The tree has been scaled by a sequence scaling factor of: " << treeSize / origTreeLength_ << endl;
+    double scalingFactor = treeSize / origTreeLength_;
+    if (verbose)
+    {
+        cout << "The tree has been scaled by a sequence scaling factor of: " << scalingFactor << endl;
+    }
+    return scalingFactor;
 }
 
 /******************************************************************************/
 
-void JointLikelihoodFunction::reportResults()
+map<string,double> JointLikelihoodFunction::getSequenceModelParameters(bool verbose)
 {
+  MixedSubstitutionModelSet* sequenceModel = dynamic_cast<MixedSubstitutionModelSet*>(sequenceTreeLikelihood_->getSubstitutionModelSet());
+  ParameterList parameters;
+  map<string,double> parametersValues;
+  for (size_t m = 0; m < sequenceModel->getNumberOfModels(); ++m) {
+    if (verbose)
+      ApplicationTools::displayMessage("\nmodel " + TextTools::toString(m+1) + "\n");
+    TransitionModel* model = sequenceModel->getModel(m);
+    parameters = model->getParameters();
+    for (size_t i = 0; i < parameters.size(); i++)
+    {
+      if (verbose)
+        ApplicationTools::displayResult(parameters[i].getName(), TextTools::toString(parameters[i].getValue()));
+      if (((parameters[i].getName().compare("RELAX.k") == 0) & (m == 1)) | ((parameters[i].getName().compare("RELAX.k") != 0) & (m == 0)))
+        parametersValues[parameters[i].getName() + "_" + TextTools::toString(m+1)] = parameters[i].getValue();
+    }
+  }
+  if (verbose)
+  {
+    parameters = sequenceTreeLikelihood_->getRateDistributionParameters();
+    for (size_t i = 0; i < parameters.size(); i++)
+    {
+      ApplicationTools::displayResult(parameters[i].getName(), TextTools::toString(parameters[i].getValue()));
+    }
+  }
+
+  // get the scaling factor
+  parametersValues["sequenceScalingFactor"] = getSequenceScalingFactor(false);
+  ApplicationTools::displayResult("Sequence scaling factor",  TextTools::toString(parametersValues["sequenceScalingFactor"]));
+
+  double characterLogl = -1.0 * characterTreeLikelihood_->getValue();
+  double sequenceLogl = -1.0 * sequenceTreeLikelihood_->getValue();
+  double overallLogl = characterLogl + sequenceLogl;
+  ApplicationTools::displayResult("\nCharacter Log likelihood", TextTools::toString(characterLogl));
+  ApplicationTools::displayResult("Sequence Log likelihood", TextTools::toString(sequenceLogl));
+  ApplicationTools::displayResult("Overall Log likelihood", TextTools::toString(overallLogl));
+  cout << "\n" << endl;
+  parametersValues["logl"] = overallLogl;
+
+  return parametersValues;
+}
+
+/******************************************************************************/
+
+void JointLikelihoodFunction::scaleSequenceTree(double factor)
+{
+    // get a new tree and scale it
+    Tree* newTree = sequenceTreeLikelihood_->getTree().clone();
+    (dynamic_cast<TreeTemplate<Node>*>(newTree))->scaleTree(factor);
+    // switch the new tree with the ols tree in the sequence likelihood function
+    updatesequenceTreeLikelihood(newTree);
+}
+
+/******************************************************************************/
+
+map<string,double> JointLikelihoodFunction::getModelParameters(bool verbose)
+{
+    map<string,double> modelParameters = getSequenceModelParameters(false);
+    
     // report character model parameters and likelihood
     ParameterList parameters;
     TransitionModel* characterModel = characterTreeLikelihood_->getModel();
     parameters = characterModel->getParameters();
+	cout << "\n" << endl;
     for (size_t i = 0; i < parameters.size(); i++)
     {
-        ApplicationTools::displayResult(parameters[i].getName(), TextTools::toString(parameters[i].getValue()));
+        if (verbose)
+        {
+            ApplicationTools::displayResult(parameters[i].getName(), TextTools::toString(parameters[i].getValue()));
+        }
+        modelParameters[parameters[i].getName()] = parameters[i].getValue();
     }
     double charLogL = characterTreeLikelihood_->getValue();
-    ApplicationTools::displayResult("Character Log likelihood", TextTools::toString(-charLogL, 15));
+    if (verbose)
+    {
+        ApplicationTools::displayResult("Character Log likelihood", TextTools::toString(-charLogL, 15));
+    }
 
     // report sequence model parameters
-    reportSequenceScalingFactor();
-    MixedSubstitutionModelSet* sequenceModel = dynamic_cast<MixedSubstitutionModelSet*>(sequenceTreeLikelihood_->getSubstitutionModelSet());
-    for (size_t m = 0; m < sequenceModel->getNumberOfModels(); ++m) 
+    if (verbose)
     {
-        ApplicationTools::displayMessage("\nmodel " + TextTools::toString(m+1) + "\n");
-        TransitionModel* model = sequenceModel->getModel(m);
-        parameters = model->getParameters();
-        for (size_t j = 0; j < parameters.size(); j++)
+        getSequenceScalingFactor();
+        MixedSubstitutionModelSet* sequenceModel = dynamic_cast<MixedSubstitutionModelSet*>(sequenceTreeLikelihood_->getSubstitutionModelSet());
+        for (size_t m = 0; m < sequenceModel->getNumberOfModels(); ++m) 
         {
-            ApplicationTools::displayResult(parameters[j].getName(), TextTools::toString(parameters[j].getValue()));
+            ApplicationTools::displayMessage("\nmodel " + TextTools::toString(m+1) + "\n");
+            TransitionModel* model = sequenceModel->getModel(m);
+            parameters = model->getParameters();
+            for (size_t j = 0; j < parameters.size(); j++)
+            {
+                ApplicationTools::displayResult(parameters[j].getName(), TextTools::toString(parameters[j].getValue()));
+            }
         }
     }
     double seqLogL = sequenceTreeLikelihood_->getValue();
-    ApplicationTools::displayResult("Sequence Log likelihood", TextTools::toString(-seqLogL, 15));
+    if (verbose)
+    {
+        ApplicationTools::displayResult("Sequence Log likelihood", TextTools::toString(-seqLogL, 15));
+    }
 
     // report joint likelihood
     double overallLogL = charLogL + seqLogL; // = log(charLikelihood * seqLikelihood)
     logl_ = overallLogL;
     ApplicationTools::displayResult("Overall Log likelihood", TextTools::toString(-overallLogL, 15));
     cout << "\n" << endl;
+    return modelParameters;
 }
+
 
 /******************************************************************************/
 
@@ -570,11 +650,11 @@ void JointLikelihoodFunction::optimizeSequenceModel()
     }
     bppml_->getParam("optimization.ignore_parameters") = paramsToIgnore;
     // first optimize the scaling parameter: 0 = don't scale, 1 - scale only before optimization, 2 - scale only after optimization, 3 - scale before and after optimization
-    int scaleTree = ApplicationTools::getIntParameter("optimization.scale.tree", bppml_->getParams(), 0);
+    int scaleTree = ApplicationTools::getIntParameter("optimization.scale.tree", bppml_->getParams(), 1);
     if (scaleTree == 1)
     {
         OptimizationTools::optimizeTreeScale(sequenceTreeLikelihood_, 0.000001, 1000000, ApplicationTools::message.get(), ApplicationTools::message.get(), 0);
-        reportSequenceScalingFactor(); // debug
+        getSequenceScalingFactor(); // debug
     }
 
     // now optimize the rest of parameters
@@ -582,8 +662,8 @@ void JointLikelihoodFunction::optimizeSequenceModel()
     
 
     // if p / omega1 / omega2 / k recieved MLEs at theri boundaries, optimize each parameter seperately while allowing dynamic boundaries, until convergence is obtained
-    bool optimizeWithDynamicBounds = false;
-    ParameterList parameters = sequenceTreeLikelihood_->getSubstitutionModelParameters();
+    // bool optimizeWithDynamicBounds = false;
+    // ParameterList parameters = sequenceTreeLikelihood_->getSubstitutionModelParameters();
     // for (size_t i = 0; i < parameters.size(); i++)
     // {
     //     if ((parameters[i].getName().compare("RELAX.p_1") == 0) || (parameters[i].getName().compare("RELAX.omega1_1") == 0) || (parameters[i].getName().compare("RELAX.omega2_1") == 0) || (parameters[i].getName().compare("RELAX.k_2") == 0))
@@ -596,17 +676,11 @@ void JointLikelihoodFunction::optimizeSequenceModel()
     //     }
 
     // }
-    
-    if (optimizeWithDynamicBounds)
-    {
-        optimizeSequenceWithDynamicBounds();
-    }
-    
-    // report parameters
-    for (size_t i = 0; i < parameters.size(); i++)
-      {
-        ApplicationTools::displayResult(parameters[i].getName(), TextTools::toString(parameters[i].getValue()));
-      }
+    // 
+    // if (optimizeWithDynamicBounds)
+    // {
+    //     optimizeSequenceWithDynamicBounds();
+    // }
     
     // update the log likelihood of the joint model
     double charLogL = characterTreeLikelihood_->getValue();
