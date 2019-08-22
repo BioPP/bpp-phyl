@@ -89,6 +89,10 @@ MixtureOfATransitionModel::MixtureOfATransitionModel(
       distributionMap_[s1]->setNamespace(s1 + "_" + distributionMap_[s1]->getNamespace());
     else
       distributionMap_[s1]->setNamespace(s1 + "_");
+
+    auto constr =model->getParameter(s2).getConstraint();
+    if (constr)
+      distributionMap_[s1]->restrictToConstraint(*constr);
   }
 
   // Initialization of modelsContainer_.
@@ -196,31 +200,30 @@ void MixtureOfATransitionModel::updateMatrices()
   size_t i, j, l;
   double d;
   ParameterList pl;
-  map<string, DiscreteDistribution*>::iterator it;
 
   // Update of distribution parameters from the parameters_ member
   // data. (reverse operation compared to what has been done in the
   // constructor).
   //  vector<string> v=getParameters().getParameterNames();
 
-  for (it = distributionMap_.begin(); it != distributionMap_.end(); it++)
+  for (auto distrib : distributionMap_)
   {
-    if (dynamic_cast<ConstantDistribution*>(it->second) == NULL)
+    if (dynamic_cast<ConstantDistribution*>(distrib.second) == NULL)
     {
-      vector<string> vDistnames = it->second->getParameters().getParameterNames();
-      for (i = 0; i < it->second->getNumberOfParameters(); i++)
+      vector<string> vDistnames = distrib.second->getParameters().getParameterNames();
+      for (auto& parname : vDistnames)
       {
-        d = getParameterValue(getParameterNameWithoutNamespace(vDistnames[i]));
-        pl.addParameter(Parameter(vDistnames[i], d));
+        d = getParameterValue(getParameterNameWithoutNamespace(parname));
+        pl.addParameter(Parameter(parname, d));
       }
-      it->second->matchParametersValues(pl);
+      distrib.second->matchParametersValues(pl);
       pl.reset();
     }
     else
     {
-      t = it->second->getNamespace();
+      t = distrib.second->getNamespace();
       d = getParameter(getParameterNameWithoutNamespace(t.substr(0, t.length() - 1))).getValue();
-      it->second->setParameterValue("value", d);
+      distrib.second->setParameterValue("value", d);
     }
   }
 
@@ -228,19 +231,19 @@ void MixtureOfATransitionModel::updateMatrices()
   {
     vProbas_[i] = 1;
     j = i;
-    for (it = distributionMap_.begin(); it != distributionMap_.end(); it++)
+    for (auto & distrib:distributionMap_)
     {
-      s = it->first;
-      l = j % it->second->getNumberOfCategories();
+      s = distrib.first;
+      l = j % distrib.second->getNumberOfCategories();
 
-      d = it->second->getCategory(l);
-      vProbas_[i] *= it->second->getProbability(l);
+      d = distrib.second->getCategory(l);
+      vProbas_[i] *= distrib.second->getProbability(l);
       if (pl.hasParameter(s))
         pl.setParameterValue(s, d);
       else
         pl.addParameter(Parameter(s, d));
 
-      j = j / it->second->getNumberOfCategories();
+      j = j / distrib.second->getNumberOfCategories();
     }
 
     modelsContainer_[i]->matchParametersValues(pl);
@@ -255,6 +258,7 @@ void MixtureOfATransitionModel::updateMatrices()
       freq_[i] += vProbas_[j] * modelsContainer_[j]->freq(i);
     }
   }
+
 }
 
 void MixtureOfATransitionModel::setFreq(std::map<int, double>& m)
@@ -278,7 +282,6 @@ Vint MixtureOfATransitionModel::getSubmodelNumbers(const string& desc) const
 {
   vector<string> parnames = modelsContainer_[0]->getParameters().getParameterNames();
   std::map<std::string, size_t> msubn;
-  map<string, DiscreteDistribution*>::const_iterator it;
 
   StringTokenizer st(desc, ",");
   while (st.hasMoreToken())
@@ -295,6 +298,7 @@ Vint MixtureOfATransitionModel::getSubmodelNumbers(const string& desc) const
   string s;
 
   bool nameok = false;
+  map<string, DiscreteDistribution*>::const_iterator it;
 
   for (i = 0; i < modelsContainer_.size(); i++)
   {

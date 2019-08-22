@@ -159,15 +159,14 @@ void YNGP_M3::updateMatrices()
         size_t ind = TextTools::to<size_t>(np.substr(19));
         double x = getParameterValue("omega0");
         for (unsigned j = 1; j < ind; j++)
-        {
           x += getParameterValue("delta" + TextTools::toString(j));
-        }
-        lParPmodel_[i].setValue(x);
+
+        const auto parConst = lParPmodel_[i].getConstraint();      
+        lParPmodel_[i].setValue(parConst?(parConst->isCorrect(x)?x:parConst->getAcceptedLimit(x)):x);
       }
       else
-      {
         lParPmodel_[i].setValue(getParameter(getParameterNameWithoutNamespace(mapParNamesFromPmodel_[np])).getValue());
-      }
+
     }
   }
 
@@ -175,13 +174,10 @@ void YNGP_M3::updateMatrices()
 
   // homogeneization of the synonymous substitution rates
 
-
   Vdouble vd;
 
   for (unsigned int i = 0; i < pmixmodel_->getNumberOfModels(); i++)
-  {
     vd.push_back(1 / pmixsubmodel_->getSubNModel(i)->Qij(synfrom_, synto_));
-  }
 
   pmixmodel_->setVRates(vd);
 }
