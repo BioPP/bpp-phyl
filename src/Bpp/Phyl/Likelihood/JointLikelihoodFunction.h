@@ -278,12 +278,7 @@ class JointLikelihoodFunction:
      * @brief Returns a map of the names and values of the sequence model parameters
      * @bool verbose - indicator weather the scanned parameters should also be reported to stdout
      */
-    map<string,double> getSequenceModelParameters(bool verbose = true);
-
-    /**
-     * @brief scales the sequence tree by a given scaling factor
-     */
-    void scaleSequenceTree(double factor);
+    map<string,double> getModelParameters(bool verbose=true);
 
     /**
      * @brief Optimizes the parameters of the sequence model
@@ -292,21 +287,18 @@ class JointLikelihoodFunction:
 
     /**
      * @brief Computea and reports the scaling factor of the tree with respect to the sequence data and model
-     * @bool verbose - indicates wether the scaling factor should be printed to sttdout or not
      */
-    double getSequenceScalingFactor(bool verbose = true);
+    void reportSequenceScalingFactor();
 
     /**
      * @brief Reports the joint model paramerers to std
-     * @bool verbose - indicates wether the scaling factor should be printed to sttdout or not
      */
-    map<string,double> getModelParameters(bool verbose = true);
+    //void reportResults();
 
     /**
-     * @brief updates the values of the joint model parameters in a map  and maintains the flags characterChanged_ and sequenceChanged_
+     * @brief updates the values of the joint model parameters in a map  and maintains the flags characterChanged_ and sequenceChanged_ 
      */
     void updatePreviousParametersValues();
-
 
     // functions to override if using reference ot character and sequence models parameters instead of copies
     // all these functions use parameters_ datamember which would be empty in this case
@@ -366,7 +358,7 @@ class JointLikelihoodFunction:
       characterTreeLikelihood_->setAllParametersValues(parameters);
       sequenceTreeLikelihood_->setAllParametersValues(parameters);
       ParameterList pl;
-      fireParameterChanged(pl);
+      //fireParameterChanged(pl);
     }
 
     void setParameterValue(const std::string& name, double value)
@@ -401,4 +393,8 @@ class JointLikelihoodFunction:
     }
 
     size_t getNumberOfParameters() const { return (characterTreeLikelihood_->getParameters().size() + sequenceTreeLikelihood_->getParameters().size()); }
+	
+	double getSequenceScalingFactor(bool verbose = true);
+	
+	void scaleSequenceTree(double factor);
 };
