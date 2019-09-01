@@ -95,6 +95,15 @@ class JointLikelihoodFunction:
     double origTreeLength_; // save the original tree length in order to report the induced sequence scaling factor when needed
     string debugDir_;
     bool debug_;
+    unsigned int cycleNum_;
+  
+  protected:
+
+    /**
+     * @brief Internal builtin function by which stsrting points are sorted in the optimization procedure
+     */
+    static bool sortStartingPointsFunction(map<string,double> i,map<string,double> j) { return (i["logl"]>j["logl"]); }
+
 
   public:
 
@@ -120,7 +129,8 @@ class JointLikelihoodFunction:
       previousK_(jlf.previousK_),
       origTreeLength_(jlf.origTreeLength_),
       debugDir_(jlf.debugDir_),
-      debug_(jlf.debug_)
+      debug_(jlf.debug_),
+      cycleNum_(jlf.cycleNum_)
     {   
       TransitionModel* characterModel = characterTreeLikelihood_->getModel();
       jointParameters_.addParameters(characterModel->getParameters());
@@ -150,6 +160,7 @@ class JointLikelihoodFunction:
       origTreeLength_ = jlf.origTreeLength_;
       debugDir_ = jlf.debugDir_;
       debug_ = jlf.debug_;
+      cycleNum_ = jlf.cycleNum_;
       return *this;
     }
 
@@ -247,21 +258,27 @@ class JointLikelihoodFunction:
     void optimizeOmegaParameters();
 
     /**
-     * @brief Optimizes the sequence likelihood function with respect to a single given parameter
+     * @brief Depracated: Optimizes the sequence likelihood function with respect to a single given parameter
      * @param paramName - name of the parameter to be optimized (sohuld be either RELAX.p_1, RELAX.omega1_1, RELAX.omega2_1, RELAX.k_2)
      */
     void optimizeSequenceOneDimension(const std::string& paramName);
 
     /**
-     * @brief check if the value of a parameter equals its lower bound or upper bound
+     * @brief Depracated: check if the value of a parameter equals its lower bound or upper bound
      * @Parameter& parameter - the parameter to examine
      */
     bool checkIfParameterRechedBound(const Parameter& parameter);
 
     /**
-     * @brief Optimizes the seuqence likelihood function with respect to s single parameter in iterations, while adjusting the boundaries of the optimized parameters on expense of the fixed parameters
+     * @brief Depracated: Optimizes the seuqence likelihood function with respect to s single parameter in iterations, while adjusting the boundaries of the optimized parameters on expense of the fixed parameters
      */
     void optimizeSequenceWithDynamicBounds(uint method = 0);
+
+    /**
+     * @brief Returns a map of the names and values of the sequence model parameters
+     * @bool verbose - indicator weather the scanned parameters should also be reported to stdout
+     */
+    map<string,double> getModelParameters(bool verbose=true);
 
     /**
      * @brief Optimizes the parameters of the sequence model
@@ -276,10 +293,10 @@ class JointLikelihoodFunction:
     /**
      * @brief Reports the joint model paramerers to std
      */
-    void reportResults();
+    //void reportResults();
 
     /**
-     * @brief updates the values of the joint model parameters in a map  and maintains the flags characterChanged_ and sequenceChanged_
+     * @brief updates the values of the joint model parameters in a map  and maintains the flags characterChanged_ and sequenceChanged_ 
      */
     void updatePreviousParametersValues();
 
@@ -341,7 +358,7 @@ class JointLikelihoodFunction:
       characterTreeLikelihood_->setAllParametersValues(parameters);
       sequenceTreeLikelihood_->setAllParametersValues(parameters);
       ParameterList pl;
-      fireParameterChanged(pl);
+      //fireParameterChanged(pl);
     }
 
     void setParameterValue(const std::string& name, double value)
@@ -355,7 +372,7 @@ class JointLikelihoodFunction:
         sequenceTreeLikelihood_->setParameterValue(name, value);
       }
       ParameterList pl;
-      fireParameterChanged(pl);
+      //fireParameterChanged(pl);
     }
 
     void setParametersValues(const ParameterList& parameters)
@@ -376,4 +393,8 @@ class JointLikelihoodFunction:
     }
 
     size_t getNumberOfParameters() const { return (characterTreeLikelihood_->getParameters().size() + sequenceTreeLikelihood_->getParameters().size()); }
+	
+	double getSequenceScalingFactor(bool verbose = true);
+	
+	void scaleSequenceTree(double factor);
 };
