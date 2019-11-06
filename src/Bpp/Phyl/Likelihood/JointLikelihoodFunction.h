@@ -397,4 +397,8 @@ class JointLikelihoodFunction:
 	double getSequenceScalingFactor(bool verbose = true);
 	
 	void scaleSequenceTree(double factor);
+
+  double getLikelihood();
+
+  vector<double> getLikelihoodForEachSite();
 };
