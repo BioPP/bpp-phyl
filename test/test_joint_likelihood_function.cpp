@@ -157,11 +157,8 @@ void setMpPartition(BppApplication* bppml, DRTreeParsimonyScore* mpData, const V
 
 MixedSubstitutionModelSet* setSequenceModel(BppApplication* bppml, const VectorSiteContainer* codon_data, const CodonAlphabet* codonAlphabet, DRTreeParsimonyScore* mpData, const VectorSiteContainer* characterData, TransitionModel* characterModel, Tree* tree)
 {
-    if (!ApplicationTools::getBooleanParameter("sequence_model.set_initial_parameters", bppml->getParams(), true, "", true, false))
-    {
-      bppml->getParam("model1") = "RELAX(kappa=1,p=0.1,omega1=1.0,omega2=2.0,theta1=0.5,theta2=0.8,k=1,frequencies=F3X4,initFreqs=observed,initFreqs.observedPseudoCount=1)";
-      bppml->getParam("model2") = "RELAX(kappa=RELAX.kappa_1,p=RELAX.p_1,omega1=RELAX.omega1_1,omega2=RELAX.omega2_1,theta1=RELAX.theta1_1,theta2=RELAX.theta2_1,k=1,1_Full.theta=RELAX.1_Full.theta_1,1_Full.theta1=RELAX.1_Full.theta1_1,1_Full.theta2=RELAX.1_Full.theta2_1,2_Full.theta=RELAX.2_Full.theta_1,2_Full.theta1=RELAX.2_Full.theta1_1,2_Full.theta2=RELAX.2_Full.theta2_1,3_Full.theta=RELAX.3_Full.theta_1,3_Full.theta1=RELAX.3_Full.theta1_1,3_Full.theta2=RELAX.3_Full.theta2_1,frequencies=F3X4,initFreqs=observed,initFreqs.observedPseudoCount=1)";
-    }
+    bppml->getParam("model1") = "RELAX(kappa=1,p=0.1,omega1=1.0,omega2=2.0,theta1=0.5,theta2=0.8,k=1,frequencies=F3X4,initFreqs=observed,initFreqs.observedPseudoCount=1)";
+    bppml->getParam("model2") = "RELAX(kappa=RELAX.kappa_1,p=RELAX.p_1,omega1=RELAX.omega1_1,omega2=RELAX.omega2_1,theta1=RELAX.theta1_1,theta2=RELAX.theta2_1,k=1,1_Full.theta=RELAX.1_Full.theta_1,1_Full.theta1=RELAX.1_Full.theta1_1,1_Full.theta2=RELAX.1_Full.theta2_1,2_Full.theta=RELAX.2_Full.theta_1,2_Full.theta1=RELAX.2_Full.theta1_1,2_Full.theta2=RELAX.2_Full.theta2_1,3_Full.theta=RELAX.3_Full.theta_1,3_Full.theta1=RELAX.3_Full.theta1_1,3_Full.theta2=RELAX.3_Full.theta2_1,frequencies=F3X4,initFreqs=observed,initFreqs.observedPseudoCount=1)";
     bppml->getParam("nonhomogeneous")="general";
     bppml->getParam("nonhomogeneous.number_of_models") = "2";
     bppml->getParam("nonhomogeneous.stationarity") = "yes"; // constrain root frequencies to be the same as stationary (since RELAX is a time reversible model, this should not cause issues)
@@ -250,7 +247,7 @@ int main(int args, char** argv)
     double kVal = jlf->getParameterValue("RELAX.k_2");
     if (kVal != 1 && nullLoglL_1 == alternativeLoglL_1)
     {
-        cerr << "Error! the joint likelihood of the null and alternative hypotheses are the smae despite k not being 1" << endl;
+        cerr << "Error! the joint likelihood of the null and alternative hypotheses are the same despite k not being 1" << endl;
         return 1;
     }
 
@@ -289,7 +286,7 @@ int main(int args, char** argv)
     jlf->setHypothesis(JointLikelihoodFunction::Hypothesis(0));
     jlf->fireParameterChanged(params);
     double nullLoglL_3 = jlf->getValue();
-    if (nullLoglL_2 != nullLoglL_3)
+    if ((nullLoglL_2 - nullLoglL_3) > 0.0001)
     {
         cerr << "Error! the joint likelihood of the null model is altered upon modification of the value of k" << endl;
         return 1;
@@ -305,6 +302,22 @@ int main(int args, char** argv)
         cerr << "Error! the joint likelihood of the alternative model is not affected by change of the value of k" << endl;
         return 1;
     }
+
+    // likelihood of a single site is NOT the multiplicity of the likelihood of the sequence site and the one of the character model, but we can regard it as it were for the purpose of sitewise comparison to the null TraitRELAX model
+    // test likelihood computation by site
+    double totalLikelihood = jlf->getLikelihood();
+    vector<double> likelihoodBySite = jlf->getLikelihoodForEachSite();
+    double multOverSites = 1.;
+    for (size_t s=0; s<likelihoodBySite.size(); ++s)
+    {
+      multOverSites = multOverSites * likelihoodBySite[s]; 
+    }
+    if ((totalLikelihood-multOverSites) > 0.0001)
+    {
+        cerr << "Error! the joint likelihood computation by site returns a different sum from the overall joint likelihood" << endl;
+        return 1;
+    }
+
 
     // optmize the sequence model with dynamic boundaries
     //jlf->optimizeSequenceWithDynamicBounds();
