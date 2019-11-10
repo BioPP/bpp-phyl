@@ -1108,3 +1108,22 @@ void JointLikelihoodFunction::computeNullJointLikelihood()
             throw Exception("Error! illegal optimizationScope setting");
     }
 }
+
+double JointLikelihoodFunction::getLikelihood()
+{
+    double seqLikelihood = sequenceTreeLikelihood_->getLikelihood();
+    double charLikelihood = characterTreeLikelihood_->getLikelihood();
+    return seqLikelihood + charLikelihood;
+}
+
+vector<double> JointLikelihoodFunction::getLikelihoodForEachSite()
+{
+    vector<double> seqLikelihoodBySite = sequenceTreeLikelihood_->getLikelihoodForEachSite();
+    double charLikelihood = characterTreeLikelihood_->getLikelihood();
+    vector<double> jointLikelihoodBySite;
+    for (size_t s=0; s<seqLikelihoodBySite.size(); ++s)
+    {
+        jointLikelihoodBySite.push_back(charLikelihood*seqLikelihoodBySite[s]);
+    }
+    return jointLikelihoodBySite;
+}
