@@ -195,8 +195,12 @@ namespace bpp
      */
     virtual void setNProbability(size_t i, double prob)
     {
-      if ((prob >= 0) && (prob <= 1))
-        vProbas_[i] = prob;
+      if (prob<0)
+        prob=0;
+      if (prob>1)
+        prob=1;
+
+      vProbas_[i] = prob;
     }
 
     /**
