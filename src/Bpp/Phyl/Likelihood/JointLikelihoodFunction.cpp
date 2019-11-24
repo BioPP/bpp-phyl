@@ -324,9 +324,9 @@ map<string,double> JointLikelihoodFunction::getModelParameters(bool verbose)
   // report it regardless of verbose level
   if (verbose)
   {
-	ApplicationTools::displayResult("\nCharacter Log likelihood", TextTools::toString(-1.0*characterLogl));
-	ApplicationTools::displayResult("Sequence Log likelihood", TextTools::toString(-1.0*sequenceLogl));
-	ApplicationTools::displayResult("Overall Log likelihood", TextTools::toString(-1.0*logl_));
+	ApplicationTools::displayResult("\nCharacter Log likelihood", TextTools::toString(-1.0*characterLogl, 15));
+	ApplicationTools::displayResult("Sequence Log likelihood", TextTools::toString(-1.0*sequenceLogl, 15));
+	ApplicationTools::displayResult("Overall Log likelihood", TextTools::toString(-1.0*logl_, 15));
   }
   return modelParameters;
 }
@@ -620,7 +620,7 @@ void JointLikelihoodFunction::optimizeSequenceModel()
     bppml_->getParam("optimization.ignore_parameters") = paramsToIgnore;
     // first optimize the scaling parameter: 0 = don't scale, 1 - scale only before optimization, 2 - scale only after optimization, 3 - scale before and after optimization
     int scaleTree = ApplicationTools::getIntParameter("optimization.scale.tree", bppml_->getParams(), 0);
-    if (scaleTree == 1)
+    if (scaleTree >= 1)
     {
         OptimizationTools::optimizeTreeScale(sequenceTreeLikelihood_, 0.000001, 1000000, ApplicationTools::message.get(), ApplicationTools::message.get(), 0);
         getSequenceScalingFactor(); // debug
@@ -637,7 +637,7 @@ void JointLikelihoodFunction::optimizeSequenceModel()
         if (cycleNum_ == 0)
         {
             // starting point 1 - results of the null fitting
-			if (scaleTree == 1)
+			if (scaleTree >= 1)
 			{
 				OptimizationTools::optimizeTreeScale(sequenceTreeLikelihood_, 0.000001, 1000000, ApplicationTools::message.get(), ApplicationTools::message.get(), 0);
 				getSequenceScalingFactor(); // debug
@@ -656,7 +656,7 @@ void JointLikelihoodFunction::optimizeSequenceModel()
 					sequenceTreeLikelihood_->setParameterValue(it->first, it->second);
 				}
             }
-			if (scaleTree == 1)
+			if (scaleTree >= 1)
 			{
 				OptimizationTools::optimizeTreeScale(sequenceTreeLikelihood_, 0.000001, 1000000, ApplicationTools::message.get(), ApplicationTools::message.get(), 0);
 				getSequenceScalingFactor(); // debug
@@ -755,7 +755,7 @@ void JointLikelihoodFunction::optimizeSequenceModel()
                     }
                 }
                 cout << "Optimizing starting point " << (p+1) << "..." << endl;
-				if (scaleTree == 1)
+				if (scaleTree >= 1)
 				{
 					OptimizationTools::optimizeTreeScale(sequenceTreeLikelihood_, 0.000001, 1000000, ApplicationTools::message.get(), ApplicationTools::message.get(), 0);
 					getSequenceScalingFactor(); // debug
@@ -787,7 +787,7 @@ void JointLikelihoodFunction::optimizeSequenceModel()
                 }
             }
             cout << "Optimizing starting point " << (p+1) << endl;
-			if (scaleTree == 1)
+			if (scaleTree >= 1)
 			{
 				OptimizationTools::optimizeTreeScale(sequenceTreeLikelihood_, 0.000001, 1000000, ApplicationTools::message.get(), ApplicationTools::message.get(), 0);
 				getSequenceScalingFactor(); // debug
@@ -802,7 +802,6 @@ void JointLikelihoodFunction::optimizeSequenceModel()
     }
 	else
     {
-		cout << "line 806" << endl; // debug
         PhylogeneticsApplicationTools::optimizeParameters(sequenceTreeLikelihood_, sequenceTreeLikelihood_->getParameters(), bppml_->getParams());
         inferenceResult = getModelParameters(verbose);
     }
@@ -1001,11 +1000,11 @@ void JointLikelihoodFunction::computeAlternativeJointLikelihood()
 		}
 		// get the likelihood
 		double characterLogl = characterTreeLikelihood_->getValue();
-		ApplicationTools::displayResult("Character Log likelihood", TextTools::toString(-1.0*characterLogl));
+		ApplicationTools::displayResult("Character Log likelihood", TextTools::toString(-1.0*characterLogl, 15));
 		double sequenceLogl = sequenceTreeLikelihood_->getValue();
-		ApplicationTools::displayResult("Sequence Log likelihood", TextTools::toString(-1.0*sequenceLogl));
+		ApplicationTools::displayResult("Sequence Log likelihood", TextTools::toString(-1.0*sequenceLogl, 15));
 		logl_ = characterLogl + sequenceLogl;
-		ApplicationTools::displayResult("Overall Log likelihood", TextTools::toString(-1.0*logl_));
+		ApplicationTools::displayResult("Overall Log likelihood", TextTools::toString(-1.0*logl_, 15));
 	}
 }
 
@@ -1057,6 +1056,14 @@ void JointLikelihoodFunction::optimizeCharacterModel()
     characterParametersOptimizer->init(mu);
     characterParametersOptimizer->optimize();
     delete characterParametersOptimizer;
+	
+	// 24.11.19 - if a second optimization request is included in the parameters file, perform another optimization
+	bool optimizeTwice = ApplicationTools::getBooleanParameter("optimization.character.twice", bppml_->getParams(), false);
+	if (optimizeTwice)
+	{
+		cout << "optimizing the character model using a different method for a second time" << endl; 
+		PhylogeneticsApplicationTools::optimizeParameters(characterTreeLikelihood_, characterTreeLikelihood_->getParameters(), bppml_->getParams());
+	}
     
     // update the log likelihood of the joint model
     double charLogL = characterTreeLikelihood_->getValue();
@@ -1089,8 +1096,8 @@ void JointLikelihoodFunction::computeNullJointLikelihood()
             {
                 ApplicationTools::displayResult(parameters[i].getName(), TextTools::toString(parameters[i].getValue()));
             }
-            ApplicationTools::displayResult("Character log likelihood", TextTools::toString(-1*characterTreeLikelihood_->getValue()));
-            ApplicationTools::displayResult("Sequence log likelihood", TextTools::toString(-1*sequenceTreeLikelihood_->getValue()));        
+            ApplicationTools::displayResult("Character log likelihood", TextTools::toString(-1*characterTreeLikelihood_->getValue(), 15));
+            ApplicationTools::displayResult("Sequence log likelihood", TextTools::toString(-1*sequenceTreeLikelihood_->getValue(), 15));        
             break;
         case onlyCharacter: 
             optimizeCharacterModel();
