@@ -273,7 +273,7 @@ TEST_CASE("df")
 
   auto model1 = new bpp::T92(&c.alphabet, 3., 0.7);
   std::map<std::string, bpp::DiscreteDistribution*> mapParam;
-  mapParam["kappa"]=new bpp::GammaDiscreteDistribution(3, 1);
+  mapParam["kappa"]=new bpp::GammaDiscreteDistribution(2, 1);
 
   auto model = new bpp::MixtureOfASubstitutionModel(&c.alphabet, model1, mapParam);
   

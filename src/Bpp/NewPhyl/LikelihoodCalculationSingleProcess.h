@@ -48,17 +48,9 @@
 
 #include <Bpp/Seq/Container/AlignedValuesContainer.h>
 #include <Bpp/Phyl/SitePatterns.h>
-
+#include <Bpp/Graph/AssociationDAGraphImplObserver.h>
 #include "Bpp/Phyl/NewLikelihood/SubstitutionProcess.h"
 
-/* This file contains temporary helpers and wrappers.
- * They are used to bridge the gap between bpp::dataflow stuff and the rest of bpp.
- * They have only been used (and thus tested) for a single likelihood example.
- * They do not deal with all of bpp features, which is why they are only temporary.
- *
- * Ultimately, stuff in this file should be changed to a new system to describe phylogenic computations, which
- * would generate dataflow graphs to do the actual computations.
- */
 
 namespace bpp {
 
@@ -123,7 +115,14 @@ namespace bpp {
     
     using SiteWeights = NumericConstant<Eigen::RowVectorXi>;
 
-    using ConditionalLikelihoodTree = AssociationTreeGlobalGraphObserver<ConditionalLikelihood,uint>;
+    /*
+     * @brief DAG of the conditional likelihoods (product of above and
+     * below likelihoods), with same topology as forward & backward
+     * likelihood DAGs.
+     *
+     */
+     
+    using ConditionalLikelihoodTree = AssociationDAGlobalGraphObserver<ConditionalLikelihood,uint>;
 
     using SiteLikelihoodsTree = AssociationTreeGlobalGraphObserver<SiteLikelihoods, uint>;
 

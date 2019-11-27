@@ -50,19 +50,18 @@ namespace bpp
   namespace dataflow
   {
     
-    /** @brief : At the top of each edge at speciation node
+    /** @brief : At the top of each edge below a speciation node
      *
      * conditionalLikelihood = f(backwardLikelihood[father[i]], forwardlikelihood[brothers[i]]).
      * conditionalLikelihood: Matrix(state, site).
      * backwardLikelihood, forwardlikelihood: Matrix(state, site).
      *
-     * c(state, site) = prod_i f_i(state, site).
-     * Using member wise multiply: c = prod_member_i f_i.
+     * Using member wise multiplication: c(state, site) = prod_i f_i(state, site).
      */
     
     using ConditionalLikelihoodFromUpper = CWiseMul<Eigen::MatrixXd, ReductionOf<Eigen::MatrixXd>>;
 
-    /** @brief : Above each node : bottom of each edge
+    /** @brief : Above each node : bottom of an edge
      *
      *  backwardLikelihood = f(transitionMatrix, conditionalLikelihood).
      *  

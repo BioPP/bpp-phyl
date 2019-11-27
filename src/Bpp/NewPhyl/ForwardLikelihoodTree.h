@@ -58,10 +58,10 @@ namespace bpp
     }
 
     inline MatrixDimension conditionalLikelihoodDimension (std::size_t nbState, std::size_t nbSite) {
-    return {Eigen::Index (nbState), Eigen::Index (nbSite)};
+      return {Eigen::Index (nbState), Eigen::Index (nbSite)};
     }
     
-/** conditionalLikelihood = f(forwardLikelihood[children[i]] for i).
+    /** conditionalLikelihood = f(forwardLikelihood[children[i]] for i).
      * conditionalLikelihood: Matrix(state, site).
      * forwardLikelihood[i]: Matrix(state, site).
      *
@@ -126,12 +126,14 @@ namespace bpp
       std::size_t nbState_;
       std::size_t nbSites_;
 
-      /* Maps of edges and nodes between ForwardLikelihoodTree and ProcessTree */
+      /* Maps of edges and nodes between ForwardLikelihoodTree and
+       * ProcessTree */
       
       std::map<ForwardLikelihoodBelowRef, ProcessEdgeRef> mapEdge_;
       std::map<ConditionalLikelihoodForwardRef, ProcessNodeRef> mapNode_;
 
-      /* Map of the indexes between species tree and likelihood tree */
+      /* Map of the indexes of nodes between species tree and
+       * likelihood tree */
 
       using DAGindexes = std::vector<uint>;
       using Speciesindex = uint;
@@ -198,6 +200,16 @@ namespace bpp
         return mapEdge_.at(edge);
       }
 
+      /*
+       * @brief Get the nodes indexes of the DAG that correspond to
+       * the species Index (of the Process tree).
+       */
+      
+      const DAGindexes& getDAGNodesIndexes(const Speciesindex speciesIndex) const
+      {
+        return mapIndexes_.at(speciesIndex);
+      }
+      
       /*
        * @brief get the forward likehoodarray at a given node in the DAG,
        * which number may not be the number in the tree.

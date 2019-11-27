@@ -125,7 +125,8 @@ void ProcessTree::buildUnderNode_(const ParametrizablePhyloTree& tree, const BrL
           break;
         }
     }
-    
+
+    // test is mixture
     if (pmodelass)
     {
       auto model=pmodelass->model_;
@@ -161,7 +162,7 @@ void ProcessTree::buildUnderNode_(const ParametrizablePhyloTree& tree, const BrL
   // Otherwise not a mixture node (mixture is handled in
   // buildUnderEdgeFromNode_)
   
-  newNode->setProperty("event",NodeEvent::speciationEvent);
+  newNode->setProperty("event", NodeEvent::speciationEvent);
   if (newFather) // no root node
   {
     link(newFather, newNode, newEdge);

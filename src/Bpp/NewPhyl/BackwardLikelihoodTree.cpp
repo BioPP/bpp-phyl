@@ -54,8 +54,8 @@ BackwardLikelihoodAboveRef BackwardLikelihoodTree::makeBackwardAboveLikelihoodEd
   auto fatherIndex = forwardTree_->getFatherOfEdge(edgeIndex);
   auto fatherForward = forwardTree_->getNode(fatherIndex);
 
-  // get/check if edge with backward likelihood exists
-  ValueRef<Eigen::MatrixXd> backNode = hasNode(fatherIndex)
+  // get/check if node with backward likelihood exists
+  auto backNode = hasNode(fatherIndex)
     ? getNode(fatherIndex)
     : makeConditionalAboveLikelihoodNode(fatherIndex);
 
@@ -108,7 +108,8 @@ ConditionalLikelihoodRef BackwardLikelihoodTree::makeConditionalAboveLikelihoodN
     auto forwardEdgeToFather = forwardTree_->getEdgeLinking(forwardFather, forwardNode);
 
     cerr << "edge: " << forwardTree_->edgeToString(forwardEdgeToFather) << endl;
-    // if an edge exists on forward tree (ie a model)
+    // if an edge exists on forward tree (ie a model) compute
+    // conditional likelihoods through transition probabilities
     if (forwardEdgeToFather)
     {
       const auto processEdge = forwardTree_->getProcessEdge(forwardEdgeToFather); 
@@ -122,7 +123,6 @@ ConditionalLikelihoodRef BackwardLikelihoodTree::makeConditionalAboveLikelihoodN
       auto transitionMatrix =
         ConfiguredParametrizable::createMatrix<ConfiguredModel, TransitionMatrixFromModel> (context_, {model, brlen}, transitionMatrixDimension (nbState_));
 
-      
       // build the backward top edge to this father if it does not exist
       const auto edgeToFatherIndex = forwardTree_->getEdgeIndex(forwardEdgeToFather);
       BackwardLikelihoodAboveRef backEdge = hasEdge(edgeToFatherIndex)
@@ -151,7 +151,7 @@ ConditionalLikelihoodRef BackwardLikelihoodTree::makeConditionalAboveLikelihoodN
         : makeConditionalAboveLikelihoodNode(fatherIndex);
     }
   }
-  // Then mean if several incoming nodes
+  // Then compute mean if several incoming nodes
   if (deps.size()>1)
   {
     for (auto& probaDep:probaDeps)

@@ -62,7 +62,6 @@ ConditionalLikelihoodForwardRef ForwardLikelihoodTree::makeInitialConditionalLik
 
 ForwardLikelihoodBelowRef ForwardLikelihoodTree::makeForwardLikelihoodEdge (shared_ptr<ProcessEdge> processEdge, const AlignedValuesContainer & sites)
 {
-  cerr << "MAKEFORWARDLIKELIHOODEDGE " << endl;
   const auto brlen= processEdge->getBrLen();
   const auto model= processEdge->getModel();
   const auto nMod = processEdge->getNMod();
@@ -81,13 +80,11 @@ ForwardLikelihoodBelowRef ForwardLikelihoodTree::makeForwardLikelihoodEdge (shar
     addEdgeIndex(forwardEdge);
     mapEdge_[forwardEdge]=processEdge;
   }
-  cerr << "makeforwardlikelihoodedge " << endl;
   return forwardEdge;
 }
 
 ConditionalLikelihoodForwardRef ForwardLikelihoodTree::makeConditionalLikelihoodNode (shared_ptr<ProcessNode> processNode, const AlignedValuesContainer & sites)
 {
-  cerr << "makeConditionalLikelihoodNode " << endl;
   const auto childBranches = processTree_->getBranches (processNode);
   const auto nbChildren = childBranches.size();
   
@@ -125,15 +122,14 @@ ConditionalLikelihoodForwardRef ForwardLikelihoodTree::makeConditionalLikelihood
       {
         createNode(forwardNode);
         addNodeIndex(forwardNode);
-        cerr << "nodeIndex " << getNodeIndex(forwardNode) << "=" << forwardNode << endl;
         mapNode_[forwardNode]=processNode;
     
         for (size_t i = 0; i < childBranches.size (); ++i)
         {
           auto fs=getNodes(depE[i]);
+          // fix the top node  of the edge
           unlink(fs.first,fs.second);
           link(forwardNode, fs.second, depE[i]);
-          cerr << getEdgeLinking(forwardNode, fs.second) << ":" << getNodeIndex(fs.second) << "=" << fs.second << endl;
         }
       }
     }
@@ -163,15 +159,14 @@ ConditionalLikelihoodForwardRef ForwardLikelihoodTree::makeConditionalLikelihood
         mapNode_[forwardNode]=processNode;
     
         for (size_t i = 0; i < childBranches.size (); ++i)
-          link(forwardNode, depN[i]);  // link with no edge because no time
+          link(forwardNode, depN[i]);  // link with no edge because no branch length
       }
     }
     else
       throw Exception("ForwardLikelihoodTree::makeConditionalLikelihoodNode : event not recognized.");
   }
   
-  cerr << "makeconditionallikelihoodnode " << endl;
-  outputToDot("forwardNode_"+TextTools::toString(getNodeIndex(forwardNode))+".dot","forwardTree");
+  writeGraphToDot("forwardNode_"+TextTools::toString(getNodeIndex(forwardNode))+".dot",{forwardNode.get()});
   return(forwardNode);
 }
 

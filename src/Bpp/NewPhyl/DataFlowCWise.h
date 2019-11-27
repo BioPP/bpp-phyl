@@ -547,7 +547,7 @@ namespace bpp {
         checkDependencyRangeIsValue<T> (typeid (Self), deps, 0, half);
         checkDependencyRangeIsValue<P> (typeid (Self), deps, half, deps.size());
 
-        // Remove both p_i or x_i from deps if one is null
+        // Remove both p_i and x_i from deps if one is null
 
         for (size_t i=0;i<half;i++)
         {

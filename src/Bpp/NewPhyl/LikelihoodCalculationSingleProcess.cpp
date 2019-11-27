@@ -420,8 +420,8 @@ ValueRef<double> LikelihoodCalculationSingleProcess::makeLikelihoodsAtNode_(uint
   if (rFreqs_==0)
     makeRootFreqs_();
 
-  auto treeNode = processNodes_.treeNode_;
-  
+  auto processTree = processNodes_.treeNode_;
+
   const auto& stateMap = getStateMap();
   size_t nbSite = getShrunkData()->getNumberOfSites();
   size_t nbState = stateMap.getNumberOfModelStates();
@@ -441,24 +441,42 @@ ValueRef<double> LikelihoodCalculationSingleProcess::makeLikelihoodsAtNode_(uint
         rateCat.blt=std::make_shared<BackwardLikelihoodTree>(context_, rateCat.flt, rateCat.phyloTree, rFreqs_, stateMap, nbSite);
 
       if (!rateCat.clt)
-        rateCat.clt=std::make_shared<ConditionalLikelihoodTree>(treeNode->getGraph());
+        rateCat.clt=std::make_shared<ConditionalLikelihoodTree>(rateCat.flt->getGraph());
 
       if (!rateCat.lt)
-        rateCat.lt=std::make_shared<SiteLikelihoodsTree>(treeNode->getGraph());
+        rateCat.lt=std::make_shared<SiteLikelihoodsTree>(processTree->getGraph());
 
-      auto condAbove = rateCat.blt->getBackwardLikelihoodArray(nodeId);
-      auto condBelow = rateCat.flt->getForwardLikelihoodArray(nodeId);
-
-      auto cond = BuildConditionalLikelihood::create (
-        context_, {condAbove, condBelow}, likelihoodMatrixDim);
+      auto dagIndexes = rateCat.flt->getDAGNodesIndexes(nodeId);
+      std::vector<ConditionalLikelihoodRef> vCond;
       
-      rateCat.clt->associateNode(cond, treeNode->getNodeGraphid(treeNode->getNode(nodeId)));
-      rateCat.clt->setNodeIndex(cond, nodeId);
+      for (const auto& index : dagIndexes)
+      {
+        auto condAbove = rateCat.blt->getBackwardLikelihoodArray(index);
+        auto condBelow = rateCat.flt->getForwardLikelihoodArray(index);
+
+        auto cond = BuildConditionalLikelihood::create (
+          context_, {condAbove, condBelow}, likelihoodMatrixDim);
+        vCond.push_back(cond);
+      
+        rateCat.clt->associateNode(cond, processTree->getNodeGraphid(processTree->getNode(nodeId)));
+        rateCat.clt->setNodeIndex(cond, nodeId);
+      }
+
+      /*
+       * If several DAG nodes related with this species node, sum the
+       * likelihoods of all (already multiplied by their probability).
+       *
+       */
+
+      throw Exception("LikelihoodCalculationSingleProcess::Makelikelihoodsatnode_: still under work");
+      
+      auto cond=ConstantOne<Eigen::RowVectorXd>::create(context_, rowVectorDimension (Eigen::Index (nbState)));
+      //= CWiseAdd<Eigen::RowVectorXd, ReductionOf<Eigen::RowVectorXd>>::create(context_, vCond, likelihoodMatrixDim);
 
       auto siteLikelihoodsCat = LikelihoodFromRootConditional::create (
         context_, {one, cond}, rowVectorDimension (Eigen::Index (nbSite)));
 
-      rateCat.lt->associateNode(siteLikelihoodsCat, treeNode->getNodeGraphid(treeNode->getNode(nodeId)));
+      rateCat.lt->associateNode(siteLikelihoodsCat, processTree->getNodeGraphid(processTree->getNode(nodeId)));
       rateCat.lt->setNodeIndex(siteLikelihoodsCat, nodeId);
 
       vLogRoot.push_back(std::move(siteLikelihoodsCat));
@@ -478,24 +496,28 @@ ValueRef<double> LikelihoodCalculationSingleProcess::makeLikelihoodsAtNode_(uint
     if (!rateCat.blt)
       rateCat.blt=std::make_shared<BackwardLikelihoodTree>(context_, rateCat.flt, rateCat.phyloTree, rFreqs_, stateMap, nbSite);
 
-    if (!rateCat.clt)
-      rateCat.clt=std::make_shared<ConditionalLikelihoodTree>(treeNode->getGraph());
+    throw Exception("LikelihoodCalculationSingleProcess::Makelikelihoodsatnode_: still under work 2");
+    // if (!rateCat.clt)
+    //   rateCat.clt=std::make_shared<ConditionalLikelihoodTree>(processTree->getGraph());
     if (!rateCat.lt)
-      rateCat.lt=std::make_shared<SiteLikelihoodsTree>(treeNode->getGraph());
+      rateCat.lt=std::make_shared<SiteLikelihoodsTree>(processTree->getGraph());
     
     auto condAbove = rateCat.blt->getBackwardLikelihoodArray(nodeId);      
     auto condBelow = rateCat.flt->getForwardLikelihoodArray(nodeId);
 
+    writeGraphToDot("blt.dot",{condAbove.get()});
+    writeGraphToDot("flt.dot",{condBelow.get()});
+
     auto cond = BuildConditionalLikelihood::create (
       context_, {condAbove, condBelow}, likelihoodMatrixDim);
     
-    rateCat.clt->associateNode(cond, treeNode->getNodeGraphid(treeNode->getNode(nodeId)));
+    rateCat.clt->associateNode(cond, processTree->getNodeGraphid(processTree->getNode(nodeId)));
     rateCat.clt->setNodeIndex(cond, nodeId);
 
     auto distinctSiteLikelihoodsNode = LikelihoodFromRootConditional::create (
       context_, {one, cond}, rowVectorDimension (Eigen::Index (nbSite)));
 
-    rateCat.lt->associateNode(distinctSiteLikelihoodsNode, treeNode->getNodeGraphid(treeNode->getNode(nodeId)));
+    rateCat.lt->associateNode(distinctSiteLikelihoodsNode, processTree->getNodeGraphid(processTree->getNode(nodeId)));
     rateCat.lt->setNodeIndex(distinctSiteLikelihoodsNode, nodeId);
 
     siteLikelihoodsNode = CWisePattern<Eigen::RowVectorXd>::create(context_,{distinctSiteLikelihoodsNode, rootPatternLinks_}, rowVectorDimension (Eigen::Index(getData()->getNumberOfSites())));
