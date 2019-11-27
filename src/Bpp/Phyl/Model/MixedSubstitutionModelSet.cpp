@@ -108,10 +108,8 @@ bool MixedSubstitutionModelSet::complete()
 {
   MixedSubstitutionModelSet::HyperNode nhn(this);
   size_t i;
-  for (i = 0; i < vpHyperNodes_.size(); i++)
-  {
-    nhn += *vpHyperNodes_[i];
-  }
+  for (auto nodei:vpHyperNodes_)
+    nhn += *nodei;
 
   size_t nbm = getNumberOfModels();
   for (i = 0; i < nbm; i++)
@@ -215,7 +213,6 @@ void MixedSubstitutionModelSet::computeHyperNodesProbabilities()
 
   size_t nbh = getNumberOfHyperNodes();
 
-
   for (size_t nh = 0; nh < nbh; nh++)
   {
     MixedSubstitutionModelSet::HyperNode& h = getHyperNode(nh);
@@ -245,19 +242,18 @@ void MixedSubstitutionModelSet::computeHyperNodesProbabilities()
         {
           prob += pfSM->getNProbability(static_cast<size_t>(fnd[j]));
         }
-
-        // sets the real probabilities
+        // sets the REAL probabilities
         for (size_t j = 0; j < fnd.size(); j++)
         {
           pfSM->setNProbability(static_cast<size_t>(fnd[j]), h.getProbability() * pfSM->getNProbability(static_cast<size_t>(fnd[j])) / prob);
         }
       }
-
+      
       // normalizes Vrates with the real probabilities
 
       pfSM->normalizeVRates();
 
-      // sets the conditional probabilities
+      // and now sets the CONDITIONAL probabilities
 
       for (size_t nh = 0; nh < nbh; nh++)
       {
