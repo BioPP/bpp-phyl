@@ -278,7 +278,7 @@ void MixtureOfTransitionModels::setVRates(const Vdouble& vd)
   }
 }
 
-Vint MixtureOfTransitionModels::getSubmodelNumbers(const string& desc) const
+Vuint MixtureOfTransitionModels::getSubmodelNumbers(const string& desc) const
 {
   size_t i;
   for (i = 0; i < getNumberOfModels(); i++)
@@ -289,7 +289,7 @@ Vint MixtureOfTransitionModels::getSubmodelNumbers(const string& desc) const
   if (i == getNumberOfModels())
     throw Exception("MixtureOfTransitionModels::getSubmodelNumbers model description do not match " + desc);
 
-  Vint submodnb(1,static_cast<int>(i));
+  Vuint submodnb(1,uint(i));
 
   return submodnb;
 }

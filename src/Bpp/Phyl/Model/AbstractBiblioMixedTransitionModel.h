@@ -177,7 +177,7 @@ namespace bpp
      *mixture that match a description.
      *
      */
-    Vint getSubmodelNumbers(const std::string& desc) const;
+    Vuint getSubmodelNumbers(const std::string& desc) const;
 
     const TransitionModel& getModel() const { return *pmixmodel_.get(); }
 

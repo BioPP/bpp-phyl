@@ -55,7 +55,7 @@ class RateAcrossSitesSubstitutionProcess :
   public AbstractSubstitutionProcess
 {
 private:
-  std::unique_ptr<TransitionModel> model_;
+  std::shared_ptr<TransitionModel> model_;
   std::unique_ptr<DiscreteDistribution> rDist_;
 
   /**
@@ -145,6 +145,14 @@ public:
     return model_->getFrequencies();
   }
   
+  /**
+   * @brief Set the modelPath, after checking  it is valid
+   * (ie modelpath has only the model of the process).
+   *
+   */
+   
+  void setModelScenario(std::shared_ptr<ModelScenario> modelpath);
+
   double getInitValue(size_t i, int state) const {
     return model_->getInitValue(i, state);
   }

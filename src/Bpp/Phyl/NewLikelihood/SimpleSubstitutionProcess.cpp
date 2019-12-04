@@ -68,7 +68,10 @@ SimpleSubstitutionProcess::SimpleSubstitutionProcess(const SimpleSubstitutionPro
 {
   computingTree_.reset(new ComputingTree(*pTree_.get()));
   computingTree_->addModel(model_.get());
-  computingTree_->checkModelOnEachNode();  
+  computingTree_->checkModelOnEachNode();
+
+  if (modelScenario_)
+    modelScenario_->changeModel(std::dynamic_pointer_cast<MixedTransitionModel>(ssp.model_),std::dynamic_pointer_cast<MixedTransitionModel>(model_));
 }
 
 SimpleSubstitutionProcess& SimpleSubstitutionProcess::operator=(const SimpleSubstitutionProcess& ssp)
@@ -81,7 +84,23 @@ SimpleSubstitutionProcess& SimpleSubstitutionProcess::operator=(const SimpleSubs
   computingTree_->addModel(model_.get());
   computingTree_->checkModelOnEachNode();  
 
+  if (modelScenario_)
+    modelScenario_->changeModel(std::dynamic_pointer_cast<MixedTransitionModel>(ssp.model_),std::dynamic_pointer_cast<MixedTransitionModel>(model_));
+
   return *this;
+}
+
+void SimpleSubstitutionProcess::setModelScenario(std::shared_ptr<ModelScenario> modelpath)
+{
+  auto vmod=modelpath->getModels();
+  
+  if (vmod.size()!=1)
+    throw Exception("SimpleSubstitutionProcess::setModelPath: model path must have exactly one model.");
+  
+  if (vmod[0]!=model_)
+    throw Exception("SimpleSubstitutionProcess::setModelPath: models are different " + vmod[0]->getName() + " != " + model_->getName());
+  
+  modelScenario_=modelpath;
 }
 
 void SimpleSubstitutionProcess::fireParameterChanged(const ParameterList& pl)

@@ -82,6 +82,9 @@ RateAcrossSitesSubstitutionProcess::RateAcrossSitesSubstitutionProcess(const Rat
   computingTree_.reset(new ComputingTree(*pTree_.get(), *rDist_.get()));
   computingTree_->addModel(model_.get());
   computingTree_->checkModelOnEachNode();  
+
+  if (modelScenario_)
+    modelScenario_->changeModel(std::dynamic_pointer_cast<MixedTransitionModel>(rassp.model_),std::dynamic_pointer_cast<MixedTransitionModel>(model_));
 }
 
 
@@ -96,7 +99,23 @@ RateAcrossSitesSubstitutionProcess& RateAcrossSitesSubstitutionProcess::operator
   computingTree_->addModel(model_.get());
   computingTree_->checkModelOnEachNode();  
   
+  if (modelScenario_)
+    modelScenario_->changeModel(std::dynamic_pointer_cast<MixedTransitionModel>(rassp.model_),std::dynamic_pointer_cast<MixedTransitionModel>(model_));
+
   return *this;
+}
+
+void RateAcrossSitesSubstitutionProcess::setModelScenario(std::shared_ptr<ModelScenario> modelpath)
+{
+  auto vmod=modelpath->getModels();
+  
+  if (vmod.size()!=1)
+    throw Exception("SimpleSubstitutionProcess::setModelPath: model path must have exactly one model.");
+  
+  if (vmod[0]!=model_)
+    throw Exception("SimpleSubstitutionProcess::setModelPath: models are different " + vmod[0]->getName() + " != " + model_->getName());
+  
+  modelScenario_=modelpath;
 }
 
 void RateAcrossSitesSubstitutionProcess::fireParameterChanged(const ParameterList& pl)

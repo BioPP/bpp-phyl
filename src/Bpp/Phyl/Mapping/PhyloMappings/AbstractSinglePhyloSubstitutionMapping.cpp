@@ -68,9 +68,9 @@ AbstractSinglePhyloSubstitutionMapping::AbstractSinglePhyloSubstitutionMapping(c
     if (sm)
     {
       for (auto& k:keys)
-        if (sppm.modelColl_[k]==sm)
+        if (sppm.modelColl_[k].get()==sm)
         {
-          (**nIT)->pMod_=modelColl_[k];
+          (**nIT)->pMod_=modelColl_[k].get();
           break;
         }
       
@@ -108,9 +108,9 @@ AbstractSinglePhyloSubstitutionMapping& AbstractSinglePhyloSubstitutionMapping::
     if (sm)
     {
       for (auto& k:keys)
-        if (sppm.modelColl_[k]==sm)
+        if (sppm.modelColl_[k].get()==sm)
         {
-          (**nIT)->pMod_=modelColl_[k];
+          (**nIT)->pMod_=modelColl_[k].get();
           break;
         }
       
@@ -125,9 +125,9 @@ AbstractSinglePhyloSubstitutionMapping& AbstractSinglePhyloSubstitutionMapping::
 
 void AbstractSinglePhyloSubstitutionMapping::addModel(size_t index, const TransitionModel& model, Vuint brIds)
 {
-  modelColl_.addObject(model.clone(), index);
+  modelColl_.addObject(std::shared_ptr<TransitionModel>(model.clone()), index);
   
-  TransitionModel* tm=modelColl_[index];
+  TransitionModel* tm=modelColl_[index].get();
   mModBrid_[index]=brIds;
   
   for (auto& id : brIds)

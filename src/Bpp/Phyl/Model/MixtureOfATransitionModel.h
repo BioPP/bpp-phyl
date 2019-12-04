@@ -157,7 +157,7 @@ namespace bpp
      *
      */
 
-    Vint getSubmodelNumbers(const std::string& desc) const;
+    Vuint getSubmodelNumbers(const std::string& desc) const;
 
     /**
      * @brief sets the eq frequencies of the first nested model, and

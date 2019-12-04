@@ -45,7 +45,8 @@ using namespace std;
 AbstractSubstitutionProcess::AbstractSubstitutionProcess(ParametrizablePhyloTree* tree, size_t nbClasses, const string& prefix) :
   AbstractParameterAliasable(prefix),
   pTree_(tree),
-  nbClasses_(nbClasses)
+  nbClasses_(nbClasses),
+  modelScenario_(0)
 {
   if (!tree)
     throw Exception("AbstractSubstitutionProcess. A tree instance must be provided.");
@@ -54,7 +55,8 @@ AbstractSubstitutionProcess::AbstractSubstitutionProcess(ParametrizablePhyloTree
 AbstractSubstitutionProcess::AbstractSubstitutionProcess(const AbstractSubstitutionProcess& asp) :
   AbstractParameterAliasable(asp),
   pTree_(asp.pTree_->clone()),
-  nbClasses_(asp.nbClasses_)
+  nbClasses_(asp.nbClasses_),
+  modelScenario_(asp.modelScenario_) // this has to be specified by inheriting class to follow model links
 {
 }
 
@@ -64,7 +66,7 @@ AbstractSubstitutionProcess& AbstractSubstitutionProcess::operator=(const Abstra
   
   pTree_.reset(pTree_->clone());
   nbClasses_ = asp.nbClasses_;
-
+  modelScenario_ = asp.modelScenario_; // this has to be specified by inheriting class to follow model links
   return *this;
 }
 

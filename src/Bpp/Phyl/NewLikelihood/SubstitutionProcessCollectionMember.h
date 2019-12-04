@@ -121,6 +121,16 @@ private:
   size_t nRoot_;
 
   /**
+   * @brief A boolean if the model has a Set Of Model Path, and the
+   *  number of the set of model path.
+   *
+   */
+
+  bool hasModelScenario_;
+
+  size_t nPath_;
+
+  /**
    * @brief The related Computing Tree
    *
    */
@@ -301,7 +311,7 @@ public:
 
   /*
    * @brief Set the root Frequencies Set
-   * @param freqIndex the index of the frequencies in the collection.
+   * @param numFreq the index of the frequencies in the collection.
    *
    */
 
@@ -315,6 +325,22 @@ public:
    */
 
   const FrequenciesSet* getRootFrequenciesSet() const;
+
+  /*
+   * @brief Set the Set of Model Path
+   * @param numPath the index of the frequencies in the collection.
+   *
+   * This method checks that the models defined in the process match
+   * those of the model paths.
+   */
+
+  void setModelScenario(size_t numPath);
+
+  const size_t getModelScenarioNumber() const { return nPath_; }
+
+  bool hasModelScenario() const { return hasModelScenario_; }
+
+  const ModelScenario& getModelScenario() const;
 
   /**
    * @brief AbsractParametrizable interface

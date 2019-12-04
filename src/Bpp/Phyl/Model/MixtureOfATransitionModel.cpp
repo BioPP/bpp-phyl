@@ -278,7 +278,7 @@ const TransitionModel* MixtureOfATransitionModel::getModel(const std::string& na
   return NULL;
 }
 
-Vint MixtureOfATransitionModel::getSubmodelNumbers(const string& desc) const
+Vuint MixtureOfATransitionModel::getSubmodelNumbers(const string& desc) const
 {
   vector<string> parnames = modelsContainer_[0]->getParameters().getParameterNames();
   std::map<std::string, size_t> msubn;
@@ -289,11 +289,11 @@ Vint MixtureOfATransitionModel::getSubmodelNumbers(const string& desc) const
     string param = st.nextToken();
     string::size_type index = param.rfind("_");
     if (index == string::npos)
-      throw Exception("MixtureOfATransitionModel::getSubmodelNumbers parameter description should contain a number" + param);
+      throw Exception("MixtureOfATransitionModel::getSubmodelNumbers parameter description should contain a number " + param);
     msubn[param.substr(0, index)] = TextTools::to<size_t>(param.substr(index + 1, 4)) - 1;
   }
 
-  Vint submodnb;
+  Vuint submodnb;
   size_t i, j, l;
   string s;
 
@@ -318,7 +318,7 @@ Vint MixtureOfATransitionModel::getSubmodelNumbers(const string& desc) const
       j = j / it->second->getNumberOfCategories();
     }
     if (nameok && it == distributionMap_.end())
-      submodnb.push_back(static_cast<int>(i));
+      submodnb.push_back(uint(i));
   }
 
   return submodnb;

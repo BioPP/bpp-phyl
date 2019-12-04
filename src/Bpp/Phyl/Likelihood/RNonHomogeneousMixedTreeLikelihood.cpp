@@ -224,7 +224,7 @@ void RNonHomogeneousMixedTreeLikelihood::init(bool usePatterns)
         {
           if ((hyperNode_.getNode(j).size() >= 1) && find(vExpMod.begin(), vExpMod.end(), static_cast<int>(j)) != vExpMod.end())
           {
-            hn.setModel(j, Vint(1, hyperNode_.getNode(j)[static_cast<size_t>(s % mapmodels[static_cast<int>(j)])]));
+            hn.setModel(j, Vuint(1, hyperNode_.getNode(j)[static_cast<size_t>(s % mapmodels[static_cast<int>(j)])]));
             s /= mapmodels[static_cast<int>(j)];
           }
         }

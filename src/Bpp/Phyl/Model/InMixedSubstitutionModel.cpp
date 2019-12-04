@@ -60,7 +60,7 @@ InMixedSubstitutionModel::InMixedSubstitutionModel(const MixedTransitionModel& m
   if (sm == 0)
     throw Exception("InMixedSubstitutionModel::InMixedSubstitutionModel : model " + subModelName + " is not a substitution model.");
 
-  Vint vn=mixedModel_->getSubmodelNumbers(subModelName);
+  Vuint vn=mixedModel_->getSubmodelNumbers(subModelName);
   subModelNumber_=(size_t)vn[0];
 
   addParameters_(mixedModel_->getParameters());

@@ -57,6 +57,8 @@ SubstitutionProcessCollectionMember::SubstitutionProcessCollectionMember( Substi
   nDist_(nDist),
   stationarity_(true),
   nRoot_(0),
+  hasModelScenario_(false),
+  nPath_(0),
   computingTree_(new ComputingTree(pSubProColl_, nTree_, nDist_))
 {
   updateParameters();
@@ -73,6 +75,8 @@ SubstitutionProcessCollectionMember::SubstitutionProcessCollectionMember(const S
   nDist_(set.nDist_),
   stationarity_(set.stationarity_),
   nRoot_(set.nRoot_),
+  hasModelScenario_(set.hasModelScenario_),
+  nPath_(set.nPath_),
   computingTree_(new ComputingTree(pSubProColl_, nTree_, nDist_))
 {}
 
@@ -88,6 +92,8 @@ SubstitutionProcessCollectionMember& SubstitutionProcessCollectionMember::operat
   nDist_ = set.nDist_;
   stationarity_ = set.stationarity_;
   nRoot_ = set.nRoot_;
+  hasModelScenario_ = set.hasModelScenario_;
+  nPath_ = set.nPath_;
 
   computingTree_.release();
 
@@ -112,7 +118,7 @@ inline const Alphabet* SubstitutionProcessCollectionMember::getAlphabet() const
 
 inline const TransitionModel* SubstitutionProcessCollectionMember::getModel(size_t i) const
 {
-  return getCollection()->getModel(i);
+  return getCollection()->getModel(i).get();
 }
 
 inline bool SubstitutionProcessCollectionMember::matchParametersValues(const ParameterList& parameters)
@@ -212,6 +218,47 @@ inline const std::vector<double>& SubstitutionProcessCollectionMember::getRootFr
   else
     return (getCollection()->getFrequencies(nRoot_)).getFrequencies();
 }
+
+void SubstitutionProcessCollectionMember::setModelScenario(size_t numPath)
+{
+  if (!getCollection()->hasModelScenario(numPath))
+    throw BadIntException((int)numPath, "SubstitutionProcessCollectionMember::setModelScenario: Collection does not have ModelScenario number");
+
+  auto modelScenario=getCollection()->getModelScenario(numPath);
+
+  // Now check all the models of the path are included in the process.
+
+  auto models=modelScenario.getModels();
+
+  auto modnum = getModelNumbers();
+  
+  for (const auto& model:models)
+  {
+    auto sm=model.get();
+    
+    bool ok=false;
+    for (auto num:modnum)
+    {
+      if (getModel(num)==sm)
+      {
+        ok=true;
+        break;
+      }
+    }
+
+    if (!ok)
+      throw Exception("SubstitutionProcessCollectionMember::setModelScenario: Unknown model " + sm->getName());
+  }
+  
+  hasModelScenario_=true;
+  nPath_=numPath;
+}
+
+const ModelScenario& SubstitutionProcessCollectionMember::getModelScenario() const 
+{  
+  return getCollection()->getModelScenario(nPath_);
+} 
+
 
 inline const ParametrizablePhyloTree& SubstitutionProcessCollectionMember::getParametrizablePhyloTree() const
 {
@@ -323,7 +370,7 @@ bool SubstitutionProcessCollectionMember::hasMixedTransitionModel() const
   std::map<size_t, std::vector<unsigned int> >::const_iterator it;
   for (it = modelToNodes_.begin(); it != modelToNodes_.end(); it++)
   {
-    if (dynamic_cast<const MixedTransitionModel*>(getCollection()->getModel(it->first)) != NULL)
+    if (std::dynamic_pointer_cast<const MixedTransitionModel>(getCollection()->getModel(it->first)) != NULL)
       return true;
   }
   return false;

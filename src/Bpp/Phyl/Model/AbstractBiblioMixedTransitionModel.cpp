@@ -64,7 +64,7 @@ AbstractBiblioMixedTransitionModel& AbstractBiblioMixedTransitionModel::operator
 AbstractBiblioMixedTransitionModel::~AbstractBiblioMixedTransitionModel()
 {}
 
-Vint AbstractBiblioMixedTransitionModel::getSubmodelNumbers(const std::string& desc) const
+Vuint AbstractBiblioMixedTransitionModel::getSubmodelNumbers(const std::string& desc) const
 {
   std::string desc2;
 

@@ -114,9 +114,9 @@ namespace bpp
   private:
     /**
      * @brief Contains all models used in this tree.
-     * Note that auto_ptr objects cannot be stored in a vector.
      */
-    std::vector<TransitionModel* > modelSet_;
+
+    std::vector<std::shared_ptr<TransitionModel> > modelSet_;
 
     /**
      * @brief Root frequencies.
@@ -263,6 +263,14 @@ namespace bpp
 
     bool hasMixedTransitionModel() const;
 
+    /**
+     * @brief Set the modelPath, after checking  it is valid
+     * (ie modelpath has only the model of the process).
+     *
+     */
+   
+    void setModelScenario(std::shared_ptr<ModelScenario> modelpath);
+
     std::vector<size_t> getModelNumbers() const
     {
       std::vector<size_t> v(getNumberOfModels());
@@ -280,13 +288,13 @@ namespace bpp
     const TransitionModel* getModel(size_t i) const
     {
       if ((i == 0) || (i > modelSet_.size())) throw IndexOutOfBoundsException("NonHomogeneousSubstitutionProcess::getModel().", 1, modelSet_.size(), i);
-      return modelSet_[i-1];
+      return modelSet_[i-1].get();
     }
 
     TransitionModel* getModel(size_t i)
     {
       if ((i == 0) || (i > modelSet_.size())) throw IndexOutOfBoundsException("NonHomogeneousSubstitutionProcess::getModel().", 1, modelSet_.size(), i);
-      return modelSet_[i-1];
+      return modelSet_[i-1].get();
     }
 
     /**
@@ -319,7 +327,7 @@ namespace bpp
       std::map<unsigned int, size_t>::const_iterator i = nodeToModel_.find(nodeId);
       if (i == nodeToModel_.end())
         throw Exception("NonHomogeneousSubstitutionProcess::getModelForNode(). No model associated to node with id " + TextTools::toString(nodeId));
-      return modelSet_[i->second];
+      return modelSet_[i->second].get();
     }
   
     TransitionModel* getModelForNode(unsigned int nodeId)
@@ -327,7 +335,7 @@ namespace bpp
       std::map<unsigned int, size_t>::iterator i = nodeToModel_.find(nodeId);
       if (i == nodeToModel_.end())
         throw Exception("NonHomogeneousSubstitutionProcess::getModelForNode(). No model associated to node with id " + TextTools::toString(nodeId));
-      return modelSet_[i->second];
+      return modelSet_[i->second].get();
     }
 
     /**
@@ -535,7 +543,7 @@ namespace bpp
 
     const TransitionModel* getModel(unsigned int nodeId, size_t classIndex) const
     {
-      return modelSet_[nodeToModel_[nodeId]];
+      return modelSet_[nodeToModel_[nodeId]].get();
     }
     
     // const Matrix<double>& getGenerator(unsigned int nodeId, size_t classIndex) const

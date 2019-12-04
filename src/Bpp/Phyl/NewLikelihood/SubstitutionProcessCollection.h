@@ -157,6 +157,13 @@ private:
   std::map<size_t, std::vector<size_t> > mTreeToSubPro_;
   
   /*
+   * A map of ModelScenario
+   *
+   */
+
+  std::map<size_t, std::shared_ptr<ModelScenario>> mModelScenario_;
+
+  /*
    * A map of SubstitutionProcessCollectionMember
    */
 
@@ -223,7 +230,7 @@ public:
    * 
    */
 
-  void addParametrizable(Parametrizable* parametrizable, size_t parametrizableIndex, bool withParameters = true);
+  void addParametrizable(std::shared_ptr<Parametrizable> parametrizable, size_t parametrizableIndex, bool withParameters = true);
 
   /*
    * @brief specific methods to add specific objects.
@@ -235,17 +242,17 @@ public:
    * ? operator[] ?
    */
   
-  void addModel(TransitionModel* model, size_t modelIndex)
+  void addModel(std::shared_ptr<TransitionModel> model, size_t modelIndex)
   {
     addParametrizable(model, modelIndex);
   }
 
-  void addFrequencies(FrequenciesSet* frequencies, size_t frequenciesIndex)
+  void addFrequencies(std::shared_ptr<FrequenciesSet> frequencies, size_t frequenciesIndex)
   {
     addParametrizable(frequencies, frequenciesIndex);
   }
 
-  void addDistribution(DiscreteDistribution* distribution, size_t distributionIndex)
+  void addDistribution(std::shared_ptr<DiscreteDistribution> distribution, size_t distributionIndex)
   {
     addParametrizable(distribution, distributionIndex, (distributionIndex<10000));
 
@@ -253,9 +260,14 @@ public:
       mVConstDist_[distributionIndex/10000-1].push_back(distributionIndex%10000);
   }
   
-  void addTree(ParametrizablePhyloTree* tree, size_t treeIndex)
+  void addTree(std::shared_ptr<ParametrizablePhyloTree> tree, size_t treeIndex)
   {
     addParametrizable(tree , treeIndex);
+  }
+
+  void addScenario(std::shared_ptr<ModelScenario> scen, size_t scenIndex)
+  {
+    mModelScenario_[scenIndex]=scen;
   }
 
   /**
@@ -265,14 +277,40 @@ public:
    * @return the got TransitionModel*. 
    */
   
-  TransitionModel* getModel(size_t modelIndex)
+  std::shared_ptr<TransitionModel> getModel(size_t modelIndex)
   {
-    return dynamic_cast<TransitionModel*>(modelColl_[modelIndex]);
+    return std::dynamic_pointer_cast<TransitionModel>(modelColl_[modelIndex]);
   }
 
-  const TransitionModel* getModel(size_t modelIndex) const
+  std::shared_ptr<const TransitionModel> getModel(size_t modelIndex) const
   {
-    return dynamic_cast<const TransitionModel*>(modelColl_[modelIndex]);
+    return std::dynamic_pointer_cast<const TransitionModel>(modelColl_[modelIndex]);
+  }
+
+  /**
+   * @brief Return the number of a TransitionModel in the collection.
+   *
+   * @param model The model looked for in the collection.
+   * @return the number of the model or 0 if no matching object
+   */
+  
+  size_t getModelIndex(std::shared_ptr<TransitionModel> model) const
+  {
+    if (modelColl_.hasObject(model))
+      return modelColl_.getFirstKey(model);
+    else
+      return 0;
+  }
+
+  /**
+   * @brief Return if a TransitionModel is in the collection.
+   *
+   * @param model The model looked for in the collection.
+   */
+  
+  bool hasModel(std::shared_ptr<TransitionModel> model) const
+  {
+    return modelColl_.hasObject(model);
   }
 
   /**
@@ -284,12 +322,12 @@ public:
   
   FrequenciesSet& getFrequencies(size_t frequenciesIndex)
   {
-    return *(dynamic_cast<FrequenciesSet*>(freqColl_[frequenciesIndex]));
+    return *(dynamic_cast<FrequenciesSet*>(freqColl_[frequenciesIndex].get()));
   }
 
   const FrequenciesSet& getFrequencies(size_t frequenciesIndex) const
   {
-    return *(dynamic_cast<const FrequenciesSet*>(freqColl_[frequenciesIndex]));
+    return *(dynamic_cast<const FrequenciesSet*>(freqColl_[frequenciesIndex].get()));
   }
 
   /**
@@ -301,31 +339,64 @@ public:
   
   DiscreteDistribution& getRateDistribution(size_t distributionIndex)
   {
-    return *(dynamic_cast<DiscreteDistribution*>(distColl_[distributionIndex]));
+    return *(dynamic_cast<DiscreteDistribution*>(distColl_[distributionIndex].get()));
   }
 
   const DiscreteDistribution& getRateDistribution(size_t distributionIndex) const 
   {
-    return *(dynamic_cast<const DiscreteDistribution*>(distColl_[distributionIndex]));
+    return *(dynamic_cast<const DiscreteDistribution*>(distColl_[distributionIndex].get()));
   }
 
   /**
    * @brief Get a tree from the set.
    *
    * @param treeIndex The index of the model in the set.
-   * @return the got ParametrizablePhyloTree*. 
+   * @return the got ParametrizablePhyloTree. 
    */
   
   ParametrizablePhyloTree& getTree(size_t treeIndex)
   {
-    return *(dynamic_cast<ParametrizablePhyloTree*>(treeColl_[treeIndex]));
+    return *(dynamic_cast<ParametrizablePhyloTree*>(treeColl_[treeIndex].get()));
   }
   
   const ParametrizablePhyloTree& getTree(size_t treeIndex) const 
   {
-    return *(dynamic_cast<const ParametrizablePhyloTree*>(treeColl_[treeIndex]));
+    return *(dynamic_cast<const ParametrizablePhyloTree*>(treeColl_[treeIndex].get()));
   }
+
+  /**
+   * @brief checks if the set has a ModelScenario
+   *
+   * @param numPath The number of the model path in the set.
+   */
   
+  bool hasModelScenario(size_t numPath) const
+  {
+    return mModelScenario_.find(numPath)!=mModelScenario_.end();
+  }
+
+  /**
+   * @brief Get a ModelScenario from the set.
+   *
+   * @param numPath The number of the model path in the set.
+   * @return the matching ModelScenario. 
+   */
+  
+  const ModelScenario& getModelScenario(size_t numPath) const
+  {
+    return *mModelScenario_.at(numPath);
+  }
+
+  std::vector<size_t> getScenarioNumbers() const
+  {
+    std::vector<size_t> vkeys;
+
+    for (const auto& it:mModelScenario_)
+      vkeys.push_back(it.first);
+            
+    return vkeys;
+  }
+
 
   /**
    * @brief Get the numbers of the specified objects from the collections.
@@ -491,16 +562,16 @@ public:
 
   size_t getNumberOfSubstitutionProcess() const { return mSubProcess_.size(); }
 
-  SubstitutionProcess& getSubstitutionProcess(size_t  i)
+  SubstitutionProcessCollectionMember& getSubstitutionProcess(size_t  i)
   {
-    return *dynamic_cast<SubstitutionProcess*>(mSubProcess_[i]);
+    return *mSubProcess_[i];
   }
 
-  const SubstitutionProcess& getSubstitutionProcess(size_t i) const
+  const SubstitutionProcessCollectionMember& getSubstitutionProcess(size_t i) const
   {
-    std::map<size_t, SubstitutionProcessCollectionMember*>::const_iterator it(mSubProcess_.find(i));
+    const auto it(mSubProcess_.find(i));
     
-    return *dynamic_cast<const SubstitutionProcess*>(it->second);
+    return *(it->second);
   }
 
   

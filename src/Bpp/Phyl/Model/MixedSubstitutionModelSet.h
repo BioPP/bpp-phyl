@@ -131,7 +131,7 @@ public:
        * @brief A vector<int> where all elements are different and in
        * increasing order.
        */
-      Vint vNumb_;
+      Vuint vNumb_;
 
     public:
       Node() : vNumb_() {}
@@ -144,13 +144,13 @@ public:
 
       ~Node(){}
 
-      Node& operator=(const Vint& n)
+      Node& operator=(const Vuint& n)
       {
         vNumb_ = n;
         return *this;
       }
 
-      void insertN(const Vint& vn);
+      void insertN(const Vuint& vn);
 
       size_t size() const
       {
@@ -196,7 +196,7 @@ private:
      *
      */
 
-    Vint vUnused_;
+    Vuint vUnused_;
 
     /**
      * @brief probability of this HyperNode.
@@ -219,7 +219,7 @@ public:
      * @param vnS vector of numbers of the submodel
      */
 
-    void setModel(size_t nM, const Vint& vnS);
+    void setModel(size_t nM, const Vuint& vnS);
 
     /**
      * @brief adds submodel numbers to the nMth mixed model. Checks
@@ -229,7 +229,7 @@ public:
      * @param vnS vector of numbers of the submodel
      */
 
-    void addToModel(size_t nM, const Vint& vnS);
+    void addToModel(size_t nM, const Vuint& vnS);
     /**
      * @brief Cumulates the Nodes of the given HyperNode into this one.
      *
@@ -339,7 +339,7 @@ public:
    *     the list)
    */
 
-  void addToHyperNode(size_t nM, const Vint& vnS, int nH = -1);
+  void addToHyperNode(size_t nM, const Vuint& vnS, int nH = -1);
 
   size_t getNumberOfHyperNodes() const { return vpHyperNodes_.size(); }
 

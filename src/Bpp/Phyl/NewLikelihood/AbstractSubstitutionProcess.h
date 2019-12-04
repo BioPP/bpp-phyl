@@ -68,6 +68,8 @@ namespace bpp
 
     size_t nbClasses_;
 
+    std::shared_ptr<ModelScenario> modelScenario_;
+    
   protected:
     AbstractSubstitutionProcess(ParametrizablePhyloTree* tree, size_t nbClasses, const std::string& prefix = "");
 
@@ -77,8 +79,6 @@ namespace bpp
 
   public:
 
-//    const TreeTemplate<Node>& getTree() const {return pTree_->getTree(); }
-  
     const ParametrizablePhyloTree& getParametrizablePhyloTree() const { return *pTree_; }
 
     size_t getNumberOfClasses() const { return nbClasses_; }
@@ -100,11 +100,39 @@ namespace bpp
     void fireParameterChanged(const ParameterList& pl);
 
     /**
+     * @brief Return if process has ModelScenario.
+     *
+     **/
+     
+    bool hasModelScenario() const
+    {
+      return modelScenario_!=0;
+    }
+
+    /**
+     * @brief get the ModelScenario.
+     *
+     **/
+    
+    const ModelScenario& getModelScenario() const
+    {
+      return *modelScenario_;
+    }
+
+    /**
+     * @brief set the ModelScenario.
+     *
+     **/
+    
+    virtual void setModelScenario(std::shared_ptr<ModelScenario> modelscenario) = 0;
+    
+    /**
      * @brief Get the transition probabilities corresponding to a certain branch, site pattern, and model class.
      *
      * @param nodeId The id of the node.
      * @param classIndex The model class index.
      */
+
     const Matrix<double>& getTransitionProbabilities(unsigned int nodeId, size_t classIndex) const
     {
       return dynamic_cast<const SpeciationComputingNode*>(getComputingTree()[classIndex]->getNode(nodeId).get())->getTransitionProbabilities();

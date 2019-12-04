@@ -146,12 +146,12 @@ namespace bpp
 
     TransitionModel* getModel(size_t index)
     {
-      return modelColl_[index];
+      return modelColl_[index].get();
     }
 
     const TransitionModel* getModel(size_t index) const
     {
-      return modelColl_[index];
+      return modelColl_[index].get();
     }
 
     std::vector<uint> getBranchesWithModel(size_t index) const

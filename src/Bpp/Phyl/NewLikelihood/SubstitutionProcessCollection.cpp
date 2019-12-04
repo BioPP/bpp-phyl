@@ -114,26 +114,26 @@ void SubstitutionProcessCollection::clear()
   mSubProcess_.clear();
 }
 
-void SubstitutionProcessCollection::addParametrizable(Parametrizable* parametrizable, size_t parametrizableIndex, bool withParameters)
+void SubstitutionProcessCollection::addParametrizable(std::shared_ptr<Parametrizable> parametrizable, size_t parametrizableIndex, bool withParameters)
 {
   ParameterList pl;
-  if (dynamic_cast<TransitionModel*>(parametrizable)){
-    modelColl_.addObject(dynamic_cast<TransitionModel*>(parametrizable), parametrizableIndex);
+  if (std::dynamic_pointer_cast<TransitionModel>(parametrizable)){
+    modelColl_.addObject(std::dynamic_pointer_cast<TransitionModel>(parametrizable), parametrizableIndex);
     pl=modelColl_.getParametersForObject(parametrizableIndex);
   }
   else
-    if (dynamic_cast<FrequenciesSet*>(parametrizable)){
-      freqColl_.addObject(dynamic_cast<FrequenciesSet*>(parametrizable), parametrizableIndex);
+    if (std::dynamic_pointer_cast<FrequenciesSet>(parametrizable)){
+      freqColl_.addObject(std::dynamic_pointer_cast<FrequenciesSet>(parametrizable), parametrizableIndex);
       pl=freqColl_.getParametersForObject(parametrizableIndex);
     }
     else
-      if (dynamic_cast<DiscreteDistribution*>(parametrizable)){
-        distColl_.addObject(dynamic_cast<DiscreteDistribution*>(parametrizable), parametrizableIndex);
+      if (std::dynamic_pointer_cast<DiscreteDistribution>(parametrizable)){
+        distColl_.addObject(std::dynamic_pointer_cast<DiscreteDistribution>(parametrizable), parametrizableIndex);
         pl=distColl_.getParametersForObject(parametrizableIndex);
       }
       else
-        if (dynamic_cast<ParametrizablePhyloTree*>(parametrizable)){
-          treeColl_.addObject(dynamic_cast<ParametrizablePhyloTree*>(parametrizable), parametrizableIndex);
+        if (std::dynamic_pointer_cast<ParametrizablePhyloTree>(parametrizable)){
+          treeColl_.addObject(std::dynamic_pointer_cast<ParametrizablePhyloTree>(parametrizable), parametrizableIndex);
           pl=treeColl_.getParametersForObject(parametrizableIndex);
         }
 
@@ -143,6 +143,7 @@ void SubstitutionProcessCollection::addParametrizable(Parametrizable* parametriz
   if (withParameters)
     addParameters_(pl);
 }
+
 
 ParameterList SubstitutionProcessCollection::getNonDerivableParameters() const
 {
@@ -211,7 +212,7 @@ void SubstitutionProcessCollection::fireParameterChanged(const ParameterList& pa
       
       for (size_t j=0;j<vv.size();j++){
         gAP.addParameter(new Parameter("Constant.value_"+TextTools::toString(10000*(vD[i]+1)+vv[j]),dd.getCategory(j)));
-        dynamic_cast<ConstantDistribution*>(distColl_[10000*(vD[i]+1)+vv[j]])->setParameterValue("value",dd.getCategory(j));
+        std::dynamic_pointer_cast<ConstantDistribution>(distColl_[10000*(vD[i]+1)+vv[j]])->setParameterValue("value",dd.getCategory(j));
         const vector<size_t>&  vs2=mDistToSubPro_[10000*(vD[i]+1)+vv[j]];
         for (size_t k=0; k<vs2.size(); k++)
           toFire[vs2[k]]=true;
@@ -364,7 +365,7 @@ void SubstitutionProcessCollection::addOnePerBranchSubstitutionProcess(size_t nP
   // Build new models and assign to a map
 
   const ParametrizablePhyloTree& tree=getTree(nTree);
-  const TransitionModel* model=getModel(nMod);
+  const auto model=getModel(nMod);
   
   vector<uint> ids = tree.getAllEdgesIndexes();
   sort(ids.begin(), ids.end()); 
@@ -378,7 +379,7 @@ void SubstitutionProcessCollection::addOnePerBranchSubstitutionProcess(size_t nP
   for (auto it=ids.begin()+1; it!=ids.end(); it++)
   {
     size_t mNb=maxMod+*it;
-    addModel(model->clone(),mNb);
+    addModel(std::shared_ptr<TransitionModel>(model->clone()),mNb);
     mModBr[mNb]=vector<uint>(1,*it);
   }
 

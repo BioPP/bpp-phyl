@@ -132,16 +132,16 @@ bool MixedSubstitutionModelSet::complete()
     if (pSM)
     {
       const MixedSubstitutionModelSet::HyperNode::Node& nd = nhn.getNode(i);
-      int snd = static_cast<int>(nd.size());
-      int vs = static_cast<int>(pSM->getNumberOfModels());
-      Vint an;
+      auto snd = nd.size();
+      auto vs = pSM->getNumberOfModels();
+      Vuint an;
 
-      int j(0), k(0);
+      uint j(0), k(0);
       while (j < vs)
       {
-        while ((k < snd) && (nd[static_cast<size_t>(k)] < j))
+        while ((k < snd) && ((uint)nd[k] < j))
           k++;
-        if ((k >= snd) || (nd[static_cast<size_t>(k)] > j))
+        if ((k >= snd) || ((uint)nd[k] > j))
           an.push_back(j);
         j++;
       }
@@ -152,7 +152,7 @@ bool MixedSubstitutionModelSet::complete()
   return true;
 }
 
-void MixedSubstitutionModelSet::addToHyperNode(size_t nM, const Vint& vnS, int nH)
+void MixedSubstitutionModelSet::addToHyperNode(size_t nM, const Vuint& vnS, int nH)
 {
   if (nH >= static_cast<int>(vpHyperNodes_.size()))
     throw BadIntegerException("MixedSubstitutionModelSet::addToHyperNode. Bad HyperNode number", nH);
@@ -336,7 +336,7 @@ MixedSubstitutionModelSet::HyperNode& MixedSubstitutionModelSet::HyperNode::oper
   return *this;
 }
 
-void MixedSubstitutionModelSet::HyperNode::addToModel(size_t nM, const Vint& vnS)
+void MixedSubstitutionModelSet::HyperNode::addToModel(size_t nM, const Vuint& vnS)
 {
   if (nM >= vNumbers_.size())
     throw IndexOutOfBoundsException("MixedSubstitutionModelSet::HyperNode::addToModel. Bad Mixed model Number", nM, 0, vNumbers_.size());
@@ -344,7 +344,7 @@ void MixedSubstitutionModelSet::HyperNode::addToModel(size_t nM, const Vint& vnS
   vNumbers_[nM].insertN(vnS);
 }
 
-void MixedSubstitutionModelSet::HyperNode::setModel(size_t nM, const Vint& vnS)
+void MixedSubstitutionModelSet::HyperNode::setModel(size_t nM, const Vuint& vnS)
 {
   if (nM >= vNumbers_.size())
     throw IndexOutOfBoundsException("MixedSubstitutionModelSet::HyperNode::setModel. Bad Mixed model Number", nM, 0, vNumbers_.size());
@@ -360,7 +360,7 @@ bool MixedSubstitutionModelSet::HyperNode::isComplete() const
   {
     for (k = 0; k < vUs; k++)
     {
-      if (vUnused_[k] == static_cast<int>(i))
+      if (vUnused_[k] == i)
         break;
     }
     if ((k == vUs) && vNumbers_[i].size() == 0)
@@ -410,10 +410,10 @@ MixedSubstitutionModelSet::HyperNode& MixedSubstitutionModelSet::HyperNode::oper
 /******************** NODE ********************************/
 /***********************************************************/
 
-void MixedSubstitutionModelSet::HyperNode::Node::insertN(const Vint& vn)
+void MixedSubstitutionModelSet::HyperNode::Node::insertN(const Vuint& vn)
 {
-  vector<int>::iterator it;
-  vector<int>::const_iterator it2;
+  vector<uint>::iterator it;
+  vector<uint>::const_iterator it2;
 
   for (it2 = vn.begin(); it2 != vn.end(); it2++)
   {
@@ -438,7 +438,7 @@ MixedSubstitutionModelSet::HyperNode::Node& MixedSubstitutionModelSet::HyperNode
 
 bool MixedSubstitutionModelSet::HyperNode::Node::operator<=(const Node& n) const
 {
-  vector<int>::const_iterator it2(n.vNumb_.begin());
+  vector<uint>::const_iterator it2(n.vNumb_.begin());
 
   for (const auto& it : vNumb_)
   {
@@ -457,7 +457,7 @@ bool MixedSubstitutionModelSet::HyperNode::Node::operator>=(const Node& n) const
 
 bool MixedSubstitutionModelSet::HyperNode::Node::intersects(const Node& n) const
 {
-  vector<int>::const_iterator it2(n.vNumb_.begin());
+  vector<uint>::const_iterator it2(n.vNumb_.begin());
 
   for (const auto& it : vNumb_)
   {

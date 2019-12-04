@@ -44,6 +44,8 @@
 #include "ComputingTree.h"
 #include "../Model/SubstitutionModel.h"
 
+#include "ModelScenario.h"
+
 //From bpp-core:
 #include <Bpp/Numeric/ParameterAliasable.h>
 #include <Bpp/Numeric/Prob/DiscreteDistribution.h>
@@ -127,6 +129,21 @@ namespace bpp
      */
 
     virtual const TransitionModel* getModel(unsigned int nodeId, size_t classIndex) const = 0;
+
+    /**
+     * @brief Get the Model Scenario associated with this process, in
+     * case there are mixture models involved.
+     *
+     * When a mixture model is not included in the ModelScenario, it
+     * is considered as non-mixed (transition probabilities are then
+     * computed as mixture of submodel transition probalities).
+     *
+     * It returns 0 if there is no model path, which means that all
+     * mixture models are considered as non-mixed. 
+     *
+     */
+
+    virtual const ModelScenario& getModelScenario() const = 0;
 
     /**
      * @brief Get a list of nodes id for which the given model is associated.

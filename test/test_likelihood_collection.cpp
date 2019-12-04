@@ -82,17 +82,17 @@ int main() {
   //-------------
 
   const NucleicAlphabet* alphabet = &AlphabetTools::DNA_ALPHABET;
-  FrequenciesSet* rootFreqs = new GCFrequenciesSet(alphabet);
+  auto rootFreqs = std::make_shared<GCFrequenciesSet>(alphabet);
   
-  SubstitutionModel* model1 = new T92(alphabet, 3.,0.9);
-  SubstitutionModel* model2 = new T92(alphabet, 2., 0.1);
-  SubstitutionModel* model3 = new T92(alphabet, 5., 0.5);
+  auto model1 = std::make_shared<T92>(alphabet, 3.,0.9);
+  auto model2 = std::make_shared<T92>(alphabet, 2., 0.1);
+  auto model3 = std::make_shared<T92>(alphabet, 5., 0.5);
 
-  DiscreteDistribution* rdist1 = new GammaDiscreteRateDistribution(4, 2.0);
-  DiscreteDistribution* rdist2 = new GammaDiscreteRateDistribution(3, 1.0);
+  auto rdist1 = std::make_shared<GammaDiscreteRateDistribution>(4, 2.0);
+  auto rdist2 = std::make_shared<GammaDiscreteRateDistribution>(3, 1.0);
   
-  unique_ptr<ParametrizablePhyloTree> parTree1(new ParametrizablePhyloTree(*tree1));
-  unique_ptr<ParametrizablePhyloTree> parTree2(new ParametrizablePhyloTree(*tree2));
+  auto parTree1 = std::make_shared<ParametrizablePhyloTree>(*tree1);
+  auto parTree2 = std::make_shared<ParametrizablePhyloTree>(*tree2);
 
   // First Process
 
@@ -127,8 +127,8 @@ int main() {
   modelColl->addDistribution(rdist1, 1);
   modelColl->addDistribution(rdist2, 2);
 
-  modelColl->addTree(parTree1.get(), 1);
-  modelColl->addTree(parTree2.get(), 2);
+  modelColl->addTree(parTree1, 1);
+  modelColl->addTree(parTree2, 2);
 
   map<size_t, Vuint> mModBr1;
   mModBr1[1]=vP1m1;

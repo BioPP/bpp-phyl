@@ -66,11 +66,15 @@ NonHomogeneousSubstitutionProcess::NonHomogeneousSubstitutionProcess(const NonHo
   // Duplicate all model objects:
   for (size_t i = 0; i < set.modelSet_.size(); i++)
   {
-    modelSet_[i]=dynamic_cast<TransitionModel*>(set.modelSet_[i]->clone());
-    computingTree_->addModel(modelSet_[i],set.modelToNodes_[i]);
+    modelSet_[i]=std::shared_ptr<TransitionModel>(set.modelSet_[i]->clone());
+    computingTree_->addModel(modelSet_[i].get(),set.modelToNodes_[i]);
   }
 
   computingTree_->checkModelOnEachNode();
+
+  if (modelScenario_)
+    for (size_t i = 0; i < modelSet_.size(); i++)
+      modelScenario_->changeModel(std::dynamic_pointer_cast<MixedTransitionModel>(set.modelSet_[i]),std::dynamic_pointer_cast<MixedTransitionModel>(modelSet_[i]));
 }
 
 NonHomogeneousSubstitutionProcess& NonHomogeneousSubstitutionProcess::operator=(const NonHomogeneousSubstitutionProcess& set)
@@ -100,22 +104,22 @@ NonHomogeneousSubstitutionProcess& NonHomogeneousSubstitutionProcess::operator=(
 
   for (size_t i = 0; i < set.modelSet_.size(); i++)
   {
-    modelSet_[i]=dynamic_cast<TransitionModel*>(set.modelSet_[i]->clone());
-    computingTree_->addModel(modelSet_[i],set.modelToNodes_[i]);
+    modelSet_[i]=std::shared_ptr<TransitionModel>(set.modelSet_[i]->clone());
+    computingTree_->addModel(modelSet_[i].get(),set.modelToNodes_[i]);
   }
 
   computingTree_->checkModelOnEachNode();
   
+  if (modelScenario_)
+    for (size_t i = 0; i < modelSet_.size(); i++)
+      modelScenario_->changeModel(std::dynamic_pointer_cast<MixedTransitionModel>(set.modelSet_[i]),std::dynamic_pointer_cast<MixedTransitionModel>(modelSet_[i]));
+
   return *this;
 }
 
 void NonHomogeneousSubstitutionProcess::clear()
 {
   resetParameters_();
-
-  for (size_t i = 0; i < modelSet_.size(); i++)
-    if (modelSet_[i])
-      delete modelSet_[i];
 
   modelSet_.clear();
   rootFrequencies_.reset();
@@ -146,7 +150,7 @@ void NonHomogeneousSubstitutionProcess::setModelToNode(size_t modelIndex, unsign
   vector<unsigned int> vNod;
   vNod.push_back(nodeNumber);
 
-  computingTree_->addModel(modelSet_[modelIndex], vNod);
+  computingTree_->addModel(modelSet_[modelIndex].get(), vNod);
 }
 
  
@@ -157,7 +161,7 @@ void NonHomogeneousSubstitutionProcess::addModel(TransitionModel* model, const s
   if (modelSet_.size() > 0 && model->getNumberOfStates() != modelSet_[0]->getNumberOfStates())
     throw Exception("NonHomogeneousSubstitutionProcess::addModel. A Substitution Model cannot be added to a Substitution Process if it does not have the same number of states.");
 
-  modelSet_.push_back(model);
+  modelSet_.push_back(std::shared_ptr<TransitionModel>(model));
   
   size_t thisModelIndex = modelSet_.size() - 1;
 
@@ -195,9 +199,7 @@ void NonHomogeneousSubstitutionProcess::setModel(TransitionModel* model, size_t 
   if (modelIndex >= modelSet_.size())
     throw IndexOutOfBoundsException("NonHomogeneousSubstitutionProcess::setModel.", modelIndex, 0, modelSet_.size());
   
-  if (modelSet_[modelIndex])
-    delete modelSet_[modelIndex];
-  modelSet_[modelIndex]=model;
+  modelSet_[modelIndex]=std::shared_ptr<TransitionModel>(model);
 
   // Change associate parameters
   ParameterList& pl1=modelParameters_[modelIndex];
@@ -325,6 +327,21 @@ bool NonHomogeneousSubstitutionProcess::hasMixedTransitionModel() const
   }
   return false;
 }
+
+   
+void NonHomogeneousSubstitutionProcess::setModelScenario(std::shared_ptr<ModelScenario> modelpath)
+{
+  auto vmod=modelpath->getModels();
+
+  for (auto& mod:vmod)
+  {
+    if (find(modelSet_.begin(), modelSet_.end(), mod)==modelSet_.end())
+      throw Exception("NonHomogeneousSubstitutionProcess::setModelPath: unknown model " + mod->getName());
+  }
+  
+  modelScenario_=modelpath;
+}
+
 
 /*
  * Inheriting from SubstitutionProcess
