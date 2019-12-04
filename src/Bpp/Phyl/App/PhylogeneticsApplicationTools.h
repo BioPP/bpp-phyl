@@ -63,6 +63,7 @@
 #include "../NewLikelihood/SubstitutionProcessCollectionMember.h"
 #include "../NewLikelihood/SubstitutionProcess.h"
 #include "../NewLikelihood/SequenceEvolution.h"
+#include "../NewLikelihood/ModelScenario.h"
 
 #include <Bpp/NewPhyl/DataFlow.h>
 
@@ -177,7 +178,7 @@ namespace bpp
       bool verbose = true,
       int warn = 1);
 
-    static std::map<size_t, PhyloTree*> getPhyloTrees(
+    static std::map<size_t, std::shared_ptr<PhyloTree>> getPhyloTrees(
       const std::map<std::string, std::string>& params,
       const std::map<size_t, AlignedValuesContainer*>& mSeq,
       std::map<std::string, std::string>& unparsedParams,
@@ -241,7 +242,7 @@ namespace bpp
      *
      */
     
-    static std::map<size_t, TransitionModel*> getTransitionModels(
+    static std::map<size_t, std::shared_ptr<TransitionModel>> getTransitionModels(
       const Alphabet* alphabet,
       const GeneticCode* gCode,
       const std::map<size_t, AlignedValuesContainer*>& mData, 
@@ -353,7 +354,7 @@ namespace bpp
      *
      */
 
-    static std::map<size_t, FrequenciesSet*> getRootFrequenciesSets(
+    static std::map<size_t, std::shared_ptr<FrequenciesSet>> getRootFrequenciesSets(
       const Alphabet* alphabet,
       const GeneticCode* gCode,
       const std::map<size_t, AlignedValuesContainer*>& mData, 
@@ -410,6 +411,7 @@ namespace bpp
      * @param warn             Set the warning level (0: always display warnings, >0 display warnings on demand).
      * @return A new FrequenciesSet object according to options specified.
      */
+
     static FrequenciesSet* getFrequenciesSet(
         const Alphabet* alphabet,
         const GeneticCode* gCode,
@@ -422,6 +424,48 @@ namespace bpp
       std::map<std::string, std::string> sharedParams;
       return getFrequenciesSet(alphabet, gCode, freqDescription, data, sharedParams, rateFreqs, verbose, warn);
     }
+
+    /**
+     * @brief Build map of ModelPaths from a map of TransitionModel. 
+     *
+     * See the Bio++ Program Suite manual for a description of
+     * available options.
+     *
+     * @param params  The attribute map where options may be found.
+     * @param mModel  A map of shared pointers of TransitionModels.
+     * @param verbose Print some info to the 'message' output stream.
+     *
+     * Warning: the model FIRST described in a ModelPath will be the
+     * leading model (ie which "decides" of the submodel
+     * probabilities").
+     *
+     * @return A map of ModelPath shared_pointers objects according to
+     * the specified options.
+     */
+    
+    static map<size_t, std::shared_ptr<ModelPath>> getModelPaths(
+      const std::map<std::string, std::string>& params,
+      const map<size_t, std::shared_ptr<TransitionModel>>& mModel,
+      bool verbose = true);
+
+    /**
+     * @brief Build map of ModelScenarios from a map of ModelPaths. 
+     *
+     * See the Bio++ Program Suite manual for a description of
+     * available options.
+     *
+     * @param params  The attribute map where options may be found.
+     * @param mModel  A map of shared pointers of ModelPaths.
+     * @param verbose Print some info to the 'message' output stream.
+     *
+     * @return A map of ModelScenarios shared_pointers objects
+     * according to the specified options.
+     */
+    
+    static map<size_t, std::shared_ptr<ModelScenario>> getModelScenarios(
+      const std::map<std::string, std::string>& params,
+      const map<size_t, std::shared_ptr<ModelPath>>& mModelPath,
+      bool verbose = true);
 
     /**
      * @brief Gets a SubstitutionModelSet object according to options.
@@ -456,7 +500,13 @@ namespace bpp
    * @return A SubstitutionRegister object.
    */
   
-    static SubstitutionRegister* getSubstitutionRegister(const std::string& regTypeDesc, const StateMap& stateMap, const GeneticCode* genCode, AlphabetIndex2*& weights, AlphabetIndex2*& distances, bool verbose = true);
+    static SubstitutionRegister* getSubstitutionRegister(
+      const std::string& regTypeDesc,
+      const StateMap& stateMap,
+      const GeneticCode* genCode,
+      AlphabetIndex2*& weights,
+      AlphabetIndex2*& distances,
+      bool verbose = true);
   
     /**
      * @brief Sets a SubstitutionModelSet object according to options.
@@ -600,10 +650,11 @@ namespace bpp
     static SubstitutionProcessCollection* getSubstitutionProcessCollection(
       const Alphabet* alphabet,
       const GeneticCode* gCode,
-      const map<size_t, PhyloTree*>& mTree,
-      const map<size_t, TransitionModel*>& mMod,
-      const map<size_t, FrequenciesSet*>& mRootFreq,
-      const map<size_t, DiscreteDistribution*>& mDist,
+      const map<size_t, std::shared_ptr<PhyloTree>>& mTree,
+      const map<size_t, std::shared_ptr<TransitionModel>>& mMod,
+      const map<size_t, std::shared_ptr<FrequenciesSet>>& mRootFreq,
+      const map<size_t, std::shared_ptr<DiscreteDistribution>>& mDist,
+      const map<size_t, std::shared_ptr<ModelScenario>>& mScen,
       const std::map<std::string, std::string>& params,
       map<string, string>& unparsedparams,
       const string& suffix = "",
@@ -767,7 +818,7 @@ namespace bpp
      *
      */
     
-    static std::map<size_t, DiscreteDistribution*> getRateDistributions(
+    static std::map<size_t, std::shared_ptr<DiscreteDistribution>> getRateDistributions(
       const std::map<std::string, std::string>& params,
       const string& suffix = "",
       bool suffixIsOptional = true,
