@@ -84,8 +84,7 @@ namespace bpp
     RELAX* clone() const { return new RELAX(*this); }
 
     RELAX(const RELAX& mod2) :
-      YNGP_M(mod2),
-      adjustableParToStatus_()
+      YNGP_M(mod2)
     {
     }
 
@@ -96,13 +95,10 @@ namespace bpp
     }
 
   protected:
-    std::map<std::string,bool> adjustableParToStatus_; // status can be 0 == constaint relaxed (requires union during aliasing), or 1 == contraint remains the same or intensified (requires intersection during aliasing)
-    bool getAdjustedParamStatus(std::string parName) { return adjustableParToStatus_[parName]; }
     void updateMatrices();
 
   public:
     std::string getName() const { return "RELAX"; }
-    void setParameterBounds(const std::string& parName, double lb, double ub); // enables alternation of boundaries of a parameter in the model
 
   };
 

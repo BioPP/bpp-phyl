@@ -52,8 +52,7 @@ using namespace std;
 /******************************************************************************/
 
 RELAX::RELAX(const GeneticCode* gc, FrequenciesSet* codonFreqs) :
-  YNGP_M("RELAX."), // RELAX currenly inherits from YNGP_M as well, since it uses kappa and instead of the 5 GTR parameters
-  adjustableParToStatus_()
+  YNGP_M("RELAX.") // RELAX currenly inherits from YNGP_M as well, since it uses kappa and instead of the 5 GTR parameters
 {
 
   // set the initial omegas distribution
@@ -90,7 +89,7 @@ RELAX::RELAX(const GeneticCode* gc, FrequenciesSet* codonFreqs) :
 
   // map the parameters of RELAX to the parameters of the sub-models
   mapParNamesFromPmodel_["YN98.kappa"] = "kappa";
-  mapParNamesFromPmodel_["YN98.omega_Simple.V1"] = "p";           // omega0=p*omega1 (p is re-parameterization of omega0)
+  mapParNamesFromPmodel_["YN98.omega_Simple.V1"] = "p";            // omega0=p*omega1 (p is re-parameterization of omega0)
   mapParNamesFromPmodel_["YN98.omega_Simple.V2"] = "omega1";     
   mapParNamesFromPmodel_["YN98.omega_Simple.theta1"] = "theta1";  // frequency of omega1 (denoted in YNGP_M2's documentation as p0)
   mapParNamesFromPmodel_["YN98.omega_Simple.V3"] = "omega2";
@@ -100,12 +99,6 @@ RELAX::RELAX(const GeneticCode* gc, FrequenciesSet* codonFreqs) :
   getFreq_(1) = (1 - theta2) * theta;
   getFreq_(2) = theta2 * theta;
   getFreq_(3) = (1 - theta1) * (1. - theta); */
-
-  // reset a map of parameter names as in the model
-  adjustableParToStatus_["p"] = 1;
-  adjustableParToStatus_["omega1"] = 1;
-  adjustableParToStatus_["omega2"] = 1;
-  adjustableParToStatus_["k"] = 1;
 
   string st;
   for (map<string, string>::iterator it = mapParNamesFromPmodel_.begin(); it != mapParNamesFromPmodel_.end(); it++)
@@ -123,14 +116,14 @@ RELAX::RELAX(const GeneticCode* gc, FrequenciesSet* codonFreqs) :
   YN98_1.omega = RELAX.omega1 ^ RELAX.k  
   YN98_2.omega = RELAX.omega2 ^ RELAX.k */
   // reparameterization of omega0: RELAX.omega0 = RELAX.p*RELAX.omega1
-  addParameter_(new Parameter("RELAX.p", 0.5, new IntervalConstraint(0.0001, 1, true, true), true));
+  addParameter_(new Parameter("RELAX.p", 0.5, new IntervalConstraint(1e-4, 1, true, true), true)); // orig NumConstants::MILLI()
   addParameter_(new Parameter("RELAX.omega1", 1, new IntervalConstraint(0.1, 1, true, true), true));
 
   // the upper bound of omega3 in its submodel is 999, so I must restrict upperBound(RELAX.omega2)^upperBound(RELAX.k)<=999 -> set maximal omega to 5  
   addParameter_(new Parameter("RELAX.omega2", 2, new IntervalConstraint(1, 999, true, true), true));
 
   // add a selection intensity parameter k, which is 1 in the null case
-  addParameter_(new Parameter("RELAX.k", 1, new IntervalConstraint(0, 10, true, true), true)); // selection intensity parameter for purifying and neutral selection parameters 
+  addParameter_(new Parameter("RELAX.k", 1, new IntervalConstraint(0, 2, true, true), true)); // selection intensity parameter for purifying and neutral selection parameters 
 
   // look for synonymous codons
   // assumes that the states number follow the map in the genetic code and thus:
@@ -168,51 +161,47 @@ void RELAX::updateMatrices()
   {
     // first update the values of the non omega patrameters
     const string& np = lParPmodel_[i].getName();
-    if (mapParNamesFromPmodel_.find(np) != mapParNamesFromPmodel_.end())
-    { 
-      if (np.size()>19 && np[18] == 'V')
+    if (np.size()>19 && np[18] == 'V')
+    {
+      double k = getParameterValue("k"); // get the value of k
+      int ind = -1 ;
+      if (np.size()>19) {
+        ind = TextTools::to<int>(np.substr(19)) - 1; // ind corresponds to the index of the omega that belongs to submodel ind+1
+      }
+      // change ind not to be -1 to allow names omega0, omega1, omega2
+      double omega;
+      if (ind == 0)
+      {                         // handle omega0 differently due to reparameterization via RELAX.p
+        omega = getParameterValue("p") * getParameterValue("omega1");
+        omega = pow(omega,k);
+        if (omega < 1e-4)
+        {
+          omega = 1e-4;
+        }
+      }
+      else if (ind == 1)
       {
-        double k = getParameterValue("k"); // get the value of k
-        int ind = -1 ;
-        if (np.size()>19) {
-          ind = TextTools::to<int>(np.substr(19)) - 1; // ind corresponds to the index of the omega that belongs to submodel ind+1
-        }
-        // change ind not to be -1 to allow names omega0, omega1, omega2
-        double omega;
-        if (ind == 0)
-        {                         // handle omega0 differently due to reparameterization via RELAX.p
-          omega = getParameterValue("p") * getParameterValue("omega1");
-          omega = pow(omega,k);
-		  if (omega < 0.001)
-		  {
-			  omega = 0.001;
-		  }
-        }
-        else if (ind == 1)
+        omega = getParameterValue("omega1");
+        omega = pow (omega, k);  
+        if (omega <= 1e-4)
         {
-          omega =  getParameterValue("omega1");
-          omega = pow (omega, k);  
-		  if (omega < 0.001)
-		  {
-			  omega = 0.001;
-		  }
+          omega = 1e-4;
         }
-        else
-        {
-          omega =  getParameterValue("omega2");
-          omega = pow (omega, k);  
-		  
-		  if (omega > 999)
-		  {
-			  omega = 999;
-		  }
-        }
-		lParPmodel_[i].setValue(omega);
       }
       else
       {
-        lParPmodel_[i].setValue(getParameter(getParameterNameWithoutNamespace(mapParNamesFromPmodel_[np])).getValue());
+        omega = getParameterValue("omega2");
+        omega = pow (omega, k);  
+        if (omega > 999)
+        {
+          omega = 999;
+        }
       }
+      lParPmodel_[i].setValue(omega);
+    }
+    else
+    {
+      lParPmodel_[i].setValue(getParameter(getParameterNameWithoutNamespace(mapParNamesFromPmodel_[np])).getValue());
     }
   }
 
@@ -225,14 +214,8 @@ void RELAX::updateMatrices()
   for (unsigned int i = 0; i < pmixmodel_->getNumberOfModels(); i++)
   {
     vd.push_back(1 / pmixmodel_->getNModel(i)->Qij(synfrom_, synto_));
+    // cout << "from UpdateMatrices(): getNModel(i)->Qij(" << synfrom_ << "," << synto_ << ")=" << getNModel(i)->Qij(synfrom_, synto_) << endl; // keren - debug
   }
 
   pmixmodel_->setVRates(vd);
-
-}
-
-void RELAX::setParameterBounds(const std::string& parName, double lb, double ub)
-{
-  IntervalConstraint* bounds = new IntervalConstraint(lb, ub, true, true); 
-  getParameter_(parName).setConstraint(bounds, true);
 }
