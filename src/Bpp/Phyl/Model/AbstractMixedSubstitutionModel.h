@@ -196,7 +196,6 @@ public:
    */
   virtual void setNProbability(size_t i, double prob)
   {
-<<<<<<< HEAD
 	/*// keren - fix bug - round p to 8 decimal points accuracy
     double value = (int)(prob * 100000000 + .5); 
     prob = (double) (value / 100000000); 
@@ -209,14 +208,12 @@ public:
         prob=1;
 
       vProbas_[i] = prob;
-=======
     if (prob<0)
       prob=0;
     if (prob>1)
       prob=1;
 
     vProbas_[i] = prob;
->>>>>>> 969f8d714a9d64c27799506c1f8c3c8789f61929
   }
 
   /**
