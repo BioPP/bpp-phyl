@@ -143,6 +143,8 @@ namespace bpp
      *
      */
 
+    virtual bool hasModelScenario() const = 0;
+
     virtual const ModelScenario& getModelScenario() const = 0;
 
     /**
@@ -154,6 +156,27 @@ namespace bpp
      */
 
     virtual const std::vector<unsigned int> getNodesWithModel(size_t i) const = 0;
+
+    /**
+     * @brief Get the number of the model associated to a particular
+     * node id.
+     *
+     * @param nodeId The id of the query node.
+     * @return The number of the model associated to the given node.
+     * @throw Exception If no model is found for this node.
+     */
+
+    virtual size_t getModelNumberForNode(unsigned int nodeId) const = 0;
+
+    /**
+     * @brief Get the model associated to a particular node id.
+     *
+     * @param nodeId The id of the query node.
+     * @return A pointer toward the corresponding model.
+     * @throw Exception If no model is found for this node.
+     */
+
+    virtual const TransitionModel* getModelForNode(unsigned int nodeId) const = 0;
 
     /**
      * @brief Get a pointer to the rate distribution (or null if there

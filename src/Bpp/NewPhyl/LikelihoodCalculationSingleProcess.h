@@ -105,12 +105,15 @@ namespace bpp {
      */
 
     using BuildConditionalLikelihood =
-      CWiseMul<Eigen::MatrixXd, ReductionOf<Eigen::MatrixXd>>;
+      CWiseMul<Eigen::MatrixXd, std::tuple<Eigen::MatrixXd, Eigen::MatrixXd>>;
 
+
+    
     using ConditionalLikelihood = Value<Eigen::MatrixXd>;
     
     using SiteLikelihoods = Value<Eigen::RowVectorXd>;
-
+    using SiteLikelihoodsRef = ValueRef<Eigen::RowVectorXd>;
+    
     using AllRatesSiteLikelihoods = Eigen::MatrixXd;
     
     using SiteWeights = NumericConstant<Eigen::RowVectorXi>;
@@ -135,7 +138,14 @@ namespace bpp {
       public:
         std::shared_ptr<ProcessTree> phyloTree;
         std::shared_ptr<ForwardLikelihoodTree> flt;
+
+        /*
+         * @brief backward likelihood tree (only computed when needed)
+         *
+         */
+        
         std::shared_ptr<BackwardLikelihoodTree> blt;
+
         /*
          * @brief for each node n:  clt[n] = flt[n] * dlt[n]
          *
@@ -148,6 +158,8 @@ namespace bpp {
          * 
          * @brief for each node n:  lt[n] = sum_{state s} flt[n][s]
          *
+         * This is only computed when node specific likelihood is
+         * computed.
          */
 
         std::shared_ptr<SiteLikelihoodsTree> lt;
@@ -156,7 +168,11 @@ namespace bpp {
       class ProcessNodes {
       public:
         std::shared_ptr<ProcessTree> treeNode_;
-        std::shared_ptr<ConfiguredModel> modelNode_;
+        std::shared_ptr<ConfiguredModel> modelNode_; // Used for
+                                                     // StateMap and
+                                                     // root
+                                                     // frequencies if
+                                                     // stationarity
         std::shared_ptr<ConfiguredFrequenciesSet> rootFreqsNode_;
         std::shared_ptr<ConfiguredDistribution> ratesNode_;
       };
@@ -308,7 +324,7 @@ namespace bpp {
       void setData(const AlignedValuesContainer& sites)
       {
         if (psites_)
-          throw Exception("LikelihoodCalculationSingleProcess::// setData : data already assigned.");
+          throw Exception("LikelihoodCalculationSingleProcess::setData : data already assigned.");
         psites_=&sites;
         setPatterns_();
       }

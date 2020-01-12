@@ -43,7 +43,7 @@
 
 #include "ProcessTree.h"
 #include "Model.h"
-#include "Parameter.h"
+#include "Parametrizable.h"
 #include <Bpp/Phyl/Model/MixedTransitionModel.h>
 
 //From the stl:
@@ -53,49 +53,87 @@ using namespace bpp;
 using namespace bpp::dataflow;
 using namespace std;
 
-ProcessTree::ProcessTree(Context& context, const ParametrizablePhyloTree& tree, const BrLenMap& vrefmap) :
-  AssociationTreeGlobalGraphObserver<ProcessNode,ProcessEdge>(tree.getGraph()), context_(context)
+ProcessTree::ProcessTree(Context& context,
+                         const SubstitutionProcess& process,
+                         ParameterList& parList,
+                         const BrLenMap& vrefmap) :
+  AssociationTreeGlobalGraphObserver<ProcessNode,ProcessEdge>(0), context_(context)
 {
-  vector<uint> vNodesId=tree.getGraph()->getAllNodes();
+  ProcessComputationTree tree(process);
+  setGraph(tree.getGraph());
   
-  for (auto& id:vNodesId)
+  auto vNodes=tree.getAllNodes();
+  
+  for (const auto& node:vNodes)
   {
-    uint index=tree.getNodeIndex(tree.getNodeFromGraphid(id));
-    auto pn=make_shared<ProcessNode>(*tree.getNodeFromGraphid(id), index);
-    pn->setProperty("event",NodeEvent::speciationEvent);
-    pn->setProba(ConstantOne<double>::create(context_, Dimension<double>()));
-    associateNode(pn, id);
-    setNodeIndex(pn, index);
+    auto pn=make_shared<ProcessNode>(*node);
+    associateNode(pn, tree.getNodeGraphid(node));
+    setNodeIndex(pn, tree.getNodeIndex(node));
   }
   
-  // Ids of the branches in the graph may be different from the
-  // ids in the phyloTree
+  // Build the ConfiguredModels from the TransitionModels
+
+  auto vnMod=process.getModelNumbers();
+        
+  std::map<size_t, std::shared_ptr<ConfiguredModel>> modelmap;
+
+  for (auto nMod:vnMod)
+    modelmap[nMod] = ConfiguredParametrizable::createConfigured<TransitionModel, ConfiguredModel>(context_, *process.getModel(nMod), parList, "_"+ TextTools::toString(nMod));
+
+
+  // Assign References on all branches
   
-  vector<uint> vEdgesId=tree.getGraph()->getAllEdges();
-  
-  for (auto& id:vEdgesId)
+  auto vEdges=tree.getAllEdges();
+
+  for (const auto& edge:vEdges)
   {
-    // retrieve PhyloBranch id
-    const auto pb=tree.getEdgeFromGraphid(id);
-    uint index=tree.getEdgeIndex(pb);
+    auto id=tree.getEdgeGraphid(edge);
+    uint spIndex=edge->getSpeciesIndex(); // index of the edge that
+                                        // represents the index in the
+                                        // ParametrizablePhyloTree
+    auto pmodel = modelmap[process.getModelNumberForNode(spIndex)];
+    auto vNb=edge->subModelNumbers();
+
+    if (vNb.size()>1)
+      throw Exception("ProcessTree::ProcessTree : only simple submodels are used, not combinations.");
     
-    if (vrefmap.find(index)!=vrefmap.end())
+    std::shared_ptr<ProcessEdge> brref;
+
+    if (!edge->useProb()) // model transition is used
     {
-      auto brref=make_shared<ProcessEdge>(vrefmap.at(index));
-      brref->setProba(ConstantOne<double>::create(context_, Dimension<double>()));
-      associateEdge(move(brref), id);
-      setEdgeIndex(getEdgeFromGraphid(id),index);
+      if (vrefmap.find(spIndex)==vrefmap.end()) // ie there is no branch length
+        throw Exception("ProcessTree::ProcessTree missing branch length for branch " + TextTools::toString(spIndex));
+      
+      if (vNb.size()==0) // ie full model 
+        brref=make_shared<ProcessEdge>(spIndex, vrefmap.at(spIndex), pmodel);
+      else
+      {
+        auto nMod=NumericConstant<size_t>::create(context_, vNb[0]); // Only 1st submodel is used        
+        brref=make_shared<ProcessEdge>(spIndex, vrefmap.at(spIndex), pmodel, nMod);
+      }
     }
-    else
-      throw Exception("ProcessTree::ProcessTree missing reference for branch " + TextTools::toString(index));
+    else // a branch issued from a mixture.
+    {
+      if (vNb.size()==0)
+        brref=make_shared<ProcessEdge>(spIndex, ConstantOne<double>::create (context_, Dimension<double>()), pmodel);
+      else                         
+      {
+        auto nMod=NumericConstant<size_t>::create(context_, vNb[0]); // Only 1st submodel is used
+        auto brprob=ProbabilityFromMixedModel::create(context_, {pmodel}, vNb[0]);
+        brref=make_shared<ProcessEdge>(spIndex, vrefmap.at(spIndex), pmodel, nMod);
+      }
+    }
+
+    associateEdge(brref, id);
+    setEdgeIndex(brref,tree.getEdgeIndex(edge));
   }
 }
 
 
-void ProcessTree::buildUnderNode_(const ParametrizablePhyloTree& tree, const BrLenMap& vrefmap, ModelMap& modelmap, shared_ptr<PhyloNode> node, shared_ptr<ProcessNode> newFather, shared_ptr<ProcessEdge> newEdge)
+/*void ProcessTree::buildUnderNode_(const ParametrizablePhyloTree& tree, const BrLenMap& vrefmap, ModelMap& modelmap, shared_ptr<PhyloNode> node, shared_ptr<ProcessNode> newFather, shared_ptr<ProcessEdge> newEdge)
 {
   // build a new node as a speciation node, and sets all edges below it
-  auto newNode=make_shared<ProcessNode>(*node, tree.getNodeIndex(node));
+  auto newNode=make_shared<ProcessNode>(*node);
   addNodeIndex(newNode);
   createNode(newNode);
   
@@ -246,4 +284,4 @@ void ProcessTree::buildUnderEdgeFromNode_(const ParametrizablePhyloTree& tree, c
     }
   }
 }
-
+*/

@@ -250,6 +250,13 @@ public:
     
   std::string to_string() const;
 
+  /*
+   * @brief Build a computation tree from the scenario
+   *
+   *
+   */
+
+  void makeComputingTree() const;
   // a revoir
 //  double getModelPathProbability(const ModelPath& hn) const;
 };

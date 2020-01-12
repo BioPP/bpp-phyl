@@ -116,9 +116,9 @@ inline const Alphabet* SubstitutionProcessCollectionMember::getAlphabet() const
   return (getCollection()->getModel(modelToNodes_.begin()->first))->getAlphabet();
 }
 
-inline const TransitionModel* SubstitutionProcessCollectionMember::getModel(size_t i) const
+inline const TransitionModel* SubstitutionProcessCollectionMember::getModel(size_t n) const
 {
-  return getCollection()->getModel(i).get();
+  return getCollection()->getModel(n).get();
 }
 
 inline bool SubstitutionProcessCollectionMember::matchParametersValues(const ParameterList& parameters)

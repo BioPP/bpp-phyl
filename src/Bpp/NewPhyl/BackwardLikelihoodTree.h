@@ -59,9 +59,22 @@ namespace bpp
      * Using member wise multiplication: c(state, site) = prod_i f_i(state, site).
      */
     
-    using ConditionalLikelihoodFromUpper = CWiseMul<Eigen::MatrixXd, ReductionOf<Eigen::MatrixXd>>;
+    using SpeciationBackward = CWiseMul<Eigen::MatrixXd, ReductionOf<Eigen::MatrixXd>>;
 
-    /** @brief : Above each node : bottom of an edge
+    /** @brief : At the top of each edge below a mixture node
+     *
+     * backwardLikelihood = f(backwardLikelihood[father[i]] for i)
+     * backwardLikelihood: Matrix(state, site).
+     * backwardLikelihood[i]: Matrix(state, site).
+     *
+     * c(state, site) = sum_i f_i(state, site)
+     * Using member wise addition: c = sum_member_i f_i 
+     * Using member wise multiplication: c(state, site) = prod_i f_i(state, site).
+     */
+    
+    using MixtureBackward = CWiseAdd<Eigen::MatrixXd, ReductionOf<Eigen::MatrixXd>>;
+
+    /** @brief : Above each node : bottom of an edge in case of transition from upper
      *
      *  backwardLikelihood = f(transitionMatrix, conditionalLikelihood).
      *  
@@ -70,23 +83,22 @@ namespace bpp
      * - conditionalLikelihood: Matrix(state, site).
      *
      * f(fromState, site) = sum_toState P(fromState, toState) * c(toState, site).
-     * Using matrix multiply: f = transitionMatrix * c.
+     * Using matrix multiply: f = transposed(transitionMatrix) * c.
      */
     
-    using BackwardLikelihoodFromConditional =
+    using BackwardTransition =
       MatrixProduct<Eigen::MatrixXd, Transposed<Eigen::MatrixXd>, Eigen::MatrixXd>;
 
     /** @brief : Above each node : in case of mixture of above edges
      *
-     * mixturefromupper = f(backwardLikelihood[edgestofathers[i]] for i, prop[i]).
-     * edgestofathers: Matrix(state, site).
-     * prob[i]: probability of edge leading to father[i]
+     * - backwardlikelihood: Matrix(state, site).
+     * - proportion: Double
+     * - conditionalLikelihood: Matrix(state, site).
      *
-     * c(state, site) = sum_i f_i(state, site) * prop_i
-     * Using member wise addition: c = sum_member_i (f_i * prop_i)
+     * f(State, site) = c(fromState, site) * prop
      */
     
-    using MixtureFromUpperBackward = CWiseMean<Eigen::MatrixXd, ReductionOf<Eigen::MatrixXd>, ReductionOf<double>>;
+    using BackwardProportion = CWiseMul<Eigen::MatrixXd, std::tuple<double, Eigen::MatrixXd>>;
 
     // Upper Likelihood in nodes
     using ConditionalLikelihood = Value<Eigen::MatrixXd>;
@@ -142,9 +154,23 @@ namespace bpp
       }
 
     private:
-      BackwardLikelihoodAboveRef makeBackwardAboveLikelihoodEdge (PhyloTree::EdgeIndex index);
       
-      ConditionalLikelihoodRef makeConditionalAboveLikelihoodNode (PhyloTree::NodeIndex index);
+      /*
+       * @brief Compute joined likelihood BEFORE reading edge on the
+       * backward process (ie at top of the edge).
+       *
+       */
+
+      BackwardLikelihoodAboveRef makeBackwardLikelihoodAtEdge (PhyloTree::EdgeIndex index);
+      
+      /*
+       * @brief Compute joined likelihood at node on the backward
+       * process (ie with the bottom of the edges getting to the node
+       * from upward).
+       *
+       */
+
+      ConditionalLikelihoodRef makeBackwardLikelihoodAtNode (PhyloTree::NodeIndex index);
 
       /*
        * @brief the LikehoodArrays
@@ -155,10 +181,10 @@ namespace bpp
        * LikelihoodCalculationSingleProcess.
        */
       
-      ConditionalLikelihoodRef getBackwardLikelihoodArray(int nodeId)
+      ConditionalLikelihoodRef getBackwardLikelihoodArray(PhyloTree::NodeIndex nodeId)
       {
         if (!hasNode(nodeId))
-          makeConditionalAboveLikelihoodNode(nodeId);
+          makeBackwardLikelihoodAtNode(nodeId);
         
         return getNode(nodeId);
       }

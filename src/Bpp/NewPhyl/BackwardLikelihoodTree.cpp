@@ -45,35 +45,49 @@ using namespace bpp::dataflow;
 using namespace std;
 
 
-BackwardLikelihoodAboveRef BackwardLikelihoodTree::makeBackwardAboveLikelihoodEdge (PhyloTree::EdgeIndex edgeIndex)
+BackwardLikelihoodAboveRef BackwardLikelihoodTree::makeBackwardLikelihoodAtEdge (PhyloTree::EdgeIndex edgeIndex)
 {
   cerr << "makeBackwardAboveLikelihoodEdge " << edgeIndex << endl;
   if (!forwardTree_)
-    throw Exception("BackwardLikelihoodTree::makeBackwardAboveLikelihoodEdge: forwardTree_ is missing.");
-  
+    throw Exception("BackwardLikelihoodTree::makeBackwardLikelihoodAtEdge: forwardTree_ is missing.");
+
+  auto edgeForward = forwardTree_->getEdge(edgeIndex);
   auto fatherIndex = forwardTree_->getFatherOfEdge(edgeIndex);
   auto fatherForward = forwardTree_->getNode(fatherIndex);
 
   // get/check if node with backward likelihood exists
   auto backNode = hasNode(fatherIndex)
     ? getNode(fatherIndex)
-    : makeConditionalAboveLikelihoodNode(fatherIndex);
+    : makeBackwardLikelihoodAtNode(fatherIndex);
 
-  // get forward likelihoods of brothers
-  auto edgeIds = forwardTree_->getOutgoingEdges(fatherIndex);
+  auto fatherProcess = forwardTree_->getProcessTree()->getNode(fatherIndex);
 
-  NodeRefVec deps;
-  for (auto eId : edgeIds)
+  BackwardLikelihoodAboveRef backwardEdge;
+  
+  if (fatherProcess->isSpeciation())
   {
-    if (eId!=edgeIndex)
-      deps.push_back(forwardTree_->getEdge(eId));
+    // get forward likelihoods of brothers
+    auto edgeIds = forwardTree_->getOutgoingEdges(fatherIndex);
+
+    NodeRefVec deps;
+    for (auto eId : edgeIds)
+    {
+      if (eId!=edgeIndex)
+        deps.push_back(forwardTree_->getEdge(eId));
+    }
+    deps.push_back(backNode);
+    
+    backwardEdge = SpeciationBackward::create (context_, std::move (deps), likelihoodMatrixDim_);  
   }
-  deps.push_back(backNode);
+  else if (fatherProcess->isMixture()) // Transmit array with no modification
+  {
+    backwardEdge = backNode;
+  }
+  else
+    throw Exception("BackwardLikelihoodTree::makeBackwardLikelihoodAtEdge : event not recognized for node " + TextTools::toString(fatherProcess->getSpeciesIndex()));
 
-  auto backwardEdge = ConditionalLikelihoodFromUpper::create (context_, std::move (deps),
-                                                              likelihoodMatrixDim_);  
-
-  associateEdge(backwardEdge, forwardTree_->getEdgeGraphid(forwardTree_->getEdge(edgeIndex)));
+  // put object in the tree
+  associateEdge(backwardEdge, forwardTree_->getEdgeGraphid(edgeForward));
   setEdgeIndex(backwardEdge, edgeIndex);
   writeGraphToDot("backwardEdge_"+TextTools::toString(edgeIndex)+".dot",{backwardEdge.get()});
   cerr << "makebackwardabovelikelihoodedge " << edgeIndex << endl;
@@ -81,87 +95,76 @@ BackwardLikelihoodAboveRef BackwardLikelihoodTree::makeBackwardAboveLikelihoodEd
 }
 
 
-ConditionalLikelihoodRef BackwardLikelihoodTree::makeConditionalAboveLikelihoodNode (PhyloTree::NodeIndex nodeIndex)
+ConditionalLikelihoodRef BackwardLikelihoodTree::makeBackwardLikelihoodAtNode (PhyloTree::NodeIndex nodeIndex)
 {
   cerr << "makeConditionalAboveLikelihoodNode "  << nodeIndex << endl;
   if (!forwardTree_)
-    throw Exception("BackwardLikelihoodTree::makeBackwardAboveLikelihoodEdge: forwardTree_ is missing.");
+    throw Exception("BackwardLikelihoodTree::makeBackwardLikelihoodAtNode: forwardTree_ is missing.");
 
   auto forwardNode = forwardTree_->getNode(nodeIndex);
-  cerr << nodeIndex << "=" << forwardNode << endl;
   // if root
   if (nodeIndex==forwardTree_->getRootIndex())
     return setRootFrequencies(rFreqs_);
     
-  // else get fathers
-  const auto fathersIndexes = forwardTree_->getIncomingNeighbors(nodeIndex);
+  // else get incoming edges
+  const auto edgesIndexes = forwardTree_->getIncomingEdges(nodeIndex);
 
   // get upper dependencies
   NodeRefVec deps;
-  NodeRefVec probaDeps;
   ConditionalLikelihoodRef backwardNode(0);
 
-  for (const auto& fatherIndex:fathersIndexes)
+  for (const auto& edgeIndex:edgesIndexes)
   {
-    auto forwardFather = forwardTree_->getNode(fatherIndex);
-    cerr << "node: " << forwardTree_->nodeToString(forwardFather) << endl;
-    auto forwardEdgeToFather = forwardTree_->getEdgeLinking(forwardFather, forwardNode);
+    auto backEdge = hasEdge(edgeIndex)
+      ? getEdge(edgeIndex)
+      : makeBackwardLikelihoodAtEdge(edgeIndex);
 
-    cerr << "edge: " << forwardTree_->edgeToString(forwardEdgeToFather) << endl;
-    // if an edge exists on forward tree (ie a model) compute
-    // conditional likelihoods through transition probabilities
-    if (forwardEdgeToFather)
-    {
-      const auto processEdge = forwardTree_->getProcessEdge(forwardEdgeToFather); 
-      const auto brlen = processEdge->getBrLen();
-      const auto model = processEdge->getModel();
-      probaDeps.push_back(processEdge->getProba());
-      
+    auto iedge = forwardTree_->getEdge(edgeIndex);
+    
+    const auto processEdge = forwardTree_->getProcessTree()->getEdge(edgeIndex);
+    
+    const auto brlen= processEdge->getBrLen();
+    const auto model= processEdge->getModel();
+    const auto nMod = processEdge->getNMod();
+    const auto brprob = processEdge->getProba();
+
+    ConditionalLikelihoodRef backLikeEdge;
+    
+    if (brlen) // Branch with transition through a model
+    {      
       // useless, the transitionMatrix already exists, but is not
       // available directly through a tree
       // ToDo : find another way to get it
       auto transitionMatrix =
-        ConfiguredParametrizable::createMatrix<ConfiguredModel, TransitionMatrixFromModel> (context_, {model, brlen}, transitionMatrixDimension (nbState_));
+        ConfiguredParametrizable::createMatrix<ConfiguredModel, TransitionMatrixFromModel> (context_, {model, brlen, nMod}, transitionMatrixDimension (nbState_));
 
-      // build the backward top edge to this father if it does not exist
-      const auto edgeToFatherIndex = forwardTree_->getEdgeIndex(forwardEdgeToFather);
-      BackwardLikelihoodAboveRef backEdge = hasEdge(edgeToFatherIndex)
-        ? getEdge(edgeToFatherIndex)
-        : makeBackwardAboveLikelihoodEdge(edgeToFatherIndex);
+      // Uses the transposed transition matrix to compute the bottom
+      // of the edge
 
-      // and uses the transposed transition matrix to compute the
-      // bottom of the edge
-      auto backLikeEdge=BackwardLikelihoodFromConditional::create (
-        context_, {transitionMatrix, backEdge}, likelihoodMatrixDim_);
-
-      if (fathersIndexes.size()==1)
-      {
-        backwardNode = backLikeEdge;
-        break;
-      }
-      else
-        deps.push_back(backLikeEdge);
+      backLikeEdge=BackwardTransition::create (context_, {transitionMatrix, backEdge}, likelihoodMatrixDim_);
+    }
+    else if (brprob)
+      backLikeEdge = BackwardProportion::create(context_, {brprob, backEdge}, likelihoodMatrixDim_);
+    else
+      throw Exception("BackwardLikelihoodTree::makeBackwardLikelihoodAtNode : missing information on edge " + processEdge->getSpeciesIndex());
+    
+    if (edgesIndexes.size()==1)
+    {
+      backwardNode = backLikeEdge;
+      break;
     }
     else
-    {
-      if (deps.size()!=0)
-        throw Exception("BackwardLikelihoodFromConditional::makeConditionalAboveLikelihoodNode mixing edges and non-edges.");
-      backwardNode = hasNode(fatherIndex)
-        ? getNode(fatherIndex)
-        : makeConditionalAboveLikelihoodNode(fatherIndex);
-    }
-  }
-  // Then compute mean if several incoming nodes
-  if (deps.size()>1)
-  {
-    for (auto& probaDep:probaDeps)
-      deps.push_back(probaDep);
-    backwardNode = MixtureFromUpperBackward::create(context_, std::move(deps), likelihoodMatrixDim_);
+      deps.push_back(backLikeEdge);
   }
 
+  // Then compute sum if several incoming nodes
+  if (deps.size()>1)
+    backwardNode = MixtureBackward::create(context_, std::move(deps), likelihoodMatrixDim_);
+
+  
   if (!hasNode(backwardNode))
   {
-    associateNode(backwardNode, forwardTree_->getNodeGraphid(forwardTree_->getNode(nodeIndex)));
+    associateNode(backwardNode, forwardTree_->getNodeGraphid(forwardNode));
     setNodeIndex(backwardNode, nodeIndex);
   }
 

@@ -74,6 +74,7 @@ set (CPP_FILES
   Bpp/Phyl/Likelihood/TreeLikelihoodTools.cpp
   Bpp/Phyl/NewLikelihood/ModelPath.cpp
   Bpp/Phyl/NewLikelihood/ModelScenario.cpp
+  Bpp/Phyl/NewLikelihood/ProcessComputationTree.cpp
   Bpp/Phyl/NewLikelihood/AbstractSubstitutionProcess.cpp
   Bpp/Phyl/NewLikelihood/SimpleSubstitutionProcess.cpp
   Bpp/Phyl/NewLikelihood/NonHomogeneousSubstitutionProcess.cpp

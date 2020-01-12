@@ -41,6 +41,8 @@
 #define _PROCESS_TREE_H_
 
 #include <Bpp/Phyl/NewLikelihood/ParametrizablePhyloTree.h>
+#include <Bpp/Phyl/NewLikelihood/ProcessComputationTree.h>
+#include <Bpp/Phyl/NewLikelihood/SubstitutionProcess.h>
 
 #include <Bpp/Graph/AssociationTreeGraphImplObserver.h>
 
@@ -100,16 +102,23 @@ namespace bpp
      */
     
     // Branch specific DataFlow objects
-    struct ProcessEdge
+    class ProcessEdge 
     {
-      std::shared_ptr<ConfiguredParameter> brlen_;
-
+    private:
       /*
-       *@ brief Probablity of the edge, used in case of mixture models.
+       * @brief the index of the species in the phyloTree matching this node.
        *
        */
       
-      NodeRef brprob_;
+      const uint speciesIndex_;
+
+      /*
+       * @brief Model & BrLen, = 0 if not supporting a model
+       *
+       *
+       */
+      
+      std::shared_ptr<ConfiguredParameter> brlen_;
 
       std::shared_ptr<ConfiguredModel> model_;
 
@@ -123,22 +132,52 @@ namespace bpp
       // for createMatrix for TransitionMatrixFromModel
       
       std::shared_ptr<NumericConstant<size_t>> nMod_;
+
+      /*
+       *@ brief Probablity of the edge, used in case of mixture models.
+       *
+       */
+      
+      ValueRef<double> brprob_;
       
     public:
 
-      ProcessEdge(std::shared_ptr<ConfiguredParameter> brlen=0,
-                  std::shared_ptr<ConfiguredModel> model=0,
-                  std::shared_ptr<NumericConstant<size_t>> nMod=0) : brlen_(brlen), brprob_(0), model_(model), nMod_(nMod){};
+      /*
+       * @brief Construction with model and brlen.
+       *
+       */
+      
+      ProcessEdge(uint speciesIndex,
+                  std::shared_ptr<ConfiguredParameter> brlen,
+                  std::shared_ptr<ConfiguredModel> model,
+                  std::shared_ptr<NumericConstant<size_t>> nMod=0) : speciesIndex_(speciesIndex), brlen_(brlen), model_(model), nMod_(nMod), brprob_(0){};
 
+      /*
+       * @brief Construction with probability ref from Mixture model
+       *
+       */
+
+      ProcessEdge(uint speciesIndex,
+                  ValueRef<double> brprob,
+                  std::shared_ptr<ConfiguredModel> model,
+                  std::shared_ptr<NumericConstant<size_t>> nMod=0) : speciesIndex_(speciesIndex), brlen_(0), model_(model), nMod_(nMod), brprob_(brprob){};
+
+      /*
+       * @brief Copy construction
+       *
+       */
+      
+      ProcessEdge(const ProcessEdge& edge) : speciesIndex_(edge.speciesIndex_), brlen_(edge.brlen_), model_(edge.model_), nMod_(edge.nMod_), brprob_(edge.brprob_){};
+      
       std::shared_ptr<ConfiguredModel> getModel()
       {
         return model_;
       }
 
-      void setModel(std::shared_ptr<ConfiguredModel> model)
-      {
-        model_=model;
-      }
+      // void setModel(std::shared_ptr<ConfiguredModel> model)
+      // {
+      //   model_=model;
+      // }
 
       std::shared_ptr<ConfiguredParameter> getBrLen()
       {
@@ -150,69 +189,19 @@ namespace bpp
         brlen_=brlen;
       }
 
-      NodeRef getProba()
+      ValueRef<double> getProba()
       {
         return brprob_;
       }
 
-      void setProba(NodeRef brprob)
-      {
-        brprob_=brprob;
-      }
-
-      void setNMod(std::shared_ptr<NumericConstant<size_t>> nMod)
-      {
-        nMod_=nMod;
-      }
+      // void setNMod(std::shared_ptr<NumericConstant<size_t>> nMod)
+      // {
+      //   nMod_=nMod;
+      // }
 
       std::shared_ptr<NumericConstant<size_t>> getNMod() 
       {
         return nMod_;
-      }
-
-    };
-
-    // Node specific DataFlow objects
-    class ProcessNode:
-      public PhyloNode
-    {
-      /*
-       * @brief the index of the species in the phyloTree matching this node.
-       *
-       */
-      
-      const uint speciesIndex_;
-
-      /*
-       *@ brief Probablity of the node, useful in case of mixture
-       *models.
-       *
-       */
-      
-      NodeRef nodeprob_;
-      
-    public:
-
-      /*
-       * @brief Build from a node in the phylo tree, with a specific
-       * speciesIndex (because indexes are not the same as in the
-       * ParametrizablePhyloTree.
-       *
-       */
-      
-      ProcessNode(const PhyloNode& node, uint speciesIndex) :
-        PhyloNode(node),
-        speciesIndex_(speciesIndex),
-        nodeprob_(0) {}
-
-      NodeRef getProba()
-      {
-        return nodeprob_;
-      }
-
-      void setProba(NodeRef nodeprob)
-      {
-        nodeprob_=nodeprob;
       }
 
       uint getSpeciesIndex() const
@@ -222,10 +211,62 @@ namespace bpp
 
     };
 
+    // Node specific DataFlow objects
+    class ProcessNode:
+      public PhyloNode
+    {
+    private:
+      /*
+       * @brief the index of the species in the phyloTree matching this node.
+       *
+       */
+      
+      const uint speciesIndex_;
+
+    public:
+
+      /*
+       * @brief Build from a node in the phylo tree, with a specific
+       * speciesIndex (because indexes are not the same as in the
+       * ParametrizablePhyloTree.
+       *
+       */
+      
+      ProcessNode(const ProcessComputationNode& node) :
+        PhyloNode(node),
+        speciesIndex_(node.getSpeciesIndex()) {}
+
+      ProcessNode(const ProcessNode& node) :
+        PhyloNode(node),
+        speciesIndex_(node.getSpeciesIndex()) {}
+      
+      uint getSpeciesIndex() const
+      {
+        return speciesIndex_;
+      }
+
+      bool isSpeciation() const
+      {
+        auto prop=dynamic_cast<const NodeEvent*>(getProperty("event"));
+        if (!prop) 
+          throw Exception("ProcessNode::isSpeciation : Node has no event associated: Node id " + TextTools::toString(getSpeciesIndex()));
+        return prop->isSpeciation();
+      }
+
+      bool isMixture() const
+      {
+        auto prop=dynamic_cast<const NodeEvent*>(getProperty("event"));
+        if (!prop) 
+          throw Exception("ProcessNode::isMixture : Node has no event associated: Node id " + TextTools::toString(getSpeciesIndex()));
+        return prop->isMixture();
+      }
+
+    };
+
 
     using ProcessEdgeRef = std::shared_ptr<ProcessEdge>;
     using ProcessNodeRef = std::shared_ptr<ProcessNode>;
-    
+
     class ProcessTree : public AssociationTreeGlobalGraphObserver<ProcessNode,ProcessEdge>
     {
       Context context_;
@@ -239,7 +280,9 @@ namespace bpp
        *
        */
        
-      ProcessTree(Context& context, const ParametrizablePhyloTree& tree, const BrLenMap& vrefmap);
+      ProcessTree(Context& context, const SubstitutionProcess& process,
+                  ParameterList& parList,
+                  const BrLenMap& vrefmap);
 
       /*
        * @brief Build a ProcessTree given a basic topology and map of
@@ -248,11 +291,12 @@ namespace bpp
        *
        */
 
-      ProcessTree(Context& context, const ParametrizablePhyloTree& tree, const BrLenMap& vrefmap,
+      ProcessTree(Context& context, const ParametrizablePhyloTree& tree,
+                  const BrLenMap& vrefmap,
                   ModelMap& modelmap) :
         AssociationTreeGlobalGraphObserver<ProcessNode,ProcessEdge>(tree.isRooted()), context_(context)
       {
-        buildUnderNode_(tree, vrefmap, modelmap, tree.getRoot());
+//        buildUnderNode_(tree, vrefmap, modelmap, tree.getRoot());
       }
 
     private:
@@ -264,7 +308,7 @@ namespace bpp
        * through a newEdge.
        */
       
-      void buildUnderNode_(const ParametrizablePhyloTree& tree, const BrLenMap& vrefmap, ModelMap& modelmap, std::shared_ptr<PhyloNode> node, std::shared_ptr<ProcessNode> newFather=0, std::shared_ptr<ProcessEdge> newEdge=0);
+      void buildUnderNode_(const ParametrizablePhyloTree& tree, const BrLenMap& vrefmap, ModelMap& modelmap, std::shared_ptr<PhyloNode> node, std::shared_ptr<ProcessNode> newFather=0, std::shared_ptr<ProcessEdge> newEdge=0){};
 
       /*
        * Build the tree under an edge of the ParametrizablePhyloTree.
@@ -278,7 +322,7 @@ namespace bpp
        * aboveEdge is the edge leading to newNode from above (can be null)
        */
       
-      void buildUnderEdgeFromNode_(const ParametrizablePhyloTree& tree, const BrLenMap& vrefmap, ModelMap& modelmap, std::shared_ptr<PhyloBranchParam> oldEdge, std::shared_ptr<ProcessNode> newNode, std::shared_ptr<ProcessEdge> aboveEdge);
+      void buildUnderEdgeFromNode_(const ParametrizablePhyloTree& tree, const BrLenMap& vrefmap, ModelMap& modelmap, std::shared_ptr<PhyloBranchParam> oldEdge, std::shared_ptr<ProcessNode> newNode, std::shared_ptr<ProcessEdge> aboveEdge){};
 
     public:
       /*
@@ -295,13 +339,19 @@ namespace bpp
       ProcessTree(const ProcessTree& tree, BrLenMap&& vrefmap) :
         AssociationTreeGlobalGraphObserver<ProcessNode,ProcessEdge>(tree)
       {
-        std::vector<uint> vEdgesId=tree.getAllEdgesIndexes();
+        auto vEdges=tree.getAllEdges();
 
-        for (auto& index:vEdgesId)
+        for (const auto& edge:vEdges)
         {
-          if (vrefmap.find(index)==vrefmap.end())
-            throw Exception("ProcessTree::ProcessTree : unknown edge id in Map : " + std::to_string(index));
-          getEdge(index)->setBrLen(vrefmap.at(index));
+          uint spIndex=edge->getSpeciesIndex(); // index of the edge that
+          // represents the index in the
+          // ParametrizablePhyloTree
+          if (!edge->getProba()) // model transition is used
+          {
+            if (vrefmap.find(spIndex)==vrefmap.end()) // ie there is no branch length
+              throw Exception("ProcessTree::ProcessTree missing branch length for branch " + TextTools::toString(spIndex));
+            getEdge(spIndex)->setBrLen(vrefmap.at(spIndex));
+          }
         }
       }
 
@@ -403,11 +453,13 @@ namespace bpp
      * ConfiguredParameters PREVIOUSLY built and stored in a
      * ParameterList*/
     
-    inline std::shared_ptr<ProcessTree> makeProcessTree(Context& context, const ParametrizablePhyloTree& parTree, ModelMap& modelmap, ParameterList& parList, const std::string& suff = "")
+    inline std::shared_ptr<ProcessTree> makeProcessTree(Context& context, ParameterList& parList, const SubstitutionProcess& process, const std::string& suff = "")
     {
-      std::vector<std::shared_ptr<PhyloBranchParam> > vB=parTree.getAllEdges();
-      BrLenMap mapBr;
+      auto& parTree=process.getParametrizablePhyloTree();
       
+      std::vector<std::shared_ptr<PhyloBranchParam> > vB=parTree.getAllEdges();
+
+      BrLenMap mapBr;
       for (auto& branch:vB)
       {
         const auto& bp=branch->getParameters()[0];
@@ -428,7 +480,7 @@ namespace bpp
                       ConfiguredParameter::create(context, {confPar->dependency(0)}, bp));
       }
       
-      return std::shared_ptr<ProcessTree>(new ProcessTree(context, parTree, mapBr, modelmap));
+      return std::shared_ptr<ProcessTree>(new ProcessTree(context, process, parList, mapBr));
     }
 
     

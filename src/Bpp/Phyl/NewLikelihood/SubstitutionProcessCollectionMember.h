@@ -238,28 +238,29 @@ public:
   }
 
   /**
-   * @brief Get one model from the set knowing its index.
+   * @brief Get one model from the set knowing its NUMBER.
    *
-   * @param i Index of the model in the set.
+   * @param n Number of the model.
    * @return A pointer toward the corresponding model.
    */
 
-  const TransitionModel* getModel(size_t i) const;
+  const TransitionModel* getModel(size_t n) const;
 
   std::vector<size_t> getModelNumbers() const;
 
   /**
-   * @brief Get the index in the set of the model associated to a particular node id.
+   * @brief Get the number of the model associated to a particular node id.
    *
    * @param nodeId The id of the query node.
-   * @return The index of the model associated to the given node.
+   * @return The number of the model associated to the given node.
    * @throw Exception If no model is found for this node.
    */
-  size_t getModelIndexForNode(unsigned int nodeId) const
+  
+  size_t getModelNumberForNode(unsigned int nodeId) const
   {
     std::map<unsigned int, size_t>::const_iterator i = nodeToModel_.find(nodeId);
     if (i == nodeToModel_.end())
-      throw Exception("SubstitutionProcessCollectionMember::getModelIndexForNode(). No model associated to node with id " + TextTools::toString(nodeId));
+      throw Exception("SubstitutionProcessCollectionMember::getModelNumberForNode(). No model associated to node with id " + TextTools::toString(nodeId));
     return i->second;
   }
 
@@ -283,7 +284,7 @@ public:
 
   const std::vector<unsigned int> getNodesWithModel(size_t i) const
   {
-    std::map<size_t, std::vector<unsigned int> >::const_iterator it = modelToNodes_.find(i);
+    const auto it = modelToNodes_.find(i);
     if (it == modelToNodes_.end())
       throw Exception("SubstitutionProcessCollectionMember::getNodesWithModel(). No nodes associated with model " + TextTools::toString(i));
 

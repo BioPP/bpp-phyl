@@ -290,7 +290,6 @@ TEST_CASE("df")
   //   std::unique_ptr<bpp::NonHomogeneousSubstitutionProcess>(bpp::NonHomogeneousSubstitutionProcess::createNonHomogeneousSubstitutionProcess(model, distribution, rootFreqs, paramPhyloTree, globalParameterNames));
   auto process =
     std::unique_ptr<bpp::NonHomogeneousSubstitutionProcess>(bpp::NonHomogeneousSubstitutionProcess::createHomogeneousSubstitutionProcess(model, distribution, rootFreqs, paramPhyloTree));
-
    // Build likelihood value node
   auto l = std::make_shared<bpp::dataflow::LikelihoodCalculationSingleProcess>(context, c.sites, *process);
   l->setNumericalDerivateConfiguration(0.001, bpp::dataflow::NumericalDerivativeType::ThreePoints);
@@ -337,7 +336,7 @@ TEST_CASE("df")
   // for (size_t pos=0;pos<c.sites.getNumberOfSites();pos++)
   //   std::cout << pos << " : " << lik->getLikelihoodForASite(pos) << std::endl;
 
-  auto lik5 = lik->getLikelihoodAtNode(5);
+  auto lik5 = lik->getLikelihoodAtNode(3);
   std::cout << "[lik5] " << lik5->getTargetValue() << "\n";
   dotOutput("likelihood_5", {lik5.get()});
   

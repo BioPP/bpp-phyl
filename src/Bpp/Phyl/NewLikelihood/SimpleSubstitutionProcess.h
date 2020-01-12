@@ -96,7 +96,7 @@ public:
     return model_.get();
   }
 
-  const TransitionModel* getModel(size_t i) const
+  const TransitionModel* getModel(size_t n) const
   {
     return model_.get();
   }
@@ -105,6 +105,16 @@ public:
   {
     std::vector<uint> innodes=(*computingTree_)[0]->getAllEdgesIndexes();
     return innodes;
+  }
+
+  size_t getModelNumberForNode(unsigned int nodeId) const
+  {
+    return 1;
+  }
+  
+  const TransitionModel* getModelForNode(unsigned int nodeId) const
+  {
+    return model_.get();
   }
 
   const DiscreteDistribution* getRateDistribution() const

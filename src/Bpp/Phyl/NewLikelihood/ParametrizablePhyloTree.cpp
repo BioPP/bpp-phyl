@@ -51,11 +51,11 @@ ParametrizablePhyloTree::ParametrizablePhyloTree(const PhyloTree& tree, const st
 {
   vector<shared_ptr<PhyloBranchParam> > vB=getAllEdges();
   
-  for (vector<shared_ptr<PhyloBranchParam> >::iterator it=vB.begin(); it!=vB.end(); it++)
+  for (auto& it:vB)
   {
-    if (hasEdgeIndex(*it))
-      (*it)->getParameter_(0).setName("BrLen"+TextTools::toString(getEdgeIndex(*it)));
-    shareParameter_((*it)->getSharedParameter(0));
+    if (hasEdgeIndex(it))
+      it->getParameter_(0).setName("BrLen"+TextTools::toString(getEdgeIndex(it)));
+    shareParameter_(it->getSharedParameter(0));
   }
 }
 

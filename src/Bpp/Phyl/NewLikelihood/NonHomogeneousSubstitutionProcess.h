@@ -279,39 +279,39 @@ namespace bpp
     }
 
     /**
-     * @brief Get one model from the set knowing its number.
+     * @brief Get one model from the set knowing its NUMBER.
      *
-     * @param i Index of the model set.
+     * @param n number of the model.
      * @return A pointer toward the corresponding model.
      */
 
-    const TransitionModel* getModel(size_t i) const
+    const TransitionModel* getModel(size_t n) const
     {
-      if ((i == 0) || (i > modelSet_.size())) throw IndexOutOfBoundsException("NonHomogeneousSubstitutionProcess::getModel().", 1, modelSet_.size(), i);
-      return modelSet_[i-1].get();
+      if ((n == 0) || (n > modelSet_.size())) throw IndexOutOfBoundsException("NonHomogeneousSubstitutionProcess::getModel().", 1, modelSet_.size(), n);
+      return modelSet_[n-1].get();
     }
 
-    TransitionModel* getModel(size_t i)
+    TransitionModel* getModel(size_t n)
     {
-      if ((i == 0) || (i > modelSet_.size())) throw IndexOutOfBoundsException("NonHomogeneousSubstitutionProcess::getModel().", 1, modelSet_.size(), i);
-      return modelSet_[i-1].get();
+      if ((n == 0) || (n > modelSet_.size())) throw IndexOutOfBoundsException("NonHomogeneousSubstitutionProcess::getModel().", 1, modelSet_.size(), n);
+      return modelSet_[n-1].get();
     }
 
     /**
-     * @brief Get the INDEX in the set of the model associated to a
-     * particular node id (and not the number of the model).
+     * @brief Get the number of the model associated to a
+     * particular node id.
      *
      * @param nodeId The id of the query node.
      * @return The index of the model associated to the given node.
      * @throw Exception If no model is found for this node.
      */
 
-    size_t getModelIndexForNode(unsigned int nodeId) const
+    size_t getModelNumberForNode(unsigned int nodeId) const
     {
-      std::map<unsigned int, size_t>::iterator i = nodeToModel_.find(nodeId);
+      const auto i = nodeToModel_.find(nodeId);
       if (i == nodeToModel_.end())
-        throw Exception("NonHomogeneousSubstitutionProcess::getModelIndexForNode(). No model associated to node with id " + TextTools::toString(nodeId));
-      return i->second;
+        throw Exception("NonHomogeneousSubstitutionProcess::getModelNumberForNode(). No model associated to node with id " + TextTools::toString(nodeId));
+      return i->second+1;
     }
 
     /**
@@ -330,14 +330,6 @@ namespace bpp
       return modelSet_[i->second].get();
     }
   
-    TransitionModel* getModelForNode(unsigned int nodeId)
-    {
-      std::map<unsigned int, size_t>::iterator i = nodeToModel_.find(nodeId);
-      if (i == nodeToModel_.end())
-        throw Exception("NonHomogeneousSubstitutionProcess::getModelForNode(). No model associated to node with id " + TextTools::toString(nodeId));
-      return modelSet_[i->second].get();
-    }
-
     /**
      * @brief Get a list of nodes id for which the given model is associated.
      *

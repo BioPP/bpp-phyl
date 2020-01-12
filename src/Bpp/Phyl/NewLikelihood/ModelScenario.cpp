@@ -192,7 +192,7 @@ std::string ModelScenario::to_string() const
 
   return output;
 }
-    
+
 // double ModelScenario::getModelPathProbability(const ModelPath& hn) const
 // {
 //   auto models= hn.getModels();
