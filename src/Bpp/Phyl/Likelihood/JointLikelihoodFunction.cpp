@@ -10,6 +10,7 @@
 #include <Bpp/Numeric/Prob/ConstantDistribution.h>
 #include <Bpp/Text/TextTools.h>
 #include <Bpp/Numeric/Function/BrentOneDimension.h>
+#include <Bpp/Numeric/Function/PowellMultiDimensions.h>
 #include <Bpp/Text/KeyvalTools.h>
 
 // From bpp-phyl:
@@ -630,12 +631,12 @@ void JointLikelihoodFunction::optimizeSequenceModel()
     map<string,double> inferenceResult;
 	int advancedOptimization = ApplicationTools::getIntParameter("optimization.advanced", bppml_->getParams(), 0);
     bool verbose = ApplicationTools::getBooleanParameter("optimization.verbose", bppml_->getParams(), true, "", true, 3);
+    double prevLogLikelihood, currLogLikelihood;
+	size_t index;
     if ((advancedOptimization == 1) & (isAlternative))
     {
         bppml_->getParam("optimization.max_number_f_eval") = "100";
         bppml_->getParam("optimization.tolerance") = "0.01";
-		double prevLogLikelihood, currLogLikelihood;
-		size_t index;
         if (cycleNum_ == 0)
         {
             // starting point 1 - results of the null fitting
@@ -786,7 +787,7 @@ void JointLikelihoodFunction::optimizeSequenceModel()
                     }
                 }
                 cout << "Optimizing starting point " << (p+1) << "..." << endl;
-				revLogLikelihood = -sequenceTreeLikelihood_->getValue();
+				prevLogLikelihood = -sequenceTreeLikelihood_->getValue();
 				currLogLikelihood = -sequenceTreeLikelihood_->getValue();
 				index = 1;
 				do
@@ -1110,61 +1111,81 @@ void JointLikelihoodFunction::setHypothesis(JointLikelihoodFunction::Hypothesis 
 
 /******************************************************************************/
 
-void JointLikelihoodFunction::optimizeCharacterModel()
+void JointLikelihoodFunction::optimizeCharacterModel() // only called when the hypothesis is null
 {
     // optimize with BrentOneDimension, like in the alternative fitting
-	if (hypothesis_ == Hypothesis(1))
-	{
-		int useOneDimentionOpt = ApplicationTools::getIntParameter("optimization.character.one.dimension", bppml_->getParams(), 1);
-		if (useOneDimentionOpt == 1)
-		{
-			BrentOneDimension* characterParametersOptimizer = new BrentOneDimension(characterTreeLikelihood_);
-			characterParametersOptimizer->setBracketing(BrentOneDimension::BRACKET_INWARD);
-			characterParametersOptimizer->getStopCondition()->setTolerance(0.01); // set the tolerance to be slighly less strict to account for the instability of the joint likelihood function
-			characterParametersOptimizer->setConstraintPolicy(AutoParameter::CONSTRAINTS_AUTO);
-			characterParametersOptimizer->setProfiler(0);
-			characterParametersOptimizer->setMessageHandler(0);
-			characterParametersOptimizer->setVerbose(1);
-			ParameterList pi0; 
-			pi0.addParameter(characterTreeLikelihood_->getParameter("TwoParameterBinary.pi0"));
-			const IntervalConstraint* pi0Bounds = dynamic_cast<const IntervalConstraint*>(characterTreeLikelihood_->getParameter("TwoParameterBinary.pi0").getConstraint());
-			characterParametersOptimizer->setInitialInterval(pi0Bounds->getLowerBound(), pi0Bounds->getUpperBound()); // search within stricter bounds that the actual ones of pi0 to avoid failute of stochasitc mapping
-			characterParametersOptimizer->init(pi0);
-			characterParametersOptimizer->optimize();
-			ParameterList mu; 
-			mu.addParameter(characterTreeLikelihood_->getParameter("TwoParameterBinary.mu"));
-			const IntervalConstraint* muBounds = dynamic_cast<const IntervalConstraint*>(characterTreeLikelihood_->getParameter("TwoParameterBinary.mu").getConstraint());
-			characterParametersOptimizer->setInitialInterval(muBounds->getLowerBound(), muBounds->getUpperBound()); // search within stricter bounds that the actual ones of pi0 to avoid failute of stochasitc mapping
-			characterParametersOptimizer->init(mu);
-			characterParametersOptimizer->optimize();
-			delete characterParametersOptimizer;
-		}
-		/*else // TO DO: 12.01.20 - need to allow here also an alternative of a two-dimentional brent with regard to the joint likelihood function
-		{
-			
-		} */
-	}
+    double prevLogLikelihood = -characterTreeLikelihood_->getValue();
+    double currLogLikelihood = -characterTreeLikelihood_->getValue();
+    size_t index = 1;
+    int useOneDimentionOpt = ApplicationTools::getIntParameter("optimization.character.one.dimension", bppml_->getParams(), 1);
+    if (useOneDimentionOpt == 1)
+    {   
+        BrentOneDimension* characterParametersOptimizer = new BrentOneDimension(characterTreeLikelihood_);
+        characterParametersOptimizer->setBracketing(BrentOneDimension::BRACKET_INWARD);
+        characterParametersOptimizer->getStopCondition()->setTolerance(0.01); // set the tolerance to be slighly less strict to account for the instability of the joint likelihood function
+        characterParametersOptimizer->setConstraintPolicy(AutoParameter::CONSTRAINTS_AUTO);
+        characterParametersOptimizer->setProfiler(0);
+        characterParametersOptimizer->setMessageHandler(0);
+        characterParametersOptimizer->setVerbose(1);
+        ParameterList pi0, mu;
+        mu.addParameter(characterTreeLikelihood_->getParameter("TwoParameterBinary.mu"));
+        const IntervalConstraint* muBounds = dynamic_cast<const IntervalConstraint*>(characterTreeLikelihood_->getParameter("TwoParameterBinary.mu").getConstraint());
+        pi0.addParameter(characterTreeLikelihood_->getParameter("TwoParameterBinary.pi0"));
+        const IntervalConstraint* pi0Bounds = dynamic_cast<const IntervalConstraint*>(characterTreeLikelihood_->getParameter("TwoParameterBinary.pi0").getConstraint()); 
+        do
+        {
+            cout << "Optimization cycle: " << TextTools::toString(index) << endl;
+            index = index + 1;
+            prevLogLikelihood = -this->getValue();
+            
+            // optimize the joint model with respect to pi0
+            characterParametersOptimizer->setInitialInterval(pi0Bounds->getLowerBound(), pi0Bounds->getUpperBound()); // search within stricter bounds that the actual ones of pi0 to avoid failute of stochasitc mapping
+            characterParametersOptimizer->init(pi0);
+            characterParametersOptimizer->optimize();
+
+            // optimize the joint model with respect to mu
+            characterParametersOptimizer->setInitialInterval(muBounds->getLowerBound(), muBounds->getUpperBound()); // search within stricter bounds that the actual ones of pi0 to avoid failute of stochasitc mapping
+            characterParametersOptimizer->init(mu);
+            characterParametersOptimizer->optimize();
+
+
+            currLogLikelihood = -this->getValue();
+            ApplicationTools::displayResult("Current log likelihood", TextTools::toString(-currLogLikelihood, 15));
+            ApplicationTools::displayResult("Current diff", TextTools::toString((currLogLikelihood-prevLogLikelihood), 15));
+        } while (currLogLikelihood - prevLogLikelihood > 0.01);
+        delete characterParametersOptimizer;
+    }
+    else // TO DO: 12.01.20 - need to allow here also an alternative of a two-dimentional brent with regard to the joint likelihood function
+    {
+        // set the brent two dimontional optimizer
+        PowellMultiDimensions *characterParametersOptimizer = new PowellMultiDimensions(characterTreeLikelihood_);
+        ParameterList parametersToEstimate;
+        parametersToEstimate.addParameter(characterTreeLikelihood_->getParameter("TwoParameterBinary.mu"));
+        parametersToEstimate.addParameter(characterTreeLikelihood_->getParameter("TwoParameterBinary.pi0"));
+        characterParametersOptimizer->setProfiler(0);
+        characterParametersOptimizer->setMessageHandler(0);
+        characterParametersOptimizer->setMaximumNumberOfEvaluations(1000);
+        characterParametersOptimizer->getStopCondition()->setTolerance(0.01);
+        characterParametersOptimizer->setVerbose(1);
+        characterParametersOptimizer->setConstraintPolicy(AutoParameter::CONSTRAINTS_AUTO);
+        characterParametersOptimizer->init(parametersToEstimate);
+        do
+        {
+            cout << "Optimization cycle: " << TextTools::toString(index) << endl;
+            index = index + 1;
+            prevLogLikelihood = -getValue();
+            characterParametersOptimizer->optimize();
+            currLogLikelihood = -getValue();
+            ApplicationTools::displayResult("Current log likelihood", TextTools::toString(-currLogLikelihood, 15));
+            ApplicationTools::displayResult("Current diff", TextTools::toString((currLogLikelihood-prevLogLikelihood), 15));
+
+        } while (currLogLikelihood - prevLogLikelihood > 0.01);
+        delete characterParametersOptimizer;
+        cout << "iteraive optimzation complete" << endl;
+        ApplicationTools::displayResult("Log likelihood", TextTools::toString(-characterTreeLikelihood_->getValue(), 15));
+    }
+
 	
-	// 24.11.19 - when optimizing the null, optimize he character model seperetaly and repeatedly untill convergence with respect to the character likelihood 
-	if (hypothesis_ == Hypothesis(0))
-	{
-		cout << "optimizing the character model using a different method for a second time" << endl; 
-		double prevLogLikelihood = -characterTreeLikelihood_->getValue();
-		double currLogLikelihood = -characterTreeLikelihood_->getValue();
-		size_t index = 1;
-		do
-		{
-			cout << "Optimization cycle: " << TextTools::toString(index) << endl;
-			index = index + 1;
-			PhylogeneticsApplicationTools::optimizeParameters(characterTreeLikelihood_, characterTreeLikelihood_->getParameters(), bppml_->getParams());
-			ApplicationTools::displayResult("Current log likelihood", TextTools::toString(-characterTreeLikelihood_->getValue(), 15));
-			prevLogLikelihood = currLogLikelihood;
-			currLogLikelihood = -characterTreeLikelihood_->getValue();
-			ApplicationTools::displayResult("Current diff", TextTools::toString((currLogLikelihood-prevLogLikelihood), 15));
-		} while (currLogLikelihood - prevLogLikelihood > 0.01);
-		cout << "iteraive optimzation complete" << endl;
-		ApplicationTools::displayResult("Log likelihood", TextTools::toString(-characterTreeLikelihood_->getValue(), 15));
-	}
     
     // update the log likelihood of the joint model
     double charLogL = characterTreeLikelihood_->getValue();
