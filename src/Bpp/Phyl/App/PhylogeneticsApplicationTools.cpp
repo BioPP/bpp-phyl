@@ -1722,6 +1722,9 @@ bool PhylogeneticsApplicationTools::addSubstitutionProcessCollectionMember(
       else
         ApplicationTools::displayResult (" Rate number", TextTools::toString(numRate / 10000 - 1) + "." + TextTools::toString(numRate % 10000));
 
+      if (numScen!=0)
+        ApplicationTools::displayResult (" Scenario number", TextTools::toString(numScen));
+      
       if (!stationarity)
         ApplicationTools::displayResult (" Root frequencies number", TextTools::toString(numFreq));
       else

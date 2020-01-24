@@ -456,7 +456,6 @@ NodeRef ProbabilityFromMixedModel::recreate (Context & c, NodeRefVec && deps) {
 
 void ProbabilityFromMixedModel::compute () {
   const auto * model = accessValueConstCast<const MixedTransitionModel *> (*this->dependency (0));
-  std::cerr << model->getNProbability(nCat_) << std::endl;
   this->accessValueMutable () = model->getNProbability(nCat_);
 }
 

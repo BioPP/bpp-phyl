@@ -104,6 +104,8 @@ bool ModelScenario::hasExclusivePaths() const
 
 void ModelScenario::computeModelPathsProbabilities()
 {
+  return;
+
   size_t nbh = getNumberOfModelPaths();
 
   if (nbh==0)
@@ -152,7 +154,7 @@ void ModelScenario::computeModelPathsProbabilities()
         double prob = 0;
         for (auto& fn:fnd)
           prob += model->getNProbability(static_cast<size_t>(fn));
-        
+
         // sets the real probabilities
         for (auto& fn:fnd)
         {

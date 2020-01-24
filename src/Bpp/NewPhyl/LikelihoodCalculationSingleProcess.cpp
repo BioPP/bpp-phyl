@@ -155,7 +155,6 @@ void LikelihoodCalculationSingleProcess::makeProcessNodes(ParameterList& paramLi
   // tree node
   suff=spcm?("_"+TextTools::toString(spcm->getTreeNumber())):"";
   processNodes_.treeNode_ = makeProcessTree(context_, paramList, process_, suff);
-  processNodes_.treeNode_->outputToDot("processTree.dot","process");
 
   ///////////////////////////
   // rootFrequencies node
@@ -403,10 +402,6 @@ void LikelihoodCalculationSingleProcess::makeLikelihoodAtRoot_()
 
 // We want -log(likelihood)
   likelihood_ = CWiseNegate<double>::create (context_, {totalLogLikelihood}, Dimension<double> ());
-  
-  //using bpp::dataflow::DotOptions;
-  writeGraphToDot("likelihood.dot", {likelihood_.get()});
-
 }
 
 
