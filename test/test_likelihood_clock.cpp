@@ -53,7 +53,7 @@ knowledge of the CeCILL license and that you accept its terms.
 using namespace bpp;
 using namespace std;
 
-void fitModelH(SubstitutionModel* model, DiscreteDistribution* rdist,
+void fitModelH(std::shared_ptr<SubstitutionModel> model, DiscreteDistribution* rdist,
                ParametrizablePhyloTree* tree, const VectorSiteContainer& sites,
                double initialValue, double finalValue)
 {
@@ -85,7 +85,7 @@ void fitModelH(SubstitutionModel* model, DiscreteDistribution* rdist,
     throw Exception("Incorrect final value:" + TextTools::toString(llh.getValue()) + "<>" + TextTools::toString(finalValue));
 }
 
-void fitModelHClock(SubstitutionModel* model, DiscreteDistribution* rdist,
+void fitModelHClock(std::shared_ptr<SubstitutionModel> model, DiscreteDistribution* rdist,
                     ParametrizablePhyloTree* tree, const VectorSiteContainer& sites,
 
                     double initialValue, double finalValue)
@@ -124,7 +124,7 @@ int main() {
   ParametrizablePhyloTree paramphyloTree(*phyloTree);
   
   const NucleicAlphabet* alphabet = &AlphabetTools::DNA_ALPHABET;
-  SubstitutionModel* model = new T92(alphabet, 3.);
+  shared_ptr<SubstitutionModel> model(new T92(alphabet, 3.));
   DiscreteDistribution* rdist = new ConstantRateDistribution();
 
   VectorSiteContainer sites(alphabet);
@@ -134,7 +134,7 @@ int main() {
   sites.addSequence(BasicSequence("D", "CAACGGGAGTGCGCCTA", alphabet));
 
   try {
-    fitModelH(model->clone(), rdist->clone(), paramphyloTree.clone(), sites, 94.3957, 71.0564);
+    fitModelH(std::shared_ptr<SubstitutionModel>(model->clone()), rdist->clone(), paramphyloTree.clone(), sites, 94.3957, 71.0564);
   } catch (Exception& ex) {
     cerr << ex.what() << endl;
     return 1;
@@ -143,14 +143,13 @@ int main() {
   cout << endl << endl;
   
   try {
-    fitModelHClock(model->clone(), rdist->clone(), paramphyloTree.clone(), sites, 94.395699, 72.7196);
+    fitModelHClock(model, rdist->clone(), paramphyloTree.clone(), sites, 94.395699, 72.7196);
   } catch (Exception& ex) {
     cerr << ex.what() << endl;
     return 1;
   }
 
   //-------------
-  delete model;
   delete rdist;
 
   return 0;

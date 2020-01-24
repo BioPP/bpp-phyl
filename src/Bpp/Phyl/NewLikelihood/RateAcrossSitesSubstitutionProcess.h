@@ -65,9 +65,9 @@ private:
 
 public:
   RateAcrossSitesSubstitutionProcess(
-      TransitionModel* model,
-      DiscreteDistribution* rdist,
-      ParametrizablePhyloTree* tree);
+    std::shared_ptr<TransitionModel> model,
+    DiscreteDistribution* rdist,
+    ParametrizablePhyloTree* tree);
     
   RateAcrossSitesSubstitutionProcess(const RateAcrossSitesSubstitutionProcess& rassp);
 

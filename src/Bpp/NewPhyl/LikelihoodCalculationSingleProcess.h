@@ -318,6 +318,10 @@ namespace bpp {
 
       ValueRef<double> getLikelihoodAtNode(uint nodeId) 
       {
+        const auto pt=process_.getParametrizablePhyloTree();
+        if (!pt.hasNode(nodeId))
+          throw Exception("LikelihoodCalculationSingleProcess::getLikelihoodAtNode : node " + TextTools::toString(nodeId) + " does not exist.");
+          
         return makeLikelihoodsAtNode_(nodeId);
       }
       

@@ -93,7 +93,8 @@ namespace bpp
 
   };
 
-
+  using ProcessComputationNodeRef=std::shared_ptr<ProcessComputationNode>;
+  
   // Class for the edges
   class ProcessComputationEdge
   {
@@ -112,7 +113,7 @@ namespace bpp
      * individual submodels), to be fixed later.
      */
     
-    std::vector<size_t> vSubNb_;
+    std::vector<uint> vSubNb_;
 
     /*
      * @brief use the probability associated to the edge in case of
@@ -132,7 +133,7 @@ namespace bpp
 
 
   public:
-    ProcessComputationEdge(const TransitionModel* model, uint speciesIndex, std::vector<size_t> vNb=std::vector<size_t>(0), bool useProb=false) :
+    ProcessComputationEdge(const TransitionModel* model, uint speciesIndex, bool useProb=false, const std::vector<uint>& vNb=Vuint(0)) :
       model_(model),
       vSubNb_(vNb),
       useProb_(useProb),
@@ -150,7 +151,7 @@ namespace bpp
       return speciesIndex_;
     }
 
-    const std::vector<size_t>& subModelNumbers() const
+    const std::vector<uint>& subModelNumbers() const
     {
       return vSubNb_;
     }
@@ -167,6 +168,21 @@ namespace bpp
   class ProcessComputationTree :
     public BaseTree
   {
+  private:
+    
+    const SubstitutionProcess& process_;
+
+    /*
+     * Build rest of the tree under given father (event on father will
+     * be set in this method)
+     *
+     */
+    
+    void _build_following_path(std::shared_ptr<ProcessComputationNode> father, const ModelPath& path);
+
+    void _build_following_scenario(std::shared_ptr<ProcessComputationNode> father, const ModelScenario& scenario,  std::map<std::shared_ptr<MixedTransitionModel>, uint>& mMrca);
+
+
   public:
     /*
      * @brief construction of a ProcessComputationTree from a SubstitutionProcess

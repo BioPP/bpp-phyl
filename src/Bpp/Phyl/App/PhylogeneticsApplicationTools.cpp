@@ -1272,8 +1272,12 @@ map<size_t, std::shared_ptr<ModelPath>> PhylogeneticsApplicationTools::getModelP
       string::size_type indexf = submodel.find("]");
       if ((indexo == string::npos) | (indexf == string::npos))
         throw Exception("PhylogeneticsApplicationTools::getModelPaths. Bad path syntax, should contain `[]' symbols: " + submodel);
-      
-      size_t num2 = TextTools::to<size_t>(submodel.substr(5, indexo - 5));
+
+      auto pos=submodel.find("model");
+      if (pos==string::npos)
+        throw Exception("PhylogeneticsApplicationTools::getModelPaths. Missing identifier 'model' in description: " + submodel);
+        
+      size_t num2 = TextTools::to<size_t>(submodel.substr(pos+5, indexo - 5 - pos));
       if (mModel.find(num2)==mModel.end())
         throw BadIntegerException("PhylogeneticsApplicationTools::getModelPaths: Wrong model number", static_cast<int>(num2));
       
@@ -1459,12 +1463,12 @@ SubstitutionProcess* PhylogeneticsApplicationTools::getSubstitutionProcess(
   {
     // Homogeneous & stationary models
 
-    unique_ptr<TransitionModel> tmp(getTransitionModel(alphabet, gCode, pData, params, unparsedParams));
+    shared_ptr<TransitionModel> tmp(getTransitionModel(alphabet, gCode, pData, params, unparsedParams));
 
     if (tmp->getNumberOfStates() >= 2 * tmp->getAlphabet()->getSize() || (rDist->getName() == "Constant")) // first test is for Markov-modulated Markov model!
-      SP = new SimpleSubstitutionProcess(tmp.release(), pTree.release());
+      SP = new SimpleSubstitutionProcess(tmp, pTree.release());
     else
-      SP = new RateAcrossSitesSubstitutionProcess(tmp.release(), rDist.release(), pTree.release());
+      SP = new RateAcrossSitesSubstitutionProcess(tmp, rDist.release(), pTree.release());
   }
 
   // Non-homogeneous models
@@ -1473,7 +1477,7 @@ SubstitutionProcess* PhylogeneticsApplicationTools::getSubstitutionProcess(
     string fName = (nhOpt == "one_per_branch" ? "model" : "model1");
 
     tmpDesc = ApplicationTools::getStringParameter(fName, params, "", suffix, suffixIsOptional, warn);
-    unique_ptr<TransitionModel> tmp(bIO.readTransitionModel(alphabet, tmpDesc, pData, true));
+    shared_ptr<TransitionModel> tmp(bIO.readTransitionModel(alphabet, tmpDesc, pData, true));
 
 
     // ////////////////////////////////////
@@ -1525,10 +1529,10 @@ SubstitutionProcess* PhylogeneticsApplicationTools::getSubstitutionProcess(
       }
 
       SP = NonHomogeneousSubstitutionProcess::createNonHomogeneousSubstitutionProcess(
-        tmp.release(),
+        tmp,
         rDist.release(),
-        rootFrequencies.release(),
         pTree.release(),
+        rootFrequencies.release(),
         globalParameters);
     }
     else
@@ -1559,7 +1563,7 @@ SubstitutionProcess* PhylogeneticsApplicationTools::getSubstitutionProcess(
         string modelDesc;
         modelDesc = ApplicationTools::getStringParameter(prefix, params, "", suffix, suffixIsOptional, warn);
 
-        unique_ptr<TransitionModel> model(bIO.readTransitionModel(alphabet, modelDesc, pData, true));
+        shared_ptr<TransitionModel> model(bIO.readTransitionModel(alphabet, modelDesc, pData, true));
         map<string, string> tmpUnparsedParameterValues(bIO.getUnparsedArguments());
 
         for (auto& it : tmpUnparsedParameterValues)
@@ -1570,7 +1574,7 @@ SubstitutionProcess* PhylogeneticsApplicationTools::getSubstitutionProcess(
         if (verbose)
           ApplicationTools::displayResult("Model" + TextTools::toString(i + 1) + " is associated to", TextTools::toString(nodesId.size()) + " node(s).");
 
-        nhSP->addModel(model.release(), nodesId);
+        nhSP->addModel(model, nodesId);
       }
 
       nhSP->isFullySetUp();
@@ -1680,7 +1684,7 @@ bool PhylogeneticsApplicationTools::addSubstitutionProcessCollectionMember(
     numScen = (size_t) ApplicationTools::getIntParameter("scenario", args, 1, "", true, warn);
 
     if (!SubProColl->hasModelScenario(numScen))
-      throw BadIntegerException("PhylogeneticsApplicationTools::addSubstitutionProcessCollectionMember : unknown scenarion number", (int)numScen);
+      throw BadIntegerException("PhylogeneticsApplicationTools::addSubstitutionProcessCollectionMember : unknown scenario number", (int)numScen);
   }
   
   // ////////////////
@@ -4434,12 +4438,12 @@ void PhylogeneticsApplicationTools::printParameters(const SubstitutionProcessCol
     
     for (size_t mpn = 0; mpn < nbMP; mpn++)
     {
-      const ModelPath& mp = scen.getModelPath(mpn);
+      const auto& mp = scen.getModelPath(mpn);
 
-      auto itmp=find(vMP.begin(),vMP.end(),&mp);
+      auto itmp=find(vMP.begin(),vMP.end(),mp.get());
       auto inmp=std::distance(vMP.begin(), itmp);
       if (itmp==vMP.end())
-        vMP.push_back(&mp);
+        vMP.push_back(mp.get());
 
       if (mpn!=0)
         out << "&";
@@ -4980,17 +4984,11 @@ void PhylogeneticsApplicationTools::printAnalysisInformation(const SingleDataPhy
     vector<string> row(4 + (nbR > 1 ? nbR : 0));
     DataTable* infos = new DataTable(colNames);
 
-    cerr << "vvpPP" << std::endl;
-    
     VVdouble vvPP(pSPL->getPosteriorProbabilitiesPerClass());
 
-    cerr << "vvppp" << std::endl;
-    
     for (size_t i = 0; i < sites->getNumberOfSites(); i++)
     {
-      std::cerr << i << endl;
       double lnL = phyloLike.getLogLikelihoodForASite(i);
-      std::cerr << "lok" << endl;
       
       const CruxSymbolListSite& currentSite = sites->getSymbolListSite(i);
       int currentSitePosition = currentSite.getPosition();

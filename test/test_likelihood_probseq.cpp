@@ -63,7 +63,7 @@ knowledge of the CeCILL license and that you accept its terms.
 using namespace bpp;
 using namespace std;
 
-void fitModelHSR(SubstitutionModel* model, DiscreteDistribution* rdist,
+void fitModelHSR(std::shared_ptr<SubstitutionModel> model, DiscreteDistribution* rdist,
                  const Tree& tree, const ParametrizablePhyloTree&  new_tree,
                  const ProbabilisticSiteContainer& sites,
                  double initialValue, double finalValue)
@@ -122,7 +122,7 @@ void fitModelHSR(SubstitutionModel* model, DiscreteDistribution* rdist,
   
   ApplicationTools::startTimer();
   
-  unique_ptr<RateAcrossSitesSubstitutionProcess> process(new RateAcrossSitesSubstitutionProcess(model->clone(), rdist->clone(), new_tree.clone()));
+  unique_ptr<RateAcrossSitesSubstitutionProcess> process(new RateAcrossSitesSubstitutionProcess(std::shared_ptr<SubstitutionModel>(model->clone()), rdist->clone(), new_tree.clone()));
 
   dataflow::Context context;                        
   auto lik = std::make_shared<dataflow::LikelihoodCalculationSingleProcess>(context, sites, *process);
@@ -182,7 +182,7 @@ void fitModelHSR(SubstitutionModel* model, DiscreteDistribution* rdist,
   tlop.getParameters().printParameters(cout);
 
 
-  process.reset(new RateAcrossSitesSubstitutionProcess(model->clone(), rdist->clone(), new_tree.clone()));  
+  process.reset(new RateAcrossSitesSubstitutionProcess(model, rdist->clone(), new_tree.clone()));  
   lik.reset(new dataflow::LikelihoodCalculationSingleProcess(context, sites, *process));
   newTl.reset(new dataflow::SingleProcessPhyloLikelihood_DF(context, lik, lik->getParameters()));
 
@@ -214,11 +214,11 @@ int main() {
   VectorProbabilisticSiteContainer sites(alphabet);
   pasta.readAlignment("exemple1.pa",sites);
   
-  unique_ptr<SubstitutionModel> model(new T92(alphabet, 3.));
+  shared_ptr<SubstitutionModel> model(new T92(alphabet, 3.));
   unique_ptr<DiscreteDistribution> rdist(new ConstantRateDistribution());
   try {
     cout << "Testing Single Tree Traversal likelihood class..." << endl;
-    fitModelHSR(model.get(), rdist.get(), *tree, *pTree, sites, 222.26297478, 215.7976882);
+    fitModelHSR(model, rdist.get(), *tree, *pTree, sites, 222.26297478, 215.7976882);
   } catch (Exception& ex) {
     cerr << ex.what() << endl;
     return 1;

@@ -64,7 +64,7 @@ private:
   mutable std::unique_ptr<ComputingTree> computingTree_;
 
 public:
-  SimpleSubstitutionProcess(TransitionModel* model, ParametrizablePhyloTree* tree);
+  SimpleSubstitutionProcess(std::shared_ptr<TransitionModel> model, ParametrizablePhyloTree* tree);
 
   SimpleSubstitutionProcess(const SimpleSubstitutionProcess& ssp);
 

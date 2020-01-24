@@ -62,8 +62,11 @@ namespace bpp
   public:
     /**
      * @brief A vector<int> where all elements are different and in
-     * increasing order.
+     * INCREASING ORDER. So inclusion should be done through dedicated
+     * methods.
+     *
      */
+    
     class PathNode : public Vuint
     {
     public:
@@ -212,7 +215,7 @@ namespace bpp
      *  the numbers are valid.
      *
      * @param mMod the mixed model
-     * @param vnS vector of numbers of the submodels
+     * @param vnS vector of indexes of the submodels
      */
 
     void setModel(std::shared_ptr<MixedTransitionModel> mMod, const Vuint& vnS);
@@ -313,7 +316,15 @@ namespace bpp
     
     bool hasModel(std::shared_ptr<MixedTransitionModel> mMod) const
     { return mModPath_.find(mMod)!=mModPath_.end(); }
-    
+
+    bool hasModel(const MixedTransitionModel* mMod) const
+    {
+      for (const auto& mn:mModPath_)
+        if (mn.first.get()==mMod)
+          return true;
+      return false;
+    }
+
     /**
      * @brief gets the pathnode associated with a model
      *
@@ -322,6 +333,14 @@ namespace bpp
     
     const PathNode& getPathNode(std::shared_ptr<MixedTransitionModel> mMod) const
     { return mModPath_.at(mMod); }
+
+    const PathNode& getPathNode(const MixedTransitionModel* mMod) const
+    {
+      for (const auto& mn:mModPath_)
+        if (mn.first.get()==mMod)
+          return mn.second;
+      throw Exception("ModelPath::getPathNode : unknown model " + mMod->getName());
+    }
 
     /**
      * @brief gets the MixedTransitionModel used in the ModelPath

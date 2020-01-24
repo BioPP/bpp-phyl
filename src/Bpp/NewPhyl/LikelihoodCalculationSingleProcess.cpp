@@ -151,31 +151,6 @@ void LikelihoodCalculationSingleProcess::makeProcessNodes(ParameterList& paramLi
     processNodes_.ratesNode_ = ConfiguredParametrizable::createConfigured<DiscreteDistribution, ConfiguredDistribution>(context_, *rates, paramList, suff);
 
 
-  /////////////////
-  // model nodes
-
-  
-  // auto vnMod=process_.getModelNumbers();
-        
-  // ModelMap modelmap;
-
-  // for (auto nMod:vnMod)
-  // {    
-  //   auto modelNode = ConfiguredParametrizable::createConfigured<TransitionModel, ConfiguredModel>(context_, *process_.getModel(nMod), paramList, "_"+ TextTools::toString(nMod));
-
-  //   const auto mtm=dynamic_cast<const MixedTransitionModel*>(process_.getModel(nMod));
-
-  //   std::vector<size_t> nsubmod(mtm?mtm->getNumberOfModels():0);
-  //   std::iota (std::begin(nsubmod), std::end(nsubmod), 0);
-
-  //   // assign model to branche id
-  //   std::vector<uint> vId=process_.getNodesWithModel(nMod);
-  //   ModelAssign mass(modelNode, nsubmod);
-    
-  //   for (auto id:vId)
-  //     modelmap.emplace(id, mass);
-  // }
-
   ///////
   // tree node
   suff=spcm?("_"+TextTools::toString(spcm->getTreeNumber())):"";
@@ -223,8 +198,17 @@ void LikelihoodCalculationSingleProcess::setNumericalDerivateConfiguration(doubl
   for (auto& it: vpn)
   {
     auto mN=it->getModel();
-    mN->config.delta = deltaNode;
-    mN->config.type = config;
+    if (mN)
+    {
+      mN->config.delta = deltaNode;
+      mN->config.type = config;
+    }
+
+    // auto pN=it->getProba();
+    // {
+    //   pN->config.delta = deltaNode;
+    //   pN->config.type = config;
+    // }
   }
 
   ///////////////////////////
@@ -254,11 +238,14 @@ void LikelihoodCalculationSingleProcess::setClockLike(double rate)
   {
     auto cp=it->getBrLen();
 
-    auto mulref = CWiseMul<double, std::tuple<double, double>>::create (context_, {cp->dependency(0), rateRef}, Dimension<double>());
+    if (cp)
+    {
+      auto mulref = CWiseMul<double, std::tuple<double, double>>::create (context_, {cp->dependency(0), rateRef}, Dimension<double>());
 
-    auto cp2=ConfiguredParameter::resetDependencies(context_, cp, {mulref});
+      auto cp2=ConfiguredParameter::resetDependencies(context_, cp, {mulref});
   
-    it->setBrLen(cp2);
+      it->setBrLen(cp2);
+    }
   }
 
   // Remove all BrLen parameters
@@ -416,13 +403,15 @@ void LikelihoodCalculationSingleProcess::makeLikelihoodAtRoot_()
 
 // We want -log(likelihood)
   likelihood_ = CWiseNegate<double>::create (context_, {totalLogLikelihood}, Dimension<double> ());
+  
+  //using bpp::dataflow::DotOptions;
+  writeGraphToDot("likelihood.dot", {likelihood_.get()});
+
 }
 
 
 ValueRef<double> LikelihoodCalculationSingleProcess::makeLikelihoodsAtNode_(uint speciesId)
 {
-  cerr << "makeLikelihoodsAtNode_ " << speciesId << endl;
-  
   if (vRateCatTrees_.size()==0)
     makeForwardLikelihoodTree_();
   
@@ -447,29 +436,20 @@ ValueRef<double> LikelihoodCalculationSingleProcess::makeLikelihoodsAtNode_(uint
       
   for (auto& rateCat: vRateCatTrees_)
   {
-    cerr << "rateCat" << endl;
     if (!rateCat.blt)
       rateCat.blt=std::make_shared<BackwardLikelihoodTree>(context_, rateCat.flt, rateCat.phyloTree, rFreqs_, stateMap, nbSite);
 
-    cerr << "backwardlikelihoodtree" << endl;
-    
     if (!rateCat.clt)
       rateCat.clt=std::make_shared<ConditionalLikelihoodTree>(rateCat.flt->getGraph());
 
-    cerr << "conditionallikelihoodtree" << endl;
     if (!rateCat.lt)
       rateCat.lt=std::make_shared<SiteLikelihoodsTree>(processTree->getGraph());
 
-    cerr << "sitelikelihoodstree" << endl;
-
-    cerr << "speciesId " << speciesId << endl;
-    
     auto& dagIndexes = rateCat.flt->getDAGNodesIndexes(speciesId);
     std::vector<std::shared_ptr<Node>> vCond;
     
     for (const auto& index : dagIndexes)
     {
-      cerr << "index " << index << endl;
       auto condAbove = rateCat.blt->getBackwardLikelihoodArray(index);
       auto condBelow = rateCat.flt->getForwardLikelihoodArray(index);
       

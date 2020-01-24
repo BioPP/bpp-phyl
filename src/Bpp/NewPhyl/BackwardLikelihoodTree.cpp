@@ -47,7 +47,6 @@ using namespace std;
 
 BackwardLikelihoodAboveRef BackwardLikelihoodTree::makeBackwardLikelihoodAtEdge (PhyloTree::EdgeIndex edgeIndex)
 {
-  cerr << "makeBackwardAboveLikelihoodEdge " << edgeIndex << endl;
   if (!forwardTree_)
     throw Exception("BackwardLikelihoodTree::makeBackwardLikelihoodAtEdge: forwardTree_ is missing.");
 
@@ -87,17 +86,17 @@ BackwardLikelihoodAboveRef BackwardLikelihoodTree::makeBackwardLikelihoodAtEdge 
     throw Exception("BackwardLikelihoodTree::makeBackwardLikelihoodAtEdge : event not recognized for node " + TextTools::toString(fatherProcess->getSpeciesIndex()));
 
   // put object in the tree
-  associateEdge(backwardEdge, forwardTree_->getEdgeGraphid(edgeForward));
-  setEdgeIndex(backwardEdge, edgeIndex);
-  writeGraphToDot("backwardEdge_"+TextTools::toString(edgeIndex)+".dot",{backwardEdge.get()});
-  cerr << "makebackwardabovelikelihoodedge " << edgeIndex << endl;
+  if (!hasEdge(backwardEdge))
+  {
+    associateEdge(backwardEdge, forwardTree_->getEdgeGraphid(edgeForward));
+    setEdgeIndex(backwardEdge, edgeIndex);
+  }
   return backwardEdge;
 }
 
 
 ConditionalLikelihoodRef BackwardLikelihoodTree::makeBackwardLikelihoodAtNode (PhyloTree::NodeIndex nodeIndex)
 {
-  cerr << "makeConditionalAboveLikelihoodNode "  << nodeIndex << endl;
   if (!forwardTree_)
     throw Exception("BackwardLikelihoodTree::makeBackwardLikelihoodAtNode: forwardTree_ is missing.");
 
@@ -168,8 +167,6 @@ ConditionalLikelihoodRef BackwardLikelihoodTree::makeBackwardLikelihoodAtNode (P
     setNodeIndex(backwardNode, nodeIndex);
   }
 
-  writeGraphToDot("backwardNode_"+TextTools::toString(nodeIndex)+".dot",{backwardNode.get()});
-  cerr << "makeconditionalabovelikelihoodnode " << nodeIndex << endl;
   return backwardNode;
 }
 

@@ -269,7 +269,7 @@ namespace bpp
      *
      */
    
-    void setModelScenario(std::shared_ptr<ModelScenario> modelpath);
+    void setModelScenario(std::shared_ptr<ModelScenario> modelscenario);
 
     std::vector<size_t> getModelNumbers() const
     {
@@ -361,7 +361,7 @@ namespace bpp
      * </ul>
      */
 
-    void addModel(TransitionModel* model, const std::vector<unsigned int>& nodesId);
+    void addModel(std::shared_ptr<TransitionModel> model, const std::vector<unsigned int>& nodesId);
 
     /**
      * @brief Change a given model.
@@ -374,8 +374,8 @@ namespace bpp
      * @param modelIndex The index of the existing model to replace.
      */
 
-    void setModel(TransitionModel* model, size_t modelIndex);
-
+    void setModel(std::shared_ptr<TransitionModel> model, size_t modelIndex);
+    
     /**
      * @brief Associate an existing model with a given node.
      *
@@ -620,13 +620,15 @@ namespace bpp
      *        (0 if stationary).
      * 
      * @param tree      The tree to use for the construction of the set.
+     * @param scenario (optional) the scenario used (in case of Mixed Models)
      */
     
     static NonHomogeneousSubstitutionProcess* createHomogeneousSubstitutionProcess(
-      TransitionModel* model,
+      std::shared_ptr<TransitionModel> model,
       DiscreteDistribution* rdist,
+      ParametrizablePhyloTree* tree,
       FrequenciesSet* rootFreqs,
-      ParametrizablePhyloTree* tree
+      std::shared_ptr<ModelScenario> scenario = 0
       );
 
     /**
@@ -641,13 +643,17 @@ namespace bpp
      * @param tree                 The tree to use for the construction of the set.
      * @param globalParameterNames Common parameters for all branches.
      * All other parameters will be considered distinct for all branches.
+     *
+     * @param scenario (optional) the scenario used (in case of Mixed Models)
      */
+    
     static NonHomogeneousSubstitutionProcess* createNonHomogeneousSubstitutionProcess(
-      TransitionModel* model,
+      std::shared_ptr<TransitionModel> model,
       DiscreteDistribution* rdist,
-      FrequenciesSet* rootFreqs,
       ParametrizablePhyloTree* tree,
-      const std::vector<std::string>& globalParameterNames
+      FrequenciesSet* rootFreqs,
+      const std::vector<std::string>& globalParameterNames,
+      std::shared_ptr<ModelScenario> scenario = 0
       );
     
 

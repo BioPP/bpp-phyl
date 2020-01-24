@@ -42,7 +42,7 @@
 using namespace bpp;
 using namespace std;
 
-SimpleSubstitutionProcess::SimpleSubstitutionProcess(TransitionModel* model, ParametrizablePhyloTree* tree) :
+SimpleSubstitutionProcess::SimpleSubstitutionProcess(std::shared_ptr<TransitionModel> model, ParametrizablePhyloTree* tree) :
   AbstractParameterAliasable(""),
   AbstractSubstitutionProcess(tree, 1, model ? model->getNamespace() : ""),
   model_(model),
@@ -93,7 +93,10 @@ SimpleSubstitutionProcess& SimpleSubstitutionProcess::operator=(const SimpleSubs
 void SimpleSubstitutionProcess::setModelScenario(std::shared_ptr<ModelScenario> modelpath)
 {
   auto vmod=modelpath->getModels();
-  
+
+  if (vmod.size()==0) // as if no scenario
+    return; 
+
   if (vmod.size()!=1)
     throw Exception("SimpleSubstitutionProcess::setModelPath: model path must have exactly one model.");
   

@@ -76,7 +76,7 @@ int main() {
   const NucleicAlphabet* alphabet = &AlphabetTools::DNA_ALPHABET;
   FrequenciesSet* rootFreqs = new GCFrequenciesSet(alphabet);
   
-  SubstitutionModel* model = new T92(alphabet, 3.);
+  auto model = std::make_shared<T92>(alphabet, 3.);
   std::map<std::string, std::vector<Vint>> globalParameterVectors;
   globalParameterVectors["T92.kappa"]=std::vector<Vint>();
 
@@ -86,18 +86,18 @@ int main() {
   
   FrequenciesSet* rootFreqs2 = rootFreqs->clone();
   DiscreteDistribution* rdist2 = rdist->clone();
-  SubstitutionModel* model2=model->clone();
+  std::shared_ptr<SubstitutionModel> model2(model->clone());
 
   map<string, string> alias;
 
-  SubstitutionModelSet* modelSet = SubstitutionModelSetTools::createNonHomogeneousModelSet(model, rootFreqs, tree, alias, globalParameterVectors);
+  SubstitutionModelSet* modelSet = SubstitutionModelSetTools::createNonHomogeneousModelSet(model.get(), rootFreqs, tree, alias, globalParameterVectors);
 
   unique_ptr<SubstitutionModelSet> modelSetSim(modelSet->clone());
 
   std::vector<std::string> globalParameterNames;
   globalParameterNames.push_back("T92.kappa");
 
-  NonHomogeneousSubstitutionProcess* subPro= NonHomogeneousSubstitutionProcess::createNonHomogeneousSubstitutionProcess(model2, rdist2, rootFreqs2, parTree.clone(), globalParameterNames);
+  NonHomogeneousSubstitutionProcess* subPro= NonHomogeneousSubstitutionProcess::createNonHomogeneousSubstitutionProcess(model2, rdist2, parTree.clone(), rootFreqs2, globalParameterNames);
 
   // Simulation
     

@@ -60,6 +60,7 @@ ProcessTree::ProcessTree(Context& context,
   AssociationTreeGlobalGraphObserver<ProcessNode,ProcessEdge>(0), context_(context)
 {
   ProcessComputationTree tree(process);
+
   setGraph(tree.getGraph());
   
   auto vNodes=tree.getAllNodes();
@@ -70,35 +71,54 @@ ProcessTree::ProcessTree(Context& context,
     associateNode(pn, tree.getNodeGraphid(node));
     setNodeIndex(pn, tree.getNodeIndex(node));
   }
-  
+
   // Build the ConfiguredModels from the TransitionModels
 
   auto vnMod=process.getModelNumbers();
         
-  std::map<size_t, std::shared_ptr<ConfiguredModel>> modelmap;
+  std::map<const TransitionModel*, std::shared_ptr<ConfiguredModel>> modelmap;
 
   for (auto nMod:vnMod)
-    modelmap[nMod] = ConfiguredParametrizable::createConfigured<TransitionModel, ConfiguredModel>(context_, *process.getModel(nMod), parList, "_"+ TextTools::toString(nMod));
-
+  {
+    auto mod=process.getModel(nMod);
+    modelmap[mod] = ConfiguredParametrizable::createConfigured<TransitionModel, ConfiguredModel>(context_, *mod, parList, "_"+ TextTools::toString(nMod));
+  }
 
   // Assign References on all branches
-  
+
   auto vEdges=tree.getAllEdges();
+
+  const auto partree = process.getParametrizablePhyloTree();
 
   for (const auto& edge:vEdges)
   {
+    std::shared_ptr<ProcessEdge> brref;
+
     auto id=tree.getEdgeGraphid(edge);
-    uint spIndex=edge->getSpeciesIndex(); // index of the edge that
-                                        // represents the index in the
+    uint spIndex=edge->getSpeciesIndex(); // index of the matching
+                                          // edge in the
                                         // ParametrizablePhyloTree
-    auto pmodel = modelmap[process.getModelNumberForNode(spIndex)];
+
+    auto model=edge->getModel();
+    if (!model) // ie empty branch
+    {
+      brref=make_shared<ProcessEdge>(spIndex, nullptr);
+      associateEdge(brref, id);
+      setEdgeIndex(brref,tree.getEdgeIndex(edge));
+      continue;
+    }
+    
+    auto modelit=modelmap.find(model);
+    if (modelit==modelmap.end())
+      throw Exception("ProcessTree::ProcessTree : Model unknown " + model->getName() + "  for node " + TextTools::toString(spIndex));
+    
+    std::shared_ptr<ConfiguredModel> pmodel= modelit->second;
+    
     auto vNb=edge->subModelNumbers();
 
     if (vNb.size()>1)
-      throw Exception("ProcessTree::ProcessTree : only simple submodels are used, not combinations.");
+      throw Exception("ProcessTree::ProcessTree : only simple submodels are used, not combinations. Ask developpers");
     
-    std::shared_ptr<ProcessEdge> brref;
-
     if (!edge->useProb()) // model transition is used
     {
       if (vrefmap.find(spIndex)==vrefmap.end()) // ie there is no branch length
@@ -115,173 +135,18 @@ ProcessTree::ProcessTree(Context& context,
     else // a branch issued from a mixture.
     {
       if (vNb.size()==0)
-        brref=make_shared<ProcessEdge>(spIndex, ConstantOne<double>::create (context_, Dimension<double>()), pmodel);
+        brref=make_shared<ProcessEdge>(spIndex, ConstantOne<double>::create (context_, Dimension<double>()));
       else                         
       {
-        auto nMod=NumericConstant<size_t>::create(context_, vNb[0]); // Only 1st submodel is used
-        auto brprob=ProbabilityFromMixedModel::create(context_, {pmodel}, vNb[0]);
-        brref=make_shared<ProcessEdge>(spIndex, vrefmap.at(spIndex), pmodel, nMod);
+        auto nMod=NumericConstant<size_t>::create(context_, (size_t)vNb[0]); // Only 1st submodel is used
+        auto brprob=ProbabilityFromMixedModel::create(context_, {pmodel}, (size_t)vNb[0]);
+        brref=make_shared<ProcessEdge>(spIndex, brprob);
       }
     }
 
     associateEdge(brref, id);
     setEdgeIndex(brref,tree.getEdgeIndex(edge));
   }
+
 }
 
-
-/*void ProcessTree::buildUnderNode_(const ParametrizablePhyloTree& tree, const BrLenMap& vrefmap, ModelMap& modelmap, shared_ptr<PhyloNode> node, shared_ptr<ProcessNode> newFather, shared_ptr<ProcessEdge> newEdge)
-{
-  // build a new node as a speciation node, and sets all edges below it
-  auto newNode=make_shared<ProcessNode>(*node);
-  addNodeIndex(newNode);
-  createNode(newNode);
-  
-  // Specific case of mixture at root
-  if (!newFather)
-  {
-    newNode->setProba(ConstantOne<double>::create(context_, Dimension<double>()));
-    if (isRooted())
-      rootAt(newNode);
-
-    auto id = tree.getNodeIndex(node);    
-    auto vId = tree.getOutgoingNeighbors(id);
-    ModelAssign* pmodelass(0);
-    
-    // root node is a mixture only if the model is the same in the
-    // outgoing branches.
-    for (auto ids:vId)
-    {
-      if (modelmap.find(ids)==modelmap.end())
-        throw Exception("ProcessTree::buildUnderEdgeFromNode_ missing model on branch " + TextTools::toString(ids));
-      if (!pmodelass)
-        pmodelass=&modelmap[ids];
-      else
-        if (pmodelass->model_!=modelmap[ids].model_)
-        {
-          pmodelass=0;
-          break;
-        }
-    }
-
-    // test is mixture
-    if (pmodelass)
-    {
-      auto model=pmodelass->model_;
-      const auto assign=pmodelass->modelNum_;
-      if (assign.size()>1) // mixture
-      {
-        newNode->setProperty("event",NodeEvent::mixtureEvent);
-        
-        for (const auto ass:assign)
-        {
-          // replace all numbers of model submodels in inheriting
-          // branches
-          ModelMap modelmap2(modelmap);
-          for (auto& id2:modelmap2)
-            if (id2.second.model_==model)
-              id2.second.modelNum_={ass};
-
-          auto nMod=NumericConstant<size_t>::create(context_, ass);
-
-          auto newMixEdge=make_shared<ProcessEdge>(std::shared_ptr<ConfiguredParameter>(0), model, nMod);
-          
-          auto proba=ProbabilityFromMixedModel::create(context_, {model}, ass);
-          newMixEdge->setProba(proba);
-
-          // build subtree for each submodel 
-          buildUnderNode_(tree, vrefmap, modelmap2, node, newNode, newMixEdge);
-        }
-        return;
-      }
-    }
-  }
-  
-  // Otherwise not a mixture node (mixture is handled in
-  // buildUnderEdgeFromNode_)
-  
-  newNode->setProperty("event", NodeEvent::speciationEvent);
-  if (newFather) // no root node
-  {
-    link(newFather, newNode, newEdge);
-    if (newEdge)
-    {
-      addEdgeIndex(newEdge);
-      newNode->setProba(newEdge->getProba());
-    }
-    else 
-      newNode->setProba(newFather->getProba());
-  }
-  
-  // then the edges below
-  auto vEdges=tree.getOutgoingEdges(node);
-  for (const auto& oldEdge:vEdges)
-    buildUnderEdgeFromNode_(tree, vrefmap, modelmap, oldEdge, newNode, newEdge);
-}
-
-void ProcessTree::buildUnderEdgeFromNode_(const ParametrizablePhyloTree& tree, const BrLenMap& vrefmap, ModelMap& modelmap, shared_ptr<PhyloBranchParam> oldEdge, shared_ptr<ProcessNode> newNode, shared_ptr<ProcessEdge> aboveEdge)
-{
-  uint id=tree.getEdgeIndex(oldEdge);
-  
-  if (modelmap.find(id)==modelmap.end())
-    throw Exception("ProcessTree::buildUnderEdgeFromNode_ missing model on branch " + TextTools::toString(id));
-  
-  auto model=modelmap[id].model_;
-  const auto assign=modelmap[id].modelNum_;
-  auto newEdge=make_shared<ProcessEdge>();
-  
-  if (assign.size()<=1)
-  {
-    // speciation node, a length is required
-    newEdge->setModel(model);
-    newEdge->setBrLen(vrefmap.at(id));
-    if (assign.size()==1)
-    {
-      auto nMod=NumericConstant<size_t>::create(context_, assign[0]);
-      newEdge->setNMod(nMod);
-    }
-
-    // set proba equal to the father node proba
-    newEdge->setProba(newNode->getProba());
-    
-    buildUnderNode_(tree, vrefmap, modelmap, tree.getSon(oldEdge), newNode, newEdge);
-  }
-  else
-  {
-    // build a mixture node at distance 0, with edges carrying the submodels
-    auto mixNode=make_shared<ProcessNode>(*newNode, tree.getNodeIndex(tree.getFatherOfEdge(oldEdge)));
-    mixNode->setProperty("event",NodeEvent::mixtureEvent);
-    mixNode->setProba(newEdge->getProba());
-    
-    createNode(mixNode);
-    addNodeIndex(mixNode);
-    link(newNode, mixNode, newEdge);
-    addEdgeIndex(newEdge);
-    
-    for (const auto ass:assign)
-    {
-      // replace all numbers of submodel of model submodel in
-      // inheriting branches
-      ModelMap modelmap2(modelmap);
-      for (auto& id2:modelmap2)
-        if (id2.second.model_==model)
-          id2.second.modelNum_={ass};
-
-      auto nMod=NumericConstant<size_t>::create(context_, ass);
-      auto newMixEdge=make_shared<ProcessEdge>(vrefmap.at(id), model, nMod);
-
-      ValueRef<double> proba=ProbabilityFromMixedModel::create(context_, {model}, ass);
-      // if a mixture inside a mixture
-      if (aboveEdge && aboveEdge->getProba())
-      {
-        NodeRefVec deps={proba,aboveEdge->getProba()};
-        
-        proba=CWiseMul<double,std::tuple<double,double>>::create(context_, std::move(deps), Dimension<double>());
-      }
-      newMixEdge->setProba(proba);
-      
-      buildUnderNode_(tree, vrefmap, modelmap2, tree.getSon(oldEdge), mixNode, newMixEdge);
-    }
-  }
-}
-*/

@@ -74,11 +74,11 @@ int main() {
   //-------------
 
   NucleicAlphabet* alphabet = new DNA();
-  ReversibleSubstitutionModel* model = new GTR(alphabet, 1, 0.2, 0.3, 0.4, 0.4, 0.1, 0.35, 0.35, 0.2);
+  auto model = std::make_shared<GTR>(alphabet, 1, 0.2, 0.3, 0.4, 0.4, 0.1, 0.35, 0.35, 0.2);
 //  DiscreteDistribution* rdist = new ConstantDistribution(1);
   DiscreteDistribution* rdist = new GammaDiscreteDistribution(4, 0.4, 0.4);
   std::shared_ptr<ParametrizablePhyloTree> pTree(new ParametrizablePhyloTree(*new_tree));
-  unique_ptr<RateAcrossSitesSubstitutionProcess> process(new RateAcrossSitesSubstitutionProcess(model->clone(), rdist->clone(), pTree->clone()));
+  unique_ptr<RateAcrossSitesSubstitutionProcess> process(new RateAcrossSitesSubstitutionProcess(model, rdist->clone(), pTree->clone()));
 
   SimpleSubstitutionProcessSequenceSimulator simulator(*process);
   
@@ -128,7 +128,7 @@ int main() {
   RecursiveLikelihoodTreeCalculation* rltc=dynamic_cast<RecursiveLikelihoodTreeCalculation*>(newTl.getLikelihoodCalculation());
   
   
-  SubstitutionCount* sCountAna = new LaplaceSubstitutionCount(model, 10);
+  SubstitutionCount* sCountAna = new LaplaceSubstitutionCount(model.get(), 10);
   Matrix<double>* m = sCountAna->getAllNumbersOfSubstitutions(0.001, 1);
   cout << "Analytical (Laplace) total count:" << endl;
   MatrixTools::print(*m);
@@ -139,7 +139,7 @@ int main() {
   cout << endl;
 
   //Simple:
-  SubstitutionCount* sCountTot = new NaiveSubstitutionCount(model, totReg);
+  SubstitutionCount* sCountTot = new NaiveSubstitutionCount(model.get(), totReg);
   m = sCountTot->getAllNumbersOfSubstitutions(0.001,1);
   cout << "Simple total count:" << endl;
   MatrixTools::print(*m);
@@ -148,7 +148,7 @@ int main() {
     SubstitutionMappingTools::computeCounts(*rltc, *sCountTot);
   cout << endl;
 
-  SubstitutionCount* sCountDet = new NaiveSubstitutionCount(model, detReg);
+  SubstitutionCount* sCountDet = new NaiveSubstitutionCount(model.get(), detReg);
   m = sCountDet->getAllNumbersOfSubstitutions(0.001,1);
   cout << "Detailed count, type 1:" << endl;
   MatrixTools::print(*m);
@@ -158,7 +158,7 @@ int main() {
   cout << endl;
 
   //Decomposition:
-  SubstitutionCount* sCountDecTot = new DecompositionSubstitutionCount(model, totReg);
+  SubstitutionCount* sCountDecTot = new DecompositionSubstitutionCount(model.get(), totReg);
   m = sCountDecTot->getAllNumbersOfSubstitutions(0.001,1);
   cout << "Total count, decomposition method:" << endl;
   MatrixTools::print(*m);
@@ -166,7 +166,7 @@ int main() {
   ProbabilisticSubstitutionMapping* probNEWMapDecTot = 
     SubstitutionMappingTools::computeCounts(*rltc, *sCountDecTot);
 
-  SubstitutionCount* sCountDecDet = new DecompositionSubstitutionCount(model, detReg);
+  SubstitutionCount* sCountDecDet = new DecompositionSubstitutionCount(model.get(), detReg);
   m = sCountDecDet->getAllNumbersOfSubstitutions(0.001,1);
   cout << "Detailed count, decomposition method, type 1:" << endl;
   MatrixTools::print(*m);
@@ -176,7 +176,7 @@ int main() {
   cout << endl;
 
   //Uniformization
-  SubstitutionCount* sCountUniTot = new UniformizationSubstitutionCount(model, totReg);
+  SubstitutionCount* sCountUniTot = new UniformizationSubstitutionCount(model.get(), totReg);
   m = sCountUniTot->getAllNumbersOfSubstitutions(0.001,1);
   cout << "Total count, uniformization method:" << endl;
   MatrixTools::print(*m);
@@ -184,7 +184,7 @@ int main() {
   ProbabilisticSubstitutionMapping* probNEWMapUniTot = 
     SubstitutionMappingTools::computeCounts(*rltc, *sCountUniTot);  
 
-  SubstitutionCount* sCountUniDet = new UniformizationSubstitutionCount(model, detReg);
+  SubstitutionCount* sCountUniDet = new UniformizationSubstitutionCount(model.get(), detReg);
   m = sCountUniDet->getAllNumbersOfSubstitutions(0.001,1);
   cout << "Detailed count, uniformization method, type 1:" << endl;
   MatrixTools::print(*m);
@@ -275,7 +275,6 @@ int main() {
   
   //-------------
   delete alphabet;
-  delete model;
   delete rdist;
   delete sCountTot;
   delete sCountDet;

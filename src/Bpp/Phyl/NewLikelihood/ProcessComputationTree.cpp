@@ -38,16 +38,18 @@ knowledge of the CeCILL license and that you accept its terms.
 */
 
 #include "ProcessComputationTree.h"
+#include <numeric>
 
 using namespace bpp;
 using namespace std;
 
 ProcessComputationTree::ProcessComputationTree(const SubstitutionProcess& process) :
-  BaseTree(0)
+  BaseTree(0),
+  process_(process)
 {
   const ParametrizablePhyloTree& ptree = process.getParametrizablePhyloTree();
   // if no model scenario, copy the basic tree
-  if (true)//!process.hasModelScenario())
+  if (!process.hasModelScenario())
   {
     setGraph(ptree.getGraph());
     
@@ -72,116 +74,284 @@ ProcessComputationTree::ProcessComputationTree(const SubstitutionProcess& proces
       setEdgeIndex(nedge,index);
     }
 
+    return;
   }
+
+  const auto& scenario=process.getModelScenario();
+
+
+  // Map of the mrca of the MixedTransitionModel split in several paths
+  std::map<std::shared_ptr<MixedTransitionModel>, uint> mMrca;
+
+  auto vMod = scenario.getModels();
+  std::map<std::shared_ptr<MixedTransitionModel>, std::vector<std::shared_ptr<PhyloNode>>> mnodes;
   
-  // const auto scenariModelScenario& scenario,
-                                 
-  // for (size_t i=0;i<modelSet->getNumberOfHyperNodes();i++){
-  //   mvTreeLikelihoods_[tree.getRootId()].push_back(new RNonHomogeneousMixedTreeLikelihood(tree, modelSet, modelSet->getHyperNode(i), upperNode_, rDist, false, usePatterns));
-  // }
+  auto vNodes=ptree.getAllNodes();
 
-  // std::vector<int> vDesc; // vector of the explorated descendents
-
-  // int desc;
-  // vector<int> vn;
+  auto root=ptree.getRoot();
   
-  // size_t nbpath = scenario.getNumberOfModelPaths();
+  // first the nodes that carry the models
+  for (const auto& node:vNodes)
+  {
+    if (node==root)
+      continue;
+    
+    const auto medge = process_.getModelForNode(ptree.getNodeIndex(node));
+    std::shared_ptr<MixedTransitionModel> mok(0);
+    for (const auto& mod:vMod)
+      if (mod.get()==medge)
+      {
+        mok=mod;
+        break;
+      }
+    if (mok==0)
+      continue;
+    
+    if (mnodes.find(mok)==mnodes.end())
+      mnodes[mok]=std::vector<std::shared_ptr<PhyloNode>>();
+    mnodes[mok].push_back(node);
+  }
 
-  // vDesc.push_back(ptree.getRootId()); //
+  // then the mrca
 
-  // while (vDesc.size() != 0)  {
+  for (const auto& mnode:mnodes)
+  {
+    auto nrca=ptree.MRCA(mnode.second);
+    mMrca[mnode.first]=ptree.getNodeIndex(nrca);
+  }
 
-  //   desc = vDesc.back();
-  //   vDesc.pop_back();
+  // Then construcion of the tree
 
-  //   vector<int> vExpMod; // vector of the ids of the MixedModels which
-  //                        // nodes are not in only one subtree under desc
+  auto nroot=std::make_shared<ProcessComputationNode>(*root, ptree.getRootIndex());
+  createNode(nroot);
+  addNodeIndex(nroot);
+  _build_following_scenario(nroot, scenario, mMrca);
 
-  //   vector<int> vson = ptree.getSonsId(desc);
-  //   std::map<int, vector<int> > mdesc; // map of the subtree nodes for
-  //                                      // each son of desc
-  //   for (size_t i = 0; i < vson.size(); i++)
-  //   {
-  //     std::vector<int> vi;
-  //     TreeTools::getNodesId(tree, vson[i], vi);
-  //     mdesc[vson[i]] = vi;
-  //   }
-
-  //   for (size_t i = 0; i < nbmodels; i++)
-  //   {
-  //     const MixedSubstitutionModelSet::HyperNode::Node& node = hyperNode_.getNode(i);
-      
-  //     if (node.size()>1)
-  //     {
-  //       vn = modelSet_->getNodesWithModel(i); // tree nodes associated to model
-
-  //       /* Check if the vn members are in the same subtree */
-  //       size_t flag = 0; // count of the subtrees that have vn members
-  //       std::map<int, vector<int> >::iterator it;
-  //       for (it = mdesc.begin(); it != mdesc.end(); it++)
-  //       {
-  //         for (size_t j = 0; j < it->second.size(); j++)
-  //         {
-  //           if (it->second[j] != it->first)
-  //           {
-  //             if (find(vn.begin(), vn.end(), it->second[j]) != vn.end())
-  //             {
-  //               flag += (find(vn.begin(), vn.end(), it->first) != vn.end()) ? 2 : 1; // check if the son
-  //               // has this model too
-  //               break;
-  //             }
-  //           }
-  //           else if (find(vn.begin(), vn.end(), it->first) != vn.end())
-  //             flag++;
-  //         }
-  //         if (flag >= 2)
-  //           break;
-  //       }
-  //       if (flag >= 2)
-  //         vExpMod.push_back(static_cast<int>(i));  // mixed model that must be expanded
-  //     }
-  //   }
-
-  //   if (vExpMod.size() != 0)
-  //   {
-  //     std::map<int, int> mapmodels;
-  //     size_t ttmodels = 1;
-  //     for (vector<int>::iterator it = vExpMod.begin(); it != vExpMod.end(); it++)
-  //     {
-  //       mapmodels[*it] = static_cast<int>(hyperNode_.getNode(static_cast<size_t>(*it)).size());
-  //       ttmodels *= static_cast<size_t>(mapmodels[*it]);
-  //     }
-
-  //     for (size_t i = 0; i < ttmodels; i++)
-  //     {
-  //       int s = static_cast<int>(i);
-  //       MixedSubstitutionModelSet::HyperNode hn(hyperNode_);
-        
-  //       for (size_t j = 0; j < nbmodels; j++)
-  //       {
-  //         if ((hyperNode_.getNode(j).size() >= 1) && find(vExpMod.begin(), vExpMod.end(), static_cast<int>(j)) != vExpMod.end())
-  //         {
-  //           hn.setModel(j, Vuint(1, hyperNode_.getNode(j)[static_cast<size_t>(s % mapmodels[static_cast<int>(j)])]));
-  //           s /= mapmodels[static_cast<int>(j)];
-  //         }
-  //       }
-  //       hn.setProbability((dynamic_cast<MixedSubstitutionModelSet*>(modelSet_))->getHyperNodeProbability(hn));
-  //       RNonHomogeneousMixedTreeLikelihood* pr;
-
-  //       if (pdata)
-  //         pr = new RNonHomogeneousMixedTreeLikelihood(tree, *pdata, dynamic_cast<MixedSubstitutionModelSet*>(modelSet_), hn, desc, rateDistribution_, false, usePatterns);
-  //       else
-  //         pr = new RNonHomogeneousMixedTreeLikelihood(tree, dynamic_cast<MixedSubstitutionModelSet*>(modelSet_), hn, desc, rateDistribution_, false, usePatterns);
-  //       pr->resetParameters_();
-  //       mvTreeLikelihoods_[desc].push_back(pr);
-  //     }
-  //   }
-  //   else
-  //     for (size_t i = 0; i < vson.size(); i++)
-  //     {
-  //       vDesc.push_back(vson[i]);
-  //     }
-  // }
-
+  rootAt(nroot);
 }
 
+
+void ProcessComputationTree::_build_following_scenario(shared_ptr<ProcessComputationNode> father, const ModelScenario& scenario,  std::map<std::shared_ptr<MixedTransitionModel>, uint>& mMrca)
+{
+  auto spInd = father->getSpeciesIndex();
+  
+  size_t nbpath = scenario.getNumberOfModelPaths();
+
+  const auto& ptree=process_.getParametrizablePhyloTree();
+  
+  std::shared_ptr<MixedTransitionModel> mrca(0); // One MixedModel which is
+  // "split" at father node
+  
+  for (const auto& mod:mMrca)
+  {
+    if (mod.second==spInd)
+    {
+      mrca=mod.first;
+      mMrca.erase(mod.first);
+      break;
+    }
+  }
+  
+
+  if (mrca==0) // it is a speciation node
+  {
+    // set the event
+    father->setProperty("event",NodeEvent::speciationEvent);
+
+    // and then look at the branches
+    auto vbrInd=ptree.getBranches(spInd);
+
+    for (const auto& brInd:vbrInd)
+    {
+      auto sonInd=ptree.getSon(brInd);
+      auto son = ptree.getNode(sonInd);
+      
+      auto modSon=process_.getModelForNode(sonInd);
+
+      auto sonnode=std::make_shared<ProcessComputationNode>(*son, sonInd);
+      createNode(sonnode);
+      addNodeIndex(sonnode);
+
+      // Check if model is a mixture
+      auto mixMod=dynamic_cast<const MixedTransitionModel*>(modSon);
+
+      if (!mixMod) // No mixture, then a branch with a full model
+      {
+        auto nedge=std::make_shared<ProcessComputationEdge>(modSon, sonInd);
+        link(father,sonnode,nedge);
+        addEdgeIndex(nedge);
+        _build_following_scenario(sonnode, scenario, mMrca);
+        continue;
+      }
+
+      // If it is a mixture model, check its decomposition in the modelpaths
+
+      map<Vuint, vector<shared_ptr<ModelPath>>> vMP;
+
+      auto v0=Vuint(); // ie model not seen in the model path      
+      for (size_t i=0; i<nbpath; i++)
+      {
+        auto smp=std::make_shared<ModelPath>(*scenario.getModelPath(i));
+        if (!smp->hasModel(mixMod))
+        {
+          if (vMP.find(Vuint())==vMP.end())
+            vMP[v0]=vector<shared_ptr<ModelPath>>(1,smp);
+          else
+            vMP[v0].push_back(smp);
+          continue;
+        }
+
+        const Vuint np(smp->getPathNode(mixMod));
+        if (vMP.find(np)==vMP.end())
+          vMP[np]=vector<shared_ptr<ModelPath>>(1,smp);
+        else
+          vMP[np].push_back(smp);
+      }
+
+      if (vMP.size()>1) // mixture on edges, build a mixture node
+      {
+        sonnode->setProperty("event", NodeEvent::mixtureEvent);
+
+        auto vedge=std::make_shared<ProcessComputationEdge>(nullptr, sonInd, false);
+        link(father,sonnode,vedge);
+        addEdgeIndex(vedge);
+
+        // and then below sonnode
+        for (auto vmp:vMP)
+        {
+          // edge for proportion
+          auto ssonnode=std::make_shared<ProcessComputationNode>(*son, sonInd);
+          createNode(ssonnode);
+          addNodeIndex(ssonnode);
+          ssonnode->setProperty("event", NodeEvent::speciationEvent);
+          auto ssedge=std::make_shared<ProcessComputationEdge>(mixMod, sonInd, true, vmp.first);
+          link(sonnode, ssonnode, ssedge);
+          addEdgeIndex(ssedge);
+
+          // edge for transition
+          auto s3onnode=std::make_shared<ProcessComputationNode>(*son, sonInd);
+          createNode(s3onnode);
+          addNodeIndex(s3onnode);
+          auto s3edge=std::make_shared<ProcessComputationEdge>(mixMod, sonInd, false, vmp.first);
+          link(ssonnode, s3onnode, s3edge);
+          addEdgeIndex(s3edge);
+
+          if (vmp.second.size()>1)
+          {
+            ModelScenario scen(vmp.second);
+            _build_following_scenario(s3onnode, scen, mMrca);
+          }
+          else
+            _build_following_path(s3onnode, *vmp.second[0]);
+          
+        }
+      }
+      else // all modelpaths agree on this path, no mixture here
+           // (probably done before)
+      {
+        auto beg=vMP.begin();
+        auto nedge=std::make_shared<ProcessComputationEdge>(mixMod, sonInd, false, beg->first);
+        link(father,sonnode,nedge);
+        addEdgeIndex(nedge);
+
+        if (beg->second.size()==1)  // only one path
+          _build_following_path(sonnode, *beg->second[0]);
+        else
+          _build_following_scenario(sonnode, scenario, mMrca);
+
+      }
+    }
+  }
+  else // it is a mixture node
+  {
+    // build the node
+    father ->setProperty("event",NodeEvent::mixtureEvent);
+    
+    // Check decomposition in the modelpaths
+    map<Vuint, vector<shared_ptr<ModelPath>>> vMP;
+
+    auto v0=Vuint(); // ie model not seen in the model path
+    for (size_t i=0; i<nbpath; i++)
+    {
+      auto smp=std::make_shared<ModelPath>(*scenario.getModelPath(i));
+      if (!smp->hasModel(mrca))
+      {
+        if (vMP.find(Vuint())==vMP.end())
+          vMP[v0]=vector<shared_ptr<ModelPath>>(1,smp);
+        else
+          vMP[v0].push_back(smp);
+        continue;
+      }
+
+      const Vuint np(smp->getPathNode(mrca));
+      if (vMP.find(np)==vMP.end())
+        vMP[np]=vector<shared_ptr<ModelPath>>(1,smp);
+      else
+        vMP[np].push_back(smp);
+    }
+    
+    auto node = ptree.getNode(spInd);
+    for (auto vmp:vMP)
+    {
+      auto sonnode=std::make_shared<ProcessComputationNode>(*node, spInd);
+      createNode(sonnode);
+      addNodeIndex(sonnode);
+
+      // edge for proportion
+      auto sedge=std::make_shared<ProcessComputationEdge>(mrca.get(), spInd, true, vmp.first);
+      link(father, sonnode, sedge);
+      addEdgeIndex(sedge);
+
+      if (vmp.second.size()>1)
+      {
+        ModelScenario scen(vmp.second);
+        _build_following_scenario(sonnode, scen, mMrca);
+      }
+      else
+        _build_following_path(sonnode, *vmp.second[0]);
+          
+    }
+  }
+}
+
+void ProcessComputationTree::_build_following_path(shared_ptr<ProcessComputationNode> father, const ModelPath& path)
+{
+  father->setProperty("event",NodeEvent::speciationEvent);
+
+  auto nodeIndex = father->getSpeciesIndex();
+  
+  const auto& ptree=process_.getParametrizablePhyloTree();
+  
+  // and look at the branches
+    
+  auto vbrInd=ptree.getBranches(nodeIndex);
+
+  for (const auto brInd:vbrInd)
+  {
+    // create the son
+    auto sonInd=ptree.getSon(brInd);
+    auto son=ptree.getNode(sonInd);
+    
+    auto sonnode=std::make_shared<ProcessComputationNode>(*son, sonInd);
+    createNode(sonnode);
+    addNodeIndex(sonnode);
+    
+    
+    // then the edge 
+    auto modSon=process_.getModelForNode(sonInd);
+    
+    shared_ptr<ProcessComputationEdge> nedge;
+    const MixedTransitionModel* mixmod=dynamic_cast<const MixedTransitionModel*>(modSon);
+    
+    if (mixmod && path.hasModel(mixmod))
+      nedge=std::make_shared<ProcessComputationEdge>(modSon, sonInd, false, (const Vuint&)path.getPathNode(mixmod));
+    else
+      nedge=std::make_shared<ProcessComputationEdge>(modSon, sonInd);
+    
+    link(father,sonnode,nedge);
+    addEdgeIndex(nedge);
+    
+    _build_following_path(sonnode, path);
+  }
+
+}

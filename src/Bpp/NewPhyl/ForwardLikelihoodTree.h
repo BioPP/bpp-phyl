@@ -164,6 +164,7 @@ namespace bpp
         likelihoodMatrixDim_ = conditionalLikelihoodDimension (nbState_, nbSites_);
         ConditionalLikelihoodForwardRef bidonRoot=ConstantZero<Eigen::MatrixXd>::create(context_, MatrixDimension(1,1));
         createNode(bidonRoot);
+//        setNodeIndex(bidonRoot,processTree_->getNodeIndex(processTree_->getRoot()));
         rootAt(bidonRoot); // for construction, temporary top node for new edges
         auto n = makeForwardLikelihoodAtNode (processTree_->getRoot(), sites);
         rootAt(n);

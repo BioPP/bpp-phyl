@@ -64,12 +64,12 @@ int main() {
   //-------------
 
   NucleicAlphabet* alphabet = new DNA();
-  SubstitutionModel* model = new T92(alphabet, 3.);
+  auto model = std::make_shared<T92>(alphabet, 3.);
   DiscreteDistribution* rdist = new ConstantRateDistribution();
   FrequenciesSet* rootFreqs = new GCFrequenciesSet(alphabet);
   std::vector<std::string> globalParameterNames({"T92.kappa"});
 
-  auto process=NonHomogeneousSubstitutionProcess::createNonHomogeneousSubstitutionProcess(model, rdist, rootFreqs, partree, globalParameterNames);
+  auto process=NonHomogeneousSubstitutionProcess::createNonHomogeneousSubstitutionProcess(model, rdist, partree, rootFreqs, globalParameterNames);
 
   vector<double> thetas;
   for (unsigned int i = 0; i < process->getNumberOfModels(); ++i) {
@@ -131,7 +131,7 @@ int main() {
   }
 
   //Now fit model:
-  auto process2 = process->clone();
+  auto process2 = std::shared_ptr<SubstitutionProcess>(process->clone());
   auto l2 = std::make_shared<bpp::dataflow::LikelihoodCalculationSingleProcess>(context, sites, *process2);
   bpp::dataflow::SingleProcessPhyloLikelihood_DF llh2(context, l2, l2->getParameters());
 
@@ -149,7 +149,6 @@ int main() {
       return 1;
     }
   }
-  delete process2;
 
   //-------------
   delete partree;

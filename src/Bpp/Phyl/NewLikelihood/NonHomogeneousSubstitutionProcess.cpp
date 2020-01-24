@@ -154,15 +154,14 @@ void NonHomogeneousSubstitutionProcess::setModelToNode(size_t modelIndex, unsign
 }
 
  
-void NonHomogeneousSubstitutionProcess::addModel(TransitionModel* model, const std::vector<unsigned int>& nodesId)
+void NonHomogeneousSubstitutionProcess::addModel(std::shared_ptr<TransitionModel> model, const std::vector<unsigned int>& nodesId)
 {
   if (modelSet_.size() > 0 && model->getAlphabet()->getAlphabetType() != modelSet_[0]->getAlphabet()->getAlphabetType())
     throw Exception("NonHomogeneousSubstitutionProcess::addModel. A Substitution Model cannot be added to a Substituion Process if it does not have the same alphabet.");
   if (modelSet_.size() > 0 && model->getNumberOfStates() != modelSet_[0]->getNumberOfStates())
     throw Exception("NonHomogeneousSubstitutionProcess::addModel. A Substitution Model cannot be added to a Substitution Process if it does not have the same number of states.");
 
-  modelSet_.push_back(std::shared_ptr<TransitionModel>(model));
-  
+  modelSet_.push_back(model);
   size_t thisModelIndex = modelSet_.size() - 1;
 
   // Associate this model to specified nodes:
@@ -184,12 +183,11 @@ void NonHomogeneousSubstitutionProcess::addModel(TransitionModel* model, const s
     addParameter_(p);
   }
 
-  computingTree_->addModel(model, nodesId);
+  computingTree_->addModel(model.get(), nodesId);
   computingTree_->checkModelOnEachNode();
 }
 
-
-void NonHomogeneousSubstitutionProcess::setModel(TransitionModel* model, size_t modelIndex)
+void NonHomogeneousSubstitutionProcess::setModel(std::shared_ptr<TransitionModel> model, size_t modelIndex)
 {
   if (modelSet_.size() > 0 && model->getAlphabet()->getAlphabetType() != modelSet_[0]->getAlphabet()->getAlphabetType())
     throw Exception("NonHomogeneousSubstitutionProcess::setModel. A Substitution Model cannot be added to a Substituion Process if it does not have the same alphabet.");
@@ -199,7 +197,7 @@ void NonHomogeneousSubstitutionProcess::setModel(TransitionModel* model, size_t 
   if (modelIndex >= modelSet_.size())
     throw IndexOutOfBoundsException("NonHomogeneousSubstitutionProcess::setModel.", modelIndex, 0, modelSet_.size());
   
-  modelSet_[modelIndex]=std::shared_ptr<TransitionModel>(model);
+  modelSet_[modelIndex]=model;
 
   // Change associate parameters
   ParameterList& pl1=modelParameters_[modelIndex];
@@ -218,7 +216,7 @@ void NonHomogeneousSubstitutionProcess::setModel(TransitionModel* model, size_t 
     addParameter_(p);
   }
 
-  computingTree_->addModel(model, modelToNodes_[modelIndex]);
+  computingTree_->addModel(model.get(), modelToNodes_[modelIndex]);
   computingTree_->checkModelOnEachNode();
 }
 
@@ -329,9 +327,9 @@ bool NonHomogeneousSubstitutionProcess::hasMixedTransitionModel() const
 }
 
    
-void NonHomogeneousSubstitutionProcess::setModelScenario(std::shared_ptr<ModelScenario> modelpath)
+void NonHomogeneousSubstitutionProcess::setModelScenario(std::shared_ptr<ModelScenario> modelscenario)
 {
-  auto vmod=modelpath->getModels();
+  auto vmod=modelscenario->getModels();
 
   for (auto& mod:vmod)
   {
@@ -339,7 +337,7 @@ void NonHomogeneousSubstitutionProcess::setModelScenario(std::shared_ptr<ModelSc
       throw Exception("NonHomogeneousSubstitutionProcess::setModelPath: unknown model " + mod->getName());
   }
   
-  modelScenario_=modelpath;
+  modelScenario_=modelscenario;
 }
 
 
@@ -357,11 +355,11 @@ bool NonHomogeneousSubstitutionProcess::isCompatibleWith(const AlignedValuesCont
 
 
 NonHomogeneousSubstitutionProcess* NonHomogeneousSubstitutionProcess::createHomogeneousSubstitutionProcess(
-  TransitionModel* model,
+  std::shared_ptr<TransitionModel> model,
   DiscreteDistribution* rdist,
+  ParametrizablePhyloTree* tree,
   FrequenciesSet* rootFreqs,
-  ParametrizablePhyloTree* tree
-  )
+  shared_ptr<ModelScenario> scenario)
 {
   // Check alphabet:
   if  (rootFreqs && model->getAlphabet()->getAlphabetType() != rootFreqs->getAlphabet()->getAlphabetType())
@@ -385,21 +383,25 @@ NonHomogeneousSubstitutionProcess* NonHomogeneousSubstitutionProcess::createHomo
   ids.erase(ids.begin() + pos);
 
   modelSet->addModel(model, ids);
+
+  if (scenario)
+    modelSet->setModelScenario(scenario);
+
   return modelSet;
 }
 
 NonHomogeneousSubstitutionProcess* NonHomogeneousSubstitutionProcess::createNonHomogeneousSubstitutionProcess(
-  TransitionModel* model,
+  std::shared_ptr<TransitionModel> model,
   DiscreteDistribution* rdist,
-  FrequenciesSet* rootFreqs,
   ParametrizablePhyloTree* tree,
-  const vector<string>& globalParameterNames
-  )
+  FrequenciesSet* rootFreqs,
+  const vector<string>& globalParameterNames,
+  shared_ptr<ModelScenario> scenario)
 {
   // Check alphabet:
   if (rootFreqs && model->getAlphabet()->getAlphabetType() != rootFreqs->getAlphabet()->getAlphabetType())
     throw AlphabetMismatchException("NonHomogeneousSubstitutionProcess::createNonHomogeneousModelSet()", model->getAlphabet(), rootFreqs->getAlphabet());
-  if (dynamic_cast<MixedTransitionModel*>(model) != NULL)
+  if (dynamic_pointer_cast<MixedTransitionModel>(model) != NULL)
     throw Exception("createNonHomogeneousSubstitutionProcess not yet programmed for mixture models.");
 
   ParameterList globalParameters, branchParameters;
@@ -495,7 +497,7 @@ NonHomogeneousSubstitutionProcess* NonHomogeneousSubstitutionProcess::createNonH
   
   for (i = 0; i < ids.size(); i++)
   {
-    modelSet->addModel(dynamic_cast<TransitionModel*>(model->clone()), vector<unsigned int>(1, ids[i]));
+    modelSet->addModel(shared_ptr<TransitionModel>(model->clone()), vector<unsigned int>(1, ids[i]));
   }
 
   // Now alias all global parameters on all nodes:
@@ -506,6 +508,9 @@ NonHomogeneousSubstitutionProcess* NonHomogeneousSubstitutionProcess::createNonH
     for (size_t nn = 1; nn < ids.size(); nn++)
       modelSet->aliasParameters(pname+"_1",pname+"_"+TextTools::toString(nn+1));
   }
+
+  if (scenario)
+    throw Exception("NonHomogeneousSubstitutionProcess::createNonHomogeneousModelSet : setModelScenario(scenario) to be fixed.");
 
   // Defines the hypernodes if mixed
   // if (mixed)

@@ -102,8 +102,8 @@ int main() {
   Vuint vP1m1(&P1[0], &P1[4]);
   Vuint vP1m2(&P1[4], &P1[sizeof(P1)/sizeof(P1[0])]);
 
-  subPro1->addModel(model1->clone(),vP1m1);
-  subPro1->addModel(model2->clone(),vP1m2);
+  subPro1->addModel(std::shared_ptr<T92>(model1->clone()),vP1m1);
+  subPro1->addModel(std::shared_ptr<T92>(model2->clone()),vP1m2);
   
   // Second Process
 
@@ -113,16 +113,16 @@ int main() {
   Vuint vP2m1(&P2[0], &P2[5]);
   Vuint vP2m2(&P2[5], &P2[sizeof(P2)/sizeof(P2[0])]);
 
-  subPro2->addModel(model1->clone(),vP2m1);
-  subPro2->addModel(model3->clone(),vP2m2);
+  subPro2->addModel(std::shared_ptr<T92>(model1->clone()),vP2m1);
+  subPro2->addModel(std::shared_ptr<T92>(model3->clone()),vP2m2);
 
   // Similar Collection Process
 
   SubstitutionProcessCollection* modelColl=new SubstitutionProcessCollection();
   
-  modelColl->addModel(model1, 1);
-  modelColl->addModel(model2, 2);
-  modelColl->addModel(model3, 3);
+  modelColl->addModel(std::shared_ptr<T92>(model1), 1);
+  modelColl->addModel(std::shared_ptr<T92>(model2), 2);
+  modelColl->addModel(std::shared_ptr<T92>(model3), 3);
   modelColl->addFrequencies(rootFreqs, 1);
   modelColl->addDistribution(rdist1, 1);
   modelColl->addDistribution(rdist2, 2);

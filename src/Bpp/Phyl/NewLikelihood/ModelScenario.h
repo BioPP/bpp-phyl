@@ -124,6 +124,10 @@ public:
 
   ~ModelScenario(){};
 
+  ModelScenario(std::vector<std::shared_ptr<ModelPath> > vModelPaths) :
+    vModelPaths_(vModelPaths)
+  {}
+
   ModelScenario(const ModelScenario& set) :
     vModelPaths_(set.vModelPaths_)
   {}
@@ -190,25 +194,17 @@ public:
 
   size_t getNumberOfModelPaths() const { return vModelPaths_.size(); }
 
-  ModelPath& getModelPath(size_t i) {return *vModelPaths_[i]; }
+  std::shared_ptr<ModelPath> getModelPath(size_t i) {return vModelPaths_[i]; }
 
-  const ModelPath& getModelPath(size_t i) const {return *vModelPaths_[i]; }
+  std::shared_ptr<const ModelPath> getModelPath(size_t i) const {return vModelPaths_[i]; }
 
-  std::vector<std::shared_ptr<MixedTransitionModel>> getModels() const
-  {
-    std::vector<std::shared_ptr<MixedTransitionModel>> models;
-
-    for (const auto& mp:vModelPaths_)
-    {
-      auto vmodel=mp->getModels();
-      for (auto& model:vmodel)
-        if (std::find(models.begin(),models.end(),model)==models.end())
-          models.push_back(model);
-    }
-
-    return models;
-  }
-
+  /*
+   * @brief return models found in several paths
+   *
+   */
+ 
+  std::vector<std::shared_ptr<MixedTransitionModel>> getModels() const;
+ 
   /*
    *@brief Checks if all the path (ie hypernodes) are exclusive.
    *
@@ -256,7 +252,7 @@ public:
    *
    */
 
-  void makeComputingTree() const;
+//  void makeComputingTree() const;
   // a revoir
 //  double getModelPathProbability(const ModelPath& hn) const;
 };

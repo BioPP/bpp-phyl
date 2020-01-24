@@ -158,9 +158,7 @@ namespace bpp
        */
 
       ProcessEdge(uint speciesIndex,
-                  ValueRef<double> brprob,
-                  std::shared_ptr<ConfiguredModel> model,
-                  std::shared_ptr<NumericConstant<size_t>> nMod=0) : speciesIndex_(speciesIndex), brlen_(0), model_(model), nMod_(nMod), brprob_(brprob){};
+                  ValueRef<double> brprob) : speciesIndex_(speciesIndex), brlen_(0), model_(0), nMod_(0), brprob_(brprob){};
 
       /*
        * @brief Copy construction

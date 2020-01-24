@@ -78,31 +78,35 @@ ForwardLikelihoodBelowRef ForwardLikelihoodTree::makeForwardLikelihoodAtEdge (sh
       context_, {transitionMatrix, childConditionalLikelihood}, likelihoodMatrixDim_);
   }
   else if (brprob)
+  {
     forwardEdge = ForwardProportion::create(
       context_, {brprob, childConditionalLikelihood}, likelihoodMatrixDim_);
-  else
-    throw Exception("ForwardLikelihoodTree::makeForwardLikelihoodAtEdge : missing information on edge " + processEdge->getSpeciesIndex());
+  }
+  else // junction branch above a mixture node
+  {
+    forwardEdge = childConditionalLikelihood;
+  }
+
   
   if (!hasEdgeIndex(forwardEdge)) // ie this edge does not exist before
   {
     // false (root) top-node of the edge (only way to build an edge in
     // the DAG). Correct top-node will be set afterwards.
-    
+
+
     link(getRoot(),childConditionalLikelihood,forwardEdge);
     setEdgeIndex(forwardEdge, processTree_->getEdgeIndex(processEdge)); // gets the index of the corresponding branch in the processTree_
   }
+
   return forwardEdge;
 }
 
 ConditionalLikelihoodForwardRef ForwardLikelihoodTree::makeForwardLikelihoodAtNode (shared_ptr<ProcessNode> processNode, const AlignedValuesContainer & sites)
-{
+{  
   const auto childBranches = processTree_->getBranches (processNode);
-  const auto nbChildren = childBranches.size();
 
   auto spIndex=processNode->getSpeciesIndex();
 
-  cerr << "makeForwardLikelihoodAtNode " << spIndex << endl;
-  
   ConditionalLikelihoodForwardRef forwardNode;
 
   if (childBranches.empty ())
@@ -120,12 +124,12 @@ ConditionalLikelihoodForwardRef ForwardLikelihoodTree::makeForwardLikelihoodAtNo
   else {
     // depE are edges used to link ForwardLikelihoodTree edges to this
     // node
-    std::vector<ForwardLikelihoodBelowRef> depE(nbChildren);
+    std::vector<ForwardLikelihoodBelowRef> depE(childBranches.size());
   
-    NodeRefVec deps(nbChildren);
+    NodeRefVec deps(childBranches.size());;
     for (size_t i = 0; i < childBranches.size (); ++i) {
-      depE[i] = makeForwardLikelihoodAtEdge (childBranches[i], sites);
-      deps[i] = depE[i];
+      depE[i]=makeForwardLikelihoodAtEdge (childBranches[i], sites);
+      deps[i]=depE[i];
     }
 
     if (processNode->isSpeciation())
@@ -136,7 +140,6 @@ ConditionalLikelihoodForwardRef ForwardLikelihoodTree::makeForwardLikelihoodAtNo
                                                        likelihoodMatrixDim_);
     else
       throw Exception("ForwardLikelihoodTree::makeConditionalLikelihoodAtNode : event not recognized for node " + TextTools::toString(processNode->getSpeciesIndex()));
-
 
     // Fix the DAG 
     if (!hasNodeIndex(forwardNode)) 
@@ -163,20 +166,17 @@ ConditionalLikelihoodForwardRef ForwardLikelihoodTree::makeForwardLikelihoodAtNo
         mapIndexes_[spIndex].push_back(getNodeIndex(forwardNode));
       }
     
-      for (size_t i = 0; i < childBranches.size (); ++i)
+      for (size_t i = 0; i < depE.size (); ++i)
       {
         auto fs=getNodes(depE[i]);
         // fix the top node of the edge (because it was set to bidon
-        // in edge construction
         unlink(fs.first,fs.second);
         link(forwardNode, fs.second, depE[i]);
       }
     }
     
   }
-
   
-  writeGraphToDot("forwardNode_"+TextTools::toString(getNodeIndex(forwardNode))+".dot",{forwardNode.get()});
   return(forwardNode);
 }
 

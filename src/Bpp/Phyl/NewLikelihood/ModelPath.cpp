@@ -43,6 +43,9 @@
 using namespace bpp;
 using namespace std;
 
+#include <Bpp/Phyl/Model/AbstractBiblioMixedTransitionModel.h>
+#include <Bpp/Phyl/Model/MixtureOfTransitionModels.h>
+#include <Bpp/Phyl/Model/MixtureOfATransitionModel.h>
 
 ModelPath::ModelPath(const ModelPath& hn) :
   mModPath_(hn.mModPath_),
@@ -62,7 +65,9 @@ void ModelPath::setModel(std::shared_ptr<MixedTransitionModel> mMod, const Vuint
 {
   if (vnS.size()==0)
     return;
-  mModPath_[mMod] = vnS;
+  mModPath_[mMod] = PathNode();
+  mModPath_[mMod].insertN(vnS);
+  
   if (mModPath_[mMod].back() >= mMod->getNumberOfModels())
     throw IndexOutOfBoundsException("ModelPath::setModel. Bad submodel number in mixed model", mModPath_[mMod].back(), 0, mMod->getNumberOfModels()-1);
 }
@@ -84,9 +89,9 @@ void ModelPath::changeModel(std::shared_ptr<MixedTransitionModel> mMod1,
 void ModelPath::addToModel(std::shared_ptr<MixedTransitionModel> mMod, const Vuint& vnS)
 {
   if (mModPath_.find(mMod)==mModPath_.end())
-    mModPath_[mMod] = vnS;
-  else    
-    mModPath_[mMod].insertN(vnS);
+    mModPath_[mMod] = PathNode();
+  
+  mModPath_[mMod].insertN(vnS);
   
   if (mModPath_.size()>0 && mModPath_[mMod].back() >= mMod->getNumberOfModels())
     throw IndexOutOfBoundsException("ModelPath::addToModel. Bad submodel number in mixed model", mModPath_[mMod].back(), 0, mMod->getNumberOfModels()-1);
@@ -179,7 +184,37 @@ std::string ModelPath::to_string() const
   {
     if (!deb)
       output += "&";
-    output += mod.first->getName() + "[" + mod.second.to_string() + "]";
+
+    auto model=mod.first;
+
+    if (dynamic_cast<const AbstractBiblioMixedTransitionModel*>(model.get()) == NULL)
+    {
+      std::string name="";
+      auto pMS = dynamic_cast<const MixtureOfTransitionModels*>(model.get());
+      if (pMS)
+      {
+        name= "Mixture[";
+        bool com=false;
+        for (auto nb:mod.second)
+        {
+          name = name + (com?", ":"") + pMS->AbstractMixedTransitionModel::getNModel(nb-1)->getName();
+        }
+        name += "]";
+      }
+      else
+      {
+        auto pMT = dynamic_cast<const MixtureOfATransitionModel*>(model.get());
+        name = "MixedModel";
+        
+        const TransitionModel* eM = pMT->getModel(0);
+
+        name += "." + eM->getName() + "[" + mod.second.to_string() + "]";
+      }
+      output += name;
+    }
+    else
+      output += model->getName() + "[" + mod.second.to_string() + "]";
+    
     deb=false;
   }
   return output;

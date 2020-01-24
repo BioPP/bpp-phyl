@@ -84,10 +84,10 @@ bool ModelScenario::hasExclusivePaths() const
   size_t nhn = getNumberOfModelPaths();
   for (size_t i = 0; i < nhn; i++)
   {
-    if (tthn.intersects(getModelPath(i)))
+    if (tthn.intersects(*getModelPath(i)))
       return false;
     else
-      tthn += getModelPath(i);
+      tthn += (*getModelPath(i));
   }
 
   return true;
@@ -119,7 +119,7 @@ void ModelScenario::computeModelPathsProbabilities()
 
   for (size_t nh = 0; nh < nbh; nh++)
   {
-    ModelPath& h = getModelPath(nh);
+    ModelPath& h = *getModelPath(nh);
     if (h.hasModel(pfSM))
     {
       const ModelPath::PathNode& fnd = h.getPathNode(pfSM);
@@ -144,7 +144,7 @@ void ModelScenario::computeModelPathsProbabilities()
     {
       for (size_t nh = 0; nh < nbh; nh++)
       {
-        ModelPath& h = getModelPath(nh);
+        ModelPath& h = *getModelPath(nh);
         if (!h.hasModel(model))
           throw Exception("ModelScenario::computeModelPathsProbabilities : reference model " + model->getName() + " is missing in ModelPath " + TextTools::toString(nh));
         
@@ -170,7 +170,7 @@ void ModelScenario::computeModelPathsProbabilities()
     
     for (size_t nh = 0; nh < nbh; nh++)
     {
-      ModelPath& h = getModelPath(nh);
+      ModelPath& h = *getModelPath(nh);
       const ModelPath::PathNode& fnd = h.getPathNode(model);
       for (auto& fn:fnd)
       {
@@ -191,6 +191,24 @@ std::string ModelScenario::to_string() const
   }
 
   return output;
+}
+
+std::vector<std::shared_ptr<MixedTransitionModel>> ModelScenario::getModels() const
+{
+  std::vector<std::shared_ptr<MixedTransitionModel>> models, models2;
+
+  for (const auto& mp:vModelPaths_)
+  {
+    auto vmodel=mp->getModels();
+    for (auto& model:vmodel)
+      if (std::find(models.begin(),models.end(),model)==models.end())
+        models.push_back(model);
+      else  
+        if (std::find(models2.begin(),models2.end(),model)==models2.end())
+          models2.push_back(model);
+  }
+
+  return models2; // return only models found in several paths
 }
 
 // double ModelScenario::getModelPathProbability(const ModelPath& hn) const
