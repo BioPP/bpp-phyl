@@ -168,7 +168,6 @@ namespace bpp
         rootAt(bidonRoot); // for construction, temporary top node for new edges
         auto n = makeForwardLikelihoodAtNode (processTree_->getRoot(), sites);
         rootAt(n);
-        outputToDot("forwardRoot_"+TextTools::toString(getNodeIndex(n))+".dot","forwardTree");
         deleteNode(bidonRoot);
 
         // Now map the species indexes and the likelihood DAG indexes

@@ -45,7 +45,6 @@
 #include <Bpp/NewPhyl/FrequenciesSet.h>
 #include <Bpp/NewPhyl/Model.h>
 #include <Bpp/NewPhyl/Parametrizable.h>
-#include <Bpp/NewPhyl/Likelihood.h>
 #include <Bpp/Phyl/Model/Nucleotide/T92.h>
 #include <Bpp/Phyl/Model/FrequenciesSet/NucleotideFrequenciesSet.h>
 #include <Bpp/Seq/Alphabet/AlphabetTools.h>
