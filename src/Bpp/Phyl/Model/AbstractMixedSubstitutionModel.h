@@ -196,21 +196,12 @@ public:
    */
   virtual void setNProbability(size_t i, double prob)
   {
-	/*// keren - fix bug - round p to 8 decimal points accuracy
-    double value = (int)(prob * 100000000 + .5); 
-    prob = (double) (value / 100000000); 
-	//std::cout << std::setprecision(18) << "Probability=" << prob << "\n"; // keren - debug
-    if ((prob >= 0) && (prob <= 1))
-      vProbas_[i] = prob; */
-<<<<<<< HEAD
-=======
-      if (prob<0)
+      if (prob<0) // integratopn of fix from Devel: f7e2808
         prob=0;
       if (prob>1)
         prob=1;
 
       vProbas_[i] = prob;
->>>>>>> 380e95f657cf923665c1c495efcf7c8a2fae0b86
     if (prob<0)
       prob=0;
     if (prob>1)
