@@ -61,7 +61,6 @@
 #include "../Model/Codon/AbstractCodonDistanceSubstitutionModel.h"
 #include "../Model/Codon/AbstractCodonAARateSubstitutionModel.h"
 #include "../Model/Codon/AbstractCodonAAFitnessSubstitutionModel.h"
-#include "../Model/Codon/AbstractCodonClusterAASubstitutionModel.h"
 #include "../Model/Codon/AbstractCodonCpGSubstitutionModel.h"
 #include "../Model/Codon/AbstractCodonBGCSubstitutionModel.h"
 #include "../Model/Codon/AbstractCodonDistanceSubstitutionModel.h"
@@ -73,6 +72,7 @@
 #include "../Model/Codon/KroneckerCodonDistanceSubstitutionModel.h"
 #include "../Model/Codon/KCM.h"
 #include "../Model/Codon/SENCA.h"
+#include "../Model/Codon/RELAX.h"
 #include "../Model/RE08.h"
 #include "../Model/TS98.h"
 #include "../Model/G2001.h"
@@ -107,6 +107,7 @@
 #include "../Model/Protein/LLG08_EHO.h"
 #include "../Model/Protein/LG10_EX_EHO.h"
 #include "../Model/BinarySubstitutionModel.h"
+#include "../Model/TwoParameterBinarySubstitutionModel.h"
 #include "../Model/FromMixtureSubstitutionModel.h"
 #include "../Model/InMixedSubstitutionModel.h"
 #include "../Model/OneChangeTransitionModel.h"
@@ -162,7 +163,6 @@ SubstitutionModel* BppOSubstitutionModelFormat::read(
   map<string, string> args;
   KeyvalTools::parseProcedure(modelDescription, modelName, args);
 
-  
   // //////////////////////////////////
   // / MIXED MODELS
   // ////////////////////////////////
@@ -282,10 +282,10 @@ SubstitutionModel* BppOSubstitutionModelFormat::read(
   
   // //////////////////
   // PREDEFINED CODON MODELS
-  
+ 
   else if (((modelName == "MG94") || (modelName == "YN98") ||
             (modelName == "GY94") || (modelName.substr(0, 4) == "YNGP") ||
-            (modelName.substr(0,3) == "KCM")
+            (modelName.substr(0,3) == "KCM") || (modelName == "RELAX")
              ) && (alphabetCode_ & CODON))
   {
     if (!(alphabetCode_ & CODON))
@@ -365,6 +365,9 @@ SubstitutionModel* BppOSubstitutionModelFormat::read(
       model.reset(new KCM(geneticCode_, true));
     else if (modelName == "KCM19")
       model.reset(new KCM(geneticCode_, false));
+    else if (modelName == "RELAX") {
+      model.reset(new RELAX(geneticCode_, codonFreqs.release()));
+    }
     else
       throw Exception("Unknown Codon model: " + modelName);
   }
@@ -718,7 +721,6 @@ SubstitutionModel* BppOSubstitutionModelFormat::read(
         string freqOpt = ApplicationTools::getStringParameter("frequencies", args, "Full", "", true, warningLevel_);
         BppOFrequenciesSetFormat freqReader(BppOFrequenciesSetFormat::ALL, false, warningLevel_);
         unique_ptr<FrequenciesSet> protFreq(freqReader.read(alpha, freqOpt, data, true));
-  
         map<string, string> unparsedParameterValuesNested(freqReader.getUnparsedArguments());
 
         for (map<string, string>::iterator it = unparsedParameterValuesNested.begin(); it != unparsedParameterValuesNested.end(); it++)
@@ -838,6 +840,8 @@ SubstitutionModel* BppOSubstitutionModelFormat::read(
 
       if (modelName == "Binary")
         model.reset(new BinarySubstitutionModel(balpha));
+      else if (modelName == "TwoParameterBinary")
+        model.reset(new TwoParameterBinarySubstitutionModel(balpha));
       else
         throw Exception("Model '" + modelName + "' unknown, or does not fit binary alphabet.");
     }
@@ -1196,29 +1200,7 @@ SubstitutionModel* BppOSubstitutionModelFormat::readWord_(const Alphabet* alphab
 
         vCSM.push_back(new AbstractCodonAARateSubstitutionModel(nestedModel, geneticCode_, ""));
       }
-      if (modelName.find("AAClust")!=string::npos)
-      {
-        name+="AAClust";
-
-        // Initialization using the "assign" argument
-        vector<uint> partition;
-        if (args.find("partition")!=args.end())
-        {
-          string rf = args["partition"];
-
-          StringTokenizer strtok(rf.substr(1, rf.length() - 2), ",");
-          while (strtok.hasMoreToken())
-            partition.push_back(TextTools::to<uint>(strtok.nextToken()));
-        }
-
-        AbstractCodonClusterAASubstitutionModel* aca=partition.size()!=0?
-          new AbstractCodonClusterAASubstitutionModel(geneticCode_, "", partition):
-          new AbstractCodonClusterAASubstitutionModel(geneticCode_, "");
-
-        vCSM.push_back(aca);
-      }
-
-      /// Default name in none used before
+      
       if (vCSM.size()==0)
         name+="Rate";
       
@@ -1243,9 +1225,7 @@ SubstitutionModel* BppOSubstitutionModelFormat::readWord_(const Alphabet* alphab
         for (auto  it : nestedReader.getUnparsedArguments())
           unparsedParameterValuesNested["fit_" + it.first] = it.second;
 
-        AbstractCodonAAFitnessSubstitutionModel* aca=new AbstractCodonAAFitnessSubstitutionModel(nestedFreq, geneticCode_, "");
-
-        vCSM.push_back(aca);
+        vCSM.push_back(new AbstractCodonAAFitnessSubstitutionModel(nestedFreq, geneticCode_, ""));
       }
       else if (modelName.find("Fit")!=string::npos)
       {
@@ -1738,7 +1718,7 @@ void BppOSubstitutionModelFormat::write(const TransitionModel& model,
     comma = true;
   }
 
-  // Is it a codon model with Protein Model or partition in it? 
+  // Is it a codon model with Protein Model in it? 
   const CodonAdHocSubstitutionModel* casm=dynamic_cast<const CodonAdHocSubstitutionModel*>(&model);
   if (casm)
   {
@@ -1763,23 +1743,6 @@ void BppOSubstitutionModelFormat::write(const TransitionModel& model,
     
         BppOFrequenciesSetFormat bIOFreq(PROTEIN, false, warningLevel_);
         bIOFreq.write(&acf->getAAFitness(), out, globalAliases, writtenNames);
-        comma = true;
-      }
-      const AbstractCodonClusterAASubstitutionModel* acc=dynamic_cast<const AbstractCodonClusterAASubstitutionModel*>(casm->getNModel(i).get());
-      if (acc)
-      {
-        if (comma)
-          out << ",";
-        out << "partition=(";
-        const vector<uint>& vass=acc->getAssign();
-        
-        for (size_t j=0; j<vass.size(); j++)
-        {
-          if (j != 0)
-            out << ",";
-          out << vass[j];
-        }
-        out << ")";
         comma = true;
       }
     }
