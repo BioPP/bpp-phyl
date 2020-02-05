@@ -383,4 +383,3 @@ public:
 } // end of namespace bpp.
 
 #endif // _MIXEDSUBSTITUTIONMODELSET_H_
-

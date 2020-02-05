@@ -196,8 +196,18 @@ public:
    */
   virtual void setNProbability(size_t i, double prob)
   {
-    if ((prob >= 0) && (prob <= 1))
+      if (prob<0) // integratopn of fix from Devel: f7e2808
+        prob=0;
+      if (prob>1)
+        prob=1;
+
       vProbas_[i] = prob;
+    if (prob<0)
+      prob=0;
+    if (prob>1)
+      prob=1;
+
+    vProbas_[i] = prob;
   }
 
   /**

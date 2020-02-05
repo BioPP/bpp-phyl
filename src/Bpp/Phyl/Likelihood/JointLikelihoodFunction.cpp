@@ -10,6 +10,7 @@
 #include <Bpp/Numeric/Prob/ConstantDistribution.h>
 #include <Bpp/Text/TextTools.h>
 #include <Bpp/Numeric/Function/BrentOneDimension.h>
+#include <Bpp/Numeric/Function/PowellMultiDimensions.h>
 #include <Bpp/Text/KeyvalTools.h>
 
 // From bpp-phyl:
@@ -324,9 +325,9 @@ map<string,double> JointLikelihoodFunction::getModelParameters(bool verbose)
   // report it regardless of verbose level
   if (verbose)
   {
-	ApplicationTools::displayResult("\nCharacter Log likelihood", TextTools::toString(-1.0*characterLogl));
-	ApplicationTools::displayResult("Sequence Log likelihood", TextTools::toString(-1.0*sequenceLogl));
-	ApplicationTools::displayResult("Overall Log likelihood", TextTools::toString(-1.0*logl_));
+	ApplicationTools::displayResult("\nCharacter Log likelihood", TextTools::toString(-1.0*characterLogl, 15));
+	ApplicationTools::displayResult("Sequence Log likelihood", TextTools::toString(-1.0*sequenceLogl, 15));
+	ApplicationTools::displayResult("Overall Log likelihood", TextTools::toString(-1.0*logl_, 15));
   }
   return modelParameters;
 }
@@ -620,7 +621,7 @@ void JointLikelihoodFunction::optimizeSequenceModel()
     bppml_->getParam("optimization.ignore_parameters") = paramsToIgnore;
     // first optimize the scaling parameter: 0 = don't scale, 1 - scale only before optimization, 2 - scale only after optimization, 3 - scale before and after optimization
     int scaleTree = ApplicationTools::getIntParameter("optimization.scale.tree", bppml_->getParams(), 0);
-    if (scaleTree == 1)
+    if (scaleTree >= 1)
     {
         OptimizationTools::optimizeTreeScale(sequenceTreeLikelihood_, 0.000001, 1000000, ApplicationTools::message.get(), ApplicationTools::message.get(), 0);
         getSequenceScalingFactor(); // debug
@@ -630,6 +631,8 @@ void JointLikelihoodFunction::optimizeSequenceModel()
     map<string,double> inferenceResult;
 	int advancedOptimization = ApplicationTools::getIntParameter("optimization.advanced", bppml_->getParams(), 0);
     bool verbose = ApplicationTools::getBooleanParameter("optimization.verbose", bppml_->getParams(), true, "", true, 3);
+    double prevLogLikelihood, currLogLikelihood;
+	size_t index;
     if ((advancedOptimization == 1) & (isAlternative))
     {
         bppml_->getParam("optimization.max_number_f_eval") = "100";
@@ -637,13 +640,28 @@ void JointLikelihoodFunction::optimizeSequenceModel()
         if (cycleNum_ == 0)
         {
             // starting point 1 - results of the null fitting
-			if (scaleTree == 1)
+			prevLogLikelihood = -sequenceTreeLikelihood_->getValue();
+			currLogLikelihood = -sequenceTreeLikelihood_->getValue();
+			index = 1;
+			do
 			{
-				OptimizationTools::optimizeTreeScale(sequenceTreeLikelihood_, 0.000001, 1000000, ApplicationTools::message.get(), ApplicationTools::message.get(), 0);
-				getSequenceScalingFactor(); // debug
-			}
-            PhylogeneticsApplicationTools::optimizeParameters(sequenceTreeLikelihood_, sequenceTreeLikelihood_->getParameters(), bppml_->getParams());
-            double sp1Logl = -1 * sequenceTreeLikelihood_->getValue();
+				cout << "Optimization cycle: " << TextTools::toString(index) << endl;
+				index = index + 1;
+				if (scaleTree >= 1)
+				{
+					OptimizationTools::optimizeTreeScale(sequenceTreeLikelihood_, 0.000001, 1000000, ApplicationTools::message.get(), ApplicationTools::message.get(), 0);
+					getSequenceScalingFactor(); // debug
+				}
+				PhylogeneticsApplicationTools::optimizeParameters(sequenceTreeLikelihood_, sequenceTreeLikelihood_->getParameters(), bppml_->getParams());
+				ApplicationTools::displayResult("Current log likelihood", TextTools::toString(-sequenceTreeLikelihood_->getValue(), 15));
+				prevLogLikelihood = currLogLikelihood;
+				currLogLikelihood = -sequenceTreeLikelihood_->getValue();
+				ApplicationTools::displayResult("Current diff", TextTools::toString((currLogLikelihood-prevLogLikelihood), 15));
+			} while (currLogLikelihood - prevLogLikelihood > 0.01);
+			cout << "iteraive optimzation complete" << endl;
+			ApplicationTools::displayResult("Log likelihood", TextTools::toString(-sequenceTreeLikelihood_->getValue(), 15));
+
+			double sp1Logl = -1 * sequenceTreeLikelihood_->getValue();
             cout << "* Statring point: null fitting result *" << endl;
             ApplicationTools::displayResult("Log likelihood", TextTools::toString(sp1Logl, 15));
             map<string, double> sp1Result = getModelParameters(verbose); // debug - print model parameters
@@ -656,13 +674,27 @@ void JointLikelihoodFunction::optimizeSequenceModel()
 					sequenceTreeLikelihood_->setParameterValue(it->first, it->second);
 				}
             }
-			if (scaleTree == 1)
+						prevLogLikelihood = -sequenceTreeLikelihood_->getValue();
+			currLogLikelihood = -sequenceTreeLikelihood_->getValue();
+			index = 1;
+			do
 			{
-				OptimizationTools::optimizeTreeScale(sequenceTreeLikelihood_, 0.000001, 1000000, ApplicationTools::message.get(), ApplicationTools::message.get(), 0);
-				getSequenceScalingFactor(); // debug
-			}
-            PhylogeneticsApplicationTools::optimizeParameters(sequenceTreeLikelihood_, sequenceTreeLikelihood_->getParameters(), bppml_->getParams());
-            double sp2Logl = -1 * sequenceTreeLikelihood_->getValue();
+				cout << "Optimization cycle: " << TextTools::toString(index) << endl;
+				index = index + 1;
+				if (scaleTree >= 1)
+				{
+					OptimizationTools::optimizeTreeScale(sequenceTreeLikelihood_, 0.000001, 1000000, ApplicationTools::message.get(), ApplicationTools::message.get(), 0);
+					getSequenceScalingFactor(); // debug
+				}
+				PhylogeneticsApplicationTools::optimizeParameters(sequenceTreeLikelihood_, sequenceTreeLikelihood_->getParameters(), bppml_->getParams());
+				ApplicationTools::displayResult("Current log likelihood", TextTools::toString(-sequenceTreeLikelihood_->getValue(), 15));
+				prevLogLikelihood = currLogLikelihood;
+				currLogLikelihood = -sequenceTreeLikelihood_->getValue();
+				ApplicationTools::displayResult("Current diff", TextTools::toString((currLogLikelihood-prevLogLikelihood), 15));
+			} while (currLogLikelihood - prevLogLikelihood > 0.01);
+			cout << "iteraive optimzation complete" << endl;
+			ApplicationTools::displayResult("Log likelihood", TextTools::toString(-sequenceTreeLikelihood_->getValue(), 15));
+			double sp2Logl = -1 * sequenceTreeLikelihood_->getValue();
             cout << "* Statring point: user initial values *" << endl;
             ApplicationTools::displayResult("Log likelihood", TextTools::toString(sp2Logl, 15));
             map<string, double> sp2Result = getModelParameters(verbose); // debug - print model parameters
@@ -755,13 +787,27 @@ void JointLikelihoodFunction::optimizeSequenceModel()
                     }
                 }
                 cout << "Optimizing starting point " << (p+1) << "..." << endl;
-				if (scaleTree == 1)
+				prevLogLikelihood = -sequenceTreeLikelihood_->getValue();
+				currLogLikelihood = -sequenceTreeLikelihood_->getValue();
+				index = 1;
+				do
 				{
-					OptimizationTools::optimizeTreeScale(sequenceTreeLikelihood_, 0.000001, 1000000, ApplicationTools::message.get(), ApplicationTools::message.get(), 0);
-					getSequenceScalingFactor(); // debug
-				}
-                PhylogeneticsApplicationTools::optimizeParameters(sequenceTreeLikelihood_, sequenceTreeLikelihood_->getParameters(), bppml_->getParams());
-                bestStartingPoints[p] = getModelParameters(verbose);
+					cout << "Optimization cycle: " << TextTools::toString(index) << endl;
+					index = index + 1;
+					if (scaleTree >= 1)
+					{
+						OptimizationTools::optimizeTreeScale(sequenceTreeLikelihood_, 0.000001, 1000000, ApplicationTools::message.get(), ApplicationTools::message.get(), 0);
+						getSequenceScalingFactor(); // debug
+					}
+					PhylogeneticsApplicationTools::optimizeParameters(sequenceTreeLikelihood_, sequenceTreeLikelihood_->getParameters(), bppml_->getParams());
+					ApplicationTools::displayResult("Current log likelihood", TextTools::toString(-sequenceTreeLikelihood_->getValue(), 15));
+					prevLogLikelihood = currLogLikelihood;
+					currLogLikelihood = -sequenceTreeLikelihood_->getValue();
+					ApplicationTools::displayResult("Current diff", TextTools::toString((currLogLikelihood-prevLogLikelihood), 15));
+				} while (currLogLikelihood - prevLogLikelihood > 0.01);
+				cout << "iteraive optimzation complete" << endl;
+				ApplicationTools::displayResult("Log likelihood", TextTools::toString(-sequenceTreeLikelihood_->getValue(), 15));
+				bestStartingPoints[p] = getModelParameters(verbose);
             }
             startingPointsResults.clear();
             startingPointsResults = bestStartingPoints; 
@@ -787,13 +833,26 @@ void JointLikelihoodFunction::optimizeSequenceModel()
                 }
             }
             cout << "Optimizing starting point " << (p+1) << endl;
-			if (scaleTree == 1)
+			prevLogLikelihood = -sequenceTreeLikelihood_->getValue();
+			currLogLikelihood = -sequenceTreeLikelihood_->getValue();
+			index = 1;
+			do
 			{
-				OptimizationTools::optimizeTreeScale(sequenceTreeLikelihood_, 0.000001, 1000000, ApplicationTools::message.get(), ApplicationTools::message.get(), 0);
-				getSequenceScalingFactor(); // debug
-			}
-            PhylogeneticsApplicationTools::optimizeParameters(sequenceTreeLikelihood_, sequenceTreeLikelihood_->getParameters(), bppml_->getParams());
-            bestStartingPoints[p] = getModelParameters(verbose);
+				cout << "Optimization cycle: " << TextTools::toString(index) << endl;
+				index = index + 1;
+				if (scaleTree >= 1)
+				{
+					OptimizationTools::optimizeTreeScale(sequenceTreeLikelihood_, 0.000001, 1000000, ApplicationTools::message.get(), ApplicationTools::message.get(), 0);
+					getSequenceScalingFactor(); // debug
+				}
+				PhylogeneticsApplicationTools::optimizeParameters(sequenceTreeLikelihood_, sequenceTreeLikelihood_->getParameters(), bppml_->getParams());
+				ApplicationTools::displayResult("Current log likelihood", TextTools::toString(-sequenceTreeLikelihood_->getValue(), 15));
+				prevLogLikelihood = currLogLikelihood;
+				currLogLikelihood = -sequenceTreeLikelihood_->getValue();
+				ApplicationTools::displayResult("Current diff", TextTools::toString((currLogLikelihood-prevLogLikelihood), 15));
+			} while (currLogLikelihood - prevLogLikelihood > 0.01);
+			cout << "iteraive optimzation complete" << endl;
+			ApplicationTools::displayResult("Log likelihood", TextTools::toString(-sequenceTreeLikelihood_->getValue(), 15));bestStartingPoints[p] = getModelParameters(verbose);
         }
 
         /* step 4: select the best starting point and report its values */ 
@@ -802,8 +861,26 @@ void JointLikelihoodFunction::optimizeSequenceModel()
     }
 	else
     {
-		cout << "line 806" << endl; // debug
-        PhylogeneticsApplicationTools::optimizeParameters(sequenceTreeLikelihood_, sequenceTreeLikelihood_->getParameters(), bppml_->getParams());
+		prevLogLikelihood = -sequenceTreeLikelihood_->getValue();
+		currLogLikelihood = -sequenceTreeLikelihood_->getValue();
+		index = 1;
+		do
+		{
+			cout << "Optimization cycle: " << TextTools::toString(index) << endl;
+			index = index + 1;
+			if (scaleTree >= 1)
+			{
+				OptimizationTools::optimizeTreeScale(sequenceTreeLikelihood_, 0.000001, 1000000, ApplicationTools::message.get(), ApplicationTools::message.get(), 0);
+				getSequenceScalingFactor(); // debug
+			}
+			PhylogeneticsApplicationTools::optimizeParameters(sequenceTreeLikelihood_, sequenceTreeLikelihood_->getParameters(), bppml_->getParams());
+			ApplicationTools::displayResult("Current log likelihood", TextTools::toString(-sequenceTreeLikelihood_->getValue(), 15));
+			prevLogLikelihood = currLogLikelihood;
+			currLogLikelihood = -sequenceTreeLikelihood_->getValue();
+			ApplicationTools::displayResult("Current diff", TextTools::toString((currLogLikelihood-prevLogLikelihood), 15));
+		} while (currLogLikelihood - prevLogLikelihood > 0.01);
+		cout << "iteraive optimzation complete" << endl;
+		ApplicationTools::displayResult("Log likelihood", TextTools::toString(-sequenceTreeLikelihood_->getValue(), 15));
         inferenceResult = getModelParameters(verbose);
     }
 
@@ -1001,11 +1078,11 @@ void JointLikelihoodFunction::computeAlternativeJointLikelihood()
 		}
 		// get the likelihood
 		double characterLogl = characterTreeLikelihood_->getValue();
-		ApplicationTools::displayResult("Character Log likelihood", TextTools::toString(-1.0*characterLogl));
+		ApplicationTools::displayResult("Character Log likelihood", TextTools::toString(-1.0*characterLogl, 15));
 		double sequenceLogl = sequenceTreeLikelihood_->getValue();
-		ApplicationTools::displayResult("Sequence Log likelihood", TextTools::toString(-1.0*sequenceLogl));
+		ApplicationTools::displayResult("Sequence Log likelihood", TextTools::toString(-1.0*sequenceLogl, 15));
 		logl_ = characterLogl + sequenceLogl;
-		ApplicationTools::displayResult("Overall Log likelihood", TextTools::toString(-1.0*logl_));
+		ApplicationTools::displayResult("Overall Log likelihood", TextTools::toString(-1.0*logl_, 15));
 	}
 }
 
@@ -1034,29 +1111,81 @@ void JointLikelihoodFunction::setHypothesis(JointLikelihoodFunction::Hypothesis 
 
 /******************************************************************************/
 
-void JointLikelihoodFunction::optimizeCharacterModel()
+void JointLikelihoodFunction::optimizeCharacterModel() // only called when the hypothesis is null
 {
     // optimize with BrentOneDimension, like in the alternative fitting
-    BrentOneDimension* characterParametersOptimizer = new BrentOneDimension(characterTreeLikelihood_);
-    characterParametersOptimizer->setBracketing(BrentOneDimension::BRACKET_INWARD);
-    characterParametersOptimizer->getStopCondition()->setTolerance(0.01); // set the tolerance to be slighly less strict to account for the instability of the joint likelihood function
-    characterParametersOptimizer->setConstraintPolicy(AutoParameter::CONSTRAINTS_AUTO);
-    characterParametersOptimizer->setProfiler(0);
-    characterParametersOptimizer->setMessageHandler(0);
-    characterParametersOptimizer->setVerbose(1);
-    ParameterList pi0; 
-    pi0.addParameter(characterTreeLikelihood_->getParameter("TwoParameterBinary.pi0"));
-    const IntervalConstraint* pi0Bounds = dynamic_cast<const IntervalConstraint*>(characterTreeLikelihood_->getParameter("TwoParameterBinary.pi0").getConstraint());
-    characterParametersOptimizer->setInitialInterval(pi0Bounds->getLowerBound(), pi0Bounds->getUpperBound()); // search within stricter bounds that the actual ones of pi0 to avoid failute of stochasitc mapping
-    characterParametersOptimizer->init(pi0);
-    characterParametersOptimizer->optimize();
-    ParameterList mu; 
-    mu.addParameter(characterTreeLikelihood_->getParameter("TwoParameterBinary.mu"));
-    const IntervalConstraint* muBounds = dynamic_cast<const IntervalConstraint*>(characterTreeLikelihood_->getParameter("TwoParameterBinary.mu").getConstraint());
-    characterParametersOptimizer->setInitialInterval(muBounds->getLowerBound(), muBounds->getUpperBound()); // search within stricter bounds that the actual ones of pi0 to avoid failute of stochasitc mapping
-    characterParametersOptimizer->init(mu);
-    characterParametersOptimizer->optimize();
-    delete characterParametersOptimizer;
+    double prevLogLikelihood = -characterTreeLikelihood_->getValue();
+    double currLogLikelihood = -characterTreeLikelihood_->getValue();
+    size_t index = 1;
+    int useOneDimentionOpt = ApplicationTools::getIntParameter("optimization.character.one.dimension", bppml_->getParams(), 1);
+    if (useOneDimentionOpt == 1)
+    {   
+        BrentOneDimension* characterParametersOptimizer = new BrentOneDimension(characterTreeLikelihood_);
+        characterParametersOptimizer->setBracketing(BrentOneDimension::BRACKET_INWARD);
+        characterParametersOptimizer->getStopCondition()->setTolerance(0.01); // set the tolerance to be slighly less strict to account for the instability of the joint likelihood function
+        characterParametersOptimizer->setConstraintPolicy(AutoParameter::CONSTRAINTS_AUTO);
+        characterParametersOptimizer->setProfiler(0);
+        characterParametersOptimizer->setMessageHandler(0);
+        characterParametersOptimizer->setVerbose(1);
+        ParameterList pi0, mu;
+        mu.addParameter(characterTreeLikelihood_->getParameter("TwoParameterBinary.mu"));
+        const IntervalConstraint* muBounds = dynamic_cast<const IntervalConstraint*>(characterTreeLikelihood_->getParameter("TwoParameterBinary.mu").getConstraint());
+        pi0.addParameter(characterTreeLikelihood_->getParameter("TwoParameterBinary.pi0"));
+        const IntervalConstraint* pi0Bounds = dynamic_cast<const IntervalConstraint*>(characterTreeLikelihood_->getParameter("TwoParameterBinary.pi0").getConstraint()); 
+        do
+        {
+            cout << "Optimization cycle: " << TextTools::toString(index) << endl;
+            index = index + 1;
+            prevLogLikelihood = -this->getValue();
+            
+            // optimize the joint model with respect to pi0
+            characterParametersOptimizer->setInitialInterval(pi0Bounds->getLowerBound(), pi0Bounds->getUpperBound()); // search within stricter bounds that the actual ones of pi0 to avoid failute of stochasitc mapping
+            characterParametersOptimizer->init(pi0);
+            characterParametersOptimizer->optimize();
+
+            // optimize the joint model with respect to mu
+            characterParametersOptimizer->setInitialInterval(muBounds->getLowerBound(), muBounds->getUpperBound()); // search within stricter bounds that the actual ones of pi0 to avoid failute of stochasitc mapping
+            characterParametersOptimizer->init(mu);
+            characterParametersOptimizer->optimize();
+
+
+            currLogLikelihood = -this->getValue();
+            ApplicationTools::displayResult("Current log likelihood", TextTools::toString(-currLogLikelihood, 15));
+            ApplicationTools::displayResult("Current diff", TextTools::toString((currLogLikelihood-prevLogLikelihood), 15));
+        } while (currLogLikelihood - prevLogLikelihood > 0.01);
+        delete characterParametersOptimizer;
+    }
+    else // TO DO: 12.01.20 - need to allow here also an alternative of a two-dimentional brent with regard to the joint likelihood function
+    {
+        // set the brent two dimontional optimizer
+        PowellMultiDimensions *characterParametersOptimizer = new PowellMultiDimensions(characterTreeLikelihood_);
+        ParameterList parametersToEstimate;
+        parametersToEstimate.addParameter(characterTreeLikelihood_->getParameter("TwoParameterBinary.mu"));
+        parametersToEstimate.addParameter(characterTreeLikelihood_->getParameter("TwoParameterBinary.pi0"));
+        characterParametersOptimizer->setProfiler(0);
+        characterParametersOptimizer->setMessageHandler(0);
+        characterParametersOptimizer->setMaximumNumberOfEvaluations(1000);
+        characterParametersOptimizer->getStopCondition()->setTolerance(0.01);
+        characterParametersOptimizer->setVerbose(1);
+        characterParametersOptimizer->setConstraintPolicy(AutoParameter::CONSTRAINTS_AUTO);
+        characterParametersOptimizer->init(parametersToEstimate);
+        do
+        {
+            cout << "Optimization cycle: " << TextTools::toString(index) << endl;
+            index = index + 1;
+            prevLogLikelihood = -getValue();
+            characterParametersOptimizer->optimize();
+            currLogLikelihood = -getValue();
+            ApplicationTools::displayResult("Current log likelihood", TextTools::toString(-currLogLikelihood, 15));
+            ApplicationTools::displayResult("Current diff", TextTools::toString((currLogLikelihood-prevLogLikelihood), 15));
+
+        } while (currLogLikelihood - prevLogLikelihood > 0.01);
+        delete characterParametersOptimizer;
+        cout << "iteraive optimzation complete" << endl;
+        ApplicationTools::displayResult("Log likelihood", TextTools::toString(-characterTreeLikelihood_->getValue(), 15));
+    }
+
+	
     
     // update the log likelihood of the joint model
     double charLogL = characterTreeLikelihood_->getValue();
@@ -1089,8 +1218,8 @@ void JointLikelihoodFunction::computeNullJointLikelihood()
             {
                 ApplicationTools::displayResult(parameters[i].getName(), TextTools::toString(parameters[i].getValue()));
             }
-            ApplicationTools::displayResult("Character log likelihood", TextTools::toString(-1*characterTreeLikelihood_->getValue()));
-            ApplicationTools::displayResult("Sequence log likelihood", TextTools::toString(-1*sequenceTreeLikelihood_->getValue()));        
+            ApplicationTools::displayResult("Character log likelihood", TextTools::toString(-1*characterTreeLikelihood_->getValue(), 15));
+            ApplicationTools::displayResult("Sequence log likelihood", TextTools::toString(-1*sequenceTreeLikelihood_->getValue(), 15));        
             break;
         case onlyCharacter: 
             optimizeCharacterModel();
