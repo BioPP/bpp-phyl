@@ -37,8 +37,8 @@
    knowledge of the CeCILL license and that you accept its terms.
  */
 
-#ifndef _BINARYSUBSTITUTIONMODEL_H_
-#define _BINARYSUBSTITUTIONMODEL_H_
+#ifndef _TWOPARAMETERBINARYSUBSTITUTIONMODEL_H_
+#define _TWOPARAMETERBINARYSUBSTITUTIONMODEL_H_
 
 #include "AbstractSubstitutionModel.h"
 #include <Bpp/Seq/Alphabet/BinaryAlphabet.h>
@@ -150,5 +150,5 @@ protected:
 };
 } // end of namespace bpp.
 
-#endif  // _BINARYSUBSTITUTIONMODEL_H_
+#endif  // _TWOPARAMETERBINARYSUBSTITUTIONMODEL_H_
 
