@@ -358,7 +358,6 @@ class JointLikelihoodFunction:
       characterTreeLikelihood_->setAllParametersValues(parameters);
       sequenceTreeLikelihood_->setAllParametersValues(parameters);
       ParameterList pl;
-      //fireParameterChanged(pl);
     }
 
     void setParameterValue(const std::string& name, double value)
@@ -372,7 +371,6 @@ class JointLikelihoodFunction:
         sequenceTreeLikelihood_->setParameterValue(name, value);
       }
       ParameterList pl;
-      //fireParameterChanged(pl);
     }
 
     void setParametersValues(const ParameterList& parameters)

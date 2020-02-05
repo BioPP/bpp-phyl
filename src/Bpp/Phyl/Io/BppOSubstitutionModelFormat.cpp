@@ -107,6 +107,7 @@
 #include "../Model/Protein/LLG08_EHO.h"
 #include "../Model/Protein/LG10_EX_EHO.h"
 #include "../Model/BinarySubstitutionModel.h"
+#include "../Model/TwoParameterBinarySubstitutionModel.h"
 #include "../Model/FromMixtureSubstitutionModel.h"
 #include "../Model/InMixedSubstitutionModel.h"
 #include "../Model/OneChangeTransitionModel.h"
@@ -839,6 +840,8 @@ SubstitutionModel* BppOSubstitutionModelFormat::read(
 
       if (modelName == "Binary")
         model.reset(new BinarySubstitutionModel(balpha));
+      else if (modelName == "TwoParameterBinary")
+        model.reset(new TwoParameterBinarySubstitutionModel(balpha));
       else
         throw Exception("Model '" + modelName + "' unknown, or does not fit binary alphabet.");
     }
