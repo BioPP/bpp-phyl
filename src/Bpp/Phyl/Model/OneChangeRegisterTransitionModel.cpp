@@ -132,8 +132,8 @@ void OneChangeRegisterTransitionModel::updateMatrices()
 
 double OneChangeRegisterTransitionModel::Pij_t(size_t i, size_t j, double t) const
 {
-  double ch_ijt=modelChanged_->Pij_t(i,j,t*getModel().getRate());  
-  double ch_ist=modelChanged_->Pij_t(i,size_,t*getModel().getRate());  
+  double ch_ijt=modelChanged_->Pij_t(i,j,t*getTransitionModel().getRate());  
+  double ch_ist=modelChanged_->Pij_t(i,size_,t*getTransitionModel().getRate());  
 
   if (t==0)
   {
@@ -145,14 +145,14 @@ double OneChangeRegisterTransitionModel::Pij_t(size_t i, size_t j, double t) con
   }
 
   if (ch_ist==0) // no proba from i to pit
-    return getModel().Pij_t(i,j,t);
+    return getTransitionModel().Pij_t(i,j,t);
   else
-    return (getModel().Pij_t(i,j,t)-ch_ijt)/ch_ist;
+    return (getTransitionModel().Pij_t(i,j,t)-ch_ijt)/ch_ist;
 }
 
 double OneChangeRegisterTransitionModel::dPij_dt(size_t i, size_t j, double t) const
 {
-  double rate=getModel().getRate();
+  double rate=getTransitionModel().getRate();
   const Matrix<double>& ch_t=modelChanged_->getPij_t(t*rate);
 
   if (t==0)
@@ -183,12 +183,12 @@ double OneChangeRegisterTransitionModel::dPij_dt(size_t i, size_t j, double t) c
 
   const Matrix<double>& dch_dt=modelChanged_->getdPij_dt(t*rate);
 
-  return ((getModel().dPij_dt(i,j,t)-dch_dt(i,j))*si-dch_dt(i,size_)*(getModel().Pij_t(i,j,t)-ch_t(i,j)))/(si*si);
+  return ((getTransitionModel().dPij_dt(i,j,t)-dch_dt(i,j))*si-dch_dt(i,size_)*(getTransitionModel().Pij_t(i,j,t)-ch_t(i,j)))/(si*si);
 }
 
 double OneChangeRegisterTransitionModel::d2Pij_dt2(size_t i, size_t j, double t) const
 {
-  double rate=getModel().getRate();
+  double rate=getTransitionModel().getRate();
   double r2=rate*rate;
   
   if (t==0)
@@ -222,9 +222,9 @@ double OneChangeRegisterTransitionModel::d2Pij_dt2(size_t i, size_t j, double t)
   const Matrix<double>& dch_dt=modelChanged_->getdPij_dt(rate*t);
   const Matrix<double>& d2ch_dt2=modelChanged_->getd2Pij_dt2(rate*t);
   
-  double d2u=getModel().d2Pij_dt2(i,j,t)-d2ch_dt2(i,j);
-  double du=getModel().dPij_dt(i,j,t)-dch_dt(i,j);
-  double u=getModel().Pij_t(i,j,t)-ch_t(i,j);
+  double d2u=getTransitionModel().d2Pij_dt2(i,j,t)-d2ch_dt2(i,j);
+  double du=getTransitionModel().dPij_dt(i,j,t)-dch_dt(i,j);
+  double u=getTransitionModel().Pij_t(i,j,t)-ch_t(i,j);
   
   double si=ch_t(i,size_);
   if (si==0)
@@ -240,7 +240,7 @@ double OneChangeRegisterTransitionModel::d2Pij_dt2(size_t i, size_t j, double t)
 
 const Matrix<double>& OneChangeRegisterTransitionModel::getPij_t(double t) const
 {
-  double rate=getModel().getRate();
+  double rate=getTransitionModel().getRate();
 
   if (t==0)
   {
@@ -267,7 +267,7 @@ const Matrix<double>& OneChangeRegisterTransitionModel::getPij_t(double t) const
     return pij_t;
   }
   
-  const RowMatrix<double>& orig_t=getModel().getPij_t(t);
+  const RowMatrix<double>& orig_t=getTransitionModel().getPij_t(t);
   const RowMatrix<double>& ch_t=modelChanged_->getPij_t(t*rate);
   
   for (unsigned int i = 0; i < size_; ++i) {
@@ -290,7 +290,7 @@ const Matrix<double>& OneChangeRegisterTransitionModel::getPij_t(double t) const
 
 const Matrix<double>& OneChangeRegisterTransitionModel::getdPij_dt(double t) const
 {
-  double rate=getModel().getRate();
+  double rate=getTransitionModel().getRate();
 
   if (t==0)
   {
@@ -327,9 +327,9 @@ const Matrix<double>& OneChangeRegisterTransitionModel::getdPij_dt(double t) con
     return dpij_t;
   }
   
-  const RowMatrix<double>& orig_t=getModel().getPij_t(t);
+  const RowMatrix<double>& orig_t=getTransitionModel().getPij_t(t);
   const RowMatrix<double>& ch_t=modelChanged_->getPij_t(rate*t);
-  const RowMatrix<double>& dorig_dt=getModel().getdPij_dt(t);
+  const RowMatrix<double>& dorig_dt=getTransitionModel().getdPij_dt(t);
   const RowMatrix<double>& dch_dt=modelChanged_->getdPij_dt(rate*t);
 
   for (unsigned int i = 0; i < size_; ++i) {
@@ -360,7 +360,7 @@ const Matrix<double>& OneChangeRegisterTransitionModel::getdPij_dt(double t) con
 
 const Matrix<double>& OneChangeRegisterTransitionModel::getd2Pij_dt2(double t) const
 {
-  double rate=getModel().getRate();
+  double rate=getTransitionModel().getRate();
   double r2=rate*rate;
 
   if (t==0)
@@ -402,11 +402,11 @@ const Matrix<double>& OneChangeRegisterTransitionModel::getd2Pij_dt2(double t) c
     return d2pij_t;
   }
   
-  const RowMatrix<double>& orig_t=getModel().getPij_t(t);
+  const RowMatrix<double>& orig_t=getTransitionModel().getPij_t(t);
   const RowMatrix<double>& ch_t=modelChanged_->getPij_t(rate*t);
-  const RowMatrix<double>& dorig_dt=getModel().getdPij_dt(t);
+  const RowMatrix<double>& dorig_dt=getTransitionModel().getdPij_dt(t);
   const RowMatrix<double>& dch_dt=modelChanged_->getdPij_dt(rate*t);
-  const RowMatrix<double>& d2orig_dt2=getModel().getd2Pij_dt2(t);
+  const RowMatrix<double>& d2orig_dt2=getTransitionModel().getd2Pij_dt2(t);
   const RowMatrix<double>& d2ch_dt2=modelChanged_->getd2Pij_dt2(rate*t);
 
   for (unsigned int i = 0; i < size_; ++i) {

@@ -87,8 +87,6 @@ namespace bpp
 
     size_t getNumberOfStates() const { return getModel().getNumberOfStates(); }
 
-    const FrequenciesSet* getFrequenciesSet() const { return getModel().getFrequenciesSet();}
-    
     /*
      * @}
      */
@@ -104,12 +102,32 @@ namespace bpp
      */
   };
   
-  class AbstractTotallyWrappedModel :
-    public virtual AbstractWrappedModel
+  class AbstractWrappedTransitionModel :
+    public virtual AbstractWrappedModel,
+    public virtual WrappedTransitionModel
+  {
+  protected:
+    BranchModel& getModel()
+    {
+      return getTransitionModel();
+    }
+
+  public:
+    const FrequenciesSet* getFrequenciesSet() const { return getTransitionModel().getFrequenciesSet();}
+
+    const BranchModel& getModel() const
+    {
+      return getTransitionModel();
+    }
+  };
+  
+
+  class AbstractTotallyWrappedTransitionModel :
+    public virtual AbstractWrappedTransitionModel
   {
   public:
-    AbstractTotallyWrappedModel() {}
-    virtual ~AbstractTotallyWrappedModel() {}
+    AbstractTotallyWrappedTransitionModel() {}
+    virtual ~AbstractTotallyWrappedTransitionModel() {}
     
   public:
     /*
@@ -118,33 +136,33 @@ namespace bpp
      * @{
      */
 
-    double freq(size_t i) const { return getModel().freq(i); }
+    double freq(size_t i) const { return getTransitionModel().freq(i); }
 
-    double Pij_t    (size_t i, size_t j, double t) const { return getModel().Pij_t(i, j, t); }
-    double dPij_dt  (size_t i, size_t j, double t) const { return getModel().dPij_dt (i, j, t); }
-    double d2Pij_dt2(size_t i, size_t j, double t) const { return getModel().d2Pij_dt2(i, j, t); }
+    double Pij_t    (size_t i, size_t j, double t) const { return getTransitionModel().Pij_t(i, j, t); }
+    double dPij_dt  (size_t i, size_t j, double t) const { return getTransitionModel().dPij_dt (i, j, t); }
+    double d2Pij_dt2(size_t i, size_t j, double t) const { return getTransitionModel().d2Pij_dt2(i, j, t); }
 
-    const Vdouble& getFrequencies() const { return getModel().getFrequencies(); }
+    const Vdouble& getFrequencies() const { return getTransitionModel().getFrequencies(); }
 
-    const Matrix<double>& getPij_t(double t) const { return getModel().getPij_t(t); }
+    const Matrix<double>& getPij_t(double t) const { return getTransitionModel().getPij_t(t); }
 
-    const Matrix<double>& getdPij_dt(double t) const { return getModel().getdPij_dt(t); }
+    const Matrix<double>& getdPij_dt(double t) const { return getTransitionModel().getdPij_dt(t); }
 
-    const Matrix<double>& getd2Pij_dt2(double t) const { return getModel().getd2Pij_dt2(t); }
+    const Matrix<double>& getd2Pij_dt2(double t) const { return getTransitionModel().getd2Pij_dt2(t); }
 
     double getInitValue(size_t i, int state) const
     {
-      return getModel().getInitValue(i,state);
+      return getTransitionModel().getInitValue(i,state);
     }
     
     double getRate() const
     {
-      return getModel().getRate();
+      return getTransitionModel().getRate();
     }
 
     void setRate(double rate)
     {
-      return getModel().setRate(rate);
+      return getTransitionModel().setRate(rate);
     }
 
     void setFreqFromData(const SequencedValuesContainer& data, double pseudoCount = 0)
@@ -152,17 +170,17 @@ namespace bpp
       std::map<int, double> freqs;
       SequenceContainerTools::getFrequencies(data, freqs, pseudoCount);
       // Re-compute generator and eigen values:
-      getModel().setFreq(freqs);
+      getTransitionModel().setFreq(freqs);
     }
     
     void setFreq(std::map<int, double>& frequencies)
     {
-      getModel().setFreq(frequencies);
+      getTransitionModel().setFreq(frequencies);
     }
 
     bool computeFrequencies() const
     {
-      return getModel().computeFrequencies();
+      return getTransitionModel().computeFrequencies();
     }
 
     /**
@@ -172,7 +190,7 @@ namespace bpp
     
     void computeFrequencies(bool yn)
     {
-      getModel().computeFrequencies(yn);
+      getTransitionModel().computeFrequencies(yn);
     }
 
     /*
@@ -184,14 +202,14 @@ namespace bpp
 
     Vdouble& getFrequencies_()
     {
-      return getModel().getFrequencies_();
+      return getTransitionModel().getFrequencies_();
     }
 
   };
   
     
   class AbstractWrappedSubstitutionModel :
-    public virtual AbstractWrappedModel,
+    public virtual AbstractWrappedTransitionModel,
     public virtual WrappedSubstitutionModel
   {
   public:
@@ -199,13 +217,13 @@ namespace bpp
     
     virtual ~AbstractWrappedSubstitutionModel() {}
     
-    const TransitionModel& getModel() const
+    const TransitionModel& getTransitionModel() const
     {
       return getSubstitutionModel();
     }
 
   protected:
-    TransitionModel& getModel()
+    TransitionModel& getTransitionModel()
     {
       return getSubstitutionModel();
     }
@@ -213,7 +231,7 @@ namespace bpp
   };
 
    class AbstractTotallyWrappedSubstitutionModel :
-    public virtual AbstractTotallyWrappedModel,
+    public virtual AbstractTotallyWrappedTransitionModel,
     public virtual AbstractWrappedSubstitutionModel
   {
   public:

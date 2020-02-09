@@ -128,7 +128,7 @@ void AbstractBiblioTransitionModel::setNamespace(const std::string& name)
 
 void AbstractBiblioTransitionModel::setFreq(std::map<int, double>& frequ)
 {
-  AbstractTotallyWrappedModel::setFreq(frequ);
+  AbstractTotallyWrappedTransitionModel::setFreq(frequ);
 
   ParameterList pl;
   for (const auto& it : mapParNamesFromPmodel_)

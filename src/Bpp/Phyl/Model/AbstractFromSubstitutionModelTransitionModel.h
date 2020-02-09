@@ -52,7 +52,7 @@ namespace bpp
  */
 
   class AbstractFromSubstitutionModelTransitionModel :
-    public virtual AbstractWrappedModel,
+    public virtual AbstractWrappedTransitionModel,
     virtual public AbstractParameterAliasable
   {
   protected:
@@ -96,7 +96,12 @@ namespace bpp
       return *subModel_.get();
     }
 
-    const TransitionModel& getModel() const
+    const TransitionModel& getTransitionModel() const
+    {
+      return *subModel_.get();
+    }
+
+    const BranchModel& getModel() const
     {
       return *subModel_.get();
     }
@@ -134,7 +139,12 @@ namespace bpp
     }
 
     
-    TransitionModel& getModel()
+    TransitionModel& getTransitionModel()
+    {
+      return *subModel_.get();
+    }
+
+    BranchModel& getModel()
     {
       return *subModel_.get();
     }

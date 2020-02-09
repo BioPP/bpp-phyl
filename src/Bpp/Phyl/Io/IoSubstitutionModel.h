@@ -126,7 +126,7 @@ namespace bpp
      * parameters so far [in, out];
      * @throw Exception if an error occured.
      */
-    virtual void write(const TransitionModel& model,
+    virtual void write(const BranchModel& model,
                        OutputStream& out,
                        std::map<std::string, std::string>& globalAliases,
                        std::vector<std::string>& writtenNames) const = 0;

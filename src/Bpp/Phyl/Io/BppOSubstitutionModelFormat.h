@@ -158,7 +158,7 @@ namespace bpp
      * @throw Exception If an error occured.
      */
   
-    void write(const TransitionModel& model,
+    void write(const BranchModel& model,
                OutputStream& out,
                std::map<std::string, std::string>& globalAliases,
                std::vector<std::string>& writtenNames) const;

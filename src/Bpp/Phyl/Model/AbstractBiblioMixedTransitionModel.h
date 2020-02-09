@@ -179,12 +179,12 @@ namespace bpp
      */
     Vuint getSubmodelNumbers(const std::string& desc) const;
 
-    const TransitionModel& getModel() const { return *pmixmodel_.get(); }
+    const TransitionModel& getTransitionModel() const { return *pmixmodel_.get(); }
 
     const MixedTransitionModel& getMixedModel() const { return *pmixmodel_.get(); }
     
   protected:
-    TransitionModel& getModel()
+    TransitionModel& getTransitionModel()
     {
       return *pmixmodel_.get();
     }

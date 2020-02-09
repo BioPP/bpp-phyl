@@ -164,25 +164,25 @@ namespace bpp
     const Matrix<double>& getd2Pij_dt2(double t) const;
 
     
-    double freq(size_t i) const { return getModel().freq(i); }
+    double freq(size_t i) const { return getTransitionModel().freq(i); }
 
-    const Vdouble& getFrequencies() const { return getModel().getFrequencies(); }
+    const Vdouble& getFrequencies() const { return getTransitionModel().getFrequencies(); }
 
-    const FrequenciesSet* getFrequenciesSet() const {return getModel().getFrequenciesSet(); }
+    const FrequenciesSet* getFrequenciesSet() const {return getTransitionModel().getFrequenciesSet(); }
 
     void setFreqFromData(const SequencedValuesContainer& data, double pseudoCount)
     {
-      getModel().setFreqFromData(data, pseudoCount);
+      getTransitionModel().setFreqFromData(data, pseudoCount);
     }
 
     virtual void setFreq(std::map<int, double>& m)
     {  
-      getModel().setFreq(m);
+      getTransitionModel().setFreq(m);
     }
 
-    double getRate() const { return getModel().getRate(); }
+    double getRate() const { return getTransitionModel().getRate(); }
 
-    void setRate(double rate) { return getModel().setRate(rate); }
+    void setRate(double rate) { return getTransitionModel().setRate(rate); }
 
     double getInitValue(size_t i, int state) const { return getModel().getInitValue(i, state); }
 

@@ -1364,7 +1364,7 @@ SubstitutionModel* BppOSubstitutionModelFormat::readWord_(const Alphabet* alphab
   return model.release();
 }
 
-void BppOSubstitutionModelFormat::write(const TransitionModel& model,
+void BppOSubstitutionModelFormat::write(const BranchModel& model,
                                         OutputStream& out,
                                         std::map<std::string, std::string>& globalAliases,
                                         std::vector<std::string>& writtenNames) const
@@ -1447,7 +1447,7 @@ void BppOSubstitutionModelFormat::write(const TransitionModel& model,
   if (onechangetransitionmodel)
   {
     out << "model=";
-    const TransitionModel& nestedModel = onechangetransitionmodel->getModel();
+    auto& nestedModel = onechangetransitionmodel->getModel();
     write(nestedModel, out, globalAliases, writtenNames);
     comma = true;
   }
@@ -1459,7 +1459,7 @@ void BppOSubstitutionModelFormat::write(const TransitionModel& model,
     if (onechangeregistertransitionmodel || regratessubsmodel)
     {
       out << "model=";
-      const TransitionModel& nestedModel = onechangeregistertransitionmodel?onechangeregistertransitionmodel->getModel():regratessubsmodel->getModel();
+      auto& nestedModel = onechangeregistertransitionmodel?onechangeregistertransitionmodel->getModel():regratessubsmodel->getModel();
       
       write(nestedModel, out, globalAliases, writtenNames);
       comma = true;
@@ -1547,22 +1547,27 @@ void BppOSubstitutionModelFormat::write(const TransitionModel& model,
   }
   
   // Is it a model with FrequenciesSet?
-  
-  const FrequenciesSet* pfs = model.getFrequenciesSet();
-  auto paf=dynamic_cast<const AbstractWrappedModel*>(&model);
-  
-  if ((pfs!=0) && (!paf))
+
+  auto tmodel = dynamic_cast<const TransitionModel*>(&model);
+
+  if (tmodel)
   {
+    const FrequenciesSet* pfs = tmodel->getFrequenciesSet();
+    auto paf=dynamic_cast<const AbstractWrappedModel*>(tmodel);
+    
+    if ((pfs!=0) && (!paf))
+    {
     if (comma)
       out << ",";
     out << "frequencies=";
-
+    
     BppOFrequenciesSetFormat bIOFreq(alphabetCode_, false, warningLevel_);
     bIOFreq.write(pfs, out, globalAliases, writtenNames);
     
     comma = true;
   }
-
+  }
+  
   // Is it a codon model with Protein Model or partition in it? 
   const CodonAdHocSubstitutionModel* casm=dynamic_cast<const CodonAdHocSubstitutionModel*>(&model);
   if (casm)

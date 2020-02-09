@@ -43,6 +43,8 @@
 #include "FrequenciesSet/FrequenciesSet.h"
 #include "StateMap.h"
 
+#include <Eigen/Core>
+
 // From bpp-core:
 #include <Bpp/Exceptions.h>
 #include <Bpp/Numeric/Parameter.h>
@@ -64,69 +66,24 @@ namespace bpp
 {
   class SubstitutionModel;
 
-/**
- * @brief Exception that may be thrown by susbstitution models.
- *
- * @see SubstitutionModel
- */
-  class SubstitutionModelException :
-    public Exception
-  {
-  protected:
-    const SubstitutionModel* model_;
-
-  public:
-    SubstitutionModelException(const std::string& text, const SubstitutionModel* sm = 0);
-
-    SubstitutionModelException(const SubstitutionModelException& sme) :
-      Exception(sme), model_(sme.model_) {}
-
-    SubstitutionModelException& operator=(const SubstitutionModelException& sme)
-    {
-      Exception::operator=(sme);
-      model_ = sme.model_;
-      return *this;
-    }
-
-    ~SubstitutionModelException();
-
-  public:
-    /**
-     * @brief Get the model that throws the exception.
-     *
-     * @return The model that throws the exception.
-     */
-    virtual const SubstitutionModel* getSubstitutionModel() const { return model_; }
-  };
-
-
   /*
    *
-   * @brief Interface for all transition models.
+   * @brief Interface for all Branch models.
    *
-   * A transition model defines transition probability matrices, the size of
-   * which depends on the alphabet used (4 for nucleotides, 20 for proteins, etc.).
-   * Each SubstitutionModel object hence includes a pointer toward an alphabet,
+   * Each BranchModel object includes a pointer toward an alphabet,
    * and provides a method to retrieve the alphabet used (getAlphabet() method).
    *
-   * What we want from a transition model is to compute the
-   * probabilities of state j at time t geven state j at time 0
-   * (\f$P_{i,j}(t)\f$).
-   *
-   * First and second order derivatives of \f$P(t)\f$ with respect to \f$t\f$
-   * can also be retrieved.
-   * These methods may be useful for optimization processes.
    *
    */
-
-  class TransitionModel :
+  
+  class BranchModel :
     public virtual ParameterAliasable
   {
   public:
-    TransitionModel() {}
-    virtual ~TransitionModel() {}
+    BranchModel() {}
+    virtual ~BranchModel() {}
 
-    TransitionModel* clone() const = 0;
+    BranchModel* clone() const = 0;
 
   public:
     /**
@@ -181,6 +138,100 @@ namespace bpp
      * @return The corresponding alphabet state as character code.
      */
     virtual std::string getAlphabetStateAsChar(size_t index) const = 0;
+
+    /**
+     * @return Get the alphabet associated to this model.
+     */
+    virtual const Alphabet* getAlphabet() const = 0;
+
+    /**
+     * @brief Get the number of states.
+     *
+     * For most models, this equals the size of the alphabet.
+     * @see getAlphabetChars for the list of supported states.
+     *
+     * @return The number of different states in the model.
+     */
+    virtual size_t getNumberOfStates() const = 0;
+
+    /**
+     * This method is used to initialize likelihoods in recursions.
+     * It typically sends 1 if i = state, 0 otherwise, where
+     * i is one of the possible states of the alphabet allowed in the model
+     * and state is the observed state in the considered sequence/site.
+     *
+     * @param i the index of the state in the model.
+     * @param state An observed state in the sequence/site.
+     * @return 1 or 0 depending if the two states are compatible.
+     * @throw IndexOutOfBoundsException if array position is out of range.
+     * @throw BadIntException if states are not allowed in the associated alphabet.
+     * @see getStates();
+     */
+    virtual double getInitValue(size_t i, int state) const = 0;
+
+    /**
+     * This method is used to compute likelihoods in recursions.
+     * It computes the probability of a vector given a start state.
+     *
+     * @param i the index of the state in the model.
+     * @param values An vector of states on the site.
+     * @param t time
+     * @throw IndexOutOfBoundsException if array position is out of range.
+     * @throw BadIntException if states are not allowed in the associated alphabet.
+     */
+    
+    virtual const Eigen::VectorXd& computeLikelihood(const Eigen::VectorXd& values, double t) const = 0;
+
+    /**
+     * @brief Get the rate
+     */
+    virtual double getRate() const = 0;
+
+    /**
+     * @brief Set the rate of the model (must be positive).
+     * @param rate must be positive.
+     */
+    virtual void setRate(double rate) = 0;
+
+    virtual void addRateParameter() = 0;  
+  };
+
+
+  /*
+   *
+   * @brief Interface for all transition models.
+   *
+   * A transition model defines transition probability matrices, the size of
+   * which depends on the alphabet used (4 for nucleotides, 20 for proteins, etc.).
+   * Each SubstitutionModel object hence includes a pointer toward an alphabet,
+   * and provides a method to retrieve the alphabet used (getAlphabet() method).
+   *
+   * What we want from a transition model is to compute the
+   * probabilities of state j at time t geven state j at time 0
+   * (\f$P_{i,j}(t)\f$).
+   *
+   * First and second order derivatives of \f$P(t)\f$ with respect to \f$t\f$
+   * can also be retrieved.
+   * These methods may be useful for optimization processes.
+   *
+   */
+
+  class TransitionModel :
+    public virtual BranchModel
+  {
+  private:
+
+    // For computation purpos
+
+    mutable Eigen::VectorXd lik_;
+    
+  public:
+    TransitionModel() {}
+    virtual ~TransitionModel() {}
+
+    TransitionModel* clone() const = 0;
+
+  public:
 
     /**
      * @return Equilibrium frequency associated to character i.
@@ -247,48 +298,28 @@ namespace bpp
     virtual const Matrix<double>& getd2Pij_dt2(double t) const = 0;
 
     /**
-     * @return Get the alphabet associated to this model.
-     */
-    virtual const Alphabet* getAlphabet() const = 0;
-
-    /**
-     * @brief Get the number of states.
-     *
-     * For most models, this equals the size of the alphabet.
-     * @see getAlphabetChars for the list of supported states.
-     *
-     * @return The number of different states in the model.
-     */
-    virtual size_t getNumberOfStates() const = 0;
-
-    /**
-     * This method is used to initialize likelihoods in reccursions.
-     * It typically sends 1 if i = state, 0 otherwise, where
-     * i is one of the possible states of the alphabet allowed in the model
-     * and state is the observed state in the considered sequence/site.
+     * This method is used to compute likelihoods in recursions.
+     * It computes the probability of a vector given a start state.
      *
      * @param i the index of the state in the model.
-     * @param state An observed state in the sequence/site.
-     * @return 1 or 0 depending if the two states are compatible.
+     * @param values An vector of states on the site.
      * @throw IndexOutOfBoundsException if array position is out of range.
      * @throw BadIntException if states are not allowed in the associated alphabet.
-     * @see getStates();
      */
-    virtual double getInitValue(size_t i, int state) const = 0;
+    
+    const Eigen::VectorXd& computeLikelihood(const Eigen::VectorXd& values, double t) const
+    {
+      lik_ = Eigen::VectorXd::Zero(values.size());
+      
+      const auto& pij=getPij_t(t);
 
-    /**
-     * @brief Get the rate
-     */
-    virtual double getRate() const = 0;
+      for (auto i=0;i<values.size();i++)
+        for (auto j=0;j<values.size();j++)
+          lik_(i)+=pij(i,j)*values(j);
 
-    /**
-     * @brief Set the rate of the model (must be positive).
-     * @param rate must be positive.
-     */
-    virtual void setRate(double rate) = 0;
+      return(lik_);
+    }
 
-    virtual void addRateParameter() = 0;
-  
     /**
      * @brief Set equilibrium frequencies equal to the frequencies estimated
      * from the data.
@@ -322,7 +353,7 @@ namespace bpp
 
     virtual Vdouble& getFrequencies_() = 0;
 
-    friend class AbstractTotallyWrappedModel;
+    friend class AbstractTotallyWrappedTransitionModel;
     friend class AbstractFromSubstitutionModelTransitionModel;
     friend class InMixedSubstitutionModel;
   };

@@ -55,7 +55,7 @@ namespace bpp
  */
 
   class AbstractBiblioTransitionModel :
-    public virtual AbstractTotallyWrappedModel,
+    public virtual AbstractTotallyWrappedTransitionModel,
     public AbstractParameterAliasable
   {
   protected:

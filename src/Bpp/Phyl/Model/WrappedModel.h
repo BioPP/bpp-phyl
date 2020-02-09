@@ -52,20 +52,36 @@ namespace bpp
  */
 
   class WrappedModel :
-    public virtual TransitionModel
+    public virtual BranchModel
   {
   public:
     WrappedModel() {}
     virtual ~WrappedModel() {}
     
-    virtual const TransitionModel& getModel() const = 0;
+    virtual const BranchModel& getModel() const = 0;
 
   protected:
-    virtual TransitionModel& getModel() = 0;
+    virtual BranchModel& getModel() = 0;
 
   public:
   };
-  
+
+  class WrappedTransitionModel :
+    public virtual WrappedModel,
+    public virtual TransitionModel
+  {
+  public:
+    WrappedTransitionModel() {}
+    virtual ~WrappedTransitionModel() {}
+    
+    virtual const TransitionModel& getTransitionModel() const = 0;
+
+  protected:
+    virtual TransitionModel& getTransitionModel() = 0;
+
+  public:
+  };
+
     
   class WrappedSubstitutionModel :
     public virtual WrappedModel,

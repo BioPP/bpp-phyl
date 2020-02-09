@@ -183,6 +183,7 @@ set (CPP_FILES
   Bpp/Phyl/Model/MixedSubstitutionModelSet.cpp
   Bpp/Phyl/Model/MixtureOfATransitionModel.cpp
   Bpp/Phyl/Model/MixtureOfTransitionModels.cpp
+  Bpp/Phyl/Model/MultinomialFromTransitionModel.cpp
   Bpp/Phyl/Model/Nucleotide/F81.cpp
   Bpp/Phyl/Model/Nucleotide/F84.cpp
   Bpp/Phyl/Model/Nucleotide/GTR.cpp
