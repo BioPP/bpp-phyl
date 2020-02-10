@@ -85,7 +85,6 @@ namespace bpp {
                                        const std::function<NodeRef (const std::string &)> & getParameter);
 
 
-    
     class ConfiguredParametrizable 
     {
     public:
@@ -239,7 +238,7 @@ namespace bpp {
 
       /** Create a new vector of dependencies node to a MatrixXd,
        * through a inheriting class (aka Self), from a
-       * ConfiguredObject
+       * ConfiguredObject and a ConfiguredParameter (ie branch length)
        *
        */
 

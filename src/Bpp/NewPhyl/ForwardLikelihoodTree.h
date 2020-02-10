@@ -57,6 +57,10 @@ namespace bpp
       return rowVectorDimension (Eigen::Index (nbState));
     }
 
+    inline MatrixDimension transitionFunctionDimension (std::size_t nbState) {
+      return vectorDimension (Eigen::Index (nbState));
+    }
+
     inline MatrixDimension conditionalLikelihoodDimension (std::size_t nbState, std::size_t nbSite) {
       return {Eigen::Index (nbState), Eigen::Index (nbSite)};
     }
@@ -92,6 +96,9 @@ namespace bpp
     using ForwardTransition =
       MatrixProduct<Eigen::MatrixXd, Eigen::MatrixXd, Eigen::MatrixXd>;
 
+    using ForwardTransitionFunction =
+      CWiseApply<Eigen::MatrixXd, Eigen::MatrixXd, TransitionFunction>;
+    
     /** @brief forwardLikelihood = f(transitionMatrix, proportion).
      * - forwardLikelihood: Matrix(state, site).
      * - proportion: Double

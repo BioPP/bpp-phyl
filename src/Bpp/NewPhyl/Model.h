@@ -68,7 +68,7 @@ namespace bpp {
      *
      * The dummy value is implemented as a pointer to the internal model for simplicity.
      */
-    class ConfiguredModel : public Value<const TransitionModel*>,
+    class ConfiguredModel : public Value<const BranchModel*>,
                             public AbstractParametrizable
     {
     private:
@@ -76,9 +76,9 @@ namespace bpp {
 
     public:
       using Self = ConfiguredModel;
-      using Target = TransitionModel;
+      using Target = BranchModel;
 
-      ConfiguredModel (Context& context, NodeRefVec && deps, std::unique_ptr<TransitionModel> && model);
+      ConfiguredModel (Context& context, NodeRefVec && deps, std::unique_ptr<BranchModel> && model);
       ~ConfiguredModel ();
 
       ConfiguredModel* clone() const
@@ -114,7 +114,7 @@ namespace bpp {
         model_->matchParametersValues(getParameters());
       }
 
-      std::unique_ptr<TransitionModel> model_;
+      std::unique_ptr<BranchModel> model_;
       
     };
 
@@ -286,13 +286,68 @@ namespace bpp {
     };
 
 
-    /** Probabilities = f(MixedModel).
-     * Probabilities: RowVector(nbClass).
-     * MixedModel: ConfiguredModel.
+    /** transitionProbability = f(model, branchLen).
+     * transitionProbability: f(fromState, vector) -> probability
+     * model: ConfiguredModel.
+     * branchLen: double.
      *
      * Node construction should be done with the create static method.
      */
-    
+
+    class TransitionFunctionFromModel : public Value<bpp::TransitionFunction> {
+    public:
+      using Self = TransitionFunctionFromModel;
+      using Dep = ConfiguredModel;
+      using T = Eigen::VectorXd;
+
+      /// Build a new TransitionMatrixFromModel node with the given output dimensions.
+      TransitionFunctionFromModel (NodeRefVec && deps, const Dimension<T> & dim);
+
+      std::string debugInfo () const final;
+
+      bool compareAdditionalArguments (const Node & other) const;
+
+      NodeRef derive (Context & c, const Node & node) final;
+      NodeRef recreate (Context & c, NodeRefVec && deps) final;
+
+      std::string color () const final
+      {
+        return "#aaff00";
+      }
+
+      std::string description () const final
+      {
+        return "TransitionFunction";
+      }
+
+      std::string shape() const
+      {
+        return "octagon";
+      }
+
+    private:
+      void compute () final;
+
+      static const Eigen::VectorXd& Lik_t_(const BranchModel* model, const Eigen::VectorXd& values, double t)
+      {
+        return model->Lik_t(values, t);
+      }
+
+      Dimension<T> targetDimension_;
+
+    public:
+      static std::shared_ptr<Self> create (Context & c, NodeRefVec && deps, const Dimension<Eigen::VectorXd> & dim);
+    };
+
+    /** dtransitionMatrix/dbrlen = f(model, branchLen).
+     * dtransitionMatrix/dbrlen: Matrix(fromState, toState).
+     * model: ConfiguredModel.
+     * branchLen: double.
+     *
+     * Node construction should be done with the create static method.
+     */
+
+
     class ProbabilitiesFromMixedModel : public Value<Eigen::RowVectorXd> {
     public:
       using Self = ProbabilitiesFromMixedModel;

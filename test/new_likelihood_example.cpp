@@ -61,6 +61,7 @@
 #include <Bpp/Phyl/Model/RateDistribution/GammaDiscreteRateDistribution.h>
 #include <Bpp/Phyl/Model/RateDistribution/ConstantRateDistribution.h>
 #include <Bpp/Phyl/Model/MixtureOfASubstitutionModel.h>
+#include <Bpp/Phyl/Model/MultinomialFromTransitionModel.h>
 #include <Bpp/Seq/Alphabet/AlphabetTools.h>
 #include <Bpp/Seq/Container/VectorSiteContainer.h>
 #include <chrono>
@@ -276,19 +277,21 @@ TEST_CASE("df")
 
   auto ts = timingStart();
 
-  auto t92 = new bpp::T92(&c.alphabet, 3., 0.7);
+  auto t92 = std::make_shared<bpp::T92>(&c.alphabet, 3., 0.7);
   std::map<std::string, bpp::DiscreteDistribution*> mapParam1;
   mapParam1["kappa"]=new bpp::GammaDiscreteDistribution(2, 1);
-  auto mt92 = std::make_shared<bpp::MixtureOfASubstitutionModel>(&c.alphabet, t92, mapParam1);
+//  auto mt92 = std::make_shared<bpp::MixtureOfASubstitutionModel>(&c.alphabet, t92.get(), mapParam1);
 
-  auto k80 = std::make_shared<bpp::K80>(&c.alphabet, 2.);
-  std::map<std::string, bpp::DiscreteDistribution*> mapParam2;
-  auto sdm=std::map<double, double>({{0.0001,0.3},{200.,0.7}});
+  // auto k80 = std::make_shared<bpp::K80>(&c.alphabet, 2.);
+  // std::map<std::string, bpp::DiscreteDistribution*> mapParam2;
+  // auto sdm=std::map<double, double>({{0.0001,0.3},{200.,0.7}});
   
-  mapParam2["kappa"]=new bpp::SimpleDiscreteDistribution(sdm);
-  auto mk80 = std::make_shared<bpp::MixtureOfASubstitutionModel>(&c.alphabet, k80.get(), mapParam2);
+  // mapParam2["kappa"]=new bpp::SimpleDiscreteDistribution(sdm);
+  // auto mk80 = std::make_shared<bpp::MixtureOfASubstitutionModel>(&c.alphabet, k80.get(), mapParam2);
 
-  
+  auto model=std::make_shared<bpp::MultinomialFromTransitionModel>(*t92);
+
+  /* scenario
   auto scenario = std::make_shared<bpp::ModelScenario>();
 
   auto mp1=make_shared<bpp::ModelPath>();
@@ -301,16 +304,7 @@ TEST_CASE("df")
   mp1->setModel(mk80,bpp::Vuint({1}));
   scenario->addModelPath(mp1);
 
-  // mp1=make_shared<bpp::ModelPath>();
-  // mp1->setModel(mt92,bpp::Vuint({1}));
-  // mp1->setModel(mk80,bpp::Vuint({1}));
-  // scenario->addModelPath(mp1);
-
-  // mp1=make_shared<bpp::ModelPath>();
-  // mp1->setModel(mt92,bpp::Vuint({1}));
-//  mp1->setModel(mk80,bpp::Vuint({2}));
-//  scenario->addModelPath(mp1);
-
+  */
 
   auto rootFreqs = new bpp::GCFrequenciesSet(&c.alphabet, 0.1);
 
@@ -321,18 +315,19 @@ TEST_CASE("df")
   bpp::Newick reader;
   auto phyloTree = std::unique_ptr<bpp::PhyloTree>(reader.parenthesisToPhyloTree(c.treeStr, false, "", false, false));
   auto paramPhyloTree = new bpp::ParametrizablePhyloTree(*phyloTree);
-  std::vector<std::string> globalParameterNames({"T92.kappa"});
+//  std::vector<std::string> globalParameterNames({"T92.kappa"});
 
   // auto process =
   //   std::unique_ptr<bpp::NonHomogeneousSubstitutionProcess>(bpp::NonHomogeneousSubstitutionProcess::createNonHomogeneousSubstitutionProcess(model.get(), distribution, paramPhyloTree, rootFreqs, globalParameterNames));
 
-  auto process = std::make_shared<bpp::NonHomogeneousSubstitutionProcess>(distribution, paramPhyloTree, rootFreqs);
 
-  process->addModel(mt92, bpp::Vuint({0,1}));
-  process->addModel(k80, bpp::Vuint({2,3}));
 //  process->setModelScenario(scenario);
+
   
-    // std::unique_ptr<bpp::NonHomogeneousSubstitutionProcess>(bpp::NonHomogeneousSubstitutionProcess::createHomogeneousSubstitutionProcess(model, distribution, paramPhyloTree, rootFreqs, scenario));
+    auto process  = std::make_shared<bpp::NonHomogeneousSubstitutionProcess>(distribution, paramPhyloTree, rootFreqs);
+//    process->addModel(model, bpp::Vuint({0,1,2,3}));
+    
+//std::shared_ptr<bpp::NonHomogeneousSubstitutionProcess>(bpp::NonHomogeneousSubstitutionProcess::createHomogeneousSubstitutionProcess(model, distribution, paramPhyloTree, rootFreqs));//, scenario));
 
   // Build likelihood value node
   auto l = std::make_shared<bpp::dataflow::LikelihoodCalculationSingleProcess>(context, c.sites, *process);

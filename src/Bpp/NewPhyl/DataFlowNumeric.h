@@ -130,6 +130,11 @@ namespace bpp {
     Dimension (const MatrixDimension & dim) : MatrixDimension (dim) {} // From MatrixDimension
   };
 
+  /*******************************************/
+  /*** Definition of function from (const Eigen::Vector&) -> const Eigen::Vector& ***/
+
+  using TransitionFunction = std::function<const Eigen::VectorXd&(const Eigen::VectorXd&)>;
+    
   /******************************************************************************
    * Collection of overloaded numerical functions.
    * Not documented with doxygen, as this is only intended for use in dataflow nodes.
@@ -305,6 +310,11 @@ namespace bpp {
       return props;
     }
     
+    template <typename T = TransitionFunction>
+    std::string debug (const TransitionFunction& f){//, typename std::enable_if<!std::is_same<Derived, Parameter const&>::value>::type* = 0) {
+      // With matrices, check some numeric properties and encode results as text
+      return "TransitionFunction";
+    }
 
     /**************************************************/
     /*  HASH */

@@ -180,7 +180,7 @@ namespace bpp
      * @throw BadIntException if states are not allowed in the associated alphabet.
      */
     
-    virtual const Eigen::VectorXd& computeLikelihood(const Eigen::VectorXd& values, double t) const = 0;
+    virtual const Eigen::VectorXd& Lik_t(const Eigen::VectorXd& values, double t) const = 0;
 
     /**
      * @brief Get the rate
@@ -307,7 +307,7 @@ namespace bpp
      * @throw BadIntException if states are not allowed in the associated alphabet.
      */
     
-    const Eigen::VectorXd& computeLikelihood(const Eigen::VectorXd& values, double t) const
+    const Eigen::VectorXd& Lik_t(const Eigen::VectorXd& values, double t) const
     {
       lik_ = Eigen::VectorXd::Zero(values.size());
       

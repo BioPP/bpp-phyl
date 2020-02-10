@@ -166,12 +166,10 @@ namespace bpp
       return *subModel_.get();
     }
 
-    const Eigen::VectorXd& P_t    (const Eigen::VectorXd& from, double t) const;
-    const Eigen::VectorXd& dP_dt  (const Eigen::VectorXd& from, double t) const;
-    const Eigen::VectorXd& d2P_dt2(const Eigen::VectorXd& from, double t) const;
+    const Eigen::VectorXd& Lik_t    (const Eigen::VectorXd& from, double t) const;
+    const Eigen::VectorXd& dLik_dt  (const Eigen::VectorXd& from, double t) const;
+    const Eigen::VectorXd& d2Lik_dt2(const Eigen::VectorXd& from, double t) const;
         
-    const Eigen::VectorXd& computeLikelihood(const Eigen::VectorXd& values, double t) const;
-    
     void setFreqFromData(const SequencedValuesContainer& data, double pseudoCount)
     {
       getTransitionModel().setFreqFromData(data, pseudoCount);

@@ -73,9 +73,16 @@ ForwardLikelihoodBelowRef ForwardLikelihoodTree::makeForwardLikelihoodAtEdge (sh
   
   if (brlen) // Branch with transition through a model
   {
-    auto transitionMatrix = ConfiguredParametrizable::createMatrix<ConfiguredModel, TransitionMatrixFromModel> (context_, {model, brlen, nMod}, transitionMatrixDimension (nbState_));
-    forwardEdge = ForwardTransition::create (
+    if (dynamic_cast<const TransitionModel*>(model->getTargetValue()))
+    {
+      auto transitionMatrix = ConfiguredParametrizable::createMatrix<ConfiguredModel, TransitionMatrixFromModel> (context_, {model, brlen, nMod}, transitionMatrixDimension (nbState_));
+      forwardEdge = ForwardTransition::create (
       context_, {transitionMatrix, childConditionalLikelihood}, likelihoodMatrixDim_);
+    }
+    else{
+      auto transitionFunction = TransitionFunctionFromModel::create(context_, {model, brlen}, transitionFunctionDimension(nbState_));
+      forwardEdge = ForwardTransitionFunction::create(context_ , {childConditionalLikelihood, transitionFunction}, likelihoodMatrixDim_);
+    }
   }
   else if (brprob)
   {

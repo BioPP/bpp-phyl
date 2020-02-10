@@ -120,14 +120,8 @@ namespace bpp {
         checkDependenciesNotNull (typeid (Self), deps);
         checkDependencyVectorSize (typeid (Self), deps, 1);
         checkNthDependencyIsValue<T> (typeid (Self), deps, 0);
-        // Remove 0s from deps
-        if (deps[0]->hasNumericalProperty (NumericalProperty::ConstantZero))
-          return ConstantZero<R>::create (c, dim);
-        else if (deps[0]->hasNumericalProperty (NumericalProperty::ConstantOne))
-          return ConstantOne<R>::create (c, dim);
-        else {
-          return cachedAs<Value<R>> (c, std::make_shared<Self> (std::move (deps), dim));
-        }
+
+        return cachedAs<Value<R>> (c, std::make_shared<Self> (std::move (deps), dim));
       }
 
       CWiseFill (NodeRefVec && deps, const Dimension<R> & dim)
@@ -193,7 +187,105 @@ namespace bpp {
 
     };
 
+    /** @brief r = f(x0) for each component or column
+     * - r: R.
+     * - x0: R
+     * - f : function between columns or components of R (type F)
+     *
+     */
+    
+    template <typename R, typename T, typename F> class CWiseApply : public Value<R> {
+    public:
+      using Self = CWiseApply;
 
+      /// Build a new CWiseApply node.
+      static ValueRef<R> create (Context & c, NodeRefVec && deps, const Dimension<R> & dim) {
+        // Check dependencies
+        checkDependenciesNotNull (typeid (Self), deps);
+        checkDependencyVectorSize (typeid (Self), deps, 2);
+        checkNthDependencyIsValue<T> (typeid (Self), deps, 0);
+        checkNthDependencyIsValue<F> (typeid (Self), deps, 1);
+
+        return cachedAs<Value<R>> (c, std::make_shared<Self> (std::move (deps), dim));
+      }
+
+      CWiseApply (NodeRefVec && deps, const Dimension<R> & dim)
+        : Value<R> (std::move (deps)), targetDimension_ (dim)
+      {
+        this->accessValueMutable().resize(dim.rows,dim.cols);
+      }
+
+      std::string debugInfo () const override {
+        using namespace numeric;
+        return debug (this->accessValueConst ()) + " targetDim=" + to_string (targetDimension_);
+      }
+
+      // CWiseApply additional arguments = ().
+      bool compareAdditionalArguments (const Node & other) const final {
+        return dynamic_cast<const Self *> (&other) != nullptr;
+      }
+
+      // d(f(X))=f(dX).df(X) 
+      
+      NodeRef derive (Context & c, const Node & node) final {
+        if (&node == this) {
+          return ConstantOne<R>::create (c, targetDimension_);
+        }
+
+        NodeRefVec dep(2);
+        NodeRef dX = this->dependency(0)->derive (c, node);
+        dep[0] = Self::create (c, {dX, this->dependency(1)}, targetDimension_);
+
+        NodeRef df = this->dependency(1)->derive (c, node);
+        dep[1] = Self::create (c, {this->dependency(0), df}, targetDimension_);
+        
+        return CWiseMul<R, std::tuple<R, R>>::create (c, {std::move(dep)}, targetDimension_);
+      }
+
+      NodeRef recreate (Context & c, NodeRefVec && deps) final {
+        return Self::create (c, std::move (deps), targetDimension_);
+      }
+
+    private:
+      void compute() { compute<T>();}
+      
+      template<class U=T>
+      typename std::enable_if<std::is_same<F, TransitionFunction>::value, void>::type
+      compute () {
+        using namespace numeric;
+        auto & result = this->accessValueMutable ();
+        const auto & x0 = accessValueConstCast<T> (*this->dependency (0));
+
+        const auto & func = accessValueConstCast<F> (*this->dependency (1));
+
+        for (auto i=0; i<x0.cols(); i++)
+          result.col(i) = func(x0.col(i));
+
+      }    
+
+      // template<class U=T>
+      // typename std::enable_if<std::is_same<U,Eigen::RowVectorXd>::value>::type
+      // compute ()
+      // {
+      //   using namespace numeric;
+      //   auto & result = this->accessValueMutable ();
+      //   const auto & x0 = accessValueConstCast<T> (*this->dependency (0));
+      //   result.colwise()=x0.transpose();
+      // }      
+
+      // template<class U=T>
+      // typename std::enable_if<std::is_same<U,Eigen::VectorXd>::value>::type
+      // compute ()
+      // {
+      //   using namespace numeric;
+      //   auto & result = this->accessValueMutable ();
+      //   const auto & x0 = accessValueConstCast<T> (*this->dependency (0));
+      //   result.colwise()=x0;
+      // }      
+
+      Dimension<R> targetDimension_;
+
+    };
 
     /** @brief build a Value to a Eigen T which columns are accessible
      * through a pattern.
@@ -273,7 +365,6 @@ namespace bpp {
 
     };
     
-
     /** @brief r = x0 + x1 for each component.
      * - r: R.
      * - x0: T0.
@@ -594,7 +685,7 @@ namespace bpp {
         return "Mean";
       }
       
-      // CWiseAdd additional arguments = ().
+      // CWiseMean additional arguments = ().
       bool compareAdditionalArguments (const Node & other) const final {
         return dynamic_cast<const Self *> (&other) != nullptr;
       }
@@ -1873,6 +1964,11 @@ namespace bpp {
     extern template class CWiseFill<Eigen::VectorXd, double>;
     extern template class CWiseFill<Eigen::MatrixXd, Eigen::VectorXd>;
     extern template class CWiseFill<Eigen::MatrixXd, Eigen::RowVectorXd>;
+
+    // extern template class CWiseApply<Eigen::RowVectorXd, double>;
+    // extern template class CWiseApply<Eigen::VectorXd, double>;
+    extern template class CWiseApply<Eigen::MatrixXd, Eigen::MatrixXd, TransitionFunction>;
+    // extern template class CWiseApply<Eigen::MatrixXd, Eigen::RowVectorXd>;
 
     extern template class CWiseAdd<double, std::tuple<double, double>>;
     extern template class CWiseAdd<Eigen::VectorXd, std::tuple<Eigen::VectorXd, Eigen::VectorXd>>;
