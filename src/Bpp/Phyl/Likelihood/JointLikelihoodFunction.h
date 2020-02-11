@@ -84,7 +84,6 @@ class JointLikelihoodFunction:
     BppApplication* bppml_;
     RHomogeneousTreeLikelihood* characterTreeLikelihood_; 
     RNonHomogeneousMixedTreeLikelihood* sequenceTreeLikelihood_; 
-    ParameterList jointParameters_;
     map<string, double> previousParametersValues_;
     StochasticMapping* stocMapping_;
     OptimizationScope optimizationScope_;
@@ -119,7 +118,6 @@ class JointLikelihoodFunction:
       bppml_(jlf.bppml_),
       characterTreeLikelihood_(jlf.characterTreeLikelihood_->clone()),
       sequenceTreeLikelihood_(dynamic_cast<RNonHomogeneousMixedTreeLikelihood*>(jlf.sequenceTreeLikelihood_->clone())),
-      jointParameters_(),
       previousParametersValues_(jlf.previousParametersValues_),
       stocMapping_(jlf.stocMapping_->clone()),
       optimizationScope_(jlf.optimizationScope_),
@@ -132,11 +130,6 @@ class JointLikelihoodFunction:
       debug_(jlf.debug_),
       cycleNum_(jlf.cycleNum_)
     {   
-      TransitionModel* characterModel = characterTreeLikelihood_->getModel();
-      jointParameters_.addParameters(characterModel->getParameters());
-      MixedSubstitutionModelSet* sequenceModel = dynamic_cast<MixedSubstitutionModelSet*>(sequenceTreeLikelihood_->getSubstitutionModelSet());
-      jointParameters_.addParameters(sequenceModel->getParameters());
-       
     }
 
     // assignment operator
@@ -146,10 +139,6 @@ class JointLikelihoodFunction:
       bppml_ = jlf.bppml_;
       characterTreeLikelihood_ = jlf.characterTreeLikelihood_->clone(); 
       sequenceTreeLikelihood_ = dynamic_cast<RNonHomogeneousMixedTreeLikelihood*>(jlf.sequenceTreeLikelihood_->clone()); 
-      TransitionModel* characterModel = characterTreeLikelihood_->getModel();
-      jointParameters_.addParameters(characterModel->getParameters());
-      MixedSubstitutionModelSet* sequenceModel = dynamic_cast<MixedSubstitutionModelSet*>(sequenceTreeLikelihood_->getSubstitutionModelSet());
-      jointParameters_.addParameters(sequenceModel->getParameters());
       previousParametersValues_ = jlf.previousParametersValues_;
       stocMapping_ = jlf.stocMapping_->clone();
       optimizationScope_ = jlf.optimizationScope_;
@@ -304,11 +293,6 @@ class JointLikelihoodFunction:
     // all these functions use parameters_ datamember which would be empty in this case
 
     bool hasParameter(const std::string& name) const { return (characterTreeLikelihood_->hasParameter(name) || sequenceTreeLikelihood_->hasParameter(name)); }
-
-    const ParameterList& getParameters() const 
-    {
-      return jointParameters_; 
-    }
     
     const Parameter& getParameter(const std::string& name) const
     {
