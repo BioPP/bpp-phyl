@@ -123,7 +123,7 @@ RELAX::RELAX(const GeneticCode* gc, FrequenciesSet* codonFreqs) :
   addParameter_(new Parameter("RELAX.omega2", 2, new IntervalConstraint(1, 999, true, true), true));
 
   // add a selection intensity parameter k, which is 1 in the null case
-  addParameter_(new Parameter("RELAX.k", 1, new IntervalConstraint(0, 2, true, true), true)); // selection intensity parameter for purifying and neutral selection parameters 
+  addParameter_(new Parameter("RELAX.k", 1, new IntervalConstraint(0, 2, false, true), true)); // selection intensity parameter for purifying and neutral selection parameters 
 
   // look for synonymous codons
   // assumes that the states number follow the map in the genetic code and thus:
