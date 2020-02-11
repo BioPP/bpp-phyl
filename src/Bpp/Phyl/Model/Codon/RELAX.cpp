@@ -116,14 +116,14 @@ RELAX::RELAX(const GeneticCode* gc, FrequenciesSet* codonFreqs) :
   YN98_1.omega = RELAX.omega1 ^ RELAX.k  
   YN98_2.omega = RELAX.omega2 ^ RELAX.k */
   // reparameterization of omega0: RELAX.omega0 = RELAX.p*RELAX.omega1
-  addParameter_(new Parameter("RELAX.p", 0.5, new IntervalConstraint(1e-4, 1, true, true), true)); // orig NumConstants::MILLI()
+  addParameter_(new Parameter("RELAX.p", 0.5, new IntervalConstraint(0.001, 1, true, true), true)); // orig NumConstants::MILLI()
   addParameter_(new Parameter("RELAX.omega1", 1, new IntervalConstraint(0.1, 1, true, true), true));
 
   // the upper bound of omega3 in its submodel is 999, so I must restrict upperBound(RELAX.omega2)^upperBound(RELAX.k)<=999 -> set maximal omega to 5  
   addParameter_(new Parameter("RELAX.omega2", 2, new IntervalConstraint(1, 999, true, true), true));
 
   // add a selection intensity parameter k, which is 1 in the null case
-  addParameter_(new Parameter("RELAX.k", 1, new IntervalConstraint(0, 2, false, true), true)); // selection intensity parameter for purifying and neutral selection parameters 
+  addParameter_(new Parameter("RELAX.k", 1, new IntervalConstraint(0, 10, false, true), true)); // selection intensity parameter for purifying and neutral selection parameters 
 
   // look for synonymous codons
   // assumes that the states number follow the map in the genetic code and thus:
@@ -174,18 +174,18 @@ void RELAX::updateMatrices()
       {                         // handle omega0 differently due to reparameterization via RELAX.p
         omega = getParameterValue("p") * getParameterValue("omega1");
         omega = pow(omega,k);
-        if (omega < 1e-4)
+        if (omega < 0.001)
         {
-          omega = 1e-4;
+          omega = 0.001;
         }
       }
       else if (ind == 1)
       {
         omega = getParameterValue("omega1");
         omega = pow (omega, k);  
-        if (omega <= 1e-4)
+        if (omega <= 0.001)
         {
-          omega = 1e-4;
+          omega = 0.001;
         }
       }
       else
