@@ -617,7 +617,10 @@ void JointLikelihoodFunction::optimizeSequenceModel()
 	if (verbose)
 		cout << "** Optimzing the sequence model **" << endl;
 
-	string initialParamsToIgnore = ApplicationTools::getStringParameter("optimization.ignore_parameters", bppml_->getParams(), "", "", true, true);
+	// reset the parameters to ignore
+	bppml_->getParam("optimization.ignore_parameters") = "BrLen";
+	// now set the addional parameters you would like to ignore
+	string initialParamsToIgnore = ApplicationTools::getStringParameter("optimization.ignore_parameters_additonal", bppml_->getParams(), "", "", true, true);
     string paramsToIgnore;
 	bool isAlternative = false;
     // extract the user initial values sd initial starting point
@@ -645,14 +648,13 @@ void JointLikelihoodFunction::optimizeSequenceModel()
         case alternative: 
             cycleNum_ = cycleNum_ + 1;
             isAlternative = true;
-            // reset the initial value of RELAX.k_2 to the initial value form the parameters file (will run over the setting as 1 in case of preceding null model optimization)
             paramsToIgnore = initialParamsToIgnore + ",BrLen,RELAX.k_1,RELAX.1_Full.theta_1,RELAX.1_Full.theta1_1,RELAX.1_Full.theta2_1,RELAX.2_Full.theta_1,RELAX.2_Full.theta1_1,RELAX.2_Full.theta2_1,RELAX.3_Full.theta_1,RELAX.3_Full.theta1_1,RELAX.3_Full.theta2_1"; // ignore frequency parameters to reduce optimization duration - results in one unit of ll reduction in optimality and 1 minutre reduction in duration
             break;      // k = 1 only in model1 (BG) 
         default:
             throw Exception("Error! illegal hypothesis setting");
     }
     bppml_->getParam("optimization.ignore_parameters") = paramsToIgnore;
-    // first optimize the scaling parameter: 0 = don't scale, 1 - scale only before optimization, 2 - scale only after optimization, 3 - scale before and after optimization
+	// first optimize the scaling parameter: 0 = don't scale, 1 - scale only before optimization, 2 - scale only after optimization, 3 - scale before and after optimization
     int scaleTree = ApplicationTools::getIntParameter("optimization.scale.tree", bppml_->getParams(), 0);
     if (scaleTree >= 1)
     {
@@ -761,9 +763,9 @@ void JointLikelihoodFunction::optimizeSequenceModel()
         cout << "** Step 1: choosing initial starting points from a selection of " << startingPointsByCycle[0] << " points **" << endl;
         size_t numberOfRexalationPoints = static_cast<size_t>(floor(startingPointsByCycle[0]/2));
         size_t numberOfIntensificationPoints = startingPointsByCycle[0] - numberOfRexalationPoints;
-        double relaxationInterval = 1 / static_cast<double>(numberOfRexalationPoints);
+        double relaxationInterval = 1 / static_cast<double>(numberOfRexalationPoints) - 0.0001;
         double bgOmega0 = sequenceTreeLikelihood_->getParameterValue("RELAX.p_1") * sequenceTreeLikelihood_->getParameterValue("RELAX.omega1_1");
-        double bgOmega2 = sequenceTreeLikelihood_->getParameterValue("RELAX.k_2");
+        double bgOmega2 = sequenceTreeLikelihood_->getParameterValue("RELAX.omega2_1");
         double maxSigK = min(min(max(log(0.0001+0.0001)/log(bgOmega0+0.0001),1.0), max(log(999+0.0001)/log(bgOmega2+0.0001),1.0)), 10.0); // compute the maximal k for which the breakwater in RELAX model implementation is not expressed (any k beyond this value will yield the same likelihood)
         double intensificationInterval = (maxSigK-1) / static_cast<double>(numberOfIntensificationPoints);
         vector<double> startingPoints;
@@ -774,7 +776,7 @@ void JointLikelihoodFunction::optimizeSequenceModel()
         {
             if (r < numberOfRexalationPoints)
             {
-                startingPoints[r] = 0 + static_cast<double>(r)*relaxationInterval;
+                startingPoints[r] = 0.0001 + static_cast<double>(r)*relaxationInterval;
             }
             else
             {

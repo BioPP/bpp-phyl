@@ -101,7 +101,7 @@ class JointLikelihoodFunction:
     /**
      * @brief Internal builtin function by which stsrting points are sorted in the optimization procedure
      */
-    static bool sortStartingPointsFunction(map<string,double> i,map<string,double> j) { return (i["logl"]>j["logl"]); }
+    static bool sortStartingPointsFunction(map<string,double> i,map<string,double> j) { return (i["Overall Log likelihood"]<j["Overall Log likelihood"]); }
 
 
   public:
