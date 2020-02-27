@@ -236,7 +236,8 @@ int main()
         SubstitutionModel* model = new TwoParameterBinarySubstitutionModel(alphabet,mu,pi0);
         // process tree
 
-        TreeTemplate<Node>* ttree = TreeTemplateTools::parenthesisToTree("(((S1:0,S2:0):1,S3:2):1,(S4:1,S5:1):2);");
+        //TreeTemplate<Node>* ttree = TreeTemplateTools::parenthesisToTree("(((S1:0,S2:0):1,S3:2):1,(S4:1,S5:1):2);");
+		TreeTemplate<Node>* ttree = TreeTemplateTools::parenthesisToTree("(S15:0.85385,((S19:0.0854569,S16:0.139158):0.248594,(((((S12:0.0215813,S14:0.0122578):0.00733911,((S20:0.0133406,S18:0.02058):0.00622244,S8:0.0616991):0.00855007):0.0194517,S21:0.0361841):0.0260926,(S10:6.01257,S9:0.0572114):0.00432963):0.0582364,((((S11:0.00192042,((S13:0.00546429,S22:0.00413541):1e-06,S7:0.00544892):0.00223313):0.0224013,S6:0.0147796):0.0012621,(S24:1e-06,S23:1e-06):0.020303):0.0480321,((S2:0.0212492,((S1:0.029627,S3:0.322449):1e-06,S17:0.0303775):1e-06):0.0311297,(S5:0.00337913,S4:1e-06):0.0451854):0.00880453):0.0445887):0.133367):0.85385);");
         Tree* tree = dynamic_cast<Tree*>(ttree); 
         giveNamesToInternalNodes(tree); // give internal names to nodes in post-order
 
@@ -246,11 +247,35 @@ int main()
         // process character data
 
         VectorSiteContainer sites(alphabet);
-        sites.addSequence(BasicSequence("S1", "0", alphabet));
+        /*sites.addSequence(BasicSequence("S1", "0", alphabet));
         sites.addSequence(BasicSequence("S2", "0", alphabet));
         sites.addSequence(BasicSequence("S3", "0", alphabet));
         sites.addSequence(BasicSequence("S4", "0", alphabet));
-        sites.addSequence(BasicSequence("S5", "1", alphabet));
+        sites.addSequence(BasicSequence("S5", "1", alphabet)); */
+		sites.addSequence(BasicSequence("S1", "1", alphabet));
+		sites.addSequence(BasicSequence("S2", "0", alphabet));
+		sites.addSequence(BasicSequence("S3", "1", alphabet));
+		sites.addSequence(BasicSequence("S4", "0", alphabet));
+		sites.addSequence(BasicSequence("S5", "0", alphabet));
+		sites.addSequence(BasicSequence("S6", "0", alphabet));
+		sites.addSequence(BasicSequence("S7", "0", alphabet));
+		sites.addSequence(BasicSequence("S8", "1", alphabet));
+		sites.addSequence(BasicSequence("S9", "0", alphabet));
+		sites.addSequence(BasicSequence("S10", "0", alphabet));
+		sites.addSequence(BasicSequence("S11", "0", alphabet));
+		sites.addSequence(BasicSequence("S12", "0", alphabet));
+		sites.addSequence(BasicSequence("S13", "0", alphabet));
+		sites.addSequence(BasicSequence("S14", "1", alphabet));
+		sites.addSequence(BasicSequence("S15", "1", alphabet));
+		sites.addSequence(BasicSequence("S16", "1", alphabet));
+		sites.addSequence(BasicSequence("S17", "0", alphabet));
+		sites.addSequence(BasicSequence("S18", "1", alphabet));
+		sites.addSequence(BasicSequence("S19", "0", alphabet));
+		sites.addSequence(BasicSequence("S20", "1", alphabet));
+		sites.addSequence(BasicSequence("S21", "1", alphabet));
+		sites.addSequence(BasicSequence("S22", "0", alphabet));
+		sites.addSequence(BasicSequence("S23", "0", alphabet));
+		sites.addSequence(BasicSequence("S24", "0", alphabet));
         // create tree likelihood function
 
         DiscreteDistribution* rDist = new ConstantRateDistribution();
