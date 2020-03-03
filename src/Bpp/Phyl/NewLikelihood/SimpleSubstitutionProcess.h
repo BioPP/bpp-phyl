@@ -55,16 +55,11 @@ class SimpleSubstitutionProcess :
     public AbstractSubstitutionProcess
 {
 protected:
-  std::shared_ptr<TransitionModel> model_;
+  std::shared_ptr<BranchModel> model_;
 
 private:
-  /**
-   * @brief The related Computing Tree
-   */
-  mutable std::unique_ptr<ComputingTree> computingTree_;
-
 public:
-  SimpleSubstitutionProcess(std::shared_ptr<TransitionModel> model, ParametrizablePhyloTree* tree);
+  SimpleSubstitutionProcess(std::shared_ptr<BranchModel> model, ParametrizablePhyloTree* tree);
 
   SimpleSubstitutionProcess(const SimpleSubstitutionProcess& ssp);
 
@@ -91,20 +86,20 @@ public:
     return(std::vector<size_t>(1,1));
   }
 
-  const TransitionModel* getModel(unsigned int nodeId, size_t classIndex) const
+  const BranchModel* getModel(unsigned int nodeId, size_t classIndex) const
   {
     return model_.get();
   }
 
-  const TransitionModel* getModel(size_t n) const
+  const BranchModel* getModel(size_t n) const
   {
     return model_.get();
   }
 
   const std::vector<unsigned int> getNodesWithModel(size_t i) const
   {
-    std::vector<uint> innodes=(*computingTree_)[0]->getAllEdgesIndexes();
-    return innodes;
+    throw Exception("SimpleSubstitutionProcess::getNodesWithModel not finished. Ask developpers.");
+    return Vuint(0);
   }
 
   size_t getModelNumberForNode(unsigned int nodeId) const
@@ -112,7 +107,7 @@ public:
     return 1;
   }
   
-  const TransitionModel* getModelForNode(unsigned int nodeId) const
+  const BranchModel* getModelForNode(unsigned int nodeId) const
   {
     return model_.get();
   }
@@ -148,7 +143,10 @@ public:
   }
   
   const std::vector<double>& getRootFrequencies() const {
-    return model_->getFrequencies();
+    if (std::dynamic_pointer_cast<const TransitionModel>(model_))
+      return std::dynamic_pointer_cast<const TransitionModel>(model_)->getFrequencies();
+    else
+      throw Exception("SimpleSubstitutionProcess::getRootFrequencies not possible with a non Transition Model.");
   }
 
   /**
@@ -178,16 +176,6 @@ public:
     if (classIndex != 0)
       throw IndexOutOfBoundsException("SimpleSubstitutionProcess::getRateForModel.", classIndex, 0, 1);
     return 1;
-  }
-
-  const ComputingTree& getComputingTree() const
-  {
-    return *computingTree_.get();
-  }
-
-  ComputingTree& getComputingTree()
-  {
-    return *computingTree_.get();
   }
 
   //bool transitionProbabilitiesHaveChanged() const { return true; }

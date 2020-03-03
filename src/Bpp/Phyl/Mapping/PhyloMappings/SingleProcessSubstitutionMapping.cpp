@@ -77,7 +77,7 @@ void SingleProcessSubstitutionMapping::setBranchedModelSet_()
   vector<size_t> vId=sp.getModelNumbers();
   
   for (auto id:vId)
-    addModel(id, *sp.getModel(id),sp.getNodesWithModel(id));
+    addModel(id, dynamic_cast<const TransitionModel&>(*sp.getModel(id)),sp.getNodesWithModel(id));
 }
 
   

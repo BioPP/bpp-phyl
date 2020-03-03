@@ -69,11 +69,13 @@ namespace bpp {
     template class CWiseAdd<Eigen::VectorXd, std::tuple<Eigen::VectorXd, Eigen::VectorXd>>;
     template class CWiseAdd<Eigen::RowVectorXd, std::tuple<Eigen::RowVectorXd, Eigen::RowVectorXd>>;
     template class CWiseAdd<Eigen::MatrixXd, std::tuple<Eigen::MatrixXd, Eigen::MatrixXd>>;
+    template class CWiseAdd<TransitionFunction, std::tuple<TransitionFunction, TransitionFunction>>;
 
     template class CWiseAdd<double, ReductionOf<double>>;
     template class CWiseAdd<Eigen::VectorXd, ReductionOf<Eigen::VectorXd>>;
     template class CWiseAdd<Eigen::RowVectorXd, ReductionOf<Eigen::RowVectorXd>>;
     template class CWiseAdd<Eigen::MatrixXd, ReductionOf<Eigen::MatrixXd>>;
+    template class CWiseAdd<TransitionFunction, ReductionOf<TransitionFunction>>;
 
     template class CWiseMean<Eigen::VectorXd, ReductionOf<Eigen::VectorXd>, ReductionOf<double>>;
     template class CWiseMean<Eigen::RowVectorXd, ReductionOf<Eigen::RowVectorXd>, ReductionOf<double>>;
@@ -102,7 +104,9 @@ namespace bpp {
     template class CWiseMul<Eigen::VectorXd, std::tuple<double, Eigen::VectorXd>>;
     template class CWiseMul<Eigen::RowVectorXd, std::tuple<double, Eigen::RowVectorXd>>;
     template class CWiseMul<Eigen::MatrixXd, std::tuple<double, Eigen::MatrixXd>>;
-
+    template class CWiseMul<TransitionFunction, std::tuple<TransitionFunction, TransitionFunction>>;
+    template class CWiseMul<TransitionFunction, std::tuple<double, TransitionFunction>>;
+    
     template class CWiseMul<double, ReductionOf<double>>;
     template class CWiseMul<Eigen::VectorXd, ReductionOf<Eigen::VectorXd>>;
     template class CWiseMul<Eigen::RowVectorXd, ReductionOf<Eigen::RowVectorXd>>;
@@ -155,5 +159,6 @@ namespace bpp {
     template class CombineDeltaShifted<Eigen::VectorXd>;
     template class CombineDeltaShifted<Eigen::RowVectorXd>;
     template class CombineDeltaShifted<Eigen::MatrixXd>;
+    template class CombineDeltaShifted<TransitionFunction>;
   } // namespace dataflow
 } // namespace bpp

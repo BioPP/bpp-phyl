@@ -117,8 +117,8 @@ void SubstitutionProcessCollection::clear()
 void SubstitutionProcessCollection::addParametrizable(std::shared_ptr<Parametrizable> parametrizable, size_t parametrizableIndex, bool withParameters)
 {
   ParameterList pl;
-  if (std::dynamic_pointer_cast<TransitionModel>(parametrizable)){
-    modelColl_.addObject(std::dynamic_pointer_cast<TransitionModel>(parametrizable), parametrizableIndex);
+  if (std::dynamic_pointer_cast<BranchModel>(parametrizable)){
+    modelColl_.addObject(std::dynamic_pointer_cast<BranchModel>(parametrizable), parametrizableIndex);
     pl=modelColl_.getParametersForObject(parametrizableIndex);
   }
   else
@@ -167,29 +167,29 @@ void SubstitutionProcessCollection::fireParameterChanged(const ParameterList& pa
   modelColl_.matchParametersValues(gAP);
 
   
-  const vector<size_t>& vM=modelColl_.hasChanged();
-  for (size_t i=0; i<vM.size(); i++)
-  {
-    const vector<size_t>& vs=mModelToSubPro_[vM[i]];
-    for (size_t j=0; j<vs.size(); j++){
-      mSubProcess_[vs[j]]->changedModel(vM[i]);
-      if (mSubProcess_[vs[j]]->isStationary())
-        mSubProcess_[vs[j]]->changedRoot();
-    }
-  }
+//   const vector<size_t>& vM=modelColl_.hasChanged();
+//   for (size_t i=0; i<vM.size(); i++)
+//   {
+//     const vector<size_t>& vs=mModelToSubPro_[vM[i]];
+//     for (size_t j=0; j<vs.size(); j++){
+// //      mSubProcess_[vs[j]]->changedModel(vM[i]);
+//       if (mSubProcess_[vs[j]]->isStationary())
+//         mSubProcess_[vs[j]]->changedRoot();
+//     }
+//   }
   
   freqColl_.clearChanged();
   freqColl_.matchParametersValues(gAP);
 
-  vector<size_t> keys=freqColl_.keys();
+  // vector<size_t> keys=freqColl_.keys();
 
-  const vector<size_t> vMf=freqColl_.hasChanged();
-  for (size_t i=0; i<vMf.size(); i++)
-  {
-    const vector<size_t>& vs=mFreqToSubPro_[vMf[i]];
-    for (size_t j=0; j<vs.size(); j++)
-      mSubProcess_[vs[j]]->changedRoot();
-  }
+  // const vector<size_t> vMf=freqColl_.hasChanged();
+  // for (size_t i=0; i<vMf.size(); i++)
+  // {
+  //   const vector<size_t>& vs=mFreqToSubPro_[vMf[i]];
+  //   for (size_t j=0; j<vs.size(); j++)
+  //     mSubProcess_[vs[j]]->changedRoot();
+  // }
   
 
   // map of the SubProcess to be fired
@@ -379,7 +379,7 @@ void SubstitutionProcessCollection::addOnePerBranchSubstitutionProcess(size_t nP
   for (auto it=ids.begin()+1; it!=ids.end(); it++)
   {
     size_t mNb=maxMod+*it;
-    addModel(std::shared_ptr<TransitionModel>(model->clone()),mNb);
+    addModel(std::shared_ptr<BranchModel>(model->clone()),mNb);
     mModBr[mNb]=vector<uint>(1,*it);
   }
 

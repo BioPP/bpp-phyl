@@ -45,16 +45,8 @@ using namespace std;
 
 /******************************************************************************/
 
-const Eigen::VectorXd& MultinomialFromTransitionModel::Lik_t(const Eigen::VectorXd& from, double t) const
+const Eigen::VectorXd& MultinomialFromTransitionModel::Lik_t(const Eigen::VectorXd& to, double t) const
 {
-  size_t pos=0;
-  for (auto i=1;i<from.size();i++)
-    if (from[i]>0.4)
-    {
-      pos=i;
-      break;
-    }
-      
   if (t!=tref_)
   {
     tref_=t;
@@ -64,23 +56,18 @@ const Eigen::VectorXd& MultinomialFromTransitionModel::Lik_t(const Eigen::Vector
   else if (Pij_t==0)
     Pij_t=&getTransitionModel().getPij_t(t);
     
-  
   for (size_t i=0; i< size_; i++)
-    Pi_(i)=(*Pij_t)(i,pos);
-
+  {
+    Pi_(i)=0;
+    for (size_t j=0;j<size_;j++)
+      Pi_(i)+=(*Pij_t)(i,j)*to[j];
+  }
+  
   return Pi_;
 }
 
-const Eigen::VectorXd& MultinomialFromTransitionModel::dLik_dt(const Eigen::VectorXd& from, double t) const
+const Eigen::VectorXd& MultinomialFromTransitionModel::dLik_dt(const Eigen::VectorXd& to, double t) const
 {
-  size_t pos=0;
-  for (auto i=1;i<from.size();i++)
-    if (from[i]>0.4)
-    {
-      pos=i;
-      break;
-    }
-
   if (t!=tref_)
   {
     tref_=t;
@@ -90,23 +77,17 @@ const Eigen::VectorXd& MultinomialFromTransitionModel::dLik_dt(const Eigen::Vect
   else if (dPij_dt==0)
     dPij_dt=&getTransitionModel().getdPij_dt(t);
 
-  
   for (size_t i=0; i< size_; i++)
-    dPi_(i)=(*dPij_dt)(i,pos);
-
+  {
+    dPi_(i)=0;
+    for (size_t j=0;j<size_;j++)
+      dPi_(i)+=(*dPij_dt)(i,j)*to[j];
+  }
   return dPi_;
 }
 
-const Eigen::VectorXd& MultinomialFromTransitionModel::d2Lik_dt2(const Eigen::VectorXd& from, double t) const
+const Eigen::VectorXd& MultinomialFromTransitionModel::d2Lik_dt2(const Eigen::VectorXd& to, double t) const
 {
-  size_t pos=0;
-  for (auto i=1;i<from.size();i++)
-    if (from[i]>0.4)
-    {
-      pos=i;
-      break;
-    }
-
   if (t!=tref_)
   {
     tref_=t;
@@ -116,10 +97,12 @@ const Eigen::VectorXd& MultinomialFromTransitionModel::d2Lik_dt2(const Eigen::Ve
   else if (d2Pij_dt2==0)
     d2Pij_dt2=&getTransitionModel().getd2Pij_dt2(t);
 
-  
   for (size_t i=0; i< size_; i++)
-    d2Pi_(i)=(*d2Pij_dt2)(i,pos);
-
+  {
+    d2Pi_(i)=0;
+    for (size_t j=0;j<size_;j++)
+      d2Pi_(i)+=(*d2Pij_dt2)(i,j)*to[j];
+  }
   return d2Pi_;
 }
 

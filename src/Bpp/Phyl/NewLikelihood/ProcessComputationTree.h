@@ -104,7 +104,7 @@ namespace bpp
      *
      */
      
-    const TransitionModel* model_;
+    const BranchModel* model_;
 
     /*
      * @brief numbers of the submodels used, if any.
@@ -133,7 +133,7 @@ namespace bpp
 
 
   public:
-    ProcessComputationEdge(const TransitionModel* model, uint speciesIndex, bool useProb=false, const std::vector<uint>& vNb=Vuint(0)) :
+    ProcessComputationEdge(const BranchModel* model, uint speciesIndex, bool useProb=false, const std::vector<uint>& vNb=Vuint(0)) :
       model_(model),
       vSubNb_(vNb),
       useProb_(useProb),
@@ -141,7 +141,7 @@ namespace bpp
     {
     }
 
-    const TransitionModel* getModel() const
+    const BranchModel* getModel() const
     {
       return model_;
     }
@@ -208,22 +208,22 @@ namespace bpp
   //   /*
   //    * @brief construction of a complete ProcessComputationTree.
   //    *
-  //    * @param pSubMod a  pointer of TransitionModel.
+  //    * @param pSubMod a  pointer of BranchModel.
   //    * @param vBr a vector of attribution of the model on the
   //    * branches of the tree that need a model.
   //    *
   //    */
      
-  //   void addModel(const TransitionModel* pSubMod, std::vector<unsigned int> vBr);
+  //   void addModel(const BranchModel* pSubMod, std::vector<unsigned int> vBr);
 
   //   /*
   //    * @brief construction of an homogeneous ProcessComputationTree.
   //    *
-  //    * @param pSubMod a  pointer of TransitionModel.
+  //    * @param pSubMod a  pointer of BranchModel.
   //    *
   //    */
      
-  //   void addModel(const TransitionModel* pSubMod);
+  //   void addModel(const BranchModel* pSubMod);
     
   //   size_t getNumberOfClasses() const { return vTree_.size();}
 

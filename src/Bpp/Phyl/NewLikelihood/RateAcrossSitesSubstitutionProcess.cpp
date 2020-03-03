@@ -45,23 +45,18 @@ using namespace bpp;
 using namespace std;
 
 RateAcrossSitesSubstitutionProcess::RateAcrossSitesSubstitutionProcess(
-  shared_ptr<TransitionModel> model,
+  shared_ptr<BranchModel> model,
   DiscreteDistribution* rdist,
   ParametrizablePhyloTree* tree) :
   AbstractParameterAliasable(""),
   AbstractSubstitutionProcess(tree, rdist ? rdist->getNumberOfCategories() : 0, model ? model->getNamespace() : ""),
   model_(model),
-  rDist_(rdist),
-  computingTree_()
+  rDist_(rdist)
 {
   if (!model)
     throw Exception("RateAcrossSitesSubstitutionProcess. A model instance must be provided.");
   if (!rdist)
     throw Exception("RateAcrossSitesSubstitutionProcess. A rate distribution instance must be provided.");
-
-  computingTree_.reset(new ComputingTree(*pTree_.get(), *rDist_.get()));
-  computingTree_->addModel(model_.get());
-  computingTree_->checkModelOnEachNode();  
 
   // Add parameters:
   addParameters_(tree->getParameters());  //Branch lengths
@@ -76,13 +71,8 @@ RateAcrossSitesSubstitutionProcess::RateAcrossSitesSubstitutionProcess(const Rat
   AbstractParameterAliasable(rassp),
   AbstractSubstitutionProcess(rassp),
   model_(rassp.model_->clone()),
-  rDist_(rassp.rDist_->clone()),
-  computingTree_()
+  rDist_(rassp.rDist_->clone())
 {
-  computingTree_.reset(new ComputingTree(*pTree_.get(), *rDist_.get()));
-  computingTree_->addModel(model_.get());
-  computingTree_->checkModelOnEachNode();  
-
   if (modelScenario_)
     modelScenario_->changeModel(std::dynamic_pointer_cast<MixedTransitionModel>(rassp.model_),std::dynamic_pointer_cast<MixedTransitionModel>(model_));
 }
@@ -95,10 +85,6 @@ RateAcrossSitesSubstitutionProcess& RateAcrossSitesSubstitutionProcess::operator
   model_.reset(rassp.model_->clone());
   rDist_.reset(rassp.rDist_->clone());
 
-  computingTree_.reset(new ComputingTree(*pTree_.get(), *rDist_.get()));
-  computingTree_->addModel(model_.get());
-  computingTree_->checkModelOnEachNode();  
-  
   if (modelScenario_)
     modelScenario_->changeModel(std::dynamic_pointer_cast<MixedTransitionModel>(rassp.model_),std::dynamic_pointer_cast<MixedTransitionModel>(model_));
 
@@ -123,10 +109,6 @@ void RateAcrossSitesSubstitutionProcess::setModelScenario(std::shared_ptr<ModelS
 
 void RateAcrossSitesSubstitutionProcess::fireParameterChanged(const ParameterList& pl)
 {
-  //Update substitution model:
-  if (model_->matchParametersValues(pl))
-    computingTree_->updateAll();
-  
   //Update rate distribution:
   rDist_->matchParametersValues(pl);  
 

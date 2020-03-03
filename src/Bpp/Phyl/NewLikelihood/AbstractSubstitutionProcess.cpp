@@ -88,7 +88,5 @@ void AbstractSubstitutionProcess::fireParameterChanged(const ParameterList& pl)
   gAP.addParameters(pl);
 
   pTree_->matchParametersValues(gAP);
-  
-  getComputingTree().matchParametersValues(gAP);
 }
 

@@ -72,16 +72,16 @@ ProcessTree::ProcessTree(Context& context,
     setNodeIndex(pn, tree.getNodeIndex(node));
   }
 
-  // Build the ConfiguredModels from the TransitionModels
+  // Build the ConfiguredModels from the BranchModels
 
   auto vnMod=process.getModelNumbers();
         
-  std::map<const TransitionModel*, std::shared_ptr<ConfiguredModel>> modelmap;
+  std::map<const BranchModel*, std::shared_ptr<ConfiguredModel>> modelmap;
 
   for (auto nMod:vnMod)
   {
     auto mod=process.getModel(nMod);
-    modelmap[mod] = ConfiguredParametrizable::createConfigured<TransitionModel, ConfiguredModel>(context_, *mod, parList, "_"+ TextTools::toString(nMod));
+    modelmap[mod] = ConfiguredParametrizable::createConfigured<BranchModel, ConfiguredModel>(context_, *mod, parList, "_"+ TextTools::toString(nMod));
   }
 
   // Assign References on all branches

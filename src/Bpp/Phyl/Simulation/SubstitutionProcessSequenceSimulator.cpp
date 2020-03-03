@@ -409,8 +409,11 @@ size_t SimpleSubstitutionProcessSequenceSimulator::evolve(const SimProcessNode* 
   double rand = RandomTools::giveRandomNumberBetweenZeroAndEntry(1.);
   double l = rate * node->getDistanceToFather();
   
-  const TransitionModel* model = node->process_->getModel(node->getId(), rateClass);
-  
+  auto model = dynamic_cast<const TransitionModel*>(node->process_->getModel(node->getId(), rateClass));
+
+  if (!model)
+    throw Exception("SimpleSubstitutionProcessSequenceSimulator::evolve. Need a trantion model");
+    
   for (size_t y = 0; y < nbStates_; y++)
   {
     cumpxy += model->Pij_t(initialStateIndex, y, l);
@@ -526,7 +529,7 @@ SiteContainer* SimpleSubstitutionProcessSequenceSimulator::multipleEvolve(
       vector<size_t>& states = nodes[i]->states;
 
       size_t i2 = (i==nn-1)?i-1:i; // at the root, there is no model, so we take the model of node n-1.
-      model = nodes[i2]->process_->getModel(nodes[i2]->getId(), rateClasses[0]);
+      model = dynamic_cast<const TransitionModel*>(nodes[i2]->process_->getModel(nodes[i2]->getId(), rateClasses[0]));
 
       for (size_t j = 0; j < nbSites; j++)
       {
@@ -544,7 +547,7 @@ SiteContainer* SimpleSubstitutionProcessSequenceSimulator::multipleEvolve(
     {
       vector<int> content(nbSites);
       vector<size_t>& states = leaves_[i]->states;
-      model = leaves_[i]->process_->getModel(leaves_[i]->getId(), rateClasses[0]);
+      model = dynamic_cast<const TransitionModel*>(leaves_[i]->process_->getModel(leaves_[i]->getId(), rateClasses[0]));
       
       for (size_t j = 0; j < nbSites; j++)
       {
@@ -594,7 +597,7 @@ void SimpleSubstitutionProcessSequenceSimulator::dEvolveInternal(SimProcessNode*
     return;
   }
   
-  const TransitionModel* tm=node->process_->getModel(node->getId(), rateClass);
+  auto tm=node->process_->getModel(node->getId(), rateClass);
   
   if (dynamic_cast<const SubstitutionModel*>(tm)==0)
     throw Exception("SimpleSubstitutionProcessSequenceSimulator::dEvolveInternal : detailed simulation not possible for non-markovian model");
@@ -624,7 +627,7 @@ void SimpleSubstitutionProcessSequenceSimulator::dEvolveInternal(SimProcessNode*
     return;
   }
   
-  const TransitionModel* tm=node->process_->getModel(node->getId(), rateClass);
+  auto tm=node->process_->getModel(node->getId(), rateClass);
   
   if (dynamic_cast<const SubstitutionModel*>(tm)==0)
     throw Exception("SimpleSubstitutionProcessSequenceSimulator::dEvolveInternal : detailed simulation not possible for non-markovian model");

@@ -181,6 +181,8 @@ namespace bpp
      */
     
     virtual const Eigen::VectorXd& Lik_t(const Eigen::VectorXd& values, double t) const = 0;
+    virtual const Eigen::VectorXd& dLik_dt(const Eigen::VectorXd& values, double t) const = 0;
+    virtual const Eigen::VectorXd& d2Lik_dt2(const Eigen::VectorXd& values, double t) const = 0;
 
     /**
      * @brief Get the rate
@@ -312,6 +314,32 @@ namespace bpp
       lik_ = Eigen::VectorXd::Zero(values.size());
       
       const auto& pij=getPij_t(t);
+
+      for (auto i=0;i<values.size();i++)
+        for (auto j=0;j<values.size();j++)
+          lik_(i)+=pij(i,j)*values(j);
+
+      return(lik_);
+    }
+
+    const Eigen::VectorXd& dLik_dt(const Eigen::VectorXd& values, double t) const
+    {
+      lik_ = Eigen::VectorXd::Zero(values.size());
+      
+      const auto& pij=getdPij_dt(t);
+
+      for (auto i=0;i<values.size();i++)
+        for (auto j=0;j<values.size();j++)
+          lik_(i)+=pij(i,j)*values(j);
+
+      return(lik_);
+    }
+    
+    const Eigen::VectorXd& d2Lik_dt2(const Eigen::VectorXd& values, double t) const
+    {
+      lik_ = Eigen::VectorXd::Zero(values.size());
+      
+      const auto& pij=getd2Pij_dt2(t);
 
       for (auto i=0;i<values.size();i++)
         for (auto j=0;j<values.size();j++)

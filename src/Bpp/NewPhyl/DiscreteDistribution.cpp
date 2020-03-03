@@ -63,7 +63,7 @@ namespace bpp {
       return "nbClass=" + std::to_string (distrib_->getNumberOfCategories ());
     }
 
-    // Model node additional arguments = (type of bpp::TransitionModel).
+    // Model node additional arguments = (type of bpp::BranchModel).
     // Everything else is determined by the node dependencies.
     bool ConfiguredDistribution::compareAdditionalArguments (const Node & other) const {
       const auto * derived = dynamic_cast<const Self *> (&other);

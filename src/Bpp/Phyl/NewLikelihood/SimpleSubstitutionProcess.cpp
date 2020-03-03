@@ -42,19 +42,14 @@
 using namespace bpp;
 using namespace std;
 
-SimpleSubstitutionProcess::SimpleSubstitutionProcess(std::shared_ptr<TransitionModel> model, ParametrizablePhyloTree* tree) :
+SimpleSubstitutionProcess::SimpleSubstitutionProcess(std::shared_ptr<BranchModel> model, ParametrizablePhyloTree* tree) :
   AbstractParameterAliasable(""),
   AbstractSubstitutionProcess(tree, 1, model ? model->getNamespace() : ""),
-  model_(model),
-  computingTree_()
+  model_(model)
 {
   if (!model)
     throw Exception("SimpleSubstitutionProcess. A model instance must be provided.");
 
-  computingTree_.reset(new ComputingTree(*pTree_.get()));
-  computingTree_->addModel(model_.get());
-  computingTree_->checkModelOnEachNode();  
-  
   // Add parameters:
   addParameters_(tree->getParameters());  //Branch lengths
   addParameters_(model->getIndependentParameters()); //Substitution model
@@ -63,13 +58,8 @@ SimpleSubstitutionProcess::SimpleSubstitutionProcess(std::shared_ptr<TransitionM
 SimpleSubstitutionProcess::SimpleSubstitutionProcess(const SimpleSubstitutionProcess& ssp) :
   AbstractParameterAliasable(ssp),
   AbstractSubstitutionProcess(ssp),
-  model_(ssp.model_->clone()),
-  computingTree_()
+  model_(ssp.model_->clone())
 {
-  computingTree_.reset(new ComputingTree(*pTree_.get()));
-  computingTree_->addModel(model_.get());
-  computingTree_->checkModelOnEachNode();
-
   if (modelScenario_)
     modelScenario_->changeModel(std::dynamic_pointer_cast<MixedTransitionModel>(ssp.model_),std::dynamic_pointer_cast<MixedTransitionModel>(model_));
 }
@@ -79,10 +69,6 @@ SimpleSubstitutionProcess& SimpleSubstitutionProcess::operator=(const SimpleSubs
   AbstractParameterAliasable::operator=(ssp);
   AbstractSubstitutionProcess::operator=(ssp);
   model_.reset(ssp.model_->clone());
-
-  computingTree_.reset(new ComputingTree(*pTree_.get())); 
-  computingTree_->addModel(model_.get());
-  computingTree_->checkModelOnEachNode();  
 
   if (modelScenario_)
     modelScenario_->changeModel(std::dynamic_pointer_cast<MixedTransitionModel>(ssp.model_),std::dynamic_pointer_cast<MixedTransitionModel>(model_));
@@ -108,10 +94,6 @@ void SimpleSubstitutionProcess::setModelScenario(std::shared_ptr<ModelScenario> 
 
 void SimpleSubstitutionProcess::fireParameterChanged(const ParameterList& pl)
 {
-  //Updates substitution model:
-  if (model_->matchParametersValues(pl))
-    computingTree_->updateAll();
-  
   //Transition probabilities have changed and need to be recomputed:
   AbstractSubstitutionProcess::fireParameterChanged(pl);
 }

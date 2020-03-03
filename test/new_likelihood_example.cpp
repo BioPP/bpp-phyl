@@ -39,13 +39,6 @@
   knowledge of the CeCILL license and that you accept its terms.
 */
 
-#define DOCTEST_CONFIG_IMPLEMENT
-#include "doctest.h"
-
-//#define ENABLE_OLD
-//#define ENABLE_NEW
-#define ENABLE_DF
-
 // Common stuff
 #include <Bpp/Numeric/AutoParameter.h>
 #include <Bpp/Numeric/Function/ConjugateGradientMultiDimensions.h>
@@ -66,22 +59,6 @@
 #include <Bpp/Seq/Container/VectorSiteContainer.h>
 #include <chrono>
 
-// Old likelihood
-#ifdef ENABLE_OLD
-#include <Bpp/Numeric/Prob/ConstantDistribution.h>
-#include <Bpp/Phyl/Likelihood/RHomogeneousTreeLikelihood.h>
-#include <Bpp/Phyl/Tree/TreeTemplate.h>
-#endif
-// Newlik
-#ifdef ENABLE_NEW
-#include <Bpp/Phyl/Io/Newick.h>
-#include <Bpp/Phyl/NewLikelihood/PhyloLikelihoods/SingleProcessPhyloLikelihood.h>
-#include <Bpp/Phyl/NewLikelihood/NonHomogeneousSubstitutionProcess.h>
-#endif
-// DF
-#ifdef ENABLE_DF
-// #include <Bpp/NewPhyl/Parametrizable.h>
-// #include <Bpp/NewPhyl/DataFlow.h>
 #include <Bpp/NewPhyl/SingleProcessPhyloLikelihood_DF.h>
 #include <Bpp/NewPhyl/BackwardLikelihoodTree.h>
 #include <Bpp/Phyl/Io/Newick.h>
@@ -90,7 +67,6 @@
 #include <Bpp/Phyl/NewLikelihood/PhyloLikelihoods/SingleProcessPhyloLikelihood.h>
 #include "Bpp/Phyl/NewLikelihood/SubstitutionProcess.h"
 #include <Bpp/Text/TextTools.h>
-#endif
 
 static bool enableDotOutput = true;
 using namespace std;
@@ -207,89 +183,41 @@ namespace
   };
 }
 
-#ifdef ENABLE_OLD
-TEST_CASE("old")
+
+int main(int argc, char** argv)
 {
+  const std::string keyword = "dot_output";
+  for (int i = 1; i < argc; ++i)
+  {
+    if (argv[i] == keyword)
+    {
+      enableDotOutput = true;
+    }
+  }
+
   const CommonStuff c;
-  auto ts = timingStart();
-  auto model = new bpp::T92(&c.alphabet, 3., 0.7);
-  auto distribution = new bpp::ConstantDistribution(1.0);
-  auto tree = std::unique_ptr<bpp::TreeTemplate<bpp::Node>>(bpp::TreeTemplateTools::parenthesisToTree(c.treeStr));
-  bpp::RHomogeneousTreeLikelihood llh(*tree, c.sites, model, distribution, false, false);
-  timingEnd(ts, "old_setup");
-  ts = timingStart();
-  llh.initialize();
-  auto logLik = llh.getValue();
-  timingEnd(ts, "old_init_value");
-  printLik(logLik, "old_init_value");
 
-  std::cout << "[dbrlen1] " << llh.getFirstOrderDerivative("BrLen1") << "\n";
-  do_param_changes_multiple_times(llh, "old_param_model_change", c.paramModel1, c.paramModel2);
-  do_param_changes_multiple_times(llh, "old_param_brlen_change", c.paramBrLen1, c.paramBrLen2);
-//  optimize_for_params(llh, "old_brlens_opt", llh.getBranchLengthsParameters());
-}
-#endif
-
-#ifdef ENABLE_NEW
-TEST_CASE("new")
-{
-  const CommonStuff c;
-  auto ts = timingStart();
-  auto model = new bpp::T92(&c.alphabet, 3, 0.7);
-  auto rootFreqs = new bpp::GCFrequenciesSet(&c.alphabet, 0.1);
-  auto distribution = new bpp::ConstantRateDistribution();
-  auto distribution = new bpp::GammaDiscreteRateDistribution(3, 1);
-
-  bpp::Newick reader;
-  auto phyloTree = std::unique_ptr<bpp::PhyloTree>(reader.parenthesisToPhyloTree(c.treeStr, false, "", false, false));
-  auto paramPhyloTree = new bpp::ParametrizablePhyloTree(*phyloTree);
-  std::vector<std::string> globalParameterNames({"T92.kappa"});
-  
-  auto process =
-    std::unique_ptr<bpp::NonHomogeneousSubstitutionProcess>(bpp::NonHomogeneousSubstitutionProcess::createNonHomogeneousSubstitutionProcess(model, distribution, paramPhyloTree, rootFreqs, globalParameterNames));
-
-
-  auto likelihoodCompStruct = std::unique_ptr<bpp::RecursiveLikelihoodTreeCalculation>(
-    new bpp::RecursiveLikelihoodTreeCalculation(c.sites, process.get(), false, true));
-  bpp::SingleProcessPhyloLikelihood llh(process.get(), likelihoodCompStruct.release());
-  
-  timingEnd(ts, "new_setup");
-  ts = timingStart();
-  llh.computeLikelihood();
-  auto logLik = llh.getValue();
-  timingEnd(ts, "new_init_value");
-  printLik(logLik, "new_init_value");
-
-  std::cout << "[dbrlen1] " << llh.getFirstOrderDerivative("BrLen1") << "\n";
-  // do_param_changes_multiple_times(llh, "new_param_model_change", c.paramModel1, c.paramModel2);
-  // do_param_changes_multiple_times(llh, "new_param_root_change", c.paramRoot1, c.paramRoot2);
-  // do_param_changes_multiple_times(llh, "new_param_brlen_change", c.paramBrLen1, c.paramBrLen2);
-  
-  // optimize_for_params(llh, "new_brlens_opt", llh.getBranchLengthParameters());
-  optimize_for_params(llh, "new_all_opt", llh.getParameters());
-}
-#endif
-
-TEST_CASE("df")
-{
-  const CommonStuff c;
   bpp::dataflow::Context context;
 
   auto ts = timingStart();
+  
+auto t92 = std::make_shared<bpp::T92>(&c.alphabet, 3., 0.7);
+auto t922 = std::make_shared<bpp::T92>(&c.alphabet, 3., 0.7);
 
-  auto t92 = std::make_shared<bpp::T92>(&c.alphabet, 3., 0.7);
-  std::map<std::string, bpp::DiscreteDistribution*> mapParam1;
-  mapParam1["kappa"]=new bpp::GammaDiscreteDistribution(2, 1);
+std::map<std::string, bpp::DiscreteDistribution*> mapParam1;
+
+mapParam1["kappa"]=new bpp::GammaDiscreteDistribution(2, 1);
+
 //  auto mt92 = std::make_shared<bpp::MixtureOfASubstitutionModel>(&c.alphabet, t92.get(), mapParam1);
 
-  // auto k80 = std::make_shared<bpp::K80>(&c.alphabet, 2.);
+auto k80 = std::make_shared<bpp::K80>(&c.alphabet, 2.);
   // std::map<std::string, bpp::DiscreteDistribution*> mapParam2;
   // auto sdm=std::map<double, double>({{0.0001,0.3},{200.,0.7}});
   
   // mapParam2["kappa"]=new bpp::SimpleDiscreteDistribution(sdm);
   // auto mk80 = std::make_shared<bpp::MixtureOfASubstitutionModel>(&c.alphabet, k80.get(), mapParam2);
 
-  auto model=std::make_shared<bpp::MultinomialFromTransitionModel>(*t92);
+auto model1=std::make_shared<bpp::MultinomialFromTransitionModel>(*t922);
 
   /* scenario
   auto scenario = std::make_shared<bpp::ModelScenario>();
@@ -306,15 +234,15 @@ TEST_CASE("df")
 
   */
 
-  auto rootFreqs = new bpp::GCFrequenciesSet(&c.alphabet, 0.1);
+auto rootFreqs = new bpp::GCFrequenciesSet(&c.alphabet, 0.1);
 
-  auto distribution = new bpp::ConstantRateDistribution();
+auto distribution = new bpp::ConstantRateDistribution();
 //  auto distribution = new bpp::GammaDiscreteRateDistribution(3, 1);
 
   // Read tree structure
-  bpp::Newick reader;
-  auto phyloTree = std::unique_ptr<bpp::PhyloTree>(reader.parenthesisToPhyloTree(c.treeStr, false, "", false, false));
-  auto paramPhyloTree = new bpp::ParametrizablePhyloTree(*phyloTree);
+bpp::Newick reader;
+auto phyloTree = std::unique_ptr<bpp::PhyloTree>(reader.parenthesisToPhyloTree(c.treeStr, false, "", false, false));
+auto paramPhyloTree = new bpp::ParametrizablePhyloTree(*phyloTree);
 //  std::vector<std::string> globalParameterNames({"T92.kappa"});
 
   // auto process =
@@ -324,8 +252,10 @@ TEST_CASE("df")
 //  process->setModelScenario(scenario);
 
   
-    auto process  = std::make_shared<bpp::NonHomogeneousSubstitutionProcess>(distribution, paramPhyloTree, rootFreqs);
-//    process->addModel(model, bpp::Vuint({0,1,2,3}));
+auto process  = std::make_shared<bpp::NonHomogeneousSubstitutionProcess>(distribution, paramPhyloTree, rootFreqs);
+
+process->addModel(model1, bpp::Vuint({0,1,3}));
+process->addModel(t92, bpp::Vuint({2}));
     
 //std::shared_ptr<bpp::NonHomogeneousSubstitutionProcess>(bpp::NonHomogeneousSubstitutionProcess::createHomogeneousSubstitutionProcess(model, distribution, paramPhyloTree, rootFreqs));//, scenario));
 
@@ -346,12 +276,12 @@ TEST_CASE("df")
   printLik(logLik, "df_init_value");
 
     // Manual access to dbrlen
-  // auto br= dynamic_cast<bpp::dataflow::ConfiguredParameter*>(lik->hasParameter("BrLen1")?lik->getSharedParameter("BrLen1").get():lik->getSharedParameter("BrLen_rate").get());
+  auto br= dynamic_cast<bpp::dataflow::ConfiguredParameter*>(lik->hasParameter("BrLen1")?lik->getSharedParameter("BrLen1").get():lik->getSharedParameter("BrLen_rate").get());
   
-  // auto dlogLik_dbrlen1 = lik->getLikelihood()->deriveAsValue(context, *br->dependency(0));
+  auto dlogLik_dbrlen1 = lik->getLikelihood()->deriveAsValue(context, *br->dependency(0));
 
-  // std::cout << "[dbrlen1] " << dlogLik_dbrlen1->getTargetValue() << "\n";
-  // dotOutput("likelihood_example_dbrlen1", {dlogLik_dbrlen1.get()});
+  dotOutput("likelihood_example_dbrlen1", {dlogLik_dbrlen1.get()});
+  std::cout << "[dbrlen1] " << dlogLik_dbrlen1->getTargetValue() << "\n";
 
   // // Manual access to dkappa
   
@@ -385,19 +315,5 @@ TEST_CASE("df")
   optimize_for_params(llh, "df_all_opt", l->getParameters());
   dotOutput("likelihood_optim_value", {lik->getLikelihood().get()});
   llh.getParameters().printParameters(std::cerr);  
-}
 
-int main(int argc, char** argv)
-{
-  const std::string keyword = "dot_output";
-  for (int i = 1; i < argc; ++i)
-  {
-    if (argv[i] == keyword)
-    {
-      enableDotOutput = true;
-    }
-  }
-  doctest::Context context;
-  context.applyCommandLine(argc, argv);
-  return context.run();
 }

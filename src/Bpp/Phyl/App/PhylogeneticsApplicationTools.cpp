@@ -4246,7 +4246,7 @@ void PhylogeneticsApplicationTools::printParameters(const SubstitutionProcess* p
     // Loop over all models:
     for (size_t i = 0; i < pNH->getNumberOfModels(); i++)
     {
-      const TransitionModel* model = pNH->getModel(i);
+      const auto model = pNH->getModel(i);
 
       // First get the aliases for this model:
       map<string, string> aliases;
@@ -4329,7 +4329,7 @@ void PhylogeneticsApplicationTools::printParameters(const SubstitutionProcessCol
 
   for (auto modn : vModN)
   {
-    const TransitionModel& model = *collection->getModel(modn);
+    const auto& model = *collection->getModel(modn);
 
     // First get the aliases for this model:
     map<string, string> aliases;

@@ -47,6 +47,7 @@
 #include <cassert>
 #include <string>
 #include <tuple>
+#include <list>
 #include <type_traits>
 #include <iostream>
 
@@ -225,63 +226,68 @@ namespace bpp {
         return dynamic_cast<const Self *> (&other) != nullptr;
       }
 
-      // d(f(X))=f(dX).df(X) 
-      
+      // df(X(theta))/dtheta|X(theta) = df/dtheta|X(theta) + df/dX.dX/dtheta|X(theta)
       NodeRef derive (Context & c, const Node & node) final {
         if (&node == this) {
           return ConstantOne<R>::create (c, targetDimension_);
         }
 
         NodeRefVec dep(2);
-        NodeRef dX = this->dependency(0)->derive (c, node);
-        dep[0] = Self::create (c, {dX, this->dependency(1)}, targetDimension_);
-
         NodeRef df = this->dependency(1)->derive (c, node);
-        dep[1] = Self::create (c, {this->dependency(0), df}, targetDimension_);
-        
-        return CWiseMul<R, std::tuple<R, R>>::create (c, {std::move(dep)}, targetDimension_);
+
+        if (df->hasNumericalProperty (NumericalProperty::ConstantZero))
+          dep[0] = ConstantZero<R>::create (c, targetDimension_);
+        else
+          dep[0] = Self::create (c, {this->dependency(0), df}, targetDimension_);
+
+        NodeRef dX = this->dependency(0)->derive (c, node);
+
+        if (dX->hasNumericalProperty (NumericalProperty::ConstantZero))
+          dep[1] = ConstantZero<R>::create (c, targetDimension_);
+        else  // product df/dX.dX/dtheta|X(theta)
+        {
+          NodeRef dfX = this->dependency(1)->derive(c, NodeX);
+          NodeRef dfXX = Self::create(c, {this->dependency(0), dfX}, targetDimension_);
+          dep[1] = CWiseMul<R, std::tuple<Eigen::VectorXd, R>>::create (c, {dX, dfXX}, targetDimension_);
+        }
+
+        return CWiseAdd<R, std::tuple<R, R>>::create (c, {std::move(dep)}, targetDimension_);
       }
 
       NodeRef recreate (Context & c, NodeRefVec && deps) final {
         return Self::create (c, std::move (deps), targetDimension_);
       }
 
+      std::string shape() const
+      {
+        return "doubleoctagon";
+      }
+
+      std::string color() const
+      {
+        return "#5e5e5e";
+      }
+
+      std::string description() const
+      {
+        return "Function Apply";
+      }
+
+
     private:
       void compute() { compute<T>();}
       
-      template<class U=T>
-      typename std::enable_if<std::is_same<F, TransitionFunction>::value, void>::type
+      template<class U>
+      typename std::enable_if<std::is_same<U, Eigen::MatrixXd>::value && std::is_same<F, TransitionFunction>::value, void>::type
       compute () {
         using namespace numeric;
         auto & result = this->accessValueMutable ();
         const auto & x0 = accessValueConstCast<T> (*this->dependency (0));
-
         const auto & func = accessValueConstCast<F> (*this->dependency (1));
 
         for (auto i=0; i<x0.cols(); i++)
-          result.col(i) = func(x0.col(i));
-
-      }    
-
-      // template<class U=T>
-      // typename std::enable_if<std::is_same<U,Eigen::RowVectorXd>::value>::type
-      // compute ()
-      // {
-      //   using namespace numeric;
-      //   auto & result = this->accessValueMutable ();
-      //   const auto & x0 = accessValueConstCast<T> (*this->dependency (0));
-      //   result.colwise()=x0.transpose();
-      // }      
-
-      // template<class U=T>
-      // typename std::enable_if<std::is_same<U,Eigen::VectorXd>::value>::type
-      // compute ()
-      // {
-      //   using namespace numeric;
-      //   auto & result = this->accessValueMutable ();
-      //   const auto & x0 = accessValueConstCast<T> (*this->dependency (0));
-      //   result.colwise()=x0;
-      // }      
+          result.col(i) = func(x0.col(i));        
+      }
 
       Dimension<R> targetDimension_;
 
@@ -447,12 +453,27 @@ namespace bpp {
       }
 
     private:
-      void compute () final {
+      void compute() { compute<R>();}
+
+      template<class U>
+        typename std::enable_if<!std::is_same<U, TransitionFunction>::value, void>::type
+        compute () {
         using namespace numeric;
         auto & result = this->accessValueMutable ();
         const auto & x0 = accessValueConstCast<T0> (*this->dependency (0));
         const auto & x1 = accessValueConstCast<T1> (*this->dependency (1));
         cwise (result) = cwise (x0) + cwise (x1);
+      }
+
+      template<class U>
+        typename std::enable_if<std::is_same<U, TransitionFunction>::value, void>::type
+        compute () {
+        using namespace numeric;
+        auto & result = this->accessValueMutable ();
+        const auto & x0 = accessValueConstCast<T0> (*this->dependency (0));
+        const auto & x1 = accessValueConstCast<T1> (*this->dependency (1));
+        
+        result = [x0, x1](const Eigen::VectorXd& x)->Eigen::VectorXd{return cwise(x0(x)) + cwise(x1(x));};
       }
       
       Dimension<R> targetDimension_;
@@ -554,7 +575,7 @@ namespace bpp {
         checkDependenciesNotNull (typeid (Self), deps);
         checkDependencyRangeIsValue<T> (typeid (Self), deps, 0, deps.size ());
         // Remove 0s from deps
-        removeDependenciesIf (deps, [](const NodeRef & dep) {
+        removeDependenciesIf (deps, [](const NodeRef & dep) -> bool{
           return dep->hasNumericalProperty (NumericalProperty::ConstantZero);
         });
         // Select node implementation
@@ -599,13 +620,37 @@ namespace bpp {
       }
 
     private:
-      void compute () final {
+      void compute() { compute<T>();}
+      
+      template<class U>
+        typename std::enable_if<!std::is_same<U, TransitionFunction>::value, void>::type
+        compute () {
         using namespace numeric;
         auto & result = this->accessValueMutable ();
         result = zero (targetDimension_);
         for (const auto & depNodeRef : this->dependencies ()) {
           cwise (result) += cwise (accessValueConstCast<T> (*depNodeRef));
         }
+      }
+
+      template<class U>
+        typename std::enable_if<std::is_same<U, TransitionFunction>::value, void>::type
+        compute () {
+        using namespace numeric;
+        auto & result = this->accessValueMutable ();
+        std::list<const T*> lT;
+        for (const auto & depNodeRef : this->dependencies ()) {
+          lT.push_back(&accessValueConstCast<T> (*depNodeRef));
+        }
+        
+        result = [lT, this](const Eigen::VectorXd& x)->Eigen::VectorXd{
+
+          Eigen::VectorXd r = zero (Dimension<Eigen::VectorXd>(targetDimension_.cols,1));
+          
+          for (const auto f:lT)
+            cwise(r)+= cwise((*f)(x));
+          return(r);
+        };
       }
 
       Dimension<R> targetDimension_;
@@ -650,7 +695,7 @@ namespace bpp {
           }
         }
         
-        removeDependenciesIf (deps, [](const NodeRef & dep) {
+        removeDependenciesIf (deps, [](const NodeRef & dep)->bool {
             return dep==0;
           });
 
@@ -755,7 +800,7 @@ namespace bpp {
         if (deps[deps.size()-1]->hasNumericalProperty (NumericalProperty::ConstantZero))
           return ConstantZero<R>::create (c, dim);
         // if x_i are all Null
-        if (std::all_of (deps.begin (), deps.end ()-1, [](const NodeRef & dep) {
+        if (std::all_of (deps.begin (), deps.end ()-1, [](const NodeRef & dep)->bool {
               return dep->hasNumericalProperty (NumericalProperty::ConstantZero);
             })) {
           return ConstantZero<R>::create (c, dim);
@@ -854,7 +899,7 @@ namespace bpp {
         checkNthDependencyIsValue<T0> (typeid (Self), deps, 0);
         checkNthDependencyIsValue<T1> (typeid (Self), deps, 1);
         // Return 0 if any 0.
-        if (std::any_of (deps.begin (), deps.end (), [](const NodeRef & dep) {
+        if (std::any_of (deps.begin (), deps.end (), [](const NodeRef & dep) -> bool{
               return dep->hasNumericalProperty (NumericalProperty::ConstantZero);
             })) {
           return ConstantZero<R>::create (c, dim);
@@ -920,12 +965,49 @@ namespace bpp {
       }
 
     private:
-      void compute () final {
+      void compute() { compute<T0,T1>();}
+
+      template<class U, class V>
+        typename std::enable_if<!std::is_same<U, TransitionFunction>::value && !std::is_same<V, TransitionFunction>::value, void>::type
+        compute () {
         using namespace numeric;
         auto & result = this->accessValueMutable ();
-        const auto & x0 = accessValueConstCast<T0> (*this->dependency (0));
-        const auto & x1 = accessValueConstCast<T1> (*this->dependency (1));
+        const auto & x0 = accessValueConstCast<U> (*this->dependency (0));
+        const auto & x1 = accessValueConstCast<V> (*this->dependency (1));
         cwise (result) = cwise (x0) * cwise (x1);
+      }
+
+      template<class U, class V>
+        typename std::enable_if<std::is_same<U, TransitionFunction>::value && std::is_same<V, TransitionFunction>::value, void>::type
+        compute () {
+        using namespace numeric;
+        auto & result = this->accessValueMutable ();
+        const auto & x0 = accessValueConstCast<U> (*this->dependency (0));
+        const auto & x1 = accessValueConstCast<V> (*this->dependency (1));
+        
+        result = [x0, x1](const Eigen::VectorXd& x)->Eigen::VectorXd{return cwise(x0(x)) * cwise(x1(x));};
+      }
+
+      template<class U, class V>
+        typename std::enable_if<std::is_same<U, TransitionFunction>::value && !std::is_same<V, TransitionFunction>::value, void>::type
+        compute () {
+        using namespace numeric;
+        auto & result = this->accessValueMutable ();
+        const auto & x0 = accessValueConstCast<U> (*this->dependency (0));
+        const auto & x1 = accessValueConstCast<V> (*this->dependency (1));
+        
+        result = [x0, x1](const Eigen::VectorXd& x)->Eigen::VectorXd{return cwise(x0(x)) * cwise(x1);};
+      }
+
+      template<class U, class V>
+        typename std::enable_if<!std::is_same<U, TransitionFunction>::value && std::is_same<V, TransitionFunction>::value, void>::type
+        compute () {
+        using namespace numeric;
+        auto & result = this->accessValueMutable ();
+        const auto & x0 = accessValueConstCast<U> (*this->dependency (0));
+        const auto & x1 = accessValueConstCast<V> (*this->dependency (1));
+        
+        result = [x0, x1](const Eigen::VectorXd& x)->Eigen::VectorXd{return cwise(x1(x)) * cwise(x0);};
       }
 
       Dimension<R> targetDimension_;
@@ -949,13 +1031,13 @@ namespace bpp {
         checkDependenciesNotNull (typeid (Self), deps);
         checkDependencyRangeIsValue<T> (typeid (Self), deps, 0, deps.size ());
         // If there is a 0 return 0.
-        if (std::any_of (deps.begin (), deps.end (), [](const NodeRef & dep) {
+        if (std::any_of (deps.begin (), deps.end (), [](const NodeRef & dep) -> bool{
               return dep->hasNumericalProperty (NumericalProperty::ConstantZero);
             })) {
           return ConstantZero<R>::create (c, dim);
         }
         // Remove 1s from deps
-        removeDependenciesIf (deps, [](const NodeRef & dep) {
+        removeDependenciesIf (deps, [](const NodeRef & dep)->bool {
           return dep->hasNumericalProperty (NumericalProperty::ConstantOne);
         });
         // Select node implementation
@@ -1615,7 +1697,7 @@ namespace bpp {
         checkNthDependencyIsValue<DepT0> (typeid (Self), deps, 0);
         checkNthDependencyIsValue<DepT1> (typeid (Self), deps, 1);
         // Return 0 if any 0.
-        if (std::any_of (deps.begin (), deps.end (), [](const NodeRef & dep) {
+        if (std::any_of (deps.begin (), deps.end (), [](const NodeRef & dep) -> bool{
               return dep->hasNumericalProperty (NumericalProperty::ConstantZero);
             })) {
           return ConstantZero<R>::create (c, dim);
@@ -1832,7 +1914,7 @@ namespace bpp {
         };
         // Detect if we can merge this node with its dependencies
         const auto & delta = deps[0];
-        auto isSelfWithSameDelta = [&delta](const NodeRef & dep) {
+        auto isSelfWithSameDelta = [&delta](const NodeRef & dep) -> bool {
           return dynamic_cast<const Self *> (dep.get ()) != nullptr && dep->dependency (0) == delta;
         };
         if (!coeffs.empty () && std::all_of (deps.begin () + 1, deps.end (), isSelfWithSameDelta)) {
@@ -1874,7 +1956,7 @@ namespace bpp {
         // If not able to merge
         return cleanAndCreateNode (std::move (deps), n, std::move (coeffs));
       }
-
+      
       CombineDeltaShifted (NodeRefVec && deps, int n, std::vector<double> && coeffs, const Dimension<T> & dim)
         : Value<T> (std::move (deps)), targetDimension_ (dim), coeffs_ (std::move (coeffs)), n_ (n) {
         assert (this->coeffs_.size () + 1 == this->nbDependencies ());
@@ -1942,7 +2024,12 @@ namespace bpp {
       int getN () const { return n_; }
       
     private:
-      void compute () final {
+
+      void compute() { compute<T>();}
+
+      template<class U>
+      typename std::enable_if<!std::is_same<U, TransitionFunction>::value, void>::type
+      compute () {
         using namespace numeric;
         auto & result = this->accessValueMutable ();
         const auto & delta = accessValueConstCast<double> (*this->dependency (0));
@@ -1954,6 +2041,33 @@ namespace bpp {
         }
       }
 
+      template<class U>
+      typename std::enable_if<std::is_same<U, TransitionFunction>::value, void>::type
+      compute () {
+        using namespace numeric;
+        auto & result = this->accessValueMutable ();
+        const auto & delta = accessValueConstCast<double> (*this->dependency (0));
+        const double lambda = pow (delta, -n_);
+        
+        std::vector<const T*> vT;
+        const auto& dep = this->dependencies();
+        
+        for (size_t i=1; i< dep.size() ; i++){
+          vT.push_back(&accessValueConstCast<T> (*dep[i]));
+        }
+
+        result = [vT, lambda, this](const Eigen::VectorXd& x)->Eigen::VectorXd{
+          using namespace numeric;
+          Eigen::VectorXd r = zero (Dimension<Eigen::VectorXd>(this->targetDimension_.cols,1));
+        
+          for (std::size_t i = 0; i < this->coeffs_.size (); ++i) {
+            cwise(r) += (lambda * this->coeffs_[i]) * cwise((*vT[i])(x));
+          }
+          return(r);
+        };
+        
+      }
+      
       Dimension<T> targetDimension_;
       std::vector<double> coeffs_;
       int n_;
@@ -1974,6 +2088,7 @@ namespace bpp {
     extern template class CWiseAdd<Eigen::VectorXd, std::tuple<Eigen::VectorXd, Eigen::VectorXd>>;
     extern template class CWiseAdd<Eigen::RowVectorXd, std::tuple<Eigen::RowVectorXd, Eigen::RowVectorXd>>;
     extern template class CWiseAdd<Eigen::MatrixXd, std::tuple<Eigen::MatrixXd, Eigen::MatrixXd>>;
+    extern template class CWiseAdd<TransitionFunction, std::tuple<TransitionFunction, TransitionFunction>>;
 
     extern template class CWiseSub<double, std::tuple<double, double>>;
     extern template class CWiseSub<Eigen::VectorXd, std::tuple<Eigen::VectorXd, Eigen::VectorXd>>;
@@ -1988,6 +2103,7 @@ namespace bpp {
     extern template class CWiseAdd<Eigen::VectorXd, ReductionOf<Eigen::VectorXd>>;
     extern template class CWiseAdd<Eigen::RowVectorXd, ReductionOf<Eigen::RowVectorXd>>;
     extern template class CWiseAdd<Eigen::MatrixXd, ReductionOf<Eigen::MatrixXd>>;
+    extern template class CWiseAdd<TransitionFunction, ReductionOf<TransitionFunction>>;
 
 
     extern template class CWiseMean<double, ReductionOf<double>, ReductionOf<double>>;
@@ -2007,6 +2123,8 @@ namespace bpp {
     extern template class CWiseMul<Eigen::VectorXd, std::tuple<double, Eigen::VectorXd>>;
     extern template class CWiseMul<Eigen::RowVectorXd, std::tuple<double, Eigen::RowVectorXd>>;
     extern template class CWiseMul<Eigen::MatrixXd, std::tuple<double, Eigen::MatrixXd>>;
+    extern template class CWiseMul<TransitionFunction, std::tuple<TransitionFunction, TransitionFunction>>;
+    extern template class CWiseMul<TransitionFunction, std::tuple<double, TransitionFunction>>;
 
     extern template class CWiseMul<double, ReductionOf<double>>;
     extern template class CWiseMul<Eigen::VectorXd, ReductionOf<Eigen::VectorXd>>;
@@ -2063,7 +2181,7 @@ namespace bpp {
     extern template class CombineDeltaShifted<Eigen::VectorXd>;
     extern template class CombineDeltaShifted<Eigen::RowVectorXd>;
     extern template class CombineDeltaShifted<Eigen::MatrixXd>;
-
+    extern template class CombineDeltaShifted<TransitionFunction>;
     /*****************************************************************************
      * Numerical derivation helpers.
      */

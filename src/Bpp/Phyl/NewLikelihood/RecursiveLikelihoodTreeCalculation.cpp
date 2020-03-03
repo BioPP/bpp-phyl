@@ -116,45 +116,12 @@ RecursiveLikelihoodTreeCalculation& RecursiveLikelihoodTreeCalculation::operator
 
 void RecursiveLikelihoodTreeCalculation::updateLikelihoodFlags_()
 {
-  Vuint upId=process_->getComputingTree().toBeUpdatedNodes();
-
-  unsigned int rootId=process_->getComputingTree()[0]->getNodeIndex(process_->getComputingTree()[0]->getRoot());
-
-  if (upId.size()!=0)
-  {
-    for (size_t c=0; c<nbClasses_; c++){
-      for (size_t i=0;i<upId.size();i++){
-        shared_ptr<RecursiveLikelihoodNode> node=(*likelihoodData_)[c].getNode(upId[i]);
-        if (upId[i]!=rootId)
-        {
-          node->updateFatherBelow_(false, ComputingNode::D0);
-          node->updateAbove(false);
-        }
-        else{
-          const Vdouble& rf=process_->getRootFrequencies();
-          
-          if ((!node->usesLog() && node->getAboveLikelihoodArray_()[0]!=rf)
-              || (node->usesLog() && node->getAboveLikelihoodArray_()[0]!=VectorTools::log(rf)))
-          {
-            node->updateAbove(false);
-            node->setAboveLikelihoods(process_->getRootFrequencies());
-            node->updateAbove(true);
-          }
-        }
-      }
-    }
-    up2date_=false;
-  }
 }
 
 /******************************************************************************/
 
 void RecursiveLikelihoodTreeCalculation::computeTreeLikelihood()
 {
-  if (!up2date_){
-    likelihoodData_->computeLikelihoods(process_->getComputingTree(), ComputingNode::D0);
-    up2date_=true;
-  }
 }
 
 
@@ -162,18 +129,6 @@ void RecursiveLikelihoodTreeCalculation::computeTreeLikelihood()
 
 void RecursiveLikelihoodTreeCalculation::computeLikelihoodsAtNode(int nodeId)
 {
-  if (likelihoodData_->usePatterns())
-    throw Exception("RecursiveLikelihoodTreeCalculation::computeLikelihoodsAtNode not available wth patterns.");
-  
-  if (!likelihoodData_->isAboveLikelihoodsInitialized())
-  {
-    likelihoodData_->resetInnerAboveLikelihoods();
-    likelihoodData_->resetDownwardLikelihoods(nbDistinctSites_, nbStates_, ComputingNode::D0);
-  }
-
-  // recursion
-
-  likelihoodData_->computeLikelihoodsAtNode(process_->getComputingTree(), nodeId);
 }
 
 
@@ -181,21 +136,6 @@ void RecursiveLikelihoodTreeCalculation::computeLikelihoodsAtNode(int nodeId)
 
 void RecursiveLikelihoodTreeCalculation::computeLikelihoodsAtAllNodes()
 {
-  if (likelihoodData_->usePatterns())
-    throw Exception("RecursiveLikelihoodTreeCalculation::computeLikelihoodsAtAllNodes not available wth patterns.");
-  
-  if (!likelihoodData_->isAboveLikelihoodsInitialized())
-  {
-    likelihoodData_->resetInnerAboveLikelihoods();
-    likelihoodData_->resetDownwardLikelihoods(nbDistinctSites_, nbStates_, ComputingNode::D0);
-  }
-
-  // recursion
-
-  vector<uint> nodesId=process_->getParametrizablePhyloTree().getAllNodesIndexes();
-
-  for (auto nodeId: nodesId)
-    likelihoodData_->computeLikelihoodsAtNode(process_->getComputingTree(), nodeId);
 }
 
 
@@ -205,23 +145,6 @@ void RecursiveLikelihoodTreeCalculation::computeLikelihoodsAtAllNodes()
 
 void RecursiveLikelihoodTreeCalculation::computeTreeDLogLikelihood(const Vuint& vbrId)
 {
-  if (vbrId.size()==0)
-  {
-    nullDLogLikelihood_=true;
-    return;
-  }
-
-  nullDLogLikelihood_=false;
-  
-  vector<unsigned int> lId=(*process_->getComputingTree()[0]).getNodeIndexes((*process_->getComputingTree()[0]).getAllLeaves());
-  
-  for (size_t i=0;i<lId.size();i++)
-    for (size_t c=0; c<nbClasses_; c++){
-      shared_ptr<RecursiveLikelihoodNode> branch=(*likelihoodData_)[c].getNode(lId[i]);
-      branch->updateFatherBelow_(false, ComputingNode::D1);
-    }
-  
-  likelihoodData_->computeLikelihoods(process_->getComputingTree(), ComputingNode::D1, &vbrId);
 }
 
 /******************************************************************************
@@ -230,23 +153,6 @@ void RecursiveLikelihoodTreeCalculation::computeTreeDLogLikelihood(const Vuint& 
 
 void RecursiveLikelihoodTreeCalculation::computeTreeD2LogLikelihood(const Vuint& vbrId)
 {
-  if (vbrId.size()==0)
-  {
-    nullD2LogLikelihood_=true;
-    return;
-  }
-
-  nullD2LogLikelihood_=false;
-
-  vector<unsigned int> lId=(*process_->getComputingTree()[0]).getNodeIndexes((*process_->getComputingTree()[0]).getAllLeaves());
-  
-  for (size_t i=0;i<lId.size();i++)
-    for (size_t c=0; c<nbClasses_; c++){
-      shared_ptr<RecursiveLikelihoodNode> branch=(*likelihoodData_)[c].getNode(lId[i]);
-      branch->updateFatherBelow_(false, ComputingNode::D2);
-    }
-  
-  likelihoodData_->computeLikelihoods(process_->getComputingTree(), ComputingNode::D2, &vbrId);
 }
 
 

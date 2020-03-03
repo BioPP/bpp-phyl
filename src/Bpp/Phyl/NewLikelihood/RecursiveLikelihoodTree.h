@@ -222,10 +222,6 @@ public:
    */
   void computeLikelihoodsAtNode(const ComputingTree& lTree, int nodeId)
   {
-    for (size_t c = 0; c < vTree_.size(); ++c)
-    {
-      vTree_[c]->getNode(static_cast<NodeIndex>(nodeId))->computeLikelihoods(dynamic_cast<SpeciationComputingNode&>(*(lTree[c]->getNode(static_cast<NodeIndex>(nodeId)))), ComputingNode::D0);
-    }
   }
 
   /*
@@ -235,12 +231,6 @@ public:
    */
   void computeLikelihoods(const ComputingTree& lTree, unsigned char DX, const Vuint* brId = NULL)
   {
-    unsigned int rId = lTree[0]->getNodeIndex(lTree[0]->getRoot());
-
-    for (size_t c = 0; c < vTree_.size(); ++c)
-    {
-      vTree_[c]->getNode(rId)->computeLikelihoods(dynamic_cast<SpeciationComputingNode&>(*(lTree[c]->getNode(rId))), DX, brId);
-    }
   }
 
 protected:

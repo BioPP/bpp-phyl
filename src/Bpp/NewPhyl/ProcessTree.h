@@ -128,7 +128,7 @@ namespace bpp
        *
        */
 
-      // Not just "size_t nMod_" bacause dataflow dependency is needed
+      // Not just "size_t nMod_" because dataflow dependency is needed
       // for createMatrix for TransitionMatrixFromModel
       
       std::shared_ptr<NumericConstant<size_t>> nMod_;

@@ -41,8 +41,6 @@
 #define _ABSTRACTSUBSTITUTIONPROCESS_H_
 
 #include "SubstitutionProcess.h"
-#include "ComputingTree.h"
-#include "SpeciationComputingNode.h"
 
 //From the STL:
 #include <memory>
@@ -135,7 +133,7 @@ namespace bpp
 
     const Matrix<double>& getTransitionProbabilities(unsigned int nodeId, size_t classIndex) const
     {
-      return dynamic_cast<const SpeciationComputingNode*>(getComputingTree()[classIndex]->getNode(nodeId).get())->getTransitionProbabilities();
+    throw Exception("AbstractSubstitutionProcess::getTransitionProbabilities not finished. Ask developpers.");
     }
  
     /**
@@ -146,7 +144,7 @@ namespace bpp
      */
     const Matrix<double>& getTransitionProbabilitiesD1(unsigned int nodeId, size_t classIndex) const
     {
-      return dynamic_cast<const SpeciationComputingNode*>(getComputingTree()[classIndex]->getNode(nodeId).get())->getTransitionProbabilitiesD1();
+      throw Exception("AbstractSubstitutionProcess::getTransitionProbabilitiesD1 not finished. Ask developpers.");
     }
  
     /**
@@ -157,7 +155,7 @@ namespace bpp
      */
     const Matrix<double>& getTransitionProbabilitiesD2(unsigned int nodeId, size_t classIndex) const
     {
-      return dynamic_cast<const SpeciationComputingNode*>(getComputingTree()[classIndex]->getNode(nodeId).get())->getTransitionProbabilitiesD2();
+      throw Exception("AbstractSubstitutionProcess::getTransitionProbabilitiesD2 not finished. Ask developpers.");
     }
 
   };

@@ -93,7 +93,6 @@ namespace bpp {
     void writeGraphToDot (const std::string & filename, const std::vector<const Node *> & nodes,
                           DotOptions opt  = DotOptions::None);
 
-
     ///////////////////////////////////
     /// 
     /// Node instances are always manipulated as shared pointers: provide a short alias.
@@ -296,8 +295,6 @@ namespace bpp {
           n->unregisterNode (this);
         
         dependencyNodes_=dependenciesArg;
-
-        dataflow::writeGraphToDot("this",{this});
 
         for (auto & n : dependencyNodes_)
           n->registerNode (this);

@@ -124,7 +124,7 @@ int main() {
   VectorSiteContainer sites2(seqNames, alphabet);
   for (unsigned int i = 0; i < n; ++i) {
     auto result = simulator.dSimulateSite();
-    unique_ptr<Site> site(result->getSite(*simulator.getSubstitutionProcess()->getModel(0)));
+    unique_ptr<Site> site(result->getSite(dynamic_cast<const TransitionModel&>(*simulator.getSubstitutionProcess()->getModel(0))));
     site->setPosition(static_cast<int>(i));
     sites2.addSite(*site, false);
     delete result;

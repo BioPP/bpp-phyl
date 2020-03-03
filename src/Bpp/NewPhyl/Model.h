@@ -151,10 +151,11 @@ namespace bpp {
       Dimension<T> targetDimension_;
     };
 
-    /** transitionMatrix = f(model, branchLen).
+    /** transitionMatrix = f(model, branchLen, nDeriv).
      * transitionMatrix: Matrix(fromState, toState).
      * model: ConfiguredModel.
      * branchLen: double.
+     * nDeriv: degree of derivate (default: 0)
      *
      * Node construction should be done with the create static method.
      */
@@ -165,7 +166,11 @@ namespace bpp {
       using Dep = ConfiguredModel;
       using T = Eigen::MatrixXd;
 
-      /// Build a new TransitionMatrixFromModel node with the given output dimensions.
+    private:
+      Dimension<T> targetDimension_;
+
+    public:
+/// Build a new TransitionMatrixFromModel node with the given output dimensions.
       TransitionMatrixFromModel (NodeRefVec && deps, const Dimension<T> & dim);
 
       std::string debugInfo () const final;
@@ -192,104 +197,13 @@ namespace bpp {
 
     private:
       void compute () final;
-
-      Dimension<T> targetDimension_;
     };
 
-    /** dtransitionMatrix/dbrlen = f(model, branchLen).
-     * dtransitionMatrix/dbrlen: Matrix(fromState, toState).
-     * model: ConfiguredModel.
-     * branchLen: double.
-     *
-     * Node construction should be done with the create static method.
-     */
-
-    class TransitionMatrixFromModelFirstBrlenDerivative : public Value<Eigen::MatrixXd> {
-    public:
-      using Self = TransitionMatrixFromModelFirstBrlenDerivative;
-      using Dep = ConfiguredModel;
-      using T = Eigen::MatrixXd;
-
-      TransitionMatrixFromModelFirstBrlenDerivative (NodeRefVec && deps, const Dimension<T> & dim);
-
-      std::string debugInfo () const final;
-
-      bool compareAdditionalArguments (const Node & other) const;
-
-      NodeRef derive (Context & c, const Node & node) final;
-      NodeRef recreate (Context & c, NodeRefVec && deps) final;
-
-      std::string color () const final
-      {
-        return "#aaff00";
-      }
-
-      std::string description () const final
-      {
-        return "dTransitionMatrix/dBrlen";
-      }
-
-      std::string shape() const
-      {
-        return "octagon";
-      }
-    private:
-      void compute () final;
-
-      Dimension<T> targetDimension_;
-    };
-
-
-
-    /** d2transitionMatrix/dbrlen2 = f(model, branchLen).
-     * d2transitionMatrix/dbrlen2: Matrix(fromState, toState).
-     * model: ConfiguredModel.
-     * branchLen: double.
-     *
-     * Node construction should be done with the create static method.
-     */
-
-    class TransitionMatrixFromModelSecondBrlenDerivative : public Value<Eigen::MatrixXd> {
-    public:
-      using Self = TransitionMatrixFromModelSecondBrlenDerivative;
-      using Dep = ConfiguredModel;
-      using T = Eigen::MatrixXd;
-
-      TransitionMatrixFromModelSecondBrlenDerivative (NodeRefVec && deps, const Dimension<T> & dim);
-
-      std::string debugInfo () const final;
-
-      bool compareAdditionalArguments (const Node & other) const;
-
-      NodeRef derive (Context & c, const Node & node) final;
-      NodeRef recreate (Context & c, NodeRefVec && deps) final;
-
-      std::string color () const final
-      {
-        return "#aaff00";
-      }
-
-      std::string description () const final
-      {
-        return "d2(TransitionMatrix)/dBrlen2";
-      }
-
-      std::string shape() const
-      {
-        return "octagon";
-      }
-      
-    private:
-      void compute () final;
-
-      Dimension<T> targetDimension_;
-    };
-
-
-    /** transitionProbability = f(model, branchLen).
+    /** transitionProbability = f(model, branchLen, nDeriv).
      * transitionProbability: f(fromState, vector) -> probability
      * model: ConfiguredModel.
      * branchLen: double.
+     * nDeriv: derivation level
      *
      * Node construction should be done with the create static method.
      */
@@ -298,8 +212,12 @@ namespace bpp {
     public:
       using Self = TransitionFunctionFromModel;
       using Dep = ConfiguredModel;
-      using T = Eigen::VectorXd;
+      using T = bpp::TransitionFunction;
 
+    private:
+      Dimension<T> targetDimension_;
+
+    public:
       /// Build a new TransitionMatrixFromModel node with the given output dimensions.
       TransitionFunctionFromModel (NodeRefVec && deps, const Dimension<T> & dim);
 
@@ -328,15 +246,8 @@ namespace bpp {
     private:
       void compute () final;
 
-      static const Eigen::VectorXd& Lik_t_(const BranchModel* model, const Eigen::VectorXd& values, double t)
-      {
-        return model->Lik_t(values, t);
-      }
-
-      Dimension<T> targetDimension_;
-
     public:
-      static std::shared_ptr<Self> create (Context & c, NodeRefVec && deps, const Dimension<Eigen::VectorXd> & dim);
+      static std::shared_ptr<Self> create (Context & c, NodeRefVec && deps, const Dimension<T> & dim);
     };
 
     /** dtransitionMatrix/dbrlen = f(model, branchLen).
@@ -395,7 +306,7 @@ namespace bpp {
       using Dep = ConfiguredModel;
       using T = double;
 
-      ProbabilityFromMixedModel (NodeRefVec && deps, size_t nCat_);
+      ProbabilityFromMixedModel (NodeRefVec && deps, size_t nCat);
 
       std::string debugInfo () const final;
 

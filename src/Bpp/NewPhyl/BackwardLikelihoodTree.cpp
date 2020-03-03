@@ -134,8 +134,11 @@ ConditionalLikelihoodRef BackwardLikelihoodTree::makeBackwardLikelihoodAtNode (P
       // useless, the transitionMatrix already exists, but is not
       // available directly through a tree
       // ToDo : find another way to get it
+
+      auto zero=NumericConstant<size_t>::create(context_, 0);
+
       auto transitionMatrix =
-        ConfiguredParametrizable::createMatrix<ConfiguredModel, TransitionMatrixFromModel> (context_, {model, brlen, nMod}, transitionMatrixDimension (nbState_));
+        ConfiguredParametrizable::createMatrix<ConfiguredModel, TransitionMatrixFromModel> (context_, {model, brlen, zero, nMod}, transitionMatrixDimension (nbState_));
 
       // Uses the transposed transition matrix to compute the bottom
       // of the edge

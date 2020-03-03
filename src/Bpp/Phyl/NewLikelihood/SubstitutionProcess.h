@@ -63,7 +63,7 @@ namespace bpp
  *
  * It main purpose is to provide the necessary calculus for each branch-site-model class combination,
  * such as Markov generator and transition probabilities.
- * These are typically provided by a TransitionModel class, applied in various combination along the
+ * These are typically provided by a BranchModel class, applied in various combination along the
  * tree (eg non-homogeneous models) and alignment (eg partition models).
  * The so-called "model class" refers to mixture models.
  *
@@ -118,7 +118,7 @@ namespace bpp
      * @return the model with given index.
      */
     
-    virtual const TransitionModel* getModel(size_t i) const = 0;
+    virtual const BranchModel* getModel(size_t i) const = 0;
 
     /**
      * @brief Get the substitution model corresponding to a certain
@@ -128,7 +128,7 @@ namespace bpp
      * @param classIndex The model class index.
      */
 
-    virtual const TransitionModel* getModel(unsigned int nodeId, size_t classIndex) const = 0;
+    virtual const BranchModel* getModel(unsigned int nodeId, size_t classIndex) const = 0;
 
     /**
      * @brief Get the Model Scenario associated with this process, in
@@ -176,7 +176,7 @@ namespace bpp
      * @throw Exception If no model is found for this node.
      */
 
-    virtual const TransitionModel* getModelForNode(unsigned int nodeId) const = 0;
+    virtual const BranchModel* getModelForNode(unsigned int nodeId) const = 0;
 
     /**
      * @brief Get a pointer to the rate distribution (or null if there
@@ -296,16 +296,6 @@ namespace bpp
      */
 
     //virtual bool transitionProbabilitiesHaveChanged() const = 0; Not sure we need that anymore...
-
-    /**
-     * @brief A virtual method to retrieve the ComputingTree defined in
-     * inheriting classes.
-     *
-     */
-  
-    virtual const ComputingTree& getComputingTree() const = 0;
-
-    virtual ComputingTree& getComputingTree() = 0;
 
   };
 

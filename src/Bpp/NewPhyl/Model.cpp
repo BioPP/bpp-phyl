@@ -177,7 +177,8 @@ TransitionMatrixFromModel::TransitionMatrixFromModel (NodeRefVec && deps,
 
 std::string TransitionMatrixFromModel::debugInfo () const {
   using namespace numeric;
-  return debug (this->accessValueConst ()) + " targetDim=" + to_string (targetDimension_);
+  const auto nDeriv = accessValueConstCast<size_t> (*this->dependency (2));
+  return debug (this->accessValueConst ()) + " targetDim=" + to_string (targetDimension_) + ":nDeriv=" + TextTools::toString(nDeriv);
 }
 
 // TransitionMatrixFromModel additional arguments = ().
@@ -189,20 +190,23 @@ NodeRef TransitionMatrixFromModel::derive (Context & c, const Node & node) {
   // dtm/dn = sum_i dtm/dx_i * dx_i/dn + dtm/dbrlen * dbrlen/dn (x_i = model parameters).
   auto modelDep = this->dependency (0);
   auto brlenDep = this->dependency (1);
-  NodeRef subNode = this->dependencies().size()==2?0:this->dependency (2);
+  NodeRef derivNode = this->dependency (2);
+  NodeRef subNode = this->dependencies().size()==3?0:this->dependency (3);
+  const auto nDeriv = accessValueConstCast<size_t> (*this->dependency (2));
 
   // Model part
   auto & model = static_cast<Dep &> (*modelDep);
-  auto buildFWithNewModel = [this, &c, &brlenDep, &subNode](NodeRef && newModel) {
-    return ConfiguredParametrizable::createMatrix<Dep, Self> (c, {std::move (newModel), brlenDep, subNode}, targetDimension_);
+  auto buildFWithNewModel = [this, &c, &brlenDep, &derivNode, &subNode](NodeRef && newModel) {
+    return ConfiguredParametrizable::createMatrix<Dep, Self> (c, {std::move (newModel), brlenDep, derivNode, subNode}, targetDimension_);
   };
   NodeRefVec derivativeSumDeps = bpp::dataflow::ConfiguredParametrizable::generateDerivativeSumDepsForComputations<Dep, T> (
     c, model, node, targetDimension_, buildFWithNewModel);
   // Brlen part, use specific node
   auto dbrlen_dn = brlenDep->derive (c, node);
   if (!dbrlen_dn->hasNumericalProperty (NumericalProperty::ConstantZero)) {
+    auto nDerivp=NumericConstant<size_t>::create(c, nDeriv+1);
     auto df_dbrlen =
-      ConfiguredParametrizable::createMatrix<Dep, TransitionMatrixFromModelFirstBrlenDerivative>(c, {modelDep, brlenDep, subNode}, targetDimension_);
+      ConfiguredParametrizable::createMatrix<Dep, TransitionMatrixFromModel>(c, {modelDep, brlenDep, nDerivp, subNode}, targetDimension_);
     derivativeSumDeps.emplace_back (CWiseMul<T, std::tuple<double, T>>::create (
                                       c, {std::move (dbrlen_dn), std::move (df_dbrlen)}, targetDimension_));
   }
@@ -215,173 +219,65 @@ NodeRef TransitionMatrixFromModel::recreate (Context & c, NodeRefVec && deps) {
 
 void TransitionMatrixFromModel::compute () {
   const auto brlen = accessValueConstCast<double> (*this->dependency (1)->dependency(0));
+  const auto nDeriv = accessValueConstCast<size_t> (*this->dependency (2));
+  
   auto & r = this->accessValueMutable ();
   
   const auto * mixmodel = accessValueConstCast<const MixedTransitionModel *> (*this->dependency (0));
-  if (mixmodel && this->dependencies().size()>2)
+  
+  if (mixmodel && this->dependencies().size()>3)
   {
-    auto nMod = accessValueConstCast<size_t> (*this->dependency (2));
-    copyBppToEigen (mixmodel->getNModel(nMod)->getPij_t (brlen), r);
+    auto nMod = accessValueConstCast<size_t> (*this->dependency (3));
+    
+    switch(nDeriv){
+    case 0:
+      copyBppToEigen (mixmodel->getNModel(nMod)->getPij_t (brlen), r);
+      break;
+    case 1:
+      copyBppToEigen (mixmodel->getNModel(nMod)->getdPij_dt (brlen), r);
+      break;
+    case 2:
+      copyBppToEigen (mixmodel->getNModel(nMod)->getd2Pij_dt2 (brlen), r);
+      break;
+    default:
+      throw Exception("TransitionMatrixFromModel likelihood derivate " + TextTools::toString(nDeriv) + " not defined.");
+    }
   }
   else
   {
     const auto * model1 = accessValueConstCast<const BranchModel *> (*this->dependency (0));
     const auto model = dynamic_cast<const TransitionModel*>(model1);
     
-    if (model)
-      copyBppToEigen (model->getPij_t (brlen), r);
-    else
+    if (!model)
       throw Exception("TransitionMatrixFromModel::compute only possible for Transition Models.");
-  }
-}
-    
-// TransitionMatrixFromModelFirstBrlenDerivative
 
-TransitionMatrixFromModelFirstBrlenDerivative::TransitionMatrixFromModelFirstBrlenDerivative (
-  NodeRefVec && deps, const Dimension<Eigen::MatrixXd> & dim)
-  : Value<Eigen::MatrixXd> (std::move (deps)), targetDimension_ (dim) {}
-
-std::string TransitionMatrixFromModelFirstBrlenDerivative::debugInfo () const {
-  using namespace numeric;
-  return debug (this->accessValueConst ()) + " targetDim=" + to_string (targetDimension_);
-}
-
-// TransitionMatrixFromModelFirstBrlenDerivative additional arguments = ().
-bool
-TransitionMatrixFromModelFirstBrlenDerivative::compareAdditionalArguments (const Node & other) const {
-  return dynamic_cast<const Self *> (&other) != nullptr;
-}
-
-NodeRef TransitionMatrixFromModelFirstBrlenDerivative::derive (Context & c, const Node & node) {
-  // dtm/dn = sum_i dtm/dx_i * dx_i/dn + dtm/dbrlen + dbrlen/dn (x_i = model parameters).
-  auto modelDep = this->dependency (0);
-  auto brlenDep = this->dependency (1);
-  NodeRef subNode = this->dependencies().size()==2?0:this->dependency (2);
-  // Model part
-  auto & model = static_cast<Dep &> (*modelDep);
-  auto buildFWithNewModel = [this, &c, &brlenDep, &subNode](NodeRef && newModel) {
-    return ConfiguredParametrizable::createMatrix<Dep, Self> (c, {std::move (newModel), brlenDep, subNode}, targetDimension_);
-  };
-      
-  NodeRefVec derivativeSumDeps = bpp::dataflow::ConfiguredParametrizable::generateDerivativeSumDepsForComputations<Dep, T> (
-    c, model, node, targetDimension_, buildFWithNewModel);
-  // Brlen part, use specific node
-  auto dbrlen_dn = brlenDep->derive (c, node);
-  if (!dbrlen_dn->hasNumericalProperty (NumericalProperty::ConstantZero)) {
-    auto df_dbrlen =
-      ConfiguredParametrizable::createMatrix<Dep, TransitionMatrixFromModelSecondBrlenDerivative> (c, {modelDep, brlenDep, subNode}, targetDimension_);
-    derivativeSumDeps.emplace_back (CWiseMul<T, std::tuple<double, T>>::create (
-                                      c, {std::move (dbrlen_dn), std::move (df_dbrlen)}, targetDimension_));
-  }
-  return CWiseAdd<T, ReductionOf<T>>::create (c, std::move (derivativeSumDeps), targetDimension_);
-}
-
-NodeRef TransitionMatrixFromModelFirstBrlenDerivative::recreate (Context & c, NodeRefVec && deps) {
-  return ConfiguredParametrizable::createMatrix<Dep, Self> (c, std::move (deps), targetDimension_);
-}
-
-void TransitionMatrixFromModelFirstBrlenDerivative::compute () {
-  const auto brlen = accessValueConstCast<double> (*this->dependency (1)->dependency(0));
-  auto & r = this->accessValueMutable ();
-      
-  const auto * mixmodel = accessValueConstCast<const MixedTransitionModel *> (*this->dependency (0));
-  if (mixmodel && this->dependencies().size()>2)
-  {
-    auto nMod = accessValueConstCast<size_t> (*this->dependency (2));
-    copyBppToEigen (mixmodel->getNModel(nMod)->getdPij_dt (brlen), r);
-  }
-  else
-  {
-    const auto * model1 = accessValueConstCast<const BranchModel *> (*this->dependency (0));
-    const auto model = dynamic_cast<const TransitionModel*>(model1);
-    if (model)
+    switch(nDeriv){
+    case 0:
+      copyBppToEigen (model->getPij_t (brlen), r);
+      break;
+    case 1:
       copyBppToEigen (model->getdPij_dt (brlen), r);
-    else
-      throw Exception("TransitionMatrixFromModelFirstBrlenDerivative::compute only possible for Transition Models.");
-  }
-}
-      
-    
-////////////////////////////////////////////////////////
-// TransitionMatrixFromModelSecondBrlenDerivative
-
-TransitionMatrixFromModelSecondBrlenDerivative::TransitionMatrixFromModelSecondBrlenDerivative (
-  NodeRefVec && deps, const Dimension<Eigen::MatrixXd> & dim)
-  : Value<Eigen::MatrixXd> (std::move (deps)), targetDimension_ (dim) {}
-
-std::string TransitionMatrixFromModelSecondBrlenDerivative::debugInfo () const {
-  using namespace numeric;
-  return debug (this->accessValueConst ()) + " targetDim=" + to_string (targetDimension_);
-}
-
-// TransitionMatrixFromModelSecondBrlenDerivative additional arguments = ().
-bool
-TransitionMatrixFromModelSecondBrlenDerivative::compareAdditionalArguments (const Node & other) const {
-  return dynamic_cast<const Self *> (&other) != nullptr;
-}
-
-NodeRef TransitionMatrixFromModelSecondBrlenDerivative::derive (Context & c, const Node & node) {
-  // dtm/dn = sum_i dtm/dx_i * dx_i/dn + dtm/dbrlen + dbrlen/dn (x_i = model parameters).
-  auto modelDep = this->dependency (0);
-  auto brlenDep = this->dependency (1);
-  NodeRef subNode = this->dependencies().size()==2?0:this->dependency (2);
-
-  // Model part
-  auto & model = static_cast<Dep &> (*modelDep);
-  auto buildFWithNewModel = [this, &c, &brlenDep, &subNode](NodeRef && newModel) {
-    return ConfiguredParametrizable::createMatrix<Dep, Self> (c, {std::move (newModel), brlenDep, subNode}, targetDimension_);
-  };
-  NodeRefVec derivativeSumDeps = bpp::dataflow::ConfiguredParametrizable::generateDerivativeSumDepsForComputations<Dep, T> (
-    c, model, node, targetDimension_, buildFWithNewModel);
-  // Brlen part : no specific node, use numerical derivation.
-  auto dbrlen_dn = brlenDep->derive (c, node);
-  if (!dbrlen_dn->hasNumericalProperty (NumericalProperty::ConstantZero)) {
-    auto buildFWithNewBrlen = [this, &c, &modelDep, &subNode](ValueRef<double> newBrlen) {
-      return ConfiguredParametrizable::createMatrix<Dep, Self> (c, {modelDep, std::move (newBrlen), subNode}, targetDimension_);
-    };
-    auto df_dbrlen = generateNumericalDerivative<T, double> (
-      c, model.config, brlenDep, Dimension<double> (), targetDimension_, buildFWithNewBrlen);
-    derivativeSumDeps.emplace_back (CWiseMul<T, std::tuple<double, T>>::create (
-                                      c, {std::move (dbrlen_dn), std::move (df_dbrlen)}, targetDimension_));
-  }
-  return CWiseAdd<T, ReductionOf<T>>::create (c, std::move (derivativeSumDeps), targetDimension_);
-}
-
-NodeRef TransitionMatrixFromModelSecondBrlenDerivative::recreate (Context & c, NodeRefVec && deps) {
-  return ConfiguredParametrizable::createMatrix<Dep, Self> (c, std::move (deps), targetDimension_);
-}
-
-void TransitionMatrixFromModelSecondBrlenDerivative::compute () {
-  const auto brlen = accessValueConstCast<double> (*this->dependency (1)->dependency(0));
-  auto & r = this->accessValueMutable ();
-      
-  const auto * mixmodel = accessValueConstCast<const MixedTransitionModel *> (*this->dependency (0));
-  if (mixmodel && this->dependencies().size()>2)
-  {
-    auto nMod = accessValueConstCast<size_t> (*this->dependency (2));
-    copyBppToEigen (mixmodel->getNModel(nMod)->getd2Pij_dt2 (brlen), r);
-  }
-  else
-  {
-    const auto * model1 = accessValueConstCast<const BranchModel *> (*this->dependency (0));
-    const auto model = dynamic_cast<const TransitionModel*>(model1);
-    if (model)
+      break;
+    case 2:
       copyBppToEigen (model->getd2Pij_dt2 (brlen), r);
-    else
-      throw Exception("TransitionMatrixFromModelSecondBrlenDerivative::compute only possible for Transition Models.");
+      break;
+    default:
+      throw Exception("TransitionMatrixFromModel likelihood derivate " + TextTools::toString(nDeriv) + " not defined.");
+    }
   }
-}
+}    
 
 ////////////////////////////////////////////////////////////
 // TransitionFunctionFromModel
 
 TransitionFunctionFromModel::TransitionFunctionFromModel (NodeRefVec && deps,
-                                                          const Dimension<Eigen::VectorXd> & dim)
+                                                          const Dimension<T> & dim)
   : Value<TransitionFunction> (std::move (deps)), targetDimension_ (dim) {}
 
 std::string TransitionFunctionFromModel::debugInfo () const {
   using namespace numeric;
-  return debug (this->accessValueConst ()) + " targetDim=" + to_string (targetDimension_);
+  const auto nDeriv = accessValueConstCast<size_t> (*this->dependency (2));
+  return debug (this->accessValueConst ()) + " targetDim=" + to_string (targetDimension_) + ":nDeriv=" + TextTools::toString(nDeriv);
 }
 
 // TransitionFunctionFromModel additional arguments = ().
@@ -389,40 +285,49 @@ bool TransitionFunctionFromModel::compareAdditionalArguments (const Node & other
   return dynamic_cast<const Self *> (&other) != nullptr;
 }
 
-std::shared_ptr<TransitionFunctionFromModel> TransitionFunctionFromModel::create (Context & c, NodeRefVec && deps, const Dimension<Eigen::VectorXd> & dim)
+std::shared_ptr<TransitionFunctionFromModel> TransitionFunctionFromModel::create (Context & c, NodeRefVec && deps, const Dimension<T> & dim)
 {
   checkDependenciesNotNull (typeid (Self), deps);
-  checkDependencyVectorSize (typeid (Self), deps, 2);
+  checkDependencyVectorSize (typeid (Self), deps, 3);
   checkNthDependencyIs<ConfiguredModel> (typeid (Self), deps, 0);
   checkNthDependencyIs<ConfiguredParameter> (typeid (Self), deps, 1);
+//  checkNthDependencyIs<size_t> (typeid (Self), deps, 2);
 
   return cachedAs<TransitionFunctionFromModel> (c, std::make_shared<TransitionFunctionFromModel> (std::move (deps), dim));
 }
 
 NodeRef TransitionFunctionFromModel::derive (Context & c, const Node & node) {
-  // dtm/dn = sum_i dtm/dx_i * dx_i/dn + dtm/dbrlen * dbrlen/dn (x_i = model parameters).
-/*  auto modelDep = this->dependency (0);
+  // df(v)/dn = sum_i df(v)/dx_i * dx_i/dn + df(v)/dbrlen * dbrlen/dn + df(v)/dv * dv/dn (x_i = model parameters, v = variable of f).
+  if (&node==&NodeX)
+    throw Exception("TransitionFunctionFromModel::derive : Jacobian not implemented. Ask developpers.");
+  
+  auto modelDep = this->dependency (0);
   auto brlenDep = this->dependency (1);
-  NodeRef subNode = this->dependencies().size()==2?0:this->dependency (2);
+  NodeRef derivNode = this->dependency (2);
+  const auto nDeriv = accessValueConstCast<size_t> (*this->dependency (2));
 
   // Model part
   auto & model = static_cast<Dep &> (*modelDep);
-  auto buildFWithNewModel = [this, &c, &brlenDep, &subNode](NodeRef && newModel) {
-    return ConfiguredParametrizable::createMatrix<Dep, Self> (c, {std::move (newModel), brlenDep, subNode}, targetDimension_);
+  auto buildFWithNewModel = [this, &c, &brlenDep, &derivNode](NodeRef && newModel) {
+    return TransitionFunctionFromModel::create(c, {std::move (newModel), brlenDep, derivNode}, targetDimension_);
   };
-  NodeRefVec derivativeSumDeps = bpp::dataflow::ConfiguredParametrizable::generateDerivativeSumDepsForComputations<Dep, T> (
-    c, model, node, targetDimension_, buildFWithNewModel);
+  
+  NodeRefVec derivativeSumDeps = bpp::dataflow::ConfiguredParametrizable::generateDerivativeSumDepsForComputations<Dep, T> (c, model, node, targetDimension_, buildFWithNewModel);
+
   // Brlen part, use specific node
   auto dbrlen_dn = brlenDep->derive (c, node);
   if (!dbrlen_dn->hasNumericalProperty (NumericalProperty::ConstantZero)) {
-    auto df_dbrlen =
-      ConfiguredParametrizable::createMatrix<Dep, TransitionMatrixFromModelFirstBrlenDerivative>(c, {modelDep, brlenDep, subNode}, targetDimension_);
+    auto nDerivp=NumericConstant<size_t>::create(c, nDeriv+1);
+    auto df_dbrlen = TransitionFunctionFromModel::create(c, {modelDep, brlenDep, nDerivp}, targetDimension_);
     derivativeSumDeps.emplace_back (CWiseMul<T, std::tuple<double, T>>::create (
                                       c, {std::move (dbrlen_dn), std::move (df_dbrlen)}, targetDimension_));
   }
-  return CWiseAdd<T, ReductionOf<T>>::create (c, std::move (derivativeSumDeps), targetDimension_);*/
-  return 0;
-}
+  
+  // Vector part, use specific node
+  
+  
+  return CWiseAdd<T, ReductionOf<T>>::create (c, std::move (derivativeSumDeps), targetDimension_);
+ }
 
 NodeRef TransitionFunctionFromModel::recreate (Context & c, NodeRefVec && deps) {
   return Self::create(c, std::move (deps), targetDimension_);
@@ -431,10 +336,24 @@ NodeRef TransitionFunctionFromModel::recreate (Context & c, NodeRefVec && deps) 
 void TransitionFunctionFromModel::compute () {
   const auto brlen = accessValueConstCast<double> (*this->dependency (1)->dependency(0));
   const auto * model = accessValueConstCast<const BranchModel *> (*this->dependency (0));
+  const auto nDeriv = accessValueConstCast<size_t> (*this->dependency (2));
 
   auto & r = this->accessValueMutable ();
 
-  r = std::bind(&Lik_t_, model, std::placeholders::_1, brlen);
+  r = [model, brlen, nDeriv](const Eigen::VectorXd& values)
+    {
+      switch(nDeriv){
+      case 0:
+      return model->Lik_t(values, brlen);
+      case 1:
+      return model->dLik_dt(values, brlen);
+      case 2:
+      return model->d2Lik_dt2(values, brlen);
+      default:
+      throw Exception("TransitionFunctionFromModel likelihood derivate " + TextTools::toString(nDeriv) + " not defined.");
+      }
+    };
+  
 }
     
 

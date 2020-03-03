@@ -116,7 +116,7 @@ namespace bpp
      * @brief Contains all models used in this tree.
      */
 
-    std::vector<std::shared_ptr<TransitionModel> > modelSet_;
+    std::vector<std::shared_ptr<BranchModel> > modelSet_;
 
     /**
      * @brief Root frequencies.
@@ -141,12 +141,6 @@ namespace bpp
 
     bool stationarity_;
 
-    /**
-     * @brief The related Computing Tree
-     */
-    mutable std::unique_ptr<ComputingTree> computingTree_;
-
-
   public:
     /**
      * @brief Create an empty model set with stationarity assumed.
@@ -163,16 +157,12 @@ namespace bpp
       nodeToModel_(),
       modelToNodes_(),
       modelParameters_(),
-      stationarity_(true),
-      computingTree_()
+      stationarity_(true)
     {
       // Add parameters:
       addParameters_(tree->getParameters());  //Branch lengths
       if (rDist_)
         addParameters_(rDist_->getIndependentParameters());
-
-      computingTree_.reset(rDist_?new ComputingTree(*pTree_.get(), *rDist_.get()):
-                           new ComputingTree(*pTree_.get()));
     }
 
     /**
@@ -192,15 +182,12 @@ namespace bpp
       nodeToModel_(),
       modelToNodes_(),
       modelParameters_(),
-      stationarity_(false),
-      computingTree_()
+      stationarity_(false)
     {
       addParameters_(tree->getParameters());  //Branch lengths
       if (rDist_)
         addParameters_(rDist_->getIndependentParameters());  
       setRootFrequencies(rootFreqs);
-      computingTree_.reset(rDist_?new ComputingTree(*pTree_.get(), *rDist_.get()):
-                           new ComputingTree(*pTree_.get()));
     }
 
     NonHomogeneousSubstitutionProcess(const NonHomogeneousSubstitutionProcess& set);
@@ -285,13 +272,13 @@ namespace bpp
      * @return A pointer toward the corresponding model.
      */
 
-    const TransitionModel* getModel(size_t n) const
+    const BranchModel* getModel(size_t n) const
     {
       if ((n == 0) || (n > modelSet_.size())) throw IndexOutOfBoundsException("NonHomogeneousSubstitutionProcess::getModel().", 1, modelSet_.size(), n);
       return modelSet_[n-1].get();
     }
 
-    TransitionModel* getModel(size_t n)
+    BranchModel* getModel(size_t n)
     {
       if ((n == 0) || (n > modelSet_.size())) throw IndexOutOfBoundsException("NonHomogeneousSubstitutionProcess::getModel().", 1, modelSet_.size(), n);
       return modelSet_[n-1].get();
@@ -322,7 +309,7 @@ namespace bpp
      * @throw Exception If no model is found for this node.
      */
   
-    const TransitionModel* getModelForNode(unsigned int nodeId) const
+    const BranchModel* getModelForNode(unsigned int nodeId) const
     {
       std::map<unsigned int, size_t>::const_iterator i = nodeToModel_.find(nodeId);
       if (i == nodeToModel_.end())
@@ -361,7 +348,7 @@ namespace bpp
      * </ul>
      */
 
-    void addModel(std::shared_ptr<TransitionModel> model, const std::vector<unsigned int>& nodesId);
+    void addModel(std::shared_ptr<BranchModel> model, const std::vector<unsigned int>& nodesId);
 
     /**
      * @brief Change a given model.
@@ -374,7 +361,7 @@ namespace bpp
      * @param modelIndex The index of the existing model to replace.
      */
 
-    void setModel(std::shared_ptr<TransitionModel> model, size_t modelIndex);
+    void setModel(std::shared_ptr<BranchModel> model, size_t modelIndex);
     
     /**
      * @brief Associate an existing model with a given node.
@@ -520,8 +507,8 @@ namespace bpp
   
     const std::vector<double>& getRootFrequencies() const
     {
-      if (stationarity_)
-        return modelSet_[0]->getFrequencies();
+      if (stationarity_ && std::dynamic_pointer_cast<const TransitionModel>(modelSet_[0]))
+        return std::dynamic_pointer_cast<const TransitionModel>(modelSet_[0])->getFrequencies();
       else
         return rootFrequencies_->getFrequencies();
     }
@@ -533,7 +520,7 @@ namespace bpp
      * @param classIndex The model class index.
      */
 
-    const TransitionModel* getModel(unsigned int nodeId, size_t classIndex) const
+    const BranchModel* getModel(unsigned int nodeId, size_t classIndex) const
     {
       return modelSet_[nodeToModel_[nodeId]].get();
     }
@@ -556,7 +543,7 @@ namespace bpp
      * @return 1 or 0 depending if the two states are compatible.
      * @throw BadIntException if states are not allowed in the associated alphabet.
      * @see getStates();
-     * @see TransitionModel
+     * @see BranchModel
      */
 
     double getInitValue(size_t i, int state) const 
@@ -593,16 +580,6 @@ namespace bpp
       return rDist_?rDist_->getCategory(classIndex):1;
     }
 
-    const ComputingTree& getComputingTree() const
-    {
-      return *computingTree_.get();
-    }
-  
-    ComputingTree& getComputingTree()
-    {
-      return *computingTree_.get();
-    }
-
     /**
      * Static methods to create "simply" NonHomogeneousSubstitutionProcess.
      *
@@ -624,7 +601,7 @@ namespace bpp
      */
     
     static NonHomogeneousSubstitutionProcess* createHomogeneousSubstitutionProcess(
-      std::shared_ptr<TransitionModel> model,
+      std::shared_ptr<BranchModel> model,
       DiscreteDistribution* rdist,
       ParametrizablePhyloTree* tree,
       FrequenciesSet* rootFreqs,
@@ -648,7 +625,7 @@ namespace bpp
      */
     
     static NonHomogeneousSubstitutionProcess* createNonHomogeneousSubstitutionProcess(
-      std::shared_ptr<TransitionModel> model,
+      std::shared_ptr<BranchModel> model,
       DiscreteDistribution* rdist,
       ParametrizablePhyloTree* tree,
       FrequenciesSet* rootFreqs,

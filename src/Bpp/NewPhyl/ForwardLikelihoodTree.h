@@ -57,8 +57,8 @@ namespace bpp
       return rowVectorDimension (Eigen::Index (nbState));
     }
 
-    inline MatrixDimension transitionFunctionDimension (std::size_t nbState) {
-      return vectorDimension (Eigen::Index (nbState));
+    inline Dimension<TransitionFunction> transitionFunctionDimension (std::size_t nbState) {
+      return Dimension<TransitionFunction>(nbState, nbState);
     }
 
     inline MatrixDimension conditionalLikelihoodDimension (std::size_t nbState, std::size_t nbSite) {

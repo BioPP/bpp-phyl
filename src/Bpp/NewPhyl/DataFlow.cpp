@@ -430,10 +430,12 @@ namespace bpp {
       writeGraphStructure (os, nodes, opt);
       os << "}\n";
     }
+    
     void writeGraphToDot (const std::string & filename, const std::vector<const Node *> & nodes,
                           DotOptions opt) {
       std::ofstream file{filename};
       writeGraphToDot (file, nodes, opt);
     }
+
   } // namespace dataflow
 } // namespace bpp

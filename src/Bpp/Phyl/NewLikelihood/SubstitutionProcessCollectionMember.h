@@ -130,13 +130,6 @@ private:
 
   size_t nPath_;
 
-  /**
-   * @brief The related Computing Tree
-   *
-   */
-
-  mutable std::unique_ptr<ComputingTree> computingTree_;
-
 private:
   /*
    * @brief Constructors are only accessible through a SubstitutionProcessCollection.
@@ -168,29 +161,6 @@ private:
   virtual ~SubstitutionProcessCollectionMember() {}
 
   SubstitutionProcessCollectionMember* clone() const { return new SubstitutionProcessCollectionMember(*this); }
-
-private:
-  /**
-   * @brief Method to inform changes in models.
-   *
-   */
-  void changedModel(size_t m)
-  {
-    if (modelToNodes_.size() == 1)
-      computingTree_->updateAll();  // faster
-    else
-      computingTree_->update(modelToNodes_[m]);
-  }
-
-  /**
-   * @brief Method to inform changes in root
-   *
-   * If flag = true (default), node has to be updated (false otherwise).
-   */
-  void changedRoot(bool flag = true)
-  {
-    computingTree_->update((*computingTree_)[0]->getNodeIndex((*computingTree_)[0]->getRoot()), flag);
-  }
 
 public:
   const SubstitutionProcessCollection* getCollection() const
@@ -244,7 +214,7 @@ public:
    * @return A pointer toward the corresponding model.
    */
 
-  const TransitionModel* getModel(size_t n) const;
+  const BranchModel* getModel(size_t n) const;
 
   std::vector<size_t> getModelNumbers() const;
 
@@ -272,7 +242,7 @@ public:
    * @throw Exception If no model is found for this node.
    */
 
-  const TransitionModel* getModelForNode(unsigned int nodeId) const;
+  const BranchModel* getModelForNode(unsigned int nodeId) const;
 
   /**
    * @brief Get a list of nodes id for which the given model is associated.
@@ -352,7 +322,6 @@ public:
 
   void fireParameterChanged(const ParameterList& parameters)
   {
-    computingTree_->matchParametersValues(parameters);
   }
 
   /**
@@ -421,7 +390,7 @@ public:
    * @param classIndex The model class index.
    */
 
-  const TransitionModel* getModel(unsigned int nodeId, size_t classIndex) const;
+  const BranchModel* getModel(unsigned int nodeId, size_t classIndex) const;
 
   /**
    * @brief Get the parameters of the substitution models.
@@ -470,7 +439,7 @@ public:
    */
   const Matrix<double>& getTransitionProbabilities(unsigned int nodeId, size_t classIndex) const
   {
-    return (*computingTree_)[classIndex]->getNode(nodeId)->getTransitionProbabilities();
+    throw Exception("SubstitutionProcessCollectionMember::getTransitionProbabilities not finished. Ask developpers.");
   }
 
   /**
@@ -483,7 +452,7 @@ public:
    */
   const Matrix<double>& getTransitionProbabilitiesD1(unsigned int nodeId, size_t classIndex) const
   {
-    return (*computingTree_)[classIndex]->getNode(nodeId)->getTransitionProbabilitiesD1();
+    throw Exception("SubstitutionProcessCollectionMember::getTransitionProbabilitiesD1 not finished. Ask developpers.");
   }
 
   /**
@@ -496,7 +465,7 @@ public:
    */
   const Matrix<double>& getTransitionProbabilitiesD2(unsigned int nodeId, size_t classIndex) const
   {
-    return (*computingTree_)[classIndex]->getNode(nodeId)->getTransitionProbabilitiesD2();
+    throw Exception("SubstitutionProcessCollectionMember::getTransitionProbabilitiesD2 not finished. Ask developpers.");
   }
 
 
@@ -534,21 +503,6 @@ public:
    * class ComputingTree for details.
    *
    **/
-
-  /**
-   * @brief A virtual method to retrieve the ComputingTree defined in
-   * inheriting classes.
-   *
-   */
-  const ComputingTree& getComputingTree() const
-  {
-    return *computingTree_.get();
-  }
-
-  ComputingTree& getComputingTree()
-  {
-    return *computingTree_.get();
-  }
 
   friend class SubstitutionProcessCollection;
 };

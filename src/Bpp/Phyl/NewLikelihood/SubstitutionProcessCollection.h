@@ -92,10 +92,10 @@ private:
    * A collection of Transition Models
    */
   
-  ParametrizableCollection<TransitionModel> modelColl_;
+  ParametrizableCollection<BranchModel> modelColl_;
 
   /**
-   * A map from each TransitionModel number to the SubProcess
+   * A map from each BranchModel number to the SubProcess
    * members that are linked to it.
    *
    */
@@ -242,7 +242,7 @@ public:
    * ? operator[] ?
    */
   
-  void addModel(std::shared_ptr<TransitionModel> model, size_t modelIndex)
+  void addModel(std::shared_ptr<BranchModel> model, size_t modelIndex)
   {
     addParametrizable(model, modelIndex);
   }
@@ -271,30 +271,30 @@ public:
   }
 
   /**
-   * @brief Get a TransitionModel from the collection.
+   * @brief Get a BranchModel from the collection.
    *
    * @param modelIndex The index of the model in the collection.
-   * @return the got TransitionModel*. 
+   * @return the got BranchModel*. 
    */
   
-  std::shared_ptr<TransitionModel> getModel(size_t modelIndex)
+  std::shared_ptr<BranchModel> getModel(size_t modelIndex)
   {
-    return std::dynamic_pointer_cast<TransitionModel>(modelColl_[modelIndex]);
+    return std::dynamic_pointer_cast<BranchModel>(modelColl_[modelIndex]);
   }
 
-  std::shared_ptr<const TransitionModel> getModel(size_t modelIndex) const
+  std::shared_ptr<const BranchModel> getModel(size_t modelIndex) const
   {
-    return std::dynamic_pointer_cast<const TransitionModel>(modelColl_[modelIndex]);
+    return std::dynamic_pointer_cast<const BranchModel>(modelColl_[modelIndex]);
   }
 
   /**
-   * @brief Return the number of a TransitionModel in the collection.
+   * @brief Return the number of a BranchModel in the collection.
    *
    * @param model The model looked for in the collection.
    * @return the number of the model or 0 if no matching object
    */
   
-  size_t getModelIndex(std::shared_ptr<TransitionModel> model) const
+  size_t getModelIndex(std::shared_ptr<BranchModel> model) const
   {
     if (modelColl_.hasObject(model))
       return modelColl_.getFirstKey(model);
@@ -303,12 +303,12 @@ public:
   }
 
   /**
-   * @brief Return if a TransitionModel is in the collection.
+   * @brief Return if a BranchModel is in the collection.
    *
    * @param model The model looked for in the collection.
    */
   
-  bool hasModel(std::shared_ptr<TransitionModel> model) const
+  bool hasModel(std::shared_ptr<BranchModel> model) const
   {
     return modelColl_.hasObject(model);
   }

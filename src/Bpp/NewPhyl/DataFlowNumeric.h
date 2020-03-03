@@ -55,8 +55,41 @@
 #include "DataFlow.h"
 
 namespace bpp {
+  /*******************************************/
+  /*** Definition of function from (const Eigen::Vector&) -> const Eigen::Vector& ***/
+
+  using TransitionFunction = std::function<Eigen::VectorXd(const Eigen::VectorXd&)>;
+
+  /*
+   * The same but with constant result
+   *
+   */
+   
+  class ConstantTransitionFunction :
+    public TransitionFunction
+  {
+  private:
+    Eigen::VectorXd result_;
+
+  public:
+    ConstantTransitionFunction(double val, Eigen::Index row) :
+      result_(row)
+    {
+      result_.fill(val);
+    }
+    
+    ConstantTransitionFunction(const Eigen::VectorXd& res) :
+      result_(res){}
+      
+    const Eigen::VectorXd& operator()(const Eigen::VectorXd&)
+    {
+      return result_;
+    }
+    
+  };
+  
   /******************************************************************************
-   * Dimension.
+   * Dimension
    */
 
   /// Empty type representing no dimensions.
@@ -106,6 +139,12 @@ namespace bpp {
     Dimension () = default;
     Dimension (const double &) {}
   };
+
+  template <> struct Dimension<char> : NoDimension {
+    Dimension () = default;
+    Dimension (const char &) {}
+  };
+
   template <> struct Dimension<size_t> : NoDimension {
     Dimension () = default;
     Dimension (const size_t &) {}
@@ -120,6 +159,14 @@ namespace bpp {
     Dimension (const Parameter &) {}
   };
 
+  
+  template <> struct Dimension<TransitionFunction> : MatrixDimension {
+  public:
+    Dimension () = default;
+    Dimension (Eigen::Index rows_, Eigen::Index cols_) : MatrixDimension(rows_, cols_){}
+
+  };
+
   /** @brief Specialisation of Dimension<T> for eigen matrix types.
    *
    * Note that in Eigen, a vector is a matrix with one column.
@@ -130,11 +177,6 @@ namespace bpp {
     Dimension (const MatrixDimension & dim) : MatrixDimension (dim) {} // From MatrixDimension
   };
 
-  /*******************************************/
-  /*** Definition of function from (const Eigen::Vector&) -> const Eigen::Vector& ***/
-
-  using TransitionFunction = std::function<const Eigen::VectorXd&(const Eigen::VectorXd&)>;
-    
   /******************************************************************************
    * Collection of overloaded numerical functions.
    * Not documented with doxygen, as this is only intended for use in dataflow nodes.
@@ -150,6 +192,11 @@ namespace bpp {
     }
 
     template <typename T = void>
+    char zero (const Dimension<char> &) {
+      return '0';
+    }
+
+    template <typename T = void>
     Parameter& zero (const Dimension<Parameter> &) {
       return *std::make_shared<Parameter>("Zero",0);
     }
@@ -160,12 +207,23 @@ namespace bpp {
       return Eigen::Matrix<T, Rows, Cols>::Zero (dim.rows, dim.cols);
     }
 
+    template <typename T = void>
+    TransitionFunction zero (const Dimension<TransitionFunction> & dim) {
+      return TransitionFunction([dim](const Eigen::VectorXd& x){ return Eigen::VectorXd::Zero(dim.cols);});
+    }
+
+
     // Create a one value of the given dimension
     template <typename T, typename = typename std::enable_if<std::is_arithmetic<T>::value>::type>
     T one (const Dimension<T> &) {
       return T (1);
     }
-    
+
+    template <typename T = void>
+    char one (const Dimension<char> &) {
+      return '1';
+    }
+
     template <typename T = void>
     Parameter& one (const Dimension<Parameter> &) {
       return *std::make_shared<Parameter>("One",1);
@@ -175,6 +233,11 @@ namespace bpp {
     auto one (const Dimension<Eigen::Matrix<T, Rows, Cols>> & dim)
       -> decltype (Eigen::Matrix<T, Rows, Cols>::Ones (dim.rows, dim.cols)) {
       return Eigen::Matrix<T, Rows, Cols>::Ones (dim.rows, dim.cols);
+    }
+
+    template <typename T = void>
+    TransitionFunction one (const Dimension<TransitionFunction> & dim) {
+      return TransitionFunction([dim](const Eigen::VectorXd& x){ return Eigen::VectorXd::Ones(dim.cols);});
     }
 
     // Create an identity value of the given dimension (fails if not a square matrix)
@@ -233,6 +296,16 @@ namespace bpp {
     inline Eigen::RowVectorXd convert (Eigen::RowVectorXi& from, const Dimension<Eigen::RowVectorXd>& dim)
     {
       return from.template cast<double>();
+    }
+
+    inline TransitionFunction convert (const TransitionFunction& from, const Dimension<TransitionFunction>& dim)
+    {
+      return TransitionFunction(from);
+    }
+
+    inline TransitionFunction convert (double from, const Dimension<TransitionFunction>& dim)
+    {
+      return ConstantTransitionFunction(from, dim.cols);
     }
 
     template <typename T, int Rows, int Cols, typename DerivedF>
@@ -762,11 +835,13 @@ namespace bpp {
     extern template class ConstantZero<Eigen::VectorXd>;
     extern template class ConstantZero<Eigen::RowVectorXd>;
     extern template class ConstantZero<Eigen::MatrixXd>;
+    extern template class ConstantZero<TransitionFunction>;
 
     extern template class ConstantOne<double>;
     extern template class ConstantOne<Eigen::VectorXd>;
     extern template class ConstantOne<Eigen::RowVectorXd>;
     extern template class ConstantOne<Eigen::MatrixXd>;
+    extern template class ConstantOne<TransitionFunction>;
 
     extern template class NumericConstant<double>;
     extern template class NumericConstant<Eigen::VectorXd>;
@@ -774,6 +849,7 @@ namespace bpp {
     extern template class NumericConstant<Eigen::MatrixXd>;
 
     extern template class NumericMutable<double>;
+    extern template class NumericMutable<char>; // for symbolic derivation
     extern template class NumericMutable<Eigen::VectorXd>;
     extern template class NumericMutable<Eigen::RowVectorXd>;
     extern template class NumericMutable<Eigen::MatrixXd>;
@@ -789,7 +865,8 @@ namespace bpp {
     extern template class Convert<Eigen::RowVectorXd, Transposed<Eigen::VectorXd>>;
     extern template class Convert<Eigen::VectorXd, Transposed<Eigen::RowVectorXd>>;
 
-
+    extern NumericConstant<char> NodeX;
+    
     
   } // namespace dataflow
 } // namespace bpp
