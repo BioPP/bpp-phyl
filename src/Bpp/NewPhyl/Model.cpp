@@ -150,7 +150,7 @@ NodeRef EquilibriumFrequenciesFromModel::recreate (Context & c, NodeRefVec && de
 
 void EquilibriumFrequenciesFromModel::compute () {
   const Vdouble* freqsFromModel;
-  const auto * mixmodel = accessValueConstCast<const MixedTransitionModel *> (*this->dependency (0));
+  const auto * mixmodel = dynamic_cast<const MixedTransitionModel *> (accessValueConstCast<const BranchModel *> (*this->dependency (0)));
   if (mixmodel && this->dependencies().size()>1)
   {
     auto nMod = accessValueConstCast<size_t> (*this->dependency (1));
@@ -158,9 +158,9 @@ void EquilibriumFrequenciesFromModel::compute () {
   }
   else
   {
-    const auto * model = accessValueConstCast<const TransitionModel *> (*this->dependency (0));
-    if (model)
-      freqsFromModel = &model->getFrequencies ();
+    const auto pmodel = dynamic_cast<const TransitionModel*> (accessValueConstCast<const BranchModel *> (*this->dependency (0)));
+    if (pmodel)
+      freqsFromModel = &pmodel->getFrequencies ();
     else
       throw Exception("EquilibriumFrequenciesFromModel::compute only possible for Transition Models.");
   }
@@ -223,7 +223,7 @@ void TransitionMatrixFromModel::compute () {
   
   auto & r = this->accessValueMutable ();
   
-  const auto * mixmodel = accessValueConstCast<const MixedTransitionModel *> (*this->dependency (0));
+  const auto * mixmodel = dynamic_cast<const MixedTransitionModel *> (accessValueConstCast<const BranchModel *> (*this->dependency (0)));
   
   if (mixmodel && this->dependencies().size()>3)
   {
@@ -393,8 +393,8 @@ NodeRef ProbabilitiesFromMixedModel::recreate (Context & c, NodeRefVec && deps) 
 }
 
 void ProbabilitiesFromMixedModel::compute () {
-  const auto * model = accessValueConstCast<const MixedTransitionModel *> (*this->dependency (0));
-  const auto & probasFromModel = model->getProbabilities ();
+  const auto * mixmodel = dynamic_cast<const MixedTransitionModel *> (accessValueConstCast<const BranchModel *> (*this->dependency (0)));
+  const auto & probasFromModel = mixmodel->getProbabilities ();
   auto & r = this->accessValueMutable ();
   r = Eigen::Map<const T> (probasFromModel.data(), static_cast<Eigen::Index> (probasFromModel.size ()));
 }
@@ -463,7 +463,7 @@ NodeRef ProbabilityFromMixedModel::recreate (Context & c, NodeRefVec && deps) {
 }
 
 void ProbabilityFromMixedModel::compute () {
-  const auto * model = accessValueConstCast<const MixedTransitionModel *> (*this->dependency (0));
-  this->accessValueMutable () = model->getNProbability(nCat_);
+  const auto * mixmodel = dynamic_cast<const MixedTransitionModel *> (accessValueConstCast<const BranchModel *> (*this->dependency (0)));
+  this->accessValueMutable () = mixmodel->getNProbability(nCat_);
 }
 
