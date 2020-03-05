@@ -143,37 +143,15 @@ namespace bpp
 
   public:
     /**
-     * @brief Create an empty model set with stationarity assumed.
-     *
-     * @param rdist  The DiscreteDistribution for the rates
-     * @param tree the parametrizable tree
-     */
-    NonHomogeneousSubstitutionProcess(DiscreteDistribution*  rdist, ParametrizablePhyloTree* tree) :
-      AbstractParameterAliasable(""),
-      AbstractSubstitutionProcess(tree, rdist ? rdist->getNumberOfCategories() : 1),
-      modelSet_(),
-      rootFrequencies_(),
-      rDist_(rdist),
-      nodeToModel_(),
-      modelToNodes_(),
-      modelParameters_(),
-      stationarity_(true)
-    {
-      // Add parameters:
-      addParameters_(tree->getParameters());  //Branch lengths
-      if (rDist_)
-        addParameters_(rDist_->getIndependentParameters());
-    }
-
-    /**
      * @brief Create a model set according to the specified alphabet and root frequencies.
      * Stationarity is not assumed.
      *
      * @param rdist  The DiscreteDistribution for the rates
      * @param tree the parametrizable tree
-     * @param rootFreqs The frequencies at root node. The underlying object will be owned by this instance.
+     * @param rootFreqs The frequencies at root node. The underlying object will be owned by this instance ( = 0 if stationary)
      */
-    NonHomogeneousSubstitutionProcess(DiscreteDistribution*  rdist, ParametrizablePhyloTree* tree, FrequenciesSet* rootFreqs):
+    
+    NonHomogeneousSubstitutionProcess(DiscreteDistribution*  rdist, ParametrizablePhyloTree* tree, FrequenciesSet* rootFreqs = nullptr):
       AbstractParameterAliasable(""),
       AbstractSubstitutionProcess(tree, rdist ? rdist->getNumberOfCategories() : 1),
       modelSet_(),
@@ -182,12 +160,13 @@ namespace bpp
       nodeToModel_(),
       modelToNodes_(),
       modelParameters_(),
-      stationarity_(false)
+      stationarity_(rootFreqs == nullptr)
     {
       addParameters_(tree->getParameters());  //Branch lengths
       if (rDist_)
-        addParameters_(rDist_->getIndependentParameters());  
-      setRootFrequencies(rootFreqs);
+        addParameters_(rDist_->getIndependentParameters());
+      if (!stationarity_)
+        setRootFrequencies(rootFreqs);
     }
 
     NonHomogeneousSubstitutionProcess(const NonHomogeneousSubstitutionProcess& set);
@@ -593,10 +572,9 @@ namespace bpp
      *
      * @param model     The model to use.
      * @param rdist     The rate distribution
+     * @param tree      The tree to use for the construction of the set.
      * @param rootFreqs A FrequenciesSet object to parametrize root frequencies
      *        (0 if stationary).
-     * 
-     * @param tree      The tree to use for the construction of the set.
      * @param scenario (optional) the scenario used (in case of Mixed Models)
      */
     
@@ -604,7 +582,7 @@ namespace bpp
       std::shared_ptr<BranchModel> model,
       DiscreteDistribution* rdist,
       ParametrizablePhyloTree* tree,
-      FrequenciesSet* rootFreqs,
+      FrequenciesSet* rootFreqs = 0,
       std::shared_ptr<ModelScenario> scenario = 0
       );
 
