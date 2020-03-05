@@ -143,45 +143,24 @@ namespace bpp {
         return objectNode;
       }
 
-      /** Create a new node from a clonable object. Object parameters
-       * are get from ConfiguredParameters PREVIOUSLY built and stored
-       * in a ParameterList*/
+      /**
+       * @brief Create a new node from a clonable object. Object
+       * parameters are get from ConfiguredParameters PREVIOUSLY built
+       * and stored in a ParameterList.
+       *
+       * @param context
+       * @param object : Object which will be cloned to the node.
+       * @param parList: list of the ConfiguredParameters previously built
+       *
+       */
       
       template<typename Object, typename Self> 
-      static std::shared_ptr<Self> createConfigured(Context& context, const Object& object, ParameterList& parList, const std::string& suff = "",
-                                                    typename std::enable_if<!std::is_base_of<ParameterAliasable, Object>::value>::type* = 0) 
+      static std::shared_ptr<Self> createConfigured(Context& context, const Object& object, ParameterList& parList, const std::string& suff = "")
       {
         auto nObject = std::unique_ptr<Object>(object.clone());
-        const auto& lParams = object.getParameters();
-      
-        std::vector<NodeRef> dep;
-        for (size_t i=0;i<lParams.size();i++)
-        {
-          std::string name = lParams[i].getName()+suff;
-          if (!parList.hasParameter(name) && suff=="")
-          {
-            if (!parList.hasParameter(lParams[i].getName()+"_1"))
-              throw Exception("createConfigured: unknow ConfiguredParameter " + name);
-            else name=lParams[i].getName()+"_1";
-          }
-          
-          ConfiguredParameter* confPar=dynamic_cast<ConfiguredParameter*>(parList.getSharedParameter(name).get());
-          if (!confPar)
-            throw Exception("createConfigured: unknow ConfiguredParameter " + name);
-          
-          dep.push_back(ConfiguredParameter::create(context, {confPar->dependency(0)}, lParams[i]));
-        }
-  
-        return ConfiguredParametrizable::createConfigured<Object, Self>(context, std::move(dep), std::move(nObject));
-      }
 
-      template<typename Object, typename Self> 
-      static std::shared_ptr<Self> createConfigured(Context& context, const Object& object, ParameterList& parList, const std::string& suff = "",
-                                                    typename std::enable_if<std::is_base_of<ParameterAliasable, Object>::value>::type* = 0) 
-      {
-        auto nObject = std::unique_ptr<Object>(object.clone());
-        const auto& lParams = object.getIndependentParameters();
-      
+        const ParameterList& lParams = dynamic_cast<const ParameterAliasable*>(&object)?object.getIndependentParameters():object.getParameters();          
+        
         std::vector<NodeRef> dep;
         for (size_t i=0;i<lParams.size();i++)
         {
@@ -194,11 +173,10 @@ namespace bpp {
           }
           auto confPar=dynamic_cast<ConfiguredParameter*>(parList.getSharedParameter(name).get());
           if (!confPar)
-            throw Exception("createConfigured: unknow ConfiguredParameter " + name);
+            throw Exception("createConfigured: unknown ConfiguredParameter " + name);
           
           dep.push_back(ConfiguredParameter::create(context, {confPar->dependency(0)}, lParams[i]));
         }
-  
         return ConfiguredParametrizable::createConfigured<Object, Self>(context, std::move(dep), std::move(nObject));
       }
 
