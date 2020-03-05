@@ -196,13 +196,13 @@ void fitModelHSR(std::shared_ptr<SubstitutionModel> model, DiscreteDistribution*
   dataflow::SingleProcessPhyloLikelihood_DF llh2(context2, lik, lik->getParameters());
 
   ParameterList opln1=process->getBranchLengthParameters(true);
-  
-  OptimizationTools::optimizeNumericalParameters2(llh, llh.getParameters(), 0, 0.000001, nboptim, 0, 0);
-  cout << setprecision(20) << llh.getValue() << endl;
-  ApplicationTools::displayResult("* lnL after full optimization (new)", llh.getValue());
-  if (abs(llh.getValue() - finalValue) > 0.001)
+
+  OptimizationTools::optimizeNumericalParameters2(llh2, llh2.getParameters(), 0, 0.000001, nboptim, 0, 0);
+  cout << setprecision(20) << llh2.getValue() << endl;
+  ApplicationTools::displayResult("* lnL after full optimization (new)", llh2.getValue());
+  if (abs(llh2.getValue() - finalValue) > 0.001)
     throw Exception("Incorrect final value.");
-  llh.getParameters().printParameters(cout);
+  llh2.getParameters().printParameters(cout);
 }
 
 

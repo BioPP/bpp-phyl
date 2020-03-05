@@ -90,7 +90,7 @@ int main() {
 
   map<string, string> alias;
 
-  SubstitutionModelSet* modelSet = SubstitutionModelSetTools::createNonHomogeneousModelSet(model.get(), rootFreqs, tree, alias, globalParameterVectors);
+  SubstitutionModelSet* modelSet = SubstitutionModelSetTools::createNonHomogeneousModelSet(model->clone(), rootFreqs, tree, alias, globalParameterVectors);
 
   unique_ptr<SubstitutionModelSet> modelSetSim(modelSet->clone());
 
@@ -100,7 +100,6 @@ int main() {
   NonHomogeneousSubstitutionProcess* subPro= NonHomogeneousSubstitutionProcess::createNonHomogeneousSubstitutionProcess(model2, rdist2, parTree.clone(), rootFreqs2, globalParameterNames);
 
   // Simulation
-    
   size_t nsites = 1000;
   unsigned int nrep = 3;
   size_t nmodels = modelSet->getNumberOfModels();
