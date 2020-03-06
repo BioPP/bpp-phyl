@@ -446,7 +446,7 @@ namespace bpp {
         if (it != firstOrderDerivativeVectors_.end ()) {
           return it->second;
         } else {
-          auto vector = likCal_->getSiteLikelihoods()->deriveAsValue (context_, accessVariableNode (variable));
+          auto vector = likCal_->getSiteLikelihoods(true)->deriveAsValue (context_, accessVariableNode (variable));
           firstOrderDerivativeVectors_.emplace (variable, vector);
           return vector;
         }
@@ -514,7 +514,8 @@ namespace bpp {
       /**
        * @brief Get the likelihood for each site.
        *
-       * @return A vector with all likelihoods for each site.
+       *@return A vector with all likelihoods for each site.
+       *
        */
 
       Vdouble getLikelihoodPerSite() const;

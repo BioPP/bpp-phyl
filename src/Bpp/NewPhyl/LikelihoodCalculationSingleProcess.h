@@ -153,8 +153,7 @@ namespace bpp {
         std::shared_ptr<ConditionalLikelihoodTree> clt;
         
         /*
-         * Site Likelihoods on the tree, with real (not shrunked)
-         * positions.
+         * Site Likelihoods on the tree, with shrunked positions.
          * 
          * @brief for each node n:  lt[n] = sum_{state s} flt[n][s]
          *
@@ -268,12 +267,15 @@ namespace bpp {
         return shrunkData_?shrunkData_->getNumberOfSites():0;
       }
 
+      
       /*
        * @brief Return the Sitelikelihoods_ vector on shrunked data
        *
+       * @brief shrunk: bool true if vector on shrunked data
+       *
        */
       
-      ValueRef<Eigen::RowVectorXd> getSiteLikelihoods()
+      ValueRef<Eigen::RowVectorXd> getSiteLikelihoods(bool shrunk)
       {
         if (!shrunkData_)
           throw Exception("LikelihoodCalculationSingleProcess::getSiteLikelihoods : data not set.");
@@ -281,7 +283,10 @@ namespace bpp {
         if (!siteLikelihoods_)
           makeLikelihoodAtRoot_();
 
-        return siteLikelihoods_;
+        if (shrunk)
+          return siteLikelihoods_;
+        else
+          return patternedSiteLikelihoods_;
       }
 
       /************************************************
@@ -306,6 +311,18 @@ namespace bpp {
       }
 
       /*
+       * @brief Expands (ie reverse of shrunkage) a vector computed of
+       * shrunked data (ie from one value per distinct site to one
+       * value per site).
+       *
+       */
+      
+      ValueRef<Eigen::RowVectorXd> expandVector(ValueRef<Eigen::RowVectorXd> vector)
+      {
+        return CWisePattern<Eigen::RowVectorXd>::create(context_,{vector,rootPatternLinks_}, rowVectorDimension (Eigen::Index (getData()->getNumberOfSites())));
+      }
+      
+      /*
        * @brief: Get the weight of a position in the shrunked data (ie
        * the number of sites corresponding to this site)
        *
@@ -320,8 +337,12 @@ namespace bpp {
       {
         const auto pt=process_.getParametrizablePhyloTree();
         if (!pt.hasNode(nodeId))
-          throw Exception("LikelihoodCalculationSingleProcess::getLikelihoodAtNode : node " + TextTools::toString(nodeId) + " does not exist.");
-          
+          throw Exception("LikelihoodCalculationSingleProcess::getLikelihoodAtNode : node " + TextTools::toString(nodeId) + " does not exist in Phylo Tree.");
+
+        // No need to recompute with backward if at root
+        if (pt.getRootIndex()==nodeId)
+          return likelihood_;
+
         return makeLikelihoodsAtNode_(nodeId);
       }
       
@@ -369,7 +390,12 @@ namespace bpp {
         return rFreqs_;
       }
 
-      std::shared_ptr<ConditionalLikelihoodTree> getConditionalLikelihoodTree(size_t nCat);
+      //std::shared_ptr<ConditionalLikelihoodTree> getConditionalLikelihoodTree(size_t nCat);
+
+      /*
+       *@brief Get tree of site likelihoods, on shrunk data.
+       *
+       */
       
       std::shared_ptr<SiteLikelihoodsTree> getSiteLikelihoodsTree(size_t nCat);
       
@@ -377,24 +403,33 @@ namespace bpp {
        *@ brief make DF nodes of the process, using
        *ConfiguredParameters defined in a ParameterList.
        */
+
       void makeProcessNodes(ParameterList& pl);
 
             
       /*********************************/
       /*@brief Methods for external usage (after lik computation) */
-      /*  Then with real site positions (and not shrunked) */
+
+      /*
+       *@brief Get site likelihoods for a rate category
+       *
+       *@param nCat : index of the rate category
+       *@param shrunk : if returns on shrunked data (default: false)
+       */
+      
       
             
-      const Eigen::RowVectorXd& getSiteLikelihoodsForAClass(size_t nCat);
+      const Eigen::RowVectorXd& getSiteLikelihoodsForAClass(size_t nCat, bool shrunk = false);
 
       /*
        *@brief Output array (Classes X Sites) of likelihoods for all
        *sites & classes.
        *
+       *@param shrunk : if returns on shrunked data (default: false)
        */
-       
-      const AllRatesSiteLikelihoods& getSiteLikelihoodsForAllClasses();
 
+      const AllRatesSiteLikelihoods& getSiteLikelihoodsForAllClasses(bool shrunk = false);
+      
       double getLikelihoodForASite(size_t pos)
       {
         if (!shrunkData_)
@@ -418,10 +453,12 @@ namespace bpp {
       void makeLikelihoodAtRoot_();
 
       /*
-       * @brief Compute the likelihood at a given node in the DAG,
-       * which number may not be the number in the tree.
+       * @brief Compute the likelihood at a given node in the tree,
+       * which number may not be the same number number in the DAG.
+       * Several node in the DAG may be related to this tree node, in
+       * which case a sum is computer.
        *
-       * @param nodeId : index of the node in the likelihood DAG.
+       * @param nodeId : index of the node in the phylo Tree
        */
       
       ValueRef<double> makeLikelihoodsAtNode_(uint nodeId);

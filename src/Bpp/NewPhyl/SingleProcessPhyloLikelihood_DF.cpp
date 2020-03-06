@@ -40,10 +40,12 @@
 #include "SingleProcessPhyloLikelihood_DF.h"
 
 using namespace bpp;
+using namespace std;
 using namespace dataflow;
+
 Vdouble SingleProcessPhyloLikelihood_DF::getLikelihoodPerSite() const
 {
-  auto vLik=getLikelihoodCalculation()->getSiteLikelihoods()->getTargetValue();
+  auto vLik=getLikelihoodCalculation()->getSiteLikelihoods(false)->getTargetValue();
   Vdouble v(vLik.size());
   
   Eigen::VectorXd::Map(&v[0], v.size()) = vLik;
@@ -54,9 +56,10 @@ Vdouble SingleProcessPhyloLikelihood_DF::getLikelihoodPerSite() const
 VVdouble SingleProcessPhyloLikelihood_DF::getPosteriorProbabilitiesPerClass() const
 {
   auto rates=getLikelihoodCalculation()->getSubstitutionProcess().getRateDistribution();
+
   auto nbS=getLikelihoodCalculation()->getNumberOfSites();
   VVdouble vv(nbS);
-  
+
   if (!rates || rates->getNumberOfCategories()==1)
   {
     for (auto& v:vv)

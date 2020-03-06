@@ -158,22 +158,23 @@ ConditionalLikelihoodForwardRef ForwardLikelihoodTree::makeForwardLikelihoodAtNo
       // Put the node in speciesIndex map if it is not son of a
       // mixture node (which would hold the species index)
 
-      bool fathmixture=!processTree_->hasFather(processNode);
+      bool fathmixture(false);
 
-      if (!fathmixture)
+      if (processTree_->hasFather(processNode))
       {
         auto fatherNode = processTree_->getFatherOfNode (processNode);
         auto propfath=dynamic_cast<NodeEvent*>(fatherNode->getProperty("event"));
         fathmixture = propfath && propfath->isMixture();
       }
-
+      
       if (!fathmixture)
       {
         if (mapIndexes_.find(spIndex)==mapIndexes_.end())
           mapIndexes_[spIndex]=DAGindexes();
         mapIndexes_[spIndex].push_back(getNodeIndex(forwardNode));
       }
-    
+
+
       for (size_t i = 0; i < depE.size (); ++i)
       {
         auto fs=getNodes(depE[i]);
