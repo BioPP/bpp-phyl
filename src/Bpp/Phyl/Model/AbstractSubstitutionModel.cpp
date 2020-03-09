@@ -100,7 +100,17 @@ void AbstractSubstitutionModel::updateMatrices()
 
     for (size_t i = 0; i < salph; i++)
     {
-      if (abs(generator_(i, i)) < NumConstants::TINY())
+      bool flag=(abs(generator_(i, i)) < NumConstants::TINY());
+
+      if (flag)
+        for (size_t j = 0; j < salph; j++)
+          if (abs(generator_(j, i)) >= NumConstants::TINY())
+          {
+            flag=false;
+            break;
+          }
+
+      if (flag)
       {
         nbStop++;
         vnull[i]=true;
