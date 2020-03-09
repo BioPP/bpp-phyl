@@ -253,11 +253,10 @@ namespace bpp
   };
 
   /**
-   * @brief FrequenciesSet to be used with a Markov-modulated substitution model.
+   * @brief FrequenciesSet defined from the equilibrium distribution
+   * of a given model.
    *
-   * This implementation uses one parameter per character state frequency.
-   * The rate states are assumed to be fixed and are passed as an argument to the constructor, together with a 'regular'
-   * FrequenciesSet. The number of parameters hence do not depends on the number of rates used.
+   * Its parameters are the parameters of the model.
    */
   
   class FromModelFrequenciesSet :
@@ -384,7 +383,50 @@ namespace bpp
     void fireParameterChanged(const ParameterList& parameters) {}
   };
 
- 
+
+  /**
+   * @brief FrequenciesSet to be read in a file. More specifically, a
+   * frequency set is read in a column of a given file, which column
+   * number is given in argument (default: 1).
+   *
+   */
+  
+  class UserFrequenciesSet :
+    public AbstractFrequenciesSet
+  {
+  private:
+    std::string path_;
+    size_t nCol_;
+
+  public:
+    UserFrequenciesSet(StateMap* stateMap, const std::string& path, size_t nCol=1);
+
+    UserFrequenciesSet(const UserFrequenciesSet& fmfs);
+    
+    UserFrequenciesSet& operator=(const UserFrequenciesSet& fmfs);
+
+    UserFrequenciesSet* clone() const { return new UserFrequenciesSet(*this); }
+
+    ~UserFrequenciesSet(){};
+
+  public:
+
+    const std::string& getPath() const { return path_; }
+
+    size_t getColumnNumber() const 
+    {
+      return nCol_;
+    }
+    
+    void setFrequencies(const std::vector<double>& frequencies);
+
+    // void fireParameterChanged(const ParameterList& pl){};
+
+  protected:
+    void readFromFile_();
+  };
+
+
 } // end of namespace bpp.
 
 #endif // _FREQUENCIESSET_H_
