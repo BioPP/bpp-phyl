@@ -407,6 +407,10 @@ void LikelihoodCalculationSingleProcess::makeLikelihoodAtRoot_()
 
 // We want -log(likelihood)
   likelihood_ = CWiseNegate<double>::create (context_, {totalLogLikelihood}, Dimension<double> ());
+
+  // using bpp::dataflow::DotOptions;
+  // writeGraphToDot(
+  //   "debug_lik.dot", {likelihood_.get()});//, DotOptions::DetailedNodeInfo | DotOp
 }
 
 

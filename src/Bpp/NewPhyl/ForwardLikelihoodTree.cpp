@@ -42,6 +42,8 @@ knowledge of the CeCILL license and that you accept its terms.
 #include "Model.h"
 #include "Parametrizable.h"
 
+#include "Sequence_DF.h"
+
 using namespace bpp;
 using namespace dataflow;
 using namespace std;
@@ -57,7 +59,9 @@ ConditionalLikelihoodForwardRef ForwardLikelihoodTree::makeInitialConditionalLik
         sites.getStateValueAt (site, sequenceIndex, statemap_.getAlphabetStateAsInt(state));
     }
   }
-  return NumericConstant<Eigen::MatrixXd>::create (context_, move (initCondLik));
+
+  auto v = Sequence_DF::create (context_, std::move(initCondLik), sequenceName);
+  return v;
 }
 
 ForwardLikelihoodBelowRef ForwardLikelihoodTree::makeForwardLikelihoodAtEdge (shared_ptr<ProcessEdge> processEdge, const AlignedValuesContainer & sites)
@@ -110,7 +114,7 @@ ForwardLikelihoodBelowRef ForwardLikelihoodTree::makeForwardLikelihoodAtEdge (sh
 }
 
 ConditionalLikelihoodForwardRef ForwardLikelihoodTree::makeForwardLikelihoodAtNode (shared_ptr<ProcessNode> processNode, const AlignedValuesContainer & sites)
-{  
+{
   const auto childBranches = processTree_->getBranches (processNode);
 
   auto spIndex=processNode->getSpeciesIndex();
@@ -133,8 +137,8 @@ ConditionalLikelihoodForwardRef ForwardLikelihoodTree::makeForwardLikelihoodAtNo
     // depE are edges used to link ForwardLikelihoodTree edges to this
     // node
     std::vector<ForwardLikelihoodBelowRef> depE(childBranches.size());
-  
-    NodeRefVec deps(childBranches.size());;
+    NodeRefVec deps(childBranches.size());
+    
     for (size_t i = 0; i < childBranches.size (); ++i) {
       depE[i]=makeForwardLikelihoodAtEdge (childBranches[i], sites);
       deps[i]=depE[i];
@@ -174,7 +178,6 @@ ConditionalLikelihoodForwardRef ForwardLikelihoodTree::makeForwardLikelihoodAtNo
         mapIndexes_[spIndex].push_back(getNodeIndex(forwardNode));
       }
 
-
       for (size_t i = 0; i < depE.size (); ++i)
       {
         auto fs=getNodes(depE[i]);
@@ -185,7 +188,7 @@ ConditionalLikelihoodForwardRef ForwardLikelihoodTree::makeForwardLikelihoodAtNo
     }
     
   }
-  
+
   return(forwardNode);
 }
 

@@ -133,7 +133,7 @@ namespace bpp {
       using Self = FrequenciesFromFrequenciesSet;
       using T = Eigen::RowVectorXd;
 
-      static ValueRef<T> create (Context & c, NodeRefVec && deps, const Dimension<T> & dim);
+      // static ValueRef<T> create (Context & c, NodeRefVec && deps, const Dimension<T> & dim);
       FrequenciesFromFrequenciesSet (NodeRefVec && deps, const Dimension<T> & dim);
 
       std::string debugInfo () const final;

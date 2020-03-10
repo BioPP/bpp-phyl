@@ -82,6 +82,8 @@ namespace bpp {
     template class ConstantZero<Eigen::RowVectorXd>;
     template class ConstantZero<Eigen::MatrixXd>;
     template class ConstantZero<TransitionFunction>;
+    template class ConstantZero<char>;
+    template class ConstantZero<std::string>;
 
     template class ConstantOne<double>;
     template class ConstantOne<Parameter>;
@@ -89,12 +91,15 @@ namespace bpp {
     template class ConstantOne<Eigen::RowVectorXd>;
     template class ConstantOne<Eigen::MatrixXd>;
     template class ConstantOne<TransitionFunction>;
+    template class ConstantOne<char>;
+    template class ConstantOne<std::string>;
 
     template class NumericConstant<double>;
     template class NumericConstant<size_t>;
     template class NumericConstant<Eigen::VectorXd>;
     template class NumericConstant<Eigen::RowVectorXd>;
     template class NumericConstant<Eigen::MatrixXd>;
+    template class NumericConstant<std::string>;
 
     template class NumericMutable<double>;
     template class NumericMutable<Eigen::VectorXd>;

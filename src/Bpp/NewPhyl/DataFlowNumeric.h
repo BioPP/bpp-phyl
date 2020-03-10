@@ -144,6 +144,11 @@ namespace bpp {
     Dimension () = default;
     Dimension (const char &) {}
   };
+  
+  template <> struct Dimension<std::string> : NoDimension {
+    Dimension () = default;
+    Dimension (const std::string &) {}
+  };
 
   template <> struct Dimension<size_t> : NoDimension {
     Dimension () = default;
@@ -197,6 +202,11 @@ namespace bpp {
     }
 
     template <typename T = void>
+    std::string zero (const Dimension<std::string> &) {
+      return "zero";
+    }
+
+    template <typename T = void>
     Parameter& zero (const Dimension<Parameter> &) {
       return *std::make_shared<Parameter>("Zero",0);
     }
@@ -224,6 +234,11 @@ namespace bpp {
       return '1';
     }
 
+    template <typename T = void>
+    std::string one (const Dimension<std::string> &) {
+      return "one";
+    }
+    
     template <typename T = void>
     Parameter& one (const Dimension<Parameter> &) {
       return *std::make_shared<Parameter>("One",1);
@@ -257,6 +272,12 @@ namespace bpp {
     bool isIdentity (const T & t) {
       return t == T (1);
     }
+
+    template <typename T = std::string>
+    bool isIdentity (const std::string & t) {
+      return t == "Id";
+    }
+
     template <typename Derived> bool isIdentity (const Eigen::MatrixBase<Derived> & m) {
       auto dim = Dimension<Derived> (m.derived ());
       return dim.rows == dim.cols && m == identity (dim);
@@ -354,6 +375,12 @@ namespace bpp {
       return "value=" + to_string(t.getValue());
     }
 
+    template <typename T = std::string>
+    std::string debug (const std::string& t){
+      // For basic arithmetic scalar types, just print the value itself
+      return "value=" + t;
+    }
+
     template <typename Derived>
     std::string debug (const Eigen::MatrixBase<Derived> & m){//, typename std::enable_if<!std::is_same<Derived, Parameter const&>::value>::type* = 0) {
       // With matrices, check some numeric properties and encode results as text
@@ -397,7 +424,12 @@ namespace bpp {
     std::size_t hash (T t, typename std::enable_if<std::is_floating_point<T>::value || std::is_integral<T>::value>::type* = 0) {
       return std::hash<T>{}(t);
     }
-    
+
+    template <typename T = std::string>
+    std::size_t hash (const std::string& t) {
+      return std::hash<std::string>{}(t);
+    }
+
     template <typename Derived> std::size_t hash (const Eigen::MatrixBase<Derived> & m) {
       std::size_t seed = 0;
       for (Eigen::Index j = 0; j < m.cols (); ++j) {
@@ -660,11 +692,12 @@ namespace bpp {
       }
 
       // NumericConstant<T> additional arguments = (value).
-      bool compareAdditionalArguments (const Node & other) const final {
+      bool compareAdditionalArguments (const Node & other) const {
         const auto * derived = dynamic_cast<const Self *> (&other);
         return derived != nullptr && this->accessValueConst () == derived->accessValueConst ();
       }
-      std::size_t hashAdditionalArguments () const final {
+
+      std::size_t hashAdditionalArguments () const {
         using namespace numeric;
         return hash (this->accessValueConst ());
       }
@@ -677,7 +710,7 @@ namespace bpp {
         return ConstantZero<T>::create (c, dim);
       }
 
-      NodeRef recreate (Context &, NodeRefVec && deps) final {
+      NodeRef recreate (Context &, NodeRefVec && deps) {
         checkRecreateWithoutDependencies (typeid (Self), deps);
         return this->shared_from_this ();
       }
@@ -836,13 +869,18 @@ namespace bpp {
     extern template class ConstantZero<Eigen::RowVectorXd>;
     extern template class ConstantZero<Eigen::MatrixXd>;
     extern template class ConstantZero<TransitionFunction>;
+    extern template class ConstantZero<char>;
+    extern template class ConstantZero<std::string>;
 
     extern template class ConstantOne<double>;
     extern template class ConstantOne<Eigen::VectorXd>;
     extern template class ConstantOne<Eigen::RowVectorXd>;
     extern template class ConstantOne<Eigen::MatrixXd>;
     extern template class ConstantOne<TransitionFunction>;
+    extern template class ConstantZero<char>;
+    extern template class ConstantZero<std::string>;
 
+    extern template class NumericConstant<std::string>;
     extern template class NumericConstant<double>;
     extern template class NumericConstant<Eigen::VectorXd>;
     extern template class NumericConstant<Eigen::RowVectorXd>;
