@@ -1,7 +1,7 @@
 //
-// File: AbstractCodonDistanceSubstitutionModel.h
+// File: AbstractCodonClusterAASubstitutionModel.h
 // Created by: Laurent Gueguen
-// Created on: jeudi 15 septembre 2011, à 21h 11
+// Created on: mercredi 22 août 2018, à 14h 11
 //
 
 /*
@@ -37,8 +37,8 @@
   knowledge of the CeCILL license and that you accept its terms.
 */
 
-#ifndef _ABSTRACTCODON_BGC_SUBSTITUTIONMODEL_H_
-#define _ABSTRACTCODON_BGC_SUBSTITUTIONMODEL_H_
+#ifndef _ABSTRACT_CODON_CLUSTER_AA_SUBSTITUTION_MODEL_H_
+#define _ABSTRACT_CODON_CLUSTER_AA_SUBSTITUTION_MODEL_H_
 
 #include "CodonSubstitutionModel.h"
 #include <Bpp/Numeric/AbstractParameterAliasable.h>
@@ -52,78 +52,89 @@ namespace bpp
 {
 /**
  * @brief Abstract class for modelling of non-synonymous and
- * synonymous substitution rates in codon models, with gBGC.
- *
+ *  synonymous substitution rates in codon models, with AA clustered.
+ *  
  * @author Laurent Guéguen
  *
- * The non-synonymous substitution rate is multiplied with
- * @f$\frac{\epsilon B+S}{1-e^{-(\epsilon B+S)}}@f$.
+ * Non-synonymous rates between amino-acids in the same cluster are
+ *  multiplied with @f$\omega_C@f$, and non-synonymous rates between
+ *  amino-acids in different clusters are multiplied with\omega_R@f$.
  *
- * The synonymous substitution rate is multiplied with @f$\frac{\epsilon
- * B}{1-e^{-\epsilon B}}@f$.
+ *  Parameters names are \c "omegaR" and "omegaC".
  *
- * 
- * with positive parameter @f$S@f$ that stands for selection, and real
- * parameter @f$B@f$ for biased gene conversion. In the formula,
- * @f$\epsilon = 1@f$ for AT->GC substitutions, @f$\epsilon = -1@f$
- * for GC->AT substitution, and  @f$\epsilon = 0@f$ otherwise.
+ *  Clusters can be defined as a vector of assignations, amino-acids
+ *  ordered as 3-letters abbreviates ("Ala", "Arg", ...). Default
+ *  cluster splits according to polarity and size: "AGPV", "RQEHKWY",
+ *  "NDCST", "ILMF", which produces vector:
  *
+ * (1,2,3,3,3,2,2,1,2,4,4,2,4,4,1,3,3,2,2,1)
  *
  * References:
- * - Galtier N, Duret L, Glémin S, Ranwez V (2009) GC-biased gene
- * conversion promotes the fixation of deleterious amino acid changes
- * in primates, Trends in Genetics, vol. 25(1) pp.1-5.
+ *
+ * Sainudiin et al., 2005, Detecting Site-Specific Physicochemical
+ *    Selective Pressures: Applications to the Class I HLA of the
+ *    Human Major Histocompatibility Complex and the SRK of the Plant
+ *    Sporophytic Self-Incompatibility System, Journal of Molecular
+ *    Evolution 60(3):315-26
  *
  */
 
-  class AbstractCodonBGCSubstitutionModel :
+  class AbstractCodonClusterAASubstitutionModel :
     public virtual CoreCodonSubstitutionModel,
     public virtual AbstractParameterAliasable
   {
   private:
     const GeneticCode* pgencode_;
   
-    double B_, S_;
+    double omegaR_, omegaC_;
+
+    std::vector<uint> assign_;
     
     std::shared_ptr<StateMap> stateMap_;
-    
+
   public:
     /**
-     * @brief Build a new AbstractCodonBGCSubstitutionModel object.
+     * @brief Build a new AbstractCodonClusterAASubstitutionModel object.
      *
      * @param pgencode the genetic code
      * @param prefix the Namespace
+     * @param assign an paramSynRate is true iff synonymous rate is parametrised
+     *       (default categories:   "AGPV", "RQEHKWY", "NDCST", "ILMF")
      */
-    AbstractCodonBGCSubstitutionModel(
+    
+    AbstractCodonClusterAASubstitutionModel(
       const GeneticCode* pgencode,
-      const std::string& prefix);
+      const std::string& prefix,
+      const std::vector<uint>& assign = {1,2,3,3,3,2,2,1,2,4,4,2,4,4,1,3,3,2,2,1});
 
-    AbstractCodonBGCSubstitutionModel(const AbstractCodonBGCSubstitutionModel& model) :
+    AbstractCodonClusterAASubstitutionModel(const AbstractCodonClusterAASubstitutionModel& model) :
       AbstractParameterAliasable(model),
       pgencode_(model.pgencode_),
-      B_(model.B_),
-      S_(model.S_),
+      omegaR_(model.omegaR_),
+      omegaC_(model.omegaC_),
+      assign_(model.assign_),
       stateMap_(model.stateMap_)
     {}
 
-    AbstractCodonBGCSubstitutionModel& operator=(
-      const AbstractCodonBGCSubstitutionModel& model)
+    AbstractCodonClusterAASubstitutionModel& operator=(
+      const AbstractCodonClusterAASubstitutionModel& model)
     {
       AbstractParameterAliasable::operator=(model);
       pgencode_ = model.pgencode_;
-      B_ = model.B_;
-      S_ = model.S_;
+      omegaR_ = model.omegaR_;
+      omegaC_ = model.omegaC_;
+      assign_ = model.assign_;
       stateMap_ = model.stateMap_;
-
+      
       return *this;
     }
 
-    AbstractCodonBGCSubstitutionModel* clone() const
+    AbstractCodonClusterAASubstitutionModel* clone() const
     {
-      return new AbstractCodonBGCSubstitutionModel(*this);
+      return new AbstractCodonClusterAASubstitutionModel(*this);
     }
   
-    virtual ~AbstractCodonBGCSubstitutionModel() {}
+    virtual ~AbstractCodonClusterAASubstitutionModel() {}
 
   public:
     void fireParameterChanged(const ParameterList& parameters);
@@ -135,10 +146,16 @@ namespace bpp
       return 0;
     }
 
+    const std::vector<uint>& getAssign() const
+    {
+      return assign_;
+    }
+    
     void setFreq(std::map<int, double>& frequencies){};
+    
   };
 
 } // end of namespace bpp.
 
-#endif
+#endif  
 

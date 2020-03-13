@@ -111,12 +111,12 @@ MixtureOfASubstitutionModel::MixtureOfASubstitutionModel(
 
   // Initialization of parameters_.
 
-  Parameter pm;
+  
   DiscreteDistribution* pd;
 
   for (it = distributionMap_.begin(); it != distributionMap_.end(); it++)
   {
-    pm = model->getParameter(model->getParameterNameWithoutNamespace(getParameterNameWithoutNamespace(it->first)));
+    const Parameter& pm = model->getParameter(model->getParameterNameWithoutNamespace(getParameterNameWithoutNamespace(it->first)));
     pd = it->second;
 
     if (pm.hasConstraint())

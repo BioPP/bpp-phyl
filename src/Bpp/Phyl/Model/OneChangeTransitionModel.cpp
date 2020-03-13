@@ -296,7 +296,6 @@ const Matrix<double>& OneChangeTransitionModel::getd2Pij_dt2(double t) const
       }
     }
   }
-
   return d2pij_t;
 }
 

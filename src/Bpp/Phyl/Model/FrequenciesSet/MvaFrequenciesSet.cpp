@@ -73,9 +73,9 @@ void MvaFrequenciesSet::defineParameters()
     double sd = VectorTools::sd<double, double>(rCoords);
     IntervalConstraint* constraint = new IntervalConstraint(minCoord - sd, maxCoord + sd, true, true);
     if (paramValues_.find("RootAxPos" + TextTools::toString(i)) != paramValues_.end())
-      addParameter_(new Parameter("MVA.RootAxPos" + TextTools::toString(i), TextTools::toDouble(paramValues_["RootAxPos" + TextTools::toString(i)].substr(0, 8)), constraint));
+      addParameter_(new Parameter(getNamespace()+"RootAxPos" + TextTools::toString(i), TextTools::toDouble(paramValues_["RootAxPos" + TextTools::toString(i)].substr(0, 8)), constraint));
     else
-      addParameter_(new Parameter("MVA.RootAxPos" + TextTools::toString(i), 0., constraint));
+      addParameter_(new Parameter(getNamespace()+"RootAxPos" + TextTools::toString(i), 0., constraint));
   }
 }
 
@@ -92,9 +92,7 @@ void MvaFrequenciesSet::updateFrequencies()
   vector<double> positions;
 
   for (unsigned int i = 0; i < nbrOfAxes_; i++)
-  {
-    positions.push_back(getParameter("RootAxPos" + TextTools::toString(i)).getValue());
-  }
+    positions.push_back(getParameterValue("RootAxPos" + TextTools::toString(i)));
 
   vector<double> tmpFreqs(20, 0.0);
   vector<double> freqs(20, 0.0);

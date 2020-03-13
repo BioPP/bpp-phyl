@@ -61,6 +61,7 @@
 #include "../Model/Codon/AbstractCodonDistanceSubstitutionModel.h"
 #include "../Model/Codon/AbstractCodonAARateSubstitutionModel.h"
 #include "../Model/Codon/AbstractCodonAAFitnessSubstitutionModel.h"
+#include "../Model/Codon/AbstractCodonClusterAASubstitutionModel.h"
 #include "../Model/Codon/AbstractCodonCpGSubstitutionModel.h"
 #include "../Model/Codon/AbstractCodonBGCSubstitutionModel.h"
 #include "../Model/Codon/AbstractCodonDistanceSubstitutionModel.h"
@@ -717,6 +718,7 @@ SubstitutionModel* BppOSubstitutionModelFormat::read(
         string freqOpt = ApplicationTools::getStringParameter("frequencies", args, "Full", "", true, warningLevel_);
         BppOFrequenciesSetFormat freqReader(BppOFrequenciesSetFormat::ALL, false, warningLevel_);
         unique_ptr<FrequenciesSet> protFreq(freqReader.read(alpha, freqOpt, data, true));
+  
         map<string, string> unparsedParameterValuesNested(freqReader.getUnparsedArguments());
 
         for (map<string, string>::iterator it = unparsedParameterValuesNested.begin(); it != unparsedParameterValuesNested.end(); it++)
@@ -1194,7 +1196,29 @@ SubstitutionModel* BppOSubstitutionModelFormat::readWord_(const Alphabet* alphab
 
         vCSM.push_back(new AbstractCodonAARateSubstitutionModel(nestedModel, geneticCode_, ""));
       }
-      
+      if (modelName.find("AAClust")!=string::npos)
+      {
+        name+="AAClust";
+
+        // Initialization using the "assign" argument
+        vector<uint> partition;
+        if (args.find("partition")!=args.end())
+        {
+          string rf = args["partition"];
+
+          StringTokenizer strtok(rf.substr(1, rf.length() - 2), ",");
+          while (strtok.hasMoreToken())
+            partition.push_back(TextTools::to<uint>(strtok.nextToken()));
+        }
+
+        AbstractCodonClusterAASubstitutionModel* aca=partition.size()!=0?
+          new AbstractCodonClusterAASubstitutionModel(geneticCode_, "", partition):
+          new AbstractCodonClusterAASubstitutionModel(geneticCode_, "");
+
+        vCSM.push_back(aca);
+      }
+
+      /// Default name in none used before
       if (vCSM.size()==0)
         name+="Rate";
       
@@ -1717,7 +1741,7 @@ void BppOSubstitutionModelFormat::write(const TransitionModel& model,
     comma = true;
   }
 
-  // Is it a codon model with Protein Model in it? 
+  // Is it a codon model with Protein Model or partition in it? 
   const CodonAdHocSubstitutionModel* casm=dynamic_cast<const CodonAdHocSubstitutionModel*>(&model);
   if (casm)
   {
@@ -1742,6 +1766,23 @@ void BppOSubstitutionModelFormat::write(const TransitionModel& model,
     
         BppOFrequenciesSetFormat bIOFreq(PROTEIN, false, warningLevel_);
         bIOFreq.write(&acf->getAAFitness(), out, globalAliases, writtenNames);
+        comma = true;
+      }
+      const AbstractCodonClusterAASubstitutionModel* acc=dynamic_cast<const AbstractCodonClusterAASubstitutionModel*>(casm->getNModel(i).get());
+      if (acc)
+      {
+        if (comma)
+          out << ",";
+        out << "partition=(";
+        const vector<uint>& vass=acc->getAssign();
+        
+        for (size_t j=0; j<vass.size(); j++)
+        {
+          if (j != 0)
+            out << ",";
+          out << vass[j];
+        }
+        out << ")";
         comma = true;
       }
     }
