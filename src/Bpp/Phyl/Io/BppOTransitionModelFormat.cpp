@@ -136,16 +136,17 @@ TransitionModel* BppOTransitionModelFormat::readTransitionModel(
     {
       unparsedArguments_["OneChange." + it->first] = it->second;
     }
-
     delete nestedModel;
-
-    // update only for transition models
-    updateParameters_(model.get(), args);
-    if (parseArguments)
-      initialize_(*model, data);
   }
-  else
+  
+  if (!model)
     model.reset(BppOSubstitutionModelFormat::read(alphabet, modelDescription, data, parseArguments));
-
+  else  
+  {
+     updateParameters_(model.get(), args);
+     if (parseArguments)
+          initialize_(*model, data);
+  }
+  
   return model.release();
 }
