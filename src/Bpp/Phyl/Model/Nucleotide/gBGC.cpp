@@ -51,7 +51,7 @@ using namespace bpp;
 
 gBGC::gBGC(const NucleicAlphabet* alph, NucleotideSubstitutionModel* const pm, double B) :
   AbstractParameterAliasable("gBGC."),
-  AbstractNucleotideSubstitutionModel(alph, new CanonicalStateMap(alph, false), "gBGC."),
+  AbstractNucleotideSubstitutionModel(alph, pm->shareStateMap(), "gBGC."),
   model_(pm),
   nestedPrefix_(pm->getNamespace()),
   B_(B)
@@ -61,7 +61,7 @@ gBGC::gBGC(const NucleicAlphabet* alph, NucleotideSubstitutionModel* const pm, d
   model_->computeFrequencies(false);
   
   addParameters_(model_->getParameters());
-  addParameter_(new Parameter("gBGC.B", B_, new IntervalConstraint(-999, 10, true, true), true));
+  addParameter_(new Parameter("gBGC.B", B_, std::make_shared<IntervalConstraint>(-999, 10, true, true)));
 
   computeFrequencies(true);
   updateMatrices();

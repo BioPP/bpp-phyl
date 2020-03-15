@@ -77,6 +77,8 @@ namespace bpp
     mutable RowMatrix<double> dpij_t;
     mutable RowMatrix<double> d2pij_t;
 
+    std::string nestedPrefix_;
+
   public:
     AbstractFromSubstitutionModelTransitionModel(const SubstitutionModel& subModel, const std::string& prefix);
 
@@ -141,7 +143,7 @@ namespace bpp
     virtual void addRateParameter()
     {
       getModel().addRateParameter();
-      addParameter_(new Parameter(getNamespace() + "rate", getModel().getRate(), &Parameter::R_PLUS_STAR));
+      addParameter_(new Parameter(getNamespace() + "rate", getModel().getRate(), Parameter::R_PLUS_STAR));
     }
 
     virtual void fireParameterChanged(const ParameterList& parameters)
@@ -150,10 +152,10 @@ namespace bpp
       getModel().matchParametersValues(parameters);
     }
 
-    virtual void setNamespace(const std::string& name)
+    virtual void setNamespace(const std::string& prefix)
     {
-      AbstractParameterAliasable::setNamespace(name);
-      getModel().setNamespace(name);
+      AbstractParameterAliasable::setNamespace(prefix + nestedPrefix_);
+      getModel().setNamespace(prefix + nestedPrefix_);
     }
 
   };

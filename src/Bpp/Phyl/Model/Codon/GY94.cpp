@@ -47,12 +47,13 @@ using namespace std;
 /******************************************************************************/
 
 GY94::GY94(const GeneticCode* gc, FrequenciesSet* codonFreqs) :
+  AbstractBiblioTransitionModel("GY94."),
   AbstractBiblioSubstitutionModel("GY94."),
   gacd_(),
   pmodel_(new CodonDistanceFrequenciesSubstitutionModel(gc, new K80(dynamic_cast<const CodonAlphabet*>(gc->getSourceAlphabet())->getNucleicAlphabet()), codonFreqs, &gacd_))
 {
-  addParameter_(new Parameter("GY94.kappa",1,&Parameter::R_PLUS_STAR));
-  addParameter_(new Parameter("GY94.V",10000,&Parameter::R_PLUS_STAR));
+  addParameter_(new Parameter("GY94.kappa",1, Parameter::R_PLUS_STAR));
+  addParameter_(new Parameter("GY94.V",10000, Parameter::R_PLUS_STAR));
   
   pmodel_->setNamespace("GY94.");
   addParameters_(codonFreqs->getParameters());
@@ -70,6 +71,7 @@ GY94::GY94(const GeneticCode* gc, FrequenciesSet* codonFreqs) :
 }
 
 GY94::GY94(const GY94& gy94) :
+  AbstractBiblioTransitionModel(gy94),
   AbstractBiblioSubstitutionModel(gy94),
   gacd_(),
   pmodel_(new CodonDistanceFrequenciesSubstitutionModel(*gy94.pmodel_))

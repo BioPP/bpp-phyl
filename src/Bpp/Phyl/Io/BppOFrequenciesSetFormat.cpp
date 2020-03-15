@@ -64,7 +64,7 @@ using namespace bpp;
 // From the STL:
 #include <iomanip>
 
-#include "BppOSubstitutionModelFormat.h"
+#include "BppOTransitionModelFormat.h"
 
 using namespace std;
 
@@ -112,7 +112,7 @@ FrequenciesSet* BppOFrequenciesSetFormat::read(const Alphabet* alphabet, const s
     }
     else
     {
-      pFS.reset(new FixedFrequenciesSet(new CanonicalStateMap(alphabet, false)));
+      pFS.reset(new FixedFrequenciesSet(std::shared_ptr<const StateMap>(new CanonicalStateMap(alphabet, false))));
     }
   }
   else if (freqName == "Full")
@@ -153,7 +153,7 @@ FrequenciesSet* BppOFrequenciesSetFormat::read(const Alphabet* alphabet, const s
     else
     {
       //NB: jdutheil 25/09/14 => gap models will not be supported before we add the appropriate option!
-      pFS.reset(new FullFrequenciesSet(new CanonicalStateMap(alphabet, false), false, method));
+      pFS.reset(new FullFrequenciesSet(std::shared_ptr<const StateMap>(new CanonicalStateMap(alphabet, false)), false, method));
     }
   }
   else if (freqName == "Empirical")
@@ -192,7 +192,7 @@ FrequenciesSet* BppOFrequenciesSetFormat::read(const Alphabet* alphabet, const s
     }
     else
     {
-      pFS.reset(new UserFrequenciesSet(new CanonicalStateMap(alphabet, false), fname, nCol));
+      pFS.reset(new UserFrequenciesSet(std::shared_ptr<const StateMap>(new CanonicalStateMap(alphabet, false)), fname, nCol));
     }
   }
   else if (freqName == "GC")
@@ -276,11 +276,11 @@ FrequenciesSet* BppOFrequenciesSetFormat::read(const Alphabet* alphabet, const s
     if (args.find("model") == args.end())
       throw Exception("Missing argument 'model' for frequencies " + freqName + ".");
     
-    BppOSubstitutionModelFormat nestedReader(alphabetCode_, false, true, false, false, warningLevel_);
+    BppOTransitionModelFormat nestedReader(alphabetCode_, false, true, false, false, warningLevel_);
     if (geneticCode_)
       nestedReader.setGeneticCode(geneticCode_);
 
-    TransitionModel* model=nestedReader.read(alphabet, args["model"], data, false);
+    TransitionModel* model=nestedReader.readTransitionModel(alphabet, args["model"], data, false);
     pFS.reset(new FromModelFrequenciesSet(model));
     map<string, string> unparsedParameterValuesNested(nestedReader.getUnparsedArguments());
     for (map<string, string>::iterator it = unparsedParameterValuesNested.begin(); it != unparsedParameterValuesNested.end(); it++)

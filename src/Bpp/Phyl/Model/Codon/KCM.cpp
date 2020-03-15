@@ -49,6 +49,7 @@ using namespace std;
 /******************************************************************************/
 
 KCM::KCM(const GeneticCode* gc, bool oneModel) :
+  AbstractBiblioTransitionModel("KCM"+string(oneModel?"7":"19")+"."),
   AbstractBiblioSubstitutionModel("KCM"+string(oneModel?"7":"19")+"."),
   pmodel_(),
   oneModel_(oneModel)
@@ -67,11 +68,7 @@ KCM::KCM(const GeneticCode* gc, bool oneModel) :
   addParameters_(pmodel_->getParameters());
 
   getParameter_("beta").setName(name+"omega"),
-  // deleteParameter("KCM.beta")N
-
   
-  // addParameter(new Parameter("KCM.omega", 1, new IntervalConstraint(NumConstants::MILLI(), 999, true, true), true));
-
   lParPmodel_.addParameters(pmodel_->getParameters());
 
   vector<std::string> v = lParPmodel_.getParameterNames();
@@ -86,6 +83,7 @@ KCM::KCM(const GeneticCode* gc, bool oneModel) :
 
 
 KCM::KCM(const KCM& kcm) :
+  AbstractBiblioTransitionModel(kcm),
   AbstractBiblioSubstitutionModel(kcm),
   pmodel_(new KroneckerCodonDistanceSubstitutionModel(*kcm.pmodel_)),
   oneModel_(kcm.oneModel_)

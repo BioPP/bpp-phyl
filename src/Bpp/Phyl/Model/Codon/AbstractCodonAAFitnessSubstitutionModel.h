@@ -78,9 +78,9 @@ namespace bpp
   
     std::string fitName_;
 
-    std::shared_ptr<StateMap> stateMap_;
+    std::shared_ptr<const StateMap> stateMap_;
 
-    const StateMap* protStateMap_;
+    std::shared_ptr<const StateMap> protStateMap_;
     
     /**
      * @brief The Ns of the model (default: 1),  The generator (and all
@@ -101,7 +101,7 @@ namespace bpp
       pgencode_(model.pgencode_),
       fitName_(model.fitName_),
       stateMap_(model.stateMap_),
-      protStateMap_(&pfitset_->getStateMap()),
+      protStateMap_(pfitset_->shareStateMap()),
       Ns_(1)
     {}
 
@@ -111,7 +111,7 @@ namespace bpp
       pgencode_ = model.pgencode_;
       fitName_ = model.fitName_ ;
       stateMap_ = model.stateMap_;
-      protStateMap_ = &pfitset_->getStateMap();
+      protStateMap_ = pfitset_->shareStateMap();
       Ns_ = 1;
       
       return *this;
@@ -147,7 +147,7 @@ namespace bpp
 
     void addNsParameter()
     {
-      addParameter_(new Parameter("Ns", 1, new IntervalConstraint(NumConstants::MILLI(), 100, true, true), true));
+      addParameter_(new Parameter(getNamespace()+"Ns", 1, std::make_shared<IntervalConstraint>(NumConstants::MILLI(), 100, true, true)));
     }
 
 

@@ -58,7 +58,7 @@ private:
   TreeTemplate<Node>* tree_;
   const SiteContainer* data_;
   const Alphabet* alphabet_;
-  const StateMap* statesMap_;
+  std::shared_ptr<const StateMap> statesMap_;
   size_t nbStates_;
 
 public:
@@ -71,7 +71,7 @@ public:
   AbstractTreeParsimonyScore(
     const Tree& tree,
     const SiteContainer& data,
-    const StateMap* statesMap,
+    std::shared_ptr<const StateMap> statesMap,
     bool verbose);
 
   AbstractTreeParsimonyScore(const AbstractTreeParsimonyScore& tp) :
@@ -83,7 +83,7 @@ public:
   {
     tree_      = tp.tree_->clone();
     data_      = dynamic_cast<SiteContainer*>(tp.data_->clone());
-    statesMap_ = tp.statesMap_->clone();
+    statesMap_ = tp.statesMap_;
   }
 
   AbstractTreeParsimonyScore& operator=(const AbstractTreeParsimonyScore& tp)
@@ -91,7 +91,7 @@ public:
     tree_      = dynamic_cast<TreeTemplate<Node>*>(tp.tree_->clone());
     data_      = dynamic_cast<SiteContainer*>(tp.data_->clone());
     alphabet_  = tp.alphabet_;
-    statesMap_ = tp.statesMap_->clone();
+    statesMap_ = tp.statesMap_;
     nbStates_  = tp.nbStates_;
     return *this;
   }

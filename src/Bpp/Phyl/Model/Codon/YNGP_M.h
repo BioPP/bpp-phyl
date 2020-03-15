@@ -40,8 +40,9 @@
 #ifndef _YNGP_M_H_
 #define _YNGP_M_H_
 
-#include "../AbstractBiblioMixedSubstitutionModel.h"
+#include "../AbstractBiblioMixedTransitionModel.h"
 #include "../FrequenciesSet/CodonFrequenciesSet.h"
+#include "../MixtureOfASubstitutionModel.h"
 
 #include <Bpp/Seq/GeneticCode/GeneticCode.h>
 
@@ -62,10 +63,18 @@ namespace bpp
  */
 
   class YNGP_M:
-    public AbstractBiblioMixedSubstitutionModel,
-    virtual public ReversibleSubstitutionModel
+    public AbstractBiblioMixedTransitionModel,
+    virtual public TransitionModel
   {
   protected:
+
+    /*
+     * redefined mixed model pointer
+     *
+     */
+    
+    const MixtureOfASubstitutionModel*  pmixsubmodel_;
+  
     /**
      * @brief indexes of 2 codons states between which the substitution is
      * synonymous, to set a basis to the homogeneization of the rates.
@@ -75,28 +84,35 @@ namespace bpp
   
   public:
     YNGP_M(const std::string& name) :
-      AbstractBiblioMixedSubstitutionModel(name),
+      AbstractBiblioMixedTransitionModel(name),
+      pmixsubmodel_(),
       synfrom_(),
       synto_()
     {
+      pmixsubmodel_=dynamic_cast<const MixtureOfASubstitutionModel*>(&getMixedModel());      
     }
     
     YNGP_M(const YNGP_M& mod2) :
-      AbstractBiblioMixedSubstitutionModel(mod2),
+      AbstractBiblioMixedTransitionModel(mod2),
+      pmixsubmodel_(),
       synfrom_(mod2.synfrom_),
       synto_(mod2.synto_)
     {
+      pmixsubmodel_=dynamic_cast<const MixtureOfASubstitutionModel*>(&getMixedModel());      
     }
 
     virtual YNGP_M* clone() const = 0;
     
     YNGP_M& operator=(const YNGP_M& mod2)
     {
-      AbstractBiblioMixedSubstitutionModel::operator=(mod2);
-
+      const auto& eq = AbstractBiblioMixedTransitionModel::operator=(mod2);
+      
       synfrom_ = mod2.synfrom_;
       synto_ = mod2.synto_;
-
+      const auto& mm=eq.getMixedModel();
+      
+      pmixsubmodel_ = &dynamic_cast<const MixtureOfASubstitutionModel&>(mm);
+        
       return *this;
     }
     

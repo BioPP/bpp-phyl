@@ -42,14 +42,14 @@
 using namespace bpp;
 using namespace std;
 
-AbstractBiblioSubstitutionModel::AbstractBiblioSubstitutionModel(const std::string& prefix) : AbstractParameterAliasable(prefix),
+AbstractBiblioTransitionModel::AbstractBiblioTransitionModel(const std::string& prefix) : AbstractParameterAliasable(prefix),
   mapParNamesFromPmodel_(),
   lParPmodel_()
 {}
 
 /******************************************************************************/
 
-AbstractBiblioSubstitutionModel::AbstractBiblioSubstitutionModel(const AbstractBiblioSubstitutionModel& model) :
+AbstractBiblioTransitionModel::AbstractBiblioTransitionModel(const AbstractBiblioTransitionModel& model) :
   AbstractParameterAliasable(model),
   mapParNamesFromPmodel_(model.mapParNamesFromPmodel_),
   lParPmodel_(model.lParPmodel_)
@@ -57,7 +57,7 @@ AbstractBiblioSubstitutionModel::AbstractBiblioSubstitutionModel(const AbstractB
 
 /******************************************************************************/
 
-AbstractBiblioSubstitutionModel& AbstractBiblioSubstitutionModel::operator=(const AbstractBiblioSubstitutionModel& model)
+AbstractBiblioTransitionModel& AbstractBiblioTransitionModel::operator=(const AbstractBiblioTransitionModel& model)
 {
   AbstractParameterAliasable::operator=(model);
   mapParNamesFromPmodel_ = model.mapParNamesFromPmodel_;
@@ -68,18 +68,18 @@ AbstractBiblioSubstitutionModel& AbstractBiblioSubstitutionModel::operator=(cons
 
 /******************************************************************************/
 
-std::string AbstractBiblioSubstitutionModel::getParNameFromPmodel(const std::string& name) const
+std::string AbstractBiblioTransitionModel::getParNameFromPmodel(const std::string& name) const
 {
   auto it = mapParNamesFromPmodel_.find(name);
   if (it==mapParNamesFromPmodel_.end())
-    throw Exception("AbstractBiblioSubstitutionModel::getParNameFromPmodel : unknown parameter " + name);
+    throw Exception("AbstractBiblioTransitionModel::getParNameFromPmodel : unknown parameter " + name);
   return it->second;
 }
     
 
 /******************************************************************************/
 
-void AbstractBiblioSubstitutionModel::updateMatrices()
+void AbstractBiblioTransitionModel::updateMatrices()
 {
   for (size_t i = 0; i < lParPmodel_.size(); i++)
   {
@@ -93,10 +93,10 @@ void AbstractBiblioSubstitutionModel::updateMatrices()
 
 /******************************************************************************/
 
-void AbstractBiblioSubstitutionModel::addRateParameter()
+void AbstractBiblioTransitionModel::addRateParameter()
 {
   getModel().addRateParameter();
-  addParameter_(new Parameter(getNamespace() + "rate", getModel().getRate(), &Parameter::R_PLUS_STAR));
+  addParameter_(new Parameter(getNamespace() + "rate", getModel().getRate(), Parameter::R_PLUS_STAR));
   
   mapParNamesFromPmodel_[getNamespace() + "rate"] = "rate";
   lParPmodel_.reset();
@@ -105,7 +105,7 @@ void AbstractBiblioSubstitutionModel::addRateParameter()
 
 /******************************************************************************/
 
-void AbstractBiblioSubstitutionModel::setNamespace(const std::string& name)
+void AbstractBiblioTransitionModel::setNamespace(const std::string& name)
 {
   AbstractParameterAliasable::setNamespace(name);
 
@@ -126,9 +126,9 @@ void AbstractBiblioSubstitutionModel::setNamespace(const std::string& name)
 
 /******************************************************************************/
 
-void AbstractBiblioSubstitutionModel::setFreq(std::map<int, double>& m)
+void AbstractBiblioTransitionModel::setFreq(std::map<int, double>& m)
 {
-  AbstractTotallyWrappedSubstitutionModel::setFreq(m);
+  AbstractTotallyWrappedModel::setFreq(m);
 
   ParameterList pl;
   for (const auto& it : mapParNamesFromPmodel_)
@@ -140,9 +140,9 @@ void AbstractBiblioSubstitutionModel::setFreq(std::map<int, double>& m)
 }
 
 
-void AbstractBiblioSubstitutionModel::setFreqFromData(const SequenceContainer& data, double pseudoCount)
+void AbstractBiblioTransitionModel::setFreqFromData(const SequenceContainer& data, double pseudoCount)
 {
-  AbstractTotallyWrappedSubstitutionModel::setFreqFromData(data, pseudoCount);
+  AbstractTotallyWrappedModel::setFreqFromData(data, pseudoCount);
   
   ParameterList pl;
   for (const auto& it : mapParNamesFromPmodel_)

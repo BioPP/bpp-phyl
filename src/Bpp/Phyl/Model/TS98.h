@@ -89,8 +89,8 @@ namespace bpp
     TS98(ReversibleSubstitutionModel* model, double s1 = 1., double s2 = 1., bool normalizeRateChanges = false):
       MarkovModulatedSubstitutionModel(model, 2, normalizeRateChanges, "TS98.")
     {
-      addParameter_(new Parameter("TS98.s1", s1, &Parameter::R_PLUS_STAR));
-      addParameter_(new Parameter("TS98.s2", s2, &Parameter::R_PLUS_STAR));
+      addParameter_(new Parameter("TS98.s1", s1, Parameter::R_PLUS_STAR));
+      addParameter_(new Parameter("TS98.s2", s2, Parameter::R_PLUS_STAR));
       updateRatesModel();
       updateMatrices();
     }

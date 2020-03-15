@@ -49,13 +49,14 @@ using namespace std;
 /******************************************************************************/
 
 YN98::YN98(const GeneticCode* gc, FrequenciesSet* codonFreqs) :
+  AbstractBiblioTransitionModel("YN98."),
   AbstractBiblioSubstitutionModel("YN98."),
   pmodel_(new CodonDistanceFrequenciesSubstitutionModel(gc, new K80(dynamic_cast<const CodonAlphabet*>(gc->getSourceAlphabet())->getNucleicAlphabet()), codonFreqs))
 {
   computeFrequencies(false);
   
-  addParameter_(new Parameter("YN98.kappa", 1, &Parameter::R_PLUS_STAR));
-  addParameter_(new Parameter("YN98.omega", 1, new IntervalConstraint(NumConstants::MILLI(), 999, true, true), true));
+  addParameter_(new Parameter("YN98.kappa", 1, Parameter::R_PLUS_STAR));
+  addParameter_(new Parameter("YN98.omega", 1, std::make_shared<IntervalConstraint>(NumConstants::MILLI(), 999, true, true)));
 
   pmodel_->setNamespace("YN98.");
   addParameters_(codonFreqs->getParameters());
@@ -76,7 +77,9 @@ YN98::YN98(const GeneticCode* gc, FrequenciesSet* codonFreqs) :
 }
 
 
-YN98::YN98(const YN98& yn98) : AbstractBiblioSubstitutionModel(yn98),
+YN98::YN98(const YN98& yn98) :
+  AbstractBiblioTransitionModel(yn98),
+  AbstractBiblioSubstitutionModel(yn98),
   pmodel_(new CodonDistanceFrequenciesSubstitutionModel(*yn98.pmodel_))
 {}
 

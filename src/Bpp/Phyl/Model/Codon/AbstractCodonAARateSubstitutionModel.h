@@ -80,7 +80,7 @@ namespace bpp
 
     double gamma_;
 
-    std::shared_ptr<StateMap> stateMap_;
+    std::shared_ptr<const StateMap> stateMap_;
     
   public:
     /**

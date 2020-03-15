@@ -50,7 +50,7 @@ AbstractCodonSubstitutionModel::AbstractCodonSubstitutionModel(
   const std::string& prefix,
   bool paramRates) :
   AbstractParameterAliasable(prefix),
-  AbstractWordSubstitutionModel(gCode->getSourceAlphabet(), new CanonicalStateMap(gCode->getSourceAlphabet(), false), prefix),
+  AbstractWordSubstitutionModel(gCode->getSourceAlphabet(), std::shared_ptr<const StateMap>(new CanonicalStateMap(gCode->getSourceAlphabet(), false)), prefix),
   hasParametrizedRates_(paramRates),
   gCode_(gCode)
 {
@@ -80,7 +80,7 @@ AbstractCodonSubstitutionModel::AbstractCodonSubstitutionModel(
     // relative rates
     for (i = 0; i < 2; i++)
     {
-      addParameter_(new Parameter(prefix + "relrate" + TextTools::toString(i + 1), 1.0 / double(3 - i), &Parameter::PROP_CONSTRAINT_EX));
+      addParameter_(new Parameter(prefix + "relrate" + TextTools::toString(i + 1), 1.0 / double(3 - i), Parameter::PROP_CONSTRAINT_EX));
     }
   }
 }
@@ -93,7 +93,7 @@ AbstractCodonSubstitutionModel::AbstractCodonSubstitutionModel(
   const std::string& prefix,
   bool paramRates) :
   AbstractParameterAliasable(prefix),
-  AbstractWordSubstitutionModel(gCode->getSourceAlphabet(), new CanonicalStateMap(gCode->getSourceAlphabet(), false), prefix),
+  AbstractWordSubstitutionModel(gCode->getSourceAlphabet(), std::shared_ptr<const StateMap>(new CanonicalStateMap(gCode->getSourceAlphabet(), false)), prefix),
   hasParametrizedRates_(paramRates),
   gCode_(gCode)
 {
@@ -143,7 +143,7 @@ AbstractCodonSubstitutionModel::AbstractCodonSubstitutionModel(
     // relative rates
     for (int i = 0; i < 2; ++i)
     {
-      addParameter_(new Parameter(prefix + "relrate" + TextTools::toString(i + 1), 1.0 / double(3 - i), &Parameter::PROP_CONSTRAINT_EX));
+      addParameter_(new Parameter(prefix + "relrate" + TextTools::toString(i + 1), 1.0 / double(3 - i), Parameter::PROP_CONSTRAINT_EX));
     }
   }
 }

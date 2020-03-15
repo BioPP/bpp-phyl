@@ -44,7 +44,7 @@ using namespace bpp;
 using namespace std;
 
 MvaFrequenciesSet::MvaFrequenciesSet(const ProteicAlphabet* alpha) :
-  AbstractFrequenciesSet(new CanonicalStateMap(alpha, false), "MVA.", "MVAprotein"),
+  AbstractFrequenciesSet(std::shared_ptr<const StateMap>(new CanonicalStateMap(alpha, false)), "MVA.", "MVAprotein"),
   tPpalAxes_(),
   rowCoords_(),
   nbrOfAxes_(0),
@@ -71,7 +71,7 @@ void MvaFrequenciesSet::defineParameters()
     double maxCoord = VectorTools::max(rCoords);
     double minCoord = VectorTools::min(rCoords);
     double sd = VectorTools::sd<double, double>(rCoords);
-    IntervalConstraint* constraint = new IntervalConstraint(minCoord - sd, maxCoord + sd, true, true);
+    std::shared_ptr<Constraint> constraint = std::make_shared<IntervalConstraint>(minCoord - sd, maxCoord + sd, true, true);
     if (paramValues_.find("RootAxPos" + TextTools::toString(i)) != paramValues_.end())
       addParameter_(new Parameter(getNamespace()+"RootAxPos" + TextTools::toString(i), TextTools::toDouble(paramValues_["RootAxPos" + TextTools::toString(i)].substr(0, 8)), constraint));
     else

@@ -41,12 +41,10 @@
 #define _BPP_OSUBSTITUTION_MODEL_FORMAT_H_
 
 #include "IoSubstitutionModelFactory.h"
-#include "../Model/MixedSubstitutionModel.h"
-#include "../Model/MixtureOfASubstitutionModel.h"
-#include "../Model/MixtureOfSubstitutionModels.h"
 
 // From bpp-seq
 #include <Bpp/Seq/GeneticCode/GeneticCode.h>
+#include "../Model/MixedTransitionModel.h"
 
 namespace bpp
 {
@@ -144,7 +142,7 @@ namespace bpp
       geneticCode_ = gCode;
     }
 
-    SubstitutionModel* read(const Alphabet* alphabet, const std::string& modelDescription, const SiteContainer* data = 0, bool parseArguments = true);
+    SubstitutionModel* readSubstitionModel(const Alphabet* alphabet, const std::string& modelDescription, const SiteContainer* data = 0, bool parseArguments = true);
   
     const std::map<std::string, std::string>& getUnparsedArguments() const { return unparsedArguments_; }
 
@@ -168,11 +166,9 @@ namespace bpp
     void setVerbose(bool verbose) { verbose_=verbose;}
   
   private:
-    MixedSubstitutionModel* readMixed_(const Alphabet* alphabet, const std::string& modelDescription, const SiteContainer* data);
-
     SubstitutionModel* readWord_(const Alphabet* alphabet, const std::string& modelDescription, const SiteContainer* data);
 
-    void writeMixed_(const MixedSubstitutionModel& model,
+    void writeMixed_(const MixedTransitionModel& model,
                      OutputStream& out,
                      std::map<std::string, std::string>& globalAliases,
                      std::vector<std::string>& writtenNames) const;

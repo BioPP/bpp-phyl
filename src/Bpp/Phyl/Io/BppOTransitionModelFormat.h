@@ -41,7 +41,7 @@
 #define _BPPO_TRANSITION_MODELFORMAT_H_
 
 #include "BppOSubstitutionModelFormat.h"
-
+#include "../Model/MixedTransitionModel.h"
 
 namespace bpp
 {
@@ -56,6 +56,9 @@ namespace bpp
   class BppOTransitionModelFormat :
     public BppOSubstitutionModelFormat
   {
+  private:
+    MixedTransitionModel* readMixed_(const Alphabet* alphabet, const std::string& modelDescription, const SiteContainer* data);
+
   public:
     /**
      * @brief Create a new BppOTransitionModelFormat object.

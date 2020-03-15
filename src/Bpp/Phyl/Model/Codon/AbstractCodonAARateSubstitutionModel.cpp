@@ -58,9 +58,9 @@ AbstractCodonAARateSubstitutionModel::AbstractCodonAARateSubstitutionModel(
   stateMap_(new CanonicalStateMap(pgencode->getSourceAlphabet(), false))
 {
   if (paramSynRate)
-    addParameter_(new Parameter(prefix + "gamma", 1, new IntervalConstraint(NumConstants::SMALL(), 999, true, true), true));
+    addParameter_(new Parameter(prefix + "gamma", 1, std::make_shared<IntervalConstraint>(NumConstants::SMALL(), 999, true, true)));
 
-  addParameter_(new Parameter(prefix + "beta", 1, new IntervalConstraint(NumConstants::SMALL(), 999, true, true), true));
+  addParameter_(new Parameter(prefix + "beta", 1, std::make_shared<IntervalConstraint>(NumConstants::SMALL(), 999, true, true)));
 
   pAAmodel_->enableEigenDecomposition(false);
   

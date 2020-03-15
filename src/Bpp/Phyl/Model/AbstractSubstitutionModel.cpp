@@ -53,20 +53,110 @@ using namespace std;
 
 /******************************************************************************/
 
-AbstractSubstitutionModel::AbstractSubstitutionModel(const Alphabet* alpha, const StateMap* stateMap, const std::string& prefix) :
+AbstractTransitionModel::AbstractTransitionModel(const Alphabet* alpha, std::shared_ptr<const StateMap> stateMap, const std::string& prefix) :
   AbstractParameterAliasable(prefix),
   alphabet_(alpha),
   stateMap_(stateMap),
   size_(alpha->getSize()),
-  isScalable_(true),
   rate_(1),
-  generator_(size_, size_),
   freq_(size_),
-  computeFreq_(true),
-  exchangeability_(size_, size_),
   pijt_(size_, size_),
   dpijt_(size_, size_),
-  d2pijt_(size_, size_),
+  d2pijt_(size_, size_)
+{
+  if (computeFrequencies())
+    for (auto& fr : freq_)
+      fr = 1.0 / static_cast<double>(size_);
+}
+
+/******************************************************************************/
+
+  double AbstractTransitionModel::getRate() const
+  {
+    return rate_;
+  }
+
+/******************************************************************************/
+
+void AbstractTransitionModel::setRate(double rate)
+{
+  if (rate <= 0)
+    throw Exception("Bad value for rate: " + TextTools::toString(rate));
+  
+  if (hasParameter("rate"))
+    setParameterValue("rate", rate);
+  else
+    rate_ = rate;
+}
+
+void AbstractTransitionModel::addRateParameter()
+{
+  addParameter_(new Parameter(getNamespace() + "rate", rate_, Parameter::R_PLUS_STAR));
+}
+
+/******************************************************************************/
+double AbstractTransitionModel::getInitValue(size_t i, int state) const
+{
+  if (i >= size_)
+    throw IndexOutOfBoundsException("AbstractTransitionModel::getInitValue", i, 0, size_ - 1);
+  if (state < 0 || !alphabet_->isIntInAlphabet(state))
+    throw BadIntException(state, "AbstractTransitionModel::getInitValue. Character " + alphabet_->intToChar(state) + " is not allowed in model.");
+  vector<int> states = alphabet_->getAlias(state);
+
+  for (size_t j = 0; j < states.size(); j++)
+  {
+     if (getAlphabetStateAsInt(i) == states[j])
+      return 1.;
+  }
+  return 0.;
+}
+
+/******************************************************************************/
+
+void AbstractTransitionModel::setFreqFromData(const SequenceContainer& data, double pseudoCount)
+{
+  map<int, int> counts;
+  SequenceContainerTools::getCounts(data, counts);
+  map<int, double> freqs;
+
+  double t = 0;
+  for (auto& ci : counts)
+    t+=ci.second;
+
+  t+= pseudoCount*(double)counts.size();
+  
+  for (int i = 0; i < static_cast<int>(size_); i++)
+  {
+    freqs[i] = (static_cast<double>(counts[i]) + pseudoCount) / t;
+  }
+
+  // Re-compute generator and eigen values:
+  setFreq(freqs);
+}
+
+/******************************************************************************/
+
+void AbstractTransitionModel::setFreq(map<int, double>& freqs)
+{
+  for (size_t i = 0; i < size_; ++i)
+  {
+    freq_[i] = freqs[static_cast<int>(i)];
+  }
+  // Re-compute generator and eigen values:
+  updateMatrices();
+}
+
+
+
+/******************************************************************************/
+
+AbstractSubstitutionModel::AbstractSubstitutionModel(const Alphabet* alpha, std::shared_ptr<const StateMap> stateMap, const std::string& prefix) :
+  AbstractParameterAliasable(prefix),
+  AbstractTransitionModel(alpha, stateMap, prefix),
+  isScalable_(true),
+  generator_(size_, size_),
+  computeFreq_(true),
+  exchangeability_(size_, size_),
   eigenDecompose_(true),
   eigenValues_(size_),
   iEigenValues_(size_),
@@ -77,9 +167,6 @@ AbstractSubstitutionModel::AbstractSubstitutionModel(const Alphabet* alpha, cons
   vPowGen_(),
   tmpMat_(size_, size_)
 {
-  if (computeFrequencies())
-    for (auto& fr : freq_)
-      fr = 1.0 / static_cast<double>(size_);
 }
 
 
@@ -555,59 +642,6 @@ const Matrix<double>& AbstractSubstitutionModel::getd2Pij_dt2(double t) const
 
 /******************************************************************************/
 
-double AbstractSubstitutionModel::getInitValue(size_t i, int state) const
-{
-  if (i >= size_)
-    throw IndexOutOfBoundsException("AbstractSubstitutionModel::getInitValue", i, 0, size_ - 1);
-  if (state < 0 || !alphabet_->isIntInAlphabet(state))
-    throw BadIntException(state, "AbstractSubstitutionModel::getInitValue. Character " + alphabet_->intToChar(state) + " is not allowed in model.");
-  vector<int> states = alphabet_->getAlias(state);
-
-  for (size_t j = 0; j < states.size(); j++)
-  {
-     if (getAlphabetStateAsInt(i) == states[j])
-      return 1.;
-  }
-  return 0.;
-}
-
-/******************************************************************************/
-
-void AbstractSubstitutionModel::setFreqFromData(const SequenceContainer& data, double pseudoCount)
-{
-  map<int, int> counts;
-  SequenceContainerTools::getCounts(data, counts);
-  map<int, double> freqs;
-
-  double t = 0;
-  for (auto& ci : counts)
-    t+=ci.second;
-
-  t+= pseudoCount*(double)counts.size();
-  
-  for (int i = 0; i < static_cast<int>(size_); i++)
-  {
-    freqs[i] = (static_cast<double>(counts[i]) + pseudoCount) / t;
-  }
-
-  // Re-compute generator and eigen values:
-  setFreq(freqs);
-}
-
-/******************************************************************************/
-
-void AbstractSubstitutionModel::setFreq(map<int, double>& freqs)
-{
-  for (size_t i = 0; i < size_; ++i)
-  {
-    freq_[i] = freqs[static_cast<int>(i)];
-  }
-  // Re-compute generator and eigen values:
-  updateMatrices();
-}
-
-/******************************************************************************/
-
 double AbstractSubstitutionModel::getScale() const
 {
   vector<double> v;
@@ -653,31 +687,6 @@ void AbstractSubstitutionModel::normalize()
 {
   if (isScalable_)
     setScale(1/getScale());
-}
-
-/******************************************************************************/
-
-double AbstractSubstitutionModel::getRate() const
-{
-  return rate_;
-}
-
-/******************************************************************************/
-
-void AbstractSubstitutionModel::setRate(double rate)
-{
-  if (rate <= 0)
-    throw Exception("Bad value for rate: " + TextTools::toString(rate));
-  
-  if (hasParameter("rate"))
-    setParameterValue("rate", rate);
-  else
-    rate_ = rate;
-}
-
-void AbstractSubstitutionModel::addRateParameter()
-{
-  addParameter_(new Parameter(getNamespace() + "rate", rate_, &Parameter::R_PLUS_STAR));
 }
 
 /******************************************************************************/

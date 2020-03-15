@@ -83,13 +83,13 @@ void GlobalClockTreeLikelihoodFunctionWrapper::initParameters_()
   std::map<const Node*, double> heights;
   TreeTemplateTools::getHeights(*(tree.getRootNode()), heights);
   double totalHeight = heights[tree.getRootNode()];
-  addParameter_(new Parameter("TotalHeight", totalHeight, &Parameter::R_PLUS_STAR));
+  addParameter_(new Parameter("TotalHeight", totalHeight, Parameter::R_PLUS_STAR));
   for (std::map<const Node*, double>::iterator it = heights.begin(); it != heights.end(); it++)
   {
     if (!it->first->isLeaf() && it->first->hasFather())
     {
       double fatherHeight = heights[it->first->getFather()];
-      addParameter_(new Parameter("HeightP" + TextTools::toString(it->first->getId()), it->second / fatherHeight, &Parameter::PROP_CONSTRAINT_IN));
+      addParameter_(new Parameter("HeightP" + TextTools::toString(it->first->getId()), it->second / fatherHeight, Parameter::PROP_CONSTRAINT_IN));
     }
   }
   // We add other parameters:
@@ -110,13 +110,13 @@ void GlobalClockTreeLikelihoodFunctionWrapper::computeBranchLengthsFromHeights_(
     const Node* son = node->getSon(i);
     if (son->isLeaf())
     {
-      brlenPl.addParameter(Parameter("BrLen" + TextTools::toString(son->getId()), std::max(0.0000011, height), new IntervalConstraint(1, 0.000001, false), true));
+      brlenPl.addParameter(Parameter("BrLen" + TextTools::toString(son->getId()), std::max(0.0000011, height), std::make_shared<IntervalConstraint>(1, 0.000001, false)));
     }
     else
     {
       double sonHeightP = getParameter("HeightP" + TextTools::toString(son->getId())).getValue();
       double sonHeight = sonHeightP * height;
-      brlenPl.addParameter(Parameter("BrLen" + TextTools::toString(son->getId()), std::max(0.0000011, height - sonHeight), new IntervalConstraint(1, 0.000001, false), true));
+      brlenPl.addParameter(Parameter("BrLen" + TextTools::toString(son->getId()), std::max(0.0000011, height - sonHeight), std::make_shared<IntervalConstraint>(1, 0.000001, false)));
       computeBranchLengthsFromHeights_(son, sonHeight, brlenPl);
     }
   }

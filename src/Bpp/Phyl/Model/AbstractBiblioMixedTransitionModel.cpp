@@ -1,5 +1,5 @@
 //
-// File: AbstractBiblioMixedSubstitutionModel.cpp
+// File: AbstractBiblioMixedTransitionModel.cpp
 // Created by:  Laurent Gueguen
 // Created on: lundi 18 juillet 2011, à 15h 27
 //
@@ -36,35 +36,35 @@ The fact that you are presently reading this means that you have had
 knowledge of the CeCILL license and that you accept its terms.
 */
 
-#include "AbstractBiblioMixedSubstitutionModel.h"
+#include "AbstractBiblioMixedTransitionModel.h"
 using namespace bpp;
 
 using namespace std;
 
 /******************************************************************************/
 
-AbstractBiblioMixedSubstitutionModel::AbstractBiblioMixedSubstitutionModel(const std::string& prefix):
-  AbstractBiblioSubstitutionModel(prefix),
+AbstractBiblioMixedTransitionModel::AbstractBiblioMixedTransitionModel(const std::string& prefix):
+  AbstractBiblioTransitionModel(prefix),
   pmixmodel_()
 {}
   
-AbstractBiblioMixedSubstitutionModel::AbstractBiblioMixedSubstitutionModel(const AbstractBiblioMixedSubstitutionModel& mod2) :
-  AbstractBiblioSubstitutionModel(mod2),
+AbstractBiblioMixedTransitionModel::AbstractBiblioMixedTransitionModel(const AbstractBiblioMixedTransitionModel& mod2) :
+  AbstractBiblioTransitionModel(mod2),
   pmixmodel_(mod2.pmixmodel_->clone())
 {
 }
 
-AbstractBiblioMixedSubstitutionModel& AbstractBiblioMixedSubstitutionModel::operator=(const AbstractBiblioMixedSubstitutionModel& mod2)
+AbstractBiblioMixedTransitionModel& AbstractBiblioMixedTransitionModel::operator=(const AbstractBiblioMixedTransitionModel& mod2)
 {
-  AbstractBiblioSubstitutionModel::operator=(mod2);
+  AbstractBiblioTransitionModel::operator=(mod2);
   pmixmodel_.reset(mod2.pmixmodel_->clone());
   return *this;
 }
 
-AbstractBiblioMixedSubstitutionModel::~AbstractBiblioMixedSubstitutionModel()
+AbstractBiblioMixedTransitionModel::~AbstractBiblioMixedTransitionModel()
 {}
 
-Vint AbstractBiblioMixedSubstitutionModel::getSubmodelNumbers(const std::string& desc) const
+Vint AbstractBiblioMixedTransitionModel::getSubmodelNumbers(const std::string& desc) const
 {
   std::string desc2;
 

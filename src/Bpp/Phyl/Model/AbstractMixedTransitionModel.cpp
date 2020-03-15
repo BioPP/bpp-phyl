@@ -1,7 +1,7 @@
 //
-// File: AbstractMixedSubstitutionModel
+// File: AbstractMixedTransitionModel
 // Created by: Laurent Gueguen
-// On: vendredi 19 novembre 2010, à 15h 55
+// On: jeudi 14 février 2019, à 14h 24
 //
 
 /*
@@ -37,7 +37,7 @@
    knowledge of the CeCILL license and that you accept its terms.
  */
 
-#include "AbstractMixedSubstitutionModel.h"
+#include "AbstractMixedTransitionModel.h"
 
 #include <string>
 
@@ -45,31 +45,19 @@ using namespace bpp;
 using namespace std;
 
 
-AbstractMixedSubstitutionModel::AbstractMixedSubstitutionModel(
-  const Alphabet* alpha, StateMap* stateMap, const std::string& prefix) :
+AbstractMixedTransitionModel::AbstractMixedTransitionModel(
+  const Alphabet* alpha, std::shared_ptr<const StateMap> stateMap, const std::string& prefix) :
   AbstractParameterAliasable(prefix),
-  AbstractSubstitutionModel(alpha, stateMap, prefix),
+  AbstractTransitionModel(alpha, stateMap, prefix),
   modelsContainer_(),
   vProbas_(),
   vRates_()
 {
-  for (unsigned int i = 0; i < size_; i++)
-  {
-    for (unsigned int j = 0; j < size_; j++)
-    {
-      generator_(i, j) = 0;
-      exchangeability_(i, j) = 0;
-      leftEigenVectors_(i, j) = 0;
-      rightEigenVectors_(i, j) = 0;
-    }
-    eigenValues_[i] = 0;
-  }
-  eigenDecompose_ = false;
 }
 
-AbstractMixedSubstitutionModel::AbstractMixedSubstitutionModel(const AbstractMixedSubstitutionModel& msm) :
+AbstractMixedTransitionModel::AbstractMixedTransitionModel(const AbstractMixedTransitionModel& msm) :
   AbstractParameterAliasable(msm),
-  AbstractSubstitutionModel(msm),
+  AbstractTransitionModel(msm),
   modelsContainer_(),
   vProbas_(),
   vRates_()
@@ -82,10 +70,9 @@ AbstractMixedSubstitutionModel::AbstractMixedSubstitutionModel(const AbstractMix
   }
 }
 
-AbstractMixedSubstitutionModel& AbstractMixedSubstitutionModel::operator=(const AbstractMixedSubstitutionModel& model)
+AbstractMixedTransitionModel& AbstractMixedTransitionModel::operator=(const AbstractMixedTransitionModel& model)
 {
-  AbstractParameterAliasable::operator=(model);
-  AbstractSubstitutionModel::operator=(model);
+  AbstractTransitionModel::operator=(model);
 
   // Clear existing containers:
   modelsContainer_.clear();
@@ -102,7 +89,7 @@ AbstractMixedSubstitutionModel& AbstractMixedSubstitutionModel::operator=(const 
   return *this;
 }
 
-AbstractMixedSubstitutionModel::~AbstractMixedSubstitutionModel()
+AbstractMixedTransitionModel::~AbstractMixedTransitionModel()
 {
   for (unsigned int i = 0; i < modelsContainer_.size(); i++)
   {
@@ -110,12 +97,12 @@ AbstractMixedSubstitutionModel::~AbstractMixedSubstitutionModel()
   }
 }
 
-size_t AbstractMixedSubstitutionModel::getNumberOfStates() const
+size_t AbstractMixedTransitionModel::getNumberOfStates() const
 {
   return modelsContainer_[0]->getNumberOfStates();
 }
 
-const Matrix<double>& AbstractMixedSubstitutionModel::getPij_t(double t) const
+const Matrix<double>& AbstractMixedTransitionModel::getPij_t(double t) const
 {
   vector<const Matrix<double>* > vM;
   double sP = 0;
@@ -141,7 +128,7 @@ const Matrix<double>& AbstractMixedSubstitutionModel::getPij_t(double t) const
 }
 
 
-const Matrix<double>& AbstractMixedSubstitutionModel::getdPij_dt(double t) const
+const Matrix<double>& AbstractMixedTransitionModel::getdPij_dt(double t) const
 {
   vector<const Matrix<double>* > vM;
   double sP = 0;
@@ -167,7 +154,7 @@ const Matrix<double>& AbstractMixedSubstitutionModel::getdPij_dt(double t) const
 }
 
 
-const Matrix<double>& AbstractMixedSubstitutionModel::getd2Pij_dt2(double t) const
+const Matrix<double>& AbstractMixedTransitionModel::getd2Pij_dt2(double t) const
 {
   vector<const Matrix<double>* > vM;
   double sP = 0;
@@ -193,9 +180,9 @@ const Matrix<double>& AbstractMixedSubstitutionModel::getd2Pij_dt2(double t) con
 }
 
 
-void AbstractMixedSubstitutionModel::setRate(double rate)
+void AbstractMixedTransitionModel::setRate(double rate)
 {
-  AbstractSubstitutionModel::setRate(rate);
+  AbstractTransitionModel::setRate(rate);
 
   double sum = 0;
   double sP = 0;
@@ -213,10 +200,10 @@ void AbstractMixedSubstitutionModel::setRate(double rate)
   }
 }
 
-void AbstractMixedSubstitutionModel::setVRates(const Vdouble& vd)
+void AbstractMixedTransitionModel::setVRates(const Vdouble& vd)
 {
   if (vd.size() != modelsContainer_.size())
-    throw Exception("AbstractMixedSubstitutionModel::setVRates  bad size of Vdouble argument.");
+    throw Exception("AbstractMixedTransitionModel::setVRates  bad size of Vdouble argument.");
 
   for (unsigned int i = 0; i < vd.size(); i++)
   {
@@ -226,7 +213,7 @@ void AbstractMixedSubstitutionModel::setVRates(const Vdouble& vd)
   normalizeVRates();
 }
 
-void AbstractMixedSubstitutionModel::normalizeVRates()
+void AbstractMixedTransitionModel::normalizeVRates()
 {
   double sum = 0;
   double sP = 0;

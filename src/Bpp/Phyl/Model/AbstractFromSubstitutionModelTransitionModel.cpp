@@ -50,9 +50,10 @@ AbstractFromSubstitutionModelTransitionModel::AbstractFromSubstitutionModelTrans
   size_(subModel.getNumberOfStates()),
   pij_t(size_, size_),
   dpij_t(size_, size_),
-  d2pij_t(size_, size_)
+  d2pij_t(size_, size_),
+  nestedPrefix_(subModel.getNamespace())
 {
-  subModel_->setNamespace(getNamespace());
+  subModel_->setNamespace(getNamespace()+nestedPrefix_);
   addParameters_(subModel_->getParameters());
 }
 
@@ -65,7 +66,8 @@ AbstractFromSubstitutionModelTransitionModel::AbstractFromSubstitutionModelTrans
   size_(fmsm.size_),
   pij_t(fmsm.pij_t),
   dpij_t(fmsm.dpij_t),
-  d2pij_t(fmsm.d2pij_t)
+  d2pij_t(fmsm.d2pij_t),
+  nestedPrefix_(fmsm.nestedPrefix_)
 {}
 
 
@@ -80,6 +82,7 @@ AbstractFromSubstitutionModelTransitionModel& AbstractFromSubstitutionModelTrans
   pij_t = fmsm.pij_t;
   dpij_t = fmsm.dpij_t;
   d2pij_t = fmsm.d2pij_t;
+  nestedPrefix_ = fmsm.nestedPrefix_;
   
   return *this;
 }

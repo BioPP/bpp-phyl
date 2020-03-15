@@ -63,7 +63,7 @@ RN95::RN95(
   double lambda,
   double sigma) :
   AbstractParameterAliasable("RN95."),
-  AbstractNucleotideSubstitutionModel(alphabet, new CanonicalStateMap(alphabet, false), "RN95."),
+  AbstractNucleotideSubstitutionModel(alphabet, std::shared_ptr<const StateMap>(new CanonicalStateMap(alphabet, false)), "RN95."),
   alpha_(),
   beta_(),
   gamma_(),
@@ -106,13 +106,13 @@ RN95::RN95(
   double gammaP = gamma_ / (1 - thetaR);
   double alphaP = (alpha_ * (1 - thetaG) + (thetaG < kappaP ? thetaG : kappaP) * (1 - thetaR)) / (thetaG * (1 - thetaR));
   double sigmaP = (sigma_ * (1 - thetaC) + (thetaC < gammaP ? thetaC : gammaP) * thetaR) / (thetaC * thetaR);
-  addParameter_(new Parameter("RN95.thetaR", thetaR, &Parameter::PROP_CONSTRAINT_EX));
-  addParameter_(new Parameter("RN95.thetaC", thetaC, &Parameter::PROP_CONSTRAINT_EX));
-  addParameter_(new Parameter("RN95.thetaG", thetaG, &Parameter::PROP_CONSTRAINT_EX));
-  addParameter_(new Parameter("RN95.gammaP", gammaP, &Parameter::PROP_CONSTRAINT_EX));
-  addParameter_(new Parameter("RN95.kappaP", kappaP, &Parameter::PROP_CONSTRAINT_EX));
-  addParameter_(new Parameter("RN95.alphaP", alphaP, new IntervalConstraint(1, 1, false), true));
-  addParameter_(new Parameter("RN95.sigmaP", sigmaP, new IntervalConstraint(1, 1, false), true));
+  addParameter_(new Parameter("RN95.thetaR", thetaR, Parameter::PROP_CONSTRAINT_EX));
+  addParameter_(new Parameter("RN95.thetaC", thetaC, Parameter::PROP_CONSTRAINT_EX));
+  addParameter_(new Parameter("RN95.thetaG", thetaG, Parameter::PROP_CONSTRAINT_EX));
+  addParameter_(new Parameter("RN95.gammaP", gammaP, Parameter::PROP_CONSTRAINT_EX));
+  addParameter_(new Parameter("RN95.kappaP", kappaP, Parameter::PROP_CONSTRAINT_EX));
+  addParameter_(new Parameter("RN95.alphaP", alphaP, std::make_shared<IntervalConstraint>(1, 1, false)));
+  addParameter_(new Parameter("RN95.sigmaP", sigmaP, std::make_shared<IntervalConstraint>(1, 1, false)));
 
   computeFrequencies(false);
   updateMatrices();

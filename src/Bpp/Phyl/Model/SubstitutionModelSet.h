@@ -239,10 +239,10 @@ public:
   size_t getNumberOfModels() const { return modelSet_.size(); }
 
   /**
-   * @return True iff there is a MixedSubstitutionModel in the SubstitutionModelSet
+   * @return True iff there is a MixedTransitionModel in the SubstitutionModelSet
    **/
 
-  bool hasMixedSubstitutionModel() const;
+  bool hasMixedTransitionModel() const;
 
   /**
    * @brief Get one model from the set knowing its index.
@@ -252,13 +252,13 @@ public:
    */
   const TransitionModel* getModel(size_t i) const
   {
-    if (i >= modelSet_.size()) throw IndexOutOfBoundsException("SubstitutionModelSet::getModel(i).", 0, modelSet_.size() - 1, i);
+    if (i >= modelSet_.size()) throw IndexOutOfBoundsException("SubstitutionModelSet::getModel(i).", i, 0, modelSet_.size() - 1);
     return modelSet_[i];
   }
 
   TransitionModel* getModel(size_t i)
   {
-    if (i >= modelSet_.size()) throw IndexOutOfBoundsException("SubstitutionModelSet::getModel(i).", 0, modelSet_.size() - 1, i);
+    if (i >= modelSet_.size()) throw IndexOutOfBoundsException("SubstitutionModelSet::getModel(i).", i, 0, modelSet_.size() - 1);
     return modelSet_[i];
   }
 
@@ -273,7 +273,7 @@ public:
     }
     catch (std::bad_cast& bc)
     {
-      throw Exception("SubstitutionModelSet::getSubstitutionModel : model is not a sustitution model " + getModel(i)->getName());
+      throw Exception("SubstitutionModelSet::getSubstitutionModel : " + getModel(i)->getName() + " is not a sustitution model." );
     }
   }
   
@@ -286,7 +286,7 @@ public:
     }
     catch (std::bad_cast& bc)
     {
-      throw Exception("SubstitutionModelSet::getSubstitutionModel : model is not a sustitution model " + getModel(i)->getName());
+      throw Exception("SubstitutionModelSet::getSubstitutionModel : " + getModel(i)->getName() + " is not a sustitution model." );
     }
   }
 
@@ -391,6 +391,21 @@ public:
   void addModel(TransitionModel* model, const std::vector<int>& nodesId);//, const std::vector<std::string>& newParams);
 
   /**
+   * @brief Sets an assignment of a given modle index to a given onde id
+   *
+   * @param modelIndex The index of the model in the set.
+   * @param model      The node ID
+   *
+   * @throw Exception if the modle index doesn't correspond to an existing modle in the modelSet
+   */
+  void setNodeToModel(size_t modelIndex, int nodeId); // Keren: added on my own to allow alternation of nodes assignemnts to existing nodes
+  
+  /**
+   * @brief Reset model indices to node ids assignment
+   */
+  void resetModelToNodeIds();  // Keren: added on my own to allow alternation of nodes assignemnts to existing nodes
+
+  /**
    * @brief Replace a model in the set, and all corresponding
    * parameters. The replaced model deleted.
    *
@@ -399,7 +414,6 @@ public:
    *
    * @throw Exception if a parameter becomes orphan because of the removal.
    */
-
   void replaceModel(size_t modelIndex, TransitionModel* model);
 
   void listModelNames(std::ostream& out = std::cout) const;
@@ -468,19 +482,23 @@ public:
    *
    * @see Alphabet
    */
-  virtual const std::vector<int>& getAlphabetStates() const {
+  const std::vector<int>& getAlphabetStates() const {
     return getModel(0)->getAlphabetStates();
   }
 
-  virtual const StateMap& getStateMap() const {
+  const StateMap& getStateMap() const {
     return getModel(0)->getStateMap();
   }
 
-  virtual std::vector<size_t> getModelStates(int code) const {
+  std::shared_ptr<const StateMap> shareStateMap() const {
+    return getModel(0)->shareStateMap();
+  }
+
+  std::vector<size_t> getModelStates(int code) const {
     return getModel(0)->getModelStates(code);
   }
 
-  virtual std::vector<size_t> getModelStates(const std::string& code) const {
+  std::vector<size_t> getModelStates(const std::string& code) const {
     return getModel(0)->getModelStates(code);
   }
 
@@ -488,7 +506,8 @@ public:
    * @param index The model state.
    * @return The corresponding alphabet state as character code.
    */
-  virtual int getAlphabetStateAsInt(size_t index) const {
+
+  int getAlphabetStateAsInt(size_t index) const {
     return getModel(0)->getAlphabetStateAsInt(index);
   }
   
@@ -496,7 +515,8 @@ public:
    * @param index The model state.
    * @return The corresponding alphabet state as character code.
    */
-  virtual std::string getAlphabetStateAsChar(size_t index) const {
+
+  std::string getAlphabetStateAsChar(size_t index) const {
     return getModel(0)->getAlphabetStateAsChar(index);
   }
 

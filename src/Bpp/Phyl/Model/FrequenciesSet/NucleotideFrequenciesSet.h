@@ -69,16 +69,16 @@ class GCFrequenciesSet :
 {
 public:
   GCFrequenciesSet(const NucleicAlphabet* alphabet) :
-    AbstractFrequenciesSet(new CanonicalStateMap(alphabet, false), "GC.", "GC")
+    AbstractFrequenciesSet(std::shared_ptr<const StateMap>(new CanonicalStateMap(alphabet, false)), "GC.", "GC")
   {
-    addParameter_(new Parameter("GC.theta", 0.5, &Parameter::PROP_CONSTRAINT_IN));
+    addParameter_(new Parameter("GC.theta", 0.5, Parameter::PROP_CONSTRAINT_IN));
     getFreq_(0) = getFreq_(1) = getFreq_(2) = getFreq_(3) = 0.25;
   }
 
   GCFrequenciesSet(const NucleicAlphabet* alphabet, double theta) :
-    AbstractFrequenciesSet(new CanonicalStateMap(alphabet, false), "GC.", "GC")
+    AbstractFrequenciesSet(std::shared_ptr<const StateMap>(new CanonicalStateMap(alphabet, false)), "GC.", "GC")
   {
-    addParameter_(new Parameter("GC.theta", theta, &Parameter::PROP_CONSTRAINT_IN));
+    addParameter_(new Parameter("GC.theta", theta, Parameter::PROP_CONSTRAINT_IN));
     getFreq_(0) = getFreq_(3) = (1. - theta) / 2.;
     getFreq_(1) = getFreq_(2) = theta / 2.;
   }
@@ -155,14 +155,14 @@ class FixedNucleotideFrequenciesSet :
 {
 public:
   FixedNucleotideFrequenciesSet(const NucleicAlphabet* alphabet, const std::vector<double>& initFreqs, const std::string& name = "Fixed") :
-    FixedFrequenciesSet(new CanonicalStateMap(alphabet, false), initFreqs, name) {}
+    FixedFrequenciesSet(std::shared_ptr<const StateMap>(new CanonicalStateMap(alphabet, false)), initFreqs, name) {}
 
   /**
    * @brief Construction with uniform frequencies on the letters of
    * the alphabet.
    */
   FixedNucleotideFrequenciesSet(const NucleicAlphabet* alphabet, const std::string& name = "Fixed") :
-    FixedFrequenciesSet(new CanonicalStateMap(alphabet, false), name) {}
+    FixedFrequenciesSet(std::shared_ptr<const StateMap>(new CanonicalStateMap(alphabet, false)), name) {}
 
   FixedNucleotideFrequenciesSet* clone() const { return new FixedNucleotideFrequenciesSet(*this); }
 
@@ -183,7 +183,7 @@ public:
   {
   public:
     UserNucleotideFrequenciesSet(const NucleicAlphabet* alphabet, const std::string& path, size_t nCol=1):
-      UserFrequenciesSet(new CanonicalStateMap(alphabet, false), path, nCol) {}
+      UserFrequenciesSet(std::shared_ptr<const StateMap>(new CanonicalStateMap(alphabet, false)), path, nCol) {}
     
     UserNucleotideFrequenciesSet* clone() const { return new UserNucleotideFrequenciesSet(*this); }
 

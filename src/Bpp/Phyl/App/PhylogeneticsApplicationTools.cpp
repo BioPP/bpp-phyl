@@ -40,6 +40,7 @@
 
 #include "PhylogeneticsApplicationTools.h"
 #include "../Model/SubstitutionModel.h"
+#include "../Model/MixedTransitionModel.h"
 #include "../Model/WrappedModel.h"
 #include "../Model/Protein/Coala.h"
 #include "../Model/FrequenciesSet/MvaFrequenciesSet.h"
@@ -180,7 +181,7 @@ SubstitutionModel* PhylogeneticsApplicationTools::getSubstitutionModel(
   else
     modelDescription = ApplicationTools::getStringParameter("model", params, "JC69", suffix, suffixIsOptional, warn);
 
-  SubstitutionModel* model = bIO.read(alphabet, modelDescription, data, true);
+  SubstitutionModel* model = bIO.readSubstitionModel(alphabet, modelDescription, data, true);
   return model;
 }
 
@@ -325,11 +326,8 @@ FrequenciesSet* PhylogeneticsApplicationTools::getRootFrequenciesSet(
     FrequenciesSet* freq = getFrequenciesSet(alphabet, gCode, freqDescription, data, unparams, rateFreqs, verbose, warn + 1);
     freq->setNamespace("root." + freq->getNamespace());
 
-    map<string, string>::iterator it;
-    for (it = unparams.begin(); it != unparams.end(); it++)
-    {
-      sharedparams["root." + it->first] = it->second;
-    }
+    for (const auto& it:unparams)
+      sharedparams["root." + it.first] = it.second;
 
     if (verbose)
       ApplicationTools::displayResult("Root frequencies ", freq->getName());
@@ -409,7 +407,7 @@ SubstitutionModelSet* PhylogeneticsApplicationTools::getSubstitutionModelSet(
   modelSet1 = new SubstitutionModelSet(alphabet);
   setSubstitutionModelSet(*modelSet1, alphabet, gCode, data, params, suffix, suffixIsOptional, verbose, warn);
 
-  if (modelSet1->hasMixedSubstitutionModel())
+  if (modelSet1->hasMixedTransitionModel())
   {
     modelSet = new MixedSubstitutionModelSet(*modelSet1);
     completeMixedSubstitutionModelSet(*dynamic_cast<MixedSubstitutionModelSet*>(modelSet), alphabet, data, params, suffix, suffixIsOptional, verbose);
@@ -577,14 +575,15 @@ void PhylogeneticsApplicationTools::completeMixedSubstitutionModelSet(
     ApplicationTools::displayResult("Number of distinct paths", TextTools::toString(numd));
 
   vector<string> vdesc;
-  while (numd)
+  size_t numi=0;
+  while (numi<numd)
   {
-    string desc = ApplicationTools::getStringParameter("site.path" + TextTools::toString(numd), params, "",  suffix, suffixIsOptional, warn);
+    string desc = ApplicationTools::getStringParameter("site.path" + TextTools::toString(numi+1), params, "",  suffix, suffixIsOptional, warn);
     if (desc.size() == 0)
       break;
     else
       vdesc.push_back(desc);
-    numd--;
+    numi++;
   }
 
   if (vdesc.size() == 0)
@@ -594,33 +593,53 @@ void PhylogeneticsApplicationTools::completeMixedSubstitutionModelSet(
     return;
   }
 
-  for (vector<string>::iterator it(vdesc.begin()); it != vdesc.end(); it++)
+  for (auto& desc:vdesc)
   {
     mixedModelSet.addEmptyHyperNode();
-    StringTokenizer st(*it, "&");
+    StringTokenizer st(desc, "&");
     while (st.hasMoreToken())
     {
       string submodel = st.nextToken();
+      Vint submodelNb;
       string::size_type indexo = submodel.find("[");
       string::size_type indexf = submodel.find("]");
       if ((indexo == string::npos) | (indexf == string::npos))
-        throw Exception("PhylogeneticsApplicationTools::setMixedSubstitutionModelSet. Bad path syntax, should contain `[]' symbols: " + submodel);
+        throw Exception("PhylogeneticsApplicationTools::completeMixedSubstitutionModelSet. Bad path syntax, should contain `[]' symbols: " + submodel);
       size_t num = TextTools::to<size_t>(submodel.substr(5, indexo - 5));
-      string p2 = submodel.substr(indexo + 1, indexf - indexo - 1);
-
-      const MixedSubstitutionModel* pSM = dynamic_cast<const MixedSubstitutionModel*>(mixedModelSet.getSubstitutionModel(num - 1));
+      const MixedTransitionModel* pSM = dynamic_cast<const MixedTransitionModel*>(mixedModelSet.getModel(num - 1));
       if (!pSM)
-        throw BadIntegerException("PhylogeneticsApplicationTools::setMixedSubstitutionModelSet: Wrong model for number", static_cast<int>(num - 1));
-      Vint submodnb = pSM->getSubmodelNumbers(p2);
+        throw BadIntegerException("PhylogeneticsApplicationTools::completeMixedSubstitutionModelSet: Wrong model for number", static_cast<int>(num - 1));
 
-      mixedModelSet.addToHyperNode(num - 1, submodnb);
+      string lp2 = submodel.substr(indexo + 1, indexf - indexo - 1);      
+      StringTokenizer stp2(lp2, ",");
+      while (stp2.hasMoreToken())
+      {
+        string p2=stp2.nextToken();
+        
+        try  {
+          int n2=TextTools::toInt(p2);
+          if (n2<=0 || n2>(int)(pSM->getNumberOfModels()))
+            throw BadIntegerException("PhylogeneticsApplicationTools::completeMixedSubstitutionModelSet: Wrong model for number", static_cast<int>(n2));
+          submodelNb.push_back(n2-1);
+        }
+        catch (Exception& e)
+        {
+          Vint submodnb = pSM->getSubmodelNumbers(p2);
+          if (submodelNb.size()==0)
+            submodelNb=submodnb;
+          else
+            submodelNb=VectorTools::vectorIntersection(submodelNb,submodnb);
+        }
+      }
+      
+      mixedModelSet.addToHyperNode(num - 1, submodelNb);
     }
-
+    
     if (!mixedModelSet.getHyperNode(mixedModelSet.getNumberOfHyperNodes() - 1).isComplete())
-      throw Exception("A path should own at least a submodel of each mixed model: " + *it);
+      throw Exception("A path should own at least a submodel of each mixed model: " + desc);
 
     if (verbose)
-      ApplicationTools::displayResult("Site Path", *it);
+      ApplicationTools::displayResult("Site Path", desc);
   }
 
   // / Checks if the paths are separate
@@ -919,12 +938,12 @@ TreeLikelihood* PhylogeneticsApplicationTools::optimizeParameters(
         Parameter& par = parametersToEstimate.getParameter(parNames2[i]);
         if (par.hasConstraint())
         {
-          par.setConstraint(ic & (*par.getConstraint()), true);
+          par.setConstraint(std::shared_ptr<Constraint>(ic & (*par.getConstraint())));
           if (par.getConstraint()->isEmpty())
             throw Exception("Empty interval for parameter " + parNames[i] + par.getConstraint()->getDescription());
         }
         else
-          par.setConstraint(ic.clone(), true);
+          par.setConstraint(std::shared_ptr<Constraint>(ic.clone()));
 
         if (verbose)
           ApplicationTools::displayResult("Parameter constrained " + par.getName(), par.getConstraint()->getDescription());
@@ -1385,7 +1404,7 @@ void PhylogeneticsApplicationTools::checkEstimatedParameters(const ParameterList
 {
   for (size_t i = 0; i < pl.size(); ++i)
   {
-    const Constraint* constraint = pl[i].getConstraint();
+    auto constraint = pl[i].getConstraint();
     if (constraint)
     {
       double value = pl[i].getValue();

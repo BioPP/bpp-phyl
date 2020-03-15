@@ -107,7 +107,7 @@ AbstractNonHomogeneousTreeLikelihood::AbstractNonHomogeneousTreeLikelihood(
   verbose_(lik.verbose_),
   minimumBrLen_(lik.minimumBrLen_),
   maximumBrLen_(lik.maximumBrLen_),
-  brLenConstraint_(dynamic_cast<Constraint*>(lik.brLenConstraint_->clone())),
+  brLenConstraint_(lik.brLenConstraint_->clone()),
   reparametrizeRoot_(lik.reparametrizeRoot_),
   root1_(lik.root1_),
   root2_(lik.root2_)
@@ -144,8 +144,7 @@ AbstractNonHomogeneousTreeLikelihood& AbstractNonHomogeneousTreeLikelihood::oper
   verbose_           = lik.verbose_;
   minimumBrLen_      = lik.minimumBrLen_;
   maximumBrLen_      = lik.maximumBrLen_;
-  if (brLenConstraint_.get()) brLenConstraint_.release();
-  brLenConstraint_.reset(lik.brLenConstraint_->clone());
+  brLenConstraint_   = std::shared_ptr<Constraint>(lik.brLenConstraint_->clone());
   reparametrizeRoot_ = lik.reparametrizeRoot_;
   root1_             = lik.root1_;
   root2_             = lik.root2_;
@@ -185,7 +184,7 @@ void AbstractNonHomogeneousTreeLikelihood::init_(
 
   minimumBrLen_ = 0.000001;
   maximumBrLen_ = 10000;
-  brLenConstraint_.reset(new IntervalConstraint(minimumBrLen_, maximumBrLen_, true, true));
+  brLenConstraint_=std::make_shared<IntervalConstraint>(minimumBrLen_, maximumBrLen_, true, true);
   setSubstitutionModelSet(modelSet);
 }
 
@@ -381,12 +380,12 @@ void AbstractNonHomogeneousTreeLikelihood::initBranchLengthsParameters(bool verb
         l2 = d;
       else
         {
-          brLenParameters_.addParameter(Parameter("BrLen" + TextTools::toString(i), d, brLenConstraint_->clone(), true)); //Attach constraint to avoid clonage problems!
+          brLenParameters_.addParameter(Parameter("BrLen" + TextTools::toString(i), d, brLenConstraint_));
         }
     }
   if (reparametrizeRoot_) {
-    brLenParameters_.addParameter(Parameter("BrLenRoot", l1 + l2, brLenConstraint_->clone(), true));
-    brLenParameters_.addParameter(Parameter("RootPosition", l1 / (l1 + l2), &Parameter::PROP_CONSTRAINT_EX));
+    brLenParameters_.addParameter(Parameter("BrLenRoot", l1 + l2, brLenConstraint_));
+    brLenParameters_.addParameter(Parameter("RootPosition", l1 / (l1 + l2), Parameter::PROP_CONSTRAINT_EX));
   }
 }
 
@@ -413,18 +412,18 @@ void AbstractNonHomogeneousTreeLikelihood::computeTransitionProbabilitiesForNode
   //Computes all pxy and pyx once for all:
   VVVdouble * pxy__node = & pxy_[node->getId()];
   for(unsigned int c = 0; c < nbClasses_; c++)
+  {
+    VVdouble * pxy__node_c = & (* pxy__node)[c];
+    RowMatrix<double> Q = model->getPij_t(l * rateDistribution_->getCategory(c));
+    for(unsigned int x = 0; x < nbStates_; x++)
     {
-      VVdouble * pxy__node_c = & (* pxy__node)[c];
-      RowMatrix<double> Q = model->getPij_t(l * rateDistribution_->getCategory(c));
-      for(unsigned int x = 0; x < nbStates_; x++)
-        {
-          Vdouble * pxy__node_c_x = & (* pxy__node_c)[x];
-          for(unsigned int y = 0; y < nbStates_; y++)
-            {
-              (* pxy__node_c_x)[y] = Q(x, y);
-            }
-        }
+      Vdouble * pxy__node_c_x = & (* pxy__node_c)[x];
+      for(unsigned int y = 0; y < nbStates_; y++)
+      {
+        (* pxy__node_c_x)[y] = Q(x, y);
+      }
     }
+  }
   
   if(computeFirstOrderDerivatives_)
     {

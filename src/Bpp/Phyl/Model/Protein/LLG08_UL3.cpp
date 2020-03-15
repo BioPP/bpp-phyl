@@ -49,11 +49,11 @@ using namespace std;
 /******************************************************************************/
 
 LLG08_UL3::LLG08_UL3(const ProteicAlphabet* alpha) :
-  AbstractBiblioMixedSubstitutionModel("LLG08_UL3.")
+  AbstractBiblioMixedTransitionModel("LLG08_UL3.")
 {
   // build the submodel
 
-  vector<SubstitutionModel*> vpSM;
+  vector<TransitionModel*> vpSM;
   vpSM.push_back(new LLG08_UL3::EmbeddedModel(alpha, "Q1"));
   vpSM.push_back(new LLG08_UL3::EmbeddedModel(alpha, "Q2"));
   vpSM.push_back(new LLG08_UL3::EmbeddedModel(alpha, "Q3"));
@@ -78,7 +78,7 @@ LLG08_UL3::LLG08_UL3(const ProteicAlphabet* alpha) :
     mapParNamesFromPmodel_[name] = st;
     addParameter_(new Parameter("LLG08_UL3." + st,
                             pmixmodel_->getParameterValue(st),
-                            pmixmodel_->getParameter(st).hasConstraint() ? pmixmodel_->getParameter(st).getConstraint()->clone() : 0, true));
+                                pmixmodel_->getParameter(st).hasConstraint() ? std::shared_ptr<Constraint>(pmixmodel_->getParameter(st).getConstraint()->clone()) : 0));
   }
 
   updateMatrices();
@@ -89,7 +89,7 @@ LLG08_UL3::LLG08_UL3(const ProteicAlphabet* alpha) :
 
 LLG08_UL3::EmbeddedModel::EmbeddedModel(const ProteicAlphabet* alpha, string name) :
   AbstractParameterAliasable(name),
-  AbstractReversibleProteinSubstitutionModel(alpha, new CanonicalStateMap(alpha, false), name),
+  AbstractReversibleProteinSubstitutionModel(alpha, std::shared_ptr<const StateMap>(new CanonicalStateMap(alpha, false)), name),
   proportion_(1),
   name_(name)
 {

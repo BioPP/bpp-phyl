@@ -52,7 +52,7 @@ AbstractCodonCpGSubstitutionModel::AbstractCodonCpGSubstitutionModel(
   rho_(1),
   stateMap_(new CanonicalStateMap(&alphabet, false))
 {
-  addParameter_(new Parameter(prefix + "rho", 1, new IntervalConstraint(NumConstants::SMALL(), 999, true, true), true));
+  addParameter_(new Parameter(prefix + "rho", 1, std::make_shared<IntervalConstraint>(NumConstants::SMALL(), 999, true, true)));
 }
 
 void AbstractCodonCpGSubstitutionModel::fireParameterChanged(const ParameterList& parameters)

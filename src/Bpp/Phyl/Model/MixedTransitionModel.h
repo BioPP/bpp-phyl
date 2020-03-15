@@ -1,5 +1,5 @@
 //
-// File: MixedSubstitutionModel.h
+// File: MixedTransitionModel.h
 // Created by: Laurent Gueguen
 //
 
@@ -36,11 +36,10 @@
   knowledge of the CeCILL license and that you accept its terms.
 */
 
-#ifndef _MIXEDSUBSTITUTIONMODEL_H_
-#define _MIXEDSUBSTITUTIONMODEL_H_
+#ifndef _MIXED_TRANSITION_MODEL_H_
+#define _MIXED_TRANSITION_MODEL_H_
 
 #include "SubstitutionModel.h"
-// #include <Bpp/Seq/Alphabet.all>
 
 #include <vector>
 #include <string>
@@ -50,30 +49,30 @@
 namespace bpp
 {
   /**
-   * @brief Interface for Substitution models, defined as a mixture
-   * of "simple" substitution models.
+   * @brief Interface for Transition models, defined as a mixture
+   * of "simple" transition models.
    * @author Laurent Guéguen
    *
    */
 
-  class MixedSubstitutionModel :
-    public virtual SubstitutionModel
+  class MixedTransitionModel :
+    public virtual TransitionModel
   {
   public:
-    MixedSubstitutionModel() {};
+    MixedTransitionModel() {};
 
-    virtual ~MixedSubstitutionModel(){};
+    virtual ~MixedTransitionModel(){};
 
-    virtual MixedSubstitutionModel* clone() const = 0;
+    virtual MixedTransitionModel* clone() const = 0;
 
   public:
 
     /**
      * @brief Returns a specific model from the mixture
      */
-    virtual const SubstitutionModel* getNModel(size_t i) const = 0;
+    virtual const TransitionModel* getNModel(size_t i) const = 0;
 
-    virtual SubstitutionModel* getNModel(size_t i) = 0;
+    virtual TransitionModel* getNModel(size_t i) = 0;
 
     /**
      * @brief Returns the  probability of a specific model from the mixture
@@ -129,7 +128,7 @@ namespace bpp
      *
      */
     
-    virtual const SubstitutionModel* getSubModelWithName(const std::string& name) const = 0;
+    virtual const TransitionModel* getModel(const std::string& name) const = 0;
     
     /*
      *@brief Returns the vector of numbers of the submodels in the
