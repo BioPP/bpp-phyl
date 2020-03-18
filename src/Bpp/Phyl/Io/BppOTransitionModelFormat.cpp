@@ -122,7 +122,7 @@ TransitionModel* BppOTransitionModelFormat::readTransitionModel(
     if (geneticCode_)
       nestedReader.setGeneticCode(geneticCode_);
     
-    SubstitutionModel* nestedModel=nestedReader.readSubstitionModel(alphabet, nestedModelDescription, data, false);
+    SubstitutionModel* nestedModel=nestedReader.readSubstitutionModel(alphabet, nestedModelDescription, data, false);
     map<string, string> unparsedParameterValuesNested(nestedReader.getUnparsedArguments());
 
     // We look for the register:
@@ -261,7 +261,7 @@ TransitionModel* BppOTransitionModelFormat::readTransitionModel(
   }
 
   if (!model)
-    model.reset(readSubstitionModel(alphabet, modelDescription, data, parseArguments));
+    model.reset(readSubstitutionModel(alphabet, modelDescription, data, parseArguments));
   else
   {
     if (verbose_)
