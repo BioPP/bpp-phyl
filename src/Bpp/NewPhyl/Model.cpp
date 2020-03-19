@@ -334,6 +334,7 @@ NodeRef TransitionFunctionFromModel::recreate (Context & c, NodeRefVec && deps) 
 }
 
 void TransitionFunctionFromModel::compute () {
+
   const auto brlen = accessValueConstCast<double> (*this->dependency (1)->dependency(0));
   const auto * model = accessValueConstCast<const BranchModel *> (*this->dependency (0));
   const auto nDeriv = accessValueConstCast<size_t> (*this->dependency (2));
