@@ -78,17 +78,11 @@ ProcessTree::ProcessTree(Context& context,
         
   std::map<const BranchModel*, std::shared_ptr<ConfiguredModel>> modelmap;
 
-  if (vnMod.size()==1)
+  for (auto nMod:vnMod)
   {
-    auto mod=process.getModel(vnMod[0]);
-    modelmap[mod] = ConfiguredParametrizable::createConfigured<BranchModel, ConfiguredModel>(context_, *mod, parList); // suffix "_1" will be added if necessary
+    auto mod=process.getModel(nMod);
+    modelmap[mod] = ConfiguredParametrizable::createConfigured<BranchModel, ConfiguredModel>(context_, *mod, parList, (nMod==1?"":"_"+ TextTools::toString(nMod))); // suffix "_1" will be added if necessary 
   }
-  else
-    for (auto nMod:vnMod)
-    {
-      auto mod=process.getModel(nMod);
-      modelmap[mod] = ConfiguredParametrizable::createConfigured<BranchModel, ConfiguredModel>(context_, *mod, parList, "_"+ TextTools::toString(nMod));
-    }
 
   // Assign References on all branches
 
