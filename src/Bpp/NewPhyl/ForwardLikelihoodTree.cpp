@@ -56,12 +56,11 @@ ConditionalLikelihoodForwardRef ForwardLikelihoodTree::makeInitialConditionalLik
   for (size_t site = 0; site < nbSites; ++site) {
     for (size_t state = 0; state < nbState_; ++state) {
       initCondLik (Eigen::Index (state), Eigen::Index (site)) =
-        sites.getStateValueAt (site, sequenceIndex, statemap_.getAlphabetStateAsInt(state));
+        sites (site, sequenceIndex, statemap_.getAlphabetStateAsInt(state));
     }
   }
 
-  auto v = Sequence_DF::create (context_, std::move(initCondLik), sequenceName);
-  return v;
+  return Sequence_DF::create (context_, std::move(initCondLik), sequenceName);
 }
 
 ForwardLikelihoodBelowRef ForwardLikelihoodTree::makeForwardLikelihoodAtEdge (shared_ptr<ProcessEdge> processEdge, const AlignedValuesContainer & sites)
