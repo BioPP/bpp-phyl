@@ -226,7 +226,7 @@ namespace bpp
       int warn = 1);
     
     
-    static TransitionModel* getTransitionModel(
+    static BranchModel* getBranchModel(
       const Alphabet* alphabet,
       const GeneticCode* gCode,
       const AlignedValuesContainer* data,
@@ -242,7 +242,7 @@ namespace bpp
      *
      */
     
-    static std::map<size_t, std::shared_ptr<TransitionModel>> getTransitionModels(
+    static std::map<size_t, std::shared_ptr<BranchModel>> getBranchModels(
       const Alphabet* alphabet,
       const GeneticCode* gCode,
       const std::map<size_t, AlignedValuesContainer*>& mData, 
@@ -275,7 +275,7 @@ namespace bpp
      * @param suffixIsOptional Tell if the suffix is absolutely required.
      * @param verbose          Print some info to the 'message' output stream.
      * @param warn             Set the warning level (0: always display warnings, >0 display warnings on demand).
-     * @return A new TransitionModel object according to options specified.
+     * @return A new BranchModel object according to options specified.
      */
     
     static std::map<size_t, SubstitutionProcess*> getSubstitutionProcesses(
@@ -309,7 +309,7 @@ namespace bpp
      */
 
     static void setSubstitutionModelParametersInitialValuesWithAliases(
-      TransitionModel& model,
+      BranchModel& model,
       std::map<std::string, std::string>& unparsedParameterValues,
       size_t modelNumber,
       const AlignedValuesContainer* data,
@@ -426,13 +426,13 @@ namespace bpp
     }
 
     /**
-     * @brief Build map of ModelPaths from a map of TransitionModel. 
+     * @brief Build map of ModelPaths from a map of BranchModel. 
      *
      * See the Bio++ Program Suite manual for a description of
      * available options.
      *
      * @param params  The attribute map where options may be found.
-     * @param mModel  A map of shared pointers of TransitionModels.
+     * @param mModel  A map of shared pointers of BranchModels.
      * @param verbose Print some info to the 'message' output stream.
      *
      * Warning: the model FIRST described in a ModelPath will be the
@@ -445,7 +445,7 @@ namespace bpp
     
     static map<size_t, std::shared_ptr<ModelPath>> getModelPaths(
       const std::map<std::string, std::string>& params,
-      const map<size_t, std::shared_ptr<TransitionModel>>& mModel,
+      const map<size_t, std::shared_ptr<BranchModel>>& mModel,
       bool verbose = true);
 
     /**
@@ -651,7 +651,7 @@ namespace bpp
       const Alphabet* alphabet,
       const GeneticCode* gCode,
       const map<size_t, std::shared_ptr<PhyloTree>>& mTree,
-      const map<size_t, std::shared_ptr<TransitionModel>>& mMod,
+      const map<size_t, std::shared_ptr<BranchModel>>& mMod,
       const map<size_t, std::shared_ptr<FrequenciesSet>>& mRootFreq,
       const map<size_t, std::shared_ptr<DiscreteDistribution>>& mDist,
       const map<size_t, std::shared_ptr<ModelScenario>>& mScen,
@@ -1028,7 +1028,7 @@ namespace bpp
      *                      >0 display warnings on demand).
      */
 
-    static void printParameters(const TransitionModel* model, OutputStream& out,int warn = 1);
+    static void printParameters(const BranchModel* model, OutputStream& out,int warn = 1);
 
     /**
      * @brief Output a SubstitutionModelSet description to a file.

@@ -33,6 +33,7 @@ set (CPP_FILES
   Bpp/Phyl/Graphics/PhylogramPlot.cpp
   Bpp/Phyl/Graphics/TreeDrawingDisplayControler.cpp
   Bpp/Phyl/Graphics/TreeDrawingListener.cpp
+  Bpp/Phyl/Io/BppOBranchModelFormat.cpp
   Bpp/Phyl/Io/BppOFrequenciesSetFormat.cpp
   Bpp/Phyl/Io/BppOMultiTreeReaderFormat.cpp
   Bpp/Phyl/Io/BppOMultiTreeWriterFormat.cpp
@@ -220,6 +221,7 @@ set (CPP_FILES
   Bpp/Phyl/Model/StateMap.cpp
   Bpp/Phyl/Model/SubstitutionModelSet.cpp
   Bpp/Phyl/Model/SubstitutionModelSetTools.cpp
+  Bpp/Phyl/Model/TransitionFromTransitionModel.cpp
   Bpp/Phyl/Model/WordSubstitutionModel.cpp
   Bpp/Phyl/OptimizationTools.cpp
   Bpp/Phyl/Parsimony/AbstractTreeParsimonyScore.cpp

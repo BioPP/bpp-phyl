@@ -812,7 +812,7 @@ SubstitutionModel* BppOSubstitutionModelFormat::readSubstitionModel(
 }
 
   
-void BppOSubstitutionModelFormat::updateParameters_(TransitionModel* model, std::map<std::string, std::string>& args)
+void BppOSubstitutionModelFormat::updateParameters_(BranchModel* model, std::map<std::string, std::string>& args)
 {
   // Update parameter args:
   vector<string> pnames = model->getParameters().getParameterNames();
@@ -1772,7 +1772,7 @@ void BppOSubstitutionModelFormat::writeMixed_(const MixedTransitionModel& model,
 }
 
 void BppOSubstitutionModelFormat::initialize_(
-  TransitionModel& model,
+  BranchModel& model,
   const AlignedValuesContainer* data)
 {
   string initFreqs = ApplicationTools::getStringParameter(model.getNamespace() + "initFreqs", unparsedArguments_, "", "", true, warningLevel_);
@@ -1781,28 +1781,33 @@ void BppOSubstitutionModelFormat::initialize_(
 
   if (initFreqs != "")
   {
-    if (initFreqs == "observed")
-    {
-      if (!data)
-        throw Exception("BppOSubstitutionModelFormat::initialize_(). Missing data for observed frequencies");
-      unsigned int psi = ApplicationTools::getParameter<unsigned int>(model.getNamespace() + "initFreqs.observedPseudoCount", unparsedArguments_, 0, "", true, warningLevel_);
-      model.setFreqFromData(*data, psi);
-    }
-    else if (initFreqs.substr(0, 6) == "values")
-    {
-      // Initialization using the "values" argument
-      map<int, double> frequencies;
-
-      string rf = initFreqs.substr(6);
-      StringTokenizer strtok(rf.substr(1, rf.length() - 2), ",");
-      int i = 0;
-      while (strtok.hasMoreToken())
-        frequencies[i++] = TextTools::toDouble(strtok.nextToken());
-      model.setFreq(frequencies);
-    }
+    auto tmodel=dynamic_cast<TransitionModel*>(&model);
+    if (!tmodel)
+      ApplicationTools::displayMessage("Frequencies initialization not possible for model " + model.getName());
     else
-      throw Exception("Unknown initFreqs argument");
-
+    {
+      if (initFreqs == "observed")
+      {
+        if (!data)
+          throw Exception("BppOSubstitutionModelFormat::initialize_(). Missing data for observed frequencies");
+        unsigned int psi = ApplicationTools::getParameter<unsigned int>(model.getNamespace() + "initFreqs.observedPseudoCount", unparsedArguments_, 0, "", true, warningLevel_);
+        tmodel->setFreqFromData(*data, psi);
+      }
+      else if (initFreqs.substr(0, 6) == "values")
+      {
+        // Initialization using the "values" argument
+        map<int, double> frequencies;
+        
+        string rf = initFreqs.substr(6);
+        StringTokenizer strtok(rf.substr(1, rf.length() - 2), ",");
+        int i = 0;
+        while (strtok.hasMoreToken())
+          frequencies[i++] = TextTools::toDouble(strtok.nextToken());
+        tmodel->setFreq(frequencies);
+      }
+      else
+        throw Exception("Unknown initFreqs argument");
+    }
     unparsedArguments_.erase(unparsedArguments_.find(model.getNamespace() + "initFreqs"));
   }
 

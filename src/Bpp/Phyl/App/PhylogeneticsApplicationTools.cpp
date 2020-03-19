@@ -64,8 +64,7 @@
 #include "../Io/BppOMultiTreeReaderFormat.h"
 #include "../Io/BppOTreeWriterFormat.h"
 #include "../Io/BppOMultiTreeWriterFormat.h"
-#include "../Io/BppOSubstitutionModelFormat.h"
-#include "../Io/BppOTransitionModelFormat.h"
+#include "../Io/BppOBranchModelFormat.h"
 #include "../Io/BppOFrequenciesSetFormat.h"
 #include "../Io/BppORateDistributionFormat.h"
 
@@ -794,7 +793,7 @@ SubstitutionModel* PhylogeneticsApplicationTools::getSubstitutionModel(
   return model;
 }
 
-TransitionModel* PhylogeneticsApplicationTools::getTransitionModel(
+BranchModel* PhylogeneticsApplicationTools::getBranchModel(
   const Alphabet* alphabet,
   const GeneticCode* gCode,
   const AlignedValuesContainer* data,
@@ -805,14 +804,14 @@ TransitionModel* PhylogeneticsApplicationTools::getTransitionModel(
   bool verbose,
   int warn)
 {
-  BppOTransitionModelFormat bIO(BppOSubstitutionModelFormat::ALL, true, true, true, verbose, warn + 1);
+  BppOBranchModelFormat bIO(BppOSubstitutionModelFormat::ALL, true, true, true, verbose, warn + 1);
   string modelDescription;
   const CodonAlphabet* ca = dynamic_cast<const CodonAlphabet*>(alphabet);
   if (ca)
   {
     modelDescription = ApplicationTools::getStringParameter("model", params, "CodonRate(model=JC69)", suffix, suffixIsOptional, warn);
     if (!gCode)
-      throw Exception("PhylogeneticsApplicationTools::getTransitionModel(): a GeneticCode instance is required for instanciating a codon model.");
+      throw Exception("PhylogeneticsApplicationTools::getBranchModel(): a GeneticCode instance is required for instanciating a codon model.");
     bIO.setGeneticCode(gCode);
   }
   else if (AlphabetTools::isWordAlphabet(alphabet))
@@ -820,7 +819,7 @@ TransitionModel* PhylogeneticsApplicationTools::getTransitionModel(
   else
     modelDescription = ApplicationTools::getStringParameter("model", params, "JC69", suffix, suffixIsOptional, warn);
 
-  TransitionModel* model = bIO.readTransitionModel(alphabet, modelDescription, data, true);
+  BranchModel* model = bIO.readBranchModel(alphabet, modelDescription, data, true);
   map<string, string> tmpUnparsedParameterValues(bIO.getUnparsedArguments());
 
   unparsedParams.insert(tmpUnparsedParameterValues.begin(), tmpUnparsedParameterValues.end());
@@ -893,7 +892,7 @@ map<size_t, std::shared_ptr<DiscreteDistribution>> PhylogeneticsApplicationTools
 /******* MODELS **********************************************/
 /*************************************************************/
 
-map<size_t, std::shared_ptr<TransitionModel>> PhylogeneticsApplicationTools::getTransitionModels(
+map<size_t, std::shared_ptr<BranchModel>> PhylogeneticsApplicationTools::getBranchModels(
   const Alphabet* alphabet,
   const GeneticCode* gCode,
   const map<size_t, AlignedValuesContainer*>& mData,
@@ -905,7 +904,7 @@ map<size_t, std::shared_ptr<TransitionModel>> PhylogeneticsApplicationTools::get
   int warn)
 {
   if (dynamic_cast<const CodonAlphabet*>(alphabet) && !gCode)
-    throw Exception("PhylogeneticsApplicationTools::getTransitionModels(): a GeneticCode instance is required for instanciating codon models.");
+    throw Exception("PhylogeneticsApplicationTools::getBranchModels(): a GeneticCode instance is required for instanciating codon models.");
 
   string ModelFilePath = ApplicationTools::getAFilePath("models.file", params, false, false, suffix, suffixIsOptional,  "none", 1);
 
@@ -926,9 +925,9 @@ map<size_t, std::shared_ptr<TransitionModel>> PhylogeneticsApplicationTools::get
       modelsNum.push_back((size_t) TextTools::toInt(name.substr(5, poseq - 5)));
   }
 
-  map<size_t, std::shared_ptr<TransitionModel>> mModel;
+  map<size_t, std::shared_ptr<BranchModel>> mModel;
 
-  BppOTransitionModelFormat bIO(BppOSubstitutionModelFormat::ALL, true, true, true, verbose, warn);
+  BppOBranchModelFormat bIO(BppOSubstitutionModelFormat::ALL, true, true, true, verbose, warn);
   bIO.setGeneticCode(gCode);
 
   for (size_t i = 0; i < modelsNum.size(); i++)
@@ -959,7 +958,7 @@ map<size_t, std::shared_ptr<TransitionModel>> PhylogeneticsApplicationTools::get
     if (args.find("data") != args.end())
       nData = (size_t) TextTools::toInt(args["data"]);
 
-    shared_ptr<TransitionModel> model(bIO.readTransitionModel(alphabet, modelDescription, (args.find("data") != args.end()) ? mData.find(nData)->second : 0, true));
+    shared_ptr<BranchModel> model(bIO.readBranchModel(alphabet, modelDescription, (args.find("data") != args.end()) ? mData.find(nData)->second : 0, true));
     
     map<string, string> tmpUnparsedParameterValues(bIO.getUnparsedArguments());
 
@@ -982,7 +981,7 @@ map<size_t, std::shared_ptr<TransitionModel>> PhylogeneticsApplicationTools::get
 /******************************************************************************/
 
 void PhylogeneticsApplicationTools::setSubstitutionModelParametersInitialValuesWithAliases(
-  TransitionModel& model,
+  BranchModel& model,
   map<string, string>& unparsedParameterValues,
   size_t modelNumber,
   const AlignedValuesContainer* data,
@@ -996,29 +995,34 @@ void PhylogeneticsApplicationTools::setSubstitutionModelParametersInitialValuesW
 
   if (initFreqs != "")
   {
-    if (initFreqs == "observed")
-    {
-      if (!data)
-        throw Exception("Missing data for observed frequencies");
-      unsigned int psi = ApplicationTools::getParameter<unsigned int>(model.getNamespace() + "initFreqs.observedPseudoCount", unparsedParameterValues, 0);
-      model.setFreqFromData(*data, psi);
-    }
-    else if (initFreqs.substr(0, 6) == "values")
-    {
-      // Initialization using the "values" argument
-      map<int, double> frequencies;
-
-      string rf = initFreqs.substr(6);
-      StringTokenizer strtok(rf.substr(1, rf.length() - 2), ",");
-      int i = 0;
-      while (strtok.hasMoreToken())
-        frequencies[i++] = TextTools::toDouble(strtok.nextToken());
-      model.setFreq(frequencies);
-    }
+    auto tmodel=dynamic_cast<TransitionModel*>(&model);
+    if (!tmodel)
+      ApplicationTools::displayMessage("Frequencies initialization not possible for model " + model.getName());
     else
-      throw Exception("Unknown initFreqs argument");
+    {
+      if (initFreqs == "observed")
+      {
+        if (!data)
+          throw Exception("Missing data for observed frequencies");
+        unsigned int psi = ApplicationTools::getParameter<unsigned int>(model.getNamespace() + "initFreqs.observedPseudoCount", unparsedParameterValues, 0);
+        tmodel->setFreqFromData(*data, psi);
+      }
+      else if (initFreqs.substr(0, 6) == "values")
+      {
+        // Initialization using the "values" argument
+        map<int, double> frequencies;
+        
+        string rf = initFreqs.substr(6);
+        StringTokenizer strtok(rf.substr(1, rf.length() - 2), ",");
+        int i = 0;
+        while (strtok.hasMoreToken())
+          frequencies[i++] = TextTools::toDouble(strtok.nextToken());
+        tmodel->setFreq(frequencies);
+      }
+      else
+        throw Exception("Unknown initFreqs argument");
+    }
   }
-
 
   ParameterList pl = model.getIndependentParameters();
   for (size_t i = 0; i < pl.size(); ++i)
@@ -1215,7 +1219,7 @@ map<size_t, std::shared_ptr<FrequenciesSet>> PhylogeneticsApplicationTools::getR
 
 map<size_t, std::shared_ptr<ModelPath>> PhylogeneticsApplicationTools::getModelPaths(
   const std::map<std::string, std::string>& params,
-  const map<size_t, std::shared_ptr<TransitionModel>>& mModel,
+  const map<size_t, std::shared_ptr<BranchModel>>& mModel,
   bool verbose)
 {
   string ModelPathsPath = ApplicationTools::getAFilePath("path.file", params, false, false, "", true,  "none", 1);
@@ -1449,7 +1453,7 @@ SubstitutionProcess* PhylogeneticsApplicationTools::getSubstitutionProcess(
 
   unique_ptr<DiscreteDistribution> rDist(getRateDistribution(params));
 
-  BppOTransitionModelFormat bIO(BppOSubstitutionModelFormat::ALL, true, true, true, false, warn);
+  BppOBranchModelFormat bIO(BppOSubstitutionModelFormat::ALL, true, true, true, false, warn);
   bIO.setGeneticCode(gCode);
 
 
@@ -1462,7 +1466,7 @@ SubstitutionProcess* PhylogeneticsApplicationTools::getSubstitutionProcess(
   {
     // Homogeneous & stationary models
 
-    shared_ptr<TransitionModel> tmp(getTransitionModel(alphabet, gCode, pData, params, unparsedParams));
+    shared_ptr<BranchModel> tmp(getBranchModel(alphabet, gCode, pData, params, unparsedParams));
 
     if (tmp->getNumberOfStates() >= 2 * tmp->getAlphabet()->getSize() || (rDist->getName() == "Constant")) // first test is for Markov-modulated Markov model!
       SP = new SimpleSubstitutionProcess(tmp, pTree.release());
@@ -1476,7 +1480,7 @@ SubstitutionProcess* PhylogeneticsApplicationTools::getSubstitutionProcess(
     string fName = (nhOpt == "one_per_branch" ? "model" : "model1");
 
     tmpDesc = ApplicationTools::getStringParameter(fName, params, "", suffix, suffixIsOptional, warn);
-    shared_ptr<TransitionModel> tmp(bIO.readTransitionModel(alphabet, tmpDesc, pData, true));
+    shared_ptr<BranchModel> tmp(bIO.readBranchModel(alphabet, tmpDesc, pData, true));
 
 
     // ////////////////////////////////////
@@ -1562,13 +1566,34 @@ SubstitutionProcess* PhylogeneticsApplicationTools::getSubstitutionProcess(
         string modelDesc;
         modelDesc = ApplicationTools::getStringParameter(prefix, params, "", suffix, suffixIsOptional, warn);
 
-        shared_ptr<TransitionModel> model(bIO.readTransitionModel(alphabet, modelDesc, pData, true));
+        shared_ptr<BranchModel> model(bIO.readBranchModel(alphabet, modelDesc, pData, true));
         map<string, string> tmpUnparsedParameterValues(bIO.getUnparsedArguments());
 
         for (auto& it : tmpUnparsedParameterValues)
           unparsedParams[it.first + "_" + TextTools::toString(i + 1)] = it.second;
 
-        vector<unsigned int> nodesId = ApplicationTools::getVectorParameter<unsigned int>(prefix + ".nodes_id", params, ',', ':', "", suffix, suffixIsOptional, warn);
+        vector<unsigned int> nodesId;
+
+        auto snodesid = prefix + ".nodes_id";
+        auto descnodes = ApplicationTools::getStringParameter(snodesid, params, "", suffix, suffixIsOptional, warn);
+
+        const auto& tree= SP->getParametrizablePhyloTree();
+        if (descnodes == "All")
+        {
+          nodesId = pTree->getEdgeIndexes(pTree->getSubtreeEdges(tree.getRoot()));
+        }
+        else if (descnodes == "Leaves")
+        {
+          nodesId = pTree->getNodeIndexes(pTree->getLeavesUnderNode(tree.getRoot()));
+        }
+        else if (descnodes == "NoLeaves")
+        {
+          auto allIds= pTree->getEdgeIndexes(pTree->getSubtreeEdges(tree.getRoot()));
+          auto leavesId = pTree->getNodeIndexes(pTree->getLeavesUnderNode(tree.getRoot()));
+          VectorTools::diff(allIds, leavesId, nodesId);
+        }
+        else
+          nodesId = ApplicationTools::getVectorParameter<unsigned int>(snodesid, params, ',', ':', "", suffix, suffixIsOptional, warn);
 
         if (verbose)
           ApplicationTools::displayResult("Model" + TextTools::toString(i + 1) + " is associated to", TextTools::toString(nodesId.size()) + " node(s).");
@@ -1749,10 +1774,30 @@ bool PhylogeneticsApplicationTools::addSubstitutionProcessCollectionMember(
       if (mModBr.find(numModel) != mModBr.end())
         throw BadIntegerException("PhylogeneticsApplicationTools::addSubstitutionProcessCollectionMember : model number seen twice.", (int)numModel);
 
-      vector<unsigned int> nodesId = ApplicationTools::getVectorParameter<unsigned int>("model" + TextTools::toString(indModel)  + ".nodes_id", args, ',', ':', "", "", true, warn);
+      vector<unsigned int> nodesId;
+
+      auto snodesid = "model" + TextTools::toString(indModel)  + ".nodes_id";
+      auto descnodes = ApplicationTools::getStringParameter(snodesid, args, "", "", true, warn);
+
+      auto& tree= SubProColl->getTree(numTree);
+      if (descnodes == "All")
+      {
+        nodesId = tree.getEdgeIndexes(tree.getSubtreeEdges(tree.getRoot()));
+      }
+      else if (descnodes == "Leaves")
+      {
+        nodesId = tree.getNodeIndexes(tree.getLeavesUnderNode(tree.getRoot()));
+      }
+      else if (descnodes == "NoLeaves")
+      {
+        auto allIds= tree.getEdgeIndexes(tree.getSubtreeEdges(tree.getRoot()));
+        auto leavesId = tree.getNodeIndexes(tree.getLeavesUnderNode(tree.getRoot()));
+        VectorTools::diff(allIds, leavesId, nodesId);
+      }
+      else
+        nodesId = ApplicationTools::getVectorParameter<unsigned int>(snodesid, args, ',', ':', "", "", true, warn);
 
       mModBr[numModel] = nodesId;
-
       indModel++;
     }
 
@@ -1820,7 +1865,7 @@ SubstitutionProcessCollection* PhylogeneticsApplicationTools::getSubstitutionPro
   const Alphabet* alphabet,
   const GeneticCode* gCode,
   const map<size_t, std::shared_ptr<PhyloTree>>& mTree,
-  const map<size_t, std::shared_ptr<TransitionModel>>& mMod,
+  const map<size_t, std::shared_ptr<BranchModel>>& mMod,
   const map<size_t, std::shared_ptr<FrequenciesSet>>& mRootFreq,
   const map<size_t, std::shared_ptr<DiscreteDistribution>>& mDist,
   const map<size_t, std::shared_ptr<ModelScenario>>& mScen,
@@ -4187,12 +4232,12 @@ void PhylogeneticsApplicationTools::writeTrees(
   delete treeWriter;
 }
 
-void PhylogeneticsApplicationTools::printParameters(const TransitionModel* model, OutputStream& out, int warn)
+void PhylogeneticsApplicationTools::printParameters(const BranchModel* model, OutputStream& out, int warn)
 {
   out << "model=";
   map<string, string> globalAliases;
   vector<string> writtenNames;
-  BppOTransitionModelFormat bIO(BppOSubstitutionModelFormat::ALL, true, true, true, false, warn);
+  BppOBranchModelFormat bIO(BppOSubstitutionModelFormat::ALL, true, true, true, false, warn);
   bIO.write(*model, out, globalAliases, writtenNames);
   out.endLine();
 }
@@ -4206,7 +4251,7 @@ void PhylogeneticsApplicationTools::printParameters(const SubstitutionProcess* p
     out << "model=";
     map<string, string> globalAliases;
     vector<string> writtenNames;
-    BppOTransitionModelFormat bIO(BppOSubstitutionModelFormat::ALL, true, true, true, false, warn);
+    BppOBranchModelFormat bIO(BppOSubstitutionModelFormat::ALL, true, true, true, false, warn);
     bIO.write(*process->getModel(0, 0), out, globalAliases, writtenNames);
     out.endLine();
   }
@@ -4220,7 +4265,7 @@ void PhylogeneticsApplicationTools::printParameters(const SubstitutionProcess* p
     out << "model=";
     map<string, string> globalAliases;
     vector<string> writtenNames;
-    BppOTransitionModelFormat bIO(BppOSubstitutionModelFormat::ALL, true, true, true, false, warn);
+    BppOBranchModelFormat bIO(BppOSubstitutionModelFormat::ALL, true, true, true, false, warn);
     bIO.write(*process->getModel(0, 0), out, globalAliases, writtenNames);
     out.endLine();
     out.endLine();
@@ -4263,7 +4308,7 @@ void PhylogeneticsApplicationTools::printParameters(const SubstitutionProcess* p
       // Now print it:
       writtenNames.clear();
       out.endLine() << "model" << (i + 1) << "=";
-      BppOTransitionModelFormat bIOsm(BppOSubstitutionModelFormat::ALL, true, true, true, false, warn);
+      BppOBranchModelFormat bIOsm(BppOSubstitutionModelFormat::ALL, true, true, true, false, warn);
       bIOsm.write(*model, out, aliases, writtenNames);
       out.endLine();
       vector<unsigned int> ids = pNH->getNodesWithModel(i);
@@ -4349,7 +4394,7 @@ void PhylogeneticsApplicationTools::printParameters(const SubstitutionProcessCol
     // Now print it:
     writtenNames.clear();
     out << "model" << modn << "=";
-    BppOTransitionModelFormat bIOsm(BppOSubstitutionModelFormat::ALL, true, true, true, false, warn);
+    BppOBranchModelFormat bIOsm(BppOSubstitutionModelFormat::ALL, true, true, true, false, warn);
     bIOsm.write(model, out, aliases, writtenNames);
     out.endLine();
   }
@@ -5216,7 +5261,7 @@ void PhylogeneticsApplicationTools::printParameters(const SubstitutionModelSet* 
   // Loop over all models:
   for (size_t i = 0; i < modelSet->getNumberOfModels(); i++)
   {
-    const TransitionModel* model = modelSet->getModel(i);
+    const BranchModel* model = modelSet->getModel(i);
 
     // First get the aliases for this model:
 
@@ -5236,7 +5281,7 @@ void PhylogeneticsApplicationTools::printParameters(const SubstitutionModelSet* 
     // Now print it:
     writtenNames.clear();
     out.endLine() << "model" << (i + 1) << "=";
-    BppOTransitionModelFormat bIOsm(BppOSubstitutionModelFormat::ALL, true, true, true, false, warn);
+    BppOBranchModelFormat bIOsm(BppOSubstitutionModelFormat::ALL, true, true, true, false, warn);
     bIOsm.write(*model, out, aliases, writtenNames);
 
     out.endLine();

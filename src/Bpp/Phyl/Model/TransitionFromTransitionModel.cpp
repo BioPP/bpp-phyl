@@ -1,5 +1,5 @@
 //
-// File: MultinomialFromTransitionModel.cpp
+// File: TransitionFromTransitionModel.cpp
 // Created by: Laurent Gueguen
 // Created on: dimanche 26 janvier 2020, à 07h 55
 //
@@ -37,7 +37,7 @@
   knowledge of the CeCILL license and that you accept its terms.
 */
 
-#include "MultinomialFromTransitionModel.h"
+#include "TransitionFromTransitionModel.h"
 #include <Bpp/Numeric/Matrix/MatrixTools.h>
 
 using namespace bpp;
@@ -45,112 +45,64 @@ using namespace std;
 
 /******************************************************************************/
 
-void MultinomialFromTransitionModel::compute_Multinomial_(const Eigen::VectorXd& counts) const
-{
-  Pi_.array()=0;
-  
-  for (size_t i=0; i< size_; i++)
-  {
-    double* Pi_i = &Pi_(i);
-    for (size_t j=0;j<size_;j++)
-    {
-      if (counts(j)!=0)
-      {
-        *Pi_i += counts(j)*std::log((*Pij_t)(i,j));
-      }
-    }
-  }
-  
-  Pi_.array() = Pi_.array().exp() * getFact_(counts);
-}
-
-void MultinomialFromTransitionModel::compute_dMultinomial_dt_(const Eigen::VectorXd& counts) const
-{
-  Pi_.array()=0; dPi_.array()=0;
-  
-  for (size_t i=0; i< size_; i++)
-  {
-    double *Pi_i(&Pi_(i)), *dPi_i(&dPi_(i));
-    
-    for (size_t j=0;j<size_;j++)
-    {
-      if (counts(j)!=0)
-      {
-        *Pi_i += counts(j)*std::log((*Pij_t)(i,j));
-        *dPi_i += counts(j)*(*dPij_dt)(i,j)/(*Pij_t)(i,j);
-      }
-    }
-  }
-  
-  dPi_.array() *= Pi_.array().exp()  * getFact_(counts);
-}
-
-void MultinomialFromTransitionModel::compute_d2Multinomial_dt2_(const Eigen::VectorXd& counts) const
-{
-  Pi_.array()=0; d2Pi_.array()=0;
-  
-  for (size_t i=0; i< size_; i++)
-  {
-    double *Pi_i(&Pi_(i)), *d2Pi_i(&d2Pi_(i));
-    
-    for (size_t j=0;j<size_;j++)
-    {
-      if (counts(j)!=0)
-      {
-        *Pi_i += counts(j)*std::log((*Pij_t)(i,j));
-        *d2Pi_i += counts(j)*(*d2Pij_dt2)(i,j)/(*Pij_t)(i,j);
-      }
-    }
-  }
-  
-  d2Pi_.array() *= Pi_.array().exp() * getFact_(counts);
-}
-
-
-const Eigen::VectorXd& MultinomialFromTransitionModel::Lik_t(const Eigen::VectorXd& to, double t) const
+const Eigen::VectorXd& TransitionFromTransitionModel::Lik_t(const Eigen::VectorXd& to, double t) const
 {
   if (t!=tref_)
   {
     tref_=t;
-    Pij_t=&getTransitionModel().getPij_t(t);
     dPij_dt=0; d2Pij_dt2=0;
+    Pij_t=&getTransitionModel().getPij_t(t);
   }
-
-  compute_Multinomial_(to);
+  else if (Pij_t==0)
+    Pij_t=&getTransitionModel().getPij_t(t);
+    
+  for (size_t i=0; i< size_; i++)
+  {
+    Pi_(i)=0;
+    for (size_t j=0;j<size_;j++)
+      Pi_(i)+=(*Pij_t)(i,j)*to[j];
+  }
+  
   return Pi_;
 }
 
-const Eigen::VectorXd& MultinomialFromTransitionModel::dLik_dt(const Eigen::VectorXd& to, double t) const
+const Eigen::VectorXd& TransitionFromTransitionModel::dLik_dt(const Eigen::VectorXd& to, double t) const
 {
   if (t!=tref_)
   {
     tref_=t;
-    Pij_t=&getTransitionModel().getPij_t(t);
+    Pij_t=0; d2Pij_dt2=0;
     dPij_dt=&getTransitionModel().getdPij_dt(t);
-    d2Pij_dt2=0;
   }
   else if (dPij_dt==0)
     dPij_dt=&getTransitionModel().getdPij_dt(t);
 
-  compute_dMultinomial_dt_(to);
-
+  for (size_t i=0; i< size_; i++)
+  {
+    dPi_(i)=0;
+    for (size_t j=0;j<size_;j++)
+      dPi_(i)+=(*dPij_dt)(i,j)*to[j];
+  }
   return dPi_;
 }
 
-const Eigen::VectorXd& MultinomialFromTransitionModel::d2Lik_dt2(const Eigen::VectorXd& to, double t) const
+const Eigen::VectorXd& TransitionFromTransitionModel::d2Lik_dt2(const Eigen::VectorXd& to, double t) const
 {
   if (t!=tref_)
   {
     tref_=t;
-    Pij_t=&getTransitionModel().getPij_t(t);
-    dPij_dt=0;
+    Pij_t=0; dPij_dt=0;
     d2Pij_dt2=&getTransitionModel().getd2Pij_dt2(t);
   }
   else if (d2Pij_dt2==0)
     d2Pij_dt2=&getTransitionModel().getd2Pij_dt2(t);
 
-  compute_d2Multinomial_dt2_(to);
-
+  for (size_t i=0; i< size_; i++)
+  {
+    d2Pi_(i)=0;
+    for (size_t j=0;j<size_;j++)
+      d2Pi_(i)+=(*d2Pij_dt2)(i,j)*to[j];
+  }
   return d2Pi_;
 }
 

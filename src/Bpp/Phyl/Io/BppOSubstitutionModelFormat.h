@@ -179,7 +179,7 @@ namespace bpp
      *
      */
   
-    void updateParameters_(TransitionModel* model, 
+    void updateParameters_(BranchModel* model, 
                            std::map<std::string, std::string>& args);
   
     /**
@@ -196,7 +196,7 @@ namespace bpp
      *               May be equal to NULL, but in this case use_observed_freq option will be unavailable.
      * @throw Exception if an error occured.
      */
-    void initialize_(TransitionModel& model, const AlignedValuesContainer* data);
+    void initialize_(BranchModel& model, const AlignedValuesContainer* data);
 
   };
 
