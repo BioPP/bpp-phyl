@@ -4,9 +4,9 @@
 // Created: jeudi 28 février 2019, à 07h 22
 //
 
-#include "Bpp/NewPhyl/LikelihoodCalculationSingleProcess.h"
-#include "Bpp/NewPhyl/ForwardLikelihoodTree.h"
-#include "Bpp/NewPhyl/BackwardLikelihoodTree.h"
+#include "Bpp/Phyl/NewLikelihood/DataFlow/LikelihoodCalculationSingleProcess.h"
+#include "Bpp/Phyl/NewLikelihood/DataFlow/ForwardLikelihoodTree.h"
+#include "Bpp/Phyl/NewLikelihood/DataFlow/BackwardLikelihoodTree.h"
 
 #include <Bpp/Phyl/Model/RateDistribution/ConstantRateDistribution.h>
 #include <Bpp/Phyl/Model/MixedTransitionModel.h>

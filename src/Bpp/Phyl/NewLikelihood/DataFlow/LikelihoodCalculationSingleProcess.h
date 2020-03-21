@@ -40,11 +40,11 @@
 #ifndef LIKELIHOOD_CALCULATION_SINGLE_PROCESS_H
 #define LIKELIHOOD_CALCULATION_SINGLE_PROCESS_H
 
-#include "Bpp/NewPhyl/Model.h"
-#include "Bpp/NewPhyl/DiscreteDistribution.h"
-#include "Bpp/NewPhyl/FrequenciesSet.h"
-#include <Bpp/NewPhyl/DataFlow.h>
-#include <Bpp/NewPhyl/DataFlowCWise.h>
+#include "Bpp/Phyl/NewLikelihood/DataFlow/Model.h"
+#include "Bpp/Phyl/NewLikelihood/DataFlow/DiscreteDistribution.h"
+#include "Bpp/Phyl/NewLikelihood/DataFlow/FrequenciesSet.h"
+#include <Bpp/Phyl/NewLikelihood/DataFlow/DataFlow.h>
+#include <Bpp/Phyl/NewLikelihood/DataFlow/DataFlowCWise.h>
 
 #include <Bpp/Seq/Container/AlignedValuesContainer.h>
 #include <Bpp/Phyl/SitePatterns.h>

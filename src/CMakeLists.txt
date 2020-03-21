@@ -7,19 +7,6 @@
 
 # File list
 set (CPP_FILES
-  Bpp/NewPhyl/BackwardLikelihoodTree.cpp
-  Bpp/NewPhyl/DataFlow.cpp
-  Bpp/NewPhyl/DataFlowNumeric.cpp
-  Bpp/NewPhyl/DataFlowCWise.cpp
-  Bpp/NewPhyl/DiscreteDistribution.cpp
-  Bpp/NewPhyl/ForwardLikelihoodTree.cpp
-  Bpp/NewPhyl/FrequenciesSet.cpp
-  Bpp/NewPhyl/LikelihoodCalculationSingleProcess.cpp
-  Bpp/NewPhyl/Model.cpp
-  Bpp/NewPhyl/Parameter.cpp
-  Bpp/NewPhyl/Parametrizable.cpp
-  Bpp/NewPhyl/ProcessTree.cpp
-  Bpp/NewPhyl/SingleProcessPhyloLikelihood_DF.cpp
   Bpp/Phyl/App/PhylogeneticsApplicationTools.cpp
   Bpp/Phyl/Distance/AbstractAgglomerativeDistanceMethod.cpp
   Bpp/Phyl/Distance/BioNJ.cpp
@@ -73,6 +60,19 @@ set (CPP_FILES
   Bpp/Phyl/Likelihood/RNonHomogeneousMixedTreeLikelihood.cpp
   Bpp/Phyl/Likelihood/RNonHomogeneousTreeLikelihood.cpp
   Bpp/Phyl/Likelihood/TreeLikelihoodTools.cpp
+  Bpp/Phyl/NewLikelihood/DataFlow/BackwardLikelihoodTree.cpp
+  Bpp/Phyl/NewLikelihood/DataFlow/DataFlow.cpp
+  Bpp/Phyl/NewLikelihood/DataFlow/DataFlowNumeric.cpp
+  Bpp/Phyl/NewLikelihood/DataFlow/DataFlowCWise.cpp
+  Bpp/Phyl/NewLikelihood/DataFlow/DiscreteDistribution.cpp
+  Bpp/Phyl/NewLikelihood/DataFlow/ForwardLikelihoodTree.cpp
+  Bpp/Phyl/NewLikelihood/DataFlow/FrequenciesSet.cpp
+  Bpp/Phyl/NewLikelihood/DataFlow/LikelihoodCalculationSingleProcess.cpp
+  Bpp/Phyl/NewLikelihood/DataFlow/Model.cpp
+  Bpp/Phyl/NewLikelihood/DataFlow/Parameter.cpp
+  Bpp/Phyl/NewLikelihood/DataFlow/Parametrizable.cpp
+  Bpp/Phyl/NewLikelihood/DataFlow/ProcessTree.cpp
+  Bpp/Phyl/NewLikelihood/DataFlow/SingleProcessPhyloLikelihood_DF.cpp
   Bpp/Phyl/NewLikelihood/ModelPath.cpp
   Bpp/Phyl/NewLikelihood/ModelScenario.cpp
   Bpp/Phyl/NewLikelihood/ProcessComputationTree.cpp

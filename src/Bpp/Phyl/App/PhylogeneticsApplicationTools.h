@@ -65,7 +65,7 @@
 #include "../NewLikelihood/SequenceEvolution.h"
 #include "../NewLikelihood/ModelScenario.h"
 
-#include <Bpp/NewPhyl/DataFlow.h>
+#include <Bpp/Phyl/NewLikelihood/DataFlow/DataFlow.h>
 
 // From SeqLib:
 #include <Bpp/Seq/Container/SiteContainer.h>

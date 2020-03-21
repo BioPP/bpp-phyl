@@ -93,7 +93,7 @@
 
 #include "../NewLikelihood/ParametrizablePhyloTree.h"
 
-#include <Bpp/NewPhyl/SingleProcessPhyloLikelihood_DF.h>
+#include <Bpp/Phyl/NewLikelihood/DataFlow/SingleProcessPhyloLikelihood_DF.h>
 
 // From bpp-core
 #include <Bpp/Io/BppODiscreteDistributionFormat.h>

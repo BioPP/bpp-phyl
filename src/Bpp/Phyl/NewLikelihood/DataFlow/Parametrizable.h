@@ -43,8 +43,8 @@
 #ifndef BPP_NEWPHYL_PARAMETRIZABLE_H
 #define BPP_NEWPHYL_PARAMETRIZABLE_H
 
-#include <Bpp/NewPhyl/DataFlowCWise.h>
-#include <Bpp/NewPhyl/Parameter.h>
+#include <Bpp/Phyl/NewLikelihood/DataFlow/DataFlowCWise.h>
+#include <Bpp/Phyl/NewLikelihood/DataFlow/Parameter.h>
 #include <Bpp/Exceptions.h>
 #include <functional>
 #include <unordered_map>

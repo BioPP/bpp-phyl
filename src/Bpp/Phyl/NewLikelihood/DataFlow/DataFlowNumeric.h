@@ -42,7 +42,7 @@
 #ifndef BPP_NEWPHYL_DATAFLOWNUMERIC_H
 #define BPP_NEWPHYL_DATAFLOWNUMERIC_H
 
-#include <Bpp/NewPhyl/ExtendedFloat.h>
+#include <Bpp/Phyl/NewLikelihood/DataFlow/ExtendedFloat.h>
 #include <Bpp/Numeric/Parameter.h>
   
 #include <Eigen/Core>

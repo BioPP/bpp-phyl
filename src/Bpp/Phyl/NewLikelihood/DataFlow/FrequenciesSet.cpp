@@ -38,8 +38,8 @@
 */
 
 #include <Bpp/Exceptions.h>
-#include <Bpp/NewPhyl/FrequenciesSet.h>
-#include <Bpp/NewPhyl/Parametrizable.h>
+#include <Bpp/Phyl/NewLikelihood/DataFlow/FrequenciesSet.h>
+#include <Bpp/Phyl/NewLikelihood/DataFlow/Parametrizable.h>
 
 using namespace std;
 

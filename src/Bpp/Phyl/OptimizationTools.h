@@ -50,7 +50,7 @@
 #include "Distance/DistanceMethod.h"
 
 #include "NewLikelihood/PhyloLikelihoods/PhyloLikelihood.h"
-#include <Bpp/NewPhyl/SingleProcessPhyloLikelihood_DF.h>
+#include <Bpp/Phyl/NewLikelihood/DataFlow/SingleProcessPhyloLikelihood_DF.h>
 
 #include <Bpp/Io/OutputStream.h>
 #include <Bpp/App/ApplicationTools.h>

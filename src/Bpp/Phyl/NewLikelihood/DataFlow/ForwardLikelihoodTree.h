@@ -40,7 +40,7 @@
 #ifndef _FORWARD_LIKELIHOOD_TREE_H_
 #define _FORWARD_LIKELIHOOD_TREE_H_
 
-#include "Bpp/NewPhyl/ProcessTree.h"
+#include "Bpp/Phyl/NewLikelihood/DataFlow/ProcessTree.h"
 #include <Bpp/Seq/Container/AlignedValuesContainer.h>
 #include <Bpp/Graph/AssociationDAGraphImplObserver.h>
 

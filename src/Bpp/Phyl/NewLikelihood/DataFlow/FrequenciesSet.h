@@ -45,8 +45,8 @@
 #include <Bpp/Numeric/AbstractParametrizable.h>
 #include <Bpp/Phyl/Model/FrequenciesSet/FrequenciesSet.h>
 
-#include <Bpp/NewPhyl/DataFlow.h>
-#include <Bpp/NewPhyl/DataFlowCWise.h>
+#include <Bpp/Phyl/NewLikelihood/DataFlow/DataFlow.h>
+#include <Bpp/Phyl/NewLikelihood/DataFlow/DataFlowCWise.h>
 #include <Bpp/Exceptions.h>
 #include <functional>
 #include <unordered_map>

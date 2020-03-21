@@ -40,10 +40,9 @@ knowledge of the CeCILL license and that you accept its terms.
 #ifndef _BACKWARD_LIKELIHOOD_TREE_H_
 #define _BACKWARD_LIKELIHOOD_TREE_H_
 
-#include "Bpp/NewPhyl/ProcessTree.h"
-#include "Bpp/NewPhyl/Model.h"
-
-#include "Bpp/NewPhyl/ForwardLikelihoodTree.h"
+#include "Bpp/Phyl/NewLikelihood/DataFlow/ProcessTree.h"
+#include "Bpp/Phyl/NewLikelihood/DataFlow/Model.h"
+#include "Bpp/Phyl/NewLikelihood/DataFlow/ForwardLikelihoodTree.h"
 
 namespace bpp
 {

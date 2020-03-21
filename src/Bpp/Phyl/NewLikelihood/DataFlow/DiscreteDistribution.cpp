@@ -38,7 +38,7 @@
 */
 
 #include <Bpp/Exceptions.h>
-#include <Bpp/NewPhyl/DiscreteDistribution.h>
+#include <Bpp/Phyl/NewLikelihood/DataFlow/DiscreteDistribution.h>
 
 using namespace std;
 

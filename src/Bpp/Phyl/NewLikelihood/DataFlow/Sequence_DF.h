@@ -43,7 +43,7 @@
 #define BPP_SEQUENCE_DF_H
 
 
-#include <Bpp/NewPhyl/DataFlowNumeric.h>
+#include <Bpp/Phyl/NewLikelihood/DataFlow/DataFlowNumeric.h>
 #include <Bpp/Exceptions.h>
 #include <functional>
 #include <unordered_map>

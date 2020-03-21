@@ -41,8 +41,8 @@
 #ifndef CONFIGURED_PARAMETER_H
 #define CONFIGURED_PARAMETER_H
 
-#include <Bpp/NewPhyl/DataFlow.h>
-#include <Bpp/NewPhyl/DataFlowNumeric.h>
+#include <Bpp/Phyl/NewLikelihood/DataFlow/DataFlow.h>
+#include <Bpp/Phyl/NewLikelihood/DataFlow/DataFlowNumeric.h>
 #include <Bpp/Numeric/Parameter.h>
 #include <Bpp/Exceptions.h>
 #include <functional>

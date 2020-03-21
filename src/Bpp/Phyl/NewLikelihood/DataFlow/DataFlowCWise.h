@@ -41,7 +41,7 @@
 #ifndef DATAFLOW_CWISE_H
 #define DATAFLOW_CWISE_H
 
-#include <Bpp/NewPhyl/ExtendedFloat.h>
+#include <Bpp/Phyl/NewLikelihood/DataFlow/ExtendedFloat.h>
 #include <Eigen/Core>
 #include <algorithm>
 #include <cassert>
@@ -53,7 +53,7 @@
 
 #include "DataFlowNumeric.h"
 #include <Bpp/Numeric/Parameter.h>
-#include <Bpp/NewPhyl/Parameter.h>
+#include <Bpp/Phyl/NewLikelihood/DataFlow/Parameter.h>
 
 namespace bpp {
 
