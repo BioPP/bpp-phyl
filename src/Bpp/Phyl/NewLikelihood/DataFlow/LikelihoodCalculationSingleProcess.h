@@ -73,8 +73,6 @@ namespace bpp {
    */
 
 
-  namespace dataflow {
-
     class ProcessTree;
     class ForwardLikelihoodTree;
     class BackwardLikelihoodTree;
@@ -465,8 +463,6 @@ namespace bpp {
 
     };
 
-  }
-  
 } // namespace bpp
 
 #endif // LIKELIHOOD_CALCULATION_SINGLE_PROCESS_H

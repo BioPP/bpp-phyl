@@ -67,7 +67,6 @@ namespace bpp {
     }
   } // namespace numeric
 
-  namespace dataflow {
     void checkRecreateWithoutDependencies (const std::type_info & contextNodeType, const NodeRefVec & deps) {
       if (!deps.empty ()) {
         throw Exception (prettyTypeName (contextNodeType) +
@@ -121,5 +120,4 @@ namespace bpp {
 
     NumericConstant<char> NodeX('X');
 
-  } // namespace dataflow
 } // namespace bpp

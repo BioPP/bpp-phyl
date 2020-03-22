@@ -450,7 +450,6 @@ namespace bpp {
    * all deps constant => return constant ?
    */
 
-  namespace dataflow {
     // Error utils
     [[noreturn]] void failureDeltaNotDerivable (const std::type_info & contextNodeType);
     [[noreturn]] void failureNumericalDerivationNotConfigured ();
@@ -553,13 +552,13 @@ namespace bpp {
       }
 
       // ConstantZero<T> additional arguments = (targetDimension_).
-      bool compareAdditionalArguments (const Node & other) const final {
+      bool compareAdditionalArguments (const Node_DF & other) const final {
         const auto * derived = dynamic_cast<const Self *> (&other);
         return derived != nullptr && targetDimension_ == derived->targetDimension_;
       }
       std::size_t hashAdditionalArguments () const final { return hash (targetDimension_); }
 
-      NodeRef derive (Context & c, const Node & node) final {
+      NodeRef derive (Context & c, const Node_DF & node) final {
         if (&node == this) {
           return ConstantOne<T>::create (c, targetDimension_);
         }
@@ -611,13 +610,13 @@ namespace bpp {
       }
 
       // ConstantOne<T> additional arguments = (targetDimension_).
-      bool compareAdditionalArguments (const Node & other) const final {
+      bool compareAdditionalArguments (const Node_DF & other) const final {
         const auto * derived = dynamic_cast<const Self *> (&other);
         return derived != nullptr && targetDimension_ == derived->targetDimension_;
       }
       std::size_t hashAdditionalArguments () const final { return hash (targetDimension_); }
 
-      NodeRef derive (Context & c, const Node & node) final {
+      NodeRef derive (Context & c, const Node_DF & node) final {
         if (&node == this) {
           return ConstantOne<T>::create (c, targetDimension_);
         }
@@ -667,7 +666,7 @@ namespace bpp {
       std::string description() const override
       {
         using namespace numeric;
-        return Node::description() + "\n"+ debug (this->accessValueConst ());
+        return Node_DF::description() + "\n"+ debug (this->accessValueConst ());
       }
 
       std::string color () const override {
@@ -692,7 +691,7 @@ namespace bpp {
       }
 
       // NumericConstant<T> additional arguments = (value).
-      bool compareAdditionalArguments (const Node & other) const {
+      bool compareAdditionalArguments (const Node_DF & other) const {
         const auto * derived = dynamic_cast<const Self *> (&other);
         return derived != nullptr && this->accessValueConst () == derived->accessValueConst ();
       }
@@ -702,7 +701,7 @@ namespace bpp {
         return hash (this->accessValueConst ());
       }
 
-      NodeRef derive (Context & c, const Node & node) final {
+      NodeRef derive (Context & c, const Node_DF & node) final {
         const auto dim = Dimension<T> (this->accessValueConst ());
         if (&node == this) {
           return ConstantOne<T>::create (c, dim);
@@ -775,10 +774,10 @@ namespace bpp {
       std::string description() const override
       {
         using namespace numeric;
-        return Node::description() + "\n"+ debug (this->accessValueConst ());
+        return Node_DF::description() + "\n"+ debug (this->accessValueConst ());
       }
 
-      NodeRef derive (Context & c, const Node & node) final {
+      NodeRef derive (Context & c, const Node_DF & node) final {
         const auto dim = Dimension<T> (this->accessValueConst ());
         if (&node == this) {
           return ConstantOne<T>::create (c, dim);
@@ -837,11 +836,11 @@ namespace bpp {
       }
 
       // Convert<T> additional arguments = ().
-      bool compareAdditionalArguments (const Node & other) const final {
+      bool compareAdditionalArguments (const Node_DF & other) const final {
         return dynamic_cast<const Self *> (&other) != nullptr;
       }
 
-      NodeRef derive (Context & c, const Node & node) final {
+      NodeRef derive (Context & c, const Node_DF & node) final {
         if (&node == this) {
           return ConstantOne<R>::create (c, targetDimension_);
         }
@@ -906,7 +905,6 @@ namespace bpp {
     extern NumericConstant<char> NodeX;
     
     
-  } // namespace dataflow
 } // namespace bpp
 
 #endif // BPP_NEWPHYL_DATAFLOWNUMERIC_H

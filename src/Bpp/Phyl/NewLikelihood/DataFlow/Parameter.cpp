@@ -46,7 +46,6 @@
 using namespace std;
 
 namespace bpp {
-  namespace dataflow {
     // Parameter node
     
     ConfiguredParameter::ConfiguredParameter (const Context& context, NodeRefVec&& deps, const Parameter& parameter)
@@ -81,7 +80,7 @@ namespace bpp {
     // Parameter node additional arguments = (type of bpp::Parameter).
     // Everything else is determined by the node dependencies.
 
-    bool ConfiguredParameter::compareAdditionalArguments (const Node & other) const {
+    bool ConfiguredParameter::compareAdditionalArguments (const Node_DF & other) const {
       const auto * derived = dynamic_cast<const Self *> (&other);
       if (derived == nullptr) {
         return false;
@@ -95,7 +94,7 @@ namespace bpp {
       return typeid (bppFS).hash_code ();
     }
 
-    NodeRef ConfiguredParameter::derive (Context & c, const Node & node) {
+    NodeRef ConfiguredParameter::derive (Context & c, const Node_DF & node) {
       if (&node == this) {
         return ConstantOne<double>::create (c, Dimension<double>());
       }
@@ -131,7 +130,7 @@ namespace bpp {
     }
 
     // ValueFromConfiguredParameter additional arguments = ().
-    bool ValueFromConfiguredParameter::compareAdditionalArguments (const Node & other) const {
+    bool ValueFromConfiguredParameter::compareAdditionalArguments (const Node_DF & other) const {
       const auto * derived = dynamic_cast<const Self *> (&other);
       return derived != nullptr;
     }
@@ -143,7 +142,7 @@ namespace bpp {
       return cachedAs<ValueFromConfiguredParameter> (c, std::make_shared<ValueFromConfiguredParameter> (std::move (deps)));
     }
 
-    NodeRef ValueFromConfiguredParameter::derive (Context & c, const Node & node) {
+    NodeRef ValueFromConfiguredParameter::derive (Context & c, const Node_DF & node) {
       if (&node == this) {
         return ConstantOne<double>::create (c, Dimension<double>());
       }
@@ -169,6 +168,4 @@ namespace bpp {
       const auto * param = accessValueConstCast<const ConfiguredParameter *> (*this->dependency (0));
       this->accessValueMutable () = param->getValue();
     }
-
-  } // namespace dataflow
 } // namespace bpp

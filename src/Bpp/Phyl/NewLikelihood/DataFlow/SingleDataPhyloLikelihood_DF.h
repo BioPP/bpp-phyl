@@ -45,9 +45,6 @@
 
 namespace bpp {
 
-  namespace dataflow
-  {
-    
     /* Wraps a dataflow graph as a function: resultNode = f(variableNodes).
      *
      */
@@ -115,7 +112,6 @@ namespace bpp {
       size_t getNumberOfStates() const { return nbStates_; }
     
     };
-  }  
 } // namespace bpp
 
 #endif // SINGLE_DATA_PHYLOLIKELIHOOD_DF_H

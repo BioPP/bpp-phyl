@@ -47,8 +47,6 @@
 using namespace std;
 
 namespace bpp {
-  namespace dataflow {
-
     std::unordered_map<std::string, std::shared_ptr<ConfiguredParameter>>
       createParameterMap (Context & c, const ParameterAliasable& parametrizable) {
       const auto & parameters = parametrizable.getIndependentParameters ();
@@ -106,6 +104,4 @@ namespace bpp {
       }
       return deps;
     }
-
-  } // namespace dataflow
 } // namespace bpp

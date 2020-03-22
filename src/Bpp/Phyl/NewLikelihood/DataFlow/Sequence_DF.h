@@ -50,8 +50,6 @@
 
 namespace bpp {
 
-  namespace dataflow {
-
     /** @brief Data flow node representing a Sequence as a
      * Value<Eigen::MatrixXd> with a name.
      *
@@ -92,10 +90,10 @@ namespace bpp {
       std::string description () const final
       {
         using namespace numeric;
-        return Node::description() + "\n"+ name_ + "\n" + debug (this->accessValueConst ());
+        return Node_DF::description() + "\n"+ name_ + "\n" + debug (this->accessValueConst ());
       }
 
-      bool compareAdditionalArguments (const Node & other) const {
+      bool compareAdditionalArguments (const Node_DF & other) const {
         const auto * derived = dynamic_cast<const Self *> (&other);
         return derived != nullptr && name_ == derived->name_ && this->accessValueConst () == derived->accessValueConst ();
       }
@@ -117,7 +115,7 @@ namespace bpp {
         return seed;
       }
 
-      NodeRef derive (Context & c, const Node & node) final {
+      NodeRef derive (Context & c, const Node_DF & node) final {
         const auto dim = Dimension<T> (this->accessValueConst ());
         if (&node == this) {
           return ConstantOne<T>::create (c, dim);
@@ -132,7 +130,6 @@ namespace bpp {
       }
 
     };
-  }      
 } // namespace bpp
 
 

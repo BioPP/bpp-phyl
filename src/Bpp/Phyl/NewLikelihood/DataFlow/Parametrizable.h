@@ -57,8 +57,6 @@ namespace bpp {
   class Parametrizable;
   class ParameterAliasable;
   
-  namespace dataflow {
-
     /** Helper: create a map with mutable dataflow nodes for each
         parameter of the parametrizable.
         * The map is indexed by parameter names.
@@ -247,7 +245,7 @@ namespace bpp {
     
       template <typename ConfiguredObject, typename T, typename B>
       static NodeRefVec generateDerivativeSumDepsForComputations (
-        Context & c, ConfiguredObject & object, const Node & derivationNode, const Dimension<T> & targetDimension, B buildFWithNewObject) {
+        Context & c, ConfiguredObject & object, const Node_DF & derivationNode, const Dimension<T> & targetDimension, B buildFWithNewObject) {
         NodeRefVec derivativeSumDeps;
 
         for (std::size_t i = 0; i < object.nbDependencies (); ++i) {
@@ -276,8 +274,6 @@ namespace bpp {
       }
         
     };
-
-  } // namespace dataflow
 } // namespace bpp
 
 #endif // BPP_NEWPHYL_PARAMETRIZABLE_H

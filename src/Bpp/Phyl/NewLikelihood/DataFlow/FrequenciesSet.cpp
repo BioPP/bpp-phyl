@@ -44,7 +44,6 @@
 using namespace std;
 
 namespace bpp {
-  namespace dataflow {
     // FrequenciesSet node
 
     ConfiguredFrequenciesSet::ConfiguredFrequenciesSet (const Context& context, NodeRefVec && deps, std::unique_ptr<FrequenciesSet> && freqset)
@@ -68,7 +67,7 @@ namespace bpp {
     // FrequenciesSet node additional arguments = (type of bpp::FrequenciesSet).
     // Everything else is determined by the node dependencies.
 
-    bool ConfiguredFrequenciesSet::compareAdditionalArguments (const Node & other) const {
+    bool ConfiguredFrequenciesSet::compareAdditionalArguments (const Node_DF & other) const {
       const auto * derived = dynamic_cast<const Self *> (&other);
       if (derived == nullptr) {
         return false;
@@ -103,11 +102,11 @@ namespace bpp {
     }
 
     // FrequenciesFromFrequenciesSet additional arguments = ().
-    bool FrequenciesFromFrequenciesSet::compareAdditionalArguments (const Node & other) const {
+    bool FrequenciesFromFrequenciesSet::compareAdditionalArguments (const Node_DF & other) const {
       return dynamic_cast<const Self *> (&other) != nullptr;
     }
 
-    NodeRef FrequenciesFromFrequenciesSet::derive (Context & c, const Node & node) {
+    NodeRef FrequenciesFromFrequenciesSet::derive (Context & c, const Node_DF & node) {
       // d(equFreqs)/dn = sum_i d(equFreqs)/dx_i * dx_i/dn (x_i = freqset parameters)
       auto freqSetDep = this->dependency (0);
       auto & freqset = static_cast<ConfiguredFrequenciesSet &> (*freqSetDep);
@@ -131,7 +130,5 @@ namespace bpp {
       r = Eigen::Map<const T> (freqsFromFS.data(), static_cast<Eigen::Index> (freqsFromFS.size ()));
     }
 
-
-    
-  } // namespace dataflow
+  
 } // namespace bpp

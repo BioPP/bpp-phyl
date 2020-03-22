@@ -18,7 +18,6 @@
 
 using namespace std;
 using namespace bpp;
-using namespace bpp::dataflow;
 
 LikelihoodCalculationSingleProcess::LikelihoodCalculationSingleProcess(Context& context,
                                                                        const AlignedValuesContainer & sites,
@@ -377,7 +376,7 @@ void LikelihoodCalculationSingleProcess::makeLikelihoodAtRoot_()
   
   if (processNodes_.ratesNode_)
   {
-    std::vector<std::shared_ptr<Node>> vLogRoot;
+    std::vector<std::shared_ptr<Node_DF>> vLogRoot;
       
     for (auto& rateCat: vRateCatTrees_)
     {
@@ -408,7 +407,7 @@ void LikelihoodCalculationSingleProcess::makeLikelihoodAtRoot_()
 // We want -log(likelihood)
   likelihood_ = CWiseNegate<double>::create (context_, {totalLogLikelihood}, Dimension<double> ());
 
-  // using bpp::dataflow::DotOptions;
+  // using bpp::DotOptions;
   // writeGraphToDot(
   //   "debug_lik.dot", {likelihood_.get()});//, DotOptions::DetailedNodeInfo | DotOp
 }
@@ -436,7 +435,7 @@ ValueRef<double> LikelihoodCalculationSingleProcess::makeLikelihoodsAtNode_(uint
 
   SiteLikelihoodsRef distinctSiteLikelihoodsNode;
 
-  std::vector<std::shared_ptr<Node>> vLogRoot; // if several rates
+  std::vector<std::shared_ptr<Node_DF>> vLogRoot; // if several rates
 
   for (auto& rateCat: vRateCatTrees_)
   {
@@ -451,7 +450,7 @@ ValueRef<double> LikelihoodCalculationSingleProcess::makeLikelihoodsAtNode_(uint
 
     auto& dagIndexes = rateCat.flt->getDAGNodesIndexes(speciesId);
 
-    std::vector<std::shared_ptr<Node>> vCond;
+    std::vector<std::shared_ptr<Node_DF>> vCond;
     
     for (const auto& index : dagIndexes)
     {

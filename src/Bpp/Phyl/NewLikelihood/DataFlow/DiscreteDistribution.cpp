@@ -43,8 +43,6 @@
 using namespace std;
 
 namespace bpp {
-  namespace dataflow {
-
     ConfiguredDistribution::ConfiguredDistribution (Context& context, NodeRefVec && deps, std::unique_ptr<DiscreteDistribution> && distrib)
       : Value<const DiscreteDistribution*> (std::move (deps), distrib.get ()), AbstractParametrizable(distrib->getNamespace()), context_(context), distrib_(std::move(distrib))
     {
@@ -65,7 +63,7 @@ namespace bpp {
 
     // Model node additional arguments = (type of bpp::BranchModel).
     // Everything else is determined by the node dependencies.
-    bool ConfiguredDistribution::compareAdditionalArguments (const Node & other) const {
+    bool ConfiguredDistribution::compareAdditionalArguments (const Node_DF & other) const {
       const auto * derived = dynamic_cast<const Self *> (&other);
       if (derived == nullptr) {
         return false;
@@ -101,11 +99,11 @@ namespace bpp {
     }
 
     // ProbabilitiesFromDiscreteDistribution additional arguments = ().
-    bool ProbabilitiesFromDiscreteDistribution::compareAdditionalArguments (const Node & other) const {
+    bool ProbabilitiesFromDiscreteDistribution::compareAdditionalArguments (const Node_DF & other) const {
       return dynamic_cast<const Self *> (&other) != nullptr;
     }
 
-    NodeRef ProbabilitiesFromDiscreteDistribution::derive (Context & c, const Node & node) {
+    NodeRef ProbabilitiesFromDiscreteDistribution::derive (Context & c, const Node_DF & node) {
       // d(Prob)/dn = sum_i d(Prob)/dx_i * dx_i/dn (x_i = distrib parameters)
       auto distribDep = this->dependency (0);
       auto & distrib = static_cast<Dep &> (*distribDep);
@@ -154,7 +152,7 @@ namespace bpp {
     }
 
     // ProbabilityFromDiscreteDistribution additional arguments = ().
-    bool ProbabilityFromDiscreteDistribution::compareAdditionalArguments (const Node & other) const {
+    bool ProbabilityFromDiscreteDistribution::compareAdditionalArguments (const Node_DF & other) const {
       const auto * derived = dynamic_cast<const Self *> (&other);
       return derived != nullptr && nCat_ == derived->nCat_;
     }
@@ -166,7 +164,7 @@ namespace bpp {
       return cachedAs<ProbabilityFromDiscreteDistribution> (c, std::make_shared<ProbabilityFromDiscreteDistribution> (std::move (deps), nCat));
     }
 
-    NodeRef ProbabilityFromDiscreteDistribution::derive (Context & c, const Node & node) {
+    NodeRef ProbabilityFromDiscreteDistribution::derive (Context & c, const Node_DF & node) {
       // d(Prob)/dn = sum_i d(Prob)/dx_i * dx_i/dn (x_i = distrib parameters)
       auto distribDep = this->dependency (0);
       auto & distrib = static_cast<Dep &> (*distribDep);
@@ -202,7 +200,7 @@ namespace bpp {
     }
 
     // CategoryFromDiscreteDistribution additional arguments = ().
-    bool CategoryFromDiscreteDistribution::compareAdditionalArguments (const Node & other) const {
+    bool CategoryFromDiscreteDistribution::compareAdditionalArguments (const Node_DF & other) const {
       const auto * derived = dynamic_cast<const Self *> (&other);
       return derived != nullptr && nCat_ == derived->nCat_;
     }
@@ -214,7 +212,7 @@ namespace bpp {
       return cachedAs<CategoryFromDiscreteDistribution> (c, std::make_shared<CategoryFromDiscreteDistribution> (std::move (deps), nCat));
     }
 
-    NodeRef CategoryFromDiscreteDistribution::derive (Context & c, const Node & node) {
+    NodeRef CategoryFromDiscreteDistribution::derive (Context & c, const Node_DF & node) {
       // d(Prob)/dn = sum_i d(Prob)/dx_i * dx_i/dn (x_i = distrib parameters)
       auto distribDep = this->dependency (0);
       auto & distrib = static_cast<Dep &> (*distribDep);
@@ -237,5 +235,4 @@ namespace bpp {
       this->accessValueMutable () = categoryFromDistrib;
     }
 
-  } // namespace dataflow
 } // namespace bpp

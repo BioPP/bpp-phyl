@@ -45,7 +45,6 @@
 
 using namespace std;
 using namespace bpp;
-using namespace dataflow;
 
 /* For now copy matrix cell by cell.
  * TODO use eigen internally in SubstitutionModel ! (not perf critical for now though)
@@ -90,9 +89,9 @@ std::string ConfiguredModel::debugInfo () const {
   return "nbState=" + std::to_string (model_->getAlphabet ()->getSize ());
 }
 
-// Model node additional arguments = (type of bpp::BranchModel).
+// Model node additional arguments = (type of BranchModel).
 // Everything else is determined by the node dependencies.
-bool ConfiguredModel::compareAdditionalArguments (const Node & other) const {
+bool ConfiguredModel::compareAdditionalArguments (const Node_DF & other) const {
   const auto * derived = dynamic_cast<const Self *> (&other);
   if (derived == nullptr) {
     return false;
@@ -126,11 +125,11 @@ std::string EquilibriumFrequenciesFromModel::debugInfo () const {
 }
 
 // EquilibriumFrequenciesFromModel additional arguments = ().
-bool EquilibriumFrequenciesFromModel::compareAdditionalArguments (const Node & other) const {
+bool EquilibriumFrequenciesFromModel::compareAdditionalArguments (const Node_DF & other) const {
   return dynamic_cast<const Self *> (&other) != nullptr;
 }
 
-NodeRef EquilibriumFrequenciesFromModel::derive (Context & c, const Node & node) {
+NodeRef EquilibriumFrequenciesFromModel::derive (Context & c, const Node_DF & node) {
   // d(equFreqs)/dn = sum_i d(equFreqs)/dx_i * dx_i/dn (x_i = model parameters)
   auto modelDep = this->dependency (0);
   auto & model = static_cast<Dep &> (*modelDep);
@@ -182,11 +181,11 @@ std::string TransitionMatrixFromModel::debugInfo () const {
 }
 
 // TransitionMatrixFromModel additional arguments = ().
-bool TransitionMatrixFromModel::compareAdditionalArguments (const Node & other) const {
+bool TransitionMatrixFromModel::compareAdditionalArguments (const Node_DF & other) const {
   return dynamic_cast<const Self *> (&other) != nullptr;
 }
 
-NodeRef TransitionMatrixFromModel::derive (Context & c, const Node & node) {
+NodeRef TransitionMatrixFromModel::derive (Context & c, const Node_DF & node) {
   // dtm/dn = sum_i dtm/dx_i * dx_i/dn + dtm/dbrlen * dbrlen/dn (x_i = model parameters).
   auto modelDep = this->dependency (0);
   auto brlenDep = this->dependency (1);
@@ -199,7 +198,7 @@ NodeRef TransitionMatrixFromModel::derive (Context & c, const Node & node) {
   auto buildFWithNewModel = [this, &c, &brlenDep, &derivNode, &subNode](NodeRef && newModel) {
     return ConfiguredParametrizable::createMatrix<Dep, Self> (c, {std::move (newModel), brlenDep, derivNode, subNode}, targetDimension_);
   };
-  NodeRefVec derivativeSumDeps = bpp::dataflow::ConfiguredParametrizable::generateDerivativeSumDepsForComputations<Dep, T> (
+  NodeRefVec derivativeSumDeps = ConfiguredParametrizable::generateDerivativeSumDepsForComputations<Dep, T> (
     c, model, node, targetDimension_, buildFWithNewModel);
   // Brlen part, use specific node
   auto dbrlen_dn = brlenDep->derive (c, node);
@@ -281,7 +280,7 @@ std::string TransitionFunctionFromModel::debugInfo () const {
 }
 
 // TransitionFunctionFromModel additional arguments = ().
-bool TransitionFunctionFromModel::compareAdditionalArguments (const Node & other) const {
+bool TransitionFunctionFromModel::compareAdditionalArguments (const Node_DF & other) const {
   return dynamic_cast<const Self *> (&other) != nullptr;
 }
 
@@ -296,7 +295,7 @@ std::shared_ptr<TransitionFunctionFromModel> TransitionFunctionFromModel::create
   return cachedAs<TransitionFunctionFromModel> (c, std::make_shared<TransitionFunctionFromModel> (std::move (deps), dim));
 }
 
-NodeRef TransitionFunctionFromModel::derive (Context & c, const Node & node) {
+NodeRef TransitionFunctionFromModel::derive (Context & c, const Node_DF & node) {
   // df(v)/dn = sum_i df(v)/dx_i * dx_i/dn + df(v)/dbrlen * dbrlen/dn + df(v)/dv * dv/dn (x_i = model parameters, v = variable of f).
   if (&node==&NodeX)
     throw Exception("TransitionFunctionFromModel::derive : Jacobian not implemented. Ask developpers.");
@@ -312,7 +311,7 @@ NodeRef TransitionFunctionFromModel::derive (Context & c, const Node & node) {
     return TransitionFunctionFromModel::create(c, {std::move (newModel), brlenDep, derivNode}, targetDimension_);
   };
   
-  NodeRefVec derivativeSumDeps = bpp::dataflow::ConfiguredParametrizable::generateDerivativeSumDepsForComputations<Dep, T> (c, model, node, targetDimension_, buildFWithNewModel);
+  NodeRefVec derivativeSumDeps = ConfiguredParametrizable::generateDerivativeSumDepsForComputations<Dep, T> (c, model, node, targetDimension_, buildFWithNewModel);
 
   // Brlen part, use specific node
   auto dbrlen_dn = brlenDep->derive (c, node);
@@ -372,11 +371,11 @@ std::string ProbabilitiesFromMixedModel::debugInfo () const {
 }
 
 // ProbabilitiesFromMixedModel additional arguments = ().
-bool ProbabilitiesFromMixedModel::compareAdditionalArguments (const Node & other) const {
+bool ProbabilitiesFromMixedModel::compareAdditionalArguments (const Node_DF & other) const {
   return dynamic_cast<const Self *> (&other) != nullptr;
 }
 
-NodeRef ProbabilitiesFromMixedModel::derive (Context & c, const Node & node) {
+NodeRef ProbabilitiesFromMixedModel::derive (Context & c, const Node_DF & node) {
   // d(Prob)/dn = sum_i d(Prob)/dx_i * dx_i/dn (x_i = distrib parameters)
   auto modelDep = this->dependency (0);
   auto & model = static_cast<ConfiguredModel &> (*modelDep);
@@ -429,7 +428,7 @@ std::string ProbabilityFromMixedModel::debugInfo () const {
 }
 
 // ProbabilityFromMixedModel additional arguments = ().
-bool ProbabilityFromMixedModel::compareAdditionalArguments (const Node & other) const {
+bool ProbabilityFromMixedModel::compareAdditionalArguments (const Node_DF & other) const {
   const auto * derived = dynamic_cast<const Self *> (&other);
   return derived != nullptr && nCat_ == derived->nCat_;
 }
@@ -446,7 +445,7 @@ std::shared_ptr<ProbabilityFromMixedModel> ProbabilityFromMixedModel::create (Co
   return cachedAs<ProbabilityFromMixedModel> (c, std::make_shared<ProbabilityFromMixedModel> (std::move (deps), nCat));
 }
 
-NodeRef ProbabilityFromMixedModel::derive (Context & c, const Node & node) {
+NodeRef ProbabilityFromMixedModel::derive (Context & c, const Node_DF & node) {
   // d(Prob)/dn = sum_i d(Prob)/dx_i * dx_i/dn (x_i = distrib parameters)
   auto modelDep = this->dependency (0);
   auto & model = static_cast<Dep &> (*modelDep);

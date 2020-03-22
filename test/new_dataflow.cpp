@@ -45,36 +45,36 @@
 #include <algorithm>
 
 #include <Bpp/Exceptions.h>
-#include <Bpp/NewPhyl/DataFlowCWise.h>
+#include <Bpp/Phyl/NewLikelihood/DataFlow/DataFlowCWise.h>
 
 static bool enableDotOutput = false;
+using namespace bpp;
 
-static void dotOutput(const std::string& testName, const std::vector<const bpp::dataflow::Node*>& nodes)
+static void dotOutput(const std::string& testName, const std::vector<const Node_DF*>& nodes)
 {
   if (enableDotOutput)
   {
-    using bpp::dataflow::DotOptions;
+    using bpp::DotOptions;
     writeGraphToDot(
       "debug_" + testName + ".dot", nodes, DotOptions::DetailedNodeInfo | DotOptions::ShowDependencyIndex);
   }
 }
 
-using namespace bpp::dataflow;
 using bpp::Dimension;
 using bpp::MatrixDimension;
 
 /******************************************************************************
  * Test dataflow basics.
  */
-struct DoNothingNode : public Node
+struct DoNothingNode : public Node_DF
 {
   DoNothingNode() = default;
   DoNothingNode(NodeRefVec&& deps)
-    : Node(std::move(deps))
+    : Node_DF(std::move(deps))
   {
   }
 
-  using Node::invalidateRecursively; // Make it public to test it
+  using Node_DF::invalidateRecursively; // Make it public to test it
 
   // Flag to check recomputations
   bool computeCalled = false;
@@ -84,7 +84,7 @@ struct DoNothingNode : public Node
 TEST_CASE("dataflow_dependent_list")
 {
   auto l = std::make_shared<DoNothingNode>();
-  const auto count = [&l](const Node* dependent) {
+  const auto count = [&l](const Node_DF* dependent) {
     const auto& dependents = l->dependentNodes();
     return std::count(dependents.begin(), dependents.end(), dependent);
   };
@@ -168,12 +168,12 @@ TEST_CASE("dataflow_node_basic_errors")
   auto doNothing = std::make_shared<DoNothingNode>();
 
   // Failed conversion
-  auto asNodeClass = std::shared_ptr<Node>(doNothing);
-  CHECK_THROWS_AS(convertRef<Value<int>>(asNodeClass), bpp::Exception&);
+  auto asNodeClass = std::shared_ptr<Node_DF>(doNothing);
+  CHECK_THROWS_AS(convertRef<Value<int>>(asNodeClass), Exception&);
 
   // By default, derive fails
   Context c;
-  CHECK_THROWS_AS(asNodeClass->derive(c, *asNodeClass), bpp::Exception&);
+  CHECK_THROWS_AS(asNodeClass->derive(c, *asNodeClass), Exception&);
 }
 
 /******************************************************************************
@@ -282,10 +282,10 @@ TEST_CASE("Convert")
   auto m = NumericMutable<Eigen::MatrixXd>::create(c, (Eigen::MatrixXd(1, 2) << 42., -42.).finished());
 
   // Check wrong dependency detection
-  CHECK_THROWS_AS((Convert<double, float>::create(c, {}, Dimension<double>())), bpp::Exception&);
-  CHECK_THROWS_AS((Convert<double, float>::create(c, {nullptr}, Dimension<double>())), bpp::Exception&);
-  CHECK_THROWS_AS((Convert<double, float>::create(c, {d}, Dimension<double>())), bpp::Exception&);
-  CHECK_THROWS_AS((Convert<double, double>::create(c, {d, d}, Dimension<double>())), bpp::Exception&);
+  CHECK_THROWS_AS((Convert<double, float>::create(c, {}, Dimension<double>())), Exception&);
+  CHECK_THROWS_AS((Convert<double, float>::create(c, {nullptr}, Dimension<double>())), Exception&);
+  CHECK_THROWS_AS((Convert<double, float>::create(c, {d}, Dimension<double>())), Exception&);
+  CHECK_THROWS_AS((Convert<double, double>::create(c, {d, d}, Dimension<double>())), Exception&);
 
   // Scalar to scalar
   auto f = Convert<float, double>::create(c, {d}, Dimension<float>());
@@ -333,15 +333,15 @@ TEST_CASE("CWiseAdd")
 
   // Check wrong dependency detection (tuple<A,B>)
   CHECK_THROWS_AS((CWiseAdd<double, std::tuple<double, float>>::create(c, {d, d}, Dimension<double>())),
-                  bpp::Exception&);
+                  Exception&);
   CHECK_THROWS_AS((CWiseAdd<double, std::tuple<double, double>>::create(c, {nullptr, d}, Dimension<double>())),
-                  bpp::Exception&);
-  CHECK_THROWS_AS((CWiseAdd<double, std::tuple<double, double>>::create(c, {d}, Dimension<double>())), bpp::Exception&);
+                  Exception&);
+  CHECK_THROWS_AS((CWiseAdd<double, std::tuple<double, double>>::create(c, {d}, Dimension<double>())), Exception&);
   CHECK_THROWS_AS((CWiseAdd<double, std::tuple<double, double>>::create(c, {d, d, d}, Dimension<double>())),
-                  bpp::Exception&);
+                  Exception&);
   // Check wrong dependency detection (reduction<A>)
-  CHECK_THROWS_AS((CWiseAdd<double, ReductionOf<double>>::create(c, {nullptr}, Dimension<double>())), bpp::Exception&);
-  CHECK_THROWS_AS((CWiseAdd<double, ReductionOf<float>>::create(c, {d}, Dimension<double>())), bpp::Exception&);
+  CHECK_THROWS_AS((CWiseAdd<double, ReductionOf<double>>::create(c, {nullptr}, Dimension<double>())), Exception&);
+  CHECK_THROWS_AS((CWiseAdd<double, ReductionOf<float>>::create(c, {d}, Dimension<double>())), Exception&);
 
   // Scalar + scalar
   auto add_d_d = CWiseAdd<double, std::tuple<double, double>>::create(c, {d, d}, Dimension<double>());
@@ -401,15 +401,15 @@ TEST_CASE("CWiseMul")
 
   // Check wrong dependency detection (tuple<A,B>)
   CHECK_THROWS_AS((CWiseMul<double, std::tuple<double, float>>::create(c, {d, d}, Dimension<double>())),
-                  bpp::Exception&);
+                  Exception&);
   CHECK_THROWS_AS((CWiseMul<double, std::tuple<double, double>>::create(c, {nullptr, d}, Dimension<double>())),
-                  bpp::Exception&);
-  CHECK_THROWS_AS((CWiseMul<double, std::tuple<double, double>>::create(c, {d}, Dimension<double>())), bpp::Exception&);
+                  Exception&);
+  CHECK_THROWS_AS((CWiseMul<double, std::tuple<double, double>>::create(c, {d}, Dimension<double>())), Exception&);
   CHECK_THROWS_AS((CWiseMul<double, std::tuple<double, double>>::create(c, {d, d, d}, Dimension<double>())),
-                  bpp::Exception&);
+                  Exception&);
   // Check wrong dependency detection (reduction<A>)
-  CHECK_THROWS_AS((CWiseMul<double, ReductionOf<double>>::create(c, {nullptr}, Dimension<double>())), bpp::Exception&);
-  CHECK_THROWS_AS((CWiseMul<double, ReductionOf<float>>::create(c, {d}, Dimension<double>())), bpp::Exception&);
+  CHECK_THROWS_AS((CWiseMul<double, ReductionOf<double>>::create(c, {nullptr}, Dimension<double>())), Exception&);
+  CHECK_THROWS_AS((CWiseMul<double, ReductionOf<float>>::create(c, {d}, Dimension<double>())), Exception&);
 
   // Scalar * scalar
   auto mul_d_d = CWiseMul<double, std::tuple<double, double>>::create(c, {d, d}, Dimension<double>());
@@ -481,12 +481,12 @@ struct OpaqueTestFunction : public Value<double>
   }
 
   // OpaqueTestFunction additional arguments = (). Entirely defined by deps.
-  bool compareAdditionalArguments(const Node& other) const final
+  bool compareAdditionalArguments(const Node_DF& other) const final
   {
     return dynamic_cast<const Self*>(&other) != nullptr;
   }
 
-  NodeRef derive(Context& c, const Node& node) final
+  NodeRef derive(Context& c, const Node_DF& node) final
   {
     // df/dn = df/dx * dx/dn + df/dy * dy/dn (derivative of multivariable func)
     auto dim = Dimension<double>{}; // Dimension is trivial for this test
@@ -536,7 +536,7 @@ TEST_CASE("numerical_derivation")
 
   // Initial state. Numerical diff not configured, so it should fail.
   CHECK(f->getTargetValue() == 4);
-  CHECK_THROWS_AS(f->derive(c, *x), bpp::Exception&);
+  CHECK_THROWS_AS(f->derive(c, *x), Exception&);
 
   // Configure and test derivations
   f->config.delta = delta;

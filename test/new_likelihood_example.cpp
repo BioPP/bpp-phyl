@@ -59,8 +59,8 @@
 #include <Bpp/Seq/Container/VectorSiteContainer.h>
 #include <chrono>
 
-#include <Bpp/NewPhyl/SingleProcessPhyloLikelihood_DF.h>
-#include <Bpp/NewPhyl/BackwardLikelihoodTree.h>
+#include <Bpp/Phyl/NewLikelihood/DataFlow/SingleProcessPhyloLikelihood_DF.h>
+#include <Bpp/Phyl/NewLikelihood/DataFlow/BackwardLikelihoodTree.h>
 #include <Bpp/Phyl/Io/Newick.h>
 #include <Bpp/Phyl/NewLikelihood/PhyloLikelihoods/SingleProcessPhyloLikelihood.h>
 #include <Bpp/Phyl/NewLikelihood/NonHomogeneousSubstitutionProcess.h>
@@ -70,12 +70,13 @@
 
 static bool enableDotOutput = true;
 using namespace std;
+using namespace bpp;
 
-static void dotOutput(const std::string& testName, const std::vector<const bpp::dataflow::Node*>& nodes)
+static void dotOutput(const std::string& testName, const std::vector<const Node_DF*>& nodes)
 {
   if (enableDotOutput)
   {
-    using bpp::dataflow::DotOptions;
+    using bpp::DotOptions;
     writeGraphToDot(
       "debug_" + testName + ".dot", nodes);//, DotOptions::DetailedNodeInfo | DotOptions::ShowDependencyIndex);
   }
@@ -107,10 +108,10 @@ namespace
   //     f();
   //   timingEnd(ts, timePrefix);
   // }
-  // void do_param_changes_multiple_times(bpp::DerivableSecondOrder& llh,
+  // void do_param_changes_multiple_times(DerivableSecondOrder& llh,
   //                                      const std::string& timePrefix,
-  //                                      const bpp::ParameterList& p1,
-  //                                      const bpp::ParameterList& p2)
+  //                                      const ParameterList& p1,
+  //                                      const ParameterList& p2)
   // {
 
   //   llh.matchParametersValues(p1);
@@ -126,19 +127,19 @@ namespace
   //   });
   // }
 
-  void optimize_for_params(bpp::DerivableSecondOrder& llh,
+  void optimize_for_params(DerivableSecondOrder& llh,
                            const std::string& prefix,
-                           const bpp::ParameterList& params)
+                           const ParameterList& params)
   {
     auto ts = timingStart();
-    bpp::ConjugateGradientMultiDimensions optimizer(&llh);
-    // bpp::SimpleNewtonMultiDimensions optimizer(&llh);
+    ConjugateGradientMultiDimensions optimizer(&llh);
+    // SimpleNewtonMultiDimensions optimizer(&llh);
     optimizer.setVerbose(0);
-    optimizer.setProfiler(nullptr);       // bpp::ApplicationTools::message);
-    optimizer.setMessageHandler(nullptr); // bpp::ApplicationTools::message);
+    optimizer.setProfiler(nullptr);       // ApplicationTools::message);
+    optimizer.setMessageHandler(nullptr); // ApplicationTools::message);
     optimizer.setMaximumNumberOfEvaluations(100);
     optimizer.getStopCondition()->setTolerance(0.000001);
-    optimizer.setConstraintPolicy(bpp::AutoParameter::CONSTRAINTS_AUTO);
+    optimizer.setConstraintPolicy(AutoParameter::CONSTRAINTS_AUTO);
     optimizer.init(params);
     optimizer.optimize();
     timingEnd(ts, prefix);
@@ -147,38 +148,38 @@ namespace
 
   struct CommonStuff
   {
-    const bpp::NucleicAlphabet& alphabet;
-    bpp::VectorSiteContainer sites;
+    const NucleicAlphabet& alphabet;
+    VectorSiteContainer sites;
     const char* treeStr;
-    bpp::ParameterList paramModel1;
-    bpp::ParameterList paramModel2;
-    bpp::ParameterList paramBrLen1;
-    bpp::ParameterList paramBrLen2;
-    bpp::ParameterList paramRoot1;
-    bpp::ParameterList paramRoot2;
+    ParameterList paramModel1;
+    ParameterList paramModel2;
+    ParameterList paramBrLen1;
+    ParameterList paramBrLen2;
+    ParameterList paramRoot1;
+    ParameterList paramRoot2;
 
     CommonStuff()
-      : alphabet(bpp::AlphabetTools::DNA_ALPHABET)
+      : alphabet(AlphabetTools::DNA_ALPHABET)
       , sites(&alphabet)
       , treeStr("((A:0.01, B:0.02):0.03,C:0.01);")
     {
       // Init sequences
       sites.addSequence(
-        bpp::BasicSequence("A", "ATCCAGACATGCCGGGACTTTGCAGAGAAGGAGTTGTTTCCCATTGCAGCCCAGGTGGATAAGGAACAGC", &alphabet));
+        BasicSequence("A", "ATCCAGACATGCCGGGACTTTGCAGAGAAGGAGTTGTTTCCCATTGCAGCCCAGGTGGATAAGGAACAGC", &alphabet));
       sites.addSequence(
-        bpp::BasicSequence("B", "CGTCAGACATGCCGTGACTTTGCCGAGAAGGAGTTGGTCCCCATTGCGGCCCAGCTGGACAGGGAGCATC", &alphabet));
+        BasicSequence("B", "CGTCAGACATGCCGTGACTTTGCCGAGAAGGAGTTGGTCCCCATTGCGGCCCAGCTGGACAGGGAGCATC", &alphabet));
       sites.addSequence(
-        bpp::BasicSequence("C", "GGTCAGACATGCCGGGAATTTGCTGAAAAGGAGCTGGTTCCCATTGCAGCCCAGGTAGACAAGGAGCATC", &alphabet));
+        BasicSequence("C", "GGTCAGACATGCCGGGAATTTGCTGAAAAGGAGCTGGTTCCCATTGCAGCCCAGGTAGACAAGGAGCATC", &alphabet));
       sites.addSequence(
-        bpp::BasicSequence("D", "TTCCAGACATGCCGGGACTTTACCGAGAAGGAGTTGTTTTCCATTGCAGCCCAGGTGGATAAGGAACATC", &alphabet));
+        BasicSequence("D", "TTCCAGACATGCCGGGACTTTACCGAGAAGGAGTTGTTTTCCATTGCAGCCCAGGTGGATAAGGAACATC", &alphabet));
 
       // Set of parameters to apply to tree + model
-      paramModel1.addParameter(bpp::Parameter("T92.kappa", 0.1));
-      paramModel2.addParameter(bpp::Parameter("T92.kappa", 0.2));
-      paramRoot1.addParameter(bpp::Parameter("GC.theta", 0.1));
-      paramRoot2.addParameter(bpp::Parameter("GC.theta", 0.2));
-      paramBrLen1.addParameter(bpp::Parameter("BrLen1", 0.1));
-      paramBrLen2.addParameter(bpp::Parameter("BrLen1", 0.2));
+      paramModel1.addParameter(Parameter("T92.kappa", 0.1));
+      paramModel2.addParameter(Parameter("T92.kappa", 0.2));
+      paramRoot1.addParameter(Parameter("GC.theta", 0.1));
+      paramRoot2.addParameter(Parameter("GC.theta", 0.2));
+      paramBrLen1.addParameter(Parameter("BrLen1", 0.1));
+      paramBrLen2.addParameter(Parameter("BrLen1", 0.2));
     }
   };
 }
@@ -197,75 +198,75 @@ int main(int argc, char** argv)
 
   const CommonStuff c;
 
-  bpp::dataflow::Context context;
+  Context context;
 
   auto ts = timingStart();
   
-auto t92 = std::make_shared<bpp::T92>(&c.alphabet, 3., 0.7);
-auto t922 = std::make_shared<bpp::T92>(&c.alphabet, 3., 0.7);
+auto t92 = std::make_shared<T92>(&c.alphabet, 3., 0.7);
+auto t922 = std::make_shared<T92>(&c.alphabet, 3., 0.7);
 
-std::map<std::string, bpp::DiscreteDistribution*> mapParam1;
+std::map<std::string, DiscreteDistribution*> mapParam1;
 
-mapParam1["kappa"]=new bpp::GammaDiscreteDistribution(2, 1);
+mapParam1["kappa"]=new GammaDiscreteDistribution(2, 1);
 
-//  auto mt92 = std::make_shared<bpp::MixtureOfASubstitutionModel>(&c.alphabet, t92.get(), mapParam1);
+//  auto mt92 = std::make_shared<MixtureOfASubstitutionModel>(&c.alphabet, t92.get(), mapParam1);
 
-auto k80 = std::make_shared<bpp::K80>(&c.alphabet, 2.);
-  // std::map<std::string, bpp::DiscreteDistribution*> mapParam2;
+auto k80 = std::make_shared<K80>(&c.alphabet, 2.);
+  // std::map<std::string, DiscreteDistribution*> mapParam2;
   // auto sdm=std::map<double, double>({{0.0001,0.3},{200.,0.7}});
   
-  // mapParam2["kappa"]=new bpp::SimpleDiscreteDistribution(sdm);
-  // auto mk80 = std::make_shared<bpp::MixtureOfASubstitutionModel>(&c.alphabet, k80.get(), mapParam2);
+  // mapParam2["kappa"]=new SimpleDiscreteDistribution(sdm);
+  // auto mk80 = std::make_shared<MixtureOfASubstitutionModel>(&c.alphabet, k80.get(), mapParam2);
 
-auto model1=std::make_shared<bpp::MultinomialFromTransitionModel>(*t922);
+auto model1=std::make_shared<MultinomialFromTransitionModel>(*t922);
 
   /* scenario
-  auto scenario = std::make_shared<bpp::ModelScenario>();
+  auto scenario = std::make_shared<ModelScenario>();
 
-  auto mp1=make_shared<bpp::ModelPath>();
-  //mp1->setModel(mt92,bpp::Vuint({0}));
-  mp1->setModel(mk80,bpp::Vuint({0}));
+  auto mp1=make_shared<ModelPath>();
+  //mp1->setModel(mt92,Vuint({0}));
+  mp1->setModel(mk80,Vuint({0}));
   scenario->addModelPath(mp1);
 
-  mp1=make_shared<bpp::ModelPath>();
-  //mp1->setModel(mt92,bpp::Vuint({1}));
-  mp1->setModel(mk80,bpp::Vuint({1}));
+  mp1=make_shared<ModelPath>();
+  //mp1->setModel(mt92,Vuint({1}));
+  mp1->setModel(mk80,Vuint({1}));
   scenario->addModelPath(mp1);
 
   */
 
-auto rootFreqs = new bpp::GCFrequenciesSet(&c.alphabet, 0.1);
+auto rootFreqs = new GCFrequenciesSet(&c.alphabet, 0.1);
 
-auto distribution = new bpp::ConstantRateDistribution();
-//  auto distribution = new bpp::GammaDiscreteRateDistribution(3, 1);
+auto distribution = new ConstantRateDistribution();
+//  auto distribution = new GammaDiscreteRateDistribution(3, 1);
 
   // Read tree structure
-bpp::Newick reader;
-auto phyloTree = std::unique_ptr<bpp::PhyloTree>(reader.parenthesisToPhyloTree(c.treeStr, false, "", false, false));
-auto paramPhyloTree = new bpp::ParametrizablePhyloTree(*phyloTree);
+Newick reader;
+auto phyloTree = std::unique_ptr<PhyloTree>(reader.parenthesisToPhyloTree(c.treeStr, false, "", false, false));
+auto paramPhyloTree = new ParametrizablePhyloTree(*phyloTree);
 //  std::vector<std::string> globalParameterNames({"T92.kappa"});
 
   // auto process =
-  //   std::unique_ptr<bpp::NonHomogeneousSubstitutionProcess>(bpp::NonHomogeneousSubstitutionProcess::createNonHomogeneousSubstitutionProcess(model.get(), distribution, paramPhyloTree, rootFreqs, globalParameterNames));
+  //   std::unique_ptr<NonHomogeneousSubstitutionProcess>(NonHomogeneousSubstitutionProcess::createNonHomogeneousSubstitutionProcess(model.get(), distribution, paramPhyloTree, rootFreqs, globalParameterNames));
 
 
 //  process->setModelScenario(scenario);
 
   
-auto process  = std::make_shared<bpp::NonHomogeneousSubstitutionProcess>(distribution, paramPhyloTree, rootFreqs);
+auto process  = std::make_shared<NonHomogeneousSubstitutionProcess>(distribution, paramPhyloTree, rootFreqs);
 
-process->addModel(model1, bpp::Vuint({0,1,3}));
-process->addModel(t92, bpp::Vuint({2}));
+process->addModel(model1, Vuint({0,1,3}));
+process->addModel(t92, Vuint({2}));
     
-//std::shared_ptr<bpp::NonHomogeneousSubstitutionProcess>(bpp::NonHomogeneousSubstitutionProcess::createHomogeneousSubstitutionProcess(model, distribution, paramPhyloTree, rootFreqs));//, scenario));
+//std::shared_ptr<NonHomogeneousSubstitutionProcess>(NonHomogeneousSubstitutionProcess::createHomogeneousSubstitutionProcess(model, distribution, paramPhyloTree, rootFreqs));//, scenario));
 
   // Build likelihood value node
-  auto l = std::make_shared<bpp::dataflow::LikelihoodCalculationSingleProcess>(context, c.sites, *process);
+  auto l = std::make_shared<LikelihoodCalculationSingleProcess>(context, c.sites, *process);
 
-  l->setNumericalDerivateConfiguration(0.001, bpp::dataflow::NumericalDerivativeType::ThreePoints);
+  l->setNumericalDerivateConfiguration(0.001, NumericalDerivativeType::ThreePoints);
 //  l->setClockLike();
 
-  bpp::dataflow::SingleProcessPhyloLikelihood_DF llh(context, l);
+  SingleProcessPhyloLikelihood_DF llh(context, l);
   timingEnd(ts, "df_setup");
   auto lik = llh.getLikelihoodCalculation();
   dotOutput("likelihood_example_value", {lik->getLikelihood().get()});
@@ -276,7 +277,7 @@ process->addModel(t92, bpp::Vuint({2}));
   printLik(logLik, "df_init_value");
 
     // Manual access to dbrlen
-  auto br= dynamic_cast<bpp::dataflow::ConfiguredParameter*>(lik->hasParameter("BrLen1")?lik->getSharedParameter("BrLen1").get():lik->getSharedParameter("BrLen_rate").get());
+  auto br= dynamic_cast<ConfiguredParameter*>(lik->hasParameter("BrLen1")?lik->getSharedParameter("BrLen1").get():lik->getSharedParameter("BrLen_rate").get());
   
   auto dlogLik_dbrlen1 = lik->getLikelihood()->deriveAsValue(context, *br->dependency(0));
 
@@ -285,7 +286,7 @@ process->addModel(t92, bpp::Vuint({2}));
 
   // // Manual access to dkappa
   
-  // auto kappa= dynamic_cast<bpp::dataflow::ConfiguredParameter*>(llh.getLikelihoodCalculation()->getSharedParameter("T92.kappa_Gamma.alpha_1").get());
+  // auto kappa= dynamic_cast<ConfiguredParameter*>(llh.getLikelihoodCalculation()->getSharedParameter("T92.kappa_Gamma.alpha_1").get());
   // auto dlogLik_dkappa = lik->getLikelihood()->deriveAsValue(context, *kappa->dependency(0));
   // std::cout << "[dkappa] " << dlogLik_dkappa->getTargetValue() << "\n";
   // dotOutput("likelihood_example_dkappa", {dlogLik_dkappa.get()});
@@ -296,7 +297,7 @@ process->addModel(t92, bpp::Vuint({2}));
 
   // Manual access to dalpha
 
-  // auto alpha= dynamic_cast<bpp::dataflow::ConfiguredParameter*>(llh.getLikelihoodCalculation()->getSharedParameter("Gamma.alpha").get());
+  // auto alpha= dynamic_cast<ConfiguredParameter*>(llh.getLikelihoodCalculation()->getSharedParameter("Gamma.alpha").get());
   // auto dlogLik_dalpha = lik->getLikelihood()->deriveAsValue(context, *alpha->dependency(0));
   // std::cout << "[dalpha] " << dlogLik_dalpha->getTargetValue() << "\n";
   // dotOutput("likelihood_example_dalpha", {dlogLik_dalpha.get()});

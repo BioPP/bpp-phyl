@@ -44,7 +44,6 @@
 #include "DataFlowCWise.h"
 
 namespace bpp {
-  namespace dataflow {
     void failureDeltaNotDerivable (const std::type_info & contextNodeType) {
       throw Exception (prettyTypeName (contextNodeType) +
                        ": does not support derivation for the delta dependency");
@@ -160,5 +159,4 @@ namespace bpp {
     template class CombineDeltaShifted<Eigen::RowVectorXd>;
     template class CombineDeltaShifted<Eigen::MatrixXd>;
     template class CombineDeltaShifted<TransitionFunction>;
-  } // namespace dataflow
 } // namespace bpp

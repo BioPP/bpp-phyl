@@ -69,8 +69,7 @@ namespace bpp {
     seed ^= hasher (t) + 0x9e3779b9 + (seed << 6) + (seed >> 2);
   }
 
-  namespace dataflow {
-    class Node;
+    class Node_DF;
     template <typename T> class Value;
     class Context;
 
@@ -87,17 +86,17 @@ namespace bpp {
     bool operator& (DotOptions a, DotOptions b);
 
     /// Write dataflow graph starting at nodes to output stream.
-    void writeGraphToDot (std::ostream & os, const std::vector<const Node *> & nodes, DotOptions opt = DotOptions::None);
+    void writeGraphToDot (std::ostream & os, const std::vector<const Node_DF *> & nodes, DotOptions opt = DotOptions::None);
 
     /// Write dataflow graph starting at nodes to file at filename, overwriting it.
-    void writeGraphToDot (const std::string & filename, const std::vector<const Node *> & nodes,
+    void writeGraphToDot (const std::string & filename, const std::vector<const Node_DF *> & nodes,
                           DotOptions opt  = DotOptions::None);
 
     ///////////////////////////////////
     /// 
     /// Node instances are always manipulated as shared pointers: provide a short alias.
     
-    using NodeRef = std::shared_ptr<Node>;
+    using NodeRef = std::shared_ptr<Node_DF>;
 
     /// Alias for a dependency vector (of NodeRef).
     using NodeRefVec = std::vector<NodeRef>;
@@ -116,7 +115,7 @@ namespace bpp {
     /// @name Error functions (generate a message and throw exceptions).
     ///@{
     [[noreturn]] void failureComputeWasCalled (const std::type_info & nodeType);
-    [[noreturn]] void failureNodeConversion (const std::type_info & handleType, const Node & node);
+    [[noreturn]] void failureNodeConversion (const std::type_info & handleType, const Node_DF & node);
     [[noreturn]] void failureDependencyNumberMismatch (const std::type_info & contextNodeType,
                                                        std::size_t expectedSize, std::size_t givenSize);
     [[noreturn]] void failureEmptyDependency (const std::type_info & contextNodeType, std::size_t depIndex);
@@ -168,23 +167,23 @@ namespace bpp {
      * These features have no-op or failure defaults which can be overriden in derived classes.
      */
     
-    class Node : public std::enable_shared_from_this<Node> {
+    class Node_DF : public std::enable_shared_from_this<Node_DF> {
     public:
-      Node () = default;
-      Node (const Node &) = delete;
-      Node (Node &&) = delete;
-      Node & operator= (const Node &) = delete;
-      Node & operator= (Node &&) = delete;
-      virtual ~Node (); // Deregisters from dependencies
+      Node_DF () = default;
+      Node_DF (const Node_DF &) = delete;
+      Node_DF (Node_DF &&) = delete;
+      Node_DF & operator= (const Node_DF &) = delete;
+      Node_DF & operator= (Node_DF &&) = delete;
+      virtual ~Node_DF (); // Deregisters from dependencies
 
       // Sets dependencies + register
-      Node (const NodeRefVec & dependenciesArg);
-      Node (NodeRefVec && dependenciesArg);
+      Node_DF (const NodeRefVec & dependenciesArg);
+      Node_DF (NodeRefVec && dependenciesArg);
 
       // Accessors
       bool isValid () const noexcept { return isValid_; }
       const NodeRefVec & dependencies () const noexcept { return dependencyNodes_; }
-      const std::vector<Node *> & dependentNodes () const noexcept { return dependentNodes_; }
+      const std::vector<Node_DF *> & dependentNodes () const noexcept { return dependentNodes_; }
       std::size_t nbDependencies () const noexcept { return dependencyNodes_.size (); }
       const NodeRef & dependency (std::size_t i) const noexcept { return dependencyNodes_[i]; }
 
@@ -219,7 +218,7 @@ namespace bpp {
        * See DataFlowNumeric for examples.
        * The default returns false, so nodes are considered different and not merged.
        */
-      virtual bool compareAdditionalArguments (const Node & other) const;
+      virtual bool compareAdditionalArguments (const Node_DF & other) const;
       /** @brief  Return the hash of node-specific configuration.
        *
        * Compute a hash from additional arguments of the node.
@@ -236,7 +235,7 @@ namespace bpp {
        * Derivation is undefined by default, and this function will throw an exception.
        * Implementations will usually recursively derive sub-expressions and combine them.
        */
-      virtual NodeRef derive (Context & c, const Node & node);
+      virtual NodeRef derive (Context & c, const Node_DF & node);
 
       /// Recreate the node with different dependencies.
       virtual NodeRef recreate (Context & c, NodeRefVec && deps);
@@ -257,7 +256,7 @@ namespace bpp {
        * This function is private to prevent use for invalid dependencies.
        * Higher level functions like computeRecursively call it while ensuring dependency validity.
        *
-       * Compute has access to dependencies as a NodeRefVec (base Node classes only).
+       * Compute has access to dependencies as a NodeRefVec (base Node_DF classes only).
        * The recommended usage is to check dependency types at Node construction.
        * Then use static_cast to access derived classes efficiently from the NodeRefVec.
        * See DataFlowNumeric.h for examples.
@@ -305,11 +304,11 @@ namespace bpp {
       }
 
     private:
-      void registerNode (Node * n);
-      void unregisterNode (const Node * n);
+      void registerNode (Node_DF * n);
+      void unregisterNode (const Node_DF * n);
 
       NodeRefVec dependencyNodes_{};         // Nodes that we depend on.
-      std::vector<Node *> dependentNodes_{}; // Nodes that depend on us.
+      std::vector<Node_DF *> dependentNodes_{}; // Nodes that depend on us.
       bool isValid_{false};
     };
 
@@ -322,11 +321,11 @@ namespace bpp {
     }
 
     /// Check if searchedDependency if a transitive dependency of node.
-    bool isTransitivelyDependentOn (const Node & searchedDependency, const Node & node);
+    bool isTransitivelyDependentOn (const Node_DF & searchedDependency, const Node_DF & node);
 
     /// Recreate node by transitively replacing dependencies according to substitutions mapping.
     NodeRef recreateWithSubstitution (Context & c, const NodeRef & node,
-                                      const std::unordered_map<const Node *, NodeRef> & substitutions);
+                                      const std::unordered_map<const Node_DF *, NodeRef> & substitutions);
 
 
     
@@ -345,15 +344,15 @@ namespace bpp {
      * The Value<T> constructor forwards dependencies to the base Node, and other arguments to the
      * T value constructor.
      */
-    template <typename T> class Value : public Node {
+    template <typename T> class Value : public Node_DF {
     public:
       // Init deps
       template <typename... Args>
-      Value (const NodeRefVec & deps, Args &&... args) : Node (deps), value_ (std::forward<Args> (args)...) {}
+      Value (const NodeRefVec & deps, Args &&... args) : Node_DF (deps), value_ (std::forward<Args> (args)...) {}
 
       template <typename... Args>
       Value (NodeRefVec && deps, Args &&... args)
-        : Node (std::move (deps)), value_ (std::forward<Args> (args)...) {}
+        : Node_DF (std::move (deps)), value_ (std::forward<Args> (args)...) {}
 
       /** @brief Access value, recompute if needed.
        *
@@ -374,7 +373,7 @@ namespace bpp {
 
       /// Derive and cast result as Value<T> (most nodes derive to the
       /// same value type).
-      ValueRef<T> deriveAsValue (Context & c, const Node & node) {
+      ValueRef<T> deriveAsValue (Context & c, const Node_DF & node) {
         return convertRef<Value<T>> (this->derive (c, node));
       }
 
@@ -389,7 +388,7 @@ namespace bpp {
 
     /// Helper: access value of Node as a Value<T> with unchecked
     /// cast.
-    template <typename T> const T & accessValueConstCast (const Node & node) {
+    template <typename T> const T & accessValueConstCast (const Node_DF & node) {
       assert (dynamic_cast<const Value<T> *> (&node) != nullptr);      // Check type in debug mode
       return static_cast<const Value<T> &> (node).accessValueConst (); // Fast cast access
     }
@@ -536,7 +535,6 @@ namespace bpp {
       // We can use the faster static_cast due to Context::cached(): node types are conserved.
       return std::static_pointer_cast<T> (c.cached (newNode));
     }
-  } // namespace dataflow
 } // namespace bpp
 
 #endif // BPP_NEWPHYL_DATAFLOW_H

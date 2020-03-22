@@ -48,7 +48,7 @@ knowledge of the CeCILL license and that you accept its terms.
 #include <Bpp/Phyl/OptimizationTools.h>
 #include <iostream>
 
-#include <Bpp/NewPhyl/LikelihoodCalculationSingleProcess.h>
+#include <Bpp/Phyl/NewLikelihood/DataFlow/LikelihoodCalculationSingleProcess.h>
 
 using namespace bpp;
 using namespace std;
@@ -59,11 +59,11 @@ void fitModelH(std::shared_ptr<SubstitutionModel> model, DiscreteDistribution* r
 {
   RateAcrossSitesSubstitutionProcess process(model, rdist, tree);
 
-  dataflow::Context context;
+  Context context;
   
-  auto lik = std::make_shared<dataflow::LikelihoodCalculationSingleProcess>(context, sites, process);
+  auto lik = std::make_shared<LikelihoodCalculationSingleProcess>(context, sites, process);
   
-  dataflow::SingleProcessPhyloLikelihood_DF llh(context, lik, lik->getParameters());
+  SingleProcessPhyloLikelihood_DF llh(context, lik, lik->getParameters());
 
   ApplicationTools::displayResult("Test model", model->getName());
   double initValue=llh.getValue();
@@ -92,12 +92,12 @@ void fitModelHClock(std::shared_ptr<SubstitutionModel> model, DiscreteDistributi
 {
   RateAcrossSitesSubstitutionProcess process(model, rdist, tree);
 
-  dataflow::Context context;
+  Context context;
   
-  auto lik = std::make_shared<dataflow::LikelihoodCalculationSingleProcess>(context, sites, process);
+  auto lik = std::make_shared<LikelihoodCalculationSingleProcess>(context, sites, process);
   lik->setClockLike();
   
-  dataflow::SingleProcessPhyloLikelihood_DF llh(context, lik, lik->getParameters());
+  SingleProcessPhyloLikelihood_DF llh(context, lik, lik->getParameters());
     
   ApplicationTools::displayResult("Test model", model->getName());
   double initValue=llh.getValue();

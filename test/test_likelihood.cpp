@@ -52,7 +52,7 @@
 #include <Bpp/Phyl/NewLikelihood/SimpleSubstitutionProcess.h>
 #include <Bpp/Phyl/NewLikelihood/RateAcrossSitesSubstitutionProcess.h>
 
-#include <Bpp/NewPhyl/LikelihoodCalculationSingleProcess.h>
+#include <Bpp/Phyl/NewLikelihood/DataFlow/LikelihoodCalculationSingleProcess.h>
 
 #include <iostream>
 
@@ -121,9 +121,9 @@ void fitModelHSR(std::shared_ptr<SubstitutionModel> model, DiscreteDistribution*
 
   unique_ptr<RateAcrossSitesSubstitutionProcess> process(new RateAcrossSitesSubstitutionProcess(std::shared_ptr<SubstitutionModel>(model->clone()), rdist->clone(), partree.clone()));
 
-  dataflow::Context context;                        
-  auto lik = std::make_shared<dataflow::LikelihoodCalculationSingleProcess>(context, sites, *process);
-  dataflow::SingleProcessPhyloLikelihood_DF llh(context, lik, lik->getParameters());
+  Context context;                        
+  auto lik = std::make_shared<LikelihoodCalculationSingleProcess>(context, sites, *process);
+  SingleProcessPhyloLikelihood_DF llh(context, lik, lik->getParameters());
 
   llh.getFirstOrderDerivative("BrLen0");
   llh.getFirstOrderDerivative("BrLen1");
@@ -189,11 +189,11 @@ void fitModelHSR(std::shared_ptr<SubstitutionModel> model, DiscreteDistribution*
   
   process.reset(new RateAcrossSitesSubstitutionProcess(model, rdist->clone(), partree.clone()));
 
-  dataflow::Context context2;
+  Context context2;
   
-  lik.reset(new dataflow::LikelihoodCalculationSingleProcess(context2, sites, *process));
+  lik.reset(new LikelihoodCalculationSingleProcess(context2, sites, *process));
   
-  dataflow::SingleProcessPhyloLikelihood_DF llh2(context2, lik, lik->getParameters());
+  SingleProcessPhyloLikelihood_DF llh2(context2, lik, lik->getParameters());
 
   ParameterList opln1=process->getBranchLengthParameters(true);
 

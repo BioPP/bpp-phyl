@@ -41,9 +41,7 @@ knowledge of the CeCILL license and that you accept its terms.
 #include "Parametrizable.h"
 
 using namespace bpp;
-using namespace bpp::dataflow;
 using namespace std;
-
 
 BackwardLikelihoodAboveRef BackwardLikelihoodTree::makeBackwardLikelihoodAtEdge (PhyloTree::EdgeIndex edgeIndex)
 {

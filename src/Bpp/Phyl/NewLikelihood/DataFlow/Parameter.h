@@ -50,8 +50,6 @@
 
 namespace bpp {
 
-  namespace dataflow {
-
     /** @brief Data flow node representing a parameter.
      *
      * This class wraps a bpp::Parameter as a data flow node.
@@ -142,11 +140,11 @@ namespace bpp {
         return Parameter::getValue();
       }
 
-      bool compareAdditionalArguments (const Node & other) const;
+      bool compareAdditionalArguments (const Node_DF & other) const;
       
       std::size_t hashAdditionalArguments () const;
       
-      NodeRef derive (Context & c, const Node & node);
+      NodeRef derive (Context & c, const Node_DF & node);
 
       NodeRef recreate (Context & c, NodeRefVec && deps);
       
@@ -229,7 +227,7 @@ namespace bpp {
       }
 
       // ShiftDelta additional arguments = (n_).
-      bool compareAdditionalArguments (const Node & other) const final {
+      bool compareAdditionalArguments (const Node_DF & other) const final {
         const auto * derived = dynamic_cast<const Self *> (&other);
         return derived != nullptr && n_ == derived->n_;
       }
@@ -262,7 +260,7 @@ namespace bpp {
         return seed;
       }
 
-      NodeRef derive (Context & c, const Node & node) final {
+      NodeRef derive (Context & c, const Node_DF & node) final {
         if (&node == this) {
           return ConstantOne<Parameter>::create (c, Dimension<Parameter>());
         }
@@ -313,9 +311,9 @@ namespace bpp {
 
       std::string debugInfo () const final;
 
-      bool compareAdditionalArguments (const Node & other) const final;
+      bool compareAdditionalArguments (const Node_DF & other) const final;
 
-      NodeRef derive (Context & c, const Node & node) final;
+      NodeRef derive (Context & c, const Node_DF & node) final;
       NodeRef recreate (Context & c, NodeRefVec && deps) final;
 
       std::string description () const {
@@ -332,7 +330,6 @@ namespace bpp {
 
     };
     
-  } // namespace dataflow
 } // namespace bpp
 
 #endif // CONFIGURED_PARAMETER_H

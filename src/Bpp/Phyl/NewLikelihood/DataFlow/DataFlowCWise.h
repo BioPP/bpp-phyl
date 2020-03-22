@@ -86,7 +86,6 @@ namespace bpp {
    * add(x,x) -> 2*x ? (and similar for mul, ...)
    * all deps constant => return constant ?
    */
-  namespace dataflow {
     template <typename Result, typename From> class CWiseFill;
     template <typename Result, typename From> class CWiseAdd;
     template <typename Result, typename From, typename Prop> class CWiseMean;
@@ -137,11 +136,11 @@ namespace bpp {
       }
 
       // CWiseFill additional arguments = ().
-      bool compareAdditionalArguments (const Node & other) const final {
+      bool compareAdditionalArguments (const Node_DF & other) const final {
         return dynamic_cast<const Self *> (&other) != nullptr;
       }
 
-      NodeRef derive (Context & c, const Node & node) final {
+      NodeRef derive (Context & c, const Node_DF & node) final {
         if (&node == this) {
           return ConstantOne<R>::create (c, targetDimension_);
         }
@@ -222,12 +221,12 @@ namespace bpp {
       }
 
       // CWiseApply additional arguments = ().
-      bool compareAdditionalArguments (const Node & other) const final {
+      bool compareAdditionalArguments (const Node_DF & other) const final {
         return dynamic_cast<const Self *> (&other) != nullptr;
       }
 
       // df(X(theta))/dtheta|X(theta) = df/dtheta|X(theta) + df/dX.dX/dtheta|X(theta)
-      NodeRef derive (Context & c, const Node & node) final {
+      NodeRef derive (Context & c, const Node_DF & node) final {
         if (&node == this) {
           return ConstantOne<R>::create (c, targetDimension_);
         }
@@ -345,11 +344,11 @@ namespace bpp {
       }
 
       // CWisePattern additional arguments = ().
-      bool compareAdditionalArguments (const Node & other) const final {
+      bool compareAdditionalArguments (const Node_DF & other) const final {
         return dynamic_cast<const Self *> (&other) != nullptr;
       }
 
-      NodeRef derive (Context & c, const Node & node) final {
+      NodeRef derive (Context & c, const Node_DF & node) final {
         if (&node == this) {
           return ConstantOne<R>::create (c, targetDimension_);
         }
@@ -432,11 +431,11 @@ namespace bpp {
       }
 
       // Convert<T> additional arguments = ().
-      bool compareAdditionalArguments (const Node & other) const final {
+      bool compareAdditionalArguments (const Node_DF & other) const final {
         return dynamic_cast<const Self *> (&other) != nullptr;
       }
 
-      NodeRef derive (Context & c, const Node & node) final {
+      NodeRef derive (Context & c, const Node_DF & node) final {
         if (&node == this) {
           return ConstantOne<R>::create (c, targetDimension_);
         }
@@ -525,11 +524,11 @@ namespace bpp {
       }
 
       // Convert<T> additional arguments = ().
-      bool compareAdditionalArguments (const Node & other) const final {
+      bool compareAdditionalArguments (const Node_DF & other) const final {
         return dynamic_cast<const Self *> (&other) != nullptr;
       }
 
-      NodeRef derive (Context & c, const Node & node) final {
+      NodeRef derive (Context & c, const Node_DF & node) final {
         if (&node == this) {
           return ConstantOne<R>::create (c, targetDimension_);
         }
@@ -599,11 +598,11 @@ namespace bpp {
       }
 
       // CWiseAdd additional arguments = ().
-      bool compareAdditionalArguments (const Node & other) const final {
+      bool compareAdditionalArguments (const Node_DF & other) const final {
         return dynamic_cast<const Self *> (&other) != nullptr;
       }
 
-      NodeRef derive (Context & c, const Node & node) final {
+      NodeRef derive (Context & c, const Node_DF & node) final {
         if (&node == this) {
           return ConstantOne<R>::create (c, targetDimension_);
         }
@@ -731,11 +730,11 @@ namespace bpp {
       }
       
       // CWiseMean additional arguments = ().
-      bool compareAdditionalArguments (const Node & other) const final {
+      bool compareAdditionalArguments (const Node_DF & other) const final {
         return dynamic_cast<const Self *> (&other) != nullptr;
       }
 
-      NodeRef derive (Context & c, const Node & node) final {
+      NodeRef derive (Context & c, const Node_DF & node) final {
         if (&node == this) {
           return ConstantOne<R>::create (c, targetDimension_);
         }
@@ -834,11 +833,11 @@ namespace bpp {
       }
       
       // CWiseAdd additional arguments = ().
-      bool compareAdditionalArguments (const Node & other) const final {
+      bool compareAdditionalArguments (const Node_DF & other) const final {
         return dynamic_cast<const Self *> (&other) != nullptr;
       }
 
-      NodeRef derive (Context & c, const Node & node) final {
+      NodeRef derive (Context & c, const Node_DF & node) final {
         if (&node == this) {
           return ConstantOne<R>::create (c, targetDimension_);
         }
@@ -942,11 +941,11 @@ namespace bpp {
       }
 
       // CWiseMul additional arguments = ().
-      bool compareAdditionalArguments (const Node & other) const final {
+      bool compareAdditionalArguments (const Node_DF & other) const final {
         return dynamic_cast<const Self *> (&other) != nullptr;
       }
 
-      NodeRef derive (Context & c, const Node & node) final {
+      NodeRef derive (Context & c, const Node_DF & node) final {
         if (&node == this) {
           return ConstantOne<R>::create (c, targetDimension_);
         }
@@ -1061,11 +1060,11 @@ namespace bpp {
       }
 
       // CWiseMul additional arguments = ().
-      bool compareAdditionalArguments (const Node & other) const final {
+      bool compareAdditionalArguments (const Node_DF & other) const final {
         return dynamic_cast<const Self *> (&other) != nullptr;
       }
 
-      NodeRef derive (Context & c, const Node & node) final {
+      NodeRef derive (Context & c, const Node_DF & node) final {
         if (&node == this) {
           return ConstantOne<R>::create (c, targetDimension_);
         }
@@ -1128,11 +1127,11 @@ namespace bpp {
       }
 
       // CWiseNegate additional arguments = ().
-      bool compareAdditionalArguments (const Node & other) const final {
+      bool compareAdditionalArguments (const Node_DF & other) const final {
         return dynamic_cast<const Self *> (&other) != nullptr;
       }
 
-      NodeRef derive (Context & c, const Node & node) final { 
+      NodeRef derive (Context & c, const Node_DF & node) final { 
         if (&node == this) {
           return ConstantOne<T>::create (c, targetDimension_);
         }
@@ -1186,11 +1185,11 @@ namespace bpp {
       }
 
       // CWiseInverse additional arguments = ().
-      bool compareAdditionalArguments (const Node & other) const final {
+      bool compareAdditionalArguments (const Node_DF & other) const final {
         return dynamic_cast<const Self *> (&other) != nullptr;
       }
 
-      NodeRef derive (Context & c, const Node & node) final {
+      NodeRef derive (Context & c, const Node_DF & node) final {
         if (&node == this) {
           return ConstantOne<T>::create (c, targetDimension_);
         }
@@ -1249,11 +1248,11 @@ namespace bpp {
       }
 
       // CWiseLog additional arguments = ().
-      bool compareAdditionalArguments (const Node & other) const final {
+      bool compareAdditionalArguments (const Node_DF & other) const final {
         return dynamic_cast<const Self *> (&other) != nullptr;
       }
 
-      NodeRef derive (Context & c, const Node & node) final {
+      NodeRef derive (Context & c, const Node_DF & node) final {
         if (&node == this) {
           return ConstantOne<T>::create (c, targetDimension_);
         }
@@ -1311,11 +1310,11 @@ namespace bpp {
       }
 
       // CWiseExp additional arguments = ().
-      bool compareAdditionalArguments (const Node & other) const final {
+      bool compareAdditionalArguments (const Node_DF & other) const final {
         return dynamic_cast<const Self *> (&other) != nullptr;
       }
 
-      NodeRef derive (Context & c, const Node & node) final {
+      NodeRef derive (Context & c, const Node_DF & node) final {
         if (&node == this) {
           return ConstantOne<T>::create (c, targetDimension_);
         }
@@ -1388,7 +1387,7 @@ namespace bpp {
       }
 
       // CWiseConstantPow additional arguments = (exponent_, factor_).
-      bool compareAdditionalArguments (const Node & other) const final {
+      bool compareAdditionalArguments (const Node_DF & other) const final {
         const auto * derived = dynamic_cast<const Self *> (&other);
         return derived != nullptr && exponent_ == derived->exponent_ && factor_ == derived->factor_;
       }
@@ -1399,7 +1398,7 @@ namespace bpp {
         return seed;
       }
 
-      NodeRef derive (Context & c, const Node & node) final {
+      NodeRef derive (Context & c, const Node_DF & node) final {
         if (&node == this) {
           return ConstantOne<T>::create (c, targetDimension_);
         }
@@ -1462,11 +1461,11 @@ namespace bpp {
       }
 
       // ScalarProduct additional arguments = ().
-      bool compareAdditionalArguments (const Node & other) const final {
+      bool compareAdditionalArguments (const Node_DF & other) const final {
         return dynamic_cast<const Self *> (&other) != nullptr;
       }
 
-      NodeRef derive (Context & c, const Node & node) final {
+      NodeRef derive (Context & c, const Node_DF & node) final {
         if (&node == this) {
           return ConstantOne<double>::create (c, Dimension<double> ());
         }
@@ -1534,11 +1533,11 @@ namespace bpp {
       }
 
       // SumOfLogarithms additional arguments = ().
-      bool compareAdditionalArguments (const Node & other) const final {
+      bool compareAdditionalArguments (const Node_DF & other) const final {
         return dynamic_cast<const Self *> (&other) != nullptr;
       }
 
-      NodeRef derive (Context & c, const Node & node) final {
+      NodeRef derive (Context & c, const Node_DF & node) final {
         const auto & m = this->dependency (0);
         auto dm_dn = m->derive (c, node);
         auto m_inverse = CWiseInverse<F>::create (c, {m}, mTargetDimension_);
@@ -1634,11 +1633,11 @@ namespace bpp {
       }
       
       // LogSumExp additional arguments = ().
-      bool compareAdditionalArguments (const Node & other) const final {
+      bool compareAdditionalArguments (const Node_DF & other) const final {
         return dynamic_cast<const Self *> (&other) != nullptr;
       }
 
-      NodeRef derive (Context & c, const Node & node) final {
+      NodeRef derive (Context & c, const Node_DF & node) final {
         const auto & v = this->dependency (0);
         const auto & p = this->dependency (1);
         auto diffvL=CWiseSub<T0, std::tuple<double, T0>>::create(c, {this->shared_from_this(),v}, mTargetDimension_);
@@ -1745,11 +1744,11 @@ namespace bpp {
       }
 
       // MatrixProduct additional arguments = ().
-      bool compareAdditionalArguments (const Node & other) const final {
+      bool compareAdditionalArguments (const Node_DF & other) const final {
         return dynamic_cast<const Self *> (&other) != nullptr;
       }
 
-      NodeRef derive (Context & c, const Node & node) final {
+      NodeRef derive (Context & c, const Node_DF & node) final {
         if (&node == this) {
           return ConstantOne<R>::create (c, targetDimension_);
         }
@@ -1824,7 +1823,7 @@ namespace bpp {
       }
 
       // ShiftDelta additional arguments = (n_).
-      bool compareAdditionalArguments (const Node & other) const final {
+      bool compareAdditionalArguments (const Node_DF & other) const final {
         const auto * derived = dynamic_cast<const Self *> (&other);
         return derived != nullptr && n_ == derived->n_;
       }
@@ -1834,7 +1833,7 @@ namespace bpp {
         return seed;
       }
 
-      NodeRef derive (Context & c, const Node & node) final {
+      NodeRef derive (Context & c, const Node_DF & node) final {
         if (&node == this) {
           return ConstantOne<T>::create (c, targetDimension_);
         }
@@ -1982,7 +1981,7 @@ namespace bpp {
       }
 
       // CombineDeltaShifted additional arguments = (n_, coeffs_).
-      bool compareAdditionalArguments (const Node & other) const final {
+      bool compareAdditionalArguments (const Node_DF & other) const final {
         const auto * derived = dynamic_cast<const Self *> (&other);
         return derived != nullptr && n_ == derived->n_ && coeffs_ == derived->coeffs_;
       }
@@ -1995,7 +1994,7 @@ namespace bpp {
         return seed;
       }
 
-      NodeRef derive (Context & c, const Node & node) final {
+      NodeRef derive (Context & c, const Node_DF & node) final {
         if (&node == this) {
           return ConstantOne<T>::create (c, targetDimension_);
         }
@@ -2294,7 +2293,6 @@ namespace bpp {
       }
     }
 
-  } // namespace dataflow
 } // namespace bpp
 
 #endif // DATAFLOW_CWISE_H

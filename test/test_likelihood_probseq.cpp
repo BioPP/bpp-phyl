@@ -55,7 +55,7 @@ knowledge of the CeCILL license and that you accept its terms.
 #include <Bpp/Phyl/NewLikelihood/SimpleSubstitutionProcess.h>
 #include <Bpp/Phyl/NewLikelihood/RateAcrossSitesSubstitutionProcess.h>
 
-#include <Bpp/NewPhyl/LikelihoodCalculationSingleProcess.h>
+#include <Bpp/Phyl/NewLikelihood/DataFlow/LikelihoodCalculationSingleProcess.h>
 
 #include <iostream>
 
@@ -124,9 +124,9 @@ void fitModelHSR(std::shared_ptr<SubstitutionModel> model, DiscreteDistribution*
   
   unique_ptr<RateAcrossSitesSubstitutionProcess> process(new RateAcrossSitesSubstitutionProcess(std::shared_ptr<SubstitutionModel>(model->clone()), rdist->clone(), new_tree.clone()));
 
-  dataflow::Context context;                        
-  auto lik = std::make_shared<dataflow::LikelihoodCalculationSingleProcess>(context, sites, *process);
-  auto newTl = std::make_shared<dataflow::SingleProcessPhyloLikelihood_DF>(context, lik, lik->getParameters());
+  Context context;                        
+  auto lik = std::make_shared<LikelihoodCalculationSingleProcess>(context, sites, *process);
+  auto newTl = std::make_shared<SingleProcessPhyloLikelihood_DF>(context, lik, lik->getParameters());
 
   
   cout << "NewTL: " << setprecision(20) << newTl->getValue() << endl;
@@ -183,8 +183,8 @@ void fitModelHSR(std::shared_ptr<SubstitutionModel> model, DiscreteDistribution*
 
 
   process.reset(new RateAcrossSitesSubstitutionProcess(model, rdist->clone(), new_tree.clone()));  
-  lik.reset(new dataflow::LikelihoodCalculationSingleProcess(context, sites, *process));
-  newTl.reset(new dataflow::SingleProcessPhyloLikelihood_DF(context, lik, lik->getParameters()));
+  lik.reset(new LikelihoodCalculationSingleProcess(context, sites, *process));
+  newTl.reset(new SingleProcessPhyloLikelihood_DF(context, lik, lik->getParameters()));
 
   ParameterList opln1=process->getBranchLengthParameters(true);
   

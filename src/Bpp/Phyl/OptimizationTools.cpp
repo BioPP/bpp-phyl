@@ -545,7 +545,7 @@ unsigned int OptimizationTools::optimizeNumericalParameters2(
 /************************************************************/
 
 unsigned int OptimizationTools::optimizeNumericalParameters2(
-  dataflow::SingleProcessPhyloLikelihood_DF& lik,
+  SingleProcessPhyloLikelihood_DF& lik,
   const ParameterList& parameters,
   OptimizationListener* listener,
   double tolerance,
@@ -568,17 +568,17 @@ unsigned int OptimizationTools::optimizeNumericalParameters2(
 
   if (optMethodDeriv == OPTIMIZATION_GRADIENT)
   {
-    lik.getLikelihoodCalculation()->setNumericalDerivateConfiguration(0.00001, dataflow::NumericalDerivativeType::ThreePoints);
+    lik.getLikelihoodCalculation()->setNumericalDerivateConfiguration(0.00001, NumericalDerivativeType::ThreePoints);
     optimizer.reset(new ConjugateGradientMultiDimensions(&lik));
   }
   else if (optMethodDeriv == OPTIMIZATION_NEWTON)
   {
-    lik.getLikelihoodCalculation()->setNumericalDerivateConfiguration(0.0001, dataflow::NumericalDerivativeType::FivePoints);
+    lik.getLikelihoodCalculation()->setNumericalDerivateConfiguration(0.0001, NumericalDerivativeType::FivePoints);
     optimizer.reset(new PseudoNewtonOptimizer(&lik));
   }
   else if (optMethodDeriv == OPTIMIZATION_BFGS)
   {
-    lik.getLikelihoodCalculation()->setNumericalDerivateConfiguration(0.0001, dataflow::NumericalDerivativeType::ThreePoints);
+    lik.getLikelihoodCalculation()->setNumericalDerivateConfiguration(0.0001, NumericalDerivativeType::ThreePoints);
     optimizer.reset(new BfgsMultiDimensions(&lik));
   }
   else

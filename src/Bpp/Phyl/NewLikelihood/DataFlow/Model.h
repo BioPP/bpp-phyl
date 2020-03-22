@@ -56,8 +56,6 @@ namespace bpp {
    */
   class TransitionModel;
 
-  namespace dataflow {
-
     /** @brief Data flow node representing a Model configured with parameter values.
      *
      * This class wraps a bpp::TransitionModel as a data flow node.
@@ -94,7 +92,7 @@ namespace bpp {
         return "red";
       }
 
-      bool compareAdditionalArguments (const Node & other) const;
+      bool compareAdditionalArguments (const Node_DF & other) const;
       
       std::size_t hashAdditionalArguments () const;
       
@@ -135,9 +133,9 @@ namespace bpp {
 
       std::string debugInfo () const final;
 
-      bool compareAdditionalArguments (const Node & other) const;
+      bool compareAdditionalArguments (const Node_DF & other) const;
 
-      NodeRef derive (Context & c, const Node & node) final;
+      NodeRef derive (Context & c, const Node_DF & node) final;
       NodeRef recreate (Context & c, NodeRefVec && deps) final;
 
       std::string color () const final
@@ -175,9 +173,9 @@ namespace bpp {
 
       std::string debugInfo () const final;
 
-      bool compareAdditionalArguments (const Node & other) const;
+      bool compareAdditionalArguments (const Node_DF & other) const;
 
-      NodeRef derive (Context & c, const Node & node) final;
+      NodeRef derive (Context & c, const Node_DF & node) final;
       NodeRef recreate (Context & c, NodeRefVec && deps) final;
 
       std::string color () const final
@@ -223,9 +221,9 @@ namespace bpp {
 
       std::string debugInfo () const final;
 
-      bool compareAdditionalArguments (const Node & other) const;
+      bool compareAdditionalArguments (const Node_DF & other) const;
 
-      NodeRef derive (Context & c, const Node & node) final;
+      NodeRef derive (Context & c, const Node_DF & node) final;
       NodeRef recreate (Context & c, NodeRefVec && deps) final;
 
       std::string color () const final
@@ -274,9 +272,9 @@ namespace bpp {
         return "blue";
       }
 
-      bool compareAdditionalArguments (const Node & other) const final;
+      bool compareAdditionalArguments (const Node_DF & other) const final;
       
-      NodeRef derive (Context & c, const Node & node) final;
+      NodeRef derive (Context & c, const Node_DF & node) final;
       NodeRef recreate (Context & c, NodeRefVec && deps) final;
       
     private:
@@ -310,9 +308,9 @@ namespace bpp {
 
       std::string debugInfo () const final;
 
-      bool compareAdditionalArguments (const Node & other) const final;
+      bool compareAdditionalArguments (const Node_DF & other) const final;
 
-      NodeRef derive (Context & c, const Node & node) final;
+      NodeRef derive (Context & c, const Node_DF & node) final;
       NodeRef recreate (Context & c, NodeRefVec && deps) final;
 
       std::string color() const final
@@ -329,7 +327,6 @@ namespace bpp {
     };
 
 
-  } // namespace dataflow
 } // namespace bpp
 
 #endif // BPP_NEWPHYL_MODEL_H

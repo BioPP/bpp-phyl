@@ -58,7 +58,7 @@ knowledge of the CeCILL license and that you accept its terms.
 #include <Bpp/Phyl/NewLikelihood/PhyloLikelihoods/SingleProcessPhyloLikelihood.h>
 #include <Bpp/Phyl/NewLikelihood/PhyloLikelihoods/FormulaOfPhyloLikelihood.h>
 
-#include <Bpp/NewPhyl/SingleProcessPhyloLikelihood_DF.h>
+#include <Bpp/Phyl/NewLikelihood/DataFlow/SingleProcessPhyloLikelihood_DF.h>
 
 #include <iostream>
 
@@ -156,15 +156,15 @@ int main() {
   SubstitutionProcess* sP1c=subPro1->clone();
   SubstitutionProcess* sP2c=subPro2->clone();
 
-  bpp::dataflow::Context context;
+  Context context;
 
-  auto lik1 = std::make_shared<bpp::dataflow::LikelihoodCalculationSingleProcess>(context, sites, *sP1c);
+  auto lik1 = std::make_shared<LikelihoodCalculationSingleProcess>(context, sites, *sP1c);
 
-  pc.addPhyloLikelihood(1, new bpp::dataflow::SingleProcessPhyloLikelihood_DF(context, lik1));
+  pc.addPhyloLikelihood(1, new SingleProcessPhyloLikelihood_DF(context, lik1));
     
-  auto lik2 = std::make_shared<bpp::dataflow::LikelihoodCalculationSingleProcess>(context, sites, *sP2c);
+  auto lik2 = std::make_shared<LikelihoodCalculationSingleProcess>(context, sites, *sP2c);
 
-  pc.addPhyloLikelihood(2, new bpp::dataflow::SingleProcessPhyloLikelihood_DF(context, lik2));
+  pc.addPhyloLikelihood(2, new SingleProcessPhyloLikelihood_DF(context, lik2));
   
   AlignedPhyloLikelihood* spl1=dynamic_cast<AlignedPhyloLikelihood*>(pc[1]);
   AlignedPhyloLikelihood* spl2=dynamic_cast<AlignedPhyloLikelihood*>(pc[2]);

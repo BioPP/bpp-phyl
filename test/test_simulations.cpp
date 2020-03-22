@@ -47,7 +47,7 @@ knowledge of the CeCILL license and that you accept its terms.
 #include <Bpp/Phyl/Model/SubstitutionModelSetTools.h>
 #include <Bpp/Phyl/Simulation/SubstitutionProcessSequenceSimulator.h>
 #include <Bpp/Phyl/NewLikelihood/NonHomogeneousSubstitutionProcess.h>
-#include <Bpp/NewPhyl/SingleProcessPhyloLikelihood_DF.h>
+#include <Bpp/Phyl/NewLikelihood/DataFlow/SingleProcessPhyloLikelihood_DF.h>
 #include <Bpp/Phyl/OptimizationTools.h>
 #include <iostream>
 
@@ -57,8 +57,8 @@ using namespace std;
 int main() {
 
   Newick reader;
-  auto phyloTree = std::unique_ptr<bpp::PhyloTree>(reader.parenthesisToPhyloTree("((A:0.01, B:0.02):0.03,C:0.01,D:0.1);", false, "", false, false));
-  auto partree = new bpp::ParametrizablePhyloTree(*phyloTree);
+  auto phyloTree = std::unique_ptr<PhyloTree>(reader.parenthesisToPhyloTree("((A:0.01, B:0.02):0.03,C:0.01,D:0.1);", false, "", false, false));
+  auto partree = new ParametrizablePhyloTree(*phyloTree);
 
   vector<string> seqNames= phyloTree->getAllLeavesNames();
   //-------------
@@ -100,9 +100,9 @@ int main() {
   cout << "fit model" << endl;
   
   //Now fit model:
-  bpp::dataflow::Context context;
-  auto l = std::make_shared<bpp::dataflow::LikelihoodCalculationSingleProcess>(context, sites, *process);
-  bpp::dataflow::SingleProcessPhyloLikelihood_DF llh(context, l, l->getParameters());
+  Context context;
+  auto l = std::make_shared<LikelihoodCalculationSingleProcess>(context, sites, *process);
+  SingleProcessPhyloLikelihood_DF llh(context, l, l->getParameters());
 
   OptimizationTools::optimizeNumericalParameters2(
       llh, llh.getParameters(), 0,
@@ -132,8 +132,8 @@ int main() {
 
   //Now fit model:
   auto process2 = std::shared_ptr<SubstitutionProcess>(process->clone());
-  auto l2 = std::make_shared<bpp::dataflow::LikelihoodCalculationSingleProcess>(context, sites, *process2);
-  bpp::dataflow::SingleProcessPhyloLikelihood_DF llh2(context, l2, l2->getParameters());
+  auto l2 = std::make_shared<LikelihoodCalculationSingleProcess>(context, sites, *process2);
+  SingleProcessPhyloLikelihood_DF llh2(context, l2, l2->getParameters());
 
   OptimizationTools::optimizeNumericalParameters2(
     llh2, llh2.getParameters(), 0,

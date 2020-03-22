@@ -55,8 +55,6 @@ namespace bpp {
 
   class FrequenciesSet;
 
-  namespace dataflow {
-
     /** @brief Data flow node representing a Frequencies Set
      * configured with parameter values.
      *
@@ -97,7 +95,7 @@ namespace bpp {
         return "#ffff00";
       }
 
-      bool compareAdditionalArguments (const Node & other) const;
+      bool compareAdditionalArguments (const Node_DF & other) const;
       
       std::size_t hashAdditionalArguments () const;
       
@@ -138,9 +136,9 @@ namespace bpp {
 
       std::string debugInfo () const final;
 
-      bool compareAdditionalArguments (const Node & other) const final;
+      bool compareAdditionalArguments (const Node_DF & other) const final;
 
-      NodeRef derive (Context & c, const Node & node) final;
+      NodeRef derive (Context & c, const Node_DF & node) final;
       NodeRef recreate (Context & c, NodeRefVec && deps) final;
 
       std::string color() const final
@@ -154,8 +152,6 @@ namespace bpp {
       Dimension<T> targetDimension_;
     };
 
-
-  } // namespace dataflow
 } // namespace bpp
 
 #endif // BPP_NEWPHYL_FREQUENCIES_SET_H

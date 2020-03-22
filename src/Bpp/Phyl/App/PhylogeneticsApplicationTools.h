@@ -691,7 +691,7 @@ namespace bpp
      */
     
     static PhyloLikelihoodContainer* getPhyloLikelihoodContainer(
-      dataflow::Context& context,
+      Context& context,
       SubstitutionProcessCollection& SPC,
       std::map<size_t, SequenceEvolution*>& mSeqEvol,
       const std::map<size_t, AlignedValuesContainer*>& mData,

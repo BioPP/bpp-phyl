@@ -46,9 +46,6 @@
 
 namespace bpp
 {
-  namespace dataflow
-  {
-
     inline MatrixDimension transitionMatrixDimension (std::size_t nbState) {
       return {Eigen::Index (nbState), Eigen::Index (nbState)};
     }
@@ -266,7 +263,6 @@ namespace bpp
       friend class LikelihoodCalculationSingleProcess;
 
     };
-  }
   
 } //end of namespace bpp.
 

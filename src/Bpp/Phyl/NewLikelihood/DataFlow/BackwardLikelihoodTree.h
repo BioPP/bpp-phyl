@@ -46,8 +46,6 @@ knowledge of the CeCILL license and that you accept its terms.
 
 namespace bpp
 {
-  namespace dataflow
-  {
     
     /** @brief : At the top of each edge below a speciation node
      *
@@ -121,20 +119,20 @@ namespace bpp
        **/
       
     private:
-      dataflow::Context& context_;
+      Context& context_;
       std::size_t nbState_;
       std::size_t nbSite_;
-      std::shared_ptr<dataflow::ForwardLikelihoodTree> forwardTree_;
-      std::shared_ptr<dataflow::ProcessTree> processTree_;
+      std::shared_ptr<ForwardLikelihoodTree> forwardTree_;
+      std::shared_ptr<ProcessTree> processTree_;
       ValueRef<Eigen::RowVectorXd> rFreqs_;
       MatrixDimension likelihoodMatrixDim_;
       const StateMap& statemap_;
 
     public:
 
-      BackwardLikelihoodTree(dataflow::Context& c, 
-                             std::shared_ptr<dataflow::ForwardLikelihoodTree> forwardTree,
-                             std::shared_ptr<dataflow::ProcessTree> tree,
+      BackwardLikelihoodTree(Context& c, 
+                             std::shared_ptr<ForwardLikelihoodTree> forwardTree,
+                             std::shared_ptr<ProcessTree> tree,
                              ValueRef<Eigen::RowVectorXd> rFreqs,
                              const StateMap& statemap,
                              std::size_t nbSite) :
@@ -143,9 +141,9 @@ namespace bpp
       {
       }
 
-      ConditionalLikelihoodRef setRootFrequencies(const dataflow::ValueRef<Eigen::RowVectorXd> rootFreqs)
+      ConditionalLikelihoodRef setRootFrequencies(const ValueRef<Eigen::RowVectorXd> rootFreqs)
       {
-        auto r2=bpp::dataflow::CWiseFill<Eigen::MatrixXd, Eigen::RowVectorXd>::create(context_, {rootFreqs}, likelihoodMatrixDim_);
+        auto r2=CWiseFill<Eigen::MatrixXd, Eigen::RowVectorXd>::create(context_, {rootFreqs}, likelihoodMatrixDim_);
 
         associateNode(r2, forwardTree_->getRootIndex());
         setNodeIndex(r2, forwardTree_->getRootIndex());
@@ -191,7 +189,6 @@ namespace bpp
       friend class LikelihoodCalculationSingleProcess;
 
     };
-  }
   
 } //end of namespace bpp.
 

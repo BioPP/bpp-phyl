@@ -41,7 +41,6 @@
 
 using namespace bpp;
 using namespace std;
-using namespace dataflow;
 
 Vdouble SingleProcessPhyloLikelihood_DF::getLikelihoodPerSite() const
 {

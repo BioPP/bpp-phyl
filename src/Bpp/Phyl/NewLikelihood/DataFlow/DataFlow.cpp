@@ -77,7 +77,6 @@ namespace bpp {
 } // namespace bpp
 
 namespace bpp {
-  namespace dataflow {
     /*****************************************************************************
      * Error & dependency check functions.
      */
@@ -85,7 +84,7 @@ namespace bpp {
       throw Exception (prettyTypeName (nodeType) + ": compute() was called");
     }
 
-    void failureNodeConversion (const std::type_info & handleType, const Node & node) {
+    void failureNodeConversion (const std::type_info & handleType, const Node_DF & node) {
       throw Exception (prettyTypeName (handleType) + " cannot store: " + prettyTypeName (typeid (node)));
     }
 
@@ -140,55 +139,55 @@ namespace bpp {
     /*****************************************************************************
      * Node impl.
      */
-    Node::Node (const NodeRefVec & dependenciesArg) : dependencyNodes_ (dependenciesArg) {
+    Node_DF::Node_DF (const NodeRefVec & dependenciesArg) : dependencyNodes_ (dependenciesArg) {
       dependencyNodes_.erase(std::remove_if(dependencyNodes_.begin(),dependencyNodes_.end(),[](NodeRef nr){return nr==0;}), dependencyNodes_.end());
       for (auto & n : dependencyNodes_)
         n->registerNode (this);
     }
-    Node::Node (NodeRefVec && dependenciesArg) : dependencyNodes_ (std::move (dependenciesArg)) {
+    Node_DF::Node_DF (NodeRefVec && dependenciesArg) : dependencyNodes_ (std::move (dependenciesArg)) {
       dependencyNodes_.erase(std::remove_if(dependencyNodes_.begin(),dependencyNodes_.end(),[](NodeRef nr){return nr==0;}), dependencyNodes_.end());
       for (auto & n : dependencyNodes_)
         n->registerNode (this);
     }
 
-    Node::~Node () {
+    Node_DF::~Node_DF () {
       for (auto & n : dependencyNodes_)
         n->unregisterNode (this);
     }
 
-    std::string Node::description () const {
+    std::string Node_DF::description () const {
       std::string nodeType = prettyTypeName (typeid (*this));
       // Shorten displayed name by removing namespaces.
-      nodeType = std::regex_replace(nodeType, std::regex("bpp::dataflow::"), "");
+      nodeType = std::regex_replace(nodeType, std::regex("bpp::"), "");
       nodeType = std::regex_replace(nodeType, std::regex("Eigen::"), "");
       nodeType = std::regex_replace(nodeType, std::regex("std::"), "");
       nodeType = std::regex_replace(nodeType, std::regex("(Matrix<)([^>]*>)"),"Matrix");
       return nodeType;
     }
 
-    std::string Node::debugInfo () const { return {}; }
+    std::string Node_DF::debugInfo () const { return {}; }
 
-    bool Node::hasNumericalProperty (NumericalProperty) const { return false; }
+    bool Node_DF::hasNumericalProperty (NumericalProperty) const { return false; }
 
-    bool Node::compareAdditionalArguments (const Node &) const { return false; }
-    std::size_t Node::hashAdditionalArguments () const { return 0; }
+    bool Node_DF::compareAdditionalArguments (const Node_DF &) const { return false; }
+    std::size_t Node_DF::hashAdditionalArguments () const { return 0; }
 
-    NodeRef Node::derive (Context &, const Node &) {
+    NodeRef Node_DF::derive (Context &, const Node_DF &) {
       throw Exception ("Node does not support derivation: " + description ());
     }
 
-    NodeRef Node::recreate (Context &, NodeRefVec &&) {
+    NodeRef Node_DF::recreate (Context &, NodeRefVec &&) {
       throw Exception ("Node does not support recreate(deps): " + description ());
     }
 
-    void Node::computeRecursively () {
+    void Node_DF::computeRecursively () {
       // Compute the current node (and dependencies recursively) if needed
       if (isValid ())
         return;
 
       // Discover then recompute needed nodes
-      std::stack<Node *> nodesToVisit;
-      std::stack<Node *> nodesToRecompute;
+      std::stack<Node_DF *> nodesToVisit;
+      std::stack<Node_DF *> nodesToRecompute;
       nodesToVisit.push (this);
       while (!nodesToVisit.empty ()) {
         auto * n = nodesToVisit.top ();
@@ -210,10 +209,10 @@ namespace bpp {
       }
     }
 
-    void Node::invalidateRecursively () noexcept {
+    void Node_DF::invalidateRecursively () noexcept {
       if (!isValid ())
         return;
-      std::stack<Node *> nodesToInvalidate;
+      std::stack<Node_DF *> nodesToInvalidate;
       nodesToInvalidate.push (this);
       while (!nodesToInvalidate.empty ()) {
         auto * n = nodesToInvalidate.top ();
@@ -226,8 +225,8 @@ namespace bpp {
       }
     }
 
-    void Node::registerNode (Node * n) { dependentNodes_.emplace_back (n); }
-    void Node::unregisterNode (const Node * n) {
+    void Node_DF::registerNode (Node_DF * n) { dependentNodes_.emplace_back (n); }
+    void Node_DF::unregisterNode (const Node_DF * n) {
       dependentNodes_.erase (std::remove (dependentNodes_.begin (), dependentNodes_.end (), n),
                              dependentNodes_.end ());
     }
@@ -235,8 +234,8 @@ namespace bpp {
     /*****************************************************************************
      * Free functions.
      */
-    bool isTransitivelyDependentOn (const Node & searchedDependency, const Node & node) {
-      std::stack<const Node *> nodesToVisit;
+    bool isTransitivelyDependentOn (const Node_DF & searchedDependency, const Node_DF & node) {
+      std::stack<const Node_DF *> nodesToVisit;
       nodesToVisit.push (&node);
       while (!nodesToVisit.empty ()) {
         auto * current = nodesToVisit.top ();
@@ -250,7 +249,7 @@ namespace bpp {
     }
 
     NodeRef recreateWithSubstitution (Context & c, const NodeRef & node,
-                                      const std::unordered_map<const Node *, NodeRef> & substitutions) {
+                                      const std::unordered_map<const Node_DF *, NodeRef> & substitutions) {
       auto it = substitutions.find (node.get ());
       if (it != substitutions.end ()) {
         // Substitute sub tree.
@@ -349,12 +348,12 @@ namespace bpp {
     }
 
     // Dot node id for dataflow Node: 'N' + hash as a string
-    static std::string dotIdentifier (const Node & node) {
-      return 'N' + std::to_string (std::hash<const Node *>{}(&node));
+    static std::string dotIdentifier (const Node_DF & node) {
+      return 'N' + std::to_string (std::hash<const Node_DF *>{}(&node));
     }
 
     // Write line with node representation
-    static void writeDotNode (std::ostream & os, const Node & node, DotOptions opt) {
+    static void writeDotNode (std::ostream & os, const Node_DF & node, DotOptions opt) {
       os << '\t' << dotIdentifier (node);
       if (opt & DotOptions::DetailedNodeInfo) {
         os << " [style=filled, shape=Mrecord,label=\"{" << dotLabelEscape (node.description ())
@@ -367,7 +366,7 @@ namespace bpp {
     }
 
     // Write line with edge representation for n-th dependency of from
-    static void writeDotEdge (std::ostream & os, const Node & from, std::size_t depIndex, DotOptions opt) {
+    static void writeDotEdge (std::ostream & os, const Node_DF & from, std::size_t depIndex, DotOptions opt) {
       const auto& to = *from.dependency (depIndex);
       os << '\t' << dotIdentifier (from) << " -> " << dotIdentifier (to);
       os << " [";
@@ -390,12 +389,12 @@ namespace bpp {
     }
 
     // Write dot lines for graph structure, starting from the given entry points.
-    static void writeGraphStructure (std::ostream & os, const std::vector<const Node *> & entryPoints,
+    static void writeGraphStructure (std::ostream & os, const std::vector<const Node_DF *> & entryPoints,
                                      DotOptions opt) {
-      std::stack<const Node *> nodesToVisit;
-      std::unordered_set<const Node *> discoveredNodes;
+      std::stack<const Node_DF *> nodesToVisit;
+      std::unordered_set<const Node_DF *> discoveredNodes;
 
-      const auto discover = [&nodesToVisit, &discoveredNodes](const Node * n) {
+      const auto discover = [&nodesToVisit, &discoveredNodes](const Node_DF * n) {
         const bool discovered = discoveredNodes.find (n) != discoveredNodes.end ();
         if (!discovered) {
           nodesToVisit.emplace (n);
@@ -425,17 +424,16 @@ namespace bpp {
       }
     }
 
-    void writeGraphToDot (std::ostream & os, const std::vector<const Node *> & nodes, DotOptions opt) {
+    void writeGraphToDot (std::ostream & os, const std::vector<const Node_DF *> & nodes, DotOptions opt) {
       os << "digraph {\n";
       writeGraphStructure (os, nodes, opt);
       os << "}\n";
     }
     
-    void writeGraphToDot (const std::string & filename, const std::vector<const Node *> & nodes,
+    void writeGraphToDot (const std::string & filename, const std::vector<const Node_DF *> & nodes,
                           DotOptions opt) {
       std::ofstream file{filename};
       writeGraphToDot (file, nodes, opt);
     }
 
-  } // namespace dataflow
 } // namespace bpp

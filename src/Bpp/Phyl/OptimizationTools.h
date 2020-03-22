@@ -414,7 +414,7 @@ public:
       const std::string& optMethodDeriv  = OPTIMIZATION_NEWTON);
 
   static unsigned int optimizeNumericalParameters2(
-    dataflow::SingleProcessPhyloLikelihood_DF& lik,
+    SingleProcessPhyloLikelihood_DF& lik,
     const ParameterList& parameters,
     OptimizationListener* listener     = 0,
     double tolerance                   = 0.000001,

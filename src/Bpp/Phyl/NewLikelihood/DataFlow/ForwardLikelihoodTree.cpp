@@ -45,7 +45,6 @@ knowledge of the CeCILL license and that you accept its terms.
 #include "Sequence_DF.h"
 
 using namespace bpp;
-using namespace dataflow;
 using namespace std;
 
 ConditionalLikelihoodForwardRef ForwardLikelihoodTree::makeInitialConditionalLikelihood (const string & sequenceName, const AlignedValuesContainer & sites)

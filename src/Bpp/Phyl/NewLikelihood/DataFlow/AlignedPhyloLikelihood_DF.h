@@ -43,9 +43,6 @@
 
 namespace bpp {
 
-  namespace dataflow
-  {
-    
     /* Wraps a dataflow graph as a function: resultNode = f(variableNodes).
      *
      */
@@ -81,7 +78,6 @@ namespace bpp {
       }
       
     };
-  }
 } // namespace bpp
 
 #endif // ALIGNEDPHYLOLIKELIHOOD_DF_H

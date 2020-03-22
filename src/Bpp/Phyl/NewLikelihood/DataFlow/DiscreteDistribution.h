@@ -55,8 +55,6 @@ namespace bpp {
   /* Likelihood discrete distribution.
    */
 
-  namespace dataflow {
-
     /** @brief Data flow node representing a DiscreteDistribution
      * configured with parameter values.
      *
@@ -96,7 +94,7 @@ namespace bpp {
         return "blue";
       }
       
-      bool compareAdditionalArguments (const Node & other) const;
+      bool compareAdditionalArguments (const Node_DF & other) const;
       
       std::size_t hashAdditionalArguments () const;
       
@@ -142,9 +140,9 @@ namespace bpp {
         return "blue";
       }
 
-      bool compareAdditionalArguments (const Node & other) const final;
+      bool compareAdditionalArguments (const Node_DF & other) const final;
 
-      NodeRef derive (Context & c, const Node & node) final;
+      NodeRef derive (Context & c, const Node_DF & node) final;
       NodeRef recreate (Context & c, NodeRefVec && deps) final;
 
     private:
@@ -178,9 +176,9 @@ namespace bpp {
 
       std::string debugInfo () const final;
 
-      bool compareAdditionalArguments (const Node & other) const final;
+      bool compareAdditionalArguments (const Node_DF & other) const final;
 
-      NodeRef derive (Context & c, const Node & node) final;
+      NodeRef derive (Context & c, const Node_DF & node) final;
       NodeRef recreate (Context & c, NodeRefVec && deps) final;
 
       std::string color() const final
@@ -217,9 +215,9 @@ namespace bpp {
 
       std::string debugInfo () const final;
 
-      bool compareAdditionalArguments (const Node & other) const final;
+      bool compareAdditionalArguments (const Node_DF & other) const final;
 
-      NodeRef derive (Context & c, const Node & node) final;
+      NodeRef derive (Context & c, const Node_DF & node) final;
       NodeRef recreate (Context & c, NodeRefVec && deps) final;
 
       std::string color() const final
@@ -235,7 +233,6 @@ namespace bpp {
 
     };
 
-  } // namespace dataflow
 } // namespace bpp
 
 #endif // BPP_NEWPHYL_DISCRETE_DISTRIBUTION_H

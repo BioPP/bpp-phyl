@@ -50,7 +50,6 @@
 #include <string>
 
 using namespace bpp;
-using namespace bpp::dataflow;
 using namespace std;
 
 ProcessTree::ProcessTree(Context& context,

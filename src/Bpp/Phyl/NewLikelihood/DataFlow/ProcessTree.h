@@ -55,9 +55,6 @@
 namespace bpp
 {
 
-  namespace dataflow
-  {
-
     /** Helper: create a map with mutable dataflow nodes for each
      *  branch of the tree.
      *  The map is indexed by branch ids.
@@ -482,8 +479,6 @@ namespace bpp
     }
 
     
-  } //end of namespace dataflow
-
 } //end of namespace bpp
 
 

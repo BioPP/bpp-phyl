@@ -59,9 +59,6 @@
 
 namespace bpp {
 
-  namespace dataflow
-  {
-    
     /* Wraps a dataflow graph as a function: resultNode = f(variableNodes).
      *
      */
@@ -533,16 +530,14 @@ namespace bpp {
       Vdouble getPosteriorProbabilitiesForSitePerClass(size_t pos) const;
 
     private:
-      static Node & accessVariableNode (const Parameter & param) {
+      static Node_DF & accessVariableNode (const Parameter & param) {
         return *dynamic_cast<const ConfiguredParameter&>(param).dependency(0);
       }
       
-      Node & accessVariableNode (const std::string & name) const {
+      Node_DF & accessVariableNode (const std::string & name) const {
         return accessVariableNode (getParameter (name));
       }
     };
-
-  }
   
 } // namespace bpp
 
