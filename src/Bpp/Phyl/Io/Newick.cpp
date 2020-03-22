@@ -66,7 +66,7 @@ const string Newick::getFormatDescription() const
 
 /******************************************************************************/
 
-TreeTemplate<Node> * Newick::read(istream& in) const
+TreeTemplate<Node> * Newick::readTree(istream& in) const
 {
   // Checking the existence of specified file
   if (! in) { throw IOException ("Newick::read: failed to read from stream"); }
@@ -126,7 +126,7 @@ void Newick::write_(const TreeTemplate<N>& tree, ostream& out) const
 
 /******************************************************************************/
 
-void Newick::read(istream& in, vector<Tree*>& trees) const
+void Newick::readTrees(istream& in, vector<Tree*>& trees) const
 {
   // Checking the existence of specified file
   if (! in) { throw IOException ("Newick::read: failed to read from stream"); }

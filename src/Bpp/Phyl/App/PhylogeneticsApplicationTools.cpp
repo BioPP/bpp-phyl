@@ -115,7 +115,7 @@ Tree* PhylogeneticsApplicationTools::getTree(
     ApplicationTools::displayResult("Input tree file " + suffix, treeFilePath);
     ApplicationTools::displayResult("Input tree format " + suffix, iTree->getFormatName());
   }
-  Tree* tree = iTree->read(treeFilePath);
+  Tree* tree = iTree->readTree(treeFilePath);
   return tree;
 }
 
@@ -140,7 +140,7 @@ vector<Tree*> PhylogeneticsApplicationTools::getTrees(
     ApplicationTools::displayResult("Input trees format " + suffix, iTrees->getFormatName());
   }
   vector<Tree*> trees;
-  iTrees->read(treeFilePath, trees);
+  iTrees->readTrees(treeFilePath, trees);
 
   if (verbose)
   {
@@ -1439,7 +1439,7 @@ void PhylogeneticsApplicationTools::writeTree(
     ApplicationTools::displayResult("Output tree format " + suffix, oTree->getFormatName());
   }
   if (!checkOnly && file != "none")
-    oTree->write(tree, file, true);  
+    oTree->writeTree(tree, file, true);  
 }
 
 /******************************************************************************/
@@ -1465,7 +1465,7 @@ void PhylogeneticsApplicationTools::writeTrees(
     ApplicationTools::displayResult("Output trees format " + suffix, oTrees->getFormatName());
   }
   if (!checkOnly && file != "none")
-    oTrees->write(trees, file, true);
+    oTrees->writeTrees(trees, file, true);
   
 }
 

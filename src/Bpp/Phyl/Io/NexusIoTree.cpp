@@ -72,10 +72,10 @@ const string NexusIOTree::getFormatDescription() const
 
 /******************************************************************************/
 
-TreeTemplate<Node> * NexusIOTree::read(istream &in) const
+TreeTemplate<Node> * NexusIOTree::readTree(istream &in) const
 {
   vector<Tree*> trees;
-  read(in, trees);
+  readTrees(in, trees);
   if (trees.size() == 0)
     throw IOException("NexusIOTree::read(). No tree found in file.");
   for (size_t i = trees.size() - 1; i > 0; i--)
@@ -85,7 +85,7 @@ TreeTemplate<Node> * NexusIOTree::read(istream &in) const
 
 /******************************************************************************/
 
-void NexusIOTree::read(std::istream& in, std::vector<Tree*>& trees) const
+void NexusIOTree::readTrees(std::istream& in, std::vector<Tree*>& trees) const
 {
 	// Checking the existence of specified file
 	if (! in) { throw IOException ("NexusIOTree::read(). Failed to read from stream"); }
@@ -168,7 +168,7 @@ void NexusIOTree::write_(const Tree& tree, ostream& out) const
 {
   vector<Tree*> trees;
   trees.push_back(&const_cast<Tree&>(tree));
-  write(trees, out);
+  writeTrees(trees, out);
 }
 
 /******************************************************************************/
@@ -178,7 +178,7 @@ void NexusIOTree::write_(const TreeTemplate<N>& tree, ostream& out) const
 {
   vector<Tree*> trees;
   trees.push_back(&const_cast<Tree&>(tree));
-  write(trees, out);
+  writeTrees(trees, out);
 }
 
 /******************************************************************************/

@@ -96,7 +96,7 @@ const string Nhx::getFormatDescription() const
 
 /******************************************************************************/
 
-TreeTemplate<Node>* Nhx::read(istream& in) const
+TreeTemplate<Node>* Nhx::readTree(istream& in) const
 {
   // Checking the existence of specified file
   if (! in) { throw IOException ("Nhx ::read: failed to read from stream"); }
@@ -142,7 +142,7 @@ void Nhx::write_(const TreeTemplate<N>& tree, ostream& out) const
 
 /******************************************************************************/
 
-void Nhx::read(istream& in, vector<Tree*>& trees) const
+void Nhx::readTrees(istream& in, vector<Tree*>& trees) const
 {
   // Checking the existence of specified file
   if (! in) { throw IOException ("Nhx::read: failed to read from stream"); }
