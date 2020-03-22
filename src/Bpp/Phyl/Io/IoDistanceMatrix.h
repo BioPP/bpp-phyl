@@ -5,7 +5,7 @@
 //
 
 /*
-Copyright or © or Copr. CNRS, (November 16, 2004)
+Copyright or © or Copr. Bio++ Development Team, (November 16, 2004)
 
 This software is a computer program whose purpose is to provide classes
 for phylogenetic data analysis.
@@ -57,12 +57,12 @@ class DistanceMatrix;
 class IODistanceMatrix:
   public virtual IOFormat
 {
-	public:
-		IODistanceMatrix() {}
-		virtual ~IODistanceMatrix() {}
+  public:
+    IODistanceMatrix() {}
+    virtual ~IODistanceMatrix() {}
 
-	public:
-		virtual const std::string getDataType() const { return "Distance matrix"; }
+  public:
+    virtual const std::string getDataType() const { return "Distance matrix"; }
 };
 
 /**
@@ -71,11 +71,11 @@ class IODistanceMatrix:
 class IDistanceMatrix:
   public virtual IODistanceMatrix
 {
-	public:
-		IDistanceMatrix() {}
-		virtual ~IDistanceMatrix() {}
+  public:
+    IDistanceMatrix() {}
+    virtual ~IDistanceMatrix() {}
 
-	public:
+  public:
     /**
      * @brief Read a distance matrix from a file.
      *
@@ -83,7 +83,7 @@ class IDistanceMatrix:
      * @return A new distance matrix object.
      * @throw Exception If an error occured.
      */
-		virtual DistanceMatrix* read(const std::string& path) const = 0;
+    virtual DistanceMatrix* readDistanceMatrix(const std::string& path) const = 0;
     /**
      * @brief Read a distance matrix from a stream.
      *
@@ -91,7 +91,7 @@ class IDistanceMatrix:
      * @return A new distance matrix object.
      * @throw Exception If an error occured.
      */
-		virtual DistanceMatrix* read(std::istream& in) const = 0;
+    virtual DistanceMatrix* readDistanceMatrix(std::istream& in) const = 0;
 };
 
 /**
@@ -100,11 +100,11 @@ class IDistanceMatrix:
 class ODistanceMatrix:
   public virtual IODistanceMatrix
 {
-	public:
-		ODistanceMatrix() {}
-		virtual ~ODistanceMatrix() {}
+  public:
+    ODistanceMatrix() {}
+    virtual ~ODistanceMatrix() {}
 
-	public:
+  public:
     /**
      * @brief Write a distance matrix to a file.
      *
@@ -114,7 +114,7 @@ class ODistanceMatrix:
      * Otherwise append to the file.
      * @throw Exception If an error occured.
      */
-		virtual void write(const DistanceMatrix& dist, const std::string& path, bool overwrite) const = 0;
+    virtual void writeDistanceMatrix(const DistanceMatrix& dist, const std::string& path, bool overwrite) const = 0;
     /**
      * @brief Write a distance matrix to a stream.
      *
@@ -122,7 +122,7 @@ class ODistanceMatrix:
      * @param out The output stream.
      * @throw Exception If an error occured.
      */
-		virtual void write(const DistanceMatrix& dist, std::ostream& out) const = 0;
+    virtual void writeDistanceMatrix(const DistanceMatrix& dist, std::ostream& out) const = 0;
 };
 
 /**
@@ -131,19 +131,19 @@ class ODistanceMatrix:
 class AbstractIDistanceMatrix:
   public virtual IDistanceMatrix
 {
-	public:
-		AbstractIDistanceMatrix() {}
-		virtual ~AbstractIDistanceMatrix() {}
+  public:
+    AbstractIDistanceMatrix() {}
+    virtual ~AbstractIDistanceMatrix() {}
 
-	public:
-		virtual DistanceMatrix* read(const std::string& path) const
-		{
+  public:
+    virtual DistanceMatrix* readDistanceMatrix(const std::string& path) const
+    {
       std::ifstream input(path.c_str(), std::ios::in);
-			DistanceMatrix* mat = read(input);
-			input.close();
-			return mat;
-		}
-		virtual DistanceMatrix* read(std::istream& in) const = 0;
+      DistanceMatrix* mat = readDistanceMatrix(input);
+      input.close();
+      return mat;
+    }
+    virtual DistanceMatrix* readDistanceMatrix(std::istream& in) const = 0;
 };
 
 /**
@@ -152,19 +152,19 @@ class AbstractIDistanceMatrix:
 class AbstractODistanceMatrix:
   public virtual ODistanceMatrix
 {
-	public:
-		AbstractODistanceMatrix() {}
-		virtual ~AbstractODistanceMatrix() {}
+  public:
+    AbstractODistanceMatrix() {}
+    virtual ~AbstractODistanceMatrix() {}
 
-	public:
-		virtual void write(const DistanceMatrix& dist, const std::string& path, bool overwrite) const
-		{
-			// Open file in specified mode
+  public:
+    virtual void writeDistanceMatrix(const DistanceMatrix& dist, const std::string& path, bool overwrite) const
+    {
+      // Open file in specified mode
       std::ofstream output(path.c_str(), overwrite ? (std::ios::out) : (std::ios::out|std::ios::app));
-			write(dist, output);
-			output.close();
-		}
-		virtual void write(const DistanceMatrix& dist, std::ostream& out) const = 0;
+      writeDistanceMatrix(dist, output);
+      output.close();
+    }
+    virtual void writeDistanceMatrix(const DistanceMatrix& dist, std::ostream& out) const = 0;
 };
 
 } //end of namespace bpp.
