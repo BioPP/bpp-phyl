@@ -50,15 +50,16 @@ using namespace bpp;
 /******************************************************************************/
 
 HmmProcessPhyloLikelihood::HmmProcessPhyloLikelihood(
+  Context& context, 
   const AlignedValuesContainer& data,
   HmmSequenceEvolution& processSeqEvol,
   size_t nSeqEvol,
   size_t nData,
   bool verbose,
   bool patterns) :
-  AbstractPhyloLikelihood(),
-  AbstractAlignedPhyloLikelihood(data.getNumberOfSites()),
-  MultiProcessSequencePhyloLikelihood(data, processSeqEvol, verbose, patterns, nData),
+  AbstractPhyloLikelihood(context),
+  AbstractAlignedPhyloLikelihood(context, data.getNumberOfSites()),
+  MultiProcessSequencePhyloLikelihood(context, data, processSeqEvol, verbose, patterns, nData),
   Hpep_(),
   Hmm_()
 {

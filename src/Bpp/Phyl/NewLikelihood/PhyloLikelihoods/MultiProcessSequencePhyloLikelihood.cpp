@@ -47,15 +47,16 @@ using namespace bpp;
 /******************************************************************************/
 
 MultiProcessSequencePhyloLikelihood::MultiProcessSequencePhyloLikelihood(
+  Context& context,
   const AlignedValuesContainer& data,
   MultiProcessSequenceEvolution& processSeqEvol,
   size_t nSeqEvol,
   size_t nData,
   bool verbose,
   bool patterns) :
-  AbstractPhyloLikelihood(),
-  AbstractAlignedPhyloLikelihood(data.getNumberOfSites()),
-  AbstractSequencePhyloLikelihood(processSeqEvol, nSeqEvol, nData),
+  AbstractPhyloLikelihood(context),
+  AbstractAlignedPhyloLikelihood(context, data.getNumberOfSites()),
+  AbstractSequencePhyloLikelihood(context, processSeqEvol, nSeqEvol, nData),
   mSeqEvol_(processSeqEvol),
   vpTreelik_()
 {
@@ -114,7 +115,7 @@ void MultiProcessSequencePhyloLikelihood::computeDLogLikelihood_(const std::stri
   for (size_t i=0; i<vpTreelik_.size();i++)
     computeDLogLikelihoodForAProcess(variable, i);
   
-  dValues_[variable]= std::nan("");
+  // dValues_[variable]= std::nan("");
 }
 
 /******************************************************************************/
@@ -124,7 +125,7 @@ void MultiProcessSequencePhyloLikelihood::computeD2LogLikelihood_(const std::str
   for (size_t i=0; i<vpTreelik_.size();i++)
     computeD2LogLikelihoodForAProcess(variable, i);
 
-  d2Values_[variable]= std::nan("");
+  // d2Values_[variable]= std::nan("");
 }
 
 /******************************************************************************/

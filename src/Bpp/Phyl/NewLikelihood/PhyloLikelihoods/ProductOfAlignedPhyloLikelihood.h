@@ -59,9 +59,9 @@ namespace bpp
     public SetOfAlignedPhyloLikelihood
     {
     public:
-      ProductOfAlignedPhyloLikelihood(PhyloLikelihoodContainer* pC);
+      ProductOfAlignedPhyloLikelihood(Context& context, PhyloLikelihoodContainer* pC);
 
-      ProductOfAlignedPhyloLikelihood(PhyloLikelihoodContainer* pC, const std::vector<size_t>& nPhylo);
+      ProductOfAlignedPhyloLikelihood(Context& context, PhyloLikelihoodContainer* pC, const std::vector<size_t>& nPhylo);
       
       ~ProductOfAlignedPhyloLikelihood() {};
       
@@ -72,8 +72,6 @@ namespace bpp
 
       ProductOfAlignedPhyloLikelihood(const ProductOfAlignedPhyloLikelihood& sd);
         
-      ProductOfAlignedPhyloLikelihood& operator=(const ProductOfAlignedPhyloLikelihood& sd);
-
     protected:
       
       void computeDLogLikelihood_(const std::string& variable) const

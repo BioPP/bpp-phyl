@@ -43,19 +43,19 @@ using namespace std;
 using namespace bpp;
 
 
-SetOfAlignedPhyloLikelihood::SetOfAlignedPhyloLikelihood(PhyloLikelihoodContainer* pC, const std::string& prefix):
-  AbstractPhyloLikelihood(),
-  AbstractAlignedPhyloLikelihood(0),
-  SetOfAbstractPhyloLikelihood(pC, prefix)
+SetOfAlignedPhyloLikelihood::SetOfAlignedPhyloLikelihood(Context& context, PhyloLikelihoodContainer* pC, const std::string& prefix):
+  AbstractPhyloLikelihood(context),
+  AbstractAlignedPhyloLikelihood(context, 0),
+  SetOfAbstractPhyloLikelihood(context, pC, prefix)
 {
 }
 
 /*************************************************************/
 
-SetOfAlignedPhyloLikelihood::SetOfAlignedPhyloLikelihood(PhyloLikelihoodContainer* pC, const std::vector<size_t>& nPhylo, const std::string& prefix):
-  AbstractPhyloLikelihood(),
-  AbstractAlignedPhyloLikelihood(0),
-  SetOfAbstractPhyloLikelihood(pC, prefix)
+SetOfAlignedPhyloLikelihood::SetOfAlignedPhyloLikelihood(Context& context, PhyloLikelihoodContainer* pC, const std::vector<size_t>& nPhylo, const std::string& prefix):
+  AbstractPhyloLikelihood(context),
+  AbstractAlignedPhyloLikelihood(context, 0),
+  SetOfAbstractPhyloLikelihood(context, pC, prefix)
 {
   for (size_t i=0; i< nPhylo.size(); i++)
     addPhyloLikelihood(nPhylo[i]);

@@ -42,10 +42,10 @@
 using namespace bpp;
 using namespace std;
 
-MixtureOfAlignedPhyloLikelihood::MixtureOfAlignedPhyloLikelihood(PhyloLikelihoodContainer* pC, const std::vector<size_t>& nPhylo) :
-  AbstractPhyloLikelihood(),
-  AbstractAlignedPhyloLikelihood(0),
-  SetOfAlignedPhyloLikelihood(pC, nPhylo, ""),
+MixtureOfAlignedPhyloLikelihood::MixtureOfAlignedPhyloLikelihood(Context& context, PhyloLikelihoodContainer* pC, const std::vector<size_t>& nPhylo) :
+  AbstractPhyloLikelihood(context),
+  AbstractAlignedPhyloLikelihood(context, 0),
+  SetOfAlignedPhyloLikelihood(context, pC, nPhylo, ""),
   simplex_(getNumbersOfPhyloLikelihoods().size(), 1, false, "Mixture.")
 {
   addParameters_(simplex_.getParameters());
@@ -59,14 +59,6 @@ MixtureOfAlignedPhyloLikelihood::MixtureOfAlignedPhyloLikelihood(const MixtureOf
   SetOfAlignedPhyloLikelihood(sd),
   simplex_(sd.simplex_)
 {
-}
-
-MixtureOfAlignedPhyloLikelihood& MixtureOfAlignedPhyloLikelihood::operator=(const MixtureOfAlignedPhyloLikelihood& sd)
-{
-  SetOfAlignedPhyloLikelihood::operator=(sd);
-  simplex_=sd.simplex_;
-  
-  return *this;
 }
 
 void MixtureOfAlignedPhyloLikelihood::setPhyloProb(const Simplex& si)

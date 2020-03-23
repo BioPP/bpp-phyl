@@ -47,15 +47,16 @@ using namespace bpp;
 /******************************************************************************/
 
 MixtureProcessPhyloLikelihood::MixtureProcessPhyloLikelihood(
+  Context& context,
   const AlignedValuesContainer& data,
   MixtureSequenceEvolution& processSeqEvol,
   size_t nSeqEvol,
   size_t nData,
   bool verbose,
   bool patterns) :
-  AbstractPhyloLikelihood(),
-  AbstractAlignedPhyloLikelihood(data.getNumberOfSites()),
-  MultiProcessSequencePhyloLikelihood(data, processSeqEvol, nSeqEvol, nData, verbose, patterns),
+  AbstractPhyloLikelihood(context),
+  AbstractAlignedPhyloLikelihood(context, data.getNumberOfSites()),
+  MultiProcessSequencePhyloLikelihood(context, data, processSeqEvol, nSeqEvol, nData, verbose, patterns),
   mSeqEvol_(processSeqEvol)
 {
 }

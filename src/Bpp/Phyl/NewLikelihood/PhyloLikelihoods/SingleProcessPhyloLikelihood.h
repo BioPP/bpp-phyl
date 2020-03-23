@@ -85,7 +85,7 @@ namespace bpp
     size_t nProc_;
 
   public:
-    SingleProcessPhyloLikelihood(SubstitutionProcess* process, LikelihoodTreeCalculation* tlComp, size_t nProc = 0, size_t nData = 0);
+    SingleProcessPhyloLikelihood(Context& context, SubstitutionProcess* process, LikelihoodTreeCalculation* tlComp, size_t nProc = 0, size_t nData = 0);
 
     SingleProcessPhyloLikelihood(const SingleProcessPhyloLikelihood& lik) :
       AbstractPhyloLikelihood(lik),
@@ -97,21 +97,6 @@ namespace bpp
       nProc_(lik.nProc_)
     {
       if (lik.tlComp_.get()) tlComp_.reset(lik.tlComp_->clone());
-    }
-
-    SingleProcessPhyloLikelihood& operator=(const SingleProcessPhyloLikelihood& lik)
-    {
-      AbstractSingleDataPhyloLikelihood::operator=(lik);
-
-      AbstractParametrizable::operator=(lik);
-
-      if (lik.tlComp_.get()) tlComp_.reset(lik.tlComp_->clone());
-      else tlComp_.reset();
-
-      process_=lik.process_;
-      nProc_=lik.nProc_;
-    
-      return *this;
     }
 
     virtual ~SingleProcessPhyloLikelihood() {}
@@ -217,21 +202,14 @@ namespace bpp
 
     void updateLikelihood() const
     {
-      if (computeLikelihoods_)
-        tlComp_->updateLikelihood();
     }
       
     void computeLikelihood() const
     {
-      if (computeLikelihoods_)
-      {
-        tlComp_->computeTreeLikelihood();
-        computeLikelihoods_=false;
-      }
     }
 
     bool isInitialized() const {
-      return tlComp_->isInitialized();
+      return true;
     }
 
   protected:
@@ -245,24 +223,26 @@ namespace bpp
 
     double getFirstOrderDerivative(const std::string& variable) const 
     {
-      if (dValues_.find(variable)==dValues_.end())
-        computeDLogLikelihood_(variable);
+      // if (dValues_.find(variable)==dValues_.end())
+      //   computeDLogLikelihood_(variable);
       
-      if (dValues_.find(variable)==dValues_.end() || std::isnan(dValues_[variable]))
-        dValues_[variable]=-getDLogLikelihood(variable);
+      // if (dValues_.find(variable)==dValues_.end() || std::isnan(dValues_[variable]))
+      //   dValues_[variable]=-getDLogLikelihood(variable);
       
-      return dValues_[variable];
+      // return dValues_[variable];
+      return 0;
     }
 
     double getSecondOrderDerivative(const std::string& variable) const 
     {
-      if (d2Values_.find(variable)==d2Values_.end())
-        computeD2LogLikelihood_(variable);
+      // if (d2Values_.find(variable)==d2Values_.end())
+      //   computeD2LogLikelihood_(variable);
       
-      if (d2Values_.find(variable)==d2Values_.end() || std::isnan(d2Values_[variable]))
-        d2Values_[variable]=-getD2LogLikelihood(variable);
+      // if (d2Values_.find(variable)==d2Values_.end() || std::isnan(d2Values_[variable]))
+      //   d2Values_[variable]=-getD2LogLikelihood(variable);
       
-      return d2Values_[variable];
+      // return d2Values_[variable];
+      return 0;
     }
     
     double getSecondOrderDerivative(const std::string& variable1, const std::string& variable2) const { return 0; } // Not implemented for now.
@@ -339,16 +319,16 @@ namespace bpp
     }
 
     double getDLogLikelihoodForASite(const std::string& variable, size_t site) const {
-      if (dValues_.find(variable)!=dValues_.end())
-        return tlComp_->getDLogLikelihoodForASite(site);
-      else
+      // if (dValues_.find(variable)!=dValues_.end())
+      //   return tlComp_->getDLogLikelihoodForASite(site);
+      // else
         return 0;
     }
 
     double getD2LogLikelihoodForASite(const std::string& variable, size_t site) const {
-      if (dValues_.find(variable)!=dValues_.end())
-        return tlComp_->getD2LogLikelihoodForASite(site);
-      else
+      // if (dValues_.find(variable)!=dValues_.end())
+      //   return tlComp_->getD2LogLikelihoodForASite(site);
+      // else
         return 0;
     }
 

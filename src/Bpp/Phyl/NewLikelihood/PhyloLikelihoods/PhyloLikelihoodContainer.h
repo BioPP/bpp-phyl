@@ -74,16 +74,6 @@ namespace bpp
         mPhylo_[it.first]=std::shared_ptr<PhyloLikelihood>(it.second->clone());
     }
 
-    PhyloLikelihoodContainer& operator=(const PhyloLikelihoodContainer& lik)
-    {
-      mPhylo_.clear();
-      
-      for (const auto& it : lik.mPhylo_)
-        mPhylo_[it.first]=std::shared_ptr<PhyloLikelihood>(it.second->clone());
-      
-      return *this;
-    }
-
     PhyloLikelihoodContainer* clone() const
     {
       return new PhyloLikelihoodContainer(*this);

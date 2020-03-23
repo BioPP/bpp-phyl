@@ -68,6 +68,8 @@ using namespace std;
 
 int main() {
   Newick reader;
+  Context context;
+  
   unique_ptr<PhyloTree> new_tree(reader.parenthesisToPhyloTree("((A:0.001, B:0.002):0.008,C:0.01,D:0.1);", false, "", false, false));
 
   vector<int> ids = {0, 1, 2, 3, 4};
@@ -119,7 +121,7 @@ int main() {
 
   // Newlik
   unique_ptr<RecursiveLikelihoodTreeCalculation> tmComp(new RecursiveLikelihoodTreeCalculation(sites, process.get(), true, false));
-  SingleProcessPhyloLikelihood newTl(process.get(), tmComp.release());
+  SingleProcessPhyloLikelihood newTl(context, process.get(), tmComp.release());
   cout << "LogLik: " << newTl.getValue() << endl;
     
   RecursiveLikelihoodTreeCalculation* rltc=dynamic_cast<RecursiveLikelihoodTreeCalculation*>(newTl.getLikelihoodCalculation());

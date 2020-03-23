@@ -73,6 +73,7 @@ private:
 
 public:
   AutoCorrelationProcessPhyloLikelihood(
+    Context& context,
     const AlignedValuesContainer& data,
     AutoCorrelationSequenceEvolution& processSeqEvol,
     size_t nSeqEvol = 0,
@@ -81,19 +82,11 @@ public:
     bool patterns = true);
 
   AutoCorrelationProcessPhyloLikelihood(const AutoCorrelationProcessPhyloLikelihood& mlc) :
-    AbstractPhyloLikelihood(),
+    AbstractPhyloLikelihood(mlc),
     AbstractAlignedPhyloLikelihood(mlc),
     MultiProcessSequencePhyloLikelihood(mlc),
     Hpep_(std::unique_ptr<HmmProcessEmissionProbabilities>(mlc.Hpep_->clone())),
     Hmm_(std::unique_ptr<LogsumHmmLikelihood>(mlc.Hmm_->clone())) {}
-
-  AutoCorrelationProcessPhyloLikelihood& operator=(const AutoCorrelationProcessPhyloLikelihood& mlc)
-  {
-    MultiProcessSequencePhyloLikelihood::operator=(mlc);
-    Hpep_ = std::unique_ptr<HmmProcessEmissionProbabilities>(mlc.Hpep_->clone());
-    Hmm_ = std::unique_ptr<LogsumHmmLikelihood>(mlc.Hmm_->clone());
-    return *this;
-  }
 
   virtual ~AutoCorrelationProcessPhyloLikelihood() {}
 
@@ -106,19 +99,14 @@ public:
 
   void updateLikelihood() const
   {
-    if (computeLikelihoods_)
       MultiProcessSequencePhyloLikelihood::updateLikelihood();
   }
 
   void computeLikelihood() const
   {
-    if (computeLikelihoods_)
-    {
       MultiProcessSequencePhyloLikelihood::computeLikelihood();
       Hmm_->computeLikelihood();
 
-      computeLikelihoods_ = false;
-    }
   }
 
 

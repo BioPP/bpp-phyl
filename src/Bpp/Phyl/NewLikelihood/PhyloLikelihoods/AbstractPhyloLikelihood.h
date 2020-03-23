@@ -41,13 +41,26 @@
 #define _ABSTRACTPHYLOLIKELIHOOD_H_
 
 #include "PhyloLikelihood.h"
+#include "../DataFlow/DataFlowNumeric.h"
+#include "../DataFlow/Parametrizable.h"
 
 namespace bpp
 {
   class AbstractPhyloLikelihood :
     public virtual PhyloLikelihood
   {
+  public:
+    // Cache generated nodes representing derivatives, to avoid recreating them every time.
+    // Using the mutable keyword because the table must be changed even in const methods.
+    struct StringPairHash {
+      std::size_t operator() (const std::pair<std::string, std::string> & p) const {
+        std::hash<std::string> strHash{};
+        return strHash (p.first) ^ (strHash (p.second) << 1);
+      }
+    };
+      
   protected:
+    Context & context_;
       
     /**
      * @brief the value
@@ -56,70 +69,48 @@ namespace bpp
       
     mutable double minusLogLik_;
 
+    /*
+     * @brief DF Nodes for parameters
+     *
+     */
+         
+    ParameterList variableNodes_;
+
     /**
-     * @brief sey if derivatives should be computed
+     * @brief For Dataflow computing
      *
      */
       
-    bool computeFirstOrderDerivatives_;
-    bool computeSecondOrderDerivatives_;
+    mutable std::unordered_map<std::string, ValueRef<double>> firstOrderDerivativeNodes_;
 
-    // say if the Likelihoods should be recomputed
-      
-    mutable bool computeLikelihoods_;
+    mutable std::unordered_map<std::pair<std::string, std::string>, ValueRef<double>,
+                               StringPairHash>
+    secondOrderDerivativeNodes_;
 
-    // maps of the updated values for derivatives of the logLik
-
-    mutable std::map<std::string, double> dValues_;
-    mutable std::map<std::string, double> d2Values_;
-    
-    // say if initialized
-      
-    mutable bool initialized_;
 
   public:
-    AbstractPhyloLikelihood() :
-      minusLogLik_(0),
-      computeFirstOrderDerivatives_(true),
-      computeSecondOrderDerivatives_(true),
-      computeLikelihoods_(true),
-      dValues_(),
-      d2Values_(),
-      initialized_(false)
+    AbstractPhyloLikelihood(Context& context) :
+      context_(context),
+      minusLogLik_(0)
     {
     }
 
     AbstractPhyloLikelihood(const AbstractPhyloLikelihood& asd) :
-      minusLogLik_(asd.minusLogLik_),
-      computeFirstOrderDerivatives_(asd.computeFirstOrderDerivatives_),
-      computeSecondOrderDerivatives_(asd.computeSecondOrderDerivatives_),
-      computeLikelihoods_(asd.computeLikelihoods_),
-      dValues_(asd.dValues_),
-      d2Values_(asd.d2Values_),
-      initialized_(asd.initialized_)
+      context_(asd.context_),
+      minusLogLik_(asd.minusLogLik_)
     {
+      variableNodes_.shareParameters(asd.variableNodes_);
     }
       
-    AbstractPhyloLikelihood& operator=(const AbstractPhyloLikelihood& asd)
-    {
-      minusLogLik_                   = asd.minusLogLik_;
-      computeFirstOrderDerivatives_  = asd.computeFirstOrderDerivatives_;
-      computeSecondOrderDerivatives_ = asd.computeSecondOrderDerivatives_;
-
-      computeLikelihoods_ = asd.computeLikelihoods_;
-      dValues_ = asd.dValues_;
-      d2Values_ = asd.d2Values_;
-
-      initialized_ = asd.initialized_;
-        
-      return *this;
-    }
-
     virtual ~AbstractPhyloLikelihood() {}
 
     AbstractPhyloLikelihood* clone() const = 0;
 
-  public:
+    Context& getContext()
+    {
+      return context_;
+    }
+
     /**
      * @brief Sets the computeLikelihoods_ to true.
      *
@@ -127,30 +118,41 @@ namespace bpp
       
     void update()
     {
-      computeLikelihoods_ = true;
-      dValues_.clear();
-      d2Values_.clear();
     }
 
-    virtual void initialize()
+    virtual bool isInitialized() const
     {
-      initialized_=true;
+      return false;
     }
 
   public:
 
     void setParameters(const ParameterList& parameters)
     {
-      setParametersValues(parameters);
+      variableNodes_.setParametersValues(parameters);
     }
 
-    virtual void enableDerivatives(bool yn) { computeFirstOrderDerivatives_ = computeSecondOrderDerivatives_ = yn; }
-    virtual void enableFirstOrderDerivatives(bool yn) { computeFirstOrderDerivatives_ = yn; }
-    virtual void enableSecondOrderDerivatives(bool yn) { computeFirstOrderDerivatives_ = computeSecondOrderDerivatives_ = yn; }
-    bool enableFirstOrderDerivatives() const { return computeFirstOrderDerivatives_; }
-    bool enableSecondOrderDerivatives() const { return computeSecondOrderDerivatives_; }
+    /*
+     *@ Return the DF node where the Likelihood is computed.
+     *
+     */
+     
+    
+    virtual ValueRef<double> getLikelihoodNode() const {return 0;}
+      
+    // bpp::Function
 
-    virtual bool isInitialized() const { return initialized_; }
+    /**
+     * @brief Tell if derivatives must be computed.
+     *
+     * This methods calls the enableFirstOrderDerivatives and enableSecondOrderDerivatives.
+     *
+     * @param yn Yes or no.
+     */
+    virtual void enableFirstOrderDerivatives(bool yn) {}
+    virtual void enableSecondOrderDerivatives(bool yn) { }
+    bool enableFirstOrderDerivatives() const { return true; }
+    bool enableSecondOrderDerivatives() const { return true; }
 
     /*
      * @brief return the value, ie -loglikelihood
@@ -168,6 +170,69 @@ namespace bpp
       return minusLogLik_;
     }
 
+    /*
+     *
+     *@ brief Share Parameters, that are DF_parameters
+     *
+     */
+     
+    void shareParameters(ParameterList variableNodes)
+    {
+      variableNodes_.shareParameters(variableNodes);
+    }
+
+    // bpp::DerivableFirstOrder
+    double getFirstOrderDerivative (const std::string & variable) const override {
+      
+      return firstOrderDerivativeNode (variable)->getTargetValue ();
+    }
+
+    // Get nodes of derivatives directly
+    ValueRef<double> firstOrderDerivativeNode (const std::string & variable) const {
+      const auto it = firstOrderDerivativeNodes_.find (variable);
+      if (it != firstOrderDerivativeNodes_.end ()) {
+        return it->second;
+      } else {
+        auto node = getLikelihoodNode()->deriveAsValue (context_, accessVariableNode (variable));
+        firstOrderDerivativeNodes_.emplace (variable, node);
+        return node;
+      }
+    }
+      
+    // bpp::DerivableSecondOrder
+    double getSecondOrderDerivative (const std::string & variable) const override {
+      return getSecondOrderDerivative (variable, variable);
+    }
+
+    double getSecondOrderDerivative (const std::string & variable1,
+                                     const std::string & variable2) const override {
+      return secondOrderDerivativeNode (variable1, variable2)->getTargetValue ();
+    }
+
+    ValueRef<double> secondOrderDerivativeNode (const std::string & variable1,
+                                                const std::string & variable2) const {
+      const auto key = std::make_pair (variable1, variable2);
+      const auto it = secondOrderDerivativeNodes_.find (key);
+      if (it != secondOrderDerivativeNodes_.end ()) {
+        return it->second;
+      } else {
+        // Reuse firstOrderDerivative() to generate the first derivative with caching
+        auto node =
+          firstOrderDerivativeNode (variable1)->deriveAsValue (context_, accessVariableNode (variable2));
+        secondOrderDerivativeNodes_.emplace (key, node);
+
+        return node;
+      }
+    }
+
+  protected:
+    static Node_DF & accessVariableNode (const Parameter & param) {
+      return *dynamic_cast<const ConfiguredParameter&>(param).dependency(0);
+    }
+      
+    Node_DF & accessVariableNode (const std::string & name) const {
+      return accessVariableNode (getParameter (name));
+    }
 
   };
 

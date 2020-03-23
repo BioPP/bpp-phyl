@@ -70,12 +70,6 @@ namespace bpp
      */
       
     /**
-     * @return initialize the likelihood function.
-     */
-      
-    virtual void initialize() = 0;
-      
-    /**
      * @return 'true' is the likelihood function has been initialized.
      */
     virtual bool isInitialized() const = 0;
@@ -189,15 +183,6 @@ namespace bpp
     virtual ParameterList getNonDerivableParameters() const = 0;
 
     /** @} */
-
-    /**
-     * @brief Tell if derivatives must be computed.
-     *
-     * This methods calls the enableFirstOrderDerivatives and enableSecondOrderDerivatives.
-     *
-     * @param yn Yes or no.
-     */
-    virtual void enableDerivatives(bool yn) = 0;
 
   };
 

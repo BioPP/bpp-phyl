@@ -95,17 +95,6 @@ namespace bpp {
       nbSites_(hpa.nbSites_)
     {}
     
-    HmmPhyloAlphabet& operator=(const HmmPhyloAlphabet& hpa)
-    {
-      AbstractParametrizable::operator=(hpa);
-
-      vAP_=hpa.vAP_;
-      nbSites_=hpa.nbSites_;
-
-      return *this;
-      
-    }
-
     HmmPhyloAlphabet* clone() const {return new HmmPhyloAlphabet(*this);}
 
     ~HmmPhyloAlphabet() {};

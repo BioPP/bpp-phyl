@@ -42,18 +42,16 @@
 using namespace bpp;
 using namespace std;
 
-FormulaOfPhyloLikelihood::FormulaOfPhyloLikelihood(PhyloLikelihoodContainer* pC) :
-  PhyloLikelihood(),
-  AbstractPhyloLikelihood(),
-  SetOfAbstractPhyloLikelihood(pC),
+FormulaOfPhyloLikelihood::FormulaOfPhyloLikelihood(Context& context, PhyloLikelihoodContainer* pC) :
+  AbstractPhyloLikelihood(context),
+  SetOfAbstractPhyloLikelihood(context, pC),
   compTree_()
 {
 }
 
-FormulaOfPhyloLikelihood::FormulaOfPhyloLikelihood(PhyloLikelihoodContainer* pC, const std::string& formula) :
-  PhyloLikelihood(),
-  AbstractPhyloLikelihood(),
-  SetOfAbstractPhyloLikelihood(pC),
+FormulaOfPhyloLikelihood::FormulaOfPhyloLikelihood(Context& context, PhyloLikelihoodContainer* pC, const std::string& formula) :
+  AbstractPhyloLikelihood(context),
+  SetOfAbstractPhyloLikelihood(context, pC),
   compTree_()
 {
   readFormula(formula);
@@ -65,14 +63,6 @@ FormulaOfPhyloLikelihood::FormulaOfPhyloLikelihood(const FormulaOfPhyloLikelihoo
   SetOfAbstractPhyloLikelihood(sd),
   compTree_(sd.compTree_->clone())
 {
-}
-
-FormulaOfPhyloLikelihood& FormulaOfPhyloLikelihood::operator=(const FormulaOfPhyloLikelihood& sd)
-{
-  SetOfAbstractPhyloLikelihood::operator=(sd);
-  compTree_.reset(compTree_->clone());
-
-  return *this;
 }
 
 void FormulaOfPhyloLikelihood::readFormula(const std::string& formula)

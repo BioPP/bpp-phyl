@@ -87,19 +87,6 @@ namespace bpp
       nbSites_(hEP.nbSites_)
     {}
 
-    HmmPhyloEmissionProbabilities& operator=(const HmmPhyloEmissionProbabilities& hEP)
-    {
-      AbstractParametrizable::operator=(hEP);
-      phylAlph_=hEP.phylAlph_;
-      emProb_=hEP.emProb_;
-      dEmProb_=hEP.dEmProb_;
-      d2EmProb_=hEP.d2EmProb_;
-      upToDate_=hEP.upToDate_;
-      nbSites_=hEP.nbSites_;
-
-      return *this;
-    }
-
     // void fireParameterChanged(const ParameterList& parameters)
     // {
     // }

@@ -73,11 +73,9 @@ namespace bpp
     Simplex simplex_;
 
   public:
-    MixtureOfAlignedPhyloLikelihood(PhyloLikelihoodContainer* pC, const std::vector<size_t>& nPhylo);
+    MixtureOfAlignedPhyloLikelihood(Context& context, PhyloLikelihoodContainer* pC, const std::vector<size_t>& nPhylo);
       
     MixtureOfAlignedPhyloLikelihood(const MixtureOfAlignedPhyloLikelihood& mlc);
-
-    MixtureOfAlignedPhyloLikelihood& operator=(const MixtureOfAlignedPhyloLikelihood& mlc);
 
     ~MixtureOfAlignedPhyloLikelihood() {};
       

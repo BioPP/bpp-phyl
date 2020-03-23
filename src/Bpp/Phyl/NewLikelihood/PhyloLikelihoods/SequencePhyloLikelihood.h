@@ -81,10 +81,10 @@ namespace bpp
     size_t nSeqEvol_;
       
   public:
-    SequencePhyloLikelihood(SequenceEvolution& se, size_t nSE = 0, size_t nData = 0) :
-      AbstractPhyloLikelihood(),
-      AbstractAlignedPhyloLikelihood(0),
-      AbstractSingleDataPhyloLikelihood(0, (se.getSubstitutionProcessNumbers().size()!=0)?se.getSubstitutionProcess(se.getSubstitutionProcessNumbers()[0]).getNumberOfStates():0, nData),
+    SequencePhyloLikelihood(Context& context, SequenceEvolution& se, size_t nSE = 0, size_t nData = 0) :
+      AbstractPhyloLikelihood(context),
+      AbstractAlignedPhyloLikelihood(context, 0),
+      AbstractSingleDataPhyloLikelihood(context, 0, (se.getSubstitutionProcessNumbers().size()!=0)?se.getSubstitutionProcess(se.getSubstitutionProcessNumbers()[0]).getNumberOfStates():0, nData),
       seqEvol_(&se),
       nSeqEvol_(nSE)
     {
@@ -99,16 +99,6 @@ namespace bpp
     {
     }
       
-    SequencePhyloLikelihood& operator=(const SequencePhyloLikelihood& asd)
-    {
-      AbstractSingleDataPhyloLikelihood::operator=(asd);
-
-      seqEvol_=asd.seqEvol_;
-      nSeqEvol_=asd.nSeqEvol_;
-
-      return *this;
-    }
-
     virtual ~SequencePhyloLikelihood() {}
 
     SequencePhyloLikelihood* clone() const = 0;
@@ -149,10 +139,10 @@ namespace bpp
     public AbstractParametrizable
   {
   public:
-    AbstractSequencePhyloLikelihood(SequenceEvolution& se, size_t nSE = 0, size_t nData = 0) :
-      AbstractPhyloLikelihood(),
-      AbstractAlignedPhyloLikelihood(0),
-      SequencePhyloLikelihood(se, nSE, nData),
+    AbstractSequencePhyloLikelihood(Context& context, SequenceEvolution& se, size_t nSE = 0, size_t nData = 0) :
+      AbstractPhyloLikelihood(context),
+      AbstractAlignedPhyloLikelihood(context, 0),
+      SequencePhyloLikelihood(context, se, nSE, nData),
       AbstractParametrizable("")
     {
       // initialize INDEPENDENT parameters:
@@ -167,15 +157,6 @@ namespace bpp
     {
     }
       
-    AbstractSequencePhyloLikelihood& operator=(const AbstractSequencePhyloLikelihood& asd)
-    {
-      SequencePhyloLikelihood::operator=(asd);
-
-      AbstractParametrizable::operator=(asd);
-        
-      return *this;
-    }
-
     virtual ~AbstractSequencePhyloLikelihood() {}
 
     AbstractSequencePhyloLikelihood* clone() const = 0;
@@ -191,24 +172,26 @@ namespace bpp
 
     double getFirstOrderDerivative(const std::string& variable) const 
     {
-      if (dValues_.find(variable)==dValues_.end())
-        computeDLogLikelihood_(variable);
+      // if (dValues_.find(variable)==dValues_.end())
+      //   computeDLogLikelihood_(variable);
 
-      if (dValues_.find(variable)==dValues_.end() || std::isnan(dValues_[variable]))
-        dValues_[variable]=-getDLogLikelihood(variable);
+      // if (dValues_.find(variable)==dValues_.end() || std::isnan(dValues_[variable]))
+      //   dValues_[variable]=-getDLogLikelihood(variable);
         
-      return dValues_[variable];
+      // return dValues_[variable];
+      return 0;
     }
 
     double getSecondOrderDerivative(const std::string& variable) const
     {
-      if (d2Values_.find(variable)==d2Values_.end())
-        computeD2LogLikelihood_(variable);
+      // if (d2Values_.find(variable)==d2Values_.end())
+      //   computeD2LogLikelihood_(variable);
 
-      if (d2Values_.find(variable)==d2Values_.end() || std::isnan(d2Values_[variable]))
-        d2Values_[variable]=-getD2LogLikelihood(variable);
+      // if (d2Values_.find(variable)==d2Values_.end() || std::isnan(d2Values_[variable]))
+      //   d2Values_[variable]=-getD2LogLikelihood(variable);
         
-      return d2Values_[variable];
+      // return d2Values_[variable];
+      return 0;
     }
 
     double getSecondOrderDerivative(const std::string& variable1, const std::string& variable2) const

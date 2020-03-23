@@ -2368,33 +2368,33 @@ PhyloLikelihoodContainer* PhylogeneticsApplicationTools::getPhyloLikelihoodConta
       OneProcessSequenceEvolution* opse = dynamic_cast<OneProcessSequenceEvolution*>(mSeqEvol[nProcess]);
 
       if (opse != NULL)
-        nPL = new OneProcessSequencePhyloLikelihood(*data, *opse, nProcess, nData, true, compression == 'R');
+        nPL = new OneProcessSequencePhyloLikelihood(context, *data, *opse, nProcess, nData, true, compression == 'R');
       else
       {
         MixtureSequenceEvolution* mse = dynamic_cast<MixtureSequenceEvolution*>(mSeqEvol[nProcess]);
 
         if (mse != NULL)
-          nPL = new MixtureProcessPhyloLikelihood(*data, *mse, nProcess, nData, true, compression == 'R');
+          nPL = new MixtureProcessPhyloLikelihood(context, *data, *mse, nProcess, nData, true, compression == 'R');
 
         else
         {
           HmmSequenceEvolution* hse = dynamic_cast<HmmSequenceEvolution*>(mSeqEvol[nProcess]);
 
           if (hse != NULL)
-            nPL = new HmmProcessPhyloLikelihood(*data, *hse, nProcess, nData, true, compression == 'R');
+            nPL = new HmmProcessPhyloLikelihood(context, *data, *hse, nProcess, nData, true, compression == 'R');
 
           else
           {
             AutoCorrelationSequenceEvolution* ase = dynamic_cast<AutoCorrelationSequenceEvolution*>(mSeqEvol[nProcess]);
 
             if (ase != NULL)
-              nPL = new AutoCorrelationProcessPhyloLikelihood(*data, *ase, nProcess, nData, true, compression == 'R');
+              nPL = new AutoCorrelationProcessPhyloLikelihood(context, *data, *ase, nProcess, nData, true, compression == 'R');
             else
             {
               PartitionSequenceEvolution* pse = dynamic_cast<PartitionSequenceEvolution*>(mSeqEvol[nProcess]);
 
               if (pse != NULL)
-                nPL = new PartitionProcessPhyloLikelihood(*data, *pse, nProcess, nData, true, compression == 'R');
+                nPL = new PartitionProcessPhyloLikelihood(context, *data, *pse, nProcess, nData, true, compression == 'R');
 
               else
                 throw Exception("PhylogeneticsApplicationTools::getPhyloLikelihoodContainer : Unknown Sequence Evolution.");
@@ -2482,7 +2482,7 @@ PhyloLikelihoodContainer* PhylogeneticsApplicationTools::getPhyloLikelihoodConta
 
         if (phyloName == "Mixture")
         {
-          MixtureOfAlignedPhyloLikelihood* pMA = new MixtureOfAlignedPhyloLikelihood(mPhylo, vPhylo);
+          MixtureOfAlignedPhyloLikelihood* pMA = new MixtureOfAlignedPhyloLikelihood(context, mPhylo, vPhylo);
           vector<double> vprob = ApplicationTools::getVectorParameter<double>("probas", args, ',', "(" + VectorTools::paste(vector<double>(vPhylo.size(), 1. / (double)vPhylo.size())) + ")");
           if (vprob.size() != 1)
           {
@@ -2496,7 +2496,7 @@ PhyloLikelihoodContainer* PhylogeneticsApplicationTools::getPhyloLikelihoodConta
         }
         else if (phyloName == "HMM")
         {
-          HmmOfAlignedPhyloLikelihood* pMA = new HmmOfAlignedPhyloLikelihood(mPhylo, vPhylo);
+          HmmOfAlignedPhyloLikelihood* pMA = new HmmOfAlignedPhyloLikelihood(context, mPhylo, vPhylo);
 
           size_t nbP = pMA->getNumbersOfPhyloLikelihoods().size();
 
@@ -2519,7 +2519,7 @@ PhyloLikelihoodContainer* PhylogeneticsApplicationTools::getPhyloLikelihoodConta
         }
         else if (phyloName == "AutoCorr")
         {
-          AutoCorrelationOfAlignedPhyloLikelihood* pMA = new AutoCorrelationOfAlignedPhyloLikelihood(mPhylo, vPhylo);
+          AutoCorrelationOfAlignedPhyloLikelihood* pMA = new AutoCorrelationOfAlignedPhyloLikelihood(context, mPhylo, vPhylo);
 
           size_t nbP = pMA->getNumbersOfPhyloLikelihoods().size();
 
@@ -2540,7 +2540,7 @@ PhyloLikelihoodContainer* PhylogeneticsApplicationTools::getPhyloLikelihoodConta
         }
         else if (phyloName == "Product")
         {
-          ProductOfAlignedPhyloLikelihood* pAP = new ProductOfAlignedPhyloLikelihood(mPhylo, vPhylo);
+          ProductOfAlignedPhyloLikelihood* pAP = new ProductOfAlignedPhyloLikelihood(context, mPhylo, vPhylo);
 
           nPL = pAP;
         }
@@ -2620,7 +2620,7 @@ PhyloLikelihoodContainer* PhylogeneticsApplicationTools::getPhyloLikelihoodConta
 
   if (!flag)
   {
-    nPL = shared_ptr<PhyloLikelihood>(new FormulaOfPhyloLikelihood(mPhylo, resultDesc));
+    nPL = shared_ptr<PhyloLikelihood>(new FormulaOfPhyloLikelihood(context, mPhylo, resultDesc));
     if (verbose)
       ApplicationTools::displayResult(" Result", dynamic_cast<FormulaOfPhyloLikelihood*>(nPL.get())->output());
   }

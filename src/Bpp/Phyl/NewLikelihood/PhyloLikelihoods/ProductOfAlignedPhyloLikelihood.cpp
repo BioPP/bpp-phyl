@@ -42,17 +42,17 @@
 using namespace bpp;
 using namespace std;
 
-ProductOfAlignedPhyloLikelihood::ProductOfAlignedPhyloLikelihood(PhyloLikelihoodContainer* pC) :
-  AbstractPhyloLikelihood(),
-  AbstractAlignedPhyloLikelihood(0),
-  SetOfAlignedPhyloLikelihood(pC)
+ProductOfAlignedPhyloLikelihood::ProductOfAlignedPhyloLikelihood(Context& context, PhyloLikelihoodContainer* pC) :
+  AbstractPhyloLikelihood(context),
+  AbstractAlignedPhyloLikelihood(context, 0),
+  SetOfAlignedPhyloLikelihood(context, pC)
 {
 }
 
-ProductOfAlignedPhyloLikelihood::ProductOfAlignedPhyloLikelihood(PhyloLikelihoodContainer* pC, const std::vector<size_t>& nPhylo) :
-  AbstractPhyloLikelihood(),
-  AbstractAlignedPhyloLikelihood(0),
-  SetOfAlignedPhyloLikelihood(pC, nPhylo)
+ProductOfAlignedPhyloLikelihood::ProductOfAlignedPhyloLikelihood(Context& context, PhyloLikelihoodContainer* pC, const std::vector<size_t>& nPhylo) :
+  AbstractPhyloLikelihood(context),
+  AbstractAlignedPhyloLikelihood(context, 0),
+  SetOfAlignedPhyloLikelihood(context, pC, nPhylo)
 {
 }
 
@@ -62,14 +62,6 @@ ProductOfAlignedPhyloLikelihood::ProductOfAlignedPhyloLikelihood(const ProductOf
   SetOfAlignedPhyloLikelihood(sd)
 {
 }
-
-ProductOfAlignedPhyloLikelihood& ProductOfAlignedPhyloLikelihood::operator=(const ProductOfAlignedPhyloLikelihood& sd)
-{
-  SetOfAlignedPhyloLikelihood::operator=(sd);
-  
-  return *this;
-}
-
 
 double ProductOfAlignedPhyloLikelihood::getDLogLikelihoodForASite(const std::string& variable, size_t site) const
 {

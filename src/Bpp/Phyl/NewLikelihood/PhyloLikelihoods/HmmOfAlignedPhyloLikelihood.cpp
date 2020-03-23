@@ -48,10 +48,10 @@ using namespace bpp;
 /******************************************************************************/
 
 HmmOfAlignedPhyloLikelihood::HmmOfAlignedPhyloLikelihood(
-  PhyloLikelihoodContainer* pC, const std::vector<size_t>& nPhylo) :
-  AbstractPhyloLikelihood(),
-  AbstractAlignedPhyloLikelihood(0),
-  SetOfAlignedPhyloLikelihood(pC, nPhylo),
+  Context& context, PhyloLikelihoodContainer* pC, const std::vector<size_t>& nPhylo) :
+  AbstractPhyloLikelihood(context),
+  AbstractAlignedPhyloLikelihood(context, 0),
+  SetOfAlignedPhyloLikelihood(context, pC, nPhylo),
   hma_(),
   htm_(),
   hpep_(),

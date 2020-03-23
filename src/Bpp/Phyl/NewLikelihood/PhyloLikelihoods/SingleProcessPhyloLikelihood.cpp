@@ -45,13 +45,14 @@ using namespace bpp;
 /******************************************************************************/
 
 SingleProcessPhyloLikelihood::SingleProcessPhyloLikelihood(
+  Context& context,
   SubstitutionProcess* process,
   LikelihoodTreeCalculation* tlComp,
   size_t nProc,
   size_t nData) : 
-  AbstractPhyloLikelihood(),
-  AbstractAlignedPhyloLikelihood(tlComp->getNumberOfSites()),
-  AbstractSingleDataPhyloLikelihood(tlComp->getNumberOfSites(), process->getNumberOfStates(), nData),
+  AbstractPhyloLikelihood(context),
+  AbstractAlignedPhyloLikelihood(context, tlComp->getNumberOfSites()),
+  AbstractSingleDataPhyloLikelihood(context, tlComp->getNumberOfSites(), process->getNumberOfStates(), nData),
   AbstractParametrizable(""),
   tlComp_(tlComp),
   process_(process),
@@ -235,7 +236,7 @@ void SingleProcessPhyloLikelihood::computeDLogLikelihood_(const string& variable
 
   // derivative exists and ready to compute
   
-  dValues_[variable]= nan("");
+  // dValues_[variable]= nan("");
 }
 
 /******************************************************************************
@@ -261,7 +262,7 @@ void SingleProcessPhyloLikelihood::computeD2LogLikelihood_(const string& variabl
 
   // derivative exists and ready to compute
   
-  d2Values_[variable]= nan("");
+  // d2Values_[variable]= nan("");
 }
 
 /******************************************************************************/

@@ -76,7 +76,7 @@ private:
   mutable std::unique_ptr<LogsumHmmLikelihood> hmm_;
 
 public:
-  AutoCorrelationOfAlignedPhyloLikelihood(PhyloLikelihoodContainer* pC, const std::vector<size_t>& nPhylo);
+  AutoCorrelationOfAlignedPhyloLikelihood(Context& context, PhyloLikelihoodContainer* pC, const std::vector<size_t>& nPhylo);
 
   AutoCorrelationOfAlignedPhyloLikelihood(const AutoCorrelationOfAlignedPhyloLikelihood& mlc) :
     AbstractPhyloLikelihood(mlc),
@@ -87,18 +87,6 @@ public:
     hpep_(std::unique_ptr<HmmPhyloEmissionProbabilities>(mlc.hpep_->clone())),
     hmm_(std::unique_ptr<LogsumHmmLikelihood>(mlc.hmm_->clone()))
   {}
-
-  AutoCorrelationOfAlignedPhyloLikelihood& operator=(const AutoCorrelationOfAlignedPhyloLikelihood& mlc)
-  {
-    SetOfAlignedPhyloLikelihood::operator=(mlc);
-
-    hma_ = std::unique_ptr<HmmPhyloAlphabet>(mlc.hma_->clone());
-    htm_ = std::unique_ptr<AutoCorrelationTransitionMatrix>(mlc.htm_->clone());
-    hpep_ = std::unique_ptr<HmmPhyloEmissionProbabilities>(mlc.hpep_->clone());
-    hmm_ = std::unique_ptr<LogsumHmmLikelihood>(mlc.hmm_->clone());
-
-    return *this;
-  }
 
   virtual ~AutoCorrelationOfAlignedPhyloLikelihood() {}
 
@@ -183,7 +171,7 @@ protected:
     hmm_->getFirstOrderDerivative(variable);
     // derivative exists and ready to compute
   
-    dValues_[variable]= std::nan("");
+    // dValues_[variable]= std::nan("");
   }
 
 
@@ -191,7 +179,7 @@ protected:
   {
     hmm_->getSecondOrderDerivative(variable);
     
-    d2Values_[variable]= std::nan("");
+    // d2Values_[variable]= std::nan("");
   }
 
   ParameterList getNonDerivableParameters() const;

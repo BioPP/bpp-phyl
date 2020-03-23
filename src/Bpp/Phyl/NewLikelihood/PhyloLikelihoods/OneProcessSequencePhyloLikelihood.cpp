@@ -46,13 +46,14 @@ using namespace bpp;
 /******************************************************************************/
 
 OneProcessSequencePhyloLikelihood::OneProcessSequencePhyloLikelihood(
+  Context& context,
   OneProcessSequenceEvolution& evol,
   size_t nSeqEvol,
   bool verbose,
   bool patterns) :
-  AbstractPhyloLikelihood(),
-  AbstractAlignedPhyloLikelihood(0),
-  AbstractSequencePhyloLikelihood(evol, nSeqEvol),
+  AbstractPhyloLikelihood(context),
+  AbstractAlignedPhyloLikelihood(context, 0),
+  AbstractSequencePhyloLikelihood(context, evol, nSeqEvol),
   mSeqEvol_(evol),
   tlComp_()
 {
@@ -64,15 +65,16 @@ OneProcessSequencePhyloLikelihood::OneProcessSequencePhyloLikelihood(
 /******************************************************************************/
 
 OneProcessSequencePhyloLikelihood::OneProcessSequencePhyloLikelihood(
+  Context& context,
   const AlignedValuesContainer& data,
   OneProcessSequenceEvolution& evol,
   size_t nSeqEvol,
   size_t nData,
   bool verbose,
   bool patterns) :
-  AbstractPhyloLikelihood(),
-  AbstractAlignedPhyloLikelihood(data.getNumberOfSites()),
-  AbstractSequencePhyloLikelihood(evol, nSeqEvol),
+  AbstractPhyloLikelihood(context),
+  AbstractAlignedPhyloLikelihood(context, data.getNumberOfSites()),
+  AbstractSequencePhyloLikelihood(context, evol, nSeqEvol),
   mSeqEvol_(evol),
   tlComp_()
 {
@@ -231,7 +233,7 @@ void OneProcessSequencePhyloLikelihood::computeDLogLikelihood_(const string& var
   }
 
   tlComp_->computeTreeDLogLikelihood(vbrId);
-  dValues_[variable]= std::nan("");
+//  dValues_[variable]= std::nan("");
 }
 
 /******************************************************************************/
@@ -255,5 +257,5 @@ void OneProcessSequencePhyloLikelihood::computeD2LogLikelihood_(const string& va
   }
 
   tlComp_->computeTreeD2LogLikelihood(vbrId);
-  d2Values_[variable]= std::nan("");
+//  d2Values_[variable]= std::nan("");
 }

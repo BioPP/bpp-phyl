@@ -85,12 +85,14 @@ namespace bpp
 
   public:
     OneProcessSequencePhyloLikelihood(
+      Context& context,
       OneProcessSequenceEvolution& evol,
       size_t nSeqEvol = 0,
       bool verbose = true,
       bool patterns = true);
 
     OneProcessSequencePhyloLikelihood(
+      Context& context,
       const AlignedValuesContainer& data,
       OneProcessSequenceEvolution& evol,
       size_t nSeqEvol = 0,
@@ -106,19 +108,6 @@ namespace bpp
       tlComp_()
     {
       if (lik.tlComp_.get()) tlComp_.reset(lik.tlComp_->clone());
-    }
-
-    OneProcessSequencePhyloLikelihood& operator=(const OneProcessSequencePhyloLikelihood& lik)
-    {
-      AbstractSequencePhyloLikelihood::operator=(lik);
-      mSeqEvol_ = lik.mSeqEvol_;
-
-      if (lik.tlComp_.get())
-        tlComp_.reset(lik.tlComp_->clone());
-      else
-        tlComp_.reset();
-
-      return *this;
     }
 
     virtual ~OneProcessSequencePhyloLikelihood() {}
@@ -216,17 +205,12 @@ namespace bpp
   public:
     void updateLikelihood() const
     {
-      if (computeLikelihoods_)
         tlComp_->updateLikelihood();
     }
 
     void computeLikelihood() const
     {
-      if (computeLikelihoods_)
-      {
         tlComp_->computeTreeLikelihood();
-        computeLikelihoods_ = false;
-      }
     }
 
     double getLogLikelihood() const

@@ -63,9 +63,9 @@ namespace bpp
     std::unique_ptr<ComputationTree> compTree_;
 
   public:
-    FormulaOfPhyloLikelihood(PhyloLikelihoodContainer* pC);
+    FormulaOfPhyloLikelihood(Context& context, PhyloLikelihoodContainer* pC);
 
-    FormulaOfPhyloLikelihood(PhyloLikelihoodContainer* pC, const std::string& formula);
+    FormulaOfPhyloLikelihood(Context& context, PhyloLikelihoodContainer* pC, const std::string& formula);
 
     ~FormulaOfPhyloLikelihood() {}
     
@@ -75,9 +75,7 @@ namespace bpp
     }
     
     FormulaOfPhyloLikelihood(const FormulaOfPhyloLikelihood& sd);
-    
-    FormulaOfPhyloLikelihood& operator=(const FormulaOfPhyloLikelihood& sd);
-    
+
   public:
 
     /**

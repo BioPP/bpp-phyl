@@ -87,12 +87,14 @@ namespace bpp
       
     public:
       PartitionProcessPhyloLikelihood(
+        Context& context,
         PartitionSequenceEvolution& processSeqEvol,
         size_t nSeqEvol = 0,
         bool verbose = true,
         bool patterns = true);
 
       PartitionProcessPhyloLikelihood(
+        Context& context,
         const AlignedValuesContainer& data,
         PartitionSequenceEvolution& processSeqEvol,
         size_t nSeqEvol = 0,
@@ -101,26 +103,15 @@ namespace bpp
         bool patterns = true);
 
       PartitionProcessPhyloLikelihood(const PartitionProcessPhyloLikelihood& lik) :
-      AbstractPhyloLikelihood(lik),
-      AbstractAlignedPhyloLikelihood(lik),
-      SequencePhyloLikelihood(lik),
-      ProductOfAlignedPhyloLikelihood(lik),
-      mSeqEvol_(lik.mSeqEvol_),
-      vProcPos_(lik.vProcPos_)
+        AbstractPhyloLikelihood(lik),
+        AbstractAlignedPhyloLikelihood(lik),
+        SequencePhyloLikelihood(lik),
+        ProductOfAlignedPhyloLikelihood(lik),
+        mSeqEvol_(lik.mSeqEvol_),
+        vProcPos_(lik.vProcPos_)
       {
       }
       
-      PartitionProcessPhyloLikelihood& operator=(const PartitionProcessPhyloLikelihood& lik)
-      {
-        SequencePhyloLikelihood::operator=(lik);
-        ProductOfAlignedPhyloLikelihood::operator=(lik);
-        
-        mSeqEvol_=lik.mSeqEvol_;
-        vProcPos_=lik.vProcPos_;
- 
-        return *this;
-      }
-
       virtual ~PartitionProcessPhyloLikelihood()
       {
         delete getPhyloContainer();
@@ -195,18 +186,13 @@ namespace bpp
 
       void updateLikelihood() const
       {
-        if (computeLikelihoods_)
           ProductOfAlignedPhyloLikelihood::updateLikelihood();
       }
       
 
       void computeLikelihood() const
       {
-        if (computeLikelihoods_)
-        {
           ProductOfAlignedPhyloLikelihood::computeLikelihood();
-          computeLikelihoods_=false;
-        }
       }
       
       double getLikelihoodForASite(size_t site) const;

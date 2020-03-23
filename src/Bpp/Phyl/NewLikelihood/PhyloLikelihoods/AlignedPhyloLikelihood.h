@@ -144,8 +144,8 @@ namespace bpp
     size_t nbSites_;
 
   public:
-    AbstractAlignedPhyloLikelihood(size_t nbSites) :
-    AbstractPhyloLikelihood(),
+    AbstractAlignedPhyloLikelihood(Context& context, size_t nbSites) :
+    AbstractPhyloLikelihood(context),
     nbSites_(nbSites)
     {}
       
@@ -159,15 +159,6 @@ namespace bpp
 
     AbstractAlignedPhyloLikelihood* clone() const = 0;
       
-    AbstractAlignedPhyloLikelihood& operator=(const AbstractAlignedPhyloLikelihood& asd)
-    {
-      AbstractPhyloLikelihood::operator=(*this);
-      
-      nbSites_=asd.nbSites_;
-        
-      return *this;
-    }
-
     size_t getNumberOfSites() const { return nbSites_; }
 
     void setNumberOfSites(size_t nbSites)

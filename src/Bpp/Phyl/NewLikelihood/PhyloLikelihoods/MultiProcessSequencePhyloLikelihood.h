@@ -85,6 +85,7 @@ namespace bpp
 
     public:
       MultiProcessSequencePhyloLikelihood(
+        Context& context,
         const AlignedValuesContainer& data,
         MultiProcessSequenceEvolution& processSeqEvol,
         size_t nSeqEvol = 0, 
@@ -103,27 +104,6 @@ namespace bpp
         {
           vpTreelik_.push_back(lik.vpTreelik_[i]->clone());
         }
-      }
-
-      MultiProcessSequencePhyloLikelihood& operator=(const MultiProcessSequencePhyloLikelihood& lik)
-      {
-        AbstractSequencePhyloLikelihood::operator=(lik);
-        mSeqEvol_=lik.mSeqEvol_;
-
-        for (size_t i = 0; i < vpTreelik_.size(); i++)
-        {
-          if (vpTreelik_[i])
-            delete vpTreelik_[i];
-        }
-
-        vpTreelik_.empty();
-
-        for (size_t i = 0; i < lik.vpTreelik_.size(); i++)
-        {
-          vpTreelik_.push_back(lik.vpTreelik_[i]->clone());
-        }
-
-        return *this;
       }
 
       /**
@@ -163,22 +143,14 @@ namespace bpp
 
       void updateLikelihood() const
       {
-        if (computeLikelihoods_)
-        {
           for (size_t i = 0; i < vpTreelik_.size(); i++)
             vpTreelik_[i]->updateLikelihood();
-        }
       }
       
       void computeLikelihood() const
       {
-        if (computeLikelihoods_)
-        {
           for (size_t i = 0; i < vpTreelik_.size(); i++)
             vpTreelik_[i]->computeTreeLikelihood();
-
-          computeLikelihoods_=false;
-        }
         
       }
       /**

@@ -60,23 +60,15 @@ namespace bpp
     virtual public AbstractAlignedPhyloLikelihood
     {
     public:
-      SetOfAlignedPhyloLikelihood(PhyloLikelihoodContainer* pC, const std::string& prefix = "");
+      SetOfAlignedPhyloLikelihood(Context& context, PhyloLikelihoodContainer* pC, const std::string& prefix = "");
       
-      SetOfAlignedPhyloLikelihood(PhyloLikelihoodContainer* pC, const std::vector<size_t>& nPhylo, const std::string& prefix = "");
+      SetOfAlignedPhyloLikelihood(Context& context, PhyloLikelihoodContainer* pC, const std::vector<size_t>& nPhylo, const std::string& prefix = "");
       
       SetOfAlignedPhyloLikelihood(const SetOfAlignedPhyloLikelihood& soap) :
       AbstractPhyloLikelihood(soap),
       AbstractAlignedPhyloLikelihood(soap),
       SetOfAbstractPhyloLikelihood(soap)
       {
-      }
-
-      SetOfAlignedPhyloLikelihood& operator=(const SetOfAlignedPhyloLikelihood& soap)
-      {
-        SetOfAbstractPhyloLikelihood::operator=(soap);
-        AbstractAlignedPhyloLikelihood::operator=(soap);
-
-        return *this;
       }
 
       virtual SetOfAlignedPhyloLikelihood* clone() const = 0;

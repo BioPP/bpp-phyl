@@ -66,6 +66,8 @@ using namespace bpp;
 using namespace std;
 
 int main() {
+  Context context;
+  
   Newick reader;
 
   unique_ptr<PhyloTree> tree1(reader.parenthesisToPhyloTree("(((A:0.1, B:0.2):0.3,C:0.1):0.2,D:0.3);"));
@@ -156,8 +158,6 @@ int main() {
   SubstitutionProcess* sP1c=subPro1->clone();
   SubstitutionProcess* sP2c=subPro2->clone();
 
-  Context context;
-
   auto lik1 = std::make_shared<LikelihoodCalculationSingleProcess>(context, sites, *sP1c);
 
   pc.addPhyloLikelihood(1, new SingleProcessPhyloLikelihood_DF(context, lik1));
@@ -179,7 +179,7 @@ int main() {
 
   MixtureSequenceEvolution mse(modelColl, vp);
 
-  MixtureProcessPhyloLikelihood mlc(*sites.clone(), mse);
+  MixtureProcessPhyloLikelihood mlc(context, *sites.clone(), mse);
   
   cerr << "Mlc: " << mlc.getValue() << endl;
 
@@ -240,7 +240,7 @@ int main() {
   
   string formula="phylo1";  
     
-  unique_ptr<FormulaOfPhyloLikelihood> tl(new FormulaOfPhyloLikelihood(&pc,formula));
+  unique_ptr<FormulaOfPhyloLikelihood> tl(new FormulaOfPhyloLikelihood(context, &pc,formula));
 
   cerr << "tl " << tl->getValue() << endl;
 

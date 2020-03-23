@@ -74,6 +74,7 @@ private:
 
 public:
   HmmProcessPhyloLikelihood(
+    Context& context,
     const AlignedValuesContainer& data,
     HmmSequenceEvolution& processSeqEvol,
     size_t nSeqEvol = 0,
@@ -82,19 +83,11 @@ public:
     bool patterns = true);
 
   HmmProcessPhyloLikelihood(const HmmProcessPhyloLikelihood& mlc) :
-    AbstractPhyloLikelihood(),
+    AbstractPhyloLikelihood(mlc),
     AbstractAlignedPhyloLikelihood(mlc),
     MultiProcessSequencePhyloLikelihood(mlc),
     Hpep_(std::unique_ptr<HmmProcessEmissionProbabilities>(mlc.Hpep_->clone())),
     Hmm_(std::unique_ptr<LogsumHmmLikelihood>(mlc.Hmm_->clone())) {}
-
-  HmmProcessPhyloLikelihood& operator=(const HmmProcessPhyloLikelihood& mlc)
-  {
-    MultiProcessSequencePhyloLikelihood::operator=(mlc);
-    Hpep_ = std::unique_ptr<HmmProcessEmissionProbabilities>(mlc.Hpep_->clone());
-    Hmm_ = std::unique_ptr<LogsumHmmLikelihood>(mlc.Hmm_->clone());
-    return *this;
-  }
 
   virtual ~HmmProcessPhyloLikelihood() {}
 
@@ -107,19 +100,14 @@ public:
 
   void updateLikelihood() const
   {
-    if (computeLikelihoods_)
       MultiProcessSequencePhyloLikelihood::updateLikelihood();
   }
 
   void computeLikelihood() const
   {
-    if (computeLikelihoods_)
-    {
       MultiProcessSequencePhyloLikelihood::computeLikelihood();
       Hmm_->computeLikelihood();
 
-      computeLikelihoods_ = false;
-    }
   }
 
   /**
@@ -204,14 +192,14 @@ protected:
   void computeDLogLikelihood_(const std::string& variable) const
   {
     Hmm_->getFirstOrderDerivative(variable);
-    dValues_[variable]= std::nan("");
+    // dValues_[variable]= std::nan("");
   }
 
 
   void computeD2LogLikelihood_(const std::string& variable) const
   {
     Hmm_->getSecondOrderDerivative(variable);
-    d2Values_[variable]= std::nan("");
+    // d2Values_[variable]= std::nan("");
   }
 
 

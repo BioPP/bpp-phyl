@@ -140,6 +140,7 @@ namespace
     optimizer.setMaximumNumberOfEvaluations(100);
     optimizer.getStopCondition()->setTolerance(0.000001);
     optimizer.setConstraintPolicy(AutoParameter::CONSTRAINTS_AUTO);
+
     optimizer.init(params);
     optimizer.optimize();
     timingEnd(ts, prefix);
@@ -218,7 +219,7 @@ auto k80 = std::make_shared<K80>(&c.alphabet, 2.);
   // mapParam2["kappa"]=new SimpleDiscreteDistribution(sdm);
   // auto mk80 = std::make_shared<MixtureOfASubstitutionModel>(&c.alphabet, k80.get(), mapParam2);
 
-auto model1=std::make_shared<MultinomialFromTransitionModel>(*t922);
+//auto model1=std::make_shared<MultinomialFromTransitionModel>(*t922);
 
   /* scenario
   auto scenario = std::make_shared<ModelScenario>();
@@ -255,7 +256,8 @@ auto paramPhyloTree = new ParametrizablePhyloTree(*phyloTree);
   
 auto process  = std::make_shared<NonHomogeneousSubstitutionProcess>(distribution, paramPhyloTree, rootFreqs);
 
-process->addModel(model1, Vuint({0,1,3}));
+process->addModel(k80, Vuint({0,1,3}));
+
 process->addModel(t92, Vuint({2}));
     
 //std::shared_ptr<NonHomogeneousSubstitutionProcess>(NonHomogeneousSubstitutionProcess::createHomogeneousSubstitutionProcess(model, distribution, paramPhyloTree, rootFreqs));//, scenario));
@@ -312,6 +314,7 @@ process->addModel(t92, Vuint({2}));
   std::cout << "[lik2] " << lik2->getTargetValue() << "\n";
   dotOutput("likelihood_2", {lik2.get()});
   
+  l->getParameters().printParameters(cerr);
   
   optimize_for_params(llh, "df_all_opt", l->getParameters());
   dotOutput("likelihood_optim_value", {lik->getLikelihood().get()});

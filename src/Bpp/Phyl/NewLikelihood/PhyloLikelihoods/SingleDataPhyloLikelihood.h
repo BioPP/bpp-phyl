@@ -137,14 +137,16 @@ namespace bpp
     size_t nData_;
     
   public:
-    AbstractSingleDataPhyloLikelihood(size_t nbSites, size_t nbStates, size_t nData = 0) :
-      AbstractAlignedPhyloLikelihood(nbSites),
+    AbstractSingleDataPhyloLikelihood(Context& context, size_t nbSites, size_t nbStates, size_t nData = 0) :
+      AbstractPhyloLikelihood(context),
+      AbstractAlignedPhyloLikelihood(context, nbSites),
       nbStates_(nbStates),
       nData_(nData)
     {}
     
     
     AbstractSingleDataPhyloLikelihood(const AbstractSingleDataPhyloLikelihood& asd) :
+      AbstractPhyloLikelihood(asd),
       AbstractAlignedPhyloLikelihood(asd),
       nbStates_(asd.nbStates_),
       nData_(asd.nData_)
@@ -155,22 +157,11 @@ namespace bpp
     
     AbstractSingleDataPhyloLikelihood* clone() const = 0;
     
-    AbstractSingleDataPhyloLikelihood& operator=(const AbstractSingleDataPhyloLikelihood& asd)
-    {
-      AbstractAlignedPhyloLikelihood::operator=(asd);
-      nbStates_=asd.nbStates_;
-      
-      nData_=asd.nData_;
-      
-      return *this;
-    }
-    
     virtual void setData(const AlignedValuesContainer& sites, size_t nData = 0)
     {
       setNumberOfSites(sites.getNumberOfSites());
       nbStates_ = sites.getAlphabet()->getSize();
       nData_=nData;
-      initialize();
     }
     
     size_t getNData() const

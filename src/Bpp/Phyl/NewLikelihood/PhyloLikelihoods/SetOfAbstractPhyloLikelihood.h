@@ -76,14 +76,12 @@ namespace bpp
       std::vector<size_t> nPhylo_;
 
     public:
-      SetOfAbstractPhyloLikelihood(PhyloLikelihoodContainer* pC, const std::string& prefix = "");
+      SetOfAbstractPhyloLikelihood(Context& context, PhyloLikelihoodContainer* pC, const std::string& prefix = "");
 
       ~SetOfAbstractPhyloLikelihood() {}
 
       SetOfAbstractPhyloLikelihood(const SetOfAbstractPhyloLikelihood& sd);
         
-      SetOfAbstractPhyloLikelihood& operator=(const SetOfAbstractPhyloLikelihood& sd);
-
     public:
 
       PhyloLikelihoodContainer* getPhyloContainer()
@@ -176,19 +174,6 @@ namespace bpp
       }
       
       /**
-       * @return initialized the likelihood function.
-       *
-       */
-      
-      void initialize()
-      {
-        AbstractPhyloLikelihood::initialize();
-        for (size_t i=0; i<nPhylo_.size(); i++)
-           (*getPhyloContainer())[nPhylo_[i]]->initialize();
-      }
-        
-
-      /**
        * @return 'true' is the likelihood function has been initialized.
        */
       
@@ -208,21 +193,14 @@ namespace bpp
 
       void updateLikelihood() const
       {
-        if (computeLikelihoods_)
-        {
-          for (size_t i=0; i<nPhylo_.size(); i++)
-            getPhyloLikelihood(nPhylo_[i])->updateLikelihood();
-        }
+        for (size_t i=0; i<nPhylo_.size(); i++)
+          getPhyloLikelihood(nPhylo_[i])->updateLikelihood();
       }
 
       void computeLikelihood() const
       {
-        if (computeLikelihoods_)
-        {
-          for (size_t i=0; i<nPhylo_.size(); i++)
-            getPhyloLikelihood(nPhylo_[i])->computeLikelihood();
-          computeLikelihoods_=false;
-        }
+        for (size_t i=0; i<nPhylo_.size(); i++)
+          getPhyloLikelihood(nPhylo_[i])->computeLikelihood();
       }
 
     protected:
@@ -248,24 +226,26 @@ namespace bpp
 
       double getFirstOrderDerivative(const std::string& variable) const 
       {
-        if (dValues_.find(variable)==dValues_.end())
-          computeDLogLikelihood_(variable);
+        // if (dValues_.find(variable)==dValues_.end())
+        //   computeDLogLikelihood_(variable);
 
-        if (dValues_.find(variable)==dValues_.end() || std::isnan(dValues_[variable]))
-          dValues_[variable]=-getDLogLikelihood(variable);
+        // if (dValues_.find(variable)==dValues_.end() || std::isnan(dValues_[variable]))
+        //   dValues_[variable]=-getDLogLikelihood(variable);
         
-        return dValues_[variable];
+        // return dValues_[variable];
+        return 0;
       }
 
       double getSecondOrderDerivative(const std::string& variable) const
       {
-        if (d2Values_.find(variable)==d2Values_.end())
-          computeD2LogLikelihood_(variable);
+        // if (d2Values_.find(variable)==d2Values_.end())
+        //   computeD2LogLikelihood_(variable);
 
-        if (d2Values_.find(variable)==d2Values_.end() || std::isnan(d2Values_[variable]))
-          d2Values_[variable]=-getD2LogLikelihood(variable);
+        // if (d2Values_.find(variable)==d2Values_.end() || std::isnan(d2Values_[variable]))
+        //   d2Values_[variable]=-getD2LogLikelihood(variable);
         
-        return d2Values_[variable];
+        // return d2Values_[variable];
+        return 0;
       }
 
       double getSecondOrderDerivative(const std::string& variable1, const std::string& variable2) const

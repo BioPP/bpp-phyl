@@ -52,14 +52,15 @@ using namespace bpp;
 /******************************************************************************/
 
 PartitionProcessPhyloLikelihood::PartitionProcessPhyloLikelihood(
+  Context& context,
   PartitionSequenceEvolution& processSeqEvol,
   size_t nSeqEvol,
   bool verbose,
   bool patterns) :
-  AbstractPhyloLikelihood(),
-  AbstractAlignedPhyloLikelihood(0),
-  SequencePhyloLikelihood(processSeqEvol, nSeqEvol),
-  ProductOfAlignedPhyloLikelihood(new PhyloLikelihoodContainer()),
+  AbstractPhyloLikelihood(context),
+  AbstractAlignedPhyloLikelihood(context, 0),
+  SequencePhyloLikelihood(context, processSeqEvol, nSeqEvol),
+  ProductOfAlignedPhyloLikelihood(context, new PhyloLikelihoodContainer()),
   mSeqEvol_(processSeqEvol),
   vProcPos_()
 {
@@ -77,7 +78,7 @@ PartitionProcessPhyloLikelihood::PartitionProcessPhyloLikelihood(
       &processColl.getSubstitutionProcess(it->first),
       it==mProcPos.begin(), patterns);
 
-    pC->addPhyloLikelihood(it->first, new SingleProcessPhyloLikelihood(&processColl.getSubstitutionProcess(it->first), rt, it->first));
+    pC->addPhyloLikelihood(it->first, new SingleProcessPhyloLikelihood(context, &processColl.getSubstitutionProcess(it->first), rt, it->first));
 
     for (size_t i = 0; i<it->second.size();i++)
     {
@@ -93,16 +94,17 @@ PartitionProcessPhyloLikelihood::PartitionProcessPhyloLikelihood(
 /******************************************************************************/
 
 PartitionProcessPhyloLikelihood::PartitionProcessPhyloLikelihood(
+  Context& context,
   const AlignedValuesContainer& data,
   PartitionSequenceEvolution& processSeqEvol,
   size_t nSeqEvol,
   size_t nData,
   bool verbose,
   bool patterns) :
-  AbstractPhyloLikelihood(),
-  AbstractAlignedPhyloLikelihood(data.getNumberOfSites()),
-  SequencePhyloLikelihood(processSeqEvol, nSeqEvol, nData),
-  ProductOfAlignedPhyloLikelihood(new PhyloLikelihoodContainer()),
+  AbstractPhyloLikelihood(context),
+  AbstractAlignedPhyloLikelihood(context, data.getNumberOfSites()),
+  SequencePhyloLikelihood(context, processSeqEvol, nSeqEvol, nData),
+  ProductOfAlignedPhyloLikelihood(context, new PhyloLikelihoodContainer()),
   mSeqEvol_(processSeqEvol),
   vProcPos_()
 {
@@ -122,7 +124,7 @@ PartitionProcessPhyloLikelihood::PartitionProcessPhyloLikelihood(
     LikelihoodTreeCalculation* rt = new RecursiveLikelihoodTreeCalculation(
         &processColl.getSubstitutionProcess(it->first), it==mProcPos.begin(), patterns);
 
-    pC->addPhyloLikelihood(it->first, new SingleProcessPhyloLikelihood(&processColl.getSubstitutionProcess(it->first), rt, it->first));
+    pC->addPhyloLikelihood(it->first, new SingleProcessPhyloLikelihood(context, &processColl.getSubstitutionProcess(it->first), rt, it->first));
 
     for (size_t i = 0; i<it->second.size();i++)
     {

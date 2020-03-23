@@ -73,6 +73,7 @@ namespace bpp
       
     public:
       MixtureProcessPhyloLikelihood(
+        Context& context,
         const AlignedValuesContainer& data,
         MixtureSequenceEvolution& processSeqEvol,
         size_t nSeqEvol = 0,
@@ -86,14 +87,6 @@ namespace bpp
         MultiProcessSequencePhyloLikelihood(mlc),
         mSeqEvol_(mlc.mSeqEvol_)
       {}
-
-      MixtureProcessPhyloLikelihood& operator=(const MixtureProcessPhyloLikelihood& mlc)
-      {
-        MultiProcessSequencePhyloLikelihood::operator=(mlc);
-        mSeqEvol_=mlc.mSeqEvol_;
-        
-        return *this;
-      }
 
       virtual ~MixtureProcessPhyloLikelihood() {}
 
