@@ -1,5 +1,5 @@
 //
-// File: NucleotideFrequenciesSet.h
+// File: NucleotideFrequencySet.h
 // Created by: Bastien Boussau
 //             Julien Dutheil
 // Created on: Tue Aug 21 2007
@@ -38,10 +38,10 @@
    knowledge of the CeCILL license and that you accept its terms.
  */
 
-#ifndef _NUCLEOTIDEFREQUENCIESSET_H_
-#define _NUCLEOTIDEFREQUENCIESSET_H_
+#ifndef _NUCLEOTIDEFREQUENCYSET_H_
+#define _NUCLEOTIDEFREQUENCYSET_H_
 
-#include "FrequenciesSet.h"
+#include "FrequencySet.h"
 #include <Bpp/Seq/Alphabet/NucleicAlphabet.h>
 
 namespace bpp
@@ -195,6 +195,6 @@ public:
 
 } // end of namespace bpp.
 
-#endif // _NUCLEOTIDEFREQUENCIESSET_H_
+#endif // _NUCLEOTIDEFREQUENCYSET_H_
 
 

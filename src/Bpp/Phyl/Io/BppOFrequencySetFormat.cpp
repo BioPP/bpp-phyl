@@ -37,13 +37,13 @@
    knowledge of the CeCILL license and that you accept its terms.
  */
 
-#include "BppOFrequenciesSetFormat.h"
+#include "BppOFrequencySetFormat.h"
 
 
-#include "../Model/FrequenciesSet/NucleotideFrequenciesSet.h"
-#include "../Model/FrequenciesSet/ProteinFrequenciesSet.h"
-#include "../Model/FrequenciesSet/CodonFrequenciesSet.h"
-#include "../Model/FrequenciesSet/MvaFrequenciesSet.h"
+#include "../Model/FrequencySet/NucleotideFrequencySet.h"
+#include "../Model/FrequencySet/ProteinFrequencySet.h"
+#include "../Model/FrequencySet/CodonFrequencySet.h"
+#include "../Model/FrequencySet/MvaFrequencySet.h"
 
 //From bpp-core:
 #include <Bpp/Io/FileTools.h>

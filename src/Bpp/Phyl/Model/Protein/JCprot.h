@@ -43,7 +43,7 @@
 #include <Bpp/Seq/Alphabet/ProteicAlphabet.h>
 #include "ProteinSubstitutionModel.h"
 #include "../AbstractSubstitutionModel.h"
-#include "../FrequenciesSet/ProteinFrequenciesSet.h"
+#include "../FrequencySet/ProteinFrequencySet.h"
 
 namespace bpp
 {

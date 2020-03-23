@@ -37,10 +37,10 @@
    knowledge of the CeCILL license and that you accept its terms.
  */
 
-#ifndef _BPPOFREQUENCIESSETFORMAT_H_
-#define _BPPOFREQUENCIESSETFORMAT_H_
+#ifndef _BPPOFREQUENCYSETFORMAT_H_
+#define _BPPOFREQUENCYSETFORMAT_H_
 
-#include "IoFrequenciesSetFactory.h"
+#include "IoFrequencySetFactory.h"
 
 //From bpp-seq:
 #include <Bpp/Seq/GeneticCode/GeneticCode.h>
@@ -136,5 +136,5 @@ private:
 
 } // end of namespace bpp.
 
-#endif // _BPPOFREQUENCIESSETFORMAT_H_
+#endif // _BPPOFREQUENCYSETFORMAT_H_
 

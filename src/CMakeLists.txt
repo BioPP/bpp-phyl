@@ -22,7 +22,7 @@ set (CPP_FILES
   Bpp/Phyl/Graphics/PhylogramPlot.cpp
   Bpp/Phyl/Graphics/TreeDrawingDisplayControler.cpp
   Bpp/Phyl/Graphics/TreeDrawingListener.cpp
-  Bpp/Phyl/Io/BppOFrequenciesSetFormat.cpp
+  Bpp/Phyl/Io/BppOFrequencySetFormat.cpp
   Bpp/Phyl/Io/BppOMultiTreeReaderFormat.cpp
   Bpp/Phyl/Io/BppOMultiTreeWriterFormat.cpp
   Bpp/Phyl/Io/BppORateDistributionFormat.cpp
@@ -31,7 +31,7 @@ set (CPP_FILES
   Bpp/Phyl/Io/BppOTreeReaderFormat.cpp
   Bpp/Phyl/Io/BppOTreeWriterFormat.cpp
   Bpp/Phyl/Io/IoDistanceMatrixFactory.cpp
-  Bpp/Phyl/Io/IoFrequenciesSetFactory.cpp
+  Bpp/Phyl/Io/IoFrequencySetFactory.cpp
   Bpp/Phyl/Io/IoPairedSiteLikelihoods.cpp
   Bpp/Phyl/Io/IoSubstitutionModelFactory.cpp
   Bpp/Phyl/Io/IoTreeFactory.cpp
@@ -112,11 +112,11 @@ set (CPP_FILES
   Bpp/Phyl/Model/Codon/YNGP_M7.cpp
   Bpp/Phyl/Model/Codon/YNGP_M8.cpp
   Bpp/Phyl/Model/Codon/YNGP_M9.cpp
-  Bpp/Phyl/Model/FrequenciesSet/CodonFrequenciesSet.cpp
-  Bpp/Phyl/Model/FrequenciesSet/FrequenciesSet.cpp
-  Bpp/Phyl/Model/FrequenciesSet/MvaFrequenciesSet.cpp
-  Bpp/Phyl/Model/FrequenciesSet/NucleotideFrequenciesSet.cpp
-  Bpp/Phyl/Model/FrequenciesSet/WordFrequenciesSet.cpp
+  Bpp/Phyl/Model/FrequencySet/CodonFrequencySet.cpp
+  Bpp/Phyl/Model/FrequencySet/FrequencySet.cpp
+  Bpp/Phyl/Model/FrequencySet/MvaFrequencySet.cpp
+  Bpp/Phyl/Model/FrequencySet/NucleotideFrequencySet.cpp
+  Bpp/Phyl/Model/FrequencySet/WordFrequencySet.cpp
   Bpp/Phyl/Model/FromMixtureSubstitutionModel.cpp
   Bpp/Phyl/Model/InMixedSubstitutionModel.cpp
   Bpp/Phyl/Model/KroneckerWordSubstitutionModel.cpp

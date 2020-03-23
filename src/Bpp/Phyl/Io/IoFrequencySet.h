@@ -1,5 +1,5 @@
 //
-// File: IoFrequenciesSet.h
+// File: IoFrequencySet.h
 // Created by: Laurent Guéguen
 // Created on: lundi 9 juillet 2012, à 12h 49
 //
@@ -37,10 +37,10 @@
   knowledge of the CeCILL license and that you accept its terms.
 */
 
-#ifndef _IOFREQUENCIESSET_H_
-#define _IOFREQUENCIESSET_H_
+#ifndef _IOFREQUENCYSET_H_
+#define _IOFREQUENCYSET_H_
 
-#include "../Model/FrequenciesSet/FrequenciesSet.h"
+#include "../Model/FrequencySet/FrequencySet.h"
 
 //From bpp-core:
 #include <Bpp/Exceptions.h>
@@ -128,5 +128,5 @@ namespace bpp
 
 } //end of namespace bpp.
 
-#endif //_IOFREQUENCIESSET_H_
+#endif //_IOFREQUENCYSET_H_
 

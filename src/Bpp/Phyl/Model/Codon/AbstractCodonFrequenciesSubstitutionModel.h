@@ -1,5 +1,5 @@
 //
-// File: AbstractCodonFrequenciesSubstitutionModel.h
+// File: AbstractCodonFrequencySubstitutionModel.h
 // Created by: jeudi 15 septembre 2011, à 15h 02
 //
 
@@ -36,11 +36,11 @@
   knowledge of the CeCILL license and that you accept its terms.
 */
 
-#ifndef _ABSTRACTCODONFREQUENCIESSUBSTITUTIONMODEL_H_
-#define _ABSTRACTCODONFREQUENCIESSUBSTITUTIONMODEL_H_
+#ifndef _ABSTRACTCODONFREQUENCYSUBSTITUTIONMODEL_H_
+#define _ABSTRACTCODONFREQUENCYSUBSTITUTIONMODEL_H_
 
 #include "CodonSubstitutionModel.h"
-#include "../FrequenciesSet/CodonFrequenciesSet.h"
+#include "../FrequencySet/CodonFrequencySet.h"
 
 namespace bpp
 {
@@ -124,5 +124,5 @@ namespace bpp
   
 } // end of namespace bpp.
 
-#endif
+#endif //_ABSTRACTCODONFREQUENCYSUBSTITUTIONMODEL_H_
 

@@ -41,7 +41,7 @@
 
 # include "CodonSubstitutionModel.h"
 
-#include "../FrequenciesSet/ProteinFrequenciesSet.h"
+#include "../FrequencySet/ProteinFrequencySet.h"
 
 namespace bpp
 {
@@ -153,4 +153,6 @@ namespace bpp
 
   };
 } // end of namespace bpp
-# endif
+
+# endif //_ABSTRACTCODON_AA_FITNESSSUBSTITUTIONMODEL_H_
+

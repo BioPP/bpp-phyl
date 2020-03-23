@@ -36,11 +36,11 @@
   knowledge of the CeCILL license and that you accept its terms.
 */
 
-#ifndef _ABSTRACTCODONPHASEFREQUENCIESSUBSTITUTIONMODEL_H_
-#define _ABSTRACTCODONPHASEFREQUENCIESSUBSTITUTIONMODEL_H_
+#ifndef _ABSTRACTCODONPHASEFREQUENCYSUBSTITUTIONMODEL_H_
+#define _ABSTRACTCODONPHASEFREQUENCYSUBSTITUTIONMODEL_H_
 
 #include "CodonSubstitutionModel.h"
-#include "../FrequenciesSet/CodonFrequenciesSet.h"
+#include "../FrequencySet/CodonFrequencySet.h"
 
 namespace bpp
 {
@@ -133,5 +133,5 @@ namespace bpp
   };
 } // end of namespace bpp.
 
-#endif
+#endif //_ABSTRACTCODONPHASEFREQUENCYSUBSTITUTIONMODEL_H_
 

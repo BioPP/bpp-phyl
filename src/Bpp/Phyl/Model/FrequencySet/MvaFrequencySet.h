@@ -37,10 +37,10 @@
   knowledge of the CeCILL license and that you accept its terms.
 */
 
-#ifndef _MVAFREQUENCIESSET_H_
-#define _MVAFREQUENCIESSET_H_
+#ifndef _MVAFREQUENCYSET_H_
+#define _MVAFREQUENCYSET_H_
 
-#include "ProteinFrequenciesSet.h"
+#include "ProteinFrequencySet.h"
 #include "../Protein/Coala.h"
 
 namespace bpp
@@ -114,5 +114,5 @@ namespace bpp
 
 } // end of namespace bpp.
 
-#endif // _MVAFREQUENCIESSET_H_
+#endif // _MVAFREQUENCYSET_H_
 

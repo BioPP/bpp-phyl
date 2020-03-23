@@ -38,11 +38,11 @@
   knowledge of the CeCILL license and that you accept its terms.
 */
 
-#ifndef _PROTEINFREQUENCIESSET_H_
-#define _PROTEINFREQUENCIESSET_H_
+#ifndef _PROTEINFREQUENCYSET_H_
+#define _PROTEINFREQUENCYSET_H_
 
 #include <Bpp/Seq/Alphabet/ProteicAlphabet.h>
-#include "FrequenciesSet.h"
+#include "FrequencySet.h"
 
 namespace bpp
 {
@@ -142,6 +142,6 @@ namespace bpp
 
 } // end of namespace bpp.
 
-#endif // _PROTEINFREQUENCIESSET_H_
+#endif // _PROTEINFREQUENCYSET_H_
 
 

@@ -43,7 +43,7 @@
 #include "../Model/MixedTransitionModel.h"
 #include "../Model/WrappedModel.h"
 #include "../Model/Protein/Coala.h"
-#include "../Model/FrequenciesSet/MvaFrequenciesSet.h"
+#include "../Model/FrequencySet/MvaFrequencySet.h"
 #include "../Likelihood/TreeLikelihood.h"
 #include "../Mapping/LaplaceSubstitutionCount.h"
 #include "../Mapping/UniformizationSubstitutionCount.h"
@@ -58,7 +58,7 @@
 #include "../Io/BppOMultiTreeWriterFormat.h"
 #include "../Io/BppOSubstitutionModelFormat.h"
 #include "../Io/BppOTransitionModelFormat.h"
-#include "../Io/BppOFrequenciesSetFormat.h"
+#include "../Io/BppOFrequencySetFormat.h"
 #include "../Io/BppORateDistributionFormat.h"
 
 // From bpp-core

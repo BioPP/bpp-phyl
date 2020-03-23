@@ -40,7 +40,7 @@
 #ifndef _SUBSTITUTIONMODEL_H_
 #define _SUBSTITUTIONMODEL_H_
 
-#include "FrequenciesSet/FrequenciesSet.h"
+#include "FrequencySet/FrequencySet.h"
 #include "StateMap.h"
 
 // From bpp-core:

@@ -37,12 +37,12 @@
   knowledge of the CeCILL license and that you accept its terms.
 */
 
-#ifndef _CODONFREQUENCIESSET_H_
-#define _CODONFREQUENCIESSET_H_
+#ifndef _CODONFREQUENCYSET_H_
+#define _CODONFREQUENCYSET_H_
 
-#include "WordFrequenciesSet.h"
-#include "FrequenciesSet.h"
-#include "ProteinFrequenciesSet.h"
+#include "WordFrequencySet.h"
+#include "FrequencySet.h"
+#include "ProteinFrequencySet.h"
 
 #include <Bpp/Seq/Alphabet/CodonAlphabet.h>
 #include <Bpp/Seq/GeneticCode/GeneticCode.h>
@@ -507,4 +507,4 @@ namespace bpp
   };
 } // end of namespace bpp.
 
-#endif // _CODONFREQUENCIESSET_H_
+#endif // _CODONFREQUENCYSET_H_

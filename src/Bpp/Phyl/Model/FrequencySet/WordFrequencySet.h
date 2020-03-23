@@ -1,5 +1,5 @@
 //
-// File: WordFrequenciesSet.h
+// File: WordFrequencySet.h
 // Created by: Laurent Gueguen
 // Created on: lundi 2 avril 2012, à 13h 59
 //
@@ -37,12 +37,12 @@
    knowledge of the CeCILL license and that you accept its terms.
  */
 
-#ifndef _WORDFREQUENCIESSET_H_
-#define _WORDFREQUENCIESSET_H_
+#ifndef _WORDFREQUENCYSET_H_
+#define _WORDFREQUENCYSET_H_
 
 #include <Bpp/Seq/Alphabet/WordAlphabet.h>
 #include <Bpp/Seq/Alphabet/CodonAlphabet.h>
-#include "FrequenciesSet.h"
+#include "FrequencySet.h"
 
 namespace bpp
 {
@@ -231,6 +231,6 @@ public:
 
 } // end of namespace bpp.
 
-#endif // _WORDFREQUENCIESSET_H_
+#endif // _WORDFREQUENCYSET_H_
 
 
