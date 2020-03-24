@@ -50,7 +50,7 @@
 using namespace bpp;
 using namespace std;
 
-IMultiTree* BppOMultiTreeReaderFormat::read(const std::string& description)
+IMultiTree* BppOMultiTreeReaderFormat::readIMultiTree(const std::string& description)
 {
   unparsedArguments_.clear();
   string format = "";

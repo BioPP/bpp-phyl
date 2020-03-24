@@ -133,7 +133,7 @@ vector<Tree*> PhylogeneticsApplicationTools::getTrees(
   string treeFilePath = ApplicationTools::getAFilePath(prefix + "trees.file", params, true, true, suffix, suffixIsOptional, "none", warn);
 
   BppOMultiTreeReaderFormat bppoReader(warn);
-  unique_ptr<IMultiTree> iTrees(bppoReader.read(format));
+  unique_ptr<IMultiTree> iTrees(bppoReader.readIMultiTree(format));
   if (verbose)
   {
     ApplicationTools::displayResult("Input trees file " + suffix, treeFilePath);
