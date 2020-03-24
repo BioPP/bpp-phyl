@@ -1432,7 +1432,7 @@ void PhylogeneticsApplicationTools::writeTree(
   string file = ApplicationTools::getAFilePath(prefix + "tree.file", params, false, false, suffix, suffixIsOptional, "none", warn);
  
   BppOTreeWriterFormat bppoWriter(warn);
-  unique_ptr<OTree> oTree(bppoWriter.read(format));
+  unique_ptr<OTree> oTree(bppoWriter.readOTree(format));
   if (verbose)
   {
     ApplicationTools::displayResult("Output tree file " + suffix, file);
