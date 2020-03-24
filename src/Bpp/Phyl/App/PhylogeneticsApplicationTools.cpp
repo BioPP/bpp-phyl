@@ -1458,7 +1458,7 @@ void PhylogeneticsApplicationTools::writeTrees(
   string file = ApplicationTools::getAFilePath(prefix + "trees.file", params, true, false, suffix, suffixIsOptional, "none", warn);
 
   BppOMultiTreeWriterFormat bppoWriter(warn);
-  unique_ptr<OMultiTree> oTrees(bppoWriter.read(format));
+  unique_ptr<OMultiTree> oTrees(bppoWriter.readOMultiTree(format));
   if (verbose)
   {
     ApplicationTools::displayResult("Output trees file " + suffix, file);
