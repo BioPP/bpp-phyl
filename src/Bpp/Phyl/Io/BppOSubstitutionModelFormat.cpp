@@ -485,7 +485,7 @@ SubstitutionModel* BppOSubstitutionModelFormat::readSubstitutionModel(
     unique_ptr<ReversibleSubstitutionModel> nestedModel(dynamic_cast<ReversibleSubstitutionModel*>(nestedReader.readSubstitutionModel(alphabet, nestedModelDescription, data, false)));
     map<string, string> unparsedParameterValuesNestedModel(nestedReader.getUnparsedArguments());
     BppORateDistributionFormat rateReader(false);
-    unique_ptr<DiscreteDistribution> nestedRDist(rateReader.read(nestedRateDistDescription, false));
+    unique_ptr<DiscreteDistribution> nestedRDist(rateReader.readDiscreteDistribution(nestedRateDistDescription, false));
     map<string, string> unparsedParameterValuesNestedDist(rateReader.getUnparsedArguments());
 
     // Now we create the G01 substitution model:
@@ -1394,7 +1394,7 @@ void BppOSubstitutionModelFormat::write(const TransitionModel& model,
       const DiscreteDistribution* nestedDist = gModel->getRateDistribution();
       const BppODiscreteDistributionFormat* bIO = new BppODiscreteDistributionFormat();
 
-      bIO->write(*nestedDist, out, globalAliases, writtenNames);
+      bIO->writeDiscreteDistribution(*nestedDist, out, globalAliases, writtenNames);
       delete bIO;
     }
     comma = true;
@@ -1715,7 +1715,7 @@ void BppOSubstitutionModelFormat::writeMixed_(const MixedTransitionModel& model,
         {
           const BppODiscreteDistributionFormat* bIO = new BppODiscreteDistributionFormat();
           StdStr sout;
-          bIO->write(*pDD, sout, globalAliases, writtenNames);
+          bIO->writeDiscreteDistribution(*pDD, sout, globalAliases, writtenNames);
           globalAliases[pn] = sout.str();
           delete bIO;
         }

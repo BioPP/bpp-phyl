@@ -726,7 +726,7 @@ DiscreteDistribution* PhylogeneticsApplicationTools::getRateDistribution(
   KeyvalTools::parseProcedure(distDescription, distName, args);
 
   BppORateDistributionFormat bIO(true);
-  unique_ptr<DiscreteDistribution> rDist(bIO.read(distDescription, true));
+  unique_ptr<DiscreteDistribution> rDist(bIO.readDiscreteDistribution(distDescription, true));
 
   if (verbose)
   {
@@ -1574,7 +1574,7 @@ void PhylogeneticsApplicationTools::printParameters(const DiscreteDistribution* 
   vector<string> writtenNames;
   const BppORateDistributionFormat* bIO = new BppORateDistributionFormat(true);
 
-  bIO->write(*rDist, out, globalAliases, writtenNames);
+  bIO->writeDiscreteDistribution(*rDist, out, globalAliases, writtenNames);
   delete bIO;
   out.endLine();
 }

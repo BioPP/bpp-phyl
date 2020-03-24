@@ -308,7 +308,7 @@ MixedTransitionModel* BppOTransitionModelFormat::readMixed_(const Alphabet* alph
       if (it.second.find("(") != string::npos)
       {
         BppODiscreteDistributionFormat bIO(false);
-        mdist[pSM->getParameterNameWithoutNamespace(it.first)] = bIO.read(it.second, false);
+        mdist[pSM->getParameterNameWithoutNamespace(it.first)] = bIO.readDiscreteDistribution(it.second, false);
         map<string, string> unparsedParameterValuesNested3(bIO.getUnparsedArguments());
         for (auto& it2:unparsedParameterValuesNested3)
           unparsedParameterValuesNested2[it.first + "_" + it2.first] = it2.second;
