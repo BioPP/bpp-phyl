@@ -109,7 +109,7 @@ Tree* PhylogeneticsApplicationTools::getTree(
   string treeFilePath = ApplicationTools::getAFilePath(prefix + "tree.file", params, true, true, suffix, suffixIsOptional, "none", warn);
 
   BppOTreeReaderFormat bppoReader(warn);
-  unique_ptr<ITree> iTree(bppoReader.read(format));
+  unique_ptr<ITree> iTree(bppoReader.readITree(format));
   if (verbose)
   {
     ApplicationTools::displayResult("Input tree file " + suffix, treeFilePath);
