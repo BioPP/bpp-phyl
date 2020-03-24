@@ -57,8 +57,8 @@ namespace bpp
    * \f[-\frac{\log(\frac{\phi_i}{\phi_j})}{1-\frac{\phi_i}{\phi_j}}\f]
    *
    * The set of fitnesses is implemented through a Codon
-   * FrequenciesSet object. The parameters are named \c
-   * "fit_NameOfTheParameterInTheFrequenciesSet".
+   * FrequencySet object. The parameters are named \c
+   * "fit_NameOfTheParameterInTheFrequencySet".
    */
 
 
@@ -67,7 +67,7 @@ namespace bpp
     public virtual AbstractParameterAliasable
   {
   private:
-    FrequenciesSet* pfitset_;
+    FrequencySet* pfitset_;
 
     const GeneticCode* pgencode_;
   
@@ -75,7 +75,7 @@ namespace bpp
 
   public:
     AbstractCodonFitnessSubstitutionModel(
-      FrequenciesSet* pfitset,
+      FrequencySet* pfitset,
       const GeneticCode* pgencode,
       const std::string& prefix);
     
@@ -107,7 +107,7 @@ namespace bpp
 
     void setFreq(std::map<int, double>& frequencies);
 
-    const FrequenciesSet& getFreq() const { return *pfitset_; }
+    const FrequencySet& getFreq() const { return *pfitset_; }
 
     void setNamespace (const std::string& prefix){
       AbstractParameterAliasable::setNamespace(prefix);
@@ -116,9 +116,9 @@ namespace bpp
 
     double getCodonsMulRate(size_t i, size_t j) const;
 
-    const FrequenciesSet* getFitness() const { return pfitset_;}
+    const FrequencySet* getFitness() const { return pfitset_;}
 
-    const FrequenciesSet* getFrequenciesSet() const 
+    const FrequencySet* getFrequencySet() const 
     {
       return 0;
     }

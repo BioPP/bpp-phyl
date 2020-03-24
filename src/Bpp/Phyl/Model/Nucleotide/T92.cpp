@@ -38,7 +38,7 @@
  */
 
 #include "T92.h"
-#include "../FrequenciesSet/NucleotideFrequenciesSet.h"
+#include "../FrequencySet/NucleotideFrequencySet.h"
 
 #include <Bpp/Numeric/Matrix/MatrixTools.h>
 
@@ -71,7 +71,7 @@ T92::T92(const NucleicAlphabet* alpha, double kappa, double theta) :
   p_(size_, size_)
 {
   addParameter_(new Parameter("T92.kappa", kappa, Parameter::R_PLUS_STAR));
-  addParameter_(new Parameter("T92.theta", theta, FrequenciesSet::FREQUENCE_CONSTRAINT_SMALL));
+  addParameter_(new Parameter("T92.theta", theta, FrequencySet::FREQUENCE_CONSTRAINT_SMALL));
   p_.resize(size_, size_);
   updateMatrices();
 }

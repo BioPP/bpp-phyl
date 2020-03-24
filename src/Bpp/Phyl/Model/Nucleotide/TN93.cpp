@@ -38,7 +38,7 @@ knowledge of the CeCILL license and that you accept its terms.
 */
 
 #include "TN93.h"
-#include "../FrequenciesSet/NucleotideFrequenciesSet.h"
+#include "../FrequencySet/NucleotideFrequencySet.h"
 
 #include <Bpp/Numeric/Matrix/MatrixTools.h>
 #include <Bpp/Numeric/Matrix/EigenValue.h>
@@ -73,9 +73,9 @@ TN93::TN93(
 {
   addParameter_(new Parameter("TN93.kappa1", kappa1, Parameter::R_PLUS_STAR));
   addParameter_(new Parameter("TN93.kappa2", kappa2, Parameter::R_PLUS_STAR));
-  addParameter_(new Parameter("TN93.theta" , theta_ , FrequenciesSet::FREQUENCE_CONSTRAINT_SMALL));
-  addParameter_(new Parameter("TN93.theta1", theta1_, FrequenciesSet::FREQUENCE_CONSTRAINT_SMALL));
-  addParameter_(new Parameter("TN93.theta2", theta2_, FrequenciesSet::FREQUENCE_CONSTRAINT_SMALL));
+  addParameter_(new Parameter("TN93.theta" , theta_ , FrequencySet::FREQUENCE_CONSTRAINT_SMALL));
+  addParameter_(new Parameter("TN93.theta1", theta1_, FrequencySet::FREQUENCE_CONSTRAINT_SMALL));
+  addParameter_(new Parameter("TN93.theta2", theta2_, FrequencySet::FREQUENCE_CONSTRAINT_SMALL));
   p_.resize(size_, size_);
   updateMatrices();
 }

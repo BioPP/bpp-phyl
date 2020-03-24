@@ -1,5 +1,5 @@
 //
-// File: CodonFrequenciesSet.cpp
+// File: CodonFrequencySet.cpp
 // Created by: Laurent Gueguen
 // Created on: lundi 2 avril 2012, à 14h 15
 //
@@ -37,8 +37,8 @@
    knowledge of the CeCILL license and that you accept its terms.
  */
 
-#include "CodonFrequenciesSet.h"
-#include "NucleotideFrequenciesSet.h"
+#include "CodonFrequencySet.h"
+#include "NucleotideFrequencySet.h"
 #include "../StateMap.h"
 
 // From bpp-core:
@@ -48,10 +48,10 @@ using namespace bpp;
 using namespace std;
 
 // ////////////////////////////
-// FullCodonFrequenciesSet
+// FullCodonFrequencySet
 
-FullCodonFrequenciesSet::FullCodonFrequenciesSet(const GeneticCode* gCode, bool allowNullFreqs, unsigned short method, const string& name) :
-  AbstractFrequenciesSet(
+FullCodonFrequencySet::FullCodonFrequencySet(const GeneticCode* gCode, bool allowNullFreqs, unsigned short method, const string& name) :
+  AbstractFrequencySet(
     std::shared_ptr<const StateMap>(new CanonicalStateMap(gCode->getSourceAlphabet(), false)),
     "Full.",
     name),
@@ -71,18 +71,18 @@ FullCodonFrequenciesSet::FullCodonFrequenciesSet(const GeneticCode* gCode, bool 
   updateFreq_();
 }
 
-FullCodonFrequenciesSet::FullCodonFrequenciesSet(
+FullCodonFrequencySet::FullCodonFrequencySet(
   const GeneticCode* gCode,
   const vector<double>& initFreqs,
   bool allowNullFreqs,
   unsigned short method,
   const string& name) :
-  AbstractFrequenciesSet(std::shared_ptr<const StateMap>(new CanonicalStateMap(gCode->getSourceAlphabet(), false)), "Full.", name),
+  AbstractFrequencySet(std::shared_ptr<const StateMap>(new CanonicalStateMap(gCode->getSourceAlphabet(), false)), "Full.", name),
   pgc_(gCode),
   sFreq_(gCode->getSourceAlphabet()->getSize() - gCode->getNumberOfStopCodons(), method, allowNullFreqs, "Full.")
 {
   if (initFreqs.size() != getCodonAlphabet()->getSize())
-    throw Exception("FullCodonFrequenciesSet(constructor). There must be " + TextTools::toString(gCode->getSourceAlphabet()->getSize()) + " frequencies.");
+    throw Exception("FullCodonFrequencySet(constructor). There must be " + TextTools::toString(gCode->getSourceAlphabet()->getSize()) + " frequencies.");
 
   double sum = 0;
   for (size_t i = 0; i < getCodonAlphabet()->getSize(); i++)
@@ -103,31 +103,31 @@ FullCodonFrequenciesSet::FullCodonFrequenciesSet(
   updateFreq_();
 }
 
-FullCodonFrequenciesSet::FullCodonFrequenciesSet(const FullCodonFrequenciesSet& fcfs) :
-  AbstractFrequenciesSet(fcfs),
+FullCodonFrequencySet::FullCodonFrequencySet(const FullCodonFrequencySet& fcfs) :
+  AbstractFrequencySet(fcfs),
   pgc_(fcfs.pgc_),
   sFreq_(fcfs.sFreq_)
 {}
 
-FullCodonFrequenciesSet& FullCodonFrequenciesSet::operator=(const FullCodonFrequenciesSet& fcfs)
+FullCodonFrequencySet& FullCodonFrequencySet::operator=(const FullCodonFrequencySet& fcfs)
 {
-  AbstractFrequenciesSet::operator=(fcfs);
+  AbstractFrequencySet::operator=(fcfs);
   pgc_ = fcfs.pgc_;
   sFreq_ = fcfs.sFreq_;
 
   return *this;
 }
 
-void FullCodonFrequenciesSet::setNamespace(const std::string& nameSpace)
+void FullCodonFrequencySet::setNamespace(const std::string& nameSpace)
 {
   sFreq_.setNamespace(nameSpace);
-  AbstractFrequenciesSet::setNamespace(nameSpace);
+  AbstractFrequencySet::setNamespace(nameSpace);
 }
 
-void FullCodonFrequenciesSet::setFrequencies(const vector<double>& frequencies)
+void FullCodonFrequencySet::setFrequencies(const vector<double>& frequencies)
 {
   if (frequencies.size() != getCodonAlphabet()->getSize())
-    throw DimensionException("FullFrequenciesSet::setFrequencies", frequencies.size(), getAlphabet()->getSize());
+    throw DimensionException("FullFrequencySet::setFrequencies", frequencies.size(), getAlphabet()->getSize());
 
   double sum = 0;
   for (size_t i = 0; i < getCodonAlphabet()->getSize(); i++)
@@ -148,15 +148,15 @@ void FullCodonFrequenciesSet::setFrequencies(const vector<double>& frequencies)
   updateFreq_();
 }
 
-void FullCodonFrequenciesSet::fireParameterChanged(const ParameterList& parameters)
+void FullCodonFrequencySet::fireParameterChanged(const ParameterList& parameters)
 {
-  AbstractFrequenciesSet::fireParameterChanged(parameters);
+  AbstractFrequencySet::fireParameterChanged(parameters);
 
   sFreq_.matchParametersValues(parameters);
   updateFreq_();
 }
 
-void FullCodonFrequenciesSet::updateFreq_()
+void FullCodonFrequencySet::updateFreq_()
 {
   size_t nbstop = 0;
 
@@ -174,13 +174,13 @@ void FullCodonFrequenciesSet::updateFreq_()
 
 
 // ////////////////////////////
-// FullPerAACodonFrequenciesSet
+// FullPerAACodonFrequencySet
 
-FullPerAACodonFrequenciesSet::FullPerAACodonFrequenciesSet(
+FullPerAACodonFrequencySet::FullPerAACodonFrequencySet(
   const GeneticCode* gencode,
-  ProteinFrequenciesSet* ppfs,
+  ProteinFrequencySet* ppfs,
   unsigned short method) :
-  AbstractFrequenciesSet(std::shared_ptr<const StateMap>(new CanonicalStateMap(gencode->getSourceAlphabet(), false)), "FullPerAA.", "FullPerAA"),
+  AbstractFrequencySet(std::shared_ptr<const StateMap>(new CanonicalStateMap(gencode->getSourceAlphabet(), false)), "FullPerAA.", "FullPerAA"),
   pgc_(gencode),
   ppfs_(ppfs),
   vS_()
@@ -205,10 +205,10 @@ FullPerAACodonFrequenciesSet::FullPerAACodonFrequenciesSet(
   updateFrequencies();
 }
 
-FullPerAACodonFrequenciesSet::FullPerAACodonFrequenciesSet(const GeneticCode* gencode, unsigned short method) :
-  AbstractFrequenciesSet(std::shared_ptr<const StateMap>(new CanonicalStateMap(gencode->getSourceAlphabet(), false)), "FullPerAA.", "FullPerAA"),
+FullPerAACodonFrequencySet::FullPerAACodonFrequencySet(const GeneticCode* gencode, unsigned short method) :
+  AbstractFrequencySet(std::shared_ptr<const StateMap>(new CanonicalStateMap(gencode->getSourceAlphabet(), false)), "FullPerAA.", "FullPerAA"),
   pgc_(gencode),
-  ppfs_(new FixedProteinFrequenciesSet(dynamic_cast<const ProteicAlphabet*>(gencode->getTargetAlphabet()), "FullPerAA.")),
+  ppfs_(new FixedProteinFrequencySet(dynamic_cast<const ProteicAlphabet*>(gencode->getTargetAlphabet()), "FullPerAA.")),
   vS_()
 {
   const ProteicAlphabet* ppa = dynamic_cast<const ProteicAlphabet*>(pgc_->getTargetAlphabet());
@@ -227,9 +227,9 @@ FullPerAACodonFrequenciesSet::FullPerAACodonFrequenciesSet(const GeneticCode* ge
   updateFrequencies();
 }
 
-FullPerAACodonFrequenciesSet::FullPerAACodonFrequenciesSet(const FullPerAACodonFrequenciesSet& ffs) :
-  CodonFrequenciesSet(ffs),
-  AbstractFrequenciesSet(ffs),
+FullPerAACodonFrequencySet::FullPerAACodonFrequencySet(const FullPerAACodonFrequencySet& ffs) :
+  CodonFrequencySet(ffs),
+  AbstractFrequencySet(ffs),
   pgc_(ffs.pgc_),
   ppfs_(ffs.ppfs_->clone()),
   vS_(ffs.vS_)
@@ -237,10 +237,10 @@ FullPerAACodonFrequenciesSet::FullPerAACodonFrequenciesSet(const FullPerAACodonF
   updateFrequencies();
 }
 
-FullPerAACodonFrequenciesSet& FullPerAACodonFrequenciesSet::operator=(const FullPerAACodonFrequenciesSet& ffs)
+FullPerAACodonFrequencySet& FullPerAACodonFrequencySet::operator=(const FullPerAACodonFrequencySet& ffs)
 {
-  CodonFrequenciesSet::operator=(ffs);
-  AbstractFrequenciesSet::operator=(ffs);
+  CodonFrequencySet::operator=(ffs);
+  AbstractFrequencySet::operator=(ffs);
   pgc_ = ffs.pgc_;
   ppfs_.reset(ffs.ppfs_->clone());
   vS_ = ffs.vS_;
@@ -248,12 +248,12 @@ FullPerAACodonFrequenciesSet& FullPerAACodonFrequenciesSet::operator=(const Full
   return *this;
 }
 
-void FullPerAACodonFrequenciesSet::fireParameterChanged(const ParameterList& parameters)
+void FullPerAACodonFrequencySet::fireParameterChanged(const ParameterList& parameters)
 {
-  AbstractFrequenciesSet::fireParameterChanged(parameters);
+  AbstractFrequencySet::fireParameterChanged(parameters);
 
-  if (dynamic_cast<AbstractFrequenciesSet*>(ppfs_.get()))
-    (dynamic_cast<AbstractFrequenciesSet*>(ppfs_.get()))->matchParametersValues(parameters);
+  if (dynamic_cast<AbstractFrequencySet*>(ppfs_.get()))
+    (dynamic_cast<AbstractFrequencySet*>(ppfs_.get()))->matchParametersValues(parameters);
   for (size_t i = 0; i < vS_.size(); i++)
   {
     vS_[i].matchParametersValues(parameters);
@@ -261,7 +261,7 @@ void FullPerAACodonFrequenciesSet::fireParameterChanged(const ParameterList& par
   updateFrequencies();
 }
 
-void FullPerAACodonFrequenciesSet::updateFrequencies()
+void FullPerAACodonFrequencySet::updateFrequencies()
 {
   const StateMap& aaStates = ppfs_->getStateMap();
   for (size_t i = 0; i < aaStates.getNumberOfModelStates(); ++i)
@@ -278,10 +278,10 @@ void FullPerAACodonFrequenciesSet::updateFrequencies()
   normalize();
 }
 
-void FullPerAACodonFrequenciesSet::setFrequencies(const vector<double>& frequencies)
+void FullPerAACodonFrequencySet::setFrequencies(const vector<double>& frequencies)
 {
   if (frequencies.size() != getCodonAlphabet()->getSize())
-    throw DimensionException("FullPerAAFrequenciesSet::setFrequencies", frequencies.size(), getCodonAlphabet()->getSize());
+    throw DimensionException("FullPerAAFrequencySet::setFrequencies", frequencies.size(), getCodonAlphabet()->getSize());
 
   double bigS = 0;
   Vdouble vaa;
@@ -316,11 +316,11 @@ void FullPerAACodonFrequenciesSet::setFrequencies(const vector<double>& frequenc
   updateFrequencies();
 }
 
-void FullPerAACodonFrequenciesSet::setNamespace(const std::string& prefix)
+void FullPerAACodonFrequencySet::setNamespace(const std::string& prefix)
 {
   const ProteicAlphabet* ppa = dynamic_cast<const ProteicAlphabet*>(pgc_->getTargetAlphabet());
 
-  AbstractFrequenciesSet::setNamespace(prefix);
+  AbstractFrequencySet::setNamespace(prefix);
   ppfs_->setNamespace(prefix + ppfs_->getName() + ".");
   for (size_t i = 0; i < vS_.size(); i++)
   {
@@ -330,20 +330,20 @@ void FullPerAACodonFrequenciesSet::setNamespace(const std::string& prefix)
 
 
 // ///////////////////////////////////////////
-// / FixedCodonFrequenciesSet
+// / FixedCodonFrequencySet
 
-FixedCodonFrequenciesSet::FixedCodonFrequenciesSet(
+FixedCodonFrequencySet::FixedCodonFrequencySet(
   const GeneticCode* gCode,
   const vector<double>& initFreqs,
   const string& name) :
-  AbstractFrequenciesSet(std::shared_ptr<const StateMap>(new CanonicalStateMap(gCode->getSourceAlphabet(), false)), "Fixed.", name),
+  AbstractFrequencySet(std::shared_ptr<const StateMap>(new CanonicalStateMap(gCode->getSourceAlphabet(), false)), "Fixed.", name),
   pgc_(gCode)
 {
   setFrequencies(initFreqs);
 }
 
-FixedCodonFrequenciesSet::FixedCodonFrequenciesSet(const GeneticCode* gCode, const string& name) :
-  AbstractFrequenciesSet(std::shared_ptr<const StateMap>(new CanonicalStateMap(gCode->getSourceAlphabet(), false)), "Fixed.", name),
+FixedCodonFrequencySet::FixedCodonFrequencySet(const GeneticCode* gCode, const string& name) :
+  AbstractFrequencySet(std::shared_ptr<const StateMap>(new CanonicalStateMap(gCode->getSourceAlphabet(), false)), "Fixed.", name),
   pgc_(gCode)
 {
   size_t size = gCode->getSourceAlphabet()->getSize() - gCode->getNumberOfStopCodons();
@@ -354,11 +354,11 @@ FixedCodonFrequenciesSet::FixedCodonFrequenciesSet(const GeneticCode* gCode, con
   }
 }
 
-void FixedCodonFrequenciesSet::setFrequencies(const vector<double>& frequencies)
+void FixedCodonFrequencySet::setFrequencies(const vector<double>& frequencies)
 {
   const CodonAlphabet* ca = getCodonAlphabet();
   if (frequencies.size() != ca->getSize())
-    throw DimensionException("FixedFrequenciesSet::setFrequencies", frequencies.size(), ca->getSize());
+    throw DimensionException("FixedFrequencySet::setFrequencies", frequencies.size(), ca->getSize());
   double sum = 0.0;
 
   for (size_t i = 0; i < frequencies.size(); i++)
@@ -375,22 +375,22 @@ void FixedCodonFrequenciesSet::setFrequencies(const vector<double>& frequencies)
 
 
 // ///////////////////////////////////////////
-// / UserCodonFrequenciesSet
+// / UserCodonFrequencySet
 
-UserCodonFrequenciesSet::UserCodonFrequenciesSet(
+UserCodonFrequencySet::UserCodonFrequencySet(
   const GeneticCode* gCode,
   const std::string& path,
   size_t nCol) :
-  UserFrequenciesSet(std::shared_ptr<const StateMap>(new CanonicalStateMap(gCode->getSourceAlphabet(), false)), path, nCol),
+  UserFrequencySet(std::shared_ptr<const StateMap>(new CanonicalStateMap(gCode->getSourceAlphabet(), false)), path, nCol),
   pgc_(gCode)
 {
 }
 
-void UserCodonFrequenciesSet::setFrequencies(const vector<double>& frequencies)
+void UserCodonFrequencySet::setFrequencies(const vector<double>& frequencies)
 {
   const CodonAlphabet* ca = getCodonAlphabet();
   if (frequencies.size() != ca->getSize())
-    throw DimensionException("UserFrequenciesSet::setFrequencies", frequencies.size(), ca->getSize());
+    throw DimensionException("UserFrequencySet::setFrequencies", frequencies.size(), ca->getSize());
   double sum = 0.0;
 
   for (size_t i = 0; i < frequencies.size(); i++)
@@ -407,15 +407,15 @@ void UserCodonFrequenciesSet::setFrequencies(const vector<double>& frequencies)
 
 
 // ///////////////////////////////////////////////////////////////////
-// // CodonFromIndependentFrequenciesSet
+// // CodonFromIndependentFrequencySet
 
 
-CodonFromIndependentFrequenciesSet::CodonFromIndependentFrequenciesSet(
+CodonFromIndependentFrequencySet::CodonFromIndependentFrequencySet(
   const GeneticCode* gCode,
-  const std::vector<FrequenciesSet*>& freqvector,
+  const std::vector<FrequencySet*>& freqvector,
   const string& name,
   const string& mgmtStopCodon) :
-  WordFromIndependentFrequenciesSet(gCode->getSourceAlphabet(), freqvector, "", name),
+  WordFromIndependentFrequencySet(gCode->getSourceAlphabet(), freqvector, "", name),
   mStopNeigh_(),
   mgmtStopCodon_(2),
   pgc_(gCode)
@@ -447,13 +447,13 @@ CodonFromIndependentFrequenciesSet::CodonFromIndependentFrequenciesSet(
   updateFrequencies();
 }
 
-const CodonAlphabet* CodonFromIndependentFrequenciesSet::getCodonAlphabet() const
+const CodonAlphabet* CodonFromIndependentFrequencySet::getCodonAlphabet() const
 {
-  return dynamic_cast<const CodonAlphabet*>(WordFromIndependentFrequenciesSet::getAlphabet());
+  return dynamic_cast<const CodonAlphabet*>(WordFromIndependentFrequencySet::getAlphabet());
 }
 
-CodonFromIndependentFrequenciesSet::CodonFromIndependentFrequenciesSet(const CodonFromIndependentFrequenciesSet& iwfs) :
-  WordFromIndependentFrequenciesSet(iwfs),
+CodonFromIndependentFrequencySet::CodonFromIndependentFrequencySet(const CodonFromIndependentFrequencySet& iwfs) :
+  WordFromIndependentFrequencySet(iwfs),
   mStopNeigh_(iwfs.mStopNeigh_),
   mgmtStopCodon_(iwfs.mgmtStopCodon_),
   pgc_(iwfs.pgc_)
@@ -461,18 +461,18 @@ CodonFromIndependentFrequenciesSet::CodonFromIndependentFrequenciesSet(const Cod
   updateFrequencies();
 }
 
-CodonFromIndependentFrequenciesSet& CodonFromIndependentFrequenciesSet::operator=(const CodonFromIndependentFrequenciesSet& iwfs)
+CodonFromIndependentFrequencySet& CodonFromIndependentFrequencySet::operator=(const CodonFromIndependentFrequencySet& iwfs)
 {
-  WordFromIndependentFrequenciesSet::operator=(iwfs);
+  WordFromIndependentFrequencySet::operator=(iwfs);
   mStopNeigh_ = iwfs.mStopNeigh_;
   mgmtStopCodon_ = iwfs.mgmtStopCodon_;
   pgc_ = iwfs.pgc_;
   return *this;
 }
 
-void CodonFromIndependentFrequenciesSet::updateFrequencies()
+void CodonFromIndependentFrequencySet::updateFrequencies()
 {
-  WordFromIndependentFrequenciesSet::updateFrequencies();
+  WordFromIndependentFrequencySet::updateFrequencies();
 
   size_t s = getCodonAlphabet()->getSize();
 
@@ -530,15 +530,15 @@ void CodonFromIndependentFrequenciesSet::updateFrequencies()
 }
 
 // ///////////////////////////////////////////////////////////////////
-// // CodonFromUniqueFrequenciesSet
+// // CodonFromUniqueFrequencySet
 
 
-CodonFromUniqueFrequenciesSet::CodonFromUniqueFrequenciesSet(
+CodonFromUniqueFrequencySet::CodonFromUniqueFrequencySet(
   const GeneticCode* gCode,
-  FrequenciesSet* pfreq,
+  FrequencySet* pfreq,
   const string& name,
   const string& mgmtStopCodon) :
-  WordFromUniqueFrequenciesSet(gCode->getSourceAlphabet(), pfreq, "", name),
+  WordFromUniqueFrequencySet(gCode->getSourceAlphabet(), pfreq, "", name),
   mStopNeigh_(),
   mgmtStopCodon_(2),
   pgc_(gCode)
@@ -571,14 +571,14 @@ CodonFromUniqueFrequenciesSet::CodonFromUniqueFrequenciesSet(
   updateFrequencies();
 }
 
-const CodonAlphabet* CodonFromUniqueFrequenciesSet::getCodonAlphabet() const
+const CodonAlphabet* CodonFromUniqueFrequencySet::getCodonAlphabet() const
 {
-  return dynamic_cast<const CodonAlphabet*>(WordFromUniqueFrequenciesSet::getWordAlphabet());
+  return dynamic_cast<const CodonAlphabet*>(WordFromUniqueFrequencySet::getWordAlphabet());
 }
 
 
-CodonFromUniqueFrequenciesSet::CodonFromUniqueFrequenciesSet(const CodonFromUniqueFrequenciesSet& iwfs) :
-  WordFromUniqueFrequenciesSet(iwfs),
+CodonFromUniqueFrequencySet::CodonFromUniqueFrequencySet(const CodonFromUniqueFrequencySet& iwfs) :
+  WordFromUniqueFrequencySet(iwfs),
   mStopNeigh_(iwfs.mStopNeigh_),
   mgmtStopCodon_(iwfs.mgmtStopCodon_),
   pgc_(iwfs.pgc_)
@@ -586,18 +586,18 @@ CodonFromUniqueFrequenciesSet::CodonFromUniqueFrequenciesSet(const CodonFromUniq
   updateFrequencies();
 }
 
-CodonFromUniqueFrequenciesSet& CodonFromUniqueFrequenciesSet::operator=(const CodonFromUniqueFrequenciesSet& iwfs)
+CodonFromUniqueFrequencySet& CodonFromUniqueFrequencySet::operator=(const CodonFromUniqueFrequencySet& iwfs)
 {
-  WordFromUniqueFrequenciesSet::operator=(iwfs);
+  WordFromUniqueFrequencySet::operator=(iwfs);
   mStopNeigh_ = iwfs.mStopNeigh_;
   mgmtStopCodon_ = iwfs.mgmtStopCodon_;
   pgc_ = iwfs.pgc_;
   return *this;
 }
 
-void CodonFromUniqueFrequenciesSet::updateFrequencies()
+void CodonFromUniqueFrequencySet::updateFrequencies()
 {
-  WordFromUniqueFrequenciesSet::updateFrequencies();
+  WordFromUniqueFrequencySet::updateFrequencies();
 
   size_t s = getCodonAlphabet()->getSize();
 
@@ -648,35 +648,35 @@ void CodonFromUniqueFrequenciesSet::updateFrequencies()
 
 /*********************************************************************/
 
-FrequenciesSet* CodonFrequenciesSet::getFrequenciesSetForCodons(short option, const GeneticCode* gCode, const string& mgmtStopCodon, unsigned short method)
+FrequencySet* CodonFrequencySet::getFrequencySetForCodons(short option, const GeneticCode* gCode, const string& mgmtStopCodon, unsigned short method)
 {
-  FrequenciesSet* codonFreqs;
+  FrequencySet* codonFreqs;
 
   if (option == F0)
-    codonFreqs = new FixedCodonFrequenciesSet(gCode, "F0");
+    codonFreqs = new FixedCodonFrequencySet(gCode, "F0");
   else if (option == F1X4)
-    codonFreqs = new CodonFromUniqueFrequenciesSet(gCode, new FullNucleotideFrequenciesSet(gCode->getSourceAlphabet()->getNucleicAlphabet()), "F1X4", mgmtStopCodon);
+    codonFreqs = new CodonFromUniqueFrequencySet(gCode, new FullNucleotideFrequencySet(gCode->getSourceAlphabet()->getNucleicAlphabet()), "F1X4", mgmtStopCodon);
   else if (option == F3X4)
   {
-    vector<FrequenciesSet*> v_AFS(3);
-    v_AFS[0] = new FullNucleotideFrequenciesSet(gCode->getSourceAlphabet()->getNucleicAlphabet());
-    v_AFS[1] = new FullNucleotideFrequenciesSet(gCode->getSourceAlphabet()->getNucleicAlphabet());
-    v_AFS[2] = new FullNucleotideFrequenciesSet(gCode->getSourceAlphabet()->getNucleicAlphabet());
-    codonFreqs = new CodonFromIndependentFrequenciesSet(gCode, v_AFS, "F3X4", mgmtStopCodon);
+    vector<FrequencySet*> v_AFS(3);
+    v_AFS[0] = new FullNucleotideFrequencySet(gCode->getSourceAlphabet()->getNucleicAlphabet());
+    v_AFS[1] = new FullNucleotideFrequencySet(gCode->getSourceAlphabet()->getNucleicAlphabet());
+    v_AFS[2] = new FullNucleotideFrequencySet(gCode->getSourceAlphabet()->getNucleicAlphabet());
+    codonFreqs = new CodonFromIndependentFrequencySet(gCode, v_AFS, "F3X4", mgmtStopCodon);
   }
   else if (option == F61)
-    codonFreqs = new FullCodonFrequenciesSet(gCode, false, method, "F61");
+    codonFreqs = new FullCodonFrequencySet(gCode, false, method, "F61");
   else
-    throw Exception("FrequenciesSet::getFrequencySetForCodons(). Unvalid codon frequency set argument.");
+    throw Exception("FrequencySet::getFrequencySetForCodons(). Unvalid codon frequency set argument.");
 
   return codonFreqs;
 }
 
 /******************************************************************************/
 
-const short CodonFrequenciesSet::F0   = 0;
-const short CodonFrequenciesSet::F1X4 = 1;
-const short CodonFrequenciesSet::F3X4 = 2;
-const short CodonFrequenciesSet::F61  = 3;
+const short CodonFrequencySet::F0   = 0;
+const short CodonFrequencySet::F1X4 = 1;
+const short CodonFrequencySet::F3X4 = 2;
+const short CodonFrequencySet::F61  = 3;
 
 /******************************************************************************/

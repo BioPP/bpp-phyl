@@ -59,12 +59,12 @@ CodonAdHocSubstitutionModel::CodonAdHocSubstitutionModel(
     if (model!=NULL)
     {
       model->setNamespace(name+".");
-      if (model->getFrequenciesSet())
+      if (model->getFrequencySet())
       {
         if (freqSet_)
-          throw Exception("CodonAdHocSubstitutionModel::CodonAdHocSubstitutionModel : two sub models with FrequenciesSet");
+          throw Exception("CodonAdHocSubstitutionModel::CodonAdHocSubstitutionModel : two sub models with FrequencySet");
         
-        freqSet_=model->getFrequenciesSet();
+        freqSet_=model->getFrequencySet();
       }
       vModel_.push_back(unique_ptr<CoreCodonSubstitutionModel>(model));
       addParameters_(model->getParameters());
@@ -90,12 +90,12 @@ CodonAdHocSubstitutionModel::CodonAdHocSubstitutionModel(
     if (model!=NULL)
     {
       model->setNamespace(name+".");
-      if (model->getFrequenciesSet())
+      if (model->getFrequencySet())
       {
         if (freqSet_)
-          throw Exception("CodonAdHocSubstitutionModel::CodonAdHocSubstitutionModel : two sub models with FrequenciesSet");
+          throw Exception("CodonAdHocSubstitutionModel::CodonAdHocSubstitutionModel : two sub models with FrequencySet");
         
-        freqSet_=model->getFrequenciesSet();
+        freqSet_=model->getFrequencySet();
       }
       
       vModel_.push_back(unique_ptr<CoreCodonSubstitutionModel>(model));
@@ -117,12 +117,12 @@ CodonAdHocSubstitutionModel::CodonAdHocSubstitutionModel(const CodonAdHocSubstit
     vModel_.emplace_back(mod->clone());
 
   for (auto& mod : vModel_)
-    if (mod->getFrequenciesSet())
+    if (mod->getFrequencySet())
     {
       if (freqSet_)
-        throw Exception("CodonAdHocSubstitutionModel::CodonAdHocSubstitutionModel : two sub models with FrequenciesSet");
+        throw Exception("CodonAdHocSubstitutionModel::CodonAdHocSubstitutionModel : two sub models with FrequencySet");
         
-      freqSet_=mod->getFrequenciesSet();
+      freqSet_=mod->getFrequencySet();
     }
 }
 
@@ -139,12 +139,12 @@ CodonAdHocSubstitutionModel& CodonAdHocSubstitutionModel::operator=(const CodonA
     vModel_.emplace_back(mod->clone());
 
   for (auto& mod : vModel_)
-    if (mod->getFrequenciesSet())
+    if (mod->getFrequencySet())
     {
       if (freqSet_)
-        throw Exception("CodonAdHocSubstitutionModel::CodonAdHocSubstitutionModel : two sub models with FrequenciesSet");
+        throw Exception("CodonAdHocSubstitutionModel::CodonAdHocSubstitutionModel : two sub models with FrequencySet");
       
-      freqSet_=mod->getFrequenciesSet();
+      freqSet_=mod->getFrequencySet();
     }
 
   return *this;

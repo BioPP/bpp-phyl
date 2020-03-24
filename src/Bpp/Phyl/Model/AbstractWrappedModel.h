@@ -85,7 +85,7 @@ namespace bpp
 
     size_t getNumberOfStates() const { return getModel().getNumberOfStates(); }
 
-    const FrequenciesSet* getFrequenciesSet() const { return getModel().getFrequenciesSet();}
+    const FrequencySet* getFrequencySet() const { return getModel().getFrequencySet();}
     
     /*
      * @}

@@ -56,7 +56,7 @@ namespace bpp
  * @see IOSequenceFactory
  * @see IOTreeFactory
  */
-class IOFrequenciesSetFactory
+class IOFrequencySetFactory
 {
 public:
   static const std::string BPPO_FORMAT;  
@@ -68,31 +68,31 @@ public:
    *
    * Example:
    * @code
-   * IFrequenciesSet * freqReader = IOFrequenciesSetFactory().createReader(IOFrequenciesSetFactory::BPP_FORMAT);
-   * FrequenciesSet * freqset = freqReader->read(...);
+   * IFrequencySet * freqReader = IOFrequencySetFactory().createReader(IOFrequencySetFactory::BPP_FORMAT);
+   * FrequencySet * freqset = freqReader->read(...);
    * delete freqReader;
    * @endcode
    */
-  IOFrequenciesSetFactory() {}
-  virtual ~IOFrequenciesSetFactory() {}
+  IOFrequencySetFactory() {}
+  virtual ~IOFrequencySetFactory() {}
   
   /**
-   * @brief Get a new dynamically created IFrequenciesSet object.
+   * @brief Get a new dynamically created IFrequencySet object.
    *
    * @param format The input file format.
-   * @return A pointer toward a new IFrequenciesSet object.
+   * @return A pointer toward a new IFrequencySet object.
    * @throw Exception If the format name do not match any available format.
    */
-  virtual IFrequenciesSet* createReader(const std::string& format);
+  virtual IFrequencySet* createReader(const std::string& format);
   
   /**
-   * @brief Get a new dynamically created OFrequenciesSet object.
+   * @brief Get a new dynamically created OFrequencySet object.
    *
    * @param format The output file format.
-   * @return A pointer toward a new OFrequenciesSet object.
+   * @return A pointer toward a new OFrequencySet object.
    * @throw Exception If the format name do not match any available format.
    */
-  virtual OFrequenciesSet * createWriter(const std::string& format);
+  virtual OFrequencySet * createWriter(const std::string& format);
 };
 
 } //end of namespace bpp.

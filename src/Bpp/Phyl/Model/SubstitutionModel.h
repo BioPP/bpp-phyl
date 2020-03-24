@@ -312,11 +312,11 @@ namespace bpp
     virtual void setFreq(std::map<int, double>& frequencies) = 0;
 
     /**
-     * @brief If the model owns a FrequenciesSet, returns a pointer to
+     * @brief If the model owns a FrequencySet, returns a pointer to
      * it, otherwise return 0.
      */
     
-    virtual const FrequenciesSet* getFrequenciesSet() const {return NULL;}
+    virtual const FrequencySet* getFrequencySet() const {return NULL;}
 
   protected:
 

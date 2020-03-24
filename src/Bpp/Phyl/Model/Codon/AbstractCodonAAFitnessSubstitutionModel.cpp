@@ -45,7 +45,7 @@ using namespace std;
 
 /****************************************************************************************/
 
-AbstractCodonAAFitnessSubstitutionModel::AbstractCodonAAFitnessSubstitutionModel(FrequenciesSet* pfitset, const GeneticCode* pgencode, const string& prefix):
+AbstractCodonAAFitnessSubstitutionModel::AbstractCodonAAFitnessSubstitutionModel(FrequencySet* pfitset, const GeneticCode* pgencode, const string& prefix):
   AbstractParameterAliasable(prefix), pfitset_(pfitset), pgencode_(pgencode), fitName_(""), stateMap_(new CanonicalStateMap(pgencode->getSourceAlphabet(), false)),
   protStateMap_(pfitset->shareStateMap()), Ns_(1)
 {

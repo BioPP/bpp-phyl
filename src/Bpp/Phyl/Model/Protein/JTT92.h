@@ -67,7 +67,7 @@ namespace bpp
     public AbstractReversibleProteinSubstitutionModel
   {
   private:
-    ProteinFrequenciesSet* freqSet_;
+    ProteinFrequencySet* freqSet_;
 
   public:
     /**
@@ -85,12 +85,12 @@ namespace bpp
      * @param initFreqs Tell if the frequency set should be initialized with the original JTT92 values.
      * Otherwise, the values of the set will be used.
      */
-    JTT92(const ProteicAlphabet* alpha, ProteinFrequenciesSet* freqSet, bool initFreqs=false);
+    JTT92(const ProteicAlphabet* alpha, ProteinFrequencySet* freqSet, bool initFreqs=false);
 
     JTT92(const JTT92& model) :
       AbstractParameterAliasable(model),
       AbstractReversibleProteinSubstitutionModel(model),
-      freqSet_(dynamic_cast<ProteinFrequenciesSet *>(model.freqSet_->clone()))
+      freqSet_(dynamic_cast<ProteinFrequencySet *>(model.freqSet_->clone()))
     {}
 
     JTT92& operator=(const JTT92& model)
@@ -98,7 +98,7 @@ namespace bpp
       AbstractParameterAliasable::operator=(model);
       AbstractReversibleProteinSubstitutionModel::operator=(model);
       if (freqSet_) delete freqSet_;
-      freqSet_ = dynamic_cast<ProteinFrequenciesSet *>(model.freqSet_->clone());
+      freqSet_ = dynamic_cast<ProteinFrequencySet *>(model.freqSet_->clone());
       return *this;
     }
 
@@ -129,15 +129,15 @@ namespace bpp
       AbstractReversibleSubstitutionModel::fireParameterChanged(parameters);
     }
 
-    void setFrequenciesSet(const ProteinFrequenciesSet& freqSet)
+    void setFrequencySet(const ProteinFrequencySet& freqSet)
     {
       delete freqSet_;
-      freqSet_ = dynamic_cast<ProteinFrequenciesSet*>(freqSet.clone());
+      freqSet_ = dynamic_cast<ProteinFrequencySet*>(freqSet.clone());
       resetParameters_();
       addParameters_(freqSet_->getParameters());
     }
 
-    const FrequenciesSet* getFrequenciesSet() const { return freqSet_; }
+    const FrequencySet* getFrequencySet() const { return freqSet_; }
 
     void setFreqFromData(const SequenceContainer& data, double pseudoCount = 0);
 

@@ -1,5 +1,5 @@
 //
-// File: NucleotideFrequenciesSet.cpp
+// File: NucleotideFrequencySet.cpp
 // Created by: Bastien Boussau
 //             Julien Dutheil
 // Created on: Tue Aug 21 2007
@@ -38,7 +38,7 @@
    knowledge of the CeCILL license and that you accept its terms.
  */
 
-#include "NucleotideFrequenciesSet.h"
+#include "NucleotideFrequencySet.h"
 
 #include <Bpp/Numeric/NumConstants.h>
 
@@ -48,48 +48,48 @@ using namespace bpp;
 using namespace std;
 
 // ///////////////////////////////////////
-// FullNucleotideFrequenciesSet
+// FullNucleotideFrequencySet
 
 
-FullNucleotideFrequenciesSet::FullNucleotideFrequenciesSet(
+FullNucleotideFrequencySet::FullNucleotideFrequencySet(
   const NucleicAlphabet* alphabet, bool allowNullFreqs,
   const string& name) :
-  AbstractFrequenciesSet(std::shared_ptr<const StateMap>(new CanonicalStateMap(alphabet, false)), "Full.", name)
+  AbstractFrequencySet(std::shared_ptr<const StateMap>(new CanonicalStateMap(alphabet, false)), "Full.", name)
 {
   addParameter_(new Parameter(
     "Full.theta", 0.5,
     allowNullFreqs ?
     Parameter::PROP_CONSTRAINT_IN :
-    FrequenciesSet::FREQUENCE_CONSTRAINT_SMALL));
+    FrequencySet::FREQUENCE_CONSTRAINT_SMALL));
   addParameter_(new Parameter(
     "Full.theta1", 0.5,
     allowNullFreqs ?
     Parameter::PROP_CONSTRAINT_IN :
-    FrequenciesSet::FREQUENCE_CONSTRAINT_SMALL));
+    FrequencySet::FREQUENCE_CONSTRAINT_SMALL));
   addParameter_(new Parameter("Full.theta2", 0.5,
                     allowNullFreqs ?
                     Parameter::PROP_CONSTRAINT_IN :
-                    FrequenciesSet::FREQUENCE_CONSTRAINT_SMALL));
+                    FrequencySet::FREQUENCE_CONSTRAINT_SMALL));
   getFreq_(0) = getFreq_(1) = getFreq_(2) = getFreq_(3) = 0.25;
 }
 
-FullNucleotideFrequenciesSet::FullNucleotideFrequenciesSet(
+FullNucleotideFrequencySet::FullNucleotideFrequencySet(
   const NucleicAlphabet* alphabet, double theta, double theta1, double theta2,
   bool allowNullFreqs, const string& name) :
-  AbstractFrequenciesSet(std::shared_ptr<const StateMap>(new CanonicalStateMap(alphabet, false)), "Full.", name)
+  AbstractFrequencySet(std::shared_ptr<const StateMap>(new CanonicalStateMap(alphabet, false)), "Full.", name)
 {
   addParameter_(new Parameter(
     "Full.theta",
     theta,
     allowNullFreqs ?
     Parameter::PROP_CONSTRAINT_IN :
-    FrequenciesSet::FREQUENCE_CONSTRAINT_SMALL));
+    FrequencySet::FREQUENCE_CONSTRAINT_SMALL));
   addParameter_(new Parameter(
     "Full.theta1",
     theta1,
     allowNullFreqs ?
     Parameter::PROP_CONSTRAINT_IN :
-    FrequenciesSet::FREQUENCE_CONSTRAINT_SMALL));
+    FrequencySet::FREQUENCE_CONSTRAINT_SMALL));
   addParameter_(new Parameter(
     "Full.theta2",
     theta2,
@@ -102,16 +102,16 @@ FullNucleotideFrequenciesSet::FullNucleotideFrequenciesSet(
   getFreq_(3) = (1 - theta1) * (1. - theta);
 }
 
-void FullNucleotideFrequenciesSet::setFrequencies(const vector<double>& frequencies) 
+void FullNucleotideFrequencySet::setFrequencies(const vector<double>& frequencies) 
 {
-  if (frequencies.size() != 4) throw DimensionException(" FullNucleotideFrequenciesSet::setFrequencies", frequencies.size(), 4);
+  if (frequencies.size() != 4) throw DimensionException(" FullNucleotideFrequencySet::setFrequencies", frequencies.size(), 4);
   double sum = 0.0;
   for (unsigned int i = 0; i < 4; i++)
   {
     sum += frequencies[i];
   }
   if (fabs(1. - sum) > NumConstants::SMALL())
-    throw Exception("FullNucleotideFrequenciesSet::setFrequencies. Frequencies must equal 1 (sum = " + TextTools::toString(sum) + ").");
+    throw Exception("FullNucleotideFrequencySet::setFrequencies. Frequencies must equal 1 (sum = " + TextTools::toString(sum) + ").");
   double theta = frequencies[1] + frequencies[2];
   getParameter_(0).setValue(theta);
   getParameter_(1).setValue(frequencies[0] / (1 - theta));
@@ -120,9 +120,9 @@ void FullNucleotideFrequenciesSet::setFrequencies(const vector<double>& frequenc
   setFrequencies_(frequencies);
 }
 
-void FullNucleotideFrequenciesSet::fireParameterChanged(const ParameterList& parameters)
+void FullNucleotideFrequencySet::fireParameterChanged(const ParameterList& parameters)
 {
-  AbstractFrequenciesSet::fireParameterChanged(parameters);
+  AbstractFrequencySet::fireParameterChanged(parameters);
   double theta  = getParameter_(0).getValue();
   double theta1 = getParameter_(1).getValue();
   double theta2 = getParameter_(2).getValue();
@@ -133,18 +133,18 @@ void FullNucleotideFrequenciesSet::fireParameterChanged(const ParameterList& par
 }
 
 // /////////////////////////////////////////
-// GCFrequenciesSet
+// GCFrequencySet
 
-void GCFrequenciesSet::setFrequencies(const vector<double>& frequencies) 
+void GCFrequencySet::setFrequencies(const vector<double>& frequencies) 
 {
-  if (frequencies.size() != 4) throw DimensionException("GCFrequenciesSet::setFrequencies", frequencies.size(), 4);
+  if (frequencies.size() != 4) throw DimensionException("GCFrequencySet::setFrequencies", frequencies.size(), 4);
   double sum = 0.0;
   for (unsigned int i = 0; i < 4; i++)
   {
     sum += frequencies[i];
   }
   if (fabs(1. - sum) > NumConstants::SMALL())
-    throw Exception("GCFrequenciesSet::setFrequencies. Frequencies must equal 1 (sum = " + TextTools::toString(sum) + ").");
+    throw Exception("GCFrequencySet::setFrequencies. Frequencies must equal 1 (sum = " + TextTools::toString(sum) + ").");
   double theta = frequencies[1] + frequencies[2];
   // We set everything in one shot here:
   getParameter_(0).setValue(theta);
@@ -152,9 +152,9 @@ void GCFrequenciesSet::setFrequencies(const vector<double>& frequencies)
   getFreq_(1) = getFreq_(2) = theta / 2.;
 }
 
-void GCFrequenciesSet::fireParameterChanged(const ParameterList& parameters)
+void GCFrequencySet::fireParameterChanged(const ParameterList& parameters)
 {
-  AbstractFrequenciesSet::fireParameterChanged(parameters);
+  AbstractFrequencySet::fireParameterChanged(parameters);
   double theta = getParameter_(0).getValue();
   getFreq_(0) = getFreq_(3) = (1. - theta) / 2.;
   getFreq_(1) = getFreq_(2) = theta / 2.;

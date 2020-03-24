@@ -74,19 +74,19 @@ namespace bpp
     /**
      * @brief Position dependent version of Codon Frequencies Set
      */
-    WordFrequenciesSet* posfreqset_;
+    WordFrequencySet* posfreqset_;
     std::string freqName_;
 
   public:
     /**
      * @brief Build a AbstractCodonPhaseFrequenciesSubstitutionModel instance
      *
-     * @param pfreq pointer to the AbstractFrequenciesSet equilibrium frequencies.
+     * @param pfreq pointer to the AbstractFrequencySet equilibrium frequencies.
      *        It is owned by the instance.
      * @param prefix the Namespace
      */
     AbstractCodonPhaseFrequenciesSubstitutionModel(
-      FrequenciesSet* pfreq,
+      FrequencySet* pfreq,
       const std::string& prefix);
 
     AbstractCodonPhaseFrequenciesSubstitutionModel(const AbstractCodonPhaseFrequenciesSubstitutionModel& model) :
@@ -125,7 +125,7 @@ namespace bpp
 
     double getCodonsMulRate(size_t, size_t) const;
 
-    const FrequenciesSet* getFrequenciesSet() const 
+    const FrequencySet* getFrequencySet() const 
     {
       return posfreqset_;
     }

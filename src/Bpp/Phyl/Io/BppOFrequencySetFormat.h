@@ -1,5 +1,5 @@
 //
-// File: Bpp0FrequenciesSetFormat.h
+// File: Bpp0FrequencySetFormat.h
 // Created by: Laurent Guéguen
 // Created on: lundi 9 juillet 2012, à 12h 57
 //
@@ -53,9 +53,9 @@ namespace bpp
  * Allow to create a new frequencies set object according to model description syntax
  * (see the Bio++ Progam Suite manual for a detailed description of this syntax).
  */
-class BppOFrequenciesSetFormat :
-  public virtual IFrequenciesSet,
-  public virtual OFrequenciesSet
+class BppOFrequencySetFormat :
+  public virtual IFrequencySet,
+  public virtual OFrequencySet
 {
 public:
   static unsigned char DNA;
@@ -74,7 +74,7 @@ private:
   int warningLevel_;
 
 public:
-  BppOFrequenciesSetFormat(unsigned char alphabetCode, bool verbose, int warn):
+  BppOFrequencySetFormat(unsigned char alphabetCode, bool verbose, int warn):
     alphabetCode_(alphabetCode),
     verbose_(verbose),
     unparsedArguments_(),
@@ -82,7 +82,7 @@ public:
     warningLevel_(warn)
   {}
 
-  BppOFrequenciesSetFormat(const BppOFrequenciesSetFormat& format):
+  BppOFrequencySetFormat(const BppOFrequencySetFormat& format):
     alphabetCode_(format.alphabetCode_),
     verbose_(format.verbose_),
     unparsedArguments_(format.unparsedArguments_),
@@ -90,7 +90,7 @@ public:
     warningLevel_(format.warningLevel_)
   {}
 
-  BppOFrequenciesSetFormat& operator=(const BppOFrequenciesSetFormat& format)
+  BppOFrequencySetFormat& operator=(const BppOFrequencySetFormat& format)
   {
     alphabetCode_      = format.alphabetCode_;
     verbose_           = format.verbose_;
@@ -100,7 +100,7 @@ public:
     return *this;
   }
 
-  virtual ~BppOFrequenciesSetFormat() {}
+  virtual ~BppOFrequencySetFormat() {}
 
 public:
   const std::string getFormatName() const { return "BppO"; }
@@ -116,7 +116,7 @@ public:
     geneticCode_ = gCode;
   }
 
-  FrequenciesSet* read(
+  FrequencySet* read(
       const Alphabet* alphabet,
       const std::string& freqDescription,
       const SiteContainer* data,
@@ -125,13 +125,13 @@ public:
   const std::map<std::string, std::string>& getUnparsedArguments() const { return unparsedArguments_; }
 
   void write(
-      const FrequenciesSet* pfreqset,
+      const FrequencySet* pfreqset,
       OutputStream& out,
       std::map<std::string, std::string>& globalAliases,
       std::vector<std::string>& writtenNames) const;
 
 private:
-  void initialize_(FrequenciesSet& freqSet, const SiteContainer* data);
+  void initialize_(FrequencySet& freqSet, const SiteContainer* data);
 };
 
 } // end of namespace bpp.

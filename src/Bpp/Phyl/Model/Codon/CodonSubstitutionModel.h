@@ -73,7 +73,7 @@ namespace bpp
      */
     virtual double getCodonsMulRate(size_t, size_t) const = 0;
 
-    virtual const FrequenciesSet* getFrequenciesSet() const = 0;
+    virtual const FrequencySet* getFrequencySet() const = 0;
 
     virtual void setFreq(std::map<int, double>& frequencies) = 0;
   };

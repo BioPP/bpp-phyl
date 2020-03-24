@@ -45,7 +45,7 @@ using namespace std;
 SENCA::SENCA(
   const GeneticCode* gCode,
   NucleotideSubstitutionModel* pmod,
-  FrequenciesSet* pfit,
+  FrequencySet* pfit,
   const AlphabetIndex2* pdist) :
   AbstractParameterAliasable("SENCA."),
   AbstractCodonSubstitutionModel(gCode, pmod, "SENCA."),
@@ -61,7 +61,7 @@ SENCA::SENCA(
   NucleotideSubstitutionModel* pmod1,
   NucleotideSubstitutionModel* pmod2,
   NucleotideSubstitutionModel* pmod3,
-  FrequenciesSet* pfit,
+  FrequencySet* pfit,
   const AlphabetIndex2* pdist) :
   AbstractParameterAliasable("SENCA."),
   AbstractCodonSubstitutionModel(gCode, pmod1, pmod2, pmod3, "SENCA."),

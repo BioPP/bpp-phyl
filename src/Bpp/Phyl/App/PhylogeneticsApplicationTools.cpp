@@ -302,7 +302,7 @@ void PhylogeneticsApplicationTools::setSubstitutionModelParametersInitialValuesW
 
 /******************************************************************************/
 
-FrequenciesSet* PhylogeneticsApplicationTools::getRootFrequenciesSet(
+FrequencySet* PhylogeneticsApplicationTools::getRootFrequencySet(
   const Alphabet* alphabet,
   const GeneticCode* gCode,
   const SiteContainer* data,
@@ -323,7 +323,7 @@ FrequenciesSet* PhylogeneticsApplicationTools::getRootFrequenciesSet(
   {
     map<string, string> unparams;
 
-    FrequenciesSet* freq = getFrequenciesSet(alphabet, gCode, freqDescription, data, unparams, rateFreqs, verbose, warn + 1);
+    FrequencySet* freq = getFrequencySet(alphabet, gCode, freqDescription, data, unparams, rateFreqs, verbose, warn + 1);
     freq->setNamespace("root." + freq->getNamespace());
 
     for (const auto& it:unparams)
@@ -337,7 +337,7 @@ FrequenciesSet* PhylogeneticsApplicationTools::getRootFrequenciesSet(
 
 /******************************************************************************/
 
-FrequenciesSet* PhylogeneticsApplicationTools::getFrequenciesSet(
+FrequencySet* PhylogeneticsApplicationTools::getFrequencySet(
   const Alphabet* alphabet,
   const GeneticCode* gCode,
   const std::string& freqDescription,
@@ -348,14 +348,14 @@ FrequenciesSet* PhylogeneticsApplicationTools::getFrequenciesSet(
   int warn)
 {
   map<string, string> unparsedParameterValues;
-  BppOFrequenciesSetFormat bIO(BppOFrequenciesSetFormat::ALL, verbose, warn);
+  BppOFrequencySetFormat bIO(BppOFrequencySetFormat::ALL, verbose, warn);
   if (AlphabetTools::isCodonAlphabet(alphabet))
   {
     if (!gCode)
-      throw Exception("PhylogeneticsApplicationTools::getFrequenciesSet(): a GeneticCode instance is required for instanciating a codon frequencies set.");
+      throw Exception("PhylogeneticsApplicationTools::getFrequencySet(): a GeneticCode instance is required for instanciating a codon frequencies set.");
     bIO.setGeneticCode(gCode);
   }
-  unique_ptr<FrequenciesSet> pFS(bIO.read(alphabet, freqDescription, data, true));
+  unique_ptr<FrequencySet> pFS(bIO.read(alphabet, freqDescription, data, true));
 
   std::map<std::string, std::string> unparsedparam = bIO.getUnparsedArguments();
 
@@ -364,7 +364,7 @@ FrequenciesSet* PhylogeneticsApplicationTools::getFrequenciesSet(
   // /////// To be changed for input normalization
   if (rateFreqs.size() > 0)
   {
-    pFS.reset(new MarkovModulatedFrequenciesSet(pFS.release(), rateFreqs));
+    pFS.reset(new MarkovModulatedFrequencySet(pFS.release(), rateFreqs));
   }
 
   return pFS.release();
@@ -476,16 +476,16 @@ void PhylogeneticsApplicationTools::setSubstitutionModelSet(
   map<string, string> unparsedParameters;
 
   bool stationarity = ApplicationTools::getBooleanParameter("nonhomogeneous.stationarity", params, false, "", true, warn);
-  FrequenciesSet* rootFrequencies = 0;
+  FrequencySet* rootFrequencies = 0;
   if (!stationarity)
   {
-    rootFrequencies = getRootFrequenciesSet(alphabet, gCode, data, params, unparsedParameters, rateFreqs, suffix, suffixIsOptional, verbose);
+    rootFrequencies = getRootFrequencySet(alphabet, gCode, data, params, unparsedParameters, rateFreqs, suffix, suffixIsOptional, verbose);
     stationarity = !rootFrequencies;
     string freqDescription = ApplicationTools::getStringParameter("nonhomogeneous.root_freq", params, "", suffix, suffixIsOptional, warn);
     if (freqDescription.substr(0, 10) == "MVAprotein")
     {
       if (dynamic_cast<Coala*>(tmp.get()))
-        dynamic_cast<MvaFrequenciesSet*>(rootFrequencies)->initSet(dynamic_cast<CoalaCore*>(tmp.get()));
+        dynamic_cast<MvaFrequencySet*>(rootFrequencies)->initSet(dynamic_cast<CoalaCore*>(tmp.get()));
       else
         throw Exception("The MVAprotein frequencies set at the root can only be used if a Coala model is used on branches.");
     }
@@ -1538,7 +1538,7 @@ void PhylogeneticsApplicationTools::printParameters(const SubstitutionModelSet* 
   if (!modelSet->isStationary())
   {
     
-    const FrequenciesSet* pFS = modelSet->getRootFrequenciesSet();
+    const FrequencySet* pFS = modelSet->getRootFrequencySet();
 
     ParameterList plf = pFS->getParameters();
 
@@ -1559,7 +1559,7 @@ void PhylogeneticsApplicationTools::printParameters(const SubstitutionModelSet* 
     (out << "# Root frequencies:").endLine();
     out << "nonhomogeneous.root_freq=";
     
-    BppOFrequenciesSetFormat bIO(BppOFrequenciesSetFormat::ALL, false, warn);
+    BppOFrequencySetFormat bIO(BppOFrequencySetFormat::ALL, false, warn);
     bIO.write(pFS, out, aliases, writtenNames);
   }
   

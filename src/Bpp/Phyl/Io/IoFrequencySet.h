@@ -53,17 +53,17 @@
 namespace bpp
 {
 
-  class FrequenciesSet;
+  class FrequencySet;
 
   /**
    * @brief General interface for model I/O.
    */
-  class IoFrequenciesSet:
+  class IoFrequencySet:
     public virtual IOFormat
   {
   public:
-    IoFrequenciesSet() {}
-    virtual ~IoFrequenciesSet() {}
+    IoFrequencySet() {}
+    virtual ~IoFrequencySet() {}
 
   public:
     virtual const std::string getDataType() const { return "Frequencies Set"; }
@@ -72,12 +72,12 @@ namespace bpp
   /**
    * @brief General interface for distance matrix readers.
    */
-  class IFrequenciesSet:
-    public virtual IoFrequenciesSet
+  class IFrequencySet:
+    public virtual IoFrequencySet
   {
   public:
-    IFrequenciesSet() {}
-    virtual ~IFrequenciesSet() {}
+    IFrequencySet() {}
+    virtual ~IFrequencySet() {}
 
   public:
     /**
@@ -87,10 +87,10 @@ namespace bpp
      * @param freqDescription  A string describing the frequencies set.
      * @param data             A SiteContainer with the data to use to initialize fequency parameters. Can be set to 0.
      * @param parseArguments   Attempt to parse function arguments. If not, only store them and use default values instead.
-     * @return A new FrequenciesSet object according to options specified.
+     * @return A new FrequencySet object according to options specified.
      * @throw Exception if an error occured.
      */
-    virtual FrequenciesSet* read(const Alphabet* alphabet, const std::string& freqDescription, const SiteContainer* data, bool parseArguments) = 0;
+    virtual FrequencySet* read(const Alphabet* alphabet, const std::string& freqDescription, const SiteContainer* data, bool parseArguments) = 0;
 
     /**
      * @return The arguments and their unparsed values from the last call of the read function, if there are any.
@@ -101,12 +101,12 @@ namespace bpp
   /**
    * @brief General interface for distance matrix writers.
    */
-  class OFrequenciesSet:
-    public virtual IoFrequenciesSet
+  class OFrequencySet:
+    public virtual IoFrequencySet
   {
   public:
-    OFrequenciesSet() {}
-    virtual ~OFrequenciesSet() {}
+    OFrequencySet() {}
+    virtual ~OFrequencySet() {}
 
   public:
     /**
@@ -119,7 +119,7 @@ namespace bpp
      * @param writtenNames is the vector of the written
      * parameters so far [in, out];
      */
-    virtual void write(const FrequenciesSet* pfreqset,
+    virtual void write(const FrequencySet* pfreqset,
                        OutputStream& out,
                        std::map<std::string, std::string>& globalAliases,
                        std::vector<std::string>& writtenNames) const = 0;

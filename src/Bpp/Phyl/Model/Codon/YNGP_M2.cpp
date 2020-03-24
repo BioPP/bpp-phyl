@@ -49,7 +49,7 @@ using namespace std;
 
 /******************************************************************************/
 
-YNGP_M2::YNGP_M2(const GeneticCode* gc, FrequenciesSet* codonFreqs) :
+YNGP_M2::YNGP_M2(const GeneticCode* gc, FrequencySet* codonFreqs) :
   YNGP_M("YNGP_M2.")
 {
   // build the submodel
@@ -78,7 +78,7 @@ YNGP_M2::YNGP_M2(const GeneticCode* gc, FrequenciesSet* codonFreqs) :
     lParPmodel_.addParameter(Parameter(pl[i]));
   }
 
-  vector<std::string> v = dynamic_cast<YN98*>(pmixmodel_->getNModel(0))->getFrequenciesSet()->getParameters().getParameterNames();
+  vector<std::string> v = dynamic_cast<YN98*>(pmixmodel_->getNModel(0))->getFrequencySet()->getParameters().getParameterNames();
 
   for (size_t i = 0; i < v.size(); i++)
   {

@@ -47,7 +47,7 @@ using namespace std;
 
 SubstitutionModelSet* SubstitutionModelSetTools::createHomogeneousModelSet(
   TransitionModel* model,
-  FrequenciesSet* rootFreqs,
+  FrequencySet* rootFreqs,
   const Tree* tree
   )
 {
@@ -80,7 +80,7 @@ SubstitutionModelSet* SubstitutionModelSetTools::createHomogeneousModelSet(
 
 SubstitutionModelSet* SubstitutionModelSetTools::createNonHomogeneousModelSet(
   TransitionModel* model,
-  FrequenciesSet* rootFreqs,
+  FrequencySet* rootFreqs,
   const Tree* tree,
   const std::map<std::string, std::string>& aliasFreqNames,
   const std::map<std::string, std::vector<Vint> >& globalParameterNames

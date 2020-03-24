@@ -137,7 +137,7 @@ namespace bpp
   private:
     mutable double exp_;
     mutable RowMatrix<double> p_;
-    ProteinFrequenciesSet* freqSet_;
+    ProteinFrequencySet* freqSet_;
     bool withFreq_;
     
   public:
@@ -156,14 +156,14 @@ namespace bpp
      * @param initFreqs Tell if the frequency set should be initialized with the original JTT92 values.
      * Otherwise, the values of the set will be used.
      */
-    JCprot(const ProteicAlphabet* alpha, ProteinFrequenciesSet* freqSet, bool initFreqs = false);
+    JCprot(const ProteicAlphabet* alpha, ProteinFrequencySet* freqSet, bool initFreqs = false);
 
     JCprot(const JCprot& model) :
       AbstractParameterAliasable(model),
       AbstractReversibleProteinSubstitutionModel(model),
       exp_(model.exp_),
       p_(model.p_),
-      freqSet_(dynamic_cast<ProteinFrequenciesSet*>(model.freqSet_->clone())),
+      freqSet_(dynamic_cast<ProteinFrequencySet*>(model.freqSet_->clone())),
       withFreq_(model.withFreq_)
     {}
 
@@ -174,7 +174,7 @@ namespace bpp
       exp_ = model.exp_;
       p_   = model.p_;
       if (freqSet_) delete freqSet_;
-      freqSet_ = dynamic_cast<ProteinFrequenciesSet*>(model.freqSet_->clone());
+      freqSet_ = dynamic_cast<ProteinFrequencySet*>(model.freqSet_->clone());
       withFreq_ = model.withFreq_;
       return *this;
     }
@@ -203,15 +203,15 @@ namespace bpp
       AbstractReversibleSubstitutionModel::fireParameterChanged(parameters);
     }
 
-    void setFrequenciesSet(const ProteinFrequenciesSet& freqSet)
+    void setFrequencySet(const ProteinFrequencySet& freqSet)
     {
       delete freqSet_;
-      freqSet_ = dynamic_cast<ProteinFrequenciesSet*>(freqSet.clone());
+      freqSet_ = dynamic_cast<ProteinFrequencySet*>(freqSet.clone());
       resetParameters_();
       addParameters_(freqSet_->getParameters());
     }
 
-    const FrequenciesSet* getFrequenciesSet() const { return freqSet_; }
+    const FrequencySet* getFrequencySet() const { return freqSet_; }
 
     void setNamespace(const std::string& prefix)
     {

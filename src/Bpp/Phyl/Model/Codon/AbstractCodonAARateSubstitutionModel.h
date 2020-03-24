@@ -156,7 +156,7 @@ namespace bpp
       return pAAmodel_;
     }
 
-    const FrequenciesSet* getFrequenciesSet() const 
+    const FrequencySet* getFrequencySet() const 
     {
       return 0;
     }

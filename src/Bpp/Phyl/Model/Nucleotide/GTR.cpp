@@ -38,7 +38,7 @@ knowledge of the CeCILL license and that you accept its terms.
 */
 
 #include "GTR.h"
-#include "../FrequenciesSet/NucleotideFrequenciesSet.h"
+#include "../FrequencySet/NucleotideFrequencySet.h"
 
 #include <Bpp/Numeric/Matrix/MatrixTools.h>
 
@@ -73,9 +73,9 @@ GTR::GTR(
   addParameter_(new Parameter("GTR.c", c, Parameter::R_PLUS_STAR));
   addParameter_(new Parameter("GTR.d", d, Parameter::R_PLUS_STAR));
   addParameter_(new Parameter("GTR.e", e, Parameter::R_PLUS_STAR));
-  addParameter_(new Parameter("GTR.theta", theta_, FrequenciesSet::FREQUENCE_CONSTRAINT_SMALL));
-  addParameter_(new Parameter("GTR.theta1", theta1_, FrequenciesSet::FREQUENCE_CONSTRAINT_SMALL));
-  addParameter_(new Parameter("GTR.theta2", theta2_, FrequenciesSet::FREQUENCE_CONSTRAINT_SMALL));
+  addParameter_(new Parameter("GTR.theta", theta_, FrequencySet::FREQUENCE_CONSTRAINT_SMALL));
+  addParameter_(new Parameter("GTR.theta1", theta1_, FrequencySet::FREQUENCE_CONSTRAINT_SMALL));
+  addParameter_(new Parameter("GTR.theta2", theta2_, FrequencySet::FREQUENCE_CONSTRAINT_SMALL));
   updateMatrices();
 }
 

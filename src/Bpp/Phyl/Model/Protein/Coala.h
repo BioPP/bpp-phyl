@@ -64,7 +64,7 @@ namespace bpp
  * @author Mathieu Groussin
  * @param alpha The alphabet (Protein)
  * @param nbAxes The number of principal axes of the COA that have to be taken into account to optimize the 20 branch-specific equilibrium frequencies. This number is common to all branches, as
- * well as on the root, where frequencies are optimized with a MVAprotein object (See the ProteinFrequenciesSet class).
+ * well as on the root, where frequencies are optimized with a MVAprotein object (See the ProteinFrequencySet class).
  * @param exch The exchangeability matrix. The matrices currently available are DSO78, JTT92, WAG01 or LG08. A user-defined matrix can be specified with the 'file' argument.
  * @param file [optional] Used only to specify the file containing the user-defined exchangeabilities, written in PAML format.
  */

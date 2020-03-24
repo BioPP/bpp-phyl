@@ -57,11 +57,11 @@ DSO78::DSO78(const ProteicAlphabet* alpha) :
 {
   #include "__DSO78ExchangeabilityCode"
   #include "__DSO78FrequenciesCode"
-  freqSet_ = new FixedProteinFrequenciesSet(alpha, freq_);
+  freqSet_ = new FixedProteinFrequencySet(alpha, freq_);
   updateMatrices();
 }
 
-DSO78::DSO78(const ProteicAlphabet* alpha, ProteinFrequenciesSet* freqSet, bool initFreqs) :
+DSO78::DSO78(const ProteicAlphabet* alpha, ProteinFrequencySet* freqSet, bool initFreqs) :
   AbstractParameterAliasable("DSO78+F."),
   AbstractReversibleProteinSubstitutionModel(alpha, std::shared_ptr<const StateMap>(new CanonicalStateMap(alpha, false)), "DSO78+F."),
   freqSet_(freqSet)

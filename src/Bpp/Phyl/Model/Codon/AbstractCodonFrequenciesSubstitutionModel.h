@@ -66,19 +66,19 @@ namespace bpp
     virtual public AbstractParameterAliasable
   {
   private:
-    FrequenciesSet* pfreqset_;
+    FrequencySet* pfreqset_;
     std::string freqName_;
 
   public:
     /**
      *@brief Build a AbstractCodonFrequenciesSubstitutionModel instance
      *
-     *@param pfreq pointer to the AbstractFrequenciesSet equilibrium frequencies.
+     *@param pfreq pointer to the AbstractFrequencySet equilibrium frequencies.
      *        It is owned by the instance.
      *@param prefix the Namespace
      */
 
-    AbstractCodonFrequenciesSubstitutionModel(FrequenciesSet* pfreq,
+    AbstractCodonFrequenciesSubstitutionModel(FrequencySet* pfreq,
                                               const std::string& prefix);
 
     AbstractCodonFrequenciesSubstitutionModel(const AbstractCodonFrequenciesSubstitutionModel& model) :
@@ -115,7 +115,7 @@ namespace bpp
 
     double getCodonsMulRate(size_t, size_t) const;
 
-    const FrequenciesSet* getFrequenciesSet() const 
+    const FrequencySet* getFrequencySet() const 
     {
       return pfreqset_;
     }

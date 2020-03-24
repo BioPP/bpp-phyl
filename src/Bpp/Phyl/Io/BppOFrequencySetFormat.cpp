@@ -1,5 +1,5 @@
 //
-// File: BppOFrequenciesSetFormatFormat.cpp
+// File: BppOFrequencySetFormatFormat.cpp
 // Created by: Laurent Guéguen
 // Created on: lundi 9 juillet 2012, à 12h 56
 //
@@ -68,35 +68,35 @@ using namespace bpp;
 
 using namespace std;
 
-unsigned char BppOFrequenciesSetFormat::DNA = 1;
-unsigned char BppOFrequenciesSetFormat::RNA = 2;
-unsigned char BppOFrequenciesSetFormat::NUCLEOTIDE = 1 | 2;
-unsigned char BppOFrequenciesSetFormat::PROTEIN = 4;
-unsigned char BppOFrequenciesSetFormat::CODON = 8;
-unsigned char BppOFrequenciesSetFormat::WORD = 16;
-unsigned char BppOFrequenciesSetFormat::ALL = 1 | 2 | 4 | 8 | 16;
+unsigned char BppOFrequencySetFormat::DNA = 1;
+unsigned char BppOFrequencySetFormat::RNA = 2;
+unsigned char BppOFrequencySetFormat::NUCLEOTIDE = 1 | 2;
+unsigned char BppOFrequencySetFormat::PROTEIN = 4;
+unsigned char BppOFrequencySetFormat::CODON = 8;
+unsigned char BppOFrequencySetFormat::WORD = 16;
+unsigned char BppOFrequencySetFormat::ALL = 1 | 2 | 4 | 8 | 16;
 
-FrequenciesSet* BppOFrequenciesSetFormat::read(const Alphabet* alphabet, const std::string& freqDescription, const SiteContainer* data, bool parseArguments)
+FrequencySet* BppOFrequencySetFormat::read(const Alphabet* alphabet, const std::string& freqDescription, const SiteContainer* data, bool parseArguments)
 {
   unparsedArguments_.clear();
   string freqName;
   map<string, string> args;
   KeyvalTools::parseProcedure(freqDescription, freqName, args);
-  unique_ptr<FrequenciesSet> pFS;
+  unique_ptr<FrequencySet> pFS;
 
   if (freqName == "Fixed")
   {
     if (AlphabetTools::isNucleicAlphabet(alphabet))
     {
       if (alphabetCode_ & NUCLEOTIDE)
-        pFS.reset(new FixedNucleotideFrequenciesSet(dynamic_cast<const NucleicAlphabet*>(alphabet)));
+        pFS.reset(new FixedNucleotideFrequencySet(dynamic_cast<const NucleicAlphabet*>(alphabet)));
       else
         throw Exception("Nucleotide alphabet not supported.");
     }
     else if (AlphabetTools::isProteicAlphabet(alphabet))
     {
       if (alphabetCode_ & PROTEIN)
-        pFS.reset(new FixedProteinFrequenciesSet(dynamic_cast<const ProteicAlphabet*>(alphabet)));
+        pFS.reset(new FixedProteinFrequencySet(dynamic_cast<const ProteicAlphabet*>(alphabet)));
       else
         throw Exception("Protein alphabet not supported.");
     }
@@ -104,15 +104,15 @@ FrequenciesSet* BppOFrequenciesSetFormat::read(const Alphabet* alphabet, const s
     {
       if (alphabetCode_ & CODON) {
         if (!geneticCode_)
-          throw Exception("BppOFrequenciesSetFormat::read(). No genetic code specified! Consider using 'setGeneticCode'.");
-        pFS.reset(new FixedCodonFrequenciesSet(geneticCode_));
+          throw Exception("BppOFrequencySetFormat::read(). No genetic code specified! Consider using 'setGeneticCode'.");
+        pFS.reset(new FixedCodonFrequencySet(geneticCode_));
       } else {
         throw Exception("Codon alphabet not supported.");
       }
     }
     else
     {
-      pFS.reset(new FixedFrequenciesSet(std::shared_ptr<const StateMap>(new CanonicalStateMap(alphabet, false))));
+      pFS.reset(new FixedFrequencySet(std::shared_ptr<const StateMap>(new CanonicalStateMap(alphabet, false))));
     }
   }
   else if (freqName == "Full")
@@ -129,14 +129,14 @@ FrequenciesSet* BppOFrequenciesSetFormat::read(const Alphabet* alphabet, const s
     if (AlphabetTools::isNucleicAlphabet(alphabet))
     {
       if (alphabetCode_ & NUCLEOTIDE)
-        pFS.reset(new FullNucleotideFrequenciesSet(dynamic_cast<const NucleicAlphabet*>(alphabet)));
+        pFS.reset(new FullNucleotideFrequencySet(dynamic_cast<const NucleicAlphabet*>(alphabet)));
       else
         throw Exception("Nucleotide alphabet not supported.");
     }
     else if (AlphabetTools::isProteicAlphabet(alphabet))
     {
       if (alphabetCode_ & PROTEIN)
-        pFS.reset(new FullProteinFrequenciesSet(dynamic_cast<const ProteicAlphabet*>(alphabet), false, method));
+        pFS.reset(new FullProteinFrequencySet(dynamic_cast<const ProteicAlphabet*>(alphabet), false, method));
       else
         throw Exception("Protein alphabet not supported.");
     }
@@ -144,8 +144,8 @@ FrequenciesSet* BppOFrequenciesSetFormat::read(const Alphabet* alphabet, const s
     {
       if (alphabetCode_ & CODON) {
         if (!geneticCode_)
-          throw Exception("BppOFrequenciesSetFormat::read(). No genetic code specified! Consider using 'setGeneticCode'.");
-        pFS.reset(new FullCodonFrequenciesSet(geneticCode_));
+          throw Exception("BppOFrequencySetFormat::read(). No genetic code specified! Consider using 'setGeneticCode'.");
+        pFS.reset(new FullCodonFrequencySet(geneticCode_));
       } else {
         throw Exception("Codon alphabet not supported.");
       }
@@ -153,7 +153,7 @@ FrequenciesSet* BppOFrequenciesSetFormat::read(const Alphabet* alphabet, const s
     else
     {
       //NB: jdutheil 25/09/14 => gap models will not be supported before we add the appropriate option!
-      pFS.reset(new FullFrequenciesSet(std::shared_ptr<const StateMap>(new CanonicalStateMap(alphabet, false)), false, method));
+      pFS.reset(new FullFrequencySet(std::shared_ptr<const StateMap>(new CanonicalStateMap(alphabet, false)), false, method));
     }
   }
   else if (freqName == "Empirical")
@@ -169,14 +169,14 @@ FrequenciesSet* BppOFrequenciesSetFormat::read(const Alphabet* alphabet, const s
     if (AlphabetTools::isNucleicAlphabet(alphabet))
     {
       if (alphabetCode_ & NUCLEOTIDE)
-        pFS.reset(new UserNucleotideFrequenciesSet(dynamic_cast<const NucleicAlphabet*>(alphabet), fname, nCol));
+        pFS.reset(new UserNucleotideFrequencySet(dynamic_cast<const NucleicAlphabet*>(alphabet), fname, nCol));
       else
         throw Exception("Nucleotide alphabet not supported.");
     }
     else if (AlphabetTools::isProteicAlphabet(alphabet))
     {
       if (alphabetCode_ & PROTEIN)
-        pFS.reset(new UserProteinFrequenciesSet(dynamic_cast<const ProteicAlphabet*>(alphabet), fname, nCol));
+        pFS.reset(new UserProteinFrequencySet(dynamic_cast<const ProteicAlphabet*>(alphabet), fname, nCol));
       else
         throw Exception("Protein alphabet not supported.");
     }
@@ -184,15 +184,15 @@ FrequenciesSet* BppOFrequenciesSetFormat::read(const Alphabet* alphabet, const s
     {
       if (alphabetCode_ & CODON) {
         if (!geneticCode_)
-          throw Exception("BppOFrequenciesSetFormat::read(). No genetic code specified! Consider using 'setGeneticCode'.");
-        pFS.reset(new UserCodonFrequenciesSet(geneticCode_, fname, nCol));
+          throw Exception("BppOFrequencySetFormat::read(). No genetic code specified! Consider using 'setGeneticCode'.");
+        pFS.reset(new UserCodonFrequencySet(geneticCode_, fname, nCol));
       } else {
         throw Exception("Codon alphabet not supported.");
       }
     }
     else
     {
-      pFS.reset(new UserFrequenciesSet(std::shared_ptr<const StateMap>(new CanonicalStateMap(alphabet, false)), fname, nCol));
+      pFS.reset(new UserFrequencySet(std::shared_ptr<const StateMap>(new CanonicalStateMap(alphabet, false)), fname, nCol));
     }
   }
   else if (freqName == "GC")
@@ -200,7 +200,7 @@ FrequenciesSet* BppOFrequenciesSetFormat::read(const Alphabet* alphabet, const s
     if (!AlphabetTools::isNucleicAlphabet(alphabet))
       throw Exception("Error, unvalid frequencies " + freqName + " with non-nucleic alphabet.");
     if (alphabetCode_ & NUCLEOTIDE)
-      pFS.reset(new GCFrequenciesSet(dynamic_cast<const NucleicAlphabet*>(alphabet)));
+      pFS.reset(new GCFrequencySet(dynamic_cast<const NucleicAlphabet*>(alphabet)));
     else
       throw Exception("Nucleotide alphabet not supported.");
   }
@@ -211,13 +211,13 @@ FrequenciesSet* BppOFrequenciesSetFormat::read(const Alphabet* alphabet, const s
     if (!(alphabetCode_& WORD))
       throw Exception("Word alphabet not supported.");
     if (!AlphabetTools::isWordAlphabet(alphabet))
-      throw Exception("BppOFrequenciesSetFormat::read(...).\n\t Bad alphabet type "
+      throw Exception("BppOFrequencySetFormat::read(...).\n\t Bad alphabet type "
                       + alphabet->getAlphabetType() + " for frequencies set " + freqName + ".");
 
     const WordAlphabet* pWA = dynamic_cast<const WordAlphabet*>(alphabet);
 
     if (pWA==NULL)
-      throw Exception("BppOFrequenciesSetFormat::read : Word freq name is from WordAlphabet.");
+      throw Exception("BppOFrequencySetFormat::read : Word freq name is from WordAlphabet.");
     
     if (args.find("frequency") != args.end())
     {
@@ -230,21 +230,21 @@ FrequenciesSet* BppOFrequenciesSetFormat::read(const Alphabet* alphabet, const s
         st += TextTools::toString(i + 1);
       }
 
-      BppOFrequenciesSetFormat nestedReader(alphabetCode_, false, warningLevel_);
-      unique_ptr<FrequenciesSet> pFS2(nestedReader.read(pWA->getNAlphabet(0), sAFS, data, false));
+      BppOFrequencySetFormat nestedReader(alphabetCode_, false, warningLevel_);
+      unique_ptr<FrequencySet> pFS2(nestedReader.read(pWA->getNAlphabet(0), sAFS, data, false));
       map<string, string> unparsedParameterValuesNested(nestedReader.getUnparsedArguments());
       for (map<string, string>::iterator it = unparsedParameterValuesNested.begin(); it != unparsedParameterValuesNested.end(); it++)
       {
         unparsedArguments_[st + "_" + it->first] = it->second;
       }
-      pFS.reset(new WordFromUniqueFrequenciesSet(pWA, pFS2.release()));
+      pFS.reset(new WordFromUniqueFrequencySet(pWA, pFS2.release()));
     }
     else
     {
       if (args.find("frequency1") == args.end())
-        throw Exception("BppOFrequenciesSetFormat::read. Missing argument 'frequency' or 'frequency1' for frequencies set 'Word'.");
+        throw Exception("BppOFrequencySetFormat::read. Missing argument 'frequency' or 'frequency1' for frequencies set 'Word'.");
       vector<string> v_sAFS;
-      vector<FrequenciesSet*> v_AFS;
+      vector<FrequencySet*> v_AFS;
       unsigned int nbfreq = 1;
 
       while (args.find("frequency" + TextTools::toString(nbfreq)) != args.end())
@@ -253,11 +253,11 @@ FrequenciesSet* BppOFrequenciesSetFormat::read(const Alphabet* alphabet, const s
       }
 
       if (v_sAFS.size() != pWA->getLength())
-        throw Exception("BppOFrequenciesSetFormat::read. Number of frequencies (" + TextTools::toString(v_sAFS.size()) + ") does not match length of the words (" + TextTools::toString(pWA->getLength()) + ")");
+        throw Exception("BppOFrequencySetFormat::read. Number of frequencies (" + TextTools::toString(v_sAFS.size()) + ") does not match length of the words (" + TextTools::toString(pWA->getLength()) + ")");
 
       for (size_t i = 0; i < v_sAFS.size(); ++i)
       {
-        BppOFrequenciesSetFormat nestedReader(alphabetCode_, false, warningLevel_);
+        BppOFrequencySetFormat nestedReader(alphabetCode_, false, warningLevel_);
         pFS.reset(nestedReader.read(pWA->getNAlphabet(i), v_sAFS[i], data, false));
         map<string, string> unparsedParameterValuesNested(nestedReader.getUnparsedArguments());
         for (map<string, string>::iterator it = unparsedParameterValuesNested.begin(); it != unparsedParameterValuesNested.end(); it++)
@@ -267,7 +267,7 @@ FrequenciesSet* BppOFrequenciesSetFormat::read(const Alphabet* alphabet, const s
         v_AFS.push_back(pFS.release());
       }
 
-      pFS.reset(new WordFromIndependentFrequenciesSet(pWA, v_AFS));
+      pFS.reset(new WordFromIndependentFrequencySet(pWA, v_AFS));
     }
   }
   //From Model
@@ -281,7 +281,7 @@ FrequenciesSet* BppOFrequenciesSetFormat::read(const Alphabet* alphabet, const s
       nestedReader.setGeneticCode(geneticCode_);
 
     TransitionModel* model=nestedReader.readTransitionModel(alphabet, args["model"], data, false);
-    pFS.reset(new FromModelFrequenciesSet(model));
+    pFS.reset(new FromModelFrequencySet(model));
     map<string, string> unparsedParameterValuesNested(nestedReader.getUnparsedArguments());
     for (map<string, string>::iterator it = unparsedParameterValuesNested.begin(); it != unparsedParameterValuesNested.end(); it++)
     {
@@ -296,10 +296,10 @@ FrequenciesSet* BppOFrequenciesSetFormat::read(const Alphabet* alphabet, const s
     if (!(alphabetCode_ & CODON))
       throw Exception("Codon alphabet not supported.");
     if (!AlphabetTools::isCodonAlphabet(alphabet))
-      throw Exception("BppOFrequenciesSetFormat::read.\n\t Bad alphabet type "
+      throw Exception("BppOFrequencySetFormat::read.\n\t Bad alphabet type "
                       + alphabet->getAlphabetType() + " for frequenciesset " + freqName + ".");
     if (!geneticCode_)
-      throw Exception("BppOFrequenciesSetFormat::read(). No genetic code specified! Consider using 'setGeneticCode'.");
+      throw Exception("BppOFrequencySetFormat::read(). No genetic code specified! Consider using 'setGeneticCode'.");
 
     const CodonAlphabet* pWA = dynamic_cast<const CodonAlphabet*>(alphabet);
 
@@ -307,8 +307,8 @@ FrequenciesSet* BppOFrequenciesSetFormat::read(const Alphabet* alphabet, const s
     {
       string sAFS = args["frequency"];
 
-      BppOFrequenciesSetFormat nestedReader(alphabetCode_, false, warningLevel_);
-      unique_ptr<FrequenciesSet> pFS2(nestedReader.read(pWA->getNucleicAlphabet(), sAFS, data, false));
+      BppOFrequencySetFormat nestedReader(alphabetCode_, false, warningLevel_);
+      unique_ptr<FrequencySet> pFS2(nestedReader.read(pWA->getNucleicAlphabet(), sAFS, data, false));
       map<string, string> unparsedParameterValuesNested(nestedReader.getUnparsedArguments());
 
       for (map<string, string>::iterator it = unparsedParameterValuesNested.begin(); it != unparsedParameterValuesNested.end(); it++)
@@ -316,14 +316,14 @@ FrequenciesSet* BppOFrequenciesSetFormat::read(const Alphabet* alphabet, const s
         unparsedArguments_["123_" + it->first] = it->second;
       }
       
-      pFS.reset(new CodonFromUniqueFrequenciesSet(geneticCode_, pFS2.release(), "Codon"));
+      pFS.reset(new CodonFromUniqueFrequencySet(geneticCode_, pFS2.release(), "Codon"));
     }
     else
     {
       if (args.find("frequency1") == args.end())
-        throw Exception("BppOFrequenciesSetFormat::read. Missing argument 'frequency' or 'frequency1' for frequencies set.");
+        throw Exception("BppOFrequencySetFormat::read. Missing argument 'frequency' or 'frequency1' for frequencies set.");
       vector<string> v_sAFS;
-      vector<FrequenciesSet*> v_AFS;
+      vector<FrequencySet*> v_AFS;
       unsigned int nbfreq = 1;
 
       while (args.find("frequency" + TextTools::toString(nbfreq)) != args.end())
@@ -332,11 +332,11 @@ FrequenciesSet* BppOFrequenciesSetFormat::read(const Alphabet* alphabet, const s
       }
 
       if (v_sAFS.size() != 3)
-        throw Exception("BppOFrequenciesSetFormat::read. Number of frequencies (" + TextTools::toString(v_sAFS.size()) + ") is not three");
+        throw Exception("BppOFrequencySetFormat::read. Number of frequencies (" + TextTools::toString(v_sAFS.size()) + ") is not three");
 
       for (size_t i = 0; i < v_sAFS.size(); ++i)
       {
-        BppOFrequenciesSetFormat nestedReader(alphabetCode_, false, warningLevel_);
+        BppOFrequencySetFormat nestedReader(alphabetCode_, false, warningLevel_);
         pFS.reset(nestedReader.read(pWA->getNucleicAlphabet(), v_sAFS[i], data, false));
         map<string, string> unparsedParameterValuesNested(nestedReader.getUnparsedArguments());
         for (map<string, string>::iterator it = unparsedParameterValuesNested.begin(); it != unparsedParameterValuesNested.end(); it++)
@@ -347,8 +347,8 @@ FrequenciesSet* BppOFrequenciesSetFormat::read(const Alphabet* alphabet, const s
       }
 
       if (!geneticCode_)
-        throw Exception("BppOFrequenciesSetFormat::read(). No genetic code specified! Consider using 'setGeneticCode'.");
-      pFS.reset(new CodonFromIndependentFrequenciesSet(geneticCode_, v_AFS, "Codon"));
+        throw Exception("BppOFrequencySetFormat::read(). No genetic code specified! Consider using 'setGeneticCode'.");
+      pFS.reset(new CodonFromIndependentFrequencySet(geneticCode_, v_AFS, "Codon"));
     }
   }
 
@@ -358,11 +358,11 @@ FrequenciesSet* BppOFrequenciesSetFormat::read(const Alphabet* alphabet, const s
     if (!(alphabetCode_ & CODON))
       throw Exception("Codon alphabet not supported.");
     if (!AlphabetTools::isCodonAlphabet(alphabet))
-      throw Exception("BppOFrequenciesSetFormat::read.\n\t Bad alphabet type "
+      throw Exception("BppOFrequencySetFormat::read.\n\t Bad alphabet type "
                       + alphabet->getAlphabetType() + " for frequenciesset " + freqName + ".");
 
     if (!geneticCode_)
-      throw Exception("BppOFrequenciesSetFormat::read(). No genetic code specified! Consider using 'setGeneticCode'.");
+      throw Exception("BppOFrequencySetFormat::read(). No genetic code specified! Consider using 'setGeneticCode'.");
     
     const ProteicAlphabet* pPA = dynamic_cast<const ProteicAlphabet*>(geneticCode_->getTargetAlphabet());
 
@@ -378,18 +378,18 @@ FrequenciesSet* BppOFrequenciesSetFormat::read(const Alphabet* alphabet, const s
     if (args.find("protein_frequencies") != args.end())
     {
       string sPFS = args["protein_frequencies"];
-      BppOFrequenciesSetFormat nestedReader(alphabetCode_, false, warningLevel_);
-      unique_ptr<ProteinFrequenciesSet> pPFS(dynamic_cast<ProteinFrequenciesSet*>(nestedReader.read(pPA, sPFS, data, false)));
+      BppOFrequencySetFormat nestedReader(alphabetCode_, false, warningLevel_);
+      unique_ptr<ProteinFrequencySet> pPFS(dynamic_cast<ProteinFrequencySet*>(nestedReader.read(pPA, sPFS, data, false)));
       map<string, string> unparsedParameterValuesNested(nestedReader.getUnparsedArguments());
 
       for (map<string, string>::iterator it = unparsedParameterValuesNested.begin(); it != unparsedParameterValuesNested.end(); it++)
       {
         unparsedArguments_["FullPerAA." + it->first] = it->second;
       }
-      pFS.reset(new FullPerAACodonFrequenciesSet(geneticCode_, pPFS.release(), method));
+      pFS.reset(new FullPerAACodonFrequencySet(geneticCode_, pPFS.release(), method));
     }
     else
-      pFS.reset(new FullPerAACodonFrequenciesSet(geneticCode_, method));
+      pFS.reset(new FullPerAACodonFrequencySet(geneticCode_, method));
   }
 
   // codeml frequencies syntax
@@ -399,24 +399,24 @@ FrequenciesSet* BppOFrequenciesSetFormat::read(const Alphabet* alphabet, const s
     if (!(alphabetCode_ & CODON))
       throw Exception("Codon alphabet not supported.");
     if (!geneticCode_)
-      throw Exception("BppOFrequenciesSetFormat::read(). No genetic code specified! Consider using 'setGeneticCode'.");
+      throw Exception("BppOFrequencySetFormat::read(). No genetic code specified! Consider using 'setGeneticCode'.");
     
     const CodonAlphabet* pWA = dynamic_cast<const CodonAlphabet*>(alphabet);
 
     if (args.find("genetic_code") != args.end()) {
       ApplicationTools::displayWarning("'genetic_code' argument is no longer supported inside model description, and has been supersided by a global 'genetic_code' option.");
-      throw Exception("BppOFrequenciesSetFormat::read. Deprecated 'genetic_code' argument.");
+      throw Exception("BppOFrequencySetFormat::read. Deprecated 'genetic_code' argument.");
     }
     short opt = -1;
     string mgmtStopCodon = "quadratic";
     
     if (freqName == "F0")
     {
-      opt = CodonFrequenciesSet::F0;
+      opt = CodonFrequencySet::F0;
     }
     else if (freqName == "F1X4")
     {
-      opt = CodonFrequenciesSet::F1X4;
+      opt = CodonFrequencySet::F1X4;
       
       if (args.find("mgmtStopCodons") != args.end())
         mgmtStopCodon = args["mgmtStopCodons"];
@@ -429,10 +429,10 @@ FrequenciesSet* BppOFrequenciesSetFormat::read(const Alphabet* alphabet, const s
       {
         string sAFS = args["frequency"];
         
-        BppOFrequenciesSetFormat nestedReader(alphabetCode_, false, warningLevel_);
-        unique_ptr<FrequenciesSet> pFS2(nestedReader.read(pWA->getNucleicAlphabet(), sAFS, data, false));
+        BppOFrequencySetFormat nestedReader(alphabetCode_, false, warningLevel_);
+        unique_ptr<FrequencySet> pFS2(nestedReader.read(pWA->getNucleicAlphabet(), sAFS, data, false));
         if (pFS2->getName()!="Full")
-          throw Exception("BppOFrequenciesSetFormat::read. The frequency option in F1X4 can only be Full");
+          throw Exception("BppOFrequencySetFormat::read. The frequency option in F1X4 can only be Full");
         
         map<string, string> unparsedParameterValuesNested(nestedReader.getUnparsedArguments());
         
@@ -457,7 +457,7 @@ FrequenciesSet* BppOFrequenciesSetFormat::read(const Alphabet* alphabet, const s
     }
     else if (freqName == "F3X4")
     {
-      opt = CodonFrequenciesSet::F3X4;
+      opt = CodonFrequencySet::F3X4;
 
       if (args.find("mgmtStopCodons") != args.end())
         mgmtStopCodon = args["mgmtStopCodons"];
@@ -480,11 +480,11 @@ FrequenciesSet* BppOFrequenciesSetFormat::read(const Alphabet* alphabet, const s
         
         for (unsigned i = 0; i < v_sAFS.size(); i++)
           {
-            BppOFrequenciesSetFormat nestedReader(alphabetCode_, false, warningLevel_);
+            BppOFrequencySetFormat nestedReader(alphabetCode_, false, warningLevel_);
             if (v_sAFS[i]!=""){
               pFS.reset(nestedReader.read(pWA->getNucleicAlphabet(), v_sAFS[i], data, false));
               if (pFS->getName()!="Full")
-                throw Exception("BppOFrequenciesSetFormat::read. The frequency options in F3X4 can only be Full");
+                throw Exception("BppOFrequencySetFormat::read. The frequency options in F3X4 can only be Full");
 
               map<string, string> unparsedParameterValuesNested(nestedReader.getUnparsedArguments());
               for (map<string, string>::iterator it = unparsedParameterValuesNested.begin(); it != unparsedParameterValuesNested.end(); it++)
@@ -506,7 +506,7 @@ FrequenciesSet* BppOFrequenciesSetFormat::read(const Alphabet* alphabet, const s
     }
     else if (freqName == "F61")
     {
-      opt = CodonFrequenciesSet::F61;
+      opt = CodonFrequencySet::F61;
     }
     if (opt != -1){
       unsigned short method=1;
@@ -517,7 +517,7 @@ FrequenciesSet* BppOFrequenciesSetFormat::read(const Alphabet* alphabet, const s
           if (args["method"]=="binary")
             method=3;
       }      
-      pFS.reset(CodonFrequenciesSet::getFrequenciesSetForCodons(opt, geneticCode_, mgmtStopCodon, method));
+      pFS.reset(CodonFrequencySet::getFrequencySetForCodons(opt, geneticCode_, mgmtStopCodon, method));
     }
     else
       throw Exception("Unknown frequency option: " + freqName);
@@ -526,8 +526,8 @@ FrequenciesSet* BppOFrequenciesSetFormat::read(const Alphabet* alphabet, const s
   //MVAprotein freq set for COaLA model
   else if (freqName == "MVAprotein")
   {
-    pFS.reset(new MvaFrequenciesSet(dynamic_cast<const ProteicAlphabet*>(alphabet)));
-    dynamic_cast<MvaFrequenciesSet*>(pFS.get())->setParamValues(args);
+    pFS.reset(new MvaFrequencySet(dynamic_cast<const ProteicAlphabet*>(alphabet)));
+    dynamic_cast<MvaFrequencySet*>(pFS.get())->setParamValues(args);
   }
   else
     throw Exception("Unknown frequency option: " + freqName);
@@ -604,7 +604,7 @@ FrequenciesSet* BppOFrequenciesSetFormat::read(const Alphabet* alphabet, const s
   return pFS.release();
 }
 
-void BppOFrequenciesSetFormat::write(const FrequenciesSet* pfreqset,
+void BppOFrequencySetFormat::write(const FrequencySet* pfreqset,
                                      OutputStream& out,
                                      std::map<std::string, std::string>& globalAliases,
                                      std::vector<std::string>& writtenNames) const
@@ -644,7 +644,7 @@ void BppOFrequenciesSetFormat::write(const FrequenciesSet* pfreqset,
     oValues=true;
   }
 
-  const UserFrequenciesSet* ufs=dynamic_cast<const UserFrequenciesSet*>(pfreqset);
+  const UserFrequencySet* ufs=dynamic_cast<const UserFrequencySet*>(pfreqset);
   if (ufs)
   {  
     out << "file=" << ufs->getPath();
@@ -657,7 +657,7 @@ void BppOFrequenciesSetFormat::write(const FrequenciesSet* pfreqset,
   }
 
   // For Word or Codon FS : length mgmt
-  const WordFromIndependentFrequenciesSet* pWFI = dynamic_cast<const WordFromIndependentFrequenciesSet*>(pfreqset);
+  const WordFromIndependentFrequencySet* pWFI = dynamic_cast<const WordFromIndependentFrequencySet*>(pfreqset);
   if (name != "F3X4" && pWFI != NULL)
   {
     for (size_t i = 0; i < pWFI->getLength(); i++)
@@ -665,12 +665,12 @@ void BppOFrequenciesSetFormat::write(const FrequenciesSet* pfreqset,
       if (i != 0)
         out << ", ";
       out << "frequency" << i + 1 << "=";
-      write(&pWFI->getFrequenciesSetForLetter(i), out, globalAliases, writtenNames);
+      write(&pWFI->getFrequencySetForLetter(i), out, globalAliases, writtenNames);
     }
       comma = true;
   }
   
-  const WordFromUniqueFrequenciesSet* pWFU = dynamic_cast<const WordFromUniqueFrequenciesSet*>(pfreqset);
+  const WordFromUniqueFrequencySet* pWFU = dynamic_cast<const WordFromUniqueFrequencySet*>(pfreqset);
   if (name != "F1X4" && pWFU != NULL)
   {
     for (size_t i = 0; i < pWFU->getLength(); i++)
@@ -678,14 +678,14 @@ void BppOFrequenciesSetFormat::write(const FrequenciesSet* pfreqset,
       if (i != 0)
         out << ", ";
       out << "frequency=";
-      write(&pWFU->getFrequenciesSetForLetter(i), out, globalAliases, writtenNames);
+      write(&pWFU->getFrequencySetForLetter(i), out, globalAliases, writtenNames);
     }
     comma = true;
   }
 
   //FromModel
 
-  const FromModelFrequenciesSet* pFMFS = dynamic_cast<const FromModelFrequenciesSet*>(pfreqset);
+  const FromModelFrequencySet* pFMFS = dynamic_cast<const FromModelFrequencySet*>(pfreqset);
   if (pFMFS != NULL)
   {
     if (comma)
@@ -700,10 +700,10 @@ void BppOFrequenciesSetFormat::write(const FrequenciesSet* pfreqset,
 
   
   // FullPerAA
-  const FullPerAACodonFrequenciesSet* pFPA=dynamic_cast<const FullPerAACodonFrequenciesSet*>(pfreqset);
+  const FullPerAACodonFrequencySet* pFPA=dynamic_cast<const FullPerAACodonFrequencySet*>(pfreqset);
   if (pFPA != NULL)
   {
-    const ProteinFrequenciesSet* ppfs=pFPA->getProteinFrequenciesSet();
+    const ProteinFrequencySet* ppfs=pFPA->getProteinFrequencySet();
     out << "protein_frequencies=";
     
     write(ppfs, out, globalAliases, writtenNames);
@@ -721,9 +721,9 @@ void BppOFrequenciesSetFormat::write(const FrequenciesSet* pfreqset,
 
 
   // method 
-  if (dynamic_cast<const FullProteinFrequenciesSet*>(pfreqset))
+  if (dynamic_cast<const FullProteinFrequencySet*>(pfreqset))
   {
-    size_t meth=dynamic_cast<const FullProteinFrequenciesSet*>(pfreqset)->getMethod();
+    size_t meth=dynamic_cast<const FullProteinFrequencySet*>(pfreqset)->getMethod();
     if (meth>1){
       if (comma)
         out << ",";
@@ -732,7 +732,7 @@ void BppOFrequenciesSetFormat::write(const FrequenciesSet* pfreqset,
     }
   }
   
-  const FullCodonFrequenciesSet* pF=dynamic_cast<const FullCodonFrequenciesSet*>(pfreqset);
+  const FullCodonFrequencySet* pF=dynamic_cast<const FullCodonFrequencySet*>(pfreqset);
   if (pF != NULL)
   {
     unsigned short meth=pF->getMethod();
@@ -745,7 +745,7 @@ void BppOFrequenciesSetFormat::write(const FrequenciesSet* pfreqset,
   }
 
   // mgmtStopCodon 
-  const CodonFromUniqueFrequenciesSet* pCFU = dynamic_cast<const CodonFromUniqueFrequenciesSet*>(pfreqset);
+  const CodonFromUniqueFrequencySet* pCFU = dynamic_cast<const CodonFromUniqueFrequencySet*>(pfreqset);
   if (pCFU != NULL)
   {
     if (pCFU->getMgmtStopCodon()!="quadratic")
@@ -757,7 +757,7 @@ void BppOFrequenciesSetFormat::write(const FrequenciesSet* pfreqset,
     }
   }
     
-  const CodonFromIndependentFrequenciesSet* pCFI = dynamic_cast<const CodonFromIndependentFrequenciesSet*>(pfreqset);
+  const CodonFromIndependentFrequencySet* pCFI = dynamic_cast<const CodonFromIndependentFrequencySet*>(pfreqset);
   if (pCFI != NULL)
   {
     if (pCFI->getMgmtStopCodon()!="quadratic")
@@ -782,7 +782,7 @@ void BppOFrequenciesSetFormat::write(const FrequenciesSet* pfreqset,
   out.setPrecision(p);
 }
 
-void BppOFrequenciesSetFormat::initialize_(FrequenciesSet& freqSet, const SiteContainer* data)
+void BppOFrequencySetFormat::initialize_(FrequencySet& freqSet, const SiteContainer* data)
 {
   if (unparsedArguments_.find("init") != unparsedArguments_.end())
   {

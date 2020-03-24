@@ -1,5 +1,5 @@
 //
-// File: MvaFrequenciesSet.cpp
+// File: MvaFrequencySet.cpp
 // Created by: Mathieu Groussin
 // Created on: Sat Jan 12 2013
 //
@@ -36,15 +36,15 @@
    The fact that you are presently reading this means that you have had
    knowledge of the CeCILL license and that you accept its terms.
  */
-#include "MvaFrequenciesSet.h"
+#include "MvaFrequencySet.h"
 
 using namespace bpp;
 
 #include <cmath>
 using namespace std;
 
-MvaFrequenciesSet::MvaFrequenciesSet(const ProteicAlphabet* alpha) :
-  AbstractFrequenciesSet(std::shared_ptr<const StateMap>(new CanonicalStateMap(alpha, false)), "MVA.", "MVAprotein"),
+MvaFrequencySet::MvaFrequencySet(const ProteicAlphabet* alpha) :
+  AbstractFrequencySet(std::shared_ptr<const StateMap>(new CanonicalStateMap(alpha, false)), "MVA.", "MVAprotein"),
   tPpalAxes_(),
   rowCoords_(),
   nbrOfAxes_(0),
@@ -53,7 +53,7 @@ MvaFrequenciesSet::MvaFrequenciesSet(const ProteicAlphabet* alpha) :
   paramValues_()
 {}
 
-void MvaFrequenciesSet::initSet(CoalaCore* coala)
+void MvaFrequencySet::initSet(CoalaCore* coala)
 {
   setNbrOfAxes(coala->getNbrOfAxes());
   setTransposeMatrixOfPpalAxes(coala->getTppalAxesMatrix());
@@ -63,7 +63,7 @@ void MvaFrequenciesSet::initSet(CoalaCore* coala)
   updateFrequencies();
 }
 
-void MvaFrequenciesSet::defineParameters()
+void MvaFrequencySet::defineParameters()
 {
   for (unsigned int i = 0; i < nbrOfAxes_; i++)
   {
@@ -79,13 +79,13 @@ void MvaFrequenciesSet::defineParameters()
   }
 }
 
-void MvaFrequenciesSet::fireParameterChanged(const ParameterList& parameters)
+void MvaFrequencySet::fireParameterChanged(const ParameterList& parameters)
 {
-  AbstractFrequenciesSet::fireParameterChanged(parameters);
+  AbstractFrequencySet::fireParameterChanged(parameters);
   updateFrequencies();
 }
 
-void MvaFrequenciesSet::updateFrequencies()
+void MvaFrequencySet::updateFrequencies()
 {
   if (nbrOfAxes_ == 0)
     throw Exception("The number of axes kept by the MVA analysis was not set. You should initialize it with the setNbrOfAxes function");
@@ -126,10 +126,10 @@ void MvaFrequenciesSet::updateFrequencies()
   }
 }
 
-void MvaFrequenciesSet::setFrequencies(const vector<double>& frequencies)
+void MvaFrequencySet::setFrequencies(const vector<double>& frequencies)
 {}
 
-void MvaFrequenciesSet::computeReverseCOA(const std::vector<double>& positions, std::vector<double>& tmpFreqs)
+void MvaFrequencySet::computeReverseCOA(const std::vector<double>& positions, std::vector<double>& tmpFreqs)
 {
   for (unsigned int i = 0; i < 20; i++)
   {
@@ -140,10 +140,10 @@ void MvaFrequenciesSet::computeReverseCOA(const std::vector<double>& positions, 
   }
 }
 
-void MvaFrequenciesSet::computeCoordsFirstSpaceCOA(std::vector<double>& tmpFreqs, std::vector<double>& freqs)
+void MvaFrequencySet::computeCoordsFirstSpaceCOA(std::vector<double>& tmpFreqs, std::vector<double>& freqs)
 {
   if (freqs.size() != tmpFreqs.size())
-    throw Exception("MvaFrequenciesSet::computeCoordsFirstSpaceCOA : error in the size of the vectors");
+    throw Exception("MvaFrequencySet::computeCoordsFirstSpaceCOA : error in the size of the vectors");
   // The vector of amino acid frequencies is calculated from the original column weights
   for (unsigned int i = 0; i < tmpFreqs.size(); i++)
   {

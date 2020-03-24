@@ -47,7 +47,7 @@ using namespace std;
 CodonDistancePhaseFrequenciesSubstitutionModel::CodonDistancePhaseFrequenciesSubstitutionModel(
     const GeneticCode* gCode,
     NucleotideSubstitutionModel* pmod,
-    FrequenciesSet* pfreq,
+    FrequencySet* pfreq,
     const AlphabetIndex2* pdist) :
   AbstractParameterAliasable("CodonDistPhasFreq."),
   AbstractCodonSubstitutionModel(gCode, pmod, "CodonDistPhasFreq."),
@@ -64,7 +64,7 @@ CodonDistancePhaseFrequenciesSubstitutionModel::CodonDistancePhaseFrequenciesSub
     NucleotideSubstitutionModel* pmod1,
     NucleotideSubstitutionModel* pmod2,
     NucleotideSubstitutionModel* pmod3,
-    FrequenciesSet* pfreq,
+    FrequencySet* pfreq,
     const AlphabetIndex2* pdist) :
   AbstractParameterAliasable("CodonDistPhasFreq."),
   AbstractCodonSubstitutionModel(gCode, pmod1, pmod2, pmod3, "CodonDistPhasFreq."),
@@ -85,7 +85,7 @@ void CodonDistancePhaseFrequenciesSubstitutionModel::fireParameterChanged(const 
 {
   AbstractCodonDistanceSubstitutionModel::fireParameterChanged(parameters);
   AbstractCodonPhaseFrequenciesSubstitutionModel::fireParameterChanged(parameters);
-  getFrequencies_()=AbstractCodonPhaseFrequenciesSubstitutionModel::getFrequenciesSet()->getFrequencies();
+  getFrequencies_()=AbstractCodonPhaseFrequenciesSubstitutionModel::getFrequencySet()->getFrequencies();
 
   // Beware: must be call at the end
   AbstractCodonSubstitutionModel::fireParameterChanged(parameters);
@@ -109,5 +109,5 @@ void CodonDistancePhaseFrequenciesSubstitutionModel::setNamespace(const std::str
 void CodonDistancePhaseFrequenciesSubstitutionModel::setFreq(map<int,double>& frequencies)
 {
   AbstractCodonPhaseFrequenciesSubstitutionModel::setFreq(frequencies);
-  getFrequencies_()=AbstractCodonPhaseFrequenciesSubstitutionModel::getFrequenciesSet()->getFrequencies();
+  getFrequencies_()=AbstractCodonPhaseFrequenciesSubstitutionModel::getFrequencySet()->getFrequencies();
 }

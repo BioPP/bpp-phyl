@@ -41,8 +41,8 @@ knowledge of the CeCILL license and that you accept its terms.
 #include <Bpp/Seq/SequenceTools.h>
 #include <Bpp/Phyl/TreeTemplate.h>
 #include <Bpp/Phyl/Model/Nucleotide/T92.h>
-#include <Bpp/Phyl/Model/FrequenciesSet/NucleotideFrequenciesSet.h>
-#include <Bpp/Phyl/Model/FrequenciesSet/FrequenciesSet.h>
+#include <Bpp/Phyl/Model/FrequencySet/NucleotideFrequencySet.h>
+#include <Bpp/Phyl/Model/FrequencySet/FrequencySet.h>
 #include <Bpp/Phyl/Model/RateDistribution/ConstantRateDistribution.h>
 #include <Bpp/Phyl/Model/SubstitutionModelSetTools.h>
 #include <Bpp/Phyl/Simulation/HomogeneousSequenceSimulator.h>
@@ -64,7 +64,7 @@ int main() {
   cout << "..:: Testing with homogeneous model ::.." << endl;
   unique_ptr<NucleicAlphabet> alphabet(new DNA());
   SubstitutionModel* model = new T92(alphabet.get(), 3., 0.65);
-  FrequenciesSet* rootFreqs = new GCFrequenciesSet(alphabet.get(), 0.65);
+  FrequencySet* rootFreqs = new GCFrequencySet(alphabet.get(), 0.65);
   unique_ptr<DiscreteDistribution> rdist(new ConstantRateDistribution());
   unique_ptr<SubstitutionModelSet> modelSetH(SubstitutionModelSetTools::createHomogeneousModelSet(model, rootFreqs, tree.get()));
   NonHomogeneousSequenceSimulator simulatorH(modelSetH.get(), rdist.get(), tree.get());
@@ -89,7 +89,7 @@ int main() {
   //Then test homogeneous, non-stationary model:
   cout << "..:: Testing with homogeneous, non-stationary model ::.." << endl;
   model = new T92(alphabet.get(), 3., 0.65);
-  rootFreqs = new GCFrequenciesSet(alphabet.get(), 0.4);
+  rootFreqs = new GCFrequencySet(alphabet.get(), 0.4);
   unique_ptr<SubstitutionModelSet> modelSetHNS(SubstitutionModelSetTools::createHomogeneousModelSet(model, rootFreqs, tree.get()));
   NonHomogeneousSequenceSimulator simulatorHNS(modelSetHNS.get(), rdist.get(), tree.get());
 
@@ -110,7 +110,7 @@ int main() {
   //Now test non-homogeneous model, with distinct GC content:
   cout << "..:: Testing with non-homogeneous, non-stationary model ::.." << endl;
   model = new T92(alphabet.get(), 3., 0.5);
-  rootFreqs = new GCFrequenciesSet(alphabet.get(), 0.65);
+  rootFreqs = new GCFrequencySet(alphabet.get(), 0.65);
   std::map<std::string, std::vector<Vint> > globalParameterNames;
   globalParameterNames["T92.kappa"]={};
   map<string, string> alias;
@@ -137,7 +137,7 @@ int main() {
   //Now test non-homogeneous model, with distinct ts/tv:
   cout << "..:: Testing with non-homogeneous, stationary model ::.." << endl;
   model = new T92(alphabet.get(), 3., 0.5);
-  rootFreqs = new GCFrequenciesSet(alphabet.get(), 0.5);
+  rootFreqs = new GCFrequencySet(alphabet.get(), 0.5);
   globalParameterNames.clear();
   globalParameterNames["T92.theta"]={};
   unique_ptr<SubstitutionModelSet> modelSetNHTsTv(SubstitutionModelSetTools::createNonHomogeneousModelSet(model, rootFreqs, tree.get(), alias, globalParameterNames));

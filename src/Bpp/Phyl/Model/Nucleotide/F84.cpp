@@ -38,7 +38,7 @@ knowledge of the CeCILL license and that you accept its terms.
 */
 
 #include "F84.h"
-#include "../FrequenciesSet/NucleotideFrequenciesSet.h"
+#include "../FrequencySet/NucleotideFrequencySet.h"
 
 #include <Bpp/Numeric/Matrix/MatrixTools.h>
 
@@ -67,9 +67,9 @@ F84::F84(
   l_(), exp1_(), exp2_(), p_(size_, size_)
 {
   addParameter_(new Parameter("F84.kappa", kappa, Parameter::R_PLUS));
-  addParameter_(new Parameter("F84.theta" , theta_ , FrequenciesSet::FREQUENCE_CONSTRAINT_SMALL));
-  addParameter_(new Parameter("F84.theta1", theta1_, FrequenciesSet::FREQUENCE_CONSTRAINT_SMALL));
-  addParameter_(new Parameter("F84.theta2", theta2_, FrequenciesSet::FREQUENCE_CONSTRAINT_SMALL));
+  addParameter_(new Parameter("F84.theta" , theta_ , FrequencySet::FREQUENCE_CONSTRAINT_SMALL));
+  addParameter_(new Parameter("F84.theta1", theta1_, FrequencySet::FREQUENCE_CONSTRAINT_SMALL));
+  addParameter_(new Parameter("F84.theta2", theta2_, FrequencySet::FREQUENCE_CONSTRAINT_SMALL));
   updateMatrices();
 }
 

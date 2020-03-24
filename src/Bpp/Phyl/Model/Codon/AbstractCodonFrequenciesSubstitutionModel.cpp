@@ -47,13 +47,13 @@ using namespace std;
 /******************************************************************************/
 
 AbstractCodonFrequenciesSubstitutionModel::AbstractCodonFrequenciesSubstitutionModel(
-  FrequenciesSet* pfreq,
+  FrequencySet* pfreq,
   const std::string& prefix) :
   AbstractParameterAliasable(prefix),
   pfreqset_(pfreq),
   freqName_("")
 {
-  if (dynamic_cast<CodonFrequenciesSet*>(pfreq) == NULL)
+  if (dynamic_cast<CodonFrequencySet*>(pfreq) == NULL)
     throw Exception("Bad type for equilibrium frequencies " + pfreq->getName());
 
   freqName_ = pfreqset_->getNamespace();
