@@ -76,7 +76,7 @@ unsigned char BppOFrequencySetFormat::CODON = 8;
 unsigned char BppOFrequencySetFormat::WORD = 16;
 unsigned char BppOFrequencySetFormat::ALL = 1 | 2 | 4 | 8 | 16;
 
-FrequencySet* BppOFrequencySetFormat::read(const Alphabet* alphabet, const std::string& freqDescription, const SiteContainer* data, bool parseArguments)
+FrequencySet* BppOFrequencySetFormat::readFrequencySet(const Alphabet* alphabet, const std::string& freqDescription, const SiteContainer* data, bool parseArguments)
 {
   unparsedArguments_.clear();
   string freqName;
@@ -231,7 +231,7 @@ FrequencySet* BppOFrequencySetFormat::read(const Alphabet* alphabet, const std::
       }
 
       BppOFrequencySetFormat nestedReader(alphabetCode_, false, warningLevel_);
-      unique_ptr<FrequencySet> pFS2(nestedReader.read(pWA->getNAlphabet(0), sAFS, data, false));
+      unique_ptr<FrequencySet> pFS2(nestedReader.readFrequencySet(pWA->getNAlphabet(0), sAFS, data, false));
       map<string, string> unparsedParameterValuesNested(nestedReader.getUnparsedArguments());
       for (map<string, string>::iterator it = unparsedParameterValuesNested.begin(); it != unparsedParameterValuesNested.end(); it++)
       {
@@ -258,7 +258,7 @@ FrequencySet* BppOFrequencySetFormat::read(const Alphabet* alphabet, const std::
       for (size_t i = 0; i < v_sAFS.size(); ++i)
       {
         BppOFrequencySetFormat nestedReader(alphabetCode_, false, warningLevel_);
-        pFS.reset(nestedReader.read(pWA->getNAlphabet(i), v_sAFS[i], data, false));
+        pFS.reset(nestedReader.readFrequencySet(pWA->getNAlphabet(i), v_sAFS[i], data, false));
         map<string, string> unparsedParameterValuesNested(nestedReader.getUnparsedArguments());
         for (map<string, string>::iterator it = unparsedParameterValuesNested.begin(); it != unparsedParameterValuesNested.end(); it++)
         {
@@ -308,7 +308,7 @@ FrequencySet* BppOFrequencySetFormat::read(const Alphabet* alphabet, const std::
       string sAFS = args["frequency"];
 
       BppOFrequencySetFormat nestedReader(alphabetCode_, false, warningLevel_);
-      unique_ptr<FrequencySet> pFS2(nestedReader.read(pWA->getNucleicAlphabet(), sAFS, data, false));
+      unique_ptr<FrequencySet> pFS2(nestedReader.readFrequencySet(pWA->getNucleicAlphabet(), sAFS, data, false));
       map<string, string> unparsedParameterValuesNested(nestedReader.getUnparsedArguments());
 
       for (map<string, string>::iterator it = unparsedParameterValuesNested.begin(); it != unparsedParameterValuesNested.end(); it++)
@@ -337,7 +337,7 @@ FrequencySet* BppOFrequencySetFormat::read(const Alphabet* alphabet, const std::
       for (size_t i = 0; i < v_sAFS.size(); ++i)
       {
         BppOFrequencySetFormat nestedReader(alphabetCode_, false, warningLevel_);
-        pFS.reset(nestedReader.read(pWA->getNucleicAlphabet(), v_sAFS[i], data, false));
+        pFS.reset(nestedReader.readFrequencySet(pWA->getNucleicAlphabet(), v_sAFS[i], data, false));
         map<string, string> unparsedParameterValuesNested(nestedReader.getUnparsedArguments());
         for (map<string, string>::iterator it = unparsedParameterValuesNested.begin(); it != unparsedParameterValuesNested.end(); it++)
         {
@@ -379,7 +379,7 @@ FrequencySet* BppOFrequencySetFormat::read(const Alphabet* alphabet, const std::
     {
       string sPFS = args["protein_frequencies"];
       BppOFrequencySetFormat nestedReader(alphabetCode_, false, warningLevel_);
-      unique_ptr<ProteinFrequencySet> pPFS(dynamic_cast<ProteinFrequencySet*>(nestedReader.read(pPA, sPFS, data, false)));
+      unique_ptr<ProteinFrequencySet> pPFS(dynamic_cast<ProteinFrequencySet*>(nestedReader.readFrequencySet(pPA, sPFS, data, false)));
       map<string, string> unparsedParameterValuesNested(nestedReader.getUnparsedArguments());
 
       for (map<string, string>::iterator it = unparsedParameterValuesNested.begin(); it != unparsedParameterValuesNested.end(); it++)
@@ -430,7 +430,7 @@ FrequencySet* BppOFrequencySetFormat::read(const Alphabet* alphabet, const std::
         string sAFS = args["frequency"];
         
         BppOFrequencySetFormat nestedReader(alphabetCode_, false, warningLevel_);
-        unique_ptr<FrequencySet> pFS2(nestedReader.read(pWA->getNucleicAlphabet(), sAFS, data, false));
+        unique_ptr<FrequencySet> pFS2(nestedReader.readFrequencySet(pWA->getNucleicAlphabet(), sAFS, data, false));
         if (pFS2->getName()!="Full")
           throw Exception("BppOFrequencySetFormat::read. The frequency option in F1X4 can only be Full");
         
@@ -482,7 +482,7 @@ FrequencySet* BppOFrequencySetFormat::read(const Alphabet* alphabet, const std::
           {
             BppOFrequencySetFormat nestedReader(alphabetCode_, false, warningLevel_);
             if (v_sAFS[i]!=""){
-              pFS.reset(nestedReader.read(pWA->getNucleicAlphabet(), v_sAFS[i], data, false));
+              pFS.reset(nestedReader.readFrequencySet(pWA->getNucleicAlphabet(), v_sAFS[i], data, false));
               if (pFS->getName()!="Full")
                 throw Exception("BppOFrequencySetFormat::read. The frequency options in F3X4 can only be Full");
 
@@ -604,10 +604,11 @@ FrequencySet* BppOFrequencySetFormat::read(const Alphabet* alphabet, const std::
   return pFS.release();
 }
 
-void BppOFrequencySetFormat::write(const FrequencySet* pfreqset,
-                                     OutputStream& out,
-                                     std::map<std::string, std::string>& globalAliases,
-                                     std::vector<std::string>& writtenNames) const
+void BppOFrequencySetFormat::writeFrequencySet(
+		const FrequencySet* pfreqset,
+                OutputStream& out,
+                std::map<std::string, std::string>& globalAliases,
+                std::vector<std::string>& writtenNames) const
 {
   if (!pfreqset)
   {
@@ -665,7 +666,7 @@ void BppOFrequencySetFormat::write(const FrequencySet* pfreqset,
       if (i != 0)
         out << ", ";
       out << "frequency" << i + 1 << "=";
-      write(&pWFI->getFrequencySetForLetter(i), out, globalAliases, writtenNames);
+      writeFrequencySet(&pWFI->getFrequencySetForLetter(i), out, globalAliases, writtenNames);
     }
       comma = true;
   }
@@ -678,7 +679,7 @@ void BppOFrequencySetFormat::write(const FrequencySet* pfreqset,
       if (i != 0)
         out << ", ";
       out << "frequency=";
-      write(&pWFU->getFrequencySetForLetter(i), out, globalAliases, writtenNames);
+      writeFrequencySet(&pWFU->getFrequencySetForLetter(i), out, globalAliases, writtenNames);
     }
     comma = true;
   }
@@ -706,7 +707,7 @@ void BppOFrequencySetFormat::write(const FrequencySet* pfreqset,
     const ProteinFrequencySet* ppfs=pFPA->getProteinFrequencySet();
     out << "protein_frequencies=";
     
-    write(ppfs, out, globalAliases, writtenNames);
+    writeFrequencySet(ppfs, out, globalAliases, writtenNames);
     
     comma = true;
     

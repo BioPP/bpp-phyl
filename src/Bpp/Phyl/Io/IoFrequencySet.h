@@ -90,7 +90,11 @@ namespace bpp
      * @return A new FrequencySet object according to options specified.
      * @throw Exception if an error occured.
      */
-    virtual FrequencySet* read(const Alphabet* alphabet, const std::string& freqDescription, const SiteContainer* data, bool parseArguments) = 0;
+    virtual FrequencySet* readFrequencySet(
+		    const Alphabet* alphabet,
+		    const std::string& freqDescription,
+		    const SiteContainer* data,
+		    bool parseArguments) = 0;
 
     /**
      * @return The arguments and their unparsed values from the last call of the read function, if there are any.
@@ -119,10 +123,11 @@ namespace bpp
      * @param writtenNames is the vector of the written
      * parameters so far [in, out];
      */
-    virtual void write(const FrequencySet* pfreqset,
-                       OutputStream& out,
-                       std::map<std::string, std::string>& globalAliases,
-                       std::vector<std::string>& writtenNames) const = 0;
+    virtual void writeFrequencySet(
+		    const FrequencySet* pfreqset,
+                    OutputStream& out,
+                    std::map<std::string, std::string>& globalAliases,
+                    std::vector<std::string>& writtenNames) const = 0;
   };
 
 

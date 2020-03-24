@@ -355,7 +355,7 @@ FrequencySet* PhylogeneticsApplicationTools::getFrequencySet(
       throw Exception("PhylogeneticsApplicationTools::getFrequencySet(): a GeneticCode instance is required for instanciating a codon frequencies set.");
     bIO.setGeneticCode(gCode);
   }
-  unique_ptr<FrequencySet> pFS(bIO.read(alphabet, freqDescription, data, true));
+  unique_ptr<FrequencySet> pFS(bIO.readFrequencySet(alphabet, freqDescription, data, true));
 
   std::map<std::string, std::string> unparsedparam = bIO.getUnparsedArguments();
 
@@ -1560,7 +1560,7 @@ void PhylogeneticsApplicationTools::printParameters(const SubstitutionModelSet* 
     out << "nonhomogeneous.root_freq=";
     
     BppOFrequencySetFormat bIO(BppOFrequencySetFormat::ALL, false, warn);
-    bIO.write(pFS, out, aliases, writtenNames);
+    bIO.writeFrequencySet(pFS, out, aliases, writtenNames);
   }
   
 }

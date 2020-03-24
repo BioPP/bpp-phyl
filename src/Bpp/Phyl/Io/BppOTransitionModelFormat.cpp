@@ -187,7 +187,7 @@ TransitionModel* BppOTransitionModelFormat::readTransitionModel(
     string freqOpt = ApplicationTools::getStringParameter("frequencies", args, "F0", "", true, warningLevel_);
     BppOFrequencySetFormat freqReader(BppOFrequencySetFormat::ALL, verbose_, warningLevel_);
     freqReader.setGeneticCode(geneticCode_); //This uses the same instance as the one that will be used by the model.
-    unique_ptr<FrequencySet> codonFreqs(freqReader.read(pCA, freqOpt, data, false));
+    unique_ptr<FrequencySet> codonFreqs(freqReader.readFrequencySet(pCA, freqOpt, data, false));
     map<string, string> unparsedParameterValuesNested(freqReader.getUnparsedArguments());
 
     for (auto& it:unparsedParameterValuesNested)
