@@ -53,7 +53,7 @@ using namespace bpp;
 /*
  * Read from a stream in Tree-puzzle, phylip-like format
  */
-PairedSiteLikelihoods IOTreepuzzlePairedSiteLikelihoods::read(std::istream& is)
+PairedSiteLikelihoods IOTreepuzzlePairedSiteLikelihoods::readPairedSiteLikelihoods(std::istream& is)
 {
   // The first line contains the number of models and the number of sites
   string line;
@@ -128,17 +128,17 @@ PairedSiteLikelihoods IOTreepuzzlePairedSiteLikelihoods::read(std::istream& is)
 /*
  * Read from a file in Tree-puzzle, phylip-like format
  */
-PairedSiteLikelihoods IOTreepuzzlePairedSiteLikelihoods::read(const std::string& path)
+PairedSiteLikelihoods IOTreepuzzlePairedSiteLikelihoods::readPairedSiteLikelihoods(const std::string& path)
 {
   ifstream iF (path.c_str());
-  PairedSiteLikelihoods psl (IOTreepuzzlePairedSiteLikelihoods::read(iF));
+  PairedSiteLikelihoods psl (IOTreepuzzlePairedSiteLikelihoods::readPairedSiteLikelihoods(iF));
   return psl;
 }
 
 /*
  * Write to stream in Tree-puzzle, phylip-like format
  */
-void IOTreepuzzlePairedSiteLikelihoods::write(const bpp::PairedSiteLikelihoods& psl, ostream& os, const string& delim)
+void IOTreepuzzlePairedSiteLikelihoods::writePairedSiteLikelihoods(const bpp::PairedSiteLikelihoods& psl, ostream& os, const string& delim)
 {
   if (psl.getLikelihoods().size() == 0)
     throw Exception("Writing an empty PairedSiteLikelihoods object to file.");
@@ -217,17 +217,17 @@ void IOTreepuzzlePairedSiteLikelihoods::write(const bpp::PairedSiteLikelihoods& 
 /*
  * Write to file in Tree-puzzle, phylip-like format
  */
-void IOTreepuzzlePairedSiteLikelihoods::write(const bpp::PairedSiteLikelihoods& psl, const std::string& path, const string& delim)
+void IOTreepuzzlePairedSiteLikelihoods::writePairedSiteLikelihoods(const bpp::PairedSiteLikelihoods& psl, const std::string& path, const string& delim)
 {
   ofstream oF (path.c_str());
-  IOTreepuzzlePairedSiteLikelihoods::write(psl, oF, delim);
+  IOTreepuzzlePairedSiteLikelihoods::writePairedSiteLikelihoods(psl, oF, delim);
 }
 
 
 /*
  * Read from a stream in Phyml format
  */
-vector<double> IOPhymlPairedSiteLikelihoods::read(std::istream& is)
+vector<double> IOPhymlPairedSiteLikelihoods::readPairedSiteLikelihoods(std::istream& is)
 {
   vector<double> loglikelihoods;
   string str;
@@ -267,10 +267,10 @@ vector<double> IOPhymlPairedSiteLikelihoods::read(std::istream& is)
 /*
  * Read from a file in Phyml format
  */
-vector<double> IOPhymlPairedSiteLikelihoods::read(const std::string& path)
+vector<double> IOPhymlPairedSiteLikelihoods::readPairedSiteLikelihoods(const std::string& path)
 {
   ifstream iF (path.c_str());
-  vector<double> loglikelihoods(IOPhymlPairedSiteLikelihoods::read(iF));
+  vector<double> loglikelihoods(IOPhymlPairedSiteLikelihoods::readPairedSiteLikelihoods(iF));
   return loglikelihoods;
 }
 
