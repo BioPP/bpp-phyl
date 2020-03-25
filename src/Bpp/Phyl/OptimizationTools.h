@@ -50,7 +50,7 @@
 #include "Distance/DistanceMethod.h"
 
 #include "NewLikelihood/PhyloLikelihoods/PhyloLikelihood.h"
-#include <Bpp/Phyl/NewLikelihood/DataFlow/SingleProcessPhyloLikelihood_DF.h>
+#include <Bpp/Phyl/NewLikelihood/PhyloLikelihoods/SingleProcessPhyloLikelihood.h>
 
 #include <Bpp/Io/OutputStream.h>
 #include <Bpp/App/ApplicationTools.h>
@@ -414,7 +414,7 @@ public:
       const std::string& optMethodDeriv  = OPTIMIZATION_NEWTON);
 
   static unsigned int optimizeNumericalParameters2(
-    SingleProcessPhyloLikelihood_DF& lik,
+    SingleProcessPhyloLikelihood& lik,
     const ParameterList& parameters,
     OptimizationListener* listener     = 0,
     double tolerance                   = 0.000001,
@@ -571,6 +571,9 @@ public:
     }
     size_t getNumberOfParameters() const { return 1; }
     size_t getNumberOfIndependentParameters() const { return 1; }
+  protected:
+    ParameterList& getParameters_() { return lambda_; }
+
   };
 
 public:

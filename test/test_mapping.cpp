@@ -123,11 +123,11 @@ int main() {
   //Now build the substitution vectors with the true model:
 
   // Newlik
-  unique_ptr<RecursiveLikelihoodTreeCalculation> tmComp(new RecursiveLikelihoodTreeCalculation(sites, process.get(), true, false));
-  SingleProcessPhyloLikelihood newTl(context, process.get(), tmComp.release());
+
+  auto tmComp=make_shared<LikelihoodCalculationSingleProcess>(context, sites, *process);
+  SingleProcessPhyloLikelihood newTl(context, tmComp);
   cout << "LogLik: " << newTl.getValue() << endl;
     
-  RecursiveLikelihoodTreeCalculation* rltc=dynamic_cast<RecursiveLikelihoodTreeCalculation*>(newTl.getLikelihoodCalculation());
   
   
   SubstitutionCount* sCountAna = new LaplaceSubstitutionCount(model.get(), 10);
@@ -136,7 +136,7 @@ int main() {
   MatrixTools::print(*m);
   delete m;
   ProbabilisticSubstitutionMapping* probNEWMapAna = 
-    SubstitutionMappingTools::computeCounts(*rltc, *sCountAna);
+    SubstitutionMappingTools::computeCounts(*tmComp, *sCountAna);
 
   cout << endl;
 
@@ -147,7 +147,7 @@ int main() {
   MatrixTools::print(*m);
   delete m;
   ProbabilisticSubstitutionMapping* probNEWMapTot = 
-    SubstitutionMappingTools::computeCounts(*rltc, *sCountTot);
+    SubstitutionMappingTools::computeCounts(*tmComp, *sCountTot);
   cout << endl;
 
   SubstitutionCount* sCountDet = new NaiveSubstitutionCount(model.get(), detReg);
@@ -156,7 +156,7 @@ int main() {
   MatrixTools::print(*m);
   delete m;
   ProbabilisticSubstitutionMapping* probNEWMapDet = 
-    SubstitutionMappingTools::computeCounts(*rltc, *sCountDet);
+    SubstitutionMappingTools::computeCounts(*tmComp, *sCountDet);
   cout << endl;
 
   //Decomposition:
@@ -166,7 +166,7 @@ int main() {
   MatrixTools::print(*m);
   delete m;
   ProbabilisticSubstitutionMapping* probNEWMapDecTot = 
-    SubstitutionMappingTools::computeCounts(*rltc, *sCountDecTot);
+    SubstitutionMappingTools::computeCounts(*tmComp, *sCountDecTot);
 
   SubstitutionCount* sCountDecDet = new DecompositionSubstitutionCount(model.get(), detReg);
   m = sCountDecDet->getAllNumbersOfSubstitutions(0.001,1);
@@ -174,7 +174,7 @@ int main() {
   MatrixTools::print(*m);
   delete m;
   ProbabilisticSubstitutionMapping* probNEWMapDecDet = 
-    SubstitutionMappingTools::computeCounts(*rltc, *sCountDecDet);
+    SubstitutionMappingTools::computeCounts(*tmComp, *sCountDecDet);
   cout << endl;
 
   //Uniformization
@@ -184,14 +184,14 @@ int main() {
   MatrixTools::print(*m);
   delete m;
   ProbabilisticSubstitutionMapping* probNEWMapUniTot = 
-    SubstitutionMappingTools::computeCounts(*rltc, *sCountUniTot);  
+    SubstitutionMappingTools::computeCounts(*tmComp, *sCountUniTot);  
 
   SubstitutionCount* sCountUniDet = new UniformizationSubstitutionCount(model.get(), detReg);
   m = sCountUniDet->getAllNumbersOfSubstitutions(0.001,1);
   cout << "Detailed count, uniformization method, type 1:" << endl;
   MatrixTools::print(*m);
   ProbabilisticSubstitutionMapping* probNEWMapUniDet = 
-    SubstitutionMappingTools::computeCounts(*rltc, *sCountUniDet);
+    SubstitutionMappingTools::computeCounts(*tmComp, *sCountUniDet);
   cout << endl;
   
   //Check saturation:

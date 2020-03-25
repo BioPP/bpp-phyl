@@ -75,10 +75,7 @@ ConfiguredModel::ConfiguredModel (Context& context, NodeRefVec && deps, std::uni
   : Value<const BranchModel*> (std::move (deps), model.get ()), AbstractParametrizable(model->getNamespace()), context_(context), model_(std::move(model))
 {
   for (const auto& dep:dependencies())
-  {
-    const auto& param=std::dynamic_pointer_cast<ConfiguredParameter>(dep);
-    shareParameter_(param);
-  }
+    shareParameter_(std::dynamic_pointer_cast<ConfiguredParameter>(dep));
 }
 
 ConfiguredModel::~ConfiguredModel () = default;

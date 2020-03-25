@@ -72,7 +72,6 @@ set (CPP_FILES
   Bpp/Phyl/NewLikelihood/DataFlow/Parameter.cpp
   Bpp/Phyl/NewLikelihood/DataFlow/Parametrizable.cpp
   Bpp/Phyl/NewLikelihood/DataFlow/ProcessTree.cpp
-  Bpp/Phyl/NewLikelihood/DataFlow/SingleProcessPhyloLikelihood_DF.cpp
   Bpp/Phyl/NewLikelihood/ModelPath.cpp
   Bpp/Phyl/NewLikelihood/ModelScenario.cpp
   Bpp/Phyl/NewLikelihood/ProcessComputationTree.cpp

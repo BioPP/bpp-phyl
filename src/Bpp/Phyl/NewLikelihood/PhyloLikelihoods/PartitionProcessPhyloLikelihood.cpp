@@ -65,7 +65,6 @@ PartitionProcessPhyloLikelihood::PartitionProcessPhyloLikelihood(
   vProcPos_()
 {
   SubstitutionProcessCollection& processColl = processSeqEvol.getCollection();
-
   map<size_t, vector<size_t> >& mProcPos=processSeqEvol.getMapOfProcessSites();
 
   vProcPos_.resize(processSeqEvol.getNumberOfSites());
@@ -74,15 +73,17 @@ PartitionProcessPhyloLikelihood::PartitionProcessPhyloLikelihood(
   
   for (std::map<size_t, std::vector<size_t> >::iterator it=mProcPos.begin(); it!=mProcPos.end(); it++)
   {
-    LikelihoodTreeCalculation* rt = new RecursiveLikelihoodTreeCalculation(
-      &processColl.getSubstitutionProcess(it->first),
-      it==mProcPos.begin(), patterns);
+    auto nProcess = it->first;
+    
+    auto l = std::make_shared<LikelihoodCalculationSingleProcess>(context, processColl.getSubstitutionProcess(nProcess));
 
-    pC->addPhyloLikelihood(it->first, new SingleProcessPhyloLikelihood(context, &processColl.getSubstitutionProcess(it->first), rt, it->first));
+    auto nPL = make_shared<SingleProcessPhyloLikelihood>(context, l, nProcess);
+
+    pC->sharePhyloLikelihood(nProcess, nPL);
 
     for (size_t i = 0; i<it->second.size();i++)
     {
-      vProcPos_[it->second[i]].nProc=it->first;
+      vProcPos_[it->second[i]].nProc=nProcess;
       vProcPos_[it->second[i]].pos=i;      
     }
   }
@@ -112,26 +113,29 @@ PartitionProcessPhyloLikelihood::PartitionProcessPhyloLikelihood(
     throw BadIntegerException("PartitionProcessPhyloLikelihood::PartitionProcessPhyloLikelihood, data and sequence process lengths do not match.", (int)data.getNumberOfSites());
 
   SubstitutionProcessCollection& processColl = processSeqEvol.getCollection();
-
   map<size_t, vector<size_t> >& mProcPos=processSeqEvol.getMapOfProcessSites();
 
   vProcPos_.resize(processSeqEvol.getNumberOfSites());
 
   PhyloLikelihoodContainer* pC=getPhyloContainer();
-
+  
   for (std::map<size_t, std::vector<size_t> >::iterator it=mProcPos.begin(); it!=mProcPos.end(); it++)
   {
-    LikelihoodTreeCalculation* rt = new RecursiveLikelihoodTreeCalculation(
-        &processColl.getSubstitutionProcess(it->first), it==mProcPos.begin(), patterns);
+    auto nProcess = it->first;
+    
+    auto l = std::make_shared<LikelihoodCalculationSingleProcess>(context, processColl.getSubstitutionProcess(nProcess));
 
-    pC->addPhyloLikelihood(it->first, new SingleProcessPhyloLikelihood(context, &processColl.getSubstitutionProcess(it->first), rt, it->first));
+    auto nPL = make_shared<SingleProcessPhyloLikelihood>(context, l, nProcess, nData);
+
+    pC->sharePhyloLikelihood(nProcess, nPL);
 
     for (size_t i = 0; i<it->second.size();i++)
     {
-      vProcPos_[it->second[i]].nProc=it->first;
+      vProcPos_[it->second[i]].nProc=nProcess;
       vProcPos_[it->second[i]].pos=i;      
     }
   }
+
   addAllPhyloLikelihoods();
   
   setData(data, nData);
@@ -147,7 +151,6 @@ bool PartitionProcessPhyloLikelihood::addPhyloLikelihood(size_t nPhyl)
   {
     nPhylo_.push_back(nPhyl);
     includeParameters_(aPL->getParameters());
-    update();
     return true;
   }
 
@@ -167,10 +170,8 @@ void PartitionProcessPhyloLikelihood::setData(const AlignedValuesContainer& data
 
   for (std::map<size_t, std::vector<size_t> >::const_iterator it=mProcPos.begin(); it!=mProcPos.end(); it++)
   {
-    AlignedValuesContainer* st=SiteContainerTools::getSelectedSites(data, it->second);
-    
+    auto st=shared_ptr<AlignedValuesContainer>(SiteContainerTools::getSelectedSites(data, it->second));
     getPhyloContainer()->setData(*st, it->first);    
-    delete st;
   }
 }
 

@@ -123,7 +123,7 @@ void fitModelHSR(std::shared_ptr<SubstitutionModel> model, DiscreteDistribution*
 
   Context context;                        
   auto lik = std::make_shared<LikelihoodCalculationSingleProcess>(context, sites, *process);
-  SingleProcessPhyloLikelihood_DF llh(context, lik, lik->getParameters());
+  SingleProcessPhyloLikelihood llh(context, lik, lik->getParameters());
 
   llh.getFirstOrderDerivative("BrLen0");
   llh.getFirstOrderDerivative("BrLen1");
@@ -193,7 +193,7 @@ void fitModelHSR(std::shared_ptr<SubstitutionModel> model, DiscreteDistribution*
   
   lik.reset(new LikelihoodCalculationSingleProcess(context2, sites, *process));
   
-  SingleProcessPhyloLikelihood_DF llh2(context2, lik, lik->getParameters());
+  SingleProcessPhyloLikelihood llh2(context2, lik, lik->getParameters());
 
   ParameterList opln1=process->getBranchLengthParameters(true);
 

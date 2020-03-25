@@ -68,8 +68,13 @@ namespace bpp {
    * Equilibrium frequencies are stored as a RowVector(nbState) : matrix with 1 row and n columns.
    * This choice allows to reuse the MatrixProduct numeric node directly.
    *
-   * Initial conditional likelihood for leaves (sequences on the tree) should be computed outside of the
-   * dataflow graph, and provided as NumericConstant<MatrixXd>.
+   * Initial conditional likelihood for leaves (sequences on the tree)
+   * should be computed outside of the dataflow graph, and provided as
+   * NumericConstant<MatrixXd>.
+   *
+   * Default Derivate Method is set to
+   * NumericalDerivativeType::ThreePoints with delta=0.001;
+   *  
    */
 
 
@@ -372,6 +377,11 @@ namespace bpp {
       {
         return psites_;
       }
+
+      bool isInitialized() const {
+        return getData();
+      };
+
 
       const StateMap& getStateMap() const
       {

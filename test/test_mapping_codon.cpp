@@ -120,11 +120,10 @@ int main() {
   //Now build the substitution vectors with the true model:
 
   // Newlik
-  unique_ptr<RecursiveLikelihoodTreeCalculation> tmComp(new RecursiveLikelihoodTreeCalculation(sites, process.get(), true, false));
-  SingleProcessPhyloLikelihood newTl(context, process.get(), tmComp.release());
+  auto tmComp=make_shared<LikelihoodCalculationSingleProcess>(context, sites, *process);
+  SingleProcessPhyloLikelihood newTl(context, tmComp);
   cout << "LogLik: " << newTl.getValue() << endl;
     
-  RecursiveLikelihoodTreeCalculation* rltc=dynamic_cast<RecursiveLikelihoodTreeCalculation*>(newTl.getLikelihoodCalculation());
 
   SubstitutionCount* sCountAna = new LaplaceSubstitutionCount(model.get(), 10);
   // Matrix<double>* m = sCountAna->getAllNumbersOfSubstitutions(0.001,1);
@@ -132,7 +131,7 @@ int main() {
   // MatrixTools::print(*m);
   // delete m;
   ProbabilisticSubstitutionMapping* probMapAna = 
-    SubstitutionMappingTools::computeCounts(*rltc, *sCountAna);
+    SubstitutionMappingTools::computeCounts(*tmComp, *sCountAna);
 
   SubstitutionCount* sCountTot = new NaiveSubstitutionCount(model.get(), totReg);
   // m = sCountTot->getAllNumbersOfSubstitutions(0.001,1);
@@ -140,7 +139,7 @@ int main() {
   // MatrixTools::print(*m);
   // delete m;
   ProbabilisticSubstitutionMapping* probMapTot = 
-    SubstitutionMappingTools::computeCounts(*rltc, *sCountTot);
+    SubstitutionMappingTools::computeCounts(*tmComp, *sCountTot);
 
   SubstitutionCount* sCountDnDs = new NaiveSubstitutionCount(model.get(), dndsReg);
   // m = sCountDnDs->getAllNumbersOfSubstitutions(0.001,1);
@@ -148,7 +147,7 @@ int main() {
   // MatrixTools::print(*m);
   // delete m;
   ProbabilisticSubstitutionMapping* probMapDnDs = 
-    SubstitutionMappingTools::computeCounts(*rltc, *sCountDnDs);
+    SubstitutionMappingTools::computeCounts(*tmComp, *sCountDnDs);
   
   SubstitutionCount* sCountUniTot = new UniformizationSubstitutionCount(model.get(), totReg);
   // m = sCountUniTot->getAllNumbersOfSubstitutions(0.001,1);
@@ -156,7 +155,7 @@ int main() {
   // MatrixTools::print(*m);
   // delete m;
   ProbabilisticSubstitutionMapping* probMapUniTot = 
-    SubstitutionMappingTools::computeCounts(*rltc, *sCountUniTot);
+    SubstitutionMappingTools::computeCounts(*tmComp, *sCountUniTot);
 
   SubstitutionCount* sCountUniDnDs = new UniformizationSubstitutionCount(model.get(), dndsReg);
   // m = sCountUniDnDs->getAllNumbersOfSubstitutions(0.001,2);
@@ -164,7 +163,7 @@ int main() {
   // MatrixTools::print(*m);
   // delete m;
   ProbabilisticSubstitutionMapping* probMapUniDnDs = 
-    SubstitutionMappingTools::computeCounts(*rltc, *sCountUniDnDs);
+    SubstitutionMappingTools::computeCounts(*tmComp, *sCountUniDnDs);
 
   //Check per branch:
   

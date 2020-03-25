@@ -62,7 +62,7 @@ SubstitutionMappingToolsForASite::t_Sr_Sm_Sc SubstitutionMappingToolsForASite::m
 
 ProbabilisticSubstitutionMapping* SubstitutionMappingToolsForASite::computeCounts(
   size_t site,
-  RecursiveLikelihoodTreeCalculation& rltc,
+  LikelihoodCalculationSingleProcess& rltc,
   const vector<uint>& nodeIds,
   const SubstitutionRegister& reg,
   std::shared_ptr<const AlphabetIndex2> weights,
@@ -75,7 +75,7 @@ ProbabilisticSubstitutionMapping* SubstitutionMappingToolsForASite::computeCount
   if (!rltc.isInitialized())
     throw Exception("SubstitutionMappingToolsForASite::computeSubstitutionVectors(). Likelihood object is not initialized.");
 
-  const SubstitutionProcess& sp=*rltc.getSubstitutionProcess();
+  const SubstitutionProcess& sp=rltc.getSubstitutionProcess();
   const SubstitutionModel* sm(0);
 
   if (m_Sr_Sm_Sc.find(&reg)==m_Sr_Sm_Sc.end())
@@ -113,18 +113,19 @@ ProbabilisticSubstitutionMapping* SubstitutionMappingToolsForASite::computeCount
 
 ProbabilisticSubstitutionMapping* SubstitutionMappingToolsForASite::computeCounts(
   size_t site,
-  RecursiveLikelihoodTreeCalculation& rltc,
+  LikelihoodCalculationSingleProcess& rltc,
   t_Sm_Sc& m_Sm_Sc,
   const vector<uint>& nodeIds,
   double threshold,
   bool verbose)
 {
+  return 0;
+  /*
   // Preamble:
   if (!rltc.isInitialized())
     throw Exception("SubstitutionMappingToolsForASite::computeSubstitutionVectors(). Likelihood object is not initialized.");
-  rltc.computeTreeLikelihood();
   
-  const SubstitutionProcess& sp=*rltc.getSubstitutionProcess();
+  const SubstitutionProcess& sp=rltc.getSubstitutionProcess();
 
   if (nodeIds.size()==0)
   {
@@ -132,6 +133,7 @@ ProbabilisticSubstitutionMapping* SubstitutionMappingToolsForASite::computeCount
     return new ProbabilisticSubstitutionMapping(ppt, m_Sm_Sc.begin()->second->getNumberOfSubstitutionTypes(), 0);
   }
 
+  
   for (auto id :nodeIds)
   {
     if (dynamic_cast<const SubstitutionModel*>(sp.getModel(id,0))==NULL)
@@ -141,8 +143,6 @@ ProbabilisticSubstitutionMapping* SubstitutionMappingToolsForASite::computeCount
   const ParametrizablePhyloTree& ppt=sp.getParametrizablePhyloTree();
   
   // A few variables we'll need:
-
-  const RecursiveLikelihoodTree& rlt=dynamic_cast<const RecursiveLikelihoodTree&>(rltc.getLikelihoodData());
 
   size_t nbStates        = sp.getNumberOfStates();
   size_t nbClasses       = sp.getNumberOfClasses();
@@ -156,7 +156,7 @@ ProbabilisticSubstitutionMapping* SubstitutionMappingToolsForASite::computeCount
 
   // Find the corresponding indec in the compressed array :
 
-  size_t siteIndex=rltc.getLikelihoodData().getRootArrayPosition(site);
+  size_t siteIndex=0;rltc.getLikelihoodData().getRootArrayPosition(site);
   
   double Lr=rltc.getLogLikelihoodForASiteIndex(siteIndex);
 
@@ -374,28 +374,30 @@ ProbabilisticSubstitutionMapping* SubstitutionMappingToolsForASite::computeCount
       *ApplicationTools::message << " ";
     ApplicationTools::displayTaskDone();
   }
-  
+    
   return substitutions.release();
+  */
 }
 
 /**************************************************************************************************/
 
 ProbabilisticSubstitutionMapping* SubstitutionMappingToolsForASite::computeNormalizations(
   size_t site,
-  RecursiveLikelihoodTreeCalculation& rltc,
+  LikelihoodCalculationSingleProcess& rltc,
   const vector<uint>& nodeIds,
   const BranchedModelSet* nullModels,
   const SubstitutionRegister& reg,
   std::shared_ptr<const AlphabetIndex2> distances,
   bool verbose)
 {
+  return 0;
+  /*
   // Preamble:
   if (!rltc.isInitialized())
     throw Exception("SubstitutionMappingToolsForASite::computeNormalizations(). Likelihood object is not initialized.");
-  rltc.computeTreeLikelihood();
 
   const SubstitutionModel* sm(0);
-  const SubstitutionProcess& sp=*rltc.getSubstitutionProcess();
+  const SubstitutionProcess& sp=rltc.getSubstitutionProcess();
 
   if (nodeIds.size()==0)
   {
@@ -473,13 +475,14 @@ ProbabilisticSubstitutionMapping* SubstitutionMappingToolsForASite::computeNorma
   }
 
   return normalizations.release();
+  */
 }
 
 /************************************************************/
 
 ProbabilisticSubstitutionMapping* SubstitutionMappingToolsForASite::computeNormalizedCounts(
   size_t site,
-  RecursiveLikelihoodTreeCalculation& rltc,
+  LikelihoodCalculationSingleProcess& rltc,
   const vector<uint>& nodeIds,
   const BranchedModelSet* nullModels,
   const SubstitutionRegister& reg,

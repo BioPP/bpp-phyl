@@ -52,6 +52,8 @@
 #include <Bpp/Seq/Alphabet/Alphabet.h>
 #include <Bpp/Seq/Container/AlignedValuesContainer.h>
 
+#include "../DataFlow/LikelihoodCalculationSingleProcess.h"
+
 #include "SequencePhyloLikelihood.h"
 #include "../SubstitutionProcess.h"
 #include "../OneProcessSequenceEvolution.h"
@@ -190,7 +192,9 @@ namespace bpp
     /**
      * @return The underlying likelihood computation structure.
      */
-    LikelihoodTreeCalculation* getLikelihoodCalculation() { return tlComp_.get(); }
+    LikelihoodCalculationSingleProcess* getLikelihoodCalculation() { return 0;}//tlComp_.get(); }
+
+    const LikelihoodCalculationSingleProcess* getLikelihoodCalculation() const { return 0;}//tlComp_.get(); }
 
     /**
      * @return The underlying likelihood data structure.

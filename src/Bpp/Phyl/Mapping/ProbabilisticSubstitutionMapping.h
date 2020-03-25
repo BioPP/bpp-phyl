@@ -41,6 +41,7 @@
 #define _PROBABILISTICSUBSTITUTIONMAPPING_H_
 
 #include "SubstitutionMapping.h"
+#include "../NewLikelihood/DataFlow/DataFlowCWise.h"
 
 #include <Bpp/Text/TextTools.h>
 
@@ -86,7 +87,7 @@ namespace bpp
      * element in the likelihood array.
      */
     
-    std::vector<size_t> rootPatternLinks_;
+    PatternType rootPatternLinks_;
     
     bool usePatterns_;
 
@@ -123,7 +124,7 @@ namespace bpp
      *
      */
     
-    ProbabilisticSubstitutionMapping(const PhyloTree& tree, size_t nbTypes, const std::vector<size_t>& rootpatterns, size_t nbDistinctSites) :
+    ProbabilisticSubstitutionMapping(const PhyloTree& tree, size_t nbTypes, const PatternType& rootpatterns, size_t nbDistinctSites) :
       AbstractMapping(rootpatterns.size()), AbstractSubstitutionMapping(), mapTree(tree), rootPatternLinks_(rootpatterns), usePatterns_(true), numberOfDistinctSites_(nbDistinctSites)
     {
       setNumberOfSubstitutionTypes(nbTypes);
@@ -255,14 +256,14 @@ namespace bpp
      *
      */
 
-    const std::vector<size_t>& getPatterns() const
+    const PatternType getPatterns() const
     {
       return rootPatternLinks_;
     }
 
     const size_t getSiteIndex(size_t site) const
     {
-      return (usePatterns_?rootPatternLinks_[site]:site);
+      return (usePatterns_?rootPatternLinks_(site):site);
     }
   };
 

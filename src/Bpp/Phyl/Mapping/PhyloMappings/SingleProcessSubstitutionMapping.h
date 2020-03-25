@@ -145,14 +145,14 @@ namespace bpp
       return pSPP_->getSubstitutionProcess().getModelNumbers();
     }
         
-    RecursiveLikelihoodTreeCalculation& getLikelihoodCalculation()
+    LikelihoodCalculationSingleProcess& getLikelihoodCalculation()
     {
-      return *(dynamic_cast<RecursiveLikelihoodTreeCalculation*>(pSPP_->getLikelihoodCalculation()));
+      return *pSPP_->getLikelihoodCalculation();
     }
 
-    const RecursiveLikelihoodTreeCalculation& getLikelihoodCalculation() const
+    const LikelihoodCalculationSingleProcess& getLikelihoodCalculation() const
     {
-      return *(dynamic_cast<const RecursiveLikelihoodTreeCalculation*>(pSPP_->getLikelihoodCalculation()));
+      return *pSPP_->getLikelihoodCalculation();
     }
 
   };

@@ -31,6 +31,9 @@ LikelihoodCalculationSingleProcess::LikelihoodCalculationSingleProcess(Context& 
 {
   setPatterns_();
   makeProcessNodes_();
+
+  // Default Derivate 
+  setNumericalDerivateConfiguration(0.001, NumericalDerivativeType::ThreePoints);
 }
 
 LikelihoodCalculationSingleProcess::LikelihoodCalculationSingleProcess(Context & context,
@@ -43,6 +46,9 @@ LikelihoodCalculationSingleProcess::LikelihoodCalculationSingleProcess(Context &
   vRateCatTrees_()
 {
   makeProcessNodes_();
+
+  // Default Derivate 
+  setNumericalDerivateConfiguration(0.001, NumericalDerivativeType::ThreePoints);
 }
 
 LikelihoodCalculationSingleProcess::LikelihoodCalculationSingleProcess(Context & context,
@@ -58,6 +64,9 @@ LikelihoodCalculationSingleProcess::LikelihoodCalculationSingleProcess(Context &
 {
   setPatterns_();
   makeProcessNodes(paramList);
+
+  // Default Derivate 
+  setNumericalDerivateConfiguration(0.001, NumericalDerivativeType::ThreePoints);
 }
 
 
@@ -71,6 +80,9 @@ LikelihoodCalculationSingleProcess::LikelihoodCalculationSingleProcess(const Lik
 {
   setPatterns_();
   makeProcessNodes_();
+
+  // Default Derivate 
+  setNumericalDerivateConfiguration(0.001, NumericalDerivativeType::ThreePoints);
 }
 
 void LikelihoodCalculationSingleProcess::setPatterns_()

@@ -59,7 +59,7 @@
 #include <Bpp/Seq/Container/VectorSiteContainer.h>
 #include <chrono>
 
-#include <Bpp/Phyl/NewLikelihood/DataFlow/SingleProcessPhyloLikelihood_DF.h>
+
 #include <Bpp/Phyl/NewLikelihood/DataFlow/BackwardLikelihoodTree.h>
 #include <Bpp/Phyl/Io/Newick.h>
 #include <Bpp/Phyl/NewLikelihood/PhyloLikelihoods/SingleProcessPhyloLikelihood.h>
@@ -137,7 +137,7 @@ namespace
     optimizer.setVerbose(0);
     optimizer.setProfiler(nullptr);       // ApplicationTools::message);
     optimizer.setMessageHandler(nullptr); // ApplicationTools::message);
-    optimizer.setMaximumNumberOfEvaluations(100);
+    optimizer.setMaximumNumberOfEvaluations(10000);
     optimizer.getStopCondition()->setTolerance(0.000001);
     optimizer.setConstraintPolicy(AutoParameter::CONSTRAINTS_AUTO);
 
@@ -268,7 +268,7 @@ process->addModel(t92, Vuint({2}));
   l->setNumericalDerivateConfiguration(0.001, NumericalDerivativeType::ThreePoints);
 //  l->setClockLike();
 
-  SingleProcessPhyloLikelihood_DF llh(context, l);
+  SingleProcessPhyloLikelihood llh(context, l);
   timingEnd(ts, "df_setup");
   auto lik = llh.getLikelihoodCalculation();
   dotOutput("likelihood_example_value", {lik->getLikelihood().get()});
@@ -280,7 +280,8 @@ process->addModel(t92, Vuint({2}));
 
     // Manual access to dbrlen
   auto br= dynamic_cast<ConfiguredParameter*>(lik->hasParameter("BrLen1")?lik->getSharedParameter("BrLen1").get():lik->getSharedParameter("BrLen_rate").get());
-  
+
+  cerr << "brlen1 " << br  << endl;
   auto dlogLik_dbrlen1 = lik->getLikelihood()->deriveAsValue(context, *br->dependency(0));
 
   dotOutput("likelihood_example_dbrlen1", {dlogLik_dbrlen1.get()});

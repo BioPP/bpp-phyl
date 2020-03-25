@@ -126,7 +126,7 @@ void fitModelHSR(std::shared_ptr<SubstitutionModel> model, DiscreteDistribution*
 
   Context context;                        
   auto lik = std::make_shared<LikelihoodCalculationSingleProcess>(context, sites, *process);
-  auto newTl = std::make_shared<SingleProcessPhyloLikelihood_DF>(context, lik, lik->getParameters());
+  auto newTl = std::make_shared<SingleProcessPhyloLikelihood>(context, lik, lik->getParameters());
 
   
   cout << "NewTL: " << setprecision(20) << newTl->getValue() << endl;
@@ -184,7 +184,7 @@ void fitModelHSR(std::shared_ptr<SubstitutionModel> model, DiscreteDistribution*
 
   process.reset(new RateAcrossSitesSubstitutionProcess(model, rdist->clone(), new_tree.clone()));  
   lik.reset(new LikelihoodCalculationSingleProcess(context, sites, *process));
-  newTl.reset(new SingleProcessPhyloLikelihood_DF(context, lik, lik->getParameters()));
+  newTl.reset(new SingleProcessPhyloLikelihood(context, lik, lik->getParameters()));
 
   ParameterList opln1=process->getBranchLengthParameters(true);
   

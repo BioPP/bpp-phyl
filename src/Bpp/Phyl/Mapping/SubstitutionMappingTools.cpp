@@ -59,7 +59,7 @@ using namespace std;
 /******************************************************************************/
 
 ProbabilisticSubstitutionMapping* SubstitutionMappingTools::computeCounts(
-  RecursiveLikelihoodTreeCalculation& rltc,
+  LikelihoodCalculationSingleProcess& rltc,
   const vector<uint>& nodeIds,
   const SubstitutionRegister& reg,
   std::shared_ptr<const AlphabetIndex2> weights,
@@ -72,13 +72,13 @@ ProbabilisticSubstitutionMapping* SubstitutionMappingTools::computeCounts(
     throw Exception("SubstitutionMappingTools::computeSubstitutionVectors(). Likelihood object is not initialized.");
 
   const SubstitutionModel* sm(0);
-  const SubstitutionProcess& sp=*rltc.getSubstitutionProcess();
+  const SubstitutionProcess& sp=rltc.getSubstitutionProcess();
 
   if (nodeIds.size()==0)
   {
     const ParametrizablePhyloTree& ppt=sp.getParametrizablePhyloTree();
-    const vector<size_t>& rootPatternLinks = rltc.getLikelihoodData().getRootArrayPositions();
-    size_t nbDistinctSites = rltc.getLikelihoodData().getNumberOfDistinctSites();
+    const auto rootPatternLinks = rltc.getRootArrayPositions();
+    size_t nbDistinctSites = rltc.getNumberOfDistinctSites();
     
     return new ProbabilisticSubstitutionMapping(ppt, reg.getNumberOfSubstitutionTypes(), rootPatternLinks, nbDistinctSites);    
   }
@@ -104,7 +104,7 @@ ProbabilisticSubstitutionMapping* SubstitutionMappingTools::computeCounts(
 
 
 ProbabilisticSubstitutionMapping* SubstitutionMappingTools::computeCounts(
-  RecursiveLikelihoodTreeCalculation& rltc,
+  LikelihoodCalculationSingleProcess& rltc,
   const vector<uint>& nodeIds,
   SubstitutionCount& substitutionCount,
   double threshold,
@@ -113,15 +113,14 @@ ProbabilisticSubstitutionMapping* SubstitutionMappingTools::computeCounts(
   // Preamble:
   if (!rltc.isInitialized())
     throw Exception("SubstitutionMappingTools::computeSubstitutionVectors(). Likelihood object is not initialized.");
-  rltc.computeTreeLikelihood();
-  
-  const SubstitutionProcess& sp=*rltc.getSubstitutionProcess();
+
+  const SubstitutionProcess& sp=rltc.getSubstitutionProcess();
 
   if (nodeIds.size()==0)
   {
     const ParametrizablePhyloTree& ppt=sp.getParametrizablePhyloTree();
-    const vector<size_t>& rootPatternLinks = rltc.getLikelihoodData().getRootArrayPositions();
-    size_t nbDistinctSites = rltc.getLikelihoodData().getNumberOfDistinctSites();
+    const auto& rootPatternLinks = rltc.getRootArrayPositions();
+    size_t nbDistinctSites = rltc.getNumberOfDistinctSites();
     
     return new ProbabilisticSubstitutionMapping(ppt, substitutionCount.getNumberOfSubstitutionTypes(), rootPatternLinks, nbDistinctSites);
   }
@@ -136,16 +135,14 @@ ProbabilisticSubstitutionMapping* SubstitutionMappingTools::computeCounts(
   
   // A few variables we'll need:
 
-  const RecursiveLikelihoodTree& rlt=dynamic_cast<const RecursiveLikelihoodTree&>(rltc.getLikelihoodData());
-
-  size_t nbDistinctSites = rlt.getNumberOfDistinctSites();
+  size_t nbDistinctSites = rltc.getNumberOfDistinctSites();
   size_t nbStates        = sp.getNumberOfStates();
-  size_t nbClasses       = sp.getNumberOfClasses();
+  // size_t nbClasses       = sp.getNumberOfClasses();
 
   size_t nbTypes         = substitutionCount.getNumberOfSubstitutionTypes();
   size_t nbNodes         = nodeIds.size();
   
-  const vector<size_t>& rootPatternLinks = rlt.getRootArrayPositions();
+  const auto& rootPatternLinks = rltc.getRootArrayPositions();
 
   // We create a Mapping objects
   
@@ -155,8 +152,8 @@ ProbabilisticSubstitutionMapping* SubstitutionMappingTools::computeCounts(
 
   Vdouble Lr(nbDistinctSites, 0);
 
-  for (size_t i = 0; i < nbDistinctSites; i++)
-    Lr[i]=rltc.getLogLikelihoodForASiteIndex(i);
+  // for (size_t i = 0; i < nbDistinctSites; i++)
+  //   Lr[i]=rltc.getLogLikelihoodForASiteIndex(i);
 
   // Compute the number of substitutions for each class and each branch in the tree:
   if (verbose)
@@ -179,10 +176,10 @@ ProbabilisticSubstitutionMapping* SubstitutionMappingTools::computeCounts(
     if (nodeIds.size() > 0 && !VectorTools::contains(nodeIds, (int)edid))
       continue;
 
-    uint fathid=substitutions->getFatherOfEdge(edid);
-    uint icid=substitutions->getSon(edid);
+    // uint fathid=substitutions->getFatherOfEdge(edid);
+    // uint icid=substitutions->getSon(edid);
 
-    double d=br->getLength();
+    // double d=br->getLength();
     
     VVdouble likelihoodsFatherConstantPart;    
     VectorTools::resize2(likelihoodsFatherConstantPart, nbDistinctSites, nbStates);
@@ -192,8 +189,8 @@ ProbabilisticSubstitutionMapping* SubstitutionMappingTools::computeCounts(
     VVdouble substitutionsForCurrentNode;
     VectorTools::resize2(substitutionsForCurrentNode,nbDistinctSites,nbTypes);
 
-    bool usesLog=false;
-    
+
+    /*
     for (size_t ncl=0; ncl<nbClasses; ncl++)
     {
       const RecursiveLikelihoodTree::LikTree& rlt_c=rlt[ncl];
@@ -392,14 +389,15 @@ ProbabilisticSubstitutionMapping* SubstitutionMappingTools::computeCounts(
       *ApplicationTools::message << " ";
     ApplicationTools::displayTaskDone();
   }
-  
+    */
+  }    
   return substitutions.release();
 }
 
 /**************************************************************************************************/
 
 ProbabilisticSubstitutionMapping* SubstitutionMappingTools::computeNormalizations(
-  RecursiveLikelihoodTreeCalculation& rltc,
+  LikelihoodCalculationSingleProcess& rltc,
   const vector<uint>& nodeIds,
   const BranchedModelSet* nullModels,
   const SubstitutionRegister& reg,
@@ -409,16 +407,15 @@ ProbabilisticSubstitutionMapping* SubstitutionMappingTools::computeNormalization
   // Preamble:
   if (!rltc.isInitialized())
     throw Exception("SubstitutionMappingTools::computeNormalizations(). Likelihood object is not initialized.");
-  rltc.computeTreeLikelihood();
 
   const SubstitutionModel* sm(0);
-  const SubstitutionProcess& sp=*rltc.getSubstitutionProcess();
+  const SubstitutionProcess& sp=rltc.getSubstitutionProcess();
 
   if (nodeIds.size()==0)
   {
     const ParametrizablePhyloTree& ppt=sp.getParametrizablePhyloTree();
-    const vector<size_t>& rootPatternLinks = rltc.getLikelihoodData().getRootArrayPositions();
-    size_t nbDistinctSites = rltc.getLikelihoodData().getNumberOfDistinctSites();
+    const auto& rootPatternLinks = rltc.getRootArrayPositions();
+    size_t nbDistinctSites = rltc.getNumberOfDistinctSites();
     
     return new ProbabilisticSubstitutionMapping(ppt, reg.getNumberOfSubstitutionTypes(), rootPatternLinks, nbDistinctSites);    
   }
@@ -432,13 +429,12 @@ ProbabilisticSubstitutionMapping* SubstitutionMappingTools::computeNormalization
         sm=dynamic_cast<const SubstitutionModel*>(sp.getModel(id,0));
   }
 
-  const RecursiveLikelihoodTree& rlt=dynamic_cast<const RecursiveLikelihoodTree&>(rltc.getLikelihoodData());
-  const vector<size_t>& rootPatternLinks = rlt.getRootArrayPositions();
+  const auto& rootPatternLinks = rltc.getRootArrayPositions();
 
   size_t nbTypes = reg.getNumberOfSubstitutionTypes();
   size_t nbStates = sm->getAlphabet()->getSize();
   vector<int> supportedStates = sm->getAlphabetStates();
-  size_t nbDistinctSites = rlt.getNumberOfDistinctSites();
+  size_t nbDistinctSites = rltc.getNumberOfDistinctSites();
   
   const ParametrizablePhyloTree& ppt=sp.getParametrizablePhyloTree();
 
@@ -479,21 +475,21 @@ ProbabilisticSubstitutionMapping* SubstitutionMappingTools::computeNormalization
         }
       }
       
-      for (size_t nbt = 0; nbt < nbTypes; nbt++)
-      {
-        unique_ptr<Reward> reward(new DecompositionReward(modn, &usai[nbt]));
+      // for (size_t nbt = 0; nbt < nbTypes; nbt++)
+      // {
+      //   unique_ptr<Reward> reward(new DecompositionReward(modn, &usai[nbt]));
         
-        unique_ptr<ProbabilisticRewardMapping> mapping(RewardMappingTools::computeRewardVectors(rltc, mids, *reward, verbose));
+      //   unique_ptr<ProbabilisticRewardMapping> mapping(RewardMappingTools::computeRewardVectors(rltc, mids, *reward, verbose));
 
-        for (size_t k = 0; k < mids.size(); k++)
-        {
-          shared_ptr<PhyloBranchMapping> brn=normalizations->getEdge(mids[k]);
-          shared_ptr<PhyloBranchReward> brr=mapping->getEdge(mids[k]);
+      //   for (size_t k = 0; k < mids.size(); k++)
+      //   {
+      //     shared_ptr<PhyloBranchMapping> brn=normalizations->getEdge(mids[k]);
+      //     shared_ptr<PhyloBranchReward> brr=mapping->getEdge(mids[k]);
 
-          for (size_t i = 0; i < nbDistinctSites; ++i)
-            (*brn)(i,nbt)=(*brr).getSiteReward(i);
-        }
-      }
+      //     for (size_t i = 0; i < nbDistinctSites; ++i)
+      //       (*brn)(i,nbt)=(*brr).getSiteReward(i);
+      //   }
+      // }
     }
   }
 
@@ -503,7 +499,7 @@ ProbabilisticSubstitutionMapping* SubstitutionMappingTools::computeNormalization
 /************************************************************/
 
 ProbabilisticSubstitutionMapping* SubstitutionMappingTools::computeNormalizedCounts(
-  RecursiveLikelihoodTreeCalculation& rltc,
+  LikelihoodCalculationSingleProcess& rltc,
   const vector<uint>& nodeIds,
   const BranchedModelSet* nullModels,
   const SubstitutionRegister& reg,
@@ -824,7 +820,7 @@ VVdouble SubstitutionMappingTools::getCountsPerTypePerBranch(
 
 
 VVdouble SubstitutionMappingTools::computeCountsPerTypePerBranch(
-  RecursiveLikelihoodTreeCalculation& rltc,
+  LikelihoodCalculationSingleProcess& rltc,
   const vector<uint>& ids,
   const SubstitutionRegister& reg,
   std::shared_ptr<const AlphabetIndex2> weights,
@@ -844,7 +840,7 @@ VVdouble SubstitutionMappingTools::computeCountsPerTypePerBranch(
 
     for (size_t k = 0; k < ids.size(); ++k)
     {
-      vector<double> freqs = rltc.getLikelihoodData().getPosteriorStateFrequencies(ids[k]);
+      vector<double> freqs(0);// = rltc.getPosteriorStateFrequencies(ids[k]);
       // Compute frequencies for types:
       
       vector<double> freqsTypes(creg->getNumberOfCategories());

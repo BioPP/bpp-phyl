@@ -43,7 +43,7 @@
 #include "ProbabilisticSubstitutionMapping.h"
 #include "SubstitutionCount.h"
 #include "OneJumpSubstitutionCount.h"
-#include "../NewLikelihood/RecursiveLikelihoodTreeCalculation.h"
+#include "../NewLikelihood/DataFlow/LikelihoodCalculationSingleProcess.h"
 #include "../Model/BranchedModelSet.h"
 #include <Bpp/Seq/AlphabetIndex/AlphabetIndex2.h>
 
@@ -105,7 +105,7 @@ namespace bpp
     //   double threshold = -1,
     //   bool verbose = true)
     // {
-    //   std::vector<uint> nodeIds=rltc.getSubstitutionProcess()->getParametrizablePhyloTree().getAllEdgesIndexes();
+    //   std::vector<uint> nodeIds=rltc.getSubstitutionProcess().getParametrizablePhyloTree().getAllEdgesIndexes();
     //   return computeCounts(site, rltc, nodeIds, substitutionCount, threshold, verbose);
     // }
 
@@ -113,7 +113,7 @@ namespace bpp
      * @brief Compute the substitutions tree for a particular dataset
      *
      * @param site              The site
-     * @param rltc              A RecursiveLikelihoodTreeCalculation object.
+     * @param rltc              A LikelihoodCalculationSingleProcess object.
      * @param reg               The SubstitutionRegister to use.
      * @param weights           Pointer to AlphabetIndex2 for weights
      *                          for all substitutions (default: null
@@ -129,14 +129,14 @@ namespace bpp
 
     static ProbabilisticSubstitutionMapping* computeCounts(
       size_t site,
-      RecursiveLikelihoodTreeCalculation& rltc,
+      LikelihoodCalculationSingleProcess& rltc,
       const SubstitutionRegister& reg,
       std::shared_ptr<const AlphabetIndex2> weights = 0,
       std::shared_ptr<const AlphabetIndex2> distances = 0,
       double threshold = -1,
       bool verbose = true)
     {
-      std::vector<uint> nodeIds=rltc.getSubstitutionProcess()->getParametrizablePhyloTree().getAllEdgesIndexes();
+      std::vector<uint> nodeIds=rltc.getSubstitutionProcess().getParametrizablePhyloTree().getAllEdgesIndexes();
       return computeCounts(site, rltc, nodeIds, reg, weights, distances, threshold, verbose);
     }
 
@@ -144,7 +144,7 @@ namespace bpp
      * @brief Compute the substitutions tree for a particular dataset
      *
      * @param site              The site
-     * @param rltc              A RecursiveLikelihoodTreeCalculation object.
+     * @param rltc              A LikelihoodCalculationSingleProcess object.
      * @param nodeIds           The Ids of the nodes the substitutions
      *                          are counted on. If empty, count substitutions
      *                          on all nodes.
@@ -157,7 +157,7 @@ namespace bpp
 
     static ProbabilisticSubstitutionMapping* computeCounts(
       size_t site,
-      RecursiveLikelihoodTreeCalculation& rltc,
+      LikelihoodCalculationSingleProcess& rltc,
       t_Sm_Sc& m_Sm_Sc,
       const std::vector<uint>& nodeIds,
       double threshold = -1,
@@ -167,7 +167,7 @@ namespace bpp
      * @brief Compute the substitutions tree for a particular dataset
      *
      * @param site              The site
-     * @param rltc              A RecursiveLikelihoodTreeCalculation object.
+     * @param rltc              A LikelihoodCalculationSingleProcess object.
      * @param nodeIds           The Ids of the nodes the substitutions
      *                          are counted on. If empty, count substitutions
      *                          on all nodes.
@@ -186,7 +186,7 @@ namespace bpp
 
     static ProbabilisticSubstitutionMapping* computeCounts(
       size_t site,
-      RecursiveLikelihoodTreeCalculation& rltc,
+      LikelihoodCalculationSingleProcess& rltc,
       const std::vector<uint>& nodeIds,
       const SubstitutionRegister& reg,
       std::shared_ptr<const AlphabetIndex2> weights = 0,
@@ -199,7 +199,7 @@ namespace bpp
      * process on each branch, for each register.
      *
      * @param site              The site
-     * @param rltc              A RecursiveLikelihoodTreeCalculation object.
+     * @param rltc              A LikelihoodCalculationSingleProcess object.
      * @param nodeIds           The Ids of the nodes the substitutions
      *                          are counted on. If empty, count substitutions
      *                          on all nodes.
@@ -214,7 +214,7 @@ namespace bpp
 
     static ProbabilisticSubstitutionMapping* computeNormalizations(
       size_t site,
-      RecursiveLikelihoodTreeCalculation& rltc,
+      LikelihoodCalculationSingleProcess& rltc,
       const std::vector<uint>& nodeIds,
       const BranchedModelSet* nullModels,
       const SubstitutionRegister& reg,
@@ -226,7 +226,7 @@ namespace bpp
      * process on each branch, for each register.
      *
      * @param site              The site
-     * @param rltc              A RecursiveLikelihoodTreeCalculation object.
+     * @param rltc              A LikelihoodCalculationSingleProcess object.
      * @param nullModels        The "null" models used for normalization
      * @param reg               the Substitution Register
      * @param distances         Pointer to AlphabetIndex2 for distances
@@ -238,13 +238,13 @@ namespace bpp
 
     static ProbabilisticSubstitutionMapping* computeNormalizations(
       size_t site,
-      RecursiveLikelihoodTreeCalculation& rltc,
+      LikelihoodCalculationSingleProcess& rltc,
       const BranchedModelSet* nullModels,
       const SubstitutionRegister& reg,
       std::shared_ptr<const AlphabetIndex2> distances = 0,
       bool verbose = true)
     {
-      std::vector<uint> nodeIds=rltc.getSubstitutionProcess()->getParametrizablePhyloTree().getAllEdgesIndexes();
+      std::vector<uint> nodeIds=rltc.getSubstitutionProcess().getParametrizablePhyloTree().getAllEdgesIndexes();
       return computeNormalizations(site, rltc, nodeIds, nullModels, reg, distances, verbose);
     }
 
@@ -253,7 +253,7 @@ namespace bpp
      * models of "null" process on each branch, for each register.
      *
      * @param site              The site
-     * @param rltc              A RecursiveLikelihoodTreeCalculation object.
+     * @param rltc              A LikelihoodCalculationSingleProcess object.
      * @param nodeIds           The Ids of the nodes the substitutions
      *                          are counted on. If empty, count substitutions
      *                          on all nodes.
@@ -280,7 +280,7 @@ namespace bpp
 
     static ProbabilisticSubstitutionMapping* computeNormalizedCounts(
       size_t site,
-      RecursiveLikelihoodTreeCalculation& rltc,
+      LikelihoodCalculationSingleProcess& rltc,
       const std::vector<uint>& nodeIds,
       const BranchedModelSet* nullModels,
       const SubstitutionRegister& reg,
@@ -294,13 +294,13 @@ namespace bpp
     static ProbabilisticSubstitutionMapping* computeNormalizedCounts(
       const ProbabilisticSubstitutionMapping* counts,
       const ProbabilisticSubstitutionMapping* factors,
-      const vector<uint>& nodeIds,
+      const std::vector<uint>& nodeIds,
       bool perTimeUnit = false,
       uint siteSize = 1);
 
     static ProbabilisticSubstitutionMapping* computeNormalizedCounts(
       size_t site,
-      RecursiveLikelihoodTreeCalculation& rltc,
+      LikelihoodCalculationSingleProcess& rltc,
       const BranchedModelSet* nullModels,
       const SubstitutionRegister& reg,
       std::shared_ptr<const AlphabetIndex2> weights = 0,
@@ -310,7 +310,7 @@ namespace bpp
       double threshold = -1,
       bool verbose = true)
     {
-      std::vector<uint> nodeIds=rltc.getSubstitutionProcess()->getParametrizablePhyloTree().getAllEdgesIndexes();
+      std::vector<uint> nodeIds=rltc.getSubstitutionProcess().getParametrizablePhyloTree().getAllEdgesIndexes();
       return computeNormalizedCounts(site, rltc, nodeIds, nullModels, reg, weights, distances, perTimeUnit, siteSize, threshold, verbose);
     }
 
@@ -336,7 +336,7 @@ namespace bpp
 
     // static ProbabilisticSubstitutionMapping* computeOneJumpCounts(
     //   size_t site,
-    //   RecursiveLikelihoodTreeCalculation& rltc,
+    //   LikelihoodCalculationSingleProcess& rltc,
     //   bool verbose = true)
     // {
     //   OneJumpSubstitutionCount ojsm(0);

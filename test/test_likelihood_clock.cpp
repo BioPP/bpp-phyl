@@ -63,7 +63,7 @@ void fitModelH(std::shared_ptr<SubstitutionModel> model, DiscreteDistribution* r
   
   auto lik = std::make_shared<LikelihoodCalculationSingleProcess>(context, sites, process);
   
-  SingleProcessPhyloLikelihood_DF llh(context, lik, lik->getParameters());
+  SingleProcessPhyloLikelihood llh(context, lik, lik->getParameters());
 
   ApplicationTools::displayResult("Test model", model->getName());
   double initValue=llh.getValue();
@@ -97,7 +97,7 @@ void fitModelHClock(std::shared_ptr<SubstitutionModel> model, DiscreteDistributi
   auto lik = std::make_shared<LikelihoodCalculationSingleProcess>(context, sites, process);
   lik->setClockLike();
   
-  SingleProcessPhyloLikelihood_DF llh(context, lik, lik->getParameters());
+  SingleProcessPhyloLikelihood llh(context, lik, lik->getParameters());
     
   ApplicationTools::displayResult("Test model", model->getName());
   double initValue=llh.getValue();

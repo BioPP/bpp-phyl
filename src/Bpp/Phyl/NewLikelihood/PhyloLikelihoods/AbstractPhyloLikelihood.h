@@ -69,13 +69,6 @@ namespace bpp
       
     mutable double minusLogLik_;
 
-    /*
-     * @brief DF Nodes for parameters
-     *
-     */
-         
-    ParameterList variableNodes_;
-
     /**
      * @brief For Dataflow computing
      *
@@ -99,7 +92,7 @@ namespace bpp
       context_(asd.context_),
       minusLogLik_(asd.minusLogLik_)
     {
-      variableNodes_.shareParameters(asd.variableNodes_);
+      shareParameters(asd.getParameters());
     }
       
     virtual ~AbstractPhyloLikelihood() {}
@@ -129,7 +122,7 @@ namespace bpp
 
     void setParameters(const ParameterList& parameters)
     {
-      variableNodes_.setParametersValues(parameters);
+      setParametersValues(parameters);
     }
 
     /*
@@ -176,14 +169,13 @@ namespace bpp
      *
      */
      
-    void shareParameters(ParameterList variableNodes)
+    void shareParameters(const ParameterList& variableNodes)
     {
-      variableNodes_.shareParameters(variableNodes);
+      getParameters_().shareParameters(variableNodes);
     }
 
     // bpp::DerivableFirstOrder
     double getFirstOrderDerivative (const std::string & variable) const override {
-      
       return firstOrderDerivativeNode (variable)->getTargetValue ();
     }
 
