@@ -163,17 +163,6 @@ namespace bpp
       
 
       /**
-       * @brief set it arrays should be computed in log.
-       *
-       */
-
-      void setUseLog(bool useLog)
-      {
-        for (size_t i=0; i<nPhylo_.size(); i++)
-          (*getPhyloContainer())[nPhylo_[i]]->setUseLog(useLog);
-      }
-      
-      /**
        * @return 'true' is the likelihood function has been initialized.
        */
       
@@ -191,18 +180,6 @@ namespace bpp
       
       void enableSecondOrderDerivatives(bool yn);
 
-      void updateLikelihood() const
-      {
-        for (size_t i=0; i<nPhylo_.size(); i++)
-          getPhyloLikelihood(nPhylo_[i])->updateLikelihood();
-      }
-
-      void computeLikelihood() const
-      {
-        for (size_t i=0; i<nPhylo_.size(); i++)
-          getPhyloLikelihood(nPhylo_[i])->computeLikelihood();
-      }
-
     protected:
 
       void computeDLogLikelihood_(const std::string& variable) const;
@@ -218,10 +195,9 @@ namespace bpp
 
           // to ensure each phylolikelihood is recomputed, such as in
           // case of total aliasing
-          getAbstractPhyloLikelihood(nPhylo_[i])->update();
+          // getAbstractPhyloLikelihood(nPhylo_[i])->update();
         }
         
-        update();
       }
 
       double getFirstOrderDerivative(const std::string& variable) const 

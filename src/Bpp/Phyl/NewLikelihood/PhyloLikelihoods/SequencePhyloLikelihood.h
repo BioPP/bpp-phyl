@@ -165,7 +165,6 @@ namespace bpp
     virtual void fireParameterChanged(const ParameterList& parameters)
     {
       seqEvol_->matchParametersValues(parameters);
-      update();
     }
 
   public:
@@ -200,7 +199,6 @@ namespace bpp
     void setData(const AlignedValuesContainer& sites, size_t nData = 0)
     {
       AbstractSingleDataPhyloLikelihood::setData(sites, nData);
-      update();
     }
       
     void setNamespace(const std::string& nameSpace)

@@ -101,9 +101,9 @@ namespace bpp {
 
   public:
     SingleProcessPhyloLikelihood (Context & context,
-                                     std::shared_ptr<LikelihoodCalculationSingleProcess> likCal,
-                                     const ParameterList & variableNodes,
-                                     size_t nProc = 0, size_t nData=0)
+                                  std::shared_ptr<LikelihoodCalculationSingleProcess> likCal,
+                                  const ParameterList & variableNodes,
+                                  size_t nProc = 0, size_t nData=0)
       :
       AbstractPhyloLikelihood(context),
       AbstractAlignedPhyloLikelihood(context, likCal->getNumberOfSites()),
@@ -119,8 +119,8 @@ namespace bpp {
      */
       
     SingleProcessPhyloLikelihood (Context & context,
-                                     std::shared_ptr<LikelihoodCalculationSingleProcess> likCal,
-                                     size_t nProc = 0, size_t nData=0)
+                                  std::shared_ptr<LikelihoodCalculationSingleProcess> likCal,
+                                  size_t nProc = 0, size_t nData=0)
       :
       AbstractPhyloLikelihood(context),
       AbstractAlignedPhyloLikelihood(context, likCal->getNumberOfSites()),
@@ -200,32 +200,11 @@ namespace bpp {
      */
 
     /**
-     * @brief set it arrays should be computed in log.
-     *
-     */
-
-    void setUseLog(bool useLog) {};
-
-    /**
      * @name The likelihood functions.
      *
      * @{
      */
       
-    /**
-     * @brief update the likelihood to get ready for computation
-     *
-     */
-
-    void updateLikelihood() const {};
-
-    /**
-     * @brief compute the likelihood
-     *
-     */
-
-    void computeLikelihood() const {};
-
     /**
      * @brief Get the logarithm of the likelihood for the whole dataset.
      *

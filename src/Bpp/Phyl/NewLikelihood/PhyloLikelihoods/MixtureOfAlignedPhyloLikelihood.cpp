@@ -49,7 +49,6 @@ MixtureOfAlignedPhyloLikelihood::MixtureOfAlignedPhyloLikelihood(Context& contex
   simplex_(getNumbersOfPhyloLikelihoods().size(), 1, false, "Mixture.")
 {
   addParameters_(simplex_.getParameters());
-  update();  
 }
 
 
@@ -75,64 +74,55 @@ void MixtureOfAlignedPhyloLikelihood::fireParameterChanged(const ParameterList& 
   simplex_.matchParametersValues(parameters);
   SetOfAbstractPhyloLikelihood::fireParameterChanged(parameters);
   
-  update();
 }
 
 /******************************************************************************/
 
 double MixtureOfAlignedPhyloLikelihood::getLogLikelihood() const
 {
-  updateLikelihood();
-  computeLikelihood();
-
-  vector<double> la(nbSites_);
-  for (size_t i = 0; i < nbSites_; ++i)
-  {
-    la[i] = getLogLikelihoodForASite(i);
-  }
+  // vector<double> la(nbSites_);
+  // for (size_t i = 0; i < nbSites_; ++i)
+  // {
+  //   la[i] = getLogLikelihoodForASite(i);
+  // }
 
   
-  sort(la.begin(), la.end());
-  double ll = 0;
-  for (size_t i = nbSites_; i > 0; i--)
-  {
-    ll += la[i - 1];
-  }
-  return ll;
+  // sort(la.begin(), la.end());
+  // double ll = 0;
+  // for (size_t i = nbSites_; i > 0; i--)
+  // {
+  //   ll += la[i - 1];
+  // }
+  return 0;
 }
 
 /******************************************************************************/
 
 double MixtureOfAlignedPhyloLikelihood::getLikelihoodForASite(size_t site) const
 {
-  updateLikelihood();
-  computeLikelihood();
-
-  double x = 0;
-  const std::vector<size_t>& nPhylo=getNumbersOfPhyloLikelihoods();
+  // double x = 0;
+  // const std::vector<size_t>& nPhylo=getNumbersOfPhyloLikelihoods();
         
-  for (size_t i=0; i<nPhylo.size(); i++)
-  {
-    x += getPhyloLikelihood(nPhylo[i])->getLikelihoodForASite(site) * simplex_.prob(i);
-  }
+  // for (size_t i=0; i<nPhylo.size(); i++)
+  // {
+  //   x += getPhyloLikelihood(nPhylo[i])->getLikelihoodForASite(site) * simplex_.prob(i);
+  // }
 
-  return x;
+  return 0;
 }
 
 /******************************************************************************/
 
 double MixtureOfAlignedPhyloLikelihood::getLogLikelihoodForASite(size_t site) const
 {
-  updateLikelihood();
-  computeLikelihood();
-
-  const std::vector<size_t>& nPhylo=getNumbersOfPhyloLikelihoods();
-  vector<double> v(nPhylo.size());
+  // const std::vector<size_t>& nPhylo=getNumbersOfPhyloLikelihoods();
+  // vector<double> v(nPhylo.size());
         
-  for (size_t i=0; i<nPhylo.size(); i++)
-    v[i] = getPhyloLikelihood(nPhylo[i])->getLogLikelihoodForASite(site);
+  // for (size_t i=0; i<nPhylo.size(); i++)
+  //   v[i] = getPhyloLikelihood(nPhylo[i])->getLogLikelihoodForASite(site);
   
-  return VectorTools::logSumExp(v, simplex_.getFrequencies());
+  // return VectorTools::logSumExp(v, simplex_.getFrequencies());
+  return 0;
 }
 
 
@@ -140,31 +130,33 @@ double MixtureOfAlignedPhyloLikelihood::getLogLikelihoodForASite(size_t site) co
 
 double MixtureOfAlignedPhyloLikelihood::getDLogLikelihood(const std::string& variable) const
 {
-  vector<double> la(nbSites_);
-  for (size_t i = 0; i < nbSites_; ++i)
-  {
-    la[i] = getDLogLikelihoodForASite(variable, i);
-  }
-  sort(la.begin(), la.end());
-  double ll = 0;
-  for (size_t i = nbSites_; i > 0; i--)
-  {
-    ll += la[i - 1];
-  }
-  return ll;
+  // vector<double> la(nbSites_);
+  // for (size_t i = 0; i < nbSites_; ++i)
+  // {
+  //   la[i] = getDLogLikelihoodForASite(variable, i);
+  // }
+  // sort(la.begin(), la.end());
+  // double ll = 0;
+  // for (size_t i = nbSites_; i > 0; i--)
+  // {
+  //   ll += la[i - 1];
+  // }
+  // return ll;
+  return 0;
 }
 
 /******************************************************************************/
 
 double MixtureOfAlignedPhyloLikelihood::getDLogLikelihoodForASite(const std::string& variable, size_t site) const
 {
-  const std::vector<size_t>& nPhylo=getNumbersOfPhyloLikelihoods();
-  vector<double> vD(nPhylo.size());
+  // const std::vector<size_t>& nPhylo=getNumbersOfPhyloLikelihoods();
+  // vector<double> vD(nPhylo.size());
         
-  for (size_t i=0; i<nPhylo.size(); i++)
-    vD[i] = getPhyloLikelihood(nPhylo[i])->getDLogLikelihoodForASite(variable, site);
+  // for (size_t i=0; i<nPhylo.size(); i++)
+  //   vD[i] = getPhyloLikelihood(nPhylo[i])->getDLogLikelihoodForASite(variable, site);
 
-  return VectorTools::logSumExp(vD, simplex_.getFrequencies());
+  // return VectorTools::logSumExp(vD, simplex_.getFrequencies());
+  return 0;
 }
 
 /******************************************************************************/
@@ -172,31 +164,33 @@ double MixtureOfAlignedPhyloLikelihood::getDLogLikelihoodForASite(const std::str
 double MixtureOfAlignedPhyloLikelihood::getD2LogLikelihood(const std::string& variable) const
 {
   // Derivative of the sum is the sum of derivatives:
-  vector<double> la(nbSites_);
-  for (size_t i = 0; i < nbSites_; ++i)
-  {
-    la[i] = getD2LogLikelihoodForASite(variable, i);
-  }
-  sort(la.begin(), la.end());
-  double ll = 0;
-  for (size_t i = nbSites_; i > 0; i--)
-  {
-    ll += la[i - 1];
-  }
-  return ll;
+  // vector<double> la(nbSites_);
+  // for (size_t i = 0; i < nbSites_; ++i)
+  // {
+  //   la[i] = getD2LogLikelihoodForASite(variable, i);
+  // }
+  // sort(la.begin(), la.end());
+  // double ll = 0;
+  // for (size_t i = nbSites_; i > 0; i--)
+  // {
+  //   ll += la[i - 1];
+  // }
+  // return ll;
+  return 0;
 }
 
 /******************************************************************************/
 
 double MixtureOfAlignedPhyloLikelihood::getD2LogLikelihoodForASite(const std::string& variable, size_t site) const
 {
-  const std::vector<size_t>& nPhylo=getNumbersOfPhyloLikelihoods();
-  vector<double> vD2(nPhylo.size());
+  // const std::vector<size_t>& nPhylo=getNumbersOfPhyloLikelihoods();
+  // vector<double> vD2(nPhylo.size());
         
-  for (size_t i=0; i<nPhylo.size(); i++)
-    vD2[i] = getPhyloLikelihood(nPhylo[i])->getD2LogLikelihoodForASite(variable, site);
+  // for (size_t i=0; i<nPhylo.size(); i++)
+  //   vD2[i] = getPhyloLikelihood(nPhylo[i])->getD2LogLikelihoodForASite(variable, site);
 
-  return VectorTools::logSumExp(vD2, simplex_.getFrequencies());
+  // return VectorTools::logSumExp(vD2, simplex_.getFrequencies());
+  return 0;
 }
 
 /******************************************************************************/

@@ -79,32 +79,11 @@ namespace bpp
      */
 
     /**
-     * @brief set it arrays should be computed in log.
-     *
-     */
-
-    virtual void setUseLog(bool useLog) = 0;
-
-    /**
      * @name The likelihood functions.
      *
      * @{
      */
       
-    /**
-     * @brief update the likelihood to get ready for computation
-     *
-     */
-
-    virtual void updateLikelihood() const = 0;
-
-    /**
-     * @brief compute the likelihood
-     *
-     */
-
-    virtual void computeLikelihood() const = 0;
-
     /**
      * @brief Get the logarithm of the likelihood for the whole dataset.
      *

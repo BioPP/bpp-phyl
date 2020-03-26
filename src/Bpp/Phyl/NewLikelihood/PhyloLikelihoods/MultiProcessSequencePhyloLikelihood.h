@@ -43,7 +43,7 @@
 #include "SequencePhyloLikelihood.h"
 #include "../MultiProcessSequenceEvolution.h"
 
-#include "../LikelihoodTreeCalculation.h"
+#include "../DataFlow/LikelihoodCalculationSingleProcess.h"
 
 #include <Bpp/Numeric/AbstractParametrizable.h>
 
@@ -81,7 +81,7 @@ namespace bpp
        * for the global likelihood.
        */
   
-      std::vector<LikelihoodTreeCalculation*> vpTreelik_;
+      std::vector<std::shared_ptr<LikelihoodCalculationSingleProcess>> vpTreelik_;
 
     public:
       MultiProcessSequencePhyloLikelihood(
@@ -100,10 +100,11 @@ namespace bpp
         mSeqEvol_(lik.mSeqEvol_),
         vpTreelik_()
       {
-        for (size_t i = 0; i < lik.vpTreelik_.size(); i++)
-        {
-          vpTreelik_.push_back(lik.vpTreelik_[i]->clone());
-        }
+        throw Exception("MultiProcessSequencePhyloLikelihood::MultiProcessSequencePhyloLikelihood called.");
+        // for (size_t i = 0; i < lik.vpTreelik_.size(); i++)
+        // {
+        //   vpTreelik_.push_back(lik.vpTreelik_[i]->clone());
+        // }
       }
 
       /**
@@ -112,12 +113,6 @@ namespace bpp
        */
       virtual ~MultiProcessSequencePhyloLikelihood()
       {
-        for (size_t i = 0; i < vpTreelik_.size(); i++)
-        {
-          if (vpTreelik_[i])
-            delete vpTreelik_[i];
-        }
-        vpTreelik_.empty();
       }
 
     public:
@@ -128,11 +123,11 @@ namespace bpp
        */
 
       const AlignedValuesContainer* getData() const {
-        return vpTreelik_[0]->getData();
+        return 0;//vpTreelik_[0]->getData();
       }
 
       const Alphabet* getAlphabet() const {
-        return vpTreelik_[0]->getAlphabet();
+        return 0;//vpTreelik_[0]->getAlphabet();
       }
 
       /*
@@ -140,29 +135,6 @@ namespace bpp
        */
       
     public:
-
-      void updateLikelihood() const
-      {
-          for (size_t i = 0; i < vpTreelik_.size(); i++)
-            vpTreelik_[i]->updateLikelihood();
-      }
-      
-      void computeLikelihood() const
-      {
-          for (size_t i = 0; i < vpTreelik_.size(); i++)
-            vpTreelik_[i]->computeTreeLikelihood();
-        
-      }
-      /**
-       * @brief sets using log in all likelihood arrays.
-       *
-       */
-      
-      void setUseLog(bool useLog)
-      {
-        for (size_t i = 0; i < vpTreelik_.size(); i++)
-          vpTreelik_[i]->setAllUseLog(useLog);
-      }
 
       /**
        * @brief Get the likelihood for a site.
@@ -187,7 +159,7 @@ namespace bpp
 
       double getLikelihoodForASiteForAProcess(size_t site, size_t p) const
       {
-        return vpTreelik_[p]->getLikelihoodForASite(site);
+        return 0;//vpTreelik_[p]->getLikelihoodForASite(site);
       }
 
       /**
@@ -211,7 +183,7 @@ namespace bpp
 
       virtual double getDLogLikelihoodForASiteForAProcess(size_t site, size_t p) const
       {
-        return vpTreelik_[p]->getDLogLikelihoodForASite(site);
+        return 0;//vpTreelik_[p]->getDLogLikelihoodForASite(site);
       }
 
       /**
@@ -235,7 +207,7 @@ namespace bpp
 
       double getD2LogLikelihoodForASiteForAProcess(size_t site, size_t p) const
       {
-        return vpTreelik_[p]->getD2LogLikelihoodForASite(site);
+        return 0;//vpTreelik_[p]->getD2LogLikelihoodForASite(site);
       }
 
       VVdouble getLikelihoodPerSitePerProcess() const;

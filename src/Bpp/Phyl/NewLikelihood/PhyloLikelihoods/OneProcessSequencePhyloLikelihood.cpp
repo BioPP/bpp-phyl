@@ -38,7 +38,6 @@
  */
 
 #include "OneProcessSequencePhyloLikelihood.h"
-#include "../RecursiveLikelihoodTreeCalculation.h"
 
 using namespace std;
 using namespace bpp;
@@ -55,11 +54,10 @@ OneProcessSequencePhyloLikelihood::OneProcessSequencePhyloLikelihood(
   AbstractAlignedPhyloLikelihood(context, 0),
   AbstractSequencePhyloLikelihood(context, evol, nSeqEvol),
   mSeqEvol_(evol),
-  tlComp_()
+  likCal_()
 {
-  SubstitutionProcess& sp = evol.getSubstitutionProcess();
-
-  tlComp_ = std::unique_ptr<LikelihoodTreeCalculation>(new RecursiveLikelihoodTreeCalculation(&sp, true, patterns));
+  const auto& sp = evol.getSubstitutionProcess();
+  likCal_ = std::make_shared<LikelihoodCalculationSingleProcess>(context, sp);  
 }
 
 /******************************************************************************/
@@ -76,11 +74,11 @@ OneProcessSequencePhyloLikelihood::OneProcessSequencePhyloLikelihood(
   AbstractAlignedPhyloLikelihood(context, data.getNumberOfSites()),
   AbstractSequencePhyloLikelihood(context, evol, nSeqEvol),
   mSeqEvol_(evol),
-  tlComp_()
+  likCal_()
 {
   SubstitutionProcess& sp = evol.getSubstitutionProcess();
 
-  tlComp_ = std::unique_ptr<LikelihoodTreeCalculation>(new RecursiveLikelihoodTreeCalculation(&sp, true, patterns));
+  likCal_ = std::make_shared<LikelihoodCalculationSingleProcess>(context, sp);  
 
   setData(data, nData);
 }
@@ -89,18 +87,15 @@ OneProcessSequencePhyloLikelihood::OneProcessSequencePhyloLikelihood(
 
 VVdouble OneProcessSequencePhyloLikelihood::getLikelihoodPerSitePerState() const
 {
-  updateLikelihood();
-  computeLikelihood();
-
   VVdouble l(getNumberOfSites());
   for (size_t i = 0; i < l.size(); ++i)
   {
     Vdouble* l_i = &l[i];
     l_i->resize(getNumberOfStates());
-    for (size_t x = 0; x < l_i->size(); ++x)
-    {
-      (*l_i)[x] = tlComp_->getLikelihoodForASiteForAState(i, static_cast<int>(x));
-    }
+    // for (size_t x = 0; x < l_i->size(); ++x)
+    // {
+    //   (*l_i)[x] = likCal_->getLikelihoodForASiteForAState(i, static_cast<int>(x));
+    // }
   }
   return l;
 }
@@ -109,18 +104,15 @@ VVdouble OneProcessSequencePhyloLikelihood::getLikelihoodPerSitePerState() const
 
 VVdouble OneProcessSequencePhyloLikelihood::getLikelihoodPerSitePerClass() const
 {
-  updateLikelihood();
-  computeLikelihood();
-
   VVdouble l(getNumberOfSites());
   for (size_t i = 0; i < l.size(); ++i)
   {
     Vdouble* l_i = &l[i];
     l_i->resize(getNumberOfClasses());
-    for (size_t c = 0; c < l_i->size(); ++c)
-    {
-      (*l_i)[c] = tlComp_->getLikelihoodForASiteForAClass(i, c);
-    }
+    // for (size_t c = 0; c < l_i->size(); ++c)
+    // {
+    //   (*l_i)[c] = likCal_->getLikelihoodForASiteForAClass(i, c);
+    // }
   }
   return l;
 }
@@ -129,9 +121,6 @@ VVdouble OneProcessSequencePhyloLikelihood::getLikelihoodPerSitePerClass() const
 
 VVVdouble OneProcessSequencePhyloLikelihood::getLikelihoodPerSitePerClassPerState() const
 {
-  updateLikelihood();
-  computeLikelihood();
-
   VVVdouble l(getNumberOfSites());
   for (size_t i = 0; i < l.size(); ++i)
   {
@@ -141,10 +130,10 @@ VVVdouble OneProcessSequencePhyloLikelihood::getLikelihoodPerSitePerClassPerStat
     {
       Vdouble* l_ic = &(*l_i)[c];
       l_ic->resize(getNumberOfStates());
-      for (size_t x = 0; x < l_ic->size(); ++x)
-      {
-        (*l_ic)[x] = tlComp_->getLikelihoodForASiteForAClassForAState(i, c, static_cast<int>(x));
-      }
+      // for (size_t x = 0; x < l_ic->size(); ++x)
+      // {
+      //   (*l_ic)[x] = likCal_->getLikelihoodForASiteForAClassForAState(i, c, static_cast<int>(x));
+      // }
     }
   }
   return l;
@@ -154,9 +143,6 @@ VVVdouble OneProcessSequencePhyloLikelihood::getLikelihoodPerSitePerClassPerStat
 
 VVdouble OneProcessSequencePhyloLikelihood::getPosteriorProbabilitiesPerClass() const
 {
-  updateLikelihood();
-  computeLikelihood();
-
   size_t nbSites   = getNumberOfSites();
   size_t nbClasses = getNumberOfClasses();
   VVdouble pb = getLikelihoodPerSitePerClass();
@@ -176,9 +162,6 @@ VVdouble OneProcessSequencePhyloLikelihood::getPosteriorProbabilitiesPerClass() 
 
 vector<size_t> OneProcessSequencePhyloLikelihood::getClassWithMaxPostProbPerSite() const
 {
-  updateLikelihood();
-  computeLikelihood();
-
   size_t nbSites = getNumberOfSites();
   VVdouble l = getLikelihoodPerSitePerClass();
   vector<size_t> classes(nbSites);
@@ -194,9 +177,6 @@ vector<size_t> OneProcessSequencePhyloLikelihood::getClassWithMaxPostProbPerSite
 
 Vdouble OneProcessSequencePhyloLikelihood::getPosteriorRatePerSite() const
 {
-  updateLikelihood();
-  computeLikelihood();
-
   size_t nbSites   = getNumberOfSites();
   size_t nbClasses = getNumberOfClasses();
   VVdouble pb = getLikelihoodPerSitePerClass();
@@ -232,7 +212,7 @@ void OneProcessSequencePhyloLikelihood::computeDLogLikelihood_(const string& var
     return;
   }
 
-  tlComp_->computeTreeDLogLikelihood(vbrId);
+  // likCal_->computeTreeDLogLikelihood(vbrId);
 //  dValues_[variable]= std::nan("");
 }
 
@@ -256,6 +236,6 @@ void OneProcessSequencePhyloLikelihood::computeD2LogLikelihood_(const string& va
     return;
   }
 
-  tlComp_->computeTreeD2LogLikelihood(vbrId);
+  // likCal_->computeTreeD2LogLikelihood(vbrId);
 //  d2Values_[variable]= std::nan("");
 }

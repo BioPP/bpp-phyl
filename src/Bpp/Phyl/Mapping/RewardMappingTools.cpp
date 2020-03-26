@@ -38,7 +38,7 @@
  */
 
 #include "RewardMappingTools.h"
-#include "../Likelihood/DRTreeLikelihoodTools.h"
+#include "../NewLikelihood/DataFlow/LikelihoodCalculationSingleProcess.h"
 
 #include <Bpp/Text/TextTools.h>
 #include <Bpp/App/ApplicationTools.h>
@@ -56,17 +56,17 @@ using namespace std;
 /******************************************************************************/
 
 ProbabilisticRewardMapping* RewardMappingTools::computeRewardVectors(
-  RecursiveLikelihoodTreeCalculation& rltc,
+  LikelihoodCalculationSingleProcess& rltc,
   const vector<uint>& nodeIds,
   Reward& reward,
   bool verbose)
 {
+  /*
   // Preamble:
   if (!rltc.isInitialized())
     throw Exception("RewardMappingTools::computeSubstitutionVectors(). Likelihood object is not initialized.");
-  rltc.computeTreeLikelihood();
 
-  const SubstitutionProcess& sp=*rltc.getSubstitutionProcess();
+  const SubstitutionProcess& sp=rltc.getSubstitutionProcess();
   const ParametrizablePhyloTree& ppt=sp.getParametrizablePhyloTree();
   
   // A few variables we'll need:
@@ -276,6 +276,9 @@ ProbabilisticRewardMapping* RewardMappingTools::computeRewardVectors(
     ApplicationTools::displayTaskDone();
   }
   return rewards.release();
+  */
+
+  return 0;
 }
 
 /**************************************************************************************************/

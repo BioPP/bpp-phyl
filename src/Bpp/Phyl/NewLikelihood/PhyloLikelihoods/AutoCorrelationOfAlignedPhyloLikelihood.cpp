@@ -78,7 +78,7 @@ void AutoCorrelationOfAlignedPhyloLikelihood::setNamespace(const std::string& na
 void AutoCorrelationOfAlignedPhyloLikelihood::fireParameterChanged(const ParameterList& parameters)
 {
   SetOfAlignedPhyloLikelihood::fireParameterChanged(parameters);
-  hpep_->update();
+  // hpep_->update();
   hmm_->matchParametersValues(parameters);
 }
 

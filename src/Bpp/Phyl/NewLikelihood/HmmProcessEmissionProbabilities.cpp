@@ -68,19 +68,19 @@ void HmmProcessEmissionProbabilities::setHmmStateAlphabet(const HmmStateAlphabet
   
   procAlph_=dynamic_cast<const HmmProcessAlphabet*>(stateAlphabet);
   emProb_.resize(multiPL_->getNumberOfSites());
-  upToDate_=false;
+  // upToDate_=false;
 }
 
 
 void HmmProcessEmissionProbabilities::updateEmissionProbabilities_() const
 {
-  multiPL_->computeLikelihood();
+  // multiPL_->computeLikelihood();
   
   for (size_t i=0;i<emProb_.size();i++)
     for (size_t j=0;j<emProb_[j].size();j++)
       emProb_[i][j]= multiPL_->getLikelihoodForASiteForAProcess(i, j);
   
-  upToDate_=true;
+  // upToDate_=true;
 }
 
 void HmmProcessEmissionProbabilities::computeDEmissionProbabilities(std::string& variable) const

@@ -113,9 +113,6 @@ namespace bpp
 
       virtual double getLikelihoodForASite(size_t site) const
       {
-        updateLikelihood();
-        computeLikelihood();
-        
         double x=1;
 
         const std::vector<size_t>& nPhylo=getNumbersOfPhyloLikelihoods();
@@ -128,9 +125,6 @@ namespace bpp
 
       virtual double getLogLikelihoodForASite(size_t site) const
       {
-        updateLikelihood();
-        computeLikelihood();
-        
         double x=0;
 
         const std::vector<size_t>& nPhylo=getNumbersOfPhyloLikelihoods();

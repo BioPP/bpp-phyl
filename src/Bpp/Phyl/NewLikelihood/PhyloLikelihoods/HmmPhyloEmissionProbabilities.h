@@ -108,11 +108,6 @@ namespace bpp
       return nbSites_;
     }
 
-    void update()
-    {
-      upToDate_=false;
-    }
-    
     /**
      * @brief Set the new hidden state alphabet.
      * @param stateAlphabet The new state alphabet.

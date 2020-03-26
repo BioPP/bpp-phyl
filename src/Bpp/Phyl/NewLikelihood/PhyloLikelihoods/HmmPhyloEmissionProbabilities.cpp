@@ -74,8 +74,8 @@ void HmmPhyloEmissionProbabilities::setHmmStateAlphabet(const HmmStateAlphabet* 
 
 void HmmPhyloEmissionProbabilities::computeEmissionProbabilities_() const
 {
-  phylAlph_->updateLikelihood();
-  phylAlph_->computeLikelihood();
+  // phylAlph_->updateLikelihood();
+  // phylAlph_->computeLikelihood();
   
   for (size_t i=0;i<nbSites_;i++)
     for (size_t j=0;j<getNumberOfStates();j++)

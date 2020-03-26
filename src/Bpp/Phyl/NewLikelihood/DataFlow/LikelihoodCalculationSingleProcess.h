@@ -260,6 +260,11 @@ namespace bpp {
         return likelihood_;
       }
 
+      double getLogLikelihood() 
+      {
+        return getLikelihood()->getTargetValue();
+      }
+
       size_t getNumberOfSites() const
       {
         return (psites_?psites_->getNumberOfSites():0);

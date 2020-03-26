@@ -41,7 +41,9 @@
 #define _MARGINALANCESTRALRECONSTRUCTION_H_
 
 #include "../AncestralStateReconstruction.h"
-#include "AbstractLikelihoodTreeCalculation.h"
+
+#include "DataFlow/LikelihoodCalculationSingleProcess.h"
+#include "DataFlow/DataFlowCWise.h"
 
 // From SeqLib:
 #include <Bpp/Seq/Alphabet/Alphabet.h>
@@ -64,25 +66,25 @@ namespace bpp
     public virtual AncestralStateReconstruction
   {
   private:
-    AbstractLikelihoodTreeCalculation* likelihood_;
+    std::shared_ptr<LikelihoodCalculationSingleProcess> likelihood_;
     const ParametrizablePhyloTree* tree_;
     const Alphabet* alphabet_;
     size_t nbSites_;
     size_t nbDistinctSites_;
-    size_t nbClasses_;
+    // size_t nbClasses_;
     size_t nbStates_;
-    std::vector<size_t> rootPatternLinks_;
+    PatternType rootPatternLinks_;
     
   public:
-      MarginalAncestralReconstruction(AbstractLikelihoodTreeCalculation* drl) :
-        likelihood_      (drl),
-        tree_            (&drl->getSubstitutionProcess()->getParametrizablePhyloTree()),
-        alphabet_        (drl->getAlphabet()),
-        nbSites_         (drl->getLikelihoodData().getNumberOfSites()),
-        nbDistinctSites_ (drl->getLikelihoodData().getNumberOfDistinctSites()),
-        nbClasses_       (drl->getLikelihoodData().getNumberOfClasses()),
-        nbStates_        (drl->getLikelihoodData().getNumberOfStates()),
-        rootPatternLinks_(drl->getLikelihoodData().getRootArrayPositions())
+    MarginalAncestralReconstruction(std::shared_ptr<LikelihoodCalculationSingleProcess> drl) :
+      likelihood_      (drl),
+      tree_            (&drl->getSubstitutionProcess().getParametrizablePhyloTree()),
+      alphabet_        (drl->getStateMap().getAlphabet()),
+      nbSites_         (drl->getNumberOfSites()),
+      nbDistinctSites_ (drl->getNumberOfDistinctSites()),
+      // nbClasses_       (drl->getNumberOfClasses()),
+      nbStates_        (drl->getStateMap().getNumberOfModelStates()),
+      rootPatternLinks_(drl->getRootArrayPositions())
       {}
 
       MarginalAncestralReconstruction(const MarginalAncestralReconstruction& masr) :
@@ -91,7 +93,7 @@ namespace bpp
         alphabet_        (masr.alphabet_),
         nbSites_         (masr.nbSites_),
         nbDistinctSites_ (masr.nbDistinctSites_),
-        nbClasses_       (masr.nbClasses_),
+        // nbClasses_       (masr.nbClasses_),
         nbStates_        (masr.nbStates_),
         rootPatternLinks_(masr.rootPatternLinks_)
       {}
@@ -103,7 +105,7 @@ namespace bpp
         alphabet_         = masr.alphabet_;
         nbSites_          = masr.nbSites_;
         nbDistinctSites_  = masr.nbDistinctSites_;
-        nbClasses_        = masr.nbClasses_;
+        // nbClasses_        = masr.nbClasses_;
         nbStates_         = masr.nbStates_;
         rootPatternLinks_ = masr.rootPatternLinks_;
         return *this;

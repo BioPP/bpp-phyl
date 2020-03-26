@@ -146,28 +146,16 @@ namespace bpp {
      *
      */
 
-    void updateLikelihood() const
-    {
-      for (size_t i=0; i<vAP_.size(); i++)
-        vAP_[i]->updateLikelihood();
-    }
-
-    void computeLikelihood() const
-    {
-      for (size_t i=0; i<vAP_.size(); i++)
-        vAP_[i]->computeLikelihood();
-    }
-
     void computeDLogLikelihood(const std::string& variable) const
     {
-      for (size_t i=0; i<vAP_.size(); i++)
-        vAP_[i]->computeDLogLikelihood_(variable);
+      // for (size_t i=0; i<vAP_.size(); i++)
+      //   vAP_[i]->computeDLogLikelihood_(variable);
     }
 
     void computeD2LogLikelihood(const std::string& variable) const
     {
-      for (size_t i=0; i<vAP_.size(); i++)
-        vAP_[i]->computeD2LogLikelihood_(variable);
+      // for (size_t i=0; i<vAP_.size(); i++)
+      //   vAP_[i]->computeD2LogLikelihood_(variable);
     }
 
     /**

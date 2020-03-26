@@ -43,7 +43,7 @@
 #include "ProbabilisticRewardMapping.h"
 #include "Reward.h"
 
-#include "../NewLikelihood/RecursiveLikelihoodTreeCalculation.h"
+#include "../NewLikelihood/DataFlow/LikelihoodCalculationSingleProcess.h"
 
 namespace bpp
 {
@@ -79,7 +79,7 @@ namespace bpp
      * @throw Exception If the likelihood object is not initialized.
      */
     static ProbabilisticRewardMapping* computeRewardVectors(
-      RecursiveLikelihoodTreeCalculation& rltc,
+      LikelihoodCalculationSingleProcess& rltc,
       const std::vector<uint>& nodeIds,
       Reward& reward,
       bool verbose = true);

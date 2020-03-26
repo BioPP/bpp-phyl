@@ -98,17 +98,17 @@ public:
 
   void fireParameterChanged(const ParameterList& parameters);
 
-  void updateLikelihood() const
-  {
-      MultiProcessSequencePhyloLikelihood::updateLikelihood();
-  }
+  // void updateLikelihood() const
+  // {
+  //     MultiProcessSequencePhyloLikelihood::updateLikelihood();
+  // }
 
-  void computeLikelihood() const
-  {
-      MultiProcessSequencePhyloLikelihood::computeLikelihood();
-      Hmm_->computeLikelihood();
+  // void computeLikelihood() const
+  // {
+  //     MultiProcessSequencePhyloLikelihood::computeLikelihood();
+  //     Hmm_->computeLikelihood();
 
-  }
+  // }
 
   /**
    * @name The likelihood functions.
@@ -117,9 +117,6 @@ public:
    */
   double getLogLikelihood() const
   {
-    updateLikelihood();
-    computeLikelihood();
-
     return Hmm_->getLogLikelihood();
   }
 
@@ -141,17 +138,11 @@ public:
    */
   double getLikelihoodForASite(size_t site) const
   {
-    updateLikelihood();
-    computeLikelihood();
-
     return Hmm_->getLikelihoodForASite(site);
   }
 
   double getLogLikelihoodForASite(size_t site) const
   {
-    updateLikelihood();
-    computeLikelihood();
-
     return log(Hmm_->getLikelihoodForASite(site));
   }
 
@@ -167,17 +158,11 @@ public:
 
   Vdouble getLikelihoodPerSite() const
   {
-    updateLikelihood();
-    computeLikelihood();
-
     return Hmm_->getLikelihoodForEachSite();
   }
 
   VVdouble getPosteriorProbabilitiesPerSitePerProcess() const
   {
-    updateLikelihood();
-    computeLikelihood();
-
     VVdouble pp;
     Hmm_->getHiddenStatesPosteriorProbabilities(pp, false);
     return pp;

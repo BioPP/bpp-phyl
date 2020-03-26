@@ -43,15 +43,10 @@
 
 #include "SubstitutionProcess.h"
 
-#include "ComputingTree.h"
-
 namespace bpp
 {
 /**
  * @brief A substitution process which objects belong to a SubstitutionProcessCollection.
- *
- * This object is a link between SubstitutionProcessCollection and
- * ComputingTree, and does not have any specific Parameter.
  *
  * The parameters are the INDEPENDENT parameters of the objects of
  * the Collection.
@@ -497,12 +492,6 @@ public:
   Vdouble getClassProbabilities() const;
 
   double getRateForModel(size_t classIndex) const;
-
-  /**
-   * @brief Methods for computing partial likelihoods. See
-   * class ComputingTree for details.
-   *
-   **/
 
   friend class SubstitutionProcessCollection;
 };

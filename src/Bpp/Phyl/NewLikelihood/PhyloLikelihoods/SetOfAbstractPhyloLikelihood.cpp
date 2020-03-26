@@ -66,7 +66,6 @@ bool SetOfAbstractPhyloLikelihood::addPhyloLikelihood(size_t nPhyl)
   if (aPL!=NULL){
     nPhylo_.push_back(nPhyl);
     includeParameters_(aPL->getParameters());
-    update();
     return true;
   }
   return false;

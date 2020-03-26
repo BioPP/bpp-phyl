@@ -109,10 +109,6 @@ namespace bpp
      *
      */
       
-    void update()
-    {
-    }
-
     virtual bool isInitialized() const
     {
       return false;

@@ -57,7 +57,6 @@
 #include "SequencePhyloLikelihood.h"
 #include "../SubstitutionProcess.h"
 #include "../OneProcessSequenceEvolution.h"
-#include "../RecursiveLikelihoodTreeCalculation.h"
 
 namespace bpp
 {
@@ -83,7 +82,7 @@ namespace bpp
     OneProcessSequenceEvolution& mSeqEvol_;
 
   protected:
-    mutable std::unique_ptr<LikelihoodTreeCalculation> tlComp_;
+    mutable std::shared_ptr<LikelihoodCalculationSingleProcess> likCal_;
 
   public:
     OneProcessSequencePhyloLikelihood(
@@ -107,9 +106,9 @@ namespace bpp
       AbstractAlignedPhyloLikelihood(lik),
       AbstractSequencePhyloLikelihood(lik),
       mSeqEvol_(lik.mSeqEvol_),
-      tlComp_()
+      likCal_()
     {
-      if (lik.tlComp_.get()) tlComp_.reset(lik.tlComp_->clone());
+      throw Exception("OneProcessSequencePhyloLikelihood::clone called.");
     }
 
     virtual ~OneProcessSequencePhyloLikelihood() {}
@@ -125,7 +124,7 @@ namespace bpp
     void setData(const AlignedValuesContainer& sites, size_t nData = 0) 
     {
       AbstractSequencePhyloLikelihood::setData(sites, nData);
-      tlComp_->setData(sites);
+      likCal_->setData(sites);
     }
 
     /**
@@ -134,12 +133,12 @@ namespace bpp
      */
     const AlignedValuesContainer* getData() const
     {
-      return tlComp_->getData();
+      return likCal_->getData();
     }
 
     const Alphabet* getAlphabet() const
     {
-      return tlComp_->getAlphabet();
+      return likCal_->getStateMap().getAlphabet();
     }
 
     /** @} */
@@ -181,48 +180,20 @@ namespace bpp
 
   public:
     /**
-     * @brief set it arrays should be computed in log.
-     *
-     */
-    void setUseLog(bool useLog)
-    {
-      tlComp_->setAllUseLog(useLog);
-    }
-
-    /**
      * @return The underlying likelihood computation structure.
      */
-    LikelihoodCalculationSingleProcess* getLikelihoodCalculation() { return 0;}//tlComp_.get(); }
+    LikelihoodCalculationSingleProcess* getLikelihoodCalculation() {
+      return likCal_.get();
+    }
 
-    const LikelihoodCalculationSingleProcess* getLikelihoodCalculation() const { return 0;}//tlComp_.get(); }
-
-    /**
-     * @return The underlying likelihood data structure.
-     */
-    LikelihoodTree& getLikelihoodData() { return tlComp_->getLikelihoodData(); }
-
-    /**
-     * @return The underlying likelihood data structure.
-     */
-    const LikelihoodTree& getLikelihoodData() const { return tlComp_->getLikelihoodData(); }
+    const LikelihoodCalculationSingleProcess* getLikelihoodCalculation() const {
+      return likCal_.get();
+    }
 
   public:
-    void updateLikelihood() const
-    {
-        tlComp_->updateLikelihood();
-    }
-
-    void computeLikelihood() const
-    {
-        tlComp_->computeTreeLikelihood();
-    }
-
     double getLogLikelihood() const
     {
-      updateLikelihood();
-      computeLikelihood();
-
-      return tlComp_->getLogLikelihood();
+      return likCal_->getLogLikelihood();
     }
 
     double getDLogLikelihood(const std::string& variable) const
@@ -232,7 +203,7 @@ namespace bpp
       if (!hasParameter(variable) || (variable.compare(0,5,"BrLen")!=0))
         return 0;
 
-      return tlComp_->getDLogLikelihood();
+      return 0;
     }
 
     double getD2LogLikelihood(const std::string& variable) const
@@ -242,23 +213,19 @@ namespace bpp
       if (!hasParameter(variable) || (variable.compare(0,5,"BrLen")!=0))
         return 0;
 
-      return tlComp_->getD2LogLikelihood();
+      return 0;
     }
 
     double getLikelihoodForASite(size_t site) const
     {
-      updateLikelihood();
-      computeLikelihood();
-
-      return tlComp_->getLikelihoodForASite(site);
+      return likCal_->getLikelihoodForASite(site);
     }
 
     double getLogLikelihoodForASite(size_t site) const
     {
-      updateLikelihood();
-      computeLikelihood();
-
-      return tlComp_->getLogLikelihoodForASite(site);
+      throw Exception("OneProcessSequencePhyloLikelihood::getLogLikelihoodForASite.");
+      
+      return 0;
     }
 
     double getDLogLikelihoodForASite(const std::string& variable, size_t site) const
@@ -268,7 +235,7 @@ namespace bpp
       if (!hasParameter(variable) || (variable.compare(0,5,"BrLen")!=0))
         return 0;
 
-      return tlComp_->getDLogLikelihoodForASite(site);
+      return 0;
     }
 
     double getD2LogLikelihoodForASite(const std::string& variable, size_t site) const
@@ -278,7 +245,7 @@ namespace bpp
       if (!hasParameter(variable) || (variable.compare(0,5,"BrLen")!=0))
         return 0;
 
-      return tlComp_->getD2LogLikelihoodForASite(site);
+      return 0;
     }
 
     /**
@@ -315,7 +282,7 @@ namespace bpp
      */
     // size_t getSiteIndex(size_t site) const throw (IndexOutOfBoundsException)
     // {
-    //   return tlComp_->getSiteIndex(site);
+    //   return likCal_->getSiteIndex(site);
     // }
 
     /**

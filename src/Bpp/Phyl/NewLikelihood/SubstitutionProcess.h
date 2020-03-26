@@ -41,7 +41,6 @@
 #define _SUBSTITUTIONPROCESS_H_
 
 #include "ParametrizablePhyloTree.h"
-#include "ComputingTree.h"
 #include "../Model/SubstitutionModel.h"
 
 #include "ModelScenario.h"

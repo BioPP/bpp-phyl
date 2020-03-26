@@ -65,39 +65,38 @@ MixtureProcessPhyloLikelihood::MixtureProcessPhyloLikelihood(
 
 double MixtureProcessPhyloLikelihood::getLogLikelihood() const
 {
-  updateLikelihood();
-  computeLikelihood();
+  // vector<double> la(nbSites_);
+  // for (size_t i = 0; i < nbSites_; ++i)
+  //   {
+  //     la[i] = getLogLikelihoodForASite(i);
+  //   }
 
-  vector<double> la(nbSites_);
-  for (size_t i = 0; i < nbSites_; ++i)
-    {
-      la[i] = getLogLikelihoodForASite(i);
-    }
-
-  sort(la.begin(), la.end());
-  double ll = 0;
-  for (size_t i = nbSites_; i > 0; i--)
-  {
-    ll += la[i - 1];
-  }
-  return ll;
+  // sort(la.begin(), la.end());
+  // double ll = 0;
+  // for (size_t i = nbSites_; i > 0; i--)
+  // {
+  //   ll += la[i - 1];
+  // }
+  // return ll;
+  return 0;
 }
 
 /******************************************************************************/
 
 double MixtureProcessPhyloLikelihood::getDLogLikelihoodForASite(const std::string& variable, size_t site) const
 {
-  // check it is a "BrLen" variable
+  // // check it is a "BrLen" variable
 
-  if (!hasParameter(variable) || (variable.compare(0,5,"BrLen")!=0))
-    return 0;
+  // if (!hasParameter(variable) || (variable.compare(0,5,"BrLen")!=0))
+  //   return 0;
 
-  Vdouble vD;
+  // Vdouble vD;
 
-  for (size_t i = 0; i < vpTreelik_.size(); i++)
-    vD.push_back(vpTreelik_[i]->getDLogLikelihoodForASite(site));
+  // for (size_t i = 0; i < vpTreelik_.size(); i++)
+  //   vD.push_back(vpTreelik_[i]->getDLogLikelihoodForASite(site));
 
-  return VectorTools::logSumExp(vD,mSeqEvol_.getSubProcessProbabilities());
+  // return VectorTools::logSumExp(vD,mSeqEvol_.getSubProcessProbabilities());
+  return 0;
 }
 
 /******************************************************************************/
@@ -106,15 +105,16 @@ double MixtureProcessPhyloLikelihood::getD2LogLikelihoodForASite(const std::stri
 {
   // check it is a "BrLen" variable
 
-  if (!hasParameter(variable) || (variable.compare(0,5,"BrLen")!=0))
-    return 0;
+  // if (!hasParameter(variable) || (variable.compare(0,5,"BrLen")!=0))
+  //   return 0;
 
-  Vdouble vD2;
+  // Vdouble vD2;
 
-  for (size_t i = 0; i < vpTreelik_.size(); i++)
-    vD2.push_back(vpTreelik_[i]->getD2LogLikelihoodForASite(site));
+  // for (size_t i = 0; i < vpTreelik_.size(); i++)
+  //   vD2.push_back(vpTreelik_[i]->getD2LogLikelihoodForASite(site));
 
-  return VectorTools::logSumExp(vD2,mSeqEvol_.getSubProcessProbabilities());
+  // return VectorTools::logSumExp(vD2,mSeqEvol_.getSubProcessProbabilities());
+  return 0;
 }
 
 /******************************************************************************/
@@ -123,23 +123,24 @@ double MixtureProcessPhyloLikelihood::getDLogLikelihood(const std::string& varia
 {
   // check it is a "BrLen" variable
 
-  if (!hasParameter(variable) || (variable.compare(0,5,"BrLen")!=0))
-    return 0;
+  // if (!hasParameter(variable) || (variable.compare(0,5,"BrLen")!=0))
+  //   return 0;
 
-  //
+  // //
   
-  vector<double> la(nbSites_);
-  for (size_t i = 0; i < nbSites_; ++i)
-  {
-    la[i] = getDLogLikelihoodForASite(variable, i);
-  }
-  sort(la.begin(), la.end());
-  double ll = 0;
-  for (size_t i = nbSites_; i > 0; i--)
-  {
-    ll += la[i - 1];
-  }
-  return ll;
+  // vector<double> la(nbSites_);
+  // for (size_t i = 0; i < nbSites_; ++i)
+  // {
+  //   la[i] = getDLogLikelihoodForASite(variable, i);
+  // }
+  // sort(la.begin(), la.end());
+  // double ll = 0;
+  // for (size_t i = nbSites_; i > 0; i--)
+  // {
+  //   ll += la[i - 1];
+  // }
+  // return ll;
+  return 0;
 }
 
 /******************************************************************************/
@@ -148,53 +149,50 @@ double MixtureProcessPhyloLikelihood::getD2LogLikelihood(const std::string& vari
 {
   // check it is a "BrLen" variable
 
-  if (!hasParameter(variable) || (variable.compare(0,5,"BrLen")!=0))
-    return 0;
+  // if (!hasParameter(variable) || (variable.compare(0,5,"BrLen")!=0))
+  //   return 0;
   
-  // Derivative of the sum is the sum of derivatives:
-  vector<double> la(nbSites_);
-  for (size_t i = 0; i < nbSites_; ++i)
-  {
-    la[i] = getD2LogLikelihoodForASite(variable, i);
-  }
-  sort(la.begin(), la.end());
-  double ll = 0;
-  for (size_t i = nbSites_; i > 0; i--)
-  {
-    ll += la[i - 1];
-  }
-  return ll;
+  // // Derivative of the sum is the sum of derivatives:
+  // vector<double> la(nbSites_);
+  // for (size_t i = 0; i < nbSites_; ++i)
+  // {
+  //   la[i] = getD2LogLikelihoodForASite(variable, i);
+  // }
+  // sort(la.begin(), la.end());
+  // double ll = 0;
+  // for (size_t i = nbSites_; i > 0; i--)
+  // {
+  //   ll += la[i - 1];
+  // }
+  // return ll;
+  return 0;
 }
 
 /******************************************************************************/
 
 double MixtureProcessPhyloLikelihood::getLikelihoodForASite(size_t site) const
 {
-  updateLikelihood();
-  computeLikelihood();
+  // double x = 0;
+  // for (size_t i = 0; i < vpTreelik_.size(); i++)
+  // {
+  //   x += vpTreelik_[i]->getLikelihoodForASite(site) * mSeqEvol_.getSubProcessProb(i);
+  // }
 
-  double x = 0;
-  for (size_t i = 0; i < vpTreelik_.size(); i++)
-  {
-    x += vpTreelik_[i]->getLikelihoodForASite(site) * mSeqEvol_.getSubProcessProb(i);
-  }
-
-  return x;
+  // return x;
+  return 0;
 }
 
 /******************************************************************************/
 
 double MixtureProcessPhyloLikelihood::getLogLikelihoodForASite(size_t site) const
 {
-  updateLikelihood();
-  computeLikelihood();
-
-  vector<double> v(vpTreelik_.size());
+  // vector<double> v(vpTreelik_.size());
   
-  for (size_t i = 0; i < vpTreelik_.size(); i++)
-    v[i]= vpTreelik_[i]->getLogLikelihoodForASite(site) + log(mSeqEvol_.getSubProcessProb(i));
+  // for (size_t i = 0; i < vpTreelik_.size(); i++)
+  //   v[i]= vpTreelik_[i]->getLogLikelihoodForASite(site) + log(mSeqEvol_.getSubProcessProb(i));
 
-  return VectorTools::logSumExp(v);
+  // return VectorTools::logSumExp(v);
+  return 0;
 }
 
 
@@ -202,21 +200,18 @@ double MixtureProcessPhyloLikelihood::getLogLikelihoodForASite(size_t site) cons
 
 VVdouble MixtureProcessPhyloLikelihood::getPosteriorProbabilitiesPerSitePerProcess() const
 {
-  updateLikelihood();
-  computeLikelihood();
-
-  size_t nbProcess = getNumberOfSubstitutionProcess();
+//  size_t nbProcess = getNumberOfSubstitutionProcess();
 
   VVdouble pb = getLikelihoodPerSitePerProcess();
-  Vdouble l = getLikelihoodPerSite();
+  // Vdouble l = getLikelihoodPerSite();
 
-  for (size_t i = 0; i < nbSites_; ++i)
-  {
-    for (size_t j = 0; j < nbProcess; ++j)
-    {
-      pb[i][j] = pb[i][j] * getSubProcessProb(j) / l[i];
-    }
-  }
+  // for (size_t i = 0; i < nbSites_; ++i)
+  // {
+  //   for (size_t j = 0; j < nbProcess; ++j)
+  //   {
+  //     pb[i][j] = pb[i][j] * getSubProcessProb(j) / l[i];
+  //   }
+  // }
   return pb;
 }
 

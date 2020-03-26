@@ -184,17 +184,6 @@ namespace bpp
        * @{
        */
 
-      void updateLikelihood() const
-      {
-          ProductOfAlignedPhyloLikelihood::updateLikelihood();
-      }
-      
-
-      void computeLikelihood() const
-      {
-          ProductOfAlignedPhyloLikelihood::computeLikelihood();
-      }
-      
       double getLikelihoodForASite(size_t site) const;
 
       double getLogLikelihoodForASite(size_t site) const;

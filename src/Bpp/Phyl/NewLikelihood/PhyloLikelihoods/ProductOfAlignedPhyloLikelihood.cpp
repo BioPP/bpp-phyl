@@ -90,8 +90,8 @@ double ProductOfAlignedPhyloLikelihood::getD2LogLikelihoodForASite(const std::st
 
 double ProductOfAlignedPhyloLikelihood::getLogLikelihood() const
 {
-  updateLikelihood();
-  computeLikelihood();
+  // updateLikelihood();
+  // computeLikelihood();
 
   vector<double> la(nbSites_);
   for (size_t i = 0; i < nbSites_; ++i)

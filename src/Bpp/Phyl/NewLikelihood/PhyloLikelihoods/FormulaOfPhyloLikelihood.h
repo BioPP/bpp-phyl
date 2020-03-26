@@ -106,9 +106,6 @@ namespace bpp
     
     double getLogLikelihood() const
     {
-      updateLikelihood();
-      computeLikelihood();
-
       return -compTree_->getValue();
     }
     

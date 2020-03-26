@@ -39,8 +39,6 @@
 
 #include "MultiProcessSequencePhyloLikelihood.h"
 
-#include "../RecursiveLikelihoodTreeCalculation.h"
-
 using namespace std;
 using namespace bpp;
 
@@ -68,9 +66,9 @@ MultiProcessSequencePhyloLikelihood::MultiProcessSequencePhyloLikelihood(
   
   for (size_t i = 0; i < nProc.size(); i++)
   {
-    RecursiveLikelihoodTreeCalculation* rt = new RecursiveLikelihoodTreeCalculation(
-      &processColl.getSubstitutionProcess(nProc[i]), i == 0, patterns);
-    vpTreelik_.push_back(rt);
+    auto likCal = std::make_shared<LikelihoodCalculationSingleProcess>(context,
+                                                                       processColl.getSubstitutionProcess(nProc[i]));
+    vpTreelik_.push_back(likCal);
   }
 
   setData(data, nData);
@@ -86,8 +84,6 @@ void MultiProcessSequencePhyloLikelihood::setData(const AlignedValuesContainer& 
   {
     vpTreelik_[i]->setData(sites);
   }
-  updateLikelihood();
-  computeLikelihood();
 }
 
 /******************************************************************************/
@@ -95,15 +91,15 @@ void MultiProcessSequencePhyloLikelihood::setData(const AlignedValuesContainer& 
 VVdouble MultiProcessSequencePhyloLikelihood::getLikelihoodPerSitePerProcess() const
 {
   VVdouble l(getNumberOfSites());
-  for (size_t i = 0; i < l.size(); ++i)
-    {
-      Vdouble* l_i = &l[i];
-      l_i->resize(getNumberOfSubstitutionProcess());
-      for (size_t c = 0; c < l_i->size(); ++c)
-        {
-          (*l_i)[c] = getLikelihoodForASiteForAProcess(i, c);
-        }
-    }
+  // for (size_t i = 0; i < l.size(); ++i)
+  //   {
+  //     Vdouble* l_i = &l[i];
+  //     l_i->resize(getNumberOfSubstitutionProcess());
+  //     for (size_t c = 0; c < l_i->size(); ++c)
+  //       {
+  //         (*l_i)[c] = getLikelihoodForASiteForAProcess(i, c);
+  //       }
+  //   }
   return l;
 }
 
@@ -112,8 +108,8 @@ VVdouble MultiProcessSequencePhyloLikelihood::getLikelihoodPerSitePerProcess() c
 
 void MultiProcessSequencePhyloLikelihood::computeDLogLikelihood_(const std::string& variable) const
 {
-  for (size_t i=0; i<vpTreelik_.size();i++)
-    computeDLogLikelihoodForAProcess(variable, i);
+  // for (size_t i=0; i<vpTreelik_.size();i++)
+  //   computeDLogLikelihoodForAProcess(variable, i);
   
   // dValues_[variable]= std::nan("");
 }
@@ -122,8 +118,8 @@ void MultiProcessSequencePhyloLikelihood::computeDLogLikelihood_(const std::stri
 
 void MultiProcessSequencePhyloLikelihood::computeD2LogLikelihood_(const std::string& variable) const
 {
-  for (size_t i=0; i<vpTreelik_.size();i++)
-    computeD2LogLikelihoodForAProcess(variable, i);
+  // for (size_t i=0; i<vpTreelik_.size();i++)
+  //   computeD2LogLikelihoodForAProcess(variable, i);
 
   // d2Values_[variable]= std::nan("");
 }
@@ -133,38 +129,38 @@ void MultiProcessSequencePhyloLikelihood::computeD2LogLikelihood_(const std::str
 
 void MultiProcessSequencePhyloLikelihood::computeDLogLikelihoodForAProcess(const std::string& variable, size_t p) const
 {
-  // check it is a "BrLen" variable
+  // // check it is a "BrLen" variable
 
-  if (!hasParameter(variable) || (variable.compare(0,5,"BrLen")!=0))
-    return;
+  // if (!hasParameter(variable) || (variable.compare(0,5,"BrLen")!=0))
+  //   return;
 
-  // Get the node with the branch whose length must be derivated:
+  // // Get the node with the branch whose length must be derivated:
   
-  Vuint VbrId;
+  // Vuint VbrId;
 
-  size_t i=0;
-  try {
-    i=(size_t)atoi(variable.substr(variable.rfind('_')+1).c_str());
-    if (p+1==i)
-      VbrId.push_back(atoi(variable.substr(5).c_str()));
-  }
-  catch (exception& e){}
+  // size_t i=0;
+  // try {
+  //   i=(size_t)atoi(variable.substr(variable.rfind('_')+1).c_str());
+  //   if (p+1==i)
+  //     VbrId.push_back(atoi(variable.substr(5).c_str()));
+  // }
+  // catch (exception& e){}
   
-  vector<string> valias= mSeqEvol_.getCollection().getAlias(variable);
+  // vector<string> valias= mSeqEvol_.getCollection().getAlias(variable);
 
-  for (size_t v=0; v<valias.size();v++)
-  {
-    try {
-      i=(size_t)atoi(valias[v].substr(valias[v].rfind('_')+1).c_str());
-      if (p+1==i){
-        VbrId.push_back((unsigned int)atoi(valias[v].substr(5).c_str()));
-      }
-    }
-    catch (exception& e)
-    {}
-  }
+  // for (size_t v=0; v<valias.size();v++)
+  // {
+  //   try {
+  //     i=(size_t)atoi(valias[v].substr(valias[v].rfind('_')+1).c_str());
+  //     if (p+1==i){
+  //       VbrId.push_back((unsigned int)atoi(valias[v].substr(5).c_str()));
+  //     }
+  //   }
+  //   catch (exception& e)
+  //   {}
+  // }
 
-  vpTreelik_[p]->computeTreeDLogLikelihood(VbrId);
+  // vpTreelik_[p]->computeTreeDLogLikelihood(VbrId);
 }
 
 
@@ -172,36 +168,36 @@ void MultiProcessSequencePhyloLikelihood::computeDLogLikelihoodForAProcess(const
 
 void MultiProcessSequencePhyloLikelihood::computeD2LogLikelihoodForAProcess(const std::string& variable, size_t p) const
 {
-  // check it is a "BrLen" variable
+  // // check it is a "BrLen" variable
 
-  if (!hasParameter(variable) || (variable.compare(0,5,"BrLen")!=0))
-    return;
+  // if (!hasParameter(variable) || (variable.compare(0,5,"BrLen")!=0))
+  //   return;
 
-  // Get the node with the branch whose length must be derivated:
+  // // Get the node with the branch whose length must be derivated:
 
-  Vuint VbrId;
+  // Vuint VbrId;
 
-  size_t i=0;
-  try {
-    i=(size_t)atoi(variable.substr(variable.rfind('_')+1).c_str());
-    if (p+1==i)
-      VbrId.push_back((unsigned int)atoi(variable.substr(5).c_str()));
-  }
-  catch (exception& e){}
+  // size_t i=0;
+  // try {
+  //   i=(size_t)atoi(variable.substr(variable.rfind('_')+1).c_str());
+  //   if (p+1==i)
+  //     VbrId.push_back((unsigned int)atoi(variable.substr(5).c_str()));
+  // }
+  // catch (exception& e){}
   
-  vector<string> valias= mSeqEvol_.getCollection().getAlias(variable);
+  // vector<string> valias= mSeqEvol_.getCollection().getAlias(variable);
   
-  for (size_t v=0; v<valias.size();v++)
-  {
-    try {
-      i=(size_t)atoi(valias[v].substr(valias[v].rfind('_')+1).c_str());
-      if (p+1==i){
-        VbrId.push_back(atoi(valias[v].substr(5).c_str()));
-      }
-    }
-    catch (exception& e)
-    {}
-  }
+  // for (size_t v=0; v<valias.size();v++)
+  // {
+  //   try {
+  //     i=(size_t)atoi(valias[v].substr(valias[v].rfind('_')+1).c_str());
+  //     if (p+1==i){
+  //       VbrId.push_back(atoi(valias[v].substr(5).c_str()));
+  //     }
+  //   }
+  //   catch (exception& e)
+  //   {}
+  // }
 
-  vpTreelik_[p]->computeTreeD2LogLikelihood(VbrId);
+  // vpTreelik_[p]->computeTreeD2LogLikelihood(VbrId);
 }

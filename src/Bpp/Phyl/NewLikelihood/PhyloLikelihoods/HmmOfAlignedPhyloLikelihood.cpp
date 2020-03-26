@@ -77,7 +77,7 @@ void HmmOfAlignedPhyloLikelihood::setNamespace(const std::string& nameSpace)
 void HmmOfAlignedPhyloLikelihood::fireParameterChanged(const ParameterList& parameters)
 {
   SetOfAlignedPhyloLikelihood::fireParameterChanged(parameters);
-  hpep_->update();
+  // hpep_->update();
   hmm_->matchParametersValues(parameters);
 }
 

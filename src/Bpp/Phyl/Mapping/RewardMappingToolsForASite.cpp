@@ -57,13 +57,14 @@ using namespace std;
 
 ProbabilisticRewardMapping* RewardMappingToolsForASite::computeRewardVectors(
   size_t site,
-  RecursiveLikelihoodTreeCalculation& rltc,
+  LikelihoodCalculationSingleProcess& rltc,
   const vector<uint>& nodeIds,
   Reward& reward,
   bool verbose)
 {
   // Preamble:
-  if (!rltc.isInitialized())
+  /*
+    if (!rltc.isInitialized())
     throw Exception("RewardMappingToolsForASite::computeSubstitutionVectors(). Likelihood object is not initialized.");
   rltc.computeTreeLikelihood();
 
@@ -263,5 +264,7 @@ ProbabilisticRewardMapping* RewardMappingToolsForASite::computeRewardVectors(
     ApplicationTools::displayTaskDone();
   }
   return rewards.release();
+  */
+  return 0;
 }
 

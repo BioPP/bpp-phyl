@@ -89,13 +89,6 @@ set (CPP_FILES
   Bpp/Phyl/NewLikelihood/AutoCorrelationSequenceEvolution.cpp
   Bpp/Phyl/NewLikelihood/HmmProcessEmissionProbabilities.cpp
   Bpp/Phyl/NewLikelihood/ParametrizablePhyloTree.cpp
-  Bpp/Phyl/NewLikelihood/AbstractLikelihoodNode.cpp
-  Bpp/Phyl/NewLikelihood/AbstractLikelihoodTree.cpp
-  Bpp/Phyl/NewLikelihood/RecursiveLikelihoodTree.cpp
-  Bpp/Phyl/NewLikelihood/AbstractLikelihoodTreeCalculation.cpp
-  Bpp/Phyl/NewLikelihood/RecursiveLikelihoodTreeCalculation.cpp
-  Bpp/Phyl/NewLikelihood/SpeciationComputingNode.cpp
-  Bpp/Phyl/NewLikelihood/ComputingTree.cpp
   Bpp/Phyl/NewLikelihood/PhyloLikelihoods/AbstractPhyloLikelihood.cpp
   Bpp/Phyl/NewLikelihood/PhyloLikelihoods/SingleProcessPhyloLikelihood.cpp
   Bpp/Phyl/NewLikelihood/PhyloLikelihoods/OneProcessSequencePhyloLikelihood.cpp
