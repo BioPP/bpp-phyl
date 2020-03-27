@@ -230,13 +230,6 @@ namespace bpp
   
       size_t getNumberOfSubstitutionProcess() const { return vpTreelik_.size(); }
 
-    protected:
-
-      virtual void computeDLogLikelihood_(const std::string& variable) const;
-
-      virtual void computeD2LogLikelihood_(const std::string& variable) const;
-
-
       /** @} */
     };
 } // end of namespace bpp.

@@ -67,16 +67,6 @@ namespace bpp {
     public AbstractSingleDataPhyloLikelihood,
     public AbstractParametrizable
   {
-  private:
-    // Cache generated nodes representing derivatives, to avoid recreating them every time.
-    // Using the mutable keyword because the table must be changed even in const methods.
-    struct StringPairHash {
-      std::size_t operator() (const std::pair<std::string, std::string> & p) const {
-        std::hash<std::string> strHash{};
-        return strHash (p.first) ^ (strHash (p.second) << 1);
-      }
-    };
-      
   protected:
     // Store nodes
     mutable std::shared_ptr<LikelihoodCalculationSingleProcess> likCal_;
@@ -103,15 +93,14 @@ namespace bpp {
     SingleProcessPhyloLikelihood (Context & context,
                                   std::shared_ptr<LikelihoodCalculationSingleProcess> likCal,
                                   const ParameterList & variableNodes,
-                                  size_t nProc = 0, size_t nData=0)
-      :
+                                  size_t nProc = 0, size_t nData=0) :
       AbstractPhyloLikelihood(context),
       AbstractAlignedPhyloLikelihood(context, likCal->getNumberOfSites()),
       AbstractSingleDataPhyloLikelihood(context, likCal->getNumberOfSites(), likCal->getSubstitutionProcess().getNumberOfStates(), nData),
       AbstractParametrizable(""),
       likCal_(likCal), nProc_(nProc)
     {
-      shareParameters(variableNodes);
+      shareParameters_(variableNodes);
     }
 
     /*
@@ -128,7 +117,7 @@ namespace bpp {
       AbstractParametrizable(""),
       likCal_(likCal), nProc_(nProc)
     {
-      shareParameters(likCal_->getParameters());
+      shareParameters_(likCal_->getParameters());
     }
 
     // Legacy boilerplate
@@ -182,12 +171,6 @@ namespace bpp {
     size_t getSubstitutionProcessNumber() const { return nProc_; }
 
     /**
-     * @return initialize the likelihood function.
-     */
-      
-    void initialize() {};
-      
-    /**
      * @return 'true' is the likelihood function has been initialized.
      */
 
@@ -212,18 +195,8 @@ namespace bpp {
      */
     
     double getLogLikelihood() const {
-      return -getLikelihoodCalculation()->getLikelihood()->getTargetValue ();
+      return getLikelihoodCalculation()->getLogLikelihoodValue();
     }
-    
-    /**
-     * @brief Compute the derivates of the LogLikelihood.
-     *
-     */
-
-    void computeDLogLikelihood_(const std::string& variable) const {};
-
-    
-    void computeD2LogLikelihood_(const std::string& variable) const {};
     
     /**
      * @brief Get the derivates of the LogLikelihood.
@@ -317,7 +290,7 @@ namespace bpp {
 
     ValueRef<double> getLikelihoodNode() const
     {
-      return getLikelihoodCalculation()->getLikelihood();
+      return getLikelihoodCalculation()->getLogLikelihood();
     }
           
     // Get nodes of derivatives directly

@@ -87,16 +87,6 @@ namespace bpp
     void setPhyloProb(const Simplex& si);
 
   protected:
-      
-    void computeDLogLikelihood_(const std::string& variable) const
-    {
-      SetOfAbstractPhyloLikelihood::computeDLogLikelihood_(variable);
-    }
-
-    void computeD2LogLikelihood_(const std::string& variable) const
-    {
-      SetOfAbstractPhyloLikelihood::computeD2LogLikelihood_(variable);
-    }
 
     void fireParameterChanged(const ParameterList& parameters);
 

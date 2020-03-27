@@ -79,26 +79,6 @@ void SetOfAbstractPhyloLikelihood::addAllPhyloLikelihoods()
     addPhyloLikelihood(vPhyl[i]);
 }
 
-void SetOfAbstractPhyloLikelihood::computeDLogLikelihood_(const std::string& variable) const
-{
-  for (size_t i=0; i<nPhylo_.size(); i++)
-    getPhyloLikelihood(nPhylo_[i])->computeDLogLikelihood_(variable);
-
-  // derivative exists and ready to compute
-  
-  // dValues_[variable]= nan("");
-}
-
-void SetOfAbstractPhyloLikelihood::computeD2LogLikelihood_(const std::string& variable) const
-{
-  for (size_t i=0; i<nPhylo_.size(); i++)
-    getPhyloLikelihood(nPhylo_[i])->computeD2LogLikelihood_(variable);
-
-  // derivative exists and ready to compute
-  
-  // d2Values_[variable]= nan("");
-}
-  
 ParameterList SetOfAbstractPhyloLikelihood::getBranchLengthParameters() const
 {
   ParameterList pl;
@@ -142,29 +122,5 @@ ParameterList SetOfAbstractPhyloLikelihood::getNonDerivableParameters() const
     pl.includeParameters(getPhyloLikelihood(nPhylo_[i])->getNonDerivableParameters());
 
   return pl;
-}
-
-void SetOfAbstractPhyloLikelihood::enableDerivatives(bool yn)
-{
-  // AbstractPhyloLikelihood::enableDerivatives(yn);
-  
-  // for (size_t i=0; i<nPhylo_.size(); i++)
-  //   getPhyloLikelihood(nPhylo_[i])->enableDerivatives(yn);
-}
-
-void SetOfAbstractPhyloLikelihood::enableFirstOrderDerivatives(bool yn)
-{
-  // AbstractPhyloLikelihood::enableFirstOrderDerivatives(yn);
-
-  // for (size_t i=0; i<nPhylo_.size(); i++)
-  //   getPhyloLikelihood(nPhylo_[i])->enableFirstOrderDerivatives(yn);
-}
-
-void SetOfAbstractPhyloLikelihood::enableSecondOrderDerivatives(bool yn)
-{
-  // AbstractPhyloLikelihood::enableSecondOrderDerivatives(yn);
-
-  // for (size_t i=0; i<nPhylo_.size(); i++)
-  //   getPhyloLikelihood(nPhylo_[i])->enableSecondOrderDerivatives(yn);
 }
 

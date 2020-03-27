@@ -169,17 +169,17 @@ public:
     return Hmm_->getHmmTransitionMatrix();
   }
 
-protected:
-  void computeDLogLikelihood_(const std::string& variable) const
-  {
-    Hmm_->getFirstOrderDerivative(variable);
-  }
+// protected:
+//   void computeDLogLikelihood_(const std::string& variable) const
+//   {
+//     Hmm_->getFirstOrderDerivative(variable);
+//   }
 
 
-  void computeD2LogLikelihood_(const std::string& variable) const
-  {
-    Hmm_->getSecondOrderDerivative(variable);
-  }
+//   void computeD2LogLikelihood_(const std::string& variable) const
+//   {
+//     Hmm_->getSecondOrderDerivative(variable);
+//   }
 
   /*
    * @}

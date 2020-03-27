@@ -670,6 +670,12 @@ namespace bpp
       int warn = 1);
 
 
+    /**
+     * @brief Build a map of Sequence Evolution, ie ways how sequence
+     * evolve, which may use several processes.
+     *
+     */
+    
     static std::map<size_t, SequenceEvolution*> getSequenceEvolutions(
       SubstitutionProcessCollection& SPC,
       const std::map<std::string, std::string>& params,

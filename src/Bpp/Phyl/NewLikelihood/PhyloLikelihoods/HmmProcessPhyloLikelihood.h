@@ -173,19 +173,19 @@ public:
     return Hmm_->getHmmTransitionMatrix();
   }
 
-protected:
-  void computeDLogLikelihood_(const std::string& variable) const
-  {
-    Hmm_->getFirstOrderDerivative(variable);
-    // dValues_[variable]= std::nan("");
-  }
+// protected:
+//   void computeDLogLikelihood_(const std::string& variable) const
+//   {
+//     Hmm_->getFirstOrderDerivative(variable);
+//     // dValues_[variable]= std::nan("");
+//   }
 
 
-  void computeD2LogLikelihood_(const std::string& variable) const
-  {
-    Hmm_->getSecondOrderDerivative(variable);
-    // d2Values_[variable]= std::nan("");
-  }
+//   void computeD2LogLikelihood_(const std::string& variable) const
+//   {
+//     Hmm_->getSecondOrderDerivative(variable);
+//     // d2Values_[variable]= std::nan("");
+//   }
 
 
   /*

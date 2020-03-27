@@ -169,33 +169,6 @@ namespace bpp
 
   public:
 
-    double getFirstOrderDerivative(const std::string& variable) const 
-    {
-      // if (dValues_.find(variable)==dValues_.end())
-      //   computeDLogLikelihood_(variable);
-
-      // if (dValues_.find(variable)==dValues_.end() || std::isnan(dValues_[variable]))
-      //   dValues_[variable]=-getDLogLikelihood(variable);
-        
-      // return dValues_[variable];
-      return 0;
-    }
-
-    double getSecondOrderDerivative(const std::string& variable) const
-    {
-      // if (d2Values_.find(variable)==d2Values_.end())
-      //   computeD2LogLikelihood_(variable);
-
-      // if (d2Values_.find(variable)==d2Values_.end() || std::isnan(d2Values_[variable]))
-      //   d2Values_[variable]=-getD2LogLikelihood(variable);
-        
-      // return d2Values_[variable];
-      return 0;
-    }
-
-    double getSecondOrderDerivative(const std::string& variable1, const std::string& variable2) const
-    { return 0; } // Not implemented for now.
-
     void setData(const AlignedValuesContainer& sites, size_t nData = 0)
     {
       AbstractSingleDataPhyloLikelihood::setData(sites, nData);

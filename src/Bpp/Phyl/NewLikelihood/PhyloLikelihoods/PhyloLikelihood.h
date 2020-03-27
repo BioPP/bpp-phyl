@@ -93,16 +93,6 @@ namespace bpp
     virtual double getLogLikelihood() const = 0;
       
     /**
-     * @brief Compute the derivates of the LogLikelihood.
-     *
-     */
-
-    virtual void computeDLogLikelihood_(const std::string& variable) const = 0;
-
-    
-    virtual void computeD2LogLikelihood_(const std::string& variable) const = 0;
-    
-    /**
      * @brief Get the derivates of the LogLikelihood.
      *
      */

@@ -56,8 +56,11 @@ OneProcessSequencePhyloLikelihood::OneProcessSequencePhyloLikelihood(
   mSeqEvol_(evol),
   likCal_()
 {
+  resetParameters_();
   const auto& sp = evol.getSubstitutionProcess();
-  likCal_ = std::make_shared<LikelihoodCalculationSingleProcess>(context, sp);  
+  likCal_ = std::make_shared<LikelihoodCalculationSingleProcess>(context, sp);
+
+  shareParameters_(likCal_->getParameters());
 }
 
 /******************************************************************************/
@@ -72,15 +75,15 @@ OneProcessSequencePhyloLikelihood::OneProcessSequencePhyloLikelihood(
   bool patterns) :
   AbstractPhyloLikelihood(context),
   AbstractAlignedPhyloLikelihood(context, data.getNumberOfSites()),
-  AbstractSequencePhyloLikelihood(context, evol, nSeqEvol),
+  AbstractSequencePhyloLikelihood(context, evol, nData),
   mSeqEvol_(evol),
   likCal_()
 {
-  SubstitutionProcess& sp = evol.getSubstitutionProcess();
-
-  likCal_ = std::make_shared<LikelihoodCalculationSingleProcess>(context, sp);  
-
-  setData(data, nData);
+  resetParameters_();
+  
+  const auto& sp = evol.getSubstitutionProcess();
+  likCal_ = std::make_shared<LikelihoodCalculationSingleProcess>(context, data, sp);  
+  shareParameters_(likCal_->getParameters());
 }
 
 /******************************************************************************/
@@ -192,50 +195,3 @@ Vdouble OneProcessSequencePhyloLikelihood::getPosteriorRatePerSite() const
   return rates;
 }
 
-/******************************************************************************/
-
-void OneProcessSequencePhyloLikelihood::computeDLogLikelihood_(const string& variable) const
-{
-  // check it is a "BrLen" variable
-
-  if (!hasParameter(variable) || (variable.compare(0,5,"BrLen")!=0))
-    return;
-  
-  // Get the node with the branch whose length must be derivated:
-  Vuint vbrId;
-  
-  try {
-    vbrId.push_back((unsigned int)atoi(variable.substr(5).c_str()));
-  }
-  catch (std::exception const& e)
-  {
-    return;
-  }
-
-  // likCal_->computeTreeDLogLikelihood(vbrId);
-//  dValues_[variable]= std::nan("");
-}
-
-/******************************************************************************/
-
-void OneProcessSequencePhyloLikelihood::computeD2LogLikelihood_(const string& variable) const
-{
-  // check it is a "BrLen" variable
-
-  if (!hasParameter(variable) || (variable.compare(0,5,"BrLen")!=0))
-    return;
-
-  // Get the node with the branch whose length must be derivated:
-  Vuint vbrId;
-  
-  try {
-    vbrId.push_back((unsigned int)atoi(variable.substr(5).c_str()));
-  }
-  catch (std::exception const& e)
-  {
-    return;
-  }
-
-  // likCal_->computeTreeD2LogLikelihood(vbrId);
-//  d2Values_[variable]= std::nan("");
-}

@@ -116,6 +116,17 @@ namespace bpp
 
   public:
 
+    /*
+     *
+     *@ brief Share Parameters, that are DF_parameters
+     *
+     */
+     
+    void shareParameters(const ParameterList& variableNodes)
+    {
+      getParameters_().shareParameters(variableNodes);
+    }
+
     void setParameters(const ParameterList& parameters)
     {
       setParametersValues(parameters);
@@ -134,12 +145,11 @@ namespace bpp
     /**
      * @brief Tell if derivatives must be computed.
      *
-     * This methods calls the enableFirstOrderDerivatives and enableSecondOrderDerivatives.
-     *
-     * @param yn Yes or no.
+     * Boiler plate functions for legacy
      */
+    
     virtual void enableFirstOrderDerivatives(bool yn) {}
-    virtual void enableSecondOrderDerivatives(bool yn) { }
+    virtual void enableSecondOrderDerivatives(bool yn) {}
     bool enableFirstOrderDerivatives() const { return true; }
     bool enableSecondOrderDerivatives() const { return true; }
 
@@ -159,20 +169,9 @@ namespace bpp
       return minusLogLik_;
     }
 
-    /*
-     *
-     *@ brief Share Parameters, that are DF_parameters
-     *
-     */
-     
-    void shareParameters(const ParameterList& variableNodes)
-    {
-      getParameters_().shareParameters(variableNodes);
-    }
-
     // bpp::DerivableFirstOrder
     double getFirstOrderDerivative (const std::string & variable) const override {
-      return firstOrderDerivativeNode (variable)->getTargetValue ();
+      return -firstOrderDerivativeNode (variable)->getTargetValue ();
     }
 
     // Get nodes of derivatives directly
@@ -194,7 +193,7 @@ namespace bpp
 
     double getSecondOrderDerivative (const std::string & variable1,
                                      const std::string & variable2) const override {
-      return secondOrderDerivativeNode (variable1, variable2)->getTargetValue ();
+      return -secondOrderDerivativeNode (variable1, variable2)->getTargetValue ();
     }
 
     ValueRef<double> secondOrderDerivativeNode (const std::string & variable1,

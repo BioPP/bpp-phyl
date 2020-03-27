@@ -248,11 +248,44 @@ namespace bpp {
       {
         return new LikelihoodCalculationSingleProcess(*this);
       }
-    
-      ValueRef<double> getLikelihood() 
+
+      void setData(const AlignedValuesContainer& sites)
+      {
+        if (psites_)
+          throw Exception("LikelihoodCalculationSingleProcess::setData : data already assigned.");
+        psites_=&sites;
+        setPatterns_();
+      }
+
+      /**
+       * @brief Set derivation procedure (see DataFlowNumeric.h)
+       *
+       */
+      
+      void setNumericalDerivateConfiguration(double delta, const NumericalDerivativeType& config);
+
+      /**
+       * Set Tree ClockLike :
+       *  - add a RateNode parameter for multiplying all branch lengths
+       *  - remove all branch lengths parameters from the parameters
+       *
+       */
+      
+      void setClockLike(double rate=1);
+
+
+      /**************************************************/
+
+      /*
+       * @brief Return the loglikehood (see as a function, ie
+       * computation node).
+       *
+       */
+      
+      ValueRef<double> getLogLikelihood() 
       {
         if (!shrunkData_)
-          throw Exception("LikelihoodCalculationSingleProcess::getLikelihood : data not set.");
+          throw Exception("LikelihoodCalculationSingleProcess::getLogLikelihood : data not set.");
         
         if (!likelihood_)
           makeLikelihoodAtRoot_();
@@ -260,11 +293,30 @@ namespace bpp {
         return likelihood_;
       }
 
-      double getLogLikelihood() 
+      double getLogLikelihoodValue() 
       {
-        return getLikelihood()->getTargetValue();
+        return getLogLikelihood()->getTargetValue();
       }
 
+      /*
+       * @brief Return the loglikehood computation at a given node.
+       *
+       */
+
+      ValueRef<double> getLogLikelihoodAtNode(uint nodeId) 
+      {
+        const auto pt=process_.getParametrizablePhyloTree();
+        if (!pt.hasNode(nodeId))
+          throw Exception("LikelihoodCalculationSingleProcess::getLogLikelihoodAtNode : node " + TextTools::toString(nodeId) + " does not exist in Phylo Tree.");
+
+        // No need to recompute with backward if at root
+        if (pt.getRootIndex()==nodeId)
+          return likelihood_;
+
+        return makeLikelihoodsAtNode_(nodeId);
+      }
+
+      
       size_t getNumberOfSites() const
       {
         return (psites_?psites_->getNumberOfSites():0);
@@ -276,8 +328,29 @@ namespace bpp {
       }
 
       
+      const SubstitutionProcess& getSubstitutionProcess() const
+      {
+        return process_;
+      }
+        
+      const AlignedValuesContainer* getData() const
+      {
+        return psites_;
+      }
+
+      bool isInitialized() const {
+        return getData();
+      };
+
+
+      const StateMap& getStateMap() const
+      {
+        return processNodes_.modelNode_->getTargetValue()->getStateMap();
+      }
+      
       /*
-       * @brief Return the Sitelikelihoods_ vector on shrunked data
+       * @brief Return the ref to the Sitelikelihoods_ vector on data
+       * (shrunked or not).
        *
        * @brief shrunk: bool true if vector on shrunked data
        *
@@ -341,63 +414,6 @@ namespace bpp {
         return rootWeights_->getTargetValue()(pos);
       }
 
-      ValueRef<double> getLikelihoodAtNode(uint nodeId) 
-      {
-        const auto pt=process_.getParametrizablePhyloTree();
-        if (!pt.hasNode(nodeId))
-          throw Exception("LikelihoodCalculationSingleProcess::getLikelihoodAtNode : node " + TextTools::toString(nodeId) + " does not exist in Phylo Tree.");
-
-        // No need to recompute with backward if at root
-        if (pt.getRootIndex()==nodeId)
-          return likelihood_;
-
-        return makeLikelihoodsAtNode_(nodeId);
-      }
-      
-      void setData(const AlignedValuesContainer& sites)
-      {
-        if (psites_)
-          throw Exception("LikelihoodCalculationSingleProcess::setData : data already assigned.");
-        psites_=&sites;
-        setPatterns_();
-      }
-
-      void setNumericalDerivateConfiguration(double delta, const NumericalDerivativeType& config);
-
-      /**
-       * Set Tree ClockLike :
-       *  - add a RateNode parameter for multiplying all branch lengths
-       *  - remove all branch lengths parameters from the parameters
-       *
-       */
-      
-      void setClockLike(double rate=1);
-
-      const SubstitutionProcess& getSubstitutionProcess() const
-      {
-        return process_;
-      }
-        
-      const AlignedValuesContainer* getData() const
-      {
-        return psites_;
-      }
-
-      bool isInitialized() const {
-        return getData();
-      };
-
-
-      const StateMap& getStateMap() const
-      {
-        return processNodes_.modelNode_->getTargetValue()->getStateMap();
-      }
-      
-      std::shared_ptr<ProcessTree> getTreeNode()
-      {
-        return processNodes_.treeNode_;
-      }
-
       ValueRef<Eigen::RowVectorXd> getRootFreqs()
       {
         return rFreqs_;
@@ -419,7 +435,7 @@ namespace bpp {
 
       void makeProcessNodes(ParameterList& pl);
 
-            
+      
       /*********************************/
       /*@brief Methods for external usage (after lik computation) */
 
@@ -430,8 +446,6 @@ namespace bpp {
        *@param shrunk : if returns on shrunked data (default: false)
        */
       
-      
-            
       const Eigen::RowVectorXd& getSiteLikelihoodsForAClass(size_t nCat, bool shrunk = false);
 
       /*
@@ -446,7 +460,7 @@ namespace bpp {
       double getLikelihoodForASite(size_t pos)
       {
         if (!shrunkData_)
-          throw Exception("LikelihoodCalculationSingleProcess::getLikelihoodForASite : data not set.");
+          throw Exception("LikelihoodCalculationSingleProcess::getLogLikelihoodForASite : data not set.");
         
         if (!siteLikelihoods_)
           makeLikelihoodAtRoot_();
@@ -475,6 +489,12 @@ namespace bpp {
        */
       
       ValueRef<double> makeLikelihoodsAtNode_(uint nodeId);
+
+      
+      std::shared_ptr<ProcessTree> getTreeNode_()
+      {
+        return processNodes_.treeNode_;
+      }
 
     };
 

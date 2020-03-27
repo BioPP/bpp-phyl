@@ -106,9 +106,8 @@ namespace bpp
       AbstractAlignedPhyloLikelihood(lik),
       AbstractSequencePhyloLikelihood(lik),
       mSeqEvol_(lik.mSeqEvol_),
-      likCal_()
+      likCal_(lik.likCal_)
     {
-      throw Exception("OneProcessSequencePhyloLikelihood::clone called.");
     }
 
     virtual ~OneProcessSequencePhyloLikelihood() {}
@@ -124,8 +123,12 @@ namespace bpp
     void setData(const AlignedValuesContainer& sites, size_t nData = 0) 
     {
       AbstractSequencePhyloLikelihood::setData(sites, nData);
-      likCal_->setData(sites);
+      getLikelihoodCalculation()->setData(sites);
     }
+
+    bool isInitialized() const {
+      return getLikelihoodCalculation()->getData();
+    };
 
     /**
      * @brief return a pointer to the compressed data.
@@ -133,12 +136,12 @@ namespace bpp
      */
     const AlignedValuesContainer* getData() const
     {
-      return likCal_->getData();
+      return getLikelihoodCalculation()->getData();
     }
 
     const Alphabet* getAlphabet() const
     {
-      return likCal_->getStateMap().getAlphabet();
+      return getLikelihoodCalculation()->getStateMap().getAlphabet();
     }
 
     /** @} */
@@ -173,59 +176,45 @@ namespace bpp
 
     /** @} */
 
-  protected:
-    void computeDLogLikelihood_(const std::string& variable) const;
-
-    void computeD2LogLikelihood_(const std::string& variable) const;
-
   public:
     /**
      * @return The underlying likelihood computation structure.
      */
-    LikelihoodCalculationSingleProcess* getLikelihoodCalculation() {
-      return likCal_.get();
+    
+    std::shared_ptr<LikelihoodCalculationSingleProcess> getLikelihoodCalculation() const
+    {
+      return likCal_;
     }
 
-    const LikelihoodCalculationSingleProcess* getLikelihoodCalculation() const {
-      return likCal_.get();
-    }
+    ValueRef<double> getLikelihoodNode() const
+    {
+      return getLikelihoodCalculation()->getLogLikelihood();
+    }          
 
   public:
     double getLogLikelihood() const
     {
-      return likCal_->getLogLikelihood();
+      return getLikelihoodCalculation()->getLogLikelihoodValue();
     }
 
     double getDLogLikelihood(const std::string& variable) const
     {
-      // check it is a "BrLen" variable
-
-      if (!hasParameter(variable) || (variable.compare(0,5,"BrLen")!=0))
-        return 0;
-
-      return 0;
+      return getFirstOrderDerivative(variable);
     }
 
     double getD2LogLikelihood(const std::string& variable) const
     {
-      // check it is a "BrLen" variable
-
-      if (!hasParameter(variable) || (variable.compare(0,5,"BrLen")!=0))
-        return 0;
-
-      return 0;
+      return getSecondOrderDerivative(variable);
     }
 
     double getLikelihoodForASite(size_t site) const
     {
-      return likCal_->getLikelihoodForASite(site);
+      return getLikelihoodCalculation()->getLikelihoodForASite(site);
     }
 
     double getLogLikelihoodForASite(size_t site) const
     {
-      throw Exception("OneProcessSequencePhyloLikelihood::getLogLikelihoodForASite.");
-      
-      return 0;
+      throw std::log(getLikelihoodForASite(site));
     }
 
     double getDLogLikelihoodForASite(const std::string& variable, size_t site) const

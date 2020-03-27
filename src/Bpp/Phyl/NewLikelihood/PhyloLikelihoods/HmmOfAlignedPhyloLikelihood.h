@@ -164,20 +164,20 @@ public:
   }
 
 protected:
-  void computeDLogLikelihood_(const std::string& variable) const
-  {
-    hmm_->getFirstOrderDerivative(variable);
+  // void computeDLogLikelihood_(const std::string& variable) const
+  // {
+  //   hmm_->getFirstOrderDerivative(variable);
 
-    // dValues_[variable]= std::nan("");
-  }
+  //   // dValues_[variable]= std::nan("");
+  // }
 
 
-  void computeD2LogLikelihood_(const std::string& variable) const
-  {
-    hmm_->getSecondOrderDerivative(variable);
+  // void computeD2LogLikelihood_(const std::string& variable) const
+  // {
+  //   hmm_->getSecondOrderDerivative(variable);
 
-    // d2Values_[variable]= std::nan("");
-  }
+  //   // d2Values_[variable]= std::nan("");
+  // }
 
   ParameterList getNonDerivableParameters() const;
   

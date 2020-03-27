@@ -301,7 +301,7 @@ std::shared_ptr<SiteLikelihoodsTree> LikelihoodCalculationSingleProcess::getSite
     makeLikelihoodAtRoot_();
   
   if (vRateCatTrees_[nCat].lt==0)
-    makeLikelihoodsAtNode_(getTreeNode()->getRootIndex());
+    makeLikelihoodsAtNode_(getTreeNode_()->getRootIndex());
   
   return vRateCatTrees_[nCat].lt;
 }
@@ -315,7 +315,7 @@ std::shared_ptr<SiteLikelihoodsTree> LikelihoodCalculationSingleProcess::getSite
 //     makeLikelihoodAtRoot_();
   
 //   if (vRateCatTrees_[nCat].clt==0)
-//     makeLikelihoodsAtNode_(getTreeNode()->getRootIndex());
+//     makeLikelihoodsAtNode_(getTreeNode_()->getRootIndex());
   
 //   return vRateCatTrees_[nCat].clt;       
 // }
@@ -413,11 +413,11 @@ void LikelihoodCalculationSingleProcess::makeLikelihoodAtRoot_()
   // likelihoods per site
   patternedSiteLikelihoods_= expandVector(siteLikelihoods_);
 
-  auto totalLogLikelihood =
+  likelihood_ =
     SumOfLogarithms<Eigen::RowVectorXd>::create (context_, {siteLikelihoods_, rootWeights_}, rowVectorDimension (Eigen::Index (nbSite)));
 
-// We want -log(likelihood)
-  likelihood_ = CWiseNegate<double>::create (context_, {totalLogLikelihood}, Dimension<double> ());
+// We want -log(likelihood) (ancient version)
+  // likelihood_ = CWiseNegate<double>::create (context_, {totalLogLikelihood}, Dimension<double> ());
 
   // using bpp::DotOptions;
   // writeGraphToDot(
@@ -517,9 +517,11 @@ ValueRef<double> LikelihoodCalculationSingleProcess::makeLikelihoodsAtNode_(uint
   auto totalLogLikelihood =
     SumOfLogarithms<Eigen::RowVectorXd>::create (context_, {distinctSiteLikelihoodsNode, rootWeights_}, rowVectorDimension (Eigen::Index (nbSite)));
 
+  return totalLogLikelihood;
+
   // We want -log(likelihood)
-  auto totalNegLogLikelihood =
-    CWiseNegate<double>::create (context_, {totalLogLikelihood}, Dimension<double> ());
-   return totalNegLogLikelihood;
+  // auto totalNegLogLikelihood =
+  //   CWiseNegate<double>::create (context_, {totalLogLikelihood}, Dimension<double> ());
+  //  return totalNegLogLikelihood;
 }
 

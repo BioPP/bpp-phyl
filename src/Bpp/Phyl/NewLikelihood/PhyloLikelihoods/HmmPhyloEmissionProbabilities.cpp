@@ -86,7 +86,7 @@ void HmmPhyloEmissionProbabilities::computeEmissionProbabilities_() const
 
 void HmmPhyloEmissionProbabilities::computeDEmissionProbabilities(std::string& variable) const
 {
-  phylAlph_->computeDLogLikelihood(variable);
+  // phylAlph_->computeDLogLikelihood(variable);
   
   if (dEmProb_.size()!=nbSites_)
   {
@@ -105,7 +105,7 @@ void HmmPhyloEmissionProbabilities::computeDEmissionProbabilities(std::string& v
   
 void HmmPhyloEmissionProbabilities::computeD2EmissionProbabilities(std::string& variable) const
 {
-  phylAlph_->computeD2LogLikelihood(variable);
+  // phylAlph_->computeD2LogLikelihood(variable);
   
   if (d2EmProb_.size()!=nbSites_)
   {

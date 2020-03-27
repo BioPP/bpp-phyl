@@ -174,18 +174,6 @@ namespace bpp
         return true;
       }
       
-      void enableDerivatives(bool yn);
-
-      void enableFirstOrderDerivatives(bool yn);
-      
-      void enableSecondOrderDerivatives(bool yn);
-
-    protected:
-
-      void computeDLogLikelihood_(const std::string& variable) const;
-
-      void computeD2LogLikelihood_(const std::string& variable) const;
-
     public:
       
       virtual void fireParameterChanged(const ParameterList& params)

@@ -106,26 +106,6 @@ VVdouble MultiProcessSequencePhyloLikelihood::getLikelihoodPerSitePerProcess() c
 
 /******************************************************************************/
 
-void MultiProcessSequencePhyloLikelihood::computeDLogLikelihood_(const std::string& variable) const
-{
-  // for (size_t i=0; i<vpTreelik_.size();i++)
-  //   computeDLogLikelihoodForAProcess(variable, i);
-  
-  // dValues_[variable]= std::nan("");
-}
-
-/******************************************************************************/
-
-void MultiProcessSequencePhyloLikelihood::computeD2LogLikelihood_(const std::string& variable) const
-{
-  // for (size_t i=0; i<vpTreelik_.size();i++)
-  //   computeD2LogLikelihoodForAProcess(variable, i);
-
-  // d2Values_[variable]= std::nan("");
-}
-
-/******************************************************************************/
-
 
 void MultiProcessSequencePhyloLikelihood::computeDLogLikelihoodForAProcess(const std::string& variable, size_t p) const
 {

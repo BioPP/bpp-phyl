@@ -72,18 +72,6 @@ namespace bpp
 
       ProductOfAlignedPhyloLikelihood(const ProductOfAlignedPhyloLikelihood& sd);
         
-    protected:
-      
-      void computeDLogLikelihood_(const std::string& variable) const
-      {
-        SetOfAbstractPhyloLikelihood::computeDLogLikelihood_(variable);
-      }
-
-      void computeD2LogLikelihood_(const std::string& variable) const
-      {
-        SetOfAbstractPhyloLikelihood::computeD2LogLikelihood_(variable);
-      }
-      
     public:
 
       /**

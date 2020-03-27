@@ -62,7 +62,7 @@
 
 #include <Bpp/Phyl/NewLikelihood/DataFlow/BackwardLikelihoodTree.h>
 #include <Bpp/Phyl/Io/Newick.h>
-#include <Bpp/Phyl/NewLikelihood/PhyloLikelihoods/SingleProcessPhyloLikelihood.h>
+#include <Bpp/Phyl/NewLikelihood/PhyloLikelihoods/OneProcessSequencePhyloLikelihood.h>
 #include <Bpp/Phyl/NewLikelihood/NonHomogeneousSubstitutionProcess.h>
 #include <Bpp/Phyl/NewLikelihood/PhyloLikelihoods/SingleProcessPhyloLikelihood.h>
 #include "Bpp/Phyl/NewLikelihood/SubstitutionProcess.h"
@@ -268,10 +268,13 @@ process->addModel(t92, Vuint({2}));
   l->setNumericalDerivateConfiguration(0.001, NumericalDerivativeType::ThreePoints);
 //  l->setClockLike();
 
-  SingleProcessPhyloLikelihood llh(context, l);
+  OneProcessSequenceEvolution ope(*process);
+  
+  OneProcessSequencePhyloLikelihood llh(context, c.sites,  ope);
+  
   timingEnd(ts, "df_setup");
   auto lik = llh.getLikelihoodCalculation();
-  dotOutput("likelihood_example_value", {lik->getLikelihood().get()});
+  dotOutput("likelihood_example_value", {lik->getLogLikelihood().get()});
 
   ts = timingStart();
   auto logLik = llh.getValue();
@@ -282,10 +285,12 @@ process->addModel(t92, Vuint({2}));
   auto br= dynamic_cast<ConfiguredParameter*>(lik->hasParameter("BrLen1")?lik->getSharedParameter("BrLen1").get():lik->getSharedParameter("BrLen_rate").get());
 
   cerr << "brlen1 " << br  << endl;
-  auto dlogLik_dbrlen1 = lik->getLikelihood()->deriveAsValue(context, *br->dependency(0));
+  auto dlogLik_dbrlen1 = lik->getLogLikelihood()->deriveAsValue(context, *br->dependency(0));
 
   dotOutput("likelihood_example_dbrlen1", {dlogLik_dbrlen1.get()});
   std::cout << "[dbrlen1] " << dlogLik_dbrlen1->getTargetValue() << "\n";
+  std::cout << "[dbrlen1] " << llh.getFirstOrderDerivative("BrLen1") << std::endl;
+  std::cout << "[dbrlen1] " << llh.getSecondOrderDerivative("BrLen1") << std::endl;
 
   // // Manual access to dkappa
   
@@ -311,14 +316,14 @@ process->addModel(t92, Vuint({2}));
 
 
   // Test on nodes
-  auto lik2 = lik->getLikelihoodAtNode(2);
+  auto lik2 = lik->getLogLikelihoodAtNode(2);
   std::cout << "[lik2] " << lik2->getTargetValue() << "\n";
   dotOutput("likelihood_2", {lik2.get()});
   
   l->getParameters().printParameters(cerr);
   
   optimize_for_params(llh, "df_all_opt", l->getParameters());
-  dotOutput("likelihood_optim_value", {lik->getLikelihood().get()});
+  dotOutput("likelihood_optim_value", {lik->getLogLikelihood().get()});
   llh.getParameters().printParameters(std::cerr);  
 
 }
