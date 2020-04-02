@@ -81,6 +81,17 @@ namespace bpp
 
     OneProcessSequenceEvolution& mSeqEvol_;
 
+    /**
+     * @brief For Dataflow computing
+     *
+     */
+      
+    mutable std::unordered_map<std::string, ValueRef<Eigen::RowVectorXd>> firstOrderDerivativeVectors_;
+
+    mutable std::unordered_map<std::pair<std::string, std::string>, ValueRef<Eigen::RowVectorXd>,
+                               StringPairHash>
+    secondOrderDerivativeVectors_;
+
   protected:
     mutable std::shared_ptr<LikelihoodCalculationSingleProcess> likCal_;
 
@@ -120,6 +131,7 @@ namespace bpp
      *
      * @{
      */
+
     void setData(const AlignedValuesContainer& sites, size_t nData = 0) 
     {
       AbstractSequencePhyloLikelihood::setData(sites, nData);
@@ -191,6 +203,47 @@ namespace bpp
       return getLikelihoodCalculation()->getLogLikelihood();
     }          
 
+    // Get nodes of derivatives directly
+      
+    ValueRef<Eigen::RowVectorXd> getFirstOrderDerivativeVector (const std::string & variable) const  {
+      return firstOrderDerivativeVector(variable);
+    }
+
+    ValueRef<Eigen::RowVectorXd> firstOrderDerivativeVector (const std::string & variable) const {
+      const auto it = firstOrderDerivativeVectors_.find (variable);
+      if (it != firstOrderDerivativeVectors_.end ()) {
+        return it->second;
+      } else {
+        auto vector = getLikelihoodCalculation()->getSiteLikelihoods(true)->deriveAsValue (context_, accessVariableNode (variable));
+        firstOrderDerivativeVectors_.emplace (variable, vector);
+        return vector;
+      }
+    }
+      
+    ValueRef<Eigen::RowVectorXd> getSecondOrderDerivativeVector (const std::string & variable) const {
+      return getSecondOrderDerivativeVector (variable, variable);
+    }
+
+    ValueRef<Eigen::RowVectorXd> getSecondOrderDerivativeVector (const std::string & variable1,
+                                                                 const std::string & variable2) const {
+      return secondOrderDerivativeVector (variable1, variable2);
+    }
+
+    ValueRef<Eigen::RowVectorXd> secondOrderDerivativeVector (const std::string & variable1,
+                                                              const std::string & variable2) const {
+      const auto key = std::make_pair (variable1, variable2);
+      const auto it = secondOrderDerivativeVectors_.find (key);
+      if (it != secondOrderDerivativeVectors_.end ()) {
+        return it->second;
+      } else {
+        // Reuse firstOrderDerivative() to generate the first derivative with caching
+        auto vector =
+          firstOrderDerivativeVector (variable1)->deriveAsValue (context_, accessVariableNode (variable2));
+        secondOrderDerivativeVectors_.emplace (key, vector);
+        return vector;
+      }
+    }
+
   public:
     double getLogLikelihood() const
     {
@@ -214,83 +267,49 @@ namespace bpp
 
     double getLogLikelihoodForASite(size_t site) const
     {
-      throw std::log(getLikelihoodForASite(site));
+      return std::log(getLikelihoodForASite(site));
     }
 
     double getDLogLikelihoodForASite(const std::string& variable, size_t site) const
     {
-      // check it is a "BrLen" variable
-
-      if (!hasParameter(variable) || (variable.compare(0,5,"BrLen")!=0))
-        return 0;
-
-      return 0;
+      return getFirstOrderDerivativeVector(variable)->getTargetValue()(getLikelihoodCalculation()->getRootArrayPosition(site));
     }
 
     double getD2LogLikelihoodForASite(const std::string& variable, size_t site) const
     {
-      // check it is a "BrLen" variable
-
-      if (!hasParameter(variable) || (variable.compare(0,5,"BrLen")!=0))
-        return 0;
-
-      return 0;
+      return getSecondOrderDerivativeVector(variable, variable)->getTargetValue()(getLikelihoodCalculation()->getRootArrayPosition(site));
     }
 
-    /**
-     * @brief Get the likelihood for each site and for each state.
-     *
-     * @return A 2d vector with all likelihoods for each site and for each state.
-     */
-    VVdouble getLikelihoodPerSitePerState() const;
-
-    /**
-     * @brief Get the likelihood for each site and each model class.
-     *
-     * @return A two-dimension vector with all likelihoods:
-     * <code>V[i][j] =</code> likelihood of site i and model class j.
-     */
-    VVdouble getLikelihoodPerSitePerClass() const;
-
-    /**
-     * @brief Get the likelihood for each site and each model class and each state.
-     *
-     * @return A three-dimension vector with all likelihoods:
-     * <code>V[i][j][k} =</code> likelihood of site i and model class j and state k.
-     */
-
-    VVVdouble getLikelihoodPerSitePerClassPerState() const;
-
     /** @} */
-
-    /**
-     * @brief Get the index (used for inner computations) of a given site (original alignment column).
-     *
-     * @param site An alignment position.
-     * @return The site index corresponding to the given input alignment position.
-     */
-    // size_t getSiteIndex(size_t site) const throw (IndexOutOfBoundsException)
-    // {
-    //   return likCal_->getSiteIndex(site);
-    // }
 
     /**
      * Utilities
      *
      */
 
-    VVdouble getPosteriorProbabilitiesPerClass() const;
-
-    /**
-     * @brief Get the posterior model class (the one with maximum posterior
-     * probability) for each site.
+    /*
+     *@brief return the posterior probabilities of rate classes on each site.
      *
-     * @return A vector with all model classes indexes.
+     *@return 2D-vector sites x classes
      */
 
+    VVdouble getPosteriorProbabilitiesPerSitePerClass() const;
+
+    Vdouble getPosteriorProbabilitiesForSitePerClass(size_t pos) const;
+
+    /*
+     *@brief return the likelihood of rate classes on each site.
+     *
+     *@return 2D-vector sites x classes
+     */
+    
+    VVdouble getLikelihoodPerSitePerClass() const;
+    
     std::vector<size_t> getClassWithMaxPostProbPerSite() const;
 
     Vdouble getPosteriorRatePerSite() const;
+
+    Vdouble getPosteriorStateFrequencies(uint nodeId);
 
     /* @} */
 

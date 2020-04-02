@@ -46,29 +46,6 @@
 using namespace std;
 using namespace bpp;
 
-/* For now copy matrix cell by cell.
- * TODO use eigen internally in SubstitutionModel ! (not perf critical for now though)
- * FIXME if multithreading, internal model state must be removed !
- */
-static void copyBppToEigen (const Matrix<double> & bppMatrix, Eigen::MatrixXd & eigenMatrix) {
-  const auto eigenRows = static_cast<Eigen::Index> (bppMatrix.getNumberOfRows ());
-  const auto eigenCols = static_cast<Eigen::Index> (bppMatrix.getNumberOfColumns ());
-  eigenMatrix.resize (eigenRows, eigenCols);
-  for (Eigen::Index i = 0; i < eigenRows; ++i) {
-    for (Eigen::Index j = 0; j < eigenCols; ++j) {
-      eigenMatrix (i, j) = bppMatrix (static_cast<std::size_t> (i), static_cast<std::size_t> (j));
-    }
-  }
-}
-
-// static void copyBppToEigen (const Vdouble& bppVector, Eigen::VectorXd & eigenVector) {
-//   const auto eigenRows = static_cast<Eigen::Index> (bppVector.size());
-//   eigenVector.resize (eigenRows);
-//   for (Eigen::Index i = 0; i < eigenRows; ++i) {
-//     eigenVector (i) = bppVector[i];
-//   }
-// }
-
 // Model node
 
 ConfiguredModel::ConfiguredModel (Context& context, NodeRefVec && deps, std::unique_ptr<BranchModel> && model)

@@ -212,6 +212,12 @@ namespace bpp
 
       VVdouble getLikelihoodPerSitePerProcess() const;
 
+      /*
+       *@brief return the posterior probabilities of subprocess on each site.
+       *
+       *@return 2D-vector sites x states
+       */
+
       virtual VVdouble getPosteriorProbabilitiesPerSitePerProcess() const = 0;
 
   

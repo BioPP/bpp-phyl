@@ -47,43 +47,26 @@ using namespace std;
 vector<size_t> MarginalAncestralReconstruction::getAncestralStatesForNode(int nodeId, VVdouble& probs, bool sample) const
 {
   vector<size_t> ancestors(nbDistinctSites_);
-/*  probs.resize(nbDistinctSites_);
-  double cumProb = 0;
+
   double r;
 
-  likelihood_->computeLikelihoodsAtNode(nodeId);
+  auto vv = likelihood_->getLikelihoodsAtNode(nodeId)->getTargetValue();
 
-  if (!likelihood_->getLikelihoodData().getNodeData(nodeId, 0).usesLog())
-    probs=likelihood_->getLikelihoodData().getNodeData(nodeId, 0).getLikelihoodArray(ComputingNode::D0)*likelihood_->getSubstitutionProcess()->getProbabilityForModel(0);
-  else
-    probs=VectorTools::exp(likelihood_->getLikelihoodData().getNodeData(nodeId, 0).getLikelihoodArray(ComputingNode::D0) + log(likelihood_->getSubstitutionProcess()->getProbabilityForModel(0)));
-  
-  for (size_t c = 1; c < nbClasses_; c++)
-  {
-    if (!likelihood_->getLikelihoodData().getNodeData(nodeId, c).usesLog())
-      probs+=likelihood_->getLikelihoodData().getNodeData(nodeId, c).getLikelihoodArray(ComputingNode::D0)*likelihood_->getSubstitutionProcess()->getProbabilityForModel(c);
-    else
-      probs+=VectorTools::exp(likelihood_->getLikelihoodData().getNodeData(nodeId, 0).getLikelihoodArray(ComputingNode::D0) + log(likelihood_->getSubstitutionProcess()->getProbabilityForModel(0)));
-  } 
+  for (auto i=0;i<vv.cols();i++)
+    vv.col(i)/=vv.col(i).sum();
 
-  for (size_t i = 0; i < nbDistinctSites_; i++)
-  {
-    Vdouble* probs_i = &probs[i];
-    double s=VectorTools::sum(*probs_i);
-    (*probs_i)/=s;
-  }
+  copyEigenToBpp(vv.transpose(), probs);
     
   if (sample)
   { 
     for (size_t i = 0; i < nbDistinctSites_; i++)
     {
-      Vdouble* probs_i = &probs[i];
-      cumProb = 0;
+      const auto& coli = vv.col(i);
       r = RandomTools::giveRandomNumberBetweenZeroAndEntry(1.);
       for (size_t j = 0; j < nbStates_; j++)
       {
-        cumProb += (*probs_i)[j];
-        if (r <= cumProb)
+        r -= coli(j);
+        if (r < 0)
         {
           ancestors[i] = j;
           break;
@@ -92,10 +75,14 @@ vector<size_t> MarginalAncestralReconstruction::getAncestralStatesForNode(int no
     }
   }
   else
+  {
+    size_t pos;
     for (size_t i = 0; i < nbDistinctSites_; i++)
-      ancestors[i] = VectorTools::whichMax(probs[i]);
-
-*/
+    {
+      vv.col(i).maxCoeff(&pos);
+      ancestors[i] = pos;
+    }
+  }
   return ancestors;
 }
 
@@ -113,32 +100,30 @@ Sequence* MarginalAncestralReconstruction::getAncestralSequenceForNode(int nodeI
   string name = tree_->getNode(nodeId)->hasName() ? tree_->getNode(nodeId)->getName() : ("" + TextTools::toString(nodeId));
   vector<int> allStates(nbSites_);
 
-  /*
-    const vector<size_t>* rootPatternLinks = &likelihood_->getLikelihoodData().getRootArrayPositions();
+  const auto& rootPatternLinks = likelihood_->getRootArrayPositions();
 
-  const TransitionModel& model = dynamic_cast<const TransitionModel&>(*likelihood_->getSubstitutionProcess()->getModel(tree_->getNodeIndex(tree_->getAllLeaves()[0]), 0)); // We assume all nodes have a model with the same set of states.
+  const auto& statemap = likelihood_->getStateMap();
 
-  vector<size_t> states;
   VVdouble patternedProbs;
   if (probs)
   {
-    states = getAncestralStatesForNode(nodeId, patternedProbs, sample);
+    auto states = getAncestralStatesForNode(nodeId, patternedProbs, sample);
     probs->resize(nbSites_);
     for (size_t i = 0; i < nbSites_; i++)
     {
-      allStates[i] = model.getAlphabetStateAsInt(states[(*rootPatternLinks)[i]]);
-      (*probs)[i] = patternedProbs[(*rootPatternLinks)[i]];
+      allStates[i] = statemap.getAlphabetStateAsInt(states[rootPatternLinks(i)]);
+      (*probs)[i] = patternedProbs[rootPatternLinks(i)];
     }
   }
   else
   {
-    states = getAncestralStatesForNode(nodeId, patternedProbs, sample);
+    auto states = getAncestralStatesForNode(nodeId, patternedProbs, sample);
     for (size_t i = 0; i < nbSites_; i++)
     {
-      allStates[i] = model.getAlphabetStateAsInt(states[(*rootPatternLinks)[i]]);
+      allStates[i] = statemap.getAlphabetStateAsInt(states[rootPatternLinks(i)]);
     }
   }
-*/
+
   return new BasicSequence(name, allStates, alphabet_);
 }
 
@@ -147,37 +132,38 @@ void MarginalAncestralReconstruction::recursiveMarginalAncestralStates(
   map<int, vector<size_t> >& ancestors,
   AlignedValuesContainer& data) const
 {
-  // if (tree_->isLeaf(node))
-  // { 
-  //   const SiteContainer* sc=dynamic_cast<const SiteContainer*>(&data);
-  //   if (sc)
-  //   {
-  //     const Sequence& seq = sc->getSequence(node->getName());
-  //     vector<size_t>* v = &ancestors[tree_->getNodeIndex(node)];
-  //     v->resize(seq.size());
-  //     // This is a tricky way to store the real sequence as an ancestral one...
-  //     // In case of Markov Modulated models, we consider that the real sequences
-  //     // Are all in the first category.
-  //     const TransitionModel& model = dynamic_cast<const TransitionModel&>(*likelihood_->getSubstitutionProcess()->getModel(tree_->getNodeIndex(tree_->getAllLeaves()[0]), 0)); // We assume all nodes have a model with the same number of states.
-  //     for (size_t i = 0; i < seq.size(); i++)
-  //     {
-  //       (*v)[i] = model.getModelStates(seq[i])[0];
-  //     }
-  //   }
-  //   else
-  //   {
-  //     ancestors[tree_->getNodeIndex(node)] = getAncestralStatesForNode(tree_->getNodeIndex(node));
-  //   }
-  // }
-  // else
-  // {
-  //   ancestors[tree_->getNodeIndex(node)] = getAncestralStatesForNode(tree_->getNodeIndex(node));
-  //   vector<shared_ptr<PhyloNode> > vsons=tree_->getSons(node);
-    
-  //   for (size_t i = 0; i < vsons.size(); i++)
-  //   {
-  //     recursiveMarginalAncestralStates(vsons[i], ancestors, data);
-  //   }
+  if (tree_->isLeaf(node))
+  { 
+    const SiteContainer* sc=dynamic_cast<const SiteContainer*>(&data);
+    if (sc)
+    {
+      const Sequence& seq = sc->getSequence(node->getName());
+      vector<size_t>* v = &ancestors[tree_->getNodeIndex(node)];
+      v->resize(seq.size());
+      // This is a tricky way to store the real sequence as an ancestral one...
+      // In case of Markov Modulated models, we consider that the real sequences
+      // are all in the first category.
+      const auto& statemap = likelihood_->getStateMap();
+      for (size_t i = 0; i < seq.size(); i++)
+      {
+        (*v)[i] = statemap.getModelStates(seq[i])[0];
+      }
+    }
+    else
+    {
+      ancestors[tree_->getNodeIndex(node)] = getAncestralStatesForNode(tree_->getNodeIndex(node));
+    }
+  }
+  else
+  {
+    ancestors[tree_->getNodeIndex(node)] = getAncestralStatesForNode(tree_->getNodeIndex(node));
+    vector<shared_ptr<PhyloNode> > vsons=tree_->getSons(node);
+  
+    for (size_t i = 0; i < vsons.size(); i++)
+    {
+      recursiveMarginalAncestralStates(vsons[i], ancestors, data);
+    }
+  }
 }
 
 AlignedSequenceContainer* MarginalAncestralReconstruction::getAncestralSequences(bool sample) const

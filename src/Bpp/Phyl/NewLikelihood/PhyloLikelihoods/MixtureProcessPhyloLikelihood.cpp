@@ -203,7 +203,7 @@ VVdouble MixtureProcessPhyloLikelihood::getPosteriorProbabilitiesPerSitePerProce
 //  size_t nbProcess = getNumberOfSubstitutionProcess();
 
   VVdouble pb = getLikelihoodPerSitePerProcess();
-  // Vdouble l = getLikelihoodPerSite();
+  Vdouble l = getLikelihoodPerSite();
 
   // for (size_t i = 0; i < nbSites_; ++i)
   // {

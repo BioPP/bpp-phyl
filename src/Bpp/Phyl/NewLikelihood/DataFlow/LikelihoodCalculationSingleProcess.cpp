@@ -27,7 +27,7 @@ LikelihoodCalculationSingleProcess::LikelihoodCalculationSingleProcess(Context& 
   rootPatternLinks_(), rootWeights_(), shrunkData_(),
   processNodes_(), rFreqs_(),
   likelihood_(), siteLikelihoods_(), patternedSiteLikelihoods_(),
-  vRateCatTrees_()
+  vRateCatTrees_(), condLikelihoodTree_(0)
 {
   setPatterns_();
   makeProcessNodes_();
@@ -43,7 +43,7 @@ LikelihoodCalculationSingleProcess::LikelihoodCalculationSingleProcess(Context &
   rootPatternLinks_(), rootWeights_(), shrunkData_(),
   processNodes_(), rFreqs_(),
   likelihood_(), siteLikelihoods_(), patternedSiteLikelihoods_(),
-  vRateCatTrees_()
+  vRateCatTrees_(), condLikelihoodTree_(0)
 {
   makeProcessNodes_();
 
@@ -60,10 +60,10 @@ LikelihoodCalculationSingleProcess::LikelihoodCalculationSingleProcess(Context &
   rootPatternLinks_(), rootWeights_(), shrunkData_(),
   processNodes_(), rFreqs_(),
   likelihood_(), siteLikelihoods_(), patternedSiteLikelihoods_(),
-  vRateCatTrees_()
+  vRateCatTrees_(), condLikelihoodTree_(0)
 {
   setPatterns_();
-  makeProcessNodes(paramList);
+  makeProcessNodes_(paramList);
 
   // Default Derivate 
   setNumericalDerivateConfiguration(0.001, NumericalDerivativeType::ThreePoints);
@@ -76,7 +76,7 @@ LikelihoodCalculationSingleProcess::LikelihoodCalculationSingleProcess(const Lik
   rootPatternLinks_(lik.rootPatternLinks_), rootWeights_(), shrunkData_(lik.shrunkData_),
   processNodes_(), rFreqs_(),
   likelihood_(), siteLikelihoods_(), patternedSiteLikelihoods_(),
-  vRateCatTrees_()
+  vRateCatTrees_(), condLikelihoodTree_(0)
 {
   setPatterns_();
   makeProcessNodes_();
@@ -119,10 +119,10 @@ void LikelihoodCalculationSingleProcess::makeProcessNodes_()
       paramList.shareParameter(newacp);
     }
   }
-  makeProcessNodes(paramList);
+  makeProcessNodes_(paramList);
 }
 
-void LikelihoodCalculationSingleProcess::makeProcessNodes(ParameterList& paramList)
+void LikelihoodCalculationSingleProcess::makeProcessNodes_(ParameterList& paramList)
 {
   const auto spcm=dynamic_cast<const SubstitutionProcessCollectionMember*>(&process_);
 
@@ -133,10 +133,10 @@ void LikelihoodCalculationSingleProcess::makeProcessNodes(ParameterList& paramLi
   {
     auto name=paramProc[i].getName();
     if (!paramList.hasParameter(name))
-      throw Exception("LikelihoodCalculationSingleProcess::makeProcessNodes : paramList does not have parameter " + name);
+      throw Exception("LikelihoodCalculationSingleProcess::makeProcessNodes_ : paramList does not have parameter " + name);
     auto* confPar=dynamic_cast<ConfiguredParameter*>(&paramList.getParameter(name));
     if (!confPar)
-      throw Exception("LikelihoodCalculationSingleProcess::makeProcessNodes : parameter " + name + "is not a ConfiguredParameter.");
+      throw Exception("LikelihoodCalculationSingleProcess::makeProcessNodes_ : parameter " + name + "is not a ConfiguredParameter.");
       
     shareParameter_(paramList.getSharedParameter(name));
   }
@@ -270,40 +270,23 @@ void LikelihoodCalculationSingleProcess::setClockLike(double rate)
   shareParameter_(rateNode);
 }
 
-const Eigen::RowVectorXd& LikelihoodCalculationSingleProcess::getSiteLikelihoodsForAClass(size_t nCat, bool shrunk)
-{
+Eigen::RowVectorXd LikelihoodCalculationSingleProcess::getSiteLikelihoodsForAClass(size_t nCat, bool shrunk)
+{  
   if (shrunk)
-    return getSiteLikelihoodsTree(nCat)->getRoot()->getTargetValue();
+    return getSiteLikelihoodsTree_(nCat)->getRoot()->getTargetValue();
   else
-   return expandVector(getSiteLikelihoodsTree(nCat)->getRoot())->getTargetValue();
+    return expandVector(getSiteLikelihoodsTree_(nCat)->getRoot())->getTargetValue();
 }
 
-const AllRatesSiteLikelihoods& LikelihoodCalculationSingleProcess::getSiteLikelihoodsForAllClasses(bool shrunk)
+AllRatesSiteLikelihoods LikelihoodCalculationSingleProcess::getSiteLikelihoodsForAllClasses(bool shrunk)
 {
   auto nbCat=vRateCatTrees_.size();
   auto allLk=std::make_shared<AllRatesSiteLikelihoods>(nbCat,shrunk?getNumberOfDistinctSites():getNumberOfSites());
-  
+
   for (size_t nCat=0;nCat<nbCat;nCat++)
     allLk->row(nCat)=getSiteLikelihoodsForAClass(nCat, shrunk);
-  
+
   return *allLk;
-}
-
-std::shared_ptr<SiteLikelihoodsTree> LikelihoodCalculationSingleProcess::getSiteLikelihoodsTree(size_t nCat)
-{
-  if (nCat>=vRateCatTrees_.size())
-    throw Exception("LikelihoodCalculationSingleProcess::getSiteLikelihoodsTree : Bad Class number " + TextTools::toString(nCat));
-
-  if (!shrunkData_)
-    throw Exception("LikelihoodCalculationSingleProcess::getSiteLikelihoodsTree : data not set.");
-        
-  if (!likelihood_)
-    makeLikelihoodAtRoot_();
-  
-  if (vRateCatTrees_[nCat].lt==0)
-    makeLikelihoodsAtNode_(getTreeNode_()->getRootIndex());
-  
-  return vRateCatTrees_[nCat].lt;
 }
 
 // std::shared_ptr<ConditionalLikelihoodTree> LikelihoodCalculationSingleProcess::getConditionalLikelihoodTree(size_t nCat)
@@ -312,7 +295,7 @@ std::shared_ptr<SiteLikelihoodsTree> LikelihoodCalculationSingleProcess::getSite
 //     throw Exception("LikelihoodCalculationSingleProcess::getConditionalLikelihoodTree : Bad Class number " + TextTools::toString(nCat));
   
 //   if (shrunkData_ && !likelihood_)
-//     makeLikelihoodAtRoot_();
+//     makeLikelihoodsAtRoot_();
   
 //   if (vRateCatTrees_[nCat].clt==0)
 //     makeLikelihoodsAtNode_(getTreeNode_()->getRootIndex());
@@ -341,7 +324,7 @@ void LikelihoodCalculationSingleProcess::makeForwardLikelihoodTree_()
 {
   // Build conditional likelihoods up to root recursively.
   if (!processNodes_.treeNode_->isRooted ()) {
-    throw Exception ("PhyloTree must be rooted");
+    throw Exception ("LikelihoodCalculationSingleProcess;;makeForwardLikelihoodTree_ : PhyloTree must be rooted");
   }
   
   if (processNodes_.ratesNode_)
@@ -375,7 +358,7 @@ void LikelihoodCalculationSingleProcess::makeForwardLikelihoodTree_()
 }
 
 
-void LikelihoodCalculationSingleProcess::makeLikelihoodAtRoot_()
+void LikelihoodCalculationSingleProcess::makeLikelihoodsAtRoot_()
 {
   if (vRateCatTrees_.size()==0)
     makeForwardLikelihoodTree_();
@@ -425,53 +408,72 @@ void LikelihoodCalculationSingleProcess::makeLikelihoodAtRoot_()
 }
 
 
-ValueRef<double> LikelihoodCalculationSingleProcess::makeLikelihoodsAtNode_(uint speciesId)
+void LikelihoodCalculationSingleProcess::makeLikelihoodsAtNode_(uint speciesId)
 {
+  // Already built
+  if (condLikelihoodTree_ && condLikelihoodTree_->hasNode(speciesId))
+    return;
+  
   if (vRateCatTrees_.size()==0)
     makeForwardLikelihoodTree_();
 
   if (rFreqs_==0)
     makeRootFreqs_();
   
-  auto processTree = processNodes_.treeNode_;
-
   const auto& stateMap = getStateMap();
   size_t nbSite = getShrunkData()->getNumberOfSites();
   size_t nbState = stateMap.getNumberOfModelStates();
   MatrixDimension likelihoodMatrixDim = conditionalLikelihoodDimension (nbState, nbSite);
+
+  const auto& phylotree = process_.getParametrizablePhyloTree();
   
   ValueRef<Eigen::RowVectorXd> siteLikelihoodsNode;
 
   std::shared_ptr<ConditionalLikelihood> cond(0);
 
-
+  std::vector<NodeRef> vCondRate;
+  
   SiteLikelihoodsRef distinctSiteLikelihoodsNode;
+  ConditionalLikelihoodRef conditionalLikelihoodsNode;
+  
+  std::vector<std::shared_ptr<Node_DF>> vRoot; // if several rates
 
-  std::vector<std::shared_ptr<Node_DF>> vLogRoot; // if several rates
-
+  if (!condLikelihoodTree_)
+    condLikelihoodTree_ = std::make_shared<ConditionalLikelihoodTree>(phylotree.getGraph());
+  
+  auto one=ConstantOne<Eigen::RowVectorXd>::create(context_, rowVectorDimension (Eigen::Index (nbState)));
+    
   for (auto& rateCat: vRateCatTrees_)
   {
     if (!rateCat.blt)
       rateCat.blt=std::make_shared<BackwardLikelihoodTree>(context_, rateCat.flt, rateCat.phyloTree, rFreqs_, stateMap, nbSite);
 
     if (!rateCat.clt)
-      rateCat.clt=std::make_shared<ConditionalLikelihoodTree>(rateCat.flt->getGraph());
+      rateCat.clt=std::make_shared<ConditionalLikelihoodDAG>(rateCat.flt->getGraph());
 
     if (!rateCat.lt)
-      rateCat.lt=std::make_shared<SiteLikelihoodsTree>(processTree->getGraph());
+      rateCat.lt=std::make_shared<SiteLikelihoodsTree>(phylotree.getGraph());
 
     auto& dagIndexes = rateCat.flt->getDAGNodesIndexes(speciesId);
 
     std::vector<std::shared_ptr<Node_DF>> vCond;
-    
+
     for (const auto& index : dagIndexes)
     {
+      if (rateCat.clt->hasNode(index))
+      {
+        cond = rateCat.clt->getNode(index);
+        if (dagIndexes.size()>1) // for sum 
+          vCond.push_back(cond);
+        continue;
+      }
+
       auto condAbove = rateCat.blt->getBackwardLikelihoodArray(index);
       auto condBelow = rateCat.flt->getForwardLikelihoodArray(index);
-      
+
       cond = BuildConditionalLikelihood::create (
         context_, {condAbove, condBelow}, likelihoodMatrixDim);
-      
+
       if (dagIndexes.size()>1) // for sum 
         vCond.push_back(cond);
       
@@ -487,41 +489,73 @@ ValueRef<double> LikelihoodCalculationSingleProcess::makeLikelihoodsAtNode_(uint
 
     if (dagIndexes.size()>1)
       cond = CWiseAdd<Eigen::MatrixXd, ReductionOf<Eigen::MatrixXd>>::create(context_, std::move(vCond), likelihoodMatrixDim);
-    
-    auto one=ConstantOne<Eigen::RowVectorXd>::create(context_, rowVectorDimension (Eigen::Index (nbState)));
-    
+
+    // for Lik at Node
     auto siteLikelihoodsCat = LikelihoodFromRootConditional::create (
       context_, {one, cond}, rowVectorDimension (Eigen::Index (nbSite)));
-    
-    rateCat.lt->associateNode(siteLikelihoodsCat, processTree->getNodeGraphid(processTree->getNode(speciesId)));
-    rateCat.lt->setNodeIndex(siteLikelihoodsCat, speciesId);
 
+    if (!rateCat.lt->hasNode(speciesId))
+    {
+      rateCat.lt->associateNode(siteLikelihoodsCat, phylotree.getNodeGraphid(phylotree.getNode(speciesId)));
+      rateCat.lt->setNodeIndex(siteLikelihoodsCat, speciesId);
+    }
+    
     if (!processNodes_.ratesNode_)
     {
       distinctSiteLikelihoodsNode = siteLikelihoodsCat;
+      conditionalLikelihoodsNode = cond;
       break;
     }
-    vLogRoot.push_back(siteLikelihoodsCat);
+    else
+    {
+      // For Conditional at Node
+      vCondRate.push_back(cond);
+      vRoot.push_back(siteLikelihoodsCat);
+    }
   }
 
-  
   if (processNodes_.ratesNode_)
   {
     auto catProb = ProbabilitiesFromDiscreteDistribution::create(context_, {processNodes_.ratesNode_});
-    vLogRoot.push_back(catProb);
-    
-    distinctSiteLikelihoodsNode = CWiseMean<Eigen::RowVectorXd, ReductionOf<Eigen::RowVectorXd>, Eigen::RowVectorXd>::create(context_, std::move(vLogRoot), rowVectorDimension (Eigen::Index(nbSite)));
+    vRoot.push_back(catProb);
+    vCondRate.push_back(catProb);
+
+    distinctSiteLikelihoodsNode = CWiseMean<Eigen::RowVectorXd, ReductionOf<Eigen::RowVectorXd>, Eigen::RowVectorXd>::create(context_, std::move(vRoot), rowVectorDimension (Eigen::Index(nbSite)));
+
+    conditionalLikelihoodsNode = CWiseMean<Eigen::MatrixXd, ReductionOf<Eigen::MatrixXd>, Eigen::RowVectorXd>::create(context_, std::move(vCondRate), MatrixDimension (Eigen::Index(nbState), Eigen::Index(nbSite)));
   }
 
-  // And sum all ll
-  auto totalLogLikelihood =
-    SumOfLogarithms<Eigen::RowVectorXd>::create (context_, {distinctSiteLikelihoodsNode, rootWeights_}, rowVectorDimension (Eigen::Index (nbSite)));
+  condLikelihoodTree_->associateNode(conditionalLikelihoodsNode, phylotree.getNodeGraphid(phylotree.getNode(speciesId)));
+  condLikelihoodTree_->setNodeIndex(conditionalLikelihoodsNode, speciesId);
+    
+  // // And sum all ll
+  // auto totalLogLikelihood =
+  //   SumOfLogarithms<Eigen::RowVectorXd>::create (context_, {distinctSiteLikelihoodsNode, rootWeights_}, rowVectorDimension (Eigen::Index (nbSite)));
 
-  return totalLogLikelihood;
+  // return totalLogLikelihood;
 
   // We want -log(likelihood)
   // auto totalNegLogLikelihood =
   //   CWiseNegate<double>::create (context_, {totalLogLikelihood}, Dimension<double> ());
   //  return totalNegLogLikelihood;
+
+}
+
+
+std::shared_ptr<SiteLikelihoodsTree> LikelihoodCalculationSingleProcess::getSiteLikelihoodsTree_(size_t nCat)
+{
+  if (nCat>=vRateCatTrees_.size())
+    throw Exception("LikelihoodCalculationSingleProcess::getSiteLikelihoodsTree : Bad Class number " + TextTools::toString(nCat));
+
+  if (!shrunkData_)
+    throw Exception("LikelihoodCalculationSingleProcess::getSiteLikelihoodsTree : data not set.");
+        
+  if (!likelihood_)
+    makeLikelihoodsAtRoot_();
+  
+  if (vRateCatTrees_[nCat].lt==0)
+    makeLikelihoodsAtNode_(getTreeNode_()->getRootIndex());
+  
+  return vRateCatTrees_[nCat].lt;
 }
 

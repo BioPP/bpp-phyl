@@ -316,9 +316,9 @@ process->addModel(t92, Vuint({2}));
 
 
   // Test on nodes
-  auto lik2 = lik->getLogLikelihoodAtNode(2);
-  std::cout << "[lik2] " << lik2->getTargetValue() << "\n";
-  dotOutput("likelihood_2", {lik2.get()});
+  // auto lik2 = lik->getLogLikelihoodAtNode(2);
+  // std::cout << "[lik2] " << lik2->getTargetValue() << "\n";
+  // dotOutput("likelihood_2", {lik2.get()});
   
   l->getParameters().printParameters(cerr);
   

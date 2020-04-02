@@ -275,7 +275,9 @@ namespace bpp
        *
        */
        
-      ProcessTree(Context& context, const SubstitutionProcess& process,
+      ProcessTree(Context& context,
+                  const SubstitutionProcess& process,
+                  const ProcessComputationTree& tree,
                   ParameterList& parList,
                   const BrLenMap& vrefmap);
 
@@ -474,8 +476,10 @@ namespace bpp
         mapBr.emplace(parTree.getEdgeIndex(branch),
                       ConfiguredParameter::create(context, {confPar->dependency(0)}, bp));
       }
-      
-      return std::shared_ptr<ProcessTree>(new ProcessTree(context, process, parList, mapBr));
+
+      ProcessComputationTree tree(process);
+
+      return std::shared_ptr<ProcessTree>(new ProcessTree(context, process, tree, parList, mapBr));
     }
 
     

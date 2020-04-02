@@ -78,425 +78,475 @@ namespace bpp {
    */
 
 
-    class ProcessTree;
-    class ForwardLikelihoodTree;
-    class BackwardLikelihoodTree;
+  class ProcessTree;
+  class ForwardLikelihoodTree;
+  class BackwardLikelihoodTree;
     
-    /** @brief likelihood = f(equilibriumFrequencies, rootConditionalLikelihood).
-     * - likelihood: RowVector(site).
-     * - equilibriumFrequencies: RowVector(state).
-     * - rootConditionalLikelihood: Matrix(state, site).
-     *
-     * likelihood(site) = sum_state equFreqs(state) * rootConditionalLikelihood(state, site).
-     * Using matrix multiply: likelihood = equilibriumFrequencies * rootConditionalLikelihood.
-     */
+  /** @brief likelihood = f(equilibriumFrequencies, rootConditionalLikelihood).
+   * - likelihood: RowVector(site).
+   * - equilibriumFrequencies: RowVector(state).
+   * - rootConditionalLikelihood: Matrix(state, site).
+   *
+   * likelihood(site) = sum_state equFreqs(state) * rootConditionalLikelihood(state, site).
+   * Using matrix multiply: likelihood = equilibriumFrequencies * rootConditionalLikelihood.
+   */
 
-    using LikelihoodFromRootConditional =
-      MatrixProduct<Eigen::RowVectorXd, Eigen::RowVectorXd, Eigen::MatrixXd>;
+  using LikelihoodFromRootConditional =
+    MatrixProduct<Eigen::RowVectorXd, Eigen::RowVectorXd, Eigen::MatrixXd>;
     
-    /** @brief totalLikelihood = product_site likelihood(site).
-     * - likelihood: RowVector (site).
-     * - totalLikelihood: Extended float.
-     */
+  /** @brief totalLikelihood = product_site likelihood(site).
+   * - likelihood: RowVector (site).
+   * - totalLikelihood: Extended float.
+   */
     
-    using TotalLogLikelihood = SumOfLogarithms<Eigen::RowVectorXd>;
+  using TotalLogLikelihood = SumOfLogarithms<Eigen::RowVectorXd>;
 
-    /** @brief Conditionallikelihood = AboveConditionalLikelihood * BelowConditionalLikelihood
-     *
-     * lik(state, site) = above(state, site) * below(state,site)
-     * Using member wise multiply
-     */
+  /** @brief Conditionallikelihood = AboveConditionalLikelihood * BelowConditionalLikelihood
+   *
+   * lik(state, site) = above(state, site) * below(state,site)
+   * Using member wise multiply
+   */
 
-    using BuildConditionalLikelihood =
-      CWiseMul<Eigen::MatrixXd, std::tuple<Eigen::MatrixXd, Eigen::MatrixXd>>;
+  using BuildConditionalLikelihood =
+    CWiseMul<Eigen::MatrixXd, std::tuple<Eigen::MatrixXd, Eigen::MatrixXd>>;
+    
+  using ConditionalLikelihood = Value<Eigen::MatrixXd>;
+  using ConditionalLikelihoodRef = ValueRef<Eigen::MatrixXd>;
+    
+  using SiteLikelihoods = Value<Eigen::RowVectorXd>;
+  using SiteLikelihoodsRef = ValueRef<Eigen::RowVectorXd>;
+    
+  using AllRatesSiteLikelihoods = Eigen::MatrixXd;
+    
+  using SiteWeights = NumericConstant<Eigen::RowVectorXi>;
 
-
-    
-    using ConditionalLikelihood = Value<Eigen::MatrixXd>;
-    
-    using SiteLikelihoods = Value<Eigen::RowVectorXd>;
-    using SiteLikelihoodsRef = ValueRef<Eigen::RowVectorXd>;
-    
-    using AllRatesSiteLikelihoods = Eigen::MatrixXd;
-    
-    using SiteWeights = NumericConstant<Eigen::RowVectorXi>;
-
-    /*
-     * @brief DAG of the conditional likelihoods (product of above and
-     * below likelihoods), with same topology as forward & backward
-     * likelihood DAGs.
-     *
-     */
+  /*
+   * @brief DAG of the conditional likelihoods (product of above and
+   * below likelihoods), with same topology as forward & backward
+   * likelihood DAGs.
+   *
+   */
      
-    using ConditionalLikelihoodTree = AssociationDAGlobalGraphObserver<ConditionalLikelihood,uint>;
+  using ConditionalLikelihoodDAG = AssociationDAGlobalGraphObserver<ConditionalLikelihood,uint>;
 
-    using SiteLikelihoodsTree = AssociationTreeGlobalGraphObserver<SiteLikelihoods, uint>;
+  using ConditionalLikelihoodTree = AssociationTreeGlobalGraphObserver<ConditionalLikelihood,uint>;
 
-    class LikelihoodCalculationSingleProcess :
-      public AbstractParametrizable
-    {
-    private:
+  using SiteLikelihoodsTree = AssociationTreeGlobalGraphObserver<SiteLikelihoods, uint>;
+
+  class LikelihoodCalculationSingleProcess :
+    public AbstractParametrizable
+  {
+  private:
       
-      class RateCategoryTrees {
-      public:
-        std::shared_ptr<ProcessTree> phyloTree;
-        std::shared_ptr<ForwardLikelihoodTree> flt;
-
-        /*
-         * @brief backward likelihood tree (only computed when needed)
-         *
-         */
-        
-        std::shared_ptr<BackwardLikelihoodTree> blt;
-
-        /*
-         * @brief for each node n:  clt[n] = flt[n] * dlt[n]
-         *
-         */
-        std::shared_ptr<ConditionalLikelihoodTree> clt;
-        
-        /*
-         * Site Likelihoods on the tree, with shrunked positions.
-         * 
-         * @brief for each node n:  lt[n] = sum_{state s} flt[n][s]
-         *
-         * This is only computed when node specific likelihood is
-         * computed.
-         */
-
-        std::shared_ptr<SiteLikelihoodsTree> lt;
-      };
-
-      class ProcessNodes {
-      public:
-        std::shared_ptr<ProcessTree> treeNode_;
-        std::shared_ptr<ConfiguredModel> modelNode_; // Used for
-                                                     // StateMap and
-                                                     // root
-                                                     // frequencies if
-                                                     // stationarity
-        std::shared_ptr<ConfiguredFrequenciesSet> rootFreqsNode_;
-        std::shared_ptr<ConfiguredDistribution> ratesNode_;
-      };
-        
-      Context& context_;
-
-      /************************************/
-      /* Dependencies */
-      
-      const SubstitutionProcess& process_;
-      const AlignedValuesContainer* psites_;
-      
-      /*****************************
-       ****** Patterns
-       *
-       * @brief Links between sites and patterns.
-       * 
-       * The size of this vector is equal to the number of sites in the container,
-       * each element corresponds to a site in the container and points to the
-       * corresponding column in the likelihood array of the root node.
-       * If the container contains no repeated site, there will be a strict
-       * equivalence between each site and the likelihood array of the root node.
-       * However, if this is not the case, some pointers may point toward the same
-       * element in the likelihood array.
-       */
-      
-      ValueRef<PatternType> rootPatternLinks_;
-
-      /**
-       * @brief The frequency of each site.
-       */
-
-      std::shared_ptr<SiteWeights> rootWeights_;
-      std::shared_ptr<AlignedValuesContainer> shrunkData_;
-
-      /************************************/
-      /* DataFlow objects */
-
-      ProcessNodes processNodes_;
-
-      ValueRef<Eigen::RowVectorXd> rFreqs_;
-
-      /******************************************/
-      /** Likelihoods  **/
-          
-      ValueRef<double> likelihood_;
-
-      ValueRef<Eigen::RowVectorXd> siteLikelihoods_;
-
-      ValueRef<Eigen::RowVectorXd> patternedSiteLikelihoods_;
-      
-      /* Likelihood Trees with for all rate categories */
-      std::vector<RateCategoryTrees> vRateCatTrees_;
-
+    class RateCategoryTrees {
     public:
-      LikelihoodCalculationSingleProcess(Context & context,
-                                         const AlignedValuesContainer & sites,
-                                         const SubstitutionProcess& process);
-
-      LikelihoodCalculationSingleProcess(Context & context,
-                                         const SubstitutionProcess& process);
-
-      LikelihoodCalculationSingleProcess(Context & context,
-                                         const AlignedValuesContainer & sites,
-                                         const SubstitutionProcess& process,
-                                         ParameterList& paramList);
-
-      LikelihoodCalculationSingleProcess(const LikelihoodCalculationSingleProcess& lik);
-
-      LikelihoodCalculationSingleProcess* clone() const
-      {
-        return new LikelihoodCalculationSingleProcess(*this);
-      }
-
-      void setData(const AlignedValuesContainer& sites)
-      {
-        if (psites_)
-          throw Exception("LikelihoodCalculationSingleProcess::setData : data already assigned.");
-        psites_=&sites;
-        setPatterns_();
-      }
-
-      /**
-       * @brief Set derivation procedure (see DataFlowNumeric.h)
-       *
-       */
-      
-      void setNumericalDerivateConfiguration(double delta, const NumericalDerivativeType& config);
-
-      /**
-       * Set Tree ClockLike :
-       *  - add a RateNode parameter for multiplying all branch lengths
-       *  - remove all branch lengths parameters from the parameters
-       *
-       */
-      
-      void setClockLike(double rate=1);
-
-
-      /**************************************************/
+      std::shared_ptr<ProcessTree> phyloTree;
+      std::shared_ptr<ForwardLikelihoodTree> flt;
 
       /*
-       * @brief Return the loglikehood (see as a function, ie
-       * computation node).
+       * @brief backward likelihood tree (only computed when needed)
        *
        */
-      
-      ValueRef<double> getLogLikelihood() 
-      {
-        if (!shrunkData_)
-          throw Exception("LikelihoodCalculationSingleProcess::getLogLikelihood : data not set.");
         
-        if (!likelihood_)
-          makeLikelihoodAtRoot_();
+      std::shared_ptr<BackwardLikelihoodTree> blt;
+
+      /*
+       * @brief for each node n:  clt[n] = flt[n] * dlt[n]
+       *
+       */
+      std::shared_ptr<ConditionalLikelihoodDAG> clt;
         
-        return likelihood_;
-      }
-
-      double getLogLikelihoodValue() 
-      {
-        return getLogLikelihood()->getTargetValue();
-      }
-
       /*
-       * @brief Return the loglikehood computation at a given node.
+       * Site Likelihoods on the tree, with shrunked positions.
+       * 
+       * @brief for each node n:  lt[n] = sum_{state s} flt[n][s]
        *
+       * This is only computed when node specific likelihood is
+       * computed.
        */
 
-      ValueRef<double> getLogLikelihoodAtNode(uint nodeId) 
-      {
-        const auto pt=process_.getParametrizablePhyloTree();
-        if (!pt.hasNode(nodeId))
-          throw Exception("LikelihoodCalculationSingleProcess::getLogLikelihoodAtNode : node " + TextTools::toString(nodeId) + " does not exist in Phylo Tree.");
-
-        // No need to recompute with backward if at root
-        if (pt.getRootIndex()==nodeId)
-          return likelihood_;
-
-        return makeLikelihoodsAtNode_(nodeId);
-      }
-
-      
-      size_t getNumberOfSites() const
-      {
-        return (psites_?psites_->getNumberOfSites():0);
-      }
-
-      size_t getNumberOfDistinctSites() const
-      {
-        return shrunkData_?shrunkData_->getNumberOfSites():0;
-      }
-
-      
-      const SubstitutionProcess& getSubstitutionProcess() const
-      {
-        return process_;
-      }
-        
-      const AlignedValuesContainer* getData() const
-      {
-        return psites_;
-      }
-
-      bool isInitialized() const {
-        return getData();
-      };
-
-
-      const StateMap& getStateMap() const
-      {
-        return processNodes_.modelNode_->getTargetValue()->getStateMap();
-      }
-      
-      /*
-       * @brief Return the ref to the Sitelikelihoods_ vector on data
-       * (shrunked or not).
-       *
-       * @brief shrunk: bool true if vector on shrunked data
-       *
-       */
-      
-      ValueRef<Eigen::RowVectorXd> getSiteLikelihoods(bool shrunk)
-      {
-        if (!shrunkData_)
-          throw Exception("LikelihoodCalculationSingleProcess::getSiteLikelihoods : data not set.");
-        
-        if (!siteLikelihoods_)
-          makeLikelihoodAtRoot_();
-
-        if (shrunk)
-          return siteLikelihoods_;
-        else
-          return patternedSiteLikelihoods_;
-      }
-
-      /************************************************
-       *** Patterns
-       ****************************/
-      
-      /*
-       * @brief the relations between real position and shrunked data
-       * positions.
-       *
-       */
-     
-      size_t getRootArrayPosition(size_t currentPosition) const
-      {
-        return rootPatternLinks_->getTargetValue()(currentPosition);
-      }
-    
-      const PatternType& getRootArrayPositions() const { return rootPatternLinks_->getTargetValue(); }
-
-      const AlignedValuesContainer* getShrunkData() const {
-        return shrunkData_.get();
-      }
-
-      /*
-       * @brief Expands (ie reverse of shrunkage) a vector computed of
-       * shrunked data (ie from one value per distinct site to one
-       * value per site).
-       *
-       */
-      
-      ValueRef<Eigen::RowVectorXd> expandVector(ValueRef<Eigen::RowVectorXd> vector)
-      {
-        return CWisePattern<Eigen::RowVectorXd>::create(context_,{vector,rootPatternLinks_}, rowVectorDimension (Eigen::Index (getData()->getNumberOfSites())));
-      }
-      
-      /*
-       * @brief: Get the weight of a position in the shrunked data (ie
-       * the number of sites corresponding to this site)
-       *
-       */
-      
-      unsigned int getWeight(size_t pos) const
-      {
-        return rootWeights_->getTargetValue()(pos);
-      }
-
-      ValueRef<Eigen::RowVectorXd> getRootFreqs()
-      {
-        return rFreqs_;
-      }
-
-      //std::shared_ptr<ConditionalLikelihoodTree> getConditionalLikelihoodTree(size_t nCat);
-
-      /*
-       *@brief Get tree of site likelihoods, on shrunk data.
-       *
-       */
-      
-      std::shared_ptr<SiteLikelihoodsTree> getSiteLikelihoodsTree(size_t nCat);
-      
-      /*
-       *@ brief make DF nodes of the process, using
-       *ConfiguredParameters defined in a ParameterList.
-       */
-
-      void makeProcessNodes(ParameterList& pl);
-
-      
-      /*********************************/
-      /*@brief Methods for external usage (after lik computation) */
-
-      /*
-       *@brief Get site likelihoods for a rate category
-       *
-       *@param nCat : index of the rate category
-       *@param shrunk : if returns on shrunked data (default: false)
-       */
-      
-      const Eigen::RowVectorXd& getSiteLikelihoodsForAClass(size_t nCat, bool shrunk = false);
-
-      /*
-       *@brief Output array (Classes X Sites) of likelihoods for all
-       *sites & classes.
-       *
-       *@param shrunk : if returns on shrunked data (default: false)
-       */
-
-      const AllRatesSiteLikelihoods& getSiteLikelihoodsForAllClasses(bool shrunk = false);
-      
-      double getLikelihoodForASite(size_t pos)
-      {
-        if (!shrunkData_)
-          throw Exception("LikelihoodCalculationSingleProcess::getLogLikelihoodForASite : data not set.");
-        
-        if (!siteLikelihoods_)
-          makeLikelihoodAtRoot_();
-
-        return patternedSiteLikelihoods_->getTargetValue()(pos);
-      }
-
-    private:
-      void setPatterns_();
-      
-      void makeForwardLikelihoodTree_();
-
-      void makeProcessNodes_();
-      
-      void makeRootFreqs_();
-
-      void makeLikelihoodAtRoot_();
-
-      /*
-       * @brief Compute the likelihood at a given node in the tree,
-       * which number may not be the same number number in the DAG.
-       * Several node in the DAG may be related to this tree node, in
-       * which case a sum is computer.
-       *
-       * @param nodeId : index of the node in the phylo Tree
-       */
-      
-      ValueRef<double> makeLikelihoodsAtNode_(uint nodeId);
-
-      
-      std::shared_ptr<ProcessTree> getTreeNode_()
-      {
-        return processNodes_.treeNode_;
-      }
+      std::shared_ptr<SiteLikelihoodsTree> lt;
 
     };
+
+    class ProcessNodes {
+    public:
+      std::shared_ptr<ProcessTree> treeNode_;
+      std::shared_ptr<ConfiguredModel> modelNode_; // Used for
+      // StateMap and root frequencies if stationarity
+      
+      std::shared_ptr<ConfiguredFrequenciesSet> rootFreqsNode_;
+      std::shared_ptr<ConfiguredDistribution> ratesNode_;
+    };
+        
+    Context& context_;
+
+    /************************************/
+    /* Dependencies */
+      
+    const SubstitutionProcess& process_;
+    const AlignedValuesContainer* psites_;
+      
+    /*****************************
+     ****** Patterns
+     *
+     * @brief Links between sites and patterns.
+     * 
+     * The size of this vector is equal to the number of sites in the container,
+     * each element corresponds to a site in the container and points to the
+     * corresponding column in the likelihood array of the root node.
+     * If the container contains no repeated site, there will be a strict
+     * equivalence between each site and the likelihood array of the root node.
+     * However, if this is not the case, some pointers may point toward the same
+     * element in the likelihood array.
+     */
+      
+    ValueRef<PatternType> rootPatternLinks_;
+
+    /**
+     * @brief The frequency of each site.
+     */
+
+    std::shared_ptr<SiteWeights> rootWeights_;
+    std::shared_ptr<AlignedValuesContainer> shrunkData_;
+
+    /************************************/
+    /* DataFlow objects */
+
+    ProcessNodes processNodes_;
+
+    ValueRef<Eigen::RowVectorXd> rFreqs_;
+
+    /******************************************/
+    /** Likelihoods  **/
+          
+    ValueRef<double> likelihood_;
+
+    ValueRef<Eigen::RowVectorXd> siteLikelihoods_;
+
+    ValueRef<Eigen::RowVectorXd> patternedSiteLikelihoods_;
+      
+    /* Likelihood Trees with for all rate categories */
+    std::vector<RateCategoryTrees> vRateCatTrees_;
+
+    /* Likelihood tree on mean likelihoods on rate categories */
+    std::shared_ptr<ConditionalLikelihoodTree> condLikelihoodTree_;
+      
+  public:
+    LikelihoodCalculationSingleProcess(Context & context,
+                                       const AlignedValuesContainer & sites,
+                                       const SubstitutionProcess& process);
+
+    LikelihoodCalculationSingleProcess(Context & context,
+                                       const SubstitutionProcess& process);
+
+    LikelihoodCalculationSingleProcess(Context & context,
+                                       const AlignedValuesContainer & sites,
+                                       const SubstitutionProcess& process,
+                                       ParameterList& paramList);
+
+    LikelihoodCalculationSingleProcess(const LikelihoodCalculationSingleProcess& lik);
+
+    LikelihoodCalculationSingleProcess* clone() const
+    {
+      return new LikelihoodCalculationSingleProcess(*this);
+    }
+
+    void setData(const AlignedValuesContainer& sites)
+    {
+      if (psites_)
+        throw Exception("LikelihoodCalculationSingleProcess::setData : data already assigned.");
+      psites_=&sites;
+      setPatterns_();
+    }
+
+    /**
+     * @brief Set derivation procedure (see DataFlowNumeric.h)
+     *
+     */
+      
+    void setNumericalDerivateConfiguration(double delta, const NumericalDerivativeType& config);
+
+    /**
+     * Set Tree ClockLike :
+     *  - add a RateNode parameter for multiplying all branch lengths
+     *  - remove all branch lengths parameters from the parameters
+     *
+     */
+      
+    void setClockLike(double rate=1);
+
+
+    /**************************************************/
+
+    /*
+     * @brief Return the loglikehood (see as a function, ie
+     * computation node).
+     *
+     */
+      
+    ValueRef<double> getLogLikelihood() 
+    {
+      if (!shrunkData_)
+        throw Exception("LikelihoodCalculationSingleProcess::getLogLikelihood : data not set.");
+        
+      if (!likelihood_)
+        makeLikelihoodsAtRoot_();
+        
+      return likelihood_;
+    }
+
+    double getLogLikelihoodValue() 
+    {
+      return getLogLikelihood()->getTargetValue();
+    }
+
+    /*
+     * @brief Return the loglikehood computation at a given node.
+     *
+     */
+
+    // ValueRef<double> getLogLikelihoodAtNode(uint nodeId) 
+    // {
+    //   const auto pt=process_.getParametrizablePhyloTree();
+    //   if (!pt.hasNode(nodeId))
+    //     throw Exception("LikelihoodCalculationSingleProcess::getLogLikelihoodAtNode : node " + TextTools::toString(nodeId) + " does not exist in Phylo Tree.");
+
+    //   // No need to recompute with backward if at root
+    //   if (pt.getRootIndex()==nodeId)
+    //     return likelihood_;
+
+    //   makeLikelihoodsAtNode_(nodeId);
+
+      
+    // }
+
+      
+    size_t getNumberOfSites() const
+    {
+      return (psites_?psites_->getNumberOfSites():0);
+    }
+
+    size_t getNumberOfDistinctSites() const
+    {
+      return shrunkData_?shrunkData_->getNumberOfSites():0;
+    }
+
+      
+    const SubstitutionProcess& getSubstitutionProcess() const
+    {
+      return process_;
+    }
+        
+    const AlignedValuesContainer* getData() const
+    {
+      return psites_;
+    }
+
+    bool isInitialized() const {
+      return getData();
+    };
+
+
+    const StateMap& getStateMap() const
+    {
+      return processNodes_.modelNode_->getTargetValue()->getStateMap();
+    }
+      
+    /*
+     * @brief Return the ref to the Sitelikelihoods_ vector on data
+     * (shrunked or not).
+     *
+     * @brief shrunk: bool true if vector on shrunked data
+     *
+     */
+      
+    ValueRef<Eigen::RowVectorXd> getSiteLikelihoods(bool shrunk)
+    {
+      if (!shrunkData_)
+        throw Exception("LikelihoodCalculationSingleProcess::getSiteLikelihoods : data not set.");
+        
+      if (!siteLikelihoods_)
+        makeLikelihoodsAtRoot_();
+
+      if (shrunk)
+        return siteLikelihoods_;
+      else
+        return patternedSiteLikelihoods_;
+    }
+
+    /************************************************
+     *** Patterns
+     ****************************/
+      
+    /*
+     * @brief the relations between real position and shrunked data
+     * positions.
+     *
+     * @param currentPosition : position in real data
+     *
+     * @return matching position in shrunked data
+     *
+     */
+     
+    size_t getRootArrayPosition(size_t currentPosition) const
+    {
+      return rootPatternLinks_->getTargetValue()(currentPosition);
+    }
+    
+    const PatternType& getRootArrayPositions() const { return rootPatternLinks_->getTargetValue(); }
+
+    const AlignedValuesContainer* getShrunkData() const {
+      return shrunkData_.get();
+    }
+
+    /*
+     * @brief Expands (ie reverse of shrunkage) a vector computed of
+     * shrunked data (ie from one value per distinct site to one
+     * value per site).
+     *
+     */
+      
+    ValueRef<Eigen::RowVectorXd> expandVector(ValueRef<Eigen::RowVectorXd> vector)
+    {
+      return CWisePattern<Eigen::RowVectorXd>::create(context_,{vector,rootPatternLinks_}, rowVectorDimension (Eigen::Index (getData()->getNumberOfSites())));
+    }
+
+    /*
+     * @brief Expands (ie reverse of shrunkage) a matrix computed of
+     * shrunked data (ie from one value per distinct site to one
+     * value per site). Columns are sites.
+     *
+     */
+      
+    ValueRef<Eigen::MatrixXd> expandMatrix(ValueRef<Eigen::MatrixXd> matrix)
+    {
+      return CWisePattern<Eigen::MatrixXd>::create(context_,{matrix,rootPatternLinks_}, MatrixDimension (matrix->getTargetValue().rows(), Eigen::Index (getData()->getNumberOfSites())));
+    }
+
+    /*
+     * @brief: Get the weight of a position in the shrunked data (ie
+     * the number of sites corresponding to this site)
+     *
+     */
+      
+    unsigned int getWeight(size_t pos) const
+    {
+      return rootWeights_->getTargetValue()(pos);
+    }
+
+    // ValueRef<Eigen::RowVectorXd> getRootWeights()
+    // {
+    //   return rootWeights_;
+    // }
+
+    ValueRef<Eigen::RowVectorXd> getRootFreqs()
+    {
+      return rFreqs_;
+    }
+
+    /*
+     *@brief Get a tree of site likelihoods, on shrunk data.
+     * 
+     *@param nCat rate category
+     *
+     *@param shrunk : if returns on shrunked data (default: false)
+     */
+      
+    ConditionalLikelihoodRef getLikelihoodsAtNode(uint nodeId, bool shrunk = false)
+    {
+      if (!(condLikelihoodTree_ && condLikelihoodTree_->hasNode(nodeId)))
+        makeLikelihoodsAtNode_(nodeId);
+
+      auto vv = condLikelihoodTree_->getNode(nodeId);
+
+      return shrunk?vv:expandMatrix(vv);
+    }
+
+    const ConditionalLikelihoodTree& getLikelihoodsTree()
+    {
+        makeLikelihoodsTree();
+        return *condLikelihoodTree_;
+    }
+    
+    void makeLikelihoodsTree()
+    {
+      auto allIndex = process_.getParametrizablePhyloTree().getAllNodesIndexes();
+      
+      for (auto id: allIndex)
+//        if (!(condLikelihoodTree_ && condLikelihoodTree_->hasNode(nodeId)))
+         makeLikelihoodsAtNode_(id);
+    }
+
+    /*********************************/
+    /*@brief Methods for external usage (after lik computation) */
+
+    /*
+     *@brief Get site likelihoods for a rate category
+     *
+     *@param nCat : index of the rate category
+     *@param shrunk : if returns on shrunked data (default: false)
+     */
+      
+    Eigen::RowVectorXd getSiteLikelihoodsForAClass(size_t nCat, bool shrunk = false);
+
+    /*
+     *@brief Output array (Classes X Sites) of likelihoods for all
+     *sites & classes.
+     *
+     *@param shrunk : if returns on shrunked data (default: false)
+     */
+
+    AllRatesSiteLikelihoods getSiteLikelihoodsForAllClasses(bool shrunk = false);
+      
+    double getLikelihoodForASite(size_t pos)
+    {
+      if (!shrunkData_)
+        throw Exception("LikelihoodCalculationSingleProcess::getLogLikelihoodForASite : data not set.");
+        
+      if (!siteLikelihoods_)
+        makeLikelihoodsAtRoot_();
+
+      return patternedSiteLikelihoods_->getTargetValue()(pos);
+    }
+
+  private:
+    void setPatterns_();
+      
+    void makeForwardLikelihoodTree_();
+
+    void makeProcessNodes_();
+      
+    void makeRootFreqs_();
+
+    void makeLikelihoodsAtRoot_();
+
+    /*
+     *@ brief make DF nodes of the process, using
+     *ConfiguredParameters defined in a ParameterList.
+     */
+
+    void makeProcessNodes_(ParameterList& pl);
+
+    /*
+     * @brief Compute the likelihood at a given node in the tree,
+     * which number may not be the same number number in the DAG.
+     * Several node in the DAG may be related to this tree node, in
+     * which case a sum is computed.
+     *
+     * @param nodeId : index of the node in the phylo Tree
+     */
+      
+    void makeLikelihoodsAtNode_(uint nodeId);
+      
+    std::shared_ptr<ProcessTree> getTreeNode_()
+    {
+      return processNodes_.treeNode_;
+    }
+
+    std::shared_ptr<SiteLikelihoodsTree> getSiteLikelihoodsTree_(size_t nCat);
+
+  };
 
 } // namespace bpp
 

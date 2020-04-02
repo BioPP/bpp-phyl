@@ -146,6 +146,12 @@ public:
     return hmm_->getLikelihoodForEachSite();
   }
 
+  /*
+   *@brief return the posterior probabilities of subprocess on each site.
+   *
+   *@return 2D-vector sites x states
+   */
+
   VVdouble getPosteriorProbabilitiesPerSitePerAligned() const
   {
     VVdouble pp;

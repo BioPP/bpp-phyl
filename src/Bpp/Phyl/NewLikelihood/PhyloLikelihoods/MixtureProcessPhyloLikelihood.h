@@ -124,6 +124,12 @@ namespace bpp
   
       double getD2LogLikelihoodForASite(const std::string& variable, size_t site) const;
   
+      /*
+       *@brief return the posterior probabilities of subprocess on each site.
+       *
+       *@return 2D-vector sites x states
+       */
+
       VVdouble getPosteriorProbabilitiesPerSitePerProcess() const;
 
       /*

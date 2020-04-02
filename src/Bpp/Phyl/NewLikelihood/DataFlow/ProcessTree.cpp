@@ -54,14 +54,11 @@ using namespace std;
 
 ProcessTree::ProcessTree(Context& context,
                          const SubstitutionProcess& process,
+                         const ProcessComputationTree& tree,
                          ParameterList& parList,
                          const BrLenMap& vrefmap) :
-  AssociationTreeGlobalGraphObserver<ProcessNode,ProcessEdge>(0), context_(context)
+  AssociationTreeGlobalGraphObserver<ProcessNode,ProcessEdge>(tree.getGraph()), context_(context)
 {
-  ProcessComputationTree tree(process);
-
-  setGraph(tree.getGraph());
-  
   auto vNodes=tree.getAllNodes();
   
   for (const auto& node:vNodes)

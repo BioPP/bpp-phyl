@@ -55,7 +55,7 @@ namespace bpp
      *
      */
     
-    class SetOfAbstractPhyloLikelihood:
+  class SetOfAbstractPhyloLikelihood:
     virtual public AbstractPhyloLikelihood,
     public AbstractParametrizable
     {

@@ -156,6 +156,15 @@ namespace bpp {
     size_t getNumberOfDistinctSites() const {
       return getLikelihoodCalculation()->getNumberOfDistinctSites();
     }
+
+    /**
+     * @brief Get the number of model classes.
+     *
+     */
+
+    size_t getNumberOfClasses() const { return getSubstitutionProcess().getNumberOfClasses(); }
+
+
     
     const Alphabet* getAlphabet() const {
       return getLikelihoodCalculation()->getStateMap().getAlphabet();
@@ -314,7 +323,7 @@ namespace bpp {
       return getSecondOrderDerivativeVector (variable, variable);
     }
 
-    ValueRef<Eigen::RowVectorXd>  getSecondOrderDerivativeVector (const std::string & variable1,
+    ValueRef<Eigen::RowVectorXd> getSecondOrderDerivativeVector (const std::string & variable1,
                                                                   const std::string & variable2) const {
       return secondOrderDerivativeVector (variable1, variable2);
     }
@@ -335,7 +344,7 @@ namespace bpp {
     }
 
     /**
-     * @brief Get the likelihood for a site.
+     * @brief Get the likelihood for a site (on uncompressed data)
      *
      * @param site The site index to analyse.
      * @return The likelihood for site <i>site</i>.
@@ -373,7 +382,7 @@ namespace bpp {
     /**
      * @brief Get the likelihood for each site.
      *
-     *@return A vector with all likelihoods for each site.
+     *@return A vector with all site likelihoods.
      *
      */
 
@@ -387,10 +396,23 @@ namespace bpp {
      * probabilities.
      */
 
-    VVdouble getPosteriorProbabilitiesPerClass() const;
+    VVdouble getPosteriorProbabilitiesPerSitePerClass() const;
       
     Vdouble getPosteriorProbabilitiesForSitePerClass(size_t pos) const;
 
+    /*
+     *@brief return the likelihood of rate classes on each site.
+     *
+     *@return 2D-vector sites x classes
+     */
+    
+    VVdouble getLikelihoodPerSitePerClass() const;
+    
+    std::vector<size_t> getClassWithMaxPostProbPerSite() const;
+
+    Vdouble getPosteriorRatePerSite() const;
+
+    Vdouble getPosteriorStateFrequencies(uint nodeId);
   };
   
 } // namespace bpp

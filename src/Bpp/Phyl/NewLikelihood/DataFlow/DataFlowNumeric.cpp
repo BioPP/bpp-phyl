@@ -44,6 +44,76 @@
 #include "DataFlowNumeric.h"
 
 namespace bpp {
+
+  void copyBppToEigen (const bpp::Matrix<double> & bppMatrix, Eigen::MatrixXd & eigenMatrix) {
+    const auto eigenRows = static_cast<Eigen::Index> (bppMatrix.getNumberOfRows ());
+    const auto eigenCols = static_cast<Eigen::Index> (bppMatrix.getNumberOfColumns ());
+    eigenMatrix.resize (eigenRows, eigenCols);
+    for (Eigen::Index i = 0; i < eigenRows; ++i) {
+      for (Eigen::Index j = 0; j < eigenCols; ++j) {
+        eigenMatrix (i, j) = bppMatrix (static_cast<std::size_t> (i), static_cast<std::size_t> (j));
+      }
+    }
+  }
+
+  void copyBppToEigen (const bpp::Vdouble& bppVector, Eigen::VectorXd & eigenVector) {
+    const auto eigenRows = static_cast<Eigen::Index> (bppVector.size());
+    eigenVector.resize (eigenRows);
+    for (Eigen::Index i = 0; i < eigenRows; ++i) {
+      eigenVector (i) = bppVector[i];
+    }
+  }
+
+  void copyBppToEigen (const bpp::Vdouble& bppVector, Eigen::RowVectorXd & eigenVector) {
+    const auto eigenRows = static_cast<Eigen::Index> (bppVector.size());
+    eigenVector.resize (eigenRows);
+    for (Eigen::Index i = 0; i < eigenRows; ++i) {
+      eigenVector (i) = bppVector[i];
+    }
+  }
+
+  void copyEigenToBpp (const Eigen::MatrixXd & eigenMatrix, bpp::Matrix<double> & bppMatrix)
+  {
+    const auto eigenRows = static_cast<std::size_t> (eigenMatrix.rows());
+    const auto eigenCols = static_cast<std::size_t> (eigenMatrix.cols());
+    
+    bppMatrix.resize (eigenRows, eigenCols);
+    for (size_t i = 0; i < eigenRows; ++i) {
+      for (size_t j = 0; j < eigenCols; ++j) {
+        bppMatrix(i, j) = eigenMatrix (static_cast<Eigen::Index>(i), static_cast<Eigen::Index>(j));
+      }
+    }
+  } 
+
+  void copyEigenToBpp (const Eigen::MatrixXd & eigenMatrix, VVdouble& bppMatrix)
+  {
+    const auto eigenRows = static_cast<std::size_t> (eigenMatrix.rows());
+    const auto eigenCols = static_cast<std::size_t> (eigenMatrix.cols());
+
+    bppMatrix.resize (eigenRows);
+    for (size_t i = 0; i < eigenRows; ++i) {
+      bppMatrix[i].resize (eigenCols);
+      auto bMi = &bppMatrix[i];
+      for (size_t j = 0; j < eigenCols; ++j) {
+        (*bMi)[j] = eigenMatrix (static_cast<Eigen::Index>(i), static_cast<Eigen::Index>(j));
+      }
+    }
+  }    
+
+
+  void copyEigenToBpp (const Eigen::VectorXd & eigenVector, bpp::Vdouble& bppVector)
+  {
+    bppVector.resize(eigenVector.size());  
+    Eigen::VectorXd::Map(&bppVector[0], bppVector.size()) = eigenVector;
+  }
+      
+  void copyEigenToBpp (const Eigen::RowVectorXd & eigenVector, bpp::Vdouble& bppVector)
+  {
+    bppVector.resize(eigenVector.size());  
+    Eigen::RowVectorXd::Map(&bppVector[0], bppVector.size()) = eigenVector;
+  }
+  
+
   std::string to_string (const NoDimension &) {
     return "()";
   }

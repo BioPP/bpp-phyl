@@ -88,77 +88,77 @@ OneProcessSequencePhyloLikelihood::OneProcessSequencePhyloLikelihood(
 
 /******************************************************************************/
 
-VVdouble OneProcessSequencePhyloLikelihood::getLikelihoodPerSitePerState() const
-{
-  VVdouble l(getNumberOfSites());
-  for (size_t i = 0; i < l.size(); ++i)
-  {
-    Vdouble* l_i = &l[i];
-    l_i->resize(getNumberOfStates());
-    // for (size_t x = 0; x < l_i->size(); ++x)
-    // {
-    //   (*l_i)[x] = likCal_->getLikelihoodForASiteForAState(i, static_cast<int>(x));
-    // }
-  }
-  return l;
-}
+// VVdouble OneProcessSequencePhyloLikelihood::getLikelihoodPerSitePerState() const
+// {
+//   VVdouble l(getNumberOfSites());
+//   for (size_t i = 0; i < l.size(); ++i)
+//   {
+//     Vdouble* l_i = &l[i];
+//     l_i->resize(getNumberOfStates());
+//     // for (size_t x = 0; x < l_i->size(); ++x)
+//     // {
+//     //   (*l_i)[x] = likCal_->getLikelihoodForASiteForAState(i, static_cast<int>(x));
+//     // }
+//   }
+//   return l;
+// }
 
-/******************************************************************************/
+// /******************************************************************************/
 
 VVdouble OneProcessSequencePhyloLikelihood::getLikelihoodPerSitePerClass() const
 {
-  VVdouble l(getNumberOfSites());
-  for (size_t i = 0; i < l.size(); ++i)
-  {
-    Vdouble* l_i = &l[i];
-    l_i->resize(getNumberOfClasses());
-    // for (size_t c = 0; c < l_i->size(); ++c)
-    // {
-    //   (*l_i)[c] = likCal_->getLikelihoodForASiteForAClass(i, c);
-    // }
-  }
-  return l;
+  VVdouble vd;
+  copyEigenToBpp(getLikelihoodCalculation()->getSiteLikelihoodsForAllClasses(),vd);
+  return vd;
 }
+
 
 /******************************************************************************/
 
-VVVdouble OneProcessSequencePhyloLikelihood::getLikelihoodPerSitePerClassPerState() const
+Vdouble OneProcessSequencePhyloLikelihood::getPosteriorProbabilitiesForSitePerClass(size_t pos) const
 {
-  VVVdouble l(getNumberOfSites());
-  for (size_t i = 0; i < l.size(); ++i)
+  auto rates=getLikelihoodCalculation()->getSubstitutionProcess().getRateDistribution();
+  
+  if (!rates || rates->getNumberOfCategories()==1)
+    return Vdouble(1,1);
+  else
   {
-    VVdouble* l_i = &l[i];
-    l_i->resize(getNumberOfClasses());
-    for (size_t c = 0; c < l_i->size(); ++c)
-    {
-      Vdouble* l_ic = &(*l_i)[c];
-      l_ic->resize(getNumberOfStates());
-      // for (size_t x = 0; x < l_ic->size(); ++x)
-      // {
-      //   (*l_ic)[x] = likCal_->getLikelihoodForASiteForAClassForAState(i, c, static_cast<int>(x));
-      // }
-    }
+    auto probas = rates->getProbabilities();
+    Vdouble vv(rates->getNumberOfCategories());
+    for (size_t i=0;i<vv.size();i++)
+      vv[i]=probas[i] * (getLikelihoodCalculation()->getSiteLikelihoodsForAClass(i))(pos);
+      
+    vv/=VectorTools::sum(vv);
+    return vv;
   }
-  return l;
 }
 
-/******************************************************************************/
-
-VVdouble OneProcessSequencePhyloLikelihood::getPosteriorProbabilitiesPerClass() const
+VVdouble OneProcessSequencePhyloLikelihood::getPosteriorProbabilitiesPerSitePerClass() const
 {
-  size_t nbSites   = getNumberOfSites();
-  size_t nbClasses = getNumberOfClasses();
-  VVdouble pb = getLikelihoodPerSitePerClass();
-  Vdouble l = getLikelihoodPerSite();
+  auto rates=getLikelihoodCalculation()->getSubstitutionProcess().getRateDistribution();
 
-  for (size_t i = 0; i < nbSites; ++i)
+  auto nbS=getLikelihoodCalculation()->getNumberOfSites();
+  VVdouble vv(nbS);
+
+  if (!rates || rates->getNumberOfCategories()==1)
   {
-    for (size_t j = 0; j < nbClasses; ++j)
+    for (auto& v:vv)
+      v.resize(1,1);
+  }
+  else
+  {
+    Eigen::VectorXd probas;
+    copyBppToEigen(rates->getProbabilities(),probas);
+    
+    auto vvLik=getLikelihoodCalculation()->getSiteLikelihoodsForAllClasses();
+    for (size_t i=0;i<nbS;i++)
     {
-      pb[i][j] = pb[i][j] * getSubstitutionProcess().getProbabilityForModel(j) / l[i];
+      vv[i].resize(vvLik.rows());
+      auto sv = vvLik.col(i).array() * probas.array();
+      Eigen::VectorXd::Map(&vv[i][0], vv[i].size()) = sv / sv.sum();
     }
   }
-  return pb;
+  return vv;
 }
 
 /******************************************************************************/
@@ -166,7 +166,7 @@ VVdouble OneProcessSequencePhyloLikelihood::getPosteriorProbabilitiesPerClass() 
 vector<size_t> OneProcessSequencePhyloLikelihood::getClassWithMaxPostProbPerSite() const
 {
   size_t nbSites = getNumberOfSites();
-  VVdouble l = getLikelihoodPerSitePerClass();
+  auto l(getLikelihoodPerSitePerClass());
   vector<size_t> classes(nbSites);
   for (size_t i = 0; i < nbSites; ++i)
   {
@@ -180,18 +180,37 @@ vector<size_t> OneProcessSequencePhyloLikelihood::getClassWithMaxPostProbPerSite
 
 Vdouble OneProcessSequencePhyloLikelihood::getPosteriorRatePerSite() const
 {
+  auto probas = getLikelihoodCalculation()->getSubstitutionProcess().getRateDistribution()->getProbabilities();
+  auto rates = getLikelihoodCalculation()->getSubstitutionProcess().getRateDistribution()->getCategories();
+  
   size_t nbSites   = getNumberOfSites();
   size_t nbClasses = getNumberOfClasses();
   VVdouble pb = getLikelihoodPerSitePerClass();
   Vdouble l  = getLikelihoodPerSite();
-  Vdouble rates(nbSites, 0.);
+  Vdouble prates(nbSites, 0.);
   for (size_t i = 0; i < nbSites; i++)
   {
     for (size_t j = 0; j < nbClasses; j++)
     {
-      rates[i] += (pb[i][j] / l[i]) * getSubstitutionProcess().getProbabilityForModel(j) *  getSubstitutionProcess().getProbabilityForModel(j);
+      prates[i] += (pb[i][j] / l[i]) * probas[j] *  rates[j];
     }
   }
-  return rates;
+  return prates;
 }
+  
+/******************************************************************************/
 
+
+Vdouble OneProcessSequencePhyloLikelihood::getPosteriorStateFrequencies(uint nodeId)
+{
+  auto vv = getLikelihoodCalculation()->getLikelihoodsAtNode(nodeId)->getTargetValue();
+  
+  for (auto i=0;i<vv.cols();i++)
+    vv.col(i)/=vv.col(i).sum();
+
+  Eigen::VectorXd vs(vv.rowwise().mean());
+    
+  Vdouble v;
+  copyEigenToBpp(vs, v);
+  return v;
+}

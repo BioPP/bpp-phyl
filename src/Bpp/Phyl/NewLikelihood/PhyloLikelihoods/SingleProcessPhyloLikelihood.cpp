@@ -45,14 +45,31 @@ using namespace std;
 Vdouble SingleProcessPhyloLikelihood::getLikelihoodPerSite() const
 {
   auto vLik=getLikelihoodCalculation()->getSiteLikelihoods(false)->getTargetValue();
-  Vdouble v(vLik.size());
-  
-  Eigen::VectorXd::Map(&v[0], v.size()) = vLik;
+  Vdouble v;
+  copyEigenToBpp(vLik, v);
   return v;
 }
       
 
-VVdouble SingleProcessPhyloLikelihood::getPosteriorProbabilitiesPerClass() const
+Vdouble SingleProcessPhyloLikelihood::getPosteriorProbabilitiesForSitePerClass(size_t pos) const
+{
+  auto rates=getLikelihoodCalculation()->getSubstitutionProcess().getRateDistribution();
+  
+  if (!rates || rates->getNumberOfCategories()==1)
+    return Vdouble(1,1);
+  else
+  {
+    auto probas = rates->getProbabilities();
+    Vdouble vv(rates->getNumberOfCategories());
+    for (size_t i=0;i<vv.size();i++)
+      vv[i]=probas[i] * (getLikelihoodCalculation()->getSiteLikelihoodsForAClass(i))(pos);
+      
+    vv/=VectorTools::sum(vv);
+    return vv;
+  }
+}
+
+VVdouble SingleProcessPhyloLikelihood::getPosteriorProbabilitiesPerSitePerClass() const
 {
   auto rates=getLikelihoodCalculation()->getSubstitutionProcess().getRateDistribution();
 
@@ -66,29 +83,101 @@ VVdouble SingleProcessPhyloLikelihood::getPosteriorProbabilitiesPerClass() const
   }
   else
   {
+    Eigen::VectorXd probas;
+    copyBppToEigen(rates->getProbabilities(),probas);
+    
     auto vvLik=getLikelihoodCalculation()->getSiteLikelihoodsForAllClasses();
     for (size_t i=0;i<nbS;i++)
     {
       vv[i].resize(vvLik.rows());
-      Eigen::VectorXd::Map(&vv[i][0], vv[i].size()) = vvLik.col(i)/vvLik.col(i).sum();
+      auto sv = vvLik.col(i).array() * probas.array();
+      Eigen::VectorXd::Map(&vv[i][0], vv[i].size()) = sv / sv.sum();
     }
   }
   return vv;
 }
       
-Vdouble SingleProcessPhyloLikelihood::getPosteriorProbabilitiesForSitePerClass(size_t pos) const
+/******************************************************************************/
+
+VVdouble SingleProcessPhyloLikelihood::getLikelihoodPerSitePerClass() const
 {
-  auto rates=getLikelihoodCalculation()->getSubstitutionProcess().getRateDistribution();
-  
-  if (!rates || rates->getNumberOfCategories()==1)
-    return Vdouble(1,1);
-  else
-  {
-    Vdouble vv(rates->getNumberOfCategories());
-    for (size_t i=0;i<vv.size();i++)
-      vv[i]=(getLikelihoodCalculation()->getSiteLikelihoodsForAClass(i))(pos);
-      
-    vv/=VectorTools::sum(vv);
-    return vv;
-  }
+  VVdouble vd;
+  auto eg = getLikelihoodCalculation()->getSiteLikelihoodsForAllClasses();
+  copyEigenToBpp(eg.transpose(),vd);
+  return vd;
 }
+
+/******************************************************************************/
+
+vector<size_t> SingleProcessPhyloLikelihood::getClassWithMaxPostProbPerSite() const
+{
+  size_t nbSites = getNumberOfSites();
+  VVdouble l = getLikelihoodPerSitePerClass();
+  vector<size_t> classes(nbSites);
+  for (size_t i = 0; i < nbSites; ++i)
+  {
+    classes[i] = VectorTools::whichMax<double>(l[i]);
+  }
+  return classes;
+}
+
+/******************************************************************************/
+
+Vdouble SingleProcessPhyloLikelihood::getPosteriorRatePerSite() const
+{
+  auto probas = getLikelihoodCalculation()->getSubstitutionProcess().getRateDistribution()->getProbabilities();
+  auto rates = getLikelihoodCalculation()->getSubstitutionProcess().getRateDistribution()->getCategories();
+  
+  size_t nbSites   = getNumberOfSites();
+  size_t nbClasses = getNumberOfClasses();
+  VVdouble pb = getLikelihoodPerSitePerClass();
+  Vdouble l  = getLikelihoodPerSite();
+  Vdouble prates(nbSites, 0.);
+  for (size_t i = 0; i < nbSites; i++)
+  {
+    for (size_t j = 0; j < nbClasses; j++)
+    {
+      prates[i] += (pb[i][j] / l[i]) * probas[j] *  rates[j];
+    }
+  }
+  return prates;
+}
+  
+
+
+/******************************************************************************/
+
+Vdouble SingleProcessPhyloLikelihood::getPosteriorStateFrequencies(uint nodeId)
+{
+  auto vv = getLikelihoodCalculation()->getLikelihoodsAtNode(nodeId)->getTargetValue();
+  
+  for (auto i=0;i<vv.cols();i++)
+    vv.col(i)/=vv.col(i).sum();
+
+  Eigen::VectorXd vs(vv.rowwise().mean());
+    
+  Vdouble v;
+  copyEigenToBpp(vs, v);
+  return v;
+}
+
+// void SingleProcessPhyloLikelihood::geAncestralFrequencies(std::map<int, Vdouble>& frequencies,
+//                                                           bool alsoForLeaves)
+// {
+//   const auto& condLikTree = getLikelihoodCalculation()->getLikelihoodsTree();
+
+//   auto allIndex = alsoForLeaves?condLikTree.getAllNodesIndexes():condLikTree.getAllInnerNodesIndexes();
+
+//   for (size_t id:allIndex)
+//   {
+//     auto vv = getLikelihoodCalculation()->getLikelihoodsAtNode((uint)id)->getTargetValue();
+//     for (auto i=0;i<vv.cols();i++)
+//       vv.col(i)/=vv.col(i).sum();
+
+//     Eigen::VectorXd vs(vv.rowwise().mean());
+
+//     Vdouble v;
+//     copyEigenToBpp(vs, v);
+//     frequencies[(uint)id]=std::move(v);
+//   }
+// }

@@ -44,15 +44,13 @@ using namespace bpp;
 using namespace std;
 
 ProcessComputationTree::ProcessComputationTree(const SubstitutionProcess& process) :
-  BaseTree(0),
+  BaseTree(process.hasModelScenario()?0:process.getParametrizablePhyloTree().getGraph()),
   process_(process)
 {
   const ParametrizablePhyloTree& ptree = process.getParametrizablePhyloTree();
   // if no model scenario, copy the basic tree
   if (!process.hasModelScenario())
-  {
-    setGraph(ptree.getGraph());
-    
+  {    
     auto itN = ptree.allNodesIterator();
     for (itN->start();!itN->end();itN->next())
     {

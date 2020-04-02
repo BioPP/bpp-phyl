@@ -44,6 +44,8 @@
 
 #include <Bpp/Phyl/NewLikelihood/DataFlow/ExtendedFloat.h>
 #include <Bpp/Numeric/Parameter.h>
+#include <Bpp/Numeric/Matrix/Matrix.h>
+#include <Bpp/Numeric/VectorTools.h>
   
 #include <Eigen/Core>
 #include <algorithm>
@@ -54,7 +56,27 @@
 
 #include "DataFlow.h"
 
+/* For now copy matrix cell by cell.
+ * TODO use eigen internally in SubstitutionModel ! (not perf critical for now though)
+ * FIXME if multithreading, internal model state must be removed !
+ */
+
 namespace bpp {
+
+  extern void copyBppToEigen (const bpp::Matrix<double> & bppMatrix, Eigen::MatrixXd & eigenMatrix);
+
+  extern void copyBppToEigen (const bpp::Vdouble& bppVector, Eigen::VectorXd & eigenVector);
+
+  extern void copyBppToEigen (const bpp::Vdouble& bppVector, Eigen::RowVectorXd & eigenVector);
+  
+  extern void copyEigenToBpp (const Eigen::MatrixXd & eigenMatrix, bpp::Matrix<double> & bppMatrix);
+
+  extern void copyEigenToBpp (const Eigen::MatrixXd & eigenMatrix, VVdouble& bppMatrix);
+
+  extern void copyEigenToBpp (const Eigen::VectorXd & eigenVector, bpp::Vdouble& bppVector);
+
+  extern void copyEigenToBpp (const Eigen::RowVectorXd & eigenVector, bpp::Vdouble& bppVector);
+  
   /*******************************************/
   /*** Definition of function from (const Eigen::Vector&) -> const Eigen::Vector& ***/
 

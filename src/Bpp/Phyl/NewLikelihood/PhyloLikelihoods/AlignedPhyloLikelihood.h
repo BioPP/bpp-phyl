@@ -121,10 +121,11 @@ namespace bpp
     virtual double getD2LogLikelihoodForASite(const std::string& variable, size_t site) const = 0;
     
     /**
-     * @brief Get the likelihood for each site.
+     * @brief Get the likelihood for each site
      *
-     * @return A vector with all likelihoods for each site.
+     * @return A vector with all site likelihoods.
      */
+    
     virtual Vdouble getLikelihoodPerSite() const = 0;
 
 /** @} */

@@ -5028,7 +5028,7 @@ void PhylogeneticsApplicationTools::printAnalysisInformation(const SingleDataPhy
     vector<string> row(4 + (nbR > 1 ? nbR : 0));
     DataTable* infos = new DataTable(colNames);
 
-    VVdouble vvPP(pSPL->getPosteriorProbabilitiesPerClass());
+    VVdouble vvPP(pSPL->getPosteriorProbabilitiesPerSitePerClass());
 
     for (size_t i = 0; i < sites->getNumberOfSites(); i++)
     {

@@ -132,7 +132,7 @@ namespace bpp
        * @param probs  A vector to be filled with the probability for
        * each state at each position (will be the same size as the
        * returned vector for states) [out]. 
-       * @param sample Tell if the sequence should be sample from the
+       * @param sample Tell if the sequence should be sampled from the
        * posterior distribution instead of taking the one with maximum
        * probability.
        * @return A vector of states indices.
@@ -156,9 +156,14 @@ namespace bpp
        * there is one, its id otherwise. A new sequence object is
        * created, whose destruction is up to the user.
        *
-       * @param nodeId The id of the node at which the sequence must be reconstructed.
-       * @param probs  A pointer toward a vector to be filled with the probability for each state at each site (set to NULL if you don't want these probabilities).
-       * @param sample Tell if the sequence should be sample from the posterior distribution instead of taking the one with maximum probability.
+       * @param nodeId The id of the node at which the sequence must
+       * be reconstructed.
+       * @param probs A pointer toward a vector to be filled with the
+       * probability for each state at each site (set to NULL if you
+       * don't want these probabilities).
+       * @param sample Tell if the sequence should be sample from the
+       * posterior distribution instead of taking the one with maximum
+       * probability.
        * @return A sequence object.
        */
       
