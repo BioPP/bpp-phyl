@@ -118,7 +118,7 @@ int main()
         RNonHomogeneousMixedTreeLikelihood* RELAXTreeLikelihood_2 = new RNonHomogeneousMixedTreeLikelihood(*ttree, dynamic_cast<const SiteContainer&>(sites), RELAXModel_2, rdist, true, false);
         RELAXTreeLikelihood_2->initialize();
         double RELAXLogLikelihood_2 = -1*RELAXTreeLikelihood_2->getValue();
-        if (RELAXLogLikelihood_1 != RELAXLogLikelihood_2)
+        if (abs(RELAXLogLikelihood_1 - RELAXLogLikelihood_2) > 0.001)
         {
             cout << "Error! different likelihood is computed in RELAX for different partitions when k=1" << endl;
             return 1;
@@ -132,7 +132,7 @@ int main()
         RHomogeneousMixedTreeLikelihood* M2TreeLikelihood = new RHomogeneousMixedTreeLikelihood(*ttree, dynamic_cast<const SiteContainer&>(sites), M2Model, rdist, true, false);
         M2TreeLikelihood->initialize();
         double M2LogLikelihood = -1*M2TreeLikelihood->getValue();
-        if (RELAXLogLikelihood_1 != M2LogLikelihood)
+        if (abs(RELAXLogLikelihood_1 - M2LogLikelihood) > 0.001)
         {
             cout << "Error! RELAX when k=1 yields different likelihood than M2 model" << endl;
 			cout << "RELAX Log Likelihood: " << RELAXLogLikelihood_1 << endl;
@@ -154,7 +154,7 @@ int main()
         RNonHomogeneousMixedTreeLikelihood* DoubleM2TreeLikelihood = new RNonHomogeneousMixedTreeLikelihood(*ttree, dynamic_cast<const SiteContainer&>(sites), DoubleM2Model, rdist, true, false);
         DoubleM2TreeLikelihood->initialize();
         double DoubleM2LogLikelihood = -1*DoubleM2TreeLikelihood->getValue(); 
-        if (RELAXLogLikelihood_3 != DoubleM2LogLikelihood)
+        if (abs(RELAXLogLikelihood_3 !- DoubleM2LogLikelihood) > 0.001)
         {
             cout << "Error! RELAX yields different likelihood from two copies of YNGP_M2 that produce the same BG and FG as RELAX" << endl;
 			cout << "RELAX Log Likelihood: " << RELAXLogLikelihood_3 << endl;
