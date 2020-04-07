@@ -154,7 +154,7 @@ int main()
         RNonHomogeneousMixedTreeLikelihood* DoubleM2TreeLikelihood = new RNonHomogeneousMixedTreeLikelihood(*ttree, dynamic_cast<const SiteContainer&>(sites), DoubleM2Model, rdist, true, false);
         DoubleM2TreeLikelihood->initialize();
         double DoubleM2LogLikelihood = -1*DoubleM2TreeLikelihood->getValue(); 
-        if (abs(RELAXLogLikelihood_3 !- DoubleM2LogLikelihood) > 0.001)
+        if (abs(RELAXLogLikelihood_3 - DoubleM2LogLikelihood) > 0.001)
         {
             cout << "Error! RELAX yields different likelihood from two copies of YNGP_M2 that produce the same BG and FG as RELAX" << endl;
 			cout << "RELAX Log Likelihood: " << RELAXLogLikelihood_3 << endl;
