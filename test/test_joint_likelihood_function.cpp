@@ -140,8 +140,11 @@ void giveNamesToInternalNodes(Tree* tree)
 
 void setMpPartition(BppApplication* bppml, DRTreeParsimonyScore* mpData, const VectorSiteContainer* characterData, TransitionModel* characterModel, Tree* tree)
 {
+  cout << "sp0" << endl;
   mpData->computeSolution();
+  cout << "sp1" << endl;
   const Tree& solution = mpData->getTree();
+  cout << "sp2" << endl;
   vector <const Node*> nodes = (dynamic_cast<const TreeTemplate<Node>&>(solution)).getNodes();
   
   // set assignment to branches
@@ -185,7 +188,6 @@ MixedSubstitutionModelSet* setSequenceModel(BppApplication* bppml, const VectorS
     
     // set initial partition, based on maximum parsimony
     setMpPartition(bppml, mpData, characterData, characterModel, tree); // the partition is set on tree
-    
     // create the set of models
     SubstitutionModelSet* initialModelSet = PhylogeneticsApplicationTools::getSubstitutionModelSet(codonAlphabet, gCode, codon_data, bppml->getParams());
     MixedSubstitutionModelSet* modelSet = dynamic_cast<MixedSubstitutionModelSet*>(initialModelSet);
@@ -204,15 +206,14 @@ int main(int args, char** argv)
     /* process input from params file */
     int argNum = 2;
     char* argVals[argNum+1];
-    argVals[0] = (char *)"/home/keren/biopp/sources/bpp-phyl/build/test/test_jointlikelihoodfunction";
-    argVals[1] = (char *)"param=/home/keren/biopp/sources/bpp-phyl/test/example.bpp";
+    argVals[0] = (char *)"./test_joint_likelihood_function";
+    argVals[1] = (char *)"param=./example.bpp";
     argVals[2] = NULL;
     BppApplication bpp(argNum, argVals, "bpp");
 
     // process tree
-    TreeTemplate<Node>* ttree = TreeTemplateTools::parenthesisToTree("(((A:1,B:1)_baseInternal_3:1,C:1)_baseInternal_5:1,D:3)_baseInternal_7:0;");
+    TreeTemplate<Node>* ttree = TreeTemplateTools::parenthesisToTree("(((A:1,B:1):1,C:1):1,D:3);");
     Tree* tree = dynamic_cast<Tree*>(ttree); 
-	giveNamesToInternalNodes(tree);
     
     // process character data
     const BinaryAlphabet* balpha = new BinaryAlphabet();
@@ -322,17 +323,15 @@ int main(int args, char** argv)
     double multOverSites = 1.;
     for (size_t s=0; s<likelihoodBySite.size(); ++s)
     {
-      multOverSites = multOverSites * likelihoodBySite[s]; 
+      multOverSites = multOverSites + likelihoodBySite[s]; // + because we are dealing with log liklihood values
     }
     if ((totalLikelihood-multOverSites) > 0.0001)
     {
         cerr << "Error! the joint likelihood computation by site returns a different sum from the overall joint likelihood" << endl;
+		cerr << "joint likelihood = " << totalLikelihood << endl;
+		cerr << " sum over all = " << multOverSites << endl;
         return 1;
     }
-
-
-    // optmize the sequence model with dynamic boundaries
-    //jlf->optimizeSequenceWithDynamicBounds();
 
     delete charData;
     delete seqData;
