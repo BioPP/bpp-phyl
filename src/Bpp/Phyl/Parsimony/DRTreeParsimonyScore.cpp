@@ -480,8 +480,6 @@ void DRTreeParsimonyScore::computeSolution()
     }
     else                       // if there is no restriction from the father -> set the state randomely
     {
-	  cout << "node name: " << node->getName() << endl; // debug
-	  cout << "node id: " << node->getId() << endl; // debug
       nodeState = RandomTools::pickOne(possibleStates);
     }
     setNodeState(node, nodeState);
