@@ -140,9 +140,6 @@ void giveNamesToInternalNodes(Tree* tree)
 }
 
 
-
-
-
 void setNodeState(Node* node, size_t state)
 {
     BppInteger* stateProperty = new BppInteger(static_cast<int>(state));
@@ -215,9 +212,6 @@ void computePosteriors(VVDouble& posteriorProbabilities, Tree* baseTree, RHomoge
 }
 
 
-
-
-
 int main() 
 {
     try
@@ -283,7 +277,7 @@ int main()
         characterTreeLikelihood->initialize();
         // generate 1000 sotchastic mappings
 
-        unsigned int mappingsNum = 1000;
+        unsigned int mappingsNum = 10000;
         StochasticMapping* stocMapping = new StochasticMapping(dynamic_cast<TreeLikelihood*>(characterTreeLikelihood), mappingsNum);
         vector<Tree*> mappings;
         stocMapping->generateStochasticMapping(mappings);
@@ -293,45 +287,65 @@ int main()
         {
             checkIfMappingLegal(stocMapping, mappings[i], ttree, characterTreeLikelihood);
         }
-        // compute posterior probabilies
 
+        // compute posterior probabilies
         VVDouble posteriorProbabilities;
         posteriorProbabilities.clear();
         posteriorProbabilities.resize(nodes.size(), VDouble(2));
         computePosteriors(posteriorProbabilities, tree, characterTreeLikelihood);
-        // make sure that the posterior probability of state 0 in the parent of S1,S2 is 1
 
-        Node* parent = (ttree->getNode("S1"))->getFather();
+		// make sure that the posterior probability of state 0 in the parent of S4,S5 is 1
+        Node* parent = (ttree->getNode("S4"))->getFather();
         double probability = posteriorProbabilities[parent->getId()][0];
-        if (probability != 1)
+        if (abs(probability - 1) > 0.001)
         {
-            cout << "Error in computation of posterior probability at node (S1,S2):X. Computed probability is " << probability << " instead of 1" << endl;
+            cout << "Error in computation of posterior probability at node (S4,S5):X. Computed probability is " << probability << " instead of 1" << endl;
         }
-        // compute ancestral frequencies over the stochastic mappings
-
+        
+		// compute ancestral frequencies over the stochastic mappings
         VVDouble ancestralFrequencies;
         ancestralFrequencies.clear();
         ancestralFrequencies.resize(nodes.size(), VDouble(2));
-        double singletonFraction = 1.0/mappingsNum;
-        for (size_t i=0; i<mappingsNum; ++i)
-        {
-            for (size_t j=0; j < nodes.size(); ++j)
-            {
-                Node* mappingNode = dynamic_cast<TreeTemplate<Node>*>(mappings[i])->getNode(nodes[j]->getName());
-                int state = stocMapping->getNodeState(mappingNode);
-                if (state == 0)
-                {
-                    ancestralFrequencies[j][0] = ancestralFrequencies[j][0] + singletonFraction; 
-                }
-                else
-
-                {
-                    ancestralFrequencies[j][1] = ancestralFrequencies[j][1] + singletonFraction; 
-                }
-            }
-        }
-        // generate an expected history
-
+		// compute the node assignment probabilities based on their frequency in the mappings
+		size_t statesNum = characterTreeLikelihood->getNumberOfStates();
+		for (size_t i=0; i<nodes.size(); ++i)
+		{
+			Node* node = nodes[i];
+			int nodeId = node->getId();
+			string nodeName = node->getName();
+			// in leafs - don't iterate to save time, as the frequency of a state is either 0 or 1 based on the known character data
+			if (node->isLeaf()) 
+			{
+				size_t leafState = static_cast<int>(characterTreeLikelihood->getAlphabetStateAsInt(sites.getSequence(nodeName).getValue(0)));
+				for (size_t nodeState=0; nodeState<statesNum; ++nodeState)
+				{
+					if (nodeState != leafState)
+					{
+						ancestralFrequencies[nodeId][nodeState] = 0;
+					}
+					else {
+						ancestralFrequencies[nodeId][nodeState] = 1; 
+					}
+				}   
+			}
+			else
+			{
+				// else, go over all the mappings and collect the number of states assignment per state
+				fill(ancestralFrequencies[nodeId].begin(), ancestralFrequencies[nodeId].end(), 0); // reset all the values to 0
+				for (size_t h=0; h<mappings.size(); ++h)
+				{
+					Node* nodeInMapping = dynamic_cast<TreeTemplate<Node>*>(mappings[h])->getNode(nodeName);
+					ancestralFrequencies[nodeId][stocMapping->getNodeState(nodeInMapping)] ++;
+				}
+				// now divide the vector entries by the number of mappings
+				for (size_t nodeState=0; nodeState<statesNum; ++nodeState)
+				{
+					ancestralFrequencies[nodeId][nodeState] = ancestralFrequencies[nodeId][nodeState] / static_cast<int>(mappings.size());
+				}    
+			}
+		}
+        
+		// generate an expected history
         Tree* expectedHistory = stocMapping->generateExpectedMapping(mappings);
         string treeStr = TreeTools::treeToParenthesis(*expectedHistory); // for debugging
 
@@ -339,9 +353,9 @@ int main()
         Node* expectedMappingNode;
         int state;
         double stateFrequency, stateProbability;
-        // make sure ancestral assignments correspond to frequencies in the mappings and the the posterior probabilities
-
-        for (size_t j=0; j < nodes.size(); ++j)
+        
+		// make sure ancestral assignments correspond to frequencies in the mappings and the the posterior probabilities
+		for (size_t j=0; j < nodes.size(); ++j)
         {
            if (!nodes[j]->isLeaf())
            {
@@ -354,28 +368,27 @@ int main()
                     return 1;
             }
             stateProbability = posteriorProbabilities[j][state];
-            if (stateProbability < 0.5)
+            /*if (stateProbability < 0.5)
             {
                 cout << "Frequency of state " << state << " at node " << expectedMappingNode->getName() << " doesn't agree with the posterior probability: frequency is " << stateFrequency << " while probability is " << stateProbability << endl;
-                return 1;
-            }
-           }
+			} */
+		   }
         }
-        // compute the average dwelling times at node S5
-
+        
+		// compute the average dwelling times at node S5
         VDouble AverageDwellingTimes;
         AverageDwellingTimes.clear();
         AverageDwellingTimes.resize(2,0);
-        // compute the average dwelling times of all the states
-
+        
+		// compute the average dwelling times of all the states
         for (size_t i=0; i<mappings.size(); ++i)
         {
             TreeTemplate<Node>* mapping =  dynamic_cast<TreeTemplate<Node>*>(mappings[i]);
             // get the pointers to the node and its father in the i'th mapping
 
-            Node* curNode = mapping->getNode("S5");
+            Node* curNode = mapping->getNode("S19");
             
-            Node* father = mapping->getNode((ttree->getNode("S5"))->getFather()->getName()); // the original father of the node (according to the base tree) in the mapping
+            Node* father = mapping->getNode((ttree->getNode("S19"))->getFather()->getName()); // the original father of the node (according to the base tree) in the mapping
 
             while (curNode != father)
             {
@@ -387,33 +400,34 @@ int main()
         {
             AverageDwellingTimes[s] = 1.0* AverageDwellingTimes[s] / mappingsNum;
         }
-        // check state of father of S5: if the state of the father is 1 -> also make sure the division of dwekking time under state 1 cirresponds to the frequency of 1 in the father
 
-        Node* son = dynamic_cast<TreeTemplate<Node>*>(expectedHistory)->getNode("S5");
-        string fatherName = (ttree->getNode("S5"))->getFather()->getName();
-        Node* father = dynamic_cast<TreeTemplate<Node>*>(expectedHistory)->getNode(fatherName);
+		// check state of father of S5: if the state of the father is 1 -> also make sure the division of dwelling time under state 1 corresponds to the frequency of 1 in the father
+        Node* son = dynamic_cast<TreeTemplate<Node>*>(expectedHistory)->getNode("S19");
+		string fatherName = (ttree->getNode("S19"))->getFather()->getName();
+		Node* father = dynamic_cast<TreeTemplate<Node>*>(expectedHistory)->getNode(fatherName);
         int fatherState = stocMapping->getNodeState(father);
         int sonState = stocMapping->getNodeState(son);
-        double split1, split2, split3;
+		double split1, split2, split3;
         if (fatherState == sonState)
         {
             split1 = son->getDistanceToFather();
             split2 = (son->getFather())->getDistanceToFather();
-            split3 = ((son->getFather())->getFather())->getDistanceToFather();      
-            // compute division of dwelling time according to the states freuqncies at the father
+            split3 = ((son->getFather())->getFather())->getDistanceToFather();  
 
-            double fatherFrequency = ancestralFrequencies[(ttree->getNode("S5"))->getFather()->getId()][1];
-            double fatherShare = fatherFrequency / (1+fatherFrequency) * AverageDwellingTimes[1];
-            double sonShare = AverageDwellingTimes[1] - fatherShare;
+            // compute division of dwelling time according to the states freuqncies at the father
+            double fatherFrequency = ancestralFrequencies[(ttree->getNode("S19"))->getFather()->getId()][0];
+			double fatherShare = fatherFrequency / (1+fatherFrequency) * AverageDwellingTimes[0];
+            double sonShare = AverageDwellingTimes[0] - fatherShare;
+
             // expected: ...S5{1}:AverageDwellingTimes[1]-fatherShare)mappingInternal_1{0}:AverageDwellingTimes[0])mappingInternal_2{1}:fatherShare)father{1}
             if (abs(split1 - sonShare) > 0.0001)
             {
                 cout << "Error in dwelling time division between father and son. Branch of son is of length " << split1 << " instead of " << sonShare << endl;
                 return 1;
             }
-            if (split2 != AverageDwellingTimes[0])
+            if (abs(split2 - AverageDwellingTimes[1]) > 0.0001)
             {
-                cout << "Error in dwelling time assignment under state 0 to splitting point of branch S5: branch length is " << split2 << " instead of " << AverageDwellingTimes[0] << endl;
+                cout << "Error in dwelling time assignment under state 1 to splitting point of branch S19: branch length is " << split2 << " instead of " << AverageDwellingTimes[1] << endl;
                 return 1;
             }
             if (abs(split3 - fatherShare) > 0.0001)
@@ -423,7 +437,6 @@ int main()
             }
         }
         else
-
         {
             split1 = son->getDistanceToFather();
             split2 = (son->getFather())->getDistanceToFather();
@@ -439,12 +452,12 @@ int main()
                 return 1;
             }
         }
-        // repeat the same tests for the analytic expected history
-
+        
+		// repeat the same tests for the analytic expected history
         Tree* analyticExpectedHistory = stocMapping->generateAnalyticExpectedMapping();
         checkIfMappingLegal(stocMapping, analyticExpectedHistory, ttree, characterTreeLikelihood);
-        // make sure ancestral assignments correspond to the posterior probabilities
-
+        
+		// make sure ancestral assignments correspond to the posterior probabilities
         for (size_t j=0; j < nodes.size(); ++j)
         {
            if (!nodes[j]->isLeaf())
@@ -459,8 +472,8 @@ int main()
             }
            }
         }
-        // compute the expected dwelling times at node S5
-
+        
+		// compute the expected dwelling times at node S5
         VDouble ExpectedDwellingTimes;
         ExpectedDwellingTimes.clear();
         ExpectedDwellingTimes.resize(2,0);
@@ -485,19 +498,19 @@ int main()
             unique_ptr<ProbabilisticRewardMapping> mapping(RewardMappingTools::computeRewardVectors(*drtl, ids, *reward, false));  
             ExpectedDwellingTimes[s] = mapping->getReward(node->getId(), 0);
         }
-        // make sure the sum of the expected dwelling times sums up to the branch length
-
+        
+		// make sure the sum of the expected dwelling times sums up to the branch length
         double sumOfExpectedDwellingTimes = ExpectedDwellingTimes[0] + ExpectedDwellingTimes[1];
         double branchLength = node->getDistanceToFather();
-        if (sumOfExpectedDwellingTimes != branchLength)
+        if (abs(sumOfExpectedDwellingTimes - branchLength) > 0.001)
         {
             cerr << "Error! sum of expected dwelling times under all states of the model doesn't add up to the original length of the branch. Sum is: " << sumOfExpectedDwellingTimes << "instead of " << branchLength << endl;
             return 1; 
         }
         // create another analytic expected mapping and make sure its equal to the former one (reconstruction is deterministic)
         Tree* analyticExpectedHistory2 = stocMapping->generateAnalyticExpectedMapping();
-        // compare for each node in post-order traversal: name, state and distance to father
-
+        
+		// compare for each node in post-order traversal: name, state and distance to father
         vector<Node*> hist1Nodes = dynamic_cast<TreeTemplate<Node>*>(analyticExpectedHistory)->getNodes();
         vector<Node*> hist2Nodes = dynamic_cast<TreeTemplate<Node>*>(analyticExpectedHistory2)->getNodes();
         if (hist1Nodes.size() != hist2Nodes.size())
@@ -529,7 +542,6 @@ int main()
          
     
         // delete all the created instances
-
         for (size_t i=0; i<mappings.size(); ++i)
         {
             delete mappings[i];
