@@ -123,7 +123,7 @@ protected:
   mutable RowMatrix<double> p_;
 
 public:
-  TwoParameterBinarySubstitutionModel(const BinaryAlphabet* alpha, double mu = 1., double pi0=0.5);
+  TwoParameterBinarySubstitutionModel(const BinaryAlphabet* alpha, double mu = 1., double pi0 = 0.5);
 
   virtual ~TwoParameterBinarySubstitutionModel() {}
 
@@ -140,10 +140,10 @@ public:
   const Matrix<double>& getd2Pij_dt2(double d) const;
 
   std::string getName() const { return "TwoParameterBinary"; }
+  
+  size_t getNumberOfStates() const { return 2; }
 
   void setMuBounds(double lb, double ub);
-
-  size_t getNumberOfStates() const { return 2; }
 
 protected:
   void updateMatrices();

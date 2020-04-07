@@ -192,6 +192,8 @@ const Matrix<double>& TwoParameterBinarySubstitutionModel::getPij_t(double d) co
   return p_;
 }
 
+/******************************************************************************/
+
 const Matrix<double>& TwoParameterBinarySubstitutionModel::getdPij_dt(double d) const
 {
   exp_ = rate_ * exp(-lambda_ * rate_ * d);
@@ -204,6 +206,8 @@ const Matrix<double>& TwoParameterBinarySubstitutionModel::getdPij_dt(double d) 
 
   return p_;
 }
+
+/******************************************************************************/
 
 const Matrix<double>& TwoParameterBinarySubstitutionModel::getd2Pij_dt2(double d) const
 {
