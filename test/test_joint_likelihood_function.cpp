@@ -126,6 +126,18 @@ TransitionModel* setCharacterModel(BppApplication* bppml, VectorSiteContainer* c
 
 /******************************************************************************/
 
+void giveNamesToInternalNodes(Tree* tree)
+{
+    TreeTemplate<Node>* ttree = dynamic_cast<TreeTemplate<Node>*>(tree);
+    vector<Node*> nodes = ttree->getNodes();
+    for (size_t i=0; i<nodes.size(); ++i) {
+        if (!nodes[i]->hasName())
+            nodes[i]->setName("_baseInternal_" + TextTools::toString(nodes[i]->getId()));
+    }  
+}
+
+/******************************************************************************/
+
 void setMpPartition(BppApplication* bppml, DRTreeParsimonyScore* mpData, const VectorSiteContainer* characterData, TransitionModel* characterModel, Tree* tree)
 {
   mpData->computeSolution();
@@ -198,8 +210,9 @@ int main(int args, char** argv)
     BppApplication bpp(argNum, argVals, "bpp");
 
     // process tree
-    TreeTemplate<Node>* ttree = TreeTemplateTools::parenthesisToTree("(((A:1,B:1):1,C:1):1,D:3);");
+    TreeTemplate<Node>* ttree = TreeTemplateTools::parenthesisToTree("(((A:1,B:1)_baseInternal_3:1,C:1)_baseInternal_5:1,D:3)_baseInternal_7:0;");
     Tree* tree = dynamic_cast<Tree*>(ttree); 
+	giveNamesToInternalNodes(tree);
     
     // process character data
     const BinaryAlphabet* balpha = new BinaryAlphabet();
@@ -222,7 +235,6 @@ int main(int args, char** argv)
     seqData->addSequence(BasicSequence("B", "AACTGGATCTGCATGTCT", calpha));
     seqData->addSequence(BasicSequence("C", "ATCTGGACGTGCACGTGT", calpha));
     seqData->addSequence(BasicSequence("D", "CAACGGGAGTGCGCCTAT", calpha));
-
 
     // set the sequence model
     MixedSubstitutionModelSet* seqModel = setSequenceModel(&bpp, seqData, calpha, mpData, charData, charModel, tree);
