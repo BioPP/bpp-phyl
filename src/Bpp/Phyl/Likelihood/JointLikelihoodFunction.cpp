@@ -156,7 +156,6 @@ void JointLikelihoodFunction::fireParameterChanged(const ParameterList& pl)
     // update the characterChanged_ value
     ParameterList charParams = characterTreeLikelihood_->getModelForSite(0, 0)->getParameters();
     double currValue, prevValue;
-    characterChanged_ = false;
     for (size_t p=0; p<charParams.size(); ++p)
     {
         prevValue = previousParametersValues_[charParams[p].getName()];
@@ -944,7 +943,8 @@ void JointLikelihoodFunction::optimizeSequenceModel()
 
 void JointLikelihoodFunction::computeAlternativeJointLikelihood()
 {  
-    int verbose = ApplicationTools::getIntParameter("optimization.verbose", bppml_->getParams(), 1);
+
+	int verbose = ApplicationTools::getIntParameter("optimization.verbose", bppml_->getParams(), 1);
 	
     if (characterChanged_)
     {
