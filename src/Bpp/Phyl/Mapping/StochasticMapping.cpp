@@ -119,7 +119,7 @@ Tree* StochasticMapping::generateExpectedMapping(vector<Tree*>& mappings, size_t
     setExpectedAncestrals(expectedMapping, ancestralStatesFrequencies);
     
     // update the expected history with the dwelling times
-    for (size_t n=0; n< nodes.size(); ++n) {
+	for (size_t n=0; n< nodes.size(); ++n) {
         Node* node = nodes[n];
         if (node->hasFather()) // for any node except to the root
             {
@@ -140,7 +140,7 @@ Tree* StochasticMapping::generateExpectedMapping(vector<Tree*>& mappings, size_t
                     curNode = curNode->getFather();
                 }
             }
-            double branchLength = node->getDistanceToFather();   // this is the length of the original branch in the base tree
+			double branchLength = node->getDistanceToFather();   // this is the length of the original branch in the base tree
             bool updateBranch = true;
             for (size_t state=0; state<statesNum; ++state)
             {
@@ -165,7 +165,7 @@ Tree* StochasticMapping::generateExpectedMapping(vector<Tree*>& mappings, size_t
 
 Tree* StochasticMapping::generateAnalyticExpectedMapping(size_t divMethod)
 {
-    /* Compute the posterior aissgnment probabilities to internal nodes, based on the fractional probablities computed earlier */
+    /* Compute the posterior assignment probabilities to internal nodes, based on the fractional probablities computed earlier */
     const vector<int> states =  tl_->getAlphabetStates();
     vector<int> nodeIds = baseTree_->getNodesId();
     int nodeId;
@@ -177,7 +177,6 @@ Tree* StochasticMapping::generateAnalyticExpectedMapping(size_t divMethod)
     for (size_t n=0; n<baseTree_->getNumberOfNodes(); ++n)
     {
         nodeId = nodeIds[n];
-        // nodeDataProb = accumulate((fractionalProbabilities_[nodeId]).begin(), (fractionalProbabilities_[nodeId]).end(), 0);
         nodeDataProb = 0;
         for (size_t s=0; s<states.size(); ++s)
         {
@@ -188,7 +187,7 @@ Tree* StochasticMapping::generateAnalyticExpectedMapping(size_t divMethod)
             posteriorProbabilities[nodeId][nodeState] = fractionalProbabilities_[nodeId][nodeState] / nodeDataProb;
         }
     }
-    
+
     /* Assign states to internal nodes based on the majority rule over the posterior probabilities */
     Tree* expectedMapping = baseTree_->clone();
     setLeafsStates(expectedMapping);
@@ -454,13 +453,13 @@ void StochasticMapping::computeStatesFrequencies(VVDouble& ancestralStatesFreque
     TreeTemplate<Node>* ttree = dynamic_cast<TreeTemplate<Node>*>(baseTree_); 
     vector<Node*> nodes = ttree->getNodes();
     
-    // compute the pre-order probabilities according to the conditional probabilities: Pr⁡(state(node)=i│D_c)
+    // compute the node assignment probabilities based on their frequency in the mappings
     for (size_t i=0; i<nodes.size(); ++i)
     {
         Node* node = nodes[i];
         int nodeId = node->getId();
         string nodeName = node->getName();
-        // if the node is a leaf, set the fractional probability of its state to 1, and the rest ot 0
+        // in leafs - don't iterate to save time, as the frequency of a state is either 0 or 1 based on the known character data
         if (node->isLeaf()) 
         {
             size_t leafState = static_cast<int>(tl_->getAlphabetStateAsInt(leafsStates->getSequence(nodeName).getValue(0)));
@@ -650,8 +649,10 @@ void StochasticMapping::updateBranchByDwellingTimes(Node* node, VDouble& dwellin
     size_t sonState = getNodeState(node);
     size_t fatherState = getNodeState(node->getFather());
     double branchLength = node->getDistanceToFather();
-    double Pf, Ps = 1;
-    double shareOfFather, shareOfSon = 0;
+    double Pf = 1;
+	double Ps = 1;
+    double shareOfFather = 0;
+	double shareOfSon = 0;
     MutationPath branchMapping(mappingParameters_->getSubstitutionModel()->getAlphabet(), fatherState, branchLength);
     // set the first event with the dwelling time that matches the state of the father
     if (fatherState == sonState)
@@ -668,7 +669,7 @@ void StochasticMapping::updateBranchByDwellingTimes(Node* node, VDouble& dwellin
                 Ps = ancestralStatesFrequencies[node->getId()][sonState];
             }
             shareOfFather = Pf/(Pf+Ps);
-            branchMapping.addEvent(fatherState, dwellingTimes[fatherState]*shareOfFather);
+			branchMapping.addEvent(fatherState, dwellingTimes[fatherState]*shareOfFather);
         }
         else
         {
@@ -693,7 +694,7 @@ void StochasticMapping::updateBranchByDwellingTimes(Node* node, VDouble& dwellin
         if (divMethod == 0)
         {
             shareOfSon = 1 - shareOfFather;
-            node->setDistanceToFather(dwellingTimes[sonState]*shareOfSon);
+			node->setDistanceToFather(dwellingTimes[sonState]*shareOfSon);
         }
         else
         {
