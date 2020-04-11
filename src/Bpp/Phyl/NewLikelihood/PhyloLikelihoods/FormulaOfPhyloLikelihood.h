@@ -114,16 +114,16 @@ namespace bpp
      *
      */
     
-    double getDLogLikelihood(const std::string& variable) const
-    {
-      return -compTree_->getFirstOrderDerivative(variable);      
-    }
+    // double getDLogLikelihood(const std::string& variable) const
+    // {
+    //   return -compTree_->getFirstOrderDerivative(variable);      
+    // }
     
 
-    double getD2LogLikelihood(const std::string& variable) const
-    {
-      return -compTree_->getSecondOrderDerivative(variable);
-    }
+    // double getD2LogLikelihood(const std::string& variable) const
+    // {
+    //   return -compTree_->getSecondOrderDerivative(variable);
+    // }
     
     /** @} */
     

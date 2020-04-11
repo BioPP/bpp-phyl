@@ -116,9 +116,9 @@ namespace bpp
 
     virtual double getLogLikelihoodForASite(size_t site) const = 0;
     
-    virtual double getDLogLikelihoodForASite(const std::string& variable, size_t site) const = 0;
+    // virtual double getDLogLikelihoodForASite(const std::string& variable, size_t site) const = 0;
     
-    virtual double getD2LogLikelihoodForASite(const std::string& variable, size_t site) const = 0;
+    // virtual double getD2LogLikelihoodForASite(const std::string& variable, size_t site) const = 0;
     
     /**
      * @brief Get the likelihood for each site

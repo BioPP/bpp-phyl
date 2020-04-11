@@ -107,15 +107,15 @@ public:
     return hmm_->getLogLikelihood();
   }
 
-  double getDLogLikelihood(const std::string& variable) const
-  {
-    return hmm_->getDLogLikelihood();
-  }
+  // double getDLogLikelihood(const std::string& variable) const
+  // {
+  //   return 0;//hmm_->getDLogLikelihood();
+  // }
 
-  double getD2LogLikelihood(const std::string& variable) const
-  {
-    return hmm_->getD2LogLikelihood();
-  }
+  // double getD2LogLikelihood(const std::string& variable) const
+  // {
+  //   return 0;//hmm_->getD2LogLikelihood();
+  // }
 
   /**
    * @brief Get the likelihood for a site.
@@ -133,15 +133,15 @@ public:
     return log(hmm_->getLikelihoodForASite(site));
   }
 
-  double getDLogLikelihoodForASite(const std::string& variable, size_t site) const
-  {
-    return hmm_->getDLogLikelihoodForASite(site);
-  }
+  // double getDLogLikelihoodForASite(const std::string& variable, size_t site) const
+  // {
+  //   return hmm_->getDLogLikelihoodForASite(site);
+  // }
 
-  double getD2LogLikelihoodForASite(const std::string& variable, size_t site) const
-  {
-    return hmm_->getD2LogLikelihoodForASite(site);
-  }
+  // double getD2LogLikelihoodForASite(const std::string& variable, size_t site) const
+  // {
+  //   return hmm_->getD2LogLikelihoodForASite(site);
+  // }
 
   Vdouble getLikelihoodPerSite() const
   {

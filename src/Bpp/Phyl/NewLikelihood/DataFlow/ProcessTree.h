@@ -45,6 +45,8 @@
 #include <Bpp/Phyl/NewLikelihood/SubstitutionProcess.h>
 
 #include <Bpp/Graph/AssociationTreeGraphImplObserver.h>
+#include <Bpp/Numeric/ParametrizableCollection.h>
+#include <Bpp/Phyl/NewLikelihood/DataFlow/Parametrizable.h>
 
 #include "Model.h"
 #include "Parameter.h"
@@ -55,433 +57,314 @@
 namespace bpp
 {
 
-    /** Helper: create a map with mutable dataflow nodes for each
-     *  branch of the tree.
-     *  The map is indexed by branch ids.
+  class CollectionNodes;
+
+  /** Helper: create a map with mutable dataflow nodes for each
+   *  branch of the tree.
+   *  The map is indexed by branch ids.
+   */
+
+  // Branch specific DataFlow objects
+  class ProcessEdge 
+  {
+  private:
+    /*
+     * @brief the index of the species in the phyloTree matching this node.
+     *
+     */
+      
+    const uint speciesIndex_;
+
+    /*
+     * @brief Model & BrLen, = 0 if not supporting a model
+     *
+     *
+     */
+      
+    std::shared_ptr<ConfiguredParameter> brlen_;
+
+    std::shared_ptr<ConfiguredModel> model_;
+
+    /*
+     *@brief Optional number of submodels, in case model_ is mixed
+     * and a submodel is used.
+     *
      */
 
-    /* Map (branch id, ConfiguredParameter of Branch Length) */
-     
-    using BrLenMap = std::map<uint, std::shared_ptr<ConfiguredParameter>>;
-
-    /* Map (branch id, Branch Probability) */
-     
-    using BrProbMap = std::map<uint, NodeRef>;
-
-    /* Map (branch id, ConfiguredModel of Branch Length) */
-
-    struct ModelAssign
-    {
-      /* ConfiguredModel on this branch */
-      std::shared_ptr<ConfiguredModel> model_;
-
-      /* vector of allowed submodels if model_ is mixed.
-       * empty vector if model_ is not mixed, or considered as not
-       * mixed (ie its transition matrix is a mixture of transition
-       * matrices of submodels).
-       */
-   
-      std::vector<size_t> modelNum_;
-
-      ModelAssign() : model_(), modelNum_(){};
-
-      ModelAssign(std::shared_ptr<ConfiguredModel> model) : model_(model), modelNum_(){};
-
-      ModelAssign(std::shared_ptr<ConfiguredModel> model, std::vector<size_t> nMod) : model_(model), modelNum_(nMod){};
+    // Not just "size_t nMod_" because dataflow dependency is needed
+    // for createMatrix for TransitionMatrixFromModel
       
-    };
-      
-    using ModelMap = std::map<uint, ModelAssign>;
+    std::shared_ptr<NumericConstant<size_t>> nMod_;
 
-    /** Helper: create a map with mutable dataflow nodes for each
-     *  branch of the tree.
-     *  The map is indexed by branch ids.
+    /*
+     *@ brief Probablity of the edge, used in case of mixture models.
+     *
      */
-    
-    // Branch specific DataFlow objects
-    class ProcessEdge 
+      
+    ValueRef<double> brprob_;
+      
+  public:
+
+    /*
+     * @brief Construction with model and brlen.
+     *
+     */
+      
+    ProcessEdge(uint speciesIndex,
+                std::shared_ptr<ConfiguredParameter> brlen,
+                std::shared_ptr<ConfiguredModel> model,
+                std::shared_ptr<NumericConstant<size_t>> nMod=0) : speciesIndex_(speciesIndex), brlen_(brlen), model_(model), nMod_(nMod), brprob_(0){};
+
+    /*
+     * @brief Construction with probability ref from Mixture model
+     *
+     */
+
+    ProcessEdge(uint speciesIndex,
+                ValueRef<double> brprob) : speciesIndex_(speciesIndex), brlen_(0), model_(0), nMod_(0), brprob_(brprob){};
+
+    /*
+     * @brief Copy construction
+     *
+     */
+      
+    ProcessEdge(const ProcessEdge& edge) : speciesIndex_(edge.speciesIndex_), brlen_(edge.brlen_), model_(edge.model_), nMod_(edge.nMod_), brprob_(edge.brprob_){};
+      
+    std::shared_ptr<ConfiguredModel> getModel()
     {
-    private:
-      /*
-       * @brief the index of the species in the phyloTree matching this node.
-       *
-       */
-      
-      const uint speciesIndex_;
+      return model_;
+    }
 
-      /*
-       * @brief Model & BrLen, = 0 if not supporting a model
-       *
-       *
-       */
-      
-      std::shared_ptr<ConfiguredParameter> brlen_;
+    // void setModel(std::shared_ptr<ConfiguredModel> model)
+    // {
+    //   model_=model;
+    // }
 
-      std::shared_ptr<ConfiguredModel> model_;
-
-      /*
-       *@brief Optional number of submodels, in case model_ is mixed
-       * and a submodel is used.
-       *
-       */
-
-      // Not just "size_t nMod_" because dataflow dependency is needed
-      // for createMatrix for TransitionMatrixFromModel
-      
-      std::shared_ptr<NumericConstant<size_t>> nMod_;
-
-      /*
-       *@ brief Probablity of the edge, used in case of mixture models.
-       *
-       */
-      
-      ValueRef<double> brprob_;
-      
-    public:
-
-      /*
-       * @brief Construction with model and brlen.
-       *
-       */
-      
-      ProcessEdge(uint speciesIndex,
-                  std::shared_ptr<ConfiguredParameter> brlen,
-                  std::shared_ptr<ConfiguredModel> model,
-                  std::shared_ptr<NumericConstant<size_t>> nMod=0) : speciesIndex_(speciesIndex), brlen_(brlen), model_(model), nMod_(nMod), brprob_(0){};
-
-      /*
-       * @brief Construction with probability ref from Mixture model
-       *
-       */
-
-      ProcessEdge(uint speciesIndex,
-                  ValueRef<double> brprob) : speciesIndex_(speciesIndex), brlen_(0), model_(0), nMod_(0), brprob_(brprob){};
-
-      /*
-       * @brief Copy construction
-       *
-       */
-      
-      ProcessEdge(const ProcessEdge& edge) : speciesIndex_(edge.speciesIndex_), brlen_(edge.brlen_), model_(edge.model_), nMod_(edge.nMod_), brprob_(edge.brprob_){};
-      
-      std::shared_ptr<ConfiguredModel> getModel()
-      {
-        return model_;
-      }
-
-      // void setModel(std::shared_ptr<ConfiguredModel> model)
-      // {
-      //   model_=model;
-      // }
-
-      std::shared_ptr<ConfiguredParameter> getBrLen()
-      {
-        return brlen_;
-      }
-
-      void setBrLen(std::shared_ptr<ConfiguredParameter> brlen)
-      {
-        brlen_=brlen;
-      }
-
-      ValueRef<double> getProba()
-      {
-        return brprob_;
-      }
-
-      // void setNMod(std::shared_ptr<NumericConstant<size_t>> nMod)
-      // {
-      //   nMod_=nMod;
-      // }
-
-      std::shared_ptr<NumericConstant<size_t>> getNMod() 
-      {
-        return nMod_;
-      }
-
-      uint getSpeciesIndex() const
-      {
-        return speciesIndex_;
-      }
-
-    };
-
-    // Node specific DataFlow objects
-    class ProcessNode:
-      public PhyloNode
+    std::shared_ptr<ConfiguredParameter> getBrLen()
     {
-    private:
-      /*
-       * @brief the index of the species in the phyloTree matching this node.
-       *
-       */
-      
-      const uint speciesIndex_;
+      return brlen_;
+    }
 
-    public:
-
-      /*
-       * @brief Build from a node in the phylo tree, with a specific
-       * speciesIndex (because indexes are not the same as in the
-       * ParametrizablePhyloTree.
-       *
-       */
-      
-      ProcessNode(const ProcessComputationNode& node) :
-        PhyloNode(node),
-        speciesIndex_(node.getSpeciesIndex()) {}
-
-      ProcessNode(const ProcessNode& node) :
-        PhyloNode(node),
-        speciesIndex_(node.getSpeciesIndex()) {}
-      
-      uint getSpeciesIndex() const
-      {
-        return speciesIndex_;
-      }
-
-      bool isSpeciation() const
-      {
-        auto prop=dynamic_cast<const NodeEvent*>(getProperty("event"));
-        if (!prop) 
-          throw Exception("ProcessNode::isSpeciation : Node has no event associated: Node id " + TextTools::toString(getSpeciesIndex()));
-        return prop->isSpeciation();
-      }
-
-      bool isMixture() const
-      {
-        auto prop=dynamic_cast<const NodeEvent*>(getProperty("event"));
-        if (!prop) 
-          throw Exception("ProcessNode::isMixture : Node has no event associated: Node id " + TextTools::toString(getSpeciesIndex()));
-        return prop->isMixture();
-      }
-
-    };
-
-
-    using ProcessEdgeRef = std::shared_ptr<ProcessEdge>;
-    using ProcessNodeRef = std::shared_ptr<ProcessNode>;
-
-    class ProcessTree : public AssociationTreeGlobalGraphObserver<ProcessNode,ProcessEdge>
+    void setBrLen(std::shared_ptr<ConfiguredParameter> brlen)
     {
-      Context context_;
+      brlen_=brlen;
+    }
 
-    public:
+    ValueRef<double> getProba()
+    {
+      return brprob_;
+    }
 
-      /*
-       * @brief Build a ProcessTree with same topology as given
-       * ParametrizablePhyloTree, and matching ConfiguredParameter
-       * BrLen.
-       *
-       */
+    // void setNMod(std::shared_ptr<NumericConstant<size_t>> nMod)
+    // {
+    //   nMod_=nMod;
+    // }
+
+    std::shared_ptr<NumericConstant<size_t>> getNMod() 
+    {
+      return nMod_;
+    }
+
+    uint getSpeciesIndex() const
+    {
+      return speciesIndex_;
+    }
+
+  };
+
+  // Node specific DataFlow objects
+  class ProcessNode:
+    public PhyloNode
+  {
+  private:
+    /*
+     * @brief the index of the species in the phyloTree matching this node.
+     *
+     */
+      
+    const uint speciesIndex_;
+
+  public:
+
+    /*
+     * @brief Build from a node in the phylo tree, with a specific
+     * speciesIndex (because indexes are not the same as in the
+     * ParametrizablePhyloTree.
+     *
+     */
+      
+    ProcessNode(const PhyloNode& node, uint index) :
+      PhyloNode(node),
+      speciesIndex_(index) {}
+      
+    ProcessNode(const ProcessComputationNode& node) :
+      PhyloNode(node),
+      speciesIndex_(node.getSpeciesIndex()) {}
+
+    ProcessNode(const ProcessNode& node) :
+      PhyloNode(node),
+      speciesIndex_(node.getSpeciesIndex()) {}
+      
+    uint getSpeciesIndex() const
+    {
+      return speciesIndex_;
+    }
+
+    bool isSpeciation() const
+    {
+      auto prop=dynamic_cast<const NodeEvent*>(getProperty("event"));
+      if (!prop) 
+        throw Exception("ProcessNode::isSpeciation : Node has no event associated: Node id " + TextTools::toString(getSpeciesIndex()));
+      return prop->isSpeciation();
+    }
+
+    bool isMixture() const
+    {
+      auto prop=dynamic_cast<const NodeEvent*>(getProperty("event"));
+      if (!prop) 
+        throw Exception("ProcessNode::isMixture : Node has no event associated: Node id " + TextTools::toString(getSpeciesIndex()));
+      return prop->isMixture();
+    }
+
+  };
+
+
+  using ProcessEdgeRef = std::shared_ptr<ProcessEdge>;
+  using ProcessNodeRef = std::shared_ptr<ProcessNode>;
+
+  class ProcessTree : public AssociationTreeGlobalGraphObserver<ProcessNode,ProcessEdge>
+  {
+    Context context_;
+
+    CollectionNodes* nodes_;
+  public:
+
+    /*
+     * @brief Build a ProcessTree with same topology as a given
+     * ParametrizablePhyloTree, and new ConfiguredParameter BrLen.
+     * are created
+     *
+     */
        
-      ProcessTree(Context& context,
-                  const SubstitutionProcess& process,
-                  const ProcessComputationTree& tree,
-                  ParameterList& parList,
-                  const BrLenMap& vrefmap);
+    ProcessTree(Context& context,
+                const ParametrizablePhyloTree& tree);
 
-      /*
-       * @brief Build a ProcessTree given a basic topology and map of
-       * models to branches. So the resulting topology may be
-       * different from the given ParametrizablePhyloTree.
-       *
-       */
-
-      ProcessTree(Context& context, const ParametrizablePhyloTree& tree,
-                  const BrLenMap& vrefmap,
-                  ModelMap& modelmap) :
-        AssociationTreeGlobalGraphObserver<ProcessNode,ProcessEdge>(tree.isRooted()), context_(context)
-      {
-//        buildUnderNode_(tree, vrefmap, modelmap, tree.getRoot());
-      }
-
-    private:
-      /*
-       * Build the tree under a node of the ParametrizablePhyloTree
-       * (which node is a priori a speciation node).
-       *
-       * In option, the new node will be linked from a father newNode,
-       * through a newEdge.
-       */
+    /*
+     * @brief Copy a ProcessTree with all BrLen multiplied by a given rate DF double    *
+     */
       
-      void buildUnderNode_(const ParametrizablePhyloTree& tree, const BrLenMap& vrefmap, ModelMap& modelmap, std::shared_ptr<PhyloNode> node, std::shared_ptr<ProcessNode> newFather=0, std::shared_ptr<ProcessEdge> newEdge=0){};
+    ProcessTree(const ProcessTree& tree,
+                ValueRef<double> rate);
 
-      /*
-       * Build the tree under an edge of the ParametrizablePhyloTree.
-       * A new branch will be built, which will support a model.
-       *
-       * If the model is a Mixture model met elsewhere, a mixture node
-       * is built (at distance 0 from the newNode), and the
-       * construction of ProcessEdge branches are set in the following
-       * branches, for all submodels.
-       *
-       * aboveEdge is the edge leading to newNode from above (can be null)
-       */
-      
-      void buildUnderEdgeFromNode_(const ParametrizablePhyloTree& tree, const BrLenMap& vrefmap, ModelMap& modelmap, std::shared_ptr<PhyloBranchParam> oldEdge, std::shared_ptr<ProcessNode> newNode, std::shared_ptr<ProcessEdge> aboveEdge){};
+    /*
+     * @brief Build a ProcessTree with same topology as a given
+     * ParametrizablePhyloTree. ConfiguredParameter objects are
+     * linked to those of a ParameterList, with names BrLen_"suff".
+     *
+     */
+       
+    ProcessTree(Context& context,
+                const ParametrizablePhyloTree& tree,
+                const ParameterList& parList,
+                const std::string& suff);
 
-    public:
-      /*
-       * Assigns new ConfiguredParameters for BrLen to relevant edges
-       *
-       * Names of the BrLen configured parameters are used to recover
-       * the matching branches. So parameters in the new BrLenMap must
-       * match the former parameters of the copied ProcessTree,
-       * otherwise nothing is done and former parameters are shared.
-       * 
-       *
-       */
-      
-      ProcessTree(const ProcessTree& tree, BrLenMap&& vrefmap) :
-        AssociationTreeGlobalGraphObserver<ProcessNode,ProcessEdge>(tree)
-      {
-        auto vEdges=tree.getAllEdges();
+    /*
+     * @brief Build a ProcessTree following a given
+     * ProcessComputationTree. So the resulting topology may be
+     * different from the given ParametrizablePhyloTree.
+     *
+     * ConfiguredModels are in a ParametrizableCollection, and BrLen
+     * Parameters are in a ProcessTree with same topology as in the
+     * SubstitutionProcess.
+     *
+     */
 
-        for (const auto& edge:vEdges)
-        {
-          uint spIndex=edge->getSpeciesIndex(); // index of the edge that
-          // represents the index in the
-          // ParametrizablePhyloTree
-          if (!edge->getProba()) // model transition is used
-          {
-            if (vrefmap.find(spIndex)==vrefmap.end()) // ie there is no branch length
-              throw Exception("ProcessTree::ProcessTree missing branch length for branch " + TextTools::toString(spIndex));
-            getEdge(spIndex)->setBrLen(vrefmap.at(spIndex));
-          }
-        }
-      }
+    ProcessTree(const ProcessComputationTree& tree,
+                ParametrizableCollection<ConfiguredModel>& modelColl,
+                const ProcessTree& phyloTree);
 
-      ProcessTree* clone() const {
-        throw Exception("ProcessTree::clone should not be called.");
-      }
 
-      ProcessTree(const ProcessTree& pTree): 
-        AssociationTreeGlobalGraphObserver<ProcessNode,ProcessEdge>(pTree.getGraph())
-      {
-        throw Exception("ProcessTree::ProcessTree should not be called.");
-      }
-      
-      ProcessTree& operator=(const ProcessTree& pTree)
-      {
-        throw Exception("ProcessTree::operator= should not be called.");
-        //AssociationTreeGlobalGraphObserver<ProcessNode,Value<T>>::operator=(pTree);
-        return *this;
-      }
-
-    };
-
-    
-    /**************************************/
-    /* Methods to create/modify BrLenMap objects */
-    
-    inline BrLenMap createBrLenMap(Context & c, const ParametrizablePhyloTree& tree)
-    {
-      std::vector<std::shared_ptr<PhyloBranchParam> > vB=tree.getAllEdges();
-
-      BrLenMap map;
-
-      for (auto& branch:vB)
-      {
-        auto brl=NumericMutable<double>::create(c, branch->getLength());
-        map.emplace (tree.getEdgeIndex(branch),
-                     ConfiguredParameter::create (c, {std::move(brl)}, branch->getParameters()[0]));
-      }
-
-      return map;
+    ProcessTree* clone() const {
+      throw Exception("ProcessTree::clone should not be called.");
     }
 
-    inline BrLenMap createBrLenMap(Context & c, const ProcessTree& tree)
+    ProcessTree(const ProcessTree& pTree): 
+      AssociationTreeGlobalGraphObserver<ProcessNode,ProcessEdge>(pTree.getGraph())
     {
-      // Ids of the branches
+      throw Exception("ProcessTree::ProcessTree should not be called.");
+    }
       
-      BrLenMap map;
-
-      auto aEit=tree.allEdgesIterator();
-        
-      while (!aEit->end())
-      {
-        auto edge=**aEit;
-        if (edge->getBrLen())
-          map.emplace (tree.getEdgeIndex(edge),
-                       std::dynamic_pointer_cast<ConfiguredParameter>(edge->getBrLen()->recreate(c,{edge->getBrLen()->dependency(0)})));
-        else
-          map.emplace (tree.getEdgeIndex(edge), std::shared_ptr<ConfiguredParameter>(0));
-        
-        aEit->next();
-      }
-      
-      return map;
+    ProcessTree& operator=(const ProcessTree& pTree)
+    {
+      throw Exception("ProcessTree::operator= should not be called.");
+      //AssociationTreeGlobalGraphObserver<ProcessNode,Value<T>>::operator=(pTree);
+      return *this;
     }
 
-    
-    inline BrLenMap multiplyBrLenMap(Context & c, const ProcessTree& tree, ValueRef<double>&& rate)
-    {
-      // Ids of the branches
+    /*
+     * For inclusion in ParametrizableCollection. Not used
+     *
+     */
+       
+    const ParameterList getParameters() {return ParameterList();};
 
-      BrLenMap map;
+    bool matchParametersValues(ParameterList&) {return true;};
 
-      auto aEit=tree.allEdgesIterator();
-        
-      while (!aEit->end())
-      {
-        auto edge=**aEit;
-        
-        if (edge->getBrLen())
-        {
-          auto mulref = CWiseMul<double, std::tuple<double, double>>::create (c, {edge->getBrLen()->dependency(0), rate}, Dimension<double>());
+    /*
+     * Static construction methods.
+     *
+     */
 
-          map.emplace (tree.getEdgeIndex(edge),
-                       std::dynamic_pointer_cast<ConfiguredParameter>(edge->getBrLen()->recreate(c,{std::move(mulref)})));
-        }
-        else
-          map.emplace (tree.getEdgeIndex(edge), std::shared_ptr<ConfiguredParameter>(0));
-        
-        aEit->next();
-      }
-
-      return map;
-    }
-
-
-    
     /***************************************************/
-    /** Create a new Tree Node. Tree Node parameters are get from
-     * ConfiguredParameters PREVIOUSLY built and stored in a
-     * ParameterList*/
-    
-    inline std::shared_ptr<ProcessTree> makeProcessTree(Context& context, ParameterList& parList, const SubstitutionProcess& process, const std::string& suff = "")
+    /** Create a Process Tree following a Substitution Process. Tree
+     * Node parameters are got from ConfiguredParameters PREVIOUSLY
+     * built and stored in a ParameterList.
+     *
+     */
+
+    static std::shared_ptr<ProcessTree> makeProcessTree(Context& context, const SubstitutionProcess& process, ParameterList& parList, const std::string& suff = "");
+
+    /***************************************************/
+    /** Create a Process Tree following a Substitution Process in a Collection. Tree
+     * Node parameters are got from ConfiguredParameters PREVIOUSLY
+     * built and stored in a ParameterList.
+     *
+     */
+
+    static std::shared_ptr<ProcessTree> makeProcessTree(CollectionNodes& collection, size_t pNum);
+  
+  };
+
+  /*
+   * @brief Make a Collection of ConfiguredModel, from the models
+   * described in the SubstitutionProcess, and sharing
+   * ConfiguredParameters from a ParameterList.
+   *
+   * Paremeter names from the ParameterList may have "_suff"
+   * terminations, with suff matching the numbers of the models in the
+   * process.
+   *
+   */
+  
+  inline ParametrizableCollection<ConfiguredModel> makeConfiguredModelCollection(
+    Context& context,
+    const SubstitutionProcess& process,
+    ParameterList& parList)
+  {
+    ParametrizableCollection<ConfiguredModel> modelColl;
+
+    // Build the ConfiguredModels from the BranchModels
+    auto vnMod=process.getModelNumbers();
+
+    for (auto nMod:vnMod)
     {
-      auto& parTree=process.getParametrizablePhyloTree();
-      
-      std::vector<std::shared_ptr<PhyloBranchParam> > vB=parTree.getAllEdges();
+      auto mod=process.getModel(nMod);
 
-      BrLenMap mapBr;
-      for (auto& branch:vB)
-      {
-        const auto& bp=branch->getParameters()[0];
-        
-        std::string name=bp.getName()+suff;
-        if (!parList.hasParameter(name) && suff=="")
-        {
-          if (!parList.hasParameter(bp.getName()+"_1"))
-            throw Exception("makeTreeNode: unknown ConfiguredParameter " + name);
-          else name=bp.getName()+"_1";
-        }
-
-        auto confPar=dynamic_cast<ConfiguredParameter*>(parList.getSharedParameter(name).get());
-        if (!confPar)
-          throw Exception("makeTreeNode: unknown ConfiguredParameter " + name);
-        
-        mapBr.emplace(parTree.getEdgeIndex(branch),
-                      ConfiguredParameter::create(context, {confPar->dependency(0)}, bp));
-      }
-
-      ProcessComputationTree tree(process);
-
-      return std::shared_ptr<ProcessTree>(new ProcessTree(context, process, tree, parList, mapBr));
+      modelColl.addObject(ConfiguredParametrizable::createConfigured<BranchModel, ConfiguredModel>(context, *mod, parList, (nMod==1?"":"_"+ TextTools::toString(nMod))),nMod); // suffix "_1" will be added if necessary 
     }
 
+    return modelColl;
+  }
     
 } //end of namespace bpp
 

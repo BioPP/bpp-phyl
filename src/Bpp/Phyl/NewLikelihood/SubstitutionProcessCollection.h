@@ -274,7 +274,7 @@ public:
    * @brief Get a BranchModel from the collection.
    *
    * @param modelIndex The index of the model in the collection.
-   * @return the got BranchModel*. 
+   * @return the got shared-ptr to BranchModel.
    */
   
   std::shared_ptr<BranchModel> getModel(size_t modelIndex)

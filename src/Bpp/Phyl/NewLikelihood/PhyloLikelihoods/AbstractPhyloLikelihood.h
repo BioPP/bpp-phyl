@@ -136,10 +136,16 @@ namespace bpp
      *@ Return the DF node where the Likelihood is computed.
      *
      */
-     
     
     virtual ValueRef<double> getLikelihoodNode() const {return 0;}
-      
+
+    /*
+     * @brief Kept for legacy
+     *
+     */
+    
+    virtual double getLogLikelihood() const = 0;
+
     // bpp::Function
 
     /**
@@ -165,7 +171,7 @@ namespace bpp
       if (!isInitialized())
         throw Exception("AbstractPhyloLikelihood::getValue(). Instance is not initialized.");
 
-      minusLogLik_=-getLogLikelihood();
+      minusLogLik_=-(getLikelihoodNode()?getLikelihoodNode()->getTargetValue():getLogLikelihood());;
       return minusLogLik_;
     }
 

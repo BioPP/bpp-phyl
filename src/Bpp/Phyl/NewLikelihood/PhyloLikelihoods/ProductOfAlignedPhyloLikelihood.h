@@ -88,9 +88,9 @@ namespace bpp
 
       double getLogLikelihood() const;
 
-      double getDLogLikelihood(const std::string& variable) const;
+      // double getDLogLikelihood(const std::string& variable) const;
 
-      double getD2LogLikelihood(const std::string& variable) const;
+      // double getD2LogLikelihood(const std::string& variable) const;
       
 
        /**
@@ -128,9 +128,9 @@ namespace bpp
        *
        */
 
-      double getDLogLikelihoodForASite(const std::string& variable, size_t site) const;
+      // double getDLogLikelihoodForASite(const std::string& variable, size_t site) const;
       
-      double getD2LogLikelihoodForASite(const std::string& variable, size_t site) const;
+      // double getD2LogLikelihoodForASite(const std::string& variable, size_t site) const;
       
       /** @} */
 

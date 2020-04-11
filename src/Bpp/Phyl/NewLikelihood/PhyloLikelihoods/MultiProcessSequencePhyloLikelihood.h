@@ -43,7 +43,7 @@
 #include "SequencePhyloLikelihood.h"
 #include "../MultiProcessSequenceEvolution.h"
 
-#include "../DataFlow/LikelihoodCalculationSingleProcess.h"
+#include "../DataFlow/LikelihoodCalculationMultiProcess.h"
 
 #include <Bpp/Numeric/AbstractParametrizable.h>
 
@@ -55,11 +55,13 @@ using namespace std;
 namespace bpp
 {
 /**
- * @brief Partial implementation of the Likelihood interface for multiple processes.
+ * @brief Partial implementation of the Likelihood interface for
+ * multiple processes.
  *
  * This class uses several LikelihoodTreeCalculation instances to
- * compute a the global likelihood of the data set, as well as a
+ * compute a the global likelihood of a unique data set, as well as a
  * collection of SubstitutionProcess.
+ *
  * It implements the Function interface and manages the parameters of
  * all substitution processes.
  */
@@ -77,11 +79,11 @@ namespace bpp
 
     protected:
       /**
-       * vector of pointers towards TreelikelihoodCalculations, used
+       * vector of pointers towards LikelihoodCalculationSingleProcess, used
        * for the global likelihood.
        */
   
-      std::vector<std::shared_ptr<LikelihoodCalculationSingleProcess>> vpTreelik_;
+      mutable LikelihoodCalculationMultiProcess likCal_;
 
     public:
       MultiProcessSequencePhyloLikelihood(
@@ -98,20 +100,7 @@ namespace bpp
         AbstractAlignedPhyloLikelihood(lik),
         AbstractSequencePhyloLikelihood(lik),
         mSeqEvol_(lik.mSeqEvol_),
-        vpTreelik_()
-      {
-        throw Exception("MultiProcessSequencePhyloLikelihood::MultiProcessSequencePhyloLikelihood called.");
-        // for (size_t i = 0; i < lik.vpTreelik_.size(); i++)
-        // {
-        //   vpTreelik_.push_back(lik.vpTreelik_[i]->clone());
-        // }
-      }
-
-      /**
-       * @brief Abstract class destructor
-       *
-       */
-      virtual ~MultiProcessSequencePhyloLikelihood()
+        likCal_(lik.likCal_)
       {
       }
 
@@ -123,11 +112,11 @@ namespace bpp
        */
 
       const AlignedValuesContainer* getData() const {
-        return 0;//vpTreelik_[0]->getData();
+        return likCal_.getSingleLikelihood(0)->getData();
       }
 
       const Alphabet* getAlphabet() const {
-        return 0;//vpTreelik_[0]->getAlphabet();
+        return likCal_.getSingleLikelihood(0)->getStateMap().getAlphabet();
       }
 
       /*
@@ -135,6 +124,11 @@ namespace bpp
        */
       
     public:
+
+      ValueRef<double> getLikelihoodNode() const
+      {
+        return likCal_.getLikelihoodNode();
+      }          
 
       /**
        * @brief Get the likelihood for a site.
@@ -150,8 +144,6 @@ namespace bpp
       /**
        * @brief Get the likelihood for a site for a process.
        *
-       * !!! No check on the update of the computing
-       *
        * @param site The site index to analyse.
        * @param p the process index in the given order.
        * @return The likelihood for site <i>site</i>.
@@ -159,55 +151,7 @@ namespace bpp
 
       double getLikelihoodForASiteForAProcess(size_t site, size_t p) const
       {
-        return 0;//vpTreelik_[p]->getLikelihoodForASite(site);
-      }
-
-      /**
-       * @brief Compute the first derivative of the likelihood for a process.
-       *
-       * @param variable the name of the variable.
-       * @param p the process index in the given order.
-       * @return The likelihood for site <i>site</i>.
-       */
-
-      void computeDLogLikelihoodForAProcess(const std::string& variable, size_t p) const;
-
-      /**
-       * @brief Get the first derivative of the likelihood for a site for
-       * a process.
-       *
-       * @param site The site index to analyse.
-       * @param p the process index in the given order.
-       * @return The likelihood for site <i>site</i>.
-       */
-
-      virtual double getDLogLikelihoodForASiteForAProcess(size_t site, size_t p) const
-      {
-        return 0;//vpTreelik_[p]->getDLogLikelihoodForASite(site);
-      }
-
-      /**
-       * @brief Compute the second derivative of the likelihood for a process.
-       *
-       * @param variable the name of the variable.
-       * @param p the process index in the given order.
-       * @return The likelihood for site <i>site</i>.
-       */
-  
-      virtual void computeD2LogLikelihoodForAProcess(const std::string& variable, size_t p) const;
-
-      /**
-       * @brief Get the second derivative of the likelihood for a site for
-       * a process.
-       *
-       * @param site The site index to analyse.
-       * @param p the process index in the given order.
-       * @return The likelihood for site <i>site</i>.
-       */
-
-      double getD2LogLikelihoodForASiteForAProcess(size_t site, size_t p) const
-      {
-        return 0;//vpTreelik_[p]->getD2LogLikelihoodForASite(site);
+        return likCal_.getSingleLikelihood(p)->getLikelihoodForASite(site);
       }
 
       VVdouble getLikelihoodPerSitePerProcess() const;
@@ -220,6 +164,10 @@ namespace bpp
 
       virtual VVdouble getPosteriorProbabilitiesPerSitePerProcess() const = 0;
 
+      bool isInitialized() const 
+      {
+        return likCal_.isInitialized();
+      }
   
       /**
        * @brief Set the dataset for which the likelihood must be evaluated.
@@ -234,7 +182,7 @@ namespace bpp
        * @brief Return the number of process used for computation.
        */
   
-      size_t getNumberOfSubstitutionProcess() const { return vpTreelik_.size(); }
+      size_t getNumberOfSubstitutionProcess() const { return likCal_.getNumberOfSingleProcess(); }
 
       /** @} */
     };

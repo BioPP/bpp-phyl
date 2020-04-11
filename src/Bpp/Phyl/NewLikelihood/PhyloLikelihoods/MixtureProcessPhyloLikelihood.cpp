@@ -59,159 +59,73 @@ MixtureProcessPhyloLikelihood::MixtureProcessPhyloLikelihood(
   MultiProcessSequencePhyloLikelihood(context, data, processSeqEvol, nSeqEvol, nData, verbose, patterns),
   mSeqEvol_(processSeqEvol)
 {
-}
 
-/******************************************************************************/
+  if (likCal_.getNumberOfSingleProcess()==0)
+    throw Exception("MixtureProcessPhyloLikelihood::MixtureProcessPhyloLikelihood : empty singleprocesslikelihoods set.");
 
-double MixtureProcessPhyloLikelihood::getLogLikelihood() const
-{
-  // vector<double> la(nbSites_);
-  // for (size_t i = 0; i < nbSites_; ++i)
-  //   {
-  //     la[i] = getLogLikelihoodForASite(i);
-  //   }
-
-  // sort(la.begin(), la.end());
-  // double ll = 0;
-  // for (size_t i = nbSites_; i > 0; i--)
-  // {
-  //   ll += la[i - 1];
-  // }
-  // return ll;
-  return 0;
-}
-
-/******************************************************************************/
-
-double MixtureProcessPhyloLikelihood::getDLogLikelihoodForASite(const std::string& variable, size_t site) const
-{
-  // // check it is a "BrLen" variable
-
-  // if (!hasParameter(variable) || (variable.compare(0,5,"BrLen")!=0))
-  //   return 0;
-
-  // Vdouble vD;
-
-  // for (size_t i = 0; i < vpTreelik_.size(); i++)
-  //   vD.push_back(vpTreelik_[i]->getDLogLikelihoodForASite(site));
-
-  // return VectorTools::logSumExp(vD,mSeqEvol_.getSubProcessProbabilities());
-  return 0;
-}
-
-/******************************************************************************/
-
-double MixtureProcessPhyloLikelihood::getD2LogLikelihoodForASite(const std::string& variable, size_t site) const
-{
-  // check it is a "BrLen" variable
-
-  // if (!hasParameter(variable) || (variable.compare(0,5,"BrLen")!=0))
-  //   return 0;
-
-  // Vdouble vD2;
-
-  // for (size_t i = 0; i < vpTreelik_.size(); i++)
-  //   vD2.push_back(vpTreelik_[i]->getD2LogLikelihoodForASite(site));
-
-  // return VectorTools::logSumExp(vD2,mSeqEvol_.getSubProcessProbabilities());
-  return 0;
-}
-
-/******************************************************************************/
-
-double MixtureProcessPhyloLikelihood::getDLogLikelihood(const std::string& variable) const
-{
-  // check it is a "BrLen" variable
-
-  // if (!hasParameter(variable) || (variable.compare(0,5,"BrLen")!=0))
-  //   return 0;
-
-  // //
+  auto& simplex = mSeqEvol_.getSimplex();
   
-  // vector<double> la(nbSites_);
-  // for (size_t i = 0; i < nbSites_; ++i)
-  // {
-  //   la[i] = getDLogLikelihoodForASite(variable, i);
-  // }
-  // sort(la.begin(), la.end());
-  // double ll = 0;
-  // for (size_t i = nbSites_; i > 0; i--)
-  // {
-  //   ll += la[i - 1];
-  // }
-  // return ll;
-  return 0;
-}
+  //parameters of the simplex
+  const auto& param=simplex.getParameters();
+  ParameterList paramList;
 
-/******************************************************************************/
-
-double MixtureProcessPhyloLikelihood::getD2LogLikelihood(const std::string& variable) const
-{
-  // check it is a "BrLen" variable
-
-  // if (!hasParameter(variable) || (variable.compare(0,5,"BrLen")!=0))
-  //   return 0;
+  for (size_t i=0;i<param.size();i++)
+    paramList.shareParameter(ConfiguredParameter::create(getContext(), param[i]));
   
-  // // Derivative of the sum is the sum of derivatives:
-  // vector<double> la(nbSites_);
-  // for (size_t i = 0; i < nbSites_; ++i)
-  // {
-  //   la[i] = getD2LogLikelihoodForASite(variable, i);
-  // }
-  // sort(la.begin(), la.end());
-  // double ll = 0;
-  // for (size_t i = nbSites_; i > 0; i--)
-  // {
-  //   ll += la[i - 1];
-  // }
-  // return ll;
-  return 0;
+  shareParameters_(paramList);
+
+  // make Simplex DF & Frequencies from it
+  simplex_ = ConfiguredParametrizable::createConfigured<Simplex, ConfiguredSimplex>(getContext(), simplex, paramList, "");
+
+  auto fsf = ConfiguredParametrizable::createVector<ConfiguredSimplex, FrequenciesFromSimplex>(getContext(), {simplex_}, rowVectorDimension (Eigen::Index(simplex.dimension())));
+
+  // get RowVectorXd for each single Calculation
+  std::vector<std::shared_ptr<Node_DF>> vSL;
+  
+  for (size_t i=0; i< likCal_.getNumberOfSingleProcess() ; i++)
+    vSL.push_back(likCal_.getSingleLikelihood(i)->getSiteLikelihoods(true));
+  
+  // put probabilities of the simplex
+  vSL.push_back(fsf);
+
+  auto single0 = likCal_.getSingleLikelihood(0);
+  auto nbSite = single0->getNumberOfDistinctSites();
+
+  siteLikelihoods_ = CWiseMean<Eigen::RowVectorXd, ReductionOf<Eigen::RowVectorXd>, Eigen::RowVectorXd>::create(getContext(), std::move(vSL), rowVectorDimension (Eigen::Index(nbSite)));
+
+  // likelihoods per site
+  patternedSiteLikelihoods_ = single0->expandVector(siteLikelihoods_);
+
+  auto su = SumOfLogarithms<Eigen::RowVectorXd>::create (getContext(), {siteLikelihoods_, single0->getRootWeights()}, rowVectorDimension (Eigen::Index (nbSite)));
+
+  likCal_.setLikelihoodNode(su);
 }
 
 /******************************************************************************/
 
 double MixtureProcessPhyloLikelihood::getLikelihoodForASite(size_t site) const
 {
-  // double x = 0;
-  // for (size_t i = 0; i < vpTreelik_.size(); i++)
-  // {
-  //   x += vpTreelik_[i]->getLikelihoodForASite(site) * mSeqEvol_.getSubProcessProb(i);
-  // }
-
-  // return x;
-  return 0;
+  return patternedSiteLikelihoods_->getTargetValue()(site);
 }
-
-/******************************************************************************/
-
-double MixtureProcessPhyloLikelihood::getLogLikelihoodForASite(size_t site) const
-{
-  // vector<double> v(vpTreelik_.size());
-  
-  // for (size_t i = 0; i < vpTreelik_.size(); i++)
-  //   v[i]= vpTreelik_[i]->getLogLikelihoodForASite(site) + log(mSeqEvol_.getSubProcessProb(i));
-
-  // return VectorTools::logSumExp(v);
-  return 0;
-}
-
 
 /******************************************************************************/
 
 VVdouble MixtureProcessPhyloLikelihood::getPosteriorProbabilitiesPerSitePerProcess() const
 {
-//  size_t nbProcess = getNumberOfSubstitutionProcess();
+  size_t nbProcess = getNumberOfSubstitutionProcess();
 
   VVdouble pb = getLikelihoodPerSitePerProcess();
   Vdouble l = getLikelihoodPerSite();
 
-  // for (size_t i = 0; i < nbSites_; ++i)
-  // {
-  //   for (size_t j = 0; j < nbProcess; ++j)
-  //   {
-  //     pb[i][j] = pb[i][j] * getSubProcessProb(j) / l[i];
-  //   }
-  // }
+  const auto& freq = simplex_->getTargetValue()->getFrequencies();
+  
+  for (size_t i = 0; i < nbSites_; ++i)
+  {
+    for (size_t j = 0; j < nbProcess; ++j)
+    {
+      pb[i][j] = pb[i][j] * freq[j] / l[i];
+    }
+  }
   return pb;
 }
 

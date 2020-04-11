@@ -870,9 +870,9 @@ namespace bpp {
     void compute () final {
       using namespace numeric;
       auto & result = this->accessValueMutable ();
-      result = zero (targetDimension_);
       auto& p = accessValueConstCast<P>(*this->dependency(this->nbDependencies()-1));
-      for (size_t i=0; i<this->nbDependencies()-1; i++)
+      cwise (result) = cwise(p)[0] * cwise (accessValueConstCast<T> (*this->dependency(0)));
+      for (size_t i=1; i<this->nbDependencies()-1; i++)
         cwise (result) += cwise(p)[i] * cwise (accessValueConstCast<T> (*this->dependency(i)));
     }
 
@@ -1641,6 +1641,9 @@ namespace bpp {
     }
 
     NodeRef derive (Context & c, const Node_DF & node) final {
+      if (&node == this) {
+        return ConstantOne<double>::create (c, Dimension<double>());
+      }
       const auto & v = this->dependency (0);
       const auto & p = this->dependency (1);
       auto diffvL=CWiseSub<T0, std::tuple<double, T0>>::create(c, {this->shared_from_this(),v}, mTargetDimension_);
@@ -2117,6 +2120,7 @@ namespace bpp {
   extern template class CWiseMean<Eigen::MatrixXd, ReductionOf<Eigen::MatrixXd>, ReductionOf<double>>;
 
   extern template class CWiseMean<double, ReductionOf<double>, double>;
+  extern template class CWiseMean<double, ReductionOf<double>, Eigen::RowVectorXd>;
   extern template class CWiseMean<Eigen::VectorXd, ReductionOf<Eigen::VectorXd>, Eigen::VectorXd>;
   extern template class CWiseMean<Eigen::RowVectorXd, ReductionOf<Eigen::RowVectorXd>, Eigen::VectorXd>;
   extern template class CWiseMean<Eigen::MatrixXd, ReductionOf<Eigen::MatrixXd>, Eigen::VectorXd>;

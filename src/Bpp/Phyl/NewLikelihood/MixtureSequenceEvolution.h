@@ -92,7 +92,11 @@ namespace bpp
         return simplex_.getFrequencies();
       }
       
-        
+      Simplex& getSimplex()
+      {
+        return simplex_;
+      }
+      
       /**
        * @brief return the probability of a  subprocess
        *

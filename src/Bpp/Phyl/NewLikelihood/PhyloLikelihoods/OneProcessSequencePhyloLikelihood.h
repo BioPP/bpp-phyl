@@ -164,8 +164,12 @@ namespace bpp
      * @{
      */
 
-    /**
-     * @brief Get the substition process
+    /*
+     * @brief Get the ParametrizablePhyloTree.
+     *
+     * Warning: the branch lengths may not be up to date with those of
+     * the LikelihoodCalculationSingleProcess.
+     *
      */
 
     const SubstitutionProcess& getSubstitutionProcess() const { return mSeqEvol_.getSubstitutionProcess(); }
@@ -177,10 +181,13 @@ namespace bpp
 
     size_t getNumberOfClasses() const { return mSeqEvol_.getSubstitutionProcess().getNumberOfClasses(); }
 
-    /**
-     * @brief Get the tree (topology and branch lengths).
+    /*
+     * @brief Return the ref to the SubstitutionProcess used to build
+     * the phylolikelihood.
      *
-     * @return The tree of this OneProcessSequencePhyloLikelihood object.
+     * Warning; the process parameter values may not be up to date
+     * with some of the LikelihoodCalculationSingleProcess
+     *
      */
 
     const ParametrizablePhyloTree& getTree() const { return mSeqEvol_.getSubstitutionProcess().getParametrizablePhyloTree(); }
@@ -200,7 +207,7 @@ namespace bpp
 
     ValueRef<double> getLikelihoodNode() const
     {
-      return getLikelihoodCalculation()->getLogLikelihood();
+      return getLikelihoodCalculation()->getLikelihoodNode();
     }          
 
     // Get nodes of derivatives directly
@@ -247,17 +254,7 @@ namespace bpp
   public:
     double getLogLikelihood() const
     {
-      return getLikelihoodCalculation()->getLogLikelihoodValue();
-    }
-
-    double getDLogLikelihood(const std::string& variable) const
-    {
-      return getFirstOrderDerivative(variable);
-    }
-
-    double getD2LogLikelihood(const std::string& variable) const
-    {
-      return getSecondOrderDerivative(variable);
+      return getLikelihoodCalculation()->getLogLikelihood();
     }
 
     double getLikelihoodForASite(size_t site) const
@@ -268,16 +265,6 @@ namespace bpp
     double getLogLikelihoodForASite(size_t site) const
     {
       return std::log(getLikelihoodForASite(site));
-    }
-
-    double getDLogLikelihoodForASite(const std::string& variable, size_t site) const
-    {
-      return getFirstOrderDerivativeVector(variable)->getTargetValue()(getLikelihoodCalculation()->getRootArrayPosition(site));
-    }
-
-    double getD2LogLikelihoodForASite(const std::string& variable, size_t site) const
-    {
-      return getSecondOrderDerivativeVector(variable, variable)->getTargetValue()(getLikelihoodCalculation()->getRootArrayPosition(site));
     }
 
     /** @} */

@@ -79,6 +79,7 @@ namespace bpp {
   template class CWiseMean<Eigen::VectorXd, ReductionOf<Eigen::VectorXd>, ReductionOf<double>>;
   template class CWiseMean<Eigen::RowVectorXd, ReductionOf<Eigen::RowVectorXd>, ReductionOf<double>>;
   template class CWiseMean<Eigen::MatrixXd, ReductionOf<Eigen::MatrixXd>, ReductionOf<double>>;
+  template class CWiseMean<double, ReductionOf<double>, Eigen::RowVectorXd>;
 
   template class CWiseMean<Eigen::VectorXd, ReductionOf<Eigen::VectorXd>, Eigen::VectorXd>;
   template class CWiseMean<Eigen::RowVectorXd, ReductionOf<Eigen::RowVectorXd>, Eigen::VectorXd>;

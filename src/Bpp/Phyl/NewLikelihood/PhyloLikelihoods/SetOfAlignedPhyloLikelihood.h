@@ -164,24 +164,24 @@ namespace bpp
        * @return The likelihood for site <i>site</i>.
        */
 
-      double getDLogLikelihoodForASiteForAPhyloLikelihood(const std::string& variable, size_t site, size_t nPhyl) const
-      {
-        return getPhyloLikelihood(nPhyl)->getDLogLikelihoodForASite(variable, site);
-      }
+      // double getDLogLikelihoodForASiteForAPhyloLikelihood(const std::string& variable, size_t site, size_t nPhyl) const
+      // {
+      //   return getPhyloLikelihood(nPhyl)->getDLogLikelihoodForASite(variable, site);
+      // }
       
-      /**
-       * @brief Get the second derivative of the likelihood for a site for
-       * a process.
-       *
-       * @param site The site index to analyse.
-       * @param p the phyloLikelihood index.
-       * @return The likelihood for site <i>site</i>.
-       */
+      // /**
+      //  * @brief Get the second derivative of the likelihood for a site for
+      //  * a process.
+      //  *
+      //  * @param site The site index to analyse.
+      //  * @param p the phyloLikelihood index.
+      //  * @return The likelihood for site <i>site</i>.
+      //  */
 
-      double getD2LogLikelihoodForASiteForAPhyloLikelihood(const std::string& variable, size_t site, size_t nPhyl) const
-      {
-        return getPhyloLikelihood(nPhyl)->getD2LogLikelihoodForASite(variable, site);
-      }
+      // double getD2LogLikelihoodForASiteForAPhyloLikelihood(const std::string& variable, size_t site, size_t nPhyl) const
+      // {
+      //   return getPhyloLikelihood(nPhyl)->getD2LogLikelihoodForASite(variable, site);
+      // }
 
     };
   

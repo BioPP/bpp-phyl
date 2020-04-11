@@ -83,8 +83,8 @@ void HmmProcessEmissionProbabilities::updateEmissionProbabilities_() const
   // upToDate_=true;
 }
 
-void HmmProcessEmissionProbabilities::computeDEmissionProbabilities(std::string& variable) const
-{
+// void HmmProcessEmissionProbabilities::computeDEmissionProbabilities(std::string& variable) const
+// {
   // for (size_t i=0;i<multiPL_->getNumberOfSubstitutionProcess();i++)
   //   multiPL_->computeDLogLikelihoodForAProcess(variable,i);
 
@@ -98,27 +98,27 @@ void HmmProcessEmissionProbabilities::computeDEmissionProbabilities(std::string&
   // for (size_t i=0;i<dEmProb_.size();i++)
   //   for (size_t j=0;j<dEmProb_[j].size();j++)
   //     dEmProb_[i][j]= multiPL_->getDLogLikelihoodForASiteForAProcess(i, j) * multiPL_->getLikelihoodForASiteForAProcess(i, j);
-}
+//}
 
 
-void HmmProcessEmissionProbabilities::computeD2EmissionProbabilities(std::string& variable) const
-{
-  for (size_t i=0;i<multiPL_->getNumberOfSubstitutionProcess();i++)
-    multiPL_->computeD2LogLikelihoodForAProcess(variable,i);
+// void HmmProcessEmissionProbabilities::computeD2EmissionProbabilities(std::string& variable) const
+// {
+//   for (size_t i=0;i<multiPL_->getNumberOfSubstitutionProcess();i++)
+//     multiPL_->computeD2LogLikelihoodForAProcess(variable,i);
 
-  if (d2EmProb_.size()!=multiPL_->getNumberOfSites())
-  {
-    d2EmProb_.resize(multiPL_->getNumberOfSites());
-    for (size_t i=0; i<multiPL_->getNumberOfSites();i++)
-      d2EmProb_[i].resize(multiPL_->getNumberOfSubstitutionProcess());
-  }
+//   if (d2EmProb_.size()!=multiPL_->getNumberOfSites())
+//   {
+//     d2EmProb_.resize(multiPL_->getNumberOfSites());
+//     for (size_t i=0; i<multiPL_->getNumberOfSites();i++)
+//       d2EmProb_[i].resize(multiPL_->getNumberOfSubstitutionProcess());
+//   }
 
-  for (size_t i=0;i<d2EmProb_.size();i++)
-    for (size_t j=0;j<d2EmProb_[j].size();j++){
-      double x= multiPL_->getDLogLikelihoodForASiteForAProcess(i, j);
-      d2EmProb_[i][j]= (multiPL_->getD2LogLikelihoodForASiteForAProcess(i, j) + x*x)*multiPL_->getLikelihoodForASiteForAProcess(i, j);
-    }
-}
+//   for (size_t i=0;i<d2EmProb_.size();i++)
+//     for (size_t j=0;j<d2EmProb_[j].size();j++){
+//       double x= multiPL_->getDLogLikelihoodForASiteForAProcess(i, j);
+//       d2EmProb_[i][j]= (multiPL_->getD2LogLikelihoodForASiteForAProcess(i, j) + x*x)*multiPL_->getLikelihoodForASiteForAProcess(i, j);
+//     }
+// }
 
   
 

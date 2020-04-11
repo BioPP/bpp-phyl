@@ -140,19 +140,19 @@ namespace bpp
       return emProb_[pos][state];
     }
 
-    void computeDEmissionProbabilities(std::string& variable) const;
+    // void computeDEmissionProbabilities(std::string& variable) const;
   
-    void computeD2EmissionProbabilities(std::string& variable) const;
+    // void computeD2EmissionProbabilities(std::string& variable) const;
   
-    const std::vector<double>& getDEmissionProbabilities(size_t pos) const
-    {
-      return dEmProb_[pos];
-    }
+    // const std::vector<double>& getDEmissionProbabilities(size_t pos) const
+    // {
+    //   return dEmProb_[pos];
+    // }
   
-    const std::vector<double>& getD2EmissionProbabilities(size_t pos) const
-    {
-      return d2EmProb_[pos];
-    }
+    // const std::vector<double>& getD2EmissionProbabilities(size_t pos) const
+    // {
+    //   return d2EmProb_[pos];
+    // }
 
 
     /**

@@ -97,9 +97,9 @@ namespace bpp
      *
      */
 
-    virtual double getDLogLikelihood(const std::string& variable) const = 0;
+    // virtual double getDLogLikelihood(const std::string& variable) const = 0;
 
-    virtual double getD2LogLikelihood(const std::string& variable) const = 0;
+    // virtual double getD2LogLikelihood(const std::string& variable) const = 0;
 
     /** @} */
 

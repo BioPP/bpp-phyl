@@ -39,6 +39,8 @@
 
 #include "MultiProcessSequencePhyloLikelihood.h"
 
+#include "../DataFlow/CollectionNodes.h"
+
 using namespace std;
 using namespace bpp;
 
@@ -56,22 +58,27 @@ MultiProcessSequencePhyloLikelihood::MultiProcessSequencePhyloLikelihood(
   AbstractAlignedPhyloLikelihood(context, data.getNumberOfSites()),
   AbstractSequencePhyloLikelihood(context, processSeqEvol, nSeqEvol, nData),
   mSeqEvol_(processSeqEvol),
-  vpTreelik_()
+  likCal_(context)
 {
-  // initialize parameters:
+  resetParameters_(); // Do not keep the original parameters to get ConfiguredParameters
+ // initialize parameters:
 
   const SubstitutionProcessCollection& processColl = processSeqEvol.getCollection();
 
+  CollectionNodes cN(context, processColl);
+
   const vector<size_t>& nProc = processSeqEvol.getSubstitutionProcessNumbers();
   
-  for (size_t i = 0; i < nProc.size(); i++)
+  for (auto n:nProc)
   {
-    auto likCal = std::make_shared<LikelihoodCalculationSingleProcess>(context,
-                                                                       processColl.getSubstitutionProcess(nProc[i]));
-    vpTreelik_.push_back(likCal);
+    auto liksing = std::make_shared<LikelihoodCalculationSingleProcess>(cN,
+                                                                        data,
+                                                                        n);
+    liksing->makeLikelihoods();
+    likCal_.addSingleLikelihood(liksing);
   }
 
-  setData(data, nData);
+  shareParameters_(likCal_.getParameters());
 }
 
 /******************************************************************************/
@@ -80,10 +87,8 @@ void MultiProcessSequencePhyloLikelihood::setData(const AlignedValuesContainer& 
 {
   AbstractSequencePhyloLikelihood::setData(sites, nData);
   
-  for (size_t i = 0; i < vpTreelik_.size(); i++)
-  {
-    vpTreelik_[i]->setData(sites);
-  }
+  for (size_t i = 0; i < likCal_.getNumberOfSingleProcess(); i++)
+    likCal_.getSingleLikelihood(i)->setData(sites);
 }
 
 /******************************************************************************/
@@ -91,93 +96,15 @@ void MultiProcessSequencePhyloLikelihood::setData(const AlignedValuesContainer& 
 VVdouble MultiProcessSequencePhyloLikelihood::getLikelihoodPerSitePerProcess() const
 {
   VVdouble l(getNumberOfSites());
-  // for (size_t i = 0; i < l.size(); ++i)
-  //   {
-  //     Vdouble* l_i = &l[i];
-  //     l_i->resize(getNumberOfSubstitutionProcess());
-  //     for (size_t c = 0; c < l_i->size(); ++c)
-  //       {
-  //         (*l_i)[c] = getLikelihoodForASiteForAProcess(i, c);
-  //       }
-  //   }
+  for (size_t i = 0; i < l.size(); ++i)
+  {
+    Vdouble* l_i = &l[i];
+    l_i->resize(getNumberOfSubstitutionProcess());
+    for (size_t c = 0; c < l_i->size(); ++c)
+      {
+        (*l_i)[c] = getLikelihoodForASiteForAProcess(i, c);
+      }
+  }
   return l;
 }
 
-
-/******************************************************************************/
-
-
-void MultiProcessSequencePhyloLikelihood::computeDLogLikelihoodForAProcess(const std::string& variable, size_t p) const
-{
-  // // check it is a "BrLen" variable
-
-  // if (!hasParameter(variable) || (variable.compare(0,5,"BrLen")!=0))
-  //   return;
-
-  // // Get the node with the branch whose length must be derivated:
-  
-  // Vuint VbrId;
-
-  // size_t i=0;
-  // try {
-  //   i=(size_t)atoi(variable.substr(variable.rfind('_')+1).c_str());
-  //   if (p+1==i)
-  //     VbrId.push_back(atoi(variable.substr(5).c_str()));
-  // }
-  // catch (exception& e){}
-  
-  // vector<string> valias= mSeqEvol_.getCollection().getAlias(variable);
-
-  // for (size_t v=0; v<valias.size();v++)
-  // {
-  //   try {
-  //     i=(size_t)atoi(valias[v].substr(valias[v].rfind('_')+1).c_str());
-  //     if (p+1==i){
-  //       VbrId.push_back((unsigned int)atoi(valias[v].substr(5).c_str()));
-  //     }
-  //   }
-  //   catch (exception& e)
-  //   {}
-  // }
-
-  // vpTreelik_[p]->computeTreeDLogLikelihood(VbrId);
-}
-
-
-/************************************************************/
-
-void MultiProcessSequencePhyloLikelihood::computeD2LogLikelihoodForAProcess(const std::string& variable, size_t p) const
-{
-  // // check it is a "BrLen" variable
-
-  // if (!hasParameter(variable) || (variable.compare(0,5,"BrLen")!=0))
-  //   return;
-
-  // // Get the node with the branch whose length must be derivated:
-
-  // Vuint VbrId;
-
-  // size_t i=0;
-  // try {
-  //   i=(size_t)atoi(variable.substr(variable.rfind('_')+1).c_str());
-  //   if (p+1==i)
-  //     VbrId.push_back((unsigned int)atoi(variable.substr(5).c_str()));
-  // }
-  // catch (exception& e){}
-  
-  // vector<string> valias= mSeqEvol_.getCollection().getAlias(variable);
-  
-  // for (size_t v=0; v<valias.size();v++)
-  // {
-  //   try {
-  //     i=(size_t)atoi(valias[v].substr(valias[v].rfind('_')+1).c_str());
-  //     if (p+1==i){
-  //       VbrId.push_back(atoi(valias[v].substr(5).c_str()));
-  //     }
-  //   }
-  //   catch (exception& e)
-  //   {}
-  // }
-
-  // vpTreelik_[p]->computeTreeD2LogLikelihood(VbrId);
-}

@@ -140,7 +140,7 @@ namespace bpp {
 
       std::string color () const final
       {
-        return "#aa00ff";
+        return "#ffff66";
       }
 
     private:

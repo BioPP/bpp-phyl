@@ -46,6 +46,8 @@
 #include "Parametrizable.h"
 #include <Bpp/Phyl/Model/MixedTransitionModel.h>
 
+#include <Bpp/Phyl/NewLikelihood/DataFlow/CollectionNodes.h>
+
 //From the stl:
 #include <string>
 
@@ -53,48 +55,136 @@ using namespace bpp;
 using namespace std;
 
 ProcessTree::ProcessTree(Context& context,
-                         const SubstitutionProcess& process,
-                         const ProcessComputationTree& tree,
-                         ParameterList& parList,
-                         const BrLenMap& vrefmap) :
-  AssociationTreeGlobalGraphObserver<ProcessNode,ProcessEdge>(tree.getGraph()), context_(context)
+                         const ParametrizablePhyloTree& tree) :
+  AssociationTreeGlobalGraphObserver<ProcessNode,ProcessEdge>(tree.getGraph()),
+  context_(context)
 {
+  // Set Nodes
   auto vNodes=tree.getAllNodes();
   
+  for (const auto& node:vNodes)
+  {
+    uint index = tree.getNodeIndex(node);
+    auto pn=make_shared<ProcessNode>(*node, index);
+    associateNode(pn, tree.getNodeGraphid(node));
+    setNodeIndex(pn, index);
+  }
+
+  // Set Edges
+  
+  std::vector<std::shared_ptr<PhyloBranchParam> > vB=tree.getAllEdges();
+
+  for (auto& branch:vB)
+  {
+    const auto& bp=branch->getParameters()[0]; // Get BrLen Parameter
+
+    auto parDF = ConfiguredParameter::create(context, bp);
+
+    auto index = tree.getEdgeIndex(branch);
+    auto brref=make_shared<ProcessEdge>(index, parDF, nullptr);
+
+    associateEdge(brref, tree.getEdgeGraphid(branch));
+    setEdgeIndex(brref,index);
+  }
+}
+
+ProcessTree::ProcessTree(const ProcessTree& tree,
+                         ValueRef<double> rate) :
+  AssociationTreeGlobalGraphObserver<ProcessNode,ProcessEdge>(tree)
+{
+  // Adjust Edges
+  auto aEit=allEdgesIterator();
+  
+  while (!aEit->end())
+  {
+    auto edge=**aEit;
+        
+    if (edge->getBrLen())
+    {
+      auto mulref = CWiseMul<double, std::tuple<double, double>>::create (context_, {edge->getBrLen()->dependency(0), rate}, Dimension<double>());
+      auto confpar = std::dynamic_pointer_cast<ConfiguredParameter>(edge->getBrLen()->recreate(context_,{std::move(mulref)}));
+      edge->setBrLen(confpar);
+    }
+    aEit->next();
+  }
+}
+
+ProcessTree::ProcessTree(Context& context,
+                         const ParametrizablePhyloTree& tree,
+                         const ParameterList& parList,
+                         const std::string& suff) :
+  AssociationTreeGlobalGraphObserver<ProcessNode,ProcessEdge>(tree.getGraph()),
+  context_(context)
+{
+  // Set Nodes
+  auto vNodes=tree.getAllNodes();
+  
+  for (const auto& node:vNodes)
+  {
+    uint index = tree.getNodeIndex(node);
+    auto pn=make_shared<ProcessNode>(*node, index);
+    associateNode(pn, tree.getNodeGraphid(node));
+    setNodeIndex(pn, index);
+  }
+
+  // Set Edges
+  
+  std::vector<std::shared_ptr<PhyloBranchParam> > vB=tree.getAllEdges();
+
+  for (auto& branch:vB)
+  {
+    const auto& bp=branch->getParameters()[0]; // Get BrLen Parameter
+
+    std::string name=bp.getName()+suff;
+    if (!parList.hasParameter(name) && suff=="")
+    {
+      if (!parList.hasParameter(bp.getName()+"_1"))
+        throw Exception("makeTreeNode: unknown ConfiguredParameter " + name);
+      else name=bp.getName()+"_1";
+    }
+
+    auto confPar=dynamic_cast<ConfiguredParameter*>(parList.getSharedParameter(name).get());
+    if (!confPar)
+      throw Exception("makeProcessTree: unknown ConfiguredParameter " + name);
+
+    // Share numeric dependency with this parameter
+    auto parDF = ConfiguredParameter::create(context, {confPar->dependency(0)}, bp);
+    auto index = tree.getEdgeIndex(branch);
+    auto brref=make_shared<ProcessEdge>(index, parDF, nullptr);
+
+    associateEdge(brref, tree.getEdgeGraphid(branch));
+    setEdgeIndex(brref,index);
+  }
+}
+
+ProcessTree::ProcessTree(const ProcessComputationTree& tree,
+                         ParametrizableCollection<ConfiguredModel>& modelColl,
+                         const ProcessTree& phyloTree) :
+  AssociationTreeGlobalGraphObserver<ProcessNode,ProcessEdge>(tree.getGraph()), context_(phyloTree.context_)
+{
+  // Set Nodes
+  auto vNodes=tree.getAllNodes();
+   
   for (const auto& node:vNodes)
   {
     auto pn=make_shared<ProcessNode>(*node);
     associateNode(pn, tree.getNodeGraphid(node));
     setNodeIndex(pn, tree.getNodeIndex(node));
   }
-
-  // Build the ConfiguredModels from the BranchModels
-
-  auto vnMod=process.getModelNumbers();
-        
-  std::map<const BranchModel*, std::shared_ptr<ConfiguredModel>> modelmap;
-
-  for (auto nMod:vnMod)
-  {
-    auto mod=process.getModel(nMod);
-    modelmap[mod] = ConfiguredParametrizable::createConfigured<BranchModel, ConfiguredModel>(context_, *mod, parList, (nMod==1?"":"_"+ TextTools::toString(nMod))); // suffix "_1" will be added if necessary 
-  }
-
+ 
   // Assign References on all branches
 
   auto vEdges=tree.getAllEdges();
-
-  const auto partree = process.getParametrizablePhyloTree();
-
+ 
   for (const auto& edge:vEdges)
   {
     std::shared_ptr<ProcessEdge> brref;
-
+    
     auto id=tree.getEdgeGraphid(edge);
     uint spIndex=edge->getSpeciesIndex(); // index of the matching
-                                          // edge in the
-                                        // ParametrizablePhyloTree
-
+    // edge in the
+    // ParametrizablePhyloTree
+    
     auto model=edge->getModel();
     if (!model) // ie empty branch
     {
@@ -104,28 +194,27 @@ ProcessTree::ProcessTree(Context& context,
       continue;
     }
     
-    auto modelit=modelmap.find(model);
-    if (modelit==modelmap.end())
+    if (!modelColl.hasObject(edge->getModelNumber()))
       throw Exception("ProcessTree::ProcessTree : Model unknown " + model->getName() + "  for node " + TextTools::toString(spIndex));
-    
-    std::shared_ptr<ConfiguredModel> pmodel= modelit->second;
+
+    std::shared_ptr<ConfiguredModel> pmodel = dynamic_pointer_cast<ConfiguredModel>(modelColl[edge->getModelNumber()]);
     
     auto vNb=edge->subModelNumbers();
-
     if (vNb.size()>1)
       throw Exception("ProcessTree::ProcessTree : only simple submodels are used, not combinations. Ask developpers");
     
     if (!edge->useProb()) // model transition is used
     {
-      if (vrefmap.find(spIndex)==vrefmap.end()) // ie there is no branch length
+      if (!phyloTree.hasEdge(spIndex)) // ie there is no branch length
         throw Exception("ProcessTree::ProcessTree missing branch length for branch " + TextTools::toString(spIndex));
-      
+
+      auto edge2 = phyloTree.getEdge(spIndex);
       if (vNb.size()==0) // ie full model 
-        brref=make_shared<ProcessEdge>(spIndex, vrefmap.at(spIndex), pmodel);
+        brref=make_shared<ProcessEdge>(spIndex, edge2->getBrLen(), pmodel);
       else
       {
         auto nMod=NumericConstant<size_t>::create(context_, vNb[0]); // Only 1st submodel is used        
-        brref=make_shared<ProcessEdge>(spIndex, vrefmap.at(spIndex), pmodel, nMod);
+        brref=make_shared<ProcessEdge>(spIndex, edge2->getBrLen(), pmodel, nMod);
       }
     }
     else // a branch issued from a mixture.
@@ -139,10 +228,37 @@ ProcessTree::ProcessTree(Context& context,
         brref=make_shared<ProcessEdge>(spIndex, brprob);
       }
     }
-
+    
     associateEdge(brref, id);
     setEdgeIndex(brref,tree.getEdgeIndex(edge));
   }
+}
+ 
 
+std::shared_ptr<ProcessTree> ProcessTree::makeProcessTree(CollectionNodes& collection, size_t pNum)
+{
+  auto& process = collection.getCollection().getSubstitutionProcess(pNum);
+  
+  auto& pt = *collection.getProcessTree(process.getTreeNumber());
+  
+  ProcessComputationTree tree(process); 
+  
+  // then process tree with DF objects
+  
+  return std::make_shared<ProcessTree>(tree, collection.getModelCollection(), pt);
 }
 
+std::shared_ptr<ProcessTree> ProcessTree::makeProcessTree(Context& context, const SubstitutionProcess& process, ParameterList& parList, const std::string& suff)
+{
+  auto& parTree=process.getParametrizablePhyloTree();
+  
+  auto modelColl = makeConfiguredModelCollection(context, process, parList);
+  
+  ProcessTree pt(context, parTree, parList, suff); // tree with only branches
+  
+  ProcessComputationTree tree(process); 
+    
+  // then process tree with DF objects
+    
+  return std::make_shared<ProcessTree>(tree, modelColl, pt);
+}  

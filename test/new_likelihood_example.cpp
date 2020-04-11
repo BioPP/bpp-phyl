@@ -203,16 +203,16 @@ int main(int argc, char** argv)
 
   auto ts = timingStart();
   
-auto t92 = std::make_shared<T92>(&c.alphabet, 3., 0.7);
-auto t922 = std::make_shared<T92>(&c.alphabet, 3., 0.7);
+  auto t92 = std::make_shared<T92>(&c.alphabet, 3., 0.7);
+  auto t922 = std::make_shared<T92>(&c.alphabet, 3., 0.7);
 
-std::map<std::string, DiscreteDistribution*> mapParam1;
+  std::map<std::string, DiscreteDistribution*> mapParam1;
 
-mapParam1["kappa"]=new GammaDiscreteDistribution(2, 1);
+  mapParam1["kappa"]=new GammaDiscreteDistribution(2, 1);
 
 //  auto mt92 = std::make_shared<MixtureOfASubstitutionModel>(&c.alphabet, t92.get(), mapParam1);
 
-auto k80 = std::make_shared<K80>(&c.alphabet, 2.);
+  auto k80 = std::make_shared<K80>(&c.alphabet, 2.);
   // std::map<std::string, DiscreteDistribution*> mapParam2;
   // auto sdm=std::map<double, double>({{0.0001,0.3},{200.,0.7}});
   
@@ -222,29 +222,29 @@ auto k80 = std::make_shared<K80>(&c.alphabet, 2.);
 //auto model1=std::make_shared<MultinomialFromTransitionModel>(*t922);
 
   /* scenario
-  auto scenario = std::make_shared<ModelScenario>();
+     auto scenario = std::make_shared<ModelScenario>();
 
-  auto mp1=make_shared<ModelPath>();
-  //mp1->setModel(mt92,Vuint({0}));
-  mp1->setModel(mk80,Vuint({0}));
-  scenario->addModelPath(mp1);
+     auto mp1=make_shared<ModelPath>();
+     //mp1->setModel(mt92,Vuint({0}));
+     mp1->setModel(mk80,Vuint({0}));
+     scenario->addModelPath(mp1);
 
-  mp1=make_shared<ModelPath>();
-  //mp1->setModel(mt92,Vuint({1}));
-  mp1->setModel(mk80,Vuint({1}));
-  scenario->addModelPath(mp1);
+     mp1=make_shared<ModelPath>();
+     //mp1->setModel(mt92,Vuint({1}));
+     mp1->setModel(mk80,Vuint({1}));
+     scenario->addModelPath(mp1);
 
   */
 
-auto rootFreqs = new GCFrequenciesSet(&c.alphabet, 0.1);
+  auto rootFreqs = new GCFrequenciesSet(&c.alphabet, 0.1);
 
-auto distribution = new ConstantRateDistribution();
-//  auto distribution = new GammaDiscreteRateDistribution(3, 1);
+  auto distribution = new ConstantRateDistribution();
+  //auto distribution = new GammaDiscreteRateDistribution(3, 1);
 
   // Read tree structure
-Newick reader;
-auto phyloTree = std::unique_ptr<PhyloTree>(reader.parenthesisToPhyloTree(c.treeStr, false, "", false, false));
-auto paramPhyloTree = new ParametrizablePhyloTree(*phyloTree);
+  Newick reader;
+  auto phyloTree = std::unique_ptr<PhyloTree>(reader.parenthesisToPhyloTree(c.treeStr, false, "", false, false));
+  auto paramPhyloTree = new ParametrizablePhyloTree(*phyloTree);
 //  std::vector<std::string> globalParameterNames({"T92.kappa"});
 
   // auto process =
@@ -254,11 +254,11 @@ auto paramPhyloTree = new ParametrizablePhyloTree(*phyloTree);
 //  process->setModelScenario(scenario);
 
   
-auto process  = std::make_shared<NonHomogeneousSubstitutionProcess>(distribution, paramPhyloTree, rootFreqs);
+  auto process  = std::make_shared<NonHomogeneousSubstitutionProcess>(distribution, paramPhyloTree, rootFreqs);
 
-process->addModel(k80, Vuint({0,1,3}));
+  process->addModel(k80, Vuint({0,1,3}));
 
-process->addModel(t92, Vuint({2}));
+  process->addModel(t92, Vuint({2}));
     
 //std::shared_ptr<NonHomogeneousSubstitutionProcess>(NonHomogeneousSubstitutionProcess::createHomogeneousSubstitutionProcess(model, distribution, paramPhyloTree, rootFreqs));//, scenario));
 
@@ -269,23 +269,22 @@ process->addModel(t92, Vuint({2}));
 //  l->setClockLike();
 
   OneProcessSequenceEvolution ope(*process);
-  
+
   OneProcessSequencePhyloLikelihood llh(context, c.sites,  ope);
-  
+
   timingEnd(ts, "df_setup");
   auto lik = llh.getLikelihoodCalculation();
-  dotOutput("likelihood_example_value", {lik->getLogLikelihood().get()});
+  dotOutput("likelihood_example_value", {lik->getLikelihoodNode().get()});
 
   ts = timingStart();
   auto logLik = llh.getValue();
   timingEnd(ts, "df_init_value");
   printLik(logLik, "df_init_value");
 
-    // Manual access to dbrlen
+  // Manual access to dbrlen
   auto br= dynamic_cast<ConfiguredParameter*>(lik->hasParameter("BrLen1")?lik->getSharedParameter("BrLen1").get():lik->getSharedParameter("BrLen_rate").get());
 
-  cerr << "brlen1 " << br  << endl;
-  auto dlogLik_dbrlen1 = lik->getLogLikelihood()->deriveAsValue(context, *br->dependency(0));
+  auto dlogLik_dbrlen1 = lik->getLikelihoodNode()->deriveAsValue(context, *br->dependency(0));
 
   dotOutput("likelihood_example_dbrlen1", {dlogLik_dbrlen1.get()});
   std::cout << "[dbrlen1] " << dlogLik_dbrlen1->getTargetValue() << "\n";
@@ -323,7 +322,7 @@ process->addModel(t92, Vuint({2}));
   l->getParameters().printParameters(cerr);
   
   optimize_for_params(llh, "df_all_opt", l->getParameters());
-  dotOutput("likelihood_optim_value", {lik->getLogLikelihood().get()});
+  dotOutput("likelihood_optim_value", {lik->getLikelihoodNode().get()});
   llh.getParameters().printParameters(std::cerr);  
 
 }

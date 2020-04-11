@@ -107,6 +107,13 @@ namespace bpp
     const BranchModel* model_;
 
     /*
+     * Number of the model carried by the branch
+     *
+     */
+     
+    uint nmodel_;
+
+    /*
      * @brief numbers of the submodels used, if any.
      *
      * In practice, only vectors of size <=1 are implemented (ie
@@ -133,8 +140,9 @@ namespace bpp
 
 
   public:
-    ProcessComputationEdge(const BranchModel* model, uint speciesIndex, bool useProb=false, const std::vector<uint>& vNb=Vuint(0)) :
+    ProcessComputationEdge(const BranchModel* model, uint nmodel, uint speciesIndex, bool useProb=false, const std::vector<uint>& vNb=Vuint(0)) :
       model_(model),
+      nmodel_(nmodel),
       vSubNb_(vNb),
       useProb_(useProb),
       speciesIndex_(speciesIndex)
@@ -144,6 +152,11 @@ namespace bpp
     const BranchModel* getModel() const
     {
       return model_;
+    }
+
+    uint getModelNumber() const
+    {
+      return nmodel_;
     }
 
     uint getSpeciesIndex() const
@@ -192,104 +205,6 @@ namespace bpp
      */
      
     ProcessComputationTree(const SubstitutionProcess& process);
-     
-
-    // ProcessComputationTree(const ProcessComputationTree& tree) :
-    //   BaseTree(tree)
- 
-    // ProcessComputationTree& operator=(const ProcessComputationTree& tree)
-    // {
-    //   BaseTree::operator=(tree);
-    //   return *this;
-    // }
-    // ProcessComputationTree* clone() const { return new ProcessComputationTree(*this);}
-      
-
-  //   /*
-  //    * @brief construction of a complete ProcessComputationTree.
-  //    *
-  //    * @param pSubMod a  pointer of BranchModel.
-  //    * @param vBr a vector of attribution of the model on the
-  //    * branches of the tree that need a model.
-  //    *
-  //    */
-     
-  //   void addModel(const BranchModel* pSubMod, std::vector<unsigned int> vBr);
-
-  //   /*
-  //    * @brief construction of an homogeneous ProcessComputationTree.
-  //    *
-  //    * @param pSubMod a  pointer of BranchModel.
-  //    *
-  //    */
-     
-  //   void addModel(const BranchModel* pSubMod);
-    
-  //   size_t getNumberOfClasses() const { return vTree_.size();}
-
-  // private:
-    
-  //   void clearAllModels_();
-
-  // public:
-
-  //   /*
-  //    * @brief Checks if every SpeciationComputingNode has a Model
-  //    *
-  //    */
-    
-  //   void checkModelOnEachNode();
-
-  //   /*
-  //    * @brief operator to get numbered TreeTemplate<SpeciationComputingNode>*
-  //    *
-  //    */
-    
-  //   std::shared_ptr<CompTree> operator[](size_t ntree) { return vTree_[ntree];}
-
-  //   const std::shared_ptr<CompTree> operator[](size_t ntree) const { return vTree_[ntree];}
-
-  //   /*
-  //    *@brief update Distribution parameters and says to the
-  //    * SpeciationComputingNodes to be ready to update if the Branch lengths are
-  //    * changed.
-  //    *
-  //    */
-    
-  //   void fireParameterChanged(const ParameterList& pl);
-        
-  //   /*
-  //    * @brief Says to specific nodes to be ready for update
-  //    *
-  //    * If flag = true (default), node has to be updated (false otherwise).
-  //    */
-
-  //   void update(std::vector<unsigned int>& vId, bool flag = true);
-
-  //   void update(unsigned int id, bool flag = true);
-
-  //   /*
-  //    * @brief Says to all nodes to be ready for update
-  //    *
-  //    */
-    
-  //   void updateAll();
-
-  //   /*
-  //    * @brief Returns the list of the updated Nodes ids, excluding the root.
-  //    *
-  //    */
-    
-  //   Vuint toBeUpdatedNodes() const;
-
-  // private:
-
-  //   /*
-  //    * @brief Initializes the Computing tree in homogeneous constructors.
-  //    *
-  //    */
-    
-  //   void init_();
     
   };
   

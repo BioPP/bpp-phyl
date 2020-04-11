@@ -88,40 +88,40 @@ void HmmPhyloEmissionProbabilities::computeDEmissionProbabilities(std::string& v
 {
   // phylAlph_->computeDLogLikelihood(variable);
   
-  if (dEmProb_.size()!=nbSites_)
-  {
-    dEmProb_.resize(nbSites_);
-    for (size_t i=0; i<nbSites_;i++)
-      dEmProb_[i].resize(getNumberOfStates());
-  }
+  // if (dEmProb_.size()!=nbSites_)
+  // {
+  //   dEmProb_.resize(nbSites_);
+  //   for (size_t i=0; i<nbSites_;i++)
+  //     dEmProb_[i].resize(getNumberOfStates());
+  // }
 
-  for (size_t i=0;i<nbSites_;i++)
-    for (size_t j=0;j<getNumberOfStates();j++)
-    {
-      const AlignedPhyloLikelihood& apl=phylAlph_->getPhyloLikelihood(j);
-      dEmProb_[i][j]= apl.getDLogLikelihoodForASite(variable, i) * apl.getLikelihoodForASite(i);
-    }
+  // for (size_t i=0;i<nbSites_;i++)
+  //   for (size_t j=0;j<getNumberOfStates();j++)
+  //   {
+  //     const AlignedPhyloLikelihood& apl=phylAlph_->getPhyloLikelihood(j);
+  //     dEmProb_[i][j]= apl.getDLogLikelihoodForASite(variable, i) * apl.getLikelihoodForASite(i);
+  //   }
 }
   
 void HmmPhyloEmissionProbabilities::computeD2EmissionProbabilities(std::string& variable) const
 {
-  // phylAlph_->computeD2LogLikelihood(variable);
+  // // phylAlph_->computeD2LogLikelihood(variable);
   
-  if (d2EmProb_.size()!=nbSites_)
-  {
-    d2EmProb_.resize(nbSites_);
-    for (size_t i=0; i<nbSites_;i++)
-      d2EmProb_[i].resize(getNumberOfStates());
-  }
+  // if (d2EmProb_.size()!=nbSites_)
+  // {
+  //   d2EmProb_.resize(nbSites_);
+  //   for (size_t i=0; i<nbSites_;i++)
+  //     d2EmProb_[i].resize(getNumberOfStates());
+  // }
 
-  for (size_t i=0;i<nbSites_;i++)
-    for (size_t j=0;j<getNumberOfStates();j++)
-    {
-      const AlignedPhyloLikelihood& apl=phylAlph_->getPhyloLikelihood(j);
-      double x= apl.getDLogLikelihoodForASite(variable, i);
+  // for (size_t i=0;i<nbSites_;i++)
+  //   for (size_t j=0;j<getNumberOfStates();j++)
+  //   {
+  //     const AlignedPhyloLikelihood& apl=phylAlph_->getPhyloLikelihood(j);
+  //     double x= apl.getDLogLikelihoodForASite(variable, i);
       
-      d2EmProb_[i][j]= (apl.getD2LogLikelihoodForASite(variable, i) + x*x) * apl.getLikelihoodForASite(i);
-    }
+  //     d2EmProb_[i][j]= (apl.getD2LogLikelihoodForASite(variable, i) + x*x) * apl.getLikelihoodForASite(i);
+  //   }
 }
 
 

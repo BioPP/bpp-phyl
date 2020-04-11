@@ -63,26 +63,26 @@ ProductOfAlignedPhyloLikelihood::ProductOfAlignedPhyloLikelihood(const ProductOf
 {
 }
 
-double ProductOfAlignedPhyloLikelihood::getDLogLikelihoodForASite(const std::string& variable, size_t site) const
-{
-  double x=0;
-  const std::vector<size_t>& nPhylo=getNumbersOfPhyloLikelihoods();
+// double ProductOfAlignedPhyloLikelihood::getDLogLikelihoodForASite(const std::string& variable, size_t site) const
+// {
+//   double x=0;
+//   const std::vector<size_t>& nPhylo=getNumbersOfPhyloLikelihoods();
         
-  for (size_t i=0; i<nPhylo.size(); i++)
-    x += getPhyloLikelihood(nPhylo[i])->getDLogLikelihoodForASite(variable, site);
-  return x;
-}
+//   for (size_t i=0; i<nPhylo.size(); i++)
+//     x += getPhyloLikelihood(nPhylo[i])->getDLogLikelihoodForASite(variable, site);
+//   return x;
+// }
 
 
-double ProductOfAlignedPhyloLikelihood::getD2LogLikelihoodForASite(const std::string& variable, size_t site) const
-{
-  double x=0;
-  const std::vector<size_t>& nPhylo=getNumbersOfPhyloLikelihoods();
+// double ProductOfAlignedPhyloLikelihood::getD2LogLikelihoodForASite(const std::string& variable, size_t site) const
+// {
+//   double x=0;
+//   const std::vector<size_t>& nPhylo=getNumbersOfPhyloLikelihoods();
         
-  for (size_t i=0; i<nPhylo.size(); i++)
-    x += getPhyloLikelihood(nPhylo[i])->getD2LogLikelihoodForASite(variable, site);
-  return x;
-}
+//   for (size_t i=0; i<nPhylo.size(); i++)
+//     x += getPhyloLikelihood(nPhylo[i])->getD2LogLikelihoodForASite(variable, site);
+//   return x;
+// }
 
 
 
@@ -111,40 +111,40 @@ double ProductOfAlignedPhyloLikelihood::getLogLikelihood() const
 
 /******************************************************************************/
 
-double ProductOfAlignedPhyloLikelihood::getDLogLikelihood(const std::string& variable) const
-{
-  vector<double> la(nbSites_);
-  for (size_t i = 0; i < nbSites_; ++i)
-  {
-    la[i] = getDLogLikelihoodForASite(variable, i);
-  }
+// double ProductOfAlignedPhyloLikelihood::getDLogLikelihood(const std::string& variable) const
+// {
+//   vector<double> la(nbSites_);
+//   for (size_t i = 0; i < nbSites_; ++i)
+//   {
+//     la[i] = getDLogLikelihoodForASite(variable, i);
+//   }
 
-  sort(la.begin(), la.end());
-  double ll = 0;
-  for (size_t i = nbSites_; i > 0; i--)
-  {
-    ll += la[i - 1];
-  }
+//   sort(la.begin(), la.end());
+//   double ll = 0;
+//   for (size_t i = nbSites_; i > 0; i--)
+//   {
+//     ll += la[i - 1];
+//   }
 
-  return ll;
-}
+//   return ll;
+// }
 
-/******************************************************************************/
+// /******************************************************************************/
 
-double ProductOfAlignedPhyloLikelihood::getD2LogLikelihood(const std::string& variable) const
-{
-  vector<double> la(nbSites_);
-  for (size_t i = 0; i < nbSites_; ++i)
-  {
-    la[i] = getD2LogLikelihoodForASite(variable, i);
-  }
+// double ProductOfAlignedPhyloLikelihood::getD2LogLikelihood(const std::string& variable) const
+// {
+//   vector<double> la(nbSites_);
+//   for (size_t i = 0; i < nbSites_; ++i)
+//   {
+//     la[i] = getD2LogLikelihoodForASite(variable, i);
+//   }
 
-  sort(la.begin(), la.end());
-  double ll = 0;
-  for (size_t i = nbSites_; i > 0; i--)
-  {
-    ll += la[i - 1];
-  }
+//   sort(la.begin(), la.end());
+//   double ll = 0;
+//   for (size_t i = nbSites_; i > 0; i--)
+//   {
+//     ll += la[i - 1];
+//   }
 
-  return ll;
-}
+//   return ll;
+// }

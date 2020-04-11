@@ -43,6 +43,7 @@
 
 #include "MultiProcessSequencePhyloLikelihood.h"
 #include "../MixtureSequenceEvolution.h"
+#include "../DataFlow/Simplex_DF.h"
 
 // From SeqLib:
 #include <Bpp/Seq/Container/AlignedValuesContainer.h>
@@ -60,82 +61,84 @@ namespace bpp
  * @see MultiProcessSequencePhyloLikelihood
  */
 
-    class MixtureProcessPhyloLikelihood :
-      public MultiProcessSequencePhyloLikelihood
-    {
-    private:
-      /**
-       * @brief to avoid the dynamic casts
-       *
-       */
+  class MixtureProcessPhyloLikelihood :
+    public MultiProcessSequencePhyloLikelihood
+  {
+  private:
+    /**
+     * @brief to avoid the dynamic casts
+     *
+     */
 
-      MixtureSequenceEvolution& mSeqEvol_;
+    MixtureSequenceEvolution& mSeqEvol_;
+
+    ValueRef<Eigen::RowVectorXd> siteLikelihoods_;
+
+    ValueRef<Eigen::RowVectorXd> patternedSiteLikelihoods_;
+
+    std::shared_ptr<ConfiguredSimplex> simplex_;
       
-    public:
-      MixtureProcessPhyloLikelihood(
-        Context& context,
-        const AlignedValuesContainer& data,
-        MixtureSequenceEvolution& processSeqEvol,
-        size_t nSeqEvol = 0,
-        size_t nData = 0,
-        bool verbose = true,
-        bool patterns = true);
+  public:
+    MixtureProcessPhyloLikelihood(
+      Context& context,
+      const AlignedValuesContainer& data,
+      MixtureSequenceEvolution& processSeqEvol,
+      size_t nSeqEvol = 0,
+      size_t nData = 0,
+      bool verbose = true,
+      bool patterns = true);
 
-      MixtureProcessPhyloLikelihood(const MixtureProcessPhyloLikelihood& mlc) :
-        AbstractPhyloLikelihood(mlc),
-        AbstractAlignedPhyloLikelihood(mlc),
-        MultiProcessSequencePhyloLikelihood(mlc),
-        mSeqEvol_(mlc.mSeqEvol_)
-      {}
+    MixtureProcessPhyloLikelihood(const MixtureProcessPhyloLikelihood& mlc) :
+      AbstractPhyloLikelihood(mlc),
+      AbstractAlignedPhyloLikelihood(mlc),
+      MultiProcessSequencePhyloLikelihood(mlc),
+      mSeqEvol_(mlc.mSeqEvol_)
+    {}
 
-      virtual ~MixtureProcessPhyloLikelihood() {}
+    MixtureProcessPhyloLikelihood* clone() const { return new MixtureProcessPhyloLikelihood(*this); }
 
-      MixtureProcessPhyloLikelihood* clone() const { return new MixtureProcessPhyloLikelihood(*this); }
-
-    public:
-      /**
-       * @brief return the probability of a  subprocess
-       *
-       * @param i the index of the subprocess
-       */
+  public:
+    /**
+     * @brief return the probability of a  subprocess
+     *
+     * @param i the index of the subprocess
+     */
   
-      double getSubProcessProb(size_t i) const
-      {
-        return mSeqEvol_.getSubProcessProb(i);
-      }
+    double getSubProcessProb(size_t i) const
+    {
+      return simplex_->getTargetValue()->prob(i);
+    }
 
-     /**
-       * @name The likelihood functions.
-       *
-       * @{
-       */
+    /**
+     * @name The likelihood functions.
+     *
+     * @{
+     */
 
-      double getLogLikelihood() const;
+    double getLogLikelihood() const
+    {
+      return getLikelihoodNode()->getTargetValue();
+    }
 
-      double getDLogLikelihood(const std::string& variable) const;
+    double getLikelihoodForASite(size_t site) const;
   
-      double getD2LogLikelihood(const std::string& variable) const;
+    double getLogLikelihoodForASite(size_t site) const
+    {
+      return std::log(getLikelihoodForASite(site));
+    }
 
-      double getLikelihoodForASite(size_t site) const;
-  
-      double getLogLikelihoodForASite(size_t site) const;
+    /*
+     *@brief return the posterior probabilities of subprocess on each site.
+     *
+     *@return 2D-vector sites x states
+     */
 
-      double getDLogLikelihoodForASite(const std::string& variable, size_t site) const;
-  
-      double getD2LogLikelihoodForASite(const std::string& variable, size_t site) const;
-  
-      /*
-       *@brief return the posterior probabilities of subprocess on each site.
-       *
-       *@return 2D-vector sites x states
-       */
+    VVdouble getPosteriorProbabilitiesPerSitePerProcess() const;
 
-      VVdouble getPosteriorProbabilitiesPerSitePerProcess() const;
-
-      /*
-       * @}
-       */
-    };
+    /*
+     * @}
+     */
+  };
 } // end of namespace bpp.
 
 #endif  // _MIXTURE_PROCESS_PHYLOLIKELIHOOD_H_

@@ -96,7 +96,7 @@ namespace bpp {
                                   size_t nProc = 0, size_t nData=0) :
       AbstractPhyloLikelihood(context),
       AbstractAlignedPhyloLikelihood(context, likCal->getNumberOfSites()),
-      AbstractSingleDataPhyloLikelihood(context, likCal->getNumberOfSites(), likCal->getSubstitutionProcess().getNumberOfStates(), nData),
+      AbstractSingleDataPhyloLikelihood(context, likCal->getNumberOfSites(), likCal->getStateMap().getNumberOfModelStates(), nData),
       AbstractParametrizable(""),
       likCal_(likCal), nProc_(nProc)
     {
@@ -113,7 +113,7 @@ namespace bpp {
       :
       AbstractPhyloLikelihood(context),
       AbstractAlignedPhyloLikelihood(context, likCal->getNumberOfSites()),
-      AbstractSingleDataPhyloLikelihood(context, likCal->getNumberOfSites(), likCal->getSubstitutionProcess().getNumberOfStates(), nData),
+      AbstractSingleDataPhyloLikelihood(context, likCal->getNumberOfSites(), likCal->getStateMap().getNumberOfModelStates(), nData),
       AbstractParametrizable(""),
       likCal_(likCal), nProc_(nProc)
     {
@@ -164,15 +164,31 @@ namespace bpp {
 
     size_t getNumberOfClasses() const { return getSubstitutionProcess().getNumberOfClasses(); }
 
-
     
     const Alphabet* getAlphabet() const {
       return getLikelihoodCalculation()->getStateMap().getAlphabet();
     }
 
+    /*
+     * @brief Get the ParametrizablePhyloTree.
+     *
+     * Warning: the branch lengths may not be up to date with those of
+     * the LikelihoodCalculationSingleProcess.
+     *
+     */
+    
     const ParametrizablePhyloTree& getTree() const {
       return getLikelihoodCalculation()->getSubstitutionProcess().getParametrizablePhyloTree(); }
 
+    /*
+     * @brief Return the ref to the SubstitutionProcess used to build
+     * the phylolikelihood.
+     *
+     * Warning; the process parameter values may not be up to date
+     * with some of the LikelihoodCalculationSingleProcess
+     *
+     */
+    
     const SubstitutionProcess& getSubstitutionProcess() const {
       return getLikelihoodCalculation()->getSubstitutionProcess();
     }
@@ -204,24 +220,9 @@ namespace bpp {
      */
     
     double getLogLikelihood() const {
-      return getLikelihoodCalculation()->getLogLikelihoodValue();
+      return getLikelihoodCalculation()->getLogLikelihood();
     }
     
-    /**
-     * @brief Get the derivates of the LogLikelihood.
-     *
-     */
-
-    double getDLogLikelihood(const std::string& variable) const
-    {
-      return getFirstOrderDerivative(variable);
-    }
-
-    double getD2LogLikelihood(const std::string& variable) const
-    {
-      return getSecondOrderDerivative(variable);
-    }
-
     /** @} */
 
     /**
@@ -299,7 +300,7 @@ namespace bpp {
 
     ValueRef<double> getLikelihoodNode() const
     {
-      return getLikelihoodCalculation()->getLogLikelihood();
+      return getLikelihoodCalculation()->getLikelihoodNode();
     }
           
     // Get nodes of derivatives directly
@@ -365,18 +366,6 @@ namespace bpp {
     double getLogLikelihoodForASite(size_t site) const
     {
       return std::log(getLikelihoodForASite(site));
-    }
-  
-    double getDLogLikelihoodForASite(const std::string& variable, size_t site) const
-    {
-      throw Exception("SingleProcessPhyloLikelihood::getDLogLikelihoodForASite not finished : ask developpers.");
-      return getFirstOrderDerivativeVector(variable)->getTargetValue()[site];
-    }
-    
-    double getD2LogLikelihoodForASite(const std::string& variable, size_t site) const
-    {
-      throw Exception("SingleProcessPhyloLikelihood::getD2LogLikelihoodForASite not finished : ask developpers.");
-      return getSecondOrderDerivativeVector(variable)->getTargetValue()[site];
     }
   
     /**

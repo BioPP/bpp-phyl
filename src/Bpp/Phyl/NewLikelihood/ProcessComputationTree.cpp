@@ -65,9 +65,9 @@ ProcessComputationTree::ProcessComputationTree(const SubstitutionProcess& proces
     for (itE->start();!itE->end();itE->next())
     {
       auto index=ptree.getEdgeIndex(*(*itE));
-      auto model=process.getModelForNode(index);
-      
-      auto nedge=std::make_shared<ProcessComputationEdge>(model, index);
+      auto model = process.getModelForNode(index);
+      size_t nmodel = process.getModelNumberForNode(index);
+      auto nedge=std::make_shared<ProcessComputationEdge>(model, nmodel, index);
       associateEdge(nedge,ptree.getEdgeGraphid(*(*itE)));
       setEdgeIndex(nedge,index);
     }
@@ -165,6 +165,7 @@ void ProcessComputationTree::_build_following_scenario(shared_ptr<ProcessComputa
       auto son = ptree.getNode(sonInd);
       
       auto modSon=process_.getModelForNode(sonInd);
+      size_t nmodel = process_.getModelNumberForNode(sonInd);
 
       auto sonnode=std::make_shared<ProcessComputationNode>(*son, sonInd);
       createNode(sonnode);
@@ -175,7 +176,7 @@ void ProcessComputationTree::_build_following_scenario(shared_ptr<ProcessComputa
 
       if (!mixMod) // No mixture, then a branch with a full model
       {
-        auto nedge=std::make_shared<ProcessComputationEdge>(modSon, sonInd);
+        auto nedge=std::make_shared<ProcessComputationEdge>(modSon, nmodel, sonInd);
         link(father,sonnode,nedge);
         addEdgeIndex(nedge);
         _build_following_scenario(sonnode, scenario, mMrca);
@@ -210,7 +211,7 @@ void ProcessComputationTree::_build_following_scenario(shared_ptr<ProcessComputa
       {
         sonnode->setProperty("event", NodeEvent::mixtureEvent);
 
-        auto vedge=std::make_shared<ProcessComputationEdge>(nullptr, sonInd, false);
+        auto vedge=std::make_shared<ProcessComputationEdge>(nullptr, 0, sonInd, false);
         link(father,sonnode,vedge);
         addEdgeIndex(vedge);
 
@@ -222,7 +223,7 @@ void ProcessComputationTree::_build_following_scenario(shared_ptr<ProcessComputa
           createNode(ssonnode);
           addNodeIndex(ssonnode);
           ssonnode->setProperty("event", NodeEvent::speciationEvent);
-          auto ssedge=std::make_shared<ProcessComputationEdge>(mixMod, sonInd, true, vmp.first);
+          auto ssedge=std::make_shared<ProcessComputationEdge>(mixMod, nmodel, sonInd, true, vmp.first);
           link(sonnode, ssonnode, ssedge);
           addEdgeIndex(ssedge);
 
@@ -230,7 +231,7 @@ void ProcessComputationTree::_build_following_scenario(shared_ptr<ProcessComputa
           auto s3onnode=std::make_shared<ProcessComputationNode>(*son, sonInd);
           createNode(s3onnode);
           addNodeIndex(s3onnode);
-          auto s3edge=std::make_shared<ProcessComputationEdge>(mixMod, sonInd, false, vmp.first);
+          auto s3edge=std::make_shared<ProcessComputationEdge>(mixMod, nmodel, sonInd, false, vmp.first);
           link(ssonnode, s3onnode, s3edge);
           addEdgeIndex(s3edge);
 
@@ -248,7 +249,7 @@ void ProcessComputationTree::_build_following_scenario(shared_ptr<ProcessComputa
            // (probably done before)
       {
         auto beg=vMP.begin();
-        auto nedge=std::make_shared<ProcessComputationEdge>(mixMod, sonInd, false, beg->first);
+        auto nedge=std::make_shared<ProcessComputationEdge>(mixMod, nmodel, sonInd, false, beg->first);
         link(father,sonnode,nedge);
         addEdgeIndex(nedge);
 
@@ -289,6 +290,8 @@ void ProcessComputationTree::_build_following_scenario(shared_ptr<ProcessComputa
     }
     
     auto node = ptree.getNode(spInd);
+    auto nmodel = process_.getModelNumberForNode(spInd);
+    
     for (auto vmp:vMP)
     {
       auto sonnode=std::make_shared<ProcessComputationNode>(*node, spInd);
@@ -296,7 +299,13 @@ void ProcessComputationTree::_build_following_scenario(shared_ptr<ProcessComputa
       addNodeIndex(sonnode);
 
       // edge for proportion
-      auto sedge=std::make_shared<ProcessComputationEdge>(mrca.get(), spInd, true, vmp.first);
+      auto model = mrca.get();
+
+      // to check if problem with model numbers
+      if (model!=process_.getModel(nmodel))
+        throw Exception("ProcessComputationTree::ProcessComputationTree : model number problem for model " + to_string(nmodel));
+      
+      auto sedge=std::make_shared<ProcessComputationEdge>(mrca.get(), nmodel, spInd, true, vmp.first);
       link(father, sonnode, sedge);
       addEdgeIndex(sedge);
 
@@ -337,14 +346,15 @@ void ProcessComputationTree::_build_following_path(shared_ptr<ProcessComputation
     
     // then the edge 
     auto modSon=process_.getModelForNode(sonInd);
+    auto nmodel = process_.getModelNumberForNode(sonInd);
     
     shared_ptr<ProcessComputationEdge> nedge;
     const MixedTransitionModel* mixmod=dynamic_cast<const MixedTransitionModel*>(modSon);
     
     if (mixmod && path.hasModel(mixmod))
-      nedge=std::make_shared<ProcessComputationEdge>(modSon, sonInd, false, (const Vuint&)path.getPathNode(mixmod));
+      nedge=std::make_shared<ProcessComputationEdge>(modSon, nmodel, sonInd, false, (const Vuint&)path.getPathNode(mixmod));
     else
-      nedge=std::make_shared<ProcessComputationEdge>(modSon, sonInd);
+      nedge=std::make_shared<ProcessComputationEdge>(modSon, nmodel, sonInd);
     
     link(father,sonnode,nedge);
     addEdgeIndex(nedge);

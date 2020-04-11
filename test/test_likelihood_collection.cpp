@@ -45,6 +45,7 @@ knowledge of the CeCILL license and that you accept its terms.
 #include <Bpp/Phyl/Model/Nucleotide/T92.h>
 #include <Bpp/Phyl/Model/FrequenciesSet/NucleotideFrequenciesSet.h>
 #include <Bpp/Phyl/Model/RateDistribution/GammaDiscreteRateDistribution.h>
+#include <Bpp/Phyl/Model/RateDistribution/ConstantRateDistribution.h>
 #include <Bpp/Phyl/OptimizationTools.h>
 
 #include <Bpp/Phyl/NewLikelihood/ParametrizablePhyloTree.h>
@@ -87,41 +88,43 @@ int main() {
   auto model2 = std::make_shared<T92>(alphabet, 2., 0.1);
   auto model3 = std::make_shared<T92>(alphabet, 5., 0.5);
 
-  auto rdist1 = std::make_shared<GammaDiscreteRateDistribution>(4, 2.0);
-  auto rdist2 = std::make_shared<GammaDiscreteRateDistribution>(3, 1.0);
+  auto rdist1 = std::make_shared<ConstantRateDistribution>();//GammaDiscreteRateDistribution>(4, 2.0);
+  auto rdist2 = rdist1;//std::make_shared<GammaDiscreteRateDistribution>(3, 1.0);
   
   auto parTree1 = std::make_shared<ParametrizablePhyloTree>(*tree1);
   auto parTree2 = std::make_shared<ParametrizablePhyloTree>(*tree2);
 
+  /////////////////////////////////////////
   // First Process
 
   NonHomogeneousSubstitutionProcess* subPro1=new NonHomogeneousSubstitutionProcess(rdist1->clone(), parTree1->clone());
 
-  unsigned int P1[] = {0,3,4,5,1,2};
-  Vuint vP1m1(&P1[0], &P1[4]);
-  Vuint vP1m2(&P1[4], &P1[sizeof(P1)/sizeof(P1[0])]);
+  Vuint vP1m1{0, 3, 4};
+  Vuint vP1m2{1, 2, 5};
 
   subPro1->addModel(std::shared_ptr<T92>(model1->clone()),vP1m1);
   subPro1->addModel(std::shared_ptr<T92>(model2->clone()),vP1m2);
-  
+
+  ///////////////////////////////////////////
   // Second Process
 
   NonHomogeneousSubstitutionProcess* subPro2= new NonHomogeneousSubstitutionProcess(rdist2->clone(), parTree2->clone(), rootFreqs->clone());
 
-  unsigned int P2[] = {0,1,2,3,4,5};
-  Vuint vP2m1(&P2[0], &P2[5]);
-  Vuint vP2m2(&P2[5], &P2[sizeof(P2)/sizeof(P2[0])]);
+  Vuint vP2m1{0, 1, 3};
+  Vuint vP2m2{2, 4, 5};
 
   subPro2->addModel(std::shared_ptr<T92>(model1->clone()),vP2m1);
   subPro2->addModel(std::shared_ptr<T92>(model3->clone()),vP2m2);
 
-  // Similar Collection Process
+  ///////////////////////////////////////////
+  // Similar Collection Processes
 
   SubstitutionProcessCollection* modelColl=new SubstitutionProcessCollection();
   
   modelColl->addModel(std::shared_ptr<T92>(model1), 1);
   modelColl->addModel(std::shared_ptr<T92>(model2), 2);
   modelColl->addModel(std::shared_ptr<T92>(model3), 3);
+
   modelColl->addFrequencies(rootFreqs, 1);
   modelColl->addDistribution(rdist1, 1);
   modelColl->addDistribution(rdist2, 2);
@@ -144,10 +147,14 @@ int main() {
   // Data
 
   VectorSiteContainer sites(alphabet);
-  sites.addSequence(BasicSequence("A", "GAACACGAAAGCATGAATGTTCAGTGAGTAGATCAAATATGTCATTTCTGAATTATTATA", alphabet));
-  sites.addSequence(BasicSequence("B", "TTTGAACTGTTTGAATATAAGAAAGTTAAATATCTTATAACCAAGTAATATGTTTTAAGA", alphabet));
-  sites.addSequence(BasicSequence("C", "GTAATACTTTATAAATACTGATCAATTCAGATAATTTTCAGAACTAACATATATATTATG", alphabet));
-  sites.addSequence(BasicSequence("D", "TCGATCGAAAGCCAGGATCAACAATCTTTAACTTATATCGAAAATCATTTATGTGAAGGC", alphabet));
+  sites.addSequence(
+    BasicSequence("A", "ATCCAGACATGCCGGGACTTTGCAGAGAAGGAGTTGTTTCCCATTGCAGCCCAGGTGGATAAGGAACAGC", alphabet));
+  sites.addSequence(
+    BasicSequence("B", "CGTCAGACATGCCGTGACTTTGCCGAGAAGGAGTTGGTCCCCATTGCGGCCCAGCTGGACAGGGAGCATC", alphabet));
+  sites.addSequence(
+    BasicSequence("C", "GGTCAGACATGCCGGGAATTTGCTGAAAAGGAGCTGGTTCCCATTGCAGCCCAGGTAGACAAGGAGCATC", alphabet));
+  sites.addSequence(
+    BasicSequence("D", "TTCCAGACATGCCGGGACTTTACCGAGAAGGAGTTGTTTTCCATTGCAGCCCAGGTGGATAAGGAACATC", alphabet));
 
   // Likelihoods
   PhyloLikelihoodContainer pc;
@@ -177,7 +184,9 @@ int main() {
   MixtureSequenceEvolution mse(modelColl, vp);
 
   MixtureProcessPhyloLikelihood mlc(context, *sites.clone(), mse);
-  
+
+  using bpp::DotOptions;
+  bpp::writeGraphToDot("mlc.dot", {mlc.getLikelihoodNode().get()});//, DotOptions::DetailedNodeInfo | DotOp
   cerr << "Mlc: " << mlc.getValue() << endl;
 
   for (size_t pos=0; pos < sites.getNumberOfSites(); pos++){

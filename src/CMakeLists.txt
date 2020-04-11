@@ -61,6 +61,7 @@ set (CPP_FILES
   Bpp/Phyl/Likelihood/RNonHomogeneousTreeLikelihood.cpp
   Bpp/Phyl/Likelihood/TreeLikelihoodTools.cpp
   Bpp/Phyl/NewLikelihood/DataFlow/BackwardLikelihoodTree.cpp
+  Bpp/Phyl/NewLikelihood/DataFlow/CollectionNodes.cpp
   Bpp/Phyl/NewLikelihood/DataFlow/DataFlow.cpp
   Bpp/Phyl/NewLikelihood/DataFlow/DataFlowNumeric.cpp
   Bpp/Phyl/NewLikelihood/DataFlow/DataFlowCWise.cpp
@@ -72,6 +73,7 @@ set (CPP_FILES
   Bpp/Phyl/NewLikelihood/DataFlow/Parameter.cpp
   Bpp/Phyl/NewLikelihood/DataFlow/Parametrizable.cpp
   Bpp/Phyl/NewLikelihood/DataFlow/ProcessTree.cpp
+  Bpp/Phyl/NewLikelihood/DataFlow/Simplex_DF.cpp
   Bpp/Phyl/NewLikelihood/ModelPath.cpp
   Bpp/Phyl/NewLikelihood/ModelScenario.cpp
   Bpp/Phyl/NewLikelihood/ProcessComputationTree.cpp

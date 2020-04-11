@@ -40,16 +40,20 @@
 #ifndef LIKELIHOOD_CALCULATION_SINGLE_PROCESS_H
 #define LIKELIHOOD_CALCULATION_SINGLE_PROCESS_H
 
+#include "Bpp/Phyl/NewLikelihood/DataFlow/LikelihoodCalculation.h"
+
+#include "Bpp/Phyl/NewLikelihood/DataFlow/CollectionNodes.h"
 #include "Bpp/Phyl/NewLikelihood/DataFlow/Model.h"
 #include "Bpp/Phyl/NewLikelihood/DataFlow/DiscreteDistribution.h"
 #include "Bpp/Phyl/NewLikelihood/DataFlow/FrequenciesSet.h"
 #include <Bpp/Phyl/NewLikelihood/DataFlow/DataFlow.h>
 #include <Bpp/Phyl/NewLikelihood/DataFlow/DataFlowCWise.h>
 
+#include "Bpp/Phyl/NewLikelihood/SubstitutionProcess.h"
+
 #include <Bpp/Seq/Container/AlignedValuesContainer.h>
 #include <Bpp/Phyl/SitePatterns.h>
 #include <Bpp/Graph/AssociationDAGraphImplObserver.h>
-#include "Bpp/Phyl/NewLikelihood/SubstitutionProcess.h"
 
 
 namespace bpp {
@@ -134,7 +138,7 @@ namespace bpp {
   using SiteLikelihoodsTree = AssociationTreeGlobalGraphObserver<SiteLikelihoods, uint>;
 
   class LikelihoodCalculationSingleProcess :
-    public AbstractParametrizable
+    public LikelihoodCalculation
   {
   private:
       
@@ -179,8 +183,6 @@ namespace bpp {
       std::shared_ptr<ConfiguredDistribution> ratesNode_;
     };
         
-    Context& context_;
-
     /************************************/
     /* Dependencies */
       
@@ -220,8 +222,6 @@ namespace bpp {
     /******************************************/
     /** Likelihoods  **/
           
-    ValueRef<double> likelihood_;
-
     ValueRef<Eigen::RowVectorXd> siteLikelihoods_;
 
     ValueRef<Eigen::RowVectorXd> patternedSiteLikelihoods_;
@@ -245,6 +245,18 @@ namespace bpp {
                                        const SubstitutionProcess& process,
                                        ParameterList& paramList);
 
+    /*
+     * @brief Build using Nodes of CollectionNodes.
+     *
+     * @param collection The CollectionNodes
+     * @param nProcess the process Number in the collection
+     * @param nData the data Number in the collection
+     */
+
+    LikelihoodCalculationSingleProcess(CollectionNodes& collection,
+                                       const AlignedValuesContainer & sites,
+                                       size_t nProcess);
+    
     LikelihoodCalculationSingleProcess(const LikelihoodCalculationSingleProcess& lik);
 
     LikelihoodCalculationSingleProcess* clone() const
@@ -285,20 +297,13 @@ namespace bpp {
      *
      */
       
-    ValueRef<double> getLogLikelihood() 
+    void makeLikelihoods() 
     {
       if (!shrunkData_)
-        throw Exception("LikelihoodCalculationSingleProcess::getLogLikelihood : data not set.");
+        throw Exception("LikelihoodCalculationSingleProcess::makeLikelihoods : data not set.");
         
       if (!likelihood_)
         makeLikelihoodsAtRoot_();
-        
-      return likelihood_;
-    }
-
-    double getLogLikelihoodValue() 
-    {
-      return getLogLikelihood()->getTargetValue();
     }
 
     /*
@@ -332,7 +337,14 @@ namespace bpp {
       return shrunkData_?shrunkData_->getNumberOfSites():0;
     }
 
-      
+    /*
+     * @brief Return the ref to the SubstitutionProcess
+     *
+     * Warning; the process parameter values may not be up to date
+     * with some of the LikelihoodCalculationSingleProcess
+     *
+     */
+    
     const SubstitutionProcess& getSubstitutionProcess() const
     {
       return process_;
@@ -346,7 +358,6 @@ namespace bpp {
     bool isInitialized() const {
       return getData();
     };
-
 
     const StateMap& getStateMap() const
     {
@@ -363,11 +374,7 @@ namespace bpp {
       
     ValueRef<Eigen::RowVectorXd> getSiteLikelihoods(bool shrunk)
     {
-      if (!shrunkData_)
-        throw Exception("LikelihoodCalculationSingleProcess::getSiteLikelihoods : data not set.");
-        
-      if (!siteLikelihoods_)
-        makeLikelihoodsAtRoot_();
+      makeLikelihoods();
 
       if (shrunk)
         return siteLikelihoods_;
@@ -409,7 +416,7 @@ namespace bpp {
       
     ValueRef<Eigen::RowVectorXd> expandVector(ValueRef<Eigen::RowVectorXd> vector)
     {
-      return CWisePattern<Eigen::RowVectorXd>::create(context_,{vector,rootPatternLinks_}, rowVectorDimension (Eigen::Index (getData()->getNumberOfSites())));
+      return CWisePattern<Eigen::RowVectorXd>::create(getContext_(),{vector,rootPatternLinks_}, rowVectorDimension (Eigen::Index (getData()->getNumberOfSites())));
     }
 
     /*
@@ -421,7 +428,7 @@ namespace bpp {
       
     ValueRef<Eigen::MatrixXd> expandMatrix(ValueRef<Eigen::MatrixXd> matrix)
     {
-      return CWisePattern<Eigen::MatrixXd>::create(context_,{matrix,rootPatternLinks_}, MatrixDimension (matrix->getTargetValue().rows(), Eigen::Index (getData()->getNumberOfSites())));
+      return CWisePattern<Eigen::MatrixXd>::create(getContext_(),{matrix,rootPatternLinks_}, MatrixDimension (matrix->getTargetValue().rows(), Eigen::Index (getData()->getNumberOfSites())));
     }
 
     /*
@@ -435,10 +442,10 @@ namespace bpp {
       return rootWeights_->getTargetValue()(pos);
     }
 
-    // ValueRef<Eigen::RowVectorXd> getRootWeights()
-    // {
-    //   return rootWeights_;
-    // }
+    std::shared_ptr<SiteWeights> getRootWeights()
+    {
+      return rootWeights_;
+    }
 
     ValueRef<Eigen::RowVectorXd> getRootFreqs()
     {
@@ -501,11 +508,7 @@ namespace bpp {
       
     double getLikelihoodForASite(size_t pos)
     {
-      if (!shrunkData_)
-        throw Exception("LikelihoodCalculationSingleProcess::getLogLikelihoodForASite : data not set.");
-        
-      if (!siteLikelihoods_)
-        makeLikelihoodsAtRoot_();
+      makeLikelihoods();
 
       return patternedSiteLikelihoods_->getTargetValue()(pos);
     }
@@ -527,6 +530,13 @@ namespace bpp {
      */
 
     void makeProcessNodes_(ParameterList& pl);
+
+    /*
+     *@ brief make DF nodes of a process in a collection, using
+     *ConfiguredParameters defined in a CollectionNodes.
+     */
+
+    void makeProcessNodes_(CollectionNodes& pl, size_t nProc);
 
     /*
      * @brief Compute the likelihood at a given node in the tree,
