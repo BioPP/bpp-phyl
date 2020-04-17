@@ -103,7 +103,7 @@ namespace bpp
 
     void computeCounts(double threshold = -1, bool verbose=true)
     {
-      counts_.reset(SubstitutionMappingTools::computeCounts(getLikelihoodCalculation(),
+      counts_.reset(SubstitutionMappingTools::computeCounts(getLikelihoodCalculationSingleProcess(),
                                                             getRegister(),
                                                             getWeights(),
                                                             getDistances(),
@@ -115,7 +115,7 @@ namespace bpp
     {
       counts_.reset(SubstitutionMappingToolsForASite::computeCounts(
                       site,
-                      getLikelihoodCalculation(),
+                      getLikelihoodCalculationSingleProcess(),
                       getRegister(),
                       getWeights(),
                       getDistances(),
@@ -140,14 +140,14 @@ namespace bpp
       return pOPSP_->getSubstitutionProcess().getModelNumbers();
     }
         
-    LikelihoodCalculationSingleProcess& getLikelihoodCalculation()
+    LikelihoodCalculationSingleProcess& getLikelihoodCalculationSingleProcess()
     {
-      return *pOPSP_->getLikelihoodCalculation();
+      return *pOPSP_->getLikelihoodCalculationSingleProcess();
     }
 
-    const LikelihoodCalculationSingleProcess& getLikelihoodCalculation() const
+    const LikelihoodCalculationSingleProcess& getLikelihoodCalculationSingleProcess() const
     {
-      return *pOPSP_->getLikelihoodCalculation();
+      return *pOPSP_->getLikelihoodCalculationSingleProcess();
     }
 
   };

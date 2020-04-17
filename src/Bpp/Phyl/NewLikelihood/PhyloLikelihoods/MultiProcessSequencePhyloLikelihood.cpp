@@ -58,7 +58,7 @@ MultiProcessSequencePhyloLikelihood::MultiProcessSequencePhyloLikelihood(
   AbstractAlignedPhyloLikelihood(context, data.getNumberOfSites()),
   AbstractSequencePhyloLikelihood(context, processSeqEvol, nSeqEvol, nData),
   mSeqEvol_(processSeqEvol),
-  likCal_(context)
+  vLikCal_()
 {
   resetParameters_(); // Do not keep the original parameters to get ConfiguredParameters
  // initialize parameters:
@@ -75,10 +75,10 @@ MultiProcessSequencePhyloLikelihood::MultiProcessSequencePhyloLikelihood(
                                                                         data,
                                                                         n);
     liksing->makeLikelihoods();
-    likCal_.addSingleLikelihood(liksing);
+    vLikCal_.addSingleLikelihood(liksing);
   }
 
-  shareParameters_(likCal_.getParameters());
+  shareParameters_(vLikCal_.getParameters());
 }
 
 /******************************************************************************/
@@ -87,8 +87,8 @@ void MultiProcessSequencePhyloLikelihood::setData(const AlignedValuesContainer& 
 {
   AbstractSequencePhyloLikelihood::setData(sites, nData);
   
-  for (size_t i = 0; i < likCal_.getNumberOfSingleProcess(); i++)
-    likCal_.getSingleLikelihood(i)->setData(sites);
+  for (size_t i = 0; i < vLikCal_.getNumberOfSingleProcess(); i++)
+    vLikCal_.getSingleLikelihood(i)->setData(sites);
 }
 
 /******************************************************************************/

@@ -57,10 +57,11 @@ MixtureProcessPhyloLikelihood::MixtureProcessPhyloLikelihood(
   AbstractPhyloLikelihood(context),
   AbstractAlignedPhyloLikelihood(context, data.getNumberOfSites()),
   MultiProcessSequencePhyloLikelihood(context, data, processSeqEvol, nSeqEvol, nData, verbose, patterns),
-  mSeqEvol_(processSeqEvol)
+  mSeqEvol_(processSeqEvol),
+  likCal_(new AlignedLikelihoodCalculation(context))
 {
 
-  if (likCal_.getNumberOfSingleProcess()==0)
+  if (vLikCal_.getNumberOfSingleProcess()==0)
     throw Exception("MixtureProcessPhyloLikelihood::MixtureProcessPhyloLikelihood : empty singleprocesslikelihoods set.");
 
   auto& simplex = mSeqEvol_.getSimplex();
@@ -82,30 +83,25 @@ MixtureProcessPhyloLikelihood::MixtureProcessPhyloLikelihood(
   // get RowVectorXd for each single Calculation
   std::vector<std::shared_ptr<Node_DF>> vSL;
   
-  for (size_t i=0; i< likCal_.getNumberOfSingleProcess() ; i++)
-    vSL.push_back(likCal_.getSingleLikelihood(i)->getSiteLikelihoods(true));
+  for (size_t i=0; i< vLikCal_.getNumberOfSingleProcess() ; i++)
+    vSL.push_back(vLikCal_.getSingleLikelihood(i)->getSiteLikelihoods(true));
   
   // put probabilities of the simplex
   vSL.push_back(fsf);
 
-  auto single0 = likCal_.getSingleLikelihood(0);
+  auto single0 = vLikCal_.getSingleLikelihood(0);
   auto nbSite = single0->getNumberOfDistinctSites();
 
-  siteLikelihoods_ = CWiseMean<Eigen::RowVectorXd, ReductionOf<Eigen::RowVectorXd>, Eigen::RowVectorXd>::create(getContext(), std::move(vSL), rowVectorDimension (Eigen::Index(nbSite)));
+  auto sL = CWiseMean<Eigen::RowVectorXd, ReductionOf<Eigen::RowVectorXd>, Eigen::RowVectorXd>::create(getContext(), std::move(vSL), rowVectorDimension (Eigen::Index(nbSite)));
+  
+  likCal_->setSiteLikelihoods(sL, true);
 
   // likelihoods per site
-  patternedSiteLikelihoods_ = single0->expandVector(siteLikelihoods_);
+  likCal_->setSiteLikelihoods(single0->expandVector(sL), false);
 
-  auto su = SumOfLogarithms<Eigen::RowVectorXd>::create (getContext(), {siteLikelihoods_, single0->getRootWeights()}, rowVectorDimension (Eigen::Index (nbSite)));
+  auto su = SumOfLogarithms<Eigen::RowVectorXd>::create (getContext(), {sL, single0->getRootWeights()}, rowVectorDimension (Eigen::Index (nbSite)));
 
-  likCal_.setLikelihoodNode(su);
-}
-
-/******************************************************************************/
-
-double MixtureProcessPhyloLikelihood::getLikelihoodForASite(size_t site) const
-{
-  return patternedSiteLikelihoods_->getTargetValue()(site);
+  likCal_->setLikelihoodNode(su);
 }
 
 /******************************************************************************/

@@ -55,6 +55,7 @@ knowledge of the CeCILL license and that you accept its terms.
 #include <Bpp/Phyl/NewLikelihood/MixtureSequenceEvolution.h>
 
 #include <Bpp/Phyl/NewLikelihood/PhyloLikelihoods/MixtureProcessPhyloLikelihood.h>
+#include <Bpp/Phyl/NewLikelihood/PhyloLikelihoods/MixtureOfAlignedPhyloLikelihood.h>
 #include <Bpp/Phyl/NewLikelihood/PhyloLikelihoods/SingleProcessPhyloLikelihood.h>
 #include <Bpp/Phyl/NewLikelihood/PhyloLikelihoods/FormulaOfPhyloLikelihood.h>
 
@@ -192,7 +193,21 @@ int main() {
   for (size_t pos=0; pos < sites.getNumberOfSites(); pos++){
     double x=spl1->getLikelihoodForASite(pos) * mlc.getSubProcessProb(0) + spl2->getLikelihoodForASite(pos) * mlc.getSubProcessProb(1);
     if (abs(x-mlc.getLikelihoodForASite(pos))>0.001)
-      cerr << "Problem on site " << x << endl;
+      cerr << "Mixture Process : Problem on site " << x << endl;
+  }
+
+  //  Mixture
+
+  MixtureOfAlignedPhyloLikelihood moap(context, &pc, {1,2});
+
+  using bpp::DotOptions;
+  bpp::writeGraphToDot("moap.dot", {moap.getLikelihoodNode().get()});//, DotOptions::DetailedNodeInfo | DotOp
+  cerr << "Moap: " << moap.getValue() << endl;
+
+  for (size_t pos=0; pos < sites.getNumberOfSites(); pos++){
+    double x=spl1->getLikelihoodForASite(pos) * moap.getPhyloProb(0) + spl2->getLikelihoodForASite(pos) * moap.getPhyloProb(1);
+    if (abs(x-moap.getLikelihoodForASite(pos))>0.001)
+      cerr << "Mixture Alignment: Problem on site " << x << endl;
   }
 
   cout << endl;
@@ -239,6 +254,18 @@ int main() {
   cerr << "Mlc: " << mlc.getValue() << endl;
 
   mlc.getParameters().printParameters(std::cout);
+
+  cerr << "--------------------------------" << endl;
+  
+  unsigned int cM2 = OptimizationTools::optimizeNumericalParameters2(
+    &moap, moap.getParameters(), 0,
+    0.0001, 10000, messenger, profiler, false, false, 1, OptimizationTools::OPTIMIZATION_NEWTON);
+  
+  cerr << "Opt MOAP rounds: " << cM << endl;
+
+  cerr << "Moap: " << mlc.getValue() << endl;
+
+  moap.getParameters().printParameters(std::cout);
 
 
   

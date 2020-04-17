@@ -46,8 +46,21 @@ SetOfAbstractPhyloLikelihood::SetOfAbstractPhyloLikelihood(Context& context, Phy
   AbstractPhyloLikelihood(context),
   AbstractParametrizable(prefix),
   pPhyloCont_(pC),
-  nPhylo_()
+  nPhylo_(),
+  vLikCal_()
 {
+  addAllPhyloLikelihoods();
+}
+
+SetOfAbstractPhyloLikelihood::SetOfAbstractPhyloLikelihood(Context& context, PhyloLikelihoodContainer* pC, const std::vector<size_t>& nPhylo, const std::string& prefix) :
+  AbstractPhyloLikelihood(context),
+  AbstractParametrizable(prefix),
+  pPhyloCont_(pC),
+  nPhylo_(),
+  vLikCal_()
+{
+  for (size_t i=0; i< nPhylo.size(); i++)
+    addPhyloLikelihood(nPhylo[i]);
 }
 
  
@@ -55,17 +68,19 @@ SetOfAbstractPhyloLikelihood::SetOfAbstractPhyloLikelihood(const SetOfAbstractPh
   AbstractPhyloLikelihood(sd),
   AbstractParametrizable(sd),
   pPhyloCont_(sd.pPhyloCont_),
-  nPhylo_(sd.nPhylo_)
+  nPhylo_(sd.nPhylo_),
+  vLikCal_(sd.vLikCal_)
 {
 }
 
 bool SetOfAbstractPhyloLikelihood::addPhyloLikelihood(size_t nPhyl)
 {
-  const AbstractPhyloLikelihood* aPL=getAbstractPhyloLikelihood(nPhyl);
+  AbstractPhyloLikelihood* aPL=getAbstractPhyloLikelihood(nPhyl);
 
   if (aPL!=NULL){
     nPhylo_.push_back(nPhyl);
     includeParameters_(aPL->getParameters());
+    vLikCal_.addSingleLikelihood(aPL->getLikelihoodCalculation());
     return true;
   }
   return false;

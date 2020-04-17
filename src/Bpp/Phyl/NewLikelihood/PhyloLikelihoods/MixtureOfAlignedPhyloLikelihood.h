@@ -46,7 +46,7 @@
 // From SeqLib:
 #include <Bpp/Seq/Container/AlignedValuesContainer.h>
 
-#include <Bpp/Numeric/Prob/Simplex.h>
+#include "../DataFlow/Simplex_DF.h"
 
 namespace bpp
 {
@@ -64,14 +64,18 @@ namespace bpp
   {
   private:
     /**
-     * @brief Simplex of the probabilities of the AlignedPhylos, in
-     * the same orders as in the
-     * SetOfAbstractPhyloLikelihood::nPhylo.
+     * DF simplex
      *
      */
+    
+    std::shared_ptr<ConfiguredSimplex> simplex_;
 
-    Simplex simplex_;
+    /**
+     * Aligned LikelihoodCalculation to store DF nodes
+     */
 
+    mutable std::shared_ptr<AlignedLikelihoodCalculation> likCal_;
+    
   public:
     MixtureOfAlignedPhyloLikelihood(Context& context, PhyloLikelihoodContainer* pC, const std::vector<size_t>& nPhylo);
       
@@ -84,80 +88,43 @@ namespace bpp
       return new MixtureOfAlignedPhyloLikelihood(*this);
     }
 
-    void setPhyloProb(const Simplex& si);
-
   protected:
 
     void fireParameterChanged(const ParameterList& parameters);
 
   public:
-
-    /**
-     * @brief return the probability of the phylolikelihood of a given
-     * index.
-     *
-     */
-
-    const std::vector<double>& getPhyloProbabilities() const
-    {
-      return simplex_.getFrequencies();
-    }
-    
         
-    /**
-     * @brief return the probability of the phylolikelihood of a given
-     * index.
-     *
-     */
-    
-    double getPhyloProb(size_t index)
+    std::shared_ptr<LikelihoodCalculation> getLikelihoodCalculation () const
     {
-      return simplex_.prob(index);
+      return likCal_;
     }
-    
+
+    std::shared_ptr<AlignedLikelihoodCalculation> getAlignedLikelihoodCalculation () const
+    {
+      return likCal_;
+    }
+   
     /**
-     *
-     * @name Inherited from PhyloLikelihood
-     *
-     * @{
-     */
-      
-    /**
-     * @name The site likelihood functions.
+     * @brief Get the probabilities of the simplex
      *
      */
-
-    double getLogLikelihood() const;
-
-    double getDLogLikelihood(const std::string& variable) const;
-
-    double getD2LogLikelihood(const std::string& variable) const;
     
-    /**
-     * @brief Get the logarithm of the likelihood for any site.
-     *
-     * @return The logarithm of the likelihood of the data at this site.
-     */
-
-    double getLikelihoodForASite(size_t site) const;
-    
-    double getLogLikelihoodForASite(size_t site) const;
+    Vdouble getPhyloProbabilities() const;
 
     /**
-     * @brief Get the derivates of the LogLikelihood at a Site
+     * @brief Get the probability of a phylolikelihood
      *
      */
-
-    // double getDLogLikelihoodForASite(const std::string& variable, size_t site) const;
-      
-    // double getD2LogLikelihoodForASite(const std::string& variable, size_t site) const;
-      
-    /*
-     * @}
-     */
-
-    ParameterList getNonDerivableParameters() const;
     
+    double getPhyloProb(size_t index) const;
+
+    /**
+     * @brief Set the probabilities of the simplex
+     *
+     */
+    
+    void setPhyloProb(Simplex const& simplex);
+
   };
 } // end of namespace bpp.
 

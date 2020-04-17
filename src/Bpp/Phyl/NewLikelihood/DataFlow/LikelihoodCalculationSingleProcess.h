@@ -138,7 +138,7 @@ namespace bpp {
   using SiteLikelihoodsTree = AssociationTreeGlobalGraphObserver<SiteLikelihoods, uint>;
 
   class LikelihoodCalculationSingleProcess :
-    public LikelihoodCalculation
+    public AlignedLikelihoodCalculation
   {
   private:
       
@@ -219,13 +219,6 @@ namespace bpp {
 
     ValueRef<Eigen::RowVectorXd> rFreqs_;
 
-    /******************************************/
-    /** Likelihoods  **/
-          
-    ValueRef<Eigen::RowVectorXd> siteLikelihoods_;
-
-    ValueRef<Eigen::RowVectorXd> patternedSiteLikelihoods_;
-      
     /* Likelihood Trees with for all rate categories */
     std::vector<RateCategoryTrees> vRateCatTrees_;
 
@@ -297,13 +290,12 @@ namespace bpp {
      *
      */
       
-    void makeLikelihoods() 
+    void makeLikelihoods()
     {
       if (!shrunkData_)
         throw Exception("LikelihoodCalculationSingleProcess::makeLikelihoods : data not set.");
         
-      if (!likelihood_)
-        makeLikelihoodsAtRoot_();
+      makeLikelihoodsAtRoot_();
     }
 
     /*
@@ -364,23 +356,6 @@ namespace bpp {
       return processNodes_.modelNode_->getTargetValue()->getStateMap();
     }
       
-    /*
-     * @brief Return the ref to the Sitelikelihoods_ vector on data
-     * (shrunked or not).
-     *
-     * @brief shrunk: bool true if vector on shrunked data
-     *
-     */
-      
-    ValueRef<Eigen::RowVectorXd> getSiteLikelihoods(bool shrunk)
-    {
-      makeLikelihoods();
-
-      if (shrunk)
-        return siteLikelihoods_;
-      else
-        return patternedSiteLikelihoods_;
-    }
 
     /************************************************
      *** Patterns
@@ -506,13 +481,6 @@ namespace bpp {
 
     AllRatesSiteLikelihoods getSiteLikelihoodsForAllClasses(bool shrunk = false);
       
-    double getLikelihoodForASite(size_t pos)
-    {
-      makeLikelihoods();
-
-      return patternedSiteLikelihoods_->getTargetValue()(pos);
-    }
-
   private:
     void setPatterns_();
       

@@ -98,6 +98,16 @@ namespace bpp
      * @{
      */
 
+    /*
+     *@ Return the LikelihoodCalculation.
+     *
+     */
+
+    virtual std::shared_ptr<AlignedLikelihoodCalculation> getAlignedLikelihoodCalculation() const
+    {
+      throw Exception("AlignedLikelihoodCalculation::getLikelihoodCalculation should be inherited to be called.");
+    }
+    
     /**
      * @brief Get the likelihood for a site.
      *
@@ -115,10 +125,6 @@ namespace bpp
      */
 
     virtual double getLogLikelihoodForASite(size_t site) const = 0;
-    
-    // virtual double getDLogLikelihoodForASite(const std::string& variable, size_t site) const = 0;
-    
-    // virtual double getD2LogLikelihoodForASite(const std::string& variable, size_t site) const = 0;
     
     /**
      * @brief Get the likelihood for each site
@@ -167,14 +173,50 @@ namespace bpp
       nbSites_ = nbSites;
     }
 
+    /*
+     *@ Return the LikelihoodCalculation.
+     *
+     */
+    
+    virtual std::shared_ptr<AlignedLikelihoodCalculation> getAlignedLikelihoodCalculation() const
+    {
+      throw Exception("AlignedLikelihoodCalculation::getLikelihoodCalculation should be inherited to be called.");
+    }
+     
+    /**
+     * @brief Get the likelihood for a site (on uncompressed data)
+     *
+     * @param site The site index to analyse.
+     * @return The likelihood for site <i>site</i>.
+     */
+
+    double getLikelihoodForASite(size_t site) const
+    {
+      return getAlignedLikelihoodCalculation()->getLikelihoodForASite(site);
+    }
+    
+    /**
+     * @brief Get the log likelihood for a site, and its derivatives.
+     *
+     * @param site The site index to analyse.
+     * @return The (D)log likelihood for site <i>site</i>.
+     */
+
+    double getLogLikelihoodForASite(size_t site) const
+    {
+      return getAlignedLikelihoodCalculation()->getLogLikelihoodForASite(site);
+    }
+
+    /**
+     * @brief Get the likelihood for each site.
+     *
+     *@return A vector with all site likelihoods.
+     *
+     */
+
     Vdouble getLikelihoodPerSite() const
     {
-      Vdouble l(getNumberOfSites());
-      for (unsigned int i = 0; i < l.size(); ++i)
-      {
-        l[i] = getLikelihoodForASite(i);
-      }
-      return l;
+      return getAlignedLikelihoodCalculation()->getLikelihoodPerSite();
     }
 
   };

@@ -40,15 +40,19 @@
 #ifndef LIKELIHOOD_CALCULATION_H
 #define LIKELIHOOD_CALCULATION_H
 
-#include "Bpp/Phyl/NewLikelihood/DataFlow/DataFlow.h"
+#include <Eigen/Core>
+
+#include "Bpp/Phyl/NewLikelihood/DataFlow/DataFlowNumeric.h"
 #include <Bpp/Numeric/AbstractParametrizable.h>
 
 namespace bpp {
 
-  /** Base class for Likelihood calcucations
+  /** Base classes for Likelihood calculations. Also used to store shared_ptr.
    *  
    */
 
+  template <class A>
+  class LikelihoodCalculationMultiProcess;
 
   class LikelihoodCalculation :
     public AbstractParametrizable
@@ -61,7 +65,7 @@ namespace bpp {
     /******************************************/
     /** Likelihoods  **/
           
-    ValueRef<double> likelihood_;
+    mutable ValueRef<double> likelihood_;
 
   public:
     LikelihoodCalculation(Context & context) :
@@ -80,28 +84,36 @@ namespace bpp {
 
     LikelihoodCalculation(const LikelihoodCalculation& lik) :
       AbstractParametrizable(lik),
-      context_(*std::shared_ptr<Context>().get())
+      context_(*std::shared_ptr<Context>().get()),
+      likelihood_()
     {};
-    
-    virtual ValueRef<double> getLikelihoodNode()
+
+    LikelihoodCalculation* clone() const
     {
-      makeLikelihoods();
+      return new LikelihoodCalculation(*this);
+    }
+    
+    ValueRef<double> getLikelihoodNode()
+    {
+      if (!likelihood_)
+        makeLikelihoods();
+      
       return likelihood_;
     }
 
-    double getLogLikelihood() 
+    double getLogLikelihood()
     {
       return getLikelihoodNode()->getTargetValue();
     }
 
-    virtual bool isInitialized() const = 0;
+    virtual bool isInitialized() const {
+      return true;
+    };
 
     const Context& getContext() const {
       return context_;
     }
 
-    virtual void makeLikelihoods() = 0;
-    
     /*
      * @brief Return likelihood_ without any computation, used to build likelihood_.
      *
@@ -114,16 +126,140 @@ namespace bpp {
 
   protected:
 
+    /* @brief Build the likelihood DF  */
+    
+    virtual void makeLikelihoods() {
+      throw Exception("LikelihoodCalculation:: makeLikelihoods should not be called.");
+    }
+    
     Context& getContext_() {
       return context_;
     }
 
-    // ValueRef<double> getLikelihoodNode()
-    // {
-    //   return likelihood_;
-    // }
+    
+    ValueRef<double> getLikelihoodNode_()
+    {
+      return likelihood_;
+    }
+
+    friend class LikelihoodCalculationMultiProcess<LikelihoodCalculation>;
   };
 
+
+  class AlignedLikelihoodCalculation :
+    public LikelihoodCalculation
+  {
+  public:
+
+    AlignedLikelihoodCalculation(Context& context) :
+      LikelihoodCalculation(context) {}
+
+    AlignedLikelihoodCalculation* clone() const
+    {
+      return new AlignedLikelihoodCalculation(*this);
+    }
+    
+   protected:
+    /******************************************/
+    /** Site Likelihoods  **/
+
+    /* For Data used for output (ie non shrunk if ever)
+     *
+     */
+
+    mutable ValueRef<Eigen::RowVectorXd> siteLikelihoods_;
+
+    /* For Data used for computation (ie shrunked data if ever)
+     *
+     */
+        
+    mutable ValueRef<Eigen::RowVectorXd> patternedSiteLikelihoods_;
+
+  public:
+    
+    /*
+     * @brief Return the ref to the Sitelikelihoods_ vector on data
+     * (shrunked or not).
+     *
+     * @brief shrunk: bool true if vector on shrunked data (default: false)
+     *
+     */
+      
+    ValueRef<Eigen::RowVectorXd> getSiteLikelihoods(bool shrunk = false)
+    {
+      if (!(siteLikelihoods_ || patternedSiteLikelihoods_))
+        makeLikelihoods();
+
+      if (shrunk && patternedSiteLikelihoods_)
+        return patternedSiteLikelihoods_;
+      else
+        return siteLikelihoods_;
+    }
+
+    /*
+     * @brief Return the ref to the Sitelikelihoods_ vector on data
+     * (shrunked or not).
+     *
+     * @brief ll: Site Likelihoods 
+     * @brief shrunk: given Likelihoods are on shrunked data (default false)
+     *
+     */
+
+    void setSiteLikelihoods(ValueRef<Eigen::RowVectorXd> ll,
+                            bool shrunk = false)
+    {
+      if (shrunk)
+        patternedSiteLikelihoods_ = ll;
+      else
+        siteLikelihoods_=ll;
+    }
+
+    /*
+     * @brief Return Likelihood on a site
+     * @param pos : site position
+     * @param shrunk : on shrunked data (default false)
+     */
+    
+    double getLikelihoodForASite(size_t pos, bool shrunk = false)
+    {
+      if (!(siteLikelihoods_ || patternedSiteLikelihoods_))
+        makeLikelihoods();
+
+      if (shrunk && patternedSiteLikelihoods_)
+        return patternedSiteLikelihoods_->getTargetValue()(pos);
+      else
+        return siteLikelihoods_->getTargetValue()(pos);
+    }
+
+    double getLogLikelihoodForASite(size_t pos, bool shrunk = false)
+    {
+      return std::log(getLikelihoodForASite(pos, shrunk));
+    }
+
+    /**
+     * @brief Get the likelihood for each site.
+     *
+     *@return A vector with all site likelihoods.
+     *
+     */
+
+    Vdouble getLikelihoodPerSite()
+    {
+      auto vLik=getSiteLikelihoods(false)->getTargetValue();
+      Vdouble v;
+      copyEigenToBpp(vLik, v);
+      return v;
+    }
+
+  protected:
+
+    virtual void makeLikelihoods() {
+      throw Exception("AlignedLikelihoodCalculation:: makeLikelihoods should not be called.");
+    }
+
+    friend class LikelihoodCalculationMultiProcess<AlignedLikelihoodCalculation>;
+  };
+  
 } // namespace bpp
 
 #endif // LIKELIHOOD_CALCULATION_H

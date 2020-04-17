@@ -43,9 +43,12 @@
 #include "PhyloLikelihood.h"
 #include "../DataFlow/DataFlowNumeric.h"
 #include "../DataFlow/Parametrizable.h"
+#include "../DataFlow/LikelihoodCalculation.h"
 
 namespace bpp
 {
+  class LikelihoodCalculation;
+  
   class AbstractPhyloLikelihood :
     public virtual PhyloLikelihood
   {
@@ -133,18 +136,33 @@ namespace bpp
     }
 
     /*
-     *@ Return the DF node where the Likelihood is computed.
+     *@ Return the LikelihoodCalculation.
      *
      */
     
-    virtual ValueRef<double> getLikelihoodNode() const {return 0;}
+    virtual std::shared_ptr<LikelihoodCalculation> getLikelihoodCalculation () const
+    {
+      throw Exception("AbstractPhyloLikelihood::getLikelihoodCalculation should be inherited to be called.");
+    }
+
+    /*
+     *@ Return the LikDF node where the Likelihood is computed.
+     *
+     */
+    
+    ValueRef<double> getLikelihoodNode() const {
+      return getLikelihoodCalculation()->getLikelihoodNode();
+    }
 
     /*
      * @brief Kept for legacy
      *
      */
     
-    virtual double getLogLikelihood() const = 0;
+    virtual double getLogLikelihood() const
+    {
+      return getLikelihoodCalculation()->getLogLikelihood();
+    }
 
     // bpp::Function
 

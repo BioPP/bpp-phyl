@@ -44,6 +44,7 @@
 #include "../MultiProcessSequenceEvolution.h"
 
 #include "../DataFlow/LikelihoodCalculationMultiProcess.h"
+#include "../DataFlow/LikelihoodCalculationSingleProcess.h"
 
 #include <Bpp/Numeric/AbstractParametrizable.h>
 
@@ -83,7 +84,7 @@ namespace bpp
        * for the global likelihood.
        */
   
-      mutable LikelihoodCalculationMultiProcess likCal_;
+      mutable LikelihoodCalculationMultiProcess<LikelihoodCalculationSingleProcess> vLikCal_;
 
     public:
       MultiProcessSequencePhyloLikelihood(
@@ -100,7 +101,7 @@ namespace bpp
         AbstractAlignedPhyloLikelihood(lik),
         AbstractSequencePhyloLikelihood(lik),
         mSeqEvol_(lik.mSeqEvol_),
-        likCal_(lik.likCal_)
+        vLikCal_(lik.vLikCal_)
       {
       }
 
@@ -112,11 +113,11 @@ namespace bpp
        */
 
       const AlignedValuesContainer* getData() const {
-        return likCal_.getSingleLikelihood(0)->getData();
+        return vLikCal_.getSingleLikelihood(0)->getData();
       }
 
       const Alphabet* getAlphabet() const {
-        return likCal_.getSingleLikelihood(0)->getStateMap().getAlphabet();
+        return vLikCal_.getSingleLikelihood(0)->getStateMap().getAlphabet();
       }
 
       /*
@@ -124,22 +125,6 @@ namespace bpp
        */
       
     public:
-
-      ValueRef<double> getLikelihoodNode() const
-      {
-        return likCal_.getLikelihoodNode();
-      }          
-
-      /**
-       * @brief Get the likelihood for a site.
-       *
-       * @param site The site index to analyse.
-       * @return The likelihood for site <i>site</i>.
-       */
-
-      virtual double getLikelihoodForASite(size_t site) const = 0;
-
-      virtual double getLogLikelihoodForASite(size_t site) const = 0;
 
       /**
        * @brief Get the likelihood for a site for a process.
@@ -151,7 +136,7 @@ namespace bpp
 
       double getLikelihoodForASiteForAProcess(size_t site, size_t p) const
       {
-        return likCal_.getSingleLikelihood(p)->getLikelihoodForASite(site);
+        return vLikCal_.getSingleLikelihood(p)->getLikelihoodForASite(site);
       }
 
       VVdouble getLikelihoodPerSitePerProcess() const;
@@ -166,7 +151,7 @@ namespace bpp
 
       bool isInitialized() const 
       {
-        return likCal_.isInitialized();
+        return vLikCal_.isInitialized();
       }
   
       /**
@@ -182,7 +167,7 @@ namespace bpp
        * @brief Return the number of process used for computation.
        */
   
-      size_t getNumberOfSubstitutionProcess() const { return likCal_.getNumberOfSingleProcess(); }
+      size_t getNumberOfSubstitutionProcess() const { return vLikCal_.getNumberOfSingleProcess(); }
 
       /** @} */
     };

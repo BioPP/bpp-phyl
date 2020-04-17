@@ -55,10 +55,8 @@ SetOfAlignedPhyloLikelihood::SetOfAlignedPhyloLikelihood(Context& context, Phylo
 SetOfAlignedPhyloLikelihood::SetOfAlignedPhyloLikelihood(Context& context, PhyloLikelihoodContainer* pC, const std::vector<size_t>& nPhylo, const std::string& prefix):
   AbstractPhyloLikelihood(context),
   AbstractAlignedPhyloLikelihood(context, 0),
-  SetOfAbstractPhyloLikelihood(context, pC, prefix)
+  SetOfAbstractPhyloLikelihood(context, pC, nPhylo, prefix)
 {
-  for (size_t i=0; i< nPhylo.size(); i++)
-    addPhyloLikelihood(nPhylo[i]);
 }
 
 /******************************************************************************/

@@ -219,8 +219,6 @@ int main(int argc, char** argv)
   // mapParam2["kappa"]=new SimpleDiscreteDistribution(sdm);
   // auto mk80 = std::make_shared<MixtureOfASubstitutionModel>(&c.alphabet, k80.get(), mapParam2);
 
-//auto model1=std::make_shared<MultinomialFromTransitionModel>(*t922);
-
   /* scenario
      auto scenario = std::make_shared<ModelScenario>();
 
@@ -277,6 +275,7 @@ int main(int argc, char** argv)
   dotOutput("likelihood_example_value", {lik->getLikelihoodNode().get()});
 
   ts = timingStart();
+  
   auto logLik = llh.getValue();
   timingEnd(ts, "df_init_value");
   printLik(logLik, "df_init_value");

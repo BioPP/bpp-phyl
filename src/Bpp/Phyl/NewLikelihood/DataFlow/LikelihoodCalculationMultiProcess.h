@@ -40,46 +40,44 @@
 #ifndef LIKELIHOOD_CALCULATION_MULTI_PROCESS_H
 #define LIKELIHOOD_CALCULATION_MULTI_PROCESS_H
 
-#include "Bpp/Phyl/NewLikelihood/DataFlow/LikelihoodCalculationSingleProcess.h"
+#include <Bpp/Numeric/AbstractParametrizable.h>
 
 namespace bpp {
 
   /*
    * Build LikelihoodCalculation from a set of several
-   * LikelihoodCalculationSingleProcess.
+   * LikelihoodCalculation.
    *
    * The computation (ie passage from the set of
-   * LikelihoodCalculationSingleProcess to this)will be defined in ad
+   * LikelihoodCalculation to this) will be defined in ad
    * hoc classes (specifically PhyloLikelihood classes).
    *
    *
    */
 
+  template<class LikElem>
   class LikelihoodCalculationMultiProcess :
-    public LikelihoodCalculation
+    public AbstractParametrizable
   {
-    using LikRef = std::shared_ptr<LikelihoodCalculationSingleProcess>;
+    using LikRef = std::shared_ptr<LikElem>;
+
   private:
     std::vector<LikRef> vLikCal_;
 
   public:
-    LikelihoodCalculationMultiProcess(Context & context) :
-      LikelihoodCalculation(context)
+    LikelihoodCalculationMultiProcess() :
+      AbstractParametrizable("")
     {}
 
-    LikelihoodCalculationMultiProcess(const LikelihoodCalculationMultiProcess& lik):
-      LikelihoodCalculation(lik),
-      vLikCal_()
+    LikelihoodCalculationMultiProcess(const LikelihoodCalculationMultiProcess<LikElem>& lik):
+      AbstractParametrizable(""),
+      vLikCal_(lik.vLikCal_)
     {
-      for (auto likCal : lik.vLikCal_)
-      {
-        vLikCal_.push_back(std::shared_ptr<LikelihoodCalculationSingleProcess>(likCal->clone()));
-      }
     }
     
-    LikelihoodCalculationMultiProcess* clone() const
+    LikelihoodCalculationMultiProcess<LikElem>* clone() const
     {
-      return new LikelihoodCalculationMultiProcess(*this);
+      return new LikelihoodCalculationMultiProcess<LikElem>(*this);
     }
 
     LikRef getSingleLikelihood(size_t nL)
@@ -117,7 +115,7 @@ namespace bpp {
      *
      */
       
-    void makeLikelihoods() 
+    void makeLikelihoods()
     {
       for (auto& lik : vLikCal_)
         lik->makeLikelihoods();

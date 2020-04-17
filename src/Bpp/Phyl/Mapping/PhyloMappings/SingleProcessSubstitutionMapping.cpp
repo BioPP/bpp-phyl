@@ -47,7 +47,7 @@ void SingleProcessSubstitutionMapping::computeNormalizations(const ParameterList
 {
   matchParametersValues(nullParams);
 
-  factors_.reset(SubstitutionMappingTools::computeNormalizations(getLikelihoodCalculation(),
+  factors_.reset(SubstitutionMappingTools::computeNormalizations(getLikelihoodCalculationSingleProcess(),
                                                                  this,
                                                                  getRegister(),
                                                                  getDistances(),
@@ -63,7 +63,7 @@ void SingleProcessSubstitutionMapping::computeNormalizationsForASite(
 
   factors_.reset(SubstitutionMappingToolsForASite::computeNormalizations(
                    site,
-                   getLikelihoodCalculation(),
+                   getLikelihoodCalculationSingleProcess(),
                    this,
                    getRegister(),
                    getDistances(),

@@ -72,12 +72,19 @@ namespace bpp
 
     MixtureSequenceEvolution& mSeqEvol_;
 
-    ValueRef<Eigen::RowVectorXd> siteLikelihoods_;
-
-    ValueRef<Eigen::RowVectorXd> patternedSiteLikelihoods_;
-
+    /**
+     * DF simplex for computation
+     *
+     */
+    
     std::shared_ptr<ConfiguredSimplex> simplex_;
-      
+
+    /**
+     * Aligned LikelihoodCalculation to store DF nodes
+     */
+
+    mutable std::shared_ptr<AlignedLikelihoodCalculation> likCal_;
+
   public:
     MixtureProcessPhyloLikelihood(
       Context& context,
@@ -92,7 +99,8 @@ namespace bpp
       AbstractPhyloLikelihood(mlc),
       AbstractAlignedPhyloLikelihood(mlc),
       MultiProcessSequencePhyloLikelihood(mlc),
-      mSeqEvol_(mlc.mSeqEvol_)
+      mSeqEvol_(mlc.mSeqEvol_),
+      likCal_(mlc.likCal_)
     {}
 
     MixtureProcessPhyloLikelihood* clone() const { return new MixtureProcessPhyloLikelihood(*this); }
@@ -115,16 +123,14 @@ namespace bpp
      * @{
      */
 
-    double getLogLikelihood() const
+    std::shared_ptr<LikelihoodCalculation> getLikelihoodCalculation () const
     {
-      return getLikelihoodNode()->getTargetValue();
+      return likCal_;
     }
 
-    double getLikelihoodForASite(size_t site) const;
-  
-    double getLogLikelihoodForASite(size_t site) const
+    std::shared_ptr<AlignedLikelihoodCalculation> getAlignedLikelihoodCalculation () const
     {
-      return std::log(getLikelihoodForASite(site));
+      return likCal_;
     }
 
     /*

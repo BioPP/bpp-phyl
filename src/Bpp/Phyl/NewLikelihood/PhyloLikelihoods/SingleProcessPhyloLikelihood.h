@@ -128,7 +128,7 @@ namespace bpp {
     void setData(const AlignedValuesContainer& sites, size_t nData = 0)
     {
       AbstractSingleDataPhyloLikelihood::setData(sites, nData);  
-      getLikelihoodCalculation()->setData(sites);
+      getLikelihoodCalculationSingleProcess()->setData(sites);
     }
 
     /**
@@ -137,7 +137,7 @@ namespace bpp {
      */
       
     const AlignedValuesContainer* getShrunkData() const {
-      return getLikelihoodCalculation()->getShrunkData();
+      return getLikelihoodCalculationSingleProcess()->getShrunkData();
     }
 
     /**
@@ -146,15 +146,15 @@ namespace bpp {
      */
       
     const AlignedValuesContainer* getData() const {
-      return getLikelihoodCalculation()->getData();
+      return getLikelihoodCalculationSingleProcess()->getData();
     }
 
     size_t getNumberOfSites() const {
-      return getLikelihoodCalculation()->getNumberOfSites();
+      return getLikelihoodCalculationSingleProcess()->getNumberOfSites();
     }
 
     size_t getNumberOfDistinctSites() const {
-      return getLikelihoodCalculation()->getNumberOfDistinctSites();
+      return getLikelihoodCalculationSingleProcess()->getNumberOfDistinctSites();
     }
 
     /**
@@ -166,7 +166,7 @@ namespace bpp {
 
     
     const Alphabet* getAlphabet() const {
-      return getLikelihoodCalculation()->getStateMap().getAlphabet();
+      return getLikelihoodCalculationSingleProcess()->getStateMap().getAlphabet();
     }
 
     /*
@@ -178,7 +178,7 @@ namespace bpp {
      */
     
     const ParametrizablePhyloTree& getTree() const {
-      return getLikelihoodCalculation()->getSubstitutionProcess().getParametrizablePhyloTree(); }
+      return getLikelihoodCalculationSingleProcess()->getSubstitutionProcess().getParametrizablePhyloTree(); }
 
     /*
      * @brief Return the ref to the SubstitutionProcess used to build
@@ -190,7 +190,7 @@ namespace bpp {
      */
     
     const SubstitutionProcess& getSubstitutionProcess() const {
-      return getLikelihoodCalculation()->getSubstitutionProcess();
+      return getLikelihoodCalculationSingleProcess()->getSubstitutionProcess();
     }
 
     size_t getSubstitutionProcessNumber() const { return nProc_; }
@@ -200,7 +200,7 @@ namespace bpp {
      */
 
     bool isInitialized() const {
-      return getLikelihoodCalculation()->getData();
+      return getLikelihoodCalculationSingleProcess()->getData();
     };
 
     /**
@@ -220,7 +220,7 @@ namespace bpp {
      */
     
     double getLogLikelihood() const {
-      return getLikelihoodCalculation()->getLogLikelihood();
+      return getLikelihoodCalculationSingleProcess()->getLogLikelihood();
     }
     
     /** @} */
@@ -239,7 +239,7 @@ namespace bpp {
 
     ParameterList getBranchLengthParameters() const
     {
-      return getLikelihoodCalculation()->getSubstitutionProcess().getBranchLengthParameters(true);
+      return getLikelihoodCalculationSingleProcess()->getSubstitutionProcess().getBranchLengthParameters(true);
     }
       
     /**
@@ -250,7 +250,7 @@ namespace bpp {
 
     ParameterList getSubstitutionModelParameters() const
     {
-      return getLikelihoodCalculation()->getSubstitutionProcess().getSubstitutionModelParameters(true);
+      return getLikelihoodCalculationSingleProcess()->getSubstitutionProcess().getSubstitutionModelParameters(true);
     }
 
     /**
@@ -261,7 +261,7 @@ namespace bpp {
 
     ParameterList getRateDistributionParameters() const
     {
-      return getLikelihoodCalculation()->getSubstitutionProcess().getRateDistributionParameters(true);
+      return getLikelihoodCalculationSingleProcess()->getSubstitutionProcess().getRateDistributionParameters(true);
     }
       
     /**
@@ -273,7 +273,7 @@ namespace bpp {
       
     ParameterList getRootFrequenciesParameters() const
     {
-      return getLikelihoodCalculation()->getSubstitutionProcess().getRootFrequenciesParameters(true);
+      return getLikelihoodCalculationSingleProcess()->getSubstitutionProcess().getRootFrequenciesParameters(true);
     }
       
     /**
@@ -286,23 +286,28 @@ namespace bpp {
 
     ParameterList getNonDerivableParameters() const
     {
-      return getLikelihoodCalculation()->getSubstitutionProcess().getNonDerivableParameters();
+      return getLikelihoodCalculationSingleProcess()->getSubstitutionProcess().getNonDerivableParameters();
     }
      
 
     /** @} */
 
 
-    std::shared_ptr<LikelihoodCalculationSingleProcess> getLikelihoodCalculation() const
+    std::shared_ptr<LikelihoodCalculation> getLikelihoodCalculation() const
     {
       return likCal_;
     }
 
-    ValueRef<double> getLikelihoodNode() const
+    std::shared_ptr<AlignedLikelihoodCalculation> getAlignedLikelihoodCalculation() const
     {
-      return getLikelihoodCalculation()->getLikelihoodNode();
+      return likCal_;
     }
-          
+
+    std::shared_ptr<LikelihoodCalculationSingleProcess> getLikelihoodCalculationSingleProcess() const
+    {
+      return likCal_;
+    }
+
     // Get nodes of derivatives directly
       
     ValueRef<Eigen::RowVectorXd> getFirstOrderDerivativeVector (const std::string & variable) const  {
@@ -314,7 +319,7 @@ namespace bpp {
       if (it != firstOrderDerivativeVectors_.end ()) {
         return it->second;
       } else {
-        auto vector = getLikelihoodCalculation()->getSiteLikelihoods(true)->deriveAsValue (context_, accessVariableNode (variable));
+        auto vector = getLikelihoodCalculationSingleProcess()->getSiteLikelihoods(true)->deriveAsValue (context_, accessVariableNode (variable));
         firstOrderDerivativeVectors_.emplace (variable, vector);
         return vector;
       }
@@ -343,39 +348,6 @@ namespace bpp {
         return vector;
       }
     }
-
-    /**
-     * @brief Get the likelihood for a site (on uncompressed data)
-     *
-     * @param site The site index to analyse.
-     * @return The likelihood for site <i>site</i>.
-     */
-
-    double getLikelihoodForASite(size_t site) const
-    {
-      return getLikelihoodCalculation()->getLikelihoodForASite(site);
-    }
-    
-    /**
-     * @brief Get the log likelihood for a site, and its derivatives.
-     *
-     * @param site The site index to analyse.
-     * @return The (D)log likelihood for site <i>site</i>.
-     */
-
-    double getLogLikelihoodForASite(size_t site) const
-    {
-      return std::log(getLikelihoodForASite(site));
-    }
-  
-    /**
-     * @brief Get the likelihood for each site.
-     *
-     *@return A vector with all site likelihoods.
-     *
-     */
-
-    Vdouble getLikelihoodPerSite() const;
 
     /**
      * @brief Get the posterior probabilities of each class, for

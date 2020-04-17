@@ -135,11 +135,11 @@ namespace bpp
     void setData(const AlignedValuesContainer& sites, size_t nData = 0) 
     {
       AbstractSequencePhyloLikelihood::setData(sites, nData);
-      getLikelihoodCalculation()->setData(sites);
+      getLikelihoodCalculationSingleProcess()->setData(sites);
     }
 
     bool isInitialized() const {
-      return getLikelihoodCalculation()->getData();
+      return getLikelihoodCalculationSingleProcess()->getData();
     };
 
     /**
@@ -148,12 +148,12 @@ namespace bpp
      */
     const AlignedValuesContainer* getData() const
     {
-      return getLikelihoodCalculation()->getData();
+      return getLikelihoodCalculationSingleProcess()->getData();
     }
 
     const Alphabet* getAlphabet() const
     {
-      return getLikelihoodCalculation()->getStateMap().getAlphabet();
+      return getLikelihoodCalculationSingleProcess()->getStateMap().getAlphabet();
     }
 
     /** @} */
@@ -200,15 +200,20 @@ namespace bpp
      * @return The underlying likelihood computation structure.
      */
     
-    std::shared_ptr<LikelihoodCalculationSingleProcess> getLikelihoodCalculation() const
+    std::shared_ptr<LikelihoodCalculation> getLikelihoodCalculation() const
+    {
+      return likCal_;
+    } 
+    
+    std::shared_ptr<AlignedLikelihoodCalculation> getAlignedLikelihoodCalculation()const
+    {
+      return likCal_;
+    } 
+
+    std::shared_ptr<LikelihoodCalculationSingleProcess> getLikelihoodCalculationSingleProcess() const
     {
       return likCal_;
     }
-
-    ValueRef<double> getLikelihoodNode() const
-    {
-      return getLikelihoodCalculation()->getLikelihoodNode();
-    }          
 
     // Get nodes of derivatives directly
       
@@ -221,7 +226,7 @@ namespace bpp
       if (it != firstOrderDerivativeVectors_.end ()) {
         return it->second;
       } else {
-        auto vector = getLikelihoodCalculation()->getSiteLikelihoods(true)->deriveAsValue (context_, accessVariableNode (variable));
+        auto vector = getLikelihoodCalculationSingleProcess()->getSiteLikelihoods(true)->deriveAsValue (context_, accessVariableNode (variable));
         firstOrderDerivativeVectors_.emplace (variable, vector);
         return vector;
       }
@@ -252,23 +257,6 @@ namespace bpp
     }
 
   public:
-    double getLogLikelihood() const
-    {
-      return getLikelihoodCalculation()->getLogLikelihood();
-    }
-
-    double getLikelihoodForASite(size_t site) const
-    {
-      return getLikelihoodCalculation()->getLikelihoodForASite(site);
-    }
-
-    double getLogLikelihoodForASite(size_t site) const
-    {
-      return std::log(getLikelihoodForASite(site));
-    }
-
-    /** @} */
-
     /**
      * Utilities
      *

@@ -570,17 +570,17 @@ unsigned int OptimizationTools::optimizeNumericalParameters2(
 
   if (optMethodDeriv == OPTIMIZATION_GRADIENT)
   {
-    lik.getLikelihoodCalculation()->setNumericalDerivateConfiguration(0.00001, NumericalDerivativeType::ThreePoints);
+    lik.getLikelihoodCalculationSingleProcess()->setNumericalDerivateConfiguration(0.00001, NumericalDerivativeType::ThreePoints);
     optimizer.reset(new ConjugateGradientMultiDimensions(&lik));
   }
   else if (optMethodDeriv == OPTIMIZATION_NEWTON)
   {
-    lik.getLikelihoodCalculation()->setNumericalDerivateConfiguration(0.0001, NumericalDerivativeType::FivePoints);
+    lik.getLikelihoodCalculationSingleProcess()->setNumericalDerivateConfiguration(0.0001, NumericalDerivativeType::FivePoints);
     optimizer.reset(new PseudoNewtonOptimizer(&lik));
   }
   else if (optMethodDeriv == OPTIMIZATION_BFGS)
   {
-    lik.getLikelihoodCalculation()->setNumericalDerivateConfiguration(0.0001, NumericalDerivativeType::ThreePoints);
+    lik.getLikelihoodCalculationSingleProcess()->setNumericalDerivateConfiguration(0.0001, NumericalDerivativeType::ThreePoints);
     optimizer.reset(new BfgsMultiDimensions(&lik));
   }
   else

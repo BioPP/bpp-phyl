@@ -22,9 +22,9 @@ using namespace bpp;
 LikelihoodCalculationSingleProcess::LikelihoodCalculationSingleProcess(Context& context,
                                                                        const AlignedValuesContainer & sites,
                                                                        const SubstitutionProcess& process):
-  LikelihoodCalculation(context), process_(process), psites_(&sites),
+  AlignedLikelihoodCalculation(context), process_(process), psites_(&sites),
   rootPatternLinks_(), rootWeights_(), shrunkData_(),
-  processNodes_(), rFreqs_(), siteLikelihoods_(), patternedSiteLikelihoods_(),
+  processNodes_(), rFreqs_(),
   vRateCatTrees_(), condLikelihoodTree_(0)
 {
   setPatterns_();
@@ -36,10 +36,10 @@ LikelihoodCalculationSingleProcess::LikelihoodCalculationSingleProcess(Context& 
 
 LikelihoodCalculationSingleProcess::LikelihoodCalculationSingleProcess(Context & context,
                                                                        const SubstitutionProcess& process):
-  LikelihoodCalculation(context),
+  AlignedLikelihoodCalculation(context),
   process_(process), psites_(),
   rootPatternLinks_(), rootWeights_(), shrunkData_(),
-  processNodes_(), rFreqs_(), siteLikelihoods_(), patternedSiteLikelihoods_(),
+  processNodes_(), rFreqs_(),
   vRateCatTrees_(), condLikelihoodTree_(0)
 {
   makeProcessNodes_();
@@ -52,10 +52,10 @@ LikelihoodCalculationSingleProcess::LikelihoodCalculationSingleProcess(Context &
                                                                        const AlignedValuesContainer & sites,
                                                                        const SubstitutionProcess& process,
                                                                        ParameterList& paramList):
-  LikelihoodCalculation(context),
+  AlignedLikelihoodCalculation(context),
   process_(process), psites_(&sites),
   rootPatternLinks_(), rootWeights_(), shrunkData_(),
-  processNodes_(), rFreqs_(), siteLikelihoods_(), patternedSiteLikelihoods_(),
+  processNodes_(), rFreqs_(),
   vRateCatTrees_(), condLikelihoodTree_(0)
 {
   setPatterns_();
@@ -69,9 +69,9 @@ LikelihoodCalculationSingleProcess::LikelihoodCalculationSingleProcess(Context &
 LikelihoodCalculationSingleProcess::LikelihoodCalculationSingleProcess(CollectionNodes& collection,
                                                                        const AlignedValuesContainer & sites,
                                                                        size_t nProcess):
-  LikelihoodCalculation(collection.getContext()), process_(collection.getCollection().getSubstitutionProcess(nProcess)), psites_(&sites),
+  AlignedLikelihoodCalculation(collection.getContext()), process_(collection.getCollection().getSubstitutionProcess(nProcess)), psites_(&sites),
   rootPatternLinks_(), rootWeights_(), shrunkData_(),
-  processNodes_(), rFreqs_(), siteLikelihoods_(), patternedSiteLikelihoods_(),
+  processNodes_(), rFreqs_(),
   vRateCatTrees_(), condLikelihoodTree_(0)
 {
   setPatterns_();
@@ -82,10 +82,10 @@ LikelihoodCalculationSingleProcess::LikelihoodCalculationSingleProcess(Collectio
 }
 
 LikelihoodCalculationSingleProcess::LikelihoodCalculationSingleProcess(const LikelihoodCalculationSingleProcess& lik) :
-  LikelihoodCalculation(lik),
+  AlignedLikelihoodCalculation(lik),
   process_(lik.process_), psites_(lik.psites_),
   rootPatternLinks_(lik.rootPatternLinks_), rootWeights_(), shrunkData_(lik.shrunkData_),
-  processNodes_(), rFreqs_(), siteLikelihoods_(), patternedSiteLikelihoods_(),
+  processNodes_(), rFreqs_(),
   vRateCatTrees_(), condLikelihoodTree_(0)
 {
   setPatterns_();
@@ -426,7 +426,7 @@ void LikelihoodCalculationSingleProcess::makeLikelihoodsAtRoot_()
   // Set root frequencies
   if (rFreqs_==0)
     makeRootFreqs_();
-  
+
   if (processNodes_.ratesNode_)
   {
     std::vector<std::shared_ptr<Node_DF>> vLogRoot;
@@ -442,20 +442,24 @@ void LikelihoodCalculationSingleProcess::makeLikelihoodsAtRoot_()
     for (size_t nCat=0;nCat<vRateCatTrees_.size();nCat++)
       vLogRoot.push_back(ProbabilityFromDiscreteDistribution::create(getContext_(), {processNodes_.ratesNode_},(uint)nCat));
     
-    siteLikelihoods_ = CWiseMean<Eigen::RowVectorXd, ReductionOf<Eigen::RowVectorXd>, ReductionOf<double>>::create(getContext_(), std::move(vLogRoot), rowVectorDimension (Eigen::Index(nbSite)));
-    
+    auto sL = CWiseMean<Eigen::RowVectorXd, ReductionOf<Eigen::RowVectorXd>, ReductionOf<double>>::create(getContext_(), std::move(vLogRoot), rowVectorDimension (Eigen::Index(nbSite)));
+
+    setSiteLikelihoods(sL, true);
   }
   else
   {
-    siteLikelihoods_ = LikelihoodFromRootConditional::create (
+    auto sL = LikelihoodFromRootConditional::create (
       getContext_(), {rFreqs_, vRateCatTrees_[0].flt->getForwardLikelihoodArrayAtRoot()}, rowVectorDimension (Eigen::Index (nbSite)));
+
+    setSiteLikelihoods(sL, true);
   }
 
   // likelihoods per site
-  patternedSiteLikelihoods_= expandVector(siteLikelihoods_);
+
+  setSiteLikelihoods(expandVector(patternedSiteLikelihoods_), false);
 
   likelihood_ =
-    SumOfLogarithms<Eigen::RowVectorXd>::create (getContext_(), {siteLikelihoods_, rootWeights_}, rowVectorDimension (Eigen::Index (nbSite)));
+    SumOfLogarithms<Eigen::RowVectorXd>::create (getContext_(), {patternedSiteLikelihoods_, rootWeights_}, rowVectorDimension (Eigen::Index (nbSite)));
 
 // We want -log(likelihood) (ancient version)
   // likelihood_ = CWiseNegate<double>::create (getContext_(), {totalLogLikelihood}, Dimension<double> ());
