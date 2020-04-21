@@ -76,7 +76,7 @@ private:
   mutable std::unique_ptr<LogsumHmmLikelihood> hmm_;
 
 public:
-  AutoCorrelationOfAlignedPhyloLikelihood(Context& context, PhyloLikelihoodContainer* pC, const std::vector<size_t>& nPhylo);
+  AutoCorrelationOfAlignedPhyloLikelihood(Context& context, PhyloLikelihoodContainer* pC, const std::vector<size_t>& nPhylo, bool inCollection = true);
 
   AutoCorrelationOfAlignedPhyloLikelihood(const AutoCorrelationOfAlignedPhyloLikelihood& mlc) :
     AbstractPhyloLikelihood(mlc),

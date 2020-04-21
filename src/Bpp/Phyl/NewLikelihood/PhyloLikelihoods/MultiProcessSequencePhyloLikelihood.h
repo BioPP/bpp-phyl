@@ -43,7 +43,6 @@
 #include "SequencePhyloLikelihood.h"
 #include "../MultiProcessSequenceEvolution.h"
 
-#include "../DataFlow/LikelihoodCalculationMultiProcess.h"
 #include "../DataFlow/LikelihoodCalculationSingleProcess.h"
 
 #include <Bpp/Numeric/AbstractParametrizable.h>
@@ -84,7 +83,7 @@ namespace bpp
        * for the global likelihood.
        */
   
-      mutable LikelihoodCalculationMultiProcess<LikelihoodCalculationSingleProcess> vLikCal_;
+      mutable std::vector<std::shared_ptr<LikelihoodCalculationSingleProcess>> vLikCal_;
 
     public:
       MultiProcessSequencePhyloLikelihood(
@@ -113,11 +112,11 @@ namespace bpp
        */
 
       const AlignedValuesContainer* getData() const {
-        return vLikCal_.getSingleLikelihood(0)->getData();
+        return vLikCal_[0]->getData();
       }
 
       const Alphabet* getAlphabet() const {
-        return vLikCal_.getSingleLikelihood(0)->getStateMap().getAlphabet();
+        return vLikCal_[0]->getStateMap().getAlphabet();
       }
 
       /*
@@ -136,7 +135,7 @@ namespace bpp
 
       double getLikelihoodForASiteForAProcess(size_t site, size_t p) const
       {
-        return vLikCal_.getSingleLikelihood(p)->getLikelihoodForASite(site);
+        return vLikCal_[p]->getLikelihoodForASite(site);
       }
 
       VVdouble getLikelihoodPerSitePerProcess() const;
@@ -151,7 +150,11 @@ namespace bpp
 
       bool isInitialized() const 
       {
-        return vLikCal_.isInitialized();
+        for (auto& lik : vLikCal_)
+          if (!lik->isInitialized())
+            return false;
+      
+        return true;
       }
   
       /**
@@ -167,7 +170,7 @@ namespace bpp
        * @brief Return the number of process used for computation.
        */
   
-      size_t getNumberOfSubstitutionProcess() const { return vLikCal_.getNumberOfSingleProcess(); }
+      size_t getNumberOfSubstitutionProcess() const { return vLikCal_.size(); }
 
       /** @} */
     };

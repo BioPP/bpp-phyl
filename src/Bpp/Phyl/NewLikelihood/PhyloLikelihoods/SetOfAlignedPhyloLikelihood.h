@@ -60,9 +60,9 @@ namespace bpp
     virtual public AbstractAlignedPhyloLikelihood
     {
     public:
-      SetOfAlignedPhyloLikelihood(Context& context, PhyloLikelihoodContainer* pC, const std::string& prefix = "");
+      SetOfAlignedPhyloLikelihood(Context& context, PhyloLikelihoodContainer* pC, bool inCollection = true, const std::string& prefix = "");
       
-      SetOfAlignedPhyloLikelihood(Context& context, PhyloLikelihoodContainer* pC, const std::vector<size_t>& nPhylo, const std::string& prefix = "");
+      SetOfAlignedPhyloLikelihood(Context& context, PhyloLikelihoodContainer* pC, const std::vector<size_t>& nPhylo, bool inCollection = true, const std::string& prefix = "");
       
       SetOfAlignedPhyloLikelihood(const SetOfAlignedPhyloLikelihood& soap) :
       AbstractPhyloLikelihood(soap),
@@ -83,11 +83,14 @@ namespace bpp
        *
        * @brief adds a PhyloLikelihood already stored in the m ap, iff
        * it is an AlignedPhyloLikelihood of the same size 
-       * 
-      * @return if the PhyloLikelihood has been added.
+       *
+       * @param nPhyl  number of the phylolikelihood
+       * @param suff for parameters names if use specific parameters names
+       *
+       * @return if the PhyloLikelihood has been added.
        */
       
-      virtual bool addPhyloLikelihood(size_t nPhyl);
+      bool addPhyloLikelihood(size_t nPhyl, const std::string& suff);
 
       const AbstractAlignedPhyloLikelihood* getAbstractPhyloLikelihood(size_t nPhyl) const
       {

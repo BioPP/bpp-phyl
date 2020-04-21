@@ -72,7 +72,6 @@ int main() {
   unique_ptr<PhyloTree> tree1(reader.parenthesisToPhyloTree("(((A:0.1, B:0.2):0.3,C:0.1):0.2,D:0.3);"));
   unique_ptr<PhyloTree> tree2(reader.parenthesisToPhyloTree("((A:0.05, C:0.02):0.1,(D:0.01,B:0.03):0.05);"));
 
-
   vector<shared_ptr<PhyloNode> > vl= tree1->getAllLeaves();
   
   vector<string> seqNames;
@@ -110,7 +109,7 @@ int main() {
   // Second Process
 
   NonHomogeneousSubstitutionProcess* subPro2= new NonHomogeneousSubstitutionProcess(rdist2->clone(), parTree2->clone(), rootFreqs->clone());
-
+  
   Vuint vP2m1{0, 1, 3};
   Vuint vP2m2{2, 4, 5};
 
@@ -176,8 +175,8 @@ int main() {
 
   cerr << setprecision(10) << "TL1:"  << spl1->getValue() << "\tTL2:" << spl2->getValue() << endl;
 
-
-  //  Mixture
+ 
+  //  Mixture of process
   
   std::vector<size_t> vp(2);
   vp[0]=1; vp[1]=2;
@@ -196,11 +195,22 @@ int main() {
       cerr << "Mixture Process : Problem on site " << x << endl;
   }
 
-  //  Mixture
+  //  Mixture of phylo
 
-  MixtureOfAlignedPhyloLikelihood moap(context, &pc, {1,2});
+  PhyloLikelihoodContainer pc2;
 
-  using bpp::DotOptions;
+  SubstitutionProcess* sP1c2=subPro1->clone();
+  SubstitutionProcess* sP2c2=subPro2->clone();
+
+  auto lik12 = std::make_shared<LikelihoodCalculationSingleProcess>(context, sites, *sP1c2);
+
+  auto lik22 = std::make_shared<LikelihoodCalculationSingleProcess>(context, sites, *sP2c2);
+
+  pc2.addPhyloLikelihood(1, new SingleProcessPhyloLikelihood(context, lik22));
+  pc2.addPhyloLikelihood(2, new SingleProcessPhyloLikelihood(context, lik12));
+
+  MixtureOfAlignedPhyloLikelihood moap(context, &pc2, {1,2}, false);
+
   bpp::writeGraphToDot("moap.dot", {moap.getLikelihoodNode().get()});//, DotOptions::DetailedNodeInfo | DotOp
   cerr << "Moap: " << moap.getValue() << endl;
 
@@ -261,32 +271,30 @@ int main() {
     &moap, moap.getParameters(), 0,
     0.0001, 10000, messenger, profiler, false, false, 1, OptimizationTools::OPTIMIZATION_NEWTON);
   
-  cerr << "Opt MOAP rounds: " << cM << endl;
+  cerr << "Opt MOAP rounds: " << cM2 << endl;
 
-  cerr << "Moap: " << mlc.getValue() << endl;
+  cerr << "Moap: " << moap.getValue() << endl;
 
   moap.getParameters().printParameters(std::cout);
-
 
   
 // Formula
   
-  string formula="phylo1";  
-    
-  unique_ptr<FormulaOfPhyloLikelihood> tl(new FormulaOfPhyloLikelihood(context, &pc,formula));
+  string formula="(phylo2 - phylo1) * (phylo1 - phylo2)";      
 
-  cerr << "tl " << tl->getValue() << endl;
+  FormulaOfPhyloLikelihood tl(context, &pc, formula, false);
+
+  cerr << formula << " : " << tl.getValue() << endl;
+
+  bpp::writeGraphToDot("formula.dot", {tl.getLikelihoodNode().get()});//, DotOptions::DetailedNodeInfo | DotOp
 
   unsigned int cMtl = OptimizationTools::optimizeNumericalParameters2(
-    tl.get(), tl->getParameters(), 0,
+    &tl, tl.getParameters(), 0,
     0.0001, 10000, messenger, profiler, false, false, 1, OptimizationTools::OPTIMIZATION_NEWTON);
 
   cerr << "Opt tl rounds: " << cMtl << endl;
 
-  cerr << "tl " << tl->getValue() << endl;
-
-  tl.release();
-  
+  cerr << formula << " " << tl.getValue() << endl;
 
   return 0;
 }

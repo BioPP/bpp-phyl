@@ -87,7 +87,7 @@ PartitionProcessPhyloLikelihood::PartitionProcessPhyloLikelihood(
     }
   }
 
-  addAllPhyloLikelihoods();
+  addAllPhyloLikelihoods(false);
 }
 
 
@@ -135,7 +135,7 @@ PartitionProcessPhyloLikelihood::PartitionProcessPhyloLikelihood(
     }
   }
 
-  addAllPhyloLikelihoods();
+  addAllPhyloLikelihoods(false);
   
   setData(data, nData);
 }

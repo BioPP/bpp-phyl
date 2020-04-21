@@ -42,25 +42,25 @@
 using namespace bpp;
 using namespace std;
 
-SetOfAbstractPhyloLikelihood::SetOfAbstractPhyloLikelihood(Context& context, PhyloLikelihoodContainer* pC, const std::string& prefix) :
+SetOfAbstractPhyloLikelihood::SetOfAbstractPhyloLikelihood(Context& context, PhyloLikelihoodContainer* pC, bool inCollection, const std::string& prefix) :
   AbstractPhyloLikelihood(context),
   AbstractParametrizable(prefix),
   pPhyloCont_(pC),
   nPhylo_(),
   vLikCal_()
 {
-  addAllPhyloLikelihoods();
+  addAllPhyloLikelihoods(!inCollection);
 }
 
-SetOfAbstractPhyloLikelihood::SetOfAbstractPhyloLikelihood(Context& context, PhyloLikelihoodContainer* pC, const std::vector<size_t>& nPhylo, const std::string& prefix) :
+SetOfAbstractPhyloLikelihood::SetOfAbstractPhyloLikelihood(Context& context, PhyloLikelihoodContainer* pC, const std::vector<size_t>& nPhylo, bool inCollection, const std::string& prefix) :
   AbstractPhyloLikelihood(context),
   AbstractParametrizable(prefix),
   pPhyloCont_(pC),
   nPhylo_(),
   vLikCal_()
 {
-  for (size_t i=0; i< nPhylo.size(); i++)
-    addPhyloLikelihood(nPhylo[i]);
+  for (auto np:nPhylo)
+    addPhyloLikelihood(np,inCollection?"":"_" + TextTools::toString(np));
 }
 
  
@@ -73,25 +73,54 @@ SetOfAbstractPhyloLikelihood::SetOfAbstractPhyloLikelihood(const SetOfAbstractPh
 {
 }
 
-bool SetOfAbstractPhyloLikelihood::addPhyloLikelihood(size_t nPhyl)
+bool SetOfAbstractPhyloLikelihood::addPhyloLikelihood(size_t nPhyl, const std::string& suff)
 {
   AbstractPhyloLikelihood* aPL=getAbstractPhyloLikelihood(nPhyl);
 
   if (aPL!=NULL){
     nPhylo_.push_back(nPhyl);
-    includeParameters_(aPL->getParameters());
-    vLikCal_.addSingleLikelihood(aPL->getLikelihoodCalculation());
+    if (suff!="") // Use specific parameters names
+    {
+      const auto& pl = aPL->getParameters();
+
+      for (size_t i=0; i<pl.size(); i++)
+      { 
+        auto confP = dynamic_pointer_cast<ConfiguredParameter>(pl.getSharedParameter(i));
+        if (confP==0)
+          throw Exception("SetOfAbstractPhyloLikelihood::addPhyloLikelihood: Parameter " + pl[i].getName() + " is not configured in PhyloLikelihood " + TextTools::toString(nPhyl));
+
+        auto name = confP->getName() + suff;
+        
+        if (hasParameter(name))
+          throw Exception("SetOfAbstractPhyloLikelihood::addPhyloLikelihood: Parameter already owned : " + name);
+        Parameter par(pl[i]);
+        par.setName(name);
+        
+        auto cfPar = ConfiguredParameter::create(context_, {confP->dependency(0)}, par);
+        shareParameter_(cfPar);
+      }
+    }
+    else
+    {
+      const auto& pl = aPL->getParameters();
+
+      for (size_t i=0; i<pl.size(); i++)
+        if (hasParameter(pl[i].getName()))
+          throw Exception("SetOfAbstractPhyloLikelihood::addPhyloLikelihood: Parameter already owned : " + pl[i].getName());
+      
+      shareParameters_(aPL->getParameters());
+    }
+    
+    vLikCal_.push_back(aPL->getLikelihoodCalculation());
     return true;
   }
   return false;
 }
 
-void SetOfAbstractPhyloLikelihood::addAllPhyloLikelihoods()
+void SetOfAbstractPhyloLikelihood::addAllPhyloLikelihoods(bool addSuffix)
 {
-  vector<size_t> vPhyl=getPhyloContainer()->getNumbersOfPhyloLikelihoods();
-
-  for (size_t i=0; i<vPhyl.size(); i++)
-    addPhyloLikelihood(vPhyl[i]);
+  for (auto np:getPhyloContainer()->getNumbersOfPhyloLikelihoods())
+    addPhyloLikelihood(np, addSuffix?"_" + TextTools::toString(np):"");
 }
 
 ParameterList SetOfAbstractPhyloLikelihood::getBranchLengthParameters() const

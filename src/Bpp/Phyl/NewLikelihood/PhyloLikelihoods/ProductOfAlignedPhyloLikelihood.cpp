@@ -42,17 +42,17 @@
 using namespace bpp;
 using namespace std;
 
-ProductOfAlignedPhyloLikelihood::ProductOfAlignedPhyloLikelihood(Context& context, PhyloLikelihoodContainer* pC) :
+ProductOfAlignedPhyloLikelihood::ProductOfAlignedPhyloLikelihood(Context& context, PhyloLikelihoodContainer* pC, bool inCollection) :
   AbstractPhyloLikelihood(context),
   AbstractAlignedPhyloLikelihood(context, 0),
-  SetOfAlignedPhyloLikelihood(context, pC)
+  SetOfAlignedPhyloLikelihood(context, pC, inCollection)
 {
 }
 
-ProductOfAlignedPhyloLikelihood::ProductOfAlignedPhyloLikelihood(Context& context, PhyloLikelihoodContainer* pC, const std::vector<size_t>& nPhylo) :
+ProductOfAlignedPhyloLikelihood::ProductOfAlignedPhyloLikelihood(Context& context, PhyloLikelihoodContainer* pC, const std::vector<size_t>& nPhylo, bool inCollection) :
   AbstractPhyloLikelihood(context),
   AbstractAlignedPhyloLikelihood(context, 0),
-  SetOfAlignedPhyloLikelihood(context, pC, nPhylo)
+  SetOfAlignedPhyloLikelihood(context, pC, nPhylo, inCollection)
 {
 }
 

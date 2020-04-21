@@ -62,10 +62,11 @@ namespace bpp
   private:
     std::unique_ptr<ComputationTree> compTree_;
 
+    std::shared_ptr<LikelihoodCalculation> likCal_;
+    
   public:
-    FormulaOfPhyloLikelihood(Context& context, PhyloLikelihoodContainer* pC);
-
-    FormulaOfPhyloLikelihood(Context& context, PhyloLikelihoodContainer* pC, const std::string& formula);
+    
+    FormulaOfPhyloLikelihood(Context& context, PhyloLikelihoodContainer* pC, const std::string& formula, bool inCollection = true);
 
     ~FormulaOfPhyloLikelihood() {}
     
@@ -83,7 +84,7 @@ namespace bpp
      *
      */
     
-    void readFormula(const std::string& formula);
+    void readFormula(const std::string& formula, bool inCollection = true);
 
     /**
      * @ output
@@ -104,27 +105,31 @@ namespace bpp
      */
 
     
-    double getLogLikelihood() const
+    std::shared_ptr<LikelihoodCalculation> getLikelihoodCalculation() const
     {
-      return -compTree_->getValue();
+      return likCal_;
     }
     
+  private:
+    
     /**
-     * @brief Get the formula on the derivates of the LogLikelihoods.
+     * @brief Build the LikelihoodNode from the computation Tree
      *
      */
-    
-    // double getDLogLikelihood(const std::string& variable) const
-    // {
-    //   return -compTree_->getFirstOrderDerivative(variable);      
-    // }
-    
 
-    // double getD2LogLikelihood(const std::string& variable) const
-    // {
-    //   return -compTree_->getSecondOrderDerivative(variable);
-    // }
-    
+    ValueRef<double> makeLikelihoods()
+    {
+      return makeLikelihoodsFromOperator(compTree_->getRoot());
+    }
+
+    /**
+     * @brief Build the LikelihoodNode from a node of the computation Tree
+     *
+     */
+
+    ValueRef<double> makeLikelihoodsFromOperator(std::shared_ptr<Operator> op);
+      
+      
     /** @} */
     
   };

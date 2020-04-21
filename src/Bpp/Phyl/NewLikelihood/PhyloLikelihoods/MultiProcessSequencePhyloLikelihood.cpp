@@ -75,10 +75,10 @@ MultiProcessSequencePhyloLikelihood::MultiProcessSequencePhyloLikelihood(
                                                                         data,
                                                                         n);
     liksing->makeLikelihoods();
-    vLikCal_.addSingleLikelihood(liksing);
+    vLikCal_.push_back(liksing);
+    shareParameters_(liksing->getParameters());
   }
 
-  shareParameters_(vLikCal_.getParameters());
 }
 
 /******************************************************************************/
@@ -87,8 +87,8 @@ void MultiProcessSequencePhyloLikelihood::setData(const AlignedValuesContainer& 
 {
   AbstractSequencePhyloLikelihood::setData(sites, nData);
   
-  for (size_t i = 0; i < vLikCal_.getNumberOfSingleProcess(); i++)
-    vLikCal_.getSingleLikelihood(i)->setData(sites);
+  for (auto& lik : vLikCal_)
+    lik->setData(sites);
 }
 
 /******************************************************************************/

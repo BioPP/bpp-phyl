@@ -61,7 +61,7 @@ MixtureProcessPhyloLikelihood::MixtureProcessPhyloLikelihood(
   likCal_(new AlignedLikelihoodCalculation(context))
 {
 
-  if (vLikCal_.getNumberOfSingleProcess()==0)
+  if (vLikCal_.size()==0)
     throw Exception("MixtureProcessPhyloLikelihood::MixtureProcessPhyloLikelihood : empty singleprocesslikelihoods set.");
 
   auto& simplex = mSeqEvol_.getSimplex();
@@ -78,22 +78,29 @@ MixtureProcessPhyloLikelihood::MixtureProcessPhyloLikelihood(
   // make Simplex DF & Frequencies from it
   simplex_ = ConfiguredParametrizable::createConfigured<Simplex, ConfiguredSimplex>(getContext(), simplex, paramList, "");
 
+  // for derivates
+  auto deltaNode = NumericMutable<double>::create(getContext(), 0.001);
+  auto config = NumericalDerivativeType::ThreePoints;
+
+  simplex_->config.delta = deltaNode;
+  simplex_->config.type = config;
+
   auto fsf = ConfiguredParametrizable::createVector<ConfiguredSimplex, FrequenciesFromSimplex>(getContext(), {simplex_}, rowVectorDimension (Eigen::Index(simplex.dimension())));
 
   // get RowVectorXd for each single Calculation
   std::vector<std::shared_ptr<Node_DF>> vSL;
   
-  for (size_t i=0; i< vLikCal_.getNumberOfSingleProcess() ; i++)
-    vSL.push_back(vLikCal_.getSingleLikelihood(i)->getSiteLikelihoods(true));
-  
+  for (auto& lik: vLikCal_)
+    vSL.push_back(lik->getSiteLikelihoods(true));
+
   // put probabilities of the simplex
   vSL.push_back(fsf);
 
-  auto single0 = vLikCal_.getSingleLikelihood(0);
+  auto single0 = vLikCal_[0];
   auto nbSite = single0->getNumberOfDistinctSites();
 
   auto sL = CWiseMean<Eigen::RowVectorXd, ReductionOf<Eigen::RowVectorXd>, Eigen::RowVectorXd>::create(getContext(), std::move(vSL), rowVectorDimension (Eigen::Index(nbSite)));
-  
+
   likCal_->setSiteLikelihoods(sL, true);
 
   // likelihoods per site

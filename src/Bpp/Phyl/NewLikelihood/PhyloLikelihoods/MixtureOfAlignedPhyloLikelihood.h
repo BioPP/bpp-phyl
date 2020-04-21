@@ -77,7 +77,7 @@ namespace bpp
     mutable std::shared_ptr<AlignedLikelihoodCalculation> likCal_;
     
   public:
-    MixtureOfAlignedPhyloLikelihood(Context& context, PhyloLikelihoodContainer* pC, const std::vector<size_t>& nPhylo);
+    MixtureOfAlignedPhyloLikelihood(Context& context, PhyloLikelihoodContainer* pC, const std::vector<size_t>& nPhylo, bool inCollection = true);
       
     MixtureOfAlignedPhyloLikelihood(const MixtureOfAlignedPhyloLikelihood& mlc);
 

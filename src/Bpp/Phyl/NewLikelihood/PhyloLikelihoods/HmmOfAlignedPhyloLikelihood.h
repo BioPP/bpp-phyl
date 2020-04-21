@@ -74,7 +74,7 @@ private:
   mutable std::unique_ptr<LogsumHmmLikelihood> hmm_;
 
 public:
-  HmmOfAlignedPhyloLikelihood(Context& context, PhyloLikelihoodContainer* pC, const std::vector<size_t>& nPhylo);
+  HmmOfAlignedPhyloLikelihood(Context& context, PhyloLikelihoodContainer* pC, const std::vector<size_t>& nPhylo, bool inCollection = true);
 
   HmmOfAlignedPhyloLikelihood(const HmmOfAlignedPhyloLikelihood& mlc) :
     AbstractPhyloLikelihood(mlc),

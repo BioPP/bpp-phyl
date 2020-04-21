@@ -45,8 +45,6 @@
 #include "AbstractPhyloLikelihood.h"
 #include "PhyloLikelihoodContainer.h"
 
-#include "Bpp/Phyl/NewLikelihood/DataFlow/LikelihoodCalculationMultiProcess.h"
-
 namespace bpp
 {
 
@@ -82,12 +80,17 @@ namespace bpp
        * for the global likelihood.
        */
   
-      mutable LikelihoodCalculationMultiProcess<LikelihoodCalculation> vLikCal_;
+      mutable std::vector<std::shared_ptr<LikelihoodCalculation>> vLikCal_;
 
     public:
-      SetOfAbstractPhyloLikelihood(Context& context, PhyloLikelihoodContainer* pC, const std::string& prefix = "");
+      /*
+       * @param inCollection : avoid suffix addition to parameter names
+       *
+       */
+      
+      SetOfAbstractPhyloLikelihood(Context& context, PhyloLikelihoodContainer* pC, bool inCollection = true, const std::string& prefix = "");
 
-      SetOfAbstractPhyloLikelihood(Context& context, PhyloLikelihoodContainer* pC, const std::vector<size_t>& nPhylo, const std::string& prefix = "");
+      SetOfAbstractPhyloLikelihood(Context& context, PhyloLikelihoodContainer* pC, const std::vector<size_t>& nPhylo, bool inCollection = true, const std::string& prefix = "");
 
       ~SetOfAbstractPhyloLikelihood() {}
 
@@ -116,19 +119,23 @@ namespace bpp
        * PhyloLikelihoodContainer, iff it is an
        * AbstractPhyloLikelihood.
        *
+       * @param nPhyl  number of the phylolikelihood
+       * @param suff for parameters names if use specific parameters names
+       *
        * @return if the PhyloLikelihood has been added.
        */
 
-      virtual bool addPhyloLikelihood(size_t nPhyl);
+      virtual bool addPhyloLikelihood(size_t nPhyl, const std::string& suff);
 
       /**
        *
        * @brief adds all PhyloLikelihoods already stored in the
        * PhyloLikelihoodContainer, iff their type fit.
        *
+       * @param addSuffix true if to use specific parameters names
        */
 
-      void addAllPhyloLikelihoods();
+      void addAllPhyloLikelihoods(bool addSuffix);
 
       /**
        *
@@ -137,24 +144,29 @@ namespace bpp
        * @{
        */
       
-      virtual const AbstractPhyloLikelihood* getAbstractPhyloLikelihood(size_t nPhyl) const
+      bool hasPhyloLikelihood(size_t nPhyl)
+      {
+        return pPhyloCont_->hasPhyloLikelihood(nPhyl);
+      }
+
+      const AbstractPhyloLikelihood* getAbstractPhyloLikelihood(size_t nPhyl) const
       {
         return dynamic_cast<const AbstractPhyloLikelihood*>((*pPhyloCont_)[nPhyl]);
       }
       
       
-      virtual AbstractPhyloLikelihood* getAbstractPhyloLikelihood(size_t nPhyl)
+      AbstractPhyloLikelihood* getAbstractPhyloLikelihood(size_t nPhyl)
       {
         return dynamic_cast<AbstractPhyloLikelihood*>((*pPhyloCont_)[nPhyl]);
       }
 
-      virtual const PhyloLikelihood* getPhyloLikelihood(size_t nPhyl) const
+      const PhyloLikelihood* getPhyloLikelihood(size_t nPhyl) const
       {
         return (*pPhyloCont_)[nPhyl];
       }
       
       
-      virtual PhyloLikelihood* getPhyloLikelihood(size_t nPhyl)
+      PhyloLikelihood* getPhyloLikelihood(size_t nPhyl)
       {
         return (*pPhyloCont_)[nPhyl];
       }
@@ -199,19 +211,6 @@ namespace bpp
         
       }
 
-      double getFirstOrderDerivative(const std::string& variable) const 
-      {
-        return 0;
-      }
-
-      double getSecondOrderDerivative(const std::string& variable) const
-      {
-        return 0;
-      }
-
-      double getSecondOrderDerivative(const std::string& variable1, const std::string& variable2) const
-      { return 0; } // Not implemented for now.
-      
       /**
        * @name Retrieve some particular parameters subsets.
        *

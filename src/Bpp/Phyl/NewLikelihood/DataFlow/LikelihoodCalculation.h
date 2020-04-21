@@ -51,9 +51,6 @@ namespace bpp {
    *  
    */
 
-  template <class A>
-  class LikelihoodCalculationMultiProcess;
-
   class LikelihoodCalculation :
     public AbstractParametrizable
   {
@@ -142,7 +139,6 @@ namespace bpp {
       return likelihood_;
     }
 
-    friend class LikelihoodCalculationMultiProcess<LikelihoodCalculation>;
   };
 
 
@@ -257,7 +253,6 @@ namespace bpp {
       throw Exception("AlignedLikelihoodCalculation:: makeLikelihoods should not be called.");
     }
 
-    friend class LikelihoodCalculationMultiProcess<AlignedLikelihoodCalculation>;
   };
   
 } // namespace bpp

@@ -39,33 +39,35 @@
 
 #include "FormulaOfPhyloLikelihood.h"
 
+#include <Bpp/Numeric/Function/Operators/BinaryOperator.h>
+#include <Bpp/Numeric/Function/Operators/FunctionOperator.h>
+#include <Bpp/Numeric/Function/Operators/ConstantOperator.h>
+#include <Bpp/Numeric/Function/Operators/NegativeOperator.h>
+#include <Bpp/Numeric/Function/Operators/MathOperator.h>
+
 using namespace bpp;
 using namespace std;
 
-FormulaOfPhyloLikelihood::FormulaOfPhyloLikelihood(Context& context, PhyloLikelihoodContainer* pC) :
+FormulaOfPhyloLikelihood::FormulaOfPhyloLikelihood(Context& context, PhyloLikelihoodContainer* pC, const std::string& formula, bool inCollection) :
   AbstractPhyloLikelihood(context),
-  SetOfAbstractPhyloLikelihood(context, pC),
-  compTree_()
+  SetOfAbstractPhyloLikelihood(context, pC, {}, inCollection),
+  compTree_(),
+  likCal_(new AlignedLikelihoodCalculation(context))
 {
-}
-
-FormulaOfPhyloLikelihood::FormulaOfPhyloLikelihood(Context& context, PhyloLikelihoodContainer* pC, const std::string& formula) :
-  AbstractPhyloLikelihood(context),
-  SetOfAbstractPhyloLikelihood(context, pC),
-  compTree_()
-{
-  readFormula(formula);
+  readFormula(formula, inCollection);
+  likCal_->setLikelihoodNode(makeLikelihoods());
 }
 
 
 FormulaOfPhyloLikelihood::FormulaOfPhyloLikelihood(const FormulaOfPhyloLikelihood& sd) :
   AbstractPhyloLikelihood(sd),
   SetOfAbstractPhyloLikelihood(sd),
-  compTree_(sd.compTree_->clone())
+  compTree_(sd.compTree_->clone()),
+  likCal_(sd.likCal_)  
 {
 }
 
-void FormulaOfPhyloLikelihood::readFormula(const std::string& formula)
+void FormulaOfPhyloLikelihood::readFormula(const std::string& formula, bool inCollection)
 {
   std::map<std::string, Function*> functionNames;
 
@@ -90,9 +92,10 @@ void FormulaOfPhyloLikelihood::readFormula(const std::string& formula)
   while (st.hasMoreToken())
   {
     string ex=st.nextToken();
-    addPhyloLikelihood((size_t)(atoi(ex.c_str())));
+    size_t np =(size_t)(atoi(ex.c_str()));
+    if (!hasPhyloLikelihood(np))
+      addPhyloLikelihood(np, inCollection?"":"_"+ex);
   }
-
 }
 
 std::string FormulaOfPhyloLikelihood::output() const
@@ -100,6 +103,70 @@ std::string FormulaOfPhyloLikelihood::output() const
   return compTree_->output();
 }
 
+ValueRef<double> FormulaOfPhyloLikelihood::makeLikelihoodsFromOperator(std::shared_ptr<Operator> op)
+{
+  auto cst = dynamic_pointer_cast<ConstantOperator>(op);
+  if (cst)
+    return NumericConstant<double>::create(context_, cst->getValue());
+
+  auto neg = dynamic_pointer_cast<NegativeOperator>(op);
+  if (neg)
+  {
+    auto sonDF = makeLikelihoodsFromOperator(neg->getSon());
+    return CWiseNegate<double>::create(context_, {sonDF}, Dimension<double> ());
+  }
+
+  auto bin = dynamic_pointer_cast<BinaryOperator>(op);
+  if (bin)
+  {
+    auto left = makeLikelihoodsFromOperator(bin->getLeftSon());
+    auto right = makeLikelihoodsFromOperator(bin->getRightSon());
+    
+    switch(bin->getSymbol())
+    {
+    case '+':
+      return CWiseAdd<double, std::tuple<double, double>>::create(context_, {left, right}, Dimension<double> ());
+    case '-':
+      return CWiseSub<double, std::tuple<double, double>>::create(context_, {left, right}, Dimension<double> ());
+    case '/':
+      {
+        auto inv = CWiseInverse<double>::create(context_, {right}, Dimension<double> ());
+        return CWiseMul<double, std::tuple<double, double>>::create(context_, {left, inv}, Dimension<double> ());
+      }
+    case '*':
+      return CWiseMul<double, std::tuple<double, double>>::create(context_, {left, right}, Dimension<double> ());
+    default:
+      return NumericConstant<double>::create(context_, 0);
+    }
+  }
+  
+  auto mat = dynamic_pointer_cast<MathOperator>(op);
+  if (mat)
+  {
+    auto sonDF = makeLikelihoodsFromOperator(mat->getSon());
+    auto name = mat->getName();
+    if (name=="exp")
+      return CWiseExp<double>::create(context_, {sonDF}, Dimension<double> ());
+    else if (name=="log")
+      return CWiseLog<double>::create(context_, {sonDF}, Dimension<double> ());
+    else
+      throw Exception("FormulaOfPhyloLikelihood::Makelikelihoodsfromoperator : unknown function " + name + ". Ask developpers.");
+  }
+
+
+  auto func = dynamic_pointer_cast<FunctionOperator<DerivableSecondOrder>>(op);
+  if (func)
+  {
+    auto name = func->getName();
+    if (name.substr(0,5)=="phylo")
+    {
+      auto phyl  = getAbstractPhyloLikelihood((size_t)(TextTools::toInt(name.substr(5, string::npos))));
+      return phyl->getLikelihoodNode();
+    }
+  }
+
+  throw Exception("FormulaOfPhyloLikelihood::makeLikelihoodsFromOperator : Unknown operator: " + op->output());
+}
 
 
 

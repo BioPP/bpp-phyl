@@ -42,10 +42,10 @@
 using namespace bpp;
 using namespace std;
 
-MixtureOfAlignedPhyloLikelihood::MixtureOfAlignedPhyloLikelihood(Context& context, PhyloLikelihoodContainer* pC, const std::vector<size_t>& nPhylo) :
+MixtureOfAlignedPhyloLikelihood::MixtureOfAlignedPhyloLikelihood(Context& context, PhyloLikelihoodContainer* pC, const std::vector<size_t>& nPhylo, bool inCollection) :
   AbstractPhyloLikelihood(context),
   AbstractAlignedPhyloLikelihood(context, 0),
-  SetOfAlignedPhyloLikelihood(context, pC, nPhylo, ""),
+  SetOfAlignedPhyloLikelihood(context, pC, nPhylo, inCollection, ""),
   likCal_(new AlignedLikelihoodCalculation(context))
 {
   Simplex simplex(getNumbersOfPhyloLikelihoods().size(), 1, false, "Mixture.");
@@ -60,7 +60,15 @@ MixtureOfAlignedPhyloLikelihood::MixtureOfAlignedPhyloLikelihood(Context& contex
   shareParameters_(paramList);
 
   // make Simplex DF & Frequencies from it
+
   simplex_ = ConfiguredParametrizable::createConfigured<Simplex, ConfiguredSimplex>(getContext(), simplex, paramList, "");
+
+  // for derivates
+  auto deltaNode = NumericMutable<double>::create(getContext(), 0.001);
+  auto config = NumericalDerivativeType::ThreePoints;
+
+  simplex_->config.delta = deltaNode;
+  simplex_->config.type = config;
 
   auto fsf = ConfiguredParametrizable::createVector<ConfiguredSimplex, FrequenciesFromSimplex>(getContext(), {simplex_}, rowVectorDimension (Eigen::Index(simplex.dimension())));
 
@@ -68,14 +76,14 @@ MixtureOfAlignedPhyloLikelihood::MixtureOfAlignedPhyloLikelihood(Context& contex
   std::vector<std::shared_ptr<Node_DF>> vSL;
   
   for (auto np:nPhylo)
-  {
-    vSL.push_back(getPhyloLikelihood(np)->getAlignedLikelihoodCalculation()->getSiteLikelihoods());
-  }
-    // put probabilities of the simplex
+    vSL.push_back(getPhyloLikelihood(np)->getAlignedLikelihoodCalculation()->getSiteLikelihoods(false));
+
+  // put probabilities of the simplex
 
   vSL.push_back(fsf);
 
   auto sL = CWiseMean<Eigen::RowVectorXd, ReductionOf<Eigen::RowVectorXd>, Eigen::RowVectorXd>::create(getContext(), std::move(vSL), rowVectorDimension (Eigen::Index(nbSites_)));
+
   likCal_->setSiteLikelihoods(sL);
 
   auto su = SumOfLogarithms<Eigen::RowVectorXd>::create (getContext(), {sL}, rowVectorDimension (Eigen::Index (nbSites_)));
