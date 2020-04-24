@@ -271,7 +271,7 @@ SubstitutionModel* BppOSubstitutionModelFormat::readSubstitutionModel(
   // //////////////////
   // PREDEFINED CODON MODELS
   
-  else if (((modelName == "MG94") || (modelName == "YN98") ||
+  else if (((modelName == "MG94") || (modelName == "YN98") || (modelName == "YNGP_M0") ||
             (modelName == "GY94") ||  (modelName.substr(0,3) == "KCM"))
            && (alphabetCode_ & CODON))
   {
