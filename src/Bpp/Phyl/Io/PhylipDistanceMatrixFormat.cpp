@@ -53,18 +53,18 @@ using namespace bpp;
 
 using namespace std;
 
-DistanceMatrix * PhylipDistanceMatrixFormat::read(istream& in) const
+DistanceMatrix * PhylipDistanceMatrixFormat::readDistanceMatrix(istream& in) const
 {
-	string s = FileTools::getNextLine(in);
-	// the size of the matrix:
-	unsigned int n = TextTools::fromString<unsigned int>(s);
-	DistanceMatrix * dist = new DistanceMatrix(n);
-	unsigned int rowNumber = 0;
-	unsigned int colNumber = 0;
-	s = FileTools::getNextLine(in);
-	while (in)
+  string s = FileTools::getNextLine(in);
+  // the size of the matrix:
+  unsigned int n = TextTools::fromString<unsigned int>(s);
+  DistanceMatrix * dist = new DistanceMatrix(n);
+  unsigned int rowNumber = 0;
+  unsigned int colNumber = 0;
+  s = FileTools::getNextLine(in);
+  while (in)
   {
-		if (colNumber == 0)
+    if (colNumber == 0)
     { // New row
       if (extended_) {
         size_t pos = s.find("  ");
@@ -77,26 +77,26 @@ DistanceMatrix * PhylipDistanceMatrixFormat::read(istream& in) const
         s = s.substr(11);
       }
     }
-		StringTokenizer st(s, "\t ");
-		for (; colNumber < n && st.hasMoreToken(); colNumber++)
+    StringTokenizer st(s, "\t ");
+    for (; colNumber < n && st.hasMoreToken(); colNumber++)
     {
-			double d = TextTools::fromString<double>(st.nextToken());
-			(* dist)(rowNumber, colNumber) = d;
-		}
-		if (colNumber == n)
+      double d = TextTools::fromString<double>(st.nextToken());
+      (* dist)(rowNumber, colNumber) = d;
+    }
+    if (colNumber == n)
     {
-			colNumber = 0;
-			rowNumber++;
-		}
-		s = FileTools::getNextLine(in);
-	}
-	return dist;
+      colNumber = 0;
+      rowNumber++;
+    }
+    s = FileTools::getNextLine(in);
+  }
+  return dist;
 }
 
-void PhylipDistanceMatrixFormat::write(const DistanceMatrix& dist, ostream& out) const
+void PhylipDistanceMatrixFormat::writeDistanceMatrix(const DistanceMatrix& dist, ostream& out) const
 {
-	size_t n = dist.size();
-	out << "   " << n << endl;
+  size_t n = dist.size();
+  out << "   " << n << endl;
   size_t offset = 10;
   if (extended_) {
     offset = 0;
@@ -105,7 +105,7 @@ void PhylipDistanceMatrixFormat::write(const DistanceMatrix& dist, ostream& out)
       if (s > offset) offset = s;
     }
   }
-	for (unsigned int i = 0; i < n; i++)
+  for (unsigned int i = 0; i < n; i++)
   {
     out << TextTools::resizeRight(dist.getName(i), offset, ' ');
     if (extended_) {
@@ -115,9 +115,9 @@ void PhylipDistanceMatrixFormat::write(const DistanceMatrix& dist, ostream& out)
     }
     for (unsigned int j = 0; j < n; j++) {
       if (j > 0) out << " ";
-		  out << setprecision(8) << dist(i, j); 
+      out << setprecision(8) << dist(i, j); 
     }
-		out << endl;
-	}
+    out << endl;
+  }
 }
 

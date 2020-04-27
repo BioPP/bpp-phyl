@@ -39,7 +39,7 @@
 
 #include "SubstitutionModelSetTools.h"
 #include "MixedSubstitutionModelSet.h"
-#include "MixedSubstitutionModel.h"
+#include "MixedTransitionModel.h"
 
 using namespace bpp;
 
@@ -47,14 +47,14 @@ using namespace std;
 
 SubstitutionModelSet* SubstitutionModelSetTools::createHomogeneousModelSet(
   TransitionModel* model,
-  FrequenciesSet* rootFreqs,
+  FrequencySet* rootFreqs,
   const Tree* tree
   )
 {
   // Check alphabet:
   if (model->getAlphabet()->getAlphabetType() != rootFreqs->getAlphabet()->getAlphabetType())
     throw AlphabetMismatchException("SubstitutionModelSetTools::createHomogeneousModelSet()", model->getAlphabet(), rootFreqs->getAlphabet());
-  if (dynamic_cast<MixedSubstitutionModel*>(model) != NULL)
+  if (dynamic_cast<MixedTransitionModel*>(model) != NULL)
     throw Exception("createHomogeneousModelSet non yet programmed for mixture models.");
 
   SubstitutionModelSet*  modelSet = new SubstitutionModelSet(model->getAlphabet());
@@ -80,44 +80,33 @@ SubstitutionModelSet* SubstitutionModelSetTools::createHomogeneousModelSet(
 
 SubstitutionModelSet* SubstitutionModelSetTools::createNonHomogeneousModelSet(
   TransitionModel* model,
-  FrequenciesSet* rootFreqs,
+  FrequencySet* rootFreqs,
   const Tree* tree,
   const std::map<std::string, std::string>& aliasFreqNames,
-  const vector<string>& globalParameterNames
+  const std::map<std::string, std::vector<Vint> >& globalParameterNames
   )
 {
   // Check alphabet:
   if (rootFreqs && model->getAlphabet()->getAlphabetType() != rootFreqs->getAlphabet()->getAlphabetType())
     throw AlphabetMismatchException("SubstitutionModelSetTools::createNonHomogeneousModelSet()", model->getAlphabet(), rootFreqs->getAlphabet());
-  ParameterList globalParameters, branchParameters;
+  ParameterList globalParameters;
   globalParameters = model->getParameters();
   
   vector<string> modelParamNames=globalParameters.getParameterNames();
   
-  vector<string> globalParameterNames2;
+  map<string, vector<Vint> > globalParameterNames2;
   
   // First get correct parameter names
 
-  for (size_t i = 0; i < globalParameterNames.size(); i++)
+  for (const auto& name: globalParameterNames)
   {
-    vector<string> complName=ApplicationTools::matchingParameters(globalParameterNames[i], modelParamNames);
+    vector<string> complName=ApplicationTools::matchingParameters(name.first, modelParamNames);
 
     if (complName.size()==0)
-      throw Exception("SubstitutionModelSetTools::createNonHomogeneousModelSet. Parameter '" + globalParameterNames[i] + "' is not valid.");
+      throw Exception("SubstitutionModelSetTools::createNonHomogeneousModelSet. Parameter '" + name.first + "' is not valid.");
     else
       for (size_t j=0; j<complName.size(); j++)
-        globalParameterNames2.push_back(complName[j]);
-  }
-
-  // remove non global parameters
-  for (size_t i = globalParameters.size(); i > 0; i--)
-  {
-    if (find(globalParameterNames2.begin(), globalParameterNames2.end(), globalParameters[i - 1].getName()) == globalParameterNames2.end())
-    {
-      // not a global parameter:
-      branchParameters.addParameter(globalParameters[i - 1]);
-      globalParameters.deleteParameter(i - 1);
-    }
+        globalParameterNames2[complName[j]]=name.second;
   }
 
   SubstitutionModelSet*  modelSet;
@@ -146,20 +135,38 @@ SubstitutionModelSet* SubstitutionModelSetTools::createNonHomogeneousModelSet(
   }
 
   // Now alias all global parameters on all nodes:
-  for (size_t i=0; i < globalParameters.size(); i++)
+  for (size_t nn=0;nn<globalParameters.size();nn++)
+  {
+    const Parameter& param=globalParameters[nn];
+    
+    string pname=param.getName();
+
+    if (globalParameterNames2.find(pname)!=globalParameterNames2.end())
     {
-      string pname=globalParameters[i].getName();
+      const vector<Vint>& vvids(globalParameterNames2[pname]);
 
-      for (size_t nn = 1; nn < ids.size(); nn++)
-        modelSet->aliasParameters(pname+"_1",pname+"_"+TextTools::toString(nn+1));
+      if (vvids.size()==0)
+      {
+        size_t fmid=modelSet->getModelIndexForNode(ids[0])+1;
+        for (size_t i = 1; i < ids.size(); i++)
+          modelSet->aliasParameters(pname+"_"+TextTools::toString(fmid),pname+"_"+TextTools::toString(modelSet->getModelIndexForNode(ids[i])+1));
+      }
+      else
+        for (const auto& vids:vvids)
+        {
+          size_t fmid=modelSet->getModelIndexForNode(vids[0]+1);
+          for (size_t i=1;i<vids.size();i++)
+            modelSet->aliasParameters(pname+"_"+TextTools::toString(fmid),pname+"_"+TextTools::toString(modelSet->getModelIndexForNode(vids[i])+1));
+        }
     }
-
+  }
+  
   // and alias on the root
   std::map<std::string, std::string>::const_iterator it;
 
   for (it = aliasFreqNames.begin(); it != aliasFreqNames.end(); it++)
   {
-    if (globalParameters.hasParameter(it->second))
+    if (globalParameterNames2.find(it->second)!=globalParameterNames2.end())
       modelSet->aliasParameters(it->second + "_1",it->first);
   }
 

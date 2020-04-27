@@ -57,7 +57,7 @@ AbstractTreeParsimonyScore::AbstractTreeParsimonyScore(
   statesMap_(0),
   nbStates_(0)
 {
-  statesMap_ = new CanonicalStateMap(alphabet_, includeGaps);
+  statesMap_ = std::shared_ptr<const StateMap>(new CanonicalStateMap(alphabet_, includeGaps));
   nbStates_  = statesMap_->getNumberOfModelStates();
   init_(data, verbose);
 }
@@ -66,7 +66,7 @@ AbstractTreeParsimonyScore::AbstractTreeParsimonyScore(
 AbstractTreeParsimonyScore::AbstractTreeParsimonyScore(
   const Tree& tree,
   const SiteContainer& data,
-  const StateMap* statesMap,
+  std::shared_ptr<const StateMap> statesMap,
   bool verbose) :
   tree_(new TreeTemplate<Node>(tree)),
   data_(0),

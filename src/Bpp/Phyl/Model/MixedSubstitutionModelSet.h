@@ -124,7 +124,7 @@ class MixedSubstitutionModelSet :
 public:
   class HyperNode
   {
-public:
+  public:
     class Node
     {
       /**
@@ -133,7 +133,7 @@ public:
        */
       Vint vNumb_;
 
-public:
+    public:
       Node() : vNumb_() {}
       Node(const Node& n) : vNumb_(n.vNumb_){}
       Node& operator=(const Node& n)

@@ -80,7 +80,7 @@ namespace bpp
 
     double gamma_;
 
-    std::shared_ptr<StateMap> stateMap_;
+    std::shared_ptr<const StateMap> stateMap_;
     
   public:
     /**
@@ -156,11 +156,12 @@ namespace bpp
       return pAAmodel_;
     }
 
-    const FrequenciesSet* getFrequenciesSet() const 
+    const FrequencySet* getFrequencySet() const 
     {
       return 0;
     }
 
+    void setFreq(std::map<int, double>& frequencies){};
   };
 
 } // end of namespace bpp.

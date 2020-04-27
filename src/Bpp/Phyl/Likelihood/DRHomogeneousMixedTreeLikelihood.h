@@ -41,7 +41,7 @@
 
 #include "DRHomogeneousTreeLikelihood.h"
 #include "../Model/SubstitutionModel.h"
-#include "../Model/MixedSubstitutionModel.h"
+#include "../Model/MixedTransitionModel.h"
 
 #include <Bpp/Numeric/VectorTools.h>
 #include <Bpp/Numeric/Prob/DiscreteDistribution.h>

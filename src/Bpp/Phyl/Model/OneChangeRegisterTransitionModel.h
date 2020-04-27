@@ -62,13 +62,12 @@ namespace bpp
   {
   private:
     /*
-     * The coordinates of the sustitutions or non-sustitutions that
-     * are NOT considered (ie for which the changes generator equals
-     * the model one).
+     * Boolean matrix of the sustitutions that are NOT considered (ie
+     * for which the changes generator equal the ones of the original model).
      *
      */
     
-    std::vector<std::vector<size_t> > otherChanges_;
+    RowMatrix<uint> noChangedStates_;
 
     /*
      * The SubstitutionModel in which generator has registered changes
@@ -122,7 +121,7 @@ namespace bpp
     OneChangeRegisterTransitionModel(const OneChangeRegisterTransitionModel& fmsm) :
       AbstractParameterAliasable(fmsm),
       AbstractFromSubstitutionModelTransitionModel(fmsm),
-      otherChanges_(fmsm.otherChanges_),
+      noChangedStates_(fmsm.noChangedStates_),
       modelChanged_(std::unique_ptr<AnonymousSubstitutionModel>(fmsm.modelChanged_->clone())),
       registerName_(fmsm.registerName_),
       vNumRegs_(fmsm.vNumRegs_)
@@ -133,7 +132,7 @@ namespace bpp
     OneChangeRegisterTransitionModel& operator=(const OneChangeRegisterTransitionModel& fmsm)
     {
       AbstractFromSubstitutionModelTransitionModel::operator=(fmsm);
-      otherChanges_=fmsm.otherChanges_;
+      noChangedStates_=fmsm.noChangedStates_;
       modelChanged_=std::unique_ptr<AnonymousSubstitutionModel>(fmsm.modelChanged_->clone());
       registerName_=fmsm.registerName_;
       vNumRegs_=fmsm.vNumRegs_;
@@ -165,11 +164,11 @@ namespace bpp
     const Matrix<double>& getd2Pij_dt2(double t) const;
 
     
-    double freq(size_t i) const { return modelChanged_->freq(i); }
+    double freq(size_t i) const { return getModel().freq(i); }
 
-    const Vdouble& getFrequencies() const { return modelChanged_->getFrequencies(); }
+    const Vdouble& getFrequencies() const { return getModel().getFrequencies(); }
 
-    const FrequenciesSet* getFrequenciesSet() const {return modelChanged_->getFrequenciesSet(); }
+    const FrequencySet* getFrequencySet() const {return getModel().getFrequencySet(); }
 
     void setFreqFromData(const SequenceContainer& data, double pseudoCount)
     {
@@ -185,7 +184,7 @@ namespace bpp
 
     void setRate(double rate) { return getModel().setRate(rate); }
 
-    double getInitValue(size_t i, int state) const { return modelChanged_->getInitValue(i, state); }
+    double getInitValue(size_t i, int state) const { return getModel().getInitValue(i, state); }
 
     void updateMatrices();
     

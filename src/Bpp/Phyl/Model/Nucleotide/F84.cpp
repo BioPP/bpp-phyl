@@ -38,7 +38,7 @@ knowledge of the CeCILL license and that you accept its terms.
 */
 
 #include "F84.h"
-#include "../FrequenciesSet/NucleotideFrequenciesSet.h"
+#include "../FrequencySet/NucleotideFrequencySet.h"
 
 #include <Bpp/Numeric/Matrix/MatrixTools.h>
 
@@ -61,15 +61,15 @@ F84::F84(
     double piG,
     double piT) :
   AbstractParameterAliasable("F84."),
-  AbstractReversibleNucleotideSubstitutionModel(alpha, new CanonicalStateMap(alpha, false), "F84."),
+  AbstractReversibleNucleotideSubstitutionModel(alpha, std::shared_ptr<const StateMap>(new CanonicalStateMap(alpha, false)), "F84."),
   kappa_(kappa), piA_(piA), piC_(piC), piG_(piG), piT_(piT), piY_(), piR_(),
   r_(), k1_(), k2_(), theta_(piG + piC), theta1_(piA / (1. - theta_)), theta2_(piG / theta_),
   l_(), exp1_(), exp2_(), p_(size_, size_)
 {
-  addParameter_(new Parameter("F84.kappa", kappa, &Parameter::R_PLUS));
-  addParameter_(new Parameter("F84.theta" , theta_ , &FrequenciesSet::FREQUENCE_CONSTRAINT_SMALL));
-  addParameter_(new Parameter("F84.theta1", theta1_, &FrequenciesSet::FREQUENCE_CONSTRAINT_SMALL));
-  addParameter_(new Parameter("F84.theta2", theta2_, &FrequenciesSet::FREQUENCE_CONSTRAINT_SMALL));
+  addParameter_(new Parameter("F84.kappa", kappa, Parameter::R_PLUS));
+  addParameter_(new Parameter("F84.theta" , theta_ , FrequencySet::FREQUENCE_CONSTRAINT_SMALL));
+  addParameter_(new Parameter("F84.theta1", theta1_, FrequencySet::FREQUENCE_CONSTRAINT_SMALL));
+  addParameter_(new Parameter("F84.theta2", theta2_, FrequencySet::FREQUENCE_CONSTRAINT_SMALL));
   updateMatrices();
 }
 
@@ -454,7 +454,7 @@ void F84::setFreq(map<int, double>& freqs)
   thetas[0] = getNamespace()+ "theta";
   thetas[1] = getNamespace() + "theta1";
   thetas[2] = getNamespace() + "theta2";
-  ParameterList pl = getParameters().subList(thetas);
+  ParameterList pl = getParameters().createSubList(thetas);
   pl[0].setValue(piC_ + piG_);
   pl[1].setValue(piA_ / (piA_ + piT_));
   pl[2].setValue(piG_ / (piC_ + piG_));

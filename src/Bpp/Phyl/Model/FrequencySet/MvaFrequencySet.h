@@ -1,5 +1,5 @@
 //
-// File: MvaFrequenciesSet.h
+// File: MvaFrequencySet.h
 // Created by: Mathieu Groussin
 // Created on: Sat Jan 12 2013
 //
@@ -37,10 +37,10 @@
   knowledge of the CeCILL license and that you accept its terms.
 */
 
-#ifndef _MVAFREQUENCIESSET_H_
-#define _MVAFREQUENCIESSET_H_
+#ifndef _MVAFREQUENCYSET_H_
+#define _MVAFREQUENCYSET_H_
 
-#include "ProteinFrequenciesSet.h"
+#include "ProteinFrequencySet.h"
 #include "../Protein/Coala.h"
 
 namespace bpp
@@ -54,21 +54,21 @@ namespace bpp
  * @author Mathieu Groussin
  */	
 	
-  class MvaFrequenciesSet :
-    public virtual ProteinFrequenciesSet,
-    public AbstractFrequenciesSet
+  class MvaFrequencySet :
+    public virtual ProteinFrequencySet,
+    public AbstractFrequencySet
   {
   public:
     /**
      * @brief Constructor 
      */
-    MvaFrequenciesSet(const ProteicAlphabet* alpha);
+    MvaFrequencySet(const ProteicAlphabet* alpha);
 	
-    MvaFrequenciesSet* clone() const { return new MvaFrequenciesSet(*this); }
+    MvaFrequencySet* clone() const { return new MvaFrequencySet(*this); }
 	
-    MvaFrequenciesSet& operator=(const MvaFrequenciesSet& mfs)
+    MvaFrequencySet& operator=(const MvaFrequencySet& mfs)
     {
-      AbstractFrequenciesSet::operator=(mfs);
+      AbstractFrequencySet::operator=(mfs);
       tPpalAxes_ = mfs.tPpalAxes_;
       rowCoords_ = mfs.rowCoords_;
       nbrOfAxes_ = mfs.nbrOfAxes_;
@@ -87,7 +87,7 @@ namespace bpp
     std::map<std::string,std::string> paramValues_;
 	
   public:
-    const ProteicAlphabet* getAlphabet() const { return dynamic_cast<const ProteicAlphabet*>(AbstractFrequenciesSet::getAlphabet()); }
+    const ProteicAlphabet* getAlphabet() const { return dynamic_cast<const ProteicAlphabet*>(AbstractFrequencySet::getAlphabet()); }
 
     void setTransposeMatrixOfPpalAxes(const RowMatrix<double>& matrix) { tPpalAxes_ = matrix; }
     void setMatrixOfRowCoords(const RowMatrix<double>& matrix) { rowCoords_ = matrix; }
@@ -114,5 +114,5 @@ namespace bpp
 
 } // end of namespace bpp.
 
-#endif // _MVAFREQUENCIESSET_H_
+#endif // _MVAFREQUENCYSET_H_
 

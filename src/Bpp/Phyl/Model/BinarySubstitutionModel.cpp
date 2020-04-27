@@ -53,13 +53,13 @@ using namespace std;
 BinarySubstitutionModel::BinarySubstitutionModel(const BinaryAlphabet* alpha, double kappa) :
   AbstractParameterAliasable("Binary."),
   //AbstractSubstitutionModel(alpha, new CanonicalStateMap(alpha, false), "Binary."),
-  AbstractReversibleSubstitutionModel(alpha, new CanonicalStateMap(alpha, false), "Binary."),
+  AbstractReversibleSubstitutionModel(alpha, std::shared_ptr<const StateMap>(new CanonicalStateMap(alpha, false)), "Binary."),
   kappa_(kappa),
   lambda_(0),
   exp_(0),
   p_(size_,size_)
 {
-  addParameter_(new Parameter(getNamespace() + "kappa", kappa_, &Parameter::R_PLUS_STAR));
+  addParameter_(new Parameter(getNamespace() + "kappa", kappa_, Parameter::R_PLUS_STAR));
   updateMatrices();
 }
 

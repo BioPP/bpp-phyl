@@ -41,7 +41,7 @@ knowledge of the CeCILL license and that you accept its terms.
 #include <Bpp/Seq/Alphabet/AlphabetTools.h>
 #include <Bpp/Phyl/TreeTemplate.h>
 #include <Bpp/Phyl/Model/Nucleotide/T92.h>
-#include <Bpp/Phyl/Model/FrequenciesSet/NucleotideFrequenciesSet.h>
+#include <Bpp/Phyl/Model/FrequencySet/NucleotideFrequencySet.h>
 #include <Bpp/Phyl/Model/RateDistribution/ConstantRateDistribution.h>
 #include <Bpp/Phyl/Model/RateDistribution/GammaDiscreteRateDistribution.h>
 #include <Bpp/Phyl/Model/SubstitutionModelSetTools.h>
@@ -61,9 +61,9 @@ int main() {
 
   NucleicAlphabet* alphabet = new DNA();
   SubstitutionModel* model = new T92(alphabet, 3.);
-  FrequenciesSet* rootFreqs = new GCFrequenciesSet(alphabet);
-  std::vector<std::string> globalParameterNames;
-  globalParameterNames.push_back("T92.kappa");
+  FrequencySet* rootFreqs = new GCFrequencySet(alphabet);
+  std::map<std::string, std::vector<Vint> > globalParameterNames;
+  globalParameterNames["T92.kappa"]={};
   map<string, string> alias;
 
   SubstitutionModelSet* modelSet = SubstitutionModelSetTools::createNonHomogeneousModelSet(model, rootFreqs, tree, alias, globalParameterNames);

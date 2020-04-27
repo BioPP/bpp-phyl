@@ -112,9 +112,14 @@ namespace bpp
   protected:
     SubstitutionModel& getSubstitutionModel() { return *pmodel_.get(); }
 
-    const FrequenciesSet* getFrequenciesSet() const {
+    const FrequencySet* getFrequencySet() const {
       return 0;
     }
+
+    void setFreq(std::map<int, double>& frequencies)
+    {
+      ((AbstractBiblioSubstitutionModel*)pmodel_.get())->setFreq(frequencies);
+    };
 
   };
 

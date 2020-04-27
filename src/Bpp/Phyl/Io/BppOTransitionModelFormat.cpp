@@ -50,7 +50,7 @@
 
 #include "../App/PhylogeneticsApplicationTools.h"
 
-#include "BppOFrequenciesSetFormat.h"
+#include "BppOFrequencySetFormat.h"
 
 #include <Bpp/Seq/App/SequenceApplicationTools.h>
 #include <Bpp/Seq/Alphabet/AlphabetTools.h>
@@ -58,6 +58,25 @@
 #include <Bpp/Io/OutputStream.h>
 #include <Bpp/Io/BppOParametrizableFormat.h>
 #include <Bpp/Io/BppODiscreteDistributionFormat.h>
+
+#include "../Model/MixedTransitionModel.h"
+#include "../Model/MixtureOfATransitionModel.h"
+#include "../Model/MixtureOfTransitionModels.h"
+
+#include "../Model/Codon/YNGP_M1.h"
+#include "../Model/Codon/YNGP_M2.h"
+#include "../Model/Codon/YNGP_M3.h"
+#include "../Model/Codon/YNGP_M7.h"
+#include "../Model/Codon/YNGP_M8.h"
+#include "../Model/Codon/YNGP_M9.h"
+#include "../Model/Codon/YNGP_M10.h"
+#include "../Model/Protein/LLG08_EX2.h"
+#include "../Model/Protein/LLG08_EX3.h"
+#include "../Model/Protein/LLG08_UL2.h"
+#include "../Model/Protein/LLG08_UL3.h"
+#include "../Model/Protein/LGL08_CAT.h"
+#include "../Model/Protein/LLG08_EHO.h"
+#include "../Model/Protein/LG10_EX_EHO.h"
 
 //From Numeric
 
@@ -87,7 +106,13 @@ TransitionModel* BppOTransitionModelFormat::readTransitionModel(
   map<string, string> args;
   KeyvalTools::parseProcedure(modelDescription, modelName, args);
 
-  if (modelName == "OneChange")
+  // //////////////////////////////////
+  // / MIXED MODELS
+  // ////////////////////////////////
+
+  if ((modelName == "MixedModel" || (modelName == "Mixture")) && allowMixed_)
+    model.reset(readMixed_(alphabet, modelDescription, data));
+  else if (modelName == "OneChange")
   {
     // We have to parse the nested model first:
     if (args.find("model")==args.end())
@@ -97,7 +122,7 @@ TransitionModel* BppOTransitionModelFormat::readTransitionModel(
     if (geneticCode_)
       nestedReader.setGeneticCode(geneticCode_);
     
-    SubstitutionModel* nestedModel=nestedReader.read(alphabet, nestedModelDescription, data, false);
+    SubstitutionModel* nestedModel=nestedReader.readSubstitutionModel(alphabet, nestedModelDescription, data, false);
     map<string, string> unparsedParameterValuesNested(nestedReader.getUnparsedArguments());
 
     // We look for the register:
@@ -132,20 +157,232 @@ TransitionModel* BppOTransitionModelFormat::readTransitionModel(
     }
 
     // Then we update the parameter set:
-    for (map<string, string>::iterator it = unparsedParameterValuesNested.begin(); it != unparsedParameterValuesNested.end(); it++)
+    for (auto&  it:unparsedParameterValuesNested)
     {
-      unparsedArguments_["OneChange." + it->first] = it->second;
+      unparsedArguments_["OneChange." + it.first] = it.second;
+    }
+    delete nestedModel;
+  }
+  // //////////////////
+  // PREDEFINED CODON MODELS
+  else if ((modelName.substr(0, 4) == "YNGP")  && (alphabetCode_ & CODON))
+  {
+    if (!(alphabetCode_ & CODON))
+      throw Exception("BppOTransitionModelFormat::read. Codon alphabet not supported.");
+    if (!geneticCode_)
+      throw Exception("BppOTransitionModelFormat::readTransitionModel(). No genetic code specified! Consider using 'setGeneticCode'.");
+  
+    if (!AlphabetTools::isCodonAlphabet(alphabet))
+      throw Exception("Alphabet should be Codon Alphabet.");
+    const CodonAlphabet* pCA = dynamic_cast<const CodonAlphabet*>(alphabet);
+
+    if (args.find("genetic_code") != args.end()) {
+      ApplicationTools::displayWarning("'genetic_code' argument is no longer supported inside model description, and has been supersided by a global 'genetic_code' option.");
+      throw Exception("BppOSubstitutionModelFormat::read. Deprecated 'genetic_code' argument.");
     }
 
-    delete nestedModel;
+    if (geneticCode_->getSourceAlphabet()->getAlphabetType() != pCA->getAlphabetType())
+      throw Exception("Mismatch between genetic code and codon alphabet");
 
-    // update only for transition models
+    string freqOpt = ApplicationTools::getStringParameter("frequencies", args, "F0", "", true, warningLevel_);
+    BppOFrequencySetFormat freqReader(BppOFrequencySetFormat::ALL, verbose_, warningLevel_);
+    freqReader.setGeneticCode(geneticCode_); //This uses the same instance as the one that will be used by the model.
+    unique_ptr<FrequencySet> codonFreqs(freqReader.readFrequencySet(pCA, freqOpt, data, false));
+    map<string, string> unparsedParameterValuesNested(freqReader.getUnparsedArguments());
+
+    for (auto& it:unparsedParameterValuesNested)
+      unparsedArguments_[modelName + "." + it.first] = it.second;
+
+    if (modelName == "YNGP_M1")
+      model.reset(new YNGP_M1(geneticCode_, codonFreqs.release()));
+    else if (modelName == "YNGP_M2")
+      model.reset(new YNGP_M2(geneticCode_, codonFreqs.release()));
+    else if (modelName == "YNGP_M3")
+      if (args.find("n") == args.end())
+        model.reset(new YNGP_M3(geneticCode_, codonFreqs.release()));
+      else
+        model.reset(new YNGP_M3(geneticCode_, codonFreqs.release(), TextTools::to<unsigned int>(args["n"])));
+    else if ((modelName == "YNGP_M7") || modelName == "YNGP_M8")
+    {
+      if (args.find("n") == args.end())
+        throw Exception("Missing argument 'n' (number of classes) in " + modelName + " distribution");
+      unsigned int nbClasses = TextTools::to<unsigned int>(args["n"]);
+      if (verbose_)
+        ApplicationTools::displayResult("Number of classes in model", nbClasses);
+
+      if (modelName == "YNGP_M7")
+        model.reset(new YNGP_M7(geneticCode_, codonFreqs.release(), nbClasses));
+      else if (modelName == "YNGP_M8")
+        model.reset(new YNGP_M8(geneticCode_, codonFreqs.release(), nbClasses));
+    }
+    else if (modelName == "YNGP_M9" || modelName == "YNGP_M10")
+    {
+      if (args.find("nbeta") == args.end())
+        throw Exception("Missing argument 'nbeta' (number of classes of beta distribution) in " + modelName + " distribution");
+      unsigned int nbBeta = TextTools::to<unsigned int>(args["nbeta"]);
+      if (args.find("ngamma") == args.end())
+        throw Exception("Missing argument 'ngamma' (number of classes of gamma distribution) in " + modelName + " distribution");
+      unsigned int nbGamma = TextTools::to<unsigned int>(args["ngamma"]);
+      if (verbose_)
+        ApplicationTools::displayResult("Number of classes in model", nbBeta + nbGamma);
+
+      if (modelName == "YNGP_M9")
+        model.reset(new YNGP_M9(geneticCode_, codonFreqs.release(), nbBeta, nbGamma));
+      else
+        model.reset(new YNGP_M10(geneticCode_, codonFreqs.release(), nbBeta, nbGamma));
+    }
+  }
+  else if (AlphabetTools::isProteicAlphabet(alphabet))
+  {
+    if (!(alphabetCode_ & PROTEIN))
+      throw Exception("BppOTransitionModelFormat::read. Protein alphabet not supported.");
+    const ProteicAlphabet* alpha = dynamic_cast<const ProteicAlphabet*>(alphabet);
+
+    if (modelName == "LLG08_EHO")
+      model.reset(new LLG08_EHO(alpha));
+    else if (modelName == "LLG08_EX2")
+      model.reset(new LLG08_EX2(alpha));
+    else if (modelName == "LLG08_EX3")
+      model.reset(new LLG08_EX3(alpha));
+    else if (modelName == "LLG08_UL2")
+      model.reset(new LLG08_UL2(alpha));
+    else if (modelName == "LLG08_UL3")
+      model.reset(new LLG08_UL3(alpha));
+    else if (modelName == "LG10_EX_EHO")
+      model.reset(new LG10_EX_EHO(alpha));	
+    else if (modelName == "LGL08_CAT")
+    {
+      if (args.find("nbCat")==args.end())
+        throw Exception("'nbCat' argument is compulsory for model 'LGL08_CAT'");
+          
+      unsigned int nbCat = TextTools::to<unsigned int>(args["nbCat"]);
+      model.reset(new LGL08_CAT(alpha, nbCat));
+    }
+  }
+
+  if (!model)
+    model.reset(readSubstitutionModel(alphabet, modelDescription, data, parseArguments));
+  else
+  {
+    if (verbose_)
+      ApplicationTools::displayResult("Transition model", modelName);
+  
     updateParameters_(model.get(), args);
+  
     if (parseArguments)
       initialize_(*model, data);
   }
+  
+  return model.release();
+}
+
+MixedTransitionModel* BppOTransitionModelFormat::readMixed_(const Alphabet* alphabet, const std::string& modelDescription, const SiteContainer* data)
+{
+  unique_ptr<MixedTransitionModel> model;
+
+  string modelName = "";
+  map<string, string> args;
+  KeyvalTools::parseProcedure(modelDescription, modelName, args);
+  unique_ptr<TransitionModel> pSM;
+
+  if (modelName == "MixedModel")
+  {
+    if (args.find("model") == args.end())
+      throw Exception("The argument 'model' is missing from MixedModel description");
+    string nestedModelDescription = args["model"];
+    BppOTransitionModelFormat nestedReader(alphabetCode_, allowCovarions_, true, allowGaps_, false, warningLevel_);
+    if (geneticCode_)
+      nestedReader.setGeneticCode(geneticCode_); //This uses the same
+    //instance as the one
+    //that will be used
+    //by the model.
+    pSM.reset(nestedReader.readTransitionModel(alphabet, nestedModelDescription, data, false));
+
+    map<string, string> unparsedParameterValuesNested(nestedReader.getUnparsedArguments());
+
+    map<string, DiscreteDistribution*> mdist;
+    map<string, string> unparsedParameterValuesNested2;
+
+    for (auto& it:unparsedParameterValuesNested)
+    {
+      if (it.second.find("(") != string::npos)
+      {
+        BppODiscreteDistributionFormat bIO(false);
+        mdist[pSM->getParameterNameWithoutNamespace(it.first)] = bIO.readDiscreteDistribution(it.second, false);
+        map<string, string> unparsedParameterValuesNested3(bIO.getUnparsedArguments());
+        for (auto& it2:unparsedParameterValuesNested3)
+          unparsedParameterValuesNested2[it.first + "_" + it2.first] = it2.second;
+      }
+      else
+        unparsedParameterValuesNested2[it.first] = it.second;
+    }
+
+    for (auto& it:unparsedParameterValuesNested2)
+      unparsedArguments_[it.first] = it.second;
+
+
+    int fi(-1), ti(-1);
+
+    if (args.find("from") != args.end())
+      fi = alphabet->charToInt(args["from"]);
+    if (args.find("to") != args.end())
+      ti = alphabet->charToInt(args["to"]);
+
+    string sModN=pSM->getName();
+    model.reset(new MixtureOfATransitionModel(alphabet, pSM.release(), mdist, fi, ti));
+
+    vector<string> v = model->getParameters().getParameterNames();
+
+    for (auto&  it:mdist)
+      delete it.second;
+
+    if (verbose_)
+    {
+      ApplicationTools::displayResult("Mixture Of A TransitionModel Model", sModN);
+      ApplicationTools::displayResult("Number of classes", model->getNumberOfModels());
+    }
+  }
+  else if (modelName == "Mixture")
+  {
+    vector<string> v_nestedModelDescription;
+    vector<TransitionModel*> v_pSM;
+
+    if (args.find("model1") == args.end())
+    {
+      throw Exception("Missing argument 'model1' for model " + modelName + ".");
+    }
+    unsigned int nbmodels = 0;
+
+    while (args.find("model" + TextTools::toString(nbmodels + 1)) != args.end())
+    {
+      v_nestedModelDescription.push_back(args["model" + TextTools::toString(++nbmodels)]);
+    }
+
+    if (nbmodels < 2)
+      throw Exception("Missing nested models for model " + modelName + ".");
+
+    for (unsigned i = 0; i < v_nestedModelDescription.size(); i++)
+    {
+      BppOTransitionModelFormat nestedReader(alphabetCode_, false, true, false, false, warningLevel_);
+      if (geneticCode_)
+        nestedReader.setGeneticCode(geneticCode_); //This uses the same instance as the one that will be used by the model.
+
+      pSM.reset(nestedReader.readTransitionModel(alphabet, v_nestedModelDescription[i], data, false));
+
+      map<string, string> unparsedParameterValuesNested(nestedReader.getUnparsedArguments());
+      for (auto& it:unparsedParameterValuesNested)
+        unparsedArguments_[modelName + "." + TextTools::toString(i + 1) + "_" + it.first] = it.second;
+
+      v_pSM.push_back(pSM.release());
+    }
+
+    model.reset(new MixtureOfTransitionModels(alphabet, v_pSM));
+    if (verbose_)
+      ApplicationTools::displayResult("Mixture Of TransitionModel Models", modelName );
+  }
   else
-    model.reset(BppOSubstitutionModelFormat::read(alphabet, modelDescription, data, parseArguments));
+    throw Exception("Unknown model name for mixture " + modelName);
 
   return model.release();
 }
+

@@ -85,7 +85,7 @@ namespace bpp
   
     double B_, S_;
     
-    std::shared_ptr<StateMap> stateMap_;
+    std::shared_ptr<const StateMap> stateMap_;
     
   public:
     /**
@@ -130,11 +130,12 @@ namespace bpp
 
     double getCodonsMulRate(size_t i, size_t j) const;
 
-    const FrequenciesSet* getFrequenciesSet() const 
+    const FrequencySet* getFrequencySet() const 
     {
       return 0;
     }
 
+    void setFreq(std::map<int, double>& frequencies){};
   };
 
 } // end of namespace bpp.

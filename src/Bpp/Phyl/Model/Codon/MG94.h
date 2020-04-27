@@ -82,7 +82,7 @@ namespace bpp
     std::unique_ptr<CodonDistancePhaseFrequenciesSubstitutionModel> pmodel_;
 
   public:
-    MG94(const GeneticCode* gc, FrequenciesSet* codonFreqs);
+    MG94(const GeneticCode* gc, FrequencySet* codonFreqs);
 
     MG94(const MG94& mg94);
 
@@ -101,7 +101,12 @@ namespace bpp
   
     double getCodonsMulRate(size_t i, size_t j) const { return pmodel_->getCodonsMulRate(i, j); }
 
-    const FrequenciesSet* getFrequenciesSet() const { return pmodel_->getFrequenciesSet();}
+    const FrequencySet* getFrequencySet() const { return pmodel_->getFrequencySet();}
+
+    void setFreq(std::map<int, double>& frequencies) 
+    {
+      pmodel_->setFreq(frequencies);
+    }
 
   protected:
     SubstitutionModel& getSubstitutionModel() { return *pmodel_.get(); }

@@ -38,7 +38,7 @@
 */
 
 #include "HKY85.h"
-#include "../FrequenciesSet/NucleotideFrequenciesSet.h"
+#include "../FrequencySet/NucleotideFrequencySet.h"
 
 #include <Bpp/Numeric/Matrix/MatrixTools.h>
 
@@ -62,16 +62,16 @@ HKY85::HKY85(
   double piG,
   double piT):
   AbstractParameterAliasable("HKY85."),
-  AbstractReversibleNucleotideSubstitutionModel(alpha, new CanonicalStateMap(alpha, false), "HKY85."),
+  AbstractReversibleNucleotideSubstitutionModel(alpha, std::shared_ptr<const StateMap>(new CanonicalStateMap(alpha, false)), "HKY85."),
   kappa_(kappa), k1_(), k2_(), r_(),
   piA_(piA), piC_(piC), piG_(piG), piT_(piT), piY_(), piR_(),
   theta_(piG + piC), theta1_(piA / (1. - theta_)), theta2_(piG / theta_),
   exp1_(), exp21_(), exp22_(), l_(), p_(size_, size_)
 {
-  addParameter_(new Parameter("HKY85.kappa", kappa, &Parameter::R_PLUS_STAR));
-  addParameter_(new Parameter("HKY85.theta" , theta_, &FrequenciesSet::FREQUENCE_CONSTRAINT_SMALL));
-  addParameter_(new Parameter("HKY85.theta1", theta1_, &FrequenciesSet::FREQUENCE_CONSTRAINT_SMALL));
-  addParameter_(new Parameter("HKY85.theta2", theta2_, &FrequenciesSet::FREQUENCE_CONSTRAINT_SMALL));
+  addParameter_(new Parameter("HKY85.kappa", kappa, Parameter::R_PLUS_STAR));
+  addParameter_(new Parameter("HKY85.theta" , theta_, FrequencySet::FREQUENCE_CONSTRAINT_SMALL));
+  addParameter_(new Parameter("HKY85.theta1", theta1_, FrequencySet::FREQUENCE_CONSTRAINT_SMALL));
+  addParameter_(new Parameter("HKY85.theta2", theta2_, FrequencySet::FREQUENCE_CONSTRAINT_SMALL));
   updateMatrices();
 }
 
@@ -465,7 +465,7 @@ void HKY85::setFreq(std::map<int, double>& freqs)
   thetas[0] = getNamespace() + "theta";
   thetas[1] = getNamespace() + "theta1";
   thetas[2] = getNamespace() + "theta2";
-  ParameterList pl = getParameters().subList(thetas);
+  ParameterList pl = getParameters().createSubList(thetas);
   pl[0].setValue(piC_ + piG_);
   pl[1].setValue(piA_ / (piA_ + piT_));
   pl[2].setValue(piG_ / (piC_ + piG_));

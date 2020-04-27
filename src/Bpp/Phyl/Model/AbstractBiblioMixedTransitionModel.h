@@ -1,5 +1,5 @@
 //
-// File: AbstractBiblioMixedSubstitutionModel.h
+// File: AbstractBiblioMixedTransitionModel.h
 // Created by: Laurent Gueguen
 // Created on: lundi 18 juillet 2011, à 15h 17
 //
@@ -37,11 +37,11 @@
   knowledge of the CeCILL license and that you accept its terms.
 */
 
-#ifndef _ABSTRACTBIBLIOMIXEDSUBSTITUTIONMODEL_H_
-#define _ABSTRACTBIBLIOMIXEDSUBSTITUTIONMODEL_H_
+#ifndef _ABSTRACTBIBLIOMIXED_TRANSITION_MODEL_H_
+#define _ABSTRACTBIBLIOMIXED_TRANSITION_MODEL_H_
 
 #include "AbstractBiblioSubstitutionModel.h"
-#include "MixedSubstitutionModel.h"
+#include "MixedTransitionModel.h"
 
 namespace bpp
 {
@@ -50,25 +50,25 @@ namespace bpp
  * @author Laurent Guéguen
  */
 
-  class AbstractBiblioMixedSubstitutionModel :
-    public virtual MixedSubstitutionModel,
-    public AbstractBiblioSubstitutionModel
+  class AbstractBiblioMixedTransitionModel :
+    public virtual MixedTransitionModel,
+    public AbstractBiblioTransitionModel
   {
   protected:
-    std::unique_ptr<MixedSubstitutionModel> pmixmodel_;
+    std::unique_ptr<MixedTransitionModel> pmixmodel_;
     
   public:
-    AbstractBiblioMixedSubstitutionModel(const std::string& prefix);
+    AbstractBiblioMixedTransitionModel(const std::string& prefix);
 
-    AbstractBiblioMixedSubstitutionModel(const AbstractBiblioMixedSubstitutionModel& model);
+    AbstractBiblioMixedTransitionModel(const AbstractBiblioMixedTransitionModel& model);
 
-    AbstractBiblioMixedSubstitutionModel& operator=(const AbstractBiblioMixedSubstitutionModel& model);
+    AbstractBiblioMixedTransitionModel& operator=(const AbstractBiblioMixedTransitionModel& model);
 
-    virtual ~AbstractBiblioMixedSubstitutionModel();
+    virtual ~AbstractBiblioMixedTransitionModel();
 
-    virtual AbstractBiblioMixedSubstitutionModel* clone() const
+    virtual AbstractBiblioMixedTransitionModel* clone() const
     {
-      return new AbstractBiblioMixedSubstitutionModel(*this);
+      return new AbstractBiblioMixedTransitionModel(*this);
     }
     
 
@@ -78,12 +78,12 @@ namespace bpp
      *
      */
   
-    const SubstitutionModel* getNModel(size_t i) const
+    const TransitionModel* getNModel(size_t i) const
     {
       return getMixedModel().getNModel(i);
     }
 
-    SubstitutionModel* getNModel(size_t i)
+    TransitionModel* getNModel(size_t i)
     {
       return getMixedModel().getNModel(i);
     }
@@ -167,9 +167,9 @@ namespace bpp
      *
      */
   
-    const SubstitutionModel* getSubModelWithName(const std::string& name) const
+    const TransitionModel* getModel(const std::string& name) const
     {
-      return getMixedModel().getSubModelWithName(name);
+      return getMixedModel().getModel(name);
     }
   
     /*
@@ -179,22 +179,22 @@ namespace bpp
      */
     Vint getSubmodelNumbers(const std::string& desc) const;
 
-    const SubstitutionModel& getSubstitutionModel() const { return *pmixmodel_.get(); }
+    const TransitionModel& getModel() const { return *pmixmodel_.get(); }
 
-    const MixedSubstitutionModel& getMixedModel() const { return *pmixmodel_.get(); }
+    const MixedTransitionModel& getMixedModel() const { return *pmixmodel_.get(); }
     
   protected:
-    SubstitutionModel& getSubstitutionModel()
+    TransitionModel& getModel()
     {
       return *pmixmodel_.get();
     }
     
-    MixedSubstitutionModel& getMixedModel() { return *pmixmodel_.get(); }
+    MixedTransitionModel& getMixedModel() { return *pmixmodel_.get(); }
 
-    const FrequenciesSet* getFrequenciesSet() const {return pmixmodel_->getNModel(1)->getFrequenciesSet();}
+    const FrequencySet* getFrequencySet() const {return pmixmodel_->getNModel(0)->getFrequencySet();}
   };
 
 } // end of namespace bpp.
 
-#endif  // _AbstractBiblioMixedSubstitutionModel_H_
+#endif  // _AbstractBiblioMixedTransitionModel_H_
 

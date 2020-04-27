@@ -22,7 +22,7 @@ set (CPP_FILES
   Bpp/Phyl/Graphics/PhylogramPlot.cpp
   Bpp/Phyl/Graphics/TreeDrawingDisplayControler.cpp
   Bpp/Phyl/Graphics/TreeDrawingListener.cpp
-  Bpp/Phyl/Io/BppOFrequenciesSetFormat.cpp
+  Bpp/Phyl/Io/BppOFrequencySetFormat.cpp
   Bpp/Phyl/Io/BppOMultiTreeReaderFormat.cpp
   Bpp/Phyl/Io/BppOMultiTreeWriterFormat.cpp
   Bpp/Phyl/Io/BppORateDistributionFormat.cpp
@@ -31,7 +31,7 @@ set (CPP_FILES
   Bpp/Phyl/Io/BppOTreeReaderFormat.cpp
   Bpp/Phyl/Io/BppOTreeWriterFormat.cpp
   Bpp/Phyl/Io/IoDistanceMatrixFactory.cpp
-  Bpp/Phyl/Io/IoFrequenciesSetFactory.cpp
+  Bpp/Phyl/Io/IoFrequencySetFactory.cpp
   Bpp/Phyl/Io/IoPairedSiteLikelihoods.cpp
   Bpp/Phyl/Io/IoSubstitutionModelFactory.cpp
   Bpp/Phyl/Io/IoTreeFactory.cpp
@@ -77,10 +77,11 @@ set (CPP_FILES
   Bpp/Phyl/Mapping/WeightedSubstitutionCount.cpp
   Bpp/Phyl/Mapping/StochasticMapping.cpp
   Bpp/Phyl/Model/AbstractBiblioMixedSubstitutionModel.cpp
+  Bpp/Phyl/Model/AbstractBiblioMixedTransitionModel.cpp
   Bpp/Phyl/Model/AbstractBiblioSubstitutionModel.cpp
   Bpp/Phyl/Model/AbstractFromSubstitutionModelTransitionModel.cpp
   Bpp/Phyl/Model/AbstractKroneckerWordSubstitutionModel.cpp
-  Bpp/Phyl/Model/AbstractMixedSubstitutionModel.cpp
+  Bpp/Phyl/Model/AbstractMixedTransitionModel.cpp
   Bpp/Phyl/Model/AbstractSubstitutionModel.cpp
   Bpp/Phyl/Model/AbstractWordSubstitutionModel.cpp
   Bpp/Phyl/Model/BinarySubstitutionModel.cpp
@@ -121,13 +122,18 @@ set (CPP_FILES
   Bpp/Phyl/Model/FrequenciesSet/MvaFrequenciesSet.cpp
   Bpp/Phyl/Model/FrequenciesSet/NucleotideFrequenciesSet.cpp
   Bpp/Phyl/Model/FrequenciesSet/WordFrequenciesSet.cpp
+  Bpp/Phyl/Model/FrequencySet/CodonFrequencySet.cpp
+  Bpp/Phyl/Model/FrequencySet/FrequencySet.cpp
+  Bpp/Phyl/Model/FrequencySet/MvaFrequencySet.cpp
+  Bpp/Phyl/Model/FrequencySet/NucleotideFrequencySet.cpp
+  Bpp/Phyl/Model/FrequencySet/WordFrequencySet.cpp
   Bpp/Phyl/Model/FromMixtureSubstitutionModel.cpp
   Bpp/Phyl/Model/InMixedSubstitutionModel.cpp
   Bpp/Phyl/Model/KroneckerWordSubstitutionModel.cpp
   Bpp/Phyl/Model/MarkovModulatedSubstitutionModel.cpp
   Bpp/Phyl/Model/MixedSubstitutionModelSet.cpp
-  Bpp/Phyl/Model/MixtureOfASubstitutionModel.cpp
-  Bpp/Phyl/Model/MixtureOfSubstitutionModels.cpp
+  Bpp/Phyl/Model/MixtureOfATransitionModel.cpp
+  Bpp/Phyl/Model/MixtureOfTransitionModels.cpp
   Bpp/Phyl/Model/Nucleotide/F84.cpp
   Bpp/Phyl/Model/Nucleotide/GTR.cpp
   Bpp/Phyl/Model/Nucleotide/HKY85.cpp

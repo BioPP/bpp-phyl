@@ -1331,6 +1331,7 @@ void RNonHomogeneousTreeLikelihood::computeSubtreeLikelihood(const Node* node)
         Vdouble* _likelihoods_son_i_c = &(*_likelihoods_son_i)[c];
         Vdouble* _likelihoods_node_i_c = &(*_likelihoods_node_i)[c];
         VVdouble* pxy__son_c = &(*pxy__son)[c];
+
         for (size_t x = 0; x < nbStates_; x++)
         {
           //For each initial state,

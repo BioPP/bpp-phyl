@@ -36,11 +36,11 @@
   knowledge of the CeCILL license and that you accept its terms.
 */
 
-#ifndef _ABSTRACTCODONPHASEFREQUENCIESSUBSTITUTIONMODEL_H_
-#define _ABSTRACTCODONPHASEFREQUENCIESSUBSTITUTIONMODEL_H_
+#ifndef _ABSTRACTCODONPHASEFREQUENCYSUBSTITUTIONMODEL_H_
+#define _ABSTRACTCODONPHASEFREQUENCYSUBSTITUTIONMODEL_H_
 
 #include "CodonSubstitutionModel.h"
-#include "../FrequenciesSet/CodonFrequenciesSet.h"
+#include "../FrequencySet/CodonFrequencySet.h"
 
 namespace bpp
 {
@@ -74,19 +74,19 @@ namespace bpp
     /**
      * @brief Position dependent version of Codon Frequencies Set
      */
-    WordFrequenciesSet* posfreqset_;
+    WordFrequencySet* posfreqset_;
     std::string freqName_;
 
   public:
     /**
      * @brief Build a AbstractCodonPhaseFrequenciesSubstitutionModel instance
      *
-     * @param pfreq pointer to the AbstractFrequenciesSet equilibrium frequencies.
+     * @param pfreq pointer to the AbstractFrequencySet equilibrium frequencies.
      *        It is owned by the instance.
      * @param prefix the Namespace
      */
     AbstractCodonPhaseFrequenciesSubstitutionModel(
-      FrequenciesSet* pfreq,
+      FrequencySet* pfreq,
       const std::string& prefix);
 
     AbstractCodonPhaseFrequenciesSubstitutionModel(const AbstractCodonPhaseFrequenciesSubstitutionModel& model) :
@@ -125,7 +125,7 @@ namespace bpp
 
     double getCodonsMulRate(size_t, size_t) const;
 
-    const FrequenciesSet* getFrequenciesSet() const 
+    const FrequencySet* getFrequencySet() const 
     {
       return posfreqset_;
     }
@@ -133,5 +133,5 @@ namespace bpp
   };
 } // end of namespace bpp.
 
-#endif
+#endif //_ABSTRACTCODONPHASEFREQUENCYSUBSTITUTIONMODEL_H_
 

@@ -1,6 +1,7 @@
 //
 // File: MixtureOfASubstitutionModel.h
-// Created by: David Fournier, Laurent Gueguen
+// Created by: Laurent Gueguen
+// Date: lundi 13 septembre 2010, à 21h 31
 //
 
 /*
@@ -36,13 +37,11 @@
    knowledge of the CeCILL license and that you accept its terms.
  */
 
-#ifndef _MIXTUREOFASUBSTITUTIONMODEL_H_
-#define _MIXTUREOFASUBSTITUTIONMODEL_H_
+#ifndef _MIXTURE_OF_A_SUBSTITUTION_MODEL_H_
+#define _MIXTURE_OF_A_SUBSTITUTION_MODEL_H_
 
-#include "AbstractMixedSubstitutionModel.h"
-
-#include <Bpp/Numeric/Prob/DiscreteDistribution.h>
 #include <Bpp/Numeric/VectorTools.h>
+#include "MixtureOfATransitionModel.h"
 
 #include <vector>
 #include <string>
@@ -51,128 +50,84 @@
 
 namespace bpp
 {
-/**
- * @brief Substitution models defined as a mixture of nested
- * substitution models.
- * @author Laurent Guéguen
- *
- * All the nested models are of the same type (for example T92 or
- * GY94), and their parameter values can follow discrete
- * distributions.
- *
- * In this kind of model, there is no generator.
- *
- * There is a map with connection from parameter names to discrete
- * distributions, and then a related vector of "simple" substitution
- * models for all the combinations of parameter values.
- *
- * For example:
- * HKY85(kappa=Gamma(n=3,alpha=2,beta=5),
- *       theta=TruncExponential(n=4,lambda=0.2,tp=1),
- *       theta1=0.4,
- *       theta2=TruncExponential(n=5,lambda=0.6,tp=1))
- *
- * defines 3*4*5=60 different HKY85 nested models with rate one.
- *
- * Optionnal arguments are used to homogeneize the rates of the nested
- * models. Default values sets all the rates to 1, and given values
- * are the two letters (from_ & to_) between which the substitution
- * rates are the same in all nested models.
- *
- * For example:
- * HKY85(kappa=Gamma(n=3,alpha=2,beta=5),
- *       theta=TruncExponential(n=4,lambda=0.2,tp=1),
- *       theta1=0.4,
- *       theta2=TruncExponential(n=5,lambda=0.6,tp=1),
- *       from=A, to=C)
- *
- * defines 3*4*5=60 different HKY85 nested models with the same A->C
- * substitution rate.
- *
- * If a distribution parameter does not respect the constraints of
- * this parameter, there is an Exception at the creation of the
- * wrong model, if any.
- *
- * When used through a MixedTreeLikelihood objets, all the models have
- * a specific probability, defined through the probabilities of the
- * several parameter distributions. The computing of the likelihoods
- * and probabilities are the expectation of the "simple" models
- * values.
- *
- */
+
 class MixtureOfASubstitutionModel :
-  public AbstractMixedSubstitutionModel
+  public MixtureOfATransitionModel
 {
-private:
-  std::map<std::string, DiscreteDistribution*> distributionMap_;
-  int from_, to_;
-
 public:
-  MixtureOfASubstitutionModel(
-      const Alphabet* alpha,
-      SubstitutionModel* model,
-      std::map<std::string, DiscreteDistribution*> parametersDistributionsList,
-      int ffrom = -1, int tto = -1);
+  /**
+   * @brief Constructor of a MixtureOfASubstitutionModel, where all
+   * the models have rate 1 and equal probability.
+   *
+   * @param alpha pointer to the Alphabet
+   * @param vpModel vector of pointers to ASubstitutionModel. All the
+   *   ASubstitutionModel are owned by the instance.
+   * @warning providing a vpModel with size 0 will generate a segmentation fault!
+   */
+  MixtureOfASubstitutionModel(const Alphabet* alpha,
+                              SubstitutionModel* model,
+                              std::map<std::string, DiscreteDistribution*> parametersDistributionsList,
+                              int ffrom = -1,
+                              int tto = -1) :
+    AbstractParameterAliasable(model->getNamespace()),
+    AbstractTransitionModel(alpha, model->shareStateMap(), model->getNamespace()),
+    MixtureOfATransitionModel(alpha, model, parametersDistributionsList, ffrom, tto)
+  {
+  }
 
-  MixtureOfASubstitutionModel(const MixtureOfASubstitutionModel&);
+  MixtureOfASubstitutionModel(const MixtureOfASubstitutionModel& model) :
+    AbstractParameterAliasable(model),
+    AbstractTransitionModel(model),
+    MixtureOfATransitionModel(model)
+  {
+  }
+  
 
-  MixtureOfASubstitutionModel& operator=(const MixtureOfASubstitutionModel&);
-
-  virtual ~MixtureOfASubstitutionModel();
-
+  MixtureOfASubstitutionModel& operator=(const MixtureOfASubstitutionModel& model)
+  {
+    MixtureOfATransitionModel::operator=(model);
+    return *this;
+  }
+  
   MixtureOfASubstitutionModel* clone() const { return new MixtureOfASubstitutionModel(*this); }
 
-public:
-  std::string getName() const { return "MixedModel"; }
+  void updateMatrices()
+  {
+    MixtureOfATransitionModel::updateMatrices();
+    // setting the rates, if to_ & from_ are different from -1
 
-  void updateMatrices();
+    if (to_ >= 0 && from_ >= 0)
+    {
+      Vdouble vd;
 
+      for (size_t j = 0; j < modelsContainer_.size(); j++)
+      {
+        vd.push_back(1 / getSubNModel(j)->Qij(static_cast<size_t>(from_), static_cast<size_t>(to_)));
+      }
+
+      setVRates(vd);
+    }
+  }
+  
   /**
-   * @brief retrieve a pointer to the submodel with the given name.
+   * @brief retrieve a pointer to the subsitution model with the given name.
    *
    * Return Null if not found.
    *
    */
-    
-  const SubstitutionModel* getSubModelWithName(const std::string& name) const;
-    
-  /*
-     *@brief Returns the vector of numbers of the submodels in the
-     *mixture that match a description of the parameters numbers.
-   *
-   **@param desc is the description of the class indexes of the mixed
-   **parameters. Syntax is like: kappa_1,gamma_3,delta_2
-   *
-   */
+  
+  const SubstitutionModel* getSubModel(const std::string& name) const
+  {
+    return dynamic_cast<const SubstitutionModel*>(getModel(name));
+  }
 
-  Vint getSubmodelNumbers(const std::string& desc) const;
+  const SubstitutionModel* getSubNModel(size_t i) const
+  {
+    return dynamic_cast<const SubstitutionModel*>(getNModel(i));
+  }
 
-  /**
-   * @brief sets the eq frequencies of the first nested model, and
-   * adapts the parameters at best to it (surely there is a better way
-   * to manage this).
-   *
-   */
-
-  void setFreq(std::map<int, double>&);
-
-  /**
-   * @brief returns the DiscreteDistribution associated with a given
-   * parameter name.
-   * @param parName name of the parameter
-   **/
-
-  const DiscreteDistribution* getDistribution(std::string& parName) const;
-
-  /**
-     *@brief Numbers of the states between which the substitution rates
-     *of all the submodels must be equal. If they are set to -1, this
-     *constraint does not exist among the submodels.
-   *
-   */
-  int from() const { return from_; }
-  int to() const { return to_; }
 };
 } // end of namespace bpp.
 
 #endif  // _MIXTUREOFASUBSTITUTIONMODEL_H_
+

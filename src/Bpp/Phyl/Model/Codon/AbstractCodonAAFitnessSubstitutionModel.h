@@ -41,7 +41,7 @@
 
 # include "CodonSubstitutionModel.h"
 
-#include "../FrequenciesSet/ProteinFrequenciesSet.h"
+#include "../FrequencySet/ProteinFrequencySet.h"
 
 namespace bpp
 {
@@ -56,11 +56,14 @@ namespace bpp
    * an amino acid @f$i@f$ has a fitness @f$\phi_i@f$ and another one
    * (@f$j@f$) has a fitness @f$\phi_j@f$, the substitution rate from
    * codon @f$i@f$ to codon @f$j@f$ is multiplied by
-   * \f[-\frac{\log(\frac{\phi_i}{\phi_j})}{1-\frac{\phi_i}{\phi_j}}\f]
+   * \f[-\frac{\log\left((\frac{\phi_i}{\phi_j})^{s}\right)}{1-\left(\frac{\phi_i}{\phi_j}\right)^{s}}\f]
+   *
+   * where @f$s@f$ is a positive Ns coefficient (default value:
+   * 1).
    *
    * The set of fitnesses is implemented through a Protein
-   * FrequenciesSet object. The parameters are named \c
-   * "fit_NameOfTheParameterInTheFrequenciesSet".
+   * FrequencySet object. The parameters are named \c
+   * "fit_NameOfTheParameterInTheFrequencySet".
    */
 
 
@@ -69,17 +72,26 @@ namespace bpp
     public virtual AbstractParameterAliasable
   {
   private:
-    std::unique_ptr<FrequenciesSet> pfitset_;
+    std::unique_ptr<FrequencySet> pfitset_;
 
     const GeneticCode* pgencode_;
   
     std::string fitName_;
 
-    const StateMap* stateMap_;
+    std::shared_ptr<const StateMap> stateMap_;
+
+    std::shared_ptr<const StateMap> protStateMap_;
     
-public:
+    /**
+     * @brief The Ns of the model (default: 1),  The generator (and all
+     * its vectorial components) is independent of the rate, since it
+     * should be normalized.
+     */ 
+    double Ns_;
+
+  public:
     AbstractCodonAAFitnessSubstitutionModel(
-      FrequenciesSet* pfitset,
+      FrequencySet* pfitset,
       const GeneticCode* pgencode,
       const std::string& prefix);
     
@@ -88,7 +100,9 @@ public:
       pfitset_(model.pfitset_->clone()),
       pgencode_(model.pgencode_),
       fitName_(model.fitName_),
-      stateMap_(&pfitset_->getStateMap())
+      stateMap_(model.stateMap_),
+      protStateMap_(pfitset_->shareStateMap()),
+      Ns_(1)
     {}
 
     AbstractCodonAAFitnessSubstitutionModel& operator=(const AbstractCodonAAFitnessSubstitutionModel& model){
@@ -96,7 +110,9 @@ public:
       pfitset_.reset(model.pfitset_->clone());
       pgencode_ = model.pgencode_;
       fitName_ = model.fitName_ ;
-      stateMap_ = &pfitset_->getStateMap();
+      stateMap_ = model.stateMap_;
+      protStateMap_ = pfitset_->shareStateMap();
+      Ns_ = 1;
       
       return *this;
     }
@@ -113,7 +129,7 @@ public:
 
     void setFreq(std::map<int, double>& frequencies);
 
-    const FrequenciesSet& getFreq() const { return *pfitset_.get(); }
+    const FrequencySet& getFreq() const { return *pfitset_.get(); }
 
     void setNamespace (const std::string& prefix){
       AbstractParameterAliasable::setNamespace(prefix);
@@ -122,13 +138,21 @@ public:
 
     double getCodonsMulRate(size_t i, size_t j) const;
 
-    const FrequenciesSet& getAAFitness() const { return *pfitset_.get();}
+    const FrequencySet& getAAFitness() const { return *pfitset_.get();}
 
-    const FrequenciesSet* getFrequenciesSet() const 
+    const FrequencySet* getFrequencySet() const 
     {
       return 0;
     }
 
+    void addNsParameter()
+    {
+      addParameter_(new Parameter(getNamespace()+"Ns", 1, std::make_shared<IntervalConstraint>(NumConstants::MILLI(), 100, true, true)));
+    }
+
+
   };
 } // end of namespace bpp
-# endif
+
+# endif //_ABSTRACTCODON_AA_FITNESSSUBSTITUTIONMODEL_H_
+

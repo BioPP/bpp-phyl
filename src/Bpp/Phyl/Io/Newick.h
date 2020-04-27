@@ -140,12 +140,12 @@ class Newick:
      *
      * @{
      */    
-    TreeTemplate<Node>* read(const std::string& path) const
+    TreeTemplate<Node>* readTree(const std::string& path) const
     {
-      return dynamic_cast<TreeTemplate<Node>*>(AbstractITree::read(path));
+      return dynamic_cast<TreeTemplate<Node>*>(AbstractITree::readTree(path));
     }
     
-    TreeTemplate<Node>* read(std::istream& in) const;
+    TreeTemplate<Node>* readTree(std::istream& in) const;
     /** @} */
 
     /**
@@ -153,12 +153,12 @@ class Newick:
      *
      * @{
      */
-    void write(const Tree& tree, const std::string& path, bool overwrite = true) const
+    void writeTree(const Tree& tree, const std::string& path, bool overwrite = true) const
     {
-      AbstractOTree::write(tree, path, overwrite);
+      AbstractOTree::writeTree(tree, path, overwrite);
     }
     
-    void write(const Tree& tree, std::ostream& out) const
+    void writeTree(const Tree& tree, std::ostream& out) const
     {
       write_(tree, out);
     }
@@ -169,11 +169,11 @@ class Newick:
      *
      * @{
      */
-    void read(const std::string& path, std::vector<Tree*>& trees) const
+    void readTrees(const std::string& path, std::vector<Tree*>& trees) const
     {
-      AbstractIMultiTree::read(path, trees);
+      AbstractIMultiTree::readTrees(path, trees);
     }
-    void read(std::istream& in, std::vector<Tree*>& trees) const;
+    void readTrees(std::istream& in, std::vector<Tree*>& trees) const;
     /**@}*/
 
     /**
@@ -181,11 +181,11 @@ class Newick:
      *
      * @{
      */
-    void write(const std::vector<Tree*>& trees, const std::string& path, bool overwrite = true) const
+    void writeTrees(const std::vector<Tree*>& trees, const std::string& path, bool overwrite = true) const
     {
-      AbstractOMultiTree::write(trees, path, overwrite);
+      AbstractOMultiTree::writeTrees(trees, path, overwrite);
     }
-    void write(const std::vector<Tree*>& trees, std::ostream& out) const
+    void writeTrees(const std::vector<Tree*>& trees, std::ostream& out) const
     {
       write_(trees, out);
     }

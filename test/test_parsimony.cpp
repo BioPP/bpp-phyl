@@ -50,7 +50,7 @@ using namespace std;
 int main() {
   try {
     Newick treeReader;
-    unique_ptr<Tree> tree(treeReader.read("example1.mp.dnd"));
+    unique_ptr<Tree> tree(treeReader.readTree("example1.mp.dnd"));
     Phylip alnReader(false, false);
     unique_ptr<SiteContainer> sites(alnReader.readAlignment("example1.ph", &AlphabetTools::DNA_ALPHABET));
 

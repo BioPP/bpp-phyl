@@ -68,12 +68,12 @@ namespace bpp
     std::string name_;
 
     /*
-     * @brief optional FrequenciesSet if model is defined through a
-     * FrequenciesSet.
+     * @brief optional FrequencySet if model is defined through a
+     * FrequencySet.
      *
      */
      
-    const FrequenciesSet* freqSet_;
+    const FrequencySet* freqSet_;
     
   public:
     /**
@@ -136,6 +136,12 @@ namespace bpp
       return name_;
     }
 
+    void setNamespace(const std::string& prefix){
+      AbstractParameterAliasable::setNamespace(prefix);
+      for (auto& model : vModel_)
+        model->setNamespace(prefix);
+    }
+
     size_t  getNumberOfModels() const
     {
       return vModel_.size();
@@ -148,7 +154,9 @@ namespace bpp
     
     double getCodonsMulRate(size_t i, size_t j) const;
 
-    const FrequenciesSet* getFrequenciesSet() const
+    void setFreq(std::map<int,double>& frequencies);
+
+    const FrequencySet* getFrequencySet() const
     {
       return freqSet_;
     }

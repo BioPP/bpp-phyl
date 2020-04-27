@@ -40,7 +40,7 @@
 #ifndef _SUBSTITUTIONMODEL_H_
 #define _SUBSTITUTIONMODEL_H_
 
-#include "FrequenciesSet/FrequenciesSet.h"
+#include "FrequencySet/FrequencySet.h"
 #include "StateMap.h"
 
 // From bpp-core:
@@ -149,6 +149,12 @@ namespace bpp
     virtual const StateMap& getStateMap() const = 0;
 
     /**
+     * @return The shared_ptr to the mapping of model states with alphabet states.
+     */
+    
+    virtual std::shared_ptr<const StateMap> shareStateMap() const = 0;
+
+    /**
      * @brief Get the state in the model corresponding to a particular state in the alphabet.
      *
      * @param code The alphabet state to check.
@@ -209,15 +215,13 @@ namespace bpp
     virtual const Vdouble& getFrequencies() const = 0;
 
     /**
-     * @return Says if equilibrium frequencies should be computed from
-     * the generator
+     * @return Says if equilibrium frequencies should be computed
      */
     
     virtual bool computeFrequencies() const = 0;
 
     /**
-     * @return Set if equilibrium frequencies should be computed from
-     * the generator
+     * @return Set if equilibrium frequencies should be computed
      */
     
     virtual void computeFrequencies(bool yn) = 0;
@@ -308,11 +312,11 @@ namespace bpp
     virtual void setFreq(std::map<int, double>& frequencies) = 0;
 
     /**
-     * @brief If the model owns a FrequenciesSet, returns a pointer to
+     * @brief If the model owns a FrequencySet, returns a pointer to
      * it, otherwise return 0.
      */
     
-    virtual const FrequenciesSet* getFrequenciesSet() const {return NULL;}
+    virtual const FrequencySet* getFrequencySet() const {return NULL;}
 
   protected:
 

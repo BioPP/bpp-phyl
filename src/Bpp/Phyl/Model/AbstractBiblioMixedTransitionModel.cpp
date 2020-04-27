@@ -1,14 +1,13 @@
 //
-// File IOFrequenciesSetFactory.cpp
-// Created by: Laurent Guéguen
-// Created on: lundi 9 juillet 2012, à 12h 59
+// File: AbstractBiblioMixedTransitionModel.cpp
+// Created by:  Laurent Gueguen
+// Created on: lundi 18 juillet 2011, à 15h 27
 //
 
 /*
-Copyright or © or Copr. CNRS, (November 17, 2004)
-
+Copyright or © or Copr. Bio++ Development Team, (November 16, 2004)
 This software is a computer program whose purpose is to provide classes
-for sequences analysis.
+for phylogenetic data analysis.
 
 This software is governed by the CeCILL  license under French law and
 abiding by the rules of distribution of free software.  You can  use, 
@@ -37,21 +36,46 @@ The fact that you are presently reading this means that you have had
 knowledge of the CeCILL license and that you accept its terms.
 */
 
-#include "BppOFrequenciesSetFormat.h"
-
+#include "AbstractBiblioMixedTransitionModel.h"
 using namespace bpp;
 
-const std::string IOFrequenciesSetFactory::BPPO_FORMAT = "Bpp0"; 
+using namespace std;
 
-IFrequenciesSet* IOFrequenciesSetFactory::createReader(const std::string& format)
-{
-  if(format == BPPO_FORMAT) return new BppOFrequenciesSetFormat(BppOFrequenciesSetFormat::ALL, true, 1);
-  else throw Exception("Format " + format + " is not supported for input.");
-}
+/******************************************************************************/
+
+AbstractBiblioMixedTransitionModel::AbstractBiblioMixedTransitionModel(const std::string& prefix):
+  AbstractBiblioTransitionModel(prefix),
+  pmixmodel_()
+{}
   
-OFrequenciesSet* IOFrequenciesSetFactory::createWriter(const std::string& format)
+AbstractBiblioMixedTransitionModel::AbstractBiblioMixedTransitionModel(const AbstractBiblioMixedTransitionModel& mod2) :
+  AbstractBiblioTransitionModel(mod2),
+  pmixmodel_(mod2.pmixmodel_->clone())
 {
-  if(format == BPPO_FORMAT) return new BppOFrequenciesSetFormat(BppOFrequenciesSetFormat::ALL, true, 1);
-  else throw Exception("Format " + format + " is not supported for output.");
 }
 
+AbstractBiblioMixedTransitionModel& AbstractBiblioMixedTransitionModel::operator=(const AbstractBiblioMixedTransitionModel& mod2)
+{
+  AbstractBiblioTransitionModel::operator=(mod2);
+  pmixmodel_.reset(mod2.pmixmodel_->clone());
+  return *this;
+}
+
+AbstractBiblioMixedTransitionModel::~AbstractBiblioMixedTransitionModel()
+{}
+
+Vint AbstractBiblioMixedTransitionModel::getSubmodelNumbers(const std::string& desc) const
+{
+  std::string desc2;
+
+  StringTokenizer st(desc, ",");
+  while (st.hasMoreToken()) {
+    string param = st.nextToken();
+
+    desc2 += getParameterNameWithoutNamespace(param);
+    if (st.hasMoreToken())
+      desc2 += ",";
+  }
+
+  return getMixedModel().getSubmodelNumbers(desc2);
+}

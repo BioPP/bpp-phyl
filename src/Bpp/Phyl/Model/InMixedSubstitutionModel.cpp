@@ -44,26 +44,30 @@ using namespace std;
 
 /******************************************************************************/
 
-InMixedSubstitutionModel::InMixedSubstitutionModel(const MixedSubstitutionModel& mixedModel, const std::string& subModelName, const std::string& mixtDesc) :
+InMixedSubstitutionModel::InMixedSubstitutionModel(const MixedTransitionModel& mixedModel, const std::string& subModelName, const std::string& mixtDesc) :
   AbstractParameterAliasable(mixedModel.getNamespace()),
   mixedModel_(mixedModel.clone()),
   subModelNumber_(0),
   mixtName_(mixtDesc)
 {
-  const SubstitutionModel* sm = mixedModel.getSubModelWithName(subModelName);
+  const TransitionModel* tm = mixedModel.getModel(subModelName);
+
+  if (tm == 0)
+    throw ParameterNotFoundException("InMixedSubstitutionModel::InMixedSubstitutionModel : unknown model name", subModelName);
+
+  const SubstitutionModel* sm = dynamic_cast<const SubstitutionModel*>(tm);
 
   if (sm == 0)
-    throw ParameterNotFoundException("InMixedSubstitutionModel::InMixedSubstitutionModel : unknown model name", subModelName);
-  else
-  {
-    Vint vn=mixedModel_->getSubmodelNumbers(subModelName);
-    subModelNumber_=(size_t)vn[0];
-  }
-  
+    throw Exception("InMixedSubstitutionModel::InMixedSubstitutionModel : model " + subModelName + " is not a substitution model.");
+
+  Vint vn=mixedModel_->getSubmodelNumbers(subModelName);
+  subModelNumber_=(size_t)vn[0];
+
   addParameters_(mixedModel_->getParameters());
 }
 
-InMixedSubstitutionModel::InMixedSubstitutionModel(const MixedSubstitutionModel& mixedModel, size_t subModelNumber, const std::string& mixtDesc) :
+
+InMixedSubstitutionModel::InMixedSubstitutionModel(const MixedTransitionModel& mixedModel, size_t subModelNumber, const std::string& mixtDesc) :
   AbstractParameterAliasable(mixedModel.getNamespace()),
   mixedModel_(mixedModel.clone()),
   subModelNumber_(subModelNumber),
@@ -71,6 +75,11 @@ InMixedSubstitutionModel::InMixedSubstitutionModel(const MixedSubstitutionModel&
 {
   if (subModelNumber>=mixedModel.getNumberOfModels())
     throw ParameterNotFoundException("InMixedSubstitutionModel::InMixedSubstitutionModel : bad model number", TextTools::toString(subModelNumber));
+
+  const SubstitutionModel* sm = dynamic_cast<const SubstitutionModel*>(mixedModel.getNModel(subModelNumber));
+
+  if (sm == 0)
+    throw Exception("InMixedSubstitutionModel::InMixedSubstitutionModel : model " + TextTools::toString(subModelNumber) + " is not a substitution model.");
 
   addParameters_(mixedModel_->getParameters());
 }
@@ -92,7 +101,7 @@ InMixedSubstitutionModel& InMixedSubstitutionModel::operator=(const InMixedSubst
 {
   AbstractParameterAliasable::operator=(fmsm);
 
-  mixedModel_ = std::unique_ptr<MixedSubstitutionModel>(fmsm.mixedModel_->clone());
+  mixedModel_ = std::unique_ptr<MixedTransitionModel>(fmsm.mixedModel_->clone());
 
   subModelNumber_ = fmsm.subModelNumber_;
   

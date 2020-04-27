@@ -37,7 +37,7 @@ knowledge of the CeCILL license and that you accept its terms.
 */
 
 #include "MG94.h"
-#include "../FrequenciesSet/CodonFrequenciesSet.h"
+#include "../FrequencySet/CodonFrequencySet.h"
 #include "../Nucleotide/K80.h"
 
 using namespace bpp;
@@ -46,18 +46,19 @@ using namespace std;
 
 /******************************************************************************/
 
-MG94::MG94(const GeneticCode* gc, FrequenciesSet* codonFreqs) :
+MG94::MG94(const GeneticCode* gc, FrequencySet* codonFreqs) :
+  AbstractBiblioTransitionModel("MG94."),
   AbstractBiblioSubstitutionModel("MG94."),
   pmodel_(new CodonDistancePhaseFrequenciesSubstitutionModel(gc, new K80(dynamic_cast<const CodonAlphabet*>(gc->getSourceAlphabet())->getNucleicAlphabet()), codonFreqs))
 {
-  addParameter_(new Parameter("MG94.rho", 1, &Parameter::R_PLUS_STAR));
+  addParameter_(new Parameter("MG94.rho", 1, Parameter::R_PLUS_STAR));
 
   pmodel_->setNamespace("MG94.");
   addParameters_(codonFreqs->getParameters());
 
   lParPmodel_.addParameters(pmodel_->getParameters());
   
-  vector<std::string> v=pmodel_->getFrequenciesSet()->getParameters().getParameterNames();
+  vector<std::string> v=pmodel_->getFrequencySet()->getParameters().getParameterNames();
   for (unsigned int i=0;i<v.size();i++)
     mapParNamesFromPmodel_[v[i]]=getParameterNameWithoutNamespace(v[i]);
 
@@ -67,6 +68,7 @@ MG94::MG94(const GeneticCode* gc, FrequenciesSet* codonFreqs) :
 }
 
 MG94::MG94(const MG94& mg94) :
+  AbstractBiblioTransitionModel(mg94),
   AbstractBiblioSubstitutionModel(mg94),
   pmodel_(new CodonDistancePhaseFrequenciesSubstitutionModel(*mg94.pmodel_))
 {}

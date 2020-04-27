@@ -221,7 +221,7 @@ protected:
   /**
    * @brief Constructor for the derived classes only
    */
-  AbstractWordSubstitutionModel(const Alphabet* alph, StateMap* stateMap, const std::string& prefix);
+  AbstractWordSubstitutionModel(const Alphabet* alph, std::shared_ptr<const StateMap> stateMap, const std::string& prefix);
 
 public:
   virtual size_t getNumberOfStates() const;

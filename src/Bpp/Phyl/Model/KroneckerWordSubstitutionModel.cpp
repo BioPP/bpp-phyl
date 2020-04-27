@@ -68,7 +68,7 @@ KroneckerWordSubstitutionModel::KroneckerWordSubstitutionModel(
 
 KroneckerWordSubstitutionModel::KroneckerWordSubstitutionModel(
   const Alphabet* alph,
-  StateMap* stateMap,
+  std::shared_ptr<const StateMap> stateMap,
   const std::string& prefix) :
   AbstractParameterAliasable((prefix == "") ? "Kron." : prefix),
   AbstractKroneckerWordSubstitutionModel(alph, stateMap, (prefix == "") ? "Kron." : prefix)

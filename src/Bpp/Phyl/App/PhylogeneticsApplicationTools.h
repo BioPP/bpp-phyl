@@ -202,7 +202,7 @@ public:
     bool verbose);
 
   /**
-   * @brief Get A FrequenciesSet object for root frequencies (NH models) according to options.
+   * @brief Get A FrequencySet object for root frequencies (NH models) according to options.
    *
    * @param alphabet         The alpabet to use.
    * @param gCode            The genetic code to use (only for codon alphabets, otherwise can be set to 0).
@@ -218,10 +218,10 @@ public:
    * @param suffixIsOptional Tell if the suffix is absolutely required.
    * @param verbose          Print some info to the 'message' output stream.
    * @param warn             Set the warning level (0: always display warnings, >0 display warnings on demand).
-   * @return A new FrequenciesSet object according to options specified.
+   * @return A new FrequencySet object according to options specified.
    * @throw Exception if an error occured.
    */
-  static FrequenciesSet* getRootFrequenciesSet(
+  static FrequencySet* getRootFrequencySet(
     const Alphabet* alphabet,
     const GeneticCode* gCode,
     const SiteContainer* data,
@@ -234,7 +234,7 @@ public:
     int warn = 1);
 
   /**
-   * @brief Get A FrequenciesSet object according to options.
+   * @brief Get A FrequencySet object according to options.
    *
    * @param alphabet         The alpabet to use.
    * @param gCode            The genetic code to use (only for codon alphabets, otherwise can be set to 0).
@@ -249,10 +249,10 @@ public:
    *                         Ignored if a vector with size 0 is passed.
    * @param verbose          Print some info to the 'message' output stream.
    * @param warn             Set the warning level (0: always display warnings, >0 display warnings on demand).
-   * @return A new FrequenciesSet object according to options specified.
+   * @return A new FrequencySet object according to options specified.
    * @throw Exception if an error occured.
    */
-  static FrequenciesSet* getFrequenciesSet(
+  static FrequencySet* getFrequencySet(
     const Alphabet* alphabet,
     const GeneticCode* gCode,
     const std::string& freqDescription,
@@ -263,7 +263,7 @@ public:
     int warn = 1);
 
   /**
-   * @brief Get A FrequenciesSet object according to options.
+   * @brief Get A FrequencySet object according to options.
    *
    * @param alphabet         The alpabet to use.
    * @param gCode            The genetic code to use (only for codon alphabets, otherwise can be set to 0).
@@ -277,10 +277,10 @@ public:
    *                         Ignored if a vector with size 0 is passed.
    * @param verbose          Print some info to the 'message' output stream.
    * @param warn             Set the warning level (0: always display warnings, >0 display warnings on demand).
-   * @return A new FrequenciesSet object according to options specified.
+   * @return A new FrequencySet object according to options specified.
    * @throw Exception if an error occured.
    */
-  static FrequenciesSet* getFrequenciesSet(
+  static FrequencySet* getFrequencySet(
     const Alphabet* alphabet,
     const GeneticCode* gCode,
     const std::string& freqDescription,
@@ -290,7 +290,7 @@ public:
     int warn = 1)
   {
     std::map<std::string, std::string> sharedParams;
-    return getFrequenciesSet(alphabet, gCode, freqDescription, data, sharedParams, rateFreqs, verbose, warn);
+    return getFrequencySet(alphabet, gCode, freqDescription, data, sharedParams, rateFreqs, verbose, warn);
   }
 
   /**

@@ -63,26 +63,26 @@ using namespace std;
 UserProteinSubstitutionModel::UserProteinSubstitutionModel(
     const ProteicAlphabet* alpha, const std::string& path, const std::string& prefix) : 
   AbstractParameterAliasable(prefix),
-  AbstractReversibleProteinSubstitutionModel(alpha, new CanonicalStateMap(alpha, false), prefix),
+  AbstractReversibleProteinSubstitutionModel(alpha, std::shared_ptr<const StateMap>(new CanonicalStateMap(alpha, false)), prefix),
   path_(path),
   freqSet_(0)
 {
   readFromFile();
-  freqSet_ = new FixedProteinFrequenciesSet(alpha, freq_);
+  freqSet_ = new FixedProteinFrequencySet(alpha, freq_);
   updateMatrices();  
 }
 
 UserProteinSubstitutionModel::UserProteinSubstitutionModel(
     const ProteicAlphabet* alpha, const std::string& path,
-    ProteinFrequenciesSet* freqSet, const std::string& prefix,
+    ProteinFrequencySet* freqSet, const std::string& prefix,
     bool initFreqs) : 
   AbstractParameterAliasable(prefix),
-  AbstractReversibleProteinSubstitutionModel(alpha, new CanonicalStateMap(alpha, false), prefix),
+  AbstractReversibleProteinSubstitutionModel(alpha, std::shared_ptr<const StateMap>(new CanonicalStateMap(alpha, false)), prefix),
   path_(path),
   freqSet_(freqSet)
 {
   readFromFile();
-  freqSet_->setNamespace(prefix+freqSet_->getNamespace());
+  freqSet_->setNamespace(prefix+freqSet_->getName()+".");
   if (initFreqs) freqSet->setFrequencies(freq_);
   else freq_ = freqSet_->getFrequencies();
   addParameters_(freqSet_->getParameters());

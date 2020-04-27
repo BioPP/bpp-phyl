@@ -47,7 +47,7 @@ knowledge of the CeCILL license and that you accept its terms.
 #include <Bpp/Phyl/TreeTemplate.h>
 #include <Bpp/Phyl/Model/Nucleotide/JCnuc.h>
 #include <Bpp/Phyl/Model/Codon/YN98.h>
-#include <Bpp/Phyl/Model/FrequenciesSet/CodonFrequenciesSet.h>
+#include <Bpp/Phyl/Model/FrequencySet/CodonFrequencySet.h>
 #include <Bpp/Phyl/Simulation/HomogeneousSequenceSimulator.h>
 #include <Bpp/Phyl/Likelihood/DRHomogeneousTreeLikelihood.h>
 #include <Bpp/Phyl/Mapping/SubstitutionRegister.h>
@@ -71,7 +71,7 @@ int main() {
 
   CodonAlphabet* alphabet = new CodonAlphabet(&AlphabetTools::DNA_ALPHABET);
   GeneticCode* gc = new StandardGeneticCode(&AlphabetTools::DNA_ALPHABET);
-  CodonSubstitutionModel* model = new YN98(gc, CodonFrequenciesSet::getFrequenciesSetForCodons(CodonFrequenciesSet::F0, gc));
+  CodonSubstitutionModel* model = new YN98(gc, CodonFrequencySet::getFrequencySetForCodons(CodonFrequencySet::F0, gc));
   
   DiscreteDistribution* rdist = new ConstantDistribution(1.0);
   HomogeneousSequenceSimulator simulator(model, rdist, tree);

@@ -37,7 +37,7 @@
  */
 
 #include "LG10_EX_EHO.h"
-#include "../FrequenciesSet/ProteinFrequenciesSet.h"
+#include "../FrequencySet/ProteinFrequencySet.h"
 #include "../MixtureOfSubstitutionModels.h"
 
 #include <Bpp/Numeric/Prob/SimpleDiscreteDistribution.h>
@@ -49,11 +49,11 @@ using namespace std;
 /******************************************************************************/
 
 LG10_EX_EHO::LG10_EX_EHO(const ProteicAlphabet* alpha) : 
-  AbstractBiblioMixedSubstitutionModel("LG10_EX_EHO.")
+  AbstractBiblioMixedTransitionModel("LG10_EX_EHO.")
 {
   // build the submodel
 	
-  vector<SubstitutionModel*> vpSM;
+  vector<TransitionModel*> vpSM;
   vpSM.push_back(new LG10_EX_EHO::EmbeddedModel(alpha,"BUR_EXT"));
   vpSM.push_back(new LG10_EX_EHO::EmbeddedModel(alpha,"BUR_HEL"));
   vpSM.push_back(new LG10_EX_EHO::EmbeddedModel(alpha,"BUR_OTH"));
@@ -80,8 +80,8 @@ LG10_EX_EHO::LG10_EX_EHO(const ProteicAlphabet* alpha) :
     st=pmixmodel_->getParameterNameWithoutNamespace(name);
     mapParNamesFromPmodel_[name]=st;
     addParameter_(new Parameter("LG10_EX_EHO."+st,
-                            pmixmodel_->getParameterValue(st),
-                            pmixmodel_->getParameter(st).hasConstraint()? pmixmodel_->getParameter(st).getConstraint()->clone():0,true));
+                                pmixmodel_->getParameterValue(st),
+                                pmixmodel_->getParameter(st).hasConstraint()? std::shared_ptr<Constraint>(pmixmodel_->getParameter(st).getConstraint()->clone()):0));
   }
 	
   updateMatrices();	
@@ -91,7 +91,7 @@ LG10_EX_EHO::LG10_EX_EHO(const ProteicAlphabet* alpha) :
 
 LG10_EX_EHO::EmbeddedModel::EmbeddedModel(const ProteicAlphabet* alpha, string name) :
   AbstractParameterAliasable(name),
-  AbstractReversibleProteinSubstitutionModel(alpha, new CanonicalStateMap(alpha, false), name), 
+  AbstractReversibleProteinSubstitutionModel(alpha, std::shared_ptr<const StateMap>(new CanonicalStateMap(alpha, false)), name), 
   proportion_(1), 
   name_(name)
 {

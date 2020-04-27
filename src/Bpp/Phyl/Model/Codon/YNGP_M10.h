@@ -81,7 +81,7 @@ namespace bpp
      *
      */
   
-    YNGP_M10(const GeneticCode* gc, FrequenciesSet* codonFreqs, unsigned int nbBeta, unsigned int nbGamma);
+    YNGP_M10(const GeneticCode* gc, FrequencySet* codonFreqs, unsigned int nbBeta, unsigned int nbGamma);
 
     YNGP_M10* clone() const { return new YNGP_M10(*this); }
 

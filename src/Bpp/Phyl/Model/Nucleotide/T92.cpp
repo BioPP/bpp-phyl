@@ -38,7 +38,7 @@
  */
 
 #include "T92.h"
-#include "../FrequenciesSet/NucleotideFrequenciesSet.h"
+#include "../FrequencySet/NucleotideFrequencySet.h"
 
 #include <Bpp/Numeric/Matrix/MatrixTools.h>
 
@@ -56,7 +56,7 @@ using namespace std;
 
 T92::T92(const NucleicAlphabet* alpha, double kappa, double theta) :
   AbstractParameterAliasable("T92."),
-  AbstractReversibleNucleotideSubstitutionModel(alpha, new CanonicalStateMap(alpha, false), "T92."),
+  AbstractReversibleNucleotideSubstitutionModel(alpha, std::shared_ptr<const StateMap>(new CanonicalStateMap(alpha, false)), "T92."),
   kappa_(kappa),
   theta_(theta),
   k_(),
@@ -70,8 +70,8 @@ T92::T92(const NucleicAlphabet* alpha, double kappa, double theta) :
   l_(),
   p_(size_, size_)
 {
-  addParameter_(new Parameter("T92.kappa", kappa, &Parameter::R_PLUS_STAR));
-  addParameter_(new Parameter("T92.theta", theta, &FrequenciesSet::FREQUENCE_CONSTRAINT_SMALL));
+  addParameter_(new Parameter("T92.kappa", kappa, Parameter::R_PLUS_STAR));
+  addParameter_(new Parameter("T92.theta", theta, FrequencySet::FREQUENCE_CONSTRAINT_SMALL));
   p_.resize(size_, size_);
   updateMatrices();
 }

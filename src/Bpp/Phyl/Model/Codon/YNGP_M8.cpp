@@ -51,7 +51,7 @@ using namespace std;
 
 /******************************************************************************/
 
-YNGP_M8::YNGP_M8(const GeneticCode* gc, FrequenciesSet* codonFreqs, unsigned int nclass) :
+YNGP_M8::YNGP_M8(const GeneticCode* gc, FrequencySet* codonFreqs, unsigned int nclass) :
   YNGP_M("YNGP_M8.")
 {
   if (nclass <= 0)
@@ -59,25 +59,25 @@ YNGP_M8::YNGP_M8(const GeneticCode* gc, FrequenciesSet* codonFreqs, unsigned int
 
   // build the submodel
 
-  BetaDiscreteDistribution* pbdd = new BetaDiscreteDistribution(nclass, 2, 2);
+  std::unique_ptr<DiscreteDistribution> pbdd(new BetaDiscreteDistribution(nclass, 2, 2));
 
-  vector<double> val; val.push_back(2);
-  vector<double> prob; prob.push_back(1);
-  SimpleDiscreteDistribution* psdd = new SimpleDiscreteDistribution(val, prob);
+  vector<double> val={2.};
+  vector<double> prob={1.};
+  std::unique_ptr<DiscreteDistribution> psdd(new SimpleDiscreteDistribution(val, prob));
 
   vector<DiscreteDistribution*> v_distr;
-  v_distr.push_back(pbdd); v_distr.push_back(psdd);
+  v_distr.push_back(pbdd.get()); v_distr.push_back(psdd.get());
   prob.clear(); prob.push_back(0.5); prob.push_back(0.5);
 
-  MixtureOfDiscreteDistributions* pmodd = new MixtureOfDiscreteDistributions(v_distr, prob);
+  std::unique_ptr<DiscreteDistribution> pmodd(new MixtureOfDiscreteDistributions(v_distr, prob));
 
   map<string, DiscreteDistribution*> mpdd;
-  mpdd["omega"] = pmodd;
+  mpdd["omega"] = pmodd.get();
 
   unique_ptr<YN98> yn98(new YN98(gc, codonFreqs));
 
   pmixmodel_.reset(new MixtureOfASubstitutionModel(gc->getSourceAlphabet(), yn98.get(), mpdd));
-  delete pbdd;
+  pmixsubmodel_=dynamic_cast<const MixtureOfASubstitutionModel*>(&getMixedModel());      
 
   vector<int> supportedChars = yn98->getAlphabetStates();
   
@@ -89,7 +89,7 @@ YNGP_M8::YNGP_M8(const GeneticCode* gc, FrequenciesSet* codonFreqs, unsigned int
     lParPmodel_.addParameter(Parameter(pl[i]));
   }
 
-  vector<std::string> v = dynamic_cast<YN98*>(pmixmodel_->getNModel(0))->getFrequenciesSet()->getParameters().getParameterNames();
+  vector<std::string> v = dynamic_cast<YN98*>(pmixmodel_->getNModel(0))->getFrequencySet()->getParameters().getParameterNames();
 
   for (size_t i = 0; i < v.size(); i++)
   {
@@ -110,10 +110,10 @@ YNGP_M8::YNGP_M8(const GeneticCode* gc, FrequenciesSet* codonFreqs, unsigned int
     st = pmixmodel_->getParameterNameWithoutNamespace(it->first);
     if (it->second != "omegas")
       addParameter_(new Parameter("YNGP_M8." + it->second, pmixmodel_->getParameterValue(st),
-                              pmixmodel_->getParameter(st).hasConstraint() ? pmixmodel_->getParameter(st).getConstraint()->clone() : 0, true));
+                                  pmixmodel_->getParameter(st).hasConstraint() ? std::shared_ptr<Constraint>(pmixmodel_->getParameter(st).getConstraint()->clone()) : 0));
   }
 
-  addParameter_(new Parameter("YNGP_M8.omegas", 2., new IntervalConstraint(1, 1, false), true));
+  addParameter_(new Parameter("YNGP_M8.omegas", 2., std::make_shared<IntervalConstraint>(1, 1, false)));
 
   // look for synonymous codons
   for (synfrom_ = 1; synfrom_ < supportedChars.size(); synfrom_++)
@@ -121,8 +121,8 @@ YNGP_M8::YNGP_M8(const GeneticCode* gc, FrequenciesSet* codonFreqs, unsigned int
     for (synto_ = 0; synto_ < synfrom_; synto_++)
     {
       if ((gc->areSynonymous(supportedChars[synfrom_], supportedChars[synto_]))
-          && (pmixmodel_->getNModel(0)->Qij(synfrom_, synto_) != 0)
-          && (pmixmodel_->getNModel(1)->Qij(synfrom_, synto_) != 0))
+          && (pmixsubmodel_->getSubNModel(0)->Qij(synfrom_, synto_) != 0)
+          && (pmixsubmodel_->getSubNModel(1)->Qij(synfrom_, synto_) != 0))
         break;
     }
     if (synto_ < synfrom_)
@@ -139,7 +139,7 @@ YNGP_M8::YNGP_M8(const GeneticCode* gc, FrequenciesSet* codonFreqs, unsigned int
 
 void YNGP_M8::updateMatrices()
 {
-  AbstractBiblioSubstitutionModel::updateMatrices();
+  AbstractBiblioTransitionModel::updateMatrices();
 
   // homogeneization of the synonymous substittion rates
 
@@ -147,7 +147,7 @@ void YNGP_M8::updateMatrices()
 
   for (unsigned int i = 0; i < pmixmodel_->getNumberOfModels(); i++)
   {
-    vd.push_back(1 / pmixmodel_->getNModel(i)->Qij(synfrom_, synto_));
+    vd.push_back(1 / pmixsubmodel_->getSubNModel(i)->Qij(synfrom_, synto_));
   }
 
   pmixmodel_->setVRates(vd);

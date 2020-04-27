@@ -66,7 +66,6 @@ namespace bpp
       AbstractFromSubstitutionModelTransitionModel(fmsm)
     {
     }
-    
 
     OneChangeTransitionModel& operator=(const OneChangeTransitionModel& fmsm)
     {
@@ -94,7 +93,7 @@ namespace bpp
 
     const Vdouble& getFrequencies() const { return getModel().getFrequencies(); }
 
-    const FrequenciesSet* getFrequenciesSet() const {return getModel().getFrequenciesSet(); }
+    const FrequencySet* getFrequencySet() const {return getModel().getFrequencySet(); }
 
     void setFreqFromData(const SequenceContainer& data, double pseudoCount)
     {

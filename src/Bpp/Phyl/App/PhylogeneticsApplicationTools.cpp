@@ -40,9 +40,10 @@
 
 #include "PhylogeneticsApplicationTools.h"
 #include "../Model/SubstitutionModel.h"
+#include "../Model/MixedTransitionModel.h"
 #include "../Model/WrappedModel.h"
 #include "../Model/Protein/Coala.h"
-#include "../Model/FrequenciesSet/MvaFrequenciesSet.h"
+#include "../Model/FrequencySet/MvaFrequencySet.h"
 #include "../Likelihood/TreeLikelihood.h"
 #include "../Mapping/LaplaceSubstitutionCount.h"
 #include "../Mapping/UniformizationSubstitutionCount.h"
@@ -57,7 +58,7 @@
 #include "../Io/BppOMultiTreeWriterFormat.h"
 #include "../Io/BppOSubstitutionModelFormat.h"
 #include "../Io/BppOTransitionModelFormat.h"
-#include "../Io/BppOFrequenciesSetFormat.h"
+#include "../Io/BppOFrequencySetFormat.h"
 #include "../Io/BppORateDistributionFormat.h"
 
 // From bpp-core
@@ -108,13 +109,13 @@ Tree* PhylogeneticsApplicationTools::getTree(
   string treeFilePath = ApplicationTools::getAFilePath(prefix + "tree.file", params, true, true, suffix, suffixIsOptional, "none", warn);
 
   BppOTreeReaderFormat bppoReader(warn);
-  unique_ptr<ITree> iTree(bppoReader.read(format));
+  unique_ptr<ITree> iTree(bppoReader.readITree(format));
   if (verbose)
   {
     ApplicationTools::displayResult("Input tree file " + suffix, treeFilePath);
     ApplicationTools::displayResult("Input tree format " + suffix, iTree->getFormatName());
   }
-  Tree* tree = iTree->read(treeFilePath);
+  Tree* tree = iTree->readTree(treeFilePath);
   return tree;
 }
 
@@ -132,14 +133,14 @@ vector<Tree*> PhylogeneticsApplicationTools::getTrees(
   string treeFilePath = ApplicationTools::getAFilePath(prefix + "trees.file", params, true, true, suffix, suffixIsOptional, "none", warn);
 
   BppOMultiTreeReaderFormat bppoReader(warn);
-  unique_ptr<IMultiTree> iTrees(bppoReader.read(format));
+  unique_ptr<IMultiTree> iTrees(bppoReader.readIMultiTree(format));
   if (verbose)
   {
     ApplicationTools::displayResult("Input trees file " + suffix, treeFilePath);
     ApplicationTools::displayResult("Input trees format " + suffix, iTrees->getFormatName());
   }
   vector<Tree*> trees;
-  iTrees->read(treeFilePath, trees);
+  iTrees->readTrees(treeFilePath, trees);
 
   if (verbose)
   {
@@ -180,7 +181,7 @@ SubstitutionModel* PhylogeneticsApplicationTools::getSubstitutionModel(
   else
     modelDescription = ApplicationTools::getStringParameter("model", params, "JC69", suffix, suffixIsOptional, warn);
 
-  SubstitutionModel* model = bIO.read(alphabet, modelDescription, data, true);
+  SubstitutionModel* model = bIO.readSubstitutionModel(alphabet, modelDescription, data, true);
   return model;
 }
 
@@ -301,7 +302,7 @@ void PhylogeneticsApplicationTools::setSubstitutionModelParametersInitialValuesW
 
 /******************************************************************************/
 
-FrequenciesSet* PhylogeneticsApplicationTools::getRootFrequenciesSet(
+FrequencySet* PhylogeneticsApplicationTools::getRootFrequencySet(
   const Alphabet* alphabet,
   const GeneticCode* gCode,
   const SiteContainer* data,
@@ -322,14 +323,11 @@ FrequenciesSet* PhylogeneticsApplicationTools::getRootFrequenciesSet(
   {
     map<string, string> unparams;
 
-    FrequenciesSet* freq = getFrequenciesSet(alphabet, gCode, freqDescription, data, unparams, rateFreqs, verbose, warn + 1);
+    FrequencySet* freq = getFrequencySet(alphabet, gCode, freqDescription, data, unparams, rateFreqs, verbose, warn + 1);
     freq->setNamespace("root." + freq->getNamespace());
 
-    map<string, string>::iterator it;
-    for (it = unparams.begin(); it != unparams.end(); it++)
-    {
-      sharedparams["root." + it->first] = it->second;
-    }
+    for (const auto& it:unparams)
+      sharedparams["root." + it.first] = it.second;
 
     if (verbose)
       ApplicationTools::displayResult("Root frequencies ", freq->getName());
@@ -339,7 +337,7 @@ FrequenciesSet* PhylogeneticsApplicationTools::getRootFrequenciesSet(
 
 /******************************************************************************/
 
-FrequenciesSet* PhylogeneticsApplicationTools::getFrequenciesSet(
+FrequencySet* PhylogeneticsApplicationTools::getFrequencySet(
   const Alphabet* alphabet,
   const GeneticCode* gCode,
   const std::string& freqDescription,
@@ -350,14 +348,14 @@ FrequenciesSet* PhylogeneticsApplicationTools::getFrequenciesSet(
   int warn)
 {
   map<string, string> unparsedParameterValues;
-  BppOFrequenciesSetFormat bIO(BppOFrequenciesSetFormat::ALL, verbose, warn);
+  BppOFrequencySetFormat bIO(BppOFrequencySetFormat::ALL, verbose, warn);
   if (AlphabetTools::isCodonAlphabet(alphabet))
   {
     if (!gCode)
-      throw Exception("PhylogeneticsApplicationTools::getFrequenciesSet(): a GeneticCode instance is required for instanciating a codon frequencies set.");
+      throw Exception("PhylogeneticsApplicationTools::getFrequencySet(): a GeneticCode instance is required for instanciating a codon frequencies set.");
     bIO.setGeneticCode(gCode);
   }
-  unique_ptr<FrequenciesSet> pFS(bIO.read(alphabet, freqDescription, data, true));
+  unique_ptr<FrequencySet> pFS(bIO.readFrequencySet(alphabet, freqDescription, data, true));
 
   std::map<std::string, std::string> unparsedparam = bIO.getUnparsedArguments();
 
@@ -366,7 +364,7 @@ FrequenciesSet* PhylogeneticsApplicationTools::getFrequenciesSet(
   // /////// To be changed for input normalization
   if (rateFreqs.size() > 0)
   {
-    pFS.reset(new MarkovModulatedFrequenciesSet(pFS.release(), rateFreqs));
+    pFS.reset(new MarkovModulatedFrequencySet(pFS.release(), rateFreqs));
   }
 
   return pFS.release();
@@ -409,7 +407,7 @@ SubstitutionModelSet* PhylogeneticsApplicationTools::getSubstitutionModelSet(
   modelSet1 = new SubstitutionModelSet(alphabet);
   setSubstitutionModelSet(*modelSet1, alphabet, gCode, data, params, suffix, suffixIsOptional, verbose, warn);
 
-  if (modelSet1->hasMixedSubstitutionModel())
+  if (modelSet1->hasMixedTransitionModel())
   {
     modelSet = new MixedSubstitutionModelSet(*modelSet1);
     completeMixedSubstitutionModelSet(*dynamic_cast<MixedSubstitutionModelSet*>(modelSet), alphabet, data, params, suffix, suffixIsOptional, verbose);
@@ -478,16 +476,16 @@ void PhylogeneticsApplicationTools::setSubstitutionModelSet(
   map<string, string> unparsedParameters;
 
   bool stationarity = ApplicationTools::getBooleanParameter("nonhomogeneous.stationarity", params, false, "", true, warn);
-  FrequenciesSet* rootFrequencies = 0;
+  FrequencySet* rootFrequencies = 0;
   if (!stationarity)
   {
-    rootFrequencies = getRootFrequenciesSet(alphabet, gCode, data, params, unparsedParameters, rateFreqs, suffix, suffixIsOptional, verbose);
+    rootFrequencies = getRootFrequencySet(alphabet, gCode, data, params, unparsedParameters, rateFreqs, suffix, suffixIsOptional, verbose);
     stationarity = !rootFrequencies;
     string freqDescription = ApplicationTools::getStringParameter("nonhomogeneous.root_freq", params, "", suffix, suffixIsOptional, warn);
     if (freqDescription.substr(0, 10) == "MVAprotein")
     {
       if (dynamic_cast<Coala*>(tmp.get()))
-        dynamic_cast<MvaFrequenciesSet*>(rootFrequencies)->initSet(dynamic_cast<CoalaCore*>(tmp.get()));
+        dynamic_cast<MvaFrequencySet*>(rootFrequencies)->initSet(dynamic_cast<CoalaCore*>(tmp.get()));
       else
         throw Exception("The MVAprotein frequencies set at the root can only be used if a Coala model is used on branches.");
     }
@@ -577,14 +575,15 @@ void PhylogeneticsApplicationTools::completeMixedSubstitutionModelSet(
     ApplicationTools::displayResult("Number of distinct paths", TextTools::toString(numd));
 
   vector<string> vdesc;
-  while (numd)
+  size_t numi=0;
+  while (numi<numd)
   {
-    string desc = ApplicationTools::getStringParameter("site.path" + TextTools::toString(numd), params, "",  suffix, suffixIsOptional, warn);
+    string desc = ApplicationTools::getStringParameter("site.path" + TextTools::toString(numi+1), params, "",  suffix, suffixIsOptional, warn);
     if (desc.size() == 0)
       break;
     else
       vdesc.push_back(desc);
-    numd--;
+    numi++;
   }
 
   if (vdesc.size() == 0)
@@ -594,33 +593,53 @@ void PhylogeneticsApplicationTools::completeMixedSubstitutionModelSet(
     return;
   }
 
-  for (vector<string>::iterator it(vdesc.begin()); it != vdesc.end(); it++)
+  for (auto& desc:vdesc)
   {
     mixedModelSet.addEmptyHyperNode();
-    StringTokenizer st(*it, "&");
+    StringTokenizer st(desc, "&");
     while (st.hasMoreToken())
     {
       string submodel = st.nextToken();
+      Vint submodelNb;
       string::size_type indexo = submodel.find("[");
       string::size_type indexf = submodel.find("]");
       if ((indexo == string::npos) | (indexf == string::npos))
-        throw Exception("PhylogeneticsApplicationTools::setMixedSubstitutionModelSet. Bad path syntax, should contain `[]' symbols: " + submodel);
+        throw Exception("PhylogeneticsApplicationTools::completeMixedSubstitutionModelSet. Bad path syntax, should contain `[]' symbols: " + submodel);
       size_t num = TextTools::to<size_t>(submodel.substr(5, indexo - 5));
-      string p2 = submodel.substr(indexo + 1, indexf - indexo - 1);
-
-      const MixedSubstitutionModel* pSM = dynamic_cast<const MixedSubstitutionModel*>(mixedModelSet.getSubstitutionModel(num - 1));
+      const MixedTransitionModel* pSM = dynamic_cast<const MixedTransitionModel*>(mixedModelSet.getModel(num - 1));
       if (!pSM)
-        throw BadIntegerException("PhylogeneticsApplicationTools::setMixedSubstitutionModelSet: Wrong model for number", static_cast<int>(num - 1));
-      Vint submodnb = pSM->getSubmodelNumbers(p2);
+        throw BadIntegerException("PhylogeneticsApplicationTools::completeMixedSubstitutionModelSet: Wrong model for number", static_cast<int>(num - 1));
 
-      mixedModelSet.addToHyperNode(num - 1, submodnb);
+      string lp2 = submodel.substr(indexo + 1, indexf - indexo - 1);      
+      StringTokenizer stp2(lp2, ",");
+      while (stp2.hasMoreToken())
+      {
+        string p2=stp2.nextToken();
+        
+        try  {
+          int n2=TextTools::toInt(p2);
+          if (n2<=0 || n2>(int)(pSM->getNumberOfModels()))
+            throw BadIntegerException("PhylogeneticsApplicationTools::completeMixedSubstitutionModelSet: Wrong model for number", static_cast<int>(n2));
+          submodelNb.push_back(n2-1);
+        }
+        catch (Exception& e)
+        {
+          Vint submodnb = pSM->getSubmodelNumbers(p2);
+          if (submodelNb.size()==0)
+            submodelNb=submodnb;
+          else
+            submodelNb=VectorTools::vectorIntersection(submodelNb,submodnb);
+        }
+      }
+      
+      mixedModelSet.addToHyperNode(num - 1, submodelNb);
     }
-
+    
     if (!mixedModelSet.getHyperNode(mixedModelSet.getNumberOfHyperNodes() - 1).isComplete())
-      throw Exception("A path should own at least a submodel of each mixed model: " + *it);
+      throw Exception("A path should own at least a submodel of each mixed model: " + desc);
 
     if (verbose)
-      ApplicationTools::displayResult("Site Path", *it);
+      ApplicationTools::displayResult("Site Path", desc);
   }
 
   // / Checks if the paths are separate
@@ -707,7 +726,7 @@ DiscreteDistribution* PhylogeneticsApplicationTools::getRateDistribution(
   KeyvalTools::parseProcedure(distDescription, distName, args);
 
   BppORateDistributionFormat bIO(true);
-  unique_ptr<DiscreteDistribution> rDist(bIO.read(distDescription, true));
+  unique_ptr<DiscreteDistribution> rDist(bIO.readDiscreteDistribution(distDescription, true));
 
   if (verbose)
   {
@@ -919,12 +938,12 @@ TreeLikelihood* PhylogeneticsApplicationTools::optimizeParameters(
         Parameter& par = parametersToEstimate.getParameter(parNames2[i]);
         if (par.hasConstraint())
         {
-          par.setConstraint(ic & (*par.getConstraint()), true);
+          par.setConstraint(std::shared_ptr<Constraint>(ic & (*par.getConstraint())));
           if (par.getConstraint()->isEmpty())
             throw Exception("Empty interval for parameter " + parNames[i] + par.getConstraint()->getDescription());
         }
         else
-          par.setConstraint(ic.clone(), true);
+          par.setConstraint(std::shared_ptr<Constraint>(ic.clone()));
 
         if (verbose)
           ApplicationTools::displayResult("Parameter constrained " + par.getName(), par.getConstraint()->getDescription());
@@ -1385,7 +1404,7 @@ void PhylogeneticsApplicationTools::checkEstimatedParameters(const ParameterList
 {
   for (size_t i = 0; i < pl.size(); ++i)
   {
-    const Constraint* constraint = pl[i].getConstraint();
+    auto constraint = pl[i].getConstraint();
     if (constraint)
     {
       double value = pl[i].getValue();
@@ -1413,14 +1432,14 @@ void PhylogeneticsApplicationTools::writeTree(
   string file = ApplicationTools::getAFilePath(prefix + "tree.file", params, false, false, suffix, suffixIsOptional, "none", warn);
  
   BppOTreeWriterFormat bppoWriter(warn);
-  unique_ptr<OTree> oTree(bppoWriter.read(format));
+  unique_ptr<OTree> oTree(bppoWriter.readOTree(format));
   if (verbose)
   {
     ApplicationTools::displayResult("Output tree file " + suffix, file);
     ApplicationTools::displayResult("Output tree format " + suffix, oTree->getFormatName());
   }
   if (!checkOnly && file != "none")
-    oTree->write(tree, file, true);  
+    oTree->writeTree(tree, file, true);  
 }
 
 /******************************************************************************/
@@ -1439,14 +1458,14 @@ void PhylogeneticsApplicationTools::writeTrees(
   string file = ApplicationTools::getAFilePath(prefix + "trees.file", params, true, false, suffix, suffixIsOptional, "none", warn);
 
   BppOMultiTreeWriterFormat bppoWriter(warn);
-  unique_ptr<OMultiTree> oTrees(bppoWriter.read(format));
+  unique_ptr<OMultiTree> oTrees(bppoWriter.readOMultiTree(format));
   if (verbose)
   {
     ApplicationTools::displayResult("Output trees file " + suffix, file);
     ApplicationTools::displayResult("Output trees format " + suffix, oTrees->getFormatName());
   }
   if (!checkOnly && file != "none")
-    oTrees->write(trees, file, true);
+    oTrees->writeTrees(trees, file, true);
   
 }
 
@@ -1519,7 +1538,7 @@ void PhylogeneticsApplicationTools::printParameters(const SubstitutionModelSet* 
   if (!modelSet->isStationary())
   {
     
-    const FrequenciesSet* pFS = modelSet->getRootFrequenciesSet();
+    const FrequencySet* pFS = modelSet->getRootFrequencySet();
 
     ParameterList plf = pFS->getParameters();
 
@@ -1540,8 +1559,8 @@ void PhylogeneticsApplicationTools::printParameters(const SubstitutionModelSet* 
     (out << "# Root frequencies:").endLine();
     out << "nonhomogeneous.root_freq=";
     
-    BppOFrequenciesSetFormat bIO(BppOFrequenciesSetFormat::ALL, false, warn);
-    bIO.write(pFS, out, aliases, writtenNames);
+    BppOFrequencySetFormat bIO(BppOFrequencySetFormat::ALL, false, warn);
+    bIO.writeFrequencySet(pFS, out, aliases, writtenNames);
   }
   
 }
@@ -1555,7 +1574,7 @@ void PhylogeneticsApplicationTools::printParameters(const DiscreteDistribution* 
   vector<string> writtenNames;
   const BppORateDistributionFormat* bIO = new BppORateDistributionFormat(true);
 
-  bIO->write(*rDist, out, globalAliases, writtenNames);
+  bIO->writeDiscreteDistribution(*rDist, out, globalAliases, writtenNames);
   delete bIO;
   out.endLine();
 }

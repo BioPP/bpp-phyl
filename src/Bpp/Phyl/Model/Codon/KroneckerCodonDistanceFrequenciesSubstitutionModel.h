@@ -100,7 +100,7 @@ public:
    * @param gCode pointer to a GeneticCode
    * @param pmod pointer to the NucleotideSubstitutionModel to use in
    *        the three positions. It is owned by the instance.
-   * @param pfreq pointer to the FrequenciesSet* equilibrium frequencies
+   * @param pfreq pointer to the FrequencySet* equilibrium frequencies
    * @param pdist optional pointer to the AlphabetIndex2 amino-acids
    *        distance object.
    */
@@ -108,7 +108,7 @@ public:
   KroneckerCodonDistanceFrequenciesSubstitutionModel(
       const GeneticCode* gCode,
       NucleotideSubstitutionModel* pmod,
-      FrequenciesSet* pfreq,
+      FrequencySet* pfreq,
       const AlphabetIndex2* pdist = 0);
 
   /**
@@ -121,7 +121,7 @@ public:
    *        the three positions. It is owned by the instance.
    * @param vPos a vector of sets of simultaneously changing
    *   positions.
-   * @param pfreq pointer to the FrequenciesSet* equilibrium frequencies
+   * @param pfreq pointer to the FrequencySet* equilibrium frequencies
    * @param pdist optional pointer to the AlphabetIndex2 amino-acids
    *        distance object.
    */
@@ -130,7 +130,7 @@ public:
     const GeneticCode* gCode,
     NucleotideSubstitutionModel* pmod,
     const std::vector<std::set< size_t> >& vPos,
-    FrequenciesSet* pfreq,
+    FrequencySet* pfreq,
     const AlphabetIndex2* pdist = 0);
 
   /**
@@ -145,7 +145,7 @@ public:
    *   NucleotideSubstitutionModel to use in the three positions.
    *   All the models must be different objects to avoid redundant
    *   parameters.  They are owned by the instance.
-   * @param pfreq pointer to the FrequenciesSet* equilibrium frequencies
+   * @param pfreq pointer to the FrequencySet* equilibrium frequencies
    * @param pdist optional pointer to the AlphabetIndex2 amino-acids
    *   distance object.
    */
@@ -155,7 +155,7 @@ public:
       NucleotideSubstitutionModel* pmod1,
       NucleotideSubstitutionModel* pmod2,
       NucleotideSubstitutionModel* pmod3,
-      FrequenciesSet* pfreq,
+      FrequencySet* pfreq,
       const AlphabetIndex2* pdist = 0);
 
   /**
@@ -170,7 +170,7 @@ public:
    *   parameters.  They are owned by the instance.
    * @param vPos a vector of sets of simultaneously changing
    *   positions.
-   * @param pfreq pointer to the FrequenciesSet* equilibrium frequencies
+   * @param pfreq pointer to the FrequencySet* equilibrium frequencies
    * @param pdist optional pointer to the AlphabetIndex2 amino-acids
    *   distance object.
    */
@@ -181,7 +181,7 @@ public:
     NucleotideSubstitutionModel* pmod2,
     NucleotideSubstitutionModel* pmod3,
     const std::vector<std::set< size_t> >& vPos,
-    FrequenciesSet* pfreq,
+    FrequencySet* pfreq,
     const AlphabetIndex2* pdist = 0);
 
   virtual ~KroneckerCodonDistanceFrequenciesSubstitutionModel() {}
@@ -202,8 +202,8 @@ public:
 
   void setFreq(std::map<int,double>& frequencies);
 
-  const FrequenciesSet* getFrequenciesSet() const {
-    return AbstractCodonFrequenciesSubstitutionModel::getFrequenciesSet();
+  const FrequencySet* getFrequencySet() const {
+    return AbstractCodonFrequenciesSubstitutionModel::getFrequencySet();
   }
 
 

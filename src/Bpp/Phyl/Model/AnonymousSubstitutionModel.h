@@ -61,7 +61,7 @@ namespace bpp
     public AbstractSubstitutionModel
   {
   public:
-    AnonymousSubstitutionModel(const Alphabet* alpha, const StateMap* stateMap):
+    AnonymousSubstitutionModel(const Alphabet* alpha, std::shared_ptr<const StateMap> stateMap):
       AbstractParameterAliasable("Anonymous"),
       AbstractSubstitutionModel(alpha, stateMap, "Anonymous")
     {}
@@ -74,7 +74,7 @@ namespace bpp
   public:
     std::string getName() const { return "Anonymous"; }
     
-    size_t getNumberOfStates() const { return getAlphabet()->getSize(); }
+    size_t getNumberOfStates() const { return size_;}
 
     Matrix<double>& setGenerator() { return generator_; }
 

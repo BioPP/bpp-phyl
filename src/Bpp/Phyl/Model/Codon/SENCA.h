@@ -69,8 +69,8 @@ namespace bpp
    * \f[-\frac{ \log(\frac{\phi_i}{\phi_j})}{1-\frac{\phi_i}{\phi_j}}\f]
    *
    * The set of fitnesses is implemented through a Codon
-   * FrequenciesSet object. The parameters are named \c
-   * "fit_NameOfTheParameterInTheFrequenciesSet".
+   * FrequencySet object. The parameters are named \c
+   * "fit_NameOfTheParameterInTheFrequencySet".
    *
    * Note: equilibrium frequencies are computed from the generator. To
    * be done : implement analytic computation.
@@ -89,14 +89,14 @@ namespace bpp
     SENCA(
       const GeneticCode* gCode,
       NucleotideSubstitutionModel* pmod,
-      FrequenciesSet* pfit,
+      FrequencySet* pfit,
       const AlphabetIndex2* pdist = 0);
     SENCA(
       const GeneticCode* gCode,
       NucleotideSubstitutionModel* pmod1,
       NucleotideSubstitutionModel* pmod2,
       NucleotideSubstitutionModel* pmod3,
-      FrequenciesSet* pfit,
+      FrequencySet* pfit,
       const AlphabetIndex2* pdist = 0);
 
     virtual ~SENCA() {}
@@ -129,8 +129,8 @@ namespace bpp
      */
     void setFreq(std::map<int,double>& frequencies);
 
-    const FrequenciesSet* getFrequenciesSet() const {
-      return AbstractCodonFitnessSubstitutionModel::getFrequenciesSet();
+    const FrequencySet* getFrequencySet() const {
+      return AbstractCodonFitnessSubstitutionModel::getFrequencySet();
     }
 
   };

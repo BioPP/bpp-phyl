@@ -41,7 +41,7 @@
 #define _FROM_MIXTURE_SUBSTITUTIONMODEL_H_
 
 #include "AbstractSubstitutionModel.h"
-#include "MixedSubstitutionModel.h"
+#include "MixedTransitionModel.h"
 #include "AbstractWrappedModel.h"
 
 namespace bpp
@@ -58,7 +58,7 @@ namespace bpp
   {
   private:
     /*
-     * @brief The subModel taken from the MixtureOfSubstitutionModels.
+     * @brief The subModel taken from the AbstractTotallyWrappedSubstitutionModel.
      *
      * This subModel is normalized, even if it is not in the mixture.
      *
@@ -73,9 +73,9 @@ namespace bpp
     std::string mixtName_;
 
   public:
-    FromMixtureSubstitutionModel(const MixedSubstitutionModel& mixedModel, const std::string& subModelName, const std::string& mixtDesc);
+    FromMixtureSubstitutionModel(const MixedTransitionModel& mixedModel, const std::string& subModelName, const std::string& mixtDesc);
 
-    FromMixtureSubstitutionModel(const MixedSubstitutionModel& mixedModel, size_t subModelNumber, const std::string& mixtDesc);
+    FromMixtureSubstitutionModel(const MixedTransitionModel& mixedModel, size_t subModelNumber, const std::string& mixtDesc);
 
     FromMixtureSubstitutionModel(const FromMixtureSubstitutionModel& fmsm);
 
@@ -123,7 +123,7 @@ namespace bpp
     virtual void addRateParameter()
     {
       getModel().addRateParameter();
-      addParameter_(new Parameter(getNamespace() + "rate", getModel().getRate(), &Parameter::R_PLUS_STAR)); 
+      addParameter_(new Parameter(getNamespace() + "rate", getModel().getRate(), Parameter::R_PLUS_STAR)); 
     }
     
     /*
@@ -133,7 +133,6 @@ namespace bpp
     std::string getName() const
     {
       size_t posp = mixtName_.find("(");
-      
       return mixtName_.substr(0, posp) + "_" + getModel().getName() + mixtName_.substr(posp);
     }
 

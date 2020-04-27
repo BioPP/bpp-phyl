@@ -1,5 +1,5 @@
 //
-// File: WordFrequenciesSet.h
+// File: WordFrequencySet.h
 // Created by: Laurent Gueguen
 // Created on: lundi 2 avril 2012, à 13h 59
 //
@@ -37,12 +37,12 @@
    knowledge of the CeCILL license and that you accept its terms.
  */
 
-#ifndef _WORDFREQUENCIESSET_H_
-#define _WORDFREQUENCIESSET_H_
+#ifndef _WORDFREQUENCYSET_H_
+#define _WORDFREQUENCYSET_H_
 
 #include <Bpp/Seq/Alphabet/WordAlphabet.h>
 #include <Bpp/Seq/Alphabet/CodonAlphabet.h>
-#include "FrequenciesSet.h"
+#include "FrequencySet.h"
 
 namespace bpp
 {
@@ -56,27 +56,27 @@ namespace bpp
  * @brief Frequencies in words computed from the  frequencies on
  * letters. The parameters are the parameters of the Frequencies on
  * letters.
- * The WordFrequenciesSet owns the FrequenciesSet* it is built on.
+ * The WordFrequencySet owns the FrequencySet* it is built on.
  * Interface class.
  * @author Laurent Guéguen
  */
 
-class WordFrequenciesSet :
-  public virtual FrequenciesSet
+class WordFrequencySet :
+  public virtual FrequencySet
 {
 protected:
   
-  virtual size_t getSizeFromVector(const std::vector<FrequenciesSet*>& freqVector) = 0;
+  virtual size_t getSizeFromVector(const std::vector<FrequencySet*>& freqVector) = 0;
   
 public:
-  WordFrequenciesSet* clone() const = 0;
+  WordFrequencySet* clone() const = 0;
 
   virtual const CoreWordAlphabet* getWordAlphabet() const = 0;
 
   /**
-   *@ brief Returns the n-th FrequenciesSet&
+   *@ brief Returns the n-th FrequencySet&
    */
-  virtual const FrequenciesSet& getFrequenciesSetForLetter(size_t i) const = 0;
+  virtual const FrequencySet& getFrequencySetForLetter(size_t i) const = 0;
 
   /**
    *@ brief Returns the length of the words
@@ -85,33 +85,33 @@ public:
 };
 
 
-class AbstractWordFrequenciesSet :
-  public virtual WordFrequenciesSet,
-  public AbstractFrequenciesSet
+class AbstractWordFrequencySet :
+  public virtual WordFrequencySet,
+  public AbstractFrequencySet
 {
 protected:
-  size_t getSizeFromVector(const std::vector<FrequenciesSet*>& freqVector);
+  size_t getSizeFromVector(const std::vector<FrequencySet*>& freqVector);
   
 public:
-  AbstractWordFrequenciesSet(StateMap* stateMap, const std::string& prefix = "", const std::string& name="");
+  AbstractWordFrequencySet(std::shared_ptr<const StateMap> stateMap, const std::string& prefix = "", const std::string& name="");
 
-  AbstractWordFrequenciesSet* clone() const = 0;
+  AbstractWordFrequencySet* clone() const = 0;
 
-  AbstractWordFrequenciesSet(const AbstractWordFrequenciesSet& af) :
-    AbstractFrequenciesSet(af) {}
+  AbstractWordFrequencySet(const AbstractWordFrequencySet& af) :
+    AbstractFrequencySet(af) {}
 
-  AbstractWordFrequenciesSet & operator=(const AbstractWordFrequenciesSet& af)
+  AbstractWordFrequencySet & operator=(const AbstractWordFrequencySet& af)
   {
-    AbstractFrequenciesSet::operator=(af);
+    AbstractFrequencySet::operator=(af);
     return *this;
   }
 
   const CoreWordAlphabet* getWordAlphabet() const
   {
-    return dynamic_cast<const CoreWordAlphabet*>(AbstractFrequenciesSet::getAlphabet());
+    return dynamic_cast<const CoreWordAlphabet*>(AbstractFrequencySet::getAlphabet());
   }
 
-  virtual ~AbstractWordFrequenciesSet();
+  virtual ~AbstractWordFrequencySet();
   
   /**
    *@ brief Return the length of the words
@@ -125,29 +125,29 @@ public:
  *
  * @author Laurent Guéguen
  */
-class WordFromIndependentFrequenciesSet :
-    public AbstractWordFrequenciesSet
+class WordFromIndependentFrequencySet :
+    public AbstractWordFrequencySet
 {
 protected:
-  std::vector<FrequenciesSet*> vFreq_;
+  std::vector<FrequencySet*> vFreq_;
   std::vector<std::string> vNestedPrefix_;
 
 public:
   /**
-   * @brief Constructor from a WordAlphabet* and a vector of different FrequenciesSet*.
+   * @brief Constructor from a WordAlphabet* and a vector of different FrequencySet*.
    * Throws an Exception if their lengths do not match.
    */
-  WordFromIndependentFrequenciesSet(const WordAlphabet* pWA, const std::vector<FrequenciesSet*>& freqVector, const std::string& prefix = "", const std::string& name="WordFromIndependent");
+  WordFromIndependentFrequencySet(const WordAlphabet* pWA, const std::vector<FrequencySet*>& freqVector, const std::string& prefix = "", const std::string& name="WordFromIndependent");
 
-  WordFromIndependentFrequenciesSet(const CodonAlphabet* pWA, const std::vector<FrequenciesSet*>& freqVector, const std::string& prefix = "", const std::string& name="WordFromIndependent");
+  WordFromIndependentFrequencySet(const CodonAlphabet* pWA, const std::vector<FrequencySet*>& freqVector, const std::string& prefix = "", const std::string& name="WordFromIndependent");
 
-  WordFromIndependentFrequenciesSet(const WordFromIndependentFrequenciesSet& iwfs);
+  WordFromIndependentFrequencySet(const WordFromIndependentFrequencySet& iwfs);
 
-  ~WordFromIndependentFrequenciesSet();
+  ~WordFromIndependentFrequencySet();
 
-  WordFromIndependentFrequenciesSet& operator=(const WordFromIndependentFrequenciesSet& iwfs);
+  WordFromIndependentFrequencySet& operator=(const WordFromIndependentFrequencySet& iwfs);
 
-  WordFromIndependentFrequenciesSet* clone() const { return new WordFromIndependentFrequenciesSet(*this); }
+  WordFromIndependentFrequencySet* clone() const { return new WordFromIndependentFrequencySet(*this); }
 
 public:
   void fireParameterChanged(const ParameterList& pl);
@@ -163,9 +163,9 @@ public:
   virtual void setFrequencies(const std::vector<double>& frequencies);
 
   /**
-   *@ brief Return the n-th FrequenciesSet&
+   *@ brief Return the n-th FrequencySet&
    **/
-  const FrequenciesSet& getFrequenciesSetForLetter(size_t i) const { return *vFreq_[i]; }
+  const FrequencySet& getFrequencySetForLetter(size_t i) const { return *vFreq_[i]; }
 
   /**
    *@ brief Return the length of the words
@@ -178,30 +178,30 @@ public:
   std::string getDescription() const;
 };
 
-class WordFromUniqueFrequenciesSet :
-  public AbstractWordFrequenciesSet
+class WordFromUniqueFrequencySet :
+  public AbstractWordFrequencySet
 {
 protected:
-  FrequenciesSet* pFreq_;
+  FrequencySet* pFreq_;
   std::string NestedPrefix_;
   size_t length_;
 
 public:
   /**
-   * @brief Constructor from a WordAlphabet* and a FrequenciesSet*
+   * @brief Constructor from a WordAlphabet* and a FrequencySet*
    *  repeated as many times as the length of the words.
    */
-  WordFromUniqueFrequenciesSet(const WordAlphabet* pWA, FrequenciesSet* pabsfreq, const std::string& prefix = "", const std::string& name = "WordFromUnique");
+  WordFromUniqueFrequencySet(const WordAlphabet* pWA, FrequencySet* pabsfreq, const std::string& prefix = "", const std::string& name = "WordFromUnique");
 
-  WordFromUniqueFrequenciesSet(const CodonAlphabet* pWA, FrequenciesSet* pabsfreq, const std::string& prefix = "", const std::string& name = "WordFromUnique");
+  WordFromUniqueFrequencySet(const CodonAlphabet* pWA, FrequencySet* pabsfreq, const std::string& prefix = "", const std::string& name = "WordFromUnique");
 
-  WordFromUniqueFrequenciesSet(const WordFromUniqueFrequenciesSet& iwfs);
+  WordFromUniqueFrequencySet(const WordFromUniqueFrequencySet& iwfs);
 
-  WordFromUniqueFrequenciesSet& operator=(const WordFromUniqueFrequenciesSet& iwfs);
+  WordFromUniqueFrequencySet& operator=(const WordFromUniqueFrequencySet& iwfs);
 
-  ~WordFromUniqueFrequenciesSet();
+  ~WordFromUniqueFrequencySet();
 
-  WordFromUniqueFrequenciesSet* clone() const { return new WordFromUniqueFrequenciesSet(*this); }
+  WordFromUniqueFrequencySet* clone() const { return new WordFromUniqueFrequencySet(*this); }
 
 public:
   virtual void fireParameterChanged(const ParameterList& pl);
@@ -218,9 +218,9 @@ public:
   virtual void updateFrequencies();
 
   /**
-   *@ brief Return the n-th FrequenciesSet&
+   *@ brief Return the n-th FrequencySet&
    **/
-  const FrequenciesSet& getFrequenciesSetForLetter(size_t i) const { return *pFreq_; }
+  const FrequencySet& getFrequencySetForLetter(size_t i) const { return *pFreq_; }
 
   size_t getLength() const { return length_; }
 
@@ -231,6 +231,6 @@ public:
 
 } // end of namespace bpp.
 
-#endif // _WORDFREQUENCIESSET_H_
+#endif // _WORDFREQUENCYSET_H_
 
 

@@ -49,7 +49,7 @@ using namespace std;
 
 /******************************************************************************/
 
-YNGP_M3::YNGP_M3(const GeneticCode* gc, FrequenciesSet* codonFreqs, unsigned int nbOmega) :
+YNGP_M3::YNGP_M3(const GeneticCode* gc, FrequencySet* codonFreqs, unsigned int nbOmega) :
   YNGP_M("YNGP_M3.")
 {
   if (nbOmega < 1)
@@ -69,15 +69,15 @@ YNGP_M3::YNGP_M3(const GeneticCode* gc, FrequenciesSet* codonFreqs, unsigned int
     v2.push_back(1. / nbOmega);
   }
 
-  SimpleDiscreteDistribution* psdd = new SimpleDiscreteDistribution(v1, v2, NumConstants::MILLI());
+  std::unique_ptr<DiscreteDistribution> psdd(new SimpleDiscreteDistribution(v1, v2, NumConstants::MILLI()));
 
   map<string, DiscreteDistribution*> mpdd;
-  mpdd["omega"] = psdd;
+  mpdd["omega"] = psdd.get();
 
   unique_ptr<YN98> yn98(new YN98(gc, codonFreqs));
 
   pmixmodel_.reset(new MixtureOfASubstitutionModel(gc->getSourceAlphabet(), yn98.get(), mpdd));
-  delete psdd;
+  pmixsubmodel_=dynamic_cast<const MixtureOfASubstitutionModel*>(&getMixedModel());      
 
   vector<int> supportedChars = yn98->getAlphabetStates();
 
@@ -89,7 +89,7 @@ YNGP_M3::YNGP_M3(const GeneticCode* gc, FrequenciesSet* codonFreqs, unsigned int
     lParPmodel_.addParameter(Parameter(pl[i]));
   }
 
-  vector<std::string> v = dynamic_cast<YN98*>(pmixmodel_->getNModel(0))->getFrequenciesSet()->getParameters().getParameterNames();
+  vector<std::string> v = dynamic_cast<YN98*>(pmixmodel_->getNModel(0))->getFrequencySet()->getParameters().getParameterNames();
   for (size_t i = 0; i < v.size(); ++i)
   {
     mapParNamesFromPmodel_[v[i]] = v[i].substr(5);
@@ -117,12 +117,12 @@ YNGP_M3::YNGP_M3(const GeneticCode* gc, FrequenciesSet* codonFreqs, unsigned int
     st = pmixmodel_->getParameterNameWithoutNamespace(it->first);
     if (it->second.substr(0, 5) != "delta")
       addParameter_(new Parameter("YNGP_M3." + it->second, pmixmodel_->getParameterValue(st),
-                              pmixmodel_->getParameter(st).hasConstraint() ? pmixmodel_->getParameter(st).getConstraint()->clone() : 0, true));
+                                  pmixmodel_->getParameter(st).hasConstraint() ? std::shared_ptr<Constraint>(pmixmodel_->getParameter(st).getConstraint()->clone()) : 0));
   }
 
   for (size_t i = 1; i < nbOmega; ++i)
   {
-    addParameter_(new Parameter("YNGP_M3.delta" + TextTools::toString(i), 0.5, new IntervalConstraint(NumConstants::MILLI(), 999, true, true, NumConstants::MILLI()), true));
+    addParameter_(new Parameter("YNGP_M3.delta" + TextTools::toString(i), 0.5, std::make_shared<IntervalConstraint>(NumConstants::MILLI(), 999, true, true, NumConstants::MILLI())));
   }
 
   // look for synonymous codons
@@ -131,8 +131,8 @@ YNGP_M3::YNGP_M3(const GeneticCode* gc, FrequenciesSet* codonFreqs, unsigned int
     for (synto_ = 0; synto_ < synfrom_; synto_++)
     {
       if (gc->areSynonymous(supportedChars[synfrom_], supportedChars[synto_])
-          && (pmixmodel_->getNModel(0)->Qij(synfrom_, synto_) != 0)
-          && (pmixmodel_->getNModel(1)->Qij(synfrom_, synto_) != 0))
+          && (pmixsubmodel_->getSubNModel(0)->Qij(synfrom_, synto_) != 0)
+          && (pmixsubmodel_->getSubNModel(1)->Qij(synfrom_, synto_) != 0))
         break;
     }
     if (synto_ < synfrom_)
@@ -159,15 +159,14 @@ void YNGP_M3::updateMatrices()
         size_t ind = TextTools::to<size_t>(np.substr(19));
         double x = getParameterValue("omega0");
         for (unsigned j = 1; j < ind; j++)
-        {
           x += getParameterValue("delta" + TextTools::toString(j));
-        }
-        lParPmodel_[i].setValue(x);
+
+        const auto parConst = lParPmodel_[i].getConstraint();      
+        lParPmodel_[i].setValue(parConst?(parConst->isCorrect(x)?x:parConst->getAcceptedLimit(x)):x);
       }
       else
-      {
         lParPmodel_[i].setValue(getParameter(getParameterNameWithoutNamespace(mapParNamesFromPmodel_[np])).getValue());
-      }
+
     }
   }
 
@@ -175,13 +174,10 @@ void YNGP_M3::updateMatrices()
 
   // homogeneization of the synonymous substitution rates
 
-
   Vdouble vd;
 
   for (unsigned int i = 0; i < pmixmodel_->getNumberOfModels(); i++)
-  {
-    vd.push_back(1 / pmixmodel_->getNModel(i)->Qij(synfrom_, synto_));
-  }
+    vd.push_back(1 / pmixsubmodel_->getSubNModel(i)->Qij(synfrom_, synto_));
 
   pmixmodel_->setVRates(vd);
 }

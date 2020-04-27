@@ -38,7 +38,7 @@ knowledge of the CeCILL license and that you accept its terms.
 */
 
 #include "GTR.h"
-#include "../FrequenciesSet/NucleotideFrequenciesSet.h"
+#include "../FrequencySet/NucleotideFrequencySet.h"
 
 #include <Bpp/Numeric/Matrix/MatrixTools.h>
 
@@ -65,17 +65,17 @@ GTR::GTR(
     double piG,
     double piT) :
   AbstractParameterAliasable("GTR."),
-  AbstractReversibleNucleotideSubstitutionModel(alpha, new CanonicalStateMap(alpha, false), "GTR."),
+  AbstractReversibleNucleotideSubstitutionModel(alpha, std::shared_ptr<const StateMap>(new CanonicalStateMap(alpha, false)), "GTR."),
   a_(a), b_(b), c_(c), d_(d), e_(e), piA_(piA), piC_(piC), piG_(piG), piT_(piT), theta_(piG + piC), theta1_(piA / (1. - theta_)), theta2_(piG / theta_), p_()
 {
-  addParameter_(new Parameter("GTR.a", a, &Parameter::R_PLUS_STAR));
-  addParameter_(new Parameter("GTR.b", b, &Parameter::R_PLUS_STAR));
-  addParameter_(new Parameter("GTR.c", c, &Parameter::R_PLUS_STAR));
-  addParameter_(new Parameter("GTR.d", d, &Parameter::R_PLUS_STAR));
-  addParameter_(new Parameter("GTR.e", e, &Parameter::R_PLUS_STAR));
-  addParameter_(new Parameter("GTR.theta", theta_, &FrequenciesSet::FREQUENCE_CONSTRAINT_SMALL));
-  addParameter_(new Parameter("GTR.theta1", theta1_, &FrequenciesSet::FREQUENCE_CONSTRAINT_SMALL));
-  addParameter_(new Parameter("GTR.theta2", theta2_, &FrequenciesSet::FREQUENCE_CONSTRAINT_SMALL));
+  addParameter_(new Parameter("GTR.a", a, Parameter::R_PLUS_STAR));
+  addParameter_(new Parameter("GTR.b", b, Parameter::R_PLUS_STAR));
+  addParameter_(new Parameter("GTR.c", c, Parameter::R_PLUS_STAR));
+  addParameter_(new Parameter("GTR.d", d, Parameter::R_PLUS_STAR));
+  addParameter_(new Parameter("GTR.e", e, Parameter::R_PLUS_STAR));
+  addParameter_(new Parameter("GTR.theta", theta_, FrequencySet::FREQUENCE_CONSTRAINT_SMALL));
+  addParameter_(new Parameter("GTR.theta1", theta1_, FrequencySet::FREQUENCE_CONSTRAINT_SMALL));
+  addParameter_(new Parameter("GTR.theta2", theta2_, FrequencySet::FREQUENCE_CONSTRAINT_SMALL));
   updateMatrices();
 }
 
@@ -135,7 +135,7 @@ void GTR::setFreq(map<int, double>& freqs)
   thetas[0] = getNamespace() + "theta";
   thetas[1] = getNamespace() + "theta1";
   thetas[2] = getNamespace() + "theta2";
-  ParameterList pl = getParameters().subList(thetas);
+  ParameterList pl = getParameters().createSubList(thetas);
   pl[0].setValue(piC_ + piG_);
   pl[1].setValue(piA_ / (piA_ + piT_));
   pl[2].setValue(piG_ / (piC_ + piG_));

@@ -69,11 +69,11 @@ int main() {
   //Convert tree to string and read it again:
   Nhx nhxParser(true);
   ofstream out("randomTree.nhx", ios::out);
-  nhxParser.write(*tree, out);
+  nhxParser.writeTree(*tree, out);
   out.close();
-  TreeTemplate<Node>* tree2 = nhxParser.read("randomTree.nhx");
+  TreeTemplate<Node>* tree2 = nhxParser.readTree("randomTree.nhx");
   ofstream out2("randomTree2.nhx", ios::out);
-  nhxParser.write(*tree2, out2);
+  nhxParser.writeTree(*tree2, out2);
   out2.close();
 
   delete tree;
