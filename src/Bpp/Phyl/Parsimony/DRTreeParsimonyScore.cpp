@@ -40,16 +40,12 @@
 #include "DRTreeParsimonyScore.h"
 #include "../PatternTools.h"
 #include "../TreeTemplateTools.h" // Needed for NNIs
-#include "../TreeIterator.h"
 
 #include <Bpp/App/ApplicationTools.h>
 #include <Bpp/Numeric/VectorTools.h>
-#include <Bpp/Numeric/Random/RandomTools.h>
 
 using namespace bpp;
 using namespace std;
-
-#define STATE "state" // macro for setting states on nodes when comping a maximum parsimony solution
 
 /******************************************************************************/
 
@@ -68,7 +64,7 @@ DRTreeParsimonyScore::DRTreeParsimonyScore(
 DRTreeParsimonyScore::DRTreeParsimonyScore(
   const Tree& tree,
   const SiteContainer& data,
-  const StateMap* statesMap,
+  std::shared_ptr<const StateMap> statesMap,
   bool verbose) :
   AbstractTreeParsimonyScore(tree, data, statesMap, verbose),
   parsimonyData_(new DRTreeParsimonyData(getTreeP_())),
@@ -402,6 +398,9 @@ void DRTreeParsimonyScore::doNNI(int nodeId)
   parent->addSon(uncle);
   grandFather->addSon(son);
 }
+
+/******************************************************************************/
+
 
 /******************************************************************************/
 

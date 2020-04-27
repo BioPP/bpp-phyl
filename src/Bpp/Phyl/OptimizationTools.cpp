@@ -126,7 +126,6 @@ unsigned int OptimizationTools::optimizeTreeScale(
 {
   ScaleFunction sf(tl);
   BrentOneDimension bod(&sf);
-  bod.setBracketing(BrentOneDimension::BRACKET_INWARD); // keren - debug - try with inward backeting and see if convergence doesn't occur
   bod.setMessageHandler(messageHandler);
   bod.setProfiler(profiler);
   ParameterList singleParameter;

@@ -1,4 +1,4 @@
-// keren: I assume that here bitset stands for weather there is an intersection (0) or union (1)
+//
 // File: DRTreeParsimonyScore.h
 // Created by: Julien Dutheil
 // Created on: Thu Jul 28 18:31 2005
@@ -70,7 +70,7 @@ public:
   DRTreeParsimonyScore(
     const Tree& tree,
     const SiteContainer& data,
-    const StateMap* statesMap,
+    std::shared_ptr<const StateMap> statesMap,
     bool verbose = true);
 
   DRTreeParsimonyScore(const DRTreeParsimonyScore& tp);
@@ -103,25 +103,6 @@ protected:
 public:
   unsigned int getScore() const;
   unsigned int getScoreForSite(size_t site) const;
-
-  // functions for computing a mximum parsimony solution, in the form of states assignments to internal nodes
-  
-  /** sets the state of a node in a mapping 
-    * @param node               The node to get the state of
-    * @param state              The state that needs to be assigned to the node
-    */
-  void setNodeState(Node* node, size_t state);
-
-  /** extracts the state of a node in a mapping 
-    * @param node              The node to get the state of
-    * @return                  Node state is int
-  */
-  int getNodeState(const Node* node);
-  
-  /**
-   * @brief Compute a maximum parsimony solution in DELTRAN manner.
-   */  
-  void computeSolution(); 
 
   /**
    * @brief Compute bitsets and scores for each site for a node, in postorder.
@@ -199,9 +180,26 @@ public:
   }
 
   void topologyChangeSuccessful(const TopologyChangeEvent& event) {}
+  
+    /** sets the state of a node in a mapping 
+    * @param node               The node to get the state of
+    * @param state              The state that needs to be assigned to the node
+    */
+  void setNodeState(Node* node, size_t state);
+
+  /** extracts the state of a node in a mapping 
+    * @param node              The node to get the state of
+    * @return                  Node state is int
+  */
+  int getNodeState(const Node* node);
+  
+  /**
+   * @brief Compute a maximum parsimony solution in DELTRAN manner.
+   */  
+  void computeSolution(); 
+
   /**@} */
 };
 } // end of namespace bpp.
 
 #endif // _DRTREEPARSIMONYSCORE_H_
-

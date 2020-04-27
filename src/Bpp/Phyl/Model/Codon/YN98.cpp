@@ -39,7 +39,7 @@
 #include "YN98.h"
 #include "../Nucleotide/K80.h"
 
-#include "../FrequenciesSet/CodonFrequenciesSet.h"
+#include "../FrequencySet/CodonFrequencySet.h"
 #include <Bpp/Numeric/NumConstants.h>
 
 using namespace bpp;
@@ -48,21 +48,22 @@ using namespace std;
 
 /******************************************************************************/
 
-YN98::YN98(const GeneticCode* gc, FrequenciesSet* codonFreqs) :
+YN98::YN98(const GeneticCode* gc, FrequencySet* codonFreqs) :
+  AbstractBiblioTransitionModel("YN98."),
   AbstractBiblioSubstitutionModel("YN98."),
   pmodel_(new CodonDistanceFrequenciesSubstitutionModel(gc, new K80(dynamic_cast<const CodonAlphabet*>(gc->getSourceAlphabet())->getNucleicAlphabet()), codonFreqs))
 {
   computeFrequencies(false);
   
-  addParameter_(new Parameter("YN98.kappa", 1, &Parameter::R_PLUS_STAR));
-  addParameter_(new Parameter("YN98.omega", 1, new IntervalConstraint(0.0001, 999, true, true), true));
+  addParameter_(new Parameter("YN98.kappa", 1, Parameter::R_PLUS_STAR));
+  addParameter_(new Parameter("YN98.omega", 1, std::make_shared<IntervalConstraint>(NumConstants::MILLI(), 999, true, true)));
 
   pmodel_->setNamespace("YN98.");
   addParameters_(codonFreqs->getParameters());
 
   lParPmodel_.addParameters(pmodel_->getParameters());
 
-  vector<std::string> v = pmodel_->getFrequenciesSet()->getParameters().getParameterNames();
+  vector<std::string> v = pmodel_->getFrequencySet()->getParameters().getParameterNames();
 
   for (size_t i = 0; i < v.size(); i++)
   {
@@ -76,7 +77,9 @@ YN98::YN98(const GeneticCode* gc, FrequenciesSet* codonFreqs) :
 }
 
 
-YN98::YN98(const YN98& yn98) : AbstractBiblioSubstitutionModel(yn98),
+YN98::YN98(const YN98& yn98) :
+  AbstractBiblioTransitionModel(yn98),
+  AbstractBiblioSubstitutionModel(yn98),
   pmodel_(new CodonDistanceFrequenciesSubstitutionModel(*yn98.pmodel_))
 {}
 
@@ -86,4 +89,3 @@ YN98& YN98::operator=(const YN98& yn98)
   pmodel_.reset(new CodonDistanceFrequenciesSubstitutionModel(*yn98.pmodel_));
   return *this;
 }
-

@@ -34,7 +34,7 @@
 */
 
 #include "SubstitutionModelSet.h"
-#include "MixedSubstitutionModel.h"
+#include "MixedTransitionModel.h"
 
 #include <Bpp/Utils/MapTools.h>
 
@@ -46,7 +46,7 @@ SubstitutionModelSet::SubstitutionModelSet(const SubstitutionModelSet& set) :
   alphabet_             (set.alphabet_),
   nbStates_             (set.nbStates_),
   modelSet_(set.modelSet_.size()),
-  rootFrequencies_(set.stationarity_ ? 0 : dynamic_cast<FrequenciesSet*>(set.rootFrequencies_->clone())),
+  rootFrequencies_(set.stationarity_ ? 0 : dynamic_cast<FrequencySet*>(set.rootFrequencies_->clone())),
   nodeToModel_          (set.nodeToModel_),
   modelToNodes_         (set.modelToNodes_),
   modelParameters_      (set.modelParameters_),
@@ -71,7 +71,7 @@ SubstitutionModelSet& SubstitutionModelSet::operator=(const SubstitutionModelSet
   if (set.stationarity_)
     rootFrequencies_.reset(0);
   else
-    rootFrequencies_.reset(dynamic_cast<FrequenciesSet*>(set.rootFrequencies_->clone()));
+    rootFrequencies_.reset(dynamic_cast<FrequencySet*>(set.rootFrequencies_->clone()));
 
   // Duplicate all model objects:
   modelSet_.resize(set.modelSet_.size());
@@ -98,7 +98,7 @@ void SubstitutionModelSet::clear()
 
 }
 
-void SubstitutionModelSet::setRootFrequencies(FrequenciesSet* rootFreqs)
+void SubstitutionModelSet::setRootFrequencies(FrequencySet* rootFreqs)
 {
   if (rootFreqs){
     stationarity_=false;
@@ -163,7 +163,6 @@ void SubstitutionModelSet::addModel(TransitionModel* model, const std::vector<in
     }
 }
 
-// New function
 void SubstitutionModelSet::resetModelToNodeIds()
 {
   // reset nodeToModel_
@@ -172,7 +171,6 @@ void SubstitutionModelSet::resetModelToNodeIds()
   modelToNodes_.clear();
 }
 
-// New function
 void SubstitutionModelSet::setNodeToModel(size_t modelIndex, int nodeId)
 {
   if (modelIndex > modelSet_.size()-1)
@@ -311,11 +309,11 @@ bool SubstitutionModelSet::checkUnknownNodes(const Tree& tree, bool throwEx) con
   return true;
 }
 
-bool SubstitutionModelSet::hasMixedSubstitutionModel() const
+bool SubstitutionModelSet::hasMixedTransitionModel() const
 {
   for (size_t i = 0; i < getNumberOfModels(); i++)
     {
-      if ((dynamic_cast<const MixedSubstitutionModel*>(getModel(i)) != NULL) && (modelToNodes_[i].size()>1))
+      if ((dynamic_cast<const MixedTransitionModel*>(getModel(i)) != NULL) && (modelToNodes_[i].size()>1))
         return true;
     }
   return false;
