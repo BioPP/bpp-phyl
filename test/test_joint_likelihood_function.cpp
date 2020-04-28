@@ -203,11 +203,9 @@ int main(int args, char** argv)
   {
 
     /* process input from params file */
-    int argNum = 2;
-    char* argVals[argNum+1];
-    argVals[0] = (char *)"./test_joint_likelihood_function";
-    argVals[1] = (char *)"param=./example.bpp";
-    argVals[2] = NULL;
+    int argNum = 1;
+    char* argVals[1];
+    argVals[0] = (char *)"";
     BppApplication bpp(argNum, argVals, "bpp");
 
     // process tree
