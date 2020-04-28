@@ -41,7 +41,7 @@
 #define _RELAX_H_
 
 
-#include <Bpp/Phyl/Model/Codon/YNGP_M.h>
+#include "YNGP_M.h"
 #include <Bpp/Seq/GeneticCode/GeneticCode.h>
 
 namespace bpp
@@ -79,7 +79,7 @@ namespace bpp
     // gc is a pointer to a constant GeneticCode instance
     // unlike GeneticCode const* gc - gc is a constant pointer to a GeneticCode instance
     // see: https://stackoverflow.com/questions/3984989/what-is-the-differnce-between-const-x-a-and-x-const-a-if-x-is-the-class?utm_medium=organic&utm_source=google_rich_qa&utm_campaign=google_rich_qa
-    RELAX(const GeneticCode* gc, FrequenciesSet* codonFreqs);
+    RELAX(const GeneticCode* gc, FrequencySet* codonFreqs);
 
     RELAX* clone() const { return new RELAX(*this); }
 

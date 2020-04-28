@@ -37,13 +37,12 @@
  */
 
 #include "RELAX.h"
-#include <Bpp/Phyl/Model/Codon/YN98.h>
-#include <Bpp/Phyl/Model/MixtureOfASubstitutionModel.h>
+#include "YN98.h"
+#include "../MixtureOfASubstitutionModel.h"
 #include <math.h>                     /* pow */
 
 #include <Bpp/Numeric/NumConstants.h>
 #include <Bpp/Numeric/Prob/SimpleDiscreteDistribution.h>
-#include <Bpp/Numeric/AutoParameter.h>
 
 using namespace bpp;
 
@@ -51,10 +50,9 @@ using namespace std;
 
 /******************************************************************************/
 
-RELAX::RELAX(const GeneticCode* gc, FrequenciesSet* codonFreqs) :
+RELAX::RELAX(const GeneticCode* gc, FrequencySet* codonFreqs) :
   YNGP_M("RELAX.") // RELAX currenly inherits from YNGP_M as well, since it uses kappa and instead of the 5 GTR parameters
 {
-
   // set the initial omegas distribution
   vector<double> omega_initials, omega_frequencies_initials;
   omega_initials.push_back(0.5); omega_initials.push_back(1); omega_initials.push_back(2);
@@ -70,7 +68,11 @@ RELAX::RELAX(const GeneticCode* gc, FrequenciesSet* codonFreqs) :
 
   // initialize the site model with the initial omegas distribution
   pmixmodel_.reset(new MixtureOfASubstitutionModel(gc->getSourceAlphabet(), yn98.get(), mpdd));
+  pmixsubmodel_=dynamic_cast<const MixtureOfASubstitutionModel*>(&getMixedModel());      
+
   delete psdd; // delete the initial omegas distibution, that is already embedded in the mixture model
+  
+  vector<int> supportedChars = yn98->getAlphabetStates();
 
   // mapping the parameters
   ParameterList pl = pmixmodel_->getParameters();
@@ -80,7 +82,7 @@ RELAX::RELAX(const GeneticCode* gc, FrequenciesSet* codonFreqs) :
   }
 
   // v consists of 9 shared theta parameters, that are used for the F3X4 estimation of codon frequencies  
-  vector<std::string> v = dynamic_cast<YN98*>(pmixmodel_->getNModel(0))->getFrequenciesSet()->getParameters().getParameterNames();
+  vector<std::string> v = dynamic_cast<YN98*>(pmixmodel_->getNModel(0))->getFrequencySet()->getParameters().getParameterNames();
 
   for (size_t i = 0; i < v.size(); i++)
   {
@@ -107,37 +109,35 @@ RELAX::RELAX(const GeneticCode* gc, FrequenciesSet* codonFreqs) :
     if (it->second.substr(0, 5) != "omega" && it->second.substr(0, 5) !="p")
     {
       addParameter_(new Parameter("RELAX." + it->second, pmixmodel_->getParameterValue(st),
-                              pmixmodel_->getParameter(st).hasConstraint() ? pmixmodel_->getParameter(st).getConstraint()->clone() : 0, true));
-    }
-  } 
+                              pmixmodel_->getParameter(st).hasConstraint() ? std::shared_ptr<Constraint>(pmixmodel_->getParameter(st).getConstraint()->clone()) : 0));
+	}
+  }
 
   /* set the below parameters that are used for parameterizing the omega parameters of the sumodels of type YN98 as autoparameters to supress exceptions when constraints of the YN98 omega parameters are exceeded
   YN98_0.omega = (RELAX.p * RELAX.omega1) ^ RELAX.k
   YN98_1.omega = RELAX.omega1 ^ RELAX.k  
   YN98_2.omega = RELAX.omega2 ^ RELAX.k */
   // reparameterization of omega0: RELAX.omega0 = RELAX.p*RELAX.omega1
-  addParameter_(new Parameter("RELAX.p", 0.5, new IntervalConstraint(0.001, 1, true, true), true)); // orig NumConstants::MILLI()
-  addParameter_(new Parameter("RELAX.omega1", 1, new IntervalConstraint(0.1, 1, true, true), true));
+  addParameter_(new Parameter("RELAX.p", 0.5, std::make_shared<IntervalConstraint>(0.01, 1, true, true)));
+  addParameter_(new Parameter("RELAX.omega1", 1, std::make_shared<IntervalConstraint>(0.1, 1, true, true)));
 
   // the upper bound of omega3 in its submodel is 999, so I must restrict upperBound(RELAX.omega2)^upperBound(RELAX.k)<=999 -> set maximal omega to 5  
-  addParameter_(new Parameter("RELAX.omega2", 2, new IntervalConstraint(1, 999, true, true), true));
+  addParameter_(new Parameter("RELAX.omega2", 2, std::make_shared<IntervalConstraint>(1, 999, true, true)));
 
   // add a selection intensity parameter k, which is 1 in the null case
-  addParameter_(new Parameter("RELAX.k", 1, new IntervalConstraint(0, 10, false, true), true)); // selection intensity parameter for purifying and neutral selection parameters 
+  addParameter_(new Parameter("RELAX.k", 1, std::make_shared<IntervalConstraint>(0, 10, false, true))); // selection intensity parameter for purifying and neutral selection parameters 
 
   // look for synonymous codons
   // assumes that the states number follow the map in the genetic code and thus:
   // synfrom_ = index of source codon
   // synto_ = index of destination codon
-  vector<int> supportedChars = yn98->getAlphabetStates(); // includes stop codons
-
   for (synfrom_ = 1; synfrom_ < supportedChars.size(); ++synfrom_)
   {
     for (synto_ = 0; synto_ < synfrom_; ++synto_)
     {
       if (gc->areSynonymous(supportedChars[synfrom_], supportedChars[synto_])
-          && (pmixmodel_->getNModel(0)->Qij(synfrom_, synto_) != 0)
-          && (pmixmodel_->getNModel(1)->Qij(synfrom_, synto_) != 0))
+          && (pmixsubmodel_->getSubNModel(0)->Qij(synfrom_, synto_) != 0)
+          && (pmixsubmodel_->getSubNModel(1)->Qij(synfrom_, synto_) != 0))
         break;
     }
     if (synto_ < synfrom_)
@@ -213,8 +213,7 @@ void RELAX::updateMatrices()
 
   for (unsigned int i = 0; i < pmixmodel_->getNumberOfModels(); i++)
   {
-    vd.push_back(1 / pmixmodel_->getNModel(i)->Qij(synfrom_, synto_));
-    // cout << "from UpdateMatrices(): getNModel(i)->Qij(" << synfrom_ << "," << synto_ << ")=" << getNModel(i)->Qij(synfrom_, synto_) << endl; // keren - debug
+    vd.push_back(1 / pmixsubmodel_->getSubNModel(i)->Qij(synfrom_, synto_));
   }
 
   pmixmodel_->setVRates(vd);

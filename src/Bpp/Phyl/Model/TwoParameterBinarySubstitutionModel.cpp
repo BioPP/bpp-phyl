@@ -52,15 +52,16 @@ using namespace std;
 
 TwoParameterBinarySubstitutionModel::TwoParameterBinarySubstitutionModel(const BinaryAlphabet* alpha, double mu, double pi0):
   AbstractParameterAliasable("TwoParameterBinary."),
-  AbstractReversibleSubstitutionModel(alpha, new CanonicalStateMap(alpha, false), "TwoParameterBinary."),
+  //AbstractReversibleSubstitutionModel(alpha, new CanonicalStateMap(alpha, false), "TwoParameterBinary."),
+  AbstractReversibleSubstitutionModel(alpha, std::shared_ptr<const StateMap>(new CanonicalStateMap(alpha, false)), "TwoParameterBinary."),
   mu_(mu),
   pi0_(pi0),
   lambda_(0),
   exp_(0),
   p_(size_,size_)
 {
-  addParameter_(new Parameter(getNamespace() + "mu", mu_, new IntervalConstraint(NumConstants::MILLI(), 100, false, false, NumConstants::MILLI()), true));
-  addParameter_(new Parameter(getNamespace() + "pi0", pi0_,  new IntervalConstraint(0.05, 0.95, true, true, NumConstants::MILLI()), true));
+  addParameter_(new Parameter(getNamespace() + "mu", mu_, std::make_shared<IntervalConstraint>(NumConstants::MILLI(), 100, false, false)));
+  addParameter_(new Parameter(getNamespace() + "pi0", pi0_, std::make_shared<IntervalConstraint>(0.05, 0.95, true, true)));
   updateMatrices();
 }
 
@@ -225,6 +226,6 @@ const Matrix<double>& TwoParameterBinarySubstitutionModel::getd2Pij_dt2(double d
 
 void TwoParameterBinarySubstitutionModel::setMuBounds(double lb, double ub)
 {
-  IntervalConstraint* bounds = new IntervalConstraint(lb, ub, true, true); 
-  getParameter_("mu").setConstraint(bounds, true);
+  std::shared_ptr<IntervalConstraint> bounds(new IntervalConstraint(lb, ub, true, true)); 
+  getParameter_("mu").setConstraint(bounds);
 }

@@ -40,14 +40,13 @@
 #include <Bpp/Phyl/App/PhylogeneticsApplicationTools.h>
 #include <Bpp/Phyl/OptimizationTools.h>
 #include <Bpp/Phyl/Model/SubstitutionModelSetTools.h>
-#include <Bpp/Phyl/Model/MixedSubstitutionModel.h>
 #include <Bpp/Phyl/Model/TwoParameterBinarySubstitutionModel.h>
 #include <Bpp/Phyl/Model/Protein/CoalaCore.h>
 #include <Bpp/Phyl/Model/RateDistribution/ConstantRateDistribution.h>
-#include <Bpp/Phyl/Model/FrequenciesSet/MvaFrequenciesSet.h>
-#include <Bpp/Phyl/Model/FrequenciesSet/FrequenciesSet.h>
+#include <Bpp/Phyl/Model/FrequencySet/MvaFrequencySet.h>
+#include <Bpp/Phyl/Model/FrequencySet/FrequencySet.h>
 #include <Bpp/Phyl/Io/Newick.h>
-#include <Bpp/Phyl/Io/BppOFrequenciesSetFormat.h>
+#include <Bpp/Phyl/Io/BppOFrequencySetFormat.h>
 #include <Bpp/Phyl/Mapping/StochasticMapping.h>
 #include <Bpp/Phyl/Likelihood/JointLikelihoodFunction.h>
 
@@ -106,7 +105,7 @@ TransitionModel* setCharacterModel(BppApplication* bppml, VectorSiteContainer* c
     {
     // set the value of mu to be the middle of the interval
     model->setParameterValue(string("mu"),(characterMuLb + characterMuUb) / 2);
-    // estimate the initial frequencies as observedPseudoCount with pseudocount as 1 to avoid possible case of frequency = 0
+    // estimate the initial Frequencies as observedPseudoCount with pseudocount as 1 to avoid possible case of frequency = 0
     model->setFreqFromData(dynamic_cast<const SequenceContainer&>(*charData), 1); // the second arguemnt stands for pesudocount 1
     }
     else
@@ -114,10 +113,10 @@ TransitionModel* setCharacterModel(BppApplication* bppml, VectorSiteContainer* c
       double mu = ApplicationTools::getDoubleParameter("character_model.mu", bppml->getParams(), 10);
       model->setParameterValue(string("mu"), mu);          
       double pi0 = ApplicationTools::getDoubleParameter("character_model.pi0", bppml->getParams(), 0.5);
-      map<int,double>frequencies;
-      frequencies[0] = pi0;
-      frequencies[1] = 1-pi0;
-      model->setFreq(frequencies);
+      map<int,double>Frequencies;
+      Frequencies[0] = pi0;
+      Frequencies[1] = 1-pi0;
+      model->setFreq(Frequencies);
     }
 
     return dynamic_cast<TransitionModel*>(model);
@@ -172,11 +171,11 @@ void setMpPartition(BppApplication* bppml, DRTreeParsimonyScore* mpData, const V
 
 MixedSubstitutionModelSet* setSequenceModel(BppApplication* bppml, const VectorSiteContainer* codon_data, const CodonAlphabet* codonAlphabet, DRTreeParsimonyScore* mpData, const VectorSiteContainer* characterData, TransitionModel* characterModel, Tree* tree)
 {
-    bppml->getParam("model1") = "RELAX(kappa=1,p=0.1,omega1=1.0,omega2=2.0,theta1=0.5,theta2=0.8,k=1,frequencies=F3X4,initFreqs=observed,initFreqs.observedPseudoCount=1)";
-    bppml->getParam("model2") = "RELAX(kappa=RELAX.kappa_1,p=RELAX.p_1,omega1=RELAX.omega1_1,omega2=RELAX.omega2_1,theta1=RELAX.theta1_1,theta2=RELAX.theta2_1,k=1,1_Full.theta=RELAX.1_Full.theta_1,1_Full.theta1=RELAX.1_Full.theta1_1,1_Full.theta2=RELAX.1_Full.theta2_1,2_Full.theta=RELAX.2_Full.theta_1,2_Full.theta1=RELAX.2_Full.theta1_1,2_Full.theta2=RELAX.2_Full.theta2_1,3_Full.theta=RELAX.3_Full.theta_1,3_Full.theta1=RELAX.3_Full.theta1_1,3_Full.theta2=RELAX.3_Full.theta2_1,frequencies=F3X4,initFreqs=observed,initFreqs.observedPseudoCount=1)";
+    bppml->getParam("model1") = "RELAX(kappa=1,p=0.1,omega1=1.0,omega2=2.0,theta1=0.5,theta2=0.8,k=1,Frequencies=F3X4,initFreqs=observed,initFreqs.observedPseudoCount=1)";
+    bppml->getParam("model2") = "RELAX(kappa=RELAX.kappa_1,p=RELAX.p_1,omega1=RELAX.omega1_1,omega2=RELAX.omega2_1,theta1=RELAX.theta1_1,theta2=RELAX.theta2_1,k=1,1_Full.theta=RELAX.1_Full.theta_1,1_Full.theta1=RELAX.1_Full.theta1_1,1_Full.theta2=RELAX.1_Full.theta2_1,2_Full.theta=RELAX.2_Full.theta_1,2_Full.theta1=RELAX.2_Full.theta1_1,2_Full.theta2=RELAX.2_Full.theta2_1,3_Full.theta=RELAX.3_Full.theta_1,3_Full.theta1=RELAX.3_Full.theta1_1,3_Full.theta2=RELAX.3_Full.theta2_1,Frequencies=F3X4,initFreqs=observed,initFreqs.observedPseudoCount=1)";
     bppml->getParam("nonhomogeneous")="general";
     bppml->getParam("nonhomogeneous.number_of_models") = "2";
-    bppml->getParam("nonhomogeneous.stationarity") = "yes"; // constrain root frequencies to be the same as stationary (since RELAX is a time reversible model, this should not cause issues)
+    bppml->getParam("nonhomogeneous.stationarity") = "yes"; // constrain root Frequencies to be the same as stationary (since RELAX is a time reversible model, this should not cause issues)
     
     // set likelihood computation to restrict the same selective regime for each site along the phylogeny
     bppml->getParam("site.number_of_paths") = "2";                               // the 3rd path mapping omega3 in the branches under chatacter states 0 and 1 is imlies the the other two paths

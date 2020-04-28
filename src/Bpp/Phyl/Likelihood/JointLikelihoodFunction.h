@@ -242,28 +242,6 @@ class JointLikelihoodFunction:
     void optimizeCharacterModel();
 
     /**
-     * @brief Optimizes the omega parameters while fixing the rest of the sequence parameters with respect to the sequence likelihood function
-     */
-    void optimizeOmegaParameters();
-
-    /**
-     * @brief Depracated: Optimizes the sequence likelihood function with respect to a single given parameter
-     * @param paramName - name of the parameter to be optimized (sohuld be either RELAX.p_1, RELAX.omega1_1, RELAX.omega2_1, RELAX.k_2)
-     */
-    void optimizeSequenceOneDimension(const std::string& paramName);
-
-    /**
-     * @brief Depracated: check if the value of a parameter equals its lower bound or upper bound
-     * @Parameter& parameter - the parameter to examine
-     */
-    bool checkIfParameterRechedBound(const Parameter& parameter);
-
-    /**
-     * @brief Depracated: Optimizes the seuqence likelihood function with respect to s single parameter in iterations, while adjusting the boundaries of the optimized parameters on expense of the fixed parameters
-     */
-    void optimizeSequenceWithDynamicBounds(uint method = 0);
-
-    /**
      * @brief Returns a map of the names and values of the sequence model parameters
      * @bool verbose - indicator weather the scanned parameters should also be reported to stdout
      */

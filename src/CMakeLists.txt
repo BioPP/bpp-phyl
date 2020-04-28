@@ -76,7 +76,6 @@ set (CPP_FILES
   Bpp/Phyl/Mapping/UniformizationSubstitutionCount.cpp
   Bpp/Phyl/Mapping/WeightedSubstitutionCount.cpp
   Bpp/Phyl/Mapping/StochasticMapping.cpp
-  Bpp/Phyl/Model/AbstractBiblioMixedSubstitutionModel.cpp
   Bpp/Phyl/Model/AbstractBiblioMixedTransitionModel.cpp
   Bpp/Phyl/Model/AbstractBiblioSubstitutionModel.cpp
   Bpp/Phyl/Model/AbstractFromSubstitutionModelTransitionModel.cpp
@@ -117,11 +116,6 @@ set (CPP_FILES
   Bpp/Phyl/Model/Codon/YNGP_M8.cpp
   Bpp/Phyl/Model/Codon/YNGP_M9.cpp
   Bpp/Phyl/Model/Codon/RELAX.cpp
-  Bpp/Phyl/Model/FrequenciesSet/CodonFrequenciesSet.cpp
-  Bpp/Phyl/Model/FrequenciesSet/FrequenciesSet.cpp
-  Bpp/Phyl/Model/FrequenciesSet/MvaFrequenciesSet.cpp
-  Bpp/Phyl/Model/FrequenciesSet/NucleotideFrequenciesSet.cpp
-  Bpp/Phyl/Model/FrequenciesSet/WordFrequenciesSet.cpp
   Bpp/Phyl/Model/FrequencySet/CodonFrequencySet.cpp
   Bpp/Phyl/Model/FrequencySet/FrequencySet.cpp
   Bpp/Phyl/Model/FrequencySet/MvaFrequencySet.cpp
@@ -184,8 +178,8 @@ set (CPP_FILES
   Bpp/Phyl/SitePatterns.cpp
   Bpp/Phyl/TreeExceptions.cpp
   Bpp/Phyl/TreeTemplateTools.cpp
-  Bpp/Phyl/TreeTools.cpp  
-  Bpp/Phyl/TreeIterator.cpp  
+  Bpp/Phyl/TreeTools.cpp 
+  Bpp/Phyl/TreeIterator.cpp
   )
 
 # Build the static lib
