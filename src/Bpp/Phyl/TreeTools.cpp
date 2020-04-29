@@ -256,7 +256,7 @@ string TreeTools::nodeToParenthesis(const Tree& tree, int nodeId, bool writeId)
   ostringstream s;
   if (tree.isLeaf(nodeId))
   {
-    //s << tree.getNodeName(nodeId);
+    s << tree.getNodeName(nodeId);
   }
   else
   {
@@ -280,14 +280,6 @@ string TreeTools::nodeToParenthesis(const Tree& tree, int nodeId, bool writeId)
     if (tree.hasBranchProperty(nodeId, BOOTSTRAP))
       s << (dynamic_cast<const Number<double>*>(tree.getBranchProperty(nodeId, BOOTSTRAP))->getValue());
   }
-  try
-  {
-	s << tree.getNodeName(nodeId); // keren: add node ID regardless if its a leaf or not
-  }
-  catch (exception& e)
-  {
-	  // do nothing
-  }
   if (tree.hasDistanceToFather(nodeId))
     s << ":" << tree.getDistanceToFather(nodeId);
   return s.str();
@@ -302,7 +294,7 @@ string TreeTools::nodeToParenthesis(const Tree& tree, int nodeId, bool bootstrap
   ostringstream s;
   if (tree.isLeaf(nodeId))
   {
-    //s << tree.getNodeName(nodeId); // already done via line 322
+    s << tree.getNodeName(nodeId);
   }
   else
   {
@@ -325,14 +317,6 @@ string TreeTools::nodeToParenthesis(const Tree& tree, int nodeId, bool bootstrap
       if (tree.hasBranchProperty(nodeId, propertyName))
         s << *(dynamic_cast<const BppString*>(tree.getBranchProperty(nodeId, propertyName)));
     }
-  }
-    try
-  {
-	s << tree.getNodeName(nodeId); // keren: add node ID regardless if its a leaf or not
-  }
-  catch (exception& e)
-  {
-	  // do nothing
   }
   if (tree.hasDistanceToFather(nodeId))
     s << ":" << tree.getDistanceToFather(nodeId);
