@@ -89,3 +89,4 @@ YN98& YN98::operator=(const YN98& yn98)
   pmodel_.reset(new CodonDistanceFrequenciesSubstitutionModel(*yn98.pmodel_));
   return *this;
 }
+
