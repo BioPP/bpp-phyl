@@ -180,9 +180,26 @@ public:
   }
 
   void topologyChangeSuccessful(const TopologyChangeEvent& event) {}
+  
+    /** sets the state of a node in a mapping 
+    * @param node               The node to get the state of
+    * @param state              The state that needs to be assigned to the node
+    */
+  void setNodeState(Node* node, size_t state);
+
+  /** extracts the state of a node in a mapping 
+    * @param node              The node to get the state of
+    * @return                  Node state is int
+  */
+  int getNodeState(const Node* node);
+  
+  /**
+   * @brief Compute a maximum parsimony solution in DELTRAN manner.
+   */  
+  void computeSolution(); 
+
   /**@} */
 };
 } // end of namespace bpp.
 
 #endif // _DRTREEPARSIMONYSCORE_H_
-

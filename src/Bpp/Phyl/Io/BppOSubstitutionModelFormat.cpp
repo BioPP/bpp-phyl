@@ -93,6 +93,7 @@
 #include "../Model/Protein/UserProteinSubstitutionModel.h"
 #include "../Model/Protein/WAG01.h"
 #include "../Model/BinarySubstitutionModel.h"
+#include "../Model/TwoParameterBinarySubstitutionModel.h"
 #include "../Model/FromMixtureSubstitutionModel.h"
 #include "../Model/AbstractBiblioMixedTransitionModel.h"
 #include "../Model/InMixedSubstitutionModel.h"
@@ -767,6 +768,8 @@ SubstitutionModel* BppOSubstitutionModelFormat::readSubstitutionModel(
 
       if (modelName == "Binary")
         model.reset(new BinarySubstitutionModel(balpha));
+      else if (modelName == "TwoParameterBinary")
+        model.reset(new TwoParameterBinarySubstitutionModel(balpha));
       else
         throw Exception("Model '" + modelName + "' unknown, or does not fit binary alphabet.");
     }
@@ -1807,5 +1810,4 @@ void BppOSubstitutionModelFormat::initialize_(
   
   model.matchParametersValues(pl);
 }
-
 

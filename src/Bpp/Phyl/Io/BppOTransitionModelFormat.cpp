@@ -70,6 +70,7 @@
 #include "../Model/Codon/YNGP_M8.h"
 #include "../Model/Codon/YNGP_M9.h"
 #include "../Model/Codon/YNGP_M10.h"
+#include "../Model/Codon/RELAX.h"
 #include "../Model/Protein/LLG08_EX2.h"
 #include "../Model/Protein/LLG08_EX3.h"
 #include "../Model/Protein/LLG08_UL2.h"
@@ -165,7 +166,7 @@ TransitionModel* BppOTransitionModelFormat::readTransitionModel(
   }
   // //////////////////
   // PREDEFINED CODON MODELS
-  else if ((modelName.substr(0, 4) == "YNGP")  && (alphabetCode_ & CODON))
+else if (((modelName.substr(0, 4) == "YNGP") || (modelName == "RELAX")) && (alphabetCode_ & CODON))
   {
     if (!(alphabetCode_ & CODON))
       throw Exception("BppOTransitionModelFormat::read. Codon alphabet not supported.");
@@ -197,6 +198,8 @@ TransitionModel* BppOTransitionModelFormat::readTransitionModel(
       model.reset(new YNGP_M1(geneticCode_, codonFreqs.release()));
     else if (modelName == "YNGP_M2")
       model.reset(new YNGP_M2(geneticCode_, codonFreqs.release()));
+    else if (modelName == "RELAX")
+      model.reset(new RELAX(geneticCode_, codonFreqs.release()));
     else if (modelName == "YNGP_M3")
       if (args.find("n") == args.end())
         model.reset(new YNGP_M3(geneticCode_, codonFreqs.release()));
