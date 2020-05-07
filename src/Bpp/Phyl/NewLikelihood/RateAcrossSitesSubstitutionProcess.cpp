@@ -51,7 +51,7 @@ RateAcrossSitesSubstitutionProcess::RateAcrossSitesSubstitutionProcess(
   AbstractParameterAliasable(""),
   AbstractSubstitutionProcess(tree, rdist ? rdist->getNumberOfCategories() : 0, model ? model->getNamespace() : ""),
   model_(model),
-  rDist_(rdist)
+  rDist_(rdist?rdist->clone():0)
 {
   if (!model)
     throw Exception("RateAcrossSitesSubstitutionProcess. A model instance must be provided.");
@@ -111,6 +111,7 @@ void RateAcrossSitesSubstitutionProcess::fireParameterChanged(const ParameterLis
 {
   //Update rate distribution:
   rDist_->matchParametersValues(pl);  
+  model_->matchParametersValues(pl);
 
   //Transition probabilities have changed and need to be recomputed:
   AbstractSubstitutionProcess::fireParameterChanged(pl);
