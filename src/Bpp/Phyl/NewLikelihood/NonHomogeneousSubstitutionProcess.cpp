@@ -224,6 +224,7 @@ void NonHomogeneousSubstitutionProcess::fireParameterChanged(const ParameterList
     {
       modelParameters_[i][np].setValue(getParameterValue(modelParameters_[i][np].getName()+"_"+TextTools::toString(i+1)));
     }
+    modelSet_[i]->matchParametersValues(modelParameters_[i]);
   }
 
   AbstractSubstitutionProcess::fireParameterChanged(parameters);

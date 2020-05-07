@@ -96,6 +96,8 @@ void SimpleSubstitutionProcess::fireParameterChanged(const ParameterList& pl)
 {
   //Transition probabilities have changed and need to be recomputed:
   AbstractSubstitutionProcess::fireParameterChanged(pl);
+
+  model_->matchParametersValues(pl);
 }
 
 
