@@ -172,63 +172,8 @@ namespace bpp
 
   };
 
-  // Node specific DataFlow objects
-  class ProcessNode:
-    public PhyloNode
-  {
-  private:
-    /*
-     * @brief the index of the species in the phyloTree matching this node.
-     *
-     */
-      
-    const uint speciesIndex_;
-
-  public:
-
-    /*
-     * @brief Build from a node in the phylo tree, with a specific
-     * speciesIndex (because indexes are not the same as in the
-     * ParametrizablePhyloTree.
-     *
-     */
-      
-    ProcessNode(const PhyloNode& node, uint index) :
-      PhyloNode(node),
-      speciesIndex_(index) {}
-      
-    ProcessNode(const ProcessComputationNode& node) :
-      PhyloNode(node),
-      speciesIndex_(node.getSpeciesIndex()) {}
-
-    ProcessNode(const ProcessNode& node) :
-      PhyloNode(node),
-      speciesIndex_(node.getSpeciesIndex()) {}
-      
-    uint getSpeciesIndex() const
-    {
-      return speciesIndex_;
-    }
-
-    bool isSpeciation() const
-    {
-      auto prop=dynamic_cast<const NodeEvent*>(getProperty("event"));
-      if (!prop) 
-        throw Exception("ProcessNode::isSpeciation : Node has no event associated: Node id " + TextTools::toString(getSpeciesIndex()));
-      return prop->isSpeciation();
-    }
-
-    bool isMixture() const
-    {
-      auto prop=dynamic_cast<const NodeEvent*>(getProperty("event"));
-      if (!prop) 
-        throw Exception("ProcessNode::isMixture : Node has no event associated: Node id " + TextTools::toString(getSpeciesIndex()));
-      return prop->isMixture();
-    }
-
-  };
-
-
+  typedef ProcessComputationNode ProcessNode;
+  
   using ProcessEdgeRef = std::shared_ptr<ProcessEdge>;
   using ProcessNodeRef = std::shared_ptr<ProcessNode>;
 

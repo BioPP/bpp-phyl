@@ -461,9 +461,6 @@ void LikelihoodCalculationSingleProcess::makeLikelihoodsAtRoot_()
   likelihood_ =
     SumOfLogarithms<Eigen::RowVectorXd>::create (getContext_(), {patternedSiteLikelihoods_, rootWeights_}, rowVectorDimension (Eigen::Index (nbSite)));
 
-// We want -log(likelihood) (ancient version)
-  // likelihood_ = CWiseNegate<double>::create (getContext_(), {totalLogLikelihood}, Dimension<double> ());
-
   // using bpp::DotOptions;
   // writeGraphToDot(
   //   "debug_lik.dot", {likelihood_.get()});//, DotOptions::DetailedNodeInfo | DotOp

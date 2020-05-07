@@ -91,11 +91,28 @@ namespace bpp
       return speciesIndex_;
     }
 
+    bool isSpeciation() const
+    {
+      auto prop=dynamic_cast<const NodeEvent*>(getProperty("event"));
+      if (!prop) 
+        throw Exception("ProcessNode::isSpeciation : Node has no event associated: Node id " + TextTools::toString(getSpeciesIndex()));
+      return prop->isSpeciation();
+    }
+
+    bool isMixture() const
+    {
+      auto prop=dynamic_cast<const NodeEvent*>(getProperty("event"));
+      if (!prop) 
+        throw Exception("ProcessNode::isMixture : Node has no event associated: Node id " + TextTools::toString(getSpeciesIndex()));
+      return prop->isMixture();
+    }
+
   };
 
   using ProcessComputationNodeRef=std::shared_ptr<ProcessComputationNode>;
   
-  // Class for the edges
+  // Class for the edges: In case of mixture nodes, the probability is
+  // set through submodel probability
   class ProcessComputationEdge
   {
   private:
@@ -146,6 +163,15 @@ namespace bpp
       vSubNb_(vNb),
       useProb_(useProb),
       speciesIndex_(speciesIndex)
+    {
+    }
+
+    ProcessComputationEdge(const ProcessComputationEdge& edge) :
+      model_(edge.model_),
+      nmodel_(edge.nmodel_),
+      vSubNb_(edge.vSubNb_),
+      useProb_(edge.useProb_),
+      speciesIndex_(edge.speciesIndex_)
     {
     }
 

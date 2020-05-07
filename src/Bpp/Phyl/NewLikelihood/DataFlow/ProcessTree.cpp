@@ -197,7 +197,7 @@ ProcessTree::ProcessTree(const ProcessComputationTree& tree,
     if (!modelColl.hasObject(edge->getModelNumber()))
       throw Exception("ProcessTree::ProcessTree : Model unknown " + model->getName() + "  for node " + TextTools::toString(spIndex));
 
-    std::shared_ptr<ConfiguredModel> pmodel = dynamic_pointer_cast<ConfiguredModel>(modelColl[edge->getModelNumber()]);
+    std::shared_ptr<ConfiguredModel> pmodel = dynamic_pointer_cast<ConfiguredModel>(modelColl[edge->getSpeciesIndex()]);
     
     auto vNb=edge->subModelNumbers();
     if (vNb.size()>1)
