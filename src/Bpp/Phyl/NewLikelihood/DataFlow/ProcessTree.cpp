@@ -197,7 +197,7 @@ ProcessTree::ProcessTree(const ProcessComputationTree& tree,
     if (!modelColl.hasObject(edge->getModelNumber()))
       throw Exception("ProcessTree::ProcessTree : Model unknown " + model->getName() + "  for node " + TextTools::toString(spIndex));
 
-    std::shared_ptr<ConfiguredModel> pmodel = dynamic_pointer_cast<ConfiguredModel>(modelColl[edge->getSpeciesIndex()]);
+    std::shared_ptr<ConfiguredModel> pmodel = dynamic_pointer_cast<ConfiguredModel>(modelColl[edge->getModelNumber()]);
     
     auto vNb=edge->subModelNumbers();
     if (vNb.size()>1)
@@ -240,9 +240,9 @@ std::shared_ptr<ProcessTree> ProcessTree::makeProcessTree(CollectionNodes& colle
   auto& process = collection.getCollection().getSubstitutionProcess(pNum);
   
   auto& pt = *collection.getProcessTree(process.getTreeNumber());
-  
+
   ProcessComputationTree tree(process); 
-  
+
   // then process tree with DF objects
   
   return std::make_shared<ProcessTree>(tree, collection.getModelCollection(), pt);
@@ -251,13 +251,13 @@ std::shared_ptr<ProcessTree> ProcessTree::makeProcessTree(CollectionNodes& colle
 std::shared_ptr<ProcessTree> ProcessTree::makeProcessTree(Context& context, const SubstitutionProcess& process, ParameterList& parList, const std::string& suff)
 {
   auto& parTree=process.getParametrizablePhyloTree();
-  
+
   auto modelColl = makeConfiguredModelCollection(context, process, parList);
   
   ProcessTree pt(context, parTree, parList, suff); // tree with only branches
-  
+
   ProcessComputationTree tree(process); 
-    
+
   // then process tree with DF objects
     
   return std::make_shared<ProcessTree>(tree, modelColl, pt);
