@@ -1330,6 +1330,7 @@ map<size_t, std::shared_ptr<ModelPath>> PhylogeneticsApplicationTools::getModelP
 map<size_t, std::shared_ptr<ModelScenario>> PhylogeneticsApplicationTools::getModelScenarios(
   const std::map<std::string, std::string>& params,
   const map<size_t, std::shared_ptr<ModelPath>>& mModelPath,
+  const map<size_t, std::shared_ptr<BranchModel>>& mModel,
   bool verbose)
 {
   string ModelPathsPath = ApplicationTools::getAFilePath("scenario.file", params, false, false, "", true,  "none", 1);
@@ -1387,6 +1388,34 @@ map<size_t, std::shared_ptr<ModelScenario>> PhylogeneticsApplicationTools::getMo
       try {
         if (path=="complete")
           complete=true;
+        else if (path.substr(0,5)=="split")
+        {
+          auto pos=path.find("model");
+          if (pos==string::npos)
+            throw Exception("PhylogeneticsApplicationTools::getModelScenarios. Missing identifier 'model' in scenarion description: " + path);
+
+          auto poseq = path.find("=",pos);
+          size_t num2 = TextTools::to<size_t>(path.substr(poseq+1));
+          
+          if (mModel.find(num2)==mModel.end())
+            throw BadIntegerException("PhylogeneticsApplicationTools::getModelScenarios: Wrong model number", static_cast<int>(num2));
+      
+          auto pSM = std::dynamic_pointer_cast<MixedTransitionModel>(mModel.at(num2));
+          if (!pSM)
+            throw Exception("PhylogeneticsApplicationTools::getModelScenarios: Model number "+ TextTools::toString(num2) + " ( " + mModel.at(num2)->getName() + " ) is not Mixed.");
+
+          std::vector<std::shared_ptr<ModelPath>> modelPaths;
+
+          auto nmod = pSM->getNumberOfModels();
+          
+          for (uint nm = 0; nm < (uint)nmod; nm++)
+          {
+            auto mp = std::make_shared<ModelPath>();
+            mp->setModel(pSM,Vuint({nm}));
+            mp->setLeadModel(pSM);
+            somp[num]->addModelPath(mp);
+          }
+        }
         else
         {
           numpath = TextTools::to<size_t>(path.substr(4));
@@ -1410,8 +1439,12 @@ map<size_t, std::shared_ptr<ModelScenario>> PhylogeneticsApplicationTools::getMo
       ApplicationTools::displayResult("Model Scenario", desc);
     
     if (complete)
+    {
+      if (somp[num]->getNumberOfModelPaths()==0)
+        throw Exception("PhylogeneticsApplicationTools::getModelScenarios: 'complete' is not possible on empty scenarios");
       somp[num]->complete();
-
+    }
+    
     somp[num]->computeModelPathsProbabilities();
   }
 

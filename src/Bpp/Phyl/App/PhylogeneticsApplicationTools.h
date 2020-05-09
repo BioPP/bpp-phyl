@@ -455,7 +455,8 @@ namespace bpp
      * available options.
      *
      * @param params  The attribute map where options may be found.
-     * @param mModel  A map of shared pointers of ModelPaths.
+     * @param mModelPath  A map of shared pointers of ModelPaths.
+     * @param mModel  A map of shared pointers of BranchModels.
      * @param verbose Print some info to the 'message' output stream.
      *
      * @return A map of ModelScenarios shared_pointers objects
@@ -465,6 +466,7 @@ namespace bpp
     static map<size_t, std::shared_ptr<ModelScenario>> getModelScenarios(
       const std::map<std::string, std::string>& params,
       const map<size_t, std::shared_ptr<ModelPath>>& mModelPath,
+      const map<size_t, std::shared_ptr<BranchModel>>& mModel,
       bool verbose = true);
 
     /**
