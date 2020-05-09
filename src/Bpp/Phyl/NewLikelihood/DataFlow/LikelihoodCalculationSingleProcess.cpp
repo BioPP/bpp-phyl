@@ -343,7 +343,6 @@ AllRatesSiteLikelihoods LikelihoodCalculationSingleProcess::getSiteLikelihoodsFo
 
   for (size_t nCat=0;nCat<nbCat;nCat++)
     allLk->row(nCat)=getSiteLikelihoodsForAClass(nCat, shrunk);
-
   return *allLk;
 }
 
@@ -613,7 +612,7 @@ std::shared_ptr<SiteLikelihoodsTree> LikelihoodCalculationSingleProcess::getSite
     makeLikelihoodsAtRoot_();
   
   if (vRateCatTrees_[nCat].lt==0)
-    makeLikelihoodsAtNode_(getTreeNode_()->getRootIndex());
+    makeLikelihoodsAtNode_(getTreeNode_()->getRoot()->getSpeciesIndex());
   
   return vRateCatTrees_[nCat].lt;
 }
