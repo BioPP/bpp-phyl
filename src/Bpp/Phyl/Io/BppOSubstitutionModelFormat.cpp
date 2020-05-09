@@ -1553,19 +1553,22 @@ void BppOSubstitutionModelFormat::write(const BranchModel& model,
   if (tmodel)
   {
     const FrequenciesSet* pfs = tmodel->getFrequenciesSet();
-    auto paf=dynamic_cast<const AbstractWrappedModel*>(tmodel);
     
-    if ((pfs!=0) && (!paf))
+    if (pfs!=0)
     {
-    if (comma)
-      out << ",";
-    out << "frequencies=";
+      if (comma)
+        out << ",";
+      out << "frequencies=";
     
-    BppOFrequenciesSetFormat bIOFreq(alphabetCode_, false, warningLevel_);
-    bIOFreq.write(pfs, out, globalAliases, writtenNames);
-    
-    comma = true;
-  }
+      BppOFrequenciesSetFormat bIOFreq(alphabetCode_, false, warningLevel_);
+      bIOFreq.write(pfs, out, globalAliases, writtenNames);
+
+      for (auto& n:writtenNames)
+        cerr << n << ":";
+      cerr << endl;
+      
+      comma = true;
+    }
   }
   
   // Is it a codon model with Protein Model or partition in it? 
