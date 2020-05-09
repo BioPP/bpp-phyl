@@ -289,22 +289,29 @@ void ProcessComputationTree::_build_following_scenario(shared_ptr<ProcessComputa
         vMP[np].push_back(smp);
     }
     
-    auto node = ptree.getNode(spInd);
-    auto nmodel = process_.getModelNumberForNode(spInd);
+    size_t nmodel; // number model of the model split at this mrca node
+    bool modok(false);
+
+    auto modNbs = process_.getModelNumbers();
+    for (auto nb: modNbs)
+      if (process_.getModel(nb)==mrca.get())
+      {
+        nmodel = nb;
+        modok = true;
+      }
+
+    if (!modok)
+      throw Exception("ProcessComputationTree::ProcessComputationTree : unknown model  for process : " + mrca.get()->getName());      
+
     
+    auto node = ptree.getNode(spInd);
+
     for (auto vmp:vMP)
     {
       auto sonnode=std::make_shared<ProcessComputationNode>(*node, spInd);
       createNode(sonnode);
       addNodeIndex(sonnode);
 
-      // edge for proportion
-      auto model = mrca.get();
-
-      // to check if problem with model numbers
-      if (model!=process_.getModel(nmodel))
-        throw Exception("ProcessComputationTree::ProcessComputationTree : model number problem for model " + to_string(nmodel));
-      
       auto sedge=std::make_shared<ProcessComputationEdge>(mrca.get(), nmodel, spInd, true, vmp.first);
       link(father, sonnode, sedge);
       addEdgeIndex(sedge);
