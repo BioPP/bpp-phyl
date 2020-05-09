@@ -7,36 +7,36 @@
 //
 
 /*
-Copyright or © or Copr. Bio++ Development Team, (November 16, 2004)
+  Copyright or © or Copr. Bio++ Development Team, (November 16, 2004)
 
-This software is a computer program whose purpose is to provide classes
-for phylogenetic data analysis.
+  This software is a computer program whose purpose is to provide classes
+  for phylogenetic data analysis.
 
-This software is governed by the CeCILL  license under French law and
-abiding by the rules of distribution of free software.  You can  use, 
-modify and/ or redistribute the software under the terms of the CeCILL
-license as circulated by CEA, CNRS and INRIA at the following URL
-"http://www.cecill.info". 
+  This software is governed by the CeCILL  license under French law and
+  abiding by the rules of distribution of free software.  You can  use, 
+  modify and/ or redistribute the software under the terms of the CeCILL
+  license as circulated by CEA, CNRS and INRIA at the following URL
+  "http://www.cecill.info". 
 
-As a counterpart to the access to the source code and  rights to copy,
-modify and redistribute granted by the license, users are provided only
-with a limited warranty  and the software's author,  the holder of the
-economic rights,  and the successive licensors  have only  limited
-liability. 
+  As a counterpart to the access to the source code and  rights to copy,
+  modify and redistribute granted by the license, users are provided only
+  with a limited warranty  and the software's author,  the holder of the
+  economic rights,  and the successive licensors  have only  limited
+  liability. 
 
-In this respect, the user's attention is drawn to the risks associated
-with loading,  using,  modifying and/or developing or reproducing the
-software by the user in light of its specific status of free software,
-that may mean  that it is complicated to manipulate,  and  that  also
-therefore means  that it is reserved for developers  and  experienced
-professionals having in-depth computer knowledge. Users are therefore
-encouraged to load and test the software's suitability as regards their
-requirements in conditions enabling the security of their systems and/or 
-data to be ensured and,  more generally, to use and operate it in the 
-same conditions as regards security. 
+  In this respect, the user's attention is drawn to the risks associated
+  with loading,  using,  modifying and/or developing or reproducing the
+  software by the user in light of its specific status of free software,
+  that may mean  that it is complicated to manipulate,  and  that  also
+  therefore means  that it is reserved for developers  and  experienced
+  professionals having in-depth computer knowledge. Users are therefore
+  encouraged to load and test the software's suitability as regards their
+  requirements in conditions enabling the security of their systems and/or 
+  data to be ensured and,  more generally, to use and operate it in the 
+  same conditions as regards security. 
 
-The fact that you are presently reading this means that you have had
-knowledge of the CeCILL license and that you accept its terms.
+  The fact that you are presently reading this means that you have had
+  knowledge of the CeCILL license and that you accept its terms.
 */
 
 #ifndef _NEW_DETAILEDSITESIMULATOR_H_
@@ -58,8 +58,8 @@ namespace bpp
  *
  * This data structure stores each transitional state, and the time when it occured.
  */
-class New_SiteSimulationResult
-{
+  class New_SiteSimulationResult
+  {
   private:
     mutable std::map<int, size_t> indexes_;
     size_t currentIndex_;
@@ -67,17 +67,17 @@ class New_SiteSimulationResult
     std::vector<size_t> ancestralStates_;
     const ParametrizablePhyloTree* tree_;
     std::vector<unsigned int> leavesId_;
-    const Alphabet* alphabet_;
+    const StateMap* statemap_;
     
   public:
-    New_SiteSimulationResult(const ParametrizablePhyloTree* tree, const Alphabet* alphabet, size_t ancestralState) :
+    New_SiteSimulationResult(const ParametrizablePhyloTree* tree, const StateMap* statemap, size_t ancestralState) :
       indexes_        (),
       currentIndex_   (0),
       paths_          (),
       ancestralStates_(),
       tree_           (tree),
       leavesId_       (tree->getNodeIndexes(tree->getLeavesUnderNode(tree->getRoot()))),
-      alphabet_       (alphabet)
+      statemap_       (statemap)
     {
       indexes_[tree->getRootIndex()] = 0;
       //Warning, watch out the indices there!
@@ -91,7 +91,7 @@ class New_SiteSimulationResult
       ancestralStates_(ssr.ancestralStates_),
       tree_           (ssr.tree_),
       leavesId_       (ssr.leavesId_),
-      alphabet_       (ssr.alphabet_)
+      statemap_       (ssr.statemap_)
     {}
  
     New_SiteSimulationResult& operator=(const New_SiteSimulationResult& ssr)
@@ -102,7 +102,7 @@ class New_SiteSimulationResult
       ancestralStates_ = ssr.ancestralStates_;
       tree_            = ssr.tree_;
       leavesId_        = ssr.leavesId_;
-      alphabet_        = ssr.alphabet_;
+      statemap_        = ssr.statemap_;
       return *this;
     }
 
@@ -112,7 +112,7 @@ class New_SiteSimulationResult
     /**
      * @return The alphabet associated to this simulation.
      */
-    virtual const Alphabet* getAlphabet() const { return alphabet_; }
+    virtual const Alphabet* getAlphabet() const { return statemap_->getAlphabet(); }
     
     virtual void addNode(unsigned int nodeId, MutationPath path)
     {
@@ -132,26 +132,26 @@ class New_SiteSimulationResult
 
     virtual size_t getSubstitutionCount(size_t i) const { return paths_[i].getNumberOfEvents(); }
     
-  virtual void getSubstitutionCount(size_t i, const SubstitutionRegister& reg, std::vector<double>& counts) const {
-    paths_[i].getEventCounts(counts, reg);
-  }
-    
-  virtual size_t getSubstitutionCount(unsigned int nodeId) const { return paths_[indexes_[nodeId]].getNumberOfEvents(); }
-    
-  virtual void getSubstitutionCount(unsigned int nodeId, const SubstitutionRegister& reg, std::vector<double>& counts) const {
-    paths_[indexes_[nodeId]].getEventCounts(counts, reg);
-  }
-  
-  virtual VVdouble getSubstitutionVector(const SubstitutionRegister& reg) const
-  {
-    size_t n = paths_.size();
-    VVdouble counts(n);
-    for (size_t i = 0; i < n; ++i) {
-      counts[i].resize(reg.getNumberOfSubstitutionTypes());
-      paths_[i].getEventCounts(counts[i], reg);
+    virtual void getSubstitutionCount(size_t i, const SubstitutionRegister& reg, std::vector<double>& counts) const {
+      paths_[i].getEventCounts(counts, reg);
     }
-    return counts;
-  }
+    
+    virtual size_t getSubstitutionCount(unsigned int nodeId) const { return paths_[indexes_[nodeId]].getNumberOfEvents(); }
+    
+    virtual void getSubstitutionCount(unsigned int nodeId, const SubstitutionRegister& reg, std::vector<double>& counts) const {
+      paths_[indexes_[nodeId]].getEventCounts(counts, reg);
+    }
+  
+    virtual VVdouble getSubstitutionVector(const SubstitutionRegister& reg) const
+    {
+      size_t n = paths_.size();
+      VVdouble counts(n);
+      for (size_t i = 0; i < n; ++i) {
+        counts[i].resize(reg.getNumberOfSubstitutionTypes());
+        paths_[i].getEventCounts(counts[i], reg);
+      }
+      return counts;
+    }
 
     /**
      * @return The states at the leaves.
@@ -170,13 +170,14 @@ class New_SiteSimulationResult
     /**
      * @return The site corresponding to this simulation.
      */
+    
     virtual Site* getSite(const TransitionModel& model) const {
       std::vector<size_t> mstates = getFinalStates();
       std::vector<int> astates(mstates.size());
       for (size_t i = 0; i < mstates.size(); ++i) {
-        astates[i] = model.getAlphabetStateAsInt(mstates[i]);
+        astates[i] = statemap_->getAlphabetStateAsInt(mstates[i]);
       }
-      return new Site(astates, alphabet_);
+      return new Site(astates, statemap_->getAlphabet());
     }
 
     /**
@@ -193,7 +194,7 @@ class New_SiteSimulationResult
       return names;
     }
 
-};
+  };
 
 //---------------------------------------------------------------------------
 
@@ -203,15 +204,15 @@ class New_SiteSimulationResult
  * This sructure inherits from the SequenceSimulationResult class, and add support for
  * rate variation across sites.
  */
-class RANew_SiteSimulationResult:
-  public New_SiteSimulationResult
-{
+  class RANew_SiteSimulationResult:
+    public New_SiteSimulationResult
+  {
   protected:
     double rate_;
     
   public:
-    RANew_SiteSimulationResult(const ParametrizablePhyloTree* tree, const Alphabet * alphabet, size_t ancestralStateIndex, double rate):
-      New_SiteSimulationResult(tree, alphabet, ancestralStateIndex),
+    RANew_SiteSimulationResult(const ParametrizablePhyloTree* tree, const StateMap * stateMap, size_t ancestralStateIndex, double rate):
+      New_SiteSimulationResult(tree, stateMap, ancestralStateIndex),
       rate_(rate) {}
 
     virtual ~RANew_SiteSimulationResult() {}
@@ -221,7 +222,7 @@ class RANew_SiteSimulationResult:
      * @return The rate of this simulation.
      */
     virtual double getRate() const { return rate_; }
-};
+  };
 
 //---------------------------------------------------------------------------
 
@@ -230,9 +231,9 @@ class RANew_SiteSimulationResult:
  *
  * Instances of this class should be used when a detailed output of the simulation is needed.
  */
-class New_DetailedSiteSimulator:
-  public virtual SiteSimulator
-{
+  class New_DetailedSiteSimulator:
+    public virtual SiteSimulator
+  {
   public:
     New_DetailedSiteSimulator() {}
     virtual ~New_DetailedSiteSimulator() {}
@@ -249,7 +250,7 @@ class New_DetailedSiteSimulator:
     virtual New_SiteSimulationResult* dSimulateSite(size_t ancestralStateIndex, double rate) const = 0;
     virtual New_SiteSimulationResult* dSimulateSite(double rate) const = 0;
     
-};
+  };
 
 } //end of namespace bpp.
 

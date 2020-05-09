@@ -45,7 +45,8 @@ knowledge of the CeCILL license and that you accept its terms.
 #include <Bpp/Phyl/Model/FrequenciesSet/NucleotideFrequenciesSet.h>
 #include <Bpp/Phyl/Model/SubstitutionModelSetTools.h>
 #include <Bpp/Phyl/Model/RateDistribution/GammaDiscreteRateDistribution.h>
-#include <Bpp/Phyl/Simulation/NonHomogeneousSequenceSimulator.h>
+#include <Bpp/Phyl/Simulation/SubstitutionProcessSequenceSimulator.h>
+
 #include <Bpp/Phyl/Likelihood/RNonHomogeneousTreeLikelihood.h>
 #include <Bpp/Phyl/Likelihood/DRNonHomogeneousTreeLikelihood.h>
 #include <Bpp/Phyl/OptimizationTools.h>
@@ -114,7 +115,7 @@ int main() {
     thetas[i] = theta;
   }
 
-  NonHomogeneousSequenceSimulator simulator(modelSetSim.get(), rdist, tree);
+  SimpleSubstitutionProcessSequenceSimulator simulator(*subPro);
 
   nrep=20;
   

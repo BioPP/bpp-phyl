@@ -45,6 +45,8 @@ knowledge of the CeCILL license and that you accept its terms.
 #include "SequenceSimulator.h"
 #include "../NewLikelihood/ParametrizablePhyloTree.h"
 #include "../Model/SubstitutionModel.h"
+#include <Bpp/Phyl/NewLikelihood/ProcessComputationTree.h>
+
 
 #include <Bpp/Numeric/Random/RandomTools.h>
 #include <Bpp/Numeric/Prob/DiscreteDistribution.h>
@@ -66,57 +68,43 @@ knowledge of the CeCILL license and that you accept its terms.
 
 namespace bpp
 {
-  
-  class SimProcessNode :
-    public AwareNode
+
+  class SimProcessNode:
+    public ProcessComputationNode
   {
   private:
-    size_t state;
-    std::vector<size_t> states;
-    VVVdouble cumpxy;
-    const SubstitutionProcess* process_;
-    std::string name_;
+    
+    // states during simulation
+    size_t state_;
+
+    // probabilities to choose in case of mixture node
+    Vdouble cumProb_;
+
+    // Sons in case of mixture node
+    std::vector<std::shared_ptr<SimProcessNode>> sons_;
     
   public:
-    SimProcessNode(): AwareNode(), state(), states(), cumpxy(), process_(0), name_() {}
-    
-    SimProcessNode(const SimProcessNode& sd): AwareNode(sd), state(sd.state), states(sd.states), cumpxy(), process_(sd.process_), name_(sd.name_) {}
-
-    SimProcessNode(const PhyloNode& pn): AwareNode(pn), state(), states(), cumpxy(), process_(), name_(pn.hasName()?pn.getName():"") {}
-
-    SimProcessNode& operator=(const SimProcessNode& sd)
-    {
-      AwareNode::operator=(sd);
-      
-      state  = sd.state;
-      states = sd.states;
-      cumpxy = sd.cumpxy;
-      process_ = sd.process_;
-      return *this;
-    }
-
-    std::string getName() const 
-    {
-      return name_;
-    }
-
-    SimProcessNode* getFather()
-    {
-      return dynamic_cast<SimProcessNode*>(AwareNode::getFather());
-    }
-
-    SimProcessNode* getSon(size_t i)
-    {
-      return dynamic_cast<SimProcessNode*>(AwareNode::getSon(i));
-    }
+    SimProcessNode(const ProcessComputationNode& pcn):
+      ProcessComputationNode(pcn), state_() {}
 
     friend class SimpleSubstitutionProcessSequenceSimulator;
+  };
     
+  class SimProcessEdge :
+    public ProcessComputationEdge
+  {
+  private:
+    // Cumulative pxy for all rates
+    VVVdouble cumpxy_;
+    
+  public:
+    SimProcessEdge(const ProcessComputationEdge& pce):
+      ProcessComputationEdge(pce), cumpxy_() {}
+
+    friend class SimpleSubstitutionProcessSequenceSimulator;
   };
 
-
-  typedef AssociationTreeGlobalGraphObserver<SimProcessNode, PhyloBranch>  SPTree;
-  
+  typedef AssociationTreeGlobalGraphObserver<SimProcessNode, SimProcessEdge>  SPTree;
 
 /**
  * @brief Site and sequences simulation under a unique substitution process.
@@ -128,20 +116,34 @@ namespace bpp
     public virtual SequenceSimulator
   {
   private:
-    const SubstitutionProcess* process_;
+    const SubstitutionProcess*     process_;
     const Alphabet*                alphabet_;
-    std::vector<int>               supportedStates_;
     const ParametrizablePhyloTree* phyloTree_;
-    mutable SPTree                 tree_;
-  
-    /**
-     * @brief This stores once for all all leaves in a given order.
-     * This order will be used during site creation.
-     */
-    std::vector<std::shared_ptr<SimProcessNode> > leaves_;
-  
-    std::vector<std::string> seqNames_;
+    SPTree        tree_;
 
+    
+    /**
+     * @brief Vector of indexes of sequenced output species
+     *
+     */
+
+    std::vector<size_t> seqIndexes_;
+    
+    /**
+     * @brief Vector of names of sequenced output species
+     *
+     */
+    
+    std::vector<std::string> seqNames_; 
+    
+    /**
+     * @brief Map between species Indexes & used nodes, may change at
+     * each simulation.
+     *
+     */
+
+    mutable std::map<size_t, std::shared_ptr<SimProcessNode>> speciesNodes_;
+    
     size_t nbNodes_;
     size_t nbClasses_;
     size_t nbStates_;
@@ -168,11 +170,11 @@ namespace bpp
     SimpleSubstitutionProcessSequenceSimulator(const SimpleSubstitutionProcessSequenceSimulator& nhss) :
       process_        (nhss.process_),
       alphabet_       (nhss.alphabet_),
-      supportedStates_(nhss.supportedStates_),
       phyloTree_      (nhss.phyloTree_),
       tree_           (nhss.tree_),
-      leaves_         (nhss.leaves_),
+      seqIndexes_     (nhss.seqIndexes_),
       seqNames_       (nhss.seqNames_),
+      speciesNodes_  (nhss.speciesNodes_),
       nbNodes_        (nhss.nbNodes_),
       nbClasses_      (nhss.nbClasses_),
       nbStates_       (nhss.nbStates_),
@@ -184,11 +186,11 @@ namespace bpp
     {
       process_        = nhss.process_;
       alphabet_        = nhss.alphabet_;
-      supportedStates_ = nhss.supportedStates_;
       phyloTree_       = nhss.phyloTree_;
       tree_            = nhss.tree_;
-      leaves_          = nhss.leaves_;
+      seqIndexes_      = nhss.seqIndexes_;
       seqNames_        = nhss.seqNames_;
+      speciesNodes_   = nhss.speciesNodes_;
       nbNodes_         = nhss.nbNodes_;
       nbClasses_       = nhss.nbClasses_;
       nbStates_        = nhss.nbStates_;
@@ -220,9 +222,9 @@ namespace bpp
 
     Site* simulateSite(size_t ancestralStateIndex) const;
 
-    Site* simulateSite(size_t ancestralStateIndex, double rate) const;
-    
     Site* simulateSite(double rate) const;
+    
+    Site* simulateSite(size_t ancestralStateIndex, double rate) const;
 
     std::vector<std::string> getSequencesNames() const { return seqNames_; }
     /** @} */
@@ -233,13 +235,13 @@ namespace bpp
      * @{
      */
     New_SiteSimulationResult* dSimulateSite() const;
-    
+
     New_SiteSimulationResult* dSimulateSite(size_t ancestralStateIndex) const;
-    
-    New_SiteSimulationResult* dSimulateSite(size_t ancestralStateIndex, double rate) const;
-    
+
     New_SiteSimulationResult* dSimulateSite(double rate) const;
     
+    New_SiteSimulationResult* dSimulateSite(size_t ancestralStateIndex, double rate) const;
+
     /** @} */
 
     /**
@@ -247,7 +249,9 @@ namespace bpp
      *
      * @{
      */
+
     SiteContainer* simulate(size_t numberOfSites) const;
+    
     /** @} */
     
     /**
@@ -259,32 +263,12 @@ namespace bpp
     /** @} */
 
     /**
-     * @name Functions with rate classes instead of absolute rates.
-     *
-     * @{
-     */
-
-    // //virtual Site* simulateSite(size_t ancestralStateIndex, size_t rateClass) const;
-
-    // virtual SiteSimulationResult* dSimulateSite(size_t ancestralStateIndex, size_t rateClass) const;
-    
-    /** @} */
-  
-    /**
      * @brief Get the substitution process associated to this instance.
      *
      * @return The substitution process associated to this instance.
      */
     const SubstitutionProcess* getSubstitutionProcess() const { return process_; }
     
-    /**
-     * @brief Get the rate distribution associated to this instance.
-     *
-     * @return The DiscreteDistribution object associated to this instance.
-     */
-
-//const DiscreteDistribution* getRateDistribution() const { return rate_; }
-
     /**
      * @brief Get the tree associated to this instance.
      *
@@ -314,45 +298,6 @@ namespace bpp
     void outputInternalSequences(bool yn) ;
     
   protected:
-    
-    /**
-     * @brief Evolve from an initial state along a branch, knowing the evolutionary class.
-     *
-     * This method is fast since all pijt have been computed in the constructor of the class.
-     * This method is used for the implementation of the SiteSimulator interface.
-     */
-    
-    size_t evolve(const SimProcessNode* node, size_t initialStateIndex, size_t rateClass) const;
-    
-    /**
-     * @brief Evolve from an initial state along a branch, knowing the evolutionary class.
-     *
-     * This method is fast since all pijt have been computed in the constructor of the class.
-     * This method is used for the implementation of the SiteSimulator interface.
-     */
-    
-    size_t evolve(const SimProcessNode* node, size_t initialStateIndex, size_t rateClass, double rate) const;
-    
-     /**
-     * @brief The same as the evolve(initialState, rateClass)
-     * function, but for several sites at a time.
-     *
-     * This method is used for the implementation of the SequenceSimulator interface.
-     */
-    
-    void multipleEvolve(
-        const SimProcessNode* node,
-        const std::vector<size_t>& initialStateIndices,
-        const std::vector<size_t>& rateClasses,
-        std::vector<size_t>& finalStates) const;
-    
-    SiteContainer* multipleEvolve(
-      const std::vector<size_t>& initialStates,
-      const std::vector<size_t>& rateClasses) const;
-
-    void dEvolve(size_t initialState, size_t rateClass, New_SiteSimulationResult& ssr) const;
-
-    void dEvolve(size_t initialState, size_t rateClass, double rate, New_SiteSimulationResult& ssr) const;
 
     /**
      * @name The 'Internal' methods.
@@ -363,26 +308,14 @@ namespace bpp
     /**
      * This method uses the states_ variable for saving ancestral states.
      */
-    void evolveInternal(SimProcessNode* node, size_t rateClass) const;
+    void evolveInternal(std::shared_ptr<SimProcessNode> node, size_t rateClass, New_SiteSimulationResult * ssr = 0) const;
 
     /**
      * This method uses the states_ variable for saving ancestral states.
      */
-    void evolveInternal(SimProcessNode* node, size_t rateClass, double rate) const;
+    void evolveInternal(std::shared_ptr<SimProcessNode> node, double rate, New_SiteSimulationResult * ssr = 0) const;
 
-    /**
-     * This method uses the multipleStates_ variable for saving ancestral states.
-     */
-     void multipleEvolveInternal(SimProcessNode* node, const std::vector<size_t>& rateClasses) const;
-
-    /**
-     * This method uses the states_ variable for saving ancestral states.
-     */
-
-    void dEvolveInternal(SimProcessNode * node, size_t rateClass, double rate, New_SiteSimulationResult & ssr) const;
-
-    void dEvolveInternal(SimProcessNode * node, size_t rateClass, New_SiteSimulationResult & ssr) const;
-/** @} */
+     /** @} */
 
   };
 
@@ -465,10 +398,6 @@ namespace bpp
      *
      */
     
-    virtual void resetSiteSimulators(size_t numberOfSites) const
-    {
-    }
-
     void setMap(std::vector<size_t> vMap);
 
     SiteContainer* simulate(size_t numberOfSites) const;

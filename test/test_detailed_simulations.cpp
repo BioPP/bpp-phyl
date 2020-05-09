@@ -41,68 +41,87 @@ knowledge of the CeCILL license and that you accept its terms.
 #include <Bpp/Numeric/Matrix/Matrix.h>
 #include <Bpp/Numeric/Matrix/MatrixTools.h>
 #include <Bpp/Seq/Alphabet/DNA.h>
-#include <Bpp/Phyl/Tree/TreeTemplate.h>
+
+#include <Bpp/Phyl/Io/Newick.h>
 #include <Bpp/Phyl/Model/Nucleotide/GTR.h>
-#include <Bpp/Phyl/Simulation/HomogeneousSequenceSimulator.h>
+#include <Bpp/Phyl/Simulation/SubstitutionProcessSequenceSimulator.h>
+
+#include <Bpp/Phyl/NewLikelihood/RateAcrossSitesSubstitutionProcess.h>
+
 #include <iostream>
 
 using namespace bpp;
 using namespace std;
 
 int main() {
-  TreeTemplate<Node>* tree = TreeTemplateTools::parenthesisToTree("((A:0.001, B:0.002):0.003,C:0.01,D:0.1);");
-  cout << tree->getNumberOfLeaves() << endl;
-  vector<int> ids = tree->getNodesId();
+  Newick reader;
+  auto phyloTree = std::unique_ptr<PhyloTree>(reader.parenthesisToPhyloTree("((A:0.001, B:0.002):0.003,C:0.01,D:0.1);"));
+  auto paramPhyloTree = new ParametrizablePhyloTree(*phyloTree);
+
+  auto ids = phyloTree->getAllEdgesIndexes();
+  
   //-------------
 
   NucleicAlphabet* alphabet = new DNA();
-  SubstitutionModel* model = new GTR(alphabet, 1, 0.2, 0.3, 0.4, 0.4, 0.1, 0.35, 0.35, 0.2);
+  std::shared_ptr<GTR> model(new GTR(alphabet, 1, 0.2, 0.3, 0.4, 0.4, 0.1, 0.35, 0.35, 0.2));
   //DiscreteDistribution* rdist = new GammaDiscreteDistribution(4, 0.4, 0.4);
   DiscreteDistribution* rdist = new ConstantDistribution(1.0);
-  HomogeneousSequenceSimulator simulator(model, rdist, tree);
 
-  unsigned int n = 100000;
+  RateAcrossSitesSubstitutionProcess process(model, rdist, paramPhyloTree);
+  
+  SimpleSubstitutionProcessSequenceSimulator simulatorS(process);
+
+  unsigned int n = 200000;
   map<int, RowMatrix<unsigned int> > counts;
-  for (size_t j = 0; j < ids.size() - 1; ++j) //ignore root, the last id
+  for (size_t j = 0; j < ids.size(); ++j)
     counts[ids[j]].resize(4, 4);
   for (unsigned int i = 0; i < n; ++i) {
-    RASiteSimulationResult* result = simulator.dSimulateSite();
-    for (size_t j = 0; j < ids.size() - 1; ++j) { //ignore root, the last id
+    auto result = simulatorS.dSimulateSite();
+    for (size_t j = 0; j < ids.size(); ++j) {
       result->getMutationPath(ids[j]).getEventCounts(counts[ids[j]]);
     }
     delete result;
   }
+
+  const auto& Q=model->getGenerator();
+  
   map<int, RowMatrix<double> >freqs;
   map<int, double> sums;
-  for (size_t k = 0; k < ids.size() - 1; ++k) { //ignore root, the last id
+  for (size_t k = 0; k < ids.size(); ++k) {
     RowMatrix<double>* freqsP = &freqs[ids[k]];
     RowMatrix<unsigned int>* countsP = &counts[ids[k]];
     freqsP->resize(4, 4);
     for (unsigned int i = 0; i < 4; ++i)
       for (unsigned int j = 0; j < 4; ++j)
         (*freqsP)(i, j) = static_cast<double>((*countsP)(i, j)) / (static_cast<double>(n));
-    
+  
     //For now we simply compare the total number of substitutions:
     sums[ids[k]] = MatrixTools::sumElements(*freqsP);
   
-    cout << "Br" << ids[k] << " BrLen = " << tree->getDistanceToFather(ids[k]) << " counts = " << sums[ids[k]] << endl;
+    cout << "Br" << ids[k] << " BrLen = " << phyloTree->getEdge(ids[k])->getLength() << " counts = " << sums[ids[k]] << endl;
     MatrixTools::print(*freqsP);
-  }
-  //We should compare this matrix with the expected one!
 
-  for (size_t k = 0; k < ids.size() - 1; ++k) { //ignore root, the last id
-    if (abs(sums[ids[k]] - tree->getDistanceToFather(ids[k])) > 0.01) {
-      delete tree;
+    cout << " Comparison with generator (more or less same non-diagonal values on each line):" << endl;
+    RowMatrix<double> comp(4,4);
+  
+    for (unsigned int i = 0; i < 4; ++i)
+      for (unsigned int j = 0; j < 4; ++j)
+        comp(i, j) = (*freqsP)(i,j)/Q(i,j);
+  
+    MatrixTools::print(comp);
+  }
+
+  
+  for (size_t k = 0; k < ids.size(); ++k) {
+    if (abs(sums[ids[k]] - phyloTree->getEdge(ids[k])->getLength()) > 0.01) {
       delete alphabet;
-      delete model;
       delete rdist;
       return 1;
     }
   }
+  
   //-------------
-  delete tree;
   delete alphabet;
-  delete model;
   delete rdist;
 
   //return (abs(obs - 0.001) < 0.001 ? 0 : 1);

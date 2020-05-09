@@ -46,6 +46,7 @@
 #include <Bpp/Numeric/VectorTools.h>
 #include <Bpp/Numeric/Matrix/MatrixTools.h>
 
+#include <Bpp/Phyl/NewLikelihood/ProcessComputationTree.h>
 // From SeqLib:
 #include <Bpp/Seq/Container/VectorSiteContainer.h>
 
@@ -57,11 +58,11 @@ using namespace std;
 SimpleSubstitutionProcessSequenceSimulator::SimpleSubstitutionProcessSequenceSimulator(const SubstitutionProcess& process) :
   process_(&process),
   alphabet_(process_->getStateMap().getAlphabet()),
-  supportedStates_(process_->getStateMap().getAlphabetStates()),
   phyloTree_(&process_->getParametrizablePhyloTree()),
-  tree_(process_->getParametrizablePhyloTree()),
-  leaves_(tree_.getAllLeaves()),
+  tree_(ProcessComputationTree(*process_)),
+  seqIndexes_(),
   seqNames_(),
+  speciesNodes_(),
   nbNodes_(),
   nbClasses_(process_->getNumberOfClasses()),
   nbStates_(process_->getNumberOfStates()),
@@ -75,75 +76,123 @@ SimpleSubstitutionProcessSequenceSimulator::SimpleSubstitutionProcessSequenceSim
 
 void SimpleSubstitutionProcessSequenceSimulator::init()
 {
-// Initialize sons & fathers of tree_ Nodes
-  std::vector<std::shared_ptr<SimProcessNode> > vCN=tree_.getAllNodes();
-    
-  for (size_t j=0; j<vCN.size(); j++)
-  {
-    uint ni=tree_.getNodeIndex(vCN[j]);
-    vCN[j]->updateTree(&tree_, ni);
-    if (phyloTree_->hasFather(ni))
-      vCN[j]->setDistanceToFather(phyloTree_->getEdgeToFather(ni)->getLength());
-  }
-  
+  // Initialize sons & fathers of tree_ Nodes    
   // set sequence names
 
   if (outputInternalSequences_) {
-    seqNames_.resize(vCN.size());
+    auto vCN= phyloTree_->getAllNodes();
+    seqNames_.resize(vCN.size());    
+    seqIndexes_.resize(vCN.size());    
     for (size_t i = 0; i < seqNames_.size(); i++)
     {
-      if (vCN[i]->isLeaf()) {
-        seqNames_[i] = vCN[i]->getName();
-      }
-      else {
-        seqNames_[i] = TextTools::toString(vCN[i]->getId() );
-      }
+      auto index = phyloTree_->getNodeIndex(vCN[i]);
+      seqNames_[i] = (phyloTree_->isLeaf(vCN[i]))?vCN[i]->getName():TextTools::toString(index);
+      seqIndexes_[i] = index; 
     }
   }
   else {
-    seqNames_.resize(leaves_.size());
+    auto vCN= phyloTree_->getAllLeaves();
+    seqNames_.resize(vCN.size());    
+    seqIndexes_.resize(vCN.size());    
     for (size_t i = 0; i < seqNames_.size(); i++)
     {
-      seqNames_[i] = leaves_[i]->getName();
+      seqNames_[i] = vCN[i]->getName();
+      seqIndexes_[i] = phyloTree_->getNodeIndex(vCN[i]);
     }
   }
   
-  // Initialize cumulative pxy:
-  vector<shared_ptr<SimProcessNode> > nodes = tree_.getAllNodes();
-  nodes.erase(std::find(nodes.begin(), nodes.end(), tree_.getRoot()));
+  // Initialize cumulative pxy for edges that have models
+  auto edges = tree_.getAllEdges();
+
+  const auto dRate = process_->getRateDistribution();
   
-  nbNodes_ = nodes.size();
-
-  for (size_t i = 0; i < nodes.size(); i++)
+  for (auto& edge : edges)
   {
-    shared_ptr<SimProcessNode> node = nodes[i];
-
-    node->process_ = process_;
-    VVVdouble* cumpxy_node_ = &node->cumpxy;
+    const auto model = edge->getModel();
+    if (!model)
+      continue;
+    
+    const auto transmodel = dynamic_cast<const TransitionModel*>(model);
+    if (!transmodel)
+      throw Exception("SubstitutionProcessSequenceSimulator::init : model "  + model->getName() + " on branch " + TextTools::toString(tree_.getEdgeIndex(edge)) + " is not a TransitionModel.");
+    
+    VVVdouble* cumpxy_node_ = &edge->cumpxy_;
     cumpxy_node_->resize(nbClasses_);
+    
     for (size_t c = 0; c < nbClasses_; c++)
     {
+      double brlen = dRate->getCategory(c) * phyloTree_->getEdge(edge->getSpeciesIndex())->getLength();
+    
       VVdouble* cumpxy_node_c_ = &(*cumpxy_node_)[c];
-
+    
       cumpxy_node_c_->resize(nbStates_);
-
+    
       // process transition probabilities already consider rates &
       // branch length
-      
-      const RowMatrix<double>& P = process_->getTransitionProbabilities(node->getId(),c);
 
+      const Matrix<double>* P;
+      
+      const auto& vSub(edge->subModelNumbers());
+
+      if (vSub.size()==0)
+        P = &transmodel->getPij_t(brlen);
+      else
+      {
+        if (vSub.size()>1)
+          throw Exception("SubstitutionProcessSequenceSimulator::init : only 1 submodel can be used.");
+        
+        const auto* mmodel = dynamic_cast<const MixedTransitionModel*>(transmodel);
+        
+        const auto* model2 = mmodel->getNModel(vSub[0]);
+        
+        P = &model2->getPij_t(brlen);
+      }
+      
       for (size_t x = 0; x < nbStates_; x++)
       {
         Vdouble* cumpxy_node_c_x_ = &(*cumpxy_node_c_)[x];
         cumpxy_node_c_x_->resize(nbStates_);
-        (*cumpxy_node_c_x_)[0] = P(x, 0);
+        (*cumpxy_node_c_x_)[0] = (*P)(x, 0);
         for (size_t y = 1; y < nbStates_; y++)
         {
-          (*cumpxy_node_c_x_)[y] = (*cumpxy_node_c_x_)[y - 1] + P(x, y);
+          (*cumpxy_node_c_x_)[y] = (*cumpxy_node_c_x_)[y - 1] + (*P)(x, y);
         }
       }
     }
   }
+
+  // Initialize cumulative prob for mixture nodes
+  auto nodes = tree_.getAllNodes();
+
+  for (auto node:nodes)
+  {
+    if (node->isMixture()) // set probas to chose
+    {
+      auto outEdges = tree_.getOutgoingEdges(node);
+      Vdouble vprob(0);
+
+      for (auto edge : outEdges)
+      {
+        auto model = dynamic_cast<const MixedTransitionModel*>(edge->getModel());
+        if (!model)
+          throw Exception("SubstitutionProcessSequenceSimulator::init : model in edge " + TextTools::toString(tree_.getEdgeIndex(edge)) + " is not a mixture.");
+
+        const auto& vNb(edge->subModelNumbers());
+
+        double x=0.;
+        for (auto nb:vNb)
+          x += model->getNProbability(nb);
+
+        vprob.push_back(x);
+        node->sons_.push_back(tree_.getSon(edge));
+      }
+
+      vprob /= VectorTools::sum(vprob);
+
+      node->cumProb_ = VectorTools::cumSum(vprob);
+    }
+  }
+
 }
 
 /******************************************************************************/
@@ -164,149 +213,91 @@ Site* SimpleSubstitutionProcessSequenceSimulator::simulateSite() const
       break;
     }
   }
+
   return simulateSite(initialStateIndex);
 }
 
-/******************************************************************************/
-
-Site* SimpleSubstitutionProcessSequenceSimulator::simulateSite(size_t ancestralStateIndex) const
-{
-  if (continuousRates_ && process_->getRateDistribution())
-  {
-    // Draw a random rate:
-    double rate = process_->getRateDistribution()->randC();
-    // Make this state evolve:
-    return simulateSite(ancestralStateIndex, rate);
-  }
-  else
-  {
-    size_t rateClass = RandomTools::giveIntRandomNumberBetweenZeroAndEntry<size_t>(nbClasses_);
-
-    // Launch recursion:
-    shared_ptr<SimProcessNode> root = tree_.getRoot();
-    root->state = ancestralStateIndex;
-    for (size_t i = 0; i < root->getNumberOfSons(); ++i)
-    {
-      evolveInternal(root->getSon(i), rateClass);
-    }
-    // Now create a Site object:
-    Vint site(leaves_.size());
-    for (size_t i = 0; i < leaves_.size(); ++i)
-    {
-      site[i] = process_->getModel(leaves_[i]->getId(), rateClass)->getAlphabetStateAsInt(leaves_[i]->state);
-    }
-    return new Site(site, alphabet_);
-  }
-}
-
-
-/******************************************************************************/
-
-Site* SimpleSubstitutionProcessSequenceSimulator::simulateSite(size_t ancestralStateIndex, double rate) const
-{
-  size_t rateClass = RandomTools::giveIntRandomNumberBetweenZeroAndEntry<size_t>(nbClasses_);
-
-  // Launch recursion:
-  shared_ptr<SimProcessNode> root = tree_.getRoot();
-  root->state = ancestralStateIndex;
-  for (size_t i = 0; i < root->getNumberOfSons(); i++)
-  {
-    evolveInternal(root->getSon(i), rateClass, rate);
-  }
-  // Now create a Site object:
-  size_t n = nbNodes_ + 1 ;
-  if (! outputInternalSequences_) {
-    n = leaves_.size() ;
-  }
-  Vint site(n);
-  
-  if (outputInternalSequences_) {
-    vector<shared_ptr<SimProcessNode> > nodes = tree_.getAllNodes();
-    for (size_t i = 0; i < n; i++)
-    {
-      size_t i2 = (i==n-1)?i-1:i; //  because the root has no model
-      site[i] = process_->getModel(nodes[i2]->getId(),rateClass)->getAlphabetStateAsInt(nodes[i2]->state);
-    }
-  }
-  else {
-    for (size_t i = 0; i < n; i++)
-    {
-      site[i] = process_->getModel(leaves_[i]->getId(),rateClass)->getAlphabetStateAsInt(leaves_[i]->state);
-    }
-  }
-  
-  return new Site(site, alphabet_);
-}
-
-/******************************************************************************/
 
 Site* SimpleSubstitutionProcessSequenceSimulator::simulateSite(double rate) const
 {
   // Draw an initial state randomly according to equilibrum frequencies:
-  size_t ancestralStateIndex = 0;
+  size_t initialStateIndex = 0;
   double r = RandomTools::giveRandomNumberBetweenZeroAndEntry(1.);
   double cumprob = 0;
-  vector<double> freqs = process_->getRootFrequencies();
+  const vector<double>& freqs = process_->getRootFrequencies();
   for (size_t i = 0; i < nbStates_; i++)
   {
     cumprob += freqs[i];
     if (r <= cumprob)
     {
-      ancestralStateIndex = i;
+      initialStateIndex = i;
       break;
     }
   }
-  // Make this state evolve:
-  return simulateSite(ancestralStateIndex, rate);
+
+  return simulateSite(initialStateIndex, rate);
 }
+
+
+Site* SimpleSubstitutionProcessSequenceSimulator::simulateSite(size_t ancestralStateIndex) const
+{
+  shared_ptr<SimProcessNode> root = tree_.getRoot();
+  root->state_ = ancestralStateIndex;
+
+  if (continuousRates_ && process_->getRateDistribution())
+  {
+    double rate = process_->getRateDistribution()->randC();
+    evolveInternal(root, rate);
+  }
+  else
+  {
+    size_t rateClass = RandomTools::giveIntRandomNumberBetweenZeroAndEntry<size_t>(nbClasses_);
+    evolveInternal(root, rateClass);
+  }
+  
+  
+  // Now create a Site object:
+  Vint site(seqNames_.size());
+  for (size_t i = 0; i < seqNames_.size(); ++i)
+  {
+    site[i] = process_->getStateMap().getAlphabetStateAsInt(speciesNodes_.at(seqIndexes_[i])->state_);
+  }
+  return new Site(site, alphabet_);
+}
+
+
+Site* SimpleSubstitutionProcessSequenceSimulator::simulateSite(size_t ancestralStateIndex, double rate) const
+{
+  shared_ptr<SimProcessNode> root = tree_.getRoot();
+  root->state_ = ancestralStateIndex;
+
+  evolveInternal(root, rate);
+  
+  // Now create a Site object:
+  Vint site(seqNames_.size());
+  for (size_t i = 0; i < seqNames_.size(); ++i)
+  {
+    site[i] = process_->getStateMap().getAlphabetStateAsInt(speciesNodes_.at(seqIndexes_[i])->state_);
+  }
+  return new Site(site, alphabet_);
+}
+
+
 
 /******************************************************************************/
 
 SiteContainer* SimpleSubstitutionProcessSequenceSimulator::simulate(size_t numberOfSites) const
 {
-  vector<size_t> ancestralStateIndices(numberOfSites, 0);
+  VectorSiteContainer* sites = new VectorSiteContainer(seqNames_.size(), alphabet_);
+  sites->setSequencesNames(seqNames_);
   for (size_t j = 0; j < numberOfSites; j++)
   {
-    double r = RandomTools::giveRandomNumberBetweenZeroAndEntry(1.);
-    double cumprob = 0;
-    const vector<double>& freqs = process_->getRootFrequencies();
-    for (size_t i = 0; i < nbStates_; i++)
-    {
-      cumprob += freqs[i];
-      if (r <= cumprob)
-      {
-        ancestralStateIndices[j] = i;
-        break;
-      }
-    }
+    Site* site = simulateSite();
+    site->setPosition(static_cast<int>(j));
+    sites->addSite(*site);
+    delete site;
   }
-  if (continuousRates_)
-  {
-    VectorSiteContainer* sites = new VectorSiteContainer(seqNames_.size(), alphabet_);
-    sites->setSequencesNames(seqNames_);
-    for (size_t j = 0; j < numberOfSites; j++)
-    {
-      Site* site = simulateSite();
-      site->setPosition(static_cast<int>(j));
-      sites->addSite(*site);
-      delete site;
-    }
-    return sites;
-  }
-  else
-  {
-    // More efficient to do site this way:
-    // Draw random rates:
-    vector<size_t> rateClasses(numberOfSites);
-    size_t nCat = nbClasses_;
-    for (size_t j = 0; j < numberOfSites; j++)
-    {
-      rateClasses[j] = RandomTools::giveIntRandomNumberBetweenZeroAndEntry<size_t>(nCat);
-    }
-    // Make these states evolve:
-    SiteContainer* sites = multipleEvolve(ancestralStateIndices, rateClasses);
-    return sites;
-  }
+  return sites;
 }
 
 /******************************************************************************/
@@ -317,7 +308,7 @@ New_SiteSimulationResult* SimpleSubstitutionProcessSequenceSimulator::dSimulateS
   size_t ancestralStateIndex = 0;
   double r = RandomTools::giveRandomNumberBetweenZeroAndEntry(1.);
   double cumprob = 0;
-  vector<double> freqs = process_->getRootFrequencies();
+  const auto& freqs = process_->getRootFrequencies();
   for (size_t i = 0; i < nbStates_; i++)
   {
     cumprob += freqs[i];
@@ -331,48 +322,37 @@ New_SiteSimulationResult* SimpleSubstitutionProcessSequenceSimulator::dSimulateS
   return dSimulateSite(ancestralStateIndex);
 }
 
-/******************************************************************************/
 
 New_SiteSimulationResult* SimpleSubstitutionProcessSequenceSimulator::dSimulateSite(size_t ancestralStateIndex) const
 {
+  shared_ptr<SimProcessNode> root = tree_.getRoot();
+  root->state_ = ancestralStateIndex;
+
+  New_SiteSimulationResult* ssr = new New_SiteSimulationResult(phyloTree_, &process_->getStateMap(), ancestralStateIndex);
+
   // Draw a random rate:
   if (continuousRates_ && process_->getRateDistribution())
   {
     // Draw a random rate:
     double rate = process_->getRateDistribution()->randC();
-    return dSimulateSite(ancestralStateIndex, rate);
+    evolveInternal(root, rate, ssr);
   }
   else
   {
     size_t rateClass = RandomTools::giveIntRandomNumberBetweenZeroAndEntry<size_t>(nbClasses_);
-    New_SiteSimulationResult* ssr = new New_SiteSimulationResult(phyloTree_, alphabet_, ancestralStateIndex);
-    dEvolve(ancestralStateIndex, rateClass, *ssr);
-    return ssr;
-    // NB: this is more efficient than dSimulate(initialState, rDist_->rand())
+    evolveInternal(root, rateClass, ssr);
   }
-}
-
-/******************************************************************************/
-
-New_SiteSimulationResult* SimpleSubstitutionProcessSequenceSimulator::dSimulateSite(size_t ancestralStateIndex, double rate) const
-{
-  size_t rateClass = RandomTools::giveIntRandomNumberBetweenZeroAndEntry<size_t>(nbClasses_);
-
-  // Make this state evolve:
-  New_SiteSimulationResult* ssr = new New_SiteSimulationResult(phyloTree_, alphabet_, ancestralStateIndex);
-  dEvolve(ancestralStateIndex, rateClass, rate, *ssr);
+  
   return ssr;
 }
 
-/******************************************************************************/
-
 New_SiteSimulationResult* SimpleSubstitutionProcessSequenceSimulator::dSimulateSite(double rate) const
 {
-  // Draw an initial state randomly according to equilibrum frequencies:
+  // Draw an initial state randomly according to root frequencies:
   size_t ancestralStateIndex = 0;
   double r = RandomTools::giveRandomNumberBetweenZeroAndEntry(1.);
   double cumprob = 0;
-  const vector<double>& freqs = process_->getRootFrequencies();
+  const auto& freqs = process_->getRootFrequencies();
   for (size_t i = 0; i < nbStates_; i++)
   {
     cumprob += freqs[i];
@@ -382,293 +362,238 @@ New_SiteSimulationResult* SimpleSubstitutionProcessSequenceSimulator::dSimulateS
       break;
     }
   }
-  return dSimulateSite(ancestralStateIndex, rate);
-}
 
-
-
-
-/******************************************************************************/
-
-size_t SimpleSubstitutionProcessSequenceSimulator::evolve(const SimProcessNode* node, size_t initialStateIndex, size_t rateClass) const
-{
-  const Vdouble* cumpxy_node_c_x_ = &node->cumpxy[rateClass][initialStateIndex];
-  double rand = RandomTools::giveRandomNumberBetweenZeroAndEntry(1.);
-  for (size_t y = 0; y < nbStates_; y++)
-  {
-    if (rand < (*cumpxy_node_c_x_)[y]) return y;
-  }
-  throw Exception("SimpleSubstitutionProcessSequenceSimulator::evolve. The impossible happened! rand = " + TextTools::toString(rand) + ".");
-}
-
-/******************************************************************************/
-
-size_t SimpleSubstitutionProcessSequenceSimulator::evolve(const SimProcessNode* node, size_t initialStateIndex, size_t rateClass, double rate) const
-{
-  double cumpxy = 0;
-  double rand = RandomTools::giveRandomNumberBetweenZeroAndEntry(1.);
-  double l = rate * node->getDistanceToFather();
-  
-  auto model = dynamic_cast<const TransitionModel*>(node->process_->getModel(node->getId(), rateClass));
-
-  if (!model)
-    throw Exception("SimpleSubstitutionProcessSequenceSimulator::evolve. Need a trantion model");
-    
-  for (size_t y = 0; y < nbStates_; y++)
-  {
-    cumpxy += model->Pij_t(initialStateIndex, y, l);
-    if (rand < cumpxy) return y;
-  }
-  MatrixTools::print(model->getPij_t(l));
-  throw Exception("SimpleSubstitutionProcessSequenceSimulator::evolve. The impossible happened! rand = " + TextTools::toString(rand) + ".");
-}
-
-/******************************************************************************/
-
-void SimpleSubstitutionProcessSequenceSimulator::multipleEvolve(
-    const SimProcessNode* node,
-    const std::vector<size_t>& initialStateIndices,
-    const vector<size_t>& rateClasses,
-    std::vector<size_t>& finalStateIndices) const
-{
-  const VVVdouble* cumpxy_node_ = &node->cumpxy;
-  
-  for (size_t i = 0; i < initialStateIndices.size(); i++)
-  {
-    const Vdouble* cumpxy_node_c_x_ = &(*cumpxy_node_)[rateClasses[i]][initialStateIndices[i]];
-    double rand = RandomTools::giveRandomNumberBetweenZeroAndEntry(1.);
-    for (size_t y = 0; y < nbStates_; y++)
-    {
-      if (rand < (*cumpxy_node_c_x_)[y])
-      {
-        finalStateIndices[i] = y;
-        break;
-      }
-    }
-  }
-}
-
-/******************************************************************************/
-
-void SimpleSubstitutionProcessSequenceSimulator::evolveInternal(SimProcessNode* node, size_t rateClass) const
-{
-  if (!node->hasFather())
-  {
-    cerr << "DEBUG: SimpleSubstitutionProcessSequenceSimulator::evolveInternal. Forbidden call of method on root node." << endl;
-    return;
-  }
-  node->state = evolve(node, node->getFather()->state, rateClass);
-  for (size_t i = 0; i < node->getNumberOfSons(); i++)
-  {
-    evolveInternal(node->getSon(i), rateClass);
-  }
-}
-
-/******************************************************************************/
-
-void SimpleSubstitutionProcessSequenceSimulator::evolveInternal(SimProcessNode* node, size_t rateClass, double rate) const
-{
-  if (!node->hasFather())
-  {
-    cerr << "DEBUG: SimpleSubstitutionProcessSequenceSimulator::evolveInternal. Forbidden call of method on root node." << endl;
-    return;
-  }
-  node->state = evolve(node, node->getFather()->state, rateClass, rate);
-  for (size_t i = 0; i < node->getNumberOfSons(); i++)
-  {
-    evolveInternal(node->getSon(i), rateClass, rate);
-  }
-}
-
-/******************************************************************************/
-
-void SimpleSubstitutionProcessSequenceSimulator::multipleEvolveInternal(SimProcessNode* node, const vector<size_t>& rateClasses) const
-{
-  if (!node->hasFather())
-  {
-    cerr << "DEBUG: SimpleSubstitutionProcessSequenceSimulator::multipleEvolveInternal. Forbidden call of method on root node." << endl;
-    return;
-  }
-  const vector<size_t>* initialStates = &node->getFather()->states;
-  size_t n = initialStates->size();
-  node->states.resize(n); // allocation.
-  multipleEvolve(node, node->getFather()->states, rateClasses, node->states);
-  for (size_t i = 0; i < node->getNumberOfSons(); i++)
-  {
-    multipleEvolveInternal(node->getSon(i), rateClasses);
-  }
-}
-
-/******************************************************************************/
-
-SiteContainer* SimpleSubstitutionProcessSequenceSimulator::multipleEvolve(
-    const std::vector<size_t>& initialStateIndices,
-    const vector<size_t>& rateClasses) const
-{
-  // Launch recursion:
   shared_ptr<SimProcessNode> root = tree_.getRoot();
+  root->state_ = ancestralStateIndex;
 
-  root->states = initialStateIndices;
-  for (size_t i = 0; i < root->getNumberOfSons(); i++)
+  New_SiteSimulationResult* ssr = new New_SiteSimulationResult(phyloTree_, &process_->getStateMap(), ancestralStateIndex);
+
+  evolveInternal(root, rate, ssr);
+
+  return ssr;
+}
+
+New_SiteSimulationResult* SimpleSubstitutionProcessSequenceSimulator::dSimulateSite(size_t ancestralStateIndex, double rate) const
+{
+  shared_ptr<SimProcessNode> root = tree_.getRoot();
+  root->state_ = ancestralStateIndex;
+
+  New_SiteSimulationResult* ssr = new New_SiteSimulationResult(phyloTree_, &process_->getStateMap(), ancestralStateIndex);
+
+  evolveInternal(root, rate, ssr);
+
+  return ssr;
+}
+
+
+/******************************************************************************/
+
+void SimpleSubstitutionProcessSequenceSimulator::evolveInternal(std::shared_ptr<SimProcessNode> node, size_t rateClass, New_SiteSimulationResult * ssr) const
+{
+  if (node->isSpeciation())
   {
-    multipleEvolveInternal(root->getSon(i), rateClasses);
-  }
+    auto vEdge = tree_.getOutgoingEdges(node);
 
-  // Now create a SiteContainer object:
-  AlignedSequenceContainer* sites = new AlignedSequenceContainer(alphabet_);
-  size_t n = leaves_.size();
-  size_t nbSites = initialStateIndices.size();
-  const TransitionModel* model = 0;
-
-  if (outputInternalSequences_) {
-    vector<shared_ptr<SimProcessNode> > nodes = tree_.getAllNodes();
-    size_t nn = nbNodes_ + 1 ;
-    for (size_t i = 0; i < nn; i++)
+    for (auto edge : vEdge)
     {
-      vector<int> content(nbSites);
-      vector<size_t>& states = nodes[i]->states;
+      auto son = tree_.getSon(edge);
 
-      size_t i2 = (i==nn-1)?i-1:i; // at the root, there is no model, so we take the model of node n-1.
-      model = dynamic_cast<const TransitionModel*>(nodes[i2]->process_->getModel(nodes[i2]->getId(), rateClasses[0]));
-
-      for (size_t j = 0; j < nbSites; j++)
+      if (edge->getModel())
       {
-        content[j] = model->getAlphabetStateAsInt(states[j]);
+        if (ssr) // Detailed simulation
+        {
+          auto tm = dynamic_cast<const SubstitutionModel*>(edge->getModel());
+
+          if (!tm)
+            throw Exception("SimpleSubstitutionProcessSequenceSimulator::EvolveInternal : detailed simulation not possible for non-markovian model on edge " + TextTools::toString(son->getSpeciesIndex()) + " for model " + edge->getModel()->getName());
+
+          SimpleMutationProcess process(tm);
+
+          double brlen = process_->getRateDistribution()->getCategory(rateClass) * phyloTree_->getEdge(edge->getSpeciesIndex())->getLength();
+
+          MutationPath mp = process.detailedEvolve(node->state_, brlen);
+  
+          son->state_ = mp.getFinalState();
+
+          // Now append infos in ssr:
+          ssr->addNode(edge->getSpeciesIndex(), mp);
+          
+          speciesNodes_[son->getSpeciesIndex()] = son;
+        }
+        else
+        {
+          Vdouble* cumy = &edge->cumpxy_[rateClass][node->state_];
+          
+          double rand = RandomTools::giveRandomNumberBetweenZeroAndEntry(1.);
+          for (size_t y = 0; y < nbStates_; y++)
+          {
+            if (rand < (*cumy)[y])
+            {
+              son->state_ = y;
+              speciesNodes_[son->getSpeciesIndex()] = son;
+              break;
+            }
+          }
+        }
       }
-      if (nodes[i]->isLeaf())
-        sites->addSequence(BasicSequence(nodes[i]->getName(), content, alphabet_), false);
       else
-        sites->addSequence(BasicSequence(TextTools::toString(nodes[i]->getId()), content, alphabet_), false);
+      {
+        son->state_ = node->state_;
+        speciesNodes_[son->getSpeciesIndex()] = son;
+      }
+      
+      evolveInternal(son, rateClass, ssr);
     }
   }
   else
-  {
-    for (size_t i = 0; i < n; i++)
+    if (node->isMixture())
     {
-      vector<int> content(nbSites);
-      vector<size_t>& states = leaves_[i]->states;
-      model = dynamic_cast<const TransitionModel*>(leaves_[i]->process_->getModel(leaves_[i]->getId(), rateClasses[0]));
+      const auto& cumProb = node->cumProb_;
       
-      for (size_t j = 0; j < nbSites; j++)
+      double rand = RandomTools::giveRandomNumberBetweenZeroAndEntry(1.);
+
+      for (size_t y = 0; y < cumProb.size(); y++)
       {
-        content[j] = model->getAlphabetStateAsInt(states[j]);
+        if (rand < cumProb[y])
+        {
+          auto son = node->sons_[y];
+          son->state_ = node->state_;
+          speciesNodes_[son->getSpeciesIndex()] = son;
+          evolveInternal(son, rateClass, ssr);
+          break;
+        }
       }
-      sites->addSequence(BasicSequence(leaves_[i]->getName(), content, alphabet_), false);
+    }
+    else
+      throw Exception("SimpleSubstitutionProcessSequenceSimulator::evolveInternal : unknown property for node " + tree_.getNodeIndex(node));
+}
+
+/******************************************************************************/
+
+void SimpleSubstitutionProcessSequenceSimulator::evolveInternal(std::shared_ptr<SimProcessNode> node, double rate, New_SiteSimulationResult * ssr) const
+{
+  if (node->isSpeciation())
+  {
+    auto vEdge = tree_.getOutgoingEdges(node);
+
+    for (auto edge : vEdge)
+    {
+      auto son = tree_.getSon(edge);
+
+      if (edge->getModel())
+      {
+        auto tm = dynamic_cast<const TransitionModel*>(edge->getModel());
+        
+        double brlen = rate * phyloTree_->getEdge(edge->getSpeciesIndex())->getLength(); 
+        if (ssr) // Detailed simulation
+        {
+          auto sm = dynamic_cast<const SubstitutionModel*>(edge->getModel());
+
+          if (!sm)
+            throw Exception("SimpleSubstitutionProcessSequenceSimulator::EvolveInternal : detailed simulation not possible for non-markovian model on edge " + TextTools::toString(son->getSpeciesIndex()) + " for model " + tm->getName());
+
+          SimpleMutationProcess process(sm);
+
+          MutationPath mp = process.detailedEvolve(node->state_, brlen);
+  
+          son->state_ = mp.getFinalState();
+
+          // Now append infos in ssr:
+          ssr->addNode(edge->getSpeciesIndex(), mp);
+          
+          speciesNodes_[son->getSpeciesIndex()] = son;
+        }
+        else
+        {
+          // process transition probabilities already consider rates &
+          // branch length
+
+          const Matrix<double>* P;
+          
+          const auto& vSub(edge->subModelNumbers());
+          
+          if (vSub.size()==0)
+            P = &tm->getPij_t(brlen);
+          else
+          {
+            if (vSub.size()>1)
+              throw Exception("SubstitutionProcessSequenceSimulator::init : only 1 submodel can be used.");
+            
+            const auto* mmodel = dynamic_cast<const MixedTransitionModel*>(tm);
+            const auto* model = mmodel->getNModel(vSub[0]);
+            
+            P = &model->getPij_t(brlen);
+          }
+
+          double rand = RandomTools::giveRandomNumberBetweenZeroAndEntry(1.);
+          for (size_t y = 0; y < nbStates_; y++)
+          {
+            rand -= (*P)(node->state_,y);
+            if (rand <= 0)
+            {
+              son->state_ = y;
+              speciesNodes_[son->getSpeciesIndex()] = son;
+              break;
+            }
+          }
+        }
+      }
+      else
+      {
+        son->state_ = node->state_;
+        speciesNodes_[son->getSpeciesIndex()] = son;
+      }
+      
+      evolveInternal(son, rate, ssr);
     }
   }
-  
-  return sites;
+  else
+    if (node->isMixture())
+    {
+      const auto& cumProb = node->cumProb_;
+      
+      double rand2 = RandomTools::giveRandomNumberBetweenZeroAndEntry(1.);
+
+      for (size_t y = 0; y < cumProb.size(); y++)
+      {
+        if (rand2 < cumProb[y])
+        {
+          auto son = node->sons_[y];
+          son->state_ = node->state_;
+          speciesNodes_[son->getSpeciesIndex()] = son;
+          evolveInternal(son, rate, ssr);
+          break;
+        }
+      }
+    }
+    else
+      throw Exception("SimpleSubstitutionProcessSequenceSimulator::evolveInternal : unknown property for node " + tree_.getNodeIndex(node));
 }
 
-/******************************************************************************/
 
-void SimpleSubstitutionProcessSequenceSimulator::dEvolve(size_t initialState, size_t rateClass, double rate, New_SiteSimulationResult& ssr) const
+void SimpleSubstitutionProcessSequenceSimulator::outputInternalSequences(bool yn)
 {
-  // Launch recursion:
-  shared_ptr<SimProcessNode> root = tree_.getRoot();
-  root->state = initialState;
-  for (size_t i = 0; i < root->getNumberOfSons(); i++)
-  {
-    dEvolveInternal(root->getSon(i), rateClass, rate, ssr);
-  }
-}
-
-
-/******************************************************************************/
-
-void SimpleSubstitutionProcessSequenceSimulator::dEvolve(size_t initialState, size_t rateClass, New_SiteSimulationResult& ssr) const
-{
-  // Launch recursion:
-  shared_ptr<SimProcessNode> root = tree_.getRoot();
-  root->state = initialState;
-  for (size_t i = 0; i < root->getNumberOfSons(); i++)
-  {
-    dEvolveInternal(root->getSon(i), rateClass, ssr);
-  }
-}
-
-/******************************************************************************/
-
-void SimpleSubstitutionProcessSequenceSimulator::dEvolveInternal(SimProcessNode* node, size_t rateClass, double rate, New_SiteSimulationResult& ssr) const
-{
-  if (!node->hasFather())
-  {
-    cerr << "DEBUG: SimpleSubstitutionProcessSequenceSimulator::evolveInternal. Forbidden call of method on root node." << endl;
-    return;
-  }
-  
-  auto tm=node->process_->getModel(node->getId(), rateClass);
-  
-  if (dynamic_cast<const SubstitutionModel*>(tm)==0)
-    throw Exception("SimpleSubstitutionProcessSequenceSimulator::dEvolveInternal : detailed simulation not possible for non-markovian model");
-
-  SimpleMutationProcess process(dynamic_cast<const SubstitutionModel*>(tm));
-
-  MutationPath mp = process.detailedEvolve(node->getFather()->state, node->getDistanceToFather() * rate);
-  node->state = mp.getFinalState();
-
-  // Now append infos in ssr:
-  ssr.addNode(node->getId(), mp);
-
-  // Now jump to son nodes:
-  for (size_t i = 0; i < node->getNumberOfSons(); i++)
-  {
-    dEvolveInternal(node->getSon(i), rateClass, rate, ssr);
-  }
-}
-
-/******************************************************************************/
-
-void SimpleSubstitutionProcessSequenceSimulator::dEvolveInternal(SimProcessNode* node, size_t rateClass, New_SiteSimulationResult& ssr) const
-{
-  if (!node->hasFather())
-  {
-    cerr << "DEBUG: SimpleSubstitutionProcessSequenceSimulator::evolveInternal. Forbidden call of method on root node." << endl;
-    return;
-  }
-  
-  auto tm=node->process_->getModel(node->getId(), rateClass);
-  
-  if (dynamic_cast<const SubstitutionModel*>(tm)==0)
-    throw Exception("SimpleSubstitutionProcessSequenceSimulator::dEvolveInternal : detailed simulation not possible for non-markovian model");
-
-  SimpleMutationProcess process(dynamic_cast<const SubstitutionModel*>(tm));
-
-  MutationPath mp = process.detailedEvolve(node->getFather()->state, node->getDistanceToFather());
-  
-  node->state = mp.getFinalState();
-
-  // Now append infos in ssr:
-  ssr.addNode(node->getId(), mp);
-
-  // Now jump to son nodes:
-  for (size_t i = 0; i < node->getNumberOfSons(); i++)
-  {
-    dEvolveInternal(node->getSon(i), rateClass, ssr);
-  }
-}
-
-
-void SimpleSubstitutionProcessSequenceSimulator::outputInternalSequences(bool yn) {
   outputInternalSequences_ = yn;
+  
   if (outputInternalSequences_) {
-    vector<shared_ptr<SimProcessNode> > nodes = tree_.getAllNodes();
-    seqNames_.resize(nodes.size());
+    auto vCN= phyloTree_->getAllNodes();
+    seqNames_.resize(vCN.size());    
+    seqIndexes_.resize(vCN.size());    
     for (size_t i = 0; i < seqNames_.size(); i++)
     {
-      if (nodes[i]->isLeaf()) {
-        seqNames_[i] = nodes[i]->getName();
-      }
-      else {
-        seqNames_[i] = TextTools::toString( nodes[i]->getId() );
-      }
+      auto index = phyloTree_->getNodeIndex(vCN[i]);
+      seqNames_[i] = (phyloTree_->isLeaf(vCN[i]))?vCN[i]->getName():TextTools::toString(index);
+      seqIndexes_[i] = index; 
     }
   }
   else {
-    seqNames_.resize(leaves_.size());
+    auto vCN= phyloTree_->getAllLeaves();
+    seqNames_.resize(vCN.size());    
+    seqIndexes_.resize(vCN.size());    
     for (size_t i = 0; i < seqNames_.size(); i++)
     {
-      seqNames_[i] = leaves_[i]->getName();
+      seqNames_[i] = vCN[i]->getName();
+      seqIndexes_[i] = phyloTree_->getNodeIndex(vCN[i]);
     }
   }
 }
@@ -689,9 +614,9 @@ SubstitutionProcessSequenceSimulator::SubstitutionProcessSequenceSimulator(const
   vector<size_t> nProc=evol.getSubstitutionProcessNumbers();
   
   vector<shared_ptr<PhyloNode> > vpn= evol.getSubstitutionProcess(nProc[0]).getParametrizablePhyloTree().getAllLeaves();
+  
   for (size_t i=0;i<vpn.size();i++)
     seqNames_.push_back(vpn[i]->getName());
-
 
   for (size_t i=0; i< nProc.size(); i++)
   {
@@ -834,8 +759,6 @@ void SubstitutionProcessSequenceSimulator::setMap(std::vector<size_t> vMap)
 
 SiteContainer* SubstitutionProcessSequenceSimulator::simulate(size_t numberOfSites) const
 {
-  resetSiteSimulators(numberOfSites);
-  
   VectorSiteContainer* sites = new VectorSiteContainer(seqNames_.size(), getAlphabet());
   sites->setSequencesNames(seqNames_);
 
@@ -843,14 +766,14 @@ SiteContainer* SubstitutionProcessSequenceSimulator::simulate(size_t numberOfSit
   
   for (size_t j = 0; j < numberOfSites; j++)
   {
-    
+  
     Site* site=mProcess_.find(vMap_[j])->second->simulateSite();
 
     const vector<size_t>& vPosNames=mvPosNames_.find(vMap_[j])->second;
     for (size_t vn=0;vn<vPosNames.size(); vn++)
       vval[vn]=site->getValue(vPosNames[vn]);
 
-    
+  
     sites->addSite(*new Site(vval,sites->getAlphabet(),static_cast<int>(j)));
     delete site;
   }
@@ -860,10 +783,9 @@ SiteContainer* SubstitutionProcessSequenceSimulator::simulate(size_t numberOfSit
 SiteContainer* SubstitutionProcessSequenceSimulator::simulate(const vector<double>& rates) const
 {
   size_t numberOfSites=rates.size();
-  resetSiteSimulators(numberOfSites);
   
   if (numberOfSites>vMap_.size())
-    throw Exception("SubstitutionProcessSequenceSimulator::simulate some sites do not have attributed process");
+    throw Exception("SubstitutionProcessSequenceSimulator::simulate : some sites do not have attributed process");
 
   VectorSiteContainer* sites = new VectorSiteContainer(seqNames_.size(), getAlphabet());
   sites->setSequencesNames(seqNames_);
@@ -887,7 +809,6 @@ SiteContainer* SubstitutionProcessSequenceSimulator::simulate(const vector<doubl
 SiteContainer* SubstitutionProcessSequenceSimulator::simulate(const vector<size_t>& states) const
 {
   size_t numberOfSites=states.size();
-  resetSiteSimulators(numberOfSites);
 
   VectorSiteContainer* sites = new VectorSiteContainer(seqNames_.size(), getAlphabet());
   sites->setSequencesNames(seqNames_);
@@ -913,8 +834,6 @@ SiteContainer* SubstitutionProcessSequenceSimulator::simulate(const vector<doubl
   size_t numberOfSites = rates.size();
   if (states.size() != numberOfSites)
     throw Exception("SubstitutionProcessSequenceSimulator::simulate, 'rates' and 'states' must have the same length.");
-
-  resetSiteSimulators(numberOfSites);
 
   VectorSiteContainer* sites = new VectorSiteContainer(seqNames_.size(), getAlphabet());
   sites->setSequencesNames(seqNames_);

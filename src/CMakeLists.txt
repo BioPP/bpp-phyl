@@ -224,7 +224,6 @@ set (CPP_FILES
   Bpp/Phyl/PatternTools.cpp
   Bpp/Phyl/PhyloStatistics.cpp
   Bpp/Phyl/Simulation/MutationProcess.cpp
-  Bpp/Phyl/Simulation/NonHomogeneousSequenceSimulator.cpp
   Bpp/Phyl/Simulation/SubstitutionProcessSequenceSimulator.cpp
   Bpp/Phyl/Simulation/EvolutionSequenceSimulator.cpp
   Bpp/Phyl/Simulation/SequenceSimulationTools.cpp
