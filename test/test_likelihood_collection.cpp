@@ -183,7 +183,9 @@ int main() {
 
   MixtureSequenceEvolution mse(modelColl, vp);
 
-  MixtureProcessPhyloLikelihood mlc(context, *sites.clone(), mse);
+  CollectionNodes collNodes(context, *modelColl);
+  
+  MixtureProcessPhyloLikelihood mlc(*sites.clone(), mse, collNodes);
 
   using bpp::DotOptions;
   bpp::writeGraphToDot("mlc.dot", {mlc.getLikelihoodNode().get()});//, DotOptions::DetailedNodeInfo | DotOp
