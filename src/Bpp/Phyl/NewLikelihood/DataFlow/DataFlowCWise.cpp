@@ -64,6 +64,9 @@ namespace bpp {
   template class CWisePattern<Eigen::RowVectorXd>;
   template class CWisePattern<Eigen::MatrixXd>;
 
+  template class CWiseMatching<Eigen::RowVectorXd, ReductionOf<Eigen::RowVectorXd>>;
+  template class CWiseMatching<Eigen::MatrixXd, ReductionOf<Eigen::MatrixXd>>;
+
   template class CWiseAdd<double, std::tuple<double, double>>;
   template class CWiseAdd<Eigen::VectorXd, std::tuple<Eigen::VectorXd, Eigen::VectorXd>>;
   template class CWiseAdd<Eigen::RowVectorXd, std::tuple<Eigen::RowVectorXd, Eigen::RowVectorXd>>;

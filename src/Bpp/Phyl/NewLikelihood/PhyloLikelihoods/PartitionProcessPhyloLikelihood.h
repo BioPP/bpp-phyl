@@ -67,7 +67,7 @@ namespace bpp
       
   class PartitionProcessPhyloLikelihood :
     public SequencePhyloLikelihood,
-    public ProductOfAlignedPhyloLikelihood
+    public SetOfAbstractPhyloLikelihood
     {
     private:
       /**
@@ -84,7 +84,20 @@ namespace bpp
        */
 
       std::vector<ProcPos> vProcPos_;
+
+      /**
+       * map nbe of phylolikelihood : created AlignedValuesContainer
+       *
+       */
+
+      std::map<size_t, std::shared_ptr<AlignedValuesContainer>> mData_;
       
+      /**
+       * AlignedLikelihoodCalculation to store DF nodes
+       */
+
+      mutable std::shared_ptr<AlignedLikelihoodCalculation> likCal_;
+
     public:
       PartitionProcessPhyloLikelihood(
         Context& context,
@@ -102,13 +115,24 @@ namespace bpp
         bool verbose = true,
         bool patterns = true);
 
+      PartitionProcessPhyloLikelihood(
+        const AlignedValuesContainer& data,
+        PartitionSequenceEvolution& processSeqEvol,
+        CollectionNodes& collNodes,
+        size_t nSeqEvol = 0,
+        size_t nData = 0,
+        bool verbose = true,
+        bool patterns = true);
+
       PartitionProcessPhyloLikelihood(const PartitionProcessPhyloLikelihood& lik) :
         AbstractPhyloLikelihood(lik),
         AbstractAlignedPhyloLikelihood(lik),
         SequencePhyloLikelihood(lik),
-        ProductOfAlignedPhyloLikelihood(lik),
+        SetOfAbstractPhyloLikelihood(lik),
         mSeqEvol_(lik.mSeqEvol_),
-        vProcPos_(lik.vProcPos_)
+        vProcPos_(lik.vProcPos_),
+        mData_(lik.mData_),
+        likCal_(lik.likCal_)
       {
       }
       
@@ -127,14 +151,6 @@ namespace bpp
        */
   
       void setData(const AlignedValuesContainer& data, size_t nData = 0);
-
-      /**
-       * @brief add aligned phylolikelihood.
-       *  This is done without any check on length constraint.
-       *
-       */
-      
-      bool addPhyloLikelihood(size_t nPhyl);
 
       /*
        * @brief Get PhyloLikelihood Number for a given site.
@@ -162,40 +178,25 @@ namespace bpp
       {
         return vProcPos_;
       }
-      
+
+      std::shared_ptr<LikelihoodCalculation> getLikelihoodCalculation() const
+      {
+        return likCal_;
+      }
+
+      std::shared_ptr<AlignedLikelihoodCalculation> getAlignedLikelihoodCalculation() const
+      {
+        return likCal_;
+      }
+
       size_t getNumberOfSites() const
       {
-        return ProductOfAlignedPhyloLikelihood::getNumberOfSites();
+        return mSeqEvol_.getNumberOfSites();
       }
 
-      Vdouble getLikelihoodPerSite() const
-      {
-        return AbstractAlignedPhyloLikelihood::getLikelihoodPerSite();
-      }
-      
-      /**
-       *
-       * @}
-       */
-      
-      /**
-       * @name The likelihood functions.
-       *
-       * @{
-       */
+    private:
 
-      double getLikelihoodForASite(size_t site) const;
-
-      double getLogLikelihoodForASite(size_t site) const;
-
-      // double getDLogLikelihoodForASite(const std::string& variable, size_t site) const;
-  
-      // double getD2LogLikelihoodForASite(const std::string& variable, size_t site) const;
-  
-      /**
-       *
-       * @}
-       */
+      void makeLikCal_();
       
     };
 } // end of namespace bpp.

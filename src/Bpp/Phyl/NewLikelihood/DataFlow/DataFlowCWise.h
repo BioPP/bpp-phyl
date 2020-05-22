@@ -104,7 +104,10 @@ namespace bpp {
   template <typename T> class ShiftDelta;
   template <typename T> class CombineDeltaShifted;
 
-  /** @brief build a Value to a Matrix or rowVector filled with
+  template <typename Result, typename From> class CWiseMatching;
+
+  /*************************************************************************
+   * @brief build a Value to a Matrix or rowVector filled with
    * values of references.  
    *
    * Node construction should be done with the create static method.
@@ -189,7 +192,9 @@ namespace bpp {
 
   };
 
-  /** @brief r = f(x0) for each component or column
+  
+  /*************************************************************************
+   * @brief r = f(x0) for each component or column
    * - r: R.
    * - x0: R
    * - f : function between columns or components of R (type F)
@@ -294,7 +299,9 @@ namespace bpp {
 
   };
 
-  /** @brief build a Value to a Eigen T which columns are accessible
+  
+  /*************************************************************************
+   * @brief build a Value to a Eigen T which columns are accessible
    * through a pattern.
    *
    * Node construction should be done with the create static method.
@@ -372,8 +379,110 @@ namespace bpp {
     Dimension<R> targetDimension_;
 
   };
+
+
+  
+  /*************************************************************************
+   * @brief build a Value to a Eigen T which columns and rows are
+   * accessible through a vector of Ts and a matching position.
+   *
+   * Node construction should be done with the create static method.
+   */
+
+
+  /*
+   * Matrix of matching positions : site X (index of T in the vector of Ts, position for corresponding T)
+   *
+   */
+  
+  typedef Eigen::Matrix<size_t,-1,2> MatchingType;
+
+  template <typename R, typename T> class CWiseMatching<R, ReductionOf<T>> : public Value<R> {
+
+    class matching_functor
+    {
+      const std::vector<const T*>& m_arg_;
+      const MatchingType& matching_;
+    public:
+      matching_functor(const std::vector<const T*>& arg, const MatchingType& matching) :
+        m_arg_(arg), matching_(matching) {}
+      
+      const typename R::Scalar& operator()(Eigen::Index row, Eigen::Index col) const
+      {
+        return (*m_arg_[matching_(col,0)])(row, matching_(col,1));
+      }
+
+    };
+            
+  public:
+    using Self = CWiseMatching;
+
+    /// Build a new CWiseFill node.
+    static ValueRef<R> create (Context & c, NodeRefVec && deps, const Dimension<R> & dim) {
+      // Check dependencies
+      checkDependenciesNotNull (typeid (Self), deps);
+      checkDependencyRangeIsValue<T> (typeid (Self), deps, 0, deps.size () -1);
+      checkNthDependencyIsValue<MatchingType> (typeid(Self), deps, deps.size()-1);
+      
+      // Remove 0s from deps
+
+      return cachedAs<Value<R>> (c, std::make_shared<Self> (std::move (deps), dim));
+    }
+
+    CWiseMatching (NodeRefVec && deps, const Dimension<R> & dim)
+      : Value<R> (std::move(deps)), targetDimension_ (dim)
+    {
+    }
+
+    std::string debugInfo () const override {
+      using namespace numeric;
+      return debug (this->accessValueConst ()) + " targetDim=" + to_string (targetDimension_);
+    }
+
+    // CWisePattern additional arguments = ().
+    bool compareAdditionalArguments (const Node_DF & other) const final {
+      return dynamic_cast<const Self *> (&other) != nullptr;
+    }
+
+    NodeRef derive (Context & c, const Node_DF & node) final {
+      if (&node == this) {
+        return ConstantOne<R>::create (c, targetDimension_);
+      }
+      const auto n = this->nbDependencies ();
+      NodeRefVec derivedDeps (n);
+      for (std::size_t i = 0; i < n-1; ++i) {
+        derivedDeps[i] = this->dependency (i)->derive (c, node);
+      }
+      derivedDeps[n-1] = this->dependency(n-1);
+      
+      return Self::create (c, std::move (derivedDeps), targetDimension_);
+    }
+
+    NodeRef recreate (Context & c, NodeRefVec && deps) final {
+      return Self::create (c, std::move (deps), targetDimension_);
+    }
+
+  private:
+    void compute() {
+      const auto n = this->nbDependencies ();
+      std::vector<const T*> vR(n-1);
+      for (std::size_t i = 0; i < n-1; ++i) {
+        vR[i] = &accessValueConstCast<T> (*this->dependency(i));
+      }
+      
+      const auto& matching=accessValueConstCast<MatchingType>(*this->dependency(n-1));
+      
+      this->accessValueMutable()=R::NullaryExpr(targetDimension_.rows, targetDimension_.cols, matching_functor(vR, matching));
+    };
+      
+    Dimension<R> targetDimension_;
+
+  };
     
-  /** @brief r = x0 + x1 for each component.
+
+
+  /*************************************************************************
+   * @brief r = x0 + x1 for each component.
    * - r: R.
    * - x0: T0.
    * - x1: T1.
@@ -481,7 +590,9 @@ namespace bpp {
     Dimension<R> targetDimension_;
   };
 
-  /** @brief r = x0 - x1 for each component.
+  
+  /*************************************************************************
+   * @brief r = x0 - x1 for each component.
    * - r: R.
    * - x0: T0.
    * - x1: T1.
@@ -559,7 +670,10 @@ namespace bpp {
     Dimension<R> targetDimension_;
   };
 
-  /** @brief r = sum (x_i), for each component.
+
+
+  /*************************************************************************
+   * @brief r = sum (x_i), for each component.
    * - r: R.
    * - x_i: T.
    *
@@ -658,7 +772,10 @@ namespace bpp {
     Dimension<R> targetDimension_;
   };
 
-  /** @brief r = sum (p_i * x_i), for each component.
+
+
+  /*************************************************************************
+   * @brief r = sum (p_i * x_i), for each component.
    * - r: R.
    * - x_i: T.
    * - p_i: P
@@ -879,7 +996,10 @@ namespace bpp {
     Dimension<R> targetDimension_;
   };
 
-  /** @brief r = x0 * x1 for each component.
+
+
+  /*************************************************************************
+   * @brief r = x0 * x1 for each component.
    * - r: R.
    * - x0: T0.
    * - x1: T1.
@@ -1015,7 +1135,10 @@ namespace bpp {
     Dimension<R> targetDimension_;
   };
 
-  /** @brief r = prod (x_i), for each component.
+
+  
+  /*************************************************************************
+   * @brief r = prod (x_i), for each component.
    * - r: R.
    * - x_i: T.
    *
@@ -1098,11 +1221,15 @@ namespace bpp {
     Dimension<R> targetDimension_;
   };
 
-  /** @brief r = -x, for each component.
+
+
+  /*************************************************************************
+   * @brief r = -x, for each component.
    * - r, x: T.
    *
    * Node construction should be done with the create static method.
    */
+  
   template <typename T> class CWiseNegate : public Value<T> {
   public:
     using Self = CWiseNegate;
@@ -1156,11 +1283,15 @@ namespace bpp {
     Dimension<T> targetDimension_;
   };
 
-  /** @brief r = 1/x for each component.
+
+
+  /*************************************************************************
+   * @brief r = 1/x for each component.
    * - r, x: T.
    *
    * Node construction should be done with the create static method.
    */
+  
   template <typename T> class CWiseInverse : public Value<T> {
   public:
     using Self = CWiseInverse;
@@ -1218,7 +1349,9 @@ namespace bpp {
     Dimension<T> targetDimension_;
   };
 
-  /** @brief r = log(x) for each component.
+
+  /*************************************************************************
+   * @brief r = log(x) for each component.
    * - r, x: T.
    *
    * Node construction should be done with the create static method.
@@ -1280,7 +1413,10 @@ namespace bpp {
     Dimension<T> targetDimension_;
   };
 
-  /** @brief r = exp(x) for each component.
+
+
+  /*************************************************************************
+   * @brief r = exp(x) for each component.
    * - r, x: T.
    *
    * Node construction should be done with the create static method.
@@ -1343,12 +1479,14 @@ namespace bpp {
   };
 
 
-  /** @brief r = factor * pow (x, exponent) for each component.
+  /*************************************************************************
+   * @brief r = factor * pow (x, exponent) for each component.
    * - r, x: T.
    * - exponent, factor: double (constant parameter of the node).
    *
    * Node construction should be done with the create static method.
    */
+  
   template <typename T> class CWiseConstantPow : public Value<T> {
   public:
     using Self = CWiseConstantPow;
@@ -1429,7 +1567,8 @@ namespace bpp {
   };
 
     
-  /** @brief r = x0 * x1 (dot product).
+  /*************************************************************************
+   * @brief r = x0 * x1 (dot product).
    * - r: double.
    * - x0: T0 (vector-like).
    * - x1: T1 (vector-like).
@@ -1493,7 +1632,9 @@ namespace bpp {
     }
   };
 
-  /** @brief r = sum_{v in m} log (v).
+
+  /*************************************************************************
+   * @brief r = sum_{v in m} log (v).
    * - r: double.
    * - m: F (matrix-like type).
    *
@@ -1604,7 +1745,8 @@ namespace bpp {
   };
 
 
-  /** @brief r = log(sum_i p_i * exp (v_i))
+  /*************************************************************************
+   * @brief r = log(sum_i p_i * exp (v_i))
    * - r: double.
    * - v: T0 (vector like type).
    * - p: T1 (vector like type).
@@ -1681,7 +1823,10 @@ namespace bpp {
     Dimension<T0> mTargetDimension_;
   };
 
-  /** @brief r = x0 * x1 (matrix product).
+
+
+  /*************************************************************************
+   * @brief r = x0 * x1 (matrix product).
    * - r: R (matrix).
    * - x0: T0 (matrix), allows NumericalDependencyTransform.
    * - x1: T1 (matrix), allows NumericalDependencyTransform.
@@ -1781,7 +1926,9 @@ namespace bpp {
     Dimension<R> targetDimension_;
   };
 
-  /** @brief r = n * delta + x.
+
+  /*************************************************************************
+   * @brief r = n * delta + x.
    * - r: T.
    * - delta: double.
    * - x: T.
@@ -1869,7 +2016,8 @@ namespace bpp {
   };
 
     
-  /** @brief r = (1/delta)^n * sum_i coeffs_i * x_i.
+  /*************************************************************************
+   * @brief r = (1/delta)^n * sum_i coeffs_i * x_i.
    * - r: T.
    * - delta: double.
    * - x_i: T.
@@ -2091,6 +2239,9 @@ namespace bpp {
 
   extern template class CWisePattern<Eigen::RowVectorXd>;
   extern template class CWisePattern<Eigen::MatrixXd>;
+  
+  extern template class CWiseMatching<Eigen::RowVectorXd, ReductionOf<Eigen::RowVectorXd>>;
+  extern template class CWiseMatching<Eigen::MatrixXd, ReductionOf<Eigen::MatrixXd>>;
   
   extern template class CWiseAdd<double, std::tuple<double, double>>;
   extern template class CWiseAdd<Eigen::VectorXd, std::tuple<Eigen::VectorXd, Eigen::VectorXd>>;
