@@ -58,6 +58,12 @@ namespace bpp
     class ProductOfAlignedPhyloLikelihood:
     public SetOfAlignedPhyloLikelihood
     {
+      /**
+       * Aligned LikelihoodCalculation to store DF nodes
+       */
+
+      mutable std::shared_ptr<AlignedLikelihoodCalculation> likCal_;
+
     public:
       ProductOfAlignedPhyloLikelihood(Context& context, PhyloLikelihoodContainer* pC, bool inCollection = true);
 
@@ -70,70 +76,26 @@ namespace bpp
         return new ProductOfAlignedPhyloLikelihood(*this);
       }
 
-      ProductOfAlignedPhyloLikelihood(const ProductOfAlignedPhyloLikelihood& sd);
+      ProductOfAlignedPhyloLikelihood(const ProductOfAlignedPhyloLikelihood& sd):
+        AbstractPhyloLikelihood(sd),
+        AbstractAlignedPhyloLikelihood(sd),
+        SetOfAlignedPhyloLikelihood(sd),
+        likCal_(sd.likCal_)
+      {
+      }
         
     public:
 
-      /**
-       *
-       * @name Inherited from PhyloLikelihood
-       *
-       * @{
-       */
-      
-      /**
-       * @name The site likelihood functions.
-       *
-       */
-
-      double getLogLikelihood() const;
-
-      // double getDLogLikelihood(const std::string& variable) const;
-
-      // double getD2LogLikelihood(const std::string& variable) const;
-      
-
-       /**
-       * @brief Get the logarithm of the likelihood for any site.
-       *
-       * @return The logarithm of the likelihood of the data at this site.
-       */
-
-      virtual double getLikelihoodForASite(size_t site) const
+      std::shared_ptr<LikelihoodCalculation> getLikelihoodCalculation () const
       {
-        double x=1;
-
-        const std::vector<size_t>& nPhylo=getNumbersOfPhyloLikelihoods();
-        
-        for (size_t i=0; i<nPhylo.size(); i++)
-          x *= getPhyloLikelihood(nPhylo[i])->getLikelihoodForASite(site);
-        
-        return x;
+        return likCal_;
       }
 
-      virtual double getLogLikelihoodForASite(size_t site) const
+      std::shared_ptr<AlignedLikelihoodCalculation> getAlignedLikelihoodCalculation () const
       {
-        double x=0;
-
-        const std::vector<size_t>& nPhylo=getNumbersOfPhyloLikelihoods();
-        
-        for (size_t i=0; i<nPhylo.size(); i++)
-          x += getPhyloLikelihood(nPhylo[i])->getLogLikelihoodForASite(site);
-        
-        return x;
+        return likCal_;
       }
-
-      /**
-       * @brief Get the derivates of the LogLikelihood at a Site
-       *
-       */
-
-      // double getDLogLikelihoodForASite(const std::string& variable, size_t site) const;
-      
-      // double getD2LogLikelihoodForASite(const std::string& variable, size_t site) const;
-      
-      /** @} */
-
+   
     };
 
 } //end of namespace bpp.

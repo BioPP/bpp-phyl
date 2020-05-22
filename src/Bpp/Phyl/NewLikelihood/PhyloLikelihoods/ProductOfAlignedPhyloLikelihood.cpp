@@ -47,104 +47,41 @@ ProductOfAlignedPhyloLikelihood::ProductOfAlignedPhyloLikelihood(Context& contex
   AbstractAlignedPhyloLikelihood(context, 0),
   SetOfAlignedPhyloLikelihood(context, pC, inCollection)
 {
+  auto nPhylo = pC->getNumbersOfPhyloLikelihoods();
+  
+  // get RowVectorXd for each single Calculation
+  std::vector<std::shared_ptr<Node_DF>> vSL;
+  
+  for (auto np:nPhylo)
+    vSL.push_back(getPhyloLikelihood(np)->getAlignedLikelihoodCalculation()->getSiteLikelihoods(false));
+
+  auto sL = CWiseMul<Eigen::RowVectorXd, ReductionOf<Eigen::RowVectorXd>>::create(getContext(), std::move(vSL), rowVectorDimension (Eigen::Index(nbSites_)));
+
+  likCal_->setSiteLikelihoods(sL);
+
+  auto su = SumOfLogarithms<Eigen::RowVectorXd>::create (getContext(), {sL}, rowVectorDimension (Eigen::Index (nbSites_)));
+
+  likCal_->setLikelihoodNode(su);  
 }
 
 ProductOfAlignedPhyloLikelihood::ProductOfAlignedPhyloLikelihood(Context& context, PhyloLikelihoodContainer* pC, const std::vector<size_t>& nPhylo, bool inCollection) :
   AbstractPhyloLikelihood(context),
   AbstractAlignedPhyloLikelihood(context, 0),
-  SetOfAlignedPhyloLikelihood(context, pC, nPhylo, inCollection)
+  SetOfAlignedPhyloLikelihood(context, pC, nPhylo, inCollection),
+  likCal_(new AlignedLikelihoodCalculation(context))
 {
+  // get RowVectorXd for each single Calculation
+  std::vector<std::shared_ptr<Node_DF>> vSL;
+  
+  for (auto np:nPhylo)
+    vSL.push_back(getPhyloLikelihood(np)->getAlignedLikelihoodCalculation()->getSiteLikelihoods(false));
+
+  auto sL = CWiseMul<Eigen::RowVectorXd, ReductionOf<Eigen::RowVectorXd>>::create(getContext(), std::move(vSL), rowVectorDimension (Eigen::Index(nbSites_)));
+
+  likCal_->setSiteLikelihoods(sL);
+
+  auto su = SumOfLogarithms<Eigen::RowVectorXd>::create (getContext(), {sL}, rowVectorDimension (Eigen::Index (nbSites_)));
+
+  likCal_->setLikelihoodNode(su);
 }
 
-ProductOfAlignedPhyloLikelihood::ProductOfAlignedPhyloLikelihood(const ProductOfAlignedPhyloLikelihood& sd) :
-  AbstractPhyloLikelihood(sd),
-  AbstractAlignedPhyloLikelihood(sd),
-  SetOfAlignedPhyloLikelihood(sd)
-{
-}
-
-// double ProductOfAlignedPhyloLikelihood::getDLogLikelihoodForASite(const std::string& variable, size_t site) const
-// {
-//   double x=0;
-//   const std::vector<size_t>& nPhylo=getNumbersOfPhyloLikelihoods();
-        
-//   for (size_t i=0; i<nPhylo.size(); i++)
-//     x += getPhyloLikelihood(nPhylo[i])->getDLogLikelihoodForASite(variable, site);
-//   return x;
-// }
-
-
-// double ProductOfAlignedPhyloLikelihood::getD2LogLikelihoodForASite(const std::string& variable, size_t site) const
-// {
-//   double x=0;
-//   const std::vector<size_t>& nPhylo=getNumbersOfPhyloLikelihoods();
-        
-//   for (size_t i=0; i<nPhylo.size(); i++)
-//     x += getPhyloLikelihood(nPhylo[i])->getD2LogLikelihoodForASite(variable, site);
-//   return x;
-// }
-
-
-
-/******************************************************************************/
-
-double ProductOfAlignedPhyloLikelihood::getLogLikelihood() const
-{
-  // updateLikelihood();
-  // computeLikelihood();
-
-  vector<double> la(nbSites_);
-  for (size_t i = 0; i < nbSites_; ++i)
-  {
-    la[i] = getLogLikelihoodForASite(i);
-  }
-
-  sort(la.begin(), la.end());
-  double ll = 0;
-  for (size_t i = nbSites_; i > 0; i--)
-  {
-    ll += la[i - 1];
-  }
-
-  return ll;
-}
-
-/******************************************************************************/
-
-// double ProductOfAlignedPhyloLikelihood::getDLogLikelihood(const std::string& variable) const
-// {
-//   vector<double> la(nbSites_);
-//   for (size_t i = 0; i < nbSites_; ++i)
-//   {
-//     la[i] = getDLogLikelihoodForASite(variable, i);
-//   }
-
-//   sort(la.begin(), la.end());
-//   double ll = 0;
-//   for (size_t i = nbSites_; i > 0; i--)
-//   {
-//     ll += la[i - 1];
-//   }
-
-//   return ll;
-// }
-
-// /******************************************************************************/
-
-// double ProductOfAlignedPhyloLikelihood::getD2LogLikelihood(const std::string& variable) const
-// {
-//   vector<double> la(nbSites_);
-//   for (size_t i = 0; i < nbSites_; ++i)
-//   {
-//     la[i] = getD2LogLikelihoodForASite(variable, i);
-//   }
-
-//   sort(la.begin(), la.end());
-//   double ll = 0;
-//   for (size_t i = nbSites_; i > 0; i--)
-//   {
-//     ll += la[i - 1];
-//   }
-
-//   return ll;
-// }

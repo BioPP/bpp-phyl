@@ -49,7 +49,8 @@ SetOfAbstractPhyloLikelihood::SetOfAbstractPhyloLikelihood(Context& context, Phy
   nPhylo_(),
   vLikCal_()
 {
-  addAllPhyloLikelihoods(!inCollection);
+  for (auto np:getPhyloContainer()->getNumbersOfPhyloLikelihoods())
+    addPhyloLikelihood(np,inCollection?"":"_" + TextTools::toString(np));
 }
 
 SetOfAbstractPhyloLikelihood::SetOfAbstractPhyloLikelihood(Context& context, PhyloLikelihoodContainer* pC, const std::vector<size_t>& nPhylo, bool inCollection, const std::string& prefix) :
@@ -91,36 +92,24 @@ bool SetOfAbstractPhyloLikelihood::addPhyloLikelihood(size_t nPhyl, const std::s
 
         auto name = confP->getName() + suff;
         
-        if (hasParameter(name))
-          throw Exception("SetOfAbstractPhyloLikelihood::addPhyloLikelihood: Parameter already owned : " + name);
-        Parameter par(pl[i]);
-        par.setName(name);
+        if (!hasParameter(name))
+        {
+          Parameter par(pl[i]);
+          par.setName(name);
         
-        auto cfPar = ConfiguredParameter::create(context_, {confP->dependency(0)}, par);
-        shareParameter_(cfPar);
+          auto cfPar = ConfiguredParameter::create(context_, {confP->dependency(0)}, par);
+          shareParameter_(cfPar);
+        } 
       }
     }
     else
-    {
-      const auto& pl = aPL->getParameters();
-
-      for (size_t i=0; i<pl.size(); i++)
-        if (hasParameter(pl[i].getName()))
-          throw Exception("SetOfAbstractPhyloLikelihood::addPhyloLikelihood: Parameter already owned : " + pl[i].getName());
-      
       shareParameters_(aPL->getParameters());
-    }
+
     
     vLikCal_.push_back(aPL->getLikelihoodCalculation());
     return true;
   }
   return false;
-}
-
-void SetOfAbstractPhyloLikelihood::addAllPhyloLikelihoods(bool addSuffix)
-{
-  for (auto np:getPhyloContainer()->getNumbersOfPhyloLikelihoods())
-    addPhyloLikelihood(np, addSuffix?"_" + TextTools::toString(np):"");
 }
 
 ParameterList SetOfAbstractPhyloLikelihood::getBranchLengthParameters() const

@@ -2259,27 +2259,11 @@ PhyloLikelihoodContainer* PhylogeneticsApplicationTools::getPhyloLikelihoodConta
   bool verbose,
   int warn)
 {
-  // get all parameters and link then to ConfiguredParameters
-  // add Independent Parameters
-  ParameterList paramList;
-  
-  const auto& indParamColl=SPC.getIndependentParameters();
-  for (size_t i=0;i<indParamColl.size();i++)
-    paramList.shareParameter(ConfiguredParameter::create(context, indParamColl[i]));
+  // get all members of the collection and link then to Configured Objects
+  CollectionNodes collNodes(context, SPC);
 
-  // Share dependencies with aliased parameters
 
-  for (size_t i=0;i<indParamColl.size();i++)
-  {
-    auto vs=SPC.getAlias(indParamColl[i].getName());
-    auto dep=dynamic_cast<const ConfiguredParameter*>(&paramList[i])->dependency(0);
-    for (const auto& s:vs)
-    {
-      auto newacp = ConfiguredParameter::create(context, {dep}, SPC.getParameter(s));
-      paramList.shareParameter(newacp);
-    }
-  }
-  
+  // the phylo members
   map<string, string> paramPhyl;
   paramPhyl.insert(params.begin(), params.end());
   vector<string> phylosName = ApplicationTools::matchingParameters("phylo*", paramPhyl);
@@ -2387,7 +2371,7 @@ PhyloLikelihoodContainer* PhylogeneticsApplicationTools::getPhyloLikelihoodConta
 
     if (SPC.hasSubstitutionProcessNumber(nProcess))
     {
-      auto l = std::make_shared<LikelihoodCalculationSingleProcess>(context, *data, SPC.getSubstitutionProcess(nProcess), paramList);
+      auto l = std::make_shared<LikelihoodCalculationSingleProcess>(collNodes, *data, nProcess);
       nPL = new SingleProcessPhyloLikelihood(context, l, nProcess, nData);
     }
     else if (mSeqEvol.find(nProcess) != mSeqEvol.end())
@@ -2398,33 +2382,33 @@ PhyloLikelihoodContainer* PhylogeneticsApplicationTools::getPhyloLikelihoodConta
       OneProcessSequenceEvolution* opse = dynamic_cast<OneProcessSequenceEvolution*>(mSeqEvol[nProcess]);
 
       if (opse != NULL)
-        nPL = new OneProcessSequencePhyloLikelihood(context, *data, *opse, nProcess, nData, true, compression == 'R');
+        nPL = new OneProcessSequencePhyloLikelihood(*data, *opse, collNodes, nProcess, nData, true, compression == 'R');
       else
       {
         MixtureSequenceEvolution* mse = dynamic_cast<MixtureSequenceEvolution*>(mSeqEvol[nProcess]);
 
         if (mse != NULL)
-          nPL = new MixtureProcessPhyloLikelihood(context, *data, *mse, nProcess, nData, true, compression == 'R');
+          nPL = new MixtureProcessPhyloLikelihood(*data, *mse, collNodes, nProcess, nData, true, compression == 'R');
 
         else
         {
           HmmSequenceEvolution* hse = dynamic_cast<HmmSequenceEvolution*>(mSeqEvol[nProcess]);
 
           if (hse != NULL)
-            nPL = new HmmProcessPhyloLikelihood(context, *data, *hse, nProcess, nData, true, compression == 'R');
+            nPL = new HmmProcessPhyloLikelihood(*data, *hse, collNodes, nProcess, nData, true, compression == 'R');
 
           else
           {
             AutoCorrelationSequenceEvolution* ase = dynamic_cast<AutoCorrelationSequenceEvolution*>(mSeqEvol[nProcess]);
 
             if (ase != NULL)
-              nPL = new AutoCorrelationProcessPhyloLikelihood(context, *data, *ase, nProcess, nData, true, compression == 'R');
+              nPL = new AutoCorrelationProcessPhyloLikelihood(*data, *ase, collNodes, nProcess, nData, true, compression == 'R');
             else
             {
               PartitionSequenceEvolution* pse = dynamic_cast<PartitionSequenceEvolution*>(mSeqEvol[nProcess]);
 
               if (pse != NULL)
-                nPL = new PartitionProcessPhyloLikelihood(context, *data, *pse, nProcess, nData, true, compression == 'R');
+                nPL = new PartitionProcessPhyloLikelihood(*data, *pse, collNodes, nProcess, nData, true, compression == 'R');
 
               else
                 throw Exception("PhylogeneticsApplicationTools::getPhyloLikelihoodContainer : Unknown Sequence Evolution.");

@@ -47,31 +47,27 @@ using namespace bpp;
 /******************************************************************************/
 
 MultiProcessSequencePhyloLikelihood::MultiProcessSequencePhyloLikelihood(
-  Context& context,
   const AlignedValuesContainer& data,
   MultiProcessSequenceEvolution& processSeqEvol,
+  CollectionNodes& collNodes,
   size_t nSeqEvol,
   size_t nData,
   bool verbose,
   bool patterns) :
-  AbstractPhyloLikelihood(context),
-  AbstractAlignedPhyloLikelihood(context, data.getNumberOfSites()),
-  AbstractSequencePhyloLikelihood(context, processSeqEvol, nSeqEvol, nData),
+  AbstractPhyloLikelihood(collNodes.getContext()),
+  AbstractAlignedPhyloLikelihood(collNodes.getContext(), data.getNumberOfSites()),
+  AbstractSequencePhyloLikelihood(collNodes.getContext(), processSeqEvol, nSeqEvol, nData),
   mSeqEvol_(processSeqEvol),
   vLikCal_()
 {
   resetParameters_(); // Do not keep the original parameters to get ConfiguredParameters
  // initialize parameters:
 
-  const SubstitutionProcessCollection& processColl = processSeqEvol.getCollection();
-
-  CollectionNodes cN(context, processColl);
-
   const vector<size_t>& nProc = processSeqEvol.getSubstitutionProcessNumbers();
   
   for (auto n:nProc)
   {
-    auto liksing = std::make_shared<LikelihoodCalculationSingleProcess>(cN,
+    auto liksing = std::make_shared<LikelihoodCalculationSingleProcess>(collNodes,
                                                                         data,
                                                                         n);
     liksing->makeLikelihoods();

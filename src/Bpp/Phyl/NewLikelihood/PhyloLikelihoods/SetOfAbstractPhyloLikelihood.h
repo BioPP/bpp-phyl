@@ -125,17 +125,7 @@ namespace bpp
        * @return if the PhyloLikelihood has been added.
        */
 
-      virtual bool addPhyloLikelihood(size_t nPhyl, const std::string& suff);
-
-      /**
-       *
-       * @brief adds all PhyloLikelihoods already stored in the
-       * PhyloLikelihoodContainer, iff their type fit.
-       *
-       * @param addSuffix true if to use specific parameters names
-       */
-
-      void addAllPhyloLikelihoods(bool addSuffix);
+      virtual bool addPhyloLikelihood(size_t nPhyl, const std::string& suff = "");
 
       /**
        *

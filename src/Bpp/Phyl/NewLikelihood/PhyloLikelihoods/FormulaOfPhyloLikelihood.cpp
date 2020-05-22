@@ -56,6 +56,12 @@ FormulaOfPhyloLikelihood::FormulaOfPhyloLikelihood(Context& context, PhyloLikeli
 {
   readFormula(formula, inCollection);
   likCal_->setLikelihoodNode(makeLikelihoods());
+
+  using bpp::DotOptions;
+  writeGraphToDot(
+    "formula.dot", {likCal_->getLikelihoodNode().get()});//, DotOptions::DetailedNodeInfo | DotOp
+
+
 }
 
 

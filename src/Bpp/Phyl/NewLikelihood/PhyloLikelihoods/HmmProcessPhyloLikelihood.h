@@ -74,9 +74,9 @@ private:
 
 public:
   HmmProcessPhyloLikelihood(
-    Context& context,
     const AlignedValuesContainer& data,
     HmmSequenceEvolution& processSeqEvol,
+    CollectionNodes& collNodes,
     size_t nSeqEvol = 0,
     size_t nData = 0,
     bool verbose = true,

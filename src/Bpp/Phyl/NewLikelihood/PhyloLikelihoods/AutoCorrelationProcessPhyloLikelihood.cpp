@@ -50,16 +50,16 @@ using namespace bpp;
 /******************************************************************************/
 
 AutoCorrelationProcessPhyloLikelihood::AutoCorrelationProcessPhyloLikelihood(
-  Context& context,
   const AlignedValuesContainer& data,
   AutoCorrelationSequenceEvolution& processSeqEvol,
+  CollectionNodes& collNodes,
   size_t nSeqEvol,
   size_t nData,
   bool verbose,
   bool patterns) :
-  AbstractPhyloLikelihood(context),
-  AbstractAlignedPhyloLikelihood(context, data.getNumberOfSites()),
-  MultiProcessSequencePhyloLikelihood(context, data, processSeqEvol, nSeqEvol, nData, verbose, patterns),
+  AbstractPhyloLikelihood(collNodes.getContext()),
+  AbstractAlignedPhyloLikelihood(collNodes.getContext(), data.getNumberOfSites()),
+  MultiProcessSequencePhyloLikelihood(data, processSeqEvol, collNodes, nSeqEvol, nData, verbose, patterns),
   Hpep_(),
   Hmm_()
 {

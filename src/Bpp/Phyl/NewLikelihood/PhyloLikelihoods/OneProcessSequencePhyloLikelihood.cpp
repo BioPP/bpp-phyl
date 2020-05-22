@@ -86,6 +86,29 @@ OneProcessSequencePhyloLikelihood::OneProcessSequencePhyloLikelihood(
   shareParameters_(likCal_->getParameters());
 }
 
+/******************************************************************************/
+
+OneProcessSequencePhyloLikelihood::OneProcessSequencePhyloLikelihood(
+  const AlignedValuesContainer& data,
+  OneProcessSequenceEvolution& evol,
+  CollectionNodes collNodes,
+  size_t nSeqEvol,
+  size_t nData,
+  bool verbose,
+  bool patterns) :
+  AbstractPhyloLikelihood(collNodes.getContext()),
+  AbstractAlignedPhyloLikelihood(collNodes.getContext(), data.getNumberOfSites()),
+  AbstractSequencePhyloLikelihood(collNodes.getContext(), evol, nData),
+  mSeqEvol_(evol),
+  likCal_()
+{
+  resetParameters_();
+  
+  likCal_ = std::make_shared<LikelihoodCalculationSingleProcess>(collNodes, data, nSeqEvol);
+  
+  shareParameters_(likCal_->getParameters());
+}
+
 
 /******************************************************************************/
 

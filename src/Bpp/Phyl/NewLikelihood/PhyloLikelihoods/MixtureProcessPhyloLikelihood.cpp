@@ -47,20 +47,19 @@ using namespace bpp;
 /******************************************************************************/
 
 MixtureProcessPhyloLikelihood::MixtureProcessPhyloLikelihood(
-  Context& context,
   const AlignedValuesContainer& data,
   MixtureSequenceEvolution& processSeqEvol,
+  CollectionNodes& collNodes,
   size_t nSeqEvol,
   size_t nData,
   bool verbose,
   bool patterns) :
-  AbstractPhyloLikelihood(context),
-  AbstractAlignedPhyloLikelihood(context, data.getNumberOfSites()),
-  MultiProcessSequencePhyloLikelihood(context, data, processSeqEvol, nSeqEvol, nData, verbose, patterns),
+  AbstractPhyloLikelihood(collNodes.getContext()),
+  AbstractAlignedPhyloLikelihood(collNodes.getContext(), data.getNumberOfSites()),
+  MultiProcessSequencePhyloLikelihood(data, processSeqEvol, collNodes, nSeqEvol, nData, verbose, patterns),
   mSeqEvol_(processSeqEvol),
-  likCal_(new AlignedLikelihoodCalculation(context))
+  likCal_(new AlignedLikelihoodCalculation(collNodes.getContext()))
 {
-
   if (vLikCal_.size()==0)
     throw Exception("MixtureProcessPhyloLikelihood::MixtureProcessPhyloLikelihood : empty singleprocesslikelihoods set.");
 
@@ -110,6 +109,7 @@ MixtureProcessPhyloLikelihood::MixtureProcessPhyloLikelihood(
 
   likCal_->setLikelihoodNode(su);
 }
+
 
 /******************************************************************************/
 
