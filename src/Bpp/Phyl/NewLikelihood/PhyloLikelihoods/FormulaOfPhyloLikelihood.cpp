@@ -167,6 +167,8 @@ ValueRef<double> FormulaOfPhyloLikelihood::makeLikelihoodsFromOperator(std::shar
     if (name.substr(0,5)=="phylo")
     {
       auto phyl  = getAbstractPhyloLikelihood((size_t)(TextTools::toInt(name.substr(5, string::npos))));
+      shareParameters_(phyl->getParameters());
+
       return phyl->getLikelihoodNode();
     }
   }

@@ -458,7 +458,7 @@ unsigned int OptimizationTools::optimizeNumericalParameters2(
   const std::string& optMethodDeriv)
 {
   DerivableSecondOrder* f = lik;
-   ParameterList pl = parameters;
+  ParameterList pl = parameters;
 
   // Shall we use a molecular clock constraint on branch lengths?
   // unique_ptr<GlobalClockTreeLikelihoodFunctionWrapper> fclock;
