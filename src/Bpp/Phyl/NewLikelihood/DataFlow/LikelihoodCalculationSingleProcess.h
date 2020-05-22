@@ -173,6 +173,7 @@ namespace bpp {
 
     };
 
+
     class ProcessNodes {
     public:
       std::shared_ptr<ProcessTree> treeNode_;
@@ -238,6 +239,10 @@ namespace bpp {
                                        const SubstitutionProcess& process,
                                        ParameterList& paramList);
 
+    LikelihoodCalculationSingleProcess(Context & context,
+                                       const SubstitutionProcess& process,
+                                       ParameterList& paramList);
+
     /*
      * @brief Build using Nodes of CollectionNodes.
      *
@@ -248,6 +253,9 @@ namespace bpp {
 
     LikelihoodCalculationSingleProcess(CollectionNodes& collection,
                                        const AlignedValuesContainer & sites,
+                                       size_t nProcess);
+    
+    LikelihoodCalculationSingleProcess(CollectionNodes& collection,
                                        size_t nProcess);
     
     LikelihoodCalculationSingleProcess(const LikelihoodCalculationSingleProcess& lik);
@@ -281,7 +289,6 @@ namespace bpp {
       
     void setClockLike(double rate=1);
 
-
     /**************************************************/
 
     /*
@@ -292,7 +299,7 @@ namespace bpp {
       
     void makeLikelihoods()
     {
-      if (!shrunkData_)
+      if (!psites_)
         throw Exception("LikelihoodCalculationSingleProcess::makeLikelihoods : data not set.");
         
       makeLikelihoodsAtRoot_();
@@ -326,9 +333,9 @@ namespace bpp {
 
     size_t getNumberOfDistinctSites() const
     {
-      return shrunkData_?shrunkData_->getNumberOfSites():0;
+      return shrunkData_?shrunkData_->getNumberOfSites():getNumberOfSites();
     }
-
+ 
     /*
      * @brief Return the ref to the SubstitutionProcess
      *
@@ -373,7 +380,7 @@ namespace bpp {
      
     size_t getRootArrayPosition(size_t currentPosition) const
     {
-      return rootPatternLinks_->getTargetValue()(currentPosition);
+      return rootPatternLinks_?rootPatternLinks_->getTargetValue()(currentPosition):currentPosition;
     }
     
     const PatternType& getRootArrayPositions() const { return rootPatternLinks_->getTargetValue(); }
@@ -391,7 +398,10 @@ namespace bpp {
       
     ValueRef<Eigen::RowVectorXd> expandVector(ValueRef<Eigen::RowVectorXd> vector)
     {
-      return CWisePattern<Eigen::RowVectorXd>::create(getContext_(),{vector,rootPatternLinks_}, rowVectorDimension (Eigen::Index (getData()->getNumberOfSites())));
+      if (!rootPatternLinks_)
+        return vector;
+      else
+        return CWisePattern<Eigen::RowVectorXd>::create(getContext_(),{vector,rootPatternLinks_}, rowVectorDimension (Eigen::Index (getData()->getNumberOfSites())));
     }
 
     /*
@@ -403,7 +413,10 @@ namespace bpp {
       
     ValueRef<Eigen::MatrixXd> expandMatrix(ValueRef<Eigen::MatrixXd> matrix)
     {
-      return CWisePattern<Eigen::MatrixXd>::create(getContext_(),{matrix,rootPatternLinks_}, MatrixDimension (matrix->getTargetValue().rows(), Eigen::Index (getData()->getNumberOfSites())));
+      if (!rootPatternLinks_)
+        return matrix;
+      else
+        return CWisePattern<Eigen::MatrixXd>::create(getContext_(),{matrix,rootPatternLinks_}, MatrixDimension (matrix->getTargetValue().rows(), Eigen::Index (getData()->getNumberOfSites())));
     }
 
     /*

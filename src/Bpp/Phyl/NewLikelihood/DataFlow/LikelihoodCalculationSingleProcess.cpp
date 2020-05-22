@@ -66,6 +66,22 @@ LikelihoodCalculationSingleProcess::LikelihoodCalculationSingleProcess(Context &
 }
 
 
+LikelihoodCalculationSingleProcess::LikelihoodCalculationSingleProcess(Context & context,
+                                                                       const SubstitutionProcess& process,
+                                                                       ParameterList& paramList):
+  AlignedLikelihoodCalculation(context),
+  process_(process), psites_(),
+  rootPatternLinks_(), rootWeights_(), shrunkData_(),
+  processNodes_(), rFreqs_(),
+  vRateCatTrees_(), condLikelihoodTree_(0)
+{
+  makeProcessNodes_(paramList);
+
+  // Default Derivate 
+  setNumericalDerivateConfiguration(0.001, NumericalDerivativeType::ThreePoints);
+}
+
+
 LikelihoodCalculationSingleProcess::LikelihoodCalculationSingleProcess(CollectionNodes& collection,
                                                                        const AlignedValuesContainer & sites,
                                                                        size_t nProcess):
@@ -80,6 +96,21 @@ LikelihoodCalculationSingleProcess::LikelihoodCalculationSingleProcess(Collectio
   // Default Derivate 
   setNumericalDerivateConfiguration(0.001, NumericalDerivativeType::ThreePoints);
 }
+
+
+LikelihoodCalculationSingleProcess::LikelihoodCalculationSingleProcess(CollectionNodes& collection,
+                                                                       size_t nProcess):
+  AlignedLikelihoodCalculation(collection.getContext()), process_(collection.getCollection().getSubstitutionProcess(nProcess)), psites_(),
+  rootPatternLinks_(), rootWeights_(), shrunkData_(),
+  processNodes_(), rFreqs_(),
+  vRateCatTrees_(), condLikelihoodTree_(0)
+{
+  makeProcessNodes_(collection, nProcess);
+
+  // Default Derivate 
+  setNumericalDerivateConfiguration(0.001, NumericalDerivativeType::ThreePoints);
+}
+
 
 LikelihoodCalculationSingleProcess::LikelihoodCalculationSingleProcess(const LikelihoodCalculationSingleProcess& lik) :
   AlignedLikelihoodCalculation(lik),
@@ -399,7 +430,11 @@ void LikelihoodCalculationSingleProcess::makeForwardLikelihoodTree_()
       vRateCatTrees_[nCat].phyloTree=treeCat;      
 
       auto flt=std::make_shared<ForwardLikelihoodTree>(getContext_(), treeCat, getStateMap());
-      flt->initialize(*getShrunkData());
+      if (getShrunkData())
+        flt->initialize(*getShrunkData());
+      else
+        flt->initialize(*psites_);
+      
       vRateCatTrees_[nCat].flt=flt;
     }
   }
@@ -409,7 +444,10 @@ void LikelihoodCalculationSingleProcess::makeForwardLikelihoodTree_()
     vRateCatTrees_[0].phyloTree=processNodes_.treeNode_;
 
     auto flt=std::make_shared<ForwardLikelihoodTree >(getContext_(), processNodes_.treeNode_, processNodes_.modelNode_->getTargetValue()->getStateMap());
-    flt->initialize(*getShrunkData());
+    if (getShrunkData())
+      flt->initialize(*getShrunkData());
+    else
+      flt->initialize(*psites_);
     vRateCatTrees_[0].flt=flt;
   }
 }
@@ -420,7 +458,7 @@ void LikelihoodCalculationSingleProcess::makeLikelihoodsAtRoot_()
   if (vRateCatTrees_.size()==0)
     makeForwardLikelihoodTree_();
 
-  std::size_t nbSite = getShrunkData()->getNumberOfSites();    
+  std::size_t nbSite = getNumberOfDistinctSites();    
 
   // Set root frequencies
   if (rFreqs_==0)
@@ -454,13 +492,16 @@ void LikelihoodCalculationSingleProcess::makeLikelihoodsAtRoot_()
   }
 
   // likelihoods per site
-
   setSiteLikelihoods(expandVector(patternedSiteLikelihoods_), false);
 
-  likelihood_ =
-    SumOfLogarithms<Eigen::RowVectorXd>::create (getContext_(), {patternedSiteLikelihoods_, rootWeights_}, rowVectorDimension (Eigen::Index (nbSite)));
+  if (rootPatternLinks_)
+    setLikelihoodNode(SumOfLogarithms<Eigen::RowVectorXd>::create (getContext_(), {patternedSiteLikelihoods_, rootWeights_}, rowVectorDimension (Eigen::Index (nbSite))));
+  else
+    setLikelihoodNode(SumOfLogarithms<Eigen::RowVectorXd>::create (getContext_(), {patternedSiteLikelihoods_}, rowVectorDimension (Eigen::Index (nbSite))));
+    
 
-  // using bpp::DotOptions;
+
+// using bpp::DotOptions;
   // writeGraphToDot(
   //   "debug_lik.dot", {likelihood_.get()});//, DotOptions::DetailedNodeInfo | DotOp
 }
@@ -479,7 +520,7 @@ void LikelihoodCalculationSingleProcess::makeLikelihoodsAtNode_(uint speciesId)
     makeRootFreqs_();
   
   const auto& stateMap = getStateMap();
-  size_t nbSite = getShrunkData()->getNumberOfSites();
+  size_t nbSite = getNumberOfDistinctSites();
   size_t nbState = stateMap.getNumberOfModelStates();
   MatrixDimension likelihoodMatrixDim = conditionalLikelihoodDimension (nbState, nbSite);
 
@@ -608,7 +649,7 @@ std::shared_ptr<SiteLikelihoodsTree> LikelihoodCalculationSingleProcess::getSite
   if (!shrunkData_)
     throw Exception("LikelihoodCalculationSingleProcess::getSiteLikelihoodsTree : data not set.");
         
-  if (!likelihood_)
+  if (!getLikelihoodNode_())
     makeLikelihoodsAtRoot_();
   
   if (vRateCatTrees_[nCat].lt==0)
