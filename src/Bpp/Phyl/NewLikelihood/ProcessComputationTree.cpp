@@ -211,7 +211,7 @@ void ProcessComputationTree::_build_following_scenario(shared_ptr<ProcessComputa
       {
         sonnode->setProperty("event", NodeEvent::mixtureEvent);
 
-        auto vedge=std::make_shared<ProcessComputationEdge>(nullptr, 0, sonInd, false);
+        auto vedge=std::make_shared<ProcessComputationEdge>(nullptr, 0, sonInd, true);
         link(father,sonnode,vedge);
         addEdgeIndex(vedge);
 
