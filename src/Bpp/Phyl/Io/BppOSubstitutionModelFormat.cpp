@@ -778,7 +778,8 @@ SubstitutionModel* BppOSubstitutionModelFormat::readSubstitionModel(
           throw Exception("'nbrAxes' argument missing to define the number of axis of the Correspondence Analysis.");
         //Now we create the Coala model:
         model.reset(new Coala(alpha, *nestedModel, TextTools::to<unsigned int>(nbrOfParametersPerBranch)));
-        model->setFreqFromData(*data);
+        if (data)
+          model->setFreqFromData(*data);
       }
       else
         throw Exception("Model '" + modelName + "' is unknown, or does not fit proteic alphabet.");      

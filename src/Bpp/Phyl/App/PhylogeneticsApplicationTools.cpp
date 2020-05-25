@@ -956,7 +956,12 @@ map<size_t, std::shared_ptr<BranchModel>> PhylogeneticsApplicationTools::getBran
     if (args.find("data") != args.end())
       nData = (size_t) TextTools::toInt(args["data"]);
 
-    shared_ptr<BranchModel> model(bIO.readBranchModel(alphabet, modelDescription, (args.find("data") != args.end()) ? mData.find(nData)->second : 0, true));
+    
+    shared_ptr<BranchModel> model;
+    if (args.find("data") != args.end() && mData.find(nData)!= mData.end())
+      model = shared_ptr<BranchModel>(bIO.readBranchModel(alphabet, modelDescription, mData.find(nData)->second, true));
+    else
+      model = shared_ptr<BranchModel>(bIO.readBranchModel(alphabet, modelDescription, 0, true));
     
     map<string, string> tmpUnparsedParameterValues(bIO.getUnparsedArguments());
 
