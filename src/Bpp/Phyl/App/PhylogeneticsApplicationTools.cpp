@@ -1849,6 +1849,8 @@ bool PhylogeneticsApplicationTools::addSubstitutionProcessCollectionMember(
       ApplicationTools::displayResult (" Rate number", TextTools::toString(numRate));
       if (!stationarity)
         ApplicationTools::displayResult (" Root frequencies number", TextTools::toString(numFreq));
+      else
+        ApplicationTools::displayMessage(" Stationarity assumed.");
     }
 
     if (stationarity)
@@ -1882,6 +1884,9 @@ bool PhylogeneticsApplicationTools::addSubstitutionProcessCollectionMember(
       ApplicationTools::displayResult (" Rate number", TextTools::toString(numRate));
       if (!stationarity)
         ApplicationTools::displayResult (" Root frequencies number", TextTools::toString(numFreq));
+      else
+        ApplicationTools::displayMessage(" Stationarity assumed.");
+      
       for (const auto& sP : sharedParameters)
         ApplicationTools::displayResult(" Shared parameter", sP);
     }
